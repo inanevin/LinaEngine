@@ -28,10 +28,7 @@ SOFTWARE.
 
 #include "Serialization/Endianness.hpp"
 
-namespace Lina::Serialization
+namespace Lina
 {
-    bool ShouldSwap()
-    {
-        return std::endian::native == std::endian::big;
-    }
-} // namespace Lina::Serialization
+
+} // namespace Lina

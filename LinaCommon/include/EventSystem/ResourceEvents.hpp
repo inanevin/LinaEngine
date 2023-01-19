@@ -32,7 +32,7 @@ SOFTWARE.
 #define ResourceEvents_HPP
 
 // Headers here.
-#include "Utility/StringId.hpp"
+#include "Core/StringID.hpp"
 
 namespace Lina::Event
 {

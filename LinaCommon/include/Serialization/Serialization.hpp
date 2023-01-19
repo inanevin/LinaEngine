@@ -31,64 +31,18 @@ SOFTWARE.
 #ifndef Serialization_HPP
 #define Serialization_HPP
 
-#include "Archive.hpp"
-#include "Compressor.hpp"
-#include "Data/Streams.hpp"
-#include "Data/String.hpp"
-#include "Utility/UtilityFunctions.hpp"
-#include "Log/Log.hpp"
+namespace Lina
+{
+    class OStream;
+    class IStream;
 
-#define CLASS_VERSION(X, VER)                                                                                                                                                                                                                                      \
-    template <> uint32 GetClassVersion<X>()                                                                                                                                                                                                                        \
-    {                                                                                                                                                                                                                                                              \
-        return VER;                                                                                                                                                                                                                                                \
+    class Serialization
+    {
+    public:
+        static bool    SaveToFile(const char* path, OStream& stream);
+        static IStream LoadFromFile(const char* path);
     };
 
-namespace Lina::Serialization
-{
-
-#define COMPRESS_MIN_LIMIT 1000
-
-    extern void             SaveArchiveToFile(const String& path, Archive<OStream>& archive);
-    extern Archive<IStream> LoadArchiveFromFile(const String& path);
-
-    template <typename T> void SaveToFile(const String& path, T& obj)
-    {
-        if (Utility::FileExists(path))
-            Utility::DeleteFileInPath(path);
-
-        // Create
-        Archive<OStream> arch;
-        arch.GetStream().CreateReserveFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, sizeof(T));
-
-        // Write obj
-        arch(obj);
-
-        SaveArchiveToFile(path, arch);
-    }
-
-    template <typename T> void LoadFromFile(const String& path, T& obj)
-    {
-        Archive<IStream> arch = LoadArchiveFromFile(path);
-
-        // Read objects.
-        arch(obj);
-        arch.GetStream().Destroy();
-    }
-
-    template <typename T> void SaveToFile(const String& path)
-    {
-        T obj = T();
-        SaveToFile(path, obj);
-    }
-
-    template <typename T> T LoadFromFile(const char* path)
-    {
-        T obj = T();
-        LoadFromFile(path, obj);
-        return obj;
-    }
-
-} // namespace Lina::Serialization
+} // namespace Lina
 
 #endif

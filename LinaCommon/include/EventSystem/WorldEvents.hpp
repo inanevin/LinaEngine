@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef WorldEvents_HPP
 #define WorldEvents_HPP
 
-#include "Utility/StringId.hpp"
+#include "Core/StringID.hpp"
 
 namespace Lina
 {

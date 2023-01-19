@@ -41,13 +41,8 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Queue.hpp"
-#include "Utility/StringId.hpp"
+#include "Core/StringID.hpp"
 #include <source_location>
-
-namespace Graphics
-{
-    class Backend;
-}
 
 namespace Lina
 {
@@ -55,7 +50,7 @@ namespace Lina
     {
     public:
         String         threadName = "";
-        StringID   threadID   = 0;
+        StringID       threadID   = 0;
         String         name       = "";
         double         durationNS = 0.0;
         double         startTime  = 0.0;
@@ -124,9 +119,10 @@ namespace Lina
     class Profiler
     {
     public:
-        static Profiler* Get()
+        static Profiler& Get()
         {
-            return s_instance;
+            static Profiler instance;
+            return instance;
         }
 
         DeviceMemoryInfo QueryMemoryInfo();
@@ -141,24 +137,22 @@ namespace Lina
         void             DumpMemoryLeaks(const String& path);
         void             DumpFrameAnalysis(const String& path);
         void             WriteScopeData(String& indent, Scope* scope, std::ofstream& file);
-        inline void      SetGPUInfo(const DeviceGPUInfo& info)
+
+        inline void SetGPUInfo(const DeviceGPUInfo& info)
         {
             m_gpuInfo = info;
         }
-        static Profiler* s_instance;
 
     private:
+        Profiler() = default;
+        ~Profiler();
+
         void CaptureTrace(MemAllocationInfo& info);
-
-    private:
-        friend class Application;
-        friend class Engine;
-
-        void Initialize();
         void Shutdown();
         void CleanupFrame(Frame& frame);
         void CleanupScope(Scope* s);
 
+    private:
         double                                    m_totalFrameTimeNS = 0.0;
         Queue<Frame>                              m_frames;
         ParallelHashMap<void*, MemAllocationInfo> m_memAllocations;
@@ -172,16 +166,15 @@ namespace Lina
         DeviceGPUInfo                             m_gpuInfo;
     };
 
-#define PROFILER_FRAME_START()                      Profiler::Get()->StartFrame()
-#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME) Profiler::Get()->StartScope(SCOPENAME, THREADNAME)
-#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)   Profiler::Get()->EndScope(SCOPENAME, THREADNAME)
+#define PROFILER_FRAME_START()                      Profiler::Get().StartFrame()
+#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME) Profiler::Get().StartScope(SCOPENAME, THREADNAME)
+#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)   Profiler::Get().EndScope(SCOPENAME, THREADNAME)
 #define PROFILER_FUNC(...)                          Function func(__FUNCTION__, __VA_ARGS__)
-#define PROFILER_DUMP_LEAKS(PATH)                   Profiler::Get()->DumpMemoryLeaks(PATH)
-#define PROFILER_ALLOC(PTR, SZ)                     Profiler::Get()->OnAllocation(PTR, SZ)
-#define PROFILER_VRAMALLOC(PTR, SZ)                 Profiler::Get()->OnVRAMAllocation(PTR, SZ)
-#define PROFILER_FREE(PTR)                          Profiler::Get()->OnFree(PTR)
-#define PROFILER_VRAMFREE(PTR)                      Profiler::Get()->OnVRAMFree(PTR)
-#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)          Profiler::Get()->DumpFrameAnalysis(PATH)
+#define PROFILER_ALLOC(PTR, SZ)                     Profiler::Get().OnAllocation(PTR, SZ)
+#define PROFILER_VRAMALLOC(PTR, SZ)                 Profiler::Get().OnVRAMAllocation(PTR, SZ)
+#define PROFILER_FREE(PTR)                          Profiler::Get().OnFree(PTR)
+#define PROFILER_VRAMFREE(PTR)                      Profiler::Get().OnVRAMFree(PTR)
+#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)          Profiler::Get().DumpFrameAnalysis(PATH)
 #define PROFILER_THREAD_RENDER                      "Render"
 #define PROFILER_THREAD_MAIN                        "Main"
 
@@ -193,7 +186,6 @@ namespace Lina
 #define PROFILER_SCOPE_START(SCOPENAME, THREADNAME)
 #define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)
 #define PROFILER_FUNC(...)
-#define PROFILER_DUMP_LEAKS(PATH)
 #define PROFILER_ALLOC(PTR, SZ)
 #define PROFILER_VRAMALLOC(PTR, SZ)
 #define PROFILER_FREE(PTR)

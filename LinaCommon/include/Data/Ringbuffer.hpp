@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Lina
 {
-    // Lock-free ring buffer using a fixed-size array and atomic indices
     template <typename T, typename int N> class RingBuffer
     {
     public:
@@ -44,43 +43,28 @@ namespace Lina
         {
         }
 
-        // Push an element to the end of the buffer
         void Push(const T& element)
         {
-            // Get the next write index
             int wi     = writeIndex.load(std::memory_order_relaxed);
             int nextWI = (wi + 1) % N;
 
-            // Spin until there is space in the buffer
             while (nextWI == readIndex.load(std::memory_order_acquire))
             {
-                // Optional: do something else while waiting
-                int a = 5;
             }
 
-            // Write the element to the buffer
             buffer[wi] = element;
-
-            // Increment the write index
             writeIndex.store(nextWI, std::memory_order_release);
         }
 
-        // Pop an element from the front of the buffer
         bool Pop(T* element)
         {
-            // Get the next read index
             int ri = readIndex.load(std::memory_order_relaxed);
 
-            // Check if the buffer is empty
             if (ri == writeIndex.load(std::memory_order_acquire))
                 return false;
 
-            // Read the element from the buffer
             *element = buffer[ri];
-
-            // Increment the read index
             readIndex.store((ri + 1) % N, std::memory_order_release);
-
             return true;
         }
 

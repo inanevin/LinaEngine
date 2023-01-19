@@ -33,16 +33,13 @@ namespace Lina
 {
     class OStream;
     class IStream;
-} // namespace Lina
 
-namespace Lina::Serialization
-{
     class Compressor
     {
     public:
         static OStream Compress(const OStream& stream);
         static IStream Decompress(IStream& stream, size_t decompressedBound);
     };
-}; // namespace Lina::Serialization
+}; // namespace Lina
 
 #endif

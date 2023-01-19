@@ -27,72 +27,77 @@ SOFTWARE.
 */
 
 #include "Serialization/Serialization.hpp"
-#include <iostream>
-#include <fstream>
-#include <filesystem>
-namespace Lina::Serialization
+#include "FileSystem/FileSystem.hpp"
+#include "Serialization/Compressor.hpp"
+#include "Serialization/SerializationCommon.hpp"
+
+namespace Lina
 {
-    void SaveArchiveToFile(const String& path, Archive<OStream>& archive)
+#define COMPRESS_MIN_LIMIT 1000
+
+    bool Serialization::SaveToFile(const char* path, OStream& stream)
     {
-        std::ofstream wf(path.c_str(), std::ios::out | std::ios::binary);
+        std::ofstream wf(path, std::ios::out | std::ios::binary);
 
         if (!wf)
         {
             LINA_ERR("[Serialization] -> Could not open file for writing! {0}", path);
-            return;
+            return false;
         }
 
-        if (Utility::FileExists(path))
-            Utility::DeleteFileInPath(path);
+        if (FileSystem::FileExists(path))
+            FileSystem::DeleteFileInPath(path);
 
-        const uint32 archiveSize = static_cast<uint32>(archive.GetStream().GetCurrentSize());
+        const uint32 streamSize = static_cast<uint32>(stream.GetCurrentSize());
 
         // Compress if between 750 kb and 150 megabytes
-        uint8 shouldCompress = (archiveSize < 150000000 && archiveSize > 750000) ? 1 : 0;
-        archive(shouldCompress);
+        uint8 shouldCompress = (streamSize < 150000000 && streamSize > 750000) ? 1 : 0;
+        stream << shouldCompress;
 
         // Uncompressed data size
-        const uint32 size = archiveSize + sizeof(uint8) + sizeof(uint32);
-        archive(size);
+        const uint32 size = streamSize + sizeof(uint8) + sizeof(uint32);
+        stream << size;
 
         if (shouldCompress)
         {
-            OStream compressed = Compressor::Compress(archive.GetStream());
-            archive.GetStream().Destroy();
-            compressed.WriteToStream(wf);
+            OStream compressed = Compressor::Compress(stream);
+            stream.Destroy();
+            compressed.WriteToOFStream(wf);
             wf.close();
             compressed.Destroy();
         }
         else
         {
-            archive.GetStream().WriteToStream(wf);
+            stream.WriteToOFStream(wf);
             wf.close();
-            archive.GetStream().Destroy();
+            stream.Destroy();
         }
 
         if (!wf.good())
         {
             LINA_ERR("[Serialization] -> Error occured while writing the file! {0}", path);
-            return;
+            return false;
         }
+
+        return true;
     }
 
-    Archive<IStream> LoadArchiveFromFile(const String& path)
+    IStream Serialization::LoadFromFile(const char* path)
     {
-        std::ifstream rf(path.c_str(), std::ios::out | std::ios::binary);
+        std::ifstream rf(path, std::ios::out | std::ios::binary);
 
         if (!rf)
         {
             LINA_ERR("[Serialization] -> Could not open file for reading! {0}", path);
-            return Archive<IStream>();
+            return IStream();
         }
 
-        auto size = std::filesystem::file_size(path.c_str());
+        auto size = std::filesystem::file_size(path);
 
         // Create
         IStream readStream;
-        readStream.CreateFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, size);
-        readStream.ReadFromStream(rf);
+        readStream.CreateFromPreAllocated(LINA_SERIALIZATION_LINEARBLOCK_SID, size);
+        readStream.ReadFromIFStream(rf);
         rf.close();
 
         if (!rf.good())
@@ -106,18 +111,14 @@ namespace Lina::Serialization
         readStream.Read(uncompressedSize);
         readStream.Seek(0);
 
-        Archive<IStream> arch;
-
         if (shouldDecompress)
         {
             IStream decompressedStream = Compressor::Decompress(readStream, static_cast<size_t>(uncompressedSize));
-            arch.SetStream(decompressedStream);
             readStream.Destroy();
+            return decompressedStream;
         }
         else
-            arch.SetStream(readStream);
-
-        return arch;
+            return readStream;
     }
 
-} // namespace Lina::Serialization
+} // namespace Lina

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,8 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 #pragma once
 
 #ifndef DataStructuresString_HPP
@@ -39,25 +37,26 @@ SOFTWARE.
 #include <fmt/format.h>
 #endif
 
-#include <functional>
+
 namespace Lina
 {
     typedef eastl::string String;
 
-    #define TO_STRING(...) eastl::to_string(__VA_ARGS__)
+#define TO_STRING(...) eastl::to_string(__VA_ARGS__)
 
 } // namespace Lina
 
-template<> struct std::hash<eastl::string> {
-    std::size_t operator()(eastl::string const& s) const noexcept {
+template <> struct std::hash<eastl::string>
+{
+    std::size_t operator()(eastl::string const& s) const noexcept
+    {
         return eastl::hash<eastl::string>()(s);
     }
 };
 
 #ifdef LINA_ENABLE_LOGGING
 
-template <>
-struct fmt::formatter<eastl::string>
+template <> struct fmt::formatter<eastl::string>
 {
     // Presentation format: 'f' - fixed, 'e' - exponential.
     char presentation = 'f';
@@ -95,8 +94,7 @@ struct fmt::formatter<eastl::string>
 
     // Formats the point p using the parsed format specification (presentation)
     // stored in this formatter.
-    template <typename FormatContext>
-    auto format(const eastl::string& str, FormatContext& ctx) const -> decltype(ctx.out())
+    template <typename FormatContext> auto format(const eastl::string& str, FormatContext& ctx) const -> decltype(ctx.out())
     {
         // ctx.out() is an output iterator to write to.
         return fmt::format_to(ctx.out(), str.c_str());

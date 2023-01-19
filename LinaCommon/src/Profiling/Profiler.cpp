@@ -31,8 +31,8 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Core/Time.hpp"
 #include "Memory/Memory.hpp"
-#include "Utility/UtilityFunctions.hpp"
 #include "Log/Log.hpp"
+#include "FileSystem/FileSystem.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -49,8 +49,6 @@ SOFTWARE.
 
 namespace Lina
 {
-    Profiler* Profiler::s_instance = nullptr;
-
 #define QUERY_CPU_INTERVAL_SECS 2
 
     DeviceMemoryInfo Profiler::QueryMemoryInfo()
@@ -255,18 +253,18 @@ namespace Lina
     {
         ScopeName  = funcName;
         threadName = thread;
-        Profiler::Get()->StartScope(funcName, thread);
+        Profiler::Get().StartScope(funcName, thread);
     }
 
     Function::~Function()
     {
-        Profiler::Get()->EndScope(ScopeName, threadName);
+        Profiler::Get().EndScope(ScopeName, threadName);
     }
 
     void Profiler::DumpMemoryLeaks(const String& path)
     {
-        if (Utility::FileExists(path))
-            Utility::DeleteFileInPath(path);
+        if (FileSystem::FileExists(path))
+            FileSystem::DeleteFileInPath(path);
 
         std::ofstream file(path.c_str());
 
@@ -381,8 +379,8 @@ namespace Lina
 
     void Profiler::DumpFrameAnalysis(const String& path)
     {
-        if (Utility::FileExists(path))
-            Utility::DeleteFileInPath(path);
+        if (FileSystem::FileExists(path))
+            FileSystem::DeleteFileInPath(path);
 
         std::ofstream file(path.c_str());
 
@@ -466,9 +464,9 @@ namespace Lina
 #endif
     }
 
-    void Profiler::Initialize()
+    Profiler::~Profiler()
     {
-        LINA_TRACE("[Initialization] -> Profiler {0}", typeid(*this).name());
+        Shutdown();
     }
 
     void Profiler::Shutdown()
@@ -483,6 +481,7 @@ namespace Lina
         }
         g_skipAllocTrack = false;
 
+        DumpMemoryLeaks("Lina_Memory_leaks.txt");
         LINA_TRACE("[Shutdown] -> Profiler {0}", typeid(*this).name());
 
 #ifdef LINA_PLATFORM_WINDOWS

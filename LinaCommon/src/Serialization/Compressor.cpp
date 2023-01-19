@@ -28,12 +28,12 @@ SOFTWARE.
 
 #include "Serialization/Compressor.hpp"
 #include "Data/Streams.hpp"
-#include "Serialization/ArchiveCommon.hpp"
+#include "Serialization/SerializationCommon.hpp"
 
 #define LZ4_STATIC_LINKING_ONLY_DISABLE_MEMORY_ALLOCATION
 #include <lz4/lz4.h>
 
-namespace Lina::Serialization
+namespace Lina
 {
     size_t EstimateDecompressSize(size_t compressedSize)
     {
@@ -48,7 +48,7 @@ namespace Lina::Serialization
 
         // Create stream capable of holding max compressed bytes.
         OStream compressedStream = OStream();
-        compressedStream.CreateReserveFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, compressBound);
+        compressedStream.CreateReserveFromPreAllocated(LINA_SERIALIZATION_LINEARBLOCK_SID, compressBound);
         char* dest         = (char*)compressedStream.GetDataRaw();
         char* data         = (char*)stream.GetDataRaw();
         int   bytesWritten = LZ4_compress_default(data, dest, size, compressBound);
@@ -64,7 +64,7 @@ namespace Lina::Serialization
     {
         const size_t size               = stream.GetSize();
         IStream      decompressedStream = IStream();
-        decompressedStream.CreateFromPreAllocated(SERIALIZATION_LINEARBLOCK_SID, decompressedBound);
+        decompressedStream.CreateFromPreAllocated(LINA_SERIALIZATION_LINEARBLOCK_SID, decompressedBound);
         void*     src              = stream.GetDataRaw();
         void*     ptr              = decompressedStream.GetDataRaw();
         const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, static_cast<int>(size), static_cast<int>(decompressedBound));
@@ -72,4 +72,4 @@ namespace Lina::Serialization
         decompressedStream.Shrink(static_cast<size_t>(decompressedSize));
         return decompressedStream;
     }
-} // namespace Lina::Serialization
+} // namespace Lina

@@ -38,13 +38,11 @@ namespace Lina
 {
     typedef tf::Taskflow Taskflow;
 
-    template <typename T>
-    using Future = tf::Future<T>;
+    template <typename T> using Future = tf::Future<T>;
 
     class Executor
     {
     public:
-
         inline Future<void> Run(Taskflow& flow)
         {
             return m_ex.run(flow);
@@ -55,20 +53,17 @@ namespace Lina
             m_ex.run(flow).wait();
         }
 
-        template <typename F, typename... ArgsT>
-        inline Future<void> Async(F&& f, ArgsT&&... args)
+        template <typename F, typename... ArgsT> inline Future<void> Async(F&& f, ArgsT&&... args)
         {
             return m_ex.async(f, args...);
         }
 
-        template <typename F, typename... ArgsT>
-        void SilentAsync(F&& f, ArgsT&&... args)
+        template <typename F, typename... ArgsT> void SilentAsync(F&& f, ArgsT&&... args)
         {
             m_ex.silent_async(f, args...);
         }
 
-        template <typename F, typename... ArgsT>
-        void SilentAsync(const String& name, F&& f, ArgsT&&... args)
+        template <typename F, typename... ArgsT> void SilentAsync(const String& name, F&& f, ArgsT&&... args)
         {
             m_ex.named_silent_async(name.c_str(), f, args...);
         }
@@ -108,8 +103,6 @@ namespace Lina
     private:
         friend class Engine;
 
-        void Initialize();
-        void Shutdown();
         JobSystem()  = default;
         ~JobSystem() = default;
 

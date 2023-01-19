@@ -27,8 +27,6 @@ SOFTWARE.
 */
 
 #include "Log/Log.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "EventSystem/ApplicationEvents.hpp"
 #include "Data/String.hpp"
 #include <sstream>
 
@@ -72,12 +70,28 @@ namespace Lina
 
         std::cout << msgStr.c_str() << std::endl;
 #endif
+    }
 
-        Event::ELog log;
-        log.level   = level;
-        log.message = msg;
-
-        if (Event::EventSystem::Get())
-            Event::EventSystem::Get()->Trigger<Event::ELog>(log);
+    const char* Log::GetLogLevel(LogLevel level)
+    {
+        switch (level)
+        {
+        case LogLevel::Critical:
+            return "Critical";
+        case LogLevel::Debug:
+            return "Debug";
+        case LogLevel::Error:
+            return "Error";
+        case LogLevel::Info:
+            return "Info";
+        case LogLevel::None:
+            return "None";
+        case LogLevel::Trace:
+            return "Trace";
+        case LogLevel::Warn:
+            return "Warn";
+        default:
+            return "";
+        }
     }
 } // namespace Lina

@@ -31,7 +31,6 @@ SOFTWARE.
 #ifndef DataStructuresMutex_HPP
 #define DataStructuresMutex_HPP
 
-#include "Core/PlatformMacros.hpp"
 #include <mutex>
 #include <atomic>
 

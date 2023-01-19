@@ -18,6 +18,8 @@
 cmake_minimum_required (VERSION 3.6)
 project (Lina)
 
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release;" CACHE STRING "" FORCE)
+
 #--------------------------------------------------------------------
 # Download dependencies
 #--------------------------------------------------------------------
@@ -29,7 +31,11 @@ git_clone(
 		GIT_BRANCH      master
 		DIRECTORY 	    ${CMAKE_SOURCE_DIR})
 
-		
+#--------------------------------------------------------------------
+# Options & Definitions
+#--------------------------------------------------------------------
+
+# Used by other CMake macros to determine library folders
 if(WIN32)
 	set(PLATFORM "Win64")
 endif()
@@ -38,53 +44,30 @@ if(UNIX)
 	set(PLATFORM "Unix")
 endif()
 
-#--------------------------------------------------------------------
-# Options & Definitions
-#--------------------------------------------------------------------
-#set(CMAKE_C_COMPILER /c/MinGW/bin/gcc.exe)
-#set(CMAKE_CXX_COMPILER /c/MinGW/bin/g++.exe)
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
+set(LINA_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/_bin)
 
-option(LINA_ENABLE_LOGGING "Enables console logging" ON)
-option(LINA_ENABLE_PROFILING "Enables profiling" ON)
-option(LINA_PRODUCTION_BUILD "Enable distribution ready build, disables editor." OFF)
-option(LINA_UNITY_BUILDS "Faster build times with unity builds." ON)
-
-if(LINA_UNITY_BUILDS)
-	set(UNITY_BUILD_VALUE ON)
-else()
-	set(UNITY_BUILD_VALUE OFF)
-endif()
+option(LINA_ENABLE_LOGGING "Enables logging." ON)
+option(LINA_ENABLE_PROFILING "Enables profiling." ON)
+option(LINA_PRODUCTION_BUILD "Strips all debugging functionality." OFF)
 
 set(TARGET_ARCHITECTURE "x64")
-
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 
-#--------------------------------------------------------------------
-# Set source & header dirs
-#--------------------------------------------------------------------
-set(LINAENGINE_SOURCE_DIR LinaEngine/src)
-set(LINAENGINE_HEADER_DIR LinaEngine/include)
-set(LINAENGINE_VENDOR_DIR LinaEngine/vendor)
-set(LINASANDBOX_SOURCE_DIR Sandbox/src)
-set(LINASANDBOX_HEADER_DIR Sandbox/include)
 
 #--------------------------------------------------------------------
 # Sub directories
 #--------------------------------------------------------------------
 
+file(MAKE_DIRECTORY ${LINA_WORKING_DIRECTORY})
+
 add_subdirectory(LinaCommon)
-add_subdirectory(LinaEngine)
-add_subdirectory(Sandbox)
+add_subdirectory(LinaCore)
+add_subdirectory(Sandbox_Editor)
 
-if(NOT LINA_PRODUCTION_BUILD)
-	add_subdirectory(LinaEditor)
-endif()
-
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox_Editor)
 

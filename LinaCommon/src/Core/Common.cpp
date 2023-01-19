@@ -26,8 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/CommonApplication.hpp"
-#include "Utility/UtilityCommon.hpp"
+#include "Core/Common.hpp"
 
 namespace EA
 {
@@ -62,50 +61,3 @@ namespace EA
 } // namespace EA
 
 // EASTL OPERATOR NEW[] REQUIREMENTS
-
-namespace Lina
-{
-    const char*                     ApplicationInfo::s_appName = "Lina Engine";
-    ApplicationMode                 ApplicationInfo::s_appMode = ApplicationMode::Editor;
-    
-    const char* GetLogLevel(LogLevel level)
-    {
-        switch (level)
-        {
-        case LogLevel::Critical:
-            return "Critical";
-        case LogLevel::Debug:
-            return "Debug";
-        case LogLevel::Error:
-            return "Error";
-        case LogLevel::Info:
-            return "Info";
-        case LogLevel::None:
-            return "None";
-        case LogLevel::Trace:
-            return "Trace";
-        case LogLevel::Warn:
-            return "Warn";
-        default:
-            return "";
-        }
-    }
-} // namespace Lina
-
-namespace Lina::Utility
-{
-    Folder::~Folder()
-    {
-        for (int i = 0; i < files.size(); i++)
-        {
-            delete files[i];
-        }
-
-        files.clear();
-
-        for (int i = 0; i < folders.size(); i++)
-            delete folders[i];
-
-        folders.clear();
-    }
-} // namespace Lina::Utility

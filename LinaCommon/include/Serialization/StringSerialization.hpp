@@ -32,35 +32,20 @@ SOFTWARE.
 #define StringSerialization_HPP
 
 #include "Data/String.hpp"
-#include "Archive.hpp"
 
-namespace Lina::Serialization
+namespace Lina
 {
-    template <typename Ar> void SaveOther(Ar& ar, String& str)
-    {
-        const uint32 size = static_cast<uint32>(str.size());
-        ar(size);
-        ar.GetStream().WriteEndianSafe((uint8*)str.data(), size);
-    }
+    class OStream;
+    class IStream;
 
-    template <typename Ar> void SaveOther(Ar& ar, const String& str)
+    class StringSerialization
     {
-        const uint32 size = static_cast<uint32>(str.size());
-        ar(size);
-        ar.GetStream().WriteEndianSafe((uint8*)str.data(), size);
-    }
+    public:
+        static void SaveToStream(OStream& stream, const String& str);
+        static void LoadFromStream(IStream& stream, String& str);
+    };
 
-    template <typename Ar> void LoadOther(Ar& ar, String& str)
-    {
-        uint32 size = 0;
-        ar(size);
-        void* d = MALLOC(size);
-        ar.GetStream().ReadEndianSafe(d, size);
-        String s((char*)d, size);
-        str = s;
-        FREE(d);
-    }
 
-} // namespace Lina::Serialization
+} // namespace Lina
 
 #endif

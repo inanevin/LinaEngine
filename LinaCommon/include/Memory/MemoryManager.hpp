@@ -31,161 +31,102 @@ SOFTWARE.
 #ifndef MemoryManager_HPP
 #define MemoryManager_HPP
 
-#include "Data/String.hpp"
 #include "Data/Vector.hpp"
-#include "Log/Log.hpp"
-#include "Data/Mutex.hpp"
-#include "Data/HashMap.hpp"
-#include "Utility/StringId.hpp"
-#include <memallocators/LinearAllocator.h>
-#include <memallocators/PoolAllocator.h>
-#include <memallocators/StackAllocator.h>
+#include "Data/String.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include <memallocators/Allocator.h>
 
-namespace Lina::Memory
+namespace Lina
 {
-    struct LinearBlock
-    {
-        LinearAllocator* allocator = nullptr;
-        size_t           allocated = 0;
-        size_t           maxSize   = 0;
+    class MemoryManager;
 
-        bool IsAvailable(size_t size) const
+    enum class AllocatorPoolGrowPolicy
+    {
+        NoGrow,
+        UseInitialSize,
+        UseRequestedSize,
+        UseDoubleInitialSize,
+        UseDoubledRequestedSize,
+    };
+
+    enum class AllocatorType
+    {
+        Linear,
+        Stack,
+        Pool,
+        FreeList,
+    };
+
+    struct AllocatorWrapper
+    {
+        Allocator* allocator = nullptr;
+        size_t     allocated = 0;
+        size_t     maxSize   = 0;
+
+        bool IsAvailable(size_t size)
         {
             return maxSize - allocated > size;
         }
     };
-
-    struct LinearBlockList
+    class MemoryAllocatorPool
     {
-        Vector<LinearBlock> blocks;
-        size_t              size = 0;
-    };
+    public:
+        static Allocator* CreateAllocator(AllocatorType type, size_t size, size_t userData = 0);
+        static String     GetAllocatorName(AllocatorType type);
 
-    struct PoolBlock
-    {
-        String         name       = "";
-        PoolAllocator* allocator  = nullptr;
-        size_t         allocated  = 0;
-        size_t         maxSize    = 0;
-        uint32         chunkCount = 0;
+        void* Allocate(size_t size);
+        void  Free(void* ptr, size_t size);
 
-        bool IsAvailable(size_t size) const
-        {
-            return maxSize - allocated > size;
-        }
+    protected:
+        friend class MemoryManager;
+
+        MemoryAllocatorPool(AllocatorType type, AllocatorPoolGrowPolicy growPolicy, size_t initialSize, size_t initialUserData, uint8 maxGrowSize);
+        virtual ~MemoryAllocatorPool();
+
+    private:
+        void AddAllocator(size_t size);
+
+    protected:
+        AllocatorPoolGrowPolicy  m_growPolicy      = AllocatorPoolGrowPolicy::NoGrow;
+        AllocatorType            m_type            = AllocatorType::FreeList;
+        int                      m_maxGrowSize     = 0;
+        size_t                   m_initialSize     = 0;
+        size_t                   m_initialUserData = 0;
+        uint32                   m_currentAllocator;
+        Vector<AllocatorWrapper> m_allocators;
     };
 
     class MemoryManager
     {
     public:
-        inline static MemoryManager* Get()
+        inline static MemoryManager& Get()
         {
-            return s_instance;
+            static MemoryManager instance;
+            return instance;
         }
 
-        void  CreateLinearBlockList(StringID sid, size_t size);
-        void* GetFromLinearBlockList(StringID sid, size_t size);
-        void  FlushLinearBlockList(StringID sid);
-        void  FreeLinearBlockList(StringID sid);
+        /// <summary>
+        /// For pool allocator, use size = totalSize, userData = chunkSize.
+        /// </summary>
+        /// <returns></returns>
+        MemoryAllocatorPool* CreateAllocatorPool(AllocatorType type, size_t size, AllocatorPoolGrowPolicy growPolicy, uint8 maxGrowSize = 0, size_t userData = 0);
+        void                 DestroyAllocatorPool(MemoryAllocatorPool* pool);
 
-        template <typename T> T* GetFromPoolBlock()
-        {
-            LOCK_GUARD(m_poolMtx);
+        void* AllocateGlobal(size_t size);
+        void  FreeGlobal(void* ptr, size_t size);
 
-            const TypeID tid       = GetTypeID<T>();
-            PoolBlock*   block     = nullptr;
-            uint32       poolIndex = (uint32)0;
-            const size_t size      = sizeof(T);
-
-            auto& vec = m_poolBlocks[tid];
-
-            if (vec.empty())
-            {
-                LINA_ERR("[Memory Manager] -> Could not fetch from pool block because no block exists of this type, create one first!");
-                return nullptr;
-            }
-
-            const uint32 maxSize = static_cast<uint32>(vec.size());
-            for (uint32 i = 0; i < maxSize; i++)
-            {
-                bool  found = false;
-                auto& bl    = vec[i];
-                if (bl.IsAvailable(size))
-                {
-                    block     = &bl;
-                    found     = true;
-                    poolIndex = i;
-                    break;
-                }
-                if (found)
-                    break;
-            }
-
-            if (block == nullptr)
-            {
-                PoolBlock& first = vec[0];
-                block            = CreatePoolBlock<T>(first.chunkCount, first.name);
-                poolIndex        = static_cast<uint32>(vec.size() - 1);
-            }
-
-            void* ptr = block->allocator->Allocate(size);
-            LINA_ASSERT(ptr != nullptr, "Could not allocate from block!");
-
-            block->allocated += size;
-            T* newPtr                = new (ptr) T();
-            newPtr->m_allocPoolIndex = poolIndex;
-            return newPtr;
-        }
-
-        template <typename T> void FreeFromPoolBlock(void* ptr, uint32 poolIndex)
-        {
-            PoolBlock& block = m_poolBlocks[GetTypeID<T>()][poolIndex];
-            block.allocator->Free(ptr);
-            block.allocated -= sizeof(T);
-        }
-
-        PoolBlock* CreatePoolBlock(TypeID tid, uint32 chunkSize, uint32 chunkCount, const String& blockName)
-        {
-            PoolBlock    block;
-            const size_t totalSize = static_cast<size_t>(chunkSize * chunkCount);
-            block.allocator        = new PoolAllocator(totalSize, chunkSize);
-            block.allocator->Init();
-            block.maxSize    = totalSize;
-            block.chunkCount = chunkCount;
-            block.name       = blockName;
-            m_poolBlocks[tid].push_back(block);
-            return &m_poolBlocks[tid][m_poolBlocks[tid].size() - 1];
-        }
-
-        template <typename T> PoolBlock* CreatePoolBlock(uint32 chunkCount, const String& blockName)
-        {
-            return CreatePoolBlock(GetTypeID<T>(), sizeof(T), chunkCount, blockName);
-        }
-
-        template <typename T> bool PoolBlockExists()
-        {
-            return m_poolBlocks.find(GetTypeID<T>()) != m_poolBlocks.end();
-        }
-
-    private:
         friend class Engine;
 
-        static MemoryManager* s_instance;
+        MemoryManager() = default;
+        ~MemoryManager();
 
-        MemoryManager()  = default;
-        ~MemoryManager() = default;
-
-        void  Initialize();
-        void  Shutdown();
-        void  PrintBlockInfos();
-        void* GetFromLinearBlock(LinearBlock& block, size_t size);
+        void Initialize();
+        void Shutdown();
 
     private:
-        Mutex                              m_poolMtx;
-        Mutex                              m_linearMtx;
-        HashMap<TypeID, Vector<PoolBlock>> m_poolBlocks;
-        HashMap<StringID, LinearBlockList> m_linearBlocks;
+        MemoryAllocatorPool*         m_globalPool = nullptr;
+        Vector<MemoryAllocatorPool*> m_allocatorPools;
     };
-} // namespace Lina::Memory
+} // namespace Lina
 
 #endif

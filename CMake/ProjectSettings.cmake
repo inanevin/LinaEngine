@@ -6,8 +6,10 @@ if(MSVC)
 add_definitions("/MP")
 endif()
 
-set(SANDBOX_NAME "Sandbox")
-add_definitions(-DLINA_SANDBOXNAME="${SANDBOX_NAME}")
+if(MSVC)
+   set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${LINA_WORKING_DIRECTORY})
+endif()
+
 target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
 
 #--------------------------------------------------------------------
@@ -43,10 +45,6 @@ else()
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_DEBUG=1)
 endif()
 
-if(LINA_EDITOR)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
-endif()
-
 #--------------------------------------------------------------------
 # Properties
 #--------------------------------------------------------------------
@@ -61,7 +59,7 @@ set_target_properties(
    
 # To be retrieved from git later.
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILD=0)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MAJOR=1)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MAJOR=2)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MINOR=0)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PATCH=0)
 add_definitions(-DLINA_CONFIGURATION="$<CONFIGURATION>")

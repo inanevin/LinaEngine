@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Serialization/Endianness.hpp"
 #include "Memory/Memory.hpp"
-#include "Utility/StringId.hpp"
+#include "Core/StringID.hpp"
 #include <type_traits>
 #include <iosfwd>
 
@@ -47,16 +47,15 @@ namespace Lina
         void CreateFromPreAllocated(StringID linearBlockSid, size_t size);
         void Create(uint8* data, size_t size);
         void Destroy();
-        void ReadFromStream(std::ifstream& stream);
+        void ReadFromIFStream(std::ifstream& stream);
+        void ReadEndianSafe(void* ptr, size_t size);
+        void ReadIntoRaw(void* ptr, size_t size);
 
         template <typename T> void Read(T& t)
         {
             MEMCPY(reinterpret_cast<uint8*>(&t), &m_data[m_index], sizeof(T));
             m_index += sizeof(T);
         }
-
-        void ReadEndianSafe(void* ptr, size_t size);
-        void ReadIntoRaw(void* ptr, size_t size);
 
         inline void SkipBy(size_t size)
         {
@@ -104,8 +103,8 @@ namespace Lina
     {
         istm.Read(val);
 
-        if (Serialization::ShouldSwap())
-            Serialization::SwapEndian(val);
+        if (Endianness::ShouldSwap())
+            Endianness::SwapEndian(val);
 
         return istm;
     }
@@ -119,7 +118,7 @@ namespace Lina
         void CreateReserveFromPreAllocated(StringID sid, size_t size);
         void Destroy();
         void CheckGrow(size_t sz);
-        void WriteToStream(std::ofstream& stream);
+        void WriteToOFStream(std::ofstream& stream);
         void WriteEndianSafe(const uint8* ptr, size_t size);
         void WriteRaw(const uint8* ptr, size_t size);
 
@@ -158,8 +157,8 @@ namespace Lina
     template <typename T> OStream& operator<<(OStream& stream, T& val)
     {
         auto copy = const_cast<typename std::remove_const<T>::type&>(val);
-        if (Serialization::ShouldSwap())
-            Serialization::SwapEndian(copy);
+        if (Endianness::ShouldSwap())
+            Endianness::SwapEndian(copy);
 
         stream.Write<T>(copy);
         return stream;

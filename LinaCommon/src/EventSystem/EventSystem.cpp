@@ -28,25 +28,14 @@ SOFTWARE.
 
 #include "EventSystem/EventSystem.hpp"
 
-#include "Log/Log.hpp"
-
-namespace Lina::Event
+namespace Lina
 {
-    EventSystem* EventSystem::s_eventSystem = nullptr;
-
-    void EventSystem::Initialize()
+    EventSystem::~EventSystem()
     {
-        LINA_TRACE("[Initialization] -> Event System ({0})", typeid(*this).name());
-    }
-
-    void EventSystem::Shutdown()
-    {
-        LINA_TRACE("[Shutdown] -> Event System ({0})", typeid(*this).name());
-
         for (auto& [tid, func] : m_disconnectFunctions)
             func(m_eventSinks[tid]);
 
         m_eventSinks.clear();
         m_disconnectFunctions.clear();
     }
-} // namespace Lina::Event
+} // namespace Lina

@@ -28,20 +28,9 @@ SOFTWARE.
 
 
 #include "JobSystem/JobSystem.hpp"
-#include "Log/Log.hpp"
 
 namespace Lina
 {
     JobSystem* JobSystem::s_instance = nullptr;
-
-    void JobSystem::Initialize()
-    {
-        LINA_TRACE("[Initialization] -> Job System ({0})", typeid(*this).name());
-    }
-    void JobSystem::Shutdown()
-    {
-        LINA_TRACE("[Shutdown] -> Job System ({0})", typeid(*this).name());
-    }
-
 } // namespace Lina
 

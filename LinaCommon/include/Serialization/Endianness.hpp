@@ -35,24 +35,29 @@ SOFTWARE.
 #include <algorithm>
 #include <array>
 
-namespace Lina::Serialization
+namespace Lina
 {
-
-    template <typename T>
-    void SwapEndian(T& val, typename std::enable_if<std::is_arithmetic<T>::value, std::nullptr_t>::type = nullptr)
+    class Endianness
     {
-        union U {
-            T                                   val;
-            std::array<std::uint8_t, sizeof(T)> raw;
-        } src, dst;
+    public:
+        template <typename T> static inline void SwapEndian(T& val, typename std::enable_if<std::is_arithmetic<T>::value, std::nullptr_t>::type = nullptr)
+        {
+            union U {
+                T                                   val;
+                std::array<std::uint8_t, sizeof(T)> raw;
+            } src, dst;
 
-        src.val = val;
-        std::reverse_copy(src.raw.begin(), src.raw.end(), dst.raw.begin());
-        val = dst.val;
-    }
+            src.val = val;
+            std::reverse_copy(src.raw.begin(), src.raw.end(), dst.raw.begin());
+            val = dst.val;
+        }
 
-    extern bool ShouldSwap();
+        static inline bool ShouldSwap()
+        {
+            return std::endian::native == std::endian::big;
+        }
+    };
 
-} // namespace Lina::Serialization
+} // namespace Lina
 
 #endif

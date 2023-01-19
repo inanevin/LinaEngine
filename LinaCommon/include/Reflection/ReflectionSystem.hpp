@@ -33,8 +33,8 @@ SOFTWARE.
 
 #include "Data/String.hpp"
 #include "Data/HashMap.hpp"
-#include "Utility/StringId.hpp"
-#include "Functional/Functional.hpp"
+#include "Core/StringID.hpp"
+#include "Data/Functional.hpp"
 #include <type_traits>
 
 namespace Lina::Reflection

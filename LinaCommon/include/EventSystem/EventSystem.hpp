@@ -32,52 +32,11 @@ SOFTWARE.
 
 #include "Data/HashMap.hpp"
 #include "Data/Mutex.hpp"
-#include "Functional/Functional.hpp"
-#include "Utility/StringId.hpp"
+#include "Data/Functional.hpp"
+#include "Core/StringID.hpp"
 
 namespace Lina
 {
-    class Engine;
-    class FileWatcher;
-    class Log;
-
-    namespace Editor
-    {
-        class Editor;
-        class ShortcutManager;
-    } // namespace Editor
-
-    namespace World
-    {
-        class Entity;
-        class LevelManager;
-        class Component;
-        class EntityWorld;
-    } // namespace World
-
-    namespace Resources
-    {
-        class EditorResourceLoader;
-        class ResourceLoader;
-        class ResourcePackager;
-        class ResourceUtility;
-    } // namespace Resources
-
-    namespace Graphics
-    {
-        class Renderer;
-        class WorldRenderer;
-        class SurfaceRenderer;
-        class RenderEngine;
-        class Win32Window;
-        class WindowManager;
-    } // namespace Graphics
-
-} // namespace Lina
-
-namespace Lina::Event
-{
-
     template <typename T> class EventSink
     {
     public:
@@ -123,45 +82,19 @@ namespace Lina::Event
     class EventSystem
     {
     public:
-        EventSystem()  = default;
-        ~EventSystem() = default;
-
-        inline static EventSystem* Get()
-        {
-            return s_eventSystem;
-        }
+        EventSystem() = default;
+        ~EventSystem();
 
     public:
         template <typename T, auto Candidate, typename Type> void Connect(Type* inst)
         {
-            LOCK_GUARD(m_mtx);
             GetSink<T>()->Connect<Candidate>(inst);
         }
 
         template <typename T, typename Type> void Disconnect(Type* inst)
         {
-            LOCK_GUARD(m_mtx);
             GetSink<T>()->Disconnect(inst);
         }
-
-    private:
-        friend class Engine;
-        friend class Log;
-        friend class Editor::Editor;
-        friend class Editor::ShortcutManager;
-        friend class Resources::EditorResourceLoader;
-        friend class Graphics::Renderer;
-        friend class Graphics::WorldRenderer;
-        friend class Graphics::SurfaceRenderer;
-        friend class Graphics::Win32Window;
-        friend class Graphics::WindowManager;
-        friend class Resources::ResourceLoader;
-        friend class Resources::ResourceUtility;
-        friend class Resources::ResourcePackager;
-        friend class World::Entity;
-        friend class World::LevelManager;
-        friend class World::Component;
-        friend class World::EntityWorld;
 
         template <typename T> EventSink<T>* GetSink()
         {
@@ -194,15 +127,10 @@ namespace Lina::Event
             GetSink<T>()->Trigger();
         }
 
-        void Initialize();
-        void Shutdown();
-
     private:
-        static EventSystem*             s_eventSystem;
         HashMap<TypeID, void*>          m_eventSinks;
         HashMap<TypeID, DisconnectFunc> m_disconnectFunctions;
-        Mutex                           m_mtx;
     };
-} // namespace Lina::Event
+} // namespace Lina
 
 #endif

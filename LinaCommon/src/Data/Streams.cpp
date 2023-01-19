@@ -44,7 +44,7 @@ namespace Lina
 
     void IStream::CreateFromPreAllocated(StringID linearBlockSid, size_t size)
     {
-        m_data                    = (uint8*)Memory::MemoryManager::Get()->GetFromLinearBlockList(linearBlockSid, size);
+      //  m_data                    = (uint8*)MemoryManager::Get()->GetFromLinearBlockList(linearBlockSid, size);
         m_index                   = 0;
         m_size                    = size;
         m_preAllocatedLinearBlock = linearBlockSid;
@@ -70,14 +70,14 @@ namespace Lina
         m_data  = nullptr;
     }
 
-    void IStream::ReadFromStream(std::ifstream& stream)
+    void IStream::ReadFromIFStream(std::ifstream& stream)
     {
         stream.read((char*)m_data, m_size);
     }
 
     void IStream::ReadEndianSafe(void* ptr, size_t size)
     {
-        if (Serialization::ShouldSwap())
+        if (Endianness::ShouldSwap())
         {
             uint8*        data = &m_data[m_index];
             Vector<uint8> v;
@@ -113,7 +113,7 @@ namespace Lina
 
     void OStream::CreateReserveFromPreAllocated(StringID sid, size_t size)
     {
-        m_data                    = (uint8*)Memory::MemoryManager::Get()->GetFromLinearBlockList(sid, size);
+       // m_data                    = (uint8*)MemoryManager::Get()->GetFromLinearBlockList(sid, size);
         m_totalSize               = size;
         m_currentSize             = 0;
         m_preAllocatedLinearBlock = sid;
@@ -135,7 +135,7 @@ namespace Lina
     {
         CheckGrow(size);
 
-        if (Serialization::ShouldSwap())
+        if (Endianness::ShouldSwap())
         {
             Vector<uint8> v;
             v.insert(v.end(), ptr, (ptr) + size);
@@ -175,13 +175,13 @@ namespace Lina
             }
             else
             {
-                uint8* newData = (uint8*)Memory::MemoryManager::Get()->GetFromLinearBlockList(m_preAllocatedLinearBlock, m_totalSize);
-                MEMCPY(newData, m_data, m_currentSize);
-                m_data = newData;
+             //   uint8* newData = (uint8*)MemoryManager::Get()->GetFromLinearBlockList(m_preAllocatedLinearBlock, m_totalSize);
+              ///  MEMCPY(newData, m_data, m_currentSize);
+                //m_data = newData;
             }
         }
     }
-    void OStream::WriteToStream(std::ofstream& stream)
+    void OStream::WriteToOFStream(std::ofstream& stream)
     {
         stream.write((char*)m_data, m_currentSize);
     }

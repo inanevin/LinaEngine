@@ -40,9 +40,8 @@ namespace Lina
     bool   Time::s_isTimerInitialized = false;
 #endif
 
-    double Time::s_deltaTime       = 0.0;
-    double Time::s_smoothDeltaTime = 0.0;
-    double Time::s_startTime       = 0.0;
+    double Time::s_deltaTime = 0.0;
+    double Time::s_startTime = 0.0;
 
     double Time::GetCPUTime()
     {
@@ -51,7 +50,7 @@ namespace Lina
         {
             LARGE_INTEGER li;
             if (!QueryPerformanceFrequency(&li))
-                LINA_ERR("Initialization -> QueryPerformanceFrequency failed!");
+                LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
 
             s_timerFrequency     = double(li.QuadPart);
             s_isTimerInitialized = true;
@@ -59,7 +58,7 @@ namespace Lina
 
         LARGE_INTEGER li;
         if (!QueryPerformanceCounter(&li))
-            LINA_ERR("GetTime -> QueryPerformanceCounter failed in get time!");
+            LINA_ERR("[Time] -> QueryPerformanceCounter failed in get time!");
 
         return double(li.QuadPart) / s_timerFrequency;
 #endif

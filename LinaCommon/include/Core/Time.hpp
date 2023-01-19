@@ -32,8 +32,6 @@ SOFTWARE.
 #define Timer_HPP
 
 #include <chrono>
-#include "Data/HashMap.hpp"
-#include <Data/String.hpp>
 
 namespace Lina
 {
@@ -56,16 +54,6 @@ namespace Lina
             return static_cast<float>(s_deltaTime);
         }
 
-        static inline double GetSmoothDeltaTime()
-        {
-            return s_smoothDeltaTime;
-        }
-
-        static inline float GetSmoothDeltaTimeF()
-        {
-            return static_cast<float>(s_smoothDeltaTime);
-        }
-
         static inline double GetElapsedTime()
         {
             return GetCPUTime() - s_startTime;
@@ -77,16 +65,10 @@ namespace Lina
         }
 
     private:
-        friend class Engine;
-
-        /// <summary>
-        /// Sleeps for given amount of seconds.
-        /// </summary>
         static void Sleep(double seconds);
 
     private:
         static double s_deltaTime;
-        static double s_smoothDeltaTime;
         static double s_startTime;
 
 #ifdef LINA_PLATFORM_WINDOWS
