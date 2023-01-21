@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Quaternion.hpp"
 #include "Vector.hpp"
 #include "Data/Set.hpp"
+#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
@@ -46,23 +47,19 @@ namespace Lina
 
 namespace Lina
 {
-    class Transformation
+    class Transformation : public ISerializable
     {
     public:
-        Transformation()
-            : m_position(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
+        Transformation() : m_position(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
         {
         }
-        Transformation(const Vector3& translationIn)
-            : m_position(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
+        Transformation(const Vector3& translationIn) : m_position(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
         {
         }
-        Transformation(const Quaternion& rotationIn)
-            : m_position(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f)
+        Transformation(const Quaternion& rotationIn) : m_position(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f)
         {
         }
-        Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn)
-            : m_position(translationIn), m_rotation(rotationIn), m_scale(scaleIn)
+        Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : m_position(translationIn), m_rotation(rotationIn), m_scale(scaleIn)
         {
         }
 
@@ -93,14 +90,9 @@ namespace Lina
         Vector3    m_localScale          = Vector3::One;
         Vector3    m_localRotationAngles = Vector3::Zero;
 
-        template <class Archive>
-        void Serialize(Archive& archive)
-        {
-            archive(m_position, m_rotation, m_scale, m_localPosition, m_localRotation, m_localScale, m_localRotationAngles, m_rotationAngles);
-        }
-
-    private:
-        friend class ECS::Registry;
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
 } // namespace Lina

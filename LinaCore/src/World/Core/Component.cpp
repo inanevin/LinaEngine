@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,32 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
-#pragma once
-
-#ifndef CommonReflection_HPP
-#define CommonReflection_HPP
-
-// Headers here.
+#include "World/Core/Component.hpp"
+#include "EventSystem/EventSystem.hpp"
+#include "EventSystem/MainLoopEvents.hpp"
+#include "EventSystem/WorldEvents.hpp"
 
 namespace Lina
 {
+    void Component::OnComponentCreated()
+    {
+    }
 
-// Title
-#define LINA_CLASS(Title)
+    void Component::OnComponentDestroyed()
+    {
+    }
 
-// IsAbstract is used to exclude certain reflection functions from registering to the type, such as creation & deletion.
-// Mark your abstract classes w/ "True" for the reflection to work w/o compiler errors.
-// 
-// ChunkSize is used to know how much memory pool chunk will be allocated for the component. Empty will default to default value.
-// Keep it the size of components you expect to be alive in a single world instance.
-
-// Title, Category, optionals = IsAbstract, ChunkSize
-#define LINA_COMPONENT(Title, Category, ...)
-
-// Title, Type, Tooltip, Dependency, Category
-#define LINA_FIELD(...)
-}
-
-#endif
+} // namespace Lina

@@ -40,7 +40,7 @@ namespace Lina
     {
     public:
         static bool    SaveToFile(const char* path, OStream& stream);
-        static IStream LoadFromFile(const char* path);
+        static IStream LoadFromFile(const char* path, MemoryAllocatorPool* allocator = nullptr);
     };
 
 } // namespace Lina

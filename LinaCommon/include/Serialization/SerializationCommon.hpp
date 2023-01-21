@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-#define LINA_SERIALIZATION_LINEARBLOCK_SID TO_SIDC("Lina_SerializationLinearBlock")
 
 } // namespace Lina
 

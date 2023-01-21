@@ -34,13 +34,15 @@ namespace Lina
     {
         for (int i = 0; i < files.size(); i++)
         {
-            delete files[i];
+            LDEL_OBJ(files[i], File);
         }
 
         files.clear();
 
         for (int i = 0; i < folders.size(); i++)
-            delete folders[i];
+        {
+            LDEL_OBJ(folders[i], Folder);
+        }
 
         folders.clear();
     }

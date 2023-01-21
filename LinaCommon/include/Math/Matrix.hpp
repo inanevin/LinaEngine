@@ -31,6 +31,8 @@ SOFTWARE.
 #ifndef Matrix_HPP
 #define Matrix_HPP
 
+#include "Serialization/ISerializable.hpp"
+
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/matrix.hpp>
@@ -42,14 +44,13 @@ namespace Lina
     class Vector3;
     class Vector4;
 
-    class Matrix : public glm::mat4
+    class Matrix : public glm::mat4, public ISerializable
     {
     public:
         Matrix(){};
         Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset);
-           
-        Matrix(glm::mat4 mat)
-            : glm::mat4(mat){};
+
+        Matrix(glm::mat4 mat) : glm::mat4(mat){};
 
         static Matrix Identity();
         static Matrix Translate(const Vector3& amt);
@@ -76,14 +77,9 @@ namespace Lina
 
         Transformation ToTransform();
 
-        template <class Archive>
-        void Serialize(Archive& archive)
-        {
-
-            archive((*this)[0][0], (*this)[0][1], (*this)[0][2], (*this)[0][3], (*this)[1][0], (*this)[1][1], (*this)[1][2], (*this)[1][3], (*this)[2][0], (*this)[2][1], (*this)[2][2], (*this)[2][3], (*this)[3][0], (*this)[3][1], (*this)[3][2], (*this)[3][3]);
-        }
-
-    private:
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
 } // namespace Lina

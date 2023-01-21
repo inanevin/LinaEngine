@@ -165,8 +165,7 @@ namespace Lina
             return false;
 
         // First, isolate perspective.  This is the messiest.
-        if (epsilonNotEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) || epsilonNotEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) ||
-            epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>()))
+        if (epsilonNotEqual(LocalMatrix[0][3], static_cast<T>(0), epsilon<T>()) || epsilonNotEqual(LocalMatrix[1][3], static_cast<T>(0), epsilon<T>()) || epsilonNotEqual(LocalMatrix[2][3], static_cast<T>(0), epsilon<T>()))
         {
             // Clear the perspective partition
             LocalMatrix[0][3] = LocalMatrix[1][3] = LocalMatrix[2][3] = static_cast<T>(0);
@@ -233,6 +232,24 @@ namespace Lina
         glm::decompose(*this, scale, rotation, position, skew, perspective);
 
         return Transformation(position, rotation, scale);
+    }
+
+    void Matrix::SaveToStream(OStream& stream)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+                stream << (*this)[i][j];
+        }
+    }
+
+    void Matrix::LoadFromStream(IStream& stream)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+                stream >> (*this)[i][j];
+        }
     }
 
     Matrix Matrix::ToNormalMatrix() const

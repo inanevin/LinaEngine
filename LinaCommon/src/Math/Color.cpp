@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Math/Color.hpp"
+#include "Data/Streams.hpp"
 
 namespace Lina
 {
@@ -44,4 +45,13 @@ namespace Lina
     Color Color::Beige     = Color(0.96f, 0.96f, 0.862f);
     Color Color::Brown     = Color(0.647f, 0.164f, 0.164f);
     Color Color::Gray      = Color(0.5f, 0.5f, 0.5f);
+
+    void Color::SaveToStream(OStream& stream)
+    {
+        stream << x << y << z << w;
+    }
+    void Color::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y >> z >> w;
+    }
 } // namespace Lina

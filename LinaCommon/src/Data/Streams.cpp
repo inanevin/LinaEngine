@@ -35,36 +35,32 @@ SOFTWARE.
 
 namespace Lina
 {
+
     void IStream::Create(size_t size)
     {
+        Destroy();
         m_data  = new uint8[size];
         m_index = 0;
         m_size  = size;
     }
 
-    void IStream::CreateFromPreAllocated(StringID linearBlockSid, size_t size)
-    {
-      //  m_data                    = (uint8*)MemoryManager::Get()->GetFromLinearBlockList(linearBlockSid, size);
-        m_index                   = 0;
-        m_size                    = size;
-        m_preAllocatedLinearBlock = linearBlockSid;
-    }
-
     void IStream::Create(uint8* data, size_t size)
     {
-        m_data = new uint8[size];
-        MEMCPY(m_data, data, size);
+        Destroy();
+        const size_t unaligned = size;
+        m_data                 = new uint8[size];
+        MEMCPY(m_data, data, unaligned);
         m_index = 0;
         m_size  = size;
     }
 
     void IStream::Destroy()
     {
-        // Will be deallocated when whole block is cleared.
-        if (m_preAllocatedLinearBlock != 0)
+        if (m_data == nullptr)
             return;
 
         delete[] m_data;
+
         m_index = 0;
         m_size  = 0;
         m_data  = nullptr;
@@ -111,21 +107,10 @@ namespace Lina
         m_currentSize = 0;
     }
 
-    void OStream::CreateReserveFromPreAllocated(StringID sid, size_t size)
-    {
-       // m_data                    = (uint8*)MemoryManager::Get()->GetFromLinearBlockList(sid, size);
-        m_totalSize               = size;
-        m_currentSize             = 0;
-        m_preAllocatedLinearBlock = sid;
-    }
-
     void OStream::Destroy()
     {
-        // Will be deallocated when whole block is cleared.
-        if (m_preAllocatedLinearBlock != 0)
-            return;
-
         delete[] m_data;
+
         m_currentSize = 0;
         m_totalSize   = 0;
         m_data        = nullptr;
@@ -133,6 +118,9 @@ namespace Lina
 
     void OStream::WriteEndianSafe(const uint8* ptr, size_t size)
     {
+        if (m_data == nullptr)
+            CreateReserve(size);
+
         CheckGrow(size);
 
         if (Endianness::ShouldSwap())
@@ -156,6 +144,9 @@ namespace Lina
 
     void OStream::WriteRaw(const uint8* ptr, size_t size)
     {
+        if (m_data == nullptr)
+            CreateReserve(size);
+
         CheckGrow(size);
         MEMCPY(&m_data[m_currentSize], ptr, size);
         m_currentSize += size;
@@ -165,20 +156,11 @@ namespace Lina
     {
         if (m_currentSize + sz > m_totalSize)
         {
-            m_totalSize = static_cast<size_t>((static_cast<float>(m_currentSize + sz) * 1.5f));
-            if (m_preAllocatedLinearBlock == 0)
-            {
-                uint8* newData = new uint8[m_totalSize];
-                MEMCPY(newData, m_data, m_currentSize);
-                delete[] m_data;
-                m_data = newData;
-            }
-            else
-            {
-             //   uint8* newData = (uint8*)MemoryManager::Get()->GetFromLinearBlockList(m_preAllocatedLinearBlock, m_totalSize);
-              ///  MEMCPY(newData, m_data, m_currentSize);
-                //m_data = newData;
-            }
+            m_totalSize    = static_cast<size_t>((static_cast<float>(m_currentSize + sz) * 2.0f));
+            uint8* newData = new uint8[m_totalSize];
+            MEMCPY(newData, m_data, m_currentSize);
+            delete[] m_data;
+            m_data = newData;
         }
     }
     void OStream::WriteToOFStream(std::ofstream& stream)

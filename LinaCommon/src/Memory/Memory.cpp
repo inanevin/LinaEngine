@@ -26,64 +26,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Memory/Memory.hpp"
-#include "Math/Math.hpp"
-#include "Profiling/Profiler.hpp"
-
 #include <cstdlib>
-#include <stdio.h>
-#include <iostream>
-
-#ifdef LINA_ENABLE_PROFILING
-bool g_skipAllocTrack = false;
-#endif
 
 // EASTL OPERATOR NEW[] REQUIREMENTS
 
 void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-    void* ptr = std::malloc(size);
+    void* ptr = malloc(size);
     return ptr;
 }
 
 void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-    void* ptr = std::malloc(size);
+    void* ptr = malloc(size);
     return ptr;
 }
 
+/*
 
 void* operator new(std::size_t size)
 {
-    void* ptr = std::malloc(size);
-#ifdef LINA_ENABLE_PROFILING
-    if (!g_skipAllocTrack)
-        Lina::PROFILER_ALLOC(ptr, size);
-#endif
+    void* ptr = malloc(size);
     return ptr;
 }
 
 void* operator new[](size_t size)
 {
-    void* ptr = std::malloc(size);
+    void* ptr = malloc(size);
     return ptr;
 }
 
 void operator delete(void* ptr, size_t sz)
 {
-    if (!g_skipAllocTrack)
-        Lina::PROFILER_FREE(ptr);
-
     free(ptr);
 }
 void operator delete[](void* ptr)
 {
-    if (!g_skipAllocTrack)
-        Lina::PROFILER_FREE(ptr);
     free(ptr);
 }
 
-/*
 void operator delete(void* ptr)
 {
     free(ptr);
@@ -98,6 +79,7 @@ void operator delete(void* ptr, const std::nothrow_t& tag)
 {
     free(ptr);
 }
+
 void operator delete[](void* ptr, const std::nothrow_t& tag)
 {
     free(ptr);

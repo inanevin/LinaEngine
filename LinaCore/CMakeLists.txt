@@ -20,8 +20,17 @@ project(LinaCore)
 #--------------------------------------------------------------------
 set (LINACORE_SOURCES
 	
-include/dummy.cpp
 	
+# World
+src/World/Core/Entity.cpp
+src/World/Core/Component.cpp
+ src/World/Core/ComponentCache.cpp
+## src/World/Core/Level.cpp
+## src/World/Core/LevelManager.cpp
+ src/World/Core/EntityWorld.cpp
+
+# Reflection
+src/Reflection/ReflectionSystem.cpp
 )
 
 #--------------------------------------------------------------------
@@ -29,6 +38,17 @@ include/dummy.cpp
 #--------------------------------------------------------------------
 set(LINACORE_HEADERS
 
+# World
+include/World/Core/Entity.hpp
+include/World/Core/Component.hpp
+include/World/Core/ComponentCache.hpp
+#include/World/Core/Level.hpp
+#include/World/Core/LevelManager.hpp
+include/World/Core/EntityWorld.hpp
+include/World/Core/CommonWorld.hpp
+
+include/Reflection/ClassReflection.hpp
+include/Reflection/ReflectionSystem.hpp
 )
 
 #--------------------------------------------------------------------

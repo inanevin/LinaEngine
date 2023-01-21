@@ -68,6 +68,7 @@ file(MAKE_DIRECTORY ${LINA_WORKING_DIRECTORY})
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaCore)
 add_subdirectory(Sandbox_Editor)
+# add_subdirectory(LinaHeaderTool)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox_Editor)
 

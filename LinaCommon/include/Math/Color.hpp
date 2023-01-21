@@ -31,14 +31,14 @@ SOFTWARE.
 #ifndef Lina_Color_HPP
 #define Lina_Color_HPP
 
+#include "Serialization/ISerializable.hpp"
 namespace Lina
 {
-    class Color
+    class Color : public ISerializable
     {
 
     public:
-        Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false)
-            : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av){};
+        Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av){};
 
         float x, y, z, w = 1.0f;
 
@@ -78,10 +78,9 @@ namespace Lina
         static Color Brown;
         static Color Gray;
 
-        template <class Archive> void Serialize(Archive& archive)
-        {
-            archive(x, y, z, w);
-        }
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
 } // namespace Lina

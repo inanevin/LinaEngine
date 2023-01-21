@@ -34,11 +34,12 @@ SOFTWARE.
 // Headers here.
 #include "Math/Vector.hpp"
 #include "Data/Vector.hpp"
+#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
     class Plane;
-    class AABB
+    class AABB : public ISerializable
     {
 
     public:
@@ -50,12 +51,6 @@ namespace Lina
             boundsHalfExtents = (max - min) / 2.0f;
         }
         ~AABB() = default;
-
-        template <typename Archive>
-        void Serialize(Archive& archive)
-        {
-            archive(boundsHalfExtents, boundsMin, boundsMax, positions);
-        }
 
         /// <summary>
         /// Returns true if this box is inside the given plane, given an arbitrary position.
@@ -73,6 +68,9 @@ namespace Lina
         Vector<Vector3> positions;
 
     private:
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 } // namespace Lina
 

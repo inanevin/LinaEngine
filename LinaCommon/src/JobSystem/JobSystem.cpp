@@ -31,6 +31,5 @@ SOFTWARE.
 
 namespace Lina
 {
-    JobSystem* JobSystem::s_instance = nullptr;
 } // namespace Lina
 

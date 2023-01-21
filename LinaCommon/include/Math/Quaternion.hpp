@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef Quaternion_HPP
 #define Quaternion_HPP
 
+#include "Serialization/ISerializable.hpp"
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #define GLM_FORCE_LEFT_HANDED
 #include <glm/gtx/quaternion.hpp>
@@ -40,18 +41,15 @@ namespace Lina
     class Vector3;
     class Vector4;
 
-    class Quaternion : public glm::quat
+    class Quaternion : public glm::quat, public ISerializable
     {
 
     public:
-        Quaternion()
-            : glm::quat(1, 0, 0, 0){};
+        Quaternion() : glm::quat(1, 0, 0, 0){};
         Quaternion(const Vector4& v);
-            
-        Quaternion(float x, float y, float z, float w)
-            : glm::quat(w, x, y, z){};
-        Quaternion(glm::quat q)
-            : glm::quat(q){};
+
+        Quaternion(float x, float y, float z, float w) : glm::quat(w, x, y, z){};
+        Quaternion(glm::quat q) : glm::quat(q){};
         Quaternion(const Vector3& axis, float angle);
 
         Quaternion operator+(const Quaternion& other) const
@@ -141,11 +139,9 @@ namespace Lina
         float             LengthSquared() const;
         Vector4           ToVector() const;
 
-        template <class Archive>
-        void Serialize(Archive& archive)
-        {
-            archive(x, y, z, w);
-        }
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
 } // namespace Lina

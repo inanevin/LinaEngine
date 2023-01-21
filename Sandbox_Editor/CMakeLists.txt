@@ -21,7 +21,7 @@ project(Sandbox_Editor)
 
 set(SANDBOX_EDITOR_SOURCES 
 
-
+include/DummySource.hpp
 )
 
 set(SANDBOX_EDITOR_HEADERS

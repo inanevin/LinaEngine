@@ -44,7 +44,6 @@ namespace Lina
     {
     public:
         void Create(size_t size);
-        void CreateFromPreAllocated(StringID linearBlockSid, size_t size);
         void Create(uint8* data, size_t size);
         void Destroy();
         void ReadFromIFStream(std::ifstream& stream);
@@ -93,10 +92,9 @@ namespace Lina
         }
 
     private:
-        StringID m_preAllocatedLinearBlock = 0;
-        uint8*   m_data                    = nullptr;
-        size_t   m_index                   = 0;
-        size_t   m_size                    = 0;
+        uint8*               m_data      = nullptr;
+        size_t               m_index     = 0;
+        size_t               m_size      = 0;
     };
 
     template <typename T> IStream& operator>>(IStream& istm, T& val)
@@ -115,7 +113,6 @@ namespace Lina
     {
     public:
         void CreateReserve(size_t size);
-        void CreateReserveFromPreAllocated(StringID sid, size_t size);
         void Destroy();
         void CheckGrow(size_t sz);
         void WriteToOFStream(std::ofstream& stream);
@@ -124,8 +121,11 @@ namespace Lina
 
         template <typename T> void Write(T& t)
         {
-            uint8*       ptr  = (uint8*)&t;
-            const size_t size = sizeof(T);
+            if (m_data == nullptr)
+                CreateReserve(sizeof(T));
+
+            uint8* ptr  = (uint8*)&t;
+            size_t size = sizeof(T);
 
             CheckGrow(size);
             MEMCPY(&m_data[m_currentSize], ptr, size);
@@ -148,10 +148,9 @@ namespace Lina
         }
 
     private:
-        StringID m_preAllocatedLinearBlock = 0;
-        uint8*   m_data                    = nullptr;
-        size_t   m_currentSize             = 0;
-        size_t   m_totalSize               = 0;
+        uint8*               m_data        = nullptr;
+        size_t               m_currentSize = 0;
+        size_t               m_totalSize   = 0;
     };
 
     template <typename T> OStream& operator<<(OStream& stream, T& val)

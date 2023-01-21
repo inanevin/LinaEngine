@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Math/AABB.hpp"
 #include "Math/Math.hpp"
 #include "Math/Plane.hpp"
+#include "Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
@@ -61,5 +62,21 @@ namespace Lina
             negative.z = boundsMin.z;
 
         return negative;
+    }
+
+    void AABB::SaveToStream(OStream& stream)
+    {
+        boundsHalfExtents.SaveToStream(stream);
+        boundsMin.SaveToStream(stream);
+        boundsMax.SaveToStream(stream);
+        VectorSerialization::SaveToStream_OBJ(stream, positions);
+    }
+
+    void AABB::LoadFromStream(IStream& stream)
+    {
+        boundsHalfExtents.LoadFromStream(stream);
+        boundsMin.LoadFromStream(stream);
+        boundsMax.LoadFromStream(stream);
+        VectorSerialization::LoadFromStream_OBJ(stream, positions);
     }
 } // namespace Lina

@@ -50,6 +50,7 @@ SOFTWARE.
 namespace Lina
 {
 #define QUERY_CPU_INTERVAL_SECS 2
+    bool g_skipAllocTrack = false;
 
     DeviceMemoryInfo Profiler::QueryMemoryInfo()
     {
@@ -208,7 +209,11 @@ namespace Lina
 
     void Profiler::OnAllocation(void* ptr, size_t size)
     {
-        m_lock.lock();
+        if (g_skipAllocTrack)
+            return;
+
+        LOCK_GUARD(m_lock);
+
         g_skipAllocTrack = true;
         MemAllocationInfo info;
         info.size = size;
@@ -216,7 +221,6 @@ namespace Lina
         m_memAllocations[ptr] = info;
         m_totalMemAllocationSize += size;
         g_skipAllocTrack = false;
-        m_lock.unlock();
     }
     void Profiler::OnVRAMAllocation(void* ptr, size_t size)
     {
@@ -231,12 +235,19 @@ namespace Lina
 
     void Profiler::OnFree(void* ptr)
     {
-        m_lock.lock();
+        if (g_skipAllocTrack)
+            return;
+
+        LOCK_GUARD(m_lock);
+
+        auto it = m_memAllocations.find(ptr);
+        if (it == m_memAllocations.end())
+            return;
+
         g_skipAllocTrack = true;
-        m_totalMemAllocationSize -= m_memAllocations[ptr].size;
+        m_totalMemAllocationSize -= it->second.size;
         m_memAllocations.erase(ptr);
         g_skipAllocTrack = false;
-        m_lock.unlock();
     }
 
     void Profiler::OnVRAMFree(void* ptr)
@@ -481,7 +492,7 @@ namespace Lina
         }
         g_skipAllocTrack = false;
 
-        DumpMemoryLeaks("Lina_Memory_leaks.txt");
+        DumpMemoryLeaks("lina_memory_leaks.txt");
         LINA_TRACE("[Shutdown] -> Profiler {0}", typeid(*this).name());
 
 #ifdef LINA_PLATFORM_WINDOWS

@@ -33,19 +33,23 @@ SOFTWARE.
 
 namespace Lina
 {
-    void ISerializable::SaveToFile(const char* path)
+    void ISerializable::SaveToFile(const char* path, MemoryAllocatorPool* allocator)
     {
         OStream stream;
-        stream.CreateReserveFromPreAllocated(LINA_SERIALIZATION_LINEARBLOCK_SID, 120);
+        stream.SetAllocator(allocator);
+        stream.CreateReserve(120);
         SaveToStream(stream);
         Serialization::SaveToFile(path, stream);
+        stream.Destroy();
     }
 
-    void ISerializable::LoadFromFile(const char* path)
+    void ISerializable::LoadFromFile(const char* path, MemoryAllocatorPool* allocator)
     {
-        IStream stream = Serialization::LoadFromFile(path);
+        IStream stream = Serialization::LoadFromFile(path, allocator);
 
         if (stream.GetDataRaw() != nullptr)
             LoadFromStream(stream);
+
+        stream.Destroy();
     }
 } // namespace Lina

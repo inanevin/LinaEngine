@@ -37,9 +37,8 @@ SOFTWARE.
 #include "Data/Functional.hpp"
 #include <type_traits>
 
-namespace Lina::Reflection
+namespace Lina
 {
-
     typedef Delegate<void*()>         CreateFunc;
     typedef Delegate<void(void* obj)> DestroyFunc;
 
@@ -64,6 +63,26 @@ namespace Lina::Reflection
         inline String AsString()
         {
             return *static_cast<String*>(ptr);
+        }
+
+        inline void SetFloat(float f)
+        {
+            *static_cast<float*>(ptr) = f;
+        }
+
+        inline void SetInt(int i)
+        {
+            *static_cast<int*>(ptr) = i;
+        }
+
+        inline void SetDouble(double d)
+        {
+            *static_cast<double*>(ptr) = d;
+        }
+
+        inline void SetString(String s)
+        {
+            *static_cast<String*>(ptr) = s;
         }
 
         template <typename T> T Cast()
@@ -112,7 +131,7 @@ namespace Lina::Reflection
             return val;
         }
 
-        T m_var;
+        T m_var = T();
     };
 
     class MetaType
@@ -148,15 +167,37 @@ namespace Lina::Reflection
         HashMap<StringID, String>     properties;
     };
 
-    extern HashMap<TypeID, MetaType> g_metaData;
-    extern void                      Clear();
-
-    template <typename T> MetaType& Meta()
+    class ReflectionSystem
     {
-        return g_metaData[GetTypeID<T>()];
-    }
+    public:
+        static inline ReflectionSystem& Get()
+        {
+            static ReflectionSystem instance;
+            return instance;
+        }
 
-    extern MetaType& Resolve(TypeID tid);
+        template <typename T> MetaType& Meta()
+        {
+            return m_metaData[GetTypeID<T>()];
+        }
 
-} // namespace Lina::Reflection
+        template <typename T> MetaType& Resolve()
+        {
+            return m_metaData[GetTypeID<T>()];
+        }
+
+        MetaType& Resolve(TypeID tid)
+        {
+            return m_metaData[tid];
+        }
+
+        void Clear();
+
+    private:
+        ReflectionSystem() = default;
+
+    private:
+        HashMap<TypeID, MetaType> m_metaData;
+    };
+} // namespace Lina
 #endif

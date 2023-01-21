@@ -228,7 +228,7 @@ namespace Lina
     {
         const String newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
 
-        Folder* folder   = new Folder();
+        Folder* folder   = LNEW(Folder);
         folder->parent   = parent;
         folder->name     = newFolderName;
         folder->fullPath = parent->fullPath + "/" + folder->name;
@@ -252,7 +252,7 @@ namespace Lina
         }
 
         DeleteDirectory(folder->fullPath);
-        delete folder;
+        LDEL_OBJ(folder, Folder);
         folder = nullptr;
     }
 

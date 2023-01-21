@@ -33,40 +33,19 @@ SOFTWARE.
 
 #include "Memory/MemoryManager.hpp"
 
-#ifdef LINA_ENABLE_PROFILING
-extern bool g_skipAllocTrack;
-#endif
-
 namespace Lina
 {
-
-// 64-bit ptr + 1 byte
-#define MIN_ALLOC_LIMIT 9
-
-    template <typename T> inline T* GNew()
-    {
-        const size_t size   = sizeof(T);
-        void*        memory = size >= MIN_ALLOC_LIMIT ? MemoryManager::Get()->AllocateGlobal(size) : malloc(size);
-        T*           ptr    = new (memory) T();
-        return ptr;
-    }
-
-    template <typename T> inline void GDelete(T* obj)
-    {
-        const size_t size   = sizeof(T);
-        void*        objPtr = static_cast<void*>(obj);
-
-        if (size >= MIN_ALLOC_LIMIT)
-            MemoryManager::Get()->FreeGlobal(objPtr, size);
-        else
-            free(objPtr);
-
-        obj->~T();
-    }
 
 #define MEMCPY(...) memcpy(__VA_ARGS__)
 #define MALLOC(...) malloc(__VA_ARGS__)
 #define FREE(...)   free(__VA_ARGS__)
+
+#define LNEW(TYPE)                   new (Lina::MemoryManager::Get().AllocateGlobal(sizeof(TYPE))) TYPE()
+#define LNEW_ARRAY(TYPE, COUNT)      (TYPE*)Lina::MemoryManager::Get().AllocateGlobal(sizeof(TYPE) * COUNT)
+#define LDEL_PTR(TYPE)               Lina::MemoryManager::Get().FreeGlobal(TYPE);
+#define LDEL_OBJ(OBJ, TYPE)                                                                                                                                                                                                                                        \
+    OBJ->~TYPE();                                                                                                                                                                                                                                                  \
+    Lina::MemoryManager::Get().FreeGlobal(OBJ)
 
 } // namespace Lina
 

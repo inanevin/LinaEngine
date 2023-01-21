@@ -67,9 +67,6 @@ set (LINACOMMON_SOURCES
 	
 	# Job System
 	src/JobSystem/JobSystem.cpp
-
-	# Reflection
-	src/Reflection/ReflectionSystem.cpp
 )
 
 
@@ -94,10 +91,6 @@ set(LINACOMMON_HEADERS
 
 	# Profiler
 	include/Profiling/Profiler.hpp
-
-	# Reflection
-	include/Reflection/ReflectionSystem.hpp
-	include/Reflection/ReflectionCommon.hpp
 	
 	# Events
 	include/EventSystem/EventCommon.hpp
@@ -115,6 +108,7 @@ set(LINACOMMON_HEADERS
 	# Data
 	include/Data/Functional.hpp
 	include/Data/Action.hpp
+	include/Data/SimpleArray.hpp
 	include/Data/Array.hpp
 	include/Data/Vector.hpp
 	include/Data/IntrusiveList.hpp
@@ -156,6 +150,10 @@ set(LINACOMMON_HEADERS
 	include/Serialization/Endianness.hpp
 	include/Serialization/Serialization.hpp
 	include/Serialization/StringSerialization.hpp
+	include/Serialization/VectorSerialization.hpp
+	include/Serialization/HashMapSerialization.hpp
+	include/Serialization/QueueSerialization.hpp
+	include/Serialization/SetSerialization.hpp
 
 	# Math
 	include/Math/Color.hpp

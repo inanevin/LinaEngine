@@ -79,9 +79,10 @@ namespace Lina
     class JobSystem
     {
     public:
-        static inline JobSystem* Get()
+        static inline JobSystem& Get()
         {
-            return s_instance;
+            static JobSystem instance;
+            return instance;
         }
 
         inline Executor& GetMainExecutor()
@@ -107,9 +108,8 @@ namespace Lina
         ~JobSystem() = default;
 
     private:
-        static JobSystem* s_instance;
-        Executor          m_executor;
-        Executor          m_resourceExecutor;
+        Executor m_executor;
+        Executor m_resourceExecutor;
     };
 
 } // namespace Lina

@@ -29,61 +29,69 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Memory/MemoryManager.hpp"
+#include "Math/Color.hpp"
+#include "Data/DataCommon.hpp"
+#include "World/Core/Component.hpp"
+#include "Reflection/ReflectionSystem.hpp"
+#include "DummySource.hpp"
+#include "Core/StringID.hpp"
+#include "World/Core/EntityWorld.hpp"
+#include <EASTL/scoped_ptr.h>
 
-class testClass;
-
-class test2
-{
-private:
-    friend class testClass;
-    test2()
-    {
-    }
-    ~test2(){};
-};
-
-class testClass
-{
-public:
-    void yo()
-    {
-        test2* ptr = Lina::GNew<test2>();
-        Lina::GDelete(ptr);
-    }
-    int a = 5;
-};
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
-    Lina::Profiler prof;
-    Lina::Profiler::s_instance = &prof;
-
     // Win32 stuff
     MSG msg    = {0};
     msg.wParam = 0;
 
-    testClass test;
-    test.yo();
-
     if (AllocConsole() == FALSE)
     {
+        // err
     }
 
-    // while (true)
-    //{
-    //     while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-    //     {
-    //         TranslateMessage(&msg);
-    //         DispatchMessage(&msg);
-    //     }
-    //
-    //     if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
-    //         break;
-    // }
+    Lina::Taskflow tf;
 
-    Lina::PROFILER_DUMP_LEAKS("Leaks.txt");
+    Lina::Vector<int> testV;
+
+    testV.push_back(0);
+    testV.push_back(0);
+    testV.push_back(0);
+    testV.push_back(0);
+    testV.push_back(0);
+    testV.push_back(0);
+
+    tf.for_each_index(0, (int)testV.size(), 1, [](int i) {
+        Lina::EntityWorld* world = new Lina::EntityWorld();
+        Lina::Entity*      ent   = world->CreateEntity("My Entity");
+
+        ent->SetPosition(Lina::Vector3(15, 25, 15));
+
+        auto comp                = world->AddComponent<DummySource>(ent);
+        comp.Get().MovementSpeed = 2;
+        Lina::OStream test;
+        world->SaveToStream(test);
+        auto str = "TestWorld" + TO_STRING(i);
+        world->SaveToFile(str.c_str());
+        delete world;
+        test.Destroy();
+    });
+    Lina::JobSystem::Get().GetMainExecutor().RunAndWait(tf);
+    //  while (true)
+    //  {
+    //      while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    //      {
+    //          TranslateMessage(&msg);
+    //          DispatchMessage(&msg);
+    //      }
+    //
+    //      if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
+    //          break;
+    //  }
+
     FreeConsole();
 }
 

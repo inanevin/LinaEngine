@@ -35,29 +35,37 @@ SOFTWARE.
 #include "Queue.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Log/Log.hpp"
+#include "Serialization/ISerializable.hpp"
+#include "Data/Streams.hpp"
+#include "Serialization/QueueSerialization.hpp"
+#include "Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
-    template <typename T>
-    class IDList
+    template <typename T> class IDList : public ISerializable
     {
     public:
-        inline void Initialize(uint32 step, T defaultItem)
+        IDList(uint32 step, T defaultItem)
         {
             m_defaultItem = defaultItem;
             m_defaultStep = step;
             m_items.resize(m_defaultStep, defaultItem);
-            m_initialized = true;
+        }
+
+        ~IDList() = default;
+
+        typename Vector<T>::iterator begin()
+        {
+            return m_items.begin();
+        }
+
+        typename Vector<T>::iterator end()
+        {
+            return m_items.end();
         }
 
         inline uint32 AddItem(T item)
         {
-            if (!m_initialized)
-            {
-                LINA_ERR("IDList is not initialized!");
-                return 0;
-            }
-
             uint32 id = 0;
 
             if (!m_availableIDs.empty())
@@ -76,6 +84,11 @@ namespace Lina
             return id;
         }
 
+        inline void AddItem(T item, uint32 index)
+        {
+            m_items[index] = item;
+        }
+
         inline void RemoveItem(uint32 id)
         {
             m_items[id] = m_defaultItem;
@@ -92,24 +105,60 @@ namespace Lina
             return m_items;
         }
 
+        inline T GetItem(int index)
+        {
+            return m_items[index];
+        }
+
+        inline T& GetItemR(int index)
+        {
+            return m_items[index];
+        }
+
+        inline uint32 GetNextFreeID()
+        {
+            return m_nextFreeID;
+        }
+
+        inline void Clear()
+        {
+            m_items.clear();
+        }
+
         inline void Reset()
         {
-            if (!m_initialized)
-            {
-                LINA_ERR("IDList is not initialized!");
-                return;
-            }
-
-            m_items.clear();
+            Clear();
             m_items.resize(m_defaultStep, m_defaultItem);
+        }
+
+        inline T* GetRaw()
+        {
+            return m_items.data();
+        }
+
+        virtual void SaveToStream(OStream& stream)
+        {
+            const uint32 size = static_cast<uint32>(m_items.size());
+            stream << size;
+            stream << m_nextFreeID;
+            QueueSerialization::SaveToStream_PT(stream, m_availableIDs);
+        }
+
+        virtual void LoadFromStream(IStream& stream)
+        {
+            Clear();
+            uint32 size = 0;
+            stream >> size;
+            stream >> m_nextFreeID;
+            QueueSerialization::LoadFromStream_PT(stream, m_availableIDs);
+            m_items.resize(size, m_defaultItem);
         }
 
     private:
         T             m_defaultItem = T();
-        bool          m_initialized = false;
         Vector<T>     m_items;
-        uint32        m_nextFreeID = 0;
         Queue<uint32> m_availableIDs;
+        uint32        m_nextFreeID  = 0;
         uint32        m_defaultStep = 250;
     };
 } // namespace Lina

@@ -35,34 +35,28 @@ SOFTWARE.
 
 namespace Lina
 {
-    namespace World
-    {
-        class EntityWorld;
-        class Component;
-    } // namespace World
-} // namespace Lina
+    class EntityWorld;
+    class Component;
 
-namespace Lina::Event
-{
     struct EComponentCreated
     {
-        World::EntityWorld* world = nullptr;
-        World::Component*   ptr   = nullptr;
-        TypeID              tid   = 0;
+        EntityWorld* world = nullptr;
+        Component*   ptr   = nullptr;
+        TypeID       tid   = 0;
     };
 
     struct EComponentDestroyed
     {
-        World::EntityWorld* world = nullptr;
-        World::Component*   ptr   = nullptr;
-        TypeID              tid   = 0;
+        EntityWorld* world = nullptr;
+        Component*   ptr   = nullptr;
+        TypeID       tid   = 0;
     };
 
     struct EWorldDestroyed
     {
-        World::EntityWorld* world = nullptr;
+        EntityWorld* world = nullptr;
     };
 
-} // namespace Lina::Event
+} // namespace Lina
 
 #endif

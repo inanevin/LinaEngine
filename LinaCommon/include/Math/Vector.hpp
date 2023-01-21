@@ -32,6 +32,7 @@ SOFTWARE.
 #define Vector_HPP
 
 #include "Core/SizeDefinitions.hpp"
+#include "Serialization/ISerializable.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -42,7 +43,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Vector2ui : public glm::uvec2
+    class Vector2ui : public glm::uvec2, public ISerializable
     {
     public:
         Vector2ui() = default;
@@ -54,13 +55,12 @@ namespace Lina
         static Vector2ui Zero;
         static Vector2ui One;
 
-        template <class Archive> void Serialize(Archive& archive)
-        {
-            archive(x, y);
-        }
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
-    class Vector2i : public glm::ivec2
+    class Vector2i : public glm::ivec2, public ISerializable
     {
     public:
         Vector2i() = default;
@@ -74,10 +74,9 @@ namespace Lina
 
         bool Equals(const Vector2i& other, int epsilon = 0) const;
 
-        template <class Archive> void Serialize(Archive& archive)
-        {
-            archive(x, y);
-        }
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
     inline Vector2i operator-(Vector2i const& v, Vector2i const& v2)
@@ -93,7 +92,7 @@ namespace Lina
         return Vector2i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)));
     }
 
-    class Vector2 : public glm::vec2
+    class Vector2 : public glm::vec2, public ISerializable
     {
     public:
         Vector2() = default;
@@ -204,12 +203,9 @@ namespace Lina
             return &x;
         }
 
-        template <class Archive> void Serialize(Archive& archive)
-        {
-            archive(x, y);
-        }
-
-    private:
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
     inline Vector2 operator*(float scalar, Vector2 const& v)
@@ -261,7 +257,7 @@ namespace Lina
         return Vector2(v.x - v2.x, v.y - v2.y);
     }
 
-    class Vector3 : public glm::vec3
+    class Vector3 : public glm::vec3, public ISerializable
     {
 
     public:
@@ -395,10 +391,9 @@ namespace Lina
             return &x;
         }
 
-        template <class Archive> void Serialize(Archive& archive)
-        {
-            archive(x, y, z);
-        }
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
     inline Vector3 operator*(float scalar, Vector3 const& v)
@@ -450,7 +445,7 @@ namespace Lina
         return Vector3(v.x - v2.x, v.y - v2.y, v.z - v2.z);
     }
 
-    class Vector3ui : public glm::uvec3
+    class Vector3ui : public glm::uvec3, public ISerializable
     {
 
     public:
@@ -459,9 +454,13 @@ namespace Lina
         Vector3ui(const Vector3ui& rhs) : glm::uvec3(rhs){};
         Vector3ui(const Vector2ui& rhs) : glm::uvec3(rhs.x, rhs.y, 0.0f){};
         Vector3ui(const glm::uvec3& rhs) : glm::uvec3(rhs.x, rhs.y, rhs.z){};
+
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
-    class Vector4 : public glm::vec4
+    class Vector4 : public glm::vec4, public ISerializable
     {
 
     public:
@@ -600,10 +599,9 @@ namespace Lina
             return &x;
         }
 
-        template <class Archive> void Serialize(Archive& archive)
-        {
-            archive(x, y, z, w);
-        }
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
     };
 
     inline Vector4 operator*(float scalar, Vector4 const& v)

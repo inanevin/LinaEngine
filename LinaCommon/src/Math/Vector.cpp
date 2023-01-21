@@ -163,6 +163,16 @@ namespace Lina
         return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon) && Math::Equals(w, other.w, epsilon);
     }
 
+    void Vector4::SaveToStream(OStream& stream)
+    {
+        stream << x << y << z << w;
+    }
+
+    void Vector4::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y >> z >> w;
+    }
+
     //////////////////////////////////////////////////////////////////////////
 
     Vector3 Vector3::Lerp(const Vector3& from, const Vector3& to, float t)
@@ -239,6 +249,16 @@ namespace Lina
     bool Vector3::Equals(const Vector3& other, float epsilon) const
     {
         return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon);
+    }
+
+    void Vector3::SaveToStream(OStream& stream)
+    {
+        stream << x << y << z;
+    }
+
+    void Vector3::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y >> z;
     }
 
     float Vector3::Dot(const Vector3& other) const
@@ -386,9 +406,47 @@ namespace Lina
         *this = glm::normalize(glm::vec2(*this));
     }
 
+    void Vector2::SaveToStream(OStream& stream)
+    {
+        stream << x << y;
+    }
+
+    void Vector2::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y;
+    }
+
     /////////////////////////////////////
     bool Vector2i::Equals(const Vector2i& other, int epsilon) const
     {
         return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon);
+    }
+
+    void Vector2i::SaveToStream(OStream& stream)
+    {
+        stream << x << y;
+    }
+
+    void Vector2i::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y;
+    }
+
+    void Vector2ui::SaveToStream(OStream& stream)
+    {
+        stream << x << y;
+    }
+
+    void Vector2ui::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y;
+    }
+    void Vector3ui::SaveToStream(OStream& stream)
+    {
+        stream << x << y << z;
+    }
+    void Vector3ui::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y >> z;
     }
 } // namespace Lina

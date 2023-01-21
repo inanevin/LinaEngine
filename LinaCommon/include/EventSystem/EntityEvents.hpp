@@ -36,28 +36,21 @@ SOFTWARE.
 
 namespace Lina
 {
-    namespace World
-    {
-        class Entity;
-    }
-} // namespace Lina
-
-namespace Lina::Event
-{
+    class Entity;
     struct EEntityMaskVisibilityChanged
     {
-        World::Entity* entity     = nullptr;
-        bool           wasVisible = false;
-        bool           isVisible  = false;
+        Entity* entity     = nullptr;
+        bool    wasVisible = false;
+        bool    isVisible  = false;
     };
 
     struct EEntityMaskStaticChanged
     {
-        World::Entity* entity    = nullptr;
-        bool           wasStatic = false;
-        bool           isStatic  = false;
+        Entity* entity    = nullptr;
+        bool    wasStatic = false;
+        bool    isStatic  = false;
     };
 
-} // namespace Lina::Event
+} // namespace Lina
 
 #endif

@@ -28,15 +28,14 @@ SOFTWARE.
 
 #include "Reflection/ReflectionSystem.hpp"
 
-namespace Lina::Reflection
+namespace Lina
 {
-    HashMap<TypeID, MetaType> g_metaData;
 
-    void Clear()
+    void ReflectionSystem::Clear()
     {
-        for (auto& [tid, type] : g_metaData)
+        for (auto& [tid, type] : m_metaData)
         {
-            for (auto [sid, f] : type.fields)
+            for (auto& [sid, f] : type.fields)
             {
                 f->properties.clear();
                 delete f;
@@ -46,13 +45,7 @@ namespace Lina::Reflection
             type.properties.clear();
         }
 
-        g_metaData.clear();
+        m_metaData.clear();
     }
 
-    MetaType& Resolve(TypeID tid)
-    {
-        return g_metaData[tid];
-    }
-  
-
-} // namespace Lina::Reflection
+} // namespace Lina

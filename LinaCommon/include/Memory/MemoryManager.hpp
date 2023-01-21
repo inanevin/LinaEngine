@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    class MemoryManager;
+#define MEMMANAGER_MIN_FREELIST_SIZE 16
 
     enum class AllocatorPoolGrowPolicy
     {
@@ -60,73 +60,45 @@ namespace Lina
     struct AllocatorWrapper
     {
         Allocator* allocator = nullptr;
-        size_t     allocated = 0;
-        size_t     maxSize   = 0;
-
-        bool IsAvailable(size_t size)
-        {
-            return maxSize - allocated > size;
-        }
+        bool       IsAvailable(size_t size);
+        size_t     minSizeRequirement = 0;
     };
+
+    class MemoryManager;
     class MemoryAllocatorPool
     {
     public:
-        static Allocator* CreateAllocator(AllocatorType type, size_t size, size_t userData = 0);
-        static String     GetAllocatorName(AllocatorType type);
+        MemoryAllocatorPool(AllocatorType type, AllocatorPoolGrowPolicy growPolicy, size_t initialSize, size_t initialUserData, uint8 maxGrowSize);
+        virtual ~MemoryAllocatorPool();
 
         void* Allocate(size_t size);
-        void  Free(void* ptr, size_t size);
+        void  Free(void* ptr);
+        void  Reset();
+
+        inline size_t GetMinSizeRequirement()
+        {
+            return m_minSizeRequirement;
+        }
 
     protected:
         friend class MemoryManager;
 
-        MemoryAllocatorPool(AllocatorType type, AllocatorPoolGrowPolicy growPolicy, size_t initialSize, size_t initialUserData, uint8 maxGrowSize);
-        virtual ~MemoryAllocatorPool();
-
     private:
-        void AddAllocator(size_t size);
+        static Allocator* CreateAllocator(AllocatorType type, size_t size, size_t userData = 0);
+        static String     GetAllocatorName(AllocatorType type);
+        void              AddAllocator(size_t size);
 
     protected:
-        AllocatorPoolGrowPolicy  m_growPolicy      = AllocatorPoolGrowPolicy::NoGrow;
-        AllocatorType            m_type            = AllocatorType::FreeList;
-        int                      m_maxGrowSize     = 0;
-        size_t                   m_initialSize     = 0;
-        size_t                   m_initialUserData = 0;
+        AllocatorPoolGrowPolicy  m_growPolicy         = AllocatorPoolGrowPolicy::NoGrow;
+        AllocatorType            m_type               = AllocatorType::FreeList;
+        size_t                   m_minSizeRequirement = 0;
+        int                      m_maxGrowSize        = 0;
+        size_t                   m_initialSize        = 0;
+        size_t                   m_initialUserData    = 0;
         uint32                   m_currentAllocator;
         Vector<AllocatorWrapper> m_allocators;
     };
 
-    class MemoryManager
-    {
-    public:
-        inline static MemoryManager& Get()
-        {
-            static MemoryManager instance;
-            return instance;
-        }
-
-        /// <summary>
-        /// For pool allocator, use size = totalSize, userData = chunkSize.
-        /// </summary>
-        /// <returns></returns>
-        MemoryAllocatorPool* CreateAllocatorPool(AllocatorType type, size_t size, AllocatorPoolGrowPolicy growPolicy, uint8 maxGrowSize = 0, size_t userData = 0);
-        void                 DestroyAllocatorPool(MemoryAllocatorPool* pool);
-
-        void* AllocateGlobal(size_t size);
-        void  FreeGlobal(void* ptr, size_t size);
-
-        friend class Engine;
-
-        MemoryManager() = default;
-        ~MemoryManager();
-
-        void Initialize();
-        void Shutdown();
-
-    private:
-        MemoryAllocatorPool*         m_globalPool = nullptr;
-        Vector<MemoryAllocatorPool*> m_allocatorPools;
-    };
 } // namespace Lina
 
 #endif

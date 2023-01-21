@@ -28,6 +28,15 @@ SOFTWARE.
 
 #pragma once
 
+#ifdef LINA_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable : 28251)
+#pragma warning(disable : 6001)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 #ifndef Endianness_HPP
 #define Endianness_HPP
 
@@ -60,4 +69,10 @@ namespace Lina
 
 } // namespace Lina
 
+#endif
+
+#ifdef LINA_COMPILER_MSVC
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
 #endif

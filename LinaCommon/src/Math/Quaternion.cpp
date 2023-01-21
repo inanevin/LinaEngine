@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Math/Quaternion.hpp"
 #include "Math/Vector.hpp"
 
-
 namespace Lina
 {
     Quaternion::Quaternion(const Vector4& v) : glm::quat(v.w, v.x, v.y, v.z){};
@@ -131,6 +130,16 @@ namespace Lina
     Vector4 Quaternion::ToVector() const
     {
         return Vector4(x, y, z, w);
+    }
+
+    void Quaternion::SaveToStream(OStream& stream)
+    {
+        stream << x << y << z << w;
+    }
+
+    void Quaternion::LoadFromStream(IStream& stream)
+    {
+        stream >> x >> y >> z >> w;
     }
 
     Quaternion Quaternion::Euler(const Vector3& v)

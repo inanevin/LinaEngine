@@ -61,7 +61,6 @@ namespace Lina
         if (shouldCompress)
         {
             OStream compressed = Compressor::Compress(stream);
-            stream.Destroy();
             compressed.WriteToOFStream(wf);
             wf.close();
             compressed.Destroy();
@@ -70,7 +69,6 @@ namespace Lina
         {
             stream.WriteToOFStream(wf);
             wf.close();
-            stream.Destroy();
         }
 
         if (!wf.good())
@@ -82,7 +80,7 @@ namespace Lina
         return true;
     }
 
-    IStream Serialization::LoadFromFile(const char* path)
+    IStream Serialization::LoadFromFile(const char* path, MemoryAllocatorPool* allocator)
     {
         std::ifstream rf(path, std::ios::out | std::ios::binary);
 
@@ -96,7 +94,8 @@ namespace Lina
 
         // Create
         IStream readStream;
-        readStream.CreateFromPreAllocated(LINA_SERIALIZATION_LINEARBLOCK_SID, size);
+        readStream.SetAllocator(allocator);
+        readStream.Create(size);
         readStream.ReadFromIFStream(rf);
         rf.close();
 

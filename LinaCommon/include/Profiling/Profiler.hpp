@@ -46,6 +46,8 @@ SOFTWARE.
 
 namespace Lina
 {
+    extern bool g_skipAllocTrack;
+
     struct Scope
     {
     public:
@@ -121,7 +123,9 @@ namespace Lina
     public:
         static Profiler& Get()
         {
+            g_skipAllocTrack = true;
             static Profiler instance;
+            g_skipAllocTrack = false;
             return instance;
         }
 

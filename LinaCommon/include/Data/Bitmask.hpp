@@ -32,18 +32,17 @@ SOFTWARE.
 #define DataStructuresBitmask_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include "Serialization/Archive.hpp"
+#include "Serialization/ISerializable.hpp"
+#include "Data/Streams.hpp"
 
 namespace Lina
 {
-    template <typename T>
-    class Bitmask
+    template <typename T> class Bitmask : public ISerializable
     {
     public:
         Bitmask()  = default;
         ~Bitmask() = default;
-        Bitmask(T m)
-            : m_mask(m){};
+        Bitmask(T m) : m_mask(m){};
         inline bool IsSet(T m) const
         {
             return (m_mask & m) != 0;
@@ -69,10 +68,14 @@ namespace Lina
             return m_mask;
         }
 
-        template <typename T>
-        void Serialize(T& ar)
+        // Inherited via ISerializable
+        virtual void SaveToStream(OStream& stream) override
         {
-            ar(m_mask);
+            stream << m_mask;
+        }
+        virtual void LoadFromStream(IStream& stream) override
+        {
+            stream >> m_mask;
         }
 
     private:

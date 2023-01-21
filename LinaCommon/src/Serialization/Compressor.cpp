@@ -48,7 +48,7 @@ namespace Lina
 
         // Create stream capable of holding max compressed bytes.
         OStream compressedStream = OStream();
-        compressedStream.CreateReserveFromPreAllocated(LINA_SERIALIZATION_LINEARBLOCK_SID, compressBound);
+        compressedStream.CreateReserve(compressBound);
         char* dest         = (char*)compressedStream.GetDataRaw();
         char* data         = (char*)stream.GetDataRaw();
         int   bytesWritten = LZ4_compress_default(data, dest, size, compressBound);
@@ -64,7 +64,7 @@ namespace Lina
     {
         const size_t size               = stream.GetSize();
         IStream      decompressedStream = IStream();
-        decompressedStream.CreateFromPreAllocated(LINA_SERIALIZATION_LINEARBLOCK_SID, decompressedBound);
+        decompressedStream.Create(decompressedBound);
         void*     src              = stream.GetDataRaw();
         void*     ptr              = decompressedStream.GetDataRaw();
         const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, static_cast<int>(size), static_cast<int>(decompressedBound));
