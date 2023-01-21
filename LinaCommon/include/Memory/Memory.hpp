@@ -31,22 +31,13 @@ SOFTWARE.
 #ifndef Memory_HPP
 #define Memory_HPP
 
-#include "Memory/MemoryManager.hpp"
-
 namespace Lina
 {
-
 #define MEMCPY(...) memcpy(__VA_ARGS__)
 #define MALLOC(...) malloc(__VA_ARGS__)
 #define FREE(...)   free(__VA_ARGS__)
 
-#define LNEW(TYPE)                   new (Lina::MemoryManager::Get().AllocateGlobal(sizeof(TYPE))) TYPE()
-#define LNEW_ARRAY(TYPE, COUNT)      (TYPE*)Lina::MemoryManager::Get().AllocateGlobal(sizeof(TYPE) * COUNT)
-#define LDEL_PTR(TYPE)               Lina::MemoryManager::Get().FreeGlobal(TYPE);
-#define LDEL_OBJ(OBJ, TYPE)                                                                                                                                                                                                                                        \
-    OBJ->~TYPE();                                                                                                                                                                                                                                                  \
-    Lina::MemoryManager::Get().FreeGlobal(OBJ)
-
 } // namespace Lina
+
 
 #endif

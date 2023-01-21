@@ -28,8 +28,7 @@ SOFTWARE.
 
 #include "Data/Streams.hpp"
 #include "Data/Vector.hpp"
-#include "Data/DataCommon.hpp"
-#include "Memory/MemoryManager.hpp"
+#include "Data/CommonData.hpp"
 #include <algorithm>
 #include <fstream>
 

@@ -29,7 +29,6 @@ SOFTWARE.
 #include "World/Core/EntityWorld.hpp"
 #include "World/Core/Entity.hpp"
 #include "World/Core/Component.hpp"
-#include "Memory/MemoryManager.hpp"
 #include "EventSystem/EventSystem.hpp"
 #include "EventSystem/WorldEvents.hpp"
 #include "Reflection/ReflectionSystem.hpp"
@@ -48,12 +47,12 @@ namespace Lina
             if (e != nullptr)
             {
                 e->~Entity();
-                m_allocatorPool->Free(e);
+                m_allocatorPool.Free(e);
             }
         }
 
         for (auto& [tid, cache] : m_componentCaches)
-            cache->Destroy();
+            delete cache;
 
         m_entities.Clear();
         m_componentCaches.clear();
@@ -84,7 +83,7 @@ namespace Lina
         {
             if (e != nullptr)
             {
-                Entity* newE = new (m_allocatorPool->Allocate(sizeof(Entity))) Entity();
+                Entity* newE = new (m_allocatorPool.Allocate(sizeof(Entity))) Entity();
                 *newE        = *e;
                 m_entities.AddItem(newE, newE->m_id);
             }
@@ -99,7 +98,7 @@ namespace Lina
 
     Entity* EntityWorld::CreateEntity(const String& name)
     {
-        Entity* e = new (m_allocatorPool->Allocate(sizeof(Entity))) Entity();
+        Entity* e = new (m_allocatorPool.Allocate(sizeof(Entity))) Entity();
         e->SetVisible(true);
         e->SetStatic(true);
         e->m_world = this;
@@ -135,7 +134,7 @@ namespace Lina
         const uint32 id = e->m_id;
         m_entities.RemoveItem(id);
         e->~Entity();
-        m_allocatorPool->Free(e);
+        m_allocatorPool.Free(e);
     }
 
     void EntityWorld::SaveToStream(OStream& stream)
@@ -176,7 +175,7 @@ namespace Lina
         stream >> entitiesSize;
         for (uint32 i = 0; i < entitiesSize; i++)
         {
-            Entity* e = new (m_allocatorPool->Allocate(sizeof(Entity))) Entity();
+            Entity* e = new (m_allocatorPool.Allocate(sizeof(Entity))) Entity();
             e->LoadFromStream(stream);
             e->m_world = this;
             m_entities.AddItem(e, e->m_id);

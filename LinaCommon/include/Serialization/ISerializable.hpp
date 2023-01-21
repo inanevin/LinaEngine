@@ -36,14 +36,14 @@ namespace Lina
     class OStream;
     class IStream;
     class MemoryAllocatorPool;
-    
+
     class ISerializable
     {
     public:
         virtual void SaveToStream(OStream& stream)   = 0;
         virtual void LoadFromStream(IStream& stream) = 0;
-        virtual void SaveToFile(const char* path, MemoryAllocatorPool* allocator = nullptr);
-        virtual void LoadFromFile(const char* path, MemoryAllocatorPool* allocator = nullptr);
+        virtual void SaveToFile(const char* path);
+        virtual void LoadFromFile(const char* path);
     };
 
 } // namespace Lina

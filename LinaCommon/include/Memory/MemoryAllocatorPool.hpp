@@ -28,13 +28,14 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MemoryManager_HPP
-#define MemoryManager_HPP
+#ifndef MemoryAllocatorPool_HPP
+#define MemoryAllocatorPool_HPP
 
 #include "Data/Vector.hpp"
 #include "Data/String.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include <memallocators/Allocator.h>
+
+class Allocator;
 
 namespace Lina
 {
@@ -68,6 +69,9 @@ namespace Lina
     class MemoryAllocatorPool
     {
     public:
+        MemoryAllocatorPool(AllocatorType type, AllocatorPoolGrowPolicy growPolicy, size_t initialSize, size_t initialUserData, uint8 maxGrowSize);
+        virtual ~MemoryAllocatorPool();
+
         void* Allocate(size_t size);
         void  Free(void* ptr);
         void  Reset();
@@ -76,12 +80,6 @@ namespace Lina
         {
             return m_minSizeRequirement;
         }
-
-    protected:
-        friend class MemoryManager;
-
-        MemoryAllocatorPool(AllocatorType type, AllocatorPoolGrowPolicy growPolicy, size_t initialSize, size_t initialUserData, uint8 maxGrowSize);
-        virtual ~MemoryAllocatorPool();
 
     private:
         static Allocator* CreateAllocator(AllocatorType type, size_t size, size_t userData = 0);
@@ -97,37 +95,6 @@ namespace Lina
         size_t                   m_initialUserData    = 0;
         uint32                   m_currentAllocator;
         Vector<AllocatorWrapper> m_allocators;
-    };
-
-    class MemoryManager
-    {
-    public:
-        inline static MemoryManager& Get()
-        {
-            static MemoryManager instance;
-            return instance;
-        }
-
-        /// <summary>
-        /// For pool allocator, use size = totalSize, userData = chunkSize.
-        /// </summary>
-        /// <returns></returns>
-        MemoryAllocatorPool* CreateAllocatorPool(AllocatorType type, size_t size, AllocatorPoolGrowPolicy growPolicy, uint8 maxGrowSize = 0, size_t userData = 0);
-        void                 DestroyAllocatorPool(MemoryAllocatorPool* pool);
-
-        void* AllocateGlobal(size_t size, size_t alignment = 8);
-        void  FreeGlobal(void* ptr);
-
-        friend class Engine;
-
-        MemoryManager() = default;
-        ~MemoryManager();
-
-        void Shutdown();
-
-    private:
-        MemoryAllocatorPool*         m_globalPool = nullptr;
-        Vector<MemoryAllocatorPool*> m_allocatorPools;
     };
 
 } // namespace Lina

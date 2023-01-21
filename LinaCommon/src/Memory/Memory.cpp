@@ -28,63 +28,137 @@ SOFTWARE.
 
 #include <cstdlib>
 
+#include "Profiling/Profiler.hpp"
 // EASTL OPERATOR NEW[] REQUIREMENTS
 
 void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
     void* ptr = malloc(size);
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnAllocation(ptr, size);
+#endif
     return ptr;
 }
 
 void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
     void* ptr = malloc(size);
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnAllocation(ptr, size);
+#endif
     return ptr;
 }
-
-/*
 
 void* operator new(std::size_t size)
 {
     void* ptr = malloc(size);
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnAllocation(ptr, size);
+#endif
     return ptr;
 }
 
 void* operator new[](size_t size)
 {
     void* ptr = malloc(size);
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnAllocation(ptr, size);
+#endif
     return ptr;
 }
 
-void operator delete(void* ptr, size_t sz)
-{
-    free(ptr);
-}
 void operator delete[](void* ptr)
 {
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
     free(ptr);
 }
 
 void operator delete(void* ptr)
 {
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
     free(ptr);
 }
 
-void operator delete[](void* ptr, std::size_t sz)
+void operator delete(void* ptr, size_t sz, std::align_val_t al)
 {
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
+    _aligned_free(ptr);
+}
+void operator delete[](void* ptr, size_t sz, std::align_val_t al)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
+    _aligned_free(ptr);
+}
+
+void operator delete(void* ptr, std::align_val_t al)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
+    _aligned_free(ptr);
+}
+void operator delete[](void* ptr, std::align_val_t al)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
+    _aligned_free(ptr);
+}
+
+void operator delete(void* ptr, size_t sz)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
     free(ptr);
 }
+void operator delete[](void* ptr, std::size_t sz)
+{
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
+    free(ptr);
+}
+
 
 void operator delete(void* ptr, const std::nothrow_t& tag)
 {
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
     free(ptr);
 }
 
 void operator delete[](void* ptr, const std::nothrow_t& tag)
 {
+#ifdef LINA_ENABLE_PROFILING
+    if (!Lina::g_skipAllocTrack)
+        Lina::Profiler::Get().OnFree(ptr);
+#endif
     free(ptr);
 }
-*/
+
 
 namespace Lina
 {

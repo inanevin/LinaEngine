@@ -36,8 +36,7 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Data/IDList.hpp"
 #include "Serialization/HashMapSerialization.hpp"
-
-#include <functional>
+#include "Memory/MemoryAllocatorPool.hpp"
 
 namespace Lina
 {
@@ -46,29 +45,27 @@ namespace Lina
 
     class ComponentCacheBase : public ISerializable
     {
-    protected:
-        friend class EntityWorld;
+    public:
+        ComponentCacheBase()          = default;
+        virtual ~ComponentCacheBase() = default;
 
         virtual ComponentCacheBase* CopyCreate()                 = 0;
         virtual void                OnEntityDestroyed(Entity* e) = 0;
-        virtual void                Destroy()                    = 0;
         Entity**                    m_entities                   = nullptr;
     };
 
     template <typename T> class ComponentCache : public ComponentCacheBase
     {
     public:
-        ComponentCache() : m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr))
+        ComponentCache() : m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorPoolGrowPolicy::UseInitialSize, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), 0))
         {
-            m_allocatorPool = MemoryManager::Get().CreateAllocatorPoolThreadSafe(AllocatorType::Pool, sizeof(T) * COMPONENT_POOL_SIZE, AllocatorPoolGrowPolicy::UseInitialSize, 0, sizeof(T));
         }
 
         virtual ~ComponentCache()
         {
-            MemoryManager::Get().DestroyAllocatorPoolThreadSafe(m_allocatorPool);
+            Destroy();
         }
 
-    protected:
         // When copying the world.
         virtual ComponentCacheBase* CopyCreate() override
         {
@@ -79,7 +76,7 @@ namespace Lina
             {
                 if (comp != nullptr)
                 {
-                    T* newComp = new (newCache->m_allocatorPool->Allocate(sizeof(T))) T();
+                    T* newComp = new (newCache->m_allocatorPool.Allocate(sizeof(T))) T();
                     *newComp   = *comp;
                     newComp->OnComponentCreated();
                     newCache->m_components.AddItem(newComp, i);
@@ -93,7 +90,7 @@ namespace Lina
         // Mutators
         inline T* AddComponent(Entity* e)
         {
-            T* comp          = new (m_allocatorPool->Allocate(sizeof(T))) T();
+            T* comp          = new (m_allocatorPool.Allocate(sizeof(T))) T();
             comp->m_entityID = e->GetID();
             comp->m_entity   = e;
             comp->OnComponentCreated();
@@ -121,7 +118,7 @@ namespace Lina
                     comp->OnComponentDestroyed();
                     comp->~T();
                     m_components.RemoveItem(index);
-                    m_allocatorPool->Free(comp);
+                    m_allocatorPool.Free(comp);
                     break;
                 }
                 index++;
@@ -131,21 +128,6 @@ namespace Lina
         virtual void OnEntityDestroyed(Entity* e) override
         {
             DestroyComponent(e);
-        }
-
-        virtual void Destroy() override
-        {
-            for (auto* comp : m_components)
-            {
-                if (comp != nullptr)
-                {
-                    comp->OnComponentDestroyed();
-                    comp->~T();
-                    m_allocatorPool->Free(comp);
-                }
-            }
-
-            m_components.Clear();
         }
 
         // Inherited via ComponentCacheBase
@@ -183,7 +165,7 @@ namespace Lina
 
             for (auto [compID, entityID] : compEntityIDs)
             {
-                T* comp = new (m_allocatorPool->Allocate(sizeof(T))) T();
+                T* comp = new (m_allocatorPool.Allocate(sizeof(T))) T();
                 stream >> comp->m_entityID;
                 comp->LoadFromStream(stream);
                 comp->m_entity = m_entities[comp->m_entityID];
@@ -193,9 +175,24 @@ namespace Lina
         }
 
     private:
-        friend class EntityWorld;
-        IDList<T*>           m_components;
-        MemoryAllocatorPool* m_allocatorPool = nullptr;
+        virtual void Destroy()
+        {
+            for (auto* comp : m_components)
+            {
+                if (comp != nullptr)
+                {
+                    comp->OnComponentDestroyed();
+                    comp->~T();
+                    m_allocatorPool.Free(comp);
+                }
+            }
+
+            m_components.Clear();
+        }
+
+    private:
+        MemoryAllocatorPool m_allocatorPool;
+        IDList<T*>          m_components;
     };
 
 } // namespace Lina

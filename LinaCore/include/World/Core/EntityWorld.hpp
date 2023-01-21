@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "ComponentCache.hpp"
 #include "Serialization/ISerializable.hpp"
+#include "Memory/MemoryAllocatorPool.hpp"
 
 namespace Lina
 {
@@ -61,16 +62,14 @@ namespace Lina
     class EntityWorld : public ISerializable
     {
     public:
-        EntityWorld() : m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr))
+        EntityWorld() : m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorPoolGrowPolicy::UseInitialSize, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), 0))
         {
-            m_allocatorPool = MemoryManager::Get().CreateAllocatorPoolThreadSafe(AllocatorType::Pool, sizeof(Entity) * ENTITY_POOL_SIZE, AllocatorPoolGrowPolicy::UseInitialSize, 0, sizeof(Entity));
-            m_id            = s_worldCounter++;
+            m_id = s_worldCounter++;
         };
 
         ~EntityWorld()
         {
             DestroyWorld();
-            MemoryManager::Get().DestroyAllocatorPoolThreadSafe(m_allocatorPool);
         }
 
     public:
@@ -154,11 +153,11 @@ namespace Lina
 
     private:
         static uint32                        s_worldCounter;
+        MemoryAllocatorPool                  m_allocatorPool;
         HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
         IDList<Entity*>                      m_entities;
-        CameraComponent*                     m_activeCamera  = nullptr;
-        MemoryAllocatorPool*                 m_allocatorPool = nullptr;
-        uint32                               m_id            = 0;
+        CameraComponent*                     m_activeCamera = nullptr;
+        uint32                               m_id           = 0;
     };
 
 } // namespace Lina

@@ -60,7 +60,7 @@ set (LINACOMMON_SOURCES
 	
 	# Memory
 	src/Memory/Memory.cpp
-	src/Memory/MemoryManager.cpp
+	src/Memory/MemoryAllocatorPool.cpp
 
 	# Profiling
 	src/Profiling/Profiler.cpp
@@ -93,7 +93,7 @@ set(LINACOMMON_HEADERS
 	include/Profiling/Profiler.hpp
 	
 	# Events
-	include/EventSystem/EventCommon.hpp
+	include/EventSystem/CommonEvent.hpp
 	include/EventSystem/WindowEvents.hpp
 	include/EventSystem/InputEvents.hpp
 	include/EventSystem/LevelEvents.hpp
@@ -130,7 +130,7 @@ set(LINACOMMON_HEADERS
 	include/Data/FixedHashMap.hpp
 	include/Data/FixedSet.hpp
 	include/Data/String.hpp
-	include/Data/DataCommon.hpp
+	include/Data/CommonData.hpp
 	include/Data/Bitmask.hpp
 	include/Data/Mutex.hpp
 	include/Data/Streams.hpp
@@ -138,13 +138,13 @@ set(LINACOMMON_HEADERS
 
 	# Memory
 	include/Memory/Memory.hpp
-	include/Memory/MemoryManager.hpp
+	include/Memory/MemoryAllocatorPool.hpp
 	
 	# Log
 	include/Log/Log.hpp
 
 	# Serialization
-	include/Serialization/SerializationCommon.hpp
+	include/Serialization/CommonSerialization.hpp
 	include/Serialization/ISerializable.hpp
 	include/Serialization/Compressor.hpp
 	include/Serialization/Endianness.hpp
@@ -201,7 +201,6 @@ PUBLIC
 	include/Serialization/Endianness.hpp
 	include/Data/Streams.hpp
 	include/Log/Log.hpp
-	include/Memory/Memory.hpp
 	
 )
 

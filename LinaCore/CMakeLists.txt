@@ -31,6 +31,10 @@ src/World/Core/Component.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
+
+# Resources
+src/Resources/Core/CommonResources.cpp
+src/Resources/Core/ResourceManager.cpp
 )
 
 #--------------------------------------------------------------------
@@ -47,8 +51,13 @@ include/World/Core/ComponentCache.hpp
 include/World/Core/EntityWorld.hpp
 include/World/Core/CommonWorld.hpp
 
+# Reflection
 include/Reflection/ClassReflection.hpp
 include/Reflection/ReflectionSystem.hpp
+
+# Resources
+include/Resources/Core/CommonResources.hpp
+include/Resources/Core/ResourceManager.hpp
 )
 
 #--------------------------------------------------------------------

@@ -26,10 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Memory/MemoryManager.hpp"
+#include "Memory/MemoryAllocatorPool.hpp"
 #include "Log/Log.hpp"
 #include "Math/Math.hpp"
-#include "Data/DataCommon.hpp"
+#include "Data/CommonData.hpp"
 #include "Data/String.hpp"
 #include "Profiling/Profiler.hpp"
 #include <memallocators/FreeListAllocator.h>
@@ -39,23 +39,11 @@ SOFTWARE.
 
 namespace Lina
 {
-#define BYTES_TO_MB(x)                    x * 0.000001f
-#define MEMMANAGER_DEFAULT_FREE_LIST_SIZE 1024 * 1024 * 10
+#define BYTES_TO_MB(x) x * 0.000001f
 
-    MemoryManager::~MemoryManager()
+    bool AllocatorWrapper::IsAvailable(size_t size)
     {
-        Shutdown();
-    }
-
-    void MemoryManager::Shutdown()
-    {
-        LINA_TRACE("[Shutdown] -> Memory Manager ({0})", typeid(*this).name());
-        delete m_globalPool;
-
-        for (auto p : m_allocatorPools)
-            delete p;
-
-        m_allocatorPools.clear();
+        return allocator->GetTotalSize() - allocator->GetUsedSize() > size;
     }
 
     Allocator* MemoryAllocatorPool::CreateAllocator(AllocatorType type, size_t size, size_t userData)
@@ -140,7 +128,15 @@ namespace Lina
     {
         auto& wrapper = m_allocators[m_currentAllocator];
         if (wrapper.IsAvailable(size))
-            return wrapper.allocator->Allocate(size, 8);
+        {
+            void* ptr = wrapper.allocator->Allocate(size, 8);
+
+#ifdef LINA_ENABLE_PROFILING
+            if (!g_skipAllocTrack)
+                Profiler::Get().OnAllocation(ptr, size);
+#endif
+            return ptr;
+        }
         else
         {
             size_t newSize = 0;
@@ -182,6 +178,11 @@ namespace Lina
 
             if (start <= ptr && ptr < static_cast<char*>(start) + wrapper.allocator->GetTotalSize())
             {
+
+#ifdef LINA_ENABLE_PROFILING
+                if (!g_skipAllocTrack)
+                    Profiler::Get().OnFree(ptr);
+#endif
                 wrapper.allocator->Free(ptr);
                 freed = true;
 
@@ -218,53 +219,4 @@ namespace Lina
         m_allocators.push_back(wrapper);
     }
 
-    MemoryAllocatorPool* MemoryManager::CreateAllocatorPool(AllocatorType type, size_t size, AllocatorPoolGrowPolicy growPolicy, uint8 maxGrowSize, size_t userData)
-    {
-        MemoryAllocatorPool* pool = new MemoryAllocatorPool(type, growPolicy, size, userData, maxGrowSize);
-        m_allocatorPools.push_back(pool);
-        return pool;
-    }
-
-    void MemoryManager::DestroyAllocatorPool(MemoryAllocatorPool* pool)
-    {
-        m_allocatorPools.erase(linatl::find_if(m_allocatorPools.begin(), m_allocatorPools.end(), [pool](MemoryAllocatorPool* p) { return p == pool; }));
-        delete pool;
-    }
-
-    void* MemoryManager::AllocateGlobal(size_t size, size_t alignment)
-    {
-
-        if (alignment < 8)
-            LINA_ERR("[Memory Manager] -> Alignment must be at least 8 bytes!");
-
-        if (size < MEMMANAGER_MIN_FREELIST_SIZE)
-            size = MEMMANAGER_MIN_FREELIST_SIZE;
-
-        if (m_globalPool == nullptr)
-            m_globalPool = new MemoryAllocatorPool(AllocatorType::FreeList, AllocatorPoolGrowPolicy::UseInitialSize, MEMMANAGER_DEFAULT_FREE_LIST_SIZE, 0, 0);
-
-        void* ptr = nullptr;
-        ptr       = m_globalPool->Allocate(size);
-
-#ifdef LINA_ENABLE_PROFILING
-        if (!Lina::g_skipAllocTrack)
-            Lina::PROFILER_ALLOC(ptr, size);
-#endif
-
-        return ptr;
-    }
-
-    void MemoryManager::FreeGlobal(void* ptr)
-    {
-#ifdef LINA_ENABLE_PROFILING
-        if (!Lina::g_skipAllocTrack)
-            Lina::PROFILER_FREE(ptr);
-#endif
-        m_globalPool->Free(ptr);
-    }
-
-    bool AllocatorWrapper::IsAvailable(size_t size)
-    {
-        return allocator->GetTotalSize() - allocator->GetUsedSize() > size;
-    }
 } // namespace Lina

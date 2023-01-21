@@ -209,10 +209,10 @@ namespace Lina
 
     void Profiler::OnAllocation(void* ptr, size_t size)
     {
+        LOCK_GUARD(m_lock);
+
         if (g_skipAllocTrack)
             return;
-
-        LOCK_GUARD(m_lock);
 
         g_skipAllocTrack = true;
         MemAllocationInfo info;
@@ -235,10 +235,10 @@ namespace Lina
 
     void Profiler::OnFree(void* ptr)
     {
+        LOCK_GUARD(m_lock);
+
         if (g_skipAllocTrack)
             return;
-
-        LOCK_GUARD(m_lock);
 
         auto it = m_memAllocations.find(ptr);
         if (it == m_memAllocations.end())
@@ -279,14 +279,15 @@ namespace Lina
 
         std::ofstream file(path.c_str());
 
-        auto writeTrace = [&](const ParallelHashMap<void*, MemAllocationInfo>& map) {
-            for (const auto& alloc : map)
+        auto writeTrace = [&](ParallelHashMap<void*, MemAllocationInfo>& map) {
+            for (auto& alloc : map)
             {
                 if (alloc.first == 0)
                     continue;
+                std::ostringstream ss;
 
-                file << "****************** LEAK DETECTED ******************\n";
-                file << "Size: " << alloc.second.size << " bytes \n";
+                ss << "****************** LEAK DETECTED ******************\n";
+                ss << "Size: " << alloc.second.size << " bytes \n";
 
 #ifdef LINA_PLATFORM_WINDOWS
                 HANDLE      process = GetCurrentProcess();
@@ -318,7 +319,7 @@ namespace Lina
 
                 for (int i = 0; i < alloc.second.stackSize; ++i)
                 {
-                    file << "------ Stack Trace " << i << "------\n";
+                    ss << "------ Stack Trace " << i << "------\n";
 
                     DWORD64 address = (DWORD64)(alloc.second.stack[i]);
 
@@ -326,28 +327,33 @@ namespace Lina
 
                     if (SymGetLineFromAddr64(process, address, &displacement, line))
                     {
-                        file << "Location:" << line->FileName << "\n";
-                        file << "Smybol:" << symbol->Name << "\n";
-                        file << "Line:" << line->LineNumber << "\n";
-                        file << "SymbolAddr:" << symbol->Address << "\n";
+                        ss << "Location:" << line->FileName << "\n";
+                        ss << "Smybol:" << symbol->Name << "\n";
+                        ss << "Line:" << line->LineNumber << "\n";
+                        ss << "SymbolAddr:" << symbol->Address << "\n";
                     }
                     else
                     {
-                        file << "Smybol:" << symbol->Name << "\n";
-                        file << "SymbolAddr:" << symbol->Address << "\n";
+                        ss << "Smybol:" << symbol->Name << "\n";
+                        ss << "SymbolAddr:" << symbol->Address << "\n";
                     }
 
                     IMAGEHLP_MODULE64 moduleInfo;
                     moduleInfo.SizeOfStruct = sizeof(moduleInfo);
                     if (::SymGetModuleInfo64(process, symbol->ModBase, &moduleInfo))
-                        file << "Module:" << moduleInfo.ModuleName << "\n";
+                        ss << "Module:" << moduleInfo.ModuleName << "\n";
                 }
                 std::free(line);
                 std::free(symbolAll);
 #endif
 
-                file << "\n";
-                file << "\n";
+                ss << "\n";
+                ss << "\n";
+
+                if (ss.str().find("taskflow\\core\\executor.hpp") == std::string::npos)
+                    file << ss.str();
+                else
+                    alloc.second.skipped = true;
             }
         };
 
@@ -357,7 +363,7 @@ namespace Lina
             size_t totalSizeKB    = 0;
 
             for (auto& alloc : m_memAllocations)
-                totalSizeBytes += alloc.second.size;
+                totalSizeBytes += alloc.second.skipped ? 0 : alloc.second.size;
 
             totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
 

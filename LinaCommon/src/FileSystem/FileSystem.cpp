@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "FileSystem/FileSystem.hpp"
-#include "Data/DataCommon.hpp"
+#include "Data/CommonData.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <windows.h>
@@ -228,7 +228,7 @@ namespace Lina
     {
         const String newFolderName = GetUniqueDirectoryName(parent, "NewFolder", "");
 
-        Folder* folder   = LNEW(Folder);
+        Folder* folder   = new Folder();
         folder->parent   = parent;
         folder->name     = newFolderName;
         folder->fullPath = parent->fullPath + "/" + folder->name;
@@ -252,7 +252,7 @@ namespace Lina
         }
 
         DeleteDirectory(folder->fullPath);
-        LDEL_OBJ(folder, Folder);
+        delete folder;
         folder = nullptr;
     }
 

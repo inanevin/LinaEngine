@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
     void ReflectionSystem::Clear()
     {
         for (auto& [tid, type] : m_metaData)

@@ -26,25 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "FileSystem/FileData.hpp"
+#pragma once
+
+#ifndef CommonResources_HPP
+#define CommonResources_HPP
 
 namespace Lina
 {
-    Lina::Folder::~Folder()
-    {
-        for (int i = 0; i < files.size(); i++)
-        {
-            delete files[i];
-        }
-
-        files.clear();
-
-        for (int i = 0; i < folders.size(); i++)
-        {
-            delete folders[i];
-        }
-
-        folders.clear();
-    }
 
 } // namespace Lina
+
+#endif

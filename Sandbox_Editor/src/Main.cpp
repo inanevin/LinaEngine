@@ -29,21 +29,37 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Memory/MemoryManager.hpp"
 #include "Math/Color.hpp"
-#include "Data/DataCommon.hpp"
+#include "Data/CommonData.hpp"
 #include "World/Core/Component.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "DummySource.hpp"
 #include "Core/StringID.hpp"
 #include "World/Core/EntityWorld.hpp"
-#include <EASTL/scoped_ptr.h>
+#include "Memory/MemoryAllocatorPool.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
 
+class Test
+{
+public:
+    void Add()
+    {
+        aq.push_back(5);
+    }
+
+    void AddM(int i)
+    {
+        aqq[i] = 2.0f;
+    }
+    Lina::Vector<int>         aq;
+    Lina::HashMap<int, float> aqq;
+};
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
+
     // Win32 stuff
     MSG msg    = {0};
     msg.wParam = 0;
@@ -53,44 +69,34 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         // err
     }
 
-    Lina::Taskflow tf;
+    tf::Executor exec;
+    tf::Taskflow tf;
 
-    Lina::Vector<int> testV;
+    Lina::EntityWorld* world = new Lina::EntityWorld();
+    Lina::Entity*      ent   = world->CreateEntity("My Entity");
 
-    testV.push_back(0);
-    testV.push_back(0);
-    testV.push_back(0);
-    testV.push_back(0);
-    testV.push_back(0);
-    testV.push_back(0);
+    ent->SetPosition(Lina::Vector3(15, 25, 15));
 
-    tf.for_each_index(0, (int)testV.size(), 1, [](int i) {
-        Lina::EntityWorld* world = new Lina::EntityWorld();
-        Lina::Entity*      ent   = world->CreateEntity("My Entity");
+    auto comp                = world->AddComponent<DummySource>(ent);
+    comp.Get().MovementSpeed = 2;
+    Lina::OStream test;
+    world->SaveToStream(test);
+    auto str = "TestWorld" + TO_STRING(0);
+    world->SaveToFile(str.c_str());
+    delete world;
+    test.Destroy();
 
-        ent->SetPosition(Lina::Vector3(15, 25, 15));
-
-        auto comp                = world->AddComponent<DummySource>(ent);
-        comp.Get().MovementSpeed = 2;
-        Lina::OStream test;
-        world->SaveToStream(test);
-        auto str = "TestWorld" + TO_STRING(i);
-        world->SaveToFile(str.c_str());
-        delete world;
-        test.Destroy();
-    });
-    Lina::JobSystem::Get().GetMainExecutor().RunAndWait(tf);
-    //  while (true)
-    //  {
-    //      while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-    //      {
-    //          TranslateMessage(&msg);
-    //          DispatchMessage(&msg);
-    //      }
+    //   while (true)
+    //   {
+    //       while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+    //       {
+    //           TranslateMessage(&msg);
+    //           DispatchMessage(&msg);
+    //       }
     //
-    //      if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
-    //          break;
-    //  }
+    //       if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
+    //           break;
+    //   }
 
     FreeConsole();
 }

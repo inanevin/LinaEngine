@@ -29,7 +29,7 @@ private:
     }
 };
 
-LINA_REFLECTCLASS_BEGIN(DummySource, "DummySrc", "", true)
-LINA_REFLECTCLASS_FIELD(DummySource, MovementSpeed, "FieldTitle", "Int", "", "Hehe", "")
-LINA_REFLECTCLASS_FIELD(DummySource, m_rotateSpeed, "FieldTitle", "Int", "", "Hehe", "")
-LINA_REFLECTCLASS_END(DummySource)
+// LINA_REFLECTCLASS_BEGIN(DummySource, "DummySrc", "", true)
+// LINA_REFLECTCLASS_FIELD(DummySource, MovementSpeed, "FieldTitle", "Int", "", "Hehe", "")
+// LINA_REFLECTCLASS_FIELD(DummySource, m_rotateSpeed, "FieldTitle", "Int", "", "Hehe", "")
+// LINA_REFLECTCLASS_END(DummySource)

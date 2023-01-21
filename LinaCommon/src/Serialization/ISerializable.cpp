@@ -29,23 +29,22 @@ SOFTWARE.
 #include "Serialization/ISerializable.hpp"
 #include "Data/Streams.hpp"
 #include "Serialization/Serialization.hpp"
-#include "Serialization/SerializationCommon.hpp"
+#include "Serialization/CommonSerialization.hpp"
 
 namespace Lina
 {
-    void ISerializable::SaveToFile(const char* path, MemoryAllocatorPool* allocator)
+    void ISerializable::SaveToFile(const char* path)
     {
         OStream stream;
-        stream.SetAllocator(allocator);
         stream.CreateReserve(120);
         SaveToStream(stream);
         Serialization::SaveToFile(path, stream);
         stream.Destroy();
     }
 
-    void ISerializable::LoadFromFile(const char* path, MemoryAllocatorPool* allocator)
+    void ISerializable::LoadFromFile(const char* path)
     {
-        IStream stream = Serialization::LoadFromFile(path, allocator);
+        IStream stream = Serialization::LoadFromFile(path);
 
         if (stream.GetDataRaw() != nullptr)
             LoadFromStream(stream);

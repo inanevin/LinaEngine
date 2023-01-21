@@ -105,6 +105,9 @@ namespace Lina
     class FieldBase
     {
     public:
+        FieldBase()          = default;
+        virtual ~FieldBase() = default;
+
         virtual FieldValue Value(void* obj) = 0;
 
         inline FieldBase* AddProperty(StringID sid, const String& prop)
@@ -124,6 +127,9 @@ namespace Lina
     template <typename T, class C> class Field : public FieldBase
     {
     public:
+        Field()          = default;
+        virtual ~Field() = default;
+
         inline virtual FieldValue Value(void* obj) override
         {
             FieldValue val;
@@ -195,6 +201,10 @@ namespace Lina
 
     private:
         ReflectionSystem() = default;
+        ~ReflectionSystem()
+        {
+            Clear();
+        }
 
     private:
         HashMap<TypeID, MetaType> m_metaData;

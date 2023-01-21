@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Serialization/Serialization.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Serialization/Compressor.hpp"
-#include "Serialization/SerializationCommon.hpp"
+#include "Serialization/CommonSerialization.hpp"
 
 namespace Lina
 {
@@ -80,7 +80,7 @@ namespace Lina
         return true;
     }
 
-    IStream Serialization::LoadFromFile(const char* path, MemoryAllocatorPool* allocator)
+    IStream Serialization::LoadFromFile(const char* path)
     {
         std::ifstream rf(path, std::ios::out | std::ios::binary);
 
@@ -94,7 +94,6 @@ namespace Lina
 
         // Create
         IStream readStream;
-        readStream.SetAllocator(allocator);
         readStream.Create(size);
         readStream.ReadFromIFStream(rf);
         rf.close();

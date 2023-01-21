@@ -84,6 +84,7 @@ namespace Lina
 
     struct MemAllocationInfo
     {
+        bool           skipped                        = false;
         size_t         size                           = 0;
         unsigned short stackSize                      = 0;
         void*          stack[MEMORY_STACK_TRACE_SIZE] = {};
