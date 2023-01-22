@@ -13,18 +13,18 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
-project(Sandbox_Editor)
+project(Sandbox)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
-set(SANDBOX_EDITOR_SOURCES 
+set(SANDBOX_SOURCES 
 
 include/DummySource.hpp
 )
 
-set(SANDBOX_EDITOR_HEADERS
+set(SANDBOX_HEADERS
 
 src/Main.cpp
 
@@ -36,9 +36,9 @@ src/Main.cpp
 
 ## WIN32 Console Subsystem
 if(WIN32)
-	add_executable(${PROJECT_NAME} WIN32 ${SANDBOX_EDITOR_SOURCES} ${SANDBOX_EDITOR_HEADERS})
+	add_executable(${PROJECT_NAME} WIN32 ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 else()
-	add_executable(${PROJECT_NAME} ${SANDBOX_EDITOR_SOURCES} ${SANDBOX_EDITOR_HEADERS})
+	add_executable(${PROJECT_NAME} ${SANDBOX_SOURCES} ${SANDBOX_HEADERS})
 endif()
 
 #--------------------------------------------------------------------
@@ -75,9 +75,9 @@ include(../CMake/EditorSandboxCommands.cmake)
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS SANDBOX_EDITOR_HEADERS SANDBOX_EDITOR_SOURCES)
+	foreach(source IN LISTS SANDBOX_HEADERS SANDBOX_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${SANDBOX_EDITOR_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "${SANDBOX_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()

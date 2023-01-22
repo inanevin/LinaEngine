@@ -34,6 +34,7 @@ SOFTWARE.
 // Headers here.
 #include "Math/Color.hpp"
 #include "Math/Quaternion.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina
 {
@@ -95,11 +96,6 @@ namespace Lina::Event
         float      lineWidth = 0.0f;
         bool       half      = false;
         Quaternion rotation  = Quaternion();
-    };
-
-    struct EAdditionalSwapchainDestroyed
-    {
-        StringID sid = 0;
     };
 } // namespace Lina::Event
 

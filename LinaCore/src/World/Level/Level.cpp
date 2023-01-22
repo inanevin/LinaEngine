@@ -26,15 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef ApplicationEvents_HPP
-#define ApplicationEvents_HPP
+#include "World/Level/Level.hpp"
 
 
-namespace Lina::Event
+namespace Lina
 {
+    void Level::Install()
+    {
+    }
 
-} // namespace Lina::Event
+    void Level::Uninstall()
+    {
+    }
 
-#endif
+} // namespace Lina::World

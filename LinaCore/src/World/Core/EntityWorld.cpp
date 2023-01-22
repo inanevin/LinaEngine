@@ -201,16 +201,12 @@ namespace Lina
 
         for (uint32 i = 0; i < tids.size(); i++)
         {
-            const MetaType& type = ReflectionSystem::Get().Resolve(tids[i]);
-            if (type.createCompCacheFunc)
-            {
-                ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(type.createCompCacheFunc());
-                cache->m_entities         = m_entities.GetRaw();
-                cache->LoadFromStream(stream);
-                m_componentCaches[tids[i]] = cache;
-            }
-            else
-                LINA_ERR("Could not create a cache for the type ID {0}, did your component change?", tids[i]);
+            MetaType&           type  = ReflectionSystem::Get().Resolve(tids[i]);
+            void*               ptr   = type.GetFunction<void*()>("CreateCompCache"_hs)();
+            ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
+            cache->m_entities         = m_entities.GetRaw();
+            cache->LoadFromStream(stream);
+            m_componentCaches[tids[i]] = cache;
         }
     }
 

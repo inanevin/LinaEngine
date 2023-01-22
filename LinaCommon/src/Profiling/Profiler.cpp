@@ -363,7 +363,7 @@ namespace Lina
             size_t totalSizeKB    = 0;
 
             for (auto& alloc : m_memAllocations)
-                totalSizeBytes += alloc.second.skipped ? 0 : alloc.second.size;
+                totalSizeBytes += alloc.second.size;
 
             totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
 

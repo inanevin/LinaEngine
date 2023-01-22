@@ -28,13 +28,22 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ApplicationEvents_HPP
-#define ApplicationEvents_HPP
+#ifndef LinaEditor_HPP
+#define LinaEditor_HPP
 
+#include "Data/Vector.hpp"
 
-namespace Lina::Event
+namespace Lina
 {
-
-} // namespace Lina::Event
+    struct ResourceIdentifier;
+} // namespace Lina
+namespace Lina::Editor
+{
+    class Editor
+    {
+    public:
+        void PackageResources(const Vector<ResourceIdentifier>& identifiers);
+    };
+} // namespace Lina::Editor
 
 #endif

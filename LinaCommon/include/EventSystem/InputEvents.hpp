@@ -32,6 +32,7 @@ SOFTWARE.
 #define InputEvents_HPP
 
 // Headers here.
+#include "Core/SizeDefinitions.hpp"
 
 namespace Lina::Event
 {

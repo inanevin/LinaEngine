@@ -30,6 +30,18 @@ SOFTWARE.
 
 namespace Lina
 {
-   
+    String GGetPackagePath(PackageType pt)
+    {
+        switch (pt)
+        {
+        case PackageType::Static:
+            return "Resources/Packages/res_pack_static.linapackage";
+        case PackageType::Package1:
+            return "Resources/Packages/res_pack_01.linapackage";
+        case PackageType::Package2:
+            return "Resources/Packages/res_pack_02.linapackage";
+        }
 
+        return "";
+    }
 } // namespace Lina

@@ -45,6 +45,10 @@ else()
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_DEBUG=1)
 endif()
 
+if(LINA_ENABLE_EDITOR)
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
+endif()
+
 #--------------------------------------------------------------------
 # Properties
 #--------------------------------------------------------------------

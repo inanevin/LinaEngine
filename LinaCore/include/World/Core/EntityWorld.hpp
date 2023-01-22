@@ -133,16 +133,7 @@ namespace Lina
         template <typename T> ComponentCache<T>* Cache()
         {
             const TypeID       tid   = GetTypeID<T>();
-            ComponentCache<T>* cache = nullptr;
-            const auto&        it    = m_componentCaches.find(tid);
-            if (it == m_componentCaches.end())
-            {
-                cache                  = new ComponentCache<T>();
-                m_componentCaches[tid] = cache;
-            }
-            else
-                cache = static_cast<ComponentCache<T>*>(it->second);
-
+            ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
             return cache;
         }
 

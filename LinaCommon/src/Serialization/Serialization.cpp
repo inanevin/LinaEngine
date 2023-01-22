@@ -33,8 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-#define COMPRESS_MIN_LIMIT 1000
-
     bool Serialization::SaveToFile(const char* path, OStream& stream)
     {
         std::ofstream wf(path, std::ios::out | std::ios::binary);
@@ -48,28 +46,10 @@ namespace Lina
         if (FileSystem::FileExists(path))
             FileSystem::DeleteFileInPath(path);
 
-        const uint32 streamSize = static_cast<uint32>(stream.GetCurrentSize());
-
-        // Compress if between 750 kb and 150 megabytes
-        uint8 shouldCompress = (streamSize < 150000000 && streamSize > 750000) ? 1 : 0;
-        stream << shouldCompress;
-
-        // Uncompressed data size
-        const uint32 size = streamSize + sizeof(uint8) + sizeof(uint32);
-        stream << size;
-
-        if (shouldCompress)
-        {
-            OStream compressed = Compressor::Compress(stream);
-            compressed.WriteToOFStream(wf);
-            wf.close();
-            compressed.Destroy();
-        }
-        else
-        {
-            stream.WriteToOFStream(wf);
-            wf.close();
-        }
+        OStream compressed = Compressor::Compress(stream);
+        compressed.WriteToOFStream(wf);
+        wf.close();
+        compressed.Destroy();
 
         if (!wf.good())
         {
@@ -101,22 +81,9 @@ namespace Lina
         if (!rf.good())
             LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
-        // Read uncompressed size of archive.
-        uint8  shouldDecompress = 0;
-        uint32 uncompressedSize = 0;
-        readStream.Seek(readStream.GetSize() - sizeof(uint32) - sizeof(uint8));
-        readStream.Read(shouldDecompress);
-        readStream.Read(uncompressedSize);
-        readStream.Seek(0);
-
-        if (shouldDecompress)
-        {
-            IStream decompressedStream = Compressor::Decompress(readStream, static_cast<size_t>(uncompressedSize));
-            readStream.Destroy();
-            return decompressedStream;
-        }
-        else
-            return readStream;
+        IStream decompressedStream = Compressor::Decompress(readStream);
+        readStream.Destroy();
+        return decompressedStream;
     }
 
 } // namespace Lina

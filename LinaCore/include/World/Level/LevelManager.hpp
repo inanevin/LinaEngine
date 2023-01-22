@@ -28,13 +28,20 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ApplicationEvents_HPP
-#define ApplicationEvents_HPP
+#ifndef LevelManager_HPP
+#define LevelManager_HPP
 
-
-namespace Lina::Event
+namespace Lina
 {
 
-} // namespace Lina::Event
+    class LevelManager
+    {
+    public:
+        LevelManager()          = default;
+        virtual ~LevelManager() = default;
+
+    private:
+    };
+} // namespace Lina
 
 #endif

@@ -28,55 +28,68 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef JobSystem_HPP
-#define JobSystem_HPP
+#ifndef IResource_HPP
+#define IResource_HPP
 
+#include "Core/StringID.hpp"
 #include "Data/String.hpp"
-#include <taskflow/taskflow.hpp>
+#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
-    typedef tf::Taskflow Taskflow;
-
-    template <typename T> using Future = tf::Future<T>;
-
-    class Executor
+    class IResource : public ISerializable
     {
     public:
-        inline Future<void> Run(Taskflow& flow)
+        IResource()          = default;
+        virtual ~IResource() = default;
+        virtual void Flush() = 0;
+
+        inline void SetPath(const String& path)
         {
-            return m_ex.run(flow);
+            m_path = path;
         }
 
-        inline void RunAndWait(Taskflow& flow)
+        inline void SetSID(StringID sid)
         {
-            m_ex.run(flow).wait();
+            m_sid = sid;
         }
 
-        template <typename F, typename... ArgsT> inline Future<void> Async(F&& f, ArgsT&&... args)
+        inline void SetTID(TypeID tid)
         {
-            return m_ex.async(f, args...);
+            m_tid = tid;
         }
 
-        template <typename F, typename... ArgsT> void SilentAsync(F&& f, ArgsT&&... args)
+        inline void SetCacheID(uint32 id)
         {
-            m_ex.silent_async(f, args...);
+            m_cacheID = id;
         }
 
-        template <typename F, typename... ArgsT> void SilentAsync(const String& name, F&& f, ArgsT&&... args)
+        inline const String& GetPath() const
         {
-            m_ex.named_silent_async(name.c_str(), f, args...);
+            return m_path;
         }
 
-        void Wait()
+        inline StringID GetSID() const
         {
-            m_ex.wait_for_all();
+            return m_sid;
         }
 
-    private:
-        tf::Executor m_ex;
+        inline TypeID GetTID() const
+        {
+            return m_tid;
+        }
+
+        inline uint32 GetCacheID() const
+        {
+            return m_cacheID;
+        }
+
+    protected:
+        uint32   m_cacheID = 0;
+        String   m_path    = "";
+        TypeID   m_tid     = 0;
+        StringID m_sid     = 0;
     };
-
 } // namespace Lina
 
 #endif

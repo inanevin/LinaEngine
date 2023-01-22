@@ -35,54 +35,86 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Functional.hpp"
+#include "Data/CommonData.hpp"
 #include <type_traits>
 
 namespace Lina
 {
-    typedef Delegate<void*()>         CreateFunc;
-    typedef Delegate<void(void* obj)> DestroyFunc;
+    class PropertyCacheBase
+    {
+    public:
+        PropertyCacheBase()          = default;
+        virtual ~PropertyCacheBase() = default;
+    };
+
+    template <typename T> class PropertyCache : public PropertyCacheBase
+    {
+    public:
+        void AddProperty(StringID sid, T p)
+        {
+            m_properties[sid] = p;
+        }
+
+        T GetProperty(StringID sid)
+        {
+            return m_properties[sid];
+        }
+
+    private:
+        HashMap<StringID, T> m_properties;
+    };
+
+    class PropertyCacheManager
+    {
+    public:
+        PropertyCacheManager() = default;
+
+        virtual ~PropertyCacheManager()
+        {
+            for (auto [sid, cache] : m_propertyCaches)
+                delete cache;
+
+            m_propertyCaches.clear();
+        }
+
+        template <typename T> inline void AddProperty(StringID sid, T param)
+        {
+            const TypeID tid = GetTypeID<T>();
+            auto         it  = m_propertyCaches.find(tid);
+            if (it == m_propertyCaches.end())
+            {
+                PropertyCache<T>* cache = new PropertyCache<T>();
+                m_propertyCaches[tid]   = cache;
+                cache->AddProperty(sid, param);
+            }
+            else
+            {
+                PropertyCache<T>* cache = static_cast<PropertyCache<T>*>(it->second);
+                cache->AddProperty(sid, param);
+            }
+        }
+
+        template <typename T> inline T GetProperty(StringID sid)
+        {
+            const TypeID tid = GetTypeID<T>();
+            return static_cast<PropertyCache<T>*>(m_propertyCaches[tid])->GetProperty(sid);
+        }
+
+    private:
+        HashMap<TypeID, PropertyCacheBase*> m_propertyCaches;
+    };
 
     class FieldValue
     {
     public:
-        inline float AsFloat()
+        template <typename T> T GetValue()
         {
-            return *static_cast<float*>(ptr);
+            return Cast<T>();
         }
 
-        inline int AsInt()
+        template <typename T> void SetValue(T t)
         {
-            return *static_cast<int*>(ptr);
-        }
-
-        inline double AsDouble()
-        {
-            return *static_cast<double*>(ptr);
-        }
-
-        inline String AsString()
-        {
-            return *static_cast<String*>(ptr);
-        }
-
-        inline void SetFloat(float f)
-        {
-            *static_cast<float*>(ptr) = f;
-        }
-
-        inline void SetInt(int i)
-        {
-            *static_cast<int*>(ptr) = i;
-        }
-
-        inline void SetDouble(double d)
-        {
-            *static_cast<double*>(ptr) = d;
-        }
-
-        inline void SetString(String s)
-        {
-            *static_cast<String*>(ptr) = s;
+            Cast<T>() = t;
         }
 
         template <typename T> T Cast()
@@ -100,6 +132,8 @@ namespace Lina
             return static_cast<T*>(ptr);
         }
 
+    private:
+        template <typename T, typename U> friend class Field;
         void* ptr = nullptr;
     };
     class FieldBase
@@ -110,18 +144,18 @@ namespace Lina
 
         virtual FieldValue Value(void* obj) = 0;
 
-        inline FieldBase* AddProperty(StringID sid, const String& prop)
+        template <typename T> inline void AddProperty(StringID sid, T param)
         {
-            properties[sid] = prop;
-            return this;
+            m_propertyCacheManager.AddProperty<T>(sid, param);
         }
 
-        inline String& GetProperty(StringID sid)
+        template <typename T> inline T GetProperty(StringID sid)
         {
-            return properties[sid];
+            return m_propertyCacheManager.GetProperty<T>(sid);
         }
 
-        HashMap<StringID, String> properties;
+    private:
+        PropertyCacheManager m_propertyCacheManager;
     };
 
     template <typename T, class C> class Field : public FieldBase
@@ -140,37 +174,87 @@ namespace Lina
         T m_var = T();
     };
 
+    class FunctionCacheBase
+    {
+    public:
+        FunctionCacheBase()          = default;
+        virtual ~FunctionCacheBase() = default;
+    };
+
+    template <typename T> class FunctionCache : public FunctionCacheBase
+    {
+    public:
+        void AddFunction(StringID sid, Delegate<T>&& f)
+        {
+            m_functions[sid] = f;
+        }
+
+        Delegate<T> GetFunction(StringID sid)
+        {
+            return m_functions[sid];
+        }
+
+        FunctionCache()          = default;
+        virtual ~FunctionCache() = default;
+
+    private:
+        HashMap<StringID, Delegate<T>> m_functions;
+    };
+
     class MetaType
     {
     public:
         inline FieldBase* GetField(StringID sid)
         {
-            return fields[sid];
-        }
-
-        inline String& GetProperty(StringID sid)
-        {
-            return properties[sid];
+            return m_fields[sid];
         }
 
         template <auto DATA, typename Class> void AddField(StringID sid)
         {
             Field<decltype(DATA), Class>* f = new Field<decltype(DATA), Class>();
             f->m_var                        = DATA;
-            fields[sid]                     = f;
+            m_fields[sid]                   = f;
         }
 
-        inline void AddProperty(StringID sid, const String& p)
+        template <typename T> inline void AddProperty(StringID sid, T param)
         {
-            properties[sid] = p;
+            m_propertyCacheManager.AddProperty<T>(sid, param);
         }
 
-        CreateFunc  createFunc;
-        CreateFunc  createCompCacheFunc;
-        DestroyFunc destroyFunc;
+        template <typename T> inline T GetProperty(StringID sid)
+        {
+            return m_propertyCacheManager.GetProperty<T>(sid);
+        }
 
-        HashMap<StringID, FieldBase*> fields;
-        HashMap<StringID, String>     properties;
+        template <typename T> inline void AddFunction(StringID sid, Delegate<T>&& del)
+        {
+            const TypeID tid = GetTypeID<T>();
+            auto         it  = m_functionCaches.find(tid);
+            if (it == m_functionCaches.end())
+            {
+                FunctionCache<T>* cache = new FunctionCache<T>();
+                m_functionCaches[tid]   = cache;
+                cache->AddFunction(sid, linatl::move(del));
+            }
+            else
+            {
+                FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(it->second);
+                cache->AddFunction(sid, linatl::move(del));
+            }
+        }
+
+        template <typename T> inline Delegate<T> GetFunction(StringID sid)
+        {
+            const TypeID      tid   = GetTypeID<T>();
+            FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(m_functionCaches[tid]);
+            return cache->GetFunction(sid);
+        }
+
+    private:
+        friend class ReflectionSystem;
+        PropertyCacheManager                m_propertyCacheManager;
+        HashMap<TypeID, FunctionCacheBase*> m_functionCaches;
+        HashMap<StringID, FieldBase*>       m_fields;
     };
 
     class ReflectionSystem

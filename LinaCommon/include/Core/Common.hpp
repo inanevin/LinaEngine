@@ -35,7 +35,20 @@ SOFTWARE.
 
 namespace Lina
 {
-   
+    enum class PreferredGPUType
+    {
+        Discrete = 0,
+        Integrated,
+        CPU
+    };
+
+    enum class VsyncMode
+    {
+        None = 0,
+        StrongVsync,
+        Adaptive,
+        TripleBuffer
+    };
 
 } // namespace Lina
 

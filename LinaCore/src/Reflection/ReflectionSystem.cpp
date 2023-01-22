@@ -34,14 +34,14 @@ namespace Lina
     {
         for (auto& [tid, type] : m_metaData)
         {
-            for (auto& [sid, f] : type.fields)
-            {
-                f->properties.clear();
+            for (auto& [sid, f] : type.m_fields)
                 delete f;
-            }
 
-            type.fields.clear();
-            type.properties.clear();
+            for (auto& [tid, f] : type.m_functionCaches)
+                delete f;
+
+            type.m_functionCaches.clear();
+            type.m_fields.clear();
         }
 
         m_metaData.clear();

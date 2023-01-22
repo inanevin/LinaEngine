@@ -28,13 +28,34 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ApplicationEvents_HPP
-#define ApplicationEvents_HPP
+#ifndef Level_HPP
+#define Level_HPP
 
+#include "Resources/Core/IResource.hpp"
+#include "World/Core/EntityWorld.hpp"
 
-namespace Lina::Event
+namespace Lina
 {
+    class Application;
 
-} // namespace Lina::Event
+    class Level : public IResource
+    {
+    public:
+        Level(){};
+        virtual ~Level(){};
+
+        void Install();
+        void Uninstall();
+
+        inline EntityWorld& GetWorld()
+        {
+            return m_world;
+        }
+
+    private:
+    private:
+        EntityWorld m_world;
+    };
+} // namespace Lina::World
 
 #endif

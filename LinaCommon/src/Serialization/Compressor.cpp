@@ -41,8 +41,23 @@ namespace Lina
         return 255 * compressedSize + 24;
     }
 
-    OStream Compressor::Compress(const OStream& stream)
+    OStream Compressor::Compress(OStream& stream)
     {
+        const uint32 streamSize       = static_cast<uint32>( stream.GetCurrentSize());
+        const uint8  shouldCompress   = (streamSize < 150000000 && streamSize > 750000) ? 1 : 0;
+        const uint32 uncompressedSize = streamSize + sizeof(uint8) + sizeof(uint32);
+
+        stream << shouldCompress;
+        stream << uncompressedSize;
+
+        if (!shouldCompress)
+        {
+            OStream compressed;
+            compressed.CreateReserve(stream.GetCurrentSize());
+            compressed.WriteRaw(stream.GetDataRaw(), stream.GetCurrentSize());
+            return compressed;
+        }
+
         const int size          = static_cast<int>(stream.GetCurrentSize());
         const int compressBound = LZ4_compressBound(size);
 
@@ -57,18 +72,31 @@ namespace Lina
             LINA_ERR("[Compressor] -> LZ4 compression failed!");
 
         compressedStream.Shrink(static_cast<size_t>(bytesWritten));
-
         return compressedStream;
     }
-    IStream Compressor::Decompress(IStream& stream, size_t decompressedBound)
+    IStream Compressor::Decompress(IStream& stream)
     {
+        // Read uncompressed size of archive.
+        uint8  shouldDecompress = 0;
+        uint32 uncompressedSize = 0;
+        stream.Seek(stream.GetSize() - sizeof(uint32) - sizeof(uint8));
+        stream.Read(shouldDecompress);
+        stream.Read(uncompressedSize);
+        stream.Seek(0);
+
+        if (!shouldDecompress)
+        {
+            IStream copy;
+            copy.Create(stream.GetDataRaw(), stream.GetSize());
+            return copy;
+        }
+
         const size_t size               = stream.GetSize();
         IStream      decompressedStream = IStream();
-        decompressedStream.Create(decompressedBound);
+        decompressedStream.Create(uncompressedSize);
         void*     src              = stream.GetDataRaw();
         void*     ptr              = decompressedStream.GetDataRaw();
-        const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, static_cast<int>(size), static_cast<int>(decompressedBound));
-
+        const int decompressedSize = LZ4_decompress_safe((char*)src, (char*)ptr, static_cast<int>(size), static_cast<int>(uncompressedSize));
         decompressedStream.Shrink(static_cast<size_t>(decompressedSize));
         return decompressedStream;
     }

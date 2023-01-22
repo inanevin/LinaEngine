@@ -31,10 +31,74 @@ SOFTWARE.
 #ifndef ResourceManager_HPP
 #define ResourceManager_HPP
 
+#include "Data/HashMap.hpp"
+#include "Data/Vector.hpp"
+#include "CommonResources.hpp"
+#include "ResourceCache.hpp"
+#include "JobSystem/JobSystem.hpp"
 
 namespace Lina
 {
-    
+    class IStream;
+
+    class ResourceManager
+    {
+    public:
+        static ResourceManager& Get()
+        {
+            static ResourceManager instance;
+            return instance;
+        }
+
+        template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt)
+        {
+            const TypeID tid = GetTypeID<T>();
+            if (m_caches.find(tid) == m_caches.end())
+                m_caches[tid] = new ResourceCache<T>(chunkCount, extensions, pt);
+        }
+
+        template <typename T> T& GetResource(StringID sid) const
+        {
+            const TypeID tid   = GetTypeID<T>();
+            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
+            return *cache->GetResource(sid);
+        }
+
+        template <typename T> void AddUserManaged(T* res, StringID sid)
+        {
+            const TypeID tid   = GetTypeID<T>();
+            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
+            cache->AddUserManaged(res, sid);
+        }
+
+        template <typename T> void RemoveUserManaged(StringID sid)
+        {
+            const TypeID tid   = GetTypeID<T>();
+            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
+            cache->RemoveUserManaged(sid);
+        }
+
+        static String GetMetacachePath(const String& resourcePath, StringID sid);
+        PackageType   GetPackageType(TypeID tid);
+        
+        void LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
+        void UnloadResources(const Vector<ResourceIdentifier>& identifiers);
+
+    private:
+        ResourceManager() = default;
+        ~ResourceManager()
+        {
+            Destroy();
+        }
+
+    private:
+        void Destroy();
+
+    private:
+        Executor                            m_executor;
+        ResourceManagerMode                 m_mode = ResourceManagerMode::File;
+        HashMap<TypeID, ResourceCacheBase*> m_caches;
+    };
 
 } // namespace Lina
 

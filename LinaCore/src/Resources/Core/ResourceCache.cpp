@@ -26,15 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Resources/Core/ResourceCache.hpp"
 
-#ifndef ApplicationEvents_HPP
-#define ApplicationEvents_HPP
-
-
-namespace Lina::Event
+namespace Lina
 {
 
-} // namespace Lina::Event
-
-#endif
+} // namespace Lina

@@ -37,8 +37,8 @@ namespace Lina
     class Compressor
     {
     public:
-        static OStream Compress(const OStream& stream);
-        static IStream Decompress(IStream& stream, size_t decompressedBound);
+        static OStream Compress(OStream& stream);
+        static IStream Decompress(IStream& stream);
     };
 }; // namespace Lina
 

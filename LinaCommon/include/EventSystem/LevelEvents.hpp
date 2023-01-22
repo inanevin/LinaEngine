@@ -40,24 +40,17 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Event
 {
-    // Level
-    struct ELevelInstallStarted
-    {
-    };
-
     struct ELevelInstalled
     {
         World::EntityWorld* world = nullptr;
         const char*         path  = "";
     };
 
-    /// <summary>
-    /// Warning! Will be called from seperate thread if level is loaded as async.
-    /// </summary>
     struct ELevelResourcesLoaded
     {
         const char* path = "";
     };
+    
     struct ELevelUninstalled
     {
         World::EntityWorld* world = nullptr;

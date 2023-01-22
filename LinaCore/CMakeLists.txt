@@ -24,10 +24,10 @@ set (LINACORE_SOURCES
 # World
 src/World/Core/Entity.cpp
 src/World/Core/Component.cpp
- src/World/Core/ComponentCache.cpp
-## src/World/Core/Level.cpp
-## src/World/Core/LevelManager.cpp
- src/World/Core/EntityWorld.cpp
+src/World/Core/ComponentCache.cpp
+src/World/Level/Level.cpp
+src/World/Level/LevelManager.cpp
+src/World/Core/EntityWorld.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -35,6 +35,8 @@ src/Reflection/ReflectionSystem.cpp
 # Resources
 src/Resources/Core/CommonResources.cpp
 src/Resources/Core/ResourceManager.cpp
+src/Resources/Core/ResourceCache.cpp
+src/Resources/Core/IResource.cpp
 )
 
 #--------------------------------------------------------------------
@@ -46,8 +48,8 @@ set(LINACORE_HEADERS
 include/World/Core/Entity.hpp
 include/World/Core/Component.hpp
 include/World/Core/ComponentCache.hpp
-#include/World/Core/Level.hpp
-#include/World/Core/LevelManager.hpp
+include/World/Level/Level.hpp
+include/World/Level/LevelManager.hpp
 include/World/Core/EntityWorld.hpp
 include/World/Core/CommonWorld.hpp
 
@@ -58,6 +60,9 @@ include/Reflection/ReflectionSystem.hpp
 # Resources
 include/Resources/Core/CommonResources.hpp
 include/Resources/Core/ResourceManager.hpp
+include/Resources/Core/ResourceCache.hpp
+include/Resources/Core/IResource.hpp
+include/Resources/Core/ResourcesReflection.hpp
 )
 
 #--------------------------------------------------------------------
@@ -85,6 +90,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 
+if(LINA_ENABLE_EDITOR)
+target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
+endif()
+
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
@@ -111,6 +120,10 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC user32.lib
 	Vulkan::Vulkan
 )
+
+if(LINA_ENABLE_EDITOR)
+	target_link_libraries(${PROJECT_NAME} PUBLIC Lina::Editor)
+endif()
 
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} PUBLIC Shcore.lib)

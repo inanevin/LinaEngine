@@ -31,8 +31,32 @@ SOFTWARE.
 #ifndef CommonResources_HPP
 #define CommonResources_HPP
 
+#include "Core/StringID.hpp"
+#include "Data/String.hpp"
+
 namespace Lina
 {
+    enum class ResourceManagerMode
+    {
+        File,
+        Package
+    };
+
+    enum class PackageType
+    {
+        Static,
+        Package1,
+        Package2,
+    };
+
+    extern String GGetPackagePath(PackageType pt);
+
+    struct ResourceIdentifier
+    {
+        TypeID   tid  = 0;
+        StringID sid  = 0;
+        String   path = "";
+    };
 
 } // namespace Lina
 

@@ -32,7 +32,8 @@ SOFTWARE.
 #define WindowEvents_HPP
 
 // Headers here.
-#include "Core/CommonApplication.hpp"
+#include "Math/Vector.hpp"
+#include "Core/Common.hpp"
 
 namespace Lina::Event
 {
@@ -69,10 +70,6 @@ namespace Lina::Event
     {
         VsyncMode newMode = VsyncMode::None;
     };
-    // struct EWindowMaximized { void* m_window; int m_isMaximized; };
-    // struct EWindowIconified { void* m_window; int m_isIconified; };
-    // struct EWindowRefreshed { void* m_window; };
-    // struct EWindowMoved { void* m_window; int m_x; int m_y; };
 
 } // namespace Lina::Event
 
