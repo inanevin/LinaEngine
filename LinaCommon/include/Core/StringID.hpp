@@ -32,6 +32,7 @@ SOFTWARE.
 #define StringId_HPP
 
 #include "Core/SizeDefinitions.hpp"
+#include "LinaCommonExports.hpp"
 #include <cstddef>
 
 // Headers here.
@@ -41,7 +42,7 @@ namespace Lina
     typedef uint32 TypeID;
 
     // https://gist.github.com/hwei/1950649d523afd03285c
-    class FnvHash
+    class LINACOMMON_API FnvHash
     {
     public:
         static const unsigned int                               FNV_PRIME    = 16777619u;
@@ -76,7 +77,7 @@ namespace Lina
         }
     };
 
-    template <typename T> TypeID GetTypeID()
+    template <typename T> LINACOMMON_API TypeID GetTypeID()
     {
         return FnvHash(typeid(T).name());
     }

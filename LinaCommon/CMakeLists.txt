@@ -166,12 +166,14 @@ set(LINACOMMON_HEADERS
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
+
+	include/LinaCommonExports.hpp
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
 add_library(Lina::Common ALIAS ${PROJECT_NAME} ) 
 
 #--------------------------------------------------------------------
@@ -204,11 +206,13 @@ PUBLIC
 	
 )
 
+
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Lina")
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -228,6 +232,13 @@ link_phmap()
 link_taskflow()
 link_memallocators()
 link_lz4()
+
+##include (GenerateExportHeader)
+##	GENERATE_EXPORT_HEADER (LinaCommon
+##	BASE_NAME LinaCommon
+##	EXPORT_MACRO_NAME LINACOMMON_API
+##	EXPORT_FILE_NAME LinaCommonExports.hpp
+##)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

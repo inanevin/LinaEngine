@@ -13,38 +13,28 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
-project(LinaEditor)
+project(GameCode)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
-set(LINAEDITOR_SOURCES 
-
-# Core
-src/Core/Editor.cpp
-src/Core/EditorApplication.cpp
-src/Main.cpp
-
+set(GAMECODE_SOURCES 
+include/GameCodeExports.hpp
 )
 
+set(GAMECODE_HEADERS
 
-set(LINAEDITOR_HEADERS
-
-# Core
-include/Core/Editor.hpp
-include/Core/EditorApplication.hpp
+src/Main.cpp
 
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
-if(WIN32)
-	add_executable(${PROJECT_NAME} WIN32 ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
-else()
-	add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
-endif()
+
+## WIN32 Console Subsystem
+add_library(${PROJECT_NAME} SHARED ${GAMECODE_SOURCES} ${GAMECODE_HEADERS})
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -52,13 +42,10 @@ endif()
 include(../CMake/ProjectSettings.cmake)
 
 #--------------------------------------------------------------------
-# Include & Link
+# Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCore/include)
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Lina")
-
 
 #--------------------------------------------------------------------
 # Links
@@ -67,17 +54,25 @@ target_link_libraries(${PROJECT_NAME}
 PUBLIC Lina::Core
 )
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+  target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")
+endif()
 
-include(../_Dependencies/linavg/link.cmake)
-link_linavg()
+#include (GenerateExportHeader)
+#	GENERATE_EXPORT_HEADER (GameCode
+#	BASE_NAME GameCode
+#	EXPORT_MACRO_NAME GameCode_API
+#	EXPORT_FILE_NAME GameCodeExports.hpp
+#)
+
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINAEDITOR_HEADERS LINAEDITOR_SOURCES)
+	foreach(source IN LISTS GAMECODE_HEADERS GAMECODE_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LINAEDITOR_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "${GAMECODE_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()

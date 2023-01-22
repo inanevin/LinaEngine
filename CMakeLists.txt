@@ -52,7 +52,6 @@ set(LINA_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/_bin)
 
 option(LINA_ENABLE_LOGGING "Enables logging." ON)
 option(LINA_ENABLE_PROFILING "Enables profiling." ON)
-option(LINA_ENABLE_EDITOR "Enables editor." ON)
 option(LINA_PRODUCTION_BUILD "Strips all debugging functionality." OFF)
 
 set(TARGET_ARCHITECTURE "x64")
@@ -68,13 +67,11 @@ file(MAKE_DIRECTORY ${LINA_WORKING_DIRECTORY})
 
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaCore)
-
-if(LINA_ENABLE_EDITOR)
-	add_subdirectory(LinaEditor)
-endif()
-
-add_subdirectory(Sandbox)
+add_subdirectory(LinaEditor)
+add_subdirectory(GameCode)
+add_subdirectory(GameLauncher)
 # add_subdirectory(LinaHeaderTool)
-
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CustomTargets")
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT LinaEditor)
 

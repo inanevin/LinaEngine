@@ -26,57 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Timer_HPP
-#define Timer_HPP
-
-#include <chrono>
-
-namespace Lina
-{
-    class LINACOMMON_API Time
-    {
-    public:
-        /// <summary>
-        /// CPU clock time. This is NOT elapsed time. You can use this to create time points and measure differences.
-        /// </summary>
-        /// <returns>In seconds</returns>
-        static double GetCPUTime();
-
-        static inline double GetDeltaTime()
-        {
-            return s_deltaTime;
-        }
-
-        static inline float GetDeltaTimeF()
-        {
-            return static_cast<float>(s_deltaTime);
-        }
-
-        static inline double GetElapsedTime()
-        {
-            return GetCPUTime() - s_startTime;
-        }
-
-        static inline float GetElapsedTimeF()
-        {
-            return static_cast<float>(GetElapsedTime());
-        }
-
-    private:
-        static void Sleep(double seconds);
-
-    private:
-        static double s_deltaTime;
-        static double s_startTime;
-
 #ifdef LINA_PLATFORM_WINDOWS
-        static double s_timerFrequency;
-        static bool   s_isTimerInitialized;
-#endif
-    };
+#include <Windows.h>
 
-} // namespace Lina
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
+{
+    // Win32 stuff
+    MSG msg    = {0};
+    msg.wParam = 0;
+    FreeConsole();
+}
+
+#else
+
+int main(int argc, char* argv[])
+{
+    return 0;
+}
 
 #endif

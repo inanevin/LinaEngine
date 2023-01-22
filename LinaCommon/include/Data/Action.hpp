@@ -32,10 +32,11 @@ SOFTWARE.
 #define Action_HPP
 
 #include "Functional.hpp"
+#include "LinaCommonExports.hpp"
 
 namespace Lina
 {
-    class SimpleAction
+    class LINACOMMON_API SimpleAction
     {
     public:
         SimpleAction(){};

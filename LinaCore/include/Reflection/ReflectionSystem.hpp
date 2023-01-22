@@ -97,7 +97,8 @@ namespace Lina
         template <typename T> inline T GetProperty(StringID sid)
         {
             const TypeID tid = GetTypeID<T>();
-            return static_cast<PropertyCache<T>*>(m_propertyCaches[tid])->GetProperty(sid);
+            PropertyCacheBase* cache = m_propertyCaches.at(tid);
+            return static_cast<PropertyCache<T>*>(cache)->GetProperty(sid);
         }
 
     private:

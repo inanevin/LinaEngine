@@ -68,6 +68,9 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_MINOR=0)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PATCH=0)
 add_definitions(-DLINA_CONFIGURATION="$<CONFIGURATION>")
 
+if(WIN32 AND LINA_ENABLE_PROFILING)
+  target_link_libraries(${PROJECT_NAME} PUBLIC Dbghelp)
+endif()
 #--------------------------------------------------------------------
 # Compiler
 #--------------------------------------------------------------------

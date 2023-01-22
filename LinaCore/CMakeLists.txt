@@ -20,7 +20,9 @@ project(LinaCore)
 #--------------------------------------------------------------------
 set (LINACORE_SOURCES
 	
-	
+# Core
+src/Core/Application.cpp
+
 # World
 src/World/Core/Entity.cpp
 src/World/Core/Component.cpp
@@ -44,6 +46,9 @@ src/Resources/Core/IResource.cpp
 #--------------------------------------------------------------------
 set(LINACORE_HEADERS
 
+# Core
+include/Core/Application.hpp
+
 # World
 include/World/Core/Entity.hpp
 include/World/Core/Component.hpp
@@ -63,17 +68,25 @@ include/Resources/Core/ResourceManager.hpp
 include/Resources/Core/ResourceCache.hpp
 include/Resources/Core/IResource.hpp
 include/Resources/Core/ResourcesReflection.hpp
+
+include/LinaCoreExports.hpp
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 
-add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${LINACORE_SOURCES} ${LINACORE_HEADERS})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
+
+
+target_precompile_headers(${PROJECT_NAME}
+PRIVATE include/LinaCoreExports.hpp
+)
 
 ## Remove Nvidia PhysX linker pdb warning
 target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Lina")
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -89,10 +102,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
-
-if(LINA_ENABLE_EDITOR)
-target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaEditor/include)
-endif()
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -116,18 +125,22 @@ link_openal()
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-	PUBLIC Lina::Common
+	PRIVATE Lina::Common
 	PUBLIC user32.lib
 	Vulkan::Vulkan
 )
 
-if(LINA_ENABLE_EDITOR)
-	target_link_libraries(${PROJECT_NAME} PUBLIC Lina::Editor)
-endif()
 
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} PUBLIC Shcore.lib)
 endif()
+
+##include (GenerateExportHeader)
+##	GENERATE_EXPORT_HEADER (LinaCore
+##	BASE_NAME LinaCore
+##	EXPORT_MACRO_NAME LINACORE_API
+##	EXPORT_FILE_NAME LinaCoreExports.hpp
+##)
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
