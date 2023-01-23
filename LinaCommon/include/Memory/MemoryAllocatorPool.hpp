@@ -31,9 +31,12 @@ SOFTWARE.
 #ifndef MemoryAllocatorPool_HPP
 #define MemoryAllocatorPool_HPP
 
+#include "Core/StringID.hpp"
 #include "Data/Vector.hpp"
 #include "Data/String.hpp"
+#include "Data/SimpleArray.hpp"
 #include "Core/SizeDefinitions.hpp"
+#include "Data/Mutex.hpp"
 
 class Allocator;
 
@@ -41,60 +44,56 @@ namespace Lina
 {
 #define MEMMANAGER_MIN_FREELIST_SIZE 16
 
-    enum class AllocatorPoolGrowPolicy
+    enum class AllocatorGrowPolicy
     {
         NoGrow,
         UseInitialSize,
         UseRequestedSize,
-        UseDoubleInitialSize,
         UseDoubledRequestedSize,
     };
 
     enum class AllocatorType
     {
+        StandardMallocFree,
         Linear,
         Stack,
         Pool,
         FreeList,
     };
 
-    struct AllocatorWrapper
+    struct SizeInformation
     {
-        Allocator* allocator = nullptr;
-        bool       IsAvailable(size_t size);
-        size_t     minSizeRequirement = 0;
+        size_t maxSize       = 0;
+        size_t usedSize      = 0;
+        size_t availableSize = 0;
+        size_t peakSize      = 0;
     };
 
-    class MemoryManager;
     class MemoryAllocatorPool
     {
     public:
-        MemoryAllocatorPool(AllocatorType type, AllocatorPoolGrowPolicy growPolicy, size_t initialSize, size_t initialUserData, uint8 maxGrowSize);
-        virtual ~MemoryAllocatorPool();
+        MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData = 0, const String& name = "", StringID category = 0);
+        ~MemoryAllocatorPool();
 
-        void* Allocate(size_t size);
+        void* Allocate(size_t sz);
         void  Free(void* ptr);
-        void  Reset();
-
-        inline size_t GetMinSizeRequirement()
-        {
-            return m_minSizeRequirement;
-        }
+        void  GetTotalSizeInformation(SizeInformation& totalSizeInformation);
 
     private:
-        static Allocator* CreateAllocator(AllocatorType type, size_t size, size_t userData = 0);
-        static String     GetAllocatorName(AllocatorType type);
-        void              AddAllocator(size_t size);
+        void       AddAllocator(size_t reqSz);
+        Allocator* CreateAllocator(AllocatorType type, size_t size, size_t userData = 0);
 
-    protected:
-        AllocatorPoolGrowPolicy  m_growPolicy         = AllocatorPoolGrowPolicy::NoGrow;
-        AllocatorType            m_type               = AllocatorType::FreeList;
-        size_t                   m_minSizeRequirement = 0;
-        int                      m_maxGrowSize        = 0;
-        size_t                   m_initialSize        = 0;
-        size_t                   m_initialUserData    = 0;
-        uint32                   m_currentAllocator;
-        Vector<AllocatorWrapper> m_allocators;
+    private:
+        StringID            m_category   = 0;
+        String              m_name       = "";
+        bool                m_threadSafe = false;
+        Mutex               m_mtx;
+        AllocatorType       m_type            = AllocatorType::FreeList;
+        AllocatorGrowPolicy m_growPolicy      = AllocatorGrowPolicy::UseInitialSize;
+        size_t              m_initialSize     = 0;
+        size_t              m_initialUserData = 0;
+        uint32              m_allocatorSize   = 0;
+        Allocator**         m_allocators      = nullptr;
     };
 
 } // namespace Lina

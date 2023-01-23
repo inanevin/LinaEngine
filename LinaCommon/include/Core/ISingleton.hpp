@@ -28,27 +28,50 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresMutex_HPP
-#define DataStructuresMutex_HPP
+#ifndef ISingleton_HPP
+#define ISingleton_HPP
 
-#include <mutex>
-#include <atomic>
+#include "Data/SimpleArray.hpp"
 
 namespace Lina
 {
-    typedef std::mutex                  Mutex;
-    typedef std::lock_guard<std::mutex> LockGuard;
 
-    template <typename T> using Atomic = std::atomic<T>;
+    class ISingleton
+    {
+    public:
+        ISingleton();
+        virtual ~ISingleton();
+        virtual void Destroy() = 0;
 
-#define DEFINE_MUTEX(NAME)               std::mutex NAME
-#define LOCK_GUARD(mtx)                  std::lock_guard<Mutex> grd(mtx)
-#define SCOPED_LOCK                      std::scoped_lock
-#define UNIQUE_LOCK(mtx)                 std::unique_lock<Mutex>(mtx)
-#define CONDITIONAL_LOCK(condition, mtx) auto conditionalScope = condition ? std::unique_lock<Mutex>(mtx) : std::unique_lock<Mutex>()
-#define LOCK(mtx)                        mtx.lock()
-#define UNLOCK(mtx)                      mtx.unlock()
+    protected:
+        bool m_destroyed = false;
+    };
 
+    class SingletonTracker
+    {
+    public:
+        static SingletonTracker& Get()
+        {
+            static SingletonTracker tracker;
+            return tracker;
+        }
+
+        void RegisterSingleton(ISingleton* singleton);
+        void UnregisterSingleton(ISingleton* singleton);
+
+    private:
+        friend class GlobalAllocatorWrapper;
+
+        SingletonTracker() = default;
+        ~SingletonTracker()
+        {
+            ReleaseSingletons();
+        }
+        void ReleaseSingletons();
+
+    private:
+        SimpleArray<ISingleton*> m_singletons;
+    };
 } // namespace Lina
 
 #endif

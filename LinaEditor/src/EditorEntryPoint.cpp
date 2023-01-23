@@ -28,46 +28,64 @@ SOFTWARE.
 
 #include "Reflection/ReflectionSystem.hpp"
 #include "Math/AABB.hpp"
-#include "GameCodeExports.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
-
 #include <Windows.h>
 
-extern "C" GAMECODE_API void ExampleFunc(Lina::AABB& hmm)
-{
-    int a         = 0;
-    int b         = 5;
-    hmm.boundsMax = Lina::Vector3(1, 1, 1);
-}
+using namespace Lina;
 
-BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to DLL module
-                    DWORD     fdwReason, // reason for calling function
-                    LPVOID    lpReserved)   // reserved
+typedef void(__cdecl* MyFunc)(Lina::AABB*);
+
+int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR pCmdLine, _In_ int nCmdShow)
 {
-    // Perform actions based on the reason for calling.
-    switch (fdwReason)
+    // Win32 stuff
+    MSG msg    = {0};
+    msg.wParam = 0;
+
+    if (AllocConsole() == FALSE)
     {
-    case DLL_PROCESS_ATTACH: {
-        int aq = 5;
-        // Initialize once for each new process.
-        break;
-    }
-    case DLL_THREAD_ATTACH:
-        // Do thread-specific initialization.
-        break;
-
-    case DLL_THREAD_DETACH:
-        // Do thread-specific cleanup.
-        break;
-
-    case DLL_PROCESS_DETACH:
-        // Perform any necessary cleanup.
-        break;
+        // err
     }
 
-    // Successful. If this is FALSE, the process will be terminated eventually
-    // https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function#entry-point-function-return-value
-    return TRUE;
+    HINSTANCE hinstLib;
+    BOOL      fFreeResult = FALSE;
+    hinstLib              = LoadLibrary(TEXT("GameCode.dll"));
+
+    while (true)
+    {
+        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+
+        if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
+            break;
+    }
+
+    // If the handle is valid, try to get the function address.
+    if (hinstLib != NULL)
+    {
+        // MyFunc ProcAdd = (MyFunc)GetProcAddress(hinstLib, "ExampleFunc");
+        //
+        // // If the function address is valid, call the function.
+        //
+        // if (NULL != ProcAdd)
+        // {
+        //     (ProcAdd)(hm);
+        // }
+        // Free the DLL module.
+        fFreeResult = FreeLibrary(hinstLib);
+    }
+
+    FreeConsole();
 }
+
+#else
+
+int main(int argc, char* argv[])
+{
+    return 0;
+}
+
 #endif

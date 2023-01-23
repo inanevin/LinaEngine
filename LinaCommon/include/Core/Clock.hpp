@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    class LINACOMMON_API Clock
+    class Clock
     {
     public:
         Clock() = default;

@@ -62,7 +62,7 @@ namespace Lina
     class EntityWorld : public ISerializable
     {
     public:
-        EntityWorld() : m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorPoolGrowPolicy::UseInitialSize, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), 0))
+        EntityWorld() : m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
         {
             m_id = s_worldCounter++;
         };

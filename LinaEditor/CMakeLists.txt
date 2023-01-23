@@ -24,7 +24,7 @@ set(LINAEDITOR_SOURCES
 # Core
 src/Core/Editor.cpp
 src/Core/EditorApplication.cpp
-src/Main.cpp
+src/EditorEntryPoint.cpp
 
 )
 

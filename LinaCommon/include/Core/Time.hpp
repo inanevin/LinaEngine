@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    class LINACOMMON_API Time
+    class Time
     {
     public:
         /// <summary>

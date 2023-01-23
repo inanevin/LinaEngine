@@ -33,21 +33,18 @@ SOFTWARE.
 
 #ifdef LINA_ENABLE_PROFILING
 
-#define MEMORY_STACK_TRACE_SIZE 20
-#define MAX_FRAME_BACKTRACE     500
+#define MAX_FRAME_BACKTRACE 500
 
 // Headers here.
 #include "Data/String.hpp"
-#include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Queue.hpp"
 #include "Core/StringID.hpp"
+#include "Core/ISingleton.hpp"
 #include <source_location>
 
 namespace Lina
 {
-    extern bool g_skipAllocTrack;
-
     struct Scope
     {
     public:
@@ -56,6 +53,7 @@ namespace Lina
         String         name       = "";
         double         durationNS = 0.0;
         double         startTime  = 0.0;
+        double         initDiff   = 0.0;
         Scope*         parent     = nullptr;
         Vector<Scope*> children;
     };
@@ -82,24 +80,6 @@ namespace Lina
         HashMap<String, ThreadBranch> threadBranches;
     };
 
-    struct MemAllocationInfo
-    {
-        bool           skipped                        = false;
-        size_t         size                           = 0;
-        unsigned short stackSize                      = 0;
-        void*          stack[MEMORY_STACK_TRACE_SIZE] = {};
-    };
-
-    struct DeviceMemoryInfo
-    {
-        unsigned long totalVirtualMemory        = 0;
-        unsigned long totalUsedVirtualMemory    = 0;
-        unsigned long totalProcessVirtualMemory = 0;
-        unsigned long totalRAM                  = 0;
-        unsigned long totalUsedRAM              = 0;
-        unsigned long totalProcessRAM           = 0;
-    };
-
     struct DeviceCPUInfo
     {
         // Total % of CPU used by this process.
@@ -119,67 +99,59 @@ namespace Lina
         uint32 m_memoryHeapCount = 0;
     };
 
-    class Profiler
+    class Profiler : public ISingleton
     {
     public:
         static Profiler& Get()
         {
-            g_skipAllocTrack = true;
             static Profiler instance;
-            g_skipAllocTrack = false;
             return instance;
         }
 
-        DeviceMemoryInfo QueryMemoryInfo();
-        DeviceCPUInfo&   QueryCPUInfo();
-        void             StartFrame();
-        void             StartScope(const String& scope, const String& thread);
-        void             EndScope(const String& scope, const String& thread);
-        void             OnAllocation(void* ptr, size_t size);
-        void             OnVRAMAllocation(void* ptr, size_t size);
-        void             OnFree(void* ptr);
-        void             OnVRAMFree(void* ptr);
-        void             DumpMemoryLeaks(const String& path);
-        void             DumpFrameAnalysis(const String& path);
-        void             WriteScopeData(String& indent, Scope* scope, std::ofstream& file);
+        DeviceCPUInfo& QueryCPUInfo();
+        void           StartFrame();
+        void           StartScope(const String& scope, const String& thread);
+        void           EndScope(const String& scope, const String& thread);
+        void           DumpFrameAnalysis(const String& path);
+        void           WriteScopeData(String& indent, Scope* scope, std::ofstream& file);
 
         inline void SetGPUInfo(const DeviceGPUInfo& info)
         {
             m_gpuInfo = info;
         }
 
-    private:
-        Profiler() = default;
-        ~Profiler();
+        String FrameAnalysisFile = "lina_frame_analysis.txt";
 
-        void CaptureTrace(MemAllocationInfo& info);
-        void Shutdown();
+    protected:
+        virtual void Destroy() override;
+
+    private:
+        friend class GlobalAllocatorWrapper;
+
+        Profiler(){};
+        virtual ~Profiler()
+        {
+            Destroy();
+        }
+
         void CleanupFrame(Frame& frame);
         void CleanupScope(Scope* s);
 
     private:
-        double                                    m_totalFrameTimeNS = 0.0;
-        Queue<Frame>                              m_frames;
-        ParallelHashMap<void*, MemAllocationInfo> m_memAllocations;
-        ParallelHashMap<void*, MemAllocationInfo> m_vramAllocations;
-        size_t                                    m_totalMemAllocationSize  = 0;
-        size_t                                    m_totalVRAMAllocationSize = 0;
-        double                                    m_lastCPUQueryTime        = 0.0;
-        std::mutex                                m_lock;
-        bool                                      m_totalFrameQueueReached = false;
-        DeviceCPUInfo                             m_cpuInfo;
-        DeviceGPUInfo                             m_gpuInfo;
+        double        m_totalFrameTimeNS = 0.0;
+        Queue<Frame>  m_frames;
+        double        m_lastCPUQueryTime       = 0.0;
+        bool          m_totalFrameQueueReached = false;
+        DeviceCPUInfo m_cpuInfo;
+        DeviceGPUInfo m_gpuInfo;
+        std::mutex    m_lock;
     };
 
-#define PROFILER_FRAME_START()                      Profiler::Get().StartFrame()
-#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME) Profiler::Get().StartScope(SCOPENAME, THREADNAME)
-#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)   Profiler::Get().EndScope(SCOPENAME, THREADNAME)
-#define PROFILER_FUNC(...)                          Function func(__FUNCTION__, __VA_ARGS__)
-#define PROFILER_ALLOC(PTR, SZ)                     Profiler::Get().OnAllocation(PTR, SZ)
-#define PROFILER_VRAMALLOC(PTR, SZ)                 Profiler::Get().OnVRAMAllocation(PTR, SZ)
-#define PROFILER_FREE(PTR)                          Profiler::Get().OnFree(PTR)
-#define PROFILER_VRAMFREE(PTR)                      Profiler::Get().OnVRAMFree(PTR)
-#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)          Profiler::Get().DumpFrameAnalysis(PATH)
+#define PROFILER_FRAME_START()                      Lina::Profiler::Get().StartFrame()
+#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME) Lina::Profiler::Get().StartScope(SCOPENAME, THREADNAME)
+#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)   Lina::Profiler::Get().EndScope(SCOPENAME, THREADNAME)
+#define PROFILER_FUNC(...)                          Lina::Function func(__FUNCTION__, __VA_ARGS__)
+#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)       Lina::Profiler::Get().FrameAnalysisFile = TXT
 #define PROFILER_THREAD_RENDER                      "Render"
 #define PROFILER_THREAD_MAIN                        "Main"
 
@@ -201,6 +173,7 @@ namespace Lina
 #define PROFILER_THREAD_INPUT
 #define PROFILER_THREAD_MAIN
 #define PROFILER_THREAD_MAIN
+#define PROFILER_ENABLE_MEMORYLEAK_DUMP(ENABLE)
 #endif
 
 #endif

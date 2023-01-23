@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Functional.hpp"
+#include "Core/ISingleton.hpp"
 #include "Data/CommonData.hpp"
 #include <type_traits>
 
@@ -96,7 +97,7 @@ namespace Lina
 
         template <typename T> inline T GetProperty(StringID sid)
         {
-            const TypeID tid = GetTypeID<T>();
+            const TypeID       tid   = GetTypeID<T>();
             PropertyCacheBase* cache = m_propertyCaches.at(tid);
             return static_cast<PropertyCache<T>*>(cache)->GetProperty(sid);
         }
@@ -258,7 +259,9 @@ namespace Lina
         HashMap<StringID, FieldBase*>       m_fields;
     };
 
-    class ReflectionSystem
+    class GlobalAllocatorWrapper;
+
+    class ReflectionSystem : public ISingleton
     {
     public:
         static inline ReflectionSystem& Get()
@@ -282,13 +285,16 @@ namespace Lina
             return m_metaData[tid];
         }
 
-        void Clear();
+    protected:
+        virtual void Destroy() override;
 
     private:
+        friend class GlobalAllocatorWrapper;
+
         ReflectionSystem() = default;
-        ~ReflectionSystem()
+        virtual ~ReflectionSystem()
         {
-            Clear();
+            Destroy();
         }
 
     private:

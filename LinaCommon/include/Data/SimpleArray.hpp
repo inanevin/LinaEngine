@@ -50,14 +50,15 @@ namespace Lina
         {
             if (size_ == capacity_)
                 resize();
-            data_[size_++] = value;
+            data_[size_] = value;
+            size_++;
         }
 
         void remove(int index)
         {
             for (int i = index; i < size_ - 1; ++i)
                 data_[i] = data_[i + 1];
-            --size_;
+            size_--;
         }
 
         int size() const
@@ -70,16 +71,22 @@ namespace Lina
             if (new_capacity > capacity_)
             {
                 T* new_data = (T*)std::malloc(new_capacity * sizeof(T));
-                for (int i = 0; i < size_; ++i)
-                    new_data[i] = data_[i];
-                clear();
-                data_     = new_data;
-                capacity_ = new_capacity;
+                if (new_data)
+                {
+                    for (int i = 0; i < size_; ++i)
+                        new_data[i] = data_[i];
+                    std::free(data_);
+                    data_     = nullptr;
+                    data_     = new_data;
+                    capacity_ = new_capacity;
+                }
             }
         }
 
         void clear()
         {
+            if (!data_)
+                return;
             std::free(data_);
             data_     = nullptr;
             size_     = 0;
@@ -96,14 +103,18 @@ namespace Lina
     private:
         void resize()
         {
-            capacity_   = (capacity_ == 0) ? 1 : capacity_ * 2;
-            T* new_data = (T*)std::malloc(capacity_ * sizeof(T));
-            for (int i = 0; i < size_; ++i)
+            int newCapacity = (capacity_ == 0) ? 1 : capacity_ * 2;
+            T*  new_data    = (T*)std::malloc(newCapacity * sizeof(T));
+
+            if (new_data)
             {
-                new_data[i] = data_[i];
+                for (int i = 0; i < size_; ++i)
+                    new_data[i] = data_[i];
+                std::free(data_);
+                data_     = nullptr;
+                capacity_ = newCapacity;
+                data_     = new_data;
             }
-            clear();
-            data_ = new_data;
         }
 
         T*  data_     = nullptr;

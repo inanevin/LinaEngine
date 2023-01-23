@@ -68,21 +68,14 @@ include/Resources/Core/ResourceManager.hpp
 include/Resources/Core/ResourceCache.hpp
 include/Resources/Core/IResource.hpp
 include/Resources/Core/ResourcesReflection.hpp
-
-include/LinaCoreExports.hpp
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 
-add_library(${PROJECT_NAME} SHARED ${LINACORE_SOURCES} ${LINACORE_HEADERS})
+add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
-
-
-target_precompile_headers(${PROJECT_NAME}
-PRIVATE include/LinaCoreExports.hpp
-)
 
 ## Remove Nvidia PhysX linker pdb warning
 target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
@@ -125,7 +118,7 @@ link_openal()
 # Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
 	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
-	PRIVATE Lina::Common
+	PUBLIC Lina::Common
 	PUBLIC user32.lib
 	Vulkan::Vulkan
 )

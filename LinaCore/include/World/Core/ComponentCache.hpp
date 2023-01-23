@@ -57,7 +57,7 @@ namespace Lina
     template <typename T> class ComponentCache : public ComponentCacheBase
     {
     public:
-        ComponentCache() : m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorPoolGrowPolicy::UseInitialSize, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), 0))
+        ComponentCache() : m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
         {
         }
 

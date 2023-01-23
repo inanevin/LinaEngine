@@ -25,6 +25,7 @@ set (LINACOMMON_SOURCES
     src/Core/Time.cpp
 	src/Core/Clock.cpp
 	src/Core/StringID.cpp
+	src/Core/ISingleton.cpp
 	
 	# FileSystem
 	src/FileSystem/FileSystem.cpp
@@ -64,6 +65,7 @@ set (LINACOMMON_SOURCES
 
 	# Profiling
 	src/Profiling/Profiler.cpp
+	src/Profiling/MemoryTracer.cpp
 	
 	# Job System
 	src/JobSystem/JobSystem.cpp
@@ -81,6 +83,7 @@ set(LINACOMMON_HEADERS
 	include/Core/Time.hpp
 	include/Core/Clock.hpp
 	include/Core/StringID.hpp
+	include/Core/ISingleton.hpp
 	
 	# FileSystem
 	include/FileSystem/FileSystem.hpp
@@ -91,6 +94,7 @@ set(LINACOMMON_HEADERS
 
 	# Profiler
 	include/Profiling/Profiler.hpp
+	include/Profiling/MemoryTracer.hpp
 	
 	# Events
 	include/EventSystem/CommonEvent.hpp
@@ -166,14 +170,12 @@ set(LINACOMMON_HEADERS
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
-
-	include/LinaCommonExports.hpp
 )
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} SHARED ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
+add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
 add_library(Lina::Common ALIAS ${PROJECT_NAME} ) 
 
 #--------------------------------------------------------------------

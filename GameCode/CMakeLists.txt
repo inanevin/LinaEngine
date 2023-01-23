@@ -25,7 +25,7 @@ include/GameCodeExports.hpp
 
 set(GAMECODE_HEADERS
 
-src/Main.cpp
+src/GameCodeEntryPoint.cpp
 
 )
 

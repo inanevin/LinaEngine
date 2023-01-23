@@ -31,13 +31,38 @@ SOFTWARE.
 #ifndef Memory_HPP
 #define Memory_HPP
 
+#include "MemoryAllocatorPool.hpp"
+#include "Data/SimpleArray.hpp"
+
 namespace Lina
 {
 #define MEMCPY(...) memcpy(__VA_ARGS__)
 #define MALLOC(...) malloc(__VA_ARGS__)
 #define FREE(...)   free(__VA_ARGS__)
 
-} // namespace Lina
+#define LINA_GLOBALLOC_INITIAL_SIZE 1024 * 1024 * 10
+    // #define LINA_GLOBALLOC_INITIAL_SIZE 30
 
+    class GlobalAllocatorWrapper
+    {
+    public:
+        // courtesy of static initialization order
+        static GlobalAllocatorWrapper& Get()
+        {
+            static GlobalAllocatorWrapper instance;
+            return instance;
+        }
+
+        void* Allocate(size_t sz);
+        void  Free(void* ptr);
+
+    private:
+        GlobalAllocatorWrapper();
+        ~GlobalAllocatorWrapper();
+        MemoryAllocatorPool m_allocator;
+    
+    };
+
+} // namespace Lina
 
 #endif

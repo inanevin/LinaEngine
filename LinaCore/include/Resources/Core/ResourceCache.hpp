@@ -66,7 +66,7 @@ namespace Lina
     {
     public:
         ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt)
-            : ResourceCacheBase(extensions, pt), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorPoolGrowPolicy::UseInitialSize, sizeof(T) * chunkCount, sizeof(T), 0))
+            : ResourceCacheBase(extensions, pt), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "ResourceCache", "Resources"_hs))
         {
         }
 
@@ -94,8 +94,8 @@ namespace Lina
 
         virtual void DestroyResource(StringID sid) override
         {
-            auto       it  = m_resources.find(sid);
-            T* res = static_cast<T*>(it->second);
+            auto it  = m_resources.find(sid);
+            T*   res = static_cast<T*>(it->second);
             res->~T();
             m_allocatorPool.Free(res);
             m_resources.erase(it);
@@ -117,7 +117,6 @@ namespace Lina
         }
 
     private:
-    
         void Destroy()
         {
             for (auto [sid, res] : m_resources)
