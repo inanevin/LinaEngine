@@ -28,8 +28,6 @@ SOFTWARE.
 
 #include "World/Core/Entity.hpp"
 #include "World/Core/Component.hpp"
-#include "EventSystem/EntityEvents.hpp"
-#include "EventSystem/EventSystem.hpp"
 #include "Serialization/StringSerialization.hpp"
 #include "Serialization/VectorSerialization.hpp"
 #include "Serialization/SetSerialization.hpp"
@@ -356,10 +354,6 @@ namespace Lina
 
     void Entity::SetVisible(bool visible)
     {
-        EEntityMaskVisibilityChanged ev;
-        ev.entity     = this;
-        ev.wasVisible = IsVisible();
-
         if (visible)
             m_mask.Set(EntityMask::Visible);
         else
@@ -367,16 +361,10 @@ namespace Lina
 
         for (auto c : m_children)
             c->SetVisible(visible);
-
-        ev.isVisible = IsVisible();
     }
 
     void Entity::SetStatic(bool isStatic)
     {
-        EEntityMaskStaticChanged ev;
-        ev.entity    = this;
-        ev.wasStatic = IsStatic();
-
         if (isStatic)
             m_mask.Set(EntityMask::Static);
         else
@@ -384,7 +372,5 @@ namespace Lina
 
         for (auto c : m_children)
             c->SetStatic(isStatic);
-
-        ev.isStatic = IsStatic();
     }
 } // namespace Lina

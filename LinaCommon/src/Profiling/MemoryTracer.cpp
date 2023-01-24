@@ -163,7 +163,7 @@ namespace Lina
 
         m_destroyed = true;
 
-        if (!MemoryLeaksFile.empty())
+        if (MemoryLeaksFile != NULL && MemoryLeaksFile[0] != '\0')
             DumpLeaks(MemoryLeaksFile);
 
         m_defTracks.clear();

@@ -13,19 +13,21 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.6)
-project(GameCode)
+project(GamePlugin)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
-set(GAMECODE_SOURCES 
-include/GameCodeExports.hpp
+set(GAMEPLUGIN_SOURCES 
+include/GamePluginExports.hpp
+include/GamePlugin.hpp
 )
 
-set(GAMECODE_HEADERS
+set(GAMEPLUGIN_HEADERS
 
-src/GameCodeEntryPoint.cpp
+src/GamePluginEntryPoint.cpp
+src/GamePlugin.cpp
 
 )
 
@@ -34,7 +36,7 @@ src/GameCodeEntryPoint.cpp
 #--------------------------------------------------------------------
 
 ## WIN32 Console Subsystem
-add_library(${PROJECT_NAME} SHARED ${GAMECODE_SOURCES} ${GAMECODE_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${GAMEPLUGIN_SOURCES} ${GAMEPLUGIN_HEADERS})
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -59,10 +61,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 #include (GenerateExportHeader)
-#	GENERATE_EXPORT_HEADER (GameCode
-#	BASE_NAME GameCode
-#	EXPORT_MACRO_NAME GameCode_API
-#	EXPORT_FILE_NAME GameCodeExports.hpp
+#	GENERATE_EXPORT_HEADER (GamePlugin
+#	BASE_NAME GamePlugin
+#	EXPORT_MACRO_NAME GamePlugin_API
+#	EXPORT_FILE_NAME GamePluginExports.hpp
 #)
 
 
@@ -70,9 +72,9 @@ endif()
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS GAMECODE_HEADERS GAMECODE_SOURCES)
+	foreach(source IN LISTS GAMEPLUGIN_HEADERS GAMEPLUGIN_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${GAMECODE_SOURCE_DIR}" "" relative_source_path "${source_path}")
+		string(REPLACE "${GAMEPLUGIN_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()

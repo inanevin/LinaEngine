@@ -120,7 +120,7 @@ namespace Lina
             m_gpuInfo = info;
         }
 
-        String FrameAnalysisFile = "lina_frame_analysis.txt";
+        const char* FrameAnalysisFile = "lina_frame_analysis.txt";
 
     protected:
         virtual void Destroy() override;
@@ -151,7 +151,7 @@ namespace Lina
 #define PROFILER_SCOPE_START(SCOPENAME, THREADNAME) Lina::Profiler::Get().StartScope(SCOPENAME, THREADNAME)
 #define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)   Lina::Profiler::Get().EndScope(SCOPENAME, THREADNAME)
 #define PROFILER_FUNC(...)                          Lina::Function func(__FUNCTION__, __VA_ARGS__)
-#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)       Lina::Profiler::Get().FrameAnalysisFile = TXT
+#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)       Lina::Profiler::Get().FrameAnalysisFile = FILE
 #define PROFILER_THREAD_RENDER                      "Render"
 #define PROFILER_THREAD_MAIN                        "Main"
 

@@ -20,6 +20,9 @@ project(LinaCore)
 #--------------------------------------------------------------------
 set (LINACORE_SOURCES
 	
+# Audio
+src/Audio/Core/AudioManager.cpp
+
 # Core
 src/Core/Application.cpp
 
@@ -30,6 +33,16 @@ src/World/Core/ComponentCache.cpp
 src/World/Level/Level.cpp
 src/World/Level/LevelManager.cpp
 src/World/Core/EntityWorld.cpp
+
+# Input
+src/Input/Core/Input.cpp
+
+# Graphics
+src/Graphics/Core/GfxManager.cpp
+src/Graphics/Core/WindowManager.cpp
+
+# Physics
+src/Physics/Core/PhysicsWorld.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -46,6 +59,9 @@ src/Resources/Core/IResource.cpp
 #--------------------------------------------------------------------
 set(LINACORE_HEADERS
 
+# Audio
+include/Audio/Core/AudioManager.hpp
+
 # Core
 include/Core/Application.hpp
 
@@ -57,6 +73,16 @@ include/World/Level/Level.hpp
 include/World/Level/LevelManager.hpp
 include/World/Core/EntityWorld.hpp
 include/World/Core/CommonWorld.hpp
+
+# Input
+include/Input/Core/Input.hpp
+
+# Graphics
+include/Graphics/Core/GfxManager.hpp
+include/Graphics/Core/WindowManager.hpp
+
+# Physics
+include/Physics/Core/PhysicsWorld.hpp
 
 # Reflection
 include/Reflection/ClassReflection.hpp

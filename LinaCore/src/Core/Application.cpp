@@ -27,9 +27,91 @@ SOFTWARE.
 */
 
 #include "Core/Application.hpp"
+#include "Log/Log.hpp"
+
+#ifdef LINA_PLATFORM_WINDOWS
+#include <Windows.h>
+typedef Lina::IPlugin*(__cdecl* CreatePluginFunc)();
+typedef void(__cdecl* DestroyPluginFunc)(Lina::IPlugin*);
+#endif
 
 namespace Lina
 {
-    
+    void Application::Initialize(const SystemInitializationInfo& initInfo)
+    {
+    }
 
+    void Application::LoadPlugins()
+    {
+        LoadPlugin("GamePlugin.dll");
+    }
+
+    void Application::PostInitialize()
+    {
+    }
+
+    void Application::UnloadPlugins()
+    {
+        for (auto p : m_plugins)
+            UnloadPlugin(p);
+
+        m_plugins.clear();
+    }
+
+    void Application::Shutdown()
+    {
+    }
+
+    void Application::Tick()
+    {
+    }
+
+    void Application::LoadPlugin(const char* name)
+    {
+#ifdef LINA_PLATFORM_WINDOWS
+        HINSTANCE hinstLib;
+        BOOL      fFreeResult = FALSE;
+        hinstLib              = LoadLibrary(TEXT(name));
+
+        // If the handle is valid, try to get the function address.
+        if (hinstLib != NULL)
+        {
+            CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
+
+            // If the function address is valid, call the function.
+
+            if (NULL != createPluginAddr)
+            {
+                IPlugin* plugin = (createPluginAddr)();
+                plugin->OnAttached();
+                AddListener(plugin);
+                AddPlugin(plugin);
+                m_pluginHandles[plugin] = static_cast<void*>(hinstLib);
+            }
+        }
+#else
+        LINA_ASSERT(false, "Not implemented!");
+#endif
+    }
+    void Application::UnloadPlugin(IPlugin* plugin)
+    {
+        RemoveListener(plugin);
+        plugin->OnDetached();
+
+#ifdef LINA_PLATFORM_WINDOWS
+
+        HINSTANCE hinstLib = static_cast<HINSTANCE>(m_pluginHandles[plugin]);
+
+        DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
+
+        if (destroyPluginAddr != NULL)
+        {
+        }
+
+        // Free the DLL module.
+        BOOL fFreeResult = FreeLibrary(hinstLib);
+#else
+        LINA_ASSERT(false, "Not implemented!");
+#endif
+    }
 } // namespace Lina

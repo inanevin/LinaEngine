@@ -53,13 +53,7 @@ namespace Lina
 
     enum ComponentMask
     {
-        ReceiveOnGameStart       = 1 << 0,
-        ReceiveOnGameEnd         = 1 << 1,
-        ReceiveOnPreTick         = 1 << 2,
-        ReceiveOnTick            = 1 << 3,
-        ReceiveOnPostTick        = 1 << 4,
-        ReceiveOnPostPhysicsTick = 1 << 5,
-        Renderable               = 1 << 6,
+        Renderable = 1 << 0,
     };
 
 } // namespace Lina

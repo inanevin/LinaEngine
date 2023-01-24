@@ -26,15 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Reflection/ReflectionSystem.hpp"
-#include "Math/AABB.hpp"
+#include "Core/EditorApplication.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
 
 using namespace Lina;
-
-typedef void(__cdecl* MyFunc)(Lina::AABB*);
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR pCmdLine, _In_ int nCmdShow)
 {
@@ -47,11 +44,22 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
         // err
     }
 
-    HINSTANCE hinstLib;
-    BOOL      fFreeResult = FALSE;
-    hinstLib              = LoadLibrary(TEXT("GameCode.dll"));
+    SystemInitializationInfo initializationInfo = SystemInitializationInfo{
+        .appName            = "Lina Editor",
+        .windowWidth        = 1440,
+        .windowHeight       = 960,
+        .windowStyleOptions = 0,
+        .windowInitOptions  = WIO_CustomWidthHeight,
+        .preferredGPUType   = PreferredGPUType::Integrated,
+        .vsyncMode          = VsyncMode::None,
+    };
 
-    while (true)
+    Editor::EditorApplication app = Editor::EditorApplication();
+    app.Initialize(initializationInfo);
+    app.LoadPlugins();
+    app.PostInitialize();
+
+    while (false)
     {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
         {
@@ -61,22 +69,12 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
         if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
             break;
+
+        app.Tick();
     }
 
-    // If the handle is valid, try to get the function address.
-    if (hinstLib != NULL)
-    {
-        // MyFunc ProcAdd = (MyFunc)GetProcAddress(hinstLib, "ExampleFunc");
-        //
-        // // If the function address is valid, call the function.
-        //
-        // if (NULL != ProcAdd)
-        // {
-        //     (ProcAdd)(hm);
-        // }
-        // Free the DLL module.
-        fFreeResult = FreeLibrary(hinstLib);
-    }
+    app.UnloadPlugins();
+    app.Shutdown();
 
     FreeConsole();
 }

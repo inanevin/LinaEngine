@@ -32,6 +32,7 @@ SOFTWARE.
 #define Common_HPP
 
 // Headers here.
+#include "Core/SizeDefinitions.hpp"
 
 namespace Lina
 {
@@ -50,6 +51,29 @@ namespace Lina
         TripleBuffer
     };
 
+    enum WindowStyleOptions
+    {
+        WSO_Decorated = 1 << 0,
+        WSO_Resizable = 1 << 1,
+    };
+
+    enum WindowInitOptions
+    {
+        WIO_CustomWidthHeight = 1 << 0,
+        WIO_Fullscreen        = 1 << 1,
+        WIO_WorkArea          = 1 << 2,
+    };
+
+    struct SystemInitializationInfo
+    {
+        const char*      appName            = "";
+        int              windowWidth        = 0;
+        int              windowHeight       = 0;
+        uint16           windowStyleOptions = 0;
+        uint16           windowInitOptions  = 0;
+        PreferredGPUType preferredGPUType   = PreferredGPUType::Discrete;
+        VsyncMode        vsyncMode          = VsyncMode::None;
+    };
 } // namespace Lina
 
 #endif

@@ -31,14 +31,19 @@ SOFTWARE.
 #ifndef LevelManager_HPP
 #define LevelManager_HPP
 
+#include "System/ISubsystem.hpp"
+
 namespace Lina
 {
 
-    class LevelManager
+    class LevelManager : public ISubsystem
     {
     public:
-        LevelManager()          = default;
+        LevelManager(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
         virtual ~LevelManager() = default;
+
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
 
     private:
     };

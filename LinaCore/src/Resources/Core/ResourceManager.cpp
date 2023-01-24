@@ -65,7 +65,7 @@ namespace Lina
                 else
                 {
                     // If the metacache doesn't exist, load the resource from file and save metacache.
-                    res->LoadFromFile(ident.path.c_str());
+                    res->LoadFromOSFile(ident.path.c_str());
 
                     OStream metastream;
                     metastream.CreateReserve(512);

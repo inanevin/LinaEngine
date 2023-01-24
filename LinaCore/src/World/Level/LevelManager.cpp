@@ -28,7 +28,12 @@ SOFTWARE.
 
 #include "World/Level/LevelManager.hpp"
 
-namespace Lina::World
+namespace Lina
 {
-
-} // namespace Lina::World
+    void LevelManager::Initialize()
+    {
+    }
+    void LevelManager::Shutdown()
+    {
+    }
+} // namespace Lina

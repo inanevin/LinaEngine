@@ -37,10 +37,12 @@ SOFTWARE.
 #include "Data/IDList.hpp"
 #include "Serialization/HashMapSerialization.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
+#include "Event/IEventDispatcher.hpp"
 
 namespace Lina
 {
     class EntityWorld;
+
 #define COMPONENT_POOL_SIZE 100
 
     class ComponentCacheBase : public ISerializable
@@ -57,8 +59,10 @@ namespace Lina
     template <typename T> class ComponentCache : public ComponentCacheBase
     {
     public:
-        ComponentCache() : m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
+        ComponentCache(IEventDispatcher* eventDispatcher)
+            : m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
         {
+            m_eventDispatcher = eventDispatcher;
         }
 
         virtual ~ComponentCache()
@@ -78,7 +82,7 @@ namespace Lina
                 {
                     T* newComp = new (newCache->m_allocatorPool.Allocate(sizeof(T))) T();
                     *newComp   = *comp;
-                    newComp->OnComponentCreated();
+                    OnComponentCreated(newComp);
                     newCache->m_components.AddItem(newComp, i);
                 }
                 i++;
@@ -93,7 +97,7 @@ namespace Lina
             T* comp          = new (m_allocatorPool.Allocate(sizeof(T))) T();
             comp->m_entityID = e->GetID();
             comp->m_entity   = e;
-            comp->OnComponentCreated();
+            OnComponentCreated(comp);
             m_components.AddItem(comp);
             return comp;
         }
@@ -115,7 +119,7 @@ namespace Lina
             {
                 if (comp != nullptr && comp->m_entityID == e->GetID())
                 {
-                    comp->OnComponentDestroyed();
+                    OnComponentDestroyed(comp);
                     comp->~T();
                     m_components.RemoveItem(index);
                     m_allocatorPool.Free(comp);
@@ -169,7 +173,7 @@ namespace Lina
                 stream >> comp->m_entityID;
                 comp->LoadFromStream(stream);
                 comp->m_entity = m_entities[comp->m_entityID];
-                comp->OnComponentCreated();
+                OnComponentCreated(comp);
                 m_components.AddItem(comp, compID);
             }
         }
@@ -181,7 +185,7 @@ namespace Lina
             {
                 if (comp != nullptr)
                 {
-                    comp->OnComponentDestroyed();
+                    OnComponentDestroyed(comp);
                     comp->~T();
                     m_allocatorPool.Free(comp);
                 }
@@ -190,7 +194,24 @@ namespace Lina
             m_components.Clear();
         }
 
+        void OnComponentCreated(T* comp)
+        {
+            Event data;
+            data.pParams[0] = static_cast<void*>(comp);
+            m_eventDispatcher->DispatchGameEvent(EVG_ComponentCreated, data);
+            m_eventDispatcher->AddListener(comp);
+        }
+
+        void OnComponentDestroyed(T* comp)
+        {
+            Event data;
+            data.pParams[0] = static_cast<void*>(comp);
+            m_eventDispatcher->DispatchGameEvent(EVG_ComponentDestroyed, data);
+            m_eventDispatcher->RemoveListener(comp);
+        }
+
     private:
+        IEventDispatcher*   m_eventDispatcher = nullptr;
         MemoryAllocatorPool m_allocatorPool;
         IDList<T*>          m_components;
     };

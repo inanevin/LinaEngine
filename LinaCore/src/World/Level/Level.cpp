@@ -27,16 +27,64 @@ SOFTWARE.
 */
 
 #include "World/Level/Level.hpp"
-
+#include "World/Core/EntityWorld.hpp"
 
 namespace Lina
 {
-    void Level::Install()
+    Level::~Level()
     {
+        if (m_world)
+            delete m_world;
+
+        m_worldStream.Destroy();
     }
 
-    void Level::Uninstall()
+    void Level::Install(IEventDispatcher* dispatcher)
     {
+        m_world = new EntityWorld(dispatcher);
+        m_world->LoadFromStream(m_worldStream);
+        m_worldStream.Destroy();
+
+        Event data;
+        data.pParams[0] = static_cast<void*>(m_world);
+        dispatcher->DispatchGameEvent(EVG_LevelInstalled, data);
+
+        data = Event();
+        dispatcher->DispatchGameEvent(EVG_Start, data);
+        dispatcher->DispatchGameEvent(EVG_PostStart, data);
     }
 
-} // namespace Lina::World
+    void Level::Uninstall(IEventDispatcher* dispatcher)
+    {
+        Event data;
+        data.pParams[0] = static_cast<void*>(m_world);
+        dispatcher->DispatchGameEvent(EVG_LevelUninstalled, data);
+        delete m_world;
+    }
+
+    void Level::SaveToStream(OStream& stream)
+    {
+        // custom data.
+
+        // world.
+        const size_t streamSize = stream.GetCurrentSize();
+        m_world->SaveToStream(stream);
+        const size_t totalSize = stream.GetCurrentSize();
+        const uint32 worldSize = static_cast<uint32>(totalSize - streamSize);
+        stream << worldSize;
+    }
+
+    void Level::LoadFromStream(IStream& stream)
+    {
+        uint32 worldSize = 0;
+        stream.Seek(stream.GetSize() - sizeof(uint32));
+        stream.Read(worldSize);
+        stream.Seek(0);
+
+        // custom data
+
+        // world.
+        m_worldStream.Create(stream.GetDataCurrent(), worldSize);
+    }
+
+} // namespace Lina

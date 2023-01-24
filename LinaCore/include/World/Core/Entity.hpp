@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Math/Transformation.hpp"
 #include "Data/HashSet.hpp"
 #include "Serialization/ISerializable.hpp"
+#include "Core/ObjectRef.hpp"
 
 namespace Lina
 {
@@ -72,9 +73,9 @@ namespace Lina
         virtual void SaveToStream(OStream& stream) override;
         virtual void LoadFromStream(IStream& stream) override;
 
-        EntityWorld* GetWorld()
+        ObjectRef<EntityWorld> GetWorld()
         {
-            return m_world;
+            return ObjectRef<EntityWorld>(m_world);
         }
 
         inline uint32 GetID()

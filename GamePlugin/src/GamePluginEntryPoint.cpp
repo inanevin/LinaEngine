@@ -27,20 +27,24 @@ SOFTWARE.
 */
 
 #include "Profiling/Profiler.hpp"
-#include "Math/AABB.hpp"
-#include "GameCodeExports.hpp"
 #include "Profiling/MemoryTracer.hpp"
-#include "Profiling/Profiler.hpp"
+#include "GamePlugin.hpp"
+#include "GamePluginExports.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 
 #include <Windows.h>
 
-extern "C" GAMECODE_API void ExampleFunc(Lina::AABB* hmm)
+GamePlugin* g_plugin = nullptr;
+
+extern "C" GAMEPLUGIN_API Lina::IPlugin* CreatePlugin()
 {
-    int a          = 0;
-    int b          = 5;
-    hmm->boundsMax = Lina::Vector3(1, 1, 1);
+    return new GamePlugin();
+}
+
+extern "C" GAMEPLUGIN_API void DestroyPlugin(Lina::IPlugin* plugin)
+{
+    return delete plugin;
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to DLL module
@@ -51,8 +55,10 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to DLL module
     switch (fdwReason)
     {
     case DLL_PROCESS_ATTACH: {
+
         MEMORY_TRACER_SET_LEAK_FILE("gamecode_memory_leaks.txt");
         PROFILER_SET_FRAMEANALYSIS_FILE("gamecode_frame_analysis.txt");
+
         break;
     }
     case DLL_THREAD_ATTACH:

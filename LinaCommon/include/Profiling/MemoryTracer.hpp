@@ -78,7 +78,7 @@ namespace Lina
         void             OnVramFree(void* ptr);
         DeviceMemoryInfo QueryMemoryInfo();
 
-        String MemoryLeaksFile = "lina_memory_leaks.txt";
+        const char* MemoryLeaksFile = "lina_memory_leaks.txt";
 
         inline const SimpleArray<MemoryAllocatorPool*>& GetRegisteredAllocators()
         {

@@ -42,7 +42,21 @@ namespace Lina
     public:
         IResource()          = default;
         virtual ~IResource() = default;
-        virtual void Flush() = 0;
+
+        /// <summary>
+        /// When we want to get rid of CPU resources such as vertex buffers, pixels etc.
+        /// </summary>
+        virtual void Flush(){};
+
+        /// <summary>
+        /// When ResourceManager loads from Editor Mode. Resources default to loading stream from file,
+        /// but if they have a OS load routine (texture and model from file etc.) they can override this.
+        /// </summary>
+        /// <param name="path"></param>
+        virtual void LoadFromOSFile(const char* path)
+        {
+            LoadFromFile(path);
+        }
 
         inline void SetPath(const String& path)
         {

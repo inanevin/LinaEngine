@@ -27,18 +27,7 @@ SOFTWARE.
 */
 
 #include "World/Core/Component.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "EventSystem/MainLoopEvents.hpp"
-#include "EventSystem/WorldEvents.hpp"
 
 namespace Lina
 {
-    void Component::OnComponentCreated()
-    {
-    }
-
-    void Component::OnComponentDestroyed()
-    {
-    }
-
 } // namespace Lina

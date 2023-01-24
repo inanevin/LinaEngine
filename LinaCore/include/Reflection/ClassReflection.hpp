@@ -37,12 +37,13 @@ SOFTWARE.
 
 namespace Lina
 {
+    class IEventDispatcher;
     class ReflectionClassUtility
     {
     public:
-        template <typename T> static inline void* REF_CreateComponentCacheFunc()
+        template <typename T> static inline void* REF_CreateComponentCacheFunc(IEventDispatcher* dispatcher)
         {
-            Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>();
+            Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>(dispatcher);
             return static_cast<void*>(c);
         }
 
@@ -72,7 +73,7 @@ namespace Lina
         ClassName##_LinaReflected()                                                                                                                                                                                                                                \
         {                                                                                                                                                                                                                                                          \
             LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
-            Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>));
+            Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(IEventDispatcher * dispatcher)>(Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1));
 
     /* BEGINNING A REFLECTED CLASS */
 #define LINA_REFLECTCLASS_BEGIN(ClassName, TITLE, CATEGORY)                                                                                                                                                                                                        \

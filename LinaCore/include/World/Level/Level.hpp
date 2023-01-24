@@ -32,30 +32,31 @@ SOFTWARE.
 #define Level_HPP
 
 #include "Resources/Core/IResource.hpp"
-#include "World/Core/EntityWorld.hpp"
+#include "Data/Streams.hpp"
 
 namespace Lina
 {
-    class Application;
+    class EntityWorld;
+    class IEventDispatcher;
 
     class Level : public IResource
     {
     public:
         Level(){};
-        virtual ~Level(){};
+        virtual ~Level();
 
-        void Install();
-        void Uninstall();
-
-        inline EntityWorld& GetWorld()
-        {
-            return m_world;
-        }
+        void Install(IEventDispatcher* dispatcher);
+        void Uninstall(IEventDispatcher* dispatcher);
 
     private:
+        // Inherited via IResource
+        virtual void SaveToStream(OStream& stream) override;
+        virtual void LoadFromStream(IStream& stream) override;
+
     private:
-        EntityWorld m_world;
+        EntityWorld* m_world = nullptr;
+        IStream      m_worldStream;
     };
-} // namespace Lina::World
+} // namespace Lina
 
 #endif

@@ -35,22 +35,31 @@ SOFTWARE.
 #include "Core/StringId.hpp"
 #include "World/Core/CommonWorld.hpp"
 #include "Serialization/ISerializable.hpp"
+#include "Event/IEventListener.hpp"
 
 namespace Lina
 {
     class Entity;
     class ReflectionClassUtility;
 
-    class Component : public ISerializable
+    class Component : public ISerializable, public IEventListener
     {
     public:
-        virtual TypeID GetTID() = 0;
-        virtual void SaveToStream(OStream& stream){};
-        virtual void LoadFromStream(IStream& stream){};
+        virtual TypeID GetTypeID() = 0;
+        virtual void   SaveToStream(OStream& stream){};
+        virtual void   LoadFromStream(IStream& stream){};
 
-        inline Entity* GetEntity()
+        virtual void OnGameEvent(EGameEvent type, const Event& data) override{};
+        virtual void OnSystemEvent(ESystemEvent type, const Event& data) override{};
+
+        virtual Bitmask32 GetGameEventMask() override
         {
-            return m_entity;
+            return 0;
+        };
+
+        virtual Bitmask32 GetSystemEventMask() override
+        {
+            return 0;
         }
 
         virtual Bitmask16 GetComponentMask()
@@ -58,20 +67,23 @@ namespace Lina
             return 0;
         }
 
+        inline Entity* GetEntity()
+        {
+            return m_entity;
+        }
+
         bool enabled = true;
 
     protected:
         template <typename U> friend class ComponentCache;
-
         Component()          = default;
         virtual ~Component() = default;
-
-        Entity*      m_entity = nullptr;
         virtual void OnComponentCreated();
         virtual void OnComponentDestroyed();
 
     private:
-        uint32 m_entityID = 0;
+        Entity* m_entity   = nullptr;
+        uint32  m_entityID = 0;
     };
 
 } // namespace Lina

@@ -39,7 +39,9 @@ set (LINACOMMON_SOURCES
 	src/Data/SyncQueue.cpp
 
 	# Events
-	src/EventSystem/EventSystem.cpp
+	src/Event/Event.cpp
+	src/Event/IEventListener.cpp
+	src/Event/IEventDispatcher.cpp
 
 	#Math
 	src/Math/Matrix.cpp
@@ -69,6 +71,11 @@ set (LINACOMMON_SOURCES
 	
 	# Job System
 	src/JobSystem/JobSystem.cpp
+
+	# System
+	src/System/IPlugin.cpp
+	src/System/ISystem.cpp
+	src/System/ISubsystem.cpp
 )
 
 
@@ -84,6 +91,7 @@ set(LINACOMMON_HEADERS
 	include/Core/Clock.hpp
 	include/Core/StringID.hpp
 	include/Core/ISingleton.hpp
+	include/Core/ObjectRef.hpp
 	
 	# FileSystem
 	include/FileSystem/FileSystem.hpp
@@ -97,17 +105,9 @@ set(LINACOMMON_HEADERS
 	include/Profiling/MemoryTracer.hpp
 	
 	# Events
-	include/EventSystem/CommonEvent.hpp
-	include/EventSystem/WindowEvents.hpp
-	include/EventSystem/InputEvents.hpp
-	include/EventSystem/LevelEvents.hpp
-	include/EventSystem/GraphicsEvents.hpp
-	include/EventSystem/MainLoopEvents.hpp
-	include/EventSystem/EntityEvents.hpp
-	include/EventSystem/ApplicationEvents.hpp
-	include/EventSystem/ResourceEvents.hpp
-	include/EventSystem/EventSystem.hpp
-	include/EventSystem/WorldEvents.hpp
+	include/Event/Event.hpp
+	include/Event/IEventListener.hpp
+	include/Event/IEventDispatcher.hpp
 
 	# Data
 	include/Data/Functional.hpp
@@ -170,6 +170,11 @@ set(LINACOMMON_HEADERS
 	include/Math/AABB.hpp
 	include/Math/Frustum.hpp
 	include/Math/Plane.hpp
+
+	# System
+	include/System/IPlugin.hpp
+	include/System/ISystem.hpp
+	include/System/ISubsystem.hpp
 )
 
 #--------------------------------------------------------------------

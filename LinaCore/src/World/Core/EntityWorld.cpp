@@ -29,8 +29,6 @@ SOFTWARE.
 #include "World/Core/EntityWorld.hpp"
 #include "World/Core/Entity.hpp"
 #include "World/Core/Component.hpp"
-#include "EventSystem/EventSystem.hpp"
-#include "EventSystem/WorldEvents.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "Serialization/VectorSerialization.hpp"
 
@@ -202,7 +200,7 @@ namespace Lina
         for (uint32 i = 0; i < tids.size(); i++)
         {
             MetaType&           type  = ReflectionSystem::Get().Resolve(tids[i]);
-            void*               ptr   = type.GetFunction<void*()>("CreateCompCache"_hs)();
+            void*               ptr   = type.GetFunction<void*(IEventDispatcher*)>("CreateCompCache"_hs)(m_dispatcher);
             ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
             cache->m_entities         = m_entities.GetRaw();
             cache->LoadFromStream(stream);

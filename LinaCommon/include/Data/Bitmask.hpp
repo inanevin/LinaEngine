@@ -84,6 +84,7 @@ namespace Lina
 
     typedef Bitmask<uint8>  Bitmask8;
     typedef Bitmask<uint16> Bitmask16;
+    typedef Bitmask<uint32> Bitmask32;
 } // namespace Lina
 
 #endif

@@ -31,10 +31,48 @@ SOFTWARE.
 #ifndef Application_HPP
 #define Application_HPP
 
+#include "System/ISystem.hpp"
+#include "Input/Core/Input.hpp"
+#include "Audio/Core/AudioManager.hpp"
+#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/WindowManager.hpp"
+#include "World/Level/LevelManager.hpp"
+#include "Physics/Core/PhysicsWorld.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
-    
+    class Application : public ISystem
+    {
+    public:
+        Application()
+            : m_input(this, SubsystemType::Input), m_audioManager(this, SubsystemType::AudioManager), m_gfxManager(this, SubsystemType::GfxManager), m_levelManager(this, SubsystemType::LevelManager), m_physicsWorld(this, SubsystemType::PhysicsWorld),
+              m_windowManager(this, SubsystemType::WindowManager){};
+
+        virtual ~Application() = default;
+
+        // Inherited via ISystem
+        virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+        virtual void LoadPlugins() override;
+        virtual void PostInitialize() override;
+        virtual void UnloadPlugins() override;
+        virtual void Shutdown() override;
+        virtual void Tick() override;
+
+    protected:
+        void LoadPlugin(const char* name);
+        void UnloadPlugin(IPlugin* plugin);
+
+    protected:
+        Input         m_input;
+        AudioManager  m_audioManager;
+        GfxManager    m_gfxManager;
+        WindowManager m_windowManager;
+        LevelManager  m_levelManager;
+        PhysicsWorld  m_physicsWorld;
+
+        HashMap<IPlugin*, void*> m_pluginHandles;
+    };
 } // namespace Lina
 
 #endif

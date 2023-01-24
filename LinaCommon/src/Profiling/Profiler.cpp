@@ -254,7 +254,7 @@ namespace Lina
             return;
 
         m_destroyed = true;
-        if (!FrameAnalysisFile.empty())
+        if (FrameAnalysisFile != NULL && FrameAnalysisFile[0] != '\0')
             DumpFrameAnalysis(FrameAnalysisFile);
 
         while (!m_frames.empty())

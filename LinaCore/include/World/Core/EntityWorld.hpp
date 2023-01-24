@@ -34,6 +34,7 @@ SOFTWARE.
 #include "ComponentCache.hpp"
 #include "Serialization/ISerializable.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
+#include "Core/ObjectRef.hpp"
 
 namespace Lina
 {
@@ -41,30 +42,17 @@ namespace Lina
     class Component;
     class CameraComponent;
     class EntityWorld;
-
-    template <typename T> class ComponentReference
-    {
-    public:
-        ComponentReference() = default;
-
-        T& Get()
-        {
-            return *m_ptr;
-        }
-
-    private:
-        friend class EntityWorld;
-        ComponentReference(T* ptr) : m_ptr(ptr){};
-        T* m_ptr = nullptr;
-    };
+    class IEventDispatcher;
 
     // Actual game state
     class EntityWorld : public ISerializable
     {
     public:
-        EntityWorld() : m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
+        EntityWorld(IEventDispatcher* dispatcher)
+            : m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
         {
-            m_id = s_worldCounter++;
+            m_dispatcher = dispatcher;
+            m_id         = s_worldCounter++;
         };
 
         ~EntityWorld()
@@ -85,14 +73,14 @@ namespace Lina
             return m_id;
         }
 
-        inline void SetActiveCamera(ComponentReference<CameraComponent>& cam)
+        inline void SetActiveCamera(ObjectRef<CameraComponent>& cam)
         {
-            m_activeCamera = cam.m_ptr;
+            m_activeCamera = cam;
         }
 
-        inline ComponentReference<CameraComponent> GetActiveCamera()
+        inline ObjectRef<CameraComponent> GetActiveCamera()
         {
-            return ComponentReference<CameraComponent>(m_activeCamera);
+            return ObjectRef<CameraComponent>(m_activeCamera);
         }
 
         // template <typename T> T** View(uint32* maxSize)
@@ -102,23 +90,23 @@ namespace Lina
         //     return cache->m_components.GetRaw();
         // }
 
-        template <typename T> ComponentReference<T> GetComponent(Entity* e)
+        template <typename T> ObjectRef<T> GetComponent(Entity* e)
         {
             T* ptr = Cache<T>()->GetComponent(e);
-            return ComponentReference<T>(ptr);
+            return ObjectRef<T>(ptr);
         }
 
-        template <typename T> ComponentReference<T> AddComponent(Entity* e, const T& t)
+        template <typename T> ObjectRef<T> AddComponent(Entity* e, const T& t)
         {
             T* comp = Cache<T>()->AddComponent(e, t);
             *comp   = t;
-            return ComponentReference<T>(comp);
+            return ObjectRef<T>(comp);
         }
 
-        template <typename T> ComponentReference<T> AddComponent(Entity* e)
+        template <typename T> ObjectRef<T> AddComponent(Entity* e)
         {
             T* ptr = Cache<T>()->AddComponent(e);
-            return ComponentReference<T>(ptr);
+            return ObjectRef<T>(ptr);
         }
 
         template <typename T> void RemoveComponent(Entity* e)
@@ -132,7 +120,11 @@ namespace Lina
     private:
         template <typename T> ComponentCache<T>* Cache()
         {
-            const TypeID       tid   = GetTypeID<T>();
+            const TypeID tid = GetTypeID<T>();
+
+            if (m_componentCaches.find(tid) == m_componentCaches.end())
+                m_componentCaches[tid] = new ComponentCache<T>*(m_dispatcher);
+
             ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
             return cache;
         }
@@ -143,12 +135,14 @@ namespace Lina
         void DestroyEntityData(Entity* e);
 
     private:
-        static uint32                        s_worldCounter;
+        static uint32 s_worldCounter;
+
+        IEventDispatcher*                    m_dispatcher = nullptr;
         MemoryAllocatorPool                  m_allocatorPool;
         HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
         IDList<Entity*>                      m_entities;
-        CameraComponent*                     m_activeCamera = nullptr;
-        uint32                               m_id           = 0;
+        ObjectRef<CameraComponent>           m_activeCamera;
+        uint32                               m_id = 0;
     };
 
 } // namespace Lina
