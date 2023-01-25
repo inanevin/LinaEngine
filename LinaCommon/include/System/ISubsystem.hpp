@@ -41,11 +41,11 @@ namespace Lina
         None = 0,
         Input,
         GfxManager,
-        PhysicsWorld,
+        PhysicsEngine,
         AudioManager,
         WindowManager,
         LevelManager,
-        EditorManager,
+        Editor,
         Count
     };
 
@@ -59,6 +59,11 @@ namespace Lina
 
         virtual void Initialize() = 0;
         virtual void Shutdown()   = 0;
+
+        inline SubsystemType GetType() const
+        {
+            return m_systemType;
+        }
 
     protected:
         ISystem*      m_system     = nullptr;

@@ -32,9 +32,11 @@ SOFTWARE.
 #define LevelManager_HPP
 
 #include "System/ISubsystem.hpp"
+#include "Core/ObjectWrapper.hpp"
 
 namespace Lina
 {
+    class Level;
 
     class LevelManager : public ISubsystem
     {
@@ -45,7 +47,12 @@ namespace Lina
         virtual void Initialize() override;
         virtual void Shutdown() override;
 
+        void InstallLevel(const char* level);
+        void UninstallLevel();
+        void Tick(float dt);
+
     private:
+        ObjectWrapper<Level> m_currentLevel;
     };
 } // namespace Lina
 

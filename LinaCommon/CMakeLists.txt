@@ -91,7 +91,7 @@ set(LINACOMMON_HEADERS
 	include/Core/Clock.hpp
 	include/Core/StringID.hpp
 	include/Core/ISingleton.hpp
-	include/Core/ObjectRef.hpp
+	include/Core/ObjectWrapper.hpp
 	
 	# FileSystem
 	include/FileSystem/FileSystem.hpp

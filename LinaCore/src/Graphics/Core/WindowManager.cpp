@@ -36,4 +36,5 @@ namespace Lina
     void WindowManager::Shutdown()
     {
     }
+
 } // namespace Lina

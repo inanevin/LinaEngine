@@ -34,7 +34,7 @@ SOFTWARE.
 #include "ComponentCache.hpp"
 #include "Serialization/ISerializable.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
-#include "Core/ObjectRef.hpp"
+#include "Core/ObjectWrapper.hpp"
 
 namespace Lina
 {
@@ -63,6 +63,7 @@ namespace Lina
     public:
         Entity*      GetEntity(uint32 id);
         Entity*      GetEntity(const String& name);
+        Entity*      GetEntityFromSID(StringID sid);
         Entity*      CreateEntity(const String& name);
         void         DestroyEntity(Entity* e);
         virtual void SaveToStream(OStream& stream) override;
@@ -73,14 +74,14 @@ namespace Lina
             return m_id;
         }
 
-        inline void SetActiveCamera(ObjectRef<CameraComponent>& cam)
+        inline void SetActiveCamera(ObjectWrapper<CameraComponent>& cam)
         {
             m_activeCamera = cam;
         }
 
-        inline ObjectRef<CameraComponent> GetActiveCamera()
+        inline ObjectWrapper<CameraComponent> GetActiveCamera()
         {
-            return ObjectRef<CameraComponent>(m_activeCamera);
+            return ObjectWrapper<CameraComponent>(m_activeCamera);
         }
 
         // template <typename T> T** View(uint32* maxSize)
@@ -90,23 +91,23 @@ namespace Lina
         //     return cache->m_components.GetRaw();
         // }
 
-        template <typename T> ObjectRef<T> GetComponent(Entity* e)
+        template <typename T> ObjectWrapper<T> GetComponent(Entity* e)
         {
             T* ptr = Cache<T>()->GetComponent(e);
-            return ObjectRef<T>(ptr);
+            return ObjectWrapper<T>(ptr);
         }
 
-        template <typename T> ObjectRef<T> AddComponent(Entity* e, const T& t)
+        template <typename T> ObjectWrapper<T> AddComponent(Entity* e, const T& t)
         {
             T* comp = Cache<T>()->AddComponent(e, t);
             *comp   = t;
-            return ObjectRef<T>(comp);
+            return ObjectWrapper<T>(comp);
         }
 
-        template <typename T> ObjectRef<T> AddComponent(Entity* e)
+        template <typename T> ObjectWrapper<T> AddComponent(Entity* e)
         {
             T* ptr = Cache<T>()->AddComponent(e);
-            return ObjectRef<T>(ptr);
+            return ObjectWrapper<T>(ptr);
         }
 
         template <typename T> void RemoveComponent(Entity* e)
@@ -141,7 +142,7 @@ namespace Lina
         MemoryAllocatorPool                  m_allocatorPool;
         HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
         IDList<Entity*>                      m_entities;
-        ObjectRef<CameraComponent>           m_activeCamera;
+        ObjectWrapper<CameraComponent>           m_activeCamera;
         uint32                               m_id = 0;
     };
 

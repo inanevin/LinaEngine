@@ -28,12 +28,13 @@ SOFTWARE.
 
 #include "System/ISystem.hpp"
 #include "Data/CommonData.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina
 {
     void ISystem::AddSubsystem(ISubsystem* s)
     {
-        m_subsystems.push_back(s);
+        m_subsystems[s->GetType()] = s;
     }
 
     void ISystem::AddPlugin(IPlugin* p)
@@ -48,6 +49,11 @@ namespace Lina
 
     void ISystem::RemoveSubsystem(ISubsystem* s)
     {
-        m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](ISubsystem* sub) { return sub == s; }));
+        m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
+    }
+
+    void ISystem::SetPhysicsUpdateRate(float rate)
+    {
+        m_physicsUpdateRate = Math::Clamp(rate, 0.01f, 0.05f);
     }
 } // namespace Lina

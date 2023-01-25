@@ -161,6 +161,17 @@ namespace Lina
         }
     }
 
+    Vector<ObjectWrapper<IResource>> ResourceManager::GetAllResources()
+    {
+        Vector<ObjectWrapper<IResource>> resources;
+        for (auto [tid, cache] : m_caches)
+        {
+            auto cacheResources = cache->GetAllResources();
+            resources.insert(resources.end(), cacheResources.begin(), cacheResources.end());
+        }
+        return resources;
+    }
+
     String ResourceManager::GetMetacachePath(const String& resourcePath, StringID sid)
     {
         const String filename  = FileSystem::RemoveExtensionFromPath(FileSystem::GetFilenameAndExtensionFromPath(resourcePath));

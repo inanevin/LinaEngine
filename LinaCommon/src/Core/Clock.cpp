@@ -27,8 +27,47 @@ SOFTWARE.
 */
 
 #include "Core/Clock.hpp"
+#include "Log/Log.hpp"
+
+#ifdef LINA_PLATFORM_WINDOWS
+#include <windows.h>
+#endif
 
 namespace Lina
 {
+    float Clock::s_cyclesPerSecond = 0.0f;
+
+    void Clock::Init()
+    {
+        if (s_cyclesPerSecond != 0.0f)
+            return;
+
+#ifdef LINA_PLATFORM_WINDOWS
+        LARGE_INTEGER li;
+        if (!QueryPerformanceFrequency(&li))
+            LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
+
+        s_cyclesPerSecond = (float)(li.QuadPart);
+#endif
+    }
+
+    int64 Clock::GetCurrentTicks()
+    {
+#ifdef LINA_PLATFORM_WINDOWS
+        LARGE_INTEGER li;
+        if (!QueryPerformanceCounter(&li))
+            LINA_ERR("[Time] -> QueryPerformanceCounter failed in get time!");
+
+        return li.QuadPart;
+#else
+        LINA_ASSERT(false, "Not implemented");
+        return 0;
+#endif
+    }
+
+    float Clock::CalculateDelta(int64 from, int64 to, float timeScale)
+    {
+        return (to - from) / s_cyclesPerSecond * timeScale;
+    }
 
 } // namespace Lina

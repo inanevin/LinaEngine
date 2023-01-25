@@ -33,11 +33,13 @@ SOFTWARE.
 
 #include "Memory/MemoryAllocatorPool.hpp"
 #include "Core/StringID.hpp"
+#include "Core/ObjectWrapper.hpp"
 #include "Data/HashMap.hpp"
+#include "Data/Vector.hpp"
+#include "Data/Mutex.hpp"
+#include "Log/Log.hpp"
 #include "IResource.hpp"
 #include "CommonResources.hpp"
-#include "Log/Log.hpp"
-#include "Data/Mutex.hpp"
 
 namespace Lina
 {
@@ -49,8 +51,9 @@ namespace Lina
         ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
         virtual ~ResourceCacheBase() = default;
 
-        virtual IResource* CreateResource(StringID sid, const String& path) = 0;
-        virtual void       DestroyResource(StringID sid)                    = 0;
+        virtual IResource*                       CreateResource(StringID sid, const String& path) = 0;
+        virtual void                             DestroyResource(StringID sid)                    = 0;
+        virtual Vector<ObjectWrapper<IResource>> GetAllResources() const                             = 0;
 
         inline PackageType GetPackageType() const
         {
@@ -114,6 +117,16 @@ namespace Lina
         T* GetResource(StringID sid)
         {
             return m_resources[sid];
+        }
+
+        Vector<ObjectWrapper<IResource>> GetAllResources() const override
+        {
+            Vector<ObjectWrapper<IResource>> resources;
+
+            for (auto [sid, res] : m_resources)
+                resources.push_back(ObjectWrapper<IResource>(res));
+
+            return resources;
         }
 
     private:

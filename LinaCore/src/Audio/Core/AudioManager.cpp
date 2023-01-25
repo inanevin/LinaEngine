@@ -36,4 +36,7 @@ namespace Lina
     void AudioManager::Shutdown()
     {
     }
+    void AudioManager::Tick(float dt)
+    {
+    }
 } // namespace Lina

@@ -26,24 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef PhysicsWorld_HPP
-#define PhysicsWorld_HPP
-
-#include "System/ISubsystem.hpp"
+#include "Physics/Core/PhysicsEngine.hpp"
+#include "System/ISystem.hpp"
 
 namespace Lina
 {
-    class PhysicsWorld final : public ISubsystem
+    void PhysicsEngine::Initialize()
     {
-    public:
-        PhysicsWorld(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
-        ~PhysicsWorld() = default;
+    }
+    
+    void PhysicsEngine::Shutdown()
+    {
+    }
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-    };
+    void PhysicsEngine::Simulate(float dt)
+    {
+        Event eventData;
+        eventData.fParams[0] = dt;
+        m_system->DispatchGameEvent(EVG_Physics, eventData);
+        m_system->DispatchGameEvent(EVG_PostPhysics, eventData);
+
+        // Simulate nvidia physx
+    }
+
+    void PhysicsEngine::WaitForSimulation()
+    {
+        // fetch physx results
+    }
+    
+    void PhysicsEngine::SyncData()
+    {
+    }
 } // namespace Lina
-
-#endif

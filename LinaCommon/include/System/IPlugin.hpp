@@ -35,16 +35,19 @@ SOFTWARE.
 
 namespace Lina
 {
+    class IEngineInterface;
+
     class IPlugin : public IEventListener
     {
     public:
-        IPlugin()          = default;
+        IPlugin(IEngineInterface* interface) : m_engineInterface(interface){};
         virtual ~IPlugin() = default;
 
         virtual void OnAttached() = 0;
         virtual void OnDetached() = 0;
 
     protected:
+        IEngineInterface* m_engineInterface = nullptr;
     };
 
 } // namespace Lina

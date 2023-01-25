@@ -32,14 +32,18 @@ SOFTWARE.
 #define EditorApplication_HPP
 
 #include "Core/Application.hpp"
+#include "Editor.hpp"
 
 namespace Lina::Editor
 {
     class EditorApplication : public Lina::Application
     {
     public:
-        EditorApplication()          = default;
+        EditorApplication() : m_editor(this, SubsystemType::Editor){};
         virtual ~EditorApplication() = default;
+
+    private:
+        Editor m_editor;
     };
 } // namespace Lina::Editor
 

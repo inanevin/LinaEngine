@@ -32,6 +32,7 @@ SOFTWARE.
 #define LinaEditor_HPP
 
 #include "Data/Vector.hpp"
+#include "System/ISubsystem.hpp"
 
 namespace Lina
 {
@@ -39,10 +40,17 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Editor
 {
-    class Editor
+    class Editor : public ISubsystem
     {
     public:
+        Editor(ISystem* system, SubsystemType type) : ISubsystem(system, type){};
+        virtual ~Editor() = default;
+
         void PackageResources(const Vector<ResourceIdentifier>& identifiers);
+
+        // Inherited via ISubsystem
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
     };
 } // namespace Lina::Editor
 

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
 #include "JobSystem/JobSystem.hpp"
+#include "Core/ObjectWrapper.hpp"
 
 namespace Lina
 {
@@ -64,6 +65,13 @@ namespace Lina
             return *cache->GetResource(sid);
         }
 
+        template <typename T> ObjectWrapper<T> GetResourceWrapper(StringID sid) const
+        {
+            const TypeID tid   = GetTypeID<T>();
+            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
+            return ObjectWrapper<T>(cache->GetResource(sid));
+        }
+
         template <typename T> void AddUserManaged(T* res, StringID sid)
         {
             const TypeID tid   = GetTypeID<T>();
@@ -78,11 +86,11 @@ namespace Lina
             cache->RemoveUserManaged(sid);
         }
 
-        static String GetMetacachePath(const String& resourcePath, StringID sid);
-        PackageType   GetPackageType(TypeID tid);
-        
-        void LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
-        void UnloadResources(const Vector<ResourceIdentifier>& identifiers);
+        void                             LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
+        void                             UnloadResources(const Vector<ResourceIdentifier>& identifiers);
+        Vector<ObjectWrapper<IResource>> GetAllResources();
+        PackageType                      GetPackageType(TypeID tid);
+        static String                    GetMetacachePath(const String& resourcePath, StringID sid);
 
     private:
         ResourceManager() = default;

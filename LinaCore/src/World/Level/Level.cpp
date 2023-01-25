@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "World/Level/Level.hpp"
 #include "World/Core/EntityWorld.hpp"
+#include "Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
@@ -65,6 +66,7 @@ namespace Lina
     void Level::SaveToStream(OStream& stream)
     {
         // custom data.
+        VectorSerialization::SaveToStream_OBJ(stream, m_usedResources);
 
         // world.
         const size_t streamSize = stream.GetCurrentSize();
@@ -82,6 +84,7 @@ namespace Lina
         stream.Seek(0);
 
         // custom data
+        VectorSerialization::LoadFromStream_OBJ(stream, m_usedResources);
 
         // world.
         m_worldStream.Create(stream.GetDataCurrent(), worldSize);

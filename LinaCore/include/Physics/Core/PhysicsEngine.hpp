@@ -26,14 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Physics/Core/PhysicsWorld.hpp"
+#pragma once
+
+#ifndef PhysicsWorld_HPP
+#define PhysicsWorld_HPP
+
+#include "System/ISubsystem.hpp"
 
 namespace Lina
 {
-    void PhysicsWorld::Initialize()
+    class PhysicsEngine final : public ISubsystem
     {
-    }
-    void PhysicsWorld::Shutdown()
-    {
-    }
+    public:
+        PhysicsEngine(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
+        ~PhysicsEngine() = default;
+
+        virtual void Initialize() override;
+        virtual void Shutdown() override;
+        void         Simulate(float dt);
+        void         WaitForSimulation();
+        void         SyncData();
+    };
 } // namespace Lina
+
+#endif

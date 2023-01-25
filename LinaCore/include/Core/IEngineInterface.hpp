@@ -26,23 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Core/GfxManager.hpp"
+#pragma once
+
+#ifndef IEngineInterface_HPP
+#define IEngineInterface_HPP
 
 namespace Lina
 {
-    void GfxManager::Initialize()
+    class Application;
+
+    class IEngineInterface
     {
-    }
-    void GfxManager::Shutdown()
-    {
-    }
-    void GfxManager::Tick(float dt)
-    {
-    }
-    void GfxManager::Render()
-    {
-    }
-    void GfxManager::SyncData()
-    {
-    }
+    public:
+        IEngineInterface(Application* app) : m_app(app){};
+        virtual ~IEngineInterface() = default;
+
+        // Engine-Plugin communications.
+        
+    private:
+        Application* m_app = nullptr;
+    };
 } // namespace Lina
+
+#endif

@@ -36,6 +36,13 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+    void Editor::Initialize()
+    {
+    }
+    void Editor::Shutdown()
+    {
+    }
+
     void Editor::PackageResources(const Vector<ResourceIdentifier>& identifiers)
     {
         HashMap<PackageType, Vector<ResourceIdentifier>> resourcesPerPackage;
@@ -92,4 +99,5 @@ namespace Lina::Editor
             Serialization::SaveToFile(packagePath.c_str(), stream);
         }
     }
+
 } // namespace Lina::Editor

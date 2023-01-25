@@ -36,4 +36,7 @@ namespace Lina
     void Input::Shutdown()
     {
     }
+    void Input::Tick(float dt)
+    {
+    }
 } // namespace Lina

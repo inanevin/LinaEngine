@@ -31,8 +31,11 @@ SOFTWARE.
 #ifndef Level_HPP
 #define Level_HPP
 
-#include "Resources/Core/IResource.hpp"
+#include "Core/ObjectWrapper.hpp"
 #include "Data/Streams.hpp"
+#include "Data/Vector.hpp"
+#include "Resources/Core/CommonResources.hpp"
+#include "Resources/Core/IResource.hpp"
 
 namespace Lina
 {
@@ -48,14 +51,25 @@ namespace Lina
         void Install(IEventDispatcher* dispatcher);
         void Uninstall(IEventDispatcher* dispatcher);
 
+        inline ObjectWrapper<EntityWorld> GetWorld()
+        {
+            return ObjectWrapper<EntityWorld>(m_world);
+        }
+
+        inline const Vector<ResourceIdentifier>& GetUsedResources()
+        {
+            return m_usedResources;
+        }
+
     private:
         // Inherited via IResource
         virtual void SaveToStream(OStream& stream) override;
         virtual void LoadFromStream(IStream& stream) override;
 
     private:
-        EntityWorld* m_world = nullptr;
-        IStream      m_worldStream;
+        Vector<ResourceIdentifier> m_usedResources;
+        EntityWorld*               m_world = nullptr;
+        IStream                    m_worldStream;
     };
 } // namespace Lina
 

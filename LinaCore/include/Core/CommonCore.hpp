@@ -26,23 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Core/GfxManager.hpp"
+#pragma once
+
+#ifndef CommonCore_HPP
+#define CommonCore_HPP
 
 namespace Lina
 {
-    void GfxManager::Initialize()
-    {
-    }
-    void GfxManager::Shutdown()
-    {
-    }
-    void GfxManager::Tick(float dt)
-    {
-    }
-    void GfxManager::Render()
-    {
-    }
-    void GfxManager::SyncData()
-    {
-    }
+	
 } // namespace Lina
+
+#endif

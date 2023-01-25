@@ -31,13 +31,22 @@ SOFTWARE.
 #ifndef Clock_HPP
 #define Clock_HPP
 
+#include "Core/SizeDefinitions.hpp"
+
 namespace Lina
 {
     class Clock
     {
     public:
-        Clock() = default;
-        ~Clock(){};
+        Clock()  = default;
+        ~Clock() = default;
+
+        static void  Init();
+        static int64 GetCurrentTicks();
+        static float CalculateDelta(int64 from, int64 to, float timeScale = 1.0f);
+
+    private:
+        static float s_cyclesPerSecond;
     };
 
 } // namespace Lina

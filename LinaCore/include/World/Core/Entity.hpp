@@ -36,7 +36,7 @@ SOFTWARE.
 #include "Math/Transformation.hpp"
 #include "Data/HashSet.hpp"
 #include "Serialization/ISerializable.hpp"
-#include "Core/ObjectRef.hpp"
+#include "Core/ObjectWrapper.hpp"
 
 namespace Lina
 {
@@ -73,9 +73,9 @@ namespace Lina
         virtual void SaveToStream(OStream& stream) override;
         virtual void LoadFromStream(IStream& stream) override;
 
-        ObjectRef<EntityWorld> GetWorld()
+        ObjectWrapper<EntityWorld> GetWorld()
         {
-            return ObjectRef<EntityWorld>(m_world);
+            return ObjectWrapper<EntityWorld>(m_world);
         }
 
         inline uint32 GetID()
@@ -86,6 +86,11 @@ namespace Lina
         inline const String& GetName()
         {
             return m_name;
+        }
+
+        inline StringID GetSID()
+        {
+            return m_sid;
         }
 
         Matrix ToMatrix() const
@@ -148,6 +153,7 @@ namespace Lina
         inline void SetName(const String& name)
         {
             m_name = name;
+            m_sid  = TO_SID(name);
         }
 
         inline bool IsMaskSet(uint16 mask)
@@ -181,6 +187,7 @@ namespace Lina
         HashSet<uint32>  m_childrenID;
         Transformation   m_transform;
         Bitmask16        m_mask;
+        StringID         m_sid = 0;
     };
 
 } // namespace Lina

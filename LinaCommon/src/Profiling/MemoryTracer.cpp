@@ -174,13 +174,12 @@ namespace Lina
 #endif
     }
 
-    void MemoryTracer::DumpLeaks(const String& path)
+    void MemoryTracer::DumpLeaks(const char* path)
     {
-
         if (FileSystem::FileExists(path))
             FileSystem::DeleteFileInPath(path);
 
-        std::ofstream file(path.c_str());
+        std::ofstream file(path);
 
         auto writeTrace = [&](const SimpleArray<MemoryTrack>& tracks) {
             for (int i = 0; i < tracks.size(); i++)
@@ -254,6 +253,7 @@ namespace Lina
                 ss << "\n";
 
                 file << ss.str();
+                ss.clear();
             }
         };
 

@@ -33,30 +33,46 @@ SOFTWARE.
 
 #include "Core/StringID.hpp"
 #include "Data/String.hpp"
+#include "Serialization/ISerializable.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
-    enum class ResourceManagerMode
-    {
-        File,
-        Package
-    };
+	enum class ResourceManagerMode
+	{
+		File,
+		Package
+	};
 
-    enum class PackageType
-    {
-        Static,
-        Package1,
-        Package2,
-    };
+	enum class PackageType
+	{
+		Static,
+		Package1,
+		Package2,
+	};
 
-    extern String GGetPackagePath(PackageType pt);
+	extern String GGetPackagePath(PackageType pt);
 
-    struct ResourceIdentifier
-    {
-        TypeID   tid  = 0;
-        StringID sid  = 0;
-        String   path = "";
-    };
+	struct ResourceIdentifier : public ISerializable
+	{
+		ResourceIdentifier() = default;
+		ResourceIdentifier(const String& path, TypeID tid, StringID sid)
+		{
+			this->path = path;
+			this->sid  = sid;
+			this->tid  = tid;
+		}
+
+		TypeID	 tid  = 0;
+		StringID sid  = 0;
+		String	 path = "";
+
+		// Inherited via ISerializable
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
+	};
+
+	extern Vector<ResourceIdentifier> GCoreResources;
 
 } // namespace Lina
 

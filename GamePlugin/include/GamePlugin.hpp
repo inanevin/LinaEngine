@@ -36,7 +36,7 @@ SOFTWARE.
 class GamePlugin : public Lina::IPlugin
 {
 public:
-    GamePlugin()          = default;
+    GamePlugin(Lina::IEngineInterface* interface) : IPlugin(interface){};
     virtual ~GamePlugin() = default;
 
     // Inherited via IPlugin

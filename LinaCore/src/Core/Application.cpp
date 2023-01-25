@@ -28,17 +28,30 @@ SOFTWARE.
 
 #include "Core/Application.hpp"
 #include "Log/Log.hpp"
+#include "Core/Clock.hpp"
+#include "Core/Time.hpp"
+#include "Profiling/Profiler.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
-typedef Lina::IPlugin*(__cdecl* CreatePluginFunc)();
+typedef Lina::IPlugin*(__cdecl* CreatePluginFunc)(Lina::IEngineInterface* engInterface);
 typedef void(__cdecl* DestroyPluginFunc)(Lina::IPlugin*);
 #endif
 
+#define DEFAULT_RATE 1.0f / 60.0f
+
 namespace Lina
 {
+    int64 prevTicks = 0;
+
     void Application::Initialize(const SystemInitializationInfo& initInfo)
     {
+        Clock::Init();
+
+        for (auto [type, sys] : m_subsystems)
+            sys->Initialize();
+
+        m_firstRun = true;
     }
 
     void Application::LoadPlugins()
@@ -48,6 +61,7 @@ namespace Lina
 
     void Application::PostInitialize()
     {
+        DispatchSystemEvent(EVS_PostSystemInit, {});
     }
 
     void Application::UnloadPlugins()
@@ -60,10 +74,73 @@ namespace Lina
 
     void Application::Shutdown()
     {
+        for (auto [type, sys] : m_subsystems)
+            sys->Shutdown();
     }
 
     void Application::Tick()
     {
+        PROFILER_FRAME_START();
+
+        int64 ticks = Clock::GetCurrentTicks();
+        float delta = m_firstRun ? DEFAULT_RATE : Clock::CalculateDelta(prevTicks, ticks, 1.0f);
+        prevTicks   = ticks;
+        m_firstRun  = false;
+
+        // Break & debugging points
+        if (delta > 1.0f)
+            delta = DEFAULT_RATE;
+
+        m_physicsAccumulator += delta;
+        m_fpsCounter += delta;
+
+        // Poll.
+        m_input.Tick(delta);
+
+        // For any listeners that fall outside the main loop.
+        Event eventData;
+        eventData.fParams[0] = delta;
+        DispatchSystemEvent(EVS_SystemTick, eventData);
+
+        // Physics if necessary.
+        int  physicsTickCount = 0;
+        bool physicsSimulated = m_physicsAccumulator > m_physicsUpdateRate;
+        if (physicsSimulated)
+        {
+            // N = accumulator - update rate -> remainder.
+            // TODO: optional substepping to compansate.
+            m_physicsAccumulator = 0;
+            m_physicsEngine.Simulate(m_physicsUpdateRate);
+        }
+
+        // World tick if exists.
+        m_levelManager.Tick(delta);
+
+        auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+        auto renderJob = m_executor.Async([&]() {
+            m_gfxManager.Render();
+            m_frames++;
+        });
+
+        audioJob.get();
+        renderJob.get();
+        if (physicsSimulated)
+            m_physicsEngine.WaitForSimulation();
+
+        // Sync.
+        m_gfxManager.SyncData();
+        m_physicsEngine.SyncData();
+
+        // For any listeners that fall outside the main loop.
+        DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
+
+        // Finish.
+        if (m_fpsCounter >= 1.0f)
+        {
+            m_fps        = m_frames;
+            m_fpsCounter = 0.0f;
+            m_frames     = 0;
+        }
     }
 
     void Application::LoadPlugin(const char* name)
@@ -82,7 +159,7 @@ namespace Lina
 
             if (NULL != createPluginAddr)
             {
-                IPlugin* plugin = (createPluginAddr)();
+                IPlugin* plugin = (createPluginAddr)(&m_engineInterface);
                 plugin->OnAttached();
                 AddListener(plugin);
                 AddPlugin(plugin);
@@ -106,6 +183,7 @@ namespace Lina
 
         if (destroyPluginAddr != NULL)
         {
+            destroyPluginAddr(plugin);
         }
 
         // Free the DLL module.

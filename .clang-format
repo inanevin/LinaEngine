@@ -1,16 +1,20 @@
-﻿---
-AccessModifierOffset: '-4'
-BasedOnStyle: Microsoft
+# Format Style Options - Created with Clang Power Tools
+---
+AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
-AlignConsecutiveMacros: 'true'
-AlignConsecutiveAssignments: 'true'
-AlignConsecutiveDeclarations: 'true'
-ColumnLimit: '260'
-BinPackParameters: 'false'
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
+AlignEscapedNewlines: Right
+BasedOnStyle: Microsoft
+BinPackArguments: false
+BinPackParameters: false
+ColumnLimit: 260
 Language: Cpp
 NamespaceIndentation: All
 PointerAlignment: Left
-ReflowComments: 'true'
-SortIncludes: 'false'
+ReflowComments: true
+SortIncludes: false
 Standard: Cpp11
+UseTab: Always
 ...

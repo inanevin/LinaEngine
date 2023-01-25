@@ -36,6 +36,7 @@ SOFTWARE.
 #include "System/IPlugin.hpp"
 #include "Data/Vector.hpp"
 #include "Core/Common.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
@@ -51,6 +52,12 @@ namespace Lina
         void RemoveSubsystem(ISubsystem* sub);
         void AddPlugin(IPlugin* plugin);
         void RemovePlugin(IPlugin* plugin);
+        void SetPhysicsUpdateRate(float rate);
+
+        inline void SetTimescale(float ts)
+        {
+            m_gameTimescale = ts;
+        }
 
         virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
         virtual void LoadPlugins()                                        = 0;
@@ -60,8 +67,16 @@ namespace Lina
         virtual void Tick()                                               = 0;
 
     protected:
-        Vector<ISubsystem*> m_subsystems;
-        Vector<IPlugin*>    m_plugins;
+        HashMap<SubsystemType, ISubsystem*> m_subsystems;
+        Vector<IPlugin*>                    m_plugins;
+        HashMap<IPlugin*, void*>            m_pluginHandles;
+        float                               m_gameTimescale      = 1.0f;
+        bool                                m_firstRun           = true;
+        float                               m_physicsUpdateRate  = 0.01f;
+        float                               m_physicsAccumulator = 0.0f;
+        int                                 m_fps                = 0;
+        int                                 m_frames             = 0;
+        float                               m_fpsCounter         = 0.0f;
     };
 } // namespace Lina
 

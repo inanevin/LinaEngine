@@ -25,6 +25,8 @@ src/Audio/Core/AudioManager.cpp
 
 # Core
 src/Core/Application.cpp
+src/Core/CommonCore.cpp
+src/Core/IEngineInterface.cpp
 
 # World
 src/World/Core/Entity.cpp
@@ -42,7 +44,7 @@ src/Graphics/Core/GfxManager.cpp
 src/Graphics/Core/WindowManager.cpp
 
 # Physics
-src/Physics/Core/PhysicsWorld.cpp
+src/Physics/Core/PhysicsEngine.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -64,6 +66,8 @@ include/Audio/Core/AudioManager.hpp
 
 # Core
 include/Core/Application.hpp
+include/Core/CommonCore.hpp
+include/Core/IEngineInterface.hpp
 
 # World
 include/World/Core/Entity.hpp
@@ -82,7 +86,7 @@ include/Graphics/Core/GfxManager.hpp
 include/Graphics/Core/WindowManager.hpp
 
 # Physics
-include/Physics/Core/PhysicsWorld.hpp
+include/Physics/Core/PhysicsEngine.hpp
 
 # Reflection
 include/Reflection/ClassReflection.hpp

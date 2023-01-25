@@ -98,7 +98,7 @@ namespace Lina
         };
 
         void CaptureTrace(MemoryTrack& track);
-        void DumpLeaks(const String& path);
+        void DumpLeaks(const char* path);
 
     private:
         SimpleArray<MemoryTrack>          m_defTracks;

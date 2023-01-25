@@ -37,8 +37,8 @@ namespace Lina
 {
     struct Event
     {
-        void*  pParams[2];
-        float* fParams[4];
+        void* pParams[2];
+        float fParams[4];
     };
 
     enum ESystemEvent
@@ -54,6 +54,8 @@ namespace Lina
         EVS_WindowQuit      = 1 << 8,
         EVS_WindowFocus     = 1 << 9,
         EVS_PostSystemInit  = 1 << 10,
+        EVS_SystemTick      = 1 << 11,
+        EVS_SyncThreads     = 1 << 12,
     };
 
     enum EGameEvent
@@ -65,7 +67,7 @@ namespace Lina
         EVG_Tick               = 1 << 4,
         EVG_PostTick           = 1 << 5,
         EVG_Physics            = 1 << 6,
-        EVG_SyncThreads        = 1 << 7,
+        EVG_PostPhysics        = 1 << 7,
         EVG_ComponentCreated   = 1 << 8,
         EVG_ComponentDestroyed = 1 << 9,
     };

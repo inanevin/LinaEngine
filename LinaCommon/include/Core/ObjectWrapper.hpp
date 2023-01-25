@@ -28,23 +28,33 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ObjectRef_HPP
-#define ObjectRef_HPP
+#ifndef ObjectWrapper_HPP
+#define ObjectWrapper_HPP
 
 namespace Lina
 {
-    template <typename T> class ObjectRef
+    template <typename T> class ObjectWrapper
     {
     public:
-        ObjectRef() : m_ptr(nullptr){};
-        ObjectRef(T* ptr) : m_ptr(ptr){};
-        ~ObjectRef() = default;
+        ObjectWrapper() : m_ptr(nullptr){};
+        ObjectWrapper(T* ptr) : m_ptr(ptr){};
+        ~ObjectWrapper() = default;
 
         T& Get()
         {
             return *m_ptr;
         }
 
+        void Reset()
+        {
+            m_ptr = nullptr;
+        }
+
+        bool IsValid()
+        {
+            return m_ptr != nullptr;
+        }
+        
     private:
         T* m_ptr = nullptr;
     };

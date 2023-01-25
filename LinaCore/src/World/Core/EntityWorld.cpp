@@ -69,7 +69,14 @@ namespace Lina
                 return e;
         }
 
-        return nullptr;
+        auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [&name](Entity* e) { return e != nullptr && e->GetName().compare(name) == 0; });
+        return *it;
+    }
+
+    Entity* EntityWorld::GetEntityFromSID(StringID sid)
+    {
+        auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [sid](Entity* e) { return e != nullptr && e->GetSID() == sid; });
+        return *it;
     }
 
     void EntityWorld::CopyFrom(EntityWorld& world)
@@ -101,6 +108,7 @@ namespace Lina
         e->SetStatic(true);
         e->m_world = this;
         e->m_name  = name;
+        e->m_sid   = TO_SID(name);
         e->m_id    = m_entities.AddItem(e);
 
         if (m_entities.GetItems().size() > ENTITY_MAX)
