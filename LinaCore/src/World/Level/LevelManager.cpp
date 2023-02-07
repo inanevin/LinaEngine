@@ -35,67 +35,76 @@ SOFTWARE.
 
 namespace Lina
 {
-    void LevelManager::Initialize()
-    {
-    }
+	void LevelManager::Initialize(const SystemInitializationInfo& initInfo)
+	{
+		LINA_TRACE("[Level Manager] -> Initialization.");
+	}
 
-    void LevelManager::Shutdown()
-    {
-    }
+	void LevelManager::Shutdown()
+	{
+		LINA_TRACE("[Level Manager] -> Shutdown.");
+		UninstallLevel();
+	}
 
-    void LevelManager::InstallLevel(const char* level)
-    {
-        // First get the level & extract target resources.
-        const StringID     sid = TO_SIDC(level);
-        ResourceIdentifier levelResource;
-        ResourceManager::Get().LoadResources({ResourceIdentifier(level, GetTypeID<Level>(), sid)}, false);
-        m_currentLevel = ResourceManager::Get().GetResourceWrapper<Level>(sid);
+	void LevelManager::InstallLevel(const char* level)
+	{
+		ResourceManager* rm = (ResourceManager*)m_system->GetSubsystem(SubsystemType::ResourceManager);
 
-        // Leave already loaded resources that will still be used by next level.
-        // Load others / unload unused.
-        Vector<ResourceIdentifier>       resourcesToUnload;
-        Vector<ResourceIdentifier>       resourcesToLoad;
-        Vector<ResourceIdentifier>       levelResourcesToLoad = m_currentLevel.Get().GetUsedResources();
-        Vector<ObjectWrapper<IResource>> allResources         = ResourceManager::Get().GetAllResources();
+		// First get the level & extract target resources.
+		const StringID	   sid = TO_SIDC(level);
+		ResourceIdentifier levelResource;
+		rm->LoadResources({ResourceIdentifier(level, GetTypeID<Level>(), sid)}, false);
+		m_currentLevel = rm->GetResource<Level>(sid);
 
-        for (auto& resWrapper : allResources)
-        {
-            auto& res = resWrapper.Get();
+		// Leave already loaded resources that will still be used by next level.
+		// Load others / unload unused.
+		Vector<ResourceIdentifier>		 resourcesToUnload;
+		Vector<ResourceIdentifier>		 resourcesToLoad;
+		Vector<ResourceIdentifier>		 levelResourcesToLoad = m_currentLevel->GetUsedResources();
+		Vector<ObjectWrapper<IResource>> allResources		  = rm->GetAllResources();
 
-            // Never touch statics, they are loaded once & alive until program termination.
-            if (ResourceManager::Get().GetPackageType(res.GetTID()) == PackageType::Static)
-                continue;
+		for (auto& resWrapper : allResources)
+		{
+			auto& res = resWrapper.Get();
 
-            auto it = linatl::find_if(levelResourcesToLoad.begin(), levelResourcesToLoad.end(), [&](const ResourceIdentifier& id) { return id.sid == res.GetSID(); });
+			// Never touch core resources, they are loaded once & alive until program termination.
+			if (rm->IsCoreResource(res.GetSID()) || res.IsUserManaged())
+				continue;
 
-            // We'll unload if not gon be used.
-            if (it == levelResourcesToLoad.end())
-                resourcesToUnload.push_back(ResourceIdentifier{res.GetPath(), res.GetTID(), res.GetSID()});
-            else
-            {
-                // Already exists, don't load again.
-                levelResourcesToLoad.erase(it);
-            }
-        }
+			auto it = linatl::find_if(levelResourcesToLoad.begin(), levelResourcesToLoad.end(), [&](const ResourceIdentifier& id) { return id.sid == res.GetSID(); });
 
-        ResourceManager::Get().UnloadResources(resourcesToUnload);
-        ResourceManager::Get().LoadResources(resourcesToLoad, true);
-        m_currentLevel.Get().Install(m_system);
-    }
+			// We'll unload if not gon be used.
+			if (it == levelResourcesToLoad.end())
+				resourcesToUnload.push_back(ResourceIdentifier{res.GetPath(), res.GetTID(), res.GetSID()});
+			else
+			{
+				// Already exists, don't load again.
+				levelResourcesToLoad.erase(it);
+			}
+		}
 
-    void LevelManager::UninstallLevel()
-    {
-        m_currentLevel.Get().Uninstall(m_system);
-    }
+		rm->UnloadResources(resourcesToUnload);
+		rm->LoadResources(resourcesToLoad, true);
+		m_currentLevel->Install(m_system);
+	}
 
-    void LevelManager::Tick(float dt)
-    {
-        if (m_currentLevel.IsValid())
-        {
-            Event data;
-            data.fParams[0] = dt;
-            m_system->DispatchGameEvent(EVG_Tick, data);
-            m_system->DispatchGameEvent(EVG_PostTick, data);
-        }
-    }
+	void LevelManager::UninstallLevel()
+	{
+		if (m_currentLevel != nullptr)
+		{
+			m_currentLevel->Uninstall(m_system);
+			m_currentLevel = nullptr;
+		}
+	}
+
+	void LevelManager::Tick(float dt)
+	{
+		if (m_currentLevel != nullptr)
+		{
+			Event data;
+			data.fParams[0] = dt;
+			m_system->DispatchGameEvent(EVG_Tick, data);
+			m_system->DispatchGameEvent(EVG_PostTick, data);
+		}
+	}
 } // namespace Lina

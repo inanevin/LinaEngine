@@ -35,18 +35,18 @@ SOFTWARE.
 
 namespace Lina
 {
-    class PhysicsEngine final : public ISubsystem
-    {
-    public:
-        PhysicsEngine(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
-        ~PhysicsEngine() = default;
+	class PhysicsEngine final : public ISubsystem
+	{
+	public:
+		PhysicsEngine(ISystem* sys) : ISubsystem(sys, SubsystemType::PhysicsEngine){};
+		~PhysicsEngine() = default;
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-        void         Simulate(float dt);
-        void         WaitForSimulation();
-        void         SyncData();
-    };
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+		void		 Simulate(float dt);
+		void		 WaitForSimulation();
+		void		 SyncData();
+	};
 } // namespace Lina
 
 #endif

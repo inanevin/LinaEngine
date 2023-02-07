@@ -27,6 +27,7 @@ src/Audio/Core/AudioManager.cpp
 src/Core/Application.cpp
 src/Core/CommonCore.cpp
 src/Core/IEngineInterface.cpp
+src/Core/CoreResourcesRegistry.cpp
 
 # World
 src/World/Core/Entity.cpp
@@ -40,8 +41,51 @@ src/World/Core/EntityWorld.cpp
 src/Input/Core/Input.cpp
 
 # Graphics
-src/Graphics/Core/GfxManager.cpp
+
 src/Graphics/Core/WindowManager.cpp
+src/Graphics/Components/RenderableComponent.cpp
+src/Graphics/Components/ModelNodeComponent.cpp
+src/Graphics/Data/Vertex.cpp
+src/Graphics/Platform/Win32/Win32Window.cpp
+src/Graphics/Platform/Vulkan/Core/GPUStorage.cpp
+src/Graphics/Platform/Vulkan/Core/GfxManager.cpp
+src/Graphics/Platform/Vulkan/Core/GfxBackend.cpp
+src/Graphics/Platform/Vulkan/Core/GUIBackend.cpp
+src/Graphics/Platform/Vulkan/Core/UploadContext.cpp
+src/Graphics/Platform/Vulkan/Utility/VkBootstrap.cpp
+src/Graphics/Platform/Vulkan/Utility/SPIRVUtility.cpp
+src/Graphics/Platform/Vulkan/Utility/VulkanUtility.cpp
+src/Graphics/Platform/Vulkan/Utility/VulkanStructures.cpp
+src/Graphics/Platform/Vulkan/Objects/Buffer.cpp
+src/Graphics/Platform/Vulkan/Objects/DescriptorSet.cpp
+src/Graphics/Platform/Vulkan/Objects/DescriptorSetLayout.cpp
+src/Graphics/Platform/Vulkan/Objects/DescriptorPool.cpp
+src/Graphics/Platform/Vulkan/Objects/Framebuffer.cpp
+src/Graphics/Platform/Vulkan/Objects/Swapchain.cpp
+src/Graphics/Platform/Vulkan/Objects/Queue.cpp
+src/Graphics/Platform/Vulkan/Objects/CommandPool.cpp
+src/Graphics/Platform/Vulkan/Objects/CommandBuffer.cpp
+src/Graphics/Platform/Vulkan/Objects/RenderPass.cpp
+src/Graphics/Platform/Vulkan/Objects/Fence.cpp
+src/Graphics/Platform/Vulkan/Objects/Semaphore.cpp
+src/Graphics/Platform/Vulkan/Objects/Pipeline.cpp
+src/Graphics/Platform/Vulkan/Objects/PipelineLayout.cpp
+src/Graphics/Platform/Vulkan/Objects/Image.cpp
+src/Graphics/Platform/Vulkan/Objects/Sampler.cpp
+src/Graphics/Utility/ModelLoader.cpp
+src/Graphics/Utility/GLSLParser.cpp
+src/Graphics/Resource/Shader.cpp
+src/Graphics/Resource/Mesh.cpp
+src/Graphics/Resource/Model.cpp
+src/Graphics/Resource/ModelNode.cpp
+src/Graphics/Resource/SkinnedMesh.cpp
+src/Graphics/Resource/StaticMesh.cpp
+src/Graphics/Resource/Texture.cpp
+src/Graphics/Resource/TextureSampler.cpp
+src/Graphics/Resource/Material.cpp
+src/Graphics/Resource/MaterialProperty.cpp
+src/Graphics/Resource/Font.cpp
+
 
 # Physics
 src/Physics/Core/PhysicsEngine.cpp
@@ -54,6 +98,8 @@ src/Resources/Core/CommonResources.cpp
 src/Resources/Core/ResourceManager.cpp
 src/Resources/Core/ResourceCache.cpp
 src/Resources/Core/IResource.cpp
+src/Resources/Data/ResourceMetadata.cpp
+
 )
 
 #--------------------------------------------------------------------
@@ -68,6 +114,7 @@ include/Audio/Core/AudioManager.hpp
 include/Core/Application.hpp
 include/Core/CommonCore.hpp
 include/Core/IEngineInterface.hpp
+include/Core/CoreResourcesRegistry.hpp
 
 # World
 include/World/Core/Entity.hpp
@@ -80,10 +127,8 @@ include/World/Core/CommonWorld.hpp
 
 # Input
 include/Input/Core/Input.hpp
-
-# Graphics
-include/Graphics/Core/GfxManager.hpp
-include/Graphics/Core/WindowManager.hpp
+include/Input/Core/CommonInput.hpp
+include/Input/Core/InputMappings.hpp
 
 # Physics
 include/Physics/Core/PhysicsEngine.hpp
@@ -98,6 +143,64 @@ include/Resources/Core/ResourceManager.hpp
 include/Resources/Core/ResourceCache.hpp
 include/Resources/Core/IResource.hpp
 include/Resources/Core/ResourcesReflection.hpp
+include/Resources/Data/ResourceMetadata.hpp
+
+# Graphics
+include/Graphics/Core/WindowManager.hpp
+include/Graphics/Core/Window.hpp
+include/Graphics/Core/CommonGraphics.hpp
+include/Graphics/Data/RenderData.hpp
+include/Graphics/Data/Vertex.hpp
+include/Graphics/Components/CameraComponent.hpp
+include/Graphics/Components/RenderableComponent.hpp
+include/Graphics/Components/ModelNodeComponent.hpp
+include/Graphics/Platform/LinaVGIncl.hpp
+include/Graphics/Platform/GfxManagerIncl.hpp
+include/Graphics/Platform/GPUStorageIncl.hpp
+include/Graphics/Platform/Win32/Win32Window.hpp
+include/Graphics/Platform/Vulkan/Core/GPUStorage.hpp
+include/Graphics/Platform/Vulkan/Core/GfxManager.hpp
+include/Graphics/Platform/Vulkan/Core/GfxBackend.hpp
+include/Graphics/Platform/Vulkan/Core/GUIBackend.hpp
+include/Graphics/Platform/Vulkan/Core/UploadContext.hpp
+include/Graphics/Platform/Vulkan/Utility/VkBootstrap.h
+include/Graphics/Platform/Vulkan/Utility/VkBootstrapDispatch.h
+include/Graphics/Platform/Vulkan/Utility/SPIRVUtility.hpp
+include/Graphics/Platform/Vulkan/Utility/VulkanUtility.hpp
+include/Graphics/Platform/Vulkan/Utility/vk_mem_alloc.h
+include/Graphics/Platform/Vulkan/Utility/VulkanStructures.hpp
+include/Graphics/Platform/Vulkan/Objects/Buffer.hpp
+include/Graphics/Platform/Vulkan/Objects/DescriptorSet.hpp
+include/Graphics/Platform/Vulkan/Objects/DescriptorSetLayout.hpp
+include/Graphics/Platform/Vulkan/Objects/DescriptorPool.hpp
+include/Graphics/Platform/Vulkan/Objects/Framebuffer.hpp
+include/Graphics/Platform/Vulkan/Objects/Swapchain.hpp
+include/Graphics/Platform/Vulkan/Objects/Queue.hpp
+include/Graphics/Platform/Vulkan/Objects/CommandPool.hpp
+include/Graphics/Platform/Vulkan/Objects/CommandBuffer.hpp
+include/Graphics/Platform/Vulkan/Objects/RenderPass.hpp
+include/Graphics/Platform/Vulkan/Objects/Fence.hpp
+include/Graphics/Platform/Vulkan/Objects/Semaphore.hpp
+include/Graphics/Platform/Vulkan/Objects/Pipeline.hpp
+include/Graphics/Platform/Vulkan/Objects/PipelineLayout.hpp
+include/Graphics/Platform/Vulkan/Objects/Image.hpp
+include/Graphics/Platform/Vulkan/Objects/Sampler.hpp
+include/Graphics/Resource/Shader.hpp
+include/Graphics/Resource/Mesh.hpp
+include/Graphics/Resource/Model.hpp
+include/Graphics/Resource/ModelNode.hpp
+include/Graphics/Resource/SkinnedMesh.hpp
+include/Graphics/Resource/StaticMesh.hpp
+include/Graphics/Resource/Texture.hpp
+include/Graphics/Resource/TextureSampler.hpp
+include/Graphics/Resource/Material.hpp
+include/Graphics/Resource/MaterialProperty.hpp
+include/Graphics/Resource/Font.hpp
+include/Graphics/Utility/stb/stb_image.h
+include/Graphics/Utility/stb/stb_image_resize.h
+include/Graphics/Utility/stb/stb_image_write.h
+include/Graphics/Utility/ModelLoader.hpp
+include/Graphics/Utility/GLSLParser.hpp
 )
 
 #--------------------------------------------------------------------

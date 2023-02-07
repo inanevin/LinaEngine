@@ -34,4 +34,4 @@ struct ObjectData{
 layout(std140,set = 1, binding = 3) readonly buffer ObjectBuffer{
 
 	ObjectData objects[];
-} objectBuffer;
+} LINA_OBJECTS;

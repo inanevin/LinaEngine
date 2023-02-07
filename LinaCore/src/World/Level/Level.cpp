@@ -30,6 +30,7 @@ SOFTWARE.
 #include "World/Core/EntityWorld.hpp"
 #include "Serialization/VectorSerialization.hpp"
 
+
 namespace Lina
 {
     Level::~Level()

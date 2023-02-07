@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_PIPELINE_GUI
+LINA_PIPELINE_GUI
 
-#LINA_VS
+LINA_VS
 
 #version 460
 
@@ -39,7 +39,7 @@ layout (location = 2) in vec4 col;
 layout (location = 0) out vec4 fCol;
 layout (location = 1) out vec2 fUV;
 
-layout(set = 2, binding = 0) uniform MaterialData
+LINA_MATERIAL
 {
    mat4 projection;
    vec4 outlineColor;
@@ -58,9 +58,9 @@ void main()
    gl_Position = material.projection * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
-#LINA_END
+LINA_END
 
-#LINA_FS
+LINA_FS
 
 #version 460
 
@@ -69,7 +69,7 @@ layout (location = 1) in vec2 fUV;
 
 layout (location = 0) out vec4 fragColor;
 
-layout(set = 2, binding = 0) uniform MaterialData
+LINA_MATERIAL
 {
    mat4 projection;
    vec4 outlineColor;
@@ -81,7 +81,7 @@ layout(set = 2, binding = 0) uniform MaterialData
    int textType;
 } material;
 
-layout(set = 2, binding = 1) uniform sampler2D diffuse;
+LINA_TEXTURE0 diffuse;
 
 void main()
 {
@@ -110,4 +110,4 @@ void main()
    fragColor = finalColor;
 }
 
-#LINA_END
+LINA_END

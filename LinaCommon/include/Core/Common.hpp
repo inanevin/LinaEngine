@@ -33,47 +33,44 @@ SOFTWARE.
 
 // Headers here.
 #include "Core/SizeDefinitions.hpp"
+#include "Data/Bitmask.hpp"
 
 namespace Lina
 {
-    enum class PreferredGPUType
-    {
-        Discrete = 0,
-        Integrated,
-        CPU
-    };
+	enum class PreferredGPUType
+	{
+		Discrete = 0,
+		Integrated,
+		CPU
+	};
 
-    enum class VsyncMode
-    {
-        None = 0,
-        StrongVsync,
-        Adaptive,
-        TripleBuffer
-    };
+	enum class VsyncMode
+	{
+		None = 0,
+		StrongVsync,
+		Adaptive,
+		TripleBuffer
+	};
 
-    enum WindowStyleOptions
-    {
-        WSO_Decorated = 1 << 0,
-        WSO_Resizable = 1 << 1,
-    };
+	enum class WindowStyle
+	{
+		Windowed = 0,
+		WindowedNoResize,
+		Borderless,
+		BorderlessNoResize,
+		Fullscreen
+	};
 
-    enum WindowInitOptions
-    {
-        WIO_CustomWidthHeight = 1 << 0,
-        WIO_Fullscreen        = 1 << 1,
-        WIO_WorkArea          = 1 << 2,
-    };
+	struct SystemInitializationInfo
+	{
+		const char*		 appName		  = "";
+		int				 windowWidth	  = 0;
+		int				 windowHeight	  = 0;
+		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
+		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
+		VsyncMode		 vsyncMode		  = VsyncMode::None;
+	};
 
-    struct SystemInitializationInfo
-    {
-        const char*      appName            = "";
-        int              windowWidth        = 0;
-        int              windowHeight       = 0;
-        uint16           windowStyleOptions = 0;
-        uint16           windowInitOptions  = 0;
-        PreferredGPUType preferredGPUType   = PreferredGPUType::Discrete;
-        VsyncMode        vsyncMode          = VsyncMode::None;
-    };
 } // namespace Lina
 
 #endif

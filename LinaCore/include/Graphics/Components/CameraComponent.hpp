@@ -28,25 +28,51 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GfxManager_HPP
-#define GfxManager_HPP
+#ifndef CameraComponent_HPP
+#define CameraComponent_HPP
 
-#include "System/ISubsystem.hpp"
+// Headers here.
+#include "World/Core/Component.hpp"
+#include "Reflection/ClassReflection.hpp"
+#include "Data/Streams.hpp"
 
 namespace Lina
 {
-    class GfxManager final : public ISubsystem
-    {
-    public:
-        GfxManager(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
-        ~GfxManager() = default;
+	class CameraSystem;
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-        virtual void Tick(float dt);
-        virtual void Render();
-        virtual void SyncData();
-    };
+	class CameraComponent : public Component
+	{
+	public:
+		float fieldOfView = 90.0f;
+		float zNear		  = 0.01f;
+		float zFar		  = 1000.0f;
+
+		virtual void SaveToStream(OStream& stream)
+		{
+			stream << fieldOfView << zNear << zFar;
+		};
+
+		virtual void LoadFromStream(IStream& stream)
+		{
+			stream >> fieldOfView >> zNear >> zFar;
+		}
+
+		inline const Matrix& GetProjection()
+		{
+			return m_projection;
+		}
+
+		inline const Matrix& GetView()
+		{
+			return m_view;
+		}
+
+	private:
+		friend class CameraSystem;
+
+		Matrix m_projection = Matrix::Identity();
+		Matrix m_view		= Matrix::Identity();
+	};
 } // namespace Lina
 
 #endif

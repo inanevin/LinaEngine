@@ -31,31 +31,13 @@ SOFTWARE.
 
 namespace Lina
 {
-	Vector<ResourceIdentifier> GCoreResources = {
-		ResourceIdentifier("Resources/Core/Fonts/NunitoSans.ttf", GetTypeID<int>(), "Resources/Core/Fonts/NunitoSans.ttf"_hs),
-		ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular.ttf", GetTypeID<int>(), "Resources/Core/Fonts/Rubik-Regular.ttf"_hs),
-		ResourceIdentifier("Resources/Core/Models/Capsule.fbx", GetTypeID<int>(), "Resources/Core/Models/Capsule.fbx"_hs),
-		ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<int>(), "Resources/Core/Models/Cube.fbx"_hs),
-		ResourceIdentifier("Resources/Core/Models/Cylinder.fbx", GetTypeID<int>(), "Resources/Core/Models/Cylinder.fbx"_hs),
-		ResourceIdentifier("Resources/Core/Models/LinaLogo.fbx", GetTypeID<int>(), "Resources/Core/Models/LinaLogo.fbx"_hs),
-		ResourceIdentifier("Resources/Core/Models/Plane.fbx", GetTypeID<int>(), "Resources/Core/Models/Plane.fbx"_hs),
-		ResourceIdentifier("Resources/Core/Models/Quad.fbx", GetTypeID<int>(), "Resources/Core/Models/Quad.fbx"_hs),
-		ResourceIdentifier("Resources/Core/Models/Sphere.fbx", GetTypeID<int>(), "Resources/Core/Models/Sphere.fbx"_hs),
-		ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<int>(), "Resources/Core/Shaders/GUIStandard.linashader"_hs),
-		ResourceIdentifier("Resources/Core/Shaders/GUIText.linashader", GetTypeID<int>(), "Resources/Core/Shaders/GUIText.linashader"_hs),
-		ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<int>(), "Resources/Core/Shaders/LitStandard.linashader"_hs),
-		ResourceIdentifier("Resources/Core/Textures/Grid512.png", GetTypeID<int>(), "Resources/Core/Shaders/LitStandard.linashader"_hs),
-		ResourceIdentifier("Resources/Core/Textures/Logo_Colored_1024.png", GetTypeID<int>(), "Resources/Core/Textures/Logo_Colored_1024.png"_hs),
-		ResourceIdentifier("Resources/Core/Textures/Logo_White_512.png", GetTypeID<int>(), "Resources/Core/Textures/Logo_White_512.png"_hs),
-		ResourceIdentifier("Resources/Core/Textures/LogoWithText.png", GetTypeID<int>(), "Resources/Core/Textures/LogoWithText.png"_hs),
-	};
 
 	String GGetPackagePath(PackageType pt)
 	{
 		switch (pt)
 		{
-		case PackageType::Static:
-			return "Resources/Packages/res_pack_static.linapackage";
+		case PackageType::Default:
+			return "Resources/Packages/res_pack_def.linapackage";
 		case PackageType::Package1:
 			return "Resources/Packages/res_pack_01.linapackage";
 		case PackageType::Package2:

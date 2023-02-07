@@ -36,39 +36,47 @@ SOFTWARE.
 
 namespace Lina
 {
-    enum class SubsystemType
-    {
-        None = 0,
-        Input,
-        GfxManager,
-        PhysicsEngine,
-        AudioManager,
-        WindowManager,
-        LevelManager,
-        Editor,
-        Count
-    };
+	enum class SubsystemType
+	{
+		None = 0,
+		Input,
+		GfxManager,
+		PhysicsEngine,
+		AudioManager,
+		WindowManager,
+		LevelManager,
+		Editor,
+		ResourceManager,
+		Count
+	};
 
-    class ISystem;
+	class ISystem;
+	struct SystemInitializationInfo;
 
-    class ISubsystem : public IEventListener
-    {
-    public:
-        ISubsystem(ISystem* sys, SubsystemType type);
-        virtual ~ISubsystem();
+	class ISubsystem : public IEventListener
+	{
+	public:
+		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
+		virtual void Shutdown()											  = 0;
 
-        virtual void Initialize() = 0;
-        virtual void Shutdown()   = 0;
+		inline SubsystemType GetType() const
+		{
+			return m_systemType;
+		}
 
-        inline SubsystemType GetType() const
-        {
-            return m_systemType;
-        }
+		inline ISystem* GetSystem()
+		{
+			return m_system;
+		}
 
-    protected:
-        ISystem*      m_system     = nullptr;
-        SubsystemType m_systemType = SubsystemType::None;
-    };
+	protected:
+		ISubsystem(ISystem* sys, SubsystemType type);
+		virtual ~ISubsystem();
+
+	protected:
+		ISystem*	  m_system	   = nullptr;
+		SubsystemType m_systemType = SubsystemType::None;
+	};
 } // namespace Lina
 
 #endif

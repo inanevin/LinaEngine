@@ -37,6 +37,7 @@ set (LINACOMMON_SOURCES
 	# Data
 	src/Data/Streams.cpp
 	src/Data/SyncQueue.cpp
+	src/Data/DelegateQueue.cpp
 
 	# Events
 	src/Event/Event.cpp
@@ -139,6 +140,7 @@ set(LINACOMMON_HEADERS
 	include/Data/Mutex.hpp
 	include/Data/Streams.hpp
 	include/Data/SyncQueue.hpp
+	include/Data/DelegateQueue.hpp
 
 	# Memory
 	include/Memory/Memory.hpp

@@ -32,28 +32,27 @@ SOFTWARE.
 #define LevelManager_HPP
 
 #include "System/ISubsystem.hpp"
-#include "Core/ObjectWrapper.hpp"
 
 namespace Lina
 {
-    class Level;
+	class Level;
 
-    class LevelManager : public ISubsystem
-    {
-    public:
-        LevelManager(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
-        virtual ~LevelManager() = default;
+	class LevelManager : public ISubsystem
+	{
+	public:
+		LevelManager(ISystem* sys) : ISubsystem(sys, SubsystemType::LevelManager){};
+		virtual ~LevelManager() = default;
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
 
-        void InstallLevel(const char* level);
-        void UninstallLevel();
-        void Tick(float dt);
+		void InstallLevel(const char* level);
+		void UninstallLevel();
+		void Tick(float dt);
 
-    private:
-        ObjectWrapper<Level> m_currentLevel;
-    };
+	private:
+		Level* m_currentLevel = nullptr;
+	};
 } // namespace Lina
 
 #endif

@@ -67,7 +67,7 @@ target_link_libraries(${PROJECT_NAME}
 PUBLIC Lina::Core
 )
 
-
+include(../CMake/EditorSandboxCommands.cmake)
 include(../_Dependencies/linavg/link.cmake)
 link_linavg()
 

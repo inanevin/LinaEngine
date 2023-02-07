@@ -34,76 +34,81 @@ SOFTWARE.
 #include "Core/StringID.hpp"
 #include "Data/String.hpp"
 #include "Serialization/ISerializable.hpp"
+#include "Resources/Data/ResourceMetadata.hpp"
 
 namespace Lina
 {
-    class IResource : public ISerializable
-    {
-    public:
-        IResource()          = default;
-        virtual ~IResource() = default;
+	class ResourceManager;
+	class ISystem;
 
-        /// <summary>
-        /// When we want to get rid of CPU resources such as vertex buffers, pixels etc.
-        /// </summary>
-        virtual void Flush(){};
+	class IResource : protected ISerializable
+	{
+	public:
+		IResource() = default;
+		IResource(const String& path, StringID sid, TypeID tid, ResourceManager* rm) : m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm) {};
+		virtual ~IResource() = default;
 
-        /// <summary>
-        /// When ResourceManager loads from Editor Mode. Resources default to loading stream from file,
-        /// but if they have a OS load routine (texture and model from file etc.) they can override this.
-        /// </summary>
-        /// <param name="path"></param>
-        virtual void LoadFromOSFile(const char* path)
-        {
-            LoadFromFile(path);
-        }
+		inline const String& GetPath() const
+		{
+			return m_path;
+		}
 
-        inline void SetPath(const String& path)
-        {
-            m_path = path;
-        }
+		inline StringID GetSID() const
+		{
+			return m_sid;
+		}
 
-        inline void SetSID(StringID sid)
-        {
-            m_sid = sid;
-        }
+		inline TypeID GetTID() const
+		{
+			return m_tid;
+		}
 
-        inline void SetTID(TypeID tid)
-        {
-            m_tid = tid;
-        }
+		inline ResourceMetadata& GetMetadata()
+		{
+			return m_metadata;
+		}
 
-        inline void SetCacheID(uint32 id)
-        {
-            m_cacheID = id;
-        }
+		inline bool IsUserManaged() const
+		{
+			return m_userManaged;
+		}
 
-        inline const String& GetPath() const
-        {
-            return m_path;
-        }
+	protected:
+		friend class ResourceManager;
+		template <typename U> friend class ResourceCache;
 
-        inline StringID GetSID() const
-        {
-            return m_sid;
-        }
+		virtual void Flush(){};
+		virtual void Upload(){};
+		virtual void BatchLoaded(){};
 
-        inline TypeID GetTID() const
-        {
-            return m_tid;
-        }
+		inline void SetMetadata(const ResourceMetadata& md)
+		{
+			m_metadata = md;
+		}
 
-        inline uint32 GetCacheID() const
-        {
-            return m_cacheID;
-        }
+		inline void SetPath(const String& path)
+		{
+			m_path = path;
+		}
 
-    protected:
-        uint32   m_cacheID = 0;
-        String   m_path    = "";
-        TypeID   m_tid     = 0;
-        StringID m_sid     = 0;
-    };
+		inline void SetSID(StringID sid)
+		{
+			m_sid = sid;
+		}
+
+		inline void SetTID(TypeID tid)
+		{
+			m_tid = tid;
+		}
+
+	protected:
+		bool			 m_userManaged	   = false;
+		ResourceManager* m_resourceManager = nullptr;
+		ResourceMetadata m_metadata		   = ResourceMetadata();
+		String			 m_path			   = "";
+		TypeID			 m_tid			   = 0;
+		StringID		 m_sid			   = 0;
+	};
 } // namespace Lina
 
 #endif

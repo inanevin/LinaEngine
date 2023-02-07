@@ -31,4 +31,6 @@ layout(set = 1, binding = 1) uniform ViewData
 	mat4 view;
 	mat4 proj;
 	mat4 viewProj;
-} viewData;
+	vec4 camPos;
+	vec2 camNearFar;
+} LINA_CAM;

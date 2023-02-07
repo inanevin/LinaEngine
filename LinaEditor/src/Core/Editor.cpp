@@ -33,71 +33,75 @@ SOFTWARE.
 #include "FileSystem/FileSystem.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "Serialization/Compressor.hpp"
+#include "System/ISystem.hpp"
 
 namespace Lina::Editor
 {
-    void Editor::Initialize()
-    {
-    }
-    void Editor::Shutdown()
-    {
-    }
+	void Editor::Initialize(const SystemInitializationInfo& initInfo)
+	{
+	}
+	void Editor::Shutdown()
+	{
+	}
 
-    void Editor::PackageResources(const Vector<ResourceIdentifier>& identifiers)
-    {
-        HashMap<PackageType, Vector<ResourceIdentifier>> resourcesPerPackage;
+	void Editor::PackageResources(const Vector<ResourceIdentifier>& identifiers)
+	{
+		ResourceManager* rm = static_cast<ResourceManager*>(m_system->GetSubsystem(SubsystemType::ResourceManager));
 
-        for (const auto& ident : identifiers)
-        {
-            PackageType pt = ResourceManager::Get().GetPackageType(ident.tid);
-            resourcesPerPackage[pt].push_back(ident);
-        }
+		HashMap<PackageType, Vector<ResourceIdentifier>> resourcesPerPackage;
 
-        for (auto [packageType, resources] : resourcesPerPackage)
-        {
-            const String packagePath = GGetPackagePath(packageType);
-            OStream      stream;
-            stream.CreateReserve(1000);
+		for (const auto& ident : identifiers)
+		{
+			PackageType pt = rm->GetPackageType(ident.tid);
+			resourcesPerPackage[pt].push_back(ident);
+		}
 
-            for (auto r : resources)
-            {
-                // Header
-                stream << r.tid;
-                stream << r.sid;
+		for (auto [packageType, resources] : resourcesPerPackage)
+		{
+			const String packagePath = GGetPackagePath(packageType);
+			OStream		 stream;
+			stream.CreateReserve(1000);
 
-                const String metacachePath = ResourceManager::GetMetacachePath(r.path, r.sid);
-                if (FileSystem::FileExists(metacachePath))
-                {
-                    IStream      cache = Serialization::LoadFromFile(metacachePath.c_str());
-                    const uint32 size  = static_cast<uint32>(cache.GetSize());
-                    stream << size;
-                    stream.WriteEndianSafe(cache.GetDataRaw(), cache.GetSize());
-                    cache.Destroy();
-                }
-                else
-                {
-                    OStream outStream;
-                    outStream.CreateReserve(512);
+			for (auto r : resources)
+			{
+				// Header
+				stream << r.tid;
+				stream << r.sid;
 
-                    // Load into stream & destroy.
-                    IResource* res = static_cast<IResource*>(ReflectionSystem::Get().Resolve(r.tid).GetFunction<void*()>("CreateMock"_hs)());
-                    res->LoadFromFile(r.path.c_str());
-                    res->SaveToStream(outStream);
-                    ReflectionSystem::Get().Resolve(r.tid).GetFunction<void(void*)>("DestroyMock"_hs)(static_cast<void*>(res));
+				const String metacachePath = ResourceManager::GetMetacachePath(r.path, r.sid);
+				if (FileSystem::FileExists(metacachePath))
+				{
+					IStream		 cache = Serialization::LoadFromFile(metacachePath.c_str());
+					const uint32 size  = static_cast<uint32>(cache.GetSize());
+					stream << size;
+					stream.WriteEndianSafe(cache.GetDataRaw(), cache.GetSize());
+					cache.Destroy();
+				}
+				else
+				{
+					OStream outStream;
+					outStream.CreateReserve(512);
 
-                    // Write stream to package & destroy.
-                    const uint32 size = static_cast<uint32>(outStream.GetCurrentSize());
-                    stream << size;
-                    stream.WriteRaw(outStream.GetDataRaw(), outStream.GetCurrentSize());
-                    outStream.Destroy();
-                }
-            }
+					// Load into stream & destroy.
+					IResource* res = static_cast<IResource*>(ReflectionSystem::Get().Resolve(r.tid).GetFunction<void*()>("CreateMock"_hs)());
+					//res->LoadFromFile(r.path.c_str());
+					//res->SaveToStream(outStream);
+					//res->Flush();
+					ReflectionSystem::Get().Resolve(r.tid).GetFunction<void(void*)>("DestroyMock"_hs)(static_cast<void*>(res));
 
-            if (!FileSystem::FileExists("Resources/Packages"))
-                FileSystem::CreateFolderInPath("Resources/Packages");
+					// Write stream to package & destroy.
+					const uint32 size = static_cast<uint32>(outStream.GetCurrentSize());
+					stream << size;
+					stream.WriteRaw(outStream.GetDataRaw(), outStream.GetCurrentSize());
+					outStream.Destroy();
+				}
+			}
 
-            Serialization::SaveToFile(packagePath.c_str(), stream);
-        }
-    }
+			if (!FileSystem::FileExists("Resources/Packages"))
+				FileSystem::CreateFolderInPath("Resources/Packages");
+
+			Serialization::SaveToFile(packagePath.c_str(), stream);
+		}
+	}
 
 } // namespace Lina::Editor

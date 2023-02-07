@@ -36,22 +36,23 @@ SOFTWARE.
 
 namespace Lina
 {
-    struct ResourceIdentifier;
+	struct ResourceIdentifier;
+
 } // namespace Lina
 namespace Lina::Editor
 {
-    class Editor : public ISubsystem
-    {
-    public:
-        Editor(ISystem* system, SubsystemType type) : ISubsystem(system, type){};
-        virtual ~Editor() = default;
+	class Editor : public ISubsystem
+	{
+	public:
+		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor){};
+		virtual ~Editor() = default;
 
-        void PackageResources(const Vector<ResourceIdentifier>& identifiers);
+		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
 
-        // Inherited via ISubsystem
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-    };
+		// Inherited via ISubsystem
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+	};
 } // namespace Lina::Editor
 
 #endif

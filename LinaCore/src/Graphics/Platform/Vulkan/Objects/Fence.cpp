@@ -26,23 +26,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Platform/Vulkan/Objects/Fence.hpp"
+#include "Log/Log.hpp"
+#include "Data/DelegateQueue.hpp"
+#include <vulkan/vulkan.h>
 
 namespace Lina
 {
-    void GfxManager::Initialize()
-    {
-    }
-    void GfxManager::Shutdown()
-    {
-    }
-    void GfxManager::Tick(float dt)
-    {
-    }
-    void GfxManager::Render()
-    {
-    }
-    void GfxManager::SyncData()
-    {
-    }
+	void Fence::Create()
+	{
+		VkFenceCreateInfo info = VkFenceCreateInfo{
+			.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = flags,
+		};
+
+		VkResult result = vkCreateFence(device, &info, allocationCb, &_ptr);
+		LINA_ASSERT(result == VK_SUCCESS, "[Fence] -> Could not create Vulkan Fence!");
+
+		if (deletionQueue)
+		{
+			VkFence_T*			   ptr = _ptr;
+			VkDevice_T*			   dv  = device;
+			VkAllocationCallbacks* cb  = allocationCb;
+			deletionQueue->Push([ptr, dv, cb]() { vkDestroyFence(dv, ptr, cb); });
+		}
+	}
+
+	void Fence::Destroy()
+	{
+		vkDestroyFence(device, _ptr, allocationCb);
+	}
+
+	void Fence::Wait(bool waitForAll, double timeoutSeconds) const
+	{
+		const uint64 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
+		vkWaitForFences(device, 1, &_ptr, waitForAll, timeout);
+	}
+
+	void Fence::Reset()
+	{
+		vkResetFences(device, 1, &_ptr);
+	}
+
 } // namespace Lina

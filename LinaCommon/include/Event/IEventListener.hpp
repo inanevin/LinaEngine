@@ -36,30 +36,30 @@ SOFTWARE.
 
 namespace Lina
 {
-    class IEventListener
-    {
-    public:
-        IEventListener()          = default;
-        virtual ~IEventListener() = default;
+	class IEventListener
+	{
+	public:
+		IEventListener()		  = default;
+		virtual ~IEventListener() = default;
 
-        virtual void OnSystemEvent(ESystemEvent type, const Event& ev)
-        {
-        }
+		virtual void OnSystemEvent(ESystemEvent type, const Event& ev)
+		{
+		}
 
-        virtual void OnGameEvent(EGameEvent type, const Event& ev)
-        {
-        }
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return 0;
+		}
 
-        virtual Bitmask32 GetSystemEventMask()
-        {
-            return 0;
-        }
+		virtual void OnGameEvent(EGameEvent type, const Event& ev)
+		{
+		}
 
-        virtual Bitmask32 GetGameEventMask()
-        {
-            return 0;
-        }
-    };
+		virtual Bitmask32 GetGameEventMask()
+		{
+			return 0;
+		}
+	};
 
 } // namespace Lina
 

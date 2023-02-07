@@ -35,55 +35,53 @@ using namespace Lina;
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR pCmdLine, _In_ int nCmdShow)
 {
-    // Win32 stuff
-    MSG msg    = {0};
-    msg.wParam = 0;
+	// Win32 stuff
+	MSG msg	   = {0};
+	msg.wParam = 0;
 
-    if (AllocConsole() == FALSE)
-    {
-        // err
-    }
+	if (AllocConsole() == FALSE)
+	{
+		// err
+	}
 
-    SystemInitializationInfo initializationInfo = SystemInitializationInfo{
-        .appName            = "Lina Editor",
-        .windowWidth        = 1440,
-        .windowHeight       = 960,
-        .windowStyleOptions = 0,
-        .windowInitOptions  = WIO_CustomWidthHeight,
-        .preferredGPUType   = PreferredGPUType::Integrated,
-        .vsyncMode          = VsyncMode::None,
-    };
+	SystemInitializationInfo initializationInfo = SystemInitializationInfo{
+		.appName		  = "Lina Editor",
+		.windowWidth	  = 1440,
+		.windowHeight	  = 960,
+		.windowStyle	  = WindowStyle::Windowed,
+		.preferredGPUType = PreferredGPUType::Integrated,
+		.vsyncMode		  = VsyncMode::None,
+	};
 
-    Editor::EditorApplication app = Editor::EditorApplication();
-    app.Initialize(initializationInfo);
-    app.LoadPlugins();
-    app.PostInitialize();
+	Editor::EditorApplication app = Editor::EditorApplication();
+	app.Initialize(initializationInfo);
 
-    while (false)
-    {
-        while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
+	while (app.GetIsRunning())
+	{
+		app.PreTick();
 
-        if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
-            break;
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 
-        app.Tick();
-    }
+		if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
+			break;
 
-    app.UnloadPlugins();
-    app.Shutdown();
+		app.Tick();
+	}
 
-    FreeConsole();
+	app.Shutdown();
+
+	FreeConsole();
 }
 
 #else
 
 int main(int argc, char* argv[])
 {
-    return 0;
+	return 0;
 }
 
 #endif

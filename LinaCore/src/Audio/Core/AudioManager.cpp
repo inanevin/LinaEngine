@@ -30,13 +30,16 @@ SOFTWARE.
 
 namespace Lina
 {
-    void AudioManager::Initialize()
-    {
-    }
-    void AudioManager::Shutdown()
-    {
-    }
-    void AudioManager::Tick(float dt)
-    {
-    }
+	void AudioManager::Initialize(const SystemInitializationInfo& initInfo)
+	{
+		LINA_TRACE("[Audio Manager] -> Initialization.");
+	}
+	void AudioManager::Shutdown()
+	{
+		LINA_TRACE("[Audio Manager] -> Shutdown.");
+	}
+	
+	void AudioManager::Tick(float dt)
+	{
+	}
 } // namespace Lina

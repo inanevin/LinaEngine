@@ -37,99 +37,76 @@ SOFTWARE.
 
 namespace Lina
 {
-    class IEventDispatcher;
-    class ReflectionClassUtility
-    {
-    public:
-        template <typename T> static inline void* REF_CreateComponentCacheFunc(IEventDispatcher* dispatcher)
-        {
-            Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>(dispatcher);
-            return static_cast<void*>(c);
-        }
+	class IEventDispatcher;
+	class ReflectionClassUtility
+	{
+	public:
+		template <typename T> static inline void* REF_CreateComponentCacheFunc(IEventDispatcher* dispatcher)
+		{
+			Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>(dispatcher);
+			return static_cast<void*>(c);
+		}
 
-        template <typename T> static inline void* REF_CreateFunc()
-        {
-            T* c = new T();
-            return static_cast<void*>(c);
-        }
+		template <typename T> static inline void* REF_CreateFunc()
+		{
+			T* c = new T();
+			return static_cast<void*>(c);
+		}
 
-        template <typename T> static inline void REF_DestroyFunc(void* ptr)
-        {
-            T* obj = static_cast<T*>(ptr);
-            delete obj;
-        }
-    };
+		template <typename T> static inline void REF_DestroyFunc(void* ptr)
+		{
+			T* obj = static_cast<T*>(ptr);
+			delete obj;
+		}
+	};
 
 #define LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                      \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                                      \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                                      \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);
 
 /* BEGINNING A REFLECTED CLASS */
 #define LINA_REFLECTCOMPONENT_BEGIN(ClassName, TITLE, CATEGORY)                                                                                                                                                                                                    \
-    class ClassName;                                                                                                                                                                                                                                               \
-    class ClassName##_LinaReflected                                                                                                                                                                                                                                \
-    {                                                                                                                                                                                                                                                              \
-    public:                                                                                                                                                                                                                                                        \
-        ClassName##_LinaReflected()                                                                                                                                                                                                                                \
-        {                                                                                                                                                                                                                                                          \
-            LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
-            Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(IEventDispatcher * dispatcher)>(Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1));
+	class ClassName;                                                                                                                                                                                                                                               \
+	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		ClassName##_LinaReflected()                                                                                                                                                                                                                                \
+		{                                                                                                                                                                                                                                                          \
+			LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(IEventDispatcher * dispatcher)>(Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1));
 
-    /* BEGINNING A REFLECTED CLASS */
+	/* BEGINNING A REFLECTED CLASS */
 #define LINA_REFLECTCLASS_BEGIN(ClassName, TITLE, CATEGORY)                                                                                                                                                                                                        \
-    class ClassName;                                                                                                                                                                                                                                               \
-    class ClassName##_LinaReflected                                                                                                                                                                                                                                \
-    {                                                                                                                                                                                                                                                              \
-    public:                                                                                                                                                                                                                                                        \
-        ClassName##_LinaReflected()                                                                                                                                                                                                                                \
-        {                                                                                                                                                                                                                                                          \
-            LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
-            Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<ClassName>));                                                                                    \
-            Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<ClassName>, std::placeholders::_1));
+	class ClassName;                                                                                                                                                                                                                                               \
+	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		ClassName##_LinaReflected()                                                                                                                                                                                                                                \
+		{                                                                                                                                                                                                                                                          \
+			LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<ClassName>));                                                                                    \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<ClassName>, std::placeholders::_1));
 
 /* PROPERTIES AND FUNCTIONS PER REFLECTED CLASS*/
-#define LINA_REFLECTCLASS_FIELD(ClassName, FieldName, TITLE, TYPE, CATEGORY, TOOLTIP, DEPENDSON)                                                                                                                                                                   \
-    const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TITLE);                                                                                                                                                                                                   \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().AddField<&ClassName::FieldName, ClassName>(sid_##FieldName);                                                                                                                                                   \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                           \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Type"), TYPE);                                                                                                                             \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);                                                                                                                     \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);                                                                                                                       \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("DependsOn"), DEPENDSON);
+#define LINA_REFLECT_FIELD(ClassName, FieldName, TITLE, TYPE, CATEGORY, TOOLTIP, DEPENDSON)                                                                                                                                                                        \
+	const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TITLE);                                                                                                                                                                                                   \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddField<&ClassName::FieldName, ClassName>(sid_##FieldName);                                                                                                                                                   \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                           \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Type"), TYPE);                                                                                                                             \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);                                                                                                                     \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);                                                                                                                       \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("DependsOn"), DEPENDSON);
 
 /* ENDING A REFLECTED CLASS */
 #define LINA_REFLECTCLASS_END(ClassName)                                                                                                                                                                                                                           \
-    }                                                                                                                                                                                                                                                              \
-                                                                                                                                                                                                                                                                   \
-private:                                                                                                                                                                                                                                                           \
-    static const ClassName##_LinaReflected ClassName##__;                                                                                                                                                                                                          \
-    }                                                                                                                                                                                                                                                              \
-    ;                                                                                                                                                                                                                                                              \
-    const ClassName##_LinaReflected ClassName##_LinaReflected::ClassName##__ = ClassName##_LinaReflected();
+	}                                                                                                                                                                                                                                                              \
+	}                                                                                                                                                                                                                                                              \
+	;                                                                                                                                                                                                                                                              \
+	inline static ClassName##_LinaReflected ClassName##__ = ClassName##_LinaReflected();
+#define LINA_REFLECTCOMPONENT_END(ClassName) LINA_REFLECTCLASS_END(ClassName)
+#define LINA_REFLECTION_ACCESS(ClassName)	 friend class ClassName##_LinaReflected;
 
-#define LINA_REFLECTION_ACCESS(ClassName) friend class ClassName##_LinaReflected;
-    //  #define LINA_REFLECTION_GEN_CLASS(ClassName, TITLE, CATEGORY, ISCOMPONENT)                                                                                                                                                                                         \
-//    class ClassName;                                                                                                                                                                                                                                               \
-//    class ClassName##_LinaReflected                                                                                                                                                                                                                                \
-//    {                                                                                                                                                                                                                                                              \
-//    public:                                                                                                                                                                                                                                                        \
-//        ClassName##_LinaReflected()                                                                                                                                                                                                                                \
-//        {                                                                                                                                                                                                                                                          \
-//            Lina::ReflectionSystem::Get().Meta<ClassName>().AddString(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                                            \
-//            Lina::ReflectionSystem::Get().Meta<ClassName>().AddString(Lina::TO_SIDC("Category"), CATEGORY);                                                                                                                                                      \
-//            if (ISCOMPONENT)                                                                                                                                                                                                                                       \
-//                Lina::ReflectionSystem::Get().Meta<ClassName>().createCompCacheFunc = std::bind(&Lina::REF_CreateComponentCacheFunc<ClassName>);                                                                                                                   \
-//            else                                                                                                                                                                                                                                                   \
-//            {                                                                                                                                                                                                                                                      \
-//                Lina::ReflectionSystem::Get().Meta<ClassName>().createFunc  = std::bind(&Lina::REF_CreateFunc<ClassName>);                                                                                                                                         \
-//                Lina::ReflectionSystem::Get().Meta<ClassName>().destroyFunc = std::bind(&Lina::REF_DestroyFunc<ClassName>, std::placeholders::_1);                                                                                                                 \
-//            }                                                                                                                                                                                                                                                      \
-//        }                                                                                                                                                                                                                                                          \
-//                                                                                                                                                                                                                                                                   \
-//    private:                                                                                                                                                                                                                                                       \
-//        static const ClassName##_LinaReflected ClassName##__;                                                                                                                                                                                                      \
-//    };                                                                                                                                                                                                                                                             \
-//    const ClassName##_LinaReflected ClassName##_LinaReflected::ClassName##__ = ClassName##_LinaReflected();
+	// static const ClassName##....
 
 } // namespace Lina
 

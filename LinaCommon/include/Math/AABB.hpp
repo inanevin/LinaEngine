@@ -38,40 +38,41 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Plane;
-    class AABB : public ISerializable
-    {
+	class Plane;
+	class AABB : public ISerializable
+	{
 
-    public:
-        AABB() = default;
-        AABB(Vector3 min, Vector3 max)
-        {
-            boundsMin         = min;
-            boundsMax         = max;
-            boundsHalfExtents = (max - min) / 2.0f;
-        }
-        ~AABB() = default;
+	public:
+		AABB() = default;
+		AABB(Vector3 min, Vector3 max)
+		{
+			boundsMin		  = min;
+			boundsMax		  = max;
+			boundsHalfExtents = (max - min) / 2.0f;
+		}
+		~AABB() = default;
 
-        /// <summary>
-        /// Returns true if this box is inside the given plane, given an arbitrary position.
-        /// </summary>
-        /// <param name="aabb"></param>
-        /// <param name="plane"></param>
-        bool IsInsidePlane(const Vector3& center, const Plane& plane);
+		/// <summary>
+		/// Returns true if this box is inside the given plane, given an arbitrary position.
+		/// </summary>
+		/// <param name="aabb"></param>
+		/// <param name="plane"></param>
+		bool IsInsidePlane(const Vector3& center, const Plane& plane);
 
-        Vector3 GetPositive(const Vector3& normal) const;
-        Vector3 GetNegative(const Vector3& normal) const;
+		Vector3 GetPositive(const Vector3& normal) const;
+		Vector3 GetNegative(const Vector3& normal) const;
 
-        Vector3         boundsHalfExtents = Vector3::Zero;
-        Vector3         boundsMin         = Vector3::Zero;
-        Vector3         boundsMax         = Vector3::Zero;
-        Vector<Vector3> positions;
+		// Inherited via ISerializable
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
 
-    private:
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		Vector3			boundsHalfExtents = Vector3::Zero;
+		Vector3			boundsMin		  = Vector3::Zero;
+		Vector3			boundsMax		  = Vector3::Zero;
+		Vector<Vector3> positions;
+
+	private:
+	};
 } // namespace Lina
 
 #endif

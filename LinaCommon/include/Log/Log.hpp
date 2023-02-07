@@ -36,10 +36,10 @@ SOFTWARE.
 
 #ifdef LINA_ENABLE_LOGGING
 
-#define LINA_ERR(...)      Log::LogMessage(LogLevel::Error, __VA_ARGS__)
-#define LINA_WARN(...)     Log::LogMessage(LogLevel::Warn, __VA_ARGS__)
-#define LINA_INFO(...)     Log::LogMessage(LogLevel::Info, __VA_ARGS__)
-#define LINA_TRACE(...)    Log::LogMessage(LogLevel::Trace, __VA_ARGS__)
+#define LINA_ERR(...)	   Log::LogMessage(LogLevel::Error, __VA_ARGS__)
+#define LINA_WARN(...)	   Log::LogMessage(LogLevel::Warn, __VA_ARGS__)
+#define LINA_INFO(...)	   Log::LogMessage(LogLevel::Info, __VA_ARGS__)
+#define LINA_TRACE(...)	   Log::LogMessage(LogLevel::Trace, __VA_ARGS__)
 #define LINA_CRITICAL(...) Log::LogMessage(LogLevel::Critical, __VA_ARGS__)
 
 #else
@@ -55,52 +55,59 @@ SOFTWARE.
 #else
 
 #define LINA_TRACE(...)
-#define LINA_ERR(...)      Log::LogMessage(LogLevel::Error, __VA_ARGS__);
-#define LINA_WARN(...)     Log::LogMessage(LogLevel::Warn, __VA_ARGS__);
-#define LINA_INFO(...)     Log::LogMessage(LogLevel::Info, __VA_ARGS__);
+#define LINA_ERR(...)	   Log::LogMessage(LogLevel::Error, __VA_ARGS__);
+#define LINA_WARN(...)	   Log::LogMessage(LogLevel::Warn, __VA_ARGS__);
+#define LINA_INFO(...)	   Log::LogMessage(LogLevel::Info, __VA_ARGS__);
 #define LINA_CRITICAL(...) Log::LogMessage(LogLevel::Critical, __VA_ARGS__);
 
 #endif
 #endif
 
 #ifdef LINA_DEBUG
-#define LINA_ASSERT(x, ...) if(!(x)) { LINA_CRITICAL(__VA_ARGS__); __debugbreak();}
+#define LINA_ASSERT(x, ...)                                                                                                                                                                                                                                        \
+	if (!(x))                                                                                                                                                                                                                                                      \
+	{                                                                                                                                                                                                                                                              \
+		LINA_CRITICAL(__VA_ARGS__);                                                                                                                                                                                                                                \
+		__debugbreak();                                                                                                                                                                                                                                            \
+	}
 #else
 #define LINA_ASSERT(x, ...)
 #endif
+
+#define LINA_NOTIMPLEMENTED LINA_ASSERT(false, "Implementation missing!")
 
 #include "Data/Mutex.hpp"
 
 namespace Lina
 {
-    enum class LogLevel;
+	enum class LogLevel;
 
-    enum class LogLevel
-    {
-        None     = 0,
-        Debug    = 1,
-        Info     = 2,
-        Critical = 3,
-        Error    = 4,
-        Trace    = 5,
-        Warn     = 6,
-    };
+	enum class LogLevel
+	{
+		None	 = 0,
+		Debug	 = 1,
+		Info	 = 2,
+		Critical = 3,
+		Error	 = 4,
+		Trace	 = 5,
+		Warn	 = 6,
+	};
 
-    class Log
-    {
-    public:
-        static void       LogImpl(LogLevel level, const char* msg);
-        static const char* GetLogLevel(LogLevel level);
+	class Log
+	{
+	public:
+		static void		   LogImpl(LogLevel level, const char* msg);
+		static const char* GetLogLevel(LogLevel level);
 
-        template <typename... Args> static void LogMessage(LogLevel level, const Args&... args)
-        {
-            LogImpl(level, fmt::format(args...).c_str());
-        }
+		template <typename... Args> static void LogMessage(LogLevel level, const Args&... args)
+		{
+			LogImpl(level, fmt::format(args...).c_str());
+		}
 
-    private:
-        friend class Application;
-        static Mutex s_logMtx;
-    };
+	private:
+		friend class Application;
+		static Mutex s_logMtx;
+	};
 } // namespace Lina
 
 #endif

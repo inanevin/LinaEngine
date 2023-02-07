@@ -40,155 +40,155 @@ SOFTWARE.
 
 namespace Lina
 {
-    class EntityWorld;
+	class EntityWorld;
 
-    // Actual game state
-    class Entity : public ISerializable
-    {
-    public:
-        Entity() = default;
+	// Actual game state
+	class Entity final : public ISerializable
+	{
+	public:
+		Entity() = default;
 
-        void           AddChild(Entity* e);
-        void           RemoveChild(Entity* e);
-        void           RemoveFromParent();
-        void           SetTransformation(Matrix& mat, bool omitScale = false);
-        void           SetLocalTransformation(Matrix& mat, bool omitScale = false);
-        void           AddRotation(const Vector3& angles);
-        void           AddLocalRotation(const Vector3& angles);
-        void           AddPosition(const Vector3& loc);
-        void           AddLocalPosition(const Vector3& loc);
-        void           SetLocalPosition(const Vector3& loc);
-        void           SetPosition(const Vector3& loc);
-        void           SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
-        void           SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
-        void           SetRotation(const Quaternion& rot, bool isThisPivot = true);
-        void           SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
-        void           SetLocalScale(const Vector3& scale, bool isThisPivot = true);
-        void           SetScale(const Vector3& scale, bool isThisPivot = true);
-        void           SetVisible(bool visible);
-        void           SetStatic(bool isStatic);
-        Transformation GetInterpolated(float interpolation);
+		void		   AddChild(Entity* e);
+		void		   RemoveChild(Entity* e);
+		void		   RemoveFromParent();
+		void		   SetTransformation(Matrix& mat, bool omitScale = false);
+		void		   SetLocalTransformation(Matrix& mat, bool omitScale = false);
+		void		   AddRotation(const Vector3& angles);
+		void		   AddLocalRotation(const Vector3& angles);
+		void		   AddPosition(const Vector3& loc);
+		void		   AddLocalPosition(const Vector3& loc);
+		void		   SetLocalPosition(const Vector3& loc);
+		void		   SetPosition(const Vector3& loc);
+		void		   SetLocalRotation(const Quaternion& rot, bool isThisPivot = true);
+		void		   SetLocalRotationAngles(const Vector3& angles, bool isThisPivot = true);
+		void		   SetRotation(const Quaternion& rot, bool isThisPivot = true);
+		void		   SetRotationAngles(const Vector3& angles, bool isThisPivot = true);
+		void		   SetLocalScale(const Vector3& scale, bool isThisPivot = true);
+		void		   SetScale(const Vector3& scale, bool isThisPivot = true);
+		void		   SetVisible(bool visible);
+		void		   SetStatic(bool isStatic);
+		Transformation GetInterpolated(float interpolation);
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
+		// Inherited via ISerializable
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
 
-        ObjectWrapper<EntityWorld> GetWorld()
-        {
-            return ObjectWrapper<EntityWorld>(m_world);
-        }
+		ObjectWrapper<EntityWorld> GetWorld()
+		{
+			return ObjectWrapper<EntityWorld>(m_world);
+		}
 
-        inline uint32 GetID()
-        {
-            return m_id;
-        }
+		inline uint32 GetID()
+		{
+			return m_id;
+		}
 
-        inline const String& GetName()
-        {
-            return m_name;
-        }
+		inline const String& GetName()
+		{
+			return m_name;
+		}
 
-        inline StringID GetSID()
-        {
-            return m_sid;
-        }
+		inline StringID GetSID()
+		{
+			return m_sid;
+		}
 
-        Matrix ToMatrix() const
-        {
-            return m_transform.ToMatrix();
-        }
-        Matrix ToLocalMatrix() const
-        {
-            return m_transform.ToLocalMatrix();
-        }
+		Matrix ToMatrix() const
+		{
+			return m_transform.ToMatrix();
+		}
+		Matrix ToLocalMatrix() const
+		{
+			return m_transform.ToLocalMatrix();
+		}
 
-        inline bool IsVisible()
-        {
-            return m_mask.IsSet(EntityMask::Visible);
-        }
+		inline bool IsVisible()
+		{
+			return m_mask.IsSet(EntityMask::Visible);
+		}
 
-        inline bool IsStatic()
-        {
-            return m_mask.IsSet(EntityMask::Static);
-        }
+		inline bool IsStatic()
+		{
+			return m_mask.IsSet(EntityMask::Static);
+		}
 
-        const Vector3& GetLocalRotationAngles()
-        {
-            return m_transform.m_localRotationAngles;
-        }
-        const Vector3& GetLocalPosition()
-        {
-            return m_transform.m_localPosition;
-        }
-        const Quaternion& GetLocalRotation()
-        {
-            return m_transform.m_localRotation;
-        }
-        const Vector3& GetLocalScale()
-        {
-            return m_transform.m_localScale;
-        }
-        const Vector3& GetPosition()
-        {
-            return m_transform.m_position;
-        }
-        const Quaternion& GetRotation()
-        {
-            return m_transform.m_rotation;
-        }
-        const Vector3& GetRotationAngles()
-        {
-            return m_transform.m_rotationAngles;
-        }
-        const Vector3& GetScale()
-        {
-            return m_transform.m_scale;
-        }
+		const Vector3& GetLocalRotationAngles()
+		{
+			return m_transform.m_localRotationAngles;
+		}
+		const Vector3& GetLocalPosition()
+		{
+			return m_transform.m_localPosition;
+		}
+		const Quaternion& GetLocalRotation()
+		{
+			return m_transform.m_localRotation;
+		}
+		const Vector3& GetLocalScale()
+		{
+			return m_transform.m_localScale;
+		}
+		const Vector3& GetPosition()
+		{
+			return m_transform.m_position;
+		}
+		const Quaternion& GetRotation()
+		{
+			return m_transform.m_rotation;
+		}
+		const Vector3& GetRotationAngles()
+		{
+			return m_transform.m_rotationAngles;
+		}
+		const Vector3& GetScale()
+		{
+			return m_transform.m_scale;
+		}
 
-        const Transformation& GetTransform()
-        {
-            return m_transform;
-        }
+		const Transformation& GetTransform()
+		{
+			return m_transform;
+		}
 
-        inline void SetName(const String& name)
-        {
-            m_name = name;
-            m_sid  = TO_SID(name);
-        }
+		inline void SetName(const String& name)
+		{
+			m_name = name;
+			m_sid  = TO_SID(name);
+		}
 
-        inline bool IsMaskSet(uint16 mask)
-        {
-            return m_mask.IsSet(mask);
-        }
+		inline bool IsMaskSet(uint16 mask)
+		{
+			return m_mask.IsSet(mask);
+		}
 
-        inline Bitmask16 GetEntityMask()
-        {
-            return m_mask;
-        }
+		inline Bitmask16 GetEntityMask()
+		{
+			return m_mask;
+		}
 
-    private:
-        void UpdateGlobalPosition();
-        void UpdateLocalPosition();
-        void UpdateGlobalRotation();
-        void UpdateLocalRotation();
-        void UpdateGlobalScale();
-        void UpdateLocalScale();
+	private:
+		void UpdateGlobalPosition();
+		void UpdateLocalPosition();
+		void UpdateGlobalRotation();
+		void UpdateLocalRotation();
+		void UpdateGlobalScale();
+		void UpdateLocalScale();
 
-    private:
-        friend class EntityWorld;
-        ~Entity() = default;
+	private:
+		friend class EntityWorld;
+		~Entity() = default;
 
-        EntityWorld*     m_world    = nullptr;
-        Entity*          m_parent   = nullptr;
-        uint32           m_id       = 0;
-        String           m_name     = "";
-        uint32           m_parentID = ENTITY_NULL;
-        HashSet<Entity*> m_children;
-        HashSet<uint32>  m_childrenID;
-        Transformation   m_transform;
-        Bitmask16        m_mask;
-        StringID         m_sid = 0;
-    };
+		EntityWorld*	 m_world	= nullptr;
+		Entity*			 m_parent	= nullptr;
+		uint32			 m_id		= 0;
+		String			 m_name		= "";
+		uint32			 m_parentID = ENTITY_NULL;
+		HashSet<Entity*> m_children;
+		HashSet<uint32>	 m_childrenID;
+		Transformation	 m_transform;
+		Bitmask16		 m_mask;
+		StringID		 m_sid = 0;
+	};
 
 } // namespace Lina
 

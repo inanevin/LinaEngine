@@ -43,109 +43,124 @@ SOFTWARE.
 
 namespace Lina
 {
-    class IResource;
+	class IResource;
 
-    class ResourceCacheBase
-    {
-    public:
-        ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
-        virtual ~ResourceCacheBase() = default;
+	class ResourceCacheBase
+	{
+	public:
+		ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
+		virtual ~ResourceCacheBase() = default;
 
-        virtual IResource*                       CreateResource(StringID sid, const String& path) = 0;
-        virtual void                             DestroyResource(StringID sid)                    = 0;
-        virtual Vector<ObjectWrapper<IResource>> GetAllResources() const                             = 0;
+		virtual IResource*						 CreateResource(StringID sid, const String& path) = 0;
+		virtual IResource*						 GetResource(StringID sid)						  = 0;
+		virtual void							 DestroyResource(StringID sid)					  = 0;
+		virtual Vector<ObjectWrapper<IResource>> GetAllResources() const						  = 0;
 
-        inline PackageType GetPackageType() const
-        {
-            return m_packageType;
-        }
+		inline PackageType GetPackageType() const
+		{
+			return m_packageType;
+		}
 
-    protected:
-        PackageType    m_packageType = PackageType::Static;
-        Vector<String> m_extensions;
-    };
+	protected:
+		PackageType	   m_packageType = PackageType::Default;
+		Vector<String> m_extensions;
+	};
 
-    template <typename T> class ResourceCache : public ResourceCacheBase
-    {
-    public:
-        ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt)
-            : ResourceCacheBase(extensions, pt), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "ResourceCache", "Resources"_hs))
-        {
-        }
+	template <typename T> class ResourceCache : public ResourceCacheBase
+	{
+	public:
+		ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt)
+			: ResourceCacheBase(extensions, pt), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "ResourceCache", "Resources"_hs))
+		{
+		}
 
-        virtual ~ResourceCache()
-        {
-            Destroy();
-        }
+		virtual ~ResourceCache()
+		{
+			Destroy();
+		}
 
-        virtual IResource* CreateResource(StringID sid, const String& path) override
-        {
-            if (m_resources.find(sid) != m_resources.end())
-            {
-                LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
-                return nullptr;
-            }
+		virtual IResource* CreateResource(StringID sid, const String& path) override
+		{
+			LOCK_GUARD(m_mtx);
 
-            LOCK_GUARD(m_mtx);
-            T* res = new (m_allocatorPool.Allocate(sizeof(T))) T();
-            res->SetPath(path);
-            res->SetSID(sid);
-            res->SetTID(GetTypeID<T>());
-            m_resources[sid] = res;
-            return res;
-        }
+			if (m_resources.find(sid) != m_resources.end())
+			{
+				LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
+				return nullptr;
+			}
 
-        virtual void DestroyResource(StringID sid) override
-        {
-            auto it  = m_resources.find(sid);
-            T*   res = static_cast<T*>(it->second);
-            res->~T();
-            m_allocatorPool.Free(res);
-            m_resources.erase(it);
-        }
+			T* res = new (m_allocatorPool.Allocate(sizeof(T))) T();
+			res->SetPath(path);
+			res->SetSID(sid);
+			res->SetTID(GetTypeID<T>());
+			m_resources[sid] = res;
+			return res;
+		}
 
-        void AddUserManaged(T* res, StringID sid)
-        {
-            m_resources[sid] = res;
-        }
+		virtual void DestroyResource(StringID sid) override
+		{
+			LOCK_GUARD(m_mtx);
 
-        void RemoveUserManaged(StringID sid)
-        {
-            m_resources.erase(m_resources.find(sid));
-        }
+			auto it	 = m_resources.find(sid);
+			T*	 res = static_cast<T*>(it->second);
 
-        T* GetResource(StringID sid)
-        {
-            return m_resources[sid];
-        }
+			if (res->IsUserManaged())
+			{
+				LINA_WARN("[Resource Cache] -> Trying to destroy a user-managed resource!");
+				return;
+			}
 
-        Vector<ObjectWrapper<IResource>> GetAllResources() const override
-        {
-            Vector<ObjectWrapper<IResource>> resources;
+			res->~T();
+			m_allocatorPool.Free(res);
+			m_resources.erase(it);
+		}
 
-            for (auto [sid, res] : m_resources)
-                resources.push_back(ObjectWrapper<IResource>(res));
+		virtual IResource* GetResource(StringID sid) override
+		{
+			return m_resources[sid];
+		}
 
-            return resources;
-        }
+		void AddUserManaged(T* res, StringID sid)
+		{
+			m_resources[sid]   = res;
+			res->m_userManaged = true;
+		}
 
-    private:
-        void Destroy()
-        {
-            for (auto [sid, res] : m_resources)
-            {
-                res->~T();
-                m_allocatorPool.Free(res);
-            }
+		void RemoveUserManaged(StringID sid)
+		{
+			m_resources.erase(m_resources.find(sid));
+		}
 
-            m_resources.clear();
-        }
+		Vector<ObjectWrapper<IResource>> GetAllResources() const override
+		{
+			Vector<ObjectWrapper<IResource>> resources;
 
-    private:
-        Mutex                 m_mtx;
-        HashMap<StringID, T*> m_resources;
-        MemoryAllocatorPool   m_allocatorPool;
-    };
+			for (auto [sid, res] : m_resources)
+				resources.push_back(ObjectWrapper<IResource>(res));
+
+			return resources;
+		}
+
+	private:
+		void Destroy()
+		{
+			for (auto [sid, res] : m_resources)
+			{
+				if (res->IsUserManaged())
+					continue;
+
+				res->~T();
+				m_allocatorPool.Free(res);
+			}
+
+			m_resources.clear();
+		}
+
+	private:
+		Mutex				  m_mtx;
+		HashMap<StringID, T*> m_resources;
+		MemoryAllocatorPool	  m_allocatorPool;
+	};
 
 } // namespace Lina
 

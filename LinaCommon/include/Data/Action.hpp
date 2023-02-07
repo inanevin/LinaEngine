@@ -33,20 +33,29 @@ SOFTWARE.
 
 #include "Functional.hpp"
 
-
 namespace Lina
 {
-    class SimpleAction
-    {
-    public:
-        SimpleAction(){};
-        ~SimpleAction(){};
-        SimpleAction(Delegate<void()>&& act) : Action(act){};
-        SimpleAction(Delegate<void()>&& act, Delegate<void()>&& cb) : Action(act), OnExecuted(cb){};
+	class CommandBuffer;
+	
+	class GPUCommand
+	{
+	public:
+		Delegate<void(CommandBuffer& buf)> Record;
+		Delegate<void()>							 OnRecorded;
+		Delegate<void()>							 OnSubmitted;
+	};
 
-        Delegate<void()> Action;
-        Delegate<void()> OnExecuted;
-    };
+	class SimpleAction
+	{
+	public:
+		SimpleAction(){};
+		~SimpleAction(){};
+		SimpleAction(Delegate<void()>&& act) : Action(act){};
+		SimpleAction(Delegate<void()>&& act, Delegate<void()>&& cb) : Action(act), OnExecuted(cb){};
+
+		Delegate<void()> Action;
+		Delegate<void()> OnExecuted;
+	};
 
 } // namespace Lina
 

@@ -35,16 +35,16 @@ SOFTWARE.
 
 namespace Lina
 {
-    class AudioManager final : public ISubsystem
-    {
-    public:
-        AudioManager(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
-        ~AudioManager() = default;
+	class AudioManager final : public ISubsystem
+	{
+	public:
+		AudioManager(ISystem* sys) : ISubsystem(sys, SubsystemType::AudioManager){};
+		~AudioManager() = default;
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-        virtual void Tick(float dt);
-    };
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+		virtual void Tick(float dt);
+	};
 } // namespace Lina
 
 #endif

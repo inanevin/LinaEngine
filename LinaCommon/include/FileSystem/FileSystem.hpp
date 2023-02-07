@@ -36,46 +36,47 @@ SOFTWARE.
 
 namespace Lina
 {
-    class FileSystem
-    {
-    public:
-        // Path
-        static bool           DeleteFileInPath(const String& path);
-        static bool           CreateFolderInPath(const String& path);
-        static bool           DeleteDirectory(const String& path);
-        static Vector<String> GetFilesInDirectory(const String& path, String extensionFilter = "");
-        static Vector<String> GetFilesAndFoldersInDirectory(const String& path);
-        static bool           ChangeDirectoryName(const String& oldPath, const String& newPath);
-        static bool           FileExists(const String& path);
-        static String         GetFilePath(const String& fileName);
-        static String         RemoveExtensionFromPath(const String& filename);
-        static String         GetFilenameAndExtensionFromPath(const String& filename);
-        static String         GetFileExtension(const String& file);
-        static String         GetFileContentsAsString(const String& filePath);
-        static String         GetRunningDirectory();
+	class FileSystem
+	{
+	public:
+		// Path
+		static bool			  DeleteFileInPath(const String& path);
+		static bool			  CreateFolderInPath(const String& path);
+		static bool			  DeleteDirectory(const String& path);
+		static Vector<String> GetFilesInDirectory(const String& path, String extensionFilter = "");
+		static Vector<String> GetFilesAndFoldersInDirectory(const String& path);
+		static bool			  ChangeDirectoryName(const String& oldPath, const String& newPath);
+		static bool			  FileExists(const String& path);
+		static String		  GetFilePath(const String& fileName);
+		static String		  RemoveExtensionFromPath(const String& filename);
+		static String		  GetFilenameAndExtensionFromPath(const String& filename);
+		static String		  GetFileExtension(const String& file);
+		static String		  ReadFileContentsAsString(const String& filePath);
+		static void			  ReadFileContentsToVector(const String& filePath, Vector<char>& vec);
+		static String		  GetRunningDirectory();
 
-        // File and folder
-        static bool   FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem);
-        static void   GetFolderHierarchToRoot(Folder* folder, Vector<Folder*>& hierarchy);
-        static void   CreateNewSubfolder(Folder* parent);
-        static void   DeleteFolder(Folder* folder);
-        static void   ParentPathUpdated(Folder* folder);
-        static void   ParentPathUpdated(File* file);
-        static void   ChangeFolderName(Folder* folder, const String& newName);
-        static void   ChangeFileName(File* file, const String& newName);
-        static void   RewriteFileContents(File* file, const String& newContent);
-        static bool   FolderContainsFilter(const Folder* folder, const String& filter);
-        static bool   SubfoldersContainFilter(const Folder* folder, const String& filter);
-        static bool   FileContainsFilter(const File& file, const String& filter);
-        static File*  FindFile(Folder* root, const String& path);
-        static String GetUniqueDirectoryName(Folder* parent, const String& prefix, const String& extension);
+		// File and folder
+		static bool	  FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem);
+		static void	  GetFolderHierarchToRoot(Folder* folder, Vector<Folder*>& hierarchy);
+		static void	  CreateNewSubfolder(Folder* parent);
+		static void	  DeleteFolder(Folder* folder);
+		static void	  ParentPathUpdated(Folder* folder);
+		static void	  ParentPathUpdated(File* file);
+		static void	  ChangeFolderName(Folder* folder, const String& newName);
+		static void	  ChangeFileName(File* file, const String& newName);
+		static void	  RewriteFileContents(File* file, const String& newContent);
+		static bool	  FolderContainsFilter(const Folder* folder, const String& filter);
+		static bool	  SubfoldersContainFilter(const Folder* folder, const String& filter);
+		static bool	  FileContainsFilter(const File& file, const String& filter);
+		static File*  FindFile(Folder* root, const String& path);
+		static String GetUniqueDirectoryName(Folder* parent, const String& prefix, const String& extension);
 
-        // Utility
-        static char*          WCharToChar(const wchar_t* input);
-        static String         ToUpper(const String& input);
-        static String         ToLower(const String& input);
-        static Vector<String> Split(const String& s, char delim);
-    };
+		// Utility
+		static char*		  WCharToChar(const wchar_t* input);
+		static String		  ToUpper(const String& input);
+		static String		  ToLower(const String& input);
+		static Vector<String> Split(const String& s, char delim);
+	};
 
 } // namespace Lina
 

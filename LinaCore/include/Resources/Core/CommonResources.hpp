@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Core/StringID.hpp"
 #include "Data/String.hpp"
 #include "Serialization/ISerializable.hpp"
-#include "Data/Vector.hpp"
 
 namespace Lina
 {
@@ -46,10 +45,11 @@ namespace Lina
 
 	enum class PackageType
 	{
-		Static,
+		Default,
 		Package1,
 		Package2,
 	};
+
 
 	extern String GGetPackagePath(PackageType pt);
 
@@ -71,8 +71,6 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 	};
-
-	extern Vector<ResourceIdentifier> GCoreResources;
 
 } // namespace Lina
 

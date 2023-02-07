@@ -33,83 +33,88 @@ SOFTWARE.
 
 void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-    void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
-    return ptr;
+	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	return ptr;
 }
 
 void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-    void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
-    return ptr;
+	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	return ptr;
 }
 
 void* operator new(std::size_t size)
 {
-    void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
-    return ptr;
+	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	return ptr;
 }
 
 void* operator new[](size_t size)
 {
-    void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
-    return ptr;
+	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	return ptr;
 }
 
 void operator delete[](void* ptr)
 {
-    Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
 }
 
 void operator delete(void* ptr)
 {
-    Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
 }
 
 void operator delete(void* ptr, size_t sz)
 {
-    Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
 }
 void operator delete[](void* ptr, std::size_t sz)
 {
-    Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
 }
 
 void operator delete(void* ptr, const std::nothrow_t& tag)
 {
-    Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
 }
 
 void operator delete[](void* ptr, const std::nothrow_t& tag)
 {
-    Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
 }
 
 namespace Lina
 {
-    void* GlobalAllocatorWrapper::Allocate(size_t sz)
-    {
-        return m_allocator.Allocate(sz);
-    }
+	void* GlobalAllocatorWrapper::Allocate(size_t sz)
+	{
+		return m_allocator.Allocate(sz);
+	}
 
-    void GlobalAllocatorWrapper::Free(void* ptr)
-    {
-        m_allocator.Free(ptr);
-    }
+	void GlobalAllocatorWrapper::Free(void* ptr)
+	{
+		
+		// Some libraries may do so, as in most runtimes this is valid
+		if (ptr == nullptr)
+			return;
 
-    GlobalAllocatorWrapper::GlobalAllocatorWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::FreeList, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, "Global", 0))
-    {
-    }
+		m_allocator.Free(ptr);
+	}
 
-    GlobalAllocatorWrapper::~GlobalAllocatorWrapper()
-    {
-        // All globals must free resources before the allocator pool is destroyed.
-        // 3 cases to consider:
-        // 1:   Singleton Tracker is destroyed before memory wrapper -> it will release the resources of all singletons.
-        //      The below call will create a new instance with 0 singletons registered.
-        //      Said singletons can be "destroyed" after memory wrapper, but they won't release resources for the second time.
-        // 2:   Singleton Tracker is still alive when memory wrapper is destroyed -> release the resources of all singletons.
-        // 3:   Some singletons are destroyed before memory wrapper -> they will release their resoruces & unregister themselves from tracker.
-        SingletonTracker::Get().ReleaseSingletons();
-    }
+	GlobalAllocatorWrapper::GlobalAllocatorWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::FreeList, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, "Global", 0))
+	{
+	}
+
+	GlobalAllocatorWrapper::~GlobalAllocatorWrapper()
+	{
+		// All globals must free resources before the allocator pool is destroyed.
+		// 3 cases to consider:
+		// 1:   Singleton Tracker is destroyed before memory wrapper -> it will release the resources of all singletons.
+		//      The below call will create a new instance with 0 singletons registered.
+		//      Said singletons can be "destroyed" after memory wrapper, but they won't release resources for the second time.
+		// 2:   Singleton Tracker is still alive when memory wrapper is destroyed -> release the resources of all singletons.
+		// 3:   Some singletons are destroyed before memory wrapper -> they will release their resoruces & unregister themselves from tracker.
+		SingletonTracker::Get().ReleaseSingletons();
+	}
 
 } // namespace Lina

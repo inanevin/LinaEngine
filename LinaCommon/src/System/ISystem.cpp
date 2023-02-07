@@ -32,28 +32,33 @@ SOFTWARE.
 
 namespace Lina
 {
-    void ISystem::AddSubsystem(ISubsystem* s)
-    {
-        m_subsystems[s->GetType()] = s;
-    }
+	void ISystem::AddSubsystem(ISubsystem* s)
+	{
+		m_subsystems[s->GetType()] = s;
+	}
 
-    void ISystem::AddPlugin(IPlugin* p)
-    {
-        m_plugins.push_back(p);
-    }
+	void ISystem::AddPlugin(IPlugin* p)
+	{
+		m_plugins.push_back(p);
+	}
 
-    void ISystem::RemovePlugin(IPlugin* p)
-    {
-        m_plugins.erase(linatl::find_if(m_plugins.begin(), m_plugins.end(), [p](IPlugin* plugin) { return plugin == p; }));
-    }
+	void ISystem::RemovePlugin(IPlugin* p)
+	{
+		m_plugins.erase(linatl::find_if(m_plugins.begin(), m_plugins.end(), [p](IPlugin* plugin) { return plugin == p; }));
+	}
 
-    void ISystem::RemoveSubsystem(ISubsystem* s)
-    {
-        m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
-    }
+	void ISystem::RemoveSubsystem(ISubsystem* s)
+	{
+		m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
+	}
 
-    void ISystem::SetPhysicsUpdateRate(float rate)
-    {
-        m_physicsUpdateRate = Math::Clamp(rate, 0.01f, 0.05f);
-    }
+	void ISystem::SetPhysicsUpdateRate(float rate)
+	{
+		m_physicsUpdateRate = Math::Clamp(rate, 0.01f, 0.05f);
+	}
+
+	ISubsystem* ISystem::GetSubsystem(SubsystemType type)
+	{
+		return m_subsystems[type];
+	}
 } // namespace Lina

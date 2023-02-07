@@ -12,6 +12,9 @@ endif()
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
 
+
+## Check platform based later on
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_VULKAN=1)
 #--------------------------------------------------------------------
 # Platform
 #--------------------------------------------------------------------
@@ -48,6 +51,7 @@ endif()
 if(LINA_ENABLE_EDITOR)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
 endif()
+
 
 #--------------------------------------------------------------------
 # Properties

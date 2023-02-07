@@ -33,4 +33,4 @@ struct Light{
 layout(set = 1, binding = 2) uniform LightData
 {
 	Light lights[10];	
-} lightData;
+} LINA_LIGHTS;

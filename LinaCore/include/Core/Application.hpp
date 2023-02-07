@@ -35,46 +35,58 @@ SOFTWARE.
 #include "Core/Clock.hpp"
 #include "Input/Core/Input.hpp"
 #include "Audio/Core/AudioManager.hpp"
-#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Platform/GfxManagerIncl.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Physics/Core/PhysicsEngine.hpp"
+#include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "IEngineInterface.hpp"
 
 namespace Lina
 {
-    class Application : public ISystem
-    {
-    public:
-        Application()
-            : m_input(this, SubsystemType::Input), m_audioManager(this, SubsystemType::AudioManager), m_gfxManager(this, SubsystemType::GfxManager), m_levelManager(this, SubsystemType::LevelManager), m_physicsEngine(this, SubsystemType::PhysicsEngine),
-              m_engineInterface(this), m_windowManager(this, SubsystemType::WindowManager){};
+	class CoreResourcesRegistry;
 
-        virtual ~Application() = default;
+	class Application : public ISystem
+	{
+	public:
+		Application() : m_input(this), m_audioManager(this), m_gfxManager(this), m_levelManager(this), m_physicsEngine(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
 
-        // Inherited via ISystem
-        virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-        virtual void LoadPlugins() override;
-        virtual void PostInitialize() override;
-        virtual void UnloadPlugins() override;
-        virtual void Shutdown() override;
-        virtual void Tick() override;
+		virtual ~Application() = default;
 
-    protected:
-        void LoadPlugin(const char* name);
-        void UnloadPlugin(IPlugin* plugin);
+		// Inherited via ISystem
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void DispatchSystemEvent(ESystemEvent ev, const Event& data) override;
+		virtual void Shutdown() override;
+		virtual void PreTick() override;
+		virtual void Tick() override;
+		virtual void Quit() override;
 
-    protected:
-        Executor         m_executor;
-        Input            m_input;
-        AudioManager     m_audioManager;
-        GfxManager       m_gfxManager;
-        WindowManager    m_windowManager;
-        LevelManager     m_levelManager;
-        PhysicsEngine    m_physicsEngine;
-        IEngineInterface m_engineInterface;
-    };
+		inline bool GetIsRunning()
+		{
+			return m_isRunning;
+		}
+
+	protected:
+		virtual void LoadPlugins();
+		virtual void PostInitialize();
+		virtual void UnloadPlugins();
+		void		 LoadPlugin(const char* name);
+		void		 UnloadPlugin(IPlugin* plugin);
+
+	protected:
+		bool				   m_isRunning			  = false;
+		CoreResourcesRegistry* m_coreResourceRegistry = nullptr;
+		Executor			   m_executor;
+		Input				   m_input;
+		AudioManager		   m_audioManager;
+		GfxManager			   m_gfxManager;
+		WindowManager		   m_windowManager;
+		LevelManager		   m_levelManager;
+		PhysicsEngine		   m_physicsEngine;
+		ResourceManager		   m_resourceManager;
+		IEngineInterface	   m_engineInterface;
+	};
 } // namespace Lina
 
 #endif

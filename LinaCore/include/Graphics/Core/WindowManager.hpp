@@ -32,18 +32,57 @@ SOFTWARE.
 #define WindowManager_HPP
 
 #include "System/ISubsystem.hpp"
+#include "Data/HashMap.hpp"
+#include "Core/Common.hpp"
 
 namespace Lina
 {
-    class WindowManager final : public ISubsystem
-    {
-    public:
-        WindowManager(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
-        ~WindowManager() = default;
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-    };
+	struct MonitorInfo
+	{
+		bool	 isPrimary = false;
+		Vector2i size	   = Vector2i::Zero;
+		Vector2i workArea  = Vector2i::Zero;
+	};
+
+	class Window;
+
+	class WindowManager final : public ISubsystem
+	{
+	public:
+		WindowManager(ISystem* sys) : ISubsystem(sys, SubsystemType::WindowManager){};
+		~WindowManager() = default;
+
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+
+		void	CreateAppWindow(StringID sid, WindowStyle style, const char* title, const Vector2i& pos, const Vector2i& size);
+		void	DestroyAppWindow(StringID sid);
+		Window* GetWindow(StringID sid);
+		void	OnWindowFocused(StringID sid);
+		int		GetWindowZOrder(StringID sid);
+
+		inline const Vector<MonitorInfo>& GetMonitors() const
+		{
+			return m_monitors;
+		}
+
+		inline MonitorInfo* GetPrimaryMonitor()
+		{
+			for (auto& m : m_monitors)
+			{
+				if (m.isPrimary)
+					return &m;
+			}
+
+			return nullptr;
+		}
+
+	private:
+		HashMap<StringID, Window*> m_windows;
+		Vector<StringID>		   m_drawOrders;
+		Vector<MonitorInfo>		   m_monitors;
+	};
 } // namespace Lina
 
 #endif

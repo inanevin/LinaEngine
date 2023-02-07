@@ -32,59 +32,55 @@ SOFTWARE.
 #define Component_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include "Core/StringId.hpp"
 #include "World/Core/CommonWorld.hpp"
 #include "Serialization/ISerializable.hpp"
 #include "Event/IEventListener.hpp"
+#include "Core/StringID.hpp"
 
 namespace Lina
 {
-    class Entity;
-    class ReflectionClassUtility;
+	class Entity;
+	class ReflectionClassUtility;
 
-    class Component : public ISerializable, public IEventListener
-    {
-    public:
-        virtual TypeID GetTypeID() = 0;
-        virtual void   SaveToStream(OStream& stream){};
-        virtual void   LoadFromStream(IStream& stream){};
+	class Component : public ISerializable, public IEventListener
+	{
+	public:
+		virtual void   SaveToStream(OStream& stream){};
+		virtual void   LoadFromStream(IStream& stream){};
+		virtual void   OnGameEvent(EGameEvent type, const Event& data) override{};
+		virtual void   OnSystemEvent(ESystemEvent type, const Event& data) override{};
 
-        virtual void OnGameEvent(EGameEvent type, const Event& data) override{};
-        virtual void OnSystemEvent(ESystemEvent type, const Event& data) override{};
+		virtual Bitmask32 GetGameEventMask() override
+		{
+			return 0;
+		};
 
-        virtual Bitmask32 GetGameEventMask() override
-        {
-            return 0;
-        };
+		virtual Bitmask32 GetSystemEventMask() override
+		{
+			return 0;
+		}
 
-        virtual Bitmask32 GetSystemEventMask() override
-        {
-            return 0;
-        }
+		virtual Bitmask16 GetComponentMask()
+		{
+			return 0;
+		}
 
-        virtual Bitmask16 GetComponentMask()
-        {
-            return 0;
-        }
+		inline Entity* GetEntity()
+		{
+			return m_entity;
+		}
 
-        inline Entity* GetEntity()
-        {
-            return m_entity;
-        }
+		bool enabled = true;
 
-        bool enabled = true;
+	protected:
+		template <typename U> friend class ComponentCache;
+		Component()			 = default;
+		virtual ~Component() = default;
 
-    protected:
-        template <typename U> friend class ComponentCache;
-        Component()          = default;
-        virtual ~Component() = default;
-        virtual void OnComponentCreated();
-        virtual void OnComponentDestroyed();
-
-    private:
-        Entity* m_entity   = nullptr;
-        uint32  m_entityID = 0;
-    };
+	private:
+		Entity* m_entity   = nullptr;
+		uint32	m_entityID = 0;
+	};
 
 } // namespace Lina
 

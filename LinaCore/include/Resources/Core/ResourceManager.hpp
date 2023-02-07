@@ -37,76 +37,80 @@ SOFTWARE.
 #include "ResourceCache.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "Core/ObjectWrapper.hpp"
+#include "System/ISubsystem.hpp"
+#include "Data/CommonData.hpp"
 
 namespace Lina
 {
-    class IStream;
+	class IStream;
 
-    class ResourceManager
-    {
-    public:
-        static ResourceManager& Get()
-        {
-            static ResourceManager instance;
-            return instance;
-        }
+	class ResourceManager : public ISubsystem
+	{
+	public:
+		ResourceManager(ISystem* sys) : ISubsystem(sys, SubsystemType::ResourceManager){};
+		~ResourceManager() = default;
 
-        template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt)
-        {
-            const TypeID tid = GetTypeID<T>();
-            if (m_caches.find(tid) == m_caches.end())
-                m_caches[tid] = new ResourceCache<T>(chunkCount, extensions, pt);
-        }
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
 
-        template <typename T> T& GetResource(StringID sid) const
-        {
-            const TypeID tid   = GetTypeID<T>();
-            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
-            return *cache->GetResource(sid);
-        }
+		void							 LoadCoreResources();
+		void							 LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
+		void							 UnloadResources(const Vector<ResourceIdentifier>& identifiers);
+		bool							 IsCoreResource(StringID sid);
+		Vector<ObjectWrapper<IResource>> GetAllResources();
+		PackageType						 GetPackageType(TypeID tid);
+		static String					 GetMetacachePath(const String& resourcePath, StringID sid);
 
-        template <typename T> ObjectWrapper<T> GetResourceWrapper(StringID sid) const
-        {
-            const TypeID tid   = GetTypeID<T>();
-            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
-            return ObjectWrapper<T>(cache->GetResource(sid));
-        }
+		inline void SetCoreResources(const Vector<ResourceIdentifier>& coreResources)
+		{
+			m_coreResources = coreResources;
+		}
 
-        template <typename T> void AddUserManaged(T* res, StringID sid)
-        {
-            const TypeID tid   = GetTypeID<T>();
-            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
-            cache->AddUserManaged(res, sid);
-        }
+		inline void SetCoreResourcesDefaultMetadata(const Vector<Pair<StringID, ResourceMetadata>>& meta)
+		{
+			m_coreResourcesDefaultMetadata = meta;
+		}
 
-        template <typename T> void RemoveUserManaged(StringID sid)
-        {
-            const TypeID tid   = GetTypeID<T>();
-            auto         cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
-            cache->RemoveUserManaged(sid);
-        }
+		template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt)
+		{
+			const TypeID tid = GetTypeID<T>();
+			if (m_caches.find(tid) == m_caches.end())
+				m_caches[tid] = new ResourceCache<T>(chunkCount, extensions, pt);
+		}
 
-        void                             LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
-        void                             UnloadResources(const Vector<ResourceIdentifier>& identifiers);
-        Vector<ObjectWrapper<IResource>> GetAllResources();
-        PackageType                      GetPackageType(TypeID tid);
-        static String                    GetMetacachePath(const String& resourcePath, StringID sid);
+		template <typename T> T* GetResource(StringID sid) const
+		{
+			const TypeID tid = GetTypeID<T>();
+			return static_cast<T*>(m_caches.at(tid)->GetResource(sid));
+		}
 
-    private:
-        ResourceManager() = default;
-        ~ResourceManager()
-        {
-            Destroy();
-        }
+		template <typename T> void AddUserManaged(T* res, StringID sid)
+		{
+			const TypeID tid   = GetTypeID<T>();
+			auto		 cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
+			cache->AddUserManaged(res, sid);
+		}
 
-    private:
-        void Destroy();
+		template <typename T> void RemoveUserManaged(StringID sid)
+		{
+			const TypeID tid   = GetTypeID<T>();
+			auto		 cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
+			cache->RemoveUserManaged(sid);
+		}
 
-    private:
-        Executor                            m_executor;
-        ResourceManagerMode                 m_mode = ResourceManagerMode::File;
-        HashMap<TypeID, ResourceCacheBase*> m_caches;
-    };
+		inline void SetMode(ResourceManagerMode mode)
+		{
+			m_mode = mode;
+		}
+
+	private:
+		Mutex									 m_eventMtx;
+		Executor								 m_executor;
+		ResourceManagerMode						 m_mode = ResourceManagerMode::File;
+		HashMap<TypeID, ResourceCacheBase*>		 m_caches;
+		Vector<ResourceIdentifier>				 m_coreResources;
+		Vector<Pair<StringID, ResourceMetadata>> m_coreResourcesDefaultMetadata;
+	};
 
 } // namespace Lina
 

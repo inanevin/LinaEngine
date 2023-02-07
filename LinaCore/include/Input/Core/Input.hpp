@@ -32,19 +32,91 @@ SOFTWARE.
 #define Input_HPP
 
 #include "System/ISubsystem.hpp"
+#include "CommonInput.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina
 {
-    class Input final : public ISubsystem
-    {
-    public:
-        Input(ISystem* sys, SubsystemType type) : ISubsystem(sys, type){};
-        ~Input() = default;
+#define NUM_KEY_STATES	 380
+#define NUM_MOUSE_STATES 8
 
-        virtual void Initialize() override;
-        virtual void Shutdown() override;
-        virtual void Tick(float dt);
-    };
+	class Recti;
+
+	class Input final : public ISubsystem
+	{
+	public:
+		Input(ISystem* sys) : ISubsystem(sys, SubsystemType::Input){};
+		~Input() = default;
+
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+		virtual void OnSystemEvent(ESystemEvent type, const Event& ev) override;
+		void		 PreTick();
+		void		 Tick(float dt);
+
+		bool GetKey(int button);
+		bool GetKeyDown(int button);
+		bool GetKeyUp(int button);
+		bool GetMouseButton(int button);
+		bool GetMouseButtonDown(int button);
+		bool GetMouseButtonUp(int button);
+		bool GetMouseButtonDoubleClick(int button);
+		bool GetMouseButtonClicked(int button);
+		bool IsPointInRect(const Vector2i& point, const Recti& rect);
+		void SetCursorMode(CursorMode mode);
+		void SetMousePosition(const Vector2& v) const;
+
+		inline Vector2i GetMousePositionAbs()
+		{
+			return m_currentMousePositionAbs;
+		}
+
+		inline Vector2i GetMouseDelta()
+		{
+			return m_mouseDelta;
+		}
+
+		inline Vector2i GetMouseDeltaRaw()
+		{
+			return m_mouseDeltaRaw;
+		}
+
+		inline Vector2i GetMouseScroll()
+		{
+			return m_mouseScroll;
+		}
+
+		inline CursorMode GetCursorMode()
+		{
+			return m_cursorMode;
+		}
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_ActiveAppChanged | EVS_MouseButton | EVS_MouseMove | EVS_Key | EVS_MouseWheel;
+		}
+
+	private:
+		int				   m_keyStatesDown[NUM_KEY_STATES];
+		int				   m_keyStatesUp[NUM_KEY_STATES]	   = {0};
+		int				   m_mouseStatesDown[NUM_MOUSE_STATES] = {0};
+		int				   m_mouseStatesUp[NUM_MOUSE_STATES]   = {0};
+		HashMap<int, bool> m_doubleClicks;
+		HashMap<int, int>  m_singleClickStates;
+		CursorMode		   m_cursorMode				 = CursorMode::Visible;
+		Vector2i		   m_mouseScroll			 = Vector2i::Zero;
+		Vector2i		   m_mouseScrollPrev		 = Vector2i::Zero;
+		Vector2i		   m_mousePosTrackingClick	 = Vector2i::Zero;
+		Vector2i		   m_mouseDelta				 = Vector2i::Zero;
+		Vector2i		   m_mouseDeltaRaw			 = Vector2i::Zero;
+		Vector2i		   m_mouseDeltaRawPrev		 = Vector2i::Zero;
+		Vector2i		   m_previousMousePosition	 = Vector2i::Zero;
+		Vector2i		   m_currentMousePositionAbs = Vector2i::Zero;
+		bool			   m_windowActive			 = false;
+		void*			   m_lastFocusedWindowHandle = nullptr;
+		bool			   m_currentStates[256]		 = {0};
+		bool			   m_previousStates[256]	 = {0};
+	};
 } // namespace Lina
 
 #endif

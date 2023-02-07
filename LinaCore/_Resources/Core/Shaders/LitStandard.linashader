@@ -26,11 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_PASS_OPAQUE
-#LINA_PASS_SHADOWS
-#LINA_RP_MAIN
+LINA_PASS_OPAQUE
+LINA_PASS_SHADOWS
 
-#LINA_VS
+LINA_VS
 
 #version 460
 layout (location = 0) in vec3 vPosition;
@@ -42,28 +41,28 @@ layout (location = 3) in vec2 vTexCoords;
 layout (location = 0) out vec3 outColor;
 layout (location = 1) out vec2 outTexCoords;
 
-#LINA_INCLUDE SceneData
-#LINA_INCLUDE LightData
-#LINA_INCLUDE ViewData
-#LINA_INCLUDE ObjectBuffer
+LINA_INCLUDE SceneData
+LINA_INCLUDE LightData
+LINA_INCLUDE ViewData
+LINA_INCLUDE ObjectBuffer
 
-layout(set = 2, binding = 0) uniform MaterialData
+LINA_MATERIAL
 {
 	float dummy;
 } material;
 
 void main()
 {
-	mat4 modelMatrix = objectBuffer.objects[gl_InstanceIndex].model;
-	mat4 transformMatrix = (viewData.viewProj * modelMatrix);
+	mat4 modelMatrix = LINA_OBJECTS.objects[gl_InstanceIndex].model;
+	mat4 transformMatrix = (LINA_CAM.viewProj * modelMatrix);
 	gl_Position = transformMatrix * vec4(vPosition, 1.0f);
 	outColor = vColor;
 	outTexCoords = vTexCoords;
 }
 
-#LINA_END
+LINA_END
 
-#LINA_FS
+LINA_FS
 
 #version 450
 layout (location = 0) in vec3 inColor;
@@ -72,7 +71,7 @@ layout (location = 1) in vec2 inTexCoords;
 //output write
 layout (location = 0) out vec4 outFragColor;
 
-layout(set = 2, binding = 1) uniform sampler2D t;
+LINA_TEXTURE0 t;
 
 void main()
 {
@@ -81,4 +80,4 @@ void main()
 	outFragColor = texture(t, inTexCoords);
 }
 
-#LINA_END
+LINA_END

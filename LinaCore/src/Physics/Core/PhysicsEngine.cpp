@@ -31,30 +31,33 @@ SOFTWARE.
 
 namespace Lina
 {
-    void PhysicsEngine::Initialize()
-    {
-    }
-    
-    void PhysicsEngine::Shutdown()
-    {
-    }
 
-    void PhysicsEngine::Simulate(float dt)
-    {
-        Event eventData;
-        eventData.fParams[0] = dt;
-        m_system->DispatchGameEvent(EVG_Physics, eventData);
-        m_system->DispatchGameEvent(EVG_PostPhysics, eventData);
+	void PhysicsEngine::Initialize(const SystemInitializationInfo& initInfo)
+	{
+		LINA_TRACE("[Physics Engine] -> Initialization.");
+	}
 
-        // Simulate nvidia physx
-    }
+	void PhysicsEngine::Shutdown()
+	{
+		LINA_TRACE("[Physics Engine] -> Shutdown.");
+	}
 
-    void PhysicsEngine::WaitForSimulation()
-    {
-        // fetch physx results
-    }
-    
-    void PhysicsEngine::SyncData()
-    {
-    }
+	void PhysicsEngine::Simulate(float dt)
+	{
+		Event eventData;
+		eventData.fParams[0] = dt;
+		m_system->DispatchGameEvent(EVG_Physics, eventData);
+		m_system->DispatchGameEvent(EVG_PostPhysics, eventData);
+
+		// Simulate nvidia physx
+	}
+
+	void PhysicsEngine::WaitForSimulation()
+	{
+		// fetch physx results
+	}
+
+	void PhysicsEngine::SyncData()
+	{
+	}
 } // namespace Lina

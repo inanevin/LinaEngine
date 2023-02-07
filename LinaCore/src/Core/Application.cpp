@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Core/Clock.hpp"
 #include "Core/Time.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Core/CoreResourcesRegistry.hpp"
+#include "Graphics/Core/Window.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <Windows.h>
@@ -42,154 +44,213 @@ typedef void(__cdecl* DestroyPluginFunc)(Lina::IPlugin*);
 
 namespace Lina
 {
-    int64 prevTicks = 0;
+	int64 prevTicks = 0;
 
-    void Application::Initialize(const SystemInitializationInfo& initInfo)
-    {
-        Clock::Init();
+	void Application::Initialize(const SystemInitializationInfo& initInfo)
+	{
+		LINA_TRACE("[Application] -> Initialization.");
 
-        for (auto [type, sys] : m_subsystems)
-            sys->Initialize();
+		m_initInfo = initInfo;
+		Clock::Init();
 
-        m_firstRun = true;
-    }
+		// Child systems can override for custom core resource registries.
+		m_coreResourceRegistry = new CoreResourcesRegistry();
+		m_coreResourceRegistry->RegisterResourceTypes(m_resourceManager);
+		m_resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
+		m_resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
 
-    void Application::LoadPlugins()
-    {
-        LoadPlugin("GamePlugin.dll");
-    }
+		// Window manager has priority initialization.
+		m_windowManager.Initialize(initInfo);
+		m_windowManager.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.windowStyle, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
 
-    void Application::PostInitialize()
-    {
-        DispatchSystemEvent(EVS_PostSystemInit, {});
-    }
+		for (auto [type, sys] : m_subsystems)
+		{
+			if (type != SubsystemType::WindowManager)
+				sys->Initialize(initInfo);
+		}
 
-    void Application::UnloadPlugins()
-    {
-        for (auto p : m_plugins)
-            UnloadPlugin(p);
+		m_firstRun	= true;
+		m_isRunning = true;
 
-        m_plugins.clear();
-    }
+		m_resourceManager.SetMode(ResourceManagerMode::File);
+		auto start = Clock::GetCurrentTicks();
+		m_resourceManager.LoadCoreResources();
+		LINA_TRACE("[Application] -> Loading core resources took: {0} seconds", Clock::CalculateDelta(start, Clock::GetCurrentTicks()));
+		LoadPlugins();
+		PostInitialize();
+	}
 
-    void Application::Shutdown()
-    {
-        for (auto [type, sys] : m_subsystems)
-            sys->Shutdown();
-    }
+	void Application::DispatchSystemEvent(ESystemEvent ev, const Event& data)
+	{
+		IEventDispatcher::DispatchSystemEvent(ev, data);
 
-    void Application::Tick()
-    {
-        PROFILER_FRAME_START();
+		if (ev & EVS_ResourceLoaded)
+		{
+			String* path = static_cast<String*>(data.pParams[0]);
+			LINA_TRACE("[Resource] -> Loaded resource: {0}", path->c_str());
+		}
+	}
 
-        int64 ticks = Clock::GetCurrentTicks();
-        float delta = m_firstRun ? DEFAULT_RATE : Clock::CalculateDelta(prevTicks, ticks, 1.0f);
-        prevTicks   = ticks;
-        m_firstRun  = false;
+	void Application::LoadPlugins()
+	{
+		LoadPlugin("GamePlugin.dll");
+	}
 
-        // Break & debugging points
-        if (delta > 1.0f)
-            delta = DEFAULT_RATE;
+	void Application::UnloadPlugins()
+	{
+		for (auto p : m_plugins)
+			UnloadPlugin(p);
 
-        m_physicsAccumulator += delta;
-        m_fpsCounter += delta;
+		m_plugins.clear();
+	}
 
-        // Poll.
-        m_input.Tick(delta);
+	void Application::PostInitialize()
+	{
+		DispatchSystemEvent(EVS_PostSystemInit, {});
+	}
 
-        // For any listeners that fall outside the main loop.
-        Event eventData;
-        eventData.fParams[0] = delta;
-        DispatchSystemEvent(EVS_SystemTick, eventData);
+	void Application::Shutdown()
+	{
+		LINA_TRACE("[Application] -> Shutdown.");
+		DispatchSystemEvent(EVS_PreSystemShutdown, {});
+		UnloadPlugins();
 
-        // Physics if necessary.
-        int  physicsTickCount = 0;
-        bool physicsSimulated = m_physicsAccumulator > m_physicsUpdateRate;
-        if (physicsSimulated)
-        {
-            // N = accumulator - update rate -> remainder.
-            // TODO: optional substepping to compansate.
-            m_physicsAccumulator = 0;
-            m_physicsEngine.Simulate(m_physicsUpdateRate);
-        }
+		m_levelManager.Shutdown();
+		m_resourceManager.Shutdown();
+		m_audioManager.Shutdown();
+		m_physicsEngine.Shutdown();
+		m_windowManager.Shutdown();
+		m_gfxManager.Shutdown();
+		m_input.Shutdown();
 
-        // World tick if exists.
-        m_levelManager.Tick(delta);
+		delete m_coreResourceRegistry;
+	}
 
-        auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
-        auto renderJob = m_executor.Async([&]() {
-            m_gfxManager.Render();
-            m_frames++;
-        });
+	void Application::PreTick()
+	{
+		m_input.PreTick();
+	}
 
-        audioJob.get();
-        renderJob.get();
-        if (physicsSimulated)
-            m_physicsEngine.WaitForSimulation();
+	void Application::Tick()
+	{
+		PROFILER_FRAME_START();
 
-        // Sync.
-        m_gfxManager.SyncData();
-        m_physicsEngine.SyncData();
+		int64 ticks = Clock::GetCurrentTicks();
+		float delta = m_firstRun ? DEFAULT_RATE : Clock::CalculateDelta(prevTicks, ticks, 1.0f);
+		prevTicks	= ticks;
+		m_firstRun	= false;
 
-        // For any listeners that fall outside the main loop.
-        DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
+		// Break & debugging points
+		if (delta > 1.0f)
+			delta = DEFAULT_RATE;
 
-        // Finish.
-        if (m_fpsCounter >= 1.0f)
-        {
-            m_fps        = m_frames;
-            m_fpsCounter = 0.0f;
-            m_frames     = 0;
-        }
-    }
+		m_physicsAccumulator += delta;
+		m_fpsCounter += delta;
 
-    void Application::LoadPlugin(const char* name)
-    {
+		// Poll.
+		m_input.Tick(delta);
+
+		m_gfxManager.Tick();
+
+		// For any listeners that fall outside the main loop.
+		Event eventData;
+		eventData.fParams[0] = delta;
+		DispatchSystemEvent(EVS_SystemTick, eventData);
+
+		// Physics if necessary.
+		int	 physicsTickCount = 0;
+		bool physicsSimulated = m_physicsAccumulator > m_physicsUpdateRate;
+		if (physicsSimulated)
+		{
+			// N = accumulator - update rate -> remainder.
+			// TODO: optional substepping to compansate.
+			m_physicsAccumulator = 0;
+			m_physicsEngine.Simulate(m_physicsUpdateRate);
+		}
+
+		// World tick if exists.
+		m_levelManager.Tick(delta);
+
+		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+		auto renderJob = m_executor.Async([&]() {
+			m_gfxManager.Render();
+			m_frames++;
+		});
+
+		audioJob.get();
+		renderJob.get();
+		if (physicsSimulated)
+			m_physicsEngine.WaitForSimulation();
+
+		// Sync.
+		m_gfxManager.SyncData();
+		m_physicsEngine.SyncData();
+
+		// For any listeners that fall outside the main loop.
+		DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
+
+		// Finish.
+		if (m_fpsCounter >= 1.0f)
+		{
+			m_fps		 = m_frames;
+			m_fpsCounter = 0.0f;
+			m_frames	 = 0;
+		}
+	}
+
+	void Application::Quit()
+	{
+		m_isRunning = false;
+	}
+
+	void Application::LoadPlugin(const char* name)
+	{
 #ifdef LINA_PLATFORM_WINDOWS
-        HINSTANCE hinstLib;
-        BOOL      fFreeResult = FALSE;
-        hinstLib              = LoadLibrary(TEXT(name));
+		HINSTANCE hinstLib;
+		BOOL	  fFreeResult = FALSE;
+		hinstLib			  = LoadLibrary(TEXT(name));
 
-        // If the handle is valid, try to get the function address.
-        if (hinstLib != NULL)
-        {
-            CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
+		// If the handle is valid, try to get the function address.
+		if (hinstLib != NULL)
+		{
+			CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
 
-            // If the function address is valid, call the function.
+			// If the function address is valid, call the function.
 
-            if (NULL != createPluginAddr)
-            {
-                IPlugin* plugin = (createPluginAddr)(&m_engineInterface);
-                plugin->OnAttached();
-                AddListener(plugin);
-                AddPlugin(plugin);
-                m_pluginHandles[plugin] = static_cast<void*>(hinstLib);
-            }
-        }
+			if (NULL != createPluginAddr)
+			{
+				IPlugin* plugin = (createPluginAddr)(&m_engineInterface);
+				plugin->OnAttached();
+				AddListener(plugin);
+				AddPlugin(plugin);
+				m_pluginHandles[plugin] = static_cast<void*>(hinstLib);
+			}
+		}
 #else
-        LINA_ASSERT(false, "Not implemented!");
+		LINA_ASSERT(false, "Not implemented!");
 #endif
-    }
-    void Application::UnloadPlugin(IPlugin* plugin)
-    {
-        RemoveListener(plugin);
-        plugin->OnDetached();
+	}
+	void Application::UnloadPlugin(IPlugin* plugin)
+	{
+		RemoveListener(plugin);
+		plugin->OnDetached();
 
 #ifdef LINA_PLATFORM_WINDOWS
 
-        HINSTANCE hinstLib = static_cast<HINSTANCE>(m_pluginHandles[plugin]);
+		HINSTANCE hinstLib = static_cast<HINSTANCE>(m_pluginHandles[plugin]);
 
-        DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
+		DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
 
-        if (destroyPluginAddr != NULL)
-        {
-            destroyPluginAddr(plugin);
-        }
+		if (destroyPluginAddr != NULL)
+		{
+			destroyPluginAddr(plugin);
+		}
 
-        // Free the DLL module.
-        BOOL fFreeResult = FreeLibrary(hinstLib);
+		// Free the DLL module.
+		BOOL fFreeResult = FreeLibrary(hinstLib);
 #else
-        LINA_ASSERT(false, "Not implemented!");
+		LINA_ASSERT(false, "Not implemented!");
 #endif
-    }
+	}
+
 } // namespace Lina

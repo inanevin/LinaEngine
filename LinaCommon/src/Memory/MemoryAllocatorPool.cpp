@@ -41,186 +41,191 @@ SOFTWARE.
 
 namespace Lina
 {
-#define BYTES_TO_MB(x)       x * 0.000001f
+#define BYTES_TO_MB(x)		 x * 0.000001f
 #define FREELIST_HEADER_SIZE 16
 
-    MemoryAllocatorPool::MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData, const String& name, StringID category)
-    {
-        m_type            = type;
-        m_growPolicy      = growPolicy;
-        m_initialSize     = size;
-        m_initialUserData = userData;
-        m_threadSafe      = threadSafe;
-        m_name            = name;
-        m_category        = category;
+	MemoryAllocatorPool::MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData, const String& name, StringID category)
+	{
+		m_type			  = type;
+		m_growPolicy	  = growPolicy;
+		m_initialSize	  = size;
+		m_initialUserData = userData;
+		m_threadSafe	  = threadSafe;
+		m_name			  = name;
+		m_category		  = category;
 
-        MEMORY_TRACER_REGISTER_ALLOCATORPOOL(this);
-        MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(this);
+		MEMORY_TRACER_REGISTER_ALLOCATORPOOL(this);
 
-        if (type != AllocatorType::StandardMallocFree)
-            AddAllocator(size);
-    }
+		if (type != AllocatorType::StandardMallocFree)
+			AddAllocator(size);
+	}
 
-    MemoryAllocatorPool::~MemoryAllocatorPool()
-    {
-        for (uint32 i = 0; i < m_allocatorSize; i++)
-        {
-            Allocator* alloc = m_allocators[i];
-            // LINA_ASSERT(alloc->GetUsedSize() == 0, "[Memory] -> Some allocations were not freed!");
-            alloc->~Allocator();
-            free(alloc);
-        }
+	MemoryAllocatorPool::~MemoryAllocatorPool()
+	{
+		MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(this);
 
-        free(m_allocators);
-    }
+		for (uint32 i = 0; i < m_allocatorSize; i++)
+		{
+			Allocator* alloc = m_allocators[i];
+			LINA_ASSERT(alloc->GetUsedSize() == 0, "[Memory] -> Some allocations were not freed!");
+			alloc->~Allocator();
+			free(alloc);
+		}
 
-    void* MemoryAllocatorPool::Allocate(size_t sz)
-    {
-        if (m_type == AllocatorType::StandardMallocFree)
-        {
-            void* res = malloc(sz);
-            MEMORY_TRACER_ONALLOC(res, sz);
-            return res;
-        }
+		free(m_allocators);
+	}
 
-        CONDITIONAL_LOCK(m_threadSafe, m_mtx);
+	void* MemoryAllocatorPool::Allocate(size_t sz)
+	{
+		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
 
-        if (m_type == AllocatorType::FreeList)
-            sz = sz % FREELIST_HEADER_SIZE == 0 ? sz : sz + (FREELIST_HEADER_SIZE - sz % FREELIST_HEADER_SIZE);
+		if (m_type == AllocatorType::StandardMallocFree)
+		{
+			void* res = malloc(sz);
+			MEMORY_TRACER_ONALLOC(res, sz);
+			return res;
+		}
 
-        void* ptr = nullptr;
+		if (m_type == AllocatorType::FreeList)
+			sz = sz % FREELIST_HEADER_SIZE == 0 ? sz : sz + (FREELIST_HEADER_SIZE - sz % FREELIST_HEADER_SIZE);
 
-        for (uint32 i = 0; i < m_allocatorSize; i++)
-        {
-            Allocator* alloc = m_allocators[i];
-            if (alloc->GetTotalSize() > alloc->GetUsedSize() + sz + FREELIST_HEADER_SIZE)
-            {
-                ptr = alloc->Allocate(sz, m_type == AllocatorType::FreeList ? 8 : 0);
-                break;
-            }
-        }
+		void* ptr = nullptr;
 
-        if (ptr == nullptr)
-        {
-            AddAllocator(sz);
-            Allocator* addedAlloc = m_allocators[m_allocatorSize - 1];
-            ptr                   = addedAlloc->Allocate(sz, m_type == AllocatorType::FreeList ? 8 : 0);
-        }
-        if (m_type == AllocatorType::FreeList)
-            MEMORY_TRACER_ONALLOC(ptr, sz + FREELIST_HEADER_SIZE);
-        else
-            MEMORY_TRACER_ONALLOC(ptr, sz);
-        return ptr;
-    }
+		for (uint32 i = 0; i < m_allocatorSize; i++)
+		{
+			Allocator* alloc = m_allocators[i];
 
-    void MemoryAllocatorPool::Free(void* ptr)
-    {
-        if (m_type == AllocatorType::StandardMallocFree)
-        {
-            MEMORY_TRACER_ONFREE(ptr);
-            free(ptr);
-            return;
-        }
+			if (alloc->GetTotalSize() > alloc->GetUsedSize() + sz + FREELIST_HEADER_SIZE)
+			{
+				ptr = alloc->Allocate(sz, m_type == AllocatorType::FreeList ? 8 : 0);
 
-        CONDITIONAL_LOCK(m_threadSafe, m_mtx);
+				if (ptr != nullptr)
+					break;
+			}
+		}
 
-        bool freed = false;
+		if (ptr == nullptr)
+		{
+			AddAllocator(sz);
+			Allocator* addedAlloc = m_allocators[m_allocatorSize - 1];
+			ptr					  = addedAlloc->Allocate(sz, m_type == AllocatorType::FreeList ? 8 : 0);
+		}
+		if (m_type == AllocatorType::FreeList)
+			MEMORY_TRACER_ONALLOC(ptr, sz + FREELIST_HEADER_SIZE);
+		else
+			MEMORY_TRACER_ONALLOC(ptr, sz);
 
-        for (uint32 i = 0; i < m_allocatorSize; i++)
-        {
-            Allocator* alloc = m_allocators[i];
-            void*      start = alloc->GetStartPtr();
+		return ptr;
+	}
 
-            if (start <= ptr && ptr < static_cast<char*>(start) + alloc->GetTotalSize())
-            {
-                freed = true;
-                alloc->Free(ptr);
-                MEMORY_TRACER_ONFREE(ptr);
-            }
-        }
+	void MemoryAllocatorPool::Free(void* ptr)
+	{
+		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
 
-        assert(freed);
-    }
+		if (m_type == AllocatorType::StandardMallocFree)
+		{
+			MEMORY_TRACER_ONFREE(ptr);
+			free(ptr);
+			return;
+		}
 
-    void MemoryAllocatorPool::GetTotalSizeInformation(SizeInformation& totalSizeInformation)
-    {
-        CONDITIONAL_LOCK(m_threadSafe, m_mtx);
+		bool freed = false;
 
-        for (uint32 i = 0; i < m_allocatorSize; i++)
-        {
-            Allocator* alloc = m_allocators[i];
-            totalSizeInformation.maxSize += alloc->GetTotalSize();
-            totalSizeInformation.peakSize += alloc->GetPeak();
-            totalSizeInformation.usedSize += alloc->GetUsedSize();
-            totalSizeInformation.availableSize += alloc->GetTotalSize() - alloc->GetUsedSize();
-        }
-    }
+		for (uint32 i = 0; i < m_allocatorSize; i++)
+		{
+			Allocator* alloc = m_allocators[i];
+			void*	   start = alloc->GetStartPtr();
 
-    void MemoryAllocatorPool::AddAllocator(size_t reqSz)
-    {
-        assert(m_growPolicy != AllocatorGrowPolicy::NoGrow);
+			if (start <= ptr && ptr < static_cast<char*>(start) + alloc->GetTotalSize())
+			{
+				freed = true;
+				alloc->Free(ptr);
+				MEMORY_TRACER_ONFREE(ptr);
+			}
+		}
 
-        size_t grownSize = m_initialSize;
-        if (m_growPolicy == AllocatorGrowPolicy::UseInitialSize)
-            grownSize = reqSz > m_initialSize ? reqSz : m_initialSize;
-        else if (m_growPolicy == AllocatorGrowPolicy::UseRequestedSize)
-            grownSize = reqSz;
-        else if (m_growPolicy == AllocatorGrowPolicy::UseDoubledRequestedSize)
-            grownSize = reqSz * 2;
-        if (m_type == AllocatorType::FreeList)
-            grownSize = grownSize % FREELIST_HEADER_SIZE == 0 ? grownSize : grownSize + (FREELIST_HEADER_SIZE - grownSize % FREELIST_HEADER_SIZE);
+		assert(freed);
+	}
 
-        if (reqSz == grownSize)
-            grownSize += FREELIST_HEADER_SIZE;
+	void MemoryAllocatorPool::GetTotalSizeInformation(SizeInformation& totalSizeInformation)
+	{
+		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
 
-        Allocator* alloc = CreateAllocator(m_type, grownSize, m_initialUserData);
+		for (uint32 i = 0; i < m_allocatorSize; i++)
+		{
+			Allocator* alloc = m_allocators[i];
+			totalSizeInformation.maxSize += alloc->GetTotalSize();
+			totalSizeInformation.peakSize += alloc->GetPeak();
+			totalSizeInformation.usedSize += alloc->GetUsedSize();
+			totalSizeInformation.availableSize += alloc->GetTotalSize() - alloc->GetUsedSize();
+		}
+	}
 
-        Allocator** newData = (Allocator**)malloc(sizeof(Allocator*) * (m_allocatorSize + 1));
+	void MemoryAllocatorPool::AddAllocator(size_t reqSz)
+	{
+		assert(m_growPolicy != AllocatorGrowPolicy::NoGrow);
 
-        if (newData != nullptr)
-        {
-            if (m_allocators != nullptr)
-            {
-                memcpy(newData, m_allocators, sizeof(Allocator*) * m_allocatorSize);
-                free(m_allocators);
-            }
+		size_t grownSize = m_initialSize;
+		if (m_growPolicy == AllocatorGrowPolicy::UseInitialSize)
+			grownSize = reqSz > m_initialSize ? reqSz : m_initialSize;
+		else if (m_growPolicy == AllocatorGrowPolicy::UseRequestedSize)
+			grownSize = reqSz;
+		else if (m_growPolicy == AllocatorGrowPolicy::UseDoubledRequestedSize)
+			grownSize = reqSz * 2;
+		if (m_type == AllocatorType::FreeList)
+			grownSize = grownSize % FREELIST_HEADER_SIZE == 0 ? grownSize : grownSize + (FREELIST_HEADER_SIZE - grownSize % FREELIST_HEADER_SIZE);
 
-            m_allocators = newData;
-            memcpy(m_allocators + m_allocatorSize, &alloc, sizeof(Allocator*));
-            m_allocatorSize++;
-        }
+		if (reqSz == grownSize && m_type != AllocatorType::Pool)
+			grownSize += FREELIST_HEADER_SIZE;
 
-        assert(newData != NULL);
-    }
+		Allocator* alloc = CreateAllocator(m_type, grownSize, m_initialUserData);
 
-    Allocator* MemoryAllocatorPool::CreateAllocator(AllocatorType type, size_t size, size_t userData)
-    {
-        switch (type)
-        {
-        case AllocatorType::Linear: {
-            auto* allocator = new (malloc(sizeof(LinearAllocator))) LinearAllocator(size);
-            allocator->Init();
-            return allocator;
-        }
-        case AllocatorType::Pool: {
-            auto* allocator = new (malloc(sizeof(PoolAllocator))) PoolAllocator(size, userData);
-            allocator->Init();
-            return allocator;
-        }
-        case AllocatorType::Stack: {
-            auto* allocator = new (malloc(sizeof(StackAllocator))) StackAllocator(size);
-            allocator->Init();
-            return allocator;
-        }
-        case AllocatorType::FreeList: {
-            auto* allocator = new (malloc(sizeof(FreeListAllocator))) FreeListAllocator(size, FreeListAllocator::PlacementPolicy::FIND_FIRST);
-            allocator->Init();
-            return allocator;
-        }
-        default:
-            LINA_ASSERT(false, "[Memory] -> Allocator type not supported!");
-            return nullptr;
-        }
-    }
+		Allocator** newData = (Allocator**)malloc(sizeof(Allocator*) * (m_allocatorSize + 1));
+
+		if (newData != nullptr)
+		{
+			if (m_allocators != nullptr)
+			{
+				memcpy(newData, m_allocators, sizeof(Allocator*) * m_allocatorSize);
+				free(m_allocators);
+			}
+
+			m_allocators = newData;
+			memcpy(m_allocators + m_allocatorSize, &alloc, sizeof(Allocator*));
+			m_allocatorSize++;
+		}
+
+		assert(newData != NULL);
+	}
+
+	Allocator* MemoryAllocatorPool::CreateAllocator(AllocatorType type, size_t size, size_t userData)
+	{
+		switch (type)
+		{
+		case AllocatorType::Linear: {
+			auto* allocator = new (malloc(sizeof(LinearAllocator))) LinearAllocator(size);
+			allocator->Init();
+			return allocator;
+		}
+		case AllocatorType::Pool: {
+			auto* allocator = new (malloc(sizeof(PoolAllocator))) PoolAllocator(size, userData);
+			allocator->Init();
+			return allocator;
+		}
+		case AllocatorType::Stack: {
+			auto* allocator = new (malloc(sizeof(StackAllocator))) StackAllocator(size);
+			allocator->Init();
+			return allocator;
+		}
+		case AllocatorType::FreeList: {
+			auto* allocator = new (malloc(sizeof(FreeListAllocator))) FreeListAllocator(size, FreeListAllocator::PlacementPolicy::FIND_FIRST);
+			allocator->Init();
+			return allocator;
+		}
+		default:
+			LINA_ASSERT(false, "[Memory] -> Allocator type not supported!");
+			return nullptr;
+		}
+	}
 
 } // namespace Lina

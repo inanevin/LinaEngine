@@ -41,180 +41,180 @@ SOFTWARE.
 
 namespace Lina
 {
-    class EntityWorld;
+	class EntityWorld;
 
 #define COMPONENT_POOL_SIZE 100
 
-    class ComponentCacheBase : public ISerializable
-    {
-    public:
-        ComponentCacheBase()          = default;
-        virtual ~ComponentCacheBase() = default;
+	class ComponentCacheBase : public ISerializable
+	{
+	public:
+		ComponentCacheBase()		  = default;
+		virtual ~ComponentCacheBase() = default;
 
-        virtual ComponentCacheBase* CopyCreate()                 = 0;
-        virtual void                OnEntityDestroyed(Entity* e) = 0;
-        Entity**                    m_entities                   = nullptr;
-    };
+		virtual ComponentCacheBase* CopyCreate()				 = 0;
+		virtual void				OnEntityDestroyed(Entity* e) = 0;
+		Entity**					m_entities					 = nullptr;
+	};
 
-    template <typename T> class ComponentCache : public ComponentCacheBase
-    {
-    public:
-        ComponentCache(IEventDispatcher* eventDispatcher)
-            : m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
-        {
-            m_eventDispatcher = eventDispatcher;
-        }
+	template <typename T> class ComponentCache : public ComponentCacheBase
+	{
+	public:
+		ComponentCache(IEventDispatcher* eventDispatcher)
+			: m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
+		{
+			m_eventDispatcher = eventDispatcher;
+		}
 
-        virtual ~ComponentCache()
-        {
-            Destroy();
-        }
+		virtual ~ComponentCache()
+		{
+			Destroy();
+		}
 
-        // When copying the world.
-        virtual ComponentCacheBase* CopyCreate() override
-        {
-            ComponentCache<T>* newCache = new ComponentCache<T>();
+		// When copying the world.
+		virtual ComponentCacheBase* CopyCreate() override
+		{
+			ComponentCache<T>* newCache = new ComponentCache<T>(m_eventDispatcher);
 
-            int i = 0;
-            for (auto comp : m_components)
-            {
-                if (comp != nullptr)
-                {
-                    T* newComp = new (newCache->m_allocatorPool.Allocate(sizeof(T))) T();
-                    *newComp   = *comp;
-                    OnComponentCreated(newComp);
-                    newCache->m_components.AddItem(newComp, i);
-                }
-                i++;
-            }
+			int i = 0;
+			for (auto comp : m_components)
+			{
+				if (comp != nullptr)
+				{
+					T* newComp = new (newCache->m_allocatorPool.Allocate(sizeof(T))) T();
+					*newComp   = *comp;
+					OnComponentCreated(newComp);
+					newCache->m_components.AddItem(newComp, i);
+				}
+				i++;
+			}
 
-            return newCache;
-        }
+			return newCache;
+		}
 
-        // Mutators
-        inline T* AddComponent(Entity* e)
-        {
-            T* comp          = new (m_allocatorPool.Allocate(sizeof(T))) T();
-            comp->m_entityID = e->GetID();
-            comp->m_entity   = e;
-            OnComponentCreated(comp);
-            m_components.AddItem(comp);
-            return comp;
-        }
+		// Mutators
+		inline T* AddComponent(Entity* e)
+		{
+			T* comp			 = new (m_allocatorPool.Allocate(sizeof(T))) T();
+			comp->m_entityID = e->GetID();
+			comp->m_entity	 = e;
+			OnComponentCreated(comp);
+			m_components.AddItem(comp);
+			return comp;
+		}
 
-        inline T* GetComponent(Entity* e)
-        {
-            for (auto* comp : m_components)
-            {
-                if (comp != nullptr && comp->m_entityID == e->GetID())
-                    return comp;
-            }
-            return nullptr;
-        }
+		inline T* GetComponent(Entity* e)
+		{
+			for (auto* comp : m_components)
+			{
+				if (comp != nullptr && comp->m_entityID == e->GetID())
+					return comp;
+			}
+			return nullptr;
+		}
 
-        inline void DestroyComponent(Entity* e)
-        {
-            uint32 index = 0;
-            for (auto* comp : m_components)
-            {
-                if (comp != nullptr && comp->m_entityID == e->GetID())
-                {
-                    OnComponentDestroyed(comp);
-                    comp->~T();
-                    m_components.RemoveItem(index);
-                    m_allocatorPool.Free(comp);
-                    break;
-                }
-                index++;
-            }
-        }
+		inline void DestroyComponent(Entity* e)
+		{
+			uint32 index = 0;
+			for (auto* comp : m_components)
+			{
+				if (comp != nullptr && comp->m_entityID == e->GetID())
+				{
+					OnComponentDestroyed(comp);
+					comp->~T();
+					m_components.RemoveItem(index);
+					m_allocatorPool.Free(comp);
+					break;
+				}
+				index++;
+			}
+		}
 
-        virtual void OnEntityDestroyed(Entity* e) override
-        {
-            DestroyComponent(e);
-        }
+		virtual void OnEntityDestroyed(Entity* e) override
+		{
+			DestroyComponent(e);
+		}
 
-        // Inherited via ComponentCacheBase
-        virtual void SaveToStream(OStream& stream) override
-        {
-            m_components.SaveToStream(stream);
+		// Inherited via ComponentCacheBase
+		virtual void SaveToStream(OStream& stream) override
+		{
+			m_components.SaveToStream(stream);
 
-            HashMap<uint32, uint32> compEntityIDs;
+			HashMap<uint32, uint32> compEntityIDs;
 
-            int i = 0;
-            for (auto* comp : m_components)
-            {
-                if (comp != nullptr)
-                    compEntityIDs[i] = comp->m_entityID;
+			int i = 0;
+			for (auto* comp : m_components)
+			{
+				if (comp != nullptr)
+					compEntityIDs[i] = comp->m_entityID;
 
-                i++;
-            }
+				i++;
+			}
 
-            HashMapSerialization::SaveToStream_PT(stream, compEntityIDs);
+			HashMapSerialization::SaveToStream_PT(stream, compEntityIDs);
 
-            for (auto [compID, entityID] : compEntityIDs)
-            {
-                auto comp = m_components.GetItem(compID);
-                stream << comp->m_entityID;
-                comp->SaveToStream(stream);
-            }
-        }
+			for (auto [compID, entityID] : compEntityIDs)
+			{
+				auto comp = m_components.GetItem(compID);
+				stream << comp->m_entityID;
+				comp->SaveToStream(stream);
+			}
+		}
 
-        virtual void LoadFromStream(IStream& stream) override
-        {
-            m_components.LoadFromStream(stream);
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			m_components.LoadFromStream(stream);
 
-            HashMap<uint32, uint32> compEntityIDs;
-            HashMapSerialization::LoadFromStream_PT(stream, compEntityIDs);
+			HashMap<uint32, uint32> compEntityIDs;
+			HashMapSerialization::LoadFromStream_PT(stream, compEntityIDs);
 
-            for (auto [compID, entityID] : compEntityIDs)
-            {
-                T* comp = new (m_allocatorPool.Allocate(sizeof(T))) T();
-                stream >> comp->m_entityID;
-                comp->LoadFromStream(stream);
-                comp->m_entity = m_entities[comp->m_entityID];
-                OnComponentCreated(comp);
-                m_components.AddItem(comp, compID);
-            }
-        }
+			for (auto [compID, entityID] : compEntityIDs)
+			{
+				T* comp = new (m_allocatorPool.Allocate(sizeof(T))) T();
+				stream >> comp->m_entityID;
+				comp->LoadFromStream(stream);
+				comp->m_entity = m_entities[comp->m_entityID];
+				OnComponentCreated(comp);
+				m_components.AddItem(comp, compID);
+			}
+		}
 
-    private:
-        virtual void Destroy()
-        {
-            for (auto* comp : m_components)
-            {
-                if (comp != nullptr)
-                {
-                    OnComponentDestroyed(comp);
-                    comp->~T();
-                    m_allocatorPool.Free(comp);
-                }
-            }
+	private:
+		virtual void Destroy()
+		{
+			for (auto* comp : m_components)
+			{
+				if (comp != nullptr)
+				{
+					OnComponentDestroyed(comp);
+					comp->~T();
+					m_allocatorPool.Free(comp);
+				}
+			}
 
-            m_components.Clear();
-        }
+			m_components.Clear();
+		}
 
-        void OnComponentCreated(T* comp)
-        {
-            Event data;
-            data.pParams[0] = static_cast<void*>(comp);
-            m_eventDispatcher->DispatchGameEvent(EVG_ComponentCreated, data);
-            m_eventDispatcher->AddListener(comp);
-        }
+		void OnComponentCreated(T* comp)
+		{
+			Event data;
+			data.pParams[0] = static_cast<void*>(comp);
+			m_eventDispatcher->DispatchGameEvent(EVG_ComponentCreated, data);
+			m_eventDispatcher->AddListener(comp);
+		}
 
-        void OnComponentDestroyed(T* comp)
-        {
-            Event data;
-            data.pParams[0] = static_cast<void*>(comp);
-            m_eventDispatcher->DispatchGameEvent(EVG_ComponentDestroyed, data);
-            m_eventDispatcher->RemoveListener(comp);
-        }
+		void OnComponentDestroyed(T* comp)
+		{
+			Event data;
+			data.pParams[0] = static_cast<void*>(comp);
+			m_eventDispatcher->DispatchGameEvent(EVG_ComponentDestroyed, data);
+			m_eventDispatcher->RemoveListener(comp);
+		}
 
-    private:
-        IEventDispatcher*   m_eventDispatcher = nullptr;
-        MemoryAllocatorPool m_allocatorPool;
-        IDList<T*>          m_components;
-    };
+	private:
+		IEventDispatcher*	m_eventDispatcher = nullptr;
+		MemoryAllocatorPool m_allocatorPool;
+		IDList<T*>			m_components;
+	};
 
 } // namespace Lina
 

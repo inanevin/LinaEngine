@@ -108,7 +108,7 @@ namespace Lina
 
         template <typename T, typename K> static inline void SaveToStream_OBJ(OStream& stream, HashMap<T, K>& map)
         {
-            WriteMap_OBj<HashMap<T, K>>(stream, map);
+            WriteMap_OBJ<HashMap<T, K>>(stream, map);
         }
 
         template <typename T, typename K> static inline void LoadFromStream_OBJ(IStream& stream, HashMap<T, K>& map)
