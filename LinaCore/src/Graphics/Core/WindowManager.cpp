@@ -50,7 +50,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void WindowManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Window Manager] -> Initialization.");
@@ -151,7 +150,7 @@ namespace Lina
 
 			if (sid != LINA_MAIN_SWAPCHAIN)
 				m_gfxManager->DestroySurfaceRenderer(m_gfxManager->GetBackend()->GetSwapchain(sid));
-				
+
 			m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetBackend()->DestroySwapchain(sid);
 		};
 
@@ -195,6 +194,15 @@ namespace Lina
 		}
 
 		return 0;
+	}
+
+	void WindowManager::SetVsync(VsyncMode mode)
+	{
+		m_vsync = mode;
+		Event data;
+		data.iParams[0] = static_cast<int>(mode);
+		m_system->DispatchSystemEvent(EVS_VsyncMode, data);
+		LINA_TRACE("[Window Manager] -> Vsync Mode changed to: {0}", VsyncModeToStr(mode));
 	}
 
 } // namespace Lina

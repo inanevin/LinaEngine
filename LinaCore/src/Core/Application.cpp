@@ -191,7 +191,7 @@ namespace Lina
 
 		// For any listeners that fall outside the main loop.
 		DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
-
+		
 		// Finish.
 		if (m_fpsCounter >= 1.5f)
 		{

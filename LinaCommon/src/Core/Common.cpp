@@ -30,34 +30,52 @@ SOFTWARE.
 
 namespace EA
 {
-    namespace StdC
-    {
-        // Provided by the EAStdC package or by the user.
-        int Vsnprintf(char* EA_RESTRICT pDestination, size_t n, const char* EA_RESTRICT pFormat, va_list arguments)
-        {
-            return vsnprintf(pDestination, n, pFormat, arguments);
-        }
-        int Vsnprintf(char16_t* EA_RESTRICT pDestination, size_t n, const char16_t* EA_RESTRICT pFormat, va_list arguments)
-        {
-            return 0;
-        }
-        int Vsnprintf(char32_t* EA_RESTRICT pDestination, size_t n, const char32_t* EA_RESTRICT pFormat, va_list arguments)
-        {
-            return 0;
-        }
+	namespace StdC
+	{
+		// Provided by the EAStdC package or by the user.
+		int Vsnprintf(char* EA_RESTRICT pDestination, size_t n, const char* EA_RESTRICT pFormat, va_list arguments)
+		{
+			return vsnprintf(pDestination, n, pFormat, arguments);
+		}
+		int Vsnprintf(char16_t* EA_RESTRICT pDestination, size_t n, const char16_t* EA_RESTRICT pFormat, va_list arguments)
+		{
+			return 0;
+		}
+		int Vsnprintf(char32_t* EA_RESTRICT pDestination, size_t n, const char32_t* EA_RESTRICT pFormat, va_list arguments)
+		{
+			return 0;
+		}
 #if EA_CHAR8_UNIQUE
-        int Vsnprintf(char8_t* EA_RESTRICT pDestination, size_t n, const char8_t* EA_RESTRICT pFormat, va_list arguments)
-        {
-            return 0;
-        }
+		int Vsnprintf(char8_t* EA_RESTRICT pDestination, size_t n, const char8_t* EA_RESTRICT pFormat, va_list arguments)
+		{
+			return 0;
+		}
 #endif
 #if defined(EA_WCHAR_UNIQUE) && EA_WCHAR_UNIQUE
-        int Vsnprintf(wchar_t* EA_RESTRICT pDestination, size_t n, const wchar_t* EA_RESTRICT pFormat, va_list arguments)
-        {
-            return 0;
-        }
+		int Vsnprintf(wchar_t* EA_RESTRICT pDestination, size_t n, const wchar_t* EA_RESTRICT pFormat, va_list arguments)
+		{
+			return 0;
+		}
 #endif
-    } // namespace StdC
+	} // namespace StdC
 } // namespace EA
 
 // EASTL OPERATOR NEW[] REQUIREMENTS
+
+namespace Lina
+{
+	const char* VsyncModeToStr(VsyncMode mode)
+	{
+		switch (mode)
+		{
+		case VsyncMode::None:
+			return "None";
+		case VsyncMode::StrongVsync:
+			return "Strong (FIFO)";
+		case VsyncMode::Adaptive:
+			return "Adaptive (FIFO Relaxed)";
+		case VsyncMode::TripleBuffer:
+			return "Triple Buffer (Mailbox)";
+		}
+	}
+} // namespace Lina

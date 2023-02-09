@@ -71,6 +71,7 @@ namespace Lina
 		VsyncMode		 vsyncMode		  = VsyncMode::None;
 	};
 
+	extern const char* VsyncModeToStr(VsyncMode mode);
 } // namespace Lina
 
 #endif

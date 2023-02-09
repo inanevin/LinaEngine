@@ -62,6 +62,7 @@ namespace Lina
 		Window* GetWindow(StringID sid);
 		void	OnWindowFocused(StringID sid);
 		int		GetWindowZOrder(StringID sid);
+		void	SetVsync(VsyncMode mode);
 
 		inline const Vector<MonitorInfo>& GetMonitors() const
 		{
@@ -80,6 +81,7 @@ namespace Lina
 		}
 
 	private:
+		VsyncMode				   m_vsync		= VsyncMode::None;
 		GfxManager*				   m_gfxManager = nullptr;
 		HashMap<StringID, Window*> m_windows;
 		Vector<StringID>		   m_drawOrders;
