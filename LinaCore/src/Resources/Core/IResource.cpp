@@ -27,8 +27,19 @@ SOFTWARE.
 */
 
 #include "Resources/Core/IResource.hpp"
+#include "Resources/Core/ResourceManager.hpp"
 
 namespace Lina
 {
+	IResource::IResource(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid, TypeID tid) : m_userManaged(isUserManaged), m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm)
+	{
+		if (isUserManaged)
+			rm->AddUserManaged(this);
+	}
 
+	IResource::~IResource()
+	{
+		if (m_userManaged)
+			m_resourceManager->RemoveUserManaged(this);
+	}
 } // namespace Lina

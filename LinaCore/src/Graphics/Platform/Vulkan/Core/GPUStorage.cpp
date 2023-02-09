@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Platform/Vulkan/Objects/Buffer.hpp"
 #include "Graphics/Platform/Vulkan/Objects/CommandBuffer.hpp"
 #include "Graphics/Platform/Vulkan/Objects/PipelineLayout.hpp"
+#include "Graphics/Platform/Vulkan/Objects/Swapchain.hpp"
 #include "Graphics/Platform/Vulkan/Core/GfxBackend.hpp"
 #include "Graphics/Platform/Vulkan/Core/GfxManager.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -37,7 +38,6 @@ SOFTWARE.
 #include "Graphics/Resource/Material.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "Data/Action.hpp"
 #include "Data/HashSet.hpp"
 #include <vulkan/vulkan.h>
 
@@ -167,6 +167,11 @@ namespace Lina
 		gpuMat.descriptorSet.SendUpdate();
 	}
 
+	DescriptorSet& GPUStorage::GetDescriptor(Material* mat)
+	{
+		return m_materials.GetItemR(mat->GetGPUHandle()).descriptorSet;
+	}
+
 	void GPUStorage::DestroyMaterial(uint32 handle)
 	{
 		// Note: no need to mtx lock, this is called from the main thread.
@@ -235,6 +240,7 @@ namespace Lina
 		const PipelineType pipelineType = shader->GetPipelineType();
 
 		genData.pipeline = Pipeline{
+			.swapchainFormat		  = m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->format,
 			.device					  = m_gfxManager->GetBackend()->GetDevice(),
 			.allocationCb			  = m_gfxManager->GetBackend()->GetAllocationCb(),
 			.pipelineType			  = pipelineType,
@@ -270,6 +276,18 @@ namespace Lina
 		genData.pipeline.SetLayout(genData.pipelineLayout).Create(genData.modulesPtr);
 
 		return index;
+	}
+
+	Pipeline& GPUStorage::GetPipeline(Shader* shader)
+	{
+		return m_shaders.GetItemR(shader->GetGPUHandle()).pipeline;
+	}
+
+	Pipeline& GPUStorage::GetPipeline(Material* material)
+	{
+		auto rm		= m_gfxManager->GetSystem()->GetSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		auto shader = rm->GetResource<Shader>(material->GetShaderHandle());
+		return m_shaders.GetItemR(shader->GetGPUHandle()).pipeline;
 	}
 
 	void GPUStorage::DestroyPipeline(uint32 handle)
@@ -396,7 +414,7 @@ namespace Lina
 			cmd.CMD_ImageTransition(createdImg, ImageLayout::Undefined, ImageLayout::TransferDstOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::TransferWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::Transfer, mipLevels, 0);
 
 			// Copy and transfer to shader read.
-			CopyImage(createdImg, createdBuf, cmd, txt, 0);
+			CopyImage(0, createdImg, createdBuf, cmd, txt->GetExtent(), 0, txt->GetMipLevels());
 
 			uint32		mipLevel   = 1;
 			uint32		offset	   = txt->GetExtent().width * txt->GetExtent().height * txt->GetChannels();
@@ -410,7 +428,7 @@ namespace Lina
 
 				const Extent3D mipExtent = Extent3D{mm.width, mm.height, 1};
 				// Copy and transfer to shader read.
-				CopyImage(createdImg, createdBuf, cmd, txt, mipLevel);
+				CopyImage(offset, createdImg, createdBuf, cmd, mipExtent, mipLevel, txt->GetMipLevels());
 
 				offset += mm.width * mm.height * txt->GetChannels();
 				mipLevel++;
@@ -433,7 +451,17 @@ namespace Lina
 		m_textures.RemoveItem(index);
 	}
 
-	void GPUStorage::CopyImage(VkImage_T* img, VkBuffer_T* buf, const CommandBuffer& cmd, Texture* txt, uint32 baseMip)
+	VkImage_T* GPUStorage::GetImage(Texture* txt)
+	{
+		return m_textures.GetItemR(txt->GetGPUHandle()).img._allocatedImg.image;
+	}
+
+	VkImageView_T* GPUStorage::GetImageView(Texture* txt)
+	{
+		return m_textures.GetItemR(txt->GetGPUHandle()).img._ptrImgView;
+	}
+
+	void GPUStorage::CopyImage(uint32 offset, VkImage_T* img, VkBuffer_T* buf, const CommandBuffer& cmd, const Extent3D& ext, uint32 baseMip, uint32 totalMipLevels)
 	{
 		ImageSubresourceRange copySubres = ImageSubresourceRange{
 			.aspectFlags	= GetImageAspectFlags(ImageAspectFlags::AspectColor),
@@ -443,12 +471,12 @@ namespace Lina
 		};
 
 		BufferImageCopy copyRegion = BufferImageCopy{
-			.bufferOffset	   = 0,
+			.bufferOffset	   = offset,
 			.bufferRowLength   = 0,
 			.bufferImageHeight = 0,
 			.imageSubresource  = copySubres,
 			.imageOffset	   = Offset3D(),
-			.imageExtent	   = txt->GetExtent(),
+			.imageExtent	   = ext,
 		};
 
 		// Copy the buffer into the image
@@ -463,7 +491,7 @@ namespace Lina
 								AccessFlags::ShaderRead,
 								PipelineStageFlags::Transfer,
 								PipelineStageFlags::FragmentShader,
-								txt->GetMipLevels(),
+								totalMipLevels,
 								baseMip);
 	}
 

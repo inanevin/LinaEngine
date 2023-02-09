@@ -44,9 +44,8 @@ namespace Lina
 	class IResource : protected ISerializable
 	{
 	public:
-		IResource() = default;
-		IResource(const String& path, StringID sid, TypeID tid, ResourceManager* rm) : m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm) {};
-		virtual ~IResource() = default;
+		IResource(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid, TypeID tid);
+		virtual ~IResource();
 
 		inline const String& GetPath() const
 		{

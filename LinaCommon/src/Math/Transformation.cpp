@@ -37,7 +37,7 @@ namespace Lina
         return Transformation(Vector3::Lerp(from.m_position, to.m_position, t), Quaternion::Slerp(from.m_rotation, to.m_rotation, t), Vector3::Lerp(from.m_scale, to.m_scale, t));
     }
 
-    void Transformation::SetMatrix(Matrix& mat)
+    void Transformation::SetMatrix(Matrix4& mat)
     {
         mat.Decompose(m_position, m_rotation, m_scale);
     }

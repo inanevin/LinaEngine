@@ -65,16 +65,16 @@ namespace Lina
 
         static Transformation Interpolate(Transformation& from, Transformation& to, float t);
 
-        void SetMatrix(Matrix& mat);
+        void SetMatrix(Matrix4& mat);
 
-        Matrix ToMatrix() const
+        Matrix4 ToMatrix() const
         {
-            return Matrix::TransformMatrix(m_position, m_rotation, m_scale);
+            return Matrix4::TransformMatrix(m_position, m_rotation, m_scale);
         }
 
-        Matrix ToLocalMatrix() const
+        Matrix4 ToLocalMatrix() const
         {
-            return Matrix::TransformMatrix(m_localPosition, m_localRotation, m_localScale);
+            return Matrix4::TransformMatrix(m_localPosition, m_localRotation, m_localScale);
         }
 
         Vector3 m_previousPosition = Vector3::Zero;

@@ -28,9 +28,11 @@ SOFTWARE.
 
 #include "Graphics/Platform/Vulkan/Objects/CommandBuffer.hpp"
 #include "Graphics/Platform/Vulkan/Objects/PipelineLayout.hpp"
+#include "Graphics/Platform/Vulkan/Objects/Pipeline.hpp"
 #include "Graphics/Platform/Vulkan/Objects/DescriptorSet.hpp"
 #include "Graphics/Platform/Vulkan/Core/GfxBackend.hpp"
 #include "Graphics/Platform/Vulkan/Utility/VulkanUtility.hpp"
+#include "Graphics/Resource/Material.hpp"
 #include "Log/Log.hpp"
 #include <vulkan/vulkan.h>
 
@@ -88,6 +90,15 @@ namespace Lina
 			_sets.push_back(sets[i]._ptr);
 
 		vkCmdBindDescriptorSets(_ptr, GetPipelineBindPoint(bindPoint), pLayout, firstSet, setCount, _sets.data(), dynamicOffsetCount, dynamicOffsets);
+	}
+
+	void CommandBuffer::CMD_BindPipeline(Pipeline& pipeline, DescriptorSet* descriptor, uint32 bindFlags) const
+	{
+		if (bindFlags & MaterialBindFlag::BindPipeline)
+			pipeline.Bind(*this, PipelineBindPoint::Graphics);
+
+		if (bindFlags & MaterialBindFlag::BindDescriptor)
+			CMD_BindDescriptorSets(PipelineBindPoint::Graphics, pipeline._layout, 2, 1, descriptor, 0, nullptr);
 	}
 
 	void CommandBuffer::CMD_PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants) const

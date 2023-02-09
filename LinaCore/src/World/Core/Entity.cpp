@@ -56,7 +56,7 @@ namespace Lina
             m_parent->RemoveChild(this);
     }
 
-    void Entity::SetTransformation(Matrix& mat, bool omitScale)
+    void Entity::SetTransformation(Matrix4& mat, bool omitScale)
     {
         Vector3    loc;
         Quaternion rot;
@@ -69,7 +69,7 @@ namespace Lina
             SetScale(scale);
     }
 
-    void Entity::SetLocalTransformation(Matrix& mat, bool omitScale)
+    void Entity::SetLocalTransformation(Matrix4& mat, bool omitScale)
     {
         Vector3    loc;
         Quaternion rot;
@@ -236,7 +236,7 @@ namespace Lina
         }
         else
         {
-            Matrix  global                 = m_parent->m_transform.ToMatrix() * m_transform.ToLocalMatrix();
+            Matrix4  global                 = m_parent->m_transform.ToMatrix() * m_transform.ToLocalMatrix();
             Vector3 translation            = global.GetTranslation();
             m_transform.m_previousPosition = m_transform.m_position;
             m_transform.m_position         = translation;
@@ -254,7 +254,7 @@ namespace Lina
             m_transform.m_localPosition = m_transform.m_position;
         else
         {
-            Matrix global               = m_parent->m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
+            Matrix4 global               = m_parent->m_transform.ToMatrix().Inverse() * m_transform.ToMatrix();
             m_transform.m_localPosition = global.GetTranslation();
         }
     }
@@ -268,7 +268,7 @@ namespace Lina
         }
         else
         {
-            Matrix  global = Matrix::Scale(m_parent->m_transform.m_scale) * Matrix::Scale(m_transform.m_localScale);
+            Matrix4  global = Matrix4::Scale(m_parent->m_transform.m_scale) * Matrix4::Scale(m_transform.m_localScale);
             Vector3 scale  = global.GetScale();
             ;
             m_transform.m_previousScale = m_transform.m_scale;
@@ -291,7 +291,7 @@ namespace Lina
         }
         else
         {
-            Matrix     global = Matrix::InitRotation(m_parent->m_transform.m_rotation) * m_transform.ToLocalMatrix();
+            Matrix4     global = Matrix4::InitRotation(m_parent->m_transform.m_rotation) * m_transform.ToLocalMatrix();
             Quaternion targetRot;
             Vector3    s = Vector3(), p = Vector3();
             global.Decompose(p, targetRot, s);
@@ -313,7 +313,7 @@ namespace Lina
             m_transform.m_localScale = m_transform.m_scale;
         else
         {
-            Matrix global            = Matrix::Scale(m_parent->m_transform.m_scale).Inverse() * Matrix::Scale(m_transform.m_scale);
+            Matrix4 global            = Matrix4::Scale(m_parent->m_transform.m_scale).Inverse() * Matrix4::Scale(m_transform.m_scale);
             m_transform.m_localScale = global.GetScale();
         }
     }
@@ -345,7 +345,7 @@ namespace Lina
         }
         else
         {
-            Matrix  global = Matrix::InitRotation(m_parent->m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
+            Matrix4  global = Matrix4::InitRotation(m_parent->m_transform.m_rotation).Inverse() * m_transform.ToMatrix();
             Vector3 s = Vector3(), p = Vector3();
             global.Decompose(s, m_transform.m_localRotation, p);
             m_transform.m_localRotationAngles = m_transform.m_localRotation.GetEuler();

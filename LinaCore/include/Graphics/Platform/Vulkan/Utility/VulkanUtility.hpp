@@ -45,6 +45,7 @@ namespace Lina
 	class Texture;
 	class Sampler;
 	class Image;
+	class GfxManager;
 
 	class VulkanUtility
 	{
@@ -61,8 +62,8 @@ namespace Lina
 		static VkPipelineDepthStencilStateCreateInfo  CreatePipelineDepthStencilStateCreateInfo(bool depthTest, bool depthWrite, CompareOp op);
 
 		// Texture
-		static Texture* CreateDefaultPassTextureColor(Format format, int width, int height);
-		static Texture* CreateDefaultPassTextureDepth(int width, int height);
+		static Texture* CreateDefaultPassTextureColor(StringID sid, Format format, int width, int height);
+		static Texture* CreateDefaultPassTextureDepth(StringID sid, int width, int height);
 		static void		CreateDefaultPassImageDepth(Image& img, int width, int height);
 		static void		CreateDefaultPassImageColor(Format format, Image& img, int width, int height);
 
@@ -111,6 +112,7 @@ namespace Lina
 		friend class CommandBuffer;
 		friend class GfxBackend;
 
+		static GfxManager*				  s_gfxManager;
 		static VkDevice_T*				  s_device;
 		static VkAllocationCallbacks*	  s_allCb;
 		static VmaAllocator_T*			  s_vma;

@@ -34,9 +34,9 @@ SOFTWARE.
 
 namespace Lina
 {
-    void Frustum::Calculate(const Matrix& matrix, bool normalize)
+    void Frustum::Calculate(const Matrix4& matrix, bool normalize)
     {
-        Matrix  m       = matrix.Transpose();
+        Matrix4  m       = matrix.Transpose();
         Vector4 vleft   = m[3] + m[0];
         Vector4 vright  = m[3] - m[0];
         Vector4 vtop    = m[3] - m[1];

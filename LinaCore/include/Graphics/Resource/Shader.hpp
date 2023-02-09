@@ -45,7 +45,7 @@ namespace Lina
 	class Shader : public IResource
 	{
 	public:
-		Shader() = default;
+		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
 		virtual ~Shader();
 
 		Vector<unsigned int> GetCompiledCode(ShaderStage stage) const;

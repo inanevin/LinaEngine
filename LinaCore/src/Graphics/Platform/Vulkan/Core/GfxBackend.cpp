@@ -31,6 +31,7 @@ SOFTWARE.
 #endif
 
 #include "Graphics/Platform/Vulkan/Core/GfxBackend.hpp"
+#include "Graphics/Platform/Vulkan/Core/GfxManager.hpp"
 #include "Graphics/Core/Window.hpp"
 #include "Graphics/Platform/Vulkan/Objects/Swapchain.hpp"
 #include "Profiling/Profiler.hpp"
@@ -64,14 +65,14 @@ namespace Lina
 		return VK_FALSE;
 	}
 
-	GfxBackend::GfxBackend(ISystem* system) : m_system(system)
+	GfxBackend::GfxBackend(GfxManager* system) : m_gfxManager(system)
 	{
-		m_system->AddListener(this);
+		m_gfxManager->GetSystem()->AddListener(this);
 	}
 
 	GfxBackend::~GfxBackend()
 	{
-		m_system->RemoveListener(this);
+		m_gfxManager->GetSystem()->RemoveListener(this);
 	}
 
 	void GfxBackend::Initialize(const SystemInitializationInfo& initInfo, Window* mainWindow)
@@ -354,9 +355,10 @@ namespace Lina
 
 		m_currentPresentMode = VsyncToPresentMode(initInfo.vsyncMode);
 
-		VulkanUtility::s_allCb	= m_allocator;
-		VulkanUtility::s_vma	= m_vmaAllocator;
-		VulkanUtility::s_device = m_device;
+		VulkanUtility::s_allCb		= m_allocator;
+		VulkanUtility::s_vma		= m_vmaAllocator;
+		VulkanUtility::s_device		= m_device;
+		VulkanUtility::s_gfxManager = m_gfxManager;
 
 		Swapchain* swp = new Swapchain{
 			.allocationCb  = m_allocator,

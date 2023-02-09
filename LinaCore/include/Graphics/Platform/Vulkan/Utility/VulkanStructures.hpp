@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Math/Color.hpp"
 #include "Math/Rect.hpp"
+#include "Math/Matrix.hpp"
 
 enum VkFormat;
 enum VkColorSpaceKHR;
@@ -350,7 +351,7 @@ namespace Lina
 	struct MeshPushConstants
 	{
 		Vector4 data		 = Vector4::Zero;
-		Matrix	renderMatrix = Matrix::Identity();
+		Matrix4	renderMatrix = Matrix4::Identity();
 	};
 
 	struct SubPassDependency
@@ -421,6 +422,12 @@ namespace Lina
 		RenderingAttachmentInfo			stencilAttachment;
 		bool							useDepthAttachment	 = false;
 		bool							useStencilAttachment = false;
+	};
+
+	enum MaterialBindFlag
+	{
+		BindPipeline   = 1 << 0,
+		BindDescriptor = 1 << 1,
 	};
 
 	extern Format				GetFormatFromVkFormat(VkFormat f);

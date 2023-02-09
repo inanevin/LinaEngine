@@ -43,6 +43,8 @@ src/Input/Core/Input.cpp
 # Graphics
 
 src/Graphics/Core/WindowManager.cpp
+src/Graphics/Core/View.cpp
+src/Graphics/Core/CameraSystem.cpp
 src/Graphics/Components/RenderableComponent.cpp
 src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp
@@ -52,6 +54,10 @@ src/Graphics/Platform/Vulkan/Core/GfxManager.cpp
 src/Graphics/Platform/Vulkan/Core/GfxBackend.cpp
 src/Graphics/Platform/Vulkan/Core/GUIBackend.cpp
 src/Graphics/Platform/Vulkan/Core/UploadContext.cpp
+src/Graphics/Platform/Vulkan/Core/Renderer.cpp
+src/Graphics/Platform/Vulkan/Core/SurfaceRenderer.cpp
+src/Graphics/Platform/Vulkan/Core/WorldRenderer.cpp
+src/Graphics/Platform/Vulkan/Core/DrawPass.cpp
 src/Graphics/Platform/Vulkan/Utility/VkBootstrap.cpp
 src/Graphics/Platform/Vulkan/Utility/SPIRVUtility.cpp
 src/Graphics/Platform/Vulkan/Utility/VulkanUtility.cpp
@@ -149,6 +155,8 @@ include/Resources/Data/ResourceMetadata.hpp
 include/Graphics/Core/WindowManager.hpp
 include/Graphics/Core/Window.hpp
 include/Graphics/Core/CommonGraphics.hpp
+include/Graphics/Core/View.hpp
+include/Graphics/Core/CameraSystem.hpp
 include/Graphics/Data/RenderData.hpp
 include/Graphics/Data/Vertex.hpp
 include/Graphics/Components/CameraComponent.hpp
@@ -163,6 +171,10 @@ include/Graphics/Platform/Vulkan/Core/GfxManager.hpp
 include/Graphics/Platform/Vulkan/Core/GfxBackend.hpp
 include/Graphics/Platform/Vulkan/Core/GUIBackend.hpp
 include/Graphics/Platform/Vulkan/Core/UploadContext.hpp
+include/Graphics/Platform/Vulkan/Core/Renderer.hpp
+include/Graphics/Platform/Vulkan/Core/SurfaceRenderer.hpp
+include/Graphics/Platform/Vulkan/Core/WorldRenderer.hpp
+include/Graphics/Platform/Vulkan/Core/DrawPass.hpp
 include/Graphics/Platform/Vulkan/Utility/VkBootstrap.h
 include/Graphics/Platform/Vulkan/Utility/VkBootstrapDispatch.h
 include/Graphics/Platform/Vulkan/Utility/SPIRVUtility.hpp

@@ -41,7 +41,8 @@ namespace Lina
 	class Font : public IResource
 	{
 	public:
-		Font() = default;
+		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
+		virtual ~Font() = default;
 
 	protected:
 		virtual void Flush() override;
@@ -50,7 +51,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) override;
 
 	private:
-		Vector<char>	 m_file;
+		Vector<char> m_file;
 	};
 } // namespace Lina
 

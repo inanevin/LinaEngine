@@ -60,8 +60,7 @@ namespace Lina
 		void Bind(const CommandBuffer& cmd, PipelineBindPoint bindpoint);
 
 		// Desc
-		GPUStorage*				  gpuStorage		= nullptr;
-		Format					  swapchainFormat	= Format::B8G8R8A8_SRGB;
+		Format					  swapchainFormat	= Format::R8_UINT;
 		DelegateQueue*			  deletionQueue		= nullptr;
 		VkDevice_T*				  device			= nullptr;
 		VkAllocationCallbacks*	  allocationCb		= nullptr;

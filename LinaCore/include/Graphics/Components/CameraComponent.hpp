@@ -47,6 +47,11 @@ namespace Lina
 		float zNear		  = 0.01f;
 		float zFar		  = 1000.0f;
 
+		virtual TypeID GetComponentType() override
+		{
+			return GetTypeID<CameraComponent>();
+		}
+		
 		virtual void SaveToStream(OStream& stream)
 		{
 			stream << fieldOfView << zNear << zFar;
@@ -57,12 +62,12 @@ namespace Lina
 			stream >> fieldOfView >> zNear >> zFar;
 		}
 
-		inline const Matrix& GetProjection()
+		inline const Matrix4& GetProjection()
 		{
 			return m_projection;
 		}
 
-		inline const Matrix& GetView()
+		inline const Matrix4& GetView()
 		{
 			return m_view;
 		}
@@ -70,8 +75,8 @@ namespace Lina
 	private:
 		friend class CameraSystem;
 
-		Matrix m_projection = Matrix::Identity();
-		Matrix m_view		= Matrix::Identity();
+		Matrix4 m_projection = Matrix4::Identity();
+		Matrix4 m_view		= Matrix4::Identity();
 	};
 } // namespace Lina
 

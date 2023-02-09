@@ -38,7 +38,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	Texture::Texture(const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels) : m_sampler(samplerData), m_extent(ext), m_channels(channels)
+	Texture::Texture(ResourceManager* rm, StringID sid, const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels)
+		: m_sampler(samplerData), m_extent(ext), m_channels(channels), IResource(rm, true, "", sid, GetTypeID<Texture>())
 	{
 		CheckFormat(m_channels);
 		m_metadata.SetUInt8("Format"_hs, static_cast<uint8>(format));
@@ -145,7 +146,7 @@ namespace Lina
 			delete[] m_pixels;
 		else
 			stbi_image_free(m_pixels);
-			
+
 		for (auto& mm : m_mipmaps)
 			delete[] mm.pixels;
 		m_mipmaps.clear();

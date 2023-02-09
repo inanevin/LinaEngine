@@ -112,6 +112,9 @@ namespace Lina
 	void Application::Shutdown()
 	{
 		LINA_TRACE("[Application] -> Shutdown.");
+
+		m_gfxManager.Join();
+
 		DispatchSystemEvent(EVS_PreSystemShutdown, {});
 		UnloadPlugins();
 
@@ -136,25 +139,25 @@ namespace Lina
 		PROFILER_FRAME_START();
 
 		int64 ticks = Clock::GetCurrentTicks();
-		float delta = m_firstRun ? DEFAULT_RATE : Clock::CalculateDelta(prevTicks, ticks, 1.0f);
+		m_delta		= m_firstRun ? DEFAULT_RATE : Clock::CalculateDelta(prevTicks, ticks, 1.0f);
 		prevTicks	= ticks;
 		m_firstRun	= false;
 
 		// Break & debugging points
-		if (delta > 1.0f)
-			delta = DEFAULT_RATE;
+		if (m_delta > 1.0f)
+			m_delta = DEFAULT_RATE;
 
-		m_physicsAccumulator += delta;
-		m_fpsCounter += delta;
+		m_physicsAccumulator += m_delta;
+		m_fpsCounter += m_delta;
 
 		// Poll.
-		m_input.Tick(delta);
+		m_input.Tick(m_delta);
 
-		m_gfxManager.Tick();
+		m_gfxManager.Tick(m_delta);
 
 		// For any listeners that fall outside the main loop.
 		Event eventData;
-		eventData.fParams[0] = delta;
+		eventData.fParams[0] = m_delta;
 		DispatchSystemEvent(EVS_SystemTick, eventData);
 
 		// Physics if necessary.
@@ -169,9 +172,9 @@ namespace Lina
 		}
 
 		// World tick if exists.
-		m_levelManager.Tick(delta);
+		m_levelManager.Tick(m_delta);
 
-		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(m_delta); });
 		auto renderJob = m_executor.Async([&]() {
 			m_gfxManager.Render();
 			m_frames++;
@@ -190,11 +193,12 @@ namespace Lina
 		DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
 
 		// Finish.
-		if (m_fpsCounter >= 1.0f)
+		if (m_fpsCounter >= 1.5f)
 		{
 			m_fps		 = m_frames;
 			m_fpsCounter = 0.0f;
 			m_frames	 = 0;
+			LINA_TRACE("[FPS] : {0}", m_fps);
 		}
 	}
 

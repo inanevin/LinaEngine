@@ -44,6 +44,8 @@ struct VkDevice_T;
 namespace Lina
 {
 	class DescriptorSet;
+	class Material;
+	class Pipeline;
 
 	class CommandBuffer
 	{
@@ -55,6 +57,7 @@ namespace Lina
 		void CMD_BindVertexBuffers(uint32 firstBinding, uint32 bindingCount, VkBuffer_T* buffer, uint64* offset) const;
 		void CMD_BindIndexBuffers(VkBuffer_T* buffer, uint64 offset, IndexType indexType) const;
 		void CMD_BindDescriptorSets(PipelineBindPoint bindPoint, VkPipelineLayout_T* pLayout, uint32 firstSet, uint32 setCount, DescriptorSet* sets, uint32 dynamicOffsetCount = 0, uint32* dynamicOffsets = nullptr) const;
+		void CMD_BindPipeline(Pipeline& pipeline, DescriptorSet* desc, uint32 bindFlags) const;
 		void CMD_PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants) const;
 		void CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst) const;
 		void CMD_DrawIndexed(uint32 indexCount, uint32 instanceCount, uint32 firstIndex, uint32 vertexOffset, uint32 firstInstance) const;

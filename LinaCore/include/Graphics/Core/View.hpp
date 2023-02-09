@@ -28,35 +28,63 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Action_HPP
-#define Action_HPP
+#ifndef View_HPP
+#define View_HPP
 
-#include "Functional.hpp"
+#include "Math/Frustum.hpp"
+#include "Math/Vector.hpp"
+#include "Data/HashSet.hpp"
+#include "Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {
-	class CommandBuffer;
-	
-	class GPUCommand
+	class RenderableComponent;
+
+	class View
 	{
 	public:
-		Delegate<void(CommandBuffer& buf)> Record;
-		Delegate<void()>							 OnRecorded;
-		Delegate<void()>							 OnSubmitted;
+		bool IsVisible(const AABB& aabb) const;
+
+		inline Vector<RenderableComponent*>& GetVisibleObjects()
+		{
+			return m_visibleRenderables;
+		}
+
+		inline const Vector3& GetPos() const
+		{
+			return m_pos;
+		}
+		inline const Matrix4& GetView() const
+		{
+			return m_view;
+		}
+
+		inline const Matrix4& GetProj() const
+		{
+			return m_proj;
+		}
+
+		float GetNear() const
+		{
+			return m_near;
+		}
+
+		float GetFar() const
+		{
+			return m_far;
+		}
+
+		void Tick(const Vector3& pos, const Matrix4& view, const Matrix4& proj, float near, float far);
+
+	private:
+		Vector<RenderableComponent*> m_visibleRenderables;
+		Matrix4						 m_view;
+		Matrix4						 m_proj;
+		Vector3						 m_pos	   = Vector3::Zero;
+		Frustum						 m_frustum = Frustum();
+		float						 m_near	   = 0.0f;
+		float						 m_far	   = 0.0f;
 	};
-
-	class SimpleAction
-	{
-	public:
-		SimpleAction(){};
-		~SimpleAction(){};
-		SimpleAction(Delegate<void()>&& act) : Action(act){};
-		SimpleAction(Delegate<void()>&& act, Delegate<void()>&& cb) : Action(act), OnExecuted(cb){};
-
-		Delegate<void()> Action;
-		Delegate<void()> OnExecuted;
-	};
-
 } // namespace Lina
 
 #endif

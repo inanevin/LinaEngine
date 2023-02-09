@@ -32,7 +32,6 @@ SOFTWARE.
 #define Vector_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include "Serialization/ISerializable.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
@@ -43,615 +42,612 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Vector2ui : public glm::uvec2, public ISerializable
-    {
-    public:
-        Vector2ui() = default;
-        Vector2ui(unsigned int x, unsigned int y) : glm::uvec2(x, y){};
-        Vector2ui(const Vector2ui& rhs) : glm::uvec2(rhs){};
-        Vector2ui(unsigned int val) : glm::uvec2(val, val){};
-        Vector2ui(const glm::vec2& rhs) : glm::uvec2(rhs.x, rhs.y){};
+	class IStream;
+	class OStream;
+	
+	class Vector2ui : public glm::uvec2
+	{
+	public:
+		Vector2ui() = default;
+		Vector2ui(unsigned int x, unsigned int y) : glm::uvec2(x, y){};
+		Vector2ui(const Vector2ui& rhs) : glm::uvec2(rhs){};
+		Vector2ui(unsigned int val) : glm::uvec2(val, val){};
+		Vector2ui(const glm::vec2& rhs) : glm::uvec2(rhs.x, rhs.y){};
 
-        static Vector2ui Zero;
-        static Vector2ui One;
+		static Vector2ui Zero;
+		static Vector2ui One;
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
-    class Vector2i : public glm::ivec2, public ISerializable
-    {
-    public:
-        Vector2i() = default;
-        Vector2i(int x, int y) : glm::ivec2(x, y){};
-        Vector2i(const Vector2i& rhs) : glm::ivec2(rhs){};
-        Vector2i(unsigned int val) : glm::ivec2(val, val){};
-        Vector2i(const glm::vec2& rhs) : glm::ivec2(rhs.x, rhs.y){};
+	class Vector2i : public glm::ivec2
+	{
+	public:
+		Vector2i() = default;
+		Vector2i(int x, int y) : glm::ivec2(x, y){};
+		Vector2i(const Vector2i& rhs) : glm::ivec2(rhs){};
+		Vector2i(unsigned int val) : glm::ivec2(val, val){};
+		Vector2i(const glm::vec2& rhs) : glm::ivec2(rhs.x, rhs.y){};
 
-        static Vector2i Zero;
-        static Vector2i One;
+		static Vector2i Zero;
+		static Vector2i One;
 
-        bool Equals(const Vector2i& other, int epsilon = 0) const;
+		bool Equals(const Vector2i& other, int epsilon = 0) const;
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
-    inline Vector2i operator-(Vector2i const& v, Vector2i const& v2)
-    {
-        return Vector2i(v.x - v2.x, v.y - v2.y);
-    }
-    inline Vector2i operator+(Vector2i const& v, float scalar)
-    {
-        return Vector2i((int)((float)v.x + scalar), (int)(((float)v.y + scalar)));
-    }
-    inline Vector2i operator-(Vector2i const& v, float scalar)
-    {
-        return Vector2i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)));
-    }
+	inline Vector2i operator-(Vector2i const& v, Vector2i const& v2)
+	{
+		return Vector2i(v.x - v2.x, v.y - v2.y);
+	}
+	inline Vector2i operator+(Vector2i const& v, float scalar)
+	{
+		return Vector2i((int)((float)v.x + scalar), (int)(((float)v.y + scalar)));
+	}
+	inline Vector2i operator-(Vector2i const& v, float scalar)
+	{
+		return Vector2i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)));
+	}
 
-    class Vector2 : public glm::vec2, public ISerializable
-    {
-    public:
-        Vector2() = default;
-        Vector2(float x, float y) : glm::vec2(x, y){};
-        Vector2(const Vector2& rhs) : glm::vec2(rhs){};
-        Vector2(float val) : glm::vec2(val, val){};
-        Vector2(const glm::vec2& rhs) : glm::vec2(rhs.x, rhs.y){};
-        Vector2(const Vector2i& rhs) : glm::vec2(static_cast<float>(rhs.x), static_cast<float>(rhs.y)){};
+	class Vector2 : public glm::vec2
+	{
+	public:
+		Vector2() = default;
+		Vector2(float x, float y) : glm::vec2(x, y){};
+		Vector2(const Vector2& rhs) : glm::vec2(rhs){};
+		Vector2(float val) : glm::vec2(val, val){};
+		Vector2(const glm::vec2& rhs) : glm::vec2(rhs.x, rhs.y){};
+		Vector2(const Vector2i& rhs) : glm::vec2(static_cast<float>(rhs.x), static_cast<float>(rhs.y)){};
 
-        static Vector2 Zero;
-        static Vector2 One;
+		static Vector2 Zero;
+		static Vector2 One;
 
-        Vector2 Clamp(const Vector2& min, const Vector2& max) const;
-        Vector2 Abs() const;
-        Vector2 MinLength(const Vector2& other) const;
-        Vector2 MaxLength(const Vector2& other) const;
-        Vector2 Min(const Vector2& other) const;
-        Vector2 Max(const Vector2& other) const;
-        Vector2 Normalized() const;
-        Vector2 Project(const Vector2& normal) const;
-        Vector2 Rotate(const Vector2& axis, float angle) const;
-        Vector2 Reflect(const Vector2& normal) const;
-        Vector2 Refract(const Vector2& normal, float indexOfRefraction) const;
-        bool    Equals(const Vector2& other, float epsilon) const;
-        float   Dot(const Vector2& other) const;
-        float   Distance(const Vector2& other) const;
-        float   Magnitude() const;
-        float   MagnitudeSqrt() const;
-        float   Max() const;
-        float   Min() const;
-        float   Avg() const;
-        void    Normalize();
+		Vector2 Clamp(const Vector2& min, const Vector2& max) const;
+		Vector2 Abs() const;
+		Vector2 MinLength(const Vector2& other) const;
+		Vector2 MaxLength(const Vector2& other) const;
+		Vector2 Min(const Vector2& other) const;
+		Vector2 Max(const Vector2& other) const;
+		Vector2 Normalized() const;
+		Vector2 Project(const Vector2& normal) const;
+		Vector2 Rotate(const Vector2& axis, float angle) const;
+		Vector2 Reflect(const Vector2& normal) const;
+		Vector2 Refract(const Vector2& normal, float indexOfRefraction) const;
+		bool	Equals(const Vector2& other, float epsilon) const;
+		float	Dot(const Vector2& other) const;
+		float	Distance(const Vector2& other) const;
+		float	Magnitude() const;
+		float	MagnitudeSqrt() const;
+		float	Max() const;
+		float	Min() const;
+		float	Avg() const;
+		void	Normalize();
 
-        Vector2& operator*=(Vector2 const& v)
-        {
-            this->x *= v.x;
-            this->y *= v.y;
-            return *this;
-        }
-        Vector2& operator/=(Vector2 const& v)
-        {
-            this->x /= v.x;
-            this->y /= v.y;
-            return *this;
-        }
-        Vector2& operator+=(Vector2 const& v)
-        {
-            this->x += v.x;
-            this->y += v.y;
-            return *this;
-        }
-        Vector2& operator-=(Vector2 const& v)
-        {
-            this->x -= v.x;
-            this->y -= v.y;
-            return *this;
-        }
-        Vector2& operator*=(float f)
-        {
-            this->x *= f;
-            this->y *= f;
-            return *this;
-        }
-        Vector2& operator/=(float f)
-        {
-            this->x /= f;
-            this->y /= f;
-            return *this;
-        }
-        Vector2& operator+=(float f)
-        {
-            this->x += f;
-            this->y += f;
-            return *this;
-        }
-        Vector2& operator-=(float f)
-        {
-            this->x -= f;
-            this->y -= f;
-            return *this;
-        }
-        bool operator==(const Vector2& rhs) const
-        {
-            return x == rhs.x && y == rhs.y;
-        }
-        bool operator!=(const Vector2& rhs) const
-        {
-            return !(x == rhs.x && y == rhs.y);
-        }
-        bool operator>(const Vector2& rhs) const
-        {
-            return length() > rhs.length();
-        }
-        bool operator<(const Vector2& rhs) const
-        {
-            return length() < rhs.length();
-        }
-        float& operator[](unsigned int i)
-        {
-            return (&x)[i];
-        }
-        Vector2 operator-() const
-        {
-            return Vector2(-*this);
-        }
-        float* Get()
-        {
-            return &x;
-        }
+		Vector2& operator*=(Vector2 const& v)
+		{
+			this->x *= v.x;
+			this->y *= v.y;
+			return *this;
+		}
+		Vector2& operator/=(Vector2 const& v)
+		{
+			this->x /= v.x;
+			this->y /= v.y;
+			return *this;
+		}
+		Vector2& operator+=(Vector2 const& v)
+		{
+			this->x += v.x;
+			this->y += v.y;
+			return *this;
+		}
+		Vector2& operator-=(Vector2 const& v)
+		{
+			this->x -= v.x;
+			this->y -= v.y;
+			return *this;
+		}
+		Vector2& operator*=(float f)
+		{
+			this->x *= f;
+			this->y *= f;
+			return *this;
+		}
+		Vector2& operator/=(float f)
+		{
+			this->x /= f;
+			this->y /= f;
+			return *this;
+		}
+		Vector2& operator+=(float f)
+		{
+			this->x += f;
+			this->y += f;
+			return *this;
+		}
+		Vector2& operator-=(float f)
+		{
+			this->x -= f;
+			this->y -= f;
+			return *this;
+		}
+		bool operator==(const Vector2& rhs) const
+		{
+			return x == rhs.x && y == rhs.y;
+		}
+		bool operator!=(const Vector2& rhs) const
+		{
+			return !(x == rhs.x && y == rhs.y);
+		}
+		bool operator>(const Vector2& rhs) const
+		{
+			return length() > rhs.length();
+		}
+		bool operator<(const Vector2& rhs) const
+		{
+			return length() < rhs.length();
+		}
+		float& operator[](unsigned int i)
+		{
+			return (&x)[i];
+		}
+		Vector2 operator-() const
+		{
+			return Vector2(-*this);
+		}
+		float* Get()
+		{
+			return &x;
+		}
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
-    inline Vector2 operator*(float scalar, Vector2 const& v)
-    {
-        return Vector2(scalar * v.x, scalar * v.y);
-    }
-    inline Vector2 operator/(float scalar, Vector2 const& v)
-    {
-        return Vector2(scalar / v.x, scalar / v.y);
-    }
-    inline Vector2 operator+(float scalar, Vector2 const& v)
-    {
-        return Vector2(scalar + v.x, scalar + v.y);
-    }
-    inline Vector2 operator-(float scalar, Vector2 const& v)
-    {
-        return Vector2(scalar - v.x, scalar - v.y);
-    }
-    inline Vector2 operator*(Vector2 const& v, float scalar)
-    {
-        return Vector2(v.x * scalar, v.y * scalar);
-    }
-    inline Vector2 operator/(Vector2 const& v, float scalar)
-    {
-        return Vector2(v.x / scalar, v.y / scalar);
-    }
-    inline Vector2 operator+(Vector2 const& v, float scalar)
-    {
-        return Vector2(v.x + scalar, v.y + scalar);
-    }
-    inline Vector2 operator-(Vector2 const& v, float scalar)
-    {
-        return Vector2(v.x - scalar, v.y - scalar);
-    }
-    inline Vector2 operator*(Vector2 const& v, Vector2 const& v2)
-    {
-        return Vector2(v.x * v2.x, v.y * v2.y);
-    }
-    inline Vector2 operator/(Vector2 const& v, Vector2 const& v2)
-    {
-        return Vector2(v.x / v2.x, v.y / v2.y);
-    }
-    inline Vector2 operator+(Vector2 const& v, Vector2 const& v2)
-    {
-        return Vector2(v.x + v2.x, v.y + v2.y);
-    }
-    inline Vector2 operator-(Vector2 const& v, Vector2 const& v2)
-    {
-        return Vector2(v.x - v2.x, v.y - v2.y);
-    }
+	inline Vector2 operator*(float scalar, Vector2 const& v)
+	{
+		return Vector2(scalar * v.x, scalar * v.y);
+	}
+	inline Vector2 operator/(float scalar, Vector2 const& v)
+	{
+		return Vector2(scalar / v.x, scalar / v.y);
+	}
+	inline Vector2 operator+(float scalar, Vector2 const& v)
+	{
+		return Vector2(scalar + v.x, scalar + v.y);
+	}
+	inline Vector2 operator-(float scalar, Vector2 const& v)
+	{
+		return Vector2(scalar - v.x, scalar - v.y);
+	}
+	inline Vector2 operator*(Vector2 const& v, float scalar)
+	{
+		return Vector2(v.x * scalar, v.y * scalar);
+	}
+	inline Vector2 operator/(Vector2 const& v, float scalar)
+	{
+		return Vector2(v.x / scalar, v.y / scalar);
+	}
+	inline Vector2 operator+(Vector2 const& v, float scalar)
+	{
+		return Vector2(v.x + scalar, v.y + scalar);
+	}
+	inline Vector2 operator-(Vector2 const& v, float scalar)
+	{
+		return Vector2(v.x - scalar, v.y - scalar);
+	}
+	inline Vector2 operator*(Vector2 const& v, Vector2 const& v2)
+	{
+		return Vector2(v.x * v2.x, v.y * v2.y);
+	}
+	inline Vector2 operator/(Vector2 const& v, Vector2 const& v2)
+	{
+		return Vector2(v.x / v2.x, v.y / v2.y);
+	}
+	inline Vector2 operator+(Vector2 const& v, Vector2 const& v2)
+	{
+		return Vector2(v.x + v2.x, v.y + v2.y);
+	}
+	inline Vector2 operator-(Vector2 const& v, Vector2 const& v2)
+	{
+		return Vector2(v.x - v2.x, v.y - v2.y);
+	}
 
-    class Vector3 : public glm::vec3, public ISerializable
-    {
+	class Vector3 : public glm::vec3
+	{
 
-    public:
-        Vector3() = default;
-        Vector3(float x, float y, float z) : glm::vec3(x, y, z){};
-        Vector3(const Vector3& rhs) : glm::vec3(rhs){};
-        Vector3(const Vector2& rhs) : glm::vec3(rhs.x, rhs.y, 0.0f){};
-        Vector3(float val) : glm::vec3(val, val, val){};
-        Vector3(const glm::vec3& rhs) : glm::vec3(rhs.x, rhs.y, rhs.z){};
+	public:
+		Vector3() = default;
+		Vector3(float x, float y, float z) : glm::vec3(x, y, z){};
+		Vector3(const Vector3& rhs) : glm::vec3(rhs){};
+		Vector3(const Vector2& rhs) : glm::vec3(rhs.x, rhs.y, 0.0f){};
+		Vector3(float val) : glm::vec3(val, val, val){};
+		Vector3(const glm::vec3& rhs) : glm::vec3(rhs.x, rhs.y, rhs.z){};
 
-        static Vector3 Zero;
-        static Vector3 Up;
-        static Vector3 Down;
-        static Vector3 Right;
-        static Vector3 Left;
-        static Vector3 Forward;
-        static Vector3 Back;
-        static Vector3 One;
+		static Vector3 Zero;
+		static Vector3 Up;
+		static Vector3 Down;
+		static Vector3 Right;
+		static Vector3 Left;
+		static Vector3 Forward;
+		static Vector3 Back;
+		static Vector3 One;
 
-        static Vector3 Lerp(const Vector3& from, const Vector3& to, float t);
+		static Vector3 Lerp(const Vector3& from, const Vector3& to, float t);
 
-        Vector3 Clamp(const Vector3& min, const Vector3& max) const;
-        Vector3 Cross(const Vector3& other) const;
-        Vector3 Abs() const;
-        Vector3 MinLength(const Vector3& other) const;
-        Vector3 MaxLength(const Vector3& other) const;
-        Vector3 Min(const Vector3& other) const;
-        Vector3 Max(const Vector3& other) const;
-        Vector3 Normalized() const;
-        Vector3 Project(const Vector3& normal) const;
-        Vector3 Rotate(const Vector3& axis, float angle) const;
-        Vector3 Rotate(const class Quaternion& rotation) const;
-        Vector3 Reflect(const Vector3& normal) const;
-        Vector3 Refract(const Vector3& normal, float indexOfRefraction) const;
-        Vector2 XY()
-        {
-            return Vector2(x, y);
-        }
-        float Dot(const Vector3& other) const;
-        float Distance(const Vector3& other) const;
-        float Magnitude() const;
-        float MagnitudeSqrt() const;
-        float Max() const;
-        float Min() const;
-        float Avg() const;
-        void  Normalize();
-        bool  Equals(const Vector3& other, float epsilon) const;
+		Vector3 Clamp(const Vector3& min, const Vector3& max) const;
+		Vector3 Cross(const Vector3& other) const;
+		Vector3 Abs() const;
+		Vector3 MinLength(const Vector3& other) const;
+		Vector3 MaxLength(const Vector3& other) const;
+		Vector3 Min(const Vector3& other) const;
+		Vector3 Max(const Vector3& other) const;
+		Vector3 Normalized() const;
+		Vector3 Project(const Vector3& normal) const;
+		Vector3 Rotate(const Vector3& axis, float angle) const;
+		Vector3 Rotate(const class Quaternion& rotation) const;
+		Vector3 Reflect(const Vector3& normal) const;
+		Vector3 Refract(const Vector3& normal, float indexOfRefraction) const;
+		Vector2 XY()
+		{
+			return Vector2(x, y);
+		}
+		float Dot(const Vector3& other) const;
+		float Distance(const Vector3& other) const;
+		float Magnitude() const;
+		float MagnitudeSqrt() const;
+		float Max() const;
+		float Min() const;
+		float Avg() const;
+		void  Normalize();
+		bool  Equals(const Vector3& other, float epsilon) const;
 
-        Vector3& operator*=(Vector3 const& v)
-        {
-            this->x *= v.x;
-            this->y *= v.y;
-            this->z *= v.z;
-            return *this;
-        }
-        Vector3& operator/=(Vector3 const& v)
-        {
-            this->x /= v.x;
-            this->y /= v.y;
-            this->z /= v.z;
-            return *this;
-        }
-        Vector3& operator+=(Vector3 const& v)
-        {
-            this->x += v.x;
-            this->y += v.y;
-            this->z += v.z;
-            return *this;
-        }
-        Vector3& operator-=(Vector3 const& v)
-        {
-            this->x -= v.x;
-            this->y -= v.y;
-            this->z -= v.z;
-            return *this;
-        }
-        Vector3& operator*=(float f)
-        {
-            this->x *= f;
-            this->y *= f;
-            this->z *= f;
-            return *this;
-        }
-        Vector3& operator/=(float f)
-        {
-            this->x /= f;
-            this->y /= f;
-            this->z /= f;
-            return *this;
-        }
-        Vector3& operator+=(float f)
-        {
-            this->x += f;
-            this->y += f;
-            this->z += f;
-            return *this;
-        }
-        Vector3& operator-=(float f)
-        {
-            this->x -= f;
-            this->y -= f;
-            this->z -= f;
-            return *this;
-        }
-        bool operator==(const Vector3& rhs) const
-        {
-            return x == rhs.x && y == rhs.y && z == rhs.z;
-        }
-        bool operator!=(const Vector3& rhs) const
-        {
-            return !(x == rhs.x && y == rhs.y && z == rhs.z);
-        }
-        bool operator>(const Vector3& rhs) const
-        {
-            return length() > rhs.length();
-        }
-        bool operator<(const Vector3& rhs) const
-        {
-            return length() < rhs.length();
-        }
-        float& operator[](unsigned int i)
-        {
-            return (&x)[i];
-        }
-        Vector3 operator-() const
-        {
-            return Vector3(-x, -y, -z);
-        }
-        float* Get()
-        {
-            return &x;
-        }
+		Vector3& operator*=(Vector3 const& v)
+		{
+			this->x *= v.x;
+			this->y *= v.y;
+			this->z *= v.z;
+			return *this;
+		}
+		Vector3& operator/=(Vector3 const& v)
+		{
+			this->x /= v.x;
+			this->y /= v.y;
+			this->z /= v.z;
+			return *this;
+		}
+		Vector3& operator+=(Vector3 const& v)
+		{
+			this->x += v.x;
+			this->y += v.y;
+			this->z += v.z;
+			return *this;
+		}
+		Vector3& operator-=(Vector3 const& v)
+		{
+			this->x -= v.x;
+			this->y -= v.y;
+			this->z -= v.z;
+			return *this;
+		}
+		Vector3& operator*=(float f)
+		{
+			this->x *= f;
+			this->y *= f;
+			this->z *= f;
+			return *this;
+		}
+		Vector3& operator/=(float f)
+		{
+			this->x /= f;
+			this->y /= f;
+			this->z /= f;
+			return *this;
+		}
+		Vector3& operator+=(float f)
+		{
+			this->x += f;
+			this->y += f;
+			this->z += f;
+			return *this;
+		}
+		Vector3& operator-=(float f)
+		{
+			this->x -= f;
+			this->y -= f;
+			this->z -= f;
+			return *this;
+		}
+		bool operator==(const Vector3& rhs) const
+		{
+			return x == rhs.x && y == rhs.y && z == rhs.z;
+		}
+		bool operator!=(const Vector3& rhs) const
+		{
+			return !(x == rhs.x && y == rhs.y && z == rhs.z);
+		}
+		bool operator>(const Vector3& rhs) const
+		{
+			return length() > rhs.length();
+		}
+		bool operator<(const Vector3& rhs) const
+		{
+			return length() < rhs.length();
+		}
+		float& operator[](unsigned int i)
+		{
+			return (&x)[i];
+		}
+		Vector3 operator-() const
+		{
+			return Vector3(-x, -y, -z);
+		}
+		float* Get()
+		{
+			return &x;
+		}
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
-    inline Vector3 operator*(float scalar, Vector3 const& v)
-    {
-        return Vector3(scalar * v.x, scalar * v.y, scalar * v.z);
-    }
-    inline Vector3 operator/(float scalar, Vector3 const& v)
-    {
-        return Vector3(scalar / v.x, scalar / v.y, scalar / v.z);
-    }
-    inline Vector3 operator+(float scalar, Vector3 const& v)
-    {
-        return Vector3(scalar + v.x, scalar + v.y, scalar + v.z);
-    }
-    inline Vector3 operator-(float scalar, Vector3 const& v)
-    {
-        return Vector3(scalar - v.x, scalar - v.y, scalar - v.z);
-    }
-    inline Vector3 operator*(Vector3 const& v, float scalar)
-    {
-        return Vector3(v.x * scalar, v.y * scalar, v.z * scalar);
-    }
-    inline Vector3 operator/(Vector3 const& v, float scalar)
-    {
-        return Vector3(v.x / scalar, v.y / scalar, v.z / scalar);
-    }
-    inline Vector3 operator+(Vector3 const& v, float scalar)
-    {
-        return Vector3(v.x + scalar, v.y + scalar, v.z + scalar);
-    }
-    inline Vector3 operator-(Vector3 const& v, float scalar)
-    {
-        return Vector3(v.x - scalar, v.y - scalar, v.z - scalar);
-    }
-    inline Vector3 operator*(Vector3 const& v, Vector3 const& v2)
-    {
-        return Vector3(v.x * v2.x, v.y * v2.y, v.z * v2.z);
-    }
-    inline Vector3 operator/(Vector3 const& v, Vector3 const& v2)
-    {
-        return Vector3(v.x / v2.x, v.y / v2.y, v.z / v2.z);
-    }
-    inline Vector3 operator+(Vector3 const& v, Vector3 const& v2)
-    {
-        return Vector3(v.x + v2.x, v.y + v2.y, v.z + v2.z);
-    }
-    inline Vector3 operator-(Vector3 const& v, Vector3 const& v2)
-    {
-        return Vector3(v.x - v2.x, v.y - v2.y, v.z - v2.z);
-    }
+	inline Vector3 operator*(float scalar, Vector3 const& v)
+	{
+		return Vector3(scalar * v.x, scalar * v.y, scalar * v.z);
+	}
+	inline Vector3 operator/(float scalar, Vector3 const& v)
+	{
+		return Vector3(scalar / v.x, scalar / v.y, scalar / v.z);
+	}
+	inline Vector3 operator+(float scalar, Vector3 const& v)
+	{
+		return Vector3(scalar + v.x, scalar + v.y, scalar + v.z);
+	}
+	inline Vector3 operator-(float scalar, Vector3 const& v)
+	{
+		return Vector3(scalar - v.x, scalar - v.y, scalar - v.z);
+	}
+	inline Vector3 operator*(Vector3 const& v, float scalar)
+	{
+		return Vector3(v.x * scalar, v.y * scalar, v.z * scalar);
+	}
+	inline Vector3 operator/(Vector3 const& v, float scalar)
+	{
+		return Vector3(v.x / scalar, v.y / scalar, v.z / scalar);
+	}
+	inline Vector3 operator+(Vector3 const& v, float scalar)
+	{
+		return Vector3(v.x + scalar, v.y + scalar, v.z + scalar);
+	}
+	inline Vector3 operator-(Vector3 const& v, float scalar)
+	{
+		return Vector3(v.x - scalar, v.y - scalar, v.z - scalar);
+	}
+	inline Vector3 operator*(Vector3 const& v, Vector3 const& v2)
+	{
+		return Vector3(v.x * v2.x, v.y * v2.y, v.z * v2.z);
+	}
+	inline Vector3 operator/(Vector3 const& v, Vector3 const& v2)
+	{
+		return Vector3(v.x / v2.x, v.y / v2.y, v.z / v2.z);
+	}
+	inline Vector3 operator+(Vector3 const& v, Vector3 const& v2)
+	{
+		return Vector3(v.x + v2.x, v.y + v2.y, v.z + v2.z);
+	}
+	inline Vector3 operator-(Vector3 const& v, Vector3 const& v2)
+	{
+		return Vector3(v.x - v2.x, v.y - v2.y, v.z - v2.z);
+	}
 
-    class Vector3ui : public glm::uvec3, public ISerializable
-    {
+	class Vector3ui : public glm::uvec3
+	{
 
-    public:
-        Vector3ui() = default;
-        Vector3ui(uint32 x, uint32 y, uint32 z) : glm::uvec3(x, y, z){};
-        Vector3ui(const Vector3ui& rhs) : glm::uvec3(rhs){};
-        Vector3ui(const Vector2ui& rhs) : glm::uvec3(rhs.x, rhs.y, 0.0f){};
-        Vector3ui(const glm::uvec3& rhs) : glm::uvec3(rhs.x, rhs.y, rhs.z){};
+	public:
+		Vector3ui() = default;
+		Vector3ui(uint32 x, uint32 y, uint32 z) : glm::uvec3(x, y, z){};
+		Vector3ui(const Vector3ui& rhs) : glm::uvec3(rhs){};
+		Vector3ui(const Vector2ui& rhs) : glm::uvec3(rhs.x, rhs.y, 0.0f){};
+		Vector3ui(const glm::uvec3& rhs) : glm::uvec3(rhs.x, rhs.y, rhs.z){};
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
-    class Vector4 : public glm::vec4, public ISerializable
-    {
+	class Vector4 : public glm::vec4
+	{
 
-    public:
-        Vector4() = default;
-        Vector4(float x, float y, float z, float w) : glm::vec4(x, y, z, w){};
-        Vector4(const Vector4& rhs) : glm::vec4(rhs){};
-        Vector4(const Vector3& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};
-        Vector4(const Vector2& rhs) : glm::vec4(rhs.x, rhs.y, 0.0f, 0.0f){};
-        Vector4(float f) : glm::vec4(f, f, f, f){};
-        Vector4(const glm::vec4& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
-        Vector4(const Vector3& src, float w) : glm::vec4(src, w){};
-        static Vector4 Zero;
-        static Vector4 One;
+	public:
+		Vector4() = default;
+		Vector4(float x, float y, float z, float w) : glm::vec4(x, y, z, w){};
+		Vector4(const Vector4& rhs) : glm::vec4(rhs){};
+		Vector4(const Vector3& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};
+		Vector4(const Vector2& rhs) : glm::vec4(rhs.x, rhs.y, 0.0f, 0.0f){};
+		Vector4(float f) : glm::vec4(f, f, f, f){};
+		Vector4(const glm::vec4& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
+		Vector4(const Vector3& src, float w) : glm::vec4(src, w){};
+		static Vector4 Zero;
+		static Vector4 One;
 
-        Vector4 Clamp(const Vector4& min, const Vector4& max) const;
-        Vector4 Abs() const;
-        Vector4 MinLength(const Vector4& other) const;
-        Vector4 MaxLength(const Vector4& other) const;
-        Vector4 Min(const Vector4& other) const;
-        Vector4 Max(const Vector4& other) const;
-        Vector4 Normalized() const;
-        Vector4 Project(const Vector4& normal) const;
-        Vector4 Rotate(const class Quaternion& rotation) const;
-        Vector4 Rotate(const Vector3& axis, float angle) const;
-        Vector4 Reflect(const Vector4& normal) const;
-        Vector4 Refract(const Vector4& normal, float indexOfRefraction) const;
-        Vector3 XYZ()
-        {
-            return Vector3(x, y, z);
-        }
-        Vector2 XY()
-        {
-            return Vector2(x, y);
-        }
+		Vector4 Clamp(const Vector4& min, const Vector4& max) const;
+		Vector4 Abs() const;
+		Vector4 MinLength(const Vector4& other) const;
+		Vector4 MaxLength(const Vector4& other) const;
+		Vector4 Min(const Vector4& other) const;
+		Vector4 Max(const Vector4& other) const;
+		Vector4 Normalized() const;
+		Vector4 Project(const Vector4& normal) const;
+		Vector4 Rotate(const class Quaternion& rotation) const;
+		Vector4 Rotate(const Vector3& axis, float angle) const;
+		Vector4 Reflect(const Vector4& normal) const;
+		Vector4 Refract(const Vector4& normal, float indexOfRefraction) const;
+		Vector3 XYZ()
+		{
+			return Vector3(x, y, z);
+		}
+		Vector2 XY()
+		{
+			return Vector2(x, y);
+		}
 
-        float Dot(const Vector4& other) const;
-        float Distance(const Vector4& other) const;
-        float Magnitude() const;
-        float MagnitudeSqrt() const;
-        float Max() const;
-        float Min() const;
-        float Avg() const;
-        void  Normalize();
-        bool  Equals(const Vector4& other, float epsilon) const;
+		float Dot(const Vector4& other) const;
+		float Distance(const Vector4& other) const;
+		float Magnitude() const;
+		float MagnitudeSqrt() const;
+		float Max() const;
+		float Min() const;
+		float Avg() const;
+		void  Normalize();
+		bool  Equals(const Vector4& other, float epsilon) const;
 
-        Vector4& operator*=(Vector4 const& v)
-        {
-            this->x *= v.x;
-            this->y *= v.y;
-            this->z *= v.z;
-            this->w *= v.w;
-            return *this;
-        }
-        Vector4& operator/=(Vector4 const& v)
-        {
-            this->x /= v.x;
-            this->y /= v.y;
-            this->z /= v.z;
-            this->w /= v.w;
-            return *this;
-        }
-        Vector4& operator+=(Vector4 const& v)
-        {
-            this->x += v.x;
-            this->y += v.y;
-            this->z += v.z;
-            this->w += v.w;
-            return *this;
-        }
-        Vector4& operator-=(Vector4 const& v)
-        {
-            this->x -= v.x;
-            this->y -= v.y;
-            this->z -= v.z;
-            this->w -= v.w;
-            return *this;
-        }
-        Vector4& operator*=(float f)
-        {
-            this->x *= f;
-            this->y *= f;
-            this->z *= f;
-            this->w *= f;
-            return *this;
-        }
-        Vector4& operator/=(float f)
-        {
-            this->x /= f;
-            this->y /= f;
-            this->z /= f;
-            this->w /= f;
-            return *this;
-        }
-        Vector4& operator+=(float f)
-        {
-            this->x += f;
-            this->y += f;
-            this->z += f;
-            this->w += f;
-            return *this;
-        }
-        Vector4& operator-=(float f)
-        {
-            this->x -= f;
-            this->y -= f;
-            this->z -= f;
-            this->w -= f;
-            return *this;
-        }
-        bool operator==(const Vector4& rhs) const
-        {
-            return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
-        }
-        bool operator!=(const Vector4& rhs) const
-        {
-            return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
-        }
-        bool operator>(const Vector4& rhs) const
-        {
-            return length() > rhs.length();
-        }
-        bool operator<(const Vector4& rhs) const
-        {
-            return length() < rhs.length();
-        }
-        float& operator[](unsigned int i)
-        {
-            return (&x)[i];
-        }
-        Vector4 operator-() const
-        {
-            return Vector4(-*this);
-        }
-        float* Get()
-        {
-            return &x;
-        }
+		Vector4& operator*=(Vector4 const& v)
+		{
+			this->x *= v.x;
+			this->y *= v.y;
+			this->z *= v.z;
+			this->w *= v.w;
+			return *this;
+		}
+		Vector4& operator/=(Vector4 const& v)
+		{
+			this->x /= v.x;
+			this->y /= v.y;
+			this->z /= v.z;
+			this->w /= v.w;
+			return *this;
+		}
+		Vector4& operator+=(Vector4 const& v)
+		{
+			this->x += v.x;
+			this->y += v.y;
+			this->z += v.z;
+			this->w += v.w;
+			return *this;
+		}
+		Vector4& operator-=(Vector4 const& v)
+		{
+			this->x -= v.x;
+			this->y -= v.y;
+			this->z -= v.z;
+			this->w -= v.w;
+			return *this;
+		}
+		Vector4& operator*=(float f)
+		{
+			this->x *= f;
+			this->y *= f;
+			this->z *= f;
+			this->w *= f;
+			return *this;
+		}
+		Vector4& operator/=(float f)
+		{
+			this->x /= f;
+			this->y /= f;
+			this->z /= f;
+			this->w /= f;
+			return *this;
+		}
+		Vector4& operator+=(float f)
+		{
+			this->x += f;
+			this->y += f;
+			this->z += f;
+			this->w += f;
+			return *this;
+		}
+		Vector4& operator-=(float f)
+		{
+			this->x -= f;
+			this->y -= f;
+			this->z -= f;
+			this->w -= f;
+			return *this;
+		}
+		bool operator==(const Vector4& rhs) const
+		{
+			return x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w;
+		}
+		bool operator!=(const Vector4& rhs) const
+		{
+			return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
+		}
+		bool operator>(const Vector4& rhs) const
+		{
+			return length() > rhs.length();
+		}
+		bool operator<(const Vector4& rhs) const
+		{
+			return length() < rhs.length();
+		}
+		float& operator[](unsigned int i)
+		{
+			return (&x)[i];
+		}
+		Vector4 operator-() const
+		{
+			return Vector4(-*this);
+		}
+		float* Get()
+		{
+			return &x;
+		}
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
-    inline Vector4 operator*(float scalar, Vector4 const& v)
-    {
-        return Vector4(scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w);
-    }
-    inline Vector4 operator/(float scalar, Vector4 const& v)
-    {
-        return Vector4(scalar / v.x, scalar / v.y, scalar / v.z, scalar / v.w);
-    }
-    inline Vector4 operator+(float scalar, Vector4 const& v)
-    {
-        return Vector4(scalar + v.x, scalar + v.y, scalar + v.z, scalar + v.w);
-    }
-    inline Vector4 operator-(float scalar, Vector4 const& v)
-    {
-        return Vector4(scalar - v.x, scalar - v.y, scalar - v.z, scalar - v.w);
-    }
-    inline Vector4 operator*(Vector4 const& v, float scalar)
-    {
-        return Vector4(v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar);
-    }
-    inline Vector4 operator/(Vector4 const& v, float scalar)
-    {
-        return Vector4(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);
-    }
-    inline Vector4 operator+(Vector4 const& v, float scalar)
-    {
-        return Vector4(v.x + scalar, v.y + scalar, v.z + scalar, v.w + scalar);
-    }
-    inline Vector4 operator-(Vector4 const& v, float scalar)
-    {
-        return Vector4(v.x - scalar, v.y - scalar, v.z - scalar, v.w - scalar);
-    }
-    inline Vector4 operator*(Vector4 const& v, Vector4 const& v2)
-    {
-        return Vector4(v.x * v2.x, v.y * v2.y, v.z * v2.z, v.w * v2.w);
-    }
-    inline Vector4 operator/(Vector4 const& v, Vector4 const& v2)
-    {
-        return Vector4(v.x / v2.x, v.y / v2.y, v.z / v2.z, v.w * v2.w);
-    }
-    inline Vector4 operator+(Vector4 const& v, Vector4 const& v2)
-    {
-        return Vector4(v.x + v2.x, v.y + v2.y, v.z + v2.z, v.w * v2.w);
-    }
-    inline Vector4 operator-(Vector4 const& v, Vector4 const& v2)
-    {
-        return Vector4(v.x - v2.x, v.y - v2.y, v.z - v2.z, v.w * v2.w);
-    }
+	inline Vector4 operator*(float scalar, Vector4 const& v)
+	{
+		return Vector4(scalar * v.x, scalar * v.y, scalar * v.z, scalar * v.w);
+	}
+	inline Vector4 operator/(float scalar, Vector4 const& v)
+	{
+		return Vector4(scalar / v.x, scalar / v.y, scalar / v.z, scalar / v.w);
+	}
+	inline Vector4 operator+(float scalar, Vector4 const& v)
+	{
+		return Vector4(scalar + v.x, scalar + v.y, scalar + v.z, scalar + v.w);
+	}
+	inline Vector4 operator-(float scalar, Vector4 const& v)
+	{
+		return Vector4(scalar - v.x, scalar - v.y, scalar - v.z, scalar - v.w);
+	}
+	inline Vector4 operator*(Vector4 const& v, float scalar)
+	{
+		return Vector4(v.x * scalar, v.y * scalar, v.z * scalar, v.w * scalar);
+	}
+	inline Vector4 operator/(Vector4 const& v, float scalar)
+	{
+		return Vector4(v.x / scalar, v.y / scalar, v.z / scalar, v.w / scalar);
+	}
+	inline Vector4 operator+(Vector4 const& v, float scalar)
+	{
+		return Vector4(v.x + scalar, v.y + scalar, v.z + scalar, v.w + scalar);
+	}
+	inline Vector4 operator-(Vector4 const& v, float scalar)
+	{
+		return Vector4(v.x - scalar, v.y - scalar, v.z - scalar, v.w - scalar);
+	}
+	inline Vector4 operator*(Vector4 const& v, Vector4 const& v2)
+	{
+		return Vector4(v.x * v2.x, v.y * v2.y, v.z * v2.z, v.w * v2.w);
+	}
+	inline Vector4 operator/(Vector4 const& v, Vector4 const& v2)
+	{
+		return Vector4(v.x / v2.x, v.y / v2.y, v.z / v2.z, v.w * v2.w);
+	}
+	inline Vector4 operator+(Vector4 const& v, Vector4 const& v2)
+	{
+		return Vector4(v.x + v2.x, v.y + v2.y, v.z + v2.z, v.w * v2.w);
+	}
+	inline Vector4 operator-(Vector4 const& v, Vector4 const& v2)
+	{
+		return Vector4(v.x - v2.x, v.y - v2.y, v.z - v2.z, v.w * v2.w);
+	}
 } // namespace Lina
 
 #endif

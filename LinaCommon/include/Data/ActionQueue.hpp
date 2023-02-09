@@ -26,10 +26,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 0) uniform SceneData{
-    vec4 fogColor; // w is for exponent
-	vec4 fogDistances; //x for min, y for max, zw unused.
-	vec4 ambientColor;
-	vec4 sunlightDirection; //w for sun power
-	vec4 sunlightColor;
-} LINA_SCENE;
+#pragma once
+
+#ifndef Action_HPP
+#define Action_HPP
+
+#include "Functional.hpp"
+#include "Deque.hpp"
+
+namespace Lina
+{
+	class Action
+	{
+	public:
+		Action(){};
+		~Action(){};
+		Action(Delegate<void()>&& act) : Act(act){};
+		Action(Delegate<void()>&& act, Delegate<void()>&& cb) : Act(act), OnExecuted(cb){};
+
+		Delegate<void()> Act;
+		Delegate<void()> OnExecuted;
+	};
+
+	class ActionQueue
+	{
+	public:
+		void Push(Action& act);
+		void Flush();
+
+		Deque<Action> m_queue;
+	};
+
+} // namespace Lina
+
+#endif

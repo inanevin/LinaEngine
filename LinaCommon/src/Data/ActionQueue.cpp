@@ -26,10 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 0) uniform SceneData{
-    vec4 fogColor; // w is for exponent
-	vec4 fogDistances; //x for min, y for max, zw unused.
-	vec4 ambientColor;
-	vec4 sunlightDirection; //w for sun power
-	vec4 sunlightColor;
-} LINA_SCENE;
+#include "Data/ActionQueue.hpp"
+
+namespace Lina
+{
+	void ActionQueue::Push(Action& act)
+	{
+		m_queue.push_back(act);
+	}
+
+	void ActionQueue::Flush()
+	{
+		for (auto it = m_queue.rbegin(); it != m_queue.rend(); it++)
+		{
+			auto& action = (*it);
+			action.Act();
+			if (action.OnExecuted)
+				action.OnExecuted();
+		}
+		m_queue.clear();
+	}
+
+} // namespace Lina

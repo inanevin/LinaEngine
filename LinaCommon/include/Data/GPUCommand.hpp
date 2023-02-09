@@ -26,10 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 0) uniform SceneData{
-    vec4 fogColor; // w is for exponent
-	vec4 fogDistances; //x for min, y for max, zw unused.
-	vec4 ambientColor;
-	vec4 sunlightDirection; //w for sun power
-	vec4 sunlightColor;
-} LINA_SCENE;
+#pragma once
+
+#ifndef GPUCommand_HPP
+#define GPUCommand_HPP
+
+#include "Functional.hpp"
+
+namespace Lina
+{
+	class CommandBuffer;
+
+	class GPUCommand
+	{
+	public:
+		Delegate<void(CommandBuffer& buf)> Record;
+		Delegate<void()>				   OnRecorded;
+		Delegate<void()>				   OnSubmitted;
+	};
+
+} // namespace Lina
+
+#endif

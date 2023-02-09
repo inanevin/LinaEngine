@@ -26,10 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 0) uniform SceneData{
-    vec4 fogColor; // w is for exponent
-	vec4 fogDistances; //x for min, y for max, zw unused.
-	vec4 ambientColor;
-	vec4 sunlightDirection; //w for sun power
-	vec4 sunlightColor;
-} LINA_SCENE;
+#include "Graphics/Core/CameraSystem.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
+#include "World/Core/Entity.hpp"
+
+namespace Lina
+{
+	void CameraSystem::CalculateCamera(CameraComponent& cam, float aspect)
+	{
+		Entity*			 e		= cam.GetEntity();
+		const Vector3	 pos	= e->GetPosition();
+		const Quaternion camRot = e->GetRotation();
+		cam.m_view				= Matrix4::InitLookAt(pos, pos + camRot.GetForward(), camRot.GetUp());
+		cam.m_projection		= Matrix4::Perspective(cam.fieldOfView / 2.0f, aspect, cam.zNear, cam.zFar);
+
+		const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
+		cam.m_projection = clip * cam.m_projection;
+		// m_proj[1][1] *= -1;
+	}
+} // namespace Lina

@@ -56,7 +56,7 @@ namespace Lina
 		inline void ClearData()
 		{
 			m_name				= "";
-			m_localTransform	= Matrix();
+			m_localTransform	= Matrix4();
 			m_totalVertexCenter = Vector3::Zero;
 			m_aabb				= AABB();
 			m_children.clear();
@@ -88,7 +88,7 @@ namespace Lina
 			return m_index;
 		}
 
-		inline Matrix& GetLocalTransform()
+		inline Matrix4& GetLocalTransform()
 		{
 			return m_localTransform;
 		}
@@ -102,7 +102,7 @@ namespace Lina
 		friend class ModelLoader;
 
 		AABB			   m_aabb;
-		Matrix			   m_localTransform;
+		Matrix4			   m_localTransform;
 		Vector3			   m_totalVertexCenter = Vector3::Zero;
 		String			   m_name			   = "";
 		Vector<ModelNode*> m_children;

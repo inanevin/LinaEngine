@@ -28,41 +28,75 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef UploadContext_HPP
-#define UploadContext_HPP
+#ifndef Renderer_HPP
+#define Renderer_HPP
 
-#include "Data/Queue.hpp"
-#include "Data/Mutex.hpp"
+#include "Data/Bitmask.hpp"
+#include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Platform/Vulkan/Utility/VulkanStructures.hpp"
 #include "Graphics/Platform/Vulkan/Objects/CommandPool.hpp"
 #include "Graphics/Platform/Vulkan/Objects/CommandBuffer.hpp"
-#include "Graphics/Platform/Vulkan/Objects/Fence.hpp"
-#include "Data/GPUCommand.hpp"
-#include <functional>
+#include "Graphics/Platform/Vulkan/Objects/DescriptorPool.hpp"
 
 namespace Lina
 {
-	class GfxBackend;
+	class GfxManager;
+	class Fence;
+	class Swapchain;
+	class EntityWorld;
 
-	class UploadContext
+	class Renderer
 	{
 	public:
-		UploadContext(GfxBackend* backend) : m_backend(backend){};
-		~UploadContext() = default;
+		Renderer(GfxManager* manager, Bitmask16 mask, RendererType type);
+		virtual ~Renderer();
 
-		void SubmitImmediate(GPUCommand& cmd);
-		void Create();
-		void Destroy();
-		void Poll();
-		void Transfer(GPUCommand& cmd);
+		virtual void		   SyncData(){};
+		virtual void		   Tick(){};
+		virtual void		   OnPostPresent(VulkanResult res){};
+		virtual void		   AcquiredImageInvalid(uint32 frameIndex){};
+		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) = 0;
 
-	private:
-		GfxBackend*		  m_backend = nullptr;
-		Mutex			  m_mtx;
-		Fence			  m_fence;
-		CommandPool		  m_pool;
-		CommandBuffer	  m_buffer;
-		Queue<GPUCommand> m_waitingUploads;
+		virtual Swapchain* GetSwapchain() const
+		{
+			return nullptr;
+		};
+
+		virtual EntityWorld* GetWorld() const
+		{
+			return nullptr;
+		}
+
+		inline const Bitmask16& GetMask() const
+		{
+			return m_mask;
+		}
+
+		virtual bool AcquireImage(uint32 frameIndex)
+		{
+			return true;
+		};
+
+		virtual uint32 GetAcquiredImage() const
+		{
+			return 0;
+		};
+
+		inline RendererType GetType() const
+		{
+			return m_type;
+		}
+
+	protected:
+		GfxManager*			  m_gfxManager = nullptr;
+		RendererType		  m_type	   = RendererType::None;
+		Bitmask16			  m_mask	   = 0;
+		CommandPool			  m_cmdPool;
+		DescriptorPool		  m_descriptorPool;
+		Vector<CommandBuffer> m_cmds;
+		bool				  m_initialized = false;
 	};
+
 } // namespace Lina
 
 #endif

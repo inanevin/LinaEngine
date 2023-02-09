@@ -57,12 +57,12 @@ namespace Lina
 
 	struct SystemInitializationInfo;
 	class Window;
-	class ISystem;
+	class GfxManager;
 
 	class GfxBackend : IEventListener
 	{
 	public:
-		GfxBackend(ISystem* system);
+		GfxBackend(GfxManager* system);
 		virtual ~GfxBackend();
 
 		//************************ ENGINE API ************************//
@@ -75,6 +75,11 @@ namespace Lina
 		virtual Bitmask32 GetSystemEventMask()
 		{
 			return EVS_VsyncMode;
+		}
+
+		inline Swapchain* GetSwapchain(StringID sid)
+		{
+			return m_swapchains[sid];
 		}
 
 		//************************ ENGINE API ************************//
@@ -122,7 +127,7 @@ namespace Lina
 		}
 
 	private:
-		ISystem*						   m_system			= nullptr;
+		GfxManager*						   m_gfxManager		= nullptr;
 		VkInstance_T*					   m_vkInstance		= nullptr;
 		VkDebugUtilsMessengerEXT_T*		   m_debugMessenger = nullptr;
 		VkAllocationCallbacks*			   m_allocator		= nullptr;

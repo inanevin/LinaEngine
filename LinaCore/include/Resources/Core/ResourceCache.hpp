@@ -44,6 +44,7 @@ SOFTWARE.
 namespace Lina
 {
 	class IResource;
+	class ResourceManager;
 
 	class ResourceCacheBase
 	{
@@ -51,10 +52,13 @@ namespace Lina
 		ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual IResource*						 CreateResource(StringID sid, const String& path) = 0;
-		virtual IResource*						 GetResource(StringID sid)						  = 0;
-		virtual void							 DestroyResource(StringID sid)					  = 0;
-		virtual Vector<ObjectWrapper<IResource>> GetAllResources() const						  = 0;
+		virtual IResource*		   CreateResource(StringID sid, const String& path, ResourceManager* rm) = 0;
+		virtual IResource*		   GetResource(StringID sid)											 = 0;
+		virtual void			   DestroyResource(StringID sid)										 = 0;
+		virtual Vector<IResource*> GetAllResources() const												 = 0;
+
+		void AddUserManaged(IResource* res);
+		void RemoveUserManaged(IResource* res);
 
 		inline PackageType GetPackageType() const
 		{
@@ -62,8 +66,9 @@ namespace Lina
 		}
 
 	protected:
-		PackageType	   m_packageType = PackageType::Default;
-		Vector<String> m_extensions;
+		HashMap<StringID, IResource*> m_userManagedResources;
+		PackageType					  m_packageType = PackageType::Default;
+		Vector<String>				  m_extensions;
 	};
 
 	template <typename T> class ResourceCache : public ResourceCacheBase
@@ -79,7 +84,7 @@ namespace Lina
 			Destroy();
 		}
 
-		virtual IResource* CreateResource(StringID sid, const String& path) override
+		virtual IResource* CreateResource(StringID sid, const String& path, ResourceManager* rm) override
 		{
 			LOCK_GUARD(m_mtx);
 
@@ -89,10 +94,7 @@ namespace Lina
 				return nullptr;
 			}
 
-			T* res = new (m_allocatorPool.Allocate(sizeof(T))) T();
-			res->SetPath(path);
-			res->SetSID(sid);
-			res->SetTID(GetTypeID<T>());
+			T* res			 = new (m_allocatorPool.Allocate(sizeof(T))) T(rm, false, path, sid);
 			m_resources[sid] = res;
 			return res;
 		}
@@ -117,26 +119,30 @@ namespace Lina
 
 		virtual IResource* GetResource(StringID sid) override
 		{
-			return m_resources[sid];
+			auto it = m_resources.find(sid);
+
+			if (it == m_resources.end())
+				return m_userManagedResources[sid];
+
+			return it->second;
 		}
 
-		void AddUserManaged(T* res, StringID sid)
+		Vector<IResource*> GetAllResources() const override
 		{
-			m_resources[sid]   = res;
-			res->m_userManaged = true;
-		}
-
-		void RemoveUserManaged(StringID sid)
-		{
-			m_resources.erase(m_resources.find(sid));
-		}
-
-		Vector<ObjectWrapper<IResource>> GetAllResources() const override
-		{
-			Vector<ObjectWrapper<IResource>> resources;
+			Vector<IResource*> resources;
 
 			for (auto [sid, res] : m_resources)
-				resources.push_back(ObjectWrapper<IResource>(res));
+				resources.push_back(res);
+
+			return resources;
+		}
+
+		Vector<T*> GetAllResourcesRaw() const
+		{
+			Vector<T*> resources;
+
+			for (auto [sid, res] : m_resources)
+				resources.push_back(res);
 
 			return resources;
 		}

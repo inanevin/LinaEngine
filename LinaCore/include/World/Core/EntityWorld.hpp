@@ -38,113 +38,119 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Entity;
-    class Component;
-    class CameraComponent;
-    class EntityWorld;
-    class IEventDispatcher;
+	class Entity;
+	class Component;
+	class CameraComponent;
+	class EntityWorld;
+	class IEventDispatcher;
 
-    // Actual game state
-    class EntityWorld : public ISerializable
-    {
-    public:
-        EntityWorld(IEventDispatcher* dispatcher)
-            : m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
-        {
-            m_dispatcher = dispatcher;
-            m_id         = s_worldCounter++;
-        };
+	// Actual game state
+	class EntityWorld : public ISerializable
+	{
+	public:
+		EntityWorld(IEventDispatcher* dispatcher)
+			: m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
+		{
+			m_dispatcher = dispatcher;
+			m_id		 = s_worldCounter++;
+		};
 
-        ~EntityWorld()
-        {
-            DestroyWorld();
-        }
+		~EntityWorld()
+		{
+			DestroyWorld();
+		}
 
-    public:
-        Entity*      GetEntity(uint32 id);
-        Entity*      GetEntity(const String& name);
-        Entity*      GetEntityFromSID(StringID sid);
-        Entity*      CreateEntity(const String& name);
-        void         DestroyEntity(Entity* e);
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
+	public:
+		Entity*		 GetEntity(uint32 id);
+		Entity*		 GetEntity(const String& name);
+		Entity*		 GetEntityFromSID(StringID sid);
+		Entity*		 CreateEntity(const String& name);
+		void		 DestroyEntity(Entity* e);
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
 
-        inline uint32 GetID()
-        {
-            return m_id;
-        }
+		inline uint32 GetID()
+		{
+			return m_id;
+		}
 
-        inline void SetActiveCamera(ObjectWrapper<CameraComponent>& cam)
-        {
-            m_activeCamera = cam;
-        }
+		inline void SetActiveCamera(ObjectWrapper<CameraComponent>& cam)
+		{
+			m_activeCamera = cam;
+		}
 
-        inline ObjectWrapper<CameraComponent> GetActiveCamera()
-        {
-            return ObjectWrapper<CameraComponent>(m_activeCamera);
-        }
+		inline ObjectWrapper<CameraComponent> GetActiveCamera()
+		{
+			return m_activeCamera;
+		}
 
-        // template <typename T> T** View(uint32* maxSize)
-        // {
-        //     auto* cache = Cache<T>();
-        //     *maxSize    = cache->m_components.GetNextFreeID();
-        //     return cache->m_components.GetRaw();
-        // }
+		template <typename T> Vector<ObjectWrapper<T>> GetAllComponents()
+		{
+			auto*					 cache = Cache<T>();
+			Vector<ObjectWrapper<T>> comps;
 
-        template <typename T> ObjectWrapper<T> GetComponent(Entity* e)
-        {
-            T* ptr = Cache<T>()->GetComponent(e);
-            return ObjectWrapper<T>(ptr);
-        }
+			Vector<T*> ptrs = cache->GetAllComponents();
 
-        template <typename T> ObjectWrapper<T> AddComponent(Entity* e, const T& t)
-        {
-            T* comp = Cache<T>()->AddComponent(e, t);
-            *comp   = t;
-            return ObjectWrapper<T>(comp);
-        }
+			for (auto p : ptrs)
+				comps.push_back(ObjectWrapper<T>(p));
 
-        template <typename T> ObjectWrapper<T> AddComponent(Entity* e)
-        {
-            T* ptr = Cache<T>()->AddComponent(e);
-            return ObjectWrapper<T>(ptr);
-        }
+			return comps;
+		}
 
-        template <typename T> void RemoveComponent(Entity* e)
-        {
-            Cache<T>()->DestroyComponent(e);
+		template <typename T> ObjectWrapper<T> GetComponent(Entity* e)
+		{
+			T* ptr = Cache<T>()->GetComponent(e);
+			return ObjectWrapper<T>(ptr);
+		}
 
-            if (Cache<T>()->GetComponent(e) == m_activeCamera)
-                m_activeCamera = nullptr;
-        }
+		template <typename T> ObjectWrapper<T> AddComponent(Entity* e, const T& t)
+		{
+			T* comp = Cache<T>()->AddComponent(e, t);
+			*comp	= t;
+			return ObjectWrapper<T>(comp);
+		}
 
-    private:
-        template <typename T> ComponentCache<T>* Cache()
-        {
-            const TypeID tid = GetTypeID<T>();
+		template <typename T> ObjectWrapper<T> AddComponent(Entity* e)
+		{
+			T* ptr = Cache<T>()->AddComponent(e);
+			return ObjectWrapper<T>(ptr);
+		}
 
-            if (m_componentCaches.find(tid) == m_componentCaches.end())
-                m_componentCaches[tid] = new ComponentCache<T>(m_dispatcher);
+		template <typename T> void RemoveComponent(Entity* e)
+		{
+			Cache<T>()->DestroyComponent(e);
 
-            ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
-            return cache;
-        }
+			if (Cache<T>()->GetComponent(e) == m_activeCamera)
+				m_activeCamera.Reset();
+		}
 
-    private:
-        void CopyFrom(EntityWorld& world);
-        void DestroyWorld();
-        void DestroyEntityData(Entity* e);
+	private:
+		template <typename T> ComponentCache<T>* Cache()
+		{
+			const TypeID tid = GetTypeID<T>();
 
-    private:
-        static uint32 s_worldCounter;
+			if (m_componentCaches.find(tid) == m_componentCaches.end())
+				m_componentCaches[tid] = new ComponentCache<T>(this, m_dispatcher);
 
-        IEventDispatcher*                    m_dispatcher = nullptr;
-        MemoryAllocatorPool                  m_allocatorPool;
-        HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
-        IDList<Entity*>                      m_entities;
-        ObjectWrapper<CameraComponent>           m_activeCamera;
-        uint32                               m_id = 0;
-    };
+			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
+			return cache;
+		}
+
+	private:
+		void CopyFrom(EntityWorld& world);
+		void DestroyWorld();
+		void DestroyEntityData(Entity* e);
+
+	private:
+		static uint32 s_worldCounter;
+
+		IEventDispatcher*					 m_dispatcher = nullptr;
+		MemoryAllocatorPool					 m_allocatorPool;
+		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
+		IDList<Entity*>						 m_entities;
+		ObjectWrapper<CameraComponent>		 m_activeCamera;
+		uint32								 m_id = 0;
+	};
 
 } // namespace Lina
 

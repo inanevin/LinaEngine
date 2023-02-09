@@ -84,11 +84,6 @@ namespace Lina
 		bool				 valid		= false;
 	};
 
-	struct GPUObjectData
-	{
-		Matrix modelMatrix = Matrix::Identity();
-	};
-
 	struct TestData
 	{
 		uint32 id = 0;
@@ -112,7 +107,7 @@ namespace Lina
 	{
 		RenderableType			 type		  = RenderableType::RenderableDecal;
 		Bitmask16				 passMask	  = DrawPassMask::Opaque;
-		Matrix					 modelMatrix  = Matrix::Identity();
+		Matrix4					 modelMatrix  = Matrix4::Identity();
 		Vector3					 position	  = Vector3();
 		AABB					 aabb		  = AABB();
 		uint32					 entityID	  = 0;
@@ -131,11 +126,29 @@ namespace Lina
 		Vector4 sunlightColor;
 	};
 
+	struct GPUGlobalData
+	{
+		Vector4 screenSizeMousePos;
+		Vector2 deltaElapsed;
+	};
+
+	struct GPUDebugData
+	{
+		int visualizeDepth;
+	};
+
+	struct GPUObjectData
+	{
+		Matrix4 modelMatrix = Matrix4::Identity();
+	};
+
 	struct GPUViewData
 	{
-		Matrix view;
-		Matrix proj;
-		Matrix viewProj;
+		Matrix4 view;
+		Matrix4 proj;
+		Matrix4 viewProj;
+		Vector4 camPos;
+		Vector2 camNearFar;
 	};
 
 	struct LightData

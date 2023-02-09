@@ -37,6 +37,7 @@ set (LINACOMMON_SOURCES
 	# Data
 	src/Data/Streams.cpp
 	src/Data/SyncQueue.cpp
+	src/Data/ActionQueue.cpp
 	src/Data/DelegateQueue.cpp
 
 	# Events
@@ -112,7 +113,8 @@ set(LINACOMMON_HEADERS
 
 	# Data
 	include/Data/Functional.hpp
-	include/Data/Action.hpp
+	include/Data/ActionQueue.hpp
+	include/Data/GPUCommand.hpp
 	include/Data/SimpleArray.hpp
 	include/Data/Array.hpp
 	include/Data/Vector.hpp

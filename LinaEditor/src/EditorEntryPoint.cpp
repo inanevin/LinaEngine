@@ -49,7 +49,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		.windowWidth	  = 1440,
 		.windowHeight	  = 960,
 		.windowStyle	  = WindowStyle::Windowed,
-		.preferredGPUType = PreferredGPUType::Integrated,
+		.preferredGPUType = PreferredGPUType::Discrete,
 		.vsyncMode		  = VsyncMode::None,
 	};
 

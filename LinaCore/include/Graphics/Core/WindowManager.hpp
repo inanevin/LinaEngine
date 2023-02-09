@@ -46,6 +46,7 @@ namespace Lina
 	};
 
 	class Window;
+	class GfxManager;
 
 	class WindowManager final : public ISubsystem
 	{
@@ -79,6 +80,7 @@ namespace Lina
 		}
 
 	private:
+		GfxManager*				   m_gfxManager = nullptr;
 		HashMap<StringID, Window*> m_windows;
 		Vector<StringID>		   m_drawOrders;
 		Vector<MonitorInfo>		   m_monitors;

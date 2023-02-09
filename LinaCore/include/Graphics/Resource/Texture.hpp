@@ -49,8 +49,8 @@ namespace Lina
 		};
 
 	public:
-		Texture() : m_sampler({}){};
-		Texture(const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels = 4);
+		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : m_sampler({}), IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
+		Texture(ResourceManager* rm, StringID sid, const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels = 4);
 		virtual ~Texture();
 
 		/// <summary>

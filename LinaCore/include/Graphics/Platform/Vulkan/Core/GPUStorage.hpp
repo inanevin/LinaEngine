@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Data/Mutex.hpp"
 
 struct VkImage_T;
+struct VkImageView_T;
 struct VkBuffer_T;
 struct VkShaderModule_T;
 
@@ -90,20 +91,25 @@ namespace Lina
 		virtual ~GPUStorage() = default;
 		/************************ ENGINE API ************************/
 
-		uint32 GenerateMaterial(Material* mat, uint32 existingHandle);
-		void   UpdateMaterialProperties(Material* mat);
-		void   UpdateMaterialTextures(Material* mat, const Vector<uint32>& dirtyTextures);
-		void   DestroyMaterial(uint32 handle);
+		uint32		   GenerateMaterial(Material* mat, uint32 existingHandle);
+		void		   UpdateMaterialProperties(Material* mat);
+		void		   UpdateMaterialTextures(Material* mat, const Vector<uint32>& dirtyTextures);
+		DescriptorSet& GetDescriptor(Material* mat);
+		void		   DestroyMaterial(uint32 handle);
 
-		uint32 GeneratePipeline(Shader* shader);
-		void   DestroyPipeline(uint32 handle);
+		uint32	  GeneratePipeline(Shader* shader);
+		Pipeline& GetPipeline(Shader* shader);
+		Pipeline& GetPipeline(Material* material);
+		void	  DestroyPipeline(uint32 handle);
 
-		uint32 GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags);
-		uint32 GenerateImageAndUpload(Texture* txt);
-		void   DestroyImage(uint32 handle);
+		uint32		   GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags);
+		uint32		   GenerateImageAndUpload(Texture* txt);
+		void		   DestroyImage(uint32 handle);
+		VkImage_T*	   GetImage(Texture* txt);
+		VkImageView_T* GetImageView(Texture* txt);
 
 	private:
-		void CopyImage(VkImage_T* img, VkBuffer_T* buf, const CommandBuffer& cmd, Texture* txt, uint32 baseMip);
+		void CopyImage(uint32 offset, VkImage_T* img, VkBuffer_T* buf, const CommandBuffer& cmd, const Extent3D& ext, uint32 baseMip, uint32 totalMipLevels);
 
 	private:
 		GfxManager*				  m_gfxManager = nullptr;

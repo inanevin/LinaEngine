@@ -58,24 +58,22 @@ namespace Lina
 
 		// Leave already loaded resources that will still be used by next level.
 		// Load others / unload unused.
-		Vector<ResourceIdentifier>		 resourcesToUnload;
-		Vector<ResourceIdentifier>		 resourcesToLoad;
-		Vector<ResourceIdentifier>		 levelResourcesToLoad = m_currentLevel->GetUsedResources();
-		Vector<ObjectWrapper<IResource>> allResources		  = rm->GetAllResources();
+		Vector<ResourceIdentifier> resourcesToUnload;
+		Vector<ResourceIdentifier> resourcesToLoad;
+		Vector<ResourceIdentifier> levelResourcesToLoad = m_currentLevel->GetUsedResources();
+		Vector<IResource*>		   allResources			= rm->GetAllResources();
 
-		for (auto& resWrapper : allResources)
+		for (auto& res : allResources)
 		{
-			auto& res = resWrapper.Get();
-
 			// Never touch core resources, they are loaded once & alive until program termination.
-			if (rm->IsCoreResource(res.GetSID()) || res.IsUserManaged())
+			if (rm->IsCoreResource(res->GetSID()) || res->IsUserManaged())
 				continue;
 
-			auto it = linatl::find_if(levelResourcesToLoad.begin(), levelResourcesToLoad.end(), [&](const ResourceIdentifier& id) { return id.sid == res.GetSID(); });
+			auto it = linatl::find_if(levelResourcesToLoad.begin(), levelResourcesToLoad.end(), [&](const ResourceIdentifier& id) { return id.sid == res->GetSID(); });
 
 			// We'll unload if not gon be used.
 			if (it == levelResourcesToLoad.end())
-				resourcesToUnload.push_back(ResourceIdentifier{res.GetPath(), res.GetTID(), res.GetSID()});
+				resourcesToUnload.push_back(ResourceIdentifier{res->GetPath(), res->GetTID(), res->GetSID()});
 			else
 			{
 				// Already exists, don't load again.

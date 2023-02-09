@@ -46,7 +46,7 @@ namespace Lina
 	class Model : public IResource
 	{
 	public:
-		Model() = default;
+		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Model>()){};
 		virtual ~Model();
 
 		Entity* AddToWorld(EntityWorld* w);

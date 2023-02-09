@@ -61,7 +61,7 @@ namespace Lina
 			break;
 		}
 		case MaterialPropertyType::Mat4: {
-			p = new MaterialProperty<Matrix>();
+			p = new MaterialProperty<Matrix4>();
 			break;
 		}
 		case MaterialPropertyType::Texture: {

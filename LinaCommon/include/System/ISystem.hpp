@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Core/Common.hpp"
 #include "Data/HashMap.hpp"
+#include "JobSystem/JobSystem.hpp"
 
 namespace Lina
 {
@@ -48,23 +49,22 @@ namespace Lina
 		ISystem()		   = default;
 		virtual ~ISystem() = default;
 
-		void		AddSubsystem(ISubsystem* sub);
-		void		RemoveSubsystem(ISubsystem* sub);
-		void		AddPlugin(IPlugin* plugin);
-		void		RemovePlugin(IPlugin* plugin);
-		void		SetPhysicsUpdateRate(float rate);
-		ISubsystem* GetSubsystem(SubsystemType type);
-
-		inline void SetTimescale(float ts)
-		{
-			m_gameTimescale = ts;
-		}
-
+		void		 AddSubsystem(ISubsystem* sub);
+		void		 RemoveSubsystem(ISubsystem* sub);
+		void		 AddPlugin(IPlugin* plugin);
+		void		 RemovePlugin(IPlugin* plugin);
+		void		 SetPhysicsUpdateRate(float rate);
+		ISubsystem*	 GetSubsystem(SubsystemType type);
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
 		virtual void Shutdown()											  = 0;
 		virtual void PreTick()											  = 0;
 		virtual void Tick()												  = 0;
 		virtual void Quit()												  = 0;
+
+		inline void SetTimescale(float ts)
+		{
+			m_gameTimescale = ts;
+		}
 
 		template <typename T> T* GetSubsystem(SubsystemType type)
 		{
@@ -76,7 +76,18 @@ namespace Lina
 			return m_initInfo;
 		}
 
+		inline Executor* GetMainExecutor()
+		{
+			return &m_mainExecutor;
+		}
+
+		inline float GetDelta()
+		{
+			return m_delta;
+		}
+
 	protected:
+		Executor							m_mainExecutor;
 		SystemInitializationInfo			m_initInfo;
 		HashMap<SubsystemType, ISubsystem*> m_subsystems;
 		Vector<IPlugin*>					m_plugins;
@@ -88,6 +99,7 @@ namespace Lina
 		int									m_fps				 = 0;
 		int									m_frames			 = 0;
 		float								m_fpsCounter		 = 0.0f;
+		float								m_delta				 = 0.0f;
 	};
 } // namespace Lina
 

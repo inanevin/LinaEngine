@@ -33,31 +33,47 @@ SOFTWARE.
 
 namespace Lina
 {
-    template <typename T> class ObjectWrapper
-    {
-    public:
-        ObjectWrapper() : m_ptr(nullptr){};
-        ObjectWrapper(T* ptr) : m_ptr(ptr){};
-        ~ObjectWrapper() = default;
+	template <typename T> class ObjectWrapper
+	{
+	public:
+		ObjectWrapper() : m_ptr(nullptr){};
+		ObjectWrapper(T* ptr) : m_ptr(ptr){};
+		~ObjectWrapper() = default;
 
-        T& Get()
-        {
-            return *m_ptr;
-        }
+		inline bool operator==(const ObjectWrapper<T>& rhs)
+		{
+			return m_ptr == rhs.m_ptr;
+		}
 
-        void Reset()
-        {
-            m_ptr = nullptr;
-        }
+		T& Get()
+		{
+			return *m_ptr;
+		}
 
-        bool IsValid()
-        {
-            return m_ptr != nullptr;
-        }
-        
-    private:
-        T* m_ptr = nullptr;
-    };
+		template <typename U> U& GetAs()
+		{
+			return *static_cast<U*>(m_ptr);
+		}
+
+		template <typename U> ObjectWrapper<U> GetWrapperAs()
+		{
+			ObjectWrapper<U> wrp = ObjectWrapper<U>(static_cast<U*>(m_ptr));
+			return wrp;
+		}
+
+		void Reset()
+		{
+			m_ptr = nullptr;
+		}
+
+		bool IsValid()
+		{
+			return m_ptr != nullptr;
+		}
+
+	private:
+		T* m_ptr = nullptr;
+	};
 } // namespace Lina
 
 #endif

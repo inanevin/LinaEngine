@@ -42,9 +42,9 @@ SOFTWARE.
 namespace Lina
 {
 
-	Matrix AssimpToLinaMatrix(const aiMatrix4x4& aiMat)
+	Matrix4 AssimpToLinaMatrix(const aiMatrix4x4& aiMat)
 	{
-		Matrix mat;
+		Matrix4 mat;
 		mat[0][0] = aiMat.a1;
 		mat[0][1] = aiMat.b1;
 		mat[0][2] = aiMat.c1;

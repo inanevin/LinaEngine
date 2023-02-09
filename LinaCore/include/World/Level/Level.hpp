@@ -45,7 +45,7 @@ namespace Lina
     class Level : public IResource
     {
     public:
-        Level(){};
+        Level(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Level>()){};
         virtual ~Level();
 
         void Install(IEventDispatcher* dispatcher);

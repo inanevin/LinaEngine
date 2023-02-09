@@ -47,11 +47,6 @@ namespace Lina
 		RenderableComponent()		   = default;
 		virtual ~RenderableComponent() = default;
 
-		inline uint32 GetRenderableID()
-		{
-			return _renderableID;
-		}
-
 		virtual Bitmask16 GetComponentMask() override
 		{
 			return ComponentMask::Renderable;
@@ -63,10 +58,6 @@ namespace Lina
 		virtual Vector<MeshMaterialPair> GetMeshMaterialPairs(ResourceManager* rm) = 0;
 		virtual Bitmask16				 GetDrawPasses(ResourceManager* rm)		   = 0;
 		virtual RenderableType			 GetType()								   = 0;
-
-	protected:
-		// Runtime
-		uint32 _renderableID = 0;
 	};
 
 } // namespace Lina

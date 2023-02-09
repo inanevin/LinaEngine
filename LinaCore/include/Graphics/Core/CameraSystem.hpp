@@ -26,10 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 0) uniform SceneData{
-    vec4 fogColor; // w is for exponent
-	vec4 fogDistances; //x for min, y for max, zw unused.
-	vec4 ambientColor;
-	vec4 sunlightDirection; //w for sun power
-	vec4 sunlightColor;
-} LINA_SCENE;
+#pragma once
+
+#ifndef CameraSystem_HPP
+#define CameraSystem_HPP
+
+#include "Math/Matrix.hpp"
+#include "Math/Vector.hpp"
+
+namespace Lina
+{
+	class CameraComponent;
+
+	class CameraSystem
+	{
+	public:
+		CameraSystem()	= default;
+		~CameraSystem() = default;
+
+		void CalculateCamera(CameraComponent& cam, float aspect);
+	};
+} // namespace Lina
+
+#endif

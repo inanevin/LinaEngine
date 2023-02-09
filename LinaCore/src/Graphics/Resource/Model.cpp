@@ -46,7 +46,7 @@ namespace Lina
 	{
 		// Populate metadata
 		m_metadata.GetBool("CalculateTangent"_hs, false);
-		m_metadata.GetBool("FlipUVs"_hs, true);
+		m_metadata.GetBool("FlipUVs"_hs, false);
 		m_metadata.GetBool("Triangulate"_hs, true);
 		m_metadata.GetBool("SmoothNormals"_hs, false);
 		m_metadata.GetBool("FlipWinding"_hs, false);
@@ -118,7 +118,7 @@ namespace Lina
 				const uint32 slot = static_cast<uint32>(mesh->GetMaterialSlot());
 
 				// Assign default material for now.
-				comp.Get().materials[slot] = "Resources/Core/Materials/StandardLit.linamat"_hs;
+				comp.Get().materials[slot] = "Resources/Core/Materials/LitStandard.linamat"_hs;
 			}
 		}
 

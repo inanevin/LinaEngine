@@ -76,7 +76,7 @@ namespace Lina
 
 			// Assign default black.
 			if (matPropTxt.GetValue() == 0)
-				matPropTxt.SetValue("Resources/Core/Textures/DummyBlack_32.png"_hs);
+				matPropTxt.SetValue("Resources/Core/Textures/LogoWithText.png"_hs);
 
 			m_textures.push_back(matPropTxt);
 		}
@@ -251,10 +251,14 @@ namespace Lina
 	uint32 Material::GetPropertyTypeAlignment(MaterialPropertyType type)
 	{
 		if (type == MaterialPropertyType::Vector4 || type == MaterialPropertyType::Mat4)
-			return static_cast<uint32>(16);
-		else if (type == MaterialPropertyType::Vector2 || type == MaterialPropertyType::Vector2i)
-			return static_cast<uint32>(8);
-		return static_cast<uint32>(4);
+			return static_cast<uint32>(sizeof(float) * 4);
+		else if (type == MaterialPropertyType::Vector2)
+			return static_cast<uint32>(sizeof(float) * 2);
+		else if (type == MaterialPropertyType::Vector2i)
+			return static_cast<uint32>(sizeof(int) * 2);
+		else if (type == MaterialPropertyType::Int)
+			return static_cast<uint32>(sizeof(int));
+		return static_cast<uint32>(sizeof(float));
 	}
 
 	uint32 Material::GetPropertiesTotalAlignedSize()

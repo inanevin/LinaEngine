@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 1) uniform ViewData
+layout(std140, set = 1, binding = 1) uniform ViewData
 {
 	mat4 view;
 	mat4 proj;

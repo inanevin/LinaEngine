@@ -51,8 +51,8 @@ namespace Lina
 		void		   AddChild(Entity* e);
 		void		   RemoveChild(Entity* e);
 		void		   RemoveFromParent();
-		void		   SetTransformation(Matrix& mat, bool omitScale = false);
-		void		   SetLocalTransformation(Matrix& mat, bool omitScale = false);
+		void		   SetTransformation(Matrix4& mat, bool omitScale = false);
+		void		   SetLocalTransformation(Matrix4& mat, bool omitScale = false);
 		void		   AddRotation(const Vector3& angles);
 		void		   AddLocalRotation(const Vector3& angles);
 		void		   AddPosition(const Vector3& loc);
@@ -93,11 +93,11 @@ namespace Lina
 			return m_sid;
 		}
 
-		Matrix ToMatrix() const
+		Matrix4 ToMatrix() const
 		{
 			return m_transform.ToMatrix();
 		}
-		Matrix ToLocalMatrix() const
+		Matrix4 ToLocalMatrix() const
 		{
 			return m_transform.ToLocalMatrix();
 		}

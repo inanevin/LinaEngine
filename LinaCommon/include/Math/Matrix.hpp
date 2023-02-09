@@ -31,56 +31,55 @@ SOFTWARE.
 #ifndef Matrix_HPP
 #define Matrix_HPP
 
-#include "Serialization/ISerializable.hpp"
-
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/matrix.hpp>
 
 namespace Lina
 {
-    class Transformation;
-    class Quaternion;
-    class Vector3;
-    class Vector4;
+	class Transformation;
+	class Quaternion;
+	class Vector3;
+	class Vector4;
+	class IStream;
+	class OStream;
 
-    class Matrix : public glm::mat4, public ISerializable
-    {
-    public:
-        Matrix(){};
-        Matrix(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset);
+	class Matrix4 : public glm::mat4
+	{
+	public:
+		Matrix4(){};
+		Matrix4(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset);
 
-        Matrix(glm::mat4 mat) : glm::mat4(mat){};
+		Matrix4(glm::mat4 mat) : glm::mat4(mat){};
 
-        static Matrix Identity();
-        static Matrix Translate(const Vector3& amt);
-        static Matrix Scale(const Vector3& amt);
-        static Matrix Scale(float amt);
-        static Matrix Orthographic(float left, float right, float bottom, float top, float near, float far);
-        static Matrix Perspective(float halfFov, float aspect, float nearZ, float farZ);
-        static Matrix TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale);
-        static Matrix InitRotationFromVectors(const Vector3&, const Vector3&, const Vector3&);
-        static Matrix InitRotationFromDirection(const Vector3& forward, const Vector3& up);
-        static Matrix InitRotation(const Quaternion& q);
-        static Matrix InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up);
-        float         Determinant4x4() const;
-        Matrix        ToNormalMatrix() const;
-        Matrix        Transpose() const;
-        Matrix        Inverse() const;
-        Matrix        ApplyScale(const Vector3& scale);
+		static Matrix4 Identity();
+		static Matrix4 Translate(const Vector3& amt);
+		static Matrix4 Scale(const Vector3& amt);
+		static Matrix4 Scale(float amt);
+		static Matrix4 Orthographic(float left, float right, float bottom, float top, float near, float far);
+		static Matrix4 Perspective(float halfFov, float aspect, float nearZ, float farZ);
+		static Matrix4 TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale);
+		static Matrix4 InitRotationFromVectors(const Vector3&, const Vector3&, const Vector3&);
+		static Matrix4 InitRotationFromDirection(const Vector3& forward, const Vector3& up);
+		static Matrix4 InitRotation(const Quaternion& q);
+		static Matrix4 InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up);
+		float		   Determinant4x4() const;
+		Matrix4		   ToNormalMatrix() const;
+		Matrix4		   Transpose() const;
+		Matrix4		   Inverse() const;
+		Matrix4		   ApplyScale(const Vector3& scale);
 
-        Vector3 GetScale();
-        Vector3 GetTranslation();
+		Vector3 GetScale();
+		Vector3 GetTranslation();
 
-        void        Decompose(Vector3& position, Quaternion& rotation, Vector3& scale);
-        static bool Decompose(const glm::mat4& transform, glm::vec3& outTranslation, glm::vec3& outRotation, glm::vec3& outScale);
+		void		Decompose(Vector3& position, Quaternion& rotation, Vector3& scale);
+		static bool Decompose(const glm::mat4& transform, glm::vec3& outTranslation, glm::vec3& outRotation, glm::vec3& outScale);
 
-        Transformation ToTransform();
+		Transformation ToTransform();
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
 } // namespace Lina
 #endif

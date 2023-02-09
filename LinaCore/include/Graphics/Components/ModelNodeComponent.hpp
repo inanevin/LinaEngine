@@ -45,6 +45,11 @@ namespace Lina
 		ModelNodeComponent(){};
 		virtual ~ModelNodeComponent() = default;
 
+		virtual TypeID GetComponentType() override
+		{
+			return GetTypeID<ModelNodeComponent>();
+		}
+
 		virtual void					 SaveToStream(OStream& stream) override;
 		virtual void					 LoadFromStream(IStream& stream) override;
 		virtual AABB&					 GetAABB(ResourceManager* rm) override;

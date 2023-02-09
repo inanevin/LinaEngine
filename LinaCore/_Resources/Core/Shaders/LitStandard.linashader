@@ -76,8 +76,9 @@ LINA_TEXTURE0 t;
 void main()
 {
 	//return red
-	//outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
-	outFragColor = texture(t, inTexCoords);
+	outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
+	//outFragColor = texture(t, inTexCoords);
+	
 }
 
 LINA_END

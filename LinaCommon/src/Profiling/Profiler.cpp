@@ -135,7 +135,7 @@ namespace Lina
             m_totalFrameTimeNS += m_frames.back().durationNS;
         }
 
-        Frame f;
+        ProfilerFrame f;
         f.startTime = cpuTimeNow;
         m_frames.emplace(f);
     }
@@ -265,7 +265,7 @@ namespace Lina
         }
     }
 
-    void Profiler::CleanupFrame(Frame& frame)
+    void Profiler::CleanupFrame(ProfilerFrame& frame)
     {
         for (auto& [threadName, threadInfo] : frame.threadBranches)
         {

@@ -64,16 +64,15 @@ namespace Lina
 		{
 			if (!FileSystem::FileExists("Resources/Editor/Metacache"))
 				FileSystem::CreateFolderInPath("Resources/Editor/Metacache");
-				
+
 			auto loadFunc = [this](ResourceIdentifier ident) {
 				auto&	   cache = m_caches[ident.tid];
-				IResource* res	 = cache->CreateResource(ident.sid, ident.path);
+				IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
 
 				const String metacachePath = GetMetacachePath(ident.path, ident.sid);
 				if (FileSystem::FileExists(metacachePath))
 				{
-					IStream input		   = Serialization::LoadFromFile(metacachePath.c_str());
-					res->m_resourceManager = this;
+					IStream input = Serialization::LoadFromFile(metacachePath.c_str());
 					res->LoadFromStream(input);
 					res->Upload();
 					input.Destroy();
@@ -149,10 +148,9 @@ namespace Lina
 				int totalResourcesSize = static_cast<int>(resourcesToLoad.size());
 
 				auto loadFunc = [this](IStream stream, ResourceIdentifier ident) {
-					IStream	   load		   = stream;
-					auto&	   cache	   = m_caches.at(ident.tid);
-					IResource* res		   = cache->CreateResource(ident.sid, ident.path);
-					res->m_resourceManager = this;
+					IStream	   load	 = stream;
+					auto&	   cache = m_caches.at(ident.tid);
+					IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
 					res->LoadFromStream(load);
 					res->Upload();
 					res->Flush();
@@ -205,6 +203,11 @@ namespace Lina
 		// useful for resources depending on the loading of others, such as materials --> shaders.
 		for (auto& ident : identifiers)
 			m_caches[ident.tid]->GetResource(ident.sid)->BatchLoaded();
+
+		Event					   ev;
+		Vector<ResourceIdentifier> idents = identifiers;
+		ev.pParams[0]					  = &idents;
+		m_system->DispatchSystemEvent(EVS_ResourceBatchLoaded, ev);
 	}
 
 	void ResourceManager::UnloadResources(const Vector<ResourceIdentifier>& identifiers)
@@ -222,9 +225,9 @@ namespace Lina
 		return it != m_coreResources.end();
 	}
 
-	Vector<ObjectWrapper<IResource>> ResourceManager::GetAllResources()
+	Vector<IResource*> ResourceManager::GetAllResources()
 	{
-		Vector<ObjectWrapper<IResource>> resources;
+		Vector<IResource*> resources;
 		for (auto [tid, cache] : m_caches)
 		{
 			auto cacheResources = cache->GetAllResources();
@@ -238,6 +241,16 @@ namespace Lina
 		const String filename  = FileSystem::RemoveExtensionFromPath(FileSystem::GetFilenameAndExtensionFromPath(resourcePath));
 		const String finalName = "Resources/Editor/Metacache/" + filename + "_" + TO_STRING(sid) + ".linametadata";
 		return finalName;
+	}
+
+	void ResourceManager::AddUserManaged(IResource* res)
+	{
+		m_caches.at(res->GetTID())->AddUserManaged(res);
+	}
+
+	void ResourceManager::RemoveUserManaged(IResource* res)
+	{
+		m_caches.at(res->GetTID())->RemoveUserManaged(res);
 	}
 
 } // namespace Lina

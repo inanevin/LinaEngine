@@ -29,11 +29,14 @@ SOFTWARE.
 #include "Graphics/Platform/Vulkan/Utility/VulkanUtility.hpp"
 #include "Graphics/Data/Vertex.hpp"
 #include "Graphics/Platform/Vulkan/Core/GfxBackend.hpp"
+#include "Graphics/Platform/Vulkan/Core/GfxManager.hpp"
 #include "Graphics/Platform/Vulkan/Objects/RenderPass.hpp"
 #include "Graphics/Platform/Vulkan/Objects/Framebuffer.hpp"
 #include "Graphics/Platform/Vulkan/Objects/Sampler.hpp"
 #include "Graphics/Platform/Vulkan/Objects/Image.hpp"
 #include "Graphics/Resource/Texture.hpp"
+#include "System/ISystem.hpp"
+#include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina
@@ -43,6 +46,7 @@ namespace Lina
 	VmaAllocator_T*			   VulkanUtility::s_vma					   = nullptr;
 	PFN_vkCmdBeginRenderingKHR VulkanUtility::s_vkCmdBeginRenderingKHR = nullptr;
 	PFN_vkCmdEndRenderingKHR   VulkanUtility::s_vkCmdEndRenderingKHR   = nullptr;
+	GfxManager*				   VulkanUtility::s_gfxManager			   = nullptr;
 
 	VkAttachmentDescription VulkanUtility::CreateAttachmentDescription(const Attachment& att)
 	{
@@ -162,7 +166,7 @@ namespace Lina
 		return info;
 	}
 
-	Texture* VulkanUtility::CreateDefaultPassTextureColor(Format format, int width, int height)
+	Texture* VulkanUtility::CreateDefaultPassTextureColor(StringID sid, Format format, int width, int height)
 	{
 		Extent3D ext = Extent3D{.depth = 1};
 		ext.width	 = width;
@@ -183,12 +187,12 @@ namespace Lina
 
 		// Color texture
 		auto	 sd	 = DEFAULT_SAMPLER_DATA;
-		Texture* txt = new Texture(ext, sd, format, ImageTiling::Optimal);
+		Texture* txt = new Texture(s_gfxManager->GetSystem()->GetSubsystem<ResourceManager>(SubsystemType::ResourceManager), sid, ext, sd, format, ImageTiling::Optimal);
 		txt->GenerateImage(GetImageAspectFlags(ImageAspectFlags::AspectColor), GetImageUsage(ImageUsageFlags::ColorAttachment) | GetImageUsage(ImageUsageFlags::Sampled));
 		return txt;
 	}
 
-	Texture* VulkanUtility::CreateDefaultPassTextureDepth(int width, int height)
+	Texture* VulkanUtility::CreateDefaultPassTextureDepth(StringID sid, int width, int height)
 	{
 		Extent3D ext = Extent3D{.depth = 1};
 		ext.width	 = width;
@@ -209,7 +213,7 @@ namespace Lina
 
 		// Texture
 		auto	 sd	 = DEFAULT_SAMPLER_DATA;
-		Texture* txt = new Texture(ext, sd, DEFAULT_DEPTH_FORMAT, ImageTiling::Optimal);
+		Texture* txt = new Texture(s_gfxManager->GetSystem()->GetSubsystem<ResourceManager>(SubsystemType::ResourceManager), sid, ext, sd, DEFAULT_DEPTH_FORMAT, ImageTiling::Optimal);
 		txt->GenerateImage(GetImageAspectFlags(ImageAspectFlags::AspectDepth), GetImageUsage(ImageUsageFlags::DepthStencilAttachment));
 		return txt;
 	}
@@ -637,7 +641,7 @@ namespace Lina
 			.clearValue			= GetClearValue(inf.clearValue),
 		};
 		return info;
-	} // namespace Lina::Graphics
+	} 
 
 	VkRenderingInfo VulkanUtility::GetRenderingInfo(const RenderingInfo& inf)
 	{

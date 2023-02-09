@@ -36,39 +36,39 @@ SOFTWARE.
 
 namespace Lina
 {
-    class ResourceReflectionUtility
-    {
-    public:
-        template <typename T> static inline void* CreateMock()
-        {
-            T* ptr = new T();
-            return static_cast<void*>(ptr);
-        }
+	class ResourceReflectionUtility
+	{
+	public:
+		template <typename T> static inline void* CreateMock()
+		{
+			T* ptr = new T(nullptr, false, "", 0);
+			return static_cast<void*>(ptr);
+		}
 
-        template <typename T> static inline void DestroyMock(void* ptr)
-        {
-            T* tptr = static_cast<T*>(ptr);
-            delete tptr;
-        }
-    };
+		template <typename T> static inline void DestroyMock(void* ptr)
+		{
+			T* tptr = static_cast<T*>(ptr);
+			delete tptr;
+		}
+	};
 #define LINA_REGISTER_RESOURCE_TYPE(ClassName, ChunkCount, ExtensionVector, ResourcePackage)                                                                                                                                                                       \
-    class ClassName;                                                                                                                                                                                                                                               \
-    class ClassName##_LinaReflected                                                                                                                                                                                                                                \
-    {                                                                                                                                                                                                                                                              \
-    public:                                                                                                                                                                                                                                                        \
-        ClassName##_LinaReflected()                                                                                                                                                                                                                                \
-        {                                                                                                                                                                                                                                                          \
-            Lina::ResourceManager::Get().RegisterResourceType<ClassName>(ChunkCount, ExtensionVector, ResourcePackage);                                                                                                                                            \
-            Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateMock"), std::bind(&Lina::ResourceReflectionUtility::CreateMock<ClassName>));                                                                                 \
-            Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void*)>(Lina::TO_SIDC("DestroyMock"), std::bind(&Lina::ResourceReflectionUtility::DestroyMock<ClassName>, std::placeholders::_1));                                                    \
-        }                                                                                                                                                                                                                                                          \
+	class ClassName;                                                                                                                                                                                                                                               \
+	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		ClassName##_LinaReflected()                                                                                                                                                                                                                                \
+		{                                                                                                                                                                                                                                                          \
+			Lina::ResourceManager::Get().RegisterResourceType<ClassName>(ChunkCount, ExtensionVector, ResourcePackage);                                                                                                                                            \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateMock"), std::bind(&Lina::ResourceReflectionUtility::CreateMock<ClassName>));                                                                                 \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void*)>(Lina::TO_SIDC("DestroyMock"), std::bind(&Lina::ResourceReflectionUtility::DestroyMock<ClassName>, std::placeholders::_1));                                                    \
+		}                                                                                                                                                                                                                                                          \
                                                                                                                                                                                                                                                                    \
-    private:                                                                                                                                                                                                                                                       \
-        static const ClassName##_LinaReflected ClassName##__;                                                                                                                                                                                                      \
-    };                                                                                                                                                                                                                                                             \
-    const ClassName##_LinaReflected ClassName##_LinaReflected::ClassName##__ = ClassName##_LinaReflected();
+	private:                                                                                                                                                                                                                                                       \
+		static const ClassName##_LinaReflected ClassName##__;                                                                                                                                                                                                      \
+	};                                                                                                                                                                                                                                                             \
+	const ClassName##_LinaReflected ClassName##_LinaReflected::ClassName##__ = ClassName##_LinaReflected();
 
-    //  REGISTER_RESOURCE_TYPE(test, 1, {"test"}, PackageType::Package1);
+	//  REGISTER_RESOURCE_TYPE(test, 1, {"test"}, PackageType::Package1);
 } // namespace Lina
 
 #endif

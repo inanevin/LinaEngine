@@ -55,6 +55,8 @@ namespace Lina
 	{
 		LINA_TRACE("[Window Manager] -> Initialization.");
 
+		m_gfxManager = m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager);
+
 #ifdef LINA_PLATFORM_WINDOWS
 		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
@@ -109,29 +111,51 @@ namespace Lina
 			return;
 		}
 
-		Window* w = new WINDOW_SUBCLASS(this, m_system, sid);
+		Action act;
 
-		void* parent = nullptr;
-		if (!m_windows.empty())
-			parent = m_windows[LINA_MAIN_SWAPCHAIN]->GetHandle();
+		act.Act = [this, sid, title, pos, size, style]() {
+			Window* w = new WINDOW_SUBCLASS(this, m_system, sid);
 
-		if (w->Create(parent, title, pos, size))
-		{
-			w->SetStyle(style);
-			m_windows[sid] = w;
-			m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetBackend()->CreateSwapchain(sid, w->GetHandle(), w->GetRegisteryHandle(), w->GetPos(), w->GetSize());
-		}
+			void* parent = nullptr;
+			if (!m_windows.empty())
+				parent = m_windows[LINA_MAIN_SWAPCHAIN]->GetHandle();
+
+			if (w->Create(parent, title, pos, size))
+			{
+				w->SetStyle(style);
+				m_gfxManager->GetBackend()->CreateSwapchain(sid, w->GetHandle(), w->GetRegisteryHandle(), w->GetPos(), w->GetSize());
+
+				if (sid != LINA_MAIN_SWAPCHAIN)
+					m_gfxManager->CreateSurfaceRenderer(m_gfxManager->GetBackend()->GetSwapchain(sid), Bitmask16());
+
+				m_windows[sid] = w;
+			}
+			else
+				delete w;
+		};
+
+		if (sid == LINA_MAIN_SWAPCHAIN)
+			act.Act();
 		else
-			delete w;
+			m_gfxManager->GetSyncQueue().Push(act);
 	}
 
 	void WindowManager::DestroyAppWindow(StringID sid)
 	{
-		auto it = m_windows.find(sid);
-		it->second->Destroy();
-		delete it->second;
-		m_windows.erase(it);
-		m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetBackend()->DestroySwapchain(sid);
+		Action act;
+		act.Act = [this, sid]() {
+			auto it = m_windows.find(sid);
+			it->second->Destroy();
+			delete it->second;
+			m_windows.erase(it);
+
+			if (sid != LINA_MAIN_SWAPCHAIN)
+				m_gfxManager->DestroySurfaceRenderer(m_gfxManager->GetBackend()->GetSwapchain(sid));
+				
+			m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetBackend()->DestroySwapchain(sid);
+		};
+
+		m_gfxManager->GetSyncQueue().Push(act);
 	}
 
 	Window* WindowManager::GetWindow(StringID sid)

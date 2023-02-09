@@ -92,7 +92,7 @@ namespace Lina
 		{
 		case WM_CLOSE:
 			win32Window->Close();
-			break;
+			return 0;
 		case WM_NCHITTEST:
 			return win32Window->m_canHitTestResize ? HandleNonclientHitTest(window, lParam, win32Window->m_dragRect) : HTCLIENT;
 		case WM_SETFOCUS: {
@@ -445,8 +445,6 @@ namespace Lina
 	{
 		if (m_sid == LINA_MAIN_SWAPCHAIN)
 			m_manager->GetSystem()->Quit();
-
-		CloseWindow(m_window);
 	}
 
 	void Win32Window::SetToWorkingArea()
@@ -543,7 +541,7 @@ namespace Lina
 		data.iParams[0] = m_sid;
 		data.iParams[1] = m_rect.size.x;
 		data.iParams[2] = m_rect.size.y;
-		m_system->DispatchSystemEvent(ESystemEvent::EVS_WindowMove, data);
+		m_system->DispatchSystemEvent(ESystemEvent::EVS_WindowResize, data);
 	}
 
 	void Win32Window::SetTitle(const char* title)

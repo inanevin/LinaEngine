@@ -59,8 +59,9 @@ namespace Lina
 	template <typename T> class ComponentCache : public ComponentCacheBase
 	{
 	public:
-		ComponentCache(IEventDispatcher* eventDispatcher)
-			: m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
+		ComponentCache(EntityWorld* world, IEventDispatcher* eventDispatcher)
+			: m_world(world), m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)),
+			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
 		{
 			m_eventDispatcher = eventDispatcher;
 		}
@@ -73,7 +74,7 @@ namespace Lina
 		// When copying the world.
 		virtual ComponentCacheBase* CopyCreate() override
 		{
-			ComponentCache<T>* newCache = new ComponentCache<T>(m_eventDispatcher);
+			ComponentCache<T>* newCache = new ComponentCache<T>(m_world, m_eventDispatcher);
 
 			int i = 0;
 			for (auto comp : m_components)
@@ -127,6 +128,18 @@ namespace Lina
 				}
 				index++;
 			}
+		}
+
+		inline Vector<T*> GetAllComponents()
+		{
+			Vector<T*> vec;
+			for (auto c : m_components)
+			{
+				if (c != nullptr)
+					vec.push_back(c);
+			}
+
+			return vec;
 		}
 
 		virtual void OnEntityDestroyed(Entity* e) override
@@ -196,21 +209,28 @@ namespace Lina
 
 		void OnComponentCreated(T* comp)
 		{
-			Event data;
-			data.pParams[0] = static_cast<void*>(comp);
+			Event			 data;
+			ObjectWrapper<T> objWrapper = ObjectWrapper<T>(comp);
+			data.pParams[0]				= static_cast<void*>(m_world);
+			data.pParams[1]				= static_cast<void*>(&objWrapper);
+			data.iParams[0]				= static_cast<uint32>(comp->GetComponentType());
 			m_eventDispatcher->DispatchGameEvent(EVG_ComponentCreated, data);
 			m_eventDispatcher->AddListener(comp);
 		}
 
 		void OnComponentDestroyed(T* comp)
 		{
-			Event data;
-			data.pParams[0] = static_cast<void*>(comp);
+			Event			 data;
+			ObjectWrapper<T> objWrapper = ObjectWrapper<T>(comp);
+			data.pParams[0]				= static_cast<void*>(m_world);
+			data.pParams[1]				= static_cast<void*>(&objWrapper);
+			data.iParams[0]				= static_cast<uint32>(comp->GetComponentType());
 			m_eventDispatcher->DispatchGameEvent(EVG_ComponentDestroyed, data);
 			m_eventDispatcher->RemoveListener(comp);
 		}
 
 	private:
+		EntityWorld*		m_world			  = nullptr;
 		IEventDispatcher*	m_eventDispatcher = nullptr;
 		MemoryAllocatorPool m_allocatorPool;
 		IDList<T*>			m_components;

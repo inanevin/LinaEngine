@@ -30,5 +30,19 @@ SOFTWARE.
 
 namespace Lina
 {
+	void ResourceCacheBase::AddUserManaged(IResource* res)
+	{
+		if (!res->IsUserManaged())
+		{
+			LINA_WARN("[Resource Cache] -> Resource created as not-user managed!");
+			return;
+		}
 
+		m_userManagedResources[res->GetSID()] = res;
+	}
+
+	void ResourceCacheBase::RemoveUserManaged(IResource* res)
+	{
+		m_userManagedResources.erase(m_userManagedResources.find(res->GetSID()));
+	}
 } // namespace Lina

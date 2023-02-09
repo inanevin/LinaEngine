@@ -26,10 +26,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 1, binding = 0) uniform SceneData{
-    vec4 fogColor; // w is for exponent
-	vec4 fogDistances; //x for min, y for max, zw unused.
-	vec4 ambientColor;
-	vec4 sunlightDirection; //w for sun power
-	vec4 sunlightColor;
-} LINA_SCENE;
+#include "Graphics/Core/View.hpp"
+
+namespace Lina
+{
+	bool View::IsVisible(const AABB& aabb) const
+	{
+		return true;
+		FrustumTest test = m_frustum.TestIntersection(aabb);
+		return test != FrustumTest::Outside;
+	}
+
+	void View::Tick(const Vector3& pos, const Matrix4& view, const Matrix4& proj, float near, float far)
+	{
+		m_pos  = pos;
+		m_view = view;
+		m_proj = proj;
+		m_near = near;
+		m_far  = far;
+		m_frustum.Calculate(proj * view, false);
+	}
+} // namespace Lina

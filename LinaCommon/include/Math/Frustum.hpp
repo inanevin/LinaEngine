@@ -36,7 +36,7 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Matrix;
+    class Matrix4;
     class AABB;
 
     enum class FrustumTest
@@ -59,7 +59,7 @@ namespace Lina
         /// View*Projection Matrix = results in world-space
         /// Model*View*Projection Matrix = results in model-space
         /// </summary>
-        void Calculate(const Matrix& matrix, bool normalizeAll);
+        void Calculate(const Matrix4& matrix, bool normalizeAll);
 
         /// <summary>
         /// Expects the AABB's bounds to be already transformed according to a world position.

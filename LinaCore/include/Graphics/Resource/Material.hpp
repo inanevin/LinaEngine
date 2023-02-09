@@ -41,8 +41,7 @@ namespace Lina
 	class Material : public IResource
 	{
 	public:
-		Material() = default;
-		Material(const String& path, StringID sid, TypeID tid, ResourceManager* rm) : IResource(path, sid, tid, rm){};
+		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Material>()){};
 		virtual ~Material();
 
 		void SetShader(StringID shader);
