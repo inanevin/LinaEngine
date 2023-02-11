@@ -18,7 +18,7 @@ LinaEngineBuildLauncher
 [Bb]uild_x64
 _Dependencies
 _Resources/Resources/Editor/Icons/svg
-_bin
+_[Bb]in
 
 #Lina Engine Tools
 *.jar
