@@ -194,7 +194,7 @@ namespace Lina
 		static float  lastFPSUpdate = gameTime;
 		static uint64 lastFPSFrames = SystemInfo::GetFrames();
 
-		if (gameTime > lastFPSUpdate + 1.0f)
+		if (gameTime > lastFPSUpdate + 1.5f)
 		{
 			const uint64 frames = SystemInfo::GetFrames();
 			SystemInfo::SetMeasuredFPS(frames - lastFPSFrames);
