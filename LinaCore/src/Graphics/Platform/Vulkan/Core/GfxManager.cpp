@@ -219,12 +219,12 @@ namespace Lina
 
 	void GfxManager::Tick(float delta)
 	{
-		for (auto r : m_renderers)
-			r->Tick();
-
 		m_time += 0.01f;
 		entity->AddRotation(Vector3(0, 15 * delta, 0));
-		//entity->SetPosition(Vector3(0, 0, Math::Sin(m_time) * 2.0f));
+		// entity->SetPosition(Vector3(0, 0, Math::Sin(m_time) * 2.0f));
+
+		for (auto r : m_renderers)
+			r->Tick();
 	}
 
 	void GfxManager::Render()
@@ -323,12 +323,12 @@ namespace Lina
 		m_frameNumber++;
 	}
 
-	void GfxManager::SyncData()
+	void GfxManager::SyncData(float alpha)
 	{
 		m_syncQueue.Flush();
 
 		for (auto r : m_renderers)
-			r->SyncData();
+			r->SyncData(alpha);
 	}
 
 	SurfaceRenderer* GfxManager::CreateSurfaceRenderer(Swapchain* swapchain, Bitmask16 mask)

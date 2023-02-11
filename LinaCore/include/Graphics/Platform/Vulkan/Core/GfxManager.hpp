@@ -69,7 +69,7 @@ namespace Lina
 		void			 Join();
 		void			 Tick(float delta);
 		void			 Render();
-		void			 SyncData();
+		void			 SyncData(float alpha);
 		SurfaceRenderer* CreateSurfaceRenderer(Swapchain* swapchain, Bitmask16 mask);
 		WorldRenderer*	 CreateWorldRenderer(EntityWorld* world, Bitmask16 mask, const Vector2i& resolution, float aspect);
 		void			 DestroySurfaceRenderer(Swapchain* swapchain);

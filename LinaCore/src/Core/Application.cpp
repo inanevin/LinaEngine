@@ -89,7 +89,7 @@ namespace Lina
 		// static bool	  prevUseFixedTs = useFixedTs;
 		//
 		// SystemInfo::SetLastRealTime(SystemInfo::GetCurrentRealtime());
-		//
+
 		// if (useFixedTs)
 		//{
 		//	timeChanged = true;
@@ -176,7 +176,7 @@ namespace Lina
 		//
 		//	prevUseFixedTs = useFixedTs;
 		//
-		//	SystemInfo::SetGameTime(SystemInfo::GetGameTime() + SystemInfo::GetDeltaTime());
+		//	SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 		// }
 
 		static uint64 previous	   = PlatformTime::GetCycles64();
@@ -190,14 +190,15 @@ namespace Lina
 		SystemInfo::SetDeltaTime(deltaSeconds);
 		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + deltaSeconds);
 
-		const float	  gameTime		= SystemInfo::GetAppTimeF();
-		static float  lastFPSUpdate = gameTime;
-		static uint64 lastFPSFrames = SystemInfo::GetFrames();
+		const float		gameTime	  = SystemInfo::GetAppTimeF();
+		static float	lastFPSUpdate = gameTime;
+		static uint64	lastFPSFrames = SystemInfo::GetFrames();
+		constexpr float measureTime	  = 1.0f;
 
-		if (gameTime > lastFPSUpdate + 1.5f)
+		if (gameTime > lastFPSUpdate + measureTime)
 		{
 			const uint64 frames = SystemInfo::GetFrames();
-			SystemInfo::SetMeasuredFPS(frames - lastFPSFrames);
+			SystemInfo::SetMeasuredFPS((frames - lastFPSFrames) / measureTime);
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
 

@@ -51,7 +51,7 @@ namespace Lina
 		Renderer(GfxManager* manager, Bitmask16 mask, RendererType type);
 		virtual ~Renderer();
 
-		virtual void		   SyncData(){};
+		virtual void		   SyncData(float alpha){};
 		virtual void		   Tick(){};
 		virtual void		   OnPostPresent(VulkanResult res){};
 		virtual void		   AcquiredImageInvalid(uint32 frameIndex){};

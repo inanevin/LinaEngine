@@ -97,6 +97,12 @@ namespace Lina
 		{
 			return m_transform.ToMatrix();
 		}
+
+		Matrix4 PrevToMatrix() const
+		{
+			return m_prevTransform.ToMatrix();
+		}
+
 		Matrix4 ToLocalMatrix() const
 		{
 			return m_transform.ToLocalMatrix();
@@ -145,9 +151,16 @@ namespace Lina
 			return m_transform.m_scale;
 		}
 
-		const Transformation& GetTransform()
+		Transformation GetTransform()
 		{
 			return m_transform;
+		}
+
+		Transformation GetPrevTransform()
+		{
+			Transformation t = m_prevTransform;
+			m_prevTransform	 = m_transform;
+			return t;
 		}
 
 		inline void SetName(const String& name)
@@ -186,6 +199,7 @@ namespace Lina
 		HashSet<Entity*> m_children;
 		HashSet<uint32>	 m_childrenID;
 		Transformation	 m_transform;
+		Transformation	 m_prevTransform;
 		Bitmask16		 m_mask;
 		StringID		 m_sid = 0;
 	};

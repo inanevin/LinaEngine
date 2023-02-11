@@ -39,61 +39,57 @@ SOFTWARE.
 
 namespace Lina
 {
-    namespace ECS
-    {
-        class Registry;
-    }
+	namespace ECS
+	{
+		class Registry;
+	}
 } // namespace Lina
 
 namespace Lina
 {
-    class Transformation : public ISerializable
-    {
-    public:
-        Transformation() : m_position(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
-        {
-        }
-        Transformation(const Vector3& translationIn) : m_position(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
-        {
-        }
-        Transformation(const Quaternion& rotationIn) : m_position(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f)
-        {
-        }
-        Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : m_position(translationIn), m_rotation(rotationIn), m_scale(scaleIn)
-        {
-        }
+	class Transformation : public ISerializable
+	{
+	public:
+		Transformation() : m_position(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
+		{
+		}
+		Transformation(const Vector3& translationIn) : m_position(translationIn), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
+		{
+		}
+		Transformation(const Quaternion& rotationIn) : m_position(0.0f, 0.0f, 0.0f), m_rotation(rotationIn), m_scale(1.0f, 1.0f, 1.0f)
+		{
+		}
+		Transformation(const Vector3& translationIn, const Quaternion& rotationIn, const Vector3& scaleIn) : m_position(translationIn), m_rotation(rotationIn), m_scale(scaleIn)
+		{
+		}
 
-        static Transformation Interpolate(Transformation& from, Transformation& to, float t);
+		static Transformation Interpolate(const Transformation& from, const Transformation& to, float t);
 
-        void SetMatrix(Matrix4& mat);
+		void SetMatrix(Matrix4& mat);
 
-        Matrix4 ToMatrix() const
-        {
-            return Matrix4::TransformMatrix(m_position, m_rotation, m_scale);
-        }
+		Matrix4 ToMatrix() const
+		{
+			return Matrix4::TransformMatrix(m_position, m_rotation, m_scale);
+		}
 
-        Matrix4 ToLocalMatrix() const
-        {
-            return Matrix4::TransformMatrix(m_localPosition, m_localRotation, m_localScale);
-        }
+		Matrix4 ToLocalMatrix() const
+		{
+			return Matrix4::TransformMatrix(m_localPosition, m_localRotation, m_localScale);
+		}
 
-        Vector3 m_previousPosition = Vector3::Zero;
-        Vector3 m_previousAngles   = Vector3::Zero;
-        Vector3 m_previousScale    = Vector3::Zero;
+		Vector3	   m_position = Vector3::Zero;
+		Quaternion m_rotation;
+		Vector3	   m_rotationAngles = Vector3::Zero;
+		Vector3	   m_scale			= Vector3::One;
+		Vector3	   m_localPosition	= Vector3::Zero;
+		Quaternion m_localRotation;
+		Vector3	   m_localScale			 = Vector3::One;
+		Vector3	   m_localRotationAngles = Vector3::Zero;
 
-        Vector3    m_position = Vector3::Zero;
-        Quaternion m_rotation;
-        Vector3    m_rotationAngles = Vector3::Zero;
-        Vector3    m_scale          = Vector3::One;
-        Vector3    m_localPosition  = Vector3::Zero;
-        Quaternion m_localRotation;
-        Vector3    m_localScale          = Vector3::One;
-        Vector3    m_localRotationAngles = Vector3::Zero;
-
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		// Inherited via ISerializable
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
+	};
 
 } // namespace Lina
 

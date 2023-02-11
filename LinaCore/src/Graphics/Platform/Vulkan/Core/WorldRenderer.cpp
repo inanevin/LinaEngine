@@ -152,6 +152,19 @@ namespace Lina
 		DestroyTextures();
 
 		m_targetWorldData.allRenderables.Reset();
+
+		auto& wd = m_targetWorldData;
+		if (wd.world != nullptr)
+		{
+			auto activeCamera = wd.world->GetActiveCamera();
+			if (activeCamera.IsValid())
+			{
+				auto& camref = activeCamera.Get();
+				m_cameraSystem.CalculateCamera(camref, m_aspectRatio);
+				wd.playerView.Tick(camref.GetEntity()->GetPosition(), camref.GetView(), camref.GetProjection(), camref.zNear, camref.zFar);
+			}
+		}
+
 		m_targetWorldData.extractedRenderables.clear();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -173,22 +186,9 @@ namespace Lina
 		data.opaquePass.RecordDrawCommands(cmd, m_gfxManager->GetMeshEntries(), data.indirectBuffer[frameIndex]);
 	}
 
-	void WorldRenderer::SyncData()
+	void WorldRenderer::SyncData(float alpha)
 	{
-		Renderer::SyncData();
-		
-		// Calculate cam - in SyncData bc. RenderWorld uses data.playerView.
-		auto& wd = m_targetWorldData;
-		if (wd.world != nullptr)
-		{
-			auto activeCamera = wd.world->GetActiveCamera();
-			if (activeCamera.IsValid())
-			{
-				auto& camref = activeCamera.Get();
-				m_cameraSystem.CalculateCamera(camref, m_aspectRatio);
-				wd.playerView.Tick(camref.GetEntity()->GetPosition(), camref.GetView(), camref.GetProjection(), camref.zNear, camref.zFar);
-			}
-		}
+		Renderer::SyncData(alpha);
 
 		// If display resolution is changed, update textures.
 		const auto& ext = m_targetWorldData.finalColorTexture->GetExtent();
@@ -202,6 +202,8 @@ namespace Lina
 			for (auto s : m_finalTextureListeners)
 				s->SetOffscreenTexture(m_mask.IsSet(RM_ApplyPostProcessing) ? m_targetWorldData.postProcessTexture : m_targetWorldData.finalColorTexture);
 		}
+
+		auto& wd = m_targetWorldData;
 
 		if (wd.world != nullptr)
 		{
@@ -220,15 +222,20 @@ namespace Lina
 					continue;
 
 				RenderableData data;
-				data.entityID		   = e->GetID();
-				data.modelMatrix	   = e->ToMatrix();
-				data.entityMask		   = e->GetEntityMask();
-				data.position		   = e->GetPosition();
-				data.aabb			   = rend.GetAABB(m_resourceManager);
-				data.passMask		   = rend.GetDrawPasses(m_resourceManager);
-				data.type			   = rend.GetType();
-				data.meshMaterialPairs = rend.GetMeshMaterialPairs(m_resourceManager);
-				data.objDataIndex	   = i++;
+
+				Transformation		 current = e->GetTransform();
+				Transformation		 prev	 = e->GetPrevTransform();
+				const Transformation interp	 = current; //Transformation::Interpolate(prev, current, alpha);
+				LINA_TRACE("ROT {0}", interp.m_rotation.GetEuler().y);
+				data.entityID				 = e->GetID();
+				data.modelMatrix			 = interp.ToMatrix();
+				data.entityMask				 = e->GetEntityMask();
+				data.position				 = interp.m_position;
+				data.aabb					 = rend.GetAABB(m_resourceManager);
+				data.passMask				 = rend.GetDrawPasses(m_resourceManager);
+				data.type					 = rend.GetType();
+				data.meshMaterialPairs		 = rend.GetMeshMaterialPairs(m_resourceManager);
+				data.objDataIndex			 = i++;
 				wd.extractedRenderables.push_back(data);
 			}
 
@@ -238,6 +245,19 @@ namespace Lina
 
 	void WorldRenderer::Tick()
 	{
+
+		// Calculate cam - in SyncData bc. RenderWorld uses data.playerView.
+		auto& wd = m_targetWorldData;
+		if (wd.world != nullptr)
+		{
+			auto activeCamera = wd.world->GetActiveCamera();
+			if (activeCamera.IsValid())
+			{
+				auto& camref = activeCamera.Get();
+				m_cameraSystem.CalculateCamera(camref, m_aspectRatio);
+				wd.playerView.Tick(camref.GetEntity()->GetPosition(), camref.GetView(), camref.GetProjection(), camref.zNear, camref.zFar);
+			}
+		}
 	}
 
 	CommandBuffer* WorldRenderer::Render(uint32 frameIndex, Fence& fence)

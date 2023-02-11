@@ -105,35 +105,60 @@ namespace Lina
 		delete m_coreResourceRegistry;
 	}
 
-	void Engine::Tick(float dt)
+	double t		   = 0.0;
+	double dt		   = 1.0 / 120.0;
+	double currentTime = 0.0;
+	double accumulator = 0.0;
+
+	void Engine::Tick(float xd)
 	{
 		m_input.Tick(dt);
-		m_gfxManager.Tick(dt);
+
+		// double newTime	 = SystemInfo::GetAppTime();
+		// double frameTime = newTime - currentTime;
+		// if (frameTime > 0.25)
+		// 	frameTime = 0.25;
+		// currentTime = newTime;
+		//
+		// accumulator += frameTime;
+		//
+		// while (accumulator >= dt)
+		// {
+		// 	m_gfxManager.Tick(dt);
+		// 	t += dt;
+		// 	accumulator -= dt;
+		// }
+
+		// const double alpha = accumulator / dt;
+		// m_gfxManager.Render();
+
+		m_gfxManager.Tick(xd);
+		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
+		renderJob.get();
+		m_gfxManager.SyncData(0.0f);
 
 		// For any listeners that fall outside the main loop.
-		Event eventData;
-		eventData.fParams[0] = dt;
-		DispatchSystemEvent(EVS_SystemTick, eventData);
+		// Event eventData;
+		// eventData.fParams[0] = dt;
+		// DispatchSystemEvent(EVS_SystemTick, eventData);
 
-		const bool physicsSimulated = m_physicsEngine.Simulate(dt, SystemInfo::GetPhysicsDeltaTime());
+		// const bool physicsSimulated = m_physicsEngine.Simulate(dt, SystemInfo::GetPhysicsDeltaTime());
 
-		// World tick if exists.
-		m_levelManager.Tick(dt);
+		// m_levelManager.Tick(dt);
 
-		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(dt); });
-		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
+		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(dt); });
 
-		audioJob.get();
-		renderJob.get();
-		if (physicsSimulated)
-			m_physicsEngine.WaitForSimulation();
+		// audioJob.get();
+		// renderJob.get();
+
+		// if (physicsSimulated)
+		//	m_physicsEngine.WaitForSimulation();
 
 		// Sync.
-		m_gfxManager.SyncData();
-		m_physicsEngine.SyncData();
+		// m_physicsEngine.SyncData();
 
 		// For any listeners that fall outside the main loop.
-		DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
+		// DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
 
 		if (m_input.GetKeyDown(LINA_KEY_1))
 		{

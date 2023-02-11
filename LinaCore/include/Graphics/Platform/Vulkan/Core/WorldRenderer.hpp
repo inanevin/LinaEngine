@@ -86,7 +86,7 @@ namespace Lina
 		void				   SetAspectRatio(float aspect);
 		void				   SetRenderResolution(const Vector2i& res);
 		virtual void		   OnGameEvent(EGameEvent type, const Event& ev);
-		virtual void		   SyncData() override;
+		virtual void		   SyncData(float alpha) override;
 		virtual void		   Tick() override;
 		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) override;
 		Texture*			   GetFinalTexture();
