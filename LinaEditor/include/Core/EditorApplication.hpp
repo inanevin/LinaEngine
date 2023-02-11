@@ -36,15 +36,12 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    class EditorApplication : public Lina::Application
-    {
-    public:
-        EditorApplication() : m_editor(this){};
-        virtual ~EditorApplication() = default;
-
-    private:
-        Editor m_editor;
-    };
+	class EditorApplication : public Lina::Application
+	{
+	public:
+		EditorApplication(){};
+		virtual ~EditorApplication() = default;
+	};
 } // namespace Lina::Editor
 
 #endif

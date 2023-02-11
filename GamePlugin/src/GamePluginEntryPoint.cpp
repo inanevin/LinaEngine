@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Profiling/Profiler.hpp"
 #include "Profiling/MemoryTracer.hpp"
-#include "Core/Clock.hpp"
 #include "GamePlugin.hpp"
 #include "GamePluginExports.hpp"
 
@@ -38,9 +37,9 @@ SOFTWARE.
 
 GamePlugin* g_plugin = nullptr;
 
-extern "C" GAMEPLUGIN_API Lina::IPlugin* CreatePlugin(Lina::IEngineInterface* engineInterface)
+extern "C" GAMEPLUGIN_API Lina::IPlugin* CreatePlugin(Lina::IEngineInterface* engineInterface, const Lina::String& name)
 {
-    return new GamePlugin(engineInterface);
+    return new GamePlugin(engineInterface, name);
 }
 
 extern "C" GAMEPLUGIN_API void DestroyPlugin(Lina::IPlugin* plugin)
@@ -57,7 +56,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,  // handle to DLL module
     {
     case DLL_PROCESS_ATTACH: {
     
-        Lina::Clock::Init();
         MEMORY_TRACER_SET_LEAK_FILE("gamecode_memory_leaks.txt");
         PROFILER_SET_FRAMEANALYSIS_FILE("gamecode_frame_analysis.txt");
 

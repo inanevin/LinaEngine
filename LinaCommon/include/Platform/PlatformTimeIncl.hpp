@@ -28,13 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ApplicationEvents_HPP
-#define ApplicationEvents_HPP
+#ifndef PlatformTimeIncl_HPP
+#define PlatformTimeIncl_HPP
 
+#ifdef LINA_PLATFORM_WINDOWS
+#include "Platform/Win32/PlatformTime.hpp"
+#else
 
-namespace Lina::Event
-{
-
-} // namespace Lina::Event
-
+#endif
 #endif

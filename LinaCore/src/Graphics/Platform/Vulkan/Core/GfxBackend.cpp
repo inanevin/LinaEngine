@@ -463,12 +463,19 @@ namespace Lina
 		{
 			const VsyncMode newMode = static_cast<VsyncMode>(ev.iParams[0]);
 
-			for (auto& [sid, swp] : m_swapchains)
-			{
-				swp->Destroy();
-				swp->presentMode = VsyncToPresentMode(newMode);
-				swp->Create(swp->swapchainID);
-			}
+			Action act;
+			act.Act = [this, newMode]() {
+				m_gfxManager->Join();
+				for (auto& [sid, swp] : m_swapchains)
+				{
+					swp->presentMode = VsyncToPresentMode(newMode);
+					swp->RecreateFromOld(swp->swapchainID);
+					// swp->Destroy();
+					// swp->Create(swp->swapchainID);
+				}
+			};
+
+			m_gfxManager->GetSyncQueue().Push(act);
 		}
 	}
 

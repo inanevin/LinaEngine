@@ -25,6 +25,8 @@ src/Audio/Core/AudioManager.cpp
 
 # Core
 src/Core/Application.cpp
+src/Core/Engine.cpp
+src/Core/SystemInfo.cpp
 src/Core/CommonCore.cpp
 src/Core/IEngineInterface.cpp
 src/Core/CoreResourcesRegistry.cpp
@@ -113,11 +115,15 @@ src/Resources/Data/ResourceMetadata.cpp
 #--------------------------------------------------------------------
 set(LINACORE_HEADERS
 
+include/Lina.hpp
+
 # Audio
 include/Audio/Core/AudioManager.hpp
 
 # Core
 include/Core/Application.hpp
+include/Core/Engine.hpp
+include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
 include/Core/IEngineInterface.hpp
 include/Core/CoreResourcesRegistry.hpp
@@ -138,6 +144,9 @@ include/Input/Core/InputMappings.hpp
 
 # Physics
 include/Physics/Core/PhysicsEngine.hpp
+
+# Platform
+include/Platform/PlatformProcessIncl.hpp
 
 # Reflection
 include/Reflection/ClassReflection.hpp
@@ -215,11 +224,23 @@ include/Graphics/Utility/ModelLoader.hpp
 include/Graphics/Utility/GLSLParser.hpp
 )
 
+if(WIN32)
+
+set (LINACORE_PLATFORM_HEADERS
+include/Platform/Win32/PlatformProcess.hpp
+)
+
+set (LINACORE_PLATFORM_SOURCES 
+src/Platform/Win32/PlatformProcess.cpp
+)
+
+endif()
+
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 
-add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS})
+add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
 
 ## Remove Nvidia PhysX linker pdb warning
@@ -284,7 +305,7 @@ endif()
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES)
+	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES) 
 		get_filename_component(source_path "${source}" PATH)
 		string(REPLACE "${LinaCore_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")

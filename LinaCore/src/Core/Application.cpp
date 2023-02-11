@@ -27,234 +27,182 @@ SOFTWARE.
 */
 
 #include "Core/Application.hpp"
-#include "Log/Log.hpp"
-#include "Core/Clock.hpp"
-#include "Core/Time.hpp"
+#include "Core/SystemInfo.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Core/CoreResourcesRegistry.hpp"
-#include "Graphics/Core/Window.hpp"
-
-#ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
-typedef Lina::IPlugin*(__cdecl* CreatePluginFunc)(Lina::IEngineInterface* engInterface);
-typedef void(__cdecl* DestroyPluginFunc)(Lina::IPlugin*);
-#endif
-
-#define DEFAULT_RATE 1.0f / 60.0f
+#include "Platform/PlatformProcessIncl.hpp"
+#include "Platform/PlatformTimeIncl.hpp"
+#include "Math/Math.hpp"
+#include "System/IPlugin.hpp"
 
 namespace Lina
 {
-	int64 prevTicks = 0;
-
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		LINA_TRACE("[Application] -> Initialization.");
-
-		m_initInfo = initInfo;
-		Clock::Init();
-
-		// Child systems can override for custom core resource registries.
-		m_coreResourceRegistry = new CoreResourcesRegistry();
-		m_coreResourceRegistry->RegisterResourceTypes(m_resourceManager);
-		m_resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
-		m_resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
-
-		// Window manager has priority initialization.
-		m_windowManager.Initialize(initInfo);
-		m_windowManager.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.windowStyle, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
-
-		for (auto [type, sys] : m_subsystems)
-		{
-			if (type != SubsystemType::WindowManager)
-				sys->Initialize(initInfo);
-		}
-
-		m_firstRun	= true;
-		m_isRunning = true;
-
-		m_resourceManager.SetMode(ResourceManagerMode::File);
-		auto start = Clock::GetCurrentTicks();
-		m_resourceManager.LoadCoreResources();
-		LINA_TRACE("[Application] -> Loading core resources took: {0} seconds", Clock::CalculateDelta(start, Clock::GetCurrentTicks()));
+		SystemInfo::SetApplicationMode(initInfo.appMode);
+		m_engine.Initialize(initInfo);
 		LoadPlugins();
-		PostInitialize();
-	}
-
-	void Application::DispatchSystemEvent(ESystemEvent ev, const Event& data)
-	{
-		IEventDispatcher::DispatchSystemEvent(ev, data);
-
-		if (ev & EVS_ResourceLoaded)
-		{
-			String* path = static_cast<String*>(data.pParams[0]);
-			LINA_TRACE("[Resource] -> Loaded resource: {0}", path->c_str());
-		}
 	}
 
 	void Application::LoadPlugins()
 	{
-		LoadPlugin("GamePlugin.dll");
+		PlatformProcess::LoadPlugin("GamePlugin.dll", m_engine.GetInterface(), &m_engine);
 	}
 
 	void Application::UnloadPlugins()
 	{
-		for (auto p : m_plugins)
-			UnloadPlugin(p);
-
-		m_plugins.clear();
-	}
-
-	void Application::PostInitialize()
-	{
-		DispatchSystemEvent(EVS_PostSystemInit, {});
-	}
-
-	void Application::Shutdown()
-	{
-		LINA_TRACE("[Application] -> Shutdown.");
-
-		m_gfxManager.Join();
-
-		DispatchSystemEvent(EVS_PreSystemShutdown, {});
-		UnloadPlugins();
-
-		m_levelManager.Shutdown();
-		m_resourceManager.Shutdown();
-		m_audioManager.Shutdown();
-		m_physicsEngine.Shutdown();
-		m_windowManager.Shutdown();
-		m_gfxManager.Shutdown();
-		m_input.Shutdown();
-
-		delete m_coreResourceRegistry;
-	}
-
-	void Application::PreTick()
-	{
-		m_input.PreTick();
+		PlatformProcess::UnloadPlugin("GamePlugin.dll", &m_engine);
 	}
 
 	void Application::Tick()
 	{
 		PROFILER_FRAME_START();
 
-		int64 ticks = Clock::GetCurrentTicks();
-		m_delta		= m_firstRun ? DEFAULT_RATE : Clock::CalculateDelta(prevTicks, ticks, 1.0f);
-		prevTicks	= ticks;
-		m_firstRun	= false;
+		// Comments that explain basically nothing.
 
-		// Break & debugging points
-		if (m_delta > 1.0f)
-			m_delta = DEFAULT_RATE;
+		// Calculate time :)
+		CalculateTime();
 
-		m_physicsAccumulator += m_delta;
-		m_fpsCounter += m_delta;
+		// Pre-poll & OS messages.
+		m_engine.GetInput().PreTick();
+		PlatformProcess::PumpMessages();
 
-		// Poll.
-		m_input.Tick(m_delta);
+		// Yield-CPU check.
+		if (!SystemInfo::GetAppHasFocus())
+			PlatformProcess::Sleep(.1);
 
-		m_gfxManager.Tick(m_delta);
+		m_engine.Tick(SystemInfo::GetDeltaTimeF());
 
-		// For any listeners that fall outside the main loop.
-		Event eventData;
-		eventData.fParams[0] = m_delta;
-		DispatchSystemEvent(EVS_SystemTick, eventData);
-
-		// Physics if necessary.
-		int	 physicsTickCount = 0;
-		bool physicsSimulated = m_physicsAccumulator > m_physicsUpdateRate;
-		if (physicsSimulated)
-		{
-			// N = accumulator - update rate -> remainder.
-			// TODO: optional substepping to compansate.
-			m_physicsAccumulator = 0;
-			m_physicsEngine.Simulate(m_physicsUpdateRate);
-		}
-
-		// World tick if exists.
-		m_levelManager.Tick(m_delta);
-
-		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(m_delta); });
-		auto renderJob = m_executor.Async([&]() {
-			m_gfxManager.Render();
-			m_frames++;
-		});
-
-		audioJob.get();
-		renderJob.get();
-		if (physicsSimulated)
-			m_physicsEngine.WaitForSimulation();
-
-		// Sync.
-		m_gfxManager.SyncData();
-		m_physicsEngine.SyncData();
-
-		// For any listeners that fall outside the main loop.
-		DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
-		
-		// Finish.
-		if (m_fpsCounter >= 1.5f)
-		{
-			m_fps		 = m_frames;
-			m_fpsCounter = 0.0f;
-			m_frames	 = 0;
-			LINA_TRACE("[FPS] : {0}", m_fps);
-		}
+		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
 	}
 
-	void Application::Quit()
+	void Application::Shutdown()
 	{
-		m_isRunning = false;
+		UnloadPlugins();
+		m_engine.Shutdown();
 	}
 
-	void Application::LoadPlugin(const char* name)
+	void Application::CalculateTime()
 	{
-#ifdef LINA_PLATFORM_WINDOWS
-		HINSTANCE hinstLib;
-		BOOL	  fFreeResult = FALSE;
-		hinstLib			  = LoadLibrary(TEXT(name));
+		// static double lastRT		 = PlatformTime::GetSeconds() - 0.0001;
+		// static bool	  timeChanged	 = false;
+		// const bool	  useFixedTs	 = SystemInfo::UseFixedTimestep();
+		// static bool	  prevUseFixedTs = useFixedTs;
+		//
+		// SystemInfo::SetLastRealTime(SystemInfo::GetCurrentRealtime());
+		//
+		// if (useFixedTs)
+		//{
+		//	timeChanged = true;
+		//	SystemInfo::SetDeltaTime(SystemInfo::GetFixedDeltaTime());
+		//	lastRT = SystemInfo::GetCurrentRealtime();
+		//	SystemInfo::SetCurrentRealTime(SystemInfo::GetCurrentRealtime() + SystemInfo::GetDeltaTime());
+		// }
+		// else
+		//{
+		//	double currentRT = PlatformTime::GetSeconds();
+		//	SystemInfo::SetCurrentRealTime(currentRT);
+		//
+		//	// Handle fixed to variable switch.
+		//	if (useFixedTs != prevUseFixedTs)
+		//	{
+		//		lastRT		= currentRT - SystemInfo::GetDeltaTime();
+		//		timeChanged = false;
+		//	}
+		//
+		//	float deltaRT = static_cast<float>(currentRT - lastRT);
+		//
+		//	if (deltaRT < 0)
+		//	{
+		//		LINA_ERR("[Application] -> Detected negative delta time, something went terribly wrong.");
+		//		deltaRT = 0.01;
+		//	}
+		//
+		//	SystemInfo::CalculateRunningAverageDT();
+		//
+		//	const float maxTicks = useFixedTs ? SystemInfo::GetFixedFrameRate() : SystemInfo::CalculateMaxTickRate();
+		//	float		wait	 = 0.0f;
+		//
+		//	if (maxTicks > 0.0f)
+		//		wait = Math::Max(1.0f / maxTicks - deltaRT, 0.0f);
+		//
+		//	double actualWait = 0.0;
+		//	if (wait > 0.0f)
+		//	{
+		//		double waitEndTime = currentRT + wait;
+		//
+		//		actualWait = PlatformTime::GetSeconds();
+		//
+		//		if (wait > 5.0 / 1000.0f)
+		//			PlatformProcess::Sleep(wait - 0.002f);
+		//
+		//		while (PlatformTime::GetSeconds() < waitEndTime)
+		//			PlatformProcess::Sleep(0);
+		//
+		//		currentRT = PlatformTime::GetSeconds();
+		//
+		//		if (useFixedTs)
+		//		{
+		//			// fixed ts but delayed, compensate.
+		//			const double frameTime = static_cast<double>(SystemInfo::GetFixedDeltaTime());
+		//			SystemInfo::SetCurrentRealTime(lastRT + frameTime);
+		//			timeChanged = false;
+		//		}
+		//		else
+		//			SystemInfo::SetCurrentRealTime(currentRT);
+		//
+		//		actualWait = PlatformTime::GetSeconds() - actualWait;
+		//	}
+		//	else if (useFixedTs && maxTicks == SystemInfo::GetFixedFrameRate())
+		//	{
+		//		// Fixed frame rate but real delta time is bigger than desired dt. (falling behind rt)
+		//		const double frameTime = static_cast<double>(SystemInfo::GetFixedDeltaTime());
+		//		SystemInfo::SetCurrentRealTime(lastRT + frameTime);
+		//		timeChanged = true;
+		//	}
+		//
+		//	SystemInfo::SetDeltaTime(SystemInfo::GetCurrentRealtime() - lastRT);
+		//	SystemInfo::SetIdleTime(actualWait);
+		//
+		//	if (SystemInfo::GetDeltaTime() < 0)
+		//	{
+		//		LINA_ERR("[Application] -> Delta time is negative!");
+		//		SystemInfo::SetDeltaTime(0.01);
+		//	}
+		//
+		//	lastRT = currentRT;
+		//
+		//	if (SystemInfo::GetMaxDeltaTime() != 0.0)
+		//		SystemInfo::SetDeltaTime(Math::Min(SystemInfo::GetDeltaTime(), SystemInfo::GetMaxDeltaTime()));
+		//
+		//	prevUseFixedTs = useFixedTs;
+		//
+		//	SystemInfo::SetGameTime(SystemInfo::GetGameTime() + SystemInfo::GetDeltaTime());
+		// }
 
-		// If the handle is valid, try to get the function address.
-		if (hinstLib != NULL)
+		static uint64 previous	   = PlatformTime::GetCycles64();
+		const uint64  current	   = PlatformTime::GetCycles64();
+		double		  deltaSeconds = PlatformTime::GetDeltaSeconds64(previous, current, 1.0);
+		previous				   = current;
+
+		if (deltaSeconds <= 0.0)
+			deltaSeconds = 0.01;
+
+		SystemInfo::SetDeltaTime(deltaSeconds);
+		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + deltaSeconds);
+
+		const float	  gameTime		= SystemInfo::GetAppTimeF();
+		static float  lastFPSUpdate = gameTime;
+		static uint64 lastFPSFrames = SystemInfo::GetFrames();
+
+		if (gameTime > lastFPSUpdate + 1.0f)
 		{
-			CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
+			const uint64 frames = SystemInfo::GetFrames();
+			SystemInfo::SetMeasuredFPS(frames - lastFPSFrames);
+			lastFPSFrames = frames;
+			lastFPSUpdate = gameTime;
 
-			// If the function address is valid, call the function.
-
-			if (NULL != createPluginAddr)
-			{
-				IPlugin* plugin = (createPluginAddr)(&m_engineInterface);
-				plugin->OnAttached();
-				AddListener(plugin);
-				AddPlugin(plugin);
-				m_pluginHandles[plugin] = static_cast<void*>(hinstLib);
-			}
+			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
+			LINA_TRACE("[Delta] : {0}", SystemInfo::GetDeltaTime());
 		}
-#else
-		LINA_ASSERT(false, "Not implemented!");
-#endif
 	}
-	void Application::UnloadPlugin(IPlugin* plugin)
-	{
-		RemoveListener(plugin);
-		plugin->OnDetached();
-
-#ifdef LINA_PLATFORM_WINDOWS
-
-		HINSTANCE hinstLib = static_cast<HINSTANCE>(m_pluginHandles[plugin]);
-
-		DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
-
-		if (destroyPluginAddr != NULL)
-		{
-			destroyPluginAddr(plugin);
-		}
-
-		// Free the DLL module.
-		BOOL fFreeResult = FreeLibrary(hinstLib);
-#else
-		LINA_ASSERT(false, "Not implemented!");
-#endif
-	}
-
 } // namespace Lina

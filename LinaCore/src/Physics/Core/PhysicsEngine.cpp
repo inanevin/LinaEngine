@@ -42,14 +42,29 @@ namespace Lina
 		LINA_TRACE("[Physics Engine] -> Shutdown.");
 	}
 
-	void PhysicsEngine::Simulate(float dt)
+	bool PhysicsEngine::Simulate(float delta, float physicsDelta)
 	{
-		Event eventData;
-		eventData.fParams[0] = dt;
-		m_system->DispatchGameEvent(EVG_Physics, eventData);
-		m_system->DispatchGameEvent(EVG_PostPhysics, eventData);
+		static float physicsAccumulator = 0.0f;
 
-		// Simulate nvidia physx
+		if (physicsAccumulator > physicsDelta)
+		{
+			// N = accumulator - update rate -> remainder.
+			// TODO: optional substepping to compansate.
+			physicsAccumulator = 0;
+
+			Event eventData;
+			eventData.fParams[0] = physicsDelta;
+			m_system->DispatchGameEvent(EVG_Physics, eventData);
+			m_system->DispatchGameEvent(EVG_PostPhysics, eventData);
+
+			// Simulate nvidia physx
+
+			return true;
+		}
+
+		physicsAccumulator += delta;
+
+		return false;
 	}
 
 	void PhysicsEngine::WaitForSimulation()

@@ -36,11 +36,11 @@ SOFTWARE.
 
 #ifdef LINA_ENABLE_LOGGING
 
-#define LINA_ERR(...)	   Log::LogMessage(LogLevel::Error, __VA_ARGS__)
-#define LINA_WARN(...)	   Log::LogMessage(LogLevel::Warn, __VA_ARGS__)
-#define LINA_INFO(...)	   Log::LogMessage(LogLevel::Info, __VA_ARGS__)
-#define LINA_TRACE(...)	   Log::LogMessage(LogLevel::Trace, __VA_ARGS__)
-#define LINA_CRITICAL(...) Log::LogMessage(LogLevel::Critical, __VA_ARGS__)
+#define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::Error, __VA_ARGS__)
+#define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::Warn, __VA_ARGS__)
+#define LINA_INFO(...)	   Lina::Log::LogMessage(Lina::LogLevel::Info, __VA_ARGS__)
+#define LINA_TRACE(...)	   Lina::Log::LogMessage(Lina::LogLevel::Trace, __VA_ARGS__)
+#define LINA_CRITICAL(...) Lina::Log::LogMessage(Lina::LogLevel::Critical, __VA_ARGS__)
 
 #else
 
@@ -105,7 +105,7 @@ namespace Lina
 		}
 
 	private:
-		friend class Application;
+		friend class Engine;
 		static Mutex s_logMtx;
 	};
 } // namespace Lina

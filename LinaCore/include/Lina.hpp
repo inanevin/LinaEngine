@@ -28,64 +28,17 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MainLoopEvents_HPP
-#define MainLoopEvents_HPP
+#ifndef Lina_HPP
+#define Lina_HPP
 
-namespace Lina::Event
+#include "Core/Common.hpp"
+
+namespace Lina
 {
-    struct EShutdown
-    {
-    };
-    struct EPreMainLoop
-    {
-    };
-    struct EPostMainLoop
-    {
-    };
-    struct EStartGame
-    {
-    };
-    struct EEndGame
-    {
-    };
-    struct ESyncData
-    {
-    };
-    struct ETick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct EPreTick
-    {
-        float deltaTime   = 0.0f;
-        bool  isInPlayMod = false;
-    };
-    struct EPostTick
-    {
-        float deltaTime    = 0.0f;
-        bool  isInPlayMode = false;
-    };
+	class Application;
 
-    struct EPlayModeChanged
-    {
-        bool playMode = false;
-    };
-    struct EPauseModeChanged
-    {
-        bool isPaused = false;
-    };
+} // namespace Lina
 
-    struct EPrePhysicsTick
-    {
-        float fixedDelta   = 0.0f;
-        bool  isInPlayMode = false;
-    };
-    struct EPostPhysicsTick
-    {
-        float fixedDelta   = 0.0f;
-        bool  isInPlayMode = false;
-    };
-} // namespace Lina::Event
+extern Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInitializationInfo);
 
 #endif

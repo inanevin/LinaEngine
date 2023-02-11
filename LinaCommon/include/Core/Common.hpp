@@ -61,6 +61,12 @@ namespace Lina
 		Fullscreen
 	};
 
+	enum class ApplicationMode
+	{
+		Standalone,
+		Editor
+	};
+
 	struct SystemInitializationInfo
 	{
 		const char*		 appName		  = "";
@@ -69,6 +75,7 @@ namespace Lina
 		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
 		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
 		VsyncMode		 vsyncMode		  = VsyncMode::None;
+		ApplicationMode	 appMode		  = ApplicationMode::Editor;
 	};
 
 	extern const char* VsyncModeToStr(VsyncMode mode);

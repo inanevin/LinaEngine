@@ -28,27 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Clock_HPP
-#define Clock_HPP
+#ifndef PlatformProcessIncl_HPP
+#define PlatformProcessIncl_HPP
 
-#include "Core/SizeDefinitions.hpp"
-
-namespace Lina
-{
-    class Clock
-    {
-    public:
-        Clock()  = default;
-        ~Clock() = default;
-
-        static void  Init();
-        static int64 GetCurrentTicks();
-        static float CalculateDelta(int64 from, int64 to, float timeScale = 1.0f);
-
-    private:
-        static float s_cyclesPerSecond;
-    };
-
-} // namespace Lina
+#ifdef LINA_PLATFORM_WINDOWS
+#include "Platform/Win32/PlatformProcess.hpp"
+#else
+#endif
 
 #endif

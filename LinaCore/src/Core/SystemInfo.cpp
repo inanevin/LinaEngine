@@ -26,57 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Timer_HPP
-#define Timer_HPP
-
-#include <chrono>
+#include "Core/SystemInfo.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina
 {
-    class Time
-    {
-    public:
-        /// <summary>
-        /// CPU clock time. This is NOT elapsed time. You can use this to create time points and measure differences.
-        /// </summary>
-        /// <returns>In seconds</returns>
-        static double GetCPUTime();
+	ApplicationMode SystemInfo::s_appMode				= ApplicationMode::Editor;
+	bool			SystemInfo::s_useFixedTimestep		= false;
+	bool			SystemInfo::s_useFrameRateSmoothing = true;
+	bool			SystemInfo::s_appHasFocus			= true;
+	double			SystemInfo::s_fixedDeltaTime		= 1.0 / 100.0;
+	double			SystemInfo::s_currentRealTime		= 0.0;
+	double			SystemInfo::s_lastRealTime			= 0.0;
+	double			SystemInfo::s_appTime				= 0.0;
+	double			SystemInfo::s_deltaTime				= 0.0;
+	double			SystemInfo::s_idleTime				= 0.0;
+	double			SystemInfo::s_maxDeltaTime			= 1.0;
+	float			SystemInfo::s_averageDT				= 1.0f / 100.0f;
+	float			SystemInfo::s_physicsDeltaTime		= 1.0f / 100.0f;
+	uint64			SystemInfo::s_frames				= 0;
+	uint32			SystemInfo::s_measuredFPS			= 0;
 
-        static inline double GetDeltaTime()
-        {
-            return s_deltaTime;
-        }
+	void SystemInfo::CalculateRunningAverageDT()
+	{
+		if (!s_useFrameRateSmoothing)
+			return;
+		s_averageDT = Math::Lerp(s_averageDT, Math::Min(static_cast<float>(s_deltaTime), 0.2f), 1.0f / 300.f);
+	}
 
-        static inline float GetDeltaTimeF()
-        {
-            return static_cast<float>(s_deltaTime);
-        }
-
-        static inline double GetElapsedTime()
-        {
-            return GetCPUTime() - s_startTime;
-        }
-
-        static inline float GetElapsedTimeF()
-        {
-            return static_cast<float>(GetElapsedTime());
-        }
-
-    private:
-        static void Sleep(double seconds);
-
-    private:
-        static double s_deltaTime;
-        static double s_startTime;
-
-#ifdef LINA_PLATFORM_WINDOWS
-        static double s_timerFrequency;
-        static bool   s_isTimerInitialized;
-#endif
-    };
-
+	float SystemInfo::CalculateMaxTickRate()
+	{
+		return 1.0f / s_averageDT;
+	}
 } // namespace Lina
-
-#endif

@@ -33,38 +33,27 @@ SOFTWARE.
 
 #include "Event/IEventDispatcher.hpp"
 #include "System/ISubsystem.hpp"
-#include "System/IPlugin.hpp"
-#include "Data/Vector.hpp"
-#include "Core/Common.hpp"
 #include "Data/HashMap.hpp"
+#include "Core/Common.hpp"
 #include "JobSystem/JobSystem.hpp"
 
 namespace Lina
 {
 	class ISubsystem;
+	class Application;
 
 	class ISystem : public IEventDispatcher
 	{
 	public:
-		ISystem()		   = default;
+		ISystem(Application* app) : m_app(app){};
 		virtual ~ISystem() = default;
 
 		void		 AddSubsystem(ISubsystem* sub);
 		void		 RemoveSubsystem(ISubsystem* sub);
-		void		 AddPlugin(IPlugin* plugin);
-		void		 RemovePlugin(IPlugin* plugin);
-		void		 SetPhysicsUpdateRate(float rate);
 		ISubsystem*	 GetSubsystem(SubsystemType type);
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
 		virtual void Shutdown()											  = 0;
-		virtual void PreTick()											  = 0;
-		virtual void Tick()												  = 0;
-		virtual void Quit()												  = 0;
-
-		inline void SetTimescale(float ts)
-		{
-			m_gameTimescale = ts;
-		}
+		virtual void Tick(float dt)										  = 0;
 
 		template <typename T> T* GetSubsystem(SubsystemType type)
 		{
@@ -81,25 +70,16 @@ namespace Lina
 			return &m_mainExecutor;
 		}
 
-		inline float GetDelta()
+		inline Application* GetApp()
 		{
-			return m_delta;
+			return m_app;
 		}
 
 	protected:
+		Application*						m_app = nullptr;
 		Executor							m_mainExecutor;
 		SystemInitializationInfo			m_initInfo;
 		HashMap<SubsystemType, ISubsystem*> m_subsystems;
-		Vector<IPlugin*>					m_plugins;
-		HashMap<IPlugin*, void*>			m_pluginHandles;
-		float								m_gameTimescale		 = 1.0f;
-		bool								m_firstRun			 = true;
-		float								m_physicsUpdateRate	 = 0.01f;
-		float								m_physicsAccumulator = 0.0f;
-		int									m_fps				 = 0;
-		int									m_frames			 = 0;
-		float								m_fpsCounter		 = 0.0f;
-		float								m_delta				 = 0.0f;
 	};
 } // namespace Lina
 

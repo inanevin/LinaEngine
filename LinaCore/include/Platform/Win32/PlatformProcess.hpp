@@ -28,46 +28,32 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef InputEvents_HPP
-#define InputEvents_HPP
+#ifndef PlatformProcess_HPP
+#define PlatformProcess_HPP
 
-// Headers here.
-#include "Core/SizeDefinitions.hpp"
+#include "Data/HashMap.hpp"
+#include "Core/StringID.hpp"
 
-namespace Lina::Event
+namespace Lina
 {
-    struct EKeyCallback
-    {
-        void*  window   = nullptr;
-        uint32 key      = 0;
-        int    scancode = 0;
-        int    action   = 0;
-    };
+	class Application;
+	class IPlugin;
+	class IEngineInterface;
+	class IEventDispatcher;
 
-    struct EMouseButtonCallback
-    {
-        void* window = nullptr;
-        int   button = 0;
-        int   action = 0;
-        int   mods   = 0;
-    };
-    struct EMouseScrollCallback
-    {
-        void* window = nullptr;
-        int   xoff   = 0;
-        int   yoff   = 0;
-    };
+	class PlatformProcess
+	{
+	private:
+		friend class Application;
 
-    struct EMouseMoved
-    {
-    };
+		static void PumpMessages();
+		static void SleepSpinLock(double seconds);
+		static void Sleep(double seconds);
+		static void LoadPlugin(const char* name, IEngineInterface* engInterface, IEventDispatcher* dispatcher);
+		static void UnloadPlugin(const char* name, IEventDispatcher* dispatcher);
 
-    struct EMouseMovedRaw
-    {
-        int xDelta = 0;
-        int yDelta = 0;
-    };
-
-} // namespace Lina::Event
-
+	private:
+		static HashMap<IPlugin*, void*> s_pluginHandles;
+	};
+} // namespace Lina
 #endif

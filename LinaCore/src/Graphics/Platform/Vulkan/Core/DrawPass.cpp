@@ -39,18 +39,12 @@ SOFTWARE.
 #include "Graphics/Resource/ModelNode.hpp"
 #include "Profiling/Profiler.hpp"
 #include "JobSystem/JobSystem.hpp"
-#include "Core/Time.hpp"
 
 #include <vulkan/vulkan.h>
 #include "Math/Math.hpp"
 
 namespace Lina
 {
-
-	float  lastReportTime = 0.0f;
-	int	   drawCalls	  = 0;
-	uint32 batches		  = 0;
-
 	void DrawPass::PrepareRenderData(Vector<RenderableData>& drawList, const View& view)
 	{
 		ExtractPassRenderables(drawList, view);
@@ -122,8 +116,6 @@ namespace Lina
 				}
 			}
 		}
-
-		batches = static_cast<uint32>(m_batches.size());
 	}
 
 	static float xd = 0.0f;
@@ -142,8 +134,6 @@ namespace Lina
 
 	void DrawPass::RecordDrawCommands(const CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer)
 	{
-		drawCalls = 0;
-
 		Vector<VkDrawIndexedIndirectCommand> commands;
 		uint32								 i = 0;
 		for (auto b : m_batches)
@@ -188,13 +178,6 @@ namespace Lina
 			cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
 			firstInstance += batch.count;
 			// cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
-			drawCalls++;
-		}
-
-		if (Time::GetCPUTime() > lastReportTime + 1.0f)
-		{
-			lastReportTime = static_cast<float>(Time::GetCPUTime());
-			// LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
 		}
 	}
 

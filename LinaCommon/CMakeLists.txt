@@ -22,8 +22,6 @@ project(LinaCommon CXX)
 set (LINACOMMON_SOURCES
 
 	src/Core/Common.cpp
-    src/Core/Time.cpp
-	src/Core/Clock.cpp
 	src/Core/StringID.cpp
 	src/Core/ISingleton.cpp
 	
@@ -89,8 +87,6 @@ set(LINACOMMON_HEADERS
 	#CORE
 	include/Core/Common.hpp
 	include/Core/SizeDefinitions.hpp
-	include/Core/Time.hpp
-	include/Core/Clock.hpp
 	include/Core/StringID.hpp
 	include/Core/ISingleton.hpp
 	include/Core/ObjectWrapper.hpp
@@ -151,6 +147,9 @@ set(LINACOMMON_HEADERS
 	# Log
 	include/Log/Log.hpp
 
+	# Platform
+	include/Platform/PlatformTimeIncl.hpp
+
 	# Serialization
 	include/Serialization/CommonSerialization.hpp
 	include/Serialization/ISerializable.hpp
@@ -181,10 +180,22 @@ set(LINACOMMON_HEADERS
 	include/System/ISubsystem.hpp
 )
 
+if(WIN32)
+
+set (LINACOMMON_PLATFORM_HEADERS
+include/Platform/Win32/PlatformTime.hpp
+)
+
+set (LINACOMMON_PLATFORM_SOURCES 
+src/Platform/Win32/PlatformTime.cpp
+)
+
+endif()
+
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS})
+add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS} ${LINACOMMON_PLATFORM_HEADERS} ${LINACOMMON_PLATFORM_SOURCES})
 add_library(Lina::Common ALIAS ${PROJECT_NAME} ) 
 
 #--------------------------------------------------------------------
@@ -255,7 +266,7 @@ link_lz4()
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINACOMMON_HEADERS LINACOMMON_SOURCES)
+	foreach(source IN LISTS LINACOMMON_HEADERS LINACOMMON_SOURCES LINACOMMON_PLATFORM_HEADERS LINACOMMON_PLATFORM_SOURCES)
 		get_filename_component(source_path "${source}" PATH)
 		string(REPLACE "${LinaCommon_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")

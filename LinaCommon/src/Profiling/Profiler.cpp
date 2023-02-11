@@ -29,7 +29,7 @@ SOFTWARE.
 #ifdef LINA_ENABLE_PROFILING
 
 #include "Profiling/Profiler.hpp"
-#include "Core/Time.hpp"
+#include "Platform/PlatformTimeIncl.hpp"
 #include "Memory/Memory.hpp"
 #include "Log/Log.hpp"
 #include "FileSystem/FileSystem.hpp"
@@ -74,7 +74,7 @@ namespace Lina
             m_cpuInfo.numberOfCores = std::thread::hardware_concurrency();
         }
 
-        const double  time    = Time::GetCPUTime();
+        const double  time    = PlatformTime::GetSeconds();
         static double percent = 0.0;
 
         if (time - m_lastCPUQueryTime > QUERY_CPU_INTERVAL_SECS)
@@ -120,7 +120,7 @@ namespace Lina
 
     void Profiler::StartFrame()
     {
-        const double cpuTimeNow = Time::GetCPUTime();
+        const double cpuTimeNow = PlatformTime::GetSeconds();
 
         if (m_frames.size() == MAX_FRAME_BACKTRACE)
         {
@@ -143,7 +143,7 @@ namespace Lina
     void Profiler::StartScope(const String& scope, const String& thread)
     {
         LOCK_GUARD(m_lock);
-        const double  cpuTimeNow = Time::GetCPUTime();
+        const double  cpuTimeNow = PlatformTime::GetSeconds();
         ThreadBranch& branch     = m_frames.back().threadBranches[thread];
 
         Scope* s      = new Scope();
@@ -159,14 +159,14 @@ namespace Lina
             branch.lastScope->children.push_back(s);
 
         branch.lastScope = s;
-        s->initDiff      = Time::GetCPUTime() - cpuTimeNow;
+        s->initDiff      = PlatformTime::GetSeconds(); - cpuTimeNow;
     }
 
     void Profiler::EndScope(const String& scope, const String& thread)
     {
         LOCK_GUARD(m_lock);
         ThreadBranch& branch         = m_frames.back().threadBranches[thread];
-        branch.lastScope->durationNS = (Time::GetCPUTime() - branch.lastScope->startTime + branch.lastScope->initDiff) * 1.0e9;
+        branch.lastScope->durationNS = (PlatformTime::GetSeconds() - branch.lastScope->startTime + branch.lastScope->initDiff) * 1.0e9;
         branch.lastScope             = branch.lastScope->parent;
     }
 

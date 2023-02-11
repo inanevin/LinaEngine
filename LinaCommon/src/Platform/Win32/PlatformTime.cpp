@@ -26,37 +26,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef WorldEvents_HPP
-#define WorldEvents_HPP
-
-#include "Core/StringID.hpp"
+#include "Platform/Win32/PlatformTime.hpp"
+#include <Windows.h>
 
 namespace Lina
 {
-    class EntityWorld;
-    class Component;
+	double PlatformTime::s_secondsPerCycle	 = 0.0;
+	double PlatformTime::s_secondsPerCycle64 = 0.0;
 
-    struct EComponentCreated
-    {
-        EntityWorld* world = nullptr;
-        Component*   ptr   = nullptr;
-        TypeID       tid   = 0;
-    };
+	double PlatformTime::GetSeconds()
+	{
+		if (s_secondsPerCycle == 0.0)
+		{
+			LARGE_INTEGER Frequency;
 
-    struct EComponentDestroyed
-    {
-        EntityWorld* world = nullptr;
-        Component*   ptr   = nullptr;
-        TypeID       tid   = 0;
-    };
+			if (!QueryPerformanceFrequency(&Frequency))
+				LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
 
-    struct EWorldDestroyed
-    {
-        EntityWorld* world = nullptr;
-    };
+			s_secondsPerCycle	= 1.0 / Frequency.QuadPart;
+			s_secondsPerCycle64 = 1.0 / Frequency.QuadPart;
+		}
 
+		LARGE_INTEGER Cycles;
+		QueryPerformanceCounter(&Cycles);
+
+		return Cycles.QuadPart * GetSecondsPerCycle() + 16777216.0;
+	}
+
+	uint32 PlatformTime::GetCycles()
+	{
+		LARGE_INTEGER Cycles;
+		QueryPerformanceCounter(&Cycles);
+		return (uint32)Cycles.QuadPart;
+	}
+
+	uint64 PlatformTime::GetCycles64()
+	{
+		LARGE_INTEGER Cycles;
+		QueryPerformanceCounter(&Cycles);
+		return Cycles.QuadPart;
+	}
+
+	double PlatformTime::GetDeltaSeconds(uint32 from, uint32 to, double timeScale)
+	{
+		return (to - from) * s_secondsPerCycle * timeScale;
+	}
+
+	double PlatformTime::GetDeltaSeconds64(uint64 from, uint64 to, double timeScale)
+	{
+		return (to - from) * s_secondsPerCycle64 * timeScale;
+	}
+		
 } // namespace Lina
-
-#endif

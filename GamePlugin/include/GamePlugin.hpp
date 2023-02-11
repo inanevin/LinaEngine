@@ -36,12 +36,12 @@ SOFTWARE.
 class GamePlugin : public Lina::IPlugin
 {
 public:
-    GamePlugin(Lina::IEngineInterface* interface) : IPlugin(interface){};
-    virtual ~GamePlugin() = default;
+	GamePlugin(Lina::IEngineInterface* interface, const Lina::String& name) : IPlugin(interface, name){};
+	virtual ~GamePlugin() = default;
 
-    // Inherited via IPlugin
-    virtual void OnGameEvent(Lina::EGameEvent type, const Lina::Event& ev) override;
-    virtual void OnAttached() override;
-    virtual void OnDetached() override;
+	// Inherited via IPlugin
+	virtual void OnGameEvent(Lina::EGameEvent type, const Lina::Event& ev) override;
+	virtual void OnAttached() override;
+	virtual void OnDetached() override;
 };
 #endif

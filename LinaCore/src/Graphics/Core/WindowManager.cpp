@@ -57,16 +57,6 @@ namespace Lina
 		m_gfxManager = m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 #ifdef LINA_PLATFORM_WINDOWS
-		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-
-		DWORD dwError;
-		if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
-		{
-			dwError = GetLastError();
-			LINA_ERR("[Window Manager] -> Failed setting priority: {0}", dwError);
-		}
-
-		SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
 
 		EnumDisplayMonitors(
 			NULL,

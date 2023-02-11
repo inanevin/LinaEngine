@@ -32,23 +32,30 @@ SOFTWARE.
 #define IPlugin_HPP
 
 #include "Event/IEventListener.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
-    class IEngineInterface;
+	class IEngineInterface;
 
-    class IPlugin : public IEventListener
-    {
-    public:
-        IPlugin(IEngineInterface* interface) : m_engineInterface(interface){};
-        virtual ~IPlugin() = default;
+	class IPlugin : public IEventListener
+	{
+	public:
+		IPlugin(IEngineInterface* interface, const String& name) : m_engineInterface(interface), m_name(name){};
+		virtual ~IPlugin() = default;
 
-        virtual void OnAttached() = 0;
-        virtual void OnDetached() = 0;
+		virtual void OnAttached() = 0;
+		virtual void OnDetached() = 0;
 
-    protected:
-        IEngineInterface* m_engineInterface = nullptr;
-    };
+		inline const String& GetName()
+		{
+			return m_name;
+		}
+
+	protected:
+		String			  m_name			= "";
+		IEngineInterface* m_engineInterface = nullptr;
+	};
 
 } // namespace Lina
 

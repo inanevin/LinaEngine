@@ -27,61 +27,19 @@ SOFTWARE.
 */
 
 #include "Core/EditorApplication.hpp"
+#include "Lina.hpp"
 
-#ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
-
-using namespace Lina;
-
-int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR pCmdLine, _In_ int nCmdShow)
+Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInfo)
 {
-	// Win32 stuff
-	MSG msg	   = {0};
-	msg.wParam = 0;
-
-	if (AllocConsole() == FALSE)
-	{
-		// err
-	}
-
-	SystemInitializationInfo initializationInfo = SystemInitializationInfo{
+	outInfo = Lina::SystemInitializationInfo{
 		.appName		  = "Lina Editor",
 		.windowWidth	  = 1440,
 		.windowHeight	  = 960,
-		.windowStyle	  = WindowStyle::Windowed,
-		.preferredGPUType = PreferredGPUType::Discrete,
-		.vsyncMode		  = VsyncMode::None,
+		.windowStyle	  = Lina::WindowStyle::Windowed,
+		.preferredGPUType = Lina::PreferredGPUType::Integrated,
+		.vsyncMode		  = Lina::VsyncMode::None,
+		.appMode		  = Lina::ApplicationMode::Editor,
 	};
 
-	Editor::EditorApplication app = Editor::EditorApplication();
-	app.Initialize(initializationInfo);
-
-	while (app.GetIsRunning())
-	{
-		app.PreTick();
-
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		if (msg.message == WM_QUIT || msg.message == WM_DESTROY)
-			break;
-
-		app.Tick();
-	}
-
-	app.Shutdown();
-
-	FreeConsole();
+	return new Lina::Editor::EditorApplication();
 }
-
-#else
-
-int main(int argc, char* argv[])
-{
-	return 0;
-}
-
-#endif

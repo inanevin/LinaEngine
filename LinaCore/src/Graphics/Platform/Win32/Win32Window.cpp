@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Input/Core/CommonInput.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Core/Application.hpp"
 
 #include <Windows.h>
 #include <shellscalingapi.h>
@@ -444,7 +445,7 @@ namespace Lina
 	void Win32Window::Close()
 	{
 		if (m_sid == LINA_MAIN_SWAPCHAIN)
-			m_manager->GetSystem()->Quit();
+			m_manager->GetSystem()->GetApp()->Quit();
 	}
 
 	void Win32Window::SetToWorkingArea()

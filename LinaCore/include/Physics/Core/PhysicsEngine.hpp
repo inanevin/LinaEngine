@@ -43,7 +43,7 @@ namespace Lina
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
-		void		 Simulate(float dt);
+		bool		 Simulate(float delta, float physicsDelta);
 		void		 WaitForSimulation();
 		void		 SyncData();
 	};

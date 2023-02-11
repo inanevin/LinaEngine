@@ -31,61 +31,42 @@ SOFTWARE.
 #ifndef Application_HPP
 #define Application_HPP
 
-#include "System/ISystem.hpp"
-#include "Core/Clock.hpp"
-#include "Input/Core/Input.hpp"
-#include "Audio/Core/AudioManager.hpp"
-#include "Graphics/Platform/GfxManagerIncl.hpp"
-#include "Graphics/Core/WindowManager.hpp"
-#include "World/Level/LevelManager.hpp"
-#include "Physics/Core/PhysicsEngine.hpp"
-#include "Resources/Core/ResourceManager.hpp"
-#include "JobSystem/JobSystem.hpp"
-#include "IEngineInterface.hpp"
-
+#include "Core/Engine.hpp"
+#include "Data/Vector.hpp"
+#include "Data/HashMap.hpp"
 namespace Lina
 {
-	class CoreResourcesRegistry;
+	struct SystemInitializationInfo;
 
-	class Application : public ISystem
+	class Application
 	{
 	public:
-		Application() : m_input(this), m_audioManager(this), m_gfxManager(this), m_levelManager(this), m_physicsEngine(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Application() : m_engine(this){};
+		virtual ~Application(){};
 
-		virtual ~Application() = default;
+		void Initialize(const SystemInitializationInfo& initInfo);
+		void Tick();
+		void Shutdown();
 
-		// Inherited via ISystem
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void DispatchSystemEvent(ESystemEvent ev, const Event& data) override;
-		virtual void Shutdown() override;
-		virtual void PreTick() override;
-		virtual void Tick() override;
-		virtual void Quit() override;
-
-		inline bool GetIsRunning()
+		inline void Quit()
 		{
-			return m_isRunning;
+			m_exitRequested = true;
+		}
+
+		inline bool GetExitRequested()
+		{
+			return m_exitRequested;
 		}
 
 	protected:
+		void		 CalculateTime();
 		virtual void LoadPlugins();
-		virtual void PostInitialize();
 		virtual void UnloadPlugins();
-		void		 LoadPlugin(const char* name);
-		void		 UnloadPlugin(IPlugin* plugin);
 
 	protected:
-		bool				   m_isRunning			  = false;
-		CoreResourcesRegistry* m_coreResourceRegistry = nullptr;
-		Executor			   m_executor;
-		Input				   m_input;
-		AudioManager		   m_audioManager;
-		GfxManager			   m_gfxManager;
-		WindowManager		   m_windowManager;
-		LevelManager		   m_levelManager;
-		PhysicsEngine		   m_physicsEngine;
-		ResourceManager		   m_resourceManager;
-		IEngineInterface	   m_engineInterface;
+		Engine m_engine;
+		bool   m_exitRequested = false;
+		bool   m_isIdleMode	   = false;
 	};
 } // namespace Lina
 

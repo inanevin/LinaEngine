@@ -33,19 +33,19 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Application;
+	class Engine;
 
-    class IEngineInterface
-    {
-    public:
-        IEngineInterface(Application* app) : m_app(app){};
-        virtual ~IEngineInterface() = default;
+	class IEngineInterface
+	{
+	public:
+		IEngineInterface(Engine* engine) : m_engine(engine){};
+		virtual ~IEngineInterface() = default;
 
-        // Engine-Plugin communications.
-        
-    private:
-        Application* m_app = nullptr;
-    };
+		// Engine-Plugin communications.
+
+	private:
+		Engine* m_engine = nullptr;
+	};
 } // namespace Lina
 
 #endif
