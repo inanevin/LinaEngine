@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	Renderer::Renderer(GfxManager* manager, Bitmask16 mask, RendererType type) : m_gfxManager(manager), m_mask(mask), m_type(type)
+	Renderer::Renderer(GfxManager* manager, uint32 imageCount, Bitmask16 mask, RendererType type) : m_gfxManager(manager), m_imageCount(imageCount), m_mask(mask), m_type(type)
 	{
 		m_cmdPool = CommandPool{
 			.device		  = manager->GetBackend()->GetDevice(),
@@ -42,9 +42,7 @@ namespace Lina
 		};
 		m_cmdPool.Create();
 
-		const uint32 imageSize = static_cast<uint32>(manager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->_images.size());
-
-		for (uint32 i = 0; i < imageSize; i++)
+		for (uint32 i = 0; i < m_imageCount; i++)
 		{
 			CommandBuffer buf = CommandBuffer{
 				.device = manager->GetBackend()->GetDevice(),

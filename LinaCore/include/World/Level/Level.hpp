@@ -39,38 +39,38 @@ SOFTWARE.
 
 namespace Lina
 {
-    class EntityWorld;
-    class IEventDispatcher;
+	class EntityWorld;
+	class IEventDispatcher;
 
-    class Level : public IResource
-    {
-    public:
-        Level(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Level>()){};
-        virtual ~Level();
+	class Level : public IResource
+	{
+	public:
+		Level(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Level>()){};
+		virtual ~Level();
 
-        void Install(IEventDispatcher* dispatcher);
-        void Uninstall(IEventDispatcher* dispatcher);
+		void Install(IEventDispatcher* dispatcher);
+		void Uninstall(IEventDispatcher* dispatcher);
 
-        inline ObjectWrapper<EntityWorld> GetWorld()
-        {
-            return ObjectWrapper<EntityWorld>(m_world);
-        }
+		inline EntityWorld* GetWorld()
+		{
+			return m_world;
+		}
 
-        inline const Vector<ResourceIdentifier>& GetUsedResources()
-        {
-            return m_usedResources;
-        }
+		inline const Vector<ResourceIdentifier>& GetUsedResources()
+		{
+			return m_usedResources;
+		}
 
-    private:
-        // Inherited via IResource
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
+	private:
+		// Inherited via IResource
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
 
-    private:
-        Vector<ResourceIdentifier> m_usedResources;
-        EntityWorld*               m_world = nullptr;
-        IStream                    m_worldStream;
-    };
+	private:
+		Vector<ResourceIdentifier> m_usedResources;
+		EntityWorld*			   m_world = nullptr;
+		IStream					   m_worldStream;
+	};
 } // namespace Lina
 
 #endif

@@ -62,11 +62,16 @@ namespace Lina
 		Shadow		= 1 << 2,
 	};
 
-	enum RendererMask
+	enum SurfaceRendererMask
 	{
-		RM_RenderGUI			= 1 << 0,
-		RM_DrawOffscreenTexture = 1 << 1,
-		RM_ApplyPostProcessing	= 1 << 2,
+		SRM_RenderGUI			 = 1 << 0,
+		SRM_DrawOffscreenTexture = 1 << 1,
+	};
+
+	enum WorldRendererMask
+	{
+		WRM_PassResultToSurface = 1 << 0,
+		WRM_ApplyPostProcessing		 = 1 << 1,
 	};
 
 	enum class RendererType
@@ -113,28 +118,28 @@ namespace Lina
 		uint32					 entityID	  = 0;
 		uint32					 batchID	  = 0;
 		uint32					 objDataIndex = 0;
-		Bitmask16				 entityMask;
+		Bitmask16				 entityMask	  = 0;
 		Vector<MeshMaterialPair> meshMaterialPairs;
 	};
 
 	struct GPUSceneData
 	{
-		Vector4 fogColor;	  // w is for exponent
-		Vector4 fogDistances; // x for min, y for max, zw unused.
-		Vector4 ambientColor;
-		Vector4 sunlightDirection; // w for sun power
-		Vector4 sunlightColor;
+		Vector4 fogColor		  = Vector4::Zero; // w is for exponent
+		Vector4 fogDistances	  = Vector4::Zero; // x for min, y for max, zw unused.
+		Vector4 ambientColor	  = Vector4::Zero;
+		Vector4 sunlightDirection = Vector4::Zero; // w for sun power
+		Vector4 sunlightColor	  = Vector4::Zero;
 	};
 
 	struct GPUGlobalData
 	{
-		Vector4 screenSizeMousePos;
-		Vector2 deltaElapsed;
+		Vector4 screenSizeMousePos = Vector4::Zero;
+		Vector2 deltaElapsed	   = Vector2::Zero;
 	};
 
 	struct GPUDebugData
 	{
-		int visualizeDepth;
+		int visualizeDepth = 0;
 	};
 
 	struct GPUObjectData

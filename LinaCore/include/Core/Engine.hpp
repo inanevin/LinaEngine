@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Graphics/Platform/GfxManagerIncl.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "World/Level/LevelManager.hpp"
-#include "Physics/Core/PhysicsEngine.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "IEngineInterface.hpp"
@@ -50,7 +49,7 @@ namespace Lina
 	class Engine : public ISystem
 	{
 	public:
-		Engine(Application* app) : ISystem(app), m_input(this), m_audioManager(this), m_gfxManager(this), m_levelManager(this), m_physicsEngine(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : ISystem(app), m_input(this), m_audioManager(this), m_gfxManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
 
 		virtual ~Engine() = default;
 
@@ -70,10 +69,16 @@ namespace Lina
 			return &m_engineInterface;
 		}
 
+		inline WindowManager& GetWindowManager()
+		{
+			return m_windowManager;
+		}
+
 	protected:
 		virtual void PostInitialize();
 
 	protected:
+		ResourceManager		   m_resourceManager;
 		CoreResourcesRegistry* m_coreResourceRegistry = nullptr;
 		Executor			   m_executor;
 		Input				   m_input;
@@ -81,8 +86,6 @@ namespace Lina
 		GfxManager			   m_gfxManager;
 		WindowManager		   m_windowManager;
 		LevelManager		   m_levelManager;
-		PhysicsEngine		   m_physicsEngine;
-		ResourceManager		   m_resourceManager;
 		IEngineInterface	   m_engineInterface;
 	};
 } // namespace Lina

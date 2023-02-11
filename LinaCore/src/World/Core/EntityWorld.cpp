@@ -143,6 +143,26 @@ namespace Lina
 		m_allocatorPool.Free(e);
 	}
 
+	void EntityWorld::Tick(float delta)
+	{
+		Event data;
+		data.fParams[0] = delta;
+		m_dispatcher->DispatchGameEvent(EVG_Tick, data);
+		m_dispatcher->DispatchGameEvent(EVG_PostTick, data);
+
+		m_physicsWorld.Tick(delta);
+	}
+
+	void EntityWorld::WaitForSimulation()
+	{
+		m_physicsWorld.WaitForSimulation();
+	}
+
+	void EntityWorld::SyncData(float alpha)
+	{
+		m_physicsWorld.SyncData(alpha);
+	}
+
 	void EntityWorld::SaveToStream(OStream& stream)
 	{
 		m_entities.SaveToStream(stream);

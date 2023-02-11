@@ -71,9 +71,7 @@ namespace Lina
 		void			 Render();
 		void			 SyncData(float alpha);
 		SurfaceRenderer* CreateSurfaceRenderer(Swapchain* swapchain, Bitmask16 mask);
-		WorldRenderer*	 CreateWorldRenderer(EntityWorld* world, Bitmask16 mask, const Vector2i& resolution, float aspect);
 		void			 DestroySurfaceRenderer(Swapchain* swapchain);
-		void			 DestroyWorldRenderer(EntityWorld* world);
 		virtual void	 OnSystemEvent(ESystemEvent type, const Event& ev);
 
 		inline GPUStorage& GetGPUStorage()
@@ -134,14 +132,14 @@ namespace Lina
 			return m_globalAndPassLayout;
 		}
 
-		inline Buffer& GetGlobalDataBuffer(int frameIndex)
+		inline const GPUGlobalData& GetGPUGlobalData()
 		{
-			return m_globalDataBuffer[frameIndex];
+			return m_globalData;
 		}
 
-		inline Buffer& GetDebugDataBuffer(int frameIndex)
+		inline const GPUDebugData& GetGPUDebugData()
 		{
-			return m_debugDataBuffer[frameIndex];
+			return m_debugData;
 		}
 
 	private:
@@ -158,15 +156,13 @@ namespace Lina
 		HashMap<DescriptorSetType, DescriptorSetLayout> m_descriptorLayouts;
 		PipelineLayout									m_globalAndPassLayout;
 		Vector<Material*>								m_engineMaterials;
-		Vector<Renderer*>								m_renderers;
+		Vector<SurfaceRenderer*>						m_surfaceRenderers;
 		HashMap<Mesh*, MergedBufferMeshEntry>			m_meshEntries;
 		Vector<StringID>								m_mergedModelIDs;
 		Buffer											m_cpuVtxBuffer;
 		Buffer											m_cpuIndexBuffer;
 		Buffer											m_gpuVtxBuffer;
 		Buffer											m_gpuIndexBuffer;
-		Buffer											m_globalDataBuffer[FRAMES_IN_FLIGHT];
-		Buffer											m_debugDataBuffer[FRAMES_IN_FLIGHT];
 		GPUGlobalData									m_globalData;
 		GPUDebugData									m_debugData;
 	};

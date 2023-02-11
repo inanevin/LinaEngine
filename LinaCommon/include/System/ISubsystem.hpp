@@ -41,7 +41,7 @@ namespace Lina
 		None = 0,
 		Input,
 		GfxManager,
-		PhysicsEngine,
+		PhysicsWorld,
 		AudioManager,
 		WindowManager,
 		LevelManager,

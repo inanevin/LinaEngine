@@ -26,53 +26,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Physics/Core/PhysicsEngine.hpp"
-#include "System/ISystem.hpp"
+#pragma once
+
+#ifndef PhysicsWorld_HPP
+#define PhysicsWorld_HPP
 
 namespace Lina
 {
+	class EntityWorld;
+	class IEventDispatcher;
 
-	void PhysicsEngine::Initialize(const SystemInitializationInfo& initInfo)
+	class PhysicsWorld
 	{
-		LINA_TRACE("[Physics Engine] -> Initialization.");
-	}
+	public:
+		PhysicsWorld(EntityWorld* world, IEventDispatcher* disp) : m_world(world), m_dispatcher(disp){};
+		~PhysicsWorld() = default;
 
-	void PhysicsEngine::Shutdown()
-	{
-		LINA_TRACE("[Physics Engine] -> Shutdown.");
-	}
+		void Tick(float delta);
+		void WaitForSimulation();
+		void SyncData(float alpha);
 
-	bool PhysicsEngine::Simulate(float delta, float physicsDelta)
-	{
-		static float physicsAccumulator = 0.0f;
-
-		if (physicsAccumulator > physicsDelta)
-		{
-			// N = accumulator - update rate -> remainder.
-			// TODO: optional substepping to compansate.
-			physicsAccumulator = 0;
-
-			Event eventData;
-			eventData.fParams[0] = physicsDelta;
-			m_system->DispatchGameEvent(EVG_Physics, eventData);
-			m_system->DispatchGameEvent(EVG_PostPhysics, eventData);
-
-			// Simulate nvidia physx
-
-			return true;
-		}
-
-		physicsAccumulator += delta;
-
-		return false;
-	}
-
-	void PhysicsEngine::WaitForSimulation()
-	{
-		// fetch physx results
-	}
-
-	void PhysicsEngine::SyncData()
-	{
-	}
+	private:
+		bool			  m_simulated  = false;
+		EntityWorld*	  m_world	   = nullptr;
+		IEventDispatcher* m_dispatcher = nullptr;
+	};
 } // namespace Lina
+
+#endif

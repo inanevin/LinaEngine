@@ -118,11 +118,8 @@ namespace Lina
 		}
 	}
 
-	static float xd = 0.0f;
-
 	void DrawPass::UpdateViewData(Buffer& viewDataBuffer, const View& view)
 	{
-		xd += 0.01f;
 		GPUViewData data;
 		data.view		= view.GetView();
 		data.proj		= view.GetProj();

@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Graphics/Platform/Vulkan/Core/SurfaceRenderer.hpp"
+#include "Graphics/Platform/Vulkan/Core/WorldRenderer.hpp"
 #include "Graphics/Platform/Vulkan/Core/GfxManager.hpp"
 #include "Graphics/Platform/Vulkan/Objects/Swapchain.hpp"
 #include "Graphics/Resource/Material.hpp"
@@ -38,7 +39,7 @@ namespace Lina
 {
 	int SurfaceRenderer::s_surfaceRendererCount = 0;
 
-	SurfaceRenderer::SurfaceRenderer(GfxManager* man, Swapchain* swp, Bitmask16 mask) : Renderer(man, mask, RendererType::SurfaceRenderer), m_swapchain(swp)
+	SurfaceRenderer::SurfaceRenderer(GfxManager* man, Swapchain* swp, Bitmask16 mask) : Renderer(man, static_cast<uint32>(swp->_images.size()), mask, RendererType::SurfaceRenderer), m_swapchain(swp)
 	{
 		if (m_swapchain == nullptr)
 		{
@@ -48,32 +49,41 @@ namespace Lina
 
 		s_surfaceRendererCount++;
 
-		if (m_mask.IsSet(RM_DrawOffscreenTexture))
+		if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 		{
-			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			m_offscreenMaterials.resize(m_imageCount, nullptr);
+
+			for (uint32 i = 0; i < m_imageCount; i++)
 			{
 				const String name		= "SurfaceRenderer_" + TO_STRING(s_surfaceRendererCount) + "OffscreenMat_" + TO_STRING(i);
 				m_offscreenMaterials[i] = new Material(man->GetSystem()->GetSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, "", TO_SID(name));
 				m_offscreenMaterials[i]->SetShader("Resources/Core/Shaders/ScreenQuads/SQFinal.linashader"_hs);
 			}
 		}
-
-		if (m_mask.IsSet(RM_ApplyPostProcessing))
-			LINA_WARN("[Surface Renderer] -> Post Processing mask has no effect on surface renderers!");
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
-		if (m_mask.IsSet(RM_DrawOffscreenTexture))
+		if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 		{
-			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-				delete m_offscreenMaterials[i];
+			for (auto mat : m_offscreenMaterials)
+				delete mat;
 		}
 	}
 
-	void SurfaceRenderer::SetOffscreenTexture(Texture* txt)
+	void SurfaceRenderer::AddWorldRenderer(WorldRenderer* renderer)
 	{
-		if (!m_mask.IsSet(RM_DrawOffscreenTexture))
+		m_worldRenderers.push_back(renderer);
+	}
+
+	void SurfaceRenderer::RemoveWorldRenderer(WorldRenderer* renderer)
+	{
+		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [renderer](WorldRenderer* r) { return r == renderer; }));
+	}
+
+	void SurfaceRenderer::SetOffscreenTexture(Texture* txt, uint32 imageIndex)
+	{
+		if (!m_mask.IsSet(SRM_DrawOffscreenTexture))
 		{
 			LINA_ERR("[Surface Renderer] -> Renderer is not set to draw an offscreen texture, returning!");
 			return;
@@ -81,17 +91,13 @@ namespace Lina
 
 		m_gfxManager->Join();
 
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto* m = m_offscreenMaterials[i];
-			m->SetTexture(0, txt->GetSID());
-			m->UpdateBuffers();
-		}
+		m_offscreenMaterials[imageIndex]->SetTexture(0, txt->GetSID());
+		m_offscreenMaterials[imageIndex]->UpdateBuffers();
 	}
 
 	void SurfaceRenderer::ClearOffscreenTexture()
 	{
-		if (!m_mask.IsSet(RM_DrawOffscreenTexture))
+		if (!m_mask.IsSet(SRM_DrawOffscreenTexture))
 		{
 			LINA_ERR("[Surface Renderer] -> Renderer is not set to draw an offscreen texture, returning!");
 			return;
@@ -99,25 +105,25 @@ namespace Lina
 
 		m_gfxManager->Join();
 
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		for (auto mat : m_offscreenMaterials)
 		{
-			auto* m = m_offscreenMaterials[i];
-			m->SetTexture(0, "Resources/Core/Textures/LogoWithText.png"_hs);
-			m->UpdateBuffers();
+			mat->SetTexture(0, "Resources/Core/Textures/LogoWithText.png"_hs);
+			mat->UpdateBuffers();
 		}
 	}
 
 	bool SurfaceRenderer::AcquireImage(uint32 frameIndex)
 	{
 		VulkanResult res;
-		m_acquiredImage = m_swapchain->AcquireNextImage(10.0f, m_swapchain->_submitSemaphores[frameIndex], res);
+		m_acquiredImage = m_swapchain->AcquireNextImage(UINT64_MAX, m_swapchain->_submitSemaphores[frameIndex], res);
 
 		return CanContinueWithAcquiredImage(res);
 	}
 
 	CommandBuffer* SurfaceRenderer::Render(uint32 frameIndex, Fence& fence)
 	{
-		auto& cmd = m_cmds[frameIndex];
+		const uint32 imageIndex = m_acquiredImage;
+		auto&		 cmd		= m_cmds[imageIndex];
 		cmd.Reset(true);
 		cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
@@ -147,7 +153,7 @@ namespace Lina
 		// ********* FINAL & PP PASS *********
 		{
 			// Issue GUI draw commands.
-			if (m_mask.IsSet(RM_RenderGUI))
+			if (m_mask.IsSet(SRM_RenderGUI))
 			{
 				// LinaVG::StartFrame();
 				// m_guiBackend->Prepare(m_swapchain, frameIndex, &cmd);
@@ -156,15 +162,15 @@ namespace Lina
 
 			cmd.CMD_BeginRenderingDefault(swapchainImageView, swapchainDepthImageView, defaultRenderArea);
 
-			if (m_mask.IsSet(RM_DrawOffscreenTexture))
+			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 			{
-				auto mat = m_offscreenMaterials[frameIndex];
+				auto mat = m_offscreenMaterials[m_acquiredImage];
 				cmd.CMD_BindPipeline(m_gfxManager->GetGPUStorage().GetPipeline(mat), &m_gfxManager->GetGPUStorage().GetDescriptor(mat), MaterialBindFlag::BindDescriptor | MaterialBindFlag::BindPipeline);
 				cmd.CMD_Draw(3, 1, 0, 0);
 			}
 
 			// Render GUI on top
-			if (m_mask.IsSet(RM_RenderGUI))
+			if (m_mask.IsSet(SRM_RenderGUI))
 			{
 				// m_guiBackend->RecordDrawCommands();
 				//  LinaVG::EndFrame();
@@ -179,6 +185,18 @@ namespace Lina
 
 		cmd.End();
 		return &cmd;
+	}
+
+	void SurfaceRenderer::Tick(float delta)
+	{
+		for (auto wr : m_worldRenderers)
+			wr->Tick(delta);
+	}
+
+	void SurfaceRenderer::SyncData(float alpha)
+	{
+		for (auto wr : m_worldRenderers)
+			wr->SyncData(alpha);
 	}
 
 	void SurfaceRenderer::AcquiredImageInvalid(uint32 frameIndex)

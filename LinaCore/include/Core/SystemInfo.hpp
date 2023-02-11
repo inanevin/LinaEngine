@@ -61,7 +61,7 @@ namespace Lina
 			return s_appTime;
 		}
 
-		static inline double GetAppTimeF()
+		static inline float GetAppTimeF()
 		{
 			return static_cast<float>(s_appTime);
 		}
@@ -88,7 +88,7 @@ namespace Lina
 
 		static inline float GetFixedFrameRate()
 		{
-			return 1.0f / s_fixedDeltaTime;
+			return 1.0f / static_cast<float>(s_fixedDeltaTime);
 		}
 
 		static inline bool UseFrameRateSmoothing()

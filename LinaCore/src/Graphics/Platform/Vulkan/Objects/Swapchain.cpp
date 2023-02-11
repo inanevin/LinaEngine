@@ -186,26 +186,25 @@ namespace Lina
 			s.Destroy();
 	}
 
-	uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, VulkanResult& res) const
+	uint32 Swapchain::AcquireNextImage(uint64 timeout, const Semaphore& semaphore, VulkanResult& res) const
 	{
+		//uint64	 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
+	
 		uint32	 index;
-		uint64	 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
 		VkResult result	 = vkAcquireNextImageKHR(device, _ptr, timeout, semaphore._ptr, nullptr, &index);
 		res				 = GetResult(static_cast<int32>(result));
 		return index;
 	}
-	uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Semaphore& semaphore, const Fence& fence) const
+	uint32 Swapchain::AcquireNextImage(uint64 timeout, const Semaphore& semaphore, const Fence& fence) const
 	{
 		uint32	 index;
-		uint64	 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
 		VkResult result	 = vkAcquireNextImageKHR(device, _ptr, timeout, semaphore._ptr, fence._ptr, &index);
 		LINA_ASSERT(result == VK_SUCCESS, "[Swapchain] -> Could not acquire next image!");
 		return index;
 	}
-	uint32 Swapchain::AcquireNextImage(double timeoutSeconds, const Fence& fence) const
+	uint32 Swapchain::AcquireNextImage(uint64 timeout, const Fence& fence) const
 	{
 		uint32	 index;
-		uint64	 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
 		VkResult result	 = vkAcquireNextImageKHR(device, _ptr, timeout, nullptr, nullptr, &index);
 		LINA_ASSERT(result == VK_SUCCESS, "[Swapchain] -> Could not acquire next image!");
 		return index;

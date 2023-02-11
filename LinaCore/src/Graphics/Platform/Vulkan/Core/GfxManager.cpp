@@ -46,6 +46,7 @@ SOFTWARE.
 #include "Graphics/Core/Window.hpp"
 #include "Graphics/Components/CameraComponent.hpp"
 #include "Math/Math.hpp"
+
 namespace Lina
 {
 
@@ -158,22 +159,6 @@ namespace Lina
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_globalDataBuffer[i] = Buffer{
-				.allocator	 = m_backend.GetVMA(),
-				.size		 = sizeof(GPUGlobalData),
-				.bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
-				.memoryUsage = MemoryUsageFlags::CpuToGpu,
-			};
-			m_globalDataBuffer[i].Create();
-
-			m_debugDataBuffer[i] = Buffer{
-				.allocator	 = m_backend.GetVMA(),
-				.size		 = sizeof(GPUDebugData),
-				.bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
-				.memoryUsage = MemoryUsageFlags::CpuToGpu,
-			};
-			m_debugDataBuffer[i].Create();
-
 			RenderFrame& f = m_frames[i];
 
 			f.graphicsFence = Fence{
@@ -190,12 +175,6 @@ namespace Lina
 	void GfxManager::Shutdown()
 	{
 		Join();
-
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			m_globalDataBuffer[i].Destroy();
-			m_debugDataBuffer[i].Destroy();
-		}
 
 		m_gpuIndexBuffer.Destroy();
 		m_gpuVtxBuffer.Destroy();
@@ -220,11 +199,16 @@ namespace Lina
 	void GfxManager::Tick(float delta)
 	{
 		m_time += 0.01f;
-		entity->AddRotation(Vector3(0, 15 * delta, 0));
-		// entity->SetPosition(Vector3(0, 0, Math::Sin(m_time) * 2.0f));
+		entity->SetPosition(entity->GetPosition() + Vector3(0.5f * delta, 0, 0));
 
-		for (auto r : m_renderers)
-			r->Tick();
+		if (entity->GetPosition().x > 2.98f)
+			entity->SetPosition(Vector3(-3, 0, 0));
+
+		// entity->AddRotation(Vector3(0, 15 * delta, 0));
+		//  entity->SetPosition(Vector3(0, 0, Math::Sin(m_time) * 2.0f));
+
+		for (auto r : m_surfaceRenderers)
+			r->Tick(delta);
 	}
 
 	void GfxManager::Render()
@@ -235,31 +219,17 @@ namespace Lina
 		m_gpuUploader.Poll();
 
 		// if no renderers return.
-		if (m_renderers.empty())
+		if (m_surfaceRenderers.empty())
 			return;
 
 		const uint32 frameIndex = GetFrameIndex();
 		RenderFrame& frame		= m_frames[frameIndex];
 
-		m_globalDataBuffer[frameIndex].CopyInto(&m_globalData, sizeof(GPUGlobalData));
-		m_debugDataBuffer[frameIndex].CopyInto(&m_debugData, sizeof(GPUDebugData));
-
-		Vector<Renderer*> surfaceRenderers;
-		Vector<Renderer*> worldRenderers;
-
-		for (auto r : m_renderers)
-		{
-			if (r->GetType() == RendererType::SurfaceRenderer)
-				surfaceRenderers.push_back(r);
-
-			if (r->GetType() == RendererType::WorldRenderer)
-				worldRenderers.push_back(r);
-		}
-
 		frame.graphicsFence.Wait(true, 1.0f);
 
-		Vector<Renderer*> acquiredSurfaceRenderers;
-		for (auto r : surfaceRenderers)
+		// Acquire image indices for all surfaces.
+		Vector<SurfaceRenderer*> acquiredSurfaceRenderers;
+		for (auto r : m_surfaceRenderers)
 		{
 			auto  swp			  = r->GetSwapchain();
 			auto& submitSemaphore = swp->_submitSemaphores[frameIndex];
@@ -282,28 +252,47 @@ namespace Lina
 
 		frame.graphicsFence.Reset();
 
-		// Render all worlds.
 		Vector<uint32>		   imageIndices;
 		Vector<Semaphore*>	   submitSemaphores;
 		Vector<Semaphore*>	   presentSemaphores;
 		Vector<Swapchain*>	   swapchains;
 		Vector<CommandBuffer*> commandBuffers;
 
-		commandBuffers.resize(worldRenderers.size());
+		// Prepare all worlds.
+		Vector<WorldRenderer*> allWorldRenderers;
+		for (auto sr : acquiredSurfaceRenderers)
+		{
+			Vector<WorldRenderer*> wrs = sr->GetWorldRenderers();
+			allWorldRenderers.insert(allWorldRenderers.end(), wrs.begin(), wrs.end());
+		}
 
+		const uint32 allWorldRenderersSize = static_cast<uint32>(allWorldRenderers.size());
+		commandBuffers.resize(allWorldRenderersSize);
+
+		// Render all worlds in parallel.
 		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(worldRenderers.size()), 1, [&](int i) { commandBuffers[i] = worldRenderers[i]->Render(frameIndex, frame.graphicsFence); });
+		tf.for_each_index(0, static_cast<int>(allWorldRenderers.size()), 1, [&](int i) { commandBuffers[i] = allWorldRenderers[i]->Render(frameIndex, frame.graphicsFence); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
 
-		for (auto r : acquiredSurfaceRenderers)
-		{
-			auto swp = r->GetSwapchain();
-			imageIndices.push_back(r->GetAcquiredImage());
-			commandBuffers.push_back(r->Render(frameIndex, frame.graphicsFence));
-			submitSemaphores.push_back(&swp->_submitSemaphores[frameIndex]);
-			presentSemaphores.push_back(&swp->_presentSemaphores[frameIndex]);
-			swapchains.push_back(swp);
-		}
+		const uint32 surfaceRenderersSize = static_cast<uint32>(acquiredSurfaceRenderers.size());
+		const uint32 cmdBufferBeginIndex  = allWorldRenderersSize;
+		commandBuffers.resize(allWorldRenderersSize + surfaceRenderersSize);
+		imageIndices.resize(surfaceRenderersSize);
+		submitSemaphores.resize(surfaceRenderersSize);
+		presentSemaphores.resize(surfaceRenderersSize);
+		swapchains.resize(surfaceRenderersSize);
+
+		// Render all surfaces.
+		Taskflow tfs;
+		tfs.for_each_index(0, static_cast<int>(acquiredSurfaceRenderers.size()), 1, [&](int i) {
+			auto swp								= acquiredSurfaceRenderers[i]->GetSwapchain();
+			imageIndices[i]							= acquiredSurfaceRenderers[i]->GetAcquiredImage();
+			commandBuffers[i + cmdBufferBeginIndex] = acquiredSurfaceRenderers[i]->Render(frameIndex, frame.graphicsFence);
+			submitSemaphores[i]						= &swp->_submitSemaphores[frameIndex];
+			presentSemaphores[i]					= &swp->_presentSemaphores[frameIndex];
+			swapchains[i]							= swp;
+		});
+		m_system->GetMainExecutor()->RunAndWait(tfs);
 
 		// m_guiBackend->Reset();
 
@@ -320,6 +309,7 @@ namespace Lina
 			r->OnPostPresent(res);
 		}
 
+		// m_backend.GetGraphicsQueue().WaitIdle();
 		m_frameNumber++;
 	}
 
@@ -327,36 +317,22 @@ namespace Lina
 	{
 		m_syncQueue.Flush();
 
-		for (auto r : m_renderers)
+		for (auto r : m_surfaceRenderers)
 			r->SyncData(alpha);
 	}
 
 	SurfaceRenderer* GfxManager::CreateSurfaceRenderer(Swapchain* swapchain, Bitmask16 mask)
 	{
 		SurfaceRenderer* rend = new SurfaceRenderer(this, swapchain, mask);
-		m_renderers.push_back(rend);
-		return rend;
-	}
-
-	WorldRenderer* GfxManager::CreateWorldRenderer(EntityWorld* world, Bitmask16 mask, const Vector2i& resolution, float aspect)
-	{
-		WorldRenderer* rend = new WorldRenderer(this, mask, world, resolution, aspect);
-		m_renderers.push_back(rend);
+		m_surfaceRenderers.push_back(rend);
 		return rend;
 	}
 
 	void GfxManager::DestroySurfaceRenderer(Swapchain* swapchain)
 	{
-		auto it = linatl::find_if(m_renderers.begin(), m_renderers.end(), [swapchain](Renderer* r) { return r->GetSwapchain() == swapchain; });
+		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [swapchain](SurfaceRenderer* r) { return r->GetSwapchain() == swapchain; });
 		delete *it;
-		m_renderers.erase(it);
-	}
-
-	void GfxManager::DestroyWorldRenderer(EntityWorld* world)
-	{
-		auto it = linatl::find_if(m_renderers.begin(), m_renderers.end(), [world](Renderer* r) { return r->GetWorld() == world; });
-		delete *it;
-		m_renderers.erase(it);
+		m_surfaceRenderers.erase(it);
 	}
 
 	void GfxManager::OnSystemEvent(ESystemEvent type, const Event& ev)
@@ -375,7 +351,7 @@ namespace Lina
 				m_engineMaterials.push_back(mat);
 			}
 
-			m_mainSwapchainSurfaceRenderer = CreateSurfaceRenderer(m_backend.GetSwapchain(LINA_MAIN_SWAPCHAIN), RendererMask::RM_DrawOffscreenTexture);
+			m_mainSwapchainSurfaceRenderer = CreateSurfaceRenderer(m_backend.GetSwapchain(LINA_MAIN_SWAPCHAIN), SurfaceRendererMask::SRM_DrawOffscreenTexture);
 
 			testWorld = new EntityWorld(m_system);
 
@@ -386,9 +362,7 @@ namespace Lina
 
 			entity = rm->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
 
-			m_currentLevelRenderer = CreateWorldRenderer(testWorld, 0, m_windowManager->GetWindow(LINA_MAIN_SWAPCHAIN)->GetSize(), m_windowManager->GetWindow(LINA_MAIN_SWAPCHAIN)->GetAspect());
-			m_mainSwapchainSurfaceRenderer->SetOffscreenTexture(m_currentLevelRenderer->GetFinalTexture());
-			m_currentLevelRenderer->AddFinalTextureListener(m_mainSwapchainSurfaceRenderer);
+			m_currentLevelRenderer = new WorldRenderer(this, m_mainSwapchainSurfaceRenderer, WorldRendererMask::WRM_PassResultToSurface, testWorld, m_windowManager->GetWindow(LINA_MAIN_SWAPCHAIN)->GetSize(), m_windowManager->GetWindow(LINA_MAIN_SWAPCHAIN)->GetAspect());
 		}
 		else if (type & EVS_PreSystemShutdown)
 		{
@@ -397,10 +371,10 @@ namespace Lina
 
 			m_engineMaterials.clear();
 
-			DestroySurfaceRenderer(m_backend.GetSwapchain(LINA_MAIN_SWAPCHAIN));
-
-			DestroyWorldRenderer(testWorld);
+			delete m_currentLevelRenderer;
 			delete testWorld;
+
+			DestroySurfaceRenderer(m_backend.GetSwapchain(LINA_MAIN_SWAPCHAIN));
 		}
 		else if (type & EVS_WindowResize)
 		{

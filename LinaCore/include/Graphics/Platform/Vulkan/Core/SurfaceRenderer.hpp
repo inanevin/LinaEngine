@@ -38,6 +38,7 @@ namespace Lina
 {
 	class Texture;
 	class Swapchain;
+	class WorldRenderer;
 
 	class SurfaceRenderer : public Renderer, public IEventListener
 	{
@@ -46,43 +47,58 @@ namespace Lina
 		SurfaceRenderer(GfxManager* man, Swapchain* swapchain, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
-		void				   SetOffscreenTexture(Texture* txt);
-		void				   ClearOffscreenTexture();
-		virtual bool		   AcquireImage(uint32 frameIndex) override;
-		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) override;
-		virtual void		   AcquiredImageInvalid(uint32 frameIndex) override;
+		void AddWorldRenderer(WorldRenderer* renderer);
+		void RemoveWorldRenderer(WorldRenderer* renderer);
+		void SetOffscreenTexture(Texture* txt, uint32 imageIndex);
+		void ClearOffscreenTexture();
+		void AcquiredImageInvalid(uint32 frameIndex);
+		bool AcquireImage(uint32 frameIndex);
 
-		virtual uint32 GetAcquiredImage() const override
+		virtual void		   OnSystemEvent(ESystemEvent ev, const Event& data) override;
+		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) override;
+		virtual void		   Tick(float delta) override;
+		virtual void		   SyncData(float alpha) override;
+
+		virtual uint32 GetAcquiredImage() const
 		{
 			return m_acquiredImage;
 		}
 
-		virtual Swapchain* GetSwapchain() const override
+		virtual Swapchain* GetSwapchain() const
 		{
 			return m_swapchain;
 		};
 
-		virtual void OnPostPresent(VulkanResult res) override
+		void OnPostPresent(VulkanResult res)
 		{
 			CanContinueWithAcquiredImage(res, true);
 		}
-
-		virtual void OnSystemEvent(ESystemEvent ev, const Event& data) override;
 
 		virtual Bitmask32 GetSystemEventMask()
 		{
 			return EVS_WindowResize;
 		}
 
+		inline uint32 GetWorldRendererSize()
+		{
+			return static_cast<uint32>(m_worldRenderers.size());
+		}
+
+		inline Vector<WorldRenderer*> GetWorldRenderers()
+		{
+			return m_worldRenderers;
+		}
+
 	private:
 		bool CanContinueWithAcquiredImage(VulkanResult res, bool disallowSuboptimal = false);
 
-		static int s_surfaceRendererCount;
-		Swapchain* m_swapchain							  = nullptr;
-		uint32	   m_acquiredImage						  = 0;
-		bool	   m_recreateSwapchain					  = false;
-		Vector2i   m_newSwapchainSize					  = Vector2i::Zero;
-		Material*  m_offscreenMaterials[FRAMES_IN_FLIGHT] = {nullptr};
+		static int			   s_surfaceRendererCount;
+		Swapchain*			   m_swapchain		   = nullptr;
+		uint32				   m_acquiredImage	   = 0;
+		bool				   m_recreateSwapchain = false;
+		Vector2i			   m_newSwapchainSize  = Vector2i::Zero;
+		Vector<Material*>	   m_offscreenMaterials;
+		Vector<WorldRenderer*> m_worldRenderers;
 	};
 
 } // namespace Lina

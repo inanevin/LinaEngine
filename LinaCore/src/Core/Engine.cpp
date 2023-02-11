@@ -97,7 +97,6 @@ namespace Lina
 		m_levelManager.Shutdown();
 		m_resourceManager.Shutdown();
 		m_audioManager.Shutdown();
-		m_physicsEngine.Shutdown();
 		m_windowManager.Shutdown();
 		m_gfxManager.Shutdown();
 		m_input.Shutdown();
@@ -105,60 +104,31 @@ namespace Lina
 		delete m_coreResourceRegistry;
 	}
 
-	double t		   = 0.0;
-	double dt		   = 1.0 / 120.0;
-	double currentTime = 0.0;
-	double accumulator = 0.0;
-
-	void Engine::Tick(float xd)
+	void Engine::Tick(float delta)
 	{
-		m_input.Tick(dt);
-
-		// double newTime	 = SystemInfo::GetAppTime();
-		// double frameTime = newTime - currentTime;
-		// if (frameTime > 0.25)
-		// 	frameTime = 0.25;
-		// currentTime = newTime;
-		//
-		// accumulator += frameTime;
-		//
-		// while (accumulator >= dt)
-		// {
-		// 	m_gfxManager.Tick(dt);
-		// 	t += dt;
-		// 	accumulator -= dt;
-		// }
-
-		// const double alpha = accumulator / dt;
-		// m_gfxManager.Render();
-
-		m_gfxManager.Tick(xd);
-		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
-		renderJob.get();
-		m_gfxManager.SyncData(0.0f);
+		m_input.Tick(delta);
+		m_gfxManager.Tick(delta);
 
 		// For any listeners that fall outside the main loop.
-		// Event eventData;
-		// eventData.fParams[0] = dt;
-		// DispatchSystemEvent(EVS_SystemTick, eventData);
+		//Event eventData;
+		//eventData.fParams[0] = delta;
+		//DispatchSystemEvent(EVS_SystemTick, eventData);
 
-		// const bool physicsSimulated = m_physicsEngine.Simulate(dt, SystemInfo::GetPhysicsDeltaTime());
+		//m_levelManager.Tick(delta);
 
-		// m_levelManager.Tick(dt);
+		//auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+		//auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
 
-		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(dt); });
+	//	audioJob.get();
+		//renderJob.get();
+	//	m_levelManager.WaitForSimulation();
 
-		// audioJob.get();
-		// renderJob.get();
-
-		// if (physicsSimulated)
-		//	m_physicsEngine.WaitForSimulation();
-
-		// Sync.
-		// m_physicsEngine.SyncData();
-
+	//	m_levelManager.SyncData(1.0f);
+		m_gfxManager.SyncData(1.0f);
+		m_gfxManager.Render();
+		
 		// For any listeners that fall outside the main loop.
-		// DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
+	//	DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
 
 		if (m_input.GetKeyDown(LINA_KEY_1))
 		{

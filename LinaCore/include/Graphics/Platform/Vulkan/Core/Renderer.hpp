@@ -48,43 +48,26 @@ namespace Lina
 	class Renderer
 	{
 	public:
-		Renderer(GfxManager* manager, Bitmask16 mask, RendererType type);
+		Renderer(GfxManager* manager, uint32 imageCount, Bitmask16 mask, RendererType type);
 		virtual ~Renderer();
 
-		virtual void		   SyncData(float alpha){};
-		virtual void		   Tick(){};
-		virtual void		   OnPostPresent(VulkanResult res){};
-		virtual void		   AcquiredImageInvalid(uint32 frameIndex){};
+		virtual void		   SyncData(float alpha)				   = 0;
+		virtual void		   Tick(float delta)					   = 0;
 		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) = 0;
-
-		virtual Swapchain* GetSwapchain() const
-		{
-			return nullptr;
-		};
-
-		virtual EntityWorld* GetWorld() const
-		{
-			return nullptr;
-		}
 
 		inline const Bitmask16& GetMask() const
 		{
 			return m_mask;
 		}
 
-		virtual bool AcquireImage(uint32 frameIndex)
-		{
-			return true;
-		};
-
-		virtual uint32 GetAcquiredImage() const
-		{
-			return 0;
-		};
-
 		inline RendererType GetType() const
 		{
 			return m_type;
+		}
+
+		inline uint32 GetImageCount() const
+		{
+			return m_imageCount;
 		}
 
 	protected:
@@ -94,6 +77,7 @@ namespace Lina
 		CommandPool			  m_cmdPool;
 		DescriptorPool		  m_descriptorPool;
 		Vector<CommandBuffer> m_cmds;
+		uint32				  m_imageCount	= 0;
 		bool				  m_initialized = false;
 	};
 

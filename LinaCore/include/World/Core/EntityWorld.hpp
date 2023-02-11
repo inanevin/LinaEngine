@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Serialization/ISerializable.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
 #include "Core/ObjectWrapper.hpp"
+#include "Physics/Core/PhysicsWorld.hpp"
 
 namespace Lina
 {
@@ -49,7 +50,8 @@ namespace Lina
 	{
 	public:
 		EntityWorld(IEventDispatcher* dispatcher)
-			: m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
+			: m_physicsWorld(this, dispatcher), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
+			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
 		{
 			m_dispatcher = dispatcher;
 			m_id		 = s_worldCounter++;
@@ -137,13 +139,19 @@ namespace Lina
 		}
 
 	private:
+		friend class LevelManager;
+
 		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
+		void Tick(float delta);
+		void WaitForSimulation();
+		void SyncData(float alpha);
 
 	private:
 		static uint32 s_worldCounter;
 
+		PhysicsWorld						 m_physicsWorld;
 		IEventDispatcher*					 m_dispatcher = nullptr;
 		MemoryAllocatorPool					 m_allocatorPool;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;

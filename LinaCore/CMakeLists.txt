@@ -96,7 +96,7 @@ src/Graphics/Resource/Font.cpp
 
 
 # Physics
-src/Physics/Core/PhysicsEngine.cpp
+src/Physics/Core/PhysicsWorld.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -143,7 +143,7 @@ include/Input/Core/CommonInput.hpp
 include/Input/Core/InputMappings.hpp
 
 # Physics
-include/Physics/Core/PhysicsEngine.hpp
+include/Physics/Core/PhysicsWorld.hpp
 
 # Platform
 include/Platform/PlatformProcessIncl.hpp

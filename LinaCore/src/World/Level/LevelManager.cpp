@@ -98,11 +98,18 @@ namespace Lina
 	void LevelManager::Tick(float dt)
 	{
 		if (m_currentLevel != nullptr)
-		{
-			Event data;
-			data.fParams[0] = dt;
-			m_system->DispatchGameEvent(EVG_Tick, data);
-			m_system->DispatchGameEvent(EVG_PostTick, data);
-		}
+			m_currentLevel->GetWorld()->Tick(dt);
+	}
+
+	void LevelManager::SyncData(float alpha)
+	{
+		if (m_currentLevel != nullptr)
+			m_currentLevel->GetWorld()->SyncData(alpha);
+	}
+
+	void LevelManager::WaitForSimulation()
+	{
+		if (m_currentLevel != nullptr)
+			m_currentLevel->GetWorld()->WaitForSimulation();
 	}
 } // namespace Lina

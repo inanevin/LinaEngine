@@ -58,36 +58,36 @@ namespace Lina
 		{
 			RenderWorldData(DrawPass opaquePass, EntityWorld* w) : allRenderables(250, ObjectWrapper<RenderableComponent>()), opaquePass(opaquePass), world(w){};
 
-			EntityWorld*							   world			  = nullptr;
-			Texture*								   finalColorTexture  = nullptr;
-			Texture*								   finalDepthTexture  = nullptr;
-			Texture*								   postProcessTexture = nullptr;
+			EntityWorld*							   world = nullptr;
+			Vector<Texture*>						   finalColorTexture;
+			Vector<Texture*>						   finalDepthTexture;
+			Vector<Texture*>						   postProcessTexture;
 			IDList<ObjectWrapper<RenderableComponent>> allRenderables;
 			Vector<RenderableData>					   extractedRenderables;
 			DrawPass								   opaquePass;
 			View									   playerView;
 			GPUSceneData							   sceneData;
 			GPULightData							   lightData;
-			Buffer									   objDataBuffer[FRAMES_IN_FLIGHT];
-			Buffer									   indirectBuffer[FRAMES_IN_FLIGHT];
-			Buffer									   sceneDataBuffer[FRAMES_IN_FLIGHT];
-			Buffer									   viewDataBuffer[FRAMES_IN_FLIGHT];
-			Buffer									   lightDataBuffer[FRAMES_IN_FLIGHT];
-			DescriptorSet							   passDescriptor;
-			DescriptorSet							   globalDescriptor;
+			Vector<Buffer>							   objDataBuffer;
+			Vector<Buffer>							   indirectBuffer;
+			Vector<Buffer>							   sceneDataBuffer;
+			Vector<Buffer>							   viewDataBuffer;
+			Vector<Buffer>							   lightDataBuffer;
+			Vector<Buffer>							   globalDataBuffer;
+			Vector<Buffer>							   debugDataBuffer;
+			Vector<DescriptorSet>					   passDescriptor;
+			Vector<DescriptorSet>					   globalDescriptor;
 		};
 
 	public:
-		WorldRenderer(GfxManager* manager, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
+		WorldRenderer(GfxManager* manager, SurfaceRenderer* surf, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
 		virtual ~WorldRenderer();
 
-		void				   AddFinalTextureListener(SurfaceRenderer* listener);
-		void				   RemoveFinalTextureListener(SurfaceRenderer* listener);
 		void				   SetAspectRatio(float aspect);
 		void				   SetRenderResolution(const Vector2i& res);
 		virtual void		   OnGameEvent(EGameEvent type, const Event& ev);
 		virtual void		   SyncData(float alpha) override;
-		virtual void		   Tick() override;
+		virtual void		   Tick(float delta) override;
 		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) override;
 		Texture*			   GetFinalTexture();
 
@@ -101,7 +101,7 @@ namespace Lina
 			return m_cameraSystem;
 		}
 
-		virtual EntityWorld* GetWorld() const override
+		virtual EntityWorld* GetWorld() const
 		{
 			return m_targetWorldData.world;
 		}
@@ -112,12 +112,12 @@ namespace Lina
 		void DestroyTextures();
 
 	protected:
+		SurfaceRenderer*									m_surfaceRenderer = nullptr;
 		ResourceManager*									m_resourceManager = nullptr;
 		RenderWorldData										m_targetWorldData;
 		CameraSystem										m_cameraSystem;
-		Material*											m_worldPostProcessMaterials[FRAMES_IN_FLIGHT];
-		Vector2i											m_renderResolution	= Vector2i::Zero;
-		SurfaceRenderer*									m_presentDirectlyTo = nullptr;
+		Vector<Material*>									m_worldPostProcessMaterials;
+		Vector2i											m_renderResolution = Vector2i::Zero;
 		Vector<SurfaceRenderer*>							m_finalTextureListeners;
 		HashMap<uint32, ObjectWrapper<RenderableComponent>> m_renderableIDs;
 		float												m_aspectRatio = 1.0f;

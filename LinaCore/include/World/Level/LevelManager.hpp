@@ -49,6 +49,8 @@ namespace Lina
 		void InstallLevel(const char* level);
 		void UninstallLevel();
 		void Tick(float dt);
+		void SyncData(float alpha);
+		void WaitForSimulation();
 
 	private:
 		Level* m_currentLevel = nullptr;

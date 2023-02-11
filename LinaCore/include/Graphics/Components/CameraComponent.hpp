@@ -43,7 +43,7 @@ namespace Lina
 	class CameraComponent : public Component
 	{
 	public:
-		float fieldOfView = 90.0f;
+		float fieldOfView = 110.0f;
 		float zNear		  = 0.01f;
 		float zFar		  = 1000.0f;
 

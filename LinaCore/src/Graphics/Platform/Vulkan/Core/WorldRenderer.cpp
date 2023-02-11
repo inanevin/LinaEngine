@@ -56,14 +56,24 @@ namespace Lina
 		}
 	}
 
-	WorldRenderer::WorldRenderer(GfxManager* manager, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio)
-		: Renderer(manager, mask, RendererType::WorldRenderer), m_targetWorldData(DrawPass(DrawPassMask::Opaque, 1000.0f, &manager->GetGPUStorage(), manager->GetSystem()->GetMainExecutor()), world)
+	WorldRenderer::WorldRenderer(GfxManager* manager, SurfaceRenderer* surf, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio)
+		: Renderer(manager, surf->GetImageCount(), mask, RendererType::WorldRenderer), m_targetWorldData(DrawPass(DrawPassMask::Opaque, 1000.0f, &manager->GetGPUStorage(), manager->GetSystem()->GetMainExecutor()), world), m_surfaceRenderer(surf)
 	{
 		m_renderResolution = renderResolution;
 		m_aspectRatio	   = aspectRatio;
 		m_resourceManager  = m_gfxManager->GetSystem()->GetSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		m_targetWorldData.indirectBuffer.resize(m_imageCount);
+		m_targetWorldData.sceneDataBuffer.resize(m_imageCount);
+		m_targetWorldData.lightDataBuffer.resize(m_imageCount);
+		m_targetWorldData.viewDataBuffer.resize(m_imageCount);
+		m_targetWorldData.objDataBuffer.resize(m_imageCount);
+		m_targetWorldData.globalDataBuffer.resize(m_imageCount);
+		m_targetWorldData.debugDataBuffer.resize(m_imageCount);
+		m_targetWorldData.globalDescriptor.resize(m_imageCount);
+		m_targetWorldData.passDescriptor.resize(m_imageCount);
+
+		for (uint32 i = 0; i < m_imageCount; i++)
 		{
 			m_targetWorldData.indirectBuffer[i] = Buffer{
 				.allocator	 = m_gfxManager->GetBackend()->GetVMA(),
@@ -109,46 +119,71 @@ namespace Lina
 				.memoryUsage = MemoryUsageFlags::CpuToGpu,
 			};
 
+			m_targetWorldData.globalDataBuffer[i] = Buffer{
+				.allocator	 = m_gfxManager->GetBackend()->GetVMA(),
+				.size		 = sizeof(GPUGlobalData),
+				.bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+				.memoryUsage = MemoryUsageFlags::CpuToGpu,
+			};
+			m_targetWorldData.globalDataBuffer[i].Create();
+
+			m_targetWorldData.debugDataBuffer[i] = Buffer{
+				.allocator	 = m_gfxManager->GetBackend()->GetVMA(),
+				.size		 = sizeof(GPUDebugData),
+				.bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+				.memoryUsage = MemoryUsageFlags::CpuToGpu,
+			};
+			m_targetWorldData.debugDataBuffer[i].Create();
+
 			m_targetWorldData.objDataBuffer[i].Create();
-			m_targetWorldData.objDataBuffer[i].boundSet		= &m_targetWorldData.passDescriptor;
+			m_targetWorldData.objDataBuffer[i].boundSet		= &m_targetWorldData.passDescriptor[i];
 			m_targetWorldData.objDataBuffer[i].boundBinding = 1;
 			m_targetWorldData.objDataBuffer[i].boundType	= DescriptorType::StorageBuffer;
 
 			// Global descriptor
-			m_targetWorldData.globalDescriptor = DescriptorSet{
+			m_targetWorldData.globalDescriptor[i] = DescriptorSet{
 				.device	  = m_gfxManager->GetBackend()->GetDevice(),
 				.setCount = 1,
 				.pool	  = m_descriptorPool._ptr,
 			};
 
-			m_targetWorldData.globalDescriptor.Create(m_gfxManager->GetLayout(DescriptorSetType::GlobalSet));
-			m_targetWorldData.globalDescriptor.BeginUpdate();
-			m_targetWorldData.globalDescriptor.AddBufferUpdate(m_gfxManager->GetGlobalDataBuffer(i), m_gfxManager->GetGlobalDataBuffer(i).size, 0, DescriptorType::UniformBuffer);
-			m_targetWorldData.globalDescriptor.AddBufferUpdate(m_gfxManager->GetDebugDataBuffer(i), m_gfxManager->GetDebugDataBuffer(i).size, 1, DescriptorType::UniformBuffer);
-			m_targetWorldData.globalDescriptor.SendUpdate();
+			m_targetWorldData.globalDescriptor[i].Create(m_gfxManager->GetLayout(DescriptorSetType::GlobalSet));
+			m_targetWorldData.globalDescriptor[i].BeginUpdate();
+			m_targetWorldData.globalDescriptor[i].AddBufferUpdate(m_targetWorldData.globalDataBuffer[i], m_targetWorldData.globalDataBuffer[i].size, 0, DescriptorType::UniformBuffer);
+			m_targetWorldData.globalDescriptor[i].AddBufferUpdate(m_targetWorldData.debugDataBuffer[i], m_targetWorldData.debugDataBuffer[i].size, 1, DescriptorType::UniformBuffer);
+			m_targetWorldData.globalDescriptor[i].SendUpdate();
 
 			// Pass descriptor
-			m_targetWorldData.passDescriptor = DescriptorSet{
+			m_targetWorldData.passDescriptor[i] = DescriptorSet{
 				.device	  = m_gfxManager->GetBackend()->GetDevice(),
 				.setCount = 1,
 				.pool	  = m_descriptorPool._ptr,
 			};
 
-			m_targetWorldData.passDescriptor.Create(m_gfxManager->GetLayout(DescriptorSetType::PassSet));
-			m_targetWorldData.passDescriptor.BeginUpdate();
-			m_targetWorldData.passDescriptor.AddBufferUpdate(m_targetWorldData.sceneDataBuffer[i], m_targetWorldData.sceneDataBuffer[i].size, 0, DescriptorType::UniformBuffer);
-			m_targetWorldData.passDescriptor.AddBufferUpdate(m_targetWorldData.viewDataBuffer[i], m_targetWorldData.viewDataBuffer[i].size, 1, DescriptorType::UniformBuffer);
-			m_targetWorldData.passDescriptor.AddBufferUpdate(m_targetWorldData.lightDataBuffer[i], m_targetWorldData.lightDataBuffer[i].size, 2, DescriptorType::UniformBuffer);
-			m_targetWorldData.passDescriptor.AddBufferUpdate(m_targetWorldData.objDataBuffer[i], m_targetWorldData.objDataBuffer[i].size, 3, DescriptorType::StorageBuffer);
-			m_targetWorldData.passDescriptor.SendUpdate();
+			m_targetWorldData.passDescriptor[i].Create(m_gfxManager->GetLayout(DescriptorSetType::PassSet));
+			m_targetWorldData.passDescriptor[i].BeginUpdate();
+			m_targetWorldData.passDescriptor[i].AddBufferUpdate(m_targetWorldData.sceneDataBuffer[i], m_targetWorldData.sceneDataBuffer[i].size, 0, DescriptorType::UniformBuffer);
+			m_targetWorldData.passDescriptor[i].AddBufferUpdate(m_targetWorldData.viewDataBuffer[i], m_targetWorldData.viewDataBuffer[i].size, 1, DescriptorType::UniformBuffer);
+			m_targetWorldData.passDescriptor[i].AddBufferUpdate(m_targetWorldData.lightDataBuffer[i], m_targetWorldData.lightDataBuffer[i].size, 2, DescriptorType::UniformBuffer);
+			m_targetWorldData.passDescriptor[i].AddBufferUpdate(m_targetWorldData.objDataBuffer[i], m_targetWorldData.objDataBuffer[i].size, 3, DescriptorType::StorageBuffer);
+			m_targetWorldData.passDescriptor[i].SendUpdate();
 		}
 
 		AddRenderables<ModelNodeComponent>(world, m_targetWorldData, m_renderableIDs);
 		CreateTextures(m_renderResolution, true);
+
+		surf->AddWorldRenderer(this);
+
+		if (m_mask.IsSet(WRM_PassResultToSurface))
+		{
+			for (uint32 i = 0; i < m_imageCount; i++)
+				surf->SetOffscreenTexture(m_mask.IsSet(WRM_ApplyPostProcessing) ? m_targetWorldData.postProcessTexture[i] : m_targetWorldData.finalColorTexture[i], i);
+		}
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
+		m_surfaceRenderer->RemoveWorldRenderer(this);
 		DestroyTextures();
 
 		m_targetWorldData.allRenderables.Reset();
@@ -167,43 +202,64 @@ namespace Lina
 
 		m_targetWorldData.extractedRenderables.clear();
 
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		for (uint32 i = 0; i < m_imageCount; i++)
 		{
 			m_targetWorldData.objDataBuffer[i].Destroy();
 			m_targetWorldData.lightDataBuffer[i].Destroy();
 			m_targetWorldData.viewDataBuffer[i].Destroy();
 			m_targetWorldData.indirectBuffer[i].Destroy();
 			m_targetWorldData.sceneDataBuffer[i].Destroy();
+			m_targetWorldData.globalDataBuffer[i].Destroy();
+			m_targetWorldData.debugDataBuffer[i].Destroy();
 
-			if (m_mask.IsSet(RM_ApplyPostProcessing))
+			if (m_mask.IsSet(WRM_ApplyPostProcessing))
 				delete m_worldPostProcessMaterials[i];
 		}
 	}
 
 	void WorldRenderer::RenderWorld(uint32 frameIndex, const CommandBuffer& cmd, RenderWorldData& data)
 	{
-		data.opaquePass.UpdateViewData(data.viewDataBuffer[frameIndex], data.playerView);
-		data.opaquePass.RecordDrawCommands(cmd, m_gfxManager->GetMeshEntries(), data.indirectBuffer[frameIndex]);
+		const uint32 imageIndex = m_surfaceRenderer->GetAcquiredImage();
+		data.opaquePass.RecordDrawCommands(cmd, m_gfxManager->GetMeshEntries(), data.indirectBuffer[imageIndex]);
 	}
 
 	void WorldRenderer::SyncData(float alpha)
 	{
-		Renderer::SyncData(alpha);
+		// Calculate cam - in SyncData bc. RenderWorld uses data.playerView.
+		auto& wd = m_targetWorldData;
+		if (wd.world != nullptr)
+		{
+			auto activeCamera = wd.world->GetActiveCamera();
+			if (activeCamera.IsValid())
+			{
+				auto& camref = activeCamera.Get();
+				m_cameraSystem.CalculateCamera(camref, m_aspectRatio);
+				wd.playerView.Tick(camref.GetEntity()->GetPosition(), camref.GetView(), camref.GetProjection(), camref.zNear, camref.zFar);
+			}
+		}
 
 		// If display resolution is changed, update textures.
-		const auto& ext = m_targetWorldData.finalColorTexture->GetExtent();
-		if (ext.width != m_renderResolution.x || ext.height != m_renderResolution.y)
+		bool shouldRecreate = false;
+		for (uint32 i = 0; i < m_imageCount; i++)
+		{
+			const auto& ext = m_targetWorldData.finalColorTexture[i]->GetExtent();
+			if (ext.width != m_renderResolution.x || ext.height != m_renderResolution.y)
+			{
+				shouldRecreate = true;
+				break;
+			}
+		}
+
+		if (shouldRecreate)
 		{
 			// Need clean queues.
-			m_gfxManager->GetBackend()->WaitIdle();
+			m_gfxManager->GetBackend()->GetGraphicsQueue().WaitIdle();
 			DestroyTextures();
 			CreateTextures(m_renderResolution, false);
 
-			for (auto s : m_finalTextureListeners)
-				s->SetOffscreenTexture(m_mask.IsSet(RM_ApplyPostProcessing) ? m_targetWorldData.postProcessTexture : m_targetWorldData.finalColorTexture);
+			for (uint32 i = 0; i < m_imageCount; i++)
+				m_surfaceRenderer->SetOffscreenTexture(m_mask.IsSet(WRM_ApplyPostProcessing) ? m_targetWorldData.postProcessTexture[i] : m_targetWorldData.finalColorTexture[i], i);
 		}
-
-		auto& wd = m_targetWorldData;
 
 		if (wd.world != nullptr)
 		{
@@ -225,8 +281,7 @@ namespace Lina
 
 				Transformation		 current = e->GetTransform();
 				Transformation		 prev	 = e->GetPrevTransform();
-				const Transformation interp	 = current; //Transformation::Interpolate(prev, current, alpha);
-				LINA_TRACE("ROT {0}", interp.m_rotation.GetEuler().y);
+				const Transformation interp	 = current; // Transformation::Interpolate(prev, current, alpha);
 				data.entityID				 = e->GetID();
 				data.modelMatrix			 = interp.ToMatrix();
 				data.entityMask				 = e->GetEntityMask();
@@ -243,29 +298,17 @@ namespace Lina
 		}
 	}
 
-	void WorldRenderer::Tick()
+	void WorldRenderer::Tick(float delta)
 	{
-
-		// Calculate cam - in SyncData bc. RenderWorld uses data.playerView.
-		auto& wd = m_targetWorldData;
-		if (wd.world != nullptr)
-		{
-			auto activeCamera = wd.world->GetActiveCamera();
-			if (activeCamera.IsValid())
-			{
-				auto& camref = activeCamera.Get();
-				m_cameraSystem.CalculateCamera(camref, m_aspectRatio);
-				wd.playerView.Tick(camref.GetEntity()->GetPosition(), camref.GetView(), camref.GetProjection(), camref.zNear, camref.zFar);
-			}
-		}
 	}
 
 	CommandBuffer* WorldRenderer::Render(uint32 frameIndex, Fence& fence)
 	{
-		auto& wd		 = m_targetWorldData;
-		auto& gpuStorage = m_gfxManager->GetGPUStorage();
+		const uint32 imageIndex = m_surfaceRenderer->GetAcquiredImage();
+		auto&		 wd			= m_targetWorldData;
+		auto&		 gpuStorage = m_gfxManager->GetGPUStorage();
 
-		auto& cmd = m_cmds[frameIndex];
+		auto& cmd = m_cmds[imageIndex];
 		cmd.Reset(true);
 		cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
 
@@ -288,17 +331,12 @@ namespace Lina
 		cmd.CMD_BindVertexBuffers(0, 1, m_gfxManager->GetGPUVertexBuffer()._ptr, &offset);
 		cmd.CMD_BindIndexBuffers(m_gfxManager->GetGPUIndexBuffer()._ptr, 0, IndexType::Uint32);
 
-		// Global set.
-		cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, m_gfxManager->GetGlobalAndPassLayouts()._ptr, 0, 1, &wd.globalDescriptor, 0, nullptr);
-
-		// Pass set.
-		cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, m_gfxManager->GetGlobalAndPassLayouts()._ptr, 1, 1, &wd.passDescriptor, 0, nullptr);
-
-		// Global - scene data.
-		wd.sceneDataBuffer[frameIndex].CopyInto(&wd.sceneData, sizeof(GPUSceneData));
-
-		// Global - light data.
-		wd.lightDataBuffer[frameIndex].CopyInto(&wd.lightData, sizeof(GPULightData));
+		// Buffers.
+		wd.globalDataBuffer[imageIndex].CopyInto(&m_gfxManager->GetGPUGlobalData(), sizeof(GPUGlobalData));
+		wd.debugDataBuffer[imageIndex].CopyInto(&m_gfxManager->GetGPUDebugData(), sizeof(GPUDebugData));
+		wd.sceneDataBuffer[imageIndex].CopyInto(&wd.sceneData, sizeof(GPUSceneData));
+		wd.lightDataBuffer[imageIndex].CopyInto(&wd.lightData, sizeof(GPULightData));
+		wd.opaquePass.UpdateViewData(wd.viewDataBuffer[imageIndex], wd.playerView);
 
 		// Per render pass - obj data.
 		Vector<GPUObjectData> gpuObjectData;
@@ -311,13 +349,19 @@ namespace Lina
 			gpuObjectData.push_back(objData);
 		}
 
-		wd.objDataBuffer[frameIndex].CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
+		wd.objDataBuffer[imageIndex].CopyInto(gpuObjectData.data(), sizeof(GPUObjectData) * gpuObjectData.size());
+
+		// Global set.
+		cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, m_gfxManager->GetGlobalAndPassLayouts()._ptr, 0, 1, &wd.globalDescriptor[imageIndex], 0, nullptr);
+
+		// Pass set.
+		cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, m_gfxManager->GetGlobalAndPassLayouts()._ptr, 1, 1, &wd.passDescriptor[imageIndex], 0, nullptr);
 
 		// Put necessary images to correct layouts.
-		auto mainPassImage		= gpuStorage.GetImage(wd.finalColorTexture);
-		auto mainPassImageView	= gpuStorage.GetImageView(wd.finalColorTexture);
-		auto mainPassDepthImage = gpuStorage.GetImage(wd.finalDepthTexture);
-		auto mainPassDepthView	= gpuStorage.GetImageView(wd.finalDepthTexture);
+		auto mainPassImage		= gpuStorage.GetImage(wd.finalColorTexture[imageIndex]);
+		auto mainPassImageView	= gpuStorage.GetImageView(wd.finalColorTexture[imageIndex]);
+		auto mainPassDepthImage = gpuStorage.GetImage(wd.finalDepthTexture[imageIndex]);
+		auto mainPassDepthView	= gpuStorage.GetImageView(wd.finalDepthTexture[imageIndex]);
 
 		// Transition to optimal
 		cmd.CMD_ImageTransition(mainPassImage, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
@@ -334,15 +378,15 @@ namespace Lina
 				mainPassImage, ImageLayout::ColorOptimal, ImageLayout::ShaderReadOnlyOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
 		}
 
-		if (m_mask.IsSet(RM_ApplyPostProcessing))
+		if (m_mask.IsSet(WRM_ApplyPostProcessing))
 		{
-			auto ppImage	 = m_gfxManager->GetGPUStorage().GetImage(wd.postProcessTexture);
-			auto ppImageView = m_gfxManager->GetGPUStorage().GetImageView(wd.postProcessTexture);
+			auto ppImage	 = m_gfxManager->GetGPUStorage().GetImage(wd.postProcessTexture[imageIndex]);
+			auto ppImageView = m_gfxManager->GetGPUStorage().GetImageView(wd.postProcessTexture[imageIndex]);
 
 			cmd.CMD_ImageTransition(ppImage, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
 
 			cmd.CMD_BeginRenderingDefault(ppImageView, defaultRenderArea);
-			cmd.CMD_BindPipeline(gpuStorage.GetPipeline(m_worldPostProcessMaterials[frameIndex]), &gpuStorage.GetDescriptor(m_worldPostProcessMaterials[frameIndex]), MaterialBindFlag::BindDescriptor | MaterialBindFlag::BindPipeline);
+			cmd.CMD_BindPipeline(gpuStorage.GetPipeline(m_worldPostProcessMaterials[imageIndex]), &gpuStorage.GetDescriptor(m_worldPostProcessMaterials[imageIndex]), MaterialBindFlag::BindDescriptor | MaterialBindFlag::BindPipeline);
 			cmd.CMD_Draw(3, 1, 0, 0);
 			cmd.CMD_EndRendering();
 
@@ -356,62 +400,72 @@ namespace Lina
 
 	void WorldRenderer::CreateTextures(const Vector2i& res, bool createMaterials)
 	{
-		const String   name			   = "WorldRenderer_Txt_Color_" + TO_STRING(m_targetWorldData.world->GetID());
-		const String   nameDepth	   = "WorldRenderer_Txt_Depth_" + TO_STRING(m_targetWorldData.world->GetID());
-		const StringID textureColorSid = TO_SID(name);
-		const StringID textureDepthSid = TO_SID(nameDepth);
 
-		m_targetWorldData.finalColorTexture = VulkanUtility::CreateDefaultPassTextureColor(textureColorSid, m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->format, res.x, res.y);
-		m_targetWorldData.finalDepthTexture = VulkanUtility::CreateDefaultPassTextureDepth(textureDepthSid, res.x, res.y);
+		m_targetWorldData.finalColorTexture.resize(m_imageCount);
+		m_targetWorldData.finalDepthTexture.resize(m_imageCount);
 
-		if (m_mask.IsSet(RM_ApplyPostProcessing))
+		for (uint32 i = 0; i < m_imageCount; i++)
 		{
-			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			const String   name			   = "WorldRenderer_Txt_Color_" + TO_STRING(m_targetWorldData.world->GetID()) + "_" + TO_STRING(i);
+			const String   nameDepth	   = "WorldRenderer_Txt_Depth_" + TO_STRING(m_targetWorldData.world->GetID()) + "_" + TO_STRING(i);
+			const StringID textureColorSid = TO_SID(name);
+			const StringID textureDepthSid = TO_SID(nameDepth);
+
+			m_targetWorldData.finalColorTexture[i] = VulkanUtility::CreateDefaultPassTextureColor(textureColorSid, m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->format, res.x, res.y);
+			m_targetWorldData.finalDepthTexture[i] = VulkanUtility::CreateDefaultPassTextureDepth(textureDepthSid, res.x, res.y);
+		}
+
+		if (m_mask.IsSet(WRM_ApplyPostProcessing))
+		{
+			m_worldPostProcessMaterials.resize(m_imageCount);
+			m_targetWorldData.postProcessTexture.resize(m_imageCount);
+
+			for (uint32 i = 0; i < m_imageCount; i++)
 			{
 				if (createMaterials)
 				{
-					const String matName		   = name + "_PP_" + TO_STRING(i);
+					const String matName = "WorldRenderer_Txt_PP_" + TO_STRING(m_targetWorldData.world->GetID()) + "_" + TO_STRING(i);
+					+"_PP_" + TO_STRING(i);
 					m_worldPostProcessMaterials[i] = new Material(m_resourceManager, true, matName, TO_SID(matName));
 					m_worldPostProcessMaterials[i]->SetShader("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader"_hs);
 				}
-				m_worldPostProcessMaterials[i]->SetTexture(0, textureColorSid);
-				m_worldPostProcessMaterials[i]->UpdateBuffers();
-			}
 
-			const String   namePP				 = "WorldRenderer_Txt_PostProcess_" + TO_STRING(m_targetWorldData.world->GetID());
-			const StringID sidPP				 = TO_SID(namePP);
-			m_targetWorldData.postProcessTexture = VulkanUtility::CreateDefaultPassTextureColor(sidPP, m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->format, res.x, res.y);
+				m_worldPostProcessMaterials[i]->SetTexture(0, m_targetWorldData.finalColorTexture[i]->GetSID());
+				m_worldPostProcessMaterials[i]->UpdateBuffers();
+
+				const String   namePP					= "WorldRenderer_Txt_PostProcess_" + TO_STRING(m_targetWorldData.world->GetID()) + "_" + TO_STRING(i);
+				const StringID sidPP					= TO_SID(namePP);
+				m_targetWorldData.postProcessTexture[i] = VulkanUtility::CreateDefaultPassTextureColor(sidPP, m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->format, res.x, res.y);
+			}
 		}
 	}
 
 	void WorldRenderer::DestroyTextures()
 	{
-		delete m_targetWorldData.finalDepthTexture;
-		delete m_targetWorldData.finalColorTexture;
+		for (uint32 i = 0; i < m_imageCount; i++)
+		{
+			delete m_targetWorldData.finalDepthTexture[i];
+			delete m_targetWorldData.finalColorTexture[i];
+		}
 
-		if (m_mask.IsSet(RM_ApplyPostProcessing))
-			m_targetWorldData.postProcessTexture;
-	}
+		m_targetWorldData.finalColorTexture.clear();
+		m_targetWorldData.finalDepthTexture.clear();
 
-	void WorldRenderer::AddFinalTextureListener(SurfaceRenderer* listener)
-	{
-		m_finalTextureListeners.push_back(listener);
-	}
+		if (m_mask.IsSet(WRM_ApplyPostProcessing))
+		{
+			for (uint32 i = 0; i < m_imageCount; i++)
+				delete m_targetWorldData.postProcessTexture[i];
 
-	void WorldRenderer::RemoveFinalTextureListener(SurfaceRenderer* listener)
-	{
-		auto it = linatl::find_if(m_finalTextureListeners.begin(), m_finalTextureListeners.end(), [listener](SurfaceRenderer* sr) { return sr == listener; });
-
-		if (it != m_finalTextureListeners.end())
-			m_finalTextureListeners.erase(it);
+			m_targetWorldData.postProcessTexture.clear();
+		}
 	}
 
 	Texture* WorldRenderer::GetFinalTexture()
 	{
-		if (m_mask.IsSet(RM_ApplyPostProcessing))
-			return m_targetWorldData.postProcessTexture;
+		if (m_mask.IsSet(WRM_ApplyPostProcessing))
+			return m_targetWorldData.postProcessTexture[m_surfaceRenderer->GetAcquiredImage()];
 		else
-			return m_targetWorldData.finalColorTexture;
+			return m_targetWorldData.finalColorTexture[m_surfaceRenderer->GetAcquiredImage()];
 	}
 
 	void WorldRenderer::SetAspectRatio(float aspect)
