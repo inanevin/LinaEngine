@@ -92,7 +92,7 @@ namespace Lina
 		m_gfxManager->Join();
 
 		m_offscreenMaterials[imageIndex]->SetTexture(0, txt->GetSID());
-		m_offscreenMaterials[imageIndex]->UpdateBuffers();
+		m_offscreenMaterials[imageIndex]->UpdateBuffers(imageIndex);
 	}
 
 	void SurfaceRenderer::ClearOffscreenTexture()
@@ -105,10 +105,12 @@ namespace Lina
 
 		m_gfxManager->Join();
 
+		uint32 i = 0;
 		for (auto mat : m_offscreenMaterials)
 		{
 			mat->SetTexture(0, "Resources/Core/Textures/LogoWithText.png"_hs);
-			mat->UpdateBuffers();
+			mat->UpdateBuffers(i);
+			i++;
 		}
 	}
 
@@ -165,7 +167,7 @@ namespace Lina
 			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 			{
 				auto mat = m_offscreenMaterials[m_acquiredImage];
-				cmd.CMD_BindPipeline(m_gfxManager->GetGPUStorage().GetPipeline(mat), &m_gfxManager->GetGPUStorage().GetDescriptor(mat), MaterialBindFlag::BindDescriptor | MaterialBindFlag::BindPipeline);
+				cmd.CMD_BindPipeline(m_gfxManager->GetGPUStorage().GetPipeline(mat), &m_gfxManager->GetGPUStorage().GetDescriptor(mat, imageIndex), MaterialBindFlag::BindDescriptor | MaterialBindFlag::BindPipeline);
 				cmd.CMD_Draw(3, 1, 0, 0);
 			}
 

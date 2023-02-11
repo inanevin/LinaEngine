@@ -118,13 +118,13 @@ namespace Lina
 		return false;
 	}
 
-	void Material::UpdateBuffers()
+	void Material::UpdateBuffers(uint32 imageIndex)
 	{
 		if (m_propertiesDirty)
-			m_resourceManager->GetSystem()->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetGPUStorage().UpdateMaterialProperties(this);
+			m_resourceManager->GetSystem()->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetGPUStorage().UpdateMaterialProperties(this, imageIndex);
 
 		if (!m_dirtyTextureIndices.empty())
-			m_resourceManager->GetSystem()->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetGPUStorage().UpdateMaterialTextures(this, m_dirtyTextureIndices);
+			m_resourceManager->GetSystem()->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetGPUStorage().UpdateMaterialTextures(this, imageIndex, m_dirtyTextureIndices);
 
 		m_propertiesDirty = false;
 		m_dirtyTextureIndices.clear();

@@ -47,7 +47,7 @@ namespace Lina
 		void SetShader(StringID shader);
 		bool SetTexture(uint32 textureIndex, StringID texture);
 		bool SetTexture(const String& name, StringID texture);
-		void UpdateBuffers();
+		void UpdateBuffers(uint32 imageIndex);
 		void GetPropertyBlob(uint8*& outData, size_t& outSize);
 
 		inline const Vector<MaterialProperty<StringID>>& GetTextures() const

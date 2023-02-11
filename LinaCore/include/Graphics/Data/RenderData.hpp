@@ -71,7 +71,7 @@ namespace Lina
 	enum WorldRendererMask
 	{
 		WRM_PassResultToSurface = 1 << 0,
-		WRM_ApplyPostProcessing		 = 1 << 1,
+		WRM_ApplyPostProcessing = 1 << 1,
 	};
 
 	enum class RendererType
@@ -149,16 +149,16 @@ namespace Lina
 
 	struct GPUViewData
 	{
-		Matrix4 view;
-		Matrix4 proj;
-		Matrix4 viewProj;
-		Vector4 camPos;
-		Vector2 camNearFar;
+		Matrix4 view	   = Matrix4::Identity();
+		Matrix4 proj	   = Matrix4::Identity();
+		Matrix4 viewProj   = Matrix4::Identity();
+		Vector4 camPos	   = Vector4::Zero;
+		Vector2 camNearFar = Vector2::Zero;
 	};
 
 	struct LightData
 	{
-		Vector4 position;
+		Vector4 position = Vector4::Zero;
 	};
 
 	struct GPULightData

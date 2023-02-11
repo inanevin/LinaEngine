@@ -220,7 +220,7 @@ namespace Lina
 	void WorldRenderer::RenderWorld(uint32 frameIndex, const CommandBuffer& cmd, RenderWorldData& data)
 	{
 		const uint32 imageIndex = m_surfaceRenderer->GetAcquiredImage();
-		data.opaquePass.RecordDrawCommands(cmd, m_gfxManager->GetMeshEntries(), data.indirectBuffer[imageIndex]);
+		data.opaquePass.RecordDrawCommands(cmd, m_gfxManager->GetMeshEntries(), data.indirectBuffer[imageIndex], imageIndex);
 	}
 
 	void WorldRenderer::SyncData(float alpha)
@@ -386,7 +386,7 @@ namespace Lina
 			cmd.CMD_ImageTransition(ppImage, ImageLayout::Undefined, ImageLayout::ColorOptimal, ImageAspectFlags::AspectColor, AccessFlags::None, AccessFlags::ColorAttachmentWrite, PipelineStageFlags::TopOfPipe, PipelineStageFlags::ColorAttachmentOutput);
 
 			cmd.CMD_BeginRenderingDefault(ppImageView, defaultRenderArea);
-			cmd.CMD_BindPipeline(gpuStorage.GetPipeline(m_worldPostProcessMaterials[imageIndex]), &gpuStorage.GetDescriptor(m_worldPostProcessMaterials[imageIndex]), MaterialBindFlag::BindDescriptor | MaterialBindFlag::BindPipeline);
+			cmd.CMD_BindPipeline(gpuStorage.GetPipeline(m_worldPostProcessMaterials[imageIndex]), &gpuStorage.GetDescriptor(m_worldPostProcessMaterials[imageIndex], imageIndex), MaterialBindFlag::BindDescriptor | MaterialBindFlag::BindPipeline);
 			cmd.CMD_Draw(3, 1, 0, 0);
 			cmd.CMD_EndRendering();
 
@@ -431,7 +431,7 @@ namespace Lina
 				}
 
 				m_worldPostProcessMaterials[i]->SetTexture(0, m_targetWorldData.finalColorTexture[i]->GetSID());
-				m_worldPostProcessMaterials[i]->UpdateBuffers();
+				m_worldPostProcessMaterials[i]->UpdateBuffers(i);
 
 				const String   namePP					= "WorldRenderer_Txt_PostProcess_" + TO_STRING(m_targetWorldData.world->GetID()) + "_" + TO_STRING(i);
 				const StringID sidPP					= TO_SID(namePP);

@@ -129,7 +129,7 @@ namespace Lina
 		viewDataBuffer.CopyInto(&data, sizeof(GPUViewData));
 	}
 
-	void DrawPass::RecordDrawCommands(const CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer)
+	void DrawPass::RecordDrawCommands(const CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer, uint32 imageIndex)
 	{
 		Vector<VkDrawIndexedIndirectCommand> commands;
 		uint32								 i = 0;
@@ -168,7 +168,7 @@ namespace Lina
 				lastBoundMat = mat;
 			}
 
-			cmd.CMD_BindPipeline(m_gpuStorage->GetPipeline(mat), &m_gpuStorage->GetDescriptor(mat), MaterialBindFlag::BindDescriptor);
+			cmd.CMD_BindPipeline(m_gpuStorage->GetPipeline(mat), &m_gpuStorage->GetDescriptor(mat, imageIndex), MaterialBindFlag::BindDescriptor);
 			// cmd.CMD_Draw(3, 1, 0, 0);
 
 			const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);

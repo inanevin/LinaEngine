@@ -43,7 +43,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	uint32 GPUStorage::GenerateMaterial(Material* mat, uint32 existingHandle)
 	{
 		if (existingHandle != -1)
@@ -53,19 +52,27 @@ namespace Lina
 		const uint32	   index   = existingHandle == -1 ? m_materials.AddItem(GeneratedMaterial()) : existingHandle;
 		GeneratedMaterial& genData = m_materials.GetItemR(index);
 
+		const uint32 swpSize = static_cast<uint32>(m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->_images.size());
+		genData.descriptorSet.resize(swpSize);
+
 		if (existingHandle == -1)
 		{
-			genData.uniformBuffer = Buffer{
-				.allocator	 = m_gfxManager->GetBackend()->GetVMA(),
-				.size		 = mat->GetTotalPropertySize() == 0 ? sizeof(float) * 10 : mat->GetTotalPropertySize(),
-				.bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
-				.memoryUsage = MemoryUsageFlags::CpuToGpu,
-			};
+			genData.uniformBuffer.resize(swpSize);
 
-			genData.uniformBuffer.Create();
-			genData.uniformBuffer.boundSet	   = &genData.descriptorSet;
-			genData.uniformBuffer.boundBinding = 0;
-			genData.uniformBuffer.boundType	   = DescriptorType::UniformBuffer;
+			for (uint32 i = 0; i < swpSize; i++)
+			{
+				genData.uniformBuffer[i] = Buffer{
+					.allocator	 = m_gfxManager->GetBackend()->GetVMA(),
+					.size		 = mat->GetTotalPropertySize() == 0 ? sizeof(float) * 10 : mat->GetTotalPropertySize(),
+					.bufferUsage = GetBufferUsageFlags(BufferUsageFlags::UniformBuffer),
+					.memoryUsage = MemoryUsageFlags::CpuToGpu,
+				};
+
+				genData.uniformBuffer[i].Create();
+				genData.uniformBuffer[i].boundSet	  = &genData.descriptorSet[i];
+				genData.uniformBuffer[i].boundBinding = 0;
+				genData.uniformBuffer[i].boundType	  = DescriptorType::UniformBuffer;
+			}
 		}
 
 		genData.descriptorPool = DescriptorPool{
@@ -74,21 +81,23 @@ namespace Lina
 			.maxSets	  = 5,
 			.flags		  = DescriptorPoolCreateFlags::None,
 		};
-		genData.descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, 1).AddPoolSize(DescriptorType::CombinedImageSampler, 10).Create();
-
-		genData.descriptorSet = DescriptorSet{
-			.device	  = m_gfxManager->GetBackend()->GetDevice(),
-			.setCount = 1,
-			.pool	  = genData.descriptorPool._ptr,
-		};
+		genData.descriptorPool.AddPoolSize(DescriptorType::UniformBuffer, swpSize).AddPoolSize(DescriptorType::CombinedImageSampler, swpSize * 10).Create();
 
 		const auto& textures = mat->GetTextures();
 		auto		rm		 = m_gfxManager->GetSystem()->GetSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		auto		shader	 = rm->GetResource<Shader>(mat->GetShaderHandle());
+		auto		layout	 = m_shaders.GetItemR(shader->GetGPUHandle()).materialLayout;
 
-		auto shader = rm->GetResource<Shader>(mat->GetShaderHandle());
+		for (uint32 i = 0; i < swpSize; i++)
+		{
+			genData.descriptorSet[i] = DescriptorSet{
+				.device	  = m_gfxManager->GetBackend()->GetDevice(),
+				.setCount = 1,
+				.pool	  = genData.descriptorPool._ptr,
+			};
 
-		auto layout = m_shaders.GetItemR(shader->GetGPUHandle()).materialLayout;
-		genData.descriptorSet.Create(layout);
+			genData.descriptorSet[i].Create(layout);
+		}
 
 		// Update material properties.
 		uint8* data		= nullptr;
@@ -98,7 +107,8 @@ namespace Lina
 		// Possible materials/shaders can have no properties.
 		if (dataSize != 0)
 		{
-			genData.uniformBuffer.CopyInto(data, dataSize);
+			for (uint32 i = 0; i < swpSize; i++)
+				genData.uniformBuffer[i].CopyInto(data, dataSize);
 			delete[] data;
 		}
 
@@ -106,27 +116,30 @@ namespace Lina
 		if (dataSize == 0 && textures.empty())
 			return index;
 
-		genData.descriptorSet.BeginUpdate();
-
-		if (dataSize != 0)
-			genData.descriptorSet.AddBufferUpdate(genData.uniformBuffer, genData.uniformBuffer.size, 0, DescriptorType::UniformBuffer);
-
-		uint32 binding = 0;
-		for (const auto& txtProp : textures)
+		for (uint32 i = 0; i < swpSize; i++)
 		{
-			const uint32 handle = rm->GetResource<Texture>(txtProp.GetValue())->GetGPUHandle();
-			auto&		 gpuTxt = m_textures.GetItemR(handle);
+			genData.descriptorSet[i].BeginUpdate();
 
-			// Binding 0 is reserved to material uniform, so +1
-			genData.descriptorSet.AddTextureUpdate(binding + 1, gpuTxt.img._ptrImgView, gpuTxt.sampler._ptr);
-			binding++;
+			if (dataSize != 0)
+				genData.descriptorSet[i].AddBufferUpdate(genData.uniformBuffer[i], genData.uniformBuffer[i].size, 0, DescriptorType::UniformBuffer);
+
+			uint32 binding = 0;
+			for (const auto& txtProp : textures)
+			{
+				const uint32 handle = rm->GetResource<Texture>(txtProp.GetValue())->GetGPUHandle();
+				auto&		 gpuTxt = m_textures.GetItemR(handle);
+
+				// Binding 0 is reserved to material uniform, so +1
+				genData.descriptorSet[i].AddTextureUpdate(binding + 1, gpuTxt.img._ptrImgView, gpuTxt.sampler._ptr);
+				binding++;
+			}
+
+			genData.descriptorSet[i].SendUpdate();
 		}
-
-		genData.descriptorSet.SendUpdate();
 		return index;
 	}
 
-	void GPUStorage::UpdateMaterialProperties(Material* mat)
+	void GPUStorage::UpdateMaterialProperties(Material* mat, uint32 imageIndex)
 	{
 		uint8* data		= nullptr;
 		size_t dataSize = 0;
@@ -135,12 +148,12 @@ namespace Lina
 		// Possible materials/shaders can have no properties.
 		if (dataSize != 0)
 		{
-			m_materials.GetItemR(mat->GetGPUHandle()).uniformBuffer.CopyInto(data, dataSize);
+			m_materials.GetItemR(mat->GetGPUHandle()).uniformBuffer[imageIndex].CopyInto(data, dataSize);
 			delete[] data;
 		}
 	}
 
-	void GPUStorage::UpdateMaterialTextures(Material* mat, const Vector<uint32>& dirtyTextures)
+	void GPUStorage::UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures)
 	{
 		if (dirtyTextures.empty())
 		{
@@ -153,7 +166,7 @@ namespace Lina
 		auto			   rm		= m_gfxManager->GetSystem()->GetSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		GeneratedMaterial& genData	= m_materials.GetItemR(mat->GetGPUHandle());
 
-		gpuMat.descriptorSet.BeginUpdate();
+		gpuMat.descriptorSet[imageIndex].BeginUpdate();
 
 		for (auto index : dirtyTextures)
 		{
@@ -161,15 +174,15 @@ namespace Lina
 			auto&		 gpuTxt = m_textures.GetItemR(handle);
 
 			// Binding 0 is reserved to material uniform, so +1
-			genData.descriptorSet.AddTextureUpdate(index + 1, gpuTxt.img._ptrImgView, gpuTxt.sampler._ptr);
+			genData.descriptorSet[imageIndex].AddTextureUpdate(index + 1, gpuTxt.img._ptrImgView, gpuTxt.sampler._ptr);
 		}
 
-		gpuMat.descriptorSet.SendUpdate();
+		gpuMat.descriptorSet[imageIndex].SendUpdate();
 	}
 
-	DescriptorSet& GPUStorage::GetDescriptor(Material* mat)
+	DescriptorSet& GPUStorage::GetDescriptor(Material* mat, uint32 imageIndex)
 	{
-		return m_materials.GetItemR(mat->GetGPUHandle()).descriptorSet;
+		return m_materials.GetItemR(mat->GetGPUHandle()).descriptorSet[imageIndex];
 	}
 
 	void GPUStorage::DestroyMaterial(uint32 handle)
@@ -177,7 +190,10 @@ namespace Lina
 		// Note: no need to mtx lock, this is called from the main thread.
 		const uint32 index	 = handle;
 		auto&		 genData = m_materials.GetItemR(index);
-		genData.uniformBuffer.Destroy();
+		const uint32 sz		 = static_cast<uint32>(genData.uniformBuffer.size());
+		for (uint32 i = 0; i < sz; i++)
+			genData.uniformBuffer[i].Destroy();
+
 		genData.descriptorPool.Destroy();
 		m_materials.RemoveItem(index);
 	}

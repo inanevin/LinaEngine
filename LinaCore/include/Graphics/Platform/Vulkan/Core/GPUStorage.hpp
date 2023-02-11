@@ -72,9 +72,9 @@ namespace Lina
 
 	struct GeneratedMaterial
 	{
-		Buffer		   uniformBuffer;
-		DescriptorPool descriptorPool;
-		DescriptorSet  descriptorSet;
+		Vector<Buffer>		  uniformBuffer;
+		DescriptorPool		  descriptorPool;
+		Vector<DescriptorSet> descriptorSet;
 	};
 
 	class GfxManager;
@@ -92,9 +92,9 @@ namespace Lina
 		/************************ ENGINE API ************************/
 
 		uint32		   GenerateMaterial(Material* mat, uint32 existingHandle);
-		void		   UpdateMaterialProperties(Material* mat);
-		void		   UpdateMaterialTextures(Material* mat, const Vector<uint32>& dirtyTextures);
-		DescriptorSet& GetDescriptor(Material* mat);
+		void		   UpdateMaterialProperties(Material* mat, uint32 imageIndex);
+		void		   UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures);
+		DescriptorSet& GetDescriptor(Material* mat, uint32 imageIndex);
 		void		   DestroyMaterial(uint32 handle);
 
 		uint32	  GeneratePipeline(Shader* shader);
