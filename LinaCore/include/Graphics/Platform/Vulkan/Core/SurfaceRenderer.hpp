@@ -55,7 +55,7 @@ namespace Lina
 		bool AcquireImage(uint32 frameIndex);
 
 		virtual void		   OnSystemEvent(ESystemEvent ev, const Event& data) override;
-		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) override;
+		virtual CommandBuffer* Render(uint32 frameIndex) override;
 		virtual void		   Tick(float delta) override;
 		virtual void		   SyncData(float alpha) override;
 

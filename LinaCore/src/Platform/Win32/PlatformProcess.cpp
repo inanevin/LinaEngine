@@ -38,6 +38,9 @@ void InitializeWinPlatform()
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
 
+	DWORD_PTR mask = 1;
+	SetThreadAffinityMask(GetCurrentThread(), mask);
+
 	DWORD dwError;
 	if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
 	{

@@ -43,6 +43,7 @@ SOFTWARE.
 #include <vulkan/vulkan.h>
 #include "Math/Math.hpp"
 
+#include "Core/SystemInfo.hpp"
 namespace Lina
 {
 	void DrawPass::PrepareRenderData(Vector<RenderableData>& drawList, const View& view)
@@ -129,6 +130,9 @@ namespace Lina
 		viewDataBuffer.CopyInto(&data, sizeof(GPUViewData));
 	}
 
+	static float x	   = 0.0f;
+	static float prevX = 0.0f;
+
 	void DrawPass::RecordDrawCommands(const CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer, uint32 imageIndex)
 	{
 		Vector<VkDrawIndexedIndirectCommand> commands;
@@ -170,6 +174,28 @@ namespace Lina
 
 			cmd.CMD_BindPipeline(m_gpuStorage->GetPipeline(mat), &m_gpuStorage->GetDescriptor(mat, imageIndex), MaterialBindFlag::BindDescriptor);
 			// cmd.CMD_Draw(3, 1, 0, 0);
+
+			PCRTest test;
+
+			
+			x += 0.5f * SystemInfo::GetDeltaTimeF();
+
+			// x = Math::Lerp(x, y,  1);
+			if (x > 3.0f)
+				x = -3.0f;
+
+			// SystemInfo::csv += TO_STRING(x) + "\n";
+			float renderedX = Math::Lerp(prevX, x, SystemInfo::alpha);
+
+			prevX = x;
+
+			test.mat = test.mat.Translate(Vector3(x, 0, 0));
+			test.mat.ApplyScale(100);
+		//	LINA_TRACE("{0}", renderedX);
+			
+
+			// test.mat.Translate(Vector3(0, 0, 0));
+			cmd.CMD_PushConstants(m_gpuStorage->GetPipeline(mat)._layout, GetShaderStage(ShaderStage::Vertex), 0, sizeof(PCRTest), &test);
 
 			const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);
 			cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));

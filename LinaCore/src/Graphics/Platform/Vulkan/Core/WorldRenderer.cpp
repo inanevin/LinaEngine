@@ -302,7 +302,7 @@ namespace Lina
 	{
 	}
 
-	CommandBuffer* WorldRenderer::Render(uint32 frameIndex, Fence& fence)
+	CommandBuffer* WorldRenderer::Render(uint32 frameIndex)
 	{
 		const uint32 imageIndex = m_surfaceRenderer->GetAcquiredImage();
 		auto&		 wd			= m_targetWorldData;
@@ -311,20 +311,6 @@ namespace Lina
 		auto& cmd = m_cmds[imageIndex];
 		cmd.Reset(true);
 		cmd.Begin(GetCommandBufferFlags(CommandBufferFlags::OneTimeSubmit));
-
-		const Viewport viewport = Viewport{
-			.x		= 0,
-			.y		= 0,
-			.width	= static_cast<float>(m_renderResolution.x),
-			.height = static_cast<float>(m_renderResolution.y),
-		};
-
-		const Recti	 scissors			  = Recti(0, 0, m_renderResolution.x, m_renderResolution.y);
-		const Recti	 defaultRenderArea	  = Recti(Vector2(viewport.x, viewport.y), Vector2(viewport.width, viewport.height));
-		const uint32 depthTransitionFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
-
-		cmd.CMD_SetViewport(viewport);
-		cmd.CMD_SetScissors(scissors);
 
 		// Merged object buffer.
 		uint64 offset = 0;
@@ -357,6 +343,20 @@ namespace Lina
 		// Pass set.
 		cmd.CMD_BindDescriptorSets(PipelineBindPoint::Graphics, m_gfxManager->GetGlobalAndPassLayouts()._ptr, 1, 1, &wd.passDescriptor[imageIndex], 0, nullptr);
 
+		const Viewport viewport = Viewport{
+			.x		= 0,
+			.y		= 0,
+			.width	= static_cast<float>(m_renderResolution.x),
+			.height = static_cast<float>(m_renderResolution.y),
+		};
+
+		const Recti	 scissors			  = Recti(0, 0, m_renderResolution.x, m_renderResolution.y);
+		const Recti	 defaultRenderArea	  = Recti(Vector2(viewport.x, viewport.y), Vector2(viewport.width, viewport.height));
+		const uint32 depthTransitionFlags = GetPipelineStageFlags(PipelineStageFlags::EarlyFragmentTests) | GetPipelineStageFlags(PipelineStageFlags::LateFragmentTests);
+
+		cmd.CMD_SetViewport(viewport);
+		cmd.CMD_SetScissors(scissors);
+
 		// Put necessary images to correct layouts.
 		auto mainPassImage		= gpuStorage.GetImage(wd.finalColorTexture[imageIndex]);
 		auto mainPassImageView	= gpuStorage.GetImageView(wd.finalColorTexture[imageIndex]);
@@ -369,7 +369,7 @@ namespace Lina
 
 		// ********* MAIN PASS *********
 		{
-			cmd.CMD_BeginRenderingDefault(mainPassImageView, mainPassDepthView, defaultRenderArea, Color(0.2f, 0.2f, 0.6f, 1.0f));
+			cmd.CMD_BeginRenderingDefault(mainPassImageView, mainPassDepthView, defaultRenderArea, Color(0.35f, 0.35f, 0.35f));
 			RenderWorld(frameIndex, cmd, wd);
 			cmd.CMD_EndRendering();
 

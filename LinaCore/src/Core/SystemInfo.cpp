@@ -28,9 +28,13 @@ SOFTWARE.
 
 #include "Core/SystemInfo.hpp"
 #include "Math/Math.hpp"
+#include "Data/Array.hpp"
+#include "Data/CommonData.hpp"
 
 namespace Lina
 {
+	String			SystemInfo::csv						= "";
+	double			SystemInfo::alpha					= 0.0;
 	ApplicationMode SystemInfo::s_appMode				= ApplicationMode::Editor;
 	bool			SystemInfo::s_useFixedTimestep		= false;
 	bool			SystemInfo::s_useFrameRateSmoothing = true;
@@ -49,9 +53,25 @@ namespace Lina
 
 	void SystemInfo::CalculateRunningAverageDT()
 	{
-		if (!s_useFrameRateSmoothing)
-			return;
-		s_averageDT = Math::Lerp(s_averageDT, Math::Min(static_cast<float>(s_deltaTime), 0.2f), 1.0f / 300.f);
+		// Keep a history of the deltas for the last 11 frames
+		// Throw away the outliers, two highest and two lowest values
+		// Calculate the mean of remaining 7 values
+		// Lerp from the time step for th elast frame to calculated mean
+
+		static uint32			 historyIndex = 0;
+		static Array<double, 11> dtHistory	  = {{IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT}};
+		dtHistory[historyIndex]				  = s_deltaTime;
+		historyIndex						  = (historyIndex + 1) % 11;
+
+		linatl::quick_sort(dtHistory.begin(), dtHistory.end());
+
+		double mean = 0.0;
+		for (uint32 i = 2; i < 9; i++)
+			mean += dtHistory[i];
+
+		mean /= 7.0;
+
+		s_averageDT = Math::Lerp(s_averageDT, (float)mean, 0.1f);
 	}
 
 	float SystemInfo::CalculateMaxTickRate()

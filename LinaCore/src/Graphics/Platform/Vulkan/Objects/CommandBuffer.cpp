@@ -103,7 +103,7 @@ namespace Lina
 
 	void CommandBuffer::CMD_PushConstants(VkPipelineLayout_T* pipelineLayout, uint32 stageFlags, uint32 offset, uint32 size, void* constants) const
 	{
-		vkCmdPushConstants(_ptr, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), constants);
+		vkCmdPushConstants(_ptr, pipelineLayout, stageFlags, offset, size, constants);
 	}
 
 	void CommandBuffer::CMD_Draw(uint32 vtxCount, uint32 instCount, uint32 firstVtx, uint32 firstInst) const

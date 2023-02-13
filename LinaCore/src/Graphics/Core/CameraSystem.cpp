@@ -42,6 +42,6 @@ namespace Lina
 
 		const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 		cam.m_projection = clip * cam.m_projection;
-		// m_proj[1][1] *= -1;
+		// cam.m_projection[1][1] *= -1;
 	}
 } // namespace Lina

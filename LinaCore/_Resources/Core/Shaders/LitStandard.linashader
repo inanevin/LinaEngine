@@ -51,9 +51,14 @@ LINA_MATERIAL
 	float dummy;
 } material;
 
+layout( push_constant ) uniform constants
+{
+	mat4 data;
+} PushConstants;
+
 void main()
 {
-	mat4 modelMatrix = LINA_OBJECTS.objects[gl_InstanceIndex].model;
+	mat4 modelMatrix = PushConstants.data;
 	mat4 transformMatrix = (LINA_CAM.viewProj * modelMatrix);
 	gl_Position = transformMatrix * vec4(vPosition, 1.0f);
 	outColor = vColor;

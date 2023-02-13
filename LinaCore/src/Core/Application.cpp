@@ -33,6 +33,10 @@ SOFTWARE.
 #include "Platform/PlatformTimeIncl.hpp"
 #include "Math/Math.hpp"
 #include "System/IPlugin.hpp"
+#include "FileSystem/FileSystem.hpp"
+#include <iostream>
+#include <fstream>
+#include "Graphics/Core/Window.hpp"
 
 namespace Lina
 {
@@ -41,6 +45,7 @@ namespace Lina
 		SystemInfo::SetApplicationMode(initInfo.appMode);
 		m_engine.Initialize(initInfo);
 		LoadPlugins();
+
 	}
 
 	void Application::LoadPlugins()
@@ -67,18 +72,26 @@ namespace Lina
 		PlatformProcess::PumpMessages();
 
 		// Yield-CPU check.
-		if (!SystemInfo::GetAppHasFocus())
-			PlatformProcess::Sleep(.1);
+		// if (!SystemInfo::GetAppHasFocus())
+		//	PlatformProcess::Sleep(.1);
 
 		m_engine.Tick(SystemInfo::GetDeltaTimeF());
 
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
+
+		//if (SystemInfo::GetFrames() > 300)
+		//	m_exitRequested = true;
 	}
 
 	void Application::Shutdown()
 	{
 		UnloadPlugins();
 		m_engine.Shutdown();
+
+		std::ofstream myfile;
+		myfile.open("example.txt");
+		myfile << SystemInfo::csv.c_str();
+		myfile.close();
 	}
 
 	void Application::CalculateTime()
@@ -89,7 +102,7 @@ namespace Lina
 		// static bool	  prevUseFixedTs = useFixedTs;
 		//
 		// SystemInfo::SetLastRealTime(SystemInfo::GetCurrentRealtime());
-
+		//
 		// if (useFixedTs)
 		//{
 		//	timeChanged = true;
@@ -117,16 +130,15 @@ namespace Lina
 		//		deltaRT = 0.01;
 		//	}
 		//
-		//	SystemInfo::CalculateRunningAverageDT();
 		//
-		//	const float maxTicks = useFixedTs ? SystemInfo::GetFixedFrameRate() : SystemInfo::CalculateMaxTickRate();
+		//	const float maxTicks = 32; // useFixedTs ? SystemInfo::GetFixedFrameRate() : SystemInfo::CalculateMaxTickRate();
 		//	float		wait	 = 0.0f;
 		//
 		//	if (maxTicks > 0.0f)
 		//		wait = Math::Max(1.0f / maxTicks - deltaRT, 0.0f);
 		//
 		//	double actualWait = 0.0;
-		//	if (wait > 0.0f)
+		//	if (false && wait > 0.0f)
 		//	{
 		//		double waitEndTime = currentRT + wait;
 		//
@@ -176,13 +188,19 @@ namespace Lina
 		//
 		//	prevUseFixedTs = useFixedTs;
 		//
+		//	SystemInfo::CalculateRunningAverageDT();
+		//
 		//	SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 		// }
 
+		// SystemInfo::CalculateRunningAverageDT();
+		// SystemInfo::SetDeltaTime(SystemInfo::s_averageDT);
 		// static uint64 previous	   = PlatformTime::GetCycles64();
 		// const uint64  current	   = PlatformTime::GetCycles64();
 		// double		  deltaSeconds = PlatformTime::GetDeltaSeconds64(previous, current, 1.0);
 		// previous				   = current;
+
+		
 		static double previous	   = PlatformTime::GetSeconds();
 		const double  current	   = PlatformTime::GetSeconds();
 		double		  deltaSeconds = current - previous;
@@ -195,22 +213,26 @@ namespace Lina
 			deltaSeconds = 0.05;
 
 		SystemInfo::SetDeltaTime(deltaSeconds);
-		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + deltaSeconds);
+		SystemInfo::CalculateRunningAverageDT();
+		SystemInfo::SetDeltaTime(SystemInfo::s_averageDT);
+		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 
 		const float		gameTime	  = SystemInfo::GetAppTimeF();
 		static float	lastFPSUpdate = gameTime;
 		static uint64	lastFPSFrames = SystemInfo::GetFrames();
 		constexpr float measureTime	  = 1.0f;
 
-		if (gameTime > lastFPSUpdate + measureTime)
+		// SystemInfo::csv += TO_STRING(SystemInfo::GetFrames()) + "," + TO_STRING(SystemInfo::GetDeltaTime()) + ",";
+
+		 if (gameTime > lastFPSUpdate + measureTime)
 		{
 			const uint64 frames = SystemInfo::GetFrames();
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-
+		
 			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
-			LINA_TRACE("[Delta] : {0}", SystemInfo::GetDeltaTime());
-		}
+			LINA_TRACE("[DT]: {0}", SystemInfo::GetDeltaTime());
+		 }
 	}
 } // namespace Lina

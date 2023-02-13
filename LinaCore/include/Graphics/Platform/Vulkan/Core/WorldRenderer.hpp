@@ -88,7 +88,7 @@ namespace Lina
 		virtual void		   OnGameEvent(EGameEvent type, const Event& ev);
 		virtual void		   SyncData(float alpha) override;
 		virtual void		   Tick(float delta) override;
-		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) override;
+		virtual CommandBuffer* Render(uint32 frameIndex) override;
 		Texture*			   GetFinalTexture();
 
 		virtual Bitmask32 GetGameEventMask()

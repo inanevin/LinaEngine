@@ -47,6 +47,8 @@ SOFTWARE.
 #include "Graphics/Components/CameraComponent.hpp"
 #include "Math/Math.hpp"
 
+#include "Core/SystemInfo.hpp"
+
 namespace Lina
 {
 
@@ -119,6 +121,11 @@ namespace Lina
 		m_globalAndPassLayout.device		= m_backend.GetDevice();
 		m_globalAndPassLayout.allocationCb	= m_backend.GetAllocationCb();
 		m_globalAndPassLayout.deletionQueue = &m_deletionQueue;
+
+		PushConstantRange pcr;
+			pcr.size	   = sizeof(PCRTest);
+			pcr.stageFlags = GetShaderStage(ShaderStage::Vertex);
+		m_globalAndPassLayout.AddPushConstant(pcr);
 		m_globalAndPassLayout.AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::GlobalSet]).AddDescriptorSetLayout(m_descriptorLayouts[DescriptorSetType::PassSet]).Create();
 
 		m_gpuUploader.Create();
@@ -199,7 +206,7 @@ namespace Lina
 	void GfxManager::Tick(float delta)
 	{
 		m_time += 0.01f;
-		entity->SetPosition(entity->GetPosition() + Vector3(0.5f * delta, 0, 0));
+		entity->SetPosition(entity->GetPosition() + Vector3(0.5f * 0.016f, 0, 0));
 
 		if (entity->GetPosition().x > 2.98f)
 			entity->SetPosition(Vector3(-3, 0, 0));
@@ -213,6 +220,7 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
+		LINA_TRACE("Rendering frame {0}", SystemInfo::GetFrames());
 		// Window manage return if minimized.
 
 		// If not editor && app is not active return.
@@ -225,7 +233,7 @@ namespace Lina
 		const uint32 frameIndex = GetFrameIndex();
 		RenderFrame& frame		= m_frames[frameIndex];
 
-		frame.graphicsFence.Wait(true, 1.0f);
+		frame.graphicsFence.Wait(true, 10.0f);
 
 		// Acquire image indices for all surfaces.
 		Vector<SurfaceRenderer*> acquiredSurfaceRenderers;
@@ -271,7 +279,7 @@ namespace Lina
 
 		// Render all worlds in parallel.
 		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(allWorldRenderers.size()), 1, [&](int i) { commandBuffers[i] = allWorldRenderers[i]->Render(frameIndex, frame.graphicsFence); });
+		tf.for_each_index(0, static_cast<int>(allWorldRenderers.size()), 1, [&](int i) { commandBuffers[i] = allWorldRenderers[i]->Render(frameIndex); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
 
 		const uint32 surfaceRenderersSize = static_cast<uint32>(acquiredSurfaceRenderers.size());
@@ -287,7 +295,7 @@ namespace Lina
 		tfs.for_each_index(0, static_cast<int>(acquiredSurfaceRenderers.size()), 1, [&](int i) {
 			auto swp								= acquiredSurfaceRenderers[i]->GetSwapchain();
 			imageIndices[i]							= acquiredSurfaceRenderers[i]->GetAcquiredImage();
-			commandBuffers[i + cmdBufferBeginIndex] = acquiredSurfaceRenderers[i]->Render(frameIndex, frame.graphicsFence);
+			commandBuffers[i + cmdBufferBeginIndex] = acquiredSurfaceRenderers[i]->Render(frameIndex);
 			submitSemaphores[i]						= &swp->_submitSemaphores[frameIndex];
 			presentSemaphores[i]					= &swp->_presentSemaphores[frameIndex];
 			swapchains[i]							= swp;
@@ -309,7 +317,7 @@ namespace Lina
 			r->OnPostPresent(res);
 		}
 
-		// m_backend.GetGraphicsQueue().WaitIdle();
+		//m_backend.GetGraphicsQueue().WaitIdle();
 		m_frameNumber++;
 	}
 

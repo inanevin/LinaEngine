@@ -237,6 +237,14 @@ namespace Lina
 
 		genData.materialLayout.Create();
 
+		if (shader->GetSID() == "Resources/Core/Shaders/LitStandard.linashader"_hs)
+		{
+			PushConstantRange pcr;
+			pcr.size	   = sizeof(PCRTest);
+			pcr.stageFlags = GetShaderStage(ShaderStage::Vertex);
+			genData.pipelineLayout.AddPushConstant(pcr);
+		}
+
 		genData.pipelineLayout.AddDescriptorSetLayout(m_gfxManager->GetLayout(DescriptorSetType::GlobalSet));
 		genData.pipelineLayout.AddDescriptorSetLayout(m_gfxManager->GetLayout(DescriptorSetType::PassSet));
 		genData.pipelineLayout.AddDescriptorSetLayout(genData.materialLayout);

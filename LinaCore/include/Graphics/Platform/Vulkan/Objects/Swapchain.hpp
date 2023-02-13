@@ -58,7 +58,7 @@ namespace Lina
 		void   RecreateFromOld(StringID sid);
 		void   Destroy();
 		uint32 AcquireNextImage(uint64 timeout, const Semaphore& semaphore, VulkanResult& result) const;
-		uint32 AcquireNextImage(uint64 timeout, const Semaphore& semaphore, const Fence& fence) const;
+		uint32 AcquireNextImage(uint64 timeout, const Semaphore& semaphore, VulkanResult& result, const Fence& fence) const;
 		uint32 AcquireNextImage(uint64 timeout, const Fence& fence) const;
 
 		// Desired

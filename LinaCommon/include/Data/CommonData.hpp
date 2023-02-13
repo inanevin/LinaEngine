@@ -32,6 +32,7 @@ SOFTWARE.
 #ifndef DataStructuresDataCommon_HPP
 #define DataStructuresDataCommon_HPP
 #include <EASTL/utility.h>
+#include <EASTL/sort.h>
 
 namespace Lina
 {

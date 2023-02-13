@@ -35,12 +35,14 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Graphics/Resource/Texture.hpp"
 
+#include "Core/SystemInfo.hpp"
 namespace Lina
 {
 	int SurfaceRenderer::s_surfaceRendererCount = 0;
 
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, Swapchain* swp, Bitmask16 mask) : Renderer(man, static_cast<uint32>(swp->_images.size()), mask, RendererType::SurfaceRenderer), m_swapchain(swp)
 	{
+
 		if (m_swapchain == nullptr)
 		{
 			LINA_ERR("[Surface Renderer] -> Surface renderers require a swapchain, aborting init!");
@@ -116,13 +118,30 @@ namespace Lina
 
 	bool SurfaceRenderer::AcquireImage(uint32 frameIndex)
 	{
+		LINA_TRACE("Acquiring image for frame {0}, rendering frame index: {1}", SystemInfo::GetFrames(), frameIndex);
+
+		Fence* fence		= new Fence();
+		fence->device		= m_gfxManager->GetBackend()->GetDevice();
+		fence->allocationCb = m_gfxManager->GetBackend()->GetAllocationCb();
+		fence->flags		= GetFenceFlags(FenceFlags::Signaled);
+		fence->Create();
+		fence->Reset();
+		
+	//auto job = [fence](uint32 frame, uint32 renderingFrame) {
+	//	fence->Wait(true, 10.0f);
+	//	LINA_TRACE("Fence signalled for frame: {0}, rendering frame index: {1}", frame, renderingFrame);
+	//	delete fence;
+	//};
+	//
+	//m_gfxManager->GetSystem()->GetMainExecutor()->Async(job, SystemInfo::GetFrames(), frameIndex);
+
 		VulkanResult res;
-		m_acquiredImage = m_swapchain->AcquireNextImage(UINT64_MAX, m_swapchain->_submitSemaphores[frameIndex], res);
+		m_acquiredImage = m_swapchain->AcquireNextImage(UINT64_MAX, m_swapchain->_submitSemaphores[frameIndex], res, *fence);
 
 		return CanContinueWithAcquiredImage(res);
 	}
 
-	CommandBuffer* SurfaceRenderer::Render(uint32 frameIndex, Fence& fence)
+	CommandBuffer* SurfaceRenderer::Render(uint32 frameIndex)
 	{
 		const uint32 imageIndex = m_acquiredImage;
 		auto&		 cmd		= m_cmds[imageIndex];

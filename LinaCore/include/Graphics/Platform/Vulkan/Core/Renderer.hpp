@@ -53,7 +53,7 @@ namespace Lina
 
 		virtual void		   SyncData(float alpha)				   = 0;
 		virtual void		   Tick(float delta)					   = 0;
-		virtual CommandBuffer* Render(uint32 frameIndex, Fence& fence) = 0;
+		virtual CommandBuffer* Render(uint32 frameIndex) = 0;
 
 		inline const Bitmask16& GetMask() const
 		{

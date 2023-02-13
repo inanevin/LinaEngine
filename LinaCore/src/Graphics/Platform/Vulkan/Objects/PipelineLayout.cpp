@@ -76,7 +76,7 @@ namespace Lina
 			deletionQueue->Push([ptr, dv, all]() { vkDestroyPipelineLayout(dv, ptr, all); });
 		}
 
-		// pushConstantRanges.clear();
+		pushConstantRanges.clear();
 		// _setLayoutPtrs.clear();
 	}
 

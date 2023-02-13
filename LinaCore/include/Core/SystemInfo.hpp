@@ -38,6 +38,8 @@ namespace Lina
 
 	class Application;
 
+#define IDEAL_DT 1.0f / 60.0f
+
 	class SystemInfo
 	{
 	public:
@@ -130,6 +132,9 @@ namespace Lina
 		{
 			return s_measuredFPS;
 		}
+
+		static double alpha;
+		static String csv;
 
 	private:
 		friend class Application;

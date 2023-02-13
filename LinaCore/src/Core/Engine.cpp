@@ -106,29 +106,31 @@ namespace Lina
 
 	void Engine::Tick(float delta)
 	{
+		LINA_TRACE("Ticking Frame: {0}", SystemInfo::GetFrames());
+
 		m_input.Tick(delta);
 		m_gfxManager.Tick(delta);
 
 		// For any listeners that fall outside the main loop.
-		//Event eventData;
-		//eventData.fParams[0] = delta;
-		//DispatchSystemEvent(EVS_SystemTick, eventData);
+		// Event eventData;
+		// eventData.fParams[0] = delta;
+		// DispatchSystemEvent(EVS_SystemTick, eventData);
 
-		//m_levelManager.Tick(delta);
+		// m_levelManager.Tick(delta);
 
-		//auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
-		//auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
+		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
 
-	//	audioJob.get();
-		//renderJob.get();
-	//	m_levelManager.WaitForSimulation();
+		//	audioJob.get();
+		renderJob.get();
+		//	m_levelManager.WaitForSimulation();
 
-	//	m_levelManager.SyncData(1.0f);
+		//	m_levelManager.SyncData(1.0f);
+		// m_gfxManager.Render();
 		m_gfxManager.SyncData(1.0f);
-		m_gfxManager.Render();
-		
+
 		// For any listeners that fall outside the main loop.
-	//	DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
+		//	DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});
 
 		if (m_input.GetKeyDown(LINA_KEY_1))
 		{

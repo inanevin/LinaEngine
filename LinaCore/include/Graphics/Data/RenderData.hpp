@@ -173,6 +173,11 @@ namespace Lina
 		uint32 firstIndex	= 0;
 	};
 
+	struct PCRTest
+	{
+		Matrix4 mat = Matrix4::Identity();
+	};
+
 } // namespace Lina
 
 #endif
