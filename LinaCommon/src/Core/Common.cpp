@@ -77,5 +77,7 @@ namespace Lina
 		case VsyncMode::TripleBuffer:
 			return "Triple Buffer (Mailbox)";
 		}
+
+		return "None";
 	}
 } // namespace Lina

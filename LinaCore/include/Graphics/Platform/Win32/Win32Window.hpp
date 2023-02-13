@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Win32Window_HPP
 #define Win32Window_HPP
 
-#include "Graphics/Core/Window.hpp"
+#include "Graphics/Core/IWindow.hpp"
 #include "Data/HashMap.hpp"
 
 struct HWND__;
@@ -41,10 +41,10 @@ struct HICON__;
 namespace Lina
 {
 	class WindowManager;
-	class Win32Window : public Window
+	class Win32Window : public IWindow
 	{
 	public:
-		Win32Window(WindowManager* manager, ISystem* sys, StringID sid) : Window(sys, sid), m_manager(manager){};
+		Win32Window(WindowManager* manager, ISystem* sys, StringID sid) : IWindow(sys, sid), m_manager(manager){};
 		virtual ~Win32Window() = default;
 
 		// Inherited via Window

@@ -26,24 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/ISystem.hpp"
-#include "Data/CommonData.hpp"
-#include "Math/Math.hpp"
+#pragma once
+
+#ifndef D12GUIBackend_HPP
+#define D12GUIBackend_HPP
 
 namespace Lina
 {
-	void ISystem::AddSubsystem(ISubsystem* s)
+	class D12GUIBackend
 	{
-		m_subsystems[s->GetType()] = s;
-	}
-
-	void ISystem::RemoveSubsystem(ISubsystem* s)
-	{
-		m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
-	}
-
-	ISubsystem* ISystem::CastSubsystem(SubsystemType type)
-	{
-		return m_subsystems[type];
-	}
+	public:
+		D12GUIBackend()	 = default;
+		~D12GUIBackend() = default;
+	};
 } // namespace Lina
+
+#endif

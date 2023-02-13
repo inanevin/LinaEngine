@@ -26,55 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/Win32/PlatformTime.hpp"
-#include <Windows.h>
+#pragma once
+
+#ifndef Win32PlatformTime_HPP
+#define Win32PlatformTime_HPP
+
+#include "Core/SizeDefinitions.hpp"
 
 namespace Lina
 {
-	double PlatformTime::s_secondsPerCycle	 = 0.0;
-	double PlatformTime::s_secondsPerCycle64 = 0.0;
-
-	double PlatformTime::GetSeconds()
+	class Win32PlatformTime
 	{
-		if (s_secondsPerCycle == 0.0)
+	public:
+		static double GetSeconds();
+		static uint32 GetCycles();
+		static uint64 GetCycles64();
+		static double GetDeltaSeconds(uint32 from, uint32 to, double timeScale = 1.0);
+		static double GetDeltaSeconds64(uint64 from, uint64 to, double timeScale = 1.0);
+
+	private:
+		static inline double GetSecondsPerCycle()
 		{
-			LARGE_INTEGER Frequency;
-
-			if (!QueryPerformanceFrequency(&Frequency))
-				LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
-
-			s_secondsPerCycle	= 1.0 / Frequency.QuadPart;
-			s_secondsPerCycle64 = 1.0 / Frequency.QuadPart;
+			return s_secondsPerCycle;
 		}
 
-		LARGE_INTEGER Cycles;
-		QueryPerformanceCounter(&Cycles);
+	private:
+		static double s_secondsPerCycle;
+		static double s_secondsPerCycle64;
+	};
 
-		return Cycles.QuadPart * GetSecondsPerCycle() + 16777216.0;
-	}
-
-	uint32 PlatformTime::GetCycles()
-	{
-		LARGE_INTEGER Cycles;
-		QueryPerformanceCounter(&Cycles);
-		return (uint32)Cycles.QuadPart;
-	}
-
-	uint64 PlatformTime::GetCycles64()
-	{
-		LARGE_INTEGER Cycles;
-		QueryPerformanceCounter(&Cycles);
-		return Cycles.QuadPart;
-	}
-
-	double PlatformTime::GetDeltaSeconds(uint32 from, uint32 to, double timeScale)
-	{
-		return (to - from) * s_secondsPerCycle * timeScale;
-	}
-
-	double PlatformTime::GetDeltaSeconds64(uint64 from, uint64 to, double timeScale)
-	{
-		return (to - from) * s_secondsPerCycle64 * timeScale;
-	}
-		
 } // namespace Lina
+#endif

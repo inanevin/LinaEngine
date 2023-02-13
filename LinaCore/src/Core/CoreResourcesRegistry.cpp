@@ -79,7 +79,7 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQFinal.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader", GetTypeID<Shader>(), 0));
 #else
-		LINA_NOTIMPLEMENTED;
+		//LINA_NOTIMPLEMENTED;
 #endif
 
 		for (auto& ident : list)

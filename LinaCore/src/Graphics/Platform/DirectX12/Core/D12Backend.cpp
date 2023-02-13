@@ -26,24 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/ISystem.hpp"
-#include "Data/CommonData.hpp"
-#include "Math/Math.hpp"
+#include "Graphics/Platform/DirectX12/Core/D12Backend.hpp"
 
 namespace Lina
 {
-	void ISystem::AddSubsystem(ISubsystem* s)
-	{
-		m_subsystems[s->GetType()] = s;
-	}
 
-	void ISystem::RemoveSubsystem(ISubsystem* s)
-	{
-		m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
-	}
-
-	ISubsystem* ISystem::CastSubsystem(SubsystemType type)
-	{
-		return m_subsystems[type];
-	}
 } // namespace Lina

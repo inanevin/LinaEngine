@@ -28,12 +28,17 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef PlatformTimeIncl_HPP
-#define PlatformTimeIncl_HPP
+#ifndef PlatformProcess_HPP
+#define PlatformProcess_HPP
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/PlatformTime.hpp"
-#else
+#include "Platform/Win32/Win32PlatformProcess.hpp"
 
+namespace Lina
+{
+typedef Win32PlatformProcess PlatformProcess;
+}
+#else
 #endif
+
 #endif

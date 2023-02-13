@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/Win32/PlatformProcess.hpp"
+#include "Platform/Win32/Win32PlatformProcess.hpp"
 #include "Log/Log.hpp"
 #include "Core/Application.hpp"
 #include "System/IPlugin.hpp"
@@ -71,11 +71,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 namespace Lina
 {
-	HashMap<IPlugin*, void*> PlatformProcess::s_pluginHandles;
+	HashMap<IPlugin*, void*> Win32PlatformProcess::s_pluginHandles;
 	typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
 	typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);
 
-	void PlatformProcess::PumpMessages()
+	void Win32PlatformProcess::PumpMessages()
 	{
 		MSG msg	   = {0};
 		msg.wParam = 0;
@@ -86,7 +86,7 @@ namespace Lina
 		}
 	}
 
-	void PlatformProcess::SleepSpinLock(double seconds)
+	void Win32PlatformProcess::SleepSpinLock(double seconds)
 	{
 		// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
 		static HANDLE  timer = CreateWaitableTimer(NULL, FALSE, NULL);
@@ -124,7 +124,7 @@ namespace Lina
 		};
 	}
 
-	void PlatformProcess::Sleep(double seconds)
+	void Win32PlatformProcess::Sleep(double seconds)
 	{
 		uint32 milliseconds = (uint32)(seconds * 1000.0);
 		if (milliseconds == 0)
@@ -133,7 +133,7 @@ namespace Lina
 			::Sleep(milliseconds);
 	}
 
-	void PlatformProcess::LoadPlugin(const char* name, IEngineInterface* engInterface, IEventDispatcher* dispatcher)
+	void Win32PlatformProcess::LoadPlugin(const char* name, IEngineInterface* engInterface, IEventDispatcher* dispatcher)
 	{
 		HINSTANCE hinstLib;
 		BOOL	  fFreeResult = FALSE;
@@ -156,7 +156,7 @@ namespace Lina
 		}
 	}
 
-	void PlatformProcess::UnloadPlugin(const char* name, IEventDispatcher* dispatcher)
+	void Win32PlatformProcess::UnloadPlugin(const char* name, IEventDispatcher* dispatcher)
 	{
 		HINSTANCE hinstLib = NULL;
 		IPlugin*  plugin   = nullptr;

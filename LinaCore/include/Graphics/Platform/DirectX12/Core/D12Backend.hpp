@@ -28,13 +28,17 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GfxManagerIncl_HPP
-#define GfxManagerIncl_HPP
+#ifndef D12Backend_HPP
+#define D12Backend_HPP
 
-#ifdef LINA_GRAPHICS_VULKAN
-#include "Graphics/Platform/Vulkan/Core/GfxManager.hpp"
-#else
-
-#endif
+namespace Lina
+{
+	class D12Backend
+	{
+	public:
+		D12Backend()  = default;
+		~D12Backend() = default;
+	};
+} // namespace Lina
 
 #endif

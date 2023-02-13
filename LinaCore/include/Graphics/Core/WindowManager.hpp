@@ -37,7 +37,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	struct MonitorInfo
 	{
 		bool	 isPrimary = false;
@@ -45,8 +44,8 @@ namespace Lina
 		Vector2i workArea  = Vector2i::Zero;
 	};
 
-	class Window;
-	class GfxManager;
+	class IWindow;
+	class IGfxManager;
 
 	class WindowManager final : public ISubsystem
 	{
@@ -57,12 +56,12 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
-		void	CreateAppWindow(StringID sid, WindowStyle style, const char* title, const Vector2i& pos, const Vector2i& size);
-		void	DestroyAppWindow(StringID sid);
-		Window* GetWindow(StringID sid);
-		void	OnWindowFocused(StringID sid);
-		int		GetWindowZOrder(StringID sid);
-		void	SetVsync(VsyncMode mode);
+		void	 CreateAppWindow(StringID sid, WindowStyle style, const char* title, const Vector2i& pos, const Vector2i& size);
+		void	 DestroyAppWindow(StringID sid);
+		IWindow* GetWindow(StringID sid);
+		void	 OnWindowFocused(StringID sid);
+		int		 GetWindowZOrder(StringID sid);
+		void	 SetVsync(VsyncMode mode);
 
 		inline const Vector<MonitorInfo>& GetMonitors() const
 		{
@@ -81,11 +80,11 @@ namespace Lina
 		}
 
 	private:
-		VsyncMode				   m_vsync		= VsyncMode::None;
-		GfxManager*				   m_gfxManager = nullptr;
-		HashMap<StringID, Window*> m_windows;
-		Vector<StringID>		   m_drawOrders;
-		Vector<MonitorInfo>		   m_monitors;
+		VsyncMode					m_vsync		 = VsyncMode::None;
+		IGfxManager*				m_gfxManager = nullptr;
+		HashMap<StringID, IWindow*> m_windows;
+		Vector<StringID>			m_drawOrders;
+		Vector<MonitorInfo>			m_monitors;
 	};
 } // namespace Lina
 

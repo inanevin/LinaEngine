@@ -34,12 +34,16 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Input/Core/Input.hpp"
 #include "Audio/Core/AudioManager.hpp"
-#include "Graphics/Platform/GfxManagerIncl.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "IEngineInterface.hpp"
+
+#ifdef LINA_GRAPHICS_D3D12
+#include "Graphics/Platform/DirectX12/Core/D12GfxManager.hpp"
+typedef Lina::D12GfxManager GfxManager;
+#endif
 
 namespace Lina
 {

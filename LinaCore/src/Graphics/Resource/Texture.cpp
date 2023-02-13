@@ -30,7 +30,8 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "System/ISystem.hpp"
-#include "Graphics/Platform/GfxManagerIncl.hpp"
+#include "Graphics/Core/IGfxManager.hpp"
+#include "Graphics/Core/IGpuStorage.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_RESIZE_IMPLEMENTATION
 #include "Graphics/Utility/stb/stb_image.h"
@@ -51,7 +52,7 @@ namespace Lina
 		if (m_gpuHandle == -1)
 			return;
 
-		m_resourceManager->GetSystem()->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetGPUStorage().DestroyImage(m_gpuHandle);
+		m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->DestroyImage(m_gpuHandle);
 	}
 
 	void Texture::LoadFromFile(const char* path)
@@ -171,7 +172,7 @@ namespace Lina
 			return;
 		}
 
-		m_gpuHandle = m_resourceManager->GetSystem()->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetGPUStorage().GenerateImageAndUpload(this);
+		m_gpuHandle = m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->GenerateImageAndUpload(this);
 	}
 
 	void Texture::GenerateImage(uint32 aspectFlags, uint32 imageUsageFlags)
@@ -182,7 +183,7 @@ namespace Lina
 			return;
 		}
 
-		m_gpuHandle = m_resourceManager->GetSystem()->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetGPUStorage().GenerateImage(this, aspectFlags, imageUsageFlags);
+		m_gpuHandle = m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->GenerateImage(this, aspectFlags, imageUsageFlags);
 	}
 
 	void Texture::InitSampler()

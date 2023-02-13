@@ -33,7 +33,8 @@ SOFTWARE.
 #include "Graphics/Utility/GLSLParser.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "System/ISystem.hpp"
-#include "Graphics/Platform/GfxManagerIncl.hpp"
+#include "Graphics/Core/IGfxManager.hpp"
+#include "Graphics/Core/IGpuStorage.hpp"
 
 #ifdef LINA_GRAPHICS_VULKAN
 #include "Graphics/Platform/Vulkan/Utility/SPIRVUtility.hpp"
@@ -46,7 +47,7 @@ namespace Lina
 		if (m_gpuHandle == -1)
 			return;
 
-		static_cast<GfxManager*>(m_resourceManager->GetSystem()->GetSubsystem(SubsystemType::GfxManager))->GetGPUStorage().DestroyPipeline(m_gpuHandle);
+		static_cast<IGfxManager*>(m_resourceManager->GetSystem()->CastSubsystem(SubsystemType::GfxManager))->GetGPUStorage()->DestroyPipeline(m_gpuHandle);
 
 		for (auto p : m_properties)
 			delete p;
@@ -229,7 +230,7 @@ namespace Lina
 		if (m_gpuHandle != -1)
 			return;
 
-		m_gpuHandle = static_cast<GfxManager*>(m_resourceManager->GetSystem()->GetSubsystem(SubsystemType::GfxManager))->GetGPUStorage().GeneratePipeline(this);
+		m_gpuHandle = static_cast<IGfxManager*>(m_resourceManager->GetSystem()->CastSubsystem(SubsystemType::GfxManager))->GetGPUStorage()->GeneratePipeline(this);
 	}
 
 	void Shader::Flush()

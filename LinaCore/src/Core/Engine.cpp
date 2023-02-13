@@ -31,8 +31,8 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Core/CoreResourcesRegistry.hpp"
 #include "Core/SystemInfo.hpp"
-#include "Graphics/Core/Window.hpp"
-#include "Platform/PlatformTimeIncl.hpp"
+#include "Core/PlatformTime.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 
 //********** DEBUG
 #include "Input/Core/InputMappings.hpp"

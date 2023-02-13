@@ -51,37 +51,7 @@ src/Graphics/Components/RenderableComponent.cpp
 src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp
 src/Graphics/Platform/Win32/Win32Window.cpp
-src/Graphics/Platform/Vulkan/Core/GPUStorage.cpp
-src/Graphics/Platform/Vulkan/Core/GfxManager.cpp
-src/Graphics/Platform/Vulkan/Core/GfxBackend.cpp
-src/Graphics/Platform/Vulkan/Core/GUIBackend.cpp
-src/Graphics/Platform/Vulkan/Core/UploadContext.cpp
-src/Graphics/Platform/Vulkan/Core/Renderer.cpp
-src/Graphics/Platform/Vulkan/Core/SurfaceRenderer.cpp
-src/Graphics/Platform/Vulkan/Core/WorldRenderer.cpp
-src/Graphics/Platform/Vulkan/Core/DrawPass.cpp
-src/Graphics/Platform/Vulkan/Utility/VkBootstrap.cpp
-src/Graphics/Platform/Vulkan/Utility/SPIRVUtility.cpp
-src/Graphics/Platform/Vulkan/Utility/VulkanUtility.cpp
-src/Graphics/Platform/Vulkan/Utility/VulkanStructures.cpp
-src/Graphics/Platform/Vulkan/Objects/Buffer.cpp
-src/Graphics/Platform/Vulkan/Objects/DescriptorSet.cpp
-src/Graphics/Platform/Vulkan/Objects/DescriptorSetLayout.cpp
-src/Graphics/Platform/Vulkan/Objects/DescriptorPool.cpp
-src/Graphics/Platform/Vulkan/Objects/Framebuffer.cpp
-src/Graphics/Platform/Vulkan/Objects/Swapchain.cpp
-src/Graphics/Platform/Vulkan/Objects/Queue.cpp
-src/Graphics/Platform/Vulkan/Objects/CommandPool.cpp
-src/Graphics/Platform/Vulkan/Objects/CommandBuffer.cpp
-src/Graphics/Platform/Vulkan/Objects/RenderPass.cpp
-src/Graphics/Platform/Vulkan/Objects/Fence.cpp
-src/Graphics/Platform/Vulkan/Objects/Semaphore.cpp
-src/Graphics/Platform/Vulkan/Objects/Pipeline.cpp
-src/Graphics/Platform/Vulkan/Objects/PipelineLayout.cpp
-src/Graphics/Platform/Vulkan/Objects/Image.cpp
-src/Graphics/Platform/Vulkan/Objects/Sampler.cpp
 src/Graphics/Utility/ModelLoader.cpp
-src/Graphics/Utility/GLSLParser.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/Mesh.cpp
 src/Graphics/Resource/Model.cpp
@@ -126,6 +96,7 @@ include/Core/Engine.hpp
 include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
 include/Core/IEngineInterface.hpp
+include/Core/PlatformProcess.hpp
 include/Core/CoreResourcesRegistry.hpp
 
 # World
@@ -145,9 +116,6 @@ include/Input/Core/InputMappings.hpp
 # Physics
 include/Physics/Core/PhysicsWorld.hpp
 
-# Platform
-include/Platform/PlatformProcessIncl.hpp
-
 # Reflection
 include/Reflection/ClassReflection.hpp
 include/Reflection/ReflectionSystem.hpp
@@ -162,7 +130,9 @@ include/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
 include/Graphics/Core/WindowManager.hpp
-include/Graphics/Core/Window.hpp
+include/Graphics/Core/IWindow.hpp
+include/Graphics/Core/IGfxManager.hpp
+include/Graphics/Core/IGpuStorage.hpp
 include/Graphics/Core/CommonGraphics.hpp
 include/Graphics/Core/View.hpp
 include/Graphics/Core/CameraSystem.hpp
@@ -171,41 +141,8 @@ include/Graphics/Data/Vertex.hpp
 include/Graphics/Components/CameraComponent.hpp
 include/Graphics/Components/RenderableComponent.hpp
 include/Graphics/Components/ModelNodeComponent.hpp
-include/Graphics/Platform/LinaVGIncl.hpp
-include/Graphics/Platform/GfxManagerIncl.hpp
-include/Graphics/Platform/GPUStorageIncl.hpp
 include/Graphics/Platform/Win32/Win32Window.hpp
-include/Graphics/Platform/Vulkan/Core/GPUStorage.hpp
-include/Graphics/Platform/Vulkan/Core/GfxManager.hpp
-include/Graphics/Platform/Vulkan/Core/GfxBackend.hpp
-include/Graphics/Platform/Vulkan/Core/GUIBackend.hpp
-include/Graphics/Platform/Vulkan/Core/UploadContext.hpp
-include/Graphics/Platform/Vulkan/Core/Renderer.hpp
-include/Graphics/Platform/Vulkan/Core/SurfaceRenderer.hpp
-include/Graphics/Platform/Vulkan/Core/WorldRenderer.hpp
-include/Graphics/Platform/Vulkan/Core/DrawPass.hpp
-include/Graphics/Platform/Vulkan/Utility/VkBootstrap.h
-include/Graphics/Platform/Vulkan/Utility/VkBootstrapDispatch.h
-include/Graphics/Platform/Vulkan/Utility/SPIRVUtility.hpp
-include/Graphics/Platform/Vulkan/Utility/VulkanUtility.hpp
-include/Graphics/Platform/Vulkan/Utility/vk_mem_alloc.h
-include/Graphics/Platform/Vulkan/Utility/VulkanStructures.hpp
-include/Graphics/Platform/Vulkan/Objects/Buffer.hpp
-include/Graphics/Platform/Vulkan/Objects/DescriptorSet.hpp
-include/Graphics/Platform/Vulkan/Objects/DescriptorSetLayout.hpp
-include/Graphics/Platform/Vulkan/Objects/DescriptorPool.hpp
-include/Graphics/Platform/Vulkan/Objects/Framebuffer.hpp
-include/Graphics/Platform/Vulkan/Objects/Swapchain.hpp
-include/Graphics/Platform/Vulkan/Objects/Queue.hpp
-include/Graphics/Platform/Vulkan/Objects/CommandPool.hpp
-include/Graphics/Platform/Vulkan/Objects/CommandBuffer.hpp
-include/Graphics/Platform/Vulkan/Objects/RenderPass.hpp
-include/Graphics/Platform/Vulkan/Objects/Fence.hpp
-include/Graphics/Platform/Vulkan/Objects/Semaphore.hpp
-include/Graphics/Platform/Vulkan/Objects/Pipeline.hpp
-include/Graphics/Platform/Vulkan/Objects/PipelineLayout.hpp
-include/Graphics/Platform/Vulkan/Objects/Image.hpp
-include/Graphics/Platform/Vulkan/Objects/Sampler.hpp
+include/Graphics/Platform/LinaVGIncl.hpp
 include/Graphics/Resource/Shader.hpp
 include/Graphics/Resource/Mesh.hpp
 include/Graphics/Resource/Model.hpp
@@ -221,17 +158,34 @@ include/Graphics/Utility/stb/stb_image.h
 include/Graphics/Utility/stb/stb_image_resize.h
 include/Graphics/Utility/stb/stb_image_write.h
 include/Graphics/Utility/ModelLoader.hpp
-include/Graphics/Utility/GLSLParser.hpp
 )
 
 if(WIN32)
 
 set (LINACORE_PLATFORM_HEADERS
-include/Platform/Win32/PlatformProcess.hpp
+include/Platform/Win32/Win32PlatformProcess.hpp
 )
 
 set (LINACORE_PLATFORM_SOURCES 
-src/Platform/Win32/PlatformProcess.cpp
+src/Platform/Win32/Win32PlatformProcess.cpp
+)
+
+endif()
+
+if(WIN32)
+
+set(LINACORE_GRAPHICS_API_HEADERS
+include/Graphics/Platform/DirectX12/Core/D12Backend.hpp
+include/Graphics/Platform/DirectX12/Core/D12GUIBackend.hpp
+include/Graphics/Platform/DirectX12/Core/D12GfxManager.hpp
+include/Graphics/Platform/DirectX12/Core/D12GpuStorage.hpp
+)
+
+set(LINACORE_GRAPHICS_API_SOURCES
+src/Graphics/Platform/DirectX12/Core/D12Backend.cpp
+src/Graphics/Platform/DirectX12/Core/D12GUIBackend.cpp
+src/Graphics/Platform/DirectX12/Core/D12GfxManager.cpp
+src/Graphics/Platform/DirectX12/Core/D12GpuStorage.cpp
 )
 
 endif()
@@ -240,7 +194,7 @@ endif()
 # Define the library & create an alias
 #--------------------------------------------------------------------
 
-add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES})
+add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES} ${LINACORE_GRAPHICS_API_HEADERS} ${LINACORE_GRAPHICS_API_SOURCES})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
 
 ## Remove Nvidia PhysX linker pdb warning

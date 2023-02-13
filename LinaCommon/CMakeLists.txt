@@ -89,6 +89,7 @@ set(LINACOMMON_HEADERS
 	include/Core/SizeDefinitions.hpp
 	include/Core/StringID.hpp
 	include/Core/ISingleton.hpp
+	include/Core/PlatformTime.hpp
 	include/Core/ObjectWrapper.hpp
 	
 	# FileSystem
@@ -147,9 +148,6 @@ set(LINACOMMON_HEADERS
 	# Log
 	include/Log/Log.hpp
 
-	# Platform
-	include/Platform/PlatformTimeIncl.hpp
-
 	# Serialization
 	include/Serialization/CommonSerialization.hpp
 	include/Serialization/ISerializable.hpp
@@ -183,11 +181,11 @@ set(LINACOMMON_HEADERS
 if(WIN32)
 
 set (LINACOMMON_PLATFORM_HEADERS
-include/Platform/Win32/PlatformTime.hpp
+include/Platform/Win32/Win32PlatformTime.hpp
 )
 
 set (LINACOMMON_PLATFORM_SOURCES 
-src/Platform/Win32/PlatformTime.cpp
+src/Platform/Win32/Win32PlatformTime.cpp
 )
 
 endif()

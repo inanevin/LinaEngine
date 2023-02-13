@@ -29,22 +29,13 @@ SOFTWARE.
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "System/ISystem.hpp"
-#include "Graphics/Platform/GfxManagerIncl.hpp"
+#include "Data/CommonData.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include "Graphics/Platform/Win32/Win32Window.hpp"
-#define WINDOW_SUBCLASS Win32Window
-
 #include <Windows.h>
-#include <shellscalingapi.h>
-#include <hidusage.h>
 
-#ifndef HID_USAGE_PAGE_GENERIC
-#define HID_USAGE_PAGE_GENERIC ((USHORT)0x01)
-#endif
-#ifndef HID_USAGE_GENERIC_MOUSE
-#define HID_USAGE_GENERIC_MOUSE ((USHORT)0x02)
-#endif
+#include "Graphics/Platform/Win32/Win32Window.hpp"
+typedef Lina::Win32Window PlatformWindow;
 
 #endif
 
@@ -54,7 +45,7 @@ namespace Lina
 	{
 		LINA_TRACE("[Window Manager] -> Initialization.");
 
-		m_gfxManager = m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_gfxManager = (IGfxManager*)m_system->GetSubsystem(SubsystemType::GfxManager);
 
 #ifdef LINA_PLATFORM_WINDOWS
 
@@ -99,55 +90,35 @@ namespace Lina
 			LINA_ERR("[Window Manager] -> First window created needs to have default Lina Main Swapchain SID!");
 			return;
 		}
+		IWindow* w = new PlatformWindow(this, m_system, sid);
 
-		Action act;
+		void* parent = nullptr;
+		if (!m_windows.empty())
+			parent = m_windows[LINA_MAIN_SWAPCHAIN]->GetHandle();
 
-		act.Act = [this, sid, title, pos, size, style]() {
-			Window* w = new WINDOW_SUBCLASS(this, m_system, sid);
+		if (w->Create(parent, title, pos, size))
+		{
+			w->SetStyle(style);
+			// m_gfxManager->GetBackend()->CreateSwapchain(sid, w->GetHandle(), w->GetRegisteryHandle(), w->GetPos(), w->GetSize());
+			//
+			// if (sid != LINA_MAIN_SWAPCHAIN)
+			// 	m_gfxManager->CreateSurfaceRenderer(m_gfxManager->GetBackend()->GetSwapchain(sid), Bitmask16());
 
-			void* parent = nullptr;
-			if (!m_windows.empty())
-				parent = m_windows[LINA_MAIN_SWAPCHAIN]->GetHandle();
-
-			if (w->Create(parent, title, pos, size))
-			{
-				w->SetStyle(style);
-				m_gfxManager->GetBackend()->CreateSwapchain(sid, w->GetHandle(), w->GetRegisteryHandle(), w->GetPos(), w->GetSize());
-
-				if (sid != LINA_MAIN_SWAPCHAIN)
-					m_gfxManager->CreateSurfaceRenderer(m_gfxManager->GetBackend()->GetSwapchain(sid), Bitmask16());
-
-				m_windows[sid] = w;
-			}
-			else
-				delete w;
-		};
-
-		if (sid == LINA_MAIN_SWAPCHAIN)
-			act.Act();
+			m_windows[sid] = w;
+		}
 		else
-			m_gfxManager->GetSyncQueue().Push(act);
+			delete w;
 	}
 
 	void WindowManager::DestroyAppWindow(StringID sid)
 	{
-		Action act;
-		act.Act = [this, sid]() {
-			auto it = m_windows.find(sid);
-			it->second->Destroy();
-			delete it->second;
-			m_windows.erase(it);
-
-			if (sid != LINA_MAIN_SWAPCHAIN)
-				m_gfxManager->DestroySurfaceRenderer(m_gfxManager->GetBackend()->GetSwapchain(sid));
-
-			m_system->GetSubsystem<GfxManager>(SubsystemType::GfxManager)->GetBackend()->DestroySwapchain(sid);
-		};
-
-		m_gfxManager->GetSyncQueue().Push(act);
+		auto it = m_windows.find(sid);
+		it->second->Destroy();
+		delete it->second;
+		m_windows.erase(it);
 	}
 
-	Window* WindowManager::GetWindow(StringID sid)
+	IWindow* WindowManager::GetWindow(StringID sid)
 	{
 		return m_windows[sid];
 	}

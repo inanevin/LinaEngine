@@ -26,24 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/ISystem.hpp"
-#include "Data/CommonData.hpp"
-#include "Math/Math.hpp"
+#pragma once
+
+#ifndef PlatformTime_HPP
+#define PlatformTime_HPP
+
+/* PLATFORM TIME REQUIRED INTERFACE
+static double GetSeconds();
+static uint32 GetCycles();
+static uint64 GetCycles64();
+static double GetDeltaSeconds(uint32 from, uint32 to, double timeScale = 1.0);
+static double GetDeltaSeconds64(uint64 from, uint64 to, double timeScale = 1.0);
+*/
+
+#ifdef LINA_PLATFORM_WINDOWS
+#include "Platform/Win32/Win32PlatformTime.hpp"
 
 namespace Lina
 {
-	void ISystem::AddSubsystem(ISubsystem* s)
-	{
-		m_subsystems[s->GetType()] = s;
-	}
+	typedef Win32PlatformTime PlatformTime;
+}
 
-	void ISystem::RemoveSubsystem(ISubsystem* s)
-	{
-		m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
-	}
+#else
 
-	ISubsystem* ISystem::CastSubsystem(SubsystemType type)
-	{
-		return m_subsystems[type];
-	}
-} // namespace Lina
+#endif
+#endif

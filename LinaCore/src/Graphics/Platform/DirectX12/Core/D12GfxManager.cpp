@@ -26,24 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/ISystem.hpp"
-#include "Data/CommonData.hpp"
-#include "Math/Math.hpp"
+#include "Graphics/Platform/DirectX12/Core/D12GfxManager.hpp"
 
 namespace Lina
 {
-	void ISystem::AddSubsystem(ISubsystem* s)
+	void D12GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		m_subsystems[s->GetType()] = s;
 	}
-
-	void ISystem::RemoveSubsystem(ISubsystem* s)
+	void D12GfxManager::Shutdown()
 	{
-		m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
 	}
-
-	ISubsystem* ISystem::CastSubsystem(SubsystemType type)
+	void D12GfxManager::Join()
 	{
-		return m_subsystems[type];
+	}
+	void D12GfxManager::Tick(float delta)
+	{
+	}
+	void D12GfxManager::Render()
+	{
+	}
+	void D12GfxManager::SyncData(float alpha)
+	{
+	}
+	void D12GfxManager::OnSystemEvent(ESystemEvent type, const Event& ev)
+	{
 	}
 } // namespace Lina

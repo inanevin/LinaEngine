@@ -28,12 +28,46 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef PlatformProcessIncl_HPP
-#define PlatformProcessIncl_HPP
+#ifndef IGfxManager_HPP
+#define IGfxManager_HPP
 
-#ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/PlatformProcess.hpp"
-#else
-#endif
+#include "Graphics/Data/RenderData.hpp"
+#include "System/ISubsystem.hpp"
 
+namespace Lina
+{
+	class IGpuStorage;
+
+	class IGfxManager : public ISubsystem
+	{
+	public:
+		IGfxManager(ISystem* sys, IGpuStorage* storage) : m_gpuStorage(storage), ISubsystem(sys, SubsystemType::GfxManager){};
+		virtual ~IGfxManager() = default;
+
+		void dummy(){};
+		virtual void Join()				   = 0;
+		virtual void Tick(float delta)	   = 0;
+		virtual void Render()			   = 0;
+		virtual void SyncData(float alpha) = 0;
+
+		inline IGpuStorage* GetGPUStorage()
+		{
+			return m_gpuStorage;
+		}
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_PostSystemInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
+		}
+
+		inline uint32 GetFrameIndex()
+		{
+			return m_frameNumber % FRAMES_IN_FLIGHT;
+		}
+
+	private:
+		IGpuStorage* m_gpuStorage  = nullptr;
+		uint32		 m_frameNumber = 0;
+	};
+} // namespace Lina
 #endif

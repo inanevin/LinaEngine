@@ -26,34 +26,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef PlatformProcess_HPP
-#define PlatformProcess_HPP
-
-#include "Data/HashMap.hpp"
-#include "Core/StringID.hpp"
+#include "Platform/Win32/Win32PlatformTime.hpp"
+#include <Windows.h>
 
 namespace Lina
 {
-	class Application;
-	class IPlugin;
-	class IEngineInterface;
-	class IEventDispatcher;
+	double Win32PlatformTime::s_secondsPerCycle	 = 0.0;
+	double Win32PlatformTime::s_secondsPerCycle64 = 0.0;
 
-	class PlatformProcess
+	double Win32PlatformTime::GetSeconds()
 	{
-	private:
-		friend class Application;
+		if (s_secondsPerCycle == 0.0)
+		{
+			LARGE_INTEGER Frequency;
 
-		static void PumpMessages();
-		static void SleepSpinLock(double seconds);
-		static void Sleep(double seconds);
-		static void LoadPlugin(const char* name, IEngineInterface* engInterface, IEventDispatcher* dispatcher);
-		static void UnloadPlugin(const char* name, IEventDispatcher* dispatcher);
+			if (!QueryPerformanceFrequency(&Frequency))
+				LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
 
-	private:
-		static HashMap<IPlugin*, void*> s_pluginHandles;
-	};
+			s_secondsPerCycle	= 1.0 / Frequency.QuadPart;
+			s_secondsPerCycle64 = 1.0 / Frequency.QuadPart;
+		}
+
+		LARGE_INTEGER Cycles;
+		QueryPerformanceCounter(&Cycles);
+
+		return Cycles.QuadPart * GetSecondsPerCycle() + 16777216.0;
+	}
+
+	uint32 Win32PlatformTime::GetCycles()
+	{
+		LARGE_INTEGER Cycles;
+		QueryPerformanceCounter(&Cycles);
+		return (uint32)Cycles.QuadPart;
+	}
+
+	uint64 Win32PlatformTime::GetCycles64()
+	{
+		LARGE_INTEGER Cycles;
+		QueryPerformanceCounter(&Cycles);
+		return Cycles.QuadPart;
+	}
+
+	double Win32PlatformTime::GetDeltaSeconds(uint32 from, uint32 to, double timeScale)
+	{
+		return (to - from) * s_secondsPerCycle * timeScale;
+	}
+
+	double Win32PlatformTime::GetDeltaSeconds64(uint64 from, uint64 to, double timeScale)
+	{
+		return (to - from) * s_secondsPerCycle64 * timeScale;
+	}
+		
 } // namespace Lina
-#endif

@@ -13,25 +13,27 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
 
 
-## Check platform based later on
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_VULKAN=1)
 #--------------------------------------------------------------------
 # Platform
 #--------------------------------------------------------------------
 
 if (WIN32)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_WINDOWS=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_D3D12=1)
 endif()
 if(APPLE)
     # for MacOS X or iOS, watchOS, tvOS (since 3.10.3)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_APPLE=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_METAL=1)
 endif()
 if(UNIX AND NOT APPLE)
     # for Linux, BSD, Solaris, Minix
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_UNIX=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_OPENGL=1)
 endif()
 if(NOT WIN32 AND NOT APPLE AND NOT UNIX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_UNKNOWN=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_UNKNOWN=1)
 endif()
 
 if(LINA_ENABLE_LOGGING)

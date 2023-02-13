@@ -46,7 +46,7 @@ namespace Lina::Editor
 
 	void Editor::PackageResources(const Vector<ResourceIdentifier>& identifiers)
 	{
-		ResourceManager* rm = static_cast<ResourceManager*>(m_system->GetSubsystem(SubsystemType::ResourceManager));
+		ResourceManager* rm = static_cast<ResourceManager*>(m_system->CastSubsystem(SubsystemType::ResourceManager));
 
 		HashMap<PackageType, Vector<ResourceIdentifier>> resourcesPerPackage;
 

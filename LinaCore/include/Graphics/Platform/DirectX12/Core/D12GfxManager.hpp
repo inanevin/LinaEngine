@@ -28,13 +28,45 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GPUStorageIncl_HPP
-#define GPUStorageIncl_HPP
+#ifndef D12GfxManager_HPP
+#define D12GfxManager_HPP
 
-#ifdef LINA_GRAPHICS_VULKAN
-#include "Graphics/Platform/Vulkan/Core/GPUStorage.hpp"
-#else
+#include "System/ISubsystem.hpp"
+#include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Core/IGfxManager.hpp"
+#include "D12GpuStorage.hpp"
 
-#endif
+namespace Lina
+{
+	class D12GfxManager : public IGfxManager
+	{
+	public:
+		D12GfxManager(ISystem* sys) : m_gpuStorage(this), IGfxManager(sys, &m_gpuStorage){};
+		virtual ~D12GfxManager() = default;
+
+		// ****************** ENGINE API ****************** //
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+		void		 Join();
+		void		 Tick(float delta);
+		void		 Render();
+		void		 SyncData(float alpha);
+		virtual void OnSystemEvent(ESystemEvent type, const Event& ev);
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_PostSystemInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
+		}
+
+		inline uint32 GetFrameIndex()
+		{
+			return m_frameNumber % FRAMES_IN_FLIGHT;
+		}
+
+	private:
+		uint32		  m_frameNumber = 0;
+		D12GpuStorage m_gpuStorage;
+	};
+} // namespace Lina
 
 #endif

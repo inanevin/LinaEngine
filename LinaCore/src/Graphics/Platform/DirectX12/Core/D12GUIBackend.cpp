@@ -26,33 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef PlatformTime_HPP
-#define PlatformTime_HPP
-
-#include "Core/SizeDefinitions.hpp"
+#include "Graphics/Platform/Vulkan/Core/GUIBackend.hpp"
 
 namespace Lina
 {
-	class PlatformTime
-	{
-	public:
-		static double GetSeconds();
-		static uint32 GetCycles();
-		static uint64 GetCycles64();
-		static double GetDeltaSeconds(uint32 from, uint32 to, double timeScale = 1.0);
-		static double GetDeltaSeconds64(uint64 from, uint64 to, double timeScale = 1.0);
-
-		static inline double GetSecondsPerCycle()
-		{
-			return s_secondsPerCycle;
-		}
-
-	private:
-		static double s_secondsPerCycle;
-		static double s_secondsPerCycle64;
-	};
-
 } // namespace Lina
-#endif

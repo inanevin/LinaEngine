@@ -28,64 +28,32 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ISystem_HPP
-#define ISystem_HPP
+#ifndef Win32PlatformProcess_HPP
+#define Win32PlatformProcess_HPP
 
-#include "Event/IEventDispatcher.hpp"
-#include "System/ISubsystem.hpp"
 #include "Data/HashMap.hpp"
-#include "Core/Common.hpp"
-#include "JobSystem/JobSystem.hpp"
+#include "Core/StringID.hpp"
 
 namespace Lina
 {
-	class ISubsystem;
 	class Application;
+	class IPlugin;
+	class IEngineInterface;
+	class IEventDispatcher;
 
-	class ISystem : public IEventDispatcher
+	class Win32PlatformProcess
 	{
-	public:
-		ISystem(Application* app) : m_app(app){};
-		virtual ~ISystem() = default;
+	private:
+		friend class Application;
 
-		void		 AddSubsystem(ISubsystem* sub);
-		void		 RemoveSubsystem(ISubsystem* sub);
-		ISubsystem*	 CastSubsystem(SubsystemType type);
-		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void Shutdown()											  = 0;
-		virtual void Tick(float dt)										  = 0;
+		static void PumpMessages();
+		static void SleepSpinLock(double seconds);
+		static void Sleep(double seconds);
+		static void LoadPlugin(const char* name, IEngineInterface* engInterface, IEventDispatcher* dispatcher);
+		static void UnloadPlugin(const char* name, IEventDispatcher* dispatcher);
 
-		template <typename T> T* CastSubsystem(SubsystemType type)
-		{
-			return static_cast<T*>(m_subsystems[type]);
-		}
-
-		inline ISubsystem* GetSubsystem(SubsystemType type)
-		{
-			return m_subsystems[type];
-		}
-
-		inline const SystemInitializationInfo& GetInitInfo()
-		{
-			return m_initInfo;
-		}
-
-		inline Executor* GetMainExecutor()
-		{
-			return &m_mainExecutor;
-		}
-
-		inline Application* GetApp()
-		{
-			return m_app;
-		}
-
-	protected:
-		Application*						m_app = nullptr;
-		Executor							m_mainExecutor;
-		SystemInitializationInfo			m_initInfo;
-		HashMap<SubsystemType, ISubsystem*> m_subsystems;
+	private:
+		static HashMap<IPlugin*, void*> s_pluginHandles;
 	};
 } // namespace Lina
-
 #endif

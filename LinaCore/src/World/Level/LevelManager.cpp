@@ -48,7 +48,7 @@ namespace Lina
 
 	void LevelManager::InstallLevel(const char* level)
 	{
-		ResourceManager* rm = (ResourceManager*)m_system->GetSubsystem(SubsystemType::ResourceManager);
+		ResourceManager* rm = (ResourceManager*)m_system->CastSubsystem(SubsystemType::ResourceManager);
 
 		// First get the level & extract target resources.
 		const StringID	   sid = TO_SIDC(level);

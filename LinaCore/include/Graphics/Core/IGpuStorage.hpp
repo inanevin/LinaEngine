@@ -28,63 +28,34 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ISystem_HPP
-#define ISystem_HPP
+#ifndef IGpuStorage_HPP
+#define IGpuStorage_HPP
 
-#include "Event/IEventDispatcher.hpp"
-#include "System/ISubsystem.hpp"
-#include "Data/HashMap.hpp"
-#include "Core/Common.hpp"
-#include "JobSystem/JobSystem.hpp"
-
+#include "Core/SizeDefinitions.hpp"
+#include "Data/Vector.hpp"
 namespace Lina
 {
-	class ISubsystem;
-	class Application;
+	class Texture;
+	class Shader;
+	class Material;
 
-	class ISystem : public IEventDispatcher
+	class IGpuStorage
 	{
 	public:
-		ISystem(Application* app) : m_app(app){};
-		virtual ~ISystem() = default;
+		IGpuStorage()		   = default;
+		virtual ~IGpuStorage() = default;
 
-		void		 AddSubsystem(ISubsystem* sub);
-		void		 RemoveSubsystem(ISubsystem* sub);
-		ISubsystem*	 CastSubsystem(SubsystemType type);
-		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void Shutdown()											  = 0;
-		virtual void Tick(float dt)										  = 0;
+		virtual uint32 GenerateMaterial(Material* mat, uint32 existingHandle)										 = 0;
+		virtual void   UpdateMaterialProperties(Material* mat, uint32 imageIndex)									 = 0;
+		virtual void   UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures) = 0;
+		virtual void   DestroyMaterial(uint32 handle)																 = 0;
 
-		template <typename T> T* CastSubsystem(SubsystemType type)
-		{
-			return static_cast<T*>(m_subsystems[type]);
-		}
+		virtual uint32 GeneratePipeline(Shader* shader) = 0;
+		virtual void   DestroyPipeline(uint32 handle)	= 0;
 
-		inline ISubsystem* GetSubsystem(SubsystemType type)
-		{
-			return m_subsystems[type];
-		}
-
-		inline const SystemInitializationInfo& GetInitInfo()
-		{
-			return m_initInfo;
-		}
-
-		inline Executor* GetMainExecutor()
-		{
-			return &m_mainExecutor;
-		}
-
-		inline Application* GetApp()
-		{
-			return m_app;
-		}
-
-	protected:
-		Application*						m_app = nullptr;
-		Executor							m_mainExecutor;
-		SystemInitializationInfo			m_initInfo;
-		HashMap<SubsystemType, ISubsystem*> m_subsystems;
+		virtual uint32 GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags) = 0;
+		virtual uint32 GenerateImageAndUpload(Texture* txt)									   = 0;
+		virtual void   DestroyImage(uint32 handle)											   = 0;
 	};
 } // namespace Lina
 

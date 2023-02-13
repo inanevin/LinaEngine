@@ -29,14 +29,10 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Platform/PlatformProcessIncl.hpp"
-#include "Platform/PlatformTimeIncl.hpp"
+#include "Core/PlatformProcess.hpp"
+#include "Core/PlatformTime.hpp"
 #include "Math/Math.hpp"
 #include "System/IPlugin.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include <iostream>
-#include <fstream>
-#include "Graphics/Core/Window.hpp"
 
 namespace Lina
 {

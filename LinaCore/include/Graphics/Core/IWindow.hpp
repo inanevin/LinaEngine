@@ -40,11 +40,11 @@ namespace Lina
 {
 	class ISystem;
 
-	class Window
+	class IWindow
 	{
 	public:
-		Window(ISystem* sys, StringID sid) : m_sid(sid), m_system(sys){};
-		virtual ~Window() = default;
+		IWindow(ISystem* sys, StringID sid) : m_sid(sid), m_system(sys){};
+		virtual ~IWindow() = default;
 
 		virtual bool Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size) = 0;
 		virtual void Destroy()																			= 0;
