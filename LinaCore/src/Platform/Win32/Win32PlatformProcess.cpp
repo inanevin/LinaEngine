@@ -30,8 +30,8 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "Core/Application.hpp"
 #include "System/IPlugin.hpp"
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #include "Lina.hpp"
-#include <Windows.h>
 
 void InitializeWinPlatform()
 {
@@ -65,6 +65,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	app->Shutdown();
 	delete app;
+
+	// while (true)
+	// {
+	// }
 
 	FreeConsole();
 }

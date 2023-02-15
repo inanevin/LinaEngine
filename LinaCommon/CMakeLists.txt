@@ -182,6 +182,7 @@ if(WIN32)
 
 set (LINACOMMON_PLATFORM_HEADERS
 include/Platform/Win32/Win32PlatformTime.hpp
+include/Platform/Win32/Win32WindowsInclude.hpp
 )
 
 set (LINACOMMON_PLATFORM_SOURCES 

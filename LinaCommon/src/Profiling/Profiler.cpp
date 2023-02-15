@@ -37,7 +37,7 @@ SOFTWARE.
 #include <iostream>
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #endif
 
 namespace Lina

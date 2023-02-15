@@ -35,15 +35,11 @@ SOFTWARE.
 #include "Input/Core/Input.hpp"
 #include "Audio/Core/AudioManager.hpp"
 #include "Graphics/Core/WindowManager.hpp"
+#include "Graphics/Core/IGfxManager.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "IEngineInterface.hpp"
-
-#ifdef LINA_GRAPHICS_D3D12
-#include "Graphics/Platform/DirectX12/Core/D12GfxManager.hpp"
-typedef Lina::D12GfxManager GfxManager;
-#endif
 
 namespace Lina
 {
@@ -53,7 +49,7 @@ namespace Lina
 	class Engine : public ISystem
 	{
 	public:
-		Engine(Application* app) : ISystem(app), m_input(this), m_audioManager(this), m_gfxManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : ISystem(app), m_input(this), m_audioManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
 
 		virtual ~Engine() = default;
 
@@ -87,7 +83,7 @@ namespace Lina
 		Executor			   m_executor;
 		Input				   m_input;
 		AudioManager		   m_audioManager;
-		GfxManager			   m_gfxManager;
+		IGfxManager*		   m_gfxManager = nullptr;
 		WindowManager		   m_windowManager;
 		LevelManager		   m_levelManager;
 		IEngineInterface	   m_engineInterface;

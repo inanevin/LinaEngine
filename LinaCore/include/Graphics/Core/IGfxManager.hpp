@@ -33,22 +33,31 @@ SOFTWARE.
 
 #include "Graphics/Data/RenderData.hpp"
 #include "System/ISubsystem.hpp"
+#include "Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {
 	class IGpuStorage;
+	class IGfxBackend;
 
 	class IGfxManager : public ISubsystem
 	{
 	public:
-		IGfxManager(ISystem* sys, IGpuStorage* storage) : m_gpuStorage(storage), ISubsystem(sys, SubsystemType::GfxManager){};
+		IGfxManager(ISystem* sys, IGpuStorage* storage, IGfxBackend* gfxBackend) : m_gpuStorage(storage), m_gfxBackend(gfxBackend), ISubsystem(sys, SubsystemType::GfxManager){};
 		virtual ~IGfxManager() = default;
 
-		void dummy(){};
-		virtual void Join()				   = 0;
-		virtual void Tick(float delta)	   = 0;
-		virtual void Render()			   = 0;
-		virtual void SyncData(float alpha) = 0;
+		virtual void InitializeEarly(const SystemInitializationInfo& inf)												  = 0;
+		virtual void Join()																								  = 0;
+		virtual void Tick(float delta)																					  = 0;
+		virtual void Render()																							  = 0;
+		virtual void SyncData(float alpha)																				  = 0;
+		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) = 0;
+		virtual void DestroySurfaceRenderer(StringID sid)																  = 0;
+
+		inline IGfxBackend* GetBackend()
+		{
+			return m_gfxBackend;
+		}
 
 		inline IGpuStorage* GetGPUStorage()
 		{
@@ -67,6 +76,7 @@ namespace Lina
 
 	private:
 		IGpuStorage* m_gpuStorage  = nullptr;
+		IGfxBackend* m_gfxBackend  = nullptr;
 		uint32		 m_frameNumber = 0;
 	};
 } // namespace Lina

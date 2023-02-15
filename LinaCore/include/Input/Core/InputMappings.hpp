@@ -31,7 +31,7 @@ SOFTWARE.
 #define InputMappings_HPP
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #include <Xinput.h>
 #endif
 

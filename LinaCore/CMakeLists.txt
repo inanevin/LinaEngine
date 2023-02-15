@@ -132,6 +132,7 @@ include/Resources/Data/ResourceMetadata.hpp
 include/Graphics/Core/WindowManager.hpp
 include/Graphics/Core/IWindow.hpp
 include/Graphics/Core/IGfxManager.hpp
+include/Graphics/Core/IGfxBackend.hpp
 include/Graphics/Core/IGpuStorage.hpp
 include/Graphics/Core/CommonGraphics.hpp
 include/Graphics/Core/View.hpp
@@ -172,20 +173,49 @@ src/Platform/Win32/Win32PlatformProcess.cpp
 
 endif()
 
-if(WIN32)
+if(${LINA_GRAPHICS_D3D12})
 
 set(LINACORE_GRAPHICS_API_HEADERS
-include/Graphics/Platform/DirectX12/Core/D12Backend.hpp
-include/Graphics/Platform/DirectX12/Core/D12GUIBackend.hpp
-include/Graphics/Platform/DirectX12/Core/D12GfxManager.hpp
-include/Graphics/Platform/DirectX12/Core/D12GpuStorage.hpp
+include/Graphics/Platform/D3D12/Core/D3D12Backend.hpp
+include/Graphics/Platform/D3D12/Core/D3D12GUIBackend.hpp
+include/Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp
+include/Graphics/Platform/D3D12/Core/D3D12GpuStorage.hpp
+include/Graphics/Platform/D3D12/Core/D3D12Renderer.hpp
+include/Graphics/Platform/D3D12/Core/D3D12SurfaceRenderer.hpp
+include/Graphics/Platform/D3D12/Core/D3D12WorldRenderer.hpp
+include/Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp
+include/Graphics/Platform/D3D12/WinHeaders/d3d12.h
+include/Graphics/Platform/D3D12/WinHeaders/d3d12compatibility.h
+include/Graphics/Platform/D3D12/WinHeaders/d3d12sdklayers.h
+include/Graphics/Platform/D3D12/WinHeaders/d3d12shader.h
+include/Graphics/Platform/D3D12/WinHeaders/d3d12video.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dcommon.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_barriers.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_check_feature_support.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_core.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_default.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_pipeline_state_stream.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_property_format_table.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_render_pass.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_resource_helpers.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_root_signature.h
+include/Graphics/Platform/D3D12/WinHeaders/d3dx12_state_object.h
+include/Graphics/Platform/D3D12/WinHeaders/dxcore.h
+include/Graphics/Platform/D3D12/WinHeaders/dxcore_interface.h
+include/Graphics/Platform/D3D12/WinHeaders/dxgicommon.h
+include/Graphics/Platform/D3D12/WinHeaders/dxgiformat.h
+include/Graphics/Platform/D3D12/WinHeaders/Residency/d3dx12Residency.h
 )
 
 set(LINACORE_GRAPHICS_API_SOURCES
-src/Graphics/Platform/DirectX12/Core/D12Backend.cpp
-src/Graphics/Platform/DirectX12/Core/D12GUIBackend.cpp
-src/Graphics/Platform/DirectX12/Core/D12GfxManager.cpp
-src/Graphics/Platform/DirectX12/Core/D12GpuStorage.cpp
+src/Graphics/Platform/D3D12/Core/D3D12Backend.cpp
+src/Graphics/Platform/D3D12/Core/D3D12GUIBackend.cpp
+src/Graphics/Platform/D3D12/Core/D3D12GfxManager.cpp
+src/Graphics/Platform/D3D12/Core/D3D12GpuStorage.cpp
+src/Graphics/Platform/D3D12/Core/D3D12Renderer.cpp
+src/Graphics/Platform/D3D12/Core/D3D12SurfaceRenderer.cpp
+src/Graphics/Platform/D3D12/Core/D3D12WorldRenderer.cpp
 )
 
 endif()
@@ -209,7 +239,6 @@ include(../CMake/ProjectSettings.cmake)
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
-find_package(Vulkan REQUIRED FATAL_ERROR)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
@@ -235,18 +264,29 @@ link_physx()
 link_alut()
 link_openal()
 
-# Link libraries (e.g. logging)
 target_link_libraries(${PROJECT_NAME} 
-	# ${CMAKE_THREAD_LIBS_INIT}     # Needed for unix builds to link to pthread
 	PUBLIC Lina::Common
-	PUBLIC user32.lib
-	Vulkan::Vulkan
 )
+
+if(${LINA_GRAPHICS_D3D12})
+target_link_libraries(${PROJECT_NAME} 
+	PUBLIC d3d12.lib
+	PUBLIC dxgi.lib
+	PUBLIC d3dcompiler.lib
+)
+message("LinaCore -> D3D12 Linked.")
+endif()
 
 
 if(WIN32)
-	target_link_libraries(${PROJECT_NAME} PUBLIC Shcore.lib)
+target_link_libraries(${PROJECT_NAME} 
+	PUBLIC user32.lib
+	PUBLIC Shcore.lib
+)
+message("LinaCore -> User32 Linked.")
 endif()
+
+
 
 ##include (GenerateExportHeader)
 ##	GENERATE_EXPORT_HEADER (LinaCore
@@ -259,7 +299,7 @@ endif()
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES) 
+	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES LINACORE_GRAPHICS_API_HEADERS LINACORE_GRAPHICS_API_SOURCES) 
 		get_filename_component(source_path "${source}" PATH)
 		string(REPLACE "${LinaCore_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")

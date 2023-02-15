@@ -34,6 +34,11 @@ SOFTWARE.
 #include "Core/PlatformTime.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 
+#ifdef LINA_GRAPHICS_D3D12
+#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
+typedef Lina::D3D12GfxManager GfxManager;
+#endif
+
 //********** DEBUG
 #include "Input/Core/InputMappings.hpp"
 
@@ -45,7 +50,8 @@ namespace Lina
 	{
 		LINA_TRACE("[Application] -> Initialization.");
 
-		m_initInfo = initInfo;
+		m_gfxManager = new GfxManager(this);
+		m_initInfo	 = initInfo;
 
 		// Child systems can override for custom core resource registries.
 		m_coreResourceRegistry = new CoreResourcesRegistry();
@@ -54,14 +60,12 @@ namespace Lina
 		m_resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
 
 		// Window manager has priority initialization.
-		m_windowManager.Initialize(initInfo);
+		m_gfxManager->InitializeEarly(initInfo);
+		m_windowManager.InitializeEarly(initInfo);
 		m_windowManager.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.windowStyle, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
 
 		for (auto [type, sys] : m_subsystems)
-		{
-			if (type != SubsystemType::WindowManager)
-				sys->Initialize(initInfo);
-		}
+			sys->Initialize(initInfo);
 
 		m_resourceManager.SetMode(ResourceManagerMode::File);
 		auto start = PlatformTime::GetCycles64();
@@ -90,7 +94,7 @@ namespace Lina
 	{
 		LINA_TRACE("[Application] -> Shutdown.");
 
-		m_gfxManager.Join();
+		m_gfxManager->Join();
 
 		DispatchSystemEvent(EVS_PreSystemShutdown, {});
 
@@ -98,18 +102,17 @@ namespace Lina
 		m_resourceManager.Shutdown();
 		m_audioManager.Shutdown();
 		m_windowManager.Shutdown();
-		m_gfxManager.Shutdown();
+		m_gfxManager->Shutdown();
 		m_input.Shutdown();
 
+		delete m_gfxManager;
 		delete m_coreResourceRegistry;
 	}
 
 	void Engine::Tick(float delta)
 	{
-		LINA_TRACE("Ticking Frame: {0}", SystemInfo::GetFrames());
-
 		m_input.Tick(delta);
-		m_gfxManager.Tick(delta);
+		m_gfxManager->Tick(delta);
 
 		// For any listeners that fall outside the main loop.
 		// Event eventData;
@@ -119,7 +122,7 @@ namespace Lina
 		// m_levelManager.Tick(delta);
 
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
-		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
+		auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
 
 		//	audioJob.get();
 		renderJob.get();
@@ -127,7 +130,7 @@ namespace Lina
 
 		//	m_levelManager.SyncData(1.0f);
 		// m_gfxManager.Render();
-		m_gfxManager.SyncData(1.0f);
+		m_gfxManager->SyncData(1.0f);
 
 		// For any listeners that fall outside the main loop.
 		//	DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});

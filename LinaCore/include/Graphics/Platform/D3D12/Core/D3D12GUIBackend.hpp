@@ -28,16 +28,16 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef D12GUIBackend_HPP
-#define D12GUIBackend_HPP
+#ifndef D3D12GUIBackend_HPP
+#define D3D12GUIBackend_HPP
 
 namespace Lina
 {
-	class D12GUIBackend
+	class D3D12GUIBackend
 	{
 	public:
-		D12GUIBackend()	 = default;
-		~D12GUIBackend() = default;
+		D3D12GUIBackend()	 = default;
+		~D3D12GUIBackend() = default;
 	};
 } // namespace Lina
 

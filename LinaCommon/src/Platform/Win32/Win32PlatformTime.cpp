@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Platform/Win32/Win32PlatformTime.hpp"
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 
 namespace Lina
 {

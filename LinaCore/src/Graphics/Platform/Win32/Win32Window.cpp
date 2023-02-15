@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Core/Application.hpp"
 
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #include <shellscalingapi.h>
 #include <hidusage.h>
 #include "windowsx.h"

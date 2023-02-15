@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DirectX12/Core/D12GpuStorage.hpp"
+#include "Graphics/Platform/D3D12/Core/D3D12GpuStorage.hpp"
 #include "Graphics/Resource/Texture.hpp"
 
 namespace Lina
 {
-	uint32 D12GpuStorage::GenerateMaterial(Material* mat, uint32 existingHandle)
+	uint32 D3D12GpuStorage::GenerateMaterial(Material* mat, uint32 existingHandle)
 	{
 		LOCK_GUARD(m_shaderMtx);
 
@@ -42,15 +42,15 @@ namespace Lina
 		return index;
 	}
 
-	void D12GpuStorage::UpdateMaterialProperties(Material* mat, uint32 imageIndex)
+	void D3D12GpuStorage::UpdateMaterialProperties(Material* mat, uint32 imageIndex)
 	{
 	}
 
-	void D12GpuStorage::UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures)
+	void D3D12GpuStorage::UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures)
 	{
 	}
 
-	void D12GpuStorage::DestroyMaterial(uint32 handle)
+	void D3D12GpuStorage::DestroyMaterial(uint32 handle)
 	{
 		// Note: no need to mtx lock, this is called from the main thread.
 		const uint32 index	 = handle;
@@ -59,7 +59,7 @@ namespace Lina
 		m_materials.RemoveItem(index);
 	}
 
-	uint32 D12GpuStorage::GeneratePipeline(Shader* shader)
+	uint32 D3D12GpuStorage::GeneratePipeline(Shader* shader)
 	{
 		LOCK_GUARD(m_shaderMtx);
 		
@@ -69,7 +69,7 @@ namespace Lina
 		return index;
 	}
 
-	void D12GpuStorage::DestroyPipeline(uint32 handle)
+	void D3D12GpuStorage::DestroyPipeline(uint32 handle)
 	{
 		const uint32 index	 = handle;
 		auto&		 genData = m_shaders.GetItemR(index);
@@ -77,7 +77,7 @@ namespace Lina
 		m_shaders.RemoveItem(index);
 	}
 
-	uint32 D12GpuStorage::GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags)
+	uint32 D3D12GpuStorage::GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags)
 	{
 		LOCK_GUARD(m_textureMtx);
 
@@ -89,7 +89,7 @@ namespace Lina
 		return index;
 	}
 
-	uint32 D12GpuStorage::GenerateImageAndUpload(Texture* txt)
+	uint32 D3D12GpuStorage::GenerateImageAndUpload(Texture* txt)
 	{
 		LOCK_GUARD(m_textureMtx);
 		
@@ -101,7 +101,7 @@ namespace Lina
 		return index;
 	}
 
-	void D12GpuStorage::DestroyImage(uint32 handle)
+	void D3D12GpuStorage::DestroyImage(uint32 handle)
 	{
 		const uint32	  index = handle;
 		GeneratedTexture& gen	= m_textures.GetItemR(index);

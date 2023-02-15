@@ -45,6 +45,7 @@ namespace Lina
 	class Component : public ISerializable, public IEventListener
 	{
 	public:
+		
 		virtual void SaveToStream(OStream& stream){};
 		virtual void LoadFromStream(IStream& stream){};
 		virtual void OnGameEvent(EGameEvent type, const Event& data) override{};

@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {

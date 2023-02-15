@@ -33,7 +33,7 @@ SOFTWARE.
 #ifdef LINA_PLATFORM_WINDOWS
 #include <process.h>
 #include <iostream>
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #include <psapi.h>
 #include <DbgHelp.h>
 #include <Pdh.h>

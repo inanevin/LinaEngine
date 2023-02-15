@@ -33,7 +33,7 @@ SOFTWARE.
 
 #ifdef LINA_PLATFORM_WINDOWS
 
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 
 GamePlugin* g_plugin = nullptr;
 

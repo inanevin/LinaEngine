@@ -59,6 +59,7 @@ namespace Lina
 		{
 			return 0;
 		}
+
 	};
 
 } // namespace Lina

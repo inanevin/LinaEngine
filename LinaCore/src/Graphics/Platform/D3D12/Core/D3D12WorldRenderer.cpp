@@ -26,19 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef D12Backend_HPP
-#define D12Backend_HPP
+#include "Graphics/Platform/D3D12/Core/D3D12WorldRenderer.hpp"
+#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
 
 namespace Lina
 {
-	class D12Backend
+	D3D12WorldRenderer::D3D12WorldRenderer(D3D12GfxManager* gfxManager) : D3D12Renderer(gfxManager)
 	{
-	public:
-		D12Backend()  = default;
-		~D12Backend() = default;
-	};
+	}
+	
+	D3D12WorldRenderer::~D3D12WorldRenderer()
+	{
+	}
 } // namespace Lina
-
-#endif

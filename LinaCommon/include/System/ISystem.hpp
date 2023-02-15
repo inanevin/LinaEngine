@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/Common.hpp"
 #include "JobSystem/JobSystem.hpp"
 
+
 namespace Lina
 {
 	class ISubsystem;
@@ -57,12 +58,7 @@ namespace Lina
 
 		template <typename T> T* CastSubsystem(SubsystemType type)
 		{
-			return static_cast<T*>(m_subsystems[type]);
-		}
-
-		inline ISubsystem* GetSubsystem(SubsystemType type)
-		{
-			return m_subsystems[type];
+			return (T*)(m_subsystems[type]);
 		}
 
 		inline const SystemInitializationInfo& GetInitInfo()

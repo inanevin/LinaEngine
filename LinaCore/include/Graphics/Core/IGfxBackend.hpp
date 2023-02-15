@@ -26,9 +26,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DirectX12/Core/D12Backend.hpp"
+#pragma once
+
+#ifndef IGfxBackend_HPP
+#define IGfxBackend_HPP
+
+#include "Core/StringID.hpp"
 
 namespace Lina
 {
+	class Vector2i;
+	struct SystemInitializationInfo;
 
+	class IGfxBackend
+	{
+	public:
+		IGfxBackend()		   = default;
+		virtual ~IGfxBackend() = default;
+
+		virtual void Initialize(const SystemInitializationInfo& initInfo)					 = 0;
+		virtual void Shutdown()																 = 0;
+	};
 } // namespace Lina
+
+#endif

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Engine.hpp"
 #include "Data/Vector.hpp"
 #include "Data/HashMap.hpp"
+
 namespace Lina
 {
 	struct SystemInitializationInfo;

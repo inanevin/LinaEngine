@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Input/Core/Input.hpp"
 #include "Math/Rect.hpp"
 #ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #endif
 
 namespace Lina

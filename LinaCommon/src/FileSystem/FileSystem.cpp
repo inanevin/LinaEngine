@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include <windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #endif
 
 namespace Lina

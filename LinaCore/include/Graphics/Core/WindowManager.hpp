@@ -53,7 +53,8 @@ namespace Lina
 		WindowManager(ISystem* sys) : ISubsystem(sys, SubsystemType::WindowManager){};
 		~WindowManager() = default;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void InitializeEarly(const SystemInitializationInfo& inf);
+		virtual void Initialize(const SystemInitializationInfo& initInfo){};
 		virtual void Shutdown() override;
 
 		void	 CreateAppWindow(StringID sid, WindowStyle style, const char* title, const Vector2i& pos, const Vector2i& size);

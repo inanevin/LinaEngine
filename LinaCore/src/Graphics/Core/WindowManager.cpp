@@ -30,9 +30,12 @@ SOFTWARE.
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "System/ISystem.hpp"
 #include "Data/CommonData.hpp"
+#include "Graphics/Core/IGfxManager.hpp"
+#include "Graphics/Core/IGfxBackend.hpp"
+#include "Core/SystemInfo.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include <Windows.h>
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 
 #include "Graphics/Platform/Win32/Win32Window.hpp"
 typedef Lina::Win32Window PlatformWindow;
@@ -41,11 +44,11 @@ typedef Lina::Win32Window PlatformWindow;
 
 namespace Lina
 {
-	void WindowManager::Initialize(const SystemInitializationInfo& initInfo)
+	void WindowManager::InitializeEarly(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Window Manager] -> Initialization.");
 
-		m_gfxManager = (IGfxManager*)m_system->GetSubsystem(SubsystemType::GfxManager);
+		m_gfxManager = m_system->CastSubsystem<IGfxManager>(SubsystemType::GfxManager);
 
 #ifdef LINA_PLATFORM_WINDOWS
 
@@ -99,6 +102,15 @@ namespace Lina
 		if (w->Create(parent, title, pos, size))
 		{
 			w->SetStyle(style);
+
+			Bitmask16 mask = 0;
+			if (SystemInfo::IsEditor())
+				mask = SurfaceRendererMask::SRM_RenderGUI;
+			else
+				mask = SurfaceRendererMask::SRM_DrawOffscreenTexture;
+
+			m_gfxManager->CreateSurfaceRenderer(sid, w->GetHandle(), w->GetSize(), mask);
+
 			// m_gfxManager->GetBackend()->CreateSwapchain(sid, w->GetHandle(), w->GetRegisteryHandle(), w->GetPos(), w->GetSize());
 			//
 			// if (sid != LINA_MAIN_SWAPCHAIN)
@@ -116,6 +128,8 @@ namespace Lina
 		it->second->Destroy();
 		delete it->second;
 		m_windows.erase(it);
+
+		m_gfxManager->DestroySurfaceRenderer(sid);
 	}
 
 	IWindow* WindowManager::GetWindow(StringID sid)

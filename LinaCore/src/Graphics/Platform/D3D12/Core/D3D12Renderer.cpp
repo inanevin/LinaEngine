@@ -26,47 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef D12GfxManager_HPP
-#define D12GfxManager_HPP
-
-#include "System/ISubsystem.hpp"
-#include "Graphics/Data/RenderData.hpp"
-#include "Graphics/Core/IGfxManager.hpp"
-#include "D12GpuStorage.hpp"
+#include "Graphics/Platform/D3D12/Core/D3D12Renderer.hpp"
+#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
+#include "System/ISystem.hpp"
 
 namespace Lina
 {
-	class D12GfxManager : public IGfxManager
+	D3D12Renderer::D3D12Renderer(D3D12GfxManager* gfxManager) : m_gfxManager(gfxManager)
 	{
-	public:
-		D12GfxManager(ISystem* sys) : m_gpuStorage(this), IGfxManager(sys, &m_gpuStorage){};
-		virtual ~D12GfxManager() = default;
-
-		// ****************** ENGINE API ****************** //
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		void		 Join();
-		void		 Tick(float delta);
-		void		 Render();
-		void		 SyncData(float alpha);
-		virtual void OnSystemEvent(ESystemEvent type, const Event& ev);
-
-		virtual Bitmask32 GetSystemEventMask()
-		{
-			return EVS_PostSystemInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
-		}
-
-		inline uint32 GetFrameIndex()
-		{
-			return m_frameNumber % FRAMES_IN_FLIGHT;
-		}
-
-	private:
-		uint32		  m_frameNumber = 0;
-		D12GpuStorage m_gpuStorage;
-	};
+		m_gfxManager->GetSystem()->AddListener(this);
+	}
+	D3D12Renderer::~D3D12Renderer()
+	{
+		m_gfxManager->GetSystem()->RemoveListener(this);
+	}
 } // namespace Lina
-
-#endif
