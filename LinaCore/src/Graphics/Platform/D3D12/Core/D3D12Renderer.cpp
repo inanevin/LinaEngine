@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Platform/D3D12/Core/D3D12Renderer.hpp"
 #include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
+#include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
 #include "System/ISystem.hpp"
 
 namespace Lina
@@ -36,6 +37,7 @@ namespace Lina
 	{
 		m_gfxManager->GetSystem()->AddListener(this);
 	}
+
 	D3D12Renderer::~D3D12Renderer()
 	{
 		m_gfxManager->GetSystem()->RemoveListener(this);

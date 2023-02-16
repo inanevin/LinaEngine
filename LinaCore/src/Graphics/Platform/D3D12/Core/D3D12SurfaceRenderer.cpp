@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
 #include "Graphics/Platform/D3D12/Core/D3D12Backend.hpp"
 #include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
+#include "Graphics/Platform/D3D12/WinHeaders/d3dx12.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -40,29 +41,190 @@ namespace Lina
 		auto* backend = gfxManager->GetD3D12Backend();
 
 		// Describe and create the swap chain.
-		DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-		swapChainDesc.BufferCount			= FRAMES_IN_FLIGHT;
-		swapChainDesc.Width					= static_cast<UINT>(m_size.x);
-		swapChainDesc.Height				= static_cast<UINT>(m_size.y);
-		swapChainDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapChainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		swapChainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		{
+			DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
+			swapChainDesc.BufferCount			= FRAMES_IN_FLIGHT;
+			swapChainDesc.Width					= static_cast<UINT>(m_size.x);
+			swapChainDesc.Height				= static_cast<UINT>(m_size.y);
+			swapChainDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
+			swapChainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			swapChainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-		swapChainDesc.SampleDesc.Count = 1;
-		ComPtr<IDXGISwapChain1> swapchain;
+			swapChainDesc.SampleDesc.Count = 1;
+			ComPtr<IDXGISwapChain1> swapchain;
 
-		ThrowIfFailed(backend->GetFactory()->CreateSwapChainForHwnd(backend->GetGraphicsQueue().Get(), // Swap chain needs the queue so that it can force a flush on it.
-																	static_cast<HWND>(windowHandle),
-																	&swapChainDesc,
-																	nullptr,
-																	nullptr,
-																	&swapchain));
+			ThrowIfFailed(backend->GetFactory()->CreateSwapChainForHwnd(backend->GetGraphicsQueue().Get(), // Swap chain needs the queue so that it can force a flush on it.
+																		static_cast<HWND>(windowHandle),
+																		&swapChainDesc,
+																		nullptr,
+																		nullptr,
+																		&swapchain));
 
-		// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
+			// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
 
-		ThrowIfFailed(swapchain.As(&m_swapchain));
+			ThrowIfFailed(swapchain.As(&m_swapchain));
+		}
+
+		// Create descriptor heaps.
+		{
+			// Describe and create a render target view (RTV) descriptor heap.
+			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
+			rtvHeapDesc.NumDescriptors			   = FRAMES_IN_FLIGHT;
+			rtvHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+			rtvHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			ThrowIfFailed(backend->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
+		}
+
+		// Create render target.
+		{
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
+
+			// Create a RTV for each frame.
+			for (UINT n = 0; n < FRAMES_IN_FLIGHT; n++)
+			{
+				ThrowIfFailed(m_swapchain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
+				backend->GetDevice()->CreateRenderTargetView(m_renderTargets[n].Get(), nullptr, rtvHandle);
+				rtvHandle.Offset(1, backend->GetRTVDescriptorSize());
+			}
+		}
+
+		// Create frame resources.
+		{
+			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			{
+				auto& frameRes = m_frameResources[i];
+				ThrowIfFailed(backend->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&frameRes.cmdAllocator)));
+				ThrowIfFailed(backend->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, frameRes.cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&frameRes.cmdList)));
+				ThrowIfFailed(frameRes.cmdList->Close());
+			}
+		}
+
+		// Create an empty root signature.
+		{
+			CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+			rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+			ComPtr<ID3DBlob> signature;
+			ComPtr<ID3DBlob> error;
+			ThrowIfFailed(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+			ThrowIfFailed(backend->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
+		}
+
+		// Create synchronization objects
+		{
+			ThrowIfFailed(backend->GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+			m_fenceValue = 1;
+
+			// Create an event handle to use for frame synchronization.
+			m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			if (m_fenceEvent == nullptr)
+			{
+				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+			}
+		}
+
+		// State
+		{
+			m_viewport.Width	 = static_cast<FLOAT>(m_size.x);
+			m_viewport.Height	 = static_cast<FLOAT>(m_size.y);
+			m_scissorRect.left	 = 0;
+			m_scissorRect.top	 = 0;
+			m_scissorRect.bottom = static_cast<LONG>(m_size.y);
+			m_scissorRect.right	 = static_cast<LONG>(m_size.x);
+		}
 	}
+
 	D3D12SurfaceRenderer::~D3D12SurfaceRenderer()
 	{
+		Join();
+		CloseHandle(m_fenceEvent);
+	}
+
+	void D3D12SurfaceRenderer::Render()
+	{
+		// Determine current frame resource
+		const UINT64 lastFence = m_fence->GetCompletedValue();
+		m_frameIndex		   = (m_frameIndex + 1) % FRAMES_IN_FLIGHT;
+		auto& frameResources   = m_frameResources[m_frameIndex];
+
+		// Wait if still not completed.
+		if (frameResources.storedFenceValue > lastFence)
+		{
+			HANDLE eventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			if (eventHandle == nullptr)
+			{
+				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+			}
+			else
+			{
+				ThrowIfFailed(m_fence->SetEventOnCompletion(frameResources.storedFenceValue, eventHandle));
+				WaitForSingleObject(eventHandle, INFINITE);
+				CloseHandle(eventHandle);
+			}
+		}
+
+		// Render
+		try
+		{
+			// Prepare cmd list.
+			ThrowIfFailed(frameResources.cmdAllocator->Reset());
+			ThrowIfFailed(frameResources.cmdList->Reset(frameResources.cmdAllocator.Get(), nullptr));
+
+			// State
+			frameResources.cmdList->SetGraphicsRootSignature(m_rootSignature.Get());
+			frameResources.cmdList->RSSetViewports(1, &m_viewport);
+			frameResources.cmdList->RSSetScissorRects(1, &m_scissorRect);
+
+			// Transition render target
+			auto presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_imageIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			frameResources.cmdList->ResourceBarrier(1, &presentToRT);
+
+			// Set target
+			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_imageIndex, m_gfxManager->GetD3D12Backend()->GetRTVDescriptorSize());
+			frameResources.cmdList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+			// Draw
+			const float clearColor[] = {0.0f, 0.2f, 0.4f, 1.0f};
+			frameResources.cmdList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
+			// frameResources.cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			// frameResources.cmdList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
+			// frameResources.cmdList->DrawInstanced(3, 1, 0, 0);
+
+			// Indicate that the back buffer will now be used to present.
+			auto rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_imageIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+			frameResources.cmdList->ResourceBarrier(1, &rtToPresent);
+
+			ThrowIfFailed(frameResources.cmdList->Close());
+
+			// Execute on graphics queue.
+			ID3D12CommandList* ppCommandLists[] = {frameResources.cmdList.Get()};
+			m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+
+			// Present swapchain
+			m_swapchain->Present(1, 0);
+			m_imageIndex					= m_swapchain->GetCurrentBackBufferIndex();
+			frameResources.storedFenceValue = m_fenceValue;
+			m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue);
+			m_fenceValue++;
+		}
+		catch (HrException& e)
+		{
+			if (e.Error() == DXGI_ERROR_DEVICE_REMOVED || e.Error() == DXGI_ERROR_DEVICE_RESET)
+			{
+			}
+			else
+			{
+				throw;
+			}
+		}
+	}
+	void D3D12SurfaceRenderer::Join()
+	{
+		// Schedule a Signal command in the queue.
+		ThrowIfFailed(m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue));
+
+		// Wait until the fence has been processed.
+		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+		WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
 	}
 } // namespace Lina

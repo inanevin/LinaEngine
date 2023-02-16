@@ -32,6 +32,9 @@ SOFTWARE.
 #define D3D12Renderer_HPP
 
 #include "Event/IEventListener.hpp"
+#include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
+#include <wrl/client.h>
 
 namespace Lina
 {
@@ -44,7 +47,7 @@ namespace Lina
 		virtual ~D3D12Renderer();
 
 	protected:
-		D3D12GfxManager* m_gfxManager = nullptr;
+		D3D12GfxManager*								  m_gfxManager = nullptr;
 	};
 } // namespace Lina
 

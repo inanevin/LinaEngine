@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Log/Log.hpp"
+#include "FileSystem/FileSystem.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -86,17 +87,7 @@ namespace Lina
 			ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_graphicsQueue)));
 		}
 
-		// Create descriptor heaps.
-		{
-			// Describe and create a render target view (RTV) descriptor heap.
-			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-			rtvHeapDesc.NumDescriptors			   = FRAMES_IN_FLIGHT;
-			rtvHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			rtvHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-			ThrowIfFailed(m_device->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-
-			m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-		}
+		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
 
 	void D3D12Backend::Shutdown()
@@ -124,6 +115,9 @@ namespace Lina
 				// actual device yet.
 				if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 				{
+					char* buf = FileSystem::WCharToChar(desc.Description);
+					LINA_TRACE("[D3D12 Backend] -> Selected hardware adapter: {0}, Dedicated Video Memory: {1}", buf, desc.DedicatedVideoMemory * 0.000001);
+					delete[] buf;
 					break;
 				}
 			}
@@ -143,6 +137,9 @@ namespace Lina
 				// actual device yet.
 				if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, _uuidof(ID3D12Device), nullptr)))
 				{
+					char* buf = FileSystem::WCharToChar(desc.Description);
+					LINA_TRACE("[D3D12 Backend] -> Selected hardware adapter: {0}, Dedicated Video Memory: {1} MB", buf, desc.DedicatedVideoMemory * 0.000001);
+					delete[] buf;
 					break;
 				}
 			}

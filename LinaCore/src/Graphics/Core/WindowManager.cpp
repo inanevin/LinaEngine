@@ -79,6 +79,7 @@ namespace Lina
 
 		for (auto w : m_windows)
 		{
+			m_gfxManager->DestroySurfaceRenderer(w.second->GetSID());
 			w.second->Destroy();
 			delete w.second;
 		}

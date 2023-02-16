@@ -29,6 +29,8 @@ SOFTWARE.
 #include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
 #include "Graphics/Platform/D3D12/Core/D3D12SurfaceRenderer.hpp"
 #include "Data/CommonData.hpp"
+#include "System/ISystem.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Lina
 {
@@ -56,10 +58,13 @@ namespace Lina
 
 	void D3D12GfxManager::Render()
 	{
-	}
-
-	void D3D12GfxManager::SyncData(float alpha)
-	{
+		// Surface renderers.
+		{
+			PROFILER_SCOPE("All Surface Renderers", PROFILER_THREAD_RENDER);
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Render(); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 	}
 
 	void D3D12GfxManager::OnSystemEvent(ESystemEvent type, const Event& ev)
@@ -74,6 +79,8 @@ namespace Lina
 
 	void D3D12GfxManager::DestroySurfaceRenderer(StringID sid)
 	{
-		m_surfaceRenderers.erase(linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](D3D12SurfaceRenderer* renderer) { return renderer->GetSID() == sid; }));
+		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](D3D12SurfaceRenderer* renderer) { return renderer->GetSID() == sid; });
+		m_surfaceRenderers.erase(it);
+		delete *it;
 	}
 } // namespace Lina

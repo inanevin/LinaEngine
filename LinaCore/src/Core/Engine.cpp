@@ -121,16 +121,15 @@ namespace Lina
 
 		// m_levelManager.Tick(delta);
 
+		m_gfxManager->Render();
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
-		auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
 
 		//	audioJob.get();
-		renderJob.get();
+
 		//	m_levelManager.WaitForSimulation();
 
 		//	m_levelManager.SyncData(1.0f);
 		// m_gfxManager.Render();
-		m_gfxManager->SyncData(1.0f);
 
 		// For any listeners that fall outside the main loop.
 		//	DispatchSystemEvent(ESystemEvent::EVS_SyncThreads, {});

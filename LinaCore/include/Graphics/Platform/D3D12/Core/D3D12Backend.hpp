@@ -70,6 +70,11 @@ namespace Lina
 			return m_graphicsQueue;
 		}
 
+		inline uint32 GetRTVDescriptorSize()
+		{
+			return m_rtvDescriptorSize;
+		}
+
 	private:
 		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType);
 
@@ -77,7 +82,6 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12Device>		 m_device;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	 m_graphicsQueue;
 		Microsoft::WRL::ComPtr<IDXGIFactory4>		 m_factory;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 		uint32										 m_rtvDescriptorSize = 0;
 	};
 } // namespace Lina

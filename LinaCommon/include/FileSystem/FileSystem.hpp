@@ -72,7 +72,14 @@ namespace Lina
 		static String GetUniqueDirectoryName(Folder* parent, const String& prefix, const String& extension);
 
 		// Utility
-		static char*		  WCharToChar(const wchar_t* input);
+
+		/// <summary>
+		/// !You are responsible for deleting returned buffer!
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		static char* WCharToChar(const wchar_t* input);
+
 		static String		  ToUpper(const String& input);
 		static String		  ToLower(const String& input);
 		static Vector<String> Split(const String& s, char delim);

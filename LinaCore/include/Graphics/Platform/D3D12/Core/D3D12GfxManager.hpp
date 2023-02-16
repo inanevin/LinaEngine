@@ -54,7 +54,6 @@ namespace Lina
 		virtual void Join() override;
 		virtual void Tick(float delta) override;
 		virtual void Render() override;
-		virtual void SyncData(float alpha) override;
 		virtual void OnSystemEvent(ESystemEvent type, const Event& ev) override;
 		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) override;
 		virtual void DestroySurfaceRenderer(StringID sid) override;

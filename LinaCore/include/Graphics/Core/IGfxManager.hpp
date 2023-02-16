@@ -50,7 +50,6 @@ namespace Lina
 		virtual void Join()																								  = 0;
 		virtual void Tick(float delta)																					  = 0;
 		virtual void Render()																							  = 0;
-		virtual void SyncData(float alpha)																				  = 0;
 		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) = 0;
 		virtual void DestroySurfaceRenderer(StringID sid)																  = 0;
 
@@ -69,15 +68,9 @@ namespace Lina
 			return EVS_PostSystemInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
 		}
 
-		inline uint32 GetFrameIndex()
-		{
-			return m_frameNumber % FRAMES_IN_FLIGHT;
-		}
-
 	private:
 		IGpuStorage* m_gpuStorage  = nullptr;
 		IGfxBackend* m_gfxBackend  = nullptr;
-		uint32		 m_frameNumber = 0;
 	};
 } // namespace Lina
 #endif

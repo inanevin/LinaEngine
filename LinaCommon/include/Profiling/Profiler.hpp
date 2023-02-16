@@ -45,7 +45,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	struct Scope
+	struct Block
 	{
 	public:
 		String		   threadName = "";
@@ -54,23 +54,23 @@ namespace Lina
 		double		   durationNS = 0.0;
 		double		   startTime  = 0.0;
 		double		   initDiff	  = 0.0;
-		Scope*		   parent	  = nullptr;
-		Vector<Scope*> children;
+		Block*		   parent	  = nullptr;
+		Vector<Block*> children;
 	};
 
-	struct Function
+	struct Scope
 	{
-		Function(const String& funcName, const String& threadName = "Main");
-		~Function();
+		Scope(const String& blockName, const String& threadName = "Main");
+		~Scope();
 
-		String ScopeName  = "";
+		String blockName  = "";
 		String threadName = "";
 	};
 
 	struct ThreadBranch
 	{
-		Scope*		   lastScope = nullptr;
-		Vector<Scope*> scopes;
+		Block*		   lastBlock = nullptr;
+		Vector<Block*> blocks;
 	};
 
 	struct ProfilerFrame
@@ -110,10 +110,10 @@ namespace Lina
 
 		DeviceCPUInfo& QueryCPUInfo();
 		void		   StartFrame();
-		void		   StartScope(const String& scope, const String& thread);
-		void		   EndScope(const String& scope, const String& thread);
+		void		   StartBlock(const String& block, const String& thread);
+		void		   EndBlock(const String& block, const String& thread);
 		void		   DumpFrameAnalysis(const String& path);
-		void		   WriteScopeData(String& indent, Scope* scope, std::ofstream& file);
+		void		   WriteBlockData(String& indent, Block* block, std::ofstream& file);
 
 		inline void SetGPUInfo(const DeviceGPUInfo& info)
 		{
@@ -135,22 +135,23 @@ namespace Lina
 		}
 
 		void CleanupFrame(ProfilerFrame& frame);
-		void CleanupScope(Scope* s);
+		void CleanupBlock(Block* s);
 
 	private:
-		double		  m_totalFrameTimeNS = 0.0;
-		Queue<ProfilerFrame>  m_frames;
-		double		  m_lastCPUQueryTime	   = 0.0;
-		bool		  m_totalFrameQueueReached = false;
-		DeviceCPUInfo m_cpuInfo;
-		DeviceGPUInfo m_gpuInfo;
-		std::mutex	  m_lock;
+		double				 m_totalFrameTimeNS = 0.0;
+		Queue<ProfilerFrame> m_frames;
+		double				 m_lastCPUQueryTime		  = 0.0;
+		bool				 m_totalFrameQueueReached = false;
+		DeviceCPUInfo		 m_cpuInfo;
+		DeviceGPUInfo		 m_gpuInfo;
+		std::mutex			 m_lock;
 	};
 
 #define PROFILER_FRAME_START()						Lina::Profiler::Get().StartFrame()
-#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME) Lina::Profiler::Get().StartScope(SCOPENAME, THREADNAME)
-#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)	Lina::Profiler::Get().EndScope(SCOPENAME, THREADNAME)
-#define PROFILER_FUNC(...)							Lina::Function func(__FUNCTION__, __VA_ARGS__)
+#define PROFILER_STARTBLOCK(BLOCKENAME, THREADNAME) Lina::Profiler::Get().StartBlock(BLOCKAME, THREADNAME)
+#define PROFILER_ENDBLOCK(BLOCKNAME, THREADNAME)	Lina::Profiler::Get().EndBlock(BLOCKNAME, THREADNAME)
+#define PROFILER_SCOPE(BLOCKNAME, THREADNAME)		Lina::Scope scope(BLOCKNAME, THREADNAME)
+#define PROFILER_FUNCTION(...)						Lina::Scope function(__FUNCTION__, __VA_ARGS__)
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)		Lina::Profiler::Get().FrameAnalysisFile = FILE
 #define PROFILER_THREAD_RENDER						"Render"
 #define PROFILER_THREAD_MAIN						"Main"
@@ -160,20 +161,12 @@ namespace Lina
 #else
 
 #define PROFILER_FRAME_START()
-#define PROFILER_SCOPE_START(SCOPENAME, THREADNAME)
-#define PROFILER_SCOPE_END(SCOPENAME, THREADNAME)
-#define PROFILER_FUNC(...)
-#define PROFILER_ALLOC(PTR, SZ)
-#define PROFILER_VRAMALLOC(PTR, SZ)
-#define PROFILER_FREE(PTR)
-#define PROFILER_VRAMFREE(PTR)
-#define PROFILER_SKIPTRACK(skip)
-#define PROFILER_DUMP_FRAME_ANALYSIS(PATH)
-#define PROFILER_THREAD_RENDER
-#define PROFILER_THREAD_INPUT
-#define PROFILER_THREAD_MAIN
-#define PROFILER_THREAD_MAIN
-#define PROFILER_ENABLE_MEMORYLEAK_DUMP(ENABLE)
+#define PROFILER_STARTBLOCK(BLOCKENAME, THREADNAME)
+#define PROFILER_ENDBLOCK(BLOCKNAME, THREADNAME)
+#define PROFILER_SCOPE(...)
+#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)
+#define PROFILER_THREAD_RENDER "Render"
+#define PROFILER_THREAD_MAIN   "Main"
 #endif
 
 #endif

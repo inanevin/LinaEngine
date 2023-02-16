@@ -140,46 +140,46 @@ namespace Lina
 		m_frames.emplace(f);
 	}
 
-	void Profiler::StartScope(const String& scope, const String& thread)
+	void Profiler::StartBlock(const String& block, const String& thread)
 	{
 		LOCK_GUARD(m_lock);
 		const double  cpuTimeNow = PlatformTime::GetSeconds();
 		ThreadBranch& branch	 = m_frames.back().threadBranches[thread];
 
-		Scope* s	  = new Scope();
-		s->name		  = scope;
+		Block* s	  = new Block();
+		s->name		  = block;
 		s->threadName = thread;
 		s->startTime  = cpuTimeNow;
-		s->parent	  = branch.lastScope;
+		s->parent	  = branch.lastBlock;
 		s->threadID	  = TO_SID(thread);
 
-		if (branch.lastScope == nullptr)
-			branch.scopes.push_back(s);
+		if (branch.lastBlock == nullptr)
+			branch.blocks.push_back(s);
 		else
-			branch.lastScope->children.push_back(s);
+			branch.lastBlock->children.push_back(s);
 
-		branch.lastScope = s;
+		branch.lastBlock = s;
 		s->initDiff		 = PlatformTime::GetSeconds() - cpuTimeNow;
 	}
 
-	void Profiler::EndScope(const String& scope, const String& thread)
+	void Profiler::EndBlock(const String& block, const String& thread)
 	{
 		LOCK_GUARD(m_lock);
 		ThreadBranch& branch		 = m_frames.back().threadBranches[thread];
-		branch.lastScope->durationNS = (PlatformTime::GetSeconds() - branch.lastScope->startTime + branch.lastScope->initDiff) * 1.0e9;
-		branch.lastScope			 = branch.lastScope->parent;
+		branch.lastBlock->durationNS = (PlatformTime::GetSeconds() - branch.lastBlock->startTime + branch.lastBlock->initDiff) * 1.0e9;
+		branch.lastBlock			 = branch.lastBlock->parent;
 	}
 
-	Function::Function(const String& funcName, const String& thread)
+	Scope::Scope(const String& funcName, const String& thread)
 	{
-		ScopeName  = funcName;
+		blockName  = funcName;
 		threadName = thread;
-		Profiler::Get().StartScope(funcName, thread);
+		Profiler::Get().StartBlock(funcName, thread);
 	}
 
-	Function::~Function()
+	Scope::~Scope()
 	{
-		Profiler::Get().EndScope(ScopeName, threadName);
+		Profiler::Get().EndBlock(blockName, threadName);
 	}
 
 	void Profiler::DumpFrameAnalysis(const String& path)
@@ -214,14 +214,14 @@ namespace Lina
 				for (const auto& t : f.threadBranches)
 				{
 					double threaddurationNS = 0.0;
-					for (auto s : t.second.scopes)
+					for (auto s : t.second.blocks)
 						threaddurationNS += s->durationNS;
 
 					file << "********************************* THREAD: " << t.first.c_str() << " *********************************\n";
 					file << "** Total Duration: " << threaddurationNS << " (NS) " << threaddurationNS * 0.000001 << " (MS)\n";
 					String indent = "** ";
-					for (auto s : t.second.scopes)
-						WriteScopeData(indent, s, file);
+					for (auto s : t.second.blocks)
+						WriteBlockData(indent, s, file);
 
 					file << "\n";
 				}
@@ -236,16 +236,16 @@ namespace Lina
 		}
 	}
 
-	void Profiler::WriteScopeData(String& indent, Scope* scope, std::ofstream& file)
+	void Profiler::WriteBlockData(String& indent, Block* block, std::ofstream& file)
 	{
 		String newIndent = indent;
 		file << "**\n";
-		file << indent.c_str() << "-------- " << scope->name.c_str() << " --------\n";
-		file << indent.c_str() << "Duration: " << scope->durationNS * 0.000001 << " (MS)\n";
-		file << indent.c_str() << "Thread: " << scope->threadName.c_str() << "\n";
+		file << indent.c_str() << "-------- " << block->name.c_str() << " --------\n";
+		file << indent.c_str() << "Duration: " << block->durationNS * 0.000001 << " (MS)\n";
+		file << indent.c_str() << "Thread: " << block->threadName.c_str() << "\n";
 		newIndent += "    ";
-		for (auto s : scope->children)
-			WriteScopeData(newIndent, s, file);
+		for (auto s : block->children)
+			WriteBlockData(newIndent, s, file);
 	}
 
 	void Profiler::Destroy()
@@ -269,19 +269,19 @@ namespace Lina
 	{
 		for (auto& [threadName, threadInfo] : frame.threadBranches)
 		{
-			for (auto* scope : threadInfo.scopes)
-				CleanupScope(scope);
+			for (auto* block : threadInfo.blocks)
+				CleanupBlock(block);
 
-			threadInfo.scopes.clear();
+			threadInfo.blocks.clear();
 		}
 	}
 
-	void Profiler::CleanupScope(Scope* scope)
+	void Profiler::CleanupBlock(Block* block)
 	{
-		for (auto s : scope->children)
-			CleanupScope(s);
+		for (auto s : block->children)
+			CleanupBlock(s);
 
-		delete scope;
+		delete block;
 	}
 
 } // namespace Lina
