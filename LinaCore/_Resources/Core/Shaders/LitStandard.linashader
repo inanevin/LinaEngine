@@ -28,62 +28,28 @@ SOFTWARE.
 
 LINA_PASS_OPAQUE
 LINA_PASS_SHADOWS
+LINA_PIPELINE_STANDARD
 
-LINA_VS
+Texture2D g_texture : register(t0);
+SamplerState g_sampler : register(s0);
 
-#version 460
-layout (location = 0) in vec3 vPosition;
-layout (location = 1) in vec3 vNormal;
-layout (location = 2) in vec3 vColor;
-layout (location = 3) in vec2 vTexCoords;
-
-// out
-layout (location = 0) out vec3 outColor;
-layout (location = 1) out vec2 outTexCoords;
-
-LINA_INCLUDE SceneData
-LINA_INCLUDE LightData
-LINA_INCLUDE ViewData
-LINA_INCLUDE ObjectBuffer
-
-LINA_MATERIAL
+struct PSInput
 {
-	float dummy;
-} material;
+    float4 position : SV_POSITION;
+    float4 color : COLOR;
+    float2 uv : TEXCOORD;
+};
 
-layout( push_constant ) uniform constants
+PSInput VSMain(float4 position : POSITION, float4 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD)
 {
-	mat4 data;
-} PushConstants;
-
-void main()
-{
-	mat4 modelMatrix = PushConstants.data;
-	mat4 transformMatrix = (LINA_CAM.viewProj * modelMatrix);
-	gl_Position = transformMatrix * vec4(vPosition, 1.0f);
-	outColor = vColor;
-	outTexCoords = vTexCoords;
+    PSInput result;
+    result.position = position;
+    result.color = color;
+	result.uv = uv;
+    return result;
 }
 
-LINA_END
-
-LINA_FS
-
-#version 450
-layout (location = 0) in vec3 inColor;
-layout (location = 1) in vec2 inTexCoords;
-
-//output write
-layout (location = 0) out vec4 outFragColor;
-
-LINA_TEXTURE0 t;
-
-void main()
+float4 PSMain(PSInput input) : SV_TARGET
 {
-	//return red
-	outFragColor = vec4(inTexCoords.x, inTexCoords.y, 0.5f, 1.0f);
-	//outFragColor = texture(t, inTexCoords);
-	
+    return input.color;
 }
-
-LINA_END

@@ -56,13 +56,20 @@ namespace Lina
 
 		void Render();
 		void Join();
+		void Present();
 
 		inline StringID GetSID()
 		{
 			return m_sid;
 		}
 
+		inline void SetThreadID(int id)
+		{
+			m_threadID = id;
+		}
+
 	private:
+		int											 m_threadID		= 0;
 		void*										 m_windowHandle = nullptr;
 		Bitmask16									 m_mask			= 0;
 		Vector2i									 m_size			= Vector2i::Zero;

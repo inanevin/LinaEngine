@@ -26,13 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-layout(set = 0, binding = 0) uniform GlobalData
+cbuffer LinaGlobal : register(b0)
 {
-	vec4 screenSizeMousePos;
-	vec2 deltaElapsed;
-} LINA_GLOBAL;
+	float4 screenSizeMousePos;
+	float2 deltaElapsed;
+}
 
-layout(set = 0, binding = 1) uniform DebugData
-{
-	int visualizeDepth;
-} LINA_DBG;
+#define LINA_SCREEN screenSizeMousePos.xy
+#define LINA_MOUSE screenSizeMousePos.zw
+#define LINA_DT deltaElapsed.x
+#define LINA_ET deltaElapsed.y

@@ -52,6 +52,7 @@ src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp
 src/Graphics/Platform/Win32/Win32Window.cpp
 src/Graphics/Utility/ModelLoader.cpp
+src/Graphics/Utility/HLSLParser.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/Mesh.cpp
 src/Graphics/Resource/Model.cpp
@@ -159,6 +160,7 @@ include/Graphics/Utility/stb/stb_image.h
 include/Graphics/Utility/stb/stb_image_resize.h
 include/Graphics/Utility/stb/stb_image_write.h
 include/Graphics/Utility/ModelLoader.hpp
+include/Graphics/Utility/HLSLParser.hpp
 )
 
 if(WIN32)
@@ -184,6 +186,7 @@ include/Graphics/Platform/D3D12/Core/D3D12Renderer.hpp
 include/Graphics/Platform/D3D12/Core/D3D12SurfaceRenderer.hpp
 include/Graphics/Platform/D3D12/Core/D3D12WorldRenderer.hpp
 include/Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp
+include/Graphics/Platform/D3D12/Utility/ID3DIncludeInterface.hpp
 include/Graphics/Platform/D3D12/WinHeaders/d3d12.h
 include/Graphics/Platform/D3D12/WinHeaders/d3d12compatibility.h
 include/Graphics/Platform/D3D12/WinHeaders/d3d12sdklayers.h
@@ -216,6 +219,7 @@ src/Graphics/Platform/D3D12/Core/D3D12GpuStorage.cpp
 src/Graphics/Platform/D3D12/Core/D3D12Renderer.cpp
 src/Graphics/Platform/D3D12/Core/D3D12SurfaceRenderer.cpp
 src/Graphics/Platform/D3D12/Core/D3D12WorldRenderer.cpp
+src/Graphics/Platform/D3D12/Utility/ID3DIncludeInterface.cpp
 )
 
 endif()
@@ -264,15 +268,17 @@ link_physx()
 link_alut()
 link_openal()
 
+
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC Lina::Common
 )
 
 if(${LINA_GRAPHICS_D3D12})
+include(../_Dependencies/dxc/link.cmake)
+link_dxc()
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC d3d12.lib
 	PUBLIC dxgi.lib
-	PUBLIC d3dcompiler.lib
 )
 message("LinaCore -> D3D12 Linked.")
 endif()

@@ -30,20 +30,18 @@ SOFTWARE.
 #include "Serialization/StringSerialization.hpp"
 #include "Serialization/VectorSerialization.hpp"
 #include "FileSystem/FileSystem.hpp"
-#include "Graphics/Utility/GLSLParser.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Core/IGfxManager.hpp"
 #include "Graphics/Core/IGpuStorage.hpp"
-
-#ifdef LINA_GRAPHICS_VULKAN
-#include "Graphics/Platform/Vulkan/Utility/SPIRVUtility.hpp"
-#endif
+#include "Graphics/Resource/MaterialProperty.hpp"
+#include "Graphics/Utility/HLSLParser.hpp"
 
 namespace Lina
 {
 	Shader::~Shader()
 	{
+
 		if (m_gpuHandle == -1)
 			return;
 
@@ -67,14 +65,9 @@ namespace Lina
 	void Shader::LoadFromFile(const char* path)
 	{
 		m_text = FileSystem::ReadFileContentsAsString(path);
-
-#ifdef LINA_GRAPHICS_VULKAN
-		GLSLParser::ParseRaw(m_text, m_stages, m_materialBindings, m_properties, m_textures, m_drawPassMask, m_pipelineType);
-		for (auto& [stage, text] : m_stages)
-			SPIRVUtility::GLSLToSPV(stage, text.c_str(), m_compiledCode[stage]);
-#else
-		LINA_NOTIMPLEMENTED;
-#endif
+		m_text = HLSLParser::Parse(m_text, m_drawPassMask, m_pipelineType, m_properties, m_textures, m_stages);
+		static_cast<IGfxManager*>(m_resourceManager->GetSystem()->CastSubsystem(SubsystemType::GfxManager))->GetGPUStorage()->CompileShader(m_path.c_str(), m_stages, m_compiledCode);
+		int a = 5;
 	}
 
 	void Shader::SaveToStream(OStream& stream)

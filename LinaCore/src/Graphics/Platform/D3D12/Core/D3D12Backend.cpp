@@ -36,6 +36,31 @@ using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
+
+	DWORD msgCallback = 0;
+	void  MessageCallback(D3D12_MESSAGE_CATEGORY messageType, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID messageId, LPCSTR pDesc, void* pContext)
+	{
+		if (pDesc != NULL)
+		{
+			if (severity == D3D12_MESSAGE_SEVERITY_ERROR)
+			{
+				LINA_ERR("[D3D12 Debug Layer] -> {0}", pDesc);
+			}
+			else if (severity == D3D12_MESSAGE_SEVERITY_WARNING)
+			{
+				LINA_WARN("[D3D12 Debug Layer] -> {0}", pDesc);
+			}
+			else if (severity == D3D12_MESSAGE_SEVERITY_CORRUPTION)
+			{
+				LINA_CRITICAL("[D3D12 Debug Layer] -> {0}", pDesc);
+			}
+			else if (severity == D3D12_MESSAGE_SEVERITY_MESSAGE)
+			{
+				LINA_INFO("[D3D12 Debug Layer] -> {0}", pDesc);
+			}
+		}
+	}
+
 	void D3D12Backend::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		{
@@ -48,7 +73,6 @@ namespace Lina
 				if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 				{
 					debugController->EnableDebugLayer();
-
 					// Enable additional debug layers.
 					dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 				}
@@ -61,7 +85,7 @@ namespace Lina
 			ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
 		}
 
-		// Choose gpu
+		// Choose gpu & create device
 		{
 			if (initInfo.preferredGPUType == PreferredGPUType::CPU)
 			{
@@ -79,6 +103,17 @@ namespace Lina
 			}
 		}
 
+#ifndef LINA_PRODUCTION_BUILD
+		// Dbg callback
+		{
+			ID3D12InfoQueue1* infoQueue = nullptr;
+			if (SUCCEEDED(m_device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
+			{
+				infoQueue->RegisterMessageCallback(&MessageCallback, D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS, nullptr, &msgCallback);
+			}
+		}
+#endif
+
 		// Describe and create the command queue.
 		{
 			D3D12_COMMAND_QUEUE_DESC queueDesc = {};
@@ -92,6 +127,11 @@ namespace Lina
 
 	void D3D12Backend::Shutdown()
 	{
+		ID3D12InfoQueue1* infoQueue = nullptr;
+		if (SUCCEEDED(m_device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
+		{
+			infoQueue->UnregisterMessageCallback(msgCallback);
+		}
 	}
 
 	void D3D12Backend::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)

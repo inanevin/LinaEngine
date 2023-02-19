@@ -26,11 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct Light{
-	vec4 position;
-};
+#pragma once
 
-cbuffer LinaLights : register(b3)
+#ifndef HLSLParser_HPP
+#define HLSLParser_HPP
+
+#include "Data/String.hpp"
+#include "Data/Vector.hpp"
+#include "Data/Bitmask.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+
+namespace Lina
 {
-	Light lights[10];
-}
+	class MaterialPropertyBase;
+
+	class HLSLParser
+	{
+	public:
+		static String Parse(const String& raw, Bitmask16& outDrawPassMask, PipelineType& outPipelineType, Vector<MaterialPropertyBase*>& outProperties, Vector<MaterialPropertyBase*>& outTextures, HashMap<ShaderStage, String>& outStages);
+	};
+} // namespace Lina
+
+#endif

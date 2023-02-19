@@ -462,6 +462,19 @@ namespace Lina
 		return data;
 	}
 
+	wchar_t* FileSystem::CharToWChar(const char* input)
+	{
+#ifdef LINA_PLATFORM_WINDOWS
+
+		int		 bufferLength = MultiByteToWideChar(CP_UTF8, 0, input, -1, NULL, 0);
+		wchar_t* wideBuf	  = new wchar_t[bufferLength];
+		MultiByteToWideChar(CP_UTF8, 0, input, -1, wideBuf, bufferLength);
+		return wideBuf;
+#endif
+
+		return nullptr;
+	}
+
 	String FileSystem::ToUpper(const String& input)
 	{
 		String data = input;

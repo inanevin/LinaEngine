@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Graphics/Platform/D3D12/Core/D3D12Backend.hpp"
 #include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
 #include "Graphics/Platform/D3D12/WinHeaders/d3dx12.h"
+#include "Profiling/Profiler.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -42,20 +43,24 @@ namespace Lina
 
 		// Describe and create the swap chain.
 		{
-			DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-			swapChainDesc.BufferCount			= FRAMES_IN_FLIGHT;
-			swapChainDesc.Width					= static_cast<UINT>(m_size.x);
-			swapChainDesc.Height				= static_cast<UINT>(m_size.y);
-			swapChainDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
-			swapChainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapChainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
+			DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
+			swapchainDesc.BufferCount			= FRAMES_IN_FLIGHT;
+			swapchainDesc.Width					= static_cast<UINT>(m_size.x);
+			swapchainDesc.Height				= static_cast<UINT>(m_size.y);
+			swapchainDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
+			swapchainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
+			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
-			swapChainDesc.SampleDesc.Count = 1;
+			swapchainDesc.SampleDesc.Count = 1;
 			ComPtr<IDXGISwapChain1> swapchain;
+			//  swapchainDesc.Flags =DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ;
+
+			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
+			fsDesc.Windowed = false;
 
 			ThrowIfFailed(backend->GetFactory()->CreateSwapChainForHwnd(backend->GetGraphicsQueue().Get(), // Swap chain needs the queue so that it can force a flush on it.
 																		static_cast<HWND>(windowHandle),
-																		&swapChainDesc,
+																		&swapchainDesc,
 																		nullptr,
 																		nullptr,
 																		&swapchain));
@@ -63,6 +68,8 @@ namespace Lina
 			// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
 
 			ThrowIfFailed(swapchain.As(&m_swapchain));
+			// m_swapchain->SetFullscreenState(TRUE, NULL);
+			// m_swapchain->ResizeBuffers(1, 3840, 2160, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
 		}
 
 		// Create descriptor heaps.
@@ -148,24 +155,31 @@ namespace Lina
 		auto& frameResources   = m_frameResources[m_frameIndex];
 
 		// Wait if still not completed.
-		if (frameResources.storedFenceValue > lastFence)
 		{
-			HANDLE eventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			if (eventHandle == nullptr)
+			const String threadName = PROFILER_THREAD_RENDER + TO_STRING(m_threadID);
+			PROFILER_SCOPE("SR: Wait For Fence", threadName);
+
+			if (frameResources.storedFenceValue > lastFence)
 			{
-				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
-			}
-			else
-			{
-				ThrowIfFailed(m_fence->SetEventOnCompletion(frameResources.storedFenceValue, eventHandle));
-				WaitForSingleObject(eventHandle, INFINITE);
-				CloseHandle(eventHandle);
+				HANDLE eventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+				if (eventHandle == nullptr)
+				{
+					ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+				}
+				else
+				{
+					ThrowIfFailed(m_fence->SetEventOnCompletion(frameResources.storedFenceValue, eventHandle));
+					WaitForSingleObject(eventHandle, INFINITE);
+					CloseHandle(eventHandle);
+				}
 			}
 		}
 
 		// Render
-		try
 		{
+			const String threadName = PROFILER_THREAD_RENDER + TO_STRING(m_threadID);
+			PROFILER_SCOPE("SR: Render", threadName);
+
 			// Prepare cmd list.
 			ThrowIfFailed(frameResources.cmdAllocator->Reset());
 			ThrowIfFailed(frameResources.cmdList->Reset(frameResources.cmdAllocator.Get(), nullptr));
@@ -199,6 +213,27 @@ namespace Lina
 			// Execute on graphics queue.
 			ID3D12CommandList* ppCommandLists[] = {frameResources.cmdList.Get()};
 			m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+		}
+	}
+	void D3D12SurfaceRenderer::Join()
+	{
+		// Schedule a Signal command in the queue.
+		ThrowIfFailed(m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue));
+
+		// Wait until the fence has been processed.
+		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+		WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
+	}
+
+	void D3D12SurfaceRenderer::Present()
+	{
+		auto& frameResources = m_frameResources[m_frameIndex];
+
+		// Render
+		try
+		{
+			const String threadName = PROFILER_THREAD_RENDER + TO_STRING(m_threadID);
+			PROFILER_SCOPE("SR: Present", threadName);
 
 			// Present swapchain
 			m_swapchain->Present(1, 0);
@@ -217,14 +252,5 @@ namespace Lina
 				throw;
 			}
 		}
-	}
-	void D3D12SurfaceRenderer::Join()
-	{
-		// Schedule a Signal command in the queue.
-		ThrowIfFailed(m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue));
-
-		// Wait until the fence has been processed.
-		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-		WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
 	}
 } // namespace Lina

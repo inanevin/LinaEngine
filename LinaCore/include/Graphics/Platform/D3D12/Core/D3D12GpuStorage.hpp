@@ -33,6 +33,8 @@ SOFTWARE.
 
 #include "Data/IDList.hpp"
 #include "Graphics/Core/IGpuStorage.hpp"
+#include "Graphics/Platform/D3D12/Utility/ID3DIncludeInterface.hpp"
+#include <wrl/client.h>
 
 namespace Lina
 {
@@ -61,6 +63,9 @@ namespace Lina
 		D3D12GpuStorage(D3D12GfxManager* manager) : IGpuStorage(), m_gfxManager(manager), m_textures(DEFAULT_TXT_POOL, GeneratedTexture()), m_shaders(DEFAULT_SHADER_POOL, GeneratedShader()), m_materials(DEFAULT_MAT_POOL, GeneratedMaterial()){};
 		virtual ~D3D12GpuStorage() = default;
 
+		virtual void Initilalize() override;
+		virtual void Shutdown() override;
+
 		virtual uint32 GenerateMaterial(Material* mat, uint32 existingHandle) override;
 		virtual void   UpdateMaterialProperties(Material* mat, uint32 imageIndex) override;
 		virtual void   UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures) override;
@@ -68,19 +73,24 @@ namespace Lina
 
 		virtual uint32 GeneratePipeline(Shader* shader) override;
 		virtual void   DestroyPipeline(uint32 handle) override;
+		virtual void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, Vector<unsigned int>>& outCompiledCode);
 
 		virtual uint32 GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags) override;
 		virtual uint32 GenerateImageAndUpload(Texture* txt) override;
 		virtual void   DestroyImage(uint32 handle) override;
 
 	private:
-		D3D12GfxManager*			  m_gfxManager = nullptr;
+		D3D12GfxManager*		  m_gfxManager = nullptr;
 		IDList<GeneratedTexture>  m_textures;
 		Mutex					  m_textureMtx;
 		IDList<GeneratedShader>	  m_shaders;
 		Mutex					  m_shaderMtx;
 		IDList<GeneratedMaterial> m_materials;
 		Mutex					  m_materialMtx;
+
+		Microsoft::WRL::ComPtr<IDxcLibrary>	 m_idxcLib;
+		Microsoft::WRL::ComPtr<IDxcCompiler> m_idxcCompiler;
+		ID3DIncludeInterface				 m_includeInterface;
 	};
 } // namespace Lina
 

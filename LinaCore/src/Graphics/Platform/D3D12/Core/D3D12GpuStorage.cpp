@@ -28,9 +28,35 @@ SOFTWARE.
 
 #include "Graphics/Platform/D3D12/Core/D3D12GpuStorage.hpp"
 #include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Platform/D3D12/WinHeaders/d3dcommon.h"
+#include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
+#include "FileSystem/FileSystem.hpp"
+
+using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
+	DxcDefine macros[6] = {{L"LINA_PASS_OPAQUE", L""}, {L"LINA_PASS_SHADOWS", L""}, {L"LINA_PIPELINE_STANDARD", L""}, {L"LINA_PIPELINE_VERTEX", L""}, {L"LINA_PIPELINE_GUI", L""}, {L"LINA_MATERIAL", L"cbuffer MaterialBuffer : register(b4)"}};
+
+	void D3D12GpuStorage::Initilalize()
+	{
+		HRESULT hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&m_idxcLib));
+		if (FAILED(hr))
+		{
+			LINA_CRITICAL("[D3D12 Gpu Storage] -> Failed to create DXC library!");
+		}
+
+		hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&m_idxcCompiler));
+		if (FAILED(hr))
+		{
+			LINA_CRITICAL("[D3D12 Gpu Storage] -> Failed to create DXC compiler");
+		}
+	}
+
+	void D3D12GpuStorage::Shutdown()
+	{
+	}
+
 	uint32 D3D12GpuStorage::GenerateMaterial(Material* mat, uint32 existingHandle)
 	{
 		LOCK_GUARD(m_shaderMtx);
@@ -62,7 +88,7 @@ namespace Lina
 	uint32 D3D12GpuStorage::GeneratePipeline(Shader* shader)
 	{
 		LOCK_GUARD(m_shaderMtx);
-		
+
 		const uint32 index	 = m_shaders.AddItem(GeneratedShader());
 		auto&		 genData = m_materials.GetItemR(index);
 
@@ -75,6 +101,62 @@ namespace Lina
 		auto&		 genData = m_shaders.GetItemR(index);
 
 		m_shaders.RemoveItem(index);
+	}
+
+	void D3D12GpuStorage::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, Vector<unsigned int>>& outCompiledCode)
+	{
+
+		wchar_t* pathw = FileSystem::CharToWChar(path);
+		HRESULT	 hr;
+
+		for (auto& [stage, title] : stages)
+		{
+			UINT32					 codePage = CP_UTF8;
+			ComPtr<IDxcBlobEncoding> sourceBlob;
+			ThrowIfFailed(m_idxcLib->CreateBlobFromFile(pathw, &codePage, &sourceBlob));
+
+			wchar_t* entry = FileSystem::CharToWChar(title.c_str());
+
+			const wchar_t* targetProfile = L"vs_6_0";
+			if (stage == ShaderStage::Fragment)
+				targetProfile = L"ps_6_0";
+			else if (stage == ShaderStage::Compute)
+				targetProfile = L"cs_6_0";
+			else if (stage == ShaderStage::Geometry)
+				targetProfile = L"gs_6_0";
+			else if (stage == ShaderStage::TesellationControl || stage == ShaderStage::TesellationEval)
+				targetProfile = L"hs_6_0";
+
+			ComPtr<IDxcOperationResult> result;
+			ThrowIfFailed(m_idxcCompiler->Compile(sourceBlob.Get(), pathw, entry, targetProfile, NULL, 0, &macros[0], 6, NULL, &result));
+
+			result->GetStatus(&hr);
+
+			if (FAILED(hr))
+			{
+				if (result)
+				{
+					ComPtr<IDxcBlobEncoding> errorsBlob;
+					hr = result->GetErrorBuffer(&errorsBlob);
+					if (SUCCEEDED(hr) && errorsBlob)
+					{
+						LINA_ERR("[D3D12GpUStorage]-> Shader compilation failed: {0} {1}", path, (const char*)errorsBlob->GetBufferPointer());
+					}
+				}
+			}
+
+			ComPtr<IDxcBlob> code;
+			result->GetResult(&code);
+
+			const SIZE_T sz = code->GetBufferSize();
+			auto& vec = outCompiledCode[stage];
+			vec.resize(sz / sizeof(unsigned int));
+			MEMCPY(vec.data(), code->GetBufferPointer(), sz);
+
+			delete[] entry;
+		}
+
+		delete[] pathw;
 	}
 
 	uint32 D3D12GpuStorage::GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags)
@@ -92,7 +174,7 @@ namespace Lina
 	uint32 D3D12GpuStorage::GenerateImageAndUpload(Texture* txt)
 	{
 		LOCK_GUARD(m_textureMtx);
-		
+
 		const uint32	  index	  = m_textures.AddItem(GeneratedTexture());
 		GeneratedTexture& genData = m_textures.GetItemR(index);
 		auto&			  meta	  = txt->GetMetadata();

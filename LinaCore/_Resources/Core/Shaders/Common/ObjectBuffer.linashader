@@ -27,11 +27,7 @@ SOFTWARE.
 */
 
 struct ObjectData{
-	mat4 model;
+	float4x4 model;
 };
 
-//all object matrices
-layout(std140,set = 1, binding = 3) readonly buffer ObjectBuffer{
-
-	ObjectData objects[];
-} LINA_OBJECTS;
+StructuredBuffer<ObjectData> objects : register(b4);

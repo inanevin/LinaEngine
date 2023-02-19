@@ -74,11 +74,18 @@ namespace Lina
 		// Utility
 
 		/// <summary>
-		/// !You are responsible for deleting returned buffer!
+		/// ! You are responsible for deleting returned buffer!
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
 		static char* WCharToChar(const wchar_t* input);
+
+		/// <summary>
+		/// ! You are responsible for deleting returned buffer!
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		static wchar_t* CharToWChar(const char* input);
 
 		static String		  ToUpper(const String& input);
 		static String		  ToLower(const String& input);

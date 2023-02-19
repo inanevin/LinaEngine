@@ -36,6 +36,7 @@ namespace Lina
 {
 	void D3D12GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		m_gpuStorage.Initilalize();
 	}
 
 	void D3D12GfxManager::InitializeEarly(const SystemInitializationInfo& initInfo)
@@ -46,6 +47,7 @@ namespace Lina
 	void D3D12GfxManager::Shutdown()
 	{
 		m_backend.Shutdown();
+		m_gpuStorage.Shutdown();
 	}
 
 	void D3D12GfxManager::Join()
@@ -61,9 +63,17 @@ namespace Lina
 		// Surface renderers.
 		{
 			PROFILER_SCOPE("All Surface Renderers", PROFILER_THREAD_RENDER);
+
+			
 			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Render(); });
+			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
+				m_surfaceRenderers[i]->SetThreadID(i);
+				m_surfaceRenderers[i]->Render();
+			});
 			m_system->GetMainExecutor()->RunAndWait(tf);
+
+			for (auto sr : m_surfaceRenderers)
+				sr->Present();
 		}
 	}
 
