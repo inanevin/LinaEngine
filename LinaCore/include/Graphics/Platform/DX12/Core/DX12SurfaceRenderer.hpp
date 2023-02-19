@@ -31,11 +31,11 @@ SOFTWARE.
 #ifndef D3D12SurfaceRenderer_HPP
 #define D3D12SurfaceRenderer_HPP
 
-#include "D3D12Renderer.hpp"
+#include "DX12Renderer.hpp"
 
 #include "Core/StringID.hpp"
-#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
-#include "Graphics/Platform/D3D12/WinHeaders/d3dx12_core.h"
+#include "Graphics/Platform/DX12/SDK/d3d12.h"
+#include "Graphics/Platform/DX12/SDK/d3dx12_core.h"
 #include <dxgi1_6.h>
 
 namespace Lina

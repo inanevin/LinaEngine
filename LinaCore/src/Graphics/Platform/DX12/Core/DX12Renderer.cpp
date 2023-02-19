@@ -26,17 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef D3D12COMMON_HPP
-#define D3D12COMMON_HPP
-
-#include "Graphics/Core/CommonGraphics.hpp"
-#include <dxgiformat.h>
+#include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+#include "System/ISystem.hpp"
 
 namespace Lina
 {
-	
-} // namespace Lina
+	DX12Renderer::DX12Renderer(DX12GfxManager* gfxManager) : m_gfxManager(gfxManager)
+	{
+		m_gfxManager->GetSystem()->AddListener(this);
+	}
 
-#endif
+	DX12Renderer::~DX12Renderer()
+	{
+		m_gfxManager->GetSystem()->RemoveListener(this);
+	}
+} // namespace Lina

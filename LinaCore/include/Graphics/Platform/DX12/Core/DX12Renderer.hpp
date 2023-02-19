@@ -26,20 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/D3D12/Core/D3D12Renderer.hpp"
-#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
-#include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
-#include "System/ISystem.hpp"
+#pragma once
+
+#ifndef D3D12Renderer_HPP
+#define D3D12Renderer_HPP
+
+#include "Event/IEventListener.hpp"
+#include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Platform/DX12/SDK/d3d12.h"
+#include <wrl/client.h>
 
 namespace Lina
 {
-	DX12Renderer::DX12Renderer(DX12GfxManager* gfxManager) : m_gfxManager(gfxManager)
-	{
-		m_gfxManager->GetSystem()->AddListener(this);
-	}
+	class DX12GfxManager;
 
-	DX12Renderer::~DX12Renderer()
+	class DX12Renderer : public IEventListener
 	{
-		m_gfxManager->GetSystem()->RemoveListener(this);
-	}
+	public:
+		DX12Renderer(DX12GfxManager* gfxManager);
+		virtual ~DX12Renderer();
+
+	protected:
+		DX12GfxManager*								  m_gfxManager = nullptr;
+	};
 } // namespace Lina
+
+#endif

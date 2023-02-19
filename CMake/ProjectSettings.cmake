@@ -19,7 +19,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED
 
 if (WIN32)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_WINDOWS=1)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_D3D12=1)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_GRAPHICS_DX12=1)
 endif()
 if(APPLE)
     # for MacOS X or iOS, watchOS, tvOS (since 3.10.3)

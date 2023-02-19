@@ -28,27 +28,40 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef D3D12Renderer_HPP
-#define D3D12Renderer_HPP
+#ifndef ID3DIncludeInterface_HPP
+#define ID3DIncludeInterface_HPP
 
-#include "Event/IEventListener.hpp"
-#include "Graphics/Data/RenderData.hpp"
-#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
+#include "Graphics/Platform/DX12/SDK/d3dcommon.h"
+#include <dxcapi/dxcapi.h>
 #include <wrl/client.h>
 
 namespace Lina
 {
-	class DX12GfxManager;
-
-	class DX12Renderer : public IEventListener
+	class ID3DIncludeInterface : public IDxcIncludeHandler
 	{
 	public:
-		DX12Renderer(DX12GfxManager* gfxManager);
-		virtual ~DX12Renderer();
+		ID3DIncludeInterface()
+		{
+		}
+		virtual ~ID3DIncludeInterface()
+		{
+		}
+
+		virtual HRESULT STDMETHODCALLTYPE LoadSource(_In_z_ LPCWSTR							  pFilename,	  // Candidate filename.
+													 _COM_Outptr_result_maybenull_ IDxcBlob** ppIncludeSource // Resultant source object for included file, nullptr if not found.
+													 ) override;
 
 	protected:
-		DX12GfxManager*								  m_gfxManager = nullptr;
+		// Inherited via IDxcIncludeHandler
+		virtual HRESULT __stdcall QueryInterface(REFIID riid, void** ppvObject) override;
+		virtual ULONG __stdcall AddRef(void) override;
+		virtual ULONG __stdcall Release(void) override;
+
+	private:
+		Microsoft::WRL::ComPtr<IDxcUtils>		   m_utils;
+		Microsoft::WRL::ComPtr<IDxcIncludeHandler> m_defaultIncludeHandler;
 	};
+
 } // namespace Lina
 
 #endif

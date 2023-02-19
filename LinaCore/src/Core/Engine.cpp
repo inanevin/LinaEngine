@@ -34,8 +34,8 @@ SOFTWARE.
 #include "Core/PlatformTime.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 
-#ifdef LINA_GRAPHICS_D3D12
-#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
+#ifdef LINA_GRAPHICS_DX12
+#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
 typedef Lina::DX12GfxManager GfxManager;
 #endif
 

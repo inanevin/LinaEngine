@@ -33,8 +33,8 @@ SOFTWARE.
 
 #include "Data/IDList.hpp"
 #include "Graphics/Core/IGpuStorage.hpp"
-#include "Graphics/Platform/D3D12/Utility/ID3DIncludeInterface.hpp"
-#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
+#include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
+#include "Graphics/Platform/DX12/SDK/d3d12.h"
 #include <wrl/client.h>
 
 namespace Lina

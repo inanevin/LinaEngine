@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Core/StringID.hpp"
 #include "Core/Common.hpp"
-#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
+#include "Graphics/Platform/DX12/SDK/d3d12.h"
 #include <wrl/client.h>
 #include <dxgi1_6.h>
 #include <dxgi1_4.h>

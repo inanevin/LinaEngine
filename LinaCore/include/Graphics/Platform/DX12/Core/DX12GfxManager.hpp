@@ -35,10 +35,10 @@ SOFTWARE.
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Core/IGfxManager.hpp"
 #include "Data/Vector.hpp"
-#include "D3D12Backend.hpp"
-#include "D3D12GpuStorage.hpp"
+#include "DX12Backend.hpp"
+#include "DX12GpuStorage.hpp"
 
-#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
+#include "Graphics/Platform/DX12/SDK/d3d12.h"
 #include <wrl/client.h>
 
 namespace Lina

@@ -26,43 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef D12Helpers_HPP
-#define D12Helpers_HPP
+#include "Graphics/Platform/DX12/Core/DX12WorldRenderer.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
 
 namespace Lina
 {
-	inline String HrToString(HRESULT hr)
+	DX12WorldRenderer::DX12WorldRenderer(DX12GfxManager* gfxManager) : DX12Renderer(gfxManager)
 	{
-		char s_str[64] = {};
-		sprintf_s(s_str, "HRESULT of 0x%08X", static_cast<UINT>(hr));
-		return String(s_str);
 	}
-
-	class HrException : public std::runtime_error
+	
+	DX12WorldRenderer::~DX12WorldRenderer()
 	{
-	public:
-		HrException(HRESULT hr) : std::runtime_error(HrToString(hr).c_str()), m_hr(hr)
-		{
-		}
-		HRESULT Error() const
-		{
-			return m_hr;
-		}
-
-	private:
-		const HRESULT m_hr;
-	};
-
-	inline void ThrowIfFailed(HRESULT hr)
-	{
-		if (FAILED(hr))
-		{
-			throw HrException(hr);
-		}
 	}
-
 } // namespace Lina
-
-#endif

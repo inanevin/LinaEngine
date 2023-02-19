@@ -26,13 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
-#include "Graphics/Platform/D3D12/Core/D3D12SurfaceRenderer.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
+#include "Graphics/Platform/DX12/Core/DX12SurfaceRenderer.hpp"
 #include "Data/CommonData.hpp"
 #include "System/ISystem.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Graphics/Platform/D3D12/WinHeaders/d3dx12.h"
-#include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
+#include "Graphics/Platform/DX12/SDK/d3dx12.h"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 using Microsoft::WRL::ComPtr;
 

@@ -26,16 +26,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/D3D12/Core/D3D12WorldRenderer.hpp"
-#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
+#include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
+#include "FileSystem/FileSystem.hpp"
+#include <wrl/client.h>
+
+using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	DX12WorldRenderer::DX12WorldRenderer(DX12GfxManager* gfxManager) : DX12Renderer(gfxManager)
+
+	HRESULT __stdcall ID3DIncludeInterface::LoadSource(LPCWSTR pFilename, IDxcBlob** ppIncludeSource)
 	{
+		char*		 fl	  = FileSystem::WCharToChar(pFilename);
+		const String base = "Resources/Core/Shaders/Common/";
+		const String incl = base + fl;
+
+		wchar_t* filew = FileSystem::CharToWChar(incl.c_str());
+
+		ComPtr<IDxcBlobEncoding> pEncoding;
+		if (SUCCEEDED(m_utils->LoadFile(filew, nullptr, pEncoding.GetAddressOf())))
+		{
+			*ppIncludeSource = pEncoding.Detach();
+		}
+		else
+		{
+			LINA_ERR("[ID3DIncludeInterface] -> Could not load the include file! {0}", incl);
+		}
+
+		delete[] filew;
+		delete[] fl;
+		return S_OK;
 	}
-	
-	DX12WorldRenderer::~DX12WorldRenderer()
+	HRESULT __stdcall ID3DIncludeInterface::QueryInterface(REFIID riid, void** ppvObject)
 	{
+		return m_defaultIncludeHandler->QueryInterface(riid, ppvObject);
+	}
+	ULONG __stdcall ID3DIncludeInterface::AddRef(void)
+	{
+		return 0;
+	}
+	ULONG __stdcall ID3DIncludeInterface::Release(void)
+	{
+		return 0;
 	}
 } // namespace Lina

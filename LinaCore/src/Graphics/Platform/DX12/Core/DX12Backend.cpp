@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/D3D12/Core/D3D12Backend.hpp"
-#include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Backend.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Log/Log.hpp"
 #include "FileSystem/FileSystem.hpp"

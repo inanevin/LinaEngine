@@ -38,8 +38,7 @@ git_clone(
 # Used by other CMake macros to determine library folders
 if(WIN32)
 	set(PLATFORM "Win64")
-	
-    set(LINA_GRAPHICS_D3D12 TRUE)
+    set(LINA_GRAPHICS_DX12 TRUE)
 endif()
 		
 if(UNIX)

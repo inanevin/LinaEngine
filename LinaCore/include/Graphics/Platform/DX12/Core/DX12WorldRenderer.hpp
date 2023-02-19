@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef D3D12WorldRenderer_HPP
 #define D3D12WorldRenderer_HPP
 
-#include "D3D12Renderer.hpp"
+#include "DX12Renderer.hpp"
 
 namespace Lina
 {
