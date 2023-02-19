@@ -36,11 +36,11 @@ SOFTWARE.
 namespace Lina
 {
 
-	class D3D12WorldRenderer : public D3D12Renderer
+	class DX12WorldRenderer : public DX12Renderer
 	{
 	public:
-		D3D12WorldRenderer(D3D12GfxManager* gfxManager);
-		virtual ~D3D12WorldRenderer();
+		DX12WorldRenderer(DX12GfxManager* gfxManager);
+		virtual ~DX12WorldRenderer();
 	};
 } // namespace Lina
 

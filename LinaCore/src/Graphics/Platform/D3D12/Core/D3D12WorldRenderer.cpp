@@ -31,11 +31,11 @@ SOFTWARE.
 
 namespace Lina
 {
-	D3D12WorldRenderer::D3D12WorldRenderer(D3D12GfxManager* gfxManager) : D3D12Renderer(gfxManager)
+	DX12WorldRenderer::DX12WorldRenderer(DX12GfxManager* gfxManager) : DX12Renderer(gfxManager)
 	{
 	}
 	
-	D3D12WorldRenderer::~D3D12WorldRenderer()
+	DX12WorldRenderer::~DX12WorldRenderer()
 	{
 	}
 } // namespace Lina

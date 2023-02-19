@@ -41,7 +41,7 @@ namespace Lina
 {
 	DxcDefine macros[6] = {{L"LINA_PASS_OPAQUE", L""}, {L"LINA_PASS_SHADOWS", L""}, {L"LINA_PIPELINE_STANDARD", L""}, {L"LINA_PIPELINE_VERTEX", L""}, {L"LINA_PIPELINE_GUI", L""}, {L"LINA_MATERIAL", L"cbuffer MaterialBuffer : register(b4)"}};
 
-	void D3D12GpuStorage::Initilalize()
+	void DX12GpuStorage::Initilalize()
 	{
 		HRESULT hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&m_idxcLib));
 		if (FAILED(hr))
@@ -56,11 +56,11 @@ namespace Lina
 		}
 	}
 
-	void D3D12GpuStorage::Shutdown()
+	void DX12GpuStorage::Shutdown()
 	{
 	}
 
-	uint32 D3D12GpuStorage::GenerateMaterial(Material* mat, uint32 existingHandle)
+	uint32 DX12GpuStorage::GenerateMaterial(Material* mat, uint32 existingHandle)
 	{
 		LOCK_GUARD(m_shaderMtx);
 
@@ -71,15 +71,15 @@ namespace Lina
 		return index;
 	}
 
-	void D3D12GpuStorage::UpdateMaterialProperties(Material* mat, uint32 imageIndex)
+	void DX12GpuStorage::UpdateMaterialProperties(Material* mat, uint32 imageIndex)
 	{
 	}
 
-	void D3D12GpuStorage::UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures)
+	void DX12GpuStorage::UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures)
 	{
 	}
 
-	void D3D12GpuStorage::DestroyMaterial(uint32 handle)
+	void DX12GpuStorage::DestroyMaterial(uint32 handle)
 	{
 		// Note: no need to mtx lock, this is called from the main thread.
 		const uint32 index	 = handle;
@@ -88,7 +88,7 @@ namespace Lina
 		m_materials.RemoveItem(index);
 	}
 
-	uint32 D3D12GpuStorage::GeneratePipeline(Shader* shader)
+	uint32 DX12GpuStorage::GeneratePipeline(Shader* shader)
 	{
 		LOCK_GUARD(m_shaderMtx);
 
@@ -142,7 +142,7 @@ namespace Lina
 		return index;
 	}
 
-	void D3D12GpuStorage::DestroyPipeline(uint32 handle)
+	void DX12GpuStorage::DestroyPipeline(uint32 handle)
 	{
 		const uint32 index	 = handle;
 		auto&		 genData = m_shaders.GetItemR(index);
@@ -150,7 +150,7 @@ namespace Lina
 		m_shaders.RemoveItem(index);
 	}
 
-	void D3D12GpuStorage::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, Vector<unsigned int>>& outCompiledCode)
+	void DX12GpuStorage::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, Vector<unsigned int>>& outCompiledCode)
 	{
 
 		wchar_t* pathw = FileSystem::CharToWChar(path);
@@ -206,7 +206,7 @@ namespace Lina
 		delete[] pathw;
 	}
 
-	uint32 D3D12GpuStorage::GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags)
+	uint32 DX12GpuStorage::GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags)
 	{
 		LOCK_GUARD(m_textureMtx);
 
@@ -218,7 +218,7 @@ namespace Lina
 		return index;
 	}
 
-	uint32 D3D12GpuStorage::GenerateImageAndUpload(Texture* txt)
+	uint32 DX12GpuStorage::GenerateImageAndUpload(Texture* txt)
 	{
 		LOCK_GUARD(m_textureMtx);
 
@@ -230,7 +230,7 @@ namespace Lina
 		return index;
 	}
 
-	void D3D12GpuStorage::DestroyImage(uint32 handle)
+	void DX12GpuStorage::DestroyImage(uint32 handle)
 	{
 		const uint32	  index = handle;
 		GeneratedTexture& gen	= m_textures.GetItemR(index);

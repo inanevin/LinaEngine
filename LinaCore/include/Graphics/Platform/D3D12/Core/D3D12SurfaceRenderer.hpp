@@ -41,18 +41,18 @@ SOFTWARE.
 namespace Lina
 {
 
-	struct D3D12SurfaceRendererFrame
+	struct DX12SurfaceRendererFrame
 	{
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	  cmdAllocator;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList;
 		UINT64											  storedFenceValue = 0;
 	};
 
-	class D3D12SurfaceRenderer : public D3D12Renderer
+	class DX12SurfaceRenderer : public DX12Renderer
 	{
 	public:
-		D3D12SurfaceRenderer(D3D12GfxManager* gfxManager, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
-		virtual ~D3D12SurfaceRenderer();
+		DX12SurfaceRenderer(DX12GfxManager* gfxManager, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
+		virtual ~DX12SurfaceRenderer();
 
 		void Render();
 		void Join();
@@ -82,7 +82,7 @@ namespace Lina
 		HANDLE										 m_fenceEvent = NULL;
 		UINT64										 m_fenceValue = 0;
 		uint32										 m_frameIndex = 0;
-		D3D12SurfaceRendererFrame					 m_frameResources[FRAMES_IN_FLIGHT];
+		DX12SurfaceRendererFrame					 m_frameResources[FRAMES_IN_FLIGHT];
 		CD3DX12_VIEWPORT							 m_viewport;
 		CD3DX12_RECT								 m_scissorRect;
 	};

@@ -37,7 +37,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	D3D12SurfaceRenderer::D3D12SurfaceRenderer(D3D12GfxManager* gfxManager, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) : D3D12Renderer(gfxManager), m_windowHandle(windowHandle), m_sid(sid), m_size(initialSize), m_mask(mask)
+	DX12SurfaceRenderer::DX12SurfaceRenderer(DX12GfxManager* gfxManager, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) : DX12Renderer(gfxManager), m_windowHandle(windowHandle), m_sid(sid), m_size(initialSize), m_mask(mask)
 	{
 		auto* backend = gfxManager->GetD3D12Backend();
 
@@ -130,13 +130,13 @@ namespace Lina
 		}
 	}
 
-	D3D12SurfaceRenderer::~D3D12SurfaceRenderer()
+	DX12SurfaceRenderer::~DX12SurfaceRenderer()
 	{
 		Join();
 		CloseHandle(m_fenceEvent);
 	}
 
-	void D3D12SurfaceRenderer::Render()
+	void DX12SurfaceRenderer::Render()
 	{
 		// Determine current frame resource
 		const UINT64 lastFence = m_fence->GetCompletedValue();
@@ -204,7 +204,7 @@ namespace Lina
 			m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 		}
 	}
-	void D3D12SurfaceRenderer::Join()
+	void DX12SurfaceRenderer::Join()
 	{
 		// Schedule a Signal command in the queue.
 		ThrowIfFailed(m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue));
@@ -214,7 +214,7 @@ namespace Lina
 		WaitForSingleObjectEx(m_fenceEvent, INFINITE, FALSE);
 	}
 
-	void D3D12SurfaceRenderer::Present()
+	void DX12SurfaceRenderer::Present()
 	{
 		auto& frameResources = m_frameResources[m_frameIndex];
 

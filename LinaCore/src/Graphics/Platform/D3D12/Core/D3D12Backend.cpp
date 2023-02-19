@@ -61,7 +61,7 @@ namespace Lina
 		}
 	}
 
-	void D3D12Backend::Initialize(const SystemInitializationInfo& initInfo)
+	void DX12Backend::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		{
 			UINT dxgiFactoryFlags = 0;
@@ -125,7 +125,7 @@ namespace Lina
 		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	}
 
-	void D3D12Backend::Shutdown()
+	void DX12Backend::Shutdown()
 	{
 		ID3D12InfoQueue1* infoQueue = nullptr;
 		if (SUCCEEDED(m_device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
@@ -134,7 +134,7 @@ namespace Lina
 		}
 	}
 
-	void D3D12Backend::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)
+	void DX12Backend::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)
 	{
 		*ppAdapter = nullptr;
 

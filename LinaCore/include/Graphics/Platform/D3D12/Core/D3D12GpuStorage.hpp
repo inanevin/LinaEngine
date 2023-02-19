@@ -53,17 +53,17 @@ namespace Lina
 	{
 	};
 
-	class D3D12GfxManager;
+	class DX12GfxManager;
 
-	class D3D12GpuStorage : public IGpuStorage
+	class DX12GpuStorage : public IGpuStorage
 	{
 	public:
 #define DEFAULT_TXT_POOL	20
 #define DEFAULT_SHADER_POOL 10
 #define DEFAULT_MAT_POOL	20
 
-		D3D12GpuStorage(D3D12GfxManager* manager) : IGpuStorage(), m_gfxManager(manager), m_textures(DEFAULT_TXT_POOL, GeneratedTexture()), m_shaders(DEFAULT_SHADER_POOL, GeneratedShader()), m_materials(DEFAULT_MAT_POOL, GeneratedMaterial()){};
-		virtual ~D3D12GpuStorage() = default;
+		DX12GpuStorage(DX12GfxManager* manager) : IGpuStorage(), m_gfxManager(manager), m_textures(DEFAULT_TXT_POOL, GeneratedTexture()), m_shaders(DEFAULT_SHADER_POOL, GeneratedShader()), m_materials(DEFAULT_MAT_POOL, GeneratedMaterial()){};
+		virtual ~DX12GpuStorage() = default;
 
 		virtual void Initilalize() override;
 		virtual void Shutdown() override;
@@ -82,7 +82,7 @@ namespace Lina
 		virtual void   DestroyImage(uint32 handle) override;
 
 	private:
-		D3D12GfxManager*		  m_gfxManager = nullptr;
+		DX12GfxManager*		  m_gfxManager = nullptr;
 		IDList<GeneratedTexture>  m_textures;
 		Mutex					  m_textureMtx;
 		IDList<GeneratedShader>	  m_shaders;

@@ -36,7 +36,7 @@ SOFTWARE.
 
 #ifdef LINA_GRAPHICS_D3D12
 #include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
-typedef Lina::D3D12GfxManager GfxManager;
+typedef Lina::DX12GfxManager GfxManager;
 #endif
 
 //********** DEBUG

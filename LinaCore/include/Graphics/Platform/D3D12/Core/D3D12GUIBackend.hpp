@@ -33,11 +33,11 @@ SOFTWARE.
 
 namespace Lina
 {
-	class D3D12GUIBackend
+	class DX12GUIBackend
 	{
 	public:
-		D3D12GUIBackend()	 = default;
-		~D3D12GUIBackend() = default;
+		DX12GUIBackend()	 = default;
+		~DX12GUIBackend() = default;
 	};
 } // namespace Lina
 

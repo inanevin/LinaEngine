@@ -43,13 +43,13 @@ SOFTWARE.
 
 namespace Lina
 {
-	class D3D12SurfaceRenderer;
+	class DX12SurfaceRenderer;
 
-	class D3D12GfxManager : public IGfxManager
+	class DX12GfxManager : public IGfxManager
 	{
 	public:
-		D3D12GfxManager(ISystem* sys) : m_gpuStorage(this), IGfxManager(sys, &m_gpuStorage, &m_backend){};
-		virtual ~D3D12GfxManager() = default;
+		DX12GfxManager(ISystem* sys) : m_gpuStorage(this), IGfxManager(sys, &m_gpuStorage, &m_backend){};
+		virtual ~DX12GfxManager() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void InitializeEarly(const SystemInitializationInfo& initInfo) override;
@@ -61,12 +61,12 @@ namespace Lina
 		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) override;
 		virtual void DestroySurfaceRenderer(StringID sid) override;
 
-		inline D3D12Backend* GetD3D12Backend()
+		inline DX12Backend* GetD3D12Backend()
 		{
 			return &m_backend;
 		}
 
-		inline D3D12GpuStorage* GetD3D12GpuStorage()
+		inline DX12GpuStorage* GetD3D12GpuStorage()
 		{
 			return &m_gpuStorage;
 		}
@@ -82,9 +82,9 @@ namespace Lina
 		}
 
 	private:
-		Vector<D3D12SurfaceRenderer*>				m_surfaceRenderers;
-		D3D12GpuStorage								m_gpuStorage;
-		D3D12Backend								m_backend;
+		Vector<DX12SurfaceRenderer*>				m_surfaceRenderers;
+		DX12GpuStorage								m_gpuStorage;
+		DX12Backend								m_backend;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
 
 		// Inherited via IGfxManager

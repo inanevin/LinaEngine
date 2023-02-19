@@ -42,11 +42,11 @@ SOFTWARE.
 
 namespace Lina
 {
-	class D3D12Backend : public IGfxBackend
+	class DX12Backend : public IGfxBackend
 	{
 	public:
-		D3D12Backend()			= default;
-		virtual ~D3D12Backend() = default;
+		DX12Backend()			= default;
+		virtual ~DX12Backend() = default;
 
 		// Inherited via IGfxBackend
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;

@@ -38,7 +38,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	void D3D12GfxManager::Initialize(const SystemInitializationInfo& initInfo)
+	void DX12GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		m_gpuStorage.Initilalize();
 
@@ -54,26 +54,26 @@ namespace Lina
 		}
 	}
 
-	void D3D12GfxManager::InitializeEarly(const SystemInitializationInfo& initInfo)
+	void DX12GfxManager::InitializeEarly(const SystemInitializationInfo& initInfo)
 	{
 		m_backend.Initialize(initInfo);
 	}
 
-	void D3D12GfxManager::Shutdown()
+	void DX12GfxManager::Shutdown()
 	{
 		m_backend.Shutdown();
 		m_gpuStorage.Shutdown();
 	}
 
-	void D3D12GfxManager::Join()
+	void DX12GfxManager::Join()
 	{
 	}
 
-	void D3D12GfxManager::Tick(float delta)
+	void DX12GfxManager::Tick(float delta)
 	{
 	}
 
-	void D3D12GfxManager::Render()
+	void DX12GfxManager::Render()
 	{
 		// Surface renderers.
 		{
@@ -91,19 +91,19 @@ namespace Lina
 		}
 	}
 
-	void D3D12GfxManager::OnSystemEvent(ESystemEvent type, const Event& ev)
+	void DX12GfxManager::OnSystemEvent(ESystemEvent type, const Event& ev)
 	{
 	}
 
-	void D3D12GfxManager::CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
+	void DX12GfxManager::CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
 	{
-		D3D12SurfaceRenderer* renderer = new D3D12SurfaceRenderer(this, sid, windowHandle, initialSize, mask);
+		DX12SurfaceRenderer* renderer = new DX12SurfaceRenderer(this, sid, windowHandle, initialSize, mask);
 		m_surfaceRenderers.push_back(renderer);
 	}
 
-	void D3D12GfxManager::DestroySurfaceRenderer(StringID sid)
+	void DX12GfxManager::DestroySurfaceRenderer(StringID sid)
 	{
-		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](D3D12SurfaceRenderer* renderer) { return renderer->GetSID() == sid; });
+		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](DX12SurfaceRenderer* renderer) { return renderer->GetSID() == sid; });
 		m_surfaceRenderers.erase(it);
 		delete *it;
 	}

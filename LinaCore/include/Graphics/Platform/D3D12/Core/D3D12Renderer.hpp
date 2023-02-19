@@ -38,16 +38,16 @@ SOFTWARE.
 
 namespace Lina
 {
-	class D3D12GfxManager;
+	class DX12GfxManager;
 
-	class D3D12Renderer : public IEventListener
+	class DX12Renderer : public IEventListener
 	{
 	public:
-		D3D12Renderer(D3D12GfxManager* gfxManager);
-		virtual ~D3D12Renderer();
+		DX12Renderer(DX12GfxManager* gfxManager);
+		virtual ~DX12Renderer();
 
 	protected:
-		D3D12GfxManager*								  m_gfxManager = nullptr;
+		DX12GfxManager*								  m_gfxManager = nullptr;
 	};
 } // namespace Lina
 

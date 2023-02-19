@@ -33,12 +33,12 @@ SOFTWARE.
 
 namespace Lina
 {
-	D3D12Renderer::D3D12Renderer(D3D12GfxManager* gfxManager) : m_gfxManager(gfxManager)
+	DX12Renderer::DX12Renderer(DX12GfxManager* gfxManager) : m_gfxManager(gfxManager)
 	{
 		m_gfxManager->GetSystem()->AddListener(this);
 	}
 
-	D3D12Renderer::~D3D12Renderer()
+	DX12Renderer::~DX12Renderer()
 	{
 		m_gfxManager->GetSystem()->RemoveListener(this);
 	}
