@@ -31,12 +31,27 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 #include "System/ISystem.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Graphics/Platform/D3D12/WinHeaders/d3dx12.h"
+#include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
+
+using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
 	void D3D12GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		m_gpuStorage.Initilalize();
+
+		// Create an empty root signature.
+		{
+			CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
+			rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+			ComPtr<ID3DBlob> signature;
+			ComPtr<ID3DBlob> error;
+			ThrowIfFailed(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
+			ThrowIfFailed(m_backend.GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
+		}
 	}
 
 	void D3D12GfxManager::InitializeEarly(const SystemInitializationInfo& initInfo)
@@ -64,7 +79,6 @@ namespace Lina
 		{
 			PROFILER_SCOPE("All Surface Renderers", PROFILER_THREAD_RENDER);
 
-			
 			Taskflow tf;
 			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
 				m_surfaceRenderers[i]->SetThreadID(i);

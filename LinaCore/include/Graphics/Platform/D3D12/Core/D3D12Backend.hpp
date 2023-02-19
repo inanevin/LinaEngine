@@ -40,9 +40,6 @@ SOFTWARE.
 #include <dxgi1_6.h>
 #include <dxgi1_4.h>
 
-struct IDXGIFactory1;
-struct IDXGIAdapter1;
-
 namespace Lina
 {
 	class D3D12Backend : public IGfxBackend

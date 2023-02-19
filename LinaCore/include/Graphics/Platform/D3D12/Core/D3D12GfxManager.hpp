@@ -38,6 +38,9 @@ SOFTWARE.
 #include "D3D12Backend.hpp"
 #include "D3D12GpuStorage.hpp"
 
+#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
+#include <wrl/client.h>
+
 namespace Lina
 {
 	class D3D12SurfaceRenderer;
@@ -73,10 +76,16 @@ namespace Lina
 			return EVS_PostSystemInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
 		}
 
+		inline ID3D12RootSignature* GetRootSignature()
+		{
+			return m_rootSignature.Get();
+		}
+
 	private:
-		Vector<D3D12SurfaceRenderer*> m_surfaceRenderers;
-		D3D12GpuStorage				  m_gpuStorage;
-		D3D12Backend				  m_backend;
+		Vector<D3D12SurfaceRenderer*>				m_surfaceRenderers;
+		D3D12GpuStorage								m_gpuStorage;
+		D3D12Backend								m_backend;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
 
 		// Inherited via IGfxManager
 	};

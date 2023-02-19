@@ -78,7 +78,6 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
 		Microsoft::WRL::ComPtr<ID3D12Resource>		 m_renderTargets[FRAMES_IN_FLIGHT];
 		Microsoft::WRL::ComPtr<ID3D12Fence>			 m_fence;
-		Microsoft::WRL::ComPtr<ID3D12RootSignature>	 m_rootSignature;
 		UINT										 m_imageIndex = 0;
 		HANDLE										 m_fenceEvent = NULL;
 		UINT64										 m_fenceValue = 0;

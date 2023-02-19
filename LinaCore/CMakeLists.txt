@@ -178,6 +178,7 @@ endif()
 if(${LINA_GRAPHICS_D3D12})
 
 set(LINACORE_GRAPHICS_API_HEADERS
+include/Graphics/Platform/D3D12/Core/D3D12Common.hpp
 include/Graphics/Platform/D3D12/Core/D3D12Backend.hpp
 include/Graphics/Platform/D3D12/Core/D3D12GUIBackend.hpp
 include/Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp

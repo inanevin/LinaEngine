@@ -106,17 +106,6 @@ namespace Lina
 			}
 		}
 
-		// Create an empty root signature.
-		{
-			CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-			rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-			ComPtr<ID3DBlob> signature;
-			ComPtr<ID3DBlob> error;
-			ThrowIfFailed(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
-			ThrowIfFailed(backend->GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
-		}
-
 		// Create synchronization objects
 		{
 			ThrowIfFailed(backend->GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
@@ -185,7 +174,7 @@ namespace Lina
 			ThrowIfFailed(frameResources.cmdList->Reset(frameResources.cmdAllocator.Get(), nullptr));
 
 			// State
-			frameResources.cmdList->SetGraphicsRootSignature(m_rootSignature.Get());
+			frameResources.cmdList->SetGraphicsRootSignature(m_gfxManager->GetRootSignature());
 			frameResources.cmdList->RSSetViewports(1, &m_viewport);
 			frameResources.cmdList->RSSetScissorRects(1, &m_scissorRect);
 

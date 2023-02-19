@@ -28,9 +28,12 @@ SOFTWARE.
 
 #include "Graphics/Platform/D3D12/Core/D3D12GpuStorage.hpp"
 #include "Graphics/Resource/Texture.hpp"
-#include "Graphics/Platform/D3D12/WinHeaders/d3dcommon.h"
 #include "Graphics/Platform/D3D12/Utility/D3D12Helpers.hpp"
+#include "Graphics/Platform/D3D12/WinHeaders/d3dx12.h"
 #include "FileSystem/FileSystem.hpp"
+#include "Graphics/Resource/Shader.hpp"
+#include "Graphics/Platform/D3D12/Core/D3D12GfxManager.hpp"
+#include "Graphics/Platform/D3D12/Core/D3D12Backend.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -90,7 +93,51 @@ namespace Lina
 		LOCK_GUARD(m_shaderMtx);
 
 		const uint32 index	 = m_shaders.AddItem(GeneratedShader());
-		auto&		 genData = m_materials.GetItemR(index);
+		auto&		 genData = m_shaders.GetItemR(index);
+
+		// Define the vertex input layout.
+		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
+
+		// Describe and create the graphics pipeline state object (PSO).
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+		psoDesc.InputLayout						   = {inputElementDescs, _countof(inputElementDescs)};
+		psoDesc.pRootSignature					   = m_gfxManager->GetRootSignature();
+		psoDesc.RasterizerState					   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		psoDesc.BlendState						   = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.DepthStencilState.DepthEnable	   = TRUE;
+		psoDesc.DepthStencilState.StencilEnable	   = FALSE;
+		psoDesc.SampleMask						   = UINT_MAX;
+		psoDesc.PrimitiveTopologyType			   = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		psoDesc.NumRenderTargets				   = 1;
+		psoDesc.RTVFormats[0]					   = DXGI_FORMAT_R8G8B8A8_UNORM;
+		psoDesc.SampleDesc.Count				   = 1;
+		const auto&		   stages				   = shader->GetStages();
+		const PipelineType ppType				   = shader->GetPipelineType();
+
+		if (ppType == PipelineType::Standard)
+		{
+			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_BACK;
+			psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+		}
+		else if (ppType == PipelineType::NoVertex)
+		{
+			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_FRONT;
+			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
+		}
+		else if (ppType == PipelineType::GUI)
+		{
+			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_NONE;
+			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
+		}
+
+		// for (const auto& [stg, title] : stages)
+		// {
+		// }
+		//
+		// psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
+		// psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+
+		ThrowIfFailed(m_gfxManager->GetD3D12Backend()->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genData.pso)));
 
 		return index;
 	}
@@ -148,8 +195,8 @@ namespace Lina
 			ComPtr<IDxcBlob> code;
 			result->GetResult(&code);
 
-			const SIZE_T sz = code->GetBufferSize();
-			auto& vec = outCompiledCode[stage];
+			const SIZE_T sz	 = code->GetBufferSize();
+			auto&		 vec = outCompiledCode[stage];
 			vec.resize(sz / sizeof(unsigned int));
 			MEMCPY(vec.data(), code->GetBufferPointer(), sz);
 

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/IDList.hpp"
 #include "Graphics/Core/IGpuStorage.hpp"
 #include "Graphics/Platform/D3D12/Utility/ID3DIncludeInterface.hpp"
+#include "Graphics/Platform/D3D12/WinHeaders/d3d12.h"
 #include <wrl/client.h>
 
 namespace Lina
@@ -45,6 +46,7 @@ namespace Lina
 
 	struct GeneratedShader
 	{
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 	};
 
 	struct GeneratedMaterial
