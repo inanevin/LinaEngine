@@ -212,6 +212,7 @@ include/Graphics/Platform/DX12/SDK/Residency/d3dx12Residency.h
 )
 
 set(LINACORE_GRAPHICS_API_SOURCES
+src/Graphics/Platform/DX12/Core/DX12Common.cpp
 src/Graphics/Platform/DX12/Core/DX12Backend.cpp
 src/Graphics/Platform/DX12/Core/DX12GUIBackend.cpp
 src/Graphics/Platform/DX12/Core/DX12GfxManager.cpp

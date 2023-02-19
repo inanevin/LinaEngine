@@ -75,14 +75,14 @@ namespace Lina
 
 		virtual uint32 GeneratePipeline(Shader* shader) override;
 		virtual void   DestroyPipeline(uint32 handle) override;
-		virtual void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, Vector<unsigned int>>& outCompiledCode);
+		virtual void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode) override;
 
 		virtual uint32 GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags) override;
 		virtual uint32 GenerateImageAndUpload(Texture* txt) override;
 		virtual void   DestroyImage(uint32 handle) override;
 
 	private:
-		DX12GfxManager*		  m_gfxManager = nullptr;
+		DX12GfxManager*			  m_gfxManager = nullptr;
 		IDList<GeneratedTexture>  m_textures;
 		Mutex					  m_textureMtx;
 		IDList<GeneratedShader>	  m_shaders;

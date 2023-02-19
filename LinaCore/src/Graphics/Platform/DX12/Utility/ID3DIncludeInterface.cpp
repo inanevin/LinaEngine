@@ -40,7 +40,6 @@ namespace Lina
 		char*		 fl	  = FileSystem::WCharToChar(pFilename);
 		const String base = "Resources/Core/Shaders/Common/";
 		const String incl = base + fl;
-
 		wchar_t* filew = FileSystem::CharToWChar(incl.c_str());
 
 		ComPtr<IDxcBlobEncoding> pEncoding;

@@ -52,6 +52,7 @@ namespace Lina
 
 		m_gfxManager = new GfxManager(this);
 		m_initInfo	 = initInfo;
+		PlatformTime::GetSeconds();
 
 		// Child systems can override for custom core resource registries.
 		m_coreResourceRegistry = new CoreResourcesRegistry();
@@ -70,7 +71,8 @@ namespace Lina
 		m_resourceManager.SetMode(ResourceManagerMode::File);
 		auto start = PlatformTime::GetCycles64();
 		m_resourceManager.LoadCoreResources();
-		LINA_TRACE("[Application] -> Loading core resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, PlatformTime::GetCycles64()));
+		auto now = PlatformTime::GetCycles64();
+		LINA_TRACE("[Application] -> Loading core resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, now));
 		PostInitialize();
 	}
 

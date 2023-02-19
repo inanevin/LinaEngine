@@ -54,10 +54,12 @@ namespace Lina
 			delete t;
 
 		for (auto& [stg, code] : m_compiledCode)
-			code.clear();
+		{
+			delete[] code.data;
+		}
 	}
 
-	Vector<unsigned int> Shader::GetCompiledCode(ShaderStage stage) const
+	const ShaderByteCode& Shader::GetCompiledCode(ShaderStage stage) const
 	{
 		return m_compiledCode.at(stage);
 	}
@@ -84,14 +86,12 @@ namespace Lina
 			const uint8 stg = static_cast<uint8>(stage);
 			stream << stg;
 
-			auto&		 code	  = m_compiledCode[static_cast<ShaderStage>(stage)];
-			const uint32 codeSize = static_cast<uint32>(code.size());
-			stream << codeSize;
+			auto& code = m_compiledCode[static_cast<ShaderStage>(stage)];
+			stream << code.dataSize;
 
-			if (codeSize != 0)
+			if (code.dataSize != 0)
 			{
-				uint8* ptr = (uint8*)&code[0];
-				stream.WriteEndianSafe(ptr, codeSize * sizeof(unsigned int));
+				stream.WriteEndianSafe(code.data, code.dataSize);
 			}
 		}
 
@@ -161,8 +161,9 @@ namespace Lina
 
 			if (codeSize != 0)
 			{
-				code.resize(codeSize);
-				stream.ReadEndianSafe(&code[0], codeSize * sizeof(unsigned int));
+				code.data	  = new uint8[codeSize];
+				code.dataSize = codeSize;
+				stream.ReadEndianSafe(code.data, codeSize);
 			}
 		}
 
@@ -230,6 +231,10 @@ namespace Lina
 	{
 		// rest of the data is still needed by materials changing shaders etc.
 		m_text.clear();
+
+		for (auto& [stg, code] : m_compiledCode)
+			delete[] code.data;
+
 		m_compiledCode.clear();
 	}
 } // namespace Lina

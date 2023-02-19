@@ -92,27 +92,47 @@ namespace Lina
 	{
 		LOCK_GUARD(m_shaderMtx);
 
-		const uint32 index	 = m_shaders.AddItem(GeneratedShader());
-		auto&		 genData = m_shaders.GetItemR(index);
+		const uint32	   index   = m_shaders.AddItem(GeneratedShader());
+		auto&			   genData = m_shaders.GetItemR(index);
+		const auto&		   stages  = shader->GetStages();
+		const PipelineType ppType  = shader->GetPipelineType();
 
 		// Define the vertex input layout.
-		D3D12_INPUT_ELEMENT_DESC inputElementDescs[] = {{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}, {"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}};
+
+		Vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
+
+		if (ppType == PipelineType::Standard)
+		{
+			inputLayout.push_back({"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+			inputLayout.push_back({"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+			inputLayout.push_back({"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+			inputLayout.push_back({"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+		}
+		else if (ppType == PipelineType::GUI)
+		{
+			inputLayout.push_back({"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+			inputLayout.push_back({"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+			inputLayout.push_back({"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+		}
+		else if (ppType == PipelineType::NoVertex)
+		{
+			// no input.
+		}
 
 		// Describe and create the graphics pipeline state object (PSO).
 		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-		psoDesc.InputLayout						   = {inputElementDescs, _countof(inputElementDescs)};
+		psoDesc.InputLayout						   = {&inputLayout[0], static_cast<UINT>(inputLayout.size())};
 		psoDesc.pRootSignature					   = m_gfxManager->GetRootSignature();
 		psoDesc.RasterizerState					   = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		psoDesc.BlendState						   = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		psoDesc.DepthStencilState.DepthEnable	   = TRUE;
+		psoDesc.DepthStencilState.DepthEnable	   = FALSE;
 		psoDesc.DepthStencilState.StencilEnable	   = FALSE;
 		psoDesc.SampleMask						   = UINT_MAX;
 		psoDesc.PrimitiveTopologyType			   = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 		psoDesc.NumRenderTargets				   = 1;
-		psoDesc.RTVFormats[0]					   = DXGI_FORMAT_R8G8B8A8_UNORM;
+		psoDesc.RTVFormats[0]					   = DEFAULT_SWAPCHAIN_FORMAT;
 		psoDesc.SampleDesc.Count				   = 1;
-		const auto&		   stages				   = shader->GetStages();
-		const PipelineType ppType				   = shader->GetPipelineType();
+		psoDesc.RasterizerState.FillMode		   = D3D12_FILL_MODE_SOLID;
 
 		if (ppType == PipelineType::Standard)
 		{
@@ -130,12 +150,33 @@ namespace Lina
 			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
 		}
 
-		// for (const auto& [stg, title] : stages)
-		// {
-		// }
-		//
-		// psoDesc.VS = CD3DX12_SHADER_BYTECODE(vertexShader.Get());
-		// psoDesc.PS = CD3DX12_SHADER_BYTECODE(pixelShader.Get());
+		for (const auto& [stg, title] : stages)
+		{
+			const auto&	 bc	  = shader->GetCompiledCode(stg);
+			const void*	 byteCode = (void*)bc.data;
+			const SIZE_T length	  = static_cast<SIZE_T>(bc.dataSize);
+
+			if (stg == ShaderStage::Vertex)
+			{
+				psoDesc.VS.pShaderBytecode = byteCode;
+				psoDesc.VS.BytecodeLength  = length;
+			}
+			else if (stg == ShaderStage::Fragment)
+			{
+				psoDesc.PS.pShaderBytecode = byteCode;
+				psoDesc.PS.BytecodeLength  = length;
+			}
+			else if (stg == ShaderStage::Geometry)
+			{
+				psoDesc.GS.pShaderBytecode = byteCode;
+				psoDesc.GS.BytecodeLength  = length;
+			}
+			else if (stg == ShaderStage::TesellationControl || stg == ShaderStage::TesellationEval)
+			{
+				psoDesc.HS.pShaderBytecode = byteCode;
+				psoDesc.HS.BytecodeLength  = length;
+			}
+		}
 
 		ThrowIfFailed(m_gfxManager->GetD3D12Backend()->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genData.pso)));
 
@@ -150,11 +191,16 @@ namespace Lina
 		m_shaders.RemoveItem(index);
 	}
 
-	void DX12GpuStorage::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, Vector<unsigned int>>& outCompiledCode)
+	void DX12GpuStorage::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode)
 	{
 
 		wchar_t* pathw = FileSystem::CharToWChar(path);
 		HRESULT	 hr;
+
+		// IDxcCompilerArgs* pCompilerArgs;
+		// DxcCreateInstance(CLSID_DxcCompilerArgs, IID_PPV_ARGS(&pCompilerArgs));
+		// const wchar_t* arg = L"/O3";
+		// pCompilerArgs->AddArguments(&arg, 1);
 
 		for (auto& [stage, title] : stages)
 		{
@@ -175,7 +221,7 @@ namespace Lina
 				targetProfile = L"hs_6_0";
 
 			ComPtr<IDxcOperationResult> result;
-			ThrowIfFailed(m_idxcCompiler->Compile(sourceBlob.Get(), pathw, entry, targetProfile, NULL, 0, &macros[0], 6, NULL, &result));
+			ThrowIfFailed(m_idxcCompiler->Compile(sourceBlob.Get(), pathw, entry, targetProfile, NULL, 0, &macros[0], 6, &m_includeInterface, &result));
 
 			result->GetStatus(&hr);
 
@@ -195,10 +241,11 @@ namespace Lina
 			ComPtr<IDxcBlob> code;
 			result->GetResult(&code);
 
-			const SIZE_T sz	 = code->GetBufferSize();
-			auto&		 vec = outCompiledCode[stage];
-			vec.resize(sz / sizeof(unsigned int));
-			MEMCPY(vec.data(), code->GetBufferPointer(), sz);
+			const SIZE_T sz = code->GetBufferSize();
+			auto&		 bc = outCompiledCode[stage];
+			bc.dataSize		= static_cast<uint32>(sz);
+			bc.data			= new uint8[sz];
+			MEMCPY(bc.data, code->GetBufferPointer(), sz);
 
 			delete[] entry;
 		}

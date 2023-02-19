@@ -42,13 +42,19 @@ namespace Lina
 {
 	class MaterialPropertyBase;
 
+	struct ShaderByteCode
+	{
+		uint8* data		= nullptr;
+		uint32 dataSize = 0;
+	};
+
 	class Shader : public IResource
 	{
 	public:
 		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
 		virtual ~Shader();
 
-		Vector<unsigned int> GetCompiledCode(ShaderStage stage) const;
+		const ShaderByteCode& GetCompiledCode(ShaderStage stage) const;
 
 		inline Bitmask16 GetDrawPassMask()
 		{
@@ -94,12 +100,12 @@ namespace Lina
 		virtual void Flush() override;
 
 	private:
-		Vector<MaterialPropertyBase*>			   m_properties;
-		Vector<MaterialPropertyBase*>			   m_textures;
-		HashMap<ShaderStage, String>			   m_stages;
-		Vector<UserBinding>						   m_materialBindings;
-		HashMap<ShaderStage, Vector<unsigned int>> m_compiledCode;
-		PipelineType							   m_pipelineType = PipelineType::Standard;
+		Vector<MaterialPropertyBase*>		 m_properties;
+		Vector<MaterialPropertyBase*>		 m_textures;
+		HashMap<ShaderStage, String>		 m_stages;
+		Vector<UserBinding>					 m_materialBindings;
+		HashMap<ShaderStage, ShaderByteCode> m_compiledCode;
+		PipelineType						 m_pipelineType = PipelineType::Standard;
 
 		// Runtime
 		int32	  m_gpuHandle = -1;

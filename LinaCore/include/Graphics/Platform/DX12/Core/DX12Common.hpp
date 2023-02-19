@@ -32,10 +32,15 @@ SOFTWARE.
 #define D3D12COMMON_HPP
 
 #include "Graphics/Core/CommonGraphics.hpp"
-
+#include <dxgi1_6.h>
 
 namespace Lina
 {
+
+#define DEFAULT_SWAPCHAIN_FORMAT DXGI_FORMAT_R8G8B8A8_UNORM
+
+	extern DXGI_FORMAT GetFormat(Format format);
+
 	inline String HrToString(HRESULT hr)
 	{
 		char s_str[64] = {};

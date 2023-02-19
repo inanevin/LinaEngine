@@ -40,8 +40,9 @@ SOFTWARE.
 namespace Lina
 {
 	class Texture;
-	class Shader;
 	class Material;
+	class Shader;
+	struct ShaderByteCode;
 
 	class IGpuStorage
 	{
@@ -57,9 +58,9 @@ namespace Lina
 		virtual void   UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures) = 0;
 		virtual void   DestroyMaterial(uint32 handle)																 = 0;
 
-		virtual uint32 GeneratePipeline(Shader* shader)																										   = 0;
-		virtual void   DestroyPipeline(uint32 handle)																										   = 0;
-		virtual void   CompileShader(const char* str, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, Vector<unsigned int>>& outCompiledCode) = 0;
+		virtual uint32 GeneratePipeline(Shader* shader)																									 = 0;
+		virtual void   DestroyPipeline(uint32 handle)																									 = 0;
+		virtual void   CompileShader(const char* str, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode) = 0;
 
 		virtual uint32 GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags) = 0;
 		virtual uint32 GenerateImageAndUpload(Texture* txt)									   = 0;

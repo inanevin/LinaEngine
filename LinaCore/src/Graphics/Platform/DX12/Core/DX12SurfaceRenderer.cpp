@@ -47,7 +47,7 @@ namespace Lina
 			swapchainDesc.BufferCount			= FRAMES_IN_FLIGHT;
 			swapchainDesc.Width					= static_cast<UINT>(m_size.x);
 			swapchainDesc.Height				= static_cast<UINT>(m_size.y);
-			swapchainDesc.Format				= DXGI_FORMAT_R8G8B8A8_UNORM;
+			swapchainDesc.Format				= DEFAULT_SWAPCHAIN_FORMAT;
 			swapchainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
