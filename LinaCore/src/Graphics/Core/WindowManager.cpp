@@ -44,7 +44,7 @@ typedef Lina::Win32Window PlatformWindow;
 
 namespace Lina
 {
-	void WindowManager::InitializeEarly(const SystemInitializationInfo& initInfo)
+	void WindowManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Window Manager] -> Initialization.");
 

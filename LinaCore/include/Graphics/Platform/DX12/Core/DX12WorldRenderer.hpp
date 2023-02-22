@@ -28,19 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef D3D12WorldRenderer_HPP
-#define D3D12WorldRenderer_HPP
+#ifndef DX12WorldRenderer_HPP
+#define DX12WorldRenderer_HPP
 
-#include "DX12Renderer.hpp"
+#include "Graphics/Core/WorldRenderer.hpp"
 
 namespace Lina
 {
-
-	class DX12WorldRenderer : public DX12Renderer
+	class EntityWorld;
+	class DX12GfxManager;
+	class DX12SurfaceRenderer;
+	
+	class DX12WorldRenderer : public WorldRenderer
 	{
 	public:
-		DX12WorldRenderer(DX12GfxManager* gfxManager);
+		DX12WorldRenderer(DX12GfxManager* gfxManager, uint32 imageCount, DX12SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
 		virtual ~DX12WorldRenderer();
+		
 	};
 } // namespace Lina
 

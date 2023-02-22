@@ -51,6 +51,7 @@ namespace Lina
 		static String		  RemoveExtensionFromPath(const String& filename);
 		static String		  GetFilenameAndExtensionFromPath(const String& filename);
 		static String		  GetFileExtension(const String& file);
+		static String		  GetFilenameOnlyFromPath(const String& file);
 		static String		  ReadFileContentsAsString(const String& filePath);
 		static void			  ReadFileContentsToVector(const String& filePath, Vector<char>& vec);
 		static String		  GetRunningDirectory();

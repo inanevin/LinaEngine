@@ -56,8 +56,9 @@ namespace Lina
 	class ISubsystem : public IEventListener
 	{
 	public:
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo){};
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void Shutdown()											  = 0;
+		virtual void Shutdown() = 0;
 
 		inline SubsystemType GetType() const
 		{

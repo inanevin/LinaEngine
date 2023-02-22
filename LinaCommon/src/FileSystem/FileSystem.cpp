@@ -162,6 +162,11 @@ namespace Lina
 		return file.substr(file.find_last_of(".") + 1);
 	}
 
+	String FileSystem::GetFilenameOnlyFromPath(const String& file)
+	{
+		return RemoveExtensionFromPath(GetFilenameAndExtensionFromPath(file));
+	}
+
 	String FileSystem::ReadFileContentsAsString(const String& filePath)
 	{
 		std::ifstream ifs(filePath.c_str());

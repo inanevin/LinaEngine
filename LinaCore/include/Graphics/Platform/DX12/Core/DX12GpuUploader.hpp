@@ -26,20 +26,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
-#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
+#pragma once
+
+#ifndef DX12GpuUploader_HPP
+#define DX12GpuUploader_HPP
+
+#include "Data/Functional.hpp"
+#include "Data/Queue.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-#include "System/ISystem.hpp"
 
 namespace Lina
 {
-	DX12Renderer::DX12Renderer(DX12GfxManager* gfxManager) : m_gfxManager(gfxManager)
-	{
-		m_gfxManager->GetSystem()->AddListener(this);
-	}
+	class DX12GfxManager;
 
-	DX12Renderer::~DX12Renderer()
+	class DX12Command
 	{
-		m_gfxManager->GetSystem()->RemoveListener(this);
-	}
+	public:
+		Delegate<void(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& cmdList)> Record;
+		Delegate<void()>														   OnRecorded;
+		Delegate<void()>														   OnSubmitted;
+	};
+
+	class DX12GpuUploader
+	{
+	public:
+		DX12GpuUploader(DX12GfxManager* gfxManager);
+		~DX12GpuUploader();
+
+
+	private:
+		DX12GfxManager*	   m_gfxManager = nullptr;
+		Queue<DX12Command> m_waitingUploads;
+	};
 } // namespace Lina
+
+#endif

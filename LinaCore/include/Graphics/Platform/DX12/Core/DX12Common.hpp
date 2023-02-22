@@ -32,7 +32,10 @@ SOFTWARE.
 #define D3D12COMMON_HPP
 
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Platform/DX12/SDK/d3dx12.h"
 #include <dxgi1_6.h>
+#include <dxgi1_6.h>
+#include <wrl/client.h>
 
 namespace Lina
 {
@@ -70,6 +73,23 @@ namespace Lina
 			throw HrException(hr);
 		}
 	}
+
+	struct DescriptorHandle
+	{
+		D3D12_CPU_DESCRIPTOR_HANDLE cpu = {};
+		D3D12_GPU_DESCRIPTOR_HANDLE gpu = {};
+		uint32						id	= 0;
+
+		constexpr bool IsValid() const
+		{
+			return cpu.ptr != 0;
+		}
+		constexpr bool IsShaderVisible() const
+		{
+			return gpu.ptr != 0;
+		}
+	};
+
 } // namespace Lina
 
 #endif

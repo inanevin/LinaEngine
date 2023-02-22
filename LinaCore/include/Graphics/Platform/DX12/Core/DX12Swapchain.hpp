@@ -28,26 +28,30 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef D3D12Renderer_HPP
-#define D3D12Renderer_HPP
+#ifndef DX12Swapchain_HPP
+#define DX12Swapchain_HPP
 
-#include "Event/IEventListener.hpp"
-#include "Graphics/Data/RenderData.hpp"
-#include "Graphics/Platform/DX12/SDK/d3d12.h"
-#include <wrl/client.h>
+#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace Lina
 {
-	class DX12GfxManager;
+	class DX12Backend;
 
-	class DX12Renderer : public IEventListener
+	class DX12Swapchain : public ISwapchain
 	{
 	public:
-		DX12Renderer(DX12GfxManager* gfxManager);
-		virtual ~DX12Renderer();
+		DX12Swapchain(DX12Backend* backend, const Vector2i& size, void* windowHandle);
+		virtual ~DX12Swapchain();
 
-	protected:
-		DX12GfxManager*								  m_gfxManager = nullptr;
+		inline IDXGISwapChain3* GetPtr()
+		{
+			return m_swapchain.Get();
+		}
+
+	private:
+		DX12Backend*							m_backend = nullptr;
+		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapchain;
 	};
 } // namespace Lina
 

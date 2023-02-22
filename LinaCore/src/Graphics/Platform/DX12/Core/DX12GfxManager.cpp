@@ -31,8 +31,9 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 #include "System/ISystem.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Graphics/Platform/DX12/SDK/d3dx12.h"
-#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+#include "Graphics/Resource/Material.hpp"
+#include "Resources/Core/ResourceManager.hpp"
+#include "FileSystem/FileSystem.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -54,13 +55,14 @@ namespace Lina
 		}
 	}
 
-	void DX12GfxManager::InitializeEarly(const SystemInitializationInfo& initInfo)
+	void DX12GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		m_backend.Initialize(initInfo);
 	}
 
 	void DX12GfxManager::Shutdown()
 	{
+
 		m_backend.Shutdown();
 		m_gpuStorage.Shutdown();
 	}
@@ -93,11 +95,33 @@ namespace Lina
 
 	void DX12GfxManager::OnSystemEvent(ESystemEvent type, const Event& ev)
 	{
+		auto rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+
+		if (type & EVS_PostInit)
+		{
+			const uint32 engineShaderCount			= 1;
+			const String shaders[engineShaderCount] = {"Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"};
+			auto		 rm							= m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+
+			for (uint32 i = 0; i < engineShaderCount; i++)
+			{
+				const StringID shaderSID	= TO_SID(shaders[i]);
+				const String   materialPath = "Resources/Core/Materials/" + FileSystem::GetFilenameOnlyFromPath(shaders[i]) + ".linamat";
+				Material*	   mat			= new Material(rm, true, materialPath, TO_SID(materialPath));
+				mat->SetShader(shaderSID);
+				m_engineMaterials.push_back(mat);
+			}
+		}
+		else if (type & EVS_PreSystemShutdown)
+		{
+			for (auto m : m_engineMaterials)
+				delete m;
+		}
 	}
 
 	void DX12GfxManager::CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
 	{
-		DX12SurfaceRenderer* renderer = new DX12SurfaceRenderer(this, sid, windowHandle, initialSize, mask);
+		DX12SurfaceRenderer* renderer = new DX12SurfaceRenderer(this, FRAMES_IN_FLIGHT, sid, windowHandle, initialSize, mask);
 		m_surfaceRenderers.push_back(renderer);
 	}
 

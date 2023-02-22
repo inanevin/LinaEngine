@@ -61,9 +61,9 @@ namespace Lina
 			delete p;
 		m_textures.clear();
 
-		auto*		sh		 = m_resourceManager->GetResource<Shader>(m_shaderHandle);
-		const auto& props	 = sh->GetProperties();
-		const auto& textures = sh->GetTextures();
+		m_shader			 = m_resourceManager->GetResource<Shader>(m_shaderHandle);
+		const auto& props	 = m_shader->GetProperties();
+		const auto& textures = m_shader->GetTextures();
 
 		for (auto p : props)
 		{
@@ -246,6 +246,7 @@ namespace Lina
 
 	void Material::BatchLoaded()
 	{
+		SetShader(m_shaderHandle);
 		m_gpuHandle = m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->GenerateMaterial(this, m_gpuHandle);
 	}
 

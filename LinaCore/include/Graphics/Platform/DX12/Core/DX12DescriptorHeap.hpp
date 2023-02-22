@@ -26,35 +26,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-LINA_PIPELINE_NOVERTEX
+#pragma once
 
-LINA_VS
+#ifndef D3D12DescriptorHeap_HPP
+#define D3D12DescriptorHeap_HPP
 
-#version 450
-layout (location = 0) out vec2 outUV;
+#include "Core/SizeDefinitions.hpp"
+#include "Data/IDList.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
-void main()
+namespace Lina
 {
-	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-    gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
-}
+	
+	class DX12GfxManager;
 
-LINA_END
+	class DX12DescriptorHeap
+	{
+	public:
+		DX12DescriptorHeap(DX12GfxManager* manager);
+		~DX12DescriptorHeap();
 
-LINA_FS
+		void Create(D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags, uint32 maxSize);
 
-#version 450
-layout (location = 0) in vec2 inUV;
+		DescriptorHandle Allocate();
+		void			 Free(DescriptorHandle& handle);
+		void			 Free(uint32 id);
 
-//output write
-layout (location = 0) out vec4 outFragColor;
+		inline uint32 GetIncrementSize() const
+		{
+			return m_incrementSize;
+		}
 
-LINA_TEXTURE0 quad;
+	private:
+		DX12GfxManager*								 m_gfxManager = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap;
+		uint32										 m_maxSize		 = 0;
+		uint32										 m_incrementSize = 0;
+		D3D12_DESCRIPTOR_HEAP_TYPE					 m_type			 = {};
+		D3D12_CPU_DESCRIPTOR_HANDLE					 m_cpuStart		 = {};
+		D3D12_GPU_DESCRIPTOR_HANDLE					 m_gpuStart		 = {};
+		D3D12_DESCRIPTOR_HEAP_FLAGS					 m_flags		 = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		IDList<int32>								 m_freeIndices;
+		bool										 m_isGpuVisible = false;
+	};
 
-void main()
-{
-	vec4 color = vec4(texture(quad,inUV).xyz, 1.0f);
-	outFragColor = color;
-}
+} // namespace Lina
 
-LINA_END
+#endif

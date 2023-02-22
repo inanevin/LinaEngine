@@ -38,21 +38,19 @@ SOFTWARE.
 #include "DX12Backend.hpp"
 #include "DX12GpuStorage.hpp"
 
-#include "Graphics/Platform/DX12/SDK/d3d12.h"
-#include <wrl/client.h>
-
 namespace Lina
 {
 	class DX12SurfaceRenderer;
+	class Material;
 
 	class DX12GfxManager : public IGfxManager
 	{
 	public:
-		DX12GfxManager(ISystem* sys) : m_gpuStorage(this), IGfxManager(sys, &m_gpuStorage, &m_backend){};
+		DX12GfxManager(ISystem* sys) : m_gpuStorage(this), IGfxManager(sys, &m_gpuStorage, &m_backend), m_backend(this){};
 		virtual ~DX12GfxManager() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void InitializeEarly(const SystemInitializationInfo& initInfo) override;
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		virtual void Join() override;
 		virtual void Tick(float delta) override;
@@ -61,19 +59,19 @@ namespace Lina
 		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) override;
 		virtual void DestroySurfaceRenderer(StringID sid) override;
 
-		inline DX12Backend* GetD3D12Backend()
+		inline DX12Backend* GetDX12Backend()
 		{
 			return &m_backend;
 		}
 
-		inline DX12GpuStorage* GetD3D12GpuStorage()
+		inline DX12GpuStorage* GetDX12GpuStorage()
 		{
 			return &m_gpuStorage;
 		}
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_PostSystemInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
+			return EVS_PostInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
 		}
 
 		inline ID3D12RootSignature* GetRootSignature()
@@ -82,11 +80,11 @@ namespace Lina
 		}
 
 	private:
+		Vector<Material*>							m_engineMaterials;
 		Vector<DX12SurfaceRenderer*>				m_surfaceRenderers;
 		DX12GpuStorage								m_gpuStorage;
-		DX12Backend								m_backend;
+		DX12Backend									m_backend;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-
 		// Inherited via IGfxManager
 	};
 } // namespace Lina

@@ -61,19 +61,25 @@ namespace Lina
 		m_resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
 
 		// Window manager has priority initialization.
-		m_gfxManager->InitializeEarly(initInfo);
-		m_windowManager.InitializeEarly(initInfo);
+		m_gfxManager->PreInitialize(initInfo);
+		m_windowManager.PreInitialize(initInfo);
 		m_windowManager.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.windowStyle, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
 
 		for (auto [type, sys] : m_subsystems)
+		{
+			if (type != SubsystemType::GfxManager && type != SubsystemType::WindowManager)
+				sys->PreInitialize(initInfo);
+				
 			sys->Initialize(initInfo);
+		}
 
 		m_resourceManager.SetMode(ResourceManagerMode::File);
 		auto start = PlatformTime::GetCycles64();
 		m_resourceManager.LoadCoreResources();
 		auto now = PlatformTime::GetCycles64();
 		LINA_TRACE("[Application] -> Loading core resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, now));
-		PostInitialize();
+
+		DispatchSystemEvent(EVS_PostInit, Event{});
 	}
 
 	void Engine::DispatchSystemEvent(ESystemEvent ev, const Event& data)
@@ -85,11 +91,6 @@ namespace Lina
 			String* path = static_cast<String*>(data.pParams[0]);
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", path->c_str());
 		}
-	}
-
-	void Engine::PostInitialize()
-	{
-		DispatchSystemEvent(EVS_PostSystemInit, {});
 	}
 
 	void Engine::Shutdown()

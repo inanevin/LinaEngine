@@ -26,45 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
 
-#ifndef IGfxManager_HPP
-#define IGfxManager_HPP
+#include "Graphics/Platform/DX12/Core/DX12GpuUploader.hpp"
 
-#include "Graphics/Data/RenderData.hpp"
-#include "System/ISubsystem.hpp"
-#include "Graphics/Data/RenderData.hpp"
+using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	class IGpuStorage;
-	class IGfxBackend;
-
-	class IGfxManager : public ISubsystem
+	
+	DX12GpuUploader::DX12GpuUploader(DX12GfxManager* gfxManager)
 	{
-	public:
-		IGfxManager(ISystem* sys, IGpuStorage* storage, IGfxBackend* gfxBackend) : m_gpuStorage(storage), m_gfxBackend(gfxBackend), ISubsystem(sys, SubsystemType::GfxManager){};
-		virtual ~IGfxManager() = default;
-
-		virtual void Join()																								  = 0;
-		virtual void Tick(float delta)																					  = 0;
-		virtual void Render()																							  = 0;
-		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) = 0;
-		virtual void DestroySurfaceRenderer(StringID sid)																  = 0;
-
-		inline IGfxBackend* GetBackend()
-		{
-			return m_gfxBackend;
-		}
-
-		inline IGpuStorage* GetGPUStorage()
-		{
-			return m_gpuStorage;
-		}
-
-	private:
-		IGpuStorage* m_gpuStorage  = nullptr;
-		IGfxBackend* m_gfxBackend  = nullptr;
-	};
+		
+	}
+	
+	Lina::DX12GpuUploader::~DX12GpuUploader()
+	{
+		
+	}
 } // namespace Lina
-#endif

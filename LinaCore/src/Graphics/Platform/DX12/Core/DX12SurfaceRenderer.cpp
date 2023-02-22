@@ -29,86 +29,42 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12SurfaceRenderer.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Backend.hpp"
-#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-#include "Graphics/Platform/DX12/SDK/d3dx12.h"
+#include "Graphics/Platform/DX12/Core/DX12Swapchain.hpp"
 #include "Profiling/Profiler.hpp"
+#include "System/ISystem.hpp"
 
 using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	DX12SurfaceRenderer::DX12SurfaceRenderer(DX12GfxManager* gfxManager, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) : DX12Renderer(gfxManager), m_windowHandle(windowHandle), m_sid(sid), m_size(initialSize), m_mask(mask)
+	DX12SurfaceRenderer::DX12SurfaceRenderer(DX12GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) : SurfaceRenderer(man, imageCount, sid, windowHandle, initialSize, mask)
 	{
-		auto* backend = gfxManager->GetD3D12Backend();
+		m_dx12GfxManager = man;
+		m_backend		 = m_dx12GfxManager->GetDX12Backend();
+		m_gpuStorage	 = m_dx12GfxManager->GetDX12GpuStorage();
 
-		// Describe and create the swap chain.
-		{
-			DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
-			swapchainDesc.BufferCount			= FRAMES_IN_FLIGHT;
-			swapchainDesc.Width					= static_cast<UINT>(m_size.x);
-			swapchainDesc.Height				= static_cast<UINT>(m_size.y);
-			swapchainDesc.Format				= DEFAULT_SWAPCHAIN_FORMAT;
-			swapchainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
-
-			swapchainDesc.SampleDesc.Count = 1;
-			ComPtr<IDXGISwapChain1> swapchain;
-			//  swapchainDesc.Flags =DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ;
-
-			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
-			fsDesc.Windowed = false;
-
-			ThrowIfFailed(backend->GetFactory()->CreateSwapChainForHwnd(backend->GetGraphicsQueue().Get(), // Swap chain needs the queue so that it can force a flush on it.
-																		static_cast<HWND>(windowHandle),
-																		&swapchainDesc,
-																		nullptr,
-																		nullptr,
-																		&swapchain));
-
-			// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
-
-			ThrowIfFailed(swapchain.As(&m_swapchain));
-			// m_swapchain->SetFullscreenState(TRUE, NULL);
-			// m_swapchain->ResizeBuffers(1, 3840, 2160, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
-		}
-
-		// Create descriptor heaps.
-		{
-			// Describe and create a render target view (RTV) descriptor heap.
-			D3D12_DESCRIPTOR_HEAP_DESC rtvHeapDesc = {};
-			rtvHeapDesc.NumDescriptors			   = FRAMES_IN_FLIGHT;
-			rtvHeapDesc.Type					   = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
-			rtvHeapDesc.Flags					   = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-			ThrowIfFailed(backend->GetDevice()->CreateDescriptorHeap(&rtvHeapDesc, IID_PPV_ARGS(&m_rtvHeap)));
-		}
-
-		// Create render target.
-		{
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart());
-
-			// Create a RTV for each frame.
-			for (UINT n = 0; n < FRAMES_IN_FLIGHT; n++)
-			{
-				ThrowIfFailed(m_swapchain->GetBuffer(n, IID_PPV_ARGS(&m_renderTargets[n])));
-				backend->GetDevice()->CreateRenderTargetView(m_renderTargets[n].Get(), nullptr, rtvHandle);
-				rtvHandle.Offset(1, backend->GetRTVDescriptorSize());
-			}
-		}
+		m_dx12Swapchain = new DX12Swapchain(m_backend, m_size, windowHandle);
+		m_swapchain		= m_dx12Swapchain;
 
 		// Create frame resources.
 		{
 			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
 				auto& frameRes = m_frameResources[i];
-				ThrowIfFailed(backend->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&frameRes.cmdAllocator)));
-				ThrowIfFailed(backend->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, frameRes.cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&frameRes.cmdList)));
+
+				frameRes.rtvHandle = m_backend->GetHeapRTV().Allocate();
+				ThrowIfFailed(m_dx12Swapchain->GetPtr()->GetBuffer(i, IID_PPV_ARGS(&frameRes.renderTarget)));
+				m_backend->GetDevice()->CreateRenderTargetView(frameRes.renderTarget.Get(), nullptr, frameRes.rtvHandle.cpu);
+
+				ThrowIfFailed(m_backend->GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&frameRes.cmdAllocator)));
+				ThrowIfFailed(m_backend->GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, frameRes.cmdAllocator.Get(), nullptr, IID_PPV_ARGS(&frameRes.cmdList)));
 				ThrowIfFailed(frameRes.cmdList->Close());
 			}
 		}
 
 		// Create synchronization objects
 		{
-			ThrowIfFailed(backend->GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+			ThrowIfFailed(m_backend->GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 			m_fenceValue = 1;
 
 			// Create an event handle to use for frame synchronization.
@@ -121,6 +77,8 @@ namespace Lina
 
 		// State
 		{
+			m_viewport.TopLeftX	 = 0.0f;
+			m_viewport.TopLeftY	 = 0.0f;
 			m_viewport.Width	 = static_cast<FLOAT>(m_size.x);
 			m_viewport.Height	 = static_cast<FLOAT>(m_size.y);
 			m_scissorRect.left	 = 0;
@@ -134,6 +92,15 @@ namespace Lina
 	{
 		Join();
 		CloseHandle(m_fenceEvent);
+
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			delete m_frameResources[i].textureQuadMaterial;
+		}
+	}
+
+	void DX12SurfaceRenderer::Tick(float delta)
+	{
 	}
 
 	void DX12SurfaceRenderer::Render()
@@ -142,6 +109,13 @@ namespace Lina
 		const UINT64 lastFence = m_fence->GetCompletedValue();
 		m_frameIndex		   = (m_frameIndex + 1) % FRAMES_IN_FLIGHT;
 		auto& frameResources   = m_frameResources[m_frameIndex];
+
+		// Lazily create quad mat.
+		if (frameResources.textureQuadMaterial == nullptr)
+		{
+			frameResources.textureQuadMaterial = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), false, "", 0);
+			frameResources.textureQuadMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
+		}
 
 		// Wait if still not completed.
 		{
@@ -174,40 +148,44 @@ namespace Lina
 			ThrowIfFailed(frameResources.cmdList->Reset(frameResources.cmdAllocator.Get(), nullptr));
 
 			// State
-			frameResources.cmdList->SetGraphicsRootSignature(m_gfxManager->GetRootSignature());
+			frameResources.cmdList->SetGraphicsRootSignature(m_dx12GfxManager->GetRootSignature());
 			frameResources.cmdList->RSSetViewports(1, &m_viewport);
 			frameResources.cmdList->RSSetScissorRects(1, &m_scissorRect);
 
 			// Transition render target
-			auto presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_imageIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+			auto presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(frameResources.renderTarget.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 			frameResources.cmdList->ResourceBarrier(1, &presentToRT);
 
 			// Set target
-			CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle(m_rtvHeap->GetCPUDescriptorHandleForHeapStart(), m_imageIndex, m_gfxManager->GetD3D12Backend()->GetRTVDescriptorSize());
-			frameResources.cmdList->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+			frameResources.cmdList->OMSetRenderTargets(1, &frameResources.rtvHandle.cpu, FALSE, nullptr);
 
 			// Draw
 			const float clearColor[] = {0.0f, 0.2f, 0.4f, 1.0f};
-			frameResources.cmdList->ClearRenderTargetView(rtvHandle, clearColor, 0, nullptr);
-			// frameResources.cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			frameResources.cmdList->ClearRenderTargetView(frameResources.rtvHandle.cpu, clearColor, 0, nullptr);
+
+			// Full-screen quad.
+			m_gpuStorage->BindPipeline(frameResources.cmdList.Get(), frameResources.textureQuadMaterial);
+
+			frameResources.cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+			frameResources.cmdList->DrawInstanced(4, 1, 0, 0);
 			// frameResources.cmdList->IASetVertexBuffers(0, 1, &m_vertexBufferView);
-			// frameResources.cmdList->DrawInstanced(3, 1, 0, 0);
 
 			// Indicate that the back buffer will now be used to present.
-			auto rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(m_renderTargets[m_imageIndex].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+			auto rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(frameResources.renderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 			frameResources.cmdList->ResourceBarrier(1, &rtToPresent);
 
 			ThrowIfFailed(frameResources.cmdList->Close());
 
 			// Execute on graphics queue.
 			ID3D12CommandList* ppCommandLists[] = {frameResources.cmdList.Get()};
-			m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
+			m_backend->GetGraphicsQueue()->ExecuteCommandLists(_countof(ppCommandLists), ppCommandLists);
 		}
 	}
+
 	void DX12SurfaceRenderer::Join()
 	{
 		// Schedule a Signal command in the queue.
-		ThrowIfFailed(m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue));
+		ThrowIfFailed(m_backend->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue));
 
 		// Wait until the fence has been processed.
 		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
@@ -225,10 +203,10 @@ namespace Lina
 			PROFILER_SCOPE("SR: Present", threadName);
 
 			// Present swapchain
-			m_swapchain->Present(1, 0);
-			m_imageIndex					= m_swapchain->GetCurrentBackBufferIndex();
+			m_dx12Swapchain->GetPtr()->Present(1, 0);
+			m_currentImageIndex				= m_dx12Swapchain->GetPtr()->GetCurrentBackBufferIndex();
 			frameResources.storedFenceValue = m_fenceValue;
-			m_gfxManager->GetD3D12Backend()->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue);
+			m_backend->GetGraphicsQueue()->Signal(m_fence.Get(), m_fenceValue);
 			m_fenceValue++;
 		}
 		catch (HrException& e)
@@ -242,4 +220,5 @@ namespace Lina
 			}
 		}
 	}
+
 } // namespace Lina

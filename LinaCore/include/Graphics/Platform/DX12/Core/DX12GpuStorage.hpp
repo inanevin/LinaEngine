@@ -33,9 +33,8 @@ SOFTWARE.
 
 #include "Data/IDList.hpp"
 #include "Graphics/Core/IGpuStorage.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
-#include "Graphics/Platform/DX12/SDK/d3d12.h"
-#include <wrl/client.h>
 
 namespace Lina
 {
@@ -80,6 +79,9 @@ namespace Lina
 		virtual uint32 GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags) override;
 		virtual uint32 GenerateImageAndUpload(Texture* txt) override;
 		virtual void   DestroyImage(uint32 handle) override;
+
+		// Runtime binding
+		void BindPipeline(ID3D12GraphicsCommandList* cmdList, Material* mat);
 
 	private:
 		DX12GfxManager*			  m_gfxManager = nullptr;

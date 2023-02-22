@@ -27,10 +27,10 @@ SOFTWARE.
 */
 
 #include "Graphics/Platform/DX12/Core/DX12Backend.hpp"
-#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Log/Log.hpp"
 #include "FileSystem/FileSystem.hpp"
+#include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 
 using Microsoft::WRL::ComPtr;
 
@@ -96,10 +96,9 @@ namespace Lina
 			}
 			else
 			{
-				ComPtr<IDXGIAdapter1> hardwareAdapter;
-				GetHardwareAdapter(m_factory.Get(), &hardwareAdapter, initInfo.preferredGPUType);
+				GetHardwareAdapter(m_factory.Get(), &m_adapter, initInfo.preferredGPUType);
 
-				ThrowIfFailed(D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
+				ThrowIfFailed(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 			}
 		}
 
@@ -114,15 +113,35 @@ namespace Lina
 		}
 #endif
 
-		// Describe and create the command queue.
+		// Describe and create the command queues.
 		{
 			D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 			queueDesc.Flags					   = D3D12_COMMAND_QUEUE_FLAG_NONE;
 			queueDesc.Type					   = D3D12_COMMAND_LIST_TYPE_DIRECT;
 			ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_graphicsQueue)));
+
+			queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+			ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_copyQueue)));
 		}
 
-		m_rtvDescriptorSize = m_device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+		// Heaps
+		{
+			m_bufferHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 100);
+			m_dsvHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 10);
+			m_rtvHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 10);
+			m_samplerHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, 100);
+		}
+
+		// Allocator
+		{
+			D3D12MA::ALLOCATOR_DESC allocatorDesc;
+			allocatorDesc.pDevice			 = m_device.Get();
+			allocatorDesc.PreferredBlockSize = 0;
+			allocatorDesc.Flags				 = D3D12MA::ALLOCATOR_FLAG_NONE;
+			allocatorDesc.pAdapter			 = m_adapter.Get();
+			allocatorDesc.pAllocationCallbacks = NULL;
+			ThrowIfFailed(D3D12MA::CreateAllocator(&allocatorDesc, &m_dx12Allocator));
+		}
 	}
 
 	void DX12Backend::Shutdown()
@@ -132,6 +151,8 @@ namespace Lina
 		{
 			infoQueue->UnregisterMessageCallback(msgCallback);
 		}
+
+		m_dx12Allocator->Release();
 	}
 
 	void DX12Backend::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)

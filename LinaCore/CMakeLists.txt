@@ -47,6 +47,8 @@ src/Input/Core/Input.cpp
 src/Graphics/Core/WindowManager.cpp
 src/Graphics/Core/View.cpp
 src/Graphics/Core/CameraSystem.cpp
+src/Graphics/Core/WorldRenderer.cpp
+src/Graphics/Core/SurfaceRenderer.cpp
 src/Graphics/Components/RenderableComponent.cpp
 src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp
@@ -135,6 +137,9 @@ include/Graphics/Core/IWindow.hpp
 include/Graphics/Core/IGfxManager.hpp
 include/Graphics/Core/IGfxBackend.hpp
 include/Graphics/Core/IGpuStorage.hpp
+include/Graphics/Core/ISwapchain.hpp
+include/Graphics/Core/WorldRenderer.hpp
+include/Graphics/Core/SurfaceRenderer.hpp
 include/Graphics/Core/CommonGraphics.hpp
 include/Graphics/Core/View.hpp
 include/Graphics/Core/CameraSystem.hpp
@@ -179,13 +184,15 @@ if(${LINA_GRAPHICS_DX12})
 
 set(LINACORE_GRAPHICS_API_HEADERS
 include/Graphics/Platform/DX12/Core/DX12Common.hpp
+include/Graphics/Platform/DX12/Core/DX12Swapchain.hpp
+include/Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12Backend.hpp
 include/Graphics/Platform/DX12/Core/DX12GUIBackend.hpp
 include/Graphics/Platform/DX12/Core/DX12GfxManager.hpp
 include/Graphics/Platform/DX12/Core/DX12GpuStorage.hpp
-include/Graphics/Platform/DX12/Core/DX12Renderer.hpp
 include/Graphics/Platform/DX12/Core/DX12SurfaceRenderer.hpp
 include/Graphics/Platform/DX12/Core/DX12WorldRenderer.hpp
+include/Graphics/Platform/DX12/Core/DX12GpuUploader.hpp
 include/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp
 include/Graphics/Platform/DX12/SDK/d3d12.h
 include/Graphics/Platform/DX12/SDK/d3d12compatibility.h
@@ -209,17 +216,21 @@ include/Graphics/Platform/DX12/SDK/dxcore_interface.h
 include/Graphics/Platform/DX12/SDK/dxgicommon.h
 include/Graphics/Platform/DX12/SDK/dxgiformat.h
 include/Graphics/Platform/DX12/SDK/Residency/d3dx12Residency.h
+include/Graphics/Platform/DX12/SDK/D3D12MemAlloc.h
 )
 
 set(LINACORE_GRAPHICS_API_SOURCES
 src/Graphics/Platform/DX12/Core/DX12Common.cpp
+src/Graphics/Platform/DX12/Core/DX12Swapchain.cpp
+src/Graphics/Platform/DX12/Core/DX12DescriptorHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12Backend.cpp
 src/Graphics/Platform/DX12/Core/DX12GUIBackend.cpp
 src/Graphics/Platform/DX12/Core/DX12GfxManager.cpp
 src/Graphics/Platform/DX12/Core/DX12GpuStorage.cpp
-src/Graphics/Platform/DX12/Core/DX12Renderer.cpp
 src/Graphics/Platform/DX12/Core/DX12SurfaceRenderer.cpp
 src/Graphics/Platform/DX12/Core/DX12WorldRenderer.cpp
+src/Graphics/Platform/DX12/Core/DX12GpuUploader.cpp
+src/Graphics/Platform/DX12/SDK/D3D12MemAlloc.cpp
 src/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.cpp
 )
 

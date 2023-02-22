@@ -37,6 +37,7 @@ SOFTWARE.
 namespace Lina
 {
 	class MaterialPropertyBase;
+	class Shader;
 
 	class Material : public IResource
 	{
@@ -73,6 +74,11 @@ namespace Lina
 		inline uint32 GetTotalAlignedSize() const
 		{
 			return m_totalAlignedSize;
+		}
+
+		inline Shader* GetShader() const
+		{
+			return m_shader;
 		}
 
 		template <typename T> bool SetProperty(uint32 index, T value)
@@ -129,6 +135,7 @@ namespace Lina
 		bool							   m_propertiesDirty   = false;
 		int32							   m_gpuHandle		   = -1;
 		StringID						   m_shaderHandle	   = 0;
+		Shader*							   m_shader			   = nullptr;
 		uint32							   m_totalPropertySize = 0;
 		uint32							   m_totalAlignedSize  = 0;
 	};

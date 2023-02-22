@@ -31,12 +31,12 @@ SOFTWARE.
 #ifndef D3D12SurfaceRenderer_HPP
 #define D3D12SurfaceRenderer_HPP
 
-#include "DX12Renderer.hpp"
-
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Data/RenderData.hpp"
 #include "Core/StringID.hpp"
-#include "Graphics/Platform/DX12/SDK/d3d12.h"
-#include "Graphics/Platform/DX12/SDK/d3dx12_core.h"
-#include <dxgi1_6.h>
+#include "Graphics/Resource/Material.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+
 
 namespace Lina
 {
@@ -45,23 +45,27 @@ namespace Lina
 	{
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	  cmdAllocator;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> cmdList;
-		UINT64											  storedFenceValue = 0;
+		UINT64											  storedFenceValue	  = 0;
+		Material*										  textureQuadMaterial = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Resource>			  renderTarget;
+		DescriptorHandle								  rtvHandle;
 	};
 
-	class DX12SurfaceRenderer : public DX12Renderer
+	class DX12GfxManager;
+	class DX12Backend;
+	class DX12GpuStorage;
+	class DX12Swapchain;
+
+	class DX12SurfaceRenderer : public SurfaceRenderer
 	{
 	public:
-		DX12SurfaceRenderer(DX12GfxManager* gfxManager, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
+		DX12SurfaceRenderer(DX12GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~DX12SurfaceRenderer();
 
-		void Render();
-		void Join();
-		void Present();
-
-		inline StringID GetSID()
-		{
-			return m_sid;
-		}
+		virtual void Tick(float delta) override;
+		virtual void Render() override;
+		virtual void Join() override;
+		virtual void Present() override;
 
 		inline void SetThreadID(int id)
 		{
@@ -69,22 +73,18 @@ namespace Lina
 		}
 
 	private:
-		int											 m_threadID		= 0;
-		void*										 m_windowHandle = nullptr;
-		Bitmask16									 m_mask			= 0;
-		Vector2i									 m_size			= Vector2i::Zero;
-		StringID									 m_sid			= 0;
-		Microsoft::WRL::ComPtr<IDXGISwapChain3>		 m_swapchain;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_rtvHeap;
-		Microsoft::WRL::ComPtr<ID3D12Resource>		 m_renderTargets[FRAMES_IN_FLIGHT];
-		Microsoft::WRL::ComPtr<ID3D12Fence>			 m_fence;
-		UINT										 m_imageIndex = 0;
-		HANDLE										 m_fenceEvent = NULL;
-		UINT64										 m_fenceValue = 0;
-		uint32										 m_frameIndex = 0;
-		DX12SurfaceRendererFrame					 m_frameResources[FRAMES_IN_FLIGHT];
-		CD3DX12_VIEWPORT							 m_viewport;
-		CD3DX12_RECT								 m_scissorRect;
+		Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
+		CD3DX12_VIEWPORT					m_viewport;
+		CD3DX12_RECT						m_scissorRect;
+		HANDLE								m_fenceEvent = NULL;
+		UINT64								m_fenceValue = 0;
+		DX12SurfaceRendererFrame			m_frameResources[FRAMES_IN_FLIGHT];
+		DX12GfxManager*						m_dx12GfxManager = nullptr;
+		DX12Backend*						m_backend		 = nullptr;
+		DX12GpuStorage*						m_gpuStorage	 = nullptr;
+		DX12Swapchain*						m_dx12Swapchain	 = nullptr;
+		uint32								m_frameIndex	 = 0;
+		int									m_threadID		 = 0;
 	};
 } // namespace Lina
 

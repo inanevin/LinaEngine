@@ -32,20 +32,24 @@ SOFTWARE.
 #define D3D12Backend_HPP
 
 #include "Graphics/Core/IGfxBackend.hpp"
+#include "DX12DescriptorHeap.hpp"
 #include "Data/HashMap.hpp"
 #include "Core/StringID.hpp"
 #include "Core/Common.hpp"
-#include "Graphics/Platform/DX12/SDK/d3d12.h"
-#include <wrl/client.h>
-#include <dxgi1_6.h>
-#include <dxgi1_4.h>
+
+namespace D3D12MA
+{
+	class Allocator;
+}
 
 namespace Lina
 {
+	class DX12GfxManager;
+
 	class DX12Backend : public IGfxBackend
 	{
 	public:
-		DX12Backend()			= default;
+		DX12Backend(DX12GfxManager* manager) : m_gfxManager(manager), m_rtvHeap(manager), m_dsvHeap(manager), m_samplerHeap(manager), m_bufferHeap(manager){};
 		virtual ~DX12Backend() = default;
 
 		// Inherited via IGfxBackend
@@ -67,19 +71,46 @@ namespace Lina
 			return m_graphicsQueue;
 		}
 
-		inline uint32 GetRTVDescriptorSize()
+		inline D3D12MA::Allocator* GetAllocator()
 		{
-			return m_rtvDescriptorSize;
+			return m_dx12Allocator;
+		}
+
+		inline DX12DescriptorHeap& GetHeapRTV()
+		{
+			return m_rtvHeap;
+		}
+
+		inline  DX12DescriptorHeap& GetHeapDSV()
+		{
+			return m_dsvHeap;
+		}
+
+		inline DX12DescriptorHeap& GetHeapBuffer()
+		{
+			return m_bufferHeap;
+		}
+
+		inline DX12DescriptorHeap& GetHeapSampler()
+		{
+			return m_samplerHeap;
 		}
 
 	private:
 		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType);
 
 	private:
-		Microsoft::WRL::ComPtr<ID3D12Device>		 m_device;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	 m_graphicsQueue;
-		Microsoft::WRL::ComPtr<IDXGIFactory4>		 m_factory;
-		uint32										 m_rtvDescriptorSize = 0;
+		DX12GfxManager*							   m_gfxManager	   = nullptr;
+		D3D12MA::Allocator*						   m_dx12Allocator = nullptr;
+		Microsoft::WRL::ComPtr<IDXGIAdapter1>	   m_adapter	   = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Device>	   m_device;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_graphicsQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue> m_copyQueue;
+		Microsoft::WRL::ComPtr<IDXGIFactory4>	   m_factory;
+		DX12DescriptorHeap						   m_rtvHeap;
+		DX12DescriptorHeap						   m_bufferHeap;
+		DX12DescriptorHeap						   m_dsvHeap;
+		DX12DescriptorHeap						   m_samplerHeap;
 	};
 } // namespace Lina
 

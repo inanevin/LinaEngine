@@ -26,45 +26,31 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+LINA_PIPELINE_NOVERTEX
 
-#ifndef IGfxManager_HPP
-#define IGfxManager_HPP
+// Texture2D g_texture : register(t0);
 
-#include "Graphics/Data/RenderData.hpp"
-#include "System/ISubsystem.hpp"
-#include "Graphics/Data/RenderData.hpp"
-
-namespace Lina
+struct PSInput
 {
-	class IGpuStorage;
-	class IGfxBackend;
+	float4 position : SV_POSITION;
+    float2 uv : TEXCOORD;
+};
 
-	class IGfxManager : public ISubsystem
-	{
-	public:
-		IGfxManager(ISystem* sys, IGpuStorage* storage, IGfxBackend* gfxBackend) : m_gpuStorage(storage), m_gfxBackend(gfxBackend), ISubsystem(sys, SubsystemType::GfxManager){};
-		virtual ~IGfxManager() = default;
+PSInput VSMain(uint vertexID : SV_VertexID)
+{
+    PSInput result;
+	//result.uv = float2((vertexID << 1) & 2, vertexID & 2);
+	//result.position = float4(result.uv * 2.0f + -1.0f, 0.0f, 1.0f);
 
-		virtual void Join()																								  = 0;
-		virtual void Tick(float delta)																					  = 0;
-		virtual void Render()																							  = 0;
-		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) = 0;
-		virtual void DestroySurfaceRenderer(StringID sid)																  = 0;
+	result.uv = float2(vertexID & 1, vertexID >> 1); 
+    result.position = float4((result.uv.x - 0.5f) * 2, - (result.uv.y - 0.5f) * 2,0,1);
+    return result;
+}
 
-		inline IGfxBackend* GetBackend()
-		{
-			return m_gfxBackend;
-		}
-
-		inline IGpuStorage* GetGPUStorage()
-		{
-			return m_gpuStorage;
-		}
-
-	private:
-		IGpuStorage* m_gpuStorage  = nullptr;
-		IGfxBackend* m_gfxBackend  = nullptr;
-	};
-} // namespace Lina
-#endif
+float4 PSMain(PSInput input) : SV_TARGET
+{
+	//float2 uv = input.uv;
+	//float txt = g_texture.Load(int3(input.position.xy, 0));
+    //return float4(txt, txt, txt, 1.0f);
+	return float4(0.4f, 0, 0.7f, 1.0f);
+}

@@ -75,9 +75,6 @@ namespace Lina
 		}
 
 	protected:
-		virtual void PostInitialize();
-
-	protected:
 		ResourceManager		   m_resourceManager;
 		CoreResourcesRegistry* m_coreResourceRegistry = nullptr;
 		Executor			   m_executor;

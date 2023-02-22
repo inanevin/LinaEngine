@@ -57,8 +57,6 @@ namespace Lina
 		void			   LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
 		void			   UnloadResources(const Vector<ResourceIdentifier>& identifiers);
 		bool			   IsCoreResource(StringID sid);
-		void			   AddUserManaged(IResource* res);
-		void			   RemoveUserManaged(IResource* res);
 		Vector<IResource*> GetAllResources();
 		PackageType		   GetPackageType(TypeID tid);
 		static String	   GetMetacachePath(const String& resourcePath, StringID sid);
@@ -99,6 +97,12 @@ namespace Lina
 			resources.insert(resources.end(), allRes.begin(), allRes.end());
 			return resources;
 		}
+
+	private:
+		friend class IResource;
+		
+		void AddUserManaged(IResource* res);
+		void RemoveUserManaged(IResource* res);
 
 	private:
 		Mutex									 m_eventMtx;

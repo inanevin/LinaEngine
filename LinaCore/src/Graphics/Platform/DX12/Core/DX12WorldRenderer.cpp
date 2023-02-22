@@ -28,13 +28,16 @@ SOFTWARE.
 
 #include "Graphics/Platform/DX12/Core/DX12WorldRenderer.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
+#include "Graphics/Platform/DX12/Core/DX12SurfaceRenderer.hpp"
 
 namespace Lina
 {
-	DX12WorldRenderer::DX12WorldRenderer(DX12GfxManager* gfxManager) : DX12Renderer(gfxManager)
+
+	DX12WorldRenderer::DX12WorldRenderer(DX12GfxManager* gfxManager, uint32 imageCount, DX12SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio)
+		: WorldRenderer(gfxManager, imageCount, surface, mask, world, renderResolution, aspectRatio)
 	{
 	}
-	
+
 	DX12WorldRenderer::~DX12WorldRenderer()
 	{
 	}
