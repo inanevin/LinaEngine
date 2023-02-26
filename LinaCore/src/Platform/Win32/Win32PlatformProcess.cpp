@@ -157,6 +157,14 @@ namespace Lina
 				plugin->OnAttached();
 				s_pluginHandles[plugin] = static_cast<void*>(hinstLib);
 			}
+			else
+			{
+				LINA_ERR("[Win32 Platform Process] -> Could not load plugin create function! {0}", name);
+			}
+		}
+		else
+		{
+			LINA_ERR("[Win32 Platform Process] -> Could not find plugin! {0}", name);
 		}
 	}
 

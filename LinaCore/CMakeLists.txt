@@ -45,6 +45,7 @@ src/Input/Core/Input.cpp
 # Graphics
 
 src/Graphics/Core/WindowManager.cpp
+src/Graphics/Core/GfxManager.cpp
 src/Graphics/Core/View.cpp
 src/Graphics/Core/CameraSystem.cpp
 src/Graphics/Core/WorldRenderer.cpp
@@ -134,7 +135,7 @@ include/Resources/Data/ResourceMetadata.hpp
 # Graphics
 include/Graphics/Core/WindowManager.hpp
 include/Graphics/Core/IWindow.hpp
-include/Graphics/Core/IGfxManager.hpp
+include/Graphics/Core/GfxManager.hpp
 include/Graphics/Core/IGfxBackend.hpp
 include/Graphics/Core/IGpuStorage.hpp
 include/Graphics/Core/ISwapchain.hpp
@@ -150,6 +151,7 @@ include/Graphics/Components/RenderableComponent.hpp
 include/Graphics/Components/ModelNodeComponent.hpp
 include/Graphics/Platform/Win32/Win32Window.hpp
 include/Graphics/Platform/LinaVGIncl.hpp
+include/Graphics/Platform/RendererIncl.hpp
 include/Graphics/Resource/Shader.hpp
 include/Graphics/Resource/Mesh.hpp
 include/Graphics/Resource/Model.hpp
@@ -166,6 +168,7 @@ include/Graphics/Utility/stb/stb_image_resize.h
 include/Graphics/Utility/stb/stb_image_write.h
 include/Graphics/Utility/ModelLoader.hpp
 include/Graphics/Utility/HLSLParser.hpp
+
 )
 
 if(WIN32)
@@ -184,14 +187,10 @@ if(${LINA_GRAPHICS_DX12})
 
 set(LINACORE_GRAPHICS_API_HEADERS
 include/Graphics/Platform/DX12/Core/DX12Common.hpp
+include/Graphics/Platform/DX12/Core/DX12Renderer.hpp
 include/Graphics/Platform/DX12/Core/DX12Swapchain.hpp
 include/Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp
-include/Graphics/Platform/DX12/Core/DX12Backend.hpp
 include/Graphics/Platform/DX12/Core/DX12GUIBackend.hpp
-include/Graphics/Platform/DX12/Core/DX12GfxManager.hpp
-include/Graphics/Platform/DX12/Core/DX12GpuStorage.hpp
-include/Graphics/Platform/DX12/Core/DX12SurfaceRenderer.hpp
-include/Graphics/Platform/DX12/Core/DX12WorldRenderer.hpp
 include/Graphics/Platform/DX12/Core/DX12GpuUploader.hpp
 include/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp
 include/Graphics/Platform/DX12/SDK/d3d12.h
@@ -221,14 +220,10 @@ include/Graphics/Platform/DX12/SDK/D3D12MemAlloc.h
 
 set(LINACORE_GRAPHICS_API_SOURCES
 src/Graphics/Platform/DX12/Core/DX12Common.cpp
+src/Graphics/Platform/DX12/Core/DX12Renderer.cpp
 src/Graphics/Platform/DX12/Core/DX12Swapchain.cpp
 src/Graphics/Platform/DX12/Core/DX12DescriptorHeap.cpp
-src/Graphics/Platform/DX12/Core/DX12Backend.cpp
 src/Graphics/Platform/DX12/Core/DX12GUIBackend.cpp
-src/Graphics/Platform/DX12/Core/DX12GfxManager.cpp
-src/Graphics/Platform/DX12/Core/DX12GpuStorage.cpp
-src/Graphics/Platform/DX12/Core/DX12SurfaceRenderer.cpp
-src/Graphics/Platform/DX12/Core/DX12WorldRenderer.cpp
 src/Graphics/Platform/DX12/Core/DX12GpuUploader.cpp
 src/Graphics/Platform/DX12/SDK/D3D12MemAlloc.cpp
 src/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.cpp
@@ -236,12 +231,29 @@ src/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.cpp
 
 endif()
 
+
+set(SHADER_SOURCES
+_Resources/Core/Shaders/LitStandard.linashader
+_Resources/Core/Shaders/GUIStandard.linashader
+_Resources/Core/Shaders/GUIText.linashader
+_Resources/Core/Shaders/Common/GlobalData.linashader
+_Resources/Core/Shaders/Common/LightData.linashader
+_Resources/Core/Shaders/Common/ViewData.linashader
+_Resources/Core/Shaders/Common/ObjectData.linashader
+_Resources/Core/Shaders/Common/SceneData.linashader
+_Resources/Core/Shaders/Common/ViewData.linashader
+_Resources/Core/Shaders/ScreenQuads/SQTexture.linashader
+_Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader)
+
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 
-add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES} ${LINACORE_GRAPHICS_API_HEADERS} ${LINACORE_GRAPHICS_API_SOURCES})
+
+
+add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES} ${LINACORE_GRAPHICS_API_HEADERS} ${LINACORE_GRAPHICS_API_SOURCES} ${SHADER_SOURCES})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
+
 
 ## Remove Nvidia PhysX linker pdb warning
 target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
@@ -317,10 +329,11 @@ endif()
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES LINACORE_GRAPHICS_API_HEADERS LINACORE_GRAPHICS_API_SOURCES) 
+	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES LINACORE_GRAPHICS_API_HEADERS LINACORE_GRAPHICS_API_SOURCES SHADER_SOURCES) 
 		get_filename_component(source_path "${source}" PATH)
 		string(REPLACE "${LinaCore_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
 				source_group("${source_path_msvc}" FILES "${source}")
 	endforeach()
+
 endif()

@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	class IGfxManager;
+	class GfxManager;
 	class ISwapchain;
 	class Material;
 	class WorldRenderer;
@@ -48,18 +48,17 @@ namespace Lina
 	{
 
 	public:
-		SurfaceRenderer(IGfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
+		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
+		void Tick(float delta);
+		void Render();
+		void Join();
+		void Present();
 		void AddWorldRenderer(WorldRenderer* renderer);
 		void RemoveWorldRenderer(WorldRenderer* renderer);
 		void SetOffscreenTexture(Texture* txt, uint32 imageIndex);
 		void ClearOffscreenTexture();
-
-		virtual void Tick(float delta) = 0;
-		virtual void Render()		   = 0;
-		virtual void Join()			   = 0;
-		virtual void Present()		   = 0;
 
 		virtual ISwapchain* GetSwapchain() const
 		{
@@ -91,16 +90,22 @@ namespace Lina
 			return m_currentImageIndex;
 		}
 
+		inline void SetThreadID(int tid)
+		{
+			m_threadID = tid;
+		}
+
 	protected:
 		static int			   s_surfaceRendererCount;
-		uint32				   m_currentImageIndex = 0;
-		IGfxManager*		   m_gfxManager		   = nullptr;
-		StringID			   m_sid			   = 0;
+		int					   m_threadID		   = 0;
 		void*				   m_windowHandle	   = nullptr;
+		uint32				   m_currentImageIndex = 0;
+		GfxManager*			   m_gfxManager		   = nullptr;
+		ISwapchain*			   m_swapchain		   = nullptr;
+		StringID			   m_sid			   = 0;
 		Vector2i			   m_size			   = Vector2i::Zero;
 		Bitmask16			   m_mask			   = 0;
 		uint32				   m_imageCount		   = 0;
-		ISwapchain*			   m_swapchain		   = nullptr;
 		Vector<Material*>	   m_offscreenMaterials;
 		Vector<WorldRenderer*> m_worldRenderers;
 	};

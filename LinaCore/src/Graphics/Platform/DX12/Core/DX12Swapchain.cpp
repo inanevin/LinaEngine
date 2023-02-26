@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Graphics/Platform/DX12/Core/DX12Swapchain.hpp"
-#include "Graphics/Platform/DX12/Core/DX12Backend.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 
@@ -35,7 +35,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	DX12Swapchain::DX12Swapchain(DX12Backend* backend, const Vector2i& size, void* windowHandle) : m_backend(backend), ISwapchain(size, windowHandle)
+	DX12Swapchain::DX12Swapchain(const Vector2i& size, void* windowHandle) : ISwapchain(size, windowHandle)
 	{
 		// Describe and create the swap chain.
 		{
@@ -43,7 +43,7 @@ namespace Lina
 			swapchainDesc.BufferCount			= FRAMES_IN_FLIGHT;
 			swapchainDesc.Width					= static_cast<UINT>(m_size.x);
 			swapchainDesc.Height				= static_cast<UINT>(m_size.y);
-			swapchainDesc.Format				= DEFAULT_SWAPCHAIN_FORMAT;
+			swapchainDesc.Format				= GetFormat(DEFAULT_SWAPCHAIN_FORMAT);
 			swapchainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
 			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 
@@ -54,12 +54,12 @@ namespace Lina
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
 			fsDesc.Windowed = false;
 
-			ThrowIfFailed(m_backend->GetFactory()->CreateSwapChainForHwnd(m_backend->GetGraphicsQueue().Get(), // Swap chain needs the queue so that it can force a flush on it.
-																		  static_cast<HWND>(windowHandle),
-																		  &swapchainDesc,
-																		  nullptr,
-																		  nullptr,
-																		  &swapchain));
+			ThrowIfFailed(Renderer::DX12GetFactory()->CreateSwapChainForHwnd(Renderer::DX12GetGraphicsQueue(), // Swap chain needs the queue so that it can force a flush on it.
+																			 static_cast<HWND>(windowHandle),
+																			 &swapchainDesc,
+																			 nullptr,
+																			 nullptr,
+																			 &swapchain));
 
 			// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
 
@@ -68,7 +68,11 @@ namespace Lina
 			// m_swapchain->ResizeBuffers(1, 3840, 2160, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
 		}
 	}
+
 	DX12Swapchain::~DX12Swapchain()
 	{
+		m_swapchain.Reset();
 	}
+
+
 } // namespace Lina

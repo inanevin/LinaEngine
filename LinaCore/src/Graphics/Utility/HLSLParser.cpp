@@ -158,9 +158,10 @@ namespace Lina
 
 				if (material != std::string::npos)
 				{
-					std::string replacedLine = line;
-					replacedLine.replace(0, line.size(), "cbuffer MaterialBuffer : register(b4)");
-					finalText += replacedLine + "\n";
+					//std::string replacedLine = line;
+					//replacedLine.replace(0, line.size(), "cbuffer MaterialBuffer : register(b3)");
+					//finalText += replacedLine + "\n";
+					finalText += line;
 					parsingMaterial = true;
 					continue;
 				}

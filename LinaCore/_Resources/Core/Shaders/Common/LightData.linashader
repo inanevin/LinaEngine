@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 struct Light{
-	vec4 position;
+	float4 position;
 };
 
 cbuffer LinaLights : register(b3)

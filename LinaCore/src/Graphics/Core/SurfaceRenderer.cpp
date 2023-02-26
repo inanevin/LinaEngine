@@ -27,22 +27,25 @@ SOFTWARE.
 */
 
 #include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
-#include "Graphics/Core/IGfxManager.hpp"
+#include "Graphics/Core/GfxManager.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Platform/RendererIncl.hpp"
 
 namespace Lina
 {
 	int SurfaceRenderer::s_surfaceRendererCount = 0;
 
-	SurfaceRenderer::SurfaceRenderer(IGfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
+	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
 		: m_gfxManager(man), m_imageCount(imageCount), m_sid(sid), m_windowHandle(windowHandle), m_size(initialSize), m_mask(mask)
 	{
 		m_gfxManager->GetSystem()->AddListener(this);
+		m_swapchain = Renderer::CreateSwapchain(initialSize, windowHandle);
 
 		if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 		{
@@ -110,6 +113,28 @@ namespace Lina
 			mat->UpdateBuffers(i);
 			i++;
 		}
+	}
+
+	void SurfaceRenderer::Tick(float delta)
+	{
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(delta); });
+		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+	}
+
+	void SurfaceRenderer::Render()
+	{
+	}
+
+	void SurfaceRenderer::Join()
+	{
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Join(); });
+		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+	}
+
+	void SurfaceRenderer::Present()
+	{
 	}
 
 } // namespace Lina

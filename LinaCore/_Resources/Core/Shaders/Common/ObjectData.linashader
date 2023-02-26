@@ -30,4 +30,4 @@ struct ObjectData{
 	float4x4 model;
 };
 
-StructuredBuffer<ObjectData> objects : register(b4);
+StructuredBuffer<ObjectData> objects : register(t10);

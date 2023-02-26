@@ -30,8 +30,13 @@ LINA_PASS_OPAQUE
 LINA_PASS_SHADOWS
 LINA_PIPELINE_STANDARD
 
-Texture2D g_texture : register(t0);
-SamplerState g_sampler : register(s0);
+#include "GlobalData.linashader"
+#include "LightData.linashader"
+#include "ObjectData.linashader"
+#include "SceneData.linashader"
+#include "ViewData.linashader"
+
+SamplerState g_staticSampler : register(s10);
 
 struct PSInput
 {

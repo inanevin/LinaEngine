@@ -32,8 +32,8 @@ SOFTWARE.
 #include "FileSystem/FileSystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "System/ISystem.hpp"
-#include "Graphics/Core/IGfxManager.hpp"
-#include "Graphics/Core/IGpuStorage.hpp"
+#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Resource/MaterialProperty.hpp"
 #include "Graphics/Utility/HLSLParser.hpp"
 
@@ -45,7 +45,7 @@ namespace Lina
 		if (m_gpuHandle == -1)
 			return;
 
-		static_cast<IGfxManager*>(m_resourceManager->GetSystem()->CastSubsystem(SubsystemType::GfxManager))->GetGPUStorage()->DestroyPipeline(m_gpuHandle);
+		Renderer::DestroyPipeline(m_gpuHandle);
 
 		for (auto p : m_properties)
 			delete p;
@@ -68,8 +68,7 @@ namespace Lina
 	{
 		m_text = FileSystem::ReadFileContentsAsString(path);
 		m_text = HLSLParser::Parse(m_text, m_drawPassMask, m_pipelineType, m_properties, m_textures, m_stages);
-		static_cast<IGfxManager*>(m_resourceManager->GetSystem()->CastSubsystem(SubsystemType::GfxManager))->GetGPUStorage()->CompileShader(m_path.c_str(), m_stages, m_compiledCode);
-		int a = 5;
+		Renderer::CompileShader(m_path.c_str(), m_stages, m_compiledCode);
 	}
 
 	void Shader::SaveToStream(OStream& stream)
@@ -224,7 +223,7 @@ namespace Lina
 		if (m_gpuHandle != -1)
 			return;
 
-		m_gpuHandle = static_cast<IGfxManager*>(m_resourceManager->GetSystem()->CastSubsystem(SubsystemType::GfxManager))->GetGPUStorage()->GeneratePipeline(this);
+		Renderer::GeneratePipeline(this);
 	}
 
 	void Shader::Flush()

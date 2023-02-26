@@ -31,8 +31,9 @@ SOFTWARE.
 #include "Graphics/Resource/Shader.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "Graphics/Core/IGfxManager.hpp"
+#include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/IGpuStorage.hpp"
+#include "Graphics/Platform/RendererIncl.hpp"
 #include "Math/Math.hpp"
 
 // #define DEBUG_RELOAD_PROPERTIES
@@ -49,7 +50,7 @@ namespace Lina
 		if (m_gpuHandle == -1)
 			return;
 
-		m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->DestroyMaterial(m_gpuHandle);
+		Renderer::DestroyMaterial(m_gpuHandle);
 	}
 
 	void Material::SetShader(StringID shader)
@@ -89,7 +90,7 @@ namespace Lina
 
 		m_totalAlignedSize = GetPropertiesTotalAlignedSize();
 
-		m_gpuHandle = m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->GenerateMaterial(this, m_gpuHandle);
+		Renderer::GenerateMaterial(this, m_gpuHandle);
 	}
 
 	bool Material::SetTexture(uint32 index, StringID texture)
@@ -122,10 +123,10 @@ namespace Lina
 	void Material::UpdateBuffers(uint32 imageIndex)
 	{
 		if (m_propertiesDirty)
-			m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->UpdateMaterialProperties(this, imageIndex);
+			Renderer::UpdateMaterialProperties(this, imageIndex);
 
 		if (!m_dirtyTextureIndices.empty())
-			m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->UpdateMaterialTextures(this, imageIndex, m_dirtyTextureIndices);
+			Renderer::UpdateMaterialTextures(this, imageIndex, m_dirtyTextureIndices);
 
 		m_propertiesDirty = false;
 		m_dirtyTextureIndices.clear();
@@ -247,7 +248,7 @@ namespace Lina
 	void Material::BatchLoaded()
 	{
 		SetShader(m_shaderHandle);
-		m_gpuHandle = m_resourceManager->GetSystem()->CastSubsystem<IGfxManager>(SubsystemType::GfxManager)->GetGPUStorage()->GenerateMaterial(this, m_gpuHandle);
+		m_gpuHandle = Renderer::GenerateMaterial(this, m_gpuHandle);
 	}
 
 	uint32 Material::GetPropertyTypeAlignment(MaterialPropertyType type)

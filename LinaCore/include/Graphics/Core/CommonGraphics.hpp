@@ -317,6 +317,21 @@ namespace Lina
 		Linear
 	};
 
+	enum class CommandType
+	{
+		Graphics,
+		Compute,
+		Transfer
+	};
+
+	enum class ImageType
+	{
+		Color,
+		Depth,
+		Stencil,
+		Swapchain
+	};
+
 	struct Offset3D
 	{
 		int32 x = 0;
@@ -372,8 +387,16 @@ namespace Lina
 		Vector<ShaderStage> stages;
 	};
 
-#define DEFAULT_DEPTH_FORMAT Format::D32_SFLOAT
-#define LINA_MAIN_SWAPCHAIN	 "LinaMainSwapchain"_hs
+	struct ShaderByteCode
+	{
+		uint8* data		= nullptr;
+		uint32 dataSize = 0;
+	};
+
+#define DEFAULT_DEPTH_FORMAT	 Format::D32_SFLOAT
+#define DEFAULT_SWAPCHAIN_FORMAT Format::R8G8B8A8_UNORM
+#define DEFAULT_COLOR_FORMAT	 Format::R32G32B32_SFLOAT
+#define LINA_MAIN_SWAPCHAIN		 "LinaMainSwapchain"_hs
 } // namespace Lina
 
 #endif

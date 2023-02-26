@@ -45,7 +45,7 @@ namespace Lina
 	};
 
 	class IWindow;
-	class IGfxManager;
+	class GfxManager;
 
 	class WindowManager final : public ISubsystem
 	{
@@ -82,7 +82,7 @@ namespace Lina
 
 	private:
 		VsyncMode					m_vsync		 = VsyncMode::None;
-		IGfxManager*				m_gfxManager = nullptr;
+		GfxManager*					m_gfxManager = nullptr;
 		HashMap<StringID, IWindow*> m_windows;
 		Vector<StringID>			m_drawOrders;
 		Vector<MonitorInfo>			m_monitors;

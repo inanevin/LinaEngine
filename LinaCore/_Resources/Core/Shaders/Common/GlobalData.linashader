@@ -30,6 +30,7 @@ cbuffer LinaGlobal : register(b0)
 {
 	float4 screenSizeMousePos;
 	float2 deltaElapsed;
+	float2 padding[29];
 }
 
 #define LINA_SCREEN screenSizeMousePos.xy

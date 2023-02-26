@@ -58,7 +58,6 @@ namespace Lina
 		virtual ULONG __stdcall Release(void) override;
 
 	private:
-		Microsoft::WRL::ComPtr<IDxcUtils>		   m_utils;
 		Microsoft::WRL::ComPtr<IDxcIncludeHandler> m_defaultIncludeHandler;
 	};
 

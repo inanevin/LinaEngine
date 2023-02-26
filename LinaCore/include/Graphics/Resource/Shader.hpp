@@ -42,12 +42,6 @@ namespace Lina
 {
 	class MaterialPropertyBase;
 
-	struct ShaderByteCode
-	{
-		uint8* data		= nullptr;
-		uint32 dataSize = 0;
-	};
-
 	class Shader : public IResource
 	{
 	public:

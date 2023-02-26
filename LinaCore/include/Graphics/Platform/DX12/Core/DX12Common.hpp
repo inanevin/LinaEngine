@@ -33,16 +33,15 @@ SOFTWARE.
 
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Platform/DX12/SDK/d3dx12.h"
+#include "Graphics/Platform/DX12/SDK/d3d12shader.h"
 #include <dxgi1_6.h>
 #include <dxgi1_6.h>
 #include <wrl/client.h>
 
 namespace Lina
 {
-
-#define DEFAULT_SWAPCHAIN_FORMAT DXGI_FORMAT_R8G8B8A8_UNORM
-
-	extern DXGI_FORMAT GetFormat(Format format);
+	extern DXGI_FORMAT			   GetFormat(Format format);
+	extern D3D12_COMMAND_LIST_TYPE GetCommandType(CommandType type);
 
 	inline String HrToString(HRESULT hr)
 	{
@@ -76,17 +75,17 @@ namespace Lina
 
 	struct DescriptorHandle
 	{
-		D3D12_CPU_DESCRIPTOR_HANDLE cpu = {};
-		D3D12_GPU_DESCRIPTOR_HANDLE gpu = {};
-		uint32						id	= 0;
+		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
+		CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE();
+		uint32						  id		= 0;
 
 		constexpr bool IsValid() const
 		{
-			return cpu.ptr != 0;
+			return cpuHandle.ptr != 0;
 		}
 		constexpr bool IsShaderVisible() const
 		{
-			return gpu.ptr != 0;
+			return gpuHandle.ptr != 0;
 		}
 	};
 

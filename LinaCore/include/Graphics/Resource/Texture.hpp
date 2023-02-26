@@ -62,7 +62,8 @@ namespace Lina
 		/// <summary>
 		/// If using a texture as a render target, use this to generate image buffers on the gpu.
 		/// </summary>
-		void GenerateImage(uint32 aspectFlags, uint32 imageUsageFlags);
+		void GenerateImage(ImageType type);
+
 
 		inline const Extent3D& GetExtent() const
 		{

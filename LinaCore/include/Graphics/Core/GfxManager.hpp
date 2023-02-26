@@ -26,33 +26,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
-#include "Graphics/Platform/DX12/Core/DX12SurfaceRenderer.hpp"
-#include "Data/CommonData.hpp"
-#include "System/ISystem.hpp"
-#include "Profiling/Profiler.hpp"
-#include "Graphics/Resource/Material.hpp"
-#include "Resources/Core/ResourceManager.hpp"
-#include "FileSystem/FileSystem.hpp"
+#pragma once
 
-using Microsoft::WRL::ComPtr;
+#ifndef GfxManager_HPP
+#define GfxManager_HPP
+
+#include "System/ISubsystem.hpp"
+#include "Core/StringID.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
-	void DX12GfxManager::Initialize(const SystemInitializationInfo& initInfo)
+	class Material;
+	class SurfaceRenderer;
+
+	class GfxManager : public ISubsystem
 	{
-		m_gpuStorage.Initilalize();
+	public:
+		GfxManager(ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager){};
+		virtual ~GfxManager() = default;
 
-		// Create an empty root signature.
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+		virtual void Join();
+		virtual void Tick(float delta);
+		virtual void Render();
+		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
+		virtual void DestroySurfaceRenderer(StringID sid);
+		virtual void OnSystemEvent(ESystemEvent type, const Event& ev) override;
+
+		virtual Bitmask32 GetSystemEventMask() override
 		{
-			CD3DX12_ROOT_SIGNATURE_DESC rootSignatureDesc;
-			rootSignatureDesc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-
-			ComPtr<ID3DBlob> signature;
-			ComPtr<ID3DBlob> error;
-			ThrowIfFailed(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &error));
-			ThrowIfFailed(m_backend.GetDevice()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&m_rootSignature)));
+			return EVS_PostInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
 		}
-	}
 
+	private:
+		Vector<Material*>		 m_engineMaterials;
+		Vector<SurfaceRenderer*> m_surfaceRenderers;
+		uint32					 m_frameIndex = 0;
+	};
 } // namespace Lina
+#endif

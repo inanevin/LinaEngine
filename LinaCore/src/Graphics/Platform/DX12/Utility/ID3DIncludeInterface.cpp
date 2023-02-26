@@ -37,13 +37,22 @@ namespace Lina
 
 	HRESULT __stdcall ID3DIncludeInterface::LoadSource(LPCWSTR pFilename, IDxcBlob** ppIncludeSource)
 	{
-		char*		 fl	  = FileSystem::WCharToChar(pFilename);
-		const String base = "Resources/Core/Shaders/Common/";
-		const String incl = base + fl;
-		wchar_t* filew = FileSystem::CharToWChar(incl.c_str());
+
+		ComPtr<IDxcUtils> utils;
+		HRESULT hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(utils.GetAddressOf()));
+
+		if (FAILED(hr))
+		{
+			LINA_CRITICAL("[Shader Compile] -> Failed to create DXC utils");
+		}
+
+		char*		 fl	   = FileSystem::WCharToChar(pFilename);
+		const String base  = "Resources/Core/Shaders/Common/";
+		const String incl  = base + fl;
+		wchar_t*	 filew = FileSystem::CharToWChar(incl.c_str());
 
 		ComPtr<IDxcBlobEncoding> pEncoding;
-		if (SUCCEEDED(m_utils->LoadFile(filew, nullptr, pEncoding.GetAddressOf())))
+		if (SUCCEEDED(utils->LoadFile(filew, nullptr, pEncoding.GetAddressOf())))
 		{
 			*ppIncludeSource = pEncoding.Detach();
 		}

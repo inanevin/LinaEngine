@@ -30,8 +30,9 @@ SOFTWARE.
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "System/ISystem.hpp"
 #include "Data/CommonData.hpp"
-#include "Graphics/Core/IGfxManager.hpp"
+#include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/IGfxBackend.hpp"
+#include "Graphics/Data/RenderData.hpp"
 #include "Core/SystemInfo.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
@@ -48,7 +49,7 @@ namespace Lina
 	{
 		LINA_TRACE("[Window Manager] -> Initialization.");
 
-		m_gfxManager = m_system->CastSubsystem<IGfxManager>(SubsystemType::GfxManager);
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 #ifdef LINA_PLATFORM_WINDOWS
 

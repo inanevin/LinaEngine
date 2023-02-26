@@ -34,11 +34,6 @@ SOFTWARE.
 #include "Core/PlatformTime.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 
-#ifdef LINA_GRAPHICS_DX12
-#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
-typedef Lina::DX12GfxManager GfxManager;
-#endif
-
 //********** DEBUG
 #include "Input/Core/InputMappings.hpp"
 
@@ -50,8 +45,7 @@ namespace Lina
 	{
 		LINA_TRACE("[Application] -> Initialization.");
 
-		m_gfxManager = new GfxManager(this);
-		m_initInfo	 = initInfo;
+		m_initInfo = initInfo;
 		PlatformTime::GetSeconds();
 
 		// Child systems can override for custom core resource registries.
@@ -61,7 +55,7 @@ namespace Lina
 		m_resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
 
 		// Window manager has priority initialization.
-		m_gfxManager->PreInitialize(initInfo);
+		m_gfxManager.PreInitialize(initInfo);
 		m_windowManager.PreInitialize(initInfo);
 		m_windowManager.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.windowStyle, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
 
@@ -69,7 +63,7 @@ namespace Lina
 		{
 			if (type != SubsystemType::GfxManager && type != SubsystemType::WindowManager)
 				sys->PreInitialize(initInfo);
-				
+
 			sys->Initialize(initInfo);
 		}
 
@@ -97,7 +91,7 @@ namespace Lina
 	{
 		LINA_TRACE("[Application] -> Shutdown.");
 
-		m_gfxManager->Join();
+		m_gfxManager.Join();
 
 		DispatchSystemEvent(EVS_PreSystemShutdown, {});
 
@@ -105,17 +99,16 @@ namespace Lina
 		m_resourceManager.Shutdown();
 		m_audioManager.Shutdown();
 		m_windowManager.Shutdown();
-		m_gfxManager->Shutdown();
+		m_gfxManager.Shutdown();
 		m_input.Shutdown();
 
-		delete m_gfxManager;
 		delete m_coreResourceRegistry;
 	}
 
 	void Engine::Tick(float delta)
 	{
 		m_input.Tick(delta);
-		m_gfxManager->Tick(delta);
+		m_gfxManager.Tick(delta);
 
 		// For any listeners that fall outside the main loop.
 		// Event eventData;
@@ -124,7 +117,7 @@ namespace Lina
 
 		// m_levelManager.Tick(delta);
 
-		m_gfxManager->Render();
+		m_gfxManager.Render();
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 
 		//	audioJob.get();

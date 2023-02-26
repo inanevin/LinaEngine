@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Input/Core/Input.hpp"
 #include "Audio/Core/AudioManager.hpp"
 #include "Graphics/Core/WindowManager.hpp"
-#include "Graphics/Core/IGfxManager.hpp"
+#include "Graphics/Core/GfxManager.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
@@ -49,7 +49,7 @@ namespace Lina
 	class Engine : public ISystem
 	{
 	public:
-		Engine(Application* app) : ISystem(app), m_input(this), m_audioManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : ISystem(app), m_gfxManager(this), m_input(this), m_audioManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
 
 		virtual ~Engine() = default;
 
@@ -80,7 +80,7 @@ namespace Lina
 		Executor			   m_executor;
 		Input				   m_input;
 		AudioManager		   m_audioManager;
-		IGfxManager*		   m_gfxManager = nullptr;
+		GfxManager			   m_gfxManager;
 		WindowManager		   m_windowManager;
 		LevelManager		   m_levelManager;
 		IEngineInterface	   m_engineInterface;

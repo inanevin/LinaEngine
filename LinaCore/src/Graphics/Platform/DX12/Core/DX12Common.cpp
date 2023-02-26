@@ -72,4 +72,18 @@ namespace Lina
 
 		return DXGI_FORMAT_UNKNOWN;
 	}
+	D3D12_COMMAND_LIST_TYPE GetCommandType(CommandType type)
+	{
+		switch (type)
+		{
+		case CommandType::Graphics:
+			return D3D12_COMMAND_LIST_TYPE_DIRECT;
+		case CommandType::Compute:
+			return D3D12_COMMAND_LIST_TYPE_COMPUTE;
+		case CommandType::Transfer:
+			return D3D12_COMMAND_LIST_TYPE_COPY;
+		default:
+			return D3D12_COMMAND_LIST_TYPE_DIRECT;
+		}
+	}
 } // namespace Lina

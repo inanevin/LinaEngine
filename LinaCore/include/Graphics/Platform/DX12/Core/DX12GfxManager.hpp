@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "System/ISubsystem.hpp"
 #include "Graphics/Data/RenderData.hpp"
-#include "Graphics/Core/IGfxManager.hpp"
 #include "Data/Vector.hpp"
 #include "DX12Backend.hpp"
 #include "DX12GpuStorage.hpp"
@@ -43,10 +42,10 @@ namespace Lina
 	class DX12SurfaceRenderer;
 	class Material;
 
-	class DX12GfxManager : public IGfxManager
+	class DX12GfxManager 
 	{
 	public:
-		DX12GfxManager(ISystem* sys) : m_gpuStorage(this), IGfxManager(sys, &m_gpuStorage, &m_backend), m_backend(this){};
+		DX12GfxManager(ISystem* sys) : m_gpuStorage(this), GfxManager(sys, &m_gpuStorage, &m_backend), m_backend(this){};
 		virtual ~DX12GfxManager() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
@@ -85,7 +84,7 @@ namespace Lina
 		DX12GpuStorage								m_gpuStorage;
 		DX12Backend									m_backend;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_rootSignature;
-		// Inherited via IGfxManager
+		// Inherited via GfxManager
 	};
 } // namespace Lina
 

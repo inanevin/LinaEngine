@@ -27,12 +27,11 @@ SOFTWARE.
 */
 
 #include "Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp"
-#include "Graphics/Platform/DX12/Core/DX12GfxManager.hpp"
-#include "Graphics/Platform/DX12/Core/DX12Backend.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 
 namespace Lina
 {
-	DX12DescriptorHeap::DX12DescriptorHeap(DX12GfxManager* manager) : m_gfxManager(manager), m_freeIndices(100, 0)
+	DX12DescriptorHeap::DX12DescriptorHeap() : m_freeIndices(100, 0)
 	{
 	}
 
@@ -55,7 +54,7 @@ namespace Lina
 		if (m_type != D3D12_DESCRIPTOR_HEAP_TYPE_RTV && m_type != D3D12_DESCRIPTOR_HEAP_TYPE_DSV && m_flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
 			m_isGpuVisible = true;
 
-		auto device = m_gfxManager->GetDX12Backend()->GetDevice();
+		auto device = Renderer::DX12GetDevice();
 		ThrowIfFailed(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_heap)));
 		m_incrementSize = device->GetDescriptorHandleIncrementSize(m_type);
 
@@ -67,13 +66,19 @@ namespace Lina
 
 	DescriptorHandle DX12DescriptorHeap::Allocate()
 	{
-		uint32			 id = m_freeIndices.AddItem(1);
-		DescriptorHandle handle;
+		uint32			 id		= m_freeIndices.AddItem(1);
+		DescriptorHandle handle = DescriptorHandle();
 
-		handle.gpu.ptr = m_gpuStart.ptr + m_incrementSize * id;
-		handle.cpu.ptr = m_cpuStart.ptr + m_incrementSize * id;
-		handle.id	   = id;
+		handle.cpuHandle.InitOffsetted(m_cpuStart, m_incrementSize);
 
+		if (m_isGpuVisible)
+			handle.gpuHandle.InitOffsetted(m_gpuStart, 0);
+
+		handle.cpuHandle.Offset(id, m_incrementSize);
+		if (m_isGpuVisible)
+			handle.gpuHandle.Offset(id, m_incrementSize);
+
+		handle.id = id;
 		return handle;
 	}
 
