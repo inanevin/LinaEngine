@@ -31,7 +31,6 @@ LINA_PASS_SHADOWS
 LINA_PIPELINE_STANDARD
 
 #include "GlobalData.linashader"
-#include "LightData.linashader"
 #include "ObjectData.linashader"
 #include "SceneData.linashader"
 #include "ViewData.linashader"

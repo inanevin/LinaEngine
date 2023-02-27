@@ -135,6 +135,7 @@ include/Resources/Data/ResourceMetadata.hpp
 # Graphics
 include/Graphics/Core/WindowManager.hpp
 include/Graphics/Core/IWindow.hpp
+include/Graphics/Core/IGfxResource.hpp
 include/Graphics/Core/GfxManager.hpp
 include/Graphics/Core/IGfxBackend.hpp
 include/Graphics/Core/IGpuStorage.hpp
@@ -192,6 +193,7 @@ include/Graphics/Platform/DX12/Core/DX12Swapchain.hpp
 include/Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12GUIBackend.hpp
 include/Graphics/Platform/DX12/Core/DX12GpuUploader.hpp
+include/Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp
 include/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp
 include/Graphics/Platform/DX12/SDK/d3d12.h
 include/Graphics/Platform/DX12/SDK/d3d12compatibility.h
@@ -225,6 +227,7 @@ src/Graphics/Platform/DX12/Core/DX12Swapchain.cpp
 src/Graphics/Platform/DX12/Core/DX12DescriptorHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12GUIBackend.cpp
 src/Graphics/Platform/DX12/Core/DX12GpuUploader.cpp
+src/Graphics/Platform/DX12/Core/DX12GfxBufferResource.cpp
 src/Graphics/Platform/DX12/SDK/D3D12MemAlloc.cpp
 src/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.cpp
 )
@@ -237,7 +240,6 @@ _Resources/Core/Shaders/LitStandard.linashader
 _Resources/Core/Shaders/GUIStandard.linashader
 _Resources/Core/Shaders/GUIText.linashader
 _Resources/Core/Shaders/Common/GlobalData.linashader
-_Resources/Core/Shaders/Common/LightData.linashader
 _Resources/Core/Shaders/Common/ViewData.linashader
 _Resources/Core/Shaders/Common/ObjectData.linashader
 _Resources/Core/Shaders/Common/SceneData.linashader

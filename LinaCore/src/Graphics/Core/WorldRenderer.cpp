@@ -259,7 +259,7 @@ namespace Lina
 	{
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[testImageIndex];
-		
+
 		// Fence waiting
 		{
 			Renderer::WaitForFences(m_fence, m_fenceValue, frame.storedFence);
@@ -267,22 +267,21 @@ namespace Lina
 
 		// Command buffer prep
 		{
-			Renderer::SetCurrentCommandList(frame.cmdAllocator, frame.cmdList);
-			Renderer::ResetCommandList();
-			Renderer::PrepareCommandList(m_viewport, m_scissors);
+			Renderer::ResetCommandList(frame.cmdAllocator, frame.cmdList);
+			Renderer::PrepareCommandList(frame.cmdList, m_viewport, m_scissors);
 		}
 
 		// Main Render Pass
 		{
-			Renderer::TransitionPresent2RT(imgData.renderTargetColor);
-			Renderer::BeginRenderPass(imgData.renderTargetColor, Color(0.5f, 0.0f, 0.0f, 1.0f));
-			Renderer::EndRenderPass();
-			Renderer::TransitionRT2Present(imgData.renderTargetColor);
+			Renderer::TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
+			Renderer::BeginRenderPass(frame.cmdList, imgData.renderTargetColor, Color(0.5f, 0.0f, 0.0f, 1.0f));
+			Renderer::EndRenderPass(frame.cmdList);
+			Renderer::TransitionRT2Present(frame.cmdList, imgData.renderTargetColor);
 		}
 
 		// Close command buffer.
 		{
-			Renderer::FinalizeCommandList();
+			Renderer::FinalizeCommandList(frame.cmdList);
 		}
 
 		// Submit

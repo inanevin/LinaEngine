@@ -26,16 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct Light{
-	float4 position;
-};
+#pragma once
 
-cbuffer LinaScene : register(b1)
+#ifndef IGfxResource_HPP
+#define IGfxResource_HPP
+
+namespace Lina
 {
-	float4 fogColor; 
-	float4 fogDistances; 
-	float4 ambientColor;
-	float4 sunlightDirection;
-	float4 sunlightColor;
-	Light lights[10];
-}
+	class IGfxResource
+	{
+	public:
+		IGfxResource(size_t sz) : m_size(sz){};
+		virtual ~IGfxResource() = default;
+
+		virtual void   Update(void* data) = 0;
+		virtual uint64 GetGPUPointer()	  = 0;
+
+	protected:
+		uint8* m_mappedData = nullptr;
+		size_t m_size		= 0;
+	};
+} // namespace Lina
+
+#endif

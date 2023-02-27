@@ -54,6 +54,11 @@ namespace Lina
 			return m_incrementSize;
 		}
 
+		inline ID3D12DescriptorHeap* GetHeap() const
+		{
+			return m_heap.Get();
+		}
+
 	private:
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap;
 		uint32										 m_maxSize		 = 0;

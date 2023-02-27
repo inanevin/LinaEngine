@@ -49,6 +49,7 @@ namespace Lina
 	class EntityWorld;
 	class Texture;
 	class Material;
+	class IGfxResource;
 
 	// DEBUG
 	class ISwapchain;
@@ -57,7 +58,7 @@ namespace Lina
 	{
 	public:
 		static ISwapchain* testSwapchain;
-		uint32		testImageIndex = 0;
+		uint32			   testImageIndex = 0;
 
 		WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
 		virtual ~WorldRenderer();
@@ -68,7 +69,6 @@ namespace Lina
 
 			IDList<ObjectWrapper<RenderableComponent>> allRenderables;
 			GPUSceneData							   gpuSceneData;
-			GPULightData							   gpuLightData;
 			GPUViewData								   gpuViewData;
 		};
 

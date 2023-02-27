@@ -34,27 +34,37 @@ SOFTWARE.
 #include "System/ISubsystem.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Vector.hpp"
+#include "Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {
 	class Material;
 	class SurfaceRenderer;
+	class IGfxResource;
 
 	class GfxManager : public ISubsystem
 	{
+
+	private:
+		struct DataPerFrame
+		{
+			IGfxResource* globalDataBuffer = nullptr;
+		};
+
 	public:
 		GfxManager(ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager){};
 		virtual ~GfxManager() = default;
 
-		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Join();
-		virtual void Tick(float delta);
-		virtual void Render();
-		virtual void CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
-		virtual void DestroySurfaceRenderer(StringID sid);
-		virtual void OnSystemEvent(ESystemEvent type, const Event& ev) override;
+		virtual void  PreInitialize(const SystemInitializationInfo& initInfo) override;
+		virtual void  Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void  Shutdown() override;
+		void		  Join();
+		void		  Tick(float delta);
+		void		  Render();
+		void		  CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
+		void		  DestroySurfaceRenderer(StringID sid);
+		void		  OnSystemEvent(ESystemEvent type, const Event& ev) override;
+		IGfxResource* GetCurrentGlobalDataResource();
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
@@ -62,6 +72,8 @@ namespace Lina
 		}
 
 	private:
+		DataPerFrame			 m_dataPerFrame[FRAMES_IN_FLIGHT];
+		GPUGlobalData			 m_globalData;
 		Vector<Material*>		 m_engineMaterials;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
 		uint32					 m_frameIndex = 0;

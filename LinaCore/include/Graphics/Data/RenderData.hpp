@@ -122,29 +122,30 @@ namespace Lina
 		Vector<MeshMaterialPair> meshMaterialPairs;
 	};
 
-	struct GPUSceneData
-	{
-		Vector4 fogColor		  = Vector4::Zero; // w is for exponent
-		Vector4 fogDistances	  = Vector4::Zero; // x for min, y for max, zw unused.
-		Vector4 ambientColor	  = Vector4::Zero;
-		Vector4 sunlightDirection = Vector4::Zero; // w for sun power
-		Vector4 sunlightColor	  = Vector4::Zero;
-	};
-
 	struct GPUGlobalData
 	{
 		Vector4 screenSizeMousePos = Vector4::Zero;
 		Vector2 deltaElapsed	   = Vector2::Zero;
 	};
 
-	struct GPUDebugData
-	{
-		int visualizeDepth = 0;
-	};
-
 	struct GPUObjectData
 	{
 		Matrix4 modelMatrix = Matrix4::Identity();
+	};
+
+	struct LightData
+	{
+		Vector4 position = Vector4::Zero;
+	};
+
+	struct GPUSceneData
+	{
+		Vector4	  fogColor			= Vector4::Zero;
+		Vector4	  fogDistances		= Vector4::Zero;
+		Vector4	  ambientColor		= Vector4::Zero;
+		Vector4	  sunlightDirection = Vector4::Zero;
+		Vector4	  sunlightColor		= Vector4::Zero;
+		LightData lights[MAX_LIGHTS];
 	};
 
 	struct GPUViewData
@@ -154,16 +155,6 @@ namespace Lina
 		Matrix4 viewProj   = Matrix4::Identity();
 		Vector4 camPos	   = Vector4::Zero;
 		Vector2 camNearFar = Vector2::Zero;
-	};
-
-	struct LightData
-	{
-		Vector4 position = Vector4::Zero;
-	};
-
-	struct GPULightData
-	{
-		LightData lights[MAX_LIGHTS];
 	};
 
 	struct MergedBufferMeshEntry

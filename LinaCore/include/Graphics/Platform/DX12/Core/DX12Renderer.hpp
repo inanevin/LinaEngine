@@ -51,6 +51,7 @@ namespace Lina
 	class Recti;
 	class GfxManager;
 	class ISwapchain;
+	class IGfxResource;
 	class Color;
 
 	struct GeneratedTexture
@@ -108,8 +109,6 @@ namespace Lina
 			IDList<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>	   cmdAllocators;
 			IDList<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>> cmdLists;
 			IDList<Microsoft::WRL::ComPtr<ID3D12Fence>>				   fences;
-			ID3D12CommandAllocator*									   _currentAllocator = nullptr;
-			ID3D12GraphicsCommandList4*								   _currentCmdList	 = nullptr;
 		};
 
 		// ******************* SYSTEM ******************* //
@@ -139,21 +138,28 @@ namespace Lina
 
 		// Swapchain
 		static ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle);
+		static void		   Present(ISwapchain* swp);
+		static uint32	   GetNextBackBuffer(ISwapchain* swp);
+
+		// Resources
+		static IGfxResource* CreateBufferResource(void* initialData, size_t size);
+		static void			 DeleteBufferResource(IGfxResource* res);
 
 		// Commands
 		static uint32 CreateCommandAllocator(CommandType type);
 		static uint32 CreateCommandList(CommandType type, uint32 allocatorHandle);
 		static void	  ReleaseCommanAllocator(uint32 handle);
 		static void	  ReleaseCommandList(uint32 handle);
-		static void	  SetCurrentCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
-		static void	  ResetCommandList();
-		static void	  PrepareCommandList(const Viewport& viewport, const Recti& scissors);
-		static void	  FinalizeCommandList();
-		static void	  ExecuteCommandListsGraphics(const Vector<uint32>& lists);
 
-		// Swapchain
-		static void	  Present(ISwapchain* swp);
-		static uint32 GetNextBackBuffer(ISwapchain* swp);
+		static void ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
+		static void PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
+		static void FinalizeCommandList(uint32 cmdListHandle);
+		static void ExecuteCommandListsGraphics(const Vector<uint32>& lists);
+		static void TransitionPresent2RT(uint32 cmdListHandle, Texture* txt);
+		static void TransitionRT2Present(uint32 cmdListHandle, Texture* txt);
+		static void BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor);
+		static void EndRenderPass(uint32 cmdListHandle);
+		static void BindGlobalData(uint32 cmdListHandle);
 
 		// Fences
 		static uint32 CreateFence();
@@ -164,14 +170,6 @@ namespace Lina
 		// Textures
 		static Texture* CreateRenderTarget(const String& path);
 		static Texture* CreateRenderTarget(ISwapchain* swp, uint32 bufferIndex, const String& path);
-
-		// Barriers
-		static void TransitionPresent2RT(Texture* txt);
-		static void TransitionRT2Present(Texture* txt);
-
-		// Render Pass
-		static void BeginRenderPass(Texture* colorTexture, const Color& clearColor);
-		static void EndRenderPass();
 
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
@@ -190,6 +188,12 @@ namespace Lina
 		{
 			return s_state.graphicsQueue.Get();
 		}
+
+		static inline D3D12MA::Allocator* DX12GetAllocator()
+		{
+			return s_state.dx12Allocator;
+		}
+
 		// ******************* DX12 INTERFACE *******************
 
 	private:

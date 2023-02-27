@@ -26,11 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct Light{
-	float4 position;
-};
+#pragma once
 
-cbuffer LinaLights : register(b3)
+#ifndef DX12GfxResource_HPP
+#define DX12GfxResource_HPP
+
+#include "Graphics/Core/IGfxResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+
+namespace D3D12MA
 {
-	Light lights[10];
+	class Allocation;
 }
+
+namespace Lina
+{
+	class DX12GfxBufferResource : public IGfxResource
+	{
+	public:
+		DX12GfxBufferResource(void* initialData, size_t sz);
+		virtual ~DX12GfxBufferResource();
+
+		virtual void   Update(void* data) override;
+		virtual uint64 GetGPUPointer() override;
+
+	private:
+		D3D12MA::Allocation* m_allocation = nullptr;
+	};
+} // namespace Lina
+
+#endif

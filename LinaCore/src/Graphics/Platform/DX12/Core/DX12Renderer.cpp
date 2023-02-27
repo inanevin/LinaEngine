@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Platform/DX12/Core/DX12Swapchain.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -173,50 +174,52 @@ namespace Lina
 		// Standard Pipeline Root Signature
 		{
 			/*******************************************************/
-			/** PARAM0: CBV				-> Global Data			-> REG:b0
+			/** PARAM0: CBV				-> Global Data			-> REG:b0 -> per frame
 			/**
-			/** PARAM1: CBV TABLE
-			/**							-> Scene Data			-> REG:b1
-			/**							-> View Data			-> REG:b2
-			/**							-> Light Data			-> REG:b3
+			/** PARAM1: CBV				-> Scene Data			-> REG:b1 -> per scene
 			/**
-			/** PARAM2: CBV				-> Material Data        -> REG:b4
-			/** PARAM3: Sampler Table	-> Material Samplers	-> REG:[s0-s9]
-			/** PARAM4: SRV Table		-> Material Textures	-> REG:[t0-t9]
-			/** PARAM5: SRV				-> Object Buffer View	-> REG:t10
+			/** PARAM2: CBV				-> View Data			-> REG:b2 -> per render target
+			/**
+			/** PARAM3: CBV				-> Material Data        -> REG:b3 -> per pipeline
+			/**
+			/** PARAM4: Sampler Table	-> Material Samplers	-> REG:[s0-s9] -> per pipeline
+			/**
+			/** PARAM5: SRV Table		-> Material Textures	-> REG:[t0-t9] -> per pipeline
+			/**
+			/** PARAM6: SRV				-> Object Buffer View	-> REG:t10 -> per scene
 			/*******************************************************/
 
-			CD3DX12_DESCRIPTOR_RANGE1 descRange[3] = {};
-
-			// Scene Data - View Data - Light Data
-			descRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, 3, 1);
+			CD3DX12_DESCRIPTOR_RANGE1 descRange[2] = {};
 
 			// Textures & Samplers
-			descRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
-			descRange[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 10, 0);
+			descRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
+			descRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 10, 0);
 
-			CD3DX12_ROOT_PARAMETER1 rp[6];
+			CD3DX12_ROOT_PARAMETER1 rp[7];
 
 			// Global constant buffer
 			rp[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
 
-			// Scene & View & Light data
-			rp[1].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_VERTEX);
+			// Scene data
+			rp[1].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+
+			// View data
+			rp[2].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
 
 			// Material data
-			rp[2].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
+			rp[3].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
 
 			// Texture & samplers
-			rp[3].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
-			rp[4].InitAsDescriptorTable(1, &descRange[2], D3D12_SHADER_VISIBILITY_ALL);
+			rp[4].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_ALL);
+			rp[5].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
 
 			// Object buffer.
-			rp[5].InitAsShaderResourceView(10, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_VERTEX);
+			rp[6].InitAsShaderResourceView(10, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_VERTEX);
 
 			CD3DX12_STATIC_SAMPLER_DESC samplerDesc[1] = {};
 			samplerDesc[0].Init(10, D3D12_FILTER_ANISOTROPIC);
 
-			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(6, rp, 1, samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(7, rp, 1, samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 			ComPtr<ID3DBlob>					  signatureBlob = nullptr;
 			ComPtr<ID3DBlob>					  errorBlob		= nullptr;
 
@@ -305,7 +308,7 @@ namespace Lina
 	// ********************** RESOURCES ********************************
 	// ********************** RESOURCES ********************************
 
-	LPCWSTR macros[6] = {{L"LINA_PASS_OPAQUE="}, {L"LINA_PASS_SHADOWS="}, {L"LINA_PIPELINE_STANDARD="}, {L"LINA_PIPELINE_NOVERTEX="}, {L"LINA_PIPELINE_GUI="}, {L"LINA_MATERIAL=cbuffer MaterialBuffer : register(b4)"}};
+	LPCWSTR macros[6] = {{L"LINA_PASS_OPAQUE="}, {L"LINA_PASS_SHADOWS="}, {L"LINA_PIPELINE_STANDARD="}, {L"LINA_PIPELINE_NOVERTEX="}, {L"LINA_PIPELINE_GUI="}, {L"LINA_MATERIAL=cbuffer MaterialBuffer : register(b3)"}};
 
 	uint32 Renderer::GenerateMaterial(Material* mat, uint32 existingHandle)
 	{
@@ -649,51 +652,62 @@ namespace Lina
 		s_state.cmdAllocators.RemoveItem(handle);
 	}
 
+	IGfxResource* Renderer::CreateBufferResource(void* initialData, size_t size)
+	{
+		return new DX12GfxBufferResource(initialData, size);
+	}
+
 	void Renderer::ReleaseCommandList(uint32 handle)
 	{
 		s_state.cmdLists.GetItemR(handle).Reset();
 		s_state.cmdLists.RemoveItem(handle);
 	}
 
-	void Renderer::SetCurrentCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle)
+	void Renderer::DeleteBufferResource(IGfxResource* res)
 	{
-		auto& cmdAllocator		  = s_state.cmdAllocators.GetItemR(cmdAllocatorHandle);
-		auto& cmdList			  = s_state.cmdLists.GetItemR(cmdListHandle);
-		s_state._currentAllocator = cmdAllocator.Get();
-		s_state._currentCmdList	  = cmdList.Get();
+		delete res;
 	}
 
-	void Renderer::ResetCommandList()
+	void Renderer::ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle)
 	{
-		ThrowIfFailed(s_state._currentAllocator->Reset());
-		ThrowIfFailed(s_state._currentCmdList->Reset(s_state._currentAllocator, nullptr));
+		auto& cmdList	   = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdAllocator = s_state.cmdAllocators.GetItemR(cmdAllocatorHandle);
+		ThrowIfFailed(cmdAllocator->Reset());
+		ThrowIfFailed(cmdList->Reset(cmdAllocator.Get(), nullptr));
 	}
 
-	void Renderer::PrepareCommandList(const Viewport& viewport, const Recti& scissors)
+	void Renderer::PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors)
 	{
-		D3D12_VIEWPORT vp;
-		vp.MinDepth = 0.0f;
-		vp.MaxDepth = 1.0f;
-		vp.Height	= viewport.height;
-		vp.Width	= viewport.width;
-		vp.TopLeftX = viewport.x;
-		vp.TopLeftY = viewport.y;
+		auto&				  cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		ID3D12DescriptorHeap* heaps[] = {s_state.bufferHeap.GetHeap()};
+		cmdList->SetGraphicsRootSignature(s_state.rootSigStandard.Get());
+	//	cmdList->SetDescriptorHeaps(_countof(heaps), heaps);
 
-		D3D12_RECT sc;
-		sc.left	  = static_cast<LONG>(scissors.pos.x);
-		sc.top	  = static_cast<LONG>(scissors.pos.y);
-		sc.right  = static_cast<LONG>(scissors.size.x);
-		sc.bottom = static_cast<LONG>(scissors.size.y);
+		// Viewport & scissors.
+		{
+			D3D12_VIEWPORT vp;
+			vp.MinDepth = 0.0f;
+			vp.MaxDepth = 1.0f;
+			vp.Height	= viewport.height;
+			vp.Width	= viewport.width;
+			vp.TopLeftX = viewport.x;
+			vp.TopLeftY = viewport.y;
 
-		s_state._currentCmdList->SetGraphicsRootSignature(s_state.rootSigStandard.Get());
-		s_state._currentCmdList->RSSetViewports(1, &vp);
-		s_state._currentCmdList->RSSetScissorRects(1, &sc);
+			D3D12_RECT sc;
+			sc.left	  = static_cast<LONG>(scissors.pos.x);
+			sc.top	  = static_cast<LONG>(scissors.pos.y);
+			sc.right  = static_cast<LONG>(scissors.size.x);
+			sc.bottom = static_cast<LONG>(scissors.size.y);
+
+			cmdList->RSSetViewports(1, &vp);
+			cmdList->RSSetScissorRects(1, &sc);
+		}
 	}
 
-	void Renderer::FinalizeCommandList()
+	void Renderer::FinalizeCommandList(uint32 cmdListHandle)
 	{
-		ThrowIfFailed(s_state._currentCmdList->Close());
-		s_state._currentCmdList = nullptr;
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		ThrowIfFailed(cmdList->Close());
 	}
 
 	void Renderer::ExecuteCommandListsGraphics(const Vector<uint32>& lists)
@@ -710,6 +724,53 @@ namespace Lina
 
 		ID3D12CommandList* const* data = _lists.data();
 		s_state.graphicsQueue->ExecuteCommandLists(sz, data);
+	}
+
+	void Renderer::TransitionPresent2RT(uint32 cmdListHandle, Texture* txt)
+	{
+		auto& cmdList	  = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& genData	  = s_state.textures.GetItemR(txt->GetGPUHandle());
+		auto  presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(genData.resource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		cmdList->ResourceBarrier(1, &presentToRT);
+	}
+
+	void Renderer::TransitionRT2Present(uint32 cmdListHandle, Texture* txt)
+	{
+		auto& cmdList	  = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& genData	  = s_state.textures.GetItemR(txt->GetGPUHandle());
+		auto  rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(genData.resource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		cmdList->ResourceBarrier(1, &rtToPresent);
+	}
+
+	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor)
+	{
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& genData = s_state.textures.GetItemR(colorTexture->GetGPUHandle());
+
+		const float			cc[]{clearColor.x, clearColor.y, clearColor.z, clearColor.w};
+		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
+
+		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessClear{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
+		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessPreserve{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
+		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{genData.descriptor.cpuHandle, renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
+
+		// D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessNoAccess{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, {}};
+		// D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessNoAccess{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS, {}};
+		// D3D12_RENDER_PASS_DEPTH_STENCIL_DESC renderPassDepthStencilDesc{dsvCPUDescriptorHandle, renderPassBeginningAccessNoAccess, renderPassBeginningAccessNoAccess, renderPassEndingAccessNoAccess, renderPassEndingAccessNoAccess};
+
+		cmdList->BeginRenderPass(1, &renderPassRenderTargetDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
+	}
+
+	void Renderer::EndRenderPass(uint32 cmdListHandle)
+	{
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		cmdList->EndRenderPass();
+	}
+
+	void Renderer::BindGlobalData(uint32 cmdListHandle)
+	{
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		cmdList->SetGraphicsRootConstantBufferView(0, s_state.gfxManager->GetCurrentGlobalDataResource()->GetGPUPointer());
 	}
 
 	void Renderer::Present(ISwapchain* swp)
@@ -778,7 +839,7 @@ namespace Lina
 	{
 		const StringID sid = TO_SID(path);
 		Texture*	   rt  = new Texture(s_state.gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, path, sid);
-
+		// TODO
 		return rt;
 	}
 
@@ -794,43 +855,6 @@ namespace Lina
 		s_state.device->CreateRenderTargetView(genData.resource.Get(), nullptr, genData.descriptor.cpuHandle);
 
 		return rt;
-	}
-
-	void Renderer::TransitionPresent2RT(Texture* txt)
-	{
-		auto& genData	  = s_state.textures.GetItemR(txt->GetGPUHandle());
-		auto  presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(genData.resource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		s_state._currentCmdList->ResourceBarrier(1, &presentToRT);
-	}
-
-	void Renderer::TransitionRT2Present(Texture* txt)
-	{
-		auto& genData	  = s_state.textures.GetItemR(txt->GetGPUHandle());
-		auto  rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(genData.resource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		s_state._currentCmdList->ResourceBarrier(1, &rtToPresent);
-	}
-
-	void Renderer::BeginRenderPass(Texture* colorTexture, const Color& clearColor)
-	{
-		auto& genData = s_state.textures.GetItemR(colorTexture->GetGPUHandle());
-
-		const float			cc[]{clearColor.x, clearColor.y, clearColor.z, clearColor.w};
-		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
-
-		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessClear{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
-		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessPreserve{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
-		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{genData.descriptor.cpuHandle, renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
-
-		// D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessNoAccess{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, {}};
-		// D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessNoAccess{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS, {}};
-		// D3D12_RENDER_PASS_DEPTH_STENCIL_DESC renderPassDepthStencilDesc{dsvCPUDescriptorHandle, renderPassBeginningAccessNoAccess, renderPassBeginningAccessNoAccess, renderPassEndingAccessNoAccess, renderPassEndingAccessNoAccess};
-
-		s_state._currentCmdList->BeginRenderPass(1, &renderPassRenderTargetDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
-	}
-
-	void Renderer::EndRenderPass()
-	{
-		s_state._currentCmdList->EndRenderPass();
 	}
 
 	// void Renderer::BindPipeline(ID3D12GraphicsCommandList* cmdList, Material* mat)

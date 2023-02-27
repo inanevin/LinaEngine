@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/IGfxResource.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "System/ISystem.hpp"
 #include "Profiling/Profiler.hpp"
@@ -43,7 +44,7 @@ SOFTWARE.
 namespace Lina
 {
 	WorldRenderer* testWorldRenderer = nullptr;
-	EntityWorld* testWorld = nullptr;
+	EntityWorld*   testWorld		 = nullptr;
 
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
@@ -53,10 +54,22 @@ namespace Lina
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		Renderer::Initialize(initInfo);
+
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data			  = m_dataPerFrame[i];
+			data.globalDataBuffer = Renderer::CreateBufferResource(&m_globalData, sizeof(GPUGlobalData));
+		}
 	}
 
 	void GfxManager::Shutdown()
 	{
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data = m_dataPerFrame[i];
+			Renderer::DeleteBufferResource(data.globalDataBuffer);
+		}
+
 		Renderer::Shutdown();
 	}
 
@@ -80,6 +93,10 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
+		auto& dataPerFrame = m_dataPerFrame[m_frameIndex];
+
+		dataPerFrame.globalDataBuffer->Update(&m_globalData);
+
 		// Surface renderers.
 		{
 			PROFILER_SCOPE("All Surface Renderers", PROFILER_THREAD_RENDER);
@@ -132,8 +149,8 @@ namespace Lina
 				m_engineMaterials.push_back(mat);
 			}
 			WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
-			testWorld = new EntityWorld(m_system);
-			testWorldRenderer  = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(800, 800), 1);
+			testWorld					 = new EntityWorld(m_system);
+			testWorldRenderer			 = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(800, 800), 1);
 		}
 		else if (type & EVS_PreSystemShutdown)
 		{
@@ -142,5 +159,10 @@ namespace Lina
 			for (auto m : m_engineMaterials)
 				delete m;
 		}
+	}
+
+	IGfxResource* GfxManager::GetCurrentGlobalDataResource()
+	{
+		return m_dataPerFrame[m_frameIndex].globalDataBuffer;
 	}
 } // namespace Lina
