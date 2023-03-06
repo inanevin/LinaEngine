@@ -38,17 +38,10 @@ SOFTWARE.
 
 namespace Lina
 {
-	class RenderableComponent;
-
 	class View
 	{
 	public:
 		bool IsVisible(const AABB& aabb) const;
-
-		inline Vector<RenderableComponent*>& GetVisibleObjects()
-		{
-			return m_visibleRenderables;
-		}
 
 		inline const Vector3& GetPos() const
 		{
@@ -75,15 +68,15 @@ namespace Lina
 		}
 
 		void Tick(const Vector3& pos, const Matrix4& view, const Matrix4& proj, float near, float far);
+		void FillGPUViewData(GPUViewData& vd);
 
 	private:
-		Vector<RenderableComponent*> m_visibleRenderables;
-		Matrix4						 m_view;
-		Matrix4						 m_proj;
-		Vector3						 m_pos	   = Vector3::Zero;
-		Frustum						 m_frustum = Frustum();
-		float						 m_near	   = 0.0f;
-		float						 m_far	   = 0.0f;
+		Matrix4 m_view;
+		Matrix4 m_proj;
+		Vector3 m_pos	  = Vector3::Zero;
+		Frustum m_frustum = Frustum();
+		float	m_near	  = 0.0f;
+		float	m_far	  = 0.0f;
 	};
 } // namespace Lina
 

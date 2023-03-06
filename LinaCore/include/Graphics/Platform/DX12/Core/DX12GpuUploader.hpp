@@ -34,29 +34,31 @@ SOFTWARE.
 #include "Data/Functional.hpp"
 #include "Data/Queue.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+#include "Data/Mutex.hpp"
 
 namespace Lina
 {
-	class DX12GfxManager;
-
-	class DX12Command
-	{
-	public:
-		Delegate<void(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& cmdList)> Record;
-		Delegate<void()>														   OnRecorded;
-		Delegate<void()>														   OnSubmitted;
-	};
-
 	class DX12GpuUploader
 	{
 	public:
-		DX12GpuUploader(DX12GfxManager* gfxManager);
-		~DX12GpuUploader();
+		DX12GpuUploader()  = default;
+		~DX12GpuUploader() = default;
 
+		void Initialize();
+		void Shutdown();
+		void Flush();
+		void PushCommand(const GfxCommand& cmd);
+		void WaitForFence();
 
 	private:
-		DX12GfxManager*	   m_gfxManager = nullptr;
-		Queue<DX12Command> m_waitingUploads;
+		Mutex								m_mtx;
+		Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
+		HANDLE								m_fenceEvent = NULL;
+		uint64								m_fenceValue = 0;
+		uint32								m_allocator	 = 0;
+		uint32								m_cmdList	 = 0;
+		Queue<GfxCommand>					m_waitingUploads;
 	};
 } // namespace Lina
 

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Core/StringID.hpp"
+#include "Data/Functional.hpp"
 
 namespace Lina
 {
@@ -172,23 +173,6 @@ namespace Lina
 	{
 		Vertex,
 		Instance
-	};
-
-	enum class MemoryUsageFlags
-	{
-		CpuOnly,
-		GpuOnly,
-		CpuToGpu,
-		GpuToCpu,
-	};
-
-	enum class MemoryPropertyFlags
-	{
-		None,
-		DeviceLocal,
-		HostVisible,
-		HostCoherent,
-		HostCached,
 	};
 
 	enum class IndexType
@@ -332,6 +316,21 @@ namespace Lina
 		Swapchain
 	};
 
+	enum class ResourceMemoryState
+	{
+		CPUHeap,
+		GPUHeap,
+	};
+
+	enum class ResourceState
+	{
+		CopyDestination,
+		VertexBuffer,
+		IndexBuffer,
+		UniformBuffer,
+		GenericRead,
+	};
+
 	struct Offset3D
 	{
 		int32 x = 0;
@@ -391,6 +390,14 @@ namespace Lina
 	{
 		uint8* data		= nullptr;
 		uint32 dataSize = 0;
+	};
+
+	class GfxCommand
+	{
+	public:
+		Delegate<void(uint32 cmdList)> Record;
+		Delegate<void()>			   OnRecorded;
+		Delegate<void()>			   OnSubmitted;
 	};
 
 #define DEFAULT_DEPTH_FORMAT	 Format::D32_SFLOAT

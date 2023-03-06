@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Components/ModelNodeComponent.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/IGfxResource.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -37,9 +38,12 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Math/Color.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
 
 // Test
 #include "Graphics/Core/ISwapchain.hpp"
+#include "Resources/Core/ResourceManager.hpp"
+#include "Core/SystemInfo.hpp"
 
 namespace Lina
 {
@@ -52,6 +56,9 @@ namespace Lina
 
 		for (auto& wrp : comps)
 		{
+			if (!wrp.Get().GetComponentMask().IsSet(ComponentMask::Renderable))
+				continue;
+
 			auto renderable = wrp.GetWrapperAs<RenderableComponent>();
 
 			if (renderable.Get().GetEntity()->IsVisible())
@@ -60,10 +67,13 @@ namespace Lina
 	}
 
 	WorldRenderer::WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio)
-		: m_gfxManager(gfxManager), m_imageCount(imageCount), m_surfaceRenderer(surface), m_mask(mask), m_world(world), m_renderResolution(renderResolution), m_aspectRatio(aspectRatio)
+		: m_gfxManager(gfxManager), m_imageCount(imageCount), m_surfaceRenderer(surface), m_mask(mask), m_world(world), m_opaquePass(gfxManager)
 	{
+		m_renderData.renderResolution = renderResolution;
+		m_renderData.aspectRatio	  = aspectRatio;
 		m_gfxManager->GetSystem()->AddListener(this);
-		AddRenderables<ModelNodeComponent>(world, m_renderData, m_renderableIDs);
+		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		AddRenderables<ModelNodeComponent>(world, m_renderData, m_renderData.renderableIDs);
 
 		/**************************** TODO **************************/
 		// m_surfaceRenderer->AddWorldRenderer(this);
@@ -78,15 +88,17 @@ namespace Lina
 		{
 			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
-				auto& frame		   = m_frames[i];
-				frame.cmdAllocator = Renderer::CreateCommandAllocator(CommandType::Graphics);
-				frame.cmdList	   = Renderer::CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
+				auto& frame			  = m_frames[i];
+				frame.cmdAllocator	  = Renderer::CreateCommandAllocator(CommandType::Graphics);
+				frame.cmdList		  = Renderer::CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
+				frame.sceneDataBuffer = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::UniformBuffer, &m_renderData.gpuSceneData, sizeof(GPUSceneData));
+				frame.viewDataBuffer  = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::UniformBuffer, &m_renderData.gpuViewData, sizeof(GPUViewData));
 			}
 		}
 
 		// Other setup
 		{
-			m_viewport = Viewport{
+			m_renderData.viewport = Viewport{
 				.x		  = 0.0f,
 				.y		  = 0.0f,
 				.width	  = static_cast<float>(renderResolution.x),
@@ -95,13 +107,11 @@ namespace Lina
 				.maxDepth = 0.0f,
 			};
 
-			m_scissors.pos	= Vector2i::Zero;
-			m_scissors.size = renderResolution;
+			m_renderData.scissors.pos  = Vector2i::Zero;
+			m_renderData.scissors.size = renderResolution;
+			m_renderData.extractedRenderables.reserve(100);
 
-			m_fence		 = Renderer::CreateFence();
-			m_fenceValue = 1;
-
-			CreateTextures(m_renderResolution, true);
+			CreateTextures(m_renderData.renderResolution, true);
 		}
 
 		s_worldRendererCount++;
@@ -117,9 +127,9 @@ namespace Lina
 
 			Renderer::ReleaseCommandList(frame.cmdList);
 			Renderer::ReleaseCommanAllocator(frame.cmdAllocator);
+			Renderer::DeleteBufferResource(frame.sceneDataBuffer);
+			Renderer::DeleteBufferResource(frame.viewDataBuffer);
 		}
-
-		Renderer::ReleaseFence(m_fence);
 
 		m_gfxManager->GetSystem()->RemoveListener(this);
 		DestroyTextures();
@@ -218,7 +228,7 @@ namespace Lina
 				ObjectWrapper<RenderableComponent> renderable = comp->GetWrapperAs<RenderableComponent>();
 
 				if (renderable.Get().GetEntity()->IsVisible())
-					m_renderableIDs[m_renderData.allRenderables.AddItem(renderable)] = renderable;
+					m_renderData.renderableIDs[m_renderData.allRenderables.AddItem(renderable)] = renderable;
 			}
 		}
 		else if (type & EVG_ComponentDestroyed)
@@ -229,20 +239,16 @@ namespace Lina
 			{
 				ObjectWrapper<RenderableComponent> renderable = comp->GetWrapperAs<RenderableComponent>();
 
-				for (auto& [id, rend] : m_renderableIDs)
+				for (auto& [id, rend] : m_renderData.renderableIDs)
 				{
 					if (rend == renderable)
 					{
 						m_renderData.allRenderables.RemoveItem(id);
-						m_renderableIDs.erase(id);
+						m_renderData.renderableIDs.erase(id);
 					}
 				}
 				// m_renderableIds
 			}
-		}
-		else if (type & EVG_EntityVisibilityChanged)
-		{
-			// Handle
 		}
 	}
 
@@ -253,6 +259,44 @@ namespace Lina
 		// TODO: Finalize the objects to be rendered.
 
 		// TODO: Get active camera, tick player view according to the camera, should we switch functionality to camera? I guess yes.
+		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
+
+		if (camRef.IsValid())
+		{
+			CameraComponent& cam = camRef.Get();
+			m_cameraSystem.CalculateCamera(cam, m_renderData.aspectRatio);
+			m_playerView.Tick(cam.GetEntity()->GetPosition(), cam.GetView(), cam.GetProjection(), cam.zNear, cam.zFar);
+		}
+
+		const auto& renderables = m_renderData.allRenderables.GetItems();
+
+		m_renderData.extractedRenderables.clear();
+		uint32 i = 0;
+		for (auto rend : renderables)
+		{
+			if (!rend.IsValid())
+				continue;
+
+			auto& r = rend.Get();
+			auto  e = r.GetEntity();
+
+			if (!e->GetEntityMask().IsSet(EntityMask::Visible))
+				continue;
+
+			RenderableData data;
+			data.entityID		   = e->GetID();
+			data.modelMatrix	   = e->ToMatrix();
+			data.entityMask		   = e->GetEntityMask();
+			data.position		   = e->GetPosition();
+			data.aabb			   = r.GetAABB(m_resourceManager);
+			data.passMask		   = r.GetDrawPasses(m_resourceManager);
+			data.type			   = r.GetType();
+			data.meshMaterialPairs = r.GetMeshMaterialPairs(m_resourceManager);
+			data.objDataIndex	   = i++;
+			m_renderData.extractedRenderables.push_back(data);
+		}
+
+		m_opaquePass.Process(m_renderData.extractedRenderables, m_playerView, 1000.0f, DrawPassMask::Opaque);
 	}
 
 	void WorldRenderer::Render(uint32 frameIndex)
@@ -260,21 +304,42 @@ namespace Lina
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[testImageIndex];
 
-		// Fence waiting
-		{
-			Renderer::WaitForFences(m_fence, m_fenceValue, frame.storedFence);
-		}
-
 		// Command buffer prep
 		{
 			Renderer::ResetCommandList(frame.cmdAllocator, frame.cmdList);
-			Renderer::PrepareCommandList(frame.cmdList, m_viewport, m_scissors);
+			Renderer::PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
+			Renderer::BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
+		}
+
+		// Update scene data
+		{
+			m_renderData.gpuSceneData.ambientColor.x = SystemInfo::GetAppTimeF();
+			frame.sceneDataBuffer->Update(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
+			Renderer::BindUniformBuffer(frame.cmdList, 1, frame.sceneDataBuffer);
 		}
 
 		// Main Render Pass
 		{
 			Renderer::TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
-			Renderer::BeginRenderPass(frame.cmdList, imgData.renderTargetColor, Color(0.5f, 0.0f, 0.0f, 1.0f));
+			Renderer::BeginRenderPass(frame.cmdList, imgData.renderTargetColor, Color(0.05f, 0.7f, 0.5f, 1.0f));
+
+			// Draw scene objects.
+			{
+				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
+				frame.viewDataBuffer->Update(&m_renderData.gpuViewData, sizeof(GPUViewData));
+				Renderer::BindUniformBuffer(frame.cmdList, 2, frame.viewDataBuffer);
+
+				Renderer::BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
+				//Renderer::BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());
+				Renderer::SetTopology(frame.cmdList, Topology::TriangleList);
+				m_opaquePass.Draw(frameIndex, frame.cmdList);
+			}
+
+			// Material* mat = m_resourceManager->GetResource<Material>("Resources/Core/Materials/SQTexture.linamat"_hs);
+			// Renderer::BindMaterial(frame.cmdList, mat);
+			//
+			// Renderer::DrawInstanced(frame.cmdList, 3, 1, 0, 0);
+
 			Renderer::EndRenderPass(frame.cmdList);
 			Renderer::TransitionRT2Present(frame.cmdList, imgData.renderTargetColor);
 		}
@@ -291,10 +356,7 @@ namespace Lina
 
 		// **** DEBUG ONLY **** //
 		Renderer::Present(testSwapchain);
-		testImageIndex	  = Renderer::GetNextBackBuffer(testSwapchain);
-		frame.storedFence = m_fenceValue;
-		Renderer::SignalFenceIncrementGraphics(m_fence, m_fenceValue);
-		m_fenceValue++;
+		testImageIndex = Renderer::GetNextBackBuffer(testSwapchain);
 
 		// Bind global vertex buffers, in our example case we'll only bind buffers for a cube.
 
@@ -311,7 +373,4 @@ namespace Lina
 		// If we are to have post processing, render pass for that one.
 	}
 
-	void WorldRenderer::Join()
-	{
-	}
 } // namespace Lina

@@ -33,25 +33,23 @@ SOFTWARE.
 
 #include "Math/Vector.hpp"
 #include "Math/Color.hpp"
-#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
-	class Vertex : public ISerializable
+	class Vertex
 	{
 	public:
 		Vertex()  = default;
 		~Vertex() = default;
 
 		Vertex(const Vector3& p, const Vector3& n, const Color& c, const Vector2 txCoord) : pos(p), normal(n), color(c), uv(txCoord){};
-		Vector3 pos;
-		Vector3 normal;
-		Color	color;
-		Vector2 uv;
+		Vector3 pos	   = Vector3::Zero;
+		Vector3 normal = Vector3::Zero;
+		Color	color  = Color::White;
+		Vector2 uv	   = Vector2::Zero;
 
-		// Inherited via ISerializable
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 	};
 
 } // namespace Lina

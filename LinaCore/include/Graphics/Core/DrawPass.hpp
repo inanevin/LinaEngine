@@ -26,38 +26,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-LINA_PASS_OPAQUE
-LINA_PASS_SHADOWS
-LINA_PIPELINE_STANDARD
+#pragma once
 
-#include "GlobalData.linashader"
-#include "ObjectData.linashader"
-#include "SceneData.linashader"
-#include "ViewData.linashader"
+#ifndef DrawPass_HPP
+#define DrawPass_HPP
 
-SamplerState g_staticSampler : register(s10);
+#include "Graphics/Data/RenderData.hpp"
+#include "Data/Mutex.hpp"
+#include "Data/Vector.hpp"
 
-struct PSInput
+namespace Lina
 {
-    float4 position : SV_POSITION;
-    float3 normal : NORMAL;
-    float3 color : COLOR;
-    float2 uv : TEXCOORD;
-};
+	class GfxManager;
+	class View;
+	class IGfxResource;
 
-PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD)
-{
-    PSInput result;
-	float4x4 transformMatrix = mul(viewProj, objects[0].model);
-	result.position = mul(transformMatrix, float4(position.xyz, 1.0));
-	//result.position = float4(position.xyz, 1.0f);
-    result.normal = normal;
-    result.color = color.xyz;
-	result.uv = uv;
-    return result;
-}
+	class DrawPass
+	{
+	public:
+		DrawPass(GfxManager* gfxMan);
+		virtual ~DrawPass();
 
-float4 PSMain(PSInput input) : SV_TARGET
-{
-    return float4(1,1,1, 1);
-}
+		void Process(Vector<RenderableData>& drawList, const View& targetView, float drawDistance, DrawPassMask drawPassMask);
+		void Draw(uint32 frameIndex, uint32 cmdListHandle);
+
+	private:
+		int32 FindInBatches(const MeshMaterialPair& pair);
+
+	private:
+		IGfxResource*		   m_objDataBuffer[FRAMES_IN_FLIGHT]  = {nullptr};
+		IGfxResource*		   m_indirectBuffer[FRAMES_IN_FLIGHT] = {nullptr};
+		GfxManager*			   m_gfxManager						  = nullptr;
+		Mutex				   m_mtx;
+		Vector<RenderableData> m_renderables;
+		Vector<InstancedBatch> m_batches;
+	};
+} // namespace Lina
+
+#endif

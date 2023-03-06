@@ -41,6 +41,9 @@ SOFTWARE.
 #include "Core/ObjectWrapper.hpp"
 #include "Event/IEventListener.hpp"
 #include "Math/Rect.hpp"
+#include "CameraSystem.hpp"
+#include "View.hpp"
+#include "DrawPass.hpp"
 
 namespace Lina
 {
@@ -67,16 +70,23 @@ namespace Lina
 		{
 			RenderData() : allRenderables(100, ObjectWrapper<RenderableComponent>(nullptr)){};
 
-			IDList<ObjectWrapper<RenderableComponent>> allRenderables;
-			GPUSceneData							   gpuSceneData;
-			GPUViewData								   gpuViewData;
+			float												aspectRatio		 = 0.0f;
+			Vector2i											renderResolution = Vector2i::Zero;
+			HashMap<uint32, ObjectWrapper<RenderableComponent>> renderableIDs;
+			IDList<ObjectWrapper<RenderableComponent>>			allRenderables;
+			GPUSceneData										gpuSceneData;
+			GPUViewData											gpuViewData;
+			Viewport											viewport = Viewport();
+			Recti												scissors = Recti();
+			Vector<RenderableData>								extractedRenderables;
 		};
 
 		struct DataPerFrame
 		{
-			uint32 cmdAllocator = 0;
-			uint32 cmdList		= 0;
-			uint64 storedFence	= 0;
+			uint32		  cmdAllocator	  = 0;
+			uint32		  cmdList		  = 0;
+			IGfxResource* sceneDataBuffer = nullptr;
+			IGfxResource* viewDataBuffer  = nullptr;
 		};
 
 		struct DataPerImage
@@ -91,7 +101,6 @@ namespace Lina
 		virtual void OnGameEvent(EGameEvent type, const Event& ev) override;
 		virtual void Tick(float delta);
 		virtual void Render(uint32 frameIndex);
-		virtual void Join();
 
 		virtual Bitmask32 GetGameEventMask()
 		{
@@ -100,12 +109,12 @@ namespace Lina
 
 		inline void SetResolution(const Vector2i& res)
 		{
-			m_renderResolution = res;
+			m_renderData.renderResolution = res;
 		}
 
 		inline void SetAspect(float aspect)
 		{
-			m_aspectRatio = aspect;
+			m_renderData.aspectRatio = aspect;
 		}
 
 	protected:
@@ -113,22 +122,20 @@ namespace Lina
 		void DestroyTextures();
 
 	protected:
-		static int											s_worldRendererCount;
-		uint32												m_imageCount = 0;
-		RenderData											m_renderData;
-		GfxManager*											m_gfxManager	   = nullptr;
-		SurfaceRenderer*									m_surfaceRenderer  = nullptr;
-		Bitmask16											m_mask			   = 0;
-		EntityWorld*										m_world			   = nullptr;
-		Vector2i											m_renderResolution = Vector2i::Zero;
-		float												m_aspectRatio	   = 0.0f;
-		HashMap<uint32, ObjectWrapper<RenderableComponent>> m_renderableIDs;
-		DataPerFrame										m_frames[FRAMES_IN_FLIGHT];
-		Vector<DataPerImage>								m_dataPerImage;
-		uint32												m_fence		 = 0;
-		uint64												m_fenceValue = 0;
-		Viewport											m_viewport	 = Viewport();
-		Recti												m_scissors	 = Recti();
+		static int s_worldRendererCount;
+
+		DrawPass			 m_opaquePass;
+		CameraSystem		 m_cameraSystem;
+		ResourceManager*	 m_resourceManager = nullptr;
+		View				 m_playerView;
+		uint32				 m_imageCount = 0;
+		RenderData			 m_renderData;
+		GfxManager*			 m_gfxManager	   = nullptr;
+		SurfaceRenderer*	 m_surfaceRenderer = nullptr;
+		Bitmask16			 m_mask			   = 0;
+		EntityWorld*		 m_world		   = nullptr;
+		DataPerFrame		 m_frames[FRAMES_IN_FLIGHT];
+		Vector<DataPerImage> m_dataPerImage;
 	};
 } // namespace Lina
 

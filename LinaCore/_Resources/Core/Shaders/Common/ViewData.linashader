@@ -37,7 +37,7 @@ cbuffer LinaView : register(b2)
 
 #define LINA_VIEW view
 #define LINA_PROJ proj
-#define LINA_VIEWPROJ view * proj
+#define LINA_VIEWPROJ viewProj
 #define LINA_CAMLOC camPos.xyz
 #define LINA_CAMNEAR camNearFar.x
 #define LINA_CAMFAR camNearFar.y

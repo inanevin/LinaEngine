@@ -30,6 +30,10 @@ LINA_PIPELINE_NOVERTEX
 
 // Texture2D g_texture : register(t0);
 
+#include "GlobalData.linashader"
+#include "SceneData.linashader"
+#include "ObjectData.linashader"
+
 struct PSInput
 {
 	float4 position : SV_POSITION;
@@ -39,11 +43,8 @@ struct PSInput
 PSInput VSMain(uint vertexID : SV_VertexID)
 {
     PSInput result;
-	//result.uv = float2((vertexID << 1) & 2, vertexID & 2);
-	//result.position = float4(result.uv * 2.0f + -1.0f, 0.0f, 1.0f);
-
-	result.uv = float2(vertexID & 1, vertexID >> 1); 
-    result.position = float4((result.uv.x - 0.5f) * 2, - (result.uv.y - 0.5f) * 2,0,1);
+	result.uv = float2((vertexID << 1) & 2, vertexID & 2);
+	result.position = float4(result.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
     return result;
 }
 
@@ -52,5 +53,5 @@ float4 PSMain(PSInput input) : SV_TARGET
 	//float2 uv = input.uv;
 	//float txt = g_texture.Load(int3(input.position.xy, 0));
     //return float4(txt, txt, txt, 1.0f);
-	return float4(0.4f, 0, 0.7f, 1.0f);
+	return float4(input.uv, sin(ambientColor.x), 1.0f);
 }

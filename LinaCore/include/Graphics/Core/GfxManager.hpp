@@ -23,7 +23,6 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
 */
 
 #pragma once
@@ -35,6 +34,7 @@ SOFTWARE.
 #include "Core/StringID.hpp"
 #include "Data/Vector.hpp"
 #include "Graphics/Data/RenderData.hpp"
+#include "GfxMeshManager.hpp"
 
 namespace Lina
 {
@@ -52,7 +52,7 @@ namespace Lina
 		};
 
 	public:
-		GfxManager(ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager){};
+		GfxManager(ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this){};
 		virtual ~GfxManager() = default;
 
 		virtual void  PreInitialize(const SystemInitializationInfo& initInfo) override;
@@ -71,7 +71,13 @@ namespace Lina
 			return EVS_PostInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
 		}
 
+		inline const GfxMeshManager& GetMeshManager()
+		{
+			return m_meshManager;
+		}
+
 	private:
+		GfxMeshManager			 m_meshManager;
 		DataPerFrame			 m_dataPerFrame[FRAMES_IN_FLIGHT];
 		GPUGlobalData			 m_globalData;
 		Vector<Material*>		 m_engineMaterials;

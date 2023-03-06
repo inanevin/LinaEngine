@@ -40,8 +40,10 @@ SOFTWARE.
 
 namespace Lina
 {
-	extern DXGI_FORMAT			   GetFormat(Format format);
-	extern D3D12_COMMAND_LIST_TYPE GetCommandType(CommandType type);
+	extern DXGI_FORMAT				GetFormat(Format format);
+	extern D3D12_COMMAND_LIST_TYPE	GetCommandType(CommandType type);
+	extern D3D12_PRIMITIVE_TOPOLOGY GetTopology(Topology topology);
+	extern D3D12_RESOURCE_STATES	GetResourceState(ResourceState state);
 
 	inline String HrToString(HRESULT hr)
 	{

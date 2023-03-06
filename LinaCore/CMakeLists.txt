@@ -47,9 +47,11 @@ src/Input/Core/Input.cpp
 src/Graphics/Core/WindowManager.cpp
 src/Graphics/Core/GfxManager.cpp
 src/Graphics/Core/View.cpp
+src/Graphics/Core/DrawPass.cpp
 src/Graphics/Core/CameraSystem.cpp
 src/Graphics/Core/WorldRenderer.cpp
 src/Graphics/Core/SurfaceRenderer.cpp
+src/Graphics/Core/GfxMeshManager.cpp
 src/Graphics/Components/RenderableComponent.cpp
 src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp
@@ -144,6 +146,8 @@ include/Graphics/Core/WorldRenderer.hpp
 include/Graphics/Core/SurfaceRenderer.hpp
 include/Graphics/Core/CommonGraphics.hpp
 include/Graphics/Core/View.hpp
+include/Graphics/Core/DrawPass.hpp
+include/Graphics/Core/GfxMeshManager.hpp
 include/Graphics/Core/CameraSystem.hpp
 include/Graphics/Data/RenderData.hpp
 include/Graphics/Data/Vertex.hpp
@@ -305,6 +309,7 @@ link_dxc()
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC d3d12.lib
 	PUBLIC dxgi.lib
+	PUBLIC dxguid.lib
 )
 message("LinaCore -> D3D12 Linked.")
 endif()

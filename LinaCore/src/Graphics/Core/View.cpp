@@ -46,4 +46,13 @@ namespace Lina
 		m_far  = far;
 		m_frustum.Calculate(proj * view, false);
 	}
+
+	void View::FillGPUViewData(GPUViewData& vd)
+	{
+		vd.camNearFar = Vector2(GetNear(), GetFar());
+		vd.camPos	  = GetPos();
+		vd.proj		  = GetProj();
+		vd.view		  = GetView();
+		vd.viewProj	  = vd.proj * vd.view;
+	}
 } // namespace Lina

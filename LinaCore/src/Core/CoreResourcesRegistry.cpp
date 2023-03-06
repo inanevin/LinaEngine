@@ -60,7 +60,7 @@ namespace Lina
 		// list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans.ttf", GetTypeID<Font>(), 0));
 		// list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular.ttf", GetTypeID<Font>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Models/Capsule.fbx", GetTypeID<Model>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<Model>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<Model>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Models/Cylinder.fbx", GetTypeID<Model>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.fbx", GetTypeID<Model>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.fbx", GetTypeID<Model>(), 0));
@@ -72,7 +72,7 @@ namespace Lina
 		//list.push_back(ResourceIdentifier("Resources/Core/Textures/Logo_White_512.png", GetTypeID<Texture>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Textures/LogoWithText.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
 
 #ifdef LINA_GRAPHICS_VULKAN
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0));

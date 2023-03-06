@@ -53,7 +53,6 @@ namespace Lina
 
 		void Tick(float delta);
 		void Render();
-		void Join();
 		void Present();
 		void AddWorldRenderer(WorldRenderer* renderer);
 		void RemoveWorldRenderer(WorldRenderer* renderer);

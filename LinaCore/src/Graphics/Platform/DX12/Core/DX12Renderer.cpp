@@ -195,16 +195,16 @@ namespace Lina
 			descRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
 			descRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 10, 0);
 
-			CD3DX12_ROOT_PARAMETER1 rp[7];
+			CD3DX12_ROOT_PARAMETER1 rp[7] = {};
 
 			// Global constant buffer
-			rp[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+			rp[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
 
 			// Scene data
-			rp[1].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+			rp[1].InitAsConstantBufferView(1, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
 
 			// View data
-			rp[2].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+			rp[2].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
 
 			// Material data
 			rp[3].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
@@ -214,7 +214,7 @@ namespace Lina
 			rp[5].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
 
 			// Object buffer.
-			rp[6].InitAsShaderResourceView(10, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_VERTEX);
+			rp[6].InitAsShaderResourceView(10, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
 
 			CD3DX12_STATIC_SAMPLER_DESC samplerDesc[1] = {};
 			samplerDesc[0].Init(10, D3D12_FILTER_ANISOTROPIC);
@@ -237,17 +237,50 @@ namespace Lina
 				LINA_CRITICAL("[Shader Compiler] -> Failed creating root signature!");
 			}
 		}
+
+		// Indirect command signature
+		{
+			D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[1] = {};
+			argumentDescs[0].Type						  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+
+			D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+			commandSignatureDesc.pArgumentDescs				  = argumentDescs;
+			commandSignatureDesc.NumArgumentDescs			  = _countof(argumentDescs);
+			commandSignatureDesc.ByteStride					  = sizeof(DrawIndexedIndirectCommand);
+
+			ThrowIfFailed(s_state.device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(&s_state.commandSigStandard)));
+		}
+
+		// Sycnronization resources
+		{
+			s_state.frameFenceGraphics = CreateFence();
+			s_state.fenceValueGraphics = 1;
+
+			s_state.fenceEventGraphics = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			if (s_state.fenceEventGraphics == nullptr)
+			{
+				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+			}
+		}
+
+		s_state.uploader.Initialize();
 	}
 
 	void Renderer::Shutdown()
 	{
+		s_state.uploader.Shutdown();
+		ReleaseFence(s_state.frameFenceGraphics);
+
 		ID3D12InfoQueue1* infoQueue = nullptr;
 		if (SUCCEEDED(s_state.device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
 		{
 			infoQueue->UnregisterMessageCallback(msgCallback);
 		}
 
+		s_state.graphicsQueue.Reset();
+		s_state.copyQueue.Reset();
 		s_state.dx12Allocator->Release();
+		s_state.device.Reset();
 	}
 
 	void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)
@@ -353,8 +386,8 @@ namespace Lina
 			{
 				inputLayout.push_back({"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
 				inputLayout.push_back({"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-				inputLayout.push_back({"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-				inputLayout.push_back({"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+				inputLayout.push_back({"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
+				inputLayout.push_back({"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
 			}
 			else if (ppType == PipelineType::GUI)
 			{
@@ -389,17 +422,17 @@ namespace Lina
 		if (ppType == PipelineType::Standard)
 		{
 			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_BACK;
-			psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
 		}
 		else if (ppType == PipelineType::NoVertex)
 		{
-			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_FRONT;
+			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_NONE;
 			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
 		}
 		else if (ppType == PipelineType::GUI)
 		{
 			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_NONE;
-			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
+			psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
 		}
 
 		for (const auto& [stg, title] : stages)
@@ -615,6 +648,35 @@ namespace Lina
 		s_state.textures.RemoveItem(index);
 	}
 
+	void Renderer::BeginFrame(uint32 frameIndex)
+	{
+		// Will wait if pending commands.
+		s_state.uploader.Flush();
+
+		Renderer::WaitForFences(s_state.frameFenceGraphics, s_state.fenceValueGraphics, s_state.frames[frameIndex].storedFenceGraphics);
+	}
+
+	void Renderer::EndFrame(uint32 frameIndex)
+	{
+		auto& fence				  = s_state.fences.GetItemR(s_state.frameFenceGraphics);
+		auto& frame				  = s_state.frames[frameIndex];
+		frame.storedFenceGraphics = s_state.fenceValueGraphics;
+		s_state.graphicsQueue->Signal(fence.Get(), s_state.fenceValueGraphics);
+		s_state.fenceValueGraphics++;
+	}
+
+	void Renderer::WaitForGPUGraphics()
+	{
+		auto& fence = s_state.fences.GetItemR(s_state.frameFenceGraphics);
+
+		// Schedule a Signal command in the queue.
+		ThrowIfFailed(s_state.graphicsQueue->Signal(fence.Get(), s_state.fenceValueGraphics));
+
+		// Wait until the fence has been processed.
+		ThrowIfFailed(fence->SetEventOnCompletion(s_state.fenceValueGraphics, s_state.fenceEventGraphics));
+		WaitForSingleObjectEx(s_state.fenceEventGraphics, INFINITE, FALSE);
+	}
+
 	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, void* windowHandle)
 	{
 		return new DX12Swapchain(size, windowHandle);
@@ -652,9 +714,14 @@ namespace Lina
 		s_state.cmdAllocators.RemoveItem(handle);
 	}
 
-	IGfxResource* Renderer::CreateBufferResource(void* initialData, size_t size)
+	IGfxResource* Renderer::CreateBufferResource(ResourceMemoryState memState, ResourceState resState, void* initialData, size_t size)
 	{
-		return new DX12GfxBufferResource(initialData, size);
+		return new DX12GfxBufferResource(memState, resState, initialData, size);
+	}
+
+	IGfxResource* Renderer::CreateIndirectBufferResource()
+	{
+		return nullptr;
 	}
 
 	void Renderer::ReleaseCommandList(uint32 handle)
@@ -678,10 +745,10 @@ namespace Lina
 
 	void Renderer::PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors)
 	{
-		auto&				  cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
-		ID3D12DescriptorHeap* heaps[] = {s_state.bufferHeap.GetHeap()};
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		// ID3D12DescriptorHeap* heaps[] = {s_state.bufferHeap.GetHeap()};
 		cmdList->SetGraphicsRootSignature(s_state.rootSigStandard.Get());
-	//	cmdList->SetDescriptorHeaps(_countof(heaps), heaps);
+		//	cmdList->SetDescriptorHeaps(_countof(heaps), heaps);
 
 		// Viewport & scissors.
 		{
@@ -726,6 +793,22 @@ namespace Lina
 		s_state.graphicsQueue->ExecuteCommandLists(sz, data);
 	}
 
+	void Renderer::ExecuteCommandListsTransfer(const Vector<uint32>& lists)
+	{
+		const UINT sz = static_cast<UINT>(lists.size());
+
+		Vector<ID3D12CommandList*> _lists;
+
+		for (UINT i = 0; i < sz; i++)
+		{
+			auto& lst = s_state.cmdLists.GetItemR(lists[i]);
+			_lists.push_back(lst.Get());
+		}
+
+		ID3D12CommandList* const* data = _lists.data();
+		s_state.copyQueue->ExecuteCommandLists(sz, data);
+	}
+
 	void Renderer::TransitionPresent2RT(uint32 cmdListHandle, Texture* txt)
 	{
 		auto& cmdList	  = s_state.cmdLists.GetItemR(cmdListHandle);
@@ -767,10 +850,113 @@ namespace Lina
 		cmdList->EndRenderPass();
 	}
 
-	void Renderer::BindGlobalData(uint32 cmdListHandle)
+	void Renderer::BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxResource* buf)
 	{
 		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
-		cmdList->SetGraphicsRootConstantBufferView(0, s_state.gfxManager->GetCurrentGlobalDataResource()->GetGPUPointer());
+		cmdList->SetGraphicsRootConstantBufferView(bufferIndex, buf->GetGPUPointer());
+	}
+
+	void Renderer::BindObjectBuffer(uint32 cmdListHandle, IGfxResource* buf)
+	{
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		cmdList->SetGraphicsRootShaderResourceView(6, buf->GetGPUPointer());
+	}
+
+	void Renderer::BindMaterial(uint32 cmdListHandle, Material* mat)
+	{
+		auto* shader = mat->GetShader();
+
+		if (shader == nullptr)
+		{
+			LINA_ERR("[Renderer] -> Can not bind material because the material does not have an assigned shader!");
+			return;
+		}
+
+		auto& cmdList	 = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& shaderData = s_state.shaders.GetItemR(shader->GetGPUHandle());
+		cmdList->SetPipelineState(shaderData.pso.Get());
+	}
+
+	void Renderer::DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
+	{
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		cmdList->DrawInstanced(vertexCount, instanceCount, startVertex, startInstance);
+	}
+
+	void Renderer::DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation)
+	{
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		cmdList->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+	}
+
+	void Renderer::DrawIndexedIndirect(uint32 cmdListHandle, IGfxResource* indirectBuffer, uint32 count, uint64 indirectOffset)
+	{
+		auto&				   cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		DX12GfxBufferResource* buf	   = static_cast<DX12GfxBufferResource*>(indirectBuffer);
+
+		D3D12_RESOURCE_BARRIER barriers[1] = {CD3DX12_RESOURCE_BARRIER::Transition(buf->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT)};
+		cmdList->ResourceBarrier(_countof(barriers), barriers);
+		cmdList->ExecuteIndirect(s_state.commandSigStandard.Get(), count, buf->DX12GetAllocation()->GetResource(), indirectOffset, nullptr, 0);
+	}
+
+	void Renderer::SetTopology(uint32 cmdListHandle, Topology topology)
+	{
+		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		cmdList->IASetPrimitiveTopology(GetTopology(topology));
+	}
+
+	void Renderer::PushTransferCommand(GfxCommand& cmd)
+	{
+		s_state.uploader.PushCommand(cmd);
+	}
+
+	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxResource* buffer, uint32 slot)
+	{
+		auto&					 cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		D3D12_VERTEX_BUFFER_VIEW view;
+		view.BufferLocation = buffer->GetGPUPointer();
+		view.SizeInBytes	= buffer->GetSize();
+		view.StrideInBytes	= sizeof(Vertex);
+		cmdList->IASetVertexBuffers(slot, 1, &view);
+	}
+
+	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxResource* buffer)
+	{
+		auto&					cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		D3D12_INDEX_BUFFER_VIEW view;
+		view.BufferLocation = buffer->GetGPUPointer();
+		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
+		view.Format			= DXGI_FORMAT_R32_UINT;
+		cmdList->IASetIndexBuffer(&view);
+	}
+
+	void Renderer::CopyCPU2GPU(IGfxResource* cpuBuffer, IGfxResource* gpuBuffer, void* data, size_t sz, ResourceState finalState)
+	{
+		GfxCommand cmd;
+
+		DX12GfxBufferResource* cpuRes = static_cast<DX12GfxBufferResource*>(cpuBuffer);
+		DX12GfxBufferResource* gpuRes = static_cast<DX12GfxBufferResource*>(gpuBuffer);
+
+		cmd.Record = [data, sz, cpuRes, gpuRes, finalState](uint32 list) {
+			auto& cmdList = s_state.cmdLists.GetItemR(list);
+
+			D3D12_SUBRESOURCE_DATA sData = {};
+			sData.pData					 = data;
+			sData.RowPitch				 = sz;
+			sData.SlicePitch			 = sData.RowPitch;
+
+			UpdateSubresources<1>(cmdList.Get(), gpuRes->DX12GetAllocation()->GetResource(), cpuRes->DX12GetAllocation()->GetResource(), 0, 0, 1, &sData);
+			auto fs			= GetResourceState(finalState);
+			auto transition = CD3DX12_RESOURCE_BARRIER::Transition(gpuRes->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, fs);
+			cmdList->ResourceBarrier(1, &transition);
+		};
+
+		PushTransferCommand(cmd);
+	}
+
+	void Renderer::WaitForCopyQueue()
+	{
+		s_state.uploader.Flush();
 	}
 
 	void Renderer::Present(ISwapchain* swp)
@@ -827,12 +1013,6 @@ namespace Lina
 				CloseHandle(eventHandle);
 			}
 		}
-	}
-
-	void Renderer::SignalFenceIncrementGraphics(uint32 fenceHandle, uint64 value)
-	{
-		auto& fence = s_state.fences.GetItemR(fenceHandle);
-		s_state.graphicsQueue->Signal(fence.Get(), value);
 	}
 
 	Texture* Renderer::CreateRenderTarget(const String& path)

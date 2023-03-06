@@ -44,11 +44,21 @@ namespace Lina
 	class DX12GfxBufferResource : public IGfxResource
 	{
 	public:
-		DX12GfxBufferResource(void* initialData, size_t sz);
+		DX12GfxBufferResource(ResourceMemoryState memory, ResourceState state, void* initialData, size_t sz);
 		virtual ~DX12GfxBufferResource();
 
-		virtual void   Update(void* data) override;
+		virtual void   Recreate(void* data, size_t sz) override;
+		virtual void   Update(void* data, size_t sz) override;
 		virtual uint64 GetGPUPointer() override;
+
+		inline D3D12MA::Allocation* DX12GetAllocation()
+		{
+			return m_allocation;
+		}
+
+	private:
+		void CreateGPUBuffer(void* data, size_t sz);
+		void Cleanup();
 
 	private:
 		D3D12MA::Allocation* m_allocation = nullptr;

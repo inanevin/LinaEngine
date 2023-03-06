@@ -31,57 +31,55 @@ SOFTWARE.
 #ifndef Lina_Color_HPP
 #define Lina_Color_HPP
 
-#include "Serialization/ISerializable.hpp"
 namespace Lina
 {
-    class Color : public ISerializable
-    {
+	class Color
+	{
 
-    public:
-        Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av){};
+	public:
+		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av){};
 
-        float x, y, z, w = 1.0f;
+		float x, y, z, w = 1.0f;
 
-        bool operator!=(const Color& rhs) const
-        {
-            return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
-        }
+		bool operator!=(const Color& rhs) const
+		{
+			return !(x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
+		}
 
-        bool operator==(const Color& rhs) const
-        {
-            return (x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
-        }
+		bool operator==(const Color& rhs) const
+		{
+			return (x == rhs.x && y == rhs.y && z == rhs.z && w == rhs.w);
+		}
 
-        Color operator*(const float& rhs) const
-        {
-            return Color(x * rhs, y * rhs, z * rhs, w * rhs);
-        }
+		Color operator*(const float& rhs) const
+		{
+			return Color(x * rhs, y * rhs, z * rhs, w * rhs);
+		}
 
-        Color operator+(const Color& rhs) const
-        {
-            return Color(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
-        }
+		Color operator+(const Color& rhs) const
+		{
+			return Color(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+		}
 
-    public:
-        static Color Red;
-        static Color Green;
-        static Color LightBlue;
-        static Color Blue;
-        static Color DarkBlue;
-        static Color Cyan;
-        static Color Yellow;
-        static Color Black;
-        static Color White;
-        static Color Purple;
-        static Color Maroon;
-        static Color Beige;
-        static Color Brown;
-        static Color Gray;
+	public:
+		static Color Red;
+		static Color Green;
+		static Color LightBlue;
+		static Color Blue;
+		static Color DarkBlue;
+		static Color Cyan;
+		static Color Yellow;
+		static Color Black;
+		static Color White;
+		static Color Purple;
+		static Color Maroon;
+		static Color Beige;
+		static Color Brown;
+		static Color Gray;
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override;
-        virtual void LoadFromStream(IStream& stream) override;
-    };
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
 
 } // namespace Lina
 

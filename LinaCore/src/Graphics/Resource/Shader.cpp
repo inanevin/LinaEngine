@@ -223,7 +223,7 @@ namespace Lina
 		if (m_gpuHandle != -1)
 			return;
 
-		Renderer::GeneratePipeline(this);
+		m_gpuHandle = Renderer::GeneratePipeline(this);
 	}
 
 	void Shader::Flush()

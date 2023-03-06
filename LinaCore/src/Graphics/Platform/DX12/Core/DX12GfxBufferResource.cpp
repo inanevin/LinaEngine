@@ -32,7 +32,42 @@ SOFTWARE.
 
 namespace Lina
 {
-	DX12GfxBufferResource::DX12GfxBufferResource(void* initialData, size_t sz) : IGfxResource(sz)
+	DX12GfxBufferResource::DX12GfxBufferResource(ResourceMemoryState memory, ResourceState state, void* initialData, size_t sz) : IGfxResource(memory, state, sz)
+	{
+		CreateGPUBuffer(initialData, sz);
+	}
+
+	DX12GfxBufferResource::~DX12GfxBufferResource()
+	{
+		Cleanup();
+	}
+
+	void DX12GfxBufferResource::Recreate(void* data, size_t sz)
+	{
+		Cleanup();
+		CreateGPUBuffer(data, sz);
+	}
+
+	void DX12GfxBufferResource::Update(void* data, size_t sz)
+	{
+		if (sz > m_size)
+			Recreate(data, sz);
+
+		if (m_mappedData == nullptr)
+		{
+			LINA_WARN("[GfxBufferResource]-> Mapped data is nullptr, can't update!");
+			return;
+		}
+
+		MEMCPY(m_mappedData, data, m_size);
+	}
+
+	uint64 DX12GfxBufferResource::GetGPUPointer()
+	{
+		return m_allocation->GetResource()->GetGPUVirtualAddress();
+	}
+
+	void DX12GfxBufferResource::CreateGPUBuffer(void* data, size_t sz)
 	{
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension			 = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -48,28 +83,41 @@ namespace Lina
 		resourceDesc.Flags				 = D3D12_RESOURCE_FLAG_NONE;
 
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
-		allocationDesc.HeapType					= D3D12_HEAP_TYPE_UPLOAD;
-		ThrowIfFailed(Renderer::DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, NULL, &m_allocation, IID_NULL, NULL));
 
-		CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
-		ThrowIfFailed(m_allocation->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));
-		MEMCPY(m_mappedData, initialData, sz);
+		if (m_memoryState == ResourceMemoryState::CPUHeap)
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+		else if (m_memoryState == ResourceMemoryState::GPUHeap)
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+
+		D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+
+		if (m_state == ResourceState::UniformBuffer)
+			state = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		else if (m_state == ResourceState::CopyDestination)
+			state = D3D12_RESOURCE_STATE_COPY_DEST;
+		else if (m_state == ResourceState::GenericRead)
+			state = D3D12_RESOURCE_STATE_GENERIC_READ;
+
+		ThrowIfFailed(Renderer::DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, NULL, &m_allocation, IID_NULL, NULL));
+
+		if (data != nullptr)
+		{
+			CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
+			ThrowIfFailed(m_allocation->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));
+			MEMCPY(m_mappedData, data, sz);
+		}
 	}
 
-	DX12GfxBufferResource::~DX12GfxBufferResource()
+	void DX12GfxBufferResource::Cleanup()
 	{
-		m_allocation->GetResource()->Release();
+		if (m_mappedData != nullptr)
+		{
+			CD3DX12_RANGE readRange(0, 0);
+			m_allocation->GetResource()->Unmap(0, &readRange);
+		}
+
 		m_allocation->Release();
 		m_allocation = nullptr;
-	}
-
-	void DX12GfxBufferResource::Update(void* data)
-	{
-		MEMCPY(m_mappedData, data, m_size);
-	}
-	
-	uint64 DX12GfxBufferResource::GetGPUPointer()
-	{
-		return m_allocation->GetResource()->GetGPUVirtualAddress();
+		m_mappedData = nullptr;
 	}
 } // namespace Lina

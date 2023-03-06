@@ -164,6 +164,15 @@ namespace Lina
 		uint32 firstIndex	= 0;
 	};
 
+	struct DrawIndexedIndirectCommand
+	{
+		uint32 indexCountPerInstance = 0;
+		uint32 instanceCount		 = 0;
+		uint32 startIndexLocation	 = 0;
+		uint32 baseVertexLocation	 = 0;
+		uint32 startInstanceLocation = 0;
+	};
+
 	struct PCRTest
 	{
 		Matrix4 mat = Matrix4::Identity();

@@ -40,8 +40,8 @@ namespace Lina
 		cam.m_view				= Matrix4::InitLookAt(pos, pos + camRot.GetForward(), camRot.GetUp());
 		cam.m_projection		= Matrix4::Perspective(cam.fieldOfView / 2.0f, aspect, cam.zNear, cam.zFar);
 
-		const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
-		cam.m_projection = clip * cam.m_projection;
+		// const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
+		// cam.m_projection = clip * cam.m_projection;
 		// cam.m_projection[1][1] *= -1;
 	}
 } // namespace Lina

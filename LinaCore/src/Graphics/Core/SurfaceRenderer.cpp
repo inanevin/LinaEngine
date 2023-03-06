@@ -126,13 +126,6 @@ namespace Lina
 	{
 	}
 
-	void SurfaceRenderer::Join()
-	{
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Join(); });
-		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-	}
-
 	void SurfaceRenderer::Present()
 	{
 	}

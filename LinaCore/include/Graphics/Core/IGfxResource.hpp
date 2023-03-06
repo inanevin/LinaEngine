@@ -31,18 +31,30 @@ SOFTWARE.
 #ifndef IGfxResource_HPP
 #define IGfxResource_HPP
 
+#include "Graphics/Core/CommonGraphics.hpp"
+
 namespace Lina
 {
 	class IGfxResource
 	{
 	public:
-		IGfxResource(size_t sz) : m_size(sz){};
+		IGfxResource(){};
+		IGfxResource(ResourceMemoryState memory, ResourceState state, size_t sz) : m_memoryState(memory), m_state(state), m_size(sz){};
 		virtual ~IGfxResource() = default;
 
-		virtual void   Update(void* data) = 0;
-		virtual uint64 GetGPUPointer()	  = 0;
+		virtual void   Recreate(void* data, size_t sz) = 0;
+		virtual void   Update(void* data, size_t sz)   = 0;
+		virtual uint64 GetGPUPointer()				   = 0;
+
+		inline size_t GetSize()
+		{
+			return m_size;
+		}
 
 	protected:
+		ResourceMemoryState m_memoryState = ResourceMemoryState::CPUHeap;
+		ResourceState		m_state		  = ResourceState::CopyDestination;
+
 		uint8* m_mappedData = nullptr;
 		size_t m_size		= 0;
 	};

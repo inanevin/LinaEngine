@@ -26,38 +26,58 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-LINA_PASS_OPAQUE
-LINA_PASS_SHADOWS
-LINA_PIPELINE_STANDARD
+#pragma once
 
-#include "GlobalData.linashader"
-#include "ObjectData.linashader"
-#include "SceneData.linashader"
-#include "ViewData.linashader"
+#ifndef GfxMeshManager_HPP
+#define GfxMeshManager_HPP
 
-SamplerState g_staticSampler : register(s10);
+#include "Graphics/Data/RenderData.hpp"
+#include "Data/HashMap.hpp"
+#include "Data/Vector.hpp"
+#include "Core/StringID.hpp"
 
-struct PSInput
+namespace Lina
 {
-    float4 position : SV_POSITION;
-    float3 normal : NORMAL;
-    float3 color : COLOR;
-    float2 uv : TEXCOORD;
-};
+	class GfxManager;
+	class ResourceManager;
+	class Mesh;
+	class IGfxResource;
 
-PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD)
-{
-    PSInput result;
-	float4x4 transformMatrix = mul(viewProj, objects[0].model);
-	result.position = mul(transformMatrix, float4(position.xyz, 1.0));
-	//result.position = float4(position.xyz, 1.0f);
-    result.normal = normal;
-    result.color = color.xyz;
-	result.uv = uv;
-    return result;
-}
+	class GfxMeshManager
+	{
+	public:
+		GfxMeshManager(GfxManager* gfxManager);
+		~GfxMeshManager() = default;
 
-float4 PSMain(PSInput input) : SV_TARGET
-{
-    return float4(1,1,1, 1);
-}
+		void Initialize();
+		void Shutdown();
+		void MergeMeshes();
+
+		inline IGfxResource* GetGPUVertexBuffer() const
+		{
+			return m_gpuVtxBuffer;
+		}
+
+		inline IGfxResource* GetGPUIndexBuffer() const
+		{
+			return m_gpuIndexBuffer;
+		}
+
+		inline const HashMap<Mesh*, MergedBufferMeshEntry>& GetMergedMeshes() const
+		{
+			return m_meshEntries;
+		}
+
+	private:
+		ResourceManager*					  m_resourceManager = nullptr;
+		GfxManager*							  m_gfxManager		= nullptr;
+		HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
+		Vector<StringID>					  m_mergedModelIDs;
+		IGfxResource*						  m_cpuVtxBuffer   = nullptr;
+		IGfxResource*						  m_gpuVtxBuffer   = nullptr;
+		IGfxResource*						  m_cpuIndexBuffer = nullptr;
+		IGfxResource*						  m_gpuIndexBuffer = nullptr;
+	};
+} // namespace Lina
+
+#endif

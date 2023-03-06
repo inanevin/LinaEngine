@@ -72,6 +72,7 @@ namespace Lina
 
 		return DXGI_FORMAT_UNKNOWN;
 	}
+
 	D3D12_COMMAND_LIST_TYPE GetCommandType(CommandType type)
 	{
 		switch (type)
@@ -84,6 +85,46 @@ namespace Lina
 			return D3D12_COMMAND_LIST_TYPE_COPY;
 		default:
 			return D3D12_COMMAND_LIST_TYPE_DIRECT;
+		}
+	}
+
+	D3D12_PRIMITIVE_TOPOLOGY GetTopology(Topology topology)
+	{
+		switch (topology)
+		{
+		case Topology::PointList:
+			return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+		case Topology::LineList:
+			return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+		case Topology::LineStrip:
+			return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+		case Topology::TriangleFan:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN;
+		case Topology::TriangleStrip:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+		case Topology::TriangleList:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		case Topology::TriangleListAdjacency:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+		case Topology::TriangleStripAdjacency:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+		default:
+			return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+		}
+	}
+	D3D12_RESOURCE_STATES GetResourceState(ResourceState state)
+	{
+		switch (state)
+		{
+		case ResourceState::CopyDestination:
+			return D3D12_RESOURCE_STATE_COPY_DEST;
+		case ResourceState::VertexBuffer:
+		case ResourceState::UniformBuffer:
+			return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		case ResourceState::IndexBuffer:
+			return D3D12_RESOURCE_STATE_INDEX_BUFFER;
+		default:
+			return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 		}
 	}
 } // namespace Lina

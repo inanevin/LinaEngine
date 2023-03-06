@@ -1979,7 +1979,7 @@ for(;;)
     // Make sure the copy commands finished executing.
     cmdQueue->ExecuteCommandLists(...);
     // ...
-    WaitForSingleObject(fenceEvent, INFINITE);
+    WaitForSingleObject(fenceEventGraphics, INFINITE);
 
     // Update appropriate descriptors to point to the new places...
         

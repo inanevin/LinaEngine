@@ -76,7 +76,6 @@ namespace Lina
 		EVG_PostPhysics				   = 1 << 7,
 		EVG_ComponentCreated		   = 1 << 8,
 		EVG_ComponentDestroyed		   = 1 << 9,
-		EVG_EntityVisibilityChanged = 1 << 10,
 	};
 } // namespace Lina
 

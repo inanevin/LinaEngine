@@ -30,21 +30,27 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Core/IGfxResource.hpp"
 #include "Graphics/Resource/Material.hpp"
+#include "Graphics/Resource/Model.hpp"
 #include "System/ISystem.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
+#include "Core/SystemInfo.hpp"
 
 // Debug
 #include "Graphics/Core/WorldRenderer.hpp"
 #include "World/Core/EntityWorld.hpp"
+#include "Graphics/Components/CameraComponent.hpp"
+#include "Graphics/Resource/Model.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina
 {
 	WorldRenderer* testWorldRenderer = nullptr;
 	EntityWorld*   testWorld		 = nullptr;
+	Entity*		   camEntity		 = nullptr;
 
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
@@ -58,12 +64,18 @@ namespace Lina
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data			  = m_dataPerFrame[i];
-			data.globalDataBuffer = Renderer::CreateBufferResource(&m_globalData, sizeof(GPUGlobalData));
+			data.globalDataBuffer = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::UniformBuffer, &m_globalData, sizeof(GPUGlobalData));
 		}
+
+		m_meshManager.Initialize();
 	}
 
 	void GfxManager::Shutdown()
 	{
+		Join();
+
+		m_meshManager.Shutdown();
+
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_dataPerFrame[i];
@@ -75,11 +87,7 @@ namespace Lina
 
 	void GfxManager::Join()
 	{
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Join(); });
-		m_system->GetMainExecutor()->RunAndWait(tf);
-
-		testWorldRenderer->Join();
+		Renderer::WaitForGPUGraphics();
 	}
 
 	void GfxManager::Tick(float delta)
@@ -89,13 +97,25 @@ namespace Lina
 		m_system->GetMainExecutor()->RunAndWait(tf);
 
 		testWorldRenderer->Tick(delta);
+
+		if (camEntity)
+		{
+			// camEntity->SetPosition(Vector3(0,0, Math::Sin(SystemInfo::GetAppTimeF() * 5) * 10));
+			// camEntity->SetRotationAngles(Vector3(0, 180 + SystemInfo::GetAppTimeF(), 0));
+			 
+		}
 	}
 
 	void GfxManager::Render()
 	{
-		auto& dataPerFrame = m_dataPerFrame[m_frameIndex];
+		auto& frame = m_dataPerFrame[m_frameIndex];
 
-		dataPerFrame.globalDataBuffer->Update(&m_globalData);
+		// TODO
+		m_globalData.screenSizeMousePos = Vector2::Zero;
+		m_globalData.deltaElapsed		= Vector2(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF());
+		frame.globalDataBuffer->Update(&m_globalData, sizeof(GPUGlobalData));
+
+		Renderer::BeginFrame(m_frameIndex);
 
 		// Surface renderers.
 		{
@@ -113,6 +133,8 @@ namespace Lina
 		}
 
 		testWorldRenderer->Render(m_frameIndex);
+
+		Renderer::EndFrame(m_frameIndex);
 
 		m_frameIndex = (m_frameIndex + 1) % FRAMES_IN_FLIGHT;
 	}
@@ -136,9 +158,9 @@ namespace Lina
 
 		if (type & EVS_PostInit)
 		{
-			const uint32 engineShaderCount			= 1;
-			const String shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader"};
-			auto		 rm							= m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+			constexpr uint32 engineShaderCount			= 2;
+			const String	 shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader", "Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"};
+			auto			 rm							= m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 			for (uint32 i = 0; i < engineShaderCount; i++)
 			{
@@ -150,14 +172,39 @@ namespace Lina
 			}
 			WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
 			testWorld					 = new EntityWorld(m_system);
-			testWorldRenderer			 = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(800, 800), 1);
+			camEntity					 = testWorld->CreateEntity("Cam Entity");
+			auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
+			camEntity->SetPosition(Vector3(0, 10, -80));
+			// camEntity->SetRotationAngles(Vector3(0, 0, 0));
+			
+			
+			testWorld->SetActiveCamera(cam);
+			auto aq			  = rm->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			testWorldRenderer = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
 		else if (type & EVS_PreSystemShutdown)
 		{
+			Join();
 			delete testWorld;
 			delete testWorldRenderer;
 			for (auto m : m_engineMaterials)
 				delete m;
+		}
+		else if (type & EVS_ResourceBatchLoaded)
+		{
+			Vector<ResourceIdentifier>* idents = static_cast<Vector<ResourceIdentifier>*>(ev.pParams[0]);
+			const uint32				size   = static_cast<uint32>(idents->size());
+
+			for (uint32 i = 0; i < size; i++)
+			{
+				const ResourceIdentifier& ident = idents->at(i);
+
+				if (ident.tid == GetTypeID<Model>())
+				{
+					m_meshManager.MergeMeshes();
+					break;
+				}
+			}
 		}
 	}
 
@@ -165,4 +212,5 @@ namespace Lina
 	{
 		return m_dataPerFrame[m_frameIndex].globalDataBuffer;
 	}
+
 } // namespace Lina

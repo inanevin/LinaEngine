@@ -33,9 +33,12 @@ SOFTWARE.
 
 #include "Core/Common.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Data/Vertex.hpp"
 #include "Data/HashMap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GpuUploader.hpp"
 #include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
 
 namespace D3D12MA
@@ -79,21 +82,32 @@ namespace Lina
 				: textures(100, GeneratedTexture()), materials(100, GeneratedMaterial()), shaders(100, GeneratedShader()), cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()), cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()),
 				  fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()){};
 
+			struct StatePerFrame
+			{
+				uint64 storedFenceGraphics = 0;
+			};
+
 			// General
-			GfxManager* gfxManager = nullptr;
+			GfxManager*		gfxManager = nullptr;
+			StatePerFrame	frames[FRAMES_IN_FLIGHT];
+			uint64			fenceValueGraphics = 0;
+			uint32			frameFenceGraphics = 0;
+			HANDLE			fenceEventGraphics = NULL;
+			DX12GpuUploader uploader;
 
 			// Backend
-			D3D12MA::Allocator*							dx12Allocator = nullptr;
-			Microsoft::WRL::ComPtr<IDXGIAdapter1>		adapter		  = nullptr;
-			Microsoft::WRL::ComPtr<ID3D12Device>		device;
-			Microsoft::WRL::ComPtr<ID3D12CommandQueue>	graphicsQueue;
-			Microsoft::WRL::ComPtr<ID3D12CommandQueue>	copyQueue;
-			Microsoft::WRL::ComPtr<IDXGIFactory4>		factory;
-			DX12DescriptorHeap							rtvHeap;
-			DX12DescriptorHeap							bufferHeap;
-			DX12DescriptorHeap							dsvHeap;
-			DX12DescriptorHeap							samplerHeap;
-			Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSigStandard;
+			D3D12MA::Allocator*							   dx12Allocator = nullptr;
+			Microsoft::WRL::ComPtr<IDXGIAdapter1>		   adapter		 = nullptr;
+			Microsoft::WRL::ComPtr<ID3D12Device>		   device;
+			Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   graphicsQueue;
+			Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   copyQueue;
+			Microsoft::WRL::ComPtr<IDXGIFactory4>		   factory;
+			DX12DescriptorHeap							   rtvHeap;
+			DX12DescriptorHeap							   bufferHeap;
+			DX12DescriptorHeap							   dsvHeap;
+			DX12DescriptorHeap							   samplerHeap;
+			Microsoft::WRL::ComPtr<ID3D12RootSignature>	   rootSigStandard;
+			Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSigStandard;
 
 			// Resources
 			IDList<GeneratedTexture>			textures;
@@ -136,13 +150,19 @@ namespace Lina
 		// ******************* API *******************
 		// ******************* API *******************
 
+		// Frame Control
+		static void BeginFrame(uint32 frameIndex);
+		static void EndFrame(uint32 frameIndex);
+		static void WaitForGPUGraphics();
+
 		// Swapchain
 		static ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle);
 		static void		   Present(ISwapchain* swp);
 		static uint32	   GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources
-		static IGfxResource* CreateBufferResource(void* initialData, size_t size);
+		static IGfxResource* CreateBufferResource(ResourceMemoryState memState, ResourceState resState, void* initialData, size_t size);
+		static IGfxResource* CreateIndirectBufferResource();
 		static void			 DeleteBufferResource(IGfxResource* res);
 
 		// Commands
@@ -150,22 +170,32 @@ namespace Lina
 		static uint32 CreateCommandList(CommandType type, uint32 allocatorHandle);
 		static void	  ReleaseCommanAllocator(uint32 handle);
 		static void	  ReleaseCommandList(uint32 handle);
-
-		static void ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
-		static void PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
-		static void FinalizeCommandList(uint32 cmdListHandle);
-		static void ExecuteCommandListsGraphics(const Vector<uint32>& lists);
-		static void TransitionPresent2RT(uint32 cmdListHandle, Texture* txt);
-		static void TransitionRT2Present(uint32 cmdListHandle, Texture* txt);
-		static void BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor);
-		static void EndRenderPass(uint32 cmdListHandle);
-		static void BindGlobalData(uint32 cmdListHandle);
+		static void	  ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
+		static void	  PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
+		static void	  FinalizeCommandList(uint32 cmdListHandle);
+		static void	  ExecuteCommandListsGraphics(const Vector<uint32>& lists);
+		static void	  ExecuteCommandListsTransfer(const Vector<uint32>& lists);
+		static void	  TransitionPresent2RT(uint32 cmdListHandle, Texture* txt);
+		static void	  TransitionRT2Present(uint32 cmdListHandle, Texture* txt);
+		static void	  BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor);
+		static void	  EndRenderPass(uint32 cmdListHandle);
+		static void	  BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxResource* buf);
+		static void	  BindObjectBuffer(uint32 cmdListHandle, IGfxResource* buf);
+		static void	  BindMaterial(uint32 cmdListHandle, Material* mat);
+		static void	  DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
+		static void	  DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
+		static void	  DrawIndexedIndirect(uint32 cmdListHandle, IGfxResource* indirectBuffer, uint32 count, uint64 indirectOffset);
+		static void	  SetTopology(uint32 cmdListHandle, Topology topology);
+		static void	  PushTransferCommand(GfxCommand& cmd);
+		static void	  BindVertexBuffer(uint32 cmdListHandle, IGfxResource* buffer, uint32 slot = 0);
+		static void	  BindIndexBuffer(uint32 cmdListHandle, IGfxResource* buffer);
+		static void	  CopyCPU2GPU(IGfxResource* cpuBuffer, IGfxResource* gpuBuffer, void* data, size_t sz, ResourceState finalState);
+		static void	  WaitForCopyQueue();
 
 		// Fences
 		static uint32 CreateFence();
 		static void	  ReleaseFence(uint32 handle);
 		static void	  WaitForFences(uint32 fence, uint64 userData0, uint64 userData1);
-		static void	  SignalFenceIncrementGraphics(uint32 fence, uint64 value);
 
 		// Textures
 		static Texture* CreateRenderTarget(const String& path);
@@ -187,6 +217,11 @@ namespace Lina
 		static inline ID3D12CommandQueue* DX12GetGraphicsQueue()
 		{
 			return s_state.graphicsQueue.Get();
+		}
+
+		static inline ID3D12CommandQueue* DX12GetTransferQueue()
+		{
+			return s_state.copyQueue.Get();
 		}
 
 		static inline D3D12MA::Allocator* DX12GetAllocator()
