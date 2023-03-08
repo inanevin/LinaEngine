@@ -38,11 +38,12 @@ namespace Lina
 {
 	class MaterialPropertyBase;
 	class Shader;
+	class Renderer;
 
 	class Material : public IResource
 	{
 	public:
-		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Material>()){};
+		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Material();
 
 		void SetShader(StringID shader);
@@ -129,6 +130,7 @@ namespace Lina
 		uint32 GetPropertiesTotalAlignedSize();
 
 	private:
+		Renderer*						   m_renderer = nullptr;
 		Vector<MaterialPropertyBase*>	   m_properties;
 		Vector<MaterialProperty<StringID>> m_textures;
 		Vector<uint32>					   m_dirtyTextureIndices;

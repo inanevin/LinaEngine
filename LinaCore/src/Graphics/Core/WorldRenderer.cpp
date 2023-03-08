@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Components/ModelNodeComponent.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/IGfxResource.hpp"
+#include "Graphics/Core/IGfxBufferResource.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -69,6 +69,7 @@ namespace Lina
 	WorldRenderer::WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio)
 		: m_gfxManager(gfxManager), m_imageCount(imageCount), m_surfaceRenderer(surface), m_mask(mask), m_world(world), m_opaquePass(gfxManager)
 	{
+		m_renderer					  = m_gfxManager->GetRenderer();
 		m_renderData.renderResolution = renderResolution;
 		m_renderData.aspectRatio	  = aspectRatio;
 		m_gfxManager->GetSystem()->AddListener(this);
@@ -89,10 +90,10 @@ namespace Lina
 			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
 				auto& frame			  = m_frames[i];
-				frame.cmdAllocator	  = Renderer::CreateCommandAllocator(CommandType::Graphics);
-				frame.cmdList		  = Renderer::CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
-				frame.sceneDataBuffer = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::UniformBuffer, &m_renderData.gpuSceneData, sizeof(GPUSceneData));
-				frame.viewDataBuffer  = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::UniformBuffer, &m_renderData.gpuViewData, sizeof(GPUViewData));
+				frame.cmdAllocator	  = m_renderer->CreateCommandAllocator(CommandType::Graphics);
+				frame.cmdList		  = m_renderer->CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
+				frame.sceneDataBuffer = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuSceneData, sizeof(GPUSceneData));
+				frame.viewDataBuffer  = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuViewData, sizeof(GPUViewData));
 			}
 		}
 
@@ -116,7 +117,7 @@ namespace Lina
 
 		s_worldRendererCount++;
 
-		testImageIndex = Renderer::GetNextBackBuffer(testSwapchain);
+		testImageIndex = m_renderer->GetNextBackBuffer(testSwapchain);
 	}
 
 	WorldRenderer::~WorldRenderer()
@@ -125,10 +126,10 @@ namespace Lina
 		{
 			auto& frame = m_frames[i];
 
-			Renderer::ReleaseCommandList(frame.cmdList);
-			Renderer::ReleaseCommanAllocator(frame.cmdAllocator);
-			Renderer::DeleteBufferResource(frame.sceneDataBuffer);
-			Renderer::DeleteBufferResource(frame.viewDataBuffer);
+			m_renderer->ReleaseCommandList(frame.cmdList);
+			m_renderer->ReleaseCommanAllocator(frame.cmdAllocator);
+			m_renderer->DeleteBufferResource(frame.sceneDataBuffer);
+			m_renderer->DeleteBufferResource(frame.viewDataBuffer);
 		}
 
 		m_gfxManager->GetSystem()->RemoveListener(this);
@@ -151,7 +152,8 @@ namespace Lina
 
 			auto& data = m_dataPerImage[i];
 
-			data.renderTargetColor = Renderer::CreateRenderTarget(testSwapchain, i, rtColorName);
+			data.renderTargetColor = m_renderer->CreateRenderTarget(testSwapchain, i, rtColorName);
+			// data.renderTargetDepth = m_renderer->CreateRenderTarget()
 
 			// TOOD: generate
 
@@ -306,57 +308,57 @@ namespace Lina
 
 		// Command buffer prep
 		{
-			Renderer::ResetCommandList(frame.cmdAllocator, frame.cmdList);
-			Renderer::PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
-			Renderer::BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
+			m_renderer->ResetCommandList(frame.cmdAllocator, frame.cmdList);
+			m_renderer->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
+			m_renderer->BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
 		}
 
 		// Update scene data
 		{
 			m_renderData.gpuSceneData.ambientColor.x = SystemInfo::GetAppTimeF();
 			frame.sceneDataBuffer->Update(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
-			Renderer::BindUniformBuffer(frame.cmdList, 1, frame.sceneDataBuffer);
+			m_renderer->BindUniformBuffer(frame.cmdList, 1, frame.sceneDataBuffer);
 		}
 
 		// Main Render Pass
 		{
-			Renderer::TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
-			Renderer::BeginRenderPass(frame.cmdList, imgData.renderTargetColor, Color(0.05f, 0.7f, 0.5f, 1.0f));
+			m_renderer->TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, Color(0.05f, 0.7f, 0.5f, 1.0f));
 
 			// Draw scene objects.
 			{
 				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
 				frame.viewDataBuffer->Update(&m_renderData.gpuViewData, sizeof(GPUViewData));
-				Renderer::BindUniformBuffer(frame.cmdList, 2, frame.viewDataBuffer);
+				m_renderer->BindUniformBuffer(frame.cmdList, 2, frame.viewDataBuffer);
 
-				Renderer::BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
-				//Renderer::BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());
-				Renderer::SetTopology(frame.cmdList, Topology::TriangleList);
+				m_renderer->BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
+				m_renderer->BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());
+				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
 				m_opaquePass.Draw(frameIndex, frame.cmdList);
 			}
 
 			// Material* mat = m_resourceManager->GetResource<Material>("Resources/Core/Materials/SQTexture.linamat"_hs);
-			// Renderer::BindMaterial(frame.cmdList, mat);
+			// m_renderer->BindMaterial(frame.cmdList, mat);
 			//
-			// Renderer::DrawInstanced(frame.cmdList, 3, 1, 0, 0);
+			// m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 
-			Renderer::EndRenderPass(frame.cmdList);
-			Renderer::TransitionRT2Present(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->EndRenderPass(frame.cmdList);
+			m_renderer->TransitionRT2Present(frame.cmdList, imgData.renderTargetColor);
 		}
 
 		// Close command buffer.
 		{
-			Renderer::FinalizeCommandList(frame.cmdList);
+			m_renderer->FinalizeCommandList(frame.cmdList);
 		}
 
 		// Submit
 		{
-			Renderer::ExecuteCommandListsGraphics({frame.cmdList});
+			m_renderer->ExecuteCommandListsGraphics({frame.cmdList});
 		}
 
 		// **** DEBUG ONLY **** //
-		Renderer::Present(testSwapchain);
-		testImageIndex = Renderer::GetNextBackBuffer(testSwapchain);
+		m_renderer->Present(testSwapchain);
+		testImageIndex = m_renderer->GetNextBackBuffer(testSwapchain);
 
 		// Bind global vertex buffers, in our example case we'll only bind buffers for a cube.
 

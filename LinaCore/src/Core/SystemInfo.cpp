@@ -53,7 +53,7 @@ namespace Lina
 
 	void SystemInfo::CalculateRunningAverageDT()
 	{
-		// Keep a history of the deltas for the last 11 frames
+		// Keep a history of the deltas for the last 11 m_frames
 		// Throw away the outliers, two highest and two lowest values
 		// Calculate the mean of remaining 7 values
 		// Lerp from the time step for th elast frame to calculated mean

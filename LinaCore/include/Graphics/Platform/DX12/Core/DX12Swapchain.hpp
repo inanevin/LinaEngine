@@ -36,11 +36,12 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Renderer;
 
 	class DX12Swapchain : public ISwapchain
 	{
 	public:
-		DX12Swapchain(const Vector2i& size, void* windowHandle);
+		DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle);
 		virtual ~DX12Swapchain();
 
 		inline IDXGISwapChain3* GetPtr()
@@ -49,6 +50,7 @@ namespace Lina
 		}
 
 	private:
+		Renderer*								m_renderer = nullptr;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapchain;
 	};
 } // namespace Lina

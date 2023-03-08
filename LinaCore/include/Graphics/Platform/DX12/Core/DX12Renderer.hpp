@@ -54,14 +54,20 @@ namespace Lina
 	class Recti;
 	class GfxManager;
 	class ISwapchain;
-	class IGfxResource;
+	class IGfxBufferResource;
+	class IGfxTextureResource;
 	class Color;
 
 	struct GeneratedTexture
 	{
-		Microsoft::WRL::ComPtr<ID3D12Resource> resource;
-		DescriptorHandle					   descriptor;
-		ImageType							   imageType = ImageType::Color;
+		// Only for swapchain render target
+		Microsoft::WRL::ComPtr<ID3D12Resource> rawResource;
+
+		// For all others.
+		IGfxTextureResource* gfxResource = nullptr;
+
+		DescriptorHandle descriptor;
+		ImageType		 imageType = ImageType::Color;
 	};
 
 	struct GeneratedShader
@@ -76,166 +82,163 @@ namespace Lina
 	class Renderer
 	{
 	public:
-		struct State
+		Renderer()
+			: m_textures(100, GeneratedTexture()), m_materials(100, GeneratedMaterial()), m_shaders(100, GeneratedShader()), m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()),
+			  m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()), m_rtvHeap(this), m_bufferHeap(this), m_dsvHeap(this), m_samplerHeap(this), m_uploader(this){};
+
+		struct StatePerFrame
 		{
-			State()
-				: textures(100, GeneratedTexture()), materials(100, GeneratedMaterial()), shaders(100, GeneratedShader()), cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()), cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()),
-				  fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()){};
-
-			struct StatePerFrame
-			{
-				uint64 storedFenceGraphics = 0;
-			};
-
-			// General
-			GfxManager*		gfxManager = nullptr;
-			StatePerFrame	frames[FRAMES_IN_FLIGHT];
-			uint64			fenceValueGraphics = 0;
-			uint32			frameFenceGraphics = 0;
-			HANDLE			fenceEventGraphics = NULL;
-			DX12GpuUploader uploader;
-
-			// Backend
-			D3D12MA::Allocator*							   dx12Allocator = nullptr;
-			Microsoft::WRL::ComPtr<IDXGIAdapter1>		   adapter		 = nullptr;
-			Microsoft::WRL::ComPtr<ID3D12Device>		   device;
-			Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   graphicsQueue;
-			Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   copyQueue;
-			Microsoft::WRL::ComPtr<IDXGIFactory4>		   factory;
-			DX12DescriptorHeap							   rtvHeap;
-			DX12DescriptorHeap							   bufferHeap;
-			DX12DescriptorHeap							   dsvHeap;
-			DX12DescriptorHeap							   samplerHeap;
-			Microsoft::WRL::ComPtr<ID3D12RootSignature>	   rootSigStandard;
-			Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSigStandard;
-
-			// Resources
-			IDList<GeneratedTexture>			textures;
-			IDList<GeneratedShader>				shaders;
-			IDList<GeneratedMaterial>			materials;
-			Mutex								textureMtx;
-			Mutex								shaderMtx;
-			Mutex								materialMtx;
-			Microsoft::WRL::ComPtr<IDxcLibrary> idxcLib;
-			ID3DIncludeInterface				includeInterface;
-
-			// API
-			IDList<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>	   cmdAllocators;
-			IDList<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>> cmdLists;
-			IDList<Microsoft::WRL::ComPtr<ID3D12Fence>>				   fences;
+			uint64 storedFenceGraphics = 0;
 		};
 
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
-		static void PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
-		static void Initialize(const SystemInitializationInfo& initInfo);
-		static void Shutdown();
+		void PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
+		void Initialize(const SystemInitializationInfo& initInfo);
+		void Shutdown();
 
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
-		static uint32 GenerateMaterial(Material* mat, uint32 existingHandle);
-		static void	  UpdateMaterialProperties(Material* mat, uint32 imageIndex);
-		static void	  UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures);
-		static void	  DestroyMaterial(uint32 handle);
-		static uint32 GeneratePipeline(Shader* shader);
-		static void	  DestroyPipeline(uint32 handle);
-		static void	  CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
-		static uint32 GenerateImage(Texture* txt, ImageType type);
-		static uint32 GenerateImageAndUpload(Texture* txt);
-		static void	  DestroyImage(uint32 handle);
+		uint32 GenerateMaterial(Material* mat, uint32 existingHandle);
+		void   UpdateMaterialProperties(Material* mat, uint32 imageIndex);
+		void   UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures);
+		void   DestroyMaterial(uint32 handle);
+		uint32 GeneratePipeline(Shader* shader);
+		void   DestroyPipeline(uint32 handle);
+		void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
+		uint32 GenerateImage(Texture* txt, ImageType type);
+		uint32 GenerateImageAndUpload(Texture* txt);
+		void   DestroyImage(uint32 handle);
 
 		// ******************* API *******************
 		// ******************* API *******************
 		// ******************* API *******************
 
 		// Frame Control
-		static void BeginFrame(uint32 frameIndex);
-		static void EndFrame(uint32 frameIndex);
-		static void WaitForGPUGraphics();
+		void BeginFrame(uint32 frameIndex);
+		void EndFrame(uint32 frameIndex);
+		void WaitForGPUGraphics();
 
 		// Swapchain
-		static ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle);
-		static void		   Present(ISwapchain* swp);
-		static uint32	   GetNextBackBuffer(ISwapchain* swp);
+		ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle);
+		void		Present(ISwapchain* swp);
+		uint32		GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources
-		static IGfxResource* CreateBufferResource(ResourceMemoryState memState, ResourceState resState, void* initialData, size_t size);
-		static IGfxResource* CreateIndirectBufferResource();
-		static void			 DeleteBufferResource(IGfxResource* res);
+		IGfxBufferResource*	 CreateBufferResource(BufferResourceType type, void* initialData, size_t size);
+		IGfxTextureResource* CreateTextureResource(TextureResourceType type, const Vector2i& initialSize);
+		void				 DeleteBufferResource(IGfxBufferResource* res);
 
 		// Commands
-		static uint32 CreateCommandAllocator(CommandType type);
-		static uint32 CreateCommandList(CommandType type, uint32 allocatorHandle);
-		static void	  ReleaseCommanAllocator(uint32 handle);
-		static void	  ReleaseCommandList(uint32 handle);
-		static void	  ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
-		static void	  PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
-		static void	  FinalizeCommandList(uint32 cmdListHandle);
-		static void	  ExecuteCommandListsGraphics(const Vector<uint32>& lists);
-		static void	  ExecuteCommandListsTransfer(const Vector<uint32>& lists);
-		static void	  TransitionPresent2RT(uint32 cmdListHandle, Texture* txt);
-		static void	  TransitionRT2Present(uint32 cmdListHandle, Texture* txt);
-		static void	  BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor);
-		static void	  EndRenderPass(uint32 cmdListHandle);
-		static void	  BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxResource* buf);
-		static void	  BindObjectBuffer(uint32 cmdListHandle, IGfxResource* buf);
-		static void	  BindMaterial(uint32 cmdListHandle, Material* mat);
-		static void	  DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
-		static void	  DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
-		static void	  DrawIndexedIndirect(uint32 cmdListHandle, IGfxResource* indirectBuffer, uint32 count, uint64 indirectOffset);
-		static void	  SetTopology(uint32 cmdListHandle, Topology topology);
-		static void	  PushTransferCommand(GfxCommand& cmd);
-		static void	  BindVertexBuffer(uint32 cmdListHandle, IGfxResource* buffer, uint32 slot = 0);
-		static void	  BindIndexBuffer(uint32 cmdListHandle, IGfxResource* buffer);
-		static void	  CopyCPU2GPU(IGfxResource* cpuBuffer, IGfxResource* gpuBuffer, void* data, size_t sz, ResourceState finalState);
-		static void	  WaitForCopyQueue();
+		uint32 CreateCommandAllocator(CommandType type);
+		uint32 CreateCommandList(CommandType type, uint32 allocatorHandle);
+		void   ReleaseCommanAllocator(uint32 handle);
+		void   ReleaseCommandList(uint32 handle);
+		void   ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
+		void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
+		void   FinalizeCommandList(uint32 cmdListHandle);
+		void   ExecuteCommandListsGraphics(const Vector<uint32>& lists);
+		void   ExecuteCommandListsTransfer(const Vector<uint32>& lists);
+		void   TransitionPresent2RT(uint32 cmdListHandle, Texture* txt);
+		void   TransitionRT2Present(uint32 cmdListHandle, Texture* txt);
+		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor);
+		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil, const Color& clearColor);
+		void   EndRenderPass(uint32 cmdListHandle);
+		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxBufferResource* buf);
+		void   BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* buf);
+		void   BindMaterial(uint32 cmdListHandle, Material* mat);
+		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
+		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
+		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset);
+		void   SetTopology(uint32 cmdListHandle, Topology topology);
+		void   PushTransferCommand(GfxCommand& cmd);
+		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot = 0);
+		void   BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer);
+		void   CopyCPU2GPU(IGfxBufferResource* cpuBuffer, IGfxBufferResource* gpuBuffer, void* data, size_t sz, ResourceState finalState);
+		void   WaitForCopyQueue();
 
 		// Fences
-		static uint32 CreateFence();
-		static void	  ReleaseFence(uint32 handle);
-		static void	  WaitForFences(uint32 fence, uint64 userData0, uint64 userData1);
+		uint32 CreateFence();
+		void   ReleaseFence(uint32 handle);
+		void   WaitForFences(uint32 fence, uint64 userData0, uint64 userData1);
 
 		// Textures
-		static Texture* CreateRenderTarget(const String& path);
-		static Texture* CreateRenderTarget(ISwapchain* swp, uint32 bufferIndex, const String& path);
+		Texture* CreateRenderTarget(const String& path);
+		Texture* CreateRenderTarget(ISwapchain* swp, uint32 bufferIndex, const String& path);
+		Texture* CreateDepthStencil(const String& path);
 
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
-		static inline ID3D12Device* DX12GetDevice()
+		inline ID3D12Device* DX12GetDevice()
 		{
-			return s_state.device.Get();
+			return m_device.Get();
 		}
 
-		static inline IDXGIFactory4* DX12GetFactory()
+		inline IDXGIFactory4* DX12GetFactory()
 		{
-			return s_state.factory.Get();
+			return m_factory.Get();
 		}
 
-		static inline ID3D12CommandQueue* DX12GetGraphicsQueue()
+		inline ID3D12CommandQueue* DX12GetGraphicsQueue()
 		{
-			return s_state.graphicsQueue.Get();
+			return m_graphicsQueue.Get();
 		}
 
-		static inline ID3D12CommandQueue* DX12GetTransferQueue()
+		inline ID3D12CommandQueue* DX12GetTransferQueue()
 		{
-			return s_state.copyQueue.Get();
+			return m_copyQueue.Get();
 		}
 
-		static inline D3D12MA::Allocator* DX12GetAllocator()
+		inline D3D12MA::Allocator* DX12GetAllocator()
 		{
-			return s_state.dx12Allocator;
+			return m_dx12Allocator;
 		}
 
 		// ******************* DX12 INTERFACE *******************
 
 	private:
-		static void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType);
+		void GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType);
 
 	private:
-		static State s_state;
+		// General
+		GfxManager*		m_gfxManager = nullptr;
+		StatePerFrame	m_frames[FRAMES_IN_FLIGHT];
+		uint64			m_fenceValueGraphics = 0;
+		uint32			m_frameFenceGraphics = 0;
+		HANDLE			m_fenceEventGraphics = NULL;
+		DX12GpuUploader m_uploader;
+
+		// Backend
+		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;
+		Microsoft::WRL::ComPtr<IDXGIAdapter1>		   m_adapter	   = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Device>		   m_device;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_graphicsQueue;
+		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_copyQueue;
+		Microsoft::WRL::ComPtr<IDXGIFactory4>		   m_factory;
+		DX12DescriptorHeap							   m_rtvHeap;
+		DX12DescriptorHeap							   m_bufferHeap;
+		DX12DescriptorHeap							   m_dsvHeap;
+		DX12DescriptorHeap							   m_samplerHeap;
+		Microsoft::WRL::ComPtr<ID3D12RootSignature>	   m_rootSigStandard;
+		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_commandSigStandard;
+
+		// Resources
+		IDList<GeneratedTexture>			m_textures;
+		IDList<GeneratedShader>				m_shaders;
+		IDList<GeneratedMaterial>			m_materials;
+		Mutex								m_textureMtx;
+		Mutex								m_shaderMtx;
+		Mutex								m_materialMtx;
+		Microsoft::WRL::ComPtr<IDxcLibrary> m_idxcLib;
+		ID3DIncludeInterface				m_includeInterface;
+
+		// API
+		IDList<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>	   m_cmdAllocators;
+		IDList<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>> m_cmdLists;
+		IDList<Microsoft::WRL::ComPtr<ID3D12Fence>>				   m_fences;
 	};
 
 } // namespace Lina

@@ -43,6 +43,7 @@ namespace Lina
 	class Material;
 	class WorldRenderer;
 	class Texture;
+	class Renderer;
 
 	class SurfaceRenderer : public IEventListener
 	{
@@ -107,6 +108,7 @@ namespace Lina
 		uint32				   m_imageCount		   = 0;
 		Vector<Material*>	   m_offscreenMaterials;
 		Vector<WorldRenderer*> m_worldRenderers;
+		Renderer*			   m_renderer = nullptr;
 	};
 
 } // namespace Lina

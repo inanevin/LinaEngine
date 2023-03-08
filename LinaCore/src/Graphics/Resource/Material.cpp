@@ -40,6 +40,11 @@ SOFTWARE.
 
 namespace Lina
 {
+	Material::Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Material>())
+	{
+		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+	}
+	
 	Material::~Material()
 	{
 		for (auto p : m_properties)
@@ -50,7 +55,7 @@ namespace Lina
 		if (m_gpuHandle == -1)
 			return;
 
-		Renderer::DestroyMaterial(m_gpuHandle);
+		m_renderer->DestroyMaterial(m_gpuHandle);
 	}
 
 	void Material::SetShader(StringID shader)
@@ -90,7 +95,7 @@ namespace Lina
 
 		m_totalAlignedSize = GetPropertiesTotalAlignedSize();
 
-		Renderer::GenerateMaterial(this, m_gpuHandle);
+		m_renderer->GenerateMaterial(this, m_gpuHandle);
 	}
 
 	bool Material::SetTexture(uint32 index, StringID texture)
@@ -123,10 +128,10 @@ namespace Lina
 	void Material::UpdateBuffers(uint32 imageIndex)
 	{
 		if (m_propertiesDirty)
-			Renderer::UpdateMaterialProperties(this, imageIndex);
+			m_renderer->UpdateMaterialProperties(this, imageIndex);
 
 		if (!m_dirtyTextureIndices.empty())
-			Renderer::UpdateMaterialTextures(this, imageIndex, m_dirtyTextureIndices);
+			m_renderer->UpdateMaterialTextures(this, imageIndex, m_dirtyTextureIndices);
 
 		m_propertiesDirty = false;
 		m_dirtyTextureIndices.clear();
@@ -248,7 +253,7 @@ namespace Lina
 	void Material::BatchLoaded()
 	{
 		SetShader(m_shaderHandle);
-		m_gpuHandle = Renderer::GenerateMaterial(this, m_gpuHandle);
+		m_gpuHandle = m_renderer->GenerateMaterial(this, m_gpuHandle);
 	}
 
 	uint32 Material::GetPropertyTypeAlignment(MaterialPropertyType type)

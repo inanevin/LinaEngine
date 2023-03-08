@@ -28,40 +28,41 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DX12GpuUploader_HPP
-#define DX12GpuUploader_HPP
+#ifndef DX12GfxTextureResource_HPP
+#define DX12GfxTextureResource_HPP
 
-#include "Data/Functional.hpp"
-#include "Data/Queue.hpp"
+#include "Graphics/Core/IGfxTextureResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
-#include "Data/Mutex.hpp"
+
+namespace D3D12MA
+{
+	class Allocation;
+}
 
 namespace Lina
 {
 	class Renderer;
-
-	class DX12GpuUploader
+	
+	class DX12GfxTextureResource : public IGfxTextureResource
 	{
 	public:
-		DX12GpuUploader(Renderer* rend) : m_renderer(rend){};
-		~DX12GpuUploader() = default;
+		DX12GfxTextureResource(Renderer* rend, TextureResourceType type, const Vector2i& initialSize);
+		virtual ~DX12GfxTextureResource();
 
-		void Initialize();
-		void Shutdown();
-		void Flush();
-		void PushCommand(const GfxCommand& cmd);
-		void WaitForFence();
+		virtual uint64 GetGPUPointer() override;
+
+		inline D3D12MA::Allocation* DX12GetAllocation()
+		{
+			return m_allocation;
+		}
 
 	private:
-		Renderer*							m_renderer = nullptr;
-		Mutex								m_mtx;
-		Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
-		HANDLE								m_fenceEvent = NULL;
-		uint64								m_fenceValue = 0;
-		uint32								m_allocator	 = 0;
-		uint32								m_cmdList	 = 0;
-		Queue<GfxCommand>					m_waitingUploads;
+		void CreateDepthStencil(const Vector2i& size);
+		void Cleanup();
+
+	private:
+		Renderer*			 m_renderer	  = nullptr;
+		D3D12MA::Allocation* m_allocation = nullptr;
 	};
 } // namespace Lina
 

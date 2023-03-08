@@ -311,15 +311,8 @@ namespace Lina
 	enum class ImageType
 	{
 		Color,
-		Depth,
-		Stencil,
+		DepthStencil,
 		Swapchain
-	};
-
-	enum class ResourceMemoryState
-	{
-		CPUHeap,
-		GPUHeap,
 	};
 
 	enum class ResourceState
@@ -329,6 +322,22 @@ namespace Lina
 		IndexBuffer,
 		UniformBuffer,
 		GenericRead,
+	};
+
+	enum class BufferResourceType
+	{
+		UniformBuffer,
+		IndirectBuffer,
+		VertexBufferSrc,
+		VertexBufferDst,
+		IndexBufferSrc,
+		IndexBufferDst,
+	};
+
+	enum class TextureResourceType
+	{
+		Texture2DColor,
+		Texture2DDepthStencil,
 	};
 
 	struct Offset3D

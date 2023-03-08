@@ -36,19 +36,20 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
-#include "Graphics/Core/IGfxResource.hpp"
+#include "Graphics/Core/IGfxBufferResource.hpp"
 
 namespace Lina
 {
 	DrawPass::DrawPass(GfxManager* gfxMan) : m_gfxManager(gfxMan)
 	{
+		m_renderer = m_gfxManager->GetRenderer();
 		GPUObjectData			   dummy;
 		DrawIndexedIndirectCommand dummy2;
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_objDataBuffer[i]	= Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::GenericRead, &dummy, sizeof(GPUObjectData));
-			m_indirectBuffer[i] = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::GenericRead, &dummy2, sizeof(DrawIndexedIndirectCommand));
+			m_objDataBuffer[i]	= m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &dummy, sizeof(GPUObjectData));
+			m_indirectBuffer[i] = m_renderer->CreateBufferResource(BufferResourceType::IndirectBuffer, &dummy2, sizeof(DrawIndexedIndirectCommand));
 		}
 	}
 
@@ -56,8 +57,8 @@ namespace Lina
 	{
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			Renderer::DeleteBufferResource(m_objDataBuffer[i]);
-			Renderer::DeleteBufferResource(m_indirectBuffer[i]);
+			m_renderer->DeleteBufferResource(m_objDataBuffer[i]);
+			m_renderer->DeleteBufferResource(m_indirectBuffer[i]);
 		}
 	}
 
@@ -152,10 +153,9 @@ namespace Lina
 
 			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 			m_objDataBuffer[frameIndex]->Update(objData.data(), sizeof(GPUObjectData) * sz);
-			Renderer::BindObjectBuffer(cmdListHandle, m_objDataBuffer[frameIndex]);
+			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBuffer[frameIndex]);
 		}
 
-		
 		// Update indirect commands.
 		{
 			Vector<DrawIndexedIndirectCommand> commands;
@@ -187,19 +187,19 @@ namespace Lina
 
 			if (mat != lastBoundMat)
 			{
-				Renderer::BindMaterial(cmdListHandle, mat);
+				m_renderer->BindMaterial(cmdListHandle, mat);
 				lastBoundMat = mat;
 			}
 
 			const uint64 indirectOffset = firstInstance * sizeof(DrawIndexedIndirectCommand);
-			//Renderer::DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
-			//Renderer::DrawInstanced(cmdListHandle, 36, 1, 0, 0);
-			//Renderer::DrawIndexedInstanced(cmdListHandle, 36, 1, 0, 0, 0);
-			Renderer::DrawInstanced(cmdListHandle, 3, 1, 0, 0);
-			// Renderer::DrawIndexedInstanced(cmdListHandle, 1, batch.count)
+			// m_renderer->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
+			// m_renderer->DrawInstanced(cmdListHandle, 36, 1, 0, 0);
+			m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 1, 0, 0, 0);
+			// m_renderer->DrawInstanced(cmdListHandle, 3, 1, 0, 0);
+			//  m_renderer->DrawIndexedInstanced(cmdListHandle, 1, batch.count)
 
-			// 
-			// Renderer::DrawIndexedInstanced(cmdListHandle, batch.)
+			//
+			// m_renderer->DrawIndexedInstanced(cmdListHandle, batch.)
 			// cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
 			firstInstance += batch.count;
 		}

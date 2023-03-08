@@ -31,7 +31,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	DX12DescriptorHeap::DX12DescriptorHeap() : m_freeIndices(100, 0)
+	DX12DescriptorHeap::DX12DescriptorHeap(Renderer* rend) : m_freeIndices(100, 0), m_renderer(rend)
 	{
 	}
 
@@ -54,7 +54,7 @@ namespace Lina
 		if (m_type != D3D12_DESCRIPTOR_HEAP_TYPE_RTV && m_type != D3D12_DESCRIPTOR_HEAP_TYPE_DSV && m_flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
 			m_isGpuVisible = true;
 
-		auto device = Renderer::DX12GetDevice();
+		auto device = m_renderer->DX12GetDevice();
 		ThrowIfFailed(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_heap)));
 		m_incrementSize = device->GetDescriptorHandleIncrementSize(m_type);
 

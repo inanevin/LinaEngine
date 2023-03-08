@@ -52,7 +52,8 @@ namespace Lina
 	class EntityWorld;
 	class Texture;
 	class Material;
-	class IGfxResource;
+	class IGfxBufferResource;
+	class Renderer;
 
 	// DEBUG
 	class ISwapchain;
@@ -83,10 +84,10 @@ namespace Lina
 
 		struct DataPerFrame
 		{
-			uint32		  cmdAllocator	  = 0;
-			uint32		  cmdList		  = 0;
-			IGfxResource* sceneDataBuffer = nullptr;
-			IGfxResource* viewDataBuffer  = nullptr;
+			uint32				cmdAllocator	= 0;
+			uint32				cmdList			= 0;
+			IGfxBufferResource* sceneDataBuffer = nullptr;
+			IGfxBufferResource* viewDataBuffer	= nullptr;
 		};
 
 		struct DataPerImage
@@ -124,6 +125,7 @@ namespace Lina
 	protected:
 		static int s_worldRendererCount;
 
+		Renderer*			 m_renderer = nullptr;
 		DrawPass			 m_opaquePass;
 		CameraSystem		 m_cameraSystem;
 		ResourceManager*	 m_resourceManager = nullptr;

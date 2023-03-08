@@ -36,13 +36,13 @@ namespace Lina
 
 	void DX12GpuUploader::Initialize()
 	{
-		m_allocator = Renderer::CreateCommandAllocator(CommandType::Graphics);
-		m_cmdList	= Renderer::CreateCommandList(CommandType::Graphics, m_allocator);
+		m_allocator = m_renderer->CreateCommandAllocator(CommandType::Graphics);
+		m_cmdList	= m_renderer->CreateCommandList(CommandType::Graphics, m_allocator);
 
 		// Sync
 		{
 			m_fenceValue++;
-			ThrowIfFailed(Renderer::DX12GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+			ThrowIfFailed(m_renderer->DX12GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
 			m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 			if (m_fenceEvent == nullptr)
 			{
@@ -55,8 +55,8 @@ namespace Lina
 	{
 		WaitForFence();
 		m_fence.Reset();
-		Renderer::ReleaseCommanAllocator(m_allocator);
-		Renderer::ReleaseCommandList(m_cmdList);
+		m_renderer->ReleaseCommanAllocator(m_allocator);
+		m_renderer->ReleaseCommandList(m_cmdList);
 	}
 
 	void DX12GpuUploader::Flush()
@@ -64,7 +64,7 @@ namespace Lina
 		if (m_waitingUploads.empty())
 			return;
 
-		Renderer::ResetCommandList(m_allocator, m_cmdList);
+		m_renderer->ResetCommandList(m_allocator, m_cmdList);
 
 		while (!m_waitingUploads.empty())
 		{
@@ -73,9 +73,9 @@ namespace Lina
 			m_waitingUploads.pop();
 		}
 
-		Renderer::FinalizeCommandList(m_cmdList);
-		Renderer::ExecuteCommandListsGraphics({m_cmdList});
-		Renderer::WaitForGPUGraphics();
+		m_renderer->FinalizeCommandList(m_cmdList);
+		m_renderer->ExecuteCommandListsGraphics({m_cmdList});
+		m_renderer->WaitForGPUGraphics();
 		// WaitForFence();
 	}
 
@@ -88,7 +88,7 @@ namespace Lina
 	void DX12GpuUploader::WaitForFence()
 	{
 		const UINT64 fenceToWaitFor = m_fenceValue;
-		ThrowIfFailed(Renderer::DX12GetTransferQueue()->Signal(m_fence.Get(), fenceToWaitFor));
+		ThrowIfFailed(m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), fenceToWaitFor));
 		m_fenceValue++;
 
 		ThrowIfFailed(m_fence->SetEventOnCompletion(fenceToWaitFor, m_fenceEvent));

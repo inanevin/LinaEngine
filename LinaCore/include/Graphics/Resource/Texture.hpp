@@ -37,6 +37,8 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Renderer;
+
 	class Texture : public IResource
 	{
 
@@ -49,7 +51,7 @@ namespace Lina
 		};
 
 	public:
-		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : m_sampler({}), IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
+		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		Texture(ResourceManager* rm, StringID sid, const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels = 4);
 		virtual ~Texture();
 
@@ -63,7 +65,6 @@ namespace Lina
 		/// If using a texture as a render target, use this to generate image buffers on the gpu.
 		/// </summary>
 		void GenerateImage(ImageType type);
-
 
 		inline const Extent3D& GetExtent() const
 		{
@@ -114,6 +115,7 @@ namespace Lina
 		void InitSampler();
 
 	private:
+		Renderer*	   m_renderer				= nullptr;
 		bool		   m_pixelsLoadedFromStream = false;
 		TextureSampler m_sampler;
 		Extent3D	   m_extent;

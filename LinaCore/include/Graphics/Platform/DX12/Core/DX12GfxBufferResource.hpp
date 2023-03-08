@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef DX12GfxResource_HPP
 #define DX12GfxResource_HPP
 
-#include "Graphics/Core/IGfxResource.hpp"
+#include "Graphics/Core/IGfxBufferResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace D3D12MA
@@ -41,10 +41,12 @@ namespace D3D12MA
 
 namespace Lina
 {
-	class DX12GfxBufferResource : public IGfxResource
+	class Renderer;
+
+	class DX12GfxBufferResource : public IGfxBufferResource
 	{
 	public:
-		DX12GfxBufferResource(ResourceMemoryState memory, ResourceState state, void* initialData, size_t sz);
+		DX12GfxBufferResource(Renderer* rend, BufferResourceType type, void* initialData, size_t sz);
 		virtual ~DX12GfxBufferResource();
 
 		virtual void   Recreate(void* data, size_t sz) override;
@@ -61,6 +63,7 @@ namespace Lina
 		void Cleanup();
 
 	private:
+		Renderer*			 m_renderer	  = nullptr;
 		D3D12MA::Allocation* m_allocation = nullptr;
 	};
 } // namespace Lina

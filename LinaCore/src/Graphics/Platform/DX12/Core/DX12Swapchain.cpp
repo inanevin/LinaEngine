@@ -35,7 +35,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	DX12Swapchain::DX12Swapchain(const Vector2i& size, void* windowHandle) : ISwapchain(size, windowHandle)
+	DX12Swapchain::DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle) : m_renderer(rend), ISwapchain(size, windowHandle)
 	{
 		// Describe and create the swap chain.
 		{
@@ -54,12 +54,12 @@ namespace Lina
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
 			fsDesc.Windowed = false;
 
-			ThrowIfFailed(Renderer::DX12GetFactory()->CreateSwapChainForHwnd(Renderer::DX12GetGraphicsQueue(), // Swap chain needs the queue so that it can force a flush on it.
-																			 static_cast<HWND>(windowHandle),
-																			 &swapchainDesc,
-																			 nullptr,
-																			 nullptr,
-																			 &swapchain));
+			ThrowIfFailed(m_renderer->DX12GetFactory()->CreateSwapChainForHwnd(m_renderer->DX12GetGraphicsQueue(), // Swap chain needs the queue so that it can force a flush on it.
+																			   static_cast<HWND>(windowHandle),
+																			   &swapchainDesc,
+																			   nullptr,
+																			   nullptr,
+																			   &swapchain));
 
 			// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
 
@@ -73,6 +73,5 @@ namespace Lina
 	{
 		m_swapchain.Reset();
 	}
-
 
 } // namespace Lina

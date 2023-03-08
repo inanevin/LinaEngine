@@ -37,10 +37,12 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Renderer;
+
 	class DX12DescriptorHeap
 	{
 	public:
-		DX12DescriptorHeap();
+		DX12DescriptorHeap(Renderer* rend);
 		~DX12DescriptorHeap();
 
 		void Create(D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags, uint32 maxSize);
@@ -60,6 +62,7 @@ namespace Lina
 		}
 
 	private:
+		Renderer*									 m_renderer = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap;
 		uint32										 m_maxSize		 = 0;
 		uint32										 m_incrementSize = 0;

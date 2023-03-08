@@ -41,11 +41,12 @@ SOFTWARE.
 namespace Lina
 {
 	class MaterialPropertyBase;
+	class Renderer;
 
 	class Shader : public IResource
 	{
 	public:
-		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
+		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Shader();
 
 		const ShaderByteCode& GetCompiledCode(ShaderStage stage) const;
@@ -94,6 +95,7 @@ namespace Lina
 		virtual void Flush() override;
 
 	private:
+		Renderer*							 m_renderer = nullptr;
 		Vector<MaterialPropertyBase*>		 m_properties;
 		Vector<MaterialPropertyBase*>		 m_textures;
 		HashMap<ShaderStage, String>		 m_stages;

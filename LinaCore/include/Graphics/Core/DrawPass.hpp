@@ -39,7 +39,8 @@ namespace Lina
 {
 	class GfxManager;
 	class View;
-	class IGfxResource;
+	class IGfxBufferResource;
+	class Renderer;
 
 	class DrawPass
 	{
@@ -54,8 +55,9 @@ namespace Lina
 		int32 FindInBatches(const MeshMaterialPair& pair);
 
 	private:
-		IGfxResource*		   m_objDataBuffer[FRAMES_IN_FLIGHT]  = {nullptr};
-		IGfxResource*		   m_indirectBuffer[FRAMES_IN_FLIGHT] = {nullptr};
+		Renderer*			   m_renderer						  = nullptr;
+		IGfxBufferResource*	   m_objDataBuffer[FRAMES_IN_FLIGHT]  = {nullptr};
+		IGfxBufferResource*	   m_indirectBuffer[FRAMES_IN_FLIGHT] = {nullptr};
 		GfxManager*			   m_gfxManager						  = nullptr;
 		Mutex				   m_mtx;
 		Vector<RenderableData> m_renderables;

@@ -6571,7 +6571,7 @@ static stbi_uc *stbi__process_gif_raster(stbi__context *s, stbi__gif *g)
 }
 
 // this function is designed to support animated gifs, although stb_image doesn't support it
-// two back is the image from two frames ago, used for a very specific disposal format
+// two back is the image from two m_frames ago, used for a very specific disposal format
 static stbi_uc *stbi__gif_load_next(stbi__context *s, stbi__gif *g, int *comp, int req_comp, stbi_uc *two_back)
 {
    int dispose;
@@ -6856,7 +6856,7 @@ static void *stbi__gif_load(stbi__context *s, int *x, int *y, int *comp, int req
       *y = g.h;
 
       // moved conversion to after successful load so that the same
-      // can be done for multiple frames.
+      // can be done for multiple m_frames.
       if (req_comp && req_comp != 4)
          u = stbi__convert_format(u, 4, req_comp, g.w, g.h);
    } else if (g.out) {

@@ -50,7 +50,6 @@ PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color 
     PSInput result;
 	float4x4 transformMatrix = mul(viewProj, objects[0].model);
 	result.position = mul(transformMatrix, float4(position.xyz, 1.0));
-	//result.position = float4(position.xyz, 1.0f);
     result.normal = normal;
     result.color = color.xyz;
 	result.uv = uv;
@@ -59,5 +58,5 @@ PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color 
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    return float4(1,1,1, 1);
+    return float4(input.normal, 1);
 }

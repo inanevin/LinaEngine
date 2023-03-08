@@ -44,8 +44,9 @@ namespace Lina
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
 		: m_gfxManager(man), m_imageCount(imageCount), m_sid(sid), m_windowHandle(windowHandle), m_size(initialSize), m_mask(mask)
 	{
+		m_renderer = m_gfxManager->GetRenderer();
 		m_gfxManager->GetSystem()->AddListener(this);
-		m_swapchain = Renderer::CreateSwapchain(initialSize, windowHandle);
+		m_swapchain = m_renderer->CreateSwapchain(initialSize, windowHandle);
 
 		if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 		{

@@ -28,19 +28,19 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IGfxResource_HPP
-#define IGfxResource_HPP
+#ifndef IGfxBufferResource_HPP
+#define IGfxBufferResource_HPP
 
 #include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina
 {
-	class IGfxResource
+	class IGfxBufferResource
 	{
 	public:
-		IGfxResource(){};
-		IGfxResource(ResourceMemoryState memory, ResourceState state, size_t sz) : m_memoryState(memory), m_state(state), m_size(sz){};
-		virtual ~IGfxResource() = default;
+		IGfxBufferResource(){};
+		IGfxBufferResource(BufferResourceType type, size_t sz) : m_type(type), m_size(sz){};
+		virtual ~IGfxBufferResource() = default;
 
 		virtual void   Recreate(void* data, size_t sz) = 0;
 		virtual void   Update(void* data, size_t sz)   = 0;
@@ -52,11 +52,9 @@ namespace Lina
 		}
 
 	protected:
-		ResourceMemoryState m_memoryState = ResourceMemoryState::CPUHeap;
-		ResourceState		m_state		  = ResourceState::CopyDestination;
-
-		uint8* m_mappedData = nullptr;
-		size_t m_size		= 0;
+		BufferResourceType m_type		= BufferResourceType::UniformBuffer;
+		uint8*			   m_mappedData = nullptr;
+		size_t			   m_size		= 0;
 	};
 } // namespace Lina
 

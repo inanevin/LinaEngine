@@ -39,9 +39,15 @@ SOFTWARE.
 
 namespace Lina
 {
+	Texture::Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : m_sampler({}), IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>())
+	{
+		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+	}
+	
 	Texture::Texture(ResourceManager* rm, StringID sid, const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels)
 		: m_sampler(samplerData), m_extent(ext), m_channels(channels), IResource(rm, true, "", sid, GetTypeID<Texture>())
 	{
+		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
 		CheckFormat(m_channels);
 		m_metadata.SetUInt8("Format"_hs, static_cast<uint8>(format));
 		m_metadata.SetUInt8("ImageTiling"_hs, static_cast<uint8>(tiling));
@@ -52,7 +58,7 @@ namespace Lina
 		if (m_gpuHandle == -1)
 			return;
 
-		Renderer::DestroyImage(m_gpuHandle);
+		m_renderer->DestroyImage(m_gpuHandle);
 	}
 
 	void Texture::LoadFromFile(const char* path)
@@ -172,7 +178,7 @@ namespace Lina
 			return;
 		}
 
-		m_gpuHandle = Renderer::GenerateImageAndUpload(this);
+		m_gpuHandle = m_renderer->GenerateImageAndUpload(this);
 	}
 
 	void Texture::GenerateImage(ImageType type)
@@ -183,7 +189,7 @@ namespace Lina
 			return;
 		}
 
-		m_gpuHandle = Renderer::GenerateImage(this, type);
+		m_gpuHandle = m_renderer->GenerateImage(this, type);
 	}
 
 	void Texture::InitSampler()

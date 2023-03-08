@@ -28,40 +28,25 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DX12GpuUploader_HPP
-#define DX12GpuUploader_HPP
+#ifndef IGfxTextureResource_HPP
+#define IGfxTextureResource_HPP
 
-#include "Data/Functional.hpp"
-#include "Data/Queue.hpp"
-#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Data/Mutex.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina
 {
-	class Renderer;
-
-	class DX12GpuUploader
+	class IGfxTextureResource
 	{
 	public:
-		DX12GpuUploader(Renderer* rend) : m_renderer(rend){};
-		~DX12GpuUploader() = default;
+		IGfxTextureResource(TextureResourceType type, const Vector2i& initialSize) : m_type(type), m_size(initialSize){};
+		virtual ~IGfxTextureResource() = default;
 
-		void Initialize();
-		void Shutdown();
-		void Flush();
-		void PushCommand(const GfxCommand& cmd);
-		void WaitForFence();
+		virtual uint64 GetGPUPointer() = 0;
 
-	private:
-		Renderer*							m_renderer = nullptr;
-		Mutex								m_mtx;
-		Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
-		HANDLE								m_fenceEvent = NULL;
-		uint64								m_fenceValue = 0;
-		uint32								m_allocator	 = 0;
-		uint32								m_cmdList	 = 0;
-		Queue<GfxCommand>					m_waitingUploads;
+	protected:
+		TextureResourceType m_type = TextureResourceType::Texture2DColor;
+		Vector2i			m_size = Vector2i::Zero;
 	};
 } // namespace Lina
 

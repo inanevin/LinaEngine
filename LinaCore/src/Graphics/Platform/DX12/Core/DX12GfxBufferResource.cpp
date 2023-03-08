@@ -32,7 +32,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	DX12GfxBufferResource::DX12GfxBufferResource(ResourceMemoryState memory, ResourceState state, void* initialData, size_t sz) : IGfxResource(memory, state, sz)
+
+	DX12GfxBufferResource::DX12GfxBufferResource(Renderer* rend, BufferResourceType type, void* initialData, size_t sz) : m_renderer(rend), IGfxBufferResource(type, sz)
 	{
 		CreateGPUBuffer(initialData, sz);
 	}
@@ -83,22 +84,25 @@ namespace Lina
 		resourceDesc.Flags				 = D3D12_RESOURCE_FLAG_NONE;
 
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
+		D3D12_RESOURCE_STATES	 state			= D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 
-		if (m_memoryState == ResourceMemoryState::CPUHeap)
+		if (m_type == BufferResourceType::UniformBuffer || m_type == BufferResourceType::IndirectBuffer)
+		{
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
-		else if (m_memoryState == ResourceMemoryState::GPUHeap)
+			state					= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		}
+		else if (m_type == BufferResourceType::VertexBufferSrc || m_type == BufferResourceType::IndexBufferSrc)
+		{
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
+		}
+		else if (m_type == BufferResourceType::VertexBufferDst || m_type == BufferResourceType::IndexBufferDst)
+		{
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+			state					= D3D12_RESOURCE_STATE_COPY_DEST;
+		}
 
-		D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-
-		if (m_state == ResourceState::UniformBuffer)
-			state = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-		else if (m_state == ResourceState::CopyDestination)
-			state = D3D12_RESOURCE_STATE_COPY_DEST;
-		else if (m_state == ResourceState::GenericRead)
-			state = D3D12_RESOURCE_STATE_GENERIC_READ;
-
-		ThrowIfFailed(Renderer::DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, NULL, &m_allocation, IID_NULL, NULL));
+		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, NULL, &m_allocation, IID_NULL, NULL));
 
 		if (data != nullptr)
 		{

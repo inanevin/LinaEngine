@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/IGfxResource.hpp"
+#include "Graphics/Core/IGfxBufferResource.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "System/ISystem.hpp"
@@ -48,23 +48,25 @@ SOFTWARE.
 
 namespace Lina
 {
-	WorldRenderer* testWorldRenderer = nullptr;
-	EntityWorld*   testWorld		 = nullptr;
-	Entity*		   camEntity		 = nullptr;
+	WorldRenderer*	testWorldRenderer = nullptr;
+	EntityWorld*	testWorld		  = nullptr;
+	Entity*			camEntity		  = nullptr;
+	Vector<Entity*> cubes;
 
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
-		Renderer::PreInitialize(initInfo, this);
+		m_renderer = new Renderer();
+		m_renderer->PreInitialize(initInfo, this);
 	}
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		Renderer::Initialize(initInfo);
+		m_renderer->Initialize(initInfo);
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data			  = m_dataPerFrame[i];
-			data.globalDataBuffer = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::UniformBuffer, &m_globalData, sizeof(GPUGlobalData));
+			data.globalDataBuffer = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_globalData, sizeof(GPUGlobalData));
 		}
 
 		m_meshManager.Initialize();
@@ -79,15 +81,16 @@ namespace Lina
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_dataPerFrame[i];
-			Renderer::DeleteBufferResource(data.globalDataBuffer);
+			m_renderer->DeleteBufferResource(data.globalDataBuffer);
 		}
 
-		Renderer::Shutdown();
+		m_renderer->Shutdown();
+		delete m_renderer;
 	}
 
 	void GfxManager::Join()
 	{
-		Renderer::WaitForGPUGraphics();
+		m_renderer->WaitForGPUGraphics();
 	}
 
 	void GfxManager::Tick(float delta)
@@ -98,11 +101,14 @@ namespace Lina
 
 		testWorldRenderer->Tick(delta);
 
+		for (auto c : cubes)
+		{
+			// c->AddRotation(Vector3(0, SystemInfo::GetDeltaTimeF() * 15, 0));
+		}
 		if (camEntity)
 		{
 			// camEntity->SetPosition(Vector3(0,0, Math::Sin(SystemInfo::GetAppTimeF() * 5) * 10));
 			// camEntity->SetRotationAngles(Vector3(0, 180 + SystemInfo::GetAppTimeF(), 0));
-			 
 		}
 	}
 
@@ -110,12 +116,11 @@ namespace Lina
 	{
 		auto& frame = m_dataPerFrame[m_frameIndex];
 
-		// TODO
 		m_globalData.screenSizeMousePos = Vector2::Zero;
 		m_globalData.deltaElapsed		= Vector2(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF());
 		frame.globalDataBuffer->Update(&m_globalData, sizeof(GPUGlobalData));
 
-		Renderer::BeginFrame(m_frameIndex);
+		m_renderer->BeginFrame(m_frameIndex);
 
 		// Surface renderers.
 		{
@@ -134,7 +139,7 @@ namespace Lina
 
 		testWorldRenderer->Render(m_frameIndex);
 
-		Renderer::EndFrame(m_frameIndex);
+		m_renderer->EndFrame(m_frameIndex);
 
 		m_frameIndex = (m_frameIndex + 1) % FRAMES_IN_FLIGHT;
 	}
@@ -174,12 +179,17 @@ namespace Lina
 			testWorld					 = new EntityWorld(m_system);
 			camEntity					 = testWorld->CreateEntity("Cam Entity");
 			auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
-			camEntity->SetPosition(Vector3(0, 10, -80));
+			camEntity->SetPosition(Vector3(0, 0, -10));
 			// camEntity->SetRotationAngles(Vector3(0, 0, 0));
-			
-			
+
 			testWorld->SetActiveCamera(cam);
-			auto aq			  = rm->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			auto aq = rm->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			// auto aq2 = rm->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+
+			aq->SetPosition(Vector3(-2, 0, 0));
+			// aq2->SetPosition(Vector3(5, 0, 0));
+			cubes.push_back(aq);
+			// cubes.push_back(aq2);
 			testWorldRenderer = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
 		else if (type & EVS_PreSystemShutdown)
@@ -208,7 +218,7 @@ namespace Lina
 		}
 	}
 
-	IGfxResource* GfxManager::GetCurrentGlobalDataResource()
+	IGfxBufferResource* GfxManager::GetCurrentGlobalDataResource()
 	{
 		return m_dataPerFrame[m_frameIndex].globalDataBuffer;
 	}

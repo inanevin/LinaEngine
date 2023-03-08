@@ -2050,11 +2050,11 @@ Alignment of an allocation as it was determined using `GetResourceAllocationInfo
 Buffers/textures should be recreated with the same `D3D12_RESOURCE_DESC` parameters as the original ones.
 
 You can perform the defragmentation incrementally to limit the number of allocations and bytes to be moved
-in each pass, e.g. to call it in sync with render frames and not to experience too big hitches.
+in each pass, e.g. to call it in sync with render m_frames and not to experience too big hitches.
 See members: D3D12MA::DEFRAGMENTATION_DESC::MaxBytesPerPass, D3D12MA::DEFRAGMENTATION_DESC::MaxAllocationsPerPass.
 
 <b>Thread safety:</b>
-It is safe to perform the defragmentation asynchronously to render frames and other Direct3D 12 and %D3D12MA
+It is safe to perform the defragmentation asynchronously to render m_frames and other Direct3D 12 and %D3D12MA
 usage, possibly from multiple threads, with the exception that allocations
 returned in D3D12MA::DEFRAGMENTATION_PASS_MOVE_INFO::pMoves shouldn't be released until the defragmentation pass is ended.
 During the call to D3D12MA::DefragmentationContext::BeginPass(), any operations on the memory pool

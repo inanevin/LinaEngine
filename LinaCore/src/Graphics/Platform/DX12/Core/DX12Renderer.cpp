@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Platform/DX12/Core/DX12Swapchain.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -45,8 +46,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	Renderer::State Renderer::s_state;
-	DWORD			msgCallback = 0;
+	DWORD msgCallback = 0;
 
 	void MessageCallback(D3D12_MESSAGE_CATEGORY messageType, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID messageId, LPCSTR pDesc, void* pContext)
 	{
@@ -77,7 +77,7 @@ namespace Lina
 
 	void Renderer::PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan)
 	{
-		s_state.gfxManager = gfxMan;
+		m_gfxManager = gfxMan;
 
 		{
 			UINT dxgiFactoryFlags = 0;
@@ -98,7 +98,7 @@ namespace Lina
 				}
 			}
 #endif
-			ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&s_state.factory)));
+			ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
 		}
 
 		// Choose gpu & create device
@@ -106,15 +106,15 @@ namespace Lina
 			if (initInfo.preferredGPUType == PreferredGPUType::CPU)
 			{
 				ComPtr<IDXGIAdapter> warpAdapter;
-				ThrowIfFailed(s_state.factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
+				ThrowIfFailed(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
 
-				ThrowIfFailed(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&s_state.device)));
+				ThrowIfFailed(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 			}
 			else
 			{
-				GetHardwareAdapter(s_state.factory.Get(), &s_state.adapter, initInfo.preferredGPUType);
+				GetHardwareAdapter(m_factory.Get(), &m_adapter, initInfo.preferredGPUType);
 
-				ThrowIfFailed(D3D12CreateDevice(s_state.adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&s_state.device)));
+				ThrowIfFailed(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 			}
 		}
 
@@ -122,7 +122,7 @@ namespace Lina
 		// Dbg callback
 		{
 			ID3D12InfoQueue1* infoQueue = nullptr;
-			if (SUCCEEDED(s_state.device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
+			if (SUCCEEDED(m_device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
 			{
 				infoQueue->RegisterMessageCallback(&MessageCallback, D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS, nullptr, &msgCallback);
 			}
@@ -134,29 +134,29 @@ namespace Lina
 			D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 			queueDesc.Flags					   = D3D12_COMMAND_QUEUE_FLAG_NONE;
 			queueDesc.Type					   = D3D12_COMMAND_LIST_TYPE_DIRECT;
-			ThrowIfFailed(s_state.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&s_state.graphicsQueue)));
+			ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_graphicsQueue)));
 
 			queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
-			ThrowIfFailed(s_state.device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&s_state.copyQueue)));
+			ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_copyQueue)));
 		}
 
 		// Heaps
 		{
-			s_state.bufferHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 100);
-			s_state.dsvHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 10);
-			s_state.rtvHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 10);
-			s_state.samplerHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, 100);
+			m_bufferHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 100);
+			m_dsvHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 10);
+			m_rtvHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, D3D12_DESCRIPTOR_HEAP_FLAG_NONE, 10);
+			m_samplerHeap.Create(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE, 100);
 		}
 
 		// Allocator
 		{
 			D3D12MA::ALLOCATOR_DESC allocatorDesc;
-			allocatorDesc.pDevice			   = s_state.device.Get();
+			allocatorDesc.pDevice			   = m_device.Get();
 			allocatorDesc.PreferredBlockSize   = 0;
 			allocatorDesc.Flags				   = D3D12MA::ALLOCATOR_FLAG_NONE;
-			allocatorDesc.pAdapter			   = s_state.adapter.Get();
+			allocatorDesc.pAdapter			   = m_adapter.Get();
 			allocatorDesc.pAllocationCallbacks = NULL;
-			ThrowIfFailed(D3D12MA::CreateAllocator(&allocatorDesc, &s_state.dx12Allocator));
+			ThrowIfFailed(D3D12MA::CreateAllocator(&allocatorDesc, &m_dx12Allocator));
 		}
 	}
 
@@ -164,7 +164,7 @@ namespace Lina
 	{
 		// DXC
 		{
-			HRESULT hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&s_state.idxcLib));
+			HRESULT hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&m_idxcLib));
 			if (FAILED(hr))
 			{
 				LINA_CRITICAL("[D3D12 Gpu Storage] -> Failed to create DXC library!");
@@ -230,7 +230,7 @@ namespace Lina
 				LINA_CRITICAL("[Shader Compiler] -> Failed serializing root signature! {0}", (char*)errorBlob->GetBufferPointer());
 			}
 
-			hr = s_state.device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&s_state.rootSigStandard));
+			hr = m_device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSigStandard));
 
 			if (FAILED(hr))
 			{
@@ -248,39 +248,39 @@ namespace Lina
 			commandSignatureDesc.NumArgumentDescs			  = _countof(argumentDescs);
 			commandSignatureDesc.ByteStride					  = sizeof(DrawIndexedIndirectCommand);
 
-			ThrowIfFailed(s_state.device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(&s_state.commandSigStandard)));
+			ThrowIfFailed(m_device->CreateCommandSignature(&commandSignatureDesc, nullptr, IID_PPV_ARGS(&m_commandSigStandard)));
 		}
 
 		// Sycnronization resources
 		{
-			s_state.frameFenceGraphics = CreateFence();
-			s_state.fenceValueGraphics = 1;
+			m_frameFenceGraphics = CreateFence();
+			m_fenceValueGraphics = 1;
 
-			s_state.fenceEventGraphics = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			if (s_state.fenceEventGraphics == nullptr)
+			m_fenceEventGraphics = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			if (m_fenceEventGraphics == nullptr)
 			{
 				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
 			}
 		}
 
-		s_state.uploader.Initialize();
+		m_uploader.Initialize();
 	}
 
 	void Renderer::Shutdown()
 	{
-		s_state.uploader.Shutdown();
-		ReleaseFence(s_state.frameFenceGraphics);
+		m_uploader.Shutdown();
+		ReleaseFence(m_frameFenceGraphics);
 
 		ID3D12InfoQueue1* infoQueue = nullptr;
-		if (SUCCEEDED(s_state.device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
+		if (SUCCEEDED(m_device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
 		{
 			infoQueue->UnregisterMessageCallback(msgCallback);
 		}
 
-		s_state.graphicsQueue.Reset();
-		s_state.copyQueue.Reset();
-		s_state.dx12Allocator->Release();
-		s_state.device.Reset();
+		m_graphicsQueue.Reset();
+		m_copyQueue.Reset();
+		m_dx12Allocator->Release();
+		m_device.Reset();
 	}
 
 	void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)
@@ -345,10 +345,10 @@ namespace Lina
 
 	uint32 Renderer::GenerateMaterial(Material* mat, uint32 existingHandle)
 	{
-		LOCK_GUARD(s_state.shaderMtx);
+		LOCK_GUARD(m_shaderMtx);
 
-		const uint32	   index   = existingHandle == -1 ? s_state.materials.AddItem(GeneratedMaterial()) : existingHandle;
-		GeneratedMaterial& genData = s_state.materials.GetItemR(index);
+		const uint32	   index   = existingHandle == -1 ? m_materials.AddItem(GeneratedMaterial()) : existingHandle;
+		GeneratedMaterial& genData = m_materials.GetItemR(index);
 
 		return index;
 	}
@@ -365,16 +365,16 @@ namespace Lina
 	{
 		// Note: no need to mtx lock, this is called from the main thread.
 		const uint32 index	 = handle;
-		auto&		 genData = s_state.materials.GetItemR(index);
-		s_state.materials.RemoveItem(index);
+		auto&		 genData = m_materials.GetItemR(index);
+		m_materials.RemoveItem(index);
 	}
 
 	uint32 Renderer::GeneratePipeline(Shader* shader)
 	{
-		LOCK_GUARD(s_state.shaderMtx);
+		LOCK_GUARD(m_shaderMtx);
 
-		const uint32	   index   = s_state.shaders.AddItem(GeneratedShader());
-		auto&			   genData = s_state.shaders.GetItemR(index);
+		const uint32	   index   = m_shaders.AddItem(GeneratedShader());
+		auto&			   genData = m_shaders.GetItemR(index);
 		const auto&		   stages  = shader->GetStages();
 		const PipelineType ppType  = shader->GetPipelineType();
 
@@ -407,7 +407,7 @@ namespace Lina
 		if (!inputLayout.empty())
 			psoDesc.InputLayout = {&inputLayout[0], static_cast<UINT>(inputLayout.size())};
 
-		psoDesc.pRootSignature					= s_state.rootSigStandard.Get();
+		psoDesc.pRootSignature					= m_rootSigStandard.Get();
 		psoDesc.RasterizerState					= CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 		psoDesc.BlendState						= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 		psoDesc.DepthStencilState.DepthEnable	= FALSE;
@@ -463,7 +463,7 @@ namespace Lina
 			}
 		}
 
-		ThrowIfFailed(s_state.device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genData.pso)));
+		ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genData.pso)));
 
 		return index;
 	}
@@ -471,9 +471,9 @@ namespace Lina
 	void Renderer::DestroyPipeline(uint32 handle)
 	{
 		const uint32 index	 = handle;
-		auto&		 genData = s_state.shaders.GetItemR(index);
+		auto&		 genData = m_shaders.GetItemR(index);
 
-		s_state.shaders.RemoveItem(index);
+		m_shaders.RemoveItem(index);
 	}
 
 	void Renderer::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode)
@@ -506,7 +506,7 @@ namespace Lina
 		{
 			UINT32					 codePage = CP_UTF8;
 			ComPtr<IDxcBlobEncoding> sourceBlob;
-			ThrowIfFailed(s_state.idxcLib->CreateBlobFromFile(pathw, &codePage, &sourceBlob));
+			ThrowIfFailed(m_idxcLib->CreateBlobFromFile(pathw, &codePage, &sourceBlob));
 
 			wchar_t* entry = FileSystem::CharToWChar(title.c_str());
 
@@ -550,7 +550,7 @@ namespace Lina
 			}
 
 			ComPtr<IDxcResult> result;
-			ThrowIfFailed(idxcCompiler->Compile(&sourceBuffer, arguments.data(), static_cast<uint32>(arguments.size()), &s_state.includeInterface, IID_PPV_ARGS(result.GetAddressOf())));
+			ThrowIfFailed(idxcCompiler->Compile(&sourceBuffer, arguments.data(), static_cast<uint32>(arguments.size()), &m_includeInterface, IID_PPV_ARGS(result.GetAddressOf())));
 
 			ComPtr<IDxcBlobUtf8> errors;
 			ComPtr<IDxcBlobWide> outputName;
@@ -602,10 +602,10 @@ namespace Lina
 
 	uint32 Renderer::GenerateImage(Texture* txt, ImageType type)
 	{
-		LOCK_GUARD(s_state.textureMtx);
+		LOCK_GUARD(m_textureMtx);
 
-		const uint32	  index	  = s_state.textures.AddItem(GeneratedTexture());
-		GeneratedTexture& genData = s_state.textures.GetItemR(index);
+		const uint32	  index	  = m_textures.AddItem(GeneratedTexture());
+		GeneratedTexture& genData = m_textures.GetItemR(index);
 		auto&			  meta	  = txt->GetMetadata();
 		const auto&		  ext	  = txt->GetExtent();
 		genData.imageType		  = type;
@@ -613,7 +613,12 @@ namespace Lina
 		// Rest will be done by CreateRenderTarget
 		if (type == ImageType::Swapchain)
 		{
-			genData.descriptor = s_state.rtvHeap.Allocate();
+			genData.descriptor = m_rtvHeap.Allocate();
+		}
+		else if (type == ImageType::DepthStencil)
+		{
+			genData.descriptor	= m_dsvHeap.Allocate();
+			genData.gfxResource = CreateTextureResource(TextureResourceType::Texture2DDepthStencil, Vector2i(ext.width, ext.height));
 		}
 		else
 		{
@@ -624,10 +629,10 @@ namespace Lina
 
 	uint32 Renderer::GenerateImageAndUpload(Texture* txt)
 	{
-		LOCK_GUARD(s_state.textureMtx);
+		LOCK_GUARD(m_textureMtx);
 
-		const uint32	  index	  = s_state.textures.AddItem(GeneratedTexture());
-		GeneratedTexture& genData = s_state.textures.GetItemR(index);
+		const uint32	  index	  = m_textures.AddItem(GeneratedTexture());
+		GeneratedTexture& genData = m_textures.GetItemR(index);
 		auto&			  meta	  = txt->GetMetadata();
 		const auto&		  ext	  = txt->GetExtent();
 
@@ -637,117 +642,120 @@ namespace Lina
 	void Renderer::DestroyImage(uint32 handle)
 	{
 		const uint32	  index	  = handle;
-		GeneratedTexture& genData = s_state.textures.GetItemR(index);
+		GeneratedTexture& genData = m_textures.GetItemR(index);
 
 		if (genData.imageType == ImageType::Swapchain)
 		{
-			s_state.rtvHeap.Free(genData.descriptor);
-			genData.resource.Reset();
+			m_rtvHeap.Free(genData.descriptor);
+			genData.rawResource.Reset();
+
+			if (genData.gfxResource)
+				delete genData.gfxResource;
 		}
 
-		s_state.textures.RemoveItem(index);
+		m_textures.RemoveItem(index);
 	}
 
 	void Renderer::BeginFrame(uint32 frameIndex)
 	{
 		// Will wait if pending commands.
-		s_state.uploader.Flush();
+		m_uploader.Flush();
 
-		Renderer::WaitForFences(s_state.frameFenceGraphics, s_state.fenceValueGraphics, s_state.frames[frameIndex].storedFenceGraphics);
+		Renderer::WaitForFences(m_frameFenceGraphics, m_fenceValueGraphics, m_frames[frameIndex].storedFenceGraphics);
 	}
 
 	void Renderer::EndFrame(uint32 frameIndex)
 	{
-		auto& fence				  = s_state.fences.GetItemR(s_state.frameFenceGraphics);
-		auto& frame				  = s_state.frames[frameIndex];
-		frame.storedFenceGraphics = s_state.fenceValueGraphics;
-		s_state.graphicsQueue->Signal(fence.Get(), s_state.fenceValueGraphics);
-		s_state.fenceValueGraphics++;
+		auto& fence				  = m_fences.GetItemR(m_frameFenceGraphics);
+		auto& frame				  = m_frames[frameIndex];
+		frame.storedFenceGraphics = m_fenceValueGraphics;
+		m_graphicsQueue->Signal(fence.Get(), m_fenceValueGraphics);
+		m_fenceValueGraphics++;
 	}
 
 	void Renderer::WaitForGPUGraphics()
 	{
-		auto& fence = s_state.fences.GetItemR(s_state.frameFenceGraphics);
+		auto& fence = m_fences.GetItemR(m_frameFenceGraphics);
 
 		// Schedule a Signal command in the queue.
-		ThrowIfFailed(s_state.graphicsQueue->Signal(fence.Get(), s_state.fenceValueGraphics));
+		ThrowIfFailed(m_graphicsQueue->Signal(fence.Get(), m_fenceValueGraphics));
 
 		// Wait until the fence has been processed.
-		ThrowIfFailed(fence->SetEventOnCompletion(s_state.fenceValueGraphics, s_state.fenceEventGraphics));
-		WaitForSingleObjectEx(s_state.fenceEventGraphics, INFINITE, FALSE);
+		ThrowIfFailed(fence->SetEventOnCompletion(m_fenceValueGraphics, m_fenceEventGraphics));
+		WaitForSingleObjectEx(m_fenceEventGraphics, INFINITE, FALSE);
 	}
 
 	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, void* windowHandle)
 	{
-		return new DX12Swapchain(size, windowHandle);
+		return new DX12Swapchain(this, size, windowHandle);
 	}
 
 	uint32 Renderer::CreateCommandAllocator(CommandType type)
 	{
-		const uint32 handle = s_state.cmdAllocators.AddItem(ComPtr<ID3D12CommandAllocator>());
-		auto&		 alloc	= s_state.cmdAllocators.GetItemR(handle);
-		ThrowIfFailed(s_state.device->CreateCommandAllocator(GetCommandType(type), IID_PPV_ARGS(alloc.GetAddressOf())));
+		const uint32 handle = m_cmdAllocators.AddItem(ComPtr<ID3D12CommandAllocator>());
+		auto&		 alloc	= m_cmdAllocators.GetItemR(handle);
+		ThrowIfFailed(m_device->CreateCommandAllocator(GetCommandType(type), IID_PPV_ARGS(alloc.GetAddressOf())));
 		return handle;
 	}
 
 	uint32 Renderer::CreateCommandList(CommandType type, uint32 allocatorHandle)
 	{
-		const uint32 handle	   = s_state.cmdLists.AddItem(ComPtr<ID3D12GraphicsCommandList4>());
-		auto&		 list	   = s_state.cmdLists.GetItemR(handle);
-		auto&		 allocator = s_state.cmdAllocators.GetItemR(allocatorHandle);
-		ThrowIfFailed(s_state.device->CreateCommandList(0, GetCommandType(type), allocator.Get(), nullptr, IID_PPV_ARGS(list.GetAddressOf())));
+		const uint32 handle	   = m_cmdLists.AddItem(ComPtr<ID3D12GraphicsCommandList4>());
+		auto&		 list	   = m_cmdLists.GetItemR(handle);
+		auto&		 allocator = m_cmdAllocators.GetItemR(allocatorHandle);
+		ThrowIfFailed(m_device->CreateCommandList(0, GetCommandType(type), allocator.Get(), nullptr, IID_PPV_ARGS(list.GetAddressOf())));
 		ThrowIfFailed(list->Close());
 		return handle;
 	}
 
 	uint32 Renderer::CreateFence()
 	{
-		const uint32 handle = s_state.fences.AddItem(ComPtr<ID3D12Fence>());
-		auto&		 fence	= s_state.fences.GetItemR(handle);
-		ThrowIfFailed(s_state.device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+		const uint32 handle = m_fences.AddItem(ComPtr<ID3D12Fence>());
+		auto&		 fence	= m_fences.GetItemR(handle);
+		ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
 		return handle;
 	}
 
 	void Renderer::ReleaseCommanAllocator(uint32 handle)
 	{
-		s_state.cmdAllocators.GetItemR(handle).Reset();
-		s_state.cmdAllocators.RemoveItem(handle);
+		m_cmdAllocators.GetItemR(handle).Reset();
+		m_cmdAllocators.RemoveItem(handle);
 	}
 
-	IGfxResource* Renderer::CreateBufferResource(ResourceMemoryState memState, ResourceState resState, void* initialData, size_t size)
+	IGfxBufferResource* Renderer::CreateBufferResource(BufferResourceType type, void* initialData, size_t size)
 	{
-		return new DX12GfxBufferResource(memState, resState, initialData, size);
+		return new DX12GfxBufferResource(this, type, initialData, size);
 	}
 
-	IGfxResource* Renderer::CreateIndirectBufferResource()
+	IGfxTextureResource* Renderer::CreateTextureResource(TextureResourceType type, const Vector2i& initialSize)
 	{
-		return nullptr;
+		return new DX12GfxTextureResource(this, type, initialSize);
 	}
 
-	void Renderer::ReleaseCommandList(uint32 handle)
-	{
-		s_state.cmdLists.GetItemR(handle).Reset();
-		s_state.cmdLists.RemoveItem(handle);
-	}
-
-	void Renderer::DeleteBufferResource(IGfxResource* res)
+	void Renderer::DeleteBufferResource(IGfxBufferResource* res)
 	{
 		delete res;
 	}
 
+	void Renderer::ReleaseCommandList(uint32 handle)
+	{
+		m_cmdLists.GetItemR(handle).Reset();
+		m_cmdLists.RemoveItem(handle);
+	}
+
 	void Renderer::ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle)
 	{
-		auto& cmdList	   = s_state.cmdLists.GetItemR(cmdListHandle);
-		auto& cmdAllocator = s_state.cmdAllocators.GetItemR(cmdAllocatorHandle);
+		auto& cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
+		auto& cmdAllocator = m_cmdAllocators.GetItemR(cmdAllocatorHandle);
 		ThrowIfFailed(cmdAllocator->Reset());
 		ThrowIfFailed(cmdList->Reset(cmdAllocator.Get(), nullptr));
 	}
 
 	void Renderer::PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
-		// ID3D12DescriptorHeap* heaps[] = {s_state.bufferHeap.GetHeap()};
-		cmdList->SetGraphicsRootSignature(s_state.rootSigStandard.Get());
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		// ID3D12DescriptorHeap* heaps[] = {bufferHeap.GetHeap()};
+		cmdList->SetGraphicsRootSignature(m_rootSigStandard.Get());
 		//	cmdList->SetDescriptorHeaps(_countof(heaps), heaps);
 
 		// Viewport & scissors.
@@ -773,7 +781,7 @@ namespace Lina
 
 	void Renderer::FinalizeCommandList(uint32 cmdListHandle)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		ThrowIfFailed(cmdList->Close());
 	}
 
@@ -785,12 +793,12 @@ namespace Lina
 
 		for (UINT i = 0; i < sz; i++)
 		{
-			auto& lst = s_state.cmdLists.GetItemR(lists[i]);
+			auto& lst = m_cmdLists.GetItemR(lists[i]);
 			_lists.push_back(lst.Get());
 		}
 
 		ID3D12CommandList* const* data = _lists.data();
-		s_state.graphicsQueue->ExecuteCommandLists(sz, data);
+		m_graphicsQueue->ExecuteCommandLists(sz, data);
 	}
 
 	void Renderer::ExecuteCommandListsTransfer(const Vector<uint32>& lists)
@@ -801,34 +809,34 @@ namespace Lina
 
 		for (UINT i = 0; i < sz; i++)
 		{
-			auto& lst = s_state.cmdLists.GetItemR(lists[i]);
+			auto& lst = m_cmdLists.GetItemR(lists[i]);
 			_lists.push_back(lst.Get());
 		}
 
 		ID3D12CommandList* const* data = _lists.data();
-		s_state.copyQueue->ExecuteCommandLists(sz, data);
+		m_copyQueue->ExecuteCommandLists(sz, data);
 	}
 
 	void Renderer::TransitionPresent2RT(uint32 cmdListHandle, Texture* txt)
 	{
-		auto& cmdList	  = s_state.cmdLists.GetItemR(cmdListHandle);
-		auto& genData	  = s_state.textures.GetItemR(txt->GetGPUHandle());
-		auto  presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(genData.resource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		auto& cmdList	  = m_cmdLists.GetItemR(cmdListHandle);
+		auto& genData	  = m_textures.GetItemR(txt->GetGPUHandle());
+		auto  presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 		cmdList->ResourceBarrier(1, &presentToRT);
 	}
 
 	void Renderer::TransitionRT2Present(uint32 cmdListHandle, Texture* txt)
 	{
-		auto& cmdList	  = s_state.cmdLists.GetItemR(cmdListHandle);
-		auto& genData	  = s_state.textures.GetItemR(txt->GetGPUHandle());
-		auto  rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(genData.resource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+		auto& cmdList	  = m_cmdLists.GetItemR(cmdListHandle);
+		auto& genData	  = m_textures.GetItemR(txt->GetGPUHandle());
+		auto  rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
 		cmdList->ResourceBarrier(1, &rtToPresent);
 	}
 
 	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
-		auto& genData = s_state.textures.GetItemR(colorTexture->GetGPUHandle());
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		auto& genData = m_textures.GetItemR(colorTexture->GetGPUHandle());
 
 		const float			cc[]{clearColor.x, clearColor.y, clearColor.z, clearColor.w};
 		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
@@ -837,28 +845,44 @@ namespace Lina
 		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessPreserve{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
 		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{genData.descriptor.cpuHandle, renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
 
-		// D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessNoAccess{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, {}};
-		// D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessNoAccess{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS, {}};
-		// D3D12_RENDER_PASS_DEPTH_STENCIL_DESC renderPassDepthStencilDesc{dsvCPUDescriptorHandle, renderPassBeginningAccessNoAccess, renderPassBeginningAccessNoAccess, renderPassEndingAccessNoAccess, renderPassEndingAccessNoAccess};
+		cmdList->BeginRenderPass(1, &renderPassRenderTargetDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
+	}
+
+	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencilTexture, const Color& clearColor)
+	{
+		auto& cmdList			  = m_cmdLists.GetItemR(cmdListHandle);
+		auto& genDataCol		  = m_textures.GetItemR(colorTexture->GetGPUHandle());
+		auto& genDataDepthStencil = m_textures.GetItemR(depthStencilTexture->GetGPUHandle());
+
+		const float			cc[]{clearColor.x, clearColor.y, clearColor.z, clearColor.w};
+		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
+
+		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessClear{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
+		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessPreserve{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
+		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{genDataCol.descriptor.cpuHandle, renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
+
+		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessNoAccess{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, {}};
+		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessNoAccess{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS, {}};
+		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC renderPassDepthStencilDesc{genDataDepthStencil.descriptor.cpuHandle, renderPassBeginningAccessNoAccess, renderPassBeginningAccessNoAccess, renderPassEndingAccessNoAccess, renderPassEndingAccessNoAccess};
 
 		cmdList->BeginRenderPass(1, &renderPassRenderTargetDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
 	}
 
 	void Renderer::EndRenderPass(uint32 cmdListHandle)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->EndRenderPass();
 	}
 
-	void Renderer::BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxResource* buf)
+	void Renderer::BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxBufferResource* buf)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->SetGraphicsRootConstantBufferView(bufferIndex, buf->GetGPUPointer());
 	}
 
-	void Renderer::BindObjectBuffer(uint32 cmdListHandle, IGfxResource* buf)
+	void Renderer::BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* buf)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->SetGraphicsRootShaderResourceView(6, buf->GetGPUPointer());
 	}
 
@@ -872,47 +896,47 @@ namespace Lina
 			return;
 		}
 
-		auto& cmdList	 = s_state.cmdLists.GetItemR(cmdListHandle);
-		auto& shaderData = s_state.shaders.GetItemR(shader->GetGPUHandle());
+		auto& cmdList	 = m_cmdLists.GetItemR(cmdListHandle);
+		auto& shaderData = m_shaders.GetItemR(shader->GetGPUHandle());
 		cmdList->SetPipelineState(shaderData.pso.Get());
 	}
 
 	void Renderer::DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->DrawInstanced(vertexCount, instanceCount, startVertex, startInstance);
 	}
 
 	void Renderer::DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 	}
 
-	void Renderer::DrawIndexedIndirect(uint32 cmdListHandle, IGfxResource* indirectBuffer, uint32 count, uint64 indirectOffset)
+	void Renderer::DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset)
 	{
-		auto&				   cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto&				   cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		DX12GfxBufferResource* buf	   = static_cast<DX12GfxBufferResource*>(indirectBuffer);
 
 		D3D12_RESOURCE_BARRIER barriers[1] = {CD3DX12_RESOURCE_BARRIER::Transition(buf->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT)};
 		cmdList->ResourceBarrier(_countof(barriers), barriers);
-		cmdList->ExecuteIndirect(s_state.commandSigStandard.Get(), count, buf->DX12GetAllocation()->GetResource(), indirectOffset, nullptr, 0);
+		cmdList->ExecuteIndirect(m_commandSigStandard.Get(), count, buf->DX12GetAllocation()->GetResource(), indirectOffset, nullptr, 0);
 	}
 
 	void Renderer::SetTopology(uint32 cmdListHandle, Topology topology)
 	{
-		auto& cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->IASetPrimitiveTopology(GetTopology(topology));
 	}
 
 	void Renderer::PushTransferCommand(GfxCommand& cmd)
 	{
-		s_state.uploader.PushCommand(cmd);
+		m_uploader.PushCommand(cmd);
 	}
 
-	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxResource* buffer, uint32 slot)
+	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot)
 	{
-		auto&					 cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto&					 cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_VERTEX_BUFFER_VIEW view;
 		view.BufferLocation = buffer->GetGPUPointer();
 		view.SizeInBytes	= buffer->GetSize();
@@ -920,9 +944,9 @@ namespace Lina
 		cmdList->IASetVertexBuffers(slot, 1, &view);
 	}
 
-	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxResource* buffer)
+	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer)
 	{
-		auto&					cmdList = s_state.cmdLists.GetItemR(cmdListHandle);
+		auto&					cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_INDEX_BUFFER_VIEW view;
 		view.BufferLocation = buffer->GetGPUPointer();
 		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
@@ -930,15 +954,15 @@ namespace Lina
 		cmdList->IASetIndexBuffer(&view);
 	}
 
-	void Renderer::CopyCPU2GPU(IGfxResource* cpuBuffer, IGfxResource* gpuBuffer, void* data, size_t sz, ResourceState finalState)
+	void Renderer::CopyCPU2GPU(IGfxBufferResource* cpuBuffer, IGfxBufferResource* gpuBuffer, void* data, size_t sz, ResourceState finalState)
 	{
 		GfxCommand cmd;
 
 		DX12GfxBufferResource* cpuRes = static_cast<DX12GfxBufferResource*>(cpuBuffer);
 		DX12GfxBufferResource* gpuRes = static_cast<DX12GfxBufferResource*>(gpuBuffer);
 
-		cmd.Record = [data, sz, cpuRes, gpuRes, finalState](uint32 list) {
-			auto& cmdList = s_state.cmdLists.GetItemR(list);
+		cmd.Record = [data, sz, cpuRes, gpuRes, finalState, this](uint32 list) {
+			auto& cmdList = m_cmdLists.GetItemR(list);
 
 			D3D12_SUBRESOURCE_DATA sData = {};
 			sData.pData					 = data;
@@ -956,7 +980,7 @@ namespace Lina
 
 	void Renderer::WaitForCopyQueue()
 	{
-		s_state.uploader.Flush();
+		m_uploader.Flush();
 	}
 
 	void Renderer::Present(ISwapchain* swp)
@@ -987,8 +1011,8 @@ namespace Lina
 
 	void Renderer::ReleaseFence(uint32 handle)
 	{
-		s_state.fences.GetItemR(handle).Reset();
-		s_state.fences.RemoveItem(handle);
+		m_fences.GetItemR(handle).Reset();
+		m_fences.RemoveItem(handle);
 	}
 
 	void Renderer::WaitForFences(uint32 fenceHandle, uint64 userData0, uint64 userData1)
@@ -996,7 +1020,7 @@ namespace Lina
 		// UserData0: Current Fence Value in caller
 		// UserData1: Stored fence value in caller's frame
 
-		auto&		 fence	   = s_state.fences.GetItemR(fenceHandle);
+		auto&		 fence	   = m_fences.GetItemR(fenceHandle);
 		const UINT64 lastFence = fence->GetCompletedValue();
 
 		if (userData1 > lastFence)
@@ -1018,7 +1042,7 @@ namespace Lina
 	Texture* Renderer::CreateRenderTarget(const String& path)
 	{
 		const StringID sid = TO_SID(path);
-		Texture*	   rt  = new Texture(s_state.gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, path, sid);
+		Texture*	   rt  = new Texture(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, path, sid);
 		// TODO
 		return rt;
 	}
@@ -1026,20 +1050,38 @@ namespace Lina
 	Texture* Renderer::CreateRenderTarget(ISwapchain* swp, uint32 bufferIndex, const String& path)
 	{
 		const StringID sid = TO_SID(path);
-		Texture*	   rt  = new Texture(s_state.gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, path, sid);
+		Texture*	   rt  = new Texture(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, path, sid);
 		rt->GenerateImage(ImageType::Swapchain);
-		auto& genData = s_state.textures.GetItemR(rt->GetGPUHandle());
+		auto& genData = m_textures.GetItemR(rt->GetGPUHandle());
 
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
-		ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&genData.resource)));
-		s_state.device->CreateRenderTargetView(genData.resource.Get(), nullptr, genData.descriptor.cpuHandle);
+		ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&genData.rawResource)));
+		m_device->CreateRenderTargetView(genData.rawResource.Get(), nullptr, genData.descriptor.cpuHandle);
+
+		return rt;
+	}
+
+	Texture* Renderer::CreateDepthStencil(const String& path)
+	{
+		const StringID sid = TO_SID(path);
+		Texture*	   rt  = new Texture(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, path, sid);
+		rt->GenerateImage(ImageType::DepthStencil);
+		auto& genData = m_textures.GetItemR(rt->GetGPUHandle());
+
+		DX12GfxTextureResource* res = static_cast<DX12GfxTextureResource*>(genData.gfxResource);
+
+		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+		depthStencilDesc.Format						   = GetFormat(DEFAULT_DEPTH_FORMAT);
+		depthStencilDesc.ViewDimension				   = D3D12_DSV_DIMENSION_TEXTURE2D;
+		depthStencilDesc.Flags						   = D3D12_DSV_FLAG_NONE;
+		m_device->CreateDepthStencilView(res->DX12GetAllocation()->GetResource(), &depthStencilDesc, genData.descriptor.cpuHandle);
 
 		return rt;
 	}
 
 	// void Renderer::BindPipeline(ID3D12GraphicsCommandList* cmdList, Material* mat)
 	// {
-	// 	GeneratedShader& genData = s_state.shaders.GetItemR(mat->GetShader()->GetGPUHandle());
+	// 	GeneratedShader& genData = shaders.GetItemR(mat->GetShader()->GetGPUHandle());
 	// 	cmdList->SetPipelineState(genData.pso.Get());
 	// }
 

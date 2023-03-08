@@ -39,13 +39,18 @@ SOFTWARE.
 
 namespace Lina
 {
+	Shader::Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Shader>())
+	{
+		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+	}
+
 	Shader::~Shader()
 	{
 
 		if (m_gpuHandle == -1)
 			return;
 
-		Renderer::DestroyPipeline(m_gpuHandle);
+		m_renderer->DestroyPipeline(m_gpuHandle);
 
 		for (auto p : m_properties)
 			delete p;
@@ -68,7 +73,7 @@ namespace Lina
 	{
 		m_text = FileSystem::ReadFileContentsAsString(path);
 		m_text = HLSLParser::Parse(m_text, m_drawPassMask, m_pipelineType, m_properties, m_textures, m_stages);
-		Renderer::CompileShader(m_path.c_str(), m_stages, m_compiledCode);
+		m_renderer->CompileShader(m_path.c_str(), m_stages, m_compiledCode);
 	}
 
 	void Shader::SaveToStream(OStream& stream)
@@ -223,7 +228,7 @@ namespace Lina
 		if (m_gpuHandle != -1)
 			return;
 
-		m_gpuHandle = Renderer::GeneratePipeline(this);
+		m_gpuHandle = m_renderer->GeneratePipeline(this);
 	}
 
 	void Shader::Flush()

@@ -35,7 +35,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Data/Vertex.hpp"
-#include "Graphics/Core/IGfxResource.hpp"
+#include "Graphics/Core/IGfxBufferResource.hpp"
 
 namespace Lina
 {
@@ -46,14 +46,15 @@ namespace Lina
 
 	void GfxMeshManager::Initialize()
 	{
+		m_renderer		  = m_gfxManager->GetRenderer();
 	}
 
 	void GfxMeshManager::Shutdown()
 	{
-		Renderer::DeleteBufferResource(m_cpuIndexBuffer);
-		Renderer::DeleteBufferResource(m_cpuVtxBuffer);
-		Renderer::DeleteBufferResource(m_gpuIndexBuffer);
-		Renderer::DeleteBufferResource(m_gpuVtxBuffer);
+		m_renderer->DeleteBufferResource(m_cpuIndexBuffer);
+		m_renderer->DeleteBufferResource(m_cpuVtxBuffer);
+		m_renderer->DeleteBufferResource(m_gpuIndexBuffer);
+		m_renderer->DeleteBufferResource(m_gpuVtxBuffer);
 	}
 
 	void GfxMeshManager::MergeMeshes()
@@ -101,26 +102,15 @@ namespace Lina
 			}
 		}
 
-		mergedVertices.clear();
-
-		const float aspect = 1440.0f / 960.0f;
-		Vertex		v1, v2, v3;
-		v1.pos = Vector3(0.0f, 0.25f * aspect, 0.0f);
-		v2.pos = Vector3(-0.25f, -0.25f * aspect, 0.0f);
-		v3.pos = Vector3(0.25f, -0.25f * aspect, 0.0f);
-		mergedVertices.push_back(v1);
-		mergedVertices.push_back(v2);
-		mergedVertices.push_back(v3);
-
 		const uint32 vtxSize   = static_cast<uint32>(mergedVertices.size() * sizeof(Vertex));
 		const uint32 indexSize = static_cast<uint32>(mergedIndices.size() * sizeof(uint32));
 
 		if (m_cpuIndexBuffer == nullptr)
 		{
-			m_cpuIndexBuffer = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::GenericRead, nullptr, indexSize);
-			m_cpuVtxBuffer	 = Renderer::CreateBufferResource(ResourceMemoryState::CPUHeap, ResourceState::GenericRead, nullptr, vtxSize);
-			m_gpuIndexBuffer = Renderer::CreateBufferResource(ResourceMemoryState::GPUHeap, ResourceState::CopyDestination, nullptr, indexSize);
-			m_gpuVtxBuffer	 = Renderer::CreateBufferResource(ResourceMemoryState::GPUHeap, ResourceState::CopyDestination, nullptr, vtxSize);
+			m_cpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::IndexBufferSrc, nullptr, indexSize);
+			m_cpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::VertexBufferSrc, nullptr, vtxSize);
+			m_gpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::IndexBufferDst, nullptr, indexSize);
+			m_gpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::VertexBufferDst, nullptr, vtxSize);
 		}
 		else
 		{
@@ -130,8 +120,8 @@ namespace Lina
 			m_gpuVtxBuffer->Recreate(nullptr, vtxSize);
 		}
 
-		Renderer::CopyCPU2GPU(m_cpuIndexBuffer, m_gpuIndexBuffer, mergedIndices.data(), indexSize, ResourceState::IndexBuffer);
-		Renderer::CopyCPU2GPU(m_cpuVtxBuffer, m_gpuVtxBuffer, mergedVertices.data(), vtxSize, ResourceState::VertexBuffer);
-		Renderer::WaitForCopyQueue();
+		m_renderer->CopyCPU2GPU(m_cpuIndexBuffer, m_gpuIndexBuffer, mergedIndices.data(), indexSize, ResourceState::IndexBuffer);
+		m_renderer->CopyCPU2GPU(m_cpuVtxBuffer, m_gpuVtxBuffer, mergedVertices.data(), vtxSize, ResourceState::VertexBuffer);
+		m_renderer->WaitForCopyQueue();
 	}
 } // namespace Lina
