@@ -50,9 +50,14 @@ namespace Lina
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
-		virtual void OnSystemEvent(ESystemEvent type, const Event& ev) override;
 		void		 PreTick();
 		void		 Tick(float dt);
+
+		void OnKey(void* windowPtr, uint32 key, int scanCode, InputAction action);
+		void OnMouseWheel(void* windowPtr, int delta);
+		void OnMouseButton(void* windowPtr, int button, InputAction action);
+		void OnMouseMove(void* windowPtr, int xPosRel, int yPosRel);
+		void OnActiveAppChanged(bool isActive);
 
 		bool GetKey(int button);
 		bool GetKeyDown(int button);
@@ -89,11 +94,6 @@ namespace Lina
 		inline CursorMode GetCursorMode()
 		{
 			return m_cursorMode;
-		}
-
-		virtual Bitmask32 GetSystemEventMask()
-		{
-			return EVS_ActiveAppChanged | EVS_MouseButton | EVS_MouseMove | EVS_Key | EVS_MouseWheel;
 		}
 
 	private:

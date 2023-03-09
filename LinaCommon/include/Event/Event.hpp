@@ -42,40 +42,24 @@ namespace Lina
 		uint32 iParams[4];
 	};
 
-	enum ESystemEvent
+	enum SystemEvent
 	{
-		EVS_Key					= 1 << 0,
-		EVS_MouseButton			= 1 << 1,
-		EVS_MouseWheel			= 1 << 2,
-		EVS_MouseMove			= 1 << 3,
-		EVS_WindowMove			= 1 << 4,
-		EVS_WindowResize		= 1 << 5,
-		EVS_WindowMinimized		= 1 << 6,
-		EVS_WindowMaximized		= 1 << 7,
-		EVS_WindowQuit			= 1 << 8,
-		EVS_WindowFocus			= 1 << 9,
-		EVS_SystemTick			= 1 << 10,
-		EVS_SyncThreads			= 1 << 11,
-		EVS_VsyncMode			= 1 << 12,
-		EVS_ActiveAppChanged	= 1 << 13,
-		EVS_ResourceLoaded		= 1 << 14,
-		EVS_PostInit			= 1 << 15,
-		EVS_PreSystemShutdown	= 1 << 16,
-		EVS_ResourceBatchLoaded = 1 << 17,
+		EVS_ResourceLoaded,
+		EVS_ResourceBatchLoaded,
 	};
 
-	enum EGameEvent
+	enum GameEvent
 	{
-		EVG_LevelInstalled			   = 1 << 0,
-		EVG_LevelUninstalled		   = 1 << 1,
-		EVG_Start					   = 1 << 2,
-		EVG_PostStart				   = 1 << 3,
-		EVG_Tick					   = 1 << 4,
-		EVG_PostTick				   = 1 << 5,
-		EVG_Physics					   = 1 << 6,
-		EVG_PostPhysics				   = 1 << 7,
-		EVG_ComponentCreated		   = 1 << 8,
-		EVG_ComponentDestroyed		   = 1 << 9,
+		EVG_LevelInstalled,
+		EVG_LevelUninstalled,
+		EVG_Start,
+		EVG_PostStart,
+		EVG_Tick,
+		EVG_PostTick,
+		EVG_Physics,
+		EVG_PostPhysics,
+		EVG_ComponentCreated,
+		EVG_ComponentDestroyed
 	};
 } // namespace Lina
 

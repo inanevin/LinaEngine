@@ -26,42 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef IEventListener_HPP
-#define IEventListener_HPP
-
-#include "Event/Event.hpp"
-#include "Data/Bitmask.hpp"
+#include "Event/ISystemEventListener.hpp"
 
 namespace Lina
 {
-	class IEventListener
-	{
-	public:
-		IEventListener()		  = default;
-		virtual ~IEventListener() = default;
-
-		virtual void OnSystemEvent(ESystemEvent type, const Event& ev)
-		{
-		}
-
-		virtual Bitmask32 GetSystemEventMask()
-		{
-			return 0;
-		}
-
-		virtual void OnGameEvent(EGameEvent type, const Event& ev)
-		{
-		}
-
-		virtual Bitmask32 GetGameEventMask()
-		{
-			return 0;
-		}
-
-	};
 
 } // namespace Lina
-
-#endif

@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Data/IDList.hpp"
 #include "Serialization/HashMapSerialization.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
-#include "Event/IEventDispatcher.hpp"
+#include "Event/IGameEventDispatcher.hpp"
 
 namespace Lina
 {
@@ -59,7 +59,7 @@ namespace Lina
 	template <typename T> class ComponentCache : public ComponentCacheBase
 	{
 	public:
-		ComponentCache(EntityWorld* world, IEventDispatcher* eventDispatcher)
+		ComponentCache(EntityWorld* world, IGameEventDispatcher* eventDispatcher)
 			: m_world(world), m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)),
 			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
 		{
@@ -214,7 +214,7 @@ namespace Lina
 			data.pParams[0]				= static_cast<void*>(m_world);
 			data.pParams[1]				= static_cast<void*>(&objWrapper);
 			data.iParams[0]				= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->DispatchGameEvent(EVG_ComponentCreated, data);
+			m_eventDispatcher->DispatchEvent(EVG_ComponentCreated, data);
 			m_eventDispatcher->AddListener(comp);
 		}
 
@@ -225,15 +225,15 @@ namespace Lina
 			data.pParams[0]				= static_cast<void*>(m_world);
 			data.pParams[1]				= static_cast<void*>(&objWrapper);
 			data.iParams[0]				= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->DispatchGameEvent(EVG_ComponentDestroyed, data);
+			m_eventDispatcher->DispatchEvent(EVG_ComponentDestroyed, data);
 			m_eventDispatcher->RemoveListener(comp);
 		}
 
 	private:
-		EntityWorld*		m_world			  = nullptr;
-		IEventDispatcher*	m_eventDispatcher = nullptr;
-		MemoryAllocatorPool m_allocatorPool;
-		IDList<T*>			m_components;
+		EntityWorld*		  m_world			= nullptr;
+		IGameEventDispatcher* m_eventDispatcher = nullptr;
+		MemoryAllocatorPool	  m_allocatorPool;
+		IDList<T*>			  m_components;
 	};
 
 } // namespace Lina

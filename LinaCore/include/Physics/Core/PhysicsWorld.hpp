@@ -34,12 +34,11 @@ SOFTWARE.
 namespace Lina
 {
 	class EntityWorld;
-	class IEventDispatcher;
 
 	class PhysicsWorld
 	{
 	public:
-		PhysicsWorld(EntityWorld* world, IEventDispatcher* disp) : m_world(world), m_dispatcher(disp){};
+		PhysicsWorld(EntityWorld* world) : m_world(world){};
 		~PhysicsWorld() = default;
 
 		void Tick(float delta);
@@ -47,9 +46,8 @@ namespace Lina
 		void SyncData(float alpha);
 
 	private:
-		bool			  m_simulated  = false;
-		EntityWorld*	  m_world	   = nullptr;
-		IEventDispatcher* m_dispatcher = nullptr;
+		bool		 m_simulated = false;
+		EntityWorld* m_world	 = nullptr;
 	};
 } // namespace Lina
 

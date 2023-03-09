@@ -31,14 +31,14 @@ SOFTWARE.
 #ifndef IPlugin_HPP
 #define IPlugin_HPP
 
-#include "Event/IEventListener.hpp"
+#include "Event/ISystemEventListener.hpp"
 #include "Data/String.hpp"
 
 namespace Lina
 {
 	class IEngineInterface;
 
-	class IPlugin : public IEventListener
+	class IPlugin : public ISystemEventListener
 	{
 	public:
 		IPlugin(IEngineInterface* interface, const String& name) : m_engineInterface(interface), m_name(name){};

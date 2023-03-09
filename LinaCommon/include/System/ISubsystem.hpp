@@ -32,7 +32,6 @@ SOFTWARE.
 #define ISubsystem_HPP
 
 #include "Data/HashMap.hpp"
-#include "Event/IEventListener.hpp"
 
 namespace Lina
 {
@@ -53,11 +52,13 @@ namespace Lina
 	class ISystem;
 	struct SystemInitializationInfo;
 
-	class ISubsystem : public IEventListener
+	class ISubsystem
 	{
 	public:
 		virtual void PreInitialize(const SystemInitializationInfo& initInfo){};
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
+		virtual void PostInit(){};
+		virtual void PreShutdown(){};
 		virtual void Shutdown() = 0;
 
 		inline SubsystemType GetType() const

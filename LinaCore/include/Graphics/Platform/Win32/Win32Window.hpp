@@ -41,10 +41,13 @@ struct HICON__;
 namespace Lina
 {
 	class WindowManager;
+	class Input;
+	class GfxManager;
+
 	class Win32Window : public IWindow
 	{
 	public:
-		Win32Window(WindowManager* manager, ISystem* sys, StringID sid) : IWindow(sys, sid), m_manager(manager){};
+		Win32Window(WindowManager* manager, ISystem* sys, StringID sid);
 		virtual ~Win32Window() = default;
 
 		// Inherited via Window
@@ -81,6 +84,8 @@ namespace Lina
 		static bool							  s_isAppActive;
 		static HashMap<HWND__*, Win32Window*> s_win32Windows;
 		bool								  m_canHitTestResize = false;
+		Input*								  m_input			 = nullptr;
+		GfxManager*							  m_gfxManager		 = nullptr;
 		WindowStyle							  m_style			 = WindowStyle::Windowed;
 		WindowManager*						  m_manager			 = nullptr;
 		HWND__*								  m_window			 = nullptr;

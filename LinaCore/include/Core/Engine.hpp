@@ -46,7 +46,7 @@ namespace Lina
 	class CoreResourcesRegistry;
 	class Application;
 
-	class Engine : public ISystem
+	class Engine : public ISystem, public ISystemEventListener
 	{
 	public:
 		Engine(Application* app) : ISystem(app), m_gfxManager(this), m_input(this), m_audioManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
@@ -55,9 +55,14 @@ namespace Lina
 
 		// Inherited via ISystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void DispatchSystemEvent(ESystemEvent ev, const Event& data) override;
 		virtual void Shutdown() override;
 		virtual void Tick(float dt) override;
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+
+		virtual Bitmask32 GetSystemEventMask() override
+		{
+			return EVS_ResourceLoaded;
+		}
 
 		inline Input& GetInput()
 		{

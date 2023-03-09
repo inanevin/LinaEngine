@@ -53,10 +53,16 @@ namespace Lina
 	Entity*			camEntity		  = nullptr;
 	Vector<Entity*> cubes;
 
+	GfxManager::GfxManager(ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
+	{
+		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+	}
+
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		m_renderer = new Renderer();
 		m_renderer->PreInitialize(initInfo, this);
+		m_resourceManager->AddListener(this);
 	}
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -70,6 +76,49 @@ namespace Lina
 		}
 
 		m_meshManager.Initialize();
+	}
+
+	void GfxManager::PostInit()
+	{
+		constexpr uint32 engineShaderCount			= 2;
+		const String	 shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader", "Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"};
+
+		for (uint32 i = 0; i < engineShaderCount; i++)
+		{
+			const StringID shaderSID	= TO_SID(shaders[i]);
+			const String   materialPath = "Resources/Core/Materials/" + FileSystem::GetFilenameOnlyFromPath(shaders[i]) + ".linamat";
+			Material*	   mat			= new Material(m_resourceManager, true, materialPath, TO_SID(materialPath));
+			mat->SetShader(shaderSID);
+			m_engineMaterials.push_back(mat);
+		}
+		WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
+		testWorld					 = new EntityWorld();
+		camEntity					 = testWorld->CreateEntity("Cam Entity");
+		auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
+		camEntity->SetPosition(Vector3(0, 0, -5));
+		// camEntity->SetRotationAngles(Vector3(0, 0, 0));
+
+		testWorld->SetActiveCamera(cam);
+		auto aq	 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+		auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+		auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+
+		aq->SetPosition(Vector3(3, 0, 0));
+		aq2->SetPosition(Vector3(-3, 0, 0));
+		 aq3->SetPosition(Vector3(0, 0, 0));
+		cubes.push_back(aq);
+		cubes.push_back(aq2);
+		 cubes.push_back(aq3);
+		testWorldRenderer = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
+	}
+
+	void GfxManager::PreShutdown()
+	{
+		Join();
+		delete testWorld;
+		delete testWorldRenderer;
+		for (auto m : m_engineMaterials)
+			delete m;
 	}
 
 	void GfxManager::Shutdown()
@@ -86,6 +135,7 @@ namespace Lina
 
 		m_renderer->Shutdown();
 		delete m_renderer;
+		m_resourceManager->RemoveListener(this);
 	}
 
 	void GfxManager::Join()
@@ -103,7 +153,7 @@ namespace Lina
 
 		for (auto c : cubes)
 		{
-			// c->AddRotation(Vector3(0, SystemInfo::GetDeltaTimeF() * 15, 0));
+			c->AddRotation(Vector3(0, SystemInfo::GetDeltaTimeF() * 35, 0));
 		}
 		if (camEntity)
 		{
@@ -157,50 +207,14 @@ namespace Lina
 		delete *it;
 	}
 
-	void GfxManager::OnSystemEvent(ESystemEvent type, const Event& ev)
+	IGfxBufferResource* GfxManager::GetCurrentGlobalDataResource()
 	{
-		auto rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		return m_dataPerFrame[m_frameIndex].globalDataBuffer;
+	}
 
-		if (type & EVS_PostInit)
-		{
-			constexpr uint32 engineShaderCount			= 2;
-			const String	 shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader", "Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"};
-			auto			 rm							= m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-
-			for (uint32 i = 0; i < engineShaderCount; i++)
-			{
-				const StringID shaderSID	= TO_SID(shaders[i]);
-				const String   materialPath = "Resources/Core/Materials/" + FileSystem::GetFilenameOnlyFromPath(shaders[i]) + ".linamat";
-				Material*	   mat			= new Material(rm, true, materialPath, TO_SID(materialPath));
-				mat->SetShader(shaderSID);
-				m_engineMaterials.push_back(mat);
-			}
-			WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
-			testWorld					 = new EntityWorld(m_system);
-			camEntity					 = testWorld->CreateEntity("Cam Entity");
-			auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
-			camEntity->SetPosition(Vector3(0, 0, -10));
-			// camEntity->SetRotationAngles(Vector3(0, 0, 0));
-
-			testWorld->SetActiveCamera(cam);
-			auto aq = rm->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-			// auto aq2 = rm->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-
-			aq->SetPosition(Vector3(-2, 0, 0));
-			// aq2->SetPosition(Vector3(5, 0, 0));
-			cubes.push_back(aq);
-			// cubes.push_back(aq2);
-			testWorldRenderer = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
-		}
-		else if (type & EVS_PreSystemShutdown)
-		{
-			Join();
-			delete testWorld;
-			delete testWorldRenderer;
-			for (auto m : m_engineMaterials)
-				delete m;
-		}
-		else if (type & EVS_ResourceBatchLoaded)
+	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+		if (eventType & EVS_ResourceBatchLoaded)
 		{
 			Vector<ResourceIdentifier>* idents = static_cast<Vector<ResourceIdentifier>*>(ev.pParams[0]);
 			const uint32				size   = static_cast<uint32>(idents->size());
@@ -218,9 +232,16 @@ namespace Lina
 		}
 	}
 
-	IGfxBufferResource* GfxManager::GetCurrentGlobalDataResource()
+	void GfxManager::OnWindowMove(void* windowHandle, StringID sid, const Recti& rect)
 	{
-		return m_dataPerFrame[m_frameIndex].globalDataBuffer;
+	}
+
+	void GfxManager::OnWindowResize(void* windowHandle, StringID sid, const Recti& rect)
+	{
+	}
+
+	void GfxManager::OnVsyncChanged(VsyncMode mode)
+	{
 	}
 
 } // namespace Lina

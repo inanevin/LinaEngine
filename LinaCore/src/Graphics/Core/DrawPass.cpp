@@ -106,7 +106,7 @@ namespace Lina
 				{
 					int32 index = FindInBatches(p);
 
-					if (index != -1)
+					if (index != -1 && false)
 					{
 						InstancedBatch& batch = m_batches.at(index);
 						batch.renderableIndices.push_back(i);
@@ -148,9 +148,11 @@ namespace Lina
 			tf.for_each_index(0, static_cast<int>(sz), 1, [&](int i) {
 				GPUObjectData od;
 				od.modelMatrix = m_renderables[i].modelMatrix;
+				od.position	   = m_renderables[i].position;
 				objData[i]	   = od;
 			});
 
+			auto aq = sizeof(GPUObjectData);
 			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 			m_objDataBuffer[frameIndex]->Update(objData.data(), sizeof(GPUObjectData) * sz);
 			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBuffer[frameIndex]);
@@ -179,7 +181,12 @@ namespace Lina
 
 			m_indirectBuffer[frameIndex]->Update(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
 		}
+		Material* mat2 = m_batches[0].mat;
+		m_renderer->BindMaterial(cmdListHandle, mat2);
+		m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 2, 0, 0, 0);
+		// m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 1, 0, 0, 1);
 
+		return;
 		for (uint32 i = 0; i < batchesSize; i++)
 		{
 			InstancedBatch& batch = m_batches[i];
@@ -193,13 +200,8 @@ namespace Lina
 
 			const uint64 indirectOffset = firstInstance * sizeof(DrawIndexedIndirectCommand);
 			// m_renderer->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
-			// m_renderer->DrawInstanced(cmdListHandle, 36, 1, 0, 0);
-			m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 1, 0, 0, 0);
-			// m_renderer->DrawInstanced(cmdListHandle, 3, 1, 0, 0);
-			//  m_renderer->DrawIndexedInstanced(cmdListHandle, 1, batch.count)
 
-			//
-			// m_renderer->DrawIndexedInstanced(cmdListHandle, batch.)
+			m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 1, 0, 0, firstInstance);
 			// cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
 			firstInstance += batch.count;
 		}

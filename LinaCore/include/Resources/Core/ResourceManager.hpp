@@ -39,12 +39,13 @@ SOFTWARE.
 #include "Core/ObjectWrapper.hpp"
 #include "System/ISubsystem.hpp"
 #include "Data/CommonData.hpp"
+#include "Event/ISystemEventDispatcher.hpp"
 
 namespace Lina
 {
 	class IStream;
 
-	class ResourceManager : public ISubsystem
+	class ResourceManager : public ISubsystem, public ISystemEventDispatcher
 	{
 	public:
 		ResourceManager(ISystem* sys) : ISubsystem(sys, SubsystemType::ResourceManager){};

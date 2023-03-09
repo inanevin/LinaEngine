@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef ISystem_HPP
 #define ISystem_HPP
 
-#include "Event/IEventDispatcher.hpp"
+#include "Event/ISystemEventDispatcher.hpp"
 #include "System/ISubsystem.hpp"
 #include "Data/HashMap.hpp"
 #include "Core/Common.hpp"
@@ -43,7 +43,7 @@ namespace Lina
 	class ISubsystem;
 	class Application;
 
-	class ISystem : public IEventDispatcher
+	class ISystem : public ISystemEventDispatcher
 	{
 	public:
 		ISystem(Application* app) : m_app(app){};

@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "World/Core/CommonWorld.hpp"
 #include "Serialization/ISerializable.hpp"
-#include "Event/IEventListener.hpp"
+#include "Event/IGameEventListener.hpp"
 #include "Core/StringID.hpp"
 
 namespace Lina
@@ -42,25 +42,12 @@ namespace Lina
 	class Entity;
 	class ReflectionClassUtility;
 
-	class Component : public ISerializable, public IEventListener
+	class Component : public ISerializable, public IGameEventListener
 	{
 	public:
-		
-		virtual void SaveToStream(OStream& stream){};
-		virtual void LoadFromStream(IStream& stream){};
-		virtual void OnGameEvent(EGameEvent type, const Event& data) override{};
-		virtual void OnSystemEvent(ESystemEvent type, const Event& data) override{};
+		virtual void   SaveToStream(OStream& stream){};
+		virtual void   LoadFromStream(IStream& stream){};
 		virtual TypeID GetComponentType() = 0;
-
-		virtual Bitmask32 GetGameEventMask() override
-		{
-			return 0;
-		};
-
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return 0;
-		}
 
 		virtual Bitmask16 GetComponentMask()
 		{

@@ -48,8 +48,8 @@ namespace Lina
 		Level(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Level>()){};
 		virtual ~Level();
 
-		void Install(IEventDispatcher* dispatcher);
-		void Uninstall(IEventDispatcher* dispatcher);
+		void Install();
+		void Uninstall();
 
 		inline EntityWorld* GetWorld()
 		{

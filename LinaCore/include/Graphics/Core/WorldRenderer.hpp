@@ -39,7 +39,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Graphics/Components/RenderableComponent.hpp"
 #include "Core/ObjectWrapper.hpp"
-#include "Event/IEventListener.hpp"
+#include "Event/IGameEventListener.hpp"
 #include "Math/Rect.hpp"
 #include "CameraSystem.hpp"
 #include "View.hpp"
@@ -58,7 +58,7 @@ namespace Lina
 	// DEBUG
 	class ISwapchain;
 
-	class WorldRenderer : public IEventListener
+	class WorldRenderer : public IGameEventListener
 	{
 	public:
 		static ISwapchain* testSwapchain;
@@ -99,11 +99,11 @@ namespace Lina
 		};
 
 		Texture*	 GetFinalTexture();
-		virtual void OnGameEvent(EGameEvent type, const Event& ev) override;
+		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
 		virtual void Tick(float delta);
 		virtual void Render(uint32 frameIndex);
 
-		virtual Bitmask32 GetGameEventMask()
+		virtual Bitmask32 GetGameEventMask() override
 		{
 			return EVG_ComponentCreated | EVG_ComponentDestroyed;
 		}

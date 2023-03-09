@@ -26,33 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef EventDispatcher_HPP
-#define EventDispatcher_HPP
-
-#include "Event/Event.hpp"
-#include "Data/HashSet.hpp"
+#include "Event/ISystemEventListener.hpp"
 
 namespace Lina
 {
-    class IEventListener;
-
-    class IEventDispatcher
-    {
-    public:
-        IEventDispatcher()          = default;
-        virtual ~IEventDispatcher() = default;
-
-        void         AddListener(IEventListener* listener);
-        void         RemoveListener(IEventListener* listener);
-        virtual void DispatchSystemEvent(ESystemEvent type, const Event& data);
-        virtual void DispatchGameEvent(EGameEvent type, const Event& data);
-
-    private:
-        HashSet<IEventListener*> m_listeners;
-    };
 
 } // namespace Lina
-
-#endif

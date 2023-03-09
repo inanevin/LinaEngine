@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Physics/Core/PhysicsWorld.hpp"
 #include "System/ISystem.hpp"
 #include "Core/SystemInfo.hpp"
-#include "Event/IEventDispatcher.hpp"
+#include "World/Core/EntityWorld.hpp"
 
 namespace Lina
 {
@@ -46,10 +46,11 @@ namespace Lina
 			// TODO: optional substepping to compansate.
 			physicsAccumulator = 0;
 
+			// dispatch events.
 			Event eventData;
 			eventData.fParams[0] = phydt;
-			m_dispatcher->DispatchGameEvent(EVG_Physics, eventData);
-			m_dispatcher->DispatchGameEvent(EVG_PostPhysics, eventData);
+			m_world->DispatchEvent(EVG_Physics, eventData);
+			m_world->DispatchEvent(EVG_PostPhysics, eventData);
 
 			// Simulate nvidia physx
 			m_simulated = true;

@@ -33,13 +33,11 @@ namespace Lina
 {
     ISubsystem::ISubsystem(ISystem* sys, SubsystemType type) : m_system(sys), m_systemType(type)
     {
-        m_system->AddListener(this);
         m_system->AddSubsystem(this);
     }
 
     ISubsystem::~ISubsystem()
     {
-        m_system->RemoveListener(this);
         m_system->RemoveSubsystem(this);
     }
 } // namespace Lina

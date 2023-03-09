@@ -43,35 +43,34 @@ namespace Lina
 		LINA_TRACE("[Input] -> Shutdown.");
 	}
 
-	void Input::OnSystemEvent(ESystemEvent type, const Event& ev)
+	void Input::OnKey(void* windowPtr, uint32 key, int scanCode, InputAction action)
 	{
-		EVS_ActiveAppChanged | EVS_MouseButton | EVS_MouseMove | EVS_Key | EVS_MouseWheel;
+		m_currentStates[key] = action == InputAction::Pressed ? 1 : 0;
+	}
 
-		if (type & EVS_ActiveAppChanged)
-		{
-			m_windowActive = ev.iParams[0];
-		}
-		else if (type & EVS_MouseButton)
-		{
-			m_currentStates[ev.iParams[0]] = static_cast<InputAction>(ev.iParams[1]) == InputAction::Pressed ? 1 : 0;
+	void Input::OnMouseWheel(void* windowPtr, int delta)
+	{
+		m_mouseScrollPrev.x = delta;
+		m_mouseScrollPrev.y = delta;
+	}
 
-			if (static_cast<InputAction>(ev.iParams[1]) == InputAction::Repeated)
-				m_doubleClicks[ev.iParams[0]] = true;
-		}
-		else if (type & EVS_MouseMove)
-		{
-			m_mouseDeltaRawPrev.x = ev.iParams[0];
-			m_mouseDeltaRawPrev.y = ev.iParams[1];
-		}
-		else if (type & EVS_Key)
-		{
-			m_currentStates[ev.iParams[0]] = static_cast<InputAction>(ev.iParams[2]) == InputAction::Pressed ? 1 : 0;
-		}
-		else if (type & EVS_MouseWheel)
-		{
-			m_mouseScrollPrev.x = ev.iParams[0];
-			m_mouseScrollPrev.y = ev.iParams[1];
-		}
+	void Input::OnMouseButton(void* windowPtr, int button, InputAction action)
+	{
+		m_currentStates[button] = action == InputAction::Pressed ? 1 : 0;
+
+		if (action == InputAction::Repeated)
+			m_doubleClicks[button] = true;
+	}
+
+	void Input::OnMouseMove(void* windowPtr, int xPosRel, int yPosRel)
+	{
+		m_mouseDeltaRawPrev.x = xPosRel;
+		m_mouseDeltaRawPrev.y = yPosRel;
+	}
+
+	void Input::OnActiveAppChanged(bool isActive)
+	{
+		m_windowActive = isActive;
 	}
 
 	bool Input::GetKey(int keycode)
@@ -228,4 +227,5 @@ namespace Lina
 		glfwPollEvents();
 #endif
 	}
+
 } // namespace Lina

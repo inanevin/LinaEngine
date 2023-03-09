@@ -189,13 +189,14 @@ namespace Lina
 			/** PARAM6: SRV				-> Object Buffer View	-> REG:t10 -> per scene
 			/*******************************************************/
 
-			CD3DX12_DESCRIPTOR_RANGE1 descRange[2] = {};
+			CD3DX12_DESCRIPTOR_RANGE1 descRange[3] = {};
 
 			// Textures & Samplers
 			descRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 10, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE);
 			descRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, 10, 0);
+			descRange[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, -1, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_NONE, 0);
 
-			CD3DX12_ROOT_PARAMETER1 rp[7] = {};
+			CD3DX12_ROOT_PARAMETER1 rp[4] = {};
 
 			// Global constant buffer
 			rp[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
@@ -207,19 +208,20 @@ namespace Lina
 			rp[2].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
 
 			// Material data
-			rp[3].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
-
-			// Texture & samplers
-			rp[4].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_ALL);
-			rp[5].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
+			// rp[3].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
+			//
+			//// Texture & samplers
+			// rp[4].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_ALL);
+			// rp[5].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
 
 			// Object buffer.
-			rp[6].InitAsShaderResourceView(10, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
+			//rp[3].InitAsDescriptorTable(1, &descRange[2], D3D12_SHADER_VISIBILITY_ALL);
+			 rp[3].InitAsShaderResourceView(10, 0, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_ALL);
 
 			CD3DX12_STATIC_SAMPLER_DESC samplerDesc[1] = {};
 			samplerDesc[0].Init(10, D3D12_FILTER_ANISOTROPIC);
 
-			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(7, rp, 1, samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(4, rp, 1, samplerDesc, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 			ComPtr<ID3DBlob>					  signatureBlob = nullptr;
 			ComPtr<ID3DBlob>					  errorBlob		= nullptr;
 
@@ -407,22 +409,30 @@ namespace Lina
 		if (!inputLayout.empty())
 			psoDesc.InputLayout = {&inputLayout[0], static_cast<UINT>(inputLayout.size())};
 
-		psoDesc.pRootSignature					= m_rootSigStandard.Get();
-		psoDesc.RasterizerState					= CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		psoDesc.BlendState						= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		psoDesc.DepthStencilState.DepthEnable	= FALSE;
-		psoDesc.DepthStencilState.StencilEnable = FALSE;
-		psoDesc.SampleMask						= UINT_MAX;
-		psoDesc.PrimitiveTopologyType			= D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		psoDesc.NumRenderTargets				= 1;
-		psoDesc.RTVFormats[0]					= GetFormat(DEFAULT_SWAPCHAIN_FORMAT);
-		psoDesc.SampleDesc.Count				= 1;
-		psoDesc.RasterizerState.FillMode		= D3D12_FILL_MODE_SOLID;
+		const D3D12_DEPTH_STENCILOP_DESC defaultStencilOp = {D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS};
+		psoDesc.pRootSignature							  = m_rootSigStandard.Get();
+		psoDesc.RasterizerState							  = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+		psoDesc.BlendState								  = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.DepthStencilState.DepthEnable			  = TRUE;
+		psoDesc.DepthStencilState.DepthWriteMask		  = D3D12_DEPTH_WRITE_MASK_ALL;
+		psoDesc.DepthStencilState.DepthFunc				  = D3D12_COMPARISON_FUNC_LESS;
+		psoDesc.DepthStencilState.StencilEnable			  = FALSE;
+		psoDesc.DepthStencilState.StencilReadMask		  = D3D12_DEFAULT_STENCIL_READ_MASK;
+		psoDesc.DepthStencilState.StencilWriteMask		  = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+		psoDesc.DepthStencilState.FrontFace				  = defaultStencilOp;
+		psoDesc.DepthStencilState.BackFace				  = defaultStencilOp;
+		psoDesc.SampleMask								  = UINT_MAX;
+		psoDesc.PrimitiveTopologyType					  = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+		psoDesc.NumRenderTargets						  = 1;
+		psoDesc.RTVFormats[0]							  = GetFormat(DEFAULT_SWAPCHAIN_FORMAT);
+		psoDesc.DSVFormat								  = GetFormat(DEFAULT_DEPTH_FORMAT);
+		psoDesc.SampleDesc.Count						  = 1;
+		psoDesc.RasterizerState.FillMode				  = D3D12_FILL_MODE_SOLID;
 
 		if (ppType == PipelineType::Standard)
 		{
 			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_BACK;
-			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
+			psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
 		}
 		else if (ppType == PipelineType::NoVertex)
 		{
@@ -648,10 +658,14 @@ namespace Lina
 		{
 			m_rtvHeap.Free(genData.descriptor);
 			genData.rawResource.Reset();
-
-			if (genData.gfxResource)
-				delete genData.gfxResource;
 		}
+		else if (genData.imageType == ImageType::DepthStencil)
+		{
+			m_dsvHeap.Free(genData.descriptor);
+		}
+
+		if (genData.gfxResource)
+			delete genData.gfxResource;
 
 		m_textures.RemoveItem(index);
 	}
@@ -856,16 +870,17 @@ namespace Lina
 
 		const float			cc[]{clearColor.x, clearColor.y, clearColor.z, clearColor.w};
 		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
+		CD3DX12_CLEAR_VALUE clearDepth{GetFormat(DEFAULT_DEPTH_FORMAT), 1.0f, 0};
 
-		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessClear{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
-		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessPreserve{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
-		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{genDataCol.descriptor.cpuHandle, renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
+		D3D12_RENDER_PASS_BEGINNING_ACCESS	 colorBegin{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
+		D3D12_RENDER_PASS_ENDING_ACCESS		 colorEnd{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
+		D3D12_RENDER_PASS_RENDER_TARGET_DESC colorDesc{genDataCol.descriptor.cpuHandle, colorBegin, colorEnd};
 
-		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessNoAccess{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, {}};
-		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessNoAccess{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS, {}};
-		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC renderPassDepthStencilDesc{genDataDepthStencil.descriptor.cpuHandle, renderPassBeginningAccessNoAccess, renderPassBeginningAccessNoAccess, renderPassEndingAccessNoAccess, renderPassEndingAccessNoAccess};
+		D3D12_RENDER_PASS_BEGINNING_ACCESS	 depthBegin{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearDepth}};
+		D3D12_RENDER_PASS_ENDING_ACCESS		 depthEnd{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
+		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depthDesc{genDataDepthStencil.descriptor.cpuHandle, depthBegin, depthBegin, depthEnd, depthEnd};
 
-		cmdList->BeginRenderPass(1, &renderPassRenderTargetDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
+		cmdList->BeginRenderPass(1, &colorDesc, &depthDesc, D3D12_RENDER_PASS_FLAG_NONE);
 	}
 
 	void Renderer::EndRenderPass(uint32 cmdListHandle)
@@ -883,7 +898,7 @@ namespace Lina
 	void Renderer::BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* buf)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
-		cmdList->SetGraphicsRootShaderResourceView(6, buf->GetGPUPointer());
+		cmdList->SetGraphicsRootShaderResourceView(3, buf->GetGPUPointer());
 	}
 
 	void Renderer::BindMaterial(uint32 cmdListHandle, Material* mat)
@@ -1061,10 +1076,16 @@ namespace Lina
 		return rt;
 	}
 
-	Texture* Renderer::CreateDepthStencil(const String& path)
+	Texture* Renderer::CreateDepthStencil(const String& path, const Vector2i& size)
 	{
 		const StringID sid = TO_SID(path);
-		Texture*	   rt  = new Texture(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, path, sid);
+		Extent3D	   ext = Extent3D{
+				  .width  = static_cast<uint32>(size.x),
+				  .height = static_cast<uint32>(size.y),
+				  .depth  = 1,
+		  };
+
+		Texture* rt = new Texture(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), sid, ext, SamplerData(), DEFAULT_DEPTH_FORMAT, ImageTiling::Optimal);
 		rt->GenerateImage(ImageType::DepthStencil);
 		auto& genData = m_textures.GetItemR(rt->GetGPUHandle());
 

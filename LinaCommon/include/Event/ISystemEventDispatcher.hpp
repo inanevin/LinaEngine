@@ -26,57 +26,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/Level/Level.hpp"
-#include "World/Core/EntityWorld.hpp"
-#include "Serialization/VectorSerialization.hpp"
+#pragma once
+
+#ifndef EventDispatcher_HPP
+#define EventDispatcher_HPP
+
+#include "Event/Event.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
-	Level::~Level()
+	class ISystemEventListener;
+
+	class ISystemEventDispatcher
 	{
-		if (m_world)
-			delete m_world;
+	public:
+		ISystemEventDispatcher();
+		virtual ~ISystemEventDispatcher() = default;
 
-		m_worldStream.Destroy();
-	}
+		void AddListener(ISystemEventListener* listener);
+		void RemoveListener(ISystemEventListener* listener);
+		void DispatchEvent(SystemEvent eventType, const Event& ev);
 
-	void Level::Install()
-	{
-		m_world = new EntityWorld();
-		m_world->LoadFromStream(m_worldStream);
-		m_worldStream.Destroy();
-	}
-
-	void Level::Uninstall()
-	{
-		delete m_world;
-	}
-
-	void Level::SaveToStream(OStream& stream)
-	{
-		// custom data.
-		VectorSerialization::SaveToStream_OBJ(stream, m_usedResources);
-
-		// world.
-		const size_t streamSize = stream.GetCurrentSize();
-		m_world->SaveToStream(stream);
-		const size_t totalSize = stream.GetCurrentSize();
-		const uint32 worldSize = static_cast<uint32>(totalSize - streamSize);
-		stream << worldSize;
-	}
-
-	void Level::LoadFromStream(IStream& stream)
-	{
-		uint32 worldSize = 0;
-		stream.Seek(stream.GetSize() - sizeof(uint32));
-		stream.Read(worldSize);
-		stream.Seek(0);
-
-		// custom data
-		VectorSerialization::LoadFromStream_OBJ(stream, m_usedResources);
-
-		// world.
-		m_worldStream.Create(stream.GetDataCurrent(), worldSize);
-	}
+	private:
+		Vector<ISystemEventListener*> m_listeners;
+	};
 
 } // namespace Lina
+
+#endif

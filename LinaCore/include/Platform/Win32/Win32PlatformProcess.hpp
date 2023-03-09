@@ -39,7 +39,7 @@ namespace Lina
 	class Application;
 	class IPlugin;
 	class IEngineInterface;
-	class IEventDispatcher;
+	class ISystemEventDispatcher;
 
 	class Win32PlatformProcess
 	{
@@ -49,8 +49,8 @@ namespace Lina
 		static void PumpMessages();
 		static void SleepSpinLock(double seconds);
 		static void Sleep(double seconds);
-		static void LoadPlugin(const char* name, IEngineInterface* engInterface, IEventDispatcher* dispatcher);
-		static void UnloadPlugin(const char* name, IEventDispatcher* dispatcher);
+		static void LoadPlugin(const char* name, IEngineInterface* engInterface, ISystemEventDispatcher* dispatcher);
+		static void UnloadPlugin(const char* name, ISystemEventDispatcher* dispatcher);
 
 	private:
 		static HashMap<IPlugin*, void*> s_pluginHandles;

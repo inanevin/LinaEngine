@@ -43,20 +43,22 @@ struct PSInput
     float3 normal : NORMAL;
     float3 color : COLOR;
     float2 uv : TEXCOORD;
+    float3 cpos : POSITION;
 };
 
-PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD)
+PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD, uint instanceID : SV_InstanceID)
 {
     PSInput result;
-	float4x4 transformMatrix = mul(viewProj, objects[0].model);
+	float4x4 transformMatrix = mul(viewProj, objects[instanceID].model);
 	result.position = mul(transformMatrix, float4(position.xyz, 1.0));
     result.normal = normal;
     result.color = color.xyz;
 	result.uv = uv;
+	result.cpos = position.xyz / position.w;
     return result;
 }
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-    return float4(input.normal, 1);
+    return float4(input.uv, 0, 1);
 }

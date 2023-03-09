@@ -131,6 +131,8 @@ namespace Lina
 	struct GPUObjectData
 	{
 		Matrix4 modelMatrix = Matrix4::Identity();
+		Vector4 position	= Vector4::Zero;
+		Vector4 pad[11];
 	};
 
 	struct LightData

@@ -26,57 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/Level/Level.hpp"
-#include "World/Core/EntityWorld.hpp"
-#include "Serialization/VectorSerialization.hpp"
+#include "Event/ISystemEventDispatcher.hpp"
+#include "Event/ISystemEventListener.hpp"
+#include "Data/CommonData.hpp"
 
 namespace Lina
 {
-	Level::~Level()
+	ISystemEventDispatcher::ISystemEventDispatcher()
 	{
-		if (m_world)
-			delete m_world;
-
-		m_worldStream.Destroy();
+		m_listeners.reserve(50);
 	}
 
-	void Level::Install()
+	void ISystemEventDispatcher::AddListener(ISystemEventListener* listener)
 	{
-		m_world = new EntityWorld();
-		m_world->LoadFromStream(m_worldStream);
-		m_worldStream.Destroy();
+		m_listeners.push_back(listener);
 	}
 
-	void Level::Uninstall()
+	void ISystemEventDispatcher::RemoveListener(ISystemEventListener* listener)
 	{
-		delete m_world;
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](ISystemEventListener* l) { return l == listener; }));
 	}
 
-	void Level::SaveToStream(OStream& stream)
+	void ISystemEventDispatcher::DispatchEvent(SystemEvent eventType, const Event& ev)
 	{
-		// custom data.
-		VectorSerialization::SaveToStream_OBJ(stream, m_usedResources);
-
-		// world.
-		const size_t streamSize = stream.GetCurrentSize();
-		m_world->SaveToStream(stream);
-		const size_t totalSize = stream.GetCurrentSize();
-		const uint32 worldSize = static_cast<uint32>(totalSize - streamSize);
-		stream << worldSize;
+		for (auto listener : m_listeners)
+		{
+			if (listener->GetSystemEventMask().IsSet(eventType))
+				listener->OnSystemEvent(eventType, ev);
+		}
 	}
-
-	void Level::LoadFromStream(IStream& stream)
-	{
-		uint32 worldSize = 0;
-		stream.Seek(stream.GetSize() - sizeof(uint32));
-		stream.Read(worldSize);
-		stream.Seek(0);
-
-		// custom data
-		VectorSerialization::LoadFromStream_OBJ(stream, m_usedResources);
-
-		// world.
-		m_worldStream.Create(stream.GetDataCurrent(), worldSize);
-	}
-
 } // namespace Lina

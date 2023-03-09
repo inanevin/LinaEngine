@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Memory/MemoryAllocatorPool.hpp"
 #include "Core/ObjectWrapper.hpp"
 #include "Physics/Core/PhysicsWorld.hpp"
+#include "Event/IGameEventDispatcher.hpp"
 
 namespace Lina
 {
@@ -43,18 +44,16 @@ namespace Lina
 	class Component;
 	class CameraComponent;
 	class EntityWorld;
-	class IEventDispatcher;
 
 	// Actual game state
-	class EntityWorld : public ISerializable
+	class EntityWorld : public ISerializable, public IGameEventDispatcher
 	{
 	public:
-		EntityWorld(IEventDispatcher* dispatcher)
-			: m_physicsWorld(this, dispatcher), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
+		EntityWorld()
+			: m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
 			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
 		{
-			m_dispatcher = dispatcher;
-			m_id		 = s_worldCounter++;
+			m_id = s_worldCounter++;
 		};
 
 		~EntityWorld()
@@ -132,7 +131,7 @@ namespace Lina
 			const TypeID tid = GetTypeID<T>();
 
 			if (m_componentCaches.find(tid) == m_componentCaches.end())
-				m_componentCaches[tid] = new ComponentCache<T>(this, m_dispatcher);
+				m_componentCaches[tid] = new ComponentCache<T>(this, this);
 
 			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
 			return cache;
@@ -152,7 +151,6 @@ namespace Lina
 		static uint32 s_worldCounter;
 
 		PhysicsWorld						 m_physicsWorld;
-		IEventDispatcher*					 m_dispatcher = nullptr;
 		MemoryAllocatorPool					 m_allocatorPool;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		IDList<Entity*>						 m_entities;

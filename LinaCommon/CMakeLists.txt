@@ -40,8 +40,10 @@ set (LINACOMMON_SOURCES
 
 	# Events
 	src/Event/Event.cpp
-	src/Event/IEventListener.cpp
-	src/Event/IEventDispatcher.cpp
+	src/Event/ISystemEventListener.cpp
+	src/Event/IGameEventListener.cpp
+	src/Event/ISystemEventDispatcher.cpp
+	src/Event/IGameEventDispatcher.cpp
 
 	#Math
 	src/Math/Matrix.cpp
@@ -105,8 +107,10 @@ set(LINACOMMON_HEADERS
 	
 	# Events
 	include/Event/Event.hpp
-	include/Event/IEventListener.hpp
-	include/Event/IEventDispatcher.hpp
+	include/Event/ISystemEventListener.hpp
+	include/Event/IGameEventListener.hpp
+	include/Event/ISystemEventDispatcher.hpp
+	include/Event/IGameEventDispatcher.hpp
 
 	# Data
 	include/Data/Functional.hpp

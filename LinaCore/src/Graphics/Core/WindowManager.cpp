@@ -176,9 +176,7 @@ namespace Lina
 	void WindowManager::SetVsync(VsyncMode mode)
 	{
 		m_vsync = mode;
-		Event data;
-		data.iParams[0] = static_cast<int>(mode);
-		m_system->DispatchSystemEvent(EVS_VsyncMode, data);
+		m_gfxManager->OnVsyncChanged(mode);
 		LINA_TRACE("[Window Manager] -> Vsync Mode changed to: {0}", VsyncModeToStr(mode));
 	}
 

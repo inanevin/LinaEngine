@@ -72,7 +72,7 @@ namespace Lina
 		m_renderer					  = m_gfxManager->GetRenderer();
 		m_renderData.renderResolution = renderResolution;
 		m_renderData.aspectRatio	  = aspectRatio;
-		m_gfxManager->GetSystem()->AddListener(this);
+		world->AddListener(this);
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		AddRenderables<ModelNodeComponent>(world, m_renderData, m_renderData.renderableIDs);
 
@@ -132,7 +132,7 @@ namespace Lina
 			m_renderer->DeleteBufferResource(frame.viewDataBuffer);
 		}
 
-		m_gfxManager->GetSystem()->RemoveListener(this);
+		m_world->RemoveListener(this);
 		DestroyTextures();
 
 		// TODO
@@ -153,6 +153,8 @@ namespace Lina
 			auto& data = m_dataPerImage[i];
 
 			data.renderTargetColor = m_renderer->CreateRenderTarget(testSwapchain, i, rtColorName);
+			data.renderTargetDepth = m_renderer->CreateDepthStencil(rtDepthName, m_renderData.renderResolution);
+
 			// data.renderTargetDepth = m_renderer->CreateRenderTarget()
 
 			// TOOD: generate
@@ -195,7 +197,7 @@ namespace Lina
 			auto& data = m_dataPerImage[i];
 
 			delete data.renderTargetColor;
-			// delete data.renderTargetDepth;
+			delete data.renderTargetDepth;
 		}
 
 		// if (m_mask.IsSet(WRM_ApplyPostProcessing))
@@ -216,12 +218,12 @@ namespace Lina
 		//	return m_renderData.finalColorTexture[m_surfaceRenderer->GetCurrentImageIndex()];
 	}
 
-	void WorldRenderer::OnGameEvent(EGameEvent type, const Event& ev)
+	void WorldRenderer::OnGameEvent(GameEvent eventType, const Event& ev)
 	{
 		if (m_world == nullptr || static_cast<EntityWorld*>(ev.pParams[0]) != m_world)
 			return;
 
-		if (type & EVG_ComponentCreated)
+		if (eventType & EVG_ComponentCreated)
 		{
 			ObjectWrapper<Component>* comp = static_cast<ObjectWrapper<Component>*>(ev.pParams[1]);
 
@@ -233,7 +235,7 @@ namespace Lina
 					m_renderData.renderableIDs[m_renderData.allRenderables.AddItem(renderable)] = renderable;
 			}
 		}
-		else if (type & EVG_ComponentDestroyed)
+		else if (eventType & EVG_ComponentDestroyed)
 		{
 			ObjectWrapper<Component>* comp = static_cast<ObjectWrapper<Component>*>(ev.pParams[1]);
 
@@ -323,7 +325,7 @@ namespace Lina
 		// Main Render Pass
 		{
 			m_renderer->TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
-			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, Color(0.05f, 0.7f, 0.5f, 1.0f));
+			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth, Color(0.05f, 0.7f, 0.5f, 1.0f));
 
 			// Draw scene objects.
 			{

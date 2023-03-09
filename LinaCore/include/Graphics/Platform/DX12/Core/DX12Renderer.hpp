@@ -167,7 +167,7 @@ namespace Lina
 		// Textures
 		Texture* CreateRenderTarget(const String& path);
 		Texture* CreateRenderTarget(ISwapchain* swp, uint32 bufferIndex, const String& path);
-		Texture* CreateDepthStencil(const String& path);
+		Texture* CreateDepthStencil(const String& pathName, const Vector2i& size);
 
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************

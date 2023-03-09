@@ -83,14 +83,23 @@ namespace Lina
 
 		rm->UnloadResources(resourcesToUnload);
 		rm->LoadResources(resourcesToLoad, true);
-		m_currentLevel->Install(m_system);
+		m_currentLevel->Install();
+
+		Event data;
+		data.pParams[0] = static_cast<void*>(m_currentLevel->GetWorld());
+		DispatchEvent(EVG_LevelInstalled, data);
 	}
 
 	void LevelManager::UninstallLevel()
 	{
 		if (m_currentLevel != nullptr)
 		{
-			m_currentLevel->Uninstall(m_system);
+			m_currentLevel->Uninstall();
+
+			Event data;
+			data.pParams[0] = static_cast<void*>(m_currentLevel->GetWorld());
+			DispatchEvent(EVG_LevelUninstalled, data);
+
 			m_currentLevel = nullptr;
 		}
 	}

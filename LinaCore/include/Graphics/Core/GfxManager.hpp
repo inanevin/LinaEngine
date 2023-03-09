@@ -30,11 +30,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #ifndef GfxManager_HPP
 #define GfxManager_HPP
 
+#include "Core/Common.hpp"
 #include "System/ISubsystem.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Vector.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "GfxMeshManager.hpp"
+#include "Event/ISystemEventListener.hpp"
 
 namespace Lina
 {
@@ -42,8 +44,10 @@ namespace Lina
 	class SurfaceRenderer;
 	class IGfxBufferResource;
 	class Renderer;
-	
-	class GfxManager : public ISubsystem
+	class ResourceManager;
+	class Recti;
+
+	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
 
 	private:
@@ -53,23 +57,28 @@ namespace Lina
 		};
 
 	public:
-		GfxManager(ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this){};
+		GfxManager(ISystem* sys);
 		virtual ~GfxManager() = default;
 
 		virtual void		PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void		Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void		PostInit() override;
+		virtual void		PreShutdown() override;
 		virtual void		Shutdown() override;
 		void				Join();
 		void				Tick(float delta);
 		void				Render();
 		void				CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
 		void				DestroySurfaceRenderer(StringID sid);
-		void				OnSystemEvent(ESystemEvent type, const Event& ev) override;
 		IGfxBufferResource* GetCurrentGlobalDataResource();
+		virtual void		OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+		void				OnWindowMove(void* windowHandle, StringID sid, const Recti& rect);
+		void				OnWindowResize(void* windowHandle, StringID sid, const Recti& rect);
+		void				OnVsyncChanged(VsyncMode mode);
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_PostInit | EVS_PreSystemShutdown | EVS_ResourceBatchLoaded | EVG_LevelInstalled | EVS_WindowResize;
+			return EVS_ResourceBatchLoaded;
 		}
 
 		inline const GfxMeshManager& GetMeshManager()
@@ -83,7 +92,8 @@ namespace Lina
 		}
 
 	private:
-		Renderer*				 m_renderer = nullptr;
+		ResourceManager*		 m_resourceManager = nullptr;
+		Renderer*				 m_renderer		   = nullptr;
 		GfxMeshManager			 m_meshManager;
 		DataPerFrame			 m_dataPerFrame[FRAMES_IN_FLIGHT];
 		GPUGlobalData			 m_globalData;

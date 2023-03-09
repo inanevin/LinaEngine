@@ -26,8 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct ObjectData{
+struct ObjectData
+{
 	float4x4 model;
+	float4 position;
+	float4 pad[11];
 };
 
-StructuredBuffer<ObjectData> objects : register(t10);
+ObjectData objects[] : register(t0, space1);

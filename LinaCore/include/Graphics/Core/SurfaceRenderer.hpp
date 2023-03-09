@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef SurfaceRenderer_HPP
 #define SurfaceRenderer_HPP
 
-#include "Event/IEventListener.hpp"
+#include "Event/ISystemEventListener.hpp"
 #include "Math/Vector.hpp"
 #include "Data/Bitmask.hpp"
 #include "Core/StringID.hpp"
@@ -45,7 +45,7 @@ namespace Lina
 	class Texture;
 	class Renderer;
 
-	class SurfaceRenderer : public IEventListener
+	class SurfaceRenderer : public ISystemEventListener
 	{
 
 	public:

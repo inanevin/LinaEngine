@@ -53,6 +53,7 @@ namespace Lina
 		m_coreResourceRegistry->RegisterResourceTypes(m_resourceManager);
 		m_resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
 		m_resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
+		m_resourceManager.AddListener(this);
 
 		// Window manager has priority initialization.
 		m_gfxManager.PreInitialize(initInfo);
@@ -73,18 +74,8 @@ namespace Lina
 		auto now = PlatformTime::GetCycles64();
 		LINA_TRACE("[Application] -> Loading core resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, now));
 
-		DispatchSystemEvent(EVS_PostInit, Event{});
-	}
-
-	void Engine::DispatchSystemEvent(ESystemEvent ev, const Event& data)
-	{
-		IEventDispatcher::DispatchSystemEvent(ev, data);
-
-		if (ev & EVS_ResourceLoaded)
-		{
-			String* path = static_cast<String*>(data.pParams[0]);
-			LINA_TRACE("[Resource] -> Loaded resource: {0}", path->c_str());
-		}
+		for (auto [type, sys] : m_subsystems)
+			sys->PostInit();
 	}
 
 	void Engine::Shutdown()
@@ -93,8 +84,10 @@ namespace Lina
 
 		m_gfxManager.Join();
 
-		DispatchSystemEvent(EVS_PreSystemShutdown, {});
+		for (auto [type, sys] : m_subsystems)
+			sys->PreShutdown();
 
+		m_resourceManager.RemoveListener(this);
 		m_levelManager.Shutdown();
 		m_resourceManager.Shutdown();
 		m_audioManager.Shutdown();
@@ -148,6 +141,14 @@ namespace Lina
 		if (m_input.GetKeyDown(LINA_KEY_4))
 		{
 			m_windowManager.SetVsync(VsyncMode::TripleBuffer);
+		}
+	}
+	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+		if (eventType & EVS_ResourceLoaded)
+		{
+			String* path = static_cast<String*>(ev.pParams[0]);
+			LINA_TRACE("[Resource] -> Loaded resource: {0}", path->c_str());
 		}
 	}
 } // namespace Lina

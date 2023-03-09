@@ -99,9 +99,7 @@ namespace Lina
 		case WM_SETFOCUS: {
 			win32Window->SetFocus(true);
 
-			Event data;
-			data.pParams[0] = static_cast<void*>(window);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_WindowFocus, data);
+			// Dispatch focus event?
 		}
 		break;
 		case WM_DPICHANGED: {
@@ -114,7 +112,7 @@ namespace Lina
 			s_isAppActive = wParam == TRUE ? true : false;
 			Event data;
 			data.iParams[0] = s_isAppActive;
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_ActiveAppChanged, data);
+			win32Window->m_input->OnActiveAppChanged(s_isAppActive);
 		}
 		break;
 		case WM_MOVE: {
@@ -154,12 +152,7 @@ namespace Lina
 				else if (wParam == VK_CONTROL)
 					key = extended == 0 ? VK_LCONTROL : VK_RCONTROL;
 
-				Event data;
-				data.pParams[0] = win32Window->GetHandle();
-				data.iParams[0] = key;
-				data.iParams[1] = static_cast<int>(scanCode);
-				data.iParams[2] = static_cast<int>(InputAction::Pressed);
-				win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_Key, data);
+				win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), InputAction::Pressed);
 			}
 		}
 		break;
@@ -184,7 +177,7 @@ namespace Lina
 			data.iParams[0] = key;
 			data.iParams[1] = static_cast<int>(scanCode);
 			data.iParams[2] = static_cast<int>(InputAction::Released);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_Key, data);
+			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), InputAction::Released);
 		}
 		break;
 		case WM_MOUSEWHEEL: {
@@ -193,11 +186,7 @@ namespace Lina
 				break;
 
 			auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
-
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = delta;
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseWheel, data);
+			win32Window->m_input->OnMouseWheel(static_cast<void*>(win32Window), static_cast<int>(delta));
 		}
 		break;
 		case WM_LBUTTONDOWN: {
@@ -205,11 +194,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_LBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Pressed);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Pressed);
 		}
 		break;
 		case WM_RBUTTONDOWN: {
@@ -217,11 +202,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_RBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Pressed);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Pressed);
 		}
 		break;
 		case WM_MBUTTONDOWN: {
@@ -229,11 +210,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_MBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Pressed);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Pressed);
 		}
 		break;
 		case WM_LBUTTONUP: {
@@ -241,11 +218,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_LBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Released);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Released);
 		}
 		break;
 		case WM_RBUTTONUP: {
@@ -253,11 +226,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_RBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Released);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Released);
 		}
 		break;
 		case WM_MBUTTONUP: {
@@ -265,22 +234,14 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_MBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Released);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Released);
 		}
 		break;
 		case WM_LBUTTONDBLCLK: {
 
 			if (!s_isAppActive)
 				break;
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_LBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Repeated);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
 		}
 		break;
 		case WM_RBUTTONDBLCLK: {
@@ -288,23 +249,14 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_RBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Repeated);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Repeated);
 		}
 		break;
 		case WM_MBUTTONDBLCLK: {
 
 			if (!s_isAppActive)
 				break;
-
-			Event data;
-			data.pParams[0] = win32Window->GetHandle();
-			data.iParams[0] = VK_MBUTTON;
-			data.iParams[1] = static_cast<int>(InputAction::Repeated);
-			win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseButton, data);
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Repeated);
 		}
 		break;
 		case WM_INPUT: {
@@ -319,18 +271,19 @@ namespace Lina
 			{
 				int xPosRelative = raw->data.mouse.lLastX;
 				int yPosRelative = raw->data.mouse.lLastY;
-
-				Event data;
-				data.pParams[0] = win32Window->GetHandle();
-				data.iParams[0] = xPosRelative;
-				data.iParams[1] = yPosRelative;
-				win32Window->m_system->DispatchSystemEvent(ESystemEvent::EVS_MouseMove, data);
+				win32Window->m_input->OnMouseMove(static_cast<void*>(win32Window), xPosRelative, yPosRelative);
 			}
 			break;
 		}
 		}
 
 		return DefWindowProcA(window, msg, wParam, lParam);
+	}
+
+	Win32Window::Win32Window(WindowManager* manager, ISystem* sys, StringID sid) : IWindow(sys, sid), m_manager(manager)
+	{
+		m_input		 = m_system->CastSubsystem<Input>(SubsystemType::Input);
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 	}
 
 	bool Win32Window::Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
@@ -522,12 +475,7 @@ namespace Lina
 	{
 		const Vector2i oldPos = m_rect.pos;
 		m_rect.pos			  = pos;
-		Event data;
-		data.pParams[0] = m_handle;
-		data.iParams[0] = m_sid;
-		data.iParams[1] = m_rect.pos.x;
-		data.iParams[2] = m_rect.pos.y;
-		m_system->DispatchSystemEvent(ESystemEvent::EVS_WindowMove, data);
+		m_gfxManager->OnWindowMove(m_handle, m_sid, m_rect);
 	}
 
 	void Win32Window::UpdateSize(const Vector2i& size)
@@ -537,12 +485,7 @@ namespace Lina
 		const Vector2i oldSize = m_rect.size;
 		m_rect.size			   = size;
 		m_aspect			   = m_isMinimized ? 0.0f : static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
-		Event data;
-		data.pParams[0] = m_handle;
-		data.iParams[0] = m_sid;
-		data.iParams[1] = m_rect.size.x;
-		data.iParams[2] = m_rect.size.y;
-		m_system->DispatchSystemEvent(ESystemEvent::EVS_WindowResize, data);
+		m_gfxManager->OnWindowResize(m_handle, m_sid, m_rect);
 	}
 
 	void Win32Window::SetTitle(const char* title)

@@ -34,6 +34,8 @@ namespace Lina
 {
 	DX12GfxTextureResource::DX12GfxTextureResource(Renderer* rend, TextureResourceType type, const Vector2i& initialSize) : m_renderer(rend), IGfxTextureResource(type, initialSize)
 	{
+		if (type == TextureResourceType::Texture2DDepthStencil)
+			CreateDepthStencil(initialSize);
 	}
 
 	DX12GfxTextureResource::~DX12GfxTextureResource()

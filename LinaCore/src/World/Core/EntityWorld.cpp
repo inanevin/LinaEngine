@@ -147,9 +147,8 @@ namespace Lina
 	{
 		Event data;
 		data.fParams[0] = delta;
-		m_dispatcher->DispatchGameEvent(EVG_Tick, data);
-		m_dispatcher->DispatchGameEvent(EVG_PostTick, data);
-
+		DispatchEvent(EVG_Tick, data);
+		DispatchEvent(EVG_PostTick, data);
 		m_physicsWorld.Tick(delta);
 	}
 
@@ -228,7 +227,7 @@ namespace Lina
 		for (uint32 i = 0; i < tids.size(); i++)
 		{
 			MetaType&			type  = ReflectionSystem::Get().Resolve(tids[i]);
-			void*				ptr	  = type.GetFunction<void*(EntityWorld*, IEventDispatcher*)>("CreateCompCache"_hs)(this, m_dispatcher);
+			void*				ptr	  = type.GetFunction<void*(EntityWorld*, IGameEventDispatcher*)>("CreateCompCache"_hs)(this, this);
 			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
 			cache->m_entities		  = m_entities.GetRaw();
 			cache->LoadFromStream(stream);

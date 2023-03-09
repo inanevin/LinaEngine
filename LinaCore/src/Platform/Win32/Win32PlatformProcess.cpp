@@ -137,7 +137,7 @@ namespace Lina
 			::Sleep(milliseconds);
 	}
 
-	void Win32PlatformProcess::LoadPlugin(const char* name, IEngineInterface* engInterface, IEventDispatcher* dispatcher)
+	void Win32PlatformProcess::LoadPlugin(const char* name, IEngineInterface* engInterface, ISystemEventDispatcher* dispatcher)
 	{
 		HINSTANCE hinstLib;
 		BOOL	  fFreeResult = FALSE;
@@ -168,7 +168,7 @@ namespace Lina
 		}
 	}
 
-	void Win32PlatformProcess::UnloadPlugin(const char* name, IEventDispatcher* dispatcher)
+	void Win32PlatformProcess::UnloadPlugin(const char* name, ISystemEventDispatcher* dispatcher)
 	{
 		HINSTANCE hinstLib = NULL;
 		IPlugin*  plugin   = nullptr;

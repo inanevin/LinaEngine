@@ -82,7 +82,7 @@ namespace Lina
 					data.pParams[0] = &ident.path;
 					data.iParams[0] = ident.sid;
 					data.iParams[1] = ident.tid;
-					m_system->DispatchSystemEvent(EVS_ResourceLoaded, data);
+					DispatchEvent(EVS_ResourceLoaded, data);
 				}
 				else
 				{
@@ -111,7 +111,7 @@ namespace Lina
 					data.pParams[0] = &ident.path;
 					data.iParams[0] = ident.sid;
 					data.iParams[1] = ident.tid;
-					m_system->DispatchSystemEvent(EVS_ResourceLoaded, data);
+					DispatchEvent(EVS_ResourceLoaded, data);
 				}
 
 				res->Flush();
@@ -160,7 +160,7 @@ namespace Lina
 					data.pParams[0] = &ident.path;
 					data.iParams[0] = ident.sid;
 					data.iParams[1] = ident.tid;
-					m_system->DispatchSystemEvent(EVS_ResourceLoaded, data);
+					DispatchEvent(EVS_ResourceLoaded, data);
 				};
 
 				TypeID	 tid  = 0;
@@ -207,7 +207,7 @@ namespace Lina
 		Event					   ev;
 		Vector<ResourceIdentifier> idents = identifiers;
 		ev.pParams[0]					  = &idents;
-		m_system->DispatchSystemEvent(EVS_ResourceBatchLoaded, ev);
+		DispatchEvent(EVS_ResourceBatchLoaded, ev);
 	}
 
 	void ResourceManager::UnloadResources(const Vector<ResourceIdentifier>& identifiers)

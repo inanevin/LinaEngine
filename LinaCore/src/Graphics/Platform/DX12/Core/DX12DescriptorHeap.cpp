@@ -69,7 +69,7 @@ namespace Lina
 		uint32			 id		= m_freeIndices.AddItem(1);
 		DescriptorHandle handle = DescriptorHandle();
 
-		handle.cpuHandle.InitOffsetted(m_cpuStart, m_incrementSize);
+		handle.cpuHandle.InitOffsetted(m_cpuStart, 0);
 
 		if (m_isGpuVisible)
 			handle.gpuHandle.InitOffsetted(m_gpuStart, 0);
