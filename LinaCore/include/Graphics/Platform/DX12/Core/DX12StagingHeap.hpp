@@ -26,3 +26,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#pragma once
+
+#ifndef DX12StagingHeap_HPP
+#define DX12StagingHeap_HPP
+
+#include "DX12DescriptorHeap.hpp"
+#include "Data/Vector.hpp"
+
+namespace Lina
+{
+
+	class DX12StagingHeap : public DX12DescriptorHeap
+	{
+	public:
+		DX12StagingHeap(Renderer* renderer, D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32 numDescriptors);
+		~DX12StagingHeap() final;
+
+		DescriptorHandle GetNewHeapHandle();
+		void			 FreeHeapHandle(DescriptorHandle handle);
+
+	private:
+		Vector<uint32> m_freeDescriptors;
+		uint32		   m_currentDescriptorIndex = 0;
+		uint32		   m_activeHandleCount		= 0;
+	};
+
+} // namespace Lina
+
+#endif

@@ -43,13 +43,12 @@ namespace Lina
 	DrawPass::DrawPass(GfxManager* gfxMan) : m_gfxManager(gfxMan)
 	{
 		m_renderer = m_gfxManager->GetRenderer();
-		GPUObjectData			   dummy;
-		DrawIndexedIndirectCommand dummy2;
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_objDataBuffer[i]	= m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &dummy, sizeof(GPUObjectData));
-			m_indirectBuffer[i] = m_renderer->CreateBufferResource(BufferResourceType::IndirectBuffer, &dummy2, sizeof(DrawIndexedIndirectCommand));
+			m_objDataBufferStaging[i] = m_renderer->CreateBufferResource(BufferResourceType::ObjectDataBufferStaging, nullptr, sizeof(GPUObjectData));
+			m_objDataBufferGPU[i]	  = m_renderer->CreateBufferResource(BufferResourceType::ObjectDataBufferGPU, nullptr, sizeof(GPUObjectData));
+			m_indirectBuffer[i]		  = m_renderer->CreateBufferResource(BufferResourceType::IndirectBuffer, nullptr, sizeof(DrawIndexedIndirectCommand));
 		}
 	}
 
@@ -57,7 +56,8 @@ namespace Lina
 	{
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_renderer->DeleteBufferResource(m_objDataBuffer[i]);
+			m_renderer->DeleteBufferResource(m_objDataBufferStaging[i]);
+			m_renderer->DeleteBufferResource(m_objDataBufferGPU[i]);
 			m_renderer->DeleteBufferResource(m_indirectBuffer[i]);
 		}
 	}
@@ -106,7 +106,7 @@ namespace Lina
 				{
 					int32 index = FindInBatches(p);
 
-					if (index != -1 && false)
+					if (index != -1)
 					{
 						InstancedBatch& batch = m_batches.at(index);
 						batch.renderableIndices.push_back(i);
@@ -130,14 +130,8 @@ namespace Lina
 		}
 	}
 
-	void DrawPass::Draw(uint32 frameIndex, uint32 cmdListHandle)
+	void DrawPass::UpdateObjectData(uint32 frameIndex, uint32 cmdListHandle)
 	{
-		const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
-		uint32		 firstInstance = 0;
-
-		Material*	lastBoundMat = nullptr;
-		const auto& mergedMeshes = m_gfxManager->GetMeshManager().GetMergedMeshes();
-
 		// Update object data buffer.
 		{
 			Vector<GPUObjectData> objData;
@@ -148,17 +142,35 @@ namespace Lina
 			tf.for_each_index(0, static_cast<int>(sz), 1, [&](int i) {
 				GPUObjectData od;
 				od.modelMatrix = m_renderables[i].modelMatrix;
-				od.position	   = m_renderables[i].position;
 				objData[i]	   = od;
 			});
 
-			auto aq = sizeof(GPUObjectData);
-			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-			m_objDataBuffer[frameIndex]->Update(objData.data(), sizeof(GPUObjectData) * sz);
-			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBuffer[frameIndex]);
-		}
+			auto* staging = m_objDataBufferStaging[frameIndex];
+			auto* gpuBuf  = m_objDataBufferGPU[frameIndex];
 
-		// Update indirect commands.
+			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+			staging->Update(objData.data(), sizeof(GPUObjectData) * sz);
+
+			if (gpuBuf->GetSize() < staging->GetSize())
+			{
+				delete gpuBuf;
+				m_objDataBufferGPU[frameIndex] = m_renderer->CreateBufferResource(BufferResourceType::ObjectDataBufferGPU, nullptr, staging->GetSize());
+			}
+
+			m_renderer->CopyFromStaging(cmdListHandle, m_objDataBufferStaging[frameIndex], m_objDataBufferGPU[frameIndex], ResourceState::NonPixelShaderResource);
+			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
+		}
+	}
+
+	void DrawPass::Draw(uint32 frameIndex, uint32 cmdListHandle)
+	{
+		const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
+		uint32		 firstInstance = 0;
+
+		Material*	lastBoundMat = nullptr;
+		const auto& mergedMeshes = m_gfxManager->GetMeshManager().GetMergedMeshes();
+
+		//// Update indirect commands.
 		{
 			Vector<DrawIndexedIndirectCommand> commands;
 			uint32							   i = 0;
@@ -169,11 +181,12 @@ namespace Lina
 				{
 					auto&					   merged = mergedMeshes.at(b.meshes[i]);
 					DrawIndexedIndirectCommand c;
+					c.instanceID			= m_renderables[ri].objDataIndex;
 					c.instanceCount			= 1;
 					c.indexCountPerInstance = merged.indexSize;
 					c.baseVertexLocation	= merged.vertexOffset;
 					c.startIndexLocation	= merged.firstIndex;
-					c.startInstanceLocation = m_renderables[ri].objDataIndex;
+					c.startInstanceLocation = 0;
 					commands.push_back(c);
 					i++;
 				}
@@ -181,12 +194,7 @@ namespace Lina
 
 			m_indirectBuffer[frameIndex]->Update(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
 		}
-		Material* mat2 = m_batches[0].mat;
-		m_renderer->BindMaterial(cmdListHandle, mat2);
-		m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 2, 0, 0, 0);
-		// m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 1, 0, 0, 1);
 
-		return;
 		for (uint32 i = 0; i < batchesSize; i++)
 		{
 			InstancedBatch& batch = m_batches[i];
@@ -199,10 +207,10 @@ namespace Lina
 			}
 
 			const uint64 indirectOffset = firstInstance * sizeof(DrawIndexedIndirectCommand);
-			// m_renderer->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
+			m_renderer->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
 
-			m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 1, 0, 0, firstInstance);
-			// cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
+			// m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 3, 0, 0, firstInstance);
+			//  cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
 			firstInstance += batch.count;
 		}
 	}

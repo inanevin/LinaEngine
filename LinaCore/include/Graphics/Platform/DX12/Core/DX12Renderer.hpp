@@ -36,8 +36,8 @@ SOFTWARE.
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Data/Vertex.hpp"
 #include "Data/HashMap.hpp"
+#include "Data/IDList.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-#include "Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GpuUploader.hpp"
 #include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
 
@@ -57,6 +57,8 @@ namespace Lina
 	class IGfxBufferResource;
 	class IGfxTextureResource;
 	class Color;
+	class DX12GPUHeap;
+	class DX12StagingHeap;
 
 	struct GeneratedTexture
 	{
@@ -84,7 +86,7 @@ namespace Lina
 	public:
 		Renderer()
 			: m_textures(100, GeneratedTexture()), m_materials(100, GeneratedMaterial()), m_shaders(100, GeneratedShader()), m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()),
-			  m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()), m_rtvHeap(this), m_bufferHeap(this), m_dsvHeap(this), m_samplerHeap(this), m_uploader(this){};
+			  m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()), m_uploader(this){};
 
 		struct StatePerFrame
 		{
@@ -147,7 +149,7 @@ namespace Lina
 		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil, const Color& clearColor);
 		void   EndRenderPass(uint32 cmdListHandle);
 		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxBufferResource* buf);
-		void   BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* buf);
+		void   BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* res);
 		void   BindMaterial(uint32 cmdListHandle, Material* mat);
 		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
@@ -157,6 +159,7 @@ namespace Lina
 		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot = 0);
 		void   BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer);
 		void   CopyCPU2GPU(IGfxBufferResource* cpuBuffer, IGfxBufferResource* gpuBuffer, void* data, size_t sz, ResourceState finalState);
+		void   CopyFromStaging(uint32 cmdListHandle, IGfxBufferResource* staging, IGfxBufferResource* gpu, ResourceState finalState);
 		void   WaitForCopyQueue();
 
 		// Fences
@@ -197,6 +200,11 @@ namespace Lina
 			return m_dx12Allocator;
 		}
 
+		inline DX12StagingHeap* DX12GetCPUBufferHeap()
+		{
+			return m_cpuBufferHeap;
+		}
+
 		// ******************* DX12 INTERFACE *******************
 
 	private:
@@ -210,6 +218,7 @@ namespace Lina
 		uint32			m_frameFenceGraphics = 0;
 		HANDLE			m_fenceEventGraphics = NULL;
 		DX12GpuUploader m_uploader;
+		uint32			m_currentFrameIndex = 0;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;
@@ -218,10 +227,11 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_graphicsQueue;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_copyQueue;
 		Microsoft::WRL::ComPtr<IDXGIFactory4>		   m_factory;
-		DX12DescriptorHeap							   m_rtvHeap;
-		DX12DescriptorHeap							   m_bufferHeap;
-		DX12DescriptorHeap							   m_dsvHeap;
-		DX12DescriptorHeap							   m_samplerHeap;
+		DX12StagingHeap*							   m_rtvHeap				   = nullptr;
+		DX12GPUHeap*								   m_gpuHeap[FRAMES_IN_FLIGHT] = {nullptr};
+		DX12StagingHeap*							   m_cpuBufferHeap			   = nullptr;
+		DX12StagingHeap*							   m_dsvHeap				   = nullptr;
+		DX12StagingHeap*							   m_samplerHeap			   = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature>	   m_rootSigStandard;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_commandSigStandard;
 

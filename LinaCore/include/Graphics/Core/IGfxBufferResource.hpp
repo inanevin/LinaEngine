@@ -45,7 +45,7 @@ namespace Lina
 		virtual void   Recreate(void* data, size_t sz) = 0;
 		virtual void   Update(void* data, size_t sz)   = 0;
 		virtual uint64 GetGPUPointer()				   = 0;
-
+	
 		inline size_t GetSize()
 		{
 			return m_size;

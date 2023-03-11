@@ -58,11 +58,17 @@ namespace Lina
 			return m_allocation;
 		}
 
+		inline DescriptorHandle& DX12GetDescriptorHandle()
+		{
+			return m_descHandle;
+		}
+
 	private:
 		void CreateGPUBuffer(void* data, size_t sz);
 		void Cleanup();
 
 	private:
+		DescriptorHandle	 m_descHandle = {};
 		Renderer*			 m_renderer	  = nullptr;
 		D3D12MA::Allocation* m_allocation = nullptr;
 	};

@@ -41,9 +41,10 @@ namespace Lina
 	class Mesh;
 	class Material;
 
-#define OBJ_BUFFER_MAX	 15
-#define MAX_LIGHTS		 10
-#define FRAMES_IN_FLIGHT 2
+#define OBJ_BUFFER_MAX	  15
+#define MAX_LIGHTS		  10
+#define FRAMES_IN_FLIGHT  2
+#define BACK_BUFFER_COUNT 2
 
 	enum RenderableType
 	{
@@ -131,8 +132,6 @@ namespace Lina
 	struct GPUObjectData
 	{
 		Matrix4 modelMatrix = Matrix4::Identity();
-		Vector4 position	= Vector4::Zero;
-		Vector4 pad[11];
 	};
 
 	struct LightData
@@ -168,10 +167,11 @@ namespace Lina
 
 	struct DrawIndexedIndirectCommand
 	{
+		uint32 instanceID			 = 0;
 		uint32 indexCountPerInstance = 0;
 		uint32 instanceCount		 = 0;
 		uint32 startIndexLocation	 = 0;
-		uint32 baseVertexLocation	 = 0;
+		int	   baseVertexLocation	 = 0;
 		uint32 startInstanceLocation = 0;
 	};
 
@@ -180,6 +180,11 @@ namespace Lina
 		Matrix4 mat = Matrix4::Identity();
 	};
 
+#define GLOBAL_DATA_INDEX		 0
+#define INDIRECT_CONSTANTS_INDEX 1
+#define SCENE_DATA_INDEX		 2
+#define VIEW_DATA_INDEX			 3
+#define OBJ_DATA_INDEX			 0
 } // namespace Lina
 
 #endif

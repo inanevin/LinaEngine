@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
+#include "Graphics/Platform/DX12/Core/DX12StagingHeap.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 
 namespace Lina
@@ -56,7 +57,7 @@ namespace Lina
 
 		if (m_mappedData == nullptr)
 		{
-			LINA_WARN("[GfxBufferResource]-> Mapped data is nullptr, can't update!");
+			LINA_ERR("[GfxBufferResource]-> Mapped data is nullptr, can't update!");
 			return;
 		}
 
@@ -86,7 +87,7 @@ namespace Lina
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
 		D3D12_RESOURCE_STATES	 state			= D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 
-		if (m_type == BufferResourceType::UniformBuffer || m_type == BufferResourceType::IndirectBuffer)
+		if (m_type == BufferResourceType::UniformBuffer)
 		{
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
 			state					= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
@@ -101,15 +102,51 @@ namespace Lina
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 			state					= D3D12_RESOURCE_STATE_COPY_DEST;
 		}
+		else if (m_type == BufferResourceType::ObjectDataBufferStaging)
+		{
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
+		}
+		else if (m_type == BufferResourceType::ObjectDataBufferGPU)
+		{
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+			state					= D3D12_RESOURCE_STATE_COPY_DEST;
+		}
+		else if (m_type == BufferResourceType::IndirectBuffer)
+		{
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+			state					= D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		}
 
 		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, NULL, &m_allocation, IID_NULL, NULL));
+		m_size = sz;
 
-		if (data != nullptr)
+		if (data != nullptr && allocationDesc.HeapType == D3D12_HEAP_TYPE_UPLOAD)
 		{
 			CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
 			ThrowIfFailed(m_allocation->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));
 			MEMCPY(m_mappedData, data, sz);
 		}
+
+		// if (m_type == BufferResourceType::ObjectDataBuffer)
+		//{
+		//	m_descHandle							= m_renderer->DX12GetCPUBufferHeap()->GetNewHeapHandle();
+		//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		//	srvDesc.Format							= DXGI_FORMAT_UNKNOWN;
+		//	srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_BUFFER;
+		//	srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		//	srvDesc.Buffer.FirstElement				= 0;
+		//	srvDesc.Buffer.StructureByteStride		= sizeof(GPUObjectData);
+		//	srvDesc.Buffer.NumElements				= sz / srvDesc.Buffer.StructureByteStride;
+		//	srvDesc.Buffer.Flags					= D3D12_BUFFER_SRV_FLAG_NONE;
+		//	m_renderer->DX12GetDevice()->CreateShaderResourceView(m_allocation->GetResource(), &srvDesc, m_descHandle.GetCPUHandle());
+		//
+		//	if (data != nullptr)
+		//	{
+		//		CD3DX12_RANGE readRange(0, 0);
+		//		m_allocation->GetResource()->Unmap(0, &readRange);
+		//	}
+		// }
 	}
 
 	void DX12GfxBufferResource::Cleanup()
@@ -119,6 +156,9 @@ namespace Lina
 			CD3DX12_RANGE readRange(0, 0);
 			m_allocation->GetResource()->Unmap(0, &readRange);
 		}
+
+		if (m_descHandle.IsValid())
+			m_renderer->DX12GetCPUBufferHeap()->FreeHeapHandle(m_descHandle);
 
 		m_allocation->Release();
 		m_allocation = nullptr;

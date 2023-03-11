@@ -31,8 +31,6 @@ LINA_PIPELINE_NOVERTEX
 // Texture2D g_texture : register(t0);
 
 #include "GlobalData.linashader"
-#include "SceneData.linashader"
-#include "ObjectData.linashader"
 
 struct PSInput
 {

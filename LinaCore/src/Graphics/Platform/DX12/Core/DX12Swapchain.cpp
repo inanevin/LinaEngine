@@ -40,7 +40,7 @@ namespace Lina
 		// Describe and create the swap chain.
 		{
 			DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
-			swapchainDesc.BufferCount			= FRAMES_IN_FLIGHT;
+			swapchainDesc.BufferCount			= BACK_BUFFER_COUNT;
 			swapchainDesc.Width					= static_cast<UINT>(m_size.x);
 			swapchainDesc.Height				= static_cast<UINT>(m_size.y);
 			swapchainDesc.Format				= GetFormat(DEFAULT_SWAPCHAIN_FORMAT);

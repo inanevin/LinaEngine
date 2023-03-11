@@ -36,3 +36,49 @@ cbuffer LinaGlobal : register(b0)
 #define LINA_MOUSE screenSizeMousePos.zw
 #define LINA_DT deltaElapsed.x
 #define LINA_ET deltaElapsed.y
+						
+struct IndirectConstant
+{
+	uint instanceID;
+};
+
+ConstantBuffer<IndirectConstant> indirectConstants : register(b1);
+				
+struct Light
+{
+	float4 position;
+};
+
+cbuffer LinaScene : register(b2)
+{
+	float4 fogColor;
+	float4 fogDistances;
+	float4 ambientColor;
+	float4 sunlightDirection;
+	float4 sunlightColor;
+	Light lights[10];
+}
+
+cbuffer LinaView : register(b3)
+{
+	float4x4 view;
+	float4x4 proj;
+	float4x4 viewProj;
+	float4 camPos;
+	float2 camNearFar;
+}
+
+#define LINA_VIEW view
+#define LINA_PROJ proj
+#define LINA_VIEWPROJ viewProj
+#define LINA_CAMLOC camPos.xyz
+#define LINA_CAMNEAR camNearFar.x
+#define LINA_CAMFAR camNearFar.y
+
+struct ObjectData
+{
+	float4x4 model;
+};
+
+StructuredBuffer<ObjectData> objects : register(t0, space0);
+

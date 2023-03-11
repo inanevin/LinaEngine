@@ -31,65 +31,34 @@ SOFTWARE.
 
 namespace Lina
 {
-	DX12DescriptorHeap::DX12DescriptorHeap(Renderer* rend) : m_freeIndices(100, 0), m_renderer(rend)
+	DX12DescriptorHeap::DX12DescriptorHeap(Renderer* renderer, D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32 numDescriptors, bool isReferencedByShader)
 	{
+		m_renderer			   = renderer;
+		m_heapType			   = heapType;
+		m_maxDescriptors	   = numDescriptors;
+		m_isReferencedByShader = isReferencedByShader;
+
+		D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
+		heapDesc.NumDescriptors = m_maxDescriptors;
+		heapDesc.Type			= m_heapType;
+		heapDesc.Flags			= m_isReferencedByShader ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		heapDesc.NodeMask		= 0;
+
+		ThrowIfFailed(m_renderer->DX12GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_dx12Heap)));
+
+		m_cpuStart = m_dx12Heap->GetCPUDescriptorHandleForHeapStart();
+
+		if (m_isReferencedByShader)
+		{
+			m_gpuStart = m_dx12Heap->GetGPUDescriptorHandleForHeapStart();
+		}
+
+		m_descriptorSize = m_renderer->DX12GetDevice()->GetDescriptorHandleIncrementSize(m_heapType);
 	}
 
 	DX12DescriptorHeap::~DX12DescriptorHeap()
 	{
+		m_dx12Heap->Release();
+		m_dx12Heap = NULL;
 	}
-
-	void DX12DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags, uint32 maxSize)
-	{
-		m_type	  = type;
-		m_flags	  = flags;
-		m_maxSize = maxSize;
-
-		// Describe and create the heap.
-		D3D12_DESCRIPTOR_HEAP_DESC heapDesc = {};
-		heapDesc.NumDescriptors				= m_maxSize;
-		heapDesc.Type						= m_type;
-		heapDesc.Flags						= m_flags;
-
-		if (m_type != D3D12_DESCRIPTOR_HEAP_TYPE_RTV && m_type != D3D12_DESCRIPTOR_HEAP_TYPE_DSV && m_flags & D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE)
-			m_isGpuVisible = true;
-
-		auto device = m_renderer->DX12GetDevice();
-		ThrowIfFailed(device->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_heap)));
-		m_incrementSize = device->GetDescriptorHandleIncrementSize(m_type);
-
-		m_cpuStart = m_heap->GetCPUDescriptorHandleForHeapStart();
-
-		if (m_isGpuVisible)
-			m_gpuStart = m_heap->GetGPUDescriptorHandleForHeapStart();
-	}
-
-	DescriptorHandle DX12DescriptorHeap::Allocate()
-	{
-		uint32			 id		= m_freeIndices.AddItem(1);
-		DescriptorHandle handle = DescriptorHandle();
-
-		handle.cpuHandle.InitOffsetted(m_cpuStart, 0);
-
-		if (m_isGpuVisible)
-			handle.gpuHandle.InitOffsetted(m_gpuStart, 0);
-
-		handle.cpuHandle.Offset(id, m_incrementSize);
-		if (m_isGpuVisible)
-			handle.gpuHandle.Offset(id, m_incrementSize);
-
-		handle.id = id;
-		return handle;
-	}
-
-	void DX12DescriptorHeap::Free(DescriptorHandle& handle)
-	{
-		m_freeIndices.RemoveItem(handle.id);
-	}
-
-	void DX12DescriptorHeap::Free(uint32 id)
-	{
-		m_freeIndices.RemoveItem(id);
-	}
-
 } // namespace Lina

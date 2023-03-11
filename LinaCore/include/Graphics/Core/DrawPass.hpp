@@ -49,16 +49,18 @@ namespace Lina
 		virtual ~DrawPass();
 
 		void Process(Vector<RenderableData>& drawList, const View& targetView, float drawDistance, DrawPassMask drawPassMask);
+		void UpdateObjectData(uint32 frameIndex, uint32 cmdListHandle);
 		void Draw(uint32 frameIndex, uint32 cmdListHandle);
 
 	private:
 		int32 FindInBatches(const MeshMaterialPair& pair);
 
 	private:
-		Renderer*			   m_renderer						  = nullptr;
-		IGfxBufferResource*	   m_objDataBuffer[FRAMES_IN_FLIGHT]  = {nullptr};
-		IGfxBufferResource*	   m_indirectBuffer[FRAMES_IN_FLIGHT] = {nullptr};
-		GfxManager*			   m_gfxManager						  = nullptr;
+		Renderer*			   m_renderer								= nullptr;
+		IGfxBufferResource*	   m_objDataBufferStaging[FRAMES_IN_FLIGHT] = {nullptr};
+		IGfxBufferResource*	   m_objDataBufferGPU[FRAMES_IN_FLIGHT]		= {nullptr};
+		IGfxBufferResource*	   m_indirectBuffer[FRAMES_IN_FLIGHT]		= {nullptr};
+		GfxManager*			   m_gfxManager								= nullptr;
 		Mutex				   m_mtx;
 		Vector<RenderableData> m_renderables;
 		Vector<InstancedBatch> m_batches;

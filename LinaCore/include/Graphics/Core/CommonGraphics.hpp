@@ -322,6 +322,8 @@ namespace Lina
 		IndexBuffer,
 		UniformBuffer,
 		GenericRead,
+		NonPixelShaderResource,
+		PixelShaderResource,
 	};
 
 	enum class BufferResourceType
@@ -332,6 +334,8 @@ namespace Lina
 		VertexBufferDst,
 		IndexBufferSrc,
 		IndexBufferDst,
+		ObjectDataBufferStaging,
+		ObjectDataBufferGPU,
 	};
 
 	enum class TextureResourceType

@@ -109,7 +109,7 @@ namespace Lina
 		cubes.push_back(aq);
 		cubes.push_back(aq2);
 		 cubes.push_back(aq3);
-		testWorldRenderer = new WorldRenderer(this, FRAMES_IN_FLIGHT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
+		testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 	}
 
 	void GfxManager::PreShutdown()

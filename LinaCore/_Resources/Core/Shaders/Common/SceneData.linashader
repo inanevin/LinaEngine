@@ -26,16 +26,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-struct Light{
-	float4 position;
-};
-
-cbuffer LinaScene : register(b1)
-{
-	float4 fogColor; 
-	float4 fogDistances; 
-	float4 ambientColor;
-	float4 sunlightDirection;
-	float4 sunlightColor;
-	Light lights[10];
-}

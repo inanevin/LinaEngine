@@ -196,6 +196,8 @@ include/Graphics/Platform/DX12/Core/DX12Common.hpp
 include/Graphics/Platform/DX12/Core/DX12Renderer.hpp
 include/Graphics/Platform/DX12/Core/DX12Swapchain.hpp
 include/Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp
+include/Graphics/Platform/DX12/Core/DX12StagingHeap.hpp
+include/Graphics/Platform/DX12/Core/DX12GPUHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12GUIBackend.hpp
 include/Graphics/Platform/DX12/Core/DX12GpuUploader.hpp
 include/Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp
@@ -231,6 +233,8 @@ src/Graphics/Platform/DX12/Core/DX12Common.cpp
 src/Graphics/Platform/DX12/Core/DX12Renderer.cpp
 src/Graphics/Platform/DX12/Core/DX12Swapchain.cpp
 src/Graphics/Platform/DX12/Core/DX12DescriptorHeap.cpp
+src/Graphics/Platform/DX12/Core/DX12StagingHeap.cpp
+src/Graphics/Platform/DX12/Core/DX12GPUHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12GUIBackend.cpp
 src/Graphics/Platform/DX12/Core/DX12GpuUploader.cpp
 src/Graphics/Platform/DX12/Core/DX12GfxBufferResource.cpp

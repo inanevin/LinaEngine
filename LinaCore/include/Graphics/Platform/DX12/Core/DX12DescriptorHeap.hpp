@@ -42,36 +42,43 @@ namespace Lina
 	class DX12DescriptorHeap
 	{
 	public:
-		DX12DescriptorHeap(Renderer* rend);
-		~DX12DescriptorHeap();
+		DX12DescriptorHeap(Renderer* renderer, D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32 numDescriptors, bool isReferencedByShader);
+		virtual ~DX12DescriptorHeap();
 
-		void Create(D3D12_DESCRIPTOR_HEAP_TYPE type, D3D12_DESCRIPTOR_HEAP_FLAGS flags, uint32 maxSize);
-
-		DescriptorHandle Allocate();
-		void			 Free(DescriptorHandle& handle);
-		void			 Free(uint32 id);
-
-		inline uint32 GetIncrementSize() const
+		ID3D12DescriptorHeap* GetHeap()
 		{
-			return m_incrementSize;
+			return m_dx12Heap;
+		}
+		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType()
+		{
+			return m_heapType;
+		}
+		D3D12_CPU_DESCRIPTOR_HANDLE GetHeapCPUStart()
+		{
+			return m_cpuStart;
+		}
+		D3D12_GPU_DESCRIPTOR_HANDLE GetHeapGPUStart()
+		{
+			return m_gpuStart;
+		}
+		uint32 GetMaxDescriptors()
+		{
+			return m_maxDescriptors;
+		}
+		uint32 GetDescriptorSize()
+		{
+			return m_descriptorSize;
 		}
 
-		inline ID3D12DescriptorHeap* GetHeap() const
-		{
-			return m_heap.Get();
-		}
-
-	private:
-		Renderer*									 m_renderer = nullptr;
-		Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> m_heap;
-		uint32										 m_maxSize		 = 0;
-		uint32										 m_incrementSize = 0;
-		D3D12_DESCRIPTOR_HEAP_TYPE					 m_type			 = {};
-		D3D12_CPU_DESCRIPTOR_HANDLE					 m_cpuStart		 = {};
-		D3D12_GPU_DESCRIPTOR_HANDLE					 m_gpuStart		 = {};
-		D3D12_DESCRIPTOR_HEAP_FLAGS					 m_flags		 = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		IDList<int32>								 m_freeIndices;
-		bool										 m_isGpuVisible = false;
+	protected:
+		Renderer*					m_renderer			   = nullptr;
+		ID3D12DescriptorHeap*		m_dx12Heap			   = nullptr;
+		D3D12_DESCRIPTOR_HEAP_TYPE	m_heapType			   = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		D3D12_CPU_DESCRIPTOR_HANDLE m_cpuStart			   = {};
+		D3D12_GPU_DESCRIPTOR_HANDLE m_gpuStart			   = {};
+		uint32						m_maxDescriptors	   = 0;
+		uint32						m_descriptorSize	   = 0;
+		bool						m_isReferencedByShader = false;
 	};
 
 } // namespace Lina

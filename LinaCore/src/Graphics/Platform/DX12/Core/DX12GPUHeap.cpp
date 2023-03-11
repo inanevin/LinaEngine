@@ -26,3 +26,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Graphics/Platform/DX12/Core/DX12GPUHeap.hpp"
+
+namespace Lina
+{
+
+	DX12GPUHeap::DX12GPUHeap(Renderer* renderer, D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32 numDescriptors) : DX12DescriptorHeap(renderer, heapType, numDescriptors, true)
+	{
+		m_currentDescriptorIndex = 0;
+	}
+
+	DX12GPUHeap::~DX12GPUHeap()
+	{
+	}
+
+	DescriptorHandle DX12GPUHeap::GetHeapHandleBlock(uint32 count)
+	{
+		uint32 newHandleID = 0;
+		uint32 blockEnd	   = m_currentDescriptorIndex + count;
+
+		if (blockEnd < m_maxDescriptors)
+		{
+			newHandleID				 = m_currentDescriptorIndex;
+			m_currentDescriptorIndex = blockEnd;
+		}
+		else
+		{
+			LINA_ASSERT(false, "Ran out of render pass descriptor heap handles, need to increase heap size.");
+		}
+
+		DescriptorHandle			newHandle;
+		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = m_cpuStart;
+		cpuHandle.ptr += newHandleID * m_descriptorSize;
+		newHandle.SetCPUHandle(cpuHandle);
+
+		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = m_gpuStart;
+		gpuHandle.ptr += newHandleID * m_descriptorSize;
+		newHandle.SetGPUHandle(gpuHandle);
+		newHandle.SetHeapIndex(newHandleID);
+		return newHandle;
+	}
+
+	void DX12GPUHeap::Reset()
+	{
+		m_currentDescriptorIndex = 0;
+	}
+
+} // namespace Lina

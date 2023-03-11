@@ -26,18 +26,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-cbuffer LinaView : register(b2)
-{
-	float4x4 view;
-	float4x4 proj;
-	float4x4 viewProj;
-	float4 camPos;
-	float2 camNearFar;
-}
-
-#define LINA_VIEW view
-#define LINA_PROJ proj
-#define LINA_VIEWPROJ viewProj
-#define LINA_CAMLOC camPos.xyz
-#define LINA_CAMNEAR camNearFar.x
-#define LINA_CAMFAR camNearFar.y

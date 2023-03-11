@@ -26,3 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#pragma once
+
+#ifndef DX12GPUHeap_HPP
+#define DX12GPUHeap_HPP
+
+#include "DX12DescriptorHeap.hpp"
+
+namespace Lina
+{
+	class DX12GPUHeap : public DX12DescriptorHeap
+	{
+	public:
+		DX12GPUHeap(Renderer* renderer, D3D12_DESCRIPTOR_HEAP_TYPE heapType, uint32 numDescriptors);
+		~DX12GPUHeap() final;
+
+		void			 Reset();
+		DescriptorHandle GetHeapHandleBlock(uint32 count);
+
+	private:
+		uint32 m_currentDescriptorIndex = 0;
+	};
+
+} // namespace Lina
+
+#endif

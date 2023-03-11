@@ -123,6 +123,12 @@ namespace Lina
 			return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 		case ResourceState::IndexBuffer:
 			return D3D12_RESOURCE_STATE_INDEX_BUFFER;
+		case ResourceState::GenericRead:
+			return D3D12_RESOURCE_STATE_GENERIC_READ;
+		case ResourceState::NonPixelShaderResource:
+			return D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+		case ResourceState::PixelShaderResource:
+			return D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 		default:
 			return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 		}

@@ -312,26 +312,35 @@ namespace Lina
 		{
 			m_renderer->ResetCommandList(frame.cmdAllocator, frame.cmdList);
 			m_renderer->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
-			m_renderer->BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
+			m_renderer->BindUniformBuffer(frame.cmdList, GLOBAL_DATA_INDEX, m_gfxManager->GetCurrentGlobalDataResource());
 		}
 
 		// Update scene data
 		{
 			m_renderData.gpuSceneData.ambientColor.x = SystemInfo::GetAppTimeF();
 			frame.sceneDataBuffer->Update(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
-			m_renderer->BindUniformBuffer(frame.cmdList, 1, frame.sceneDataBuffer);
+			m_renderer->BindUniformBuffer(frame.cmdList, SCENE_DATA_INDEX, frame.sceneDataBuffer);
 		}
 
 		// Main Render Pass
 		{
+			// Update View data.
+			{
+				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
+				frame.viewDataBuffer->Update(&m_renderData.gpuViewData, sizeof(GPUViewData));
+				m_renderer->BindUniformBuffer(frame.cmdList, VIEW_DATA_INDEX, frame.viewDataBuffer);
+			}
+
+			// Update object data
+			{
+				m_opaquePass.UpdateObjectData(frameIndex, frame.cmdList);
+			}
+
 			m_renderer->TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
 			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth, Color(0.05f, 0.7f, 0.5f, 1.0f));
 
 			// Draw scene objects.
 			{
-				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
-				frame.viewDataBuffer->Update(&m_renderData.gpuViewData, sizeof(GPUViewData));
-				m_renderer->BindUniformBuffer(frame.cmdList, 2, frame.viewDataBuffer);
 
 				m_renderer->BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
 				m_renderer->BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());

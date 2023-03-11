@@ -75,20 +75,55 @@ namespace Lina
 		}
 	}
 
-	struct DescriptorHandle
+	class DescriptorHandle
 	{
-		CD3DX12_CPU_DESCRIPTOR_HANDLE cpuHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE();
-		CD3DX12_GPU_DESCRIPTOR_HANDLE gpuHandle = CD3DX12_GPU_DESCRIPTOR_HANDLE();
-		uint32						  id		= 0;
+	public:
+		DescriptorHandle()
+		{
+			m_cpuHandle.ptr = NULL;
+			m_gpuHandle.ptr = NULL;
+			m_heapIndex		= 0;
+		}
 
-		constexpr bool IsValid() const
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle()
 		{
-			return cpuHandle.ptr != 0;
+			return m_cpuHandle;
 		}
-		constexpr bool IsShaderVisible() const
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle()
 		{
-			return gpuHandle.ptr != 0;
+			return m_gpuHandle;
 		}
+		uint32 GetHeapIndex()
+		{
+			return m_heapIndex;
+		}
+
+		void SetCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
+		{
+			m_cpuHandle = cpuHandle;
+		}
+		void SetGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle)
+		{
+			m_gpuHandle = gpuHandle;
+		}
+		void SetHeapIndex(uint32 heapIndex)
+		{
+			m_heapIndex = heapIndex;
+		}
+
+		bool IsValid()
+		{
+			return m_cpuHandle.ptr != NULL;
+		}
+		bool IsReferencedByShader()
+		{
+			return m_gpuHandle.ptr != NULL;
+		}
+
+	private:
+		D3D12_CPU_DESCRIPTOR_HANDLE m_cpuHandle = {};
+		D3D12_GPU_DESCRIPTOR_HANDLE m_gpuHandle = {};
+		uint32						m_heapIndex = 0;
 	};
 
 } // namespace Lina
