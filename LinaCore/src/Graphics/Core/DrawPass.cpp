@@ -130,7 +130,7 @@ namespace Lina
 		}
 	}
 
-	void DrawPass::UpdateObjectData(uint32 frameIndex, uint32 cmdListHandle)
+	void DrawPass::UpdateBuffers(uint32 frameIndex, uint32 cmdListHandle)
 	{
 		// Update object data buffer.
 		{
@@ -160,17 +160,10 @@ namespace Lina
 			m_renderer->CopyFromStaging(cmdListHandle, m_objDataBufferStaging[frameIndex], m_objDataBufferGPU[frameIndex], ResourceState::NonPixelShaderResource);
 			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
 		}
-	}
 
-	void DrawPass::Draw(uint32 frameIndex, uint32 cmdListHandle)
-	{
-		const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
-		uint32		 firstInstance = 0;
-
-		Material*	lastBoundMat = nullptr;
 		const auto& mergedMeshes = m_gfxManager->GetMeshManager().GetMergedMeshes();
 
-		//// Update indirect commands.
+		// Update indirect commands.
 		{
 			Vector<DrawIndexedIndirectCommand> commands;
 			uint32							   i = 0;
@@ -181,7 +174,7 @@ namespace Lina
 				{
 					auto&					   merged = mergedMeshes.at(b.meshes[i]);
 					DrawIndexedIndirectCommand c;
-					c.instanceID			= m_renderables[ri].objDataIndex;
+					c.instanceID			= ri;
 					c.instanceCount			= 1;
 					c.indexCountPerInstance = merged.indexSize;
 					c.baseVertexLocation	= merged.vertexOffset;
@@ -194,17 +187,28 @@ namespace Lina
 
 			m_indirectBuffer[frameIndex]->Update(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
 		}
+	}
+
+	void DrawPass::Draw(uint32 frameIndex, uint32 cmdListHandle)
+	{
+		const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
+		uint32		 firstInstance = 0;
+
+		Shader* lastBoundShader = nullptr;
 
 		for (uint32 i = 0; i < batchesSize; i++)
 		{
-			InstancedBatch& batch = m_batches[i];
-			Material*		mat	  = batch.mat;
+			InstancedBatch& batch	  = m_batches[i];
+			Material*		mat		  = batch.mat;
+			Shader*			matShader = mat->GetShader();
 
-			if (mat != lastBoundMat)
+			if (matShader != lastBoundShader)
 			{
-				m_renderer->BindMaterial(cmdListHandle, mat);
-				lastBoundMat = mat;
+				m_renderer->BindMaterial(cmdListHandle, mat, MBF_BindShader);
+				lastBoundShader = matShader;
 			}
+
+			m_renderer->BindMaterial(cmdListHandle, mat, MBF_BindMaterialProperties);
 
 			const uint64 indirectOffset = firstInstance * sizeof(DrawIndexedIndirectCommand);
 			m_renderer->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);

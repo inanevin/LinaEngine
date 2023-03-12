@@ -49,7 +49,7 @@ namespace Lina
 		virtual ~DrawPass();
 
 		void Process(Vector<RenderableData>& drawList, const View& targetView, float drawDistance, DrawPassMask drawPassMask);
-		void UpdateObjectData(uint32 frameIndex, uint32 cmdListHandle);
+		void UpdateBuffers(uint32 frameIndex, uint32 cmdListHandle);
 		void Draw(uint32 frameIndex, uint32 cmdListHandle);
 
 	private:

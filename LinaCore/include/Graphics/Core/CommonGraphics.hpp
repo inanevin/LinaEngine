@@ -310,9 +310,10 @@ namespace Lina
 
 	enum class ImageType
 	{
-		Color,
-		DepthStencil,
-		Swapchain
+		DefaultTexture2D,
+		RTColor,
+		RTDepthStencil,
+		RTSwapchain
 	};
 
 	enum class ResourceState
@@ -340,8 +341,15 @@ namespace Lina
 
 	enum class TextureResourceType
 	{
-		Texture2DColor,
+		Texture2DDefaultStaging,
+		Texture2DDefaultGPU,
 		Texture2DDepthStencil,
+	};
+
+	enum MaterialBindFlag
+	{
+		MBF_BindShader			   = 1 << 0,
+		MBF_BindMaterialProperties = 1 << 1,
 	};
 
 	struct Offset3D

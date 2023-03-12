@@ -51,5 +51,5 @@ float4 PSMain(PSInput input) : SV_TARGET
 	//float2 uv = input.uv;
 	//float txt = g_texture.Load(int3(input.position.xy, 0));
     //return float4(txt, txt, txt, 1.0f);
-	return float4(input.uv, sin(ambientColor.x), 1.0f);
+	return float4(input.uv, 0, 1.0f);
 }

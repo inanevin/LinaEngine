@@ -43,7 +43,7 @@ namespace Lina
 	{
 		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
 	}
-	
+
 	Texture::Texture(ResourceManager* rm, StringID sid, const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels)
 		: m_sampler(samplerData), m_extent(ext), m_channels(channels), IResource(rm, true, "", sid, GetTypeID<Texture>())
 	{
@@ -63,6 +63,8 @@ namespace Lina
 
 	void Texture::LoadFromFile(const char* path)
 	{
+		stbi_set_flip_vertically_on_load(true);
+		
 		// Populate metadata.
 		m_metadata.GetUInt8("MinFilter"_hs, static_cast<uint8>(Filter::Linear));
 		m_metadata.GetUInt8("MagFilter"_hs, static_cast<uint8>(Filter::Linear));
@@ -178,7 +180,7 @@ namespace Lina
 			return;
 		}
 
-		m_gpuHandle = m_renderer->GenerateImageAndUpload(this);
+		m_gpuHandle = m_renderer->GenerateImage(this, ImageType::DefaultTexture2D);
 	}
 
 	void Texture::GenerateImage(ImageType type)

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/Resource/ModelNode.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Shader.hpp"
+#include "Graphics/Resource/Mesh.hpp"
 
 namespace Lina
 {
@@ -81,7 +82,7 @@ namespace Lina
 		{
 			MeshMaterialPair p;
 			p.mesh	   = m;
-			p.material = rm->GetResource<Material>(materials[index]);
+			p.material = rm->GetResource<Material>(materials[p.mesh->GetMaterialSlot()]);
 			pairs.push_back(p);
 			index++;
 		}

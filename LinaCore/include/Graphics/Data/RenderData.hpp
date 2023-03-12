@@ -111,15 +111,14 @@ namespace Lina
 
 	struct RenderableData
 	{
-		RenderableType			 type		  = RenderableType::RenderableDecal;
-		Bitmask16				 passMask	  = DrawPassMask::Opaque;
-		Matrix4					 modelMatrix  = Matrix4::Identity();
-		Vector3					 position	  = Vector3();
-		AABB					 aabb		  = AABB();
-		uint32					 entityID	  = 0;
-		uint32					 batchID	  = 0;
-		uint32					 objDataIndex = 0;
-		Bitmask16				 entityMask	  = 0;
+		RenderableType			 type		 = RenderableType::RenderableDecal;
+		Bitmask16				 passMask	 = DrawPassMask::Opaque;
+		Matrix4					 modelMatrix = Matrix4::Identity();
+		Vector3					 position	 = Vector3();
+		AABB					 aabb		 = AABB();
+		uint32					 entityID	 = 0;
+		uint32					 batchID	 = 0;
+		Bitmask16				 entityMask	 = 0;
 		Vector<MeshMaterialPair> meshMaterialPairs;
 	};
 
@@ -180,11 +179,6 @@ namespace Lina
 		Matrix4 mat = Matrix4::Identity();
 	};
 
-#define GLOBAL_DATA_INDEX		 0
-#define INDIRECT_CONSTANTS_INDEX 1
-#define SCENE_DATA_INDEX		 2
-#define VIEW_DATA_INDEX			 3
-#define OBJ_DATA_INDEX			 0
 } // namespace Lina
 
 #endif

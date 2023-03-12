@@ -36,7 +36,7 @@ namespace Lina
 {
 	void Mesh::AddVertex(const Vector3& pos, const Vector3& normal, const Vector2& uv)
 	{
-		m_vertices.emplace_back(Vertex(pos, normal, Color(normal.r, normal.g, normal.b, 1), Vector2(uv.x, 1.0f - uv.y)));
+		m_vertices.emplace_back(Vertex(pos, normal, Color(normal.r, normal.g, normal.b, 1), Vector2(uv.x, uv.y)));
 	}
 
 	void Mesh::AddIndices(uint32 i1)
@@ -59,7 +59,7 @@ namespace Lina
 		VectorSerialization::SaveToStream_OBJ(stream, m_vertices);
 		VectorSerialization::SaveToStream_PT(stream, m_indices);
 	}
-	
+
 	void Mesh::LoadFromStream(IStream& stream)
 	{
 		stream >> m_materialSlot;

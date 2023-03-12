@@ -85,15 +85,15 @@ namespace Lina
 			m_heapIndex		= 0;
 		}
 
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle()
+		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle() const
 		{
 			return m_cpuHandle;
 		}
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle()
+		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const
 		{
 			return m_gpuHandle;
 		}
-		uint32 GetHeapIndex()
+		uint32 GetHeapIndex() const
 		{
 			return m_heapIndex;
 		}
@@ -111,11 +111,11 @@ namespace Lina
 			m_heapIndex = heapIndex;
 		}
 
-		bool IsValid()
+		bool IsValid() const
 		{
 			return m_cpuHandle.ptr != NULL;
 		}
-		bool IsReferencedByShader()
+		bool IsReferencedByShader() const
 		{
 			return m_gpuHandle.ptr != NULL;
 		}

@@ -121,11 +121,13 @@ namespace Lina
 		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, NULL, &m_allocation, IID_NULL, NULL));
 		m_size = sz;
 
-		if (data != nullptr && allocationDesc.HeapType == D3D12_HEAP_TYPE_UPLOAD)
+		if (allocationDesc.HeapType == D3D12_HEAP_TYPE_UPLOAD)
 		{
 			CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
 			ThrowIfFailed(m_allocation->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));
-			MEMCPY(m_mappedData, data, sz);
+
+			if (data != nullptr)
+				MEMCPY(m_mappedData, data, sz);
 		}
 
 		// if (m_type == BufferResourceType::ObjectDataBuffer)
@@ -156,9 +158,6 @@ namespace Lina
 			CD3DX12_RANGE readRange(0, 0);
 			m_allocation->GetResource()->Unmap(0, &readRange);
 		}
-
-		if (m_descHandle.IsValid())
-			m_renderer->DX12GetCPUBufferHeap()->FreeHeapHandle(m_descHandle);
 
 		m_allocation->Release();
 		m_allocation = nullptr;

@@ -48,13 +48,14 @@ namespace Lina
 		stages.push_back(linatl::make_pair(ShaderStage::Fragment, "PSMain"));
 
 		Vector<Pair<MaterialPropertyType, String>> propertyTypes;
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Float, "float"));
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Int, "int"));
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Bool, "bool"));
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector2, "float2"));
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector2i, "int2"));
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector4, "float4"));
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Mat4, "float4x4"));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Float, "float "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Int, "int "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Bool, "bool "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector2, "float2 "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector2i, "int2 "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector4, "float4 "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Mat4, "float4x4 "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Texture, "LINA_TEXTURE2D "));
 		const int typesSize = static_cast<uint32>(propertyTypes.size());
 
 		auto addProperty = [](const String& name, Vector<MaterialPropertyBase*>& outProps, MaterialPropertyType type) {
@@ -64,16 +65,6 @@ namespace Lina
 			{
 				MaterialPropertyBase* createdProp = MaterialPropertyBase::CreateProperty(type, name);
 				outProps.push_back(createdProp);
-			}
-		};
-
-		auto addTexture = [](const String& name, Vector<MaterialPropertyBase*>& outTextures, MaterialPropertyType type) {
-			auto it = linatl::find_if(outTextures.begin(), outTextures.end(), [name](MaterialPropertyBase* prop) { return prop->GetName().compare(name) == 0; });
-
-			if (it == outTextures.end())
-			{
-				MaterialPropertyBase* createdProp = MaterialPropertyBase::CreateProperty(MaterialPropertyType::Texture, name);
-				outTextures.push_back(createdProp);
 			}
 		};
 
@@ -158,44 +149,13 @@ namespace Lina
 
 				if (material != std::string::npos)
 				{
-					//std::string replacedLine = line;
-					//replacedLine.replace(0, line.size(), "cbuffer MaterialBuffer : register(b3)");
-					//finalText += replacedLine + "\n";
+					// std::string replacedLine = line;
+					// replacedLine.replace(0, line.size(), "cbuffer MaterialBuffer : register(b3)");
+					// finalText += replacedLine + "\n";
 					finalText += line;
 					parsingMaterial = true;
 					continue;
 				}
-
-				const std::string txtKeyword = "Texture2D";
-				const size_t	  txtBegin	 = line.find(txtKeyword);
-
-				if (txtBegin != std::string::npos)
-				{
-
-					const size_t sep = line.find(":");
-					std::string textureName = line.substr(txtKeyword.size() + 1, sep - txtKeyword.size() -2 );
-					addTexture(textureName.c_str(), outTextures, MaterialPropertyType::Texture);
-				}
-				
-
-				// bool found = false;
-				// for (int i = 0; i < 10; i++)
-				//{
-				//	const std::string keyword = "LINA_TEXTURE" + std::to_string(i);
-				//
-				//	if (line.find(keyword) != std::string::npos)
-				//	{
-				//		std::string textureName = line.substr(keyword.size() + 1, line.size() - keyword.size() - 2);
-				//		finalText += "Texture2D " + textureName + " : register(t" + std::to_string(i) + ") \n";
-				//		finalText += "SamplerState " + textureName + "Sampler : register(s" + std::to_string(i) + ") \n";
-				//		addTexture(textureName.c_str(), outTextures, MaterialPropertyType::Texture);
-				//		found = true;
-				//		break;
-				//	}
-				// }
-				//
-				// if (found)
-				//	continue;
 			}
 			else
 			{
@@ -212,8 +172,9 @@ namespace Lina
 
 						if (pos != std::string::npos)
 						{
-							String name = line.substr(pos + typekw.size() + 1, line.size() - pos - typekw.size() - 2).c_str();
+							String name = line.substr(pos + typekw.size(), line.size() - pos - typekw.size() - 1).c_str();
 							addProperty(name, outProperties, propertyTypes[i].first);
+							break;
 						}
 					}
 				}

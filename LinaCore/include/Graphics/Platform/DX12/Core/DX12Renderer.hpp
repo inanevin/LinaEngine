@@ -35,8 +35,10 @@ SOFTWARE.
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Data/Vertex.hpp"
+#include "Event/ISystemEventListener.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/IDList.hpp"
+#include "Data/HashSet.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GpuUploader.hpp"
 #include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
@@ -59,6 +61,7 @@ namespace Lina
 	class Color;
 	class DX12GPUHeap;
 	class DX12StagingHeap;
+	class ResourceManager;
 
 	struct GeneratedTexture
 	{
@@ -66,10 +69,12 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12Resource> rawResource;
 
 		// For all others.
-		IGfxTextureResource* gfxResource = nullptr;
+		IGfxTextureResource* gpuResource	 = nullptr;
+		IGfxTextureResource* stagingResource = nullptr;
+		uint32				 sid			 = 0;
 
 		DescriptorHandle descriptor;
-		ImageType		 imageType = ImageType::Color;
+		ImageType		 imageType = ImageType::DefaultTexture2D;
 	};
 
 	struct GeneratedShader
@@ -79,9 +84,11 @@ namespace Lina
 
 	struct GeneratedMaterial
 	{
+		IGfxBufferResource* buffer[FRAMES_IN_FLIGHT] = {nullptr};
+		bool				dirty[FRAMES_IN_FLIGHT]	 = {false};
 	};
 
-	class Renderer
+	class Renderer : public ISystemEventListener
 	{
 	public:
 		Renderer()
@@ -96,22 +103,26 @@ namespace Lina
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
-		void PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
-		void Initialize(const SystemInitializationInfo& initInfo);
-		void Shutdown();
+		void		 PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
+		void		 Initialize(const SystemInitializationInfo& initInfo);
+		void		 Shutdown();
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& data) override;
+
+		virtual Bitmask32 GetSystemEventMask() override
+		{
+			return EVS_ResourceBatchLoaded | EVS_ResourceUnloaded;
+		}
 
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
 		uint32 GenerateMaterial(Material* mat, uint32 existingHandle);
-		void   UpdateMaterialProperties(Material* mat, uint32 imageIndex);
-		void   UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures);
+		void   UpdateMaterialProperties(Material* mat);
 		void   DestroyMaterial(uint32 handle);
 		uint32 GeneratePipeline(Shader* shader);
 		void   DestroyPipeline(uint32 handle);
 		void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
 		uint32 GenerateImage(Texture* txt, ImageType type);
-		uint32 GenerateImageAndUpload(Texture* txt);
 		void   DestroyImage(uint32 handle);
 
 		// ******************* API *******************
@@ -130,8 +141,9 @@ namespace Lina
 
 		// Resources
 		IGfxBufferResource*	 CreateBufferResource(BufferResourceType type, void* initialData, size_t size);
-		IGfxTextureResource* CreateTextureResource(TextureResourceType type, const Vector2i& initialSize);
+		IGfxTextureResource* CreateTextureResource(TextureResourceType type, Texture* texture);
 		void				 DeleteBufferResource(IGfxBufferResource* res);
+		uint32				 GetTextureIndex(const StringID sid);
 
 		// Commands
 		uint32 CreateCommandAllocator(CommandType type);
@@ -150,7 +162,8 @@ namespace Lina
 		void   EndRenderPass(uint32 cmdListHandle);
 		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxBufferResource* buf);
 		void   BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* res);
-		void   BindMaterial(uint32 cmdListHandle, Material* mat);
+		void   BindTextures(uint32 cmdListHandle, const Vector<StringID>& textures);
+		void   BindMaterial(uint32 cmdListHandle, Material* mat, Bitmask16 bindFlags);
 		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
 		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset);
@@ -168,9 +181,9 @@ namespace Lina
 		void   WaitForFences(uint32 fence, uint64 userData0, uint64 userData1);
 
 		// Textures
-		Texture* CreateRenderTarget(const String& path);
-		Texture* CreateRenderTarget(ISwapchain* swp, uint32 bufferIndex, const String& path);
-		Texture* CreateDepthStencil(const String& pathName, const Vector2i& size);
+		Texture* CreateRenderTargetColor(const String& path);
+		Texture* CreateRenderTargetSwapchain(ISwapchain* swp, uint32 bufferIndex, const String& path);
+		Texture* CreateRenderTargetDepthStencil(const String& pathName, const Vector2i& size);
 
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
@@ -212,13 +225,15 @@ namespace Lina
 
 	private:
 		// General
-		GfxManager*		m_gfxManager = nullptr;
-		StatePerFrame	m_frames[FRAMES_IN_FLIGHT];
-		uint64			m_fenceValueGraphics = 0;
-		uint32			m_frameFenceGraphics = 0;
-		HANDLE			m_fenceEventGraphics = NULL;
-		DX12GpuUploader m_uploader;
-		uint32			m_currentFrameIndex = 0;
+		GfxManager*				  m_gfxManager = nullptr;
+		StatePerFrame			  m_frames[FRAMES_IN_FLIGHT];
+		uint64					  m_fenceValueGraphics = 0;
+		uint32					  m_frameFenceGraphics = 0;
+		HANDLE					  m_fenceEventGraphics = NULL;
+		DX12GpuUploader			  m_uploader;
+		uint32					  m_currentFrameIndex = 0;
+		ResourceManager*		  m_resourceManager	  = nullptr;
+		HashMap<StringID, uint32> m_loadedTextures;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;

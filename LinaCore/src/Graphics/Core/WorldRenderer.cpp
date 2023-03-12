@@ -152,8 +152,8 @@ namespace Lina
 
 			auto& data = m_dataPerImage[i];
 
-			data.renderTargetColor = m_renderer->CreateRenderTarget(testSwapchain, i, rtColorName);
-			data.renderTargetDepth = m_renderer->CreateDepthStencil(rtDepthName, m_renderData.renderResolution);
+			data.renderTargetColor = m_renderer->CreateRenderTargetSwapchain(testSwapchain, i, rtColorName);
+			data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, m_renderData.renderResolution);
 
 			// data.renderTargetDepth = m_renderer->CreateRenderTarget()
 
@@ -296,7 +296,6 @@ namespace Lina
 			data.passMask		   = r.GetDrawPasses(m_resourceManager);
 			data.type			   = r.GetType();
 			data.meshMaterialPairs = r.GetMeshMaterialPairs(m_resourceManager);
-			data.objDataIndex	   = i++;
 			m_renderData.extractedRenderables.push_back(data);
 		}
 
@@ -312,14 +311,14 @@ namespace Lina
 		{
 			m_renderer->ResetCommandList(frame.cmdAllocator, frame.cmdList);
 			m_renderer->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
-			m_renderer->BindUniformBuffer(frame.cmdList, GLOBAL_DATA_INDEX, m_gfxManager->GetCurrentGlobalDataResource());
+			m_renderer->BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
 		}
 
 		// Update scene data
 		{
 			m_renderData.gpuSceneData.ambientColor.x = SystemInfo::GetAppTimeF();
 			frame.sceneDataBuffer->Update(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
-			m_renderer->BindUniformBuffer(frame.cmdList, SCENE_DATA_INDEX, frame.sceneDataBuffer);
+			m_renderer->BindUniformBuffer(frame.cmdList, 2, frame.sceneDataBuffer);
 		}
 
 		// Main Render Pass
@@ -328,12 +327,12 @@ namespace Lina
 			{
 				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
 				frame.viewDataBuffer->Update(&m_renderData.gpuViewData, sizeof(GPUViewData));
-				m_renderer->BindUniformBuffer(frame.cmdList, VIEW_DATA_INDEX, frame.viewDataBuffer);
+				m_renderer->BindUniformBuffer(frame.cmdList, 3, frame.viewDataBuffer);
 			}
 
 			// Update object data
 			{
-				m_opaquePass.UpdateObjectData(frameIndex, frame.cmdList);
+				m_opaquePass.UpdateBuffers(frameIndex, frame.cmdList);
 			}
 
 			m_renderer->TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);

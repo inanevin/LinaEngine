@@ -44,22 +44,24 @@ namespace Lina
 
 	enum SystemEvent
 	{
-		EVS_ResourceLoaded,
-		EVS_ResourceBatchLoaded,
+		EVS_ResourceLoaded		  = 1 << 0,
+		EVS_ResourceBatchLoaded	  = 1 << 1,
+		EVS_ResourceUnloaded	  = 1 << 2,
+		EVS_ResourceBatchUnloaded = 1 << 3,
 	};
 
 	enum GameEvent
 	{
-		EVG_LevelInstalled,
-		EVG_LevelUninstalled,
-		EVG_Start,
-		EVG_PostStart,
-		EVG_Tick,
-		EVG_PostTick,
-		EVG_Physics,
-		EVG_PostPhysics,
-		EVG_ComponentCreated,
-		EVG_ComponentDestroyed
+		EVG_LevelInstalled	   = 1 << 0,
+		EVG_LevelUninstalled   = 1 << 1,
+		EVG_Start			   = 1 << 2,
+		EVG_PostStart		   = 1 << 3,
+		EVG_Tick			   = 1 << 4,
+		EVG_PostTick		   = 1 << 5,
+		EVG_Physics			   = 1 << 6,
+		EVG_PostPhysics		   = 1 << 7,
+		EVG_ComponentCreated   = 1 << 8,
+		EVG_ComponentDestroyed = 1 << 9,
 	};
 } // namespace Lina
 

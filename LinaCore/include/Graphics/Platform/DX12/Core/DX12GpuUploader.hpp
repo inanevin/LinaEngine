@@ -61,7 +61,7 @@ namespace Lina
 		uint64								m_fenceValue = 0;
 		uint32								m_allocator	 = 0;
 		uint32								m_cmdList	 = 0;
-		Queue<GfxCommand>					m_waitingUploads;
+		Vector<GfxCommand>					m_waitingUploads;
 	};
 } // namespace Lina
 

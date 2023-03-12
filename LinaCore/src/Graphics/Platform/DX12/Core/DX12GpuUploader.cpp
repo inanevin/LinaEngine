@@ -66,23 +66,33 @@ namespace Lina
 
 		m_renderer->ResetCommandList(m_allocator, m_cmdList);
 
-		while (!m_waitingUploads.empty())
+		for(auto& cmd : m_waitingUploads)
 		{
-			GfxCommand cmd = m_waitingUploads.front();
 			cmd.Record(m_cmdList);
-			m_waitingUploads.pop();
+
+			if (cmd.OnRecorded)
+				cmd.OnRecorded();
 		}
 
 		m_renderer->FinalizeCommandList(m_cmdList);
 		m_renderer->ExecuteCommandListsGraphics({m_cmdList});
 		m_renderer->WaitForGPUGraphics();
+
+		for (auto& cmd : m_waitingUploads)
+		{
+			if(cmd.OnSubmitted)
+				cmd.OnSubmitted();
+		}
+
+		m_waitingUploads.clear();
+
 		// WaitForFence();
 	}
 
 	void DX12GpuUploader::PushCommand(const GfxCommand& cmd)
 	{
 		LOCK_GUARD(m_mtx);
-		m_waitingUploads.push(cmd);
+		m_waitingUploads.push_back(cmd);
 	}
 
 	void DX12GpuUploader::WaitForFence()

@@ -37,11 +37,11 @@ SOFTWARE.
 namespace Lina
 {
 	Vector<StringID> CoreResourcesRegistry::s_coreShaders = {
-		 "Resources/Core/Shaders/LitStandard.linashader"_hs,
-		 "Resources/Core/Shaders/GUIStandard.linashader"_hs,
-		 "Resources/Core/Shaders/GUIText.linashader"_hs,
-		 "Resources/Core/Shaders/ScreenQuads/SQFinal.linashader"_hs,
-		 "Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader"_hs,
+		"Resources/Core/Shaders/LitStandard.linashader"_hs,
+		"Resources/Core/Shaders/GUIStandard.linashader"_hs,
+		"Resources/Core/Shaders/GUIText.linashader"_hs,
+		"Resources/Core/Shaders/ScreenQuads/SQFinal.linashader"_hs,
+		"Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader"_hs,
 	};
 
 	void CoreResourcesRegistry::RegisterResourceTypes(ResourceManager& rm)
@@ -59,18 +59,19 @@ namespace Lina
 
 		// list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans.ttf", GetTypeID<Font>(), 0));
 		// list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular.ttf", GetTypeID<Font>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Models/Capsule.fbx", GetTypeID<Model>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Capsule.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<Model>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Models/Cylinder.fbx", GetTypeID<Model>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.fbx", GetTypeID<Model>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.fbx", GetTypeID<Model>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Models/Quad.fbx", GetTypeID<Model>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.fbx", GetTypeID<Model>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Cylinder.fbx", GetTypeID<Model>(), 0));
+		// list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.fbx", GetTypeID<Model>(), 0));
+		// list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.fbx", GetTypeID<Model>(), 0));
+		// list.push_back(ResourceIdentifier("Resources/Core/Models/Quad.fbx", GetTypeID<Model>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.fbx", GetTypeID<Model>(), 0));
+		
 		//list.push_back(ResourceIdentifier("Resources/Core/Textures/DummyBlack_32.png", GetTypeID<Texture>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Textures/Grid512.png", GetTypeID<Texture>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Textures/Logo_Colored_1024.png", GetTypeID<Texture>(), 0));
 		//list.push_back(ResourceIdentifier("Resources/Core/Textures/Logo_White_512.png", GetTypeID<Texture>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Textures/LogoWithText.png", GetTypeID<Texture>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/LogoWithText.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
 
@@ -81,7 +82,7 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQFinal.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader", GetTypeID<Shader>(), 0));
 #else
-		//LINA_NOTIMPLEMENTED;
+		// LINA_NOTIMPLEMENTED;
 #endif
 
 		for (auto& ident : list)

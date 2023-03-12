@@ -47,15 +47,7 @@ namespace Lina
 		virtual ~Material();
 
 		void SetShader(StringID shader);
-		bool SetTexture(uint32 textureIndex, StringID texture);
-		bool SetTexture(const String& name, StringID texture);
-		void UpdateBuffers(uint32 imageIndex);
 		void GetPropertyBlob(uint8*& outData, size_t& outSize);
-
-		inline const Vector<MaterialProperty<StringID>>& GetTextures() const
-		{
-			return m_textures;
-		}
 
 		inline StringID GetShaderHandle() const
 		{
@@ -92,7 +84,7 @@ namespace Lina
 
 			MaterialProperty<T>* p = static_cast<MaterialProperty<T>*>(m_properties[index]);
 			p->SetValue(value);
-			m_propertiesDirty = true;
+			UpdateBuffers();
 			return true;
 		}
 
@@ -119,6 +111,9 @@ namespace Lina
 			return SetProperty(static_cast<uint32>(selected), value);
 		}
 
+	private:
+		void UpdateBuffers();
+
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
@@ -130,16 +125,13 @@ namespace Lina
 		uint32 GetPropertiesTotalAlignedSize();
 
 	private:
-		Renderer*						   m_renderer = nullptr;
-		Vector<MaterialPropertyBase*>	   m_properties;
-		Vector<MaterialProperty<StringID>> m_textures;
-		Vector<uint32>					   m_dirtyTextureIndices;
-		bool							   m_propertiesDirty   = false;
-		int32							   m_gpuHandle		   = -1;
-		StringID						   m_shaderHandle	   = 0;
-		Shader*							   m_shader			   = nullptr;
-		uint32							   m_totalPropertySize = 0;
-		uint32							   m_totalAlignedSize  = 0;
+		Renderer*					  m_renderer = nullptr;
+		Vector<MaterialPropertyBase*> m_properties;
+		int32						  m_gpuHandle		  = -1;
+		StringID					  m_shaderHandle	  = 0;
+		Shader*						  m_shader			  = nullptr;
+		uint32						  m_totalPropertySize = 0;
+		uint32						  m_totalAlignedSize  = 0;
 	};
 
 } // namespace Lina

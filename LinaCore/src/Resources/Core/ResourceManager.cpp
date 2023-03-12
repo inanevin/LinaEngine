@@ -216,7 +216,17 @@ namespace Lina
 		{
 			auto& cache = m_caches.at(ident.tid);
 			cache->DestroyResource(ident.sid);
+
+			Event			   ev;
+			ResourceIdentifier currentIdent = ident;
+			ev.pParams[0]					= &currentIdent;
+			DispatchEvent(EVS_ResourceUnloaded, ev);
 		}
+
+		Event					   batchEv;
+		Vector<ResourceIdentifier> idents = identifiers;
+		batchEv.pParams[0]				  = &idents;
+		DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
 	}
 
 	bool ResourceManager::IsCoreResource(StringID sid)

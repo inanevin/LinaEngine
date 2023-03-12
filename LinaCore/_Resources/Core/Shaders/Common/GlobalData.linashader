@@ -28,57 +28,64 @@ SOFTWARE.
 
 cbuffer LinaGlobal : register(b0)
 {
-	float4 screenSizeMousePos;
-	float2 deltaElapsed;
+	float4 ScreenSizeMousePos;
+	float2 DeltaElapsed;
 }
 
-#define LINA_SCREEN screenSizeMousePos.xy
-#define LINA_MOUSE screenSizeMousePos.zw
-#define LINA_DT deltaElapsed.x
-#define LINA_ET deltaElapsed.y
+#define LINA_SCREEN ScreenSizeMousePos.xy
+#define LINA_MOUSE ScreenSizeMousePos.zw
+#define LINA_DT DeltaElapsed.x
+#define LINA_ET DeltaElapsed.y
 						
 struct IndirectConstant
 {
 	uint instanceID;
 };
 
-ConstantBuffer<IndirectConstant> indirectConstants : register(b1);
+ConstantBuffer<IndirectConstant> IndirectConstants : register(b1);
 				
+#define LINA_INSTANCEID IndirectConstants.instanceID
+
 struct Light
 {
-	float4 position;
+	float4 Position;
 };
 
 cbuffer LinaScene : register(b2)
 {
-	float4 fogColor;
-	float4 fogDistances;
-	float4 ambientColor;
-	float4 sunlightDirection;
-	float4 sunlightColor;
+	float4 FogColor;
+	float4 FogDistances;
+	float4 AmbientColor;
+	float4 SunlightDirection;
+	float4 SunlightColor;
 	Light lights[10];
 }
 
 cbuffer LinaView : register(b3)
 {
-	float4x4 view;
-	float4x4 proj;
-	float4x4 viewProj;
-	float4 camPos;
-	float2 camNearFar;
+	float4x4 View;
+	float4x4 Proj;
+	float4x4 ViewProj;
+	float4 CamPos;
+	float2 CamNearFar;
 }
 
-#define LINA_VIEW view
-#define LINA_PROJ proj
-#define LINA_VIEWPROJ viewProj
-#define LINA_CAMLOC camPos.xyz
-#define LINA_CAMNEAR camNearFar.x
-#define LINA_CAMFAR camNearFar.y
+#define LINA_VIEW View
+#define LINA_PROJ Vroj
+#define LINA_VIEWPROJ ViewProj
+#define LINA_CAMLOC CamPos.xyz
+#define LINA_CAMNEAR CamNearFar.x
+#define LINA_CAMFAR CamNearFar.y
 
 struct ObjectData
 {
 	float4x4 model;
 };
 
-StructuredBuffer<ObjectData> objects : register(t0, space0);
+StructuredBuffer<ObjectData> Objects : register(t0, space0);
+SamplerState StaticSampler : register(s0, space0);
+Texture2D Texture2DTable[] : register(t1, space0);
 
+#define LINA_OBJECTS Objects
+#define LINA_STATIC_SAMPLER StaticSampler
+#define LINA_TEXTURES Texture2DTable

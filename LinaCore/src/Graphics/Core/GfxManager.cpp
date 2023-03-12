@@ -96,19 +96,19 @@ namespace Lina
 		camEntity					 = testWorld->CreateEntity("Cam Entity");
 		auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
 		camEntity->SetPosition(Vector3(0, 0, -5));
-		// camEntity->SetRotationAngles(Vector3(0, 0, 0));
+		camEntity->SetRotationAngles(Vector3(0, 0, 0));
 
 		testWorld->SetActiveCamera(cam);
-		auto aq	 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-		auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-		auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+		auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+		auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Sphere.fbx"_hs)->AddToWorld(testWorld);
+		auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
 
 		aq->SetPosition(Vector3(3, 0, 0));
 		aq2->SetPosition(Vector3(-3, 0, 0));
-		 aq3->SetPosition(Vector3(0, 0, 0));
+		aq3->SetPosition(Vector3(0, 0, 0));
 		cubes.push_back(aq);
 		cubes.push_back(aq2);
-		 cubes.push_back(aq3);
+		cubes.push_back(aq3);
 		testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 	}
 
@@ -153,7 +153,7 @@ namespace Lina
 
 		for (auto c : cubes)
 		{
-			c->AddRotation(Vector3(0, SystemInfo::GetDeltaTimeF() * 35, 0));
+			c->AddRotation(Vector3(SystemInfo::GetDeltaTimeF() * 35, 0, 0));
 		}
 		if (camEntity)
 		{

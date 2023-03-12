@@ -27,15 +27,17 @@ SOFTWARE.
 */
 
 #include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12StagingHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
+#include "Graphics/Resource/Texture.hpp"
 
 namespace Lina
 {
-	DX12GfxTextureResource::DX12GfxTextureResource(Renderer* rend, TextureResourceType type, const Vector2i& initialSize) : m_renderer(rend), IGfxTextureResource(type, initialSize)
+	DX12GfxTextureResource::DX12GfxTextureResource(Renderer* rend, Texture* txt, TextureResourceType type) : m_renderer(rend), IGfxTextureResource(type, Vector2i(txt->GetExtent().width, txt->GetExtent().height))
 	{
-		if (type == TextureResourceType::Texture2DDepthStencil)
-			CreateDepthStencil(initialSize);
+		m_texture = txt;
+		CreateTexture();
 	}
 
 	DX12GfxTextureResource::~DX12GfxTextureResource()
@@ -48,24 +50,57 @@ namespace Lina
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
-	void DX12GfxTextureResource::CreateDepthStencil(const Vector2i& size)
+	void DX12GfxTextureResource::CreateTexture()
 	{
+		const auto&	   ext	= m_texture->GetExtent();
+		auto&		   meta = m_texture->GetMetadata();
+		const Vector2i size = Vector2i(ext.width, ext.height);
+
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension			 = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
 		resourceDesc.Alignment			 = 0;
 		resourceDesc.Width				 = size.x;
 		resourceDesc.Height				 = size.y;
 		resourceDesc.DepthOrArraySize	 = 1;
-		resourceDesc.MipLevels			 = 0;
+		resourceDesc.MipLevels			 = 1;
 		resourceDesc.SampleDesc.Count	 = 1;
 		resourceDesc.SampleDesc.Quality	 = 0;
-		resourceDesc.Format				 = GetFormat(DEFAULT_DEPTH_FORMAT);
 		resourceDesc.Layout				 = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-		resourceDesc.Flags				 = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+		resourceDesc.Flags				 = D3D12_RESOURCE_FLAG_NONE;
+		resourceDesc.Format				 = GetFormat(static_cast<Format>(meta.GetUInt8("Format"_hs)));
 
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
-		allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
-		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, D3D12_RESOURCE_STATE_DEPTH_WRITE, NULL, &m_allocation, IID_NULL, NULL));
+		D3D12_RESOURCE_STATES	 state			= D3D12_RESOURCE_STATE_COMMON;
+		D3D12_CLEAR_VALUE*		 clear			= NULL;
+		auto					 depthClear		= CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_DEPTH_FORMAT), 1.0f, 0);
+
+		if (m_type == TextureResourceType::Texture2DDepthStencil)
+		{
+			resourceDesc.Flags		= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+			state					= D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			clear					= &depthClear;
+		}
+		else if (m_type == TextureResourceType::Texture2DDefaultStaging)
+		{
+			const uint32 totalSize	= m_texture->GetChannels() * size.x * size.y;
+			resourceDesc.Dimension	= D3D12_RESOURCE_DIMENSION_BUFFER;
+			resourceDesc.Height		= 1;
+			resourceDesc.Width		= totalSize;
+			resourceDesc.Layout		= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+			resourceDesc.Format		= DXGI_FORMAT_UNKNOWN;
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
+		}
+		else if (m_type == TextureResourceType::Texture2DDefaultGPU)
+		{
+			resourceDesc.Dimension	= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+			state					= D3D12_RESOURCE_STATE_COPY_DEST;
+			// SKIP MIPS FOR NOW
+		}
+
+		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, clear, &m_allocation, IID_NULL, NULL));
 	}
 
 	void DX12GfxTextureResource::Cleanup()

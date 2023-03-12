@@ -42,11 +42,12 @@ namespace D3D12MA
 namespace Lina
 {
 	class Renderer;
-	
+	class Texture;
+
 	class DX12GfxTextureResource : public IGfxTextureResource
 	{
 	public:
-		DX12GfxTextureResource(Renderer* rend, TextureResourceType type, const Vector2i& initialSize);
+		DX12GfxTextureResource(Renderer* rend, Texture* txt, TextureResourceType type);
 		virtual ~DX12GfxTextureResource();
 
 		virtual uint64 GetGPUPointer() override;
@@ -57,10 +58,11 @@ namespace Lina
 		}
 
 	private:
-		void CreateDepthStencil(const Vector2i& size);
+		void CreateTexture();
 		void Cleanup();
 
 	private:
+		Texture*			 m_texture	  = nullptr;
 		Renderer*			 m_renderer	  = nullptr;
 		D3D12MA::Allocation* m_allocation = nullptr;
 	};

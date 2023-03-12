@@ -94,7 +94,6 @@ namespace Lina
 		// Get the importer & set assimp scene.
 		Assimp::Importer importer;
 		uint32			 importFlags = GetImportFlags(model);
-
 		importer.SetPropertyFloat("GLOBAL_SCALE_FACTOR", model->GetMetadata().GetFloat("GlobalScale"_hs, 1.0f));
 
 		const aiScene* scene = importer.ReadFile(fileName.c_str(), importFlags);

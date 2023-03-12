@@ -93,8 +93,7 @@ namespace Lina
 
 		m_gfxManager->Join();
 
-		m_offscreenMaterials[imageIndex]->SetTexture(0, txt->GetSID());
-		m_offscreenMaterials[imageIndex]->UpdateBuffers(imageIndex);
+		m_offscreenMaterials[imageIndex]->SetProperty("diffuse", txt->GetSID());
 	}
 
 	void SurfaceRenderer::ClearOffscreenTexture()
@@ -110,8 +109,7 @@ namespace Lina
 		uint32 i = 0;
 		for (auto mat : m_offscreenMaterials)
 		{
-			mat->SetTexture(0, "Resources/Core/Textures/LogoWithText.png"_hs);
-			mat->UpdateBuffers(i);
+			mat->SetProperty("diffuse", "Resources/Core/Textures/LogoWithText.png"_hs);
 			i++;
 		}
 	}

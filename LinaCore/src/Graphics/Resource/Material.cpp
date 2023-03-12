@@ -44,13 +44,11 @@ namespace Lina
 	{
 		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
 	}
-	
+
 	Material::~Material()
 	{
 		for (auto p : m_properties)
 			delete p;
-
-		m_textures.clear();
 
 		if (m_gpuHandle == -1)
 			return;
@@ -60,12 +58,14 @@ namespace Lina
 
 	void Material::SetShader(StringID shader)
 	{
+		if (m_shader != nullptr && m_shaderHandle == shader)
+			return;
+
 		m_shaderHandle = shader;
 
 		// Delete & reassign properties.
 		for (auto p : m_properties)
 			delete p;
-		m_textures.clear();
 
 		m_shader			 = m_resourceManager->GetResource<Shader>(m_shaderHandle);
 		const auto& props	 = m_shader->GetProperties();
@@ -76,65 +76,18 @@ namespace Lina
 			MaterialPropertyBase* newProp = MaterialPropertyBase::CreateProperty(p->GetType(), p->GetName());
 			m_properties.push_back(newProp);
 		}
-
-		for (auto t : textures)
-		{
-			MaterialProperty<StringID> matPropTxt = MaterialProperty<StringID>(t->GetName(), t->GetType());
-
-			// Assign default black.
-			if (matPropTxt.GetValue() == 0)
-				matPropTxt.SetValue("Resources/Core/Textures/LogoWithText.png"_hs);
-
-			m_textures.push_back(matPropTxt);
-		}
-
 		m_totalPropertySize = 0;
 
 		for (auto p : m_properties)
 			m_totalPropertySize += p->GetTypeSize();
 
 		m_totalAlignedSize = GetPropertiesTotalAlignedSize();
-
-		m_renderer->GenerateMaterial(this, m_gpuHandle);
+		m_gpuHandle		   = m_renderer->GenerateMaterial(this, m_gpuHandle);
 	}
 
-	bool Material::SetTexture(uint32 index, StringID texture)
+	void Material::UpdateBuffers()
 	{
-		const uint32 size = static_cast<uint32>(m_textures.size());
-		if (index >= size)
-		{
-			LINA_WARN("[Material] -> Can't set texture because index is overflowing.");
-			return false;
-		}
-
-		m_textures[index].SetValue(texture);
-		m_dirtyTextureIndices.push_back(index);
-		return true;
-	}
-
-	bool Material::SetTexture(const String& name, StringID texture)
-	{
-		const uint32 size = static_cast<uint32>(m_textures.size());
-		for (uint32 i = 0; i < size; i++)
-		{
-			auto& t = m_textures[i];
-			if (t.GetName().compare(name) == 0)
-				return SetTexture(i, texture);
-		}
-
-		return false;
-	}
-
-	void Material::UpdateBuffers(uint32 imageIndex)
-	{
-		if (m_propertiesDirty)
-			m_renderer->UpdateMaterialProperties(this, imageIndex);
-
-		if (!m_dirtyTextureIndices.empty())
-			m_renderer->UpdateMaterialTextures(this, imageIndex, m_dirtyTextureIndices);
-
-		m_propertiesDirty = false;
-		m_dirtyTextureIndices.clear();
+		m_renderer->UpdateMaterialProperties(this);
 	}
 
 	void Material::GetPropertyBlob(uint8*& outData, size_t& outSize)
@@ -149,9 +102,21 @@ namespace Lina
 
 		for (auto& p : m_properties)
 		{
-			const uint32 typeSize  = p->GetTypeSize();
-			const uint32 alignment = GetPropertyTypeAlignment(p->GetType());
-			void*		 src	   = p->GetData();
+			const uint32 typeSize	= p->GetTypeSize();
+			const uint32 alignment	= GetPropertyTypeAlignment(p->GetType());
+			void*		 src		= p->GetData();
+			uint32		 textureSrc = 0;
+
+			if (p->GetType() == MaterialPropertyType::Texture)
+			{
+				MaterialProperty<StringID>* prop	   = static_cast<MaterialProperty<StringID>*>(p);
+				StringID					textureSID = prop->GetValue();
+
+				if (textureSID == 0)
+					textureSID = "Resources/Core/Textures/DummyBlack_32.png"_hs;
+
+				textureSrc = m_renderer->GetTextureIndex(textureSID);
+			}
 
 			if (offset != 0)
 			{
@@ -166,7 +131,11 @@ namespace Lina
 				}
 			}
 
-			MEMCPY(outData + offset, src, typeSize);
+			if (p->GetType() == MaterialPropertyType::Texture)
+				MEMCPY(outData + offset, &textureSrc, typeSize);
+			else
+				MEMCPY(outData + offset, src, typeSize);
+
 			offset += typeSize;
 		}
 	}
@@ -199,16 +168,6 @@ namespace Lina
 			p->SaveToStream(stream);
 		}
 
-		const uint32 txtSize = static_cast<uint32>(m_textures.size());
-		stream << txtSize;
-
-		for (auto& t : m_textures)
-		{
-			String name = t.GetName();
-			StringSerialization::SaveToStream(stream, name);
-			t.SaveToStream(stream);
-		}
-
 		stream << m_totalPropertySize << m_totalAlignedSize;
 	}
 
@@ -233,27 +192,12 @@ namespace Lina
 			m_properties.push_back(prop);
 		}
 
-		uint32 txtSize = 0;
-
-		stream >> txtSize;
-
-		for (uint32 i = 0; i < txtSize; i++)
-		{
-			String name = "";
-			StringSerialization::LoadFromStream(stream, name);
-
-			MaterialProperty<StringID> texture = MaterialProperty<StringID>(name, MaterialPropertyType::Texture);
-			texture.LoadFromStream(stream);
-			m_textures.push_back(texture);
-		}
-
 		stream >> m_totalPropertySize >> m_totalAlignedSize;
 	}
 
 	void Material::BatchLoaded()
 	{
 		SetShader(m_shaderHandle);
-		m_gpuHandle = m_renderer->GenerateMaterial(this, m_gpuHandle);
 	}
 
 	uint32 Material::GetPropertyTypeAlignment(MaterialPropertyType type)
@@ -264,8 +208,9 @@ namespace Lina
 			return static_cast<uint32>(sizeof(float) * 2);
 		else if (type == MaterialPropertyType::Vector2i)
 			return static_cast<uint32>(sizeof(int) * 2);
-		else if (type == MaterialPropertyType::Int)
+		else if (type == MaterialPropertyType::Int || type == MaterialPropertyType::Texture)
 			return static_cast<uint32>(sizeof(int));
+
 		return static_cast<uint32>(sizeof(float));
 	}
 
