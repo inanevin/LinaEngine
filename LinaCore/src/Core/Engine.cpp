@@ -82,8 +82,6 @@ namespace Lina
 	{
 		LINA_TRACE("[Application] -> Shutdown.");
 
-		m_gfxManager.Join();
-
 		for (auto [type, sys] : m_subsystems)
 			sys->PreShutdown();
 

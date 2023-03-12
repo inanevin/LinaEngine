@@ -70,33 +70,21 @@ namespace Lina
 		resourceDesc.Format				 = GetFormat(static_cast<Format>(meta.GetUInt8("Format"_hs)));
 
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
-		D3D12_RESOURCE_STATES	 state			= D3D12_RESOURCE_STATE_COMMON;
-		D3D12_CLEAR_VALUE*		 clear			= NULL;
-		auto					 depthClear		= CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_DEPTH_FORMAT), 1.0f, 0);
+		allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
+
+		D3D12_RESOURCE_STATES state		 = D3D12_RESOURCE_STATE_COMMON;
+		D3D12_CLEAR_VALUE*	  clear		 = NULL;
+		auto				  depthClear = CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_DEPTH_FORMAT), 1.0f, 0);
 
 		if (m_type == TextureResourceType::Texture2DDepthStencil)
 		{
-			resourceDesc.Flags		= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
-			state					= D3D12_RESOURCE_STATE_DEPTH_WRITE;
-			clear					= &depthClear;
-		}
-		else if (m_type == TextureResourceType::Texture2DDefaultStaging)
-		{
-			const uint32 totalSize	= m_texture->GetChannels() * size.x * size.y;
-			resourceDesc.Dimension	= D3D12_RESOURCE_DIMENSION_BUFFER;
-			resourceDesc.Height		= 1;
-			resourceDesc.Width		= totalSize;
-			resourceDesc.Layout		= D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-			resourceDesc.Format		= DXGI_FORMAT_UNKNOWN;
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
-			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
+			resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+			state			   = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+			clear			   = &depthClear;
 		}
 		else if (m_type == TextureResourceType::Texture2DDefaultGPU)
 		{
-			resourceDesc.Dimension	= D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
-			state					= D3D12_RESOURCE_STATE_COPY_DEST;
+			state = D3D12_RESOURCE_STATE_COPY_DEST;
 			// SKIP MIPS FOR NOW
 		}
 

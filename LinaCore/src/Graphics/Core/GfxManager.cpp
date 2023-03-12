@@ -140,7 +140,7 @@ namespace Lina
 
 	void GfxManager::Join()
 	{
-		m_renderer->WaitForGPUGraphics();
+		m_renderer->Join();
 	}
 
 	void GfxManager::Tick(float delta)
@@ -153,7 +153,7 @@ namespace Lina
 
 		for (auto c : cubes)
 		{
-			c->AddRotation(Vector3(SystemInfo::GetDeltaTimeF() * 35, 0, 0));
+			c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
 		}
 		if (camEntity)
 		{

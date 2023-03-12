@@ -337,6 +337,7 @@ namespace Lina
 		IndexBufferDst,
 		ObjectDataBufferStaging,
 		ObjectDataBufferGPU,
+		Staging,
 	};
 
 	enum class TextureResourceType

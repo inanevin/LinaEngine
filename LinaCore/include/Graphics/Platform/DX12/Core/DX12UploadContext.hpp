@@ -28,40 +28,35 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DX12GpuUploader_HPP
-#define DX12GpuUploader_HPP
+#ifndef DX12UploadContext_HPP
+#define DX12UploadContext_HPP
 
-#include "Data/Functional.hpp"
-#include "Data/Queue.hpp"
+#include "Graphics/Core/IUploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
-#include "Data/Mutex.hpp"
+
 
 namespace Lina
 {
 	class Renderer;
 
-	class DX12GpuUploader
+	class DX12UploadContext : public IUploadContext
 	{
 	public:
-		DX12GpuUploader(Renderer* rend) : m_renderer(rend){};
-		~DX12GpuUploader() = default;
+		DX12UploadContext(Renderer* rend);
+		virtual ~DX12UploadContext();
 
-		void Initialize();
-		void Shutdown();
-		void Flush();
-		void PushCommand(const GfxCommand& cmd);
-		void WaitForFence();
+		virtual void Flush(uint32 frameIndex) override;
+		virtual void UploadResources(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize) override;
+		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src) override;
+		virtual void PushCustomCommand(const GfxCommand& cmd) override;
 
 	private:
-		Renderer*							m_renderer = nullptr;
-		Mutex								m_mtx;
-		Microsoft::WRL::ComPtr<ID3D12Fence> m_fence;
-		HANDLE								m_fenceEvent = NULL;
-		uint64								m_fenceValue = 0;
-		uint32								m_allocator	 = 0;
-		uint32								m_cmdList	 = 0;
-		Vector<GfxCommand>					m_waitingUploads;
+
+		Microsoft::WRL::ComPtr<ID3D12Fence>				   m_fence;
+		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> m_cmdLists[FRAMES_IN_FLIGHT];
+		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	   m_cmdAllocator;
+		HANDLE											   m_fenceEvent = NULL;
+		uint64											   m_fenceValue = 0;
 	};
 } // namespace Lina
 

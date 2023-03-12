@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12StagingHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GPUHeap.hpp"
+#include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -270,14 +271,14 @@ namespace Lina
 			}
 		}
 
-		m_uploader.Initialize();
+		m_uploadContext = new DX12UploadContext(this);
 	}
 
 	void Renderer::Shutdown()
 	{
 		m_resourceManager->RemoveListener(this);
 
-		m_uploader.Shutdown();
+		delete m_uploadContext;
 		ReleaseFence(m_frameFenceGraphics);
 
 		ID3D12InfoQueue1* infoQueue = nullptr;
@@ -490,7 +491,7 @@ namespace Lina
 		psoDesc.DSVFormat								  = GetFormat(DEFAULT_DEPTH_FORMAT);
 		psoDesc.SampleDesc.Count						  = 1;
 		psoDesc.RasterizerState.FillMode				  = D3D12_FILL_MODE_SOLID;
-		
+
 		if (ppType == PipelineType::Standard)
 		{
 			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_BACK;
@@ -695,42 +696,52 @@ namespace Lina
 		}
 		else if (type == ImageType::DefaultTexture2D)
 		{
-			genData.stagingResource = CreateTextureResource(TextureResourceType::Texture2DDefaultStaging, txt);
-			genData.gpuResource		= CreateTextureResource(TextureResourceType::Texture2DDefaultGPU, txt);
+			genData.gpuResource = CreateTextureResource(TextureResourceType::Texture2DDefaultGPU, txt);
 
-			DX12GfxTextureResource* txtResStaging = static_cast<DX12GfxTextureResource*>(genData.stagingResource);
-			DX12GfxTextureResource* txtResGpu	  = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
+			// DX12GfxTextureResource* txtResStaging = static_cast<DX12GfxTextureResource*>(genData.stagingResource);
+			DX12GfxTextureResource* txtResGPU = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
+			auto					format	  = static_cast<Format>(meta.GetUInt8("Format"_hs));
 
-			GfxCommand cmd;
-			cmd.Record = [this, txtResStaging, txtResGpu, txt, index](uint32 cmdListHandle) {
-				auto& cmdList  = m_cmdLists.GetItemR(cmdListHandle);
-				auto& genData2 = m_textures.GetItemR(index);
-				auto& meta2	   = txt->GetMetadata();
-				auto  format   = static_cast<Format>(meta2.GetUInt8("Format"_hs));
+			m_uploadContext->UploadTexture(txtResGPU, txt);
+			m_uploadContext->Flush(0);
 
-				D3D12_SUBRESOURCE_DATA textureData = {};
-				textureData.pData				   = txt->GetPixels();
-				textureData.RowPitch			   = txt->GetExtent().width * txt->GetChannels();
-				textureData.SlicePitch			   = textureData.RowPitch * txt->GetExtent().height;
+			genData.descriptor						= m_cpuBufferHeap->GetNewHeapHandle();
+			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+			srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			srvDesc.Format							= GetFormat(format);
+			srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
+			srvDesc.Texture2D.MipLevels				= 1;
+			m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, genData.descriptor.GetCPUHandle());
 
-				auto gpuRes = txtResGpu->DX12GetAllocation()->GetResource();
-				UpdateSubresources(cmdList.Get(), gpuRes, txtResStaging->DX12GetAllocation()->GetResource(), 0, 0, 1, &textureData);
-				auto transition = CD3DX12_RESOURCE_BARRIER::Transition(gpuRes, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-				cmdList->ResourceBarrier(1, &transition);
+			// GfxCommand cmd;
+			// cmd.Record = [this, txtResStaging, txtResGpu, txt, index](uint32 cmdListHandle) {
+			//	auto& cmdList  = m_cmdLists.GetItemR(cmdListHandle);
+			//	auto& genData2 = m_textures.GetItemR(index);
+			//	auto& meta2	   = txt->GetMetadata();
+			//	auto  format   = static_cast<Format>(meta2.GetUInt8("Format"_hs));
+			//
+			//	D3D12_SUBRESOURCE_DATA textureData = {};
+			//	textureData.pData				   = txt->GetPixels();
+			//	textureData.RowPitch			   = txt->GetExtent().width * txt->GetChannels();
+			//	textureData.SlicePitch			   = textureData.RowPitch * txt->GetExtent().height;
+			//
+			//	auto gpuRes = txtResGpu->DX12GetAllocation()->GetResource();
+			//	UpdateSubresources(cmdList.Get(), gpuRes, txtResStaging->DX12GetAllocation()->GetResource(), 0, 0, 1, &textureData);
+			//	auto transition = CD3DX12_RESOURCE_BARRIER::Transition(gpuRes, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			//	cmdList->ResourceBarrier(1, &transition);
+			//
+			//	genData2.descriptor						= m_cpuBufferHeap->GetNewHeapHandle();
+			//	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+			//	srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+			//	srvDesc.Format							= GetFormat(format);
+			//	srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
+			//	srvDesc.Texture2D.MipLevels				= 1;
+			//	m_device->CreateShaderResourceView(txtResGpu->DX12GetAllocation()->GetResource(), &srvDesc, genData2.descriptor.GetCPUHandle());
+			// };
 
-				genData2.descriptor						= m_cpuBufferHeap->GetNewHeapHandle();
-				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-				srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-				srvDesc.Format							= GetFormat(format);
-				srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
-				srvDesc.Texture2D.MipLevels				= 1;
-				m_device->CreateShaderResourceView(txtResGpu->DX12GetAllocation()->GetResource(), &srvDesc, genData2.descriptor.GetCPUHandle());
-			};
+			// cmd.OnSubmitted = [txtResStaging]() { delete txtResStaging; };
 
-			cmd.OnSubmitted = [txtResStaging]() { delete txtResStaging; };
-
-			
-			PushTransferCommand(cmd);
+			// PushTransferCommand(cmd);
 		}
 
 		return index;
@@ -753,7 +764,6 @@ namespace Lina
 		else if (genData.imageType == ImageType::DefaultTexture2D)
 		{
 			m_cpuBufferHeap->FreeHeapHandle(genData.descriptor);
-			// delete genData.stagingResource;
 		}
 
 		if (genData.gpuResource)
@@ -766,32 +776,27 @@ namespace Lina
 	{
 		m_currentFrameIndex = frameIndex;
 		// Will wait if pending commands.
-		m_uploader.Flush();
+		m_uploadContext->Flush(frameIndex);
 
-		WaitForFences(m_frameFenceGraphics, m_fenceValueGraphics, m_frames[frameIndex].storedFenceGraphics);
+		WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
 
 		m_gpuHeap[m_currentFrameIndex]->Reset();
 	}
 
 	void Renderer::EndFrame(uint32 frameIndex)
 	{
-		auto& fence				  = m_fences.GetItemR(m_frameFenceGraphics);
-		auto& frame				  = m_frames[frameIndex];
+		auto& fence = m_fences.GetItemR(m_frameFenceGraphics);
+		auto& frame = m_frames[frameIndex];
+
+		m_fenceValueGraphics++;
 		frame.storedFenceGraphics = m_fenceValueGraphics;
 		m_graphicsQueue->Signal(fence.Get(), m_fenceValueGraphics);
-		m_fenceValueGraphics++;
 	}
 
-	void Renderer::WaitForGPUGraphics()
+	void Renderer::Join()
 	{
-		auto& fence = m_fences.GetItemR(m_frameFenceGraphics);
-
-		// Schedule a Signal command in the queue.
-		ThrowIfFailed(m_graphicsQueue->Signal(fence.Get(), m_fenceValueGraphics));
-
-		// Wait until the fence has been processed.
-		ThrowIfFailed(fence->SetEventOnCompletion(m_fenceValueGraphics, m_fenceEventGraphics));
-		WaitForSingleObjectEx(m_fenceEventGraphics, INFINITE, FALSE);
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			WaitForFences(m_frameFenceGraphics, m_frames[i].storedFenceGraphics);
 	}
 
 	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, void* windowHandle)
@@ -1091,7 +1096,6 @@ namespace Lina
 
 	void Renderer::PushTransferCommand(GfxCommand& cmd)
 	{
-		m_uploader.PushCommand(cmd);
 	}
 
 	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot)
@@ -1149,7 +1153,6 @@ namespace Lina
 
 	void Renderer::WaitForCopyQueue()
 	{
-		m_uploader.Flush();
 	}
 
 	void Renderer::Present(ISwapchain* swp)
@@ -1184,7 +1187,7 @@ namespace Lina
 		m_fences.RemoveItem(handle);
 	}
 
-	void Renderer::WaitForFences(uint32 fenceHandle, uint64 userData0, uint64 userData1)
+	void Renderer::WaitForFences(uint32 fenceHandle, uint64 frameFenceValue)
 	{
 		// UserData0: Current Fence Value in caller
 		// UserData1: Stored fence value in caller's frame
@@ -1192,7 +1195,7 @@ namespace Lina
 		auto&		 fence	   = m_fences.GetItemR(fenceHandle);
 		const UINT64 lastFence = fence->GetCompletedValue();
 
-		if (userData1 > lastFence)
+		if (lastFence < frameFenceValue)
 		{
 			HANDLE eventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 			if (eventHandle == nullptr)
@@ -1201,7 +1204,7 @@ namespace Lina
 			}
 			else
 			{
-				ThrowIfFailed(fence->SetEventOnCompletion(userData1, eventHandle));
+				ThrowIfFailed(fence->SetEventOnCompletion(frameFenceValue, eventHandle));
 				WaitForSingleObject(eventHandle, INFINITE);
 				CloseHandle(eventHandle);
 			}

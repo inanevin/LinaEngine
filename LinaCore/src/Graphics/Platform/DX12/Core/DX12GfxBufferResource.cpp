@@ -117,6 +117,11 @@ namespace Lina
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
 			state					= D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 		}
+		else if (m_type == BufferResourceType::Staging)
+		{
+			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
+		}
 
 		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, NULL, &m_allocation, IID_NULL, NULL));
 		m_size = sz;

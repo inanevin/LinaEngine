@@ -143,6 +143,7 @@ include/Graphics/Core/GfxManager.hpp
 include/Graphics/Core/IGfxBackend.hpp
 include/Graphics/Core/IGpuStorage.hpp
 include/Graphics/Core/ISwapchain.hpp
+include/Graphics/Core/IUploadContext.hpp
 include/Graphics/Core/WorldRenderer.hpp
 include/Graphics/Core/SurfaceRenderer.hpp
 include/Graphics/Core/CommonGraphics.hpp
@@ -199,7 +200,7 @@ include/Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12StagingHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12GPUHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12GUIBackend.hpp
-include/Graphics/Platform/DX12/Core/DX12GpuUploader.hpp
+include/Graphics/Platform/DX12/Core/DX12UploadContext.hpp
 include/Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp
 include/Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp
 include/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp
@@ -236,7 +237,7 @@ src/Graphics/Platform/DX12/Core/DX12DescriptorHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12StagingHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12GPUHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12GUIBackend.cpp
-src/Graphics/Platform/DX12/Core/DX12GpuUploader.cpp
+src/Graphics/Platform/DX12/Core/DX12UploadContext.cpp
 src/Graphics/Platform/DX12/Core/DX12GfxBufferResource.cpp
 src/Graphics/Platform/DX12/Core/DX12GfxTextureResource.cpp
 src/Graphics/Platform/DX12/SDK/D3D12MemAlloc.cpp

@@ -28,6 +28,7 @@ SOFTWARE.
 
 LINA_PASS_OPAQUE
 LINA_PASS_SHADOWS
+
 LINA_PIPELINE_STANDARD
 
 #include "GlobalData.linashader"
@@ -42,27 +43,27 @@ LINA_TEXTURE2D diffuse;
 
 struct PSInput
 {
-    float4 position : SV_POSITION;
-    float3 normal : NORMAL;
-    float3 color : COLOR;
-    float2 uv : TEXCOORD;
-    float3 cpos : POSITION;
+	float4 position : SV_POSITION;
+	float3 normal : NORMAL;
+	float3 color : COLOR;
+	float2 uv : TEXCOORD;
+	float3 cpos : POSITION;
 };
 
 PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD)
 {
-    PSInput result;
-	float4x4 transformMatrix = mul(LINA_VIEWPROJ,LINA_OBJECTS[LINA_INSTANCEID].model);
+	PSInput result;
+	float4x4 transformMatrix = mul(LINA_VIEWPROJ, LINA_OBJECTS[LINA_INSTANCEID].model);
 	result.position = mul(transformMatrix, float4(position.xyz, 1.0));
-    result.normal = normal;
+	result.normal = normal;
 	result.color = color.xyz;
 	result.uv = uv;
 	result.cpos = position.xyz / position.w;
-    return result;
+	return result;
 }
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
 	float4 col = LINA_TEXTURES[0].Sample(LINA_STATIC_SAMPLER, input.uv);
-    return float4(col.xyz, 1);
+	return float4(col.xyz, 1);
 }

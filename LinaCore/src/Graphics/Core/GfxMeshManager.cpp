@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Data/Vertex.hpp"
 #include "Graphics/Core/IGfxBufferResource.hpp"
+#include "Graphics/Core/IUploadContext.hpp"
 
 namespace Lina
 {
@@ -46,7 +47,7 @@ namespace Lina
 
 	void GfxMeshManager::Initialize()
 	{
-		m_renderer		  = m_gfxManager->GetRenderer();
+		m_renderer = m_gfxManager->GetRenderer();
 	}
 
 	void GfxMeshManager::Shutdown()
@@ -107,21 +108,26 @@ namespace Lina
 
 		if (m_cpuIndexBuffer == nullptr)
 		{
-			m_cpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::IndexBufferSrc, nullptr, indexSize);
-			m_cpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::VertexBufferSrc, nullptr, vtxSize);
+			// m_cpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::IndexBufferSrc, nullptr, indexSize);
+			// m_cpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::VertexBufferSrc, nullptr, vtxSize);
 			m_gpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::IndexBufferDst, nullptr, indexSize);
 			m_gpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::VertexBufferDst, nullptr, vtxSize);
 		}
 		else
 		{
-			m_cpuIndexBuffer->Recreate(nullptr, indexSize);
-			m_cpuVtxBuffer->Recreate(nullptr, vtxSize);
+			// m_cpuIndexBuffer->Recreate(nullptr, indexSize);
+			// m_cpuVtxBuffer->Recreate(nullptr, vtxSize);
 			m_gpuIndexBuffer->Recreate(nullptr, indexSize);
 			m_gpuVtxBuffer->Recreate(nullptr, vtxSize);
 		}
 
-		m_renderer->CopyCPU2GPU(m_cpuIndexBuffer, m_gpuIndexBuffer, mergedIndices.data(), indexSize, ResourceState::IndexBuffer);
-		m_renderer->CopyCPU2GPU(m_cpuVtxBuffer, m_gpuVtxBuffer, mergedVertices.data(), vtxSize, ResourceState::VertexBuffer);
-		m_renderer->WaitForCopyQueue();
+		auto uploadContext = m_renderer->GetUploadContext();
+		uploadContext->UploadResources(m_gpuVtxBuffer, mergedVertices.data(), vtxSize);
+		uploadContext->UploadResources(m_gpuIndexBuffer, mergedIndices.data(), indexSize);
+		uploadContext->Flush(0);
+
+		// m_renderer->CopyCPU2GPU(m_cpuIndexBuffer, m_gpuIndexBuffer, mergedIndices.data(), indexSize, ResourceState::IndexBuffer);
+		// m_renderer->CopyCPU2GPU(m_cpuVtxBuffer, m_gpuVtxBuffer, mergedVertices.data(), vtxSize, ResourceState::VertexBuffer);
+		// m_renderer->WaitForCopyQueue();
 	}
 } // namespace Lina

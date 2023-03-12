@@ -40,7 +40,7 @@ SOFTWARE.
 #include "Data/IDList.hpp"
 #include "Data/HashSet.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-#include "Graphics/Platform/DX12/Core/DX12GpuUploader.hpp"
+#include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
 #include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
 
 namespace D3D12MA
@@ -61,6 +61,7 @@ namespace Lina
 	class Color;
 	class DX12GPUHeap;
 	class DX12StagingHeap;
+	class IUploadContext;
 	class ResourceManager;
 
 	struct GeneratedTexture
@@ -70,7 +71,6 @@ namespace Lina
 
 		// For all others.
 		IGfxTextureResource* gpuResource	 = nullptr;
-		IGfxTextureResource* stagingResource = nullptr;
 		uint32				 sid			 = 0;
 
 		DescriptorHandle descriptor;
@@ -93,7 +93,7 @@ namespace Lina
 	public:
 		Renderer()
 			: m_textures(100, GeneratedTexture()), m_materials(100, GeneratedMaterial()), m_shaders(100, GeneratedShader()), m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()),
-			  m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()), m_uploader(this){};
+			  m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()){};
 
 		struct StatePerFrame
 		{
@@ -111,6 +111,11 @@ namespace Lina
 		virtual Bitmask32 GetSystemEventMask() override
 		{
 			return EVS_ResourceBatchLoaded | EVS_ResourceUnloaded;
+		}
+
+		inline IUploadContext* GetUploadContext()
+		{
+			return m_uploadContext;
 		}
 
 		// ******************* RESOURCES *******************
@@ -132,7 +137,7 @@ namespace Lina
 		// Frame Control
 		void BeginFrame(uint32 frameIndex);
 		void EndFrame(uint32 frameIndex);
-		void WaitForGPUGraphics();
+		void Join();
 
 		// Swapchain
 		ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle);
@@ -178,7 +183,7 @@ namespace Lina
 		// Fences
 		uint32 CreateFence();
 		void   ReleaseFence(uint32 handle);
-		void   WaitForFences(uint32 fence, uint64 userData0, uint64 userData1);
+		void   WaitForFences(uint32 fence, uint64 frameFenceValue);
 
 		// Textures
 		Texture* CreateRenderTargetColor(const String& path);
@@ -188,6 +193,7 @@ namespace Lina
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
+
 		inline ID3D12Device* DX12GetDevice()
 		{
 			return m_device.Get();
@@ -230,10 +236,10 @@ namespace Lina
 		uint64					  m_fenceValueGraphics = 0;
 		uint32					  m_frameFenceGraphics = 0;
 		HANDLE					  m_fenceEventGraphics = NULL;
-		DX12GpuUploader			  m_uploader;
-		uint32					  m_currentFrameIndex = 0;
-		ResourceManager*		  m_resourceManager	  = nullptr;
+		uint32					  m_currentFrameIndex  = 0;
+		ResourceManager*		  m_resourceManager	   = nullptr;
 		HashMap<StringID, uint32> m_loadedTextures;
+		IUploadContext*			  m_uploadContext;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;
