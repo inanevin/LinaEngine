@@ -45,7 +45,8 @@ namespace Lina
 		heapDesc.NodeMask		= 0;
 
 		ThrowIfFailed(m_renderer->DX12GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_dx12Heap)));
-
+		m_dx12Heap->SetName(L"HAHAHAH");
+		
 		m_cpuStart = m_dx12Heap->GetCPUDescriptorHandleForHeapStart();
 
 		if (m_isReferencedByShader)

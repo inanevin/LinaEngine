@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Graphics/Core/IUploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
-
 namespace Lina
 {
 	class Renderer;
@@ -45,13 +44,13 @@ namespace Lina
 		DX12UploadContext(Renderer* rend);
 		virtual ~DX12UploadContext();
 
-		virtual void Flush(uint32 frameIndex) override;
-		virtual void UploadResources(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize) override;
+		virtual void Flush(uint32 frameIndex, Bitmask16 flushFlags) override;
+		virtual void UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize) override;
 		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src) override;
+		virtual void UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging) override;
 		virtual void PushCustomCommand(const GfxCommand& cmd) override;
 
 	private:
-
 		Microsoft::WRL::ComPtr<ID3D12Fence>				   m_fence;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> m_cmdLists[FRAMES_IN_FLIGHT];
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	   m_cmdAllocator;

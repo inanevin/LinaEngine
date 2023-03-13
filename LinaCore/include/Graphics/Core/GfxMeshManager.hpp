@@ -75,9 +75,7 @@ namespace Lina
 		GfxManager*							  m_gfxManager		= nullptr;
 		HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
 		Vector<StringID>					  m_mergedModelIDs;
-		IGfxBufferResource*					  m_cpuVtxBuffer   = nullptr;
 		IGfxBufferResource*					  m_gpuVtxBuffer   = nullptr;
-		IGfxBufferResource*					  m_cpuIndexBuffer = nullptr;
 		IGfxBufferResource*					  m_gpuIndexBuffer = nullptr;
 	};
 } // namespace Lina

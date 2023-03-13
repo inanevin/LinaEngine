@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Functional.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina
 {
@@ -62,9 +63,9 @@ namespace Lina
 
 	enum class Filter
 	{
+		Anisotropic,
 		Nearest,
 		Linear,
-		CubicImg,
 	};
 
 	enum class SamplerAddressMode
@@ -331,13 +332,8 @@ namespace Lina
 	{
 		UniformBuffer,
 		IndirectBuffer,
-		VertexBufferSrc,
-		VertexBufferDst,
-		IndexBufferSrc,
-		IndexBufferDst,
-		ObjectDataBufferStaging,
-		ObjectDataBufferGPU,
 		Staging,
+		GPUDest,
 	};
 
 	enum class TextureResourceType
@@ -387,17 +383,14 @@ namespace Lina
 
 	struct SamplerData
 	{
-		Filter			   minFilter		 = Filter::Linear;
-		Filter			   magFilter		 = Filter::Linear;
-		SamplerAddressMode mode				 = SamplerAddressMode::ClampToBorder;
-		MipmapFilter	   mipmapFilter		 = MipmapFilter::Mitchell;
-		MipmapMode		   mipmapMode		 = MipmapMode::Linear;
-		bool			   anisotropyEnabled = true;
-		float			   anisotropy		 = 2.0f;
-		float			   minLod			 = 0.0f;
-		float			   maxLod			 = 1.0f;
-		float			   mipLodBias		 = 0.0f;
-		BorderColor		   borderColor		 = BorderColor::FloatTransparentBlack;
+		Filter			   minFilter   = Filter::Linear;
+		Filter			   magFilter   = Filter::Linear;
+		SamplerAddressMode mode		   = SamplerAddressMode::ClampToEdge;
+		float			   anisotropy  = 4.0f;
+		float			   minLod	   = 0.0f;
+		float			   maxLod	   = 1.0f;
+		float			   mipLodBias  = 0.0f;
+		Color			   borderColor = Color::Black;
 	};
 
 	struct UserBinding
@@ -426,6 +419,7 @@ namespace Lina
 #define DEFAULT_SWAPCHAIN_FORMAT Format::R8G8B8A8_UNORM
 #define DEFAULT_COLOR_FORMAT	 Format::R32G32B32_SFLOAT
 #define LINA_MAIN_SWAPCHAIN		 "LinaMainSwapchain"_hs
+#define DEFAULT_SAMPLER_SID		 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
 } // namespace Lina
 
 #endif

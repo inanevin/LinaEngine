@@ -27,21 +27,43 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/TextureSampler.hpp"
+#include "Graphics/Platform/RendererIncl.hpp"
+#include "Graphics/Core/GfxManager.hpp"
+#include "System/ISystem.hpp"
+#include "Resources/Core/ResourceManager.hpp"
 
 namespace Lina
 {
+	TextureSampler::TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>())
+	{
+		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+	}
+
+	TextureSampler::~TextureSampler()
+	{
+		m_renderer->DestroySampler(m_gpuHandle);
+	}
+
+	void TextureSampler::SetSamplerData(const SamplerData& data)
+	{
+		m_samplerData = data;
+		Upload();
+	}
+
+	void TextureSampler::Upload()
+	{
+		m_gpuHandle = m_renderer->GenerateSampler(this);
+	}
+
 	void TextureSampler::SaveToStream(OStream& stream)
 	{
-		const uint8 minFilter	 = static_cast<uint8>(m_samplerData.minFilter);
-		const uint8 magFilter	 = static_cast<uint8>(m_samplerData.magFilter);
-		const uint8 mode		 = static_cast<uint8>(m_samplerData.mode);
-		const uint8 mipmapFilter = static_cast<uint8>(m_samplerData.mipmapFilter);
-		const uint8 mipmapMode	 = static_cast<uint8>(m_samplerData.mipmapMode);
-		const uint8 borderColor	 = static_cast<uint8>(m_samplerData.borderColor);
+		const uint8 minFilter = static_cast<uint8>(m_samplerData.minFilter);
+		const uint8 magFilter = static_cast<uint8>(m_samplerData.magFilter);
+		const uint8 mode	  = static_cast<uint8>(m_samplerData.mode);
 		stream << m_samplerData.minLod << m_samplerData.maxLod << m_samplerData.mipLodBias;
 		stream << m_samplerData.anisotropy;
-		stream << m_samplerData.anisotropyEnabled;
-		stream << minFilter << magFilter << mode << mipmapFilter << mipmapMode << borderColor;
+		stream << minFilter << magFilter << mode;
+		m_samplerData.borderColor.SaveToStream(stream);
 	}
 
 	void TextureSampler::LoadFromStream(IStream& stream)
@@ -49,13 +71,11 @@ namespace Lina
 		uint8 minFilter = 0, magFilter = 0, mode = 0, mipmapFilter = 0, mipmapMode = 0, borderColor = 0;
 		stream >> m_samplerData.minLod >> m_samplerData.maxLod >> m_samplerData.mipLodBias;
 		stream >> m_samplerData.anisotropy;
-		stream >> m_samplerData.anisotropyEnabled;
 		stream >> minFilter >> magFilter >> mode >> mipmapFilter >> mipmapMode >> borderColor;
-		m_samplerData.minFilter	   = static_cast<Filter>(minFilter);
-		m_samplerData.magFilter	   = static_cast<Filter>(magFilter);
-		m_samplerData.mode		   = static_cast<SamplerAddressMode>(mode);
-		m_samplerData.mipmapFilter = static_cast<MipmapFilter>(mipmapFilter);
-		m_samplerData.mipmapMode   = static_cast<MipmapMode>(mipmapMode);
-		m_samplerData.borderColor  = static_cast<BorderColor>(borderColor);
+		m_samplerData.minFilter = static_cast<Filter>(minFilter);
+		m_samplerData.magFilter = static_cast<Filter>(magFilter);
+		m_samplerData.mode		= static_cast<SamplerAddressMode>(mode);
+		m_samplerData.borderColor.LoadFromStream(stream);
 	}
+
 } // namespace Lina

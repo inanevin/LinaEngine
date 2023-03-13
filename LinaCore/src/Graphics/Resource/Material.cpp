@@ -82,7 +82,7 @@ namespace Lina
 			m_totalPropertySize += p->GetTypeSize();
 
 		m_totalAlignedSize = GetPropertiesTotalAlignedSize();
-		m_gpuHandle		   = m_renderer->GenerateMaterial(this, m_gpuHandle);
+		m_gpuHandle		   = m_renderer->GenerateMaterial(this);
 	}
 
 	void Material::UpdateBuffers()

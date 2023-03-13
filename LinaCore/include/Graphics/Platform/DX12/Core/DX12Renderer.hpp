@@ -63,6 +63,7 @@ namespace Lina
 	class DX12StagingHeap;
 	class IUploadContext;
 	class ResourceManager;
+	class TextureSampler;
 
 	struct GeneratedTexture
 	{
@@ -70,8 +71,8 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12Resource> rawResource;
 
 		// For all others.
-		IGfxTextureResource* gpuResource	 = nullptr;
-		uint32				 sid			 = 0;
+		IGfxTextureResource* gpuResource = nullptr;
+		uint32				 sid		 = 0;
 
 		DescriptorHandle descriptor;
 		ImageType		 imageType = ImageType::DefaultTexture2D;
@@ -88,11 +89,16 @@ namespace Lina
 		bool				dirty[FRAMES_IN_FLIGHT]	 = {false};
 	};
 
+	struct GeneratedSampler
+	{
+		DescriptorHandle descriptor;
+	};
+
 	class Renderer : public ISystemEventListener
 	{
 	public:
 		Renderer()
-			: m_textures(100, GeneratedTexture()), m_materials(100, GeneratedMaterial()), m_shaders(100, GeneratedShader()), m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()),
+			: m_textures(100, GeneratedTexture()), m_materials(100, GeneratedMaterial()), m_shaders(100, GeneratedShader()), m_samplers(100, GeneratedSampler()), m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()),
 			  m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()){};
 
 		struct StatePerFrame
@@ -121,7 +127,7 @@ namespace Lina
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
-		uint32 GenerateMaterial(Material* mat, uint32 existingHandle);
+		uint32 GenerateMaterial(Material* mat);
 		void   UpdateMaterialProperties(Material* mat);
 		void   DestroyMaterial(uint32 handle);
 		uint32 GeneratePipeline(Shader* shader);
@@ -129,6 +135,8 @@ namespace Lina
 		void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
 		uint32 GenerateImage(Texture* txt, ImageType type);
 		void   DestroyImage(uint32 handle);
+		uint32 GenerateSampler(TextureSampler* sampler);
+		void   DestroySampler(uint32 handle);
 
 		// ******************* API *******************
 		// ******************* API *******************
@@ -145,7 +153,7 @@ namespace Lina
 		uint32		GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources
-		IGfxBufferResource*	 CreateBufferResource(BufferResourceType type, void* initialData, size_t size);
+		IGfxBufferResource*	 CreateBufferResource(BufferResourceType type, void* initialData, size_t size, const wchar_t* name = L"Buffer Resource");
 		IGfxTextureResource* CreateTextureResource(TextureResourceType type, Texture* texture);
 		void				 DeleteBufferResource(IGfxBufferResource* res);
 		uint32				 GetTextureIndex(const StringID sid);
@@ -176,7 +184,6 @@ namespace Lina
 		void   PushTransferCommand(GfxCommand& cmd);
 		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot = 0);
 		void   BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer);
-		void   CopyCPU2GPU(IGfxBufferResource* cpuBuffer, IGfxBufferResource* gpuBuffer, void* data, size_t sz, ResourceState finalState);
 		void   CopyFromStaging(uint32 cmdListHandle, IGfxBufferResource* staging, IGfxBufferResource* gpu, ResourceState finalState);
 		void   WaitForCopyQueue();
 
@@ -221,7 +228,7 @@ namespace Lina
 
 		inline DX12StagingHeap* DX12GetCPUBufferHeap()
 		{
-			return m_cpuBufferHeap;
+			return m_bufferHeap;
 		}
 
 		// ******************* DX12 INTERFACE *******************
@@ -239,6 +246,7 @@ namespace Lina
 		uint32					  m_currentFrameIndex  = 0;
 		ResourceManager*		  m_resourceManager	   = nullptr;
 		HashMap<StringID, uint32> m_loadedTextures;
+		HashMap<StringID, uint32> m_loadedSamplers;
 		IUploadContext*			  m_uploadContext;
 
 		// Backend
@@ -248,11 +256,13 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_graphicsQueue;
 		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_copyQueue;
 		Microsoft::WRL::ComPtr<IDXGIFactory4>		   m_factory;
-		DX12StagingHeap*							   m_rtvHeap				   = nullptr;
-		DX12GPUHeap*								   m_gpuHeap[FRAMES_IN_FLIGHT] = {nullptr};
-		DX12StagingHeap*							   m_cpuBufferHeap			   = nullptr;
-		DX12StagingHeap*							   m_dsvHeap				   = nullptr;
-		DX12StagingHeap*							   m_samplerHeap			   = nullptr;
+		DX12GPUHeap*								   m_gpuBufferHeap[FRAMES_IN_FLIGHT]  = {nullptr};
+		DX12GPUHeap*								   m_gpuSamplerHeap[FRAMES_IN_FLIGHT] = {nullptr};
+		DX12StagingHeap*							   m_rtvHeap						  = nullptr;
+		DX12StagingHeap*							   m_bufferHeap						  = nullptr;
+		DX12StagingHeap*							   m_textureHeap					  = nullptr;
+		DX12StagingHeap*							   m_dsvHeap						  = nullptr;
+		DX12StagingHeap*							   m_samplerHeap					  = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12RootSignature>	   m_rootSigStandard;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_commandSigStandard;
 
@@ -260,9 +270,11 @@ namespace Lina
 		IDList<GeneratedTexture>			m_textures;
 		IDList<GeneratedShader>				m_shaders;
 		IDList<GeneratedMaterial>			m_materials;
+		IDList<GeneratedSampler>			m_samplers;
 		Mutex								m_textureMtx;
 		Mutex								m_shaderMtx;
 		Mutex								m_materialMtx;
+		Mutex								m_samplerMtx;
 		Microsoft::WRL::ComPtr<IDxcLibrary> m_idxcLib;
 		ID3DIncludeInterface				m_includeInterface;
 

@@ -32,6 +32,10 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Resource/Texture.hpp"
 
+#ifndef LINA_PRODUCTION_BUILD
+#include "FileSystem/FileSystem.hpp"
+#endif
+
 namespace Lina
 {
 	DX12GfxTextureResource::DX12GfxTextureResource(Renderer* rend, Texture* txt, TextureResourceType type) : m_renderer(rend), IGfxTextureResource(type, Vector2i(txt->GetExtent().width, txt->GetExtent().height))
@@ -89,6 +93,12 @@ namespace Lina
 		}
 
 		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, clear, &m_allocation, IID_NULL, NULL));
+
+#ifndef LINA_PRODUCTION_BUILD
+		auto wcharbuf = FileSystem::CharToWChar(m_texture->GetPath().c_str());
+		m_allocation->GetResource()->SetName(wcharbuf);
+		delete[] wcharbuf;
+#endif
 	}
 
 	void DX12GfxTextureResource::Cleanup()

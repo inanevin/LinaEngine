@@ -52,7 +52,7 @@ namespace Lina
 
 	public:
 		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
-		Texture(ResourceManager* rm, StringID sid, const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels = 4);
+		Texture(ResourceManager* rm, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels = 4);
 		virtual ~Texture();
 
 		/// <summary>
@@ -65,6 +65,8 @@ namespace Lina
 		/// If using a texture as a render target, use this to generate image buffers on the gpu.
 		/// </summary>
 		void GenerateImage(ImageType type);
+
+		void SetSampler(StringID samplerSID);
 
 		inline const Extent3D& GetExtent() const
 		{
@@ -86,9 +88,9 @@ namespace Lina
 			return m_channels;
 		}
 
-		inline TextureSampler& GetSampler()
+		inline StringID GetSampler()
 		{
-			return m_sampler;
+			return m_samplerSID;
 		}
 
 		inline const Vector<Mipmap>& GetMipmaps()
@@ -108,22 +110,23 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void Flush() override;
 		virtual void Upload() override;
+		virtual void BatchLoaded() override;
 
 	private:
 		void CheckFormat(int channels);
 		void GenerateMipmaps();
-		void InitSampler();
 
 	private:
-		Renderer*	   m_renderer				= nullptr;
-		bool		   m_pixelsLoadedFromStream = false;
-		TextureSampler m_sampler;
-		Extent3D	   m_extent;
-		uint32		   m_mipLevels = 1;
-		uint32		   m_channels  = 0;
-		int32		   m_gpuHandle = -1;
-		Vector<Mipmap> m_mipmaps;
-		unsigned char* m_pixels = nullptr;
+		StringID		m_samplerSID			 = 0;
+		TextureSampler* m_sampler				 = nullptr;
+		Renderer*		m_renderer				 = nullptr;
+		bool			m_pixelsLoadedFromStream = false;
+		Extent3D		m_extent;
+		uint32			m_mipLevels = 1;
+		uint32			m_channels	= 0;
+		int32			m_gpuHandle = -1;
+		Vector<Mipmap>	m_mipmaps;
+		unsigned char*	m_pixels = nullptr;
 	};
 } // namespace Lina
 

@@ -51,6 +51,7 @@ namespace Lina
 		rm.RegisterResourceType<Texture>(100, {"png", "jpeg", "jpg"}, PackageType::Package1);
 		rm.RegisterResourceType<Font>(10, {"ttf", "otf"}, PackageType::Package1);
 		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1);
+		rm.RegisterResourceType<TextureSampler>(100, {"linasampler"}, PackageType::Package1);
 	}
 
 	Vector<ResourceIdentifier> CoreResourcesRegistry::GetCoreResources()
@@ -62,15 +63,14 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Capsule.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cylinder.fbx", GetTypeID<Model>(), 0));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.fbx", GetTypeID<Model>(), 0));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.fbx", GetTypeID<Model>(), 0));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/Quad.fbx", GetTypeID<Model>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.fbx", GetTypeID<Model>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.fbx", GetTypeID<Model>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Quad.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.fbx", GetTypeID<Model>(), 0));
-		
-		//list.push_back(ResourceIdentifier("Resources/Core/Textures/DummyBlack_32.png", GetTypeID<Texture>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Textures/Grid512.png", GetTypeID<Texture>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Textures/Logo_Colored_1024.png", GetTypeID<Texture>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Textures/Logo_White_512.png", GetTypeID<Texture>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/DummyBlack_32.png", GetTypeID<Texture>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/Grid512.png", GetTypeID<Texture>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/Logo_Colored_1024.png", GetTypeID<Texture>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/Logo_White_512.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/LogoWithText.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));

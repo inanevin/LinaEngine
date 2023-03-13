@@ -39,15 +39,18 @@ SOFTWARE.
 
 namespace Lina
 {
-	Texture::Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : m_sampler({}), IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>())
+	Texture::Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>())
 	{
-		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+		m_renderer	 = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+		m_samplerSID = DEFAULT_SAMPLER_SID;
+		m_sampler	 = nullptr; // will be loaded later
 	}
 
-	Texture::Texture(ResourceManager* rm, StringID sid, const Extent3D ext, const SamplerData& samplerData, Format format, ImageTiling tiling, int channels)
-		: m_sampler(samplerData), m_extent(ext), m_channels(channels), IResource(rm, true, "", sid, GetTypeID<Texture>())
+	Texture::Texture(ResourceManager* rm, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels) : m_extent(ext), m_channels(channels), IResource(rm, true, "", sid, GetTypeID<Texture>())
 	{
-		m_renderer = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+		m_renderer	 = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+		m_samplerSID = targetSampler;
+		m_sampler	 = nullptr; // will be loaded later
 		CheckFormat(m_channels);
 		m_metadata.SetUInt8("Format"_hs, static_cast<uint8>(format));
 		m_metadata.SetUInt8("ImageTiling"_hs, static_cast<uint8>(tiling));
@@ -64,17 +67,12 @@ namespace Lina
 	void Texture::LoadFromFile(const char* path)
 	{
 		stbi_set_flip_vertically_on_load(true);
-		
+
 		// Populate metadata.
-		m_metadata.GetUInt8("MinFilter"_hs, static_cast<uint8>(Filter::Linear));
-		m_metadata.GetUInt8("MagFilter"_hs, static_cast<uint8>(Filter::Linear));
-		m_metadata.GetUInt8("SamplerAddressMode"_hs, static_cast<uint8>(SamplerAddressMode::ClampToBorder));
+		m_metadata.GetUInt8("Format"_hs, static_cast<uint8>(Format::R8G8B8A8_SRGB));
+		m_metadata.GetBool("GenerateMipmaps"_hs, true);
 		m_metadata.GetUInt8("MipmapFilter"_hs, static_cast<uint8>(MipmapFilter::Mitchell));
 		m_metadata.GetUInt8("MipmapMode"_hs, static_cast<uint8>(MipmapMode::Linear));
-		m_metadata.GetUInt8("Format"_hs, static_cast<uint8>(Format::R8G8B8A8_SRGB));
-		m_metadata.GetFloat("Anisotropy"_hs, 2.0f);
-		m_metadata.GetUInt8("AnisotropyEnabled"_hs, 1);
-		m_metadata.GetBool("GenerateMipmaps"_hs, true);
 		m_metadata.GetBool("IsInLinearSpace"_hs, false);
 		m_metadata.GetUInt8("ImageTiling"_hs, static_cast<uint8>(ImageTiling::Optimal));
 
@@ -87,7 +85,6 @@ namespace Lina
 		m_extent.depth	= 1;
 		CheckFormat(m_channels);
 		GenerateMipmaps();
-		InitSampler();
 	}
 
 	void Texture::SaveToStream(OStream& stream)
@@ -113,7 +110,7 @@ namespace Lina
 				stream.WriteEndianSafe(mm.pixels, mmPixelsSize);
 		}
 
-		m_sampler.SaveToStream(stream);
+		stream << m_samplerSID;
 	}
 
 	void Texture::LoadFromStream(IStream& stream)
@@ -146,7 +143,7 @@ namespace Lina
 			m_mipmaps.push_back(mm);
 		}
 
-		m_sampler.LoadFromStream(stream);
+		stream >> m_samplerSID;
 	}
 
 	void Texture::Flush()
@@ -164,6 +161,11 @@ namespace Lina
 	void Texture::Upload()
 	{
 		UploadToGPU();
+	}
+
+	void Texture::BatchLoaded()
+	{
+		SetSampler(m_samplerSID);
 	}
 
 	void Texture::UploadToGPU()
@@ -194,22 +196,10 @@ namespace Lina
 		m_gpuHandle = m_renderer->GenerateImage(this, type);
 	}
 
-	void Texture::InitSampler()
+	void Texture::SetSampler(StringID samplerSID)
 	{
-		SamplerData samplerData = SamplerData{
-			.minFilter		   = static_cast<Filter>(m_metadata.GetUInt8("MinFilter"_hs, static_cast<uint8>(Filter::Linear))),
-			.magFilter		   = static_cast<Filter>(m_metadata.GetUInt8("MagFilter"_hs, static_cast<uint8>(Filter::Linear))),
-			.mode			   = static_cast<SamplerAddressMode>(m_metadata.GetUInt8("SamplerAddressMode"_hs, static_cast<uint8>(SamplerAddressMode::ClampToBorder))),
-			.mipmapFilter	   = static_cast<MipmapFilter>(m_metadata.GetUInt8("MipmapFilter"_hs, static_cast<uint8>(MipmapFilter::Mitchell))),
-			.mipmapMode		   = static_cast<MipmapMode>(m_metadata.GetUInt8("MipmapMode"_hs, static_cast<uint8>(MipmapMode::Linear))),
-			.anisotropyEnabled = m_metadata.GetUInt8("AnisotropyEnabled"_hs, 1) == 1,
-			.anisotropy		   = m_metadata.GetFloat("Anisotropy"_hs, 4.0f),
-			.minLod			   = 0.0f,
-			.maxLod			   = m_metadata.GetBool("GenerateMipmaps"_hs) ? static_cast<float>(m_mipLevels) : 0.0f,
-			.mipLodBias		   = 0.0f,
-		};
-
-		m_sampler = TextureSampler(samplerData);
+		m_samplerSID = samplerSID;
+		m_sampler	 = m_resourceManager->GetResource<TextureSampler>(m_samplerSID);
 	}
 
 	void Texture::CheckFormat(int channels)

@@ -92,22 +92,7 @@ namespace Lina
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
 			state					= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 		}
-		else if (m_type == BufferResourceType::VertexBufferSrc || m_type == BufferResourceType::IndexBufferSrc)
-		{
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
-			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
-		}
-		else if (m_type == BufferResourceType::VertexBufferDst || m_type == BufferResourceType::IndexBufferDst)
-		{
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
-			state					= D3D12_RESOURCE_STATE_COPY_DEST;
-		}
-		else if (m_type == BufferResourceType::ObjectDataBufferStaging)
-		{
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
-			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
-		}
-		else if (m_type == BufferResourceType::ObjectDataBufferGPU)
+		else if (m_type == BufferResourceType::GPUDest)
 		{
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
 			state					= D3D12_RESOURCE_STATE_COPY_DEST;

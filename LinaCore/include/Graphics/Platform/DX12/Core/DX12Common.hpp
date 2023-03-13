@@ -40,10 +40,12 @@ SOFTWARE.
 
 namespace Lina
 {
-	extern DXGI_FORMAT				GetFormat(Format format);
-	extern D3D12_COMMAND_LIST_TYPE	GetCommandType(CommandType type);
-	extern D3D12_PRIMITIVE_TOPOLOGY GetTopology(Topology topology);
-	extern D3D12_RESOURCE_STATES	GetResourceState(ResourceState state);
+	extern DXGI_FORMAT				  GetFormat(Format format);
+	extern D3D12_COMMAND_LIST_TYPE	  GetCommandType(CommandType type);
+	extern D3D12_PRIMITIVE_TOPOLOGY	  GetTopology(Topology topology);
+	extern D3D12_RESOURCE_STATES	  GetResourceState(ResourceState state);
+	extern D3D12_TEXTURE_ADDRESS_MODE GetAddressMode(SamplerAddressMode mode);
+	extern D3D12_FILTER				  GetFilter(Filter minFilter, Filter magFilter);
 
 	inline String HrToString(HRESULT hr)
 	{
@@ -126,6 +128,12 @@ namespace Lina
 		uint32						m_heapIndex = 0;
 	};
 
+#ifndef LINA_PRODUCTION_BUILD
+#define NAME_DX12_OBJECT(x, NAME) x->SetName(L#NAME)
+#else
+#define NAME_D3D12_OBJECT(x)
+#define NAME_D3D12_OBJECT_INDEXED(x, n)
+#endif
 } // namespace Lina
 
 #endif

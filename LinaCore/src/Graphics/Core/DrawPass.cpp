@@ -46,9 +46,9 @@ namespace Lina
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_objDataBufferStaging[i] = m_renderer->CreateBufferResource(BufferResourceType::ObjectDataBufferStaging, nullptr, sizeof(GPUObjectData));
-			m_objDataBufferGPU[i]	  = m_renderer->CreateBufferResource(BufferResourceType::ObjectDataBufferGPU, nullptr, sizeof(GPUObjectData));
-			m_indirectBuffer[i]		  = m_renderer->CreateBufferResource(BufferResourceType::IndirectBuffer, nullptr, sizeof(DrawIndexedIndirectCommand));
+			m_objDataBufferStaging[i] = m_renderer->CreateBufferResource(BufferResourceType::Staging, nullptr, sizeof(GPUObjectData));
+			m_objDataBufferGPU[i]	  = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, sizeof(GPUObjectData), L"Drawpass Object Data Buffer");
+			m_indirectBuffer[i]		  = m_renderer->CreateBufferResource(BufferResourceType::IndirectBuffer, nullptr, sizeof(DrawIndexedIndirectCommand), L"Drawpass Indirect Buffer");
 		}
 	}
 
@@ -154,10 +154,10 @@ namespace Lina
 			if (gpuBuf->GetSize() < staging->GetSize())
 			{
 				delete gpuBuf;
-				m_objDataBufferGPU[frameIndex] = m_renderer->CreateBufferResource(BufferResourceType::ObjectDataBufferGPU, nullptr, staging->GetSize());
+				m_objDataBufferGPU[frameIndex] = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, staging->GetSize(), L"Drawpass Object Data Buffer");
 			}
 
-			m_renderer->CopyFromStaging(cmdListHandle, m_objDataBufferStaging[frameIndex], m_objDataBufferGPU[frameIndex], ResourceState::NonPixelShaderResource);
+			m_renderer->GetUploadContext()->UploadBuffersImmediate(m_objDataBufferGPU[frameIndex], m_objDataBufferStaging[frameIndex]);
 			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
 		}
 
@@ -212,77 +212,9 @@ namespace Lina
 
 			const uint64 indirectOffset = firstInstance * sizeof(DrawIndexedIndirectCommand);
 			m_renderer->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
-
-			// m_renderer->DrawIndexedInstanced(cmdListHandle, 36, 3, 0, 0, firstInstance);
-			//  cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
 			firstInstance += batch.count;
 		}
 	}
-
-	// void DrawPass::UpdateViewData(Buffer& viewDataBuffer, const View& view)
-	//{
-	//	GPUViewData data;
-	//	data.view	  = view.GetView();
-	//	data.proj	  = view.GetProj();
-	//	data.viewProj = data.proj * data.view;
-	//	viewDataBuffer.CopyInto(&data, sizeof(GPUViewData));
-	// }
-
-	// void DrawPass::RecordDrawCommands(const CommandBuffer& cmd, const HashMap<Mesh*, MergedBufferMeshEntry>& mergedMeshes, Buffer& indirectBuffer)
-	// {
-	// 	drawCalls = 0;
-	//
-	// 	Vector<VkDrawIndexedIndirectCommand> commands;
-	// 	uint32								 i = 0;
-	// 	for (auto b : m_batches)
-	// 	{
-	// 		uint32 i = 0;
-	// 		for (auto ri : b.renderableIndices)
-	// 		{
-	// 			auto&						 merged = mergedMeshes.at(b.meshes[i]);
-	// 			VkDrawIndexedIndirectCommand c;
-	// 			c.instanceCount = 1;
-	// 			c.indexCount	= merged.indexSize;
-	// 			c.vertexOffset	= merged.vertexOffset;
-	// 			c.firstIndex	= merged.firstIndex;
-	// 			c.firstInstance = m_renderables[ri].objDataIndex;
-	// 			commands.push_back(c);
-	// 			i++;
-	// 		}
-	// 	}
-	//
-	// 	indirectBuffer.CopyInto(commands.data(), commands.size() * sizeof(VkDrawIndexedIndirectCommand));
-	//
-	// 	const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
-	// 	uint32		 firstInstance = 0;
-	//
-	// 	Material* lastBoundMat = nullptr;
-	//
-	// 	for (uint32 i = 0; i < batchesSize; i++)
-	// 	{
-	// 		InstancedBatch& batch = m_batches[i];
-	// 		Material*		mat	  = batch.mat;
-	//
-	// 		if (mat != lastBoundMat)
-	// 		{
-	// 			mat->Bind(cmd, MaterialBindFlag::BindPipeline);
-	// 			lastBoundMat = mat;
-	// 		}
-	// 		mat->Bind(cmd, MaterialBindFlag::BindDescriptor);
-	//
-	// 		const uint64 indirectOffset = firstInstance * sizeof(VkDrawIndexedIndirectCommand);
-	// 		cmd.CMD_DrawIndexedIndirect(indirectBuffer._ptr, indirectOffset, batch.count, sizeof(VkDrawIndexedIndirectCommand));
-	// 		firstInstance += batch.count;
-	// 		// cmd.CMD_DrawIndexed(static_cast<uint32>(mesh->GetIndexSize()), batch.count, 0, 0, batch.firstInstance);
-	// 		drawCalls++;
-	// 	}
-	//
-	// 	if (Time::GetCPUTime() > lastReportTime + 1.0f)
-	// 	{
-	// 		lastReportTime = static_cast<float>(Time::GetCPUTime());
-	// 		// LINA_TRACE("Draw calls {0} - batches {1}", drawCalls, batches);
-	// 	}
-	// }
 
 	int32 DrawPass::FindInBatches(const MeshMaterialPair& pair)
 	{

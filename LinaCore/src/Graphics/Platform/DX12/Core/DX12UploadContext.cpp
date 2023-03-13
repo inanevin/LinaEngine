@@ -71,32 +71,49 @@ namespace Lina
 			m_cmdLists[i].Reset();
 	}
 
-	void DX12UploadContext::Flush(uint32 frameIndex)
+	void DX12UploadContext::Flush(uint32 frameIndex, Bitmask16 flushFlags)
 	{
-		if (m_dataRequests.empty() && m_textureRequests.empty())
+		if (m_bufferRequests.empty() && m_textureRequests.empty() && m_immediateBufferRequests.empty())
 			return;
 
 		auto* cmdList = m_cmdLists[frameIndex].Get();
 		ThrowIfFailed(m_cmdAllocator->Reset());
 		ThrowIfFailed(cmdList->Reset(m_cmdAllocator.Get(), nullptr));
+		const bool flushAll = flushFlags.IsSet(UCF_FlushAll);
 
-		for (auto& req : m_dataRequests)
+		if (flushAll || flushFlags.IsSet(UCF_FlushDataRequests))
 		{
-			DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
-			DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
-			cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+			for (auto& req : m_bufferRequests)
+			{
+				DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
+				DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
+				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+			}
 		}
 
-		for (auto& txtReq : m_textureRequests)
+		if (flushAll || flushFlags.IsSet(UCF_FlushTextureRequests))
 		{
-			DX12GfxTextureResource* dx12ResTarget  = static_cast<DX12GfxTextureResource*>(txtReq.targetResource);
-			DX12GfxBufferResource*	dx12ResStaging = static_cast<DX12GfxBufferResource*>(txtReq.stagingResource);
+			for (auto& txtReq : m_textureRequests)
+			{
+				DX12GfxTextureResource* dx12ResTarget  = static_cast<DX12GfxTextureResource*>(txtReq.targetResource);
+				DX12GfxBufferResource*	dx12ResStaging = static_cast<DX12GfxBufferResource*>(txtReq.stagingResource);
 
-			D3D12_SUBRESOURCE_DATA textureData = {};
-			textureData.pData				   = txtReq.targetTexture->GetPixels();
-			textureData.RowPitch			   = txtReq.targetTexture->GetExtent().width * txtReq.targetTexture->GetChannels();
-			textureData.SlicePitch			   = textureData.RowPitch * txtReq.targetTexture->GetExtent().height;
-			UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, 1, &textureData);
+				D3D12_SUBRESOURCE_DATA textureData = {};
+				textureData.pData				   = txtReq.targetTexture->GetPixels();
+				textureData.RowPitch			   = txtReq.targetTexture->GetExtent().width * txtReq.targetTexture->GetChannels();
+				textureData.SlicePitch			   = textureData.RowPitch * txtReq.targetTexture->GetExtent().height;
+				UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, 1, &textureData);
+			}
+		}
+
+		if (flushAll || flushFlags.IsSet(UCF_FlushImmediateRequests))
+		{
+			for (auto& req : m_immediateBufferRequests)
+			{
+				DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
+				DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
+				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+			}
 		}
 
 		ThrowIfFailed(cmdList->Close());
@@ -111,26 +128,29 @@ namespace Lina
 		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
 		WaitForSingleObject(m_fenceEvent, INFINITE);
 
-		for (auto& req : m_dataRequests)
+		for (auto& req : m_bufferRequests)
 			delete req.stagingResource;
 
 		for (auto& txtReq : m_textureRequests)
 			delete txtReq.stagingResource;
 
-		m_dataRequests.clear();
+		m_bufferRequests.clear();
 		m_textureRequests.clear();
 	}
 
-	void DX12UploadContext::UploadResources(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)
+	void DX12UploadContext::UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)
 	{
-		DataUploadRequest req;
+		LOCK_GUARD(m_mtx);
+		BufferUploadRequest req;
 		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, data, dataSize);
 		req.targetResource	= targetGPUResource;
-		m_dataRequests.push_back(req);
+		m_bufferRequests.push_back(req);
 	}
 
 	void DX12UploadContext::UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src)
 	{
+		LOCK_GUARD(m_mtx);
+
 		void*				 data	  = src->GetPixels();
 		size_t				 dataSize = src->GetExtent().width * src->GetExtent().height * src->GetChannels();
 		TextureUploadRequest req;
@@ -138,6 +158,21 @@ namespace Lina
 		req.targetTexture	= src;
 		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, data, dataSize);
 		m_textureRequests.push_back(req);
+	}
+
+	void DX12UploadContext::UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging)
+	{
+		BufferUploadRequest req;
+		req.stagingResource = staging;
+		req.targetResource	= targetGpuResource;
+		m_immediateBufferRequests.push_back(req);
+		Flush(0, UCF_FlushImmediateRequests);
+
+		// DX12GfxBufferResource* dx12Staging = static_cast<DX12GfxBufferResource*>(staging);
+		// DX12GfxBufferResource* dx12Gpu	   = static_cast<DX12GfxBufferResource*>(targetGpuResource);
+		// m_cmdLists[0]->CopyBufferRegion(dx12Gpu->DX12GetAllocation()->GetResource(), 0, dx12Staging->DX12GetAllocation()->GetResource(), 0, static_cast<uint64>(dx12Staging->GetSize()));
+		// auto transition = CD3DX12_RESOURCE_BARRIER::Transition(dx12Gpu->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, GetResourceState(finalState));
+		// m_cmdLists[0]->ResourceBarrier(1, &transition);
 	}
 
 	void DX12UploadContext::PushCustomCommand(const GfxCommand& cmd)

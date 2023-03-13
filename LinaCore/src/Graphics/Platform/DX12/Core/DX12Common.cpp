@@ -133,4 +133,40 @@ namespace Lina
 			return D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
 		}
 	}
+
+	D3D12_TEXTURE_ADDRESS_MODE GetAddressMode(SamplerAddressMode mode)
+	{
+		switch (mode)
+		{
+		case SamplerAddressMode::Repeat:
+			return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		case SamplerAddressMode::MirroredRepeat:
+			return D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+		case SamplerAddressMode::MirrorClampToEdge:
+			return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
+		case SamplerAddressMode::ClampToBorder:
+			return D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+		case SamplerAddressMode::ClampToEdge:
+			return D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+		default:
+			return D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+		}
+	}
+
+	D3D12_FILTER GetFilter(Filter minFilter, Filter magFilter)
+	{
+		if (minFilter == Filter::Anisotropic || magFilter == Filter::Anisotropic)
+			return D3D12_FILTER_ANISOTROPIC;
+
+		if (minFilter == Filter::Linear && magFilter == Filter::Linear)
+			return D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+		else if (minFilter == Filter::Linear && magFilter == Filter::Nearest)
+			return D3D12_FILTER_MIN_LINEAR_MAG_MIP_POINT;
+		else if (minFilter == Filter::Nearest && magFilter == Filter::Nearest)
+			return D3D12_FILTER_MIN_MAG_MIP_POINT;
+		else if (minFilter == Filter::Nearest && magFilter == Filter::Linear)
+			return D3D12_FILTER_MIN_POINT_MAG_MIP_LINEAR;
+
+		return D3D12_FILTER_ANISOTROPIC;
+	}
 } // namespace Lina

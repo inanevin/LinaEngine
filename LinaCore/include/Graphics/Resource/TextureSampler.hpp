@@ -31,30 +31,39 @@ SOFTWARE.
 #ifndef TextureSampler_HPP
 #define TextureSampler_HPP
 
-#include "Serialization/ISerializable.hpp"
+#include "Resources/Core/IResource.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina
 {
-#define DEFAULT_SAMPLER_DATA                                                                                                                                                                                                                                       \
-	SamplerData{.minFilter = Filter::Linear, .magFilter = Filter::Linear, .mode = SamplerAddressMode::ClampToEdge, .mipmapFilter = MipmapFilter::Mitchell, .mipmapMode = MipmapMode::Linear, .anisotropyEnabled = true, .anisotropy = 4.0f};
+	class Renderer;
 
-	class TextureSampler : public ISerializable
+	class TextureSampler : public IResource
 	{
 	public:
-		TextureSampler(const SamplerData& sd) : m_samplerData(sd){};
-		~TextureSampler() = default;
+		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
+		virtual ~TextureSampler();
 
-		// Inherited via ISerializable
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		void SetSamplerData(const SamplerData& data);
 
 		inline const SamplerData& GetSamplerData()
 		{
 			return m_samplerData;
 		}
-		
+
+		inline uint32 GetGPUHandle()
+		{
+			return m_gpuHandle;
+		}
+
+	protected:
+		// Inherited via IResource
+		virtual void Upload() override;
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
 	private:
+		uint32		m_gpuHandle = 0;
+		Renderer*	m_renderer	= nullptr;
 		SamplerData m_samplerData;
 	};
 } // namespace Lina

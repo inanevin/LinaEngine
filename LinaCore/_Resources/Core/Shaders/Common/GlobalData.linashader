@@ -82,10 +82,10 @@ struct ObjectData
 	float4x4 model;
 };
 
-StructuredBuffer<ObjectData> Objects : register(t0, space0);
-SamplerState StaticSampler : register(s0, space0);
-Texture2D Texture2DTable[] : register(t1, space0);
+StructuredBuffer<ObjectData> Objects : register(t0, space1);
+SamplerState Samplers[] : register(s0, space0);
+Texture2D Texture2DTable[] : register(t0, space0);
 
 #define LINA_OBJECTS Objects
-#define LINA_STATIC_SAMPLER StaticSampler
+#define LINA_STATIC_SAMPLER Samplers[0]
 #define LINA_TEXTURES Texture2DTable

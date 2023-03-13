@@ -52,8 +52,6 @@ namespace Lina
 
 	void GfxMeshManager::Shutdown()
 	{
-		m_renderer->DeleteBufferResource(m_cpuIndexBuffer);
-		m_renderer->DeleteBufferResource(m_cpuVtxBuffer);
 		m_renderer->DeleteBufferResource(m_gpuIndexBuffer);
 		m_renderer->DeleteBufferResource(m_gpuVtxBuffer);
 	}
@@ -106,28 +104,19 @@ namespace Lina
 		const uint32 vtxSize   = static_cast<uint32>(mergedVertices.size() * sizeof(Vertex));
 		const uint32 indexSize = static_cast<uint32>(mergedIndices.size() * sizeof(uint32));
 
-		if (m_cpuIndexBuffer == nullptr)
+		if (m_gpuIndexBuffer == nullptr)
 		{
-			// m_cpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::IndexBufferSrc, nullptr, indexSize);
-			// m_cpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::VertexBufferSrc, nullptr, vtxSize);
-			m_gpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::IndexBufferDst, nullptr, indexSize);
-			m_gpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::VertexBufferDst, nullptr, vtxSize);
+			m_gpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, indexSize);
+			m_gpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, vtxSize);
 		}
 		else
 		{
-			// m_cpuIndexBuffer->Recreate(nullptr, indexSize);
-			// m_cpuVtxBuffer->Recreate(nullptr, vtxSize);
 			m_gpuIndexBuffer->Recreate(nullptr, indexSize);
 			m_gpuVtxBuffer->Recreate(nullptr, vtxSize);
 		}
 
 		auto uploadContext = m_renderer->GetUploadContext();
-		uploadContext->UploadResources(m_gpuVtxBuffer, mergedVertices.data(), vtxSize);
-		uploadContext->UploadResources(m_gpuIndexBuffer, mergedIndices.data(), indexSize);
-		uploadContext->Flush(0);
-
-		// m_renderer->CopyCPU2GPU(m_cpuIndexBuffer, m_gpuIndexBuffer, mergedIndices.data(), indexSize, ResourceState::IndexBuffer);
-		// m_renderer->CopyCPU2GPU(m_cpuVtxBuffer, m_gpuVtxBuffer, mergedVertices.data(), vtxSize, ResourceState::VertexBuffer);
-		// m_renderer->WaitForCopyQueue();
+		uploadContext->UploadBuffers(m_gpuVtxBuffer, mergedVertices.data(), vtxSize);
+		uploadContext->UploadBuffers(m_gpuIndexBuffer, mergedIndices.data(), indexSize);
 	}
 } // namespace Lina

@@ -42,7 +42,7 @@ namespace Lina
 	class IGfxTextureResource;
 	class Texture;
 
-	struct DataUploadRequest
+	struct BufferUploadRequest
 	{
 		IGfxBufferResource* stagingResource = nullptr;
 		IGfxBufferResource* targetResource	= nullptr;
@@ -55,20 +55,30 @@ namespace Lina
 		Texture*			 targetTexture	 = nullptr;
 	};
 
+	enum UploadContextFlushFlags
+	{
+		UCF_FlushDataRequests	   = 1 << 0,
+		UCF_FlushTextureRequests   = 1 << 1,
+		UCF_FlushImmediateRequests = 1 << 2,
+		UCF_FlushAll			   = UCF_FlushDataRequests | UCF_FlushImmediateRequests | UCF_FlushTextureRequests,
+	};
+
 	class IUploadContext
 	{
 	public:
 		IUploadContext(Renderer* rend) : m_renderer(rend){};
 		virtual ~IUploadContext(){};
 
-		virtual void Flush(uint32 frameIndex)															 = 0;
-		virtual void UploadResources(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize) = 0;
-		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src)					 = 0;
-		virtual void PushCustomCommand(const GfxCommand& cmd)											 = 0;
+		virtual void Flush(uint32 frameIndex, Bitmask16 flushFlags)												= 0;
+		virtual void UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)			= 0;
+		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src)							= 0;
+		virtual void UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging) = 0;
+		virtual void PushCustomCommand(const GfxCommand& cmd)													= 0;
 
 	protected:
 		Renderer*					 m_renderer = nullptr;
-		Vector<DataUploadRequest>	 m_dataRequests;
+		Vector<BufferUploadRequest>	 m_bufferRequests;
+		Vector<BufferUploadRequest>	 m_immediateBufferRequests;
 		Vector<TextureUploadRequest> m_textureRequests;
 		Mutex						 m_mtx;
 	};

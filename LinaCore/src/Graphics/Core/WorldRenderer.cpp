@@ -92,8 +92,8 @@ namespace Lina
 				auto& frame			  = m_frames[i];
 				frame.cmdAllocator	  = m_renderer->CreateCommandAllocator(CommandType::Graphics);
 				frame.cmdList		  = m_renderer->CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
-				frame.sceneDataBuffer = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuSceneData, sizeof(GPUSceneData));
-				frame.viewDataBuffer  = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuViewData, sizeof(GPUViewData));
+				frame.sceneDataBuffer = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuSceneData, sizeof(GPUSceneData), L"World Renderer Scene Data");
+				frame.viewDataBuffer  = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuViewData, sizeof(GPUViewData), L"World Renderer View Data");
 			}
 		}
 

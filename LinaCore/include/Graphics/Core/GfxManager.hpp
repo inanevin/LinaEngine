@@ -46,6 +46,7 @@ namespace Lina
 	class Renderer;
 	class ResourceManager;
 	class Recti;
+	class TextureSampler;
 
 	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
@@ -92,6 +93,7 @@ namespace Lina
 		}
 
 	private:
+		Vector<TextureSampler*>	 m_engineSamplers;
 		ResourceManager*		 m_resourceManager = nullptr;
 		Renderer*				 m_renderer		   = nullptr;
 		GfxMeshManager			 m_meshManager;

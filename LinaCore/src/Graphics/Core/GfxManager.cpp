@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Core/SystemInfo.hpp"
+#include "Graphics/Resource/TextureSampler.hpp"
 
 // Debug
 #include "Graphics/Core/WorldRenderer.hpp"
@@ -80,36 +81,50 @@ namespace Lina
 
 	void GfxManager::PostInit()
 	{
-		constexpr uint32 engineShaderCount			= 2;
-		const String	 shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader", "Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"};
-
-		for (uint32 i = 0; i < engineShaderCount; i++)
+		// Shaders & materials
 		{
-			const StringID shaderSID	= TO_SID(shaders[i]);
-			const String   materialPath = "Resources/Core/Materials/" + FileSystem::GetFilenameOnlyFromPath(shaders[i]) + ".linamat";
-			Material*	   mat			= new Material(m_resourceManager, true, materialPath, TO_SID(materialPath));
-			mat->SetShader(shaderSID);
-			m_engineMaterials.push_back(mat);
+			constexpr uint32 engineShaderCount			= 2;
+			const String	 shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader", "Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"};
+
+			for (uint32 i = 0; i < engineShaderCount; i++)
+			{
+				const StringID shaderSID	= TO_SID(shaders[i]);
+				const String   materialPath = "Resources/Core/Materials/" + FileSystem::GetFilenameOnlyFromPath(shaders[i]) + ".linamat";
+				Material*	   mat			= new Material(m_resourceManager, true, materialPath, TO_SID(materialPath));
+				mat->SetShader(shaderSID);
+				m_engineMaterials.push_back(mat);
+			}
 		}
-		WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
-		testWorld					 = new EntityWorld();
-		camEntity					 = testWorld->CreateEntity("Cam Entity");
-		auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
-		camEntity->SetPosition(Vector3(0, 0, -5));
-		camEntity->SetRotationAngles(Vector3(0, 0, 0));
 
-		testWorld->SetActiveCamera(cam);
-		auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-		auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Sphere.fbx"_hs)->AddToWorld(testWorld);
-		auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
+		// Samplers
+		{
+			TextureSampler* defaultSampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
+			defaultSampler->SetSamplerData(SamplerData());
+			m_engineSamplers.push_back(defaultSampler);
+		}
 
-		aq->SetPosition(Vector3(3, 0, 0));
-		aq2->SetPosition(Vector3(-3, 0, 0));
-		aq3->SetPosition(Vector3(0, 0, 0));
-		cubes.push_back(aq);
-		cubes.push_back(aq2);
-		cubes.push_back(aq3);
-		testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
+		// Debug
+		{
+			WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
+			testWorld					 = new EntityWorld();
+			camEntity					 = testWorld->CreateEntity("Cam Entity");
+			auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
+			camEntity->SetPosition(Vector3(0, 0, -5));
+			camEntity->SetRotationAngles(Vector3(0, 0, 0));
+
+			testWorld->SetActiveCamera(cam);
+			auto aq	 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Sphere.fbx"_hs)->AddToWorld(testWorld);
+			auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
+
+			aq->SetPosition(Vector3(3, 0, 0));
+			aq2->SetPosition(Vector3(-3, 0, 0));
+			aq3->SetPosition(Vector3(0, 0, 0));
+			cubes.push_back(aq);
+			cubes.push_back(aq2);
+			cubes.push_back(aq3);
+			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
+		}
 	}
 
 	void GfxManager::PreShutdown()
@@ -119,6 +134,8 @@ namespace Lina
 		delete testWorldRenderer;
 		for (auto m : m_engineMaterials)
 			delete m;
+		for (auto s : m_engineSamplers)
+			delete s;
 	}
 
 	void GfxManager::Shutdown()
