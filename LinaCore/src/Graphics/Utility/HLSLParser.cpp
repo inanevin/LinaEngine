@@ -55,7 +55,7 @@ namespace Lina
 		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector2i, "int2 "));
 		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Vector4, "float4 "));
 		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Mat4, "float4x4 "));
-		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Texture, "LINA_TEXTURE2D "));
+		propertyTypes.push_back(linatl::make_pair(MaterialPropertyType::Texture, "LinaTexture2D "));
 		const int typesSize = static_cast<uint32>(propertyTypes.size());
 
 		auto addProperty = [](const String& name, Vector<MaterialPropertyBase*>& outProps, MaterialPropertyType type) {

@@ -72,7 +72,7 @@ namespace Lina
 
 		// For all others.
 		IGfxTextureResource* gpuResource = nullptr;
-		uint32				 sid		 = 0;
+		StringID			 sid		 = 0;
 
 		DescriptorHandle descriptor;
 		ImageType		 imageType = ImageType::DefaultTexture2D;
@@ -92,6 +92,7 @@ namespace Lina
 	struct GeneratedSampler
 	{
 		DescriptorHandle descriptor;
+		StringID		 sid = 0;
 	};
 
 	class Renderer : public ISystemEventListener
@@ -109,15 +110,9 @@ namespace Lina
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
-		void		 PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
-		void		 Initialize(const SystemInitializationInfo& initInfo);
-		void		 Shutdown();
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& data) override;
-
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return EVS_ResourceBatchLoaded | EVS_ResourceUnloaded;
-		}
+		void PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
+		void Initialize(const SystemInitializationInfo& initInfo);
+		void Shutdown();
 
 		inline IUploadContext* GetUploadContext()
 		{
@@ -156,7 +151,8 @@ namespace Lina
 		IGfxBufferResource*	 CreateBufferResource(BufferResourceType type, void* initialData, size_t size, const wchar_t* name = L"Buffer Resource");
 		IGfxTextureResource* CreateTextureResource(TextureResourceType type, Texture* texture);
 		void				 DeleteBufferResource(IGfxBufferResource* res);
-		uint32				 GetTextureIndex(const StringID sid);
+		uint32				 GetTextureIndex(const StringID textureSid);
+		uint32				 GetSamplerIndex(const StringID textureSid);
 
 		// Commands
 		uint32 CreateCommandAllocator(CommandType type);

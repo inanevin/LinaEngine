@@ -323,38 +323,6 @@ namespace Lina
 		delete m_rtvHeap;
 	}
 
-	void Renderer::OnSystemEvent(SystemEvent eventType, const Event& data)
-	{
-		if (eventType & EVS_ResourceBatchLoaded)
-		{
-			Vector<ResourceIdentifier>* idents = static_cast<Vector<ResourceIdentifier>*>(data.pParams[0]);
-			const uint32				sz	   = static_cast<uint32>(idents->size());
-			for (uint32 i = 0; i < sz; i++)
-			{
-				const auto& id = idents->at(i);
-
-				if (id.tid == GetTypeID<Texture>())
-					m_loadedTextures[id.sid] = m_resourceManager->GetResource<Texture>(id.sid)->GetGPUHandle();
-				else if (id.tid == GetTypeID<TextureSampler>())
-					m_loadedSamplers[id.sid] = m_resourceManager->GetResource<TextureSampler>(id.sid)->GetGPUHandle();
-			}
-		}
-		else if (eventType & EVS_ResourceUnloaded)
-		{
-			Vector<ResourceIdentifier>* idents = static_cast<Vector<ResourceIdentifier>*>(data.pParams[0]);
-			const uint32				sz	   = static_cast<uint32>(idents->size());
-			for (uint32 i = 0; i < sz; i++)
-			{
-				const auto& id = idents->at(i);
-
-				if (id.tid == GetTypeID<Texture>())
-					m_loadedTextures.erase(m_loadedTextures.find(id.sid));
-				else if (id.tid == GetTypeID<TextureSampler>())
-					m_loadedSamplers.erase(m_loadedSamplers.find(id.sid));
-			}
-		}
-	}
-
 	void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)
 	{
 		*ppAdapter = nullptr;
@@ -413,7 +381,7 @@ namespace Lina
 	// ********************** RESOURCES ********************************
 	// ********************** RESOURCES ********************************
 
-	LPCWSTR macros[7] = {{L"LINA_PASS_OPAQUE="}, {L"LINA_PASS_SHADOWS="}, {L"LINA_PIPELINE_STANDARD="}, {L"LINA_PIPELINE_NOVERTEX="}, {L"LINA_PIPELINE_GUI="}, {L"LINA_MATERIAL=cbuffer MaterialBuffer : register(b4)"}, {L"LINA_TEXTURE2D=uint"}};
+	LPCWSTR macros[6] = {{L"LINA_PASS_OPAQUE="}, {L"LINA_PASS_SHADOWS="}, {L"LINA_PIPELINE_STANDARD="}, {L"LINA_PIPELINE_NOVERTEX="}, {L"LINA_PIPELINE_GUI="}, {L"LINA_MATERIAL=cbuffer MaterialBuffer : register(b4)"}};
 
 	uint32 Renderer::GenerateMaterial(Material* mat)
 	{
@@ -637,7 +605,7 @@ namespace Lina
 			arguments.push_back(DXC_ARG_OPTIMIZATION_LEVEL3);
 #endif
 
-			for (int i = 0; i < 7; i++)
+			for (int i = 0; i < 6; i++)
 			{
 				arguments.push_back(L"-D");
 				arguments.push_back(macros[i]);
@@ -733,6 +701,9 @@ namespace Lina
 			m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, genData.descriptor.GetCPUHandle());
 		}
 
+		if (type != ImageType::RTSwapchain && type != ImageType::RTDepthStencil)
+			m_loadedTextures[txt->GetSID()] = index;
+
 		return index;
 	}
 
@@ -757,6 +728,7 @@ namespace Lina
 		if (genData.gpuResource)
 			delete genData.gpuResource;
 
+		m_loadedTextures.erase(genData.sid);
 		m_textures.RemoveItem(handle);
 	}
 
@@ -767,6 +739,7 @@ namespace Lina
 		const uint32	  index			 = existingHandle == -1 ? m_samplers.AddItem(GeneratedSampler()) : existingHandle;
 		GeneratedSampler& genData		 = m_samplers.GetItemR(index);
 		const auto&		  samplerData	 = sampler->GetSamplerData();
+		genData.sid						 = sampler->GetSID();
 
 		D3D12_SAMPLER_DESC desc;
 
@@ -787,13 +760,15 @@ namespace Lina
 		genData.descriptor = m_samplerHeap->GetNewHeapHandle();
 		m_device->CreateSampler(&desc, genData.descriptor.GetCPUHandle());
 
-		return uint32();
+		m_loadedSamplers[sampler->GetSID()] = index;
+		return index;
 	}
 
 	void Renderer::DestroySampler(uint32 handle)
 	{
 		GeneratedSampler& genData = m_samplers.GetItemR(handle);
 		m_samplerHeap->FreeHeapHandle(genData.descriptor);
+		m_loadedSamplers.erase(genData.sid);
 	}
 
 	void Renderer::BeginFrame(uint32 frameIndex)
@@ -868,7 +843,6 @@ namespace Lina
 #ifndef LINA_PRODUCTION_BUILD
 		res->DX12GetAllocation()->GetResource()->SetName(name);
 #endif
-
 		return res;
 	}
 
@@ -884,8 +858,12 @@ namespace Lina
 
 	uint32 Renderer::GetTextureIndex(const StringID sid)
 	{
-		uint32 index = 2;
-		return index; // textures start from 1.
+		return m_loadedTextures[sid];
+	}
+
+	uint32 Renderer::GetSamplerIndex(const StringID textureSid)
+	{
+		return m_loadedSamplers[m_resourceManager->GetResource<Texture>(textureSid)->GetSampler()];
 	}
 
 	void Renderer::ReleaseCommandList(uint32 handle)

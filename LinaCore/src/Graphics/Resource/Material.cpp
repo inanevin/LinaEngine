@@ -106,6 +106,7 @@ namespace Lina
 			const uint32 alignment	= GetPropertyTypeAlignment(p->GetType());
 			void*		 src		= p->GetData();
 			uint32		 textureSrc = 0;
+			uint32		 samplerSrc = 0;
 
 			if (p->GetType() == MaterialPropertyType::Texture)
 			{
@@ -116,6 +117,7 @@ namespace Lina
 					textureSID = "Resources/Core/Textures/DummyBlack_32.png"_hs;
 
 				textureSrc = m_renderer->GetTextureIndex(textureSID);
+				samplerSrc = m_renderer->GetSamplerIndex(textureSID);
 			}
 
 			if (offset != 0)
@@ -132,7 +134,11 @@ namespace Lina
 			}
 
 			if (p->GetType() == MaterialPropertyType::Texture)
+			{
 				MEMCPY(outData + offset, &textureSrc, typeSize);
+				offset += typeSize;
+				MEMCPY(outData + offset, &samplerSrc, typeSize);
+			}
 			else
 				MEMCPY(outData + offset, src, typeSize);
 

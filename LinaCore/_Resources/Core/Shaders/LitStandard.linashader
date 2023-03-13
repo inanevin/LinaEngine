@@ -37,7 +37,7 @@ LINA_PIPELINE_STANDARD
 LINA_MATERIAL
 {
 float4 color;
-LINA_TEXTURE2D diffuse;
+LinaTexture2D diffuse;
 }
 
 
@@ -64,6 +64,6 @@ PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color 
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-	float4 col = LINA_TEXTURES[diffuse].Sample(LINA_STATIC_SAMPLER, input.uv);
+	float4 col = LINA_TEXTURES[diffuse.textureIndex].Sample(LINA_SAMPLERS[diffuse.samplerIndex], input.uv);
 	return float4(col.xyz, 1);
 }
