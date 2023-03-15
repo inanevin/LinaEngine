@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Math/Color.hpp"
 #include "Graphics/Components/CameraComponent.hpp"
+#include "Profiling/Profiler.hpp"
 
 // Test
 #include "Graphics/Core/ISwapchain.hpp"
@@ -47,8 +48,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	int			WorldRenderer::s_worldRendererCount = 0;
-	ISwapchain* WorldRenderer::testSwapchain		= nullptr;
+	int WorldRenderer::s_worldRendererCount = 0;
 
 	template <typename T> void AddRenderables(EntityWorld* world, WorldRenderer::RenderData& data, HashMap<uint32, ObjectWrapper<RenderableComponent>>& renderableIDs)
 	{
@@ -94,27 +94,9 @@ namespace Lina
 			}
 		}
 
-		// Other setup
-		{
-			m_renderData.viewport = Viewport{
-				.x		  = 0.0f,
-				.y		  = 0.0f,
-				.width	  = static_cast<float>(renderResolution.x),
-				.height	  = static_cast<float>(renderResolution.y),
-				.minDepth = 0.0f,
-				.maxDepth = 0.0f,
-			};
-
-			m_renderData.scissors.pos  = Vector2i::Zero;
-			m_renderData.scissors.size = renderResolution;
-			m_renderData.extractedRenderables.reserve(100);
-
-			CreateTextures(m_renderData.renderResolution, true);
-		}
-
+		m_renderData.extractedRenderables.reserve(100);
+		CreateTextures();
 		s_worldRendererCount++;
-
-		testImageIndex = m_renderer->GetNextBackBuffer(testSwapchain);
 	}
 
 	WorldRenderer::~WorldRenderer()
@@ -128,15 +110,14 @@ namespace Lina
 			m_renderer->DeleteBufferResource(frame.sceneDataBuffer);
 			m_renderer->DeleteBufferResource(frame.viewDataBuffer);
 		}
-		
-		
+
 		m_world->RemoveListener(this);
 		DestroyTextures();
 		m_surfaceRenderer->RemoveWorldRenderer(this);
 		m_renderData.allRenderables.Reset();
 	}
 
-	void WorldRenderer::CreateTextures(const Vector2i& res, bool createMaterials)
+	void WorldRenderer::CreateTextures()
 	{
 		for (uint32 i = 0; i < m_imageCount; i++)
 		{
@@ -157,33 +138,19 @@ namespace Lina
 			data.ppMaterial				= new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, ppMaterialName, TO_SID(ppMaterialName));
 			m_surfaceRenderer->SetOffscreenTexture(data.renderTargetPP, i);
 		}
+		m_renderData.viewport = Viewport{
+			.x		  = 0.0f,
+			.y		  = 0.0f,
+			.width	  = static_cast<float>(m_renderData.renderResolution.x),
+			.height	  = static_cast<float>(m_renderData.renderResolution.y),
+			.minDepth = 0.0f,
+			.maxDepth = 0.0f,
+		};
 
-		// if (m_mask.IsSet(WRM_ApplyPostProcessing))
-		//{
-		//	m_worldPostProcessMaterials.resize(m_imageCount);
-		//	m_renderData.finalPPTexture.resize(m_imageCount);
-		//
-		//	for (uint32 i = 0; i < m_imageCount; i++)
-		//	{
-		//		if (createMaterials)
-		//		{
-		//			const String matName = "WorldRenderer_Txt_PP_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
-		//			+"_PP_" + TO_STRING(i);
-		//			m_worldPostProcessMaterials[i] = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, matName, TO_SID(matName));
-		//			m_worldPostProcessMaterials[i]->SetShader("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader"_hs);
-		//		}
-		//
-		//		m_worldPostProcessMaterials[i]->SetTexture(0, m_renderData.finalColorTexture[i]->GetSID());
-		//		m_worldPostProcessMaterials[i]->UpdateBuffers(i);
-		//
-		//		const String   namePP = "WorldRenderer_Txt_PostProcess_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
-		//		const StringID sidPP  = TO_SID(namePP);
-		//
-		//		/**************************** TODO **************************/
-		//		// m_renderData.finalPPTexture[i] = VulkanUtility::CreateDefaultPassTextureColor(sidPP, m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->format, res.x, res.y);
-		//	}
-		// }
+		m_renderData.scissors.pos  = Vector2i::Zero;
+		m_renderData.scissors.size = m_renderData.renderResolution;
 	}
+
 	void WorldRenderer::DestroyTextures()
 	{
 		for (uint32 i = 0; i < m_imageCount; i++)
@@ -244,6 +211,8 @@ namespace Lina
 
 	void WorldRenderer::Tick(float delta)
 	{
+		PROFILER_FUNCTION("Main");
+
 		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
 
 		if (camRef.IsValid())
@@ -255,7 +224,7 @@ namespace Lina
 
 		const auto& renderables = m_renderData.allRenderables.GetItems();
 		m_renderData.extractedRenderables.clear();
-		
+
 		uint32 i = 0;
 		for (auto rend : renderables)
 		{
@@ -285,6 +254,8 @@ namespace Lina
 
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
 	{
+		PROFILER_FUNCTION("Main");
+
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[imageIndex];
 

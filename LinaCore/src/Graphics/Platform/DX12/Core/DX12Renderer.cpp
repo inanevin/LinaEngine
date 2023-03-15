@@ -45,6 +45,7 @@ SOFTWARE.
 #include "Math/Rect.hpp"
 #include "Math/Color.hpp"
 #include "Log/Log.hpp"
+#include "Profiling/Profiler.hpp"
 
 #ifndef LINA_PRODUCTION_BUILD
 #include "FileSystem/FileSystem.hpp"
@@ -757,6 +758,8 @@ namespace Lina
 
 		if (genData.imageType == TextureResourceType::Texture2DDefault)
 			m_loadedTextures.erase(linatl::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [&genData](auto& data) { return data.sid == genData.sid; }));
+		else if (genData.imageType == TextureResourceType::Texture2DRenderTargetColor)
+			m_loadedRTs.erase(linatl::find_if(m_loadedRTs.begin(), m_loadedRTs.end(), [&genData](auto& data) { return data.sid == genData.sid; }));
 
 		m_textures.RemoveItem(handle);
 	}
@@ -803,7 +806,10 @@ namespace Lina
 
 	void Renderer::BeginFrame(uint32 frameIndex)
 	{
+		PROFILER_FUNCTION("Main");
+
 		m_currentFrameIndex = frameIndex;
+
 		// Will wait if pending commands.
 		m_uploadContext->Flush(frameIndex, UCF_FlushAll);
 
@@ -817,6 +823,8 @@ namespace Lina
 
 	void Renderer::EndFrame(uint32 frameIndex)
 	{
+		PROFILER_FUNCTION("Main");
+
 		auto& fence = m_fences.GetItemR(m_frameFenceGraphics);
 		auto& frame = m_frames[frameIndex];
 
@@ -918,9 +926,25 @@ namespace Lina
 		}
 	}
 
-	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, void* windowHandle)
+	void Renderer::OnWindowResized(void* windowHandle, StringID sid, const Recti& rect)
 	{
-		return new DX12Swapchain(this, size, windowHandle);
+		Join();
+		m_fenceValueGraphics = m_frames[m_currentFrameIndex].storedFenceGraphics;
+
+		if (rect.size.x == 0 || rect.size.y == 0)
+			return;
+
+		Event ev;
+		ev.pParams[0] = windowHandle;
+		ev.iParams[0] = rect.size.x;
+		ev.iParams[1] = rect.size.y;
+		ev.iParams[2] = sid;
+		m_gfxManager->GetSystem()->DispatchEvent(EVS_WindowResized, ev);
+	}
+
+	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, void* windowHandle, StringID sid)
+	{
+		return new DX12Swapchain(this, size, windowHandle, sid);
 	}
 
 	uint32 Renderer::CreateCommandAllocator(CommandType type)
@@ -1335,7 +1359,7 @@ namespace Lina
 		cmdList->ResourceBarrier(1, &transition);
 	}
 
-	void Renderer::Present(ISwapchain* swp)
+	bool Renderer::Present(ISwapchain* swp)
 	{
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
 
@@ -1345,14 +1369,29 @@ namespace Lina
 		}
 		catch (HrException& e)
 		{
+			LINA_CRITICAL("[Renderer] -> Present engine error! {0}", e.what());
+
 			if (e.Error() == DXGI_ERROR_DEVICE_REMOVED || e.Error() == DXGI_ERROR_DEVICE_RESET)
 			{
+				try
+				{
+					Join();
+				}
+				catch (HrException&)
+				{
+					LINA_CRITICAL("[Renderer] -> Can't even wait for GPU!");
+				}
+
+				// TODO: Device removal: re-create dx12 resources?
 			}
 			else
 			{
-				throw;
 			}
+
+			return false;
 		}
+
+		return true;
 	}
 
 	uint32 Renderer::GetNextBackBuffer(ISwapchain* swp)

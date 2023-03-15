@@ -73,8 +73,8 @@ namespace Lina
 		void				DestroySurfaceRenderer(StringID sid);
 		IGfxBufferResource* GetCurrentGlobalDataResource();
 		virtual void		OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-		void				OnWindowMove(void* windowHandle, StringID sid, const Recti& rect);
-		void				OnWindowResize(void* windowHandle, StringID sid, const Recti& rect);
+		void				OnWindowMoved(void* windowHandle, StringID sid, const Recti& rect);
+		void				OnWindowResized(void* windowHandle, StringID sid, const Recti& rect);
 		void				OnVsyncChanged(VsyncMode mode);
 
 		virtual Bitmask32 GetSystemEventMask() override
@@ -102,6 +102,7 @@ namespace Lina
 		Vector<Material*>		 m_engineMaterials;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
 		uint32					 m_frameIndex = 0;
+		bool					 m_postInited = false;
 	};
 } // namespace Lina
 #endif

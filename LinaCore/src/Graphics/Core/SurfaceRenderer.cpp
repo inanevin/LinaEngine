@@ -36,61 +36,25 @@ SOFTWARE.
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Core/ISwapchain.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Lina
 {
 	int SurfaceRenderer::s_surfaceRendererCount = 0;
 
-	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
-		: m_gfxManager(man), m_imageCount(imageCount), m_sid(sid), m_windowHandle(windowHandle), m_size(initialSize), m_mask(mask)
+	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) : m_gfxManager(man), m_imageCount(imageCount), m_mask(mask)
 	{
 
 		// Init
 		{
 			m_renderer = m_gfxManager->GetRenderer();
 			m_gfxManager->GetSystem()->AddListener(this);
-			m_swapchain					  = m_renderer->CreateSwapchain(initialSize, windowHandle);
-			m_renderData.renderResolution = initialSize;
+			m_swapchain = m_renderer->CreateSwapchain(initialSize, windowHandle, sid);
 			m_dataPerImage.resize(imageCount, DataPerImage());
 			m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
 		}
 
-		// State
-		{
-			m_renderData.viewport = Viewport{
-				.x		  = 0.0f,
-				.y		  = 0.0f,
-				.width	  = static_cast<float>(initialSize.x),
-				.height	  = static_cast<float>(initialSize.y),
-				.minDepth = 0.0f,
-				.maxDepth = 0.0f,
-			};
-
-			m_renderData.scissors.pos  = Vector2i::Zero;
-			m_renderData.scissors.size = initialSize;
-		}
-
-		// Create render targets
-		{
-			for (uint32 i = 0; i < m_imageCount; i++)
-			{
-				const String   rtColorName = "SurfaceRenderer_Txt_Color_" + TO_STRING(sid) + "_" + TO_STRING(i);
-				const String   rtDepthName = "SurfaceRenderer_Txt_Depth_" + TO_STRING(sid) + "_" + TO_STRING(i);
-				const StringID rtColorSid  = TO_SID(rtColorName);
-				const StringID rtDepthSid  = TO_SID(rtDepthName);
-
-				auto& data = m_dataPerImage[i];
-
-				data.renderTargetColor = m_renderer->CreateRenderTargetSwapchain(m_swapchain, i, rtColorName);
-				data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, initialSize);
-
-				if (m_mask.IsSet(SRM_DrawOffscreenTexture))
-				{
-					const String name	   = "SurfaceRenderer_" + TO_STRING(s_surfaceRendererCount) + "OffscreenMat_" + TO_STRING(i);
-					data.offscreenMaterial = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, name, TO_SID(name));
-				}
-			}
-		}
+		CreateTextures();
 
 		// Frame resources
 		{
@@ -105,15 +69,7 @@ namespace Lina
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
-		for (uint32 i = 0; i < m_imageCount; i++)
-		{
-			auto& data = m_dataPerImage[i];
-			delete data.renderTargetColor;
-			delete data.renderTargetDepth;
-
-			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
-				delete data.offscreenMaterial;
-		}
+		DestroyTextures();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -164,9 +120,93 @@ namespace Lina
 		}
 	}
 
+	void SurfaceRenderer::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+		if (eventType & EVS_WindowResized)
+		{
+			void* windowPtr = ev.pParams[0];
+
+			if (windowPtr == m_swapchain->GetWindowHandle())
+			{
+				const Vector2i newSize = Vector2i(ev.iParams[0], ev.iParams[1]);
+				DestroyTextures();
+				m_swapchain->Recreate(newSize);
+				m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
+				CreateTextures();
+
+				for (uint32 i = 0; i < m_imageCount; i++)
+					m_dataPerImage[i].updateTexture = true;
+
+				for (auto wr : m_worldRenderers)
+				{
+					wr->DestroyTextures();
+					wr->SetResolution(newSize);
+					wr->SetAspect(static_cast<float>(newSize.x) / static_cast<float>(newSize.y));
+					wr->CreateTextures();
+				}
+			}
+		}
+	}
+
+	void SurfaceRenderer::CreateTextures()
+	{
+		const Vector2i& size = m_swapchain->GetSize();
+		const StringID	sid	 = m_swapchain->GetSID();
+
+		// Create render targets
+		{
+			for (uint32 i = 0; i < m_imageCount; i++)
+			{
+				const String   rtColorName = "SurfaceRenderer_Txt_Color_" + TO_STRING(sid) + "_" + TO_STRING(i);
+				const String   rtDepthName = "SurfaceRenderer_Txt_Depth_" + TO_STRING(sid) + "_" + TO_STRING(i);
+				const StringID rtColorSid  = TO_SID(rtColorName);
+				const StringID rtDepthSid  = TO_SID(rtDepthName);
+
+				auto& data = m_dataPerImage[i];
+
+				data.renderTargetColor = m_renderer->CreateRenderTargetSwapchain(m_swapchain, i, rtColorName);
+				data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, size);
+
+				if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+				{
+					const String name	   = "SurfaceRenderer_" + TO_STRING(s_surfaceRendererCount) + "OffscreenMat_" + TO_STRING(i);
+					data.offscreenMaterial = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, name, TO_SID(name));
+				}
+			}
+		}
+
+		// State
+		{
+			m_renderData.viewport = Viewport{
+				.x		  = 0.0f,
+				.y		  = 0.0f,
+				.width	  = static_cast<float>(size.x),
+				.height	  = static_cast<float>(size.y),
+				.minDepth = 0.0f,
+				.maxDepth = 0.0f,
+			};
+
+			m_renderData.scissors.pos  = Vector2i::Zero;
+			m_renderData.scissors.size = size;
+		}
+	}
+
+	void SurfaceRenderer::DestroyTextures()
+	{
+		for (uint32 i = 0; i < m_imageCount; i++)
+		{
+			auto& data = m_dataPerImage[i];
+			delete data.renderTargetColor;
+			delete data.renderTargetDepth;
+
+			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+				delete data.offscreenMaterial;
+		}
+	}
+
 	void SurfaceRenderer::Tick(float delta)
 	{
-		// m_worldRenderers[0]->Tick(delta);
+		PROFILER_FUNCTION("Main");
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(delta); });
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
@@ -174,9 +214,12 @@ namespace Lina
 
 	void SurfaceRenderer::Render(uint32 frameIndex)
 	{
+		PROFILER_FUNCTION("Main");
+
 		Taskflow worldRendererTaskFlow;
 		worldRendererTaskFlow.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
 		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
+		// m_worldRenderers[0]->Render(frameIndex, m_currentImageIndex);
 
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[m_currentImageIndex];
@@ -235,6 +278,7 @@ namespace Lina
 
 	void SurfaceRenderer::Present()
 	{
+		PROFILER_FUNCTION("Main");
 		m_renderer->Present(m_swapchain);
 		m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
 	}

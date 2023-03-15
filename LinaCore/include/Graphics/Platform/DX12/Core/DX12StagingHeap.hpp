@@ -32,7 +32,7 @@ SOFTWARE.
 #define DX12StagingHeap_HPP
 
 #include "DX12DescriptorHeap.hpp"
-#include "Data/Vector.hpp"
+#include "Data/Deque.hpp"
 
 namespace Lina
 {
@@ -47,9 +47,9 @@ namespace Lina
 		void			 FreeHeapHandle(DescriptorHandle handle);
 
 	private:
-		Vector<uint32> m_freeDescriptors;
-		uint32		   m_currentDescriptorIndex = 0;
-		uint32		   m_activeHandleCount		= 0;
+		Deque<uint32> m_freeDescriptors;
+		uint32		  m_currentDescriptorIndex = 0;
+		uint32		  m_activeHandleCount	   = 0;
 	};
 
 } // namespace Lina

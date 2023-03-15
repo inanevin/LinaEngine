@@ -50,6 +50,7 @@ namespace Lina
 		EVS_ResourceBatchUnloaded = 1 << 3,
 		EVS_LevelInstalled		  = 1 << 4,
 		EVS_LevelUninstalled	  = 1 << 5,
+		EVS_WindowResized		  = 1 << 6,
 	};
 
 	enum GameEvent

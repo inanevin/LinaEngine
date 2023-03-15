@@ -54,9 +54,8 @@ namespace Lina
 	private:
 		struct RenderData
 		{
-			Vector2i renderResolution = Vector2i::Zero;
-			Viewport viewport		  = Viewport();
-			Recti	 scissors		  = Recti();
+			Viewport viewport = Viewport();
+			Recti	 scissors = Recti();
 		};
 
 		struct DataPerImage
@@ -78,13 +77,19 @@ namespace Lina
 		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
-		void Tick(float delta);
-		void Render(uint32 frameIndex);
-		void Present();
-		void AddWorldRenderer(WorldRenderer* renderer);
-		void RemoveWorldRenderer(WorldRenderer* renderer);
-		void SetOffscreenTexture(Texture* txt, uint32 imageIndex);
-		void ClearOffscreenTexture();
+		void		 Tick(float delta);
+		void		 Render(uint32 frameIndex);
+		void		 Present();
+		void		 AddWorldRenderer(WorldRenderer* renderer);
+		void		 RemoveWorldRenderer(WorldRenderer* renderer);
+		void		 SetOffscreenTexture(Texture* txt, uint32 imageIndex);
+		void		 ClearOffscreenTexture();
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+
+		virtual Bitmask32 GetSystemEventMask() override
+		{
+			return EVS_WindowResized;
+		}
 
 		virtual ISwapchain* GetSwapchain() const
 		{
@@ -105,12 +110,6 @@ namespace Lina
 		{
 			return m_imageCount;
 		}
-
-		inline StringID GetSID()
-		{
-			return m_sid;
-		}
-
 		inline uint32 GetCurrentImageIndex()
 		{
 			return m_currentImageIndex;
@@ -121,15 +120,16 @@ namespace Lina
 			m_threadID = tid;
 		}
 
+	private:
+		void CreateTextures();
+		void DestroyTextures();
+
 	protected:
 		static int			   s_surfaceRendererCount;
 		int					   m_threadID		   = 0;
-		void*				   m_windowHandle	   = nullptr;
 		uint32				   m_currentImageIndex = 0;
 		GfxManager*			   m_gfxManager		   = nullptr;
 		ISwapchain*			   m_swapchain		   = nullptr;
-		StringID			   m_sid			   = 0;
-		Vector2i			   m_size			   = Vector2i::Zero;
 		Bitmask16			   m_mask			   = 0;
 		uint32				   m_imageCount		   = 0;
 		Vector<WorldRenderer*> m_worldRenderers;

@@ -32,16 +32,38 @@ SOFTWARE.
 #define ISwapchain_HPP
 
 #include "Math/Vector.hpp"
+#include "Core/StringID.hpp"
 
 namespace Lina
 {
 	class ISwapchain
 	{
 	public:
-		ISwapchain(const Vector2i& size, void* windowHandle) : m_size(size), m_windowHandle(windowHandle){};
+		ISwapchain(const Vector2i& size, void* windowHandle, StringID sid) : m_size(size), m_windowHandle(windowHandle), m_sid(sid){};
 		virtual ~ISwapchain(){};
 
+		virtual void Recreate(const Vector2i& newSize)
+		{
+			m_size = newSize;
+		}
+
+		inline void* GetWindowHandle()
+		{
+			return m_windowHandle;
+		}
+
+		inline const Vector2i& GetSize() const
+		{
+			return m_size;
+		}
+
+		inline StringID GetSID() const
+		{
+			return m_sid;
+		}
+
 	protected:
+		StringID m_sid			= 0;
 		void*	 m_windowHandle = nullptr;
 		Vector2i m_size			= Vector2i::Zero;
 	};

@@ -149,10 +149,11 @@ namespace Lina
 		void EndFrame(uint32 frameIndex);
 		void Join();
 		void ResetResources();
+		void OnWindowResized(void* windowHandle, StringID sid, const Recti& rect);
 
 		// Swapchain
-		ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle);
-		void		Present(ISwapchain* swp);
+		ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle, StringID sid);
+		bool		Present(ISwapchain* swp);
 		uint32		GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources

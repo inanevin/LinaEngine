@@ -475,7 +475,7 @@ namespace Lina
 	{
 		const Vector2i oldPos = m_rect.pos;
 		m_rect.pos			  = pos;
-		m_gfxManager->OnWindowMove(m_handle, m_sid, m_rect);
+		m_gfxManager->OnWindowMoved(m_handle, m_sid, m_rect);
 	}
 
 	void Win32Window::UpdateSize(const Vector2i& size)
@@ -485,7 +485,7 @@ namespace Lina
 		const Vector2i oldSize = m_rect.size;
 		m_rect.size			   = size;
 		m_aspect			   = m_isMinimized ? 0.0f : static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
-		m_gfxManager->OnWindowResize(m_handle, m_sid, m_rect);
+		m_gfxManager->OnWindowResized(m_handle, m_sid, m_rect);
 	}
 
 	void Win32Window::SetTitle(const char* title)

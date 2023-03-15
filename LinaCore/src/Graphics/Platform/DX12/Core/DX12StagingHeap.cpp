@@ -43,7 +43,7 @@ namespace Lina
 			LINA_ASSERT(false, "Leaking handles!");
 		}
 
-		m_freeDescriptors.clear();
+		m_freeDescriptors = Deque<uint32>();
 	}
 
 	DescriptorHandle DX12StagingHeap::GetNewHeapHandle()
@@ -57,8 +57,8 @@ namespace Lina
 		}
 		else if (m_freeDescriptors.size() > 0)
 		{
-			newHandleID = *m_freeDescriptors.end();
-			m_freeDescriptors.erase(m_freeDescriptors.end());
+			newHandleID = m_freeDescriptors.front();
+			m_freeDescriptors.pop_front();
 		}
 		else
 		{
@@ -77,7 +77,7 @@ namespace Lina
 
 	void DX12StagingHeap::FreeHeapHandle(DescriptorHandle handle)
 	{
-		m_freeDescriptors.push_back(handle.GetHeapIndex());
+		m_freeDescriptors.push_front(handle.GetHeapIndex());
 
 		if (m_activeHandleCount == 0)
 		{

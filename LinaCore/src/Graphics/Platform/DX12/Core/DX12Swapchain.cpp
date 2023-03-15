@@ -35,7 +35,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	DX12Swapchain::DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle) : m_renderer(rend), ISwapchain(size, windowHandle)
+	DX12Swapchain::DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle, StringID sid) : m_renderer(rend), ISwapchain(size, windowHandle, sid)
 	{
 		// Describe and create the swap chain.
 		{
@@ -45,11 +45,10 @@ namespace Lina
 			swapchainDesc.Height				= static_cast<UINT>(m_size.y);
 			swapchainDesc.Format				= GetFormat(DEFAULT_SWAPCHAIN_FORMAT);
 			swapchainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
-
-			swapchainDesc.SampleDesc.Count = 1;
+			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+			swapchainDesc.SampleDesc.Count		= 1;
 			ComPtr<IDXGISwapChain1> swapchain;
-			//  swapchainDesc.Flags =DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ;
+			swapchainDesc.Flags =DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ;
 
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
 			fsDesc.Windowed = false;
@@ -75,11 +74,32 @@ namespace Lina
 				LINA_CRITICAL("[Renderer] -> Exception when creating a swapchain! {0}", e.what());
 			}
 		}
+
+		LINA_TRACE("[Swapchain] -> Swapchain {0} created with size: {1}x{2}", m_sid, size.x, size.y);
 	}
 
 	DX12Swapchain::~DX12Swapchain()
 	{
 		m_swapchain.Reset();
+	}
+
+	void DX12Swapchain::Recreate(const Vector2i& newSize)
+	{
+		ISwapchain::Recreate(newSize);
+
+		DXGI_SWAP_CHAIN_DESC desc = {};
+		m_swapchain->GetDesc(&desc);
+
+		try
+		{
+			ThrowIfFailed(m_swapchain->ResizeBuffers(BACK_BUFFER_COUNT, newSize.x, newSize.y, desc.BufferDesc.Format, desc.Flags));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Swapchain] -> Failed resizing swapchain!");
+		}
+
+		LINA_TRACE("[Swapchain] -> Swapchain {0} recreated with new size: {1}x{2}", m_sid, newSize.x, newSize.y);
 	}
 
 } // namespace Lina

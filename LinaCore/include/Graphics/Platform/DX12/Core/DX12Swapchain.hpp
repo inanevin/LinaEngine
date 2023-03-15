@@ -41,13 +41,15 @@ namespace Lina
 	class DX12Swapchain : public ISwapchain
 	{
 	public:
-		DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle);
+		DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle, StringID sid);
 		virtual ~DX12Swapchain();
 
 		inline IDXGISwapChain3* GetPtr()
 		{
 			return m_swapchain.Get();
 		}
+
+		virtual void Recreate(const Vector2i& newSize) override;
 
 	private:
 		Renderer*								m_renderer = nullptr;

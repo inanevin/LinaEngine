@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Core/IGfxBufferResource.hpp"
+#include "Graphics/Core/ISwapchain.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "System/ISystem.hpp"
@@ -107,10 +108,9 @@ namespace Lina
 
 		// Debug
 		{
-			WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
-			testWorld					 = new EntityWorld();
-			camEntity					 = testWorld->CreateEntity("Cam Entity");
-			auto cam					 = testWorld->AddComponent<CameraComponent>(camEntity);
+			testWorld = new EntityWorld();
+			camEntity = testWorld->CreateEntity("Cam Entity");
+			auto cam  = testWorld->AddComponent<CameraComponent>(camEntity);
 			camEntity->SetPosition(Vector3(0, 0, -5));
 			camEntity->SetRotationAngles(Vector3(0, 0, 0));
 
@@ -127,6 +127,8 @@ namespace Lina
 			cubes.push_back(aq3);
 			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, m_surfaceRenderers[0], 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
+
+		m_postInited = true;
 	}
 
 	void GfxManager::PreShutdown()
@@ -167,6 +169,8 @@ namespace Lina
 
 	void GfxManager::Tick(float delta)
 	{
+		PROFILER_FUNCTION("Main");
+
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(delta); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
@@ -176,7 +180,7 @@ namespace Lina
 		int i = 0;
 		for (auto c : cubes)
 		{
-			//c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF()) * 100.5f * delta, 1.5f - i * 1.5f, 0.0f));
+			// c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF()) * 100.5f * delta, 1.5f - i * 1.5f, 0.0f));
 			c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
 			i++;
 		}
@@ -189,18 +193,21 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
+		PROFILER_FUNCTION("Main");
+
 		auto& frame = m_dataPerFrame[m_frameIndex];
 
-		m_globalData.screenSizeMousePos = Vector2::Zero;
-		m_globalData.deltaElapsed		= Vector2(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF());
-		frame.globalDataBuffer->Update(&m_globalData, sizeof(GPUGlobalData));
+		// Global data
+		{
+			m_globalData.screenSizeMousePos = Vector2::Zero;
+			m_globalData.deltaElapsed		= Vector2(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF());
+			frame.globalDataBuffer->Update(&m_globalData, sizeof(GPUGlobalData));
+		}
 
 		m_renderer->BeginFrame(m_frameIndex);
 
 		// Surface renderers.
 		{
-			PROFILER_SCOPE("All Surface Renderers", PROFILER_THREAD_RENDER);
-
 			Taskflow tf;
 			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
 				m_surfaceRenderers[i]->SetThreadID(i);
@@ -209,8 +216,6 @@ namespace Lina
 			});
 			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
-
-		// testWorldRenderer->Render(m_frameIndex);
 
 		m_renderer->EndFrame(m_frameIndex);
 
@@ -225,7 +230,7 @@ namespace Lina
 
 	void GfxManager::DestroySurfaceRenderer(StringID sid)
 	{
-		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) { return renderer->GetSID() == sid; });
+		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) { return renderer->GetSwapchain()->GetSID() == sid; });
 		m_surfaceRenderers.erase(it);
 		delete *it;
 	}
@@ -259,12 +264,15 @@ namespace Lina
 		}
 	}
 
-	void GfxManager::OnWindowMove(void* windowHandle, StringID sid, const Recti& rect)
+	void GfxManager::OnWindowMoved(void* windowHandle, StringID sid, const Recti& rect)
 	{
 	}
 
-	void GfxManager::OnWindowResize(void* windowHandle, StringID sid, const Recti& rect)
+	void GfxManager::OnWindowResized(void* windowHandle, StringID sid, const Recti& rect)
 	{
+		if (!m_postInited)
+			return;
+		m_renderer->OnWindowResized(windowHandle, sid, rect);
 	}
 
 	void GfxManager::OnVsyncChanged(VsyncMode mode)

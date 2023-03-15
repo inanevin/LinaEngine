@@ -94,16 +94,15 @@ namespace Lina
 		};
 
 	public:
-		static ISwapchain* testSwapchain;
-		uint32			   testImageIndex = 0;
-
 		WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
 		virtual ~WorldRenderer();
 
 		Texture*	 GetFinalTexture();
 		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
-		virtual void Tick(float delta);
-		virtual void Render(uint32 frameIndex, uint32 imageIndex);
+		void		 Tick(float delta);
+		void		 Render(uint32 frameIndex, uint32 imageIndex);
+		void		 CreateTextures();
+		void		 DestroyTextures();
 
 		virtual Bitmask32 GetGameEventMask() override
 		{
@@ -119,10 +118,6 @@ namespace Lina
 		{
 			m_renderData.aspectRatio = aspect;
 		}
-
-	protected:
-		void CreateTextures(const Vector2i& res, bool createMaterials);
-		void DestroyTextures();
 
 	protected:
 		static int s_worldRendererCount;
