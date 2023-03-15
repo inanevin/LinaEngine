@@ -71,8 +71,7 @@ namespace Lina
 
 	enum WorldRendererMask
 	{
-		WRM_PassResultToSurface = 1 << 0,
-		WRM_ApplyPostProcessing = 1 << 1,
+		WRM_None = 1 << 0,
 	};
 
 	enum class RendererType

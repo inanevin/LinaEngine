@@ -103,6 +103,8 @@ namespace Lina
 			m_engineSamplers.push_back(defaultSampler);
 		}
 
+		m_renderer->ResetResources();
+
 		// Debug
 		{
 			WorldRenderer::testSwapchain = m_surfaceRenderers[0]->GetSwapchain();
@@ -123,7 +125,7 @@ namespace Lina
 			cubes.push_back(aq);
 			cubes.push_back(aq2);
 			cubes.push_back(aq3);
-			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, nullptr, 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
+			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, m_surfaceRenderers[0], 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
 	}
 
@@ -136,6 +138,9 @@ namespace Lina
 			delete m;
 		for (auto s : m_engineSamplers)
 			delete s;
+		for (auto& sr : m_surfaceRenderers)
+			delete sr;
+		m_surfaceRenderers.clear();
 	}
 
 	void GfxManager::Shutdown()
@@ -166,11 +171,14 @@ namespace Lina
 		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(delta); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
 
-		testWorldRenderer->Tick(delta);
+		// testWorldRenderer->Tick(delta);
 
+		int i = 0;
 		for (auto c : cubes)
 		{
+			//c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF()) * 100.5f * delta, 1.5f - i * 1.5f, 0.0f));
 			c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
+			i++;
 		}
 		if (camEntity)
 		{
@@ -193,18 +201,16 @@ namespace Lina
 		{
 			PROFILER_SCOPE("All Surface Renderers", PROFILER_THREAD_RENDER);
 
-			// Taskflow tf;
-			// tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
-			// 	m_surfaceRenderers[i]->SetThreadID(i);
-			// 	m_surfaceRenderers[i]->Render();
-			// });
-			// m_system->GetMainExecutor()->RunAndWait(tf);
-			//
-			// for (auto sr : m_surfaceRenderers)
-			// 	sr->Present();
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
+				m_surfaceRenderers[i]->SetThreadID(i);
+				m_surfaceRenderers[i]->Render(m_frameIndex);
+				m_surfaceRenderers[i]->Present();
+			});
+			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
 
-		testWorldRenderer->Render(m_frameIndex);
+		// testWorldRenderer->Render(m_frameIndex);
 
 		m_renderer->EndFrame(m_frameIndex);
 
@@ -246,6 +252,10 @@ namespace Lina
 					break;
 				}
 			}
+		}
+		else if (eventType & EVS_LevelInstalled)
+		{
+			m_renderer->ResetResources();
 		}
 	}
 

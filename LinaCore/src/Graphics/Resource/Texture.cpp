@@ -46,7 +46,7 @@ namespace Lina
 		m_sampler	 = nullptr; // will be loaded later
 	}
 
-	Texture::Texture(ResourceManager* rm, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels) : m_extent(ext), m_channels(channels), IResource(rm, true, "", sid, GetTypeID<Texture>())
+	Texture::Texture(ResourceManager* rm, const String& path, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels) : m_extent(ext), m_channels(channels), IResource(rm, true, path, sid, GetTypeID<Texture>())
 	{
 		m_renderer	 = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
 		m_samplerSID = targetSampler;
@@ -146,21 +146,23 @@ namespace Lina
 		stream >> m_samplerSID;
 	}
 
-	void Texture::Flush()
-	{
-		if (m_pixelsLoadedFromStream)
-			delete[] m_pixels;
-		else
-			stbi_image_free(m_pixels);
-
-		for (auto& mm : m_mipmaps)
-			delete[] mm.pixels;
-		m_mipmaps.clear();
-	}
-
 	void Texture::Upload()
 	{
-		UploadToGPU();
+		ImageGenerateRequest req;
+		req.type = TextureResourceType::Texture2DDefault;
+
+		req.onGenerated = [this]() {
+			if (m_pixelsLoadedFromStream)
+				delete[] m_pixels;
+			else
+				stbi_image_free(m_pixels);
+
+			for (auto& mm : m_mipmaps)
+				delete[] mm.pixels;
+			m_mipmaps.clear();
+		};
+
+		GenerateImage(req);
 	}
 
 	void Texture::BatchLoaded()
@@ -168,24 +170,7 @@ namespace Lina
 		SetSampler(m_samplerSID);
 	}
 
-	void Texture::UploadToGPU()
-	{
-		if (m_gpuHandle != -1)
-		{
-			LINA_ERR("[Texture] -> Texture already uploaded to GPU!");
-			return;
-		}
-
-		if (m_pixels == nullptr)
-		{
-			LINA_ERR("[Texture] -> Trying to upload a texture with no pixel data!");
-			return;
-		}
-
-		m_gpuHandle = m_renderer->GenerateImage(this, ImageType::DefaultTexture2D);
-	}
-
-	void Texture::GenerateImage(ImageType type)
+	void Texture::GenerateImage(ImageGenerateRequest req)
 	{
 		if (m_gpuHandle != -1)
 		{
@@ -193,7 +178,7 @@ namespace Lina
 			return;
 		}
 
-		m_gpuHandle = m_renderer->GenerateImage(this, type);
+		m_gpuHandle = m_renderer->GenerateImage(this, req);
 	}
 
 	void Texture::SetSampler(StringID samplerSID)

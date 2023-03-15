@@ -87,7 +87,7 @@ namespace Lina
 
 		Event data;
 		data.pParams[0] = static_cast<void*>(m_currentLevel->GetWorld());
-		DispatchEvent(EVG_LevelInstalled, data);
+		m_system->DispatchEvent(EVS_LevelInstalled, data);
 	}
 
 	void LevelManager::UninstallLevel()
@@ -98,7 +98,7 @@ namespace Lina
 
 			Event data;
 			data.pParams[0] = static_cast<void*>(m_currentLevel->GetWorld());
-			DispatchEvent(EVG_LevelUninstalled, data);
+			m_system->DispatchEvent(EVS_LevelUninstalled, data);
 
 			m_currentLevel = nullptr;
 		}

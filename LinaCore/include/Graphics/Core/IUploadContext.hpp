@@ -53,6 +53,7 @@ namespace Lina
 		IGfxBufferResource*	 stagingResource = nullptr;
 		IGfxTextureResource* targetResource	 = nullptr;
 		Texture*			 targetTexture	 = nullptr;
+		ImageGenerateRequest genReq;
 	};
 
 	enum UploadContextFlushFlags
@@ -69,11 +70,11 @@ namespace Lina
 		IUploadContext(Renderer* rend) : m_renderer(rend){};
 		virtual ~IUploadContext(){};
 
-		virtual void Flush(uint32 frameIndex, Bitmask16 flushFlags)												= 0;
-		virtual void UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)			= 0;
-		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src)							= 0;
-		virtual void UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging) = 0;
-		virtual void PushCustomCommand(const GfxCommand& cmd)													= 0;
+		virtual void Flush(uint32 frameIndex, Bitmask16 flushFlags)												  = 0;
+		virtual void UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)			  = 0;
+		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) = 0;
+		virtual void UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging)	  = 0;
+		virtual void PushCustomCommand(const GfxCommand& cmd)													  = 0;
 
 	protected:
 		Renderer*					 m_renderer = nullptr;

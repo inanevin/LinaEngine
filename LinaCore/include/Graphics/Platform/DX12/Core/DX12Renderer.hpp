@@ -73,9 +73,9 @@ namespace Lina
 		// For all others.
 		IGfxTextureResource* gpuResource = nullptr;
 		StringID			 sid		 = 0;
-
-		DescriptorHandle descriptor;
-		ImageType		 imageType = ImageType::DefaultTexture2D;
+		DescriptorHandle	 descriptor;
+		DescriptorHandle	 descriptorSecondary;
+		TextureResourceType	 imageType = TextureResourceType::Texture2DDefault;
 	};
 
 	struct GeneratedShader
@@ -93,6 +93,13 @@ namespace Lina
 	{
 		DescriptorHandle descriptor;
 		StringID		 sid = 0;
+	};
+
+	struct LoadedResourceData
+	{
+		StringID sid;
+		uint32	 idListIndex = 0;
+		uint32	 shaderIndex = 0;
 	};
 
 	class Renderer : public ISystemEventListener
@@ -128,7 +135,7 @@ namespace Lina
 		uint32 GeneratePipeline(Shader* shader);
 		void   DestroyPipeline(uint32 handle);
 		void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
-		uint32 GenerateImage(Texture* txt, ImageType type);
+		uint32 GenerateImage(Texture* txt, ImageGenerateRequest req);
 		void   DestroyImage(uint32 handle);
 		uint32 GenerateSampler(TextureSampler* sampler);
 		void   DestroySampler(uint32 handle);
@@ -137,10 +144,11 @@ namespace Lina
 		// ******************* API *******************
 		// ******************* API *******************
 
-		// Frame Control
+		// System
 		void BeginFrame(uint32 frameIndex);
 		void EndFrame(uint32 frameIndex);
 		void Join();
+		void ResetResources();
 
 		// Swapchain
 		ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle);
@@ -161,13 +169,16 @@ namespace Lina
 		void   ReleaseCommandList(uint32 handle);
 		void   ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
 		void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
+		void   PrepareRenderTargets(Texture** renderTargets, uint32 renderTargetSize);
 		void   FinalizeCommandList(uint32 cmdListHandle);
 		void   ExecuteCommandListsGraphics(const Vector<uint32>& lists);
 		void   ExecuteCommandListsTransfer(const Vector<uint32>& lists);
 		void   TransitionPresent2RT(uint32 cmdListHandle, Texture* txt);
+		void   TransitionSRV2RT(uint32 cmdListHandle, Texture* txt);
 		void   TransitionRT2Present(uint32 cmdListHandle, Texture* txt);
-		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor);
-		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil, const Color& clearColor);
+		void   TransitionRT2SRV(uint32 cmdListHandle, Texture* txt);
+		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture);
+		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil);
 		void   EndRenderPass(uint32 cmdListHandle);
 		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxBufferResource* buf);
 		void   BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* res);
@@ -181,7 +192,6 @@ namespace Lina
 		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot = 0);
 		void   BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer);
 		void   CopyFromStaging(uint32 cmdListHandle, IGfxBufferResource* staging, IGfxBufferResource* gpu, ResourceState finalState);
-		void   WaitForCopyQueue();
 
 		// Fences
 		uint32 CreateFence();
@@ -189,7 +199,7 @@ namespace Lina
 		void   WaitForFences(uint32 fence, uint64 frameFenceValue);
 
 		// Textures
-		Texture* CreateRenderTargetColor(const String& path);
+		Texture* CreateRenderTargetColor(const String& path, const Vector2i& size);
 		Texture* CreateRenderTargetSwapchain(ISwapchain* swp, uint32 bufferIndex, const String& path);
 		Texture* CreateRenderTargetDepthStencil(const String& pathName, const Vector2i& size);
 
@@ -234,16 +244,17 @@ namespace Lina
 
 	private:
 		// General
-		GfxManager*				  m_gfxManager = nullptr;
-		StatePerFrame			  m_frames[FRAMES_IN_FLIGHT];
-		uint64					  m_fenceValueGraphics = 0;
-		uint32					  m_frameFenceGraphics = 0;
-		HANDLE					  m_fenceEventGraphics = NULL;
-		uint32					  m_currentFrameIndex  = 0;
-		ResourceManager*		  m_resourceManager	   = nullptr;
-		HashMap<StringID, uint32> m_loadedTextures;
-		HashMap<StringID, uint32> m_loadedSamplers;
-		IUploadContext*			  m_uploadContext;
+		GfxManager*				   m_gfxManager = nullptr;
+		StatePerFrame			   m_frames[FRAMES_IN_FLIGHT];
+		uint64					   m_fenceValueGraphics = 0;
+		uint32					   m_frameFenceGraphics = 0;
+		HANDLE					   m_fenceEventGraphics = NULL;
+		uint32					   m_currentFrameIndex	= 0;
+		ResourceManager*		   m_resourceManager	= nullptr;
+		Vector<LoadedResourceData> m_loadedTextures;
+		Vector<LoadedResourceData> m_loadedSamplers;
+		Vector<LoadedResourceData> m_loadedRTs;
+		IUploadContext*			   m_uploadContext;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;

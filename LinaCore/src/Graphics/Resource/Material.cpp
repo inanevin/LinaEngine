@@ -114,7 +114,7 @@ namespace Lina
 				StringID					textureSID = prop->GetValue();
 
 				if (textureSID == 0)
-					textureSID = "Resources/Core/Textures/DummyBlack_32.png"_hs;
+					textureSID = DEFAULT_TEXTURE_SID;
 
 				textureSrc = m_renderer->GetTextureIndex(textureSID);
 				samplerSrc = m_renderer->GetSamplerIndex(textureSID);

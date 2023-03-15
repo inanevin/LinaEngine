@@ -48,20 +48,20 @@ namespace Lina
 		EVS_ResourceBatchLoaded	  = 1 << 1,
 		EVS_ResourceUnloaded	  = 1 << 2,
 		EVS_ResourceBatchUnloaded = 1 << 3,
+		EVS_LevelInstalled		  = 1 << 4,
+		EVS_LevelUninstalled	  = 1 << 5,
 	};
 
 	enum GameEvent
 	{
-		EVG_LevelInstalled	   = 1 << 0,
-		EVG_LevelUninstalled   = 1 << 1,
-		EVG_Start			   = 1 << 2,
-		EVG_PostStart		   = 1 << 3,
-		EVG_Tick			   = 1 << 4,
-		EVG_PostTick		   = 1 << 5,
-		EVG_Physics			   = 1 << 6,
-		EVG_PostPhysics		   = 1 << 7,
-		EVG_ComponentCreated   = 1 << 8,
-		EVG_ComponentDestroyed = 1 << 9,
+		EVG_Start			   = 1 << 0,
+		EVG_PostStart		   = 1 << 1,
+		EVG_Tick			   = 1 << 2,
+		EVG_PostTick		   = 1 << 3,
+		EVG_Physics			   = 1 << 4,
+		EVG_PostPhysics		   = 1 << 5,
+		EVG_ComponentCreated   = 1 << 6,
+		EVG_ComponentDestroyed = 1 << 7,
 	};
 } // namespace Lina
 

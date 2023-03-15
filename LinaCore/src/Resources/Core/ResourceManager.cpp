@@ -55,7 +55,7 @@ namespace Lina
 
 	void ResourceManager::LoadCoreResources()
 	{
-		LoadResources(m_coreResources, true);
+		LoadResources(m_coreResources, false);
 	}
 
 	void ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async)

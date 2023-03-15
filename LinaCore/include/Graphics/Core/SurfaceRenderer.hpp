@@ -35,6 +35,9 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Data/Bitmask.hpp"
 #include "Core/StringID.hpp"
+#include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+#include "Math/Rect.hpp"
 
 namespace Lina
 {
@@ -48,12 +51,35 @@ namespace Lina
 	class SurfaceRenderer : public ISystemEventListener
 	{
 
+	private:
+		struct RenderData
+		{
+			Vector2i renderResolution = Vector2i::Zero;
+			Viewport viewport		  = Viewport();
+			Recti	 scissors		  = Recti();
+		};
+
+		struct DataPerImage
+		{
+			Texture*  renderTargetColor		 = nullptr;
+			Texture*  renderTargetDepth		 = nullptr;
+			Material* offscreenMaterial		 = nullptr;
+			Texture*  targetOffscreenTexture = nullptr;
+			bool	  updateTexture			 = true;
+		};
+
+		struct DataPerFrame
+		{
+			uint32 cmdAllocator = 0;
+			uint32 cmdList		= 0;
+		};
+
 	public:
 		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
 		void Tick(float delta);
-		void Render();
+		void Render(uint32 frameIndex);
 		void Present();
 		void AddWorldRenderer(WorldRenderer* renderer);
 		void RemoveWorldRenderer(WorldRenderer* renderer);
@@ -106,9 +132,11 @@ namespace Lina
 		Vector2i			   m_size			   = Vector2i::Zero;
 		Bitmask16			   m_mask			   = 0;
 		uint32				   m_imageCount		   = 0;
-		Vector<Material*>	   m_offscreenMaterials;
 		Vector<WorldRenderer*> m_worldRenderers;
 		Renderer*			   m_renderer = nullptr;
+		Vector<DataPerImage>   m_dataPerImage;
+		DataPerFrame		   m_frames[FRAMES_IN_FLIGHT];
+		RenderData			   m_renderData;
 	};
 
 } // namespace Lina

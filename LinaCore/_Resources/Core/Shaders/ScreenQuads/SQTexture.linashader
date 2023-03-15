@@ -28,9 +28,12 @@ SOFTWARE.
 
 LINA_PIPELINE_NOVERTEX
 
-// Texture2D g_texture : register(t0);
-
 #include "GlobalData.linashader"
+
+LINA_MATERIAL
+{
+	LinaTexture2D diffuse;
+}
 
 struct PSInput
 {
@@ -48,8 +51,6 @@ PSInput VSMain(uint vertexID : SV_VertexID)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-	//float2 uv = input.uv;
-	//float txt = g_texture.Load(int3(input.position.xy, 0));
-    //return float4(txt, txt, txt, 1.0f);
-	return float4(input.uv, 0, 1.0f);
+	float4 txt = Lina_SampleTexture2D(diffuse, float2(input.uv.x,  input.uv.y));
+    return float4(txt.x * 0.2f, txt.y, txt.z, 1.0f);
 }

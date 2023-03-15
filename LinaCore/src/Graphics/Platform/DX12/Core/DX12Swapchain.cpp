@@ -54,18 +54,26 @@ namespace Lina
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
 			fsDesc.Windowed = false;
 
-			ThrowIfFailed(m_renderer->DX12GetFactory()->CreateSwapChainForHwnd(m_renderer->DX12GetGraphicsQueue(), // Swap chain needs the queue so that it can force a flush on it.
-																			   static_cast<HWND>(windowHandle),
-																			   &swapchainDesc,
-																			   nullptr,
-																			   nullptr,
-																			   &swapchain));
+			try
+			{
 
-			// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
+				ThrowIfFailed(m_renderer->DX12GetFactory()->CreateSwapChainForHwnd(m_renderer->DX12GetGraphicsQueue(), // Swap chain needs the queue so that it can force a flush on it.
+																				   static_cast<HWND>(windowHandle),
+																				   &swapchainDesc,
+																				   nullptr,
+																				   nullptr,
+																				   &swapchain));
 
-			ThrowIfFailed(swapchain.As(&m_swapchain));
-			// m_swapchain->SetFullscreenState(TRUE, NULL);
-			// m_swapchain->ResizeBuffers(1, 3840, 2160, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+				// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
+
+				ThrowIfFailed(swapchain.As(&m_swapchain));
+				// m_swapchain->SetFullscreenState(TRUE, NULL);
+				// m_swapchain->ResizeBuffers(1, 3840, 2160, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+			}
+			catch (HrException e)
+			{
+				LINA_CRITICAL("[Renderer] -> Exception when creating a swapchain! {0}", e.what());
+			}
 		}
 	}
 

@@ -52,19 +52,10 @@ namespace Lina
 
 	public:
 		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
-		Texture(ResourceManager* rm, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels = 4);
+		Texture(ResourceManager* rm, const String& path, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels = 4);
 		virtual ~Texture();
 
-		/// <summary>
-		/// If creating a programmable texture via manipulating pixels,
-		/// use this to upload the texture to the GPU ready to be sampled from shaders.
-		/// </summary>
-		void UploadToGPU();
-
-		/// <summary>
-		/// If using a texture as a render target, use this to generate image buffers on the gpu.
-		/// </summary>
-		void GenerateImage(ImageType type);
+		void GenerateImage(ImageGenerateRequest req);
 
 		void SetSampler(StringID samplerSID);
 
@@ -108,7 +99,6 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void Flush() override;
 		virtual void Upload() override;
 		virtual void BatchLoaded() override;
 

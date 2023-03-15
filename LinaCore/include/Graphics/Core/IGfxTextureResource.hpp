@@ -45,7 +45,7 @@ namespace Lina
 		virtual uint64 GetGPUPointer() = 0;
 
 	protected:
-		TextureResourceType m_type = TextureResourceType::Texture2DDefaultStaging;
+		TextureResourceType m_type = TextureResourceType::Texture2DDefault;
 		Vector2i			m_size = Vector2i::Zero;
 	};
 } // namespace Lina

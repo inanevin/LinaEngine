@@ -72,4 +72,9 @@ namespace Lina
 		m_currentDescriptorIndex = 0;
 	}
 
+	void DX12GPUHeap::Reset(uint32 newStart)
+	{
+		m_currentDescriptorIndex = newStart;
+	}
+
 } // namespace Lina

@@ -40,6 +40,12 @@ namespace Lina
 {
 	DX12GfxTextureResource::DX12GfxTextureResource(Renderer* rend, Texture* txt, TextureResourceType type) : m_renderer(rend), IGfxTextureResource(type, Vector2i(txt->GetExtent().width, txt->GetExtent().height))
 	{
+		if (m_type == TextureResourceType::Texture2DSwapchain)
+		{
+			LINA_ERR("[GfxTextureResource] -> You can not creata a texture resource of type swapchain!");
+			return;
+		}
+
 		m_texture = txt;
 		CreateTexture();
 	}
@@ -76,23 +82,38 @@ namespace Lina
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
 		allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
 
-		D3D12_RESOURCE_STATES state		 = D3D12_RESOURCE_STATE_COMMON;
-		D3D12_CLEAR_VALUE*	  clear		 = NULL;
+		D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_COMMON;
+		D3D12_CLEAR_VALUE*	  clear = NULL;
+		const float			  cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
 		auto				  depthClear = CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_DEPTH_FORMAT), 1.0f, 0);
+		auto				  colorClear = CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_SWAPCHAIN_FORMAT), cc);
 
-		if (m_type == TextureResourceType::Texture2DDepthStencil)
+		if (m_type == TextureResourceType::Texture2DRenderTargetDepthStencil)
 		{
 			resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
 			state			   = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 			clear			   = &depthClear;
 		}
-		else if (m_type == TextureResourceType::Texture2DDefaultGPU)
+		else if (m_type == TextureResourceType::Texture2DDefault)
 		{
 			state = D3D12_RESOURCE_STATE_COPY_DEST;
 			// SKIP MIPS FOR NOW
 		}
+		else if (m_type == TextureResourceType::Texture2DRenderTargetColor)
+		{
+			resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+			state			   = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+			clear			   = &colorClear;
+		}
 
-		ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, clear, &m_allocation, IID_NULL, NULL));
+		try
+		{
+			ThrowIfFailed(m_renderer->DX12GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, state, clear, &m_allocation, IID_NULL, NULL));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when creating a texture resource! {0}", e.what());
+		}
 
 #ifndef LINA_PRODUCTION_BUILD
 		auto wcharbuf = FileSystem::CharToWChar(m_texture->GetPath().c_str());

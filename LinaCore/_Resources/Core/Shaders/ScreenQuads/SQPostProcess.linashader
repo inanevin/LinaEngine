@@ -28,33 +28,29 @@ SOFTWARE.
 
 LINA_PIPELINE_NOVERTEX
 
-LINA_VS
+#include "GlobalData.linashader"
 
-#version 450
-layout (location = 0) out vec2 outUV;
-
-void main()
+LINA_MATERIAL
 {
-	outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
-    gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
+	LinaTexture2D diffuse;
 }
 
-LINA_END
-
-LINA_FS
-
-#version 450
-layout (location = 0) in vec2 inUV;
-
-//output write
-layout (location = 0) out vec4 outFragColor;
-
-LINA_TEXTURE0 quad;
-
-void main()
+struct PSInput
 {
-	vec4 color = vec4(texture(quad,inUV).xyz, 1.0f);
-	outFragColor = vec4(1.0, color.g, color.b, 1.0f);
+	float4 position : SV_POSITION;
+	float2 uv : TEXCOORD;
+};
+
+PSInput VSMain(uint vertexID : SV_VertexID)
+{
+	PSInput result;
+	result.uv = float2((vertexID << 1) & 2, vertexID & 2);
+	result.position = float4(result.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
+	return result;
 }
 
-LINA_END
+float4 PSMain(PSInput input) : SV_TARGET
+{
+	float4 txt = Lina_SampleTexture2D(diffuse, float2(input.uv.x, input.uv.y));
+	return float4(txt.xyz, 1.0f);
+}

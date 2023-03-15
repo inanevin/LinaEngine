@@ -44,33 +44,86 @@ namespace Lina
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
 		: m_gfxManager(man), m_imageCount(imageCount), m_sid(sid), m_windowHandle(windowHandle), m_size(initialSize), m_mask(mask)
 	{
-		m_renderer = m_gfxManager->GetRenderer();
-		m_gfxManager->GetSystem()->AddListener(this);
-		m_swapchain = m_renderer->CreateSwapchain(initialSize, windowHandle);
 
-		if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+		// Init
 		{
-			m_offscreenMaterials.resize(m_imageCount, nullptr);
+			m_renderer = m_gfxManager->GetRenderer();
+			m_gfxManager->GetSystem()->AddListener(this);
+			m_swapchain					  = m_renderer->CreateSwapchain(initialSize, windowHandle);
+			m_renderData.renderResolution = initialSize;
+			m_dataPerImage.resize(imageCount, DataPerImage());
+			m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
+		}
 
+		// State
+		{
+			m_renderData.viewport = Viewport{
+				.x		  = 0.0f,
+				.y		  = 0.0f,
+				.width	  = static_cast<float>(initialSize.x),
+				.height	  = static_cast<float>(initialSize.y),
+				.minDepth = 0.0f,
+				.maxDepth = 0.0f,
+			};
+
+			m_renderData.scissors.pos  = Vector2i::Zero;
+			m_renderData.scissors.size = initialSize;
+		}
+
+		// Create render targets
+		{
 			for (uint32 i = 0; i < m_imageCount; i++)
 			{
-				const String name		= "SurfaceRenderer_" + TO_STRING(s_surfaceRendererCount) + "OffscreenMat_" + TO_STRING(i);
-				m_offscreenMaterials[i] = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, "", TO_SID(name));
-				m_offscreenMaterials[i]->SetShader("Resources/Core/Shaders/ScreenQuads/SQFinal.linashader"_hs);
+				const String   rtColorName = "SurfaceRenderer_Txt_Color_" + TO_STRING(sid) + "_" + TO_STRING(i);
+				const String   rtDepthName = "SurfaceRenderer_Txt_Depth_" + TO_STRING(sid) + "_" + TO_STRING(i);
+				const StringID rtColorSid  = TO_SID(rtColorName);
+				const StringID rtDepthSid  = TO_SID(rtDepthName);
+
+				auto& data = m_dataPerImage[i];
+
+				data.renderTargetColor = m_renderer->CreateRenderTargetSwapchain(m_swapchain, i, rtColorName);
+				data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, initialSize);
+
+				if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+				{
+					const String name	   = "SurfaceRenderer_" + TO_STRING(s_surfaceRendererCount) + "OffscreenMat_" + TO_STRING(i);
+					data.offscreenMaterial = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, name, TO_SID(name));
+				}
+			}
+		}
+
+		// Frame resources
+		{
+			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			{
+				auto& frame		   = m_frames[i];
+				frame.cmdAllocator = m_renderer->CreateCommandAllocator(CommandType::Graphics);
+				frame.cmdList	   = m_renderer->CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
 			}
 		}
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
+		for (uint32 i = 0; i < m_imageCount; i++)
+		{
+			auto& data = m_dataPerImage[i];
+			delete data.renderTargetColor;
+			delete data.renderTargetDepth;
+
+			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+				delete data.offscreenMaterial;
+		}
+
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& frame = m_frames[i];
+			m_renderer->ReleaseCommandList(frame.cmdList);
+			m_renderer->ReleaseCommanAllocator(frame.cmdAllocator);
+		}
+
 		m_gfxManager->GetSystem()->RemoveListener(this);
 		delete m_swapchain;
-
-		if (m_mask.IsSet(SRM_DrawOffscreenTexture))
-		{
-			for (auto mat : m_offscreenMaterials)
-				delete mat;
-		}
 	}
 
 	void SurfaceRenderer::AddWorldRenderer(WorldRenderer* renderer)
@@ -91,9 +144,9 @@ namespace Lina
 			return;
 		}
 
-		m_gfxManager->Join();
-
-		m_offscreenMaterials[imageIndex]->SetProperty("diffuse", txt->GetSID());
+		auto& data					= m_dataPerImage[imageIndex];
+		data.updateTexture			= true;
+		data.targetOffscreenTexture = txt;
 	}
 
 	void SurfaceRenderer::ClearOffscreenTexture()
@@ -104,29 +157,86 @@ namespace Lina
 			return;
 		}
 
-		m_gfxManager->Join();
-
-		uint32 i = 0;
-		for (auto mat : m_offscreenMaterials)
+		for (auto& data : m_dataPerImage)
 		{
-			mat->SetProperty("diffuse", "Resources/Core/Textures/LogoWithText.png"_hs);
-			i++;
+			data.targetOffscreenTexture = nullptr;
+			data.updateTexture			= true;
 		}
 	}
 
 	void SurfaceRenderer::Tick(float delta)
 	{
+		// m_worldRenderers[0]->Tick(delta);
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(delta); });
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 	}
 
-	void SurfaceRenderer::Render()
+	void SurfaceRenderer::Render(uint32 frameIndex)
 	{
+		Taskflow worldRendererTaskFlow;
+		worldRendererTaskFlow.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
+		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
+
+		auto& frame	  = m_frames[frameIndex];
+		auto& imgData = m_dataPerImage[m_currentImageIndex];
+
+		if (m_mask.IsSet(SRM_DrawOffscreenTexture) && imgData.updateTexture)
+		{
+			if (imgData.offscreenMaterial->GetShader() == nullptr)
+				imgData.offscreenMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
+
+			if (imgData.targetOffscreenTexture == nullptr)
+				imgData.offscreenMaterial->SetProperty("diffuse", DEFAULT_TEXTURE_SID);
+			else
+				imgData.offscreenMaterial->SetProperty("diffuse", imgData.targetOffscreenTexture->GetSID());
+
+			imgData.updateTexture = false;
+		}
+
+		// Command buffer prep
+		{
+			m_renderer->ResetCommandList(frame.cmdAllocator, frame.cmdList);
+			m_renderer->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
+			m_renderer->BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
+		}
+
+		// Main Render Pass
+		{
+			// Wait for world renderers to finish.
+			worldRendererFuture.get();
+
+			m_renderer->TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
+
+			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+			{
+				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
+				m_renderer->BindMaterial(frame.cmdList, imgData.offscreenMaterial, MBF_BindMaterialProperties | MBF_BindShader);
+				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
+			}
+
+			m_renderer->EndRenderPass(frame.cmdList);
+			m_renderer->TransitionRT2Present(frame.cmdList, imgData.renderTargetColor);
+		}
+
+		// Close command buffer.
+		{
+			m_renderer->FinalizeCommandList(frame.cmdList);
+		}
+
+		// Submit
+		{
+			m_renderer->ExecuteCommandListsGraphics({frame.cmdList});
+		}
+
+		// worldRendererFt.get();
 	}
 
 	void SurfaceRenderer::Present()
 	{
+		m_renderer->Present(m_swapchain);
+		m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
 	}
 
 } // namespace Lina

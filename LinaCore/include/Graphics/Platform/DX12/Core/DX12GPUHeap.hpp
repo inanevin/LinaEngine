@@ -42,7 +42,13 @@ namespace Lina
 		~DX12GPUHeap() final;
 
 		void			 Reset();
+		void			 Reset(uint32 newStart);
 		DescriptorHandle GetHeapHandleBlock(uint32 count);
+
+		virtual uint32 GetCurrentDescriptorIndex() override
+		{
+			return m_currentDescriptorIndex;
+		}
 
 	private:
 		uint32 m_currentDescriptorIndex = 0;

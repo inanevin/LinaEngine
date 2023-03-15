@@ -73,16 +73,13 @@ namespace Lina
 		m_renderData.renderResolution = renderResolution;
 		m_renderData.aspectRatio	  = aspectRatio;
 		world->AddListener(this);
+		m_surfaceRenderer->AddWorldRenderer(this);
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		AddRenderables<ModelNodeComponent>(world, m_renderData, m_renderData.renderableIDs);
 
-		/**************************** TODO **************************/
-		// m_surfaceRenderer->AddWorldRenderer(this);
-
 		// Image resources
 		{
-			for (uint32 i = 0; i < m_imageCount; i++)
-				m_dataPerImage.push_back(DataPerImage());
+			m_dataPerImage.resize(imageCount, DataPerImage());
 		}
 
 		// Frame resources
@@ -131,13 +128,11 @@ namespace Lina
 			m_renderer->DeleteBufferResource(frame.sceneDataBuffer);
 			m_renderer->DeleteBufferResource(frame.viewDataBuffer);
 		}
-
+		
+		
 		m_world->RemoveListener(this);
 		DestroyTextures();
-
-		// TODO
-		// m_surfaceRenderer->RemoveWorldRenderer(this);
-
+		m_surfaceRenderer->RemoveWorldRenderer(this);
 		m_renderData.allRenderables.Reset();
 	}
 
@@ -146,22 +141,21 @@ namespace Lina
 		for (uint32 i = 0; i < m_imageCount; i++)
 		{
 			const String   rtColorName = "WorldRenderer_Txt_Color_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
+			const String   rtPPName	   = "WorldRenderer_Txt_PP_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
 			const String   rtDepthName = "WorldRenderer_Txt_Depth_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
 			const StringID rtColorSid  = TO_SID(rtColorName);
+			const StringID rtPPSid	   = TO_SID(rtColorName);
 			const StringID rtDepthSid  = TO_SID(rtDepthName);
 
 			auto& data = m_dataPerImage[i];
 
-			data.renderTargetColor = m_renderer->CreateRenderTargetSwapchain(testSwapchain, i, rtColorName);
+			data.renderTargetColor = m_renderer->CreateRenderTargetColor(rtColorName, m_renderData.renderResolution);
 			data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, m_renderData.renderResolution);
+			data.renderTargetPP	   = m_renderer->CreateRenderTargetColor(rtPPName, m_renderData.renderResolution);
 
-			// data.renderTargetDepth = m_renderer->CreateRenderTarget()
-
-			// TOOD: generate
-
-			/**************************** TODO **************************/
-			// m_renderData.finalColorTexture[i] = VulkanUtility::CreateDefaultPassTextureColor(textureColorSid, m_gfxManager->GetBackend()->GetSwapchain(LINA_MAIN_SWAPCHAIN)->format, res.x, res.y);
-			// m_renderData.finalDepthTexture[i] = VulkanUtility::CreateDefaultPassTextureDepth(textureDepthSid, res.x, res.y);
+			const String ppMaterialName = "WorldRenderer_Mat_PP_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
+			data.ppMaterial				= new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, ppMaterialName, TO_SID(ppMaterialName));
+			m_surfaceRenderer->SetOffscreenTexture(data.renderTargetPP, i);
 		}
 
 		// if (m_mask.IsSet(WRM_ApplyPostProcessing))
@@ -195,18 +189,11 @@ namespace Lina
 		for (uint32 i = 0; i < m_imageCount; i++)
 		{
 			auto& data = m_dataPerImage[i];
-
 			delete data.renderTargetColor;
 			delete data.renderTargetDepth;
+			delete data.renderTargetPP;
+			delete data.ppMaterial;
 		}
-
-		// if (m_mask.IsSet(WRM_ApplyPostProcessing))
-		//{
-		//	for (uint32 i = 0; i < m_imageCount; i++)
-		//		delete m_renderData.finalPPTexture[i];
-		//
-		//	m_renderData.finalPPTexture.clear();
-		// }
 	}
 
 	Texture* WorldRenderer::GetFinalTexture()
@@ -251,18 +238,12 @@ namespace Lina
 						m_renderData.renderableIDs.erase(id);
 					}
 				}
-				// m_renderableIds
 			}
 		}
 	}
 
 	void WorldRenderer::Tick(float delta)
 	{
-		// TODO: Check if we need to update our textures and let anyone know
-
-		// TODO: Finalize the objects to be rendered.
-
-		// TODO: Get active camera, tick player view according to the camera, should we switch functionality to camera? I guess yes.
 		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
 
 		if (camRef.IsValid())
@@ -273,8 +254,8 @@ namespace Lina
 		}
 
 		const auto& renderables = m_renderData.allRenderables.GetItems();
-
 		m_renderData.extractedRenderables.clear();
+		
 		uint32 i = 0;
 		for (auto rend : renderables)
 		{
@@ -302,10 +283,17 @@ namespace Lina
 		m_opaquePass.Process(m_renderData.extractedRenderables, m_playerView, 1000.0f, DrawPassMask::Opaque);
 	}
 
-	void WorldRenderer::Render(uint32 frameIndex)
+	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
 	{
 		auto& frame	  = m_frames[frameIndex];
-		auto& imgData = m_dataPerImage[testImageIndex];
+		auto& imgData = m_dataPerImage[imageIndex];
+
+		// Lazy init pp material
+		if (imgData.ppMaterial->GetShader() == nullptr)
+		{
+			imgData.ppMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader"_hs);
+			imgData.ppMaterial->SetProperty("diffuse", imgData.renderTargetColor->GetSID());
+		}
 
 		// Command buffer prep
 		{
@@ -335,25 +323,36 @@ namespace Lina
 				m_opaquePass.UpdateBuffers(frameIndex, frame.cmdList);
 			}
 
-			m_renderer->TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
-			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth, Color(0.05f, 0.7f, 0.5f, 1.0f));
+			m_renderer->TransitionSRV2RT(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
 
 			// Draw scene objects.
 			{
-
 				m_renderer->BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
 				m_renderer->BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());
 				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
 				m_opaquePass.Draw(frameIndex, frame.cmdList);
 			}
 
-			// Material* mat = m_resourceManager->GetResource<Material>("Resources/Core/Materials/SQTexture.linamat"_hs);
-			// m_renderer->BindMaterial(frame.cmdList, mat);
-			//
-			// m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
+			m_renderer->EndRenderPass(frame.cmdList);
+			m_renderer->TransitionRT2SRV(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->PrepareRenderTargets(&imgData.renderTargetColor, 1);
+		}
+
+		// Post process pass.
+		{
+			m_renderer->TransitionSRV2RT(frame.cmdList, imgData.renderTargetPP);
+			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetPP, imgData.renderTargetDepth);
+
+			// Draw
+			{
+				m_renderer->BindMaterial(frame.cmdList, imgData.ppMaterial, MBF_BindMaterialProperties | MBF_BindShader);
+				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
+			}
 
 			m_renderer->EndRenderPass(frame.cmdList);
-			m_renderer->TransitionRT2Present(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->TransitionRT2SRV(frame.cmdList, imgData.renderTargetPP);
+			m_renderer->PrepareRenderTargets(&imgData.renderTargetPP, 1);
 		}
 
 		// Close command buffer.
@@ -365,24 +364,6 @@ namespace Lina
 		{
 			m_renderer->ExecuteCommandListsGraphics({frame.cmdList});
 		}
-
-		// **** DEBUG ONLY **** //
-		m_renderer->Present(testSwapchain);
-		testImageIndex = m_renderer->GetNextBackBuffer(testSwapchain);
-
-		// Bind global vertex buffers, in our example case we'll only bind buffers for a cube.
-
-		// Copy scene & light data descriptors
-
-		// Copy obj data descriptors
-
-		// Begin Render Pass - swapchain image.
-
-		// Render world ??
-
-		// End render pass.
-
-		// If we are to have post processing, render pass for that one.
 	}
 
 } // namespace Lina

@@ -46,7 +46,7 @@ namespace Lina
 
 		virtual void Flush(uint32 frameIndex, Bitmask16 flushFlags) override;
 		virtual void UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize) override;
-		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src) override;
+		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req = {}) override;
 		virtual void UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging) override;
 		virtual void PushCustomCommand(const GfxCommand& cmd) override;
 

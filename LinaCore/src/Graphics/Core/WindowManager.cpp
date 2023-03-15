@@ -80,7 +80,6 @@ namespace Lina
 
 		for (auto w : m_windows)
 		{
-			m_gfxManager->DestroySurfaceRenderer(w.second->GetSID());
 			w.second->Destroy();
 			delete w.second;
 		}
@@ -95,29 +94,24 @@ namespace Lina
 			LINA_ERR("[Window Manager] -> First window created needs to have default Lina Main Swapchain SID!");
 			return;
 		}
+		
 		IWindow* w = new PlatformWindow(this, m_system, sid);
-
 		void* parent = nullptr;
+		
 		if (!m_windows.empty())
 			parent = m_windows[LINA_MAIN_SWAPCHAIN]->GetHandle();
-
+			
 		if (w->Create(parent, title, pos, size))
 		{
 			w->SetStyle(style);
 
 			Bitmask16 mask = 0;
-			if (SystemInfo::IsEditor())
+			if (SystemInfo::IsEditor() && false)
 				mask = SurfaceRendererMask::SRM_RenderGUI;
 			else
 				mask = SurfaceRendererMask::SRM_DrawOffscreenTexture;
 
 			m_gfxManager->CreateSurfaceRenderer(sid, w->GetHandle(), w->GetSize(), mask);
-
-			// m_gfxManager->GetBackend()->CreateSwapchain(sid, w->GetHandle(), w->GetRegisteryHandle(), w->GetPos(), w->GetSize());
-			//
-			// if (sid != LINA_MAIN_SWAPCHAIN)
-			// 	m_gfxManager->CreateSurfaceRenderer(m_gfxManager->GetBackend()->GetSwapchain(sid), Bitmask16());
-
 			m_windows[sid] = w;
 		}
 		else
@@ -130,7 +124,6 @@ namespace Lina
 		it->second->Destroy();
 		delete it->second;
 		m_windows.erase(it);
-
 		m_gfxManager->DestroySurfaceRenderer(sid);
 	}
 

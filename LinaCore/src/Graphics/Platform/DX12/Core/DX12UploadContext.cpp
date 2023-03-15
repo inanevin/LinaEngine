@@ -40,24 +40,32 @@ namespace Lina
 
 	DX12UploadContext::DX12UploadContext(Renderer* rend) : IUploadContext(rend)
 	{
-		auto device = m_renderer->DX12GetDevice();
-		ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(m_cmdAllocator.GetAddressOf())));
-
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		try
 		{
-			ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(m_cmdLists[i].GetAddressOf())));
-			ThrowIfFailed(m_cmdLists[i]->Close());
-		}
 
-		// Sync
-		{
-			m_fenceValue = 0;
-			ThrowIfFailed(m_renderer->DX12GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
-			m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			if (m_fenceEvent == nullptr)
+			auto device = m_renderer->DX12GetDevice();
+			ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(m_cmdAllocator.GetAddressOf())));
+
+			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
-				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+				ThrowIfFailed(device->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_COPY, m_cmdAllocator.Get(), nullptr, IID_PPV_ARGS(m_cmdLists[i].GetAddressOf())));
+				ThrowIfFailed(m_cmdLists[i]->Close());
 			}
+
+			// Sync
+			{
+				m_fenceValue = 0;
+				ThrowIfFailed(m_renderer->DX12GetDevice()->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&m_fence)));
+				m_fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+				if (m_fenceEvent == nullptr)
+				{
+					ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+				}
+			}
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when creating the upload context! {0}", e.what());
 		}
 	}
 
@@ -76,66 +84,80 @@ namespace Lina
 		if (m_bufferRequests.empty() && m_textureRequests.empty() && m_immediateBufferRequests.empty())
 			return;
 
-		auto* cmdList = m_cmdLists[frameIndex].Get();
-		ThrowIfFailed(m_cmdAllocator->Reset());
-		ThrowIfFailed(cmdList->Reset(m_cmdAllocator.Get(), nullptr));
-		const bool flushAll = flushFlags.IsSet(UCF_FlushAll);
-
-		if (flushAll || flushFlags.IsSet(UCF_FlushDataRequests))
+		try
 		{
-			for (auto& req : m_bufferRequests)
+			auto* cmdList = m_cmdLists[frameIndex].Get();
+
+			ThrowIfFailed(m_cmdAllocator->Reset());
+			ThrowIfFailed(cmdList->Reset(m_cmdAllocator.Get(), nullptr));
+
+			const bool flushAll = flushFlags.IsSet(UCF_FlushAll);
+
+			if (flushAll || flushFlags.IsSet(UCF_FlushDataRequests))
 			{
-				DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
-				DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
-				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+				for (auto& req : m_bufferRequests)
+				{
+					DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
+					DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
+					cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+				}
 			}
-		}
 
-		if (flushAll || flushFlags.IsSet(UCF_FlushTextureRequests))
-		{
+			if (flushAll || flushFlags.IsSet(UCF_FlushTextureRequests))
+			{
+				for (auto& txtReq : m_textureRequests)
+				{
+					DX12GfxTextureResource* dx12ResTarget  = static_cast<DX12GfxTextureResource*>(txtReq.targetResource);
+					DX12GfxBufferResource*	dx12ResStaging = static_cast<DX12GfxBufferResource*>(txtReq.stagingResource);
+
+					D3D12_SUBRESOURCE_DATA textureData = {};
+					textureData.pData				   = txtReq.targetTexture->GetPixels();
+					textureData.RowPitch			   = txtReq.targetTexture->GetExtent().width * txtReq.targetTexture->GetChannels();
+					textureData.SlicePitch			   = textureData.RowPitch * txtReq.targetTexture->GetExtent().height;
+					UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, 1, &textureData);
+				}
+			}
+
+			if (flushAll || flushFlags.IsSet(UCF_FlushImmediateRequests))
+			{
+				for (auto& req : m_immediateBufferRequests)
+				{
+					DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
+					DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
+					cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+				}
+			}
+
+			ThrowIfFailed(cmdList->Close());
+
+			Vector<ID3D12CommandList*> _lists;
+			_lists.push_back(cmdList);
+			ID3D12CommandList* const* data = _lists.data();
+			m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
+
+			m_fenceValue++;
+			m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
+			ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+			WaitForSingleObject(m_fenceEvent, INFINITE);
+
+			for (auto& req : m_bufferRequests)
+				delete req.stagingResource;
+
 			for (auto& txtReq : m_textureRequests)
 			{
-				DX12GfxTextureResource* dx12ResTarget  = static_cast<DX12GfxTextureResource*>(txtReq.targetResource);
-				DX12GfxBufferResource*	dx12ResStaging = static_cast<DX12GfxBufferResource*>(txtReq.stagingResource);
+				delete txtReq.stagingResource;
 
-				D3D12_SUBRESOURCE_DATA textureData = {};
-				textureData.pData				   = txtReq.targetTexture->GetPixels();
-				textureData.RowPitch			   = txtReq.targetTexture->GetExtent().width * txtReq.targetTexture->GetChannels();
-				textureData.SlicePitch			   = textureData.RowPitch * txtReq.targetTexture->GetExtent().height;
-				UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, 1, &textureData);
+				if (txtReq.genReq.onGenerated)
+					txtReq.genReq.onGenerated();
 			}
-		}
 
-		if (flushAll || flushFlags.IsSet(UCF_FlushImmediateRequests))
+			m_bufferRequests.clear();
+			m_textureRequests.clear();
+		}
+		catch (HrException e)
 		{
-			for (auto& req : m_immediateBufferRequests)
-			{
-				DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
-				DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
-				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
-			}
+			LINA_CRITICAL("[Renderer] -> Exception when flushing the upload context! {0}", e.what());
 		}
-
-		ThrowIfFailed(cmdList->Close());
-
-		Vector<ID3D12CommandList*> _lists;
-		_lists.push_back(cmdList);
-		ID3D12CommandList* const* data = _lists.data();
-		m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
-
-		m_fenceValue++;
-		m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
-		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-		WaitForSingleObject(m_fenceEvent, INFINITE);
-
-		for (auto& req : m_bufferRequests)
-			delete req.stagingResource;
-
-		for (auto& txtReq : m_textureRequests)
-			delete txtReq.stagingResource;
-
-		m_bufferRequests.clear();
-		m_textureRequests.clear();
 	}
 
 	void DX12UploadContext::UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)
@@ -147,7 +169,7 @@ namespace Lina
 		m_bufferRequests.push_back(req);
 	}
 
-	void DX12UploadContext::UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src)
+	void DX12UploadContext::UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest genReq)
 	{
 		LOCK_GUARD(m_mtx);
 
@@ -157,6 +179,7 @@ namespace Lina
 		req.targetResource	= targetGPUTexture;
 		req.targetTexture	= src;
 		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, data, dataSize);
+		req.genReq			= genReq;
 		m_textureRequests.push_back(req);
 	}
 

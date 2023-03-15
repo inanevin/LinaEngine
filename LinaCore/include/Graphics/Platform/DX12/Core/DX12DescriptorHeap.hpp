@@ -49,26 +49,33 @@ namespace Lina
 		{
 			return m_dx12Heap;
 		}
-		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType()
+
+		D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType() const
 		{
 			return m_heapType;
 		}
-		D3D12_CPU_DESCRIPTOR_HANDLE GetHeapCPUStart()
+
+		D3D12_CPU_DESCRIPTOR_HANDLE GetHeapCPUStart() const
 		{
 			return m_cpuStart;
 		}
-		D3D12_GPU_DESCRIPTOR_HANDLE GetHeapGPUStart()
+
+		D3D12_GPU_DESCRIPTOR_HANDLE GetHeapGPUStart() const
 		{
 			return m_gpuStart;
 		}
-		uint32 GetMaxDescriptors()
+
+		uint32 GetMaxDescriptors() const
 		{
 			return m_maxDescriptors;
 		}
-		uint32 GetDescriptorSize()
+
+		uint32 GetDescriptorSize() const
 		{
 			return m_descriptorSize;
 		}
+		
+		virtual uint32 GetCurrentDescriptorIndex() {return 0;};
 
 	protected:
 		Renderer*					m_renderer			   = nullptr;

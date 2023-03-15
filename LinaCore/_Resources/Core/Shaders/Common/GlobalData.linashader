@@ -91,7 +91,14 @@ struct LinaTexture2D
 StructuredBuffer<ObjectData> Objects : register(t0, space1);
 SamplerState Sampler2DTable[] : register(s0, space0);
 Texture2D Texture2DTable[] : register(t0, space0);
+SamplerState StaticSampler : register(s0, space1);
 
 #define LINA_OBJECTS Objects
 #define LINA_TEXTURES Texture2DTable
 #define LINA_SAMPLERS Sampler2DTable
+
+float4 Lina_SampleTexture2D(LinaTexture2D texture, float2 uv)
+{
+	return Texture2DTable[texture.textureIndex].Sample(Sampler2DTable[texture.samplerIndex], uv);
+}
+

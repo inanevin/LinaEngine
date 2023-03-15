@@ -32,13 +32,12 @@ SOFTWARE.
 #define LevelManager_HPP
 
 #include "System/ISubsystem.hpp"
-#include "Event/IGameEventDispatcher.hpp"
 
 namespace Lina
 {
 	class Level;
 
-	class LevelManager : public ISubsystem, public IGameEventDispatcher
+	class LevelManager : public ISubsystem
 	{
 	public:
 		LevelManager(ISystem* sys) : ISubsystem(sys, SubsystemType::LevelManager){};

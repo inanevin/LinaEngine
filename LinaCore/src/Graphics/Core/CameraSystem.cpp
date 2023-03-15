@@ -47,7 +47,8 @@ namespace Lina
 		cam.m_view[2][2] *= -1.0f;
 		cam.m_view[2][3] *= -1.0f;
 		// cam.m_view[1][1] *= -1;
-#else LINA_GRAPHICS_VULKAN
+		
+#elif LINA_GRAPHICS_VULKAN
 		const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
 		cam.m_projection = clip * cam.m_projection;
 #endif

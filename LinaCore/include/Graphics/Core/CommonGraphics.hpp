@@ -309,14 +309,6 @@ namespace Lina
 		Transfer
 	};
 
-	enum class ImageType
-	{
-		DefaultTexture2D,
-		RTColor,
-		RTDepthStencil,
-		RTSwapchain
-	};
-
 	enum class ResourceState
 	{
 		CopyDestination,
@@ -338,9 +330,10 @@ namespace Lina
 
 	enum class TextureResourceType
 	{
-		Texture2DDefaultStaging,
-		Texture2DDefaultGPU,
-		Texture2DDepthStencil,
+		Texture2DSwapchain,
+		Texture2DDefault,
+		Texture2DRenderTargetColor,
+		Texture2DRenderTargetDepthStencil,
 	};
 
 	enum MaterialBindFlag
@@ -407,6 +400,12 @@ namespace Lina
 		uint32 dataSize = 0;
 	};
 
+	struct ImageGenerateRequest
+	{
+		TextureResourceType type;
+		Delegate<void()>	onGenerated;
+	};
+
 	class GfxCommand
 	{
 	public:
@@ -417,9 +416,11 @@ namespace Lina
 
 #define DEFAULT_DEPTH_FORMAT	 Format::D32_SFLOAT
 #define DEFAULT_SWAPCHAIN_FORMAT Format::R8G8B8A8_UNORM
-#define DEFAULT_COLOR_FORMAT	 Format::R32G32B32_SFLOAT
+#define DEFAULT_COLOR_FORMAT	 Format::R32G32B32A32_SFLOAT
 #define LINA_MAIN_SWAPCHAIN		 "LinaMainSwapchain"_hs
 #define DEFAULT_SAMPLER_SID		 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
+#define DEFAULT_TEXTURE_SID		 "Resources/Core/Textures/LogoWithText.png"_hs
+#define DEFAULT_CLEAR_CLR		 Color::Black
 } // namespace Lina
 
 #endif

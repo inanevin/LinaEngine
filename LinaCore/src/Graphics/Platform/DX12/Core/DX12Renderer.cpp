@@ -88,206 +88,223 @@ namespace Lina
 		m_gfxManager	  = gfxMan;
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_resourceManager->AddListener(this);
+		m_loadedTextures.reserve(200);
+		m_loadedRTs.reserve(16);
+		m_loadedSamplers.reserve(50);
 
+		try
 		{
-			UINT dxgiFactoryFlags = 0;
-			// Enable the debug layer (requires the Graphics Tools "optional feature").
-			// NOTE: Enabling the debug layer after device creation will invalidate the active device.
-#ifndef LINA_PRODUCTION_BUILD
 			{
-				ComPtr<ID3D12Debug> debugController;
-				if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+				UINT dxgiFactoryFlags = 0;
+				// Enable the debug layer (requires the Graphics Tools "optional feature").
+				// NOTE: Enabling the debug layer after device creation will invalidate the active device.
+#ifndef LINA_PRODUCTION_BUILD
 				{
-					debugController->EnableDebugLayer();
-					// Enable additional debug layers.
-					dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+					ComPtr<ID3D12Debug> debugController;
+					if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+					{
+						debugController->EnableDebugLayer();
+						// Enable additional debug layers.
+						dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+					}
+					else
+					{
+						LINA_ERR("[Gfx Backend] -> Failed enabling debug layers!");
+					}
+				}
+#endif
+				ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
+			}
+
+			// Choose gpu & create device
+			{
+				if (initInfo.preferredGPUType == PreferredGPUType::CPU)
+				{
+					ComPtr<IDXGIAdapter> warpAdapter;
+					ThrowIfFailed(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
+
+					ThrowIfFailed(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 				}
 				else
 				{
-					LINA_ERR("[Gfx Backend] -> Failed enabling debug layers!");
+					GetHardwareAdapter(m_factory.Get(), &m_adapter, initInfo.preferredGPUType);
+
+					ThrowIfFailed(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
+				}
+			}
+
+#ifndef LINA_PRODUCTION_BUILD
+			// Dbg callback
+			{
+				ID3D12InfoQueue1* infoQueue = nullptr;
+				if (SUCCEEDED(m_device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
+				{
+					infoQueue->RegisterMessageCallback(&MessageCallback, D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS, nullptr, &msgCallback);
 				}
 			}
 #endif
-			ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
-		}
 
-		// Choose gpu & create device
-		{
-			if (initInfo.preferredGPUType == PreferredGPUType::CPU)
+			// Describe and create the command queues.
 			{
-				ComPtr<IDXGIAdapter> warpAdapter;
-				ThrowIfFailed(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
+				D3D12_COMMAND_QUEUE_DESC queueDesc = {};
+				queueDesc.Flags					   = D3D12_COMMAND_QUEUE_FLAG_NONE;
+				queueDesc.Type					   = D3D12_COMMAND_LIST_TYPE_DIRECT;
+				ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_graphicsQueue)));
 
-				ThrowIfFailed(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
-			}
-			else
-			{
-				GetHardwareAdapter(m_factory.Get(), &m_adapter, initInfo.preferredGPUType);
+				queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
+				ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_copyQueue)));
 
-				ThrowIfFailed(D3D12CreateDevice(m_adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
-			}
-		}
-
-#ifndef LINA_PRODUCTION_BUILD
-		// Dbg callback
-		{
-			ID3D12InfoQueue1* infoQueue = nullptr;
-			if (SUCCEEDED(m_device->QueryInterface<ID3D12InfoQueue1>(&infoQueue)))
-			{
-				infoQueue->RegisterMessageCallback(&MessageCallback, D3D12_MESSAGE_CALLBACK_IGNORE_FILTERS, nullptr, &msgCallback);
-			}
-		}
-#endif
-
-		// Describe and create the command queues.
-		{
-			D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-			queueDesc.Flags					   = D3D12_COMMAND_QUEUE_FLAG_NONE;
-			queueDesc.Type					   = D3D12_COMMAND_LIST_TYPE_DIRECT;
-			ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_graphicsQueue)));
-
-			queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
-			ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_copyQueue)));
-
-			NAME_DX12_OBJECT(m_graphicsQueue, "Graphics Queue");
-			NAME_DX12_OBJECT(m_copyQueue, "Copy Queue");
-		}
-
-		// Heaps
-		{
-			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				m_gpuBufferHeap[i]	= new DX12GPUHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 100);
-				m_gpuSamplerHeap[i] = new DX12GPUHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 100);
-				NAME_DX12_OBJECT(m_gpuBufferHeap[i]->GetHeap(), "Linear GPU Buffer Heap");
-				NAME_DX12_OBJECT(m_gpuSamplerHeap[i]->GetHeap(), "Linear GPU Sampler Heap");
+				NAME_DX12_OBJECT(m_graphicsQueue, "Graphics Queue");
+				NAME_DX12_OBJECT(m_copyQueue, "Copy Queue");
 			}
 
-			m_bufferHeap  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10);
-			m_textureHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024);
-			m_dsvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 10);
-			m_rtvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 10);
-			m_samplerHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 100);
+			// Heaps
+			{
+				for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+				{
+					m_gpuBufferHeap[i]	= new DX12GPUHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 100);
+					m_gpuSamplerHeap[i] = new DX12GPUHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 100);
+					NAME_DX12_OBJECT(m_gpuBufferHeap[i]->GetHeap(), "Linear GPU Buffer Heap");
+					NAME_DX12_OBJECT(m_gpuSamplerHeap[i]->GetHeap(), "Linear GPU Sampler Heap");
+				}
 
-			NAME_DX12_OBJECT(m_bufferHeap->GetHeap(), "Buffer Heap");
-			NAME_DX12_OBJECT(m_textureHeap->GetHeap(), "Texture Heap");
-			NAME_DX12_OBJECT(m_dsvHeap->GetHeap(), "DSV Heap");
-			NAME_DX12_OBJECT(m_rtvHeap->GetHeap(), "RTV Heap");
-			NAME_DX12_OBJECT(m_samplerHeap->GetHeap(), "Sampler Heap");
+				m_bufferHeap  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10);
+				m_textureHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024);
+				m_dsvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 10);
+				m_rtvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 10);
+				m_samplerHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 100);
+
+				NAME_DX12_OBJECT(m_bufferHeap->GetHeap(), "Buffer Heap");
+				NAME_DX12_OBJECT(m_textureHeap->GetHeap(), "Texture Heap");
+				NAME_DX12_OBJECT(m_dsvHeap->GetHeap(), "DSV Heap");
+				NAME_DX12_OBJECT(m_rtvHeap->GetHeap(), "RTV Heap");
+				NAME_DX12_OBJECT(m_samplerHeap->GetHeap(), "Sampler Heap");
+			}
+
+			// Allocator
+			{
+				D3D12MA::ALLOCATOR_DESC allocatorDesc;
+				allocatorDesc.pDevice			   = m_device.Get();
+				allocatorDesc.PreferredBlockSize   = 0;
+				allocatorDesc.Flags				   = D3D12MA::ALLOCATOR_FLAG_NONE;
+				allocatorDesc.pAdapter			   = m_adapter.Get();
+				allocatorDesc.pAllocationCallbacks = NULL;
+				ThrowIfFailed(D3D12MA::CreateAllocator(&allocatorDesc, &m_dx12Allocator));
+			}
 		}
-
-		// Allocator
+		catch (HrException e)
 		{
-			D3D12MA::ALLOCATOR_DESC allocatorDesc;
-			allocatorDesc.pDevice			   = m_device.Get();
-			allocatorDesc.PreferredBlockSize   = 0;
-			allocatorDesc.Flags				   = D3D12MA::ALLOCATOR_FLAG_NONE;
-			allocatorDesc.pAdapter			   = m_adapter.Get();
-			allocatorDesc.pAllocationCallbacks = NULL;
-			ThrowIfFailed(D3D12MA::CreateAllocator(&allocatorDesc, &m_dx12Allocator));
+			LINA_CRITICAL("[Renderer] -> Exception when pre-initializating renderer! {0}", e.what());
 		}
 	}
 
 	void Renderer::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		// DXC
+		try
 		{
-			HRESULT hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&m_idxcLib));
-			if (FAILED(hr))
+			// DXC
 			{
-				LINA_CRITICAL("[D3D12 Gpu Storage] -> Failed to create DXC library!");
-			}
-		}
-
-		// Standard Pipeline Root Signature
-		{
-
-			CD3DX12_DESCRIPTOR_RANGE1 descRange[2] = {};
-
-			// Textures & Samplers
-			descRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, UINT_MAX, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
-			descRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, UINT_MAX, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
-
-			CD3DX12_ROOT_PARAMETER1 rp[8] = {};
-
-			// Global constant buffer
-			rp[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
-
-			// Indirect constant
-			rp[1].InitAsConstants(1, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
-
-			// Scene data
-			rp[2].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
-
-			// View data
-			rp[3].InitAsConstantBufferView(3, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
-
-			// Object data
-			rp[4].InitAsShaderResourceView(0, 1, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_VERTEX);
-
-			// Material Data
-			rp[5].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
-
-			// Texture data
-			rp[6].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_ALL);
-
-			// Sampler data
-			rp[7].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
-
-			// CD3DX12_STATIC_SAMPLER_DESC samplerDesc[1] = {};
-			// samplerDesc[0].Init(0, D3D12_FILTER_ANISOTROPIC);
-
-			CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(8, rp, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-			ComPtr<ID3DBlob>					  signatureBlob = nullptr;
-			ComPtr<ID3DBlob>					  errorBlob		= nullptr;
-
-			HRESULT hr = D3D12SerializeVersionedRootSignature(&rootSig, &signatureBlob, &errorBlob);
-
-			if (FAILED(hr))
-			{
-				LINA_CRITICAL("[Shader Compiler] -> Failed serializing root signature! {0}", (char*)errorBlob->GetBufferPointer());
+				HRESULT hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&m_idxcLib));
+				if (FAILED(hr))
+				{
+					LINA_CRITICAL("[D3D12 Gpu Storage] -> Failed to create DXC library!");
+				}
 			}
 
-			hr = m_device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSigStandard));
-
-			if (FAILED(hr))
+			// Standard Pipeline Root Signature
 			{
-				LINA_CRITICAL("[Shader Compiler] -> Failed creating root signature!");
+
+				CD3DX12_DESCRIPTOR_RANGE1 descRange[2] = {};
+
+				// Textures & Samplers
+				descRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, UINT_MAX, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+				descRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, UINT_MAX, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+
+				CD3DX12_ROOT_PARAMETER1 rp[8] = {};
+
+				// Global constant buffer
+				rp[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+
+				// Indirect constant
+				rp[1].InitAsConstants(1, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+				// Scene data
+				rp[2].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+
+				// View data
+				rp[3].InitAsConstantBufferView(3, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+
+				// Object data
+				rp[4].InitAsShaderResourceView(0, 1, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_VERTEX);
+
+				// Material Data
+				rp[5].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+
+				// Texture data
+				rp[6].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_ALL);
+
+				// Sampler data
+				rp[7].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
+
+				// CD3DX12_STATIC_SAMPLER_DESC samplerDesc[1] = {};
+				// samplerDesc[0].Init(0, D3D12_FILTER_ANISOTROPIC);
+
+				CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(8, rp, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+				ComPtr<ID3DBlob>					  signatureBlob = nullptr;
+				ComPtr<ID3DBlob>					  errorBlob		= nullptr;
+
+				HRESULT hr = D3D12SerializeVersionedRootSignature(&rootSig, &signatureBlob, &errorBlob);
+
+				if (FAILED(hr))
+				{
+					LINA_CRITICAL("[Shader Compiler] -> Failed serializing root signature! {0}", (char*)errorBlob->GetBufferPointer());
+				}
+
+				hr = m_device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&m_rootSigStandard));
+
+				if (FAILED(hr))
+				{
+					LINA_CRITICAL("[Shader Compiler] -> Failed creating root signature!");
+				}
 			}
-		}
 
-		// Indirect command signature
-		{
-			D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2]	  = {};
-			argumentDescs[0].Type							  = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
-			argumentDescs[0].Constant.RootParameterIndex	  = 1;
-			argumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
-			argumentDescs[0].Constant.Num32BitValuesToSet	  = 1;
-			argumentDescs[1].Type							  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
-
-			D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
-			commandSignatureDesc.pArgumentDescs				  = argumentDescs;
-			commandSignatureDesc.NumArgumentDescs			  = _countof(argumentDescs);
-			commandSignatureDesc.ByteStride					  = sizeof(DrawIndexedIndirectCommand);
-
-			D3D12_DRAW_INDEXED_ARGUMENTS ar;
-			auto						 sa = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
-			ThrowIfFailed(m_device->CreateCommandSignature(&commandSignatureDesc, m_rootSigStandard.Get(), IID_PPV_ARGS(&m_commandSigStandard)));
-		}
-
-		// Sycnronization resources
-		{
-			m_frameFenceGraphics = CreateFence();
-			m_fenceValueGraphics = 1;
-
-			m_fenceEventGraphics = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			if (m_fenceEventGraphics == nullptr)
+			// Indirect command signature
 			{
-				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
-			}
-		}
+				D3D12_INDIRECT_ARGUMENT_DESC argumentDescs[2]	  = {};
+				argumentDescs[0].Type							  = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
+				argumentDescs[0].Constant.RootParameterIndex	  = 1;
+				argumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
+				argumentDescs[0].Constant.Num32BitValuesToSet	  = 1;
+				argumentDescs[1].Type							  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
-		m_uploadContext = new DX12UploadContext(this);
+				D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
+				commandSignatureDesc.pArgumentDescs				  = argumentDescs;
+				commandSignatureDesc.NumArgumentDescs			  = _countof(argumentDescs);
+				commandSignatureDesc.ByteStride					  = sizeof(DrawIndexedIndirectCommand);
+
+				D3D12_DRAW_INDEXED_ARGUMENTS ar;
+				auto						 sa = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+				ThrowIfFailed(m_device->CreateCommandSignature(&commandSignatureDesc, m_rootSigStandard.Get(), IID_PPV_ARGS(&m_commandSigStandard)));
+			}
+
+			// Sycnronization resources
+			{
+				m_frameFenceGraphics = CreateFence();
+				m_fenceValueGraphics = 1;
+
+				m_fenceEventGraphics = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+				if (m_fenceEventGraphics == nullptr)
+				{
+					ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+				}
+			}
+
+			m_uploadContext = new DX12UploadContext(this);
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when initializating renderer! {0}", e.what());
+		}
 	}
 
 	void Renderer::Shutdown()
@@ -526,7 +543,14 @@ namespace Lina
 			}
 		}
 
-		ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genData.pso)));
+		try
+		{
+			ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genData.pso)));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when creating PSO! {0}", e.what());
+		}
 
 		return index;
 	}
@@ -540,129 +564,135 @@ namespace Lina
 
 	void Renderer::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode)
 	{
-
-		Microsoft::WRL::ComPtr<IDxcCompiler3> idxcCompiler;
-
-		HRESULT hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&idxcCompiler));
-		if (FAILED(hr))
+		try
 		{
-			LINA_CRITICAL("[Shader Compile] -> Failed to create DXC compiler");
-		}
+			Microsoft::WRL::ComPtr<IDxcCompiler3> idxcCompiler;
 
-		ComPtr<IDxcUtils> utils;
-		hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(utils.GetAddressOf()));
-
-		if (FAILED(hr))
-		{
-			LINA_CRITICAL("[Shader Compile] -> Failed to create DXC utils");
-		}
-
-		wchar_t* pathw = FileSystem::CharToWChar(path);
-
-		// IDxcCompilerArgs* pCompilerArgs;
-		// DxcCreateInstance(CLSID_DxcCompilerArgs, IID_PPV_ARGS(&pCompilerArgs));
-		// const wchar_t* arg = L"/O3";
-		// pCompilerArgs->AddArguments(&arg, 1);
-
-		for (auto& [stage, title] : stages)
-		{
-			UINT32					 codePage = CP_UTF8;
-			ComPtr<IDxcBlobEncoding> sourceBlob;
-			ThrowIfFailed(m_idxcLib->CreateBlobFromFile(pathw, &codePage, &sourceBlob));
-
-			wchar_t* entry = FileSystem::CharToWChar(title.c_str());
-
-			const wchar_t* targetProfile = L"vs_6_0";
-			if (stage == ShaderStage::Fragment)
-				targetProfile = L"ps_6_0";
-			else if (stage == ShaderStage::Compute)
-				targetProfile = L"cs_6_0";
-			else if (stage == ShaderStage::Geometry)
-				targetProfile = L"gs_6_0";
-			else if (stage == ShaderStage::TesellationControl || stage == ShaderStage::TesellationEval)
-				targetProfile = L"hs_6_0";
-
-			DxcBuffer sourceBuffer;
-			sourceBuffer.Ptr	  = sourceBlob->GetBufferPointer();
-			sourceBuffer.Size	  = sourceBlob->GetBufferSize();
-			sourceBuffer.Encoding = 0;
-
-			Vector<LPCWSTR> arguments;
-
-			arguments.push_back(L"-E");
-			arguments.push_back(entry);
-			arguments.push_back(L"-T");
-			arguments.push_back(targetProfile);
-			arguments.push_back(DXC_ARG_WARNINGS_ARE_ERRORS); //-WX
-
-			// We will still get reflection info, just with a smaller binary.
-			arguments.push_back(L"-Qstrip_debug");
-			arguments.push_back(L"-Qstrip_reflect");
-
-#ifndef LINA_PRODUCTION_BUILD
-			arguments.push_back(DXC_ARG_DEBUG); //-Zi
-#else
-			arguments.push_back(DXC_ARG_OPTIMIZATION_LEVEL3);
-#endif
-
-			for (int i = 0; i < 6; i++)
+			HRESULT hr = DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(&idxcCompiler));
+			if (FAILED(hr))
 			{
-				arguments.push_back(L"-D");
-				arguments.push_back(macros[i]);
+				LINA_CRITICAL("[Shader Compile] -> Failed to create DXC compiler");
 			}
 
-			ComPtr<IDxcResult> result;
-			ThrowIfFailed(idxcCompiler->Compile(&sourceBuffer, arguments.data(), static_cast<uint32>(arguments.size()), &m_includeInterface, IID_PPV_ARGS(result.GetAddressOf())));
-
-			ComPtr<IDxcBlobUtf8> errors;
-			ComPtr<IDxcBlobWide> outputName;
-			result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(errors.GetAddressOf()), nullptr);
-
-			if (errors && errors->GetStringLength() > 0)
-			{
-				LINA_ERR("[Shader Compile Error] -> {0} {1}", path, (char*)errors->GetStringPointer());
-			}
-
-			// ComPtr<IDxcBlob> reflectionData;
-			// result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(reflectionData.GetAddressOf()), nullptr);
-			// DxcBuffer reflectionBuffer;
-			// reflectionBuffer.Ptr	  = reflectionData->GetBufferPointer();
-			// reflectionBuffer.Size	  = reflectionData->GetBufferSize();
-			// reflectionBuffer.Encoding = 0;
-			// ComPtr<ID3D12ShaderReflection> shaderReflection;
-			// utils->CreateReflection(&reflectionBuffer, IID_PPV_ARGS(shaderReflection.GetAddressOf()));
-
-			result->GetStatus(&hr);
+			ComPtr<IDxcUtils> utils;
+			hr = DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(utils.GetAddressOf()));
 
 			if (FAILED(hr))
 			{
-				if (result)
-				{
-					ComPtr<IDxcBlobEncoding> errorsBlob;
-					hr = result->GetErrorBuffer(&errorsBlob);
-					if (SUCCEEDED(hr) && errorsBlob)
-					{
-						LINA_ERR("[D3D12GpUStorage]-> Shader compilation failed: {0} {1}", path, (const char*)errorsBlob->GetBufferPointer());
-					}
-				}
+				LINA_CRITICAL("[Shader Compile] -> Failed to create DXC utils");
 			}
 
-			ComPtr<IDxcBlob> code;
-			result->GetResult(&code);
+			wchar_t* pathw = FileSystem::CharToWChar(path);
 
-			const SIZE_T sz = code->GetBufferSize();
-			auto&		 bc = outCompiledCode[stage];
-			bc.dataSize		= static_cast<uint32>(sz);
-			bc.data			= new uint8[sz];
-			MEMCPY(bc.data, code->GetBufferPointer(), sz);
+			// IDxcCompilerArgs* pCompilerArgs;
+			// DxcCreateInstance(CLSID_DxcCompilerArgs, IID_PPV_ARGS(&pCompilerArgs));
+			// const wchar_t* arg = L"/O3";
+			// pCompilerArgs->AddArguments(&arg, 1);
 
-			delete[] entry;
+			for (auto& [stage, title] : stages)
+			{
+				UINT32					 codePage = CP_UTF8;
+				ComPtr<IDxcBlobEncoding> sourceBlob;
+				ThrowIfFailed(m_idxcLib->CreateBlobFromFile(pathw, &codePage, &sourceBlob));
+
+				wchar_t* entry = FileSystem::CharToWChar(title.c_str());
+
+				const wchar_t* targetProfile = L"vs_6_0";
+				if (stage == ShaderStage::Fragment)
+					targetProfile = L"ps_6_0";
+				else if (stage == ShaderStage::Compute)
+					targetProfile = L"cs_6_0";
+				else if (stage == ShaderStage::Geometry)
+					targetProfile = L"gs_6_0";
+				else if (stage == ShaderStage::TesellationControl || stage == ShaderStage::TesellationEval)
+					targetProfile = L"hs_6_0";
+
+				DxcBuffer sourceBuffer;
+				sourceBuffer.Ptr	  = sourceBlob->GetBufferPointer();
+				sourceBuffer.Size	  = sourceBlob->GetBufferSize();
+				sourceBuffer.Encoding = 0;
+
+				Vector<LPCWSTR> arguments;
+
+				arguments.push_back(L"-E");
+				arguments.push_back(entry);
+				arguments.push_back(L"-T");
+				arguments.push_back(targetProfile);
+				arguments.push_back(DXC_ARG_WARNINGS_ARE_ERRORS); //-WX
+
+				// We will still get reflection info, just with a smaller binary.
+				arguments.push_back(L"-Qstrip_debug");
+				arguments.push_back(L"-Qstrip_reflect");
+
+#ifndef LINA_PRODUCTION_BUILD
+				arguments.push_back(DXC_ARG_DEBUG); //-Zi
+#else
+				arguments.push_back(DXC_ARG_OPTIMIZATION_LEVEL3);
+#endif
+
+				for (int i = 0; i < 6; i++)
+				{
+					arguments.push_back(L"-D");
+					arguments.push_back(macros[i]);
+				}
+
+				ComPtr<IDxcResult> result;
+				ThrowIfFailed(idxcCompiler->Compile(&sourceBuffer, arguments.data(), static_cast<uint32>(arguments.size()), &m_includeInterface, IID_PPV_ARGS(result.GetAddressOf())));
+
+				ComPtr<IDxcBlobUtf8> errors;
+				ComPtr<IDxcBlobWide> outputName;
+				result->GetOutput(DXC_OUT_ERRORS, IID_PPV_ARGS(errors.GetAddressOf()), nullptr);
+
+				if (errors && errors->GetStringLength() > 0)
+				{
+					LINA_ERR("[Shader Compile Error] -> {0} {1}", path, (char*)errors->GetStringPointer());
+				}
+
+				// ComPtr<IDxcBlob> reflectionData;
+				// result->GetOutput(DXC_OUT_REFLECTION, IID_PPV_ARGS(reflectionData.GetAddressOf()), nullptr);
+				// DxcBuffer reflectionBuffer;
+				// reflectionBuffer.Ptr	  = reflectionData->GetBufferPointer();
+				// reflectionBuffer.Size	  = reflectionData->GetBufferSize();
+				// reflectionBuffer.Encoding = 0;
+				// ComPtr<ID3D12ShaderReflection> shaderReflection;
+				// utils->CreateReflection(&reflectionBuffer, IID_PPV_ARGS(shaderReflection.GetAddressOf()));
+
+				result->GetStatus(&hr);
+
+				if (FAILED(hr))
+				{
+					if (result)
+					{
+						ComPtr<IDxcBlobEncoding> errorsBlob;
+						hr = result->GetErrorBuffer(&errorsBlob);
+						if (SUCCEEDED(hr) && errorsBlob)
+						{
+							LINA_ERR("[D3D12GpUStorage]-> Shader compilation failed: {0} {1}", path, (const char*)errorsBlob->GetBufferPointer());
+						}
+					}
+				}
+
+				ComPtr<IDxcBlob> code;
+				result->GetResult(&code);
+
+				const SIZE_T sz = code->GetBufferSize();
+				auto&		 bc = outCompiledCode[stage];
+				bc.dataSize		= static_cast<uint32>(sz);
+				bc.data			= new uint8[sz];
+				MEMCPY(bc.data, code->GetBufferPointer(), sz);
+
+				delete[] entry;
+			}
+
+			delete[] pathw;
 		}
-
-		delete[] pathw;
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when compiling shader! {0} {1}", path, e.what());
+		}
 	}
 
-	uint32 Renderer::GenerateImage(Texture* txt, ImageType type)
+	uint32 Renderer::GenerateImage(Texture* txt, ImageGenerateRequest req)
 	{
 		LOCK_GUARD(m_textureMtx);
 
@@ -672,26 +702,17 @@ namespace Lina
 		GeneratedTexture& genData = m_textures.GetItemR(index);
 		auto&			  meta	  = txt->GetMetadata();
 		const auto&		  ext	  = txt->GetExtent();
-		genData.imageType		  = type;
+		genData.imageType		  = req.type;
 		genData.sid				  = txt->GetSID();
 
-		// Rest will be done by CreateRenderTarget
-		if (type == ImageType::RTSwapchain)
+		// Render target types will be implemented via CreateRenderTargetXXX functions.
+		if (req.type == TextureResourceType::Texture2DDefault)
 		{
-			genData.descriptor = m_rtvHeap->GetNewHeapHandle();
-		}
-		else if (type == ImageType::RTDepthStencil)
-		{
-			genData.descriptor	= m_dsvHeap->GetNewHeapHandle();
-			genData.gpuResource = CreateTextureResource(TextureResourceType::Texture2DDepthStencil, txt);
-		}
-		else if (type == ImageType::DefaultTexture2D)
-		{
-			genData.gpuResource				  = CreateTextureResource(TextureResourceType::Texture2DDefaultGPU, txt);
+			genData.gpuResource				  = CreateTextureResource(TextureResourceType::Texture2DDefault, txt);
 			DX12GfxTextureResource* txtResGPU = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
 			auto					format	  = static_cast<Format>(meta.GetUInt8("Format"_hs));
 
-			m_uploadContext->UploadTexture(txtResGPU, txt);
+			m_uploadContext->UploadTexture(txtResGPU, txt, req);
 			genData.descriptor						= m_textureHeap->GetNewHeapHandle();
 			D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 			srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -699,10 +720,11 @@ namespace Lina
 			srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
 			srvDesc.Texture2D.MipLevels				= 1;
 			m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, genData.descriptor.GetCPUHandle());
-		}
 
-		if (type != ImageType::RTSwapchain && type != ImageType::RTDepthStencil)
-			m_loadedTextures[txt->GetSID()] = index;
+			m_loadedTextures.push_back({txt->GetSID(), index});
+		}
+		else if (req.type == TextureResourceType::Texture2DRenderTargetColor)
+			m_loadedRTs.push_back({txt->GetSID(), index});
 
 		return index;
 	}
@@ -711,24 +733,31 @@ namespace Lina
 	{
 		GeneratedTexture& genData = m_textures.GetItemR(handle);
 
-		if (genData.imageType == ImageType::RTSwapchain)
+		if (genData.imageType == TextureResourceType::Texture2DSwapchain)
 		{
 			m_rtvHeap->FreeHeapHandle(genData.descriptor);
 			genData.rawResource.Reset();
 		}
-		else if (genData.imageType == ImageType::RTDepthStencil)
+		else if (genData.imageType == TextureResourceType::Texture2DRenderTargetDepthStencil)
 		{
 			m_dsvHeap->FreeHeapHandle(genData.descriptor);
 		}
-		else if (genData.imageType == ImageType::DefaultTexture2D)
+		else if (genData.imageType == TextureResourceType::Texture2DDefault)
 		{
+			m_textureHeap->FreeHeapHandle(genData.descriptor);
+		}
+		else if (genData.imageType == TextureResourceType::Texture2DRenderTargetColor)
+		{
+			m_rtvHeap->FreeHeapHandle(genData.descriptor);
 			m_textureHeap->FreeHeapHandle(genData.descriptor);
 		}
 
 		if (genData.gpuResource)
 			delete genData.gpuResource;
 
-		m_loadedTextures.erase(genData.sid);
+		if (genData.imageType == TextureResourceType::Texture2DDefault)
+			m_loadedTextures.erase(linatl::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [&genData](auto& data) { return data.sid == genData.sid; }));
+
 		m_textures.RemoveItem(handle);
 	}
 
@@ -760,7 +789,7 @@ namespace Lina
 		genData.descriptor = m_samplerHeap->GetNewHeapHandle();
 		m_device->CreateSampler(&desc, genData.descriptor.GetCPUHandle());
 
-		m_loadedSamplers[sampler->GetSID()] = index;
+		m_loadedSamplers.push_back({sampler->GetSID(), index});
 		return index;
 	}
 
@@ -768,7 +797,8 @@ namespace Lina
 	{
 		GeneratedSampler& genData = m_samplers.GetItemR(handle);
 		m_samplerHeap->FreeHeapHandle(genData.descriptor);
-		m_loadedSamplers.erase(genData.sid);
+		m_loadedSamplers.erase(linatl::find_if(m_loadedSamplers.begin(), m_loadedSamplers.end(), [&genData](auto& data) { return data.sid == genData.sid; }));
+		m_samplers.RemoveItem(handle);
 	}
 
 	void Renderer::BeginFrame(uint32 frameIndex)
@@ -779,8 +809,10 @@ namespace Lina
 
 		WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
 
-		m_gpuBufferHeap[m_currentFrameIndex]->Reset();
-		m_gpuSamplerHeap[m_currentFrameIndex]->Reset();
+		const uint32 txtSize	 = static_cast<uint32>(m_loadedTextures.size());
+		const uint32 samplerSize = static_cast<uint32>(m_loadedSamplers.size());
+		m_gpuBufferHeap[m_currentFrameIndex]->Reset(txtSize);
+		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(samplerSize);
 	}
 
 	void Renderer::EndFrame(uint32 frameIndex)
@@ -799,6 +831,93 @@ namespace Lina
 			WaitForFences(m_frameFenceGraphics, m_frames[i].storedFenceGraphics);
 	}
 
+	void Renderer::ResetResources()
+	{
+		// Copy textures and samplers
+		{
+			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			{
+				m_gpuBufferHeap[i]->Reset();
+				m_gpuSamplerHeap[i]->Reset();
+
+				// Bind global textures
+				{
+					auto texturesHeap = m_gpuBufferHeap[i];
+
+					const uint32 txtHeapIncrement = texturesHeap->GetDescriptorSize();
+					const uint32 texturesSize	  = static_cast<uint32>(m_loadedTextures.size());
+					auto		 alloc			  = texturesHeap->GetHeapHandleBlock(texturesSize);
+
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+					srcDescriptors.resize(texturesSize, {});
+					destDescriptors.resize(texturesSize, {});
+
+					Taskflow tf;
+					tf.for_each_index(0, static_cast<int>(texturesSize), 1, [&](int i) {
+						auto& loadedTexture		  = m_loadedTextures[i];
+						loadedTexture.shaderIndex = i;
+
+						D3D12_CPU_DESCRIPTOR_HANDLE handle;
+						handle.ptr		   = alloc.GetCPUHandle().ptr + i * txtHeapIncrement;
+						destDescriptors[i] = handle;
+
+						auto& txtGenData  = m_textures.GetItemR(loadedTexture.idListIndex);
+						srcDescriptors[i] = txtGenData.descriptor.GetCPUHandle();
+					});
+
+					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+
+					m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				}
+
+				// Bind global samplers
+				{
+					auto samplersHeap = m_gpuSamplerHeap[i];
+
+					const uint32 increment	  = samplersHeap->GetDescriptorSize();
+					const uint32 samplersSize = static_cast<uint32>(m_loadedSamplers.size());
+					auto		 alloc		  = samplersHeap->GetHeapHandleBlock(samplersSize);
+
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+					srcDescriptors.resize(samplersSize, {});
+					destDescriptors.resize(samplersSize, {});
+
+					Taskflow tf;
+					tf.for_each_index(0, static_cast<int>(samplersSize), 1, [&](int i) {
+						auto& loadedSampler		  = m_loadedSamplers[i];
+						loadedSampler.shaderIndex = i;
+
+						D3D12_CPU_DESCRIPTOR_HANDLE handle;
+						handle.ptr		   = alloc.GetCPUHandle().ptr + i * increment;
+						destDescriptors[i] = handle;
+
+						auto& samplerGenData = m_samplers.GetItemR(loadedSampler.idListIndex);
+						srcDescriptors[i]	 = samplerGenData.descriptor.GetCPUHandle();
+					});
+					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+
+					m_device->CopyDescriptors(samplersSize, destDescriptors.data(), NULL, samplersSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				}
+			}
+		}
+
+		// Dirty all materials
+		{
+			auto&		 mats		   = m_materials.GetItems();
+			const uint32 materialsSize = static_cast<uint32>(mats.size());
+			Taskflow	 tf;
+			tf.for_each_index(0, static_cast<int>(materialsSize), 1, [&](int i) {
+				auto& material = mats[i];
+
+				for (int j = 0; j < FRAMES_IN_FLIGHT; j++)
+					material.dirty[j] = true;
+			});
+			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		}
+	}
+
 	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, void* windowHandle)
 	{
 		return new DX12Swapchain(this, size, windowHandle);
@@ -808,7 +927,16 @@ namespace Lina
 	{
 		const uint32 handle = m_cmdAllocators.AddItem(ComPtr<ID3D12CommandAllocator>());
 		auto&		 alloc	= m_cmdAllocators.GetItemR(handle);
-		ThrowIfFailed(m_device->CreateCommandAllocator(GetCommandType(type), IID_PPV_ARGS(alloc.GetAddressOf())));
+
+		try
+		{
+			ThrowIfFailed(m_device->CreateCommandAllocator(GetCommandType(type), IID_PPV_ARGS(alloc.GetAddressOf())));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when creating a command allocator! {0}", e.what());
+		}
+
 		return handle;
 	}
 
@@ -817,8 +945,17 @@ namespace Lina
 		const uint32 handle	   = m_cmdLists.AddItem(ComPtr<ID3D12GraphicsCommandList4>());
 		auto&		 list	   = m_cmdLists.GetItemR(handle);
 		auto&		 allocator = m_cmdAllocators.GetItemR(allocatorHandle);
-		ThrowIfFailed(m_device->CreateCommandList(0, GetCommandType(type), allocator.Get(), nullptr, IID_PPV_ARGS(list.GetAddressOf())));
-		ThrowIfFailed(list->Close());
+
+		try
+		{
+			ThrowIfFailed(m_device->CreateCommandList(0, GetCommandType(type), allocator.Get(), nullptr, IID_PPV_ARGS(list.GetAddressOf())));
+			ThrowIfFailed(list->Close());
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when creating a command list! {0}", e.what());
+		}
+
 		return handle;
 	}
 
@@ -826,7 +963,16 @@ namespace Lina
 	{
 		const uint32 handle = m_fences.AddItem(ComPtr<ID3D12Fence>());
 		auto&		 fence	= m_fences.GetItemR(handle);
-		ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+
+		try
+		{
+			ThrowIfFailed(m_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when creating a fence! {0}", e.what());
+		}
+
 		return handle;
 	}
 
@@ -858,12 +1004,19 @@ namespace Lina
 
 	uint32 Renderer::GetTextureIndex(const StringID sid)
 	{
-		return m_loadedTextures[sid];
+		auto it = linatl::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [sid](auto& data) { return data.sid == sid; });
+
+		if (it == m_loadedTextures.end())
+			it = linatl::find_if(m_loadedRTs.begin(), m_loadedRTs.end(), [sid](auto& data) { return data.sid == sid; });
+
+		return it->shaderIndex;
 	}
 
 	uint32 Renderer::GetSamplerIndex(const StringID textureSid)
 	{
-		return m_loadedSamplers[m_resourceManager->GetResource<Texture>(textureSid)->GetSampler()];
+		const StringID samplerSid = m_resourceManager->GetResource<Texture>(textureSid)->GetSampler();
+		auto		   it		  = linatl::find_if(m_loadedSamplers.begin(), m_loadedSamplers.end(), [samplerSid](auto& data) { return data.sid == samplerSid; });
+		return it->shaderIndex;
 	}
 
 	void Renderer::ReleaseCommandList(uint32 handle)
@@ -876,8 +1029,16 @@ namespace Lina
 	{
 		auto& cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
 		auto& cmdAllocator = m_cmdAllocators.GetItemR(cmdAllocatorHandle);
-		ThrowIfFailed(cmdAllocator->Reset());
-		ThrowIfFailed(cmdList->Reset(cmdAllocator.Get(), nullptr));
+
+		try
+		{
+			ThrowIfFailed(cmdAllocator->Reset());
+			ThrowIfFailed(cmdList->Reset(cmdAllocator.Get(), nullptr));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when resetting a command list! {0}", e.what());
+		}
 	}
 
 	void Renderer::PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors)
@@ -907,75 +1068,54 @@ namespace Lina
 			cmdList->RSSetScissorRects(1, &sc);
 		}
 
-		// Bind global textures.
+		// Textures & samplers
 		{
-			auto texturesHeap = m_gpuBufferHeap[m_currentFrameIndex];
-
-			auto		 increment	  = texturesHeap->GetDescriptorSize();
-			const uint32 texturesSize = static_cast<uint32>(m_loadedTextures.size());
-			auto		 alloc		  = texturesHeap->GetHeapHandleBlock(texturesSize);
-
-			Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
-			Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
-
-			uint32 mapIndex = 0;
-			for (auto& [sid, index] : m_loadedTextures)
-			{
-				if (mapIndex == 0)
-					destDescriptors.push_back(alloc.GetCPUHandle());
-				else
-				{
-					D3D12_CPU_DESCRIPTOR_HANDLE handle;
-					handle.ptr = alloc.GetCPUHandle().ptr + mapIndex * texturesHeap->GetDescriptorSize();
-					destDescriptors.push_back(handle);
-				}
-
-				auto& txtGenData = m_textures.GetItemR(index);
-				srcDescriptors.push_back(txtGenData.descriptor.GetCPUHandle());
-				mapIndex++;
-			}
-
-			m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			cmdList->SetGraphicsRootDescriptorTable(6, alloc.GetGPUHandle());
+			cmdList->SetGraphicsRootDescriptorTable(6, m_gpuBufferHeap[m_currentFrameIndex]->GetHeapGPUStart());
+			cmdList->SetGraphicsRootDescriptorTable(7, m_gpuSamplerHeap[m_currentFrameIndex]->GetHeapGPUStart());
 		}
+	}
 
-		// Bind global samplers
-		{
-			auto samplersHeap = m_gpuSamplerHeap[m_currentFrameIndex];
+	void Renderer::PrepareRenderTargets(Texture** renderTargets, uint32 renderTargetsSize)
+	{
+		auto		 texturesHeap	  = m_gpuBufferHeap[m_currentFrameIndex];
+		const uint32 heapStart		  = texturesHeap->GetCurrentDescriptorIndex();
+		auto		 alloc			  = texturesHeap->GetHeapHandleBlock(renderTargetsSize);
+		const uint32 txtHeapIncrement = texturesHeap->GetDescriptorSize();
 
-			auto		 increment	  = samplersHeap->GetDescriptorSize();
-			const uint32 samplersSize = static_cast<uint32>(m_loadedSamplers.size());
-			auto		 alloc		  = samplersHeap->GetHeapHandleBlock(samplersSize);
+		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
+		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+		srcDescriptors.resize(renderTargetsSize, {});
+		destDescriptors.resize(renderTargetsSize, {});
 
-			Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
-			Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(renderTargetsSize), 1, [&](int i) {
+			auto it			= linatl::find_if(m_loadedRTs.begin(), m_loadedRTs.end(), [&](const LoadedResourceData& data) { return data.sid == renderTargets[i]->GetSID(); });
+			it->shaderIndex = heapStart + i;
 
-			uint32 mapIndex = 0;
-			for (auto& [sid, index] : m_loadedSamplers)
-			{
-				if (mapIndex == 0)
-					destDescriptors.push_back(alloc.GetCPUHandle());
-				else
-				{
-					D3D12_CPU_DESCRIPTOR_HANDLE handle;
-					handle.ptr = alloc.GetCPUHandle().ptr + mapIndex * samplersHeap->GetDescriptorSize();
-					destDescriptors.push_back(handle);
-				}
+			D3D12_CPU_DESCRIPTOR_HANDLE handle;
+			handle.ptr		   = alloc.GetCPUHandle().ptr + i * txtHeapIncrement;
+			destDescriptors[i] = handle;
 
-				auto& samplerGenData = m_samplers.GetItemR(index);
-				srcDescriptors.push_back(samplerGenData.descriptor.GetCPUHandle());
-				mapIndex++;
-			}
+			auto& txtGenData  = m_textures.GetItemR(it->idListIndex);
+			srcDescriptors[i] = txtGenData.descriptorSecondary.GetCPUHandle();
+		});
 
-			m_device->CopyDescriptors(samplersSize, destDescriptors.data(), NULL, samplersSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-			cmdList->SetGraphicsRootDescriptorTable(7, alloc.GetGPUHandle());
-		}
+		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		m_device->CopyDescriptors(renderTargetsSize, destDescriptors.data(), NULL, renderTargetsSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
 	void Renderer::FinalizeCommandList(uint32 cmdListHandle)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
-		ThrowIfFailed(cmdList->Close());
+
+		try
+		{
+			ThrowIfFailed(cmdList->Close());
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when closing a command list! {0}", e.what());
+		}
 	}
 
 	void Renderer::ExecuteCommandListsGraphics(const Vector<uint32>& lists)
@@ -1018,6 +1158,15 @@ namespace Lina
 		cmdList->ResourceBarrier(1, &presentToRT);
 	}
 
+	void Renderer::TransitionSRV2RT(uint32 cmdListHandle, Texture* txt)
+	{
+		auto&					cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
+		auto&					genData	   = m_textures.GetItemR(txt->GetGPUHandle());
+		DX12GfxTextureResource* res		   = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
+		auto					transition = CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
+		cmdList->ResourceBarrier(1, &transition);
+	}
+
 	void Renderer::TransitionRT2Present(uint32 cmdListHandle, Texture* txt)
 	{
 		auto& cmdList	  = m_cmdLists.GetItemR(cmdListHandle);
@@ -1026,12 +1175,21 @@ namespace Lina
 		cmdList->ResourceBarrier(1, &rtToPresent);
 	}
 
-	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, const Color& clearColor)
+	void Renderer::TransitionRT2SRV(uint32 cmdListHandle, Texture* txt)
+	{
+		auto&					cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
+		auto&					genData	   = m_textures.GetItemR(txt->GetGPUHandle());
+		DX12GfxTextureResource* res		   = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
+		auto					transition = CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		cmdList->ResourceBarrier(1, &transition);
+	}
+
+	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		auto& genData = m_textures.GetItemR(colorTexture->GetGPUHandle());
 
-		const float			cc[]{clearColor.x, clearColor.y, clearColor.z, clearColor.w};
+		const float			cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
 		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
 
 		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessClear{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
@@ -1041,13 +1199,13 @@ namespace Lina
 		cmdList->BeginRenderPass(1, &renderPassRenderTargetDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
 	}
 
-	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencilTexture, const Color& clearColor)
+	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencilTexture)
 	{
 		auto& cmdList			  = m_cmdLists.GetItemR(cmdListHandle);
 		auto& genDataCol		  = m_textures.GetItemR(colorTexture->GetGPUHandle());
 		auto& genDataDepthStencil = m_textures.GetItemR(depthStencilTexture->GetGPUHandle());
 
-		const float			cc[]{clearColor.x, clearColor.y, clearColor.z, clearColor.w};
+		const float			cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
 		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
 		CD3DX12_CLEAR_VALUE clearDepth{GetFormat(DEFAULT_DEPTH_FORMAT), 1.0f, 0};
 
@@ -1177,10 +1335,6 @@ namespace Lina
 		cmdList->ResourceBarrier(1, &transition);
 	}
 
-	void Renderer::WaitForCopyQueue()
-	{
-	}
-
 	void Renderer::Present(ISwapchain* swp)
 	{
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
@@ -1215,52 +1369,35 @@ namespace Lina
 
 	void Renderer::WaitForFences(uint32 fenceHandle, uint64 frameFenceValue)
 	{
-		// UserData0: Current Fence Value in caller
-		// UserData1: Stored fence value in caller's frame
-
 		auto&		 fence	   = m_fences.GetItemR(fenceHandle);
 		const UINT64 lastFence = fence->GetCompletedValue();
 
 		if (lastFence < frameFenceValue)
 		{
-			HANDLE eventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			if (eventHandle == nullptr)
+			try
 			{
-				ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+				HANDLE eventHandle = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+				if (eventHandle == nullptr)
+				{
+					ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
+				}
+				else
+				{
+					ThrowIfFailed(fence->SetEventOnCompletion(frameFenceValue, eventHandle));
+					WaitForSingleObject(eventHandle, INFINITE);
+					CloseHandle(eventHandle);
+				}
 			}
-			else
+			catch (HrException e)
 			{
-				ThrowIfFailed(fence->SetEventOnCompletion(frameFenceValue, eventHandle));
-				WaitForSingleObject(eventHandle, INFINITE);
-				CloseHandle(eventHandle);
+				LINA_CRITICAL("[Renderer] -> Exception when waiting for a fence! {0}", e.what());
 			}
 		}
 	}
 
-	Texture* Renderer::CreateRenderTargetColor(const String& path)
+	Texture* Renderer::CreateRenderTargetColor(const String& path, const Vector2i& size)
 	{
-		const StringID sid = TO_SID(path);
-		Texture*	   rt  = new Texture(m_resourceManager, true, path, sid);
-		// TODO
-		return rt;
-	}
-
-	Texture* Renderer::CreateRenderTargetSwapchain(ISwapchain* swp, uint32 bufferIndex, const String& path)
-	{
-		const StringID sid = TO_SID(path);
-		Texture*	   rt  = new Texture(m_resourceManager, true, path, sid);
-		rt->GenerateImage(ImageType::RTSwapchain);
-		auto& genData = m_textures.GetItemR(rt->GetGPUHandle());
-
-		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
-		ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&genData.rawResource)));
-		m_device->CreateRenderTargetView(genData.rawResource.Get(), nullptr, genData.descriptor.GetCPUHandle());
-
-		return rt;
-	}
-
-	Texture* Renderer::CreateRenderTargetDepthStencil(const String& path, const Vector2i& size)
-	{
+		// Generate image data.
 		const StringID sid = TO_SID(path);
 		Extent3D	   ext = Extent3D{
 				  .width  = static_cast<uint32>(size.x),
@@ -1268,12 +1405,77 @@ namespace Lina
 				  .depth  = 1,
 		  };
 
-		Texture* rt = new Texture(m_resourceManager, sid, ext, DEFAULT_SAMPLER_SID, DEFAULT_DEPTH_FORMAT, ImageTiling::Optimal);
-		rt->GenerateImage(ImageType::RTDepthStencil);
-		auto& genData = m_textures.GetItemR(rt->GetGPUHandle());
+		Texture* rt = new Texture(m_resourceManager, path, sid, ext, DEFAULT_SAMPLER_SID, DEFAULT_SWAPCHAIN_FORMAT, ImageTiling::Optimal);
+		rt->GenerateImage({TextureResourceType::Texture2DRenderTargetColor});
 
-		DX12GfxTextureResource* res = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
+		auto& genData					  = m_textures.GetItemR(rt->GetGPUHandle());
+		genData.gpuResource				  = CreateTextureResource(TextureResourceType::Texture2DRenderTargetColor, rt);
+		genData.descriptor				  = m_rtvHeap->GetNewHeapHandle();
+		genData.descriptorSecondary		  = m_textureHeap->GetNewHeapHandle();
+		DX12GfxTextureResource* txtResGPU = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
 
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format							= GetFormat(DEFAULT_SWAPCHAIN_FORMAT);
+		srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MipLevels				= 1;
+		m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, genData.descriptorSecondary.GetCPUHandle());
+
+		// Create view
+		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
+		desc.Format						   = GetFormat(DEFAULT_SWAPCHAIN_FORMAT);
+		desc.ViewDimension				   = D3D12_RTV_DIMENSION_TEXTURE2D;
+		desc.Texture2D.MipSlice			   = 0;
+
+		m_device->CreateRenderTargetView(txtResGPU->DX12GetAllocation()->GetResource(), &desc, genData.descriptor.GetCPUHandle());
+		return rt;
+	}
+
+	Texture* Renderer::CreateRenderTargetSwapchain(ISwapchain* swp, uint32 bufferIndex, const String& path)
+	{
+		// Generate image data.
+		const StringID sid = TO_SID(path);
+		Texture*	   rt  = new Texture(m_resourceManager, true, path, sid);
+		rt->GenerateImage({TextureResourceType::Texture2DSwapchain});
+
+		// alloc descriptor
+		auto& genData	   = m_textures.GetItemR(rt->GetGPUHandle());
+		genData.descriptor = m_rtvHeap->GetNewHeapHandle();
+
+		// Copy swapchain res into descriptor
+		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
+		try
+		{
+			ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&genData.rawResource)));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception while creating render target for swapchain! {0}", e.what());
+		}
+
+		m_device->CreateRenderTargetView(genData.rawResource.Get(), nullptr, genData.descriptor.GetCPUHandle());
+		return rt;
+	}
+
+	Texture* Renderer::CreateRenderTargetDepthStencil(const String& path, const Vector2i& size)
+	{
+		// Generate image data.
+		const StringID sid = TO_SID(path);
+		Extent3D	   ext = Extent3D{
+				  .width  = static_cast<uint32>(size.x),
+				  .height = static_cast<uint32>(size.y),
+				  .depth  = 1,
+		  };
+		Texture* rt = new Texture(m_resourceManager, path, sid, ext, DEFAULT_SAMPLER_SID, DEFAULT_DEPTH_FORMAT, ImageTiling::Optimal);
+		rt->GenerateImage({TextureResourceType::Texture2DRenderTargetDepthStencil});
+
+		// Alloc descriptor & resource
+		auto& genData		= m_textures.GetItemR(rt->GetGPUHandle());
+		genData.descriptor	= m_dsvHeap->GetNewHeapHandle();
+		genData.gpuResource = CreateTextureResource(TextureResourceType::Texture2DRenderTargetDepthStencil, rt);
+
+		// Create view
+		DX12GfxTextureResource*		  res			   = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
 		depthStencilDesc.Format						   = GetFormat(DEFAULT_DEPTH_FORMAT);
 		depthStencilDesc.ViewDimension				   = D3D12_DSV_DIMENSION_TEXTURE2D;

@@ -60,13 +60,8 @@ namespace Lina
 
 	class WorldRenderer : public IGameEventListener
 	{
-	public:
-		static ISwapchain* testSwapchain;
-		uint32			   testImageIndex = 0;
 
-		WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
-		virtual ~WorldRenderer();
-
+	private:
 		struct RenderData
 		{
 			RenderData() : allRenderables(100, ObjectWrapper<RenderableComponent>(nullptr)){};
@@ -98,10 +93,17 @@ namespace Lina
 			Material* ppMaterial		= nullptr;
 		};
 
+	public:
+		static ISwapchain* testSwapchain;
+		uint32			   testImageIndex = 0;
+
+		WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
+		virtual ~WorldRenderer();
+
 		Texture*	 GetFinalTexture();
 		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
 		virtual void Tick(float delta);
-		virtual void Render(uint32 frameIndex);
+		virtual void Render(uint32 frameIndex, uint32 imageIndex);
 
 		virtual Bitmask32 GetGameEventMask() override
 		{
