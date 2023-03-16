@@ -78,8 +78,9 @@ namespace Lina
 		}
 		m_totalPropertySize = 0;
 
+		// Calculate props sizes, textures have double cause they have sampler index as well.
 		for (auto p : m_properties)
-			m_totalPropertySize += p->GetTypeSize();
+			m_totalPropertySize += p->GetType() == MaterialPropertyType::Texture ? p->GetTypeSize() * 2 : p->GetTypeSize();
 
 		m_totalAlignedSize = GetPropertiesTotalAlignedSize();
 		m_gpuHandle		   = m_renderer->GenerateMaterial(this);
@@ -244,6 +245,9 @@ namespace Lina
 			}
 
 			offset += typeSize;
+
+			if (p->GetType() == MaterialPropertyType::Texture)
+				offset += typeSize;
 		}
 
 		return offset;

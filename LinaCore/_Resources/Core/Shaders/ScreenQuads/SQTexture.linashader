@@ -51,6 +51,6 @@ PSInput VSMain(uint vertexID : SV_VertexID)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-	float4 txt = Lina_SampleTexture2D(diffuse, float2(input.uv.x,  input.uv.y));
+	float4 txt = Lina_SampleTexture2D(diffuse, input.uv);
 	return float4(txt.xyz, 1.0f);
 }

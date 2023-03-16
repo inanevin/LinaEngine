@@ -145,10 +145,10 @@ namespace Lina
 				objData[i]	   = od;
 			});
 
+			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+
 			auto* staging = m_objDataBufferStaging[frameIndex];
 			auto* gpuBuf  = m_objDataBufferGPU[frameIndex];
-
-			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 			staging->Update(objData.data(), sizeof(GPUObjectData) * sz);
 
 			if (gpuBuf->GetSize() < staging->GetSize())

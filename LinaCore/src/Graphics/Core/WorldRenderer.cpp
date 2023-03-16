@@ -165,11 +165,7 @@ namespace Lina
 
 	Texture* WorldRenderer::GetFinalTexture()
 	{
-		return nullptr;
-		// if (m_mask.IsSet(WRM_ApplyPostProcessing))
-		//	return m_renderData.finalPPTexture[m_surfaceRenderer->GetCurrentImageIndex()];
-		// else
-		//	return m_renderData.finalColorTexture[m_surfaceRenderer->GetCurrentImageIndex()];
+		return m_dataPerImage[m_surfaceRenderer->GetCurrentImageIndex()].renderTargetPP;
 	}
 
 	void WorldRenderer::OnGameEvent(GameEvent eventType, const Event& ev)

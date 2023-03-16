@@ -875,7 +875,6 @@ namespace Lina
 					});
 
 					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-
 					m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				}
 
@@ -1040,6 +1039,7 @@ namespace Lina
 	{
 		const StringID samplerSid = m_resourceManager->GetResource<Texture>(textureSid)->GetSampler();
 		auto		   it		  = linatl::find_if(m_loadedSamplers.begin(), m_loadedSamplers.end(), [samplerSid](auto& data) { return data.sid == samplerSid; });
+
 		return it->shaderIndex;
 	}
 
@@ -1365,7 +1365,7 @@ namespace Lina
 
 		try
 		{
-			dx12Swap->GetPtr()->Present(1, 0);
+			dx12Swap->GetPtr()->Present(0, 0);
 		}
 		catch (HrException& e)
 		{

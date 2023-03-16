@@ -153,6 +153,7 @@ namespace Lina
 
 			m_bufferRequests.clear();
 			m_textureRequests.clear();
+			m_immediateBufferRequests.clear();
 		}
 		catch (HrException e)
 		{

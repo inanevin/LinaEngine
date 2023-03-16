@@ -82,6 +82,14 @@ namespace Lina
 
 	void GfxManager::PostInit()
 	{
+
+		// Samplers
+		{
+			TextureSampler* defaultSampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
+			defaultSampler->SetSamplerData(SamplerData());
+			m_engineSamplers.push_back(defaultSampler);
+		}
+
 		// Shaders & materials
 		{
 			constexpr uint32 engineShaderCount			= 2;
@@ -95,13 +103,6 @@ namespace Lina
 				mat->SetShader(shaderSID);
 				m_engineMaterials.push_back(mat);
 			}
-		}
-
-		// Samplers
-		{
-			TextureSampler* defaultSampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
-			defaultSampler->SetSamplerData(SamplerData());
-			m_engineSamplers.push_back(defaultSampler);
 		}
 
 		m_renderer->ResetResources();
@@ -174,7 +175,6 @@ namespace Lina
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(delta); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
-
 		// testWorldRenderer->Tick(delta);
 
 		int i = 0;
@@ -224,7 +224,7 @@ namespace Lina
 
 	void GfxManager::CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
 	{
-		SurfaceRenderer* renderer = new SurfaceRenderer(this, FRAMES_IN_FLIGHT, sid, windowHandle, initialSize, mask);
+		SurfaceRenderer* renderer = new SurfaceRenderer(this, BACK_BUFFER_COUNT, sid, windowHandle, initialSize, mask);
 		m_surfaceRenderers.push_back(renderer);
 	}
 

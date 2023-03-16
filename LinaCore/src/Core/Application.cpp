@@ -41,7 +41,6 @@ namespace Lina
 		SystemInfo::SetApplicationMode(initInfo.appMode);
 		m_engine.Initialize(initInfo);
 		LoadPlugins();
-
 	}
 
 	void Application::LoadPlugins()
@@ -75,7 +74,7 @@ namespace Lina
 
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
 
-		//if (SystemInfo::GetFrames() > 300)
+		// if (SystemInfo::GetFrames() > 300)
 		//	m_exitRequested = true;
 	}
 
@@ -196,7 +195,6 @@ namespace Lina
 		// double		  deltaSeconds = PlatformTime::GetDeltaSeconds64(previous, current, 1.0);
 		// previous				   = current;
 
-		
 		static double previous	   = PlatformTime::GetSeconds();
 		const double  current	   = PlatformTime::GetSeconds();
 		double		  deltaSeconds = current - previous;
@@ -220,15 +218,15 @@ namespace Lina
 
 		// SystemInfo::csv += TO_STRING(SystemInfo::GetFrames()) + "," + TO_STRING(SystemInfo::GetDeltaTime()) + ",";
 
-		 if (gameTime > lastFPSUpdate + measureTime)
+		if (gameTime > lastFPSUpdate + measureTime)
 		{
 			const uint64 frames = SystemInfo::GetFrames();
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-		
+
 			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
 			LINA_TRACE("[DT]: {0}", SystemInfo::GetDeltaTime());
-		 }
+		}
 	}
 } // namespace Lina

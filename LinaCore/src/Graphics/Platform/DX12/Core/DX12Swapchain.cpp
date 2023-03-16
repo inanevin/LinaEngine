@@ -45,10 +45,10 @@ namespace Lina
 			swapchainDesc.Height				= static_cast<UINT>(m_size.y);
 			swapchainDesc.Format				= GetFormat(DEFAULT_SWAPCHAIN_FORMAT);
 			swapchainDesc.BufferUsage			= DXGI_USAGE_RENDER_TARGET_OUTPUT;
-			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 			swapchainDesc.SampleDesc.Count		= 1;
 			ComPtr<IDXGISwapChain1> swapchain;
-			swapchainDesc.Flags =DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ;
+			// swapchainDesc.Flags =DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ;
 
 			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
 			fsDesc.Windowed = false;
