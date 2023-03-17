@@ -105,7 +105,8 @@ namespace Lina
 					if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 					{
 						debugController->EnableDebugLayer();
-						// Enable additional debug layers.
+						
+						//  Enable additional debug layers.
 						dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 					}
 					else
@@ -114,7 +115,19 @@ namespace Lina
 					}
 				}
 #endif
+
+	
 				ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
+
+				ComPtr<IDXGIFactory5> factory5;
+				HRESULT				  facres	   = m_factory.As(&factory5);
+				BOOL				  allowTearing = FALSE;
+				if (SUCCEEDED(facres))
+				{
+					facres = factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
+				}
+
+				m_allowTearing = SUCCEEDED(facres) && allowTearing;
 			}
 
 			// Choose gpu & create device
@@ -283,8 +296,7 @@ namespace Lina
 				commandSignatureDesc.NumArgumentDescs			  = _countof(argumentDescs);
 				commandSignatureDesc.ByteStride					  = sizeof(DrawIndexedIndirectCommand);
 
-				D3D12_DRAW_INDEXED_ARGUMENTS ar;
-				auto						 sa = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+				auto sa = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
 				ThrowIfFailed(m_device->CreateCommandSignature(&commandSignatureDesc, m_rootSigStandard.Get(), IID_PPV_ARGS(&m_commandSigStandard)));
 			}
 
@@ -719,7 +731,7 @@ namespace Lina
 			srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 			srvDesc.Format							= GetFormat(format);
 			srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
-			srvDesc.Texture2D.MipLevels				= 1;
+			srvDesc.Texture2D.MipLevels				= txt->GetMipLevels();
 			m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, genData.descriptor.GetCPUHandle());
 
 			m_loadedTextures.push_back({txt->GetSID(), index});
@@ -787,7 +799,7 @@ namespace Lina
 		desc.MinLOD			= samplerData.minLod;
 		desc.MaxLOD			= samplerData.maxLod;
 		desc.MaxAnisotropy	= samplerData.anisotropy;
-		desc.MipLODBias		= samplerData.mipLodBias;
+		desc.MipLODBias		= static_cast<FLOAT>(samplerData.mipLodBias);
 
 		genData.descriptor = m_samplerHeap->GetNewHeapHandle();
 		m_device->CreateSampler(&desc, genData.descriptor.GetCPUHandle());
@@ -1174,38 +1186,28 @@ namespace Lina
 		m_copyQueue->ExecuteCommandLists(sz, data);
 	}
 
-	void Renderer::TransitionPresent2RT(uint32 cmdListHandle, Texture* txt)
+	void Renderer::ResourceBarrier(uint32 cmdListHandle, ResourceTransition* transitions, uint32 count)
 	{
-		auto& cmdList	  = m_cmdLists.GetItemR(cmdListHandle);
-		auto& genData	  = m_textures.GetItemR(txt->GetGPUHandle());
-		auto  presentToRT = CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		cmdList->ResourceBarrier(1, &presentToRT);
-	}
+		auto&							 cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		Vector<CD3DX12_RESOURCE_BARRIER> barriers;
 
-	void Renderer::TransitionSRV2RT(uint32 cmdListHandle, Texture* txt)
-	{
-		auto&					cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
-		auto&					genData	   = m_textures.GetItemR(txt->GetGPUHandle());
-		DX12GfxTextureResource* res		   = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
-		auto					transition = CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET);
-		cmdList->ResourceBarrier(1, &transition);
-	}
+		for (uint32 i = 0; i < count; i++)
+		{
+			ResourceTransition&		t		= transitions[i];
+			auto&					genData = m_textures.GetItemR(t.texture->GetGPUHandle());
+			DX12GfxTextureResource* res		= static_cast<DX12GfxTextureResource*>(genData.gpuResource);
 
-	void Renderer::TransitionRT2Present(uint32 cmdListHandle, Texture* txt)
-	{
-		auto& cmdList	  = m_cmdLists.GetItemR(cmdListHandle);
-		auto& genData	  = m_textures.GetItemR(txt->GetGPUHandle());
-		auto  rtToPresent = CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
-		cmdList->ResourceBarrier(1, &rtToPresent);
-	}
+			if (t.type == ResourceTransitionType::SRV2RT)
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET));
+			else if (t.type == ResourceTransitionType::RT2SRV)
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+			else if (t.type == ResourceTransitionType::RT2Present)
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+			else if (t.type == ResourceTransitionType::Present2RT)
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+		}
 
-	void Renderer::TransitionRT2SRV(uint32 cmdListHandle, Texture* txt)
-	{
-		auto&					cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
-		auto&					genData	   = m_textures.GetItemR(txt->GetGPUHandle());
-		DX12GfxTextureResource* res		   = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
-		auto					transition = CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-		cmdList->ResourceBarrier(1, &transition);
+		cmdList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 	}
 
 	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture)
@@ -1312,10 +1314,8 @@ namespace Lina
 
 	void Renderer::DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset)
 	{
-		auto&				   cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
-		DX12GfxBufferResource* buf		   = static_cast<DX12GfxBufferResource*>(indirectBuffer);
-		D3D12_RESOURCE_BARRIER barriers[1] = {CD3DX12_RESOURCE_BARRIER::Transition(buf->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT)};
-		cmdList->ResourceBarrier(_countof(barriers), barriers);
+		auto&				   cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		DX12GfxBufferResource* buf	   = static_cast<DX12GfxBufferResource*>(indirectBuffer);
 		cmdList->ExecuteIndirect(m_commandSigStandard.Get(), count, buf->DX12GetAllocation()->GetResource(), indirectOffset, nullptr, 0);
 	}
 
@@ -1324,18 +1324,13 @@ namespace Lina
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->IASetPrimitiveTopology(GetTopology(topology));
 	}
-
-	void Renderer::PushTransferCommand(GfxCommand& cmd)
-	{
-	}
-
 	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot)
 	{
 		auto&					 cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_VERTEX_BUFFER_VIEW view;
 		view.BufferLocation = buffer->GetGPUPointer();
-		view.SizeInBytes	= buffer->GetSize();
-		view.StrideInBytes	= sizeof(Vertex);
+		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
+		view.StrideInBytes	= static_cast<UINT>(sizeof(Vertex));
 		cmdList->IASetVertexBuffers(slot, 1, &view);
 	}
 
@@ -1349,23 +1344,14 @@ namespace Lina
 		cmdList->IASetIndexBuffer(&view);
 	}
 
-	void Renderer::CopyFromStaging(uint32 cmdListHandle, IGfxBufferResource* staging, IGfxBufferResource* gpu, ResourceState finalState)
-	{
-		auto&				   cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
-		DX12GfxBufferResource* dx12Staging = static_cast<DX12GfxBufferResource*>(staging);
-		DX12GfxBufferResource* dx12Gpu	   = static_cast<DX12GfxBufferResource*>(gpu);
-		cmdList->CopyBufferRegion(dx12Gpu->DX12GetAllocation()->GetResource(), 0, dx12Staging->DX12GetAllocation()->GetResource(), 0, static_cast<uint64>(dx12Staging->GetSize()));
-		auto transition = CD3DX12_RESOURCE_BARRIER::Transition(dx12Gpu->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, GetResourceState(finalState));
-		cmdList->ResourceBarrier(1, &transition);
-	}
-
 	bool Renderer::Present(ISwapchain* swp)
 	{
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
 
 		try
 		{
-			dx12Swap->GetPtr()->Present(0, 0);
+			UINT flags = m_allowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
+			ThrowIfFailed(dx12Swap->GetPtr()->Present(0, flags));
 		}
 		catch (HrException& e)
 		{

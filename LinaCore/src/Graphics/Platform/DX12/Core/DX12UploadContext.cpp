@@ -38,6 +38,9 @@ using Microsoft::WRL::ComPtr;
 namespace Lina
 {
 
+#define ALIGN_TXTSZ(X)	  (X + (D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT - (X % D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT)))
+#define ALIGN_TXTSZ_SM(X) (X + (D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT - (X % D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)))
+
 	DX12UploadContext::DX12UploadContext(Renderer* rend) : IUploadContext(rend)
 	{
 		try
@@ -107,14 +110,36 @@ namespace Lina
 			{
 				for (auto& txtReq : m_textureRequests)
 				{
-					DX12GfxTextureResource* dx12ResTarget  = static_cast<DX12GfxTextureResource*>(txtReq.targetResource);
-					DX12GfxBufferResource*	dx12ResStaging = static_cast<DX12GfxBufferResource*>(txtReq.stagingResource);
+					DX12GfxTextureResource*		   dx12ResTarget  = static_cast<DX12GfxTextureResource*>(txtReq.targetResource);
+					DX12GfxBufferResource*		   dx12ResStaging = static_cast<DX12GfxBufferResource*>(txtReq.stagingResource);
+					Vector<D3D12_SUBRESOURCE_DATA> allData;
 
-					D3D12_SUBRESOURCE_DATA textureData = {};
-					textureData.pData				   = txtReq.targetTexture->GetPixels();
-					textureData.RowPitch			   = txtReq.targetTexture->GetExtent().width * txtReq.targetTexture->GetChannels();
-					textureData.SlicePitch			   = textureData.RowPitch * txtReq.targetTexture->GetExtent().height;
-					UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, 1, &textureData);
+					auto calcTd = [&](void* data, uint32 width, uint32 height, uint32 channels) {
+						D3D12_SUBRESOURCE_DATA textureData = {};
+						textureData.pData				   = data;
+						textureData.RowPitch			   = width * channels;
+						textureData.SlicePitch			   = textureData.RowPitch * height;
+
+						if (textureData.SlicePitch > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
+							textureData.SlicePitch = ALIGN_TXTSZ_SM(textureData.SlicePitch);
+						else
+							textureData.SlicePitch = ALIGN_TXTSZ(textureData.SlicePitch);
+
+						allData.push_back(textureData);
+					};
+
+					calcTd(txtReq.targetTexture->GetPixels(), txtReq.targetTexture->GetExtent().width, txtReq.targetTexture->GetExtent().height, txtReq.targetTexture->GetChannels());
+
+					const auto&	 mips	 = txtReq.targetTexture->GetMipmaps();
+					const uint32 mipSize = static_cast<uint32>(mips.size());
+
+					for (uint32 i = 0; i < mipSize; i++)
+					{
+						const auto& mm = mips.at(i);
+						calcTd(mm.pixels, mm.width, mm.height, txtReq.targetTexture->GetChannels());
+					}
+
+					UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, static_cast<UINT>(allData.size()), allData.data());
 				}
 			}
 
@@ -174,12 +199,26 @@ namespace Lina
 	{
 		LOCK_GUARD(m_mtx);
 
-		void*				 data	  = src->GetPixels();
-		size_t				 dataSize = src->GetExtent().width * src->GetExtent().height * src->GetChannels();
 		TextureUploadRequest req;
+		const auto&			 mips		= src->GetMipmaps();
+		const uint32		 mipsSz		= static_cast<uint32>(mips.size());
+		const uint32		 ogDataSize = src->GetExtent().width * src->GetExtent().height * src->GetChannels();
+		req.totalDataSize				= ogDataSize > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT ? ALIGN_TXTSZ(ogDataSize) : ALIGN_TXTSZ_SM(ogDataSize);
+
+		for (uint32 i = 0; i < mipsSz; i++)
+		{
+			const auto&	 mm = mips.at(i);
+			const uint32 sz = mm.height * mm.width * src->GetChannels();
+
+			if (sz > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
+				req.totalDataSize += ALIGN_TXTSZ(sz);
+			else
+				req.totalDataSize += ALIGN_TXTSZ_SM(sz);
+		}
+
 		req.targetResource	= targetGPUTexture;
 		req.targetTexture	= src;
-		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, data, dataSize);
+		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, nullptr, req.totalDataSize);
 		req.genReq			= genReq;
 		m_textureRequests.push_back(req);
 	}
@@ -191,12 +230,6 @@ namespace Lina
 		req.targetResource	= targetGpuResource;
 		m_immediateBufferRequests.push_back(req);
 		Flush(0, UCF_FlushImmediateRequests);
-
-		// DX12GfxBufferResource* dx12Staging = static_cast<DX12GfxBufferResource*>(staging);
-		// DX12GfxBufferResource* dx12Gpu	   = static_cast<DX12GfxBufferResource*>(targetGpuResource);
-		// m_cmdLists[0]->CopyBufferRegion(dx12Gpu->DX12GetAllocation()->GetResource(), 0, dx12Staging->DX12GetAllocation()->GetResource(), 0, static_cast<uint64>(dx12Staging->GetSize()));
-		// auto transition = CD3DX12_RESOURCE_BARRIER::Transition(dx12Gpu->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_COPY_DEST, GetResourceState(finalState));
-		// m_cmdLists[0]->ResourceBarrier(1, &transition);
 	}
 
 	void DX12UploadContext::PushCustomCommand(const GfxCommand& cmd)

@@ -54,6 +54,7 @@ namespace Lina
 		IGfxTextureResource* targetResource	 = nullptr;
 		Texture*			 targetTexture	 = nullptr;
 		ImageGenerateRequest genReq;
+		uint32				 totalDataSize = 0;
 	};
 
 	enum UploadContextFlushFlags
@@ -61,7 +62,7 @@ namespace Lina
 		UCF_FlushDataRequests	   = 1 << 0,
 		UCF_FlushTextureRequests   = 1 << 1,
 		UCF_FlushImmediateRequests = 1 << 2,
-		UCF_FlushAll			   = UCF_FlushDataRequests | UCF_FlushImmediateRequests | UCF_FlushTextureRequests,
+		UCF_FlushAll			   = 1 << 3,
 	};
 
 	class IUploadContext

@@ -34,7 +34,7 @@ SOFTWARE.
 namespace Lina
 {
 
-	DX12GfxBufferResource::DX12GfxBufferResource(Renderer* rend, BufferResourceType type, void* initialData, size_t sz) : m_renderer(rend), IGfxBufferResource(type, sz)
+	DX12GfxBufferResource::DX12GfxBufferResource(Renderer* rend, BufferResourceType type, const void* initialData, size_t sz) : m_renderer(rend), IGfxBufferResource(type, sz)
 	{
 		CreateGPUBuffer(initialData, sz);
 	}
@@ -44,13 +44,13 @@ namespace Lina
 		Cleanup();
 	}
 
-	void DX12GfxBufferResource::Recreate(void* data, size_t sz)
+	void DX12GfxBufferResource::Recreate(const void* data, size_t sz)
 	{
 		Cleanup();
 		CreateGPUBuffer(data, sz);
 	}
 
-	void DX12GfxBufferResource::Update(void* data, size_t sz)
+	void DX12GfxBufferResource::Update(const void* data, size_t sz)
 	{
 		if (sz > m_size)
 			Recreate(data, sz);
@@ -69,7 +69,7 @@ namespace Lina
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
-	void DX12GfxBufferResource::CreateGPUBuffer(void* data, size_t sz)
+	void DX12GfxBufferResource::CreateGPUBuffer(const void* data, size_t sz)
 	{
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension			 = D3D12_RESOURCE_DIMENSION_BUFFER;

@@ -207,18 +207,17 @@ namespace Lina
 	void SurfaceRenderer::Tick(float delta)
 	{
 		PROFILER_FUNCTION("Main");
-		//Taskflow tf;
-		//tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(delta); });
-		//m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(delta); });
+		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 	}
 
 	void SurfaceRenderer::Render(uint32 frameIndex)
 	{
 		PROFILER_FUNCTION("Main");
-
-		//Taskflow worldRendererTaskFlow;
-		//worldRendererTaskFlow.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
-		//auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
+		Taskflow worldRendererTaskFlow;
+		worldRendererTaskFlow.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
+		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
 
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[m_currentImageIndex];
@@ -228,8 +227,8 @@ namespace Lina
 			if (imgData.offscreenMaterial->GetShader() == nullptr)
 				imgData.offscreenMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
 
-			if (imgData.targetOffscreenTexture == nullptr || true)
-				imgData.offscreenMaterial->SetProperty("diffuse", DEFAULT_TEXTURE_SID);
+			if (imgData.targetOffscreenTexture == nullptr)
+				imgData.offscreenMaterial->SetProperty("diffuse", "Resources/Core/Textures/Logo_Colored_1024.png"_hs);
 			else
 				imgData.offscreenMaterial->SetProperty("diffuse", imgData.targetOffscreenTexture->GetSID());
 
@@ -246,9 +245,12 @@ namespace Lina
 		// Main Render Pass
 		{
 			// Wait for world renderers to finish.
-		//	worldRendererFuture.get();
+			worldRendererFuture.get();
 
-			m_renderer->TransitionPresent2RT(frame.cmdList, imgData.renderTargetColor);
+			ResourceTransition present2RT = {ResourceTransitionType::Present2RT, imgData.renderTargetColor};
+			ResourceTransition rt2Present = {ResourceTransitionType::RT2Present, imgData.renderTargetColor};
+
+			m_renderer->ResourceBarrier(frame.cmdList, &present2RT, 1);
 			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
 
 			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
@@ -259,7 +261,7 @@ namespace Lina
 			}
 
 			m_renderer->EndRenderPass(frame.cmdList);
-			m_renderer->TransitionRT2Present(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->ResourceBarrier(frame.cmdList, &rt2Present, 1);
 		}
 
 		// Close command buffer.
@@ -271,7 +273,6 @@ namespace Lina
 		{
 			m_renderer->ExecuteCommandListsGraphics({frame.cmdList});
 		}
-
 	}
 
 	void SurfaceRenderer::Present()

@@ -175,8 +175,7 @@ namespace Lina
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(delta); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
-		// testWorldRenderer->Tick(delta);
-
+		
 		int i = 0;
 		for (auto c : cubes)
 		{
@@ -194,7 +193,6 @@ namespace Lina
 	void GfxManager::Render()
 	{
 		PROFILER_FUNCTION("Main");
-
 		auto& frame = m_dataPerFrame[m_frameIndex];
 
 		// Global data

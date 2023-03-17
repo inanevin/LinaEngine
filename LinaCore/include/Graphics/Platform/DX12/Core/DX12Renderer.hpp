@@ -174,10 +174,7 @@ namespace Lina
 		void   FinalizeCommandList(uint32 cmdListHandle);
 		void   ExecuteCommandListsGraphics(const Vector<uint32>& lists);
 		void   ExecuteCommandListsTransfer(const Vector<uint32>& lists);
-		void   TransitionPresent2RT(uint32 cmdListHandle, Texture* txt);
-		void   TransitionSRV2RT(uint32 cmdListHandle, Texture* txt);
-		void   TransitionRT2Present(uint32 cmdListHandle, Texture* txt);
-		void   TransitionRT2SRV(uint32 cmdListHandle, Texture* txt);
+		void   ResourceBarrier(uint32 cmdListHandle, ResourceTransition* transitions, uint32 count);
 		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture);
 		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil);
 		void   EndRenderPass(uint32 cmdListHandle);
@@ -189,10 +186,8 @@ namespace Lina
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
 		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset);
 		void   SetTopology(uint32 cmdListHandle, Topology topology);
-		void   PushTransferCommand(GfxCommand& cmd);
 		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot = 0);
 		void   BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer);
-		void   CopyFromStaging(uint32 cmdListHandle, IGfxBufferResource* staging, IGfxBufferResource* gpu, ResourceState finalState);
 
 		// Fences
 		uint32 CreateFence();
@@ -238,6 +233,11 @@ namespace Lina
 			return m_bufferHeap;
 		}
 
+		inline bool DX12IsTearingAllowed()
+		{
+			return m_allowTearing;
+		}
+
 		// ******************* DX12 INTERFACE *******************
 
 	private:
@@ -256,6 +256,7 @@ namespace Lina
 		Vector<LoadedResourceData> m_loadedSamplers;
 		Vector<LoadedResourceData> m_loadedRTs;
 		IUploadContext*			   m_uploadContext;
+		bool					   m_allowTearing = false;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;

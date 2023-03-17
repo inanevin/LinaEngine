@@ -72,7 +72,7 @@ namespace Lina
 		resourceDesc.Width				 = size.x;
 		resourceDesc.Height				 = size.y;
 		resourceDesc.DepthOrArraySize	 = 1;
-		resourceDesc.MipLevels			 = 1;
+		resourceDesc.MipLevels			 = static_cast<UINT16>(m_texture->GetMipLevels());
 		resourceDesc.SampleDesc.Count	 = 1;
 		resourceDesc.SampleDesc.Quality	 = 0;
 		resourceDesc.Layout				 = D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -97,7 +97,6 @@ namespace Lina
 		else if (m_type == TextureResourceType::Texture2DDefault)
 		{
 			state = D3D12_RESOURCE_STATE_COPY_DEST;
-			// SKIP MIPS FOR NOW
 		}
 		else if (m_type == TextureResourceType::Texture2DRenderTargetColor)
 		{

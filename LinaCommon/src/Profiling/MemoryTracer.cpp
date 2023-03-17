@@ -26,6 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 #include "Profiling/MemoryTracer.hpp"
+
+#ifdef LINA_ENABLE_PROFILING
+
 #include "FileSystem/FileSystem.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
@@ -43,254 +46,256 @@ SOFTWARE.
 
 namespace Lina
 {
-    void MemoryTracer::RegisterAllocator(MemoryAllocatorPool* alloc)
-    {
-        m_registeredAllocators.push_back(alloc);
-    }
+	void MemoryTracer::RegisterAllocator(MemoryAllocatorPool* alloc)
+	{
+		m_registeredAllocators.push_back(alloc);
+	}
 
-    void MemoryTracer::UnregisterAllocator(MemoryAllocatorPool* alloc)
-    {
-        for (int i = 0; i < m_registeredAllocators.size(); i++)
-        {
-            if (m_registeredAllocators[i] == alloc)
-            {
-                m_registeredAllocators.remove(i);
-                break;
-            }
-        }
-    }
+	void MemoryTracer::UnregisterAllocator(MemoryAllocatorPool* alloc)
+	{
+		for (int i = 0; i < m_registeredAllocators.size(); i++)
+		{
+			if (m_registeredAllocators[i] == alloc)
+			{
+				m_registeredAllocators.remove(i);
+				break;
+			}
+		}
+	}
 
-    void MemoryTracer::OnAllocation(void* ptr, size_t sz)
-    {
-        LOCK_GUARD(m_mtx);
-        MemoryTrack track = MemoryTrack{
-            .ptr  = ptr,
-            .size = sz,
-        };
+	void MemoryTracer::OnAllocation(void* ptr, size_t sz)
+	{
+		LOCK_GUARD(m_mtx);
+		MemoryTrack track = MemoryTrack{
+			.ptr  = ptr,
+			.size = sz,
+		};
 
-        CaptureTrace(track);
+		CaptureTrace(track);
 
-        m_defTracks.push_back(track);
-    }
+		m_defTracks.push_back(track);
+	}
 
-    void MemoryTracer::OnFree(void* ptr)
-    {
-        LOCK_GUARD(m_mtx);
-        for (int i = 0; i < m_defTracks.size(); i++)
-        {
-            if (m_defTracks[i].ptr == ptr)
-            {
-                m_defTracks.remove(i);
-                break;
-            }
-        }
-    }
+	void MemoryTracer::OnFree(void* ptr)
+	{
+		LOCK_GUARD(m_mtx);
+		for (int i = 0; i < m_defTracks.size(); i++)
+		{
+			if (m_defTracks[i].ptr == ptr)
+			{
+				m_defTracks.remove(i);
+				break;
+			}
+		}
+	}
 
-    void MemoryTracer::OnVramAllocation(void* ptr, size_t sz)
-    {
-        LOCK_GUARD(m_mtx);
-        MemoryTrack track = MemoryTrack{
-            .ptr  = ptr,
-            .size = sz,
-        };
+	void MemoryTracer::OnVramAllocation(void* ptr, size_t sz)
+	{
+		LOCK_GUARD(m_mtx);
+		MemoryTrack track = MemoryTrack{
+			.ptr  = ptr,
+			.size = sz,
+		};
 
-        CaptureTrace(track);
+		CaptureTrace(track);
 
-        m_vramTracks.push_back(track);
-    }
+		m_vramTracks.push_back(track);
+	}
 
-    void MemoryTracer::OnVramFree(void* ptr)
-    {
-        LOCK_GUARD(m_mtx);
+	void MemoryTracer::OnVramFree(void* ptr)
+	{
+		LOCK_GUARD(m_mtx);
 
-        for (int i = 0; i < m_vramTracks.size(); i++)
-        {
-            if (m_vramTracks[i].ptr == ptr)
-            {
-                m_vramTracks.remove(i);
-                break;
-            }
-        }
-    }
+		for (int i = 0; i < m_vramTracks.size(); i++)
+		{
+			if (m_vramTracks[i].ptr == ptr)
+			{
+				m_vramTracks.remove(i);
+				break;
+			}
+		}
+	}
 
-    DeviceMemoryInfo MemoryTracer::QueryMemoryInfo()
-    {
-        DeviceMemoryInfo info;
+	DeviceMemoryInfo MemoryTracer::QueryMemoryInfo()
+	{
+		DeviceMemoryInfo info;
 
 #ifdef LINA_PLATFORM_WINDOWS
-        MEMORYSTATUSEX memInfo;
-        memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-        GlobalMemoryStatusEx(&memInfo);
-        info.totalVirtualMemory     = static_cast<unsigned long>(memInfo.ullTotalPageFile);
-        info.totalUsedVirtualMemory = static_cast<unsigned long>(memInfo.ullTotalPageFile - memInfo.ullAvailPageFile);
-        info.totalRAM               = static_cast<unsigned long>(memInfo.ullTotalPhys);
-        info.totalUsedRAM           = static_cast<unsigned long>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
-        PROCESS_MEMORY_COUNTERS_EX pmc;
-        GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-        info.totalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
-        info.totalProcessRAM           = static_cast<unsigned long>(pmc.WorkingSetSize);
+		MEMORYSTATUSEX memInfo;
+		memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+		GlobalMemoryStatusEx(&memInfo);
+		info.totalVirtualMemory		= static_cast<unsigned long>(memInfo.ullTotalPageFile);
+		info.totalUsedVirtualMemory = static_cast<unsigned long>(memInfo.ullTotalPageFile - memInfo.ullAvailPageFile);
+		info.totalRAM				= static_cast<unsigned long>(memInfo.ullTotalPhys);
+		info.totalUsedRAM			= static_cast<unsigned long>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
+		PROCESS_MEMORY_COUNTERS_EX pmc;
+		GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
+		info.totalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
+		info.totalProcessRAM		   = static_cast<unsigned long>(pmc.WorkingSetSize);
 #else
-        LINA_ERR("[Profiler] -> Memory query for other platforms not implemented!");
+		LINA_ERR("[Profiler] -> Memory query for other platforms not implemented!");
 #endif
 
-        return info;
-    }
+		return info;
+	}
 
-    void MemoryTracer::CaptureTrace(MemoryTrack& track)
-    {
+	void MemoryTracer::CaptureTrace(MemoryTrack& track)
+	{
 #ifdef LINA_PLATFORM_WINDOWS
-        track.stackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, track.stack, nullptr);
+		track.stackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, track.stack, nullptr);
 #else
 
-        void*  stack[MEMORY_STACK_TRACE_SIZE];
-        int    frames       = backtrace(stack, numElementsInArray(stack));
-        char** frameStrings = backtrace_symbols(stack, frames);
+		void*  stack[MEMORY_STACK_TRACE_SIZE];
+		int	   frames		= backtrace(stack, numElementsInArray(stack));
+		char** frameStrings = backtrace_symbols(stack, frames);
 
-        for (int i = 4; i < frames; ++i)
-        {
-            // TODO: Use backtrace to implement Linux & MacOs functionality.
-            LINA_ERR("Backtrace is not implemented yet! Profiler allocation data will be empty.");
-        }
+		for (int i = 4; i < frames; ++i)
+		{
+			// TODO: Use backtrace to implement Linux & MacOs functionality.
+			LINA_ERR("Backtrace is not implemented yet! Profiler allocation data will be empty.");
+		}
 
-        ::free(frameStrings);
+		::free(frameStrings);
 #endif
-    }
+	}
 
-    void MemoryTracer::Destroy()
-    {
-        if (m_destroyed)
-            return;
+	void MemoryTracer::Destroy()
+	{
+		if (m_destroyed)
+			return;
 
-        m_destroyed = true;
+		m_destroyed = true;
 
-        if (MemoryLeaksFile != NULL && MemoryLeaksFile[0] != '\0')
-            DumpLeaks(MemoryLeaksFile);
+		if (MemoryLeaksFile != NULL && MemoryLeaksFile[0] != '\0')
+			DumpLeaks(MemoryLeaksFile);
 
-        m_defTracks.clear();
+		m_defTracks.clear();
 
 #ifdef LINA_PLATFORM_WINDOWS
-        HANDLE process = GetCurrentProcess();
-        SymCleanup(process);
+		HANDLE process = GetCurrentProcess();
+		SymCleanup(process);
 #endif
-    }
+	}
 
-    void MemoryTracer::DumpLeaks(const char* path)
-    {
-        if (FileSystem::FileExists(path))
-            FileSystem::DeleteFileInPath(path);
+	void MemoryTracer::DumpLeaks(const char* path)
+	{
+		if (FileSystem::FileExists(path))
+			FileSystem::DeleteFileInPath(path);
 
-        std::ofstream file(path);
+		std::ofstream file(path);
 
-        auto writeTrace = [&](const SimpleArray<MemoryTrack>& tracks) {
-            for (int i = 0; i < tracks.size(); i++)
-            {
-                const auto& alloc = tracks[i];
+		auto writeTrace = [&](const SimpleArray<MemoryTrack>& tracks) {
+			for (int i = 0; i < tracks.size(); i++)
+			{
+				const auto& alloc = tracks[i];
 
-                std::ostringstream ss;
+				std::ostringstream ss;
 
-                ss << "****************** LEAK DETECTED ******************\n";
-                ss << "Size: " << alloc.size << " bytes \n";
+				ss << "****************** LEAK DETECTED ******************\n";
+				ss << "Size: " << alloc.size << " bytes \n";
 
 #ifdef LINA_PLATFORM_WINDOWS
-                HANDLE      process = GetCurrentProcess();
-                static bool inited  = false;
+				HANDLE		process = GetCurrentProcess();
+				static bool inited	= false;
 
-                if (!inited)
-                {
-                    inited = true;
-                    SymInitialize(process, nullptr, TRUE);
-                }
+				if (!inited)
+				{
+					inited = true;
+					SymInitialize(process, nullptr, TRUE);
+				}
 
-                void* symbolAll = calloc(sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR), 1);
+				void* symbolAll = calloc(sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR), 1);
 
-                if (symbolAll == NULL)
-                    return;
+				if (symbolAll == NULL)
+					return;
 
-                SYMBOL_INFO* symbol  = static_cast<SYMBOL_INFO*>(symbolAll);
-                symbol->MaxNameLen   = 255;
-                symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+				SYMBOL_INFO* symbol	 = static_cast<SYMBOL_INFO*>(symbolAll);
+				symbol->MaxNameLen	 = 255;
+				symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 
-                DWORD            displacement;
-                IMAGEHLP_LINE64* line = NULL;
-                line                  = (IMAGEHLP_LINE64*)std::malloc(sizeof(IMAGEHLP_LINE64));
+				DWORD			 displacement;
+				IMAGEHLP_LINE64* line = NULL;
+				line				  = (IMAGEHLP_LINE64*)std::malloc(sizeof(IMAGEHLP_LINE64));
 
-                if (line == NULL)
-                    return;
+				if (line == NULL)
+					return;
 
-                line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
+				line->SizeOfStruct = sizeof(IMAGEHLP_LINE64);
 
-                for (int i = 0; i < alloc.stackSize; ++i)
-                {
-                    ss << "------ Stack Trace " << i << "------\n";
+				for (int i = 0; i < alloc.stackSize; ++i)
+				{
+					ss << "------ Stack Trace " << i << "------\n";
 
-                    DWORD64 address = (DWORD64)(alloc.stack[i]);
+					DWORD64 address = (DWORD64)(alloc.stack[i]);
 
-                    SymFromAddr(process, address, NULL, symbol);
+					SymFromAddr(process, address, NULL, symbol);
 
-                    if (SymGetLineFromAddr64(process, address, &displacement, line))
-                    {
-                        ss << "Location:" << line->FileName << "\n";
-                        ss << "Smybol:" << symbol->Name << "\n";
-                        ss << "Line:" << line->LineNumber << "\n";
-                        ss << "SymbolAddr:" << symbol->Address << "\n";
-                    }
-                    else
-                    {
-                        ss << "Smybol:" << symbol->Name << "\n";
-                        ss << "SymbolAddr:" << symbol->Address << "\n";
-                    }
+					if (SymGetLineFromAddr64(process, address, &displacement, line))
+					{
+						ss << "Location:" << line->FileName << "\n";
+						ss << "Smybol:" << symbol->Name << "\n";
+						ss << "Line:" << line->LineNumber << "\n";
+						ss << "SymbolAddr:" << symbol->Address << "\n";
+					}
+					else
+					{
+						ss << "Smybol:" << symbol->Name << "\n";
+						ss << "SymbolAddr:" << symbol->Address << "\n";
+					}
 
-                    IMAGEHLP_MODULE64 moduleInfo;
-                    moduleInfo.SizeOfStruct = sizeof(moduleInfo);
-                    if (::SymGetModuleInfo64(process, symbol->ModBase, &moduleInfo))
-                        ss << "Module:" << moduleInfo.ModuleName << "\n";
-                }
-                std::free(line);
-                std::free(symbolAll);
+					IMAGEHLP_MODULE64 moduleInfo;
+					moduleInfo.SizeOfStruct = sizeof(moduleInfo);
+					if (::SymGetModuleInfo64(process, symbol->ModBase, &moduleInfo))
+						ss << "Module:" << moduleInfo.ModuleName << "\n";
+				}
+				std::free(line);
+				std::free(symbolAll);
 #endif
 
-                ss << "\n";
-                ss << "\n";
+				ss << "\n";
+				ss << "\n";
 
-                file << ss.str();
-                ss.clear();
-            }
-        };
+				file << ss.str();
+				ss.clear();
+			}
+		};
 
-        if (file.is_open())
-        {
-            size_t totalSizeBytes = 0;
-            size_t totalSizeKB    = 0;
+		if (file.is_open())
+		{
+			size_t totalSizeBytes = 0;
+			size_t totalSizeKB	  = 0;
 
-            for (int i = 0; i < m_defTracks.size(); i++)
-                totalSizeBytes += m_defTracks[i].size;
+			for (int i = 0; i < m_defTracks.size(); i++)
+				totalSizeBytes += m_defTracks[i].size;
 
-            totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
+			totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
 
-            file << "-------------------------------------------\n";
-            file << "PROCESS MEMORY LEAKS\n";
-            file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (kb)\n";
-            file << "-------------------------------------------\n";
-            file << "\n";
+			file << "-------------------------------------------\n";
+			file << "PROCESS MEMORY LEAKS\n";
+			file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (kb)\n";
+			file << "-------------------------------------------\n";
+			file << "\n";
 
-            writeTrace(m_defTracks);
+			writeTrace(m_defTracks);
 
-            totalSizeBytes = totalSizeKB = 0;
+			totalSizeBytes = totalSizeKB = 0;
 
-            for (int i = 0; i < m_vramTracks.size(); i++)
-                totalSizeBytes += m_vramTracks[i].size;
+			for (int i = 0; i < m_vramTracks.size(); i++)
+				totalSizeBytes += m_vramTracks[i].size;
 
-            totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
+			totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
 
-            file << "-------------------------------------------\n";
-            file << "VRAM MEMORY LEAKS\n";
-            file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (mb)\n";
-            file << "-------------------------------------------\n";
-            file << "\n";
+			file << "-------------------------------------------\n";
+			file << "VRAM MEMORY LEAKS\n";
+			file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (mb)\n";
+			file << "-------------------------------------------\n";
+			file << "\n";
 
-            writeTrace(m_vramTracks);
+			writeTrace(m_vramTracks);
 
-            file.close();
-        }
-    }
+			file.close();
+		}
+	}
 } // namespace Lina
+
+#endif

@@ -208,7 +208,6 @@ namespace Lina
 	void WorldRenderer::Tick(float delta)
 	{
 		PROFILER_FUNCTION("Main");
-
 		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
 
 		if (camRef.IsValid())
@@ -276,6 +275,10 @@ namespace Lina
 			m_renderer->BindUniformBuffer(frame.cmdList, 2, frame.sceneDataBuffer);
 		}
 
+		ResourceTransition srv2RT[2] = {{ResourceTransitionType::SRV2RT, imgData.renderTargetColor}, {ResourceTransitionType::SRV2RT, imgData.renderTargetPP}};
+		ResourceTransition rt2SRV1	= {ResourceTransitionType::RT2SRV, imgData.renderTargetColor};
+		ResourceTransition rt2SRV2	= {ResourceTransitionType::RT2SRV, imgData.renderTargetPP};
+
 		// Main Render Pass
 		{
 			// Update View data.
@@ -290,7 +293,7 @@ namespace Lina
 				m_opaquePass.UpdateBuffers(frameIndex, frame.cmdList);
 			}
 
-			m_renderer->TransitionSRV2RT(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->ResourceBarrier(frame.cmdList, srv2RT, 2);
 			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
 
 			// Draw scene objects.
@@ -302,13 +305,12 @@ namespace Lina
 			}
 
 			m_renderer->EndRenderPass(frame.cmdList);
-			m_renderer->TransitionRT2SRV(frame.cmdList, imgData.renderTargetColor);
+			m_renderer->ResourceBarrier(frame.cmdList, &rt2SRV1, 1);
 			m_renderer->PrepareRenderTargets(&imgData.renderTargetColor, 1);
 		}
 
 		// Post process pass.
 		{
-			m_renderer->TransitionSRV2RT(frame.cmdList, imgData.renderTargetPP);
 			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetPP, imgData.renderTargetDepth);
 
 			// Draw
@@ -318,7 +320,7 @@ namespace Lina
 			}
 
 			m_renderer->EndRenderPass(frame.cmdList);
-			m_renderer->TransitionRT2SRV(frame.cmdList, imgData.renderTargetPP);
+			m_renderer->ResourceBarrier(frame.cmdList, &rt2SRV2, 1);
 			m_renderer->PrepareRenderTargets(&imgData.renderTargetPP, 1);
 		}
 

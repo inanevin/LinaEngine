@@ -48,10 +48,12 @@ namespace Lina
 			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 			swapchainDesc.SampleDesc.Count		= 1;
 			ComPtr<IDXGISwapChain1> swapchain;
-			// swapchainDesc.Flags =DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING ;
 
-			DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
-			fsDesc.Windowed = false;
+			if (rend->DX12IsTearingAllowed())
+				swapchainDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+
+			// DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
+			// fsDesc.Windowed = false;
 
 			try
 			{
@@ -63,10 +65,10 @@ namespace Lina
 																				   nullptr,
 																				   &swapchain));
 
-				// ThrowIfFailed(m_factory->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
+				// ThrowIfFailed(rend->DX12GetFactory()->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
 
 				ThrowIfFailed(swapchain.As(&m_swapchain));
-				// m_swapchain->SetFullscreenState(TRUE, NULL);
+				// m_swapchain->SetFullscreenState(FALSE, NULL);
 				// m_swapchain->ResizeBuffers(1, 3840, 2160, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
 			}
 			catch (HrException e)

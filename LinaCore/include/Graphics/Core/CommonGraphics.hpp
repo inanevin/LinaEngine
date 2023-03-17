@@ -39,6 +39,8 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Texture;
+	class IGfxBufferResource;
 
 	enum class Format
 	{
@@ -256,7 +258,8 @@ namespace Lina
 
 	enum class MipmapFilter
 	{
-		Box = 0,
+		Default = 0,
+		Box,
 		Triangle,
 		CubicSpline,
 		CatmullRom,
@@ -342,6 +345,14 @@ namespace Lina
 		MBF_BindMaterialProperties = 1 << 1,
 	};
 
+	enum class ResourceTransitionType
+	{
+		SRV2RT,
+		RT2SRV,
+		RT2Present,
+		Present2RT,
+	};
+
 	struct Offset3D
 	{
 		int32 x = 0;
@@ -379,7 +390,7 @@ namespace Lina
 		Filter			   minFilter   = Filter::Linear;
 		Filter			   magFilter   = Filter::Linear;
 		SamplerAddressMode mode		   = SamplerAddressMode::ClampToEdge;
-		float			   anisotropy  = 4.0f;
+		uint32			   anisotropy  = 4;
 		float			   minLod	   = 0.0f;
 		float			   maxLod	   = 1.0f;
 		float			   mipLodBias  = 0.0f;
@@ -404,6 +415,13 @@ namespace Lina
 	{
 		TextureResourceType type;
 		Delegate<void()>	onGenerated;
+	};
+
+	struct ResourceTransition
+	{
+		ResourceTransitionType type	   = ResourceTransitionType::Present2RT;
+		Texture*			   texture = nullptr;
+		IGfxBufferResource*	   buffer  = nullptr;
 	};
 
 	class GfxCommand

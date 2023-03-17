@@ -234,7 +234,7 @@ namespace Lina
 			mipmap.height			  = height;
 			mipmap.pixels			  = new unsigned char[width * height * m_channels];
 			const stbir_colorspace cs = isInLinearSpace ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
-			stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(mipmapFilter), cs, 0);
+			int retval = stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(mipmapFilter), cs, 0);
 
 			lastWidth	 = width;
 			lastHeight	 = height;
