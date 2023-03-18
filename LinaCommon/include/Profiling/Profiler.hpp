@@ -34,11 +34,13 @@ SOFTWARE.
 #ifdef LINA_ENABLE_PROFILING
 
 #define MAX_FRAME_BACKTRACE 500
+#define BACKTRACE_CLEANUP	200
 
 // Headers here.
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Queue.hpp"
+#include "Data/Deque.hpp"
 #include "Core/StringID.hpp"
 #include "Core/ISingleton.hpp"
 #include <source_location>
@@ -48,36 +50,25 @@ namespace Lina
 	struct Block
 	{
 	public:
-		String		   threadName = "";
-		StringID	   threadID	  = 0;
-		String		   name		  = "";
-		double		   durationNS = 0.0;
-		double		   startTime  = 0.0;
-		double		   initDiff	  = 0.0;
-		Block*		   parent	  = nullptr;
-		Vector<Block*> children;
+		const char* name		= "";
+		uint64		endCycles	= 0;
+		uint64		startCycles = 0;
 	};
 
 	struct Scope
 	{
-		Scope(const String& blockName, const String& threadName = "Main");
+		Scope(const char* scopeName, StringID thread = "Main"_hs);
 		~Scope();
 
-		String blockName  = "";
-		String threadName = "";
-	};
-
-	struct ThreadBranch
-	{
-		Block*		   lastBlock = nullptr;
-		Vector<Block*> blocks;
+		const char* blockName	= "";
+		StringID	blockThread = 0;
 	};
 
 	struct ProfilerFrame
 	{
-		double						  durationNS = 0.0;
-		double						  startTime	 = 0.0;
-		HashMap<String, ThreadBranch> threadBranches;
+		uint64										  startCycles = 0;
+		uint64										  endCycles	  = 0;
+		ParallelHashMapMutex<StringID, Vector<Block>> threadBlocks;
 	};
 
 	struct DeviceCPUInfo
@@ -110,10 +101,10 @@ namespace Lina
 
 		DeviceCPUInfo& QueryCPUInfo();
 		void		   StartFrame();
-		void		   StartBlock(const String& block, const String& thread);
-		void		   EndBlock(const String& block, const String& thread);
+		void		   StartBlock(const char* blockName, StringID threadName);
+		void		   EndBlock(StringID threadName);
 		void		   DumpFrameAnalysis(const String& path);
-		void		   WriteBlockData(String& indent, Block* block, std::ofstream& file);
+		void		   RegisterThread(const char* name, StringID sid);
 
 		inline void SetGPUInfo(const DeviceGPUInfo& info)
 		{
@@ -128,46 +119,39 @@ namespace Lina
 	private:
 		friend class GlobalAllocatorWrapper;
 
-		Profiler(){};
+		Profiler();
 		virtual ~Profiler()
 		{
 			Destroy();
 		}
 
-		void CleanupFrame(ProfilerFrame& frame);
-		void CleanupBlock(Block* s);
-
 	private:
-		double				 m_totalFrameTimeNS = 0.0;
-		Queue<ProfilerFrame> m_frames;
-		double				 m_lastCPUQueryTime		  = 0.0;
-		bool				 m_totalFrameQueueReached = false;
-		DeviceCPUInfo		 m_cpuInfo;
-		DeviceGPUInfo		 m_gpuInfo;
-		std::mutex			 m_lock;
+		HashMap<StringID, const char*> m_threadNames;
+		Deque<ProfilerFrame>		   m_frameQueue;
+		double						   m_lastCPUQueryTime		= 0.0;
+		bool						   m_totalFrameQueueReached = false;
+		DeviceCPUInfo				   m_cpuInfo;
+		DeviceGPUInfo				   m_gpuInfo;
 	};
 
 #define PROFILER_FRAME_START()						Lina::Profiler::Get().StartFrame()
 #define PROFILER_STARTBLOCK(BLOCKENAME, THREADNAME) Lina::Profiler::Get().StartBlock(BLOCKAME, THREADNAME)
-#define PROFILER_ENDBLOCK(BLOCKNAME, THREADNAME)	Lina::Profiler::Get().EndBlock(BLOCKNAME, THREADNAME)
-#define PROFILER_SCOPE(BLOCKNAME, THREADNAME)		Lina::Scope scope(BLOCKNAME, THREADNAME)
-#define PROFILER_FUNCTION(...)						Lina::Scope function(__FUNCTION__, __VA_ARGS__)
+#define PROFILER_ENDBLOCK(THREADNAME)				Lina::Profiler::Get().EndBlock(THREADNAME)
+#define PROFILER_FUNCTION(...)						Lina::Scope function(__FUNCTION__, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)		Lina::Profiler::Get().FrameAnalysisFile = FILE
-#define PROFILER_THREAD_RENDER						"Render"
-#define PROFILER_THREAD_MAIN						"Main"
+#define PROFILER_REGISTER_THREAD(NAME)				Lina::Profiler::Get().RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 
 } // namespace Lina
 
 #else
 
-#define PROFILER_FRAME_START()						
-#define PROFILER_STARTBLOCK(BLOCKENAME, THREADNAME) 
-#define PROFILER_ENDBLOCK(BLOCKNAME, THREADNAME)	
-#define PROFILER_SCOPE(BLOCKNAME, THREADNAME)		
-#define PROFILER_FUNCTION(...)						
-#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)		
-#define PROFILER_THREAD_RENDER						"Render"
-#define PROFILER_THREAD_MAIN						"Main"
+#define PROFILER_FRAME_START()
+#define PROFILER_STARTBLOCK(BLOCKENAME, THREADNAME)
+#define PROFILER_ENDBLOCK(BLOCKNAME, THREADNAME)
+#define PROFILER_FUNCTION(...)
+#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)
+#define PROFILER_REGISTER_THREAD(NAME)
+
 #endif
 
 #endif

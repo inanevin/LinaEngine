@@ -135,8 +135,8 @@ namespace Lina
 	void GfxManager::PreShutdown()
 	{
 		Join();
-		delete testWorld;
 		delete testWorldRenderer;
+		delete testWorld;
 		for (auto m : m_engineMaterials)
 			delete m;
 		for (auto s : m_engineSamplers)
@@ -170,12 +170,14 @@ namespace Lina
 
 	void GfxManager::Tick(float delta)
 	{
-		PROFILER_FUNCTION("Main");
+		PROFILER_FUNCTION();
+
+		int* a = new int();
 
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(delta); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
-		
+
 		int i = 0;
 		for (auto c : cubes)
 		{
@@ -192,7 +194,8 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
-		PROFILER_FUNCTION("Main");
+		PROFILER_FUNCTION();
+
 		auto& frame = m_dataPerFrame[m_frameIndex];
 
 		// Global data

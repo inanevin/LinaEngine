@@ -121,6 +121,7 @@ set(LINACOMMON_HEADERS
 	include/Data/Vector.hpp
 	include/Data/IntrusiveList.hpp
 	include/Data/Map.hpp
+	include/Data/MallocAllocator.hpp
 	include/Data/List.hpp
 	include/Data/Ringbuffer.hpp
 	include/Data/IDList.hpp

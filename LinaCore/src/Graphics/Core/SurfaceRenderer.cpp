@@ -206,7 +206,8 @@ namespace Lina
 
 	void SurfaceRenderer::Tick(float delta)
 	{
-		PROFILER_FUNCTION("Main");
+		PROFILER_FUNCTION();
+
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(delta); });
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
@@ -214,7 +215,8 @@ namespace Lina
 
 	void SurfaceRenderer::Render(uint32 frameIndex)
 	{
-		PROFILER_FUNCTION("Main");
+		PROFILER_FUNCTION();
+
 		Taskflow worldRendererTaskFlow;
 		worldRendererTaskFlow.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
 		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
@@ -277,7 +279,6 @@ namespace Lina
 
 	void SurfaceRenderer::Present()
 	{
-		PROFILER_FUNCTION("Main");
 		m_renderer->Present(m_swapchain);
 		m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
 	}

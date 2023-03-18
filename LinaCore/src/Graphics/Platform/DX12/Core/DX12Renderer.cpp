@@ -818,8 +818,6 @@ namespace Lina
 
 	void Renderer::BeginFrame(uint32 frameIndex)
 	{
-		PROFILER_FUNCTION("Main");
-
 		m_currentFrameIndex = frameIndex;
 
 		// Will wait if pending commands.
@@ -835,8 +833,6 @@ namespace Lina
 
 	void Renderer::EndFrame(uint32 frameIndex)
 	{
-		PROFILER_FUNCTION("Main");
-
 		auto& fence = m_fences.GetItemR(m_frameFenceGraphics);
 		auto& frame = m_frames[frameIndex];
 

@@ -93,7 +93,6 @@ namespace Lina
 
 	void GlobalAllocatorWrapper::Free(void* ptr)
 	{
-		
 		// Some libraries may do so, as in most runtimes this is valid
 		if (ptr == nullptr)
 			return;
@@ -101,7 +100,7 @@ namespace Lina
 		m_allocator.Free(ptr);
 	}
 
-	GlobalAllocatorWrapper::GlobalAllocatorWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::FreeList, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, "Global", 0))
+	GlobalAllocatorWrapper::GlobalAllocatorWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::StandardMallocFree, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, "Global", 0))
 	{
 	}
 

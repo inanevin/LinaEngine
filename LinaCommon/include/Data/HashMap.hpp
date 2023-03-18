@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,24 +26,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef DataStructuresHashMap_HPP
 #define DataStructuresHashMap_HPP
+
 #include "Data/Mutex.hpp"
+#include "MallocAllocator.hpp"
 #include <parallel_hashmap/phmap.h>
+
 namespace Lina
 {
-    template <typename T, typename U>
-    using HashMap = phmap::flat_hash_map<T, U>;
 
-    template <typename T, typename U>
-    using ParallelHashMap = phmap::parallel_flat_hash_map<T,U>;
+	template <typename T, typename U> using HashMap = phmap::flat_hash_map<T, U>;
 
-    template <typename T, typename U>
-    using ParallelHashMapMutex = phmap::parallel_flat_hash_map<T, U, phmap::priv::hash_default_hash<T>,
-        phmap::priv::hash_default_eq<T>, phmap::priv::Allocator<T>, 4, Mutex>;
+	template <typename T, typename U> using ParallelHashMap = phmap::parallel_flat_hash_map<T, U>;
+
+	template <typename T, typename U> using ParallelHashMapMutex	   = phmap::parallel_flat_hash_map<T, U, phmap::priv::hash_default_hash<T>, phmap::priv::hash_default_eq<T>, phmap::priv::Allocator<T>, 4, Mutex>;
+	template <typename T, typename U> using ParallelHashMapMutexMalloc = phmap::parallel_flat_hash_map<T, U, phmap::priv::hash_default_hash<T>, phmap::priv::hash_default_eq<T>, MallocAllocator<T>, 4, Mutex>;
 
 } // namespace Lina
 

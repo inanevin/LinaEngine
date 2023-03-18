@@ -75,14 +75,14 @@ namespace Lina
 
 	void* MemoryAllocatorPool::Allocate(size_t sz)
 	{
-		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
-
 		if (m_type == AllocatorType::StandardMallocFree)
 		{
 			void* res = malloc(sz);
 			MEMORY_TRACER_ONALLOC(res, sz);
 			return res;
 		}
+
+		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
 
 		if (m_type == AllocatorType::FreeList)
 			sz = sz % FREELIST_HEADER_SIZE == 0 ? sz : sz + (FREELIST_HEADER_SIZE - sz % FREELIST_HEADER_SIZE);
@@ -118,14 +118,14 @@ namespace Lina
 
 	void MemoryAllocatorPool::Free(void* ptr)
 	{
-		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
-
 		if (m_type == AllocatorType::StandardMallocFree)
 		{
 			MEMORY_TRACER_ONFREE(ptr);
 			free(ptr);
 			return;
 		}
+
+		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
 
 		bool freed = false;
 

@@ -27,7 +27,7 @@ SOFTWARE.
 */
 #include "Profiling/MemoryTracer.hpp"
 
-#ifdef LINA_ENABLE_PROFILING
+#if defined LINA_ENABLE_PROFILING
 
 #include "FileSystem/FileSystem.hpp"
 #include "Profiling/Profiler.hpp"
@@ -65,7 +65,6 @@ namespace Lina
 
 	void MemoryTracer::OnAllocation(void* ptr, size_t sz)
 	{
-		LOCK_GUARD(m_mtx);
 		MemoryTrack track = MemoryTrack{
 			.ptr  = ptr,
 			.size = sz,
@@ -73,47 +72,13 @@ namespace Lina
 
 		CaptureTrace(track);
 
-		m_defTracks.push_back(track);
+		m_allocationMap.try_emplace_l(
+			ptr, [](auto& a) {}, track);
 	}
 
 	void MemoryTracer::OnFree(void* ptr)
 	{
-		LOCK_GUARD(m_mtx);
-		for (int i = 0; i < m_defTracks.size(); i++)
-		{
-			if (m_defTracks[i].ptr == ptr)
-			{
-				m_defTracks.remove(i);
-				break;
-			}
-		}
-	}
-
-	void MemoryTracer::OnVramAllocation(void* ptr, size_t sz)
-	{
-		LOCK_GUARD(m_mtx);
-		MemoryTrack track = MemoryTrack{
-			.ptr  = ptr,
-			.size = sz,
-		};
-
-		CaptureTrace(track);
-
-		m_vramTracks.push_back(track);
-	}
-
-	void MemoryTracer::OnVramFree(void* ptr)
-	{
-		LOCK_GUARD(m_mtx);
-
-		for (int i = 0; i < m_vramTracks.size(); i++)
-		{
-			if (m_vramTracks[i].ptr == ptr)
-			{
-				m_vramTracks.remove(i);
-				break;
-			}
-		}
+		m_allocationMap.erase_if(ptr, [](auto&) { return true; });
 	}
 
 	DeviceMemoryInfo MemoryTracer::QueryMemoryInfo()
@@ -169,8 +134,6 @@ namespace Lina
 		if (MemoryLeaksFile != NULL && MemoryLeaksFile[0] != '\0')
 			DumpLeaks(MemoryLeaksFile);
 
-		m_defTracks.clear();
-
 #ifdef LINA_PLATFORM_WINDOWS
 		HANDLE process = GetCurrentProcess();
 		SymCleanup(process);
@@ -184,11 +147,9 @@ namespace Lina
 
 		std::ofstream file(path);
 
-		auto writeTrace = [&](const SimpleArray<MemoryTrack>& tracks) {
-			for (int i = 0; i < tracks.size(); i++)
+		auto writeTrace = [&]() {
+			for (auto& [ptr, alloc] : m_allocationMap)
 			{
-				const auto& alloc = tracks[i];
-
 				std::ostringstream ss;
 
 				ss << "****************** LEAK DETECTED ******************\n";
@@ -258,6 +219,8 @@ namespace Lina
 				file << ss.str();
 				ss.clear();
 			}
+
+			LINA_ASSERT(m_allocationMap.empty(), "Memory leaks detected! Check the leaks file.");
 		};
 
 		if (file.is_open())
@@ -265,8 +228,8 @@ namespace Lina
 			size_t totalSizeBytes = 0;
 			size_t totalSizeKB	  = 0;
 
-			for (int i = 0; i < m_defTracks.size(); i++)
-				totalSizeBytes += m_defTracks[i].size;
+			for (auto& [ptr, alloc] : m_allocationMap)
+				totalSizeBytes += alloc.size;
 
 			totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
 
@@ -276,22 +239,7 @@ namespace Lina
 			file << "-------------------------------------------\n";
 			file << "\n";
 
-			writeTrace(m_defTracks);
-
-			totalSizeBytes = totalSizeKB = 0;
-
-			for (int i = 0; i < m_vramTracks.size(); i++)
-				totalSizeBytes += m_vramTracks[i].size;
-
-			totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
-
-			file << "-------------------------------------------\n";
-			file << "VRAM MEMORY LEAKS\n";
-			file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (mb)\n";
-			file << "-------------------------------------------\n";
-			file << "\n";
-
-			writeTrace(m_vramTracks);
+			writeTrace();
 
 			file.close();
 		}

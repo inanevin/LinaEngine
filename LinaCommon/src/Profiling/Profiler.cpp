@@ -44,6 +44,11 @@ namespace Lina
 {
 #define QUERY_CPU_INTERVAL_SECS 2
 
+	Profiler::Profiler()
+	{
+		m_frameQueue.resize(MAX_FRAME_BACKTRACE);
+	}
+
 	DeviceCPUInfo& Profiler::QueryCPUInfo()
 	{
 #ifdef LINA_PLATFORM_WINDOWS
@@ -109,7 +114,7 @@ namespace Lina
 		}
 
 		// info.processUse              = percent * 100.0;
-		m_cpuInfo.averageFrameTimeNS = m_totalFrameTimeNS / (m_totalFrameQueueReached ? static_cast<double>(MAX_FRAME_BACKTRACE) : static_cast<double>(m_frames.size()));
+		// m_cpuInfo.averageFrameTimeNS = m_totalFrameTimeNS / (m_totalFrameQueueReached ? static_cast<double>(MAX_FRAME_BACKTRACE) : static_cast<double>(m_frames.size()));
 
 #else
 		LINA_ERR("[Profiler] -> CPU query for other platforms not implemented!");
@@ -120,66 +125,55 @@ namespace Lina
 
 	void Profiler::StartFrame()
 	{
-		const double cpuTimeNow = PlatformTime::GetSeconds();
-
-		if (m_frames.size() == MAX_FRAME_BACKTRACE)
+		const int32 diff = MAX_FRAME_BACKTRACE - static_cast<int32>(m_frameQueue.size());
+		if (diff < 0)
 		{
-			CleanupFrame(m_frames.front());
-			m_totalFrameTimeNS -= m_frames.front().durationNS;
-			m_frames.pop();
+			for (int i = 0; i < BACKTRACE_CLEANUP; i++)
+				m_frameQueue.pop_front();
 		}
 
-		if (!m_frames.empty())
+		const uint64 cyclesNow = PlatformTime::GetCycles64();
+
+		if (!m_frameQueue.empty())
 		{
-			m_frames.back().durationNS = (cpuTimeNow - m_frames.back().startTime) * 1.0e9;
-			m_totalFrameTimeNS += m_frames.back().durationNS;
+			auto& pf	 = m_frameQueue.back();
+			pf.endCycles = cyclesNow;
 		}
 
-		ProfilerFrame f;
-		f.startTime = cpuTimeNow;
-		m_frames.emplace(f);
+		ProfilerFrame frame;
+		frame.startCycles = cyclesNow;
+		m_frameQueue.push_back(frame);
 	}
 
-	void Profiler::StartBlock(const String& block, const String& thread)
+	void Profiler::StartBlock(const char* blockName, StringID thread)
 	{
-		LOCK_GUARD(m_lock);
-		const double  cpuTimeNow = PlatformTime::GetSeconds();
-		ThreadBranch& branch	 = m_frames.back().threadBranches[thread];
+		const uint64 cycles = PlatformTime::GetCycles64();
+		auto&		 frame	= m_frameQueue.back();
 
-		Block* s	  = new Block();
-		s->name		  = block;
-		s->threadName = thread;
-		s->startTime  = cpuTimeNow;
-		s->parent	  = branch.lastBlock;
-		s->threadID	  = TO_SID(thread);
-
-		if (branch.lastBlock == nullptr)
-			branch.blocks.push_back(s);
-		else
-			branch.lastBlock->children.push_back(s);
-
-		branch.lastBlock = s;
-		s->initDiff		 = PlatformTime::GetSeconds() - cpuTimeNow;
+		Block block;
+		block.name		  = blockName;
+		block.startCycles = PlatformTime::GetCycles64();
+		frame.threadBlocks.try_emplace_l(
+			thread, [&block](auto& blocks) { blocks.second.push_back(block); }, Vector<Block>{block});
 	}
 
-	void Profiler::EndBlock(const String& block, const String& thread)
+	void Profiler::EndBlock(StringID thread)
 	{
-		LOCK_GUARD(m_lock);
-		ThreadBranch& branch		 = m_frames.back().threadBranches[thread];
-		branch.lastBlock->durationNS = (PlatformTime::GetSeconds() - branch.lastBlock->startTime + branch.lastBlock->initDiff) * 1.0e9;
-		branch.lastBlock			 = branch.lastBlock->parent;
+		const uint64 cycles = PlatformTime::GetCycles64();
+		auto&		 frame	= m_frameQueue.back();
+		frame.threadBlocks.modify_if(thread, [cycles](auto& blocks) { blocks.second[blocks.second.size() - 1].endCycles = cycles; });
 	}
 
-	Scope::Scope(const String& funcName, const String& thread)
+	Scope::Scope(const char* funcName, StringID thread)
 	{
-		blockName  = funcName;
-		threadName = thread;
+		blockName	= funcName;
+		blockThread = thread;
 		Profiler::Get().StartBlock(funcName, thread);
 	}
 
 	Scope::~Scope()
 	{
-		Profiler::Get().EndBlock(blockName, threadName);
+		Profiler::Get().EndBlock(blockThread);
 	}
 
 	void Profiler::DumpFrameAnalysis(const String& path)
@@ -192,43 +186,51 @@ namespace Lina
 		if (file.is_open())
 		{
 
-			const double avgTimeNS = m_totalFrameTimeNS / static_cast<double>(m_frames.size());
-			const double avgTimeMS = avgTimeNS * 0.000001;
-
 			file << "-------------------------------------------\n";
-			file << "FRAME ANALYSIS - SHOWING LAST " << m_frames.size() << " FRAMES \n";
+			file << "FRAME ANALYSIS - SHOWING LAST " << m_frameQueue.size() << " FRAMES \n";
 			file << "-------------------------------------------\n";
-			file << "Average Frame Time: " << avgTimeNS << " (NS) " << avgTimeMS << " (MS) \n";
-			file << "Average FPS: " << static_cast<int>(1000.0 / avgTimeMS) << "\n";
 			file << "\n";
 
 			int frameCounter = 0;
-			while (!m_frames.empty())
+			while (!m_frameQueue.empty())
 			{
-				auto f = m_frames.front();
+				const auto& f = m_frameQueue.front();
 
 				file << "------------------------------------ FRAME " << frameCounter << "------------------------------------\n";
-				file << "Duration: " << f.durationNS << " (NS) " << f.durationNS * 0.000001 << " (MS)\n";
+				const double durationMS = PlatformTime::GetDeltaSeconds64(f.startCycles, f.endCycles, 1.0f) * 1000;
+				file << "Duration: " << durationMS << " (MS)\n";
 				file << "\n";
 
-				for (const auto& t : f.threadBranches)
+				for (const auto& [sid, blocks] : f.threadBlocks)
 				{
-					double threaddurationNS = 0.0;
-					for (auto s : t.second.blocks)
-						threaddurationNS += s->durationNS;
+					double threadduration = 0.0;
+					for (auto b : blocks)
+					{
+						const double dur = PlatformTime::GetDeltaSeconds64(b.startCycles, b.endCycles, 1.0f);
+						threadduration += dur;
+					}
 
-					file << "********************************* THREAD: " << t.first.c_str() << " *********************************\n";
-					file << "** Total Duration: " << threaddurationNS << " (NS) " << threaddurationNS * 0.000001 << " (MS)\n";
-					String indent = "** ";
-					for (auto s : t.second.blocks)
-						WriteBlockData(indent, s, file);
+					auto   it		  = m_threadNames.find(sid);
+					String threadName = TO_STRING(sid);
+					if (it != m_threadNames.end())
+						threadName = it->second;
+
+					file << "********************************* THREAD: " << threadName.c_str() << " *********************************\n";
+					file << "** Total Duration: " << threadduration * 1000 << " (MS)\n";
+					const char* indent = "** ";
+
+					for (auto b : blocks)
+					{
+						const double dur = PlatformTime::GetDeltaSeconds64(b.startCycles, b.endCycles, 1.0f) * 1000;
+						file << indent << "-------- " << b.name << " --------\n";
+						file << indent << "Duration: " << dur << " (MS)\n";
+					}
 
 					file << "\n";
 				}
 
 				file << "\n";
-				CleanupFrame(f);
-				m_frames.pop();
+				m_frameQueue.pop_front();
 				frameCounter++;
 			}
 
@@ -236,16 +238,9 @@ namespace Lina
 		}
 	}
 
-	void Profiler::WriteBlockData(String& indent, Block* block, std::ofstream& file)
+	void Profiler::RegisterThread(const char* name, StringID sid)
 	{
-		String newIndent = indent;
-		file << "**\n";
-		file << indent.c_str() << "-------- " << block->name.c_str() << " --------\n";
-		file << indent.c_str() << "Duration: " << block->durationNS * 0.000001 << " (MS)\n";
-		file << indent.c_str() << "Thread: " << block->threadName.c_str() << "\n";
-		newIndent += "    ";
-		for (auto s : block->children)
-			WriteBlockData(newIndent, s, file);
+		m_threadNames[sid] = name;
 	}
 
 	void Profiler::Destroy()
@@ -257,31 +252,7 @@ namespace Lina
 		if (FrameAnalysisFile != NULL && FrameAnalysisFile[0] != '\0')
 			DumpFrameAnalysis(FrameAnalysisFile);
 
-		while (!m_frames.empty())
-		{
-			auto f = m_frames.front();
-			CleanupFrame(f);
-			m_frames.pop();
-		}
-	}
-
-	void Profiler::CleanupFrame(ProfilerFrame& frame)
-	{
-		for (auto& [threadName, threadInfo] : frame.threadBranches)
-		{
-			for (auto* block : threadInfo.blocks)
-				CleanupBlock(block);
-
-			threadInfo.blocks.clear();
-		}
-	}
-
-	void Profiler::CleanupBlock(Block* block)
-	{
-		for (auto s : block->children)
-			CleanupBlock(s);
-
-		delete block;
+		m_frameQueue = Deque<ProfilerFrame>();
 	}
 
 } // namespace Lina

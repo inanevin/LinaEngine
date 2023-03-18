@@ -76,6 +76,8 @@ namespace Lina
 
 		for (auto [type, sys] : m_subsystems)
 			sys->PostInit();
+
+		PROFILER_REGISTER_THREAD("Main");
 	}
 
 	void Engine::Shutdown()
@@ -96,9 +98,11 @@ namespace Lina
 		delete m_coreResourceRegistry;
 	}
 
+	
 	void Engine::Tick(float delta)
 	{
 		m_input.Tick(delta);
+
 		m_gfxManager.Tick(delta);
 
 		// For any listeners that fall outside the main loop.

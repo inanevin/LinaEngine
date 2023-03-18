@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef MemoryTracer_HPP
 #define MemoryTracer_HPP
 
-#ifdef LINA_ENABLE_PROFILING
+#if defined LINA_ENABLE_PROFILING
 
 #include "Data/Mutex.hpp"
 #include "Data/SimpleArray.hpp"
@@ -41,89 +41,84 @@ namespace Lina
 {
 #define MEMORY_STACK_TRACE_SIZE 10
 
-    struct MemoryTrack
-    {
-        void*          ptr                            = nullptr;
-        size_t         size                           = 0;
-        unsigned short stackSize                      = 0;
-        void*          stack[MEMORY_STACK_TRACE_SIZE] = {};
-    };
+	struct MemoryTrack
+	{
+		void*		   ptr							  = nullptr;
+		size_t		   size							  = 0;
+		unsigned short stackSize					  = 0;
+		void*		   stack[MEMORY_STACK_TRACE_SIZE] = {};
+	};
 
-    struct DeviceMemoryInfo
-    {
-        unsigned long totalVirtualMemory        = 0;
-        unsigned long totalUsedVirtualMemory    = 0;
-        unsigned long totalProcessVirtualMemory = 0;
-        unsigned long totalRAM                  = 0;
-        unsigned long totalUsedRAM              = 0;
-        unsigned long totalProcessRAM           = 0;
-    };
+	struct DeviceMemoryInfo
+	{
+		unsigned long totalVirtualMemory		= 0;
+		unsigned long totalUsedVirtualMemory	= 0;
+		unsigned long totalProcessVirtualMemory = 0;
+		unsigned long totalRAM					= 0;
+		unsigned long totalUsedRAM				= 0;
+		unsigned long totalProcessRAM			= 0;
+	};
 
-    class MemoryAllocatorPool;
+	class MemoryAllocatorPool;
 
-    class MemoryTracer : public ISingleton
-    {
-    public:
-        static MemoryTracer& Get()
-        {
-            static MemoryTracer instance;
-            return instance;
-        }
+	class MemoryTracer : public ISingleton
+	{
+	public:
+		static MemoryTracer& Get()
+		{
+			static MemoryTracer instance;
+			return instance;
+		}
 
-        void             RegisterAllocator(MemoryAllocatorPool* alloc);
-        void             UnregisterAllocator(MemoryAllocatorPool* alloc);
-        void             OnAllocation(void* ptr, size_t sz);
-        void             OnFree(void* ptr);
-        void             OnVramAllocation(void* ptr, size_t sz);
-        void             OnVramFree(void* ptr);
-        DeviceMemoryInfo QueryMemoryInfo();
+		void			 RegisterAllocator(MemoryAllocatorPool* alloc);
+		void			 UnregisterAllocator(MemoryAllocatorPool* alloc);
+		void			 OnAllocation(void* ptr, size_t sz);
+		void			 OnFree(void* ptr);
+		DeviceMemoryInfo QueryMemoryInfo();
 
-        const char* MemoryLeaksFile = "lina_memory_leaks.txt";
+		const char* MemoryLeaksFile = "lina_memory_leaks.txt";
 
-        inline const SimpleArray<MemoryAllocatorPool*>& GetRegisteredAllocators()
-        {
-            return m_registeredAllocators;
-        }
+		inline const SimpleArray<MemoryAllocatorPool*>& GetRegisteredAllocators()
+		{
+			return m_registeredAllocators;
+		}
 
-    protected:
-        virtual void Destroy() override;
+	protected:
+		virtual void Destroy() override;
 
-    private:
-        friend class GlobalAllocatorWrapper;
+	private:
+		friend class GlobalAllocatorWrapper;
 
-        MemoryTracer(){};
-        virtual ~MemoryTracer()
-        {
-            Destroy();
-        };
+		MemoryTracer(){};
+		virtual ~MemoryTracer()
+		{
+			Destroy();
+		};
 
-        void CaptureTrace(MemoryTrack& track);
-        void DumpLeaks(const char* path);
+		void CaptureTrace(MemoryTrack& track);
+		void DumpLeaks(const char* path);
 
-    private:
-        SimpleArray<MemoryTrack>          m_defTracks;
-        SimpleArray<MemoryTrack>          m_vramTracks;
-        SimpleArray<MemoryAllocatorPool*> m_registeredAllocators;
-        Mutex                             m_mtx;
-    };
+	private:
+		SimpleArray<MemoryAllocatorPool*>			   m_registeredAllocators;
+		ParallelHashMapMutexMalloc<void*, MemoryTrack> m_allocationMap;
+		Atomic<bool>								   m_skip;
+	};
 
-#define MEMORY_TRACER_ONALLOC(PTR, SZ)              Lina::MemoryTracer::Get().OnAllocation(PTR, SZ)
-#define MEMORY_TRACER_ONFREE(PTR)                   Lina::MemoryTracer::Get().OnFree(PTR)
-#define MEMORY_TRACER_VRAM_ONALLOC(PTR, SZ)         Lina::MemoryTracer::Get().OnVramAllocation(PTR, SZ)
-#define MEMORY_TRACER_VRAM_ONFREE(PTR)              Lina::MemoryTracer::Get().OnVramFree(PTR)
-#define MEMORY_TRACER_SET_LEAK_FILE(STR)            Lina::MemoryTracer::Get().MemoryLeaksFile = STR
-#define MEMORY_TRACER_REGISTER_ALLOCATORPOOL(ALL)   Lina::MemoryTracer::Get().RegisterAllocator(ALL)
+#define MEMORY_TRACER_ONALLOC(PTR, SZ)				Lina::MemoryTracer::Get().OnAllocation(PTR, SZ)
+#define MEMORY_TRACER_ONFREE(PTR)					Lina::MemoryTracer::Get().OnFree(PTR)
+#define MEMORY_TRACER_SET_LEAK_FILE(STR)			Lina::MemoryTracer::Get().MemoryLeaksFile = STR
+#define MEMORY_TRACER_REGISTER_ALLOCATORPOOL(ALL)	Lina::MemoryTracer::Get().RegisterAllocator(ALL)
 #define MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(ALL) Lina::MemoryTracer::Get().UnregisterAllocator(ALL)
 } // namespace Lina
 
 #else
-#define MEMORY_TRACER_ONALLOC(PTR, SZ)              
-#define MEMORY_TRACER_ONFREE(PTR)                   
-#define MEMORY_TRACER_VRAM_ONALLOC(PTR, SZ)         
-#define MEMORY_TRACER_VRAM_ONFREE(PTR)              
-#define MEMORY_TRACER_SET_LEAK_FILE(STR)            
-#define MEMORY_TRACER_REGISTER_ALLOCATORPOOL(ALL)   
-#define MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(ALL) 
+#define MEMORY_TRACER_ONALLOC(PTR, SZ)
+#define MEMORY_TRACER_ONFREE(PTR)
+#define MEMORY_TRACER_VRAM_ONALLOC(PTR, SZ)
+#define MEMORY_TRACER_VRAM_ONFREE(PTR)
+#define MEMORY_TRACER_SET_LEAK_FILE(STR)
+#define MEMORY_TRACER_REGISTER_ALLOCATORPOOL(ALL)
+#define MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(ALL)
 #endif
 
 #endif

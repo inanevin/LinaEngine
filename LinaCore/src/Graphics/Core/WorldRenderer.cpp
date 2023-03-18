@@ -207,7 +207,8 @@ namespace Lina
 
 	void WorldRenderer::Tick(float delta)
 	{
-		PROFILER_FUNCTION("Main");
+		PROFILER_FUNCTION();
+
 		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
 
 		if (camRef.IsValid())
@@ -249,8 +250,8 @@ namespace Lina
 
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
 	{
-		PROFILER_FUNCTION("Main");
-
+		PROFILER_FUNCTION();
+		
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[imageIndex];
 
