@@ -69,6 +69,11 @@ namespace Lina
 			return m_input;
 		}
 
+		inline GfxManager& GetGfxManager()
+		{
+			return m_gfxManager;
+		}
+
 		inline IEngineInterface* GetInterface()
 		{
 			return &m_engineInterface;

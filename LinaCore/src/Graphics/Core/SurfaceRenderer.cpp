@@ -42,14 +42,14 @@ namespace Lina
 {
 	int SurfaceRenderer::s_surfaceRendererCount = 0;
 
-	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask) : m_gfxManager(man), m_imageCount(imageCount), m_mask(mask)
+	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask) : m_gfxManager(man), m_imageCount(imageCount), m_mask(mask)
 	{
 
 		// Init
 		{
 			m_renderer = m_gfxManager->GetRenderer();
 			m_gfxManager->GetSystem()->AddListener(this);
-			m_swapchain = m_renderer->CreateSwapchain(initialSize, windowHandle, sid);
+			m_swapchain = m_renderer->CreateSwapchain(initialSize, window, sid);
 			m_dataPerImage.resize(imageCount, DataPerImage());
 			m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
 		}
@@ -126,7 +126,7 @@ namespace Lina
 		{
 			void* windowPtr = ev.pParams[0];
 
-			if (windowPtr == m_swapchain->GetWindowHandle())
+			if (windowPtr == m_swapchain->GetWindow())
 			{
 				const Vector2i newSize = Vector2i(ev.iParams[0], ev.iParams[1]);
 				DestroyTextures();
@@ -202,6 +202,11 @@ namespace Lina
 			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 				delete data.offscreenMaterial;
 		}
+	}
+
+	void SurfaceRenderer::WaitForPresentation()
+	{
+		m_renderer->WaitForPresentation(m_swapchain);
 	}
 
 	void SurfaceRenderer::Tick(float delta)

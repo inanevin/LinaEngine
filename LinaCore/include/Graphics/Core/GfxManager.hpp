@@ -47,6 +47,7 @@ namespace Lina
 	class ResourceManager;
 	class Recti;
 	class TextureSampler;
+	class IWindow;
 
 	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
@@ -66,15 +67,16 @@ namespace Lina
 		virtual void		PostInit() override;
 		virtual void		PreShutdown() override;
 		virtual void		Shutdown() override;
+		void				WaitForPresentation();
 		void				Join();
 		void				Tick(float delta);
 		void				Render();
-		void				CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
+		void				CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		void				DestroySurfaceRenderer(StringID sid);
 		IGfxBufferResource* GetCurrentGlobalDataResource();
 		virtual void		OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-		void				OnWindowMoved(void* windowHandle, StringID sid, const Recti& rect);
-		void				OnWindowResized(void* windowHandle, StringID sid, const Recti& rect);
+		void				OnWindowMoved(IWindow* window, StringID sid, const Recti& rect);
+		void				OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
 		void				OnVsyncChanged(VsyncMode mode);
 
 		virtual Bitmask32 GetSystemEventMask() override

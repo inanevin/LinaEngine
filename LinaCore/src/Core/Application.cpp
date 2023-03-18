@@ -57,25 +57,16 @@ namespace Lina
 	{
 		PROFILER_FRAME_START();
 
-		// Comments that explain basically nothing.
-
-		// Calculate time :)
-		CalculateTime();
-
-		// Pre-poll & OS messages.
+		m_engine.GetGfxManager().WaitForPresentation();
 		m_engine.GetInput().PreTick();
 		PlatformProcess::PumpMessages();
+		CalculateTime();
+		m_engine.Tick(SystemInfo::GetDeltaTimeF());
+		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
 
 		// Yield-CPU check.
 		// if (!SystemInfo::GetAppHasFocus())
 		//	PlatformProcess::Sleep(.1);
-
-		m_engine.Tick(SystemInfo::GetDeltaTimeF());
-
-		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
-
-		// if (SystemInfo::GetFrames() > 300)
-		//	m_exitRequested = true;
 	}
 
 	void Application::Shutdown()

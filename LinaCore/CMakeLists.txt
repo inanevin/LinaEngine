@@ -47,6 +47,7 @@ src/Input/Core/Input.cpp
 src/Graphics/Core/WindowManager.cpp
 src/Graphics/Core/GfxManager.cpp
 src/Graphics/Core/View.cpp
+src/Graphics/Core/ISwapchain.cpp
 src/Graphics/Core/DrawPass.cpp
 src/Graphics/Core/CameraSystem.cpp
 src/Graphics/Core/WorldRenderer.cpp

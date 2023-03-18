@@ -65,5 +65,5 @@ PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color 
 float4 PSMain(PSInput input) : SV_TARGET
 {
 	float4 col = Lina_SampleTexture2D(diffuse, input.uv);
-	return float4(col.xyz, 1);
+	return float4(input.uv, 0, 1);
 }

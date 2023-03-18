@@ -32,10 +32,12 @@ SOFTWARE.
 #include "Core/CoreResourcesRegistry.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Core/PlatformTime.hpp"
+#include "Core/PlatformProcess.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 
 //********** DEBUG
 #include "Input/Core/InputMappings.hpp"
+#include "Graphics/Core/IWindow.hpp"
 
 #define DEFAULT_RATE 1.0f / 60.0f
 
@@ -98,12 +100,22 @@ namespace Lina
 		delete m_coreResourceRegistry;
 	}
 
-	
+	Vector<float> database;
+
 	void Engine::Tick(float delta)
 	{
 		m_input.Tick(delta);
 
 		m_gfxManager.Tick(delta);
+
+		// for (int i = 0; i < 1800000; i++)
+		//{
+		//	float j = 827 * i + 5 / 2.0f + 18.0f;
+		//	float k = j / 22.0f / 15 + 9995;
+		//	database.push_back(k + j);
+		// }
+
+		database.clear();
 
 		// For any listeners that fall outside the main loop.
 		// Event eventData;
@@ -132,17 +144,53 @@ namespace Lina
 
 		if (m_input.GetKeyDown(LINA_KEY_2))
 		{
-			m_windowManager.SetVsync(VsyncMode::Adaptive);
+			m_windowManager.SetVsync(VsyncMode::EveryVBlank);
 		}
 
 		if (m_input.GetKeyDown(LINA_KEY_3))
 		{
-			m_windowManager.SetVsync(VsyncMode::StrongVsync);
+			m_windowManager.SetVsync(VsyncMode::EverySecondVBlank);
 		}
 
 		if (m_input.GetKeyDown(LINA_KEY_4))
 		{
-			m_windowManager.SetVsync(VsyncMode::TripleBuffer);
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Fullscreen);
+		}
+
+		if (m_input.GetKeyDown(LINA_KEY_5))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Windowed);
+		}
+		if (m_input.GetKeyDown(LINA_KEY_6))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::WindowedNoResize);
+		}
+		if (m_input.GetKeyDown(LINA_KEY_7))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Borderless);
+		}
+		if (m_input.GetKeyDown(LINA_KEY_8))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::BorderlessNoResize);
+		}
+		if (m_input.GetKeyDown(LINA_KEY_9))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::None);
+		}
+
+		if (m_input.GetKeyDown(LINA_KEY_A))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->Maximize();
+		}
+
+		if (m_input.GetKeyDown(LINA_KEY_B))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->Restore();
+		}
+
+		if (m_input.GetKeyDown(LINA_KEY_D))
+		{
+			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->Minimize();
 		}
 	}
 	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)

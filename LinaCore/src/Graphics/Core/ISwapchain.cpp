@@ -26,59 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Common_HPP
-#define Common_HPP
-
-// Headers here.
-#include "Core/SizeDefinitions.hpp"
-#include "Data/Bitmask.hpp"
+#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Platform/RendererIncl.hpp"
+#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/WindowManager.hpp"
+#include "Graphics/Core/IWindow.hpp"
+#include "System/ISystem.hpp"
 
 namespace Lina
 {
-	enum class PreferredGPUType
+	ISwapchain::ISwapchain(Renderer* renderer, const Vector2i& size, IWindow* window, StringID sid) : m_size(size), m_window(window), m_sid(sid)
 	{
-		Discrete = 0,
-		Integrated,
-		CPU
-	};
-
-	enum class VsyncMode
-	{
-		None = 0,
-		EveryVBlank,
-		EverySecondVBlank,
-	};
-
-	enum class WindowStyle
-	{
-		None = 0,
-		Windowed,
-		WindowedNoResize,
-		Borderless,
-		BorderlessNoResize,
-		Fullscreen
-	};
-
-	enum class ApplicationMode
-	{
-		Standalone,
-		Editor
-	};
-
-	struct SystemInitializationInfo
-	{
-		const char*		 appName		  = "";
-		int				 windowWidth	  = 0;
-		int				 windowHeight	  = 0;
-		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
-		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
-		VsyncMode		 vsyncMode		  = VsyncMode::None;
-		ApplicationMode	 appMode		  = ApplicationMode::Editor;
-	};
-
-	extern const char* VsyncModeToStr(VsyncMode mode);
+		m_renderer		= renderer;
+		m_windowManager = m_renderer->GetGfxManager()->GetSystem()->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
+	}
 } // namespace Lina
-
-#endif

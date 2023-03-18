@@ -116,16 +116,16 @@ namespace Lina
 			camEntity->SetRotationAngles(Vector3(0, 0, 0));
 
 			testWorld->SetActiveCamera(cam);
-			auto aq	 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-			auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Sphere.fbx"_hs)->AddToWorld(testWorld);
-			auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
+			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			/// auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Sphere.fbx"_hs)->AddToWorld(testWorld);
+			/// auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
 
-			aq->SetPosition(Vector3(3, 0, 0));
-			aq2->SetPosition(Vector3(-3, 0, 0));
-			aq3->SetPosition(Vector3(0, 0, 0));
+			aq->SetPosition(Vector3(-3.5f, 0, 0));
+			// aq2->SetPosition(Vector3(-3, 0, 0));
+			// aq3->SetPosition(Vector3(0, 0, 0));
 			cubes.push_back(aq);
-			cubes.push_back(aq2);
-			cubes.push_back(aq3);
+			// cubes.push_back(aq2);
+			// cubes.push_back(aq3);
 			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, m_surfaceRenderers[0], 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
 
@@ -163,6 +163,13 @@ namespace Lina
 		m_resourceManager->RemoveListener(this);
 	}
 
+	void GfxManager::WaitForPresentation()
+	{
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->WaitForPresentation(); });
+		m_system->GetMainExecutor()->RunAndWait(tf);
+	}
+
 	void GfxManager::Join()
 	{
 		m_renderer->Join();
@@ -172,8 +179,6 @@ namespace Lina
 	{
 		PROFILER_FUNCTION();
 
-		int* a = new int();
-
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(delta); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
@@ -181,8 +186,13 @@ namespace Lina
 		int i = 0;
 		for (auto c : cubes)
 		{
-			// c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF()) * 100.5f * delta, 1.5f - i * 1.5f, 0.0f));
-			c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
+			c->AddPosition(Vector3(delta * 0.33f, 0, 0));
+
+			if (c->GetPosition().x > 3.5f)
+				c->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
+
+			// c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF() * 0.2f) * 3, 0.0f, 0.0f));
+			//  c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
 			i++;
 		}
 		if (camEntity)
@@ -223,9 +233,9 @@ namespace Lina
 		m_frameIndex = (m_frameIndex + 1) % FRAMES_IN_FLIGHT;
 	}
 
-	void GfxManager::CreateSurfaceRenderer(StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask)
+	void GfxManager::CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask)
 	{
-		SurfaceRenderer* renderer = new SurfaceRenderer(this, BACK_BUFFER_COUNT, sid, windowHandle, initialSize, mask);
+		SurfaceRenderer* renderer = new SurfaceRenderer(this, BACK_BUFFER_COUNT, sid, window, initialSize, mask);
 		m_surfaceRenderers.push_back(renderer);
 	}
 
@@ -265,19 +275,23 @@ namespace Lina
 		}
 	}
 
-	void GfxManager::OnWindowMoved(void* windowHandle, StringID sid, const Recti& rect)
+	void GfxManager::OnWindowMoved(IWindow* window, StringID sid, const Recti& rect)
 	{
 	}
 
-	void GfxManager::OnWindowResized(void* windowHandle, StringID sid, const Recti& rect)
+	void GfxManager::OnWindowResized(IWindow* window, StringID sid, const Recti& rect)
 	{
 		if (!m_postInited)
 			return;
-		m_renderer->OnWindowResized(windowHandle, sid, rect);
+
+		m_renderer->OnWindowResized(window, sid, rect);
 	}
 
 	void GfxManager::OnVsyncChanged(VsyncMode mode)
 	{
+		if (!m_postInited)
+			return;
+		m_renderer->OnVsyncChanged(mode);
 	}
 
 } // namespace Lina

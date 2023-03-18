@@ -347,7 +347,6 @@ namespace Lina
 		}
 
 		SetToCenter();
-		m_restoreSize = size;
 		return true;
 	}
 
@@ -359,6 +358,11 @@ namespace Lina
 
 	void Win32Window::SetStyle(WindowStyle style)
 	{
+		if (m_style == style)
+			return;
+
+		const WindowStyle previousStyle = m_style;
+
 		m_style			   = style;
 		m_canHitTestResize = true;
 		DWORD wstl		   = 0;
@@ -369,7 +373,7 @@ namespace Lina
 		{
 			wstl = WS_OVERLAPPEDWINDOW;
 			wstl &= ~WS_THICKFRAME;
-			wstl &= ~WS_MINIMIZEBOX;
+			//	wstl &= ~WS_MINIMIZEBOX;
 			wstl &= ~WS_MAXIMIZEBOX;
 			m_canHitTestResize = false;
 		}
@@ -386,13 +390,19 @@ namespace Lina
 		{
 			wstl			   = WS_POPUP | WS_VISIBLE;
 			m_canHitTestResize = false;
+			SetWindowLongPtr(m_window, GWL_STYLE, wstl);
+			SetToFullscreen();
+			return;
 		}
 
 		SetWindowLongPtr(m_window, GWL_STYLE, wstl);
-		ShowWindow(m_window, SW_SHOW);
 
-		if (style == WindowStyle::Fullscreen)
-			SetToFullscreen();
+		if (previousStyle == WindowStyle::Fullscreen)
+		{
+			SetToWorkingArea();
+		}
+		
+		ShowWindow(m_window, SW_SHOW);
 	}
 
 	void Win32Window::Close()
@@ -412,11 +422,8 @@ namespace Lina
 
 	void Win32Window::SetToFullscreen()
 	{
-		int w = GetSystemMetrics(SM_CXSCREEN);
-		int h = GetSystemMetrics(SM_CYSCREEN);
-		SetPos(Vector2i(0, 0));
-		SetSize(Vector2i(w, h));
-		m_isMaximized = true;
+		m_isFullscreen = true;
+		ShowWindow(m_window, SW_SHOWMAXIMIZED);
 	}
 
 	void Win32Window::UpdateButtonLayoutForDpi(HWND__* hwnd)
@@ -475,17 +482,19 @@ namespace Lina
 	{
 		const Vector2i oldPos = m_rect.pos;
 		m_rect.pos			  = pos;
-		m_gfxManager->OnWindowMoved(m_handle, m_sid, m_rect);
+		m_gfxManager->OnWindowMoved(this, m_sid, m_rect);
 	}
 
 	void Win32Window::UpdateSize(const Vector2i& size)
 	{
-		m_isMinimized = size.x == 0 || size.y == 0;
+		const MonitorInfo info = m_manager->GetMonitorInfoFromWindow(static_cast<IWindow*>(this));
+		m_isMinimized		   = size.x == 0 || size.y == 0;
+		m_isMaximized		   = size.x == info.workArea.x && size.y == info.workArea.y;
 
 		const Vector2i oldSize = m_rect.size;
 		m_rect.size			   = size;
 		m_aspect			   = m_isMinimized ? 0.0f : static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
-		m_gfxManager->OnWindowResized(m_handle, m_sid, m_rect);
+		m_gfxManager->OnWindowResized(this, m_sid, m_rect);
 	}
 
 	void Win32Window::SetTitle(const char* title)
@@ -499,42 +508,16 @@ namespace Lina
 		ShowWindow(m_window, SW_SHOWMINIMIZED);
 	}
 
-	void Win32Window::Maximize(bool useWorkArea)
+	void Win32Window::Restore()
 	{
-		if (m_isMaximized)
-		{
-			m_isMaximized = false;
+		m_isMaximized = false;
+		ShowWindow(m_window, SW_RESTORE);
+	}
 
-			if (m_restoreSize == GetSize())
-				m_restoreSize = Vector2(GetSize()) * 0.7f;
-
-			SetSize(m_restoreSize);
-		}
-		else
-		{
-			m_restoreSize		 = GetSize();
-			m_isMaximized		 = true;
-			HMONITOR	hMonitor = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
-			MONITORINFO mi;
-			mi.cbSize = sizeof(mi);
-			GetMonitorInfo(hMonitor, &mi);
-
-			SetPos(Vector2i::Zero);
-			int width = 0, height = 0;
-
-			if (useWorkArea)
-			{
-				width  = mi.rcWork.right - mi.rcWork.left;
-				height = mi.rcWork.bottom - mi.rcWork.top;
-			}
-			else
-			{
-				width  = mi.rcMonitor.right - mi.rcMonitor.left;
-				height = mi.rcMonitor.bottom - mi.rcMonitor.top;
-			}
-
-			SetSize(Vector2i(width, height));
-		}
+	void Win32Window::Maximize()
+	{
+		ShowWindow(m_window, SW_MAXIMIZE);
+		m_isMaximized = true;
 	}
 
 } // namespace Lina

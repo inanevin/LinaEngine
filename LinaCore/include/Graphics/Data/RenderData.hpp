@@ -44,7 +44,7 @@ namespace Lina
 #define OBJ_BUFFER_MAX	  15
 #define MAX_LIGHTS		  10
 #define FRAMES_IN_FLIGHT  2
-#define BACK_BUFFER_COUNT 2
+#define BACK_BUFFER_COUNT 3
 
 	enum RenderableType
 	{

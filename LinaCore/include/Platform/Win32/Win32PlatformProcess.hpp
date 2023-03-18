@@ -43,12 +43,15 @@ namespace Lina
 
 	class Win32PlatformProcess
 	{
+	public:
+		static void SleepSpinLock(double milliseconds);
+		static void Sleep(double milliseconds);
+
 	private:
 		friend class Application;
 
 		static void PumpMessages();
-		static void SleepSpinLock(double seconds);
-		static void Sleep(double seconds);
+
 		static void LoadPlugin(const char* name, IEngineInterface* engInterface, ISystemEventDispatcher* dispatcher);
 		static void UnloadPlugin(const char* name, ISystemEventDispatcher* dispatcher);
 

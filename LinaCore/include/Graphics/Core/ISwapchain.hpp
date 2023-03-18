@@ -36,10 +36,14 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Renderer;
+	class WindowManager;
+	class IWindow;
+
 	class ISwapchain
 	{
 	public:
-		ISwapchain(const Vector2i& size, void* windowHandle, StringID sid) : m_size(size), m_windowHandle(windowHandle), m_sid(sid){};
+		ISwapchain(Renderer* renderer, const Vector2i& size, IWindow* window, StringID sid);
 		virtual ~ISwapchain(){};
 
 		virtual void Recreate(const Vector2i& newSize)
@@ -47,9 +51,9 @@ namespace Lina
 			m_size = newSize;
 		}
 
-		inline void* GetWindowHandle()
+		inline IWindow* GetWindow()
 		{
-			return m_windowHandle;
+			return m_window;
 		}
 
 		inline const Vector2i& GetSize() const
@@ -63,9 +67,11 @@ namespace Lina
 		}
 
 	protected:
-		StringID m_sid			= 0;
-		void*	 m_windowHandle = nullptr;
-		Vector2i m_size			= Vector2i::Zero;
+		Renderer*	   m_renderer	   = nullptr;
+		WindowManager* m_windowManager = nullptr;
+		StringID	   m_sid		   = 0;
+		IWindow*	   m_window		   = nullptr;
+		Vector2i	   m_size		   = Vector2i::Zero;
 	};
 } // namespace Lina
 

@@ -47,6 +47,7 @@ namespace Lina
 	class WorldRenderer;
 	class Texture;
 	class Renderer;
+	class IWindow;
 
 	class SurfaceRenderer : public ISystemEventListener
 	{
@@ -74,9 +75,10 @@ namespace Lina
 		};
 
 	public:
-		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, void* windowHandle, const Vector2i& initialSize, Bitmask16 mask);
+		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
+		void		 WaitForPresentation();
 		void		 Tick(float delta);
 		void		 Render(uint32 frameIndex);
 		void		 Present();

@@ -28,14 +28,18 @@ SOFTWARE.
 
 #include "Graphics/Platform/DX12/Core/DX12Swapchain.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
+#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/WindowManager.hpp"
+#include "Graphics/Core/IWindow.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "System/ISystem.hpp"
 
 using Microsoft::WRL::ComPtr;
 
 namespace Lina
 {
-	DX12Swapchain::DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle, StringID sid) : m_renderer(rend), ISwapchain(size, windowHandle, sid)
+	DX12Swapchain::DX12Swapchain(Renderer* rend, const Vector2i& size, IWindow* window, StringID sid) : ISwapchain(rend, size, window, sid)
 	{
 		// Describe and create the swap chain.
 		{
@@ -49,27 +53,32 @@ namespace Lina
 			swapchainDesc.SampleDesc.Count		= 1;
 			ComPtr<IDXGISwapChain1> swapchain;
 
+			swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+
 			if (rend->DX12IsTearingAllowed())
 				swapchainDesc.Flags |= DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
 
-			// DXGI_SWAP_CHAIN_FULLSCREEN_DESC fsDesc;
-			// fsDesc.Windowed = false;
+			const bool isFullscreen = m_window->IsFullscreen();
 
 			try
 			{
-
+				HWND handle = static_cast<HWND>(m_window->GetHandle());
 				ThrowIfFailed(m_renderer->DX12GetFactory()->CreateSwapChainForHwnd(m_renderer->DX12GetGraphicsQueue(), // Swap chain needs the queue so that it can force a flush on it.
-																				   static_cast<HWND>(windowHandle),
+																				   handle,
 																				   &swapchainDesc,
 																				   nullptr,
 																				   nullptr,
 																				   &swapchain));
 
-				// ThrowIfFailed(rend->DX12GetFactory()->MakeWindowAssociation(static_cast<HWND>(windowHandle), DXGI_MWA_NO_ALT_ENTER));
+				// ThrowIfFailed(rend->DX12GetFactory()->MakeWindowAssociation(handle, DXGI_MWA_NO_ALT_ENTER));
 
 				ThrowIfFailed(swapchain.As(&m_swapchain));
-				// m_swapchain->SetFullscreenState(FALSE, NULL);
-				// m_swapchain->ResizeBuffers(1, 3840, 2160, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
+
+				m_swapchain->SetMaximumFrameLatency(FRAMES_IN_FLIGHT);
+				m_waitHandle = m_swapchain->GetFrameLatencyWaitableObject();
+
+				if (!rend->DX12IsTearingAllowed())
+					ThrowIfFailed(m_swapchain->SetFullscreenState(isFullscreen ? TRUE : FALSE, nullptr));
 			}
 			catch (HrException e)
 			{
@@ -82,6 +91,9 @@ namespace Lina
 
 	DX12Swapchain::~DX12Swapchain()
 	{
+		if (!m_renderer->DX12IsTearingAllowed())
+			ThrowIfFailed(m_swapchain->SetFullscreenState(FALSE, nullptr));
+
 		m_swapchain.Reset();
 	}
 
@@ -94,6 +106,9 @@ namespace Lina
 
 		try
 		{
+			if (!m_renderer->DX12IsTearingAllowed())
+				ThrowIfFailed(m_swapchain->SetFullscreenState(m_window->IsFullscreen() ? TRUE : FALSE, nullptr));
+
 			ThrowIfFailed(m_swapchain->ResizeBuffers(BACK_BUFFER_COUNT, newSize.x, newSize.y, desc.BufferDesc.Format, desc.Flags));
 		}
 		catch (HrException e)

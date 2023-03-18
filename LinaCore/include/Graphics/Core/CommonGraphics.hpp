@@ -438,7 +438,7 @@ namespace Lina
 #define LINA_MAIN_SWAPCHAIN		 "LinaMainSwapchain"_hs
 #define DEFAULT_SAMPLER_SID		 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
 #define DEFAULT_TEXTURE_SID		 "Resources/Core/Textures/LogoWithText.png"_hs
-#define DEFAULT_CLEAR_CLR		 Color::Black
+#define DEFAULT_CLEAR_CLR		 Color(0.3f, 0.3f, 0.5f, 1.0f)
 } // namespace Lina
 
 #endif

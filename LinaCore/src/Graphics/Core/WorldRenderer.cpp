@@ -251,7 +251,7 @@ namespace Lina
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
 	{
 		PROFILER_FUNCTION();
-		
+
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[imageIndex];
 
@@ -277,9 +277,10 @@ namespace Lina
 		}
 
 		ResourceTransition srv2RT[2] = {{ResourceTransitionType::SRV2RT, imgData.renderTargetColor}, {ResourceTransitionType::SRV2RT, imgData.renderTargetPP}};
-		ResourceTransition rt2SRV1	= {ResourceTransitionType::RT2SRV, imgData.renderTargetColor};
-		ResourceTransition rt2SRV2	= {ResourceTransitionType::RT2SRV, imgData.renderTargetPP};
+		ResourceTransition rt2SRV1	 = {ResourceTransitionType::RT2SRV, imgData.renderTargetColor};
+		ResourceTransition rt2SRV2	 = {ResourceTransitionType::RT2SRV, imgData.renderTargetPP};
 
+		
 		// Main Render Pass
 		{
 			// Update View data.

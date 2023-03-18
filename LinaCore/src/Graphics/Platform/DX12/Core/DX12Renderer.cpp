@@ -46,6 +46,8 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Log/Log.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Core/PlatformTime.hpp"
+#include "Core/PlatformProcess.hpp"
 
 #ifndef LINA_PRODUCTION_BUILD
 #include "FileSystem/FileSystem.hpp"
@@ -92,6 +94,7 @@ namespace Lina
 		m_loadedTextures.reserve(200);
 		m_loadedRTs.reserve(16);
 		m_loadedSamplers.reserve(50);
+		m_vsync = initInfo.vsyncMode;
 
 		try
 		{
@@ -105,7 +108,7 @@ namespace Lina
 					if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 					{
 						debugController->EnableDebugLayer();
-						
+
 						//  Enable additional debug layers.
 						dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 					}
@@ -116,7 +119,6 @@ namespace Lina
 				}
 #endif
 
-	
 				ThrowIfFailed(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&m_factory)));
 
 				ComPtr<IDXGIFactory5> factory5;
@@ -351,6 +353,208 @@ namespace Lina
 		delete m_dsvHeap;
 		delete m_samplerHeap;
 		delete m_rtvHeap;
+	}
+
+	void Renderer::WaitForPresentation(ISwapchain* swapchain)
+	{
+		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swapchain);
+		DWORD		   result	= WaitForSingleObjectEx(dx12Swap->DX12GetWaitHandle(), 1000, true);
+		if (FAILED(result))
+		{
+			LINA_ERR("[Renderer] -> Waiting on swapchain failed!");
+		}
+	}
+
+	bool Renderer::Present(ISwapchain* swp)
+	{
+		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
+
+		try
+		{
+			UINT   flags	= m_allowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
+			uint32 interval = 0;
+
+			if (m_vsync == VsyncMode::EveryVBlank)
+			{
+				interval = 1;
+				flags	 = 0;
+			}
+			else if (m_vsync == VsyncMode::EverySecondVBlank)
+			{
+				interval = 2;
+				flags	 = 0;
+			}
+
+			ThrowIfFailed(dx12Swap->GetPtr()->Present(interval, flags));
+		}
+		catch (HrException& e)
+		{
+			LINA_CRITICAL("[Renderer] -> Present engine error! {0}", e.what());
+
+			if (e.Error() == DXGI_ERROR_DEVICE_REMOVED || e.Error() == DXGI_ERROR_DEVICE_RESET)
+			{
+				try
+				{
+					Join();
+				}
+				catch (HrException&)
+				{
+					LINA_CRITICAL("[Renderer] -> Can't even wait for GPU!");
+				}
+
+				// TODO: Device removal: re-create dx12 resources?
+			}
+			else
+			{
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+	void Renderer::BeginFrame(uint32 frameIndex)
+	{
+		m_currentFrameIndex = frameIndex;
+
+		// Will wait if pending commands.
+		m_uploadContext->Flush(frameIndex, UCF_FlushAll);
+
+		WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
+
+		const uint32 txtSize	 = static_cast<uint32>(m_loadedTextures.size());
+		const uint32 samplerSize = static_cast<uint32>(m_loadedSamplers.size());
+		m_gpuBufferHeap[m_currentFrameIndex]->Reset(txtSize);
+		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(samplerSize);
+	}
+
+	void Renderer::EndFrame(uint32 frameIndex)
+	{
+		auto& fence = m_fences.GetItemR(m_frameFenceGraphics);
+		auto& frame = m_frames[frameIndex];
+
+		m_fenceValueGraphics++;
+		frame.storedFenceGraphics = m_fenceValueGraphics;
+		m_graphicsQueue->Signal(fence.Get(), m_fenceValueGraphics);
+	}
+
+	void Renderer::Join()
+	{
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			WaitForFences(m_frameFenceGraphics, m_frames[i].storedFenceGraphics);
+	}
+
+	void Renderer::ResetResources()
+	{
+		// Copy textures and samplers
+		{
+			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+			{
+				m_gpuBufferHeap[i]->Reset();
+				m_gpuSamplerHeap[i]->Reset();
+
+				// Bind global textures
+				{
+					auto texturesHeap = m_gpuBufferHeap[i];
+
+					const uint32 txtHeapIncrement = texturesHeap->GetDescriptorSize();
+					const uint32 texturesSize	  = static_cast<uint32>(m_loadedTextures.size());
+					auto		 alloc			  = texturesHeap->GetHeapHandleBlock(texturesSize);
+
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+					srcDescriptors.resize(texturesSize, {});
+					destDescriptors.resize(texturesSize, {});
+
+					Taskflow tf;
+					tf.for_each_index(0, static_cast<int>(texturesSize), 1, [&](int i) {
+						auto& loadedTexture		  = m_loadedTextures[i];
+						loadedTexture.shaderIndex = i;
+
+						D3D12_CPU_DESCRIPTOR_HANDLE handle;
+						handle.ptr		   = alloc.GetCPUHandle().ptr + i * txtHeapIncrement;
+						destDescriptors[i] = handle;
+
+						auto& txtGenData  = m_textures.GetItemR(loadedTexture.idListIndex);
+						srcDescriptors[i] = txtGenData.descriptor.GetCPUHandle();
+					});
+
+					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+					m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+				}
+
+				// Bind global samplers
+				{
+					auto samplersHeap = m_gpuSamplerHeap[i];
+
+					const uint32 increment	  = samplersHeap->GetDescriptorSize();
+					const uint32 samplersSize = static_cast<uint32>(m_loadedSamplers.size());
+					auto		 alloc		  = samplersHeap->GetHeapHandleBlock(samplersSize);
+
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
+					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+					srcDescriptors.resize(samplersSize, {});
+					destDescriptors.resize(samplersSize, {});
+
+					Taskflow tf;
+					tf.for_each_index(0, static_cast<int>(samplersSize), 1, [&](int i) {
+						auto& loadedSampler		  = m_loadedSamplers[i];
+						loadedSampler.shaderIndex = i;
+
+						D3D12_CPU_DESCRIPTOR_HANDLE handle;
+						handle.ptr		   = alloc.GetCPUHandle().ptr + i * increment;
+						destDescriptors[i] = handle;
+
+						auto& samplerGenData = m_samplers.GetItemR(loadedSampler.idListIndex);
+						srcDescriptors[i]	 = samplerGenData.descriptor.GetCPUHandle();
+					});
+					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+
+					m_device->CopyDescriptors(samplersSize, destDescriptors.data(), NULL, samplersSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+				}
+			}
+		}
+
+		// Dirty all materials
+		{
+			auto&		 mats		   = m_materials.GetItems();
+			const uint32 materialsSize = static_cast<uint32>(mats.size());
+			Taskflow	 tf;
+			tf.for_each_index(0, static_cast<int>(materialsSize), 1, [&](int i) {
+				auto& material = mats[i];
+
+				for (int j = 0; j < FRAMES_IN_FLIGHT; j++)
+					material.dirty[j] = true;
+			});
+			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		}
+	}
+
+	void Renderer::OnWindowResized(IWindow* window, StringID sid, const Recti& rect)
+	{
+		Join();
+		m_fenceValueGraphics = m_frames[m_currentFrameIndex].storedFenceGraphics;
+
+		if (rect.size.x == 0 || rect.size.y == 0)
+			return;
+
+		Event ev;
+		ev.pParams[0] = window;
+		ev.iParams[0] = rect.size.x;
+		ev.iParams[1] = rect.size.y;
+		ev.iParams[2] = sid;
+		m_gfxManager->GetSystem()->DispatchEvent(EVS_WindowResized, ev);
+	}
+
+	void Renderer::OnVsyncChanged(VsyncMode mode)
+	{
+		Join();
+		m_vsync				 = mode;
+		m_fenceValueGraphics = m_frames[m_currentFrameIndex].storedFenceGraphics;
+		Event ev;
+		ev.iParams[0] = static_cast<uint32>(mode);
+		m_gfxManager->GetSystem()->DispatchEvent(EVS_VsyncModeChanged, ev);
 	}
 
 	void Renderer::GetHardwareAdapter(IDXGIFactory1* pFactory, IDXGIAdapter1** ppAdapter, PreferredGPUType gpuType)
@@ -816,142 +1020,9 @@ namespace Lina
 		m_samplers.RemoveItem(handle);
 	}
 
-	void Renderer::BeginFrame(uint32 frameIndex)
+	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, IWindow* window, StringID sid)
 	{
-		m_currentFrameIndex = frameIndex;
-
-		// Will wait if pending commands.
-		m_uploadContext->Flush(frameIndex, UCF_FlushAll);
-
-		WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
-
-		const uint32 txtSize	 = static_cast<uint32>(m_loadedTextures.size());
-		const uint32 samplerSize = static_cast<uint32>(m_loadedSamplers.size());
-		m_gpuBufferHeap[m_currentFrameIndex]->Reset(txtSize);
-		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(samplerSize);
-	}
-
-	void Renderer::EndFrame(uint32 frameIndex)
-	{
-		auto& fence = m_fences.GetItemR(m_frameFenceGraphics);
-		auto& frame = m_frames[frameIndex];
-
-		m_fenceValueGraphics++;
-		frame.storedFenceGraphics = m_fenceValueGraphics;
-		m_graphicsQueue->Signal(fence.Get(), m_fenceValueGraphics);
-	}
-
-	void Renderer::Join()
-	{
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-			WaitForFences(m_frameFenceGraphics, m_frames[i].storedFenceGraphics);
-	}
-
-	void Renderer::ResetResources()
-	{
-		// Copy textures and samplers
-		{
-			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				m_gpuBufferHeap[i]->Reset();
-				m_gpuSamplerHeap[i]->Reset();
-
-				// Bind global textures
-				{
-					auto texturesHeap = m_gpuBufferHeap[i];
-
-					const uint32 txtHeapIncrement = texturesHeap->GetDescriptorSize();
-					const uint32 texturesSize	  = static_cast<uint32>(m_loadedTextures.size());
-					auto		 alloc			  = texturesHeap->GetHeapHandleBlock(texturesSize);
-
-					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
-					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
-					srcDescriptors.resize(texturesSize, {});
-					destDescriptors.resize(texturesSize, {});
-
-					Taskflow tf;
-					tf.for_each_index(0, static_cast<int>(texturesSize), 1, [&](int i) {
-						auto& loadedTexture		  = m_loadedTextures[i];
-						loadedTexture.shaderIndex = i;
-
-						D3D12_CPU_DESCRIPTOR_HANDLE handle;
-						handle.ptr		   = alloc.GetCPUHandle().ptr + i * txtHeapIncrement;
-						destDescriptors[i] = handle;
-
-						auto& txtGenData  = m_textures.GetItemR(loadedTexture.idListIndex);
-						srcDescriptors[i] = txtGenData.descriptor.GetCPUHandle();
-					});
-
-					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-					m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-				}
-
-				// Bind global samplers
-				{
-					auto samplersHeap = m_gpuSamplerHeap[i];
-
-					const uint32 increment	  = samplersHeap->GetDescriptorSize();
-					const uint32 samplersSize = static_cast<uint32>(m_loadedSamplers.size());
-					auto		 alloc		  = samplersHeap->GetHeapHandleBlock(samplersSize);
-
-					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
-					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
-					srcDescriptors.resize(samplersSize, {});
-					destDescriptors.resize(samplersSize, {});
-
-					Taskflow tf;
-					tf.for_each_index(0, static_cast<int>(samplersSize), 1, [&](int i) {
-						auto& loadedSampler		  = m_loadedSamplers[i];
-						loadedSampler.shaderIndex = i;
-
-						D3D12_CPU_DESCRIPTOR_HANDLE handle;
-						handle.ptr		   = alloc.GetCPUHandle().ptr + i * increment;
-						destDescriptors[i] = handle;
-
-						auto& samplerGenData = m_samplers.GetItemR(loadedSampler.idListIndex);
-						srcDescriptors[i]	 = samplerGenData.descriptor.GetCPUHandle();
-					});
-					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-
-					m_device->CopyDescriptors(samplersSize, destDescriptors.data(), NULL, samplersSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
-				}
-			}
-		}
-
-		// Dirty all materials
-		{
-			auto&		 mats		   = m_materials.GetItems();
-			const uint32 materialsSize = static_cast<uint32>(mats.size());
-			Taskflow	 tf;
-			tf.for_each_index(0, static_cast<int>(materialsSize), 1, [&](int i) {
-				auto& material = mats[i];
-
-				for (int j = 0; j < FRAMES_IN_FLIGHT; j++)
-					material.dirty[j] = true;
-			});
-			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-		}
-	}
-
-	void Renderer::OnWindowResized(void* windowHandle, StringID sid, const Recti& rect)
-	{
-		Join();
-		m_fenceValueGraphics = m_frames[m_currentFrameIndex].storedFenceGraphics;
-
-		if (rect.size.x == 0 || rect.size.y == 0)
-			return;
-
-		Event ev;
-		ev.pParams[0] = windowHandle;
-		ev.iParams[0] = rect.size.x;
-		ev.iParams[1] = rect.size.y;
-		ev.iParams[2] = sid;
-		m_gfxManager->GetSystem()->DispatchEvent(EVS_WindowResized, ev);
-	}
-
-	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, void* windowHandle, StringID sid)
-	{
-		return new DX12Swapchain(this, size, windowHandle, sid);
+		return new DX12Swapchain(this, size, window, sid);
 	}
 
 	uint32 Renderer::CreateCommandAllocator(CommandType type)
@@ -1211,9 +1282,8 @@ namespace Lina
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		auto& genData = m_textures.GetItemR(colorTexture->GetGPUHandle());
 
-		const float			cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
-		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
-
+		const float							 cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
+		CD3DX12_CLEAR_VALUE					 clearValue{GetFormat(DEFAULT_COLOR_FORMAT), cc};
 		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessClear{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
 		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessPreserve{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
 		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{genData.descriptor.GetCPUHandle(), renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
@@ -1338,42 +1408,6 @@ namespace Lina
 		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
 		view.Format			= DXGI_FORMAT_R32_UINT;
 		cmdList->IASetIndexBuffer(&view);
-	}
-
-	bool Renderer::Present(ISwapchain* swp)
-	{
-		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
-
-		try
-		{
-			UINT flags = m_allowTearing ? DXGI_PRESENT_ALLOW_TEARING : 0;
-			ThrowIfFailed(dx12Swap->GetPtr()->Present(0, flags));
-		}
-		catch (HrException& e)
-		{
-			LINA_CRITICAL("[Renderer] -> Present engine error! {0}", e.what());
-
-			if (e.Error() == DXGI_ERROR_DEVICE_REMOVED || e.Error() == DXGI_ERROR_DEVICE_RESET)
-			{
-				try
-				{
-					Join();
-				}
-				catch (HrException&)
-				{
-					LINA_CRITICAL("[Renderer] -> Can't even wait for GPU!");
-				}
-
-				// TODO: Device removal: re-create dx12 resources?
-			}
-			else
-			{
-			}
-
-			return false;
-		}
-
-		return true;
 	}
 
 	uint32 Renderer::GetNextBackBuffer(ISwapchain* swp)

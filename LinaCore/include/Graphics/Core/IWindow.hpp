@@ -53,15 +53,19 @@ namespace Lina
 		virtual void SetPos(const Vector2i& newPos)														= 0;
 		virtual void SetTitle(const char*)																= 0;
 		virtual void Minimize()																			= 0;
-		virtual void Maximize(bool useWorkArea)															= 0;
+		virtual void Maximize()																			= 0;
+		virtual void Restore()																			= 0;
 		virtual void Close()																			= 0;
-		virtual void SetToWorkingArea()																	= 0;
-		virtual void SetToFullscreen()																	= 0;
 		virtual void SetToCenter()																		= 0;
 		virtual bool GetIsAppActive() const																= 0;
 		virtual void SetFocus(bool hasFocus)															= 0;
 		virtual void SetAlpha(float alpha)																= 0;
 
+	protected:
+		virtual void SetToWorkingArea() = 0;
+		virtual void SetToFullscreen()	= 0;
+
+	public:
 		/// <summary>
 		/// NOTE: This is not the surface size, it's the full window size including any decorations and title bars.
 		/// </summary>
@@ -79,6 +83,11 @@ namespace Lina
 		inline bool IsMaximized() const
 		{
 			return m_isMaximized;
+		}
+
+		inline bool IsFullscreen() const
+		{
+			return m_isFullscreen;
 		}
 
 		inline const Vector2i& GetPos() const
@@ -138,6 +147,7 @@ namespace Lina
 		StringID	m_sid			 = 0;
 		bool		m_isMinimized	 = false;
 		bool		m_isMaximized	 = false;
+		bool		m_isFullscreen	 = false;
 		bool		m_hasFocus		 = false;
 		float		m_aspect		 = 0.0f;
 		const char* m_title			 = 0;

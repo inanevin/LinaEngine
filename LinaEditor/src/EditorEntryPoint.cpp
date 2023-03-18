@@ -33,8 +33,8 @@ Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& o
 {
 	outInfo = Lina::SystemInitializationInfo{
 		.appName		  = "Lina Editor",
-		.windowWidth	  = 800,
-		.windowHeight	  = 600,
+		.windowWidth	  = 1920,
+		.windowHeight	  = 1080,
 		.windowStyle	  = Lina::WindowStyle::Windowed,
 		.preferredGPUType = Lina::PreferredGPUType::Integrated,
 		.vsyncMode		  = Lina::VsyncMode::None,

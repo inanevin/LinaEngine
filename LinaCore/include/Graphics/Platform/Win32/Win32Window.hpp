@@ -59,10 +59,9 @@ namespace Lina
 		virtual void SetToCenter() override;
 		virtual void SetTitle(const char*) override;
 		virtual void Minimize() override;
-		virtual void Maximize(bool useWorkArea) override;
+		virtual void Maximize() override;
+		virtual void Restore() override;
 		virtual void Close() override;
-		virtual void SetToWorkingArea() override;
-		virtual void SetToFullscreen() override;
 		virtual void SetFocus(bool hasFocus) override;
 		virtual void SetAlpha(float alpha) override;
 
@@ -72,6 +71,10 @@ namespace Lina
 		}
 
 		static __int64 __stdcall WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam);
+
+	protected:
+		virtual void SetToWorkingArea() override;
+		virtual void SetToFullscreen() override;
 
 	private:
 		void UpdateButtonLayoutForDpi(HWND__* hwnd);
@@ -86,11 +89,10 @@ namespace Lina
 		bool								  m_canHitTestResize = false;
 		Input*								  m_input			 = nullptr;
 		GfxManager*							  m_gfxManager		 = nullptr;
-		WindowStyle							  m_style			 = WindowStyle::Windowed;
+		WindowStyle							  m_style			 = WindowStyle::None;
 		WindowManager*						  m_manager			 = nullptr;
 		HWND__*								  m_window			 = nullptr;
 		HINSTANCE__*						  m_hinst			 = nullptr;
-		Vector2i							  m_restoreSize		 = Vector2i::Zero;
 	};
 } // namespace Lina
 

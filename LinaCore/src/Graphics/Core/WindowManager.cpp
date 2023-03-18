@@ -94,13 +94,13 @@ namespace Lina
 			LINA_ERR("[Window Manager] -> First window created needs to have default Lina Main Swapchain SID!");
 			return;
 		}
-		
-		IWindow* w = new PlatformWindow(this, m_system, sid);
-		void* parent = nullptr;
-		
+
+		IWindow* w		= new PlatformWindow(this, m_system, sid);
+		void*	 parent = nullptr;
+
 		if (!m_windows.empty())
 			parent = m_windows[LINA_MAIN_SWAPCHAIN]->GetHandle();
-			
+
 		if (w->Create(parent, title, pos, size))
 		{
 			w->SetStyle(style);
@@ -111,7 +111,7 @@ namespace Lina
 			else
 				mask = SurfaceRendererMask::SRM_DrawOffscreenTexture;
 
-			m_gfxManager->CreateSurfaceRenderer(sid, w->GetHandle(), w->GetSize(), mask);
+			m_gfxManager->CreateSurfaceRenderer(sid, w, w->GetSize(), mask);
 			m_windows[sid] = w;
 		}
 		else
@@ -168,9 +168,26 @@ namespace Lina
 
 	void WindowManager::SetVsync(VsyncMode mode)
 	{
+		if (mode == m_vsync)
+			return;
+
 		m_vsync = mode;
 		m_gfxManager->OnVsyncChanged(mode);
 		LINA_TRACE("[Window Manager] -> Vsync Mode changed to: {0}", VsyncModeToStr(mode));
+	}
+
+	MonitorInfo WindowManager::GetMonitorInfoFromWindow(IWindow* window) const
+	{
+		HMONITOR	  monitor = MonitorFromWindow(static_cast<HWND>(window->GetHandle()), MONITOR_DEFAULTTOPRIMARY);
+		MONITORINFOEX monitorInfo;
+		monitorInfo.cbSize = sizeof(monitorInfo);
+		GetMonitorInfo(monitor, &monitorInfo);
+
+		MonitorInfo info;
+		info.size	   = Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
+		info.workArea  = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
+		info.isPrimary = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
+		return info;
 	}
 
 } // namespace Lina

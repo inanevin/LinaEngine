@@ -70,12 +70,10 @@ namespace Lina
 		{
 		case VsyncMode::None:
 			return "None";
-		case VsyncMode::StrongVsync:
-			return "Strong (FIFO)";
-		case VsyncMode::Adaptive:
-			return "Adaptive (FIFO Relaxed)";
-		case VsyncMode::TripleBuffer:
-			return "Triple Buffer (Mailbox)";
+		case VsyncMode::EveryVBlank:
+			return "Every V Blank";
+		case VsyncMode::EverySecondVBlank:
+			return "Every Second VBlank";
 		}
 
 		return "None";

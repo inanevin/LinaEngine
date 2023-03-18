@@ -90,14 +90,15 @@ namespace Lina
 		}
 	}
 
-	void Win32PlatformProcess::SleepSpinLock(double seconds)
+	void Win32PlatformProcess::SleepSpinLock(double milliseconds)
 	{
 		// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
-		static HANDLE  timer = CreateWaitableTimer(NULL, FALSE, NULL);
-		static double  est	 = 5e-3;
-		static double  mean	 = 5e-3;
-		static double  m2	 = 0;
-		static int64_t count = 1;
+		static HANDLE  timer   = CreateWaitableTimer(NULL, FALSE, NULL);
+		static double  est	   = 5e-3;
+		static double  mean	   = 5e-3;
+		static double  m2	   = 0;
+		static int64_t count   = 1;
+		double		   seconds = milliseconds / 1000.0f;
 
 		while (seconds - est > 1e-7)
 		{
@@ -128,9 +129,8 @@ namespace Lina
 		};
 	}
 
-	void Win32PlatformProcess::Sleep(double seconds)
+	void Win32PlatformProcess::Sleep(double milliseconds)
 	{
-		uint32 milliseconds = (uint32)(seconds * 1000.0);
 		if (milliseconds == 0)
 			::SwitchToThread();
 		else

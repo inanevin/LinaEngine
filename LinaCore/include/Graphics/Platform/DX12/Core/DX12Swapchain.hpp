@@ -41,18 +41,23 @@ namespace Lina
 	class DX12Swapchain : public ISwapchain
 	{
 	public:
-		DX12Swapchain(Renderer* rend, const Vector2i& size, void* windowHandle, StringID sid);
+		DX12Swapchain(Renderer* rend, const Vector2i& size, IWindow* window, StringID sid);
 		virtual ~DX12Swapchain();
+
+		virtual void Recreate(const Vector2i& newSize) override;
 
 		inline IDXGISwapChain3* GetPtr()
 		{
 			return m_swapchain.Get();
 		}
 
-		virtual void Recreate(const Vector2i& newSize) override;
+		inline HANDLE DX12GetWaitHandle()
+		{
+			return m_waitHandle;
+		}
 
 	private:
-		Renderer*								m_renderer = nullptr;
+		HANDLE									m_waitHandle;
 		Microsoft::WRL::ComPtr<IDXGISwapChain3> m_swapchain;
 	};
 } // namespace Lina

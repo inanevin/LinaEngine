@@ -64,6 +64,7 @@ namespace Lina
 	class IUploadContext;
 	class ResourceManager;
 	class TextureSampler;
+	class IWindow;
 
 	struct GeneratedTexture
 	{
@@ -120,6 +121,19 @@ namespace Lina
 		void PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
 		void Initialize(const SystemInitializationInfo& initInfo);
 		void Shutdown();
+		void WaitForPresentation(ISwapchain* swapchain);
+		void BeginFrame(uint32 frameIndex);
+		void EndFrame(uint32 frameIndex);
+		void Join();
+		bool Present(ISwapchain* swp);
+		void ResetResources();
+		void OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
+		void OnVsyncChanged(VsyncMode mode);
+
+		inline GfxManager* GetGfxManager()
+		{
+			return m_gfxManager;
+		}
 
 		inline IUploadContext* GetUploadContext()
 		{
@@ -144,16 +158,8 @@ namespace Lina
 		// ******************* API *******************
 		// ******************* API *******************
 
-		// System
-		void BeginFrame(uint32 frameIndex);
-		void EndFrame(uint32 frameIndex);
-		void Join();
-		void ResetResources();
-		void OnWindowResized(void* windowHandle, StringID sid, const Recti& rect);
-
 		// Swapchain
-		ISwapchain* CreateSwapchain(const Vector2i& size, void* windowHandle, StringID sid);
-		bool		Present(ISwapchain* swp);
+		ISwapchain* CreateSwapchain(const Vector2i& size, IWindow* window, StringID sid);
 		uint32		GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources
@@ -257,6 +263,7 @@ namespace Lina
 		Vector<LoadedResourceData> m_loadedRTs;
 		IUploadContext*			   m_uploadContext;
 		bool					   m_allowTearing = false;
+		VsyncMode				   m_vsync		  = VsyncMode::None;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;
