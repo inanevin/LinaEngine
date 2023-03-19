@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Core/PlatformTime.hpp"
 #include "Core/PlatformProcess.hpp"
+#include "Core/SystemInfo.hpp"
 
 #ifndef LINA_PRODUCTION_BUILD
 #include "FileSystem/FileSystem.hpp"
@@ -58,6 +59,14 @@ using Microsoft::WRL::ComPtr;
 namespace Lina
 {
 	DWORD msgCallback = 0;
+
+	struct Test
+	{
+		uint32 totalPresentCount;
+	};
+
+	HashMap<uint32, Test> presents;
+	uint32				  totalPresentCount = 0;
 
 	void MessageCallback(D3D12_MESSAGE_CATEGORY messageType, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID messageId, LPCSTR pDesc, void* pContext)
 	{
@@ -355,6 +364,10 @@ namespace Lina
 		delete m_rtvHeap;
 	}
 
+	uint64 lastStuff   = 0;
+	double diff		   = 0;
+	double lastAppTime = 0.0;
+
 	void Renderer::WaitForPresentation(ISwapchain* swapchain)
 	{
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swapchain);
@@ -386,6 +399,13 @@ namespace Lina
 			}
 
 			ThrowIfFailed(dx12Swap->GetPtr()->Present(interval, flags));
+			totalPresentCount++;
+
+			Test test;
+			test.totalPresentCount = totalPresentCount;
+			uint32 pid			   = 0;
+			dx12Swap->GetPtr()->GetLastPresentCount(&pid);
+			presents[pid] = test;
 		}
 		catch (HrException& e)
 		{
@@ -696,10 +716,24 @@ namespace Lina
 		if (!inputLayout.empty())
 			psoDesc.InputLayout = {&inputLayout[0], static_cast<UINT>(inputLayout.size())};
 
+		D3D12_BLEND_DESC blendDesc						= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		blendDesc.AlphaToCoverageEnable					= false;
+		blendDesc.IndependentBlendEnable				= false;
+		blendDesc.RenderTarget[0].BlendEnable			= true;
+		blendDesc.RenderTarget[0].SrcBlend				= D3D12_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].DestBlend				= D3D12_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].SrcBlendAlpha			= D3D12_BLEND_ONE;
+		blendDesc.RenderTarget[0].DestBlendAlpha		= D3D12_BLEND_INV_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp				= D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].BlendOpAlpha			= D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		blendDesc.RenderTarget[0].LogicOpEnable			= false;
+		blendDesc.RenderTarget[0].LogicOp				= D3D12_LOGIC_OP_COPY;
+
 		const D3D12_DEPTH_STENCILOP_DESC defaultStencilOp = {D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS};
 		psoDesc.pRootSignature							  = m_rootSigStandard.Get();
 		psoDesc.RasterizerState							  = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		psoDesc.BlendState								  = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+		psoDesc.BlendState								  = blendDesc;
 		psoDesc.DepthStencilState.DepthEnable			  = TRUE;
 		psoDesc.DepthStencilState.DepthWriteMask		  = D3D12_DEPTH_WRITE_MASK_ALL;
 		psoDesc.DepthStencilState.DepthFunc				  = D3D12_COMPARISON_FUNC_LESS_EQUAL;
@@ -1004,8 +1038,7 @@ namespace Lina
 		desc.MaxLOD			= samplerData.maxLod;
 		desc.MaxAnisotropy	= samplerData.anisotropy;
 		desc.MipLODBias		= static_cast<FLOAT>(samplerData.mipLodBias);
-
-		genData.descriptor = m_samplerHeap->GetNewHeapHandle();
+		genData.descriptor	= m_samplerHeap->GetNewHeapHandle();
 		m_device->CreateSampler(&desc, genData.descriptor.GetCPUHandle());
 
 		m_loadedSamplers.push_back({sampler->GetSID(), index});
@@ -1390,13 +1423,14 @@ namespace Lina
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->IASetPrimitiveTopology(GetTopology(topology));
 	}
-	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot)
+
+	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, size_t vertexSize, uint32 slot)
 	{
 		auto&					 cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_VERTEX_BUFFER_VIEW view;
 		view.BufferLocation = buffer->GetGPUPointer();
 		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
-		view.StrideInBytes	= static_cast<UINT>(sizeof(Vertex));
+		view.StrideInBytes	= static_cast<UINT>(vertexSize);
 		cmdList->IASetVertexBuffers(slot, 1, &view);
 	}
 

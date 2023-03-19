@@ -33,8 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	String			SystemInfo::csv						= "";
-	double			SystemInfo::alpha					= 0.0;
 	ApplicationMode SystemInfo::s_appMode				= ApplicationMode::Editor;
 	bool			SystemInfo::s_useFixedTimestep		= false;
 	bool			SystemInfo::s_useFrameRateSmoothing = true;

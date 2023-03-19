@@ -37,8 +37,8 @@ SOFTWARE.
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include "Platform/Win32/Win32WindowsInclude.hpp"
-
 #include "Graphics/Platform/Win32/Win32Window.hpp"
+#include <shellscalingapi.h>
 typedef Lina::Win32Window PlatformWindow;
 
 #endif
@@ -62,11 +62,17 @@ namespace Lina
 				monitorInfo.cbSize = sizeof(monitorInfo);
 				GetMonitorInfo(hMonitor, &monitorInfo);
 
+				UINT	dpiX, dpiY;
+				HRESULT temp2 = GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
+
 				MonitorInfo data;
-				data.size	   = Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
-				data.workArea  = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
-				data.isPrimary = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
+				data.size		  = Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
+				data.workArea	  = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
+				data.isPrimary	  = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
+				data.contentScale = static_cast<float>(dpiY) / 96.0f;
+
 				monitors.push_back(data);
+
 				return TRUE;
 			},
 			reinterpret_cast<LPARAM>(&m_monitors));

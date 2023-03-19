@@ -44,8 +44,8 @@ namespace Lina
 		AudioManager,
 		WindowManager,
 		LevelManager,
-		Editor,
 		ResourceManager,
+		Editor,
 		Count
 	};
 

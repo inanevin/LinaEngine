@@ -84,9 +84,9 @@ namespace Lina::Editor
 
 					// Load into stream & destroy.
 					IResource* res = static_cast<IResource*>(ReflectionSystem::Get().Resolve(r.tid).GetFunction<void*()>("CreateMock"_hs)());
-					//res->LoadFromFile(r.path.c_str());
-					//res->SaveToStream(outStream);
-					//res->Flush();
+					// res->LoadFromFile(r.path.c_str());
+					// res->SaveToStream(outStream);
+					// res->Flush();
 					ReflectionSystem::Get().Resolve(r.tid).GetFunction<void(void*)>("DestroyMock"_hs)(static_cast<void*>(res));
 
 					// Write stream to package & destroy.

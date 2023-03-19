@@ -38,6 +38,7 @@ SOFTWARE.
 namespace Lina
 {
 	struct SystemInitializationInfo;
+	class CoreResourcesRegistry;
 
 	class Application
 	{
@@ -65,9 +66,10 @@ namespace Lina
 		virtual void UnloadPlugins();
 
 	protected:
-		Engine m_engine;
-		bool   m_exitRequested = false;
-		bool   m_isIdleMode	   = false;
+		CoreResourcesRegistry* m_coreResourceRegistry = nullptr;
+		Engine				   m_engine;
+		bool				   m_exitRequested = false;
+		bool				   m_isIdleMode	   = false;
 	};
 } // namespace Lina
 

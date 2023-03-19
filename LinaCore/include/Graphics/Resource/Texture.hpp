@@ -52,11 +52,16 @@ namespace Lina
 
 	public:
 		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
-		Texture(ResourceManager* rm, const String& path, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels = 4);
+		Texture(ResourceManager* rm, const String& path, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels = 4, bool createPixelData = false);
 		virtual ~Texture();
 
-		void GenerateImage(ImageGenerateRequest req);
+		/// <summary>
+		/// Generates image data on the GPU using m_pixels (GetPixels()/SetPixels())
+		/// The pixel data is erased automatically.
+		/// </summary>
+		virtual void Upload() override;
 
+		void GenerateImage(ImageGenerateRequest req);
 		void SetSampler(StringID samplerSID);
 
 		inline const Extent3D& GetExtent() const
@@ -89,7 +94,7 @@ namespace Lina
 			return m_mipmaps;
 		}
 
-		inline unsigned char*& GetPixels()
+		inline unsigned char* GetPixels()
 		{
 			return m_pixels;
 		}
@@ -99,7 +104,6 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void Upload() override;
 		virtual void BatchLoaded() override;
 
 	private:

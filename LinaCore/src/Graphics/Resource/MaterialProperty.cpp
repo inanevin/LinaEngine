@@ -60,6 +60,10 @@ namespace Lina
 			p = new MaterialProperty<Vector4>();
 			break;
 		}
+		case MaterialPropertyType::Vector4i: {
+			p = new MaterialProperty<Vector4i>();
+			break;
+		}
 		case MaterialPropertyType::Mat4: {
 			p = new MaterialProperty<Matrix4>();
 			break;

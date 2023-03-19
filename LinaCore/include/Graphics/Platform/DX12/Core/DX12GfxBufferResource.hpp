@@ -51,6 +51,7 @@ namespace Lina
 
 		virtual void   Recreate(const void* data, size_t sz) override;
 		virtual void   Update(const void* data, size_t sz) override;
+		virtual void   UpdatePadded(const void* data, size_t sz, size_t padding) override;
 		virtual uint64 GetGPUPointer() override;
 
 		inline D3D12MA::Allocation* DX12GetAllocation()

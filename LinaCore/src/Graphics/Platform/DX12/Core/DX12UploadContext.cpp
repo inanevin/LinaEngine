@@ -229,7 +229,6 @@ namespace Lina
 		req.stagingResource = staging;
 		req.targetResource	= targetGpuResource;
 		m_immediateBufferRequests.push_back(req);
-		Flush(0, UCF_FlushImmediateRequests);
 	}
 
 	void DX12UploadContext::PushCustomCommand(const GfxCommand& cmd)

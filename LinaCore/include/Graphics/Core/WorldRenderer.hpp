@@ -119,6 +119,11 @@ namespace Lina
 			m_renderData.aspectRatio = aspect;
 		}
 
+		inline uint32 GetCommandList(uint32 frameIndex)
+		{
+			return m_frames[frameIndex].cmdList;
+		}
+
 	protected:
 		static int s_worldRendererCount;
 

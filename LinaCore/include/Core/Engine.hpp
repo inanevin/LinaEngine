@@ -43,7 +43,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class CoreResourcesRegistry;
 	class Application;
 
 	class Engine : public ISystem, public ISystemEventListener
@@ -84,16 +83,20 @@ namespace Lina
 			return m_windowManager;
 		}
 
+		inline ResourceManager& GetResourceManager()
+		{
+			return m_resourceManager;
+		}
+
 	protected:
-		ResourceManager		   m_resourceManager;
-		CoreResourcesRegistry* m_coreResourceRegistry = nullptr;
-		Executor			   m_executor;
-		Input				   m_input;
-		AudioManager		   m_audioManager;
-		GfxManager			   m_gfxManager;
-		WindowManager		   m_windowManager;
-		LevelManager		   m_levelManager;
-		IEngineInterface	   m_engineInterface;
+		ResourceManager	 m_resourceManager;
+		Executor		 m_executor;
+		Input			 m_input;
+		AudioManager	 m_audioManager;
+		GfxManager		 m_gfxManager;
+		WindowManager	 m_windowManager;
+		LevelManager	 m_levelManager;
+		IEngineInterface m_engineInterface;
 	};
 } // namespace Lina
 

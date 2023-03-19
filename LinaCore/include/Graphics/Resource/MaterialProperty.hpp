@@ -71,24 +71,24 @@ namespace Lina
 		MaterialProperty(const String& name, MaterialPropertyType type) : MaterialPropertyBase(name, type){};
 		virtual ~MaterialProperty() = default;
 
-		template <typename U = T> std::enable_if_t<std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Matrix4>>, void> TemplatedLoad(IStream& stream)
+		template <typename U = T> std::enable_if_t<std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Vector4i>, std::is_same<U, Matrix4>>, void> TemplatedLoad(IStream& stream)
 		{
 			m_value.LoadFromStream(stream);
 		}
 
 		// Function for T not equal to Vector2, Vector2i, Vector4, or Mat4
-		template <typename U = T> std::enable_if_t<!std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Matrix4>>, void> TemplatedLoad(IStream& stream)
+		template <typename U = T> std::enable_if_t<!std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Vector4i>, std::is_same<U, Matrix4>>, void> TemplatedLoad(IStream& stream)
 		{ /* implementation */
 			stream >> m_value;
 		}
 
-		template <typename U = T> std::enable_if_t<std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Matrix4>>, void> TemplatedSave(OStream& stream)
+		template <typename U = T> std::enable_if_t<std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Vector4i>, std::is_same<U, Matrix4>>, void> TemplatedSave(OStream& stream)
 		{
 			m_value.SaveToStream(stream);
 		}
 
 		// Function for T not equal to Vector2, Vector2i, Vector4, or Mat4
-		template <typename U = T> std::enable_if_t<!std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Matrix4>>, void> TemplatedSave(OStream& stream)
+		template <typename U = T> std::enable_if_t<!std::disjunction_v<std::is_same<U, Vector2>, std::is_same<U, Vector2i>, std::is_same<U, Vector4>, std::is_same<U, Vector4i>, std::is_same<U, Matrix4>>, void> TemplatedSave(OStream& stream)
 		{ /* implementation */
 			stream << m_value;
 		}

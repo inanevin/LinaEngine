@@ -33,13 +33,37 @@ SOFTWARE.
 #include "Core/PlatformTime.hpp"
 #include "Math/Math.hpp"
 #include "System/IPlugin.hpp"
+#include "Core/CoreResourcesRegistry.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina
 {
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		SystemInfo::SetApplicationMode(initInfo.appMode);
+		// Platform setup
+		{
+			SystemInfo::SetApplicationMode(initInfo.appMode);
+			PlatformTime::GetSeconds();
+		}
+
+		// Core resources.
+		{
+			auto& resourceManager = m_engine.GetResourceManager();
+			resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
+			resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
+			m_coreResourceRegistry = new CoreResourcesRegistry();
+			m_coreResourceRegistry->RegisterResourceTypes(resourceManager);
+		}
+
+		// pre-init rendering systems & window
+		{
+			m_engine.GetGfxManager().PreInitialize(initInfo);
+			m_engine.GetWindowManager().PreInitialize(initInfo);
+			m_engine.GetWindowManager().CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.windowStyle, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
+		}
+
 		m_engine.Initialize(initInfo);
+
 		LoadPlugins();
 	}
 
@@ -73,11 +97,7 @@ namespace Lina
 	{
 		UnloadPlugins();
 		m_engine.Shutdown();
-
-		std::ofstream myfile;
-		myfile.open("example.txt");
-		myfile << SystemInfo::csv.c_str();
-		myfile.close();
+		delete m_coreResourceRegistry;
 	}
 
 	void Application::CalculateTime()

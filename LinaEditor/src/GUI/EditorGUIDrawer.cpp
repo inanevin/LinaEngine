@@ -26,8 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/Vulkan/Core/GUIBackend.hpp"
+#include "GUI/EditorGUIDrawer.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-} // namespace Lina
+
+} // namespace Lina::Editor

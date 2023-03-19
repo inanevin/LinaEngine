@@ -44,7 +44,7 @@ namespace Lina
 {
 	class IStream;
 	class OStream;
-	
+
 	class Vector2ui : public glm::uvec2
 	{
 	public:
@@ -648,6 +648,37 @@ namespace Lina
 	{
 		return Vector4(v.x - v2.x, v.y - v2.y, v.z - v2.z, v.w * v2.w);
 	}
+
+	class Vector4i : public glm::ivec4
+	{
+	public:
+		Vector4i() = default;
+		Vector4i(int x, int y, int z, int w) : glm::ivec4(x, y, z, w){};
+		Vector4i(const Vector4i& rhs) : glm::ivec4(rhs){};
+		Vector4i(unsigned int val) : glm::ivec4(val, val, val, val){};
+		Vector4i(const glm::vec4& rhs) : glm::ivec4(rhs.x, rhs.y, rhs.z, rhs.w){};
+
+		static Vector4i Zero;
+		static Vector4i One;
+
+		bool Equals(const Vector4i& other, int epsilon = 0) const;
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
+	};
+
+	inline Vector4i operator-(Vector4i const& v, Vector4i const& v2)
+	{
+		return Vector4i(v.x - v2.x, v.y - v2.y, v.z - v2.z, v.w - v2.w);
+	}
+	inline Vector4i operator+(Vector4i const& v, float scalar)
+	{
+		return Vector4i((int)((float)v.x + scalar), (int)(((float)v.y + scalar)), (int)((float)v.z + scalar), (int)((float)v.w + scalar));
+	}
+	inline Vector4i operator-(Vector4i const& v, float scalar)
+	{
+		return Vector4i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)), (int)(((float)v.z - scalar)), (int)(((float)v.w - scalar)));
+	}
+
 } // namespace Lina
 
 #endif

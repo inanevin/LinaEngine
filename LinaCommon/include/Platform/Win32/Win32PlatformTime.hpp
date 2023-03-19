@@ -44,7 +44,6 @@ namespace Lina
 		static double GetDeltaSeconds(uint32 from, uint32 to, double timeScale = 1.0);
 		static double GetDeltaSeconds64(uint64 from, uint64 to, double timeScale = 1.0);
 
-	private:
 		static inline double GetSecondsPerCycle()
 		{
 			return s_secondsPerCycle;

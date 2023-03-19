@@ -178,12 +178,25 @@ namespace Lina
 
 	void FileSystem::ReadFileContentsToVector(const String& filePath, Vector<char>& vec)
 	{
-		std::ifstream file(filePath.c_str());
+		std::ifstream file(filePath.c_str(), std::ios::binary);
 		if (!file)
 		{
 			LINA_ERR("[Font] -> Could not open font for writing to package! {0}", filePath.c_str());
 			return;
 		}
+
+		// std::ifstream::pos_type pos = file.tellg();
+		// vec.resize(pos);
+		// file.seekg(0, std::ios::beg);
+		// file.read(&vec[0], pos);
+
+		// std::istream_iterator<char> start(file), end;
+		// std::vector<char>			vv = std::vector<char>(start, end);
+		//
+		// vec.clear();
+		// vec.reserve(vv.size());
+		// for (auto& c : vv)
+		//	vec.push_back(c);
 
 		// Size
 		file.seekg(0, std::ios::end);

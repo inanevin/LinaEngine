@@ -46,7 +46,8 @@ namespace Lina
 		m_sampler	 = nullptr; // will be loaded later
 	}
 
-	Texture::Texture(ResourceManager* rm, const String& path, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels) : m_extent(ext), m_channels(channels), IResource(rm, true, path, sid, GetTypeID<Texture>())
+	Texture::Texture(ResourceManager* rm, const String& path, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels, bool createPixelData)
+		: m_extent(ext), m_channels(channels), IResource(rm, true, path, sid, GetTypeID<Texture>())
 	{
 		m_renderer	 = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
 		m_samplerSID = targetSampler;
@@ -54,6 +55,14 @@ namespace Lina
 		CheckFormat(m_channels);
 		m_metadata.SetUInt8("Format"_hs, static_cast<uint8>(format));
 		m_metadata.SetUInt8("ImageTiling"_hs, static_cast<uint8>(tiling));
+
+		if (createPixelData)
+		{
+			m_pixelsLoadedFromStream = true;
+			const size_t sz			 = m_extent.width * m_extent.height * m_channels;
+			m_pixels				 = new unsigned char[sz];
+			memset(m_pixels, 0, sz);
+		}
 	}
 
 	Texture::~Texture()
@@ -61,13 +70,15 @@ namespace Lina
 		if (m_gpuHandle == -1)
 			return;
 
+		if (m_pixels)
+			delete[] m_pixels;
+
+		m_pixels = nullptr;
 		m_renderer->DestroyImage(m_gpuHandle);
 	}
 
 	void Texture::LoadFromFile(const char* path)
 	{
-		stbi_set_flip_vertically_on_load(true);
-
 		// Populate metadata.
 		m_metadata.GetUInt8("Format"_hs, static_cast<uint8>(Format::R8G8B8A8_SRGB));
 		m_metadata.GetBool("GenerateMipmaps"_hs, true);
@@ -148,6 +159,18 @@ namespace Lina
 
 	void Texture::Upload()
 	{
+		if (m_pixels == nullptr)
+		{
+			LINA_ERR("[Texture] -> Texture pixel data is empty but Upload is called!");
+			return;
+		}
+
+		if (m_gpuHandle != -1)
+		{
+			LINA_ERR("[Texture] -> Texture already uploaded!");
+			return;
+		}
+
 		ImageGenerateRequest req;
 		req.type = TextureResourceType::Texture2DDefault;
 
@@ -159,6 +182,8 @@ namespace Lina
 
 			for (auto& mm : m_mipmaps)
 				delete[] mm.pixels;
+
+			m_pixels = nullptr;
 			m_mipmaps.clear();
 		};
 
@@ -234,7 +259,7 @@ namespace Lina
 			mipmap.height			  = height;
 			mipmap.pixels			  = new unsigned char[width * height * m_channels];
 			const stbir_colorspace cs = isInLinearSpace ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
-			int retval = stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(mipmapFilter), cs, 0);
+			int retval				  = stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(mipmapFilter), cs, 0);
 
 			lastWidth	 = width;
 			lastHeight	 = height;

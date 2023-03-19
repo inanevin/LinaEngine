@@ -65,6 +65,8 @@ namespace Lina
 		{
 			return m_sid;
 		}
+		uint32 userData	 = 0;
+		uint64 userData2 = 0;
 
 	protected:
 		Renderer*	   m_renderer	   = nullptr;

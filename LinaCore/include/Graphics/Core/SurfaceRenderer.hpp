@@ -31,12 +31,12 @@ SOFTWARE.
 #ifndef SurfaceRenderer_HPP
 #define SurfaceRenderer_HPP
 
+#include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 #include "Event/ISystemEventListener.hpp"
 #include "Math/Vector.hpp"
 #include "Data/Bitmask.hpp"
 #include "Core/StringID.hpp"
-#include "Graphics/Data/RenderData.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
 #include "Math/Rect.hpp"
 
 namespace Lina
@@ -48,6 +48,8 @@ namespace Lina
 	class Texture;
 	class Renderer;
 	class IWindow;
+	class IGUIDrawer;
+	class GUIRenderer;
 
 	class SurfaceRenderer : public ISystemEventListener
 	{
@@ -80,13 +82,18 @@ namespace Lina
 
 		void		 WaitForPresentation();
 		void		 Tick(float delta);
-		void		 Render(uint32 frameIndex);
+		void		 Render(int surfaceRendererIndex, uint32 frameIndex);
 		void		 Present();
 		void		 AddWorldRenderer(WorldRenderer* renderer);
 		void		 RemoveWorldRenderer(WorldRenderer* renderer);
 		void		 SetOffscreenTexture(Texture* txt, uint32 imageIndex);
 		void		 ClearOffscreenTexture();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+
+		inline void SetUIRenderer(IGUIDrawer* rend)
+		{
+			m_uiDrawer = rend;
+		}
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
@@ -112,14 +119,10 @@ namespace Lina
 		{
 			return m_imageCount;
 		}
+
 		inline uint32 GetCurrentImageIndex()
 		{
 			return m_currentImageIndex;
-		}
-
-		inline void SetThreadID(int tid)
-		{
-			m_threadID = tid;
 		}
 
 	private:
@@ -128,13 +131,15 @@ namespace Lina
 
 	protected:
 		static int			   s_surfaceRendererCount;
-		int					   m_threadID		   = 0;
-		uint32				   m_currentImageIndex = 0;
-		GfxManager*			   m_gfxManager		   = nullptr;
-		ISwapchain*			   m_swapchain		   = nullptr;
-		Bitmask16			   m_mask			   = 0;
-		uint32				   m_imageCount		   = 0;
+		int					   m_surfaceRendererIndex = 0;
+		GUIRenderer*		   m_guiRenderer		  = nullptr;
+		uint32				   m_currentImageIndex	  = 0;
+		GfxManager*			   m_gfxManager			  = nullptr;
+		ISwapchain*			   m_swapchain			  = nullptr;
+		Bitmask16			   m_mask				  = 0;
+		uint32				   m_imageCount			  = 0;
 		Vector<WorldRenderer*> m_worldRenderers;
+		IGUIDrawer*			   m_uiDrawer = nullptr;
 		Renderer*			   m_renderer = nullptr;
 		Vector<DataPerImage>   m_dataPerImage;
 		DataPerFrame		   m_frames[FRAMES_IN_FLIGHT];

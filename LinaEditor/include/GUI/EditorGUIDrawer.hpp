@@ -26,44 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-LINA_PASS_OPAQUE
-LINA_PASS_SHADOWS
+#pragma once
 
-LINA_PIPELINE_STANDARD
-
-#include "GlobalData.linashader"
+#ifndef EditorGUIDrawer_HPP
+#define EditorGUIDrawer_HPP
 
 
-LINA_MATERIAL
+namespace Lina::Editor
 {
-float4 color;
-LinaTexture2D diffuse;
-}
+	
+} // namespace Lina::Editor
 
-
-struct PSInput
-{
-	float4 position : SV_POSITION;
-	float3 normal : NORMAL;
-	float3 color : COLOR;
-	float2 uv : TEXCOORD;
-	float3 cpos : POSITION;
-};
-
-PSInput VSMain(float4 position : POSITION, float3 normal : NORMAL, float4 color : COLOR, float2 uv : TEXCOORD)
-{
-	PSInput result;
-	float4x4 transformMatrix = mul(LINA_VIEWPROJ, LINA_OBJECTS[LINA_INSTANCEID].model);
-	result.position = mul(transformMatrix, float4(position.xyz, 1.0));
-	result.normal = normal;
-	result.color = color.xyz;
-	result.uv = uv;
-	result.cpos = position.xyz / position.w;
-	return result;
-}
-
-float4 PSMain(PSInput input) : SV_TARGET
-{
-	float4 col = Lina_SampleTexture2D(diffuse, input.uv);
-	return float4(col.xyz, 1);
-}
+#endif

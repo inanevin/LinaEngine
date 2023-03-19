@@ -28,16 +28,18 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef D3D12GUIBackend_HPP
-#define D3D12GUIBackend_HPP
+#ifndef IGUIDrawer_HPP
+#define IGUIDrawer_HPP
 
 namespace Lina
 {
-	class DX12GUIBackend
+	class IGUIDrawer
 	{
 	public:
-		DX12GUIBackend()	 = default;
-		~DX12GUIBackend() = default;
+		IGUIDrawer()		   = default;
+		virtual ~IGUIDrawer() = default;
+
+		virtual void DrawGUI(int threadID) = 0;
 	};
 } // namespace Lina
 

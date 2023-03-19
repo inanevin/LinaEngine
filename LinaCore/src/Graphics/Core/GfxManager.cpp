@@ -40,6 +40,8 @@ SOFTWARE.
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
+#include "Graphics/Core/GUIBackend.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 // Debug
 #include "Graphics/Core/WorldRenderer.hpp"
@@ -65,6 +67,25 @@ namespace Lina
 		m_renderer = new Renderer();
 		m_renderer->PreInitialize(initInfo, this);
 		m_resourceManager->AddListener(this);
+
+		// GUIBackend
+		{
+			m_guiBackend						  = new GUIBackend(this);
+			LinaVG::Config.displayPosX			  = 0;
+			LinaVG::Config.displayPosY			  = 0;
+			LinaVG::Config.displayWidth			  = 0;
+			LinaVG::Config.displayHeight		  = 0;
+			LinaVG::Config.globalFramebufferScale = 1.0f;
+			LinaVG::Config.globalAAMultiplier	  = 1.0f;
+			LinaVG::Config.aaEnabled			  = true;
+			LinaVG::Config.textCachingEnabled	  = true;
+			LinaVG::Config.textCachingSDFEnabled  = true;
+			LinaVG::Config.textCacheReserve		  = 10000;
+			LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
+			LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
+			LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
+			LinaVG::Initialize();
+		}
 	}
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -82,11 +103,19 @@ namespace Lina
 
 	void GfxManager::PostInit()
 	{
-
 		// Samplers
 		{
 			TextureSampler* defaultSampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
-			defaultSampler->SetSamplerData(SamplerData());
+			SamplerData		samplerData;
+			samplerData.minFilter	= Filter::Linear;
+			samplerData.magFilter	= Filter::Linear;
+			samplerData.mode		= SamplerAddressMode::ClampToEdge;
+			samplerData.anisotropy	= 0.0f;
+			samplerData.borderColor = Color::White;
+			samplerData.mipLodBias	= 0.0f;
+			samplerData.minLod		= 0.0f;
+			samplerData.maxLod		= 0.0f;
+			defaultSampler->SetSamplerData(samplerData);
 			m_engineSamplers.push_back(defaultSampler);
 		}
 
@@ -135,6 +164,8 @@ namespace Lina
 	void GfxManager::PreShutdown()
 	{
 		Join();
+		LinaVG::Terminate();
+
 		delete testWorldRenderer;
 		delete testWorld;
 		for (auto m : m_engineMaterials)
@@ -216,18 +247,19 @@ namespace Lina
 		}
 
 		m_renderer->BeginFrame(m_frameIndex);
+		LinaVG::StartFrame(static_cast<int>(m_surfaceRenderers.size()));
 
 		// Surface renderers.
 		{
 			Taskflow tf;
 			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
-				m_surfaceRenderers[i]->SetThreadID(i);
-				m_surfaceRenderers[i]->Render(m_frameIndex);
+				m_surfaceRenderers[i]->Render(i, m_frameIndex);
 				m_surfaceRenderers[i]->Present();
 			});
 			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
 
+		LinaVG::EndFrame();
 		m_renderer->EndFrame(m_frameIndex);
 
 		m_frameIndex = (m_frameIndex + 1) % FRAMES_IN_FLIGHT;
@@ -268,6 +300,8 @@ namespace Lina
 					break;
 				}
 			}
+
+			m_guiBackend->OnResourceBatchLoaded(ev);
 		}
 		else if (eventType & EVS_LevelInstalled)
 		{

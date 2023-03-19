@@ -28,6 +28,9 @@ SOFTWARE.
 
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Core/WorldRenderer.hpp"
+#include "Graphics/Core/GUIBackend.hpp"
+#include "Graphics/Core/IGUIDrawer.hpp"
+#include "Graphics/Core/GUIRenderer.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -37,6 +40,7 @@ SOFTWARE.
 #include "Graphics/Core/ISwapchain.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
@@ -44,7 +48,6 @@ namespace Lina
 
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask) : m_gfxManager(man), m_imageCount(imageCount), m_mask(mask)
 	{
-
 		// Init
 		{
 			m_renderer = m_gfxManager->GetRenderer();
@@ -65,10 +68,13 @@ namespace Lina
 				frame.cmdList	   = m_renderer->CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
 			}
 		}
+
+		m_guiRenderer = new GUIRenderer(man, sid, m_imageCount);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
+		delete m_guiRenderer;
 		DestroyTextures();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -218,12 +224,15 @@ namespace Lina
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 	}
 
-	void SurfaceRenderer::Render(uint32 frameIndex)
+	void SurfaceRenderer::Render(int surfaceRendererIndex, uint32 frameIndex)
 	{
 		PROFILER_FUNCTION();
 
-		Taskflow worldRendererTaskFlow;
-		worldRendererTaskFlow.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
+		m_surfaceRendererIndex = surfaceRendererIndex;
+
+		const int worldRenderersSz = static_cast<int>(m_worldRenderers.size());
+		Taskflow  worldRendererTaskFlow;
+		worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
 		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
 
 		auto& frame	  = m_frames[frameIndex];
@@ -267,6 +276,46 @@ namespace Lina
 				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
+			if (m_uiDrawer != nullptr || true)
+			{
+				// m_uiDrawer->DrawGUI(m_surfaceRendererIndex);
+				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
+
+				LinaVG::StyleOptions style;
+				style.isFilled = true;
+				style.color	   = LV4(Color(1, 1, 1, 1));
+
+				const String   path = "GUIBackendFont_0";
+				const StringID sid	= TO_SID(path);
+				// style.textureHandle = "Resources/Core/Textures/Grid512.png"_hs;
+				// style.textureHandle = sid;
+
+				LinaVG::TextOptions opts;
+				opts.font	   = "Resources/Core/Fonts/Rubik-Regular_13.ttf"_hs;
+				opts.framebufferScale = 1.0f;
+
+				opts.dropShadowOffset = LV2(Vector2(0.5f, 0.5f));
+				opts.dropShadowColor = LV4( Color::Black);
+				opts.color.start = LV4(Color::Cyan);
+				opts.color.end = LV4(Color::Red);
+
+				LinaVG::SDFTextOptions sdf;
+				sdf.font = "Resources/Core/Fonts/NunitoSans.ttf"_hs;
+				sdf.sdfThickness= 0.6f;
+				LinaVG::DrawTextNormal("HELLO MATE :)", LV2(Vector2(100, 100)), opts, 0, 0, true);
+				LinaVG::DrawTextSDF("HELLO MATE :)", LV2(Vector2(100, 500)), sdf, 0, 0, true);
+				
+				style.color = LinaVG::Vec4(1.0f, 1.0f, 0.0f, 0.2f);
+				//	LinaVG::DrawRect(m_surfaceRendererIndex, LV2(Vector2(100, 100)), LV2(Vector2(500, 500)), style, 0.0f);
+
+				// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
+				{
+					m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
+					LinaVG::Render(m_surfaceRendererIndex);
+					m_guiRenderer->Render(frame.cmdList);
+				}
+			}
+
 			m_renderer->EndRenderPass(frame.cmdList);
 			m_renderer->ResourceBarrier(frame.cmdList, &rt2Present, 1);
 		}
@@ -278,6 +327,11 @@ namespace Lina
 
 		// Submit
 		{
+			// Vector<uint32> commandLists;
+			// commandLists.resize(worldRenderersSz + 1);
+			// worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { commandLists[i] = m_worldRenderers[i]->GetCommandList(frameIndex); });
+			// m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(worldRendererTaskFlow);
+			// commandLists[worldRenderersSz] = frame.cmdList;
 			m_renderer->ExecuteCommandListsGraphics({frame.cmdList});
 		}
 	}

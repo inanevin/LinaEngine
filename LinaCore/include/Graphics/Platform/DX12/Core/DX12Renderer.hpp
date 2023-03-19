@@ -192,7 +192,7 @@ namespace Lina
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
 		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset);
 		void   SetTopology(uint32 cmdListHandle, Topology topology);
-		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, uint32 slot = 0);
+		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
 		void   BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer);
 
 		// Fences

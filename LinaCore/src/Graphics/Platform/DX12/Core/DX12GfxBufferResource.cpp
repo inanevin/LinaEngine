@@ -64,6 +64,27 @@ namespace Lina
 		MEMCPY(m_mappedData, data, m_size);
 	}
 
+	void DX12GfxBufferResource::UpdatePadded(const void* data, size_t sz, size_t padding)
+	{
+		if (padding + sz > m_size)
+		{
+			const size_t storedSize = m_size;
+			void*		 copyData	= malloc(storedSize);
+			MEMCPY(copyData, m_mappedData, storedSize);
+			Recreate(nullptr, padding + sz);
+			MEMCPY(m_mappedData, copyData, storedSize);
+			free(copyData);
+		}
+
+		if (m_mappedData == nullptr)
+		{
+			LINA_ERR("[GfxBufferResource]-> Mapped data is nullptr, can't update!");
+			return;
+		}
+
+		MEMCPY(m_mappedData + padding, data, sz);
+	}
+
 	uint64 DX12GfxBufferResource::GetGPUPointer()
 	{
 		return m_allocation->GetResource()->GetGPUVirtualAddress();

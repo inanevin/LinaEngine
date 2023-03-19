@@ -22,9 +22,10 @@ project(LinaEditor)
 set(LINAEDITOR_SOURCES 
 
 # Core
-src/Core/Editor.cpp
 src/Core/EditorApplication.cpp
+src/Core/Editor.cpp
 src/EditorEntryPoint.cpp
+src/GUI/EditorGUIDrawer.cpp
 
 )
 
@@ -32,8 +33,9 @@ src/EditorEntryPoint.cpp
 set(LINAEDITOR_HEADERS
 
 # Core
-include/Core/Editor.hpp
+include/GUI/EditorGUIDrawer.hpp
 include/Core/EditorApplication.hpp
+include/Core/Editor.hpp
 
 )
 

@@ -45,8 +45,10 @@ src/Input/Core/Input.cpp
 # Graphics
 
 src/Graphics/Core/WindowManager.cpp
+src/Graphics/Core/GUIBackend.cpp
 src/Graphics/Core/GfxManager.cpp
 src/Graphics/Core/View.cpp
+src/Graphics/Core/GUIRenderer.cpp
 src/Graphics/Core/ISwapchain.cpp
 src/Graphics/Core/DrawPass.cpp
 src/Graphics/Core/CameraSystem.cpp
@@ -137,6 +139,9 @@ include/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
 include/Graphics/Core/WindowManager.hpp
+include/Graphics/Core/GUIBackend.hpp
+include/Graphics/Core/IGUIDrawer.hpp
+include/Graphics/Core/GUIRenderer.hpp
 include/Graphics/Core/IWindow.hpp
 include/Graphics/Core/IGfxBufferResource.hpp
 include/Graphics/Core/IGfxTextureResource.hpp
@@ -200,7 +205,6 @@ include/Graphics/Platform/DX12/Core/DX12Swapchain.hpp
 include/Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12StagingHeap.hpp
 include/Graphics/Platform/DX12/Core/DX12GPUHeap.hpp
-include/Graphics/Platform/DX12/Core/DX12GUIBackend.hpp
 include/Graphics/Platform/DX12/Core/DX12UploadContext.hpp
 include/Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp
 include/Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp
@@ -237,7 +241,6 @@ src/Graphics/Platform/DX12/Core/DX12Swapchain.cpp
 src/Graphics/Platform/DX12/Core/DX12DescriptorHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12StagingHeap.cpp
 src/Graphics/Platform/DX12/Core/DX12GPUHeap.cpp
-src/Graphics/Platform/DX12/Core/DX12GUIBackend.cpp
 src/Graphics/Platform/DX12/Core/DX12UploadContext.cpp
 src/Graphics/Platform/DX12/Core/DX12GfxBufferResource.cpp
 src/Graphics/Platform/DX12/Core/DX12GfxTextureResource.cpp

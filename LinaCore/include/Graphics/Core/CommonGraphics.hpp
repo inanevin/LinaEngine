@@ -280,6 +280,7 @@ namespace Lina
 		Vector2,
 		Vector2i,
 		Vector4,
+		Vector4i,
 		Mat4,
 		Texture,
 	};

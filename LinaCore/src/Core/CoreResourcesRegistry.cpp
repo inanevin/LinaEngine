@@ -58,8 +58,9 @@ namespace Lina
 	{
 		Vector<ResourceIdentifier> list;
 
-		// list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans.ttf", GetTypeID<Font>(), 0));
-		// list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_12.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_13.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Capsule.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cylinder.fbx", GetTypeID<Model>(), 0));
@@ -75,9 +76,9 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader", GetTypeID<Shader>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0));
 
 #ifdef LINA_GRAPHICS_VULKAN
-		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIText.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQFinal.linashader", GetTypeID<Shader>(), 0));
@@ -98,19 +99,21 @@ namespace Lina
 		ResourceMetadata						 metadata;
 
 		//-------------
-		metadata.SetInt("VariationCount"_hs, 1);
-		metadata.SetInt("Size0"_hs, 12);
-		metadata.SetInt("IsSDF0"_hs, false);
+		metadata.SetBool("IsSDF"_hs, true);
+		metadata.SetInt("Size"_hs, 55);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
-		metadata.SetInt("VariationCount"_hs, 2);
-		metadata.SetInt("Size0"_hs, 12);
-		metadata.SetInt("Size1"_hs, 13);
-		metadata.SetInt("IsSDF0"_hs, false);
-		metadata.SetInt("IsSDF1"_hs, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular.ttf"_hs, metadata));
+		metadata.SetInt("Size"_hs, 12);
+		metadata.SetInt("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_12.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt("Size"_hs, 13);
+		metadata.SetInt("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_13.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------

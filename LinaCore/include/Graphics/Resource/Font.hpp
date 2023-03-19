@@ -46,6 +46,7 @@ namespace Lina
 
 	protected:
 		virtual void Flush() override;
+		virtual void BatchLoaded() override;
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) override;

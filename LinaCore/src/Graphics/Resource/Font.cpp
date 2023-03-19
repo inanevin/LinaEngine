@@ -30,21 +30,34 @@ SOFTWARE.
 #include "Serialization/VectorSerialization.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Data/Streams.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
 	void Font::Flush()
 	{
-		m_file.clear();
+		
+	}
+
+	void Font::BatchLoaded()
+	{
+		const int vars = m_metadata.GetInt("VariationCount"_hs, 1);
+
+		for (int i = 0; i < vars; i++)
+		{
+			const bool isSdf = m_metadata.GetBool("IsSDF"_hs);
+			const int  size	 = m_metadata.GetInt("Size"_hs);
+
+			LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, m_sid, size);
+			m_file.clear();
+		}
 	}
 
 	void Font::LoadFromFile(const char* path)
 	{
 		// Popuplate if not existing.
-		m_metadata.GetInt("VariationCount"_hs, 1);
-		m_metadata.GetInt("IsSDF0"_hs, false);
-		m_metadata.GetInt("Size0"_hs, 12);
-
+		m_metadata.GetBool("IsSDF"_hs, false);
+		m_metadata.GetInt("Size"_hs, 12);
 		FileSystem::ReadFileContentsToVector(path, m_file);
 	}
 

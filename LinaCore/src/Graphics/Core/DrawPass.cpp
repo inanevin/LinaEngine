@@ -158,6 +158,7 @@ namespace Lina
 			}
 
 			m_renderer->GetUploadContext()->UploadBuffersImmediate(m_objDataBufferGPU[frameIndex], m_objDataBufferStaging[frameIndex]);
+			m_renderer->GetUploadContext()->Flush(frameIndex, UCF_FlushImmediateRequests);
 			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
 		}
 

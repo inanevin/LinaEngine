@@ -39,8 +39,11 @@ namespace Lina::Editor
 	class EditorApplication : public Lina::Application
 	{
 	public:
-		EditorApplication(){};
+		EditorApplication() : m_editor(&m_engine){};
 		virtual ~EditorApplication() = default;
+
+	private:
+		Editor m_editor;
 	};
 } // namespace Lina::Editor
 

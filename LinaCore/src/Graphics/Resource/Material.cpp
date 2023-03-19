@@ -215,6 +215,8 @@ namespace Lina
 			return static_cast<uint32>(sizeof(float) * 2);
 		else if (type == MaterialPropertyType::Vector2i)
 			return static_cast<uint32>(sizeof(int) * 2);
+		else if (type == MaterialPropertyType::Vector4i)
+			return static_cast<uint32>(sizeof(int) * 4);
 		else if (type == MaterialPropertyType::Int || type == MaterialPropertyType::Texture)
 			return static_cast<uint32>(sizeof(int));
 

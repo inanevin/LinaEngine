@@ -48,6 +48,7 @@ namespace Lina
 	class Recti;
 	class TextureSampler;
 	class IWindow;
+	class GUIBackend;
 
 	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
@@ -94,6 +95,11 @@ namespace Lina
 			return m_renderer;
 		}
 
+		inline GUIBackend* GetGUIBackend()
+		{
+			return m_guiBackend;
+		}
+
 	private:
 		Vector<TextureSampler*>	 m_engineSamplers;
 		ResourceManager*		 m_resourceManager = nullptr;
@@ -104,6 +110,7 @@ namespace Lina
 		Vector<Material*>		 m_engineMaterials;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
 		uint32					 m_frameIndex = 0;
+		GUIBackend*				 m_guiBackend;
 		bool					 m_postInited = false;
 	};
 } // namespace Lina

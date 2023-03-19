@@ -133,9 +133,6 @@ namespace Lina
 			return s_measuredFPS;
 		}
 
-		static double alpha;
-		static String csv;
-
 	private:
 		friend class Application;
 
