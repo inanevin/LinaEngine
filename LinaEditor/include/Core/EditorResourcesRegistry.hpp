@@ -28,57 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ISubsystem_HPP
-#define ISubsystem_HPP
+#ifndef EditorResourceRegistry_HPP
+#define EditorResourceRegistry_HPP
 
-#include "Data/HashMap.hpp"
+#include "Core/CoreResourcesRegistry.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	enum class SubsystemType
-	{
-		None = 0,
-		Input,
-		GfxManager,
-		PhysicsWorld,
-		AudioManager,
-		WindowManager,
-		LevelManager,
-		ResourceManager,
-		Editor,
-		Count
-	};
-
-	class ISystem;
-	struct SystemInitializationInfo;
-
-	class ISubsystem
+	class EditorResourcesRegistry : public CoreResourcesRegistry
 	{
 	public:
-		virtual void PreInitialize(const SystemInitializationInfo& initInfo){};
-		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void PostInitialize(){};
-		virtual void PreShutdown(){};
-		virtual void Shutdown() = 0;
+		EditorResourcesRegistry()		   = default;
+		virtual ~EditorResourcesRegistry() = default;
 
-		inline SubsystemType GetType() const
-		{
-			return m_systemType;
-		}
+		virtual void									 RegisterResourceTypes(ResourceManager& rm) override;
+		virtual Vector<ResourceIdentifier>				 GetPriorityResources() override;
+		virtual Vector<Pair<StringID, ResourceMetadata>> GetPriorityResourcesMetadata() override;
 
-		inline ISystem* GetSystem()
-		{
-			return m_system;
-		}
-
-	protected:
-		ISubsystem(ISystem* sys, SubsystemType type);
-		virtual ~ISubsystem();
-
-	protected:
-		ISystem*	  m_system	   = nullptr;
-		SubsystemType m_systemType = SubsystemType::None;
+		virtual Vector<ResourceIdentifier>				 GetCoreResources() override;
+		virtual Vector<Pair<StringID, ResourceMetadata>> GetCoreResourcesMetadata() override;
 	};
-} // namespace Lina
+
+} // namespace Lina::Editor
 
 #endif

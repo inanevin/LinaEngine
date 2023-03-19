@@ -46,9 +46,10 @@ namespace Lina
 		Application() : m_engine(this){};
 		virtual ~Application(){};
 
-		void Initialize(const SystemInitializationInfo& initInfo);
-		void Tick();
-		void Shutdown();
+		virtual void Initialize(const SystemInitializationInfo& initInfo);
+		virtual void PostInitialize(const SystemInitializationInfo& initInfo);
+		virtual void Tick();
+		virtual void Shutdown();
 
 		inline void Quit()
 		{
@@ -62,6 +63,7 @@ namespace Lina
 
 	protected:
 		void		 CalculateTime();
+		void		 SetApplicationMode(ApplicationMode mode);
 		virtual void LoadPlugins();
 		virtual void UnloadPlugins();
 

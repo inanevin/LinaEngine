@@ -291,20 +291,17 @@ namespace Lina
 				// style.textureHandle = sid;
 
 				LinaVG::TextOptions opts;
-				opts.font	   = "Resources/Core/Fonts/Rubik-Regular_13.ttf"_hs;
+				opts.font			  = "Resources/Core/Fonts/Rubik-Regular_13.ttf"_hs;
 				opts.framebufferScale = 1.0f;
+				opts.textScale		  = 5;
 
 				opts.dropShadowOffset = LV2(Vector2(0.5f, 0.5f));
-				opts.dropShadowColor = LV4( Color::Black);
-				opts.color.start = LV4(Color::Cyan);
-				opts.color.end = LV4(Color::Red);
+				opts.dropShadowColor  = LV4(Color::Black);
+				opts.color.start	  = LV4(Color::Cyan);
+				opts.color.end		  = LV4(Color::Red);
 
-				LinaVG::SDFTextOptions sdf;
-				sdf.font = "Resources/Core/Fonts/NunitoSans.ttf"_hs;
-				sdf.sdfThickness= 0.6f;
 				LinaVG::DrawTextNormal("HELLO MATE :)", LV2(Vector2(100, 100)), opts, 0, 0, true);
-				LinaVG::DrawTextSDF("HELLO MATE :)", LV2(Vector2(100, 500)), sdf, 0, 0, true);
-				
+
 				style.color = LinaVG::Vec4(1.0f, 1.0f, 0.0f, 0.2f);
 				//	LinaVG::DrawRect(m_surfaceRendererIndex, LV2(Vector2(100, 100)), LV2(Vector2(500, 500)), style, 0.0f);
 

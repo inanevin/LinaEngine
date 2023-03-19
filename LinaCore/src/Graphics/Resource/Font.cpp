@@ -45,7 +45,7 @@ namespace Lina
 
 		for (int i = 0; i < vars; i++)
 		{
-			const bool isSdf = m_metadata.GetBool("IsSDF"_hs);
+			const bool isSdf = m_metadata.GetBool("IsSDF"_hs, false);
 			const int  size	 = m_metadata.GetInt("Size"_hs);
 
 			LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, m_sid, size);

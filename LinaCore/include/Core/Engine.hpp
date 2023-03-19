@@ -54,6 +54,7 @@ namespace Lina
 
 		// Inherited via ISystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void PostInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		virtual void Tick(float dt) override;
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;

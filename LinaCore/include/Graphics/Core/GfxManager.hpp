@@ -65,7 +65,7 @@ namespace Lina
 
 		virtual void		PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void		Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void		PostInit() override;
+		virtual void		PostInitialize() override;
 		virtual void		PreShutdown() override;
 		virtual void		Shutdown() override;
 		void				WaitForPresentation();
@@ -111,7 +111,7 @@ namespace Lina
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
 		uint32					 m_frameIndex = 0;
 		GUIBackend*				 m_guiBackend;
-		bool					 m_postInited = false;
+		bool					 m_PostInitializeed = false;
 	};
 } // namespace Lina
 #endif

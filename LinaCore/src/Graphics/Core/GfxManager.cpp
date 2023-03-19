@@ -101,7 +101,7 @@ namespace Lina
 		m_meshManager.Initialize();
 	}
 
-	void GfxManager::PostInit()
+	void GfxManager::PostInitialize()
 	{
 		// Samplers
 		{
@@ -158,7 +158,7 @@ namespace Lina
 			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, m_surfaceRenderers[0], 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
 
-		m_postInited = true;
+		m_PostInitializeed = true;
 	}
 
 	void GfxManager::PreShutdown()
@@ -315,7 +315,7 @@ namespace Lina
 
 	void GfxManager::OnWindowResized(IWindow* window, StringID sid, const Recti& rect)
 	{
-		if (!m_postInited)
+		if (!m_PostInitializeed)
 			return;
 
 		m_renderer->OnWindowResized(window, sid, rect);
@@ -323,7 +323,7 @@ namespace Lina
 
 	void GfxManager::OnVsyncChanged(VsyncMode mode)
 	{
-		if (!m_postInited)
+		if (!m_PostInitializeed)
 			return;
 		m_renderer->OnVsyncChanged(mode);
 	}

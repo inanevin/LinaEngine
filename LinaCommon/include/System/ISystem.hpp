@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Core/Common.hpp"
 #include "JobSystem/JobSystem.hpp"
 
-
 namespace Lina
 {
 	class ISubsystem;
@@ -52,9 +51,10 @@ namespace Lina
 		void		 AddSubsystem(ISubsystem* sub);
 		void		 RemoveSubsystem(ISubsystem* sub);
 		ISubsystem*	 CastSubsystem(SubsystemType type);
-		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void Shutdown()											  = 0;
-		virtual void Tick(float dt)										  = 0;
+		virtual void Initialize(const SystemInitializationInfo& initInfo)	  = 0;
+		virtual void PostInitialize(const SystemInitializationInfo& initInfo) = 0;
+		virtual void Shutdown()												  = 0;
+		virtual void Tick(float dt)											  = 0;
 
 		template <typename T> T* CastSubsystem(SubsystemType type)
 		{

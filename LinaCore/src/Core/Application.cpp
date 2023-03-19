@@ -40,19 +40,21 @@ namespace Lina
 {
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		auto& resourceManager = m_engine.GetResourceManager();
+
 		// Platform setup
 		{
-			SystemInfo::SetApplicationMode(initInfo.appMode);
+			SetApplicationMode(ApplicationMode::Standalone);
+			resourceManager.SetMode(ResourceManagerMode::Package);
 			PlatformTime::GetSeconds();
-		}
+			PROFILER_REGISTER_THREAD("Main");
 
-		// Core resources.
-		{
-			auto& resourceManager = m_engine.GetResourceManager();
-			resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
-			resourceManager.SetCoreResourcesDefaultMetadata(m_coreResourceRegistry->GetCoreResourceDefaultMetadata());
 			m_coreResourceRegistry = new CoreResourcesRegistry();
 			m_coreResourceRegistry->RegisterResourceTypes(resourceManager);
+			resourceManager.SetPriorityResources(m_coreResourceRegistry->GetPriorityResources());
+			resourceManager.SetPriorityResourcesMetadata(m_coreResourceRegistry->GetPriorityResourcesMetadata());
+			resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
+			resourceManager.SetCoreResourcesMetadata(m_coreResourceRegistry->GetCoreResourcesMetadata());
 		}
 
 		// pre-init rendering systems & window
@@ -65,6 +67,26 @@ namespace Lina
 		m_engine.Initialize(initInfo);
 
 		LoadPlugins();
+	}
+
+	void Application::PostInitialize(const SystemInitializationInfo& initInfo)
+	{
+		auto& resourceManager = m_engine.GetResourceManager();
+
+		// First load priority resources & complete initialization
+		{
+			auto start = PlatformTime::GetCycles64();
+			resourceManager.LoadPriorityResources();
+			LINA_TRACE("[Application] -> Loading priority resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, PlatformTime::GetCycles64()));
+			m_engine.PostInitialize(initInfo);
+		}
+
+		// Load any core resources.
+		{
+			auto start = PlatformTime::GetCycles64();
+			resourceManager.LoadCoreResources();
+			LINA_TRACE("[Application] -> Loading additional resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, PlatformTime::GetCycles64()));
+		}
 	}
 
 	void Application::LoadPlugins()
@@ -239,5 +261,10 @@ namespace Lina
 			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
 			LINA_TRACE("[DT]: {0}", SystemInfo::GetDeltaTime());
 		}
+	}
+
+	void Application::SetApplicationMode(ApplicationMode mode)
+	{
+		SystemInfo::SetApplicationMode(mode);
 	}
 } // namespace Lina

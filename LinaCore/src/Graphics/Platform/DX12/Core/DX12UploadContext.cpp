@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Resource/Texture.hpp"
+#include "Data/CommonData.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -188,7 +189,17 @@ namespace Lina
 
 	void DX12UploadContext::UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)
 	{
-		LOCK_GUARD(m_mtx);
+		// There might be consecutive requests for the same buffer (combined mesh buffer, when multiple resources load on different batches)
+		// So we need to check if there is already a request for this buffer
+		{
+			auto it = linatl::find_if(m_bufferRequests.begin(), m_bufferRequests.end(), [targetGPUResource](const BufferUploadRequest& req) { return req.targetResource == targetGPUResource; });
+			if (it != m_bufferRequests.end())
+			{
+				delete it->stagingResource;
+				m_bufferRequests.erase(it);
+			}
+		}
+
 		BufferUploadRequest req;
 		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, data, dataSize);
 		req.targetResource	= targetGPUResource;
@@ -197,8 +208,6 @@ namespace Lina
 
 	void DX12UploadContext::UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest genReq)
 	{
-		LOCK_GUARD(m_mtx);
-
 		TextureUploadRequest req;
 		const auto&			 mips		= src->GetMipmaps();
 		const uint32		 mipsSz		= static_cast<uint32>(mips.size());
@@ -233,7 +242,6 @@ namespace Lina
 
 	void DX12UploadContext::PushCustomCommand(const GfxCommand& cmd)
 	{
-		LOCK_GUARD(m_mtx);
 	}
 
 } // namespace Lina

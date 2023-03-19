@@ -57,16 +57,12 @@ namespace Lina
 			sys->Initialize(initInfo);
 		}
 
-		m_resourceManager.SetMode(ResourceManagerMode::File);
-		auto start = PlatformTime::GetCycles64();
-		m_resourceManager.LoadCoreResources();
-		auto now = PlatformTime::GetCycles64();
-		LINA_TRACE("[Application] -> Loading core resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, now));
+	}
 
+	void Engine::PostInitialize(const SystemInitializationInfo& initInfo)
+	{
 		for (auto [type, sys] : m_subsystems)
-			sys->PostInit();
-
-		PROFILER_REGISTER_THREAD("Main");
+			sys->PostInitialize();
 	}
 
 	void Engine::Shutdown()
@@ -155,7 +151,7 @@ namespace Lina
 			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->Minimize();
 		}
 	}
-	
+
 	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
 		if (eventType & EVS_ResourceLoaded)

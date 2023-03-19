@@ -38,8 +38,7 @@ Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& o
 		.windowStyle	  = Lina::WindowStyle::Windowed,
 		.preferredGPUType = Lina::PreferredGPUType::Integrated,
 		.vsyncMode		  = Lina::VsyncMode::None,
-		.appMode		  = Lina::ApplicationMode::Editor,
 	};
-
+	
 	return new Lina::Editor::EditorApplication();
 }

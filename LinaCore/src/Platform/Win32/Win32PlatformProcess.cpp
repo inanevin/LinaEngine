@@ -59,6 +59,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	Lina::SystemInitializationInfo initInfo;
 	Lina::Application*			   app = LinaLaunchCreateApplication(initInfo);
 	app->Initialize(initInfo);
+	app->PostInitialize(initInfo);
 
 	while (!app->GetExitRequested())
 		app->Tick();

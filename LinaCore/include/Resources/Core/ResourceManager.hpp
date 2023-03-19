@@ -54,20 +54,32 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
+		void			   LoadPriorityResources();
 		void			   LoadCoreResources();
 		void			   LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
 		void			   UnloadResources(const Vector<ResourceIdentifier>& identifiers);
+		bool			   IsPriorityResource(StringID sid);
 		bool			   IsCoreResource(StringID sid);
 		Vector<IResource*> GetAllResources();
 		PackageType		   GetPackageType(TypeID tid);
 		static String	   GetMetacachePath(const String& resourcePath, StringID sid);
 
-		inline void SetCoreResources(const Vector<ResourceIdentifier>& coreResources)
+		inline void SetPriorityResources(const Vector<ResourceIdentifier>& priorityResources)
 		{
-			m_coreResources = coreResources;
+			m_priorityResources = priorityResources;
 		}
 
-		inline void SetCoreResourcesDefaultMetadata(const Vector<Pair<StringID, ResourceMetadata>>& meta)
+		inline void SetPriorityResourcesMetadata(const Vector<Pair<StringID, ResourceMetadata>>& meta)
+		{
+			m_priorityResourcesDefaultMetadata = meta;
+		}
+
+		inline void SetCoreResources(const Vector<ResourceIdentifier>& priorityResources)
+		{
+			m_coreResources = priorityResources;
+		}
+
+		inline void SetCoreResourcesMetadata(const Vector<Pair<StringID, ResourceMetadata>>& meta)
 		{
 			m_coreResourcesDefaultMetadata = meta;
 		}
@@ -101,7 +113,7 @@ namespace Lina
 
 	private:
 		friend class IResource;
-		
+
 		void AddUserManaged(IResource* res);
 		void RemoveUserManaged(IResource* res);
 
@@ -110,7 +122,9 @@ namespace Lina
 		Executor								 m_executor;
 		ResourceManagerMode						 m_mode = ResourceManagerMode::File;
 		HashMap<TypeID, ResourceCacheBase*>		 m_caches;
+		Vector<ResourceIdentifier>				 m_priorityResources;
 		Vector<ResourceIdentifier>				 m_coreResources;
+		Vector<Pair<StringID, ResourceMetadata>> m_priorityResourcesDefaultMetadata;
 		Vector<Pair<StringID, ResourceMetadata>> m_coreResourcesDefaultMetadata;
 	};
 

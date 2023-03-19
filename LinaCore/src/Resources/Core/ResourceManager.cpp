@@ -53,6 +53,11 @@ namespace Lina
 		return m_caches.at(tid)->GetPackageType();
 	}
 
+	void ResourceManager::LoadPriorityResources()
+	{
+		LoadResources(m_priorityResources, true);
+	}
+
 	void ResourceManager::LoadCoreResources()
 	{
 		LoadResources(m_coreResources, true);
@@ -60,6 +65,12 @@ namespace Lina
 
 	void ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async)
 	{
+		if (identifiers.empty())
+		{
+			LINA_ERR("[Resource Manager] -> LoadResources() called with empty identifier list.");
+			return;
+		}
+
 		if (m_mode == ResourceManagerMode::File)
 		{
 			if (!FileSystem::FileExists("Resources/Editor/Metacache"))
@@ -88,7 +99,14 @@ namespace Lina
 				{
 					// If we are loading a core resource.
 					// We might have it's custom metadata registered, set it before loading the resource.
-					if (IsCoreResource(ident.sid))
+					if (IsPriorityResource(ident.sid))
+					{
+						auto it = linatl::find_if(m_priorityResourcesDefaultMetadata.begin(), m_priorityResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
+
+						if (it != m_priorityResourcesDefaultMetadata.end())
+							res->SetMetadata(it->second);
+					}
+					else if (IsCoreResource(ident.sid))
 					{
 						auto it = linatl::find_if(m_coreResourcesDefaultMetadata.begin(), m_coreResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
 
@@ -227,6 +245,12 @@ namespace Lina
 		Vector<ResourceIdentifier> idents = identifiers;
 		batchEv.pParams[0]				  = &idents;
 		DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
+	}
+
+	bool ResourceManager::IsPriorityResource(StringID sid)
+	{
+		auto it = linatl::find_if(m_priorityResources.begin(), m_priorityResources.end(), [sid](const ResourceIdentifier& ident) { return ident.sid == sid; });
+		return it != m_priorityResources.end();
 	}
 
 	bool ResourceManager::IsCoreResource(StringID sid)

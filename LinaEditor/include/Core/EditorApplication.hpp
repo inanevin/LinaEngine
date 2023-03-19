@@ -42,6 +42,10 @@ namespace Lina::Editor
 		EditorApplication() : m_editor(&m_engine){};
 		virtual ~EditorApplication() = default;
 
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void PostInitialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Tick() override;
+
 	private:
 		Editor m_editor;
 	};

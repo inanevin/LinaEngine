@@ -75,7 +75,6 @@ namespace Lina
 		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
 		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
 		VsyncMode		 vsyncMode		  = VsyncMode::None;
-		ApplicationMode	 appMode		  = ApplicationMode::Editor;
 	};
 
 	extern const char* VsyncModeToStr(VsyncMode mode);

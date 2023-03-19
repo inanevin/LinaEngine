@@ -82,7 +82,6 @@ namespace Lina
 		Vector<BufferUploadRequest>	 m_bufferRequests;
 		Vector<BufferUploadRequest>	 m_immediateBufferRequests;
 		Vector<TextureUploadRequest> m_textureRequests;
-		Mutex						 m_mtx;
 	};
 } // namespace Lina
 

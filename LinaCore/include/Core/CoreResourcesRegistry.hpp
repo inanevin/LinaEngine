@@ -47,17 +47,15 @@ namespace Lina
 		CoreResourcesRegistry()			 = default;
 		virtual ~CoreResourcesRegistry() = default;
 
-		virtual void									 RegisterResourceTypes(ResourceManager& rm);
+		virtual void RegisterResourceTypes(ResourceManager& rm);
+
+		// Loaded prior to initialization.
+		virtual Vector<ResourceIdentifier>				 GetPriorityResources();
+		virtual Vector<Pair<StringID, ResourceMetadata>> GetPriorityResourcesMetadata();
+
+		// Loaded after systems are ready.
 		virtual Vector<ResourceIdentifier>				 GetCoreResources();
-		virtual Vector<Pair<StringID, ResourceMetadata>> GetCoreResourceDefaultMetadata();
-
-		static const Vector<StringID>& GetCoreShaders()
-		{
-			return s_coreShaders;
-		}
-
-	private:
-		static Vector<StringID> s_coreShaders;
+		virtual Vector<Pair<StringID, ResourceMetadata>> GetCoreResourcesMetadata();
 	};
 } // namespace Lina
 
