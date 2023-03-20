@@ -29,7 +29,8 @@ SOFTWARE.
 #include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Components/ModelNodeComponent.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/IGfxBufferResource.hpp"
+#include "Graphics/Core/IGfxCPUResource.hpp"
+#include "Graphics/Core/IGfxGPUResource.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -89,8 +90,10 @@ namespace Lina
 				auto& frame			  = m_frames[i];
 				frame.cmdAllocator	  = m_renderer->CreateCommandAllocator(CommandType::Graphics);
 				frame.cmdList		  = m_renderer->CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
-				frame.sceneDataBuffer = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuSceneData, sizeof(GPUSceneData), L"World Renderer Scene Data");
-				frame.viewDataBuffer  = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_renderData.gpuViewData, sizeof(GPUViewData), L"World Renderer View Data");
+				frame.sceneDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUSceneData), CPUResourceHint::ConstantBuffer, L"World Renderer Scene Data");
+				frame.viewDataBuffer  = m_renderer->CreateCPUResource(sizeof(GPUViewData), CPUResourceHint::ConstantBuffer, L"World Renderer View Data");
+				frame.sceneDataBuffer->BufferData(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
+				frame.viewDataBuffer->BufferData(&m_renderData.gpuViewData, sizeof(GPUViewData));
 			}
 		}
 
@@ -107,8 +110,8 @@ namespace Lina
 
 			m_renderer->ReleaseCommandList(frame.cmdList);
 			m_renderer->ReleaseCommanAllocator(frame.cmdAllocator);
-			m_renderer->DeleteBufferResource(frame.sceneDataBuffer);
-			m_renderer->DeleteBufferResource(frame.viewDataBuffer);
+			m_renderer->DeleteCPUResource(frame.sceneDataBuffer);
+			m_renderer->DeleteCPUResource(frame.viewDataBuffer);
 		}
 
 		m_world->RemoveListener(this);
@@ -272,7 +275,7 @@ namespace Lina
 		// Update scene data
 		{
 			m_renderData.gpuSceneData.ambientColor.x = SystemInfo::GetAppTimeF();
-			frame.sceneDataBuffer->Update(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
+			frame.sceneDataBuffer->BufferData(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
 			m_renderer->BindUniformBuffer(frame.cmdList, 2, frame.sceneDataBuffer);
 		}
 
@@ -280,13 +283,12 @@ namespace Lina
 		ResourceTransition rt2SRV1	 = {ResourceTransitionType::RT2SRV, imgData.renderTargetColor};
 		ResourceTransition rt2SRV2	 = {ResourceTransitionType::RT2SRV, imgData.renderTargetPP};
 
-		
 		// Main Render Pass
 		{
 			// Update View data.
 			{
 				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
-				frame.viewDataBuffer->Update(&m_renderData.gpuViewData, sizeof(GPUViewData));
+				frame.viewDataBuffer->BufferData(&m_renderData.gpuViewData, sizeof(GPUViewData));
 				m_renderer->BindUniformBuffer(frame.cmdList, 3, frame.viewDataBuffer);
 			}
 

@@ -28,48 +28,35 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GraphicsQueue_HPP
-#define GraphicsQueue_HPP
+#ifndef IGfxCPUResource_HPP
+#define IGfxCPUResource_HPP
 
-#include "Graphics/Platform/Vulkan/Utility/VulkanStructures.hpp"
-#include "Data/Vector.hpp"
-
-struct VkQueue_T;
-enum VkResult;
-struct VkDevice_T;
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina
 {
+	class Renderer;
 
-	class Fence;
-	class Semaphore;
-	class CommandBuffer;
-	class Swapchain;
-
-	struct QueueFamilyIndices
-	{
-		uint32 graphicsFamily;
-	};
-
-	class RQueue
+	class IGfxCPUResource
 	{
 	public:
-		void Get(uint32 family, uint32 index);
-		void Submit(const Vector<Semaphore*>& waitSemaphores, const Vector<Semaphore*>& signalSemaphore, const Fence& fence, const Vector<CommandBuffer*>& cmd, uint32 submitCount = 1) const;
-		void Submit(const Semaphore& waitSemaphore, const Semaphore& signalSemaphore, const Fence& fence, CommandBuffer& cmd, uint32 submitCount = 1) const;
-		void Submit(const Fence& fence, const CommandBuffer& cmd, uint32 submitCount = 1) const;
-		void Submit(const Semaphore& waitSemaphore) const;
-		void Present(const Vector<Semaphore*>& waitSemaphores, const Vector<Swapchain*>& swapchains, Vector<uint32>& imgIndices, VulkanResult& result) const;
-		void WaitIdle() const;
+		IGfxCPUResource(Renderer* renderer, CPUResourceHint hint, size_t sz) : m_renderer(renderer), m_hint(hint), m_size(sz){};
+		virtual ~IGfxCPUResource() = default;
 
-		// Desc
-		VkDevice_T* device = nullptr;
+		virtual void   BufferData(const void* data, size_t sz)						 = 0;
+		virtual void   BufferDataPadded(const void* data, size_t sz, size_t padding) = 0;
+		virtual uint64 GetGPUPointer()												 = 0;
 
-		// Runtime
-		VkQueue_T* _ptr	   = nullptr;
-		uint32	   _family = 0;
+		inline size_t GetSize()
+		{
+			return m_size;
+		}
 
-	private:
+	protected:
+		Renderer*		m_renderer	 = nullptr;
+		CPUResourceHint m_hint		 = CPUResourceHint::None;
+		uint8*			m_mappedData = nullptr;
+		size_t			m_size		 = 0;
 	};
 } // namespace Lina
 

@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Core/GfxMeshManager.hpp"
 #include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/IGfxGPUResource.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/ModelNode.hpp"
@@ -35,7 +36,6 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Data/Vertex.hpp"
-#include "Graphics/Core/IGfxBufferResource.hpp"
 #include "Graphics/Core/IUploadContext.hpp"
 
 namespace Lina
@@ -52,8 +52,8 @@ namespace Lina
 
 	void GfxMeshManager::Shutdown()
 	{
-		m_renderer->DeleteBufferResource(m_gpuIndexBuffer);
-		m_renderer->DeleteBufferResource(m_gpuVtxBuffer);
+		m_renderer->DeleteGPUResource(m_gpuIndexBuffer);
+		m_renderer->DeleteGPUResource(m_gpuVtxBuffer);
 	}
 
 	void GfxMeshManager::MergeMeshes()
@@ -106,17 +106,11 @@ namespace Lina
 
 		if (m_gpuIndexBuffer == nullptr)
 		{
-			m_gpuIndexBuffer = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, indexSize);
-			m_gpuVtxBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, vtxSize);
-		}
-		else
-		{
-			m_gpuIndexBuffer->Recreate(nullptr, indexSize);
-			m_gpuVtxBuffer->Recreate(nullptr, vtxSize);
+			m_gpuIndexBuffer = m_renderer->CreateGPUResource(indexSize, GPUResourceType::GPUOnlyWithStaging, true, L"Merged Index Buffer");
+			m_gpuVtxBuffer	 = m_renderer->CreateGPUResource(vtxSize, GPUResourceType::GPUOnlyWithStaging, true, L"Merged Vtx Buffer");
 		}
 
-		auto uploadContext = m_renderer->GetUploadContext();
-		uploadContext->UploadBuffers(m_gpuVtxBuffer, mergedVertices.data(), vtxSize);
-		uploadContext->UploadBuffers(m_gpuIndexBuffer, mergedIndices.data(), indexSize);
+		m_gpuIndexBuffer->BufferData(mergedIndices.data(), indexSize, 0, CopyDataType::CopyQueueUp);
+		m_gpuVtxBuffer->BufferData(mergedVertices.data(), vtxSize, 0, CopyDataType::CopyQueueUp);
 	}
 } // namespace Lina

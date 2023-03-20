@@ -28,7 +28,8 @@ SOFTWARE.
 
 #include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
-#include "Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12CPUResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GPUResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Resource/Texture.hpp"
@@ -80,176 +81,254 @@ namespace Lina
 			m_cmdLists[i].Reset();
 	}
 
-	void DX12UploadContext::Flush(Bitmask16 flushFlags)
+	void DX12UploadContext::FlushViaMask(Bitmask16 mask)
 	{
-		if (m_bufferRequests.empty() && m_textureRequests.empty() && m_immediateBufferRequests.empty())
+		if (mask.GetValue() == 0)
+		{
+			LINA_ERR("[Upload Context] -> Requested to flush via mask but mask is set to 0!");
 			return;
-
-		try
-		{
-			const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
-			auto*		 cmdList	= m_cmdLists[frameIndex].Get();
-
-			ThrowIfFailed(m_cmdAllocator->Reset());
-			ThrowIfFailed(cmdList->Reset(m_cmdAllocator.Get(), nullptr));
-
-			const bool flushAll = flushFlags.IsSet(UCF_FlushAll);
-
-			if (flushAll || flushFlags.IsSet(UCF_FlushDataRequests))
-			{
-				for (auto& req : m_bufferRequests)
-				{
-					DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
-					DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
-					cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
-				}
-			}
-
-			if (flushAll || flushFlags.IsSet(UCF_FlushTextureRequests))
-			{
-				for (auto& txtReq : m_textureRequests)
-				{
-					DX12GfxTextureResource*		   dx12ResTarget  = static_cast<DX12GfxTextureResource*>(txtReq.targetResource);
-					DX12GfxBufferResource*		   dx12ResStaging = static_cast<DX12GfxBufferResource*>(txtReq.stagingResource);
-					Vector<D3D12_SUBRESOURCE_DATA> allData;
-
-					auto calcTd = [&](void* data, uint32 width, uint32 height, uint32 channels) {
-						D3D12_SUBRESOURCE_DATA textureData = {};
-						textureData.pData				   = data;
-						textureData.RowPitch			   = width * channels;
-						textureData.SlicePitch			   = ALIGN_SIZE_POW(textureData.RowPitch * height, txtReq.targetResource->GetRequiredAlignment());
-
-						//if (textureData.SlicePitch > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
-						//	textureData.SlicePitch = ALIGN_TXTSZ_SM(textureData.SlicePitch);
-						//else
-						//	textureData.SlicePitch = ALIGN_TXTSZ(textureData.SlicePitch);
-
-						allData.push_back(textureData);
-					};
-
-					calcTd(txtReq.targetTexture->GetPixels(), txtReq.targetTexture->GetExtent().width, txtReq.targetTexture->GetExtent().height, txtReq.targetTexture->GetChannels());
-
-					const auto&	 mips	 = txtReq.targetTexture->GetMipmaps();
-					const uint32 mipSize = static_cast<uint32>(mips.size());
-
-					for (uint32 i = 0; i < mipSize; i++)
-					{
-						const auto& mm = mips.at(i);
-						calcTd(mm.pixels, mm.width, mm.height, txtReq.targetTexture->GetChannels());
-					}
-
-					UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, static_cast<UINT>(allData.size()), allData.data());
-				}
-			}
-
-			if (flushAll || flushFlags.IsSet(UCF_FlushImmediateRequests))
-			{
-				for (auto& req : m_immediateBufferRequests)
-				{
-					DX12GfxBufferResource* dx12ResTarget  = static_cast<DX12GfxBufferResource*>(req.targetResource);
-					DX12GfxBufferResource* dx12ResStaging = static_cast<DX12GfxBufferResource*>(req.stagingResource);
-					cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
-				}
-			}
-
-			ThrowIfFailed(cmdList->Close());
-
-			Vector<ID3D12CommandList*> _lists;
-			_lists.push_back(cmdList);
-			ID3D12CommandList* const* data = _lists.data();
-			m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
-
-			m_fenceValue++;
-			m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
-			ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-			WaitForSingleObject(m_fenceEvent, INFINITE);
-
-			if (flushAll || flushFlags.IsSet(UCF_FlushDataRequests))
-			{
-				for (auto& req : m_bufferRequests)
-					delete req.stagingResource;
-
-				m_bufferRequests.clear();
-			}
-
-			if (flushAll || flushFlags.IsSet(UCF_FlushTextureRequests))
-			{
-				for (auto& txtReq : m_textureRequests)
-				{
-					delete txtReq.stagingResource;
-
-					if (txtReq.genReq.onGenerated)
-						txtReq.genReq.onGenerated();
-				}
-				m_textureRequests.clear();
-			}
-
-			m_immediateBufferRequests.clear();
 		}
-		catch (HrException e)
+
+		OpenCommandList();
+
+		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+
+		if (mask.IsSet(UCM_FlushTextures))
 		{
-			LINA_CRITICAL("[Renderer] -> Exception when flushing the upload context! {0}", e.what());
+			for (auto& req : m_textureRequests)
+				CopyTexture(req);
+		}
+
+		if (mask.IsSet(UCM_FlushStagingToGPURequests))
+		{
+			for (auto& req : m_stagingToGPURequests)
+			{
+				DX12CPUResource* dx12ResStaging = static_cast<DX12CPUResource*>(req.cpuRes);
+				DX12GPUResource* dx12ResTarget	= static_cast<DX12GPUResource*>(req.gpuRes);
+				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+			}
+		}
+
+		CloseAndExecuteCommandList();
+
+		if (mask.IsSet(UCM_FlushStagingToGPURequests))
+		{
+			for (auto& req : m_stagingToGPURequests)
+			{
+				if (req.onCopied)
+					req.onCopied();
+			}
+
+			m_stagingToGPURequests.clear();
+		}
+
+		if (mask.IsSet(UCM_FlushTextures))
+		{
+			for (auto& req : m_textureRequests)
+			{
+				delete req.stagingResource;
+
+				if (req.genReq.onGenerated)
+					req.genReq.onGenerated();
+			}
+
+			m_textureRequests.clear();
 		}
 	}
 
-	void DX12UploadContext::UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)
+	void DX12UploadContext::FlushStagingToGPURequests()
 	{
-		// There might be consecutive requests for the same buffer (combined mesh buffer, when multiple resources load on different batches)
-		// So we need to check if there is already a request for this buffer
+		OpenCommandList();
+
+		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+
+		// Copy
 		{
-			auto it = linatl::find_if(m_bufferRequests.begin(), m_bufferRequests.end(), [targetGPUResource](const BufferUploadRequest& req) { return req.targetResource == targetGPUResource; });
-			if (it != m_bufferRequests.end())
+			for (auto& req : m_stagingToGPURequests)
 			{
-				delete it->stagingResource;
-				m_bufferRequests.erase(it);
+				DX12CPUResource* dx12ResStaging = static_cast<DX12CPUResource*>(req.cpuRes);
+				DX12GPUResource* dx12ResTarget	= static_cast<DX12GPUResource*>(req.gpuRes);
+				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
 			}
 		}
 
-		BufferUploadRequest req;
-		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, data, dataSize);
-		req.targetResource	= targetGPUResource;
-		m_bufferRequests.push_back(req);
+		CloseAndExecuteCommandList();
+
+		for (auto& req : m_stagingToGPURequests)
+		{
+			if (req.onCopied)
+				req.onCopied();
+		}
+
+		m_stagingToGPURequests.clear();
 	}
 
-	void DX12UploadContext::UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest genReq)
+	void DX12UploadContext::FlushTextureRequests()
+	{
+		OpenCommandList();
+
+		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+
+		// Copy
+		{
+			for (auto& req : m_textureRequests)
+				CopyTexture(req);
+		}
+
+		CloseAndExecuteCommandList();
+
+		for (auto& req : m_textureRequests)
+		{
+			delete req.stagingResource;
+
+			if (req.genReq.onGenerated)
+				req.genReq.onGenerated();
+		}
+
+		m_textureRequests.clear();
+	}
+
+	void DX12UploadContext::CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
+	{
+		OpenCommandList();
+
+		const uint32		 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*				 cmdList	= m_cmdLists[frameIndex].Get();
+		TextureUploadRequest req		= CreateTextureUploadRequest(targetGPUTexture, src, imgReq);
+		CopyTexture(req);
+		CloseAndExecuteCommandList();
+	}
+
+	void DX12UploadContext::CopyTextureQueueUp(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
+	{
+		auto it = linatl::find_if(m_textureRequests.begin(), m_textureRequests.end(), [targetGPUTexture](TextureUploadRequest& req) { return req.targetResource == targetGPUTexture; });
+		if (it != m_textureRequests.end())
+			m_textureRequests.erase(it);
+
+		TextureUploadRequest req = CreateTextureUploadRequest(targetGPUTexture, src, imgReq);
+		m_textureRequests.push_back(req);
+	}
+
+	void DX12UploadContext::CopyBuffersImmediate(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)
+	{
+		OpenCommandList();
+
+		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+
+		// Copy
+		{
+			DX12CPUResource* dx12ResStaging = static_cast<DX12CPUResource*>(cpuRes);
+			DX12GPUResource* dx12ResTarget	= static_cast<DX12GPUResource*>(gpuRes);
+
+			cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
+		}
+
+		CloseAndExecuteCommandList();
+	}
+
+	void DX12UploadContext::CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes, Delegate<void()>&& onCopied)
+	{
+		auto it = linatl::find_if(m_stagingToGPURequests.begin(), m_stagingToGPURequests.end(), [gpuRes](StagingToGPURequests& req) { return req.gpuRes == gpuRes; });
+		if (it != m_stagingToGPURequests.end())
+			m_stagingToGPURequests.erase(it);
+
+		StagingToGPURequests req;
+		req.cpuRes	 = cpuRes;
+		req.gpuRes	 = gpuRes;
+		req.onCopied = std::move(onCopied);
+		m_stagingToGPURequests.push_back(req);
+	}
+
+	void DX12UploadContext::CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)
+	{
+		StagingToGPURequests req;
+		req.cpuRes = cpuRes;
+		req.gpuRes = gpuRes;
+		m_stagingToGPURequests.push_back(req);
+	}
+
+	TextureUploadRequest DX12UploadContext::CreateTextureUploadRequest(IGfxTextureResource* targetGPUResource, Texture* src, ImageGenerateRequest imgReq)
 	{
 		TextureUploadRequest req;
 		const auto&			 mips		= src->GetMipmaps();
 		const uint32		 mipsSz		= static_cast<uint32>(mips.size());
 		const uint32		 ogDataSize = src->GetExtent().width * src->GetExtent().height * src->GetChannels();
-		req.totalDataSize				= ALIGN_SIZE_POW(ogDataSize, targetGPUTexture->GetRequiredAlignment());
+		req.totalDataSize				= ALIGN_SIZE_POW(ogDataSize, targetGPUResource->GetRequiredAlignment());
 
 		for (uint32 i = 0; i < mipsSz; i++)
 		{
 			const auto&	 mm = mips.at(i);
 			const uint32 sz = mm.height * mm.width * src->GetChannels();
-			req.totalDataSize += ALIGN_SIZE_POW(sz, targetGPUTexture->GetRequiredAlignment());
-			
-			//if (sz > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
-			//	req.totalDataSize += ALIGN_TXTSZ(sz);
-			//else
-			//	req.totalDataSize += ALIGN_TXTSZ_SM(sz);
+			req.totalDataSize += ALIGN_SIZE_POW(sz, targetGPUResource->GetRequiredAlignment());
 		}
 
-	//	req.totalDataSize	= ALIGN_SIZE_POW(ogDataSize, targetGPUTexture->GetRequiredAlignment());
-		req.targetResource	= targetGPUTexture;
+		req.targetResource	= targetGPUResource;
 		req.targetTexture	= src;
-		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, nullptr, req.totalDataSize);
-		req.genReq			= genReq;
-		m_textureRequests.push_back(req);
+		req.stagingResource = new DX12CPUResource(m_renderer, CPUResourceHint::None, req.totalDataSize);
+		req.genReq			= imgReq;
+		return req;
 	}
 
-	void DX12UploadContext::UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging)
+	void DX12UploadContext::CopyTexture(TextureUploadRequest& req)
 	{
-		BufferUploadRequest req;
-		req.stagingResource = staging;
-		req.targetResource	= targetGpuResource;
-		m_immediateBufferRequests.push_back(req);
-		Flush(UCF_FlushImmediateRequests);
+		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+
+		DX12GfxTextureResource*		   dx12ResTarget  = static_cast<DX12GfxTextureResource*>(req.targetResource);
+		DX12CPUResource*			   dx12ResStaging = static_cast<DX12CPUResource*>(req.stagingResource);
+		Vector<D3D12_SUBRESOURCE_DATA> allData;
+
+		auto calcTd = [&](void* data, uint32 width, uint32 height, uint32 channels) {
+			D3D12_SUBRESOURCE_DATA textureData = {};
+			textureData.pData				   = data;
+			textureData.RowPitch			   = width * channels;
+			textureData.SlicePitch			   = ALIGN_SIZE_POW(textureData.RowPitch * height, req.targetResource->GetRequiredAlignment());
+			allData.push_back(textureData);
+		};
+
+		calcTd(req.targetTexture->GetPixels(), req.targetTexture->GetExtent().width, req.targetTexture->GetExtent().height, req.targetTexture->GetChannels());
+
+		const auto&	 mips	 = req.targetTexture->GetMipmaps();
+		const uint32 mipSize = static_cast<uint32>(mips.size());
+
+		for (uint32 i = 0; i < mipSize; i++)
+		{
+			const auto& mm = mips.at(i);
+			calcTd(mm.pixels, mm.width, mm.height, req.targetTexture->GetChannels());
+		}
+
+		UpdateSubresources(cmdList, dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource(), 0, 0, static_cast<UINT>(allData.size()), allData.data());
 	}
 
-	void DX12UploadContext::PushCustomCommand(const GfxCommand& cmd)
+	void DX12UploadContext::OpenCommandList()
 	{
+		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+
+		ThrowIfFailed(m_cmdAllocator->Reset());
+		ThrowIfFailed(cmdList->Reset(m_cmdAllocator.Get(), nullptr));
+	}
+
+	void DX12UploadContext::CloseAndExecuteCommandList()
+	{
+		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+
+		ThrowIfFailed(cmdList->Close());
+
+		Vector<ID3D12CommandList*> _lists;
+		_lists.push_back(cmdList);
+		ID3D12CommandList* const* data = _lists.data();
+		m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
+
+		m_fenceValue++;
+		m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
+		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+		WaitForSingleObject(m_fenceEvent, INFINITE);
 	}
 
 } // namespace Lina

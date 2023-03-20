@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/IGfxBufferResource.hpp"
 #include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Core/IGfxCPUResource.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -97,7 +97,8 @@ namespace Lina
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data			  = m_dataPerFrame[i];
-			data.globalDataBuffer = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, &m_globalData, sizeof(GPUGlobalData));
+			data.globalDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUGlobalData), CPUResourceHint::ConstantBuffer, L"Global Data Buffer");
+			data.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
 		}
 
 		m_meshManager.Initialize();
@@ -112,7 +113,7 @@ namespace Lina
 			samplerData.minFilter	= Filter::Linear;
 			samplerData.magFilter	= Filter::Linear;
 			samplerData.mode		= SamplerAddressMode::ClampToEdge;
-			samplerData.anisotropy	= 0.0f;
+			samplerData.anisotropy	= 0;
 			samplerData.borderColor = Color::White;
 			samplerData.mipLodBias	= 0.0f;
 			samplerData.minLod		= 0.0f;
@@ -188,7 +189,7 @@ namespace Lina
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_dataPerFrame[i];
-			m_renderer->DeleteBufferResource(data.globalDataBuffer);
+			m_renderer->DeleteCPUResource(data.globalDataBuffer);
 		}
 
 		m_renderer->Shutdown();
@@ -245,7 +246,7 @@ namespace Lina
 		{
 			m_globalData.screenSizeMousePos = Vector2::Zero;
 			m_globalData.deltaElapsed		= Vector2(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF());
-			frame.globalDataBuffer->Update(&m_globalData, sizeof(GPUGlobalData));
+			frame.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
 		}
 
 		m_renderer->BeginFrame(m_frameIndex);
@@ -280,17 +281,16 @@ namespace Lina
 		delete *it;
 	}
 
-	IGfxBufferResource* GfxManager::GetCurrentGlobalDataResource()
+	IGfxCPUResource* GfxManager::GetCurrentGlobalDataResource()
 	{
 		return m_dataPerFrame[m_frameIndex].globalDataBuffer;
 	}
 
 	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
-		Bitmask16 flushMask		   = 0;
-		bool	  checkForModels   = true;
-		bool	  checkForTextures = true;
-		bool	  checkForFonts	   = true;
+		uint32 flushMask	 = 0;
+		bool   flushModels	 = 0;
+		bool   flushTextures = 0;
 
 		if (eventType & EVS_ResourceLoadTaskCompleted)
 		{
@@ -298,30 +298,24 @@ namespace Lina
 
 			for (const auto& ident : task->identifiers)
 			{
-				if (checkForModels && ident.tid == GetTypeID<Model>())
+				if (!flushModels && ident.tid == GetTypeID<Model>())
 				{
-					flushMask.Set(UCF_FlushDataRequests);
 					m_meshManager.MergeMeshes();
-					checkForModels = false;
+					flushModels = true;
+					flushMask |= UCM_FlushStagingToGPURequests;
 				}
 
-				if (checkForTextures && ident.tid == GetTypeID<Texture>())
+				if (!flushTextures && (ident.tid == GetTypeID<Texture>() || ident.tid == GetTypeID<Font>()))
 				{
-					flushMask.Set(UCF_FlushTextureRequests);
-					checkForTextures = false;
-				}
-
-				if (checkForFonts && ident.tid == GetTypeID<Font>())
-				{
-					checkForFonts = false;
-					flushMask.Set(UCF_FlushTextureRequests);
+					flushTextures = true;
+					flushMask |= UCM_FlushTextures;
 				}
 			}
 
 			m_guiBackend->OnResourceBatchLoaded(ev);
 
-			if (flushMask.GetValue() != 0)
-				m_renderer->GetUploadContext()->Flush(flushMask);
+			if (flushMask != 0)
+				m_renderer->GetUploadContext()->FlushViaMask(flushMask);
 		}
 		else if (eventType & EVS_LevelInstalled)
 		{

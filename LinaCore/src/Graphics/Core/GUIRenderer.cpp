@@ -28,12 +28,14 @@ SOFTWARE.
 
 #include "Graphics/Core/GUIRenderer.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Graphics/Core/IGfxBufferResource.hpp"
+#include "Graphics/Core/IGfxCPUResource.hpp"
+#include "Graphics/Core/IGfxGPUResource.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
+
 namespace Lina
 {
 #define DEF_VTX_BUF_SIZE   4
@@ -55,12 +57,10 @@ namespace Lina
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& frame				 = m_frames[i];
-			frame.vtxBufferStaging	 = m_renderer->CreateBufferResource(BufferResourceType::Staging, nullptr, DEF_VTX_BUF_SIZE, L"GUI Renderer Vertex Staging");
-			frame.indexBufferStaging = m_renderer->CreateBufferResource(BufferResourceType::Staging, nullptr, DEF_INDEX_BUF_SIZE, L"GUI Renderer Index Staging");
-			frame.vtxBufferGPU		 = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, DEF_VTX_BUF_SIZE, L"GUI Renderer Vertex GPU");
-			frame.indexBufferGPU	 = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, DEF_INDEX_BUF_SIZE, L"GUI Renderer Index GPU");
-			frame.viewDataBuffer	 = m_renderer->CreateBufferResource(BufferResourceType::UniformBuffer, nullptr, sizeof(GPUViewData));
+			auto& frame			 = m_frames[i];
+			frame.vtxBufferGPU	 = m_renderer->CreateGPUResource(DEF_VTX_BUF_SIZE, GPUResourceType::GPUOnlyWithStaging, false, L"GUI Renderer Vertex GPU");
+			frame.indexBufferGPU = m_renderer->CreateGPUResource(DEF_INDEX_BUF_SIZE, GPUResourceType::GPUOnlyWithStaging, false, L"GUI Renderer Index GPU");
+			frame.viewDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUViewData), CPUResourceHint::ConstantBuffer, L"GUI Renderer View Data");
 		}
 	}
 
@@ -75,11 +75,9 @@ namespace Lina
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame = m_frames[i];
-			m_renderer->DeleteBufferResource(frame.indexBufferGPU);
-			m_renderer->DeleteBufferResource(frame.indexBufferStaging);
-			m_renderer->DeleteBufferResource(frame.vtxBufferGPU);
-			m_renderer->DeleteBufferResource(frame.vtxBufferStaging);
-			m_renderer->DeleteBufferResource(frame.viewDataBuffer);
+			m_renderer->DeleteGPUResource(frame.indexBufferGPU);
+			m_renderer->DeleteGPUResource(frame.vtxBufferGPU);
+			m_renderer->DeleteCPUResource(frame.viewDataBuffer);
 		}
 	}
 
@@ -123,7 +121,7 @@ namespace Lina
 		req.materialDefinition.color1		 = FL4(buf->m_outlineColor);
 		req.materialDefinition.float4pack2	 = Vector4(thickness, softness, outlineThickness, 0.0f);
 		req.materialDefinition.intpack1		 = Vector4i(4, buf->m_outlineThickness != 0.0f ? 1 : 0, buf->m_flipAlpha, 0);
-		req.materialDefinition.diffuseIndex = buf->m_textureHandle;
+		req.materialDefinition.diffuseIndex	 = buf->m_textureHandle;
 	}
 
 	void GUIRenderer::Render(uint32 cmdList)
@@ -136,19 +134,8 @@ namespace Lina
 
 		// Transfer vertex & index data
 		{
-			const size_t stagingVtxSize	  = frame.vtxBufferStaging->GetSize();
-			const size_t stagingIndexSize = frame.indexBufferStaging->GetSize();
-
-			if (frame.vtxBufferGPU->GetSize() < stagingVtxSize)
-				frame.vtxBufferGPU->Recreate(nullptr, stagingVtxSize);
-
-			if (frame.indexBufferGPU->GetSize() < stagingIndexSize)
-				frame.indexBufferGPU->Recreate(nullptr, stagingIndexSize);
-
-			m_renderer->GetUploadContext()->UploadBuffersImmediate(frame.vtxBufferGPU, frame.vtxBufferStaging);
-			m_renderer->GetUploadContext()->UploadBuffersImmediate(frame.indexBufferGPU, frame.indexBufferStaging);
-			m_renderer->GetUploadContext()->Flush(UCF_FlushImmediateRequests);
-
+			frame.vtxBufferGPU->Copy(CopyDataType::CopyImmediately);
+			frame.indexBufferGPU->Copy(CopyDataType::CopyImmediately);
 			m_renderer->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex));
 			m_renderer->BindIndexBuffer(cmdList, frame.indexBufferGPU);
 		}
@@ -157,7 +144,7 @@ namespace Lina
 		{
 			m_renderer->BindMaterial(cmdList, data.guiMaterial, MBF_BindShader);
 			frame.viewData.proj = m_projection;
-			frame.viewDataBuffer->Update(&frame.viewData, sizeof(GPUViewData));
+			frame.viewDataBuffer->BufferData(&frame.viewData, sizeof(GPUViewData));
 			m_renderer->BindUniformBuffer(cmdList, 3, frame.viewDataBuffer);
 		}
 
@@ -223,8 +210,8 @@ namespace Lina
 		req.meta.clipW			= buf->clipSizeX == 0 ? m_size.x : buf->clipSizeX;
 		req.meta.clipH			= buf->clipSizeY == 0 ? m_size.y : buf->clipSizeY;
 
-		frame.indexBufferStaging->UpdatePadded(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), frame.indexCounter * sizeof(LinaVG::Index));
-		frame.vtxBufferStaging->UpdatePadded(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), frame.vertexCounter * sizeof(LinaVG::Vertex));
+		frame.indexBufferGPU->BufferData(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), frame.indexCounter * sizeof(LinaVG::Index), CopyDataType::NoCopy);
+		frame.vtxBufferGPU->BufferData(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), frame.vertexCounter * sizeof(LinaVG::Vertex), CopyDataType::NoCopy);
 
 		frame.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 		frame.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);

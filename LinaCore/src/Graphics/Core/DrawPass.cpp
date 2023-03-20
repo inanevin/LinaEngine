@@ -27,6 +27,8 @@ SOFTWARE.
 */
 
 #include "Graphics/Core/DrawPass.hpp"
+#include "Graphics/Core/IGfxGPUResource.hpp"
+#include "Graphics/Core/IGfxCPUResource.hpp"
 #include "Graphics/Components/RenderableComponent.hpp"
 #include "World/Core/Entity.hpp"
 #include "Graphics/Resource/Mesh.hpp"
@@ -36,7 +38,6 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
-#include "Graphics/Core/IGfxBufferResource.hpp"
 
 namespace Lina
 {
@@ -46,9 +47,9 @@ namespace Lina
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_objDataBufferStaging[i] = m_renderer->CreateBufferResource(BufferResourceType::Staging, nullptr, sizeof(GPUObjectData));
-			m_objDataBufferGPU[i]	  = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, sizeof(GPUObjectData), L"Drawpass Object Data Buffer");
-			m_indirectBuffer[i]		  = m_renderer->CreateBufferResource(BufferResourceType::IndirectBuffer, nullptr, sizeof(DrawIndexedIndirectCommand), L"Drawpass Indirect Buffer");
+
+			m_objDataBufferGPU[i] = m_renderer->CreateGPUResource(sizeof(GPUObjectData) * 500, GPUResourceType::GPUOnlyWithStaging, false, L"Drawpass Object Data Buffer");
+			m_indirectBuffer[i]	  = m_renderer->CreateCPUResource(sizeof(DrawIndexedIndirectCommand), CPUResourceHint::IndirectBuffer, L"Drawpass Indirect Buffer");
 		}
 	}
 
@@ -56,9 +57,8 @@ namespace Lina
 	{
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_renderer->DeleteBufferResource(m_objDataBufferStaging[i]);
-			m_renderer->DeleteBufferResource(m_objDataBufferGPU[i]);
-			m_renderer->DeleteBufferResource(m_indirectBuffer[i]);
+			m_renderer->DeleteGPUResource(m_objDataBufferGPU[i]);
+			m_renderer->DeleteCPUResource(m_indirectBuffer[i]);
 		}
 	}
 
@@ -147,18 +147,7 @@ namespace Lina
 
 			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 
-			auto* staging = m_objDataBufferStaging[frameIndex];
-			auto* gpuBuf  = m_objDataBufferGPU[frameIndex];
-			staging->Update(objData.data(), sizeof(GPUObjectData) * sz);
-
-			if (gpuBuf->GetSize() < staging->GetSize())
-			{
-				delete gpuBuf;
-				m_objDataBufferGPU[frameIndex] = m_renderer->CreateBufferResource(BufferResourceType::GPUDest, nullptr, staging->GetSize(), L"Drawpass Object Data Buffer");
-			}
-
-			m_renderer->GetUploadContext()->UploadBuffersImmediate(m_objDataBufferGPU[frameIndex], m_objDataBufferStaging[frameIndex]);
-			m_renderer->GetUploadContext()->Flush(UCF_FlushImmediateRequests);
+			m_objDataBufferGPU[frameIndex]->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0, CopyDataType::CopyImmediately);
 			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
 		}
 
@@ -186,7 +175,7 @@ namespace Lina
 				}
 			}
 
-			m_indirectBuffer[frameIndex]->Update(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
+			m_indirectBuffer[frameIndex]->BufferData(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
 		}
 	}
 

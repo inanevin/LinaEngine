@@ -26,85 +26,62 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12CPUResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
-#include "Graphics/Platform/DX12/Core/DX12StagingHeap.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 
 namespace Lina
 {
-
-	DX12GfxBufferResource::DX12GfxBufferResource(Renderer* rend, BufferResourceType type, const void* initialData, size_t sz) : m_renderer(rend), IGfxBufferResource(type, sz)
+	DX12CPUResource::DX12CPUResource(Renderer* renderer, CPUResourceHint hint, size_t sz, const wchar_t* name) : m_name(name), IGfxCPUResource(renderer, hint, sz)
 	{
-		CreateGPUBuffer(initialData, sz);
+		CreateResource();
 	}
 
-	DX12GfxBufferResource::DX12GfxBufferResource(Renderer* rend, size_t size, BufferResourceType2 type, BufferResourceHint hint) : m_renderer(rend), IGfxBufferResource(type, hint, size)
-	{
-		
-	}
-
-	DX12GfxBufferResource::~DX12GfxBufferResource()
+	DX12CPUResource::~DX12CPUResource()
 	{
 		Cleanup();
 	}
 
-	void DX12GfxBufferResource::Recreate(const void* data, size_t sz)
-	{
-		Cleanup();
-		CreateGPUBuffer(data, sz);
-	}
-
-	void DX12GfxBufferResource::Update(const void* data, size_t sz)
+	void DX12CPUResource::BufferData(const void* data, size_t sz)
 	{
 		if (sz > m_size)
-			Recreate(data, sz);
-
-		if (m_mappedData == nullptr)
 		{
-			LINA_ERR("[GfxBufferResource]-> Mapped data is nullptr, can't update!");
-			return;
+			Cleanup();
+			m_size = sz;
+			CreateResource();
 		}
 
-		MEMCPY(m_mappedData, data, m_size);
+		MEMCPY(m_mappedData, data, sz);
 	}
 
-	void DX12GfxBufferResource::UpdatePadded(const void* data, size_t sz, size_t padding)
+	void DX12CPUResource::BufferDataPadded(const void* data, size_t sz, size_t padding)
 	{
 		if (padding + sz > m_size)
 		{
 			const size_t storedSize = m_size;
 			void*		 copyData	= malloc(storedSize);
 			MEMCPY(copyData, m_mappedData, storedSize);
-			Recreate(nullptr, padding + sz);
+			Cleanup();
+			m_size = padding + sz;
+			CreateResource();
 			MEMCPY(m_mappedData, copyData, storedSize);
 			free(copyData);
-		}
-
-		if (m_mappedData == nullptr)
-		{
-			LINA_ERR("[GfxBufferResource]-> Mapped data is nullptr, can't update!");
-			return;
 		}
 
 		MEMCPY(m_mappedData + padding, data, sz);
 	}
 
-	uint64 DX12GfxBufferResource::GetGPUPointer()
+	uint64 DX12CPUResource::GetGPUPointer()
 	{
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
-	void DX12GfxBufferResource::CreateResource()
-	{
-	}
-
-	void DX12GfxBufferResource::CreateGPUBuffer(const void* data, size_t sz)
+	void DX12CPUResource::CreateResource()
 	{
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension			 = D3D12_RESOURCE_DIMENSION_BUFFER;
 		resourceDesc.Alignment			 = 0;
-		resourceDesc.Width				 = sz;
+		resourceDesc.Width				 = m_size;
 		resourceDesc.Height				 = 1;
 		resourceDesc.DepthOrArraySize	 = 1;
 		resourceDesc.MipLevels			 = 1;
@@ -115,28 +92,14 @@ namespace Lina
 		resourceDesc.Flags				 = D3D12_RESOURCE_FLAG_NONE;
 
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
-		D3D12_RESOURCE_STATES	 state			= D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		allocationDesc.HeapType					= D3D12_HEAP_TYPE_UPLOAD;
 
-		if (m_type == BufferResourceType::UniformBuffer)
-		{
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
-			state					= D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
-		}
-		else if (m_type == BufferResourceType::GPUDest)
-		{
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
-			state					= D3D12_RESOURCE_STATE_COPY_DEST;
-		}
-		else if (m_type == BufferResourceType::IndirectBuffer)
-		{
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
-			state					= D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
-		}
-		else if (m_type == BufferResourceType::Staging)
-		{
-			allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
-			state					= D3D12_RESOURCE_STATE_GENERIC_READ;
-		}
+		D3D12_RESOURCE_STATES state = D3D12_RESOURCE_STATE_GENERIC_READ;
+
+		if (m_hint == CPUResourceHint::ConstantBuffer)
+			state = D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER;
+		else if (m_hint == CPUResourceHint::IndirectBuffer)
+			state = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 
 		try
 		{
@@ -147,28 +110,31 @@ namespace Lina
 			LINA_CRITICAL("[Renderer] -> Exception when creating a buffer resource! {0}", e.what());
 		}
 
-		m_size = sz;
-
-		if (allocationDesc.HeapType == D3D12_HEAP_TYPE_UPLOAD)
+		try
 		{
-			CD3DX12_RANGE readRange(0, 0); // We do not intend to read from this resource on the CPU.
+			CD3DX12_RANGE readRange(0, 0);
 			ThrowIfFailed(m_allocation->GetResource()->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));
-
-			if (data != nullptr)
-				MEMCPY(m_mappedData, data, sz);
 		}
+		catch (HrException e)
+		{
+			LINA_TRACE("[DX12CPUResource] -> BufferData failed: {0}", e.what());
+		}
+
+#ifndef LINA_PRODUCTION_BUILD
+		m_allocation->GetResource()->SetName(m_name);
+#endif
 	}
 
-	void DX12GfxBufferResource::Cleanup()
+	void DX12CPUResource::Cleanup()
 	{
 		if (m_mappedData != nullptr)
 		{
 			CD3DX12_RANGE readRange(0, 0);
 			m_allocation->GetResource()->Unmap(0, &readRange);
+			m_mappedData = nullptr;
 		}
 
 		m_allocation->Release();
 		m_allocation = nullptr;
-		m_mappedData = nullptr;
 	}
 } // namespace Lina

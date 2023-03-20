@@ -42,7 +42,7 @@ namespace Lina
 {
 	class Material;
 	class SurfaceRenderer;
-	class IGfxBufferResource;
+	class IGfxCPUResource;
 	class Renderer;
 	class ResourceManager;
 	class Recti;
@@ -56,30 +56,30 @@ namespace Lina
 	private:
 		struct DataPerFrame
 		{
-			IGfxBufferResource* globalDataBuffer = nullptr;
+			IGfxCPUResource* globalDataBuffer = nullptr;
 		};
 
 	public:
 		GfxManager(ISystem* sys);
 		virtual ~GfxManager() = default;
 
-		virtual void		PreInitialize(const SystemInitializationInfo& initInfo) override;
-		virtual void		Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void		PostInitialize() override;
-		virtual void		PreShutdown() override;
-		virtual void		Shutdown() override;
-		void				WaitForPresentation();
-		void				Join();
-		void				Tick(float delta);
-		void				Render();
-		void				CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
-		void				DestroySurfaceRenderer(StringID sid);
-		IGfxBufferResource* GetCurrentGlobalDataResource();
-		virtual void		OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-		void				OnWindowMoved(IWindow* window, StringID sid, const Recti& rect);
-		void				OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
-		void				OnVsyncChanged(VsyncMode mode);
-		SurfaceRenderer*	GetSurfaceRenderer(StringID sid);
+		virtual void	 PreInitialize(const SystemInitializationInfo& initInfo) override;
+		virtual void	 Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void	 PostInitialize() override;
+		virtual void	 PreShutdown() override;
+		virtual void	 Shutdown() override;
+		void			 WaitForPresentation();
+		void			 Join();
+		void			 Tick(float delta);
+		void			 Render();
+		void			 CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
+		void			 DestroySurfaceRenderer(StringID sid);
+		IGfxCPUResource* GetCurrentGlobalDataResource();
+		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+		void			 OnWindowMoved(IWindow* window, StringID sid, const Recti& rect);
+		void			 OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
+		void			 OnVsyncChanged(VsyncMode mode);
+		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{

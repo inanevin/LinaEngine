@@ -28,35 +28,43 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Commandpools_HPP
-#define Commandpools_HPP
+#ifndef IGfxGPUResource_HPP
+#define IGfxGPUResource_HPP
 
-#include "Core/SizeDefinitions.hpp"
-
-struct VkCommandPool_T;
-struct VkDevice_T;
-struct VkAllocationCallbacks;
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina
 {
-	class DelegateQueue;
+	class Renderer;
 
-	class CommandPool
+	enum class CopyDataType
+	{
+		CopyImmediately,
+		CopyQueueUp,
+		NoCopy
+	};
+
+	class IGfxGPUResource
 	{
 	public:
-		void Create();
-		void Reset();
-		void Destroy();
+		IGfxGPUResource(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz) : m_renderer(renderer), m_type(type), m_requireJoinBeforeUpdating(requireJoinBeforeUpdating), m_size(sz){};
+		virtual ~IGfxGPUResource() = default;
 
-		// Description
-		DelegateQueue*		   deletionQueue = nullptr;
-		VkDevice_T*			   device		 = nullptr;
-		VkAllocationCallbacks* allocationCb	 = nullptr;
-		uint32				   familyIndex	 = 0;
-		uint32				   flags		 = 0;
+		virtual uint64 GetGPUPointer()																  = 0;
+		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) = 0;
+		virtual void   Copy(CopyDataType type)														  = 0;
 
-		// Runtime
-		VkCommandPool_T* _ptr = nullptr;
+		inline size_t GetSize()
+		{
+			return m_size;
+		}
+
+	protected:
+		bool			m_requireJoinBeforeUpdating = false;
+		Renderer*		m_renderer					= nullptr;
+		GPUResourceType m_type						= GPUResourceType::GPUOnlyWithStaging;
+		size_t			m_size						= 0;
+		uint8*			m_mappedData				= nullptr;
 	};
 } // namespace Lina
 

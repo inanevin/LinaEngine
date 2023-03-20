@@ -51,7 +51,8 @@ namespace Lina
 	class GfxManager;
 	class Renderer;
 	class Material;
-	class IGfxBufferResource;
+	class IGfxGPUResource;
+	class IGfxCPUResource;
 
 	class GUIRenderer
 	{
@@ -97,11 +98,9 @@ namespace Lina
 
 		struct DataPerFrame
 		{
-			IGfxBufferResource*		   vtxBufferStaging	  = nullptr;
-			IGfxBufferResource*		   vtxBufferGPU		  = nullptr;
-			IGfxBufferResource*		   indexBufferStaging = nullptr;
-			IGfxBufferResource*		   indexBufferGPU	  = nullptr;
-			IGfxBufferResource*		   viewDataBuffer	  = nullptr;
+			IGfxGPUResource*		   vtxBufferGPU	  = nullptr;
+			IGfxGPUResource*		   indexBufferGPU = nullptr;
+			IGfxCPUResource*		   viewDataBuffer = nullptr;
 			GPUViewData				   viewData;
 			Vector<OrderedDrawRequest> drawRequests;
 			uint32					   indexCounter	 = 0;

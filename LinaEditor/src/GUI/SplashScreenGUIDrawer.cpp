@@ -38,6 +38,6 @@ namespace Lina::Editor
 		const Vector2i		 size = m_surfaceRenderer->GetSwapchain()->GetSize();
 		LinaVG::StyleOptions style;
 		style.textureHandle = "Resources/Editor/Textures/SplashScreen.png"_hs;
-		LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(size)), style);
+		//LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(size)), style);
 	}
 } // namespace Lina::Editor

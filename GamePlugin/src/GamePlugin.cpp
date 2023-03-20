@@ -30,10 +30,6 @@ SOFTWARE.
 
 using namespace Lina;
 
-void GamePlugin::OnGameEvent(EGameEvent type, const Event& ev)
-{
-}
-
 void GamePlugin::OnAttached()
 {
 }

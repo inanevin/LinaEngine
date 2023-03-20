@@ -41,7 +41,7 @@ namespace Lina
 	class GfxManager;
 	class ResourceManager;
 	class Mesh;
-	class IGfxBufferResource;
+	class IGfxGPUResource;
 	class Renderer;
 
 	class GfxMeshManager
@@ -54,12 +54,12 @@ namespace Lina
 		void Shutdown();
 		void MergeMeshes();
 
-		inline IGfxBufferResource* GetGPUVertexBuffer() const
+		inline IGfxGPUResource* GetGPUVertexBuffer() const
 		{
 			return m_gpuVtxBuffer;
 		}
 
-		inline IGfxBufferResource* GetGPUIndexBuffer() const
+		inline IGfxGPUResource* GetGPUIndexBuffer() const
 		{
 			return m_gpuIndexBuffer;
 		}
@@ -75,8 +75,8 @@ namespace Lina
 		GfxManager*							  m_gfxManager		= nullptr;
 		HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
 		Vector<StringID>					  m_mergedModelIDs;
-		IGfxBufferResource*					  m_gpuVtxBuffer   = nullptr;
-		IGfxBufferResource*					  m_gpuIndexBuffer = nullptr;
+		IGfxGPUResource*					  m_gpuVtxBuffer   = nullptr;
+		IGfxGPUResource*					  m_gpuIndexBuffer = nullptr;
 	};
 } // namespace Lina
 

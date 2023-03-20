@@ -40,7 +40,6 @@ public:
 	virtual ~GamePlugin() = default;
 
 	// Inherited via IPlugin
-	virtual void OnGameEvent(Lina::EGameEvent type, const Lina::Event& ev) override;
 	virtual void OnAttached() override;
 	virtual void OnDetached() override;
 };

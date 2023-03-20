@@ -29,7 +29,8 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Platform/DX12/Core/DX12Swapchain.hpp"
-#include "Graphics/Platform/DX12/Core/DX12GfxBufferResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12CPUResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GPUResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12StagingHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GPUHeap.hpp"
@@ -648,9 +649,12 @@ namespace Lina
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			if (genData.buffer[i] == nullptr)
-				genData.buffer[i] = CreateBufferResource(BufferResourceType::UniformBuffer, data, sz == 0 ? 16 : sz, L"Material Buffer");
+			{
+				genData.buffer[i] = CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, L"Material Buffer");
+				genData.buffer[i]->BufferData(data, sz);
+			}
 			else
-				genData.buffer[i]->Update(data, sz);
+				genData.buffer[i]->BufferData(data, sz);
 		}
 
 		delete[] data;
@@ -670,7 +674,7 @@ namespace Lina
 		auto& genData = m_materials.GetItemR(handle);
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-			DeleteBufferResource(genData.buffer[i]);
+			DeleteCPUResource(genData.buffer[i]);
 
 		m_materials.RemoveItem(handle);
 	}
@@ -968,7 +972,7 @@ namespace Lina
 			DX12GfxTextureResource* txtResGPU = static_cast<DX12GfxTextureResource*>(genData.gpuResource);
 			auto					format	  = static_cast<Format>(meta.GetUInt8("Format"_hs));
 
-			m_uploadContext->UploadTexture(txtResGPU, txt, req);
+			m_uploadContext->CopyTextureQueueUp(txtResGPU, txt, req);
 
 			if (existingHandle == -1)
 			{
@@ -1125,19 +1129,14 @@ namespace Lina
 		m_cmdAllocators.RemoveItem(handle);
 	}
 
-	IGfxBufferResource* Renderer::CreateBufferResource2(size_t size, BufferResourceType2 type, BufferResourceHint hint)
+	IGfxCPUResource* Renderer::CreateCPUResource(size_t size, CPUResourceHint hint, const wchar_t* name)
 	{
-		return new DX12GfxBufferResource(this, size, type, hint);
+		return new DX12CPUResource(this, hint, size, name);
 	}
 
-	IGfxBufferResource* Renderer::CreateBufferResource(BufferResourceType type, void* initialData, size_t size, const wchar_t* name)
+	IGfxGPUResource* Renderer::CreateGPUResource(size_t size, GPUResourceType type, bool requireJoinBeforeUpdating, const wchar_t* name)
 	{
-		auto res = new DX12GfxBufferResource(this, type, initialData, size);
-
-#ifndef LINA_PRODUCTION_BUILD
-		res->DX12GetAllocation()->GetResource()->SetName(name);
-#endif
-		return res;
+		return new DX12GPUResource(this, type, requireJoinBeforeUpdating, size, name);
 	}
 
 	IGfxTextureResource* Renderer::CreateTextureResource(TextureResourceType type, Texture* texture)
@@ -1145,7 +1144,12 @@ namespace Lina
 		return new DX12GfxTextureResource(this, texture, type);
 	}
 
-	void Renderer::DeleteBufferResource(IGfxBufferResource* res)
+	void Renderer::DeleteCPUResource(IGfxCPUResource* res)
+	{
+		delete res;
+	}
+
+	void Renderer::DeleteGPUResource(IGfxGPUResource* res)
 	{
 		delete res;
 	}
@@ -1364,13 +1368,13 @@ namespace Lina
 		cmdList->EndRenderPass();
 	}
 
-	void Renderer::BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxBufferResource* buf)
+	void Renderer::BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxCPUResource* buf)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->SetGraphicsRootConstantBufferView(bufferIndex, buf->GetGPUPointer());
 	}
 
-	void Renderer::BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* res)
+	void Renderer::BindObjectBuffer(uint32 cmdListHandle, IGfxGPUResource* res)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->SetGraphicsRootShaderResourceView(4, res->GetGPUPointer());
@@ -1403,7 +1407,7 @@ namespace Lina
 				uint8* ptr = nullptr;
 				size_t sz  = 0;
 				mat->GetPropertyBlob(ptr, sz);
-				matData.buffer[m_currentFrameIndex]->Update(ptr, sz);
+				matData.buffer[m_currentFrameIndex]->BufferData(ptr, sz);
 				delete[] ptr;
 				matData.dirty[m_currentFrameIndex] = false;
 			}
@@ -1424,10 +1428,10 @@ namespace Lina
 		cmdList->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 	}
 
-	void Renderer::DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset)
+	void Renderer::DrawIndexedIndirect(uint32 cmdListHandle, IGfxCPUResource* indirectBuffer, uint32 count, uint64 indirectOffset)
 	{
-		auto&				   cmdList = m_cmdLists.GetItemR(cmdListHandle);
-		DX12GfxBufferResource* buf	   = static_cast<DX12GfxBufferResource*>(indirectBuffer);
+		auto&			 cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		DX12CPUResource* buf	 = static_cast<DX12CPUResource*>(indirectBuffer);
 		cmdList->ExecuteIndirect(m_commandSigStandard.Get(), count, buf->DX12GetAllocation()->GetResource(), indirectOffset, nullptr, 0);
 	}
 
@@ -1437,7 +1441,7 @@ namespace Lina
 		cmdList->IASetPrimitiveTopology(GetTopology(topology));
 	}
 
-	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, size_t vertexSize, uint32 slot)
+	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer, size_t vertexSize, uint32 slot)
 	{
 		auto&					 cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_VERTEX_BUFFER_VIEW view;
@@ -1447,7 +1451,7 @@ namespace Lina
 		cmdList->IASetVertexBuffers(slot, 1, &view);
 	}
 
-	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer)
+	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer)
 	{
 		auto&					cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_INDEX_BUFFER_VIEW view;
@@ -1564,9 +1568,9 @@ namespace Lina
 			LINA_CRITICAL("[Renderer] -> Exception while creating render target for swapchain! {0}", e.what());
 		}
 
-		D3D12_RENDER_TARGET_VIEW_DESC desc =  {};
-		desc.Format		   = GetFormat(DEFAULT_RT_FORMAT);
-		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
+		desc.Format						   = GetFormat(DEFAULT_RT_FORMAT);
+		desc.ViewDimension				   = D3D12_RTV_DIMENSION_TEXTURE2D;
 
 		m_device->CreateRenderTargetView(genData.rawResource.Get(), &desc, genData.descriptor.GetCPUHandle());
 		return rt;

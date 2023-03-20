@@ -40,7 +40,7 @@ SOFTWARE.
 namespace Lina
 {
 	class Texture;
-	class IGfxBufferResource;
+	class IGfxCPUResource;
 
 	enum class Format
 	{
@@ -324,26 +324,17 @@ namespace Lina
 		PixelShaderResource,
 	};
 
-	enum class BufferResourceType
-	{
-		UniformBuffer,
-		IndirectBuffer,
-		Staging,
-		GPUDest,
-	};
-
-	enum class BufferResourceType2
-	{
-		CPUResource,
-		GPUResource,
-	};
-
-	enum class BufferResourceHint
+	enum class CPUResourceHint
 	{
 		None,
 		ConstantBuffer,
-		Staging,
 		IndirectBuffer,
+	};
+
+	enum class GPUResourceType
+	{
+		CPUVisibleIfPossible,
+		GPUOnlyWithStaging,
 	};
 
 	enum class TextureResourceType
@@ -436,7 +427,7 @@ namespace Lina
 	{
 		ResourceTransitionType type	   = ResourceTransitionType::Present2RT;
 		Texture*			   texture = nullptr;
-		IGfxBufferResource*	   buffer  = nullptr;
+		IGfxCPUResource*	   buffer  = nullptr;
 	};
 
 	class GfxCommand

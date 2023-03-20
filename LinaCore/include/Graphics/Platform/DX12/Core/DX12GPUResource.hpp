@@ -28,16 +28,49 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUIBackend_HPP
-#define GUIBackend_HPP
+#ifndef DX12GPUResource_HPP
+#define DX12GPUResource_HPP
+
+#include "Graphics/Core/IGfxGPUResource.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+
+namespace D3D12MA
+{
+	class Allocation;
+}
 
 namespace Lina
 {
-	class GUIBackend
+	class DX12CPUResource;
+
+	class DX12GPUResource : public IGfxGPUResource
 	{
 	public:
-		GUIBackend()		  = default;
-		virtual ~GUIBackend() = default;
+		DX12GPUResource(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz, const wchar_t* name = L"DX12 CPU Resource");
+		virtual ~DX12GPUResource();
+
+		virtual uint64 GetGPUPointer() override;
+		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) override;
+		virtual void   Copy(CopyDataType copyType) override;
+
+		inline size_t GetSize()
+		{
+			return m_size;
+		}
+
+		inline D3D12MA::Allocation* DX12GetAllocation()
+		{
+			return m_allocation;
+		}
+
+	private:
+		void CreateResource();
+		void Cleanup();
+
+	private:
+		const wchar_t*		 m_name			   = L"";
+		DX12CPUResource*	 m_stagingResource = nullptr;
+		D3D12MA::Allocation* m_allocation	   = nullptr;
 	};
 } // namespace Lina
 

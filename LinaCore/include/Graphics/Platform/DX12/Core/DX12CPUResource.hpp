@@ -26,47 +26,50 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/Vulkan/Objects/Fence.hpp"
-#include "Log/Log.hpp"
-#include "Data/DelegateQueue.hpp"
-#include <vulkan/vulkan.h>
+#pragma once
+
+#ifndef DX12CPUResource_HPP
+#define DX12CPUResource_HPP
+
+#include "Graphics/Core/IGfxCPUResource.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+
+namespace D3D12MA
+{
+	class Allocation;
+}
 
 namespace Lina
 {
-	void Fence::Create()
+
+	class DX12CPUResource : public IGfxCPUResource
 	{
-		VkFenceCreateInfo info = VkFenceCreateInfo{
-			.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
-			.pNext = nullptr,
-			.flags = flags,
-		};
+	public:
+		DX12CPUResource(Renderer* renderer, CPUResourceHint hint, size_t sz, const wchar_t* name = L"DX12 CPU Resource");
+		virtual ~DX12CPUResource();
 
-		VkResult result = vkCreateFence(device, &info, allocationCb, &_ptr);
-		LINA_ASSERT(result == VK_SUCCESS, "[Fence] -> Could not create Vulkan Fence!");
+		virtual void   BufferData(const void* data, size_t sz) override;
+		virtual void   BufferDataPadded(const void* data, size_t sz, size_t padding) override;
+		virtual uint64 GetGPUPointer() override;
 
-		if (deletionQueue)
+		inline size_t GetSize()
 		{
-			VkFence_T*			   ptr = _ptr;
-			VkDevice_T*			   dv  = device;
-			VkAllocationCallbacks* cb  = allocationCb;
-			deletionQueue->Push([ptr, dv, cb]() { vkDestroyFence(dv, ptr, cb); });
+			return m_size;
 		}
-	}
 
-	void Fence::Destroy()
-	{
-		vkDestroyFence(device, _ptr, allocationCb);
-	}
+		inline D3D12MA::Allocation* DX12GetAllocation()
+		{
+			return m_allocation;
+		}
 
-	void Fence::Wait(bool waitForAll, double timeoutSeconds) const
-	{
-		const uint64 timeout = static_cast<uint64>(timeoutSeconds * 1000000000);
-		vkWaitForFences(device, 1, &_ptr, waitForAll, timeout);
-	}
+	private:
+		void CreateResource();
+		void Cleanup();
 
-	void Fence::Reset()
-	{
-		vkResetFences(device, 1, &_ptr);
-	}
-
+	protected:
+		const wchar_t*		 m_name		  = L"";
+		D3D12MA::Allocation* m_allocation = nullptr;
+	};
 } // namespace Lina
+
+#endif

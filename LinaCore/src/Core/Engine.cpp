@@ -67,6 +67,7 @@ namespace Lina
 	void Engine::Shutdown()
 	{
 		LINA_TRACE("[Application] -> Shutdown.");
+		m_resourceManager.WaitForAll();
 
 		for (auto [type, sys] : m_subsystems)
 			sys->PreShutdown();

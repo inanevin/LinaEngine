@@ -219,8 +219,6 @@ namespace Lina
 				file << ss.str();
 				ss.clear();
 			}
-
-			LINA_ASSERT(m_allocationMap.empty(), "Memory leaks detected! Check the leaks file.");
 		};
 
 		if (file.is_open())
@@ -243,6 +241,8 @@ namespace Lina
 
 			file.close();
 		}
+
+		LINA_ASSERT(m_allocationMap.empty(), "Memory leaks detected! Check the leaks file.");
 	}
 } // namespace Lina
 

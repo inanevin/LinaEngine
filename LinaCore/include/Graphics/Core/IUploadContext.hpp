@@ -34,35 +34,36 @@ SOFTWARE.
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Data/Mutex.hpp"
+#include "Data/Functional.hpp"
 
 namespace Lina
 {
 	class Renderer;
-	class IGfxBufferResource;
-	class IGfxTextureResource;
 	class Texture;
-
-	struct BufferUploadRequest
-	{
-		IGfxBufferResource* stagingResource = nullptr;
-		IGfxBufferResource* targetResource	= nullptr;
-	};
+	class IGfxTextureResource;
+	class IGfxCPUResource;
+	class IGfxGPUResource;
 
 	struct TextureUploadRequest
 	{
-		IGfxBufferResource*	 stagingResource = nullptr;
+		IGfxCPUResource*	 stagingResource = nullptr;
 		IGfxTextureResource* targetResource	 = nullptr;
 		Texture*			 targetTexture	 = nullptr;
+		uint32				 totalDataSize	 = 0;
 		ImageGenerateRequest genReq;
-		uint32				 totalDataSize = 0;
 	};
 
-	enum UploadContextFlushFlags
+	struct StagingToGPURequests
 	{
-		UCF_FlushDataRequests	   = 1 << 0,
-		UCF_FlushTextureRequests   = 1 << 1,
-		UCF_FlushImmediateRequests = 1 << 2,
-		UCF_FlushAll			   = 1 << 3,
+		IGfxCPUResource* cpuRes = nullptr;
+		IGfxGPUResource* gpuRes = nullptr;
+		Delegate<void()> onCopied;
+	};
+
+	enum UploadContextMask
+	{
+		UCM_FlushTextures			  = 1 << 0,
+		UCM_FlushStagingToGPURequests = 1 << 1,
 	};
 
 	class IUploadContext
@@ -71,17 +72,19 @@ namespace Lina
 		IUploadContext(Renderer* rend) : m_renderer(rend){};
 		virtual ~IUploadContext(){};
 
-		virtual void Flush(Bitmask16 flushFlags)																  = 0;
-		virtual void UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize)			  = 0;
-		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) = 0;
-		virtual void UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging)	  = 0;
-		virtual void PushCustomCommand(const GfxCommand& cmd)													  = 0;
+		virtual void FlushViaMask(Bitmask16 mask)																		 = 0;
+		virtual void FlushStagingToGPURequests()																		 = 0;
+		virtual void FlushTextureRequests()																				 = 0;
+		virtual void CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) = 0;
+		virtual void CopyTextureQueueUp(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req)	 = 0;
+		virtual void CopyBuffersImmediate(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)								 = 0;
+		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes, Delegate<void()>&& onCopied)	 = 0;
+		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)								 = 0;
 
 	protected:
 		Renderer*					 m_renderer = nullptr;
-		Vector<BufferUploadRequest>	 m_bufferRequests;
-		Vector<BufferUploadRequest>	 m_immediateBufferRequests;
 		Vector<TextureUploadRequest> m_textureRequests;
+		Vector<StagingToGPURequests> m_stagingToGPURequests;
 	};
 } // namespace Lina
 

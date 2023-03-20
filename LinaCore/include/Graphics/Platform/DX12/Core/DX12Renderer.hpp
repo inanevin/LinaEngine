@@ -56,7 +56,7 @@ namespace Lina
 	class Recti;
 	class GfxManager;
 	class ISwapchain;
-	class IGfxBufferResource;
+	class IGfxCPUResource;
 	class IGfxTextureResource;
 	class Color;
 	class DX12GPUHeap;
@@ -86,8 +86,8 @@ namespace Lina
 
 	struct GeneratedMaterial
 	{
-		IGfxBufferResource* buffer[FRAMES_IN_FLIGHT] = {nullptr};
-		bool				dirty[FRAMES_IN_FLIGHT]	 = {false};
+		IGfxCPUResource* buffer[FRAMES_IN_FLIGHT] = {nullptr};
+		bool			 dirty[FRAMES_IN_FLIGHT]  = {false};
 	};
 
 	struct GeneratedSampler
@@ -168,10 +168,12 @@ namespace Lina
 		uint32		GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources
-		IGfxBufferResource*	 CreateBufferResource2(size_t size, BufferResourceType2 type, BufferResourceHint hint = BufferResourceHint::None);
-		IGfxBufferResource*	 CreateBufferResource(BufferResourceType type, void* initialData, size_t size, const wchar_t* name = L"Buffer Resource");
+
+		IGfxCPUResource*	 CreateCPUResource(size_t size, CPUResourceHint hint, const wchar_t* name = L"CPU Visible Resource");
+		IGfxGPUResource*	 CreateGPUResource(size_t size, GPUResourceType type, bool requireJoinBeforeUpdating, const wchar_t* name = L"GPU Resource");
 		IGfxTextureResource* CreateTextureResource(TextureResourceType type, Texture* texture);
-		void				 DeleteBufferResource(IGfxBufferResource* res);
+		void				 DeleteCPUResource(IGfxCPUResource* res);
+		void				 DeleteGPUResource(IGfxGPUResource* res);
 		uint32				 GetTextureIndex(const StringID textureSid);
 		uint32				 GetSamplerIndex(const StringID textureSid);
 
@@ -190,16 +192,16 @@ namespace Lina
 		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture);
 		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil);
 		void   EndRenderPass(uint32 cmdListHandle);
-		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxBufferResource* buf);
-		void   BindObjectBuffer(uint32 cmdListHandle, IGfxBufferResource* res);
+		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxCPUResource* buf);
+		void   BindObjectBuffer(uint32 cmdListHandle, IGfxGPUResource* res);
 		void   BindTextures(uint32 cmdListHandle, const Vector<StringID>& textures);
 		void   BindMaterial(uint32 cmdListHandle, Material* mat, Bitmask16 bindFlags);
 		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
-		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxBufferResource* indirectBuffer, uint32 count, uint64 indirectOffset);
+		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxCPUResource* indirectBuffer, uint32 count, uint64 indirectOffset);
 		void   SetTopology(uint32 cmdListHandle, Topology topology);
-		void   BindVertexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
-		void   BindIndexBuffer(uint32 cmdListHandle, IGfxBufferResource* buffer);
+		void   BindVertexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
+		void   BindIndexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer);
 
 		// Fences
 		uint32 CreateFence();
