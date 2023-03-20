@@ -37,10 +37,12 @@ SOFTWARE.
 namespace Lina
 {
 	struct ResourceIdentifier;
+}
 
-} // namespace Lina
 namespace Lina::Editor
 {
+	class EditorGUIDrawer;
+
 	class Editor : public ISubsystem
 	{
 	public:
@@ -48,10 +50,15 @@ namespace Lina::Editor
 		virtual ~Editor() = default;
 
 		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
+		void PrepareSplashScreen();
+		void EndSplashScreen();
 
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
+
+	private:
+		EditorGUIDrawer* m_mainWindowGUIDrawer = nullptr;
 	};
 } // namespace Lina::Editor
 

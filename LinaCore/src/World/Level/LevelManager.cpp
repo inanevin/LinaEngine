@@ -53,7 +53,8 @@ namespace Lina
 		// First get the level & extract target resources.
 		const StringID	   sid = TO_SIDC(level);
 		ResourceIdentifier levelResource;
-		rm->LoadResources({ResourceIdentifier(level, GetTypeID<Level>(), sid)}, false);
+		rm->LoadResources({ResourceIdentifier(level, GetTypeID<Level>(), sid)});
+		rm->WaitForAll();
 		m_currentLevel = rm->GetResource<Level>(sid);
 
 		// Leave already loaded resources that will still be used by next level.
@@ -82,7 +83,8 @@ namespace Lina
 		}
 
 		rm->UnloadResources(resourcesToUnload);
-		rm->LoadResources(resourcesToLoad, true);
+		rm->LoadResources(resourcesToLoad);
+		rm->WaitForAll();
 		m_currentLevel->Install();
 
 		Event data;

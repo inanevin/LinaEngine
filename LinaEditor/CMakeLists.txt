@@ -27,6 +27,8 @@ src/Core/EditorResourcesRegistry.cpp
 src/Core/Editor.cpp
 src/EditorEntryPoint.cpp
 src/GUI/EditorGUIDrawer.cpp
+src/GUI/MainWindowGUIDrawer.cpp
+src/GUI/SplashScreenGUIDrawer.cpp
 
 )
 
@@ -35,6 +37,8 @@ set(LINAEDITOR_HEADERS
 
 # Core
 include/GUI/EditorGUIDrawer.hpp
+include/GUI/SplashScreenGUIDrawer.hpp
+include/GUI/MainWindowGUIDrawer.hpp
 include/Core/EditorApplication.hpp
 include/Core/Editor.hpp
 include/Core/EditorResourcesRegistry.hpp

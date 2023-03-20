@@ -44,9 +44,15 @@ namespace Lina
 
 		virtual uint64 GetGPUPointer() = 0;
 
+		inline uint32 GetRequiredAlignment()
+		{
+			return m_requiredAlignment;
+		}
+
 	protected:
-		TextureResourceType m_type = TextureResourceType::Texture2DDefault;
-		Vector2i			m_size = Vector2i::Zero;
+		uint32				m_requiredAlignment = 0;
+		TextureResourceType m_type				= TextureResourceType::Texture2DDefault;
+		Vector2i			m_size				= Vector2i::Zero;
 	};
 } // namespace Lina
 

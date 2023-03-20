@@ -50,7 +50,6 @@ namespace Lina
 		Package2,
 	};
 
-
 	extern String GGetPackagePath(PackageType pt);
 
 	struct ResourceIdentifier : public ISerializable
@@ -70,6 +69,16 @@ namespace Lina
 		// Inherited via ISerializable
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
+	};
+
+	struct ResourceLoadTask
+	{
+		Taskflow				   tf;
+		Vector<ResourceIdentifier> identifiers;
+		Atomic<bool>			   isCompleted = false;
+		int32					   id		   = 0;
+		uint64					   startTime   = 0;
+		uint64					   endTime	   = 0;
 	};
 
 } // namespace Lina

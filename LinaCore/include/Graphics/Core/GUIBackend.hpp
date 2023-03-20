@@ -74,6 +74,7 @@ namespace Lina
 		void CheckFontTexturesForUpload();
 
 	private:
+		HashMap<Texture*, bool>		m_textureDirtyStatus;
 		StringID					m_boundFontTexture	 = 0;
 		uint32						m_fontTextureCounter = 0;
 		HashMap<StringID, Texture*> m_fontTextures;

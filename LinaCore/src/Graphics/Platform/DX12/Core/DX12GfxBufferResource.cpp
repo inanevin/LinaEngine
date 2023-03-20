@@ -39,6 +39,11 @@ namespace Lina
 		CreateGPUBuffer(initialData, sz);
 	}
 
+	DX12GfxBufferResource::DX12GfxBufferResource(Renderer* rend, size_t size, BufferResourceType2 type, BufferResourceHint hint) : m_renderer(rend), IGfxBufferResource(type, hint, size)
+	{
+		
+	}
+
 	DX12GfxBufferResource::~DX12GfxBufferResource()
 	{
 		Cleanup();
@@ -88,6 +93,10 @@ namespace Lina
 	uint64 DX12GfxBufferResource::GetGPUPointer()
 	{
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
+	}
+
+	void DX12GfxBufferResource::CreateResource()
+	{
 	}
 
 	void DX12GfxBufferResource::CreateGPUBuffer(const void* data, size_t sz)

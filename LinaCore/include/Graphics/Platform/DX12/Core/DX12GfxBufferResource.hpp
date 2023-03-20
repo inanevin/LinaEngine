@@ -47,6 +47,7 @@ namespace Lina
 	{
 	public:
 		DX12GfxBufferResource(Renderer* rend, BufferResourceType type, const void* initialData, size_t sz);
+		DX12GfxBufferResource(Renderer* rend, size_t size, BufferResourceType2 type, BufferResourceHint hint);
 		virtual ~DX12GfxBufferResource();
 
 		virtual void   Recreate(const void* data, size_t sz) override;
@@ -60,6 +61,7 @@ namespace Lina
 		}
 
 	private:
+		void CreateResource();
 		void CreateGPUBuffer(const void* data, size_t sz);
 		void Cleanup();
 

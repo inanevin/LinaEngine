@@ -56,7 +56,6 @@ namespace Lina
 
 			sys->Initialize(initInfo);
 		}
-
 	}
 
 	void Engine::PostInitialize(const SystemInitializationInfo& initInfo)
@@ -83,6 +82,7 @@ namespace Lina
 
 	void Engine::Tick(float delta)
 	{
+		m_resourceManager.Tick();
 		m_input.Tick(delta);
 		m_gfxManager.Tick(delta);
 

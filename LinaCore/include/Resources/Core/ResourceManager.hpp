@@ -40,6 +40,7 @@ SOFTWARE.
 #include "System/ISubsystem.hpp"
 #include "Data/CommonData.hpp"
 #include "Event/ISystemEventDispatcher.hpp"
+#include "Data/Functional.hpp"
 
 namespace Lina
 {
@@ -53,10 +54,11 @@ namespace Lina
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
+		void		 Tick();
 
-		void			   LoadPriorityResources();
-		void			   LoadCoreResources();
-		void			   LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async);
+		int32			   LoadResources(const Vector<ResourceIdentifier>& identifiers);
+		void			   WaitForAll();
+		bool			   IsLoadTaskComplete(uint32 id);
 		void			   UnloadResources(const Vector<ResourceIdentifier>& identifiers);
 		bool			   IsPriorityResource(StringID sid);
 		bool			   IsCoreResource(StringID sid);
@@ -89,6 +91,16 @@ namespace Lina
 			m_mode = mode;
 		}
 
+		inline Vector<ResourceIdentifier>& GetPriorityResources()
+		{
+			return m_priorityResources;
+		}
+
+		inline Vector<ResourceIdentifier>& GetCoreResources()
+		{
+			return m_coreResources;
+		}
+
 		template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt)
 		{
 			const TypeID tid = GetTypeID<T>();
@@ -114,11 +126,13 @@ namespace Lina
 	private:
 		friend class IResource;
 
+		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 		void AddUserManaged(IResource* res);
 		void RemoveUserManaged(IResource* res);
 
 	private:
-		Mutex									 m_eventMtx;
+		int32									 m_loadTaskCounter = 0;
+		HashMap<uint32, ResourceLoadTask*>		 m_loadTasks;
 		Executor								 m_executor;
 		ResourceManagerMode						 m_mode = ResourceManagerMode::File;
 		HashMap<TypeID, ResourceCacheBase*>		 m_caches;
@@ -126,6 +140,7 @@ namespace Lina
 		Vector<ResourceIdentifier>				 m_coreResources;
 		Vector<Pair<StringID, ResourceMetadata>> m_priorityResourcesDefaultMetadata;
 		Vector<Pair<StringID, ResourceMetadata>> m_coreResourcesDefaultMetadata;
+		Vector<ResourceIdentifier>				 m_waitingResources;
 	};
 
 } // namespace Lina

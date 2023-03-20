@@ -32,6 +32,8 @@ SOFTWARE.
 #include "Graphics/Core/ISwapchain.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Model.hpp"
+#include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Resource/Font.hpp"
 #include "System/ISystem.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Resources/Core/ResourceManager.hpp"
@@ -285,23 +287,41 @@ namespace Lina
 
 	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
-		if (eventType & EVS_ResourceBatchLoaded)
+		Bitmask16 flushMask		   = 0;
+		bool	  checkForModels   = true;
+		bool	  checkForTextures = true;
+		bool	  checkForFonts	   = true;
+
+		if (eventType & EVS_ResourceLoadTaskCompleted)
 		{
-			Vector<ResourceIdentifier>* idents = static_cast<Vector<ResourceIdentifier>*>(ev.pParams[0]);
-			const uint32				size   = static_cast<uint32>(idents->size());
+			ResourceLoadTask* task = static_cast<ResourceLoadTask*>(ev.pParams[0]);
 
-			for (uint32 i = 0; i < size; i++)
+			for (const auto& ident : task->identifiers)
 			{
-				const ResourceIdentifier& ident = idents->at(i);
-
-				if (ident.tid == GetTypeID<Model>())
+				if (checkForModels && ident.tid == GetTypeID<Model>())
 				{
+					flushMask.Set(UCF_FlushDataRequests);
 					m_meshManager.MergeMeshes();
-					break;
+					checkForModels = false;
+				}
+
+				if (checkForTextures && ident.tid == GetTypeID<Texture>())
+				{
+					flushMask.Set(UCF_FlushTextureRequests);
+					checkForTextures = false;
+				}
+
+				if (checkForFonts && ident.tid == GetTypeID<Font>())
+				{
+					checkForFonts = false;
+					flushMask.Set(UCF_FlushTextureRequests);
 				}
 			}
 
 			m_guiBackend->OnResourceBatchLoaded(ev);
+
+			if (flushMask.GetValue() != 0)
+				m_renderer->GetUploadContext()->Flush(flushMask);
 		}
 		else if (eventType & EVS_LevelInstalled)
 		{
@@ -326,6 +346,12 @@ namespace Lina
 		if (!m_PostInitializeed)
 			return;
 		m_renderer->OnVsyncChanged(mode);
+	}
+
+	SurfaceRenderer* GfxManager::GetSurfaceRenderer(StringID sid)
+	{
+		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) { return renderer->GetSwapchain()->GetSID() == sid; });
+		return *it;
 	}
 
 } // namespace Lina

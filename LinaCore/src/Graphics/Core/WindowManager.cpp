@@ -112,11 +112,6 @@ namespace Lina
 			w->SetStyle(style);
 
 			Bitmask16 mask = 0;
-			if (SystemInfo::IsEditor() && false)
-				mask = SurfaceRendererMask::SRM_RenderGUI;
-			else
-				mask = SurfaceRendererMask::SRM_DrawOffscreenTexture;
-
 			m_gfxManager->CreateSurfaceRenderer(sid, w, w->GetSize(), mask);
 			m_windows[sid] = w;
 		}

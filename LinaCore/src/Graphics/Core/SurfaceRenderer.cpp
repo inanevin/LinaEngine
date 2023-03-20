@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Core/SystemInfo.hpp"
 
 namespace Lina
 {
@@ -100,12 +101,6 @@ namespace Lina
 
 	void SurfaceRenderer::SetOffscreenTexture(Texture* txt, uint32 imageIndex)
 	{
-		if (!m_mask.IsSet(SRM_DrawOffscreenTexture))
-		{
-			LINA_ERR("[Surface Renderer] -> Renderer is not set to draw an offscreen texture, returning!");
-			return;
-		}
-
 		auto& data					= m_dataPerImage[imageIndex];
 		data.updateTexture			= true;
 		data.targetOffscreenTexture = txt;
@@ -113,12 +108,6 @@ namespace Lina
 
 	void SurfaceRenderer::ClearOffscreenTexture()
 	{
-		if (!m_mask.IsSet(SRM_DrawOffscreenTexture))
-		{
-			LINA_ERR("[Surface Renderer] -> Renderer is not set to draw an offscreen texture, returning!");
-			return;
-		}
-
 		for (auto& data : m_dataPerImage)
 		{
 			data.targetOffscreenTexture = nullptr;
@@ -173,7 +162,7 @@ namespace Lina
 				data.renderTargetColor = m_renderer->CreateRenderTargetSwapchain(m_swapchain, i, rtColorName);
 				data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, size);
 
-				if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+				if (true)
 				{
 					const String name	   = "SurfaceRenderer_" + TO_STRING(s_surfaceRendererCount) + "OffscreenMat_" + TO_STRING(i);
 					data.offscreenMaterial = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, name, TO_SID(name));
@@ -205,7 +194,7 @@ namespace Lina
 			delete data.renderTargetColor;
 			delete data.renderTargetDepth;
 
-			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+			if (true)
 				delete data.offscreenMaterial;
 		}
 	}
@@ -238,7 +227,7 @@ namespace Lina
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[m_currentImageIndex];
 
-		if (m_mask.IsSet(SRM_DrawOffscreenTexture) && imgData.updateTexture)
+		if (true && imgData.updateTexture)
 		{
 			if (imgData.offscreenMaterial->GetShader() == nullptr)
 				imgData.offscreenMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
@@ -269,41 +258,17 @@ namespace Lina
 			m_renderer->ResourceBarrier(frame.cmdList, &present2RT, 1);
 			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
 
-			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
+			if (true)
 			{
 				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
 				m_renderer->BindMaterial(frame.cmdList, imgData.offscreenMaterial, MBF_BindMaterialProperties | MBF_BindShader);
 				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
-			if (m_uiDrawer != nullptr || true)
+			if (m_guiDrawer != nullptr)
 			{
-				// m_uiDrawer->DrawGUI(m_surfaceRendererIndex);
+				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
 				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
-
-				LinaVG::StyleOptions style;
-				style.isFilled = true;
-				style.color	   = LV4(Color(1, 1, 1, 1));
-
-				const String   path = "GUIBackendFont_0";
-				const StringID sid	= TO_SID(path);
-				// style.textureHandle = "Resources/Core/Textures/Grid512.png"_hs;
-				// style.textureHandle = sid;
-
-				LinaVG::TextOptions opts;
-				opts.font			  = "Resources/Core/Fonts/Rubik-Regular_13.ttf"_hs;
-				opts.framebufferScale = 1.0f;
-				opts.textScale		  = 5;
-
-				opts.dropShadowOffset = LV2(Vector2(0.5f, 0.5f));
-				opts.dropShadowColor  = LV4(Color::Black);
-				opts.color.start	  = LV4(Color::Cyan);
-				opts.color.end		  = LV4(Color::Red);
-
-				LinaVG::DrawTextNormal("HELLO MATE :)", LV2(Vector2(100, 100)), opts, 0, 0, true);
-
-				style.color = LinaVG::Vec4(1.0f, 1.0f, 0.0f, 0.2f);
-				//	LinaVG::DrawRect(m_surfaceRendererIndex, LV2(Vector2(100, 100)), LV2(Vector2(500, 500)), style, 0.0f);
 
 				// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
 				{
@@ -312,7 +277,6 @@ namespace Lina
 					m_guiRenderer->Render(frame.cmdList);
 				}
 			}
-
 			m_renderer->EndRenderPass(frame.cmdList);
 			m_renderer->ResourceBarrier(frame.cmdList, &rt2Present, 1);
 		}

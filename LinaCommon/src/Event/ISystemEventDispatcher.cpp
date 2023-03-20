@@ -34,7 +34,7 @@ namespace Lina
 {
 	ISystemEventDispatcher::ISystemEventDispatcher()
 	{
-		m_listeners.reserve(50);
+		m_listeners.reserve(20);
 	}
 
 	void ISystemEventDispatcher::AddListener(ISystemEventListener* listener)

@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Graphics/Core/IUploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-
 namespace Lina
 {
 	class Renderer;
@@ -44,7 +43,7 @@ namespace Lina
 		DX12UploadContext(Renderer* rend);
 		virtual ~DX12UploadContext();
 
-		virtual void Flush(uint32 frameIndex, Bitmask16 flushFlags) override;
+		virtual void Flush(Bitmask16 flushFlags) override;
 		virtual void UploadBuffers(IGfxBufferResource* targetGPUResource, void* data, size_t dataSize) override;
 		virtual void UploadTexture(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req = {}) override;
 		virtual void UploadBuffersImmediate(IGfxBufferResource* targetGpuResource, IGfxBufferResource* staging) override;

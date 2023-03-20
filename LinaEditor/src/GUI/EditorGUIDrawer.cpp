@@ -28,7 +28,19 @@ SOFTWARE.
 
 #include "GUI/EditorGUIDrawer.hpp"
 
+using namespace Lina;
+
 namespace Lina::Editor
 {
+	EditorGUIDrawer::EditorGUIDrawer(SurfaceRenderer* rend) : m_surfaceRenderer(rend)
+	{
+	}
 
+	EditorGUIDrawer::~EditorGUIDrawer()
+	{
+	}
+
+	void EditorGUIDrawer::DrawGUI(int threadID)
+	{
+	}
 } // namespace Lina::Editor

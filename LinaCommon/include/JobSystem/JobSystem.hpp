@@ -32,50 +32,86 @@ SOFTWARE.
 #define JobSystem_HPP
 
 #include "Data/String.hpp"
+#include "Data/Functional.hpp"
 #include <taskflow/taskflow.hpp>
 
 namespace Lina
 {
-    typedef tf::Taskflow Taskflow;
+	typedef tf::Taskflow Taskflow;
 
-    template <typename T> using Future = tf::Future<T>;
+	template <typename T> using Future = tf::Future<T>;
 
-    class Executor
-    {
-    public:
-        inline Future<void> Run(Taskflow& flow)
-        {
-            return m_ex.run(flow);
-        }
+	class Executor
+	{
+	public:
+		/// <summary>
+		/// Need to keep taskflow alive until exection completes.
+		/// </summary>
+		/// <param name="flow"></param>
+		/// <returns></returns>
+		inline Future<void> Run(Taskflow& flow)
+		{
+			return m_ex.run(flow);
+		}
 
-        inline void RunAndWait(Taskflow& flow)
-        {
-            m_ex.run(flow).wait();
-        }
+		/// <summary>
+		/// Need to keep taskflow alive until exection completes.
+		/// </summary>
+		/// <param name="flow"></param>
+		/// <returns></returns>
+		inline Future<void> Run(Taskflow& flow, Delegate<void()>&& callback)
+		{
+			return m_ex.run(flow, callback);
+		}
 
-        template <typename F, typename... ArgsT> inline Future<void> Async(F&& f, ArgsT&&... args)
-        {
-            return m_ex.async(f, args...);
-        }
+		/// <summary>
+		/// Use when taskflow is gonna get out of scope after this call.
+		/// </summary>
+		/// <param name="flow"></param>
+		/// <returns></returns>
+		inline Future<void> RunMove(Taskflow& flow)
+		{
+			return m_ex.run(std::move(flow));
+		}
 
-        template <typename F, typename... ArgsT> void SilentAsync(F&& f, ArgsT&&... args)
-        {
-            m_ex.silent_async(f, args...);
-        }
+		/// <summary>
+		/// Use when taskflow is gonna get out of scope after this call.
+		/// </summary>
+		/// <param name="flow"></param>
+		/// <returns></returns>
+		inline Future<void> RunMove(Taskflow& flow, Delegate<void()>&& callback)
+		{
+			return m_ex.run(std::move(flow), callback);
+		}
 
-        template <typename F, typename... ArgsT> void SilentAsync(const String& name, F&& f, ArgsT&&... args)
-        {
-            m_ex.named_silent_async(name.c_str(), f, args...);
-        }
+		inline void RunAndWait(Taskflow& flow)
+		{
+			m_ex.run(flow).wait();
+		}
 
-        void Wait()
-        {
-            m_ex.wait_for_all();
-        }
+		template <typename F, typename... ArgsT> inline Future<void> Async(F&& f, ArgsT&&... args)
+		{
+			return m_ex.async(f, args...);
+		}
 
-    private:
-        tf::Executor m_ex;
-    };
+		template <typename F, typename... ArgsT> void SilentAsync(F&& f, ArgsT&&... args)
+		{
+			m_ex.silent_async(f, args...);
+		}
+
+		template <typename F, typename... ArgsT> void SilentAsync(const String& name, F&& f, ArgsT&&... args)
+		{
+			m_ex.named_silent_async(name.c_str(), f, args...);
+		}
+
+		void Wait()
+		{
+			m_ex.wait_for_all();
+		}
+
+	private:
+		tf::Executor m_ex;
+	};
 
 } // namespace Lina
 

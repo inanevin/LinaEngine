@@ -332,6 +332,20 @@ namespace Lina
 		GPUDest,
 	};
 
+	enum class BufferResourceType2
+	{
+		CPUResource,
+		GPUResource,
+	};
+
+	enum class BufferResourceHint
+	{
+		None,
+		ConstantBuffer,
+		Staging,
+		IndirectBuffer,
+	};
+
 	enum class TextureResourceType
 	{
 		Texture2DSwapchain,
@@ -435,6 +449,7 @@ namespace Lina
 
 #define DEFAULT_DEPTH_FORMAT	 Format::D32_SFLOAT
 #define DEFAULT_SWAPCHAIN_FORMAT Format::R8G8B8A8_UNORM
+#define DEFAULT_RT_FORMAT		 Format::R8G8B8A8_SRGB
 #define DEFAULT_COLOR_FORMAT	 Format::R32G32B32A32_SFLOAT
 #define LINA_MAIN_SWAPCHAIN		 "LinaMainSwapchain"_hs
 #define DEFAULT_SAMPLER_SID		 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs

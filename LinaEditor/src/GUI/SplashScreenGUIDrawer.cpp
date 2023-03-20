@@ -26,39 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef EditorApplication_HPP
-#define EditorApplication_HPP
-
-#include "Core/Application.hpp"
-#include "Editor.hpp"
+#include "GUI/SplashScreenGUIDrawer.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/ISwapchain.hpp"
 
 namespace Lina::Editor
 {
-	class EditorApplication : public Lina::Application, public ISystemEventListener
+	void SplashScreenGUIDrawer::DrawGUI(int threadID)
 	{
-	public:
-		EditorApplication() : m_editor(&m_engine){};
-		virtual ~EditorApplication() = default;
-
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void PostInitialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Tick() override;
-		virtual void Shutdown() override;
-
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
-
-		virtual Bitmask32 GetSystemEventMask()
-		{
-			return m_systemEventMask;
-		}
-
-	private:
-		uint32 m_systemEventMask	   = EVS_ResourceLoadTaskCompleted;
-		uint32 m_loadCoreResourcesTask = 0;
-		Editor m_editor;
-	};
+		const Vector2i		 size = m_surfaceRenderer->GetSwapchain()->GetSize();
+		LinaVG::StyleOptions style;
+		style.textureHandle = "Resources/Editor/Textures/SplashScreen.png"_hs;
+		LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(size)), style);
+	}
 } // namespace Lina::Editor
-
-#endif

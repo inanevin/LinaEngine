@@ -130,6 +130,11 @@ namespace Lina
 		void OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
 		void OnVsyncChanged(VsyncMode mode);
 
+		inline uint32 GetCurrentFrameIndex()
+		{
+			return m_currentFrameIndex;
+		}
+
 		inline GfxManager* GetGfxManager()
 		{
 			return m_gfxManager;
@@ -143,16 +148,16 @@ namespace Lina
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
-		uint32 GenerateMaterial(Material* mat);
-		void   UpdateMaterialProperties(Material* mat);
-		void   DestroyMaterial(uint32 handle);
-		uint32 GeneratePipeline(Shader* shader);
-		void   DestroyPipeline(uint32 handle);
-		void   CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
-		uint32 GenerateImage(Texture* txt, ImageGenerateRequest req);
-		void   DestroyImage(uint32 handle);
-		uint32 GenerateSampler(TextureSampler* sampler);
-		void   DestroySampler(uint32 handle);
+		int32 GenerateMaterial(Material* mat);
+		void  UpdateMaterialProperties(Material* mat);
+		void  DestroyMaterial(uint32 handle);
+		int32 GeneratePipeline(Shader* shader);
+		void  DestroyPipeline(uint32 handle);
+		void  CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
+		int32 GenerateImage(Texture* txt, ImageGenerateRequest req);
+		void  DestroyImage(uint32 handle);
+		int32 GenerateSampler(TextureSampler* sampler);
+		void  DestroySampler(uint32 handle);
 
 		// ******************* API *******************
 		// ******************* API *******************
@@ -163,6 +168,7 @@ namespace Lina
 		uint32		GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources
+		IGfxBufferResource*	 CreateBufferResource2(size_t size, BufferResourceType2 type, BufferResourceHint hint = BufferResourceHint::None);
 		IGfxBufferResource*	 CreateBufferResource(BufferResourceType type, void* initialData, size_t size, const wchar_t* name = L"Buffer Resource");
 		IGfxTextureResource* CreateTextureResource(TextureResourceType type, Texture* texture);
 		void				 DeleteBufferResource(IGfxBufferResource* res);

@@ -40,6 +40,7 @@ namespace Lina
 	public:
 		IGfxBufferResource(){};
 		IGfxBufferResource(BufferResourceType type, size_t sz) : m_type(type), m_size(sz){};
+		IGfxBufferResource(BufferResourceType2 type, BufferResourceHint hint, size_t sz) : m_type2(type), m_hint(hint), m_size(sz){};
 		virtual ~IGfxBufferResource() = default;
 
 		virtual void   Recreate(const void* data, size_t sz)					 = 0;
@@ -53,9 +54,11 @@ namespace Lina
 		}
 
 	protected:
-		BufferResourceType m_type		= BufferResourceType::UniformBuffer;
-		uint8*			   m_mappedData = nullptr;
-		size_t			   m_size		= 0;
+		BufferResourceType	m_type		 = BufferResourceType::UniformBuffer;
+		BufferResourceType2 m_type2		 = BufferResourceType2::CPUResource;
+		BufferResourceHint	m_hint		 = BufferResourceHint::None;
+		uint8*				m_mappedData = nullptr;
+		size_t				m_size		 = 0;
 	};
 } // namespace Lina
 

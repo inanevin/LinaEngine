@@ -28,36 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorApplication_HPP
-#define EditorApplication_HPP
+#ifndef SplashScreenGUIDrawer_HPP
+#define SplashScreenGUIDrawer_HPP
 
-#include "Core/Application.hpp"
-#include "Editor.hpp"
+#include "EditorGUIDrawer.hpp"
 
 namespace Lina::Editor
 {
-	class EditorApplication : public Lina::Application, public ISystemEventListener
+	class SplashScreenGUIDrawer : public EditorGUIDrawer
 	{
 	public:
-		EditorApplication() : m_editor(&m_engine){};
-		virtual ~EditorApplication() = default;
+		SplashScreenGUIDrawer(Lina::SurfaceRenderer* sf) : EditorGUIDrawer(sf){};
+		virtual ~SplashScreenGUIDrawer() {};
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void PostInitialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Tick() override;
-		virtual void Shutdown() override;
+		virtual void DrawGUI(int threadID) override;
 
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
-
-		virtual Bitmask32 GetSystemEventMask()
-		{
-			return m_systemEventMask;
-		}
-
-	private:
-		uint32 m_systemEventMask	   = EVS_ResourceLoadTaskCompleted;
-		uint32 m_loadCoreResourcesTask = 0;
-		Editor m_editor;
 	};
 } // namespace Lina::Editor
 

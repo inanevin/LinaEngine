@@ -34,14 +34,20 @@ SOFTWARE.
 #include "Reflection/ReflectionSystem.hpp"
 #include "Serialization/Compressor.hpp"
 #include "System/ISystem.hpp"
+#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "GUI/SplashScreenGUIDrawer.hpp"
+#include "GUI/MainWindowGUIDrawer.hpp"
 
 namespace Lina::Editor
 {
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
 	}
+
 	void Editor::Shutdown()
 	{
+		delete m_mainWindowGUIDrawer;
 	}
 
 	void Editor::PackageResources(const Vector<ResourceIdentifier>& identifiers)
@@ -102,6 +108,22 @@ namespace Lina::Editor
 
 			Serialization::SaveToFile(packagePath.c_str(), stream);
 		}
+	}
+
+	void Editor::PrepareSplashScreen()
+	{
+		auto sf				  = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
+		m_mainWindowGUIDrawer = new SplashScreenGUIDrawer(sf);
+		sf->SetGUIDrawer(m_mainWindowGUIDrawer);
+	}
+
+	void Editor::EndSplashScreen()
+	{
+		auto sf = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
+		sf->SetGUIDrawer(nullptr);
+		delete m_mainWindowGUIDrawer;
+		m_mainWindowGUIDrawer = new MainWindowGUIDrawer(sf);
+		sf->SetGUIDrawer(m_mainWindowGUIDrawer);
 	}
 
 } // namespace Lina::Editor

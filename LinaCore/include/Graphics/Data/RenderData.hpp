@@ -65,8 +65,7 @@ namespace Lina
 
 	enum SurfaceRendererMask
 	{
-		SRM_RenderGUI			 = 1 << 0,
-		SRM_DrawOffscreenTexture = 1 << 1,
+		SRM_None = 1 << 0,
 	};
 
 	enum WorldRendererMask

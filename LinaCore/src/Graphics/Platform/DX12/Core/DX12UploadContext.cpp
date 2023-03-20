@@ -39,9 +39,6 @@ using Microsoft::WRL::ComPtr;
 namespace Lina
 {
 
-#define ALIGN_TXTSZ(X)	  (X + (D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT - (X % D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT)))
-#define ALIGN_TXTSZ_SM(X) (X + (D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT - (X % D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)))
-
 	DX12UploadContext::DX12UploadContext(Renderer* rend) : IUploadContext(rend)
 	{
 		try
@@ -83,14 +80,15 @@ namespace Lina
 			m_cmdLists[i].Reset();
 	}
 
-	void DX12UploadContext::Flush(uint32 frameIndex, Bitmask16 flushFlags)
+	void DX12UploadContext::Flush(Bitmask16 flushFlags)
 	{
 		if (m_bufferRequests.empty() && m_textureRequests.empty() && m_immediateBufferRequests.empty())
 			return;
 
 		try
 		{
-			auto* cmdList = m_cmdLists[frameIndex].Get();
+			const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+			auto*		 cmdList	= m_cmdLists[frameIndex].Get();
 
 			ThrowIfFailed(m_cmdAllocator->Reset());
 			ThrowIfFailed(cmdList->Reset(m_cmdAllocator.Get(), nullptr));
@@ -119,12 +117,12 @@ namespace Lina
 						D3D12_SUBRESOURCE_DATA textureData = {};
 						textureData.pData				   = data;
 						textureData.RowPitch			   = width * channels;
-						textureData.SlicePitch			   = textureData.RowPitch * height;
+						textureData.SlicePitch			   = ALIGN_SIZE_POW(textureData.RowPitch * height, txtReq.targetResource->GetRequiredAlignment());
 
-						if (textureData.SlicePitch > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
-							textureData.SlicePitch = ALIGN_TXTSZ_SM(textureData.SlicePitch);
-						else
-							textureData.SlicePitch = ALIGN_TXTSZ(textureData.SlicePitch);
+						//if (textureData.SlicePitch > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
+						//	textureData.SlicePitch = ALIGN_TXTSZ_SM(textureData.SlicePitch);
+						//else
+						//	textureData.SlicePitch = ALIGN_TXTSZ(textureData.SlicePitch);
 
 						allData.push_back(textureData);
 					};
@@ -166,19 +164,26 @@ namespace Lina
 			ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
 			WaitForSingleObject(m_fenceEvent, INFINITE);
 
-			for (auto& req : m_bufferRequests)
-				delete req.stagingResource;
-
-			for (auto& txtReq : m_textureRequests)
+			if (flushAll || flushFlags.IsSet(UCF_FlushDataRequests))
 			{
-				delete txtReq.stagingResource;
+				for (auto& req : m_bufferRequests)
+					delete req.stagingResource;
 
-				if (txtReq.genReq.onGenerated)
-					txtReq.genReq.onGenerated();
+				m_bufferRequests.clear();
 			}
 
-			m_bufferRequests.clear();
-			m_textureRequests.clear();
+			if (flushAll || flushFlags.IsSet(UCF_FlushTextureRequests))
+			{
+				for (auto& txtReq : m_textureRequests)
+				{
+					delete txtReq.stagingResource;
+
+					if (txtReq.genReq.onGenerated)
+						txtReq.genReq.onGenerated();
+				}
+				m_textureRequests.clear();
+			}
+
 			m_immediateBufferRequests.clear();
 		}
 		catch (HrException e)
@@ -212,19 +217,21 @@ namespace Lina
 		const auto&			 mips		= src->GetMipmaps();
 		const uint32		 mipsSz		= static_cast<uint32>(mips.size());
 		const uint32		 ogDataSize = src->GetExtent().width * src->GetExtent().height * src->GetChannels();
-		req.totalDataSize				= ogDataSize > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT ? ALIGN_TXTSZ(ogDataSize) : ALIGN_TXTSZ_SM(ogDataSize);
+		req.totalDataSize				= ALIGN_SIZE_POW(ogDataSize, targetGPUTexture->GetRequiredAlignment());
 
 		for (uint32 i = 0; i < mipsSz; i++)
 		{
 			const auto&	 mm = mips.at(i);
 			const uint32 sz = mm.height * mm.width * src->GetChannels();
-
-			if (sz > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
-				req.totalDataSize += ALIGN_TXTSZ(sz);
-			else
-				req.totalDataSize += ALIGN_TXTSZ_SM(sz);
+			req.totalDataSize += ALIGN_SIZE_POW(sz, targetGPUTexture->GetRequiredAlignment());
+			
+			//if (sz > D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT)
+			//	req.totalDataSize += ALIGN_TXTSZ(sz);
+			//else
+			//	req.totalDataSize += ALIGN_TXTSZ_SM(sz);
 		}
 
+	//	req.totalDataSize	= ALIGN_SIZE_POW(ogDataSize, targetGPUTexture->GetRequiredAlignment());
 		req.targetResource	= targetGPUTexture;
 		req.targetTexture	= src;
 		req.stagingResource = new DX12GfxBufferResource(m_renderer, BufferResourceType::Staging, nullptr, req.totalDataSize);
@@ -238,6 +245,7 @@ namespace Lina
 		req.stagingResource = staging;
 		req.targetResource	= targetGpuResource;
 		m_immediateBufferRequests.push_back(req);
+		Flush(UCF_FlushImmediateRequests);
 	}
 
 	void DX12UploadContext::PushCustomCommand(const GfxCommand& cmd)

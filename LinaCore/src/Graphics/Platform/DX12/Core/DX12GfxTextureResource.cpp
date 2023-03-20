@@ -79,6 +79,16 @@ namespace Lina
 		resourceDesc.Flags				 = D3D12_RESOURCE_FLAG_NONE;
 		resourceDesc.Format				 = GetFormat(static_cast<Format>(meta.GetUInt8("Format"_hs)));
 
+		// "normal" textures might be eligible for small alignment
+		// check if thats the case & set alignment accordingly.
+		if (m_type == TextureResourceType::Texture2DDefault)
+		{
+			const uint32 mostDetailedSize = size.x * size.y * static_cast<uint32>(m_texture->GetChannels());
+			m_requiredAlignment			  = mostDetailedSize < D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT ? D3D12_SMALL_RESOURCE_PLACEMENT_ALIGNMENT : D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+		}
+		else
+			m_requiredAlignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;
+
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
 		allocationDesc.HeapType					= D3D12_HEAP_TYPE_DEFAULT;
 
@@ -86,7 +96,7 @@ namespace Lina
 		D3D12_CLEAR_VALUE*	  clear = NULL;
 		const float			  cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
 		auto				  depthClear = CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_DEPTH_FORMAT), 1.0f, 0);
-		auto				  colorClear = CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_SWAPCHAIN_FORMAT), cc);
+		auto				  colorClear = CD3DX12_CLEAR_VALUE(GetFormat(DEFAULT_RT_FORMAT), cc);
 
 		if (m_type == TextureResourceType::Texture2DRenderTargetDepthStencil)
 		{

@@ -39,6 +39,19 @@ namespace Lina
 {
 	class Renderer;
 
+	struct UserGeneratedTextureData
+	{
+		String		path						  = "";
+		StringID	sid							  = 0;
+		Extent3D	extent						  = Extent3D();
+		Format		format						  = Format::R32G32B32A32_SFLOAT;
+		StringID	targetSampler				  = 0;
+		ImageTiling tiling						  = ImageTiling::Optimal;
+		int			channels					  = 4;
+		bool		createPixelBuffer			  = false;
+		bool		destroyPixelBufferAfterUpload = true;
+	};
+
 	class Texture : public IResource
 	{
 
@@ -52,17 +65,12 @@ namespace Lina
 
 	public:
 		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
-		Texture(ResourceManager* rm, const String& path, StringID sid, const Extent3D ext, StringID targetSampler, Format format, ImageTiling tiling, int channels = 4, bool createPixelData = false);
+		Texture(ResourceManager* rm, const UserGeneratedTextureData& textureData);
 		virtual ~Texture();
 
-		/// <summary>
-		/// Generates image data on the GPU using m_pixels (GetPixels()/SetPixels())
-		/// The pixel data is erased automatically.
-		/// </summary>
 		virtual void Upload() override;
-
-		void GenerateImage(ImageGenerateRequest req);
-		void SetSampler(StringID samplerSID);
+		void		 GenerateImage(ImageGenerateRequest req);
+		void		 SetSampler(StringID samplerSID);
 
 		inline const Extent3D& GetExtent() const
 		{
@@ -111,10 +119,11 @@ namespace Lina
 		void GenerateMipmaps();
 
 	private:
-		StringID		m_samplerSID			 = 0;
-		TextureSampler* m_sampler				 = nullptr;
-		Renderer*		m_renderer				 = nullptr;
-		bool			m_pixelsLoadedFromStream = false;
+		bool			m_destroyPixelsAfterUpload = true;
+		StringID		m_samplerSID			   = 0;
+		TextureSampler* m_sampler				   = nullptr;
+		Renderer*		m_renderer				   = nullptr;
+		bool			m_pixelsLoadedFromStream   = false;
 		Extent3D		m_extent;
 		uint32			m_mipLevels = 1;
 		uint32			m_channels	= 0;

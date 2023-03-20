@@ -31,10 +31,27 @@ SOFTWARE.
 #ifndef EditorGUIDrawer_HPP
 #define EditorGUIDrawer_HPP
 
+#include "Graphics/Core/IGUIDrawer.hpp"
+#include "Core/StringID.hpp"
+
+namespace Lina
+{
+	class SurfaceRenderer;
+}
 
 namespace Lina::Editor
 {
-	
+	class EditorGUIDrawer : public IGUIDrawer
+	{
+	public:
+		EditorGUIDrawer(Lina::SurfaceRenderer* sf);
+		virtual ~EditorGUIDrawer();
+
+		virtual void DrawGUI(int threadID) override;
+
+	protected:
+		Lina::SurfaceRenderer* m_surfaceRenderer = nullptr;
+	};
 } // namespace Lina::Editor
 
 #endif

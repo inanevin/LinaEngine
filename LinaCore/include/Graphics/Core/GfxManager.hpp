@@ -79,10 +79,11 @@ namespace Lina
 		void				OnWindowMoved(IWindow* window, StringID sid, const Recti& rect);
 		void				OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
 		void				OnVsyncChanged(VsyncMode mode);
+		SurfaceRenderer*	GetSurfaceRenderer(StringID sid);
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_ResourceBatchLoaded;
+			return EVS_ResourceLoadTaskCompleted;
 		}
 
 		inline const GfxMeshManager& GetMeshManager()
@@ -109,8 +110,8 @@ namespace Lina
 		GPUGlobalData			 m_globalData;
 		Vector<Material*>		 m_engineMaterials;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
-		uint32					 m_frameIndex = 0;
-		GUIBackend*				 m_guiBackend;
+		uint32					 m_frameIndex		= 0;
+		GUIBackend*				 m_guiBackend		= nullptr;
 		bool					 m_PostInitializeed = false;
 	};
 } // namespace Lina

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef DataStructuresDataCommon_HPP
@@ -36,16 +35,26 @@ SOFTWARE.
 
 namespace Lina
 {
-	template<typename T, typename U>
-	using Pair = eastl::pair<T, U>;
+	template <typename T, typename U> using Pair = eastl::pair<T, U>;
 
 	namespace linatl = eastl;
 
-	template<class F, class...Args>
-	F ForEachArg(F f, Args&&...args) {
+	template <class F, class... Args> F ForEachArg(F f, Args&&... args)
+	{
 		(f(std::forward<Args>(args)), ...);
 		return f;
 	}
+
+#define ALIGN_SIZE_POW(sizeToAlign, PowerOfTwo) (((sizeToAlign) + (PowerOfTwo)-1) & ~((PowerOfTwo)-1))
+#define ALIGN_SIZE(sizeToAlign, Alignment)		(sizeToAlign + Alignment - 1) - sizeToAlign % Alignment;
+#define IS_SIZE_ALIGNED(sizeToTest, PowerOfTwo) (((sizeToTest) & ((PowerOfTwo)-1)) == 0)
+#define IS_ODD(num)								((num)&1)
+#define IS_EVEN(num)							(!IS_ODD((num)))
+#define IS_BETWEEN(numToTest, numLow, numHigh)	((unsigned char)((numToTest) >= (numLow) && (numToTest) <= (numHigh)))
+#define MAKE_EVEN_LB(X) if(X % 2 != 0) X--;
+#define MAKE_EVEN_UB(X) if(X % 2 != 0) X++;
+#define MAKE_ODD_LB(X) if(X % 2 == 0) X--;
+#define MAKE_ODD_UB(X) if(X % 2 == 0) X-++;
 
 } // namespace Lina
 

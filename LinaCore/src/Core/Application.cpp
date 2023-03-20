@@ -76,7 +76,8 @@ namespace Lina
 		// First load priority resources & complete initialization
 		{
 			auto start = PlatformTime::GetCycles64();
-			resourceManager.LoadPriorityResources();
+			resourceManager.LoadResources(resourceManager.GetPriorityResources());
+			resourceManager.WaitForAll();
 			LINA_TRACE("[Application] -> Loading priority resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, PlatformTime::GetCycles64()));
 			m_engine.PostInitialize(initInfo);
 		}
@@ -84,7 +85,8 @@ namespace Lina
 		// Load any core resources.
 		{
 			auto start = PlatformTime::GetCycles64();
-			resourceManager.LoadCoreResources();
+			resourceManager.LoadResources(resourceManager.GetCoreResources());
+			resourceManager.WaitForAll();
 			LINA_TRACE("[Application] -> Loading additional resources took: {0} seconds", PlatformTime::GetDeltaSeconds64(start, PlatformTime::GetCycles64()));
 		}
 	}

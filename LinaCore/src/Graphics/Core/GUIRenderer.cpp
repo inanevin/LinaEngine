@@ -147,7 +147,7 @@ namespace Lina
 
 			m_renderer->GetUploadContext()->UploadBuffersImmediate(frame.vtxBufferGPU, frame.vtxBufferStaging);
 			m_renderer->GetUploadContext()->UploadBuffersImmediate(frame.indexBufferGPU, frame.indexBufferStaging);
-			m_renderer->GetUploadContext()->Flush(m_frameIndex, UCF_FlushImmediateRequests);
+			m_renderer->GetUploadContext()->Flush(UCF_FlushImmediateRequests);
 
 			m_renderer->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex));
 			m_renderer->BindIndexBuffer(cmdList, frame.indexBufferGPU);

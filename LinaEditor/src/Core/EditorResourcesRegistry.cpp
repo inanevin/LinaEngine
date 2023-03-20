@@ -38,11 +38,35 @@ namespace Lina::Editor
 
 	Vector<ResourceIdentifier> EditorResourcesRegistry::GetPriorityResources()
 	{
-		return CoreResourcesRegistry::GetPriorityResources();
-
 		Vector<ResourceIdentifier> resources = CoreResourcesRegistry::GetPriorityResources();
 
 		const uint32 startIndex = static_cast<uint32>(resources.size());
+
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/SplashScreen.png", GetTypeID<Texture>(), 0));
+
+		const uint32 totalSize = static_cast<uint32>(resources.size());
+		for (uint32 i = startIndex; i < totalSize; i++)
+		{
+			auto& ident = resources[i];
+			ident.sid	= TO_SID(ident.path);
+		}
+
+		return resources;
+	}
+
+	Vector<Pair<StringID, ResourceMetadata>> EditorResourcesRegistry::GetPriorityResourcesMetadata()
+	{
+		auto metalist = CoreResourcesRegistry::GetPriorityResourcesMetadata();
+
+		// Add custom
+
+		return metalist;
+	}
+
+	Vector<ResourceIdentifier> EditorResourcesRegistry::GetCoreResources()
+	{
+		Vector<ResourceIdentifier> resources  = CoreResourcesRegistry::GetCoreResources();
+		const uint32			   startIndex = static_cast<uint32>(resources.size());
 
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/TitleText.png", GetTypeID<Texture>(), 0));
 
@@ -64,29 +88,11 @@ namespace Lina::Editor
 		return resources;
 	}
 
-	Vector<Pair<StringID, ResourceMetadata>> EditorResourcesRegistry::GetPriorityResourcesMetadata()
-	{
-		auto aq = CoreResourcesRegistry::GetPriorityResourcesMetadata();
-
-		return aq;
-	}
-
-	Vector<ResourceIdentifier> EditorResourcesRegistry::GetCoreResources()
-	{
-		return CoreResourcesRegistry::GetCoreResources();
-
-		Vector<ResourceIdentifier> resources;
-		// resources.push_back(ResourceIdentifier("Resources/Editor/Textures/TitleText.png", GetTypeID<Texture>(), 0));
-
-		for (auto& ident : resources)
-			ident.sid = TO_SID(ident.path);
-
-		return resources;
-	}
-	
 	Vector<Pair<StringID, ResourceMetadata>> EditorResourcesRegistry::GetCoreResourcesMetadata()
 	{
-		return CoreResourcesRegistry::GetCoreResourcesMetadata();
-	} // namespace Lina::Editor
+		auto metalist = CoreResourcesRegistry::GetCoreResourcesMetadata();
+		// Add custom
+		return metalist;
+	}
 
 } // namespace Lina::Editor

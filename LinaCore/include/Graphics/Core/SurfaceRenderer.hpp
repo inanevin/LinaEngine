@@ -90,9 +90,9 @@ namespace Lina
 		void		 ClearOffscreenTexture();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 
-		inline void SetUIRenderer(IGUIDrawer* rend)
+		inline void SetGUIDrawer(IGUIDrawer* rend)
 		{
-			m_uiDrawer = rend;
+			m_guiDrawer = rend;
 		}
 
 		virtual Bitmask32 GetSystemEventMask() override
@@ -139,7 +139,7 @@ namespace Lina
 		Bitmask16			   m_mask				  = 0;
 		uint32				   m_imageCount			  = 0;
 		Vector<WorldRenderer*> m_worldRenderers;
-		IGUIDrawer*			   m_uiDrawer = nullptr;
+		IGUIDrawer*			   m_guiDrawer = nullptr;
 		Renderer*			   m_renderer = nullptr;
 		Vector<DataPerImage>   m_dataPerImage;
 		DataPerFrame		   m_frames[FRAMES_IN_FLIGHT];

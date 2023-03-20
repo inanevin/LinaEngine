@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "System/ISystem.hpp"
+#include "Core/PlatformTime.hpp"
+#include "Core/PlatformProcess.hpp"
 
 namespace Lina
 {
@@ -53,99 +55,88 @@ namespace Lina
 		return m_caches.at(tid)->GetPackageType();
 	}
 
-	void ResourceManager::LoadPriorityResources()
-	{
-		LoadResources(m_priorityResources, true);
-	}
-
-	void ResourceManager::LoadCoreResources()
-	{
-		LoadResources(m_coreResources, true);
-	}
-
-	void ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers, bool async)
+	int32 ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers)
 	{
 		if (identifiers.empty())
 		{
 			LINA_ERR("[Resource Manager] -> LoadResources() called with empty identifier list.");
-			return;
+			return -1;
 		}
+
+		ResourceLoadTask* loadTask		 = new ResourceLoadTask();
+		loadTask->id					 = m_loadTaskCounter;
+		loadTask->identifiers			 = identifiers;
+		loadTask->startTime				 = PlatformTime::GetCycles64();
+		m_loadTasks[m_loadTaskCounter++] = loadTask;
 
 		if (m_mode == ResourceManagerMode::File)
 		{
 			if (!FileSystem::FileExists("Resources/Editor/Metacache"))
 				FileSystem::CreateFolderInPath("Resources/Editor/Metacache");
 
-			auto loadFunc = [this](ResourceIdentifier ident) {
-				auto&	   cache = m_caches[ident.tid];
-				IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
+			for (auto& ident : identifiers)
+				loadTask->tf.emplace([ident, this]() {
+					auto&	   cache = m_caches.at(ident.tid);
+					IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
 
-				const String metacachePath = GetMetacachePath(ident.path, ident.sid);
-				if (FileSystem::FileExists(metacachePath))
-				{
-					IStream input = Serialization::LoadFromFile(metacachePath.c_str());
-					res->LoadFromStream(input);
-					res->Upload();
-					input.Destroy();
-
-					LOCK_GUARD(m_eventMtx);
-					Event data;
-					data.pParams[0] = &ident.path;
-					data.iParams[0] = ident.sid;
-					data.iParams[1] = ident.tid;
-					DispatchEvent(EVS_ResourceLoaded, data);
-				}
-				else
-				{
-					// If we are loading a core resource.
-					// We might have it's custom metadata registered, set it before loading the resource.
-					if (IsPriorityResource(ident.sid))
+					const String metacachePath = GetMetacachePath(ident.path, ident.sid);
+					if (FileSystem::FileExists(metacachePath))
 					{
-						auto it = linatl::find_if(m_priorityResourcesDefaultMetadata.begin(), m_priorityResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
+						IStream input = Serialization::LoadFromFile(metacachePath.c_str());
+						res->LoadFromStream(input);
+						res->Upload();
+						input.Destroy();
 
-						if (it != m_priorityResourcesDefaultMetadata.end())
-							res->SetMetadata(it->second);
+						if (res->GetSID() == "Resources/Editor/Textures/TitleText.png"_hs)
+						{
+							PlatformProcess::Sleep(2000);
+						}
 					}
-					else if (IsCoreResource(ident.sid))
+					else
 					{
-						auto it = linatl::find_if(m_coreResourcesDefaultMetadata.begin(), m_coreResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
 
-						if (it != m_coreResourcesDefaultMetadata.end())
-							res->SetMetadata(it->second);
+						if (res->GetSID() == "Resources/Editor/Textures/TitleText.png"_hs)
+						{
+							PlatformProcess::Sleep(2000);
+						}
+
+						// If we are loading a core resource.
+						// We might have it's custom metadata registered, set it before loading the resource.
+						if (IsPriorityResource(ident.sid))
+						{
+							auto it = linatl::find_if(m_priorityResourcesDefaultMetadata.begin(), m_priorityResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
+
+							if (it != m_priorityResourcesDefaultMetadata.end())
+								res->SetMetadata(it->second);
+						}
+						else if (IsCoreResource(ident.sid))
+						{
+							auto it = linatl::find_if(m_coreResourcesDefaultMetadata.begin(), m_coreResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
+
+							if (it != m_coreResourcesDefaultMetadata.end())
+								res->SetMetadata(it->second);
+						}
+
+						res->m_resourceManager = this;
+						res->LoadFromFile(ident.path.c_str());
+						res->Upload();
+
+						OStream metastream;
+						metastream.CreateReserve(512);
+						res->SaveToStream(metastream);
+						Serialization::SaveToFile(metacachePath.c_str(), metastream);
+						metastream.Destroy();
 					}
 
-					res->m_resourceManager = this;
-					res->LoadFromFile(ident.path.c_str());
-					res->Upload();
-
-					OStream metastream;
-					metastream.CreateReserve(512);
-					res->SaveToStream(metastream);
-					Serialization::SaveToFile(metacachePath.c_str(), metastream);
-					metastream.Destroy();
-
-					LOCK_GUARD(m_eventMtx);
-					Event data;
-					data.pParams[0] = &ident.path;
-					data.iParams[0] = ident.sid;
-					data.iParams[1] = ident.tid;
+					Event			   data;
+					ResourceIdentifier copy = ident;
+					data.pParams[0]			= &copy.path;
+					data.iParams[0]			= ident.sid;
+					data.iParams[1]			= ident.tid;
 					DispatchEvent(EVS_ResourceLoaded, data);
-				}
 
-				res->Flush();
-			};
-
-			if (async)
-			{
-				Taskflow tf;
-				tf.for_each_index(0, static_cast<int>(identifiers.size()), 1, [&](int i) { loadFunc(identifiers[i]); });
-				m_executor.RunAndWait(tf);
-			}
-			else
-			{
-				for (auto& ident : identifiers)
-					loadFunc(ident);
-			}
+					res->Flush();
+				});
 		}
 		else
 		{
@@ -173,12 +164,12 @@ namespace Lina
 					res->Upload();
 					res->Flush();
 
-					LOCK_GUARD(m_eventMtx);
 					Event data;
 					data.pParams[0] = &ident.path;
 					data.iParams[0] = ident.sid;
 					data.iParams[1] = ident.tid;
 					DispatchEvent(EVS_ResourceLoaded, data);
+					stream.Destroy();
 				};
 
 				TypeID	 tid  = 0;
@@ -197,11 +188,7 @@ namespace Lina
 						IStream stream;
 						stream.Create(package.GetDataCurrent(), size);
 						ResourceIdentifier ident = *it;
-
-						if (async)
-							m_executor.Async([loadFunc, stream, ident]() { loadFunc(stream, ident); });
-						else
-							loadFunc(stream, ident);
+						loadTask->tf.emplace([loadFunc, stream, ident]() { loadFunc(stream, ident); });
 
 						loadedResources++;
 					};
@@ -211,21 +198,53 @@ namespace Lina
 
 				package.Destroy();
 			}
-
-			// wait for all fired of asyncs.
-			if (async)
-				m_executor.Wait();
 		}
 
-		// notify each resource the whole group they were requested to load with is done.
-		// useful for resources depending on the loading of others, such as materials --> shaders.
-		for (auto& ident : identifiers)
-			m_caches[ident.tid]->GetResource(ident.sid)->BatchLoaded();
+		m_executor.Run(loadTask->tf, [loadTask]() {
+			loadTask->isCompleted.store(true);
+			loadTask->endTime = PlatformTime::GetCycles64();
+		});
 
-		Event					   ev;
-		Vector<ResourceIdentifier> idents = identifiers;
-		ev.pParams[0]					  = &idents;
-		DispatchEvent(EVS_ResourceBatchLoaded, ev);
+		return loadTask->id;
+	}
+
+	void ResourceManager::Tick()
+	{
+		const int	   sz = static_cast<uint32>(m_loadTasks.size());
+		Vector<uint32> toErase;
+
+		for (auto [id, task] : m_loadTasks)
+		{
+			if (task->isCompleted.load())
+			{
+				DispatchLoadTaskEvent(task);
+				toErase.push_back(id);
+				delete task;
+			}
+		}
+
+		for (auto id : toErase)
+			m_loadTasks.erase(m_loadTasks.find(id));
+	}
+
+	void ResourceManager::WaitForAll()
+	{
+		m_executor.Wait();
+
+		for (auto [id, task] : m_loadTasks)
+		{
+			DispatchLoadTaskEvent(task);
+			delete task;
+		}
+
+		m_loadTaskCounter = 0;
+		m_loadTasks.clear();
+	}
+
+	bool ResourceManager::IsLoadTaskComplete(uint32 id)
+	{
+		auto it = m_loadTasks.find(id);
+		return it == m_loadTasks.end();
 	}
 
 	void ResourceManager::UnloadResources(const Vector<ResourceIdentifier>& identifiers)
@@ -280,6 +299,20 @@ namespace Lina
 	void ResourceManager::AddUserManaged(IResource* res)
 	{
 		m_caches.at(res->GetTID())->AddUserManaged(res);
+	}
+
+	void ResourceManager::DispatchLoadTaskEvent(ResourceLoadTask* task)
+	{
+		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
+
+		// notify each resource the whole group they were requested to load with is done.
+		// useful for resources depending on the loading of others, such as materials --> shaders.
+		for (auto& ident : task->identifiers)
+			m_caches[ident.tid]->GetResource(ident.sid)->BatchLoaded();
+
+		Event ev;
+		ev.pParams[0] = task;
+		DispatchEvent(EVS_ResourceLoadTaskCompleted, ev);
 	}
 
 	void ResourceManager::RemoveUserManaged(IResource* res)

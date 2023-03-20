@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Core/GUIRenderer.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Font.hpp"
+#include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/CommonResources.hpp"
@@ -97,6 +98,7 @@ namespace Lina
 		const uint32   bufSize	   = width * height;
 		const Extent3D ext		   = txt->GetExtent();
 		uint32		   startOffset = offsetY * ext.width + offsetX;
+		m_textureDirtyStatus[txt]  = true;
 
 		for (int i = 0; i < height; i++)
 		{
@@ -121,21 +123,30 @@ namespace Lina
 			.height = static_cast<uint32>(height),
 		};
 
-		Texture* txt		= new Texture(m_resourceManager, path, sid, extent, DEFAULT_SAMPLER_SID, Format::R8_UNORM, ImageTiling::Linear, 1, true);
-		m_fontTextures[sid] = txt;
-		m_boundFontTexture = sid;
+		UserGeneratedTextureData textureData = UserGeneratedTextureData{
+			.path						   = path,
+			.sid						   = sid,
+			.extent						   = extent,
+			.format						   = Format::R8_UNORM,
+			.targetSampler				   = DEFAULT_SAMPLER_SID,
+			.tiling						   = ImageTiling::Linear,
+			.createPixelBuffer			   = true,
+			.destroyPixelBufferAfterUpload = false,
+		};
+
+		Texture* txt			  = new Texture(m_resourceManager, textureData);
+		m_textureDirtyStatus[txt] = false;
+		m_fontTextures[sid]		  = txt;
+		m_boundFontTexture		  = sid;
 		return sid;
 	}
 
 	void GUIBackend::OnResourceBatchLoaded(const Event& ev)
 	{
-		Vector<ResourceIdentifier>* idents = static_cast<Vector<ResourceIdentifier>*>(ev.pParams[0]);
-		const uint32				size   = static_cast<uint32>(idents->size());
+		ResourceLoadTask* task = static_cast<ResourceLoadTask*>(ev.pParams[0]);
 
-		for (uint32 i = 0; i < size; i++)
+		for (const auto& ident : task->identifiers)
 		{
-			const ResourceIdentifier& ident = idents->at(i);
-
 			if (ident.tid == GetTypeID<Font>())
 			{
 				CheckFontTexturesForUpload();
@@ -151,9 +162,9 @@ namespace Lina
 
 	void GUIBackend::CheckFontTexturesForUpload()
 	{
-		for (auto& [sid, txt] : m_fontTextures)
+		for (auto& [txt, isDirty] : m_textureDirtyStatus)
 		{
-			if (txt->GetGPUHandle() == -1)
+			if (isDirty)
 				txt->Upload();
 		}
 	}
