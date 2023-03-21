@@ -26,42 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "GUI/Widgets/ProgressBar.hpp"
+#include "Math/Vector.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
-#ifndef SplashScreenGUIDrawer_HPP
-#define SplashScreenGUIDrawer_HPP
-
-#include "EditorGUIDrawer.hpp"
-#include "Event/ISystemEventListener.hpp"
-#include "Data/Mutex.hpp"
-#include "Widgets/ProgressBar.hpp"
+using namespace Lina;
 
 namespace Lina::Editor
 {
-	class Editor;
-
-	class SplashScreenGUIDrawer : public EditorGUIDrawer, public ISystemEventListener
+	void ProgressBar::Draw(const Vector2& start, const Vector2& size, float progress)
 	{
-	public:
-		SplashScreenGUIDrawer(Editor* editor, Lina::SurfaceRenderer* sf);
-		virtual ~SplashScreenGUIDrawer();
+		LinaVG::StyleOptions style;
 
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
-
-		virtual Bitmask32 GetSystemEventMask()
-		{
-			return EVS_ResourceLoaded;
-		}
-
-		virtual void DrawGUI(int threadID) override;
-
-	private:
-		Editor*		m_editor = nullptr;
-		Mutex		m_mtx;
-		ProgressBar m_progressBar;
-		int			m_loadedResources = 0;
-		float		m_progress		  = 0.0f;
-	};
+		LinaVG::DrawRect(LV2(Vector2(0,0)), LV2(Vector2(100, 100)), style, 0.0f, 1);
+	}
 } // namespace Lina::Editor
-
-#endif

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/SystemInfo.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Core/IWindow.hpp"
 #include "Core/PlatformTime.hpp"
 #include "Core/EditorResourcesRegistry.hpp"
 
@@ -71,22 +72,21 @@ namespace Lina::Editor
 		auto& resourceManager = m_engine.GetResourceManager();
 
 		// First load priority resources & complete initialization
-		{
-			resourceManager.LoadResources(resourceManager.GetPriorityResources());
-			resourceManager.WaitForAll();
+		resourceManager.LoadResources(resourceManager.GetPriorityResources());
+		resourceManager.WaitForAll();
 
-			auto&		   wm					  = m_engine.GetWindowManager();
-			const Vector2i primaryMonitorSize	  = wm.GetPrimaryMonitor()->size;
-			const float	   desiredAspect		  = 16.0f / 9.0f;
-			const float	   targetX				  = static_cast<float>(primaryMonitorSize.x * 0.3f);
-			const Vector2i targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
-			wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, WindowStyle::Borderless, initInfo.appName, Vector2i::Zero, targetSplashScreenSize);
-			m_engine.PostInitialize(initInfo);
-			m_editor.PrepareSplashScreen();
-		}
+		auto&		   wm					  = m_engine.GetWindowManager();
+		const Vector2i primaryMonitorSize	  = wm.GetPrimaryMonitor()->size;
+		const float	   desiredAspect		  = 16.0f / 9.0f;
+		const float	   targetX				  = static_cast<float>(primaryMonitorSize.x * 0.3f);
+		const Vector2i targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
+		auto		   window				  = wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, targetSplashScreenSize);
+		m_engine.PostInitialize(initInfo);
+		m_editor.BeginSplashScreen();
 
 		// Load any core resources.
 		{
+			window->SetStyle(WindowStyle::Borderless);
 			m_engine.GetResourceManager().AddListener(this);
 			m_loadCoreResourcesTask = resourceManager.LoadResources(resourceManager.GetCoreResources());
 		}
@@ -112,6 +112,7 @@ namespace Lina::Editor
 			if (task->id == m_loadCoreResourcesTask)
 			{
 				m_editor.EndSplashScreen();
+				m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN)->SetToWorkingArea();
 				m_systemEventMask = 0;
 			}
 		}

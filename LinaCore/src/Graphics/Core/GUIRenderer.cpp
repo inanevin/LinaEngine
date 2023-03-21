@@ -58,8 +58,8 @@ namespace Lina
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame			 = m_frames[i];
-			frame.vtxBufferGPU	 = m_renderer->CreateGPUResource(DEF_VTX_BUF_SIZE, GPUResourceType::GPUOnlyWithStaging, false, L"GUI Renderer Vertex GPU");
-			frame.indexBufferGPU = m_renderer->CreateGPUResource(DEF_INDEX_BUF_SIZE, GPUResourceType::GPUOnlyWithStaging, false, L"GUI Renderer Index GPU");
+			frame.vtxBufferGPU	 = m_renderer->CreateGPUResource(DEF_VTX_BUF_SIZE, GPUResourceType::CPUVisibleIfPossible, false, L"GUI Renderer Vertex GPU");
+			frame.indexBufferGPU = m_renderer->CreateGPUResource(DEF_INDEX_BUF_SIZE, GPUResourceType::CPUVisibleIfPossible, false, L"GUI Renderer Index GPU");
 			frame.viewDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUViewData), CPUResourceHint::ConstantBuffer, L"GUI Renderer View Data");
 		}
 	}

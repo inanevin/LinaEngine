@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Graphics/Core/IGfxGPUResource.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace D3D12MA
 {
@@ -67,10 +68,13 @@ namespace Lina
 		void CreateResource();
 		void Cleanup();
 
+		void MapBufferData(const void* data, size_t sz, size_t padding);
+
 	private:
-		const wchar_t*		 m_name			   = L"";
-		DX12CPUResource*	 m_stagingResource = nullptr;
-		D3D12MA::Allocation* m_allocation	   = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_cpuVisibleResource;
+		const wchar_t*						   m_name			 = L"";
+		DX12CPUResource*					   m_stagingResource = nullptr;
+		D3D12MA::Allocation*				   m_allocation		 = nullptr;
 	};
 } // namespace Lina
 

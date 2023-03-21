@@ -26,6 +26,7 @@ src/Core/EditorApplication.cpp
 src/Core/EditorResourcesRegistry.cpp
 src/Core/Editor.cpp
 src/EditorEntryPoint.cpp
+src/GUI/Widgets/ProgressBar.cpp
 src/GUI/EditorGUIDrawer.cpp
 src/GUI/MainWindowGUIDrawer.cpp
 src/GUI/SplashScreenGUIDrawer.cpp
@@ -39,6 +40,7 @@ set(LINAEDITOR_HEADERS
 include/GUI/EditorGUIDrawer.hpp
 include/GUI/SplashScreenGUIDrawer.hpp
 include/GUI/MainWindowGUIDrawer.hpp
+include/GUI/Widgets/ProgressBar.hpp
 include/Core/EditorApplication.hpp
 include/Core/Editor.hpp
 include/Core/EditorResourcesRegistry.hpp

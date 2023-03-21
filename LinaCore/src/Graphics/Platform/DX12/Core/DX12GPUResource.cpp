@@ -30,6 +30,10 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12CPUResource.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
+#include "Data/CommonData.hpp"
+#include <nvapi/nvapi.h>
+
+LINA_DISABLE_VC_WARNING(6387);
 
 namespace Lina
 {
@@ -48,11 +52,21 @@ namespace Lina
 
 	uint64 DX12GPUResource::GetGPUPointer()
 	{
+		if (m_mappedData != nullptr)
+			return m_cpuVisibleResource->GetGPUVirtualAddress();
+
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
 	void DX12GPUResource::BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType)
 	{
+		// Cpu-visible, directly copy
+		if (m_mappedData != nullptr)
+		{
+			MapBufferData(data, sz, padding);
+			return;
+		}
+
 		if (padding != 0)
 			m_stagingResource->BufferDataPadded(data, sz, padding);
 		else
@@ -63,6 +77,11 @@ namespace Lina
 
 	void DX12GPUResource::Copy(CopyDataType copyType)
 	{
+		// CPU visible VRAM resource, already copied via mapping.
+		if (m_mappedData != nullptr)
+			return;
+
+		// Why would you even call Copy with NoCopy (my bad, api design master)
 		if (copyType == CopyDataType::NoCopy)
 			return;
 
@@ -102,6 +121,48 @@ namespace Lina
 		D3D12MA::ALLOCATION_DESC allocationDesc = {};
 		D3D12_RESOURCE_STATES	 state			= D3D12_RESOURCE_STATE_GENERIC_READ;
 
+		if (m_type == GPUResourceType::CPUVisibleIfPossible)
+		{
+			NvU64		 totalBytes = 0, freeBytes = 0;
+			NvAPI_Status result = NvAPI_D3D12_QueryCpuVisibleVidmem(m_renderer->DX12GetDevice(), &totalBytes, &freeBytes);
+
+			if (result == NvAPI_Status::NVAPI_OK && totalBytes > 1000000 && freeBytes > m_size)
+			{
+				bool			   supported		= false;
+				NV_RESOURCE_PARAMS nvResourceParams = {};
+
+				nvResourceParams.NVResourceFlags = NV_D3D12_RESOURCE_FLAG_CPUVISIBLE_VIDMEM;
+
+				auto hp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+				result	= NvAPI_D3D12_CreateCommittedResource(m_renderer->DX12GetDevice(), &hp, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, NULL, &nvResourceParams, IID_PPV_ARGS(&m_cpuVisibleResource), NULL);
+
+				if (result != NvAPI_Status::NVAPI_OK)
+				{
+					// Fallback
+					m_type = GPUResourceType::GPUOnlyWithStaging;
+				}
+				else
+				{
+					try
+					{
+						CD3DX12_RANGE readRange(0, 0);
+						ThrowIfFailed(m_cpuVisibleResource->Map(0, &readRange, reinterpret_cast<void**>(&m_mappedData)));
+						NAME_DX12_OBJECT(m_cpuVisibleResource, m_name);
+						return;
+					}
+					catch (HrException e)
+					{
+						LINA_TRACE("[DX12GPUResource] -> Map failed: {0}", e.what());
+					}
+				}
+			}
+			else
+			{
+				// Fallback
+				m_type = GPUResourceType::GPUOnlyWithStaging;
+			}
+		}
+
 		if (m_type == GPUResourceType::GPUOnlyWithStaging)
 		{
 			allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
@@ -120,9 +181,7 @@ namespace Lina
 			LINA_CRITICAL("[Renderer] -> Exception when creating a buffer resource! {0}", e.what());
 		}
 
-#ifndef LINA_PRODUCTION_BUILD
-		m_allocation->GetResource()->SetName(m_name);
-#endif
+		NAME_DX12_OBJECT(m_allocation->GetResource(), m_name);
 	}
 
 	void DX12GPUResource::Cleanup()
@@ -130,11 +189,45 @@ namespace Lina
 		if (m_mappedData != nullptr)
 		{
 			CD3DX12_RANGE readRange(0, 0);
-			m_allocation->GetResource()->Unmap(0, &readRange);
+			m_cpuVisibleResource->Unmap(0, &readRange);
 			m_mappedData = nullptr;
+
+			m_cpuVisibleResource.Reset();
+		}
+		else
+		{
+			m_allocation->Release();
+			m_allocation = nullptr;
+		}
+	}
+
+	void DX12GPUResource::MapBufferData(const void* data, size_t sz, size_t padding)
+	{
+		const size_t targetSize = sz + padding;
+
+		if (targetSize > m_size)
+		{
+			const size_t storedSize = m_size;
+			void*		 copyData	= nullptr;
+			if (padding != 0)
+				copyData = malloc(storedSize);
+
+			if (m_requireJoinBeforeUpdating)
+				m_renderer->Join();
+
+			Cleanup();
+			m_size = targetSize;
+			CreateResource();
+
+			if (padding != 0)
+			{
+				MEMCPY(m_mappedData, copyData, storedSize);
+				free(copyData);
+			}
 		}
 
-		m_allocation->Release();
-		m_allocation = nullptr;
+		MEMCPY(m_mappedData + padding, data, sz);
 	}
 } // namespace Lina
+
+LINA_RESTORE_VC_WARNING()

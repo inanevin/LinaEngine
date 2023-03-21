@@ -320,7 +320,9 @@ target_link_libraries(${PROJECT_NAME}
 
 if(${LINA_GRAPHICS_DX12})
 include(../_Dependencies/dxc/link.cmake)
+include(../_Dependencies/nvapi/link.cmake)
 link_dxc()
+link_nvapi()
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC d3d12.lib
 	PUBLIC dxgi.lib

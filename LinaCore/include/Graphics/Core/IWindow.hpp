@@ -61,7 +61,6 @@ namespace Lina
 		virtual void SetFocus(bool hasFocus)															= 0;
 		virtual void SetAlpha(float alpha)																= 0;
 
-	protected:
 		virtual void SetToWorkingArea() = 0;
 		virtual void SetToFullscreen()	= 0;
 

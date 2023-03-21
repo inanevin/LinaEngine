@@ -93,12 +93,12 @@ namespace Lina
 		m_windows.clear();
 	}
 
-	void WindowManager::CreateAppWindow(StringID sid, WindowStyle style, const char* title, const Vector2i& pos, const Vector2i& size)
+	IWindow* WindowManager::CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size)
 	{
 		if (sid != LINA_MAIN_SWAPCHAIN && m_windows.empty())
 		{
-			LINA_ERR("[Window Manager] -> First window created needs to have default Lina Main Swapchain SID!");
-			return;
+			LINA_WARN("[Window Manager] -> First window created needs to have default Lina Main Swapchain SID, overriding SID!");
+			sid = LINA_MAIN_SWAPCHAIN;
 		}
 
 		IWindow* w		= new PlatformWindow(this, m_system, sid);
@@ -109,14 +109,15 @@ namespace Lina
 
 		if (w->Create(parent, title, pos, size))
 		{
-			w->SetStyle(style);
-
 			Bitmask16 mask = 0;
 			m_gfxManager->CreateSurfaceRenderer(sid, w, w->GetSize(), mask);
 			m_windows[sid] = w;
+			return w;
 		}
 		else
 			delete w;
+
+		return nullptr;
 	}
 
 	void WindowManager::DestroyAppWindow(StringID sid)

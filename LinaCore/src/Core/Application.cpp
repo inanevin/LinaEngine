@@ -35,6 +35,7 @@ SOFTWARE.
 #include "System/IPlugin.hpp"
 #include "Core/CoreResourcesRegistry.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Core/IWindow.hpp"
 
 namespace Lina
 {
@@ -61,7 +62,8 @@ namespace Lina
 		{
 			m_engine.GetGfxManager().PreInitialize(initInfo);
 			m_engine.GetWindowManager().PreInitialize(initInfo);
-			m_engine.GetWindowManager().CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.windowStyle, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
+			auto window = m_engine.GetWindowManager().CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
+			window->SetStyle(initInfo.windowStyle);
 		}
 
 		m_engine.Initialize(initInfo);

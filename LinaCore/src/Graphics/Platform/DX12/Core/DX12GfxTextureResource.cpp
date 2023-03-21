@@ -106,7 +106,7 @@ namespace Lina
 		}
 		else if (m_type == TextureResourceType::Texture2DDefault)
 		{
-			state = D3D12_RESOURCE_STATE_COPY_DEST;
+			state = D3D12_RESOURCE_STATE_COMMON;
 		}
 		else if (m_type == TextureResourceType::Texture2DRenderTargetColor)
 		{

@@ -28,39 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef SplashScreenGUIDrawer_HPP
-#define SplashScreenGUIDrawer_HPP
+#ifndef ProgressBar_HPP
+#define ProgressBar_HPP
 
-#include "EditorGUIDrawer.hpp"
-#include "Event/ISystemEventListener.hpp"
-#include "Data/Mutex.hpp"
-#include "Widgets/ProgressBar.hpp"
+namespace Lina
+{
+	class Vector2;
+}
 
 namespace Lina::Editor
 {
-	class Editor;
-
-	class SplashScreenGUIDrawer : public EditorGUIDrawer, public ISystemEventListener
+	class ProgressBar
 	{
 	public:
-		SplashScreenGUIDrawer(Editor* editor, Lina::SurfaceRenderer* sf);
-		virtual ~SplashScreenGUIDrawer();
+		ProgressBar()		   = default;
+		virtual ~ProgressBar() = default;
 
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
-
-		virtual Bitmask32 GetSystemEventMask()
-		{
-			return EVS_ResourceLoaded;
-		}
-
-		virtual void DrawGUI(int threadID) override;
-
-	private:
-		Editor*		m_editor = nullptr;
-		Mutex		m_mtx;
-		ProgressBar m_progressBar;
-		int			m_loadedResources = 0;
-		float		m_progress		  = 0.0f;
+		void Draw(const Vector2& start, const Vector2& size, float progress);
 	};
 } // namespace Lina::Editor
 

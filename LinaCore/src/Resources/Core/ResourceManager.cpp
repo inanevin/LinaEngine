@@ -75,7 +75,7 @@ namespace Lina
 				FileSystem::CreateFolderInPath("Resources/Editor/Metacache");
 
 			for (auto& ident : identifiers)
-				loadTask->tf.emplace([ident, this]() {
+				loadTask->tf.emplace([ident, this, loadTask]() {
 					auto&	   cache = m_caches.at(ident.tid);
 					IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
 
@@ -131,6 +131,7 @@ namespace Lina
 					Event			   data;
 					ResourceIdentifier copy = ident;
 					data.pParams[0]			= &copy.path;
+					data.pParams[1]			= static_cast<void*>(loadTask);
 					data.iParams[0]			= ident.sid;
 					data.iParams[1]			= ident.tid;
 					DispatchEvent(EVS_ResourceLoaded, data);
@@ -156,7 +157,7 @@ namespace Lina
 				int loadedResources	   = 0;
 				int totalResourcesSize = static_cast<int>(resourcesToLoad.size());
 
-				auto loadFunc = [this](IStream stream, ResourceIdentifier ident) {
+				auto loadFunc = [this](IStream stream, ResourceIdentifier ident, ResourceLoadTask* loadTask) {
 					IStream	   load	 = stream;
 					auto&	   cache = m_caches.at(ident.tid);
 					IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
@@ -166,6 +167,7 @@ namespace Lina
 
 					Event data;
 					data.pParams[0] = &ident.path;
+					data.pParams[1] = static_cast<void*>(loadTask);
 					data.iParams[0] = ident.sid;
 					data.iParams[1] = ident.tid;
 					DispatchEvent(EVS_ResourceLoaded, data);
@@ -188,7 +190,7 @@ namespace Lina
 						IStream stream;
 						stream.Create(package.GetDataCurrent(), size);
 						ResourceIdentifier ident = *it;
-						loadTask->tf.emplace([loadFunc, stream, ident]() { loadFunc(stream, ident); });
+						loadTask->tf.emplace([loadFunc, stream, ident, loadTask]() { loadFunc(stream, ident, loadTask); });
 
 						loadedResources++;
 					};

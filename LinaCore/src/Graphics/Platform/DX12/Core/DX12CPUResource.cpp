@@ -120,9 +120,7 @@ namespace Lina
 			LINA_TRACE("[DX12CPUResource] -> BufferData failed: {0}", e.what());
 		}
 
-#ifndef LINA_PRODUCTION_BUILD
-		m_allocation->GetResource()->SetName(m_name);
-#endif
+		NAME_DX12_OBJECT(m_allocation->GetResource(), m_name);
 	}
 
 	void DX12CPUResource::Cleanup()

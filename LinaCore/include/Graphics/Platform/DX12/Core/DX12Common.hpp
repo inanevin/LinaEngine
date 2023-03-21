@@ -129,7 +129,8 @@ namespace Lina
 	};
 
 #ifndef LINA_PRODUCTION_BUILD
-#define NAME_DX12_OBJECT(x, NAME) x->SetName(L#NAME)
+#define NAME_DX12_OBJECT_CSTR(x, NAME) x->SetName(L#NAME)
+#define NAME_DX12_OBJECT(x, NAME) x->SetName(NAME)
 #else
 #define NAME_D3D12_OBJECT(x)
 #define NAME_D3D12_OBJECT_INDEXED(x, n)

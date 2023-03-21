@@ -459,7 +459,7 @@ inline bool D3DX12GetCopyableFootprints(
         UINT32 MinPlanePitchWidth, PlaneWidth, PlaneHeight;
         D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::GetPlaneSubsampledSizeAndFormatForCopyableLayout(PlaneSlice, Format, (UINT)Width, Height, /*_Out_*/ PlaneFormat, /*_Out_*/ MinPlanePitchWidth, /* _Out_ */ PlaneWidth, /*_Out_*/ PlaneHeight);
 
-        D3D12_SUBRESOURCE_FOOTPRINT LocalPlacement;
+        D3D12_SUBRESOURCE_FOOTPRINT LocalPlacement = {};
         auto& Placement = pLayouts ? pLayouts[uSubRes].Footprint : LocalPlacement;
         Placement.Format = PlaneFormat;
         Placement.Width = PlaneWidth;

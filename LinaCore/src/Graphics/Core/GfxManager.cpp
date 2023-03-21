@@ -79,7 +79,7 @@ namespace Lina
 			LinaVG::Config.displayHeight		  = 0;
 			LinaVG::Config.globalFramebufferScale = 1.0f;
 			LinaVG::Config.globalAAMultiplier	  = 1.0f;
-			LinaVG::Config.aaEnabled			  = true;
+			LinaVG::Config.aaEnabled			  = false;
 			LinaVG::Config.textCachingEnabled	  = true;
 			LinaVG::Config.textCachingSDFEnabled  = true;
 			LinaVG::Config.textCacheReserve		  = 10000;

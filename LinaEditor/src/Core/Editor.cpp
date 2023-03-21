@@ -110,17 +110,16 @@ namespace Lina::Editor
 		}
 	}
 
-	void Editor::PrepareSplashScreen()
+	void Editor::BeginSplashScreen()
 	{
 		auto sf				  = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		m_mainWindowGUIDrawer = new SplashScreenGUIDrawer(sf);
+		m_mainWindowGUIDrawer = new SplashScreenGUIDrawer(this, sf);
 		sf->SetGUIDrawer(m_mainWindowGUIDrawer);
 	}
 
 	void Editor::EndSplashScreen()
 	{
 		auto sf = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		sf->SetGUIDrawer(nullptr);
 		delete m_mainWindowGUIDrawer;
 		m_mainWindowGUIDrawer = new MainWindowGUIDrawer(sf);
 		sf->SetGUIDrawer(m_mainWindowGUIDrawer);

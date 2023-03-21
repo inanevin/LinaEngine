@@ -51,10 +51,35 @@ namespace Lina
 #define IS_ODD(num)								((num)&1)
 #define IS_EVEN(num)							(!IS_ODD((num)))
 #define IS_BETWEEN(numToTest, numLow, numHigh)	((unsigned char)((numToTest) >= (numLow) && (numToTest) <= (numHigh)))
-#define MAKE_EVEN_LB(X) if(X % 2 != 0) X--;
-#define MAKE_EVEN_UB(X) if(X % 2 != 0) X++;
-#define MAKE_ODD_LB(X) if(X % 2 == 0) X--;
-#define MAKE_ODD_UB(X) if(X % 2 == 0) X-++;
+#define MAKE_EVEN_LB(X)                                                                                                                                                                                                                                            \
+	if (X % 2 != 0)                                                                                                                                                                                                                                                \
+		X--;
+#define MAKE_EVEN_UB(X)                                                                                                                                                                                                                                            \
+	if (X % 2 != 0)                                                                                                                                                                                                                                                \
+		X++;
+#define MAKE_ODD_LB(X)                                                                                                                                                                                                                                             \
+	if (X % 2 == 0)                                                                                                                                                                                                                                                \
+		X--;
+#define MAKE_ODD_UB(X)                                                                                                                                                                                                                                             \
+	if (X % 2 == 0)                                                                                                                                                                                                                                                \
+		X - ++;
+
+#ifndef LINA_DISABLE_VC_WARNING
+#if defined(_MSC_VER)
+#define LINA_DISABLE_VC_WARNING(w) __pragma(warning(push)) __pragma(warning(disable : w))
+#else
+#define LINA_DISABLE_VC_WARNING(w)
+#endif
+#endif
+
+#ifndef LINA_RESTORE_VC_WARNING
+#if defined(_MSC_VER)
+#define LINA_RESTORE_VC_WARNING() __pragma(warning(pop))
+#else
+#define LINA_RESTORE_VC_WARNING()
+#endif
+#endif
+
 
 } // namespace Lina
 

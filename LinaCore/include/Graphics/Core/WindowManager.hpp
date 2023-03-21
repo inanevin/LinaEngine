@@ -58,7 +58,7 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo){};
 		virtual void Shutdown() override;
 
-		void		CreateAppWindow(StringID sid, WindowStyle style, const char* title, const Vector2i& pos, const Vector2i& size);
+		IWindow*	CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size);
 		void		DestroyAppWindow(StringID sid);
 		IWindow*	GetWindow(StringID sid);
 		void		OnWindowFocused(StringID sid);

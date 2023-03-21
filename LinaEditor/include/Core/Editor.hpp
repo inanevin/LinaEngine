@@ -50,7 +50,7 @@ namespace Lina::Editor
 		virtual ~Editor() = default;
 
 		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
-		void PrepareSplashScreen();
+		void BeginSplashScreen();
 		void EndSplashScreen();
 
 		// Inherited via ISubsystem
@@ -58,6 +58,7 @@ namespace Lina::Editor
 		virtual void Shutdown() override;
 
 	private:
+		Mutex			 m_mtx;
 		EditorGUIDrawer* m_mainWindowGUIDrawer = nullptr;
 	};
 } // namespace Lina::Editor

@@ -57,6 +57,8 @@ SOFTWARE.
 
 using Microsoft::WRL::ComPtr;
 
+LINA_DISABLE_VC_WARNING(6387);
+
 namespace Lina
 {
 	DWORD msgCallback = 0;
@@ -180,8 +182,8 @@ namespace Lina
 				queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 				ThrowIfFailed(m_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&m_copyQueue)));
 
-				NAME_DX12_OBJECT(m_graphicsQueue, "Graphics Queue");
-				NAME_DX12_OBJECT(m_copyQueue, "Copy Queue");
+				NAME_DX12_OBJECT(m_graphicsQueue, L"Graphics Queue");
+				NAME_DX12_OBJECT(m_copyQueue, L"Copy Queue");
 			}
 
 			// Heaps
@@ -190,8 +192,8 @@ namespace Lina
 				{
 					m_gpuBufferHeap[i]	= new DX12GPUHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 100);
 					m_gpuSamplerHeap[i] = new DX12GPUHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 100);
-					NAME_DX12_OBJECT(m_gpuBufferHeap[i]->GetHeap(), "Linear GPU Buffer Heap");
-					NAME_DX12_OBJECT(m_gpuSamplerHeap[i]->GetHeap(), "Linear GPU Sampler Heap");
+					NAME_DX12_OBJECT(m_gpuBufferHeap[i]->GetHeap(), L"Linear GPU Buffer Heap");
+					NAME_DX12_OBJECT(m_gpuSamplerHeap[i]->GetHeap(), L"Linear GPU Sampler Heap");
 				}
 
 				m_bufferHeap  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10);
@@ -200,11 +202,11 @@ namespace Lina
 				m_rtvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 10);
 				m_samplerHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 100);
 
-				NAME_DX12_OBJECT(m_bufferHeap->GetHeap(), "Buffer Heap");
-				NAME_DX12_OBJECT(m_textureHeap->GetHeap(), "Texture Heap");
-				NAME_DX12_OBJECT(m_dsvHeap->GetHeap(), "DSV Heap");
-				NAME_DX12_OBJECT(m_rtvHeap->GetHeap(), "RTV Heap");
-				NAME_DX12_OBJECT(m_samplerHeap->GetHeap(), "Sampler Heap");
+				NAME_DX12_OBJECT(m_bufferHeap->GetHeap(), L"Buffer Heap");
+				NAME_DX12_OBJECT(m_textureHeap->GetHeap(), L"Texture Heap");
+				NAME_DX12_OBJECT(m_dsvHeap->GetHeap(), L"DSV Heap");
+				NAME_DX12_OBJECT(m_rtvHeap->GetHeap(), L"RTV Heap");
+				NAME_DX12_OBJECT(m_samplerHeap->GetHeap(), L"Sampler Heap");
 			}
 
 			// Allocator
@@ -1615,3 +1617,5 @@ namespace Lina
 	}
 
 } // namespace Lina
+
+LINA_RESTORE_VC_WARNING()

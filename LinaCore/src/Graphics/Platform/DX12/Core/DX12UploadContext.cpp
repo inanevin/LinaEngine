@@ -44,7 +44,6 @@ namespace Lina
 	{
 		try
 		{
-
 			auto device = m_renderer->DX12GetDevice();
 			ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(m_cmdAllocator.GetAddressOf())));
 
