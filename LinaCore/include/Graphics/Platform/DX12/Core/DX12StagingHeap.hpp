@@ -46,6 +46,11 @@ namespace Lina
 		DescriptorHandle GetNewHeapHandle();
 		void			 FreeHeapHandle(DescriptorHandle handle);
 
+		inline uint32 GetActiveHandleCount() const
+		{
+			return m_activeHandleCount;
+		}
+
 	private:
 		Deque<uint32> m_freeDescriptors;
 		uint32		  m_currentDescriptorIndex = 0;

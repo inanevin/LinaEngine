@@ -45,6 +45,8 @@ namespace Lina
 		void			 Reset(uint32 newStart);
 		DescriptorHandle GetHeapHandleBlock(uint32 count);
 
+		DescriptorHandle GetOffsetedHandle(uint32 count);
+
 		virtual uint32 GetCurrentDescriptorIndex() override
 		{
 			return m_currentDescriptorIndex;
@@ -53,7 +55,6 @@ namespace Lina
 	private:
 		uint32 m_currentDescriptorIndex = 0;
 	};
-
 } // namespace Lina
 
 #endif

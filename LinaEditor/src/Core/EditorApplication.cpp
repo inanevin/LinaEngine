@@ -112,7 +112,7 @@ namespace Lina::Editor
 			if (task->id == m_loadCoreResourcesTask)
 			{
 				m_editor.EndSplashScreen();
-				m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN)->SetToWorkingArea();
+			//	m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN)->SetToWorkingArea();
 				m_systemEventMask = 0;
 			}
 		}

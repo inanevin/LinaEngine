@@ -280,12 +280,12 @@ namespace Lina
 		return it != m_coreResources.end();
 	}
 
-	Vector<IResource*> ResourceManager::GetAllResources()
+	Vector<IResource*> ResourceManager::GetAllResources(bool includeUserManagedResources)
 	{
 		Vector<IResource*> resources;
 		for (auto [tid, cache] : m_caches)
 		{
-			auto cacheResources = cache->GetAllResources();
+			auto cacheResources = cache->GetAllResources(includeUserManagedResources);
 			resources.insert(resources.end(), cacheResources.begin(), cacheResources.end());
 		}
 		return resources;

@@ -254,7 +254,6 @@ namespace Lina
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
 	{
 		PROFILER_FUNCTION();
-
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[imageIndex];
 
@@ -269,14 +268,14 @@ namespace Lina
 		{
 			m_renderer->ResetCommandList(frame.cmdAllocator, frame.cmdList);
 			m_renderer->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
-			m_renderer->BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
+			m_renderer->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
 		}
 
 		// Update scene data
 		{
 			m_renderData.gpuSceneData.ambientColor.x = SystemInfo::GetAppTimeF();
 			frame.sceneDataBuffer->BufferData(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
-			m_renderer->BindUniformBuffer(frame.cmdList, 2, frame.sceneDataBuffer);
+			m_renderer->BindUniformBuffer(frame.cmdList, GBB_SceneData, frame.sceneDataBuffer);
 		}
 
 		ResourceTransition srv2RT[2] = {{ResourceTransitionType::SRV2RT, imgData.renderTargetColor}, {ResourceTransitionType::SRV2RT, imgData.renderTargetPP}};
@@ -289,7 +288,7 @@ namespace Lina
 			{
 				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
 				frame.viewDataBuffer->BufferData(&m_renderData.gpuViewData, sizeof(GPUViewData));
-				m_renderer->BindUniformBuffer(frame.cmdList, 3, frame.viewDataBuffer);
+				m_renderer->BindUniformBuffer(frame.cmdList, GBB_ViewData, frame.viewDataBuffer);
 			}
 
 			// Update object data
@@ -310,7 +309,7 @@ namespace Lina
 
 			m_renderer->EndRenderPass(frame.cmdList);
 			m_renderer->ResourceBarrier(frame.cmdList, &rt2SRV1, 1);
-			m_renderer->PrepareRenderTargets(&imgData.renderTargetColor, 1);
+			m_renderer->BindDynamicTextures(&imgData.renderTargetColor, 1);
 		}
 
 		// Post process pass.
@@ -319,13 +318,15 @@ namespace Lina
 
 			// Draw
 			{
-				m_renderer->BindMaterial(frame.cmdList, imgData.ppMaterial, MBF_BindMaterialProperties | MBF_BindShader);
+				m_renderer->BindMaterials(&imgData.ppMaterial, 1);
+				m_renderer->BindPipeline(frame.cmdList, imgData.ppMaterial->GetShader());
+				m_renderer->SetMaterialID(frame.cmdList, imgData.ppMaterial->GetGPUBindlessIndex());
 				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
 			m_renderer->EndRenderPass(frame.cmdList);
 			m_renderer->ResourceBarrier(frame.cmdList, &rt2SRV2, 1);
-			m_renderer->PrepareRenderTargets(&imgData.renderTargetPP, 1);
+			m_renderer->BindDynamicTextures(&imgData.renderTargetPP, 1);
 		}
 
 		// Close command buffer.

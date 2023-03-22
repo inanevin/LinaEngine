@@ -30,10 +30,10 @@ LINA_PIPELINE_NOVERTEX
 
 #include "GlobalData.linashader"
 
-LINA_MATERIAL
+struct LinaShaderMaterial
 {
 	LinaTexture2D diffuse;
-}
+};
 
 struct PSInput
 {
@@ -51,6 +51,7 @@ PSInput VSMain(uint vertexID : SV_VertexID)
 
 float4 PSMain(PSInput input) : SV_TARGET
 {
-	float4 txt = Lina_SampleTexture2D(diffuse, input.uv);
+	LinaShaderMaterial mat = Lina_GetMaterial < LinaShaderMaterial > (LINA_MATID);
+	float4 txt = Lina_SampleTexture2D(mat.diffuse, input.uv);
 	return float4(txt.xyz, 1.0f);
 }

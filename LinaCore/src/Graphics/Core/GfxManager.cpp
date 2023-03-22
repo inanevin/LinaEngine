@@ -124,8 +124,8 @@ namespace Lina
 
 		// Shaders & materials
 		{
-			constexpr uint32 engineShaderCount			= 2;
-			const String	 shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader", "Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"};
+			constexpr uint32 engineShaderCount			= 1;
+			const String	 shaders[engineShaderCount] = {"Resources/Core/Shaders/LitStandard.linashader"};
 
 			for (uint32 i = 0; i < engineShaderCount; i++)
 			{
@@ -133,6 +133,7 @@ namespace Lina
 				const String   materialPath = "Resources/Core/Materials/" + FileSystem::GetFilenameOnlyFromPath(shaders[i]) + ".linamat";
 				Material*	   mat			= new Material(m_resourceManager, true, materialPath, TO_SID(materialPath));
 				mat->SetShader(shaderSID);
+				mat->SetProperty("color", Vector4::One);
 				m_engineMaterials.push_back(mat);
 			}
 		}
@@ -148,15 +149,15 @@ namespace Lina
 			camEntity->SetRotationAngles(Vector3(0, 0, 0));
 
 			testWorld->SetActiveCamera(cam);
-			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-			/// auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Sphere.fbx"_hs)->AddToWorld(testWorld);
+			auto aq	 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
 			/// auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
 
 			aq->SetPosition(Vector3(-3.5f, 0, 0));
-			// aq2->SetPosition(Vector3(-3, 0, 0));
+			aq2->SetPosition(Vector3(3, 0, 0));
 			// aq3->SetPosition(Vector3(0, 0, 0));
 			cubes.push_back(aq);
-			// cubes.push_back(aq2);
+			cubes.push_back(aq2);
 			// cubes.push_back(aq3);
 			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, m_surfaceRenderers[0], 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
@@ -220,13 +221,13 @@ namespace Lina
 		int i = 0;
 		for (auto c : cubes)
 		{
-			c->AddPosition(Vector3(delta * 0.33f, 0, 0));
+			// c->AddPosition(Vector3(delta * 0.33f, 0, 0));
+			//
+			// if (c->GetPosition().x > 3.5f)
+			//	c->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
 
-			if (c->GetPosition().x > 3.5f)
-				c->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
-
-			// c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF() * 0.2f) * 3, 0.0f, 0.0f));
-			//  c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
+			//	c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF() * 0.2f) * 3, 0.0f, 0.0f));
+			c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
 			i++;
 		}
 		if (camEntity)

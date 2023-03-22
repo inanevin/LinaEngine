@@ -67,6 +67,14 @@ namespace Lina
 		return newHandle;
 	}
 
+	DescriptorHandle DX12GPUHeap::GetOffsetedHandle(uint32 count)
+	{
+		DescriptorHandle handle;
+		handle.SetGPUHandle({GetHeapGPUStart().ptr + count * GetDescriptorSize()});
+		handle.SetCPUHandle({GetHeapCPUStart().ptr + count * GetDescriptorSize()});
+		return handle;
+	}
+
 	void DX12GPUHeap::Reset()
 	{
 		m_currentDescriptorIndex = 0;

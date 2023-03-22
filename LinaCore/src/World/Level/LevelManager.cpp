@@ -62,7 +62,7 @@ namespace Lina
 		Vector<ResourceIdentifier> resourcesToUnload;
 		Vector<ResourceIdentifier> resourcesToLoad;
 		Vector<ResourceIdentifier> levelResourcesToLoad = m_currentLevel->GetUsedResources();
-		Vector<IResource*>		   allResources			= rm->GetAllResources();
+		Vector<IResource*>		   allResources			= rm->GetAllResources(true);
 
 		for (auto& res : allResources)
 		{

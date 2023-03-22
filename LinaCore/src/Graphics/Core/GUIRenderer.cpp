@@ -142,16 +142,16 @@ namespace Lina
 
 		// View data & pipeline
 		{
-			m_renderer->BindMaterial(cmdList, data.guiMaterial, MBF_BindShader);
+			//m_renderer->BindMaterial(cmdList, data.guiMaterial, MBF_BindShader);
 			frame.viewData.proj = m_projection;
 			frame.viewDataBuffer->BufferData(&frame.viewData, sizeof(GPUViewData));
-			m_renderer->BindUniformBuffer(cmdList, 3, frame.viewDataBuffer);
+			m_renderer->BindUniformBuffer(cmdList, GBB_ViewData, frame.viewDataBuffer);
 		}
 
 		for (auto& req : frame.drawRequests)
 		{
 			AssignStandardMaterial(data.guiMaterial, req.materialDefinition);
-			m_renderer->BindMaterial(cmdList, data.guiMaterial, MBF_BindMaterialProperties);
+			//m_renderer->BindMaterial(cmdList, data.guiMaterial, MBF_BindMaterialProperties);
 			m_renderer->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
 		}
 

@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Resources/Core/IResource.hpp"
 #include "Graphics/Resource/MaterialProperty.hpp"
+#include "Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {
@@ -64,6 +65,11 @@ namespace Lina
 			return m_gpuHandle;
 		}
 
+		inline int32 GetGPUBindlessIndex() const
+		{
+			return m_gpuBindlessIndex;
+		}
+
 		inline uint32 GetTotalAlignedSize() const
 		{
 			return m_totalAlignedSize;
@@ -72,6 +78,11 @@ namespace Lina
 		inline Shader* GetShader() const
 		{
 			return m_shader;
+		}
+
+		inline bool IsDirty(uint32 frameIndex) const
+		{
+			return m_isDirty[frameIndex];
 		}
 
 		template <typename T> bool SetProperty(uint32 index, T value)
@@ -84,7 +95,10 @@ namespace Lina
 
 			MaterialProperty<T>* p = static_cast<MaterialProperty<T>*>(m_properties[index]);
 			p->SetValue(value);
-			UpdateBuffers();
+
+			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+				m_isDirty[i] = true;
+
 			return true;
 		}
 
@@ -111,9 +125,6 @@ namespace Lina
 			return SetProperty(static_cast<uint32>(selected), value);
 		}
 
-	private:
-		void UpdateBuffers();
-
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
@@ -125,13 +136,17 @@ namespace Lina
 		uint32 GetPropertiesTotalAlignedSize();
 
 	private:
+		friend class Renderer;
+
 		Renderer*					  m_renderer = nullptr;
 		Vector<MaterialPropertyBase*> m_properties;
 		int32						  m_gpuHandle		  = -1;
+		int32						  m_gpuBindlessIndex  = -1;
 		StringID					  m_shaderHandle	  = 0;
 		Shader*						  m_shader			  = nullptr;
 		uint32						  m_totalPropertySize = 0;
 		uint32						  m_totalAlignedSize  = 0;
+		bool						  m_isDirty[FRAMES_IN_FLIGHT];
 	};
 
 } // namespace Lina

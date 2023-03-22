@@ -233,7 +233,7 @@ namespace Lina
 				imgData.offscreenMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
 
 			if (imgData.targetOffscreenTexture == nullptr)
-				imgData.offscreenMaterial->SetProperty("diffuse", "Resources/Core/Textures/Logo_Colored_1024.png"_hs);
+				imgData.offscreenMaterial->SetProperty("diffuse", "Resources/Core/Textures/LogoWithText.png"_hs);
 			else
 				imgData.offscreenMaterial->SetProperty("diffuse", imgData.targetOffscreenTexture->GetSID());
 
@@ -244,7 +244,7 @@ namespace Lina
 		{
 			m_renderer->ResetCommandList(frame.cmdAllocator, frame.cmdList);
 			m_renderer->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
-			m_renderer->BindUniformBuffer(frame.cmdList, 0, m_gfxManager->GetCurrentGlobalDataResource());
+			m_renderer->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
 		}
 
 		// Main Render Pass
@@ -261,22 +261,24 @@ namespace Lina
 			if (true)
 			{
 				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
-				m_renderer->BindMaterial(frame.cmdList, imgData.offscreenMaterial, MBF_BindMaterialProperties | MBF_BindShader);
+				m_renderer->BindPipeline(frame.cmdList, imgData.offscreenMaterial->GetShader());
+				m_renderer->BindMaterials(&imgData.offscreenMaterial, 1);
+				m_renderer->SetMaterialID(frame.cmdList, imgData.offscreenMaterial->GetGPUBindlessIndex());
 				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
-			if (m_guiDrawer != nullptr)
-			{
-				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
-				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
-
-				// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
-				{
-					m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
-					LinaVG::Render(m_surfaceRendererIndex);
-					m_guiRenderer->Render(frame.cmdList);
-				}
-			}
+			// if (m_guiDrawer != nullptr)
+			//{
+			//	m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
+			//	m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
+			//
+			//	// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
+			//	{
+			//		m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
+			//		LinaVG::Render(m_surfaceRendererIndex);
+			//		m_guiRenderer->Render(frame.cmdList);
+			//	}
+			// }
 			m_renderer->EndRenderPass(frame.cmdList);
 			m_renderer->ResourceBarrier(frame.cmdList, &rt2Present, 1);
 		}

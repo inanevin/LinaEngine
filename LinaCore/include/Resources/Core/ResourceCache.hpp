@@ -55,10 +55,9 @@ namespace Lina
 		virtual IResource*		   CreateResource(StringID sid, const String& path, ResourceManager* rm) = 0;
 		virtual IResource*		   GetResource(StringID sid)											 = 0;
 		virtual void			   DestroyResource(StringID sid)										 = 0;
-		virtual Vector<IResource*> GetAllResources() const												 = 0;
-
-		void AddUserManaged(IResource* res);
-		void RemoveUserManaged(IResource* res);
+		virtual Vector<IResource*> GetAllResources(bool includeUserManagedResources) const				 = 0;
+		virtual void			   AddUserManaged(IResource* res)										 = 0;
+		virtual void			   RemoveUserManaged(IResource* res)									 = 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -66,9 +65,8 @@ namespace Lina
 		}
 
 	protected:
-		HashMap<StringID, IResource*> m_userManagedResources;
-		PackageType					  m_packageType = PackageType::Default;
-		Vector<String>				  m_extensions;
+		PackageType	   m_packageType = PackageType::Default;
+		Vector<String> m_extensions;
 	};
 
 	template <typename T> class ResourceCache : public ResourceCacheBase
@@ -127,24 +125,54 @@ namespace Lina
 			return it->second;
 		}
 
-		Vector<IResource*> GetAllResources() const override
+		Vector<IResource*> GetAllResources(bool includeUserManagedResources) const override
 		{
 			Vector<IResource*> resources;
+			resources.reserve(m_resources.size());
 
 			for (auto [sid, res] : m_resources)
 				resources.push_back(res);
+
+			if (includeUserManagedResources)
+			{
+				for (auto [sid, res] : m_userManagedResources)
+					resources.push_back(res);
+			}
 
 			return resources;
 		}
 
-		Vector<T*> GetAllResourcesRaw() const
+		Vector<T*> GetAllResourcesRaw(bool includeUserManagedResources) const 
 		{
 			Vector<T*> resources;
+			resources.reserve(m_resources.size());
 
 			for (auto [sid, res] : m_resources)
 				resources.push_back(res);
 
+			if (includeUserManagedResources)
+			{
+				for (auto [sid, res] : m_userManagedResources)
+					resources.push_back(res);
+			}
+
 			return resources;
+		}
+
+		virtual void AddUserManaged(IResource* res) override
+		{
+			if (!res->IsUserManaged())
+			{
+				LINA_ERR("[Resource Cache] -> Resource is not created as user-managed!");
+				return;
+			}
+
+			m_userManagedResources[res->GetSID()] = static_cast<T*>(res);
+		}
+
+		virtual void RemoveUserManaged(IResource* res) override
+		{
+			m_userManagedResources.erase(m_userManagedResources.find(res->GetSID()));
 		}
 
 	private:
@@ -166,6 +194,7 @@ namespace Lina
 		Mutex				  m_mtx;
 		HashMap<StringID, T*> m_resources;
 		MemoryAllocatorPool	  m_allocatorPool;
+		HashMap<StringID, T*> m_userManagedResources;
 	};
 
 } // namespace Lina

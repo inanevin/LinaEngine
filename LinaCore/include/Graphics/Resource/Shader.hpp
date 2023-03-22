@@ -51,22 +51,22 @@ namespace Lina
 
 		const ShaderByteCode& GetCompiledCode(ShaderStage stage) const;
 
-		inline Bitmask16 GetDrawPassMask()
+		inline Bitmask16 GetDrawPassMask() const
 		{
 			return m_drawPassMask;
 		}
 
-		inline const Vector<MaterialPropertyBase*>& GetProperties()
+		inline const Vector<MaterialPropertyBase*>& GetProperties() const
 		{
 			return m_properties;
 		}
 
-		inline const Vector<MaterialPropertyBase*>& GetTextures()
+		inline const Vector<MaterialPropertyBase*>& GetTextures() const
 		{
 			return m_textures;
 		}
 
-		inline int32 GetGPUHandle()
+		inline int32 GetGPUHandle() const
 		{
 			return m_gpuHandle;
 		}
@@ -81,7 +81,7 @@ namespace Lina
 			return m_materialBindings;
 		}
 
-		inline PipelineType GetPipelineType()
+		inline PipelineType GetPipelineType() const
 		{
 			return m_pipelineType;
 		}
@@ -95,6 +95,8 @@ namespace Lina
 		virtual void Flush() override;
 
 	private:
+		friend class Renderer;
+
 		Renderer*							 m_renderer = nullptr;
 		Vector<MaterialPropertyBase*>		 m_properties;
 		Vector<MaterialPropertyBase*>		 m_textures;

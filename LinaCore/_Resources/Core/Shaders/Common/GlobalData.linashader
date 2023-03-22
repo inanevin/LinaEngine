@@ -40,11 +40,13 @@ cbuffer LinaGlobal : register(b0)
 struct IndirectConstant
 {
 	uint instanceID;
+	uint materialID;
 };
 
 ConstantBuffer<IndirectConstant> IndirectConstants : register(b1);
 				
 #define LINA_INSTANCEID IndirectConstants.instanceID
+#define LINA_MATID IndirectConstants.materialID
 
 struct Light
 {
@@ -88,17 +90,25 @@ struct LinaTexture2D
 	uint samplerIndex;
 };
 
-StructuredBuffer<ObjectData> Objects : register(t0, space1);
-SamplerState Sampler2DTable[] : register(s0, space0);
 Texture2D Texture2DTable[] : register(t0, space0);
+StructuredBuffer<ObjectData> Objects : register(t0, space1);
+ByteAddressBuffer MaterialTable[] : register(t0, space2);
+SamplerState Sampler2DTable[] : register(s0, space0);
 SamplerState StaticSampler : register(s0, space1);
 
-#define LINA_OBJECTS Objects
-#define LINA_TEXTURES Texture2DTable
-#define LINA_SAMPLERS Sampler2DTable
 
 float4 Lina_SampleTexture2D(LinaTexture2D texture, float2 uv)
 {
 	return Texture2DTable[texture.textureIndex].Sample(Sampler2DTable[texture.samplerIndex], uv);
 }
 
+template<typename T>
+T Lina_GetMaterial(uint matID)
+{
+	return MaterialTable[matID].Load<T> (0);
+}
+
+ObjectData Lina_GetObject(uint instanceID)
+{
+	return Objects[instanceID];
+}

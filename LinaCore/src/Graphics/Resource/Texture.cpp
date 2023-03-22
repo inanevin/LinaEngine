@@ -41,9 +41,10 @@ namespace Lina
 {
 	Texture::Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>())
 	{
-		m_renderer	 = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
-		m_samplerSID = DEFAULT_SAMPLER_SID;
-		m_sampler	 = nullptr; // will be loaded later
+		m_renderer	   = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
+		m_samplerSID   = DEFAULT_SAMPLER_SID;
+		m_sampler	   = nullptr; // will be loaded later
+		m_resourceType = TextureResourceType::Texture2DDefault;
 	}
 
 	Texture::Texture(ResourceManager* rm, const UserGeneratedTextureData& textureData) : IResource(rm, true, textureData.path, textureData.sid, GetTypeID<Texture>())
@@ -54,6 +55,7 @@ namespace Lina
 		m_destroyPixelsAfterUpload = textureData.destroyPixelBufferAfterUpload;
 		m_samplerSID			   = textureData.targetSampler;
 		m_sampler				   = nullptr; // will be loaded later
+		m_resourceType			   = textureData.resourceType;
 		CheckFormat(m_channels);
 		m_metadata.SetUInt8("Format"_hs, static_cast<uint8>(textureData.format));
 		m_metadata.SetUInt8("ImageTiling"_hs, static_cast<uint8>(textureData.tiling));
@@ -168,7 +170,6 @@ namespace Lina
 		}
 
 		ImageGenerateRequest req;
-		req.type = TextureResourceType::Texture2DDefault;
 
 		if (m_destroyPixelsAfterUpload)
 		{
@@ -186,17 +187,12 @@ namespace Lina
 			};
 		}
 
-		GenerateImage(req);
+		m_renderer->GenerateImage(this, req);
 	}
 
 	void Texture::BatchLoaded()
 	{
 		SetSampler(m_samplerSID);
-	}
-
-	void Texture::GenerateImage(ImageGenerateRequest req)
-	{
-		m_gpuHandle = m_renderer->GenerateImage(this, req);
 	}
 
 	void Texture::SetSampler(StringID samplerSID)

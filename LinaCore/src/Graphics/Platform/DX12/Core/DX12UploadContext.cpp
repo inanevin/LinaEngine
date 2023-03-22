@@ -285,7 +285,7 @@ namespace Lina
 			D3D12_SUBRESOURCE_DATA textureData = {};
 			textureData.pData				   = data;
 			textureData.RowPitch			   = width * channels;
-			textureData.SlicePitch			   = ALIGN_SIZE_POW(textureData.RowPitch * height, req.targetResource->GetRequiredAlignment());
+			textureData.SlicePitch			   = static_cast<LONG_PTR>(ALIGN_SIZE_POW(textureData.RowPitch * height, req.targetResource->GetRequiredAlignment()));
 			allData.push_back(textureData);
 		};
 

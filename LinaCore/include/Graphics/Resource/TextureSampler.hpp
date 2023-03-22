@@ -46,14 +46,19 @@ namespace Lina
 
 		void SetSamplerData(const SamplerData& data);
 
-		inline const SamplerData& GetSamplerData()
+		inline const SamplerData& GetSamplerData() const
 		{
 			return m_samplerData;
 		}
 
-		inline uint32 GetGPUHandle()
+		inline int32 GetGPUHandle() const
 		{
 			return m_gpuHandle;
+		}
+
+		inline int32 GetGPUBindlessIndex() const
+		{
+			return m_gpuBindlessIndex;
 		}
 
 	protected:
@@ -61,9 +66,13 @@ namespace Lina
 		virtual void Upload() override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
+
 	private:
-		uint32		m_gpuHandle = 0;
-		Renderer*	m_renderer	= nullptr;
+		friend class Renderer;
+
+		int32		m_gpuHandle		   = -1;
+		int32		m_gpuBindlessIndex = -1;
+		Renderer*	m_renderer		   = nullptr;
 		SamplerData m_samplerData;
 	};
 } // namespace Lina

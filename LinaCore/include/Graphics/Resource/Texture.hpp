@@ -41,15 +41,16 @@ namespace Lina
 
 	struct UserGeneratedTextureData
 	{
-		String		path						  = "";
-		StringID	sid							  = 0;
-		Extent3D	extent						  = Extent3D();
-		Format		format						  = Format::R32G32B32A32_SFLOAT;
-		StringID	targetSampler				  = 0;
-		ImageTiling tiling						  = ImageTiling::Optimal;
-		int			channels					  = 4;
-		bool		createPixelBuffer			  = false;
-		bool		destroyPixelBufferAfterUpload = true;
+		TextureResourceType resourceType				  = TextureResourceType::Texture2DDefault;
+		String				path						  = "";
+		StringID			sid							  = 0;
+		Extent3D			extent						  = Extent3D();
+		Format				format						  = Format::R32G32B32A32_SFLOAT;
+		StringID			targetSampler				  = 0;
+		ImageTiling			tiling						  = ImageTiling::Optimal;
+		int					channels					  = 4;
+		bool				createPixelBuffer			  = false;
+		bool				destroyPixelBufferAfterUpload = true;
 	};
 
 	class Texture : public IResource
@@ -69,7 +70,6 @@ namespace Lina
 		virtual ~Texture();
 
 		virtual void Upload() override;
-		void		 GenerateImage(ImageGenerateRequest req);
 		void		 SetSampler(StringID samplerSID);
 
 		inline const Extent3D& GetExtent() const
@@ -77,27 +77,32 @@ namespace Lina
 			return m_extent;
 		}
 
-		inline int32 GetGPUHandle()
+		inline int32 GetGPUHandle() const
 		{
 			return m_gpuHandle;
 		}
 
-		inline uint32 GetMipLevels()
+		inline int32 GetGPUBindlessIndex() const
+		{
+			return m_gpuBindlessIndex;
+		}
+
+		inline uint32 GetMipLevels() const
 		{
 			return m_mipLevels;
 		}
 
-		inline uint32 GetChannels()
+		inline uint32 GetChannels() const
 		{
 			return m_channels;
 		}
 
-		inline StringID GetSampler()
+		inline StringID GetSampler() const
 		{
 			return m_samplerSID;
 		}
 
-		inline const Vector<Mipmap>& GetMipmaps()
+		inline const Vector<Mipmap>& GetMipmaps() const
 		{
 			return m_mipmaps;
 		}
@@ -105,6 +110,11 @@ namespace Lina
 		inline unsigned char* GetPixels()
 		{
 			return m_pixels;
+		}
+
+		inline TextureResourceType GetResourceType() const
+		{
+			return m_resourceType;
 		}
 
 	protected:
@@ -119,17 +129,21 @@ namespace Lina
 		void GenerateMipmaps();
 
 	private:
-		bool			m_destroyPixelsAfterUpload = true;
-		StringID		m_samplerSID			   = 0;
-		TextureSampler* m_sampler				   = nullptr;
-		Renderer*		m_renderer				   = nullptr;
-		bool			m_pixelsLoadedFromStream   = false;
-		Extent3D		m_extent;
-		uint32			m_mipLevels = 1;
-		uint32			m_channels	= 0;
-		int32			m_gpuHandle = -1;
-		Vector<Mipmap>	m_mipmaps;
-		unsigned char*	m_pixels = nullptr;
+		friend class Renderer;
+
+		TextureResourceType m_resourceType			   = TextureResourceType::Texture2DDefault;
+		bool				m_destroyPixelsAfterUpload = true;
+		StringID			m_samplerSID			   = 0;
+		TextureSampler*		m_sampler				   = nullptr;
+		Renderer*			m_renderer				   = nullptr;
+		bool				m_pixelsLoadedFromStream   = false;
+		Extent3D			m_extent;
+		uint32				m_mipLevels		   = 1;
+		uint32				m_channels		   = 0;
+		int32				m_gpuHandle		   = -1;
+		int32				m_gpuBindlessIndex = -1;
+		Vector<Mipmap>		m_mipmaps;
+		unsigned char*		m_pixels = nullptr;
 	};
 } // namespace Lina
 

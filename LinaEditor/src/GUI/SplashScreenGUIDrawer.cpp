@@ -60,12 +60,13 @@ namespace Lina::Editor
 
 	void SplashScreenGUIDrawer::DrawGUI(int threadID)
 	{
+		return;
 		const Vector2 size = m_surfaceRenderer->GetSwapchain()->GetSize();
 
 		// Base image.
 		LinaVG::StyleOptions style;
 		style.textureHandle = "Resources/Editor/Textures/SplashScreen.png"_hs;
-		LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(size), style);
+		//LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(size), style);
 
 		style.color = LV4(Vector4(1,0,0,1));
 		style.textureHandle = 0;

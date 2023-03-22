@@ -103,9 +103,6 @@ namespace Lina
 		m_gfxManager	  = gfxMan;
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_resourceManager->AddListener(this);
-		m_loadedTextures.reserve(200);
-		m_loadedRTs.reserve(16);
-		m_loadedSamplers.reserve(50);
 		m_vsync = initInfo.vsyncMode;
 
 		try
@@ -196,7 +193,7 @@ namespace Lina
 					NAME_DX12_OBJECT(m_gpuSamplerHeap[i]->GetHeap(), L"Linear GPU Sampler Heap");
 				}
 
-				m_bufferHeap  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 10);
+				m_bufferHeap  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 256);
 				m_textureHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024);
 				m_dsvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 10);
 				m_rtvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 10);
@@ -242,42 +239,43 @@ namespace Lina
 			// Standard Pipeline Root Signature
 			{
 
-				CD3DX12_DESCRIPTOR_RANGE1 descRange[2] = {};
+				CD3DX12_DESCRIPTOR_RANGE1 descRange[3] = {};
 
-				// Textures & Samplers
+				// Textures & Samplers & Materials
 				descRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, UINT_MAX, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
 				descRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER, UINT_MAX, 0, 0, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
+				descRange[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, UINT_MAX, 0, 2, D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE);
 
-				CD3DX12_ROOT_PARAMETER1 rp[8] = {};
+				CD3DX12_ROOT_PARAMETER1 rp[GBB_Max] = {};
 
 				// Global constant buffer
-				rp[0].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+				rp[GBB_GlobalData].InitAsConstantBufferView(0, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
 
 				// Indirect constant
-				rp[1].InitAsConstants(1, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+				rp[GBB_IndirectData].InitAsConstants(2, 1, 0, D3D12_SHADER_VISIBILITY_ALL);
 
 				// Scene data
-				rp[2].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+				rp[GBB_SceneData].InitAsConstantBufferView(2, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
 
 				// View data
-				rp[3].InitAsConstantBufferView(3, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
+				rp[GBB_ViewData].InitAsConstantBufferView(3, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_VERTEX);
 
 				// Object data
-				rp[4].InitAsShaderResourceView(0, 1, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_VERTEX);
+				rp[GBB_ObjData].InitAsShaderResourceView(0, 1, D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE, D3D12_SHADER_VISIBILITY_VERTEX);
 
 				// Material Data
-				rp[5].InitAsConstantBufferView(4, 0, D3D12_ROOT_DESCRIPTOR_FLAG_NONE, D3D12_SHADER_VISIBILITY_ALL);
+				rp[GBB_MatData].InitAsDescriptorTable(1, &descRange[2], D3D12_SHADER_VISIBILITY_ALL);
 
 				// Texture data
-				rp[6].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_ALL);
+				rp[GBB_TxtData].InitAsDescriptorTable(1, &descRange[0], D3D12_SHADER_VISIBILITY_ALL);
 
 				// Sampler data
-				rp[7].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
+				rp[GBB_SamplerData].InitAsDescriptorTable(1, &descRange[1], D3D12_SHADER_VISIBILITY_ALL);
 
 				// CD3DX12_STATIC_SAMPLER_DESC samplerDesc[1] = {};
 				// samplerDesc[0].Init(0, D3D12_FILTER_ANISOTROPIC);
 
-				CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(8, rp, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+				CD3DX12_VERSIONED_ROOT_SIGNATURE_DESC rootSig(GBB_Max, rp, 0, NULL, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 				ComPtr<ID3DBlob>					  signatureBlob = nullptr;
 				ComPtr<ID3DBlob>					  errorBlob		= nullptr;
 
@@ -302,7 +300,7 @@ namespace Lina
 				argumentDescs[0].Type							  = D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
 				argumentDescs[0].Constant.RootParameterIndex	  = 1;
 				argumentDescs[0].Constant.DestOffsetIn32BitValues = 0;
-				argumentDescs[0].Constant.Num32BitValuesToSet	  = 1;
+				argumentDescs[0].Constant.Num32BitValuesToSet	  = 2;
 				argumentDescs[1].Type							  = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
 				D3D12_COMMAND_SIGNATURE_DESC commandSignatureDesc = {};
@@ -443,10 +441,8 @@ namespace Lina
 
 		WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
 
-		const uint32 txtSize	 = static_cast<uint32>(m_loadedTextures.size());
-		const uint32 samplerSize = static_cast<uint32>(m_loadedSamplers.size());
-		m_gpuBufferHeap[m_currentFrameIndex]->Reset(txtSize);
-		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(samplerSize);
+		m_gpuBufferHeap[m_currentFrameIndex]->Reset(m_texturesHeapAllocCount);
+		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(m_samplersHeapAllocCount);
 	}
 
 	void Renderer::EndFrame(uint32 frameIndex)
@@ -476,78 +472,68 @@ namespace Lina
 
 				// Bind global textures
 				{
-					auto texturesHeap = m_gpuBufferHeap[i];
+					// Strip only default 2D resources.
+					const auto& allLoadedTextures = m_resourceManager->GetAllResourcesRaw<Texture>(false);
 
-					const uint32 txtHeapIncrement = texturesHeap->GetDescriptorSize();
-					const uint32 texturesSize	  = static_cast<uint32>(m_loadedTextures.size());
-					auto		 alloc			  = texturesHeap->GetHeapHandleBlock(texturesSize);
-
+					// Prep
+					m_texturesHeapAllocCount						  = static_cast<uint32>(allLoadedTextures.size());
+					auto								targetHeap	  = m_gpuBufferHeap[i];
+					const uint32						heapIncrement = targetHeap->GetDescriptorSize();
+					auto								alloc		  = targetHeap->GetHeapHandleBlock(m_texturesHeapAllocCount);
 					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
 					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
-					srcDescriptors.resize(texturesSize, {});
-					destDescriptors.resize(texturesSize, {});
+					srcDescriptors.resize(m_texturesHeapAllocCount, {});
+					destDescriptors.resize(m_texturesHeapAllocCount, {});
 
+					// Copy descriptors.
 					Taskflow tf;
-					tf.for_each_index(0, static_cast<int>(texturesSize), 1, [&](int i) {
-						auto& loadedTexture		  = m_loadedTextures[i];
-						loadedTexture.shaderIndex = i;
+					tf.for_each_index(0, static_cast<int>(m_texturesHeapAllocCount), 1, [&](int i) {
+						auto* texture				= allLoadedTextures[i];
+						texture->m_gpuBindlessIndex = i;
 
 						D3D12_CPU_DESCRIPTOR_HANDLE handle;
-						handle.ptr		   = alloc.GetCPUHandle().ptr + i * txtHeapIncrement;
+						handle.ptr		   = alloc.GetCPUHandle().ptr + i * heapIncrement;
 						destDescriptors[i] = handle;
 
-						auto& txtGenData  = m_textures.GetItemR(loadedTexture.idListIndex);
+						auto& txtGenData  = m_textures.GetItemR(texture->GetGPUHandle());
 						srcDescriptors[i] = txtGenData.descriptor.GetCPUHandle();
 					});
 
 					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-					m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+					m_device->CopyDescriptors(m_texturesHeapAllocCount, destDescriptors.data(), NULL, m_texturesHeapAllocCount, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 				}
 
 				// Bind global samplers
 				{
-					auto samplersHeap = m_gpuSamplerHeap[i];
+					const auto& allLoadedSamplers = m_resourceManager->GetAllResourcesRaw<TextureSampler>(true);
 
-					const uint32 increment	  = samplersHeap->GetDescriptorSize();
-					const uint32 samplersSize = static_cast<uint32>(m_loadedSamplers.size());
-					auto		 alloc		  = samplersHeap->GetHeapHandleBlock(samplersSize);
+					auto targetHeap			 = m_gpuSamplerHeap[i];
+					m_samplersHeapAllocCount = static_cast<uint32>(m_samplerHeap->GetActiveHandleCount());
+					const uint32 increment	 = targetHeap->GetDescriptorSize();
+					auto		 alloc		 = targetHeap->GetHeapHandleBlock(m_samplersHeapAllocCount);
 
 					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
 					Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
-					srcDescriptors.resize(samplersSize, {});
-					destDescriptors.resize(samplersSize, {});
+					srcDescriptors.resize(m_samplersHeapAllocCount, {});
+					destDescriptors.resize(m_samplersHeapAllocCount, {});
 
 					Taskflow tf;
-					tf.for_each_index(0, static_cast<int>(samplersSize), 1, [&](int i) {
-						auto& loadedSampler		  = m_loadedSamplers[i];
-						loadedSampler.shaderIndex = i;
+					tf.for_each_index(0, static_cast<int>(m_samplersHeapAllocCount), 1, [&](int i) {
+						auto& loadedSampler				  = allLoadedSamplers[i];
+						loadedSampler->m_gpuBindlessIndex = i;
 
 						D3D12_CPU_DESCRIPTOR_HANDLE handle;
 						handle.ptr		   = alloc.GetCPUHandle().ptr + i * increment;
 						destDescriptors[i] = handle;
 
-						auto& samplerGenData = m_samplers.GetItemR(loadedSampler.idListIndex);
+						auto& samplerGenData = m_samplers.GetItemR(loadedSampler->GetGPUHandle());
 						srcDescriptors[i]	 = samplerGenData.descriptor.GetCPUHandle();
 					});
 					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 
-					m_device->CopyDescriptors(samplersSize, destDescriptors.data(), NULL, samplersSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+					m_device->CopyDescriptors(m_samplersHeapAllocCount, destDescriptors.data(), NULL, m_samplersHeapAllocCount, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 				}
 			}
-		}
-
-		// Dirty all materials
-		{
-			auto&		 mats		   = m_materials.GetItems();
-			const uint32 materialsSize = static_cast<uint32>(mats.size());
-			Taskflow	 tf;
-			tf.for_each_index(0, static_cast<int>(materialsSize), 1, [&](int i) {
-				auto& material = mats[i];
-
-				for (int j = 0; j < FRAMES_IN_FLIGHT; j++)
-					material.dirty[j] = true;
-			});
-			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 		}
 	}
 
@@ -635,14 +621,16 @@ namespace Lina
 	// ********************** RESOURCES ********************************
 	// ********************** RESOURCES ********************************
 
-	LPCWSTR macros[6] = {{L"LINA_PASS_OPAQUE="}, {L"LINA_PASS_SHADOWS="}, {L"LINA_PIPELINE_STANDARD="}, {L"LINA_PIPELINE_NOVERTEX="}, {L"LINA_PIPELINE_GUI="}, {L"LINA_MATERIAL=cbuffer MaterialBuffer : register(b4)"}};
+	LPCWSTR macros[5] = {{L"LINA_PASS_OPAQUE="}, {L"LINA_PASS_SHADOWS="}, {L"LINA_PIPELINE_STANDARD="}, {L"LINA_PIPELINE_NOVERTEX="}, {L"LINA_PIPELINE_GUI="}};
 
-	int32 Renderer::GenerateMaterial(Material* mat)
+	void Renderer::GenerateMaterial(Material* mat)
 	{
 		LOCK_GUARD(m_materialMtx);
 		const uint32	   existingHandle = mat->GetGPUHandle();
 		const uint32	   index		  = existingHandle == -1 ? m_materials.AddItem(GeneratedMaterial()) : existingHandle;
 		GeneratedMaterial& genData		  = m_materials.GetItemR(index);
+		genData.materialSrc				  = mat;
+		mat->m_gpuHandle				  = index;
 
 		uint8* data = nullptr;
 		size_t sz	= 0;
@@ -652,22 +640,28 @@ namespace Lina
 		{
 			if (genData.buffer[i] == nullptr)
 			{
-				genData.buffer[i] = CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, L"Material Buffer");
+
+#ifndef LINA_PRODUCTION_BUILD
+				const wchar_t* name = FileSystem::CharToWChar(mat->GetPath().c_str());
+				genData.buffer[i]	= CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, name);
+				delete[] name;
+#else
+				genData.buffer[i]	= CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, L"Material Buffer");
+#endif
 				genData.buffer[i]->BufferData(data, sz);
 			}
 			else
 				genData.buffer[i]->BufferData(data, sz);
+
+			genData.descriptor[i] = m_bufferHeap->GetNewHeapHandle();
+
+			D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
+			desc.BufferLocation					 = genData.buffer[i]->GetGPUPointer();
+			desc.SizeInBytes					 = static_cast<UINT>(sz);
+			m_device->CreateConstantBufferView(&desc, genData.descriptor[i].GetCPUHandle());
 		}
 
 		delete[] data;
-		return static_cast<int32>(index);
-	}
-
-	void Renderer::UpdateMaterialProperties(Material* mat)
-	{
-		GeneratedMaterial& genData = m_materials.GetItemR(mat->GetGPUHandle());
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-			genData.dirty[i] = true;
 	}
 
 	void Renderer::DestroyMaterial(uint32 handle)
@@ -676,12 +670,15 @@ namespace Lina
 		auto& genData = m_materials.GetItemR(handle);
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
 			DeleteCPUResource(genData.buffer[i]);
+			m_bufferHeap->FreeHeapHandle(genData.descriptor[i]);
+		}
 
 		m_materials.RemoveItem(handle);
 	}
 
-	int32 Renderer::GeneratePipeline(Shader* shader)
+	void Renderer::GeneratePipeline(Shader* shader)
 	{
 		LOCK_GUARD(m_shaderMtx);
 
@@ -689,6 +686,7 @@ namespace Lina
 		auto&			   genData = m_shaders.GetItemR(index);
 		const auto&		   stages  = shader->GetStages();
 		const PipelineType ppType  = shader->GetPipelineType();
+		shader->m_gpuHandle		   = index;
 
 		Vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
 
@@ -805,8 +803,6 @@ namespace Lina
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating PSO! {0}", e.what());
 		}
-
-		return static_cast<int32>(index);
 	}
 
 	void Renderer::DestroyPipeline(uint32 handle)
@@ -873,6 +869,7 @@ namespace Lina
 				arguments.push_back(L"-T");
 				arguments.push_back(targetProfile);
 				arguments.push_back(DXC_ARG_WARNINGS_ARE_ERRORS); //-WX
+				arguments.push_back(L"-HV 2021");				  //-WX
 
 				// We will still get reflection info, just with a smaller binary.
 				arguments.push_back(L"-Qstrip_debug");
@@ -884,7 +881,7 @@ namespace Lina
 				arguments.push_back(DXC_ARG_OPTIMIZATION_LEVEL3);
 #endif
 
-				for (int i = 0; i < 6; i++)
+				for (int i = 0; i < 5; i++)
 				{
 					arguments.push_back(L"-D");
 					arguments.push_back(macros[i]);
@@ -946,27 +943,29 @@ namespace Lina
 		}
 	}
 
-	int32 Renderer::GenerateImage(Texture* txt, ImageGenerateRequest req)
+	void Renderer::GenerateImage(Texture* txt, ImageGenerateRequest req)
 	{
 		LOCK_GUARD(m_textureMtx);
 
-		const int32 existingHandle = txt->GetGPUHandle();
+		const int32				  existingHandle = txt->GetGPUHandle();
+		const TextureResourceType resourceType	 = txt->GetResourceType();
 
-		if (existingHandle != -1 && req.type != TextureResourceType::Texture2DDefault)
+		if (existingHandle != -1 && resourceType != TextureResourceType::Texture2DDefault)
 		{
 			LINA_ERR("[Renderer] -> Re-generating images for textures is only supported for those textures of type Texture2DDefault!");
-			return -1;
+			return;
 		}
 
 		const uint32	  index	  = existingHandle == -1 ? m_textures.AddItem(GeneratedTexture()) : existingHandle;
 		GeneratedTexture& genData = m_textures.GetItemR(index);
 		auto&			  meta	  = txt->GetMetadata();
 		const auto&		  ext	  = txt->GetExtent();
-		genData.imageType		  = req.type;
 		genData.sid				  = txt->GetSID();
+		genData.textureSrc		  = txt;
+		txt->m_gpuHandle		  = index;
 
 		// Render target types will be implemented via CreateRenderTargetXXX functions.
-		if (req.type == TextureResourceType::Texture2DDefault)
+		if (resourceType == TextureResourceType::Texture2DDefault)
 		{
 			if (existingHandle == -1)
 				genData.gpuResource = CreateTextureResource(TextureResourceType::Texture2DDefault, txt);
@@ -985,33 +984,29 @@ namespace Lina
 				srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
 				srvDesc.Texture2D.MipLevels				= txt->GetMipLevels();
 				m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, genData.descriptor.GetCPUHandle());
-				m_loadedTextures.push_back({txt->GetSID(), index});
 			}
 		}
-		else if (req.type == TextureResourceType::Texture2DRenderTargetColor)
-			m_loadedRTs.push_back({txt->GetSID(), index});
-
-		return static_cast<int32>(index);
 	}
 
 	void Renderer::DestroyImage(uint32 handle)
 	{
-		GeneratedTexture& genData = m_textures.GetItemR(handle);
+		GeneratedTexture&		  genData	   = m_textures.GetItemR(handle);
+		const TextureResourceType resourceType = genData.textureSrc->GetResourceType();
 
-		if (genData.imageType == TextureResourceType::Texture2DSwapchain)
+		if (resourceType == TextureResourceType::Texture2DSwapchain)
 		{
 			m_rtvHeap->FreeHeapHandle(genData.descriptor);
 			genData.rawResource.Reset();
 		}
-		else if (genData.imageType == TextureResourceType::Texture2DRenderTargetDepthStencil)
+		else if (resourceType == TextureResourceType::Texture2DRenderTargetDepthStencil)
 		{
 			m_dsvHeap->FreeHeapHandle(genData.descriptor);
 		}
-		else if (genData.imageType == TextureResourceType::Texture2DDefault)
+		else if (resourceType == TextureResourceType::Texture2DDefault)
 		{
 			m_textureHeap->FreeHeapHandle(genData.descriptor);
 		}
-		else if (genData.imageType == TextureResourceType::Texture2DRenderTargetColor)
+		else if (resourceType == TextureResourceType::Texture2DRenderTargetColor)
 		{
 			m_rtvHeap->FreeHeapHandle(genData.descriptor);
 			m_textureHeap->FreeHeapHandle(genData.descriptor);
@@ -1020,22 +1015,20 @@ namespace Lina
 		if (genData.gpuResource)
 			delete genData.gpuResource;
 
-		if (genData.imageType == TextureResourceType::Texture2DDefault)
-			m_loadedTextures.erase(linatl::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [&genData](auto& data) { return data.sid == genData.sid; }));
-		else if (genData.imageType == TextureResourceType::Texture2DRenderTargetColor)
-			m_loadedRTs.erase(linatl::find_if(m_loadedRTs.begin(), m_loadedRTs.end(), [&genData](auto& data) { return data.sid == genData.sid; }));
-
 		m_textures.RemoveItem(handle);
 	}
 
-	int32 Renderer::GenerateSampler(TextureSampler* sampler)
+	void Renderer::GenerateSampler(TextureSampler* sampler)
 	{
 		LOCK_GUARD(m_samplerMtx);
-		const uint32	  existingHandle = sampler->GetGPUHandle();
-		const uint32	  index			 = existingHandle == -1 ? m_samplers.AddItem(GeneratedSampler()) : existingHandle;
-		GeneratedSampler& genData		 = m_samplers.GetItemR(index);
-		const auto&		  samplerData	 = sampler->GetSamplerData();
-		genData.sid						 = sampler->GetSID();
+		const uint32 existingHandle = sampler->GetGPUHandle();
+		const uint32 index			= existingHandle == -1 ? m_samplers.AddItem(GeneratedSampler()) : existingHandle;
+
+		GeneratedSampler& genData = m_samplers.GetItemR(index);
+		sampler->m_gpuHandle	  = index;
+
+		const auto& samplerData = sampler->GetSamplerData();
+		genData.sid				= sampler->GetSID();
 
 		D3D12_SAMPLER_DESC desc;
 
@@ -1054,16 +1047,12 @@ namespace Lina
 		desc.MipLODBias		= static_cast<FLOAT>(samplerData.mipLodBias);
 		genData.descriptor	= m_samplerHeap->GetNewHeapHandle();
 		m_device->CreateSampler(&desc, genData.descriptor.GetCPUHandle());
-
-		m_loadedSamplers.push_back({sampler->GetSID(), index});
-		return static_cast<int32>(index);
 	}
 
 	void Renderer::DestroySampler(uint32 handle)
 	{
 		GeneratedSampler& genData = m_samplers.GetItemR(handle);
 		m_samplerHeap->FreeHeapHandle(genData.descriptor);
-		m_loadedSamplers.erase(linatl::find_if(m_loadedSamplers.begin(), m_loadedSamplers.end(), [&genData](auto& data) { return data.sid == genData.sid; }));
 		m_samplers.RemoveItem(handle);
 	}
 
@@ -1158,20 +1147,14 @@ namespace Lina
 
 	uint32 Renderer::GetTextureIndex(const StringID sid)
 	{
-		auto it = linatl::find_if(m_loadedTextures.begin(), m_loadedTextures.end(), [sid](auto& data) { return data.sid == sid; });
-
-		if (it == m_loadedTextures.end())
-			it = linatl::find_if(m_loadedRTs.begin(), m_loadedRTs.end(), [sid](auto& data) { return data.sid == sid; });
-
-		return it->shaderIndex;
+		auto txt = m_resourceManager->GetResource<Texture>(sid);
+		return txt->GetGPUBindlessIndex();
 	}
 
 	uint32 Renderer::GetSamplerIndex(const StringID textureSid)
 	{
-		const StringID samplerSid = m_resourceManager->GetResource<Texture>(textureSid)->GetSampler();
-		auto		   it		  = linatl::find_if(m_loadedSamplers.begin(), m_loadedSamplers.end(), [samplerSid](auto& data) { return data.sid == samplerSid; });
-
-		return it->shaderIndex;
+		auto txt = m_resourceManager->GetResource<Texture>(textureSid);
+		return m_resourceManager->GetResource<TextureSampler>(txt->GetSampler())->GetGPUBindlessIndex();
 	}
 
 	void Renderer::ReleaseCommandList(uint32 handle)
@@ -1225,38 +1208,10 @@ namespace Lina
 
 		// Textures & samplers
 		{
-			cmdList->SetGraphicsRootDescriptorTable(6, m_gpuBufferHeap[m_currentFrameIndex]->GetHeapGPUStart());
-			cmdList->SetGraphicsRootDescriptorTable(7, m_gpuSamplerHeap[m_currentFrameIndex]->GetHeapGPUStart());
+			cmdList->SetGraphicsRootDescriptorTable(GBB_TxtData, m_gpuBufferHeap[m_currentFrameIndex]->GetHeapGPUStart());
+			cmdList->SetGraphicsRootDescriptorTable(GBB_SamplerData, m_gpuSamplerHeap[m_currentFrameIndex]->GetHeapGPUStart());
+			cmdList->SetGraphicsRootDescriptorTable(GBB_MatData, m_gpuBufferHeap[m_currentFrameIndex]->GetOffsetedHandle(m_texturesHeapAllocCount).GetGPUHandle());
 		}
-	}
-
-	void Renderer::PrepareRenderTargets(Texture** renderTargets, uint32 renderTargetsSize)
-	{
-		auto		 texturesHeap	  = m_gpuBufferHeap[m_currentFrameIndex];
-		const uint32 heapStart		  = texturesHeap->GetCurrentDescriptorIndex();
-		auto		 alloc			  = texturesHeap->GetHeapHandleBlock(renderTargetsSize);
-		const uint32 txtHeapIncrement = texturesHeap->GetDescriptorSize();
-
-		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
-		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
-		srcDescriptors.resize(renderTargetsSize, {});
-		destDescriptors.resize(renderTargetsSize, {});
-
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(renderTargetsSize), 1, [&](int i) {
-			auto it			= linatl::find_if(m_loadedRTs.begin(), m_loadedRTs.end(), [&](const LoadedResourceData& data) { return data.sid == renderTargets[i]->GetSID(); });
-			it->shaderIndex = heapStart + i;
-
-			D3D12_CPU_DESCRIPTOR_HANDLE handle;
-			handle.ptr		   = alloc.GetCPUHandle().ptr + i * txtHeapIncrement;
-			destDescriptors[i] = handle;
-
-			auto& txtGenData  = m_textures.GetItemR(it->idListIndex);
-			srcDescriptors[i] = txtGenData.descriptorSecondary.GetCPUHandle();
-		});
-
-		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-		m_device->CopyDescriptors(renderTargetsSize, destDescriptors.data(), NULL, renderTargetsSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
 	void Renderer::FinalizeCommandList(uint32 cmdListHandle)
@@ -1370,6 +1325,95 @@ namespace Lina
 		cmdList->EndRenderPass();
 	}
 
+	void Renderer::BindPipeline(uint32 cmdListHandle, Shader* shader)
+	{
+		auto& cmdList	 = m_cmdLists.GetItemR(cmdListHandle);
+		auto& shaderData = m_shaders.GetItemR(shader->GetGPUHandle());
+		cmdList->SetPipelineState(shaderData.pso.Get());
+	}
+
+	void Renderer::BindMaterials(Material** materials, uint32 materialsSize)
+	{
+		auto		 heap					= m_gpuBufferHeap[m_currentFrameIndex];
+		const uint32 currentDescriptorIndex = heap->GetCurrentDescriptorIndex() - m_texturesHeapAllocCount;
+		const uint32 heapIncrement			= heap->GetDescriptorSize();
+		auto		 alloc					= heap->GetHeapHandleBlock(materialsSize);
+
+		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
+		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+		srcDescriptors.resize(materialsSize, {});
+		destDescriptors.resize(materialsSize, {});
+
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(materialsSize), 1, [&](int i) {
+			Material* mat			= materials[i];
+			mat->m_gpuBindlessIndex = currentDescriptorIndex + i;
+
+			D3D12_CPU_DESCRIPTOR_HANDLE handle;
+			handle.ptr		   = alloc.GetCPUHandle().ptr + i * heapIncrement;
+			destDescriptors[i] = handle;
+
+			auto& matGenData = m_materials.GetItemR(mat->GetGPUHandle());
+
+			// Update if necessary
+			{
+				if (mat->IsDirty(m_currentFrameIndex))
+				{
+					uint8* ptr = nullptr;
+					size_t sz  = 0;
+					mat->GetPropertyBlob(ptr, sz);
+					matGenData.buffer[m_currentFrameIndex]->BufferData(ptr, sz);
+					delete[] ptr;
+					mat->m_isDirty[m_currentFrameIndex] = false;
+				}
+			}
+			srcDescriptors[i] = matGenData.descriptor[m_currentFrameIndex].GetCPUHandle();
+		});
+
+		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		m_device->CopyDescriptors(materialsSize, destDescriptors.data(), NULL, materialsSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
+
+	void Renderer::SetMaterialID(uint32 cmdListHandle, uint32 id)
+	{
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		cmdList->SetGraphicsRoot32BitConstant(GBB_IndirectData, id, 1);
+	}
+
+	void Renderer::BindDynamicTextures(Texture** textures, uint32 texturesSize)
+	{
+		auto		 heap					= m_gpuBufferHeap[m_currentFrameIndex];
+		const uint32 currentDescriptorIndex = heap->GetCurrentDescriptorIndex();
+		const uint32 heapIncrement			= heap->GetDescriptorSize();
+		auto		 alloc					= heap->GetHeapHandleBlock(texturesSize);
+
+		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
+		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
+		srcDescriptors.resize(texturesSize, {});
+		destDescriptors.resize(texturesSize, {});
+
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(texturesSize), 1, [&](int i) {
+			auto* texture				= textures[i];
+			texture->m_gpuBindlessIndex = currentDescriptorIndex + i;
+
+			D3D12_CPU_DESCRIPTOR_HANDLE handle;
+			handle.ptr		   = alloc.GetCPUHandle().ptr + i * heapIncrement;
+			destDescriptors[i] = handle;
+
+			auto& txtGenData  = m_textures.GetItemR(texture->GetGPUHandle());
+			srcDescriptors[i] = txtGenData.descriptorSecondary.GetCPUHandle();
+
+			if (texture->GetResourceType() != TextureResourceType::Texture2DRenderTargetColor)
+			{
+				LINA_ERR("[Renderer] -> You should only bind dynamic textures or color render targets via BindDynamicTextures()!");
+			}
+		});
+
+		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+		m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+	}
+
 	void Renderer::BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxCPUResource* buf)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
@@ -1379,43 +1423,27 @@ namespace Lina
 	void Renderer::BindObjectBuffer(uint32 cmdListHandle, IGfxGPUResource* res)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
-		cmdList->SetGraphicsRootShaderResourceView(4, res->GetGPUPointer());
+		cmdList->SetGraphicsRootShaderResourceView(GBB_ObjData, res->GetGPUPointer());
 	}
 
-	void Renderer::BindMaterial(uint32 cmdListHandle, Material* mat, Bitmask16 bindFlags)
+	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer, size_t vertexSize, uint32 slot)
 	{
-		auto* shader = mat->GetShader();
+		auto&					 cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		D3D12_VERTEX_BUFFER_VIEW view;
+		view.BufferLocation = buffer->GetGPUPointer();
+		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
+		view.StrideInBytes	= static_cast<UINT>(vertexSize);
+		cmdList->IASetVertexBuffers(slot, 1, &view);
+	}
 
-		if (shader == nullptr)
-		{
-			LINA_ERR("[Renderer] -> Can not bind material because the material does not have an assigned shader!");
-			return;
-		}
-
-		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
-
-		if (bindFlags.IsSet(MBF_BindShader))
-		{
-			auto& shaderData = m_shaders.GetItemR(shader->GetGPUHandle());
-			cmdList->SetPipelineState(shaderData.pso.Get());
-		}
-
-		if (bindFlags.IsSet(MBF_BindMaterialProperties))
-		{
-			auto& matData = m_materials.GetItemR(mat->GetGPUHandle());
-
-			if (matData.dirty[m_currentFrameIndex])
-			{
-				uint8* ptr = nullptr;
-				size_t sz  = 0;
-				mat->GetPropertyBlob(ptr, sz);
-				matData.buffer[m_currentFrameIndex]->BufferData(ptr, sz);
-				delete[] ptr;
-				matData.dirty[m_currentFrameIndex] = false;
-			}
-
-			cmdList->SetGraphicsRootConstantBufferView(5, matData.buffer[m_currentFrameIndex]->GetGPUPointer());
-		}
+	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer)
+	{
+		auto&					cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		D3D12_INDEX_BUFFER_VIEW view;
+		view.BufferLocation = buffer->GetGPUPointer();
+		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
+		view.Format			= DXGI_FORMAT_R32_UINT;
+		cmdList->IASetIndexBuffer(&view);
 	}
 
 	void Renderer::DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance)
@@ -1441,26 +1469,6 @@ namespace Lina
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		cmdList->IASetPrimitiveTopology(GetTopology(topology));
-	}
-
-	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer, size_t vertexSize, uint32 slot)
-	{
-		auto&					 cmdList = m_cmdLists.GetItemR(cmdListHandle);
-		D3D12_VERTEX_BUFFER_VIEW view;
-		view.BufferLocation = buffer->GetGPUPointer();
-		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
-		view.StrideInBytes	= static_cast<UINT>(vertexSize);
-		cmdList->IASetVertexBuffers(slot, 1, &view);
-	}
-
-	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer)
-	{
-		auto&					cmdList = m_cmdLists.GetItemR(cmdListHandle);
-		D3D12_INDEX_BUFFER_VIEW view;
-		view.BufferLocation = buffer->GetGPUPointer();
-		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
-		view.Format			= DXGI_FORMAT_R32_UINT;
-		cmdList->IASetIndexBuffer(&view);
 	}
 
 	uint32 Renderer::GetNextBackBuffer(ISwapchain* swp)
@@ -1514,6 +1522,7 @@ namespace Lina
 		  };
 
 		UserGeneratedTextureData textureData = UserGeneratedTextureData{
+			.resourceType  = TextureResourceType::Texture2DRenderTargetColor,
 			.path		   = path,
 			.sid		   = sid,
 			.extent		   = ext,
@@ -1523,7 +1532,7 @@ namespace Lina
 		};
 
 		Texture* rt = new Texture(m_resourceManager, textureData);
-		rt->GenerateImage({TextureResourceType::Texture2DRenderTargetColor});
+		GenerateImage(rt, {});
 
 		auto& genData					  = m_textures.GetItemR(rt->GetGPUHandle());
 		genData.gpuResource				  = CreateTextureResource(TextureResourceType::Texture2DRenderTargetColor, rt);
@@ -1552,8 +1561,17 @@ namespace Lina
 	{
 		// Generate image data.
 		const StringID sid = TO_SID(path);
-		Texture*	   rt  = new Texture(m_resourceManager, true, path, sid);
-		rt->GenerateImage({TextureResourceType::Texture2DSwapchain});
+
+		UserGeneratedTextureData data = UserGeneratedTextureData{
+			.resourceType				   = TextureResourceType::Texture2DSwapchain,
+			.path						   = path,
+			.sid						   = sid,
+			.createPixelBuffer			   = false,
+			.destroyPixelBufferAfterUpload = false,
+		};
+
+		Texture* rt = new Texture(m_resourceManager, data);
+		GenerateImage(rt, {});
 
 		// alloc descriptor
 		auto& genData	   = m_textures.GetItemR(rt->GetGPUHandle());
@@ -1589,6 +1607,7 @@ namespace Lina
 		  };
 
 		UserGeneratedTextureData textureData = UserGeneratedTextureData{
+			.resourceType  = TextureResourceType::Texture2DRenderTargetDepthStencil,
 			.path		   = path,
 			.sid		   = sid,
 			.extent		   = ext,
@@ -1598,7 +1617,7 @@ namespace Lina
 		};
 
 		Texture* rt = new Texture(m_resourceManager, textureData);
-		rt->GenerateImage({TextureResourceType::Texture2DRenderTargetDepthStencil});
+		GenerateImage(rt, {});
 
 		// Alloc descriptor & resource
 		auto& genData		= m_textures.GetItemR(rt->GetGPUHandle());

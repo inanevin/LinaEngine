@@ -68,6 +68,7 @@ namespace Lina
 	{
 	public:
 		MaterialProperty() = default;
+		MaterialProperty(T t) : m_value(t){};
 		MaterialProperty(const String& name, MaterialPropertyType type) : MaterialPropertyBase(name, type){};
 		virtual ~MaterialProperty() = default;
 

@@ -146,7 +146,7 @@ namespace Lina
 
 			if (!parsingMaterial)
 			{
-				const size_t material = line.find("LINA_MATERIAL");
+				const size_t material = line.find("struct LinaShaderMaterial");
 
 				if (material != std::string::npos)
 				{

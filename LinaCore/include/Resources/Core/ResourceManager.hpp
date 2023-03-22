@@ -62,7 +62,7 @@ namespace Lina
 		void			   UnloadResources(const Vector<ResourceIdentifier>& identifiers);
 		bool			   IsPriorityResource(StringID sid);
 		bool			   IsCoreResource(StringID sid);
-		Vector<IResource*> GetAllResources();
+		Vector<IResource*> GetAllResources(bool includeUserManagedResources);
 		PackageType		   GetPackageType(TypeID tid);
 		static String	   GetMetacachePath(const String& resourcePath, StringID sid);
 
@@ -114,12 +114,14 @@ namespace Lina
 			return static_cast<T*>(m_caches.at(tid)->GetResource(sid));
 		}
 
-		template <typename T> Vector<T*> GetAllResourcesRaw() const
+		template <typename T> Vector<T*> GetAllResourcesRaw(bool includeUserManagedResources) const
 		{
 			Vector<T*>	 resources;
 			const TypeID tid	= GetTypeID<T>();
-			Vector<T*>	 allRes = static_cast<ResourceCache<T>*>(m_caches.at(tid))->GetAllResourcesRaw();
+			auto		 cache	= static_cast<ResourceCache<T>*>(m_caches.at(tid));
+			Vector<T*>	 allRes = cache->GetAllResourcesRaw(includeUserManagedResources);
 			resources.insert(resources.end(), allRes.begin(), allRes.end());
+			
 			return resources;
 		}
 

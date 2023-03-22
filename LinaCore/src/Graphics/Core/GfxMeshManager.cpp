@@ -58,7 +58,7 @@ namespace Lina
 
 	void GfxMeshManager::MergeMeshes()
 	{
-		auto models = m_resourceManager->GetAllResourcesRaw<Model>();
+		auto models = m_resourceManager->GetAllResourcesRaw<Model>(true);
 
 		m_mergedModelIDs.clear();
 		m_meshEntries.clear();

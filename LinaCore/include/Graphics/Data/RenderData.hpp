@@ -165,6 +165,7 @@ namespace Lina
 	struct DrawIndexedIndirectCommand
 	{
 		uint32 instanceID			 = 0;
+		uint32 materialID			 = 0;
 		uint32 indexCountPerInstance = 0;
 		uint32 instanceCount		 = 0;
 		uint32 startIndexLocation	 = 0;

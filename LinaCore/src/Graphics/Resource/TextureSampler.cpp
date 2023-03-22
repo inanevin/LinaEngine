@@ -52,7 +52,7 @@ namespace Lina
 
 	void TextureSampler::Upload()
 	{
-		m_gpuHandle = m_renderer->GenerateSampler(this);
+		m_renderer->GenerateSampler(this);
 	}
 
 	void TextureSampler::SaveToStream(OStream& stream)

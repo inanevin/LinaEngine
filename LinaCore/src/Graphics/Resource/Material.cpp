@@ -83,12 +83,7 @@ namespace Lina
 			m_totalPropertySize += p->GetType() == MaterialPropertyType::Texture ? p->GetTypeSize() * 2 : p->GetTypeSize();
 
 		m_totalAlignedSize = GetPropertiesTotalAlignedSize();
-		m_gpuHandle		   = m_renderer->GenerateMaterial(this);
-	}
-
-	void Material::UpdateBuffers()
-	{
-		m_renderer->UpdateMaterialProperties(this);
+		m_renderer->GenerateMaterial(this);
 	}
 
 	void Material::GetPropertyBlob(uint8*& outData, size_t& outSize)
@@ -251,6 +246,10 @@ namespace Lina
 			if (p->GetType() == MaterialPropertyType::Texture)
 				offset += typeSize;
 		}
+
+#ifdef LINA_GRAPHICS_DX12
+		return ALIGN_SIZE_POW(offset, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+#endif
 
 		return offset;
 	}

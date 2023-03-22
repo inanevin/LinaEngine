@@ -76,7 +76,7 @@ namespace Lina
 		StringID			 sid		 = 0;
 		DescriptorHandle	 descriptor;
 		DescriptorHandle	 descriptorSecondary;
-		TextureResourceType	 imageType = TextureResourceType::Texture2DDefault;
+		Texture*			 textureSrc = nullptr;
 	};
 
 	struct GeneratedShader
@@ -87,7 +87,8 @@ namespace Lina
 	struct GeneratedMaterial
 	{
 		IGfxCPUResource* buffer[FRAMES_IN_FLIGHT] = {nullptr};
-		bool			 dirty[FRAMES_IN_FLIGHT]  = {false};
+		DescriptorHandle descriptor[FRAMES_IN_FLIGHT];
+		Material*		 materialSrc = nullptr;
 	};
 
 	struct GeneratedSampler
@@ -148,16 +149,15 @@ namespace Lina
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
 		// ******************* RESOURCES *******************
-		int32 GenerateMaterial(Material* mat);
-		void  UpdateMaterialProperties(Material* mat);
-		void  DestroyMaterial(uint32 handle);
-		int32 GeneratePipeline(Shader* shader);
-		void  DestroyPipeline(uint32 handle);
-		void  CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
-		int32 GenerateImage(Texture* txt, ImageGenerateRequest req);
-		void  DestroyImage(uint32 handle);
-		int32 GenerateSampler(TextureSampler* sampler);
-		void  DestroySampler(uint32 handle);
+		void GenerateMaterial(Material* mat);
+		void DestroyMaterial(uint32 handle);
+		void GeneratePipeline(Shader* shader);
+		void DestroyPipeline(uint32 handle);
+		void CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
+		void GenerateImage(Texture* txt, ImageGenerateRequest req);
+		void DestroyImage(uint32 handle);
+		void GenerateSampler(TextureSampler* sampler);
+		void DestroySampler(uint32 handle);
 
 		// ******************* API *******************
 		// ******************* API *******************
@@ -184,7 +184,6 @@ namespace Lina
 		void   ReleaseCommandList(uint32 handle);
 		void   ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
 		void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
-		void   PrepareRenderTargets(Texture** renderTargets, uint32 renderTargetSize);
 		void   FinalizeCommandList(uint32 cmdListHandle);
 		void   ExecuteCommandListsGraphics(const Vector<uint32>& lists);
 		void   ExecuteCommandListsTransfer(const Vector<uint32>& lists);
@@ -192,16 +191,18 @@ namespace Lina
 		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture);
 		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil);
 		void   EndRenderPass(uint32 cmdListHandle);
+		void   BindPipeline(uint32 cmdListHandle, Shader* shader);
+		void   BindMaterials(Material** materials, uint32 materialsSize);
+		void   SetMaterialID(uint32 cmdListHandle, uint32 id);
+		void   BindDynamicTextures(Texture** textures, uint32 texturesSize);
 		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxCPUResource* buf);
 		void   BindObjectBuffer(uint32 cmdListHandle, IGfxGPUResource* res);
-		void   BindTextures(uint32 cmdListHandle, const Vector<StringID>& textures);
-		void   BindMaterial(uint32 cmdListHandle, Material* mat, Bitmask16 bindFlags);
+		void   BindVertexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
+		void   BindIndexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer);
 		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
 		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxCPUResource* indirectBuffer, uint32 count, uint64 indirectOffset);
 		void   SetTopology(uint32 cmdListHandle, Topology topology);
-		void   BindVertexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
-		void   BindIndexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer);
 
 		// Fences
 		uint32 CreateFence();
@@ -259,19 +260,18 @@ namespace Lina
 
 	private:
 		// General
-		GfxManager*				   m_gfxManager = nullptr;
-		StatePerFrame			   m_frames[FRAMES_IN_FLIGHT];
-		uint64					   m_fenceValueGraphics = 0;
-		uint32					   m_frameFenceGraphics = 0;
-		HANDLE					   m_fenceEventGraphics = NULL;
-		uint32					   m_currentFrameIndex	= 0;
-		ResourceManager*		   m_resourceManager	= nullptr;
-		Vector<LoadedResourceData> m_loadedTextures;
-		Vector<LoadedResourceData> m_loadedSamplers;
-		Vector<LoadedResourceData> m_loadedRTs;
-		IUploadContext*			   m_uploadContext;
-		bool					   m_allowTearing = false;
-		VsyncMode				   m_vsync		  = VsyncMode::None;
+		GfxManager*		 m_gfxManager = nullptr;
+		StatePerFrame	 m_frames[FRAMES_IN_FLIGHT];
+		uint64			 m_fenceValueGraphics = 0;
+		uint32			 m_frameFenceGraphics = 0;
+		HANDLE			 m_fenceEventGraphics = NULL;
+		uint32			 m_currentFrameIndex  = 0;
+		ResourceManager* m_resourceManager	  = nullptr;
+		IUploadContext*	 m_uploadContext;
+		bool			 m_allowTearing			  = false;
+		VsyncMode		 m_vsync				  = VsyncMode::None;
+		uint32			 m_texturesHeapAllocCount = 0;
+		uint32			 m_samplersHeapAllocCount = 0;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;
