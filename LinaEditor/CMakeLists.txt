@@ -25,8 +25,11 @@ set(LINAEDITOR_SOURCES
 src/Core/EditorApplication.cpp
 src/Core/EditorResourcesRegistry.cpp
 src/Core/Editor.cpp
+src/Core/Theme.cpp
 src/EditorEntryPoint.cpp
-src/GUI/Widgets/ProgressBar.cpp
+src/GUI/Widgets/Widget.cpp
+src/GUI/Widgets/WidgetProgressBar.cpp
+src/GUI/Utility/DrawerUtility.cpp
 src/GUI/EditorGUIDrawer.cpp
 src/GUI/MainWindowGUIDrawer.cpp
 src/GUI/SplashScreenGUIDrawer.cpp
@@ -40,9 +43,12 @@ set(LINAEDITOR_HEADERS
 include/GUI/EditorGUIDrawer.hpp
 include/GUI/SplashScreenGUIDrawer.hpp
 include/GUI/MainWindowGUIDrawer.hpp
-include/GUI/Widgets/ProgressBar.hpp
+include/GUI/Widgets/WidgetProgressBar.hpp
+include/GUI/Widgets/Widget.hpp
+include/GUI/Utility/DrawerUtility.hpp
 include/Core/EditorApplication.hpp
 include/Core/Editor.hpp
+include/Core/Theme.hpp
 include/Core/EditorResourcesRegistry.hpp
 
 )

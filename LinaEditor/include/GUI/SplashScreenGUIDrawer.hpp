@@ -34,7 +34,7 @@ SOFTWARE.
 #include "EditorGUIDrawer.hpp"
 #include "Event/ISystemEventListener.hpp"
 #include "Data/Mutex.hpp"
-#include "Widgets/ProgressBar.hpp"
+#include "Widgets/WidgetProgressBar.hpp"
 
 namespace Lina::Editor
 {
@@ -56,11 +56,12 @@ namespace Lina::Editor
 		virtual void DrawGUI(int threadID) override;
 
 	private:
-		Editor*		m_editor = nullptr;
-		Mutex		m_mtx;
-		ProgressBar m_progressBar;
-		int			m_loadedResources = 0;
-		float		m_progress		  = 0.0f;
+		Editor*			  m_editor = nullptr;
+		Mutex			  m_mtx;
+		WidgetProgressBar m_progressBar;
+		int				  m_loadedResources = 0;
+		float			  m_progress		= 0.0f;
+		String			  m_currentResource = "";
 	};
 } // namespace Lina::Editor
 

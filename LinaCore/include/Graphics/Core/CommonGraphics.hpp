@@ -341,6 +341,7 @@ namespace Lina
 	{
 		Texture2DSwapchain,
 		Texture2DDefault,
+		Texture2DDefaultDynamic,
 		Texture2DRenderTargetColor,
 		Texture2DRenderTargetDepthStencil,
 	};
@@ -444,14 +445,16 @@ namespace Lina
 		//
 		GBB_Max,
 	};
-#define DEFAULT_DEPTH_FORMAT	 Format::D32_SFLOAT
-#define DEFAULT_SWAPCHAIN_FORMAT Format::R8G8B8A8_UNORM
-#define DEFAULT_RT_FORMAT		 Format::R8G8B8A8_SRGB
-#define DEFAULT_COLOR_FORMAT	 Format::R32G32B32A32_SFLOAT
-#define LINA_MAIN_SWAPCHAIN		 "LinaMainSwapchain"_hs
-#define DEFAULT_SAMPLER_SID		 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
-#define DEFAULT_TEXTURE_SID		 "Resources/Core/Textures/LogoWithText.png"_hs
-#define DEFAULT_CLEAR_CLR		 Color(0.3f, 0.3f, 0.5f, 1.0f)
+#define DEFAULT_DEPTH_FORMAT		 Format::D32_SFLOAT
+#define DEFAULT_SWAPCHAIN_FORMAT	 Format::R8G8B8A8_UNORM
+#define DEFAULT_RT_FORMAT			 Format::R8G8B8A8_SRGB
+#define DEFAULT_COLOR_FORMAT		 Format::R32G32B32A32_SFLOAT
+#define LINA_MAIN_SWAPCHAIN			 "LinaMainSwapchain"_hs
+#define DEFAULT_SAMPLER_SID			 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
+#define DEFAULT_GUI_SAMPLER_SID		 "Resource/Core/Samplers/DefaultGUISampler.linasampler"_hs
+#define DEFAULT_GUI_TEXT_SAMPLER_SID "Resource/Core/Samplers/DefaultGUITextSampler.linasampler"_hs
+#define DEFAULT_TEXTURE_SID			 "Resources/Core/Textures/LogoWithText.png"_hs
+#define DEFAULT_CLEAR_CLR			 Color(0.3f, 0.3f, 0.5f, 1.0f)
 
 } // namespace Lina
 

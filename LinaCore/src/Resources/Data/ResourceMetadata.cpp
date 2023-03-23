@@ -64,6 +64,14 @@ namespace Lina
 		return m_strings[sid];
 	}
 
+	StringID ResourceMetadata::GetSID(StringID sid, StringID defValue)
+	{
+		if (m_sids.find(sid) == m_sids.end())
+			m_sids[sid] = defValue;
+
+		return m_sids[sid];
+	}
+
 	int ResourceMetadata::GetInt(StringID sid, int defaultValue)
 	{
 		if (m_ints.find(sid) == m_ints.end())
@@ -114,6 +122,11 @@ namespace Lina
 	void ResourceMetadata::SetString(StringID sid, const String& value)
 	{
 		m_strings[sid] = value;
+	}
+
+	void ResourceMetadata::SetSID(StringID sid, StringID value)
+	{
+		m_sids[sid] = value;
 	}
 
 	void ResourceMetadata::SetInt(StringID sid, int value)

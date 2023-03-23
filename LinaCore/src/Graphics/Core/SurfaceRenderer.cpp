@@ -267,18 +267,19 @@ namespace Lina
 				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
-			// if (m_guiDrawer != nullptr)
-			//{
-			//	m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
-			//	m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
-			//
-			//	// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
-			//	{
-			//		m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
-			//		LinaVG::Render(m_surfaceRendererIndex);
-			//		m_guiRenderer->Render(frame.cmdList);
-			//	}
-			// }
+			if (m_guiDrawer != nullptr)
+			{
+				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
+				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
+
+				// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
+				{
+					m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
+					LinaVG::Render(m_surfaceRendererIndex);
+					m_guiRenderer->Render(frame.cmdList);
+				}
+			}
+			
 			m_renderer->EndRenderPass(frame.cmdList);
 			m_renderer->ResourceBarrier(frame.cmdList, &rt2Present, 1);
 		}

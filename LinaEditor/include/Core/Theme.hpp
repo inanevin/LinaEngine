@@ -28,33 +28,48 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaFont_HPP
-#define LinaFont_HPP
+#ifndef Theme_HPP
+#define Theme_HPP
 
-#include "Resources/Core/IResource.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-#include "Resources/Data/ResourceMetadata.hpp"
+#include "Core/StringID.hpp"
+#include "Math/Color.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	class Font : public IResource
+	enum class FontType
+	{
+		DefaultEditor,
+		AltEditor,
+		EditorIcons,
+	};
+
+#define TI_CARET_DOWN	   "\u0041"
+#define TI_CARET_LEFT	   "\u0042"
+#define TI_CARET_RIGHT	   "\u0043"
+#define TI_CARET_UP		   "\u0044"
+#define TI_CARET_SLD_DOWN  "\u0045"
+#define TI_CARET_SLD_LEFT  "\u0046"
+#define TI_CARET_SLD_RIGHT "\u0047"
+#define TI_CARET_SLD_UP	   "\u0048"
+#define TI_CHECKMARK	   "\u0049"
+#define TI_MAXIMIZE		   "\u004A"
+#define TI_MINIMIZE		   "\u004B"
+#define TI_RESTORE		   "\u004C"
+#define TI_CROSS		   "\u004D"
+
+	class Theme
 	{
 	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font() = default;
+		static StringID GetFont(FontType font, float dpiScale);
 
-	protected:
-		virtual void Flush() override;
-		virtual void Upload() override;
-		virtual void BatchLoaded() override;
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) override;
-
-	private:
-		Vector<char> m_file;
+		static Color TC_White;
+		static Color TC_VerySilent;
+		static Color TC_Silent;
+		static Color TC_CyanAccent;
+		static Color TC_PurpleAccent;
+		static Color TC_Dark1;
+		static Color TC_Dark2;
 	};
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

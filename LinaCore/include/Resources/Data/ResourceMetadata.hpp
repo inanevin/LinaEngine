@@ -43,19 +43,21 @@ namespace Lina
 	class ResourceMetadata : public ISerializable
 	{
 	public:
-		Vector2 GetVector2(StringID sid, const Vector2& defaultValue = Vector2::Zero);
-		Vector3 GetVector3(StringID sid, const Vector3& defaultValue = Vector2::Zero);
-		Vector4 GetVector4(StringID sid, const Vector4& defaultValue = Vector2::Zero);
-		String	GetString(StringID sid, const String& defaultValue = "");
-		int		GetInt(StringID sid, int defaultValue = 0);
-		uint8	GetUInt8(StringID sid, uint8 defaultValue = 0);
-		float	GetFloat(StringID sid, float defaultValue = 0.0f);
-		bool	GetBool(StringID sid, bool defaultValue = false);
+		Vector2	 GetVector2(StringID sid, const Vector2& defaultValue = Vector2::Zero);
+		Vector3	 GetVector3(StringID sid, const Vector3& defaultValue = Vector2::Zero);
+		Vector4	 GetVector4(StringID sid, const Vector4& defaultValue = Vector2::Zero);
+		String	 GetString(StringID sid, const String& defaultValue = "");
+		StringID GetSID(StringID sid, StringID defValue);
+		int		 GetInt(StringID sid, int defaultValue = 0);
+		uint8	 GetUInt8(StringID sid, uint8 defaultValue = 0);
+		float	 GetFloat(StringID sid, float defaultValue = 0.0f);
+		bool	 GetBool(StringID sid, bool defaultValue = false);
 
 		void SetVector2(StringID sid, const Vector2& value);
 		void SetVector3(StringID sid, const Vector3& value);
 		void SetVector4(StringID sid, const Vector4& value);
 		void SetString(StringID sid, const String& value);
+		void SetSID(StringID sid, StringID value);
 		void SetInt(StringID sid, int value);
 		void SetUInt8(StringID sid, uint8 value);
 		void SetFloat(StringID sid, float value);
@@ -67,14 +69,15 @@ namespace Lina
 		void ClearAll();
 
 	private:
-		HashMap<StringID, Vector2> m_vec2s;
-		HashMap<StringID, Vector3> m_vec3s;
-		HashMap<StringID, Vector4> m_vec4s;
-		HashMap<StringID, String>  m_strings;
-		HashMap<StringID, int>	   m_ints;
-		HashMap<StringID, uint8>   m_uint8s;
-		HashMap<StringID, float>   m_floats;
-		HashMap<StringID, bool>	   m_bools;
+		HashMap<StringID, Vector2>	m_vec2s;
+		HashMap<StringID, Vector3>	m_vec3s;
+		HashMap<StringID, Vector4>	m_vec4s;
+		HashMap<StringID, String>	m_strings;
+		HashMap<StringID, int>		m_ints;
+		HashMap<StringID, uint8>	m_uint8s;
+		HashMap<StringID, float>	m_floats;
+		HashMap<StringID, bool>		m_bools;
+		HashMap<StringID, StringID> m_sids;
 	};
 
 } // namespace Lina

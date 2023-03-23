@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/EditorResourcesRegistry.hpp"
 #include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Resource/Font.hpp"
 
 namespace Lina::Editor
 {
@@ -56,11 +57,15 @@ namespace Lina::Editor
 
 	Vector<Pair<StringID, ResourceMetadata>> EditorResourcesRegistry::GetPriorityResourcesMetadata()
 	{
-		auto metalist = CoreResourcesRegistry::GetPriorityResourcesMetadata();
+		auto list = CoreResourcesRegistry::GetPriorityResourcesMetadata();
 
 		// Add custom
+		ResourceMetadata metadata;
+		metadata.SetSID("Sampler"_hs, DEFAULT_GUI_SAMPLER_SID);
+		list.push_back(linatl::make_pair("Resources/Editor/Textures/SplashScreen.png"_hs, metadata));
+		metadata.ClearAll();
 
-		return metalist;
+		return list;
 	}
 
 	Vector<ResourceIdentifier> EditorResourcesRegistry::GetCoreResources()
@@ -69,6 +74,8 @@ namespace Lina::Editor
 		const uint32			   startIndex = static_cast<uint32>(resources.size());
 
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/TitleText.png", GetTypeID<Texture>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_1x.ttf", GetTypeID<Font>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_2x.ttf", GetTypeID<Font>(), 0));
 
 		const String& titleTextStartPath = "Resources/Editor/Textures/TitleTextAnim/lina_title_anim";
 
@@ -90,9 +97,29 @@ namespace Lina::Editor
 
 	Vector<Pair<StringID, ResourceMetadata>> EditorResourcesRegistry::GetCoreResourcesMetadata()
 	{
-		auto metalist = CoreResourcesRegistry::GetCoreResourcesMetadata();
+		auto			 list = CoreResourcesRegistry::GetCoreResourcesMetadata();
+		ResourceMetadata metadata;
+
+		// -------------
+		metadata.SetInt("Size"_hs, 24);
+		metadata.SetBool("IsSDF"_hs, true);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 0x07F);
+		metadata.SetInt("Range_1"_hs, 0x0FF);
+		list.push_back(linatl::make_pair("Resources/Editor/Fonts/EditorIcons_1x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		// -------------
+		metadata.SetInt("Size"_hs, 28);
+		metadata.SetBool("IsSDF"_hs, true);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 0x07F);
+		metadata.SetInt("Range_1"_hs, 0x0FF);
+		list.push_back(linatl::make_pair("Resources/Editor/Fonts/EditorIcons_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
 		// Add custom
-		return metalist;
+		return list;
 	}
 
 } // namespace Lina::Editor

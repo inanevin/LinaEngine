@@ -33,10 +33,10 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Core/PlatformTime.hpp"
 #include "Core/PlatformProcess.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina
 {
-
 	void ResourceManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Resource Manager] -> Initialization.");
@@ -86,19 +86,9 @@ namespace Lina
 						res->LoadFromStream(input);
 						res->Upload();
 						input.Destroy();
-
-						if (res->GetSID() == "Resources/Editor/Textures/TitleText.png"_hs)
-						{
-							PlatformProcess::Sleep(2000);
-						}
 					}
 					else
 					{
-
-						if (res->GetSID() == "Resources/Editor/Textures/TitleText.png"_hs)
-						{
-							PlatformProcess::Sleep(2000);
-						}
 
 						// If we are loading a core resource.
 						// We might have it's custom metadata registered, set it before loading the resource.

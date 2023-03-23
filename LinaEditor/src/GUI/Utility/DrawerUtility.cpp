@@ -26,35 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "GUI/Utility/DrawerUtility.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
 
-#ifndef LinaFont_HPP
-#define LinaFont_HPP
+using namespace Lina;
 
-#include "Resources/Core/IResource.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-#include "Resources/Data/ResourceMetadata.hpp"
-
-namespace Lina
+std::string from_u8string(const std::string& s)
 {
-	class Font : public IResource
-	{
-	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font() = default;
-
-	protected:
-		virtual void Flush() override;
-		virtual void Upload() override;
-		virtual void BatchLoaded() override;
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) override;
-
-	private:
-		Vector<char> m_file;
-	};
-} // namespace Lina
-
+	return s;
+}
+std::string from_u8string(std::string&& s)
+{
+	return std::move(s);
+}
+#if defined(__cpp_lib_char8_t)
+std::string from_u8string(const std::u8string& s)
+{
+	return std::string(s.begin(), s.end());
+}
 #endif
+
+namespace Lina::Editor
+{
+	void DrawerUtility::DrawIcon(SurfaceRenderer* renderer, const char* icon, const Vector2& pos, int drawOrder)
+	{		
+		LinaVG::SDFTextOptions opts;
+		opts.font = Theme::GetFont(FontType::EditorIcons, renderer->GetSwapchain()->GetWindowDPIScale());
+		LinaVG::DrawTextSDF(renderer->GetSurfaceRendererIndex(), icon, LV2(pos), opts, 0.0f, drawOrder);
+	}
+} // namespace Lina::Editor

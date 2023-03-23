@@ -77,8 +77,8 @@ namespace Lina::Editor
 
 		auto&		   wm					  = m_engine.GetWindowManager();
 		const Vector2i primaryMonitorSize	  = wm.GetPrimaryMonitor()->size;
-		const float	   desiredAspect		  = 16.0f / 9.0f;
-		const float	   targetX				  = static_cast<float>(primaryMonitorSize.x * 0.3f);
+		const float	   desiredAspect		  = 1920.0f / 1080.0f;
+		const float	   targetX				  = static_cast<float>(1920.0f / 2.5f * wm.GetPrimaryMonitor()->m_dpiScale);
 		const Vector2i targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
 		auto		   window				  = wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, targetSplashScreenSize);
 		m_engine.PostInitialize(initInfo);
@@ -111,8 +111,8 @@ namespace Lina::Editor
 			ResourceLoadTask* task = static_cast<ResourceLoadTask*>(ev.pParams[0]);
 			if (task->id == m_loadCoreResourcesTask)
 			{
-				m_editor.EndSplashScreen();
-			//	m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN)->SetToWorkingArea();
+				 m_editor.EndSplashScreen();
+				// m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN)->SetToWorkingArea();
 				m_systemEventMask = 0;
 			}
 		}

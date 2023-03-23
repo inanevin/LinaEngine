@@ -42,7 +42,6 @@ namespace Lina
 	Texture::Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>())
 	{
 		m_renderer	   = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetRenderer();
-		m_samplerSID   = DEFAULT_SAMPLER_SID;
 		m_sampler	   = nullptr; // will be loaded later
 		m_resourceType = TextureResourceType::Texture2DDefault;
 	}
@@ -53,7 +52,7 @@ namespace Lina
 		m_extent				   = textureData.extent;
 		m_channels				   = textureData.channels;
 		m_destroyPixelsAfterUpload = textureData.destroyPixelBufferAfterUpload;
-		m_samplerSID			   = textureData.targetSampler;
+		m_samplerSID			   = textureData.targetSampler == 0 ? DEFAULT_SAMPLER_SID : textureData.targetSampler;
 		m_sampler				   = nullptr; // will be loaded later
 		m_resourceType			   = textureData.resourceType;
 		CheckFormat(m_channels);
@@ -90,6 +89,7 @@ namespace Lina
 		m_metadata.GetUInt8("MipmapMode"_hs, static_cast<uint8>(MipmapMode::Linear));
 		m_metadata.GetBool("isSRGB"_hs, false);
 		m_metadata.GetUInt8("ImageTiling"_hs, static_cast<uint8>(ImageTiling::Optimal));
+		m_samplerSID = m_metadata.GetSID("Sampler"_hs, DEFAULT_SAMPLER_SID);
 
 		int texWidth, texHeight, texChannels;
 		m_pixels		= stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -201,6 +201,14 @@ namespace Lina
 		m_sampler	 = m_resourceManager->GetResource<TextureSampler>(m_samplerSID);
 	}
 
+	TextureSampler* Texture::GetSampler()
+	{
+		if (m_sampler == nullptr)
+			m_sampler = m_resourceManager->GetResource<TextureSampler>(m_samplerSID);
+
+		return m_sampler;
+	}
+
 	void Texture::CheckFormat(int channels)
 	{
 		if (channels == 2)
@@ -231,7 +239,6 @@ namespace Lina
 		uint32			   lastHeight	= m_extent.height;
 		const bool		   isSRGB		= m_metadata.GetBool("isSRGB"_hs);
 		const MipmapFilter mipmapFilter = static_cast<MipmapFilter>(m_metadata.GetUInt8("MipmapFilter"_hs));
-
 		for (uint32 i = 0; i < m_mipLevels - 1; i++)
 		{
 			uint32 width  = lastWidth / 2;

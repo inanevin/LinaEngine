@@ -28,33 +28,31 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaFont_HPP
-#define LinaFont_HPP
+#ifndef Widget_HPP
+#define Widget_HPP
 
-#include "Resources/Core/IResource.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-#include "Resources/Data/ResourceMetadata.hpp"
+#include "Core/SizeDefinitions.hpp"
 
 namespace Lina
 {
-	class Font : public IResource
+	class SurfaceRenderer;
+}
+
+namespace Lina::Editor
+{
+	class Widget
 	{
 	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font() = default;
+		Widget(SurfaceRenderer* surface);
+		virtual ~Widget();
+
+		int	   GetSurfaceRendererIndex() const;
+		uint32 GetDPI() const;
+		float  GetDPIScale() const;
 
 	protected:
-		virtual void Flush() override;
-		virtual void Upload() override;
-		virtual void BatchLoaded() override;
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) override;
-
-	private:
-		Vector<char> m_file;
+		SurfaceRenderer* m_surfaceRenderer = nullptr;
 	};
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

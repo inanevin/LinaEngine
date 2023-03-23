@@ -47,8 +47,9 @@ namespace Lina
 		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Material();
 
-		void SetShader(StringID shader);
-		void GetPropertyBlob(uint8*& outData, size_t& outSize);
+		void	SetShader(StringID shader);
+		void	GetPropertyBlob(uint8*& outData, size_t& outSize);
+		Shader* GetShader();
 
 		inline StringID GetShaderHandle() const
 		{
@@ -73,11 +74,6 @@ namespace Lina
 		inline uint32 GetTotalAlignedSize() const
 		{
 			return m_totalAlignedSize;
-		}
-
-		inline Shader* GetShader() const
-		{
-			return m_shader;
 		}
 
 		inline bool IsDirty(uint32 frameIndex) const
@@ -138,6 +134,7 @@ namespace Lina
 	private:
 		friend class Renderer;
 
+		HashMap<int32, Texture*>	  m_runtimeTextures;
 		Renderer*					  m_renderer = nullptr;
 		Vector<MaterialPropertyBase*> m_properties;
 		int32						  m_gpuHandle		  = -1;

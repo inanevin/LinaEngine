@@ -40,6 +40,7 @@ namespace Lina
 	GUIBackend::GUIBackend(GfxManager* man)
 	{
 		m_gfxManager	  = man;
+		m_renderer		  = m_gfxManager->GetRenderer();
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
@@ -124,12 +125,14 @@ namespace Lina
 		};
 
 		UserGeneratedTextureData textureData = UserGeneratedTextureData{
+			.resourceType				   = TextureResourceType::Texture2DDefaultDynamic,
 			.path						   = path,
 			.sid						   = sid,
 			.extent						   = extent,
 			.format						   = Format::R8_UNORM,
-			.targetSampler				   = DEFAULT_SAMPLER_SID,
+			.targetSampler				   = DEFAULT_GUI_TEXT_SAMPLER_SID,
 			.tiling						   = ImageTiling::Linear,
+			.channels					   = 1,
 			.createPixelBuffer			   = true,
 			.destroyPixelBufferAfterUpload = false,
 		};
@@ -160,13 +163,29 @@ namespace Lina
 		m_frameGUIRenderers[threadID] = rend;
 	}
 
+	void GUIBackend::BindTextures()
+	{
+		const uint32	 texturesSize = static_cast<uint32>(m_renderReadyFontTextures.size());
+		Vector<Texture*> textures;
+		textures.reserve(texturesSize);
+
+		for (auto& [sid, txt] : m_renderReadyFontTextures)
+			textures.push_back(txt);
+
+		m_renderer->BindDynamicTextures(textures.data(), texturesSize);
+	}
+
 	void GUIBackend::CheckFontTexturesForUpload()
 	{
+		m_renderer->Join();
+		
 		for (auto& [txt, isDirty] : m_textureDirtyStatus)
 		{
 			if (isDirty)
 				txt->Upload();
 		}
+
+		m_renderReadyFontTextures = m_fontTextures;
 	}
 
 } // namespace Lina

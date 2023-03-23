@@ -26,18 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Widgets/ProgressBar.hpp"
+#include "GUI/Widgets/WidgetProgressBar.hpp"
 #include "Math/Vector.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Core/Theme.hpp"
 
 using namespace Lina;
 
 namespace Lina::Editor
 {
-	void ProgressBar::Draw(const Vector2& start, const Vector2& size, float progress)
+	void WidgetProgressBar::Draw(const Vector2& start, const Vector2& size, const Vector2& textPos, float progress, const char* text)
 	{
 		LinaVG::StyleOptions style;
+		style.color = LV4(BackgroundColor);
+		LinaVG::DrawRect(GetSurfaceRendererIndex(), LV2(start), LV2((start + size)), style, 0.0f, 1);
 
-		LinaVG::DrawRect(LV2(Vector2(0,0)), LV2(Vector2(100, 100)), style, 0.0f, 1);
+		style.color.start			 = LV4(ForegroundStartColor);
+		style.color.end				 = LV4(ForegroundEndColor);
+		const Vector2 foregroundSize = Vector2(size.x * Progress, size.y);
+		LinaVG::DrawRect(GetSurfaceRendererIndex(), LV2(start), LV2((start + foregroundSize)), style, 0.0f, 1);
+
+		LinaVG::TextOptions textStyle;
+		textStyle.font = Theme::GetFont(FontType::DefaultEditor, GetDPIScale());
+		LinaVG::DrawTextNormal(GetSurfaceRendererIndex(), text, LV2(textPos), textStyle, 0.0f, 2);
 	}
 } // namespace Lina::Editor

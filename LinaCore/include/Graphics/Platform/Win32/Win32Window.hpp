@@ -77,7 +77,7 @@ namespace Lina
 		virtual void SetToFullscreen() override;
 
 	private:
-		void UpdateButtonLayoutForDpi(HWND__* hwnd);
+		void UpdateDPI(HWND__* hwnd);
 		void UpdatePos(const Vector2i& pos);
 		void UpdateSize(const Vector2i& size);
 

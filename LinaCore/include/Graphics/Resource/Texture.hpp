@@ -69,8 +69,9 @@ namespace Lina
 		Texture(ResourceManager* rm, const UserGeneratedTextureData& textureData);
 		virtual ~Texture();
 
-		virtual void Upload() override;
-		void		 SetSampler(StringID samplerSID);
+		virtual void	Upload() override;
+		void			SetSampler(StringID samplerSID);
+		TextureSampler* GetSampler();
 
 		inline const Extent3D& GetExtent() const
 		{
@@ -97,7 +98,7 @@ namespace Lina
 			return m_channels;
 		}
 
-		inline StringID GetSampler() const
+		inline StringID GetSamplerSID() const
 		{
 			return m_samplerSID;
 		}

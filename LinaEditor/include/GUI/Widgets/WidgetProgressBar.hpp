@@ -28,8 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ProgressBar_HPP
-#define ProgressBar_HPP
+#ifndef WidgetProgressBar_HPP
+#define WidgetProgressBar_HPP
+
+#include "Widget.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina
 {
@@ -38,13 +41,18 @@ namespace Lina
 
 namespace Lina::Editor
 {
-	class ProgressBar
+	class WidgetProgressBar : public Widget
 	{
 	public:
-		ProgressBar()		   = default;
-		virtual ~ProgressBar() = default;
+		WidgetProgressBar(SurfaceRenderer* rend) : Widget(rend){};
+		virtual ~WidgetProgressBar() = default;
 
-		void Draw(const Vector2& start, const Vector2& size, float progress);
+		void Draw(const Vector2& start, const Vector2& size, const Vector2& textPos, float progress, const char* text);
+
+		Color BackgroundColor	   = Color::White;
+		Color ForegroundStartColor = Color::DarkBlue;
+		Color ForegroundEndColor   = Color::DarkBlue;
+		float Progress			   = 0.0f;
 	};
 } // namespace Lina::Editor
 

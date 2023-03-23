@@ -32,6 +32,7 @@ SOFTWARE.
 #define GUIRenderer_HPP
 
 #include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Resource/Material.hpp"
 #include "Math/Vector.hpp"
 #include "Math/Matrix.hpp"
 
@@ -50,9 +51,9 @@ namespace Lina
 {
 	class GfxManager;
 	class Renderer;
-	class Material;
 	class IGfxGPUResource;
 	class IGfxCPUResource;
+	class ResourceManager;
 
 	class GUIRenderer
 	{
@@ -107,11 +108,6 @@ namespace Lina
 			uint32					   vertexCounter = 0;
 		};
 
-		struct DataPerImage
-		{
-			Material* guiMaterial = nullptr;
-		};
-
 	public:
 		GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount);
 		virtual ~GUIRenderer();
@@ -125,6 +121,7 @@ namespace Lina
 		void Prepare(const Vector2i& surfaceRendererSize, uint32 frameIndex, uint32 imageIndex);
 
 	private:
+		void AllocateMaterials();
 		void UpdateProjection();
 		void AssignStandardMaterial(Material* mat, const GUIStandardMaterialDefinition& def);
 
@@ -132,16 +129,17 @@ namespace Lina
 		OrderedDrawRequest& AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
 	private:
-		Vector2i			 m_size		  = Vector2i::Zero;
-		uint32				 m_imageIndex = 0;
-		uint32				 m_frameIndex = 0;
-		StringID			 m_ownerSid	  = 0;
-		uint32				 m_imageCount = 0;
-		GfxManager*			 m_gfxManager = nullptr;
-		Renderer*			 m_renderer	  = nullptr;
-		DataPerFrame		 m_frames[FRAMES_IN_FLIGHT];
-		Vector<DataPerImage> m_dataPerImage;
-		Matrix4				 m_projection;
+		ResourceManager* m_resourceManager = nullptr;
+		Vector2i		 m_size			   = Vector2i::Zero;
+		uint32			 m_imageIndex	   = 0;
+		uint32			 m_frameIndex	   = 0;
+		StringID		 m_ownerSid		   = 0;
+		uint32			 m_imageCount	   = 0;
+		GfxManager*		 m_gfxManager	   = nullptr;
+		Renderer*		 m_renderer		   = nullptr;
+		DataPerFrame	 m_frames[FRAMES_IN_FLIGHT];
+		Vector<Material> m_materials;
+		Matrix4			 m_projection;
 	};
 } // namespace Lina
 

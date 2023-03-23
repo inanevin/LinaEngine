@@ -33,17 +33,25 @@ SOFTWARE.
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/CommonResources.hpp"
+#include "Resources/Core/ResourceManager.hpp"
+#include "Core/Theme.hpp"
+#include "GUI/Utility/DrawerUtility.hpp"
 
 namespace Lina::Editor
 {
-	SplashScreenGUIDrawer::SplashScreenGUIDrawer(Editor* editor, Lina::SurfaceRenderer* sf) : m_editor(editor), EditorGUIDrawer(sf)
+	SplashScreenGUIDrawer::SplashScreenGUIDrawer(Editor* editor, Lina::SurfaceRenderer* sf) : m_editor(editor), m_progressBar(sf), EditorGUIDrawer(sf)
 	{
-		m_editor->GetSystem()->AddListener(this);
+		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->AddListener(this);
+
+		m_currentResource				   = "Loading core resources...";
+		m_progressBar.BackgroundColor	   = Theme::TC_Silent;
+		m_progressBar.ForegroundStartColor = Theme::TC_CyanAccent;
+		m_progressBar.ForegroundEndColor   = Theme::TC_PurpleAccent;
 	}
 
 	SplashScreenGUIDrawer::~SplashScreenGUIDrawer()
 	{
-		m_editor->GetSystem()->RemoveListener(this);
+		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->RemoveListener(this);
 	}
 
 	void SplashScreenGUIDrawer::OnSystemEvent(SystemEvent eventType, const Event& ev)
@@ -54,30 +62,50 @@ namespace Lina::Editor
 		{
 			ResourceLoadTask* task = static_cast<ResourceLoadTask*>(ev.pParams[1]);
 			m_loadedResources++;
-			m_progress = static_cast<float>(m_loadedResources) / static_cast<float>(task->identifiers.size());
+			m_currentResource = *static_cast<String*>(ev.pParams[0]);
+			m_progress		  = static_cast<float>(m_loadedResources) / static_cast<float>(task->identifiers.size());
 		}
 	}
 
 	void SplashScreenGUIDrawer::DrawGUI(int threadID)
 	{
-		return;
 		const Vector2 size = m_surfaceRenderer->GetSwapchain()->GetSize();
 
 		// Base image.
-		LinaVG::StyleOptions style;
-		style.textureHandle = "Resources/Editor/Textures/SplashScreen.png"_hs;
-		//LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(size), style);
+		{
+			LinaVG::StyleOptions style;
+			style.textureHandle = "Resources/Editor/Textures/SplashScreen.png"_hs;
+			LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(size), style);
+		}
 
-		style.color = LV4(Vector4(1,0,0,1));
-		style.textureHandle = 0;
-	//	LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(50,50)), style, 0.0f, 2);
+		// Progress bar & copyright text.
+		{
+			const Vector2 progressBarStart = Vector2(size.x * 0.4f, size.y * 0.88f);
+			const Vector2 progressBarSize  = Vector2(size.x - progressBarStart.x - size.x * 0.05f, size.y * 0.005f);
+			const Vector2 txtPos		   = Vector2(progressBarStart.x, progressBarStart.y - progressBarSize.y * 10.0f);
+			m_progressBar.Progress		   = m_progress;
+			m_progressBar.Draw(progressBarStart, progressBarSize, txtPos, m_progress, m_currentResource.c_str());
 
-		//style.color = LV4(Vector4(1,1,0,1));
-		//LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(Vector2(500,50)), style, 0.0f, 1);
+			LinaVG::TextOptions copyrightText;
+			copyrightText.font	= Theme::GetFont(FontType::AltEditor, m_surfaceRenderer->GetSwapchain()->GetWindowDPIScale());
+			copyrightText.color = LV4(Theme::TC_VerySilent);
 
-		// Progress bar.
-		const Vector2 progressBarStart = Vector2(size.x * 0.35f, size.y * 0.8f);
-		const Vector2 progressBarSize  = Vector2(size.x - progressBarStart.x - size.x * 0.15f, size.y * 0.05f);
-		//m_progressBar.Draw(progressBarStart, progressBarSize, m_progress);
+			Vector2		 copyrightTextLine = Vector2(size.x * 0.06f, size.y * 0.425f);
+			const String versionText	   = "v" + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " b" + TO_STRING(LINA_BUILD);
+			const char*	 text			   = versionText.c_str();
+			const char*	 text2			   = "Copyright (c) [2018-] Inan Evin";
+			const char*	 text3			   = "https://github.com/inanevin/LinaEngine";
+			LinaVG::DrawTextNormal(m_surfaceRenderer->GetSurfaceRendererIndex(), text, LV2(copyrightTextLine), copyrightText, 0.0f, 1);
+
+			Vector2 textSize = FL2(LinaVG::CalculateTextSize(text, copyrightText));
+			copyrightTextLine.y += textSize.y * 2.25f;
+			LinaVG::DrawTextNormal(m_surfaceRenderer->GetSurfaceRendererIndex(), text2, LV2(copyrightTextLine), copyrightText, 0.0f, 1);
+
+			textSize = FL2(LinaVG::CalculateTextSize(text2, copyrightText));
+			copyrightTextLine.y += textSize.y * 2.25f;
+			copyrightText.font	= Theme::GetFont(FontType::DefaultEditor, m_surfaceRenderer->GetSwapchain()->GetWindowDPIScale());
+			copyrightText.color = LV4(Theme::TC_White);
+			LinaVG::DrawTextNormal(m_surfaceRenderer->GetSurfaceRendererIndex(), text3, LV2(copyrightTextLine), copyrightText, 0.0f, 1);
+		}
 	}
 } // namespace Lina::Editor

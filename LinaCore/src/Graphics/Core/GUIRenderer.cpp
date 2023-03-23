@@ -40,20 +40,13 @@ namespace Lina
 {
 #define DEF_VTX_BUF_SIZE   4
 #define DEF_INDEX_BUF_SIZE 4
+#define DEF_MAT_SIZE	   50
 
 	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount) : m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount)
 	{
-		m_renderer = m_gfxManager->GetRenderer();
-		auto rm	   = gfxMan->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_dataPerImage.resize(m_imageCount);
-
-		for (uint32 i = 0; i < m_imageCount; i++)
-		{
-			auto&		   data = m_dataPerImage[i];
-			const String   path = "GUIRenderer_" + TO_STRING(ownerSid) + "_" + TO_STRING(i);
-			const StringID sid	= TO_SID(path);
-			data.guiMaterial	= new Material(rm, true, path, sid);
-		}
+		m_renderer		  = m_gfxManager->GetRenderer();
+		m_resourceManager = gfxMan->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		AllocateMaterials();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -66,12 +59,6 @@ namespace Lina
 
 	GUIRenderer::~GUIRenderer()
 	{
-		for (uint32 i = 0; i < m_imageCount; i++)
-		{
-			auto& data = m_dataPerImage[i];
-			delete data.guiMaterial;
-		}
-
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame = m_frames[i];
@@ -127,10 +114,7 @@ namespace Lina
 	void GUIRenderer::Render(uint32 cmdList)
 	{
 		auto& frame = m_frames[m_frameIndex];
-		auto& data	= m_dataPerImage[m_imageIndex];
 
-		if (data.guiMaterial->GetShader() == nullptr)
-			data.guiMaterial->SetShader("Resources/Core/Shaders/GUIStandard.linashader"_hs);
 
 		// Transfer vertex & index data
 		{
@@ -142,17 +126,37 @@ namespace Lina
 
 		// View data & pipeline
 		{
-			//m_renderer->BindMaterial(cmdList, data.guiMaterial, MBF_BindShader);
 			frame.viewData.proj = m_projection;
 			frame.viewDataBuffer->BufferData(&frame.viewData, sizeof(GPUViewData));
 			m_renderer->BindUniformBuffer(cmdList, GBB_ViewData, frame.viewDataBuffer);
+			m_renderer->BindPipeline(cmdList, m_materials[0].GetShader());
 		}
 
-		for (auto& req : frame.drawRequests)
+		// Allocate new materials if necessary,
+		// Assign request definition data & bind materials, then finally draw.
 		{
-			AssignStandardMaterial(data.guiMaterial, req.materialDefinition);
-			//m_renderer->BindMaterial(cmdList, data.guiMaterial, MBF_BindMaterialProperties);
-			m_renderer->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
+			const uint32 requestsSize = static_cast<uint32>(frame.drawRequests.size());
+
+			if (requestsSize > static_cast<uint32>(m_materials.size()))
+				AllocateMaterials();
+
+			Vector<Material*> mats;
+			mats.resize(requestsSize);
+
+			for (uint32 i = 0; i < requestsSize; i++)
+			{
+				mats[i] = &m_materials[i];
+				AssignStandardMaterial(mats[i], frame.drawRequests[i].materialDefinition);
+			}
+
+			m_renderer->BindMaterials(mats.data(), requestsSize);
+
+			for (uint32 i = 0; i < requestsSize; i++)
+			{
+				auto& req = frame.drawRequests[i];
+				m_renderer->SetMaterialID(cmdList, mats[i]->GetGPUBindlessIndex());
+				m_renderer->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
+			}
 		}
 
 		frame.vertexCounter = frame.indexCounter = 0;
@@ -169,6 +173,23 @@ namespace Lina
 
 		if (shouldUpdateProjection)
 			UpdateProjection();
+	}
+
+	void GUIRenderer::AllocateMaterials()
+	{
+		const uint32 currentSize = static_cast<uint32>(m_materials.size());
+		const uint32 targetSize	 = currentSize + DEF_MAT_SIZE;
+
+		m_materials.resize(targetSize, Material(m_resourceManager, true, "", 0));
+
+		for (uint32 i = currentSize; i < targetSize; i++)
+		{
+			const String   path = "GUIRenderer_" + TO_STRING(m_ownerSid) + "_Material_" + TO_STRING(i);
+			const StringID sid	= TO_SID(path);
+			auto&		   mat	= m_materials[i];
+			mat					= Material(m_resourceManager, true, path, sid);
+			mat.SetShader("Resources/Core/Shaders/GUIStandard.linashader"_hs);
+		}
 	}
 
 	void GUIRenderer::UpdateProjection()

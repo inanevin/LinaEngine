@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Graphics/Resource/Material.hpp"
 #include "Serialization/StringSerialization.hpp"
 #include "Graphics/Resource/Shader.hpp"
+#include "Graphics/Resource/Texture.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Core/GfxManager.hpp"
@@ -67,6 +68,8 @@ namespace Lina
 		for (auto p : m_properties)
 			delete p;
 
+		m_runtimeTextures.clear();
+
 		m_shader			 = m_resourceManager->GetResource<Shader>(m_shaderHandle);
 		const auto& props	 = m_shader->GetProperties();
 		const auto& textures = m_shader->GetTextures();
@@ -96,6 +99,7 @@ namespace Lina
 
 		uint32 offset = 0;
 
+		int32 propertyIndex = 0;
 		for (auto& p : m_properties)
 		{
 			const uint32 typeSize	= p->GetTypeSize();
@@ -112,8 +116,15 @@ namespace Lina
 				if (textureSID == 0)
 					textureSID = DEFAULT_TEXTURE_SID;
 
-				textureSrc = m_renderer->GetTextureIndex(textureSID);
-				samplerSrc = m_renderer->GetSamplerIndex(textureSID);
+				Texture* txt = m_runtimeTextures[propertyIndex];
+				if (txt == nullptr)
+				{
+					txt								 = m_resourceManager->GetResource<Texture>(textureSID);
+					m_runtimeTextures[propertyIndex] = txt;
+				}
+
+				textureSrc = txt->GetGPUBindlessIndex();
+				samplerSrc = txt->GetSampler()->GetGPUBindlessIndex();
 			}
 
 			if (offset != 0)
@@ -139,7 +150,16 @@ namespace Lina
 				MEMCPY(outData + offset, src, typeSize);
 
 			offset += typeSize;
+			propertyIndex++;
 		}
+	}
+
+	Shader* Material::GetShader()
+	{
+		if (m_shader == nullptr)
+			m_shader = m_resourceManager->GetResource<Shader>(m_shaderHandle);
+
+		return m_shader;
 	}
 
 	void Material::LoadFromFile(const char* path)

@@ -95,13 +95,13 @@ namespace Lina
 
 		if (mask.IsSet(UCM_FlushTextures))
 		{
-			for (auto& req : m_textureRequests)
+			for (auto& req : m_rdyTextureRequests)
 				CopyTexture(req);
 		}
 
 		if (mask.IsSet(UCM_FlushStagingToGPURequests))
 		{
-			for (auto& req : m_stagingToGPURequests)
+			for (auto& req : m_rdyStagingToGPURequests)
 			{
 				DX12CPUResource* dx12ResStaging = static_cast<DX12CPUResource*>(req.cpuRes);
 				DX12GPUResource* dx12ResTarget	= static_cast<DX12GPUResource*>(req.gpuRes);
@@ -113,18 +113,18 @@ namespace Lina
 
 		if (mask.IsSet(UCM_FlushStagingToGPURequests))
 		{
-			for (auto& req : m_stagingToGPURequests)
+			for (auto& req : m_rdyStagingToGPURequests)
 			{
 				if (req.onCopied)
 					req.onCopied();
 			}
 
-			m_stagingToGPURequests.clear();
+			m_rdyStagingToGPURequests.clear();
 		}
 
 		if (mask.IsSet(UCM_FlushTextures))
 		{
-			for (auto& req : m_textureRequests)
+			for (auto& req : m_rdyTextureRequests)
 			{
 				delete req.stagingResource;
 
@@ -132,62 +132,8 @@ namespace Lina
 					req.genReq.onGenerated();
 			}
 
-			m_textureRequests.clear();
+			m_rdyTextureRequests.clear();
 		}
-	}
-
-	void DX12UploadContext::FlushStagingToGPURequests()
-	{
-		OpenCommandList();
-
-		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
-		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
-
-		// Copy
-		{
-			for (auto& req : m_stagingToGPURequests)
-			{
-				DX12CPUResource* dx12ResStaging = static_cast<DX12CPUResource*>(req.cpuRes);
-				DX12GPUResource* dx12ResTarget	= static_cast<DX12GPUResource*>(req.gpuRes);
-				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
-			}
-		}
-
-		CloseAndExecuteCommandList();
-
-		for (auto& req : m_stagingToGPURequests)
-		{
-			if (req.onCopied)
-				req.onCopied();
-		}
-
-		m_stagingToGPURequests.clear();
-	}
-
-	void DX12UploadContext::FlushTextureRequests()
-	{
-		OpenCommandList();
-
-		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
-		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
-
-		// Copy
-		{
-			for (auto& req : m_textureRequests)
-				CopyTexture(req);
-		}
-
-		CloseAndExecuteCommandList();
-
-		for (auto& req : m_textureRequests)
-		{
-			delete req.stagingResource;
-
-			if (req.genReq.onGenerated)
-				req.genReq.onGenerated();
-		}
-
-		m_textureRequests.clear();
 	}
 
 	void DX12UploadContext::CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
@@ -248,6 +194,14 @@ namespace Lina
 		req.cpuRes = cpuRes;
 		req.gpuRes = gpuRes;
 		m_stagingToGPURequests.push_back(req);
+	}
+
+	void DX12UploadContext::TransferToReadyQueue()
+	{
+		m_rdyStagingToGPURequests.insert(m_rdyStagingToGPURequests.end(), m_stagingToGPURequests.begin(), m_stagingToGPURequests.end());
+		m_rdyTextureRequests.insert(m_rdyTextureRequests.end(), m_textureRequests.begin(), m_textureRequests.end());
+		m_stagingToGPURequests.clear();
+		m_textureRequests.clear();
 	}
 
 	TextureUploadRequest DX12UploadContext::CreateTextureUploadRequest(IGfxTextureResource* targetGPUResource, Texture* src, ImageGenerateRequest imgReq)

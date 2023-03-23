@@ -73,18 +73,19 @@ namespace Lina
 		virtual ~IUploadContext(){};
 
 		virtual void FlushViaMask(Bitmask16 mask)																		 = 0;
-		virtual void FlushStagingToGPURequests()																		 = 0;
-		virtual void FlushTextureRequests()																				 = 0;
 		virtual void CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) = 0;
 		virtual void CopyTextureQueueUp(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req)	 = 0;
 		virtual void CopyBuffersImmediate(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)								 = 0;
 		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes, Delegate<void()>&& onCopied)	 = 0;
 		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)								 = 0;
+		virtual void TransferToReadyQueue()																				 = 0;
 
 	protected:
 		Renderer*					 m_renderer = nullptr;
 		Vector<TextureUploadRequest> m_textureRequests;
 		Vector<StagingToGPURequests> m_stagingToGPURequests;
+		Vector<TextureUploadRequest> m_rdyTextureRequests;
+		Vector<StagingToGPURequests> m_rdyStagingToGPURequests;
 	};
 } // namespace Lina
 

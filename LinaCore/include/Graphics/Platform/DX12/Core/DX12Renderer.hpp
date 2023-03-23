@@ -75,7 +75,7 @@ namespace Lina
 		IGfxTextureResource* gpuResource = nullptr;
 		StringID			 sid		 = 0;
 		DescriptorHandle	 descriptor;
-		DescriptorHandle	 descriptorSecondary;
+		DescriptorHandle	 descriptorSecondary; // used for render target views
 		Texture*			 textureSrc = nullptr;
 	};
 
@@ -95,13 +95,6 @@ namespace Lina
 	{
 		DescriptorHandle descriptor;
 		StringID		 sid = 0;
-	};
-
-	struct LoadedResourceData
-	{
-		StringID sid;
-		uint32	 idListIndex = 0;
-		uint32	 shaderIndex = 0;
 	};
 
 	class Renderer : public ISystemEventListener
@@ -174,8 +167,6 @@ namespace Lina
 		IGfxTextureResource* CreateTextureResource(TextureResourceType type, Texture* texture);
 		void				 DeleteCPUResource(IGfxCPUResource* res);
 		void				 DeleteGPUResource(IGfxGPUResource* res);
-		uint32				 GetTextureIndex(const StringID textureSid);
-		uint32				 GetSamplerIndex(const StringID textureSid);
 
 		// Commands
 		uint32 CreateCommandAllocator(CommandType type);

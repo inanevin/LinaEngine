@@ -83,6 +83,7 @@ namespace Lina
 			LinaVG::Config.textCachingEnabled	  = true;
 			LinaVG::Config.textCachingSDFEnabled  = true;
 			LinaVG::Config.textCacheReserve		  = 10000;
+			LinaVG::Config.useUnicodeEncoding	  = false;
 			LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
 			LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 			LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
@@ -117,9 +118,24 @@ namespace Lina
 			samplerData.borderColor = Color::White;
 			samplerData.mipLodBias	= 0.0f;
 			samplerData.minLod		= 0.0f;
-			samplerData.maxLod		= 0.0f;
+			samplerData.maxLod		= 30.0f; // upper limit
 			defaultSampler->SetSamplerData(samplerData);
+
+			TextureSampler* defaultGUISampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultGUISampler.linasampler", DEFAULT_GUI_SAMPLER_SID);
+			samplerData.minFilter			  = Filter::Anisotropic;
+			samplerData.magFilter			  = Filter::Anisotropic;
+			samplerData.mipLodBias			  = 0.0f;
+			defaultGUISampler->SetSamplerData(samplerData);
+
+			TextureSampler* defaultGUITextSampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultGUITextSampler.linasampler", DEFAULT_GUI_TEXT_SAMPLER_SID);
+			samplerData.minFilter				  = Filter::Nearest;
+			samplerData.magFilter				  = Filter::Anisotropic;
+			samplerData.mipLodBias				  = 0.0f;
+			defaultGUITextSampler->SetSamplerData(samplerData);
+
 			m_engineSamplers.push_back(defaultSampler);
+			m_engineSamplers.push_back(defaultGUISampler);
+			m_engineSamplers.push_back(defaultGUITextSampler);
 		}
 
 		// Shaders & materials
@@ -252,6 +268,7 @@ namespace Lina
 
 		m_renderer->BeginFrame(m_frameIndex);
 		LinaVG::StartFrame(static_cast<int>(m_surfaceRenderers.size()));
+		m_guiBackend->BindTextures();
 
 		// Surface renderers.
 		{
@@ -314,9 +331,9 @@ namespace Lina
 			}
 
 			m_guiBackend->OnResourceBatchLoaded(ev);
+			m_renderer->GetUploadContext()->TransferToReadyQueue();
 
-			if (flushMask != 0)
-				m_renderer->GetUploadContext()->FlushViaMask(flushMask);
+			m_renderer->ResetResources();
 		}
 		else if (eventType & EVS_LevelInstalled)
 		{

@@ -26,35 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "GUI/Widgets/Widget.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/ISwapchain.hpp"
 
-#ifndef LinaFont_HPP
-#define LinaFont_HPP
+using namespace Lina;
 
-#include "Resources/Core/IResource.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-#include "Resources/Data/ResourceMetadata.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class Font : public IResource
+	Widget::Widget(SurfaceRenderer* surface) : m_surfaceRenderer(surface)
 	{
-	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font() = default;
+	}
 
-	protected:
-		virtual void Flush() override;
-		virtual void Upload() override;
-		virtual void BatchLoaded() override;
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) override;
+	Widget::~Widget()
+	{
+	}
 
-	private:
-		Vector<char> m_file;
-	};
-} // namespace Lina
+	int Widget::GetSurfaceRendererIndex() const
+	{
+		return m_surfaceRenderer->GetSurfaceRendererIndex();
+	}
 
-#endif
+	uint32 Widget::GetDPI() const
+	{
+		return m_surfaceRenderer->GetSwapchain()->GetWindowDPI();
+	}
+
+	float Widget::GetDPIScale() const
+	{
+		return m_surfaceRenderer->GetSwapchain()->GetWindowDPIScale();
+	}
+
+} // namespace Lina::Editor

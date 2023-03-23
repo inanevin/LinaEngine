@@ -45,13 +45,12 @@ namespace Lina
 		virtual ~DX12UploadContext();
 
 		virtual void FlushViaMask(Bitmask16 mask) override;
-		virtual void FlushStagingToGPURequests() override;
-		virtual void FlushTextureRequests() override;
 		virtual void CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
 		virtual void CopyTextureQueueUp(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
 		virtual void CopyBuffersImmediate(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes) override;
 		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes, Delegate<void()>&& onCopied) override;
 		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes) override;
+		virtual void TransferToReadyQueue() override;
 
 	private:
 		void				 CopyTexture(TextureUploadRequest& req);

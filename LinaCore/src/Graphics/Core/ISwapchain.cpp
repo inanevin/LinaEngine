@@ -40,4 +40,12 @@ namespace Lina
 		m_renderer		= renderer;
 		m_windowManager = m_renderer->GetGfxManager()->GetSystem()->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
 	}
+	uint32 ISwapchain::GetWindowDPI() const
+	{
+		return m_window->GetDPI();
+	}
+	float ISwapchain::GetWindowDPIScale() const
+	{
+		return m_window->GetDPIScale();
+	}
 } // namespace Lina

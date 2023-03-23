@@ -46,6 +46,9 @@ namespace Lina
 		ISwapchain(Renderer* renderer, const Vector2i& size, IWindow* window, StringID sid);
 		virtual ~ISwapchain(){};
 
+		uint32 GetWindowDPI() const;
+		float  GetWindowDPIScale() const;
+
 		virtual void Recreate(const Vector2i& newSize)
 		{
 			m_size = newSize;
@@ -65,6 +68,7 @@ namespace Lina
 		{
 			return m_sid;
 		}
+
 		uint32 userData	 = 0;
 		uint64 userData2 = 0;
 

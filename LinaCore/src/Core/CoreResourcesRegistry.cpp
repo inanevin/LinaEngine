@@ -50,12 +50,19 @@ namespace Lina
 	{
 		Vector<ResourceIdentifier> list;
 
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_1x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_2x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_3x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_4x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_1x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_2x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_3x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_4x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/DummyBlack_32.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/LogoWithText.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
-		//	list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader", GetTypeID<Shader>(), 0));
 
@@ -72,20 +79,50 @@ namespace Lina
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
-		metadata.SetInt("Size"_hs, 12);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans.ttf"_hs, metadata));
+		metadata.SetInt("Size"_hs, 10);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_1x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
-		metadata.SetInt("Size"_hs, 12);
 		metadata.SetBool("IsSDF"_hs, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_12.ttf"_hs, metadata));
+		metadata.SetInt("Size"_hs, 12);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_2x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
-		metadata.SetInt("Size"_hs, 13);
 		metadata.SetBool("IsSDF"_hs, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_13.ttf"_hs, metadata));
+		metadata.SetInt("Size"_hs, 14);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_3x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 16);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_4x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt("Size"_hs, 10);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		////-------------
+		metadata.SetInt("Size"_hs, 12);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt("Size"_hs, 14);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt("Size"_hs, 16);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		return list;
@@ -95,8 +132,6 @@ namespace Lina
 	{
 		Vector<ResourceIdentifier> list;
 
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_12.ttf", GetTypeID<Font>(), 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_13.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Capsule.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cylinder.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.fbx", GetTypeID<Model>(), 0));

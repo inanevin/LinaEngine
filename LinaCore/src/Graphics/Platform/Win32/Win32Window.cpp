@@ -102,10 +102,12 @@ namespace Lina
 			// Dispatch focus event?
 		}
 		break;
+		case WM_DISPLAYCHANGE: {
+
+			break;
+		}
 		case WM_DPICHANGED: {
-			HWND hWndButton = FindWindowEx(window, NULL, NULL, NULL);
-			if (hWndButton != NULL)
-				win32Window->UpdateButtonLayoutForDpi(hWndButton);
+			win32Window->UpdateDPI(window);
 		}
 		break;
 		case WM_ACTIVATEAPP: {
@@ -129,7 +131,8 @@ namespace Lina
 			else
 			{
 				RECT rect;
-				GetWindowRect(window, &rect);
+				 GetWindowRect(window, &rect);
+				//GetClientRect(window, &rect);
 				const Vector2i newSize = Vector2i(rect.right - rect.left, rect.bottom - rect.top);
 				win32Window->UpdateSize(newSize);
 			}
@@ -334,6 +337,8 @@ namespace Lina
 
 		m_handle				 = static_cast<void*>(m_window);
 		s_win32Windows[m_window] = this;
+		m_dpi					 = GetDpiForWindow(m_window);
+		m_dpiScale				 = m_dpi / 96.0f;
 
 		// For raw input
 		if (parent == nullptr)
@@ -401,7 +406,7 @@ namespace Lina
 		{
 			SetToWorkingArea();
 		}
-		
+
 		ShowWindow(m_window, SW_SHOW);
 	}
 
@@ -426,14 +431,22 @@ namespace Lina
 		ShowWindow(m_window, SW_SHOWMAXIMIZED);
 	}
 
-	void Win32Window::UpdateButtonLayoutForDpi(HWND__* hwnd)
+	void Win32Window::UpdateDPI(HWND__* hwnd)
 	{
-		int iDpi			= GetDpiForWindow(m_window);
-		int dpiScaledX		= MulDiv(0, iDpi, 96);
-		int dpiScaledY		= MulDiv(0, iDpi, 96);
-		int dpiScaledWidth	= MulDiv(m_rect.size.x, iDpi, 96);
-		int dpiScaledHeight = MulDiv(m_rect.size.y, iDpi, 96);
-		SetWindowPos(hwnd, hwnd, dpiScaledX, dpiScaledY, dpiScaledWidth, dpiScaledHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+		const int iDpi			= GetDpiForWindow(m_window);
+		float	  previousScale = m_dpiScale;
+		m_dpi					= iDpi;
+		m_dpiScale				= m_dpi / 96.0f;
+
+		int dpiScaledX = MulDiv(m_rect.pos.x, iDpi, 96);
+		int dpiScaledY = MulDiv(m_rect.pos.y, iDpi, 96);
+		// int dpiScaledWidth	= MulDiv(m_rect.size.x, iDpi, 96);
+		// int dpiScaledHeight = MulDiv(m_rect.size.y, iDpi, 96);
+		//  SetWindowPos(hwnd, hwnd, dpiScaledX, dpiScaledY, dpiScaledWidth, dpiScaledHeight, SWP_NOZORDER | SWP_NOACTIVATE);
+
+		int dpiScaledWidth	= static_cast<int>(static_cast<float>(m_rect.size.x) * m_dpiScale / previousScale);
+		int dpiScaledHeight = static_cast<int>(static_cast<float>(dpiScaledWidth) / m_aspect);
+		SetSize(Vector2i(dpiScaledWidth, dpiScaledHeight));
 	}
 
 	void Win32Window::SetSize(const Vector2i& newSize)

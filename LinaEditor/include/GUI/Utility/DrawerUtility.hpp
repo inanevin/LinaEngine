@@ -28,33 +28,25 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaFont_HPP
-#define LinaFont_HPP
+#ifndef DrawerUtility_HPP
+#define DrawerUtility_HPP
 
-#include "Resources/Core/IResource.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-#include "Resources/Data/ResourceMetadata.hpp"
+#include "Core/SizeDefinitions.hpp"
+#include "Core/Theme.hpp"
 
 namespace Lina
 {
-	class Font : public IResource
+	class Vector2;
+	class SurfaceRenderer;
+} // namespace Lina
+
+namespace Lina::Editor
+{
+	class DrawerUtility
 	{
 	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font() = default;
-
-	protected:
-		virtual void Flush() override;
-		virtual void Upload() override;
-		virtual void BatchLoaded() override;
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) override;
-
-	private:
-		Vector<char> m_file;
+		static void DrawIcon(SurfaceRenderer* rend, const char* icon, const Vector2& pos, int drawOrder = 0);
 	};
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

@@ -139,6 +139,16 @@ namespace Lina
 			m_dragRect = r;
 		}
 
+		inline uint32 GetDPI() const
+		{
+			return m_dpi;
+		}
+
+		inline float GetDPIScale() const
+		{
+			return m_dpiScale;
+		}
+
 	protected:
 		ISystem*	m_system		 = nullptr;
 		Recti		m_rect			 = Recti();
@@ -152,6 +162,8 @@ namespace Lina
 		const char* m_title			 = 0;
 		void*		m_handle		 = nullptr;
 		void*		m_registryHandle = nullptr;
+		uint32		m_dpi			 = 0;
+		float		m_dpiScale		 = 0.0f;
 	};
 } // namespace Lina
 

@@ -441,6 +441,8 @@ namespace Lina
 
 		WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
 
+		m_uploadContext->FlushViaMask(UCM_FlushStagingToGPURequests | UCM_FlushTextures);
+
 		m_gpuBufferHeap[m_currentFrameIndex]->Reset(m_texturesHeapAllocCount);
 		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(m_samplersHeapAllocCount);
 	}
@@ -632,36 +634,29 @@ namespace Lina
 		genData.materialSrc				  = mat;
 		mat->m_gpuHandle				  = index;
 
-		uint8* data = nullptr;
-		size_t sz	= 0;
-		mat->GetPropertyBlob(data, sz);
-
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
+			mat->m_isDirty[i] = true;
+
 			if (genData.buffer[i] == nullptr)
 			{
+				// Material doesn't exist already
 
 #ifndef LINA_PRODUCTION_BUILD
 				const wchar_t* name = FileSystem::CharToWChar(mat->GetPath().c_str());
-				genData.buffer[i]	= CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, name);
+				genData.buffer[i]	= CreateCPUResource(mat->GetTotalAlignedSize(), CPUResourceHint::ConstantBuffer, name);
 				delete[] name;
 #else
-				genData.buffer[i]	= CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, L"Material Buffer");
+				genData.buffer[i] = CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, L"Material Buffer");
 #endif
-				genData.buffer[i]->BufferData(data, sz);
+				genData.descriptor[i] = m_bufferHeap->GetNewHeapHandle();
 			}
-			else
-				genData.buffer[i]->BufferData(data, sz);
-
-			genData.descriptor[i] = m_bufferHeap->GetNewHeapHandle();
 
 			D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
 			desc.BufferLocation					 = genData.buffer[i]->GetGPUPointer();
-			desc.SizeInBytes					 = static_cast<UINT>(sz);
+			desc.SizeInBytes					 = static_cast<UINT>(mat->GetTotalAlignedSize());
 			m_device->CreateConstantBufferView(&desc, genData.descriptor[i].GetCPUHandle());
 		}
-
-		delete[] data;
 	}
 
 	void Renderer::DestroyMaterial(uint32 handle)
@@ -950,9 +945,9 @@ namespace Lina
 		const int32				  existingHandle = txt->GetGPUHandle();
 		const TextureResourceType resourceType	 = txt->GetResourceType();
 
-		if (existingHandle != -1 && resourceType != TextureResourceType::Texture2DDefault)
+		if (existingHandle != -1 && resourceType != TextureResourceType::Texture2DDefaultDynamic)
 		{
-			LINA_ERR("[Renderer] -> Re-generating images for textures is only supported for those textures of type Texture2DDefault!");
+			LINA_ERR("[Renderer] -> Re-generating images for textures is only supported for those textures of type Texture2DDefaultDynamic!");
 			return;
 		}
 
@@ -965,7 +960,7 @@ namespace Lina
 		txt->m_gpuHandle		  = index;
 
 		// Render target types will be implemented via CreateRenderTargetXXX functions.
-		if (resourceType == TextureResourceType::Texture2DDefault)
+		if (resourceType == TextureResourceType::Texture2DDefault || resourceType == TextureResourceType::Texture2DDefaultDynamic)
 		{
 			if (existingHandle == -1)
 				genData.gpuResource = CreateTextureResource(TextureResourceType::Texture2DDefault, txt);
@@ -977,7 +972,8 @@ namespace Lina
 
 			if (existingHandle == -1)
 			{
-				genData.descriptor						= m_textureHeap->GetNewHeapHandle();
+				genData.descriptor = m_textureHeap->GetNewHeapHandle();
+
 				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 				srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				srvDesc.Format							= GetFormat(format);
@@ -1143,18 +1139,6 @@ namespace Lina
 	void Renderer::DeleteGPUResource(IGfxGPUResource* res)
 	{
 		delete res;
-	}
-
-	uint32 Renderer::GetTextureIndex(const StringID sid)
-	{
-		auto txt = m_resourceManager->GetResource<Texture>(sid);
-		return txt->GetGPUBindlessIndex();
-	}
-
-	uint32 Renderer::GetSamplerIndex(const StringID textureSid)
-	{
-		auto txt = m_resourceManager->GetResource<Texture>(textureSid);
-		return m_resourceManager->GetResource<TextureSampler>(txt->GetSampler())->GetGPUBindlessIndex();
 	}
 
 	void Renderer::ReleaseCommandList(uint32 handle)
@@ -1357,7 +1341,7 @@ namespace Lina
 
 			// Update if necessary
 			{
-				if (mat->IsDirty(m_currentFrameIndex))
+				if (true || mat->IsDirty(m_currentFrameIndex))
 				{
 					uint8* ptr = nullptr;
 					size_t sz  = 0;
@@ -1402,9 +1386,9 @@ namespace Lina
 			destDescriptors[i] = handle;
 
 			auto& txtGenData  = m_textures.GetItemR(texture->GetGPUHandle());
-			srcDescriptors[i] = txtGenData.descriptorSecondary.GetCPUHandle();
+			srcDescriptors[i] = texture->GetResourceType() == TextureResourceType::Texture2DDefaultDynamic ? txtGenData.descriptor.GetCPUHandle() : txtGenData.descriptorSecondary.GetCPUHandle();
 
-			if (texture->GetResourceType() != TextureResourceType::Texture2DRenderTargetColor)
+			if (texture->GetResourceType() != TextureResourceType::Texture2DRenderTargetColor && texture->GetResourceType() != TextureResourceType::Texture2DDefaultDynamic)
 			{
 				LINA_ERR("[Renderer] -> You should only bind dynamic textures or color render targets via BindDynamicTextures()!");
 			}

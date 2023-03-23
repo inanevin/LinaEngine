@@ -125,6 +125,11 @@ namespace Lina
 			return m_currentImageIndex;
 		}
 
+		inline int GetSurfaceRendererIndex() const
+		{
+			return m_surfaceRendererIndex;
+		}
+
 	private:
 		void CreateTextures();
 		void DestroyTextures();
@@ -140,7 +145,7 @@ namespace Lina
 		uint32				   m_imageCount			  = 0;
 		Vector<WorldRenderer*> m_worldRenderers;
 		IGUIDrawer*			   m_guiDrawer = nullptr;
-		Renderer*			   m_renderer = nullptr;
+		Renderer*			   m_renderer  = nullptr;
 		Vector<DataPerImage>   m_dataPerImage;
 		DataPerFrame		   m_frames[FRAMES_IN_FLIGHT];
 		RenderData			   m_renderData;

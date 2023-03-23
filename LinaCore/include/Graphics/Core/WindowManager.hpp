@@ -39,10 +39,11 @@ namespace Lina
 {
 	struct MonitorInfo
 	{
-		bool	 isPrimary	  = false;
-		Vector2i size		  = Vector2i::Zero;
-		Vector2i workArea	  = Vector2i::Zero;
-		float	 contentScale = 1.0f;
+		bool	 isPrimary	= false;
+		Vector2i size		= Vector2i::Zero;
+		Vector2i workArea	= Vector2i::Zero;
+		uint32	 m_dpi		= 0;
+		float	 m_dpiScale = 0.0f;
 	};
 
 	class IWindow;
