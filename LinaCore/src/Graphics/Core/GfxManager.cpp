@@ -306,9 +306,8 @@ namespace Lina
 
 	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
-		uint32 flushMask	 = 0;
-		bool   flushModels	 = 0;
-		bool   flushTextures = 0;
+		bool flushModels  = false;
+		bool requireReset = false;
 
 		if (eventType & EVS_ResourceLoadTaskCompleted)
 		{
@@ -317,27 +316,25 @@ namespace Lina
 			for (const auto& ident : task->identifiers)
 			{
 				if (!flushModels && ident.tid == GetTypeID<Model>())
-				{
-					m_meshManager.MergeMeshes();
 					flushModels = true;
-					flushMask |= UCM_FlushStagingToGPURequests;
-				}
 
-				if (!flushTextures && (ident.tid == GetTypeID<Texture>() || ident.tid == GetTypeID<Font>()))
-				{
-					flushTextures = true;
-					flushMask |= UCM_FlushTextures;
-				}
+				if (!requireReset && (ident.tid == GetTypeID<Texture>() || ident.tid == GetTypeID<Font>() || ident.tid == GetTypeID<TextureSampler>()))
+					requireReset = true;
 			}
 
-			m_guiBackend->OnResourceBatchLoaded(ev);
-			m_renderer->GetUploadContext()->TransferToReadyQueue();
+			if (flushModels)
+				m_meshManager.MergeMeshes();
 
-			m_renderer->ResetResources();
+			if (requireReset)
+				m_renderer->GetUploadContext()->MarkRequireReset();
+
+			m_guiBackend->OnResourceBatchLoaded(ev);
+
+			if (flushModels || requireReset)
+				m_renderer->GetUploadContext()->Flush();
 		}
 		else if (eventType & EVS_LevelInstalled)
 		{
-			m_renderer->ResetResources();
 		}
 	}
 

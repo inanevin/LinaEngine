@@ -129,17 +129,18 @@ namespace Lina
 		OrderedDrawRequest& AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
 	private:
-		ResourceManager* m_resourceManager = nullptr;
-		Vector2i		 m_size			   = Vector2i::Zero;
-		uint32			 m_imageIndex	   = 0;
-		uint32			 m_frameIndex	   = 0;
-		StringID		 m_ownerSid		   = 0;
-		uint32			 m_imageCount	   = 0;
-		GfxManager*		 m_gfxManager	   = nullptr;
-		Renderer*		 m_renderer		   = nullptr;
-		DataPerFrame	 m_frames[FRAMES_IN_FLIGHT];
-		Vector<Material> m_materials;
-		Matrix4			 m_projection;
+		Vector<Material*>	m_materials;
+		MemoryAllocatorPool m_materialPool;
+		ResourceManager*	m_resourceManager = nullptr;
+		Vector2i			m_size			  = Vector2i::Zero;
+		uint32				m_imageIndex	  = 0;
+		uint32				m_frameIndex	  = 0;
+		StringID			m_ownerSid		  = 0;
+		uint32				m_imageCount	  = 0;
+		GfxManager*			m_gfxManager	  = nullptr;
+		Renderer*			m_renderer		  = nullptr;
+		DataPerFrame		m_frames[FRAMES_IN_FLIGHT];
+		Matrix4				m_projection;
 	};
 } // namespace Lina
 

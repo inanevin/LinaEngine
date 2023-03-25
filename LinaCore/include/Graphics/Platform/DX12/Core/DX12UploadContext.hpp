@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Graphics/Interfaces/IUploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+#include "Data/Mutex.hpp"
 
 namespace Lina
 {
@@ -44,13 +45,12 @@ namespace Lina
 		DX12UploadContext(Renderer* rend);
 		virtual ~DX12UploadContext();
 
-		virtual void FlushViaMask(Bitmask16 mask) override;
+		virtual void Flush() override;
 		virtual void CopyTextureImmediate(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
 		virtual void CopyTextureQueueUp(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
 		virtual void CopyBuffersImmediate(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes) override;
 		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes, Delegate<void()>&& onCopied) override;
 		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes) override;
-		virtual void TransferToReadyQueue() override;
 
 	private:
 		void				 CopyTexture(TextureUploadRequest& req);
@@ -59,6 +59,7 @@ namespace Lina
 		void				 CloseAndExecuteCommandList();
 
 	private:
+		Mutex											   m_mtx;
 		Microsoft::WRL::ComPtr<ID3D12Fence>				   m_fence;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> m_cmdLists[FRAMES_IN_FLIGHT];
 		Microsoft::WRL::ComPtr<ID3D12CommandAllocator>	   m_cmdAllocator;

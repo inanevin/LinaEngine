@@ -43,6 +43,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
 #include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
+
 namespace D3D12MA
 {
 	class Allocator;
@@ -254,7 +255,6 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_commandSigStandard;
 
 		// Resources
-		Mutex								m_textureMtx;
 		Microsoft::WRL::ComPtr<IDxcLibrary> m_idxcLib;
 		ID3DIncludeInterface				m_includeInterface;
 

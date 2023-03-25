@@ -177,8 +177,6 @@ namespace Lina
 
 	void GUIBackend::CheckFontTexturesForUpload()
 	{
-		m_renderer->Join();
-		
 		for (auto& [txt, isDirty] : m_textureDirtyStatus)
 		{
 			if (isDirty)

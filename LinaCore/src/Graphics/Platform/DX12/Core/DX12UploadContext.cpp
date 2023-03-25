@@ -80,66 +80,60 @@ namespace Lina
 			m_cmdLists[i].Reset();
 	}
 
-	void DX12UploadContext::FlushViaMask(Bitmask16 mask)
+	void DX12UploadContext::Flush()
 	{
-		if (mask.GetValue() == 0)
-		{
-			LINA_ERR("[Upload Context] -> Requested to flush via mask but mask is set to 0!");
+		if (m_textureRequests.empty() && m_stagingToGPURequests.empty())
 			return;
-		}
+
+		// We'll perform copy operations that might affect currently bound resources
+		// e.g. dynamic textures, so wait for gpu first.
+		m_renderer->Join();
 
 		OpenCommandList();
 
 		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
 		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
 
-		if (mask.IsSet(UCM_FlushTextures))
-		{
-			for (auto& req : m_rdyTextureRequests)
-				CopyTexture(req);
-		}
+		for (auto& req : m_textureRequests)
+			CopyTexture(req);
 
-		if (mask.IsSet(UCM_FlushStagingToGPURequests))
+		for (auto& req : m_stagingToGPURequests)
 		{
-			for (auto& req : m_rdyStagingToGPURequests)
-			{
-				DX12ResourceCPU* dx12ResStaging = static_cast<DX12ResourceCPU*>(req.cpuRes);
-				DX12ResourceGPU* dx12ResTarget	= static_cast<DX12ResourceGPU*>(req.gpuRes);
-				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
-			}
+			DX12ResourceCPU* dx12ResStaging = static_cast<DX12ResourceCPU*>(req.cpuRes);
+			DX12ResourceGPU* dx12ResTarget	= static_cast<DX12ResourceGPU*>(req.gpuRes);
+			cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
 		}
 
 		CloseAndExecuteCommandList();
 
-		if (mask.IsSet(UCM_FlushStagingToGPURequests))
+		for (auto& req : m_stagingToGPURequests)
 		{
-			for (auto& req : m_rdyStagingToGPURequests)
-			{
-				if (req.onCopied)
-					req.onCopied();
-			}
-
-			m_rdyStagingToGPURequests.clear();
+			if (req.onCopied)
+				req.onCopied();
 		}
 
-		if (mask.IsSet(UCM_FlushTextures))
+		m_stagingToGPURequests.clear();
+
+		for (auto& req : m_textureRequests)
 		{
-			for (auto& req : m_rdyTextureRequests)
-			{
-				delete req.stagingResource;
+			delete req.stagingResource;
 
-				if (req.genReq.onGenerated)
-					req.genReq.onGenerated();
-			}
+			if (req.genReq.onGenerated)
+				req.genReq.onGenerated();
+		}
 
-			m_rdyTextureRequests.clear();
+		m_textureRequests.clear();
+
+		if (m_requiresResettingResources)
+		{
+			m_renderer->ResetResources();
+			m_requiresResettingResources = false;
 		}
 	}
 
 	void DX12UploadContext::CopyTextureImmediate(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
 	{
 		OpenCommandList();
-
 		const uint32		 frameIndex = m_renderer->GetCurrentFrameIndex();
 		auto*				 cmdList	= m_cmdLists[frameIndex].Get();
 		TextureUploadRequest req		= CreateTextureUploadRequest(targetGPUTexture, src, imgReq);
@@ -149,6 +143,7 @@ namespace Lina
 
 	void DX12UploadContext::CopyTextureQueueUp(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
 	{
+		LOCK_GUARD(m_mtx);
 		auto it = linatl::find_if(m_textureRequests.begin(), m_textureRequests.end(), [targetGPUTexture](TextureUploadRequest& req) { return req.targetResource == targetGPUTexture; });
 		if (it != m_textureRequests.end())
 			m_textureRequests.erase(it);
@@ -177,6 +172,8 @@ namespace Lina
 
 	void DX12UploadContext::CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes, Delegate<void()>&& onCopied)
 	{
+		LOCK_GUARD(m_mtx);
+
 		auto it = linatl::find_if(m_stagingToGPURequests.begin(), m_stagingToGPURequests.end(), [gpuRes](StagingToGPURequests& req) { return req.gpuRes == gpuRes; });
 		if (it != m_stagingToGPURequests.end())
 			m_stagingToGPURequests.erase(it);
@@ -190,18 +187,11 @@ namespace Lina
 
 	void DX12UploadContext::CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes)
 	{
+		LOCK_GUARD(m_mtx);
 		StagingToGPURequests req;
 		req.cpuRes = cpuRes;
 		req.gpuRes = gpuRes;
 		m_stagingToGPURequests.push_back(req);
-	}
-
-	void DX12UploadContext::TransferToReadyQueue()
-	{
-		m_rdyStagingToGPURequests.insert(m_rdyStagingToGPURequests.end(), m_stagingToGPURequests.begin(), m_stagingToGPURequests.end());
-		m_rdyTextureRequests.insert(m_rdyTextureRequests.end(), m_textureRequests.begin(), m_textureRequests.end());
-		m_stagingToGPURequests.clear();
-		m_textureRequests.clear();
 	}
 
 	TextureUploadRequest DX12UploadContext::CreateTextureUploadRequest(IGfxResourceTexture* targetGPUResource, Texture* src, ImageGenerateRequest imgReq)

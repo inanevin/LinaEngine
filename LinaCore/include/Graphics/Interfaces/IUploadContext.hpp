@@ -60,32 +60,29 @@ namespace Lina
 		Delegate<void()> onCopied;
 	};
 
-	enum UploadContextMask
-	{
-		UCM_FlushTextures			  = 1 << 0,
-		UCM_FlushStagingToGPURequests = 1 << 1,
-	};
-
 	class IUploadContext
 	{
 	public:
 		IUploadContext(Renderer* rend) : m_renderer(rend){};
 		virtual ~IUploadContext(){};
 
-		virtual void FlushViaMask(Bitmask16 mask)																		 = 0;
+		virtual void Flush()																							 = 0;
 		virtual void CopyTextureImmediate(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req) = 0;
 		virtual void CopyTextureQueueUp(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req)	 = 0;
 		virtual void CopyBuffersImmediate(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes)								 = 0;
 		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes, Delegate<void()>&& onCopied)	 = 0;
 		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes)								 = 0;
-		virtual void TransferToReadyQueue()																				 = 0;
+
+		inline void MarkRequireReset()
+		{
+			m_requiresResettingResources = true;
+		}
 
 	protected:
-		Renderer*					 m_renderer = nullptr;
+		bool						 m_requiresResettingResources = false;
+		Renderer*					 m_renderer					  = nullptr;
 		Vector<TextureUploadRequest> m_textureRequests;
 		Vector<StagingToGPURequests> m_stagingToGPURequests;
-		Vector<TextureUploadRequest> m_rdyTextureRequests;
-		Vector<StagingToGPURequests> m_rdyStagingToGPURequests;
 	};
 } // namespace Lina
 

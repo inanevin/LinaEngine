@@ -121,16 +121,15 @@ namespace Lina
 			auto		 cache	= static_cast<ResourceCache<T>*>(m_caches.at(tid));
 			Vector<T*>	 allRes = cache->GetAllResourcesRaw(includeUserManagedResources);
 			resources.insert(resources.end(), allRes.begin(), allRes.end());
-			
+
 			return resources;
 		}
 
-	private:
-		friend class IResource;
-
-		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 		void AddUserManaged(IResource* res);
 		void RemoveUserManaged(IResource* res);
+		
+	private:
+		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 
 	private:
 		int32									 m_loadTaskCounter = 0;

@@ -42,7 +42,8 @@ namespace Lina
 #define DEF_INDEX_BUF_SIZE 4
 #define DEF_MAT_SIZE	   50
 
-	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount) : m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount)
+	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount)
+		: m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount), m_materialPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Material) * DEF_MAT_SIZE, sizeof(Material), "GUI Renderer Material Pool")
 	{
 		m_renderer		  = m_gfxManager->GetRenderer();
 		m_resourceManager = gfxMan->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -66,6 +67,15 @@ namespace Lina
 			m_renderer->DeleteGPUResource(frame.vtxBufferGPU);
 			m_renderer->DeleteCPUResource(frame.viewDataBuffer);
 		}
+
+		for (auto mat : m_materials)
+		{
+			mat->~Material();
+			m_materialPool.Free(mat);
+			mat = nullptr;
+		}
+
+		m_materials.clear();
 	}
 
 	void GUIRenderer::FeedGradient(LinaVG::GradientDrawBuffer* buf)
@@ -114,7 +124,8 @@ namespace Lina
 	void GUIRenderer::Render(uint32 cmdList)
 	{
 		auto& frame = m_frames[m_frameIndex];
-
+		if (frame.drawRequests.empty())
+			return;
 
 		// Transfer vertex & index data
 		{
@@ -129,7 +140,7 @@ namespace Lina
 			frame.viewData.proj = m_projection;
 			frame.viewDataBuffer->BufferData(&frame.viewData, sizeof(GPUViewData));
 			m_renderer->BindUniformBuffer(cmdList, GBB_ViewData, frame.viewDataBuffer);
-			m_renderer->BindPipeline(cmdList, m_materials[0].GetShader());
+			m_renderer->BindPipeline(cmdList, m_materials[0]->GetShader());
 		}
 
 		// Allocate new materials if necessary,
@@ -140,21 +151,17 @@ namespace Lina
 			if (requestsSize > static_cast<uint32>(m_materials.size()))
 				AllocateMaterials();
 
-			Vector<Material*> mats;
-			mats.resize(requestsSize);
-
 			for (uint32 i = 0; i < requestsSize; i++)
 			{
-				mats[i] = &m_materials[i];
-				AssignStandardMaterial(mats[i], frame.drawRequests[i].materialDefinition);
+				AssignStandardMaterial(m_materials[i], frame.drawRequests[i].materialDefinition);
 			}
 
-			m_renderer->BindMaterials(mats.data(), requestsSize);
+			m_renderer->BindMaterials(m_materials.data(), requestsSize);
 
 			for (uint32 i = 0; i < requestsSize; i++)
 			{
 				auto& req = frame.drawRequests[i];
-				m_renderer->SetMaterialID(cmdList, mats[i]->GetGPUBindlessIndex());
+				m_renderer->SetMaterialID(cmdList, m_materials[i]->GetGPUBindlessIndex());
 				m_renderer->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
 			}
 		}
@@ -180,15 +187,15 @@ namespace Lina
 		const uint32 currentSize = static_cast<uint32>(m_materials.size());
 		const uint32 targetSize	 = currentSize + DEF_MAT_SIZE;
 
-		m_materials.resize(targetSize, Material(m_resourceManager, true, "", 0));
+		m_materials.resize(targetSize, nullptr);
 
 		for (uint32 i = currentSize; i < targetSize; i++)
 		{
 			const String   path = "GUIRenderer_" + TO_STRING(m_ownerSid) + "_Material_" + TO_STRING(i);
 			const StringID sid	= TO_SID(path);
 			auto&		   mat	= m_materials[i];
-			mat					= Material(m_resourceManager, true, path, sid);
-			mat.SetShader("Resources/Core/Shaders/GUIStandard.linashader"_hs);
+			mat					= new (m_materialPool.Allocate(sizeof(Material))) Material(m_resourceManager, true, path, sid);
+			mat->SetShader("Resources/Core/Shaders/GUIStandard.linashader"_hs);
 		}
 	}
 

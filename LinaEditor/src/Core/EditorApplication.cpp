@@ -89,7 +89,6 @@ namespace Lina::Editor
 			window->SetStyle(WindowStyle::Borderless);
 			m_engine.GetResourceManager().AddListener(this);
 			m_loadCoreResourcesTask = resourceManager.LoadResources(resourceManager.GetCoreResources());
-			resourceManager.WaitForAll();
 		}
 	}
 

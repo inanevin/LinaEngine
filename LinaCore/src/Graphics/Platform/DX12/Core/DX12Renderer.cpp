@@ -439,11 +439,7 @@ namespace Lina
 	void Renderer::BeginFrame(uint32 frameIndex)
 	{
 		m_currentFrameIndex = frameIndex;
-
 		WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
-
-		m_uploadContext->FlushViaMask(UCM_FlushStagingToGPURequests | UCM_FlushTextures);
-
 		m_gpuBufferHeap[m_currentFrameIndex]->Reset(m_texturesHeapAllocCount);
 		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(m_samplersHeapAllocCount);
 	}
@@ -803,8 +799,6 @@ namespace Lina
 
 	void Renderer::GenerateImage(Texture* txt, ImageGenerateRequest req)
 	{
-		LOCK_GUARD(m_textureMtx);
-
 		const TextureResourceType resourceType = txt->GetResourceType();
 		const bool				  existing	   = txt->m_gpuResource != nullptr;
 
@@ -854,7 +848,7 @@ namespace Lina
 		{
 			m_dsvHeap->FreeHeapHandle(txt->m_descriptor);
 		}
-		else if (resourceType == TextureResourceType::Texture2DDefault)
+		else if (resourceType == TextureResourceType::Texture2DDefault || resourceType == TextureResourceType::Texture2DDefaultDynamic)
 		{
 			m_textureHeap->FreeHeapHandle(txt->m_descriptor);
 		}
@@ -1399,8 +1393,8 @@ namespace Lina
 		// Copy swapchain res into descriptor
 		DX12Swapchain*		 dx12Swap = static_cast<DX12Swapchain*>(swp);
 		DX12ResourceTexture* textRes  = new DX12ResourceTexture();
-		rt->m_gpuResource = textRes;
-		
+		rt->m_gpuResource			  = textRes;
+
 		try
 		{
 			ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&textRes->m_rawResource)));
