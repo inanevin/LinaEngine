@@ -34,11 +34,13 @@ SOFTWARE.
 #include "Resources/Core/IResource.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
+#include "Graphics/Data/DescriptorHandle.hpp"
 
 namespace Lina
 {
 	class Renderer;
-
+	class IGfxResourceTexture;
+	
 	struct UserGeneratedTextureData
 	{
 		TextureResourceType resourceType				  = TextureResourceType::Texture2DDefault;
@@ -76,11 +78,6 @@ namespace Lina
 		inline const Extent3D& GetExtent() const
 		{
 			return m_extent;
-		}
-
-		inline int32 GetGPUHandle() const
-		{
-			return m_gpuHandle;
 		}
 
 		inline int32 GetGPUBindlessIndex() const
@@ -132,19 +129,23 @@ namespace Lina
 	private:
 		friend class Renderer;
 
-		TextureResourceType m_resourceType			   = TextureResourceType::Texture2DDefault;
-		bool				m_destroyPixelsAfterUpload = true;
-		StringID			m_samplerSID			   = 0;
-		TextureSampler*		m_sampler				   = nullptr;
-		Renderer*			m_renderer				   = nullptr;
-		bool				m_pixelsLoadedFromStream   = false;
-		Extent3D			m_extent;
-		uint32				m_mipLevels		   = 1;
-		uint32				m_channels		   = 0;
-		int32				m_gpuHandle		   = -1;
-		int32				m_gpuBindlessIndex = -1;
+		Renderer*			m_renderer	   = nullptr;
+		TextureSampler*		m_sampler	   = nullptr;
+		TextureResourceType m_resourceType = TextureResourceType::Texture2DDefault;
 		Vector<Mipmap>		m_mipmaps;
-		unsigned char*		m_pixels = nullptr;
+		StringID			m_samplerSID = 0;
+		Extent3D			m_extent;
+		uint32				m_mipLevels				   = 1;
+		uint32				m_channels				   = 0;
+		int32				m_gpuBindlessIndex		   = -1;
+		unsigned char*		m_pixels				   = nullptr;
+		bool				m_pixelsLoadedFromStream   = false;
+		bool				m_destroyPixelsAfterUpload = true;
+
+		// GPU
+		IGfxResourceTexture* m_gpuResource		   = nullptr;
+		DescriptorHandle	 m_descriptor		   = {};
+		DescriptorHandle	 m_descriptorSecondary = {};
 	};
 } // namespace Lina
 

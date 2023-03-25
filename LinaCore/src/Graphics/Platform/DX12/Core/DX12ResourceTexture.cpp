@@ -133,7 +133,12 @@ namespace Lina
 
 	void DX12ResourceTexture::Cleanup()
 	{
-		m_allocation->Release();
-		m_allocation = nullptr;
+		if (m_allocation)
+		{
+			m_allocation->Release();
+			m_allocation = nullptr;
+		}
+
+		m_rawResource.Reset();
 	}
 } // namespace Lina

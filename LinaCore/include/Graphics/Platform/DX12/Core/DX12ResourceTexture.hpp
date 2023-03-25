@@ -47,6 +47,7 @@ namespace Lina
 	class DX12ResourceTexture : public IGfxResourceTexture
 	{
 	public:
+		DX12ResourceTexture(){};
 		DX12ResourceTexture(Renderer* rend, Texture* txt, TextureResourceType type);
 		virtual ~DX12ResourceTexture();
 
@@ -62,9 +63,12 @@ namespace Lina
 		void Cleanup();
 
 	private:
-		Texture*			 m_texture	  = nullptr;
-		Renderer*			 m_renderer	  = nullptr;
-		D3D12MA::Allocation* m_allocation = nullptr;
+		friend class Renderer;
+
+		Texture*							   m_texture	 = nullptr;
+		Renderer*							   m_renderer	 = nullptr;
+		D3D12MA::Allocation*				   m_allocation	 = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_rawResource = {};
 	};
 } // namespace Lina
 

@@ -498,8 +498,7 @@ namespace Lina
 						handle.ptr		   = alloc.GetCPUHandle() + i * heapIncrement;
 						destDescriptors[i] = handle;
 
-						auto& txtGenData  = m_textures.GetItemR(texture->GetGPUHandle());
-						srcDescriptors[i] = {txtGenData.descriptor.GetCPUHandle()};
+						srcDescriptors[i] = {texture->m_descriptor.GetCPUHandle()};
 					});
 
 					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
@@ -806,76 +805,67 @@ namespace Lina
 	{
 		LOCK_GUARD(m_textureMtx);
 
-		const int32				  existingHandle = txt->GetGPUHandle();
-		const TextureResourceType resourceType	 = txt->GetResourceType();
+		const TextureResourceType resourceType = txt->GetResourceType();
+		const bool				  existing	   = txt->m_gpuResource != nullptr;
 
-		if (existingHandle != -1 && resourceType != TextureResourceType::Texture2DDefaultDynamic)
+		if (existing && resourceType != TextureResourceType::Texture2DDefaultDynamic)
 		{
 			LINA_ERR("[Renderer] -> Re-generating images for textures is only supported for those textures of type Texture2DDefaultDynamic!");
 			return;
 		}
 
-		const uint32	  index	  = existingHandle == -1 ? m_textures.AddItem(GeneratedTexture()) : existingHandle;
-		GeneratedTexture& genData = m_textures.GetItemR(index);
-		auto&			  meta	  = txt->GetMetadata();
-		const auto&		  ext	  = txt->GetExtent();
-		genData.sid				  = txt->GetSID();
-		genData.textureSrc		  = txt;
-		txt->m_gpuHandle		  = index;
+		auto&		meta = txt->GetMetadata();
+		const auto& ext	 = txt->GetExtent();
 
 		// Render target types will be implemented via CreateRenderTargetXXX functions.
 		if (resourceType == TextureResourceType::Texture2DDefault || resourceType == TextureResourceType::Texture2DDefaultDynamic)
 		{
-			if (existingHandle == -1)
-				genData.gpuResource = CreateTextureResource(TextureResourceType::Texture2DDefault, txt);
+			if (!existing)
+				txt->m_gpuResource = CreateTextureResource(TextureResourceType::Texture2DDefault, txt);
 
-			DX12ResourceTexture* txtResGPU = static_cast<DX12ResourceTexture*>(genData.gpuResource);
+			DX12ResourceTexture* txtResGPU = static_cast<DX12ResourceTexture*>(txt->m_gpuResource);
 			auto				 format	   = static_cast<Format>(meta.GetUInt8("Format"_hs));
 
 			m_uploadContext->CopyTextureQueueUp(txtResGPU, txt, req);
 
-			if (existingHandle == -1)
+			if (!existing)
 			{
-				genData.descriptor = m_textureHeap->GetNewHeapHandle();
+				txt->m_descriptor = m_textureHeap->GetNewHeapHandle();
 
 				D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 				srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 				srvDesc.Format							= GetFormat(format);
 				srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
 				srvDesc.Texture2D.MipLevels				= txt->GetMipLevels();
-				m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, {genData.descriptor.GetCPUHandle()});
+				m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, {txt->m_descriptor.GetCPUHandle()});
 			}
 		}
 	}
 
-	void Renderer::DestroyImage(uint32 handle)
+	void Renderer::DestroyImage(Texture* txt)
 	{
-		GeneratedTexture&		  genData	   = m_textures.GetItemR(handle);
-		const TextureResourceType resourceType = genData.textureSrc->GetResourceType();
+		const TextureResourceType resourceType = txt->GetResourceType();
 
 		if (resourceType == TextureResourceType::Texture2DSwapchain)
 		{
-			m_rtvHeap->FreeHeapHandle(genData.descriptor);
-			genData.rrr->Release();
+			m_rtvHeap->FreeHeapHandle(txt->m_descriptor);
 		}
 		else if (resourceType == TextureResourceType::Texture2DRenderTargetDepthStencil)
 		{
-			m_dsvHeap->FreeHeapHandle(genData.descriptor);
+			m_dsvHeap->FreeHeapHandle(txt->m_descriptor);
 		}
 		else if (resourceType == TextureResourceType::Texture2DDefault)
 		{
-			m_textureHeap->FreeHeapHandle(genData.descriptor);
+			m_textureHeap->FreeHeapHandle(txt->m_descriptor);
 		}
 		else if (resourceType == TextureResourceType::Texture2DRenderTargetColor)
 		{
-			m_rtvHeap->FreeHeapHandle(genData.descriptor);
-			m_textureHeap->FreeHeapHandle(genData.descriptor);
+			m_rtvHeap->FreeHeapHandle(txt->m_descriptor);
+			m_textureHeap->FreeHeapHandle(txt->m_descriptorSecondary);
 		}
 
-		if (genData.gpuResource)
-			delete genData.gpuResource;
-
-		m_textures.RemoveItem(handle);
+		if (txt->m_gpuResource)
+			delete txt->m_gpuResource;
 	}
 
 	void Renderer::GenerateSampler(TextureSampler* sampler)
@@ -1105,18 +1095,17 @@ namespace Lina
 
 		for (uint32 i = 0; i < count; i++)
 		{
-			ResourceTransition&	 t		 = transitions[i];
-			auto&				 genData = m_textures.GetItemR(t.texture->GetGPUHandle());
-			DX12ResourceTexture* res	 = static_cast<DX12ResourceTexture*>(genData.gpuResource);
+			ResourceTransition&	 t	 = transitions[i];
+			DX12ResourceTexture* res = static_cast<DX12ResourceTexture*>(t.texture->m_gpuResource);
 
 			if (t.type == ResourceTransitionType::SRV2RT)
 				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_RENDER_TARGET));
 			else if (t.type == ResourceTransitionType::RT2SRV)
 				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 			else if (t.type == ResourceTransitionType::RT2Present)
-				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rrr, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(res->m_rawResource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 			else if (t.type == ResourceTransitionType::Present2RT)
-				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rrr, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(res->m_rawResource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 		}
 
 		cmdList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
@@ -1125,22 +1114,19 @@ namespace Lina
 	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture)
 	{
 		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
-		auto& genData = m_textures.GetItemR(colorTexture->GetGPUHandle());
 
 		const float							 cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
 		CD3DX12_CLEAR_VALUE					 clearValue{GetFormat(DEFAULT_RT_FORMAT), cc};
 		D3D12_RENDER_PASS_BEGINNING_ACCESS	 renderPassBeginningAccessClear{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
 		D3D12_RENDER_PASS_ENDING_ACCESS		 renderPassEndingAccessPreserve{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
-		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{genData.descriptor.GetCPUHandle(), renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
+		D3D12_RENDER_PASS_RENDER_TARGET_DESC renderPassRenderTargetDesc{colorTexture->m_descriptor.GetCPUHandle(), renderPassBeginningAccessClear, renderPassEndingAccessPreserve};
 
 		cmdList->BeginRenderPass(1, &renderPassRenderTargetDesc, nullptr, D3D12_RENDER_PASS_FLAG_NONE);
 	}
 
 	void Renderer::BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencilTexture)
 	{
-		auto& cmdList			  = m_cmdLists.GetItemR(cmdListHandle);
-		auto& genDataCol		  = m_textures.GetItemR(colorTexture->GetGPUHandle());
-		auto& genDataDepthStencil = m_textures.GetItemR(depthStencilTexture->GetGPUHandle());
+		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
 
 		const float			cc[]{DEFAULT_CLEAR_CLR.x, DEFAULT_CLEAR_CLR.y, DEFAULT_CLEAR_CLR.z, DEFAULT_CLEAR_CLR.w};
 		CD3DX12_CLEAR_VALUE clearValue{GetFormat(DEFAULT_RT_FORMAT), cc};
@@ -1148,11 +1134,11 @@ namespace Lina
 
 		D3D12_RENDER_PASS_BEGINNING_ACCESS	 colorBegin{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearValue}};
 		D3D12_RENDER_PASS_ENDING_ACCESS		 colorEnd{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
-		D3D12_RENDER_PASS_RENDER_TARGET_DESC colorDesc{genDataCol.descriptor.GetCPUHandle(), colorBegin, colorEnd};
+		D3D12_RENDER_PASS_RENDER_TARGET_DESC colorDesc{colorTexture->m_descriptor.GetCPUHandle(), colorBegin, colorEnd};
 
 		D3D12_RENDER_PASS_BEGINNING_ACCESS	 depthBegin{D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR, {clearDepth}};
 		D3D12_RENDER_PASS_ENDING_ACCESS		 depthEnd{D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE, {}};
-		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depthDesc{genDataDepthStencil.descriptor.GetCPUHandle(), depthBegin, depthBegin, depthEnd, depthEnd};
+		D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depthDesc{depthStencilTexture->m_descriptor.GetCPUHandle(), depthBegin, depthBegin, depthEnd, depthEnd};
 
 		cmdList->BeginRenderPass(1, &colorDesc, &depthDesc, D3D12_RENDER_PASS_FLAG_NONE);
 	}
@@ -1237,8 +1223,7 @@ namespace Lina
 			handle.ptr		   = alloc.GetCPUHandle() + i * heapIncrement;
 			destDescriptors[i] = handle;
 
-			auto& txtGenData  = m_textures.GetItemR(texture->GetGPUHandle());
-			srcDescriptors[i] = {texture->GetResourceType() == TextureResourceType::Texture2DDefaultDynamic ? txtGenData.descriptor.GetCPUHandle() : txtGenData.descriptorSecondary.GetCPUHandle()};
+			srcDescriptors[i] = {texture->GetResourceType() == TextureResourceType::Texture2DDefaultDynamic ? texture->m_descriptor.GetCPUHandle() : texture->m_descriptorSecondary.GetCPUHandle()};
 
 			if (texture->GetResourceType() != TextureResourceType::Texture2DRenderTargetColor && texture->GetResourceType() != TextureResourceType::Texture2DDefaultDynamic)
 			{
@@ -1370,18 +1355,17 @@ namespace Lina
 		Texture* rt = new Texture(m_resourceManager, textureData);
 		GenerateImage(rt, {});
 
-		auto& genData				   = m_textures.GetItemR(rt->GetGPUHandle());
-		genData.gpuResource			   = CreateTextureResource(TextureResourceType::Texture2DRenderTargetColor, rt);
-		genData.descriptor			   = m_rtvHeap->GetNewHeapHandle();
-		genData.descriptorSecondary	   = m_textureHeap->GetNewHeapHandle();
-		DX12ResourceTexture* txtResGPU = static_cast<DX12ResourceTexture*>(genData.gpuResource);
+		rt->m_gpuResource			   = CreateTextureResource(TextureResourceType::Texture2DRenderTargetColor, rt);
+		rt->m_descriptor			   = m_rtvHeap->GetNewHeapHandle();
+		rt->m_descriptorSecondary	   = m_textureHeap->GetNewHeapHandle();
+		DX12ResourceTexture* txtResGPU = static_cast<DX12ResourceTexture*>(rt->m_gpuResource);
 
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Shader4ComponentMapping			= D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		srvDesc.Format							= GetFormat(DEFAULT_RT_FORMAT);
 		srvDesc.ViewDimension					= D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MipLevels				= 1;
-		m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, {genData.descriptorSecondary.GetCPUHandle()});
+		m_device->CreateShaderResourceView(txtResGPU->DX12GetAllocation()->GetResource(), &srvDesc, {rt->m_descriptorSecondary.GetCPUHandle()});
 
 		// Create view
 		D3D12_RENDER_TARGET_VIEW_DESC desc = {};
@@ -1389,7 +1373,7 @@ namespace Lina
 		desc.ViewDimension				   = D3D12_RTV_DIMENSION_TEXTURE2D;
 		desc.Texture2D.MipSlice			   = 0;
 
-		m_device->CreateRenderTargetView(txtResGPU->DX12GetAllocation()->GetResource(), &desc, {genData.descriptor.GetCPUHandle()});
+		m_device->CreateRenderTargetView(txtResGPU->DX12GetAllocation()->GetResource(), &desc, {rt->m_descriptor.GetCPUHandle()});
 		return rt;
 	}
 
@@ -1410,14 +1394,16 @@ namespace Lina
 		GenerateImage(rt, {});
 
 		// alloc descriptor
-		auto& genData	   = m_textures.GetItemR(rt->GetGPUHandle());
-		genData.descriptor = m_rtvHeap->GetNewHeapHandle();
+		rt->m_descriptor = m_rtvHeap->GetNewHeapHandle();
 
 		// Copy swapchain res into descriptor
-		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
+		DX12Swapchain*		 dx12Swap = static_cast<DX12Swapchain*>(swp);
+		DX12ResourceTexture* textRes  = new DX12ResourceTexture();
+		rt->m_gpuResource = textRes;
+		
 		try
 		{
-			ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&genData.rrr)));
+			ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&textRes->m_rawResource)));
 		}
 		catch (HrException e)
 		{
@@ -1428,7 +1414,9 @@ namespace Lina
 		desc.Format						   = GetFormat(DEFAULT_RT_FORMAT);
 		desc.ViewDimension				   = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-		m_device->CreateRenderTargetView(genData.rrr, &desc, {genData.descriptor.GetCPUHandle()});
+		m_device->CreateRenderTargetView(textRes->m_rawResource.Get(), &desc, {rt->m_descriptor.GetCPUHandle()});
+		rt->m_gpuResource = textRes;
+
 		return rt;
 	}
 
@@ -1456,17 +1444,16 @@ namespace Lina
 		GenerateImage(rt, {});
 
 		// Alloc descriptor & resource
-		auto& genData		= m_textures.GetItemR(rt->GetGPUHandle());
-		genData.descriptor	= m_dsvHeap->GetNewHeapHandle();
-		genData.gpuResource = CreateTextureResource(TextureResourceType::Texture2DRenderTargetDepthStencil, rt);
+		rt->m_descriptor  = m_dsvHeap->GetNewHeapHandle();
+		rt->m_gpuResource = CreateTextureResource(TextureResourceType::Texture2DRenderTargetDepthStencil, rt);
 
 		// Create view
-		DX12ResourceTexture*		  res			   = static_cast<DX12ResourceTexture*>(genData.gpuResource);
+		DX12ResourceTexture*		  res			   = static_cast<DX12ResourceTexture*>(rt->m_gpuResource);
 		D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
 		depthStencilDesc.Format						   = GetFormat(DEFAULT_DEPTH_FORMAT);
 		depthStencilDesc.ViewDimension				   = D3D12_DSV_DIMENSION_TEXTURE2D;
 		depthStencilDesc.Flags						   = D3D12_DSV_FLAG_NONE;
-		m_device->CreateDepthStencilView(res->DX12GetAllocation()->GetResource(), &depthStencilDesc, {genData.descriptor.GetCPUHandle()});
+		m_device->CreateDepthStencilView(res->DX12GetAllocation()->GetResource(), &depthStencilDesc, {rt->m_descriptor.GetCPUHandle()});
 
 		return rt;
 	}

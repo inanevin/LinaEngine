@@ -70,14 +70,15 @@ namespace Lina
 
 	Texture::~Texture()
 	{
-		if (m_gpuHandle == -1)
-			return;
-
 		if (m_pixels)
 			delete[] m_pixels;
 
 		m_pixels = nullptr;
-		m_renderer->DestroyImage(m_gpuHandle);
+		
+		if (m_gpuResource == nullptr)
+			return;
+
+		m_renderer->DestroyImage(this);
 	}
 
 	void Texture::LoadFromFile(const char* path)

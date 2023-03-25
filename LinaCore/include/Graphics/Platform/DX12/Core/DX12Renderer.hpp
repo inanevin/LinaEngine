@@ -66,23 +66,10 @@ namespace Lina
 	class TextureSampler;
 	class IWindow;
 
-	struct GeneratedTexture
-	{
-		// Only for swapchain render target
-		ID3D12Resource* rrr;
-
-		// For all others.
-		IGfxResourceTexture* gpuResource = nullptr;
-		StringID			 sid		 = 0;
-		DescriptorHandle	 descriptor;
-		DescriptorHandle	 descriptorSecondary; // used for render target views
-		Texture*			 textureSrc = nullptr;
-	};
-
 	class Renderer : public ISystemEventListener
 	{
 	public:
-		Renderer() : m_textures(100, GeneratedTexture()), m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()), m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()){};
+		Renderer() : m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()), m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()){};
 
 		struct StatePerFrame
 		{
@@ -128,7 +115,7 @@ namespace Lina
 		void DestroyPipeline(Shader* shader);
 		void CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode);
 		void GenerateImage(Texture* txt, ImageGenerateRequest req);
-		void DestroyImage(uint32 handle);
+		void DestroyImage(Texture* txt);
 		void GenerateSampler(TextureSampler* sampler);
 		void DestroySampler(TextureSampler* sampler);
 
@@ -267,7 +254,6 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_commandSigStandard;
 
 		// Resources
-		IDList<GeneratedTexture>			m_textures;
 		Mutex								m_textureMtx;
 		Microsoft::WRL::ComPtr<IDxcLibrary> m_idxcLib;
 		ID3DIncludeInterface				m_includeInterface;

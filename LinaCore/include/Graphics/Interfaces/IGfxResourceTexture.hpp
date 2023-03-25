@@ -39,6 +39,7 @@ namespace Lina
 	class IGfxResourceTexture
 	{
 	public:
+		IGfxResourceTexture(){};
 		IGfxResourceTexture(TextureResourceType type, const Vector2i& initialSize) : m_type(type), m_size(initialSize){};
 		virtual ~IGfxResourceTexture() = default;
 
