@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12StagingHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12GPUHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Pipeline.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -528,8 +529,7 @@ namespace Lina
 						handle.ptr		   = alloc.GetCPUHandle() + i * increment;
 						destDescriptors[i] = handle;
 
-						auto& samplerGenData = m_samplers.GetItemR(loadedSampler->GetGPUHandle());
-						srcDescriptors[i]	 = {samplerGenData.descriptor.GetCPUHandle()};
+						srcDescriptors[i] = {loadedSampler->m_descriptor.GetCPUHandle()};
 					});
 					m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 
@@ -627,184 +627,48 @@ namespace Lina
 
 	void Renderer::GenerateMaterial(Material* mat)
 	{
-		LOCK_GUARD(m_materialMtx);
-		const uint32	   existingHandle = mat->GetGPUHandle();
-		const uint32	   index		  = existingHandle == -1 ? m_materials.AddItem(GeneratedMaterial()) : existingHandle;
-		GeneratedMaterial& genData		  = m_materials.GetItemR(index);
-		genData.materialSrc				  = mat;
-		mat->m_gpuHandle				  = index;
-
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			mat->m_isDirty[i] = true;
 
-			if (genData.buffer[i] == nullptr)
+			if (mat->m_buffer[i] == nullptr)
 			{
 				// Material doesn't exist already
 
 #ifndef LINA_PRODUCTION_BUILD
 				const wchar_t* name = FileSystem::CharToWChar(mat->GetPath().c_str());
-				genData.buffer[i]	= CreateCPUResource(mat->GetTotalAlignedSize(), CPUResourceHint::ConstantBuffer, name);
+				mat->m_buffer[i]	= CreateCPUResource(mat->GetTotalAlignedSize(), CPUResourceHint::ConstantBuffer, name);
 				delete[] name;
 #else
-				genData.buffer[i] = CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, L"Material Buffer");
+				mat->m_buffer[i] = CreateCPUResource(sz == 0 ? 16 : sz, CPUResourceHint::ConstantBuffer, L"Material Buffer");
 #endif
-				genData.descriptor[i] = m_bufferHeap->GetNewHeapHandle();
+				mat->m_descriptor[i] = m_bufferHeap->GetNewHeapHandle();
 			}
 
 			D3D12_CONSTANT_BUFFER_VIEW_DESC desc = {};
-			desc.BufferLocation					 = genData.buffer[i]->GetGPUPointer();
+			desc.BufferLocation					 = mat->m_buffer[i]->GetGPUPointer();
 			desc.SizeInBytes					 = static_cast<UINT>(mat->GetTotalAlignedSize());
-			m_device->CreateConstantBufferView(&desc, {genData.descriptor[i].GetCPUHandle()});
+			m_device->CreateConstantBufferView(&desc, {mat->m_descriptor[i].GetCPUHandle()});
 		}
 	}
 
-	void Renderer::DestroyMaterial(uint32 handle)
+	void Renderer::DestroyMaterial(Material* mat)
 	{
-		// Note: no need to mtx lock, this is called from the main thread.
-		auto& genData = m_materials.GetItemR(handle);
-
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			DeleteCPUResource(genData.buffer[i]);
-			m_bufferHeap->FreeHeapHandle(genData.descriptor[i]);
+			DeleteCPUResource(mat->m_buffer[i]);
+			m_bufferHeap->FreeHeapHandle(mat->m_descriptor[i]);
 		}
-
-		m_materials.RemoveItem(handle);
 	}
 
 	void Renderer::GeneratePipeline(Shader* shader)
 	{
-		LOCK_GUARD(m_shaderMtx);
-
-		const uint32	   index   = m_shaders.AddItem(GeneratedShader());
-		auto&			   genData = m_shaders.GetItemR(index);
-		const auto&		   stages  = shader->GetStages();
-		const PipelineType ppType  = shader->GetPipelineType();
-		shader->m_gpuHandle		   = index;
-
-		Vector<D3D12_INPUT_ELEMENT_DESC> inputLayout;
-
-		// Define the vertex input layout.
-		{
-			if (ppType == PipelineType::Standard)
-			{
-				inputLayout.push_back({"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-				inputLayout.push_back({"NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-				inputLayout.push_back({"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 24, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-				inputLayout.push_back({"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 40, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-			}
-			else if (ppType == PipelineType::GUI)
-			{
-				inputLayout.push_back({"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-				inputLayout.push_back({"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 8, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-				inputLayout.push_back({"COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 16, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0});
-			}
-			else if (ppType == PipelineType::NoVertex)
-			{
-				// no input.
-			}
-		}
-
-		// Describe and create the graphics pipeline state object (PSO).
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-
-		if (!inputLayout.empty())
-			psoDesc.InputLayout = {&inputLayout[0], static_cast<UINT>(inputLayout.size())};
-
-		D3D12_BLEND_DESC blendDesc						= CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-		blendDesc.AlphaToCoverageEnable					= false;
-		blendDesc.IndependentBlendEnable				= false;
-		blendDesc.RenderTarget[0].BlendEnable			= true;
-		blendDesc.RenderTarget[0].SrcBlend				= D3D12_BLEND_SRC_ALPHA;
-		blendDesc.RenderTarget[0].DestBlend				= D3D12_BLEND_INV_SRC_ALPHA;
-		blendDesc.RenderTarget[0].SrcBlendAlpha			= D3D12_BLEND_ONE;
-		blendDesc.RenderTarget[0].DestBlendAlpha		= D3D12_BLEND_INV_SRC_ALPHA;
-		blendDesc.RenderTarget[0].BlendOp				= D3D12_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].BlendOpAlpha			= D3D12_BLEND_OP_ADD;
-		blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-		blendDesc.RenderTarget[0].LogicOpEnable			= false;
-		blendDesc.RenderTarget[0].LogicOp				= D3D12_LOGIC_OP_COPY;
-
-		const D3D12_DEPTH_STENCILOP_DESC defaultStencilOp = {D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_STENCIL_OP_KEEP, D3D12_COMPARISON_FUNC_ALWAYS};
-		psoDesc.pRootSignature							  = m_rootSigStandard.Get();
-		psoDesc.RasterizerState							  = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-		psoDesc.BlendState								  = blendDesc;
-		psoDesc.DepthStencilState.DepthEnable			  = TRUE;
-		psoDesc.DepthStencilState.DepthWriteMask		  = D3D12_DEPTH_WRITE_MASK_ALL;
-		psoDesc.DepthStencilState.DepthFunc				  = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-		psoDesc.DepthStencilState.StencilEnable			  = FALSE;
-		psoDesc.DepthStencilState.StencilReadMask		  = D3D12_DEFAULT_STENCIL_READ_MASK;
-		psoDesc.DepthStencilState.StencilWriteMask		  = D3D12_DEFAULT_STENCIL_WRITE_MASK;
-		psoDesc.DepthStencilState.FrontFace				  = defaultStencilOp;
-		psoDesc.DepthStencilState.BackFace				  = defaultStencilOp;
-		psoDesc.SampleMask								  = UINT_MAX;
-		psoDesc.PrimitiveTopologyType					  = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-		psoDesc.NumRenderTargets						  = 1;
-		psoDesc.RTVFormats[0]							  = GetFormat(DEFAULT_RT_FORMAT);
-		psoDesc.DSVFormat								  = GetFormat(DEFAULT_DEPTH_FORMAT);
-		psoDesc.SampleDesc.Count						  = 1;
-		psoDesc.RasterizerState.FillMode				  = D3D12_FILL_MODE_SOLID;
-
-		if (ppType == PipelineType::Standard)
-		{
-			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_BACK;
-			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
-		}
-		else if (ppType == PipelineType::NoVertex)
-		{
-			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_NONE;
-			psoDesc.RasterizerState.FrontCounterClockwise = TRUE;
-		}
-		else if (ppType == PipelineType::GUI)
-		{
-			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_NONE;
-			psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
-		}
-
-		for (const auto& [stg, title] : stages)
-		{
-			const auto&	 bc		  = shader->GetCompiledCode(stg);
-			const void*	 byteCode = (void*)bc.data;
-			const SIZE_T length	  = static_cast<SIZE_T>(bc.dataSize);
-
-			if (stg == ShaderStage::Vertex)
-			{
-				psoDesc.VS.pShaderBytecode = byteCode;
-				psoDesc.VS.BytecodeLength  = length;
-			}
-			else if (stg == ShaderStage::Fragment)
-			{
-				psoDesc.PS.pShaderBytecode = byteCode;
-				psoDesc.PS.BytecodeLength  = length;
-			}
-			else if (stg == ShaderStage::Geometry)
-			{
-				psoDesc.GS.pShaderBytecode = byteCode;
-				psoDesc.GS.BytecodeLength  = length;
-			}
-			else if (stg == ShaderStage::TesellationControl || stg == ShaderStage::TesellationEval)
-			{
-				psoDesc.HS.pShaderBytecode = byteCode;
-				psoDesc.HS.BytecodeLength  = length;
-			}
-		}
-
-		try
-		{
-			ThrowIfFailed(m_device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&genData.pso)));
-		}
-		catch (HrException e)
-		{
-			LINA_CRITICAL("[Renderer] -> Exception when creating PSO! {0}", e.what());
-		}
+		shader->m_pipeline = new DX12Pipeline(this, shader);
 	}
 
-	void Renderer::DestroyPipeline(uint32 handle)
+	void Renderer::DestroyPipeline(Shader* shader)
 	{
-		auto& genData = m_shaders.GetItemR(handle);
-		genData.pso.Reset();
-		m_shaders.RemoveItem(handle);
+		delete shader->m_pipeline;
 	}
 
 	void Renderer::CompileShader(const char* path, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode)
@@ -992,7 +856,7 @@ namespace Lina
 		if (resourceType == TextureResourceType::Texture2DSwapchain)
 		{
 			m_rtvHeap->FreeHeapHandle(genData.descriptor);
-			genData.rawResource.Reset();
+			genData.rrr->Release();
 		}
 		else if (resourceType == TextureResourceType::Texture2DRenderTargetDepthStencil)
 		{
@@ -1016,40 +880,30 @@ namespace Lina
 
 	void Renderer::GenerateSampler(TextureSampler* sampler)
 	{
-		LOCK_GUARD(m_samplerMtx);
-		const uint32 existingHandle = sampler->GetGPUHandle();
-		const uint32 index			= existingHandle == -1 ? m_samplers.AddItem(GeneratedSampler()) : existingHandle;
-
-		GeneratedSampler& genData = m_samplers.GetItemR(index);
-		sampler->m_gpuHandle	  = index;
-
 		const auto& samplerData = sampler->GetSamplerData();
-		genData.sid				= sampler->GetSID();
 
 		D3D12_SAMPLER_DESC desc;
 
-		desc.AddressU		= GetAddressMode(samplerData.mode);
-		desc.AddressV		= GetAddressMode(samplerData.mode);
-		desc.AddressW		= GetAddressMode(samplerData.mode);
-		desc.BorderColor[0] = samplerData.borderColor.x;
-		desc.BorderColor[1] = samplerData.borderColor.y;
-		desc.BorderColor[2] = samplerData.borderColor.z;
-		desc.BorderColor[3] = samplerData.borderColor.w;
-		desc.ComparisonFunc = D3D12_COMPARISON_FUNC_NONE;
-		desc.Filter			= GetFilter(samplerData.minFilter, samplerData.magFilter);
-		desc.MinLOD			= samplerData.minLod;
-		desc.MaxLOD			= samplerData.maxLod;
-		desc.MaxAnisotropy	= samplerData.anisotropy;
-		desc.MipLODBias		= static_cast<FLOAT>(samplerData.mipLodBias);
-		genData.descriptor	= m_samplerHeap->GetNewHeapHandle();
-		m_device->CreateSampler(&desc, {genData.descriptor.GetCPUHandle()});
+		desc.AddressU		  = GetAddressMode(samplerData.mode);
+		desc.AddressV		  = GetAddressMode(samplerData.mode);
+		desc.AddressW		  = GetAddressMode(samplerData.mode);
+		desc.BorderColor[0]	  = samplerData.borderColor.x;
+		desc.BorderColor[1]	  = samplerData.borderColor.y;
+		desc.BorderColor[2]	  = samplerData.borderColor.z;
+		desc.BorderColor[3]	  = samplerData.borderColor.w;
+		desc.ComparisonFunc	  = D3D12_COMPARISON_FUNC_NONE;
+		desc.Filter			  = GetFilter(samplerData.minFilter, samplerData.magFilter);
+		desc.MinLOD			  = samplerData.minLod;
+		desc.MaxLOD			  = samplerData.maxLod;
+		desc.MaxAnisotropy	  = samplerData.anisotropy;
+		desc.MipLODBias		  = static_cast<FLOAT>(samplerData.mipLodBias);
+		sampler->m_descriptor = m_samplerHeap->GetNewHeapHandle();
+		m_device->CreateSampler(&desc, {sampler->m_descriptor.GetCPUHandle()});
 	}
 
-	void Renderer::DestroySampler(uint32 handle)
+	void Renderer::DestroySampler(TextureSampler* sampler)
 	{
-		GeneratedSampler& genData = m_samplers.GetItemR(handle);
-		m_samplerHeap->FreeHeapHandle(genData.descriptor);
-		m_samplers.RemoveItem(handle);
+		m_samplerHeap->FreeHeapHandle(sampler->m_descriptor);
 	}
 
 	ISwapchain* Renderer::CreateSwapchain(const Vector2i& size, IWindow* window, StringID sid)
@@ -1260,9 +1114,9 @@ namespace Lina
 			else if (t.type == ResourceTransitionType::RT2SRV)
 				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(res->DX12GetAllocation()->GetResource(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 			else if (t.type == ResourceTransitionType::RT2Present)
-				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rrr, D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
 			else if (t.type == ResourceTransitionType::Present2RT)
-				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rawResource.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
+				barriers.push_back(CD3DX12_RESOURCE_BARRIER::Transition(genData.rrr, D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 		}
 
 		cmdList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
@@ -1311,9 +1165,9 @@ namespace Lina
 
 	void Renderer::BindPipeline(uint32 cmdListHandle, Shader* shader)
 	{
-		auto& cmdList	 = m_cmdLists.GetItemR(cmdListHandle);
-		auto& shaderData = m_shaders.GetItemR(shader->GetGPUHandle());
-		cmdList->SetPipelineState(shaderData.pso.Get());
+		auto&		  cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		DX12Pipeline* pl	  = static_cast<DX12Pipeline*>(shader->m_pipeline);
+		cmdList->SetPipelineState(pl->GetPipelineState());
 	}
 
 	void Renderer::BindMaterials(Material** materials, uint32 materialsSize)
@@ -1337,8 +1191,6 @@ namespace Lina
 			handle.ptr		   = alloc.GetCPUHandle() + i * heapIncrement;
 			destDescriptors[i] = handle;
 
-			auto& matGenData = m_materials.GetItemR(mat->GetGPUHandle());
-
 			// Update if necessary
 			{
 				if (true || mat->IsDirty(m_currentFrameIndex))
@@ -1346,12 +1198,12 @@ namespace Lina
 					uint8* ptr = nullptr;
 					size_t sz  = 0;
 					mat->GetPropertyBlob(ptr, sz);
-					matGenData.buffer[m_currentFrameIndex]->BufferData(ptr, sz);
+					mat->m_buffer[m_currentFrameIndex]->BufferData(ptr, sz);
 					delete[] ptr;
 					mat->m_isDirty[m_currentFrameIndex] = false;
 				}
 			}
-			srcDescriptors[i] = {matGenData.descriptor[m_currentFrameIndex].GetCPUHandle()};
+			srcDescriptors[i] = {mat->m_descriptor[m_currentFrameIndex].GetCPUHandle()};
 		});
 
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
@@ -1565,7 +1417,7 @@ namespace Lina
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swp);
 		try
 		{
-			ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&genData.rawResource)));
+			ThrowIfFailed(dx12Swap->GetPtr()->GetBuffer(bufferIndex, IID_PPV_ARGS(&genData.rrr)));
 		}
 		catch (HrException e)
 		{
@@ -1576,7 +1428,7 @@ namespace Lina
 		desc.Format						   = GetFormat(DEFAULT_RT_FORMAT);
 		desc.ViewDimension				   = D3D12_RTV_DIMENSION_TEXTURE2D;
 
-		m_device->CreateRenderTargetView(genData.rawResource.Get(), &desc, {genData.descriptor.GetCPUHandle()});
+		m_device->CreateRenderTargetView(genData.rrr, &desc, {genData.descriptor.GetCPUHandle()});
 		return rt;
 	}
 

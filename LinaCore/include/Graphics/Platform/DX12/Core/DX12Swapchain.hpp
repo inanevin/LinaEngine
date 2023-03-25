@@ -33,10 +33,12 @@ SOFTWARE.
 
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+#include "Graphics/Data/DescriptorHandle.hpp"
 
 namespace Lina
 {
 	class Renderer;
+	class Texture;
 
 	class DX12Swapchain : public ISwapchain
 	{

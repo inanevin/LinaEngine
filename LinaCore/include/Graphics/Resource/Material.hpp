@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Resources/Core/IResource.hpp"
 #include "Graphics/Resource/MaterialProperty.hpp"
 #include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Data/DescriptorHandle.hpp"
 
 namespace Lina
 {
@@ -59,11 +60,6 @@ namespace Lina
 		inline uint32 GetTotalPropertySize() const
 		{
 			return m_totalPropertySize;
-		}
-
-		inline int32 GetGPUHandle() const
-		{
-			return m_gpuHandle;
 		}
 
 		inline int32 GetGPUBindlessIndex() const
@@ -134,16 +130,17 @@ namespace Lina
 	private:
 		friend class Renderer;
 
+		IGfxResourceCPU*			  m_buffer[FRAMES_IN_FLIGHT] = {nullptr};
+		DescriptorHandle			  m_descriptor[FRAMES_IN_FLIGHT];
+		bool						  m_isDirty[FRAMES_IN_FLIGHT];
 		HashMap<int32, Texture*>	  m_runtimeTextures;
 		Renderer*					  m_renderer = nullptr;
 		Vector<MaterialPropertyBase*> m_properties;
-		int32						  m_gpuHandle		  = -1;
 		int32						  m_gpuBindlessIndex  = -1;
 		StringID					  m_shaderHandle	  = 0;
 		Shader*						  m_shader			  = nullptr;
 		uint32						  m_totalPropertySize = 0;
 		uint32						  m_totalAlignedSize  = 0;
-		bool						  m_isDirty[FRAMES_IN_FLIGHT];
 	};
 
 } // namespace Lina

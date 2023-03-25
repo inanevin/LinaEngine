@@ -419,9 +419,9 @@ namespace Lina
 
 	struct ResourceTransition
 	{
-		ResourceTransitionType type	   = ResourceTransitionType::Present2RT;
-		Texture*			   texture = nullptr;
-		IGfxResourceCPU*	   buffer  = nullptr;
+		ResourceTransitionType type		 = ResourceTransitionType::Present2RT;
+		Texture*			   texture	 = nullptr;
+		IGfxResourceCPU*	   buffer	 = nullptr;
 	};
 
 	class GfxCommand

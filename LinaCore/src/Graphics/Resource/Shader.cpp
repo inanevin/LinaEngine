@@ -46,12 +46,6 @@ namespace Lina
 
 	Shader::~Shader()
 	{
-
-		if (m_gpuHandle == -1)
-			return;
-
-		m_renderer->DestroyPipeline(m_gpuHandle);
-
 		for (auto p : m_properties)
 			delete p;
 
@@ -62,6 +56,11 @@ namespace Lina
 		{
 			delete[] code.data;
 		}
+
+		if (m_pipeline == nullptr)
+			return;
+
+		m_renderer->DestroyPipeline(this);
 	}
 
 	const ShaderByteCode& Shader::GetCompiledCode(ShaderStage stage) const
@@ -225,7 +224,7 @@ namespace Lina
 
 	void Shader::Upload()
 	{
-		if (m_gpuHandle != -1)
+		if (m_pipeline != nullptr)
 			return;
 
 		m_renderer->GeneratePipeline(this);

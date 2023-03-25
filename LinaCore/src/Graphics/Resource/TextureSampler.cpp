@@ -41,7 +41,7 @@ namespace Lina
 
 	TextureSampler::~TextureSampler()
 	{
-		m_renderer->DestroySampler(m_gpuHandle);
+		m_renderer->DestroySampler(this);
 	}
 
 	void TextureSampler::SetSamplerData(const SamplerData& data)

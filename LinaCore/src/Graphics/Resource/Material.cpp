@@ -50,10 +50,10 @@ namespace Lina
 		for (auto p : m_properties)
 			delete p;
 
-		if (m_gpuHandle == -1)
+		if (m_buffer[0] == nullptr)
 			return;
 
-		m_renderer->DestroyMaterial(m_gpuHandle);
+		m_renderer->DestroyMaterial(this);
 	}
 
 	void Material::SetShader(StringID shader)

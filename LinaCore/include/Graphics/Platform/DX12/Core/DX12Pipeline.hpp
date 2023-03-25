@@ -28,48 +28,30 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef TextureSampler_HPP
-#define TextureSampler_HPP
+#ifndef DX12Pipeline_HPP
+#define DX12Pipeline_HPP
 
-#include "Resources/Core/IResource.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
-#include "Graphics/Data/DescriptorHandle.hpp"
+#include "Graphics/Interfaces/IPipeline.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace Lina
 {
 	class Renderer;
 
-	class TextureSampler : public IResource
+	class DX12Pipeline : public IPipeline
 	{
 	public:
-		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
-		virtual ~TextureSampler();
+		DX12Pipeline(Renderer* renderer, Shader* shader);
+		virtual ~DX12Pipeline();
 
-		void SetSamplerData(const SamplerData& data);
-
-		inline const SamplerData& GetSamplerData() const
+		inline ID3D12PipelineState* GetPipelineState()
 		{
-			return m_samplerData;
+			return m_pso.Get();
 		}
-
-		inline int32 GetGPUBindlessIndex() const
-		{
-			return m_gpuBindlessIndex;
-		}
-
-	protected:
-		// Inherited via IResource
-		virtual void Upload() override;
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
-		friend class Renderer;
-
-		DescriptorHandle m_descriptor		= {};
-		int32			 m_gpuBindlessIndex = -1;
-		Renderer*		 m_renderer			= nullptr;
-		SamplerData		 m_samplerData;
+		Renderer*									m_renderer = nullptr;
+		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pso;
 	};
 } // namespace Lina
 

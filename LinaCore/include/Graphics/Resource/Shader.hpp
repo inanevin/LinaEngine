@@ -42,6 +42,7 @@ namespace Lina
 {
 	class MaterialPropertyBase;
 	class Renderer;
+	class IPipeline;
 
 	class Shader : public IResource
 	{
@@ -64,11 +65,6 @@ namespace Lina
 		inline const Vector<MaterialPropertyBase*>& GetTextures() const
 		{
 			return m_textures;
-		}
-
-		inline int32 GetGPUHandle() const
-		{
-			return m_gpuHandle;
 		}
 
 		const HashMap<ShaderStage, String>& GetStages()
@@ -97,6 +93,7 @@ namespace Lina
 	private:
 		friend class Renderer;
 
+		IPipeline*							 m_pipeline = nullptr;
 		Renderer*							 m_renderer = nullptr;
 		Vector<MaterialPropertyBase*>		 m_properties;
 		Vector<MaterialPropertyBase*>		 m_textures;
@@ -106,7 +103,6 @@ namespace Lina
 		PipelineType						 m_pipelineType = PipelineType::Standard;
 
 		// Runtime
-		int32	  m_gpuHandle = -1;
 		String	  m_text	  = "";
 		Bitmask16 m_drawPassMask;
 	};

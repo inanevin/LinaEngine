@@ -28,48 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef TextureSampler_HPP
-#define TextureSampler_HPP
-
-#include "Resources/Core/IResource.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
-#include "Graphics/Data/DescriptorHandle.hpp"
+#ifndef IPipeline_HPP
+#define IPipeline_HPP
 
 namespace Lina
 {
-	class Renderer;
+	class Shader;
 
-	class TextureSampler : public IResource
+	class IPipeline
 	{
 	public:
-		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
-		virtual ~TextureSampler();
-
-		void SetSamplerData(const SamplerData& data);
-
-		inline const SamplerData& GetSamplerData() const
-		{
-			return m_samplerData;
-		}
-
-		inline int32 GetGPUBindlessIndex() const
-		{
-			return m_gpuBindlessIndex;
-		}
+		IPipeline(Shader* shader) : m_shader(shader){};
+		virtual ~IPipeline() = default;
 
 	protected:
-		// Inherited via IResource
-		virtual void Upload() override;
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
-
-	private:
-		friend class Renderer;
-
-		DescriptorHandle m_descriptor		= {};
-		int32			 m_gpuBindlessIndex = -1;
-		Renderer*		 m_renderer			= nullptr;
-		SamplerData		 m_samplerData;
+		Shader* m_shader = nullptr;
 	};
 } // namespace Lina
 
