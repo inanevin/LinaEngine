@@ -55,13 +55,13 @@ namespace Lina
 			LINA_ASSERT(false, "Ran out of render pass descriptor heap handles, need to increase heap size.");
 		}
 
-		DescriptorHandle			newHandle;
-		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = m_cpuStart;
-		cpuHandle.ptr += newHandleID * m_descriptorSize;
+		DescriptorHandle newHandle;
+		size_t			 cpuHandle = m_cpuStart.ptr;
+		cpuHandle += newHandleID * m_descriptorSize;
 		newHandle.SetCPUHandle(cpuHandle);
 
-		D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle = m_gpuStart;
-		gpuHandle.ptr += newHandleID * m_descriptorSize;
+		uint64 gpuHandle = m_gpuStart.ptr;
+		gpuHandle += newHandleID * m_descriptorSize;
 		newHandle.SetGPUHandle(gpuHandle);
 		newHandle.SetHeapIndex(newHandleID);
 		return newHandle;

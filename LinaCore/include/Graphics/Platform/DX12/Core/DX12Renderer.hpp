@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Data/Vertex.hpp"
+#include "Graphics/Data/DescriptorHandle.hpp"
 #include "Event/ISystemEventListener.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/IDList.hpp"
@@ -42,7 +43,6 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
 #include "Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp"
-
 namespace D3D12MA
 {
 	class Allocator;
@@ -56,8 +56,8 @@ namespace Lina
 	class Recti;
 	class GfxManager;
 	class ISwapchain;
-	class IGfxCPUResource;
-	class IGfxTextureResource;
+	class IGfxResourceCPU;
+	class IGfxResourceTexture;
 	class Color;
 	class DX12GPUHeap;
 	class DX12StagingHeap;
@@ -72,7 +72,7 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12Resource> rawResource;
 
 		// For all others.
-		IGfxTextureResource* gpuResource = nullptr;
+		IGfxResourceTexture* gpuResource = nullptr;
 		StringID			 sid		 = 0;
 		DescriptorHandle	 descriptor;
 		DescriptorHandle	 descriptorSecondary; // used for render target views
@@ -86,7 +86,7 @@ namespace Lina
 
 	struct GeneratedMaterial
 	{
-		IGfxCPUResource* buffer[FRAMES_IN_FLIGHT] = {nullptr};
+		IGfxResourceCPU* buffer[FRAMES_IN_FLIGHT] = {nullptr};
 		DescriptorHandle descriptor[FRAMES_IN_FLIGHT];
 		Material*		 materialSrc = nullptr;
 	};
@@ -162,11 +162,11 @@ namespace Lina
 
 		// Resources
 
-		IGfxCPUResource*	 CreateCPUResource(size_t size, CPUResourceHint hint, const wchar_t* name = L"CPU Visible Resource");
-		IGfxGPUResource*	 CreateGPUResource(size_t size, GPUResourceType type, bool requireJoinBeforeUpdating, const wchar_t* name = L"GPU Resource");
-		IGfxTextureResource* CreateTextureResource(TextureResourceType type, Texture* texture);
-		void				 DeleteCPUResource(IGfxCPUResource* res);
-		void				 DeleteGPUResource(IGfxGPUResource* res);
+		IGfxResourceCPU*	 CreateCPUResource(size_t size, CPUResourceHint hint, const wchar_t* name = L"CPU Visible Resource");
+		IGfxResourceGPU*	 CreateGPUResource(size_t size, GPUResourceType type, bool requireJoinBeforeUpdating, const wchar_t* name = L"GPU Resource");
+		IGfxResourceTexture* CreateTextureResource(TextureResourceType type, Texture* texture);
+		void				 DeleteCPUResource(IGfxResourceCPU* res);
+		void				 DeleteGPUResource(IGfxResourceGPU* res);
 
 		// Commands
 		uint32 CreateCommandAllocator(CommandType type);
@@ -186,13 +186,13 @@ namespace Lina
 		void   BindMaterials(Material** materials, uint32 materialsSize);
 		void   SetMaterialID(uint32 cmdListHandle, uint32 id);
 		void   BindDynamicTextures(Texture** textures, uint32 texturesSize);
-		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxCPUResource* buf);
-		void   BindObjectBuffer(uint32 cmdListHandle, IGfxGPUResource* res);
-		void   BindVertexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
-		void   BindIndexBuffer(uint32 cmdListHandle, IGfxGPUResource* buffer);
+		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxResourceCPU* buf);
+		void   BindObjectBuffer(uint32 cmdListHandle, IGfxResourceGPU* res);
+		void   BindVertexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
+		void   BindIndexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer);
 		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
-		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxCPUResource* indirectBuffer, uint32 count, uint64 indirectOffset);
+		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxResourceCPU* indirectBuffer, uint32 count, uint64 indirectOffset);
 		void   SetTopology(uint32 cmdListHandle, Topology topology);
 
 		// Fences

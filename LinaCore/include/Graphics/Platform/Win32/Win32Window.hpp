@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Win32Window_HPP
 #define Win32Window_HPP
 
-#include "Graphics/Core/IWindow.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 #include "Data/HashMap.hpp"
 
 struct HWND__;

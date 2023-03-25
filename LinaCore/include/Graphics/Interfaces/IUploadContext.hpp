@@ -40,14 +40,14 @@ namespace Lina
 {
 	class Renderer;
 	class Texture;
-	class IGfxTextureResource;
-	class IGfxCPUResource;
-	class IGfxGPUResource;
+	class IGfxResourceTexture;
+	class IGfxResourceCPU;
+	class IGfxResourceGPU;
 
 	struct TextureUploadRequest
 	{
-		IGfxCPUResource*	 stagingResource = nullptr;
-		IGfxTextureResource* targetResource	 = nullptr;
+		IGfxResourceCPU*	 stagingResource = nullptr;
+		IGfxResourceTexture* targetResource	 = nullptr;
 		Texture*			 targetTexture	 = nullptr;
 		uint32				 totalDataSize	 = 0;
 		ImageGenerateRequest genReq;
@@ -55,8 +55,8 @@ namespace Lina
 
 	struct StagingToGPURequests
 	{
-		IGfxCPUResource* cpuRes = nullptr;
-		IGfxGPUResource* gpuRes = nullptr;
+		IGfxResourceCPU* cpuRes = nullptr;
+		IGfxResourceGPU* gpuRes = nullptr;
 		Delegate<void()> onCopied;
 	};
 
@@ -73,11 +73,11 @@ namespace Lina
 		virtual ~IUploadContext(){};
 
 		virtual void FlushViaMask(Bitmask16 mask)																		 = 0;
-		virtual void CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) = 0;
-		virtual void CopyTextureQueueUp(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req)	 = 0;
-		virtual void CopyBuffersImmediate(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)								 = 0;
-		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes, Delegate<void()>&& onCopied)	 = 0;
-		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)								 = 0;
+		virtual void CopyTextureImmediate(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req) = 0;
+		virtual void CopyTextureQueueUp(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req)	 = 0;
+		virtual void CopyBuffersImmediate(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes)								 = 0;
+		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes, Delegate<void()>&& onCopied)	 = 0;
+		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes)								 = 0;
 		virtual void TransferToReadyQueue()																				 = 0;
 
 	protected:

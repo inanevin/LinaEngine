@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Graphics/Core/DrawPass.hpp"
-#include "Graphics/Core/IGfxGPUResource.hpp"
-#include "Graphics/Core/IGfxCPUResource.hpp"
+#include "Graphics/Interfaces/IGfxResourceGPU.hpp"
+#include "Graphics/Interfaces/IGfxResourceCPU.hpp"
 #include "Graphics/Components/RenderableComponent.hpp"
 #include "World/Core/Entity.hpp"
 #include "Graphics/Resource/Mesh.hpp"

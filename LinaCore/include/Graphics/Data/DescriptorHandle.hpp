@@ -28,25 +28,67 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IGfxBackend_HPP
-#define IGfxBackend_HPP
+#ifndef DescriptorHandle_HPP
+#define DescriptorHandle_HPP
 
-#include "Core/StringID.hpp"
+#include "Core/SizeDefinitions.hpp"
 
 namespace Lina
 {
-	class Vector2i;
-	struct SystemInitializationInfo;
-
-	class IGfxBackend
+	class DescriptorHandle
 	{
 	public:
-		IGfxBackend()		   = default;
-		virtual ~IGfxBackend() = default;
+		DescriptorHandle()
+		{
+			m_cpuHandle = NULL;
+			m_gpuHandle = NULL;
+			m_heapIndex = 0;
+		}
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo)					 = 0;
-		virtual void Shutdown()																 = 0;
+		size_t GetCPUHandle() const
+		{
+			return m_cpuHandle;
+		}
+		uint64 GetGPUHandle() const
+		{
+			return m_gpuHandle;
+		}
+		uint32 GetHeapIndex() const
+		{
+			return m_heapIndex;
+		}
+
+		void SetCPUHandle(size_t cpuHandle)
+		{
+			m_cpuHandle = cpuHandle;
+		}
+
+		void SetGPUHandle(uint64 gpuHandle)
+		{
+			m_gpuHandle = gpuHandle;
+		}
+
+		void SetHeapIndex(uint32 heapIndex)
+		{
+			m_heapIndex = heapIndex;
+		}
+
+		bool IsValid() const
+		{
+			return m_cpuHandle != NULL;
+		}
+
+		bool IsReferencedByShader() const
+		{
+			return m_gpuHandle != NULL;
+		}
+
+	private:
+		size_t m_cpuHandle = NULL;
+		uint64 m_gpuHandle = NULL;
+		uint32 m_heapIndex = 0;
 	};
+
 } // namespace Lina
 
 #endif

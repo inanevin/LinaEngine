@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Core/GfxMeshManager.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Graphics/Core/IGfxGPUResource.hpp"
+#include "Graphics/Interfaces/IGfxResourceGPU.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/ModelNode.hpp"
@@ -36,7 +36,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Data/Vertex.hpp"
-#include "Graphics/Core/IUploadContext.hpp"
+#include "Graphics/Interfaces/IUploadContext.hpp"
 
 namespace Lina
 {

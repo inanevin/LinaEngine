@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/ISwapchain.hpp"
-#include "Graphics/Core/IGfxCPUResource.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
+#include "Graphics/Interfaces/IGfxResourceCPU.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -299,7 +299,7 @@ namespace Lina
 		delete *it;
 	}
 
-	IGfxCPUResource* GfxManager::GetCurrentGlobalDataResource()
+	IGfxResourceCPU* GfxManager::GetCurrentGlobalDataResource()
 	{
 		return m_dataPerFrame[m_frameIndex].globalDataBuffer;
 	}

@@ -29,8 +29,8 @@ SOFTWARE.
 #include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Components/ModelNodeComponent.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/IGfxCPUResource.hpp"
-#include "Graphics/Core/IGfxGPUResource.hpp"
+#include "Graphics/Interfaces/IGfxResourceCPU.hpp"
+#include "Graphics/Interfaces/IGfxResourceGPU.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 
 // Test
-#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Core/SystemInfo.hpp"
 

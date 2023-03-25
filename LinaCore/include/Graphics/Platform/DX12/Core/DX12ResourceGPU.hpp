@@ -28,11 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DX12CPUResource_HPP
-#define DX12CPUResource_HPP
+#ifndef DX12ResourceGPU_HPP
+#define DX12ResourceGPU_HPP
 
-#include "Graphics/Core/IGfxCPUResource.hpp"
+#include "Graphics/Interfaces/IGfxResourceGPU.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace D3D12MA
 {
@@ -41,16 +42,17 @@ namespace D3D12MA
 
 namespace Lina
 {
+	class DX12ResourceCPU;
 
-	class DX12CPUResource : public IGfxCPUResource
+	class DX12ResourceGPU : public IGfxResourceGPU
 	{
 	public:
-		DX12CPUResource(Renderer* renderer, CPUResourceHint hint, size_t sz, const wchar_t* name = L"DX12 CPU Resource");
-		virtual ~DX12CPUResource();
+		DX12ResourceGPU(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz, const wchar_t* name = L"DX12 CPU Resource");
+		virtual ~DX12ResourceGPU();
 
-		virtual void   BufferData(const void* data, size_t sz) override;
-		virtual void   BufferDataPadded(const void* data, size_t sz, size_t padding) override;
 		virtual uint64 GetGPUPointer() override;
+		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) override;
+		virtual void   Copy(CopyDataType copyType) override;
 
 		inline size_t GetSize()
 		{
@@ -66,9 +68,13 @@ namespace Lina
 		void CreateResource();
 		void Cleanup();
 
-	protected:
-		const wchar_t*		 m_name		  = L"";
-		D3D12MA::Allocation* m_allocation = nullptr;
+		void MapBufferData(const void* data, size_t sz, size_t padding);
+
+	private:
+		Microsoft::WRL::ComPtr<ID3D12Resource> m_cpuVisibleResource;
+		const wchar_t*						   m_name			 = L"";
+		DX12ResourceCPU*					   m_stagingResource = nullptr;
+		D3D12MA::Allocation*				   m_allocation		 = nullptr;
 	};
 } // namespace Lina
 

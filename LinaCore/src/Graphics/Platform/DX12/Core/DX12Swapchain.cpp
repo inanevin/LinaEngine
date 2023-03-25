@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/WindowManager.hpp"
-#include "Graphics/Core/IWindow.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "System/ISystem.hpp"

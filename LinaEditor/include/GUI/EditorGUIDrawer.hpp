@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef EditorGUIDrawer_HPP
 #define EditorGUIDrawer_HPP
 
-#include "Graphics/Core/IGUIDrawer.hpp"
+#include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Core/StringID.hpp"
 
 namespace Lina

@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DX12/Core/DX12GPUResource.hpp"
-#include "Graphics/Platform/DX12/Core/DX12CPUResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12ResourceGPU.hpp"
+#include "Graphics/Platform/DX12/Core/DX12ResourceCPU.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Data/CommonData.hpp"
@@ -37,12 +37,12 @@ LINA_DISABLE_VC_WARNING(6387);
 
 namespace Lina
 {
-	DX12GPUResource::DX12GPUResource(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz, const wchar_t* name) : m_name(name), IGfxGPUResource(renderer, type, requireJoinBeforeUpdating, sz)
+	DX12ResourceGPU::DX12ResourceGPU(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz, const wchar_t* name) : m_name(name), IGfxResourceGPU(renderer, type, requireJoinBeforeUpdating, sz)
 	{
 		CreateResource();
 	}
 
-	DX12GPUResource::~DX12GPUResource()
+	DX12ResourceGPU::~DX12ResourceGPU()
 	{
 		if (m_stagingResource)
 			delete m_stagingResource;
@@ -50,7 +50,7 @@ namespace Lina
 		Cleanup();
 	}
 
-	uint64 DX12GPUResource::GetGPUPointer()
+	uint64 DX12ResourceGPU::GetGPUPointer()
 	{
 		if (m_mappedData != nullptr)
 			return m_cpuVisibleResource->GetGPUVirtualAddress();
@@ -58,7 +58,7 @@ namespace Lina
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
-	void DX12GPUResource::BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType)
+	void DX12ResourceGPU::BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType)
 	{
 		// Cpu-visible, directly copy
 		if (m_mappedData != nullptr)
@@ -75,7 +75,7 @@ namespace Lina
 		Copy(copyType);
 	}
 
-	void DX12GPUResource::Copy(CopyDataType copyType)
+	void DX12ResourceGPU::Copy(CopyDataType copyType)
 	{
 		// CPU visible VRAM resource, already copied via mapping.
 		if (m_mappedData != nullptr)
@@ -103,7 +103,7 @@ namespace Lina
 			m_renderer->GetUploadContext()->CopyBuffersQueueUp(m_stagingResource, this);
 	}
 
-	void DX12GPUResource::CreateResource()
+	void DX12ResourceGPU::CreateResource()
 	{
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension			 = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -152,7 +152,7 @@ namespace Lina
 					}
 					catch (HrException e)
 					{
-						LINA_TRACE("[DX12GPUResource] -> Map failed: {0}", e.what());
+						LINA_TRACE("[DX12ResourceGPU] -> Map failed: {0}", e.what());
 					}
 				}
 			}
@@ -169,7 +169,7 @@ namespace Lina
 			state					= D3D12_RESOURCE_STATE_COPY_DEST;
 
 			if (m_stagingResource == nullptr)
-				m_stagingResource = new DX12CPUResource(m_renderer, CPUResourceHint::None, m_size);
+				m_stagingResource = new DX12ResourceCPU(m_renderer, CPUResourceHint::None, m_size);
 		}
 
 		try
@@ -184,7 +184,7 @@ namespace Lina
 		NAME_DX12_OBJECT(m_allocation->GetResource(), m_name);
 	}
 
-	void DX12GPUResource::Cleanup()
+	void DX12ResourceGPU::Cleanup()
 	{
 		if (m_mappedData != nullptr)
 		{
@@ -201,7 +201,7 @@ namespace Lina
 		}
 	}
 
-	void DX12GPUResource::MapBufferData(const void* data, size_t sz, size_t padding)
+	void DX12ResourceGPU::MapBufferData(const void* data, size_t sz, size_t padding)
 	{
 		const size_t targetSize = sz + padding;
 

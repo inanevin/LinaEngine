@@ -29,7 +29,7 @@ SOFTWARE.
 #include "GUI/SplashScreenGUIDrawer.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/CommonResources.hpp"

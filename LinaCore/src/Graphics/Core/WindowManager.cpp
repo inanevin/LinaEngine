@@ -31,7 +31,6 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Data/CommonData.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Graphics/Core/IGfxBackend.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Core/SystemInfo.hpp"
 

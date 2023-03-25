@@ -32,6 +32,7 @@ SOFTWARE.
 #define DX12GPUHeap_HPP
 
 #include "DX12DescriptorHeap.hpp"
+#include "Graphics/Data/DescriptorHandle.hpp"
 
 namespace Lina
 {

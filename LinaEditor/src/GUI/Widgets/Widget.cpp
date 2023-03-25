@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "GUI/Widgets/Widget.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 
 using namespace Lina;
 

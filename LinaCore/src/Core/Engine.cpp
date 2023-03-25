@@ -35,7 +35,7 @@ SOFTWARE.
 
 //********** DEBUG
 #include "Input/Core/InputMappings.hpp"
-#include "Graphics/Core/IWindow.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 
 #define DEFAULT_RATE 1.0f / 60.0f

@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/SystemInfo.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Graphics/Core/IWindow.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 #include "Core/PlatformTime.hpp"
 #include "Core/EditorResourcesRegistry.hpp"
 
@@ -89,6 +89,7 @@ namespace Lina::Editor
 			window->SetStyle(WindowStyle::Borderless);
 			m_engine.GetResourceManager().AddListener(this);
 			m_loadCoreResourcesTask = resourceManager.LoadResources(resourceManager.GetCoreResources());
+			resourceManager.WaitForAll();
 		}
 	}
 

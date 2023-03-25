@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef DX12UploadContext_HPP
 #define DX12UploadContext_HPP
 
-#include "Graphics/Core/IUploadContext.hpp"
+#include "Graphics/Interfaces/IUploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace Lina
@@ -45,16 +45,16 @@ namespace Lina
 		virtual ~DX12UploadContext();
 
 		virtual void FlushViaMask(Bitmask16 mask) override;
-		virtual void CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
-		virtual void CopyTextureQueueUp(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
-		virtual void CopyBuffersImmediate(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes) override;
-		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes, Delegate<void()>&& onCopied) override;
-		virtual void CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes) override;
+		virtual void CopyTextureImmediate(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
+		virtual void CopyTextureQueueUp(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest req) override;
+		virtual void CopyBuffersImmediate(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes) override;
+		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes, Delegate<void()>&& onCopied) override;
+		virtual void CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes) override;
 		virtual void TransferToReadyQueue() override;
 
 	private:
 		void				 CopyTexture(TextureUploadRequest& req);
-		TextureUploadRequest CreateTextureUploadRequest(IGfxTextureResource* targetGPUResource, Texture* src, ImageGenerateRequest imgReq);
+		TextureUploadRequest CreateTextureUploadRequest(IGfxResourceTexture* targetGPUResource, Texture* src, ImageGenerateRequest imgReq);
 		void				 OpenCommandList();
 		void				 CloseAndExecuteCommandList();
 

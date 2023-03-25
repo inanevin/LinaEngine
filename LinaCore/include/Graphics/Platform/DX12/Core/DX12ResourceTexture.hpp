@@ -28,35 +28,43 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IGfxCPUResource_HPP
-#define IGfxCPUResource_HPP
+#ifndef DX12ResourceTexture_HPP
+#define DX12ResourceTexture_HPP
 
-#include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Interfaces/IGfxResourceTexture.hpp"
+#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
+
+namespace D3D12MA
+{
+	class Allocation;
+}
 
 namespace Lina
 {
 	class Renderer;
+	class Texture;
 
-	class IGfxCPUResource
+	class DX12ResourceTexture : public IGfxResourceTexture
 	{
 	public:
-		IGfxCPUResource(Renderer* renderer, CPUResourceHint hint, size_t sz) : m_renderer(renderer), m_hint(hint), m_size(sz){};
-		virtual ~IGfxCPUResource() = default;
+		DX12ResourceTexture(Renderer* rend, Texture* txt, TextureResourceType type);
+		virtual ~DX12ResourceTexture();
 
-		virtual void   BufferData(const void* data, size_t sz)						 = 0;
-		virtual void   BufferDataPadded(const void* data, size_t sz, size_t padding) = 0;
-		virtual uint64 GetGPUPointer()												 = 0;
+		virtual uint64 GetGPUPointer() override;
 
-		inline size_t GetSize()
+		inline D3D12MA::Allocation* DX12GetAllocation()
 		{
-			return m_size;
+			return m_allocation;
 		}
 
-	protected:
-		Renderer*		m_renderer	 = nullptr;
-		CPUResourceHint m_hint		 = CPUResourceHint::None;
-		uint8*			m_mappedData = nullptr;
-		size_t			m_size		 = 0;
+	private:
+		void CreateTexture();
+		void Cleanup();
+
+	private:
+		Texture*			 m_texture	  = nullptr;
+		Renderer*			 m_renderer	  = nullptr;
+		D3D12MA::Allocation* m_allocation = nullptr;
 	};
 } // namespace Lina
 

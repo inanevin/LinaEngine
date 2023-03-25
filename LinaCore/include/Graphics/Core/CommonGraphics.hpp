@@ -40,7 +40,7 @@ SOFTWARE.
 namespace Lina
 {
 	class Texture;
-	class IGfxCPUResource;
+	class IGfxResourceCPU;
 
 	enum class Format
 	{
@@ -421,7 +421,7 @@ namespace Lina
 	{
 		ResourceTransitionType type	   = ResourceTransitionType::Present2RT;
 		Texture*			   texture = nullptr;
-		IGfxCPUResource*	   buffer  = nullptr;
+		IGfxResourceCPU*	   buffer  = nullptr;
 	};
 
 	class GfxCommand

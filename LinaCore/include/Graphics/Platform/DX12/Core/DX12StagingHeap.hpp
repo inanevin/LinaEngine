@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "DX12DescriptorHeap.hpp"
 #include "Data/Deque.hpp"
+#include "Graphics/Data/DescriptorHandle.hpp"
 
 namespace Lina
 {

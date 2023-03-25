@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "GUI/Utility/DrawerUtility.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 
 using namespace Lina;

@@ -28,8 +28,8 @@ SOFTWARE.
 
 #include "Graphics/Core/GUIRenderer.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Graphics/Core/IGfxCPUResource.hpp"
-#include "Graphics/Core/IGfxGPUResource.hpp"
+#include "Graphics/Interfaces/IGfxResourceCPU.hpp"
+#include "Graphics/Interfaces/IGfxResourceGPU.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"

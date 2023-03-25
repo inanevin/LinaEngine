@@ -33,7 +33,6 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Graphics/Core/IGpuStorage.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Math/Math.hpp"
 

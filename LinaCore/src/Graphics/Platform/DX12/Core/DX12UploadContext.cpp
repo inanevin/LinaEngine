@@ -28,9 +28,9 @@ SOFTWARE.
 
 #include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
-#include "Graphics/Platform/DX12/Core/DX12CPUResource.hpp"
-#include "Graphics/Platform/DX12/Core/DX12GPUResource.hpp"
-#include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12ResourceCPU.hpp"
+#include "Graphics/Platform/DX12/Core/DX12ResourceGPU.hpp"
+#include "Graphics/Platform/DX12/Core/DX12ResourceTexture.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Resource/Texture.hpp"
 #include "Data/CommonData.hpp"
@@ -103,8 +103,8 @@ namespace Lina
 		{
 			for (auto& req : m_rdyStagingToGPURequests)
 			{
-				DX12CPUResource* dx12ResStaging = static_cast<DX12CPUResource*>(req.cpuRes);
-				DX12GPUResource* dx12ResTarget	= static_cast<DX12GPUResource*>(req.gpuRes);
+				DX12ResourceCPU* dx12ResStaging = static_cast<DX12ResourceCPU*>(req.cpuRes);
+				DX12ResourceGPU* dx12ResTarget	= static_cast<DX12ResourceGPU*>(req.gpuRes);
 				cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
 			}
 		}
@@ -136,7 +136,7 @@ namespace Lina
 		}
 	}
 
-	void DX12UploadContext::CopyTextureImmediate(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
+	void DX12UploadContext::CopyTextureImmediate(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
 	{
 		OpenCommandList();
 
@@ -147,7 +147,7 @@ namespace Lina
 		CloseAndExecuteCommandList();
 	}
 
-	void DX12UploadContext::CopyTextureQueueUp(IGfxTextureResource* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
+	void DX12UploadContext::CopyTextureQueueUp(IGfxResourceTexture* targetGPUTexture, Texture* src, ImageGenerateRequest imgReq)
 	{
 		auto it = linatl::find_if(m_textureRequests.begin(), m_textureRequests.end(), [targetGPUTexture](TextureUploadRequest& req) { return req.targetResource == targetGPUTexture; });
 		if (it != m_textureRequests.end())
@@ -157,7 +157,7 @@ namespace Lina
 		m_textureRequests.push_back(req);
 	}
 
-	void DX12UploadContext::CopyBuffersImmediate(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)
+	void DX12UploadContext::CopyBuffersImmediate(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes)
 	{
 		OpenCommandList();
 
@@ -166,8 +166,8 @@ namespace Lina
 
 		// Copy
 		{
-			DX12CPUResource* dx12ResStaging = static_cast<DX12CPUResource*>(cpuRes);
-			DX12GPUResource* dx12ResTarget	= static_cast<DX12GPUResource*>(gpuRes);
+			DX12ResourceCPU* dx12ResStaging = static_cast<DX12ResourceCPU*>(cpuRes);
+			DX12ResourceGPU* dx12ResTarget	= static_cast<DX12ResourceGPU*>(gpuRes);
 
 			cmdList->CopyResource(dx12ResTarget->DX12GetAllocation()->GetResource(), dx12ResStaging->DX12GetAllocation()->GetResource());
 		}
@@ -175,7 +175,7 @@ namespace Lina
 		CloseAndExecuteCommandList();
 	}
 
-	void DX12UploadContext::CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes, Delegate<void()>&& onCopied)
+	void DX12UploadContext::CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes, Delegate<void()>&& onCopied)
 	{
 		auto it = linatl::find_if(m_stagingToGPURequests.begin(), m_stagingToGPURequests.end(), [gpuRes](StagingToGPURequests& req) { return req.gpuRes == gpuRes; });
 		if (it != m_stagingToGPURequests.end())
@@ -188,7 +188,7 @@ namespace Lina
 		m_stagingToGPURequests.push_back(req);
 	}
 
-	void DX12UploadContext::CopyBuffersQueueUp(IGfxCPUResource* cpuRes, IGfxGPUResource* gpuRes)
+	void DX12UploadContext::CopyBuffersQueueUp(IGfxResourceCPU* cpuRes, IGfxResourceGPU* gpuRes)
 	{
 		StagingToGPURequests req;
 		req.cpuRes = cpuRes;
@@ -204,7 +204,7 @@ namespace Lina
 		m_textureRequests.clear();
 	}
 
-	TextureUploadRequest DX12UploadContext::CreateTextureUploadRequest(IGfxTextureResource* targetGPUResource, Texture* src, ImageGenerateRequest imgReq)
+	TextureUploadRequest DX12UploadContext::CreateTextureUploadRequest(IGfxResourceTexture* targetGPUResource, Texture* src, ImageGenerateRequest imgReq)
 	{
 		TextureUploadRequest req;
 		const auto&			 mips		= src->GetMipmaps();
@@ -221,7 +221,7 @@ namespace Lina
 
 		req.targetResource	= targetGPUResource;
 		req.targetTexture	= src;
-		req.stagingResource = new DX12CPUResource(m_renderer, CPUResourceHint::None, req.totalDataSize);
+		req.stagingResource = new DX12ResourceCPU(m_renderer, CPUResourceHint::None, req.totalDataSize);
 		req.genReq			= imgReq;
 		return req;
 	}
@@ -231,14 +231,14 @@ namespace Lina
 		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
 		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
 
-		DX12GfxTextureResource*		   dx12ResTarget  = static_cast<DX12GfxTextureResource*>(req.targetResource);
-		DX12CPUResource*			   dx12ResStaging = static_cast<DX12CPUResource*>(req.stagingResource);
+		DX12ResourceTexture*		   dx12ResTarget  = static_cast<DX12ResourceTexture*>(req.targetResource);
+		DX12ResourceCPU*			   dx12ResStaging = static_cast<DX12ResourceCPU*>(req.stagingResource);
 		Vector<D3D12_SUBRESOURCE_DATA> allData;
 
 		auto calcTd = [&](void* data, uint32 width, uint32 height, uint32 channels) {
 			D3D12_SUBRESOURCE_DATA textureData = {};
 			textureData.pData				   = data;
-			textureData.RowPitch			   = width * channels;
+			textureData.RowPitch			   = static_cast<LONG_PTR>(width * channels);
 			textureData.SlicePitch			   = static_cast<LONG_PTR>(ALIGN_SIZE_POW(textureData.RowPitch * height, req.targetResource->GetRequiredAlignment()));
 			allData.push_back(textureData);
 		};

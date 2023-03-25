@@ -28,53 +28,43 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DX12GPUResource_HPP
-#define DX12GPUResource_HPP
+#ifndef IGfxResourceGPU_HPP
+#define IGfxResourceGPU_HPP
 
-#include "Graphics/Core/IGfxGPUResource.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
-
-namespace D3D12MA
-{
-	class Allocation;
-}
 
 namespace Lina
 {
-	class DX12CPUResource;
+	class Renderer;
 
-	class DX12GPUResource : public IGfxGPUResource
+	enum class CopyDataType
+	{
+		CopyImmediately,
+		CopyQueueUp,
+		NoCopy
+	};
+
+	class IGfxResourceGPU
 	{
 	public:
-		DX12GPUResource(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz, const wchar_t* name = L"DX12 CPU Resource");
-		virtual ~DX12GPUResource();
+		IGfxResourceGPU(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz) : m_renderer(renderer), m_type(type), m_requireJoinBeforeUpdating(requireJoinBeforeUpdating), m_size(sz){};
+		virtual ~IGfxResourceGPU() = default;
 
-		virtual uint64 GetGPUPointer() override;
-		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) override;
-		virtual void   Copy(CopyDataType copyType) override;
+		virtual uint64 GetGPUPointer()																  = 0;
+		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) = 0;
+		virtual void   Copy(CopyDataType type)														  = 0;
 
 		inline size_t GetSize()
 		{
 			return m_size;
 		}
 
-		inline D3D12MA::Allocation* DX12GetAllocation()
-		{
-			return m_allocation;
-		}
-
-	private:
-		void CreateResource();
-		void Cleanup();
-
-		void MapBufferData(const void* data, size_t sz, size_t padding);
-
-	private:
-		Microsoft::WRL::ComPtr<ID3D12Resource> m_cpuVisibleResource;
-		const wchar_t*						   m_name			 = L"";
-		DX12CPUResource*					   m_stagingResource = nullptr;
-		D3D12MA::Allocation*				   m_allocation		 = nullptr;
+	protected:
+		bool			m_requireJoinBeforeUpdating = false;
+		Renderer*		m_renderer					= nullptr;
+		GPUResourceType m_type						= GPUResourceType::GPUOnlyWithStaging;
+		size_t			m_size						= 0;
+		uint8*			m_mappedData				= nullptr;
 	};
 } // namespace Lina
 

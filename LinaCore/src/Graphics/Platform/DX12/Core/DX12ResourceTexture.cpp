@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DX12/Core/DX12GfxTextureResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12ResourceTexture.hpp"
 #include "Graphics/Platform/DX12/Core/DX12StagingHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
@@ -38,7 +38,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	DX12GfxTextureResource::DX12GfxTextureResource(Renderer* rend, Texture* txt, TextureResourceType type) : m_renderer(rend), IGfxTextureResource(type, Vector2i(txt->GetExtent().width, txt->GetExtent().height))
+	DX12ResourceTexture::DX12ResourceTexture(Renderer* rend, Texture* txt, TextureResourceType type) : m_renderer(rend), IGfxResourceTexture(type, Vector2i(txt->GetExtent().width, txt->GetExtent().height))
 	{
 		if (m_type == TextureResourceType::Texture2DSwapchain)
 		{
@@ -50,17 +50,17 @@ namespace Lina
 		CreateTexture();
 	}
 
-	DX12GfxTextureResource::~DX12GfxTextureResource()
+	DX12ResourceTexture::~DX12ResourceTexture()
 	{
 		Cleanup();
 	}
 
-	uint64 DX12GfxTextureResource::GetGPUPointer()
+	uint64 DX12ResourceTexture::GetGPUPointer()
 	{
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
-	void DX12GfxTextureResource::CreateTexture()
+	void DX12ResourceTexture::CreateTexture()
 	{
 		const auto&	   ext	= m_texture->GetExtent();
 		auto&		   meta = m_texture->GetMetadata();
@@ -131,7 +131,7 @@ namespace Lina
 #endif
 	}
 
-	void DX12GfxTextureResource::Cleanup()
+	void DX12ResourceTexture::Cleanup()
 	{
 		m_allocation->Release();
 		m_allocation = nullptr;

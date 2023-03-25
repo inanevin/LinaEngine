@@ -35,7 +35,7 @@ SOFTWARE.
 #include "System/IPlugin.hpp"
 #include "Core/CoreResourcesRegistry.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Graphics/Core/IWindow.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina
 {

@@ -28,43 +28,47 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IGpuStorage_HPP
-#define IGpuStorage_HPP
+#ifndef DX12ResourceCPU_HPP
+#define DX12ResourceCPU_HPP
 
-#include "Core/SizeDefinitions.hpp"
-#include "Data/Vector.hpp"
-#include "Data/String.hpp"
-#include "Data/HashMap.hpp"
+#include "Graphics/Interfaces/IGfxResourceCPU.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+
+namespace D3D12MA
+{
+	class Allocation;
+}
 
 namespace Lina
 {
-	class Texture;
-	class Material;
-	class Shader;
-	struct ShaderByteCode;
 
-	class IGpuStorage
+	class DX12ResourceCPU : public IGfxResourceCPU
 	{
 	public:
-		IGpuStorage()		   = default;
-		virtual ~IGpuStorage() = default;
+		DX12ResourceCPU(Renderer* renderer, CPUResourceHint hint, size_t sz, const wchar_t* name = L"DX12 CPU Resource");
+		virtual ~DX12ResourceCPU();
 
-		virtual void Initilalize() = 0;
-		virtual void Shutdown()	   = 0;
+		virtual void   BufferData(const void* data, size_t sz) override;
+		virtual void   BufferDataPadded(const void* data, size_t sz, size_t padding) override;
+		virtual uint64 GetGPUPointer() override;
 
-		virtual uint32 GenerateMaterial(Material* mat, uint32 existingHandle)										 = 0;
-		virtual void   UpdateMaterialProperties(Material* mat, uint32 imageIndex)									 = 0;
-		virtual void   UpdateMaterialTextures(Material* mat, uint32 imageIndex, const Vector<uint32>& dirtyTextures) = 0;
-		virtual void   DestroyMaterial(uint32 handle)																 = 0;
+		inline size_t GetSize()
+		{
+			return m_size;
+		}
 
-		virtual uint32 GeneratePipeline(Shader* shader)																									 = 0;
-		virtual void   DestroyPipeline(uint32 handle)																									 = 0;
-		virtual void   CompileShader(const char* str, const HashMap<ShaderStage, String>& stages, HashMap<ShaderStage, ShaderByteCode>& outCompiledCode) = 0;
+		inline D3D12MA::Allocation* DX12GetAllocation()
+		{
+			return m_allocation;
+		}
 
-		virtual uint32 GenerateImage(Texture* txt, uint32 aspectFlags, uint32 imageUsageFlags) = 0;
-		virtual uint32 GenerateImageAndUpload(Texture* txt)									   = 0;
-		virtual void   DestroyImage(uint32 handle)											   = 0;
+	private:
+		void CreateResource();
+		void Cleanup();
+
+	protected:
+		const wchar_t*		 m_name		  = L"";
+		D3D12MA::Allocation* m_allocation = nullptr;
 	};
 } // namespace Lina
 

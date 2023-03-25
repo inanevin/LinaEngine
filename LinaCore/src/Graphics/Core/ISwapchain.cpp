@@ -26,11 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/WindowManager.hpp"
-#include "Graphics/Core/IWindow.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 #include "System/ISystem.hpp"
 
 namespace Lina

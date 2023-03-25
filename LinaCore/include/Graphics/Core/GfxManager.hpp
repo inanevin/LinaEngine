@@ -42,7 +42,7 @@ namespace Lina
 {
 	class Material;
 	class SurfaceRenderer;
-	class IGfxCPUResource;
+	class IGfxResourceCPU;
 	class Renderer;
 	class ResourceManager;
 	class Recti;
@@ -56,7 +56,7 @@ namespace Lina
 	private:
 		struct DataPerFrame
 		{
-			IGfxCPUResource* globalDataBuffer = nullptr;
+			IGfxResourceCPU* globalDataBuffer = nullptr;
 		};
 
 	public:
@@ -74,7 +74,7 @@ namespace Lina
 		void			 Render();
 		void			 CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		void			 DestroySurfaceRenderer(StringID sid);
-		IGfxCPUResource* GetCurrentGlobalDataResource();
+		IGfxResourceCPU* GetCurrentGlobalDataResource();
 		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void			 OnWindowMoved(IWindow* window, StringID sid, const Recti& rect);
 		void			 OnWindowResized(IWindow* window, StringID sid, const Recti& rect);

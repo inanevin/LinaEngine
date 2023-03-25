@@ -28,43 +28,31 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IGfxGPUResource_HPP
-#define IGfxGPUResource_HPP
+#ifndef IGfxResourceTexture_HPP
+#define IGfxResourceTexture_HPP
 
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Math/Vector.hpp"
 
 namespace Lina
 {
-	class Renderer;
-
-	enum class CopyDataType
-	{
-		CopyImmediately,
-		CopyQueueUp,
-		NoCopy
-	};
-
-	class IGfxGPUResource
+	class IGfxResourceTexture
 	{
 	public:
-		IGfxGPUResource(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz) : m_renderer(renderer), m_type(type), m_requireJoinBeforeUpdating(requireJoinBeforeUpdating), m_size(sz){};
-		virtual ~IGfxGPUResource() = default;
+		IGfxResourceTexture(TextureResourceType type, const Vector2i& initialSize) : m_type(type), m_size(initialSize){};
+		virtual ~IGfxResourceTexture() = default;
 
-		virtual uint64 GetGPUPointer()																  = 0;
-		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) = 0;
-		virtual void   Copy(CopyDataType type)														  = 0;
+		virtual uint64 GetGPUPointer() = 0;
 
-		inline size_t GetSize()
+		inline uint32 GetRequiredAlignment()
 		{
-			return m_size;
+			return m_requiredAlignment;
 		}
 
 	protected:
-		bool			m_requireJoinBeforeUpdating = false;
-		Renderer*		m_renderer					= nullptr;
-		GPUResourceType m_type						= GPUResourceType::GPUOnlyWithStaging;
-		size_t			m_size						= 0;
-		uint8*			m_mappedData				= nullptr;
+		uint32				m_requiredAlignment = 0;
+		TextureResourceType m_type				= TextureResourceType::Texture2DDefault;
+		Vector2i			m_size				= Vector2i::Zero;
 	};
 } // namespace Lina
 

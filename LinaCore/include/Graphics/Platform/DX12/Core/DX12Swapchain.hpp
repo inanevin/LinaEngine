@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef DX12Swapchain_HPP
 #define DX12Swapchain_HPP
 
-#include "Graphics/Core/ISwapchain.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace Lina

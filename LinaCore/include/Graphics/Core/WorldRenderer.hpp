@@ -52,7 +52,7 @@ namespace Lina
 	class EntityWorld;
 	class Texture;
 	class Material;
-	class IGfxCPUResource;
+	class IGfxResourceCPU;
 	class Renderer;
 
 	// DEBUG
@@ -81,8 +81,8 @@ namespace Lina
 		{
 			uint32			 cmdAllocator	 = 0;
 			uint32			 cmdList		 = 0;
-			IGfxCPUResource* sceneDataBuffer = nullptr;
-			IGfxCPUResource* viewDataBuffer	 = nullptr;
+			IGfxResourceCPU* sceneDataBuffer = nullptr;
+			IGfxResourceCPU* viewDataBuffer	 = nullptr;
 		};
 
 		struct DataPerImage

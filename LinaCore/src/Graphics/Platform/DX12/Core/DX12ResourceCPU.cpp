@@ -26,23 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Platform/DX12/Core/DX12CPUResource.hpp"
+#include "Graphics/Platform/DX12/Core/DX12ResourceCPU.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 
 namespace Lina
 {
-	DX12CPUResource::DX12CPUResource(Renderer* renderer, CPUResourceHint hint, size_t sz, const wchar_t* name) : m_name(name), IGfxCPUResource(renderer, hint, sz)
+	DX12ResourceCPU::DX12ResourceCPU(Renderer* renderer, CPUResourceHint hint, size_t sz, const wchar_t* name) : m_name(name), IGfxResourceCPU(renderer, hint, sz)
 	{
 		CreateResource();
 	}
 
-	DX12CPUResource::~DX12CPUResource()
+	DX12ResourceCPU::~DX12ResourceCPU()
 	{
 		Cleanup();
 	}
 
-	void DX12CPUResource::BufferData(const void* data, size_t sz)
+	void DX12ResourceCPU::BufferData(const void* data, size_t sz)
 	{
 		if (sz > m_size)
 		{
@@ -54,7 +54,7 @@ namespace Lina
 		MEMCPY(m_mappedData, data, sz);
 	}
 
-	void DX12CPUResource::BufferDataPadded(const void* data, size_t sz, size_t padding)
+	void DX12ResourceCPU::BufferDataPadded(const void* data, size_t sz, size_t padding)
 	{
 		if (padding + sz > m_size)
 		{
@@ -71,12 +71,12 @@ namespace Lina
 		MEMCPY(m_mappedData + padding, data, sz);
 	}
 
-	uint64 DX12CPUResource::GetGPUPointer()
+	uint64 DX12ResourceCPU::GetGPUPointer()
 	{
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
-	void DX12CPUResource::CreateResource()
+	void DX12ResourceCPU::CreateResource()
 	{
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension			 = D3D12_RESOURCE_DIMENSION_BUFFER;
@@ -117,13 +117,13 @@ namespace Lina
 		}
 		catch (HrException e)
 		{
-			LINA_TRACE("[DX12CPUResource] -> BufferData failed: {0}", e.what());
+			LINA_TRACE("[DX12ResourceCPU] -> BufferData failed: {0}", e.what());
 		}
 
 		NAME_DX12_OBJECT(m_allocation->GetResource(), m_name);
 	}
 
-	void DX12CPUResource::Cleanup()
+	void DX12ResourceCPU::Cleanup()
 	{
 		if (m_mappedData != nullptr)
 		{

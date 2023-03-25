@@ -77,57 +77,6 @@ namespace Lina
 		}
 	}
 
-	class DescriptorHandle
-	{
-	public:
-		DescriptorHandle()
-		{
-			m_cpuHandle.ptr = NULL;
-			m_gpuHandle.ptr = NULL;
-			m_heapIndex		= 0;
-		}
-
-		D3D12_CPU_DESCRIPTOR_HANDLE GetCPUHandle() const
-		{
-			return m_cpuHandle;
-		}
-		D3D12_GPU_DESCRIPTOR_HANDLE GetGPUHandle() const
-		{
-			return m_gpuHandle;
-		}
-		uint32 GetHeapIndex() const
-		{
-			return m_heapIndex;
-		}
-
-		void SetCPUHandle(D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle)
-		{
-			m_cpuHandle = cpuHandle;
-		}
-		void SetGPUHandle(D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle)
-		{
-			m_gpuHandle = gpuHandle;
-		}
-		void SetHeapIndex(uint32 heapIndex)
-		{
-			m_heapIndex = heapIndex;
-		}
-
-		bool IsValid() const
-		{
-			return m_cpuHandle.ptr != NULL;
-		}
-		bool IsReferencedByShader() const
-		{
-			return m_gpuHandle.ptr != NULL;
-		}
-
-	private:
-		D3D12_CPU_DESCRIPTOR_HANDLE m_cpuHandle = {};
-		D3D12_GPU_DESCRIPTOR_HANDLE m_gpuHandle = {};
-		uint32						m_heapIndex = 0;
-	};
-
 #ifndef LINA_PRODUCTION_BUILD
 #define NAME_DX12_OBJECT_CSTR(x, NAME) x->SetName(L#NAME)
 #define NAME_DX12_OBJECT(x, NAME) x->SetName(NAME)

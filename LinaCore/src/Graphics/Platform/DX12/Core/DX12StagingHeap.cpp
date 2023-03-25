@@ -66,8 +66,8 @@ namespace Lina
 		}
 
 		DescriptorHandle			newHandle;
-		D3D12_CPU_DESCRIPTOR_HANDLE cpuHandle = m_cpuStart;
-		cpuHandle.ptr += newHandleID * m_descriptorSize;
+		size_t cpuHandle = m_cpuStart.ptr;
+		cpuHandle += newHandleID * m_descriptorSize;
 		newHandle.SetCPUHandle(cpuHandle);
 		newHandle.SetHeapIndex(newHandleID);
 		m_activeHandleCount++;
