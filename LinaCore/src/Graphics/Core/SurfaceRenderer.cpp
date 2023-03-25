@@ -227,16 +227,12 @@ namespace Lina
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[m_currentImageIndex];
 
-		if (true && imgData.updateTexture)
+		if (imgData.updateTexture)
 		{
 			if (imgData.offscreenMaterial->GetShader() == nullptr)
 				imgData.offscreenMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
 
-			if (imgData.targetOffscreenTexture == nullptr)
-				imgData.offscreenMaterial->SetProperty("diffuse", "Resources/Core/Textures/LogoWithText.png"_hs);
-			else
-				imgData.offscreenMaterial->SetProperty("diffuse", imgData.targetOffscreenTexture->GetSID());
-
+			imgData.offscreenMaterial->SetProperty("diffuse", imgData.targetOffscreenTexture->GetSID());
 			imgData.updateTexture = false;
 		}
 
@@ -279,7 +275,7 @@ namespace Lina
 					m_guiRenderer->Render(frame.cmdList);
 				}
 			}
-			
+
 			m_renderer->EndRenderPass(frame.cmdList);
 			m_renderer->ResourceBarrier(frame.cmdList, &rt2Present, 1);
 		}

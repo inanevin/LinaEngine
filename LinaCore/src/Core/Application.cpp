@@ -108,9 +108,9 @@ namespace Lina
 		PROFILER_FRAME_START();
 
 		m_engine.GetGfxManager().WaitForPresentation();
+		CalculateTime();
 		m_engine.GetInput().PreTick();
 		PlatformProcess::PumpMessages();
-		CalculateTime();
 		m_engine.Tick(SystemInfo::GetDeltaTimeF());
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
 

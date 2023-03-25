@@ -51,6 +51,7 @@ SOFTWARE.
 #include "Core/PlatformTime.hpp"
 #include "Core/PlatformProcess.hpp"
 #include "Core/SystemInfo.hpp"
+#include "Math/Math.hpp"
 
 #ifndef LINA_PRODUCTION_BUILD
 #include "FileSystem/FileSystem.hpp"
@@ -69,8 +70,7 @@ namespace Lina
 		uint32 totalPresentCount;
 	};
 
-	HashMap<uint32, Test> presents;
-	uint32				  totalPresentCount = 0;
+	uint64 beginCycles = 0;
 
 	void MessageCallback(D3D12_MESSAGE_CATEGORY messageType, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID messageId, LPCSTR pDesc, void* pContext)
 	{
@@ -331,6 +331,8 @@ namespace Lina
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when initializating renderer! {0}", e.what());
 		}
+
+		beginCycles = PlatformTime::GetCycles64();
 	}
 
 	void Renderer::Shutdown()
@@ -366,18 +368,62 @@ namespace Lina
 		delete m_rtvHeap;
 	}
 
-	uint64 lastStuff   = 0;
-	double diff		   = 0;
-	double lastAppTime = 0.0;
+	// Define the desired frame time, in milliseconds
+	const float desiredFrameTime = 16.666f;
+
+	// Initialize variables for frame-pacing
+	UINT64 frameCount = 0;
+	UINT64 frameTime  = 0;
+	float  fps		  = 0.0f;
 
 	void Renderer::WaitForPresentation(ISwapchain* swapchain)
 	{
+
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swapchain);
-		DWORD		   result	= WaitForSingleObjectEx(dx12Swap->DX12GetWaitHandle(), 1000, true);
-		if (FAILED(result))
+
+		
+		// Calculate the current CPU timestamp
+		UINT64 currentTimestamp = PlatformTime::GetCycles64();
+
+		// If this is not the first frame, wait until the next presentation time
+		if (frameCount > 0)
 		{
-			LINA_ERR("[Renderer] -> Waiting on swapchain failed!");
+			// Calculate the target timestamp for the next presentation time
+			UINT64 targetTimestamp = frameTime + (UINT64)(desiredFrameTime * 10000.0f);
+
+			// If the current timestamp is earlier than the target timestamp, wait until the target timestamp
+			if (currentTimestamp < targetTimestamp)
+			{
+				auto spt = (DWORD)((targetTimestamp - currentTimestamp) / 10000);
+				Sleep(spt);
+			}
 		}
+
+		// Get the frame statistics from the swap chain
+		DXGI_FRAME_STATISTICS frameStatistics = {};
+		HRESULT hr = dx12Swap->GetPtr()->GetFrameStatistics(&frameStatistics);
+
+		if (SUCCEEDED(hr))
+		{
+			// Calculate the frame time in milliseconds
+			float currentFrameTime = (float)(frameStatistics.SyncQPCTime.QuadPart - frameTime) / 10000.0f;
+
+			// Update the frame time and frame count
+			frameTime = frameStatistics.SyncQPCTime.QuadPart;
+			frameCount++;
+
+			// Calculate the current FPS
+			fps = 1000.0f / currentFrameTime;
+		}
+		// LINA_TRACE("Last refresh: {0} - fd: {1}, sleep: {2}",lastRefreshRate, frameDelta, sleepTime);
+
+		// DWORD result = WaitForSingleObjectEx(dx12Swap->DX12GetWaitHandle(), 1000, true);
+		// if (FAILED(result))
+		//{
+		//	LINA_ERR("[Renderer] -> Waiting on swapchain failed!");
+		// }
+
+		return;
 	}
 
 	bool Renderer::Present(ISwapchain* swp)
@@ -401,13 +447,6 @@ namespace Lina
 			}
 
 			ThrowIfFailed(dx12Swap->GetPtr()->Present(interval, flags));
-			totalPresentCount++;
-
-			Test test;
-			test.totalPresentCount = totalPresentCount;
-			uint32 pid			   = 0;
-			dx12Swap->GetPtr()->GetLastPresentCount(&pid);
-			presents[pid] = test;
 		}
 		catch (HrException& e)
 		{

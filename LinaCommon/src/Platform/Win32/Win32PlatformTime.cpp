@@ -31,33 +31,26 @@ SOFTWARE.
 
 namespace Lina
 {
-	double Win32PlatformTime::s_secondsPerCycle	 = 0.0;
 	double Win32PlatformTime::s_secondsPerCycle64 = 0.0;
+	double Win32PlatformTime::s_millisPerCycle64  = 0.0;
 
 	double Win32PlatformTime::GetSeconds()
 	{
-		if (s_secondsPerCycle == 0.0)
+		if (s_secondsPerCycle64 == 0.0)
 		{
 			LARGE_INTEGER Frequency;
 
 			if (!QueryPerformanceFrequency(&Frequency))
 				LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
 
-			s_secondsPerCycle	= 1.0 / Frequency.QuadPart;
 			s_secondsPerCycle64 = 1.0 / Frequency.QuadPart;
+			s_millisPerCycle64	= 1000.0 / Frequency.QuadPart;
 		}
 
 		LARGE_INTEGER Cycles;
 		QueryPerformanceCounter(&Cycles);
 
 		return Cycles.QuadPart * GetSecondsPerCycle() + 16777216.0;
-	}
-
-	uint32 Win32PlatformTime::GetCycles()
-	{
-		LARGE_INTEGER Cycles;
-		QueryPerformanceCounter(&Cycles);
-		return (uint32)Cycles.QuadPart;
 	}
 
 	uint64 Win32PlatformTime::GetCycles64()
@@ -67,14 +60,24 @@ namespace Lina
 		return Cycles.QuadPart;
 	}
 
-	double Win32PlatformTime::GetDeltaSeconds(uint32 from, uint32 to, double timeScale)
-	{
-		return (to - from) * s_secondsPerCycle * timeScale;
-	}
-
 	double Win32PlatformTime::GetDeltaSeconds64(uint64 from, uint64 to, double timeScale)
 	{
 		return (to - from) * s_secondsPerCycle64 * timeScale;
 	}
-		
+
+	double Win32PlatformTime::GetDeltaSeconds64(uint64 deltaCycles, double timeScale)
+	{
+		return deltaCycles * s_secondsPerCycle64 * timeScale;
+	}
+
+	double Win32PlatformTime::GetDeltaMillis64(uint64 from, uint64 to, double timeScale)
+	{
+		return (to - from) * s_millisPerCycle64 * timeScale;
+	}
+
+	double Win32PlatformTime::GetDeltaMillis64(uint64 deltaCycles, double timeScale)
+	{
+		return deltaCycles * s_millisPerCycle64 * timeScale;
+	}
+
 } // namespace Lina
