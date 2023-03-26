@@ -97,8 +97,9 @@ namespace Lina
 			}
 		}
 
-		m_renderData.extractedRenderables.reserve(100);
 		CreateTextures();
+
+		m_renderData.extractedRenderables.reserve(100);
 		s_worldRendererCount++;
 	}
 
@@ -113,9 +114,9 @@ namespace Lina
 			m_renderer->DeleteCPUResource(frame.sceneDataBuffer);
 			m_renderer->DeleteCPUResource(frame.viewDataBuffer);
 		}
+		DestroyTextures();
 
 		m_world->RemoveListener(this);
-		DestroyTextures();
 		m_surfaceRenderer->RemoveWorldRenderer(this);
 		m_renderData.allRenderables.Reset();
 	}
@@ -208,7 +209,7 @@ namespace Lina
 		}
 	}
 
-	void WorldRenderer::Tick(float delta)
+	void WorldRenderer::Tick(float interpolationAlpha)
 	{
 		PROFILER_FUNCTION();
 

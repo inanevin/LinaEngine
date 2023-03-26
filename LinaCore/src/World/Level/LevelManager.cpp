@@ -33,6 +33,9 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Data/CommonData.hpp"
 
+// Debug
+#include "Graphics/Core/GfxManager.hpp"
+
 namespace Lina
 {
 	void LevelManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -106,16 +109,22 @@ namespace Lina
 		}
 	}
 
-	void LevelManager::Tick(float dt)
+	void LevelManager::Simulate(float fixedDelta)
 	{
+		if (GfxManager::testWorld != nullptr)
+			GfxManager::testWorld->Simulate(fixedDelta);
+
 		if (m_currentLevel != nullptr)
-			m_currentLevel->GetWorld()->Tick(dt);
+			m_currentLevel->GetWorld()->Simulate(fixedDelta);
 	}
 
-	void LevelManager::SyncData(float alpha)
+	void LevelManager::Tick(float deltaTime)
 	{
+		if (GfxManager::testWorld != nullptr)
+			GfxManager::testWorld->Tick(deltaTime);
+
 		if (m_currentLevel != nullptr)
-			m_currentLevel->GetWorld()->SyncData(alpha);
+			m_currentLevel->GetWorld()->Tick(deltaTime);
 	}
 
 	void LevelManager::WaitForSimulation()

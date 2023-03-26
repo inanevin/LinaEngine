@@ -35,33 +35,36 @@ SOFTWARE.
 #include "Input/Core/Input.hpp"
 #include "Audio/Core/AudioManager.hpp"
 #include "Graphics/Core/WindowManager.hpp"
-#include "Graphics/Core/GfxManager.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "IEngineInterface.hpp"
+#include "Event/ISystemEventListener.hpp"
 
 namespace Lina
 {
 	class Application;
+	class GfxManager;
 
 	class Engine : public ISystem, public ISystemEventListener
 	{
 	public:
-		Engine(Application* app) : ISystem(app), m_gfxManager(this), m_input(this), m_audioManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : ISystem(app), m_input(this), m_audioManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
 
 		virtual ~Engine() = default;
 
 		// Inherited via ISystem
+		void		 SetupBackend(const SystemInitializationInfo& initInfo);
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void PostInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
-		virtual void Tick(float dt) override;
+		virtual void PreTick() override;
+		virtual void Tick() override;
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+		virtual void OnCriticalGfxError() override;
 
-		virtual Bitmask32 GetSystemEventMask() override
+			virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_ResourceLoaded;
+			return EVS_ResourceLoaded | EVS_ResourceUnloaded;
 		}
 
 		inline Input& GetInput()
@@ -69,7 +72,7 @@ namespace Lina
 			return m_input;
 		}
 
-		inline GfxManager& GetGfxManager()
+		inline GfxManager* GetGfxManager()
 		{
 			return m_gfxManager;
 		}
@@ -89,15 +92,22 @@ namespace Lina
 			return m_resourceManager;
 		}
 
+	private:
+		void CalculateTime();
+
 	protected:
-		ResourceManager	 m_resourceManager;
-		Executor		 m_executor;
-		Input			 m_input;
-		AudioManager	 m_audioManager;
-		GfxManager		 m_gfxManager;
-		WindowManager	 m_windowManager;
-		LevelManager	 m_levelManager;
-		IEngineInterface m_engineInterface;
+		ResourceManager			   m_resourceManager;
+		Executor				   m_executor;
+		Input					   m_input;
+		AudioManager			   m_audioManager;
+		GfxManager*				   m_gfxManager = nullptr;
+		WindowManager			   m_windowManager;
+		LevelManager			   m_levelManager;
+		IEngineInterface		   m_engineInterface;
+
+		// Time
+		int64 m_frameCapAccumulator		 = 0;
+		int64 m_fixedTimestepAccumulator = 0;
 	};
 } // namespace Lina
 

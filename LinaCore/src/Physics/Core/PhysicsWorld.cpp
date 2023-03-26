@@ -34,40 +34,12 @@ SOFTWARE.
 namespace Lina
 {
 
-	void PhysicsWorld::Tick(float delta)
+	void PhysicsWorld::Simulate()
 	{
-		static float physicsAccumulator = 0.0f;
-		const float	 phydt				= SystemInfo::GetPhysicsDeltaTime();
-		m_simulated						= false;
-
-		if (physicsAccumulator > phydt)
-		{
-			// N = accumulator - update rate -> remainder.
-			// TODO: optional substepping to compansate.
-			physicsAccumulator = 0;
-
-			// dispatch events.
-			Event eventData;
-			eventData.fParams[0] = phydt;
-			m_world->DispatchEvent(EVG_Physics, eventData);
-			m_world->DispatchEvent(EVG_PostPhysics, eventData);
-
-			// Simulate nvidia physx
-			m_simulated = true;
-		}
-
-		physicsAccumulator += delta;
 	}
 
 	void PhysicsWorld::WaitForSimulation()
 	{
-		if (m_simulated)
-		{
-			// fetch physx results
-		}
 	}
 
-	void PhysicsWorld::SyncData(float alpha)
-	{
-	}
 } // namespace Lina

@@ -55,9 +55,7 @@ namespace Lina
 	class ISubsystem
 	{
 	public:
-		virtual void PreInitialize(const SystemInitializationInfo& initInfo){};
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void PostInitialize(){};
 		virtual void PreShutdown(){};
 		virtual void Shutdown() = 0;
 

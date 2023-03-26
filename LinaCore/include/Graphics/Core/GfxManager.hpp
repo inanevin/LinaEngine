@@ -50,6 +50,8 @@ namespace Lina
 	class IWindow;
 	class GUIBackend;
 
+	class EntityWorld;
+
 	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
 
@@ -60,17 +62,17 @@ namespace Lina
 		};
 
 	public:
-		GfxManager(ISystem* sys);
+		static EntityWorld* testWorld;
+
+		GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys);
 		virtual ~GfxManager() = default;
 
-		virtual void	 PreInitialize(const SystemInitializationInfo& initInfo) override;
-		virtual void	 Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void	 PostInitialize() override;
+		virtual void	 Initialize(const SystemInitializationInfo& initInfo);
 		virtual void	 PreShutdown() override;
 		virtual void	 Shutdown() override;
 		void			 WaitForPresentation();
 		void			 Join();
-		void			 Tick(float delta);
+		void			 Tick(float interpolationAlpha);
 		void			 Render();
 		void			 CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		void			 DestroySurfaceRenderer(StringID sid);
@@ -110,9 +112,9 @@ namespace Lina
 		GPUGlobalData			 m_globalData;
 		Vector<Material*>		 m_engineMaterials;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
-		uint32					 m_frameIndex		= 0;
-		GUIBackend*				 m_guiBackend		= nullptr;
-		bool					 m_PostInitializeed = false;
+		uint32					 m_frameIndex = 0;
+		GUIBackend*				 m_guiBackend = nullptr;
+		bool					 m_postInited = false;
 	};
 } // namespace Lina
 #endif

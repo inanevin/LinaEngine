@@ -79,7 +79,7 @@ namespace Lina
 			m_cpuInfo.numberOfCores = std::thread::hardware_concurrency();
 		}
 
-		const double  time	  = PlatformTime::GetSeconds();
+		const double  time	  = PlatformTime::GetMicroseconds() * 0.000001;
 		static double percent = 0.0;
 
 		if (time - m_lastCPUQueryTime > QUERY_CPU_INTERVAL_SECS)
@@ -197,16 +197,16 @@ namespace Lina
 				const auto& f = m_frameQueue.front();
 
 				file << "------------------------------------ FRAME " << frameCounter << "------------------------------------\n";
-				const double durationMS = PlatformTime::GetDeltaSeconds64(f.startCycles, f.endCycles, 1.0f) * 1000;
+				const double durationMS = PlatformTime::GetDeltaSeconds64(f.startCycles, f.endCycles) * 1000;
 				file << "Duration: " << durationMS << " (MS)\n";
 				file << "\n";
 
 				for (const auto& [sid, blocks] : f.threadBlocks)
 				{
 					double threadduration = 0.0;
-					for (auto b : blocks)
+					for (auto& b : blocks)
 					{
-						const double dur = PlatformTime::GetDeltaSeconds64(b.startCycles, b.endCycles, 1.0f);
+						const double dur = PlatformTime::GetDeltaSeconds64(b.startCycles, b.endCycles);
 						threadduration += dur;
 					}
 
@@ -219,9 +219,9 @@ namespace Lina
 					file << "** Total Duration: " << threadduration * 1000 << " (MS)\n";
 					const char* indent = "** ";
 
-					for (auto b : blocks)
+					for (auto& b : blocks)
 					{
-						const double dur = PlatformTime::GetDeltaSeconds64(b.startCycles, b.endCycles, 1.0f) * 1000;
+						const double dur = PlatformTime::GetDeltaSeconds64(b.startCycles, b.endCycles) * 1000;
 						file << indent << "-------- " << b.name << " --------\n";
 						file << indent << "Duration: " << dur << " (MS)\n";
 					}

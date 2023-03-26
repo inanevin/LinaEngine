@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Input/Core/CommonInput.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Core/GfxManager.hpp"
 #include "Core/Application.hpp"
 
 #include "Platform/Win32/Win32WindowsInclude.hpp"
@@ -131,8 +132,8 @@ namespace Lina
 			else
 			{
 				RECT rect;
-				 GetWindowRect(window, &rect);
-				//GetClientRect(window, &rect);
+				GetWindowRect(window, &rect);
+				// GetClientRect(window, &rect);
 				const Vector2i newSize = Vector2i(rect.right - rect.left, rect.bottom - rect.top);
 				win32Window->UpdateSize(newSize);
 			}
@@ -285,8 +286,7 @@ namespace Lina
 
 	Win32Window::Win32Window(WindowManager* manager, ISystem* sys, StringID sid) : IWindow(sys, sid), m_manager(manager)
 	{
-		m_input		 = m_system->CastSubsystem<Input>(SubsystemType::Input);
-		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_input = m_system->CastSubsystem<Input>(SubsystemType::Input);
 	}
 
 	bool Win32Window::Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
@@ -495,7 +495,10 @@ namespace Lina
 	{
 		const Vector2i oldPos = m_rect.pos;
 		m_rect.pos			  = pos;
-		m_gfxManager->OnWindowMoved(this, m_sid, m_rect);
+		auto gfxManager		  = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		if (gfxManager)
+			gfxManager->OnWindowMoved(this, m_sid, m_rect);
 	}
 
 	void Win32Window::UpdateSize(const Vector2i& size)
@@ -507,7 +510,10 @@ namespace Lina
 		const Vector2i oldSize = m_rect.size;
 		m_rect.size			   = size;
 		m_aspect			   = m_isMinimized ? 0.0f : static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
-		m_gfxManager->OnWindowResized(this, m_sid, m_rect);
+		auto gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		if (gfxManager)
+			gfxManager->OnWindowResized(this, m_sid, m_rect);
 	}
 
 	void Win32Window::SetTitle(const char* title)

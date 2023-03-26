@@ -72,9 +72,9 @@ namespace Lina
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_cpuVisibleResource;
-		const wchar_t*						   m_name			 = L"";
-		DX12ResourceCPU*					   m_stagingResource = nullptr;
-		D3D12MA::Allocation*				   m_allocation		 = nullptr;
+		const wchar_t*						   m_name					= L"";
+		DX12ResourceCPU*					   m_stagingResource		= nullptr;
+		D3D12MA::Allocation*				   m_allocation				= nullptr;
 	};
 } // namespace Lina
 

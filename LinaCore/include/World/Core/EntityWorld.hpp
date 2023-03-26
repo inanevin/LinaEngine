@@ -143,9 +143,9 @@ namespace Lina
 		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
-		void Tick(float delta);
+		void Simulate(float fixedDelta);
+		void Tick(float deltaTime);
 		void WaitForSimulation();
-		void SyncData(float alpha);
 
 	private:
 		static uint32 s_worldCounter;

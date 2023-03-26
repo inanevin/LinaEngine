@@ -35,10 +35,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	class Application;
-
-#define IDEAL_DT 1.0f / 60.0f
+	class Engine;
 
 	class SystemInfo
 	{
@@ -48,52 +46,84 @@ namespace Lina
 			return s_appMode;
 		}
 
-		static inline double GetCurrentRealtime()
-		{
-			return s_currentRealTime;
-		}
-
-		static inline double GetLastRealtime()
-		{
-			return s_lastRealTime;
-		}
-
+		/// <summary>
+		/// Total elapsed seconds since application start.
+		/// </summary>
+		/// <returns></returns>
 		static inline double GetAppTime()
 		{
 			return s_appTime;
 		}
 
+		/// <summary>
+		/// Total elapsed seconds since application start.
+		/// </summary>
+		/// <returns></returns>
 		static inline float GetAppTimeF()
 		{
 			return static_cast<float>(s_appTime);
 		}
 
-		static inline double GetDeltaTime()
+		/// <summary>
+		/// Time it took to process last frame in seconds. It is affected by frame-rate-smoothing.
+		/// </summary>
+		/// <returns></returns>
+		static inline double GetRealDeltaTime()
 		{
-			return s_deltaTime;
+			return s_realDeltaTime;
 		}
 
-		static inline float GetDeltaTimeF()
+		/// <summary>
+		/// Time it took to process last frame in seconds. It is affected by frame-rate-smoothing.
+		/// </summary>
+		/// <returns></returns>
+		static inline float GetRealDeltaTimeF()
 		{
-			return static_cast<float>(s_deltaTime);
+			return static_cast<float>(s_realDeltaTime);
 		}
 
-		static inline bool UseFixedTimestep()
+		/// <summary>
+		/// DeltaTime but in precision microseconds, not affected by frame-rate-smoothing.
+		/// </summary>
+		/// <returns></returns>
+		static inline int64 GetRealDeltaTimeMicroseconds()
 		{
-			return s_useFixedTimestep;
+			return s_realDeltaTimeMicroseconds;
 		}
 
-		static inline double GetFixedDeltaTime()
+		/// <summary>
+		/// Maximum delta time allowed, 0 for uncapped frame-rates.
+		/// </summary>
+		/// <returns></returns>
+		static inline int64 GetFrameCapMicroseconds()
 		{
-			return s_fixedDeltaTime;
+			return s_frameCapMicroseconds;
 		}
 
-		static inline float GetFixedFrameRate()
+		/// <summary>
+		/// Fixed-timestepping rate, physics will be updated at this rate. Use EVG_Simulate if you want to update your whole-game as fixed-time-stepped.
+		/// </summary>
+		/// <returns></returns>
+		static inline int64 GetFixedTimestepMicroseonds()
 		{
-			return 1.0f / static_cast<float>(s_fixedDeltaTime);
+			return s_fixedTimestepMicroseconds;
 		}
 
-		static inline bool UseFrameRateSmoothing()
+		/// <summary>
+		/// Fixed-timestepping rate in seconds, physics will be updated at this rate. Use EVG_Simulate if you want to update your whole-game as fixed-time-stepped.
+		/// </summary>
+		/// <returns></returns>
+		static inline double GetFixedTimestep()
+		{
+			return static_cast<double>(s_fixedTimestepMicroseconds) * 0.000001;
+		}
+
+		static inline uint32 GetMeasuredFPS()
+		{
+			return s_measuredFPS;
+		}
+
+		static inline bool GetUseFrameRateSmoothing()
 		{
 			return s_useFrameRateSmoothing;
 		}
@@ -103,24 +133,9 @@ namespace Lina
 			return s_appMode == ApplicationMode::Editor;
 		}
 
-		static inline double GetIdleTime()
-		{
-			return s_idleTime;
-		}
-
-		static inline double GetMaxDeltaTime()
-		{
-			return s_maxDeltaTime;
-		}
-
 		static inline bool GetAppHasFocus()
 		{
 			return s_appHasFocus;
-		}
-
-		static inline float GetPhysicsDeltaTime()
-		{
-			return s_physicsDeltaTime;
 		}
 
 		static inline uint64 GetFrames()
@@ -128,26 +143,21 @@ namespace Lina
 			return s_frames;
 		}
 
-		static inline uint32 GetMeasuredFPS()
+		static inline double GetTimescale()
 		{
-			return s_measuredFPS;
+			return s_timescale;
+		}
+
+		static inline void SetTimescale(double timescale)
+		{
+			s_timescale = timescale;
 		}
 
 	private:
 		friend class Application;
+		friend class Engine;
 
-		static void	 CalculateRunningAverageDT();
-		static float CalculateMaxTickRate();
-
-		static inline void SetCurrentRealTime(double seconds)
-		{
-			s_currentRealTime = seconds;
-		}
-
-		static inline void SetLastRealTime(double seconds)
-		{
-			s_lastRealTime = seconds;
-		}
+		static double CalculateRunningAverageDT(double dt);
 
 		static inline void SetAppTime(double seconds)
 		{
@@ -156,7 +166,7 @@ namespace Lina
 
 		static inline void SetDeltaTime(double seconds)
 		{
-			s_deltaTime = seconds;
+			s_realDeltaTime = seconds;
 		}
 
 		static inline void SetApplicationMode(ApplicationMode mode)
@@ -164,39 +174,24 @@ namespace Lina
 			s_appMode = mode;
 		}
 
-		static inline void SetUseFixedTimestep(bool use)
+		static inline void SetFixedTimestep(int64 microseconds)
 		{
-			s_useFixedTimestep = use;
+			s_fixedTimestepMicroseconds = microseconds;
 		}
 
-		static inline void SetFixedDeltaTime(double dt)
+		static inline void SetFrameCap(int64 microseconds)
 		{
-			s_fixedDeltaTime = dt;
+			s_frameCapMicroseconds = microseconds;
 		}
 
-		static inline void SetFramerateSmoothingEnabled(bool enabled)
+		static inline void SetUseFrameRateSmoothing(bool use)
 		{
-			s_useFrameRateSmoothing = enabled;
-		}
-
-		static inline void SetIdleTime(double time)
-		{
-			s_idleTime = time;
-		}
-
-		static inline void SetMaxDeltaTime(double seconds)
-		{
-			s_maxDeltaTime = seconds;
+			s_useFrameRateSmoothing = use;
 		}
 
 		static inline void SetAppHasFocus(bool hasFocus)
 		{
 			s_appHasFocus = hasFocus;
-		}
-
-		static inline void SetPhysicsDeltaTime(float dt)
-		{
-			s_physicsDeltaTime = dt;
 		}
 
 		static inline void SetFrames(uint64 frames)
@@ -209,20 +204,21 @@ namespace Lina
 			s_measuredFPS = fps;
 		}
 
+		static inline void SetRealDeltaTimeMicroseconds(int64 microseconds)
+		{
+			s_realDeltaTimeMicroseconds = microseconds;
+		}
+
 	private:
 		static ApplicationMode s_appMode;
-		static bool			   s_useFixedTimestep;
 		static bool			   s_useFrameRateSmoothing;
-		static double		   s_fixedDeltaTime;
-		static double		   s_currentRealTime;
-		static double		   s_lastRealTime;
 		static double		   s_appTime;
-		static double		   s_deltaTime;
-		static double		   s_idleTime;
-		static double		   s_maxDeltaTime;
-		static float		   s_averageDT;
-		static float		   s_physicsDeltaTime;
+		static double		   s_realDeltaTime;
+		static double		   s_timescale;
 		static bool			   s_appHasFocus;
+		static int64		   s_fixedTimestepMicroseconds;
+		static int64		   s_frameCapMicroseconds;
+		static int64		   s_realDeltaTimeMicroseconds;
 		static uint64		   s_frames;
 		static uint32		   s_measuredFPS;
 	};

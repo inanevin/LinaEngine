@@ -38,19 +38,21 @@ namespace Lina
 		m_maxDescriptors	   = numDescriptors;
 		m_isReferencedByShader = isReferencedByShader;
 
-		D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
-		heapDesc.NumDescriptors = m_maxDescriptors;
-		heapDesc.Type			= m_heapType;
-		heapDesc.Flags			= m_isReferencedByShader ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
-		heapDesc.NodeMask		= 0;
-
 		try
 		{
+
+			D3D12_DESCRIPTOR_HEAP_DESC heapDesc;
+			heapDesc.NumDescriptors = m_maxDescriptors;
+			heapDesc.Type			= m_heapType;
+			heapDesc.Flags			= m_isReferencedByShader ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+			heapDesc.NodeMask		= 0;
+
 			ThrowIfFailed(m_renderer->DX12GetDevice()->CreateDescriptorHeap(&heapDesc, IID_PPV_ARGS(&m_dx12Heap)));
 		}
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating a descriptor heap! {0}", e.what());
+			renderer->DX12Exception(e);
 		}
 
 		m_dx12Heap->SetName(L"Descriptor Heap");

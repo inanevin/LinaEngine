@@ -44,9 +44,6 @@ namespace Lina
 	class Win32PlatformProcess
 	{
 	public:
-		static void SleepSpinLock(uint64 milliseconds);
-		static void Sleep(uint64 milliseconds);
-
 	private:
 		friend class Application;
 

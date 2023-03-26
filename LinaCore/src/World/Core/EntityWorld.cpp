@@ -31,6 +31,7 @@ SOFTWARE.
 #include "World/Core/Component.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "Serialization/VectorSerialization.hpp"
+#include "Core/SystemInfo.hpp"
 
 namespace Lina
 {
@@ -143,23 +144,37 @@ namespace Lina
 		m_allocatorPool.Free(e);
 	}
 
-	void EntityWorld::Tick(float delta)
+	void EntityWorld::Simulate(float fixedDelta)
+	{
+		// dispatch events.
+		Event eventData;
+		eventData.fParams[0] = fixedDelta;
+		DispatchEvent(EVG_Simulate, eventData);
+		m_physicsWorld.Simulate();
+		DispatchEvent(EVG_PostSimulate, eventData);
+	}
+
+	void EntityWorld::Tick(float deltaTime)
 	{
 		Event data;
-		data.fParams[0] = delta;
+		data.fParams[0] = deltaTime;
 		DispatchEvent(EVG_Tick, data);
 		DispatchEvent(EVG_PostTick, data);
-		m_physicsWorld.Tick(delta);
+
+		auto e = GetEntity("Cube");
+
+		if (e)
+		{
+			e->AddPosition(Vector3(deltaTime * 0.33f, 0, 0));
+
+			if (e->GetPosition().x > 3.5f)
+				e->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
+		}
 	}
 
 	void EntityWorld::WaitForSimulation()
 	{
 		m_physicsWorld.WaitForSimulation();
-	}
-
-	void EntityWorld::SyncData(float alpha)
-	{
-		m_physicsWorld.SyncData(alpha);
 	}
 
 	void EntityWorld::SaveToStream(OStream& stream)

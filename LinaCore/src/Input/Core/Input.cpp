@@ -202,7 +202,7 @@ namespace Lina
 			m_previousStates[i] = m_currentStates[i];
 	}
 
-	void Input::Tick(float dt)
+	void Input::Tick()
 	{
 		m_mouseDeltaRaw		= m_mouseDeltaRawPrev;
 		m_mouseScroll		= m_mouseScrollPrev;

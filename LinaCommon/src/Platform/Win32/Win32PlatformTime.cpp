@@ -28,56 +28,85 @@ SOFTWARE.
 
 #include "Platform/Win32/Win32PlatformTime.hpp"
 #include "Platform/Win32/Win32WindowsInclude.hpp"
+#include <timeapi.h>
 
 namespace Lina
 {
-	double Win32PlatformTime::s_secondsPerCycle64 = 0.0;
-	double Win32PlatformTime::s_millisPerCycle64  = 0.0;
+	int64 Win32PlatformTime::s_frequency = 0;
 
-	double Win32PlatformTime::GetSeconds()
+	int64 Win32PlatformTime::GetMicroseconds()
 	{
-		if (s_secondsPerCycle64 == 0.0)
-		{
-			LARGE_INTEGER Frequency;
-
-			if (!QueryPerformanceFrequency(&Frequency))
-				LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
-
-			s_secondsPerCycle64 = 1.0 / Frequency.QuadPart;
-			s_millisPerCycle64	= 1000.0 / Frequency.QuadPart;
-		}
-
-		LARGE_INTEGER Cycles;
-		QueryPerformanceCounter(&Cycles);
-
-		return Cycles.QuadPart * GetSecondsPerCycle() + 16777216.0;
+		QueryFreq();
+		LARGE_INTEGER cycles;
+		QueryPerformanceCounter(&cycles);
+		return cycles.QuadPart * 1000000ll / s_frequency;
 	}
 
-	uint64 Win32PlatformTime::GetCycles64()
+	int64 Win32PlatformTime::GetCycles64()
 	{
 		LARGE_INTEGER Cycles;
 		QueryPerformanceCounter(&Cycles);
 		return Cycles.QuadPart;
 	}
 
-	double Win32PlatformTime::GetDeltaSeconds64(uint64 from, uint64 to, double timeScale)
+	double Win32PlatformTime::GetDeltaSeconds64(int64 fromCycles, int64 toCycles)
 	{
-		return (to - from) * s_secondsPerCycle64 * timeScale;
+		return (double)((toCycles - fromCycles) * (1.0 / s_frequency));
 	}
 
-	double Win32PlatformTime::GetDeltaSeconds64(uint64 deltaCycles, double timeScale)
+	void Win32PlatformTime::Throttle(int64 microseconds)
 	{
-		return deltaCycles * s_secondsPerCycle64 * timeScale;
+		if (microseconds < 0)
+			return;
+
+		int64		now	   = GetMicroseconds();
+		const int64 target = now + microseconds;
+		int64		sleep  = microseconds;
+
+		for (;;)
+		{
+			now = GetMicroseconds();
+
+			if (now >= target)
+			{
+				break;
+			}
+
+			int64 diff = target - now;
+
+			if (diff > 2000)
+			{
+				uint32 ms = static_cast<uint32>((double)(diff - 2000) / 1000.0);
+				Sleep(ms);
+			}
+			else
+			{
+				Sleep(0);
+			}
+		}
 	}
 
-	double Win32PlatformTime::GetDeltaMillis64(uint64 from, uint64 to, double timeScale)
+	void Win32PlatformTime::Sleep(uint32 milliseconds)
 	{
-		return (to - from) * s_millisPerCycle64 * timeScale;
+		if (milliseconds == 0)
+			YieldProcessor();
+		else
+			::Sleep(milliseconds);
 	}
 
-	double Win32PlatformTime::GetDeltaMillis64(uint64 deltaCycles, double timeScale)
+	void Win32PlatformTime::QueryFreq()
 	{
-		return deltaCycles * s_millisPerCycle64 * timeScale;
+		if (s_frequency == 0)
+		{
+			timeBeginPeriod(1);
+
+			LARGE_INTEGER frequency;
+
+			if (!QueryPerformanceFrequency(&frequency))
+				LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
+
+			s_frequency = frequency.QuadPart;
+		}
 	}
 
 } // namespace Lina

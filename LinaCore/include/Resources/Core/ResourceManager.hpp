@@ -59,7 +59,7 @@ namespace Lina
 		int32			   LoadResources(const Vector<ResourceIdentifier>& identifiers);
 		void			   WaitForAll();
 		bool			   IsLoadTaskComplete(uint32 id);
-		void			   UnloadResources(const Vector<ResourceIdentifier>& identifiers);
+		void			   UnloadResources(const Vector<ResourceIdentifier> identifiers);
 		bool			   IsPriorityResource(StringID sid);
 		bool			   IsCoreResource(StringID sid);
 		Vector<IResource*> GetAllResources(bool includeUserManagedResources);

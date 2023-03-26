@@ -41,13 +41,11 @@ namespace Lina
 		PhysicsWorld(EntityWorld* world) : m_world(world){};
 		~PhysicsWorld() = default;
 
-		void Tick(float delta);
+		void Simulate();
 		void WaitForSimulation();
-		void SyncData(float alpha);
 
 	private:
-		bool		 m_simulated = false;
-		EntityWorld* m_world	 = nullptr;
+		EntityWorld* m_world = nullptr;
 	};
 } // namespace Lina
 

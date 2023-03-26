@@ -65,13 +65,6 @@ namespace Lina
 {
 	DWORD msgCallback = 0;
 
-	struct Test
-	{
-		uint32 totalPresentCount;
-	};
-
-	uint64 beginCycles = 0;
-
 	void MessageCallback(D3D12_MESSAGE_CATEGORY messageType, D3D12_MESSAGE_SEVERITY severity, D3D12_MESSAGE_ID messageId, LPCSTR pDesc, void* pContext)
 	{
 		if (pDesc != NULL)
@@ -99,12 +92,13 @@ namespace Lina
 	// ********************** BACKEND ********************************
 	// ********************** BACKEND ********************************
 
-	void Renderer::PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan)
+	Renderer::Renderer(const SystemInitializationInfo& initInfo, GfxManager* gfxMan)
+		: m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()), m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>())
 	{
 		m_gfxManager	  = gfxMan;
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_resourceManager->AddListener(this);
-		m_vsync = initInfo.vsyncMode;
+		m_vsync			  = initInfo.vsyncMode;
+		m_initInfo		  = initInfo;
 
 		try
 		{
@@ -217,17 +211,7 @@ namespace Lina
 				allocatorDesc.pAllocationCallbacks = NULL;
 				ThrowIfFailed(D3D12MA::CreateAllocator(&allocatorDesc, &m_dx12Allocator));
 			}
-		}
-		catch (HrException e)
-		{
-			LINA_CRITICAL("[Renderer] -> Exception when pre-initializating renderer! {0}", e.what());
-		}
-	}
 
-	void Renderer::Initialize(const SystemInitializationInfo& initInfo)
-	{
-		try
-		{
 			// DXC
 			{
 				HRESULT hr = DxcCreateInstance(CLSID_DxcLibrary, IID_PPV_ARGS(&m_idxcLib));
@@ -309,7 +293,6 @@ namespace Lina
 				commandSignatureDesc.NumArgumentDescs			  = _countof(argumentDescs);
 				commandSignatureDesc.ByteStride					  = sizeof(DrawIndexedIndirectCommand);
 
-				auto sa = sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
 				ThrowIfFailed(m_device->CreateCommandSignature(&commandSignatureDesc, m_rootSigStandard.Get(), IID_PPV_ARGS(&m_commandSigStandard)));
 			}
 
@@ -329,17 +312,13 @@ namespace Lina
 		}
 		catch (HrException e)
 		{
-			LINA_CRITICAL("[Renderer] -> Exception when initializating renderer! {0}", e.what());
+			LINA_CRITICAL("[Renderer] -> Exception when pre-initializating renderer! {0}", e.what());
+			DX12Exception(e);
 		}
-
-		beginCycles = PlatformTime::GetCycles64();
 	}
 
 	void Renderer::Shutdown()
 	{
-		m_resourceManager->RemoveListener(this);
-
-		delete m_uploadContext;
 		ReleaseFence(m_frameFenceGraphics);
 
 		ID3D12InfoQueue1* infoQueue = nullptr;
@@ -351,6 +330,9 @@ namespace Lina
 		m_graphicsQueue.Reset();
 		m_copyQueue.Reset();
 		m_dx12Allocator->Release();
+		m_commandSigStandard.Reset();
+		m_rootSigStandard.Reset();
+		m_idxcLib.Reset();
 		m_device.Reset();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -361,6 +343,7 @@ namespace Lina
 			delete m_gpuSamplerHeap[i];
 		}
 
+		delete m_uploadContext;
 		delete m_bufferHeap;
 		delete m_textureHeap;
 		delete m_dsvHeap;
@@ -378,10 +361,9 @@ namespace Lina
 
 	void Renderer::WaitForPresentation(ISwapchain* swapchain)
 	{
-
+		return;
 		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swapchain);
 
-		
 		// Calculate the current CPU timestamp
 		UINT64 currentTimestamp = PlatformTime::GetCycles64();
 
@@ -401,7 +383,7 @@ namespace Lina
 
 		// Get the frame statistics from the swap chain
 		DXGI_FRAME_STATISTICS frameStatistics = {};
-		HRESULT hr = dx12Swap->GetPtr()->GetFrameStatistics(&frameStatistics);
+		HRESULT				  hr			  = dx12Swap->GetPtr()->GetFrameStatistics(&frameStatistics);
 
 		if (SUCCEEDED(hr))
 		{
@@ -451,24 +433,7 @@ namespace Lina
 		catch (HrException& e)
 		{
 			LINA_CRITICAL("[Renderer] -> Present engine error! {0}", e.what());
-
-			if (e.Error() == DXGI_ERROR_DEVICE_REMOVED || e.Error() == DXGI_ERROR_DEVICE_RESET)
-			{
-				try
-				{
-					Join();
-				}
-				catch (HrException&)
-				{
-					LINA_CRITICAL("[Renderer] -> Can't even wait for GPU!");
-				}
-
-				// TODO: Device removal: re-create dx12 resources?
-			}
-			else
-			{
-			}
-
+			DX12Exception(e);
 			return false;
 		}
 
@@ -653,6 +618,37 @@ namespace Lina
 		*ppAdapter = adapter.Detach();
 	}
 
+	void Renderer::DX12Exception(HrException e)
+	{
+		if (e.Error() == DXGI_ERROR_DEVICE_REMOVED || e.Error() == DXGI_ERROR_DEVICE_RESET)
+		{
+			HRESULT reason = m_device->GetDeviceRemovedReason();
+
+#ifndef LINA_PRODUCTION_BUILD
+			wchar_t outString[100];
+			size_t	size = 100;
+			swprintf_s(outString, size, L"Device removed! DXGI_ERROR code: 0x%X\n", reason);
+			char* reas = FileSystem::WCharToChar(outString);
+			LINA_CRITICAL("[Renderer] -> Device removal reason: {0}", reas);
+			delete[] reas;
+#endif
+
+			try
+			{
+				Join();
+			}
+			catch (HrException&)
+			{
+				LINA_CRITICAL("[Renderer] -> Can't even wait for GPU!");
+			}
+
+			m_failed = true;
+		}
+		else
+		{
+		}
+	}
+
 	// ********************** RESOURCES ********************************
 	// ********************** RESOURCES ********************************
 	// ********************** RESOURCES ********************************
@@ -833,6 +829,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when compiling shader! {0} {1}", path, e.what());
+			DX12Exception(e);
 		}
 	}
 
@@ -946,6 +943,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating a command allocator! {0}", e.what());
+			DX12Exception(e);
 		}
 
 		return handle;
@@ -965,6 +963,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating a command list! {0}", e.what());
+			DX12Exception(e);
 		}
 
 		return handle;
@@ -982,6 +981,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating a fence! {0}", e.what());
+			DX12Exception(e);
 		}
 
 		return handle;
@@ -1037,6 +1037,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when resetting a command list! {0}", e.what());
+			DX12Exception(e);
 		}
 	}
 
@@ -1086,6 +1087,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when closing a command list! {0}", e.what());
+			DX12Exception(e);
 		}
 	}
 
@@ -1249,7 +1251,8 @@ namespace Lina
 
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(texturesSize), 1, [&](int i) {
-			auto* texture				= textures[i];
+			auto* texture = textures[i];
+
 			texture->m_gpuBindlessIndex = currentDescriptorIndex + i;
 
 			D3D12_CPU_DESCRIPTOR_HANDLE handle;
@@ -1441,6 +1444,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception while creating render target for swapchain! {0}", e.what());
+			DX12Exception(e);
 		}
 
 		D3D12_RENDER_TARGET_VIEW_DESC desc = {};

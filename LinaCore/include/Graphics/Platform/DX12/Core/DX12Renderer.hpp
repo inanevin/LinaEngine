@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Data/Vertex.hpp"
 #include "Graphics/Data/DescriptorHandle.hpp"
-#include "Event/ISystemEventListener.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/IDList.hpp"
 #include "Data/HashSet.hpp"
@@ -67,10 +66,10 @@ namespace Lina
 	class TextureSampler;
 	class IWindow;
 
-	class Renderer : public ISystemEventListener
+	class Renderer
 	{
 	public:
-		Renderer() : m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()), m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>()){};
+		Renderer(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
 
 		struct StatePerFrame
 		{
@@ -80,8 +79,6 @@ namespace Lina
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
-		void PreInitialize(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
-		void Initialize(const SystemInitializationInfo& initInfo);
 		void Shutdown();
 		void WaitForPresentation(ISwapchain* swapchain);
 		void BeginFrame(uint32 frameIndex);
@@ -91,6 +88,11 @@ namespace Lina
 		void ResetResources();
 		void OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
 		void OnVsyncChanged(VsyncMode mode);
+
+		inline bool IsOK()
+		{
+			return !m_failed;
+		}
 
 		inline uint32 GetCurrentFrameIndex()
 		{
@@ -129,7 +131,6 @@ namespace Lina
 		uint32		GetNextBackBuffer(ISwapchain* swp);
 
 		// Resources
-
 		IGfxResourceCPU*	 CreateCPUResource(size_t size, CPUResourceHint hint, const wchar_t* name = L"CPU Visible Resource");
 		IGfxResourceGPU*	 CreateGPUResource(size_t size, GPUResourceType type, bool requireJoinBeforeUpdating, const wchar_t* name = L"GPU Resource");
 		IGfxResourceTexture* CreateTextureResource(TextureResourceType type, Texture* texture);
@@ -176,6 +177,8 @@ namespace Lina
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
+
+		void DX12Exception(HrException e);
 
 		inline ID3D12RootSignature* DX12GetRootSignatureStandard()
 		{
@@ -224,18 +227,20 @@ namespace Lina
 
 	private:
 		// General
-		GfxManager*		 m_gfxManager = nullptr;
-		StatePerFrame	 m_frames[FRAMES_IN_FLIGHT];
-		uint64			 m_fenceValueGraphics = 0;
-		uint32			 m_frameFenceGraphics = 0;
-		HANDLE			 m_fenceEventGraphics = NULL;
-		uint32			 m_currentFrameIndex  = 0;
-		ResourceManager* m_resourceManager	  = nullptr;
-		IUploadContext*	 m_uploadContext;
-		bool			 m_allowTearing			  = false;
-		VsyncMode		 m_vsync				  = VsyncMode::None;
-		uint32			 m_texturesHeapAllocCount = 0;
-		uint32			 m_samplersHeapAllocCount = 0;
+		SystemInitializationInfo m_initInfo;
+		GfxManager*				 m_gfxManager = nullptr;
+		StatePerFrame			 m_frames[FRAMES_IN_FLIGHT];
+		uint64					 m_fenceValueGraphics	  = 0;
+		uint32					 m_frameFenceGraphics	  = 0;
+		HANDLE					 m_fenceEventGraphics	  = NULL;
+		uint32					 m_currentFrameIndex	  = 0;
+		ResourceManager*		 m_resourceManager		  = nullptr;
+		IUploadContext*			 m_uploadContext		  = nullptr;
+		bool					 m_allowTearing			  = false;
+		VsyncMode				 m_vsync				  = VsyncMode::None;
+		uint32					 m_texturesHeapAllocCount = 0;
+		uint32					 m_samplersHeapAllocCount = 0;
+		bool					 m_failed				  = false;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;

@@ -341,6 +341,7 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Shcore.lib
 )
 message("LinaCore -> User32 Linked.")
+message("LinaCore -> Shcore Linked.")
 endif()
 
 

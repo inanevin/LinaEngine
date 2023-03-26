@@ -54,21 +54,23 @@ SOFTWARE.
 
 namespace Lina
 {
-	WorldRenderer*	testWorldRenderer = nullptr;
-	EntityWorld*	testWorld		  = nullptr;
-	Entity*			camEntity		  = nullptr;
-	Vector<Entity*> cubes;
+	WorldRenderer* testWorldRenderer	 = nullptr;
+	EntityWorld*   GfxManager::testWorld = nullptr;
+	Entity*		   camEntity			 = nullptr;
 
-	GfxManager::GfxManager(ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
+	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-	}
-
-	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
-	{
-		m_renderer = new Renderer();
-		m_renderer->PreInitialize(initInfo, this);
+		m_renderer		  = new Renderer(initInfo, this);
 		m_resourceManager->AddListener(this);
+		m_meshManager.Initialize();
+
+		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data			  = m_dataPerFrame[i];
+			data.globalDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUGlobalData), CPUResourceHint::ConstantBuffer, L"Global Data Buffer");
+			data.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
+		}
 
 		// GUIBackend
 		{
@@ -92,20 +94,6 @@ namespace Lina
 	}
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
-	{
-		m_renderer->Initialize(initInfo);
-
-		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data			  = m_dataPerFrame[i];
-			data.globalDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUGlobalData), CPUResourceHint::ConstantBuffer, L"Global Data Buffer");
-			data.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
-		}
-
-		m_meshManager.Initialize();
-	}
-
-	void GfxManager::PostInitialize()
 	{
 		// Samplers
 		{
@@ -165,35 +153,35 @@ namespace Lina
 			camEntity->SetRotationAngles(Vector3(0, 0, 0));
 
 			testWorld->SetActiveCamera(cam);
-			auto aq	 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-		//	auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			aq->SetName("Cube");
+			//	auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
 			/// auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
-
 			aq->SetPosition(Vector3(-3.5f, 0, 0));
-		//	aq2->SetPosition(Vector3(3, 0, 0));
+			//	aq2->SetPosition(Vector3(3, 0, 0));
 			// aq3->SetPosition(Vector3(0, 0, 0));
-			cubes.push_back(aq);
-		//	cubes.push_back(aq2);
-			// cubes.push_back(aq3);
+
 			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, m_surfaceRenderers[0], 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
 		}
 
-		m_PostInitializeed = true;
+		m_postInited = true;
 	}
 
 	void GfxManager::PreShutdown()
 	{
-		Join();
 		LinaVG::Terminate();
 
 		delete testWorldRenderer;
 		delete testWorld;
+		testWorld = nullptr;
+
 		for (auto m : m_engineMaterials)
 			delete m;
 		for (auto s : m_engineSamplers)
 			delete s;
-		for (auto& sr : m_surfaceRenderers)
+		for (auto sr : m_surfaceRenderers)
 			delete sr;
+
 		m_surfaceRenderers.clear();
 	}
 
@@ -226,43 +214,31 @@ namespace Lina
 		m_renderer->Join();
 	}
 
-	void GfxManager::Tick(float delta)
+	void GfxManager::Tick(float interpolationAlpha)
 	{
 		PROFILER_FUNCTION();
 
 		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(delta); });
+		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(interpolationAlpha); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
-
-		int i = 0;
-		for (auto c : cubes)
-		{
-			 c->AddPosition(Vector3(delta * 0.33f, 0, 0));
-			
-			 if (c->GetPosition().x > 3.5f)
-				c->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
-
-			//	c->SetPosition(Vector3(Math::Sin(SystemInfo::GetAppTimeF() * 0.2f) * 3, 0.0f, 0.0f));
-			//c->AddRotation(Vector3(0, 0, SystemInfo::GetDeltaTimeF() * 35));
-			i++;
-		}
-		if (camEntity)
-		{
-			// camEntity->SetPosition(Vector3(0,0, Math::Sin(SystemInfo::GetAppTimeF() * 5) * 10));
-			// camEntity->SetRotationAngles(Vector3(0, 180 + SystemInfo::GetAppTimeF(), 0));
-		}
 	}
 
 	void GfxManager::Render()
 	{
 		PROFILER_FUNCTION();
 
+		if (!m_renderer->IsOK())
+		{
+			m_system->OnCriticalGfxError();
+			return;
+		}
+
 		auto& frame = m_dataPerFrame[m_frameIndex];
 
 		// Global data
 		{
 			m_globalData.screenSizeMousePos = Vector2::Zero;
-			m_globalData.deltaElapsed		= Vector2(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF());
+			m_globalData.deltaElapsed		= Vector2(SystemInfo::GetRealDeltaTimeF(), SystemInfo::GetAppTimeF());
 			frame.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
 		}
 
@@ -282,8 +258,13 @@ namespace Lina
 
 		LinaVG::EndFrame();
 		m_renderer->EndFrame(m_frameIndex);
-
 		m_frameIndex = (m_frameIndex + 1) % FRAMES_IN_FLIGHT;
+
+		if (!m_renderer->IsOK())
+		{
+			m_system->OnCriticalGfxError();
+			return;
+		}
 	}
 
 	void GfxManager::CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask)
@@ -295,6 +276,11 @@ namespace Lina
 	void GfxManager::DestroySurfaceRenderer(StringID sid)
 	{
 		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) { return renderer->GetSwapchain()->GetSID() == sid; });
+
+		// Might already be deleted due to critical gfx error.
+		if (it == m_surfaceRenderers.end())
+			return;
+
 		m_surfaceRenderers.erase(it);
 		delete *it;
 	}
@@ -344,7 +330,7 @@ namespace Lina
 
 	void GfxManager::OnWindowResized(IWindow* window, StringID sid, const Recti& rect)
 	{
-		if (!m_PostInitializeed)
+		if (!m_postInited)
 			return;
 
 		m_renderer->OnWindowResized(window, sid, rect);
@@ -352,7 +338,7 @@ namespace Lina
 
 	void GfxManager::OnVsyncChanged(VsyncMode mode)
 	{
-		if (!m_PostInitializeed)
+		if (!m_postInited)
 			return;
 		m_renderer->OnVsyncChanged(mode);
 	}

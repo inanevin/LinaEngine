@@ -99,7 +99,7 @@ namespace Lina
 
 		Texture*	 GetFinalTexture();
 		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
-		void		 Tick(float delta);
+		void		 Tick(float interpolationAlpha);
 		void		 Render(uint32 frameIndex, uint32 imageIndex);
 		void		 CreateTextures();
 		void		 DestroyTextures();

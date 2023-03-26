@@ -259,6 +259,15 @@ link_taskflow()
 link_memallocators()
 link_lz4()
 
+# timeBeginPeriod for adjusting timer precision requires Winmm.lib
+if(WIN32)
+target_link_libraries(${PROJECT_NAME} 
+	PUBLIC Winmm.lib
+)
+message("LinaCore -> Winmm Linked.")
+endif()
+
+
 ##include (GenerateExportHeader)
 ##	GENERATE_EXPORT_HEADER (LinaCommon
 ##	BASE_NAME LinaCommon

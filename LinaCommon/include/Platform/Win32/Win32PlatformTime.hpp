@@ -38,21 +38,17 @@ namespace Lina
 	class Win32PlatformTime
 	{
 	public:
-		static double GetSeconds();
-		static uint64 GetCycles64();
-		static double GetDeltaSeconds64(uint64 from, uint64 to, double timeScale = 1.0);
-		static double GetDeltaSeconds64(uint64 deltaCycles, double timeScale = 1.0);
-		static double GetDeltaMillis64(uint64 from, uint64 to, double timeScale = 1.0);
-		static double GetDeltaMillis64(uint64 deltaCycles, double timeScale = 1.0);
-
-		static inline double GetSecondsPerCycle()
-		{
-			return s_secondsPerCycle64;
-		}
+		static int64  GetMicroseconds();
+		static int64  GetCycles64();
+		static double GetDeltaSeconds64(int64 fromCycles, int64 toCycles);
+		static void	  Throttle(int64 microseconds);
+		static void	  Sleep(uint32 milliseconds);
 
 	private:
-		static double s_secondsPerCycle64;
-		static double s_millisPerCycle64;
+		static void QueryFreq();
+
+	private:
+		static int64 s_frequency;
 	};
 
 } // namespace Lina

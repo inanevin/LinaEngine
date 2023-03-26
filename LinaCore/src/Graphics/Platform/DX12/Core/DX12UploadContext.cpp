@@ -67,6 +67,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating the upload context! {0}", e.what());
+			m_renderer->DX12Exception(e);
 		}
 	}
 
@@ -227,9 +228,10 @@ namespace Lina
 
 		auto calcTd = [&](void* data, uint32 width, uint32 height, uint32 channels) {
 			D3D12_SUBRESOURCE_DATA textureData = {};
+			auto				   aligned	   = ALIGN_SIZE_POW(textureData.RowPitch * height, req.targetResource->GetRequiredAlignment());
 			textureData.pData				   = data;
 			textureData.RowPitch			   = static_cast<LONG_PTR>(width * channels);
-			textureData.SlicePitch			   = static_cast<LONG_PTR>(ALIGN_SIZE_POW(textureData.RowPitch * height, req.targetResource->GetRequiredAlignment()));
+			textureData.SlicePitch			   = static_cast<LONG_PTR>(aligned);
 			allData.push_back(textureData);
 		};
 

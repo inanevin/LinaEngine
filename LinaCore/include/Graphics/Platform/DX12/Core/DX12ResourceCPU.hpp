@@ -67,8 +67,8 @@ namespace Lina
 		void Cleanup();
 
 	protected:
-		const wchar_t*		 m_name		  = L"";
-		D3D12MA::Allocation* m_allocation = nullptr;
+		const wchar_t*		 m_name					  = L"";
+		D3D12MA::Allocation* m_allocation			  = nullptr;
 	};
 } // namespace Lina
 

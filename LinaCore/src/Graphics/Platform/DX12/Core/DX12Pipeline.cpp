@@ -157,6 +157,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating PSO! {0}", e.what());
+			renderer->DX12Exception(e);
 		}
 	}
 

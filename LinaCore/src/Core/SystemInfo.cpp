@@ -33,23 +33,21 @@ SOFTWARE.
 
 namespace Lina
 {
-	ApplicationMode SystemInfo::s_appMode				= ApplicationMode::Editor;
-	bool			SystemInfo::s_useFixedTimestep		= false;
-	bool			SystemInfo::s_useFrameRateSmoothing = true;
-	bool			SystemInfo::s_appHasFocus			= true;
-	double			SystemInfo::s_fixedDeltaTime		= 1.0 / 100.0;
-	double			SystemInfo::s_currentRealTime		= 0.0;
-	double			SystemInfo::s_lastRealTime			= 0.0;
-	double			SystemInfo::s_appTime				= 0.0;
-	double			SystemInfo::s_deltaTime				= 0.0;
-	double			SystemInfo::s_idleTime				= 0.0;
-	double			SystemInfo::s_maxDeltaTime			= 1.0;
-	float			SystemInfo::s_averageDT				= 1.0f / 100.0f;
-	float			SystemInfo::s_physicsDeltaTime		= 1.0f / 100.0f;
-	uint64			SystemInfo::s_frames				= 0;
-	uint32			SystemInfo::s_measuredFPS			= 0;
+#define IDEAL_DT 0.01667
 
-	void SystemInfo::CalculateRunningAverageDT()
+	ApplicationMode SystemInfo::s_appMode					= ApplicationMode::Editor;
+	bool			SystemInfo::s_useFrameRateSmoothing		= true;
+	bool			SystemInfo::s_appHasFocus				= true;
+	int64			SystemInfo::s_fixedTimestepMicroseconds = 10000;
+	int64			SystemInfo::s_frameCapMicroseconds		= 0;
+	int64			SystemInfo::s_realDeltaTimeMicroseconds = 0;
+	uint64			SystemInfo::s_frames					= 0;
+	uint32			SystemInfo::s_measuredFPS				= 0;
+	double			SystemInfo::s_appTime					= 0.0;
+	double			SystemInfo::s_realDeltaTime				= 0.0;
+	double			SystemInfo::s_timescale					= 1.0;
+
+	double SystemInfo::CalculateRunningAverageDT(double dt)
 	{
 		// Keep a history of the deltas for the last 11 m_frames
 		// Throw away the outliers, two highest and two lowest values
@@ -58,7 +56,7 @@ namespace Lina
 
 		static uint32			 historyIndex = 0;
 		static Array<double, 11> dtHistory	  = {{IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT}};
-		dtHistory[historyIndex]				  = s_deltaTime;
+		dtHistory[historyIndex]				  = dt;
 		historyIndex						  = (historyIndex + 1) % 11;
 
 		linatl::quick_sort(dtHistory.begin(), dtHistory.end());
@@ -69,11 +67,8 @@ namespace Lina
 
 		mean /= 7.0;
 
-		s_averageDT = Math::Lerp(s_averageDT, (float)mean, 0.1f);
-	}
-
-	float SystemInfo::CalculateMaxTickRate()
-	{
-		return 1.0f / s_averageDT;
+		static double avgDt = IDEAL_DT;
+		avgDt				= Math::Lerp(avgDt, (double)mean, 0.1f);
+		return avgDt;
 	}
 } // namespace Lina

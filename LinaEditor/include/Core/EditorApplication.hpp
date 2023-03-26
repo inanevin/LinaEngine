@@ -42,17 +42,19 @@ namespace Lina::Editor
 		EditorApplication() : m_editor(&m_engine){};
 		virtual ~EditorApplication() = default;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void PostInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Tick() override;
 		virtual void Shutdown() override;
-
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
 
 		virtual Bitmask32 GetSystemEventMask()
 		{
 			return m_systemEventMask;
 		}
+
+	protected:
+		virtual void SetupEnvironment() override;
+		virtual void CreateMainWindow(const SystemInitializationInfo& initInfo) override;
+		virtual void OnInited() override;
 
 	private:
 		uint32 m_systemEventMask	   = EVS_ResourceLoadTaskCompleted;

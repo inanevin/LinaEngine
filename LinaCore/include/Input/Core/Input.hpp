@@ -51,7 +51,7 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		void		 PreTick();
-		void		 Tick(float dt);
+		void		 Tick();
 
 		void OnKey(void* windowPtr, uint32 key, int scanCode, InputAction action);
 		void OnMouseWheel(void* windowPtr, int delta);

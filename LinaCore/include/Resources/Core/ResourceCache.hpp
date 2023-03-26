@@ -120,7 +120,14 @@ namespace Lina
 			auto it = m_resources.find(sid);
 
 			if (it == m_resources.end())
-				return m_userManagedResources[sid];
+			{
+				auto it2 = m_userManagedResources.find(sid);
+
+				if (it2 == m_userManagedResources.end())
+					return nullptr;
+				
+				return it2->second;
+			}
 
 			return it->second;
 		}
@@ -142,7 +149,7 @@ namespace Lina
 			return resources;
 		}
 
-		Vector<T*> GetAllResourcesRaw(bool includeUserManagedResources) const 
+		Vector<T*> GetAllResourcesRaw(bool includeUserManagedResources) const
 		{
 			Vector<T*> resources;
 			resources.reserve(m_resources.size());

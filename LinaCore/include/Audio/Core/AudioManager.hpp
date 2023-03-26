@@ -43,7 +43,7 @@ namespace Lina
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
-		virtual void Tick(float dt);
+		virtual void Tick();
 	};
 } // namespace Lina
 

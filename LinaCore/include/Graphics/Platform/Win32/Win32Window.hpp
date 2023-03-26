@@ -42,7 +42,6 @@ namespace Lina
 {
 	class WindowManager;
 	class Input;
-	class GfxManager;
 
 	class Win32Window : public IWindow
 	{
@@ -88,7 +87,6 @@ namespace Lina
 		static HashMap<HWND__*, Win32Window*> s_win32Windows;
 		bool								  m_canHitTestResize = false;
 		Input*								  m_input			 = nullptr;
-		GfxManager*							  m_gfxManager		 = nullptr;
 		WindowStyle							  m_style			 = WindowStyle::None;
 		WindowManager*						  m_manager			 = nullptr;
 		HWND__*								  m_window			 = nullptr;

@@ -76,6 +76,7 @@ namespace Lina
 	SurfaceRenderer::~SurfaceRenderer()
 	{
 		delete m_guiRenderer;
+
 		DestroyTextures();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -204,12 +205,12 @@ namespace Lina
 		m_renderer->WaitForPresentation(m_swapchain);
 	}
 
-	void SurfaceRenderer::Tick(float delta)
+	void SurfaceRenderer::Tick(float interpolationAlpha)
 	{
 		PROFILER_FUNCTION();
 
 		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(delta); });
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(interpolationAlpha); });
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 	}
 
@@ -232,8 +233,11 @@ namespace Lina
 			if (imgData.offscreenMaterial->GetShader() == nullptr)
 				imgData.offscreenMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
 
-			imgData.offscreenMaterial->SetProperty("diffuse", imgData.targetOffscreenTexture->GetSID());
-			imgData.updateTexture = false;
+			if (imgData.targetOffscreenTexture)
+			{
+				imgData.updateTexture = false;
+				imgData.offscreenMaterial->SetProperty("diffuse", imgData.targetOffscreenTexture->GetSID());
+			}
 		}
 
 		// Command buffer prep

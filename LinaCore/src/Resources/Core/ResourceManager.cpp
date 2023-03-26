@@ -239,17 +239,19 @@ namespace Lina
 		return it == m_loadTasks.end();
 	}
 
-	void ResourceManager::UnloadResources(const Vector<ResourceIdentifier>& identifiers)
+	void ResourceManager::UnloadResources(const Vector<ResourceIdentifier> identifiers)
 	{
 		for (auto& ident : identifiers)
 		{
-			auto& cache = m_caches.at(ident.tid);
+			auto& cache = m_caches[ident.tid];
 			cache->DestroyResource(ident.sid);
 
-			Event			   ev;
-			ResourceIdentifier currentIdent = ident;
-			ev.pParams[0]					= &currentIdent;
-			DispatchEvent(EVS_ResourceUnloaded, ev);
+			Event			   data;
+			ResourceIdentifier copy = ident;
+			data.pParams[0]			= &copy.path;
+			data.iParams[0]			= ident.sid;
+			data.iParams[1]			= ident.tid;
+			DispatchEvent(EVS_ResourceUnloaded, data);
 		}
 
 		Event					   batchEv;

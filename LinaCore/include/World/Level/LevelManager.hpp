@@ -48,8 +48,8 @@ namespace Lina
 
 		void InstallLevel(const char* level);
 		void UninstallLevel();
-		void Tick(float dt);
-		void SyncData(float alpha);
+		void Simulate(float fixedDelta);
+		void Tick(float deltaTime);
 		void WaitForSimulation();
 
 	private:

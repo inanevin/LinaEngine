@@ -32,8 +32,6 @@ SOFTWARE.
 #define Application_HPP
 
 #include "Core/Engine.hpp"
-#include "Data/Vector.hpp"
-#include "Data/HashMap.hpp"
 
 namespace Lina
 {
@@ -47,7 +45,6 @@ namespace Lina
 		virtual ~Application(){};
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo);
-		virtual void PostInitialize(const SystemInitializationInfo& initInfo);
 		virtual void Tick();
 		virtual void Shutdown();
 
@@ -62,8 +59,14 @@ namespace Lina
 		}
 
 	protected:
-		void		 CalculateTime();
-		void		 SetApplicationMode(ApplicationMode mode);
+		void SetApplicationMode(ApplicationMode mode);
+		void SetFrameCap(int64 microseconds);
+		void SetFixedTimestep(int64 microseconds);
+		void SetUseFramerateSmoothing(bool use);
+
+		virtual void SetupEnvironment();
+		virtual void CreateMainWindow(const SystemInitializationInfo& initInfo);
+		virtual void OnInited();
 		virtual void LoadPlugins();
 		virtual void UnloadPlugins();
 

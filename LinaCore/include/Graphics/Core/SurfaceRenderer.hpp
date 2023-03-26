@@ -81,7 +81,7 @@ namespace Lina
 		virtual ~SurfaceRenderer();
 
 		void		 WaitForPresentation();
-		void		 Tick(float delta);
+		void		 Tick(float interpolationAlpha);
 		void		 Render(int surfaceRendererIndex, uint32 frameIndex);
 		void		 Present();
 		void		 AddWorldRenderer(WorldRenderer* renderer);

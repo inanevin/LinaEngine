@@ -153,6 +153,7 @@ namespace Lina
 					catch (HrException e)
 					{
 						LINA_TRACE("[DX12ResourceGPU] -> Map failed: {0}", e.what());
+						m_renderer->DX12Exception(e);
 					}
 				}
 			}
@@ -179,6 +180,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating a buffer resource! {0}", e.what());
+			m_renderer->DX12Exception(e);
 		}
 
 		NAME_DX12_OBJECT(m_allocation->GetResource(), m_name);

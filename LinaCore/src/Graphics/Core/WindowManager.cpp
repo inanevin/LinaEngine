@@ -44,7 +44,7 @@ typedef Lina::Win32Window PlatformWindow;
 
 namespace Lina
 {
-	void WindowManager::PreInitialize(const SystemInitializationInfo& initInfo)
+	void WindowManager::SetupBackend(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Window Manager] -> Initialization.");
 
@@ -190,6 +190,15 @@ namespace Lina
 		info.workArea  = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
 		info.isPrimary = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
 		return info;
+	}
+
+	void WindowManager::RecreateSurfaces()
+	{
+		// Reassure intact.
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		for (auto [sid, window] : m_windows)
+			m_gfxManager->CreateSurfaceRenderer(sid, window, window->GetSize(), 0);
 	}
 
 } // namespace Lina

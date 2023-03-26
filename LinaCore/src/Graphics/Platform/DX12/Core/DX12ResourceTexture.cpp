@@ -54,7 +54,6 @@ namespace Lina
 	{
 		Cleanup();
 	}
-
 	uint64 DX12ResourceTexture::GetGPUPointer()
 	{
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
@@ -122,6 +121,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when creating a texture resource! {0}", e.what());
+			m_renderer->DX12Exception(e);
 		}
 
 #ifndef LINA_PRODUCTION_BUILD

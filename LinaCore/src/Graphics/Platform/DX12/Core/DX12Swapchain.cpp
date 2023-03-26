@@ -83,6 +83,7 @@ namespace Lina
 			catch (HrException e)
 			{
 				LINA_CRITICAL("[Renderer] -> Exception when creating a swapchain! {0}", e.what());
+				m_renderer->DX12Exception(e);
 			}
 		}
 
@@ -114,6 +115,7 @@ namespace Lina
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Swapchain] -> Failed resizing swapchain!");
+			m_renderer->DX12Exception(e);
 		}
 
 		LINA_TRACE("[Swapchain] -> Swapchain {0} recreated with new size: {1}x{2}", m_sid, newSize.x, newSize.y);

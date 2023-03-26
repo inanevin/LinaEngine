@@ -74,8 +74,11 @@ namespace Lina
 		{
 			return m_descriptorSize;
 		}
-		
-		virtual uint32 GetCurrentDescriptorIndex() {return 0;};
+
+		virtual uint32 GetCurrentDescriptorIndex()
+		{
+			return 0;
+		};
 
 	protected:
 		Renderer*					m_renderer			   = nullptr;

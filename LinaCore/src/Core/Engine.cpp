@@ -32,6 +32,11 @@ SOFTWARE.
 #include "Core/SystemInfo.hpp"
 #include "Core/PlatformTime.hpp"
 #include "Core/PlatformProcess.hpp"
+#include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Resource/Model.hpp"
+#include "Graphics/Resource/Font.hpp"
+#include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Resource/Shader.hpp"
 
 //********** DEBUG
 #include "Input/Core/InputMappings.hpp"
@@ -42,26 +47,20 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Engine::SetupBackend(const SystemInitializationInfo& initInfo)
+	{
+		m_gfxManager = new GfxManager(initInfo, this);
+		m_windowManager.SetupBackend(initInfo);
+		m_resourceManager.AddListener(this);
+	}
+
 	void Engine::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Application] -> Initialization.");
-
 		m_initInfo = initInfo;
-		m_resourceManager.AddListener(this);
 
 		for (auto [type, sys] : m_subsystems)
-		{
-			if (type != SubsystemType::GfxManager && type != SubsystemType::WindowManager)
-				sys->PreInitialize(initInfo);
-
 			sys->Initialize(initInfo);
-		}
-	}
-
-	void Engine::PostInitialize(const SystemInitializationInfo& initInfo)
-	{
-		for (auto [type, sys] : m_subsystems)
-			sys->PostInitialize();
 	}
 
 	void Engine::Shutdown()
@@ -69,32 +68,61 @@ namespace Lina
 		LINA_TRACE("[Application] -> Shutdown.");
 		m_resourceManager.WaitForAll();
 
+		if (m_gfxManager)
+			m_gfxManager->Join();
+
 		for (auto [type, sys] : m_subsystems)
 			sys->PreShutdown();
 
 		m_resourceManager.RemoveListener(this);
 		m_levelManager.Shutdown();
 		m_resourceManager.Shutdown();
+		m_gfxManager->Shutdown();
 		m_audioManager.Shutdown();
 		m_windowManager.Shutdown();
-		m_gfxManager.Shutdown();
 		m_input.Shutdown();
+
+		delete m_gfxManager;
 	}
 
-	void Engine::Tick(float delta)
+	void Engine::PreTick()
 	{
+		if (m_gfxManager)
+			m_gfxManager->WaitForPresentation();
+
+		CalculateTime();
+		m_input.PreTick();
+	}
+
+	void Engine::Tick()
+	{
+		const double delta = SystemInfo::GetRealDeltaTime();
 		m_resourceManager.Tick();
-		m_input.Tick(delta);
-		m_gfxManager.Tick(delta);
+		m_input.Tick();
 
-		// m_levelManager.Tick(delta);
+		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
+		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
+		m_fixedTimestepAccumulator += SystemInfo::GetRealDeltaTimeMicroseconds();
 
-		m_gfxManager.Render();
+		while (m_fixedTimestepAccumulator >= fixedTimestep)
+		{
+			m_levelManager.Simulate(static_cast<float>(fixedTimestepDb * 0.000001 * SystemInfo::GetTimescale()));
+			m_fixedTimestepAccumulator -= fixedTimestep;
+		}
+
+		m_levelManager.Tick(static_cast<float>(delta * SystemInfo::GetTimescale()));
+
+		const double interpolationAlpha = static_cast<double>(m_fixedTimestepAccumulator) / fixedTimestepDb;
+
+		if (m_gfxManager)
+		{
+			m_gfxManager->Tick(static_cast<float>(interpolationAlpha));
+			m_gfxManager->Render();
+		}
+
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 		//	audioJob.get();
 		//	m_levelManager.WaitForSimulation();
-		//	m_levelManager.SyncData(1.0f);
-		// m_gfxManager.Render();
 
 		if (m_input.GetKeyDown(LINA_KEY_1))
 		{
@@ -114,6 +142,11 @@ namespace Lina
 		if (m_input.GetKeyDown(LINA_KEY_4))
 		{
 			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Fullscreen);
+		}
+
+		if (m_input.GetKeyDown(LINA_KEY_K))
+		{
+			OnCriticalGfxError();
 		}
 
 		if (m_input.GetKeyDown(LINA_KEY_5))
@@ -159,6 +192,130 @@ namespace Lina
 		{
 			String* path = static_cast<String*>(ev.pParams[0]);
 			LINA_TRACE("[Resource] -> Loaded resource: {0}", path->c_str());
+		}
+		else if (eventType & EVS_ResourceUnloaded)
+		{
+			String* path = static_cast<String*>(ev.pParams[0]);
+			LINA_TRACE("[Resource] -> Unloaded resource: {0}", path->c_str());
+		}
+	}
+
+	void Engine::OnCriticalGfxError()
+	{
+		auto allTexturesRaw = m_resourceManager.GetAllResourcesRaw<Texture>(false);
+		auto allModelsRaw	= m_resourceManager.GetAllResourcesRaw<Model>(false);
+		auto allFontsRaw	= m_resourceManager.GetAllResourcesRaw<Font>(false);
+		auto allShadersRaw	= m_resourceManager.GetAllResourcesRaw<Shader>(false);
+
+		Vector<ResourceIdentifier> reloadResources;
+		Vector<ResourceIdentifier> unloadResources;
+		reloadResources.reserve(allTexturesRaw.size() + allFontsRaw.size() + allModelsRaw.size() + allShadersRaw.size());
+		unloadResources.reserve(allTexturesRaw.size() + allFontsRaw.size() + allModelsRaw.size() + allShadersRaw.size());
+
+		for (auto res : allTexturesRaw)
+		{
+			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
+				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+
+			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+		}
+		for (auto res : allModelsRaw)
+		{
+			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
+				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+
+			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+		}
+		for (auto res : allFontsRaw)
+		{
+			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
+				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+
+			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+		}
+		for (auto res : allShadersRaw)
+		{
+			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
+				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+
+			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
+		}
+
+		m_gfxManager->PreShutdown();
+		m_resourceManager.UnloadResources(unloadResources);
+		m_gfxManager->Shutdown();
+		delete m_gfxManager;
+		m_gfxManager = new GfxManager(m_initInfo, this);
+		m_resourceManager.LoadResources(m_resourceManager.GetPriorityResources());
+		m_resourceManager.WaitForAll();
+		m_resourceManager.LoadResources(m_resourceManager.GetCoreResources());
+		m_resourceManager.WaitForAll();
+		if (!reloadResources.empty())
+		{
+			m_resourceManager.LoadResources(reloadResources);
+			m_resourceManager.WaitForAll();
+		}
+
+		m_windowManager.RecreateSurfaces();
+		m_gfxManager->Initialize(m_initInfo);
+	}
+
+	void Engine::CalculateTime()
+	{
+		static int64 previous = PlatformTime::GetMicroseconds();
+		int64		 current  = PlatformTime::GetMicroseconds();
+		int64		 deltaUs  = current - previous;
+
+		const int64 frameCap = SystemInfo::GetFrameCapMicroseconds();
+
+		if (frameCap > 0 && deltaUs < frameCap)
+		{
+			const int64 throttleAmount = frameCap - deltaUs;
+			m_frameCapAccumulator += throttleAmount;
+			const int64 throttleBegin = PlatformTime::GetMicroseconds();
+			PlatformTime::Throttle(m_frameCapAccumulator);
+			const int64 totalThrottle = PlatformTime::GetMicroseconds() - throttleBegin;
+			m_frameCapAccumulator -= totalThrottle;
+
+			current	 = PlatformTime::GetMicroseconds();
+			deltaUs	 = current - previous;
+			previous = current;
+		}
+		else
+		{
+			previous = current;
+		}
+
+		if (deltaUs <= 0)
+			deltaUs = 0;
+		else if (deltaUs >= 50000)
+			deltaUs = 50000;
+
+		SystemInfo::SetRealDeltaTimeMicroseconds(deltaUs);
+
+		const double deltaSeconds = deltaUs * 1e-6;
+
+		if (SystemInfo::GetUseFrameRateSmoothing())
+			SystemInfo::SetDeltaTime(SystemInfo::CalculateRunningAverageDT(deltaSeconds));
+		else
+			SystemInfo::SetDeltaTime(deltaSeconds);
+
+		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetRealDeltaTime());
+
+		const float		gameTime	  = SystemInfo::GetAppTimeF();
+		static float	lastFPSUpdate = gameTime;
+		static uint64	lastFPSFrames = SystemInfo::GetFrames();
+		constexpr float measureTime	  = 1.0f;
+
+		if (gameTime > lastFPSUpdate + measureTime)
+		{
+			const uint64 frames = SystemInfo::GetFrames();
+			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
+			lastFPSFrames = frames;
+			lastFPSUpdate = gameTime;
+
+			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
+			LINA_TRACE("[DT]: {0}", SystemInfo::GetRealDeltaTime());
 		}
 	}
 } // namespace Lina

@@ -55,10 +55,10 @@ namespace Lina
 		WindowManager(ISystem* sys) : ISubsystem(sys, SubsystemType::WindowManager){};
 		~WindowManager() = default;
 
-		virtual void PreInitialize(const SystemInitializationInfo& inf) override;
 		virtual void Initialize(const SystemInitializationInfo& initInfo){};
 		virtual void Shutdown() override;
 
+		void		SetupBackend(const SystemInitializationInfo& inf);
 		IWindow*	CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size);
 		void		DestroyAppWindow(StringID sid);
 		IWindow*	GetWindow(StringID sid);
@@ -66,6 +66,7 @@ namespace Lina
 		int			GetWindowZOrder(StringID sid);
 		void		SetVsync(VsyncMode mode);
 		MonitorInfo GetMonitorInfoFromWindow(IWindow* window) const;
+		void		RecreateSurfaces();
 
 		inline const Vector<MonitorInfo>& GetMonitors() const
 		{
