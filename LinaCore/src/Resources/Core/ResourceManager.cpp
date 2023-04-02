@@ -66,7 +66,7 @@ namespace Lina
 		ResourceLoadTask* loadTask		 = new ResourceLoadTask();
 		loadTask->id					 = m_loadTaskCounter;
 		loadTask->identifiers			 = identifiers;
-		loadTask->startTime				 = PlatformTime::GetCycles64();
+		loadTask->startTime				 = PlatformTime::GetCPUCycles();
 		m_loadTasks[m_loadTaskCounter++] = loadTask;
 
 		if (m_mode == ResourceManagerMode::File)
@@ -194,7 +194,7 @@ namespace Lina
 
 		m_executor.Run(loadTask->tf, [loadTask]() {
 			loadTask->isCompleted.store(true);
-			loadTask->endTime = PlatformTime::GetCycles64();
+			loadTask->endTime = PlatformTime::GetCPUCycles();
 		});
 
 		return loadTask->id;

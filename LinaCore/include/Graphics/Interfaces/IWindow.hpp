@@ -51,6 +51,7 @@ namespace Lina
 		virtual void SetStyle(WindowStyle style)														= 0;
 		virtual void SetSize(const Vector2i& newSize)													= 0;
 		virtual void SetPos(const Vector2i& newPos)														= 0;
+		virtual void SetVisible(bool isVisible)															= 0;
 		virtual void SetTitle(const char*)																= 0;
 		virtual void Minimize()																			= 0;
 		virtual void Maximize()																			= 0;
@@ -149,6 +150,11 @@ namespace Lina
 			return m_dpiScale;
 		}
 
+		inline bool GetIsVisible() const
+		{
+			return m_isVisible;
+		}
+
 	protected:
 		ISystem*	m_system		 = nullptr;
 		Recti		m_rect			 = Recti();
@@ -157,6 +163,7 @@ namespace Lina
 		bool		m_isMinimized	 = false;
 		bool		m_isMaximized	 = false;
 		bool		m_isFullscreen	 = false;
+		bool		m_isVisible		 = false;
 		bool		m_hasFocus		 = false;
 		float		m_aspect		 = 0.0f;
 		const char* m_title			 = 0;

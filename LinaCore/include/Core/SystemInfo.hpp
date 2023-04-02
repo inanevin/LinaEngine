@@ -68,27 +68,45 @@ namespace Lina
 		/// Time it took to process last frame in seconds. It is affected by frame-rate-smoothing.
 		/// </summary>
 		/// <returns></returns>
-		static inline double GetRealDeltaTime()
+		static inline double GetDeltaTime()
 		{
-			return s_realDeltaTime;
+			return s_deltaTime;
 		}
 
 		/// <summary>
 		/// Time it took to process last frame in seconds. It is affected by frame-rate-smoothing.
 		/// </summary>
 		/// <returns></returns>
-		static inline float GetRealDeltaTimeF()
+		static inline float GetDeltaTimeF()
 		{
-			return static_cast<float>(s_realDeltaTime);
+			return static_cast<float>(s_deltaTime);
 		}
 
 		/// <summary>
-		/// DeltaTime but in precision microseconds, not affected by frame-rate-smoothing.
+		/// Time it took to process last frame in seconds. Unaffected by smoothing.
 		/// </summary>
 		/// <returns></returns>
-		static inline int64 GetRealDeltaTimeMicroseconds()
+		static inline double GetRealDeltaTime()
+		{
+			return s_realDeltaTime;
+		}
+
+		/// <summary>
+		/// Time it took to process last frame in microseconds. Unaffected by smoothing.
+		/// </summary>
+		/// <returns></returns>
+		static inline int64 GetRealDeltaTimeMicroSeconds()
 		{
 			return s_realDeltaTimeMicroseconds;
+		}
+
+		/// <summary>
+		/// DeltaTime but in precision microseconds.
+		/// </summary>
+		/// <returns></returns>
+		static inline int64 GetDeltaTimeMicroSeconds()
+		{
+			return s_deltaTimeMicroseconds;
 		}
 
 		/// <summary>
@@ -110,6 +128,15 @@ namespace Lina
 		}
 
 		/// <summary>
+		/// Interpolation (t) factor for rendering.
+		/// </summary>
+		/// <returns></returns>
+		static inline double GetInterpolationAlpha()
+		{
+			return s_interpolationAlpha;
+		}
+
+		/// <summary>
 		/// Fixed-timestepping rate in seconds, physics will be updated at this rate. Use EVG_Simulate if you want to update your whole-game as fixed-time-stepped.
 		/// </summary>
 		/// <returns></returns>
@@ -121,11 +148,6 @@ namespace Lina
 		static inline uint32 GetMeasuredFPS()
 		{
 			return s_measuredFPS;
-		}
-
-		static inline bool GetUseFrameRateSmoothing()
-		{
-			return s_useFrameRateSmoothing;
 		}
 
 		static inline bool IsEditor()
@@ -153,20 +175,26 @@ namespace Lina
 			s_timescale = timescale;
 		}
 
+		static inline void SetDeltaTimeMicroSeconds(int64 microseconds)
+		{
+			s_deltaTimeMicroseconds = microseconds;
+			s_deltaTime				= static_cast<double>(microseconds) * 0.000001;
+		}
+
+		static inline int64 GetAppStartCycles()
+		{
+			return s_appStartCycles;
+		}
+
 	private:
 		friend class Application;
 		friend class Engine;
 
-		static double CalculateRunningAverageDT(double dt);
+		static double CalculateRunningAverageDT(int64 deltaMicroseconds);
 
 		static inline void SetAppTime(double seconds)
 		{
 			s_appTime = seconds;
-		}
-
-		static inline void SetDeltaTime(double seconds)
-		{
-			s_realDeltaTime = seconds;
 		}
 
 		static inline void SetApplicationMode(ApplicationMode mode)
@@ -184,11 +212,6 @@ namespace Lina
 			s_frameCapMicroseconds = microseconds;
 		}
 
-		static inline void SetUseFrameRateSmoothing(bool use)
-		{
-			s_useFrameRateSmoothing = use;
-		}
-
 		static inline void SetAppHasFocus(bool hasFocus)
 		{
 			s_appHasFocus = hasFocus;
@@ -204,21 +227,35 @@ namespace Lina
 			s_measuredFPS = fps;
 		}
 
-		static inline void SetRealDeltaTimeMicroseconds(int64 microseconds)
+		static inline void SetRealDeltaTimeMicroSeconds(int64 microseconds)
 		{
 			s_realDeltaTimeMicroseconds = microseconds;
+			s_realDeltaTime				= static_cast<double>(microseconds) * 0.000001;
+		}
+
+		static inline void SetAppStartCycles(int64 cycles)
+		{
+			s_appStartCycles = cycles;
+		}
+
+		static inline void SetInterpolationAlpha(double alpha)
+		{
+			s_interpolationAlpha = alpha;
 		}
 
 	private:
 		static ApplicationMode s_appMode;
-		static bool			   s_useFrameRateSmoothing;
 		static double		   s_appTime;
+		static double		   s_deltaTime;
 		static double		   s_realDeltaTime;
 		static double		   s_timescale;
+		static double		   s_interpolationAlpha;
 		static bool			   s_appHasFocus;
 		static int64		   s_fixedTimestepMicroseconds;
 		static int64		   s_frameCapMicroseconds;
+		static int64		   s_deltaTimeMicroseconds;
 		static int64		   s_realDeltaTimeMicroseconds;
+		static int64		   s_appStartCycles;
 		static uint64		   s_frames;
 		static uint32		   s_measuredFPS;
 	};

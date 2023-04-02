@@ -315,14 +315,14 @@ namespace Lina
 			}
 		}
 
-		DWORD exStyle = WS_EX_APPWINDOW;
-		DWORD stylew  = WS_VISIBLE | WS_POPUP;
+		DWORD exStyle = 0;
+		DWORD stylew  = WS_POPUP;
 
 		if (parent != nullptr)
 			exStyle |= WS_EX_LAYERED;
 
-		// m_window = CreateWindowExA(exStyle, title, title, parent == nullptr ? 0 : (WS_VISIBLE | WS_POPUP), pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
-		m_window = CreateWindowExA(WS_EX_APPWINDOW, title, title, 0, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
+		// m_window = CreateWindowExA(exStyle, title, title, parent == nullptr ? 0 : (WS_POPUP), pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
+		m_window = CreateWindowExA(exStyle, title, title, stylew, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
 		m_title	 = title;
 
 		if (m_window == nullptr)
@@ -331,7 +331,7 @@ namespace Lina
 			return false;
 		}
 
-		// Otherwise will be inviisble, created via EX_LAYERED
+		// Otherwise will be invisble, created via EX_LAYERED
 		if (parent != nullptr)
 			SetAlpha(1.0f);
 
@@ -368,46 +368,51 @@ namespace Lina
 
 		const WindowStyle previousStyle = m_style;
 
-		m_style			   = style;
-		m_canHitTestResize = true;
-		DWORD wstl		   = 0;
+		m_isFullscreen = false;
+		m_style		   = style;
+		DWORD wstl	   = 0;
 
 		if (style == WindowStyle::Windowed)
+		{
 			wstl = WS_OVERLAPPEDWINDOW;
+			wstl &= ~WS_THICKFRAME;
+			m_canHitTestResize = true;
+		}
 		else if (style == WindowStyle::WindowedNoResize)
 		{
 			wstl = WS_OVERLAPPEDWINDOW;
 			wstl &= ~WS_THICKFRAME;
-			//	wstl &= ~WS_MINIMIZEBOX;
 			wstl &= ~WS_MAXIMIZEBOX;
+			//	wstl &= ~WS_MINIMIZEBOX;
 			m_canHitTestResize = false;
 		}
 		else if (style == WindowStyle::Borderless)
 		{
-			wstl = WS_POPUP | WS_VISIBLE;
+			wstl			   = WS_POPUP;
+			m_canHitTestResize = true;
 		}
 		else if (style == WindowStyle::BorderlessNoResize)
 		{
-			wstl			   = WS_POPUP | WS_VISIBLE;
+			wstl			   = WS_POPUP;
 			m_canHitTestResize = false;
 		}
 		else if (style == WindowStyle::Fullscreen)
 		{
-			wstl			   = WS_POPUP | WS_VISIBLE;
 			m_canHitTestResize = false;
-			SetWindowLongPtr(m_window, GWL_STYLE, wstl);
 			SetToFullscreen();
 			return;
 		}
-
-		SetWindowLongPtr(m_window, GWL_STYLE, wstl);
 
 		if (previousStyle == WindowStyle::Fullscreen)
 		{
 			SetToWorkingArea();
 		}
 
-		ShowWindow(m_window, SW_SHOW);
+		SendMessage(m_window, WM_SETREDRAW, FALSE, 0);
+		SetWindowLongPtr(m_window, GWL_STYLE, wstl);
+		SetWindowPos(m_window, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+		SendMessage(m_window, WM_SETREDRAW, TRUE, 0);
+		RedrawWindow(m_window, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
 	}
 
 	void Win32Window::Close()
@@ -428,7 +433,15 @@ namespace Lina
 	void Win32Window::SetToFullscreen()
 	{
 		m_isFullscreen = true;
-		ShowWindow(m_window, SW_SHOWMAXIMIZED);
+		// ShowWindow(m_window, SW_SHOWMAXIMIZED);
+		int w = GetSystemMetrics(SM_CXSCREEN);
+		int h = GetSystemMetrics(SM_CYSCREEN);
+
+		SendMessage(m_window, WM_SETREDRAW, FALSE, 0);
+		SetWindowLongPtr(m_window, GWL_STYLE, WS_POPUP);
+		SetWindowPos(m_window, HWND_TOP, 0, 0, w, h, 0);
+		SendMessage(m_window, WM_SETREDRAW, TRUE, 0);
+		RedrawWindow(m_window, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
 	}
 
 	void Win32Window::UpdateDPI(HWND__* hwnd)
@@ -489,6 +502,12 @@ namespace Lina
 		const int x = static_cast<int>((mi.rcMonitor.right - mi.rcMonitor.left) * 0.5f - m_rect.size.x * 0.5f);
 		const int y = static_cast<int>((mi.rcMonitor.bottom - mi.rcMonitor.top) * 0.5f - m_rect.size.y * 0.5f);
 		SetPos(Vector2i(x, y));
+	}
+
+	void Win32Window::SetVisible(bool isVisible)
+	{
+		m_isVisible = isVisible;
+		ShowWindow(m_window, isVisible ? SW_SHOW : SW_HIDE);
 	}
 
 	void Win32Window::UpdatePos(const Vector2i& pos)

@@ -69,15 +69,18 @@ namespace Lina
 			return m_sid;
 		}
 
-		uint32 userData	 = 0;
-		uint64 userData2 = 0;
+		inline bool GetIsInFullscreen()
+		{
+			return m_isInFullscreenState;
+		}
 
 	protected:
-		Renderer*	   m_renderer	   = nullptr;
-		WindowManager* m_windowManager = nullptr;
-		StringID	   m_sid		   = 0;
-		IWindow*	   m_window		   = nullptr;
-		Vector2i	   m_size		   = Vector2i::Zero;
+		bool		   m_isInFullscreenState = false;
+		Renderer*	   m_renderer			 = nullptr;
+		WindowManager* m_windowManager		 = nullptr;
+		StringID	   m_sid				 = 0;
+		IWindow*	   m_window				 = nullptr;
+		Vector2i	   m_size				 = Vector2i::Zero;
 	};
 } // namespace Lina
 

@@ -53,6 +53,10 @@ SOFTWARE.
 #include "Core/SystemInfo.hpp"
 #include "Math/Math.hpp"
 
+// Debug
+#include "Data/Array.hpp"
+#include "World/Core/EntityWorld.hpp"
+
 #ifndef LINA_PRODUCTION_BUILD
 #include "FileSystem/FileSystem.hpp"
 #endif
@@ -95,10 +99,11 @@ namespace Lina
 	Renderer::Renderer(const SystemInitializationInfo& initInfo, GfxManager* gfxMan)
 		: m_cmdAllocators(20, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>()), m_cmdLists(50, Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>()), m_fences(10, Microsoft::WRL::ComPtr<ID3D12Fence>())
 	{
-		m_gfxManager	  = gfxMan;
-		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_vsync			  = initInfo.vsyncMode;
-		m_initInfo		  = initInfo;
+		m_gfxManager					 = gfxMan;
+		m_resourceManager				 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_vsync							 = initInfo.vsyncMode;
+		m_initInfo						 = initInfo;
+		m_lastVsyncTimestampMicroseconds = 0;
 
 		try
 		{
@@ -351,61 +356,55 @@ namespace Lina
 		delete m_rtvHeap;
 	}
 
-	// Define the desired frame time, in milliseconds
-	const float desiredFrameTime = 16.666f;
-
-	// Initialize variables for frame-pacing
-	UINT64 frameCount = 0;
-	UINT64 frameTime  = 0;
-	float  fps		  = 0.0f;
-
-	void Renderer::WaitForPresentation(ISwapchain* swapchain)
+	int64 CalculateRunningAverageRT(int64 deltaMicroseconds)
 	{
-		return;
-		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swapchain);
+		static uint32			historyIndex = 0;
+		static Array<int64, 11> dtHistory	 = {{IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT, IDEAL_RT}};
+		dtHistory[historyIndex]				 = deltaMicroseconds;
+		historyIndex						 = (historyIndex + 1) % 11;
+		linatl::quick_sort(dtHistory.begin(), dtHistory.end());
+		int64 mean = 0;
+		for (uint32 i = 2; i < 9; i++)
+			mean += dtHistory[i];
+		return mean / 7;
+	}
 
-		// Calculate the current CPU timestamp
-		UINT64 currentTimestamp = PlatformTime::GetCycles64();
+	void Renderer::WaitForSwapchains(ISwapchain* swapchain)
+	{
+		DX12Swapchain*	dx12Swap = static_cast<DX12Swapchain*>(swapchain);
 
-		// If this is not the first frame, wait until the next presentation time
-		if (frameCount > 0)
+		DWORD result = WaitForSingleObjectEx(dx12Swap->DX12GetWaitHandle(), 10000, true);
+		if (FAILED(result))
 		{
-			// Calculate the target timestamp for the next presentation time
-			UINT64 targetTimestamp = frameTime + (UINT64)(desiredFrameTime * 10000.0f);
+			LINA_ERR("[Renderer] -> Waiting on swapchain failed!");
+		}
 
-			// If the current timestamp is earlier than the target timestamp, wait until the target timestamp
-			if (currentTimestamp < targetTimestamp)
+		DXGI_FRAME_STATISTICS FrameStatistics;
+		dx12Swap->GetPtr()->GetFrameStatistics(&FrameStatistics);
+
+		// Average refresh rate calculation
+		{
+			if (m_previousRefreshCount == 0)
+				m_previousPresentRefreshCount = FrameStatistics.PresentRefreshCount;
+
+			if (FrameStatistics.PresentRefreshCount > m_previousPresentRefreshCount)
 			{
-				auto spt = (DWORD)((targetTimestamp - currentTimestamp) / 10000);
-				Sleep(spt);
+				m_previousPresentRefreshCount = FrameStatistics.PresentRefreshCount;
+
+				// LINA_WARN("VSYNC - Present Count {0}", FrameStatistics.PresentCount);
+				static uint32 vsyncCounter	  = 0;
+				static int64  lastVsyncCycles = PlatformTime::GetCPUCycles();
+				const int64	  deltaVsync	  = PlatformTime::GetDeltaMicroseconds64(lastVsyncCycles, FrameStatistics.SyncQPCTime.QuadPart);
+				lastVsyncCycles				  = FrameStatistics.SyncQPCTime.QuadPart;
+
+				if (deltaVsync > 0 && vsyncCounter % 100 == 0)
+					m_averageVsyncMicroseconds = CalculateRunningAverageRT(deltaVsync);
+
+				vsyncCounter++;
+				m_lastVsyncTimestampMicroseconds = (FrameStatistics.SyncQPCTime.QuadPart * 1000000ll) / PlatformTime::GetFrequency();
+				m_nextVsyncTimestampMicroseconds = m_lastVsyncTimestampMicroseconds + m_averageVsyncMicroseconds;
 			}
 		}
-
-		// Get the frame statistics from the swap chain
-		DXGI_FRAME_STATISTICS frameStatistics = {};
-		HRESULT				  hr			  = dx12Swap->GetPtr()->GetFrameStatistics(&frameStatistics);
-
-		if (SUCCEEDED(hr))
-		{
-			// Calculate the frame time in milliseconds
-			float currentFrameTime = (float)(frameStatistics.SyncQPCTime.QuadPart - frameTime) / 10000.0f;
-
-			// Update the frame time and frame count
-			frameTime = frameStatistics.SyncQPCTime.QuadPart;
-			frameCount++;
-
-			// Calculate the current FPS
-			fps = 1000.0f / currentFrameTime;
-		}
-		// LINA_TRACE("Last refresh: {0} - fd: {1}, sleep: {2}",lastRefreshRate, frameDelta, sleepTime);
-
-		// DWORD result = WaitForSingleObjectEx(dx12Swap->DX12GetWaitHandle(), 1000, true);
-		// if (FAILED(result))
-		//{
-		//	LINA_ERR("[Renderer] -> Waiting on swapchain failed!");
-		// }
-
-		return;
 	}
 
 	bool Renderer::Present(ISwapchain* swp)
@@ -429,6 +428,22 @@ namespace Lina
 			}
 
 			ThrowIfFailed(dx12Swap->GetPtr()->Present(interval, flags));
+
+			DXGI_FRAME_STATISTICS FrameStatistics;
+			dx12Swap->GetPtr()->GetFrameStatistics(&FrameStatistics);
+
+			if (FrameStatistics.PresentCount > m_previousPresentCount)
+			{
+				if (m_previousRefreshCount > 0 && (FrameStatistics.PresentRefreshCount - m_previousRefreshCount) > (FrameStatistics.PresentCount - m_previousPresentCount))
+				{
+					++m_glitchCount;
+					interval = 0;
+					// LINA_WARN("glitch {0}", m_glitchCount);
+				}
+			}
+
+			m_previousPresentCount = FrameStatistics.PresentCount;
+			m_previousRefreshCount = FrameStatistics.SyncRefreshCount;
 		}
 		catch (HrException& e)
 		{

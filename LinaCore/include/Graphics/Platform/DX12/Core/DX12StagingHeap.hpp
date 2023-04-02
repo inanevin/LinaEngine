@@ -34,6 +34,7 @@ SOFTWARE.
 #include "DX12DescriptorHeap.hpp"
 #include "Data/Deque.hpp"
 #include "Graphics/Data/DescriptorHandle.hpp"
+#include "Data/Mutex.hpp"
 
 namespace Lina
 {
@@ -53,6 +54,7 @@ namespace Lina
 		}
 
 	private:
+		Mutex		  m_mtx;
 		Deque<uint32> m_freeDescriptors;
 		uint32		  m_currentDescriptorIndex = 0;
 		uint32		  m_activeHandleCount	   = 0;

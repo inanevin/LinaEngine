@@ -56,6 +56,7 @@ namespace Lina
 		virtual void SetSize(const Vector2i& newSize) override;
 		virtual void SetPos(const Vector2i& newPos) override;
 		virtual void SetToCenter() override;
+		virtual void SetVisible(bool isVisible) override;
 		virtual void SetTitle(const char*) override;
 		virtual void Minimize() override;
 		virtual void Maximize() override;

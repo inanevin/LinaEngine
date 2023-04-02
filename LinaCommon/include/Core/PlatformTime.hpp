@@ -34,7 +34,7 @@ SOFTWARE.
 /* PLATFORM TIME REQUIRED INTERFACE
 static double GetSeconds();
 static uint32 GetCycles();
-static uint64 GetCycles64();
+static uint64 GetCPUCycles();
 static double GetDeltaSeconds(uint32 from, uint32 to, double timeScale = 1.0);
 static double GetDeltaSeconds64(uint64 from, uint64 to, double timeScale = 1.0);
 */

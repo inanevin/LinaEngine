@@ -158,9 +158,7 @@ namespace Lina
 
 		Transformation GetPrevTransform()
 		{
-			Transformation t = m_prevTransform;
-			m_prevTransform	 = m_transform;
-			return t;
+			return m_prevTransform;
 		}
 
 		inline void SetName(const String& name)
@@ -186,6 +184,14 @@ namespace Lina
 		void UpdateLocalRotation();
 		void UpdateGlobalScale();
 		void UpdateLocalScale();
+
+	private:
+		friend class WorldRenderer;
+
+		inline void SyncPrevTransform()
+		{
+			m_prevTransform = m_transform;
+		}
 
 	private:
 		friend class EntityWorld;

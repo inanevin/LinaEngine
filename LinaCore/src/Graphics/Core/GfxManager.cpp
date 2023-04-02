@@ -202,11 +202,9 @@ namespace Lina
 		m_resourceManager->RemoveListener(this);
 	}
 
-	void GfxManager::WaitForPresentation()
+	void GfxManager::WaitForSwapchains()
 	{
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->WaitForPresentation(); });
-		m_system->GetMainExecutor()->RunAndWait(tf);
+		m_renderer->WaitForSwapchains(m_surfaceRenderers[0]->GetSwapchain());
 	}
 
 	void GfxManager::Join()
@@ -238,7 +236,7 @@ namespace Lina
 		// Global data
 		{
 			m_globalData.screenSizeMousePos = Vector2::Zero;
-			m_globalData.deltaElapsed		= Vector2(SystemInfo::GetRealDeltaTimeF(), SystemInfo::GetAppTimeF());
+			m_globalData.deltaElapsed		= Vector2(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF());
 			frame.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
 		}
 

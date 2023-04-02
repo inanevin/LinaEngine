@@ -202,7 +202,7 @@ namespace Lina
 
 	void SurfaceRenderer::WaitForPresentation()
 	{
-		m_renderer->WaitForPresentation(m_swapchain);
+		
 	}
 
 	void SurfaceRenderer::Tick(float interpolationAlpha)

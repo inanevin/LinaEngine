@@ -37,6 +37,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "Graphics/Data/RenderData.hpp"
 #include "GfxMeshManager.hpp"
 #include "Event/ISystemEventListener.hpp"
+#include "CommonGraphics.hpp"
 
 namespace Lina
 {
@@ -70,7 +71,7 @@ namespace Lina
 		virtual void	 Initialize(const SystemInitializationInfo& initInfo);
 		virtual void	 PreShutdown() override;
 		virtual void	 Shutdown() override;
-		void			 WaitForPresentation();
+		void			 WaitForSwapchains();
 		void			 Join();
 		void			 Tick(float interpolationAlpha);
 		void			 Render();

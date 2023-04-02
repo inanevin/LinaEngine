@@ -33,42 +33,42 @@ SOFTWARE.
 
 namespace Lina
 {
-#define IDEAL_DT 0.01667
+#define IDEAL_DT 16667
 
 	ApplicationMode SystemInfo::s_appMode					= ApplicationMode::Editor;
-	bool			SystemInfo::s_useFrameRateSmoothing		= true;
 	bool			SystemInfo::s_appHasFocus				= true;
-	int64			SystemInfo::s_fixedTimestepMicroseconds = 10000;
+	int64			SystemInfo::s_fixedTimestepMicroseconds = 20000;
 	int64			SystemInfo::s_frameCapMicroseconds		= 0;
+	int64			SystemInfo::s_deltaTimeMicroseconds		= 0;
 	int64			SystemInfo::s_realDeltaTimeMicroseconds = 0;
+	int64			SystemInfo::s_appStartCycles			= 0;
 	uint64			SystemInfo::s_frames					= 0;
 	uint32			SystemInfo::s_measuredFPS				= 0;
+	double			SystemInfo::s_interpolationAlpha		= 0.0;
 	double			SystemInfo::s_appTime					= 0.0;
+	double			SystemInfo::s_deltaTime					= 0.0;
 	double			SystemInfo::s_realDeltaTime				= 0.0;
 	double			SystemInfo::s_timescale					= 1.0;
 
-	double SystemInfo::CalculateRunningAverageDT(double dt)
+	double SystemInfo::CalculateRunningAverageDT(int64 deltaMicroseconds)
 	{
 		// Keep a history of the deltas for the last 11 m_frames
 		// Throw away the outliers, two highest and two lowest values
 		// Calculate the mean of remaining 7 values
 		// Lerp from the time step for th elast frame to calculated mean
 
-		static uint32			 historyIndex = 0;
-		static Array<double, 11> dtHistory	  = {{IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT}};
-		dtHistory[historyIndex]				  = dt;
-		historyIndex						  = (historyIndex + 1) % 11;
+		static uint32			historyIndex = 0;
+		static Array<int64, 11> dtHistory	 = {{IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT, IDEAL_DT}};
+		dtHistory[historyIndex]				 = deltaMicroseconds;
+		historyIndex						 = (historyIndex + 1) % 11;
 
 		linatl::quick_sort(dtHistory.begin(), dtHistory.end());
 
-		double mean = 0.0;
+		int64 mean = 0;
 		for (uint32 i = 2; i < 9; i++)
 			mean += dtHistory[i];
 
-		mean /= 7.0;
-
-		static double avgDt = IDEAL_DT;
-		avgDt				= Math::Lerp(avgDt, (double)mean, 0.1f);
-		return avgDt;
+		return static_cast<double>(mean) / 7.0;
 	}
+
 } // namespace Lina

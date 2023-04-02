@@ -79,7 +79,7 @@ namespace Lina
 			m_cpuInfo.numberOfCores = std::thread::hardware_concurrency();
 		}
 
-		const double  time	  = PlatformTime::GetMicroseconds() * 0.000001;
+		const double  time	  = PlatformTime::GetCPUSeconds();
 		static double percent = 0.0;
 
 		if (time - m_lastCPUQueryTime > QUERY_CPU_INTERVAL_SECS)
@@ -132,7 +132,7 @@ namespace Lina
 				m_frameQueue.pop_front();
 		}
 
-		const uint64 cyclesNow = PlatformTime::GetCycles64();
+		const uint64 cyclesNow = PlatformTime::GetCPUCycles();
 
 		if (!m_frameQueue.empty())
 		{
@@ -147,19 +147,19 @@ namespace Lina
 
 	void Profiler::StartBlock(const char* blockName, StringID thread)
 	{
-		const uint64 cycles = PlatformTime::GetCycles64();
+		const uint64 cycles = PlatformTime::GetCPUCycles();
 		auto&		 frame	= m_frameQueue.back();
 
 		Block block;
 		block.name		  = blockName;
-		block.startCycles = PlatformTime::GetCycles64();
+		block.startCycles = PlatformTime::GetCPUCycles();
 		frame.threadBlocks.try_emplace_l(
 			thread, [&block](auto& blocks) { blocks.second.push_back(block); }, Vector<Block>{block});
 	}
 
 	void Profiler::EndBlock(StringID thread)
 	{
-		const uint64 cycles = PlatformTime::GetCycles64();
+		const uint64 cycles = PlatformTime::GetCPUCycles();
 		auto&		 frame	= m_frameQueue.back();
 		frame.threadBlocks.modify_if(thread, [cycles](auto& blocks) { blocks.second[blocks.second.size() - 1].endCycles = cycles; });
 	}

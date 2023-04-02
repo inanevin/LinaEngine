@@ -46,7 +46,8 @@ namespace Lina
 
 		// Platform setup
 		{
-			PlatformTime::GetMicroseconds();
+			PlatformTime::QueryFreq();
+			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
 			PROFILER_REGISTER_THREAD("Main");
 			SetupEnvironment();
 		}
@@ -94,6 +95,8 @@ namespace Lina
 		auto& resourceManager = m_engine.GetResourceManager();
 		resourceManager.LoadResources(resourceManager.GetCoreResources());
 		resourceManager.WaitForAll();
+		auto window = m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+		window->SetVisible(true);
 	}
 
 	void Application::LoadPlugins()
@@ -116,6 +119,7 @@ namespace Lina
 		m_engine.Tick();
 
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);
+		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetDeltaTime());
 
 		// Yield-CPU check.
 		if (!SystemInfo::GetAppHasFocus())
@@ -141,8 +145,5 @@ namespace Lina
 	{
 		SystemInfo::SetFixedTimestep(microseconds);
 	}
-	void Application::SetUseFramerateSmoothing(bool use)
-	{
-		SystemInfo::SetUseFrameRateSmoothing(use);
-	}
+
 } // namespace Lina

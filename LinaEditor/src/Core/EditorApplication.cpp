@@ -38,25 +38,24 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	 void EditorApplication::SetupEnvironment()
+	void EditorApplication::SetupEnvironment()
 	{
 		auto& resourceManager = m_engine.GetResourceManager();
 		SetApplicationMode(ApplicationMode::Editor);
 		resourceManager.SetMode(ResourceManagerMode::File);
-	
+
 		m_coreResourceRegistry = new EditorResourcesRegistry();
 		m_coreResourceRegistry->RegisterResourceTypes(resourceManager);
 		resourceManager.SetPriorityResources(m_coreResourceRegistry->GetPriorityResources());
 		resourceManager.SetPriorityResourcesMetadata(m_coreResourceRegistry->GetPriorityResourcesMetadata());
 		resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
 		resourceManager.SetCoreResourcesMetadata(m_coreResourceRegistry->GetCoreResourcesMetadata());
-	
+
 		// SetFrameCap(16667);
-		SetFixedTimestep(10000);
-		SetUseFramerateSmoothing(true);
-	 }
-	
-	 void EditorApplication::CreateMainWindow(const SystemInitializationInfo& initInfo)
+		SetFixedTimestep(2000);
+	}
+
+	void EditorApplication::CreateMainWindow(const SystemInitializationInfo& initInfo)
 	{
 		auto&		   wm					  = m_engine.GetWindowManager();
 		const Vector2i primaryMonitorSize	  = wm.GetPrimaryMonitor()->size;
@@ -64,32 +63,39 @@ namespace Lina::Editor
 		const float	   targetX				  = static_cast<float>(1920.0f / 2.5f * wm.GetPrimaryMonitor()->m_dpiScale);
 		const Vector2i targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
 		auto		   window				  = wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, targetSplashScreenSize);
-	 }
-	
-	 void EditorApplication::OnInited()
+	}
+
+	void EditorApplication::OnInited()
 	{
 		auto& resourceManager = m_engine.GetResourceManager();
 		auto& wm			  = m_engine.GetWindowManager();
 		auto  window		  = wm.GetWindow(LINA_MAIN_SWAPCHAIN);
-		window->SetStyle(WindowStyle::Borderless);
 		m_editor.BeginSplashScreen();
+		window->SetStyle(WindowStyle::Borderless);
+		window->SetVisible(true);
 		m_engine.GetResourceManager().AddListener(this);
 		m_loadCoreResourcesTask = resourceManager.LoadResources(resourceManager.GetCoreResources());
-	 }
-	
-	 void EditorApplication::Tick()
+	}
+
+	void EditorApplication::Tick()
 	{
 		Application::Tick();
-	 }
-	
-	 void EditorApplication::Shutdown()
+
+		if (m_systemEventMask == 0)
+		{
+			auto window = m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+			window->SetVisible(true);
+		}
+	}
+
+	void EditorApplication::Shutdown()
 	{
 		m_editor.Shutdown();
 		m_engine.GetResourceManager().RemoveListener(this);
 		Application::Shutdown();
-	 }
-	
-	 void EditorApplication::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	}
+
+	void EditorApplication::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
 		if (eventType & EVS_ResourceLoadTaskCompleted)
 		{
@@ -97,10 +103,12 @@ namespace Lina::Editor
 			if (task->id == m_loadCoreResourcesTask)
 			{
 				m_editor.EndSplashScreen();
-				// m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN)->SetToWorkingArea();
+				auto window = m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+				window->SetVisible(false);
+				window->SetToWorkingArea();
 				m_systemEventMask = 0;
 			}
 		}
-	 }
+	}
 
 } // namespace Lina::Editor

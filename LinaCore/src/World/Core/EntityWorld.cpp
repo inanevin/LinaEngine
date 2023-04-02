@@ -162,13 +162,15 @@ namespace Lina
 		DispatchEvent(EVG_PostTick, data);
 
 		auto e = GetEntity("Cube");
-
+	
 		if (e)
 		{
-			e->AddPosition(Vector3(deltaTime * 0.33f, 0, 0));
+			float prevX = e->GetPosition().x;
+			e->AddPosition(Vector3(deltaTime * 0.60f, 0, 0));
 
 			if (e->GetPosition().x > 3.5f)
 				e->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
+
 		}
 	}
 

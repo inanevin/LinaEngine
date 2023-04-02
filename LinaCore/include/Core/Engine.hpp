@@ -62,7 +62,7 @@ namespace Lina
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		virtual void OnCriticalGfxError() override;
 
-			virtual Bitmask32 GetSystemEventMask() override
+		virtual Bitmask32 GetSystemEventMask() override
 		{
 			return EVS_ResourceLoaded | EVS_ResourceUnloaded;
 		}
@@ -96,14 +96,14 @@ namespace Lina
 		void CalculateTime();
 
 	protected:
-		ResourceManager			   m_resourceManager;
-		Executor				   m_executor;
-		Input					   m_input;
-		AudioManager			   m_audioManager;
-		GfxManager*				   m_gfxManager = nullptr;
-		WindowManager			   m_windowManager;
-		LevelManager			   m_levelManager;
-		IEngineInterface		   m_engineInterface;
+		ResourceManager	 m_resourceManager;
+		Executor		 m_executor;
+		Input			 m_input;
+		AudioManager	 m_audioManager;
+		GfxManager*		 m_gfxManager = nullptr;
+		WindowManager	 m_windowManager;
+		LevelManager	 m_levelManager;
+		IEngineInterface m_engineInterface;
 
 		// Time
 		int64 m_frameCapAccumulator		 = 0;

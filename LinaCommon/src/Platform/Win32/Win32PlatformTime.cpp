@@ -34,15 +34,21 @@ namespace Lina
 {
 	int64 Win32PlatformTime::s_frequency = 0;
 
-	int64 Win32PlatformTime::GetMicroseconds()
+	int64 Win32PlatformTime::GetCPUMicroseconds()
 	{
-		QueryFreq();
 		LARGE_INTEGER cycles;
 		QueryPerformanceCounter(&cycles);
-		return cycles.QuadPart * 1000000ll / s_frequency;
+		return (cycles.QuadPart * 1000000ll) / s_frequency;
 	}
 
-	int64 Win32PlatformTime::GetCycles64()
+	double Win32PlatformTime::GetCPUSeconds()
+	{
+		LARGE_INTEGER cycles;
+		QueryPerformanceCounter(&cycles);
+		return static_cast<double>(cycles.QuadPart) * 1.0 / static_cast<double>(s_frequency);
+	}
+
+	int64 Win32PlatformTime::GetCPUCycles()
 	{
 		LARGE_INTEGER Cycles;
 		QueryPerformanceCounter(&Cycles);
@@ -51,7 +57,12 @@ namespace Lina
 
 	double Win32PlatformTime::GetDeltaSeconds64(int64 fromCycles, int64 toCycles)
 	{
-		return (double)((toCycles - fromCycles) * (1.0 / s_frequency));
+		return static_cast<double>(toCycles - fromCycles) * 1.0 / (static_cast<double>(s_frequency));
+	}
+
+	int64 Win32PlatformTime::GetDeltaMicroseconds64(int64 fromCycles, int64 toCycles)
+	{
+		return ((toCycles - fromCycles) * 1000000ll) / s_frequency;
 	}
 
 	void Win32PlatformTime::Throttle(int64 microseconds)
@@ -59,13 +70,13 @@ namespace Lina
 		if (microseconds < 0)
 			return;
 
-		int64		now	   = GetMicroseconds();
+		int64		now	   = GetCPUMicroseconds();
 		const int64 target = now + microseconds;
 		int64		sleep  = microseconds;
 
 		for (;;)
 		{
-			now = GetMicroseconds();
+			now = GetCPUMicroseconds();
 
 			if (now >= target)
 			{

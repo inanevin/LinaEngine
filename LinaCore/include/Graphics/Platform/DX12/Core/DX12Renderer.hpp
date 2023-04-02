@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Graphics/Data/DescriptorHandle.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/IDList.hpp"
+#include "Data/Deque.hpp"
 #include "Data/HashSet.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 #include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
@@ -74,13 +75,15 @@ namespace Lina
 		struct StatePerFrame
 		{
 			uint64 storedFenceGraphics = 0;
+			uint32 presentCount		   = 0;
+			int64  cycles			   = 0;
 		};
 
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
 		// ******************* SYSTEM ******************* //
 		void Shutdown();
-		void WaitForPresentation(ISwapchain* swapchain);
+		void WaitForSwapchains(ISwapchain* swapchain);
 		void BeginFrame(uint32 frameIndex);
 		void EndFrame(uint32 frameIndex);
 		void Join();
@@ -227,20 +230,29 @@ namespace Lina
 
 	private:
 		// General
-		SystemInitializationInfo m_initInfo;
-		GfxManager*				 m_gfxManager = nullptr;
-		StatePerFrame			 m_frames[FRAMES_IN_FLIGHT];
-		uint64					 m_fenceValueGraphics	  = 0;
-		uint32					 m_frameFenceGraphics	  = 0;
-		HANDLE					 m_fenceEventGraphics	  = NULL;
-		uint32					 m_currentFrameIndex	  = 0;
-		ResourceManager*		 m_resourceManager		  = nullptr;
-		IUploadContext*			 m_uploadContext		  = nullptr;
-		bool					 m_allowTearing			  = false;
-		VsyncMode				 m_vsync				  = VsyncMode::None;
-		uint32					 m_texturesHeapAllocCount = 0;
-		uint32					 m_samplersHeapAllocCount = 0;
-		bool					 m_failed				  = false;
+		SystemInitializationInfo	 m_initInfo;
+		GfxManager*					 m_gfxManager = nullptr;
+		StatePerFrame				 m_frames[FRAMES_IN_FLIGHT];
+		uint64						 m_fenceValueGraphics	  = 0;
+		uint32						 m_frameFenceGraphics	  = 0;
+		HANDLE						 m_fenceEventGraphics	  = NULL;
+		uint32						 m_currentFrameIndex	  = 0;
+		ResourceManager*			 m_resourceManager		  = nullptr;
+		IUploadContext*				 m_uploadContext		  = nullptr;
+		bool						 m_allowTearing			  = false;
+		VsyncMode					 m_vsync				  = VsyncMode::None;
+		uint32						 m_texturesHeapAllocCount = 0;
+		uint32						 m_samplersHeapAllocCount = 0;
+		bool						 m_failed				  = false;
+		Deque<DXGI_FRAME_STATISTICS> m_statsQueue;
+		uint32						 m_lastPresentIndex				  = 0;
+		uint32						 m_previousPresentCount			  = 0;
+		uint32						 m_previousRefreshCount			  = 0;
+		uint32						 m_glitchCount					  = 0;
+		uint32						 m_previousPresentRefreshCount	  = 0;
+		int64						 m_lastVsyncTimestampMicroseconds = 0;
+		int64						 m_nextVsyncTimestampMicroseconds = IDEAL_RT;
+		int64						 m_averageVsyncMicroseconds		  = IDEAL_RT;
 
 		// Backend
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;

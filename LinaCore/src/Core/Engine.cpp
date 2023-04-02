@@ -33,10 +33,13 @@ SOFTWARE.
 #include "Core/PlatformTime.hpp"
 #include "Core/PlatformProcess.hpp"
 #include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Shader.hpp"
+#include "Graphics/Platform/RendererIncl.hpp"
+#include "Math/Math.hpp"
 
 //********** DEBUG
 #include "Input/Core/InputMappings.hpp"
@@ -88,7 +91,7 @@ namespace Lina
 	void Engine::PreTick()
 	{
 		if (m_gfxManager)
-			m_gfxManager->WaitForPresentation();
+			m_gfxManager->WaitForSwapchains();
 
 		CalculateTime();
 		m_input.PreTick();
@@ -96,13 +99,13 @@ namespace Lina
 
 	void Engine::Tick()
 	{
-		const double delta = SystemInfo::GetRealDeltaTime();
 		m_resourceManager.Tick();
 		m_input.Tick();
 
+		const double delta			 = SystemInfo::GetDeltaTime();
 		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
-		m_fixedTimestepAccumulator += SystemInfo::GetRealDeltaTimeMicroseconds();
+		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
 		while (m_fixedTimestepAccumulator >= fixedTimestep)
 		{
@@ -116,7 +119,7 @@ namespace Lina
 
 		if (m_gfxManager)
 		{
-			m_gfxManager->Tick(static_cast<float>(interpolationAlpha));
+			m_gfxManager->Tick(static_cast<float>(SystemInfo::GetInterpolationAlpha()));
 			m_gfxManager->Render();
 		}
 
@@ -262,8 +265,8 @@ namespace Lina
 
 	void Engine::CalculateTime()
 	{
-		static int64 previous = PlatformTime::GetMicroseconds();
-		int64		 current  = PlatformTime::GetMicroseconds();
+		static int64 previous = PlatformTime::GetCPUMicroseconds();
+		int64		 current  = PlatformTime::GetCPUMicroseconds();
 		int64		 deltaUs  = current - previous;
 
 		const int64 frameCap = SystemInfo::GetFrameCapMicroseconds();
@@ -272,35 +275,24 @@ namespace Lina
 		{
 			const int64 throttleAmount = frameCap - deltaUs;
 			m_frameCapAccumulator += throttleAmount;
-			const int64 throttleBegin = PlatformTime::GetMicroseconds();
+			const int64 throttleBegin = PlatformTime::GetCPUMicroseconds();
 			PlatformTime::Throttle(m_frameCapAccumulator);
-			const int64 totalThrottle = PlatformTime::GetMicroseconds() - throttleBegin;
+			const int64 totalThrottle = PlatformTime::GetCPUMicroseconds() - throttleBegin;
 			m_frameCapAccumulator -= totalThrottle;
+			current = PlatformTime::GetCPUMicroseconds();
+			deltaUs = current - previous;
+		}
 
-			current	 = PlatformTime::GetMicroseconds();
-			deltaUs	 = current - previous;
-			previous = current;
-		}
-		else
-		{
-			previous = current;
-		}
+		previous = current;
 
 		if (deltaUs <= 0)
-			deltaUs = 0;
+			deltaUs = 16667;
 		else if (deltaUs >= 50000)
 			deltaUs = 50000;
 
-		SystemInfo::SetRealDeltaTimeMicroseconds(deltaUs);
-
-		const double deltaSeconds = deltaUs * 1e-6;
-
-		if (SystemInfo::GetUseFrameRateSmoothing())
-			SystemInfo::SetDeltaTime(SystemInfo::CalculateRunningAverageDT(deltaSeconds));
-		else
-			SystemInfo::SetDeltaTime(deltaSeconds);
-
-		SystemInfo::SetAppTime(SystemInfo::GetAppTime() + SystemInfo::GetRealDeltaTime());
+		const double avgDeltaMicroseconds = SystemInfo::CalculateRunningAverageDT(deltaUs);
+		SystemInfo::SetRealDeltaTimeMicroSeconds(deltaUs);
+		SystemInfo::SetDeltaTimeMicroSeconds(static_cast<int64>(avgDeltaMicroseconds));
 
 		const float		gameTime	  = SystemInfo::GetAppTimeF();
 		static float	lastFPSUpdate = gameTime;
@@ -315,7 +307,8 @@ namespace Lina
 			lastFPSUpdate = gameTime;
 
 			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
-			LINA_TRACE("[DT]: {0}", SystemInfo::GetRealDeltaTime());
+			LINA_TRACE("[DT]: {0}", SystemInfo::GetDeltaTime());
 		}
 	}
+
 } // namespace Lina

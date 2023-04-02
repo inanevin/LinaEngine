@@ -48,6 +48,8 @@ namespace Lina
 
 	DescriptorHandle DX12StagingHeap::GetNewHeapHandle()
 	{
+		LOCK_GUARD(m_mtx);
+
 		uint32 newHandleID = 0;
 
 		if (m_currentDescriptorIndex < m_maxDescriptors)
@@ -65,13 +67,12 @@ namespace Lina
 			LINA_ASSERT(false, "No more handles available in the descriptor heap.");
 		}
 
-		DescriptorHandle			newHandle;
-		size_t cpuHandle = m_cpuStart.ptr;
+		DescriptorHandle newHandle;
+		size_t			 cpuHandle = m_cpuStart.ptr;
 		cpuHandle += newHandleID * m_descriptorSize;
 		newHandle.SetCPUHandle(cpuHandle);
 		newHandle.SetHeapIndex(newHandleID);
 		m_activeHandleCount++;
-
 		return newHandle;
 	}
 

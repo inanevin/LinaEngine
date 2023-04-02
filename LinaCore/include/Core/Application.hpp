@@ -44,7 +44,7 @@ namespace Lina
 		Application() : m_engine(this){};
 		virtual ~Application(){};
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo);
+		virtual void Initialize(const SystemInitializationInfo& initInfo) final;
 		virtual void Tick();
 		virtual void Shutdown();
 
@@ -62,7 +62,6 @@ namespace Lina
 		void SetApplicationMode(ApplicationMode mode);
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);
-		void SetUseFramerateSmoothing(bool use);
 
 		virtual void SetupEnvironment();
 		virtual void CreateMainWindow(const SystemInitializationInfo& initInfo);

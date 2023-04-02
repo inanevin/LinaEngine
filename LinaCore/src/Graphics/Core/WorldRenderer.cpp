@@ -237,11 +237,16 @@ namespace Lina
 			if (!e->GetEntityMask().IsSet(EntityMask::Visible))
 				continue;
 
-			RenderableData data;
+			RenderableData		 data;
+			const Transformation prev		  = e->GetPrevTransform();
+			const Transformation current	  = e->GetTransform();
+			const Transformation interpolated = Transformation::Interpolate(prev, current, interpolationAlpha);
+			e->SyncPrevTransform();
+
 			data.entityID		   = e->GetID();
-			data.modelMatrix	   = e->ToMatrix();
+			data.modelMatrix	   = interpolated.ToMatrix();
 			data.entityMask		   = e->GetEntityMask();
-			data.position		   = e->GetPosition();
+			data.position		   = interpolated.m_position;
 			data.aabb			   = r.GetAABB(m_resourceManager);
 			data.passMask		   = r.GetDrawPasses(m_resourceManager);
 			data.type			   = r.GetType();

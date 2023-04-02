@@ -74,10 +74,12 @@ namespace Lina
 
 				ThrowIfFailed(swapchain.As(&m_swapchain));
 
-				m_swapchain->SetMaximumFrameLatency(FRAMES_IN_FLIGHT);
+				m_swapchain->SetMaximumFrameLatency(BACK_BUFFER_COUNT);
 				m_waitHandle = m_swapchain->GetFrameLatencyWaitableObject();
 
-				if (!rend->DX12IsTearingAllowed())
+				m_isInFullscreenState = isFullscreen;
+
+				if (!m_renderer->DX12IsTearingAllowed())
 					ThrowIfFailed(m_swapchain->SetFullscreenState(isFullscreen ? TRUE : FALSE, nullptr));
 			}
 			catch (HrException e)
@@ -92,9 +94,7 @@ namespace Lina
 
 	DX12Swapchain::~DX12Swapchain()
 	{
-		if (!m_renderer->DX12IsTearingAllowed())
-			ThrowIfFailed(m_swapchain->SetFullscreenState(FALSE, nullptr));
-
+		ThrowIfFailed(m_swapchain->SetFullscreenState(FALSE, nullptr));
 		m_swapchain.Reset();
 	}
 
@@ -107,6 +107,8 @@ namespace Lina
 
 		try
 		{
+			m_isInFullscreenState = m_window->IsFullscreen();
+
 			if (!m_renderer->DX12IsTearingAllowed())
 				ThrowIfFailed(m_swapchain->SetFullscreenState(m_window->IsFullscreen() ? TRUE : FALSE, nullptr));
 
