@@ -61,7 +61,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	app->Initialize(initInfo);
 
 	while (!app->GetExitRequested())
+	{
+		app->PreTick();
+		app->Poll();
 		app->Tick();
+	}
 
 	app->Shutdown();
 	delete app;

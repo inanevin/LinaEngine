@@ -27,51 +27,80 @@ SOFTWARE.
 */
 
 #include "Core/Theme.hpp"
+#include "Resources/Core/ResourceManager.hpp"
+#include "Graphics/Resource/Font.hpp"
 
 namespace Lina::Editor
 {
 	Color Theme::TC_White		 = Color(0.95f, 0.95f, 0.95f, 1.0f);
-	Color Theme::TC_Silent		 = Color(0.6f, 0.6f, 0.6f, 1.0f);
-	Color Theme::TC_VerySilent	 = Color(0.3f, 0.3f, 0.3f, 1.0f);
-	Color Theme::TC_CyanAccent	 = Color(40, 101, 255, 255, true);
+	Color Theme::TC_Silent		 = Color(0.1f, 0.1f, 0.1f, 1.0f);
+	Color Theme::TC_VerySilent	 = Color(0.02f, 0.02f, 0.02f, 1.0f);
+	Color Theme::TC_CyanAccent	 = Color(40.0f, 101.0f, 255.0f, 255.0f, true);
+	Color Theme::TC_RedAccent	 = Color(40.0f, 101.0f, 255.0f, 255.0f, true);
 	Color Theme::TC_PurpleAccent = Color(255.0f, 71.0f, 193.0f, 255.0f, true);
-	Color Theme::TC_Dark1		 = Color(8.0f, 8.0f, 8.0f, 255.0f, true);
-	Color Theme::TC_Dark2		 = Color(13.0f, 13.0f, 13.0f, 255.0f, true);
+	Color Theme::TC_Dark1		 = Color(1.0f, 1.0f, 1.0f, 255.0f, true);
+	Color Theme::TC_Dark2		 = Color(5.0f, 5.0f, 5.0f, 255.0f, true);
+	Color Theme::TC_Light1		 = Color(12.0f, 12.0f, 12.0f, 255.0f, true);
 
-	StringID Theme::GetFont(FontType font, float dpiScale)
+	Lina::ResourceManager* Theme::s_resourceManagerInst = nullptr;
+
+	LinaVG::LinaVGFont* Theme::GetFont(FontType font, float dpiScale)
 	{
 		StringID sid = 0;
 
 		if (font == FontType::DefaultEditor)
 		{
 			if (dpiScale < 1.1f)
-				return "Resources/Core/Fonts/NunitoSans_1x.ttf"_hs;
+				sid = "Resources/Core/Fonts/NunitoSans_1x.ttf"_hs;
 			else if (dpiScale < 1.15f)
-				return "Resources/Core/Fonts/NunitoSans_2x.ttf"_hs;
+				sid = "Resources/Core/Fonts/NunitoSans_2x.ttf"_hs;
 			else if (dpiScale < 1.35f)
-				return "Resources/Core/Fonts/NunitoSans_3x.ttf"_hs;
+				sid = "Resources/Core/Fonts/NunitoSans_3x.ttf"_hs;
 			else
-				return "Resources/Core/Fonts/NunitoSans_4x.ttf"_hs;
+				sid = "Resources/Core/Fonts/NunitoSans_4x.ttf"_hs;
 		}
 		else if (font == FontType::AltEditor)
 		{
 			if (dpiScale < 1.1f)
-				return "Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs;
+				sid = "Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs;
 			else if (dpiScale < 1.15f)
-				return "Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs;
+				sid = "Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs;
 			else if (dpiScale < 1.35f)
-				return "Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs;
+				sid = "Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs;
 			else
-				return "Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs;
+				sid = "Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs;
 		}
 		else if (font == FontType::EditorIcons)
 		{
 			if (dpiScale < 1.24f)
-				return "Resources/Editor/Fonts/EditorIcons_1x.ttf"_hs;
+				sid = "Resources/Editor/Fonts/EditorIcons_1x.ttf"_hs;
 			else
-				return "Resources/Editor/Fonts/EditorIcons_2x.ttf"_hs;
+				sid = "Resources/Editor/Fonts/EditorIcons_2x.ttf"_hs;
 		}
 
-		return sid;
+		if (sid == 0)
+		{
+			LINA_ERR("[Theme] -> Font could not be found!");
+			sid = "Resources/Core/Fonts/NunitoSans_1x.ttf"_hs;
+		}
+
+		return s_resourceManagerInst->GetResource<Font>(sid)->GetLinaVGFont();
+	}
+
+	float Theme::GetProperty(ThemeProperty prop, float dpiScale)
+	{
+		float multiplier = dpiScale;
+
+		switch (prop)
+		{
+		case ThemeProperty::MenuButtonPadding:
+			return 15.0f * multiplier;
+		case ThemeProperty::GeneralItemPadding:
+			return 12.0f * multiplier;
+		default:
+			return 1.0f;
+		}
+
+		return 1.0f;
 	}
 } // namespace Lina::Editor

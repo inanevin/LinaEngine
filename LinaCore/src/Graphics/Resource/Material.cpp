@@ -116,7 +116,7 @@ namespace Lina
 					textureSID = DEFAULT_TEXTURE_SID;
 
 				Texture* txt = m_runtimeTextures[propertyIndex];
-				if (txt == nullptr)
+				if (txt == nullptr || txt->GetSID() != textureSID)
 				{
 					txt								 = m_resourceManager->GetResource<Texture>(textureSID);
 					m_runtimeTextures[propertyIndex] = txt;

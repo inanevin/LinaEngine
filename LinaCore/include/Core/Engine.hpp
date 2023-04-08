@@ -58,6 +58,7 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;
+		virtual void Poll() override;
 		virtual void Tick() override;
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		virtual void OnCriticalGfxError() override;

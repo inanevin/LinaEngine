@@ -29,24 +29,47 @@ src/Core/Theme.cpp
 src/EditorEntryPoint.cpp
 src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetProgressBar.cpp
-src/GUI/Utility/DrawerUtility.cpp
+src/GUI/Utility/GUIUtility.cpp
+src/GUI/Nodes/Panels/GUINodePanelResourceViewer.cpp
+src/GUI/Nodes/GUINode.cpp
+src/GUI/Nodes/GUINodeDockArea.cpp
+src/GUI/Nodes/Custom/GUINodeTitleSection.cpp
+src/GUI/Nodes/Custom/GUINodeTopPanel.cpp
+src/GUI/Nodes/Custom/GUINodeCustomLogo.cpp
+src/GUI/Nodes/Widgets/GUINodeFileMenu.cpp
+src/GUI/Nodes/Widgets/GUINodeButton.cpp
+src/GUI/Nodes/Widgets/GUINodeWindowButtons.cpp
+src/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.cpp
+src/GUI/Nodes/Layouts/GUINodeLayoutVertical.cpp
+
 src/GUI/EditorGUIDrawer.cpp
 src/GUI/MainWindowGUIDrawer.cpp
 src/GUI/SplashScreenGUIDrawer.cpp
-
 )
 
 
 set(LINAEDITOR_HEADERS
 
 # Core
+include/GUI/Nodes/Panels/GUINodePanelResourceViewer.hpp
+include/GUI/Nodes/GUINode.hpp
+include/GUI/Nodes/GUINodeDockArea.hpp
+include/GUI/Nodes/Custom/GUINodeTitleSection.hpp
+include/GUI/Nodes/Custom/GUINodeTopPanel.hpp
+include/GUI/Nodes/Custom/GUINodeCustomLogo.hpp
+include/GUI/Nodes/Widgets/GUINodeFileMenu.hpp
+include/GUI/Nodes/Widgets/GUINodeButton.hpp
+include/GUI/Nodes/Widgets/GUINodeWindowButtons.hpp
+include/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.hpp
+include/GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp
 include/GUI/EditorGUIDrawer.hpp
 include/GUI/SplashScreenGUIDrawer.hpp
 include/GUI/MainWindowGUIDrawer.hpp
 include/GUI/Widgets/WidgetProgressBar.hpp
 include/GUI/Widgets/Widget.hpp
-include/GUI/Utility/DrawerUtility.hpp
+include/GUI/Utility/GUIUtility.hpp
 include/Core/EditorApplication.hpp
+include/Core/EditorCommon.hpp
 include/Core/Editor.hpp
 include/Core/Theme.hpp
 include/Core/EditorResourcesRegistry.hpp

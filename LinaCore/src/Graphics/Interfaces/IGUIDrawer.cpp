@@ -26,34 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Utility/DrawerUtility.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Core/SurfaceRenderer.hpp"
 
-using namespace Lina;
-
-std::string from_u8string(const std::string& s)
+namespace Lina
 {
-	return s;
-}
-std::string from_u8string(std::string&& s)
-{
-	return std::move(s);
-}
-#if defined(__cpp_lib_char8_t)
-std::string from_u8string(const std::u8string& s)
-{
-	return std::string(s.begin(), s.end());
-}
-#endif
-
-namespace Lina::Editor
-{
-	void DrawerUtility::DrawIcon(SurfaceRenderer* renderer, const char* icon, const Vector2& pos, int drawOrder)
-	{		
-		LinaVG::SDFTextOptions opts;
-		opts.font = Theme::GetFont(FontType::EditorIcons, renderer->GetSwapchain()->GetWindowDPIScale());
-		LinaVG::DrawTextSDF(renderer->GetSurfaceRendererIndex(), icon, LV2(pos), opts, 0.0f, drawOrder);
+	IGUIDrawer::IGUIDrawer(ISwapchain* swap)
+	{
+		m_swapchain = swap;
+		m_window	= m_swapchain->GetWindow();
 	}
-} // namespace Lina::Editor
+} // namespace Lina

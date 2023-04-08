@@ -74,7 +74,18 @@ namespace Lina
 			return m_isInFullscreenState;
 		}
 
+		inline void OnMousePos(const Vector2i& mousePos)
+		{
+			m_mousePos = mousePos;
+		}
+
+		inline const Vector2i GetMousePos() const
+		{
+			return m_mousePos;
+		}
+
 	protected:
+		Vector2i	   m_mousePos			 = Vector2i::Zero;
 		bool		   m_isInFullscreenState = false;
 		Renderer*	   m_renderer			 = nullptr;
 		WindowManager* m_windowManager		 = nullptr;

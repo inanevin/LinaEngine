@@ -43,6 +43,7 @@ namespace Lina
 	class Mesh;
 	class IGfxResourceGPU;
 	class Renderer;
+	class IUploadContext;
 
 	class GfxMeshManager
 	{
@@ -50,7 +51,7 @@ namespace Lina
 		GfxMeshManager(GfxManager* gfxManager);
 		~GfxMeshManager() = default;
 
-		void Initialize();
+		void Initialize(IUploadContext* context);
 		void Shutdown();
 		void MergeMeshes();
 
@@ -70,6 +71,7 @@ namespace Lina
 		}
 
 	private:
+		IUploadContext*						  m_uploadContext	= nullptr;
 		Renderer*							  m_renderer		= nullptr;
 		ResourceManager*					  m_resourceManager = nullptr;
 		GfxManager*							  m_gfxManager		= nullptr;

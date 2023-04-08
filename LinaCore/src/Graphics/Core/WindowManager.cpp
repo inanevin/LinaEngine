@@ -93,7 +93,7 @@ namespace Lina
 		m_windows.clear();
 	}
 
-	IWindow* WindowManager::CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size)
+	IWindow* WindowManager::CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size, Bitmask16 surfaceRendererMask)
 	{
 		if (sid != LINA_MAIN_SWAPCHAIN && m_windows.empty())
 		{
@@ -109,8 +109,8 @@ namespace Lina
 
 		if (w->Create(parent, title, pos, size))
 		{
-			Bitmask16 mask = 0;
-			m_gfxManager->CreateSurfaceRenderer(sid, w, w->GetSize(), mask);
+			m_gfxManager->CreateSurfaceRenderer(sid, w, w->GetSize(), surfaceRendererMask);
+			w->SetSurfaceRenderer(m_gfxManager->GetSurfaceRenderer(sid));
 			m_windows[sid] = w;
 			return w;
 		}
@@ -180,15 +180,21 @@ namespace Lina
 
 	MonitorInfo WindowManager::GetMonitorInfoFromWindow(IWindow* window) const
 	{
+		MonitorInfo info;
+
+#ifdef LINA_PLATFORM_WINDOWS
 		HMONITOR	  monitor = MonitorFromWindow(static_cast<HWND>(window->GetHandle()), MONITOR_DEFAULTTOPRIMARY);
 		MONITORINFOEX monitorInfo;
 		monitorInfo.cbSize = sizeof(monitorInfo);
 		GetMonitorInfo(monitor, &monitorInfo);
 
-		MonitorInfo info;
-		info.size	   = Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
-		info.workArea  = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
-		info.isPrimary = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
+		info.size		   = Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
+		info.workArea	   = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
+		info.isPrimary	   = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
+		info.monitorHandle = static_cast<void*>(monitor);
+#else
+		LINA_NOTIMPLEMENTED();
+#endif
 		return info;
 	}
 

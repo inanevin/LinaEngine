@@ -116,10 +116,10 @@ namespace Lina
 					ComPtr<ID3D12Debug> debugController;
 					if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 					{
-						debugController->EnableDebugLayer();
+						//	debugController->EnableDebugLayer();
 
 						//  Enable additional debug layers.
-						dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+						// dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 					}
 					else
 					{
@@ -193,10 +193,10 @@ namespace Lina
 					NAME_DX12_OBJECT(m_gpuSamplerHeap[i]->GetHeap(), L"Linear GPU Sampler Heap");
 				}
 
-				m_bufferHeap  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 256);
+				m_bufferHeap  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024);
 				m_textureHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, 1024);
-				m_dsvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 10);
-				m_rtvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 10);
+				m_dsvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 512);
+				m_rtvHeap	  = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 512);
 				m_samplerHeap = new DX12StagingHeap(this, D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, 100);
 
 				NAME_DX12_OBJECT(m_bufferHeap->GetHeap(), L"Buffer Heap");
@@ -371,7 +371,7 @@ namespace Lina
 
 	void Renderer::WaitForSwapchains(ISwapchain* swapchain)
 	{
-		DX12Swapchain*	dx12Swap = static_cast<DX12Swapchain*>(swapchain);
+		DX12Swapchain* dx12Swap = static_cast<DX12Swapchain*>(swapchain);
 
 		DWORD result = WaitForSingleObjectEx(dx12Swap->DX12GetWaitHandle(), 10000, true);
 		if (FAILED(result))
@@ -1033,6 +1033,11 @@ namespace Lina
 		delete res;
 	}
 
+	IUploadContext* Renderer::CreateUploadContext()
+	{
+		return new DX12UploadContext(this);
+	}
+
 	void Renderer::ReleaseCommandList(uint32 handle)
 	{
 		m_cmdLists.GetItemR(handle).Reset();
@@ -1298,22 +1303,22 @@ namespace Lina
 		cmdList->SetGraphicsRootShaderResourceView(GBB_ObjData, res->GetGPUPointer());
 	}
 
-	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t vertexSize, uint32 slot)
+	void Renderer::BindVertexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t vertexSize, uint32 slot, size_t maxSize)
 	{
 		auto&					 cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_VERTEX_BUFFER_VIEW view;
 		view.BufferLocation = buffer->GetGPUPointer();
-		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
+		view.SizeInBytes	= maxSize == 0 ? static_cast<UINT>(buffer->GetSize()) : static_cast<UINT>(maxSize);
 		view.StrideInBytes	= static_cast<UINT>(vertexSize);
 		cmdList->IASetVertexBuffers(slot, 1, &view);
 	}
 
-	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer)
+	void Renderer::BindIndexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t maxSize)
 	{
 		auto&					cmdList = m_cmdLists.GetItemR(cmdListHandle);
 		D3D12_INDEX_BUFFER_VIEW view;
 		view.BufferLocation = buffer->GetGPUPointer();
-		view.SizeInBytes	= static_cast<UINT>(buffer->GetSize());
+		view.SizeInBytes	= maxSize == 0 ? static_cast<UINT>(buffer->GetSize()) : static_cast<UINT>(maxSize);
 		view.Format			= DXGI_FORMAT_R32_UINT;
 		cmdList->IASetIndexBuffer(&view);
 	}

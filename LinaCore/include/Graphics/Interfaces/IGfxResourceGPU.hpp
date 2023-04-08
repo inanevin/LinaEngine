@@ -36,12 +36,12 @@ SOFTWARE.
 namespace Lina
 {
 	class Renderer;
+	class IUploadContext;
 
 	enum class CopyDataType
 	{
 		CopyImmediately,
 		CopyQueueUp,
-		NoCopy
 	};
 
 	class IGfxResourceGPU
@@ -50,9 +50,9 @@ namespace Lina
 		IGfxResourceGPU(Renderer* renderer, GPUResourceType type, bool requireJoinBeforeUpdating, size_t sz) : m_renderer(renderer), m_type(type), m_requireJoinBeforeUpdating(requireJoinBeforeUpdating), m_size(sz){};
 		virtual ~IGfxResourceGPU() = default;
 
-		virtual uint64 GetGPUPointer()																  = 0;
-		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) = 0;
-		virtual void   Copy(CopyDataType type)														  = 0;
+		virtual uint64 GetGPUPointer()										   = 0;
+		virtual void   BufferData(const void* data, size_t sz, size_t padding) = 0;
+		virtual void   Copy(CopyDataType type, IUploadContext* context)		   = 0;
 
 		inline size_t GetSize()
 		{

@@ -35,16 +35,19 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	class GUINodeTopPanel;
+	class GUINodeDockArea;
+
 	class MainWindowGUIDrawer : public EditorGUIDrawer
 	{
 	public:
-		MainWindowGUIDrawer(Lina::SurfaceRenderer* sf) : EditorGUIDrawer(sf){};
-		virtual ~MainWindowGUIDrawer() {};
-
+		MainWindowGUIDrawer(Editor* editor, ISwapchain* swap);
+		virtual ~MainWindowGUIDrawer(){};
 		virtual void DrawGUI(int threadID) override;
 
 	private:
-		Lina::SurfaceRenderer* m_surfaceRenderer = nullptr;
+		GUINodeDockArea* m_dockArea = nullptr;
+		GUINodeTopPanel* m_topPanel = nullptr;
 	};
 } // namespace Lina::Editor
 

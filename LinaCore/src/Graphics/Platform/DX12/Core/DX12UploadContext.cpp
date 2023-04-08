@@ -260,20 +260,28 @@ namespace Lina
 
 	void DX12UploadContext::CloseAndExecuteCommandList()
 	{
-		const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
-		auto*		 cmdList	= m_cmdLists[frameIndex].Get();
+		try
+		{
+			const uint32 frameIndex = m_renderer->GetCurrentFrameIndex();
+			auto*		 cmdList	= m_cmdLists[frameIndex].Get();
 
-		ThrowIfFailed(cmdList->Close());
+			ThrowIfFailed(cmdList->Close());
 
-		Vector<ID3D12CommandList*> _lists;
-		_lists.push_back(cmdList);
-		ID3D12CommandList* const* data = _lists.data();
-		m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
+			Vector<ID3D12CommandList*> _lists;
+			_lists.push_back(cmdList);
+			ID3D12CommandList* const* data = _lists.data();
+			m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
 
-		m_fenceValue++;
-		m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
-		ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
-		WaitForSingleObject(m_fenceEvent, INFINITE);
+			m_fenceValue++;
+			m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
+			ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+			WaitForSingleObject(m_fenceEvent, INFINITE);
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when creating the upload context! {0}", e.what());
+			m_renderer->DX12Exception(e);
+		}
 	}
 
 } // namespace Lina

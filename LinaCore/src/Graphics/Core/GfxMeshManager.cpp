@@ -45,9 +45,10 @@ namespace Lina
 		m_resourceManager = gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
-	void GfxMeshManager::Initialize()
+	void GfxMeshManager::Initialize(IUploadContext* context)
 	{
-		m_renderer = m_gfxManager->GetRenderer();
+		m_renderer		= m_gfxManager->GetRenderer();
+		m_uploadContext = context;
 	}
 
 	void GfxMeshManager::Shutdown()
@@ -110,7 +111,9 @@ namespace Lina
 			m_gpuVtxBuffer	 = m_renderer->CreateGPUResource(vtxSize, GPUResourceType::GPUOnlyWithStaging, true, L"Merged Vtx Buffer");
 		}
 
-		m_gpuIndexBuffer->BufferData(mergedIndices.data(), indexSize, 0, CopyDataType::CopyQueueUp);
-		m_gpuVtxBuffer->BufferData(mergedVertices.data(), vtxSize, 0, CopyDataType::CopyQueueUp);
+		m_gpuIndexBuffer->BufferData(mergedIndices.data(), indexSize, 0);
+		m_gpuIndexBuffer->Copy(CopyDataType::CopyQueueUp, m_uploadContext);
+		m_gpuVtxBuffer->BufferData(mergedVertices.data(), vtxSize, 0);
+		m_gpuVtxBuffer->Copy(CopyDataType::CopyQueueUp, m_uploadContext);
 	}
 } // namespace Lina

@@ -37,15 +37,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	struct MonitorInfo
-	{
-		bool	 isPrimary	= false;
-		Vector2i size		= Vector2i::Zero;
-		Vector2i workArea	= Vector2i::Zero;
-		uint32	 m_dpi		= 0;
-		float	 m_dpiScale = 0.0f;
-	};
-
 	class IWindow;
 	class GfxManager;
 
@@ -59,7 +50,7 @@ namespace Lina
 		virtual void Shutdown() override;
 
 		void		SetupBackend(const SystemInitializationInfo& inf);
-		IWindow*	CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size);
+		IWindow*	CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size, Bitmask16 surfaceRendererMask);
 		void		DestroyAppWindow(StringID sid);
 		IWindow*	GetWindow(StringID sid);
 		void		OnWindowFocused(StringID sid);

@@ -44,10 +44,10 @@ namespace Lina::Editor
 	class WidgetProgressBar : public Widget
 	{
 	public:
-		WidgetProgressBar(SurfaceRenderer* rend) : Widget(rend){};
+		WidgetProgressBar(ISwapchain* swap) : Widget(swap){};
 		virtual ~WidgetProgressBar() = default;
 
-		void Draw(const Vector2& start, const Vector2& size, const Vector2& textPos, float progress, const char* text);
+		void Draw(int threadID, const Vector2& start, const Vector2& size, const Vector2& textPos, float progress, const char* text);
 
 		Color BackgroundColor	   = Color::White;
 		Color ForegroundStartColor = Color::DarkBlue;

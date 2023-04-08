@@ -42,6 +42,7 @@ namespace Lina
 {
 	class WindowManager;
 	class Input;
+	class GfxManager;
 
 	class Win32Window : public IWindow
 	{
@@ -90,6 +91,7 @@ namespace Lina
 		Input*								  m_input			 = nullptr;
 		WindowStyle							  m_style			 = WindowStyle::None;
 		WindowManager*						  m_manager			 = nullptr;
+		GfxManager*							  m_gfxManager		 = nullptr;
 		HWND__*								  m_window			 = nullptr;
 		HINSTANCE__*						  m_hinst			 = nullptr;
 	};

@@ -40,10 +40,11 @@ namespace Lina
 {
 #define DEF_VTX_BUF_SIZE   4
 #define DEF_INDEX_BUF_SIZE 4
-#define DEF_MAT_SIZE	   50
+#define DEF_MAT_SIZE	   24
 
-	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount)
-		: m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount), m_materialPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Material) * DEF_MAT_SIZE, sizeof(Material), "GUI Renderer Material Pool")
+	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount, IUploadContext* context)
+		: m_uploadContext(context), m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount),
+		  m_materialPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Material) * DEF_MAT_SIZE, sizeof(Material), "GUI Renderer Material Pool")
 	{
 		m_renderer		  = m_gfxManager->GetRenderer();
 		m_resourceManager = gfxMan->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -129,10 +130,10 @@ namespace Lina
 
 		// Transfer vertex & index data
 		{
-			frame.vtxBufferGPU->Copy(CopyDataType::CopyImmediately);
-			frame.indexBufferGPU->Copy(CopyDataType::CopyImmediately);
-			m_renderer->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex));
-			m_renderer->BindIndexBuffer(cmdList, frame.indexBufferGPU);
+			frame.vtxBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
+			frame.indexBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
+			m_renderer->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex), 0, sizeof(LinaVG::Vertex) * frame.vertexCounter);
+			m_renderer->BindIndexBuffer(cmdList, frame.indexBufferGPU, sizeof(LinaVG::Index) * frame.indexCounter);
 		}
 
 		// View data & pipeline
@@ -152,9 +153,7 @@ namespace Lina
 				AllocateMaterials();
 
 			for (uint32 i = 0; i < requestsSize; i++)
-			{
 				AssignStandardMaterial(m_materials[i], frame.drawRequests[i].materialDefinition);
-			}
 
 			m_renderer->BindMaterials(m_materials.data(), requestsSize);
 
@@ -238,8 +237,8 @@ namespace Lina
 		req.meta.clipW			= buf->clipSizeX == 0 ? m_size.x : buf->clipSizeX;
 		req.meta.clipH			= buf->clipSizeY == 0 ? m_size.y : buf->clipSizeY;
 
-		frame.indexBufferGPU->BufferData(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), frame.indexCounter * sizeof(LinaVG::Index), CopyDataType::NoCopy);
-		frame.vtxBufferGPU->BufferData(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), frame.vertexCounter * sizeof(LinaVG::Vertex), CopyDataType::NoCopy);
+		frame.indexBufferGPU->BufferData(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), frame.indexCounter * sizeof(LinaVG::Index));
+		frame.vtxBufferGPU->BufferData(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), frame.vertexCounter * sizeof(LinaVG::Vertex));
 
 		frame.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 		frame.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);

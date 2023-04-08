@@ -54,6 +54,7 @@ namespace Lina
 	class IGfxResourceGPU;
 	class IGfxResourceCPU;
 	class ResourceManager;
+	class IUploadContext;
 
 	class GUIRenderer
 	{
@@ -109,7 +110,7 @@ namespace Lina
 		};
 
 	public:
-		GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount);
+		GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount, IUploadContext* context);
 		virtual ~GUIRenderer();
 
 		void FeedGradient(LinaVG::GradientDrawBuffer* buf);
@@ -129,6 +130,7 @@ namespace Lina
 		OrderedDrawRequest& AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
 	private:
+		IUploadContext*		m_uploadContext = nullptr;
 		Vector<Material*>	m_materials;
 		MemoryAllocatorPool m_materialPool;
 		ResourceManager*	m_resourceManager = nullptr;

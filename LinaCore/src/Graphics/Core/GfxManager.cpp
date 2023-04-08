@@ -63,7 +63,7 @@ namespace Lina
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_renderer		  = new Renderer(initInfo, this);
 		m_resourceManager->AddListener(this);
-		m_meshManager.Initialize();
+		m_meshManager.Initialize(m_renderer->GetUploadContext());
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -82,6 +82,7 @@ namespace Lina
 			LinaVG::Config.globalFramebufferScale = 1.0f;
 			LinaVG::Config.globalAAMultiplier	  = 1.0f;
 			LinaVG::Config.aaEnabled			  = false;
+			LinaVG::Config.gcCollectInterval	  = 4000;
 			LinaVG::Config.textCachingEnabled	  = true;
 			LinaVG::Config.textCachingSDFEnabled  = true;
 			LinaVG::Config.textCacheReserve		  = 10000;
@@ -99,10 +100,10 @@ namespace Lina
 		{
 			TextureSampler* defaultSampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
 			SamplerData		samplerData;
-			samplerData.minFilter	= Filter::Linear;
-			samplerData.magFilter	= Filter::Linear;
-			samplerData.mode		= SamplerAddressMode::ClampToEdge;
-			samplerData.anisotropy	= 0;
+			samplerData.minFilter	= Filter::Anisotropic;
+			samplerData.magFilter	= Filter::Anisotropic;
+			samplerData.mode		= SamplerAddressMode::Repeat;
+			samplerData.anisotropy	= 6;
 			samplerData.borderColor = Color::White;
 			samplerData.mipLodBias	= 0.0f;
 			samplerData.minLod		= 0.0f;

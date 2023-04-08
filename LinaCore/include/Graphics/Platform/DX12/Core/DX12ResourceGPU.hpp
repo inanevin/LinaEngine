@@ -51,8 +51,8 @@ namespace Lina
 		virtual ~DX12ResourceGPU();
 
 		virtual uint64 GetGPUPointer() override;
-		virtual void   BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType) override;
-		virtual void   Copy(CopyDataType copyType) override;
+		virtual void   BufferData(const void* data, size_t sz, size_t padding) override;
+		virtual void   Copy(CopyDataType copyType, IUploadContext* context) override;
 
 		inline size_t GetSize()
 		{

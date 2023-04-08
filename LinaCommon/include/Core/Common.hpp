@@ -77,6 +77,16 @@ namespace Lina
 		VsyncMode		 vsyncMode		  = VsyncMode::None;
 	};
 
+	struct MonitorInfo
+	{
+		bool	 isPrimary	   = false;
+		float	 m_dpiScale	   = 0.0f;
+		Vector2i size		   = Vector2i::Zero;
+		Vector2i workArea	   = Vector2i::Zero;
+		uint32	 m_dpi		   = 0;
+		void*	 monitorHandle = nullptr;
+	};
+
 	extern const char* VsyncModeToStr(VsyncMode mode);
 } // namespace Lina
 

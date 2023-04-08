@@ -31,15 +31,29 @@ SOFTWARE.
 #ifndef IGUIDrawer_HPP
 #define IGUIDrawer_HPP
 
+#include "Input/Core/CommonInput.hpp"
+
 namespace Lina
 {
+	class ISwapchain;
+	class IWindow;
+
 	class IGUIDrawer
 	{
 	public:
-		IGUIDrawer()		   = default;
+		IGUIDrawer(ISwapchain* swap);
 		virtual ~IGUIDrawer() = default;
 
 		virtual void DrawGUI(int threadID) = 0;
+		virtual void OnKey(uint32 key, InputAction action){};
+		virtual void OnMouse(uint32 button, InputAction action){};
+		virtual void OnMousePos(const Vector2i& pos){};
+		virtual void OnMouseMove(const Vector2i& pos){};
+		virtual void OnMouseWheel(uint32 delta){};
+
+	protected:
+		ISwapchain* m_swapchain = nullptr;
+		IWindow*	m_window	= nullptr;
 	};
 } // namespace Lina
 

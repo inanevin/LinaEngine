@@ -43,7 +43,6 @@ SOFTWARE.
 #include "Math/Rect.hpp"
 #include "CameraSystem.hpp"
 #include "View.hpp"
-#include "DrawPass.hpp"
 
 namespace Lina
 {
@@ -54,9 +53,8 @@ namespace Lina
 	class Material;
 	class IGfxResourceCPU;
 	class Renderer;
-
-	// DEBUG
-	class ISwapchain;
+	class IUploadContext;
+	class DrawPass;
 
 	class WorldRenderer : public IGameEventListener
 	{
@@ -127,8 +125,9 @@ namespace Lina
 	protected:
 		static int s_worldRendererCount;
 
-		Renderer*			 m_renderer = nullptr;
-		DrawPass			 m_opaquePass;
+		IUploadContext*		 m_uploadContext;
+		Renderer*			 m_renderer	  = nullptr;
+		DrawPass*			 m_opaquePass = nullptr;
 		CameraSystem		 m_cameraSystem;
 		ResourceManager*	 m_resourceManager = nullptr;
 		View				 m_playerView;

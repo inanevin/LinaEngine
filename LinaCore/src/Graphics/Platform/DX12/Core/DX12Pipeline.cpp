@@ -120,6 +120,7 @@ namespace Lina
 		{
 			psoDesc.RasterizerState.CullMode			  = D3D12_CULL_MODE_NONE;
 			psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
+			psoDesc.DepthStencilState.DepthEnable		  = FALSE;
 		}
 
 		for (const auto& [stg, title] : stages)

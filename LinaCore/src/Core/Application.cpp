@@ -86,7 +86,7 @@ namespace Lina
 
 	void Application::CreateMainWindow(const SystemInitializationInfo& initInfo)
 	{
-		auto window = m_engine.GetWindowManager().CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight));
+		auto window = m_engine.GetWindowManager().CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight), SRM_DrawOffscreenTexture);
 		window->SetStyle(initInfo.windowStyle);
 	}
 
@@ -109,13 +109,20 @@ namespace Lina
 		PlatformProcess::UnloadPlugin("GamePlugin.dll", &m_engine);
 	}
 
-	void Application::Tick()
+	void Application::PreTick()
 	{
 		PROFILER_FRAME_START();
-
 		m_engine.PreTick();
-		PlatformProcess::PumpMessages();
+	}
 
+	void Application::Poll()
+	{
+		PlatformProcess::PumpMessages();
+		m_engine.Poll();
+	}
+
+	void Application::Tick()
+	{
 		m_engine.Tick();
 
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);

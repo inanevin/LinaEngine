@@ -35,23 +35,24 @@ SOFTWARE.
 
 namespace Lina
 {
-	class SurfaceRenderer;
-}
+	class ISwapchain;
+	class IWindow;
+} // namespace Lina
 
 namespace Lina::Editor
 {
 	class Widget
 	{
 	public:
-		Widget(SurfaceRenderer* surface);
+		Widget(ISwapchain* swapchain);
 		virtual ~Widget();
 
-		int	   GetSurfaceRendererIndex() const;
 		uint32 GetDPI() const;
 		float  GetDPIScale() const;
 
 	protected:
-		SurfaceRenderer* m_surfaceRenderer = nullptr;
+		ISwapchain* m_swapchain = nullptr;
+		IWindow*	m_window	= nullptr;
 	};
 } // namespace Lina::Editor
 

@@ -33,8 +33,9 @@ SOFTWARE.
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Core/Application.hpp"
-
 #include "Platform/Win32/Win32WindowsInclude.hpp"
 #include <shellscalingapi.h>
 #include <hidusage.h>
@@ -103,6 +104,20 @@ namespace Lina
 			// Dispatch focus event?
 		}
 		break;
+		case WM_WINDOWPOSCHANGED: {
+
+			// Get the current monitor the window is on
+			HMONITOR currentMonitor = MonitorFromWindow(window, MONITOR_DEFAULTTONEAREST);
+
+			if (currentMonitor != win32Window->m_monitorInfo.monitorHandle)
+			{
+				// The window has changed monitors
+				// Perform any actions needed when the window changes monitors
+				win32Window->m_monitorInfo = win32Window->m_manager->GetMonitorInfoFromWindow(win32Window);
+			}
+
+			break;
+		}
 		case WM_DISPLAYCHANGE: {
 
 			break;
@@ -184,6 +199,18 @@ namespace Lina
 			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), InputAction::Released);
 		}
 		break;
+		case WM_MOUSEMOVE: {
+			if (!s_isAppActive)
+				break;
+
+			int	 xPos	   = GET_X_LPARAM(lParam);
+			int	 yPos	   = GET_Y_LPARAM(lParam);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMousePos(Vector2i(xPos, yPos));
+		}
+		break;
 		case WM_MOUSEWHEEL: {
 
 			if (!s_isAppActive)
@@ -191,6 +218,10 @@ namespace Lina
 
 			auto delta = GET_WHEEL_DELTA_WPARAM(wParam);
 			win32Window->m_input->OnMouseWheel(static_cast<void*>(win32Window), static_cast<int>(delta));
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouseWheel(static_cast<uint32>(delta));
 		}
 		break;
 		case WM_LBUTTONDOWN: {
@@ -199,6 +230,10 @@ namespace Lina
 				break;
 
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Pressed);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Pressed);
 		}
 		break;
 		case WM_RBUTTONDOWN: {
@@ -207,6 +242,10 @@ namespace Lina
 				break;
 
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Pressed);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_RBUTTON, InputAction::Pressed);
 		}
 		break;
 		case WM_MBUTTONDOWN: {
@@ -215,6 +254,10 @@ namespace Lina
 				break;
 
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Pressed);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Pressed);
 		}
 		break;
 		case WM_LBUTTONUP: {
@@ -223,6 +266,10 @@ namespace Lina
 				break;
 
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Released);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Released);
 		}
 		break;
 		case WM_RBUTTONUP: {
@@ -231,6 +278,10 @@ namespace Lina
 				break;
 
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Released);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_RBUTTON, InputAction::Released);
 		}
 		break;
 		case WM_MBUTTONUP: {
@@ -239,6 +290,10 @@ namespace Lina
 				break;
 
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Released);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Released);
 		}
 		break;
 		case WM_LBUTTONDBLCLK: {
@@ -246,6 +301,10 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
 		}
 		break;
 		case WM_RBUTTONDBLCLK: {
@@ -254,6 +313,10 @@ namespace Lina
 				break;
 
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Repeated);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_RBUTTON, InputAction::Repeated);
 		}
 		break;
 		case WM_MBUTTONDBLCLK: {
@@ -261,6 +324,10 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Repeated);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Repeated);
 		}
 		break;
 		case WM_INPUT: {
@@ -276,6 +343,10 @@ namespace Lina
 				int xPosRelative = raw->data.mouse.lLastX;
 				int yPosRelative = raw->data.mouse.lLastY;
 				win32Window->m_input->OnMouseMove(static_cast<void*>(win32Window), xPosRelative, yPosRelative);
+
+				IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+				if (guiDrawer)
+					guiDrawer->OnMouseMove(Vector2i(xPosRelative, yPosRelative));
 			}
 			break;
 		}
@@ -286,7 +357,8 @@ namespace Lina
 
 	Win32Window::Win32Window(WindowManager* manager, ISystem* sys, StringID sid) : IWindow(sys, sid), m_manager(manager)
 	{
-		m_input = m_system->CastSubsystem<Input>(SubsystemType::Input);
+		m_input		 = m_system->CastSubsystem<Input>(SubsystemType::Input);
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 	}
 
 	bool Win32Window::Create(void* parent, const char* title, const Vector2i& pos, const Vector2i& size)
@@ -315,7 +387,7 @@ namespace Lina
 			}
 		}
 
-		DWORD exStyle = 0;
+		DWORD exStyle = WS_EX_APPWINDOW;
 		DWORD stylew  = WS_POPUP;
 
 		if (parent != nullptr)
@@ -339,6 +411,8 @@ namespace Lina
 		s_win32Windows[m_window] = this;
 		m_dpi					 = GetDpiForWindow(m_window);
 		m_dpiScale				 = m_dpi / 96.0f;
+		m_monitorInfo			 = m_manager->GetMonitorInfoFromWindow(static_cast<IWindow*>(this));
+		m_aspect				 = static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
 
 		// For raw input
 		if (parent == nullptr)
@@ -368,15 +442,14 @@ namespace Lina
 
 		const WindowStyle previousStyle = m_style;
 
-		m_isFullscreen = false;
-		m_style		   = style;
-		DWORD wstl	   = 0;
+		m_isFullscreen	   = false;
+		m_style			   = style;
+		DWORD wstl		   = 0;
+		m_canHitTestResize = true;
 
 		if (style == WindowStyle::Windowed)
 		{
 			wstl = WS_OVERLAPPEDWINDOW;
-			wstl &= ~WS_THICKFRAME;
-			m_canHitTestResize = true;
 		}
 		else if (style == WindowStyle::WindowedNoResize)
 		{
@@ -388,8 +461,7 @@ namespace Lina
 		}
 		else if (style == WindowStyle::Borderless)
 		{
-			wstl			   = WS_POPUP;
-			m_canHitTestResize = true;
+			wstl = WS_POPUP;
 		}
 		else if (style == WindowStyle::BorderlessNoResize)
 		{
@@ -453,6 +525,7 @@ namespace Lina
 
 		int dpiScaledX = MulDiv(m_rect.pos.x, iDpi, 96);
 		int dpiScaledY = MulDiv(m_rect.pos.y, iDpi, 96);
+
 		// int dpiScaledWidth	= MulDiv(m_rect.size.x, iDpi, 96);
 		// int dpiScaledHeight = MulDiv(m_rect.size.y, iDpi, 96);
 		//  SetWindowPos(hwnd, hwnd, dpiScaledX, dpiScaledY, dpiScaledWidth, dpiScaledHeight, SWP_NOZORDER | SWP_NOACTIVATE);
@@ -514,10 +587,9 @@ namespace Lina
 	{
 		const Vector2i oldPos = m_rect.pos;
 		m_rect.pos			  = pos;
-		auto gfxManager		  = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		if (gfxManager)
-			gfxManager->OnWindowMoved(this, m_sid, m_rect);
+		if (m_gfxManager)
+			m_gfxManager->OnWindowMoved(this, m_sid, m_rect);
 	}
 
 	void Win32Window::UpdateSize(const Vector2i& size)
@@ -529,10 +601,9 @@ namespace Lina
 		const Vector2i oldSize = m_rect.size;
 		m_rect.size			   = size;
 		m_aspect			   = m_isMinimized ? 0.0f : static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
-		auto gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		if (gfxManager)
-			gfxManager->OnWindowResized(this, m_sid, m_rect);
+		if (m_gfxManager)
+			m_gfxManager->OnWindowResized(this, m_sid, m_rect);
 	}
 
 	void Win32Window::SetTitle(const char* title)

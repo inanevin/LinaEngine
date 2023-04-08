@@ -52,8 +52,10 @@ namespace Lina
 		// Init
 		{
 			m_renderer = m_gfxManager->GetRenderer();
+
 			m_gfxManager->GetSystem()->AddListener(this);
 			m_swapchain = m_renderer->CreateSwapchain(initialSize, window, sid);
+
 			m_dataPerImage.resize(imageCount, DataPerImage());
 			m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
 		}
@@ -70,12 +72,14 @@ namespace Lina
 			}
 		}
 
-		m_guiRenderer = new GUIRenderer(man, sid, m_imageCount);
+		m_uploadContext = m_renderer->CreateUploadContext();
+		m_guiRenderer	= new GUIRenderer(man, sid, m_imageCount, m_uploadContext);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
 		delete m_guiRenderer;
+		delete m_uploadContext;
 
 		DestroyTextures();
 
@@ -102,6 +106,9 @@ namespace Lina
 
 	void SurfaceRenderer::SetOffscreenTexture(Texture* txt, uint32 imageIndex)
 	{
+		if (!m_mask.IsSet(SRM_DrawOffscreenTexture))
+			return;
+
 		auto& data					= m_dataPerImage[imageIndex];
 		data.updateTexture			= true;
 		data.targetOffscreenTexture = txt;
@@ -109,6 +116,9 @@ namespace Lina
 
 	void SurfaceRenderer::ClearOffscreenTexture()
 	{
+		if (!m_mask.IsSet(SRM_DrawOffscreenTexture))
+			return;
+
 		for (auto& data : m_dataPerImage)
 		{
 			data.targetOffscreenTexture = nullptr;
@@ -163,7 +173,7 @@ namespace Lina
 				data.renderTargetColor = m_renderer->CreateRenderTargetSwapchain(m_swapchain, i, rtColorName);
 				data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, size);
 
-				if (true)
+				if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 				{
 					const String name	   = "SurfaceRenderer_" + TO_STRING(s_surfaceRendererCount) + "OffscreenMat_" + TO_STRING(i);
 					data.offscreenMaterial = new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, name, TO_SID(name));
@@ -195,14 +205,9 @@ namespace Lina
 			delete data.renderTargetColor;
 			delete data.renderTargetDepth;
 
-			if (true)
+			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 				delete data.offscreenMaterial;
 		}
-	}
-
-	void SurfaceRenderer::WaitForPresentation()
-	{
-		
 	}
 
 	void SurfaceRenderer::Tick(float interpolationAlpha)
@@ -228,7 +233,7 @@ namespace Lina
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[m_currentImageIndex];
 
-		if (imgData.updateTexture)
+		if (m_mask.IsSet(SRM_DrawOffscreenTexture) && imgData.updateTexture)
 		{
 			if (imgData.offscreenMaterial->GetShader() == nullptr)
 				imgData.offscreenMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader"_hs);
@@ -257,20 +262,24 @@ namespace Lina
 
 			m_renderer->ResourceBarrier(frame.cmdList, &present2RT, 1);
 			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
+			m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
 
-			if (true)
+			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 			{
-				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
 				m_renderer->BindPipeline(frame.cmdList, imgData.offscreenMaterial->GetShader());
 				m_renderer->BindMaterials(&imgData.offscreenMaterial, 1);
 				m_renderer->SetMaterialID(frame.cmdList, imgData.offscreenMaterial->GetGPUBindlessIndex());
 				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
-			if (m_guiDrawer != nullptr)
+			if (m_mask.IsSet(SRM_DrawGUI) && m_guiDrawer != nullptr)
 			{
-				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
+			}
+
+			if (m_mask.IsSet(SRM_DrawGUI) && m_guiDrawer != nullptr)
+			{
 				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
+				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
 
 				// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
 				{

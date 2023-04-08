@@ -36,13 +36,23 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
 
+namespace LinaVG
+{
+	class LinaVGFont;
+}
+
 namespace Lina
 {
 	class Font : public IResource
 	{
 	public:
 		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font() = default;
+		virtual ~Font();
+
+		inline LinaVG::LinaVGFont* GetLinaVGFont()
+		{
+			return m_lvgFont;
+		}
 
 	protected:
 		virtual void Flush() override;
@@ -53,7 +63,8 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) override;
 
 	private:
-		Vector<char> m_file;
+		LinaVG::LinaVGFont* m_lvgFont = nullptr;
+		Vector<char>		m_file;
 	};
 } // namespace Lina
 

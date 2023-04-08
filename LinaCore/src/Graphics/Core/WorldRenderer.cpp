@@ -41,11 +41,7 @@ SOFTWARE.
 #include "Math/Color.hpp"
 #include "Graphics/Components/CameraComponent.hpp"
 #include "Profiling/Profiler.hpp"
-
-// Test
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Resources/Core/ResourceManager.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Graphics/Core/DrawPass.hpp"
 
 namespace Lina
 {
@@ -68,11 +64,14 @@ namespace Lina
 	}
 
 	WorldRenderer::WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio)
-		: m_gfxManager(gfxManager), m_imageCount(imageCount), m_surfaceRenderer(surface), m_mask(mask), m_world(world), m_opaquePass(gfxManager)
+		: m_gfxManager(gfxManager), m_imageCount(imageCount), m_surfaceRenderer(surface), m_mask(mask), m_world(world)
 	{
 		m_renderer					  = m_gfxManager->GetRenderer();
 		m_renderData.renderResolution = renderResolution;
 		m_renderData.aspectRatio	  = aspectRatio;
+		m_uploadContext				  = m_renderer->CreateUploadContext();
+		m_opaquePass				  = new DrawPass(gfxManager, m_uploadContext);
+
 		world->AddListener(this);
 		m_surfaceRenderer->AddWorldRenderer(this);
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -105,6 +104,9 @@ namespace Lina
 
 	WorldRenderer::~WorldRenderer()
 	{
+		delete m_uploadContext;
+		delete m_opaquePass;
+		
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame = m_frames[i];
@@ -114,6 +116,7 @@ namespace Lina
 			m_renderer->DeleteCPUResource(frame.sceneDataBuffer);
 			m_renderer->DeleteCPUResource(frame.viewDataBuffer);
 		}
+		
 		DestroyTextures();
 
 		m_world->RemoveListener(this);
@@ -254,7 +257,7 @@ namespace Lina
 			m_renderData.extractedRenderables.push_back(data);
 		}
 
-		m_opaquePass.Process(m_renderData.extractedRenderables, m_playerView, 1000.0f, DrawPassMask::Opaque);
+		m_opaquePass->Process(m_renderData.extractedRenderables, m_playerView, 1000.0f, DrawPassMask::Opaque);
 	}
 
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
@@ -279,7 +282,6 @@ namespace Lina
 
 		// Update scene data
 		{
-			m_renderData.gpuSceneData.ambientColor.x = SystemInfo::GetAppTimeF();
 			frame.sceneDataBuffer->BufferData(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
 			m_renderer->BindUniformBuffer(frame.cmdList, GBB_SceneData, frame.sceneDataBuffer);
 		}
@@ -299,7 +301,7 @@ namespace Lina
 
 			// Update object data
 			{
-				m_opaquePass.UpdateBuffers(frameIndex, frame.cmdList);
+				m_opaquePass->UpdateBuffers(frameIndex, frame.cmdList);
 			}
 
 			m_renderer->ResourceBarrier(frame.cmdList, srv2RT, 2);
@@ -310,7 +312,7 @@ namespace Lina
 				m_renderer->BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
 				m_renderer->BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());
 				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
-				m_opaquePass.Draw(frameIndex, frame.cmdList);
+				m_opaquePass->Draw(frameIndex, frame.cmdList);
 			}
 
 			m_renderer->EndRenderPass(frame.cmdList);

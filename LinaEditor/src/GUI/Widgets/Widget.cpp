@@ -34,27 +34,24 @@ using namespace Lina;
 
 namespace Lina::Editor
 {
-	Widget::Widget(SurfaceRenderer* surface) : m_surfaceRenderer(surface)
+	Widget::Widget(ISwapchain* swap)
 	{
+		m_swapchain = swap;
+		m_window	= m_swapchain->GetWindow();
 	}
 
 	Widget::~Widget()
 	{
 	}
 
-	int Widget::GetSurfaceRendererIndex() const
-	{
-		return m_surfaceRenderer->GetSurfaceRendererIndex();
-	}
-
 	uint32 Widget::GetDPI() const
 	{
-		return m_surfaceRenderer->GetSwapchain()->GetWindowDPI();
+		return m_swapchain->GetWindowDPI();
 	}
 
 	float Widget::GetDPIScale() const
 	{
-		return m_surfaceRenderer->GetSwapchain()->GetWindowDPIScale();
+		return m_swapchain->GetWindowDPIScale();
 	}
 
 } // namespace Lina::Editor

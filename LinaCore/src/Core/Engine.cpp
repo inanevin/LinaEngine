@@ -97,11 +97,14 @@ namespace Lina
 		m_input.PreTick();
 	}
 
-	void Engine::Tick()
+	void Engine::Poll()
 	{
 		m_resourceManager.Tick();
 		m_input.Tick();
+	}
 
+	void Engine::Tick()
+	{
 		const double delta			 = SystemInfo::GetDeltaTime();
 		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
@@ -244,6 +247,7 @@ namespace Lina
 			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
 		}
 
+		m_gfxManager->Join();
 		m_gfxManager->PreShutdown();
 		m_resourceManager.UnloadResources(unloadResources);
 		m_gfxManager->Shutdown();

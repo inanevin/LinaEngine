@@ -63,5 +63,5 @@ float4 PSMain(PSInput input) : SV_TARGET
 {
 	LinaShaderMaterial mat = Lina_GetMaterial<LinaShaderMaterial>(LINA_MATID);
 	float4 col = Lina_SampleTexture2D(mat.diffuse, input.uv) * mat.color;
-	return float4(input.uv, 0, 1);
+	return float4(col.xyz, 1);
 }

@@ -58,7 +58,7 @@ namespace Lina
 		return m_allocation->GetResource()->GetGPUVirtualAddress();
 	}
 
-	void DX12ResourceGPU::BufferData(const void* data, size_t sz, size_t padding, CopyDataType copyType)
+	void DX12ResourceGPU::BufferData(const void* data, size_t sz, size_t padding)
 	{
 		// Cpu-visible, directly copy
 		if (m_mappedData != nullptr)
@@ -71,18 +71,12 @@ namespace Lina
 			m_stagingResource->BufferDataPadded(data, sz, padding);
 		else
 			m_stagingResource->BufferData(data, sz);
-
-		Copy(copyType);
 	}
 
-	void DX12ResourceGPU::Copy(CopyDataType copyType)
+	void DX12ResourceGPU::Copy(CopyDataType copyType, IUploadContext* context)
 	{
 		// CPU visible VRAM resource, already copied via mapping.
 		if (m_mappedData != nullptr)
-			return;
-
-		// Why would you even call Copy with NoCopy (my bad, api design master)
-		if (copyType == CopyDataType::NoCopy)
 			return;
 
 		const size_t stagingSize = m_stagingResource->GetSize();
@@ -98,9 +92,9 @@ namespace Lina
 		}
 
 		if (copyType == CopyDataType::CopyImmediately)
-			m_renderer->GetUploadContext()->CopyBuffersImmediate(m_stagingResource, this);
+			context->CopyBuffersImmediate(m_stagingResource, this);
 		else if (copyType == CopyDataType::CopyQueueUp)
-			m_renderer->GetUploadContext()->CopyBuffersQueueUp(m_stagingResource, this);
+			context->CopyBuffersQueueUp(m_stagingResource, this);
 	}
 
 	void DX12ResourceGPU::CreateResource()
@@ -212,7 +206,10 @@ namespace Lina
 			const size_t storedSize = m_size;
 			void*		 copyData	= nullptr;
 			if (padding != 0)
+			{
 				copyData = malloc(storedSize);
+				MEMCPY(copyData, m_mappedData, storedSize);
+			}
 
 			if (m_requireJoinBeforeUpdating)
 				m_renderer->Join();

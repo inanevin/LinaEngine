@@ -54,6 +54,7 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
 		virtual void Shutdown()											  = 0;
 		virtual void PreTick()											  = 0;
+		virtual void Poll()												  = 0;
 		virtual void Tick()												  = 0;
 		virtual void OnCriticalGfxError()								  = 0;
 

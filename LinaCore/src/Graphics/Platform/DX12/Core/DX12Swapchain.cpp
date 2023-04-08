@@ -52,7 +52,6 @@ namespace Lina
 			swapchainDesc.SwapEffect			= DXGI_SWAP_EFFECT_FLIP_DISCARD;
 			swapchainDesc.SampleDesc.Count		= 1;
 			ComPtr<IDXGISwapChain1> swapchain;
-
 			swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
 
 			if (rend->DX12IsTearingAllowed())

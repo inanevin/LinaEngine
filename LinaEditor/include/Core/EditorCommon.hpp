@@ -15,21 +15,22 @@ Timestamp: 5/8/2020 11:04:45 PM
 
 namespace Lina::Editor
 {
-    struct EShortcut
-    {
-        String name       = "";
-        int    heldKey    = 0;
-        int    pressedKey = 0;
-    };
+	struct EShortcut
+	{
+		String name		  = "";
+		int	   heldKey	  = 0;
+		int	   pressedKey = 0;
+	};
 
-    enum class EditorPanel
-    {
-        Entities,
-        Level,
-        Properties,
-        Resources,
-        Global,
-    };
+	enum class EditorPanel
+	{
+		Entities,
+		Level,
+		Properties,
+		Resources,
+		Global,
+		DebugResourceView,
+	};
 
 } // namespace Lina::Editor
 

@@ -26,27 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef DrawerUtility_HPP
-#define DrawerUtility_HPP
-
-#include "Core/SizeDefinitions.hpp"
-#include "Core/Theme.hpp"
-
-namespace Lina
-{
-	class Vector2;
-	class SurfaceRenderer;
-} // namespace Lina
+#include "GUI/Nodes/Layouts/GUINodeLayoutHorizontal.hpp"
 
 namespace Lina::Editor
 {
-	class DrawerUtility
+	void GUINodeLayoutHorizontal::Draw(int threadID)
 	{
-	public:
-		static void DrawIcon(SurfaceRenderer* rend, const char* icon, const Vector2& pos, int drawOrder = 0);
-	};
-} // namespace Lina::Editor
+		Vector2 pos = m_rect.pos;
 
-#endif
+		for (auto c : m_children)
+		{
+			c->SetPos(pos)->Draw(threadID);
+			const Vector2 sz = c->GetRect().size;
+			pos.x += sz.x + m_spacing;
+		}
+	}
+} // namespace Lina::Editor

@@ -55,6 +55,7 @@ src/Graphics/Core/CameraSystem.cpp
 src/Graphics/Core/WorldRenderer.cpp
 src/Graphics/Core/SurfaceRenderer.cpp
 src/Graphics/Core/GfxMeshManager.cpp
+src/Graphics/Interfaces/IGUIDrawer.cpp
 src/Graphics/Components/RenderableComponent.cpp
 src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp

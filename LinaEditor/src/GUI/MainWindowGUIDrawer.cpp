@@ -27,10 +27,31 @@ SOFTWARE.
 */
 
 #include "GUI/MainWindowGUIDrawer.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
+#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "Core/Theme.hpp"
 
 namespace Lina::Editor
 {
+	MainWindowGUIDrawer::MainWindowGUIDrawer(Editor* editor, ISwapchain* swap) : EditorGUIDrawer(editor, swap)
+	{
+		m_topPanel = new GUINodeTopPanel(editor, swap, 0);
+		m_dockArea = new GUINodeDockArea(editor, swap, 0);
+		m_root->AddChildren(m_topPanel)->AddChildren(m_dockArea);
+	}
+
 	void MainWindowGUIDrawer::DrawGUI(int threadID)
 	{
+		const Vector2 swapchainSize = m_swapchain->GetSize();
+		const Vector2 monitorSize	= m_window->GetMonitorInfo().size;
+		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, monitorSize.y * 0.1f));
+		const Rect	  dockRect		= Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
+		m_topPanel->SetRect(topRect);
+		m_dockArea->SetRect(dockRect);
+		 m_root->Draw(threadID);
 	}
 } // namespace Lina::Editor

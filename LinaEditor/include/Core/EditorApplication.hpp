@@ -59,6 +59,7 @@ namespace Lina::Editor
 	private:
 		uint32 m_systemEventMask	   = EVS_ResourceLoadTaskCompleted;
 		uint32 m_loadCoreResourcesTask = 0;
+		bool   m_doneWithSplash		   = false;
 		Editor m_editor;
 	};
 } // namespace Lina::Editor

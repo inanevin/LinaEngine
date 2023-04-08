@@ -79,48 +79,48 @@ namespace Lina
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
-		metadata.SetInt("Size"_hs, 10);
+		metadata.SetInt("Size"_hs, 12);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_1x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
-		metadata.SetInt("Size"_hs, 12);
+		metadata.SetInt("Size"_hs, 14);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_2x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
-		metadata.SetInt("Size"_hs, 14);
+		metadata.SetInt("Size"_hs, 16);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_3x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
-		metadata.SetInt("Size"_hs, 16);
+		metadata.SetInt("Size"_hs, 20);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
-		metadata.SetInt("Size"_hs, 10);
+		metadata.SetInt("Size"_hs, 12);
 		metadata.SetBool("IsSDF"_hs, false);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		////-------------
-		metadata.SetInt("Size"_hs, 12);
+		metadata.SetInt("Size"_hs, 14);
 		metadata.SetBool("IsSDF"_hs, false);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
-		metadata.SetInt("Size"_hs, 14);
+		metadata.SetInt("Size"_hs, 16);
 		metadata.SetBool("IsSDF"_hs, false);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
-		metadata.SetInt("Size"_hs, 16);
+		metadata.SetInt("Size"_hs, 20);
 		metadata.SetBool("IsSDF"_hs, false);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs, metadata));
 		metadata.ClearAll();

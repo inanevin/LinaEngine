@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Data/Vector.hpp"
 #include "System/ISubsystem.hpp"
+#include "EditorCommon.hpp"
 
 namespace Lina
 {
@@ -53,13 +54,17 @@ namespace Lina::Editor
 		void BeginSplashScreen();
 		void EndSplashScreen();
 
+		void OpenPanel(EditorPanel panel);
+
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
+	
 
 	private:
-		Mutex			 m_mtx;
-		EditorGUIDrawer* m_mainWindowGUIDrawer = nullptr;
+		Mutex								m_mtx;
+		EditorGUIDrawer*					m_mainWindowGUIDrawer = nullptr;
+		HashMap<StringID, EditorGUIDrawer*> m_guiDrawers;
 	};
 } // namespace Lina::Editor
 

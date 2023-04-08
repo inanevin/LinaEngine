@@ -35,6 +35,9 @@ SOFTWARE.
 #include "Core/EditorResourcesRegistry.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 
+// Debug
+#include "Input/Core/InputMappings.hpp"
+
 namespace Lina::Editor
 {
 
@@ -62,7 +65,7 @@ namespace Lina::Editor
 		const float	   desiredAspect		  = 1920.0f / 1080.0f;
 		const float	   targetX				  = static_cast<float>(1920.0f / 2.5f * wm.GetPrimaryMonitor()->m_dpiScale);
 		const Vector2i targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
-		auto		   window				  = wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, targetSplashScreenSize);
+		auto		   window				  = wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, targetSplashScreenSize, SRM_DrawGUI);
 	}
 
 	void EditorApplication::OnInited()
@@ -71,7 +74,7 @@ namespace Lina::Editor
 		auto& wm			  = m_engine.GetWindowManager();
 		auto  window		  = wm.GetWindow(LINA_MAIN_SWAPCHAIN);
 		m_editor.BeginSplashScreen();
-		window->SetStyle(WindowStyle::Borderless);
+		window->SetStyle(WindowStyle::BorderlessNoResize);
 		window->SetVisible(true);
 		m_engine.GetResourceManager().AddListener(this);
 		m_loadCoreResourcesTask = resourceManager.LoadResources(resourceManager.GetCoreResources());
@@ -79,11 +82,24 @@ namespace Lina::Editor
 
 	void EditorApplication::Tick()
 	{
+
+		// Debug
+		if (m_engine.GetInput().GetKeyDown(LINA_KEY_L))
+		{
+			m_editor.OpenPanel(EditorPanel::DebugResourceView);
+		}
+
+		if (m_engine.GetInput().GetKeyDown(LINA_KEY_G))
+		{
+			m_editor.OpenPanel(EditorPanel::Entities);
+		}
+
 		Application::Tick();
 
-		if (m_systemEventMask == 0)
+		if (!m_doneWithSplash && m_systemEventMask == 0)
 		{
-			auto window = m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+			m_doneWithSplash = true;
+			auto window		 = m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
 			window->SetVisible(true);
 		}
 	}

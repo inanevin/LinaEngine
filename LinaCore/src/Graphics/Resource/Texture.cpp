@@ -74,7 +74,7 @@ namespace Lina
 			delete[] m_pixels;
 
 		m_pixels = nullptr;
-		
+
 		if (m_gpuResource == nullptr)
 			return;
 
@@ -88,7 +88,7 @@ namespace Lina
 		m_metadata.GetBool("GenerateMipmaps"_hs, true);
 		m_metadata.GetUInt8("MipmapFilter"_hs, static_cast<uint8>(MipmapFilter::Mitchell));
 		m_metadata.GetUInt8("MipmapMode"_hs, static_cast<uint8>(MipmapMode::Linear));
-		m_metadata.GetBool("isSRGB"_hs, false);
+		m_metadata.GetBool("isLinear"_hs, false);
 		m_metadata.GetUInt8("ImageTiling"_hs, static_cast<uint8>(ImageTiling::Optimal));
 		m_samplerSID = m_metadata.GetSID("Sampler"_hs, DEFAULT_SAMPLER_SID);
 
@@ -217,7 +217,7 @@ namespace Lina
 		else if (channels == 1)
 			m_metadata.SetUInt8("Format"_hs, static_cast<uint8>(Format::R8_UNORM));
 		else
-			m_metadata.SetUInt8("Format"_hs, m_metadata.GetBool("isSRGB"_hs) ? static_cast<uint8>(Format::R8G8B8A8_UNORM) : static_cast<uint8>(Format::R8G8B8A8_SRGB));
+			m_metadata.SetUInt8("Format"_hs, m_metadata.GetBool("isLinear"_hs) ? static_cast<uint8>(Format::R8G8B8A8_UNORM) : static_cast<uint8>(Format::R8G8B8A8_SRGB));
 	}
 
 	void Texture::GenerateMipmaps()
@@ -238,7 +238,7 @@ namespace Lina
 		unsigned char*	   lastPixels	= m_pixels;
 		uint32			   lastWidth	= m_extent.width;
 		uint32			   lastHeight	= m_extent.height;
-		const bool		   isSRGB		= m_metadata.GetBool("isSRGB"_hs);
+		const bool		   isLinear		= m_metadata.GetBool("isLinear"_hs);
 		const MipmapFilter mipmapFilter = static_cast<MipmapFilter>(m_metadata.GetUInt8("MipmapFilter"_hs));
 		for (uint32 i = 0; i < m_mipLevels - 1; i++)
 		{
@@ -255,7 +255,7 @@ namespace Lina
 			mipmap.width			  = width;
 			mipmap.height			  = height;
 			mipmap.pixels			  = new unsigned char[width * height * m_channels];
-			const stbir_colorspace cs = isSRGB ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
+			const stbir_colorspace cs = isLinear ? stbir_colorspace::STBIR_COLORSPACE_LINEAR : stbir_colorspace::STBIR_COLORSPACE_SRGB;
 			int retval				  = stbir_resize_uint8_generic(lastPixels, lastWidth, lastHeight, 0, mipmap.pixels, width, height, 0, m_channels, STBIR_ALPHA_CHANNEL_NONE, 0, stbir_edge::STBIR_EDGE_CLAMP, static_cast<stbir_filter>(mipmapFilter), cs, 0);
 
 			lastWidth	 = width;

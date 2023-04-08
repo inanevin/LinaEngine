@@ -41,7 +41,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	DrawPass::DrawPass(GfxManager* gfxMan) : m_gfxManager(gfxMan)
+	DrawPass::DrawPass(GfxManager* gfxMan, IUploadContext* context) : m_gfxManager(gfxMan), m_uploadContext(context)
 	{
 		m_renderer = m_gfxManager->GetRenderer();
 
@@ -145,7 +145,9 @@ namespace Lina
 			});
 			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 
-			m_objDataBufferGPU[frameIndex]->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0, CopyDataType::CopyImmediately);
+			auto* objBuf = m_objDataBufferGPU[frameIndex];
+			objBuf->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0);
+			objBuf->Copy(CopyDataType::CopyImmediately, m_uploadContext);
 			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
 		}
 

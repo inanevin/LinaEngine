@@ -65,7 +65,9 @@ namespace Lina
 
 	enum SurfaceRendererMask
 	{
-		SRM_None = 1 << 0,
+		SRM_None				 = 1 << 0,
+		SRM_DrawOffscreenTexture = 1 << 1,
+		SRM_DrawGUI				 = 1 << 2,
 	};
 
 	enum WorldRendererMask
@@ -171,11 +173,6 @@ namespace Lina
 		uint32 startIndexLocation	 = 0;
 		int	   baseVertexLocation	 = 0;
 		uint32 startInstanceLocation = 0;
-	};
-
-	struct PCRTest
-	{
-		Matrix4 mat = Matrix4::Identity();
 	};
 
 } // namespace Lina

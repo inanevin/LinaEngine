@@ -38,12 +38,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	class Editor;
-
 	class SplashScreenGUIDrawer : public EditorGUIDrawer, public ISystemEventListener
 	{
 	public:
-		SplashScreenGUIDrawer(Editor* editor, Lina::SurfaceRenderer* sf);
+		SplashScreenGUIDrawer(Editor* editor, ISwapchain* swapchain);
 		virtual ~SplashScreenGUIDrawer();
 
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
@@ -56,7 +54,6 @@ namespace Lina::Editor
 		virtual void DrawGUI(int threadID) override;
 
 	private:
-		Editor*			  m_editor = nullptr;
 		Mutex			  m_mtx;
 		WidgetProgressBar m_progressBar;
 		int				  m_loadedResources = 0;

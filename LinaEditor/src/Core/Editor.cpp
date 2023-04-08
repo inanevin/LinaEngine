@@ -38,15 +38,22 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "GUI/SplashScreenGUIDrawer.hpp"
 #include "GUI/MainWindowGUIDrawer.hpp"
+#include "Graphics/Core/WindowManager.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
+#include "Core/Theme.hpp"
 
 namespace Lina::Editor
 {
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		Theme::s_resourceManagerInst = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
 	void Editor::Shutdown()
 	{
+		for (auto [sid, drawer] : m_guiDrawers)
+			delete drawer;
+
 		delete m_mainWindowGUIDrawer;
 	}
 
@@ -113,7 +120,7 @@ namespace Lina::Editor
 	void Editor::BeginSplashScreen()
 	{
 		auto sf				  = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		m_mainWindowGUIDrawer = new SplashScreenGUIDrawer(this, sf);
+		m_mainWindowGUIDrawer = new SplashScreenGUIDrawer(this, sf->GetSwapchain());
 		sf->SetGUIDrawer(m_mainWindowGUIDrawer);
 	}
 
@@ -121,8 +128,40 @@ namespace Lina::Editor
 	{
 		auto sf = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
 		delete m_mainWindowGUIDrawer;
-		m_mainWindowGUIDrawer = new MainWindowGUIDrawer(sf);
+		m_mainWindowGUIDrawer = new MainWindowGUIDrawer(this, sf->GetSwapchain());
 		sf->SetGUIDrawer(m_mainWindowGUIDrawer);
+	}
+
+	void Editor::OpenPanel(EditorPanel panel)
+	{
+		auto wm		= m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
+		auto gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		gfxMan->Join();
+
+		StringID sid  = 0;
+		String	 name = "";
+
+		switch (panel)
+		{
+		case EditorPanel::DebugResourceView:
+			sid	 = "ResourceViewer"_hs;
+			name = "ResourceViewer";
+			break;
+		case EditorPanel::Entities:
+			sid	 = "Entities"_hs;
+			name = "Entities";
+			break;
+		}
+
+		auto window = wm->CreateAppWindow(sid, name.c_str(), Vector2i::Zero, Vector2i(500, 500), SRM_DrawGUI);
+		window->SetStyle(WindowStyle::Borderless);
+		window->SetVisible(true);
+		window->SetPos(Vector2i::Zero);
+
+		auto surfaceRenderer = gfxMan->GetSurfaceRenderer(sid);
+		auto guiDrawer		 = new EditorGUIDrawer(this, surfaceRenderer->GetSwapchain());
+		gfxMan->GetSurfaceRenderer(sid)->SetGUIDrawer(guiDrawer);
+		m_guiDrawers[sid] = guiDrawer;
 	}
 
 } // namespace Lina::Editor

@@ -139,6 +139,7 @@ namespace Lina
 		IGfxResourceTexture* CreateTextureResource(TextureResourceType type, Texture* texture);
 		void				 DeleteCPUResource(IGfxResourceCPU* res);
 		void				 DeleteGPUResource(IGfxResourceGPU* res);
+		IUploadContext*		 CreateUploadContext();
 
 		// Commands
 		uint32 CreateCommandAllocator(CommandType type);
@@ -160,8 +161,8 @@ namespace Lina
 		void   BindDynamicTextures(Texture** textures, uint32 texturesSize);
 		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxResourceCPU* buf);
 		void   BindObjectBuffer(uint32 cmdListHandle, IGfxResourceGPU* res);
-		void   BindVertexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0);
-		void   BindIndexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer);
+		void   BindVertexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0, size_t maxSize = 0);
+		void   BindIndexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t maxSize = 0);
 		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
 		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
 		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxResourceCPU* indirectBuffer, uint32 count, uint64 indirectOffset);

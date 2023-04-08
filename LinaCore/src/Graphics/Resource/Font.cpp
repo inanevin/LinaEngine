@@ -34,6 +34,12 @@ SOFTWARE.
 
 namespace Lina
 {
+	Font::~Font()
+	{
+		if (m_lvgFont)
+			delete m_lvgFont;
+	}
+
 	void Font::Flush()
 	{
 		// m_file.clear();
@@ -56,9 +62,9 @@ namespace Lina
 		}
 
 		if (customRangeVec.empty())
-			LinaVG::LoadFontFromMemoryThreadSafe(m_file.data(), m_file.size(), isSdf, m_sid, size);
+			m_lvgFont = LinaVG::LoadFontFromMemoryThreadSafe(m_file.data(), m_file.size(), isSdf, size);
 		else
-			LinaVG::LoadFontFromMemoryThreadSafe(m_file.data(), m_file.size(), isSdf, m_sid, size, customRangeVec.data(), customRanges);
+			m_lvgFont = LinaVG::LoadFontFromMemoryThreadSafe(m_file.data(), m_file.size(), isSdf, size, customRangeVec.data(), customRanges);
 	}
 
 	void Font::BatchLoaded()

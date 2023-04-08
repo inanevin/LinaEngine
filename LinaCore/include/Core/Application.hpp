@@ -45,6 +45,8 @@ namespace Lina
 		virtual ~Application(){};
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) final;
+		virtual void PreTick();
+		virtual void Poll();
 		virtual void Tick();
 		virtual void Shutdown();
 

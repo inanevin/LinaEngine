@@ -34,23 +34,31 @@ SOFTWARE.
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Core/StringID.hpp"
 
-namespace Lina
-{
-	class SurfaceRenderer;
-}
-
 namespace Lina::Editor
 {
+	class GUINode;
+	class Editor;
+
 	class EditorGUIDrawer : public IGUIDrawer
 	{
 	public:
-		EditorGUIDrawer(Lina::SurfaceRenderer* sf);
+		EditorGUIDrawer(Editor* editor, ISwapchain* swapchain);
 		virtual ~EditorGUIDrawer();
 
 		virtual void DrawGUI(int threadID) override;
+		virtual void OnKey(uint32 key, InputAction action) override;
+		virtual void OnMouse(uint32 button, InputAction action) override;
+		virtual void OnMousePos(const Vector2i& pos) override;
+		virtual void OnMouseMove(const Vector2i& pos) override;
+		virtual void OnMouseWheel(uint32 delta) override;
+
+	private:
+		GUINode* GetHovered(GUINode* parent);
 
 	protected:
-		Lina::SurfaceRenderer* m_surfaceRenderer = nullptr;
+		GUINode* m_hoveredNode = nullptr;
+		Editor*	 m_editor	   = nullptr;
+		GUINode* m_root		   = nullptr;
 	};
 } // namespace Lina::Editor
 

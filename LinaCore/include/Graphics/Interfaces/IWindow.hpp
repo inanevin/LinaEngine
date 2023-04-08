@@ -39,7 +39,8 @@ SOFTWARE.
 namespace Lina
 {
 	class ISystem;
-
+	class SurfaceRenderer;
+	
 	class IWindow
 	{
 	public:
@@ -155,22 +156,37 @@ namespace Lina
 			return m_isVisible;
 		}
 
+		inline const MonitorInfo& GetMonitorInfo() const
+		{
+			return m_monitorInfo;
+		}
+
+	private:
+		friend class WindowManager;
+
+		void SetSurfaceRenderer(SurfaceRenderer* rend)
+		{
+			m_surfaceRenderer = rend;
+		}
+
 	protected:
-		ISystem*	m_system		 = nullptr;
-		Recti		m_rect			 = Recti();
-		Recti		m_dragRect		 = Recti();
-		StringID	m_sid			 = 0;
-		bool		m_isMinimized	 = false;
-		bool		m_isMaximized	 = false;
-		bool		m_isFullscreen	 = false;
-		bool		m_isVisible		 = false;
-		bool		m_hasFocus		 = false;
-		float		m_aspect		 = 0.0f;
-		const char* m_title			 = 0;
-		void*		m_handle		 = nullptr;
-		void*		m_registryHandle = nullptr;
-		uint32		m_dpi			 = 0;
-		float		m_dpiScale		 = 0.0f;
+		SurfaceRenderer* m_surfaceRenderer = nullptr;
+		MonitorInfo		 m_monitorInfo;
+		ISystem*		 m_system		  = nullptr;
+		Recti			 m_rect			  = Recti();
+		Recti			 m_dragRect		  = Recti();
+		StringID		 m_sid			  = 0;
+		bool			 m_isMinimized	  = false;
+		bool			 m_isMaximized	  = false;
+		bool			 m_isFullscreen	  = false;
+		bool			 m_isVisible	  = false;
+		bool			 m_hasFocus		  = false;
+		float			 m_aspect		  = 0.0f;
+		const char*		 m_title		  = 0;
+		void*			 m_handle		  = nullptr;
+		void*			 m_registryHandle = nullptr;
+		uint32			 m_dpi			  = 0;
+		float			 m_dpiScale		  = 0.0f;
 	};
 } // namespace Lina
 

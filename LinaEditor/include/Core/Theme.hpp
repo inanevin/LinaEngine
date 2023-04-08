@@ -34,6 +34,16 @@ SOFTWARE.
 #include "Core/StringID.hpp"
 #include "Math/Color.hpp"
 
+namespace LinaVG
+{
+	class LinaVGFont;
+}
+
+namespace Lina
+{
+	class ResourceManager;
+}
+
 namespace Lina::Editor
 {
 	enum class FontType
@@ -41,6 +51,12 @@ namespace Lina::Editor
 		DefaultEditor,
 		AltEditor,
 		EditorIcons,
+	};
+
+	enum class ThemeProperty
+	{
+		MenuButtonPadding,
+		GeneralItemPadding,
 	};
 
 #define TI_CARET_DOWN	   "\u0041"
@@ -57,18 +73,29 @@ namespace Lina::Editor
 #define TI_RESTORE		   "\u004C"
 #define TI_CROSS		   "\u004D"
 
+
+#define POPUP_DRAW_ORDER   1000
+
 	class Theme
 	{
 	public:
-		static StringID GetFont(FontType font, float dpiScale);
+		static LinaVG::LinaVGFont* GetFont(FontType font, float dpiScale);
+		static float			   GetProperty(ThemeProperty prop, float dpiScale);
 
 		static Color TC_White;
 		static Color TC_VerySilent;
 		static Color TC_Silent;
 		static Color TC_CyanAccent;
+		static Color TC_RedAccent;
 		static Color TC_PurpleAccent;
 		static Color TC_Dark1;
 		static Color TC_Dark2;
+		static Color TC_Light1;
+
+	private:
+		friend class Editor;
+
+		static ResourceManager* s_resourceManagerInst;
 	};
 } // namespace Lina::Editor
 

@@ -50,6 +50,7 @@ namespace Lina
 	class IWindow;
 	class IGUIDrawer;
 	class GUIRenderer;
+	class IUploadContext;
 
 	class SurfaceRenderer : public ISystemEventListener
 	{
@@ -80,7 +81,6 @@ namespace Lina
 		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
-		void		 WaitForPresentation();
 		void		 Tick(float interpolationAlpha);
 		void		 Render(int surfaceRendererIndex, uint32 frameIndex);
 		void		 Present();
@@ -130,6 +130,11 @@ namespace Lina
 			return m_surfaceRendererIndex;
 		}
 
+		inline IGUIDrawer* GetGUIDrawer() const
+		{
+			return m_guiDrawer;
+		}
+
 	private:
 		void CreateTextures();
 		void DestroyTextures();
@@ -137,6 +142,7 @@ namespace Lina
 	protected:
 		static int			   s_surfaceRendererCount;
 		int					   m_surfaceRendererIndex = 0;
+		IUploadContext*		   m_uploadContext		  = nullptr;
 		GUIRenderer*		   m_guiRenderer		  = nullptr;
 		uint32				   m_currentImageIndex	  = 0;
 		GfxManager*			   m_gfxManager			  = nullptr;
