@@ -73,17 +73,9 @@ namespace Lina::Editor
 		Vector<ResourceIdentifier> resources  = CoreResourcesRegistry::GetCoreResources();
 		const uint32			   startIndex = static_cast<uint32>(resources.size());
 
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/TitleText.png", GetTypeID<Texture>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/TitleTextAnimation.png", GetTypeID<Texture>(), 0));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_1x.ttf", GetTypeID<Font>(), 0));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_2x.ttf", GetTypeID<Font>(), 0));
-
-		const String& titleTextStartPath = "Resources/Editor/Textures/TitleTextAnim/lina_title_anim";
-
-		for (int i = 1; i < 21; i++)
-		{
-			const String& finalPath = titleTextStartPath + TO_STRING(i) + ".png";
-			resources.push_back(ResourceIdentifier(finalPath, GetTypeID<Texture>(), 0));
-		}
 
 		const uint32 totalSize = static_cast<uint32>(resources.size());
 		for (uint32 i = startIndex; i < totalSize; i++)
@@ -101,7 +93,7 @@ namespace Lina::Editor
 		ResourceMetadata metadata;
 
 		// -------------
-		metadata.SetInt("Size"_hs, 24);
+		metadata.SetInt("Size"_hs, 16);
 		metadata.SetBool("IsSDF"_hs, true);
 		metadata.SetInt("CustomGlyphRanges"_hs, 2);
 		metadata.SetInt("Range_0"_hs, 0x07F);
@@ -110,7 +102,7 @@ namespace Lina::Editor
 		metadata.ClearAll();
 
 		// -------------
-		metadata.SetInt("Size"_hs, 28);
+		metadata.SetInt("Size"_hs, 22);
 		metadata.SetBool("IsSDF"_hs, true);
 		metadata.SetInt("CustomGlyphRanges"_hs, 2);
 		metadata.SetInt("Range_0"_hs, 0x07F);

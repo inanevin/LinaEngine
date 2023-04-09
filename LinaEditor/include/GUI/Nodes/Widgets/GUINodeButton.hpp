@@ -85,28 +85,59 @@ namespace Lina::Editor
 			return this;
 		}
 
+		inline GUINodeButton* SetOutlineColor(const Color& col)
+		{
+			m_outlineColor = col;
+			return this;
+		}
+
+		inline GUINodeButton* SetEnableHoverOutline(bool enableOutline)
+		{
+			m_enableHoverOutline = enableOutline;
+			return this;
+		}
+
 		inline GUINodeButton* SetFitType(ButtonFitType ft)
 		{
 			m_fitType = ft;
 			return this;
 		}
 
-		inline GUINodeButton* SetListener(Delegate<void(GUINodeButton*)>&& onClicked)
+		inline GUINodeButton* SetCallback(Delegate<void(GUINodeButton*)>&& onClicked)
 		{
 			m_onClicked = onClicked;
 			return this;
 		}
 
 	protected:
-		float						   m_lastDPI	  = 0.0f;
-		Vector2						   m_lastTextSize = Vector2::Zero;
-		ButtonFitType				   m_fitType	  = ButtonFitType::AutoFitFromTextAndPadding;
-		FontType					   m_fontType	  = FontType::DefaultEditor;
-		String						   m_text		  = "";
-		Color						   m_defaultColor = Color::White;
-		Color						   m_hoveredColor = Color::Gray;
-		Color						   m_pressedColor = Color::Black;
+		float						   m_lastDPI			= 0.0f;
+		bool						   m_enableHoverOutline = false;
+		Vector2						   m_lastTextSize		= Vector2::Zero;
+		ButtonFitType				   m_fitType			= ButtonFitType::AutoFitFromTextAndPadding;
+		FontType					   m_fontType			= FontType::DefaultEditor;
+		String						   m_text				= "";
+		Color						   m_defaultColor		= Color::White;
+		Color						   m_hoveredColor		= Color::Gray;
+		Color						   m_pressedColor		= Color::Black;
+		Color						   m_outlineColor		= Color::Black;
 		Delegate<void(GUINodeButton*)> m_onClicked;
+	};
+
+	class GUINodeButtonIcon : public GUINodeButton
+	{
+	public:
+		GUINodeButtonIcon(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINodeButton(editor, swapchain, drawOrder){};
+		virtual ~GUINodeButtonIcon() = default;
+
+		virtual void Draw(int threadID) override;
+
+		inline GUINodeButtonIcon* SetIconColor(const Color& col)
+		{
+			m_iconColor = col;
+		}
+
+	private:
+		Color m_iconColor = Color::White;
 	};
 } // namespace Lina::Editor
 

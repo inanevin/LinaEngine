@@ -38,6 +38,7 @@ src/GUI/Nodes/Custom/GUINodeTopPanel.cpp
 src/GUI/Nodes/Custom/GUINodeCustomLogo.cpp
 src/GUI/Nodes/Widgets/GUINodeFileMenu.cpp
 src/GUI/Nodes/Widgets/GUINodeButton.cpp
+src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
 src/GUI/Nodes/Widgets/GUINodeWindowButtons.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutVertical.cpp
@@ -59,6 +60,7 @@ include/GUI/Nodes/Custom/GUINodeTopPanel.hpp
 include/GUI/Nodes/Custom/GUINodeCustomLogo.hpp
 include/GUI/Nodes/Widgets/GUINodeFileMenu.hpp
 include/GUI/Nodes/Widgets/GUINodeButton.hpp
+include/GUI/Nodes/Widgets/GUINodeTooltip.hpp
 include/GUI/Nodes/Widgets/GUINodeWindowButtons.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp

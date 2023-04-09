@@ -150,7 +150,15 @@ namespace Lina
 
 	Vector<Pair<StringID, ResourceMetadata>> CoreResourcesRegistry::GetCoreResourcesMetadata()
 	{
-		return Vector<Pair<StringID, ResourceMetadata>>();
+		Vector<Pair<StringID, ResourceMetadata>> list;
+		ResourceMetadata						 metadata;
+
+		//-------------
+		metadata.SetSID("Sampler"_hs, DEFAULT_GUI_SAMPLER_SID);
+		list.push_back(linatl::make_pair("Resources/Core/Textures/Logo_White_512.png"_hs, metadata));
+		metadata.ClearAll();
+
+		return list;
 	}
 
 } // namespace Lina

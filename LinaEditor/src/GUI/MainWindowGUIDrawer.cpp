@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
+#include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
 #include "GUI/Nodes/GUINodeDockArea.hpp"
 #include "Core/Theme.hpp"
 
@@ -41,17 +42,28 @@ namespace Lina::Editor
 	{
 		m_topPanel = new GUINodeTopPanel(editor, swap, 0);
 		m_dockArea = new GUINodeDockArea(editor, swap, 0);
+		m_root->RemoveChildren(m_titleSection);
 		m_root->AddChildren(m_topPanel)->AddChildren(m_dockArea);
+		delete m_titleSection;
 	}
 
 	void MainWindowGUIDrawer::DrawGUI(int threadID)
 	{
 		const Vector2 swapchainSize = m_swapchain->GetSize();
 		const Vector2 monitorSize	= m_window->GetMonitorInfo().size;
-		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, monitorSize.y * 0.1f));
+		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, monitorSize.y * 0.09f));
 		const Rect	  dockRect		= Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
 		m_topPanel->SetRect(topRect);
 		m_dockArea->SetRect(dockRect);
-		 m_root->Draw(threadID);
+		m_root->Draw(threadID);
+
+		// Debug hovered
+		if (false && m_hoveredNode != nullptr)
+		{
+			LinaVG::StyleOptions style;
+			style.isFilled	  = false;
+			const Vector2 pad = Vector2(2, 2);
+			LinaVG::DrawRect(0, LV2((m_hoveredNode->GetRect().pos + pad)), LV2((m_hoveredNode->GetRect().pos + m_hoveredNode->GetRect().size - pad)), style, 0.0f, 10000);
+		}
 	}
 } // namespace Lina::Editor

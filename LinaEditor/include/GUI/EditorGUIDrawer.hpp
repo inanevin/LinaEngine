@@ -38,6 +38,7 @@ namespace Lina::Editor
 {
 	class GUINode;
 	class Editor;
+	class GUINodeTitleSection;
 
 	class EditorGUIDrawer : public IGUIDrawer
 	{
@@ -56,9 +57,10 @@ namespace Lina::Editor
 		GUINode* GetHovered(GUINode* parent);
 
 	protected:
-		GUINode* m_hoveredNode = nullptr;
-		Editor*	 m_editor	   = nullptr;
-		GUINode* m_root		   = nullptr;
+		GUINode*			 m_hoveredNode	= nullptr;
+		Editor*				 m_editor		= nullptr;
+		GUINode*			 m_root			= nullptr;
+		GUINodeTitleSection* m_titleSection = nullptr;
 	};
 } // namespace Lina::Editor
 

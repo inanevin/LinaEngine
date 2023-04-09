@@ -113,7 +113,7 @@ namespace Lina
 			TextureSampler* defaultGUISampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultGUISampler.linasampler", DEFAULT_GUI_SAMPLER_SID);
 			samplerData.minFilter			  = Filter::Anisotropic;
 			samplerData.magFilter			  = Filter::Anisotropic;
-			samplerData.mipLodBias			  = 0.0f;
+			samplerData.mipLodBias			  = -1.0f;
 			defaultGUISampler->SetSamplerData(samplerData);
 
 			TextureSampler* defaultGUITextSampler = new TextureSampler(m_resourceManager, true, "Resource/Core/Samplers/DefaultGUITextSampler.linasampler", DEFAULT_GUI_TEXT_SAMPLER_SID);
@@ -252,6 +252,7 @@ namespace Lina
 				m_surfaceRenderers[i]->Render(i, m_frameIndex);
 				m_surfaceRenderers[i]->Present();
 			});
+
 			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
 

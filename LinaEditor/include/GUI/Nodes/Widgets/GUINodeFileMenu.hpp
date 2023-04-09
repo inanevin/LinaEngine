@@ -59,10 +59,17 @@ namespace Lina::Editor
 
 		virtual void	Draw(int threadID) override;
 		virtual Vector2 CalculateSize() override;
+		virtual void	OnClicked(uint32 button) override;
 
 		inline GUINodeFMPopupElement* SetTitle(const char* title)
 		{
 			m_title = title;
+			return this;
+		}
+
+		inline GUINodeFMPopupElement* SetCallback(Delegate<void(StringID sid)>&& callback)
+		{
+			m_callback = callback;
 			return this;
 		}
 
@@ -71,11 +78,18 @@ namespace Lina::Editor
 			return m_type;
 		}
 
+		inline void SetIsLastHovered(bool isLastHovered)
+		{
+			m_isLastHovered = isLastHovered;
+		}
+
 	protected:
-		FMPopupElementType m_type		  = FMPopupElementType::Default;
-		float			   m_lastDPIScale = 0.0f;
-		Vector2			   m_lastSize	  = Vector2::Zero;
-		String			   m_title		  = "";
+		Delegate<void(StringID sid)> m_callback;
+		bool						 m_isLastHovered = false;
+		FMPopupElementType			 m_type			 = FMPopupElementType::Default;
+		float						 m_lastDPIScale	 = 0.0f;
+		Vector2						 m_lastSize		 = Vector2::Zero;
+		String						 m_title		 = "";
 	};
 
 	class GUINodeFMPopupElementDivider : public GUINodeFMPopupElement
@@ -85,6 +99,7 @@ namespace Lina::Editor
 		virtual ~GUINodeFMPopupElementDivider() = default;
 		virtual void	Draw(int threadID) override;
 		virtual Vector2 CalculateSize() override;
+		virtual void	OnClicked(uint32 button) override{};
 	};
 
 	class GUINodeFMPopupElementToggle : public GUINodeFMPopupElement
@@ -94,6 +109,7 @@ namespace Lina::Editor
 		virtual ~GUINodeFMPopupElementToggle() = default;
 		virtual void	Draw(int threadID) override;
 		virtual Vector2 CalculateSize() override;
+		virtual void	OnClicked(uint32 button) override;
 
 		inline GUINodeFMPopupElementToggle* SetValue(bool val)
 		{
@@ -102,7 +118,8 @@ namespace Lina::Editor
 		}
 
 	protected:
-		bool m_value = false;
+		Vector2 m_iconSize = Vector2::Zero;
+		bool	m_value	   = false;
 	};
 
 	class GUINodeFMPopup;
@@ -113,6 +130,7 @@ namespace Lina::Editor
 		virtual ~GUINodeFMPopupElementExpandable() = default;
 		virtual void	Draw(int threadID) override;
 		virtual Vector2 CalculateSize() override;
+		virtual void	OnClicked(uint32 button) override{};
 
 		inline GUINodeFMPopupElementExpandable* SetExpandedPopup(GUINodeFMPopup* popup)
 		{
@@ -121,7 +139,8 @@ namespace Lina::Editor
 		}
 
 	protected:
-		GUINodeFMPopup* m_popup = nullptr;
+		Vector2			m_iconSize = Vector2::Zero;
+		GUINodeFMPopup* m_popup	   = nullptr;
 	};
 
 	class GUINodeFMPopup : public GUINode
@@ -135,6 +154,12 @@ namespace Lina::Editor
 		GUINodeFMPopup* AddDefault(const char* title);
 		GUINodeFMPopup* AddToggle(const char* title, bool initialValue);
 		GUINodeFMPopup* AddExpandable(const char* title, GUINodeFMPopup* popup);
+
+		inline GUINodeFMPopup* SetCallback(Delegate<void(StringID sid)>&& callback)
+		{
+			m_callback = callback;
+			return this;
+		}
 
 		inline const String& GetTitle() const
 		{
@@ -157,10 +182,26 @@ namespace Lina::Editor
 			return m_elements;
 		}
 
+		inline void SetLayoutOffset(float offset)
+		{
+			m_layoutOffset = offset;
+		}
+
+		inline void SwitchedFrom()
+		{
+			m_lastHoveredElement = nullptr;
+		}
+
 	protected:
+		void OnPressedItem(StringID sid);
+
+	protected:
+		Delegate<void(StringID sid)>   m_callback;
+		GUINodeFMPopupElement*		   m_lastHoveredElement = nullptr;
 		Vector<GUINodeFMPopupElement*> m_elements;
-		GUINodeLayoutVertical*		   m_layout = nullptr;
-		String						   m_title	= "";
+		GUINodeLayoutVertical*		   m_layout		  = nullptr;
+		String						   m_title		  = "";
+		float						   m_layoutOffset = 0.0f;
 	};
 
 	class GUINodeFileMenu : public GUINode
@@ -171,6 +212,7 @@ namespace Lina::Editor
 		virtual ~GUINodeFileMenu() = default;
 
 		virtual void Draw(int threadID) override;
+		virtual bool OnMouse(uint32 button, InputAction act) override;
 
 		template <typename T, typename... Popups> void AddPopup(T& popup, Popups&&... rest)
 		{
@@ -182,16 +224,24 @@ namespace Lina::Editor
 		{
 		}
 
+		inline GUINodeFileMenu* SetCallback(Delegate<void(StringID sid)>&& callback)
+		{
+			m_callback = callback;
+			return this;
+		}
+
 	protected:
 		void AddSinglePopup(GUINodeFMPopup* popup);
 		void OnButtonClicked(GUINodeButton* but);
+		void OnPressedPopupElement(StringID sid);
+		void ResetTargets();
 
 	private:
-		GUINodeFMPopup*							 m_targetPopup	= nullptr;
-		GUINodeButton*							 m_targetButton = nullptr;
-		GUINodeLayoutHorizontal*				 m_layout		= nullptr;
-		Vector<GUINodeButton*>					 m_buttons;
-		HashMap<GUINodeButton*, GUINodeFMPopup*> m_buttonPopupMap;
+		Delegate<void(StringID sid)> m_callback;
+		GUINodeFMPopup*				 m_targetPopup	= nullptr;
+		GUINodeButton*				 m_targetButton = nullptr;
+		GUINodeLayoutHorizontal*	 m_layout		= nullptr;
+		Vector<GUINodeButton*>		 m_buttons;
 	};
 } // namespace Lina::Editor
 

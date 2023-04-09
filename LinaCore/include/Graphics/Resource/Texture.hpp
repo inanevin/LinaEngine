@@ -40,7 +40,7 @@ namespace Lina
 {
 	class Renderer;
 	class IGfxResourceTexture;
-	
+
 	struct UserGeneratedTextureData
 	{
 		TextureResourceType resourceType				  = TextureResourceType::Texture2DDefault;
@@ -53,6 +53,16 @@ namespace Lina
 		int					channels					  = 4;
 		bool				createPixelBuffer			  = false;
 		bool				destroyPixelBufferAfterUpload = true;
+	};
+
+	class Texture;
+
+	struct TextureSheetItem
+	{
+		Texture* texture = nullptr;
+		Vector2	 uvTL	 = Vector2::Zero;
+		Vector2	 uvBR	 = Vector2::Zero;
+		Vector2i size	 = Vector2i::Zero;
 	};
 
 	class Texture : public IResource
@@ -74,6 +84,8 @@ namespace Lina
 		virtual void	Upload() override;
 		void			SetSampler(StringID samplerSID);
 		TextureSampler* GetSampler();
+
+		Vector<TextureSheetItem> GetSheetItems(uint32 columns, uint32 rows);
 
 		inline const Extent3D& GetExtent() const
 		{

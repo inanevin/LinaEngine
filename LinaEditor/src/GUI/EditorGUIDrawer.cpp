@@ -35,13 +35,17 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "GUI/Nodes/GUINode.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
+#include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
+
 using namespace Lina;
 
 namespace Lina::Editor
 {
 	EditorGUIDrawer::EditorGUIDrawer(Editor* editor, ISwapchain* swap) : m_editor(editor), IGUIDrawer(swap)
 	{
-		m_root = new GUINode(editor, swap, 0);
+		m_root		   = new GUINode(editor, swap, 0);
+		m_titleSection = new GUINodeTitleSection(editor, swap, 0);
+		m_root->AddChildren(m_titleSection);
 	}
 
 	EditorGUIDrawer::~EditorGUIDrawer()
@@ -54,10 +58,12 @@ namespace Lina::Editor
 		const float dragHeight		= m_swapchain->GetWindow()->GetMonitorInfo().size.y * 0.02f;
 		const float titleAreaHeight = m_swapchain->GetWindow()->GetMonitorInfo().size.y * 0.05f;
 
-		const Vector2  swpSize	= m_swapchain->GetSize();
-		const Vector2i dragSize = Vector2i(static_cast<int>(swpSize.x), static_cast<int>(dragHeight));
-		m_swapchain->GetWindow()->SetDragRect(Rect(Vector2i::Zero, dragSize));
+		const Vector2 swpSize		   = m_swapchain->GetSize();
+		const Vector2 titleSectionSize = Vector2(swpSize.x, m_swapchain->GetWindow()->GetMonitorInfo().size.y * 0.05f);
+		m_titleSection->SetSize(titleSectionSize);
+		m_titleSection->Draw(threadID);
 
+		return;
 		Rect				 fullRect = Rect(Vector2(0, 0), Vector2(swpSize));
 		LinaVG::StyleOptions background;
 		const Color			 outline			= Theme::TC_VerySilent;
@@ -67,6 +73,7 @@ namespace Lina::Editor
 		background.outlineOptions.thickness		= 1.0f;
 
 		LinaVG::DrawRect(threadID, LV2(Vector2::Zero), LV2(swpSize), background, 0.0f, 0);
+
 		// m_dockArea.Draw(threadID, drawRect);
 	}
 
@@ -92,7 +99,6 @@ namespace Lina::Editor
 
 		if (m_hoveredNode != nullptr)
 			m_hoveredNode->m_isHovered = true;
-
 		previousHovered = m_hoveredNode;
 	}
 
@@ -104,7 +110,7 @@ namespace Lina::Editor
 	{
 		m_root->OnMouseWheel(delta);
 	}
-	
+
 	GUINode* EditorGUIDrawer::GetHovered(GUINode* parent)
 	{
 		GUINode* hovered = nullptr;
@@ -119,7 +125,7 @@ namespace Lina::Editor
 			{
 				if (hovered != nullptr)
 				{
-					if (childHovered->GetDrawOrder() > hovered->GetDrawOrder())
+					if (childHovered->GetDrawOrder() >= hovered->GetDrawOrder())
 						hovered = childHovered;
 				}
 				else

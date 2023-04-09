@@ -94,6 +94,7 @@ namespace Lina
 		GfxManager*							  m_gfxManager		 = nullptr;
 		HWND__*								  m_window			 = nullptr;
 		HINSTANCE__*						  m_hinst			 = nullptr;
+		Vector2i							  m_restoreSize		 = Vector2i::Zero;
 	};
 } // namespace Lina
 

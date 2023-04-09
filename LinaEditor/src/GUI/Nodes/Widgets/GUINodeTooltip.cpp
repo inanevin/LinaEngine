@@ -26,27 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef GUINodeTitleSection_HPP
-#define GUINodeTitleSection_HPP
-
-#include "GUI/Nodes/GUINode.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTooltip.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodeWindowButtons;
-	class GUINodeTitleSection : public GUINode
+	GUINodeTooltip::GUINodeTooltip(Editor* editor, ISwapchain* swapchain) : GUINode(editor, swapchain, POPUP_DRAW_ORDER)
 	{
-	public:
-		GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder);
-		virtual ~GUINodeTitleSection() = default;
+	}
+	void GUINodeTooltip::Draw(int threadID)
+	{
+		if (!m_visible)
+			return;
 
-		virtual void Draw(int threadID) override;
+		const float padding		  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float textWrapWidth = 200.0f;
 
-	private:
-		GUINodeWindowButtons* m_windowButtons = nullptr;
-	};
+		LinaVG::TextOptions opts;
+		opts.font	   = Theme::GetFont(FontType::AltEditor, m_swapchain->GetWindowDPIScale());
+		//opts.wrapWidth = textWrapWidth;
+
+		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_text.c_str(), opts));
+		m_rect.size			   = textSize + Vector2(padding * 2, padding * 2);
+
+		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_swapchain->GetWindowDPIScale(), m_drawOrder);
+
+		const Vector2 textStart = m_rect.pos + Vector2(padding, padding + textSize.y);
+		LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(textStart), opts, 0.0f, m_drawOrder);
+	}
 } // namespace Lina::Editor
-
-#endif

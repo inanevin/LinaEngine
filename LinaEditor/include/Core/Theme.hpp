@@ -73,8 +73,7 @@ namespace Lina::Editor
 #define TI_RESTORE		   "\u004C"
 #define TI_CROSS		   "\u004D"
 
-
-#define POPUP_DRAW_ORDER   1000
+#define POPUP_DRAW_ORDER 1000
 
 	class Theme
 	{
@@ -84,10 +83,13 @@ namespace Lina::Editor
 
 		static Color TC_White;
 		static Color TC_VerySilent;
+		static Color TC_HalfSilent;
 		static Color TC_Silent;
+		static Color TC_SilentTransparent;
 		static Color TC_CyanAccent;
 		static Color TC_RedAccent;
 		static Color TC_PurpleAccent;
+		static Color TC_Dark0;
 		static Color TC_Dark1;
 		static Color TC_Dark2;
 		static Color TC_Light1;

@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Core/Application.hpp"
 #include "Platform/Win32/Win32WindowsInclude.hpp"
+#include "Core/PlatformTime.hpp"
 #include <shellscalingapi.h>
 #include <hidusage.h>
 #include "windowsx.h"
@@ -203,8 +204,8 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			int	 xPos	   = GET_X_LPARAM(lParam);
-			int	 yPos	   = GET_Y_LPARAM(lParam);
+			int xPos = GET_X_LPARAM(lParam);
+			int yPos = GET_Y_LPARAM(lParam);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -234,6 +235,18 @@ namespace Lina
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
 				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Pressed);
+
+			static uint64 lastLBCycles = PlatformTime::GetCPUCycles();
+			const uint64  current	   = PlatformTime::GetCPUCycles();
+			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastLBCycles, current);
+			lastLBCycles			   = current;
+
+			if (time < 250000)
+			{
+				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
+				if (guiDrawer)
+					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
+			}
 		}
 		break;
 		case WM_RBUTTONDOWN: {
@@ -246,6 +259,18 @@ namespace Lina
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
 				guiDrawer->OnMouse(VK_RBUTTON, InputAction::Pressed);
+
+			static uint64 lastLBCycles = PlatformTime::GetCPUCycles();
+			const uint64  current	   = PlatformTime::GetCPUCycles();
+			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastLBCycles, current);
+			lastLBCycles			   = current;
+
+			if (time < 250000)
+			{
+				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
+				if (guiDrawer)
+					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
+			}
 		}
 		break;
 		case WM_MBUTTONDOWN: {
@@ -258,6 +283,18 @@ namespace Lina
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
 				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Pressed);
+
+			static uint64 lastLBCycles = PlatformTime::GetCPUCycles();
+			const uint64  current	   = PlatformTime::GetCPUCycles();
+			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastLBCycles, current);
+			lastLBCycles			   = current;
+
+			if (time < 250000)
+			{
+				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
+				if (guiDrawer)
+					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
+			}
 		}
 		break;
 		case WM_LBUTTONUP: {
@@ -296,40 +333,7 @@ namespace Lina
 				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Released);
 		}
 		break;
-		case WM_LBUTTONDBLCLK: {
 
-			if (!s_isAppActive)
-				break;
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
-
-			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
-		}
-		break;
-		case WM_RBUTTONDBLCLK: {
-
-			if (!s_isAppActive)
-				break;
-
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Repeated);
-
-			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnMouse(VK_RBUTTON, InputAction::Repeated);
-		}
-		break;
-		case WM_MBUTTONDBLCLK: {
-
-			if (!s_isAppActive)
-				break;
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Repeated);
-
-			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Repeated);
-		}
-		break;
 		case WM_INPUT: {
 			UINT		dwSize = sizeof(RAWINPUT);
 			static BYTE lpb[sizeof(RAWINPUT)];
@@ -378,7 +382,6 @@ namespace Lina
 			wc.hInstance	 = m_hinst;
 			wc.lpszClassName = title;
 			wc.hCursor		 = LoadCursor(NULL, IDC_ARROW);
-			wc.style		 = CS_DBLCLKS;
 
 			if (!RegisterClassA(&wc))
 			{
@@ -495,6 +498,7 @@ namespace Lina
 
 	void Win32Window::SetToWorkingArea()
 	{
+		m_restoreSize = m_rect.size;
 		RECT r;
 		SystemParametersInfo(SPI_GETWORKAREA, 0, &r, 0);
 		SetPos(Vector2i(0, 0));
@@ -504,6 +508,7 @@ namespace Lina
 
 	void Win32Window::SetToFullscreen()
 	{
+		m_restoreSize  = m_rect.size;
 		m_isFullscreen = true;
 		// ShowWindow(m_window, SW_SHOWMAXIMIZED);
 		int w = GetSystemMetrics(SM_CXSCREEN);
@@ -620,11 +625,16 @@ namespace Lina
 	void Win32Window::Restore()
 	{
 		m_isMaximized = false;
-		ShowWindow(m_window, SW_RESTORE);
+
+		if (m_restoreSize == Vector2i::Zero)
+			m_restoreSize = m_monitorInfo.size * 0.5f;
+
+		SetSize(m_restoreSize);
 	}
 
 	void Win32Window::Maximize()
 	{
+		m_restoreSize = m_rect.size;
 		ShowWindow(m_window, SW_MAXIMIZE);
 		m_isMaximized = true;
 	}

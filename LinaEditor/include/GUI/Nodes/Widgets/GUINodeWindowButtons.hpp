@@ -35,13 +35,26 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	class GUINodeLayoutHorizontal;
+	class GUINodeButton;
+
 	class GUINodeWindowButtons : public GUINode
 	{
 	public:
-		GUINodeWindowButtons(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		GUINodeWindowButtons(Editor* editor, ISwapchain* swapchain, int drawOrder);
 		virtual ~GUINodeWindowButtons() = default;
 
 		virtual void Draw(int threadID) override;
+
+	private:
+		void OnButtonPressed(GUINodeButton* button);
+
+	private:
+		GUINodeButton*			 m_minimize = nullptr;
+		GUINodeButton*			 m_maximize = nullptr;
+		GUINodeButton*			 m_close	= nullptr;
+		GUINodeLayoutHorizontal* m_layout	= nullptr;
+
 	};
 } // namespace Lina::Editor
 

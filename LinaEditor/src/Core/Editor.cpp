@@ -151,6 +151,14 @@ namespace Lina::Editor
 			sid	 = "Entities"_hs;
 			name = "Entities";
 			break;
+		case EditorPanel::Level:
+			sid	 = "Level"_hs;
+			name = "Level";
+			break;
+		case EditorPanel::Properties:
+			sid	 = "Properties"_hs;
+			name = "Properties";
+			break;
 		}
 
 		auto window = wm->CreateAppWindow(sid, name.c_str(), Vector2i::Zero, Vector2i(500, 500), SRM_DrawGUI);

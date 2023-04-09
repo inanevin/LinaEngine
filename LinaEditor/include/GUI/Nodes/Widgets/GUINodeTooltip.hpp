@@ -28,25 +28,33 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUINodeTitleSection_HPP
-#define GUINodeTitleSection_HPP
+#ifndef GUINodeTooltip_HPP
+#define GUINodeTooltip_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
+#include "Data/String.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodeWindowButtons;
-	class GUINodeTitleSection : public GUINode
+
+	class GUINodeTooltip : public GUINode
 	{
 	public:
-		GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder);
-		virtual ~GUINodeTitleSection() = default;
+		GUINodeTooltip(Editor* editor, ISwapchain* swapchain);
+		virtual ~GUINodeTooltip() = default;
 
 		virtual void Draw(int threadID) override;
 
-	private:
-		GUINodeWindowButtons* m_windowButtons = nullptr;
+		inline GUINodeTooltip* SetText(const String& text)
+		{
+			m_text = text;
+			return this;
+		}
+
+	protected:
+		String m_text = "";
 	};
+
 } // namespace Lina::Editor
 
 #endif

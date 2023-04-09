@@ -33,6 +33,5 @@ namespace Lina::Editor
 {
 	void GUINodeDockArea::Draw(int threadID)
 	{
-		
 	}
 } // namespace Lina::Editor

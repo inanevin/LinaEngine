@@ -32,16 +32,23 @@ SOFTWARE.
 #define GUINodeCustomLogo_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
+#include "Graphics/Resource/Texture.hpp"
 
 namespace Lina::Editor
 {
+	class GUINodeTooltip;
+
 	class GUINodeCustomLogo : public GUINode
 	{
 	public:
-		GUINodeCustomLogo(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		GUINodeCustomLogo(Editor* editor, ISwapchain* swapchain, int drawOrder);
 		virtual ~GUINodeCustomLogo() = default;
 
 		virtual void Draw(int threadID) override;
+
+	private:
+		Vector<TextureSheetItem> m_sheetItems;
+		GUINodeTooltip*			 m_tooltip = nullptr;
 	};
 } // namespace Lina::Editor
 

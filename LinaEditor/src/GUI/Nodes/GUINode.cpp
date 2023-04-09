@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
@@ -47,6 +48,9 @@ namespace Lina::Editor
 
 	void GUINode::Draw(int threadID)
 	{
+		if (!m_visible)
+			return;
+
 		for (auto c : m_children)
 			c->Draw(threadID);
 	}
@@ -116,4 +120,5 @@ namespace Lina::Editor
 		m_children.erase(it);
 		return this;
 	}
+
 } // namespace Lina::Editor

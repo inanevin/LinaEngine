@@ -36,6 +36,8 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	class GUINodeFileMenu;
+	class GUINodeWindowButtons;
+	class GUINodeCustomLogo;
 
 	class GUINodeTopPanel : public GUINode
 	{
@@ -49,7 +51,9 @@ namespace Lina::Editor
 		void OnPressedItem(StringID sid);
 
 	private:
-		GUINodeFileMenu* m_fileMenu = nullptr;
+		GUINodeFileMenu*	  m_fileMenu	  = nullptr;
+		GUINodeWindowButtons* m_windowButtons = nullptr;
+		GUINodeCustomLogo*	  m_customLogo	  = nullptr;
 	};
 } // namespace Lina::Editor
 

@@ -74,7 +74,7 @@ namespace Lina::Editor
 		auto& wm			  = m_engine.GetWindowManager();
 		auto  window		  = wm.GetWindow(LINA_MAIN_SWAPCHAIN);
 		m_editor.BeginSplashScreen();
-		window->SetStyle(WindowStyle::BorderlessNoResize);
+		window->SetStyle(WindowStyle::Borderless);
 		window->SetVisible(true);
 		m_engine.GetResourceManager().AddListener(this);
 		m_loadCoreResourcesTask = resourceManager.LoadResources(resourceManager.GetCoreResources());

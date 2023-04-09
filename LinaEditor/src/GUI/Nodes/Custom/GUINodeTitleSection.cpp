@@ -27,12 +27,44 @@ SOFTWARE.
 */
 
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
+#include "GUI/Nodes/Widgets/GUINodeWindowButtons.hpp"
 #include "Data/CommonData.hpp"
+#include "Core/Theme.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
+	GUINodeTitleSection::GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	{
+		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
+		AddChildren(m_windowButtons);
+	}
+
 	void GUINodeTitleSection::Draw(int threadID)
 	{
-		
+		LinaVG::StyleOptions style;
+		style.color = LV4(Theme::TC_Dark1);
+		LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), style, 0.0f, m_drawOrder);
+
+		const float	  imageHeight = m_rect.size.y * 0.5f;
+		const float	  aspect	  = 16.0f / 9.0f;
+		const float	  buttonY	  = imageHeight;
+		const float	  buttonX	  = imageHeight * aspect;
+		const Vector2 buttonSize  = Vector2(buttonX, buttonY);
+		m_windowButtons->SetRect(Rect(Vector2(m_rect.size.x - buttonX * 3.0f, 0.0f), Vector2(buttonX * 3.0f, buttonY)));
+		m_windowButtons->Draw(threadID);
+
+		const float	  padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const Vector2 logoSize = Vector2(imageHeight, imageHeight);
+		const Vector2 logoPos  = Vector2(padding, padding);
+
+		LinaVG::StyleOptions aq;
+		aq.textureHandle = "Resources/Core/Textures/Logo_White_512.png"_hs;
+		LinaVG::DrawRect(threadID, LV2(logoPos), LV2((logoPos + logoSize)), aq, 0.0f, m_drawOrder);
+
+		const Rect dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, imageHeight));
+		m_swapchain->GetWindow()->SetDragRect(dragRect);
 	}
 } // namespace Lina::Editor

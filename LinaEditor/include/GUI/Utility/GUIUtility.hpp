@@ -45,7 +45,7 @@ namespace Lina::Editor
 	class GUIUtility
 	{
 	public:
-		static void DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& pos, int drawOrder = 0);
+		static void DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, Color tint = Color::White, int drawOrder = 0);
 		static void DrawWindowBackground(int threadID, const Rect& rect, int drawOrder);
 		static void DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
 

@@ -52,12 +52,12 @@ namespace Lina::Editor
 		GUINode(Editor* editor, ISwapchain* swapchain, int drawOrder);
 		virtual ~GUINode();
 
-		virtual void	Draw(int threadID);
-		virtual bool	OnKey(uint32 key, InputAction action);
-		virtual bool	OnMouse(uint32 button, InputAction action);
-		virtual bool	OnMouseWheel(uint32 delta);
-		virtual void	OnClicked(uint32 button){};
-		
+		virtual void Draw(int threadID);
+		virtual bool OnKey(uint32 key, InputAction action);
+		virtual bool OnMouse(uint32 button, InputAction action);
+		virtual bool OnMouseWheel(uint32 delta);
+		virtual void OnClicked(uint32 button){};
+
 		virtual Vector2 CalculateSize()
 		{
 			return Vector2::Zero;
@@ -89,6 +89,24 @@ namespace Lina::Editor
 			return this;
 		}
 
+		inline GUINode* SetMinPos(const Vector2& minPos)
+		{
+			m_minPos = minPos;
+			return this;
+		}
+
+		inline GUINode* SetMaxPos(const Vector2& maxPos)
+		{
+			m_maxPos = maxPos;
+			return this;
+		}
+
+		inline GUINode* SetVisible(bool visible)
+		{
+			m_visible = visible;
+			return this;
+		}
+
 		inline const Rect& GetRect() const
 		{
 			return m_rect;
@@ -107,14 +125,16 @@ namespace Lina::Editor
 	protected:
 		friend class EditorGUIDrawer;
 
-		int				 m_drawOrder	 = 0;
-		bool			 m_isHovered	 = false;
-		bool			 m_isPressed	 = false;
-		Vector2			 m_mousePosition = Vector2::Zero;
-		Editor*			 m_editor		 = nullptr;
-		ISwapchain*		 m_swapchain	 = nullptr;
+		bool			 m_visible	 = true;
+		int				 m_drawOrder = 0;
+		bool			 m_isHovered = false;
+		bool			 m_isPressed = false;
+		Editor*			 m_editor	 = nullptr;
+		ISwapchain*		 m_swapchain = nullptr;
 		Vector<GUINode*> m_children;
-		Rect			 m_rect = Rect();
+		Rect			 m_rect	  = Rect();
+		Vector2			 m_minPos = Vector2::Zero;
+		Vector2			 m_maxPos = Vector2::Zero;
 	};
 } // namespace Lina::Editor
 

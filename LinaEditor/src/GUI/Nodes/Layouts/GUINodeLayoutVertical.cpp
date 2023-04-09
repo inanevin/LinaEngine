@@ -27,18 +27,27 @@ SOFTWARE.
 */
 
 #include "GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Editor
 {
 	void GUINodeLayoutVertical::Draw(int threadID)
 	{
-		Vector2 pos = m_rect.pos;
+		if (!m_visible)
+			return;
+			
+		Vector2 pos		  = m_rect.pos;
+		Vector2 totalSize = Vector2::Zero;
 
 		for (auto c : m_children)
 		{
 			c->SetPos(pos)->Draw(threadID);
 			const Vector2 sz = c->GetRect().size;
 			pos.y += sz.y + m_spacing;
+			totalSize.y += sz.y + m_spacing;
+			totalSize.x = Math::Max(totalSize.x, sz.x);
 		}
+
+		SetSize(totalSize);
 	}
 } // namespace Lina::Editor

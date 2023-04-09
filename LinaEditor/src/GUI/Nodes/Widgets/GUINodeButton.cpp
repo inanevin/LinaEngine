@@ -33,10 +33,15 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Math/Math.hpp"
+#include "Input/Core/InputMappings.hpp"
+
 namespace Lina::Editor
 {
 	void GUINodeButton::Draw(int threadID)
 	{
+		if (!m_visible)
+			return;
+			
 		LinaVG::TextOptions textOpts;
 		textOpts.font		   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
 		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(threadID, m_text.c_str(), textOpts));
@@ -50,6 +55,14 @@ namespace Lina::Editor
 		LinaVG::StyleOptions opts;
 		opts.rounding = 0.1f;
 		opts.color	  = m_isPressed ? LV4(m_pressedColor) : (m_isHovered ? LV4(m_hoveredColor) : LV4(m_defaultColor));
+
+		if (m_isHovered && m_enableHoverOutline)
+		{
+			opts.outlineOptions.thickness	  = 1.0f * m_swapchain->GetWindowDPIScale();
+			opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
+			opts.outlineOptions.color		  = LV4(m_outlineColor);
+		}
+
 		LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), opts, 0.0f, m_drawOrder);
 
 		const Vector2 textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
@@ -58,6 +71,9 @@ namespace Lina::Editor
 
 	void GUINodeButton::OnClicked(uint32 button)
 	{
+		if (button != LINA_MOUSE_0)
+			return;
+
 		if (m_onClicked)
 			m_onClicked(this);
 	}
@@ -72,6 +88,28 @@ namespace Lina::Editor
 		textOpts.font  = Theme::GetFont(m_fontType, m_lastDPI);
 		m_lastTextSize = FL2(LinaVG::CalculateTextSize(m_text.c_str(), textOpts));
 		return m_lastTextSize;
+	}
+
+	void GUINodeButtonIcon::Draw(int threadID)
+	{
+		if (!m_visible)
+			return;
+
+		LinaVG::StyleOptions opts;
+		opts.rounding = 0.1f;
+		opts.color	  = m_isPressed ? LV4(m_pressedColor) : (m_isHovered ? LV4(m_hoveredColor) : LV4(m_defaultColor));
+
+		if (m_isHovered && m_enableHoverOutline)
+		{
+			opts.outlineOptions.thickness	  = 1.0f * m_swapchain->GetWindowDPIScale();
+			opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
+			opts.outlineOptions.color		  = LV4(m_outlineColor);
+		}
+
+		LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), opts, 0.0f, m_drawOrder);
+
+		const Vector2 center = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
+		GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), m_text.c_str(), center, m_iconColor, m_drawOrder);
 	}
 
 } // namespace Lina::Editor

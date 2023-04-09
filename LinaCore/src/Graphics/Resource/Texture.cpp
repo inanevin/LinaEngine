@@ -92,6 +92,7 @@ namespace Lina
 		m_metadata.GetUInt8("ImageTiling"_hs, static_cast<uint8>(ImageTiling::Optimal));
 		m_samplerSID = m_metadata.GetSID("Sampler"_hs, DEFAULT_SAMPLER_SID);
 
+	
 		int texWidth, texHeight, texChannels;
 		m_pixels		= stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 		m_mipLevels		= m_metadata.GetBool("GenerateMipmaps"_hs) == 1 ? static_cast<uint32>(Math::FloorLog2(Math::Max(texWidth, texHeight))) + 1 : 1;
@@ -208,6 +209,38 @@ namespace Lina
 			m_sampler = m_resourceManager->GetResource<TextureSampler>(m_samplerSID);
 
 		return m_sampler;
+	}
+
+	Vector<TextureSheetItem> Texture::GetSheetItems(uint32 columns, uint32 rows)
+	{
+		Vector<TextureSheetItem> items;
+		const float				 gridX = static_cast<float>(m_extent.width) / static_cast<float>(columns);
+		const float				 gridY = static_cast<float>(m_extent.height) / static_cast<float>(rows);
+		const Vector2i			 size  = Vector2i(static_cast<int>(gridX), static_cast<int>(gridY));
+
+		items.reserve(columns * rows);
+		const float uvProgX = 1.0f / static_cast<float>(columns);
+		const float uvProgY = 1.0f / static_cast<float>(rows);
+
+		for (uint32 i = 0; i < rows; i++)
+		{
+			for (uint32 j = 0; j < columns; j++)
+			{
+				const Vector2 uvTL = Vector2(j * uvProgX, i * uvProgY);
+				const Vector2 uvBR = Vector2((j + 1) * uvProgX, (i + 1) * uvProgY);
+
+				TextureSheetItem item = TextureSheetItem{
+					.texture = this,
+					.uvTL	 = uvTL,
+					.uvBR	 = uvBR,
+					.size	 = size,
+				};
+
+				items.push_back(item);
+			}
+		}
+
+		return items;
 	}
 
 	void Texture::CheckFormat(int channels)
