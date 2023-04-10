@@ -35,12 +35,16 @@ SOFTWARE.
 #include "Resources/Core/CommonResources.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Core/Theme.hpp"
+#include "GUI/Nodes/GUINode.hpp"
+#include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
 
 namespace Lina::Editor
 {
-	SplashScreenGUIDrawer::SplashScreenGUIDrawer(Editor* editor, ISwapchain* swap) : m_progressBar(swap), EditorGUIDrawer(editor, swap)
+	SplashScreenGUIDrawer::SplashScreenGUIDrawer(Editor* editor, ISwapchain* swap) : m_progressBar(swap), EditorGUIDrawer(editor, swap, EditorPanel::None, 0)
 	{
 		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->AddListener(this);
+		m_root->RemoveChildren(m_titleSection);
+		delete m_titleSection;
 
 		m_currentResource				   = "Loading core resources...";
 		m_progressBar.BackgroundColor	   = Theme::TC_Silent;

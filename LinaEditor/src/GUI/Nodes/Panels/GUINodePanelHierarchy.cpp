@@ -26,69 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "GUI/Nodes/Panels/GUINodePanelHierarchy.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
 
-#ifndef Common_HPP
-#define Common_HPP
-
-// Headers here.
-#include "Core/SizeDefinitions.hpp"
-#include "Data/Bitmask.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	enum class PreferredGPUType
+	void GUINodePanelHierarchy::Draw(int threadID)
 	{
-		Discrete = 0,
-		Integrated,
-		CPU
-	};
-
-	enum class VsyncMode
-	{
-		None = 0,
-		EveryVBlank,
-		EverySecondVBlank,
-	};
-
-	enum class WindowStyle
-	{
-		None = 0,
-		Windowed,
-		WindowedNoResize,
-		Borderless,
-		BorderlessNoResize,
-		Fullscreen
-	};
-
-	enum class ApplicationMode
-	{
-		Standalone,
-		Editor
-	};
-
-	struct SystemInitializationInfo
-	{
-		const char*		 appName		  = "";
-		int				 windowWidth	  = 0;
-		int				 windowHeight	  = 0;
-		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
-		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
-		VsyncMode		 vsyncMode		  = VsyncMode::None;
-	};
-
-	struct MonitorInfo
-	{
-		bool	 isPrimary	   = false;
-		float	 m_dpiScale	   = 0.0f;
-		Vector2i size		   = Vector2i::Zero;
-		Vector2i workArea	   = Vector2i::Zero;
-		Vector2i workTopLeft	   = Vector2i::Zero;
-		uint32	 m_dpi		   = 0;
-		void*	 monitorHandle = nullptr;
-	};
-
-	extern const char* VsyncModeToStr(VsyncMode mode);
-} // namespace Lina
-
-#endif
+	}
+} // namespace Lina::Editor

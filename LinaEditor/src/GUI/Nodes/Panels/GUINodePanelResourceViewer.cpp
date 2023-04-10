@@ -33,5 +33,6 @@ namespace Lina::Editor
 {
 	void GUINodePanelResourceViewer::Draw(int threadID)
 	{
+		GUINodePanel::Draw(threadID);
 	}
 } // namespace Lina::Editor

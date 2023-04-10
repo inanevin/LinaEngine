@@ -28,67 +28,20 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Common_HPP
-#define Common_HPP
+#ifndef GUINodePanelHierarchy_HPP
+#define GUINodePanelHierarchy_HPP
 
-// Headers here.
-#include "Core/SizeDefinitions.hpp"
-#include "Data/Bitmask.hpp"
+#include "GUI/Nodes/Panels/GUINodePanel.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	enum class PreferredGPUType
+	class GUINodePanelHierarchy : public GUINodePanel
 	{
-		Discrete = 0,
-		Integrated,
-		CPU
+	public:
+		GUINodePanelHierarchy(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title) : GUINodePanel(editor, swapchain, drawOrder, title){};
+		virtual ~GUINodePanelHierarchy() = default;
+		virtual void Draw(int threadID);
 	};
-
-	enum class VsyncMode
-	{
-		None = 0,
-		EveryVBlank,
-		EverySecondVBlank,
-	};
-
-	enum class WindowStyle
-	{
-		None = 0,
-		Windowed,
-		WindowedNoResize,
-		Borderless,
-		BorderlessNoResize,
-		Fullscreen
-	};
-
-	enum class ApplicationMode
-	{
-		Standalone,
-		Editor
-	};
-
-	struct SystemInitializationInfo
-	{
-		const char*		 appName		  = "";
-		int				 windowWidth	  = 0;
-		int				 windowHeight	  = 0;
-		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
-		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
-		VsyncMode		 vsyncMode		  = VsyncMode::None;
-	};
-
-	struct MonitorInfo
-	{
-		bool	 isPrimary	   = false;
-		float	 m_dpiScale	   = 0.0f;
-		Vector2i size		   = Vector2i::Zero;
-		Vector2i workArea	   = Vector2i::Zero;
-		Vector2i workTopLeft	   = Vector2i::Zero;
-		uint32	 m_dpi		   = 0;
-		void*	 monitorHandle = nullptr;
-	};
-
-	extern const char* VsyncModeToStr(VsyncMode mode);
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

@@ -104,8 +104,8 @@ void main()
          float border = smoothstep(material.thickness + material.outlineThickness - material.softness, material.thickness + material.outlineThickness + material.softness, d);
          baseColor = mix(material.outlineColor, fCol, border).rgb;
       }
-      finalColor = vec4(baseColor, material.flipAlpha == 1 ? 1.0f - alpha : alpha);
-   }
+		finalColor = vec4(baseColor, material.flipAlpha == 1 ? (1.0f - alpha) * fCol.a : (alpha) * fCol.a);
+	}
 
    fragColor = finalColor;
 }

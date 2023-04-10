@@ -54,21 +54,21 @@ namespace Lina::Editor
 			LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), bgRect, 0.0f, m_drawOrder);
 		}
 
-		const Vector2 textPos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + m_lastSize.y * 0.5f);
+		const Vector2 textPos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + m_lastCalculatedSize.y * 0.5f);
 		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
 	}
 
 	Vector2 GUINodeFMPopupElement::CalculateSize()
 	{
 		const float windowDPI = m_swapchain->GetWindowDPIScale();
-		if (Math::Equals(m_lastDPIScale, windowDPI, 0.0001f))
-			return m_lastSize;
+		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
+			return m_lastCalculatedSize;
 
-		m_lastDPIScale = windowDPI;
+		m_lastDpi = windowDPI;
 		LinaVG::TextOptions textOpts;
-		textOpts.font = Theme::GetFont(FontType::DefaultEditor, windowDPI);
-		m_lastSize	  = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
-		return m_lastSize;
+		textOpts.font		 = Theme::GetFont(FontType::DefaultEditor, windowDPI);
+		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
+		return m_lastCalculatedSize;
 	}
 
 	void GUINodeFMPopupElement::OnClicked(uint32 button)
@@ -92,7 +92,7 @@ namespace Lina::Editor
 
 		const float centerY = m_rect.pos.y + m_rect.size.y * 0.5f;
 
-		const Vector2 textPos	= Vector2(m_rect.pos.x + m_rect.size.x - padding, centerY + m_lastSize.y * 0.5f);
+		const Vector2 textPos	= Vector2(m_rect.pos.x + m_rect.size.x - padding, centerY + m_lastCalculatedSize.y * 0.5f);
 		const Vector2 textSize	= FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
 		const Vector2 lineStart = Vector2(m_rect.pos.x, centerY);
 		const Vector2 lineEnd	= Vector2(m_rect.pos.x + m_rect.size.x - padding - textSize.x * 1.1f, centerY);
@@ -109,15 +109,15 @@ namespace Lina::Editor
 	Vector2 GUINodeFMPopupElementDivider::CalculateSize()
 	{
 		const float windowDPI = m_swapchain->GetWindowDPIScale();
-		if (Math::Equals(m_lastDPIScale, windowDPI, 0.0001f))
-			return m_lastSize;
+		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
+			return m_lastCalculatedSize;
 
-		m_lastDPIScale = windowDPI;
+		m_lastDpi = windowDPI;
 		LinaVG::TextOptions textOpts;
-		textOpts.font = Theme::GetFont(FontType::AltEditor, windowDPI);
-		m_lastSize	  = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
-		m_lastSize.x *= 2.5f; // there is an offset to where the text will start.
-		return m_lastSize;
+		textOpts.font		 = Theme::GetFont(FontType::AltEditor, windowDPI);
+		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
+		m_lastCalculatedSize.x *= 2.5f; // there is an offset to where the text will start.
+		return m_lastCalculatedSize;
 	}
 
 	void GUINodeFMPopupElementToggle::Draw(int threadID)
@@ -132,27 +132,27 @@ namespace Lina::Editor
 
 		const float	  padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 		const Vector2 iconPos = Vector2(m_rect.pos.x + m_rect.size.x - padding - m_iconSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-		GUIUtility::DrawIcon(0, m_swapchain->GetWindowDPIScale(), TI_CHECKMARK, iconPos, Theme::TC_HalfSilent, m_drawOrder);
+		GUIUtility::DrawIcon(0, m_swapchain->GetWindowDPIScale(), TI_CHECKMARK, iconPos, 1.0f, Theme::TC_HalfSilent, m_drawOrder);
 	}
 
 	Vector2 GUINodeFMPopupElementToggle::CalculateSize()
 	{
 		const float windowDPI = m_swapchain->GetWindowDPIScale();
-		if (Math::Equals(m_lastDPIScale, windowDPI, 0.0001f))
-			return m_lastSize;
+		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
+			return m_lastCalculatedSize;
 
-		m_lastDPIScale = windowDPI;
+		m_lastDpi = windowDPI;
 
 		LinaVG::TextOptions textOpts;
-		textOpts.font = Theme::GetFont(FontType::DefaultEditor, windowDPI);
-		m_lastSize	  = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
+		textOpts.font		 = Theme::GetFont(FontType::DefaultEditor, windowDPI);
+		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
 
 		LinaVG::SDFTextOptions icon;
 		icon.font		 = Theme::GetFont(FontType::EditorIcons, windowDPI);
 		Vector2 iconSize = FL2(LinaVG::CalculateTextSize(TI_CHECKMARK, icon));
-		m_lastSize.x += iconSize.x * 5.0f;
+		m_lastCalculatedSize.x += iconSize.x * 5.0f;
 		m_iconSize = iconSize;
-		return m_lastSize;
+		return m_lastCalculatedSize;
 	}
 
 	void GUINodeFMPopupElementToggle::OnClicked(uint32 button)
@@ -173,7 +173,7 @@ namespace Lina::Editor
 
 		const float	  padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 		const Vector2 iconPos = Vector2(m_rect.pos.x + m_rect.size.x - padding * 0.5f - m_iconSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-		GUIUtility::DrawIcon(0, m_swapchain->GetWindowDPIScale(), TI_CARET_SLD_RIGHT, iconPos, Theme::TC_HalfSilent, m_drawOrder);
+		GUIUtility::DrawIcon(0, m_swapchain->GetWindowDPIScale(), TI_CARET_SLD_RIGHT, iconPos, 1.0f, Theme::TC_HalfSilent, m_drawOrder);
 
 		if (m_isLastHovered)
 		{
@@ -185,21 +185,21 @@ namespace Lina::Editor
 	Vector2 GUINodeFMPopupElementExpandable::CalculateSize()
 	{
 		const float windowDPI = m_swapchain->GetWindowDPIScale();
-		if (Math::Equals(m_lastDPIScale, windowDPI, 0.0001f))
-			return m_lastSize;
+		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
+			return m_lastCalculatedSize;
 
-		m_lastDPIScale = windowDPI;
+		m_lastDpi = windowDPI;
 
 		LinaVG::TextOptions textOpts;
-		textOpts.font = Theme::GetFont(FontType::DefaultEditor, windowDPI);
-		m_lastSize	  = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
+		textOpts.font		 = Theme::GetFont(FontType::DefaultEditor, windowDPI);
+		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
 
 		LinaVG::SDFTextOptions icon;
 		icon.font		 = Theme::GetFont(FontType::EditorIcons, windowDPI);
 		Vector2 iconSize = FL2(LinaVG::CalculateTextSize(TI_CARET_SLD_RIGHT, icon));
-		m_lastSize.x += iconSize.x * 8.0f;
+		m_lastCalculatedSize.x += iconSize.x * 8.0f;
 		m_iconSize = iconSize;
-		return m_lastSize;
+		return m_lastCalculatedSize;
 	}
 
 	GUINodeFMPopup* GUINodeFMPopup::AddDivider(const char* title)
@@ -257,7 +257,7 @@ namespace Lina::Editor
 	{
 		if (!m_visible)
 			return;
-			
+
 		Vector2 maxSize = Vector2::Zero;
 
 		for (auto e : m_elements)
@@ -348,7 +348,7 @@ namespace Lina::Editor
 		popup->SetCallback(BIND(&GUINodeFileMenu::OnPressedPopupElement, this, std::placeholders::_1));
 
 		GUINodeButton* but = new GUINodeButton(m_editor, m_swapchain, m_drawOrder);
-		but->SetFontType(targetFont)->SetText(title)->SetDefaultColor(Theme::TC_Dark1)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark2);
+		but->SetFontType(targetFont)->SetText(title)->SetDefaultColor(Theme::TC_Dark1)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3);
 		but->SetFitType(ButtonFitType::AutoFitFromTextAndPadding)->SetCallback(BIND(&GUINodeFileMenu::OnButtonClicked, this, std::placeholders::_1));
 		but->SetEnableHoverOutline(true)->SetOutlineColor(Theme::TC_Silent);
 		but->AddChildren(popup);

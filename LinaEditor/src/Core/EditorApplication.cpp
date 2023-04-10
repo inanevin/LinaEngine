@@ -82,7 +82,6 @@ namespace Lina::Editor
 
 	void EditorApplication::Tick()
 	{
-
 		// Debug
 		if (m_engine.GetInput().GetKeyDown(LINA_KEY_L))
 		{

@@ -81,7 +81,6 @@ namespace Lina
 			LinaVG::Config.displayHeight		  = 0;
 			LinaVG::Config.globalFramebufferScale = 1.0f;
 			LinaVG::Config.globalAAMultiplier	  = 1.0f;
-			LinaVG::Config.aaEnabled			  = false;
 			LinaVG::Config.gcCollectInterval	  = 4000;
 			LinaVG::Config.textCachingEnabled	  = true;
 			LinaVG::Config.textCachingSDFEnabled  = true;
@@ -156,8 +155,8 @@ namespace Lina
 			testWorld->SetActiveCamera(cam);
 			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
 			aq->SetName("Cube");
-			//	auto aq2 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-			/// auto aq3 = m_resourceManager->GetResource<Model>("Resources/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
+			//	auto aq2 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			/// auto aq3 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
 			aq->SetPosition(Vector3(-3.5f, 0, 0));
 			//	aq2->SetPosition(Vector3(3, 0, 0));
 			// aq3->SetPosition(Vector3(0, 0, 0));

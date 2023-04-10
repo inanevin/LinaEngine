@@ -120,7 +120,7 @@ float4 PSMain(PSInput input) : SV_TARGET
 			float border = smoothstep(material.float4pack2.x + material.float4pack2.z - material.float4pack2.y, material.float4pack2.x + material.float4pack2.z + material.float4pack2.y, d);
 			baseColor = lerp(material.color1, input.color, border).rgb;
 		}
-		finalColor = float4(baseColor, material.int4pack1.z == 1 ? 1.0f - alpha : alpha);
+		finalColor = float4(baseColor, material.int4pack1.z == 1 ? (1.0f - alpha) * input.color.a : alpha * input.color.a);
 	}
 
 	return finalColor;

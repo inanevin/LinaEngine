@@ -46,7 +46,8 @@ namespace Lina::Editor
 		virtual ~GUINodeTopPanel() = default;
 
 		virtual void Draw(int threadID) override;
-
+		virtual bool OnMouse(uint32 button, InputAction act) override;
+		
 	private:
 		void OnPressedItem(StringID sid);
 

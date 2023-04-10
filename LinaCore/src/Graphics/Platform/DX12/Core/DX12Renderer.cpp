@@ -1213,10 +1213,12 @@ namespace Lina
 
 	void Renderer::BindMaterials(Material** materials, uint32 materialsSize)
 	{
+		LOCK_GUARD(test);
+
 		auto		 heap					= m_gpuBufferHeap[m_currentFrameIndex];
 		const uint32 currentDescriptorIndex = heap->GetCurrentDescriptorIndex() - m_texturesHeapAllocCount;
 		const uint32 heapIncrement			= heap->GetDescriptorSize();
-		auto		 alloc					= heap->GetHeapHandleBlock(materialsSize);
+		auto alloc = heap->GetHeapHandleBlock(materialsSize);
 
 		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
 		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;
@@ -1259,6 +1261,7 @@ namespace Lina
 
 	void Renderer::BindDynamicTextures(Texture** textures, uint32 texturesSize)
 	{
+		LOCK_GUARD(test);
 		auto		 heap					= m_gpuBufferHeap[m_currentFrameIndex];
 		const uint32 currentDescriptorIndex = heap->GetCurrentDescriptorIndex();
 		const uint32 heapIncrement			= heap->GetDescriptorSize();

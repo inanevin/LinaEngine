@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/Editor.hpp"
+#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -76,7 +77,9 @@ namespace Lina::Editor
 		m_fileMenu->SetCallback(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
 		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
-		m_customLogo	= new GUINodeCustomLogo(editor, swapchain, drawOrder);
+		m_windowButtons->SetCallbackOnClose([&]() { m_swapchain->GetWindow()->Close(); });
+
+		m_customLogo = new GUINodeCustomLogo(editor, swapchain, drawOrder);
 		AddChildren(m_fileMenu)->AddChildren(m_windowButtons)->AddChildren(m_customLogo);
 	}
 
@@ -85,7 +88,7 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
-		GUIUtility::DrawWindowBackground(threadID, m_rect, m_drawOrder);
+		GUIUtility::DrawTitleBackground(threadID, m_rect, m_drawOrder);
 
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 		m_fileMenu->SetPos(Vector2(padding * 0.5f, padding * 0.5f));
@@ -96,8 +99,8 @@ namespace Lina::Editor
 		m_customLogo->Draw(threadID);
 		m_windowButtons->SetMinPos(m_customLogo->GetRect().pos + Vector2(m_customLogo->GetRect().size.x, 0));
 
-		const float	  buttonX	  = m_swapchain->GetWindow()->GetMonitorInfo().size.x * 0.0215f;
-		const float	  buttonY	  = buttonX * 0.75f;
+		const float	  buttonY	  = 25.0f * m_swapchain->GetWindowDPIScale();
+		const float	  buttonX	  = buttonY * 16.0f / 9.0f;
 		const Vector2 wbuttonsPos = Vector2(m_rect.pos.x + m_rect.size.x - buttonX * 3, 0.0f);
 		m_windowButtons->SetRect(Rect(wbuttonsPos, Vector2(buttonX * 3, buttonY)));
 		m_windowButtons->Draw(threadID);
@@ -109,8 +112,25 @@ namespace Lina::Editor
 		opts.color	   = LV4(Theme::TC_Dark0);
 		LinaVG::DrawLine(threadID, LV2(lineStart), LV2(lineEnd), opts, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 
-		const Rect dragRect = Rect(fileMenuEnd, Vector2(m_windowButtons->GetRect().pos.x - fileMenuEnd.x, padding * 0.5f));
+		const Rect dragRect = Rect(fileMenuEnd, Vector2(m_windowButtons->GetRect().pos.x - fileMenuEnd.x, padding * 2));
 		m_swapchain->GetWindow()->SetDragRect(dragRect);
+	}
+
+	bool GUINodeTopPanel::OnMouse(uint32 button, InputAction act)
+	{
+		const bool ret = GUINode::OnMouse(button, act);
+
+		if (button == LINA_MOUSE_0 && m_isHovered)
+		{
+			if (act == InputAction::Repeated)
+			{
+				if (m_swapchain->GetWindow()->IsMaximized())
+					m_swapchain->GetWindow()->Restore();
+				else
+					m_swapchain->GetWindow()->Maximize();
+			}
+		}
+		return ret;
 	}
 
 	void GUINodeTopPanel::OnPressedItem(StringID sid)

@@ -32,6 +32,7 @@ SOFTWARE.
 #define GUINodeTitleSection_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina::Editor
 {
@@ -39,10 +40,11 @@ namespace Lina::Editor
 	class GUINodeTitleSection : public GUINode
 	{
 	public:
-		GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType);
 		virtual ~GUINodeTitleSection() = default;
 
 		virtual void Draw(int threadID) override;
+		virtual bool OnMouse(uint32 button, InputAction act) override;
 
 	private:
 		GUINodeWindowButtons* m_windowButtons = nullptr;

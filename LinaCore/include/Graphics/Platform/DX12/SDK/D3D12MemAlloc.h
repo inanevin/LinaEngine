@@ -2241,7 +2241,7 @@ Additional considerations:
   a big texture used in some render passes, aliasing with a set of many small buffers
   used in some further passes. To bind a resource at non-zero offset of an allocation,
   call D3D12MA::Allocator::CreateAliasingResource with appropriate value of `AllocationLocalOffset` parameter.
-- Resources of the three categories: buffers, textures with `RENDER_TARGET` or `DEPTH_STENCIL` flags, and all other textures,
+- ContentBrowser of the three categories: buffers, textures with `RENDER_TARGET` or `DEPTH_STENCIL` flags, and all other textures,
   can be placed in the same memory only when `allocator->GetD3D12Options().ResourceHeapTier >= D3D12_RESOURCE_HEAP_TIER_2`.
   Otherwise they must be placed in different memory heap types, and thus aliasing them is not possible.
 

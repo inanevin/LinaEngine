@@ -65,6 +65,8 @@ namespace Lina
 		virtual void Close() override;
 		virtual void SetFocus(bool hasFocus) override;
 		virtual void SetAlpha(float alpha) override;
+		virtual void BringToFront() override;
+		virtual void SetMouseFocus(bool focus) override;
 
 		virtual bool GetIsAppActive() const override
 		{
@@ -87,6 +89,7 @@ namespace Lina
 
 		static bool							  s_isAppActive;
 		static HashMap<HWND__*, Win32Window*> s_win32Windows;
+		bool								  m_isMouseInside	 = false;
 		bool								  m_canHitTestResize = false;
 		Input*								  m_input			 = nullptr;
 		WindowStyle							  m_style			 = WindowStyle::None;
@@ -95,6 +98,7 @@ namespace Lina
 		HWND__*								  m_window			 = nullptr;
 		HINSTANCE__*						  m_hinst			 = nullptr;
 		Vector2i							  m_restoreSize		 = Vector2i::Zero;
+		Vector2i							  m_restorePos		 = Vector2i::Zero;
 	};
 } // namespace Lina
 

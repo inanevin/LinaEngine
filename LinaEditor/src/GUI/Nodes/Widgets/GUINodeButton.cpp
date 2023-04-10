@@ -41,10 +41,23 @@ namespace Lina::Editor
 	{
 		if (!m_visible)
 			return;
-			
-		LinaVG::TextOptions textOpts;
-		textOpts.font		   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(threadID, m_text.c_str(), textOpts));
+
+		Vector2 textSize = Vector2::Zero;
+
+		if (m_isIcon)
+		{
+			LinaVG::SDFTextOptions textOpts;
+			textOpts.font	   = Theme::GetFont(FontType::EditorIcons, m_swapchain->GetWindowDPIScale());
+			textOpts.textScale = m_textScale;
+			textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_text.c_str(), textOpts));
+		}
+		else
+		{
+			LinaVG::TextOptions textOpts;
+			textOpts.font	   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
+			textOpts.textScale = m_textScale;
+			textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_text.c_str(), textOpts));
+		}
 
 		if (m_fitType == ButtonFitType::AutoFitFromTextAndPadding)
 		{
@@ -53,7 +66,7 @@ namespace Lina::Editor
 		}
 
 		LinaVG::StyleOptions opts;
-		opts.rounding = 0.1f;
+		opts.rounding = m_rounding;
 		opts.color	  = m_isPressed ? LV4(m_pressedColor) : (m_isHovered ? LV4(m_hoveredColor) : LV4(m_defaultColor));
 
 		if (m_isHovered && m_enableHoverOutline)
@@ -65,8 +78,20 @@ namespace Lina::Editor
 
 		LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), opts, 0.0f, m_drawOrder);
 
-		const Vector2 textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
-		LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder + 1);
+		if (m_isIcon)
+		{
+			const Vector2 textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
+			GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), m_text.c_str(), textPos, m_textScale, m_textColor, m_drawOrder);
+		}
+		else
+		{
+			const Vector2		textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
+			LinaVG::TextOptions textOpts;
+			textOpts.color	   = LV4(m_textColor);
+			textOpts.font	   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
+			textOpts.textScale = m_textScale;
+			LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder + 1);
+		}
 	}
 
 	void GUINodeButton::OnClicked(uint32 button)
@@ -80,36 +105,14 @@ namespace Lina::Editor
 
 	Vector2 GUINodeButton::CalculateSize()
 	{
-		if (Math::Equals(m_lastDPI, m_swapchain->GetWindowDPIScale(), 0.0001f))
-			return m_lastTextSize;
+		if (Math::Equals(m_lastDpi, m_swapchain->GetWindowDPIScale(), 0.0001f))
+			return m_lastCalculatedSize;
 
-		m_lastDPI = m_swapchain->GetWindowDPIScale();
+		m_lastDpi = m_swapchain->GetWindowDPIScale();
 		LinaVG::TextOptions textOpts;
-		textOpts.font  = Theme::GetFont(m_fontType, m_lastDPI);
-		m_lastTextSize = FL2(LinaVG::CalculateTextSize(m_text.c_str(), textOpts));
-		return m_lastTextSize;
-	}
-
-	void GUINodeButtonIcon::Draw(int threadID)
-	{
-		if (!m_visible)
-			return;
-
-		LinaVG::StyleOptions opts;
-		opts.rounding = 0.1f;
-		opts.color	  = m_isPressed ? LV4(m_pressedColor) : (m_isHovered ? LV4(m_hoveredColor) : LV4(m_defaultColor));
-
-		if (m_isHovered && m_enableHoverOutline)
-		{
-			opts.outlineOptions.thickness	  = 1.0f * m_swapchain->GetWindowDPIScale();
-			opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
-			opts.outlineOptions.color		  = LV4(m_outlineColor);
-		}
-
-		LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), opts, 0.0f, m_drawOrder);
-
-		const Vector2 center = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-		GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), m_text.c_str(), center, m_iconColor, m_drawOrder);
+		textOpts.font		 = Theme::GetFont(m_fontType, m_lastDpi);
+		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_text.c_str(), textOpts));
+		return m_lastCalculatedSize;
 	}
 
 } // namespace Lina::Editor

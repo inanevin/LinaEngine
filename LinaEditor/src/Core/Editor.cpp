@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "GUI/SplashScreenGUIDrawer.hpp"
 #include "GUI/MainWindowGUIDrawer.hpp"
+#include "GUI/Nodes/GUINodeDockArea.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Core/Theme.hpp"
@@ -130,12 +131,23 @@ namespace Lina::Editor
 		delete m_mainWindowGUIDrawer;
 		m_mainWindowGUIDrawer = new MainWindowGUIDrawer(this, sf->GetSwapchain());
 		sf->SetGUIDrawer(m_mainWindowGUIDrawer);
+
+		m_editorImages = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetResource<Texture>("Resources/Editor/Textures/EditorImages.png"_hs)->GetSheetItems(EDITOR_IMAGES_SHEET_COLUMNS, EDITOR_IMAGES_SHEET_ROWS);
 	}
 
 	void Editor::OpenPanel(EditorPanel panel)
 	{
 		auto wm		= m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
 		auto gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		auto it = m_openPanels.find(panel);
+		if (it != m_openPanels.end())
+		{
+			const StringID existing = it->second->GetSID();
+			wm->GetWindow(existing)->BringToFront();
+			return;
+		}
+
 		gfxMan->Join();
 
 		StringID sid  = 0;
@@ -159,6 +171,14 @@ namespace Lina::Editor
 			sid	 = "Properties"_hs;
 			name = "Properties";
 			break;
+		case EditorPanel::ContentBrowser:
+			sid	 = "ContentBrowser"_hs;
+			name = "Content Browser";
+		case EditorPanel::Hierarchy:
+			sid	 = "Hierarchy"_hs;
+			name = "Hierarchy";
+		default:
+			LINA_NOTIMPLEMENTED;
 		}
 
 		auto window = wm->CreateAppWindow(sid, name.c_str(), Vector2i::Zero, Vector2i(500, 500), SRM_DrawGUI);
@@ -167,9 +187,25 @@ namespace Lina::Editor
 		window->SetPos(Vector2i::Zero);
 
 		auto surfaceRenderer = gfxMan->GetSurfaceRenderer(sid);
-		auto guiDrawer		 = new EditorGUIDrawer(this, surfaceRenderer->GetSwapchain());
+		auto guiDrawer		 = new EditorGUIDrawer(this, surfaceRenderer->GetSwapchain(), panel, sid);
 		gfxMan->GetSurfaceRenderer(sid)->SetGUIDrawer(guiDrawer);
-		m_guiDrawers[sid] = guiDrawer;
+		m_guiDrawers[sid]	= guiDrawer;
+		m_openPanels[panel] = guiDrawer;
+
+		guiDrawer->GetFirstDockArea()->AddNewPanel(panel);
+	}
+
+	void Editor::ClosePanel(EditorPanel panel)
+	{
+		auto		   guiDrawer = m_openPanels[panel];
+		const StringID sid		 = guiDrawer->GetSID();
+		auto		   gfxMan	 = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto		   wm		 = m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
+
+		gfxMan->DestroySurfaceRenderer(sid);
+		wm->DestroyAppWindow(sid);
+		delete guiDrawer;
+		m_openPanels.erase(m_openPanels.find(panel));
 	}
 
 } // namespace Lina::Editor

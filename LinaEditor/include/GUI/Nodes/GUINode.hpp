@@ -122,6 +122,11 @@ namespace Lina::Editor
 			return m_drawOrder;
 		}
 
+		inline bool GetIsVisible() const
+		{
+			return m_visible;
+		}
+
 	protected:
 		friend class EditorGUIDrawer;
 
@@ -132,9 +137,11 @@ namespace Lina::Editor
 		Editor*			 m_editor	 = nullptr;
 		ISwapchain*		 m_swapchain = nullptr;
 		Vector<GUINode*> m_children;
-		Rect			 m_rect	  = Rect();
-		Vector2			 m_minPos = Vector2::Zero;
-		Vector2			 m_maxPos = Vector2::Zero;
+		Rect			 m_rect				  = Rect();
+		Vector2			 m_minPos			  = Vector2::Zero;
+		Vector2			 m_maxPos			  = Vector2::Zero;
+		Vector2			 m_lastCalculatedSize = Vector2::Zero;
+		float			 m_lastDpi			  = 0.0f;
 	};
 } // namespace Lina::Editor
 

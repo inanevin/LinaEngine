@@ -40,7 +40,7 @@ namespace Lina
 {
 	class ISystem;
 	class SurfaceRenderer;
-	
+
 	class IWindow
 	{
 	public:
@@ -62,9 +62,11 @@ namespace Lina
 		virtual bool GetIsAppActive() const																= 0;
 		virtual void SetFocus(bool hasFocus)															= 0;
 		virtual void SetAlpha(float alpha)																= 0;
-
-		virtual void SetToWorkingArea() = 0;
-		virtual void SetToFullscreen()	= 0;
+		virtual void BringToFront()																		= 0;
+		virtual void SetMouseFocus(bool focused)														= 0;
+		
+		virtual void SetToWorkingArea()																	= 0;
+		virtual void SetToFullscreen()																	= 0;
 
 	public:
 		/// <summary>

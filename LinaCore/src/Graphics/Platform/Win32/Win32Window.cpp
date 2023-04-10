@@ -41,7 +41,8 @@ SOFTWARE.
 #include <shellscalingapi.h>
 #include <hidusage.h>
 #include "windowsx.h"
-
+#include <Objbase.h>
+#include <Shobjidl.h>
 #ifndef HID_USAGE_PAGE_GENERIC
 #define HID_USAGE_PAGE_GENERIC ((USHORT)0x01)
 #endif
@@ -88,20 +89,22 @@ namespace Lina
 
 	LRESULT __stdcall Win32Window::WndProc(HWND__* window, unsigned int msg, unsigned __int64 wParam, __int64 lParam)
 	{
-		auto* win32Window = s_win32Windows[window];
-		if (win32Window == nullptr)
+		auto it = s_win32Windows.find(window);
+		if (it == s_win32Windows.end())
 			return DefWindowProcA(window, msg, wParam, lParam);
 
+		auto* win32Window = it->second;
 		switch (msg)
 		{
 		case WM_CLOSE:
 			win32Window->Close();
 			return 0;
-		case WM_NCHITTEST:
-			return win32Window->m_canHitTestResize ? HandleNonclientHitTest(window, lParam, win32Window->m_dragRect) : HTCLIENT;
+		case WM_NCHITTEST: {
+			return HandleNonclientHitTest(window, lParam, win32Window->m_dragRect);
+			break;
+		}
 		case WM_SETFOCUS: {
 			win32Window->SetFocus(true);
-
 			// Dispatch focus event?
 		}
 		break;
@@ -200,6 +203,30 @@ namespace Lina
 			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), InputAction::Released);
 		}
 		break;
+		case WM_NCMOUSEMOVE: {
+			if (!s_isAppActive)
+				break;
+
+			int xPos = GET_X_LPARAM(lParam);
+			int yPos = GET_Y_LPARAM(lParam);
+
+			// Get the screen coordinates of the window
+			RECT windowRect;
+			GetWindowRect(window, &windowRect);
+
+			// Convert the mouse coordinates to client coordinates
+			POINT clientPoint = {xPos, yPos};
+			ScreenToClient(window, &clientPoint);
+
+			// Subtract the client area coordinates from the mouse coordinates
+			xPos = clientPoint.x;
+			yPos = clientPoint.y;
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnMousePos(Vector2i(xPos, yPos));
+		}
+		break;
 		case WM_MOUSEMOVE: {
 			if (!s_isAppActive)
 				break;
@@ -210,6 +237,8 @@ namespace Lina
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
 				guiDrawer->OnMousePos(Vector2i(xPos, yPos));
+
+			win32Window->m_manager->ReceivingMouseFocus(win32Window);
 		}
 		break;
 		case WM_MOUSEWHEEL: {
@@ -225,6 +254,19 @@ namespace Lina
 				guiDrawer->OnMouseWheel(static_cast<uint32>(delta));
 		}
 		break;
+		case WM_NCLBUTTONDBLCLK: {
+
+			if (!s_isAppActive)
+				break;
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+
+			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
+			if (guiDrawer)
+				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
+
+			break;
+		}
 		case WM_LBUTTONDOWN: {
 
 			if (!s_isAppActive)
@@ -236,7 +278,7 @@ namespace Lina
 			if (guiDrawer)
 				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Pressed);
 
-			static uint64 lastLBCycles = PlatformTime::GetCPUCycles();
+			static uint64 lastLBCycles = 0;
 			const uint64  current	   = PlatformTime::GetCPUCycles();
 			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastLBCycles, current);
 			lastLBCycles			   = current;
@@ -260,10 +302,10 @@ namespace Lina
 			if (guiDrawer)
 				guiDrawer->OnMouse(VK_RBUTTON, InputAction::Pressed);
 
-			static uint64 lastLBCycles = PlatformTime::GetCPUCycles();
+			static uint64 lastRBCycles = 0;
 			const uint64  current	   = PlatformTime::GetCPUCycles();
-			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastLBCycles, current);
-			lastLBCycles			   = current;
+			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastRBCycles, current);
+			lastRBCycles			   = current;
 
 			if (time < 250000)
 			{
@@ -284,10 +326,10 @@ namespace Lina
 			if (guiDrawer)
 				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Pressed);
 
-			static uint64 lastLBCycles = PlatformTime::GetCPUCycles();
+			static uint64 lastMBCycles = 0;
 			const uint64  current	   = PlatformTime::GetCPUCycles();
-			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastLBCycles, current);
-			lastLBCycles			   = current;
+			const uint64  time		   = PlatformTime::GetDeltaMicroseconds64(lastMBCycles, current);
+			lastMBCycles			   = current;
 
 			if (time < 250000)
 			{
@@ -333,7 +375,6 @@ namespace Lina
 				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Released);
 		}
 		break;
-
 		case WM_INPUT: {
 			UINT		dwSize = sizeof(RAWINPUT);
 			static BYTE lpb[sizeof(RAWINPUT)];
@@ -398,7 +439,9 @@ namespace Lina
 
 		// m_window = CreateWindowExA(exStyle, title, title, parent == nullptr ? 0 : (WS_POPUP), pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
 		m_window = CreateWindowExA(exStyle, title, title, stylew, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
-		m_title	 = title;
+		ShowWindow(m_window, SW_SHOW);
+
+		m_title = title;
 
 		if (m_window == nullptr)
 		{
@@ -408,7 +451,9 @@ namespace Lina
 
 		// Otherwise will be invisble, created via EX_LAYERED
 		if (parent != nullptr)
+		{
 			SetAlpha(1.0f);
+		}
 
 		m_handle				 = static_cast<void*>(m_window);
 		s_win32Windows[m_window] = this;
@@ -418,15 +463,12 @@ namespace Lina
 		m_aspect				 = static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
 
 		// For raw input
-		if (parent == nullptr)
-		{
-			RAWINPUTDEVICE Rid[1];
-			Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
-			Rid[0].usUsage	   = HID_USAGE_GENERIC_MOUSE;
-			Rid[0].dwFlags	   = RIDEV_INPUTSINK;
-			Rid[0].hwndTarget  = m_window;
-			RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
-		}
+		RAWINPUTDEVICE Rid[1];
+		Rid[0].usUsagePage = HID_USAGE_PAGE_GENERIC;
+		Rid[0].usUsage	   = HID_USAGE_GENERIC_MOUSE;
+		Rid[0].dwFlags	   = RIDEV_INPUTSINK;
+		Rid[0].hwndTarget  = m_window;
+		RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
 
 		SetToCenter();
 		return true;
@@ -499,6 +541,7 @@ namespace Lina
 	void Win32Window::SetToWorkingArea()
 	{
 		m_restoreSize = m_rect.size;
+		m_restorePos  = m_rect.pos;
 		RECT r;
 		SystemParametersInfo(SPI_GETWORKAREA, 0, &r, 0);
 		SetPos(Vector2i(0, 0));
@@ -509,6 +552,7 @@ namespace Lina
 	void Win32Window::SetToFullscreen()
 	{
 		m_restoreSize  = m_rect.size;
+		m_restorePos   = m_rect.pos;
 		m_isFullscreen = true;
 		// ShowWindow(m_window, SW_SHOWMAXIMIZED);
 		int w = GetSystemMetrics(SM_CXSCREEN);
@@ -560,6 +604,22 @@ namespace Lina
 		const BYTE	   finalAlpha = static_cast<BYTE>(alpha * 255.0f);
 		const COLORREF colorKey	  = RGB(1, 1, 1);
 		SetLayeredWindowAttributes(m_window, colorKey, finalAlpha, LWA_ALPHA);
+	}
+
+	void Win32Window::BringToFront()
+	{
+		OpenIcon(m_window);
+	}
+
+	void Win32Window::SetMouseFocus(bool focus)
+	{
+		if (focus == false)
+		{
+			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+
+			if (guiDrawer)
+				guiDrawer->OnMousePos(Vector2i::Zero);
+		}
 	}
 
 	void Win32Window::SetPos(const Vector2i& newPos)
@@ -619,7 +679,7 @@ namespace Lina
 
 	void Win32Window::Minimize()
 	{
-		ShowWindow(m_window, SW_SHOWMINIMIZED);
+		ShowWindow(m_window, SW_MINIMIZE);
 	}
 
 	void Win32Window::Restore()
@@ -627,16 +687,34 @@ namespace Lina
 		m_isMaximized = false;
 
 		if (m_restoreSize == Vector2i::Zero)
+		{
 			m_restoreSize = m_monitorInfo.size * 0.5f;
+			m_restorePos  = Vector2(m_monitorInfo.size.x * 0.5f - m_restoreSize.x * 0.5f, m_monitorInfo.size.y * 0.5f - m_restoreSize.y * 0.5f);
+		}
+
+		SendMessage(m_window, WM_SETREDRAW, FALSE, 0);
+		SetWindowLongPtr(m_window, GWL_STYLE, WS_POPUP);
 
 		SetSize(m_restoreSize);
+		SetPos(m_restorePos);
+
+		SendMessage(m_window, WM_SETREDRAW, TRUE, 0);
+		RedrawWindow(m_window, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
 	}
 
 	void Win32Window::Maximize()
 	{
+		SendMessage(m_window, WM_SETREDRAW, FALSE, 0);
+		SetWindowLongPtr(m_window, GWL_STYLE, WS_POPUP);
+
 		m_restoreSize = m_rect.size;
-		ShowWindow(m_window, SW_MAXIMIZE);
+		m_restorePos  = m_rect.pos;
+		SetPos(m_monitorInfo.workTopLeft);
+		SetSize(m_monitorInfo.workArea);
 		m_isMaximized = true;
+
+		SendMessage(m_window, WM_SETREDRAW, TRUE, 0);
+		RedrawWindow(m_window, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_FRAME | RDW_ALLCHILDREN);
 	}
 
 } // namespace Lina

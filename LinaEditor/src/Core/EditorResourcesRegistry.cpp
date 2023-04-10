@@ -74,6 +74,7 @@ namespace Lina::Editor
 		const uint32			   startIndex = static_cast<uint32>(resources.size());
 
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/TitleTextAnimation.png", GetTypeID<Texture>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/EditorImages.png", GetTypeID<Texture>(), 0));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_1x.ttf", GetTypeID<Font>(), 0));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_2x.ttf", GetTypeID<Font>(), 0));
 
@@ -108,6 +109,11 @@ namespace Lina::Editor
 		metadata.SetInt("Range_0"_hs, 0x07F);
 		metadata.SetInt("Range_1"_hs, 0x0FF);
 		list.push_back(linatl::make_pair("Resources/Editor/Fonts/EditorIcons_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		// -------------
+		metadata.SetSID("Sampler"_hs, DEFAULT_GUI_SAMPLER_SID);
+		list.push_back(linatl::make_pair("Resources/Editor/Textures/EditorImages.png"_hs, metadata));
 		metadata.ClearAll();
 
 		// Add custom

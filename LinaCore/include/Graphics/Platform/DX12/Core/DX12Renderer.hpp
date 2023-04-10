@@ -71,6 +71,7 @@ namespace Lina
 	{
 	public:
 		Renderer(const SystemInitializationInfo& initInfo, GfxManager* gfxMan);
+		Mutex test;
 
 		struct StatePerFrame
 		{
@@ -133,7 +134,7 @@ namespace Lina
 		ISwapchain* CreateSwapchain(const Vector2i& size, IWindow* window, StringID sid);
 		uint32		GetNextBackBuffer(ISwapchain* swp);
 
-		// Resources
+		// ContentBrowser
 		IGfxResourceCPU*	 CreateCPUResource(size_t size, CPUResourceHint hint, const wchar_t* name = L"CPU Visible Resource");
 		IGfxResourceGPU*	 CreateGPUResource(size_t size, GPUResourceType type, bool requireJoinBeforeUpdating, const wchar_t* name = L"GPU Resource");
 		IGfxResourceTexture* CreateTextureResource(TextureResourceType type, Texture* texture);
@@ -272,7 +273,7 @@ namespace Lina
 		Microsoft::WRL::ComPtr<ID3D12RootSignature>	   m_rootSigStandard;
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> m_commandSigStandard;
 
-		// Resources
+		// ContentBrowser
 		Microsoft::WRL::ComPtr<IDxcLibrary> m_idxcLib;
 		ID3DIncludeInterface				m_includeInterface;
 

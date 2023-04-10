@@ -32,16 +32,57 @@ SOFTWARE.
 #define GUINodeDockArea_HPP
 
 #include "GUINode.hpp"
+#include "Data/Vector.hpp"
+#include "Math/Rect.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina::Editor
 {
+	class GUINodePanel;
+	class EditorGUIDrawer;
+
 	class GUINodeDockArea : public GUINode
 	{
 	public:
-		GUINodeDockArea(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		GUINodeDockArea(EditorGUIDrawer* drawer, Editor* editor, ISwapchain* swapchain, int drawOrder) : m_drawer(drawer), GUINode(editor, swapchain, drawOrder){};
 		virtual ~GUINodeDockArea() = default;
 
 		virtual void Draw(int threadID) override;
+		virtual bool OnMouse(uint32 button, InputAction act) override;
+
+		void AddPanel(GUINodePanel* panel);
+		void AddNewPanel(EditorPanel panel);
+
+		inline void SetSplitRect(const Rect& rect)
+		{
+			m_splitPercentages = rect;
+		}
+
+		inline const Rect& GetSplitRect() const
+		{
+			return m_splitPercentages;
+		}
+
+		inline void SetSplittedArea(GUINodeDockArea* area)
+		{
+			m_splittedArea = area;
+		}
+
+		inline GUINodeDockArea* GetSplittedArea()
+		{
+			return m_splittedArea;
+		}
+
+	private:
+		void DrawTabs(int threadID);
+
+	protected:
+		EditorGUIDrawer*	  m_drawer = nullptr;
+		Rect				  m_splitPercentages;
+		Rect				  m_tabRect;
+		Vector<GUINodePanel*> m_panels;
+		GUINodePanel*		  m_focusedPanel = nullptr;
+		GUINodeDockArea*	  m_splittedArea = nullptr;
 	};
 } // namespace Lina::Editor
 

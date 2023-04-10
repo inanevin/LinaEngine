@@ -28,10 +28,124 @@ SOFTWARE.
 
 #include "GUI/Nodes/GUINodeDockArea.hpp"
 #include "Data/CommonData.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelContentBrowser.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelHierarchy.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelProperties.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelEntities.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelLevel.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelResourceViewer.hpp"
+#include "GUI/Nodes/Custom/GUINodeDockPreview.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTab.hpp"
+
+#include "Core/Editor.hpp"
+#include "GUI/EditorGUIDrawer.hpp"
+#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
 	void GUINodeDockArea::Draw(int threadID)
 	{
+		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
+
+		const float tabAreaHeight = 28.0f * m_swapchain->GetWindowDPIScale();
+		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
+		m_tabRect				  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
+
+		DrawTabs(threadID);
+
+		if (m_focusedPanel != nullptr)
+		{
+			m_focusedPanel->SetRect(panelRect);
+			m_focusedPanel->Draw(threadID);
+
+			const Vector2i& focusedSize		   = m_focusedPanel->GetRect().size;
+			const bool		sizeSuitableToDock = focusedSize.x > 400 && focusedSize.y > 400;
+
+			// Also check pressed status and also check if editor gui drawer contains a flying tab.
+			if (sizeSuitableToDock && m_drawer->GetIsDraggingPanelTab() && GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_focusedPanel->GetRect()))
+			{
+				m_focusedPanel->DrawDockPreview(threadID);
+			}
+		}
 	}
+
+	bool GUINodeDockArea::OnMouse(uint32 button, InputAction act)
+	{
+		const bool retVal = GUINode::OnMouse(button, act);
+
+		if (m_focusedPanel && m_drawer->GetIsDraggingPanelTab() && act == InputAction::Released && button == LINA_MOUSE_0)
+		{
+			const DockSplitType splitType = m_focusedPanel->GetDockPreview()->GetCurrentSplitType();
+			m_drawer->SplitDockArea(this, splitType);
+		}
+
+		return retVal;
+	}
+
+	void GUINodeDockArea::DrawTabs(int threadID)
+	{
+		const uint32 sz		 = static_cast<uint32>(m_panels.size());
+		const float	 padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+
+		Vector2 maxTabSize = Vector2::Zero;
+		for (uint32 i = 0; i < sz; i++)
+		{
+			auto* panel = m_panels[i];
+			auto* tab	= panel->GetTab();
+
+			maxTabSize	= maxTabSize.Max(tab->CalculateTabSize());
+		}
+
+		Rect tabRect = Rect(m_tabRect.pos, Vector2(maxTabSize.x, m_tabRect.size.y));
+
+		for (uint32 i = 0; i < sz; i++)
+		{
+			auto* panel = m_panels[i];
+			auto* tab	= panel->GetTab();
+			tab->SetTitle(panel->GetTitle());
+			tab->SetRect(tabRect);
+			tab->Draw(threadID);
+			tabRect.pos += Vector2(maxTabSize.x, 0.0f);
+		}
+	}
+
+	void GUINodeDockArea::AddPanel(GUINodePanel* panel)
+	{
+		AddChildren(panel);
+		m_panels.push_back(panel);
+		m_focusedPanel = panel;
+	}
+
+	void GUINodeDockArea::AddNewPanel(EditorPanel panel)
+	{
+		switch (panel)
+		{
+		case EditorPanel::DebugResourceView:
+			AddPanel(new GUINodePanelResourceViewer(m_editor, m_swapchain, m_drawOrder, "Resource Viewer"));
+			break;
+		case EditorPanel::Entities:
+			AddPanel(new GUINodePanelEntities(m_editor, m_swapchain, m_drawOrder, "Entities"));
+			break;
+		case EditorPanel::Level:
+			AddPanel(new GUINodePanelLevel(m_editor, m_swapchain, m_drawOrder, "Level View"));
+			break;
+		case EditorPanel::Properties:
+			AddPanel(new GUINodePanelProperties(m_editor, m_swapchain, m_drawOrder, "Properties"));
+			break;
+		case EditorPanel::ContentBrowser:
+			AddPanel(new GUINodePanelContentBrowser(m_editor, m_swapchain, m_drawOrder, "Content"));
+			break;
+		case EditorPanel::Hierarchy:
+			AddPanel(new GUINodePanelHierarchy(m_editor, m_swapchain, m_drawOrder, "Hierarchy"));
+			break;
+		default:
+			LINA_NOTIMPLEMENTED;
+		}
+	}
+
 } // namespace Lina::Editor

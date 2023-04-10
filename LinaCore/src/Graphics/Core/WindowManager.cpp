@@ -190,6 +190,7 @@ namespace Lina
 
 		info.size		   = Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
 		info.workArea	   = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
+		info.workTopLeft   = Vector2i(monitorInfo.rcWork.left, monitorInfo.rcWork.top);
 		info.isPrimary	   = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
 		info.monitorHandle = static_cast<void*>(monitor);
 #else
@@ -205,6 +206,17 @@ namespace Lina
 
 		for (auto [sid, window] : m_windows)
 			m_gfxManager->CreateSurfaceRenderer(sid, window, window->GetSize(), 0);
+	}
+
+	void WindowManager::ReceivingMouseFocus(IWindow* window)
+	{
+		for (auto [sid, w] : m_windows)
+		{
+			if (w == window)
+				w->SetMouseFocus(true);
+			else
+				w->SetMouseFocus(false);
+		}
 	}
 
 } // namespace Lina

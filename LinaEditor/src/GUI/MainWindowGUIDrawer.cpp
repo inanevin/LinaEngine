@@ -38,12 +38,13 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	MainWindowGUIDrawer::MainWindowGUIDrawer(Editor* editor, ISwapchain* swap) : EditorGUIDrawer(editor, swap)
+	MainWindowGUIDrawer::MainWindowGUIDrawer(Editor* editor, ISwapchain* swap) : EditorGUIDrawer(editor, swap, EditorPanel::None, 0)
 	{
 		m_topPanel = new GUINodeTopPanel(editor, swap, 0);
-		m_dockArea = new GUINodeDockArea(editor, swap, 0);
+		//m_dockArea = new GUINodeDockArea(editor, swap, 0);
 		m_root->RemoveChildren(m_titleSection);
-		m_root->AddChildren(m_topPanel)->AddChildren(m_dockArea);
+		//m_root->AddChildren(m_topPanel)->AddChildren(m_dockArea);
+		m_root->AddChildren(m_topPanel);
 		delete m_titleSection;
 	}
 
@@ -51,10 +52,10 @@ namespace Lina::Editor
 	{
 		const Vector2 swapchainSize = m_swapchain->GetSize();
 		const Vector2 monitorSize	= m_window->GetMonitorInfo().size;
-		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, monitorSize.y * 0.09f));
+		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_swapchain->GetWindowDPIScale()));
 		const Rect	  dockRect		= Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
 		m_topPanel->SetRect(topRect);
-		m_dockArea->SetRect(dockRect);
+		//m_dockArea->SetRect(dockRect);
 		m_root->Draw(threadID);
 
 		// Debug hovered

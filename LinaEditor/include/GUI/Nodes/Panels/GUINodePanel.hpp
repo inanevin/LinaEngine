@@ -28,67 +28,46 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Common_HPP
-#define Common_HPP
+#ifndef GUINodePanel_HPP
+#define GUINodePanel_HPP
 
-// Headers here.
-#include "Core/SizeDefinitions.hpp"
-#include "Data/Bitmask.hpp"
+#include "GUI/Nodes/GUINode.hpp"
+#include "Data/String.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	enum class PreferredGPUType
-	{
-		Discrete = 0,
-		Integrated,
-		CPU
-	};
+	class GUINodeDockPreview;
+	class GUINodeTab;
 
-	enum class VsyncMode
+	class GUINodePanel : public GUINode
 	{
-		None = 0,
-		EveryVBlank,
-		EverySecondVBlank,
-	};
+	public:
+		GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title);
+		virtual ~GUINodePanel() = default;
+		virtual void Draw(int threadID);
 
-	enum class WindowStyle
-	{
-		None = 0,
-		Windowed,
-		WindowedNoResize,
-		Borderless,
-		BorderlessNoResize,
-		Fullscreen
-	};
+		void DrawDockPreview(int threadID);
 
-	enum class ApplicationMode
-	{
-		Standalone,
-		Editor
-	};
+		inline GUINodeDockPreview* GetDockPreview()
+		{
+			return m_dockPreview;
+		}
 
-	struct SystemInitializationInfo
-	{
-		const char*		 appName		  = "";
-		int				 windowWidth	  = 0;
-		int				 windowHeight	  = 0;
-		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
-		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
-		VsyncMode		 vsyncMode		  = VsyncMode::None;
-	};
+		inline GUINodeTab* GetTab()
+		{
+			return m_tab;
+		}
 
-	struct MonitorInfo
-	{
-		bool	 isPrimary	   = false;
-		float	 m_dpiScale	   = 0.0f;
-		Vector2i size		   = Vector2i::Zero;
-		Vector2i workArea	   = Vector2i::Zero;
-		Vector2i workTopLeft	   = Vector2i::Zero;
-		uint32	 m_dpi		   = 0;
-		void*	 monitorHandle = nullptr;
-	};
+		inline const String& GetTitle() const
+		{
+			return m_title;
+		}
 
-	extern const char* VsyncModeToStr(VsyncMode mode);
-} // namespace Lina
+	protected:
+		String				m_title		  = "";
+		GUINodeDockPreview* m_dockPreview = nullptr;
+		GUINodeTab*			m_tab		  = nullptr;
+	};
+} // namespace Lina::Editor
 
 #endif

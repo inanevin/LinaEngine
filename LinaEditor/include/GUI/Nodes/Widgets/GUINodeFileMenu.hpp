@@ -87,8 +87,6 @@ namespace Lina::Editor
 		Delegate<void(StringID sid)> m_callback;
 		bool						 m_isLastHovered = false;
 		FMPopupElementType			 m_type			 = FMPopupElementType::Default;
-		float						 m_lastDPIScale	 = 0.0f;
-		Vector2						 m_lastSize		 = Vector2::Zero;
 		String						 m_title		 = "";
 	};
 

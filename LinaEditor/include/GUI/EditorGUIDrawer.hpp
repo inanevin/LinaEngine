@@ -33,17 +33,21 @@ SOFTWARE.
 
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Core/StringID.hpp"
+#include "Core/EditorCommon.hpp"
+#include "Data/HashMap.hpp"
+#include "Math/Rect.hpp"
 
 namespace Lina::Editor
 {
 	class GUINode;
 	class Editor;
 	class GUINodeTitleSection;
+	class GUINodeDockArea;
 
 	class EditorGUIDrawer : public IGUIDrawer
 	{
 	public:
-		EditorGUIDrawer(Editor* editor, ISwapchain* swapchain);
+		EditorGUIDrawer(Editor* editor, ISwapchain* swapchain, EditorPanel panelType, StringID sid);
 		virtual ~EditorGUIDrawer();
 
 		virtual void DrawGUI(int threadID) override;
@@ -53,14 +57,36 @@ namespace Lina::Editor
 		virtual void OnMouseMove(const Vector2i& pos) override;
 		virtual void OnMouseWheel(uint32 delta) override;
 
+		inline StringID GetSID() const
+		{
+			return m_sid;
+		}
+
+		inline GUINodeDockArea* GetFirstDockArea()
+		{
+			return m_dockAreas[0];
+		}
+
+		void SplitDockArea(GUINodeDockArea* area, DockSplitType type);
+
+		inline bool GetIsDraggingPanelTab() const
+		{
+			return true;
+			return m_isDraggingPanelTab;
+		}
+
 	private:
 		GUINode* GetHovered(GUINode* parent);
 
 	protected:
-		GUINode*			 m_hoveredNode	= nullptr;
-		Editor*				 m_editor		= nullptr;
-		GUINode*			 m_root			= nullptr;
-		GUINodeTitleSection* m_titleSection = nullptr;
+		GUINode*				 m_previousHovered	  = nullptr;
+		bool					 m_isDraggingPanelTab = false;
+		StringID				 m_sid				  = 0;
+		GUINode*				 m_hoveredNode		  = nullptr;
+		Editor*					 m_editor			  = nullptr;
+		GUINode*				 m_root				  = nullptr;
+		GUINodeTitleSection*	 m_titleSection		  = nullptr;
+		Vector<GUINodeDockArea*> m_dockAreas;
 	};
 } // namespace Lina::Editor
 

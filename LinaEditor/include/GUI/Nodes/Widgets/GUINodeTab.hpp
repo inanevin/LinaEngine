@@ -28,67 +28,47 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Common_HPP
-#define Common_HPP
+#ifndef GUINodeTab_HPP
+#define GUINodeTab_HPP
 
-// Headers here.
-#include "Core/SizeDefinitions.hpp"
-#include "Data/Bitmask.hpp"
+#include "GUI/Nodes/GUINode.hpp"
+#include "Data/String.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	enum class PreferredGPUType
+	class GUINodeButton;
+
+	class GUINodeTab : public GUINode
 	{
-		Discrete = 0,
-		Integrated,
-		CPU
+	public:
+		GUINodeTab(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		virtual ~GUINodeTab() = default;
+
+		virtual void Draw(int threadID) override;
+		Vector2		 CalculateTabSize();
+
+		inline GUINodeTab* SetTitle(const String& text)
+		{
+			m_title = text;
+			return this;
+		}
+
+		inline GUINodeTab* SetCloseButtonEnabled(bool closeButtonEnabled)
+		{
+			m_closeButtonEnabled = closeButtonEnabled;
+			return this;
+		}
+
+	private:
+		void DrawCloseButton(int threadID, float t);
+
+	protected:
+		float		   m_closeButtonAnimationAlpha = 0.0f;
+		bool		   m_closeButtonEnabled		   = true;
+		GUINodeButton* m_closeButton			   = nullptr;
+		String		   m_title					   = "";
 	};
 
-	enum class VsyncMode
-	{
-		None = 0,
-		EveryVBlank,
-		EverySecondVBlank,
-	};
-
-	enum class WindowStyle
-	{
-		None = 0,
-		Windowed,
-		WindowedNoResize,
-		Borderless,
-		BorderlessNoResize,
-		Fullscreen
-	};
-
-	enum class ApplicationMode
-	{
-		Standalone,
-		Editor
-	};
-
-	struct SystemInitializationInfo
-	{
-		const char*		 appName		  = "";
-		int				 windowWidth	  = 0;
-		int				 windowHeight	  = 0;
-		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
-		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
-		VsyncMode		 vsyncMode		  = VsyncMode::None;
-	};
-
-	struct MonitorInfo
-	{
-		bool	 isPrimary	   = false;
-		float	 m_dpiScale	   = 0.0f;
-		Vector2i size		   = Vector2i::Zero;
-		Vector2i workArea	   = Vector2i::Zero;
-		Vector2i workTopLeft	   = Vector2i::Zero;
-		uint32	 m_dpi		   = 0;
-		void*	 monitorHandle = nullptr;
-	};
-
-	extern const char* VsyncModeToStr(VsyncMode mode);
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

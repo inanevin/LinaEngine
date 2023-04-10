@@ -31,18 +31,15 @@ SOFTWARE.
 #ifndef GUINodePanelResourceViewer_HPP
 #define GUINodePanelResourceViewer_HPP
 
-#include "Math/Rect.hpp"
-#include "Input/Core/CommonInput.hpp"
-#include "Data/Vector.hpp"
+#include "GUI/Nodes/Panels/GUINodePanel.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodePanelResourceViewer
+	class GUINodePanelResourceViewer : public GUINodePanel
 	{
 	public:
-		GUINodePanelResourceViewer()		  = default;
+		GUINodePanelResourceViewer(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title) : GUINodePanel(editor, swapchain, drawOrder, title){};
 		virtual ~GUINodePanelResourceViewer() = default;
-
 		virtual void Draw(int threadID);
 	};
 } // namespace Lina::Editor

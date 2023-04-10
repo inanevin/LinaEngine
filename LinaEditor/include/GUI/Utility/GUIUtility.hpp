@@ -33,21 +33,28 @@ SOFTWARE.
 
 #include "Core/SizeDefinitions.hpp"
 #include "Core/Theme.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
 	class Vector2;
 	class Rect;
+	struct TextureSheetItem;
+
 } // namespace Lina
 
 namespace Lina::Editor
 {
+
 	class GUIUtility
 	{
 	public:
-		static void DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, Color tint = Color::White, int drawOrder = 0);
-		static void DrawWindowBackground(int threadID, const Rect& rect, int drawOrder);
+		static void DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, float scale, Color tint = Color::White, int drawOrder = 0, float rotation = 0.0f, bool skipCache = false);
+		static void DrawTitleBackground(int threadID, const Rect& rect, int drawOrder);
+		static void DrawDockBackground(int threadID, const Rect& rect, int drawOrder);
+		static void DrawPanelBackground(int threadID, const Rect& rect, int drawOrder);
 		static void DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
+		static void DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder);
 
 		static bool IsInRect(const Vector2& pos, const Rect& rect);
 	};

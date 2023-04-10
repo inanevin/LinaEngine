@@ -32,10 +32,10 @@ SOFTWARE.
 #define GUINodeWindowButtons_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
+#include "Data/Functional.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodeLayoutHorizontal;
 	class GUINodeButton;
 
 	class GUINodeWindowButtons : public GUINode
@@ -46,15 +46,20 @@ namespace Lina::Editor
 
 		virtual void Draw(int threadID) override;
 
+		GUINodeWindowButtons* SetCallbackOnClose(Delegate<void()>&& cb)
+		{
+			m_onClose = cb;
+			return this;
+		}
+		
 	private:
 		void OnButtonPressed(GUINodeButton* button);
 
 	private:
+		Delegate<void()>		 m_onClose;
 		GUINodeButton*			 m_minimize = nullptr;
 		GUINodeButton*			 m_maximize = nullptr;
 		GUINodeButton*			 m_close	= nullptr;
-		GUINodeLayoutHorizontal* m_layout	= nullptr;
-
 	};
 } // namespace Lina::Editor
 

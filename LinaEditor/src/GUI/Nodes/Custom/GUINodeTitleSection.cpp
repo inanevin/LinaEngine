@@ -33,12 +33,16 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
+#include "Input/Core/InputMappings.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "Core/Editor.hpp"
 
 namespace Lina::Editor
 {
-	GUINodeTitleSection::GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	GUINodeTitleSection::GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panel) : GUINode(editor, swapchain, drawOrder)
 	{
 		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
+		m_windowButtons->SetCallbackOnClose([editor, panel]() { editor->ClosePanel(panel); });
 		AddChildren(m_windowButtons);
 	}
 
@@ -49,22 +53,38 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), style, 0.0f, m_drawOrder);
 
 		const float	  imageHeight = m_rect.size.y * 0.5f;
-		const float	  aspect	  = 16.0f / 9.0f;
-		const float	  buttonY	  = imageHeight;
-		const float	  buttonX	  = imageHeight * aspect;
+		const float	  buttonY	  = m_rect.size.y;
+		const float	  buttonX	  = buttonY * 16.0f / 9.0f;
 		const Vector2 buttonSize  = Vector2(buttonX, buttonY);
 		m_windowButtons->SetRect(Rect(Vector2(m_rect.size.x - buttonX * 3.0f, 0.0f), Vector2(buttonX * 3.0f, buttonY)));
 		m_windowButtons->Draw(threadID);
 
 		const float	  padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 		const Vector2 logoSize = Vector2(imageHeight, imageHeight);
-		const Vector2 logoPos  = Vector2(padding, padding);
+		const Vector2 logoPos  = Vector2(padding, m_rect.size.y * 0.5f - logoSize.y * 0.5f);
 
 		LinaVG::StyleOptions aq;
 		aq.textureHandle = "Resources/Core/Textures/Logo_White_512.png"_hs;
 		LinaVG::DrawRect(threadID, LV2(logoPos), LV2((logoPos + logoSize)), aq, 0.0f, m_drawOrder);
 
-		const Rect dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, imageHeight));
+		const Rect dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, m_rect.size.y));
 		m_swapchain->GetWindow()->SetDragRect(dragRect);
 	}
+	bool GUINodeTitleSection::OnMouse(uint32 button, InputAction act)
+	{
+		const bool ret = GUINode::OnMouse(button, act);
+
+		if (button == LINA_MOUSE_0 && m_isHovered)
+		{
+			if (act == InputAction::Repeated)
+			{
+				if (m_swapchain->GetWindow()->IsMaximized())
+					m_swapchain->GetWindow()->Restore();
+				else
+					m_swapchain->GetWindow()->Maximize();
+			}
+		}
+		return ret;
+	}
+
 } // namespace Lina::Editor

@@ -51,15 +51,18 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
-		for (auto c : m_children)
-			c->Draw(threadID);
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->Draw(threadID);
 	}
 
 	bool GUINode::OnKey(uint32 key, InputAction action)
 	{
-		for (auto c : m_children)
+
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
 		{
-			if (c->OnKey(key, action))
+			if (m_children[i]->OnKey(key, action))
 				return true;
 		}
 
@@ -91,17 +94,19 @@ namespace Lina::Editor
 				OnClicked(button);
 		}
 
-		for (auto c : m_children)
-			c->OnMouse(button, action);
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->OnMouse(button, action);
 
 		return false;
 	}
 
 	bool GUINode::OnMouseWheel(uint32 delta)
 	{
-		for (auto c : m_children)
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
 		{
-			if (c->OnMouseWheel(delta))
+			if (m_children[i]->OnMouseWheel(delta))
 				return true;
 		}
 

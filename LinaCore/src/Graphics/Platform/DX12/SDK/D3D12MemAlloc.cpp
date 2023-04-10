@@ -8219,7 +8219,7 @@ D3D12_RESOURCE_ALLOCATION_INFO AllocatorPimpl::GetResourceAllocationInfo(D3D12_R
         )
     {
         /*
-        The algorithm here is based on Microsoft sample: "Small Resources Sample"
+        The algorithm here is based on Microsoft sample: "Small ContentBrowser Sample"
         https://github.com/microsoft/DirectX-Graphics-Samples/tree/master/Samples/Desktop/D3D12SmallResources
         */
         const UINT64 smallAlignmentToTry = inOutResourceDesc.SampleDesc.Count > 1 ?

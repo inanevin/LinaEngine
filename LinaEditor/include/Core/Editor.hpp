@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "System/ISubsystem.hpp"
 #include "EditorCommon.hpp"
+#include "Graphics/Resource/Texture.hpp"
 
 namespace Lina
 {
@@ -55,16 +56,23 @@ namespace Lina::Editor
 		void EndSplashScreen();
 
 		void OpenPanel(EditorPanel panel);
+		void ClosePanel(EditorPanel panel);
 
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
-	
+
+		inline const TextureSheetItem GetEditorImage(uint32 index)
+		{
+			return m_editorImages[index];
+		}
 
 	private:
-		Mutex								m_mtx;
-		EditorGUIDrawer*					m_mainWindowGUIDrawer = nullptr;
-		HashMap<StringID, EditorGUIDrawer*> m_guiDrawers;
+		Mutex								   m_mtx;
+		EditorGUIDrawer*					   m_mainWindowGUIDrawer = nullptr;
+		HashMap<StringID, EditorGUIDrawer*>	   m_guiDrawers;
+		HashMap<EditorPanel, EditorGUIDrawer*> m_openPanels;
+		Vector<TextureSheetItem>			   m_editorImages;
 	};
 } // namespace Lina::Editor
 

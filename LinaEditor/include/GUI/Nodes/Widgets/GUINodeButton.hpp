@@ -67,6 +67,12 @@ namespace Lina::Editor
 			return this;
 		}
 
+		inline GUINodeButton* SetTextColor(const Color& color)
+		{
+			m_textColor = color;
+			return this;
+		}
+
 		inline GUINodeButton* SetDefaultColor(const Color& col)
 		{
 			m_defaultColor = col;
@@ -109,36 +115,40 @@ namespace Lina::Editor
 			return this;
 		}
 
+		inline GUINodeButton* SetRounding(float rounding)
+		{
+			m_rounding = rounding;
+			return this;
+		}
+
+		inline GUINodeButton* SetIsIcon(bool isIcon)
+		{
+			m_isIcon = isIcon;
+			return this;
+		}
+
+		inline GUINodeButton* SetTextScale(float scale)
+		{
+			m_textScale = scale;
+			return this;
+		}
+
 	protected:
-		float						   m_lastDPI			= 0.0f;
+		float						   m_rounding			= 0.1f;
+		float						   m_textScale			= 1.0f;
 		bool						   m_enableHoverOutline = false;
-		Vector2						   m_lastTextSize		= Vector2::Zero;
-		ButtonFitType				   m_fitType			= ButtonFitType::AutoFitFromTextAndPadding;
+		bool						   m_isIcon				= false;
+		ButtonFitType				   m_fitType			= ButtonFitType::None;
 		FontType					   m_fontType			= FontType::DefaultEditor;
 		String						   m_text				= "";
 		Color						   m_defaultColor		= Color::White;
 		Color						   m_hoveredColor		= Color::Gray;
 		Color						   m_pressedColor		= Color::Black;
 		Color						   m_outlineColor		= Color::Black;
+		Color						   m_textColor			= Color::White;
 		Delegate<void(GUINodeButton*)> m_onClicked;
 	};
 
-	class GUINodeButtonIcon : public GUINodeButton
-	{
-	public:
-		GUINodeButtonIcon(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINodeButton(editor, swapchain, drawOrder){};
-		virtual ~GUINodeButtonIcon() = default;
-
-		virtual void Draw(int threadID) override;
-
-		inline GUINodeButtonIcon* SetIconColor(const Color& col)
-		{
-			m_iconColor = col;
-		}
-
-	private:
-		Color m_iconColor = Color::White;
-	};
 } // namespace Lina::Editor
 
 #endif
