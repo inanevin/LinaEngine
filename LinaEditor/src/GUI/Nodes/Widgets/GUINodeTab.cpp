@@ -34,6 +34,7 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeButton.hpp"
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
+#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -48,6 +49,7 @@ namespace Lina::Editor
 		m_closeButton->SetTextScale(0.5f);
 		AddChildren(m_closeButton);
 	}
+	
 	void GUINodeTab::Draw(int threadID)
 	{
 		if (!m_visible)
@@ -55,45 +57,46 @@ namespace Lina::Editor
 
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 
-		Vector<LinaVG::Vec2> points;
-
-		points.push_back(LV2(m_rect.pos));
-		points.push_back(LV2(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END, m_rect.pos.y)));
-		points.push_back(LV2((m_rect.pos + m_rect.size)));
-		points.push_back(LV2(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y)));
-
-		LinaVG::StyleOptions opts;
-		opts.color	   = LV4(Theme::TC_Light1);
-		opts.aaEnabled = false;
-
-		LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder);
-
-		LinaVG::TextOptions textOpts;
-		textOpts.font		   = Theme::GetFont(FontType::DefaultEditor, m_swapchain->GetWindowDPIScale());
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
-		const Vector2 textPos  = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
-
-		const Vector2 closeButtonSize	= textSize.y;
-		const Vector2 closeButtonCenter = textPos + Vector2(textSize.x + padding * 0.5f, 0.0f);
-		// m_closeButton->SetRect(Rect(Vector2(textPos.x + textSize.x + padding, textPos.y - textSize.y), closeButtonSize));
-		// m_closeButton->Draw(threadID);
-
-		if (m_isHovered)
+		// Background convex shape
 		{
-			const Rect closeRect = Rect(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END - padding * 1.0f, m_rect.pos.y), Vector2(m_rect.size.x * (1.0f - OFFSET_FROM_END) + padding * 1.5f, m_rect.size.y));
+			Vector<LinaVG::Vec2> points;
+			points.push_back(LV2(m_rect.pos));
+			points.push_back(LV2(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END, m_rect.pos.y)));
+			points.push_back(LV2((m_rect.pos + m_rect.size)));
+			points.push_back(LV2(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y)));
 
-			if (GUIUtility::IsInRect(m_swapchain->GetMousePos(), closeRect))
-				m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, 1.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
-			else
-				m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
+			LinaVG::StyleOptions opts;
+			opts.color	   = LV4(Theme::TC_Light1);
+			opts.aaEnabled = false;
+			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder);
 		}
-		else
-			m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
 
-		DrawCloseButton(threadID, m_closeButtonAnimationAlpha);
+		// Text
+		{
+			LinaVG::TextOptions textOpts;
+			textOpts.font		   = Theme::GetFont(FontType::DefaultEditor, m_swapchain->GetWindowDPIScale());
+			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
+			const Vector2 textPos  = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
+			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
+		}
 
-		// GUIUtility::DrawSheetImage(threadID, m_editor->GetEditorImage(EDITOR_IMAGE_CROSS), closeButtonCenter, closeButtonSize, Color::White, m_drawOrder);
+		// Close button
+		{
+			if (!m_closeButtonEnabled)
+				return;
+
+			if (m_isHovered)
+			{
+				const Rect closeRect		= Rect(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END - padding * 1.0f, m_rect.pos.y), Vector2(m_rect.size.x * (1.0f - OFFSET_FROM_END) + padding * 1.5f, m_rect.size.y));
+				m_isInCloseRect				= GUIUtility::IsInRect(m_swapchain->GetMousePos(), closeRect);
+				m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
+			}
+			else
+				m_isInCloseRect = false;
+
+			m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
+			DrawCloseButton(threadID, m_closeButtonAnimationAlpha);
+		}
 	}
 
 	Vector2 GUINodeTab::CalculateTabSize()
@@ -113,11 +116,17 @@ namespace Lina::Editor
 		return Vector2(totalX, textSize.y + padding);
 	}
 
+	void GUINodeTab::OnClicked(uint32 button)
+	{
+		if (button == LINA_MOUSE_0 && m_isInCloseRect)
+		{
+			if (m_closeCallback)
+				m_closeCallback();
+		}
+	}
+
 	void GUINodeTab::DrawCloseButton(int threadID, float t)
 	{
-		if (t < 0.05f)
-			return;
-
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 
 		const float	  offset	 = padding * 1.5f;
@@ -138,20 +147,23 @@ namespace Lina::Editor
 		points.push_back(LV2(p2));
 		points.push_back(LV2(p3));
 
-		LinaVG::StyleOptions opts;
-		Color				 bg = Theme::TC_RedAccent;
-		bg.w					= Math::Lerp(0.0f, 1.0f, t);
-		opts.color				= LV4(bg);
-		opts.aaEnabled			= true;
-		opts.aaMultiplier		= 1.0f;
+		if (t > 0.05f)
+		{
+			LinaVG::StyleOptions opts;
+			Color				 bg = Theme::TC_RedAccent;
+			bg.w					= Math::Lerp(0.0f, m_isPressed ? 0.5f : 1.0f, t);
+			opts.color				= LV4(bg);
+			opts.aaEnabled			= true;
+			opts.aaMultiplier		= 1.0f;
+			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder + 1);
+		}
 
-		LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder + 1);
-
-		const Vector2 iconCenter = (p2 + p0) * 0.5f;
-
-		Color iconColor = t < 0.7f ? Color(0.0f, 0.0f, 0.0f, 0.0f) : Math::Lerp(Color(0, 0, 0, 0), Color::White, t * 10.0f);
+		Vector2 iconCenter = (p2 + targetTL) * 0.5f;
+		iconCenter.x -= padding * 0.1f;
+		iconCenter.y	= (m_rect.pos.y + m_rect.pos.y + m_rect.size.y) * 0.5f;
+		Color iconColor = t < 0.7f ? Color(1.0f, 1.0f, 1.0f, 0.2f) : Math::Lerp(Color(0, 0, 0, 0), Color::White, t * 10.0f);
 		iconColor.w		= Math::Clamp(iconColor.w, 0.0f, 1.0f);
-		GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), TI_CROSS, iconCenter, 1.0f, iconColor, m_drawOrder + 2, 90.0f * t, true);
+		GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), TI_CROSS, iconCenter, 0.75f, iconColor, m_drawOrder + 2, 90.0f * t, true);
 	}
 
 } // namespace Lina::Editor

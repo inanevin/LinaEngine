@@ -88,32 +88,53 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
-		GUIUtility::DrawTitleBackground(threadID, m_rect, m_drawOrder);
+		// Top panel background
+		{
+			GUIUtility::DrawTitleBackground(threadID, m_rect, m_drawOrder);
+		}
 
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
-		m_fileMenu->SetPos(Vector2(padding * 0.5f, padding * 0.5f));
-		m_fileMenu->Draw(threadID);
 
+		// File menu
+		{
+			m_fileMenu->SetPos(Vector2(padding * 0.5f, padding * 0.5f));
+			m_fileMenu->Draw(threadID);
+		}
+
+		// Setup
 		const Vector2 fileMenuEnd = m_fileMenu->GetRect().pos + Vector2(m_fileMenu->GetRect().size.x, 0);
-		m_customLogo->SetMinPos(fileMenuEnd);
-		m_customLogo->Draw(threadID);
-		m_windowButtons->SetMinPos(m_customLogo->GetRect().pos + Vector2(m_customLogo->GetRect().size.x, 0));
 
-		const float	  buttonY	  = 25.0f * m_swapchain->GetWindowDPIScale();
-		const float	  buttonX	  = buttonY * 16.0f / 9.0f;
-		const Vector2 wbuttonsPos = Vector2(m_rect.pos.x + m_rect.size.x - buttonX * 3, 0.0f);
-		m_windowButtons->SetRect(Rect(wbuttonsPos, Vector2(buttonX * 3, buttonY)));
-		m_windowButtons->Draw(threadID);
+		// Custom logo
+		{
+			m_customLogo->SetMinPos(fileMenuEnd);
+			m_customLogo->Draw(threadID);
+		}
 
-		const Vector2		 lineStart = Vector2(0.0f, m_rect.size.y * 0.5f);
-		const Vector2		 lineEnd   = Vector2(m_rect.size.x, m_rect.size.y * 0.5f);
-		LinaVG::StyleOptions opts;
-		opts.thickness = 4.0f * m_swapchain->GetWindowDPIScale();
-		opts.color	   = LV4(Theme::TC_Dark0);
-		LinaVG::DrawLine(threadID, LV2(lineStart), LV2(lineEnd), opts, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		// Window buttons
+		{
+			m_windowButtons->SetMinPos(m_customLogo->GetRect().pos + Vector2(m_customLogo->GetRect().size.x, 0));
+			const float	  buttonY	  = 25.0f * m_swapchain->GetWindowDPIScale();
+			const float	  buttonX	  = buttonY * 16.0f / 9.0f;
+			const Vector2 wbuttonsPos = Vector2(m_rect.pos.x + m_rect.size.x - buttonX * 3, 0.0f);
+			m_windowButtons->SetRect(Rect(wbuttonsPos, Vector2(buttonX * 3, buttonY)));
+			m_windowButtons->Draw(threadID);
+		}
 
-		const Rect dragRect = Rect(fileMenuEnd, Vector2(m_windowButtons->GetRect().pos.x - fileMenuEnd.x, padding * 2));
-		m_swapchain->GetWindow()->SetDragRect(dragRect);
+		// Separator line
+		{
+			const Vector2		 lineStart = Vector2(0.0f, m_rect.size.y * 0.5f);
+			const Vector2		 lineEnd   = Vector2(m_rect.size.x, m_rect.size.y * 0.5f);
+			LinaVG::StyleOptions opts;
+			opts.thickness = 4.0f * m_swapchain->GetWindowDPIScale();
+			opts.color	   = LV4(Theme::TC_Dark0);
+			LinaVG::DrawLine(threadID, LV2(lineStart), LV2(lineEnd), opts, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+
+		// Drag rect
+		{
+			const Rect dragRect = Rect(fileMenuEnd, Vector2(m_windowButtons->GetRect().pos.x - fileMenuEnd.x, padding * 2));
+			m_swapchain->GetWindow()->SetDragRect(dragRect);
+		}
 	}
 
 	bool GUINodeTopPanel::OnMouse(uint32 button, InputAction act)

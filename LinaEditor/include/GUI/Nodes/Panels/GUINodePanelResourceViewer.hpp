@@ -38,7 +38,7 @@ namespace Lina::Editor
 	class GUINodePanelResourceViewer : public GUINodePanel
 	{
 	public:
-		GUINodePanelResourceViewer(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title) : GUINodePanel(editor, swapchain, drawOrder, title){};
+		GUINodePanelResourceViewer(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, title, parentDockArea){};
 		virtual ~GUINodePanelResourceViewer() = default;
 		virtual void Draw(int threadID);
 	};

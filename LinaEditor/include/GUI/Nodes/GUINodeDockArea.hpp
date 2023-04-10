@@ -49,9 +49,9 @@ namespace Lina::Editor
 
 		virtual void Draw(int threadID) override;
 		virtual bool OnMouse(uint32 button, InputAction act) override;
-
-		void AddPanel(GUINodePanel* panel);
-		void AddNewPanel(EditorPanel panel);
+		void		 AddPanel(GUINodePanel* panel);
+		void		 AddNewPanel(EditorPanel panel);
+		void		 OnPanelClosed(GUINodePanel* panel);
 
 		inline void SetSplitRect(const Rect& rect)
 		{

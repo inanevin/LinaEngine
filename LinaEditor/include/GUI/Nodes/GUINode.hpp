@@ -65,6 +65,7 @@ namespace Lina::Editor
 
 		GUINode* AddChildren(GUINode* node);
 		GUINode* RemoveChildren(GUINode* node);
+		GUINode* SetVisible(bool visible);
 
 		inline Vector<GUINode*>& GetChildren()
 		{
@@ -98,12 +99,6 @@ namespace Lina::Editor
 		inline GUINode* SetMaxPos(const Vector2& maxPos)
 		{
 			m_maxPos = maxPos;
-			return this;
-		}
-
-		inline GUINode* SetVisible(bool visible)
-		{
-			m_visible = visible;
 			return this;
 		}
 

@@ -52,7 +52,7 @@ namespace Lina::Editor
 	{
 		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
 
-		const float tabAreaHeight = 28.0f * m_swapchain->GetWindowDPIScale();
+		const float tabAreaHeight = 24.0f * m_swapchain->GetWindowDPIScale();
 		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
 		m_tabRect				  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
 
@@ -97,7 +97,6 @@ namespace Lina::Editor
 		{
 			auto* panel = m_panels[i];
 			auto* tab	= panel->GetTab();
-
 			maxTabSize	= maxTabSize.Max(tab->CalculateTabSize());
 		}
 
@@ -107,6 +106,7 @@ namespace Lina::Editor
 		{
 			auto* panel = m_panels[i];
 			auto* tab	= panel->GetTab();
+			tab->SetCloseButtonEnabled(m_panels.size() > 1);
 			tab->SetTitle(panel->GetTitle());
 			tab->SetRect(tabRect);
 			tab->Draw(threadID);
@@ -117,6 +117,7 @@ namespace Lina::Editor
 	void GUINodeDockArea::AddPanel(GUINodePanel* panel)
 	{
 		AddChildren(panel);
+		panel->SetParentDockArea(this);
 		m_panels.push_back(panel);
 		m_focusedPanel = panel;
 	}
@@ -126,26 +127,37 @@ namespace Lina::Editor
 		switch (panel)
 		{
 		case EditorPanel::DebugResourceView:
-			AddPanel(new GUINodePanelResourceViewer(m_editor, m_swapchain, m_drawOrder, "Resource Viewer"));
+			AddPanel(new GUINodePanelResourceViewer(m_editor, m_swapchain, m_drawOrder, "Resource Viewer", this));
 			break;
 		case EditorPanel::Entities:
-			AddPanel(new GUINodePanelEntities(m_editor, m_swapchain, m_drawOrder, "Entities"));
+			AddPanel(new GUINodePanelEntities(m_editor, m_swapchain, m_drawOrder, "Entities", this));
 			break;
 		case EditorPanel::Level:
-			AddPanel(new GUINodePanelLevel(m_editor, m_swapchain, m_drawOrder, "Level View"));
+			AddPanel(new GUINodePanelLevel(m_editor, m_swapchain, m_drawOrder, "Level View", this));
 			break;
 		case EditorPanel::Properties:
-			AddPanel(new GUINodePanelProperties(m_editor, m_swapchain, m_drawOrder, "Properties"));
+			AddPanel(new GUINodePanelProperties(m_editor, m_swapchain, m_drawOrder, "Properties", this));
 			break;
 		case EditorPanel::ContentBrowser:
-			AddPanel(new GUINodePanelContentBrowser(m_editor, m_swapchain, m_drawOrder, "Content"));
+			AddPanel(new GUINodePanelContentBrowser(m_editor, m_swapchain, m_drawOrder, "Content", this));
 			break;
 		case EditorPanel::Hierarchy:
-			AddPanel(new GUINodePanelHierarchy(m_editor, m_swapchain, m_drawOrder, "Hierarchy"));
+			AddPanel(new GUINodePanelHierarchy(m_editor, m_swapchain, m_drawOrder, "Hierarchy", this));
 			break;
 		default:
 			LINA_NOTIMPLEMENTED;
 		}
+	}
+
+	void GUINodeDockArea::OnPanelClosed(GUINodePanel* panel)
+	{
+		if (panel == m_focusedPanel)
+			m_focusedPanel = m_panels[0];
+
+		m_panels.erase(linatl::find_if(m_panels.begin(), m_panels.end(), [panel](GUINodePanel* p) { return p == panel; }));
+		RemoveChildren(panel);
+		delete panel;
+		LINA_TRACE("huh");
 	}
 
 } // namespace Lina::Editor

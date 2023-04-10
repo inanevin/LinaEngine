@@ -34,10 +34,13 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodePanel::GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title) : m_title(title), GUINode(editor, swapchain, drawOrder)
+	GUINodePanel::GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title, GUINodeDockArea* parentDockArea) : m_title(title), m_parentDockArea(parentDockArea), GUINode(editor, swapchain, drawOrder)
 	{
 		m_dockPreview = new GUINodeDockPreview(editor, swapchain, drawOrder);
 		m_tab		  = new GUINodeTab(editor, swapchain, drawOrder);
+		m_tab->SetCallbackClose([this]() {
+			m_parentDockArea->OnPanelClosed(this);
+		});
 		AddChildren(m_dockPreview)->AddChildren(m_tab);
 	}
 

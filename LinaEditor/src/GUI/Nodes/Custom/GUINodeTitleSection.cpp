@@ -48,28 +48,42 @@ namespace Lina::Editor
 
 	void GUINodeTitleSection::Draw(int threadID)
 	{
-		LinaVG::StyleOptions style;
-		style.color = LV4(Theme::TC_Dark1);
-		LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), style, 0.0f, m_drawOrder);
+		// Background
+		{
+			LinaVG::StyleOptions style;
+			style.color = LV4(Theme::TC_Dark1);
+			LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), style, 0.0f, m_drawOrder);
+		}
 
-		const float	  imageHeight = m_rect.size.y * 0.5f;
-		const float	  buttonY	  = m_rect.size.y;
-		const float	  buttonX	  = buttonY * 16.0f / 9.0f;
-		const Vector2 buttonSize  = Vector2(buttonX, buttonY);
-		m_windowButtons->SetRect(Rect(Vector2(m_rect.size.x - buttonX * 3.0f, 0.0f), Vector2(buttonX * 3.0f, buttonY)));
-		m_windowButtons->Draw(threadID);
+		// Setup
+		const float imageHeight = m_rect.size.y * 0.5f;
 
-		const float	  padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
-		const Vector2 logoSize = Vector2(imageHeight, imageHeight);
-		const Vector2 logoPos  = Vector2(padding, m_rect.size.y * 0.5f - logoSize.y * 0.5f);
+		// Window buttons
+		{
+			const float	  buttonY	 = m_rect.size.y;
+			const float	  buttonX	 = buttonY * 16.0f / 9.0f;
+			const Vector2 buttonSize = Vector2(buttonX, buttonY);
+			m_windowButtons->SetRect(Rect(Vector2(m_rect.size.x - buttonX * 3.0f, 0.0f), Vector2(buttonX * 3.0f, buttonY)));
+			m_windowButtons->Draw(threadID);
+		}
 
-		LinaVG::StyleOptions aq;
-		aq.textureHandle = "Resources/Core/Textures/Logo_White_512.png"_hs;
-		LinaVG::DrawRect(threadID, LV2(logoPos), LV2((logoPos + logoSize)), aq, 0.0f, m_drawOrder);
+		// Logo
+		{
+			const float			 padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+			const Vector2		 logoSize = Vector2(imageHeight, imageHeight);
+			const Vector2		 logoPos  = Vector2(padding, m_rect.size.y * 0.5f - logoSize.y * 0.5f);
+			LinaVG::StyleOptions logo;
+			logo.textureHandle = "Resources/Core/Textures/Logo_White_512.png"_hs;
+			LinaVG::DrawRect(threadID, LV2(logoPos), LV2((logoPos + logoSize)), logo, 0.0f, m_drawOrder);
+		}
 
-		const Rect dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, m_rect.size.y));
-		m_swapchain->GetWindow()->SetDragRect(dragRect);
+		// Drag rect
+		{
+			const Rect dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, m_rect.size.y));
+			m_swapchain->GetWindow()->SetDragRect(dragRect);
+		}
 	}
+	
 	bool GUINodeTitleSection::OnMouse(uint32 button, InputAction act)
 	{
 		const bool ret = GUINode::OnMouse(button, act);

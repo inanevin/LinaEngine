@@ -38,15 +38,21 @@ namespace Lina::Editor
 {
 	class GUINodeDockPreview;
 	class GUINodeTab;
+	class GUINodeDockArea;
 
 	class GUINodePanel : public GUINode
 	{
 	public:
-		GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title);
+		GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title, GUINodeDockArea* parentDockArea);
 		virtual ~GUINodePanel() = default;
 		virtual void Draw(int threadID);
 
 		void DrawDockPreview(int threadID);
+
+		inline void SetParentDockArea(GUINodeDockArea* area)
+		{
+			m_parentDockArea = area;
+		}
 
 		inline GUINodeDockPreview* GetDockPreview()
 		{
@@ -64,9 +70,10 @@ namespace Lina::Editor
 		}
 
 	protected:
-		String				m_title		  = "";
-		GUINodeDockPreview* m_dockPreview = nullptr;
-		GUINodeTab*			m_tab		  = nullptr;
+		GUINodeDockArea*	m_parentDockArea = nullptr;
+		String				m_title			 = "";
+		GUINodeDockPreview* m_dockPreview	 = nullptr;
+		GUINodeTab*			m_tab			 = nullptr;
 	};
 } // namespace Lina::Editor
 

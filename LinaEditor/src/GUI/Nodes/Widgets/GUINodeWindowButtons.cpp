@@ -55,10 +55,11 @@ namespace Lina::Editor
 			return;
 
 		m_maximize->SetText(m_swapchain->GetWindow()->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
-		auto& buttons = GetChildren();
 
+		// Clamp
 		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minPos.x);
 
+		auto&	buttons	  = GetChildren();
 		Vector2 buttonPos = m_rect.pos;
 		for (auto c : buttons)
 		{

@@ -126,4 +126,14 @@ namespace Lina::Editor
 		return this;
 	}
 
+	GUINode* GUINode::SetVisible(bool visible)
+	{
+		m_visible = visible;
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->SetVisible(visible);
+
+		return this;
+	}
+
 } // namespace Lina::Editor

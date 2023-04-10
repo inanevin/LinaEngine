@@ -61,7 +61,7 @@ namespace Lina::Editor
 		opts.textScale	  = scale;
 
 		const Vector2 iconSize = FL2(LinaVG::CalculateTextSize(icon, opts));
-		const Vector2 pos	   = Vector2(centerPos.x - iconSize.x * 0.5f, centerPos.y + iconSize.y * 0.5f * opts.sdfThickness);
+		const Vector2 pos	   = Vector2(centerPos.x - iconSize.x * 0.5f, centerPos.y + iconSize.y * 0.5f * opts.sdfThickness + 1.0f);
 		LinaVG::DrawTextSDF(threadID, icon, LV2(pos), opts, rotation, drawOrder, skipCache);
 	}
 

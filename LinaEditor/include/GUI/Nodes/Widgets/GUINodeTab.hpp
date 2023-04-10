@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "GUI/Nodes/GUINode.hpp"
 #include "Data/String.hpp"
+#include "Data/Functional.hpp"
 
 namespace Lina::Editor
 {
@@ -46,6 +47,7 @@ namespace Lina::Editor
 
 		virtual void Draw(int threadID) override;
 		Vector2		 CalculateTabSize();
+		virtual void OnClicked(uint32 button) override;
 
 		inline GUINodeTab* SetTitle(const String& text)
 		{
@@ -59,14 +61,22 @@ namespace Lina::Editor
 			return this;
 		}
 
+		inline GUINodeTab* SetCallbackClose(Delegate<void()>&& cb)
+		{
+			m_closeCallback = cb;
+			return this;
+		}
+
 	private:
 		void DrawCloseButton(int threadID, float t);
 
 	protected:
-		float		   m_closeButtonAnimationAlpha = 0.0f;
-		bool		   m_closeButtonEnabled		   = true;
-		GUINodeButton* m_closeButton			   = nullptr;
-		String		   m_title					   = "";
+		bool			 m_isInCloseRect = false;
+		Delegate<void()> m_closeCallback;
+		float			 m_closeButtonAnimationAlpha = 0.0f;
+		bool			 m_closeButtonEnabled		 = true;
+		GUINodeButton*	 m_closeButton				 = nullptr;
+		String			 m_title					 = "";
 	};
 
 } // namespace Lina::Editor

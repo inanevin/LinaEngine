@@ -122,6 +122,7 @@ namespace Lina::Editor
 
 	void GUINodeFMPopupElementToggle::Draw(int threadID)
 	{
+		LINA_TRACE("HOVERED? {0}", m_isHovered);
 		if (!m_visible)
 			return;
 
@@ -166,6 +167,8 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
+		// Background color will adjust according to the hover state
+		// But we wanna keep the state as lastHovered.
 		const bool isHovered = m_isHovered;
 		m_isHovered			 = m_isLastHovered;
 		GUINodeFMPopupElement::Draw(threadID);
@@ -177,9 +180,12 @@ namespace Lina::Editor
 
 		if (m_isLastHovered)
 		{
+			m_popup->SetVisible(true);
 			m_popup->SetPos(m_rect.pos + m_rect.size - Vector2(0, m_rect.size.y));
 			m_popup->Draw(threadID);
 		}
+		else
+			m_popup->SetVisible(false);
 	}
 
 	Vector2 GUINodeFMPopupElementExpandable::CalculateSize()
@@ -238,6 +244,7 @@ namespace Lina::Editor
 		e->AddChildren(popup);
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
+		popup->SetVisible(false);
 		return this;
 	}
 
@@ -302,30 +309,37 @@ namespace Lina::Editor
 	void GUINodeFileMenu::Draw(int threadID)
 	{
 		if (!m_visible)
-
 			return;
-		m_layout->SetPos(m_rect.pos);
-		m_layout->Draw(threadID);
-		SetSize(m_layout->GetRect().size);
 
-		if (m_targetPopup != nullptr)
+		// Layout - this will draw buttons
 		{
-			m_targetButton->SetDefaultColor(Theme::TC_CyanAccent);
-			m_targetButton->SetHoveredColor(Theme::TC_CyanAccent);
+			m_layout->SetPos(m_rect.pos);
+			m_layout->Draw(threadID);
+			SetSize(m_layout->GetRect().size);
+		}
 
-			Vector2 pos = m_targetButton->GetRect().pos;
-			pos.y += m_targetButton->GetRect().size.y;
-			m_targetPopup->SetPos(pos);
-
-			m_targetPopup->Draw(threadID);
-
-			for (auto b : m_buttons)
+		// Draw the target (open) popup
+		{
+			if (m_targetPopup != nullptr)
 			{
-				if (b->GetIsHovered() && b != m_targetButton)
+				m_targetPopup->SetVisible(true);
+				m_targetButton->SetDefaultColor(Theme::TC_CyanAccent);
+				m_targetButton->SetHoveredColor(Theme::TC_CyanAccent);
+
+				Vector2 pos = m_targetButton->GetRect().pos;
+				pos.y += m_targetButton->GetRect().size.y;
+				m_targetPopup->SetPos(pos);
+
+				m_targetPopup->Draw(threadID);
+
+				for (auto b : m_buttons)
 				{
-					ResetTargets();
-					m_targetButton = b;
-					m_targetPopup  = static_cast<GUINodeFMPopup*>(b->GetChildren()[0]);
+					if (b->GetIsHovered() && b != m_targetButton)
+					{
+						ResetTargets();
+						m_targetButton = b;
+						m_targetPopup  = static_cast<GUINodeFMPopup*>(b->GetChildren()[0]);
+					}
 				}
 			}
 		}
@@ -345,6 +359,7 @@ namespace Lina::Editor
 	{
 		const char*	   title	  = popup->GetTitle().c_str();
 		const FontType targetFont = FontType::DefaultEditor;
+		popup->SetVisible(false);
 		popup->SetCallback(BIND(&GUINodeFileMenu::OnPressedPopupElement, this, std::placeholders::_1));
 
 		GUINodeButton* but = new GUINodeButton(m_editor, m_swapchain, m_drawOrder);
@@ -352,6 +367,7 @@ namespace Lina::Editor
 		but->SetFitType(ButtonFitType::AutoFitFromTextAndPadding)->SetCallback(BIND(&GUINodeFileMenu::OnButtonClicked, this, std::placeholders::_1));
 		but->SetEnableHoverOutline(true)->SetOutlineColor(Theme::TC_Silent);
 		but->AddChildren(popup);
+
 		m_buttons.push_back(but);
 		m_layout->AddChildren(but);
 	}
@@ -376,6 +392,7 @@ namespace Lina::Editor
 		{
 			m_targetPopup->SwitchedFrom();
 			m_targetButton->SetDefaultColor(Theme::TC_Dark1)->SetHoveredColor(Theme::TC_Light1);
+			m_targetPopup->SetVisible(false);
 		}
 		m_targetButton = nullptr;
 		m_targetPopup  = nullptr;
