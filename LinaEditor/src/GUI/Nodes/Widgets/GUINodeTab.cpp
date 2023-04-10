@@ -49,7 +49,7 @@ namespace Lina::Editor
 		m_closeButton->SetTextScale(0.5f);
 		AddChildren(m_closeButton);
 	}
-	
+
 	void GUINodeTab::Draw(int threadID)
 	{
 		if (!m_visible)
@@ -127,8 +127,8 @@ namespace Lina::Editor
 
 	void GUINodeTab::DrawCloseButton(int threadID, float t)
 	{
-		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
-
+		// Uuf, setup
+		const float	  padding	 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 		const float	  offset	 = padding * 1.5f;
 		const float	  yOffset	 = 1.0f;
 		const Vector2 originalTL = Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END, m_rect.pos.y + yOffset);
@@ -141,12 +141,12 @@ namespace Lina::Editor
 		const Vector2 p2		 = m_rect.pos + m_rect.size - Vector2(0, yOffset);
 
 		Vector<LinaVG::Vec2> points;
-
 		points.push_back(LV2(p0));
 		points.push_back(LV2(p1));
 		points.push_back(LV2(p2));
 		points.push_back(LV2(p3));
 
+		// Don't bother drawing if too small.
 		if (t > 0.05f)
 		{
 			LinaVG::StyleOptions opts;
@@ -158,12 +158,17 @@ namespace Lina::Editor
 			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder + 1);
 		}
 
-		Vector2 iconCenter = (p2 + targetTL) * 0.5f;
-		iconCenter.x -= padding * 0.1f;
-		iconCenter.y	= (m_rect.pos.y + m_rect.pos.y + m_rect.size.y) * 0.5f;
-		Color iconColor = t < 0.7f ? Color(1.0f, 1.0f, 1.0f, 0.2f) : Math::Lerp(Color(0, 0, 0, 0), Color::White, t * 10.0f);
-		iconColor.w		= Math::Clamp(iconColor.w, 0.0f, 1.0f);
-		GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), TI_CROSS, iconCenter, 0.75f, iconColor, m_drawOrder + 2, 90.0f * t, true);
+		// Close icon
+		{
+			Vector2 iconCenter = (p2 + targetTL) * 0.5f;
+			iconCenter.x -= padding * 0.1f;
+			iconCenter.y	= (m_rect.pos.y + m_rect.pos.y + m_rect.size.y) * 0.5f;
+			
+			Color iconColor = t < 0.7f ? Color(1.0f, 1.0f, 1.0f, 0.2f) : Math::Lerp(Color(0, 0, 0, 0), Color::White, t * 10.0f);
+			iconColor.w		= Math::Clamp(iconColor.w, 0.0f, 1.0f);
+			
+			GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), TI_CROSS, iconCenter, 0.75f, iconColor, m_drawOrder + 2, 90.0f * t, true);
+		}
 	}
 
 } // namespace Lina::Editor
