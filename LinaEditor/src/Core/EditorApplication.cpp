@@ -82,18 +82,8 @@ namespace Lina::Editor
 
 	void EditorApplication::Tick()
 	{
-		// Debug
-		if (m_engine.GetInput().GetKeyDown(LINA_KEY_L))
-		{
-			m_editor.OpenPanel(EditorPanel::DebugResourceView);
-		}
-
-		if (m_engine.GetInput().GetKeyDown(LINA_KEY_G))
-		{
-			m_editor.OpenPanel(EditorPanel::Entities);
-		}
-
 		Application::Tick();
+		m_editor.Tick();
 
 		if (!m_doneWithSplash && m_systemEventMask == 0)
 		{

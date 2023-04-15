@@ -51,14 +51,14 @@ namespace Lina::Editor
 				LinaVG::SDFTextOptions textOpts;
 				textOpts.font	   = Theme::GetFont(FontType::EditorIcons, m_swapchain->GetWindowDPIScale());
 				textOpts.textScale = m_textScale;
-				textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_text.c_str(), textOpts));
+				textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_title.c_str(), textOpts));
 			}
 			else
 			{
 				LinaVG::TextOptions textOpts;
 				textOpts.font	   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
 				textOpts.textScale = m_textScale;
-				textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_text.c_str(), textOpts));
+				textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_title.c_str(), textOpts));
 			}
 		}
 
@@ -92,7 +92,7 @@ namespace Lina::Editor
 			if (m_isIcon)
 			{
 				const Vector2 textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-				GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), m_text.c_str(), textPos, m_textScale, m_textColor, m_drawOrder);
+				GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), m_title.c_str(), textPos, m_textScale, m_textColor, m_drawOrder);
 			}
 			else
 			{
@@ -101,7 +101,7 @@ namespace Lina::Editor
 				textOpts.color	   = LV4(m_textColor);
 				textOpts.font	   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
 				textOpts.textScale = m_textScale;
-				LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder + 1);
+				LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder + 1);
 			}
 		}
 	}
@@ -123,7 +123,7 @@ namespace Lina::Editor
 		m_lastDpi = m_swapchain->GetWindowDPIScale();
 		LinaVG::TextOptions textOpts;
 		textOpts.font		 = Theme::GetFont(m_fontType, m_lastDpi);
-		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_text.c_str(), textOpts));
+		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
 		return m_lastCalculatedSize;
 	}
 

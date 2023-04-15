@@ -215,7 +215,6 @@ namespace Lina
 	void GfxManager::Tick(float interpolationAlpha)
 	{
 		PROFILER_FUNCTION();
-
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(interpolationAlpha); });
 		m_system->GetMainExecutor()->RunAndWait(tf);
@@ -280,8 +279,8 @@ namespace Lina
 		if (it == m_surfaceRenderers.end())
 			return;
 
-		m_surfaceRenderers.erase(it);
 		delete *it;
+		m_surfaceRenderers.erase(it);
 	}
 
 	IGfxResourceCPU* GfxManager::GetCurrentGlobalDataResource()

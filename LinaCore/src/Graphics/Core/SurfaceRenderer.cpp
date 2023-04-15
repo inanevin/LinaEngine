@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/SystemInfo.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina
 {
@@ -212,6 +213,9 @@ namespace Lina
 
 	void SurfaceRenderer::Tick(float interpolationAlpha)
 	{
+		if (!m_swapchain->GetWindow()->GetIsVisible())
+			return;
+
 		PROFILER_FUNCTION();
 
 		Taskflow tf;
@@ -221,6 +225,9 @@ namespace Lina
 
 	void SurfaceRenderer::Render(int surfaceRendererIndex, uint32 frameIndex)
 	{
+		if (!m_swapchain->GetWindow()->GetIsVisible())
+			return;
+
 		PROFILER_FUNCTION();
 
 		m_surfaceRendererIndex = surfaceRendererIndex;
@@ -274,12 +281,12 @@ namespace Lina
 
 			if (m_mask.IsSet(SRM_DrawGUI) && m_guiDrawer != nullptr)
 			{
+				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
 			}
 
 			if (m_mask.IsSet(SRM_DrawGUI) && m_guiDrawer != nullptr)
 			{
 				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
-				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
 
 				// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
 				{

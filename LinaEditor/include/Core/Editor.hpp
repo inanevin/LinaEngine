@@ -35,28 +35,51 @@ SOFTWARE.
 #include "System/ISubsystem.hpp"
 #include "EditorCommon.hpp"
 #include "Graphics/Resource/Texture.hpp"
+#include "GUI/EditorPayloadManager.hpp"
 
 namespace Lina
 {
 	struct ResourceIdentifier;
-}
+	class GfxManager;
+	class WindowManager;
+	class IWindow;
+	class Input;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class EditorGUIDrawer;
+	class GUIDrawerBase;
+	class GUINode;
+	class GUINodePanel;
+	class GUINodeDockArea;
 
 	class Editor : public ISubsystem
 	{
+
+	private:
+		struct CreateWindowRequest
+		{
+			EditorPanel panelType = EditorPanel::None;
+			StringID	sid		  = 0;
+			String		title	  = "";
+		};
+
+		struct DeleteWindowRequest
+		{
+			StringID sid;
+		};
+
 	public:
-		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor){};
+		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this){};
 		virtual ~Editor() = default;
 
 		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
 		void BeginSplashScreen();
 		void EndSplashScreen();
+		void Tick();
 
-		void OpenPanel(EditorPanel panel);
-		void ClosePanel(EditorPanel panel);
+		void		   OpenPanel(EditorPanel panel, const String& title, StringID sid);
+		void		   CloseWindow(StringID sid);
 
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
@@ -67,12 +90,26 @@ namespace Lina::Editor
 			return m_editorImages[index];
 		}
 
+		inline EditorPayloadManager& GetPayloadManager()
+		{
+			return m_payloadManager;
+		}
+
+		inline const HashMap<StringID, GUIDrawerBase*>& GetGUIDrawers() const
+		{
+			return m_guiDrawers;
+		}
+
 	private:
-		Mutex								   m_mtx;
-		EditorGUIDrawer*					   m_mainWindowGUIDrawer = nullptr;
-		HashMap<StringID, EditorGUIDrawer*>	   m_guiDrawers;
-		HashMap<EditorPanel, EditorGUIDrawer*> m_openPanels;
-		Vector<TextureSheetItem>			   m_editorImages;
+		Input*							  m_input = nullptr;
+		EditorPayloadManager			  m_payloadManager;
+		WindowManager*					  m_windowManager		= nullptr;
+		GfxManager*						  m_gfxManager			= nullptr;
+		GUIDrawerBase*					  m_guiDrawerMainWindow = nullptr;
+		Vector<DeleteWindowRequest>		  m_deleteWindowRequests;
+		Vector<CreateWindowRequest>		  m_createWindowRequests;
+		Vector<TextureSheetItem>		  m_editorImages;
+		HashMap<StringID, GUIDrawerBase*> m_guiDrawers;
 	};
 } // namespace Lina::Editor
 

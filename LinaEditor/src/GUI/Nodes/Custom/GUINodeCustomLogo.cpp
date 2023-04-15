@@ -45,7 +45,7 @@ namespace Lina::Editor
 		m_tooltip	 = new GUINodeTooltip(editor, swapchain);
 
 		String tooltipText = "Lina Engine v" + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " Build: " + TO_STRING(LINA_BUILD);
-		m_tooltip->SetText(tooltipText);
+		m_tooltip->SetTitle(tooltipText.c_str());
 		AddChildren(m_tooltip);
 	}
 

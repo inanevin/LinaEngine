@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
+#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -73,10 +74,8 @@ namespace Lina::Editor
 
 	void GUINodeFMPopupElement::OnClicked(uint32 button)
 	{
-		const StringID sid = TO_SID(m_title);
-
-		if (m_callback)
-			m_callback(sid);
+		if (m_onClicked)
+			m_onClicked(this);
 	}
 
 	void GUINodeFMPopupElementDivider::Draw(int threadID)
@@ -211,7 +210,7 @@ namespace Lina::Editor
 	GUINodeFMPopup* GUINodeFMPopup::AddDivider(const char* title)
 	{
 		GUINodeFMPopupElementDivider* e = new GUINodeFMPopupElementDivider(m_editor, m_swapchain, m_drawOrder + 1);
-		e->SetTitle(title);
+		e->SetTitle(title)->SetSID(TO_SIDC(title));
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
 		return this;
@@ -220,27 +219,27 @@ namespace Lina::Editor
 	GUINodeFMPopup* GUINodeFMPopup::AddDefault(const char* title)
 	{
 		GUINodeFMPopupElement* e = new GUINodeFMPopupElement(m_editor, m_swapchain, m_drawOrder + 1, FMPopupElementType::Default);
-		e->SetTitle(title);
+		e->SetTitle(title)->SetSID(TO_SIDC(title));
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
-		e->SetCallback(BIND(&GUINodeFMPopup::OnPressedItem, this, std::placeholders::_1));
+		e->SetCallbackClicked(BIND(&GUINodeFMPopup::OnPressedItem, this, std::placeholders::_1));
 		return this;
 	}
 
 	GUINodeFMPopup* GUINodeFMPopup::AddToggle(const char* title, bool initialValue)
 	{
 		GUINodeFMPopupElementToggle* e = new GUINodeFMPopupElementToggle(m_editor, m_swapchain, m_drawOrder + 1);
-		e->SetValue(initialValue)->SetTitle(title);
+		e->SetValue(initialValue)->SetTitle(title)->SetSID(TO_SIDC(title));
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
-		e->SetCallback(BIND(&GUINodeFMPopup::OnPressedItem, this, std::placeholders::_1));
+		e->SetCallbackClicked(BIND(&GUINodeFMPopup::OnPressedItem, this, std::placeholders::_1));
 		return this;
 	}
 
 	GUINodeFMPopup* GUINodeFMPopup::AddExpandable(const char* title, GUINodeFMPopup* popup)
 	{
 		GUINodeFMPopupElementExpandable* e = new GUINodeFMPopupElementExpandable(m_editor, m_swapchain, m_drawOrder + 1);
-		e->SetExpandedPopup(popup)->SetTitle(title);
+		e->SetExpandedPopup(popup)->SetTitle(title)->SetSID(TO_SIDC(title));
 		e->AddChildren(popup);
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
@@ -248,10 +247,10 @@ namespace Lina::Editor
 		return this;
 	}
 
-	void GUINodeFMPopup::OnPressedItem(StringID sid)
+	void GUINodeFMPopup::OnPressedItem(GUINode* node)
 	{
-		if (m_callback)
-			m_callback(sid);
+		if (m_onClicked)
+			m_onClicked(node);
 	}
 
 	GUINodeFMPopup::GUINodeFMPopup(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
@@ -295,7 +294,7 @@ namespace Lina::Editor
 		SetSize(sz);
 		SetLayoutOffset(heightMargin);
 
-		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_swapchain->GetWindowDPIScale(), POPUP_DRAW_ORDER);
+		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_swapchain->GetWindowDPIScale(), FRONT_DRAW_ORDER);
 		m_layout->SetPos(m_rect.pos + Vector2(0, m_layoutOffset));
 		m_layout->Draw(threadID);
 	}
@@ -349,7 +348,7 @@ namespace Lina::Editor
 	{
 		bool retVal = GUINode::OnMouse(button, act);
 
-		if (m_targetPopup && !GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_rect) && !GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_targetPopup->GetRect()))
+		if (button = LINA_MOUSE_0 && act == InputAction::Released && m_targetPopup && !GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_rect) && !GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_targetPopup->GetRect()))
 			ResetTargets();
 
 		return retVal;
@@ -360,11 +359,11 @@ namespace Lina::Editor
 		const char*	   title	  = popup->GetTitle().c_str();
 		const FontType targetFont = FontType::DefaultEditor;
 		popup->SetVisible(false);
-		popup->SetCallback(BIND(&GUINodeFileMenu::OnPressedPopupElement, this, std::placeholders::_1));
+		popup->SetCallbackClicked(BIND(&GUINodeFileMenu::OnPressedPopupElement, this, std::placeholders::_1));
 
 		GUINodeButton* but = new GUINodeButton(m_editor, m_swapchain, m_drawOrder);
-		but->SetFontType(targetFont)->SetText(title)->SetDefaultColor(Theme::TC_Dark1)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3);
-		but->SetFitType(ButtonFitType::AutoFitFromTextAndPadding)->SetCallback(BIND(&GUINodeFileMenu::OnButtonClicked, this, std::placeholders::_1));
+		but->SetFontType(targetFont)->SetDefaultColor(Theme::TC_Dark1)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetTitle(title);
+		but->SetFitType(ButtonFitType::AutoFitFromTextAndPadding)->SetCallbackClicked(BIND(&GUINodeFileMenu::OnButtonClicked, this, std::placeholders::_1));
 		but->SetEnableHoverOutline(true)->SetOutlineColor(Theme::TC_Silent);
 		but->AddChildren(popup);
 
@@ -372,18 +371,18 @@ namespace Lina::Editor
 		m_layout->AddChildren(but);
 	}
 
-	void GUINodeFileMenu::OnButtonClicked(GUINodeButton* but)
+	void GUINodeFileMenu::OnButtonClicked(GUINode* but)
 	{
 		m_targetPopup  = static_cast<GUINodeFMPopup*>(but->GetChildren()[0]);
-		m_targetButton = but;
+		m_targetButton = static_cast<GUINodeButton*>(but);
 	}
 
-	void GUINodeFileMenu::OnPressedPopupElement(StringID sid)
+	void GUINodeFileMenu::OnPressedPopupElement(GUINode* node)
 	{
 		ResetTargets();
 
-		if (m_callback)
-			m_callback(sid);
+		if (m_onClicked)
+			m_onClicked(node);
 	}
 
 	void GUINodeFileMenu::ResetTargets()

@@ -40,77 +40,60 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUINodePanelLevel.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelResourceViewer.hpp"
 #include "GUI/Nodes/Custom/GUINodeDockPreview.hpp"
-#include "GUI/Nodes/Widgets/GUINodeTab.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTabArea.hpp"
 
 #include "Core/Editor.hpp"
-#include "GUI/EditorGUIDrawer.hpp"
+#include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "System/ISystem.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
+#include "Input/Core/Input.hpp"
+#include "GUI/Nodes/Custom/GUINodeDockPreview.hpp"
 
 namespace Lina::Editor
 {
+	GUINodeDockArea::GUINodeDockArea(GUIDrawerBase* drawer, Editor* editor, ISwapchain* swapchain, int drawOrder) : m_drawer(drawer), GUINode(editor, swapchain, drawOrder)
+	{
+		m_tabArea = new GUINodeTabArea(editor, swapchain, drawOrder);
+		m_tabArea->SetIsPanelTabs(true);
+		m_tabArea->SetCallbackTabClicked(BIND(&GUINodeDockArea::OnTabClicked, this, std::placeholders::_1));
+		m_tabArea->SetCallbackTabDismissed(BIND(&GUINodeDockArea::OnTabDismissed, this, std::placeholders::_1));
+		m_tabArea->SetCallbackTabDetached(BIND(&GUINodeDockArea::OnTabDetached, this, std::placeholders::_1, std::placeholders::_2));
+		m_dockPreview = new GUINodeDockPreview(editor, swapchain, drawOrder);
+		AddChildren(m_tabArea)->AddChildren(m_dockPreview);
+
+		m_input = editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+	}
+
 	void GUINodeDockArea::Draw(int threadID)
 	{
 		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
 
 		const float tabAreaHeight = 24.0f * m_swapchain->GetWindowDPIScale();
 		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
-		m_tabRect				  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
+		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
 
-		DrawTabs(threadID);
+		m_tabArea->SetRect(tabRect);
+		m_tabArea->Draw(threadID);
 
 		if (m_focusedPanel != nullptr)
 		{
 			m_focusedPanel->SetRect(panelRect);
 			m_focusedPanel->Draw(threadID);
+		}
 
-			const Vector2i& focusedSize		   = m_focusedPanel->GetRect().size;
-			const bool		sizeSuitableToDock = focusedSize.x > 400 && focusedSize.y > 400;
+		if (m_isDockingPreviewEnabled)
+		{
+			const Vector2i& targetSize		   = m_rect.size;
+			const bool		sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
+			auto			mousePos		   = m_input->GetMousePositionAbs() - m_swapchain->GetWindow()->GetPos();
 
 			// Also check pressed status and also check if editor gui drawer contains a flying tab.
-			if (sizeSuitableToDock && m_drawer->GetIsDraggingPanelTab() && GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_focusedPanel->GetRect()))
+			if (sizeSuitableToDock && GUIUtility::IsInRect(mousePos, m_rect))
 			{
-				m_focusedPanel->DrawDockPreview(threadID);
+				m_dockPreview->SetRect(m_rect);
+				m_dockPreview->Draw(threadID);
 			}
-		}
-	}
-
-	bool GUINodeDockArea::OnMouse(uint32 button, InputAction act)
-	{
-		const bool retVal = GUINode::OnMouse(button, act);
-
-		if (m_focusedPanel && m_drawer->GetIsDraggingPanelTab() && act == InputAction::Released && button == LINA_MOUSE_0)
-		{
-			const DockSplitType splitType = m_focusedPanel->GetDockPreview()->GetCurrentSplitType();
-			m_drawer->SplitDockArea(this, splitType);
-		}
-
-		return retVal;
-	}
-
-	void GUINodeDockArea::DrawTabs(int threadID)
-	{
-		const uint32 sz		 = static_cast<uint32>(m_panels.size());
-		const float	 padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
-
-		Vector2 maxTabSize = Vector2::Zero;
-		for (uint32 i = 0; i < sz; i++)
-		{
-			auto* panel = m_panels[i];
-			auto* tab	= panel->GetTab();
-			maxTabSize	= maxTabSize.Max(tab->CalculateTabSize());
-		}
-
-		Rect tabRect = Rect(m_tabRect.pos, Vector2(maxTabSize.x, m_tabRect.size.y));
-
-		for (uint32 i = 0; i < sz; i++)
-		{
-			auto* panel = m_panels[i];
-			auto* tab	= panel->GetTab();
-			tab->SetCloseButtonEnabled(m_panels.size() > 1);
-			tab->SetTitle(panel->GetTitle());
-			tab->SetRect(tabRect);
-			tab->Draw(threadID);
-			tabRect.pos += Vector2(maxTabSize.x, 0.0f);
 		}
 	}
 
@@ -120,44 +103,73 @@ namespace Lina::Editor
 		panel->SetParentDockArea(this);
 		m_panels.push_back(panel);
 		m_focusedPanel = panel;
+		m_tabArea->AddTab(panel->GetTitle(), panel->GetSID());
 	}
 
-	void GUINodeDockArea::AddNewPanel(EditorPanel panel)
+	void GUINodeDockArea::RemovePanel(GUINodePanel* panel, bool deletePanel, bool deleteIfEmpty)
 	{
-		switch (panel)
-		{
-		case EditorPanel::DebugResourceView:
-			AddPanel(new GUINodePanelResourceViewer(m_editor, m_swapchain, m_drawOrder, "Resource Viewer", this));
-			break;
-		case EditorPanel::Entities:
-			AddPanel(new GUINodePanelEntities(m_editor, m_swapchain, m_drawOrder, "Entities", this));
-			break;
-		case EditorPanel::Level:
-			AddPanel(new GUINodePanelLevel(m_editor, m_swapchain, m_drawOrder, "Level View", this));
-			break;
-		case EditorPanel::Properties:
-			AddPanel(new GUINodePanelProperties(m_editor, m_swapchain, m_drawOrder, "Properties", this));
-			break;
-		case EditorPanel::ContentBrowser:
-			AddPanel(new GUINodePanelContentBrowser(m_editor, m_swapchain, m_drawOrder, "Content", this));
-			break;
-		case EditorPanel::Hierarchy:
-			AddPanel(new GUINodePanelHierarchy(m_editor, m_swapchain, m_drawOrder, "Hierarchy", this));
-			break;
-		default:
-			LINA_NOTIMPLEMENTED;
-		}
-	}
+		m_tabArea->RemoveTab(panel->GetSID());
 
-	void GUINodeDockArea::OnPanelClosed(GUINodePanel* panel)
-	{
 		if (panel == m_focusedPanel)
 			m_focusedPanel = m_panels[0];
 
 		m_panels.erase(linatl::find_if(m_panels.begin(), m_panels.end(), [panel](GUINodePanel* p) { return p == panel; }));
 		RemoveChildren(panel);
-		delete panel;
-		LINA_TRACE("huh");
+
+		if (deletePanel)
+			delete panel;
+
+		if (m_panels.empty() && deleteIfEmpty)
+		{
+			m_editor->CloseWindow(m_swapchain->GetSID());
+		}
+	}
+
+	void GUINodeDockArea::OnPayloadCreated(PayloadType type, void* payloadData)
+	{
+		// Docking preview for panels that are not my children.
+		if (type == PayloadType::Panel)
+		{
+			PayloadDataPanel* data = static_cast<PayloadDataPanel*>(payloadData);
+			if (FindChildren(data->onFlightPanel->GetSID()) == nullptr)
+				m_isDockingPreviewEnabled = true;
+		}
+	}
+
+	bool GUINodeDockArea::OnPayloadDropped(PayloadType type, void* payloadData)
+	{
+		m_isDockingPreviewEnabled = false;
+
+		if (type == PayloadType::Panel)
+		{
+			// If dropped on one of the 4 directions for me.
+			const DockSplitType splitType = m_dockPreview->GetCurrentSplitType();
+			if (splitType != DockSplitType::None)
+			{
+				const DockSplitType splitType = m_dockPreview->GetCurrentSplitType();
+
+				PayloadDataPanel* data = static_cast<PayloadDataPanel*>(payloadData);
+				m_drawer->SplitDockArea(this, splitType, data->onFlightPanel);
+				data->ownerDockArea->RemovePanel(data->srcPanel, true);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	void GUINodeDockArea::OnTabClicked(GUINode* node)
+	{
+	}
+
+	void GUINodeDockArea::OnTabDismissed(GUINode* node)
+	{
+	}
+
+	void GUINodeDockArea::OnTabDetached(GUINode* node, const Vector2& detachDelta)
+	{
+		auto it = linatl::find_if(m_panels.begin(), m_panels.end(), [node](GUINodePanel* p) { return p->GetSID() == node->GetSID(); });
+		m_editor->GetPayloadManager().CreatePayloadPanel(*it, detachDelta);
 	}
 
 } // namespace Lina::Editor

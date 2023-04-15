@@ -39,10 +39,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTitleSection::GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panel) : GUINode(editor, swapchain, drawOrder)
+	GUINodeTitleSection::GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
 	{
 		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
-		m_windowButtons->SetCallbackOnClose([editor, panel]() { editor->ClosePanel(panel); });
+		m_windowButtons->SetCallbackDismissed([editor, swapchain, this](GUINode* node) { editor->CloseWindow(swapchain->GetSID()); });
 		AddChildren(m_windowButtons);
 	}
 
@@ -83,7 +83,7 @@ namespace Lina::Editor
 			m_swapchain->GetWindow()->SetDragRect(dragRect);
 		}
 	}
-	
+
 	bool GUINodeTitleSection::OnMouse(uint32 button, InputAction act)
 	{
 		const bool ret = GUINode::OnMouse(button, act);

@@ -28,19 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUINodePanelResourceViewer_HPP
-#define GUINodePanelResourceViewer_HPP
+#ifndef GUIPanelFactory_HPP
+#define GUIPanelFactory_HPP
 
-#include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "Core/EditorCommon.hpp"
+#include "Data/String.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodePanelResourceViewer : public GUINodePanel
+	class GUINodePanel;
+	class GUINodeDockArea;
+
+	class GUIPanelFactory
 	{
 	public:
-		GUINodePanelResourceViewer(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, panelType, title, parentDockArea){};
-		virtual ~GUINodePanelResourceViewer() = default;
-		virtual void Draw(int threadID);
+		static GUINodePanel* CreatePanel(EditorPanel panelType, GUINodeDockArea* targetDockArea, const String& panelTitle, StringID sid);
 	};
 } // namespace Lina::Editor
 

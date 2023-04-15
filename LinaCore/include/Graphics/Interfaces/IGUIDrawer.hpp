@@ -50,6 +50,7 @@ namespace Lina
 		virtual void OnMousePos(const Vector2i& pos){};
 		virtual void OnMouseMove(const Vector2i& pos){};
 		virtual void OnMouseWheel(uint32 delta){};
+		virtual void OnLostFocus(){};
 
 	protected:
 		ISwapchain* m_swapchain = nullptr;

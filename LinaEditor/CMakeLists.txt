@@ -30,6 +30,7 @@ src/EditorEntryPoint.cpp
 src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetProgressBar.cpp
 src/GUI/Utility/GUIUtility.cpp
+src/GUI/Nodes/Panels/GUIPanelFactory.cpp
 src/GUI/Nodes/Panels/GUINodePanel.cpp
 src/GUI/Nodes/Panels/GUINodePanelResourceViewer.cpp
 src/GUI/Nodes/Panels/GUINodePanelEntities.cpp
@@ -47,13 +48,16 @@ src/GUI/Nodes/Widgets/GUINodeFileMenu.cpp
 src/GUI/Nodes/Widgets/GUINodeButton.cpp
 src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
 src/GUI/Nodes/Widgets/GUINodeTab.cpp
+src/GUI/Nodes/Widgets/GUINodeTabArea.cpp
 src/GUI/Nodes/Widgets/GUINodeWindowButtons.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutVertical.cpp
-
-src/GUI/EditorGUIDrawer.cpp
-src/GUI/MainWindowGUIDrawer.cpp
-src/GUI/SplashScreenGUIDrawer.cpp
+src/GUI/Drawers/GUIDrawerBase.cpp
+src/GUI/Drawers/GUIDrawerMainWindow.cpp
+src/GUI/Drawers/GUIDrawerChildWindow.cpp
+src/GUI/Drawers/GUIDrawerSplashScreen.cpp
+src/GUI/Drawers/GUIDrawerPayload.cpp
+src/GUI/EditorPayloadManager.cpp
 )
 
 
@@ -67,6 +71,7 @@ include/GUI/Nodes/Panels/GUINodePanelContentBrowser.hpp
 include/GUI/Nodes/Panels/GUINodePanelProperties.hpp
 include/GUI/Nodes/Panels/GUINodePanelLevel.hpp
 include/GUI/Nodes/Panels/GUINodePanel.hpp
+include/GUI/Nodes/Panels/GUIPanelFactory.hpp
 include/GUI/Nodes/GUINode.hpp
 include/GUI/Nodes/GUINodeDockArea.hpp
 include/GUI/Nodes/Custom/GUINodeTitleSection.hpp
@@ -77,15 +82,19 @@ include/GUI/Nodes/Widgets/GUINodeFileMenu.hpp
 include/GUI/Nodes/Widgets/GUINodeButton.hpp
 include/GUI/Nodes/Widgets/GUINodeTooltip.hpp
 include/GUI/Nodes/Widgets/GUINodeTab.hpp
+include/GUI/Nodes/Widgets/GUINodeTabArea.hpp
 include/GUI/Nodes/Widgets/GUINodeWindowButtons.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp
-include/GUI/EditorGUIDrawer.hpp
-include/GUI/SplashScreenGUIDrawer.hpp
-include/GUI/MainWindowGUIDrawer.hpp
+include/GUI/Drawers/GUIDrawerBase.hpp
+include/GUI/Drawers/GUIDrawerSplashScreen.hpp
+include/GUI/Drawers/GUIDrawerMainWindow.hpp
+include/GUI/Drawers/GUIDrawerChildWindow.hpp
+include/GUI/Drawers/GUIDrawerPayload.hpp
 include/GUI/Widgets/WidgetProgressBar.hpp
 include/GUI/Widgets/Widget.hpp
 include/GUI/Utility/GUIUtility.hpp
+include/GUI/EditorPayloadManager.hpp
 include/Core/EditorApplication.hpp
 include/Core/EditorCommon.hpp
 include/Core/Editor.hpp

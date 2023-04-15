@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/Editor.hpp"
 #include "GUI/Nodes/Widgets/GUINodeButton.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTabArea.hpp"
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Input/Core/InputMappings.hpp"
@@ -41,13 +42,8 @@ namespace Lina::Editor
 #define OFFSET_FROM_END 0.9f
 #define CLOSEBUT_SPEED	25.0f
 
-	GUINodeTab::GUINodeTab(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	GUINodeTab::GUINodeTab(Editor* editor, ISwapchain* swapchain, GUINodeTabArea* area, int drawOrder) : m_parentArea(area), GUINode(editor, swapchain, drawOrder)
 	{
-		m_closeButton = new GUINodeButton(editor, swapchain, drawOrder);
-		m_closeButton->SetIsIcon(true)->SetFitType(ButtonFitType::None)->SetText(TI_CROSS);
-		m_closeButton->SetDefaultColor(Theme::TC_Light1)->SetHoveredColor(Theme::TC_RedAccent)->SetPressedColor(Theme::TC_Dark3);
-		m_closeButton->SetTextScale(0.5f);
-		AddChildren(m_closeButton);
 	}
 
 	void GUINodeTab::Draw(int threadID)
@@ -67,7 +63,7 @@ namespace Lina::Editor
 
 			LinaVG::StyleOptions opts;
 			opts.color	   = LV4(Theme::TC_Light1);
-			opts.aaEnabled = false;
+			opts.aaEnabled = true;
 			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder);
 		}
 
@@ -82,46 +78,72 @@ namespace Lina::Editor
 
 		// Close button
 		{
-			if (!m_closeButtonEnabled)
-				return;
-
-			if (m_isHovered)
+			if (m_closeButtonEnabled)
 			{
-				const Rect closeRect		= Rect(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END - padding * 1.0f, m_rect.pos.y), Vector2(m_rect.size.x * (1.0f - OFFSET_FROM_END) + padding * 1.5f, m_rect.size.y));
-				m_isInCloseRect				= GUIUtility::IsInRect(m_swapchain->GetMousePos(), closeRect);
-				m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
-			}
-			else
-				m_isInCloseRect = false;
+				if (m_isHovered)
+				{
+					const Rect closeRect		= Rect(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END - padding * 1.0f, m_rect.pos.y), Vector2(m_rect.size.x * (1.0f - OFFSET_FROM_END) + padding * 1.5f, m_rect.size.y));
+					m_isInCloseRect				= GUIUtility::IsInRect(m_swapchain->GetMousePos(), closeRect);
+					m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
+				}
+				else
+					m_isInCloseRect = false;
 
-			m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
-			DrawCloseButton(threadID, m_closeButtonAnimationAlpha);
+				m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
+				DrawCloseButton(threadID, m_closeButtonAnimationAlpha);
+			}
+		}
+
+		if (m_isDragging)
+		{
+			const Vector2 mousePosNow = m_swapchain->GetMousePos();
+			const Vector2 deltaPress  = mousePosNow - Vector2(m_dragStartMousePos);
+
+			if (m_isReorderEnabled)
+				m_rect.pos.x = deltaPress.x;
+
+			if (m_isPanelTabs)
+			{
+				if (Math::Abs(deltaPress.y) > m_rect.size.y)
+				{
+					m_isDragging = false;
+					m_parentArea->OnTabDetached(this, Vector2(m_dragStartMousePos) - m_rect.pos + Vector2(deltaPress.x, 0.0f));
+				}
+			}
 		}
 	}
 
-	Vector2 GUINodeTab::CalculateTabSize()
+	Vector2 GUINodeTab::CalculateSize()
 	{
-		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float windowDPI = m_swapchain->GetWindowDPIScale();
+		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
+			return m_lastCalculatedSize;
+		m_lastDpi = windowDPI;
+
+		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_lastDpi);
 		float		totalX	= 0.0f;
 		totalX += padding;
 
 		LinaVG::TextOptions opts;
-		opts.font			   = Theme::GetFont(FontType::DefaultEditor, m_swapchain->GetWindowDPIScale());
+		opts.font			   = Theme::GetFont(FontType::DefaultEditor, m_lastDpi);
 		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
 		totalX += textSize.x + padding;
 
 		const float closeButtonSize = textSize.y;
 		totalX += closeButtonSize + padding;
 
-		return Vector2(totalX, textSize.y + padding);
+		m_lastCalculatedSize = Vector2(totalX, textSize.y + padding);
+		return m_lastCalculatedSize;
 	}
 
 	void GUINodeTab::OnClicked(uint32 button)
 	{
-		if (button == LINA_MOUSE_0 && m_isInCloseRect)
+		if (button == LINA_MOUSE_0)
 		{
-			if (m_closeCallback)
-				m_closeCallback();
+			if (m_isInCloseRect)
+				m_parentArea->OnTabDismissed(this);
+			else
+				m_parentArea->OnTabClicked(this);
 		}
 	}
 
@@ -130,7 +152,7 @@ namespace Lina::Editor
 		// Uuf, setup
 		const float	  padding	 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
 		const float	  offset	 = padding * 1.5f;
-		const float	  yOffset	 = 1.0f;
+		const float	  yOffset	 = 0.0f;
 		const Vector2 originalTL = Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END, m_rect.pos.y + yOffset);
 		const Vector2 originalBL = Vector2(m_rect.pos.x + m_rect.size.x, m_rect.pos.y + m_rect.size.y);
 		const Vector2 targetTL	 = Vector2(originalTL.x - offset, m_rect.pos.y + yOffset);
@@ -162,11 +184,11 @@ namespace Lina::Editor
 		{
 			Vector2 iconCenter = (p2 + targetTL) * 0.5f;
 			iconCenter.x -= padding * 0.1f;
-			iconCenter.y	= (m_rect.pos.y + m_rect.pos.y + m_rect.size.y) * 0.5f;
-			
+			iconCenter.y = (m_rect.pos.y + m_rect.pos.y + m_rect.size.y) * 0.5f;
+
 			Color iconColor = t < 0.7f ? Color(1.0f, 1.0f, 1.0f, 0.2f) : Math::Lerp(Color(0, 0, 0, 0), Color::White, t * 10.0f);
 			iconColor.w		= Math::Clamp(iconColor.w, 0.0f, 1.0f);
-			
+
 			GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), TI_CROSS, iconCenter, 0.75f, iconColor, m_drawOrder + 2, 90.0f * t, true);
 		}
 	}

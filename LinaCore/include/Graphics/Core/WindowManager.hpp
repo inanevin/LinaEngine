@@ -76,6 +76,11 @@ namespace Lina
 			return nullptr;
 		}
 
+		inline const HashMap<StringID, IWindow*>& GetWindows() const
+		{
+			return m_windows;
+		}
+
 	private:
 		VsyncMode					m_vsync		 = VsyncMode::None;
 		GfxManager*					m_gfxManager = nullptr;

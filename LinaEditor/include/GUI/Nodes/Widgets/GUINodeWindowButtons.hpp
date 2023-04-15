@@ -43,23 +43,15 @@ namespace Lina::Editor
 	public:
 		GUINodeWindowButtons(Editor* editor, ISwapchain* swapchain, int drawOrder);
 		virtual ~GUINodeWindowButtons() = default;
-
 		virtual void Draw(int threadID) override;
 
-		GUINodeWindowButtons* SetCallbackOnClose(Delegate<void()>&& cb)
-		{
-			m_onClose = cb;
-			return this;
-		}
-		
 	private:
-		void OnButtonPressed(GUINodeButton* button);
+		void OnButtonPressed(GUINode* button);
 
 	private:
-		Delegate<void()>		 m_onClose;
-		GUINodeButton*			 m_minimize = nullptr;
-		GUINodeButton*			 m_maximize = nullptr;
-		GUINodeButton*			 m_close	= nullptr;
+		GUINodeButton* m_minimize = nullptr;
+		GUINodeButton* m_maximize = nullptr;
+		GUINodeButton* m_close	  = nullptr;
 	};
 } // namespace Lina::Editor
 

@@ -36,22 +36,29 @@ SOFTWARE.
 #include "Math/Rect.hpp"
 #include "Core/EditorCommon.hpp"
 
+namespace Lina
+{
+	class Input;
+}
+
 namespace Lina::Editor
 {
 	class GUINodePanel;
-	class EditorGUIDrawer;
+	class GUIDrawerBase;
+	class GUINodeTabArea;
+	class GUINodeDockPreview;
 
 	class GUINodeDockArea : public GUINode
 	{
 	public:
-		GUINodeDockArea(EditorGUIDrawer* drawer, Editor* editor, ISwapchain* swapchain, int drawOrder) : m_drawer(drawer), GUINode(editor, swapchain, drawOrder){};
+		GUINodeDockArea(GUIDrawerBase* drawer, Editor* editor, ISwapchain* swapchain, int drawOrder);
 		virtual ~GUINodeDockArea() = default;
 
 		virtual void Draw(int threadID) override;
-		virtual bool OnMouse(uint32 button, InputAction act) override;
 		void		 AddPanel(GUINodePanel* panel);
-		void		 AddNewPanel(EditorPanel panel);
-		void		 OnPanelClosed(GUINodePanel* panel);
+		void		 RemovePanel(GUINodePanel* panel, bool deletePanel = true, bool deleteIfEmpty = true);
+		virtual void OnPayloadCreated(PayloadType type, void* payloadData) override;
+		virtual bool OnPayloadDropped(PayloadType type, void* payloadData) override;
 
 		inline void SetSplitRect(const Rect& rect)
 		{
@@ -74,15 +81,20 @@ namespace Lina::Editor
 		}
 
 	private:
-		void DrawTabs(int threadID);
+		void OnTabClicked(GUINode* node);
+		void OnTabDismissed(GUINode* node);
+		void OnTabDetached(GUINode* node, const Vector2& detachDelta);
 
 	protected:
-		EditorGUIDrawer*	  m_drawer = nullptr;
+		Lina::Input*		  m_input					= nullptr;
+		bool				  m_isDockingPreviewEnabled = false;
+		GUIDrawerBase*		  m_drawer					= nullptr;
 		Rect				  m_splitPercentages;
-		Rect				  m_tabRect;
 		Vector<GUINodePanel*> m_panels;
 		GUINodePanel*		  m_focusedPanel = nullptr;
 		GUINodeDockArea*	  m_splittedArea = nullptr;
+		GUINodeTabArea*		  m_tabArea		 = nullptr;
+		GUINodeDockPreview*	  m_dockPreview	 = nullptr;
 	};
 } // namespace Lina::Editor
 

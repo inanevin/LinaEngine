@@ -33,9 +33,16 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
+#include "System/ISystem.hpp"
+#include "Input/Core/Input.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
+	GUINodeDockPreview::GUINodeDockPreview(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	{
+		m_input = editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+	}
 	void GUINodeDockPreview::Draw(int threadID)
 	{
 		if (!m_visible)
@@ -58,11 +65,46 @@ namespace Lina::Editor
 			opts.color	   = LV4(col);
 			opts.rounding  = 0.2f;
 			opts.aaEnabled = true;
-			LinaVG::DrawRect(threadID, LV2(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f)), LV2(Vector2(center.x + rectSize.x * 0.5f, center.y + rectSize.y * 0.5f)), opts, 0.0f, m_drawOrder);
+			LinaVG::DrawRect(threadID, LV2(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f)), LV2(Vector2(center.x + rectSize.x * 0.5f, center.y + rectSize.y * 0.5f)), opts, 0.0f, FRONT_DRAW_ORDER);
 			GUIUtility::DrawSheetImage(threadID, item, center, itemSize, Color::White, m_drawOrder);
 
-			if (GUIUtility::IsInRect(m_swapchain->GetMousePos(), splitAreaRect))
+			auto mousePos = m_input->GetMousePositionAbs() - m_swapchain->GetWindow()->GetPos();
+
+			if (GUIUtility::IsInRect(mousePos, splitAreaRect))
+			{
+
+				LinaVG::StyleOptions rectOpts;
+				rectOpts.color		   = LV4(Theme::TC_CyanAccent);
+				rectOpts.color.start.w = rectOpts.color.end.w = 0.3f;
+
 				m_currentHoveredSplit = splitType;
+
+				Vector2 rectStartPos = Vector2::Zero;
+				Vector2 rectSize	 = Vector2::Zero;
+
+				if (m_currentHoveredSplit == DockSplitType::Left)
+				{
+					rectStartPos = m_rect.pos;
+					rectSize	 = Vector2(m_rect.size.x * EDITOR_DEFAULT_DOCK_SPLIT, m_rect.size.y);
+				}
+				else if (m_currentHoveredSplit == DockSplitType::Right)
+				{
+					rectStartPos = Vector2(m_rect.pos.x + m_rect.size.x - m_rect.size.x * EDITOR_DEFAULT_DOCK_SPLIT, m_rect.pos.y);
+					rectSize	 = Vector2(m_rect.size.x * EDITOR_DEFAULT_DOCK_SPLIT, m_rect.size.y);
+				}
+				else if (m_currentHoveredSplit == DockSplitType::Up)
+				{
+					rectStartPos = m_rect.pos;
+					rectSize = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
+				}
+				else if (m_currentHoveredSplit == DockSplitType::Down)
+				{
+					rectStartPos = Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y - m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
+					rectSize = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
+				}
+
+				LinaVG::DrawRect(threadID, LV2(rectStartPos), LV2((rectStartPos + rectSize)), rectOpts, 0.0f, FRONT_DRAW_ORDER);
+			}
 		};
 
 		drawDockArea(EDITOR_IMAGE_DOCK_LEFT, DockSplitType::Left, Vector2(-1.0f, 0.0f));

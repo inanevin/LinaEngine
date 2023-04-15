@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/SplashScreenGUIDrawer.hpp"
+#include "GUI/Drawers/GUIDrawerSplashScreen.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
@@ -40,11 +40,9 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	SplashScreenGUIDrawer::SplashScreenGUIDrawer(Editor* editor, ISwapchain* swap) : m_progressBar(swap), EditorGUIDrawer(editor, swap, EditorPanel::None, 0)
+	GUIDrawerSplashScreen::GUIDrawerSplashScreen(Editor* editor, ISwapchain* swap) : m_progressBar(swap), GUIDrawerBase(editor, swap)
 	{
 		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->AddListener(this);
-		m_root->RemoveChildren(m_titleSection);
-		delete m_titleSection;
 
 		m_currentResource				   = "Loading core resources...";
 		m_progressBar.BackgroundColor	   = Theme::TC_Silent;
@@ -52,12 +50,12 @@ namespace Lina::Editor
 		m_progressBar.ForegroundEndColor   = Theme::TC_PurpleAccent;
 	}
 
-	SplashScreenGUIDrawer::~SplashScreenGUIDrawer()
+	GUIDrawerSplashScreen::~GUIDrawerSplashScreen()
 	{
 		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->RemoveListener(this);
 	}
 
-	void SplashScreenGUIDrawer::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	void GUIDrawerSplashScreen::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
 		LOCK_GUARD(m_mtx);
 
@@ -70,7 +68,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void SplashScreenGUIDrawer::DrawGUI(int threadID)
+	void GUIDrawerSplashScreen::DrawGUI(int threadID)
 	{
 		const Vector2 size = m_swapchain->GetSize();
 

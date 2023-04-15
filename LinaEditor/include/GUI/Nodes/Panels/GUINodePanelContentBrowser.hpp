@@ -38,7 +38,7 @@ namespace Lina::Editor
 	class GUINodePanelContentBrowser : public GUINodePanel
 	{
 	public:
-		GUINodePanelContentBrowser(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, title, parentDockArea){};
+		GUINodePanelContentBrowser(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, panelType, title, parentDockArea){};
 		virtual ~GUINodePanelContentBrowser() = default;
 		virtual void Draw(int threadID);
 	};

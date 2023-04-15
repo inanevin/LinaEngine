@@ -34,7 +34,6 @@ SOFTWARE.
 #include "GUI/Nodes/GUINode.hpp"
 #include "Data/String.hpp"
 #include "Core/Theme.hpp"
-#include "Data/Functional.hpp"
 
 namespace Lina::Editor
 {
@@ -58,12 +57,6 @@ namespace Lina::Editor
 		inline GUINodeButton* SetFontType(FontType ft)
 		{
 			m_fontType = ft;
-			return this;
-		}
-
-		inline GUINodeButton* SetText(const char* text)
-		{
-			m_text = text;
 			return this;
 		}
 
@@ -109,12 +102,6 @@ namespace Lina::Editor
 			return this;
 		}
 
-		inline GUINodeButton* SetCallback(Delegate<void(GUINodeButton*)>&& onClicked)
-		{
-			m_onClicked = onClicked;
-			return this;
-		}
-
 		inline GUINodeButton* SetRounding(float rounding)
 		{
 			m_rounding = rounding;
@@ -140,13 +127,11 @@ namespace Lina::Editor
 		bool						   m_isIcon				= false;
 		ButtonFitType				   m_fitType			= ButtonFitType::None;
 		FontType					   m_fontType			= FontType::DefaultEditor;
-		String						   m_text				= "";
 		Color						   m_defaultColor		= Color::White;
 		Color						   m_hoveredColor		= Color::Gray;
 		Color						   m_pressedColor		= Color::Black;
 		Color						   m_outlineColor		= Color::Black;
 		Color						   m_textColor			= Color::White;
-		Delegate<void(GUINodeButton*)> m_onClicked;
 	};
 
 } // namespace Lina::Editor

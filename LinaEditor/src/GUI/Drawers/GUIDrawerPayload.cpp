@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/MainWindowGUIDrawer.hpp"
+#include "GUI/Drawers/GUIDrawerPayload.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
@@ -38,33 +38,32 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	MainWindowGUIDrawer::MainWindowGUIDrawer(Editor* editor, ISwapchain* swap) : EditorGUIDrawer(editor, swap, EditorPanel::None, 0)
+	GUIDrawerPayload::GUIDrawerPayload(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
 	{
-		m_topPanel = new GUINodeTopPanel(editor, swap, 0);
-		//m_dockArea = new GUINodeDockArea(editor, swap, 0);
-		m_root->RemoveChildren(m_titleSection);
-		//m_root->AddChildren(m_topPanel)->AddChildren(m_dockArea);
-		m_root->AddChildren(m_topPanel);
-		delete m_titleSection;
+		m_sid	 = LINA_MAIN_SWAPCHAIN;
+		m_editor = editor;
 	}
 
-	void MainWindowGUIDrawer::DrawGUI(int threadID)
+	void GUIDrawerPayload::DrawGUI(int threadID)
 	{
-		const Vector2 swapchainSize = m_swapchain->GetSize();
-		const Vector2 monitorSize	= m_window->GetMonitorInfo().size;
-		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_swapchain->GetWindowDPIScale()));
-		const Rect	  dockRect		= Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
-		m_topPanel->SetRect(topRect);
-		//m_dockArea->SetRect(dockRect);
-		m_root->Draw(threadID);
+		const float dragHeight		= m_swapchain->GetWindow()->GetMonitorInformation().size.y * 0.02f;
+		const float titleAreaHeight = m_swapchain->GetWindow()->GetMonitorInformation().size.y * 0.05f;
 
-		// Debug hovered
-		if (false && m_hoveredNode != nullptr)
+		const Vector2 swpSize = m_swapchain->GetSize();
+
+		if (m_payloadType == PayloadType::Panel)
 		{
-			LinaVG::StyleOptions style;
-			style.isFilled	  = false;
-			const Vector2 pad = Vector2(2, 2);
-			LinaVG::DrawRect(0, LV2((m_hoveredNode->GetRect().pos + pad)), LV2((m_hoveredNode->GetRect().pos + m_hoveredNode->GetRect().size - pad)), style, 0.0f, 10000);
+			const Rect availableDockRect = Rect(Vector2::Zero, swpSize);
+
+			m_dockAreas[0]->SetRect(availableDockRect);
+			m_dockAreas[0]->Draw(threadID);
 		}
+
+		LinaVG::StyleOptions opts;
+		const float			 thickness = m_swapchain->GetWindowDPIScale();
+		opts.thickness				   = thickness * 2;
+		opts.color					   = LV4(Theme::TC_VerySilent);
+		opts.isFilled				   = false;
+		LinaVG::DrawRect(threadID, LV2(Vector2(thickness, thickness)), LV2((swpSize - Vector2(thickness, thickness))), opts, 0.0f, FRONT_DRAW_ORDER);
 	}
 } // namespace Lina::Editor

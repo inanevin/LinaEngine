@@ -44,15 +44,6 @@ namespace Lina::Editor
 		virtual ~GUINodeTooltip() = default;
 
 		virtual void Draw(int threadID) override;
-
-		inline GUINodeTooltip* SetText(const String& text)
-		{
-			m_text = text;
-			return this;
-		}
-
-	protected:
-		String m_text = "";
 	};
 
 } // namespace Lina::Editor

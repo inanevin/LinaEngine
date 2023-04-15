@@ -28,26 +28,24 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MainWindowGUIDrawer_HPP
-#define MainWindowGUIDrawer_HPP
+#ifndef GUIDrawerChildWindow_HPP
+#define GUIDrawerChildWindow_HPP
 
-#include "EditorGUIDrawer.hpp"
+#include "GUIDrawerBase.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodeTopPanel;
-	class GUINodeDockArea;
+	class GUINodeTitleSection;
 
-	class MainWindowGUIDrawer : public EditorGUIDrawer
+	class GUIDrawerChildWindow : public GUIDrawerBase
 	{
 	public:
-		MainWindowGUIDrawer(Editor* editor, ISwapchain* swap);
-		virtual ~MainWindowGUIDrawer(){};
+		GUIDrawerChildWindow(Editor* editor, ISwapchain* swap);
+		virtual ~GUIDrawerChildWindow(){};
 		virtual void DrawGUI(int threadID) override;
 
 	private:
-		GUINodeDockArea* m_dockArea = nullptr;
-		GUINodeTopPanel* m_topPanel = nullptr;
+		GUINodeTitleSection* m_titleSection = nullptr;
 	};
 } // namespace Lina::Editor
 

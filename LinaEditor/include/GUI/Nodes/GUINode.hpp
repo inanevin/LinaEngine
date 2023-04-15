@@ -35,6 +35,10 @@ SOFTWARE.
 #include "Input/Core/CommonInput.hpp"
 #include "Data/Vector.hpp"
 #include "Math/Vector.hpp"
+#include "Core/StringID.hpp"
+#include "Data/Functional.hpp"
+#include "Data/String.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina
 {
@@ -44,7 +48,7 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
-	class EditorGUIDrawer;
+	class GUIDrawerBase;
 
 	class GUINode
 	{
@@ -56,6 +60,9 @@ namespace Lina::Editor
 		virtual bool OnKey(uint32 key, InputAction action);
 		virtual bool OnMouse(uint32 button, InputAction action);
 		virtual bool OnMouseWheel(uint32 delta);
+		virtual void OnLostFocus();
+		virtual void OnPayloadCreated(PayloadType type, void* data);
+		virtual bool OnPayloadDropped(PayloadType type, void* data);
 		virtual void OnClicked(uint32 button){};
 
 		virtual Vector2 CalculateSize()
@@ -66,6 +73,8 @@ namespace Lina::Editor
 		GUINode* AddChildren(GUINode* node);
 		GUINode* RemoveChildren(GUINode* node);
 		GUINode* SetVisible(bool visible);
+		GUINode* FindChildren(StringID sid);
+		bool	 ChildExists(GUINode* node);
 
 		inline Vector<GUINode*>& GetChildren()
 		{
@@ -102,6 +111,29 @@ namespace Lina::Editor
 			return this;
 		}
 
+		inline GUINode* SetCallbackClicked(Delegate<void(GUINode*)>&& onClicked)
+		{
+			m_onClicked = onClicked;
+			return this;
+		}
+
+		inline GUINode* SetCallbackDismissed(Delegate<void(GUINode*)>&& onDismissed)
+		{
+			m_onDismissed = onDismissed;
+			return this;
+		}
+
+		inline GUINode* SetTitle(const char* title)
+		{
+			m_title = title;
+			return this;
+		}
+
+		inline const String& GetTitle() const
+		{
+			return m_title;
+		}
+
 		inline const Rect& GetRect() const
 		{
 			return m_rect;
@@ -122,21 +154,58 @@ namespace Lina::Editor
 			return m_visible;
 		}
 
-	protected:
-		friend class EditorGUIDrawer;
+		inline bool GetIsPressed() const
+		{
+			return m_isPressed;
+		}
 
-		bool			 m_visible	 = true;
-		int				 m_drawOrder = 0;
-		bool			 m_isHovered = false;
-		bool			 m_isPressed = false;
-		Editor*			 m_editor	 = nullptr;
-		ISwapchain*		 m_swapchain = nullptr;
-		Vector<GUINode*> m_children;
-		Rect			 m_rect				  = Rect();
-		Vector2			 m_minPos			  = Vector2::Zero;
-		Vector2			 m_maxPos			  = Vector2::Zero;
-		Vector2			 m_lastCalculatedSize = Vector2::Zero;
-		float			 m_lastDpi			  = 0.0f;
+		inline bool GetIsDragging() const
+		{
+			return m_isDragging;
+		}
+
+		inline GUINode* SetSID(StringID sid)
+		{
+			m_sid = sid;
+			return this;
+		}
+
+		inline StringID GetSID() const
+		{
+			return m_sid;
+		}
+
+		inline Editor* GetEditor()
+		{
+			return m_editor;
+		}
+
+		inline ISwapchain* GetSwapchain()
+		{
+			return m_swapchain;
+		}
+
+	protected:
+		friend class GUIDrawerBase;
+
+		StringID				 m_sid				 = 0;
+		bool					 m_visible			 = true;
+		int						 m_drawOrder		 = 0;
+		bool					 m_isHovered		 = false;
+		bool					 m_isPressed		 = false;
+		bool					 m_isDragging		 = false;
+		Vector2i				 m_dragStartMousePos = Vector2i::Zero;
+		Editor*					 m_editor			 = nullptr;
+		ISwapchain*				 m_swapchain		 = nullptr;
+		Vector<GUINode*>		 m_children;
+		Rect					 m_rect				  = Rect();
+		Vector2					 m_minPos			  = Vector2::Zero;
+		Vector2					 m_maxPos			  = Vector2::Zero;
+		Vector2					 m_lastCalculatedSize = Vector2::Zero;
+		float					 m_lastDpi			  = 0.0f;
+		String					 m_title			  = "";
+		Delegate<void(GUINode*)> m_onClicked;
+		Delegate<void(GUINode*)> m_onDismissed;
 	};
 } // namespace Lina::Editor
 

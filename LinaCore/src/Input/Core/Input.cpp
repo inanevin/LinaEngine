@@ -70,51 +70,73 @@ namespace Lina
 
 	void Input::OnActiveAppChanged(bool isActive)
 	{
-		m_windowActive = isActive;
+		m_appActive = isActive;
 	}
 
 	bool Input::GetKey(int keycode)
 	{
-		if (!m_windowActive)
+		if (!m_appActive)
 			return false;
-		return m_currentStates[keycode] == 1;
+
+		int keyState = 0;
+
+#ifdef LINA_PLATFORM_WINDOWS
+		keyState = GetKeyState(keycode) & 0x8000 ? 1 : 0;
+#endif
+		m_currentStates[keycode] = keyState;
+		return keyState == 1;
 	}
 
 	bool Input::GetKeyDown(int keyCode)
 	{
-		if (!m_windowActive)
+		if (!m_appActive)
 			return false;
 
-		return m_currentStates[keyCode] == 1 && m_previousStates[keyCode] == 0;
+		int keyState = GetKey(keyCode);
+
+		return keyState == 1 && m_previousStates[keyCode] == 0;
 	}
 	bool Input::GetKeyUp(int keyCode)
 	{
-		if (!m_windowActive)
+		if (!m_appActive)
 			return false;
 
-		return m_currentStates[keyCode] == 0 && m_previousStates[keyCode] == 1;
+		int keyState = GetKey(keyCode);
+
+		return keyState == 0 && m_previousStates[keyCode] == 1;
 	}
+
 	bool Input::GetMouseButton(int button)
 	{
-		if (!m_windowActive)
+		if (!m_appActive)
 			return false;
 
-		return m_currentStates[button] == 1;
+		int keyState = 0;
+
+#ifdef LINA_PLATFORM_WINDOWS
+		keyState = GetKeyState(button) & 0x8000 ? 1 : 0;
+#endif
+		m_currentStates[button] = keyState;
+		return keyState == 1;
 	}
 
 	bool Input::GetMouseButtonDown(int button)
 	{
-		if (!m_windowActive)
+		if (!m_appActive)
 			return false;
 
-		return m_currentStates[button] == 1 && m_previousStates[button] == 0;
+		int keyState = GetKey(button);
+
+		return keyState == 1 && m_previousStates[button] == 0;
 	}
 	bool Input::GetMouseButtonUp(int button)
 	{
-		if (!m_windowActive)
+		if (!m_appActive)
 			return false;
 
-		return m_currentStates[button] == 0 && m_previousStates[button] == 1;
+		int keyState = GetKey(button);
+
+		return keyState == 0 && m_previousStates[button] == 1;
 	}
 
 	bool Input::GetMouseButtonDoubleClick(int button)

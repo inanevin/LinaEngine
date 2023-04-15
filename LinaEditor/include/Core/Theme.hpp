@@ -73,7 +73,7 @@ namespace Lina::Editor
 #define TI_RESTORE		   "\u004C"
 #define TI_CROSS		   "\u004D"
 
-#define POPUP_DRAW_ORDER 1000
+#define FRONT_DRAW_ORDER 1000
 
 	class Theme
 	{

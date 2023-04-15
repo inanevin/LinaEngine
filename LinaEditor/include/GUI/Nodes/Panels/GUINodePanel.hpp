@@ -33,47 +33,39 @@ SOFTWARE.
 
 #include "GUI/Nodes/GUINode.hpp"
 #include "Data/String.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina::Editor
 {
 	class GUINodeDockPreview;
-	class GUINodeTab;
 	class GUINodeDockArea;
 
 	class GUINodePanel : public GUINode
 	{
 	public:
-		GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title, GUINodeDockArea* parentDockArea);
+		GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea);
 		virtual ~GUINodePanel() = default;
 		virtual void Draw(int threadID);
-
-		void DrawDockPreview(int threadID);
 
 		inline void SetParentDockArea(GUINodeDockArea* area)
 		{
 			m_parentDockArea = area;
 		}
 
-		inline GUINodeDockPreview* GetDockPreview()
+		inline GUINodeDockArea* GetDockArea()
 		{
-			return m_dockPreview;
+			return m_parentDockArea;
 		}
 
-		inline GUINodeTab* GetTab()
+	
+		inline EditorPanel GetPanelType() const
 		{
-			return m_tab;
-		}
-
-		inline const String& GetTitle() const
-		{
-			return m_title;
+			return m_panelType;
 		}
 
 	protected:
 		GUINodeDockArea*	m_parentDockArea = nullptr;
-		String				m_title			 = "";
-		GUINodeDockPreview* m_dockPreview	 = nullptr;
-		GUINodeTab*			m_tab			 = nullptr;
+		EditorPanel			m_panelType		 = EditorPanel::None;
 	};
 } // namespace Lina::Editor
 

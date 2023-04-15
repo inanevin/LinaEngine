@@ -40,12 +40,12 @@ namespace Lina::Editor
 		m_minimize = (new GUINodeButton(editor, swapchain, m_drawOrder));
 		m_maximize = (new GUINodeButton(editor, swapchain, m_drawOrder));
 		m_close	   = (new GUINodeButton(editor, swapchain, m_drawOrder));
-		m_minimize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetText(TI_MINIMIZE)->SetIsIcon(true);
-		m_maximize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetText(m_swapchain->GetWindow()->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE)->SetIsIcon(true);
-		m_close->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_RedAccent)->SetPressedColor(Theme::TC_Dark3)->SetText(TI_CROSS)->SetIsIcon(true);
-		m_minimize->SetCallback(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
-		m_maximize->SetCallback(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
-		m_close->SetCallback(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
+		m_minimize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(TI_MINIMIZE);
+		m_maximize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(m_swapchain->GetWindow()->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_close->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_RedAccent)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(TI_CROSS);
+		m_minimize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
+		m_maximize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
+		m_close->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
 		AddChildren(m_minimize)->AddChildren(m_maximize)->AddChildren(m_close);
 	}
 
@@ -54,7 +54,7 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
-		m_maximize->SetText(m_swapchain->GetWindow()->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_maximize->SetTitle(m_swapchain->GetWindow()->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 
 		// Clamp
 		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minPos.x);
@@ -69,7 +69,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUINodeWindowButtons::OnButtonPressed(GUINodeButton* button)
+	void GUINodeWindowButtons::OnButtonPressed(GUINode* button)
 	{
 		if (button == m_minimize)
 		{
@@ -82,12 +82,12 @@ namespace Lina::Editor
 			else
 				m_swapchain->GetWindow()->Maximize();
 
-			m_maximize->SetText(m_swapchain->GetWindow()->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+			m_maximize->SetTitle(m_swapchain->GetWindow()->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 		}
 		else if (button == m_close)
 		{
-			if (m_onClose)
-				m_onClose();
+			if (m_onDismissed)
+				m_onDismissed(this);
 		}
 	}
 } // namespace Lina::Editor

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Input/Core/InputMappings.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 
 namespace Lina::Editor
 {
@@ -71,21 +72,30 @@ namespace Lina::Editor
 
 	bool GUINode::OnMouse(uint32 button, InputAction action)
 	{
+		static GUINode* lastPressedNode = nullptr;
+
 		if (button == LINA_MOUSE_0)
 		{
 			if (action == InputAction::Pressed)
 			{
 				if (GetIsHovered())
-					m_isPressed = true;
+				{
+					lastPressedNode		= this;
+					m_isPressed			= true;
+					m_isDragging		= true;
+					m_dragStartMousePos = m_swapchain->GetMousePos();
+				}
 			}
 			else if (action == InputAction::Released)
 			{
-				if (m_isPressed && GetIsHovered())
+				if (lastPressedNode == this && GetIsHovered())
 				{
 					OnClicked(LINA_MOUSE_0);
+					lastPressedNode = nullptr;
 				}
 
-				m_isPressed = false;
+				m_isPressed	 = false;
+				m_isDragging = false;
 			}
 		}
 		else
@@ -113,6 +123,36 @@ namespace Lina::Editor
 		return false;
 	}
 
+	void GUINode::OnLostFocus()
+	{
+		m_isPressed = m_isHovered = m_isDragging = false;
+
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->OnLostFocus();
+	}
+
+	void GUINode::OnPayloadCreated(PayloadType type, void* data)
+	{
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->OnPayloadCreated(type, data);
+	}
+
+	bool GUINode::OnPayloadDropped(PayloadType type, void* data)
+	{
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+		{
+			const bool ret = m_children[i]->OnPayloadDropped(type, data);
+
+			if (ret)
+				return true;
+		}
+
+		return false;
+	}
+
 	GUINode* GUINode::AddChildren(GUINode* node)
 	{
 		m_children.push_back(node);
@@ -128,12 +168,44 @@ namespace Lina::Editor
 
 	GUINode* GUINode::SetVisible(bool visible)
 	{
-		m_visible = visible;
+		m_visible		= visible;
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
 			m_children[i]->SetVisible(visible);
 
 		return this;
+	}
+
+	GUINode* GUINode::FindChildren(StringID sid)
+	{
+		GUINode* node = nullptr;
+
+		for (auto c : m_children)
+		{
+			if (c->GetSID() == sid)
+				return c;
+			else
+				node = c->FindChildren(sid);
+
+			if (node)
+				break;
+		}
+
+		return node;
+	}
+
+	bool GUINode::ChildExists(GUINode* node)
+	{
+		for (auto c : m_children)
+		{
+			if (c == node)
+				return true;
+
+			if (c->ChildExists(node))
+				return true;
+		}
+
+		return false;
 	}
 
 } // namespace Lina::Editor

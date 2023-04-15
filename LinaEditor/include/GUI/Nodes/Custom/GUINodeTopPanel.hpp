@@ -49,7 +49,7 @@ namespace Lina::Editor
 		virtual bool OnMouse(uint32 button, InputAction act) override;
 		
 	private:
-		void OnPressedItem(StringID sid);
+		void OnPressedItem(GUINode* node);
 
 	private:
 		GUINodeFileMenu*	  m_fileMenu	  = nullptr;

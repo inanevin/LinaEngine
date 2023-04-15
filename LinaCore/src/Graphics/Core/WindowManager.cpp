@@ -110,23 +110,25 @@ namespace Lina
 		if (w->Create(parent, title, pos, size))
 		{
 			m_gfxManager->CreateSurfaceRenderer(sid, w, w->GetSize(), surfaceRendererMask);
-			w->SetSurfaceRenderer(m_gfxManager->GetSurfaceRenderer(sid));
+			auto sf = m_gfxManager->GetSurfaceRenderer(sid);
+			w->SetSurfaceRenderer(sf);
 			m_windows[sid] = w;
 			return w;
 		}
-		else
-			delete w;
 
+		delete w;
 		return nullptr;
 	}
 
 	void WindowManager::DestroyAppWindow(StringID sid)
 	{
+		m_gfxManager->DestroySurfaceRenderer(sid);
+
 		auto it = m_windows.find(sid);
+
 		it->second->Destroy();
 		delete it->second;
 		m_windows.erase(it);
-		m_gfxManager->DestroySurfaceRenderer(sid);
 	}
 
 	IWindow* WindowManager::GetWindow(StringID sid)

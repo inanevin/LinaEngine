@@ -28,21 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef SplashScreenGUIDrawer_HPP
-#define SplashScreenGUIDrawer_HPP
+#ifndef GUIDrawerSplashScreen_HPP
+#define GUIDrawerSplashScreen_HPP
 
-#include "EditorGUIDrawer.hpp"
+#include "GUIDrawerBase.hpp"
 #include "Event/ISystemEventListener.hpp"
 #include "Data/Mutex.hpp"
-#include "Widgets/WidgetProgressBar.hpp"
+#include "GUI/Widgets/WidgetProgressBar.hpp"
 
 namespace Lina::Editor
 {
-	class SplashScreenGUIDrawer : public EditorGUIDrawer, public ISystemEventListener
+	class GUIDrawerSplashScreen : public GUIDrawerBase, public ISystemEventListener
 	{
 	public:
-		SplashScreenGUIDrawer(Editor* editor, ISwapchain* swapchain);
-		virtual ~SplashScreenGUIDrawer();
+		GUIDrawerSplashScreen(Editor* editor, ISwapchain* swapchain);
+		virtual ~GUIDrawerSplashScreen();
 
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
 

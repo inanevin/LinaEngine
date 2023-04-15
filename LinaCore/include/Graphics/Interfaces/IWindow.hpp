@@ -64,9 +64,9 @@ namespace Lina
 		virtual void SetAlpha(float alpha)																= 0;
 		virtual void BringToFront()																		= 0;
 		virtual void SetMouseFocus(bool focused)														= 0;
-		
-		virtual void SetToWorkingArea()																	= 0;
-		virtual void SetToFullscreen()																	= 0;
+
+		virtual void SetToWorkingArea() = 0;
+		virtual void SetToFullscreen()	= 0;
 
 	public:
 		/// <summary>
@@ -158,10 +158,11 @@ namespace Lina
 			return m_isVisible;
 		}
 
-		inline const MonitorInfo& GetMonitorInfo() const
+		inline const MonitorInfo& GetMonitorInformation() const
 		{
 			return m_monitorInfo;
 		}
+
 
 	private:
 		friend class WindowManager;
@@ -172,7 +173,7 @@ namespace Lina
 		}
 
 	protected:
-		SurfaceRenderer* m_surfaceRenderer = nullptr;
+		SurfaceRenderer* m_surfaceRenderer	 = nullptr;
 		MonitorInfo		 m_monitorInfo;
 		ISystem*		 m_system		  = nullptr;
 		Recti			 m_rect			  = Recti();

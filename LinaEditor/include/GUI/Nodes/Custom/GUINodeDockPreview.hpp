@@ -35,12 +35,18 @@ SOFTWARE.
 #include "GUI/Nodes/GUINodeDockArea.hpp"
 #include "Core/EditorCommon.hpp"
 
+namespace Lina
+{
+	class Input;
+}
+
 namespace Lina::Editor
 {
+
 	class GUINodeDockPreview : public GUINode
 	{
 	public:
-		GUINodeDockPreview(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		GUINodeDockPreview(Editor* editor, ISwapchain* swapchain, int drawOrder);
 		virtual ~GUINodeDockPreview() = default;
 
 		virtual void Draw(int threadID) override;
@@ -51,6 +57,7 @@ namespace Lina::Editor
 		}
 
 	protected:
+		Lina::Input*  m_input				= nullptr;
 		DockSplitType m_currentHoveredSplit = DockSplitType::None;
 	};
 } // namespace Lina::Editor

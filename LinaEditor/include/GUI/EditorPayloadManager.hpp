@@ -28,19 +28,47 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUINodePanelResourceViewer_HPP
-#define GUINodePanelResourceViewer_HPP
+#ifndef EditorPayloadManager_HPP
+#define EditorPayloadManager_HPP
 
-#include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "Core/EditorCommon.hpp"
+
+namespace Lina
+{
+	class IWindow;
+	class WindowManager;
+	class GfxManager;
+	class Input;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class GUINodePanelResourceViewer : public GUINodePanel
+	class Editor;
+	class GUIDrawerPayload;
+	class GUINodePanel;
+
+	class EditorPayloadManager
 	{
 	public:
-		GUINodePanelResourceViewer(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, panelType, title, parentDockArea){};
-		virtual ~GUINodePanelResourceViewer() = default;
-		virtual void Draw(int threadID);
+		EditorPayloadManager(Editor* editor);
+		~EditorPayloadManager() = default;
+
+		void Initialize();
+		void Tick();
+		void Shutdown();
+		void CreatePayloadPanel(GUINodePanel* panel, const Vector2& delta);
+
+	private:
+		Editor*			  m_editor		  = nullptr;
+		WindowManager*	  m_windowManager = nullptr;
+		GfxManager*		  m_gfxManager	  = nullptr;
+		Input*			  m_input		  = nullptr;
+		IWindow*		  m_window		  = nullptr;
+		GUIDrawerPayload* m_guiDrawer	  = nullptr;
+
+		Vector2			 m_currentPayloadDelta = Vector2::Zero;
+		PayloadType		 m_currentPayloadType  = PayloadType::None;
+		PayloadDataPanel m_currentPayloadPanel;
 	};
 } // namespace Lina::Editor
 

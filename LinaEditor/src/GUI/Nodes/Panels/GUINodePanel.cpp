@@ -29,29 +29,16 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "GUI/Nodes/Custom/GUINodeDockPreview.hpp"
-#include "GUI/Nodes/Widgets/GUINodeTab.hpp"
 
 namespace Lina::Editor
 {
-	GUINodePanel::GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title, GUINodeDockArea* parentDockArea) : m_title(title), m_parentDockArea(parentDockArea), GUINode(editor, swapchain, drawOrder)
+	GUINodePanel::GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : m_panelType(panelType), m_parentDockArea(parentDockArea), GUINode(editor, swapchain, drawOrder)
 	{
-		m_dockPreview = new GUINodeDockPreview(editor, swapchain, drawOrder);
-		m_tab		  = new GUINodeTab(editor, swapchain, drawOrder);
-		m_tab->SetCallbackClose([this]() {
-			m_parentDockArea->OnPanelClosed(this);
-		});
-		AddChildren(m_dockPreview)->AddChildren(m_tab);
+		m_title = title;
 	}
 
 	void GUINodePanel::Draw(int threadID)
 	{
 		GUIUtility::DrawPanelBackground(threadID, m_rect, m_drawOrder);
-	}
-
-	void GUINodePanel::DrawDockPreview(int threadID)
-	{
-		m_dockPreview->SetRect(m_rect);
-		m_dockPreview->Draw(threadID);
 	}
 } // namespace Lina::Editor

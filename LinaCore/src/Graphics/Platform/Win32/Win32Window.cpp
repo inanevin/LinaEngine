@@ -94,14 +94,22 @@ namespace Lina
 			return DefWindowProcA(window, msg, wParam, lParam);
 
 		auto* win32Window = it->second;
+
 		switch (msg)
 		{
 		case WM_CLOSE:
 			win32Window->Close();
 			return 0;
 		case WM_NCHITTEST: {
-			return HandleNonclientHitTest(window, lParam, win32Window->m_dragRect);
-			break;
+			auto res = HandleNonclientHitTest(window, lParam, win32Window->m_dragRect);
+
+			if (win32Window->m_style == WindowStyle::WindowedNoResize || win32Window->m_style == WindowStyle::BorderlessNoResize)
+			{
+				if (res != HTCAPTION && res != HTCLIENT)
+					return HTCLIENT;
+			}
+
+			return res;
 		}
 		case WM_SETFOCUS: {
 			win32Window->SetFocus(true);
@@ -267,6 +275,7 @@ namespace Lina
 
 			break;
 		}
+		case WM_NCLBUTTONDOWN:
 		case WM_LBUTTONDOWN: {
 
 			if (!s_isAppActive)
@@ -339,6 +348,8 @@ namespace Lina
 			}
 		}
 		break;
+		case WM_EXITSIZEMOVE:
+		case WM_NCLBUTTONUP:
 		case WM_LBUTTONUP: {
 
 			if (!s_isAppActive)
@@ -618,7 +629,7 @@ namespace Lina
 			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
 
 			if (guiDrawer)
-				guiDrawer->OnMousePos(Vector2i::Zero);
+				guiDrawer->OnLostFocus();
 		}
 	}
 

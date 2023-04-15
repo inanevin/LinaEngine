@@ -45,39 +45,50 @@ namespace Lina::Editor
 	{
 		m_fileMenu = new GUINodeFileMenu(editor, swapchain, drawOrder + 1);
 
-		GUINodeFMPopup* filePopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		filePopup->SetTitle("File")->AddDivider("PROJECT")->AddDefault("Open Project")->AddDefault("Save Project");
+		GUINodeFMPopup* filePopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		filePopup->AddDivider("PROJECT")->AddDefault("Open Project")->AddDefault("Save Project");
 		filePopup->AddDefault("New Project")->AddDefault("Package Project")->AddDivider("SETTINGS");
 		filePopup->AddDefault("Project Settings")->AddDivider("OTHER")->AddDefault("Restart")->AddDefault("Quit");
+		filePopup->SetTitle("File");
 
-		GUINodeFMPopup* editPopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		editPopup->SetTitle("Edit")->AddToggle("Dummy2", true);
+		GUINodeFMPopup* editPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		editPopup->AddToggle("Dummy2", true);
+		editPopup->SetTitle("Edit");
 
-		GUINodeFMPopup* levelPopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		levelPopup->SetTitle("Level")->AddDefault("New Level")->AddDefault("Save Level")->AddDefault("Load Level");
+		GUINodeFMPopup* levelPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		levelPopup->AddDefault("New Level")->AddDefault("Save Level")->AddDefault("Load Level");
+		levelPopup->SetTitle("Level");
 
-		GUINodeFMPopup* entitiesPopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		entitiesPopup->SetTitle("Entities")->AddDefault("Empty")->AddDefault("Lina")->AddDefault("Cube")->AddDefault("Sphere")->AddDefault("Cyclinder")->AddDefault("Capsule")->SetCallback(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		GUINodeFMPopup* entitiesPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		entitiesPopup->AddDefault("Empty")->AddDefault("Lina")->AddDefault("Cube")->AddDefault("Sphere")->AddDefault("Cyclinder")->AddDefault("Capsule")->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		entitiesPopup->SetTitle("Entities");
 
-		GUINodeFMPopup* panelsPopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		panelsPopup->SetTitle("Panels")->AddDefault("Entities")->AddDefault("Hierarchy")->AddDefault("Level")->AddDefault("Properties")->AddDefault("Content Browser");
+		GUINodeFMPopup* panelsPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Entities).c_str());
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Level).c_str());
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Properties).c_str());
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::ContentBrowser).c_str());
+		panelsPopup->SetTitle("Panels");
 
-		GUINodeFMPopup* debugPanelsPopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		debugPanelsPopup->SetTitle("")->AddDefault("Resource Viewer");
+		GUINodeFMPopup* debugPanelsPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		debugPanelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::DebugResourceView).c_str());
+		debugPanelsPopup->SetTitle("");
 		panelsPopup->AddExpandable("Debug", debugPanelsPopup);
-		debugPanelsPopup->SetCallback(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		debugPanelsPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
-		GUINodeFMPopup* debugPopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		debugPopup->SetTitle("Debug")->AddDefault("Dummy");
+		GUINodeFMPopup* debugPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		debugPopup->AddDefault("Dummy");
+		debugPopup->SetTitle("Debug");
 
-		GUINodeFMPopup* helpPopup = new GUINodeFMPopup(editor, swapchain, POPUP_DRAW_ORDER);
-		helpPopup->SetTitle("Help")->AddDefault("About")->SetCallback(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		GUINodeFMPopup* helpPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		helpPopup->AddDefault("About")->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		helpPopup->SetTitle("Help");
 
 		m_fileMenu->AddPopup(filePopup, editPopup, levelPopup, entitiesPopup, panelsPopup, debugPopup, helpPopup);
-		m_fileMenu->SetCallback(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		m_fileMenu->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
 		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
-		m_windowButtons->SetCallbackOnClose([&]() { m_swapchain->GetWindow()->Close(); });
+		m_windowButtons->SetCallbackDismissed([&](GUINode* node) { m_swapchain->GetWindow()->Close(); });
 
 		m_customLogo = new GUINodeCustomLogo(editor, swapchain, drawOrder);
 		AddChildren(m_fileMenu)->AddChildren(m_windowButtons)->AddChildren(m_customLogo);
@@ -154,23 +165,17 @@ namespace Lina::Editor
 		return ret;
 	}
 
-	void GUINodeTopPanel::OnPressedItem(StringID sid)
+	void GUINodeTopPanel::OnPressedItem(GUINode* node)
 	{
-		if (sid == "Resource Viewer"_hs)
+		const StringID nodeSID = node->GetSID();
+
+		for (const auto& [panelType, str] : PANEL_TO_NAME_MAP)
 		{
-			m_editor->OpenPanel(EditorPanel::DebugResourceView);
-		}
-		else if (sid == "Entities"_hs)
-		{
-			m_editor->OpenPanel(EditorPanel::Entities);
-		}
-		else if (sid == "Level"_hs)
-		{
-			m_editor->OpenPanel(EditorPanel::Level);
-		}
-		else if (sid == "Properties"_hs)
-		{
-			m_editor->OpenPanel(EditorPanel::Properties);
+			const StringID sid = TO_SID(str);
+			if (nodeSID == sid)
+			{
+				m_editor->OpenPanel(panelType, str, nodeSID);
+			}
 		}
 	};
 } // namespace Lina::Editor

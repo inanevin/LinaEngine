@@ -38,7 +38,7 @@ namespace Lina::Editor
 	class GUINodePanelLevel : public GUINodePanel
 	{
 	public:
-		GUINodePanelLevel(Editor* editor, ISwapchain* swapchain, int drawOrder, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, title, parentDockArea){};
+		GUINodePanelLevel(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, panelType, title, parentDockArea){};
 		virtual ~GUINodePanelLevel() = default;
 		virtual void Draw(int threadID);
 	};
