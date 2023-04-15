@@ -92,7 +92,13 @@ namespace Lina::Editor
 						break;
 				}
 
+				// Remove panel from payload window, only delete if wasn't accepted.
 				m_guiDrawer->GetFirstDockArea()->RemovePanel(m_currentPayloadPanel.onFlightPanel, !payloadAccepted, false);
+
+				// If accepted, remove the original panel from original dock area.
+				if (payloadAccepted)
+					m_currentPayloadPanel.ownerDockArea->RemovePanel(m_currentPayloadPanel.srcPanel, true, true);
+
 				m_window->SetVisible(false);
 				m_currentPayloadType  = PayloadType::None;
 				m_currentPayloadPanel = PayloadDataPanel();

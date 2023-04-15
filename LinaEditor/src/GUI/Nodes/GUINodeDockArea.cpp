@@ -150,7 +150,6 @@ namespace Lina::Editor
 
 				PayloadDataPanel* data = static_cast<PayloadDataPanel*>(payloadData);
 				m_drawer->SplitDockArea(this, splitType, data->onFlightPanel);
-				data->ownerDockArea->RemovePanel(data->srcPanel, true);
 				return true;
 			}
 		}
