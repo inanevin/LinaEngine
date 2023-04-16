@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "GUI/Nodes/GUINode.hpp"
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
@@ -88,7 +89,7 @@ namespace Lina::Editor
 			m_progressBar.Draw(threadID, progressBarStart, progressBarSize, txtPos, m_progress, m_currentResource.c_str());
 
 			LinaVG::TextOptions copyrightText;
-			copyrightText.font	= Theme::GetFont(FontType::AltEditor, m_swapchain->GetWindowDPIScale());
+			copyrightText.font	= Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
 			copyrightText.color = LV4(Theme::TC_Silent);
 
 			Vector2		 copyrightTextLine = Vector2(size.x * 0.06f, size.y * 0.425f);
@@ -104,7 +105,7 @@ namespace Lina::Editor
 
 			textSize = FL2(LinaVG::CalculateTextSize(text2, copyrightText));
 			copyrightTextLine.y += textSize.y * 2.25f;
-			copyrightText.font	= Theme::GetFont(FontType::DefaultEditor, m_swapchain->GetWindowDPIScale());
+			copyrightText.font	= Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
 			copyrightText.color = LV4(Theme::TC_White);
 			LinaVG::DrawTextNormal(threadID, text3, LV2(copyrightTextLine), copyrightText, 0.0f, 1);
 		}

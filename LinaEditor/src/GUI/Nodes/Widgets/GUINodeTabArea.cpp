@@ -32,6 +32,8 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Widgets/GUINodeTab.hpp"
 #include "Data/CommonData.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
+
 namespace Lina::Editor
 {
 	void GUINodeTabArea::Draw(int threadID)
@@ -40,7 +42,7 @@ namespace Lina::Editor
 			return;
 
 		const uint32 sz		 = static_cast<uint32>(m_tabs.size());
-		const float	 padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float	 padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		Vector2 maxTabSize = Vector2::Zero;
 		for (uint32 i = 0; i < sz; i++)

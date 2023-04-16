@@ -31,7 +31,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "GUI/Drawers/GUIDrawerPayload.hpp"
 #include "GUI/Nodes/GUINode.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "Graphics/Core/WindowManager.hpp"
@@ -58,6 +58,7 @@ namespace Lina::Editor
 		m_window->SetStyle(WindowStyle::BorderlessNoResize);
 		m_window->SetVisible(false);
 		m_window->SetAlpha(0.5f);
+		m_window->SetInputPassthrough(true);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(EDITOR_PAYLOAD_WINDOW_SID);
 		m_guiDrawer			 = new GUIDrawerPayload(m_editor, surfaceRenderer->GetSwapchain());
@@ -87,9 +88,9 @@ namespace Lina::Editor
 			{
 				for (auto [sid, d] : drawers)
 				{
-					payloadAccepted = d->GetRoot()->OnPayloadDropped(PayloadType::Panel, static_cast<void*>(&m_currentPayloadPanel));
-					if (payloadAccepted)
-						break;
+					const bool acc = d->OnPayloadDropped(PayloadType::Panel, static_cast<void*>(&m_currentPayloadPanel));
+					if (acc)
+						payloadAccepted = true;
 				}
 
 				// Remove panel from payload window, only delete if wasn't accepted.
@@ -128,7 +129,7 @@ namespace Lina::Editor
 		m_guiDrawer->SetPayloadType(m_currentPayloadType);
 
 		for (auto [sid, d] : drawers)
-			d->GetRoot()->OnPayloadCreated(PayloadType::Panel, static_cast<void*>(&m_currentPayloadPanel));
+			d->OnPayloadCreated(PayloadType::Panel, static_cast<void*>(&m_currentPayloadPanel));
 	}
 
 } // namespace Lina::Editor

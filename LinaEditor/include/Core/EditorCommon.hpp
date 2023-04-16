@@ -68,6 +68,13 @@ namespace Lina::Editor
 		Up
 	};
 
+	enum class DragDirection
+	{
+		None,
+		Horizontal,
+		Vertical
+	};
+
 	const HashMap<EditorPanel, String> PANEL_TO_NAME_MAP = {{EditorPanel::Entities, "Entities"},
 															{EditorPanel::Level, "Level"},
 															{EditorPanel::Properties, "Properties"},

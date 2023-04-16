@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
@@ -45,8 +46,8 @@ namespace Lina::Editor
 			return;
 
 		LinaVG::TextOptions textOpts;
-		textOpts.font		= Theme::GetFont(FontType::DefaultEditor, m_swapchain->GetWindowDPIScale());
-		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		textOpts.font		= Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		if (m_isHovered)
 		{
@@ -61,7 +62,7 @@ namespace Lina::Editor
 
 	Vector2 GUINodeFMPopupElement::CalculateSize()
 	{
-		const float windowDPI = m_swapchain->GetWindowDPIScale();
+		const float windowDPI = m_window->GetDPIScale();
 		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
 			return m_lastCalculatedSize;
 
@@ -84,10 +85,10 @@ namespace Lina::Editor
 			return;
 
 		LinaVG::TextOptions textOpts;
-		textOpts.font		= Theme::GetFont(FontType::AltEditor, m_swapchain->GetWindowDPIScale());
+		textOpts.font		= Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
 		textOpts.color		= LV4(Theme::TC_Silent);
 		textOpts.alignment	= LinaVG::TextAlignment::Right;
-		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		const float centerY = m_rect.pos.y + m_rect.size.y * 0.5f;
 
@@ -97,7 +98,7 @@ namespace Lina::Editor
 		const Vector2 lineEnd	= Vector2(m_rect.pos.x + m_rect.size.x - padding - textSize.x * 1.1f, centerY);
 
 		LinaVG::StyleOptions lineStyle;
-		lineStyle.thickness	  = 1.5f * m_swapchain->GetWindowDPIScale();
+		lineStyle.thickness	  = 1.5f * m_window->GetDPIScale();
 		lineStyle.color		  = LV4(Theme::TC_Silent);
 		lineStyle.color.end.w = 0.2f;
 		LinaVG::DrawLine(threadID, LV2(lineStart), LV2(lineEnd), lineStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
@@ -107,7 +108,7 @@ namespace Lina::Editor
 
 	Vector2 GUINodeFMPopupElementDivider::CalculateSize()
 	{
-		const float windowDPI = m_swapchain->GetWindowDPIScale();
+		const float windowDPI = m_window->GetDPIScale();
 		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
 			return m_lastCalculatedSize;
 
@@ -130,14 +131,14 @@ namespace Lina::Editor
 		if (!m_value)
 			return;
 
-		const float	  padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float	  padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const Vector2 iconPos = Vector2(m_rect.pos.x + m_rect.size.x - padding - m_iconSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-		GUIUtility::DrawIcon(0, m_swapchain->GetWindowDPIScale(), TI_CHECKMARK, iconPos, 1.0f, Theme::TC_HalfSilent, m_drawOrder);
+		GUIUtility::DrawIcon(0, m_window->GetDPIScale(), TI_CHECKMARK, iconPos, 1.0f, Theme::TC_HalfSilent, m_drawOrder);
 	}
 
 	Vector2 GUINodeFMPopupElementToggle::CalculateSize()
 	{
-		const float windowDPI = m_swapchain->GetWindowDPIScale();
+		const float windowDPI = m_window->GetDPIScale();
 		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
 			return m_lastCalculatedSize;
 
@@ -173,9 +174,9 @@ namespace Lina::Editor
 		GUINodeFMPopupElement::Draw(threadID);
 		m_isHovered = isHovered;
 
-		const float	  padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float	  padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const Vector2 iconPos = Vector2(m_rect.pos.x + m_rect.size.x - padding * 0.5f - m_iconSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-		GUIUtility::DrawIcon(0, m_swapchain->GetWindowDPIScale(), TI_CARET_SLD_RIGHT, iconPos, 1.0f, Theme::TC_HalfSilent, m_drawOrder);
+		GUIUtility::DrawIcon(0, m_window->GetDPIScale(), TI_CARET_SLD_RIGHT, iconPos, 1.0f, Theme::TC_HalfSilent, m_drawOrder);
 
 		if (m_isLastHovered)
 		{
@@ -189,7 +190,7 @@ namespace Lina::Editor
 
 	Vector2 GUINodeFMPopupElementExpandable::CalculateSize()
 	{
-		const float windowDPI = m_swapchain->GetWindowDPIScale();
+		const float windowDPI = m_window->GetDPIScale();
 		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
 			return m_lastCalculatedSize;
 
@@ -269,7 +270,7 @@ namespace Lina::Editor
 		for (auto e : m_elements)
 			maxSize = maxSize.Max(e->CalculateSize());
 
-		const float padding		 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float padding		 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const float heightMargin = padding * 0.5f;
 		maxSize.x += padding * 2;
 		maxSize.y += padding * 1.35f;
@@ -294,7 +295,7 @@ namespace Lina::Editor
 		SetSize(sz);
 		SetLayoutOffset(heightMargin);
 
-		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_swapchain->GetWindowDPIScale(), FRONT_DRAW_ORDER);
+		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), FRONT_DRAW_ORDER);
 		m_layout->SetPos(m_rect.pos + Vector2(0, m_layoutOffset));
 		m_layout->Draw(threadID);
 	}

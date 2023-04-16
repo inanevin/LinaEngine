@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Core/Theme.hpp"
 
 namespace Lina::Editor
@@ -50,7 +50,7 @@ namespace Lina::Editor
 	{
 		const Vector2 swapchainSize = m_swapchain->GetSize();
 		const Vector2 monitorSize	= m_window->GetMonitorInformation().size;
-		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_swapchain->GetWindowDPIScale()));
+		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_window->GetDPIScale()));
 		const Rect	  dockRect		= Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
 		m_topPanel->SetRect(topRect);
 		m_topPanel->Draw(threadID);

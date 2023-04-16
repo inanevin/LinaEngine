@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Core/Theme.hpp"
 
 namespace Lina::Editor
@@ -46,8 +46,8 @@ namespace Lina::Editor
 
 	void GUIDrawerPayload::DrawGUI(int threadID)
 	{
-		const float dragHeight		= m_swapchain->GetWindow()->GetMonitorInformation().size.y * 0.02f;
-		const float titleAreaHeight = m_swapchain->GetWindow()->GetMonitorInformation().size.y * 0.05f;
+		const float dragHeight		= m_window->GetMonitorInformation().size.y * 0.02f;
+		const float titleAreaHeight = m_window->GetMonitorInformation().size.y * 0.05f;
 
 		const Vector2 swpSize = m_swapchain->GetSize();
 
@@ -60,7 +60,7 @@ namespace Lina::Editor
 		}
 
 		LinaVG::StyleOptions opts;
-		const float			 thickness = m_swapchain->GetWindowDPIScale();
+		const float			 thickness = m_window->GetDPIScale();
 		opts.thickness				   = thickness * 2;
 		opts.color					   = LV4(Theme::TC_VerySilent);
 		opts.isFilled				   = false;

@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "GUI/Drawers/GUIDrawerSplashScreen.hpp"
 #include "GUI/Drawers/GUIDrawerMainWindow.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Core/Theme.hpp"

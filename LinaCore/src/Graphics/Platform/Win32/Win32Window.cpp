@@ -109,7 +109,12 @@ namespace Lina
 					return HTCLIENT;
 			}
 
+			LINA_TRACE("res {0}", res);
 			return res;
+		}
+		case WM_KILLFOCUS: {
+			win32Window->SetFocus(false);
+			break;
 		}
 		case WM_SETFOCUS: {
 			win32Window->SetFocus(true);
@@ -275,7 +280,10 @@ namespace Lina
 
 			break;
 		}
-		case WM_NCLBUTTONDOWN:
+		case WM_NCLBUTTONDOWN: {
+			win32Window->m_isDragged = true;
+			// don't break
+		}
 		case WM_LBUTTONDOWN: {
 
 			if (!s_isAppActive)
@@ -349,7 +357,10 @@ namespace Lina
 		}
 		break;
 		case WM_EXITSIZEMOVE:
-		case WM_NCLBUTTONUP:
+		case WM_NCLBUTTONUP: {
+			win32Window->m_isDragged = false;
+			// dont break
+		}
 		case WM_LBUTTONUP: {
 
 			if (!s_isAppActive)
@@ -451,8 +462,7 @@ namespace Lina
 		// m_window = CreateWindowExA(exStyle, title, title, parent == nullptr ? 0 : (WS_POPUP), pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
 		m_window = CreateWindowExA(exStyle, title, title, stylew, pos.x, pos.y, size.x, size.y, parent == nullptr ? NULL : static_cast<HWND>(parent), NULL, m_hinst, NULL);
 		ShowWindow(m_window, SW_SHOW);
-
-		m_title = title;
+		SetTitle(title);
 
 		if (m_window == nullptr)
 		{
@@ -466,12 +476,17 @@ namespace Lina
 			SetAlpha(1.0f);
 		}
 
+		static HICON hIcon = (HICON)LoadImage(NULL, "Lina.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE);
+		SendMessage(m_window, WM_SETICON, ICON_SMALL, (LPARAM)hIcon);
+		SendMessage(m_window, WM_SETICON, ICON_BIG, (LPARAM)hIcon);
+
 		m_handle				 = static_cast<void*>(m_window);
 		s_win32Windows[m_window] = this;
 		m_dpi					 = GetDpiForWindow(m_window);
 		m_dpiScale				 = m_dpi / 96.0f;
 		m_monitorInfo			 = m_manager->GetMonitorInfoFromWindow(static_cast<IWindow*>(this));
 		m_aspect				 = static_cast<float>(m_rect.size.x) / static_cast<float>(m_rect.size.y);
+		m_hasFocus				 = true;
 
 		// For raw input
 		RAWINPUTDEVICE Rid[1];
@@ -606,6 +621,7 @@ namespace Lina
 
 	void Win32Window::SetFocus(bool hasFocus)
 	{
+		LINA_TRACE("WINDOW SETTING FOCUS {0} {1}", m_title.c_str(), hasFocus);
 		m_hasFocus = hasFocus;
 		m_manager->OnWindowFocused(m_sid);
 	}
@@ -633,6 +649,20 @@ namespace Lina
 		}
 	}
 
+	void Win32Window::SetInputPassthrough(bool isInputPassThrough)
+	{
+		m_isInputPassthrough = isInputPassThrough;
+
+		if (m_isInputPassthrough)
+		{
+			SetWindowLong(m_window, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_TRANSPARENT | WS_EX_LAYERED);
+		}
+		else
+		{
+			SetWindowLong(m_window, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_LAYERED);
+		}
+	}
+
 	void Win32Window::SetPos(const Vector2i& newPos)
 	{
 		if (m_rect.pos == newPos)
@@ -657,6 +687,9 @@ namespace Lina
 	{
 		m_isVisible = isVisible;
 		ShowWindow(m_window, isVisible ? SW_SHOW : SW_HIDE);
+
+		if (!isVisible)
+			m_hasFocus = false;
 	}
 
 	void Win32Window::UpdatePos(const Vector2i& pos)
@@ -682,10 +715,10 @@ namespace Lina
 			m_gfxManager->OnWindowResized(this, m_sid, m_rect);
 	}
 
-	void Win32Window::SetTitle(const char* title)
+	void Win32Window::SetTitle(const String& title)
 	{
 		m_title = title;
-		SetWindowTextA(m_window, title);
+		SetWindowTextA(m_window, title.c_str());
 	}
 
 	void Win32Window::Minimize()

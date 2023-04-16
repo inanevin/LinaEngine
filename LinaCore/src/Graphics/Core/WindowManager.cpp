@@ -101,6 +101,11 @@ namespace Lina
 			sid = LINA_MAIN_SWAPCHAIN;
 		}
 
+		for (auto [aq, w] : m_windows)
+		{
+			int a = 5;
+		}
+
 		IWindow* w		= new PlatformWindow(this, m_system, sid);
 		void*	 parent = nullptr;
 

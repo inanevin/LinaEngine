@@ -30,6 +30,7 @@ SOFTWARE.
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
@@ -41,17 +42,17 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
-		const float padding		  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float padding		  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const float textWrapWidth = 200.0f;
 
 		LinaVG::TextOptions opts;
-		opts.font	   = Theme::GetFont(FontType::AltEditor, m_swapchain->GetWindowDPIScale());
+		opts.font	   = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
 		//opts.wrapWidth = textWrapWidth;
 
 		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
 		m_rect.size			   = textSize + Vector2(padding * 2, padding * 2);
 
-		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_swapchain->GetWindowDPIScale(), m_drawOrder);
+		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), m_drawOrder);
 
 		const Vector2 textStart = m_rect.pos + Vector2(padding, padding + textSize.y);
 		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textStart), opts, 0.0f, m_drawOrder);

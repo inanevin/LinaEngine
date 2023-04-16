@@ -34,6 +34,6 @@ namespace Lina
 	IGUIDrawer::IGUIDrawer(ISwapchain* swap)
 	{
 		m_swapchain = swap;
-		m_window	= m_swapchain->GetWindow();
+		m_window	= swap->GetWindow();
 	}
 } // namespace Lina

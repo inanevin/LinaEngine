@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
@@ -51,7 +52,7 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
-		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		// Background convex shape
 		{
@@ -70,7 +71,7 @@ namespace Lina::Editor
 		// Text
 		{
 			LinaVG::TextOptions textOpts;
-			textOpts.font		   = Theme::GetFont(FontType::DefaultEditor, m_swapchain->GetWindowDPIScale());
+			textOpts.font		   = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
 			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
 			const Vector2 textPos  = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
 			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
@@ -115,7 +116,7 @@ namespace Lina::Editor
 
 	Vector2 GUINodeTab::CalculateSize()
 	{
-		const float windowDPI = m_swapchain->GetWindowDPIScale();
+		const float windowDPI = m_window->GetDPIScale();
 		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
 			return m_lastCalculatedSize;
 		m_lastDpi = windowDPI;
@@ -150,7 +151,7 @@ namespace Lina::Editor
 	void GUINodeTab::DrawCloseButton(int threadID, float t)
 	{
 		// Uuf, setup
-		const float	  padding	 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float	  padding	 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const float	  offset	 = padding * 1.5f;
 		const float	  yOffset	 = 0.0f;
 		const Vector2 originalTL = Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END, m_rect.pos.y + yOffset);
@@ -189,7 +190,7 @@ namespace Lina::Editor
 			Color iconColor = t < 0.7f ? Color(1.0f, 1.0f, 1.0f, 0.2f) : Math::Lerp(Color(0, 0, 0, 0), Color::White, t * 10.0f);
 			iconColor.w		= Math::Clamp(iconColor.w, 0.0f, 1.0f);
 
-			GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), TI_CROSS, iconCenter, 0.75f, iconColor, m_drawOrder + 2, 90.0f * t, true);
+			GUIUtility::DrawIcon(threadID, m_window->GetDPIScale(), TI_CROSS, iconCenter, 0.75f, iconColor, m_drawOrder + 2, 90.0f * t, true);
 		}
 	}
 

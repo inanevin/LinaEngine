@@ -67,20 +67,33 @@ namespace Lina::Editor
 			m_windowButtons->Draw(threadID);
 		}
 
+		float logoEndX = 0.0f;
+
 		// Logo
 		{
-			const float			 padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+			const float			 padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 			const Vector2		 logoSize = Vector2(imageHeight, imageHeight);
 			const Vector2		 logoPos  = Vector2(padding, m_rect.size.y * 0.5f - logoSize.y * 0.5f);
 			LinaVG::StyleOptions logo;
-			logo.textureHandle = "Resources/Core/Textures/Logo_White_512.png"_hs;
+			logo.textureHandle = "Resources/Core/Textures/Logo_Colored_1024.png"_hs;
 			LinaVG::DrawRect(threadID, LV2(logoPos), LV2((logoPos + logoSize)), logo, 0.0f, m_drawOrder);
+			logoEndX = logoPos.x + logoSize.x * 0.5f + padding * 1.5f;
+		}
+
+		// Title
+		{
+			const char* title = m_window->GetTitle().c_str();
+			LinaVG::TextOptions opts;
+			opts.font			   = Theme::GetFont(FontType::TitleEditor, m_window->GetDPIScale());
+			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(title, opts));
+			const Vector2 titlePos = Vector2(logoEndX, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
+			LinaVG::DrawTextNormal(threadID, title, LV2(titlePos), opts, 0.0f, m_drawOrder, true);
 		}
 
 		// Drag rect
 		{
 			const Rect dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, m_rect.size.y));
-			m_swapchain->GetWindow()->SetDragRect(dragRect);
+			m_window->SetDragRect(dragRect);
 		}
 	}
 
@@ -92,10 +105,10 @@ namespace Lina::Editor
 		{
 			if (act == InputAction::Repeated)
 			{
-				if (m_swapchain->GetWindow()->IsMaximized())
-					m_swapchain->GetWindow()->Restore();
+				if (m_window->IsMaximized())
+					m_window->Restore();
 				else
-					m_swapchain->GetWindow()->Maximize();
+					m_window->Maximize();
 			}
 		}
 		return ret;

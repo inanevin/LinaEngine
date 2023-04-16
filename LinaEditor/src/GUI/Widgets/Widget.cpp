@@ -29,6 +29,7 @@ SOFTWARE.
 #include "GUI/Widgets/Widget.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 using namespace Lina;
 
@@ -51,7 +52,7 @@ namespace Lina::Editor
 
 	float Widget::GetDPIScale() const
 	{
-		return m_swapchain->GetWindowDPIScale();
+		return m_window->GetDPIScale();
 	}
 
 } // namespace Lina::Editor

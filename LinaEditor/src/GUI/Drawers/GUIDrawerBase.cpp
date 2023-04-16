@@ -35,9 +35,11 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "GUI/Nodes/GUINode.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockDivider.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
+#include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "Input/Core/InputMappings.hpp"
-
 
 using namespace Lina;
 
@@ -52,6 +54,10 @@ namespace Lina::Editor
 		dockArea->SetSplitRect(Rect(Vector2::Zero, Vector2::One));
 		m_dockAreas.push_back(dockArea);
 		m_root->AddChildren(m_dockAreas[0]);
+
+		m_dockPreview = new GUINodeDockPreview(m_editor, m_swapchain, FRONT_DRAW_ORDER);
+		m_dockPreview->SetDrawReach(0.9f);
+		m_root->AddChildren(m_dockPreview);
 	}
 
 	GUIDrawerBase::~GUIDrawerBase()
@@ -168,8 +174,34 @@ namespace Lina::Editor
 		m_dockAreas.push_back(newArea);
 		area->SetSplittedArea(newArea);
 
-		Rect currentSplitRect = area->GetSplitRect();
-		Rect newAreaSplitRect = Rect();
+		const auto&			currentAreaDividers = area->GetDividers();
+		GUINodeDockDivider* divider				= new GUINodeDockDivider(m_editor, m_swapchain, FRONT_DRAW_ORDER);
+		divider->SetDefaultColor(Theme::TC_Dark1);
+
+		const Rect currentAreaRect	= area->GetRect();
+		Rect	   currentSplitRect = area->GetSplitRect();
+		Rect	   newAreaSplitRect = Rect();
+
+		if (type == DockSplitType::Left || type == DockSplitType::Right)
+		{
+			divider->SetDragDirection(DragDirection::Horizontal);
+
+			if (currentAreaDividers.contains(DockSplitType::Up))
+				newArea->SetDivider(DockSplitType::Up, currentAreaDividers.at(DockSplitType::Up));
+
+			if (currentAreaDividers.contains(DockSplitType::Down))
+				newArea->SetDivider(DockSplitType::Down, currentAreaDividers.at(DockSplitType::Down));
+		}
+		else
+		{
+			divider->SetDragDirection(DragDirection::Vertical);
+
+			if (currentAreaDividers.contains(DockSplitType::Left))
+				newArea->SetDivider(DockSplitType::Left, currentAreaDividers.at(DockSplitType::Left));
+
+			if (currentAreaDividers.contains(DockSplitType::Right))
+				newArea->SetDivider(DockSplitType::Right, currentAreaDividers.at(DockSplitType::Right));
+		}
 
 		if (type == DockSplitType::Left)
 		{
@@ -177,18 +209,27 @@ namespace Lina::Editor
 			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
 			currentSplitRect.pos.x += split;
 			currentSplitRect.size.x -= split;
+
+			newArea->SetDivider(DockSplitType::Right, divider);
+			area->SetDivider(type, divider);
 		}
 		else if (type == DockSplitType::Right)
 		{
 			split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
 			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x + currentSplitRect.size.x - split, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
 			currentSplitRect.size.x -= split;
+
+			newArea->SetDivider(DockSplitType::Left, divider);
+			area->SetDivider(type, divider);
 		}
 		else if (type == DockSplitType::Down)
 		{
 			split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
 			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y + currentSplitRect.size.y - split), Vector2(currentSplitRect.size.x, split));
 			currentSplitRect.size.y -= split;
+
+			newArea->SetDivider(DockSplitType::Up, divider);
+			area->SetDivider(type, divider);
 		}
 		else if (type == DockSplitType::Up)
 		{
@@ -196,7 +237,13 @@ namespace Lina::Editor
 			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(currentSplitRect.size.x, split));
 			currentSplitRect.size.y -= split;
 			currentSplitRect.pos.y += split;
+
+			newArea->SetDivider(DockSplitType::Down, divider);
+			area->SetDivider(type, divider);
 		}
+
+		m_root->AddChildren(divider);
+		m_dividers.push_back(divider);
 
 		area->SetSplitRect(currentSplitRect);
 		newArea->SetSplitRect(newAreaSplitRect);
@@ -206,6 +253,53 @@ namespace Lina::Editor
 	GUINode* GUIDrawerBase::FindNode(StringID sid)
 	{
 		return m_root->FindChildren(sid);
+	}
+
+	void GUIDrawerBase::OnPayloadCreated(PayloadType type, void* data)
+	{
+		// Docking preview for panels that are not my children.
+		if (type == PayloadType::Panel)
+		{
+			PayloadDataPanel* payloadData		 = static_cast<PayloadDataPanel*>(data);
+			const Vector2i&	  targetSize		 = m_swapchain->GetSize();
+			const bool		  sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
+			m_dockingPreviewEnabled				 = sizeSuitableToDock;
+
+			if (m_dockingPreviewEnabled)
+				m_dockPreview->SetVisible(true);
+		}
+
+		m_root->OnPayloadCreated(type, data);
+	}
+
+	bool GUIDrawerBase::OnPayloadDropped(PayloadType type, void* data)
+	{
+		bool retVal = false;
+
+		if (type == PayloadType::Panel)
+		{
+			// If dropped on one of the 4 directions for me.
+			const DockSplitType splitType = m_dockPreview->GetCurrentSplitType();
+			if (splitType != DockSplitType::None)
+			{
+				const DockSplitType splitType	= m_dockPreview->GetCurrentSplitType();
+				PayloadDataPanel*	payloadData = static_cast<PayloadDataPanel*>(data);
+
+				// SplitDockArea(this, splitType, data->onFlightPanel);
+				retVal = true;
+			}
+
+			m_dockingPreviewEnabled = false;
+			m_dockPreview->Reset();
+			m_dockPreview->SetVisible(false);
+		}
+
+		bool rootRetVal = m_root->OnPayloadDropped(type, data);
+
+		if (!retVal && rootRetVal)
+			retVal = true;
+
+		return retVal;
 	}
 
 	GUINode* GUIDrawerBase::GetHovered(GUINode* parent)

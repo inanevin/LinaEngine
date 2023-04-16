@@ -58,6 +58,10 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_2x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_3x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_4x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/WorkSans-Regular_1x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/WorkSans-Regular_2x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/WorkSans-Regular_3x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/WorkSans-Regular_4x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.fbx", GetTypeID<Model>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/DummyBlack_32.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/LogoWithText.png", GetTypeID<Texture>(), 0));
@@ -99,6 +103,30 @@ namespace Lina
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 20);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_4x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt("Size"_hs, 13);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_1x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		////-------------
+		metadata.SetInt("Size"_hs, 15);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt("Size"_hs, 18);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_3x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt("Size"_hs, 22);
+		metadata.SetBool("IsSDF"_hs, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------

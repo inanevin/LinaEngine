@@ -213,7 +213,7 @@ namespace Lina
 
 	void SurfaceRenderer::Tick(float interpolationAlpha)
 	{
-		if (!m_swapchain->GetWindow()->GetIsVisible())
+		if (!m_swapchain->GetWindow())
 			return;
 
 		PROFILER_FUNCTION();
@@ -225,7 +225,7 @@ namespace Lina
 
 	void SurfaceRenderer::Render(int surfaceRendererIndex, uint32 frameIndex)
 	{
-		if (!m_swapchain->GetWindow()->GetIsVisible())
+		if (!m_swapchain->GetWindow())
 			return;
 
 		PROFILER_FUNCTION();
@@ -318,6 +318,9 @@ namespace Lina
 
 	void SurfaceRenderer::Present()
 	{
+		if (!m_swapchain->GetWindow())
+			return;
+
 		m_renderer->Present(m_swapchain);
 		m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);
 	}

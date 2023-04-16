@@ -34,7 +34,7 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUINodePanelLevel.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelEntities.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelResourceViewer.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 
 namespace Lina::Editor
 {

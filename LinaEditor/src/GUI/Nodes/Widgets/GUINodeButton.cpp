@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Math/Math.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
@@ -49,14 +50,14 @@ namespace Lina::Editor
 			if (m_isIcon)
 			{
 				LinaVG::SDFTextOptions textOpts;
-				textOpts.font	   = Theme::GetFont(FontType::EditorIcons, m_swapchain->GetWindowDPIScale());
+				textOpts.font	   = Theme::GetFont(FontType::EditorIcons, m_window->GetDPIScale());
 				textOpts.textScale = m_textScale;
 				textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_title.c_str(), textOpts));
 			}
 			else
 			{
 				LinaVG::TextOptions textOpts;
-				textOpts.font	   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
+				textOpts.font	   = Theme::GetFont(m_fontType, m_window->GetDPIScale());
 				textOpts.textScale = m_textScale;
 				textSize		   = FL2(LinaVG::CalculateTextSize(threadID, m_title.c_str(), textOpts));
 			}
@@ -66,7 +67,7 @@ namespace Lina::Editor
 		{
 			if (m_fitType == ButtonFitType::AutoFitFromTextAndPadding)
 			{
-				const float padding = Theme::GetProperty(ThemeProperty::MenuButtonPadding, m_swapchain->GetWindowDPIScale());
+				const float padding = Theme::GetProperty(ThemeProperty::MenuButtonPadding, m_window->GetDPIScale());
 				m_rect.size			= Vector2(textSize.x + padding * 2, textSize.y + padding * 0.75f);
 			}
 		}
@@ -79,7 +80,7 @@ namespace Lina::Editor
 
 			if (m_isHovered && m_enableHoverOutline)
 			{
-				opts.outlineOptions.thickness	  = 1.0f * m_swapchain->GetWindowDPIScale();
+				opts.outlineOptions.thickness	  = 1.0f * m_window->GetDPIScale();
 				opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
 				opts.outlineOptions.color		  = LV4(m_outlineColor);
 			}
@@ -92,14 +93,14 @@ namespace Lina::Editor
 			if (m_isIcon)
 			{
 				const Vector2 textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-				GUIUtility::DrawIcon(threadID, m_swapchain->GetWindowDPIScale(), m_title.c_str(), textPos, m_textScale, m_textColor, m_drawOrder);
+				GUIUtility::DrawIcon(threadID, m_window->GetDPIScale(), m_title.c_str(), textPos, m_textScale, m_textColor, m_drawOrder);
 			}
 			else
 			{
 				const Vector2		textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
 				LinaVG::TextOptions textOpts;
 				textOpts.color	   = LV4(m_textColor);
-				textOpts.font	   = Theme::GetFont(m_fontType, m_swapchain->GetWindowDPIScale());
+				textOpts.font	   = Theme::GetFont(m_fontType, m_window->GetDPIScale());
 				textOpts.textScale = m_textScale;
 				LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder + 1);
 			}
@@ -117,10 +118,10 @@ namespace Lina::Editor
 
 	Vector2 GUINodeButton::CalculateSize()
 	{
-		if (Math::Equals(m_lastDpi, m_swapchain->GetWindowDPIScale(), 0.0001f))
+		if (Math::Equals(m_lastDpi, m_window->GetDPIScale(), 0.0001f))
 			return m_lastCalculatedSize;
 
-		m_lastDpi = m_swapchain->GetWindowDPIScale();
+		m_lastDpi = m_window->GetDPIScale();
 		LinaVG::TextOptions textOpts;
 		textOpts.font		 = Theme::GetFont(m_fontType, m_lastDpi);
 		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));

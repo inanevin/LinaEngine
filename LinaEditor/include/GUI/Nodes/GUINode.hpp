@@ -43,6 +43,7 @@ SOFTWARE.
 namespace Lina
 {
 	class ISwapchain;
+	class IWindow;
 }
 
 namespace Lina::Editor
@@ -188,15 +189,17 @@ namespace Lina::Editor
 	protected:
 		friend class GUIDrawerBase;
 
-		StringID				 m_sid				 = 0;
-		bool					 m_visible			 = true;
-		int						 m_drawOrder		 = 0;
-		bool					 m_isHovered		 = false;
-		bool					 m_isPressed		 = false;
-		bool					 m_isDragging		 = false;
-		Vector2i				 m_dragStartMousePos = Vector2i::Zero;
-		Editor*					 m_editor			 = nullptr;
-		ISwapchain*				 m_swapchain		 = nullptr;
+		StringID				 m_sid				   = 0;
+		bool					 m_visible			   = true;
+		int						 m_drawOrder		   = 0;
+		bool					 m_isHovered		   = false;
+		bool					 m_isPressed		   = false;
+		bool					 m_isDragging		   = false;
+		Vector2i				 m_dragStartMousePos   = Vector2i::Zero;
+		Vector2i				 m_dragStartMouseDelta = Vector2i::Zero;
+		Editor*					 m_editor			   = nullptr;
+		ISwapchain*				 m_swapchain		   = nullptr;
+		IWindow*				 m_window			   = nullptr;
 		Vector<GUINode*>		 m_children;
 		Rect					 m_rect				  = Rect();
 		Vector2					 m_minPos			  = Vector2::Zero;

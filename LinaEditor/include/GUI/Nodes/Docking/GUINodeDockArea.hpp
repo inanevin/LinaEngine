@@ -31,8 +31,9 @@ SOFTWARE.
 #ifndef GUINodeDockArea_HPP
 #define GUINodeDockArea_HPP
 
-#include "GUINode.hpp"
+#include "GUI/Nodes/GUINode.hpp"
 #include "Data/Vector.hpp"
+#include "Data/HashMap.hpp"
 #include "Math/Rect.hpp"
 #include "Core/EditorCommon.hpp"
 
@@ -47,6 +48,7 @@ namespace Lina::Editor
 	class GUIDrawerBase;
 	class GUINodeTabArea;
 	class GUINodeDockPreview;
+	class GUINodeDockDivider;
 
 	class GUINodeDockArea : public GUINode
 	{
@@ -55,10 +57,11 @@ namespace Lina::Editor
 		virtual ~GUINodeDockArea() = default;
 
 		virtual void Draw(int threadID) override;
-		void		 AddPanel(GUINodePanel* panel);
-		void		 RemovePanel(GUINodePanel* panel, bool deletePanel = true, bool deleteIfEmpty = true);
 		virtual void OnPayloadCreated(PayloadType type, void* payloadData) override;
 		virtual bool OnPayloadDropped(PayloadType type, void* payloadData) override;
+		void		 AddPanel(GUINodePanel* panel);
+		void		 RemovePanel(GUINodePanel* panel, bool deletePanel = true, bool deleteIfEmpty = true);
+		void		 SetDivider(DockSplitType splitDirection, GUINodeDockDivider* divider);
 
 		inline void SetSplitRect(const Rect& rect)
 		{
@@ -80,21 +83,39 @@ namespace Lina::Editor
 			return m_splittedArea;
 		}
 
+		inline const HashMap<DockSplitType, GUINodeDockDivider*>& GetDividers() const
+		{
+			return m_dividers;
+		}
+
+		inline void SetDependsOnRight(GUINodeDockArea* area)
+		{
+			m_dependsOnRight = area;
+		}
+
+		inline GUINodeDockArea* GetDependsOnRight()
+		{
+			return m_dependsOnRight;
+		}
+
 	private:
 		void OnTabClicked(GUINode* node);
 		void OnTabDismissed(GUINode* node);
 		void OnTabDetached(GUINode* node, const Vector2& detachDelta);
 
 	protected:
-		Lina::Input*		  m_input					= nullptr;
-		bool				  m_isDockingPreviewEnabled = false;
-		GUIDrawerBase*		  m_drawer					= nullptr;
-		Rect				  m_splitPercentages;
-		Vector<GUINodePanel*> m_panels;
-		GUINodePanel*		  m_focusedPanel = nullptr;
-		GUINodeDockArea*	  m_splittedArea = nullptr;
-		GUINodeTabArea*		  m_tabArea		 = nullptr;
-		GUINodeDockPreview*	  m_dockPreview	 = nullptr;
+		bool										m_isDockingPreviewEnabled = false;
+		Lina::Input*								m_input					  = nullptr;
+		GUIDrawerBase*								m_drawer				  = nullptr;
+		Rect										m_splitPercentages;
+		Vector<GUINodePanel*>						m_panels;
+		GUINodePanel*								m_focusedPanel = nullptr;
+		GUINodeDockArea*							m_splittedArea = nullptr;
+		GUINodeTabArea*								m_tabArea	   = nullptr;
+		GUINodeDockPreview*							m_dockPreview  = nullptr;
+		HashMap<DockSplitType, GUINodeDockDivider*> m_dividers;
+
+		GUINodeDockArea* m_dependsOnRight = nullptr;
 	};
 } // namespace Lina::Editor
 

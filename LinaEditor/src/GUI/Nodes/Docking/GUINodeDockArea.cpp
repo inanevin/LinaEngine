@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Data/CommonData.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelContentBrowser.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelHierarchy.hpp"
@@ -39,8 +39,9 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUINodePanelEntities.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelLevel.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelResourceViewer.hpp"
-#include "GUI/Nodes/Custom/GUINodeDockPreview.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
 #include "GUI/Nodes/Widgets/GUINodeTabArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockDivider.hpp"
 
 #include "Core/Editor.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
@@ -48,7 +49,6 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Input/Core/Input.hpp"
-#include "GUI/Nodes/Custom/GUINodeDockPreview.hpp"
 
 namespace Lina::Editor
 {
@@ -60,6 +60,7 @@ namespace Lina::Editor
 		m_tabArea->SetCallbackTabDismissed(BIND(&GUINodeDockArea::OnTabDismissed, this, std::placeholders::_1));
 		m_tabArea->SetCallbackTabDetached(BIND(&GUINodeDockArea::OnTabDetached, this, std::placeholders::_1, std::placeholders::_2));
 		m_dockPreview = new GUINodeDockPreview(editor, swapchain, drawOrder);
+		m_dockPreview->SetDrawReach(0.25f);
 		AddChildren(m_tabArea)->AddChildren(m_dockPreview);
 
 		m_input = editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
@@ -69,12 +70,16 @@ namespace Lina::Editor
 	{
 		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
 
-		const float tabAreaHeight = 24.0f * m_swapchain->GetWindowDPIScale();
+		const bool	needTabArea	  = m_panels.size() > 1;
+		const float tabAreaHeight = needTabArea ? 24.0f * m_window->GetDPIScale() : 0.0f;
 		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
 		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
 
-		m_tabArea->SetRect(tabRect);
-		m_tabArea->Draw(threadID);
+		if (needTabArea)
+		{
+			m_tabArea->SetRect(tabRect);
+			m_tabArea->Draw(threadID);
+		}
 
 		if (m_focusedPanel != nullptr)
 		{
@@ -84,16 +89,8 @@ namespace Lina::Editor
 
 		if (m_isDockingPreviewEnabled)
 		{
-			const Vector2i& targetSize		   = m_rect.size;
-			const bool		sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
-			auto			mousePos		   = m_input->GetMousePositionAbs() - m_swapchain->GetWindow()->GetPos();
-
-			// Also check pressed status and also check if editor gui drawer contains a flying tab.
-			if (sizeSuitableToDock && GUIUtility::IsInRect(mousePos, m_rect))
-			{
-				m_dockPreview->SetRect(m_rect);
-				m_dockPreview->Draw(threadID);
-			}
+			m_dockPreview->SetRect(m_rect);
+			m_dockPreview->Draw(threadID);
 		}
 	}
 
@@ -132,29 +129,42 @@ namespace Lina::Editor
 		{
 			PayloadDataPanel* data = static_cast<PayloadDataPanel*>(payloadData);
 			if (FindChildren(data->onFlightPanel->GetSID()) == nullptr)
-				m_isDockingPreviewEnabled = true;
+			{
+				const Vector2i& targetSize		   = m_rect.size;
+				const bool		sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
+				m_isDockingPreviewEnabled		   = sizeSuitableToDock;
+
+				if (m_isDockingPreviewEnabled)
+					m_dockPreview->SetVisible(true);
+			}
 		}
 	}
 
 	bool GUINodeDockArea::OnPayloadDropped(PayloadType type, void* payloadData)
 	{
-		m_isDockingPreviewEnabled = false;
-
 		if (type == PayloadType::Panel)
 		{
+			m_isDockingPreviewEnabled = false;
+
 			// If dropped on one of the 4 directions for me.
 			const DockSplitType splitType = m_dockPreview->GetCurrentSplitType();
 			if (splitType != DockSplitType::None)
 			{
 				const DockSplitType splitType = m_dockPreview->GetCurrentSplitType();
-
-				PayloadDataPanel* data = static_cast<PayloadDataPanel*>(payloadData);
+				PayloadDataPanel*	data	  = static_cast<PayloadDataPanel*>(payloadData);
 				m_drawer->SplitDockArea(this, splitType, data->onFlightPanel);
+				m_dockPreview->Reset();
+				m_dockPreview->SetVisible(false);
 				return true;
 			}
 		}
 
 		return false;
+	}
+
+	void GUINodeDockArea::SetDivider(DockSplitType splitDirection, GUINodeDockDivider* divider)
+	{
+		m_dividers[splitDirection] = divider;
 	}
 
 	void GUINodeDockArea::OnTabClicked(GUINode* node)

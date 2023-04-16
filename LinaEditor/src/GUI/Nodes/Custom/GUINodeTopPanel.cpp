@@ -88,7 +88,7 @@ namespace Lina::Editor
 		m_fileMenu->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
 		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
-		m_windowButtons->SetCallbackDismissed([&](GUINode* node) { m_swapchain->GetWindow()->Close(); });
+		m_windowButtons->SetCallbackDismissed([&](GUINode* node) { m_window->Close(); });
 
 		m_customLogo = new GUINodeCustomLogo(editor, swapchain, drawOrder);
 		AddChildren(m_fileMenu)->AddChildren(m_windowButtons)->AddChildren(m_customLogo);
@@ -144,7 +144,7 @@ namespace Lina::Editor
 		// Drag rect
 		{
 			const Rect dragRect = Rect(fileMenuEnd, Vector2(m_windowButtons->GetRect().pos.x - fileMenuEnd.x, padding * 2));
-			m_swapchain->GetWindow()->SetDragRect(dragRect);
+			m_window->SetDragRect(dragRect);
 		}
 	}
 
@@ -156,10 +156,10 @@ namespace Lina::Editor
 		{
 			if (act == InputAction::Repeated)
 			{
-				if (m_swapchain->GetWindow()->IsMaximized())
-					m_swapchain->GetWindow()->Restore();
+				if (m_window->IsMaximized())
+					m_window->Restore();
 				else
-					m_swapchain->GetWindow()->Maximize();
+					m_window->Maximize();
 			}
 		}
 		return ret;

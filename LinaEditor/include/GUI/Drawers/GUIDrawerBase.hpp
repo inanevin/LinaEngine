@@ -41,6 +41,8 @@ namespace Lina::Editor
 	class Editor;
 	class GUINodeDockArea;
 	class GUINodePanel;
+	class GUINodeDockDivider;
+	class GUINodeDockPreview;
 
 	class GUIDrawerBase : public IGUIDrawer
 	{
@@ -56,6 +58,8 @@ namespace Lina::Editor
 		virtual void OnLostFocus() override;
 		void		 SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel);
 		GUINode*	 FindNode(StringID sid);
+		void		 OnPayloadCreated(PayloadType type, void* data);
+		bool		 OnPayloadDropped(PayloadType type, void* data);
 
 		inline StringID GetSID() const
 		{
@@ -76,13 +80,16 @@ namespace Lina::Editor
 		GUINode* GetHovered(GUINode* parent);
 
 	protected:
-		GUINode* m_mouseDisablingNode = nullptr;
-		StringID m_sid				  = 0;
-		GUINode* m_hoveredNode		  = nullptr;
-		Editor*	 m_editor			  = nullptr;
-		GUINode* m_root				  = nullptr;
+		bool	 m_dockingPreviewEnabled = false;
+		GUINode* m_mouseDisablingNode	 = nullptr;
+		StringID m_sid					 = 0;
+		GUINode* m_hoveredNode			 = nullptr;
+		Editor*	 m_editor				 = nullptr;
+		GUINode* m_root					 = nullptr;
 
-		Vector<GUINodeDockArea*> m_dockAreas;
+		GUINodeDockPreview*			m_dockPreview = nullptr;
+		Vector<GUINodeDockArea*>	m_dockAreas;
+		Vector<GUINodeDockDivider*> m_dividers;
 	};
 } // namespace Lina::Editor
 

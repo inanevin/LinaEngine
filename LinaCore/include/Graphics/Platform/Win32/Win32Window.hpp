@@ -58,7 +58,7 @@ namespace Lina
 		virtual void SetPos(const Vector2i& newPos) override;
 		virtual void SetToCenter() override;
 		virtual void SetVisible(bool isVisible) override;
-		virtual void SetTitle(const char*) override;
+		virtual void SetTitle(const String&) override;
 		virtual void Minimize() override;
 		virtual void Maximize() override;
 		virtual void Restore() override;
@@ -67,6 +67,7 @@ namespace Lina
 		virtual void SetAlpha(float alpha) override;
 		virtual void BringToFront() override;
 		virtual void SetMouseFocus(bool focus) override;
+		virtual void SetInputPassthrough(bool isInputPassThrough) override;
 
 		virtual bool GetIsAppActive() const override
 		{

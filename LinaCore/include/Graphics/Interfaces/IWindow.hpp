@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/StringID.hpp"
 #include "Data/Bitmask.hpp"
 #include "Core/Common.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
@@ -53,7 +54,7 @@ namespace Lina
 		virtual void SetSize(const Vector2i& newSize)													= 0;
 		virtual void SetPos(const Vector2i& newPos)														= 0;
 		virtual void SetVisible(bool isVisible)															= 0;
-		virtual void SetTitle(const char*)																= 0;
+		virtual void SetTitle(const String&)															= 0;
 		virtual void Minimize()																			= 0;
 		virtual void Maximize()																			= 0;
 		virtual void Restore()																			= 0;
@@ -64,6 +65,7 @@ namespace Lina
 		virtual void SetAlpha(float alpha)																= 0;
 		virtual void BringToFront()																		= 0;
 		virtual void SetMouseFocus(bool focused)														= 0;
+		virtual void SetInputPassthrough(bool isInputPassThrough)										= 0;
 
 		virtual void SetToWorkingArea() = 0;
 		virtual void SetToFullscreen()	= 0;
@@ -103,7 +105,7 @@ namespace Lina
 			return m_aspect;
 		}
 
-		inline const char* GetTitle() const
+		inline const String& GetTitle() const
 		{
 			return m_title;
 		}
@@ -163,6 +165,15 @@ namespace Lina
 			return m_monitorInfo;
 		}
 
+		inline bool GetIsInputPassthrough() const
+		{
+			return m_isInputPassthrough;
+		}
+
+		inline bool GetIsDragged() const
+		{
+			return m_isDragged;
+		}
 
 	private:
 		friend class WindowManager;
@@ -173,23 +184,25 @@ namespace Lina
 		}
 
 	protected:
-		SurfaceRenderer* m_surfaceRenderer	 = nullptr;
+		SurfaceRenderer* m_surfaceRenderer = nullptr;
 		MonitorInfo		 m_monitorInfo;
-		ISystem*		 m_system		  = nullptr;
-		Recti			 m_rect			  = Recti();
-		Recti			 m_dragRect		  = Recti();
-		StringID		 m_sid			  = 0;
-		bool			 m_isMinimized	  = false;
-		bool			 m_isMaximized	  = false;
-		bool			 m_isFullscreen	  = false;
-		bool			 m_isVisible	  = false;
-		bool			 m_hasFocus		  = false;
-		float			 m_aspect		  = 0.0f;
-		const char*		 m_title		  = 0;
-		void*			 m_handle		  = nullptr;
-		void*			 m_registryHandle = nullptr;
-		uint32			 m_dpi			  = 0;
-		float			 m_dpiScale		  = 0.0f;
+		ISystem*		 m_system			  = nullptr;
+		Recti			 m_rect				  = Recti();
+		Recti			 m_dragRect			  = Recti();
+		StringID		 m_sid				  = 0;
+		bool			 m_isDragged		  = false;
+		bool			 m_isInputPassthrough = false;
+		bool			 m_isMinimized		  = false;
+		bool			 m_isMaximized		  = false;
+		bool			 m_isFullscreen		  = false;
+		bool			 m_isVisible		  = false;
+		bool			 m_hasFocus			  = false;
+		float			 m_aspect			  = 0.0f;
+		String			 m_title			  = "";
+		void*			 m_handle			  = nullptr;
+		void*			 m_registryHandle	  = nullptr;
+		uint32			 m_dpi				  = 0;
+		float			 m_dpiScale			  = 0.0f;
 	};
 } // namespace Lina
 

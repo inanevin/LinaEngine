@@ -50,6 +50,7 @@ namespace Lina::Editor
 	{
 		DefaultEditor,
 		AltEditor,
+		TitleEditor,
 		EditorIcons,
 	};
 

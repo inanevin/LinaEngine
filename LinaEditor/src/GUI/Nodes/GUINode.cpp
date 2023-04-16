@@ -37,6 +37,7 @@ namespace Lina::Editor
 {
 	GUINode::GUINode(Editor* editor, ISwapchain* swapchain, int drawOrder) : m_editor(editor), m_swapchain(swapchain), m_drawOrder(drawOrder)
 	{
+		m_window = m_swapchain->GetWindow();
 	}
 
 	GUINode::~GUINode()
@@ -80,10 +81,11 @@ namespace Lina::Editor
 			{
 				if (GetIsHovered())
 				{
-					lastPressedNode		= this;
-					m_isPressed			= true;
-					m_isDragging		= true;
-					m_dragStartMousePos = m_swapchain->GetMousePos();
+					lastPressedNode		  = this;
+					m_isPressed			  = true;
+					m_isDragging		  = true;
+					m_dragStartMousePos	  = m_swapchain->GetMousePos();
+					m_dragStartMouseDelta = m_dragStartMousePos - Vector2i(m_rect.pos);
 				}
 			}
 			else if (action == InputAction::Released)
@@ -141,16 +143,18 @@ namespace Lina::Editor
 
 	bool GUINode::OnPayloadDropped(PayloadType type, void* data)
 	{
-		const uint32 sz = static_cast<uint32>(m_children.size());
+		const uint32 sz		= static_cast<uint32>(m_children.size());
+		bool		 retVal = false;
+
 		for (uint32 i = 0; i < sz; i++)
 		{
 			const bool ret = m_children[i]->OnPayloadDropped(type, data);
 
 			if (ret)
-				return true;
+				retVal = true;
 		}
 
-		return false;
+		return retVal;
 	}
 
 	GUINode* GUINode::AddChildren(GUINode* node)

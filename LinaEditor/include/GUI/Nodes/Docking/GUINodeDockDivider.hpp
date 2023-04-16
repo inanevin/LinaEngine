@@ -28,30 +28,52 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUIDrawerChildWindow_HPP
-#define GUIDrawerChildWindow_HPP
+#ifndef GUINodeDockDivider_HPP
+#define GUINodeDockDivider_HPP
 
-#include "GUIDrawerBase.hpp"
+#include "GUI/Nodes/GUINode.hpp"
+#include "Data/String.hpp"
+#include "Math/Color.hpp"
+#include "Data/Functional.hpp"
+#include "Core/EditorCommon.hpp"
 
-namespace Lina
-{
-	class Input;
-}
 namespace Lina::Editor
 {
-	class GUINodeTitleSection;
+	class GUINodeDockArea;
 
-	class GUIDrawerChildWindow : public GUIDrawerBase
+	class GUINodeDockDivider : public GUINode
 	{
 	public:
-		GUIDrawerChildWindow(Editor* editor, ISwapchain* swap);
-		virtual ~GUIDrawerChildWindow(){};
-		virtual void DrawGUI(int threadID) override;
+		GUINodeDockDivider(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		virtual ~GUINodeDockDivider() = default;
+
+		virtual void Draw(int threadID) override;
+
+		inline GUINodeDockDivider* SetDefaultColor(const Color& color)
+		{
+			m_defaultColor = color;
+			return this;
+		}
+
+		inline GUINodeDockDivider* SetDragDirection(DragDirection dragDir)
+		{
+			m_dragDirection = dragDir;
+			return this;
+		}
+
+		inline GUINodeDockDivider* AddDockAreaPositiveSide(GUINodeDockArea* area);
+		inline GUINodeDockDivider* AddDockAreaNegativeSide(GUINodeDockArea* area);
+		inline GUINodeDockDivider* RemoveDockAreaPositiveSide(GUINodeDockArea* area);
+		inline GUINodeDockDivider* RemoveDockAreaNegativeSide(GUINodeDockArea* area);
 
 	private:
-		Input*				 m_input		= nullptr;
-		GUINodeTitleSection* m_titleSection = nullptr;
+		DragDirection			 m_dragDirection	= DragDirection::None;
+		Color					 m_defaultColor;
+		bool					 m_pressRecorded = false;
+		Vector<GUINodeDockArea*> m_positiveSideDockAreas;
+		Vector<GUINodeDockArea*> m_negativeSideDockAreas;
 	};
+
 } // namespace Lina::Editor
 
 #endif

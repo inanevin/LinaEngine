@@ -116,10 +116,10 @@ namespace Lina
 					ComPtr<ID3D12Debug> debugController;
 					if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 					{
-						//	debugController->EnableDebugLayer();
+						debugController->EnableDebugLayer();
 
-						//  Enable additional debug layers.
-						// dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
+						// Enable additional debug layers.
+						dxgiFactoryFlags |= DXGI_CREATE_FACTORY_DEBUG;
 					}
 					else
 					{
@@ -1218,7 +1218,7 @@ namespace Lina
 		auto		 heap					= m_gpuBufferHeap[m_currentFrameIndex];
 		const uint32 currentDescriptorIndex = heap->GetCurrentDescriptorIndex() - m_texturesHeapAllocCount;
 		const uint32 heapIncrement			= heap->GetDescriptorSize();
-		auto alloc = heap->GetHeapHandleBlock(materialsSize);
+		auto		 alloc					= heap->GetHeapHandleBlock(materialsSize);
 
 		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> srcDescriptors;
 		Vector<D3D12_CPU_DESCRIPTOR_HANDLE> destDescriptors;

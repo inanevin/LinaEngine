@@ -36,6 +36,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
@@ -63,10 +64,10 @@ namespace Lina::Editor
 		}
 
 		// Setup
-		const float	   padding			= Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float	   padding			= Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const float	   stretchedPadding = padding * 8.0f;
 		const Vector2i swapchainSize	= m_swapchain->GetSize();
-		const Vector2i itemSize			= m_sheetItems[0].size * 0.35f * m_swapchain->GetWindowDPIScale();
+		const Vector2i itemSize			= m_sheetItems[0].size * 0.35f * m_window->GetDPIScale();
 		Vector2		   center			= Vector2(swapchainSize.x * 0.5f, itemSize.y * 0.5f + padding * 0.5f);
 		center							= center.Max(m_minPos + Vector2(itemSize.x * 0.5f + padding * 8, 0.0f));
 		m_rect.pos						= Vector2(center.x - itemSize.x * 0.5f - stretchedPadding, center.y - itemSize.y * 0.5f);

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Nodes/Custom/GUINodeDockPreview.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Core/Editor.hpp"
@@ -36,6 +36,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Input/Core/Input.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Editor
 {
@@ -43,9 +44,15 @@ namespace Lina::Editor
 	{
 		m_input = editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 	}
+
 	void GUINodeDockPreview::Draw(int threadID)
 	{
 		if (!m_visible)
+			return;
+
+		auto mousePos = m_swapchain->GetMousePos();
+
+		if (!GUIUtility::IsInRect(mousePos, m_rect))
 			return;
 
 		const Vector2 panelCenter = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
@@ -53,26 +60,25 @@ namespace Lina::Editor
 
 		auto drawDockArea = [&](uint32 imageIndex, DockSplitType splitType, const Vector2& direction) {
 			const TextureSheetItem& item	 = m_editor->GetEditorImage(imageIndex);
-			const Vector2i			rectSize = item.size * 0.2f;
+			const Vector2i			rectSize = item.size * 0.12f;
 			const float				padding	 = rectSize.x * 1.2f;
-			const Vector2i			itemSize = item.size * 0.15f;
-
-			const Vector2 center		= Vector2(panelCenter.x + padding * direction.x, panelCenter.y + padding * direction.y);
-			const Rect	  splitAreaRect = Rect(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f), rectSize);
+			const Vector2i			itemSize = item.size * 0.1f;
 
 			const Color			 col = Color(Theme::TC_CyanAccent.x, Theme::TC_CyanAccent.y, Theme::TC_CyanAccent.z, 0.3f);
 			LinaVG::StyleOptions opts;
 			opts.color	   = LV4(col);
 			opts.rounding  = 0.2f;
 			opts.aaEnabled = true;
-			LinaVG::DrawRect(threadID, LV2(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f)), LV2(Vector2(center.x + rectSize.x * 0.5f, center.y + rectSize.y * 0.5f)), opts, 0.0f, FRONT_DRAW_ORDER);
-			GUIUtility::DrawSheetImage(threadID, item, center, itemSize, Color::White, m_drawOrder);
 
-			auto mousePos = m_input->GetMousePositionAbs() - m_swapchain->GetWindow()->GetPos();
+			const Vector2 center = Math::Lerp(panelCenter, panelCenter + m_rect.size * 0.5f * direction, m_drawReachToSides);
+
+			const Rect splitAreaRect = Rect(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f), rectSize);
+
+			LinaVG::DrawRect(threadID, LV2(splitAreaRect.pos), LV2((splitAreaRect.pos + splitAreaRect.size)), opts, 0.0f, FRONT_DRAW_ORDER);
+			GUIUtility::DrawSheetImage(threadID, item, (splitAreaRect.pos + splitAreaRect.pos + splitAreaRect.size) * 0.5f, itemSize, Color::White, m_drawOrder);
 
 			if (GUIUtility::IsInRect(mousePos, splitAreaRect))
 			{
-
 				LinaVG::StyleOptions rectOpts;
 				rectOpts.color		   = LV4(Theme::TC_CyanAccent);
 				rectOpts.color.start.w = rectOpts.color.end.w = 0.3f;
@@ -95,12 +101,12 @@ namespace Lina::Editor
 				else if (m_currentHoveredSplit == DockSplitType::Up)
 				{
 					rectStartPos = m_rect.pos;
-					rectSize = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
+					rectSize	 = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
 				}
 				else if (m_currentHoveredSplit == DockSplitType::Down)
 				{
 					rectStartPos = Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y - m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
-					rectSize = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
+					rectSize	 = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
 				}
 
 				LinaVG::DrawRect(threadID, LV2(rectStartPos), LV2((rectStartPos + rectSize)), rectOpts, 0.0f, FRONT_DRAW_ORDER);

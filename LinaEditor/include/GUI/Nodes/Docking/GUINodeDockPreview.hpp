@@ -32,7 +32,7 @@ SOFTWARE.
 #define GUINodeDockPreview_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
-#include "GUI/Nodes/GUINodeDockArea.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Core/EditorCommon.hpp"
 
 namespace Lina
@@ -51,12 +51,24 @@ namespace Lina::Editor
 
 		virtual void Draw(int threadID) override;
 
+		inline GUINodeDockPreview* SetDrawReach(float reach)
+		{
+			m_drawReachToSides = reach;
+			return this;
+		}
+
 		inline DockSplitType GetCurrentSplitType() const
 		{
 			return m_currentHoveredSplit;
 		}
 
+		inline void Reset()
+		{
+			m_currentHoveredSplit = DockSplitType::None;
+		}
+
 	protected:
+		float		  m_drawReachToSides	= 0.0f;
 		Lina::Input*  m_input				= nullptr;
 		DockSplitType m_currentHoveredSplit = DockSplitType::None;
 	};
