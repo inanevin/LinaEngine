@@ -51,12 +51,6 @@ namespace Lina::Editor
 
 		virtual void Draw(int threadID) override;
 
-		inline GUINodeDockPreview* SetDrawReach(float reach)
-		{
-			m_drawReachToSides = reach;
-			return this;
-		}
-
 		inline DockSplitType GetCurrentSplitType() const
 		{
 			return m_currentHoveredSplit;
@@ -67,8 +61,14 @@ namespace Lina::Editor
 			m_currentHoveredSplit = DockSplitType::None;
 		}
 
+		inline GUINodeDockPreview* SetIsOuterPreview(bool isOuter)
+		{
+			m_isOuter = isOuter;
+			return this;
+		}
+
 	protected:
-		float		  m_drawReachToSides	= 0.0f;
+		bool		  m_isOuter				= false;
 		Lina::Input*  m_input				= nullptr;
 		DockSplitType m_currentHoveredSplit = DockSplitType::None;
 	};

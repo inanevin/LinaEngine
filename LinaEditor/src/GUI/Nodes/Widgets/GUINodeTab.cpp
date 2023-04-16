@@ -84,7 +84,7 @@ namespace Lina::Editor
 				if (m_isHovered)
 				{
 					const Rect closeRect		= Rect(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END - padding * 1.0f, m_rect.pos.y), Vector2(m_rect.size.x * (1.0f - OFFSET_FROM_END) + padding * 1.5f, m_rect.size.y));
-					m_isInCloseRect				= GUIUtility::IsInRect(m_swapchain->GetMousePos(), closeRect);
+					m_isInCloseRect				= GUIUtility::IsInRect(m_window->GetMousePosition(), closeRect);
 					m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
 				}
 				else
@@ -97,7 +97,7 @@ namespace Lina::Editor
 
 		if (m_isDragging)
 		{
-			const Vector2 mousePosNow = m_swapchain->GetMousePos();
+			const Vector2 mousePosNow = m_window->GetMousePosition();
 			const Vector2 deltaPress  = mousePosNow - Vector2(m_dragStartMousePos);
 
 			if (m_isReorderEnabled)

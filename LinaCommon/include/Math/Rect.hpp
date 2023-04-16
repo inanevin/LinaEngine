@@ -35,47 +35,52 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Recti;
+	class Recti;
 
-    class Rect
-    {
-    public:
-        Rect(){};
-        Rect(const Vector2& p, const Vector2& s) : pos(p), size(s){};
-        Rect(const Rect& r) : pos(r.pos), size(r.size){};
-        Rect(const Recti& r);
-        Rect(float x, float y, float w, float h) : pos(x, y), size(w, h){};
+	class Rect
+	{
+	public:
+		Rect(){};
+		Rect(const Vector2& p, const Vector2& s) : pos(p), size(s){};
+		Rect(const Rect& r) : pos(r.pos), size(r.size){};
+		Rect(const Recti& r);
+		Rect(float x, float y, float w, float h) : pos(x, y), size(w, h){};
 
-        Rect Shrink(float percentage) const;
+		Rect Shrink(float percentage) const;
+		bool IsPointInside(const Vector2& p) const;
+		bool IsInBorder(const Vector2& p, float borderThickness, int& border) const;
 
-        Vector2 pos  = Vector2(0, 0);
-        Vector2 size = Vector2(0, 0);
-    };
+		Vector2 pos	 = Vector2(0, 0);
+		Vector2 size = Vector2(0, 0);
+	};
 
-    class Recti
-    {
-    public:
-        Recti(){};
-        Recti(const Rect& r)
-        {
-            pos  = r.pos;
-            size = r.size;
-        };
-        Recti(const Recti& r)
-        {
-            pos  = r.pos;
-            size = r.size;
-        }
-        Recti(const Vector2i pos, const Vector2i& size)
-        {
-            this->pos  = pos;
-            this->size = size;
-        }
-        Recti(int x, int y, int w, int h) : pos(x, y), size(w, h){};
+	class Recti
+	{
+	public:
+		Recti(){};
+		Recti(const Rect& r)
+		{
+			pos	 = r.pos;
+			size = r.size;
+		};
+		Recti(const Recti& r)
+		{
+			pos	 = r.pos;
+			size = r.size;
+		}
+		Recti(const Vector2i pos, const Vector2i& size)
+		{
+			this->pos  = pos;
+			this->size = size;
+		}
+		Recti(int x, int y, int w, int h) : pos(x, y), size(w, h){};
 
-        Vector2i pos  = Vector2i(0, 0);
-        Vector2i size = Vector2i(0, 0);
-    };
+		bool IsPointInside(const Vector2i& p) const;
+		bool IsInBorder(const Vector2& p, int borderThickness, int& border) const;
+
+		Vector2i pos  = Vector2i(0, 0);
+		Vector2i size = Vector2i(0, 0);
+	};
 
 } // namespace Lina
 

@@ -56,8 +56,6 @@ namespace Lina
 
 	void Input::OnMouseButton(void* windowPtr, int button, InputAction action)
 	{
-		m_currentStates[button] = action == InputAction::Pressed ? 1 : 0;
-
 		if (action == InputAction::Repeated)
 			m_doubleClicks[button] = true;
 	}

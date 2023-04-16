@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
+#include "Data/Mutex.hpp"
 
 namespace LinaVG
 {
@@ -46,6 +47,7 @@ namespace Lina
 	class Font : public IResource
 	{
 	public:
+		
 		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
 		virtual ~Font();
 
@@ -63,6 +65,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) override;
 
 	private:
+		static Mutex aqqqqq;
 		LinaVG::LinaVGFont* m_lvgFont = nullptr;
 		Vector<char>		m_file;
 	};

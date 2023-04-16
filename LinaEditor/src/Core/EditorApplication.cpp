@@ -95,6 +95,7 @@ namespace Lina::Editor
 
 	void EditorApplication::Shutdown()
 	{
+		m_engine.GetGfxManager()->Join();
 		m_editor.Shutdown();
 		m_engine.GetResourceManager().RemoveListener(this);
 		Application::Shutdown();

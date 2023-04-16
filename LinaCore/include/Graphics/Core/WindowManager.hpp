@@ -48,6 +48,7 @@ namespace Lina
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo){};
 		virtual void Shutdown() override;
+		void		 Tick();
 
 		void		SetupBackend(const SystemInitializationInfo& inf);
 		IWindow*	CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size, Bitmask16 surfaceRendererMask);

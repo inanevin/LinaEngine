@@ -66,6 +66,7 @@ namespace Lina
 		virtual void BringToFront()																		= 0;
 		virtual void SetMouseFocus(bool focused)														= 0;
 		virtual void SetInputPassthrough(bool isInputPassThrough)										= 0;
+		virtual void HandleMove()																		= 0;
 
 		virtual void SetToWorkingArea() = 0;
 		virtual void SetToFullscreen()	= 0;
@@ -80,12 +81,12 @@ namespace Lina
 			return m_rect.size;
 		}
 
-		inline bool IsMinimized() const
+		inline bool IsCurrentlyMinimized() const
 		{
 			return m_isMinimized;
 		}
 
-		inline bool IsMaximized() const
+		inline bool IsCurrentlyMaximized() const
 		{
 			return m_isMaximized;
 		}
@@ -175,6 +176,11 @@ namespace Lina
 			return m_isDragged;
 		}
 
+		inline const Vector2i& GetMousePosition() const
+		{
+			return m_mousePosition;
+		}
+
 	private:
 		friend class WindowManager;
 
@@ -184,6 +190,7 @@ namespace Lina
 		}
 
 	protected:
+		Vector2i		 m_mousePosition   = Vector2i::Zero;
 		SurfaceRenderer* m_surfaceRenderer = nullptr;
 		MonitorInfo		 m_monitorInfo;
 		ISystem*		 m_system			  = nullptr;

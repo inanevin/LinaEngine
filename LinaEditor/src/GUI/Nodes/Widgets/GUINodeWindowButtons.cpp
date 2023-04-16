@@ -41,7 +41,7 @@ namespace Lina::Editor
 		m_maximize = (new GUINodeButton(editor, swapchain, m_drawOrder));
 		m_close	   = (new GUINodeButton(editor, swapchain, m_drawOrder));
 		m_minimize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(TI_MINIMIZE);
-		m_maximize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(m_window->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_maximize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 		m_close->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_RedAccent)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(TI_CROSS);
 		m_minimize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
 		m_maximize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
@@ -54,7 +54,7 @@ namespace Lina::Editor
 		if (!m_visible)
 			return;
 
-		m_maximize->SetTitle(m_window->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 
 		// Clamp
 		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minPos.x);
@@ -77,12 +77,12 @@ namespace Lina::Editor
 		}
 		else if (button == m_maximize)
 		{
-			if (m_window->IsMaximized())
+			if (m_window->IsCurrentlyMaximized())
 				m_window->Restore();
 			else
 				m_window->Maximize();
 
-			m_maximize->SetTitle(m_window->IsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+			m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 		}
 		else if (button == m_close)
 		{

@@ -76,7 +76,7 @@ namespace Lina
 		RECT top	   = {tl.right, tl.top, tr.left, tr.bottom};
 
 		// std::tuple<RECT, LRESULT> rects[] = {{title_bar, HTCAPTION}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}};
-		std::tuple<RECT, LRESULT> rects[] = {{tl, HTTOPLEFT}, {tr, HTTOPRIGHT}, {bl, HTBOTTOMLEFT}, {br, HTBOTTOMRIGHT}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}, {top, HTTOP}, {title_bar, HTCAPTION}};
+		std::tuple<RECT, LRESULT> rects[] = {{tl, HTTOPLEFT}, {tr, HTTOPRIGHT}, {bl, HTBOTTOMLEFT}, {br, HTBOTTOMRIGHT}, {left, HTLEFT}, {right, HTRIGHT}, {bottom, HTBOTTOM}, {top, HTTOP}};
 
 		POINT pt = {GET_X_LPARAM(lparam) - wnd_rect.left, GET_Y_LPARAM(lparam) - wnd_rect.top};
 		for (const auto& [r, code] : rects)
@@ -109,7 +109,6 @@ namespace Lina
 					return HTCLIENT;
 			}
 
-			LINA_TRACE("res {0}", res);
 			return res;
 		}
 		case WM_KILLFOCUS: {
@@ -216,30 +215,6 @@ namespace Lina
 			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), InputAction::Released);
 		}
 		break;
-		case WM_NCMOUSEMOVE: {
-			if (!s_isAppActive)
-				break;
-
-			int xPos = GET_X_LPARAM(lParam);
-			int yPos = GET_Y_LPARAM(lParam);
-
-			// Get the screen coordinates of the window
-			RECT windowRect;
-			GetWindowRect(window, &windowRect);
-
-			// Convert the mouse coordinates to client coordinates
-			POINT clientPoint = {xPos, yPos};
-			ScreenToClient(window, &clientPoint);
-
-			// Subtract the client area coordinates from the mouse coordinates
-			xPos = clientPoint.x;
-			yPos = clientPoint.y;
-
-			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnMousePos(Vector2i(xPos, yPos));
-		}
-		break;
 		case WM_MOUSEMOVE: {
 			if (!s_isAppActive)
 				break;
@@ -247,9 +222,13 @@ namespace Lina
 			int xPos = GET_X_LPARAM(lParam);
 			int yPos = GET_Y_LPARAM(lParam);
 
+			const Vector2 mp = Vector2i(xPos, yPos);
+
+			win32Window->OnMousePos(mp);
+
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
-				guiDrawer->OnMousePos(Vector2i(xPos, yPos));
+				guiDrawer->OnMousePos(mp);
 
 			win32Window->m_manager->ReceivingMouseFocus(win32Window);
 		}
@@ -267,29 +246,12 @@ namespace Lina
 				guiDrawer->OnMouseWheel(static_cast<uint32>(delta));
 		}
 		break;
-		case WM_NCLBUTTONDBLCLK: {
-
-			if (!s_isAppActive)
-				break;
-
-			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
-			if (guiDrawer)
-				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
-
-			break;
-		}
-		case WM_NCLBUTTONDOWN: {
-			win32Window->m_isDragged = true;
-			// don't break
-		}
 		case WM_LBUTTONDOWN: {
 
 			if (!s_isAppActive)
 				break;
 
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Pressed);
+			win32Window->OnMouseButton(VK_LBUTTON, 0);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -302,6 +264,8 @@ namespace Lina
 
 			if (time < 250000)
 			{
+				win32Window->OnMouseButton(VK_LBUTTON, 2);
+
 				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
 				if (guiDrawer)
 					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
@@ -313,7 +277,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Pressed);
+			win32Window->OnMouseButton(VK_RBUTTON, 0);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -326,9 +290,11 @@ namespace Lina
 
 			if (time < 250000)
 			{
-				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
+				win32Window->OnMouseButton(VK_RBUTTON, 2);
+
+				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Repeated);
 				if (guiDrawer)
-					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
+					guiDrawer->OnMouse(VK_RBUTTON, InputAction::Repeated);
 			}
 		}
 		break;
@@ -337,7 +303,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Pressed);
+			win32Window->OnMouseButton(VK_MBUTTON, 0);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -350,23 +316,20 @@ namespace Lina
 
 			if (time < 250000)
 			{
-				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Repeated);
+				win32Window->OnMouseButton(VK_MBUTTON, 2);
+
+				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Repeated);
 				if (guiDrawer)
-					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
+					guiDrawer->OnMouse(VK_MBUTTON, InputAction::Repeated);
 			}
 		}
 		break;
-		case WM_EXITSIZEMOVE:
-		case WM_NCLBUTTONUP: {
-			win32Window->m_isDragged = false;
-			// dont break
-		}
 		case WM_LBUTTONUP: {
 
 			if (!s_isAppActive)
 				break;
 
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_LBUTTON, InputAction::Released);
+			win32Window->OnMouseButton(VK_LBUTTON, 1);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -378,7 +341,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_RBUTTON, InputAction::Released);
+			win32Window->OnMouseButton(VK_RBUTTON, 1);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -390,7 +353,7 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Released);
+			win32Window->OnMouseButton(VK_MBUTTON, 1);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -621,7 +584,6 @@ namespace Lina
 
 	void Win32Window::SetFocus(bool hasFocus)
 	{
-		LINA_TRACE("WINDOW SETTING FOCUS {0} {1}", m_title.c_str(), hasFocus);
 		m_hasFocus = hasFocus;
 		m_manager->OnWindowFocused(m_sid);
 	}
@@ -661,6 +623,16 @@ namespace Lina
 		{
 			SetWindowLong(m_window, GWL_EXSTYLE, WS_EX_APPWINDOW | WS_EX_LAYERED);
 		}
+	}
+
+	void Win32Window::HandleMove()
+	{
+		if (!m_isDragged)
+			return;
+
+		const Vector2i absMouse	 = m_input->GetMousePositionAbs();
+		const Vector2  targetPos = absMouse - m_dragMouseDelta;
+		SetPos(targetPos);
 	}
 
 	void Win32Window::SetPos(const Vector2i& newPos)
@@ -713,6 +685,51 @@ namespace Lina
 
 		if (m_gfxManager)
 			m_gfxManager->OnWindowResized(this, m_sid, m_rect);
+	}
+
+	void Win32Window::OnMouseButton(uint32 button, int action)
+	{
+		if (button == VK_LBUTTON && action == 0)
+		{
+			if (m_dragRect.IsPointInside(m_mousePosition))
+			{
+				m_isDragged		 = true;
+				m_dragMouseDelta = m_mousePosition;
+
+				IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+				if (guiDrawer)
+					guiDrawer->OnWindowDrag(m_isDragged);
+			}
+		}
+		else if (button == VK_LBUTTON && action == 1)
+		{
+			m_isDragged = false;
+
+			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnWindowDrag(m_isDragged);
+		}
+		else if (button == VK_LBUTTON && action == 2)
+		{
+			m_isDragged = false;
+
+			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnWindowDrag(m_isDragged);
+
+			if (m_dragRect.IsPointInside(m_mousePosition))
+			{
+				if (IsCurrentlyMaximized())
+					Restore();
+				else
+					Maximize();
+			}
+		}
+	}
+
+	void Win32Window::OnMousePos(const Vector2i& pos)
+	{
+		m_mousePosition = pos;
 	}
 
 	void Win32Window::SetTitle(const String& title)

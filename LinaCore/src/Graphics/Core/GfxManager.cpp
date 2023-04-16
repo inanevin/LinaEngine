@@ -305,6 +305,7 @@ namespace Lina
 				if (!requireReset && (ident.tid == GetTypeID<Texture>() || ident.tid == GetTypeID<Font>() || ident.tid == GetTypeID<TextureSampler>()))
 					requireReset = true;
 			}
+			LINA_WARN("RESOURCE LOAD TASK COMP");
 
 			if (flushModels)
 				m_meshManager.MergeMeshes();
@@ -313,6 +314,7 @@ namespace Lina
 				m_renderer->GetUploadContext()->MarkRequireReset();
 
 			m_guiBackend->OnResourceBatchLoaded(ev);
+
 
 			if (flushModels || requireReset)
 				m_renderer->GetUploadContext()->Flush();

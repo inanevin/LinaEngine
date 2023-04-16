@@ -56,10 +56,13 @@ namespace Lina::Editor
 		virtual void OnMouseMove(const Vector2i& pos) override;
 		virtual void OnMouseWheel(uint32 delta) override;
 		virtual void OnLostFocus() override;
-		void		 SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel);
-		GUINode*	 FindNode(StringID sid);
-		void		 OnPayloadCreated(PayloadType type, void* data);
-		bool		 OnPayloadDropped(PayloadType type, void* data);
+		virtual void OnWindowDrag(bool isDragging) override;
+
+		void	 SetDockPreviewEnabled(bool enabled);
+		void	 SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel);
+		GUINode* FindNode(StringID sid);
+		void	 OnPayloadCreated(PayloadType type, void* data);
+		bool	 OnPayloadDropped(PayloadType type, void* data);
 
 		inline StringID GetSID() const
 		{
@@ -80,7 +83,6 @@ namespace Lina::Editor
 		GUINode* GetHovered(GUINode* parent);
 
 	protected:
-		bool	 m_dockingPreviewEnabled = false;
 		GUINode* m_mouseDisablingNode	 = nullptr;
 		StringID m_sid					 = 0;
 		GUINode* m_hoveredNode			 = nullptr;

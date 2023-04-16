@@ -30,20 +30,124 @@ SOFTWARE.
 
 namespace Lina
 {
-    Rect::Rect(const Recti& r)
-    {
-        pos  = r.pos;
-        size = r.size;
-    }
+	Rect::Rect(const Recti& r)
+	{
+		pos	 = r.pos;
+		size = r.size;
+	}
 
-    Rect Rect::Shrink(float percentage) const
-    {
-        Rect        r    = *this;
-        const float amtX = r.size.x * percentage / 100.0f;
-        const float amtY = r.size.y * percentage / 100.0f;
-        r.size -= Vector2(amtX, amtY) * 2.0f;
-        r.pos += Vector2(amtX, amtY);
-        return r;
-    }
+	Rect Rect::Shrink(float percentage) const
+	{
+		Rect		r	 = *this;
+		const float amtX = r.size.x * percentage / 100.0f;
+		const float amtY = r.size.y * percentage / 100.0f;
+		r.size -= Vector2(amtX, amtY) * 2.0f;
+		r.pos += Vector2(amtX, amtY);
+		return r;
+	}
+
+	bool Rect::IsPointInside(const Vector2& p) const
+	{
+		return p.x > pos.x && p.x < pos.x + size.x && p.y > pos.y && p.y < pos.y + size.y;
+	}
+
+	bool Rect::IsInBorder(const Vector2& p, float borderThickness, int& borderPosition) const
+	{
+		if (p.x >= pos.x - borderThickness && p.x <= pos.x + borderThickness && p.y >= pos.y - borderThickness && p.y <= pos.y + borderThickness)
+		{
+			borderPosition = 0; // TopLeft
+			return true;
+		}
+		else if (p.x >= pos.x + size.x - borderThickness && p.x <= pos.x + size.x + borderThickness && p.y >= pos.y - borderThickness && p.y <= pos.y + borderThickness)
+		{
+			borderPosition = 1; // TopRight
+			return true;
+		}
+		else if (p.y >= pos.y - borderThickness && p.y <= pos.y + borderThickness && p.x > pos.x + borderThickness && p.x < pos.x + size.x - borderThickness)
+		{
+			borderPosition = 2; // Top
+			return true;
+		}
+		else if (p.x >= pos.x + size.x - borderThickness && p.x <= pos.x + size.x + borderThickness && p.y > pos.y + borderThickness && p.y < pos.y + size.y - borderThickness)
+		{
+			borderPosition = 3; // Right
+			return true;
+		}
+		else if (p.x >= pos.x + size.x - borderThickness && p.x <= pos.x + size.x + borderThickness && p.y >= pos.y + size.y - borderThickness && p.y <= pos.y + size.y + borderThickness)
+		{
+			borderPosition = 4; // BottomRight
+			return true;
+		}
+		else if (p.y >= pos.y + size.y - borderThickness && p.y <= pos.y + size.y + borderThickness && p.x > pos.x + borderThickness && p.x < pos.x + size.x - borderThickness)
+		{
+			borderPosition = 5; // Bottom
+			return true;
+		}
+		else if (p.x >= pos.x - borderThickness && p.x <= pos.x + borderThickness && p.y > pos.y + borderThickness && p.y < pos.y + size.y - borderThickness)
+		{
+			borderPosition = 6; // Left
+			return true;
+		}
+		else if (p.x >= pos.x - borderThickness && p.x <= pos.x + borderThickness && p.y >= pos.y + size.y - borderThickness && p.y <= pos.y + size.y + borderThickness)
+		{
+			borderPosition = 7; // BottomLeft
+			return true;
+		}
+
+		borderPosition = -1;
+		return false;
+	}
+
+	bool Recti::IsPointInside(const Vector2i& p) const
+	{
+		return p.x > pos.x && p.x < pos.x + size.x && p.y > pos.y && p.y < pos.y + size.y;
+	}
+
+	bool Recti::IsInBorder(const Vector2& p, int borderThickness, int& borderPosition) const
+	{
+		if (p.x >= pos.x - borderThickness && p.x <= pos.x + borderThickness && p.y >= pos.y - borderThickness && p.y <= pos.y + borderThickness)
+		{
+			borderPosition = 0; // TopLeft
+			return true;
+		}
+		else if (p.x >= pos.x + size.x - borderThickness && p.x <= pos.x + size.x + borderThickness && p.y >= pos.y - borderThickness && p.y <= pos.y + borderThickness)
+		{
+			borderPosition = 1; // TopRight
+			return true;
+		}
+		else if (p.y >= pos.y - borderThickness && p.y <= pos.y + borderThickness && p.x > pos.x + borderThickness && p.x < pos.x + size.x - borderThickness)
+		{
+			borderPosition = 2; // Top
+			return true;
+		}
+		else if (p.x >= pos.x + size.x - borderThickness && p.x <= pos.x + size.x + borderThickness && p.y > pos.y + borderThickness && p.y < pos.y + size.y - borderThickness)
+		{
+			borderPosition = 3; // Right
+			return true;
+		}
+		else if (p.x >= pos.x + size.x - borderThickness && p.x <= pos.x + size.x + borderThickness && p.y >= pos.y + size.y - borderThickness && p.y <= pos.y + size.y + borderThickness)
+		{
+			borderPosition = 4; // BottomRight
+			return true;
+		}
+		else if (p.y >= pos.y + size.y - borderThickness && p.y <= pos.y + size.y + borderThickness && p.x > pos.x + borderThickness && p.x < pos.x + size.x - borderThickness)
+		{
+			borderPosition = 5; // Bottom
+			return true;
+		}
+		else if (p.x >= pos.x - borderThickness && p.x <= pos.x + borderThickness && p.y > pos.y + borderThickness && p.y < pos.y + size.y - borderThickness)
+		{
+			borderPosition = 6; // Left
+			return true;
+		}
+		else if (p.x >= pos.x - borderThickness && p.x <= pos.x + borderThickness && p.y >= pos.y + size.y - borderThickness && p.y <= pos.y + size.y + borderThickness)
+		{
+			borderPosition = 7; // BottomLeft
+			return true;
+		}
+
+		borderPosition = -1;
+		return false;
+	}
 
 } // namespace Lina

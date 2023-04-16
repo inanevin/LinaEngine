@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Core/PlatformProcess.hpp"
 #include "Math/Math.hpp"
 
+#include "Graphics/Resource/Font.hpp"
+
 namespace Lina
 {
 	void ResourceManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -75,10 +77,10 @@ namespace Lina
 				FileSystem::CreateFolderInPath("Resources/Editor/Metacache");
 
 			for (auto& ident : identifiers)
+			{
 				loadTask->tf.emplace([ident, this, loadTask]() {
-					auto&	   cache = m_caches.at(ident.tid);
-					IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
-
+					auto&		 cache		   = m_caches.at(ident.tid);
+					IResource*	 res		   = cache->CreateResource(ident.sid, ident.path, this);
 					const String metacachePath = GetMetacachePath(ident.path, ident.sid);
 					if (FileSystem::FileExists(metacachePath))
 					{
@@ -128,6 +130,7 @@ namespace Lina
 
 					res->Flush();
 				});
+			}
 		}
 		else
 		{

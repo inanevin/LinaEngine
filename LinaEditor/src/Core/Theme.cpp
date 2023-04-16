@@ -99,7 +99,13 @@ namespace Lina::Editor
 			sid = "Resources/Core/Fonts/NunitoSans_1x.ttf"_hs;
 		}
 
-		return s_resourceManagerInst->GetResource<Font>(sid)->GetLinaVGFont();
+		Font* f = s_resourceManagerInst->GetResource<Font>(sid);
+
+		if (f == nullptr)
+		{
+			__debugbreak();
+		}
+		return f->GetLinaVGFont();
 	}
 
 	float Theme::GetProperty(ThemeProperty prop, float dpiScale)

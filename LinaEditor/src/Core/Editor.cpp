@@ -218,4 +218,15 @@ namespace Lina::Editor
 		m_deleteWindowRequests.push_back(req);
 	}
 
+	void Editor::OnWindowDrag(GUIDrawerBase* owner, bool isDragging)
+	{
+		for (auto [sid, drawer] : m_guiDrawers)
+		{
+			if (owner == drawer)
+				continue;
+
+			drawer->SetDockPreviewEnabled(isDragging);
+		}
+	}
+
 } // namespace Lina::Editor

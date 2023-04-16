@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Data/CommonData.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
@@ -51,7 +52,7 @@ namespace Lina::Editor
 
 			if (m_isDragging)
 			{
-				const Vector2i mousePos = m_swapchain->GetMousePos();
+				const Vector2i mousePos = m_window->GetMousePosition();
 
 				if (m_dragDirection == DragDirection::Horizontal)
 					m_rect.pos.x = static_cast<float>(mousePos.x - m_dragStartMouseDelta.x);

@@ -59,7 +59,7 @@ namespace Lina::Editor
 
 		// Tooltip
 		{
-			m_tooltip->SetPos(m_swapchain->GetMousePos() + Vector2(10, 10));
+			m_tooltip->SetPos(m_window->GetMousePosition() + Vector2(10, 10));
 			m_tooltip->SetVisible(m_isHovered);
 		}
 

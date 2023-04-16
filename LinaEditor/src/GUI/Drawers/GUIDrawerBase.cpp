@@ -40,6 +40,7 @@ SOFTWARE.
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Core/Editor.hpp"
 
 using namespace Lina;
 
@@ -56,7 +57,8 @@ namespace Lina::Editor
 		m_root->AddChildren(m_dockAreas[0]);
 
 		m_dockPreview = new GUINodeDockPreview(m_editor, m_swapchain, FRONT_DRAW_ORDER);
-		m_dockPreview->SetDrawReach(0.9f);
+		m_dockPreview->SetIsOuterPreview(true);
+		m_dockPreview->SetVisible(false);
 		m_root->AddChildren(m_dockPreview);
 	}
 
@@ -90,8 +92,6 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnMousePos(const Vector2i& pos)
 	{
-		m_swapchain->OnMousePos(pos);
-
 		auto* hoveredNode = GetHovered(m_root);
 
 		if (m_mouseDisablingNode)
@@ -153,8 +153,6 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnLostFocus()
 	{
-		m_swapchain->OnMousePos(Vector2i::Zero);
-
 		if (m_hoveredNode)
 		{
 			m_hoveredNode->m_isHovered = false;
@@ -164,6 +162,27 @@ namespace Lina::Editor
 		m_mouseDisablingNode = nullptr;
 
 		m_root->OnLostFocus();
+	}
+
+	void GUIDrawerBase::OnWindowDrag(bool isDragging)
+	{
+		m_editor->OnWindowDrag(this, isDragging);
+	}
+
+	void GUIDrawerBase::SetDockPreviewEnabled(bool enabled)
+	{
+		if (enabled)
+		{
+			const Vector2i& targetSize		   = m_swapchain->GetSize();
+			const bool		sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
+			if (sizeSuitableToDock)
+				m_dockPreview->SetVisible(true);
+		}
+		else
+		{
+			m_dockPreview->Reset();
+			m_dockPreview->SetVisible(false);
+		}
 	}
 
 	void GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel)
@@ -257,18 +276,6 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnPayloadCreated(PayloadType type, void* data)
 	{
-		// Docking preview for panels that are not my children.
-		if (type == PayloadType::Panel)
-		{
-			PayloadDataPanel* payloadData		 = static_cast<PayloadDataPanel*>(data);
-			const Vector2i&	  targetSize		 = m_swapchain->GetSize();
-			const bool		  sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
-			m_dockingPreviewEnabled				 = sizeSuitableToDock;
-
-			if (m_dockingPreviewEnabled)
-				m_dockPreview->SetVisible(true);
-		}
-
 		m_root->OnPayloadCreated(type, data);
 	}
 
@@ -289,7 +296,7 @@ namespace Lina::Editor
 				retVal = true;
 			}
 
-			m_dockingPreviewEnabled = false;
+			// m_dockingPreviewEnabled = false;
 			m_dockPreview->Reset();
 			m_dockPreview->SetVisible(false);
 		}
@@ -306,7 +313,7 @@ namespace Lina::Editor
 	{
 		GUINode* hovered = nullptr;
 
-		if (GUIUtility::IsInRect(m_swapchain->GetMousePos(), parent->GetRect()) && parent->GetIsVisible())
+		if (GUIUtility::IsInRect(m_window->GetMousePosition(), parent->GetRect()) && parent->GetIsVisible())
 			hovered = parent;
 
 		for (auto c : parent->GetChildren())

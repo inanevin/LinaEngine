@@ -44,7 +44,6 @@ namespace Lina::Editor
 		virtual ~GUINodeTitleSection() = default;
 
 		virtual void Draw(int threadID) override;
-		virtual bool OnMouse(uint32 button, InputAction act) override;
 
 	private:
 		GUINodeWindowButtons* m_windowButtons = nullptr;

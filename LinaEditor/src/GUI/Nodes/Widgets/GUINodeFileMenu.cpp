@@ -349,7 +349,7 @@ namespace Lina::Editor
 	{
 		bool retVal = GUINode::OnMouse(button, act);
 
-		if (button = LINA_MOUSE_0 && act == InputAction::Released && m_targetPopup && !GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_rect) && !GUIUtility::IsInRect(m_swapchain->GetMousePos(), m_targetPopup->GetRect()))
+		if (button = LINA_MOUSE_0 && act == InputAction::Released && m_targetPopup && !GUIUtility::IsInRect(m_window->GetMousePosition(), m_rect) && !GUIUtility::IsInRect(m_window->GetMousePosition(), m_targetPopup->GetRect()))
 			ResetTargets();
 
 		return retVal;

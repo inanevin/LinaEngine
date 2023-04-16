@@ -67,15 +67,6 @@ namespace Lina::Editor
 		m_titleSection->SetSize(titleSectionSize);
 		m_titleSection->Draw(threadID);
 
-		if (m_window->GetHasFocused() && m_input->GetMouseButton(LINA_MOUSE_0))
-		{
-			LINA_TRACE("DARGGED");
-			//if (GUIUtility::IsInRect(m_input->GetMousePositionAbs() - m_window->GetPos(), m_window->GetDragRect()))
-			//{
-			//
-			//}
-		}
-
 		const Rect availableDockRect = Rect(Vector2(0, titleSectionSize.y), Vector2(titleSectionSize.x, swpSize.y - titleSectionSize.y));
 		GUIUtility::DrawDockBackground(threadID, availableDockRect, 0);
 
@@ -93,11 +84,8 @@ namespace Lina::Editor
 			d->Draw(threadID);
 		}
 
-		if (m_dockingPreviewEnabled)
-		{
-			m_dockPreview->SetRect(availableDockRect);
-			m_dockPreview->Draw(threadID);
-		}
+		m_dockPreview->SetRect(availableDockRect);
+		m_dockPreview->Draw(threadID);
 
 		LinaVG::StyleOptions opts;
 		const float			 thickness = m_window->GetDPIScale();

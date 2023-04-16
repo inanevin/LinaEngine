@@ -186,7 +186,6 @@ namespace Lina
 	{
 		const uint32 currentSize = static_cast<uint32>(m_materials.size());
 		const uint32 targetSize	 = currentSize + DEF_MAT_SIZE;
-		LINA_WARN("ALLOCATE MAT");
 		m_materials.resize(targetSize, nullptr);
 
 		for (uint32 i = currentSize; i < targetSize; i++)

@@ -69,7 +69,7 @@ namespace Lina
 	void Engine::Shutdown()
 	{
 		LINA_TRACE("[Application] -> Shutdown.");
-		
+
 		m_resourceManager.WaitForAll();
 
 		if (m_gfxManager)
@@ -102,6 +102,7 @@ namespace Lina
 	{
 		m_resourceManager.Tick();
 		m_input.Tick();
+		m_windowManager.Tick();
 	}
 
 	void Engine::Tick()

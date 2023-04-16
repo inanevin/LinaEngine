@@ -31,6 +31,7 @@ SOFTWARE.
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Input/Core/InputMappings.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 
 namespace Lina::Editor
@@ -84,7 +85,7 @@ namespace Lina::Editor
 					lastPressedNode		  = this;
 					m_isPressed			  = true;
 					m_isDragging		  = true;
-					m_dragStartMousePos	  = m_swapchain->GetMousePos();
+					m_dragStartMousePos	  = m_window->GetMousePosition();
 					m_dragStartMouseDelta = m_dragStartMousePos - Vector2i(m_rect.pos);
 				}
 			}

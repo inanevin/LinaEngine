@@ -78,8 +78,9 @@ namespace Lina::Editor
 		void EndSplashScreen();
 		void Tick();
 
-		void		   OpenPanel(EditorPanel panel, const String& title, StringID sid);
-		void		   CloseWindow(StringID sid);
+		void OpenPanel(EditorPanel panel, const String& title, StringID sid);
+		void CloseWindow(StringID sid);
+		void OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
 
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;

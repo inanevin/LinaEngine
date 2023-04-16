@@ -97,21 +97,4 @@ namespace Lina::Editor
 		}
 	}
 
-	bool GUINodeTitleSection::OnMouse(uint32 button, InputAction act)
-	{
-		const bool ret = GUINode::OnMouse(button, act);
-
-		if (button == LINA_MOUSE_0 && m_isHovered)
-		{
-			if (act == InputAction::Repeated)
-			{
-				if (m_window->IsMaximized())
-					m_window->Restore();
-				else
-					m_window->Maximize();
-			}
-		}
-		return ret;
-	}
-
 } // namespace Lina::Editor

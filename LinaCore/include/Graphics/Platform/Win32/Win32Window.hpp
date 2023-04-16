@@ -68,6 +68,7 @@ namespace Lina
 		virtual void BringToFront() override;
 		virtual void SetMouseFocus(bool focus) override;
 		virtual void SetInputPassthrough(bool isInputPassThrough) override;
+		virtual void HandleMove() override;
 
 		virtual bool GetIsAppActive() const override
 		{
@@ -84,6 +85,8 @@ namespace Lina
 		void UpdateDPI(HWND__* hwnd);
 		void UpdatePos(const Vector2i& pos);
 		void UpdateSize(const Vector2i& size);
+		void OnMouseButton(uint32 button, int action);
+		void OnMousePos(const Vector2i& pos);
 
 	private:
 		friend class Application;
@@ -100,6 +103,7 @@ namespace Lina
 		HINSTANCE__*						  m_hinst			 = nullptr;
 		Vector2i							  m_restoreSize		 = Vector2i::Zero;
 		Vector2i							  m_restorePos		 = Vector2i::Zero;
+		Vector2i							  m_dragMouseDelta	 = Vector2i::Zero;
 	};
 } // namespace Lina
 

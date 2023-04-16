@@ -34,6 +34,8 @@ SOFTWARE.
 
 namespace Lina
 {
+	Mutex Font::aqqqqq;
+
 	Font::~Font()
 	{
 		if (m_lvgFont)
@@ -46,6 +48,29 @@ namespace Lina
 	}
 
 	void Font::Upload()
+	{
+		return;
+		const bool					  isSdf		   = m_metadata.GetBool("IsSDF"_hs, false);
+		const int					  size		   = m_metadata.GetInt("Size"_hs);
+		const int					  customRanges = m_metadata.GetInt("CustomGlyphRanges"_hs, 0);
+		Vector<LinaVG::GlyphEncoding> customRangeVec;
+		for (int i = 0; i < customRanges; i += 2)
+		{
+			const String   range0	 = "Range_" + TO_STRING(i);
+			const String   range1	 = "Range_" + TO_STRING(i + 1);
+			const StringID range0Sid = TO_SID(range0);
+			const StringID range1Sid = TO_SID(range1);
+			customRangeVec.push_back(m_metadata.GetInt(range0Sid));
+			customRangeVec.push_back(m_metadata.GetInt(range1Sid));
+		}
+
+		if (customRangeVec.empty())
+			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size);
+		else
+			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size, customRangeVec.data(), customRanges);
+	}
+
+	void Font::BatchLoaded()
 	{
 		const bool					  isSdf		   = m_metadata.GetBool("IsSDF"_hs, false);
 		const int					  size		   = m_metadata.GetInt("Size"_hs);
@@ -62,13 +87,9 @@ namespace Lina
 		}
 
 		if (customRangeVec.empty())
-			m_lvgFont = LinaVG::LoadFontFromMemoryThreadSafe(m_file.data(), m_file.size(), isSdf, size);
+			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size);
 		else
-			m_lvgFont = LinaVG::LoadFontFromMemoryThreadSafe(m_file.data(), m_file.size(), isSdf, size, customRangeVec.data(), customRanges);
-	}
-
-	void Font::BatchLoaded()
-	{
+			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size, customRangeVec.data(), customRanges);
 	}
 
 	void Font::LoadFromFile(const char* path)

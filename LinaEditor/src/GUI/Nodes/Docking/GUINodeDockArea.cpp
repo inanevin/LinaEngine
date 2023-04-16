@@ -60,7 +60,6 @@ namespace Lina::Editor
 		m_tabArea->SetCallbackTabDismissed(BIND(&GUINodeDockArea::OnTabDismissed, this, std::placeholders::_1));
 		m_tabArea->SetCallbackTabDetached(BIND(&GUINodeDockArea::OnTabDetached, this, std::placeholders::_1, std::placeholders::_2));
 		m_dockPreview = new GUINodeDockPreview(editor, swapchain, drawOrder);
-		m_dockPreview->SetDrawReach(0.25f);
 		AddChildren(m_tabArea)->AddChildren(m_dockPreview);
 
 		m_input = editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);

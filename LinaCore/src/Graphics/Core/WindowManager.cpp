@@ -93,6 +93,12 @@ namespace Lina
 		m_windows.clear();
 	}
 
+	void WindowManager::Tick()
+	{
+		for (auto [sid, w] : m_windows)
+			w->HandleMove();
+	}
+
 	IWindow* WindowManager::CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size, Bitmask16 surfaceRendererMask)
 	{
 		if (sid != LINA_MAIN_SWAPCHAIN && m_windows.empty())
