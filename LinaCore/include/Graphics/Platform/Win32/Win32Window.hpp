@@ -86,7 +86,6 @@ namespace Lina
 		void UpdatePos(const Vector2i& pos);
 		void UpdateSize(const Vector2i& size);
 		void OnMouseButton(uint32 button, int action);
-		void OnMousePos(const Vector2i& pos);
 
 	private:
 		friend class Application;

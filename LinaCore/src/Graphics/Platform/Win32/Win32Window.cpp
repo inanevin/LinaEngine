@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Platform/Win32/Win32WindowsInclude.hpp"
 #include "Core/PlatformTime.hpp"
+#include "Math/Math.hpp"
 #include <shellscalingapi.h>
 #include <hidusage.h>
 #include "windowsx.h"
@@ -224,7 +225,7 @@ namespace Lina
 
 			const Vector2 mp = Vector2i(xPos, yPos);
 
-			win32Window->OnMousePos(mp);
+			win32Window->m_mousePosition = mp;
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -593,6 +594,7 @@ namespace Lina
 		const BYTE	   finalAlpha = static_cast<BYTE>(alpha * 255.0f);
 		const COLORREF colorKey	  = RGB(1, 1, 1);
 		SetLayeredWindowAttributes(m_window, colorKey, finalAlpha, LWA_ALPHA);
+		m_isTransparent = !Math::Equals(alpha, 1.0f, 0.01f);
 	}
 
 	void Win32Window::BringToFront()
@@ -604,6 +606,8 @@ namespace Lina
 	{
 		if (focus == false)
 		{
+			m_mousePosition = Vector2i::Zero;
+
 			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
 
 			if (guiDrawer)
@@ -627,12 +631,39 @@ namespace Lina
 
 	void Win32Window::HandleMove()
 	{
-		if (!m_isDragged)
-			return;
+		const Vector2i localMousePos = m_input->GetMousePositionAbs() - m_rect.pos;
 
-		const Vector2i absMouse	 = m_input->GetMousePositionAbs();
-		const Vector2  targetPos = absMouse - m_dragMouseDelta;
-		SetPos(targetPos);
+		if (!m_isDragged)
+		{
+			if (m_input->GetMouseButtonDown(VK_LBUTTON) && m_dragRect.IsPointInside(localMousePos))
+			{
+				m_isDragged = true;
+				SetInputPassthrough(true);
+
+				m_dragMouseDelta = localMousePos;
+
+				IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+				if (guiDrawer)
+					guiDrawer->OnWindowDrag(m_isDragged);
+			}
+		}
+
+		if (m_isDragged)
+		{
+			if (!m_input->GetMouseButton(VK_LBUTTON))
+			{
+				m_isDragged = false;
+				SetInputPassthrough(false);
+
+				IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+				if (guiDrawer)
+					guiDrawer->OnWindowDrag(m_isDragged);
+			}
+
+			const Vector2i absMouse	 = m_input->GetMousePositionAbs();
+			const Vector2  targetPos = absMouse - m_dragMouseDelta;
+			SetPos(targetPos);
+		}
 	}
 
 	void Win32Window::SetPos(const Vector2i& newPos)
@@ -689,29 +720,10 @@ namespace Lina
 
 	void Win32Window::OnMouseButton(uint32 button, int action)
 	{
-		if (button == VK_LBUTTON && action == 0)
-		{
-			if (m_dragRect.IsPointInside(m_mousePosition))
-			{
-				m_isDragged		 = true;
-				m_dragMouseDelta = m_mousePosition;
-
-				IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
-				if (guiDrawer)
-					guiDrawer->OnWindowDrag(m_isDragged);
-			}
-		}
-		else if (button == VK_LBUTTON && action == 1)
+		if (button == VK_LBUTTON && action == 2)
 		{
 			m_isDragged = false;
-
-			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnWindowDrag(m_isDragged);
-		}
-		else if (button == VK_LBUTTON && action == 2)
-		{
-			m_isDragged = false;
+			SetInputPassthrough(false);
 
 			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)
@@ -725,11 +737,6 @@ namespace Lina
 					Maximize();
 			}
 		}
-	}
-
-	void Win32Window::OnMousePos(const Vector2i& pos)
-	{
-		m_mousePosition = pos;
 	}
 
 	void Win32Window::SetTitle(const String& title)

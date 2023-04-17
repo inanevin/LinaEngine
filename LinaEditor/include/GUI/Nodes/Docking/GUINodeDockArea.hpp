@@ -62,6 +62,7 @@ namespace Lina::Editor
 		void		 AddPanel(GUINodePanel* panel);
 		void		 RemovePanel(GUINodePanel* panel, bool deletePanel = true, bool deleteIfEmpty = true);
 		void		 SetDivider(DockSplitType splitDirection, GUINodeDockDivider* divider);
+		void		 SetDockPreviewEnabled(bool enabled);
 
 		inline void SetSplitRect(const Rect& rect)
 		{
@@ -96,6 +97,11 @@ namespace Lina::Editor
 		inline GUINodeDockArea* GetDependsOnRight()
 		{
 			return m_dependsOnRight;
+		}
+		
+		inline GUINodeDockPreview* GetDockPreview()
+		{
+			return m_dockPreview;
 		}
 
 	private:

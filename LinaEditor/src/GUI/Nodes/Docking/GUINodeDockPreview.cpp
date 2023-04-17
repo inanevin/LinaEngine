@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Input/Core/Input.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Math/Math.hpp"
+#include "Core/SystemInfo.hpp"
 
 namespace Lina::Editor
 {
@@ -47,19 +48,25 @@ namespace Lina::Editor
 
 	void GUINodeDockPreview::Draw(int threadID)
 	{
+		m_isActive = false;
+
 		if (!m_visible)
 			return;
 
-		auto mousePos = m_input->GetMousePositionAbs() - m_window->GetPos();
+		auto mousePos = m_window->GetMousePosition();
+
+		if (!m_rect.IsPointInside(mousePos))
+			return;
+
+		m_isActive = true;
 
 		const Vector2 panelCenter = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-		m_currentHoveredSplit	  = DockSplitType::None;
 
 		auto drawDockArea = [&](uint32 imageIndex, DockSplitType splitType, const Vector2& direction) {
 			const TextureSheetItem& item	 = m_editor->GetEditorImage(imageIndex);
+			const float				scale	 = m_scales[splitType];
 			const Vector2i			rectSize = item.size * 0.14f;
-			const float				padding	 = rectSize.x * 1.2f;
-			const Vector2i			itemSize = item.size * 0.1f;
+			Vector2i				itemSize = item.size * 0.1f * scale;
 
 			Color col = Theme::TC_CyanAccent;
 			col.w	  = 0.3f;
@@ -69,14 +76,16 @@ namespace Lina::Editor
 			opts.rounding  = 0.2f;
 			opts.aaEnabled = true;
 
-			Vector2 center = Math::Lerp(panelCenter, panelCenter + m_rect.size * 0.5f * direction, 0.8f);
+			Vector2 center = Vector2::Zero;
 
 			if (m_isOuter)
 			{
-				center = Vector2(panelCenter.x + m_rect.size.x * 0.5f * direction.x, panelCenter.y + m_rect.size.y * 0.5f * direction.y);
-				center.x -= itemSize.x * direction.x;
-				center.y -= itemSize.y * direction.y;
+				center = panelCenter + m_rect.size * 0.5f * direction;
+				center.x -= rectSize.x * direction.x;
+				center.y -= rectSize.y * direction.y;
 			}
+			else
+				center = panelCenter + direction * rectSize * 1.1f;
 
 			const Rect splitAreaRect = Rect(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f), rectSize);
 
@@ -113,14 +122,26 @@ namespace Lina::Editor
 					rectStartPos = Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y - m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
 					rectSize	 = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
 				}
+				else if (m_currentHoveredSplit == DockSplitType::Tab)
+				{
+					rectStartPos = m_rect.pos;
+					rectSize	 = m_rect.size;
+				}
 
 				LinaVG::DrawRect(threadID, LV2(rectStartPos), LV2((rectStartPos + rectSize)), rectOpts, 0.0f, FRONT_DRAW_ORDER);
+
+				m_scales[splitType] = 1.0f + (Math::Sin(SystemInfo::GetAppTimeF() * 8.0f) * 0.1f);
 			}
+			else
+				m_scales[splitType] = 1.0f;
 		};
 
 		drawDockArea(m_isOuter ? EDITOR_IMAGE_DOCK_OUTER_LEFT : EDITOR_IMAGE_DOCK_LEFT, DockSplitType::Left, Vector2(-1.0f, 0.0f));
 		drawDockArea(m_isOuter ? EDITOR_IMAGE_DOCK_OUTER_RIGHT : EDITOR_IMAGE_DOCK_RIGHT, DockSplitType::Right, Vector2(1.0f, 0.0f));
 		drawDockArea(m_isOuter ? EDITOR_IMAGE_DOCK_OUTER_UP : EDITOR_IMAGE_DOCK_UP, DockSplitType::Up, Vector2(0.0f, -1.0f));
 		drawDockArea(m_isOuter ? EDITOR_IMAGE_DOCK_OUTER_DOWN : EDITOR_IMAGE_DOCK_DOWN, DockSplitType::Down, Vector2(0.0f, 1.0f));
+
+		if (!m_isOuter)
+			drawDockArea(EDITOR_IMAGE_DOCK_CENTER, DockSplitType::Tab, Vector2(0.0f, 0.0f));
 	}
 } // namespace Lina::Editor

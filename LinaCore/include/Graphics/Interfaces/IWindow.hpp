@@ -181,6 +181,11 @@ namespace Lina
 			return m_mousePosition;
 		}
 
+		inline bool GetIsTransparent() const
+		{
+			return m_isTransparent;
+		}
+
 	private:
 		friend class WindowManager;
 
@@ -204,6 +209,7 @@ namespace Lina
 		bool			 m_isFullscreen		  = false;
 		bool			 m_isVisible		  = false;
 		bool			 m_hasFocus			  = false;
+		bool			 m_isTransparent	  = false;
 		float			 m_aspect			  = 0.0f;
 		String			 m_title			  = "";
 		void*			 m_handle			  = nullptr;

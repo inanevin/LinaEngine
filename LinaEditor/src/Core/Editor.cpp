@@ -43,6 +43,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Core/Theme.hpp"
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
 #include "GUI/Drawers/GUIDrawerChildWindow.hpp"
 
 namespace Lina::Editor
@@ -180,6 +181,37 @@ namespace Lina::Editor
 			m_createWindowRequests.clear();
 			m_deleteWindowRequests.clear();
 		}
+
+		// Controlling alpha of the current dragged window according to dock-hovers
+		{
+			if (m_draggedWindow)
+			{
+				bool dockPreviewActive = false;
+				for (auto [sid, drawer] : m_guiDrawers)
+				{
+					if (drawer->GetDockPreview()->GetIsActive())
+					{
+						dockPreviewActive = true;
+						break;
+					}
+
+					const auto& dockAreas = drawer->GetDockAreas();
+					for (auto d : dockAreas)
+					{
+						if (d->GetDockPreview()->GetIsActive())
+						{
+							dockPreviewActive = true;
+							break;
+						}
+					}
+				}
+
+				if (dockPreviewActive && !m_draggedWindow->GetIsTransparent())
+					m_draggedWindow->SetAlpha(0.3f);
+				else if (!dockPreviewActive && m_draggedWindow->GetIsTransparent())
+					m_draggedWindow->SetAlpha(1.0f);
+			}
+		}
 	}
 
 	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid)
@@ -220,6 +252,11 @@ namespace Lina::Editor
 
 	void Editor::OnWindowDrag(GUIDrawerBase* owner, bool isDragging)
 	{
+		if (!isDragging && m_draggedWindow && m_draggedWindow->GetIsTransparent())
+			m_draggedWindow->SetAlpha(1.0f);
+
+		m_draggedWindow = isDragging ? owner->GetWindow() : nullptr;
+
 		for (auto [sid, drawer] : m_guiDrawers)
 		{
 			if (owner == drawer)

@@ -65,7 +65,8 @@ namespace Lina::Editor
 		Left,
 		Right,
 		Down,
-		Up
+		Up,
+		Tab
 	};
 
 	enum class DragDirection
@@ -98,19 +99,20 @@ namespace Lina::Editor
 	};
 
 #define EDITOR_DEFAULT_DOCK_SPLIT	0.35f
-#define EDITOR_IMAGES_SHEET_COLUMNS 5
+#define EDITOR_IMAGES_SHEET_COLUMNS 8
 #define EDITOR_IMAGES_SHEET_ROWS	2
 #define EDITOR_PAYLOAD_WINDOW_SID	"EditorPaylodWindow"_hs
 
-#define EDITOR_IMAGE_DOCK_DOWN		  0
-#define EDITOR_IMAGE_DOCK_LEFT		  1
-#define EDITOR_IMAGE_DOCK_RIGHT		  2
-#define EDITOR_IMAGE_DOCK_UP		  3
+#define EDITOR_IMAGE_DOCK_DOWN		  3
+#define EDITOR_IMAGE_DOCK_LEFT		  0
+#define EDITOR_IMAGE_DOCK_RIGHT		  1
+#define EDITOR_IMAGE_DOCK_UP		  2
 #define EDITOR_IMAGE_CROSS			  4
 #define EDITOR_IMAGE_DOCK_OUTER_LEFT  5
 #define EDITOR_IMAGE_DOCK_OUTER_UP	  6
 #define EDITOR_IMAGE_DOCK_OUTER_RIGHT 7
 #define EDITOR_IMAGE_DOCK_OUTER_DOWN  8
+#define EDITOR_IMAGE_DOCK_CENTER	  9
 
 } // namespace Lina::Editor
 

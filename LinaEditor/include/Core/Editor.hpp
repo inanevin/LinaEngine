@@ -102,7 +102,8 @@ namespace Lina::Editor
 		}
 
 	private:
-		Input*							  m_input = nullptr;
+		IWindow*						  m_draggedWindow = nullptr;
+		Input*							  m_input		  = nullptr;
 		EditorPayloadManager			  m_payloadManager;
 		WindowManager*					  m_windowManager		= nullptr;
 		GfxManager*						  m_gfxManager			= nullptr;

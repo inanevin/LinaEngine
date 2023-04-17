@@ -60,8 +60,9 @@ namespace Lina::Editor
 		m_tabArea->SetCallbackTabDismissed(BIND(&GUINodeDockArea::OnTabDismissed, this, std::placeholders::_1));
 		m_tabArea->SetCallbackTabDetached(BIND(&GUINodeDockArea::OnTabDetached, this, std::placeholders::_1, std::placeholders::_2));
 		m_dockPreview = new GUINodeDockPreview(editor, swapchain, drawOrder);
-		AddChildren(m_tabArea)->AddChildren(m_dockPreview);
+		m_dockPreview->SetVisible(false);
 
+		AddChildren(m_tabArea)->AddChildren(m_dockPreview);
 		m_input = editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 	}
 
@@ -86,11 +87,8 @@ namespace Lina::Editor
 			m_focusedPanel->Draw(threadID);
 		}
 
-		if (m_isDockingPreviewEnabled)
-		{
-			m_dockPreview->SetRect(m_rect);
-			m_dockPreview->Draw(threadID);
-		}
+		m_dockPreview->SetRect(m_rect);
+		m_dockPreview->Draw(threadID);
 	}
 
 	void GUINodeDockArea::AddPanel(GUINodePanel* panel)
@@ -164,6 +162,22 @@ namespace Lina::Editor
 	void GUINodeDockArea::SetDivider(DockSplitType splitDirection, GUINodeDockDivider* divider)
 	{
 		m_dividers[splitDirection] = divider;
+	}
+
+	void GUINodeDockArea::SetDockPreviewEnabled(bool enabled)
+	{
+		if (enabled)
+		{
+			const Vector2i& targetSize		   = m_swapchain->GetSize();
+			const bool		sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
+			if (sizeSuitableToDock)
+				m_dockPreview->SetVisible(true);
+		}
+		else
+		{
+			m_dockPreview->Reset();
+			m_dockPreview->SetVisible(false);
+		}
 	}
 
 	void GUINodeDockArea::OnTabClicked(GUINode* node)

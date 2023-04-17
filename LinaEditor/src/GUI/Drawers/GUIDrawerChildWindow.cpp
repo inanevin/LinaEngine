@@ -74,6 +74,8 @@ namespace Lina::Editor
 		// for (auto d : m_dividers)
 		//	d->Draw(threadID);
 
+		DockSplitType splitType = DockSplitType::None;
+
 		for (auto d : m_dockAreas)
 		{
 			const Rect& splitRect = d->GetSplitRect();
@@ -82,6 +84,10 @@ namespace Lina::Editor
 
 			d->SetRect(dockRect);
 			d->Draw(threadID);
+
+			DockSplitType dockAreaCurrentSplitType = d->GetDockPreview()->GetCurrentSplitType();
+			if (dockAreaCurrentSplitType != DockSplitType::None)
+				splitType = dockAreaCurrentSplitType;
 		}
 
 		m_dockPreview->SetRect(availableDockRect);

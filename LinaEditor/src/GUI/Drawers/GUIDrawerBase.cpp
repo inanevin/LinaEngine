@@ -183,6 +183,9 @@ namespace Lina::Editor
 			m_dockPreview->Reset();
 			m_dockPreview->SetVisible(false);
 		}
+
+		for(auto n : m_dockAreas)
+			n->SetDockPreviewEnabled(enabled);
 	}
 
 	void GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel)

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "GUI/Nodes/GUINode.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
@@ -67,10 +68,17 @@ namespace Lina::Editor
 			return this;
 		}
 
+		inline bool GetIsActive() const
+		{
+			return m_isActive;
+		}
+
 	protected:
-		bool		  m_isOuter				= false;
-		Lina::Input*  m_input				= nullptr;
-		DockSplitType m_currentHoveredSplit = DockSplitType::None;
+		HashMap<DockSplitType, float> m_scales;
+		bool						  m_isActive			= false;
+		bool						  m_isOuter				= false;
+		Lina::Input*				  m_input				= nullptr;
+		DockSplitType				  m_currentHoveredSplit = DockSplitType::None;
 	};
 } // namespace Lina::Editor
 

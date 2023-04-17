@@ -53,6 +53,16 @@ namespace Lina
 		virtual void OnLostFocus(){};
 		virtual void OnWindowDrag(bool isDragging){};
 
+		inline IWindow* GetWindow()
+		{
+			return m_window;
+		}
+
+		inline ISwapchain* GetSwapchain()
+		{
+			return m_swapchain;
+		}
+
 	protected:
 		ISwapchain* m_swapchain = nullptr;
 		IWindow*	m_window	= nullptr;

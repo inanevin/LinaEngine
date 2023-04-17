@@ -79,6 +79,16 @@ namespace Lina::Editor
 			return m_root;
 		}
 
+		inline GUINodeDockPreview* GetDockPreview()
+		{
+			return m_dockPreview;
+		}
+
+		inline const Vector<GUINodeDockArea*>& GetDockAreas() const
+		{
+			return m_dockAreas;
+		}
+		
 	private:
 		GUINode* GetHovered(GUINode* parent);
 
