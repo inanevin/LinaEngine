@@ -580,6 +580,8 @@ namespace Lina
 		int dpiScaledWidth	= static_cast<int>(static_cast<float>(m_rect.size.x) * m_dpiScale / previousScale);
 		int dpiScaledHeight = static_cast<int>(static_cast<float>(dpiScaledWidth) / m_aspect);
 		SetSize(Vector2i(dpiScaledWidth, dpiScaledHeight));
+
+		m_monitorInfo = m_manager->GetMonitorInfoFromWindow(static_cast<IWindow*>(this));
 	}
 
 	void Win32Window::SetSize(const Vector2i& newSize)
@@ -715,13 +717,7 @@ namespace Lina
 
 	void Win32Window::SetToCenter()
 	{
-		HMONITOR	hMonitor = MonitorFromWindow(m_window, MONITOR_DEFAULTTONEAREST);
-		MONITORINFO mi;
-		mi.cbSize = sizeof(mi);
-		GetMonitorInfo(hMonitor, &mi);
-		const int x = static_cast<int>((mi.rcMonitor.right - mi.rcMonitor.left) * 0.5f - m_rect.size.x * 0.5f);
-		const int y = static_cast<int>((mi.rcMonitor.bottom - mi.rcMonitor.top) * 0.5f - m_rect.size.y * 0.5f);
-		SetPos(Vector2i(x, y));
+		SetPos(Vector2i(m_monitorInfo.size.x / 2 - m_rect.size.x / 2, m_monitorInfo.size.y / 2 - m_rect.size.y / 2));
 	}
 
 	void Win32Window::SetVisible(bool isVisible)

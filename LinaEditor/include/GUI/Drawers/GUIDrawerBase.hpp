@@ -69,7 +69,7 @@ namespace Lina::Editor
 		GUINode* FindNode(StringID sid);
 		void	 OnPayloadCreated(PayloadType type, void* data);
 		bool	 OnPayloadDropped(PayloadType type, void* data);
-		void	 RemoveDockArea(GUINodeDockArea* area);
+		void	 RemoveDockArea(GUINodeDockArea* area, bool immediate);
 
 		inline StringID GetSID() const
 		{
@@ -106,6 +106,7 @@ namespace Lina::Editor
 
 	private:
 		GUINode* GetHovered(GUINode* parent);
+		void	 RemoveDockAreaImpl(GUINodeDockArea* area);
 
 	protected:
 		GUINode* m_mouseDisablingNode = nullptr;
@@ -114,8 +115,7 @@ namespace Lina::Editor
 		Editor*	 m_editor			  = nullptr;
 		GUINode* m_root				  = nullptr;
 
-		Rect					 m_availableDockRect = Rect();
-		GUINodeDockPreview*		 m_dockPreview		 = nullptr;
+		GUINodeDockPreview*		 m_dockPreview = nullptr;
 		Vector<GUINodeDockArea*> m_dockAreas;
 		Vector<GUINodeDivider*>	 m_dividers;
 		Vector<GUINodeDockArea*> m_dockAreasToRemove;

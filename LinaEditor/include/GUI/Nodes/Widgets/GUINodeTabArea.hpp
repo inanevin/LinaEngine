@@ -54,6 +54,11 @@ namespace Lina::Editor
 		void		 OnTabDismissed(GUINodeTab* tab);
 		void		 OnTabDetached(GUINodeTab* tab, const Vector2& detachDelta);
 
+		inline void SetFocusedTab(StringID sid)
+		{
+			m_focusedSID = sid;
+		}
+
 		inline void SetCallbackTabDismissed(Delegate<void(GUINodeTab*)>&& cb)
 		{
 			m_onTabDismissed = cb;
@@ -88,8 +93,9 @@ namespace Lina::Editor
 		{
 			return m_tabs.empty();
 		}
-		
+
 	protected:
+		StringID									m_focusedSID	 = 0;
 		bool										m_canClosePanels = false;
 		Delegate<void(GUINodeTab*)>					m_onTabClicked;
 		Delegate<void(GUINodeTab*)>					m_onTabDismissed;

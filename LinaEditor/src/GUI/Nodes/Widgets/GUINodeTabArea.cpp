@@ -59,14 +59,13 @@ namespace Lina::Editor
 			tab->SetCloseButtonEnabled(m_canClosePanels);
 
 			if (!tab->GetIsDragging())
-			{
 				tab->SetRect(tabRect);
-			}
 
+			tab->SetIsFocused(m_focusedSID == tab->GetSID());
 			tab->SetIsPanelTabs(m_isPanelTabs);
 			tab->SetIsReorderEnabled(m_isReorderEnabled);
 			tab->Draw(threadID);
-			tabRect.pos += Vector2(maxTabSize.x, 0.0f);
+			tabRect.pos += Vector2(maxTabSize.x + padding * 0.5f, 0.0f);
 		}
 	}
 
@@ -105,4 +104,5 @@ namespace Lina::Editor
 		if (m_onTabDetached)
 			m_onTabDetached(tab, detachDelta);
 	}
+
 } // namespace Lina::Editor

@@ -195,9 +195,11 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel)
 	{
+		LINA_ASSERT(type != DockSplitType::None, "Dock split type can't be none!");
+
 		if (type == DockSplitType::Tab)
 		{
-			// ez.
+			area->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), area, panel->GetTitle(), panel->GetSID()));
 			return;
 		}
 
@@ -214,6 +216,26 @@ namespace Lina::Editor
 			newArea->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), newArea, panel->GetTitle(), panel->GetSID()));
 		}
 
+		DockSplitType oppositeType	  = DockSplitType::None;
+		DockSplitType otherDirection1 = DockSplitType::None;
+		DockSplitType otherDirection2 = DockSplitType::None;
+		Vector2		  direction		  = Vector2::Zero;
+
+		if (type == DockSplitType::Left || type == DockSplitType::Right)
+		{
+			otherDirection1 = DockSplitType::Up;
+			otherDirection2 = DockSplitType::Down;
+			oppositeType	= type == DockSplitType::Left ? DockSplitType::Right : DockSplitType::Left;
+		}
+		else
+		{
+			otherDirection1 = DockSplitType::Left;
+			otherDirection2 = DockSplitType::Right;
+			oppositeType	= type == DockSplitType::Up ? DockSplitType::Down : DockSplitType::Up;
+		}
+
+		const bool isNegative = type == DockSplitType::Left || type == DockSplitType::Up;
+
 		if (area != nullptr)
 		{
 			Rect  currentSplitRect = area->GetSplitRect();
@@ -226,149 +248,74 @@ namespace Lina::Editor
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
 				currentSplitRect.pos.x += split;
 				currentSplitRect.size.x -= split;
-
-				// Replace existing divider's data.
-				{
-					auto* existingLeftDivider = area->GetDivider(DockSplitType::Left);
-					if (existingLeftDivider)
-					{
-						existingLeftDivider->RemovePositiveNode(area);
-						existingLeftDivider->AddPositiveNode(newArea);
-						newArea->SetDivider(DockSplitType::Left, existingLeftDivider);
-					}
-				}
-
-				// Setup currently created divider
-				{
-					divider->AddPositiveNode(area);
-					divider->AddNegativeNode(newArea);
-					area->SetDivider(DockSplitType::Left, divider);
-					newArea->SetDivider(DockSplitType::Right, divider);
-				}
-
-				// Copy other direction's existing dividers
-				{
-					auto* existingUpDivider	  = area->GetDivider(DockSplitType::Up);
-					auto* existingDownDivider = area->GetDivider(DockSplitType::Down);
-					newArea->SetDivider(DockSplitType::Up, existingUpDivider);
-					newArea->SetDivider(DockSplitType::Down, existingDownDivider);
-					if (existingUpDivider)
-						existingUpDivider->AddPositiveNode(newArea);
-					if (existingDownDivider)
-						existingDownDivider->AddNegativeNode(newArea);
-				}
 			}
 			else if (type == DockSplitType::Right)
 			{
 				split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x + currentSplitRect.size.x - split, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
 				currentSplitRect.size.x -= split;
-
-				// Replace existing divider's data.
-				{
-					auto* existingRightDivider = area->GetDivider(DockSplitType::Right);
-					if (existingRightDivider)
-					{
-						existingRightDivider->RemoveNegativeNode(area);
-						existingRightDivider->AddNegativeNode(newArea);
-						newArea->SetDivider(DockSplitType::Right, existingRightDivider);
-					}
-				}
-
-				// Setup currently created divider
-				{
-					divider->AddPositiveNode(newArea);
-					divider->AddNegativeNode(area);
-					area->SetDivider(DockSplitType::Right, divider);
-					newArea->SetDivider(DockSplitType::Left, divider);
-				}
-
-				// Copy other direction's existing dividers
-				{
-					auto* existingUpDivider	  = area->GetDivider(DockSplitType::Up);
-					auto* existingDownDivider = area->GetDivider(DockSplitType::Down);
-					newArea->SetDivider(DockSplitType::Up, existingUpDivider);
-					newArea->SetDivider(DockSplitType::Down, existingDownDivider);
-					if (existingUpDivider)
-						existingUpDivider->AddPositiveNode(newArea);
-					if (existingDownDivider)
-						existingDownDivider->AddNegativeNode(newArea);
-				}
 			}
 			else if (type == DockSplitType::Up)
 			{
 				split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(currentSplitRect.size.x, split));
-				currentSplitRect.size.y -= split;
 				currentSplitRect.pos.y += split;
-
-				// Replace existing divider's data.
-				{
-					auto* existingUpDivider = area->GetDivider(DockSplitType::Up);
-					if (existingUpDivider)
-					{
-						existingUpDivider->RemovePositiveNode(area);
-						existingUpDivider->AddPositiveNode(newArea);
-						newArea->SetDivider(DockSplitType::Up, existingUpDivider);
-					}
-				}
-
-				// Setup currently created divider
-				{
-					divider->AddPositiveNode(area);
-					divider->AddNegativeNode(newArea);
-					area->SetDivider(DockSplitType::Up, divider);
-					newArea->SetDivider(DockSplitType::Down, divider);
-				}
-
-				// Copy other direction's existing dividers
-				{
-					auto* existingLeftDivider  = area->GetDivider(DockSplitType::Left);
-					auto* existingRightDivider = area->GetDivider(DockSplitType::Right);
-					newArea->SetDivider(DockSplitType::Left, existingLeftDivider);
-					newArea->SetDivider(DockSplitType::Right, existingRightDivider);
-					if (existingLeftDivider)
-						existingLeftDivider->AddPositiveNode(newArea);
-					if (existingRightDivider)
-						existingRightDivider->AddNegativeNode(newArea);
-				}
+				currentSplitRect.size.y -= split;
 			}
 			else if (type == DockSplitType::Down)
 			{
 				split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y + currentSplitRect.size.y - split), Vector2(currentSplitRect.size.x, split));
 				currentSplitRect.size.y -= split;
+			}
 
-				// Replace existing divider's data.
+			// Replace existing divider's (one on the side we are splitting against) data
+			{
+				auto* existingDivider = area->GetDivider(type);
+				if (existingDivider)
 				{
-					auto* existingDownDivider = area->GetDivider(DockSplitType::Down);
-					if (existingDownDivider)
+					if (isNegative)
 					{
-						existingDownDivider->RemoveNegativeNode(area);
-						existingDownDivider->AddNegativeNode(newArea);
-						newArea->SetDivider(DockSplitType::Down, existingDownDivider);
+						existingDivider->RemovePositiveNode(area);
+						existingDivider->AddPositiveNode(newArea);
 					}
-				}
+					else
+					{
+						existingDivider->RemoveNegativeNode(area);
+						existingDivider->AddNegativeNode(newArea);
+					}
 
-				// Setup currently created divider
+					newArea->SetDivider(type, existingDivider);
+				}
+			}
+
+			// Setup new dividers data
+			{
+				if (isNegative)
+				{
+					divider->AddPositiveNode(area);
+					divider->AddNegativeNode(newArea);
+				}
+				else
 				{
 					divider->AddPositiveNode(newArea);
 					divider->AddNegativeNode(area);
-					area->SetDivider(DockSplitType::Down, divider);
-					newArea->SetDivider(DockSplitType::Up, divider);
 				}
 
-				// Copy other direction's existing dividers
-				{
-					auto* existingLeftDivider  = area->GetDivider(DockSplitType::Left);
-					auto* existingRightDivider = area->GetDivider(DockSplitType::Right);
-					newArea->SetDivider(DockSplitType::Left, existingLeftDivider);
-					newArea->SetDivider(DockSplitType::Right, existingRightDivider);
-					if (existingLeftDivider)
-						existingLeftDivider->AddPositiveNode(newArea);
-					if (existingRightDivider)
-						existingRightDivider->AddNegativeNode(newArea);
-				}
+				area->SetDivider(type, divider);
+				newArea->SetDivider(oppositeType, divider);
+			}
+
+			// Copy other direction's existing dividers
+			{
+				auto* otherDivider1 = area->GetDivider(otherDirection1);
+				auto* otherDivider2 = area->GetDivider(otherDirection2);
+				newArea->SetDivider(otherDirection1, otherDivider1);
+				newArea->SetDivider(otherDirection2, otherDivider2);
+				if (otherDivider1)
+					otherDivider1->AddPositiveNode(newArea);
+				if (otherDivider2)
+					otherDivider2->AddNegativeNode(newArea);
 			}
 
 			area->SetSplitRect(currentSplitRect);
@@ -380,13 +327,18 @@ namespace Lina::Editor
 			const float				 split = EDITOR_DEFAULT_DOCK_SPLIT_OUTER;
 			Rect					 newAreaSplitRect;
 
+			if (isNegative)
+				divider->AddNegativeNode(newArea);
+			else
+				divider->AddPositiveNode(newArea);
+
+			newArea->SetDivider(oppositeType, divider);
+
 			// we are not splitting an existing area, but rather creating one on the outer skirts.
 			if (type == DockSplitType::Left)
 			{
-				divider->AddNegativeNode(newArea);
-				newArea->SetDivider(DockSplitType::Right, divider);
 				newAreaSplitRect.pos  = Vector2::Zero;
-				newAreaSplitRect.size = Vector2(split, m_availableDockRect.size.y);
+				newAreaSplitRect.size = Vector2(split, 1.0f);
 
 				// Find all areas on border
 				for (auto d : m_dockAreas)
@@ -397,11 +349,74 @@ namespace Lina::Editor
 					if (Math::Equals(d->GetSplitRect().pos.x, 0.0f, 0.001f))
 					{
 						divider->AddPositiveNode(d);
-						d->SetDivider(DockSplitType::Left, divider);
-
+						d->SetDivider(type, divider);
 						Rect splitRect = d->GetSplitRect();
 						splitRect.pos.x += split;
 						splitRect.size.x -= split;
+						d->SetSplitRect(splitRect);
+					}
+				}
+			}
+			else if (type == DockSplitType::Right)
+			{
+				newAreaSplitRect.pos  = Vector2(1.0f - split, 0.0f);
+				newAreaSplitRect.size = Vector2(split, 1.0f);
+
+				// Find all areas on border
+				for (auto d : m_dockAreas)
+				{
+					if (d == newArea)
+						continue;
+
+					if (Math::Equals(d->GetSplitRect().pos.x + d->GetSplitRect().size.x, 1.0f, 0.001f))
+					{
+						divider->AddNegativeNode(d);
+						d->SetDivider(type, divider);
+						Rect splitRect = d->GetSplitRect();
+						splitRect.size.x -= split;
+						d->SetSplitRect(splitRect);
+					}
+				}
+			}
+			else if (type == DockSplitType::Up)
+			{
+				newAreaSplitRect.pos  = Vector2::Zero;
+				newAreaSplitRect.size = Vector2(1.0f, split);
+
+				// Find all areas on border
+				for (auto d : m_dockAreas)
+				{
+					if (d == newArea)
+						continue;
+
+					if (Math::Equals(d->GetSplitRect().pos.y, 0.0f, 0.001f))
+					{
+						divider->AddPositiveNode(d);
+						d->SetDivider(type, divider);
+						Rect splitRect = d->GetSplitRect();
+						splitRect.pos.y += split;
+						splitRect.size.y -= split;
+						d->SetSplitRect(splitRect);
+					}
+				}
+			}
+			else if (type == DockSplitType::Down)
+			{
+				newAreaSplitRect.pos  = Vector2(0.0f, 1.0f - split);
+				newAreaSplitRect.size = Vector2(1.0f, split);
+
+				// Find all areas on border
+				for (auto d : m_dockAreas)
+				{
+					if (d == newArea)
+						continue;
+
+					if (Math::Equals(d->GetSplitRect().pos.y + d->GetSplitRect().size.y, 1.0f, 0.001f))
+					{
+						divider->AddNegativeNode(d);
+						d->SetDivider(type, divider);
+						Rect splitRect = d->GetSplitRect();
+						splitRect.size.y -= split;
 						d->SetSplitRect(splitRect);
 					}
 				}
@@ -426,46 +441,20 @@ namespace Lina::Editor
 		return m_root->OnPayloadDropped(type, data);
 	}
 
-	void GUIDrawerBase::RemoveDockArea(GUINodeDockArea* area)
+	void GUIDrawerBase::RemoveDockArea(GUINodeDockArea* area, bool immediate)
 	{
-		m_dockAreasToRemove.push_back(area);
+		if (!immediate)
+			m_dockAreasToRemove.push_back(area);
+		else
+			RemoveDockAreaImpl(area);
 	}
 
 	void GUIDrawerBase::DrawDockAreas(int threadID, const Rect& availableDockRect)
 	{
-		m_availableDockRect = availableDockRect;
-
 		// Remove requested dock areas.
 		{
 			for (auto area : m_dockAreasToRemove)
-			{
-				auto splitDivider = area->FindDividerToRemove();
-				splitDivider->PreDestroy(area);
-				m_dividers.erase(linatl::find_if(m_dividers.begin(), m_dividers.end(), [splitDivider](auto* divider) { return divider == splitDivider; }));
-
-				auto* dividerL = area->GetDivider(DockSplitType::Left);
-				auto* dividerR = area->GetDivider(DockSplitType::Right);
-				auto* dividerU = area->GetDivider(DockSplitType::Up);
-				auto* dividerD = area->GetDivider(DockSplitType::Down);
-
-				if (dividerL)
-					dividerL->RemovePositiveNode(area);
-
-				if (dividerR)
-					dividerR->RemoveNegativeNode(area);
-
-				if (dividerU)
-					dividerU->RemovePositiveNode(area);
-
-				if (dividerD)
-					dividerD->RemoveNegativeNode(area);
-
-				m_root->RemoveChildren(area);
-				m_root->RemoveChildren(splitDivider);
-				m_dockAreas.erase(linatl::find_if(m_dockAreas.begin(), m_dockAreas.end(), [area](auto* dockArea) { return dockArea == area; }));
-				delete splitDivider;
-				delete area;
-			}
+				RemoveDockAreaImpl(area);
 
 			m_dockAreasToRemove.clear();
 		}
@@ -515,12 +504,12 @@ namespace Lina::Editor
 		}
 
 		// Debug
-		if (false && m_hoveredNode != nullptr)
+		if (m_hoveredNode != nullptr)
 		{
 			LinaVG::StyleOptions style;
 			style.isFilled	  = false;
 			const Vector2 pad = Vector2(2, 2);
-			LinaVG::DrawRect(0, LV2((m_hoveredNode->GetRect().pos + pad)), LV2((m_hoveredNode->GetRect().pos + m_hoveredNode->GetRect().size - pad)), style, 0.0f, 10000);
+			LinaVG::DrawRect(threadID, LV2((m_hoveredNode->GetRect().pos + pad)), LV2((m_hoveredNode->GetRect().pos + m_hoveredNode->GetRect().size - pad)), style, 0.0f, FRONT_DRAW_ORDER);
 		}
 	}
 
@@ -547,6 +536,36 @@ namespace Lina::Editor
 		}
 
 		return hovered;
+	}
+
+	void GUIDrawerBase::RemoveDockAreaImpl(GUINodeDockArea* area)
+	{
+		auto splitDivider = area->FindDividerToRemove();
+		splitDivider->PreDestroy(area);
+		m_dividers.erase(linatl::find_if(m_dividers.begin(), m_dividers.end(), [splitDivider](auto* divider) { return divider == splitDivider; }));
+
+		auto* dividerL = area->GetDivider(DockSplitType::Left);
+		auto* dividerR = area->GetDivider(DockSplitType::Right);
+		auto* dividerU = area->GetDivider(DockSplitType::Up);
+		auto* dividerD = area->GetDivider(DockSplitType::Down);
+
+		if (dividerL)
+			dividerL->RemovePositiveNode(area);
+
+		if (dividerR)
+			dividerR->RemoveNegativeNode(area);
+
+		if (dividerU)
+			dividerU->RemovePositiveNode(area);
+
+		if (dividerD)
+			dividerD->RemoveNegativeNode(area);
+
+		m_root->RemoveChildren(area);
+		m_root->RemoveChildren(splitDivider);
+		m_dockAreas.erase(linatl::find_if(m_dockAreas.begin(), m_dockAreas.end(), [area](auto* dockArea) { return dockArea == area; }));
+		delete splitDivider;
+		delete area;
 	}
 
 } // namespace Lina::Editor

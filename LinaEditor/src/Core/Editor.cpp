@@ -45,9 +45,12 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
 #include "GUI/Drawers/GUIDrawerChildWindow.hpp"
+#include "Input/Core/Input.hpp"
 
 namespace Lina::Editor
 {
+	uint32 Editor::s_childWindowCtr = 0;
+
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		Theme::s_resourceManagerInst = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -163,18 +166,22 @@ namespace Lina::Editor
 
 			for (auto& req : m_createWindowRequests)
 			{
-				auto window = m_windowManager->CreateAppWindow(req.sid, req.title.c_str(), Vector2i::Zero, Vector2i(500, 500), SRM_DrawGUI);
+				auto window = m_windowManager->CreateAppWindow(req.windowSid, req.title.c_str(), Vector2i::Zero, Vector2i(500, 500), SRM_DrawGUI);
 				window->SetStyle(WindowStyle::Borderless);
 				window->SetVisible(true);
-				window->SetPos(Vector2i::Zero);
 
-				auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(req.sid);
+				if (req.byDetach)
+					window->SetPos(m_input->GetMousePositionAbs());
+				else
+					window->SetToCenter();
+
+				auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(req.windowSid);
 				auto guiDrawer		 = new GUIDrawerChildWindow(this, surfaceRenderer->GetSwapchain());
 				surfaceRenderer->SetGUIDrawer(guiDrawer);
-				m_guiDrawers[req.sid] = guiDrawer;
+				m_guiDrawers[req.windowSid] = guiDrawer;
 
 				auto targetDockArea = guiDrawer->GetFirstDockArea();
-				auto createdPanel	= GUIPanelFactory::CreatePanel(req.panelType, targetDockArea, req.title, req.sid);
+				auto createdPanel	= GUIPanelFactory::CreatePanel(req.panelType, targetDockArea, req.title, req.panelSid);
 				targetDockArea->AddPanel(static_cast<GUINodePanel*>(createdPanel));
 			}
 
@@ -214,7 +221,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid)
+	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach)
 	{
 		auto wm		= m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
 		auto gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
@@ -235,10 +242,14 @@ namespace Lina::Editor
 			}
 		}
 
+		const String windowSidStr = "EditorChildWindow_" + s_childWindowCtr++;
+
 		CreateWindowRequest req = CreateWindowRequest{
 			.panelType = panel,
-			.sid	   = sid,
+			.panelSid  = sid,
+			.windowSid = TO_SID(windowSidStr),
 			.title	   = title,
+			.byDetach  = byDetach,
 		};
 
 		m_createWindowRequests.push_back(req);

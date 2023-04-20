@@ -63,7 +63,7 @@ namespace Lina::Editor
 			points.push_back(LV2(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y)));
 
 			LinaVG::StyleOptions opts;
-			opts.color	   = LV4(Theme::TC_Light1);
+			opts.color	   = LV4((m_isFocused ? Theme::TC_Dark3 : Theme::TC_Light1));
 			opts.aaEnabled = true;
 			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder);
 		}

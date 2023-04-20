@@ -65,11 +65,17 @@ namespace Lina::Editor
 			m_isPanelTabs = isPanelTabs;
 		}
 
+		inline void SetIsFocused(bool isFocused)
+		{
+			m_isFocused = isFocused;
+		}
+
 	private:
 		void DrawCloseButton(int threadID, float t);
 
 	protected:
 		GUINodeTabArea* m_parentArea				= nullptr;
+		bool			m_isFocused					= false;
 		bool			m_isInCloseRect				= false;
 		float			m_closeButtonAnimationAlpha = 0.0f;
 		bool			m_closeButtonEnabled		= true;

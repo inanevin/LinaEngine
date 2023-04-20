@@ -60,8 +60,10 @@ namespace Lina::Editor
 		struct CreateWindowRequest
 		{
 			EditorPanel panelType = EditorPanel::None;
-			StringID	sid		  = 0;
+			StringID	panelSid  = 0;
+			StringID	windowSid = 0;
 			String		title	  = "";
+			bool		byDetach  = false;
 		};
 
 		struct DeleteWindowRequest
@@ -78,7 +80,7 @@ namespace Lina::Editor
 		void EndSplashScreen();
 		void Tick();
 
-		void OpenPanel(EditorPanel panel, const String& title, StringID sid);
+		void OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false);
 		void CloseWindow(StringID sid);
 		void OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
 
@@ -102,6 +104,7 @@ namespace Lina::Editor
 		}
 
 	private:
+		static uint32					  s_childWindowCtr;
 		IWindow*						  m_draggedWindow = nullptr;
 		Input*							  m_input		  = nullptr;
 		EditorPayloadManager			  m_payloadManager;

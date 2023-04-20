@@ -49,7 +49,6 @@ namespace Lina::Editor
 		m_sid		   = m_window->GetSID();
 		m_editor	   = editor;
 		m_titleSection = new GUINodeTitleSection(this, 0);
-		m_titleSection->SetSID(m_sid);
 		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 		m_root->AddChildren(m_titleSection);
 	}

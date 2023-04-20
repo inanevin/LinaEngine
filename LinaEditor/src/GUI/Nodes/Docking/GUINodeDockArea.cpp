@@ -71,11 +71,17 @@ namespace Lina::Editor
 	{
 		if (!m_dismissedTabs.empty())
 		{
-			for (auto t : m_dismissedTabs)
+			for (auto& data : m_dismissedTabs)
 			{
-				m_drawer->OnNodeDeleted(t);
-				RemovePanel(*linatl::find_if(m_panels.begin(), m_panels.end(), [t](GUINodePanel* p) { return p->GetSID() == t->GetSID(); }));
-				m_tabArea->RemoveTab(t->GetSID());
+				m_drawer->OnNodeDeleted(data.tab);
+				auto			  panel		 = *linatl::find_if(m_panels.begin(), m_panels.end(), [&data](GUINodePanel* p) { return p->GetSID() == data.tab->GetSID(); });
+				const EditorPanel panelType	 = panel->GetPanelType();
+				const String	  panelTitle = panel->GetTitle();
+				const StringID	  panelSID	 = panel->GetSID();
+
+				RemovePanel(panel);
+				m_tabArea->RemoveTab(data.tab->GetSID());
+				m_editor->OpenPanel(panelType, panelTitle, panelSID, true);
 			}
 		}
 		m_dismissedTabs.clear();
@@ -83,7 +89,7 @@ namespace Lina::Editor
 		// wuup wupp we are done.
 		if (m_tabArea->GetIsEmpty())
 		{
-			m_drawer->RemoveDockArea(this);
+			m_drawer->RemoveDockArea(this, true);
 			return;
 		}
 
@@ -96,9 +102,12 @@ namespace Lina::Editor
 		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
 		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
 
+		m_tabArea->SetVisible(needTabArea);
+
 		if (needTabArea)
 		{
 			m_tabArea->SetCanClosePanels(true);
+			m_tabArea->SetFocusedTab(m_focusedPanel->GetSID());
 			m_tabArea->SetRect(tabRect);
 			m_tabArea->Draw(threadID);
 		}
@@ -120,6 +129,10 @@ namespace Lina::Editor
 		m_panels.push_back(panel);
 		m_focusedPanel = panel;
 		m_tabArea->AddTab(panel->GetTitle(), panel->GetSID());
+		m_tabArea->SetFocusedTab(panel->GetSID());
+
+		for (auto p : m_panels)
+			p->SetVisible(p == m_focusedPanel);
 	}
 
 	void GUINodeDockArea::RemovePanel(GUINodePanel* panel)
@@ -151,21 +164,21 @@ namespace Lina::Editor
 
 	void GUINodeDockArea::OnTabClicked(GUINodeTab* node)
 	{
+		m_focusedPanel = *linatl::find_if(m_panels.begin(), m_panels.end(), [node](GUINodePanel* p) { return p->GetSID() == node->GetSID(); });
+
+		for (auto p : m_panels)
+			p->SetVisible(p == m_focusedPanel);
 	}
 
 	void GUINodeDockArea::OnTabDismissed(GUINodeTab* node)
 	{
-		m_dismissedTabs.push_back(node);
+		m_dismissedTabs.push_back({node, false});
 	}
 
 	void GUINodeDockArea::OnTabDetached(GUINodeTab* node, const Vector2& detachDelta)
 	{
 		auto it = linatl::find_if(m_panels.begin(), m_panels.end(), [node](GUINodePanel* p) { return p->GetSID() == node->GetSID(); });
-
-		if (m_panels.size() == 1)
-		{
-		}
-		// m_editor->GetPayloadManager().CreatePayloadPanel(*it, detachDelta);
+		m_dismissedTabs.push_back({node, true});
 	}
 
 } // namespace Lina::Editor

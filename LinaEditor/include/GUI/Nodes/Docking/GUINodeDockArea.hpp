@@ -50,16 +50,22 @@ namespace Lina::Editor
 	class GUINodeDockPreview;
 	class GUINodeTab;
 
+	struct DismissTabData
+	{
+		GUINodeTab* tab		 = nullptr;
+		bool		isDetach = false;
+	};
+
 	class GUINodeDockArea : public GUINodeDivisible
 	{
 	public:
 		GUINodeDockArea(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeDockArea() = default;
 
-		virtual void	Draw(int threadID) override;
-		void			AddPanel(GUINodePanel* panel);
-		void			RemovePanel(GUINodePanel* panel);
-		void			SetDockPreviewEnabled(bool enabled);
+		virtual void Draw(int threadID) override;
+		void		 AddPanel(GUINodePanel* panel);
+		void		 RemovePanel(GUINodePanel* panel);
+		void		 SetDockPreviewEnabled(bool enabled);
 
 		inline GUINodeDockPreview* GetDockPreview() const
 		{
@@ -87,14 +93,14 @@ namespace Lina::Editor
 		void OnTabDetached(GUINodeTab* node, const Vector2& detachDelta);
 
 	protected:
-		Vector<GUINodeTab*>	  m_dismissedTabs;
-		bool				  m_isAlone					= false;
-		bool				  m_isDockingPreviewEnabled = false;
-		Lina::Input*		  m_input					= nullptr;
-		Vector<GUINodePanel*> m_panels;
-		GUINodePanel*		  m_focusedPanel   = nullptr;
-		GUINodeTabArea*		  m_tabArea		   = nullptr;
-		GUINodeDockPreview*	  m_dockPreview	   = nullptr;
+		Vector<DismissTabData> m_dismissedTabs;
+		bool				   m_isAlone				 = false;
+		bool				   m_isDockingPreviewEnabled = false;
+		Lina::Input*		   m_input					 = nullptr;
+		Vector<GUINodePanel*>  m_panels;
+		GUINodePanel*		   m_focusedPanel = nullptr;
+		GUINodeTabArea*		   m_tabArea	  = nullptr;
+		GUINodeDockPreview*	   m_dockPreview  = nullptr;
 	};
 } // namespace Lina::Editor
 
