@@ -39,10 +39,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTitleSection::GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	GUINodeTitleSection::GUINodeTitleSection(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
-		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
-		m_windowButtons->SetCallbackDismissed([editor, swapchain, this](GUINode* node) { editor->CloseWindow(swapchain->GetSID()); });
+		m_windowButtons = new GUINodeWindowButtons(drawer, drawOrder);
+		m_windowButtons->SetCallbackDismissed([this](GUINode* node) { m_editor->CloseWindow(m_swapchain->GetSID()); });
 		AddChildren(m_windowButtons);
 	}
 
@@ -82,7 +82,7 @@ namespace Lina::Editor
 
 		// Title
 		{
-			const char* title = m_window->GetTitle().c_str();
+			const char*			title = m_window->GetTitle().c_str();
 			LinaVG::TextOptions opts;
 			opts.font			   = Theme::GetFont(FontType::TitleEditor, m_window->GetDPIScale());
 			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(title, opts));

@@ -40,10 +40,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeCustomLogo::GUINodeCustomLogo(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	GUINodeCustomLogo::GUINodeCustomLogo(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
 		m_sheetItems = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetResource<Texture>("Resources/Editor/Textures/TitleTextAnimation.png"_hs)->GetSheetItems(2, 14);
-		m_tooltip	 = new GUINodeTooltip(editor, swapchain);
+		m_tooltip	 = new GUINodeTooltip(drawer);
 
 		String tooltipText = "Lina Engine v" + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " Build: " + TO_STRING(LINA_BUILD);
 		m_tooltip->SetTitle(tooltipText.c_str());
@@ -69,7 +69,7 @@ namespace Lina::Editor
 		const Vector2i swapchainSize	= m_swapchain->GetSize();
 		const Vector2i itemSize			= m_sheetItems[0].size * 0.35f * m_window->GetDPIScale();
 		Vector2		   center			= Vector2(swapchainSize.x * 0.5f, itemSize.y * 0.5f + padding * 0.5f);
-		center							= center.Max(m_minPos + Vector2(itemSize.x * 0.5f + padding * 8, 0.0f));
+		center							= center.Max(m_minRect.pos + Vector2(itemSize.x * 0.5f + padding * 8, 0.0f));
 		m_rect.pos						= Vector2(center.x - itemSize.x * 0.5f - stretchedPadding, center.y - itemSize.y * 0.5f);
 		m_rect.size						= itemSize + Vector2(stretchedPadding * 2, 0.0f);
 

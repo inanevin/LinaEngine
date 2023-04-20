@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef CommonInput_HPP
@@ -36,20 +35,29 @@ SOFTWARE.
 
 namespace Lina
 {
-    enum class InputAction
-    {
-        Pressed  = 0,
-        Released = 1,
-        Repeated = 2
-    };
+	enum class InputAction
+	{
+		Pressed	 = 0,
+		Released = 1,
+		Repeated = 2
+	};
 
-    // Cursor Modes
-    enum class CursorMode
-    {
-        Visible  = 1 << 0,
-        Hidden   = 1 << 1,
-        Disabled = 1 << 2
-    };
-} // namespace Lina::Input
+	// Cursor Modes
+	enum class CursorMode
+	{
+		Visible	 = 1 << 0,
+		Hidden	 = 1 << 1,
+		Disabled = 1 << 2
+	};
+
+	enum class CursorType
+	{
+		None,
+		Default,
+		SizeHorizontal,
+		SizeVertical,
+	};
+
+} // namespace Lina
 
 #endif

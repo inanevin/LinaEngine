@@ -41,7 +41,8 @@ namespace Lina::Editor
 
 		for (auto c : m_children)
 		{
-			c->SetPos(pos)->Draw(threadID);
+			c->SetPos(pos);
+			c->Draw(threadID);
 			const Vector2 sz = c->GetRect().size;
 			pos.x += sz.x + m_spacing;
 			totalSize.x += sz.x + m_spacing;

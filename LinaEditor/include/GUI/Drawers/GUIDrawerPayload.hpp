@@ -51,7 +51,7 @@ namespace Lina::Editor
 		}
 
 	private:
-		PayloadType m_payloadType = PayloadType::Panel;
+		PayloadType m_payloadType = PayloadType::None;
 	};
 } // namespace Lina::Editor
 

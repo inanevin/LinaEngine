@@ -28,50 +28,53 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUINodeDockDivider_HPP
-#define GUINodeDockDivider_HPP
+#ifndef GUINodeDivider_HPP
+#define GUINodeDivider_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
-#include "Data/String.hpp"
-#include "Math/Color.hpp"
-#include "Data/Functional.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodeDockArea;
+	class GUINodeDivisible;
 
-	class GUINodeDockDivider : public GUINode
+	class GUINodeDivider : public GUINode
 	{
 	public:
-		GUINodeDockDivider(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
-		virtual ~GUINodeDockDivider() = default;
+		GUINodeDivider(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
+		virtual ~GUINodeDivider() = default;
 
 		virtual void Draw(int threadID) override;
+		virtual void OnHoverBegin() override;
+		virtual void OnHoverEnd() override;
+		virtual void OnDragEnd() override;
+		void		 PreDestroy(GUINodeDivisible* divisible);
+		void		 AddPositiveNode(GUINodeDivisible* node);
+		void		 AddNegativeNode(GUINodeDivisible* node);
+		void		 RemovePositiveNode(GUINodeDivisible* node);
+		void		 RemoveNegativeNode(GUINodeDivisible* node);
+		bool		 IsOnPositiveSide(GUINodeDivisible* div);
 
-		inline GUINodeDockDivider* SetDefaultColor(const Color& color)
+		inline void SetDragDirection(Direction dir)
 		{
-			m_defaultColor = color;
-			return this;
+			m_dragDirection = dir;
 		}
 
-		inline GUINodeDockDivider* SetDragDirection(DragDirection dragDir)
+		inline const Vector<GUINodeDivisible*>& GetPositiveNodes() const
 		{
-			m_dragDirection = dragDir;
-			return this;
+			return m_positiveNodes;
 		}
 
-		inline GUINodeDockDivider* AddDockAreaPositiveSide(GUINodeDockArea* area);
-		inline GUINodeDockDivider* AddDockAreaNegativeSide(GUINodeDockArea* area);
-		inline GUINodeDockDivider* RemoveDockAreaPositiveSide(GUINodeDockArea* area);
-		inline GUINodeDockDivider* RemoveDockAreaNegativeSide(GUINodeDockArea* area);
+		inline const Vector<GUINodeDivisible*>& GetNegativeNodes() const
+		{
+			return m_negativeNodes;
+		}
 
 	private:
-		DragDirection			 m_dragDirection	= DragDirection::None;
-		Color					 m_defaultColor;
-		bool					 m_pressRecorded = false;
-		Vector<GUINodeDockArea*> m_positiveSideDockAreas;
-		Vector<GUINodeDockArea*> m_negativeSideDockAreas;
+		Direction				  m_dragDirection = Direction::Horizontal;
+		Vector<GUINodeDivisible*> m_positiveNodes;
+		Vector<GUINodeDivisible*> m_negativeNodes;
 	};
 
 } // namespace Lina::Editor

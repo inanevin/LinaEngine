@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/Bitmask.hpp"
 #include "Core/Common.hpp"
 #include "Data/String.hpp"
+#include "Input/Core/CommonInput.hpp"
 
 namespace Lina
 {
@@ -67,6 +68,7 @@ namespace Lina
 		virtual void SetMouseFocus(bool focused)														= 0;
 		virtual void SetInputPassthrough(bool isInputPassThrough)										= 0;
 		virtual void HandleMove()																		= 0;
+		virtual void SetCursorType(CursorType type)														= 0;
 
 		virtual void SetToWorkingArea() = 0;
 		virtual void SetToFullscreen()	= 0;
@@ -181,6 +183,11 @@ namespace Lina
 			return m_mousePosition;
 		}
 
+		inline const Vector2i& GetMouseDelta() const
+		{
+			return m_mouseDelta;
+		}
+
 		inline bool GetIsTransparent() const
 		{
 			return m_isTransparent;
@@ -195,7 +202,9 @@ namespace Lina
 		}
 
 	protected:
+		CursorType		 m_cursorType	   = CursorType::None;
 		Vector2i		 m_mousePosition   = Vector2i::Zero;
+		Vector2i		 m_mouseDelta	   = Vector2i::Zero;
 		SurfaceRenderer* m_surfaceRenderer = nullptr;
 		MonitorInfo		 m_monitorInfo;
 		ISystem*		 m_system			  = nullptr;

@@ -58,6 +58,7 @@ namespace Lina::Editor
 	{
 		MenuButtonPadding,
 		GeneralItemPadding,
+		DockDividerThickness,
 	};
 
 #define TI_CARET_DOWN	   "\u0041"
@@ -83,9 +84,10 @@ namespace Lina::Editor
 		static float			   GetProperty(ThemeProperty prop, float dpiScale);
 
 		static Color TC_White;
-		static Color TC_VerySilent;
-		static Color TC_HalfSilent;
-		static Color TC_Silent;
+		static Color TC_Silent0;
+		static Color TC_Silent3;
+		static Color TC_Silent1;
+		static Color TC_Silent2;
 		static Color TC_SilentTransparent;
 		static Color TC_CyanAccent;
 		static Color TC_RedAccent;

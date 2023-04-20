@@ -40,7 +40,7 @@ namespace Lina::Editor
 	class GUINodeTitleSection : public GUINode
 	{
 	public:
-		GUINodeTitleSection(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeTitleSection(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeTitleSection() = default;
 
 		virtual void Draw(int threadID) override;

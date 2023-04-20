@@ -41,7 +41,7 @@ namespace Lina::Editor
 	class GUINodeCustomLogo : public GUINode
 	{
 	public:
-		GUINodeCustomLogo(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeCustomLogo(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeCustomLogo() = default;
 
 		virtual void Draw(int threadID) override;

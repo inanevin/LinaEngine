@@ -255,15 +255,56 @@ namespace Lina::Editor
 		if (!isDragging && m_draggedWindow && m_draggedWindow->GetIsTransparent())
 			m_draggedWindow->SetAlpha(1.0f);
 
-		m_draggedWindow = isDragging ? owner->GetWindow() : nullptr;
+		// Only single dock area windows can be docked to others.
+		if (!owner->GetDockAreas()[0]->GetIsAlone())
+		{
+			m_draggedWindow = isDragging ? owner->GetWindow() : nullptr;
+			return;
+		}
+
+		GUIDrawerBase*	 drawerToDock	  = nullptr;
+		GUINodeDockArea* splittedDockArea = nullptr;
+		DockSplitType	 split			  = DockSplitType::None;
 
 		for (auto [sid, drawer] : m_guiDrawers)
 		{
 			if (owner == drawer)
 				continue;
 
+			if (drawerToDock == nullptr)
+			{
+				split = drawer->GetDockPreview()->GetCurrentSplitType();
+				if (split != DockSplitType::None)
+				{
+					drawerToDock = drawer;
+				}
+				else
+				{
+					const auto& dockAreas = drawer->GetDockAreas();
+					for (auto d : dockAreas)
+					{
+						split = d->GetDockPreview()->GetCurrentSplitType();
+						if (split != DockSplitType::None)
+						{
+							drawerToDock	 = drawer;
+							splittedDockArea = d;
+							break;
+						}
+					}
+				}
+			}
+
 			drawer->SetDockPreviewEnabled(isDragging);
 		}
+
+		if (drawerToDock)
+		{
+			drawerToDock->SplitDockArea(splittedDockArea, split, owner->GetFirstDockArea()->GetFirstPanel());
+			CloseWindow(m_draggedWindow->GetSID());
+			m_draggedWindow = nullptr;
+		}
+		else
+			m_draggedWindow = isDragging ? owner->GetWindow() : nullptr;
 	}
 
 } // namespace Lina::Editor

@@ -43,7 +43,7 @@ namespace Lina::Editor
 	class GUINodePanel : public GUINode
 	{
 	public:
-		GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea);
+		GUINodePanel(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea);
 		virtual ~GUINodePanel() = default;
 		virtual void Draw(int threadID);
 

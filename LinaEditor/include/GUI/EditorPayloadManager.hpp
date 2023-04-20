@@ -56,7 +56,6 @@ namespace Lina::Editor
 		void Initialize();
 		void Tick();
 		void Shutdown();
-		void CreatePayloadPanel(GUINodePanel* panel, const Vector2& delta);
 
 	private:
 		Editor*			  m_editor		  = nullptr;

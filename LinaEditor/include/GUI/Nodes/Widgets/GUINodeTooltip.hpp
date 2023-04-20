@@ -40,7 +40,7 @@ namespace Lina::Editor
 	class GUINodeTooltip : public GUINode
 	{
 	public:
-		GUINodeTooltip(Editor* editor, ISwapchain* swapchain);
+		GUINodeTooltip(GUIDrawerBase* drawer);
 		virtual ~GUINodeTooltip() = default;
 
 		virtual void Draw(int threadID) override;

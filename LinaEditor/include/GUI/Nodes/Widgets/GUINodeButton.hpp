@@ -47,91 +47,80 @@ namespace Lina::Editor
 	class GUINodeButton : public GUINode
 	{
 	public:
-		GUINodeButton(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		GUINodeButton(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
 		virtual ~GUINodeButton() = default;
 
 		virtual void	Draw(int threadID) override;
 		virtual void	OnClicked(uint32 button) override;
 		virtual Vector2 CalculateSize() override;
 
-		inline GUINodeButton* SetFontType(FontType ft)
+		inline void SetFontType(FontType ft)
 		{
 			m_fontType = ft;
-			return this;
 		}
 
-		inline GUINodeButton* SetTextColor(const Color& color)
+		inline void SetTextColor(const Color& color)
 		{
 			m_textColor = color;
-			return this;
 		}
 
-		inline GUINodeButton* SetDefaultColor(const Color& col)
+		inline void SetDefaultColor(const Color& col)
 		{
 			m_defaultColor = col;
-			return this;
 		}
 
-		inline GUINodeButton* SetHoveredColor(const Color& col)
+		inline void SetHoveredColor(const Color& col)
 		{
 			m_hoveredColor = col;
-			return this;
 		}
 
-		inline GUINodeButton* SetPressedColor(const Color& col)
+		inline void SetPressedColor(const Color& col)
 		{
 			m_pressedColor = col;
-			return this;
 		}
 
-		inline GUINodeButton* SetOutlineColor(const Color& col)
+		inline void SetOutlineColor(const Color& col)
 		{
 			m_outlineColor = col;
-			return this;
 		}
 
-		inline GUINodeButton* SetEnableHoverOutline(bool enableOutline)
+		inline void SetEnableHoverOutline(bool enableOutline)
 		{
 			m_enableHoverOutline = enableOutline;
-			return this;
 		}
 
-		inline GUINodeButton* SetFitType(ButtonFitType ft)
+		inline void SetFitType(ButtonFitType ft)
 		{
 			m_fitType = ft;
-			return this;
 		}
 
-		inline GUINodeButton* SetRounding(float rounding)
+		inline void SetRounding(float rounding)
 		{
 			m_rounding = rounding;
-			return this;
 		}
 
-		inline GUINodeButton* SetIsIcon(bool isIcon)
+		inline void SetIsIcon(bool isIcon)
 		{
 			m_isIcon = isIcon;
-			return this;
 		}
 
-		inline GUINodeButton* SetTextScale(float scale)
+		inline void SetTextScale(float scale)
 		{
 			m_textScale = scale;
-			return this;
 		}
 
 	protected:
-		float						   m_rounding			= 0.1f;
-		float						   m_textScale			= 1.0f;
-		bool						   m_enableHoverOutline = false;
-		bool						   m_isIcon				= false;
-		ButtonFitType				   m_fitType			= ButtonFitType::None;
-		FontType					   m_fontType			= FontType::DefaultEditor;
-		Color						   m_defaultColor		= Color::White;
-		Color						   m_hoveredColor		= Color::Gray;
-		Color						   m_pressedColor		= Color::Black;
-		Color						   m_outlineColor		= Color::Black;
-		Color						   m_textColor			= Color::White;
+		float		  m_rounding		   = 0.1f;
+		float		  m_textScale		   = 1.0f;
+		bool		  m_enableHoverOutline = false;
+		bool		  m_isIcon			   = false;
+		ButtonFitType m_fitType			   = ButtonFitType::None;
+		FontType	  m_fontType		   = FontType::DefaultEditor;
+		Color		  m_defaultColor	   = Color::White;
+		Color		  m_hoveredColor	   = Color::Gray;
+		Color		  m_pressedColor	   = Color::Black;
+		Color		  m_outlineColor	   = Color::Black;
+		Color		  m_textColor		   = Color::White;
 	};
 
 } // namespace Lina::Editor

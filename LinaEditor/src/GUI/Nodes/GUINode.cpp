@@ -33,12 +33,16 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
+#include "GUI/Drawers/GUIDrawerBase.hpp"
 
 namespace Lina::Editor
 {
-	GUINode::GUINode(Editor* editor, ISwapchain* swapchain, int drawOrder) : m_editor(editor), m_swapchain(swapchain), m_drawOrder(drawOrder)
+	GUINode::GUINode(GUIDrawerBase* drawer, int drawOrder) : m_drawOrder(drawOrder)
 	{
-		m_window = m_swapchain->GetWindow();
+		m_drawer	= drawer;
+		m_swapchain = m_drawer->GetSwapchain();
+		m_editor	= m_drawer->GetEditor();
+		m_window	= m_swapchain->GetWindow();
 	}
 
 	GUINode::~GUINode()
@@ -86,19 +90,20 @@ namespace Lina::Editor
 					m_isPressed			  = true;
 					m_isDragging		  = true;
 					m_dragStartMousePos	  = m_window->GetMousePosition();
-					m_dragStartMouseDelta = m_dragStartMousePos - Vector2i(m_rect.pos);
+					m_dragStartMouseDelta = Vector2(m_dragStartMousePos) - m_rect.pos;
 				}
 			}
 			else if (action == InputAction::Released)
 			{
 				if (lastPressedNode == this && GetIsHovered())
 				{
-					OnClicked(LINA_MOUSE_0);
 					lastPressedNode = nullptr;
+					OnClicked(LINA_MOUSE_0);
 				}
 
 				m_isPressed	 = false;
 				m_isDragging = false;
+				OnDragEnd();
 			}
 		}
 		else
@@ -129,6 +134,7 @@ namespace Lina::Editor
 	void GUINode::OnLostFocus()
 	{
 		m_isPressed = m_isHovered = m_isDragging = false;
+		OnDragEnd();
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)

@@ -81,29 +81,8 @@ namespace Lina::Editor
 		if (!m_input->GetMouseButton(LINA_MOUSE_0))
 		{
 			const auto& drawers = m_editor->GetGUIDrawers();
-
 			bool payloadAccepted = false;
-
-			if (m_currentPayloadType == PayloadType::Panel)
-			{
-				for (auto [sid, d] : drawers)
-				{
-					const bool acc = d->OnPayloadDropped(PayloadType::Panel, static_cast<void*>(&m_currentPayloadPanel));
-					if (acc)
-						payloadAccepted = true;
-				}
-
-				// Remove panel from payload window, only delete if wasn't accepted.
-				m_guiDrawer->GetFirstDockArea()->RemovePanel(m_currentPayloadPanel.onFlightPanel, !payloadAccepted, false);
-
-				// If accepted, remove the original panel from original dock area.
-				if (payloadAccepted)
-					m_currentPayloadPanel.ownerDockArea->RemovePanel(m_currentPayloadPanel.srcPanel, true, true);
-
-				m_window->SetVisible(false);
-				m_currentPayloadType  = PayloadType::None;
-				m_currentPayloadPanel = PayloadDataPanel();
-			}
+			// TODO: drop payload
 		}
 	}
 
@@ -111,25 +90,6 @@ namespace Lina::Editor
 	{
 		delete m_guiDrawer;
 		m_windowManager->DestroyAppWindow(EDITOR_PAYLOAD_WINDOW_SID);
-	}
-
-	void EditorPayloadManager::CreatePayloadPanel(GUINodePanel* panel, const Vector2& delta)
-	{
-		const auto& drawers = m_editor->GetGUIDrawers();
-
-		m_currentPayloadPanel				= PayloadDataPanel();
-		m_currentPayloadPanel.onFlightPanel = GUIPanelFactory::CreatePanel(panel->GetPanelType(), m_guiDrawer->GetFirstDockArea(), panel->GetTitle(), panel->GetSID());
-		m_currentPayloadPanel.srcPanel		= panel;
-		m_currentPayloadPanel.ownerDockArea = panel->GetDockArea();
-
-		m_guiDrawer->GetFirstDockArea()->AddPanel(m_currentPayloadPanel.onFlightPanel);
-
-		m_currentPayloadDelta = delta;
-		m_currentPayloadType  = PayloadType::Panel;
-		m_guiDrawer->SetPayloadType(m_currentPayloadType);
-
-		for (auto [sid, d] : drawers)
-			d->OnPayloadCreated(PayloadType::Panel, static_cast<void*>(&m_currentPayloadPanel));
 	}
 
 } // namespace Lina::Editor

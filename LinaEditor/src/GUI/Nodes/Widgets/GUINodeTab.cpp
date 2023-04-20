@@ -43,7 +43,7 @@ namespace Lina::Editor
 #define OFFSET_FROM_END 0.9f
 #define CLOSEBUT_SPEED	25.0f
 
-	GUINodeTab::GUINodeTab(Editor* editor, ISwapchain* swapchain, GUINodeTabArea* area, int drawOrder) : m_parentArea(area), GUINode(editor, swapchain, drawOrder)
+	GUINodeTab::GUINodeTab(GUIDrawerBase* drawer, GUINodeTabArea* area, int drawOrder) : m_parentArea(area), GUINode(drawer, drawOrder)
 	{
 	}
 
@@ -101,7 +101,7 @@ namespace Lina::Editor
 			const Vector2 deltaPress  = mousePosNow - Vector2(m_dragStartMousePos);
 
 			if (m_isReorderEnabled)
-				m_rect.pos.x = deltaPress.x;
+				m_rect.pos.x += m_window->GetMouseDelta().x;
 
 			if (m_isPanelTabs)
 			{

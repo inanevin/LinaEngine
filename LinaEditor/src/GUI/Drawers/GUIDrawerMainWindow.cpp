@@ -41,7 +41,7 @@ namespace Lina::Editor
 	GUIDrawerMainWindow::GUIDrawerMainWindow(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
 	{
 		m_editor   = editor;
-		m_topPanel = new GUINodeTopPanel(m_editor, m_swapchain, 0);
+		m_topPanel = new GUINodeTopPanel(this,  0);
 		m_root->AddChildren(m_topPanel);
 	}
 

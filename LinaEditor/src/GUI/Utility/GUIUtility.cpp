@@ -91,7 +91,7 @@ namespace Lina::Editor
 		LinaVG::StyleOptions bg;
 		bg.color						= LV4(Theme::TC_Dark1);
 		bg.outlineOptions.thickness		= borderThickness;
-		bg.outlineOptions.color			= LV4(Theme::TC_VerySilent);
+		bg.outlineOptions.color			= LV4(Theme::TC_Silent0);
 		bg.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
 		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
 	}

@@ -54,7 +54,7 @@ namespace Lina::Editor
 	class GUINodeFMPopupElement : public GUINode
 	{
 	public:
-		GUINodeFMPopupElement(Editor* editor, ISwapchain* swapchain, int drawOrder, FMPopupElementType type) : m_type(type), GUINode(editor, swapchain, drawOrder){};
+		GUINodeFMPopupElement(GUIDrawerBase* drawer, int drawOrder, FMPopupElementType type) : m_type(type), GUINode(drawer, drawOrder){};
 		virtual ~GUINodeFMPopupElement() = default;
 
 		virtual void	Draw(int threadID) override;
@@ -79,7 +79,7 @@ namespace Lina::Editor
 	class GUINodeFMPopupElementDivider : public GUINodeFMPopupElement
 	{
 	public:
-		GUINodeFMPopupElementDivider(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINodeFMPopupElement(editor, swapchain, drawOrder, FMPopupElementType::Divider){};
+		GUINodeFMPopupElementDivider(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Divider){};
 		virtual ~GUINodeFMPopupElementDivider() = default;
 		virtual void	Draw(int threadID) override;
 		virtual Vector2 CalculateSize() override;
@@ -89,16 +89,15 @@ namespace Lina::Editor
 	class GUINodeFMPopupElementToggle : public GUINodeFMPopupElement
 	{
 	public:
-		GUINodeFMPopupElementToggle(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINodeFMPopupElement(editor, swapchain, drawOrder, FMPopupElementType::Toggle){};
+		GUINodeFMPopupElementToggle(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Toggle){};
 		virtual ~GUINodeFMPopupElementToggle() = default;
 		virtual void	Draw(int threadID) override;
 		virtual Vector2 CalculateSize() override;
 		virtual void	OnClicked(uint32 button) override;
 
-		inline GUINodeFMPopupElementToggle* SetValue(bool val)
+		inline void SetValue(bool val)
 		{
 			m_value = val;
-			return this;
 		}
 
 	protected:
@@ -110,16 +109,15 @@ namespace Lina::Editor
 	class GUINodeFMPopupElementExpandable : public GUINodeFMPopupElement
 	{
 	public:
-		GUINodeFMPopupElementExpandable(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINodeFMPopupElement(editor, swapchain, drawOrder, FMPopupElementType::Expandable){};
+		GUINodeFMPopupElementExpandable(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Expandable){};
 		virtual ~GUINodeFMPopupElementExpandable() = default;
 		virtual void	Draw(int threadID) override;
 		virtual Vector2 CalculateSize() override;
 		virtual void	OnClicked(uint32 button) override{};
 
-		inline GUINodeFMPopupElementExpandable* SetExpandedPopup(GUINodeFMPopup* popup)
+		inline void SetExpandedPopup(GUINodeFMPopup* popup)
 		{
 			m_popup = popup;
-			return this;
 		}
 
 	protected:
@@ -130,7 +128,7 @@ namespace Lina::Editor
 	class GUINodeFMPopup : public GUINode
 	{
 	public:
-		GUINodeFMPopup(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeFMPopup(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeFMPopup() = default;
 
 		virtual void	Draw(int threadID) override;
@@ -172,7 +170,7 @@ namespace Lina::Editor
 	class GUINodeFileMenu : public GUINode
 	{
 	public:
-		GUINodeFileMenu(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeFileMenu(GUIDrawerBase* drawer, int drawOrder);
 
 		virtual ~GUINodeFileMenu() = default;
 

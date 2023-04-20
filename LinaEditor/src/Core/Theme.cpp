@@ -33,10 +33,11 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	Color Theme::TC_White			  = Color(0.95f, 0.95f, 0.95f, 1.0f);
-	Color Theme::TC_HalfSilent		  = Color(0.5f, 0.5f, 0.5f, 1.0f);
-	Color Theme::TC_Silent			  = Color(0.1f, 0.1f, 0.1f, 1.0f);
+	Color Theme::TC_Silent3			  = Color(0.5f, 0.5f, 0.5f, 1.0f);
+	Color Theme::TC_Silent1			  = Color(0.05f, 0.05f, 0.05f, 1.0f);
+	Color Theme::TC_Silent2			  = Color(0.1f, 0.1f, 0.1f, 1.0f);
 	Color Theme::TC_SilentTransparent = Color(1.0f, 1.0f, 1.0f, 0.1f);
-	Color Theme::TC_VerySilent		  = Color(0.02f, 0.02f, 0.02f, 1.0f);
+	Color Theme::TC_Silent0			  = Color(0.02f, 0.02f, 0.02f, 1.0f);
 	Color Theme::TC_CyanAccent		  = Color(40.0f, 101.0f, 255.0f, 255.0f, true);
 	Color Theme::TC_RedAccent		  = Color(256.0f, 0.0f, 25.0f, 255.0f, true);
 	Color Theme::TC_PurpleAccent	  = Color(255.0f, 71.0f, 193.0f, 255.0f, true);
@@ -76,7 +77,7 @@ namespace Lina::Editor
 		}
 		else if (font == FontType::TitleEditor)
 		{
-		if (dpiScale < 1.1f)
+			if (dpiScale < 1.1f)
 				sid = "Resources/Core/Fonts/WorkSans-Regular_1x.ttf"_hs;
 			else if (dpiScale < 1.15f)
 				sid = "Resources/Core/Fonts/WorkSans-Regular_2x.ttf"_hs;
@@ -118,6 +119,8 @@ namespace Lina::Editor
 			return 15.0f * multiplier;
 		case ThemeProperty::GeneralItemPadding:
 			return 12.0f * multiplier;
+		case ThemeProperty::DockDividerThickness:
+			return 2.0f * multiplier;
 		default:
 			return 1.0f;
 		}

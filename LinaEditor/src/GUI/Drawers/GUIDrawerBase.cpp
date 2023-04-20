@@ -36,11 +36,14 @@ SOFTWARE.
 #include "GUI/Nodes/GUINode.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
-#include "GUI/Nodes/Docking/GUINodeDockDivider.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
+#include "GUI/Nodes/Layouts/GUINodeDivider.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "Input/Core/InputMappings.hpp"
 #include "Core/Editor.hpp"
+#include "Math/Math.hpp"
+#include "Data/CommonData.hpp"
 
 using namespace Lina;
 
@@ -48,15 +51,15 @@ namespace Lina::Editor
 {
 	GUIDrawerBase::GUIDrawerBase(Editor* editor, ISwapchain* swap) : m_editor(editor), IGUIDrawer(swap)
 	{
-		m_root = new GUINode(editor, swap, 0);
+		m_root = new GUINode(this, 0);
 		m_sid  = swap->GetWindow()->GetSID();
 
-		auto dockArea = new GUINodeDockArea(this, m_editor, m_swapchain, 0);
+		auto dockArea = new GUINodeDockArea(this, 0);
 		dockArea->SetSplitRect(Rect(Vector2::Zero, Vector2::One));
 		m_dockAreas.push_back(dockArea);
 		m_root->AddChildren(m_dockAreas[0]);
 
-		m_dockPreview = new GUINodeDockPreview(m_editor, m_swapchain, FRONT_DRAW_ORDER);
+		m_dockPreview = new GUINodeDockPreview(this, FRONT_DRAW_ORDER);
 		m_dockPreview->SetIsOuterPreview(true);
 		m_dockPreview->SetVisible(false);
 		m_root->AddChildren(m_dockPreview);
@@ -105,14 +108,16 @@ namespace Lina::Editor
 			// Switched to non-hovering from hover
 			m_hoveredNode->m_isHovered = false;
 			m_hoveredNode->m_isPressed = false;
-			m_hoveredNode			   = nullptr;
+			m_hoveredNode->OnHoverEnd();
+			m_hoveredNode = nullptr;
 		}
 		else if (hoveredNode && m_hoveredNode && hoveredNode != m_hoveredNode)
 		{
 			// Swithed hovering nodes
 			m_hoveredNode->m_isHovered = false;
 			m_hoveredNode->m_isPressed = false;
-			m_hoveredNode			   = nullptr;
+			m_hoveredNode->OnHoverEnd();
+			m_hoveredNode = nullptr;
 
 			if (!m_mouseDisablingNode)
 				m_hoveredNode = hoveredNode;
@@ -124,22 +129,12 @@ namespace Lina::Editor
 		}
 
 		if (m_hoveredNode)
-			m_hoveredNode->m_isHovered = true;
+		{
+			if (!m_hoveredNode->m_isHovered)
+				m_hoveredNode->OnHoverBegin();
 
-		// m_hoveredNode = GetHovered(m_root);
-		//
-		// m_pressingNode = m_hoveredNode && m_hoveredNode->GetIsPressed() ? m_hoveredNode : nullptr;
-		//
-		// if (m_previousHovered && m_previousHovered != m_hoveredNode)
-		// {
-		// 	m_previousHovered->m_isHovered = false;
-		// 	m_previousHovered->m_isPressed = false;
-		// }
-		//
-		// if (m_hoveredNode != nullptr)
-		// 	m_hoveredNode->m_isHovered = true;
-		//
-		// m_previousHovered = m_hoveredNode;
+			m_hoveredNode->m_isHovered = true;
+		}
 	}
 
 	void GUIDrawerBase::OnMouseMove(const Vector2i& pos)
@@ -155,6 +150,7 @@ namespace Lina::Editor
 	{
 		if (m_hoveredNode)
 		{
+			m_hoveredNode->OnHoverEnd();
 			m_hoveredNode->m_isHovered = false;
 			m_hoveredNode->m_isPressed = false;
 		}
@@ -167,6 +163,15 @@ namespace Lina::Editor
 	void GUIDrawerBase::OnWindowDrag(bool isDragging)
 	{
 		m_editor->OnWindowDrag(this, isDragging);
+	}
+
+	void GUIDrawerBase::OnNodeDeleted(GUINode* node)
+	{
+		if (m_hoveredNode == node)
+		{
+			m_hoveredNode		 = nullptr;
+			m_mouseDisablingNode = nullptr;
+		}
 	}
 
 	void GUIDrawerBase::SetDockPreviewEnabled(bool enabled)
@@ -184,92 +189,226 @@ namespace Lina::Editor
 			m_dockPreview->SetVisible(false);
 		}
 
-		for(auto n : m_dockAreas)
+		for (auto n : m_dockAreas)
 			n->SetDockPreviewEnabled(enabled);
 	}
 
 	void GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel)
 	{
-		float			 split	 = 0.5f;
-		GUINodeDockArea* newArea = new GUINodeDockArea(this, m_editor, m_swapchain, 0);
-		m_root->AddChildren(newArea);
-		m_dockAreas.push_back(newArea);
-		area->SetSplittedArea(newArea);
-
-		const auto&			currentAreaDividers = area->GetDividers();
-		GUINodeDockDivider* divider				= new GUINodeDockDivider(m_editor, m_swapchain, FRONT_DRAW_ORDER);
-		divider->SetDefaultColor(Theme::TC_Dark1);
-
-		const Rect currentAreaRect	= area->GetRect();
-		Rect	   currentSplitRect = area->GetSplitRect();
-		Rect	   newAreaSplitRect = Rect();
-
-		if (type == DockSplitType::Left || type == DockSplitType::Right)
+		if (type == DockSplitType::Tab)
 		{
-			divider->SetDragDirection(DragDirection::Horizontal);
+			// ez.
+			return;
+		}
 
-			if (currentAreaDividers.contains(DockSplitType::Up))
-				newArea->SetDivider(DockSplitType::Up, currentAreaDividers.at(DockSplitType::Up));
+		GUINodeDockArea* newArea = new GUINodeDockArea(this, 0);
+		GUINodeDivider*	 divider = new GUINodeDivider(this, FRONT_DRAW_ORDER);
 
-			if (currentAreaDividers.contains(DockSplitType::Down))
-				newArea->SetDivider(DockSplitType::Down, currentAreaDividers.at(DockSplitType::Down));
+		// Setup
+		{
+			divider->SetDragDirection((type == DockSplitType::Left || type == DockSplitType::Right) ? Direction::Horizontal : Direction::Vertical);
+			m_root->AddChildren(divider);
+			m_root->AddChildren(newArea);
+			m_dividers.push_back(divider);
+			m_dockAreas.push_back(newArea);
+			newArea->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), newArea, panel->GetTitle(), panel->GetSID()));
+		}
+
+		if (area != nullptr)
+		{
+			Rect  currentSplitRect = area->GetSplitRect();
+			Rect  newAreaSplitRect = Rect();
+			float split			   = 0.0f;
+
+			if (type == DockSplitType::Left)
+			{
+				split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
+				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
+				currentSplitRect.pos.x += split;
+				currentSplitRect.size.x -= split;
+
+				// Replace existing divider's data.
+				{
+					auto* existingLeftDivider = area->GetDivider(DockSplitType::Left);
+					if (existingLeftDivider)
+					{
+						existingLeftDivider->RemovePositiveNode(area);
+						existingLeftDivider->AddPositiveNode(newArea);
+						newArea->SetDivider(DockSplitType::Left, existingLeftDivider);
+					}
+				}
+
+				// Setup currently created divider
+				{
+					divider->AddPositiveNode(area);
+					divider->AddNegativeNode(newArea);
+					area->SetDivider(DockSplitType::Left, divider);
+					newArea->SetDivider(DockSplitType::Right, divider);
+				}
+
+				// Copy other direction's existing dividers
+				{
+					auto* existingUpDivider	  = area->GetDivider(DockSplitType::Up);
+					auto* existingDownDivider = area->GetDivider(DockSplitType::Down);
+					newArea->SetDivider(DockSplitType::Up, existingUpDivider);
+					newArea->SetDivider(DockSplitType::Down, existingDownDivider);
+					if (existingUpDivider)
+						existingUpDivider->AddPositiveNode(newArea);
+					if (existingDownDivider)
+						existingDownDivider->AddNegativeNode(newArea);
+				}
+			}
+			else if (type == DockSplitType::Right)
+			{
+				split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
+				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x + currentSplitRect.size.x - split, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
+				currentSplitRect.size.x -= split;
+
+				// Replace existing divider's data.
+				{
+					auto* existingRightDivider = area->GetDivider(DockSplitType::Right);
+					if (existingRightDivider)
+					{
+						existingRightDivider->RemoveNegativeNode(area);
+						existingRightDivider->AddNegativeNode(newArea);
+						newArea->SetDivider(DockSplitType::Right, existingRightDivider);
+					}
+				}
+
+				// Setup currently created divider
+				{
+					divider->AddPositiveNode(newArea);
+					divider->AddNegativeNode(area);
+					area->SetDivider(DockSplitType::Right, divider);
+					newArea->SetDivider(DockSplitType::Left, divider);
+				}
+
+				// Copy other direction's existing dividers
+				{
+					auto* existingUpDivider	  = area->GetDivider(DockSplitType::Up);
+					auto* existingDownDivider = area->GetDivider(DockSplitType::Down);
+					newArea->SetDivider(DockSplitType::Up, existingUpDivider);
+					newArea->SetDivider(DockSplitType::Down, existingDownDivider);
+					if (existingUpDivider)
+						existingUpDivider->AddPositiveNode(newArea);
+					if (existingDownDivider)
+						existingDownDivider->AddNegativeNode(newArea);
+				}
+			}
+			else if (type == DockSplitType::Up)
+			{
+				split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
+				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(currentSplitRect.size.x, split));
+				currentSplitRect.size.y -= split;
+				currentSplitRect.pos.y += split;
+
+				// Replace existing divider's data.
+				{
+					auto* existingUpDivider = area->GetDivider(DockSplitType::Up);
+					if (existingUpDivider)
+					{
+						existingUpDivider->RemovePositiveNode(area);
+						existingUpDivider->AddPositiveNode(newArea);
+						newArea->SetDivider(DockSplitType::Up, existingUpDivider);
+					}
+				}
+
+				// Setup currently created divider
+				{
+					divider->AddPositiveNode(area);
+					divider->AddNegativeNode(newArea);
+					area->SetDivider(DockSplitType::Up, divider);
+					newArea->SetDivider(DockSplitType::Down, divider);
+				}
+
+				// Copy other direction's existing dividers
+				{
+					auto* existingLeftDivider  = area->GetDivider(DockSplitType::Left);
+					auto* existingRightDivider = area->GetDivider(DockSplitType::Right);
+					newArea->SetDivider(DockSplitType::Left, existingLeftDivider);
+					newArea->SetDivider(DockSplitType::Right, existingRightDivider);
+					if (existingLeftDivider)
+						existingLeftDivider->AddPositiveNode(newArea);
+					if (existingRightDivider)
+						existingRightDivider->AddNegativeNode(newArea);
+				}
+			}
+			else if (type == DockSplitType::Down)
+			{
+				split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
+				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y + currentSplitRect.size.y - split), Vector2(currentSplitRect.size.x, split));
+				currentSplitRect.size.y -= split;
+
+				// Replace existing divider's data.
+				{
+					auto* existingDownDivider = area->GetDivider(DockSplitType::Down);
+					if (existingDownDivider)
+					{
+						existingDownDivider->RemoveNegativeNode(area);
+						existingDownDivider->AddNegativeNode(newArea);
+						newArea->SetDivider(DockSplitType::Down, existingDownDivider);
+					}
+				}
+
+				// Setup currently created divider
+				{
+					divider->AddPositiveNode(newArea);
+					divider->AddNegativeNode(area);
+					area->SetDivider(DockSplitType::Down, divider);
+					newArea->SetDivider(DockSplitType::Up, divider);
+				}
+
+				// Copy other direction's existing dividers
+				{
+					auto* existingLeftDivider  = area->GetDivider(DockSplitType::Left);
+					auto* existingRightDivider = area->GetDivider(DockSplitType::Right);
+					newArea->SetDivider(DockSplitType::Left, existingLeftDivider);
+					newArea->SetDivider(DockSplitType::Right, existingRightDivider);
+					if (existingLeftDivider)
+						existingLeftDivider->AddPositiveNode(newArea);
+					if (existingRightDivider)
+						existingRightDivider->AddNegativeNode(newArea);
+				}
+			}
+
+			area->SetSplitRect(currentSplitRect);
+			newArea->SetSplitRect(newAreaSplitRect);
 		}
 		else
 		{
-			divider->SetDragDirection(DragDirection::Vertical);
+			Vector<GUINodeDockArea*> areas;
+			const float				 split = EDITOR_DEFAULT_DOCK_SPLIT_OUTER;
+			Rect					 newAreaSplitRect;
 
-			if (currentAreaDividers.contains(DockSplitType::Left))
-				newArea->SetDivider(DockSplitType::Left, currentAreaDividers.at(DockSplitType::Left));
+			// we are not splitting an existing area, but rather creating one on the outer skirts.
+			if (type == DockSplitType::Left)
+			{
+				divider->AddNegativeNode(newArea);
+				newArea->SetDivider(DockSplitType::Right, divider);
+				newAreaSplitRect.pos  = Vector2::Zero;
+				newAreaSplitRect.size = Vector2(split, m_availableDockRect.size.y);
 
-			if (currentAreaDividers.contains(DockSplitType::Right))
-				newArea->SetDivider(DockSplitType::Right, currentAreaDividers.at(DockSplitType::Right));
+				// Find all areas on border
+				for (auto d : m_dockAreas)
+				{
+					if (d == newArea)
+						continue;
+
+					if (Math::Equals(d->GetSplitRect().pos.x, 0.0f, 0.001f))
+					{
+						divider->AddPositiveNode(d);
+						d->SetDivider(DockSplitType::Left, divider);
+
+						Rect splitRect = d->GetSplitRect();
+						splitRect.pos.x += split;
+						splitRect.size.x -= split;
+						d->SetSplitRect(splitRect);
+					}
+				}
+			}
+
+			newArea->SetSplitRect(newAreaSplitRect);
 		}
-
-		if (type == DockSplitType::Left)
-		{
-			split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
-			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
-			currentSplitRect.pos.x += split;
-			currentSplitRect.size.x -= split;
-
-			newArea->SetDivider(DockSplitType::Right, divider);
-			area->SetDivider(type, divider);
-		}
-		else if (type == DockSplitType::Right)
-		{
-			split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
-			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x + currentSplitRect.size.x - split, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
-			currentSplitRect.size.x -= split;
-
-			newArea->SetDivider(DockSplitType::Left, divider);
-			area->SetDivider(type, divider);
-		}
-		else if (type == DockSplitType::Down)
-		{
-			split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
-			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y + currentSplitRect.size.y - split), Vector2(currentSplitRect.size.x, split));
-			currentSplitRect.size.y -= split;
-
-			newArea->SetDivider(DockSplitType::Up, divider);
-			area->SetDivider(type, divider);
-		}
-		else if (type == DockSplitType::Up)
-		{
-			split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
-			newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(currentSplitRect.size.x, split));
-			currentSplitRect.size.y -= split;
-			currentSplitRect.pos.y += split;
-
-			newArea->SetDivider(DockSplitType::Down, divider);
-			area->SetDivider(type, divider);
-		}
-
-		m_root->AddChildren(divider);
-		m_dividers.push_back(divider);
-
-		area->SetSplitRect(currentSplitRect);
-		newArea->SetSplitRect(newAreaSplitRect);
-		newArea->AddPanel(panel);
 	}
 
 	GUINode* GUIDrawerBase::FindNode(StringID sid)
@@ -284,32 +423,105 @@ namespace Lina::Editor
 
 	bool GUIDrawerBase::OnPayloadDropped(PayloadType type, void* data)
 	{
-		bool retVal = false;
+		return m_root->OnPayloadDropped(type, data);
+	}
 
-		if (type == PayloadType::Panel)
+	void GUIDrawerBase::RemoveDockArea(GUINodeDockArea* area)
+	{
+		m_dockAreasToRemove.push_back(area);
+	}
+
+	void GUIDrawerBase::DrawDockAreas(int threadID, const Rect& availableDockRect)
+	{
+		m_availableDockRect = availableDockRect;
+
+		// Remove requested dock areas.
 		{
-			// If dropped on one of the 4 directions for me.
-			const DockSplitType splitType = m_dockPreview->GetCurrentSplitType();
-			if (splitType != DockSplitType::None)
+			for (auto area : m_dockAreasToRemove)
 			{
-				const DockSplitType splitType	= m_dockPreview->GetCurrentSplitType();
-				PayloadDataPanel*	payloadData = static_cast<PayloadDataPanel*>(data);
+				auto splitDivider = area->FindDividerToRemove();
+				splitDivider->PreDestroy(area);
+				m_dividers.erase(linatl::find_if(m_dividers.begin(), m_dividers.end(), [splitDivider](auto* divider) { return divider == splitDivider; }));
 
-				// SplitDockArea(this, splitType, data->onFlightPanel);
-				retVal = true;
+				auto* dividerL = area->GetDivider(DockSplitType::Left);
+				auto* dividerR = area->GetDivider(DockSplitType::Right);
+				auto* dividerU = area->GetDivider(DockSplitType::Up);
+				auto* dividerD = area->GetDivider(DockSplitType::Down);
+
+				if (dividerL)
+					dividerL->RemovePositiveNode(area);
+
+				if (dividerR)
+					dividerR->RemoveNegativeNode(area);
+
+				if (dividerU)
+					dividerU->RemovePositiveNode(area);
+
+				if (dividerD)
+					dividerD->RemoveNegativeNode(area);
+
+				m_root->RemoveChildren(area);
+				m_root->RemoveChildren(splitDivider);
+				m_dockAreas.erase(linatl::find_if(m_dockAreas.begin(), m_dockAreas.end(), [area](auto* dockArea) { return dockArea == area; }));
+				delete splitDivider;
+				delete area;
 			}
 
-			// m_dockingPreviewEnabled = false;
-			m_dockPreview->Reset();
-			m_dockPreview->SetVisible(false);
+			m_dockAreasToRemove.clear();
 		}
 
-		bool rootRetVal = m_root->OnPayloadDropped(type, data);
+		const Vector2 swpSize = m_swapchain->GetSize();
 
-		if (!retVal && rootRetVal)
-			retVal = true;
+		// Bg
+		{
+			GUIUtility::DrawDockBackground(threadID, availableDockRect, 0);
+		}
 
-		return retVal;
+		// Dock areas
+		{
+			const bool multipleDockAreas = m_dockAreas.size() > 1;
+			for (auto d : m_dockAreas)
+			{
+				const Rect splitRect = d->GetSplitRect();
+				Rect	   dockRect	 = Rect(Vector2(availableDockRect.pos.x + availableDockRect.size.x * splitRect.pos.x, availableDockRect.pos.y + availableDockRect.size.y * splitRect.pos.y),
+										Vector2(availableDockRect.size.x * splitRect.size.x, availableDockRect.size.y * splitRect.size.y));
+
+				d->SetTotalAvailableRect(availableDockRect);
+				d->SetIsAlone(!multipleDockAreas);
+				d->Draw(threadID);
+			}
+		}
+
+		// Dividers
+		{
+			for (auto d : m_dividers)
+				d->Draw(threadID);
+		}
+
+		// Dock preview
+		{
+			m_dockPreview->SetRect(availableDockRect);
+			m_dockPreview->Draw(threadID);
+		}
+
+		// Outline
+		{
+			LinaVG::StyleOptions opts;
+			const float			 thickness = m_window->GetDPIScale();
+			opts.thickness				   = thickness * 2;
+			opts.color					   = LV4(Theme::TC_Silent1);
+			opts.isFilled				   = false;
+			LinaVG::DrawRect(threadID, LV2(Vector2(thickness, thickness)), LV2((swpSize - Vector2(thickness, thickness))), opts, 0.0f, FRONT_DRAW_ORDER);
+		}
+
+		// Debug
+		if (false && m_hoveredNode != nullptr)
+		{
+			LinaVG::StyleOptions style;
+			style.isFilled	  = false;
+			const Vector2 pad = Vector2(2, 2);
+			LinaVG::DrawRect(0, LV2((m_hoveredNode->GetRect().pos + pad)), LV2((m_hoveredNode->GetRect().pos + m_hoveredNode->GetRect().size - pad)), style, 0.0f, 10000);
+		}
 	}
 
 	GUINode* GUIDrawerBase::GetHovered(GUINode* parent)

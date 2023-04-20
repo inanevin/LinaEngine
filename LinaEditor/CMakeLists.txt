@@ -40,7 +40,6 @@ src/GUI/Nodes/Panels/GUINodePanelProperties.cpp
 src/GUI/Nodes/Panels/GUINodePanelLevel.cpp
 src/GUI/Nodes/GUINode.cpp
 src/GUI/Nodes/Docking/GUINodeDockArea.cpp
-src/GUI/Nodes/Docking/GUINodeDockDivider.cpp
 src/GUI/Nodes/Docking/GUINodeDockPreview.cpp
 src/GUI/Nodes/Custom/GUINodeTitleSection.cpp
 src/GUI/Nodes/Custom/GUINodeTopPanel.cpp
@@ -51,6 +50,8 @@ src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
 src/GUI/Nodes/Widgets/GUINodeTab.cpp
 src/GUI/Nodes/Widgets/GUINodeTabArea.cpp
 src/GUI/Nodes/Widgets/GUINodeWindowButtons.cpp
+src/GUI/Nodes/Layouts/GUINodeDivisible.cpp
+src/GUI/Nodes/Layouts/GUINodeDivider.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutVertical.cpp
 src/GUI/Drawers/GUIDrawerBase.cpp
@@ -75,7 +76,6 @@ include/GUI/Nodes/Panels/GUINodePanel.hpp
 include/GUI/Nodes/Panels/GUIPanelFactory.hpp
 include/GUI/Nodes/GUINode.hpp
 include/GUI/Nodes/Docking/GUINodeDockArea.hpp
-include/GUI/Nodes/Docking/GUINodeDockDivider.hpp
 include/GUI/Nodes/Docking/GUINodeDockPreview.hpp
 include/GUI/Nodes/Custom/GUINodeTitleSection.hpp
 include/GUI/Nodes/Custom/GUINodeTopPanel.hpp
@@ -86,6 +86,8 @@ include/GUI/Nodes/Widgets/GUINodeTooltip.hpp
 include/GUI/Nodes/Widgets/GUINodeTab.hpp
 include/GUI/Nodes/Widgets/GUINodeTabArea.hpp
 include/GUI/Nodes/Widgets/GUINodeWindowButtons.hpp
+include/GUI/Nodes/Layouts/GUINodeDivider.hpp
+include/GUI/Nodes/Layouts/GUINodeDivisible.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp
 include/GUI/Drawers/GUIDrawerBase.hpp

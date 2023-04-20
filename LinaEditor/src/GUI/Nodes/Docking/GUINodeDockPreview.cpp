@@ -41,14 +41,15 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeDockPreview::GUINodeDockPreview(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	GUINodeDockPreview::GUINodeDockPreview(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
-		m_input = editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 	}
 
 	void GUINodeDockPreview::Draw(int threadID)
 	{
-		m_isActive = false;
+		m_isActive			  = false;
+		m_currentHoveredSplit = DockSplitType::None;
 
 		if (!m_visible)
 			return;
@@ -102,25 +103,27 @@ namespace Lina::Editor
 				Vector2 rectStartPos = Vector2::Zero;
 				Vector2 rectSize	 = Vector2::Zero;
 
+				const float split = m_isOuter ? EDITOR_DEFAULT_DOCK_SPLIT_OUTER : EDITOR_DEFAULT_DOCK_SPLIT;
+
 				if (m_currentHoveredSplit == DockSplitType::Left)
 				{
 					rectStartPos = m_rect.pos;
-					rectSize	 = Vector2(m_rect.size.x * EDITOR_DEFAULT_DOCK_SPLIT, m_rect.size.y);
+					rectSize	 = Vector2(m_rect.size.x * split, m_rect.size.y);
 				}
 				else if (m_currentHoveredSplit == DockSplitType::Right)
 				{
-					rectStartPos = Vector2(m_rect.pos.x + m_rect.size.x - m_rect.size.x * EDITOR_DEFAULT_DOCK_SPLIT, m_rect.pos.y);
-					rectSize	 = Vector2(m_rect.size.x * EDITOR_DEFAULT_DOCK_SPLIT, m_rect.size.y);
+					rectStartPos = Vector2(m_rect.pos.x + m_rect.size.x - m_rect.size.x * split, m_rect.pos.y);
+					rectSize	 = Vector2(m_rect.size.x * split, m_rect.size.y);
 				}
 				else if (m_currentHoveredSplit == DockSplitType::Up)
 				{
 					rectStartPos = m_rect.pos;
-					rectSize	 = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
+					rectSize	 = Vector2(m_rect.size.x, m_rect.size.y * split);
 				}
 				else if (m_currentHoveredSplit == DockSplitType::Down)
 				{
-					rectStartPos = Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y - m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
-					rectSize	 = Vector2(m_rect.size.x, m_rect.size.y * EDITOR_DEFAULT_DOCK_SPLIT);
+					rectStartPos = Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y - m_rect.size.y * split);
+					rectSize	 = Vector2(m_rect.size.x, m_rect.size.y * split);
 				}
 				else if (m_currentHoveredSplit == DockSplitType::Tab)
 				{

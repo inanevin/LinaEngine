@@ -110,8 +110,15 @@ namespace Lina
 					return HTCLIENT;
 			}
 
+			if (res == HTCLIENT)
+			{
+				// win32Window->SetCursorType(win32Window->m_cursorType);
+				win32Window->SetCursorType(win32Window->m_cursorType);
+			}
+
 			return res;
 		}
+
 		case WM_KILLFOCUS: {
 			win32Window->SetFocus(false);
 			break;
@@ -223,8 +230,9 @@ namespace Lina
 			int xPos = GET_X_LPARAM(lParam);
 			int yPos = GET_Y_LPARAM(lParam);
 
-			const Vector2 mp = Vector2i(xPos, yPos);
+			const Vector2i mp = Vector2i(xPos, yPos);
 
+			win32Window->m_mouseDelta	 = mp - win32Window->m_mousePosition;
 			win32Window->m_mousePosition = mp;
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
@@ -408,7 +416,7 @@ namespace Lina
 			wc.lpfnWndProc	 = Win32Window::WndProc;
 			wc.hInstance	 = m_hinst;
 			wc.lpszClassName = title;
-			wc.hCursor		 = LoadCursor(NULL, IDC_ARROW);
+			wc.hCursor		 = NULL;
 
 			if (!RegisterClassA(&wc))
 			{
@@ -607,6 +615,7 @@ namespace Lina
 		if (focus == false)
 		{
 			m_mousePosition = Vector2i::Zero;
+			m_mouseDelta	= Vector2i::Zero;
 
 			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
 
@@ -631,6 +640,9 @@ namespace Lina
 
 	void Win32Window::HandleMove()
 	{
+		// Reset as this will be called pre-pump messages
+		m_mouseDelta = Vector2i::Zero;
+
 		const Vector2i localMousePos = m_input->GetMousePositionAbs() - m_rect.pos;
 
 		if (!m_isDragged)
@@ -664,6 +676,32 @@ namespace Lina
 			const Vector2  targetPos = absMouse - m_dragMouseDelta;
 			SetPos(targetPos);
 		}
+	}
+
+	void Win32Window::SetCursorType(CursorType type)
+	{
+		m_cursorType = type;
+
+		HCURSOR cursor = NULL;
+
+		switch (m_cursorType)
+		{
+		case CursorType::None:
+		case CursorType::Default:
+			cursor = LoadCursor(NULL, IDC_ARROW);
+			break;
+		case CursorType::SizeHorizontal:
+			cursor = LoadCursor(NULL, IDC_SIZEWE);
+			break;
+		case CursorType::SizeVertical:
+			cursor = LoadCursor(NULL, IDC_SIZENS);
+			break;
+		default:
+			break;
+		}
+
+		if (cursor != NULL)
+			SetCursor(cursor);
 	}
 
 	void Win32Window::SetPos(const Vector2i& newPos)

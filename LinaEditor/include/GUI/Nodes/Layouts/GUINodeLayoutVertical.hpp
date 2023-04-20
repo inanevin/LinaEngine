@@ -38,13 +38,12 @@ namespace Lina::Editor
 	class GUINodeLayoutVertical : public GUINode
 	{
 	public:
-		GUINodeLayoutVertical(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		GUINodeLayoutVertical(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
 		virtual ~GUINodeLayoutVertical() = default;
 
-		inline GUINodeLayoutVertical* SetSpacing(float spacing)
+		inline void SetSpacing(float spacing)
 		{
 			m_spacing = spacing;
-			return this;
 		}
 
 		virtual void Draw(int threadID) override;

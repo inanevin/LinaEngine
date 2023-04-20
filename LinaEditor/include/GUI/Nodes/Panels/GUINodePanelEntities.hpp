@@ -38,7 +38,7 @@ namespace Lina::Editor
 	class GUINodePanelEntities : public GUINodePanel
 	{
 	public:
-		GUINodePanelEntities(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(editor, swapchain, drawOrder, panelType, title, parentDockArea){};
+		GUINodePanelEntities(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(drawer, drawOrder, panelType, title, parentDockArea){};
 		virtual ~GUINodePanelEntities() = default;
 		virtual void Draw(int threadID);
 	};

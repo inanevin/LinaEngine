@@ -96,13 +96,13 @@ namespace Lina
 
 		CalculateTime();
 		m_input.PreTick();
+		m_windowManager.Tick();
 	}
 
 	void Engine::Poll()
 	{
 		m_resourceManager.Tick();
 		m_input.Tick();
-		m_windowManager.Tick();
 	}
 
 	void Engine::Tick()

@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodePanel::GUINodePanel(Editor* editor, ISwapchain* swapchain, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : m_panelType(panelType), m_parentDockArea(parentDockArea), GUINode(editor, swapchain, drawOrder)
+	GUINodePanel::GUINodePanel(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : m_panelType(panelType), m_parentDockArea(parentDockArea), GUINode(drawer, drawOrder)
 	{
 		m_title = title;
 	}

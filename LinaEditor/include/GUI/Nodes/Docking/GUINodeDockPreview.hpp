@@ -47,7 +47,7 @@ namespace Lina::Editor
 	class GUINodeDockPreview : public GUINode
 	{
 	public:
-		GUINodeDockPreview(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeDockPreview(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeDockPreview() = default;
 
 		virtual void Draw(int threadID) override;
@@ -62,10 +62,9 @@ namespace Lina::Editor
 			m_currentHoveredSplit = DockSplitType::None;
 		}
 
-		inline GUINodeDockPreview* SetIsOuterPreview(bool isOuter)
+		inline void SetIsOuterPreview(bool isOuter)
 		{
 			m_isOuter = isOuter;
-			return this;
 		}
 
 		inline bool GetIsActive() const

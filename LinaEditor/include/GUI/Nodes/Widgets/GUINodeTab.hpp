@@ -43,29 +43,26 @@ namespace Lina::Editor
 	class GUINodeTab : public GUINode
 	{
 	public:
-		GUINodeTab(Editor* editor, ISwapchain* swapchain, GUINodeTabArea* tabArea, int drawOrder);
+		GUINodeTab(GUIDrawerBase* drawer, GUINodeTabArea* tabArea, int drawOrder);
 		virtual ~GUINodeTab() = default;
 
 		virtual void Draw(int threadID) override;
 		Vector2		 CalculateSize() override;
 		virtual void OnClicked(uint32 button) override;
 
-		inline GUINodeTab* SetCloseButtonEnabled(bool closeButtonEnabled)
+		inline void SetCloseButtonEnabled(bool closeButtonEnabled)
 		{
 			m_closeButtonEnabled = closeButtonEnabled;
-			return this;
 		}
 
-		inline GUINodeTab* SetIsReorderEnabled(bool isEnabled)
+		inline void SetIsReorderEnabled(bool isEnabled)
 		{
 			m_isReorderEnabled = isEnabled;
-			return this;
 		}
 
-		inline GUINodeTab* SetIsPanelTabs(bool isPanelTabs)
+		inline void SetIsPanelTabs(bool isPanelTabs)
 		{
 			m_isPanelTabs = isPanelTabs;
-			return this;
 		}
 
 	private:

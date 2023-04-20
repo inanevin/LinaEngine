@@ -69,7 +69,8 @@ namespace Lina
 		virtual void SetMouseFocus(bool focus) override;
 		virtual void SetInputPassthrough(bool isInputPassThrough) override;
 		virtual void HandleMove() override;
-
+		virtual void SetCursorType(CursorType type) override;
+		
 		virtual bool GetIsAppActive() const override
 		{
 			return s_isAppActive;

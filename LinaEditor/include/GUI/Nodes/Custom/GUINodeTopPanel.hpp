@@ -42,7 +42,7 @@ namespace Lina::Editor
 	class GUINodeTopPanel : public GUINode
 	{
 	public:
-		GUINodeTopPanel(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeTopPanel(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeTopPanel() = default;
 
 		virtual void Draw(int threadID) override;

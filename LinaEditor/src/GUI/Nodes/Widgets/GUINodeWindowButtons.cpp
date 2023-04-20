@@ -35,14 +35,26 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeWindowButtons::GUINodeWindowButtons(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	GUINodeWindowButtons::GUINodeWindowButtons(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
-		m_minimize = (new GUINodeButton(editor, swapchain, m_drawOrder));
-		m_maximize = (new GUINodeButton(editor, swapchain, m_drawOrder));
-		m_close	   = (new GUINodeButton(editor, swapchain, m_drawOrder));
-		m_minimize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(TI_MINIMIZE);
-		m_maximize->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_Light1)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
-		m_close->SetDefaultColor(Theme::TC_Dark0)->SetHoveredColor(Theme::TC_RedAccent)->SetPressedColor(Theme::TC_Dark3)->SetIsIcon(true)->SetTitle(TI_CROSS);
+		m_minimize = (new GUINodeButton(drawer, m_drawOrder));
+		m_maximize = (new GUINodeButton(drawer, m_drawOrder));
+		m_close	   = (new GUINodeButton(drawer, m_drawOrder));
+		m_minimize->SetDefaultColor(Theme::TC_Dark0);
+		m_minimize->SetHoveredColor(Theme::TC_Light1);
+		m_minimize->SetPressedColor(Theme::TC_Dark3);
+		m_minimize->SetIsIcon(true);
+		m_minimize->SetTitle(TI_MINIMIZE);
+		m_maximize->SetDefaultColor(Theme::TC_Dark0);
+		m_maximize->SetHoveredColor(Theme::TC_Light1);
+		m_maximize->SetPressedColor(Theme::TC_Dark3);
+		m_maximize->SetIsIcon(true);
+		m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_close->SetDefaultColor(Theme::TC_Dark0);
+		m_close->SetHoveredColor(Theme::TC_RedAccent);
+		m_close->SetPressedColor(Theme::TC_Dark3);
+		m_close->SetIsIcon(true);
+		m_close->SetTitle(TI_CROSS);
 		m_minimize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
 		m_maximize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
 		m_close->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
@@ -57,7 +69,7 @@ namespace Lina::Editor
 		m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 
 		// Clamp
-		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minPos.x);
+		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minRect.pos.x);
 
 		auto&	buttons	  = GetChildren();
 		Vector2 buttonPos = m_rect.pos;

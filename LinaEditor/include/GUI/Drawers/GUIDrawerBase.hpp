@@ -34,20 +34,25 @@ SOFTWARE.
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Core/StringID.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Math/Rect.hpp"
 
+namespace Lina
+{
+	class Rect;
+}
 namespace Lina::Editor
 {
 	class GUINode;
 	class Editor;
 	class GUINodeDockArea;
 	class GUINodePanel;
-	class GUINodeDockDivider;
+	class GUINodeDivider;
 	class GUINodeDockPreview;
 
 	class GUIDrawerBase : public IGUIDrawer
 	{
 	public:
-		GUIDrawerBase(Editor* editor, ISwapchain* swapchain);
+		GUIDrawerBase(Editor* editor, ISwapchain* swap);
 		virtual ~GUIDrawerBase();
 
 		virtual void OnKey(uint32 key, InputAction action) override;
@@ -58,28 +63,30 @@ namespace Lina::Editor
 		virtual void OnLostFocus() override;
 		virtual void OnWindowDrag(bool isDragging) override;
 
+		void	 OnNodeDeleted(GUINode* node);
 		void	 SetDockPreviewEnabled(bool enabled);
 		void	 SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel);
 		GUINode* FindNode(StringID sid);
 		void	 OnPayloadCreated(PayloadType type, void* data);
 		bool	 OnPayloadDropped(PayloadType type, void* data);
+		void	 RemoveDockArea(GUINodeDockArea* area);
 
 		inline StringID GetSID() const
 		{
 			return m_sid;
 		}
 
-		inline GUINodeDockArea* GetFirstDockArea()
+		inline GUINodeDockArea* GetFirstDockArea() const
 		{
 			return m_dockAreas[0];
 		}
 
-		inline GUINode* GetRoot()
+		inline GUINode* GetRoot() const
 		{
 			return m_root;
 		}
 
-		inline GUINodeDockPreview* GetDockPreview()
+		inline GUINodeDockPreview* GetDockPreview() const
 		{
 			return m_dockPreview;
 		}
@@ -88,20 +95,30 @@ namespace Lina::Editor
 		{
 			return m_dockAreas;
 		}
-		
+
+		inline Editor* GetEditor() const
+		{
+			return m_editor;
+		}
+
+	protected:
+		void DrawDockAreas(int threadID, const Rect& availableRect);
+
 	private:
 		GUINode* GetHovered(GUINode* parent);
 
 	protected:
-		GUINode* m_mouseDisablingNode	 = nullptr;
-		StringID m_sid					 = 0;
-		GUINode* m_hoveredNode			 = nullptr;
-		Editor*	 m_editor				 = nullptr;
-		GUINode* m_root					 = nullptr;
+		GUINode* m_mouseDisablingNode = nullptr;
+		StringID m_sid				  = 0;
+		GUINode* m_hoveredNode		  = nullptr;
+		Editor*	 m_editor			  = nullptr;
+		GUINode* m_root				  = nullptr;
 
-		GUINodeDockPreview*			m_dockPreview = nullptr;
-		Vector<GUINodeDockArea*>	m_dockAreas;
-		Vector<GUINodeDockDivider*> m_dividers;
+		Rect					 m_availableDockRect = Rect();
+		GUINodeDockPreview*		 m_dockPreview		 = nullptr;
+		Vector<GUINodeDockArea*> m_dockAreas;
+		Vector<GUINodeDivider*>	 m_dividers;
+		Vector<GUINodeDockArea*> m_dockAreasToRemove;
 	};
 } // namespace Lina::Editor
 

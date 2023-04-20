@@ -51,18 +51,12 @@ namespace Lina::Editor
 
 		const Vector2 swpSize = m_swapchain->GetSize();
 
-		if (m_payloadType == PayloadType::Panel)
-		{
-			const Rect availableDockRect = Rect(Vector2::Zero, swpSize);
-
-			m_dockAreas[0]->SetRect(availableDockRect);
-			m_dockAreas[0]->Draw(threadID);
-		}
+		
 
 		LinaVG::StyleOptions opts;
 		const float			 thickness = m_window->GetDPIScale();
 		opts.thickness				   = thickness * 2;
-		opts.color					   = LV4(Theme::TC_VerySilent);
+		opts.color					   = LV4(Theme::TC_Silent0);
 		opts.isFilled				   = false;
 		LinaVG::DrawRect(threadID, LV2(Vector2(thickness, thickness)), LV2((swpSize - Vector2(thickness, thickness))), opts, 0.0f, FRONT_DRAW_ORDER);
 	}

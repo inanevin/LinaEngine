@@ -44,54 +44,59 @@ namespace Lina::Editor
 	class GUINodeTabArea : public GUINode
 	{
 	public:
-		GUINodeTabArea(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder){};
+		GUINodeTabArea(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
 		virtual ~GUINodeTabArea() = default;
 
 		virtual void Draw(int threadID) override;
 		void		 AddTab(const String& title, StringID sid);
 		void		 RemoveTab(StringID sid);
+		void		 OnTabClicked(GUINodeTab* tab);
+		void		 OnTabDismissed(GUINodeTab* tab);
+		void		 OnTabDetached(GUINodeTab* tab, const Vector2& detachDelta);
 
-		inline GUINodeTabArea* SetCallbackTabDismissed(Delegate<void(GUINode*)>&& cb)
+		inline void SetCallbackTabDismissed(Delegate<void(GUINodeTab*)>&& cb)
 		{
 			m_onTabDismissed = cb;
-			return this;
 		}
 
-		inline GUINodeTabArea* SetCallbackTabClicked(Delegate<void(GUINode*)>&& cb)
+		inline void SetCallbackTabClicked(Delegate<void(GUINodeTab*)>&& cb)
 		{
 			m_onTabClicked = cb;
-			return this;
 		}
 
-		inline GUINodeTabArea* SetCallbackTabDetached(Delegate<void(GUINode*, const Vector2&)>&& cb)
+		inline void SetCallbackTabDetached(Delegate<void(GUINodeTab*, const Vector2&)>&& cb)
 		{
 			m_onTabDetached = cb;
-			return this;
 		}
 
-		inline GUINodeTabArea* SetIsReorderEnabled(bool isEnabled)
+		inline void SetIsReorderEnabled(bool isEnabled)
 		{
 			m_isReorderEnabled = isEnabled;
-			return this;
 		}
 
-		inline GUINodeTabArea* SetIsPanelTabs(bool isPanelTabs)
+		inline void SetIsPanelTabs(bool isPanelTabs)
 		{
 			m_isPanelTabs = isPanelTabs;
-			return this;
 		}
 
-		void OnTabClicked(GUINodeTab* tab);
-		void OnTabDismissed(GUINodeTab* tab);
-		void OnTabDetached(GUINodeTab* tab, const Vector2& detachDelta);
+		inline void SetCanClosePanels(bool canClose)
+		{
+			m_canClosePanels = canClose;
+		}
 
+		inline bool GetIsEmpty()
+		{
+			return m_tabs.empty();
+		}
+		
 	protected:
-		Delegate<void(GUINode*)>				 m_onTabClicked;
-		Delegate<void(GUINode*)>				 m_onTabDismissed;
-		Delegate<void(GUINode*, const Vector2&)> m_onTabDetached;
-		Vector<GUINodeTab*>						 m_tabs;
-		bool									 m_isReorderEnabled = true;
-		bool									 m_isPanelTabs		= false;
+		bool										m_canClosePanels = false;
+		Delegate<void(GUINodeTab*)>					m_onTabClicked;
+		Delegate<void(GUINodeTab*)>					m_onTabDismissed;
+		Delegate<void(GUINodeTab*, const Vector2&)> m_onTabDetached;
+		Vector<GUINodeTab*>							m_tabs;
+		bool										m_isReorderEnabled = true;
+		bool										m_isPanelTabs	   = false;
 	};
 
 } // namespace Lina::Editor

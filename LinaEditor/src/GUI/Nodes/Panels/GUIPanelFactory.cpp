@@ -45,22 +45,22 @@ namespace Lina::Editor
 		switch (panelType)
 		{
 		case EditorPanel::ContentBrowser:
-			panel = new GUINodePanelContentBrowser(targetDockArea->GetEditor(), targetDockArea->GetSwapchain(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
+			panel = new GUINodePanelContentBrowser(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
 		case EditorPanel::Hierarchy:
-			panel = new GUINodePanelHierarchy(targetDockArea->GetEditor(), targetDockArea->GetSwapchain(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
+			panel = new GUINodePanelHierarchy(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
 		case EditorPanel::Properties:
-			panel = new GUINodePanelProperties(targetDockArea->GetEditor(), targetDockArea->GetSwapchain(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
+			panel = new GUINodePanelProperties(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
 		case EditorPanel::Level:
-			panel = new GUINodePanelLevel(targetDockArea->GetEditor(), targetDockArea->GetSwapchain(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
+			panel = new GUINodePanelLevel(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
 		case EditorPanel::Entities:
-			panel = new GUINodePanelEntities(targetDockArea->GetEditor(), targetDockArea->GetSwapchain(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
+			panel = new GUINodePanelEntities(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
 		case EditorPanel::DebugResourceView:
-			panel = new GUINodePanelResourceViewer(targetDockArea->GetEditor(), targetDockArea->GetSwapchain(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
+			panel = new GUINodePanelResourceViewer(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
 		default:
 			LINA_NOTIMPLEMENTED;

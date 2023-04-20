@@ -41,56 +41,56 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTopPanel::GUINodeTopPanel(Editor* editor, ISwapchain* swapchain, int drawOrder) : GUINode(editor, swapchain, drawOrder)
+	GUINodeTopPanel::GUINodeTopPanel(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
-		m_fileMenu = new GUINodeFileMenu(editor, swapchain, drawOrder + 1);
+		m_fileMenu = new GUINodeFileMenu(drawer, drawOrder + 1);
 
-		GUINodeFMPopup* filePopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* filePopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		filePopup->AddDivider("PROJECT")->AddDefault("Open Project")->AddDefault("Save Project");
 		filePopup->AddDefault("New Project")->AddDefault("Package Project")->AddDivider("SETTINGS");
 		filePopup->AddDefault("Project Settings")->AddDivider("OTHER")->AddDefault("Restart")->AddDefault("Quit");
 		filePopup->SetTitle("File");
 
-		GUINodeFMPopup* editPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* editPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		editPopup->AddToggle("Dummy2", true);
 		editPopup->SetTitle("Edit");
 
-		GUINodeFMPopup* levelPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* levelPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		levelPopup->AddDefault("New Level")->AddDefault("Save Level")->AddDefault("Load Level");
 		levelPopup->SetTitle("Level");
 
-		GUINodeFMPopup* entitiesPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* entitiesPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		entitiesPopup->AddDefault("Empty")->AddDefault("Lina")->AddDefault("Cube")->AddDefault("Sphere")->AddDefault("Cyclinder")->AddDefault("Capsule")->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 		entitiesPopup->SetTitle("Entities");
 
-		GUINodeFMPopup* panelsPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* panelsPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Entities).c_str());
 		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Level).c_str());
 		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Properties).c_str());
 		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::ContentBrowser).c_str());
 		panelsPopup->SetTitle("Panels");
 
-		GUINodeFMPopup* debugPanelsPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* debugPanelsPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		debugPanelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::DebugResourceView).c_str());
 		debugPanelsPopup->SetTitle("");
 		panelsPopup->AddExpandable("Debug", debugPanelsPopup);
 		debugPanelsPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
-		GUINodeFMPopup* debugPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* debugPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		debugPopup->AddDefault("Dummy");
 		debugPopup->SetTitle("Debug");
 
-		GUINodeFMPopup* helpPopup = new GUINodeFMPopup(editor, swapchain, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* helpPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
 		helpPopup->AddDefault("About")->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 		helpPopup->SetTitle("Help");
 
 		m_fileMenu->AddPopup(filePopup, editPopup, levelPopup, entitiesPopup, panelsPopup, debugPopup, helpPopup);
 		m_fileMenu->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
-		m_windowButtons = new GUINodeWindowButtons(editor, swapchain, drawOrder);
+		m_windowButtons = new GUINodeWindowButtons(drawer, drawOrder);
 		m_windowButtons->SetCallbackDismissed([&](GUINode* node) { m_window->Close(); });
 
-		m_customLogo = new GUINodeCustomLogo(editor, swapchain, drawOrder);
+		m_customLogo = new GUINodeCustomLogo(drawer, drawOrder);
 		AddChildren(m_fileMenu)->AddChildren(m_windowButtons)->AddChildren(m_customLogo);
 	}
 

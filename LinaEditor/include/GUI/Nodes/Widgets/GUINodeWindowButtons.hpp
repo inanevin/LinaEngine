@@ -41,7 +41,7 @@ namespace Lina::Editor
 	class GUINodeWindowButtons : public GUINode
 	{
 	public:
-		GUINodeWindowButtons(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINodeWindowButtons(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeWindowButtons() = default;
 		virtual void Draw(int threadID) override;
 

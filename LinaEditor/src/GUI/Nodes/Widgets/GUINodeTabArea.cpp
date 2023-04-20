@@ -56,14 +56,15 @@ namespace Lina::Editor
 		for (uint32 i = 0; i < sz; i++)
 		{
 			auto* tab = m_tabs[i];
-			tab->SetCloseButtonEnabled(m_tabs.size() > 1);
+			tab->SetCloseButtonEnabled(m_canClosePanels);
 
 			if (!tab->GetIsDragging())
 			{
 				tab->SetRect(tabRect);
 			}
 
-			tab->SetIsPanelTabs(m_isPanelTabs)->SetIsReorderEnabled(m_isReorderEnabled);
+			tab->SetIsPanelTabs(m_isPanelTabs);
+			tab->SetIsReorderEnabled(m_isReorderEnabled);
 			tab->Draw(threadID);
 			tabRect.pos += Vector2(maxTabSize.x, 0.0f);
 		}
@@ -71,8 +72,9 @@ namespace Lina::Editor
 
 	void GUINodeTabArea::AddTab(const String& title, StringID sid)
 	{
-		auto tab = new GUINodeTab(m_editor, m_swapchain, this, m_drawOrder);
-		tab->SetTitle(title.c_str())->SetSID(sid);
+		auto tab = new GUINodeTab(m_drawer, this, m_drawOrder);
+		tab->SetTitle(title.c_str());
+		tab->SetSID(sid);
 		AddChildren(tab);
 		m_tabs.push_back(tab);
 	}
@@ -89,16 +91,13 @@ namespace Lina::Editor
 	void GUINodeTabArea::OnTabClicked(GUINodeTab* tab)
 	{
 		if (m_onTabClicked)
-			m_onTabClicked(static_cast<GUINode*>(tab));
+			m_onTabClicked(tab);
 	}
 
 	void GUINodeTabArea::OnTabDismissed(GUINodeTab* tab)
 	{
-		RemoveChildren(tab);
-		m_tabs.erase(linatl::find_if(m_tabs.begin(), m_tabs.end(), [tab](GUINodeTab* t) { return t == tab; }));
-
 		if (m_onTabDismissed)
-			m_onTabDismissed(static_cast<GUINode*>(tab));
+			m_onTabDismissed(tab);
 	}
 
 	void GUINodeTabArea::OnTabDetached(GUINodeTab* tab, const Vector2& detachDelta)

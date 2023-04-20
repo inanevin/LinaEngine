@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTooltip::GUINodeTooltip(Editor* editor, ISwapchain* swapchain) : GUINode(editor, swapchain, FRONT_DRAW_ORDER)
+	GUINodeTooltip::GUINodeTooltip(GUIDrawerBase* drawer) : GUINode(drawer, FRONT_DRAW_ORDER)
 	{
 	}
 	void GUINodeTooltip::Draw(int threadID)

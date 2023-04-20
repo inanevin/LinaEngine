@@ -44,7 +44,7 @@ namespace Lina
 {
 	class ISwapchain;
 	class IWindow;
-}
+} // namespace Lina
 
 namespace Lina::Editor
 {
@@ -54,7 +54,7 @@ namespace Lina::Editor
 	class GUINode
 	{
 	public:
-		GUINode(Editor* editor, ISwapchain* swapchain, int drawOrder);
+		GUINode(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINode();
 
 		virtual void Draw(int threadID);
@@ -65,6 +65,9 @@ namespace Lina::Editor
 		virtual void OnPayloadCreated(PayloadType type, void* data);
 		virtual bool OnPayloadDropped(PayloadType type, void* data);
 		virtual void OnClicked(uint32 button){};
+		virtual void OnHoverBegin(){};
+		virtual void OnHoverEnd(){};
+		virtual void OnDragEnd(){};
 
 		virtual Vector2 CalculateSize()
 		{
@@ -82,52 +85,59 @@ namespace Lina::Editor
 			return m_children;
 		}
 
-		inline GUINode* SetRect(const Rect& rect)
+		inline void SetRect(const Rect& rect)
 		{
 			m_rect = rect;
-			return this;
 		}
 
-		inline GUINode* SetPos(const Vector2& pos)
+		inline void SetPos(const Vector2& pos)
 		{
 			m_rect.pos = pos;
-			return this;
 		}
 
-		inline GUINode* SetSize(const Vector2& size)
+		inline void SetSize(const Vector2& size)
 		{
 			m_rect.size = size;
-			return this;
 		}
 
-		inline GUINode* SetMinPos(const Vector2& minPos)
+		inline void SetMinPos(const Vector2& minPos)
 		{
-			m_minPos = minPos;
-			return this;
+			m_minRect.pos = minPos;
 		}
 
-		inline GUINode* SetMaxPos(const Vector2& maxPos)
+		inline void SetMaxPos(const Vector2& maxPos)
 		{
-			m_maxPos = maxPos;
-			return this;
+			m_maxRect.pos = maxPos;
 		}
 
-		inline GUINode* SetCallbackClicked(Delegate<void(GUINode*)>&& onClicked)
+		inline void SetMinSize(const Vector2& size)
+		{
+			m_minRect.size = size;
+		}
+
+		inline void SetMaxSize(const Vector2& size)
+		{
+			m_maxRect.size = size;
+		}
+
+		inline void SetCallbackClicked(Delegate<void(GUINode*)>&& onClicked)
 		{
 			m_onClicked = onClicked;
-			return this;
 		}
 
-		inline GUINode* SetCallbackDismissed(Delegate<void(GUINode*)>&& onDismissed)
+		inline void SetCallbackDismissed(Delegate<void(GUINode*)>&& onDismissed)
 		{
 			m_onDismissed = onDismissed;
-			return this;
 		}
 
-		inline GUINode* SetTitle(const char* title)
+		inline void SetTitle(const char* title)
 		{
 			m_title = title;
-			return this;
+		}
+
+		inline void SetSID(StringID sid)
+		{
+			m_sid = sid;
 		}
 
 		inline const String& GetTitle() const
@@ -165,30 +175,33 @@ namespace Lina::Editor
 			return m_isDragging;
 		}
 
-		inline GUINode* SetSID(StringID sid)
-		{
-			m_sid = sid;
-			return this;
-		}
-
 		inline StringID GetSID() const
 		{
 			return m_sid;
 		}
 
-		inline Editor* GetEditor()
+		inline Editor* GetEditor() const
 		{
 			return m_editor;
 		}
 
-		inline ISwapchain* GetSwapchain()
+		inline ISwapchain* GetSwapchain() const
 		{
 			return m_swapchain;
+		}
+
+		inline GUIDrawerBase* GetDrawer() const
+		{
+			return m_drawer;
 		}
 
 	protected:
 		friend class GUIDrawerBase;
 
+		GUIDrawerBase*			 m_drawer;
+		Editor*					 m_editor			   = nullptr;
+		ISwapchain*				 m_swapchain		   = nullptr;
+		IWindow*				 m_window			   = nullptr;
 		StringID				 m_sid				   = 0;
 		bool					 m_visible			   = true;
 		int						 m_drawOrder		   = 0;
@@ -197,13 +210,10 @@ namespace Lina::Editor
 		bool					 m_isDragging		   = false;
 		Vector2i				 m_dragStartMousePos   = Vector2i::Zero;
 		Vector2i				 m_dragStartMouseDelta = Vector2i::Zero;
-		Editor*					 m_editor			   = nullptr;
-		ISwapchain*				 m_swapchain		   = nullptr;
-		IWindow*				 m_window			   = nullptr;
 		Vector<GUINode*>		 m_children;
 		Rect					 m_rect				  = Rect();
-		Vector2					 m_minPos			  = Vector2::Zero;
-		Vector2					 m_maxPos			  = Vector2::Zero;
+		Rect					 m_minRect			  = Rect();
+		Rect					 m_maxRect			  = Rect();
 		Vector2					 m_lastCalculatedSize = Vector2::Zero;
 		float					 m_lastDpi			  = 0.0f;
 		String					 m_title			  = "";

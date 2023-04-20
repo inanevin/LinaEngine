@@ -46,7 +46,7 @@ namespace Lina::Editor
 		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->AddListener(this);
 
 		m_currentResource				   = "Loading core resources...";
-		m_progressBar.BackgroundColor	   = Theme::TC_Silent;
+		m_progressBar.BackgroundColor	   = Theme::TC_Silent2;
 		m_progressBar.ForegroundStartColor = Theme::TC_CyanAccent;
 		m_progressBar.ForegroundEndColor   = Theme::TC_PurpleAccent;
 	}
@@ -90,7 +90,7 @@ namespace Lina::Editor
 
 			LinaVG::TextOptions copyrightText;
 			copyrightText.font	= Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
-			copyrightText.color = LV4(Theme::TC_Silent);
+			copyrightText.color = LV4(Theme::TC_Silent2);
 
 			Vector2		 copyrightTextLine = Vector2(size.x * 0.06f, size.y * 0.425f);
 			const String versionText	   = "v" + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " b" + TO_STRING(LINA_BUILD);
