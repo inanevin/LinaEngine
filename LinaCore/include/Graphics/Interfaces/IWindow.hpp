@@ -69,6 +69,8 @@ namespace Lina
 		virtual void SetInputPassthrough(bool isInputPassThrough)										= 0;
 		virtual void HandleMove()																		= 0;
 		virtual void SetCursorType(CursorType type)														= 0;
+		virtual void OnDragEnabled()																	= 0;
+		virtual void OnDragDisabled()																	= 0;
 
 		virtual void SetToWorkingArea() = 0;
 		virtual void SetToFullscreen()	= 0;
@@ -191,6 +193,16 @@ namespace Lina
 		inline bool GetIsTransparent() const
 		{
 			return m_isTransparent;
+		}
+
+		inline void SetForceIsDragged(bool isDragged)
+		{
+			m_isDragged = isDragged;
+
+			if (m_isDragged)
+				OnDragEnabled();
+			else
+				OnDragDisabled();
 		}
 
 	private:

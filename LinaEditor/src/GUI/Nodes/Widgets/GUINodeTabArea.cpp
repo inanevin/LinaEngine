@@ -74,6 +74,7 @@ namespace Lina::Editor
 		auto tab = new GUINodeTab(m_drawer, this, m_drawOrder);
 		tab->SetTitle(title.c_str());
 		tab->SetSID(sid);
+		m_focusedSID = sid;
 		AddChildren(tab);
 		m_tabs.push_back(tab);
 	}

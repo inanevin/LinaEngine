@@ -63,18 +63,41 @@ namespace Lina::Editor
 			points.push_back(LV2(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y)));
 
 			LinaVG::StyleOptions opts;
-			opts.color	   = LV4((m_isFocused ? Theme::TC_Dark3 : Theme::TC_Light1));
-			opts.aaEnabled = true;
-			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder);
+			opts.color		   = LV4(Theme::TC_Dark3);
+			opts.color.start.w = opts.color.end.w = m_isFocused ? 1.0f : 0.3f;
+			opts.aaEnabled						  = true;
+			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_isFocused ? m_drawOrder + 1 : m_drawOrder);
+
+			// Draw side and bottom line if focused.
+			{
+				if (m_isFocused)
+				{
+					LinaVG::StyleOptions lineStyle;
+					lineStyle.color.start		= LV4(Theme::TC_CyanAccent);
+					lineStyle.color.end		= LV4(Theme::TC_PurpleAccent);
+					lineStyle.thickness = 2.0f * m_window->GetDPIScale();
+
+					Vector2 lineBegin	= Vector2(m_rect.pos.x + padding * 0.5f, m_rect.pos.y + padding * 0.25f);
+					Vector2 lineEnd		= Vector2(m_rect.pos.x + padding * 0.5f, m_rect.pos.y + +m_rect.size.y - padding * 0.25f);
+					LinaVG::DrawLine(threadID, LV2(lineBegin), LV2(lineEnd), lineStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
+
+					lineBegin		= Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y - 1.0f);
+					lineEnd			= Vector2(m_rect.pos.x + m_rect.size.x, m_rect.pos.y + m_rect.size.y - 1.0f);
+					lineStyle.color = LV4(Theme::TC_Dark2);
+					// LinaVG::DrawLine(threadID, LV2(lineBegin), LV2(lineEnd), lineStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
+				}
+			}
 		}
 
 		// Text
 		{
 			LinaVG::TextOptions textOpts;
 			textOpts.font		   = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+			textOpts.color.start.w = textOpts.color.end.w = m_isFocused ? 1.0f : 0.3f;
+
 			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
 			const Vector2 textPos  = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
-			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
+			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_isFocused ? m_drawOrder + 1 : m_drawOrder, true);
 		}
 
 		// Close button

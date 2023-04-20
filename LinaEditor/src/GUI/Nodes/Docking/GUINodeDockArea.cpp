@@ -74,14 +74,22 @@ namespace Lina::Editor
 			for (auto& data : m_dismissedTabs)
 			{
 				m_drawer->OnNodeDeleted(data.tab);
-				auto			  panel		 = *linatl::find_if(m_panels.begin(), m_panels.end(), [&data](GUINodePanel* p) { return p->GetSID() == data.tab->GetSID(); });
-				const EditorPanel panelType	 = panel->GetPanelType();
-				const String	  panelTitle = panel->GetTitle();
-				const StringID	  panelSID	 = panel->GetSID();
+				auto panel = *linatl::find_if(m_panels.begin(), m_panels.end(), [&data](GUINodePanel* p) { return p->GetSID() == data.tab->GetSID(); });
 
-				RemovePanel(panel);
-				m_tabArea->RemoveTab(data.tab->GetSID());
-				m_editor->OpenPanel(panelType, panelTitle, panelSID, true);
+				if (data.isDetach)
+				{
+					const EditorPanel panelType	 = panel->GetPanelType();
+					const String	  panelTitle = panel->GetTitle();
+					const StringID	  panelSID	 = panel->GetSID();
+					RemovePanel(panel);
+					m_tabArea->RemoveTab(data.tab->GetSID());
+					m_editor->OpenPanel(panelType, panelTitle, panelSID, true);
+				}
+				else
+				{
+					RemovePanel(panel);
+					m_tabArea->RemoveTab(data.tab->GetSID());
+				}
 			}
 		}
 		m_dismissedTabs.clear();

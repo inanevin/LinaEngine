@@ -70,7 +70,9 @@ namespace Lina
 		virtual void SetInputPassthrough(bool isInputPassThrough) override;
 		virtual void HandleMove() override;
 		virtual void SetCursorType(CursorType type) override;
-		
+		virtual void OnDragEnabled() override;
+		virtual void OnDragDisabled() override;
+
 		virtual bool GetIsAppActive() const override
 		{
 			return s_isAppActive;

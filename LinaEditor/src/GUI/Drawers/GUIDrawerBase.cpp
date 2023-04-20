@@ -504,7 +504,7 @@ namespace Lina::Editor
 		}
 
 		// Debug
-		if (m_hoveredNode != nullptr)
+		if (false && m_hoveredNode != nullptr)
 		{
 			LinaVG::StyleOptions style;
 			style.isFilled	  = false;

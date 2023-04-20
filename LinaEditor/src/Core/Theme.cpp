@@ -120,7 +120,7 @@ namespace Lina::Editor
 		case ThemeProperty::GeneralItemPadding:
 			return 12.0f * multiplier;
 		case ThemeProperty::DockDividerThickness:
-			return 2.0f * multiplier;
+			return 1.5f * multiplier;
 		default:
 			return 1.0f;
 		}

@@ -94,7 +94,7 @@ namespace Lina::Editor
 
 	protected:
 		Vector<DismissTabData> m_dismissedTabs;
-		bool				   m_isAlone				 = false;
+		bool				   m_isAlone				 = true;
 		bool				   m_isDockingPreviewEnabled = false;
 		Lina::Input*		   m_input					 = nullptr;
 		Vector<GUINodePanel*>  m_panels;

@@ -649,16 +649,9 @@ namespace Lina
 
 		if (!m_isDragged)
 		{
-			if (m_input->GetMouseButtonDown(VK_LBUTTON) && m_dragRect.IsPointInside(localMousePos))
+			if (m_input->GetMouseButtonDown(VK_LBUTTON) && m_dragRect.IsPointInside(localMousePos) && m_hasFocus)
 			{
-				m_isDragged = true;
-				SetInputPassthrough(true);
-
-				m_dragMouseDelta = localMousePos;
-
-				IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
-				if (guiDrawer)
-					guiDrawer->OnWindowDrag(m_isDragged);
+				OnDragEnabled();
 			}
 		}
 
@@ -666,18 +659,36 @@ namespace Lina
 		{
 			if (!m_input->GetMouseButton(VK_LBUTTON))
 			{
-				m_isDragged = false;
-				SetInputPassthrough(false);
-
-				IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
-				if (guiDrawer)
-					guiDrawer->OnWindowDrag(m_isDragged);
+				OnDragDisabled();
 			}
 
 			const Vector2i absMouse	 = m_input->GetMousePositionAbs();
 			const Vector2  targetPos = absMouse - m_dragMouseDelta;
 			SetPos(targetPos);
 		}
+	}
+
+	void Win32Window::OnDragEnabled()
+	{
+		m_isDragged = true;
+		SetInputPassthrough(true);
+		
+		const Vector2i localMousePos = m_input->GetMousePositionAbs() - m_rect.pos;
+		m_dragMouseDelta			 = localMousePos;
+
+		IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+		if (guiDrawer)
+			guiDrawer->OnWindowDrag(m_isDragged);
+	}
+
+	void Win32Window::OnDragDisabled()
+	{
+		m_isDragged = false;
+		SetInputPassthrough(false);
+
+		IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+		if (guiDrawer)
+			guiDrawer->OnWindowDrag(m_isDragged);
 	}
 
 	void Win32Window::SetCursorType(CursorType type)

@@ -108,7 +108,7 @@ namespace Lina::Editor
 		// Draw
 		{
 			LinaVG::StyleOptions opts;
-			opts.color = LV4((m_isHovered ? Theme::TC_Dark0 : Theme::TC_Dark1));
+			opts.color = LV4((m_isHovered ? Theme::TC_Dark0 : Theme::TC_Dark2));
 			LinaVG::DrawRect(threadID, LV2(usedRect.pos), LV2((usedRect.pos + usedRect.size)), opts, 0.0f, FRONT_DRAW_ORDER);
 		}
 

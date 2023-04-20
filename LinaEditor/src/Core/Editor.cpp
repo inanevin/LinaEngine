@@ -170,11 +170,6 @@ namespace Lina::Editor
 				window->SetStyle(WindowStyle::Borderless);
 				window->SetVisible(true);
 
-				if (req.byDetach)
-					window->SetPos(m_input->GetMousePositionAbs());
-				else
-					window->SetToCenter();
-
 				auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(req.windowSid);
 				auto guiDrawer		 = new GUIDrawerChildWindow(this, surfaceRenderer->GetSwapchain());
 				surfaceRenderer->SetGUIDrawer(guiDrawer);
@@ -183,6 +178,14 @@ namespace Lina::Editor
 				auto targetDockArea = guiDrawer->GetFirstDockArea();
 				auto createdPanel	= GUIPanelFactory::CreatePanel(req.panelType, targetDockArea, req.title, req.panelSid);
 				targetDockArea->AddPanel(static_cast<GUINodePanel*>(createdPanel));
+
+				if (req.byDetach)
+				{
+					window->SetPos(m_input->GetMousePositionAbs() - Vector2i(15, 10));
+					window->SetForceIsDragged(true);
+				}
+				else
+					window->SetToCenter();
 			}
 
 			m_createWindowRequests.clear();
