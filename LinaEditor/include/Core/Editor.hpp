@@ -36,7 +36,7 @@ SOFTWARE.
 #include "EditorCommon.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "GUI/EditorPayloadManager.hpp"
-
+#include "GUI/EditorLayoutManager.hpp"
 namespace Lina
 {
 	struct ResourceIdentifier;
@@ -72,7 +72,7 @@ namespace Lina::Editor
 		};
 
 	public:
-		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this){};
+		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this), m_layoutManager(this){};
 		virtual ~Editor() = default;
 
 		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
@@ -80,9 +80,10 @@ namespace Lina::Editor
 		void EndSplashScreen();
 		void Tick();
 
-		void OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false);
-		void CloseWindow(StringID sid);
-		void OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
+		void	 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false);
+		IWindow* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
+		void	 CloseWindow(StringID sid);
+		void	 OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
 
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
@@ -103,8 +104,14 @@ namespace Lina::Editor
 			return m_guiDrawers;
 		}
 
+		inline EditorLayoutManager& GetLayoutManager()
+		{
+			return m_layoutManager;
+		}
+
+		static uint32 s_childWindowCtr;
+
 	private:
-		static uint32					  s_childWindowCtr;
 		IWindow*						  m_draggedWindow = nullptr;
 		Input*							  m_input		  = nullptr;
 		EditorPayloadManager			  m_payloadManager;
@@ -115,6 +122,7 @@ namespace Lina::Editor
 		Vector<CreateWindowRequest>		  m_createWindowRequests;
 		Vector<TextureSheetItem>		  m_editorImages;
 		HashMap<StringID, GUIDrawerBase*> m_guiDrawers;
+		EditorLayoutManager				  m_layoutManager;
 	};
 } // namespace Lina::Editor
 

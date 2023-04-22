@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
+#include "Serialization/StringSerialization.hpp"
 
 namespace Lina::Editor
 {
@@ -86,9 +87,10 @@ namespace Lina::Editor
 			{
 				if (GetIsHovered())
 				{
-					lastPressedNode		  = this;
-					m_isPressed			  = true;
-					m_isDragging		  = true;
+					lastPressedNode = this;
+					m_isPressed		= true;
+					m_isDragging	= true;
+					OnDragBegin();
 					m_dragStartMousePos	  = m_window->GetMousePosition();
 					m_dragStartMouseDelta = Vector2(m_dragStartMousePos) - m_rect.pos;
 				}
@@ -101,9 +103,11 @@ namespace Lina::Editor
 					OnClicked(LINA_MOUSE_0);
 				}
 
+				if (m_isDragging)
+					OnDragEnd();
+
 				m_isPressed	 = false;
 				m_isDragging = false;
-				OnDragEnd();
 			}
 		}
 		else
@@ -133,8 +137,13 @@ namespace Lina::Editor
 
 	void GUINode::OnLostFocus()
 	{
+		if (m_isHovered)
+			OnHoverEnd();
+
+		if (m_isDragging)
+			OnDragEnd();
+
 		m_isPressed = m_isHovered = m_isDragging = false;
-		OnDragEnd();
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
@@ -162,6 +171,24 @@ namespace Lina::Editor
 		}
 
 		return retVal;
+	}
+
+	void GUINode::SaveToStream(OStream& stream)
+	{
+		stream << m_sid << m_visible << m_drawOrder << m_lastDpi;
+		m_rect.pos.SaveToStream(stream);
+		m_rect.size.SaveToStream(stream);
+		m_lastCalculatedSize.SaveToStream(stream);
+		StringSerialization::SaveToStream(stream, m_title);
+	}
+
+	void GUINode::LoadFromStream(IStream& stream)
+	{
+		stream >> m_sid >> m_visible >> m_drawOrder >> m_lastDpi;
+		m_rect.pos.LoadFromStream(stream);
+		m_rect.size.LoadFromStream(stream);
+		m_lastCalculatedSize.LoadFromStream(stream);
+		StringSerialization::LoadFromStream(stream, m_title);
 	}
 
 	GUINode* GUINode::AddChildren(GUINode* node)

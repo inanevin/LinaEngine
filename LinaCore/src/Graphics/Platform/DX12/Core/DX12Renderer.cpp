@@ -1081,8 +1081,8 @@ namespace Lina
 			D3D12_RECT sc;
 			sc.left	  = static_cast<LONG>(scissors.pos.x);
 			sc.top	  = static_cast<LONG>(scissors.pos.y);
-			sc.right  = static_cast<LONG>(scissors.size.x);
-			sc.bottom = static_cast<LONG>(scissors.size.y);
+			sc.right  = static_cast<LONG>(scissors.pos.x + scissors.size.x);
+			sc.bottom = static_cast<LONG>(scissors.pos.y + scissors.size.y);
 
 			cmdList->RSSetViewports(1, &vp);
 			cmdList->RSSetScissorRects(1, &sc);
@@ -1094,6 +1094,17 @@ namespace Lina
 			cmdList->SetGraphicsRootDescriptorTable(GBB_SamplerData, m_gpuSamplerHeap[m_currentFrameIndex]->GetHeapGPUStart());
 			cmdList->SetGraphicsRootDescriptorTable(GBB_MatData, {m_gpuBufferHeap[m_currentFrameIndex]->GetOffsetedHandle(m_texturesHeapAllocCount).GetGPUHandle()});
 		}
+	}
+
+	void Renderer::SetScissors(uint32 cmdListHandle, const Recti& scissors)
+	{
+		auto&	   cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		D3D12_RECT sc;
+		sc.left	  = static_cast<LONG>(scissors.pos.x);
+		sc.top	  = static_cast<LONG>(scissors.pos.y);
+		sc.right  = static_cast<LONG>(scissors.pos.x + scissors.size.x);
+		sc.bottom = static_cast<LONG>(scissors.pos.y + scissors.size.y);
+		cmdList->RSSetScissorRects(1, &sc);
 	}
 
 	void Renderer::FinalizeCommandList(uint32 cmdListHandle)

@@ -75,6 +75,9 @@ namespace Lina::Editor
 
 	void GUINodeFMPopupElement::OnClicked(uint32 button)
 	{
+		if (button != LINA_MOUSE_0)
+			return;
+
 		if (m_onClicked)
 			m_onClicked(this);
 	}
@@ -157,6 +160,9 @@ namespace Lina::Editor
 
 	void GUINodeFMPopupElementToggle::OnClicked(uint32 button)
 	{
+		if (button != LINA_MOUSE_0)
+			return;
+
 		GUINodeFMPopupElement::OnClicked(button);
 		m_value = !m_value;
 	}

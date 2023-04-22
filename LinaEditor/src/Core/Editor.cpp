@@ -144,6 +144,8 @@ namespace Lina::Editor
 		m_guiDrawers[LINA_MAIN_SWAPCHAIN] = m_guiDrawerMainWindow;
 
 		m_editorImages = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetResource<Texture>("Resources/Editor/Textures/EditorImages.png"_hs)->GetSheetItems(EDITOR_IMAGES_SHEET_COLUMNS, EDITOR_IMAGES_SHEET_ROWS);
+
+		m_layoutManager.LoadSavedLayout();
 	}
 
 	void Editor::Tick()
@@ -166,14 +168,8 @@ namespace Lina::Editor
 
 			for (auto& req : m_createWindowRequests)
 			{
-				auto window = m_windowManager->CreateAppWindow(req.windowSid, req.title.c_str(), Vector2i::Zero, Vector2i(500, 500), SRM_DrawGUI);
-				window->SetStyle(WindowStyle::Borderless);
-				window->SetVisible(true);
-
-				auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(req.windowSid);
-				auto guiDrawer		 = new GUIDrawerChildWindow(this, surfaceRenderer->GetSwapchain());
-				surfaceRenderer->SetGUIDrawer(guiDrawer);
-				m_guiDrawers[req.windowSid] = guiDrawer;
+				auto window	   = CreateChildWindow(req.windowSid, req.title, Vector2i::Zero, Vector2i(500, 500));
+				auto guiDrawer = m_guiDrawers.at(req.windowSid);
 
 				auto targetDockArea = guiDrawer->GetFirstDockArea();
 				auto createdPanel	= GUIPanelFactory::CreatePanel(req.panelType, targetDockArea, req.title, req.panelSid);
@@ -234,14 +230,16 @@ namespace Lina::Editor
 
 		for (auto& [sid, guiDrawer] : m_guiDrawers)
 		{
-			if (guiDrawer == m_guiDrawerMainWindow)
-				continue;
+			const auto& dockAreas = guiDrawer->GetDockAreas();
 
-			GUINode* node = guiDrawer->FindNode(panelSID);
-			if (node)
+			for (auto area : dockAreas)
 			{
-				wm->GetWindow(sid)->BringToFront();
-				return;
+				GUINode* node = area->FindChildren(panelSID);
+				if (node)
+				{
+					wm->GetWindow(sid)->BringToFront();
+					return;
+				}
 			}
 		}
 
@@ -256,6 +254,20 @@ namespace Lina::Editor
 		};
 
 		m_createWindowRequests.push_back(req);
+	}
+
+	IWindow* Editor::CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size)
+	{
+		auto window = m_windowManager->CreateAppWindow(sid, title.c_str(), pos, size, SRM_DrawGUI);
+		window->SetStyle(WindowStyle::Borderless);
+		window->SetVisible(true);
+
+		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(sid);
+		auto guiDrawer		 = new GUIDrawerChildWindow(this, surfaceRenderer->GetSwapchain());
+		surfaceRenderer->SetGUIDrawer(guiDrawer);
+		m_guiDrawers[sid] = guiDrawer;
+
+		return window;
 	}
 
 	void Editor::CloseWindow(StringID sid)

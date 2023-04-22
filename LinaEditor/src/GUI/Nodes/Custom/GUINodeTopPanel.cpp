@@ -51,7 +51,16 @@ namespace Lina::Editor
 		filePopup->AddDefault("Project Settings")->AddDivider("OTHER")->AddDefault("Restart")->AddDefault("Quit");
 		filePopup->SetTitle("File");
 
-		GUINodeFMPopup* editPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* editPopup	 = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* layoutsPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
+		layoutsPopup->AddDefault("Save Current Layout");
+		layoutsPopup->AddDefault("Load Saved Layout");
+		layoutsPopup->AddDefault("Load Default Layout");
+		layoutsPopup->SetTitle("");
+		layoutsPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+
+		editPopup->AddExpandable("Layouts", layoutsPopup);
+
 		editPopup->AddToggle("Dummy2", true);
 		editPopup->SetTitle("Edit");
 
@@ -158,7 +167,20 @@ namespace Lina::Editor
 			if (nodeSID == sid)
 			{
 				m_editor->OpenPanel(panelType, str, nodeSID);
+				return;
 			}
+		}
+
+		if (nodeSID == "Save Current Layout"_hs)
+		{
+			m_editor->GetLayoutManager().SaveCurrentLayout();
+		}
+		else if (nodeSID == "Load Saved Layout"_hs)
+		{
+			m_editor->GetLayoutManager().LoadSavedLayout();
+		}
+		else if (nodeSID == "Load Default Layout"_hs)
+		{
 		}
 	};
 } // namespace Lina::Editor

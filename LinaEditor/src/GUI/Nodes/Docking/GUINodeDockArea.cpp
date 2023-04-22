@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelContentBrowser.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelHierarchy.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelProperties.hpp"
@@ -48,13 +49,14 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Input/Core/Input.hpp"
+#include "Serialization/StringSerialization.hpp"
 
 namespace Lina::Editor
 {
 	GUINodeDockArea::GUINodeDockArea(GUIDrawerBase* drawer, int drawOrder) : GUINodeDivisible(drawer, drawOrder)
 	{
 		m_tabArea = new GUINodeTabArea(drawer, drawOrder);
-		m_tabArea->SetIsPanelTabs(true);
+		m_tabArea->SetCanDetach(true);
 		m_tabArea->SetCallbackTabClicked(BIND(&GUINodeDockArea::OnTabClicked, this, std::placeholders::_1));
 		m_tabArea->SetCallbackTabDismissed(BIND(&GUINodeDockArea::OnTabDismissed, this, std::placeholders::_1));
 		m_tabArea->SetCallbackTabDetached(BIND(&GUINodeDockArea::OnTabDetached, this, std::placeholders::_1, std::placeholders::_2));
@@ -95,7 +97,7 @@ namespace Lina::Editor
 		m_dismissedTabs.clear();
 
 		// wuup wupp we are done.
-		if (m_tabArea->GetIsEmpty())
+		if (m_tabArea->GetIsEmpty() && (m_swapchain->GetSID() != LINA_MAIN_SWAPCHAIN || !m_isAlone))
 		{
 			m_drawer->RemoveDockArea(this, true);
 			return;
@@ -105,16 +107,18 @@ namespace Lina::Editor
 
 		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
 
-		const bool	needTabArea	  = !m_isAlone || (m_panels.size() > 1);
+		const bool	needTabArea	  = (!m_isAlone) || (m_panels.size() > 1) || m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN;
 		const float tabAreaHeight = needTabArea ? 24.0f * m_window->GetDPIScale() : 0.0f;
 		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
 		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
 
+		const bool isSingleMainWindow = m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN && m_isAlone && m_panels.size() == 1;
+		m_tabArea->SetCanClosePanels(!isSingleMainWindow);
+		m_tabArea->SetCanDetach(!isSingleMainWindow);
 		m_tabArea->SetVisible(needTabArea);
 
 		if (needTabArea)
 		{
-			m_tabArea->SetCanClosePanels(true);
 			m_tabArea->SetFocusedTab(m_focusedPanel->GetSID());
 			m_tabArea->SetRect(tabRect);
 			m_tabArea->Draw(threadID);
@@ -141,6 +145,8 @@ namespace Lina::Editor
 
 		for (auto p : m_panels)
 			p->SetVisible(p == m_focusedPanel);
+
+		m_drawer->OnDockAreasModified();
 	}
 
 	void GUINodeDockArea::RemovePanel(GUINodePanel* panel)
@@ -152,6 +158,8 @@ namespace Lina::Editor
 			m_focusedPanel = m_panels.empty() ? nullptr : m_panels[0];
 
 		delete panel;
+
+		m_drawer->OnDockAreasModified();
 	}
 
 	void GUINodeDockArea::SetDockPreviewEnabled(bool enabled)
@@ -187,6 +195,54 @@ namespace Lina::Editor
 	{
 		auto it = linatl::find_if(m_panels.begin(), m_panels.end(), [node](GUINodePanel* p) { return p->GetSID() == node->GetSID(); });
 		m_dismissedTabs.push_back({node, true});
+	}
+
+	void GUINodeDockArea::SaveToStream(OStream& stream)
+	{
+		GUINodeDivisible::SaveToStream(stream);
+
+		const uint32 panelsSize = static_cast<uint32>(m_panels.size());
+		stream << panelsSize;
+
+		for (uint32 i = 0; i < panelsSize; i++)
+		{
+			auto*		   panel	 = m_panels[i];
+			const uint8	   panelType = static_cast<uint8>(panel->GetPanelType());
+			const StringID panelSID	 = panel->GetSID();
+			stream << panelType;
+			stream << panelSID;
+			StringSerialization::SaveToStream(stream, panel->GetTitle());
+		}
+
+		const StringID focusedSID = m_focusedPanel ? m_focusedPanel->GetSID() : 0;
+		stream << focusedSID;
+	}
+
+	void GUINodeDockArea::LoadFromStream(IStream& stream)
+	{
+		GUINodeDivisible::LoadFromStream(stream);
+
+		uint32 panelsSize = 0;
+		stream >> panelsSize;
+
+		for (uint32 i = 0; i < panelsSize; i++)
+		{
+			StringID panelSID	  = 0;
+			String	 panelTitle	  = "";
+			uint8	 panelTypeInt = 0;
+
+			stream >> panelTypeInt;
+			stream >> panelSID;
+			StringSerialization::LoadFromStream(stream, panelTitle);
+
+			const EditorPanel panelType = static_cast<EditorPanel>(panelTypeInt);
+			auto*			  panel		= GUIPanelFactory::CreatePanel(panelType, this, panelTitle, panelSID);
+			AddPanel(panel);
+		}
+
+		StringID focusedSID = 0;
+		stream >> focusedSID;
+		m_focusedPanel = focusedSID == 0 ? nullptr : *linatl::find_if(m_panels.begin(), m_panels.end(), [focusedSID](GUINodePanel* p) { return p->GetSID() == focusedSID; });
 	}
 
 } // namespace Lina::Editor

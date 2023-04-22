@@ -28,19 +28,56 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaVGInc_HPP
-#define LinaVGInc_HPP
+#ifndef EditorLayoutManager_HPP
+#define EditorLayoutManager_HPP
 
-#define LINAVG_TEXT_SUPPORT
-#include <LinaVG/LinaVG.hpp>
-
-#define LV2(V) LinaVG::Vec2(static_cast<float>((int)V.x), static_cast<float>((int)V.y))
-#define LV4(V) LinaVG::Vec4(V.x, V.y, V.z, V.w)
-#define FL2(V) Vector2(V.x, V.y)
-#define FL4(V) Vector4(V.x, V.y, V.z, V.w)
+#include "Core/StringID.hpp"
+#include "Data/String.hpp"
+#include "Math/Vector.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
-
+	class WindowManager;
+	class OStream;
 } // namespace Lina
+
+namespace Lina::Editor
+{
+	class Editor;
+
+	struct LayoutWindow
+	{
+		String	 title = "";
+		StringID sid   = 0;
+		Vector2i pos   = Vector2i::Zero;
+		Vector2i size  = Vector2i::Zero;
+	};
+
+	struct Layout
+	{
+		Vector<LayoutWindow> windows;
+	};
+
+	class EditorLayoutManager
+	{
+	public:
+		EditorLayoutManager(Editor* editor);
+		~EditorLayoutManager() = default;
+
+		void SaveCurrentLayout();
+		void LoadSavedLayout();
+		void LoadDefaultLayout();
+
+	private:
+	
+		void SerializeLayoutWindow(OStream& stream, const LayoutWindow& l);
+		void DeserializeLayoutWindow(IStream& stream, LayoutWindow& l);
+
+	private:
+		Editor*		   m_editor		   = nullptr;
+		WindowManager* m_windowManager = nullptr;
+	};
+} // namespace Lina::Editor
+
 #endif

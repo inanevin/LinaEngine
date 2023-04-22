@@ -186,4 +186,39 @@ namespace Lina::Editor
 
 		return nullptr;
 	}
+
+	void GUINodeDivisible::FindDividersFromLoadedData(const Vector<GUINodeDivider*>& dividers)
+	{
+		for (auto d : dividers)
+		{
+			if (d->GetSID() == m_loadedLeftSID)
+				m_dividerLeft = d;
+			else if (d->GetSID() == m_loadedRightSID)
+				m_dividerRight = d;
+			else if (d->GetSID() == m_loadedDownSID)
+				m_dividerDown = d;
+			else if (d->GetSID() == m_loadedUpSID)
+				m_dividerUp = d;
+		}
+	}
+
+	void GUINodeDivisible::SaveToStream(OStream& stream)
+	{
+		GUINode::SaveToStream(stream);
+		m_splitRect.pos.SaveToStream(stream);
+		m_splitRect.size.SaveToStream(stream);
+		const StringID leftSid	= m_dividerLeft ? m_dividerLeft->GetSID() : 0;
+		const StringID rightSid = m_dividerRight ? m_dividerRight->GetSID() : 0;
+		const StringID upSid	= m_dividerUp ? m_dividerUp->GetSID() : 0;
+		const StringID downSid	= m_dividerDown ? m_dividerDown->GetSID() : 0;
+		stream << leftSid << rightSid << upSid << downSid;
+	}
+
+	void GUINodeDivisible::LoadFromStream(IStream& stream)
+	{
+		GUINode::LoadFromStream(stream);
+		m_splitRect.pos.LoadFromStream(stream);
+		m_splitRect.size.LoadFromStream(stream);
+		stream >> m_loadedLeftSID >> m_loadedRightSID >> m_loadedUpSID >> m_loadedDownSID;
+	}
 } // namespace Lina::Editor

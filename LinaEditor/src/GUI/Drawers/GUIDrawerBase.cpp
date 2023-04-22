@@ -52,9 +52,9 @@ namespace Lina::Editor
 	GUIDrawerBase::GUIDrawerBase(Editor* editor, ISwapchain* swap) : m_editor(editor), IGUIDrawer(swap)
 	{
 		m_root = new GUINode(this, 0);
-		m_sid  = swap->GetWindow()->GetSID();
 
 		auto dockArea = new GUINodeDockArea(this, 0);
+		dockArea->SetSID(m_dockAreaCounter++);
 		dockArea->SetSplitRect(Rect(Vector2::Zero, Vector2::One));
 		m_dockAreas.push_back(dockArea);
 		m_root->AddChildren(m_dockAreas[0]);
@@ -193,18 +193,24 @@ namespace Lina::Editor
 			n->SetDockPreviewEnabled(enabled);
 	}
 
-	void GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel)
+	GUINodeDockArea* GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel, float customSplit)
 	{
 		LINA_ASSERT(type != DockSplitType::None, "Dock split type can't be none!");
 
 		if (type == DockSplitType::Tab)
 		{
 			area->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), area, panel->GetTitle(), panel->GetSID()));
-			return;
+			return nullptr;
 		}
 
+		const float splitMultiplier		 = Math::Equals(customSplit, 0.0f, 0.001f) ? EDITOR_DEFAULT_DOCK_SPLIT : customSplit;
+		const float splitMultiplierOuter = Math::Equals(customSplit, 0.0f, 0.001f) ? EDITOR_DEFAULT_DOCK_SPLIT_OUTER : customSplit;
+
 		GUINodeDockArea* newArea = new GUINodeDockArea(this, 0);
-		GUINodeDivider*	 divider = new GUINodeDivider(this, FRONT_DRAW_ORDER);
+		newArea->SetSID(m_dockAreaCounter++);
+
+		GUINodeDivider* divider = new GUINodeDivider(this, FRONT_DRAW_ORDER);
+		divider->SetSID(m_dividerCounter++);
 
 		// Setup
 		{
@@ -244,27 +250,27 @@ namespace Lina::Editor
 
 			if (type == DockSplitType::Left)
 			{
-				split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
+				split			 = currentSplitRect.size.x * splitMultiplier;
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
 				currentSplitRect.pos.x += split;
 				currentSplitRect.size.x -= split;
 			}
 			else if (type == DockSplitType::Right)
 			{
-				split			 = currentSplitRect.size.x * EDITOR_DEFAULT_DOCK_SPLIT;
+				split			 = currentSplitRect.size.x * splitMultiplier;
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x + currentSplitRect.size.x - split, currentSplitRect.pos.y), Vector2(split, currentSplitRect.size.y));
 				currentSplitRect.size.x -= split;
 			}
 			else if (type == DockSplitType::Up)
 			{
-				split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
+				split			 = currentSplitRect.size.y * splitMultiplier;
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y), Vector2(currentSplitRect.size.x, split));
 				currentSplitRect.pos.y += split;
 				currentSplitRect.size.y -= split;
 			}
 			else if (type == DockSplitType::Down)
 			{
-				split			 = currentSplitRect.size.y * EDITOR_DEFAULT_DOCK_SPLIT;
+				split			 = currentSplitRect.size.y * splitMultiplier;
 				newAreaSplitRect = Rect(Vector2(currentSplitRect.pos.x, currentSplitRect.pos.y + currentSplitRect.size.y - split), Vector2(currentSplitRect.size.x, split));
 				currentSplitRect.size.y -= split;
 			}
@@ -324,7 +330,7 @@ namespace Lina::Editor
 		else
 		{
 			Vector<GUINodeDockArea*> areas;
-			const float				 split = EDITOR_DEFAULT_DOCK_SPLIT_OUTER;
+			const float				 split = splitMultiplierOuter;
 			Rect					 newAreaSplitRect;
 
 			if (isNegative)
@@ -424,6 +430,8 @@ namespace Lina::Editor
 
 			newArea->SetSplitRect(newAreaSplitRect);
 		}
+
+		return newArea;
 	}
 
 	GUINode* GUIDrawerBase::FindNode(StringID sid)
@@ -447,6 +455,8 @@ namespace Lina::Editor
 			m_dockAreasToRemove.push_back(area);
 		else
 			RemoveDockAreaImpl(area);
+
+		OnDockAreasModified();
 	}
 
 	void GUIDrawerBase::DrawDockAreas(int threadID, const Rect& availableDockRect)
@@ -566,6 +576,61 @@ namespace Lina::Editor
 		m_dockAreas.erase(linatl::find_if(m_dockAreas.begin(), m_dockAreas.end(), [area](auto* dockArea) { return dockArea == area; }));
 		delete splitDivider;
 		delete area;
+	}
+
+	void GUIDrawerBase::SaveToStream(OStream& stream)
+	{
+		const uint32 dockAreaSize = static_cast<uint32>(m_dockAreas.size());
+		const uint32 dividerSize  = static_cast<uint32>(m_dividers.size());
+		stream << m_dockAreaCounter << m_dividerCounter << dockAreaSize << dividerSize;
+
+		m_dockAreas[0]->SaveToStream(stream);
+
+		for (uint32 i = 1; i < dockAreaSize; i++)
+		{
+			auto* d = m_dockAreas[i];
+			d->SaveToStream(stream);
+		}
+
+		for (auto d : m_dividers)
+		{
+			d->SaveToStream(stream);
+		}
+	}
+
+	void GUIDrawerBase::LoadFromStream(IStream& stream)
+	{
+		uint32 dockAreaSize = 0, dividerSize = 0;
+		stream >> m_dockAreaCounter >> m_dividerCounter >> dockAreaSize >> dividerSize;
+
+		m_dockAreas[0]->LoadFromStream(stream);
+
+		for (uint32 i = 1; i < dockAreaSize; i++)
+		{
+			GUINodeDockArea* area = new GUINodeDockArea(this, 0);
+			area->LoadFromStream(stream);
+			m_dockAreas.push_back(area);
+			m_root->AddChildren(area);
+		}
+
+		for (uint32 i = 0; i < dividerSize; i++)
+		{
+			GUINodeDivider* divider = new GUINodeDivider(this, FRONT_DRAW_ORDER);
+			divider->LoadFromStream(stream);
+			m_dividers.push_back(divider);
+			m_root->AddChildren(divider);
+		}
+
+		Vector<GUINodeDivisible*> divisibles;
+
+		for (auto d : m_dockAreas)
+		{
+			d->FindDividersFromLoadedData(m_dividers);
+			divisibles.push_back(d);
+		}
+
+		for (auto d : m_dividers)
+			d->FindNodesFromLoadedData(divisibles);
 	}
 
 } // namespace Lina::Editor

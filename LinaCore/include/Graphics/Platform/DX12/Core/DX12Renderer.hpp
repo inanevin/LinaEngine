@@ -149,6 +149,7 @@ namespace Lina
 		void   ReleaseCommandList(uint32 handle);
 		void   ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
 		void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
+		void   SetScissors(uint32 cmdListHandle, const Recti& scissors);
 		void   FinalizeCommandList(uint32 cmdListHandle);
 		void   ExecuteCommandListsGraphics(const Vector<uint32>& lists);
 		void   ExecuteCommandListsTransfer(const Vector<uint32>& lists);

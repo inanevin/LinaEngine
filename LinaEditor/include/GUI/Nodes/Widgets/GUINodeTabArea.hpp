@@ -79,9 +79,9 @@ namespace Lina::Editor
 			m_isReorderEnabled = isEnabled;
 		}
 
-		inline void SetIsPanelTabs(bool isPanelTabs)
+		inline void SetCanDetach(bool canDetach)
 		{
-			m_isPanelTabs = isPanelTabs;
+			m_canDetach = canDetach;
 		}
 
 		inline void SetCanClosePanels(bool canClose)
@@ -102,7 +102,7 @@ namespace Lina::Editor
 		Delegate<void(GUINodeTab*, const Vector2&)> m_onTabDetached;
 		Vector<GUINodeTab*>							m_tabs;
 		bool										m_isReorderEnabled = true;
-		bool										m_isPanelTabs	   = false;
+		bool										m_canDetach	   = false;
 	};
 
 } // namespace Lina::Editor

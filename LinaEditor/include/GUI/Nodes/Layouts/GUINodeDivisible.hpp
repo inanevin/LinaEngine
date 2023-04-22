@@ -52,7 +52,10 @@ namespace Lina::Editor
 		void			SubtractSize(float delta, Direction dir);
 		void			SubtractPos(float delta, Direction dir);
 		GUINodeDivider* FindDividerToRemove();
-		
+		void			FindDividersFromLoadedData(const Vector<GUINodeDivider*>& dividers);
+		virtual void	SaveToStream(OStream& stream) override;
+		virtual void	LoadFromStream(IStream& stream) override;
+
 		const Rect& GetSplitRect() const
 		{
 			return m_splitRect;
@@ -107,13 +110,18 @@ namespace Lina::Editor
 			}
 		}
 
-	private:
+	protected:
 		GUINodeDivider* m_dividerLeft		 = nullptr;
 		GUINodeDivider* m_dividerRight		 = nullptr;
 		GUINodeDivider* m_dividerUp			 = nullptr;
 		GUINodeDivider* m_dividerDown		 = nullptr;
 		Rect			m_splitRect			 = Rect();
 		Rect			m_totalAvailableRect = Rect();
+
+		StringID m_loadedLeftSID  = 0;
+		StringID m_loadedRightSID = 0;
+		StringID m_loadedUpSID	  = 0;
+		StringID m_loadedDownSID  = 0;
 	};
 
 } // namespace Lina::Editor

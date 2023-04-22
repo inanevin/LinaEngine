@@ -165,7 +165,7 @@ namespace Lina
 		return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon) && Math::Equals(w, other.w, epsilon);
 	}
 
-	void Vector4::SaveToStream(OStream& stream)
+	void Vector4::SaveToStream(OStream& stream) const
 	{
 		stream << x << y << z << w;
 	}
@@ -253,7 +253,7 @@ namespace Lina
 		return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon);
 	}
 
-	void Vector3::SaveToStream(OStream& stream)
+	void Vector3::SaveToStream(OStream& stream) const
 	{
 		stream << x << y << z;
 	}
@@ -408,7 +408,7 @@ namespace Lina
 		*this = glm::normalize(glm::vec2(*this));
 	}
 
-	void Vector2::SaveToStream(OStream& stream)
+	void Vector2::SaveToStream(OStream& stream) const
 	{
 		stream << x << y;
 	}
@@ -424,7 +424,7 @@ namespace Lina
 		return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon);
 	}
 
-	void Vector2i::SaveToStream(OStream& stream)
+	void Vector2i::SaveToStream(OStream& stream) const
 	{
 		stream << x << y;
 	}
@@ -439,7 +439,7 @@ namespace Lina
 		return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon) && Math::Equals(w, other.w, epsilon);
 	}
 
-	void Vector4i::SaveToStream(OStream& stream)
+	void Vector4i::SaveToStream(OStream& stream) const
 	{
 		stream << x << y << z << w;
 	}
@@ -449,7 +449,7 @@ namespace Lina
 		stream >> x >> y >> z >> w;
 	}
 
-	void Vector2ui::SaveToStream(OStream& stream)
+	void Vector2ui::SaveToStream(OStream& stream) const
 	{
 		stream << x << y;
 	}
@@ -459,7 +459,7 @@ namespace Lina
 		stream >> x >> y;
 	}
 
-	void Vector3ui::SaveToStream(OStream& stream)
+	void Vector3ui::SaveToStream(OStream& stream) const
 	{
 		stream << x << y << z;
 	}

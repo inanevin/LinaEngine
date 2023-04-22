@@ -112,7 +112,6 @@ namespace Lina
 
 			if (res == HTCLIENT)
 			{
-				// win32Window->SetCursorType(win32Window->m_cursorType);
 				win32Window->SetCursorType(win32Window->m_cursorType);
 			}
 
@@ -224,8 +223,6 @@ namespace Lina
 		}
 		break;
 		case WM_MOUSEMOVE: {
-			if (!s_isAppActive)
-				break;
 
 			int xPos = GET_X_LPARAM(lParam);
 			int yPos = GET_Y_LPARAM(lParam);
@@ -468,7 +465,6 @@ namespace Lina
 		Rid[0].hwndTarget  = m_window;
 		RegisterRawInputDevices(Rid, 1, sizeof(Rid[0]));
 
-		SetToCenter();
 		return true;
 	}
 
@@ -640,7 +636,7 @@ namespace Lina
 		}
 	}
 
-	void Win32Window::HandleMove()
+	void Win32Window::Tick()
 	{
 		// Reset as this will be called pre-pump messages
 		m_mouseDelta = Vector2i::Zero;
@@ -666,13 +662,19 @@ namespace Lina
 			const Vector2  targetPos = absMouse - m_dragMouseDelta;
 			SetPos(targetPos);
 		}
+
+		if (m_titleChangeRequested)
+		{
+			SetWindowTextA(m_window, m_title.c_str());
+			m_titleChangeRequested = false;
+		}
 	}
 
 	void Win32Window::OnDragEnabled()
 	{
 		m_isDragged = true;
 		SetInputPassthrough(true);
-		
+
 		const Vector2i localMousePos = m_input->GetMousePositionAbs() - m_rect.pos;
 		m_dragMouseDelta			 = localMousePos;
 
@@ -786,8 +788,8 @@ namespace Lina
 
 	void Win32Window::SetTitle(const String& title)
 	{
-		m_title = title;
-		SetWindowTextA(m_window, title.c_str());
+		m_title				   = title;
+		m_titleChangeRequested = true;
 	}
 
 	void Win32Window::Minimize()

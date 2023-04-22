@@ -32,6 +32,8 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Core/Theme.hpp"
+#include "GUI/Drawers/GUIDrawerBase.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 
 namespace Lina::Editor
 {
@@ -301,6 +303,79 @@ namespace Lina::Editor
 		}
 
 		return false;
+	}
+
+	void GUINodeDivider::FindNodesFromLoadedData(const Vector<GUINodeDivisible*>& divisibles)
+	{
+		for (auto sid : m_loadedNegativeNodeSids)
+		{
+			for (auto d : divisibles)
+			{
+				if (d->GetSID() == sid)
+				{
+					m_negativeNodes.push_back(d);
+					break;
+				}
+			}
+		}
+
+		for (auto sid : m_loadedPositiveNodeSids)
+		{
+			for (auto d : divisibles)
+			{
+				if (d->GetSID() == sid)
+				{
+					m_positiveNodes.push_back(d);
+					break;
+				}
+			}
+		}
+	}
+
+	void GUINodeDivider::SaveToStream(OStream& stream)
+	{
+		GUINode::SaveToStream(stream);
+		const uint8	 dragDir		   = static_cast<uint8>(m_dragDirection);
+		const uint32 positiveNodesSize = static_cast<uint32>(m_positiveNodes.size());
+		const uint32 negativeNodesSize = static_cast<uint32>(m_negativeNodes.size());
+
+		stream << dragDir << positiveNodesSize << negativeNodesSize;
+
+		for (auto n : m_positiveNodes)
+		{
+			const StringID sid = n->GetSID();
+			stream << sid;
+		}
+
+		for (auto n : m_negativeNodes)
+		{
+			const StringID sid = n->GetSID();
+			stream << sid;
+		}
+	}
+
+	void GUINodeDivider::LoadFromStream(IStream& stream)
+	{
+		GUINode::LoadFromStream(stream);
+		uint8  dragDir			 = 0;
+		uint32 positiveNodesSize = 0, negativeNodesSize = 0;
+
+		stream >> dragDir >> positiveNodesSize >> negativeNodesSize;
+		m_dragDirection = static_cast<Direction>(dragDir);
+
+		for (uint32 i = 0; i < positiveNodesSize; i++)
+		{
+			StringID sid = 0;
+			stream >> sid;
+			m_loadedPositiveNodeSids.push_back(sid);
+		}
+
+		for (uint32 i = 0; i < negativeNodesSize; i++)
+		{
+			StringID sid = 0;
+			stream >> sid;
+			m_loadedNegativeNodeSids.push_back(sid);
+		}
 	}
 
 } // namespace Lina::Editor

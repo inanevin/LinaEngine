@@ -57,7 +57,7 @@ namespace Lina
 		static Vector2ui Zero;
 		static Vector2ui One;
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 
@@ -75,7 +75,7 @@ namespace Lina
 
 		bool Equals(const Vector2i& other, int epsilon = 0) const;
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 
@@ -203,7 +203,7 @@ namespace Lina
 			return &x;
 		}
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 
@@ -390,7 +390,7 @@ namespace Lina
 			return &x;
 		}
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 
@@ -453,7 +453,7 @@ namespace Lina
 		Vector3ui(const Vector2ui& rhs) : glm::uvec3(rhs.x, rhs.y, 0.0f){};
 		Vector3ui(const glm::uvec3& rhs) : glm::uvec3(rhs.x, rhs.y, rhs.z){};
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 
@@ -596,7 +596,7 @@ namespace Lina
 			return &x;
 		}
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 
@@ -662,7 +662,7 @@ namespace Lina
 		static Vector4i One;
 
 		bool Equals(const Vector4i& other, int epsilon = 0) const;
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 

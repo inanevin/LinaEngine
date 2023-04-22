@@ -96,7 +96,7 @@ namespace Lina
 	void WindowManager::Tick()
 	{
 		for (auto [sid, w] : m_windows)
-			w->HandleMove();
+			w->Tick();
 	}
 
 	IWindow* WindowManager::CreateAppWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2i& size, Bitmask16 surfaceRendererMask)

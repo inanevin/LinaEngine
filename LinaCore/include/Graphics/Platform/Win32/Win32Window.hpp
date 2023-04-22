@@ -68,7 +68,7 @@ namespace Lina
 		virtual void BringToFront() override;
 		virtual void SetMouseFocus(bool focus) override;
 		virtual void SetInputPassthrough(bool isInputPassThrough) override;
-		virtual void HandleMove() override;
+		virtual void Tick() override;
 		virtual void SetCursorType(CursorType type) override;
 		virtual void OnDragEnabled() override;
 		virtual void OnDragDisabled() override;
@@ -93,6 +93,7 @@ namespace Lina
 	private:
 		friend class Application;
 
+		bool								  m_titleChangeRequested = false;
 		static bool							  s_isAppActive;
 		static HashMap<HWND__*, Win32Window*> s_win32Windows;
 		bool								  m_isMouseInside	 = false;

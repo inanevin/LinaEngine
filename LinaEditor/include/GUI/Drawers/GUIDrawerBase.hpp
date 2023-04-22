@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/StringID.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Math/Rect.hpp"
+#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
@@ -49,7 +50,7 @@ namespace Lina::Editor
 	class GUINodeDivider;
 	class GUINodeDockPreview;
 
-	class GUIDrawerBase : public IGUIDrawer
+	class GUIDrawerBase : public IGUIDrawer, public ISerializable
 	{
 	public:
 		GUIDrawerBase(Editor* editor, ISwapchain* swap);
@@ -62,19 +63,17 @@ namespace Lina::Editor
 		virtual void OnMouseWheel(uint32 delta) override;
 		virtual void OnLostFocus() override;
 		virtual void OnWindowDrag(bool isDragging) override;
+		virtual void OnDockAreasModified(){};
 
-		void	 OnNodeDeleted(GUINode* node);
-		void	 SetDockPreviewEnabled(bool enabled);
-		void	 SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel);
-		GUINode* FindNode(StringID sid);
-		void	 OnPayloadCreated(PayloadType type, void* data);
-		bool	 OnPayloadDropped(PayloadType type, void* data);
-		void	 RemoveDockArea(GUINodeDockArea* area, bool immediate);
-
-		inline StringID GetSID() const
-		{
-			return m_sid;
-		}
+		void			 OnNodeDeleted(GUINode* node);
+		void			 SetDockPreviewEnabled(bool enabled);
+		GUINodeDockArea* SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel, float customSplit = 0.0f);
+		GUINode*		 FindNode(StringID sid);
+		void			 OnPayloadCreated(PayloadType type, void* data);
+		bool			 OnPayloadDropped(PayloadType type, void* data);
+		void			 RemoveDockArea(GUINodeDockArea* area, bool immediate);
+		virtual void	 SaveToStream(OStream& stream) override;
+		virtual void	 LoadFromStream(IStream& stream) override;
 
 		inline GUINodeDockArea* GetFirstDockArea() const
 		{
@@ -96,6 +95,11 @@ namespace Lina::Editor
 			return m_dockAreas;
 		}
 
+		inline const Vector<GUINodeDivider*>& GetDividers() const
+		{
+			return m_dividers;
+		}
+
 		inline Editor* GetEditor() const
 		{
 			return m_editor;
@@ -110,7 +114,6 @@ namespace Lina::Editor
 
 	protected:
 		GUINode* m_mouseDisablingNode = nullptr;
-		StringID m_sid				  = 0;
 		GUINode* m_hoveredNode		  = nullptr;
 		Editor*	 m_editor			  = nullptr;
 		GUINode* m_root				  = nullptr;
@@ -119,6 +122,8 @@ namespace Lina::Editor
 		Vector<GUINodeDockArea*> m_dockAreas;
 		Vector<GUINodeDivider*>	 m_dividers;
 		Vector<GUINodeDockArea*> m_dockAreasToRemove;
+		uint32					 m_dockAreaCounter = 1;
+		uint32					 m_dividerCounter  = 1;
 	};
 } // namespace Lina::Editor
 

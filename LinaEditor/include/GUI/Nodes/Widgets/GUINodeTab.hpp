@@ -49,6 +49,7 @@ namespace Lina::Editor
 		virtual void Draw(int threadID) override;
 		Vector2		 CalculateSize() override;
 		virtual void OnClicked(uint32 button) override;
+		virtual void OnDragBegin() override;
 
 		inline void SetCloseButtonEnabled(bool closeButtonEnabled)
 		{
@@ -60,9 +61,9 @@ namespace Lina::Editor
 			m_isReorderEnabled = isEnabled;
 		}
 
-		inline void SetIsPanelTabs(bool isPanelTabs)
+		inline void SetCanDetach(bool canDetach)
 		{
-			m_isPanelTabs = isPanelTabs;
+			m_canDetach = canDetach;
 		}
 
 		inline void SetIsFocused(bool isFocused)
@@ -71,16 +72,17 @@ namespace Lina::Editor
 		}
 
 	private:
-		void DrawCloseButton(int threadID, float t);
+		void DrawCloseButton(int threadID, float t, int baseDrawOrder);
 
 	protected:
+		float			m_animationAlpha			= 0.0f;
 		GUINodeTabArea* m_parentArea				= nullptr;
 		bool			m_isFocused					= false;
 		bool			m_isInCloseRect				= false;
 		float			m_closeButtonAnimationAlpha = 0.0f;
 		bool			m_closeButtonEnabled		= true;
 		bool			m_isReorderEnabled			= true;
-		bool			m_isPanelTabs				= false;
+		bool			m_canDetach				= false;
 	};
 
 } // namespace Lina::Editor

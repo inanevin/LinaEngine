@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Data/Functional.hpp"
 #include "Data/String.hpp"
 #include "Core/EditorCommon.hpp"
+#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
@@ -51,7 +52,7 @@ namespace Lina::Editor
 	class Editor;
 	class GUIDrawerBase;
 
-	class GUINode
+	class GUINode : public ISerializable
 	{
 	public:
 		GUINode(GUIDrawerBase* drawer, int drawOrder);
@@ -67,7 +68,10 @@ namespace Lina::Editor
 		virtual void OnClicked(uint32 button){};
 		virtual void OnHoverBegin(){};
 		virtual void OnHoverEnd(){};
+		virtual void OnDragBegin(){};
 		virtual void OnDragEnd(){};
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
 
 		virtual Vector2 CalculateSize()
 		{

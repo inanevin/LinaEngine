@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
+#include "Math/Rect.hpp"
 
 namespace Lina
 {
@@ -86,22 +87,34 @@ namespace Lina
 		req.materialDefinition.color2	   = FL4(buf->m_color.end);
 		req.materialDefinition.float4pack2 = Vector4(buf->m_color.radialSize, 0.0f, 0.0f, 0.0f);
 		req.materialDefinition.intpack1	   = Vector4i(1, static_cast<int>(buf->m_color.gradientType), buf->m_isAABuffer, 0);
+		req.clipPosX					   = buf->clipPosX;
+		req.clipPosY					   = buf->clipPosY;
+		req.clipSizeX					   = buf->clipSizeX;
+		req.clipSizeY					   = buf->clipSizeY;
 	}
 
 	void GUIRenderer::FeedTextured(LinaVG::TextureDrawBuffer* buf)
 	{
-		const StringID sid = "Resources/Core/Textures/Logo_White_512.png"_hs;
+		const StringID		sid				= "Resources/Core/Textures/Logo_White_512.png"_hs;
 		OrderedDrawRequest& req				= AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Textured);
 		req.materialDefinition.intpack1		= Vector4i(2, 0, 0, 0);
 		req.materialDefinition.float4pack1	= Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
 		req.materialDefinition.color1		= Vector4(buf->m_tint.x, buf->m_tint.y, buf->m_tint.z, buf->m_tint.w);
 		req.materialDefinition.diffuseIndex = buf->m_textureHandle;
+		req.clipPosX						= buf->clipPosX;
+		req.clipPosY						= buf->clipPosY;
+		req.clipSizeX						= buf->clipSizeX;
+		req.clipSizeY						= buf->clipSizeY;
 	}
 
 	void GUIRenderer::FeedDefault(LinaVG::DrawBuffer* buf)
 	{
 		OrderedDrawRequest& req			= AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Default);
 		req.materialDefinition.intpack1 = Vector4i(0, 0, 0, 0);
+		req.clipPosX					= buf->clipPosX;
+		req.clipPosY					= buf->clipPosY;
+		req.clipSizeX					= buf->clipSizeX;
+		req.clipSizeY					= buf->clipSizeY;
 	}
 
 	void GUIRenderer::FeedSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
@@ -109,6 +122,10 @@ namespace Lina
 		OrderedDrawRequest& req				= AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SimpleText);
 		req.materialDefinition.intpack1		= Vector4i(3, 0, 0, 0);
 		req.materialDefinition.diffuseIndex = buf->m_textureHandle;
+		req.clipPosX						= buf->clipPosX;
+		req.clipPosY						= buf->clipPosY;
+		req.clipSizeX						= buf->clipSizeX;
+		req.clipSizeY						= buf->clipSizeY;
 	}
 
 	void GUIRenderer::FeedSDFText(LinaVG::SDFTextDrawBuffer* buf)
@@ -121,6 +138,10 @@ namespace Lina
 		req.materialDefinition.float4pack2	 = Vector4(thickness, softness, outlineThickness, 0.0f);
 		req.materialDefinition.intpack1		 = Vector4i(4, buf->m_outlineThickness != 0.0f ? 1 : 0, buf->m_flipAlpha, 0);
 		req.materialDefinition.diffuseIndex	 = buf->m_textureHandle;
+		req.clipPosX						 = buf->clipPosX;
+		req.clipPosY						 = buf->clipPosY;
+		req.clipSizeX						 = buf->clipSizeX;
+		req.clipSizeY						 = buf->clipSizeY;
 	}
 
 	void GUIRenderer::Render(uint32 cmdList)
@@ -162,7 +183,15 @@ namespace Lina
 			{
 				auto& req = frame.drawRequests[i];
 				m_renderer->SetMaterialID(cmdList, m_materials[i]->GetGPUBindlessIndex());
+
+				if (req.clipSizeX == 0 || req.clipSizeY == 0)
+					m_renderer->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
+				else
+					m_renderer->SetScissors(cmdList, Recti(Vector2i(req.clipPosX, req.clipPosY), Vector2i(req.clipSizeX, req.clipSizeY)));
+
 				m_renderer->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
+
+				m_renderer->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
 			}
 		}
 

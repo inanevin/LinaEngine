@@ -67,7 +67,7 @@ namespace Lina
 		virtual void BringToFront()																		= 0;
 		virtual void SetMouseFocus(bool focused)														= 0;
 		virtual void SetInputPassthrough(bool isInputPassThrough)										= 0;
-		virtual void HandleMove()																		= 0;
+		virtual void Tick()																		= 0;
 		virtual void SetCursorType(CursorType type)														= 0;
 		virtual void OnDragEnabled()																	= 0;
 		virtual void OnDragDisabled()																	= 0;

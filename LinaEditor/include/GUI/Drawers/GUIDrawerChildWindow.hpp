@@ -47,6 +47,7 @@ namespace Lina::Editor
 		GUIDrawerChildWindow(Editor* editor, ISwapchain* swap);
 		virtual ~GUIDrawerChildWindow(){};
 		virtual void DrawGUI(int threadID) override;
+		virtual void OnDockAreasModified() override;
 
 	private:
 		Input*				 m_input		= nullptr;

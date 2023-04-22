@@ -53,6 +53,13 @@ namespace Lina::Editor
 
 		Rect tabRect = Rect(Vector2(m_rect.pos.x, m_rect.pos.y), Vector2(maxTabSize.x, m_rect.size.y));
 
+		LinaVG::SetClipPosX(static_cast<uint32>(m_rect.pos.x), threadID);
+		LinaVG::SetClipPosY(static_cast<uint32>(m_rect.pos.y), threadID);
+		LinaVG::SetClipSizeX(static_cast<uint32>(m_rect.size.x), threadID);
+		LinaVG::SetClipSizeY(static_cast<uint32>(m_rect.size.y), threadID);
+
+		HashMap<uint32, Rect> sentRects;
+
 		for (uint32 i = 0; i < sz; i++)
 		{
 			auto* tab = m_tabs[i];
@@ -61,11 +68,46 @@ namespace Lina::Editor
 			if (!tab->GetIsDragging())
 				tab->SetRect(tabRect);
 
+			tab->SetMinPos(m_rect.pos);
+			tab->SetMaxPos(m_rect.pos + Vector2(m_rect.size.x - maxTabSize.x, m_rect.size.y));
 			tab->SetIsFocused(m_focusedSID == tab->GetSID());
-			tab->SetIsPanelTabs(m_isPanelTabs);
+			tab->SetCanDetach(m_canDetach);
 			tab->SetIsReorderEnabled(m_isReorderEnabled);
 			tab->Draw(threadID);
+
+			sentRects[i] = tabRect;
 			tabRect.pos += Vector2(maxTabSize.x + padding * 0.5f, 0.0f);
+		}
+
+		LinaVG::SetClipPosX(0, threadID);
+		LinaVG::SetClipPosY(0, threadID);
+		LinaVG::SetClipSizeX(0, threadID);
+		LinaVG::SetClipSizeY(0, threadID);
+
+		// Tab reordering
+		{
+			if (m_isReorderEnabled)
+			{
+				for (uint32 i = 0; i < sz; i++)
+				{
+					auto*		tab		 = m_tabs[i];
+					const Rect& sentRect = sentRects[i];
+					if (i < sz - 1 && tab->GetRect().pos.x > sentRect.pos.x + sentRect.size.x * 0.55f)
+					{
+						auto* nextTab = m_tabs[i + 1];
+						m_tabs[i]	  = nextTab;
+						m_tabs[i + 1] = tab;
+						break;
+					}
+					else if (i > 0 && tab->GetRect().pos.x < sentRect.pos.x - sentRect.size.x * 0.55f)
+					{
+						auto* prevTab = m_tabs[i - 1];
+						m_tabs[i]	  = prevTab;
+						m_tabs[i - 1] = tab;
+						break;
+					}
+				}
+			}
 		}
 	}
 

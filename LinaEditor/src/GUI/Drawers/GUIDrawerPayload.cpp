@@ -40,7 +40,6 @@ namespace Lina::Editor
 {
 	GUIDrawerPayload::GUIDrawerPayload(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
 	{
-		m_sid	 = LINA_MAIN_SWAPCHAIN;
 		m_editor = editor;
 	}
 

@@ -60,6 +60,7 @@ src/GUI/Drawers/GUIDrawerChildWindow.cpp
 src/GUI/Drawers/GUIDrawerSplashScreen.cpp
 src/GUI/Drawers/GUIDrawerPayload.cpp
 src/GUI/EditorPayloadManager.cpp
+src/GUI/EditorLayoutManager.cpp
 )
 
 
@@ -99,6 +100,7 @@ include/GUI/Widgets/WidgetProgressBar.hpp
 include/GUI/Widgets/Widget.hpp
 include/GUI/Utility/GUIUtility.hpp
 include/GUI/EditorPayloadManager.hpp
+include/GUI/EditorLayoutManager.hpp
 include/Core/EditorApplication.hpp
 include/Core/EditorCommon.hpp
 include/Core/Editor.hpp

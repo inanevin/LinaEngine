@@ -75,10 +75,6 @@ namespace Lina
 		// GUIBackend
 		{
 			m_guiBackend						  = new GUIBackend(this);
-			LinaVG::Config.displayPosX			  = 0;
-			LinaVG::Config.displayPosY			  = 0;
-			LinaVG::Config.displayWidth			  = 0;
-			LinaVG::Config.displayHeight		  = 0;
 			LinaVG::Config.globalFramebufferScale = 1.0f;
 			LinaVG::Config.globalAAMultiplier	  = 1.0f;
 			LinaVG::Config.gcCollectInterval	  = 4000;
@@ -305,7 +301,6 @@ namespace Lina
 				if (!requireReset && (ident.tid == GetTypeID<Texture>() || ident.tid == GetTypeID<Font>() || ident.tid == GetTypeID<TextureSampler>()))
 					requireReset = true;
 			}
-			LINA_WARN("RESOURCE LOAD TASK COMP");
 
 			if (flushModels)
 				m_meshManager.MergeMeshes();

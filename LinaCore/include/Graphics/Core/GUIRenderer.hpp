@@ -93,6 +93,10 @@ namespace Lina
 			uint32						  firstIndex   = 0;
 			uint32						  indexSize	   = 0;
 			uint32						  matId		   = 0;
+			uint32						  clipPosX	   = 0;
+			uint32						  clipPosY	   = 0;
+			uint32						  clipSizeX	   = 0;
+			uint32						  clipSizeY	   = 0;
 			GUIStandardMaterialDefinition materialDefinition;
 			LinaVGDrawCategoryType		  type = LinaVGDrawCategoryType::Default;
 			OrderedDrawRequestMeta		  meta;

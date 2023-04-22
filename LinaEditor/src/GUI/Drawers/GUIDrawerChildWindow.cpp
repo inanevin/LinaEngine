@@ -35,6 +35,7 @@ SOFTWARE.
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
+#include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "Core/Theme.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Core/Editor.hpp"
@@ -46,16 +47,14 @@ namespace Lina::Editor
 {
 	GUIDrawerChildWindow::GUIDrawerChildWindow(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
 	{
-		m_sid		   = m_window->GetSID();
 		m_editor	   = editor;
 		m_titleSection = new GUINodeTitleSection(this, 0);
-		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		m_input		   = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 		m_root->AddChildren(m_titleSection);
 	}
 
 	void GUIDrawerChildWindow::DrawGUI(int threadID)
 	{
-
 		const float dragHeight		= m_window->GetMonitorInformation().size.y * 0.02f;
 		const float titleAreaHeight = m_window->GetMonitorInformation().size.y * 0.05f;
 
@@ -67,5 +66,18 @@ namespace Lina::Editor
 
 		const Rect availableDockRect = Rect(Vector2(0, titleSectionSize.y), Vector2(titleSectionSize.x, swpSize.y - titleSectionSize.y));
 		GUIDrawerBase::DrawDockAreas(threadID, availableDockRect);
+	}
+
+	void GUIDrawerChildWindow::OnDockAreasModified()
+	{
+		if (m_dockAreas.size() == 1 && m_dockAreas[0]->GetPanels().size() == 1)
+		{
+			auto* panel = m_dockAreas[0]->GetPanels()[0];
+			m_window->SetTitle(panel->GetTitle());
+		}
+		else
+		{
+			m_window->SetTitle("Lina");
+		}
 	}
 } // namespace Lina::Editor

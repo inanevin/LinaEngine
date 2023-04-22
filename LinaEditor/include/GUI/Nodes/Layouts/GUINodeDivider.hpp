@@ -71,10 +71,16 @@ namespace Lina::Editor
 			return m_negativeNodes;
 		}
 
+		void		 FindNodesFromLoadedData(const Vector<GUINodeDivisible*>& divisibles);
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
+
 	private:
 		Direction				  m_dragDirection = Direction::Horizontal;
 		Vector<GUINodeDivisible*> m_positiveNodes;
 		Vector<GUINodeDivisible*> m_negativeNodes;
+		Vector<StringID>		  m_loadedPositiveNodeSids;
+		Vector<StringID>		  m_loadedNegativeNodeSids;
 	};
 
 } // namespace Lina::Editor

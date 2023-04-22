@@ -66,6 +66,8 @@ namespace Lina::Editor
 		void		 AddPanel(GUINodePanel* panel);
 		void		 RemovePanel(GUINodePanel* panel);
 		void		 SetDockPreviewEnabled(bool enabled);
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void LoadFromStream(IStream& stream) override;
 
 		inline GUINodeDockPreview* GetDockPreview() const
 		{
@@ -75,6 +77,11 @@ namespace Lina::Editor
 		inline GUINodePanel* GetFirstPanel() const
 		{
 			return m_panels[0];
+		}
+
+		inline const Vector<GUINodePanel*> GetPanels() const
+		{
+			return m_panels;
 		}
 
 		inline bool GetIsAlone() const
