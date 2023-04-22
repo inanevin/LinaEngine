@@ -50,6 +50,7 @@ namespace Lina::Editor
 		Vector2		 CalculateSize() override;
 		virtual void OnClicked(uint32 button) override;
 		virtual void OnDragBegin() override;
+		void		 AnimateFlash();
 
 		inline void SetCloseButtonEnabled(bool closeButtonEnabled)
 		{
@@ -75,14 +76,16 @@ namespace Lina::Editor
 		void DrawCloseButton(int threadID, float t, int baseDrawOrder);
 
 	protected:
-		float			m_animationAlpha			= 0.0f;
+		int				m_flashAnimState			= 0;
+		float			m_textScale					= 1.0f;
+		float			m_indicatorAnimationAlpha	= 0.0f;
 		GUINodeTabArea* m_parentArea				= nullptr;
 		bool			m_isFocused					= false;
 		bool			m_isInCloseRect				= false;
 		float			m_closeButtonAnimationAlpha = 0.0f;
 		bool			m_closeButtonEnabled		= true;
 		bool			m_isReorderEnabled			= true;
-		bool			m_canDetach				= false;
+		bool			m_canDetach					= false;
 	};
 
 } // namespace Lina::Editor

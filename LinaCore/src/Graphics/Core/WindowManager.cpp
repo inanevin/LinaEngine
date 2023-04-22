@@ -65,11 +65,12 @@ namespace Lina
 				HRESULT temp2 = GetDpiForMonitor(hMonitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY);
 
 				MonitorInfo data;
-				data.size		= Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
-				data.workArea	= Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
-				data.isPrimary	= (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
-				data.m_dpi		= dpiX;
-				data.m_dpiScale = static_cast<float>(dpiY) / 96.0f;
+				data.size		 = Vector2i(monitorInfo.rcMonitor.right - monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.bottom - monitorInfo.rcMonitor.top);
+				data.workArea	 = Vector2i(monitorInfo.rcWork.right - monitorInfo.rcWork.left, monitorInfo.rcWork.bottom - monitorInfo.rcWork.top);
+				data.workTopLeft = Vector2i(monitorInfo.rcWork.left, monitorInfo.rcWork.top);
+				data.isPrimary	 = (monitorInfo.dwFlags & MONITORINFOF_PRIMARY) != 0;
+				data.m_dpi		 = dpiX;
+				data.m_dpiScale	 = static_cast<float>(dpiY) / 96.0f;
 
 				monitors.push_back(data);
 

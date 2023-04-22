@@ -41,10 +41,11 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-#define OFFSET_FROM_END	 0.9f
-#define CLOSEBUT_SPEED	 25.0f
-#define ANIM_ALPHA_SPEED 15.0f
-
+#define OFFSET_FROM_END	  0.9f
+#define CLOSEBUT_SPEED	  25.0f
+#define ANIM_ALPHA_SPEED  15.0f
+#define ANIM_TEXT_SCALE	  2.0f
+#define TARGET_TEXT_SCALE 1.1f
 	GUINodeTab::GUINodeTab(GUIDrawerBase* drawer, GUINodeTabArea* area, int drawOrder) : m_parentArea(area), GUINode(drawer, drawOrder)
 	{
 	}
@@ -56,10 +57,29 @@ namespace Lina::Editor
 
 		const float padding	  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const int	drawOrder = m_isFocused ? m_drawOrder + 3 : m_drawOrder;
+		const float delta	  = SystemInfo::GetDeltaTimeF();
 
-		// Anim alpha
+		// Animations alpha
 		{
-			m_animationAlpha = Math::Lerp(m_animationAlpha, m_isFocused ? 1.0f : 0.0f, ANIM_ALPHA_SPEED * SystemInfo::GetDeltaTimeF());
+			m_indicatorAnimationAlpha = Math::Lerp(m_indicatorAnimationAlpha, m_isFocused ? 1.0f : 0.0f, ANIM_ALPHA_SPEED * delta);
+
+			if (m_flashAnimState == 1)
+			{
+				if (m_textScale < TARGET_TEXT_SCALE)
+					m_textScale += ANIM_TEXT_SCALE * delta;
+				else
+					m_flashAnimState = 2;
+			}
+			else if (m_flashAnimState == 2)
+			{
+				if (m_textScale > 1.0f)
+					m_textScale -= ANIM_TEXT_SCALE * delta;
+				else
+				{
+					m_flashAnimState = 0;
+					m_textScale		 = 1.0f;
+				}
+			}
 		}
 
 		// Background convex shape
@@ -78,7 +98,7 @@ namespace Lina::Editor
 
 			// Draw side and bottom line if focused.
 			{
-				if (!Math::Equals(m_animationAlpha, 0.0f, 0.05f))
+				if (!Math::Equals(m_indicatorAnimationAlpha, 0.0f, 0.05f))
 				{
 					LinaVG::StyleOptions lineStyle;
 					lineStyle.color.start = LV4(Theme::TC_CyanAccent);
@@ -88,7 +108,7 @@ namespace Lina::Editor
 					Vector2 lineBegin = Vector2(m_rect.pos.x + padding * 0.5f, m_rect.pos.y + padding * 0.25f);
 					Vector2 lineEnd	  = Vector2(m_rect.pos.x + padding * 0.5f, m_rect.pos.y + +m_rect.size.y - padding * 0.25f);
 
-					const Vector2 usedLineBegin = Math::Lerp(lineEnd, lineBegin, m_animationAlpha);
+					const Vector2 usedLineBegin = Math::Lerp(lineEnd, lineBegin, m_indicatorAnimationAlpha);
 
 					LinaVG::DrawLine(threadID, LV2(usedLineBegin), LV2(lineEnd), lineStyle, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
 
@@ -105,6 +125,7 @@ namespace Lina::Editor
 			LinaVG::TextOptions textOpts;
 			textOpts.font		   = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
 			textOpts.color.start.w = textOpts.color.end.w = m_isFocused ? 1.0f : 0.3f;
+			textOpts.textScale							  = m_textScale;
 
 			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
 			const Vector2 textPos  = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
@@ -188,6 +209,12 @@ namespace Lina::Editor
 	void GUINodeTab::OnDragBegin()
 	{
 		m_parentArea->OnTabClicked(this);
+	}
+
+	void GUINodeTab::AnimateFlash()
+	{
+		m_textScale		 = 1.0f;
+		m_flashAnimState = 1;
 	}
 
 	void GUINodeTab::DrawCloseButton(int threadID, float t, int baseDrawOrder)

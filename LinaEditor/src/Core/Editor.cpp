@@ -238,6 +238,7 @@ namespace Lina::Editor
 				if (node)
 				{
 					wm->GetWindow(sid)->BringToFront();
+					area->FocusPanel(panelSID);
 					return;
 				}
 			}
@@ -325,7 +326,8 @@ namespace Lina::Editor
 
 		if (drawerToDock)
 		{
-			drawerToDock->SplitDockArea(splittedDockArea, split, owner->GetFirstDockArea()->GetFirstPanel());
+			const auto& panels = owner->GetFirstDockArea()->GetPanels();
+			drawerToDock->SplitDockArea(splittedDockArea, split, panels);
 			CloseWindow(m_draggedWindow->GetSID());
 			m_draggedWindow = nullptr;
 		}

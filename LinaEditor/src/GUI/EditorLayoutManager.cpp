@@ -39,6 +39,7 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
+#include "Math/Rect.hpp"
 
 namespace Lina::Editor
 {
@@ -99,6 +100,8 @@ namespace Lina::Editor
 
 		stream >> Editor::s_childWindowCtr;
 
+		const auto& monitors = m_windowManager->GetMonitors();
+
 		for (uint32 i = 0; i < windowsSize; i++)
 		{
 			auto& guiDrawers = m_editor->GetGUIDrawers();
@@ -107,7 +110,21 @@ namespace Lina::Editor
 			DeserializeLayoutWindow(stream, w);
 
 			if (w.sid != LINA_MAIN_SWAPCHAIN)
-				m_editor->CreateChildWindow(w.sid, w.title, w.pos, w.size);
+			{
+				bool fitsMonitor = false;
+
+				for (const auto& monitor : monitors)
+				{
+					const Recti monitorRect = Recti(monitor.workTopLeft, Vector2(monitor.workTopLeft + monitor.workArea));
+					if (monitorRect.IsPointInside(w.pos))
+					{
+						fitsMonitor = true;
+						break;
+					}
+				}
+
+				m_editor->CreateChildWindow(w.sid, w.title, fitsMonitor ? w.pos : Vector2i::Zero, w.size);
+			}
 
 			GUIDrawerBase* guiDrawer = nullptr;
 			guiDrawer				 = guiDrawers.at(w.sid);
@@ -131,8 +148,8 @@ namespace Lina::Editor
 		auto*		 contentBrowserPanel = GUIPanelFactory::CreatePanel(EditorPanel::ContentBrowser, dockArea, contentBrowserName, TO_SID(contentBrowserName));
 		dockArea->AddPanel(levelPanel);
 
-		guiDrawer->SplitDockArea(dockArea, DockSplitType::Left, entPanel, 0.15f);
-		guiDrawer->SplitDockArea(dockArea, DockSplitType::Down, contentBrowserPanel, 0.25f);
+		guiDrawer->SplitDockArea(dockArea, DockSplitType::Left, {entPanel}, 0.15f);
+		guiDrawer->SplitDockArea(dockArea, DockSplitType::Down, {contentBrowserPanel}, 0.25f);
 		delete entPanel;
 		delete contentBrowserPanel;
 

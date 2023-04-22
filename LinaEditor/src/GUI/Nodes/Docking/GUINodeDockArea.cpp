@@ -245,4 +245,10 @@ namespace Lina::Editor
 		m_focusedPanel = focusedSID == 0 ? nullptr : *linatl::find_if(m_panels.begin(), m_panels.end(), [focusedSID](GUINodePanel* p) { return p->GetSID() == focusedSID; });
 	}
 
+	void GUINodeDockArea::FocusPanel(StringID sid)
+	{
+		m_focusedPanel = *linatl::find_if(m_panels.begin(), m_panels.end(), [sid](GUINodePanel* panel) { return panel->GetSID() == sid; });
+		m_tabArea->FlashTab(sid);
+	}
+
 } // namespace Lina::Editor

@@ -67,7 +67,7 @@ namespace Lina::Editor
 
 		void			 OnNodeDeleted(GUINode* node);
 		void			 SetDockPreviewEnabled(bool enabled);
-		GUINodeDockArea* SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel, float customSplit = 0.0f);
+		GUINodeDockArea* SplitDockArea(GUINodeDockArea* area, DockSplitType type, const Vector<GUINodePanel*>& panels, float customSplit = 0.0f);
 		GUINode*		 FindNode(StringID sid);
 		void			 OnPayloadCreated(PayloadType type, void* data);
 		bool			 OnPayloadDropped(PayloadType type, void* data);

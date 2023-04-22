@@ -148,4 +148,10 @@ namespace Lina::Editor
 			m_onTabDetached(tab, detachDelta);
 	}
 
+	void GUINodeTabArea::FlashTab(StringID sid)
+	{
+		auto* tab = *linatl::find_if(m_tabs.begin(), m_tabs.end(), [sid](GUINodeTab* tab) { return tab->GetSID() == sid; });
+		tab->AnimateFlash();
+	}
+
 } // namespace Lina::Editor

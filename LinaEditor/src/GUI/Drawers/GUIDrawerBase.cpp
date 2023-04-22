@@ -193,13 +193,15 @@ namespace Lina::Editor
 			n->SetDockPreviewEnabled(enabled);
 	}
 
-	GUINodeDockArea* GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, GUINodePanel* panel, float customSplit)
+	GUINodeDockArea* GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, const Vector<GUINodePanel*>& panels, float customSplit)
 	{
 		LINA_ASSERT(type != DockSplitType::None, "Dock split type can't be none!");
 
 		if (type == DockSplitType::Tab)
 		{
-			area->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), area, panel->GetTitle(), panel->GetSID()));
+			for (auto panel : panels)
+				area->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), area, panel->GetTitle(), panel->GetSID()));
+
 			return nullptr;
 		}
 
@@ -219,7 +221,9 @@ namespace Lina::Editor
 			m_root->AddChildren(newArea);
 			m_dividers.push_back(divider);
 			m_dockAreas.push_back(newArea);
-			newArea->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), newArea, panel->GetTitle(), panel->GetSID()));
+
+			for (auto panel : panels)
+				newArea->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), newArea, panel->GetTitle(), panel->GetSID()));
 		}
 
 		DockSplitType oppositeType	  = DockSplitType::None;

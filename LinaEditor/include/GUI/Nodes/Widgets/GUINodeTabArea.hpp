@@ -53,6 +53,7 @@ namespace Lina::Editor
 		void		 OnTabClicked(GUINodeTab* tab);
 		void		 OnTabDismissed(GUINodeTab* tab);
 		void		 OnTabDetached(GUINodeTab* tab, const Vector2& detachDelta);
+		void		 FlashTab(StringID sid);
 
 		inline void SetFocusedTab(StringID sid)
 		{
@@ -102,7 +103,7 @@ namespace Lina::Editor
 		Delegate<void(GUINodeTab*, const Vector2&)> m_onTabDetached;
 		Vector<GUINodeTab*>							m_tabs;
 		bool										m_isReorderEnabled = true;
-		bool										m_canDetach	   = false;
+		bool										m_canDetach		   = false;
 	};
 
 } // namespace Lina::Editor

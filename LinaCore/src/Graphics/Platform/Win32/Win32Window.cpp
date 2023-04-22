@@ -254,9 +254,6 @@ namespace Lina
 		break;
 		case WM_LBUTTONDOWN: {
 
-			if (!s_isAppActive)
-				break;
-
 			win32Window->OnMouseButton(VK_LBUTTON, 0);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
@@ -279,9 +276,6 @@ namespace Lina
 		}
 		break;
 		case WM_RBUTTONDOWN: {
-
-			if (!s_isAppActive)
-				break;
 
 			win32Window->OnMouseButton(VK_RBUTTON, 0);
 
@@ -306,9 +300,6 @@ namespace Lina
 		break;
 		case WM_MBUTTONDOWN: {
 
-			if (!s_isAppActive)
-				break;
-
 			win32Window->OnMouseButton(VK_MBUTTON, 0);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
@@ -332,9 +323,6 @@ namespace Lina
 		break;
 		case WM_LBUTTONUP: {
 
-			if (!s_isAppActive)
-				break;
-
 			win32Window->OnMouseButton(VK_LBUTTON, 1);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
@@ -344,9 +332,6 @@ namespace Lina
 		break;
 		case WM_RBUTTONUP: {
 
-			if (!s_isAppActive)
-				break;
-
 			win32Window->OnMouseButton(VK_RBUTTON, 1);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
@@ -355,9 +340,6 @@ namespace Lina
 		}
 		break;
 		case WM_MBUTTONUP: {
-
-			if (!s_isAppActive)
-				break;
 
 			win32Window->OnMouseButton(VK_MBUTTON, 1);
 
