@@ -50,7 +50,9 @@ namespace Lina
 		virtual uint32 CreateCommandList(uint32 allocator) override;
 		virtual void   ReleaseCommandAllocator(uint32 allocator) override;
 		virtual void   ReleaseCommandList(uint32 handle) override;
+		virtual void   ResetCommandListAndAllocator(uint32 cmdAllocatorHandle, uint32 cmdListHandle) override;
 		virtual void   ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle) override;
+		virtual void   ResetCommandAllocator(uint32 cmdAllocatorHandle) override;
 		virtual void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors) override;
 		virtual void   SetScissors(uint32 cmdListHandle, const Recti& scissors) override;
 		virtual void   FinalizeCommandList(uint32 cmdListHandle) override;

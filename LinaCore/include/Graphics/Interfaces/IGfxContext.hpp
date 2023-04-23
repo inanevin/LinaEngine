@@ -56,7 +56,9 @@ namespace Lina
 		virtual uint32 CreateCommandList(uint32 allocator)																																				  = 0;
 		virtual void   ReleaseCommandAllocator(uint32 allocator)																																		  = 0;
 		virtual void   ReleaseCommandList(uint32 handle)																																				  = 0;
+		virtual void   ResetCommandListAndAllocator(uint32 cmdAllocatorHandle, uint32 cmdListHandle)																									  = 0;
 		virtual void   ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle)																												  = 0;
+		virtual void   ResetCommandAllocator(uint32 cmdAllocatorHandle)																																	  = 0;
 		virtual void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors)																						  = 0;
 		virtual void   SetScissors(uint32 cmdListHandle, const Recti& scissors)																															  = 0;
 		virtual void   FinalizeCommandList(uint32 cmdListHandle)																																		  = 0;

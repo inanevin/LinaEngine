@@ -51,8 +51,11 @@ namespace Lina
 	{
 		m_renderer		  = m_gfxManager->GetRenderer();
 		m_contextGraphics = m_renderer->GetContextGraphics();
+		m_contextTransfer = m_renderer->GetContextTransfer();
 		m_resourceManager = gfxMan->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		AllocateMaterials();
+
+		m_fence = m_renderer->CreateFence();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -65,6 +68,8 @@ namespace Lina
 
 	GUIRenderer::~GUIRenderer()
 	{
+		m_renderer->ReleaseFence(m_fence);
+
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame = m_frames[i];
@@ -147,19 +152,25 @@ namespace Lina
 		req.clipSizeY						 = buf->clipSizeY;
 	}
 
-	void GUIRenderer::Render(uint32 cmdList)
+	void GUIRenderer::Render(uint32 cmdList, uint32 cmdListAllocatorTransfer, uint32 cmdListTransfer)
 	{
 		auto& frame = m_frames[m_frameIndex];
 		if (frame.drawRequests.empty())
 			return;
 
 		// Transfer vertex & index data
-
-		frame.vtxBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
-		frame.indexBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
-
-		m_contextGraphics->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex), 0, sizeof(LinaVG::Vertex) * frame.vertexCounter);
-		m_contextGraphics->BindIndexBuffer(cmdList, frame.indexBufferGPU, sizeof(LinaVG::Index) * frame.indexCounter);
+		{
+			m_contextTransfer->ResetCommandList(cmdListAllocatorTransfer, cmdListTransfer);
+			frame.vtxBufferGPU->CopyImmediately(cmdListTransfer, m_contextTransfer);
+			frame.indexBufferGPU->CopyImmediately(cmdListTransfer, m_contextTransfer);
+			m_contextTransfer->FinalizeCommandList(cmdListTransfer);
+			m_contextTransfer->ExecuteCommandLists({cmdListTransfer});
+			m_contextTransfer->Signal(m_fence, m_fenceValue);
+			m_contextGraphics->Wait(m_fence, m_fenceValue);
+			m_contextGraphics->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex), 0, sizeof(LinaVG::Vertex) * frame.vertexCounter);
+			m_contextGraphics->BindIndexBuffer(cmdList, frame.indexBufferGPU, sizeof(LinaVG::Index) * frame.indexCounter);
+			m_fenceValue++;
+		}
 
 		// View data & pipeline
 		{

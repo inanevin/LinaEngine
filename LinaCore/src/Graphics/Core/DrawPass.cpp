@@ -46,11 +46,15 @@ namespace Lina
 	{
 		m_renderer		  = m_gfxManager->GetRenderer();
 		m_contextGraphics = m_renderer->GetContextGraphics();
+		m_contextTransfer = m_renderer->GetContextTransfer();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_objDataBufferGPU[i] = m_renderer->CreateGPUResource(sizeof(GPUObjectData) * 500, GPUResourceType::GPUOnlyWithStaging, false, L"Drawpass Object Data Buffer");
-			m_indirectBuffer[i]	  = m_renderer->CreateCPUResource(sizeof(DrawIndexedIndirectCommand), CPUResourceHint::IndirectBuffer, L"Drawpass Indirect Buffer");
+			auto& frame					   = m_frameData[i];
+			frame.objDataBuffer			   = m_renderer->CreateGPUResource(sizeof(GPUObjectData) * 500, GPUResourceType::GPUOnlyWithStaging, false, L"Drawpass Object Data Buffer");
+			frame.indirectBuffer		   = m_renderer->CreateCPUResource(sizeof(DrawIndexedIndirectCommand), CPUResourceHint::IndirectBuffer, L"Drawpass Indirect Buffer");
+			frame.cmdListAllocatorTransfer = m_contextTransfer->CreateCommandAllocator();
+			frame.cmdListTransfer		   = m_contextTransfer->CreateCommandList(frame.cmdListAllocatorTransfer);
 		}
 	}
 
@@ -58,8 +62,11 @@ namespace Lina
 	{
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			m_renderer->DeleteGPUResource(m_objDataBufferGPU[i]);
-			m_renderer->DeleteCPUResource(m_indirectBuffer[i]);
+			auto& frame = m_frameData[i];
+			m_renderer->DeleteGPUResource(frame.objDataBuffer);
+			m_renderer->DeleteCPUResource(frame.indirectBuffer);
+			m_contextTransfer->ReleaseCommandList(frame.cmdListTransfer);
+			m_contextTransfer->ReleaseCommandAllocator(frame.cmdListAllocatorTransfer);
 		}
 	}
 
@@ -133,6 +140,10 @@ namespace Lina
 
 	void DrawPass::UpdateBuffers(uint32 frameIndex, uint32 cmdListHandle)
 	{
+		auto& frame = m_frameData[frameIndex];
+
+		m_contextTransfer->ResetCommandListAndAllocator(frame.cmdListAllocatorTransfer, frame.cmdListTransfer);
+
 		// Update object data buffer.
 		{
 			Vector<GPUObjectData> objData;
@@ -147,10 +158,14 @@ namespace Lina
 			});
 			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 
-			auto* objBuf = m_objDataBufferGPU[frameIndex];
-			objBuf->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0);
-			objBuf->Copy(CopyDataType::CopyImmediately, m_uploadContext);
-			m_contextGraphics->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
+			frame.objDataBuffer->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0);
+			frame.objDataBuffer->CopyImmediately(frame.cmdListTransfer, m_contextTransfer);
+			m_contextTransfer->FinalizeCommandList(frame.cmdListTransfer);
+			m_contextTransfer->ExecuteCommandLists({frame.cmdListTransfer});
+			m_contextTransfer->Signal(m_transferFence, m_transferFenceValue);
+			m_contextGraphics->Wait(m_transferFence, m_transferFenceValue);
+			m_transferFenceValue++;
+			m_contextGraphics->BindObjectBuffer(cmdListHandle, frame.objDataBuffer);
 		}
 
 		const auto& mergedMeshes = m_gfxManager->GetMeshManager().GetMergedMeshes();
@@ -189,7 +204,7 @@ namespace Lina
 				}
 			}
 
-			m_indirectBuffer[frameIndex]->BufferData(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
+			m_frameData[frameIndex].indirectBuffer->BufferData(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
 		}
 	}
 
@@ -198,6 +213,7 @@ namespace Lina
 		const uint32 batchesSize	 = static_cast<uint32>(m_batches.size());
 		uint32		 firstInstance	 = 0;
 		Shader*		 lastBoundShader = nullptr;
+		auto&		 frame			 = m_frameData[frameIndex];
 
 		for (uint32 i = 0; i < batchesSize; i++)
 		{
@@ -212,7 +228,7 @@ namespace Lina
 			}
 
 			const uint64 indirectOffset = firstInstance * sizeof(DrawIndexedIndirectCommand);
-			m_contextGraphics->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
+			m_contextGraphics->DrawIndexedIndirect(cmdListHandle, frame.indirectBuffer, batch.count, indirectOffset);
 			firstInstance += batch.count;
 		}
 	}

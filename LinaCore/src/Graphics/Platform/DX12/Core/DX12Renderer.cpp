@@ -461,6 +461,7 @@ namespace Lina
 		auto& frame = m_frames[frameIndex];
 
 		m_fenceValueGraphics++;
+		m_fenceValueTransfer++;
 		frame.storedFenceGraphics = m_fenceValueGraphics;
 		frame.storedFenceTransfer = m_fenceValueTransfer;
 		m_contextGraphics->Signal(m_frameFenceGraphics, m_fenceValueGraphics);

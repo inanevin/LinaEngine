@@ -123,7 +123,7 @@ namespace Lina
 		void FeedDefault(LinaVG::DrawBuffer* buf);
 		void FeedSimpleText(LinaVG::SimpleTextDrawBuffer* buf);
 		void FeedSDFText(LinaVG::SDFTextDrawBuffer* buf);
-		void Render(uint32 cmdList);
+		void Render(uint32 cmdList, uint32 cmdListAllocatorTransfer, uint32 cmdListTransfer);
 		void Prepare(const Vector2i& surfaceRendererSize, uint32 frameIndex, uint32 imageIndex);
 
 	private:
@@ -135,7 +135,11 @@ namespace Lina
 		OrderedDrawRequest& AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
 	private:
+		uint32 m_fence		= 0;
+		uint64 m_fenceValue = 0;
+
 		IGfxContext*		m_contextGraphics = nullptr;
+		IGfxContext*		m_contextTransfer = nullptr;
 		IUploadContext*		m_uploadContext	  = nullptr;
 		Vector<Material*>	m_materials;
 		MemoryAllocatorPool m_materialPool;

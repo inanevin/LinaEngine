@@ -55,6 +55,7 @@ namespace Lina
 		{
 			m_renderer		  = m_gfxManager->GetRenderer();
 			m_contextGraphics = m_renderer->GetContextGraphics();
+			m_contextTransfer = m_renderer->GetContextTransfer();
 			m_gfxManager->GetSystem()->AddListener(this);
 			m_swapchain = m_renderer->CreateSwapchain(initialSize, window, sid);
 
@@ -68,9 +69,11 @@ namespace Lina
 		{
 			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
-				auto& frame		   = m_frames[i];
-				frame.cmdAllocator = m_contextGraphics->CreateCommandAllocator();
-				frame.cmdList	   = m_contextGraphics->CreateCommandList(m_frames[i].cmdAllocator);
+				auto& frame				   = m_frames[i];
+				frame.cmdAllocator		   = m_contextGraphics->CreateCommandAllocator();
+				frame.cmdAllocatorTransfer = m_contextTransfer->CreateCommandAllocator();
+				frame.cmdList			   = m_contextGraphics->CreateCommandList(m_frames[i].cmdAllocator);
+				frame.cmdListTransfer	   = m_contextTransfer->CreateCommandList(m_frames[i].cmdAllocatorTransfer);
 			}
 		}
 
@@ -89,7 +92,9 @@ namespace Lina
 		{
 			auto& frame = m_frames[i];
 			m_contextGraphics->ReleaseCommandList(frame.cmdList);
+			m_contextTransfer->ReleaseCommandList(frame.cmdListTransfer);
 			m_contextGraphics->ReleaseCommandAllocator(frame.cmdAllocator);
+			m_contextTransfer->ReleaseCommandAllocator(frame.cmdAllocatorTransfer);
 		}
 
 		m_gfxManager->GetSystem()->RemoveListener(this);
@@ -214,7 +219,6 @@ namespace Lina
 
 	void SurfaceRenderer::Tick(float interpolationAlpha)
 	{
-		return;
 		if (!m_swapchain->GetWindow()->GetIsVisible())
 			return;
 
@@ -231,16 +235,16 @@ namespace Lina
 			return;
 
 		// PROFILER_FUNCTION();
-
 		m_surfaceRendererIndex = surfaceRendererIndex;
+		auto& frame			   = m_frames[frameIndex];
+		auto& imgData		   = m_dataPerImage[m_currentImageIndex];
+
+		m_contextTransfer->ResetCommandAllocator(frame.cmdAllocatorTransfer);
 
 		const int worldRenderersSz = static_cast<int>(m_worldRenderers.size());
 		Taskflow  worldRendererTaskFlow;
 		worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
 		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
-
-		auto& frame	  = m_frames[frameIndex];
-		auto& imgData = m_dataPerImage[m_currentImageIndex];
 
 		if (m_mask.IsSet(SRM_DrawOffscreenTexture) && imgData.updateTexture)
 		{
@@ -256,7 +260,7 @@ namespace Lina
 
 		// Command buffer prep
 		{
-			m_contextGraphics->ResetCommandList(frame.cmdAllocator, frame.cmdList);
+			m_contextGraphics->ResetCommandListAndAllocator(frame.cmdAllocator, frame.cmdList);
 			m_contextGraphics->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
 			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
 		}
@@ -294,7 +298,7 @@ namespace Lina
 				{
 					m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
 					LinaVG::Render(m_surfaceRendererIndex);
-					m_guiRenderer->Render(frame.cmdList);
+					m_guiRenderer->Render(frame.cmdList, frame.cmdAllocator, frame.cmdListTransfer);
 				}
 			}
 
@@ -304,6 +308,7 @@ namespace Lina
 
 		// Close command buffer.
 		{
+			//	m_contextTransfer->FinalizeCommandList(frame.cmdListTransfer);
 			m_contextGraphics->FinalizeCommandList(frame.cmdList);
 		}
 
@@ -314,6 +319,7 @@ namespace Lina
 			// worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { commandLists[i] = m_worldRenderers[i]->GetCommandList(frameIndex); });
 			// m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(worldRendererTaskFlow);
 			// commandLists[worldRenderersSz] = frame.cmdList;
+			// m_contextTransfer->ExecuteCommandLists({frame.cmdListTransfer});
 			m_contextGraphics->ExecuteCommandLists({frame.cmdList});
 		}
 	}

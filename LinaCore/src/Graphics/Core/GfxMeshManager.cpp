@@ -112,8 +112,8 @@ namespace Lina
 		}
 
 		m_gpuIndexBuffer->BufferData(mergedIndices.data(), indexSize, 0);
-		m_gpuIndexBuffer->Copy(CopyDataType::CopyQueueUp, m_uploadContext);
+		m_gpuIndexBuffer->CopyQueueUp(m_uploadContext);
 		m_gpuVtxBuffer->BufferData(mergedVertices.data(), vtxSize, 0);
-		m_gpuVtxBuffer->Copy(CopyDataType::CopyQueueUp, m_uploadContext);
+		m_gpuVtxBuffer->CopyQueueUp(m_uploadContext);
 	}
 } // namespace Lina

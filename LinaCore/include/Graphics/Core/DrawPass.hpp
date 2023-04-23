@@ -47,6 +47,14 @@ namespace Lina
 
 	class DrawPass
 	{
+		struct PerFrameData
+		{
+			IGfxResourceGPU* objDataBuffer			  = nullptr;
+			IGfxResourceCPU* indirectBuffer			  = nullptr;
+			uint32			 cmdListAllocatorTransfer = 0;
+			uint32			 cmdListTransfer		  = 0;
+		};
+
 	public:
 		DrawPass(GfxManager* gfxMan, IUploadContext* uploadContext);
 		virtual ~DrawPass();
@@ -59,15 +67,18 @@ namespace Lina
 		int32 FindInBatches(const MeshMaterialPair& pair);
 
 	private:
-		IGfxContext*		   m_contextGraphics;
+		uint32				   m_transferFence		= 0;
+		uint64				   m_transferFenceValue = 0;
+		IGfxContext*		   m_contextGraphics	= nullptr;
+		IGfxContext*		   m_contextTransfer	= nullptr;
 		IUploadContext*		   m_uploadContext;
-		Renderer*			   m_renderer							= nullptr;
-		IGfxResourceGPU*	   m_objDataBufferGPU[FRAMES_IN_FLIGHT] = {nullptr};
-		IGfxResourceCPU*	   m_indirectBuffer[FRAMES_IN_FLIGHT]	= {nullptr};
-		GfxManager*			   m_gfxManager							= nullptr;
+		Renderer*			   m_renderer	= nullptr;
+		GfxManager*			   m_gfxManager = nullptr;
 		Mutex				   m_mtx;
 		Vector<RenderableData> m_renderables;
 		Vector<InstancedBatch> m_batches;
+
+		PerFrameData m_frameData[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina
 

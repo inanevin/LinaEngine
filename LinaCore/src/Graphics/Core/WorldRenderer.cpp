@@ -216,7 +216,6 @@ namespace Lina
 
 	void WorldRenderer::Tick(float interpolationAlpha)
 	{
-		return;
 		PROFILER_FUNCTION();
 
 		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
@@ -265,7 +264,6 @@ namespace Lina
 
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
 	{
-		return;
 		PROFILER_FUNCTION();
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[imageIndex];
@@ -279,7 +277,7 @@ namespace Lina
 
 		// Command buffer prep
 		{
-			m_contextGraphics->ResetCommandList(frame.cmdAllocator, frame.cmdList);
+			m_contextGraphics->ResetCommandListAndAllocator(frame.cmdAllocator, frame.cmdList);
 			m_contextGraphics->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
 			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
 		}

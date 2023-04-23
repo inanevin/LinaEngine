@@ -113,7 +113,7 @@ namespace Lina
 		m_cmdLists.RemoveItem(handle);
 	}
 
-	void DX12GfxContext::ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle)
+	void DX12GfxContext::ResetCommandListAndAllocator(uint32 cmdAllocatorHandle, uint32 cmdListHandle)
 	{
 		auto& cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
 		auto& cmdAllocator = m_cmdAllocators.GetItemR(cmdAllocatorHandle);
@@ -129,6 +129,38 @@ namespace Lina
 			m_renderer->DX12Exception(e);
 		}
 	}
+
+	void DX12GfxContext::ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle)
+	{
+		auto& cmdList	   = m_cmdLists.GetItemR(cmdListHandle);
+		auto& cmdAllocator = m_cmdAllocators.GetItemR(cmdAllocatorHandle);
+
+		try
+		{
+			ThrowIfFailed(cmdList->Reset(cmdAllocator.Get(), nullptr));
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when resetting a command list! {0}", e.what());
+			m_renderer->DX12Exception(e);
+		}
+	}
+
+	void DX12GfxContext::ResetCommandAllocator(uint32 cmdAllocatorHandle)
+	{
+		auto& cmdAllocator = m_cmdAllocators.GetItemR(cmdAllocatorHandle);
+
+		try
+		{
+			ThrowIfFailed(cmdAllocator->Reset());
+		}
+		catch (HrException e)
+		{
+			LINA_CRITICAL("[Renderer] -> Exception when resetting a command list! {0}", e.what());
+			m_renderer->DX12Exception(e);
+		}
+	}
+
 	void DX12GfxContext::PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors)
 	{
 		auto* bufferHeap  = m_renderer->DX12GetBufferHeap(m_renderer->GetCurrentFrameIndex());
@@ -454,9 +486,8 @@ namespace Lina
 
 	void DX12GfxContext::Wait(uint32 fenceHandle, uint64 frameFenceValue)
 	{
-		auto&  fences = m_renderer->DX12GetFences();
-		auto&  fence  = fences.GetItemR(fenceHandle);
-		uint32 aq	  = fence->GetCompletedValue();
+		auto& fences = m_renderer->DX12GetFences();
+		auto& fence	 = fences.GetItemR(fenceHandle);
 		m_queue->Wait(fence.Get(), frameFenceValue);
 	}
 

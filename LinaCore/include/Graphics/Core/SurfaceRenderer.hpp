@@ -74,8 +74,10 @@ namespace Lina
 
 		struct DataPerFrame
 		{
-			uint32 cmdAllocator = 0;
-			uint32 cmdList		= 0;
+			uint32 cmdAllocator			= 0;
+			uint32 cmdList				= 0;
+			uint32 cmdAllocatorTransfer = 0;
+			uint32 cmdListTransfer		= 0;
 		};
 
 	public:
@@ -144,6 +146,7 @@ namespace Lina
 		static int			   s_surfaceRendererCount;
 		int					   m_surfaceRendererIndex = 0;
 		IGfxContext*		   m_contextGraphics	  = nullptr;
+		IGfxContext*		   m_contextTransfer	  = nullptr;
 		IUploadContext*		   m_uploadContext		  = nullptr;
 		GUIRenderer*		   m_guiRenderer		  = nullptr;
 		uint32				   m_currentImageIndex	  = 0;

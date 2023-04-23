@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 
 #include "Core/PlatformTime.hpp"
+#include "Core/SystemInfo.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -291,7 +292,7 @@ namespace Lina
 
 			static float xd = 0.0f;
 
-			xd += 0.01f;
+			xd += SystemInfo::GetDeltaTimeF();
 
 			if (xd > 3.0f)
 			{

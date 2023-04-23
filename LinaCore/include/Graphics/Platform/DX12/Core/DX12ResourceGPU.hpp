@@ -52,7 +52,8 @@ namespace Lina
 
 		virtual uint64 GetGPUPointer() override;
 		virtual void   BufferData(const void* data, size_t sz, size_t padding) override;
-		virtual void   Copy(CopyDataType copyType, IUploadContext* context) override;
+		virtual void   CopyQueueUp(IUploadContext* context) override;
+		virtual void   CopyImmediately(uint32 cmdListTransfer, IGfxContext* context) override;
 
 		inline size_t GetSize()
 		{
@@ -67,14 +68,13 @@ namespace Lina
 	private:
 		void CreateResource();
 		void Cleanup();
-
 		void MapBufferData(const void* data, size_t sz, size_t padding);
 
 	private:
 		Microsoft::WRL::ComPtr<ID3D12Resource> m_cpuVisibleResource;
-		const wchar_t*						   m_name					= L"";
-		DX12ResourceCPU*					   m_stagingResource		= nullptr;
-		D3D12MA::Allocation*				   m_allocation				= nullptr;
+		const wchar_t*						   m_name			 = L"";
+		DX12ResourceCPU*					   m_stagingResource = nullptr;
+		D3D12MA::Allocation*				   m_allocation		 = nullptr;
 	};
 } // namespace Lina
 

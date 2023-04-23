@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12ResourceCPU.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
+#include "Graphics/Interfaces/IGfxContext.hpp"
 #include "Data/CommonData.hpp"
 #include <nvapi/nvapi.h>
 
@@ -73,12 +74,11 @@ namespace Lina
 			m_stagingResource->BufferData(data, sz);
 	}
 
-	void DX12ResourceGPU::Copy(CopyDataType copyType, IUploadContext* context)
+	void DX12ResourceGPU::CopyQueueUp(IUploadContext* context)
 	{
 		// CPU visible VRAM resource, already copied via mapping.
 		if (m_mappedData != nullptr)
 			return;
-
 
 		const size_t stagingSize = m_stagingResource->GetSize();
 
@@ -91,12 +91,29 @@ namespace Lina
 			m_size = stagingSize;
 			CreateResource();
 		}
-		
-		if (copyType == CopyDataType::CopyImmediately)
-			context->CopyBuffersImmediate(m_stagingResource, this);
-		else if (copyType == CopyDataType::CopyQueueUp)
-			context->CopyBuffersQueueUp(m_stagingResource, this);
-	
+
+		context->CopyBuffersQueueUp(m_stagingResource, this);
+	}
+
+	void DX12ResourceGPU::CopyImmediately(uint32 cmdListTransfer, IGfxContext* context)
+	{
+		// CPU visible VRAM resource, already copied via mapping.
+		if (m_mappedData != nullptr)
+			return;
+
+		const size_t stagingSize = m_stagingResource->GetSize();
+
+		if (stagingSize > m_size)
+		{
+			if (m_requireJoinBeforeUpdating)
+				m_renderer->Join();
+
+			Cleanup();
+			m_size = stagingSize;
+			CreateResource();
+		}
+
+		context->Copy(m_stagingResource, this, cmdListTransfer);
 	}
 
 	void DX12ResourceGPU::CreateResource()
