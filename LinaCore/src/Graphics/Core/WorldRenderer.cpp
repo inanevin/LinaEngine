@@ -339,11 +339,6 @@ namespace Lina
 			m_contextGraphics->BindDynamicTextures(&imgData.renderTargetPP, 1);
 		}
 
-		// Close command buffer.
-		{
-			m_contextGraphics->FinalizeCommandList(frame.cmdList);
-		}
-
 		// Submit
 		{
 			m_contextGraphics->ExecuteCommandLists({frame.cmdList});

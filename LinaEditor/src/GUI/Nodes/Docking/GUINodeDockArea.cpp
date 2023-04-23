@@ -251,4 +251,16 @@ namespace Lina::Editor
 		m_tabArea->FlashTab(sid);
 	}
 
+	void GUINodeDockArea::RemoveAllPanels()
+	{
+		Vector<GUINodePanel*> panels = m_panels;
+
+		for (auto p : panels)
+		{
+			const StringID sid = p->GetSID();
+			RemovePanel(p);
+			m_tabArea->RemoveTab(sid);
+		}
+	}
+
 } // namespace Lina::Editor

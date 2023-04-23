@@ -235,7 +235,10 @@ namespace Lina
 			frame.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
 		}
 
+
 		m_renderer->BeginFrame(m_frameIndex);
+
+
 		LinaVG::StartFrame(static_cast<int>(m_surfaceRenderers.size()));
 		m_guiBackend->BindTextures();
 
@@ -245,9 +248,11 @@ namespace Lina
 			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
 				m_surfaceRenderers[i]->Render(i, m_frameIndex);
 				m_surfaceRenderers[i]->Present();
+
 			});
 
 			m_system->GetMainExecutor()->RunAndWait(tf);
+
 		}
 
 		LinaVG::EndFrame();

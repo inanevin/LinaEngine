@@ -210,35 +210,29 @@ namespace Lina
 		cmdList->RSSetScissorRects(1, &sc);
 	}
 
-	void DX12GfxContext::FinalizeCommandList(uint32 cmdListHandle)
+	void DX12GfxContext::ExecuteCommandLists(const Vector<uint32>& lists)
 	{
-		auto& cmdList = m_cmdLists.GetItemR(cmdListHandle);
+		const UINT sz = static_cast<UINT>(lists.size());
 
 		try
 		{
-			ThrowIfFailed(cmdList->Close());
+			Vector<ID3D12CommandList*> _lists;
+
+			for (UINT i = 0; i < sz; i++)
+			{
+				auto& lst = m_cmdLists.GetItemR(lists[i]);
+				ThrowIfFailed(lst->Close());
+				_lists.push_back(lst.Get());
+			}
+
+			ID3D12CommandList* const* data = _lists.data();
+			m_queue->ExecuteCommandLists(sz, data);
 		}
 		catch (HrException e)
 		{
 			LINA_CRITICAL("[Renderer] -> Exception when closing a command list! {0}", e.what());
 			m_renderer->DX12Exception(e);
 		}
-	}
-
-	void DX12GfxContext::ExecuteCommandLists(const Vector<uint32>& lists)
-	{
-		const UINT sz = static_cast<UINT>(lists.size());
-
-		Vector<ID3D12CommandList*> _lists;
-
-		for (UINT i = 0; i < sz; i++)
-		{
-			auto& lst = m_cmdLists.GetItemR(lists[i]);
-			_lists.push_back(lst.Get());
-		}
-
-		ID3D12CommandList* const* data = _lists.data();
-		m_queue->ExecuteCommandLists(sz, data);
 	}
 
 	void DX12GfxContext::ResourceBarrier(uint32 cmdListHandle, ResourceTransition* transitions, uint32 count)

@@ -69,6 +69,7 @@ namespace Lina::Editor
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 FocusPanel(StringID sid);
+		void		 RemoveAllPanels();
 
 		inline GUINodeDockPreview* GetDockPreview() const
 		{

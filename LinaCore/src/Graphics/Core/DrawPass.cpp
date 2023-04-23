@@ -56,10 +56,15 @@ namespace Lina
 			frame.cmdListAllocatorTransfer = m_contextTransfer->CreateCommandAllocator();
 			frame.cmdListTransfer		   = m_contextTransfer->CreateCommandList(frame.cmdListAllocatorTransfer);
 		}
+
+		m_transferFence		 = m_renderer->CreateFence();
+		m_transferFenceValue = 1;
 	}
 
 	DrawPass::~DrawPass()
 	{
+		m_renderer->ReleaseFence(m_transferFence);
+		
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame = m_frameData[i];
@@ -160,7 +165,6 @@ namespace Lina
 
 			frame.objDataBuffer->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0);
 			frame.objDataBuffer->CopyImmediately(frame.cmdListTransfer, m_contextTransfer);
-			m_contextTransfer->FinalizeCommandList(frame.cmdListTransfer);
 			m_contextTransfer->ExecuteCommandLists({frame.cmdListTransfer});
 			m_contextTransfer->Signal(m_transferFence, m_transferFenceValue);
 			m_contextGraphics->Wait(m_transferFence, m_transferFenceValue);

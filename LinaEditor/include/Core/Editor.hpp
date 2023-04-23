@@ -84,6 +84,7 @@ namespace Lina::Editor
 		IWindow* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
 		void	 CloseWindow(StringID sid);
 		void	 OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
+		void	 CloseAllChildWindows();
 
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;

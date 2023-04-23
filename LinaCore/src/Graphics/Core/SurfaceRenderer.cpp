@@ -239,8 +239,16 @@ namespace Lina
 		auto& frame			   = m_frames[frameIndex];
 		auto& imgData		   = m_dataPerImage[m_currentImageIndex];
 
-		m_contextTransfer->ResetCommandAllocator(frame.cmdAllocatorTransfer);
+		// Command buffer prep
+		{
+			m_contextTransfer->ResetCommandAllocator(frame.cmdAllocatorTransfer);
+			m_contextGraphics->ResetCommandListAndAllocator(frame.cmdAllocator, frame.cmdList);
+			m_contextGraphics->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
+			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
+			m_contextGraphics->SetTopology(frame.cmdList, Topology::TriangleList);
+		}
 
+		// Render worlds.
 		const int worldRenderersSz = static_cast<int>(m_worldRenderers.size());
 		Taskflow  worldRendererTaskFlow;
 		worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
@@ -258,13 +266,6 @@ namespace Lina
 			}
 		}
 
-		// Command buffer prep
-		{
-			m_contextGraphics->ResetCommandListAndAllocator(frame.cmdAllocator, frame.cmdList);
-			m_contextGraphics->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
-			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
-		}
-
 		// Main Render Pass
 		{
 			// Wait for world renderers to finish.
@@ -275,7 +276,6 @@ namespace Lina
 
 			m_contextGraphics->ResourceBarrier(frame.cmdList, &present2RT, 1);
 			m_contextGraphics->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
-			m_contextGraphics->SetTopology(frame.cmdList, Topology::TriangleList);
 
 			if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 			{
@@ -285,41 +285,22 @@ namespace Lina
 				m_contextGraphics->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
-			if (m_mask.IsSet(SRM_DrawGUI) && m_guiDrawer != nullptr)
-			{
-				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
-			}
-
+			// Render GUI
 			if (m_mask.IsSet(SRM_DrawGUI) && m_guiDrawer != nullptr)
 			{
 				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
-
-				// Assign guiRenderer, call LinaVG to flush buffers, render the flushed buffers via guiRenderer
-				{
-					m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
-					LinaVG::Render(m_surfaceRendererIndex);
-					m_guiRenderer->Render(frame.cmdList, frame.cmdAllocator, frame.cmdListTransfer);
-				}
+				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
+				m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
+				LinaVG::Render(m_surfaceRendererIndex);
+				m_guiRenderer->Render(frame.cmdList, frame.cmdAllocatorTransfer, frame.cmdListTransfer);
 			}
 
 			m_contextGraphics->EndRenderPass(frame.cmdList);
 			m_contextGraphics->ResourceBarrier(frame.cmdList, &rt2Present, 1);
 		}
 
-		// Close command buffer.
-		{
-			//	m_contextTransfer->FinalizeCommandList(frame.cmdListTransfer);
-			m_contextGraphics->FinalizeCommandList(frame.cmdList);
-		}
-
 		// Submit
 		{
-			// Vector<uint32> commandLists;
-			// commandLists.resize(worldRenderersSz + 1);
-			// worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { commandLists[i] = m_worldRenderers[i]->GetCommandList(frameIndex); });
-			// m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(worldRendererTaskFlow);
-			// commandLists[worldRenderersSz] = frame.cmdList;
-			// m_contextTransfer->ExecuteCommandLists({frame.cmdListTransfer});
 			m_contextGraphics->ExecuteCommandLists({frame.cmdList});
 		}
 	}

@@ -61,7 +61,6 @@ namespace Lina
 		virtual void   ResetCommandAllocator(uint32 cmdAllocatorHandle)																																	  = 0;
 		virtual void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors)																						  = 0;
 		virtual void   SetScissors(uint32 cmdListHandle, const Recti& scissors)																															  = 0;
-		virtual void   FinalizeCommandList(uint32 cmdListHandle)																																		  = 0;
 		virtual void   ExecuteCommandLists(const Vector<uint32>& lists)																																	  = 0;
 		virtual void   ResourceBarrier(uint32 cmdListHandle, ResourceTransition* transitions, uint32 count)																								  = 0;
 		virtual void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture)																														  = 0;

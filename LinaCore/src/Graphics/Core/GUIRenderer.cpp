@@ -158,12 +158,11 @@ namespace Lina
 		if (frame.drawRequests.empty())
 			return;
 
-		// Transfer vertex & index data
+		// Make sure previous copy operations are completed.
 		{
 			m_contextTransfer->ResetCommandList(cmdListAllocatorTransfer, cmdListTransfer);
 			frame.vtxBufferGPU->CopyImmediately(cmdListTransfer, m_contextTransfer);
 			frame.indexBufferGPU->CopyImmediately(cmdListTransfer, m_contextTransfer);
-			m_contextTransfer->FinalizeCommandList(cmdListTransfer);
 			m_contextTransfer->ExecuteCommandLists({cmdListTransfer});
 			m_contextTransfer->Signal(m_fence, m_fenceValue);
 			m_contextGraphics->Wait(m_fence, m_fenceValue);

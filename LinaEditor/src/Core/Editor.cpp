@@ -335,4 +335,20 @@ namespace Lina::Editor
 			m_draggedWindow = isDragging ? owner->GetWindow() : nullptr;
 	}
 
+	void Editor::CloseAllChildWindows()
+	{
+		const auto& windows = m_windowManager->GetWindows();
+
+		Vector<StringID> sids;
+
+		for (auto [sid, w] : windows)
+		{
+			if (sid != LINA_MAIN_SWAPCHAIN && sid != EDITOR_PAYLOAD_WINDOW_SID)
+				sids.push_back(sid);
+		}
+
+		for (auto sid : sids)
+			CloseWindow(sid);
+	}
+
 } // namespace Lina::Editor
