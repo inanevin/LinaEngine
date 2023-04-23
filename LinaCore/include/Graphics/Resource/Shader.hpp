@@ -82,6 +82,24 @@ namespace Lina
 			return m_pipelineType;
 		}
 
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline IPipeline* GetPipeline()
+		{
+			return m_pipeline;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetPipeline(IPipeline* p)
+		{
+			m_pipeline = p;
+		}
+
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
@@ -91,8 +109,6 @@ namespace Lina
 		virtual void Flush() override;
 
 	private:
-		friend class Renderer;
-
 		IPipeline*							 m_pipeline = nullptr;
 		Renderer*							 m_renderer = nullptr;
 		Vector<MaterialPropertyBase*>		 m_properties;
@@ -103,7 +119,7 @@ namespace Lina
 		PipelineType						 m_pipelineType = PipelineType::Standard;
 
 		// Runtime
-		String	  m_text	  = "";
+		String	  m_text = "";
 		Bitmask16 m_drawPassMask;
 	};
 

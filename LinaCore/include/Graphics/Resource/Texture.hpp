@@ -127,6 +127,69 @@ namespace Lina
 			return m_resourceType;
 		}
 
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline IGfxResourceTexture* GetGfxResource()
+		{
+			return m_gpuResource;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetGfxResource(IGfxResourceTexture* res)
+		{
+			m_gpuResource = res;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline DescriptorHandle GetDescriptor()
+		{
+			return m_descriptor;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetDescriptor(DescriptorHandle desc)
+		{
+			m_descriptor = desc;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetDescriptorSecondary(DescriptorHandle desc)
+		{
+			m_descriptorSecondary = desc;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline DescriptorHandle GetDescriptorSecondary()
+		{
+			return m_descriptorSecondary;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetBindlessIndex(uint32 index)
+		{
+			m_gpuBindlessIndex = index;
+		}
+
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
@@ -139,8 +202,6 @@ namespace Lina
 		void GenerateMipmaps();
 
 	private:
-		friend class Renderer;
-
 		Renderer*			m_renderer	   = nullptr;
 		TextureSampler*		m_sampler	   = nullptr;
 		TextureResourceType m_resourceType = TextureResourceType::Texture2DDefault;

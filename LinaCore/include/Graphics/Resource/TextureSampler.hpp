@@ -57,6 +57,33 @@ namespace Lina
 			return m_gpuBindlessIndex;
 		}
 
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline DescriptorHandle GetDescriptor()
+		{
+			return m_descriptor;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetDescriptor(DescriptorHandle desc)
+		{
+			m_descriptor = desc;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetBindlessIndex(uint32 index)
+		{
+			m_gpuBindlessIndex = index;
+		}
+
 	protected:
 		// Inherited via IResource
 		virtual void Upload() override;
@@ -64,8 +91,6 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
-		friend class Renderer;
-
 		DescriptorHandle m_descriptor		= {};
 		int32			 m_gpuBindlessIndex = -1;
 		Renderer*		 m_renderer			= nullptr;

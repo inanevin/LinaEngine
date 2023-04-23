@@ -117,6 +117,60 @@ namespace Lina
 			return SetProperty(static_cast<uint32>(selected), value);
 		}
 
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetBindlessIndex(uint32 index)
+		{
+			m_gpuBindlessIndex = index;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline IGfxResourceCPU* GetGfxResource(uint32 index)
+		{
+			return m_buffer[index];
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetGfxResource(uint32 index, IGfxResourceCPU* res)
+		{
+			m_buffer[index] = res;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetDescriptor(uint32 index, DescriptorHandle desc)
+		{
+			m_descriptor[index] = desc;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline void SetIsDirty(uint32 index, bool isDirty)
+		{
+			m_isDirty[index] = isDirty;
+		}
+
+		/// <summary>
+		/// INTERNAL!
+		/// </summary>
+		/// <param name="index"></param>
+		inline DescriptorHandle GetDescriptor(uint32 index)
+		{
+			return m_descriptor[index];
+		}
+
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
@@ -128,8 +182,6 @@ namespace Lina
 		uint32 GetPropertiesTotalAlignedSize();
 
 	private:
-		friend class Renderer;
-
 		IGfxResourceCPU*			  m_buffer[FRAMES_IN_FLIGHT] = {nullptr};
 		DescriptorHandle			  m_descriptor[FRAMES_IN_FLIGHT];
 		bool						  m_isDirty[FRAMES_IN_FLIGHT];

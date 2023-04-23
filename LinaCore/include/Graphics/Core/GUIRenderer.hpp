@@ -109,9 +109,8 @@ namespace Lina
 			IGfxResourceCPU*		   viewDataBuffer = nullptr;
 			GPUViewData				   viewData;
 			Vector<OrderedDrawRequest> drawRequests;
-			uint32					   drawReqCounter = 0;
-			uint32					   indexCounter	  = 0;
-			uint32					   vertexCounter  = 0;
+			uint32					   indexCounter	 = 0;
+			uint32					   vertexCounter = 0;
 		};
 
 	public:
