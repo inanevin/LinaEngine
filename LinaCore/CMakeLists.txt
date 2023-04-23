@@ -157,6 +157,7 @@ include/Graphics/Interfaces/IGfxResourceCPU.hpp
 include/Graphics/Interfaces/IGfxResourceGPU.hpp
 include/Graphics/Interfaces/IGfxResourceTexture.hpp
 include/Graphics/Interfaces/IUploadContext.hpp
+include/Graphics/Interfaces/IGfxContext.hpp
 include/Graphics/Interfaces/ISwapchain.hpp
 include/Graphics/Interfaces/IPipeline.hpp
 include/Graphics/Data/RenderData.hpp
@@ -213,6 +214,7 @@ include/Graphics/Platform/DX12/Core/DX12ResourceCPU.hpp
 include/Graphics/Platform/DX12/Core/DX12ResourceGPU.hpp
 include/Graphics/Platform/DX12/Core/DX12ResourceTexture.hpp
 include/Graphics/Platform/DX12/Core/DX12Pipeline.hpp
+include/Graphics/Platform/DX12/Core/DX12GfxContext.hpp
 include/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp
 include/Graphics/Platform/DX12/SDK/d3d12.h
 include/Graphics/Platform/DX12/SDK/d3d12compatibility.h
@@ -251,6 +253,7 @@ src/Graphics/Platform/DX12/Core/DX12ResourceCPU.cpp
 src/Graphics/Platform/DX12/Core/DX12ResourceGPU.cpp
 src/Graphics/Platform/DX12/Core/DX12ResourceTexture.cpp
 src/Graphics/Platform/DX12/Core/DX12Pipeline.cpp
+src/Graphics/Platform/DX12/Core/DX12GfxContext.cpp
 src/Graphics/Platform/DX12/SDK/D3D12MemAlloc.cpp
 src/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.cpp
 )

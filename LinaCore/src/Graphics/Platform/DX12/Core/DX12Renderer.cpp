@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12GPUHeap.hpp"
 #include "Graphics/Platform/DX12/Core/DX12UploadContext.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Pipeline.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxContext.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -171,6 +172,10 @@ namespace Lina
 
 			// Describe and create the command queues.
 			{
+				m_contextCompute  = new DX12GfxContext(this, CommandType::Compute);
+				m_contextTransfer = new DX12GfxContext(this, CommandType::Transfer);
+				m_contextGraphics = new DX12GfxContext(this, CommandType::Graphics);
+
 				D3D12_COMMAND_QUEUE_DESC queueDesc = {};
 				queueDesc.Flags					   = D3D12_COMMAND_QUEUE_FLAG_NONE;
 				queueDesc.Type					   = D3D12_COMMAND_LIST_TYPE_DIRECT;
@@ -331,6 +336,10 @@ namespace Lina
 		{
 			infoQueue->UnregisterMessageCallback(msgCallback);
 		}
+
+		delete m_contextCompute;
+		delete m_contextTransfer;
+		delete m_contextGraphics;
 
 		m_graphicsQueue.Reset();
 		m_copyQueue.Reset();

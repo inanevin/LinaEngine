@@ -50,7 +50,7 @@ namespace Lina
 		DX12ResourceTexture(){};
 		DX12ResourceTexture(Renderer* rend, Texture* txt, TextureResourceType type);
 		virtual ~DX12ResourceTexture();
-		
+
 		virtual uint64 GetGPUPointer() override;
 
 		inline D3D12MA::Allocation* DX12GetAllocation()
@@ -64,6 +64,7 @@ namespace Lina
 
 	private:
 		friend class Renderer;
+		friend class DX12GfxContext;
 
 		Texture*							   m_texture	 = nullptr;
 		Renderer*							   m_renderer	 = nullptr;

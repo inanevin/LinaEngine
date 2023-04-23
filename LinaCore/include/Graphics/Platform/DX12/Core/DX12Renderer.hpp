@@ -66,6 +66,7 @@ namespace Lina
 	class ResourceManager;
 	class TextureSampler;
 	class IWindow;
+	class IGfxContext;
 
 	class Renderer
 	{
@@ -180,6 +181,21 @@ namespace Lina
 		Texture* CreateRenderTargetSwapchain(ISwapchain* swp, uint32 bufferIndex, const String& path);
 		Texture* CreateRenderTargetDepthStencil(const String& pathName, const Vector2i& size);
 
+		inline IGfxContext* GetContextGraphics() const
+		{
+			return m_contextGraphics;
+		}
+
+		inline IGfxContext* GetContextTransfer() const
+		{
+			return m_contextTransfer;
+		}
+
+		inline IGfxContext* GetContextCompute() const
+		{
+			return m_contextCompute;
+		}
+
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
 		// ******************* DX12 INTERFACE *******************
@@ -189,6 +205,11 @@ namespace Lina
 		inline ID3D12RootSignature* DX12GetRootSignatureStandard()
 		{
 			return m_rootSigStandard.Get();
+		}
+
+		inline ID3D12CommandSignature* DX12GetCommandSignatureStandard()
+		{
+			return m_commandSigStandard.Get();
 		}
 
 		inline ID3D12Device* DX12GetDevice()
@@ -224,6 +245,26 @@ namespace Lina
 		inline bool DX12IsTearingAllowed()
 		{
 			return m_allowTearing;
+		}
+
+		inline uint32 DX12GetTexturesHeapAllocCount()
+		{
+			return m_texturesHeapAllocCount;
+		}
+
+		inline DX12GPUHeap* DX12GetBufferHeap(uint32 index)
+		{
+			return m_gpuBufferHeap[index];
+		}
+
+		inline DX12GPUHeap* DX12GetSamplerHeap(uint32 index)
+		{
+			return m_gpuSamplerHeap[index];
+		}
+
+		inline IDList<Microsoft::WRL::ComPtr<ID3D12Fence>>& DX12GetFences()
+		{
+			return m_fences;
 		}
 
 		// ******************* DX12 INTERFACE *******************
@@ -282,6 +323,10 @@ namespace Lina
 		IDList<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>	   m_cmdAllocators;
 		IDList<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>> m_cmdLists;
 		IDList<Microsoft::WRL::ComPtr<ID3D12Fence>>				   m_fences;
+
+		IGfxContext* m_contextGraphics = nullptr;
+		IGfxContext* m_contextTransfer = nullptr;
+		IGfxContext* m_contextCompute  = nullptr;
 	};
 
 } // namespace Lina
