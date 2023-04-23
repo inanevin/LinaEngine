@@ -79,6 +79,7 @@ namespace Lina
 		if (m_mappedData != nullptr)
 			return;
 
+
 		const size_t stagingSize = m_stagingResource->GetSize();
 
 		if (stagingSize > m_size)
@@ -90,11 +91,12 @@ namespace Lina
 			m_size = stagingSize;
 			CreateResource();
 		}
-
+		
 		if (copyType == CopyDataType::CopyImmediately)
 			context->CopyBuffersImmediate(m_stagingResource, this);
 		else if (copyType == CopyDataType::CopyQueueUp)
 			context->CopyBuffersQueueUp(m_stagingResource, this);
+	
 	}
 
 	void DX12ResourceGPU::CreateResource()

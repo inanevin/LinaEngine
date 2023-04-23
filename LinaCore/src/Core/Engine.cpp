@@ -91,8 +91,8 @@ namespace Lina
 
 	void Engine::PreTick()
 	{
-		if (m_gfxManager)
-			m_gfxManager->WaitForSwapchains();
+		//if (m_gfxManager)
+		//	m_gfxManager->WaitForSwapchains();
 
 		CalculateTime();
 		m_input.PreTick();

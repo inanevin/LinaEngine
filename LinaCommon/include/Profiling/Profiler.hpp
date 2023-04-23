@@ -134,20 +134,20 @@ namespace Lina
 		DeviceGPUInfo				   m_gpuInfo;
 	};
 
-#define PROFILER_FRAME_START()						Lina::Profiler::Get().StartFrame()
-#define PROFILER_STARTBLOCK(BLOCKENAME, THREADNAME) Lina::Profiler::Get().StartBlock(BLOCKAME, THREADNAME)
-#define PROFILER_ENDBLOCK(THREADNAME)				Lina::Profiler::Get().EndBlock(THREADNAME)
-#define PROFILER_FUNCTION(...)						Lina::Scope function(__FUNCTION__, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
-#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)		Lina::Profiler::Get().FrameAnalysisFile = FILE
-#define PROFILER_REGISTER_THREAD(NAME)				Lina::Profiler::Get().RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
+#define PROFILER_FRAME_START()				  Lina::Profiler::Get().StartFrame()
+#define PROFILER_STARTBLOCK(BLOCKNAME)		  Lina::Profiler::Get().StartBlock(BLOCKNAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
+#define PROFILER_ENDBLOCK()					  Lina::Profiler::Get().EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
+#define PROFILER_FUNCTION(...)				  Lina::Scope function(__FUNCTION__, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
+#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE) Lina::Profiler::Get().FrameAnalysisFile = FILE
+#define PROFILER_REGISTER_THREAD(NAME)		  Lina::Profiler::Get().RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 
 } // namespace Lina
 
 #else
 
 #define PROFILER_FRAME_START()
-#define PROFILER_STARTBLOCK(BLOCKENAME, THREADNAME)
-#define PROFILER_ENDBLOCK(BLOCKNAME, THREADNAME)
+#define PROFILER_STARTBLOCK(BLOCKNAME)
+#define PROFILER_ENDBLOCK()			
 #define PROFILER_FUNCTION(...)
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)
 #define PROFILER_REGISTER_THREAD(NAME)

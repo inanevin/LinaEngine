@@ -218,7 +218,7 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
-		PROFILER_FUNCTION();
+		//PROFILER_FUNCTION();
 
 		if (!m_renderer->IsOK())
 		{

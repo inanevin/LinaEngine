@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Data/CommonData.hpp"
 
+#include "Core/PlatformTime.hpp"
+
 using Microsoft::WRL::ComPtr;
 
 namespace Lina
@@ -275,7 +277,23 @@ namespace Lina
 			m_fenceValue++;
 			m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
 			ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
+
+			auto cycles = PlatformTime::GetCPUCycles();
+
+
 			WaitForSingleObject(m_fenceEvent, INFINITE);
+			auto delta = PlatformTime::GetDeltaSeconds64(cycles, PlatformTime::GetCPUCycles()) * 1000.0;
+
+			static float xd = 0.0f;
+
+			xd += 0.01f;
+
+			if (xd > 3.0f)
+			{
+				xd = 0.0f;
+
+				LINA_TRACE("delta {0}", delta);
+			}
 		}
 		catch (HrException e)
 		{

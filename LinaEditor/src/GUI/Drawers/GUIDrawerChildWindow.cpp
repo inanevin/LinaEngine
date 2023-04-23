@@ -42,6 +42,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Input/Core/Input.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Lina::Editor
 {

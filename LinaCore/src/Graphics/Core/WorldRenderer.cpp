@@ -214,6 +214,7 @@ namespace Lina
 
 	void WorldRenderer::Tick(float interpolationAlpha)
 	{
+		return;
 		PROFILER_FUNCTION();
 
 		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
@@ -262,6 +263,7 @@ namespace Lina
 
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
 	{
+		return;
 		PROFILER_FUNCTION();
 		auto& frame	  = m_frames[frameIndex];
 		auto& imgData = m_dataPerImage[imageIndex];

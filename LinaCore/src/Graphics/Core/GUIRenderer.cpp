@@ -36,12 +36,14 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
 #include "Math/Rect.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Lina
 {
-#define DEF_VTX_BUF_SIZE   4
-#define DEF_INDEX_BUF_SIZE 4
-#define DEF_MAT_SIZE	   24
+#define DEF_VTX_BUF_SIZE	4
+#define DEF_INDEX_BUF_SIZE	4
+#define DEF_MAT_SIZE		24
+#define DEF_DRAWREQ_RESERVE 25
 
 	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount, IUploadContext* context)
 		: m_uploadContext(context), m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount),
@@ -57,6 +59,7 @@ namespace Lina
 			frame.vtxBufferGPU	 = m_renderer->CreateGPUResource(DEF_VTX_BUF_SIZE, GPUResourceType::CPUVisibleIfPossible, false, L"GUI Renderer Vertex GPU");
 			frame.indexBufferGPU = m_renderer->CreateGPUResource(DEF_INDEX_BUF_SIZE, GPUResourceType::CPUVisibleIfPossible, false, L"GUI Renderer Index GPU");
 			frame.viewDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUViewData), CPUResourceHint::ConstantBuffer, L"GUI Renderer View Data");
+			frame.drawRequests.resize(DEF_DRAWREQ_RESERVE);
 		}
 	}
 
@@ -82,6 +85,8 @@ namespace Lina
 
 	void GUIRenderer::FeedGradient(LinaVG::GradientDrawBuffer* buf)
 	{
+		return;
+
 		OrderedDrawRequest& req			   = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Gradient);
 		req.materialDefinition.color1	   = FL4(buf->m_color.start);
 		req.materialDefinition.color2	   = FL4(buf->m_color.end);
@@ -95,6 +100,8 @@ namespace Lina
 
 	void GUIRenderer::FeedTextured(LinaVG::TextureDrawBuffer* buf)
 	{
+		return;
+
 		const StringID		sid				= "Resources/Core/Textures/Logo_White_512.png"_hs;
 		OrderedDrawRequest& req				= AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::Textured);
 		req.materialDefinition.intpack1		= Vector4i(2, 0, 0, 0);
@@ -119,6 +126,8 @@ namespace Lina
 
 	void GUIRenderer::FeedSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
 	{
+		return;
+
 		OrderedDrawRequest& req				= AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SimpleText);
 		req.materialDefinition.intpack1		= Vector4i(3, 0, 0, 0);
 		req.materialDefinition.diffuseIndex = buf->m_textureHandle;
@@ -130,6 +139,8 @@ namespace Lina
 
 	void GUIRenderer::FeedSDFText(LinaVG::SDFTextDrawBuffer* buf)
 	{
+		return;
+
 		OrderedDrawRequest& req				 = AddOrderedDrawRequest(buf, LinaVGDrawCategoryType::SDF);
 		const float			thickness		 = 1.0f - Math::Clamp(buf->m_thickness, 0.0f, 1.0f);
 		const float			softness		 = Math::Clamp(buf->m_softness, 0.0f, 10.0f) * 0.1f;
@@ -151,12 +162,12 @@ namespace Lina
 			return;
 
 		// Transfer vertex & index data
-		{
-			frame.vtxBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
-			frame.indexBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
-			m_renderer->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex), 0, sizeof(LinaVG::Vertex) * frame.vertexCounter);
-			m_renderer->BindIndexBuffer(cmdList, frame.indexBufferGPU, sizeof(LinaVG::Index) * frame.indexCounter);
-		}
+
+		frame.vtxBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
+		frame.indexBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
+		
+		m_renderer->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex), 0, sizeof(LinaVG::Vertex) * frame.vertexCounter);
+		m_renderer->BindIndexBuffer(cmdList, frame.indexBufferGPU, sizeof(LinaVG::Index) * frame.indexCounter);
 
 		// View data & pipeline
 		{
@@ -166,10 +177,12 @@ namespace Lina
 			m_renderer->BindPipeline(cmdList, m_materials[0]->GetShader());
 		}
 
+		
+
 		// Allocate new materials if necessary,
 		// Assign request definition data & bind materials, then finally draw.
 		{
-			const uint32 requestsSize = static_cast<uint32>(frame.drawRequests.size());
+			const uint32 requestsSize = frame.drawReqCounter;
 
 			if (requestsSize > static_cast<uint32>(m_materials.size()))
 				AllocateMaterials();
@@ -196,7 +209,7 @@ namespace Lina
 		}
 
 		frame.vertexCounter = frame.indexCounter = 0;
-		frame.drawRequests.clear();
+		frame.drawReqCounter					 = 0;
 	}
 
 	void GUIRenderer::Prepare(const Vector2i& surfaceRendererSize, uint32 frameIndex, uint32 imageIndex)
@@ -255,22 +268,30 @@ namespace Lina
 	GUIRenderer::OrderedDrawRequest& GUIRenderer::AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type)
 	{
 		auto& frame = m_frames[m_frameIndex];
-		frame.drawRequests.push_back(OrderedDrawRequest());
-		OrderedDrawRequest& req = frame.drawRequests.back();
-		req.firstIndex			= frame.indexCounter;
-		req.vertexOffset		= frame.vertexCounter;
-		req.type				= type;
-		req.indexSize			= static_cast<uint32>(buf->m_indexBuffer.m_size);
-		req.meta.clipX			= buf->clipPosX;
-		req.meta.clipY			= buf->clipPosY;
-		req.meta.clipW			= buf->clipSizeX == 0 ? m_size.x : buf->clipSizeX;
-		req.meta.clipH			= buf->clipSizeY == 0 ? m_size.y : buf->clipSizeY;
+
+		OrderedDrawRequest req = OrderedDrawRequest();
+		req.firstIndex		   = frame.indexCounter;
+		req.vertexOffset	   = frame.vertexCounter;
+		req.type			   = type;
+		req.indexSize		   = static_cast<uint32>(buf->m_indexBuffer.m_size);
+		req.meta.clipX		   = buf->clipPosX;
+		req.meta.clipY		   = buf->clipPosY;
+		req.meta.clipW		   = buf->clipSizeX == 0 ? m_size.x : buf->clipSizeX;
+		req.meta.clipH		   = buf->clipSizeY == 0 ? m_size.y : buf->clipSizeY;
 
 		frame.indexBufferGPU->BufferData(buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index), frame.indexCounter * sizeof(LinaVG::Index));
 		frame.vtxBufferGPU->BufferData(buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex), frame.vertexCounter * sizeof(LinaVG::Vertex));
 
 		frame.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 		frame.indexCounter += static_cast<uint32>(buf->m_indexBuffer.m_size);
-		return req;
+
+		const size_t currentSz = frame.drawRequests.size();
+		if (frame.drawReqCounter == currentSz)
+			frame.drawRequests.resize(currentSz + DEF_DRAWREQ_RESERVE);
+
+		frame.drawRequests[frame.drawReqCounter] = req;
+		frame.drawReqCounter++;
+
+		return frame.drawRequests[frame.drawReqCounter];
 	}
 } // namespace Lina
