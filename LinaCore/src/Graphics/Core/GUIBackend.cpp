@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Core/GUIBackend.hpp"
 #include "Graphics/Core/GUIRenderer.hpp"
+#include "Graphics/Interfaces/IGfxContext.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
@@ -41,6 +42,7 @@ namespace Lina
 	{
 		m_gfxManager	  = man;
 		m_renderer		  = m_gfxManager->GetRenderer();
+		m_contextGraphics = m_renderer->GetContextGraphics();
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
@@ -172,7 +174,7 @@ namespace Lina
 		for (auto& [sid, txt] : m_renderReadyFontTextures)
 			textures.push_back(txt);
 
-		m_renderer->BindDynamicTextures(textures.data(), texturesSize);
+		m_contextGraphics->BindDynamicTextures(textures.data(), texturesSize);
 	}
 
 	void GUIBackend::CheckFontTexturesForUpload()

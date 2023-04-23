@@ -55,6 +55,7 @@ namespace Lina
 	class IGfxResourceCPU;
 	class ResourceManager;
 	class IUploadContext;
+	class IGfxContext;
 
 	class GUIRenderer
 	{
@@ -134,7 +135,8 @@ namespace Lina
 		OrderedDrawRequest& AddOrderedDrawRequest(LinaVG::DrawBuffer* buf, LinaVGDrawCategoryType type);
 
 	private:
-		IUploadContext*		m_uploadContext = nullptr;
+		IGfxContext*		m_contextGraphics = nullptr;
+		IUploadContext*		m_uploadContext	  = nullptr;
 		Vector<Material*>	m_materials;
 		MemoryAllocatorPool m_materialPool;
 		ResourceManager*	m_resourceManager = nullptr;

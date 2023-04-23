@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Graphics/Platform/DX12/Core/DX12ResourceCPU.hpp"
 #include "Graphics/Platform/DX12/Core/DX12ResourceGPU.hpp"
 #include "Graphics/Platform/DX12/Core/DX12ResourceTexture.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxContext.hpp"
 #include "Graphics/Platform/DX12/SDK/D3D12MemAlloc.h"
 #include "Graphics/Resource/Texture.hpp"
 #include "Data/CommonData.hpp"
@@ -46,7 +47,9 @@ namespace Lina
 	{
 		try
 		{
-			auto device = m_renderer->DX12GetDevice();
+			auto device		  = m_renderer->DX12GetDevice();
+			m_contextTransfer = m_renderer->GetContextTransfer();
+
 			ThrowIfFailed(device->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_COPY, IID_PPV_ARGS(m_cmdAllocator.GetAddressOf())));
 
 			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -272,14 +275,16 @@ namespace Lina
 			Vector<ID3D12CommandList*> _lists;
 			_lists.push_back(cmdList);
 			ID3D12CommandList* const* data = _lists.data();
-			m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
+
+			auto q = ((DX12GfxContext*)(m_contextTransfer))->GetQueue();
+			q->ExecuteCommandLists(1, data);
+			// m_renderer->DX12GetTransferQueue()->ExecuteCommandLists(1, data);
 
 			m_fenceValue++;
-			m_renderer->DX12GetTransferQueue()->Signal(m_fence.Get(), m_fenceValue);
+			q->Signal(m_fence.Get(), m_fenceValue);
 			ThrowIfFailed(m_fence->SetEventOnCompletion(m_fenceValue, m_fenceEvent));
 
 			auto cycles = PlatformTime::GetCPUCycles();
-
 
 			WaitForSingleObject(m_fenceEvent, INFINITE);
 			auto delta = PlatformTime::GetDeltaSeconds64(cycles, PlatformTime::GetCPUCycles()) * 1000.0;

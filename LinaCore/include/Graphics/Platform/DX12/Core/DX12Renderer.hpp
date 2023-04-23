@@ -77,6 +77,7 @@ namespace Lina
 		struct StatePerFrame
 		{
 			uint64 storedFenceGraphics = 0;
+			uint64 storedFenceTransfer = 0;
 			uint32 presentCount		   = 0;
 			int64  cycles			   = 0;
 		};
@@ -143,38 +144,9 @@ namespace Lina
 		void				 DeleteGPUResource(IGfxResourceGPU* res);
 		IUploadContext*		 CreateUploadContext();
 
-		// Commands
-		uint32 CreateCommandAllocator(CommandType type);
-		uint32 CreateCommandList(CommandType type, uint32 allocatorHandle);
-		void   ReleaseCommanAllocator(uint32 handle);
-		void   ReleaseCommandList(uint32 handle);
-		void   ResetCommandList(uint32 cmdAllocatorHandle, uint32 cmdListHandle);
-		void   PrepareCommandList(uint32 cmdListHandle, const Viewport& viewport, const Recti& scissors);
-		void   SetScissors(uint32 cmdListHandle, const Recti& scissors);
-		void   FinalizeCommandList(uint32 cmdListHandle);
-		void   ExecuteCommandListsGraphics(const Vector<uint32>& lists);
-		void   ExecuteCommandListsTransfer(const Vector<uint32>& lists);
-		void   ResourceBarrier(uint32 cmdListHandle, ResourceTransition* transitions, uint32 count);
-		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture);
-		void   BeginRenderPass(uint32 cmdListHandle, Texture* colorTexture, Texture* depthStencil);
-		void   EndRenderPass(uint32 cmdListHandle);
-		void   BindPipeline(uint32 cmdListHandle, Shader* shader);
-		void   BindMaterials(Material** materials, uint32 materialsSize);
-		void   SetMaterialID(uint32 cmdListHandle, uint32 id);
-		void   BindDynamicTextures(Texture** textures, uint32 texturesSize);
-		void   BindUniformBuffer(uint32 cmdListHandle, uint32 bufferIndex, IGfxResourceCPU* buf);
-		void   BindObjectBuffer(uint32 cmdListHandle, IGfxResourceGPU* res);
-		void   BindVertexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t vertexSize = sizeof(Vertex), uint32 slot = 0, size_t maxSize = 0);
-		void   BindIndexBuffer(uint32 cmdListHandle, IGfxResourceGPU* buffer, size_t maxSize = 0);
-		void   DrawInstanced(uint32 cmdListHandle, uint32 vertexCount, uint32 instanceCount, uint32 startVertex, uint32 startInstance);
-		void   DrawIndexedInstanced(uint32 cmdListHandle, uint32 indexCountPerInstance, uint32 instanceCount, uint32 startIndexLocation, uint32 baseVertexLocation, uint32 startInstanceLocation);
-		void   DrawIndexedIndirect(uint32 cmdListHandle, IGfxResourceCPU* indirectBuffer, uint32 count, uint64 indirectOffset);
-		void   SetTopology(uint32 cmdListHandle, Topology topology);
-
 		// Fences
 		uint32 CreateFence();
 		void   ReleaseFence(uint32 handle);
-		void   WaitForFences(uint32 fence, uint64 frameFenceValue);
 
 		// Textures
 		Texture* CreateRenderTargetColor(const String& path, const Vector2i& size);
@@ -220,16 +192,6 @@ namespace Lina
 		inline IDXGIFactory4* DX12GetFactory()
 		{
 			return m_factory.Get();
-		}
-
-		inline ID3D12CommandQueue* DX12GetGraphicsQueue()
-		{
-			return m_graphicsQueue.Get();
-		}
-
-		inline ID3D12CommandQueue* DX12GetTransferQueue()
-		{
-			return m_copyQueue.Get();
 		}
 
 		inline D3D12MA::Allocator* DX12GetAllocator()
@@ -278,8 +240,9 @@ namespace Lina
 		GfxManager*					 m_gfxManager = nullptr;
 		StatePerFrame				 m_frames[FRAMES_IN_FLIGHT];
 		uint64						 m_fenceValueGraphics	  = 0;
+		uint64						 m_fenceValueTransfer	  = 0;
 		uint32						 m_frameFenceGraphics	  = 0;
-		HANDLE						 m_fenceEventGraphics	  = NULL;
+		uint32						 m_frameFenceTransfer	  = 0;
 		uint32						 m_currentFrameIndex	  = 0;
 		ResourceManager*			 m_resourceManager		  = nullptr;
 		IUploadContext*				 m_uploadContext		  = nullptr;
@@ -302,8 +265,6 @@ namespace Lina
 		D3D12MA::Allocator*							   m_dx12Allocator = nullptr;
 		Microsoft::WRL::ComPtr<IDXGIAdapter1>		   m_adapter	   = nullptr;
 		Microsoft::WRL::ComPtr<ID3D12Device>		   m_device;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_graphicsQueue;
-		Microsoft::WRL::ComPtr<ID3D12CommandQueue>	   m_copyQueue;
 		Microsoft::WRL::ComPtr<IDXGIFactory4>		   m_factory;
 		DX12GPUHeap*								   m_gpuBufferHeap[FRAMES_IN_FLIGHT]  = {nullptr};
 		DX12GPUHeap*								   m_gpuSamplerHeap[FRAMES_IN_FLIGHT] = {nullptr};
@@ -320,9 +281,7 @@ namespace Lina
 		ID3DIncludeInterface				m_includeInterface;
 
 		// API
-		IDList<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>>	   m_cmdAllocators;
-		IDList<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4>> m_cmdLists;
-		IDList<Microsoft::WRL::ComPtr<ID3D12Fence>>				   m_fences;
+		IDList<Microsoft::WRL::ComPtr<ID3D12Fence>> m_fences;
 
 		IGfxContext* m_contextGraphics = nullptr;
 		IGfxContext* m_contextTransfer = nullptr;

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Interfaces/IGfxResourceCPU.hpp"
 #include "Graphics/Interfaces/IGfxResourceGPU.hpp"
+#include "Graphics/Interfaces/IGfxContext.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -67,6 +68,7 @@ namespace Lina
 		: m_gfxManager(gfxManager), m_imageCount(imageCount), m_surfaceRenderer(surface), m_mask(mask), m_world(world)
 	{
 		m_renderer					  = m_gfxManager->GetRenderer();
+		m_contextGraphics			  = m_renderer->GetContextGraphics();
 		m_renderData.renderResolution = renderResolution;
 		m_renderData.aspectRatio	  = aspectRatio;
 		m_uploadContext				  = m_renderer->CreateUploadContext();
@@ -87,8 +89,8 @@ namespace Lina
 			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
 				auto& frame			  = m_frames[i];
-				frame.cmdAllocator	  = m_renderer->CreateCommandAllocator(CommandType::Graphics);
-				frame.cmdList		  = m_renderer->CreateCommandList(CommandType::Graphics, m_frames[i].cmdAllocator);
+				frame.cmdAllocator	  = m_contextGraphics->CreateCommandAllocator();
+				frame.cmdList		  = m_contextGraphics->CreateCommandList(m_frames[i].cmdAllocator);
 				frame.sceneDataBuffer = m_renderer->CreateCPUResource(sizeof(GPUSceneData), CPUResourceHint::ConstantBuffer, L"World Renderer Scene Data");
 				frame.viewDataBuffer  = m_renderer->CreateCPUResource(sizeof(GPUViewData), CPUResourceHint::ConstantBuffer, L"World Renderer View Data");
 				frame.sceneDataBuffer->BufferData(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
@@ -106,17 +108,17 @@ namespace Lina
 	{
 		delete m_uploadContext;
 		delete m_opaquePass;
-		
+
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame = m_frames[i];
 
-			m_renderer->ReleaseCommandList(frame.cmdList);
-			m_renderer->ReleaseCommanAllocator(frame.cmdAllocator);
+			m_contextGraphics->ReleaseCommandList(frame.cmdList);
+			m_contextGraphics->ReleaseCommandAllocator(frame.cmdAllocator);
 			m_renderer->DeleteCPUResource(frame.sceneDataBuffer);
 			m_renderer->DeleteCPUResource(frame.viewDataBuffer);
 		}
-		
+
 		DestroyTextures();
 
 		m_world->RemoveListener(this);
@@ -277,15 +279,15 @@ namespace Lina
 
 		// Command buffer prep
 		{
-			m_renderer->ResetCommandList(frame.cmdAllocator, frame.cmdList);
-			m_renderer->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
-			m_renderer->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
+			m_contextGraphics->ResetCommandList(frame.cmdAllocator, frame.cmdList);
+			m_contextGraphics->PrepareCommandList(frame.cmdList, m_renderData.viewport, m_renderData.scissors);
+			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
 		}
 
 		// Update scene data
 		{
 			frame.sceneDataBuffer->BufferData(&m_renderData.gpuSceneData, sizeof(GPUSceneData));
-			m_renderer->BindUniformBuffer(frame.cmdList, GBB_SceneData, frame.sceneDataBuffer);
+			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_SceneData, frame.sceneDataBuffer);
 		}
 
 		ResourceTransition srv2RT[2] = {{ResourceTransitionType::SRV2RT, imgData.renderTargetColor}, {ResourceTransitionType::SRV2RT, imgData.renderTargetPP}};
@@ -298,7 +300,7 @@ namespace Lina
 			{
 				m_playerView.FillGPUViewData(m_renderData.gpuViewData);
 				frame.viewDataBuffer->BufferData(&m_renderData.gpuViewData, sizeof(GPUViewData));
-				m_renderer->BindUniformBuffer(frame.cmdList, GBB_ViewData, frame.viewDataBuffer);
+				m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_ViewData, frame.viewDataBuffer);
 			}
 
 			// Update object data
@@ -306,47 +308,47 @@ namespace Lina
 				m_opaquePass->UpdateBuffers(frameIndex, frame.cmdList);
 			}
 
-			m_renderer->ResourceBarrier(frame.cmdList, srv2RT, 2);
-			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
+			m_contextGraphics->ResourceBarrier(frame.cmdList, srv2RT, 2);
+			m_contextGraphics->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
 
 			// Draw scene objects.
 			{
-				m_renderer->BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
-				m_renderer->BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());
-				m_renderer->SetTopology(frame.cmdList, Topology::TriangleList);
+				m_contextGraphics->BindVertexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUVertexBuffer());
+				m_contextGraphics->BindIndexBuffer(frame.cmdList, m_gfxManager->GetMeshManager().GetGPUIndexBuffer());
+				m_contextGraphics->SetTopology(frame.cmdList, Topology::TriangleList);
 				m_opaquePass->Draw(frameIndex, frame.cmdList);
 			}
 
-			m_renderer->EndRenderPass(frame.cmdList);
-			m_renderer->ResourceBarrier(frame.cmdList, &rt2SRV1, 1);
-			m_renderer->BindDynamicTextures(&imgData.renderTargetColor, 1);
+			m_contextGraphics->EndRenderPass(frame.cmdList);
+			m_contextGraphics->ResourceBarrier(frame.cmdList, &rt2SRV1, 1);
+			m_contextGraphics->BindDynamicTextures(&imgData.renderTargetColor, 1);
 		}
 
 		// Post process pass.
 		{
-			m_renderer->BeginRenderPass(frame.cmdList, imgData.renderTargetPP, imgData.renderTargetDepth);
+			m_contextGraphics->BeginRenderPass(frame.cmdList, imgData.renderTargetPP, imgData.renderTargetDepth);
 
 			// Draw
 			{
-				m_renderer->BindMaterials(&imgData.ppMaterial, 1);
-				m_renderer->BindPipeline(frame.cmdList, imgData.ppMaterial->GetShader());
-				m_renderer->SetMaterialID(frame.cmdList, imgData.ppMaterial->GetGPUBindlessIndex());
-				m_renderer->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
+				m_contextGraphics->BindMaterials(&imgData.ppMaterial, 1);
+				m_contextGraphics->BindPipeline(frame.cmdList, imgData.ppMaterial->GetShader());
+				m_contextGraphics->SetMaterialID(frame.cmdList, imgData.ppMaterial->GetGPUBindlessIndex());
+				m_contextGraphics->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
-			m_renderer->EndRenderPass(frame.cmdList);
-			m_renderer->ResourceBarrier(frame.cmdList, &rt2SRV2, 1);
-			m_renderer->BindDynamicTextures(&imgData.renderTargetPP, 1);
+			m_contextGraphics->EndRenderPass(frame.cmdList);
+			m_contextGraphics->ResourceBarrier(frame.cmdList, &rt2SRV2, 1);
+			m_contextGraphics->BindDynamicTextures(&imgData.renderTargetPP, 1);
 		}
 
 		// Close command buffer.
 		{
-			m_renderer->FinalizeCommandList(frame.cmdList);
+			m_contextGraphics->FinalizeCommandList(frame.cmdList);
 		}
 
 		// Submit
 		{
-			m_renderer->ExecuteCommandListsGraphics({frame.cmdList});
+			m_contextGraphics->ExecuteCommandLists({frame.cmdList});
 		}
 	}
 

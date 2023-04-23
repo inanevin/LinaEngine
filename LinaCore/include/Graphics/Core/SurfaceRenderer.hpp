@@ -51,6 +51,7 @@ namespace Lina
 	class IGUIDrawer;
 	class GUIRenderer;
 	class IUploadContext;
+	class IGfxContext;
 
 	class SurfaceRenderer : public ISystemEventListener
 	{
@@ -142,6 +143,7 @@ namespace Lina
 	protected:
 		static int			   s_surfaceRendererCount;
 		int					   m_surfaceRendererIndex = 0;
+		IGfxContext*		   m_contextGraphics	  = nullptr;
 		IUploadContext*		   m_uploadContext		  = nullptr;
 		GUIRenderer*		   m_guiRenderer		  = nullptr;
 		uint32				   m_currentImageIndex	  = 0;

@@ -38,6 +38,7 @@ SOFTWARE.
 namespace Lina
 {
 	class Renderer;
+	class IGfxContext;
 
 	class DX12UploadContext : public IUploadContext
 	{
@@ -59,6 +60,7 @@ namespace Lina
 		void				 CloseAndExecuteCommandList();
 
 	private:
+		IGfxContext*									   m_contextTransfer = nullptr;
 		Mutex											   m_mtx;
 		Microsoft::WRL::ComPtr<ID3D12Fence>				   m_fence;
 		Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList4> m_cmdLists[FRAMES_IN_FLIGHT];

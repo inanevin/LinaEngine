@@ -43,6 +43,7 @@ namespace Lina
 	class ResourceManager;
 	class Texture;
 	class Renderer;
+	class IGfxContext;
 
 	class GUIBackend : public LinaVG::Backend::BaseBackend
 	{
@@ -76,7 +77,8 @@ namespace Lina
 		void CheckFontTexturesForUpload();
 
 	private:
-		Renderer*					m_renderer = nullptr;
+		IGfxContext*				m_contextGraphics = nullptr;
+		Renderer*					m_renderer		  = nullptr;
 		HashMap<Texture*, bool>		m_textureDirtyStatus;
 		StringID					m_boundFontTexture	 = 0;
 		uint32						m_fontTextureCounter = 0;

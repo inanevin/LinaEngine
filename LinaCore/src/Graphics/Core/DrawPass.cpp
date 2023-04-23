@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Graphics/Core/DrawPass.hpp"
 #include "Graphics/Interfaces/IGfxResourceGPU.hpp"
 #include "Graphics/Interfaces/IGfxResourceCPU.hpp"
+#include "Graphics/Interfaces/IGfxContext.hpp"
 #include "Graphics/Components/RenderableComponent.hpp"
 #include "World/Core/Entity.hpp"
 #include "Graphics/Resource/Mesh.hpp"
@@ -43,7 +44,8 @@ namespace Lina
 {
 	DrawPass::DrawPass(GfxManager* gfxMan, IUploadContext* context) : m_gfxManager(gfxMan), m_uploadContext(context)
 	{
-		m_renderer = m_gfxManager->GetRenderer();
+		m_renderer		  = m_gfxManager->GetRenderer();
+		m_contextGraphics = m_renderer->GetContextGraphics();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -148,7 +150,7 @@ namespace Lina
 			auto* objBuf = m_objDataBufferGPU[frameIndex];
 			objBuf->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0);
 			objBuf->Copy(CopyDataType::CopyImmediately, m_uploadContext);
-			m_renderer->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
+			m_contextGraphics->BindObjectBuffer(cmdListHandle, m_objDataBufferGPU[frameIndex]);
 		}
 
 		const auto& mergedMeshes = m_gfxManager->GetMeshManager().GetMergedMeshes();
@@ -165,7 +167,7 @@ namespace Lina
 				Taskflow tf;
 				tf.for_each_index(0, static_cast<int>(matsSize), 1, [&](int i) { materials[i] = m_batches[i].mat; });
 				m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-				m_renderer->BindMaterials(materials.data(), matsSize);
+				m_contextGraphics->BindMaterials(materials.data(), matsSize);
 			}
 
 			for (auto b : m_batches)
@@ -193,10 +195,9 @@ namespace Lina
 
 	void DrawPass::Draw(uint32 frameIndex, uint32 cmdListHandle)
 	{
-		const uint32 batchesSize   = static_cast<uint32>(m_batches.size());
-		uint32		 firstInstance = 0;
-		Shader* lastBoundShader = nullptr;
-
+		const uint32 batchesSize	 = static_cast<uint32>(m_batches.size());
+		uint32		 firstInstance	 = 0;
+		Shader*		 lastBoundShader = nullptr;
 
 		for (uint32 i = 0; i < batchesSize; i++)
 		{
@@ -207,11 +208,11 @@ namespace Lina
 			if (matShader != lastBoundShader)
 			{
 				lastBoundShader = matShader;
-				m_renderer->BindPipeline(cmdListHandle, matShader);
+				m_contextGraphics->BindPipeline(cmdListHandle, matShader);
 			}
 
 			const uint64 indirectOffset = firstInstance * sizeof(DrawIndexedIndirectCommand);
-			m_renderer->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
+			m_contextGraphics->DrawIndexedIndirect(cmdListHandle, m_indirectBuffer[frameIndex], batch.count, indirectOffset);
 			firstInstance += batch.count;
 		}
 	}

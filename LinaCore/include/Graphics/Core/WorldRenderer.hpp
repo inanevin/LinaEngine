@@ -55,6 +55,7 @@ namespace Lina
 	class Renderer;
 	class IUploadContext;
 	class DrawPass;
+	class IGfxContext;
 
 	class WorldRenderer : public IGameEventListener
 	{
@@ -125,6 +126,7 @@ namespace Lina
 	protected:
 		static int s_worldRendererCount;
 
+		IGfxContext*		 m_contextGraphics;
 		IUploadContext*		 m_uploadContext;
 		Renderer*			 m_renderer	  = nullptr;
 		DrawPass*			 m_opaquePass = nullptr;

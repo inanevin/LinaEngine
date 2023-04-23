@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Interfaces/IGfxResourceCPU.hpp"
 #include "Graphics/Interfaces/IGfxResourceGPU.hpp"
+#include "Graphics/Interfaces/IGfxContext.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
@@ -40,15 +41,16 @@ SOFTWARE.
 
 namespace Lina
 {
-#define DEF_VTX_BUF_SIZE	4
-#define DEF_INDEX_BUF_SIZE	4
-#define DEF_MAT_SIZE		24
+#define DEF_VTX_BUF_SIZE   4
+#define DEF_INDEX_BUF_SIZE 4
+#define DEF_MAT_SIZE	   24
 
 	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount, IUploadContext* context)
 		: m_uploadContext(context), m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount),
 		  m_materialPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Material) * DEF_MAT_SIZE, sizeof(Material), "GUI Renderer Material Pool")
 	{
 		m_renderer		  = m_gfxManager->GetRenderer();
+		m_contextGraphics = m_renderer->GetContextGraphics();
 		m_resourceManager = gfxMan->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		AllocateMaterials();
 
@@ -155,19 +157,17 @@ namespace Lina
 
 		frame.vtxBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
 		frame.indexBufferGPU->Copy(CopyDataType::CopyImmediately, m_uploadContext);
-		
-		m_renderer->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex), 0, sizeof(LinaVG::Vertex) * frame.vertexCounter);
-		m_renderer->BindIndexBuffer(cmdList, frame.indexBufferGPU, sizeof(LinaVG::Index) * frame.indexCounter);
+
+		m_contextGraphics->BindVertexBuffer(cmdList, frame.vtxBufferGPU, sizeof(LinaVG::Vertex), 0, sizeof(LinaVG::Vertex) * frame.vertexCounter);
+		m_contextGraphics->BindIndexBuffer(cmdList, frame.indexBufferGPU, sizeof(LinaVG::Index) * frame.indexCounter);
 
 		// View data & pipeline
 		{
 			frame.viewData.proj = m_projection;
 			frame.viewDataBuffer->BufferData(&frame.viewData, sizeof(GPUViewData));
-			m_renderer->BindUniformBuffer(cmdList, GBB_ViewData, frame.viewDataBuffer);
-			m_renderer->BindPipeline(cmdList, m_materials[0]->GetShader());
+			m_contextGraphics->BindUniformBuffer(cmdList, GBB_ViewData, frame.viewDataBuffer);
+			m_contextGraphics->BindPipeline(cmdList, m_materials[0]->GetShader());
 		}
-
-		
 
 		// Allocate new materials if necessary,
 		// Assign request definition data & bind materials, then finally draw.
@@ -180,21 +180,21 @@ namespace Lina
 			for (uint32 i = 0; i < requestsSize; i++)
 				AssignStandardMaterial(m_materials[i], frame.drawRequests[i].materialDefinition);
 
-			m_renderer->BindMaterials(m_materials.data(), requestsSize);
+			m_contextGraphics->BindMaterials(m_materials.data(), requestsSize);
 
 			for (uint32 i = 0; i < requestsSize; i++)
 			{
 				auto& req = frame.drawRequests[i];
-				m_renderer->SetMaterialID(cmdList, m_materials[i]->GetGPUBindlessIndex());
+				m_contextGraphics->SetMaterialID(cmdList, m_materials[i]->GetGPUBindlessIndex());
 
 				if (req.clipSizeX == 0 || req.clipSizeY == 0)
-					m_renderer->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
+					m_contextGraphics->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
 				else
-					m_renderer->SetScissors(cmdList, Recti(Vector2i(req.clipPosX, req.clipPosY), Vector2i(req.clipSizeX, req.clipSizeY)));
+					m_contextGraphics->SetScissors(cmdList, Recti(Vector2i(req.clipPosX, req.clipPosY), Vector2i(req.clipSizeX, req.clipSizeY)));
 
-				m_renderer->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
+				m_contextGraphics->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
 
-				m_renderer->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
+				m_contextGraphics->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
 			}
 		}
 

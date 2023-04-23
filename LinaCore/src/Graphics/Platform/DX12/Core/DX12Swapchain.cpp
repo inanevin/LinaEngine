@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Platform/DX12/Core/DX12Swapchain.hpp"
 #include "Graphics/Platform/DX12/Core/DX12Renderer.hpp"
+#include "Graphics/Platform/DX12/Core/DX12GfxContext.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
@@ -61,8 +62,10 @@ namespace Lina
 
 			try
 			{
+				auto* gfxContext = static_cast<DX12GfxContext*>(m_renderer->GetContextGraphics());
+
 				HWND handle = static_cast<HWND>(m_window->GetHandle());
-				ThrowIfFailed(m_renderer->DX12GetFactory()->CreateSwapChainForHwnd(m_renderer->DX12GetGraphicsQueue(), // Swap chain needs the queue so that it can force a flush on it.
+				ThrowIfFailed(m_renderer->DX12GetFactory()->CreateSwapChainForHwnd(gfxContext->GetQueue(), // Swap chain needs the queue so that it can force a flush on it.
 																				   handle,
 																				   &swapchainDesc,
 																				   nullptr,

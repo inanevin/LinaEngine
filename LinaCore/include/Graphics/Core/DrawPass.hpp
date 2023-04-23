@@ -43,6 +43,7 @@ namespace Lina
 	class IGfxResourceCPU;
 	class Renderer;
 	class IUploadContext;
+	class IGfxContext;
 
 	class DrawPass
 	{
@@ -58,6 +59,7 @@ namespace Lina
 		int32 FindInBatches(const MeshMaterialPair& pair);
 
 	private:
+		IGfxContext*		   m_contextGraphics;
 		IUploadContext*		   m_uploadContext;
 		Renderer*			   m_renderer							= nullptr;
 		IGfxResourceGPU*	   m_objDataBufferGPU[FRAMES_IN_FLIGHT] = {nullptr};
