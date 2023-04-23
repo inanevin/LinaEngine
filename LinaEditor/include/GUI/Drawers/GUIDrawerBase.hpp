@@ -71,7 +71,7 @@ namespace Lina::Editor
 		GUINode*		 FindNode(StringID sid);
 		void			 OnPayloadCreated(PayloadType type, void* data);
 		bool			 OnPayloadDropped(PayloadType type, void* data);
-		void			 RemoveDockArea(GUINodeDockArea* area, bool immediate);
+		void			 RemoveDockArea(GUINodeDockArea* area);
 		virtual void	 SaveToStream(OStream& stream) override;
 		virtual void	 LoadFromStream(IStream& stream) override;
 
@@ -110,7 +110,6 @@ namespace Lina::Editor
 
 	private:
 		GUINode* GetHovered(GUINode* parent);
-		void	 RemoveDockAreaImpl(GUINodeDockArea* area);
 
 	protected:
 		GUINode* m_mouseDisablingNode = nullptr;
@@ -121,7 +120,6 @@ namespace Lina::Editor
 		GUINodeDockPreview*		 m_dockPreview = nullptr;
 		Vector<GUINodeDockArea*> m_dockAreas;
 		Vector<GUINodeDivider*>	 m_dividers;
-		Vector<GUINodeDockArea*> m_dockAreasToRemove;
 		uint32					 m_dockAreaCounter = 1;
 		uint32					 m_dividerCounter  = 1;
 	};

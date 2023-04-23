@@ -98,6 +98,11 @@ namespace Lina
 		return false;
 	}
 
+	Vector2 Rect::GetCenter()
+	{
+		return Vector2(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f);
+	}
+
 	bool Recti::IsPointInside(const Vector2i& p) const
 	{
 		return p.x > pos.x && p.x < pos.x + size.x && p.y > pos.y && p.y < pos.y + size.y;
@@ -148,6 +153,11 @@ namespace Lina
 
 		borderPosition = -1;
 		return false;
+	}
+
+	Vector2i Recti::GetCenter()
+	{
+		return Vector2i(pos.x + size.x / 2, pos.y + size.x / 2);
 	}
 
 } // namespace Lina

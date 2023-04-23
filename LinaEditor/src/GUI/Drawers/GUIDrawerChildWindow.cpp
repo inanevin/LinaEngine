@@ -62,9 +62,19 @@ namespace Lina::Editor
 		const Vector2 swpSize		   = m_swapchain->GetSize();
 		const Vector2 titleSectionSize = Vector2(swpSize.x, m_titleSection ? 30.0f * m_window->GetDPIScale() : 0.0f);
 
+		LinaVG::SetClipPosX(static_cast<uint32>(0), threadID);
+		LinaVG::SetClipPosY(static_cast<uint32>(0), threadID);
+		LinaVG::SetClipSizeX(static_cast<uint32>(titleSectionSize.x), threadID);
+		LinaVG::SetClipSizeY(static_cast<uint32>(titleSectionSize.y), threadID);
+
 		m_titleSection->SetSize(titleSectionSize);
 		m_titleSection->Draw(threadID);
 
+		LinaVG::SetClipPosX(static_cast<uint32>(0), threadID);
+		LinaVG::SetClipPosY(static_cast<uint32>(0), threadID);
+		LinaVG::SetClipSizeX(static_cast<uint32>(0), threadID);
+		LinaVG::SetClipSizeY(static_cast<uint32>(0), threadID);
+		
 		const Rect availableDockRect = Rect(Vector2(0, titleSectionSize.y), Vector2(titleSectionSize.x, swpSize.y - titleSectionSize.y));
 		GUIDrawerBase::DrawDockAreas(threadID, availableDockRect);
 	}

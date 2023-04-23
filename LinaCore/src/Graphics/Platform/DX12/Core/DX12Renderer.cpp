@@ -449,14 +449,9 @@ namespace Lina
 
 	void Renderer::BeginFrame(uint32 frameIndex)
 	{
-
 		m_currentFrameIndex = frameIndex;
-		LINA_TRACE("1s");
 		m_contextGraphics->WaitForFences(m_frameFenceGraphics, m_frames[frameIndex].storedFenceGraphics);
-		LINA_TRACE("2");
 		m_contextTransfer->WaitForFences(m_frameFenceTransfer, m_frames[frameIndex].storedFenceTransfer);
-		LINA_TRACE("4");
-
 		m_gpuBufferHeap[m_currentFrameIndex]->Reset(m_texturesHeapAllocCount);
 		m_gpuSamplerHeap[m_currentFrameIndex]->Reset(m_samplersHeapAllocCount);
 	}

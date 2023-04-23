@@ -173,6 +173,17 @@ namespace Lina::Editor
 		return retVal;
 	}
 
+	bool GUINode::OnShortcut(Shortcut sc)
+	{
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+		{
+			if (m_children[i]->OnShortcut(sc))
+				return true;
+		}
+		return false;
+	}
+
 	void GUINode::SaveToStream(OStream& stream)
 	{
 		stream << m_sid << m_visible << m_drawOrder << m_lastDpi;

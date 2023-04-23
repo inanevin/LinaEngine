@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Data/Functional.hpp"
 #include "Data/Vector.hpp"
 #include "Data/String.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina::Editor
 {
@@ -71,9 +72,17 @@ namespace Lina::Editor
 			m_isLastHovered = isLastHovered;
 		}
 
+		inline void SetShortcut(Shortcut sc)
+		{
+			m_shortcut = sc;
+		}
+
 	protected:
-		bool			   m_isLastHovered = false;
-		FMPopupElementType m_type		   = FMPopupElementType::Default;
+		float			   m_shortcutXStartRight = 0.0f;
+		Vector2			   m_shortcutTextSize	 = Vector2::Zero;
+		Shortcut		   m_shortcut			 = Shortcut::None;
+		bool			   m_isLastHovered		 = false;
+		FMPopupElementType m_type				 = FMPopupElementType::Default;
 	};
 
 	class GUINodeFMPopupElementDivider : public GUINodeFMPopupElement
@@ -131,11 +140,11 @@ namespace Lina::Editor
 		GUINodeFMPopup(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeFMPopup() = default;
 
-		virtual void	Draw(int threadID) override;
-		GUINodeFMPopup* AddDivider(const char* title);
-		GUINodeFMPopup* AddDefault(const char* title);
-		GUINodeFMPopup* AddToggle(const char* title, bool initialValue);
-		GUINodeFMPopup* AddExpandable(const char* title, GUINodeFMPopup* popup);
+		virtual void					 Draw(int threadID) override;
+		GUINodeFMPopupElementDivider*	 AddDivider(const char* title);
+		GUINodeFMPopupElement*			 AddDefault(const char* title);
+		GUINodeFMPopupElementToggle*	 AddToggle(const char* title, bool initialValue);
+		GUINodeFMPopupElementExpandable* AddExpandable(const char* title, GUINodeFMPopup* popup);
 
 		inline GUINodeLayoutVertical* GetLayout()
 		{

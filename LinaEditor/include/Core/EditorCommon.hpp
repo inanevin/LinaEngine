@@ -76,14 +76,42 @@ namespace Lina::Editor
 		Vertical
 	};
 
-	const HashMap<EditorPanel, String> PANEL_TO_NAME_MAP = {{EditorPanel::Entities, "Entities"},
-															{EditorPanel::Level, "Level"},
-															{EditorPanel::Properties, "Properties"},
-															{EditorPanel::ContentBrowser, "Content Browser"},
-															{EditorPanel::Hierarchy, "Hierarchy"},
-															{EditorPanel::ModelViewer, "Model Viewer"},
-															{EditorPanel::TextureViewer, "Texture Viewer"},
-															{EditorPanel::DebugResourceView, "Debug Resource View"}};
+	enum class TextAlignment
+	{
+		Left,
+		Center,
+		Right
+	};
+
+	enum class Shortcut
+	{
+		None,
+		CTRL_A,
+		CTRL_D,
+		CTRL_W,
+		CTRL_T,
+		CTRL_S,
+		CTRL_SHIFT_S,
+	};
+
+	const HashMap<EditorPanel, const char*> PANEL_TO_NAME_MAP = {{EditorPanel::Entities, "Entities"},
+																 {EditorPanel::Level, "Level"},
+																 {EditorPanel::Properties, "Properties"},
+																 {EditorPanel::ContentBrowser, "Content Browser"},
+																 {EditorPanel::Hierarchy, "Hierarchy"},
+																 {EditorPanel::ModelViewer, "Model Viewer"},
+																 {EditorPanel::TextureViewer, "Texture Viewer"},
+																 {EditorPanel::DebugResourceView, "Debug Resource View"}};
+
+	const HashMap<Shortcut, const char*> SHORTCUT_TO_NAME_MAP = {
+		{Shortcut::None, ""},
+		{Shortcut::CTRL_A, "CTRL+A"},
+		{Shortcut::CTRL_D, "CTRL+D"},
+		{Shortcut::CTRL_S, "CTRL+S"},
+		{Shortcut::CTRL_T, "CTRL+T"},
+		{Shortcut::CTRL_W, "CTRL+W"},
+		{Shortcut::CTRL_SHIFT_S, "CTRL+SHIFT+S"},
+	};
 
 	enum class PayloadType
 	{

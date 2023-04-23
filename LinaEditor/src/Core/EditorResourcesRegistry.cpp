@@ -77,6 +77,10 @@ namespace Lina::Editor
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/EditorImages.png", GetTypeID<Texture>(), 0));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_1x.ttf", GetTypeID<Font>(), 0));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/EditorIcons_2x.ttf", GetTypeID<Font>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/NunitoSansBoldBig_1x.ttf", GetTypeID<Font>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/NunitoSansBoldBig_2x.ttf", GetTypeID<Font>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/NunitoSansBoldBig_3x.ttf", GetTypeID<Font>(), 0));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/NunitoSansBoldBig_4x.ttf", GetTypeID<Font>(), 0));
 
 		const uint32 totalSize = static_cast<uint32>(resources.size());
 		for (uint32 i = startIndex; i < totalSize; i++)
@@ -109,6 +113,30 @@ namespace Lina::Editor
 		metadata.SetInt("Range_0"_hs, 0x07F);
 		metadata.SetInt("Range_1"_hs, 0x0FF);
 		list.push_back(linatl::make_pair("Resources/Editor/Fonts/EditorIcons_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 32);
+		list.push_back(linatl::make_pair("Resources/Editor/Fonts/NunitoSansBoldBig_1x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 36);
+		list.push_back(linatl::make_pair("Resources/Editor/Fonts/NunitoSansBoldBig_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 40);
+		list.push_back(linatl::make_pair("Resources/Editor/Fonts/NunitoSansBoldBig_3x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 44);
+		list.push_back(linatl::make_pair("Resources/Editor/Fonts/NunitoSansBoldBig_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		// -------------

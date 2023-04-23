@@ -41,4 +41,5 @@ namespace Lina::Editor
 	{
 		GUIUtility::DrawPanelBackground(threadID, m_rect, m_drawOrder);
 	}
+
 } // namespace Lina::Editor

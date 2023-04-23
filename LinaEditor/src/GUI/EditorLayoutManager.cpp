@@ -88,31 +88,15 @@ namespace Lina::Editor
 
 	void EditorLayoutManager::LoadSavedLayout()
 	{
-		m_editor->CloseAllChildWindows();
-
-		auto		mainGuiDrawer = m_editor->GetGUIDrawers().at(LINA_MAIN_SWAPCHAIN);
-		const auto& allDocksMain  = mainGuiDrawer->GetDockAreas();
-
-		for (auto d : allDocksMain)
-			d->RemoveAllPanels();
-
-		Vector<GUINodeDockArea*> areas = allDocksMain;
-		const uint32			 sz	   = static_cast<uint32>(areas.size());
-
-		for (uint32 i = 0; i < sz; i++)
-		{
-			if (i != 0)
-				mainGuiDrawer->RemoveDockArea(areas[i], true);
-			else
-			{
-				int aa = 5;
-			}
-		}
 
 		if (!FileSystem::FileExists(SAVED_LAYOUT_FILENAME))
 		{
 			LoadDefaultLayout();
 			return;
+		}
+		else
+		{
+			ClearLayout();
 		}
 
 		IStream stream		= Serialization::LoadFromFile(SAVED_LAYOUT_FILENAME);
@@ -157,6 +141,8 @@ namespace Lina::Editor
 
 	void EditorLayoutManager::LoadDefaultLayout()
 	{
+		ClearLayout();
+
 		const auto& guiDrawers = m_editor->GetGUIDrawers();
 		auto*		guiDrawer  = guiDrawers.at(LINA_MAIN_SWAPCHAIN);
 		auto*		dockArea   = guiDrawer->GetDockAreas()[0];
@@ -191,6 +177,29 @@ namespace Lina::Editor
 		l.pos.LoadFromStream(stream);
 		l.size.LoadFromStream(stream);
 		StringSerialization::LoadFromStream(stream, l.title);
+	}
+
+	void EditorLayoutManager::ClearLayout()
+	{
+		// Prepare editor for loading a layout, e.g remove all windows & extra dock areas
+		{
+			m_editor->CloseAllChildWindows();
+
+			auto		mainGuiDrawer = m_editor->GetGUIDrawers().at(LINA_MAIN_SWAPCHAIN);
+			const auto& allDocksMain  = mainGuiDrawer->GetDockAreas();
+
+			for (auto d : allDocksMain)
+				d->RemoveAllPanels();
+
+			Vector<GUINodeDockArea*> areas = allDocksMain;
+			const uint32			 sz	   = static_cast<uint32>(areas.size());
+
+			for (uint32 i = 0; i < sz; i++)
+			{
+				if (i != 0)
+					mainGuiDrawer->RemoveDockArea(areas[i]);
+			}
+		}
 	}
 
 } // namespace Lina::Editor

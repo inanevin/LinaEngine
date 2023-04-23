@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/Editor.hpp"
 #include "Input/Core/InputMappings.hpp"
+#include "Core/PlatformProcess.hpp"
 
 namespace Lina::Editor
 {
@@ -45,52 +46,66 @@ namespace Lina::Editor
 	{
 		m_fileMenu = new GUINodeFileMenu(drawer, drawOrder + 1);
 
-		GUINodeFMPopup* filePopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
-		filePopup->AddDivider("PROJECT")->AddDefault("Open Project")->AddDefault("Save Project");
-		filePopup->AddDefault("New Project")->AddDefault("Package Project")->AddDivider("SETTINGS");
-		filePopup->AddDefault("Project Settings")->AddDivider("OTHER")->AddDefault("Restart")->AddDefault("Quit");
+		GUINodeFMPopup* filePopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
+		filePopup->AddDivider("PROJECT");
+		filePopup->AddDefault("Open Project");
+		filePopup->AddDefault("Save Project");
+		filePopup->AddDefault("New Project");
+		filePopup->AddDefault("Package Project");
+		filePopup->AddDivider("SETTINGS");
+		filePopup->AddDefault("Project Settings");
+		filePopup->AddDivider("OTHER");
+		filePopup->AddDefault("Restart");
+		filePopup->AddDefault("Quit");
 		filePopup->SetTitle("File");
 
-		GUINodeFMPopup* editPopup	 = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
-		GUINodeFMPopup* layoutsPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* editPopup	 = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
+		GUINodeFMPopup* layoutsPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
 		layoutsPopup->AddDefault("Save Current Layout");
 		layoutsPopup->AddDefault("Load Saved Layout");
 		layoutsPopup->AddDefault("Load Default Layout");
 		layoutsPopup->SetTitle("");
 		layoutsPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
-
 		editPopup->AddExpandable("Layouts", layoutsPopup);
-
-		editPopup->AddToggle("Dummy2", true);
 		editPopup->SetTitle("Edit");
 
-		GUINodeFMPopup* levelPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
-		levelPopup->AddDefault("New Level")->AddDefault("Save Level")->AddDefault("Load Level");
+		GUINodeFMPopup* levelPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
+		levelPopup->AddDefault("New Level");
+		levelPopup->AddDefault("Save Level")->SetShortcut(Shortcut::CTRL_S);
+		levelPopup->AddDefault("Save Level As")->SetShortcut(Shortcut::CTRL_SHIFT_S);
+		levelPopup->AddDefault("Load Level");
 		levelPopup->SetTitle("Level");
 
-		GUINodeFMPopup* entitiesPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
-		entitiesPopup->AddDefault("Empty")->AddDefault("Lina")->AddDefault("Cube")->AddDefault("Sphere")->AddDefault("Cyclinder")->AddDefault("Capsule")->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		GUINodeFMPopup* entitiesPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
+		entitiesPopup->AddDefault("Empty");
+		entitiesPopup->AddDefault("Lina");
+		entitiesPopup->AddDefault("Cube");
+		entitiesPopup->AddDefault("Sphere");
+		entitiesPopup->AddDefault("Cyclinder");
+		entitiesPopup->AddDefault("Capsule");
+		entitiesPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 		entitiesPopup->SetTitle("Entities");
 
-		GUINodeFMPopup* panelsPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
-		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Entities).c_str());
-		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Level).c_str());
-		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Properties).c_str());
-		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::ContentBrowser).c_str());
+		GUINodeFMPopup* panelsPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Entities));
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Level));
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::Properties));
+		panelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::ContentBrowser));
 		panelsPopup->SetTitle("Panels");
 
-		GUINodeFMPopup* debugPanelsPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
-		debugPanelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::DebugResourceView).c_str());
+		GUINodeFMPopup* debugPanelsPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
+		debugPanelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::DebugResourceView));
 		debugPanelsPopup->SetTitle("");
 		panelsPopup->AddExpandable("Debug", debugPanelsPopup);
 		debugPanelsPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
-		GUINodeFMPopup* debugPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
+		GUINodeFMPopup* debugPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
 		debugPopup->AddDefault("Dummy");
 		debugPopup->SetTitle("Debug");
 
-		GUINodeFMPopup* helpPopup = new GUINodeFMPopup(drawer, FRONT_DRAW_ORDER);
-		helpPopup->AddDefault("About")->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
+		GUINodeFMPopup* helpPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
+		helpPopup->AddDefault("About");
+		helpPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 		helpPopup->SetTitle("Help");
 
 		m_fileMenu->AddPopup(filePopup, editPopup, levelPopup, entitiesPopup, panelsPopup, debugPopup, helpPopup);
@@ -163,7 +178,7 @@ namespace Lina::Editor
 
 		for (const auto& [panelType, str] : PANEL_TO_NAME_MAP)
 		{
-			const StringID sid = TO_SID(str);
+			const StringID sid = TO_SIDC(str);
 			if (nodeSID == sid)
 			{
 				m_editor->OpenPanel(panelType, str, nodeSID);
@@ -181,6 +196,31 @@ namespace Lina::Editor
 		}
 		else if (nodeSID == "Load Default Layout"_hs)
 		{
+			m_editor->GetLayoutManager().LoadDefaultLayout();
+		}
+		else if (nodeSID == "New Level"_hs)
+		{
+			String savePath = PlatformProcess::SaveDialog(L"Lina Engine Level", L".linalevel");
+
+			if (!savePath.empty())
+			{
+			}
+		}
+		else if (nodeSID == "Save Level As"_hs)
+		{
+			String savePath = PlatformProcess::SaveDialog(L"Lina Engine Level", L".linalevel");
+
+			if (!savePath.empty())
+			{
+			}
+		}
+		else if (nodeSID == "Load Level"_hs)
+		{
+			String loadPath = PlatformProcess::OpenDialog(L"Lina Engine Level", L".linalevel");
+
+			if (!loadPath.empty())
+			{
+			}
 		}
 	};
 } // namespace Lina::Editor

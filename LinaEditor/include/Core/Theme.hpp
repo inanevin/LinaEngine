@@ -51,6 +51,7 @@ namespace Lina::Editor
 		DefaultEditor,
 		AltEditor,
 		TitleEditor,
+		BigEditor,
 		EditorIcons,
 	};
 
@@ -75,7 +76,8 @@ namespace Lina::Editor
 #define TI_RESTORE		   "\u004C"
 #define TI_CROSS		   "\u004D"
 
-#define FRONT_DRAW_ORDER 1000
+#define FRONT_DRAW_ORDER   1000
+#define FRONTER_DRAW_ORDER 1200
 
 	class Theme
 	{

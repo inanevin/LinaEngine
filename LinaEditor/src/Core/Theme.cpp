@@ -93,6 +93,17 @@ namespace Lina::Editor
 			else
 				sid = "Resources/Editor/Fonts/EditorIcons_2x.ttf"_hs;
 		}
+		else if (font == FontType::BigEditor)
+		{
+			if (dpiScale < 1.1f)
+				sid = "Resources/Editor/Fonts/NunitoSansBoldBig_1x.ttf"_hs;
+			else if (dpiScale < 1.15f)
+				sid = "Resources/Editor/Fonts/NunitoSansBoldBig_2x.ttf"_hs;
+			else if (dpiScale < 1.35f)
+				sid = "Resources/Editor/Fonts/NunitoSansBoldBig_3x.ttf"_hs;
+			else
+				sid = "Resources/Editor/Fonts/NunitoSansBoldBig_4x.ttf"_hs;
+		}
 
 		if (sid == 0)
 		{
@@ -101,11 +112,6 @@ namespace Lina::Editor
 		}
 
 		Font* f = s_resourceManagerInst->GetResource<Font>(sid);
-
-		if (f == nullptr)
-		{
-			__debugbreak();
-		}
 		return f->GetLinaVGFont();
 	}
 

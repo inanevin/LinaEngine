@@ -63,6 +63,7 @@ namespace Lina::Editor
 		virtual ~GUINodeDockArea() = default;
 
 		virtual void Draw(int threadID) override;
+		void		 HandleRemoval();
 		void		 AddPanel(GUINodePanel* panel);
 		void		 RemovePanel(GUINodePanel* panel);
 		void		 SetDockPreviewEnabled(bool enabled);

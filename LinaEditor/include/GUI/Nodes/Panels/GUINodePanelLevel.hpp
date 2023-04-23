@@ -32,15 +32,37 @@ SOFTWARE.
 #define GUINodePanelLevel_HPP
 
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "Event/ISystemEventListener.hpp"
+
+namespace Lina
+{
+	class LevelManager;
+	class Level;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class GUINodePanelLevel : public GUINodePanel
+	class GUINodeText;
+	class GUINodeTextRichColors;
+
+	class GUINodePanelLevel : public GUINodePanel, public ISystemEventListener
 	{
 	public:
-		GUINodePanelLevel(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(drawer, drawOrder, panelType, title, parentDockArea){};
-		virtual ~GUINodePanelLevel() = default;
+		GUINodePanelLevel(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea);
+		virtual ~GUINodePanelLevel();
 		virtual void Draw(int threadID);
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_LevelInstalled | EVS_LevelUninstalled;
+		}
+
+	private:
+		GUINodeText*		   m_noLevelText	= nullptr;
+		GUINodeTextRichColors* m_noLevelTextAlt = nullptr;
+		Level*				   m_loadedLevel	= nullptr;
+		LevelManager*		   m_levelManager	= nullptr;
 	};
 } // namespace Lina::Editor
 

@@ -65,6 +65,7 @@ namespace Lina::Editor
 		virtual void OnLostFocus();
 		virtual void OnPayloadCreated(PayloadType type, void* data);
 		virtual bool OnPayloadDropped(PayloadType type, void* data);
+		virtual bool OnShortcut(Shortcut sc);
 		virtual void OnClicked(uint32 button){};
 		virtual void OnHoverBegin(){};
 		virtual void OnHoverEnd(){};

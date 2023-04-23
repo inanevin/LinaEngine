@@ -43,6 +43,12 @@ namespace Lina
 
 } // namespace Lina
 
+namespace LinaVG
+{
+	struct TextOptions;
+	struct SDFTextOptions;
+} // namespace LinaVG
+
 namespace Lina::Editor
 {
 
@@ -55,6 +61,9 @@ namespace Lina::Editor
 		static void DrawPanelBackground(int threadID, const Rect& rect, int drawOrder);
 		static void DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
 		static void DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder);
+
+		static Vector2 DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::TextOptions& opts, int drawOrder);
+		static Vector2 DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::SDFTextOptions& opts, int drawOrder);
 
 		static bool IsInRect(const Vector2& pos, const Rect& rect);
 	};

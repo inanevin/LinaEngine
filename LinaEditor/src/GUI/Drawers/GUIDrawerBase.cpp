@@ -453,26 +453,40 @@ namespace Lina::Editor
 		return m_root->OnPayloadDropped(type, data);
 	}
 
-	void GUIDrawerBase::RemoveDockArea(GUINodeDockArea* area, bool immediate)
+	void GUIDrawerBase::RemoveDockArea(GUINodeDockArea* area)
 	{
-		if (!immediate)
-			m_dockAreasToRemove.push_back(area);
-		else
-			RemoveDockAreaImpl(area);
+		auto splitDivider = area->FindDividerToRemove();
+		splitDivider->PreDestroy(area);
+		m_dividers.erase(linatl::find_if(m_dividers.begin(), m_dividers.end(), [splitDivider](auto* divider) { return divider == splitDivider; }));
+
+		auto* dividerL = area->GetDivider(DockSplitType::Left);
+		auto* dividerR = area->GetDivider(DockSplitType::Right);
+		auto* dividerU = area->GetDivider(DockSplitType::Up);
+		auto* dividerD = area->GetDivider(DockSplitType::Down);
+
+		if (dividerL)
+			dividerL->RemovePositiveNode(area);
+
+		if (dividerR)
+			dividerR->RemoveNegativeNode(area);
+
+		if (dividerU)
+			dividerU->RemovePositiveNode(area);
+
+		if (dividerD)
+			dividerD->RemoveNegativeNode(area);
+
+		m_root->RemoveChildren(area);
+		m_root->RemoveChildren(splitDivider);
+		m_dockAreas.erase(linatl::find_if(m_dockAreas.begin(), m_dockAreas.end(), [area](auto* dockArea) { return dockArea == area; }));
+		delete splitDivider;
+		delete area;
 
 		OnDockAreasModified();
 	}
 
 	void GUIDrawerBase::DrawDockAreas(int threadID, const Rect& availableDockRect)
 	{
-		// Remove requested dock areas.
-		{
-			for (auto area : m_dockAreasToRemove)
-				RemoveDockAreaImpl(area);
-
-			m_dockAreasToRemove.clear();
-		}
-
 		const Vector2 swpSize = m_swapchain->GetSize();
 
 		// Bg
@@ -493,6 +507,10 @@ namespace Lina::Editor
 				d->SetIsAlone(!multipleDockAreas);
 				d->Draw(threadID);
 			}
+
+			Vector<GUINodeDockArea*> areas = m_dockAreas;
+			for (auto d : areas)
+				d->HandleRemoval();
 		}
 
 		// Dividers
@@ -550,36 +568,6 @@ namespace Lina::Editor
 		}
 
 		return hovered;
-	}
-
-	void GUIDrawerBase::RemoveDockAreaImpl(GUINodeDockArea* area)
-	{
-		auto splitDivider = area->FindDividerToRemove();
-		splitDivider->PreDestroy(area);
-		m_dividers.erase(linatl::find_if(m_dividers.begin(), m_dividers.end(), [splitDivider](auto* divider) { return divider == splitDivider; }));
-
-		auto* dividerL = area->GetDivider(DockSplitType::Left);
-		auto* dividerR = area->GetDivider(DockSplitType::Right);
-		auto* dividerU = area->GetDivider(DockSplitType::Up);
-		auto* dividerD = area->GetDivider(DockSplitType::Down);
-
-		if (dividerL)
-			dividerL->RemovePositiveNode(area);
-
-		if (dividerR)
-			dividerR->RemoveNegativeNode(area);
-
-		if (dividerU)
-			dividerU->RemovePositiveNode(area);
-
-		if (dividerD)
-			dividerD->RemoveNegativeNode(area);
-
-		m_root->RemoveChildren(area);
-		m_root->RemoveChildren(splitDivider);
-		m_dockAreas.erase(linatl::find_if(m_dockAreas.begin(), m_dockAreas.end(), [area](auto* dockArea) { return dockArea == area; }));
-		delete splitDivider;
-		delete area;
 	}
 
 	void GUIDrawerBase::SaveToStream(OStream& stream)

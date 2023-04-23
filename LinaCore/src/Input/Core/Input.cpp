@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Input/Core/Input.hpp"
 #include "Math/Rect.hpp"
+#include "System/ISystem.hpp"
 #ifdef LINA_PLATFORM_WINDOWS
 #include "Platform/Win32/Win32WindowsInclude.hpp"
 #endif
@@ -45,7 +46,11 @@ namespace Lina
 
 	void Input::OnKey(void* windowPtr, uint32 key, int scanCode, InputAction action)
 	{
-		m_currentStates[key] = action == InputAction::Pressed ? 1 : 0;
+		Event ev;
+		ev.iParams[0] = key;
+		ev.iParams[1] = static_cast<uint32>(action);
+		ev.pParams[0] = windowPtr;
+		m_system->DispatchEvent(EVS_Key, ev);
 	}
 
 	void Input::OnMouseWheel(void* windowPtr, int delta)

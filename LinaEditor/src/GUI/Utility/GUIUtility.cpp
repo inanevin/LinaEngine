@@ -101,6 +101,22 @@ namespace Lina::Editor
 		LinaVG::DrawImage(threadID, item.texture->GetSID(), LV2(center), LV2(size), LV4(tint), 0.0f, drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LinaVG::Vec2(item.uvTL.x, item.uvTL.y), LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
 	}
 
+	Vector2 GUIUtility::DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::TextOptions& opts, int drawOrder)
+	{
+		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(text, opts));
+		const Vector2 textPos  = Vector2(rect.pos.x + rect.size.x * 0.5f - textSize.x * 0.5f, rect.pos.y + rect.size.y * 0.5f + textSize.y * 0.5f);
+		LinaVG::DrawTextNormal(threadID, text, LV2(textPos), opts, 0.0f, drawOrder);
+		return textSize;
+	}
+
+	Vector2 GUIUtility::DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::SDFTextOptions& opts, int drawOrder)
+	{
+		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(text, opts));
+		const Vector2 textPos  = Vector2(rect.pos.x + rect.size.x * 0.5f - textSize.x * 0.5f, rect.pos.y + rect.size.y * 0.5f + textSize.y * 0.5f);
+		LinaVG::DrawTextSDF(threadID, text, LV2(textPos), opts, 0.0f, drawOrder);
+		return textSize;
+	}
+
 	bool GUIUtility::IsInRect(const Vector2& pos, const Rect& rect)
 	{
 		return pos.x > rect.pos.x && pos.x < rect.pos.x + rect.size.x && pos.y > rect.pos.y && pos.y < rect.pos.y + rect.size.y;

@@ -26,6 +26,7 @@ src/Core/EditorApplication.cpp
 src/Core/EditorResourcesRegistry.cpp
 src/Core/Editor.cpp
 src/Core/Theme.cpp
+src/Core/EditorShortcutManager.cpp
 src/EditorEntryPoint.cpp
 src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetProgressBar.cpp
@@ -47,6 +48,7 @@ src/GUI/Nodes/Custom/GUINodeCustomLogo.cpp
 src/GUI/Nodes/Widgets/GUINodeFileMenu.cpp
 src/GUI/Nodes/Widgets/GUINodeButton.cpp
 src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
+src/GUI/Nodes/Widgets/GUINodeText.cpp
 src/GUI/Nodes/Widgets/GUINodeTab.cpp
 src/GUI/Nodes/Widgets/GUINodeTabArea.cpp
 src/GUI/Nodes/Widgets/GUINodeWindowButtons.cpp
@@ -84,6 +86,7 @@ include/GUI/Nodes/Custom/GUINodeCustomLogo.hpp
 include/GUI/Nodes/Widgets/GUINodeFileMenu.hpp
 include/GUI/Nodes/Widgets/GUINodeButton.hpp
 include/GUI/Nodes/Widgets/GUINodeTooltip.hpp
+include/GUI/Nodes/Widgets/GUINodeText.hpp
 include/GUI/Nodes/Widgets/GUINodeTab.hpp
 include/GUI/Nodes/Widgets/GUINodeTabArea.hpp
 include/GUI/Nodes/Widgets/GUINodeWindowButtons.hpp
@@ -105,6 +108,7 @@ include/Core/EditorApplication.hpp
 include/Core/EditorCommon.hpp
 include/Core/Editor.hpp
 include/Core/Theme.hpp
+include/Core/EditorShortcutManager.hpp
 include/Core/EditorResourcesRegistry.hpp
 
 )

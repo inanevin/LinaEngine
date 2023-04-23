@@ -37,6 +37,8 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "GUI/EditorPayloadManager.hpp"
 #include "GUI/EditorLayoutManager.hpp"
+#include "EditorShortcutManager.hpp"
+
 namespace Lina
 {
 	struct ResourceIdentifier;
@@ -72,13 +74,14 @@ namespace Lina::Editor
 		};
 
 	public:
-		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this), m_layoutManager(this){};
+		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this), m_layoutManager(this), m_shortcutManager(this){};
 		virtual ~Editor() = default;
 
 		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
 		void BeginSplashScreen();
 		void EndSplashScreen();
 		void Tick();
+		void OnShortcut(Shortcut sc, void* windowHandle);
 
 		void	 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false);
 		IWindow* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
@@ -116,6 +119,7 @@ namespace Lina::Editor
 		IWindow*						  m_draggedWindow = nullptr;
 		Input*							  m_input		  = nullptr;
 		EditorPayloadManager			  m_payloadManager;
+		EditorShortcutManager			  m_shortcutManager;
 		WindowManager*					  m_windowManager		= nullptr;
 		GfxManager*						  m_gfxManager			= nullptr;
 		GUIDrawerBase*					  m_guiDrawerMainWindow = nullptr;

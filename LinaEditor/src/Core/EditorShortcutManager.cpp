@@ -26,58 +26,44 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef EditorLayoutManager_HPP
-#define EditorLayoutManager_HPP
-
-#include "Core/StringID.hpp"
-#include "Data/String.hpp"
-#include "Math/Vector.hpp"
-#include "Data/Vector.hpp"
-
-namespace Lina
-{
-	class WindowManager;
-	class OStream;
-} // namespace Lina
+#include "Core/EditorShortcutManager.hpp"
+#include "Core/Editor.hpp"
+#include "System/ISystem.hpp"
+#include "Input/Core/Input.hpp"
+#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
-
-	struct LayoutWindow
+	EditorShortcutManager::EditorShortcutManager(Editor* editor) : m_editor(editor)
 	{
-		String	 title = "";
-		StringID sid   = 0;
-		Vector2i pos   = Vector2i::Zero;
-		Vector2i size  = Vector2i::Zero;
-	};
+		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		m_editor->GetSystem()->AddListener(this);
+	}
 
-	struct Layout
+	EditorShortcutManager::~EditorShortcutManager()
 	{
-		Vector<LayoutWindow> windows;
-	};
+		m_editor->GetSystem()->RemoveListener(this);
+	}
 
-	class EditorLayoutManager
+	void EditorShortcutManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
-	public:
-		EditorLayoutManager(Editor* editor);
-		~EditorLayoutManager() = default;
+		if (eventType & EVS_Key)
+		{
+			const uint32	  key	 = ev.iParams[0];
+			const InputAction action = static_cast<InputAction>(ev.iParams[1]);
 
-		void SaveCurrentLayout();
-		void LoadSavedLayout();
-		void LoadDefaultLayout();
+			if (action != InputAction::Pressed)
+				return;
 
-	private:
-		void SerializeLayoutWindow(OStream& stream, const LayoutWindow& l);
-		void DeserializeLayoutWindow(IStream& stream, LayoutWindow& l);
-		void ClearLayout();
+			for (auto& sc : m_shortcuts)
+			{
+				if (key == sc.keySecondary && m_input->GetKey(sc.keyPrimary))
+				{
+					m_editor->OnShortcut(sc.shortCut, ev.pParams[0]);
+					return;
+				}
+			}
+		}
+	}
 
-	private:
-		Editor*		   m_editor		   = nullptr;
-		WindowManager* m_windowManager = nullptr;
-	};
 } // namespace Lina::Editor
-
-#endif

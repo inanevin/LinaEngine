@@ -28,55 +28,46 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorLayoutManager_HPP
-#define EditorLayoutManager_HPP
+#ifndef EditorShortcutManager_HPP
+#define EditorShortcutManager_HPP
 
-#include "Core/StringID.hpp"
-#include "Data/String.hpp"
-#include "Math/Vector.hpp"
+#include "Event/ISystemEventListener.hpp"
+#include "Core/Common.hpp"
 #include "Data/Vector.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina
 {
-	class WindowManager;
-	class OStream;
-} // namespace Lina
+	class Input;
+}
 
 namespace Lina::Editor
 {
 	class Editor;
 
-	struct LayoutWindow
+	struct ShortcutEntry
 	{
-		String	 title = "";
-		StringID sid   = 0;
-		Vector2i pos   = Vector2i::Zero;
-		Vector2i size  = Vector2i::Zero;
+		Shortcut shortCut	  = Shortcut::None;
+		uint32	 keyPrimary	  = 0;
+		uint32	 keySecondary = 0;
 	};
 
-	struct Layout
-	{
-		Vector<LayoutWindow> windows;
-	};
-
-	class EditorLayoutManager
+	class EditorShortcutManager : public ISystemEventListener
 	{
 	public:
-		EditorLayoutManager(Editor* editor);
-		~EditorLayoutManager() = default;
+		EditorShortcutManager(Editor* editor);
+		~EditorShortcutManager();
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
 
-		void SaveCurrentLayout();
-		void LoadSavedLayout();
-		void LoadDefaultLayout();
-
-	private:
-		void SerializeLayoutWindow(OStream& stream, const LayoutWindow& l);
-		void DeserializeLayoutWindow(IStream& stream, LayoutWindow& l);
-		void ClearLayout();
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_Key;
+		}
 
 	private:
-		Editor*		   m_editor		   = nullptr;
-		WindowManager* m_windowManager = nullptr;
+		Vector<ShortcutEntry> m_shortcuts;
+		Editor*				  m_editor = nullptr;
+		Input*				  m_input  = nullptr;
 	};
 } // namespace Lina::Editor
 

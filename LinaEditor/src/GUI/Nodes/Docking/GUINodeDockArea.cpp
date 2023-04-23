@@ -71,6 +71,50 @@ namespace Lina::Editor
 
 	void GUINodeDockArea::Draw(int threadID)
 	{
+		GUINodeDivisible::Draw(threadID);
+
+		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
+
+		const bool	needTabArea	  = (!m_isAlone) || (m_panels.size() > 1) || m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN;
+		const float tabAreaHeight = needTabArea ? 24.0f * m_window->GetDPIScale() : 0.0f;
+		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
+		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
+
+		LinaVG::SetClipPosX(static_cast<uint32>(m_rect.pos.x), threadID);
+		LinaVG::SetClipPosY(static_cast<uint32>(m_rect.pos.y), threadID);
+		LinaVG::SetClipSizeX(static_cast<uint32>(m_rect.size.x), threadID);
+		LinaVG::SetClipSizeY(static_cast<uint32>(m_rect.size.y), threadID);
+
+		const bool isSingleMainWindow = m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN && m_isAlone && m_panels.size() == 1;
+		m_tabArea->SetCanClosePanels(!isSingleMainWindow);
+		m_tabArea->SetCanDetach(!isSingleMainWindow);
+		m_tabArea->SetVisible(needTabArea);
+
+		if (needTabArea)
+		{
+			if (m_focusedPanel)
+				m_tabArea->SetFocusedTab(m_focusedPanel->GetSID());
+			m_tabArea->SetRect(tabRect);
+			m_tabArea->Draw(threadID);
+		}
+
+		if (m_focusedPanel != nullptr)
+		{
+			m_focusedPanel->SetRect(panelRect);
+			m_focusedPanel->Draw(threadID);
+		}
+
+		m_dockPreview->SetRect(m_rect);
+		m_dockPreview->Draw(threadID);
+
+		LinaVG::SetClipPosX(0);
+		LinaVG::SetClipPosY(0);
+		LinaVG::SetClipSizeX(0);
+		LinaVG::SetClipSizeY(0);
+	}
+
+	void GUINodeDockArea::HandleRemoval()
+	{
 		if (!m_dismissedTabs.empty())
 		{
 			for (auto& data : m_dismissedTabs)
@@ -99,39 +143,9 @@ namespace Lina::Editor
 		// wuup wupp we are done.
 		if (m_tabArea->GetIsEmpty() && (m_swapchain->GetSID() != LINA_MAIN_SWAPCHAIN || !m_isAlone))
 		{
-			m_drawer->RemoveDockArea(this, true);
+			m_drawer->RemoveDockArea(this);
 			return;
 		}
-
-		GUINodeDivisible::Draw(threadID);
-
-		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
-
-		const bool	needTabArea	  = (!m_isAlone) || (m_panels.size() > 1) || m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN;
-		const float tabAreaHeight = needTabArea ? 24.0f * m_window->GetDPIScale() : 0.0f;
-		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
-		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
-
-		const bool isSingleMainWindow = m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN && m_isAlone && m_panels.size() == 1;
-		m_tabArea->SetCanClosePanels(!isSingleMainWindow);
-		m_tabArea->SetCanDetach(!isSingleMainWindow);
-		m_tabArea->SetVisible(needTabArea);
-
-		if (needTabArea)
-		{
-			m_tabArea->SetFocusedTab(m_focusedPanel->GetSID());
-			m_tabArea->SetRect(tabRect);
-			m_tabArea->Draw(threadID);
-		}
-
-		if (m_focusedPanel != nullptr)
-		{
-			m_focusedPanel->SetRect(panelRect);
-			m_focusedPanel->Draw(threadID);
-		}
-
-		m_dockPreview->SetRect(m_rect);
-		m_dockPreview->Draw(threadID);
 	}
 
 	void GUINodeDockArea::AddPanel(GUINodePanel* panel)

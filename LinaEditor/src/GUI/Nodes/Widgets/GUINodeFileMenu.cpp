@@ -40,6 +40,8 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+#define SHORTCUT_TEXT_SCALE 1.0f
+
 	void GUINodeFMPopupElement::Draw(int threadID)
 	{
 		if (!m_visible)
@@ -58,6 +60,21 @@ namespace Lina::Editor
 
 		const Vector2 textPos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + m_lastCalculatedSize.y * 0.5f);
 		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
+
+		if (m_shortcut != Shortcut::None)
+		{
+
+			if (Math::Equals(m_shortcutXStartRight, 0.0f, 0.01f))
+				m_shortcutXStartRight = m_rect.pos.x + m_rect.size.x - padding;
+
+			LinaVG::TextOptions scOpts;
+			scOpts.font		 = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
+			scOpts.textScale = SHORTCUT_TEXT_SCALE;
+			scOpts.color	 = LV4(Theme::TC_Light1);
+
+			const Vector2 shortcutPos = Vector2(m_shortcutXStartRight - m_shortcutTextSize.x, m_rect.pos.y + m_rect.size.y * 0.5f + m_shortcutTextSize.y * 0.5f);
+			LinaVG::DrawTextNormal(threadID, SHORTCUT_TO_NAME_MAP.at(m_shortcut), LV2(shortcutPos), scOpts, 0.0f, m_drawOrder);
+		}
 	}
 
 	Vector2 GUINodeFMPopupElement::CalculateSize()
@@ -70,6 +87,17 @@ namespace Lina::Editor
 		LinaVG::TextOptions textOpts;
 		textOpts.font		 = Theme::GetFont(FontType::DefaultEditor, windowDPI);
 		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
+
+		if (m_shortcut != Shortcut::None)
+		{
+			const float			padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, windowDPI);
+			const char*			scText	= SHORTCUT_TO_NAME_MAP.at(m_shortcut);
+			LinaVG::TextOptions scOpts;
+			scOpts.font		   = Theme::GetFont(FontType::AltEditor, windowDPI);
+			scOpts.textScale   = SHORTCUT_TEXT_SCALE;
+			m_shortcutTextSize = FL2(LinaVG::CalculateTextSize(scText, scOpts));
+			m_lastCalculatedSize.x += padding * 2 + m_shortcutTextSize.x;
+		}
 		return m_lastCalculatedSize;
 	}
 
@@ -127,15 +155,20 @@ namespace Lina::Editor
 	{
 		if (!m_visible)
 			return;
-
-		GUINodeFMPopupElement::Draw(threadID);
+		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		if (!m_value)
-			return;
-
-		const float	  padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const Vector2 iconPos = Vector2(m_rect.pos.x + m_rect.size.x - padding - m_iconSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
-		GUIUtility::DrawIcon(0, m_window->GetDPIScale(), TI_CHECKMARK, iconPos, 1.0f, Theme::TC_Silent3, m_drawOrder);
+		{
+			m_shortcutXStartRight = m_rect.pos.x + m_rect.size.x - padding;
+			GUINodeFMPopupElement::Draw(threadID);
+		}
+		else
+		{
+			const Vector2 iconPos = Vector2(m_rect.pos.x + m_rect.size.x - padding - m_iconSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
+			m_shortcutXStartRight = iconPos.x - padding - m_iconSize.x * 0.5f;
+			GUINodeFMPopupElement::Draw(threadID);
+			GUIUtility::DrawIcon(0, m_window->GetDPIScale(), TI_CHECKMARK, iconPos, 1.0f, Theme::TC_Silent3, m_drawOrder);
+		}
 	}
 
 	Vector2 GUINodeFMPopupElementToggle::CalculateSize()
@@ -155,6 +188,18 @@ namespace Lina::Editor
 		Vector2 iconSize = FL2(LinaVG::CalculateTextSize(TI_CHECKMARK, icon));
 		m_lastCalculatedSize.x += iconSize.x * 5.0f;
 		m_iconSize = iconSize;
+
+		if (m_shortcut != Shortcut::None)
+		{
+			const float			padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, windowDPI);
+			const char*			scText	= SHORTCUT_TO_NAME_MAP.at(m_shortcut);
+			LinaVG::TextOptions scOpts;
+			scOpts.font		   = Theme::GetFont(FontType::AltEditor, windowDPI);
+			scOpts.textScale   = SHORTCUT_TEXT_SCALE;
+			m_shortcutTextSize = FL2(LinaVG::CalculateTextSize(scText, scOpts));
+			m_lastCalculatedSize.x += padding * 2 + m_shortcutTextSize.x;
+		}
+
 		return m_lastCalculatedSize;
 	}
 
@@ -213,17 +258,17 @@ namespace Lina::Editor
 		return m_lastCalculatedSize;
 	}
 
-	GUINodeFMPopup* GUINodeFMPopup::AddDivider(const char* title)
+	GUINodeFMPopupElementDivider* GUINodeFMPopup::AddDivider(const char* title)
 	{
 		GUINodeFMPopupElementDivider* e = new GUINodeFMPopupElementDivider(m_drawer, m_drawOrder + 1);
 		e->SetTitle(title);
 		e->SetSID(TO_SIDC(title));
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
-		return this;
+		return e;
 	}
 
-	GUINodeFMPopup* GUINodeFMPopup::AddDefault(const char* title)
+	GUINodeFMPopupElement* GUINodeFMPopup::AddDefault(const char* title)
 	{
 		GUINodeFMPopupElement* e = new GUINodeFMPopupElement(m_drawer, m_drawOrder + 1, FMPopupElementType::Default);
 		e->SetTitle(title);
@@ -231,10 +276,10 @@ namespace Lina::Editor
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
 		e->SetCallbackClicked(BIND(&GUINodeFMPopup::OnPressedItem, this, std::placeholders::_1));
-		return this;
+		return e;
 	}
 
-	GUINodeFMPopup* GUINodeFMPopup::AddToggle(const char* title, bool initialValue)
+	GUINodeFMPopupElementToggle* GUINodeFMPopup::AddToggle(const char* title, bool initialValue)
 	{
 		GUINodeFMPopupElementToggle* e = new GUINodeFMPopupElementToggle(m_drawer, m_drawOrder + 1);
 		e->SetValue(initialValue);
@@ -243,10 +288,10 @@ namespace Lina::Editor
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
 		e->SetCallbackClicked(BIND(&GUINodeFMPopup::OnPressedItem, this, std::placeholders::_1));
-		return this;
+		return e;
 	}
 
-	GUINodeFMPopup* GUINodeFMPopup::AddExpandable(const char* title, GUINodeFMPopup* popup)
+	GUINodeFMPopupElementExpandable* GUINodeFMPopup::AddExpandable(const char* title, GUINodeFMPopup* popup)
 	{
 		GUINodeFMPopupElementExpandable* e = new GUINodeFMPopupElementExpandable(m_drawer, m_drawOrder + 1);
 		e->SetExpandedPopup(popup);
@@ -256,7 +301,7 @@ namespace Lina::Editor
 		m_layout->AddChildren(e);
 		m_elements.push_back(e);
 		popup->SetVisible(false);
-		return this;
+		return e;
 	}
 
 	void GUINodeFMPopup::OnPressedItem(GUINode* node)
@@ -306,7 +351,7 @@ namespace Lina::Editor
 		SetSize(sz);
 		SetLayoutOffset(heightMargin);
 
-		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), FRONT_DRAW_ORDER);
+		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), m_drawOrder);
 		m_layout->SetPos(m_rect.pos + Vector2(0, m_layoutOffset));
 		m_layout->Draw(threadID);
 	}

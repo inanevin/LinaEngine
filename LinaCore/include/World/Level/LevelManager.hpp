@@ -52,6 +52,11 @@ namespace Lina
 		void Tick(float deltaTime);
 		void WaitForSimulation();
 
+		inline Level* GetCurrentLevel() const
+		{
+			return m_currentLevel;
+		}
+
 	private:
 		Level* m_currentLevel = nullptr;
 	};

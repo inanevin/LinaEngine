@@ -57,15 +57,14 @@ namespace Lina::Editor
 			return m_parentDockArea;
 		}
 
-	
 		inline EditorPanel GetPanelType() const
 		{
 			return m_panelType;
 		}
 
 	protected:
-		GUINodeDockArea*	m_parentDockArea = nullptr;
-		EditorPanel			m_panelType		 = EditorPanel::None;
+		GUINodeDockArea* m_parentDockArea = nullptr;
+		EditorPanel		 m_panelType	  = EditorPanel::None;
 	};
 } // namespace Lina::Editor
 

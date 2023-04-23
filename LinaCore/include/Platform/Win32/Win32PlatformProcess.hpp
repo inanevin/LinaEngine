@@ -44,6 +44,9 @@ namespace Lina
 	class Win32PlatformProcess
 	{
 	public:
+		static String OpenDialog(const wchar_t* extensionDescription, const wchar_t* extension);
+		static String SaveDialog(const wchar_t* extensionDescription, const wchar_t* extension);
+
 	private:
 		friend class Application;
 

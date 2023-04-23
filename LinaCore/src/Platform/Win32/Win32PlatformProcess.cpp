@@ -31,7 +31,9 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "System/IPlugin.hpp"
 #include "Platform/Win32/Win32WindowsInclude.hpp"
+#include "FileSystem/FileSystem.hpp"
 #include "Lina.hpp"
+#include <shobjidl.h> // For IFileDialog and related interfaces
 
 void InitializeWinPlatform()
 {
@@ -155,6 +157,123 @@ namespace Lina
 
 		// Free the DLL module.
 		BOOL fFreeResult = FreeLibrary(hinstLib);
+	}
+
+	String Win32PlatformProcess::OpenDialog(const wchar_t* extensionDescription, const wchar_t* extension)
+	{
+		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+		// Create the File Open Dialog object
+		IFileOpenDialog* pFileOpenDialog;
+		HRESULT			 hr		= CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOpenDialog));
+		String			 retVal = "";
+
+		if (SUCCEEDED(hr))
+		{
+			// Set the dialog's options
+			DWORD dwOptions;
+			hr = pFileOpenDialog->GetOptions(&dwOptions);
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileOpenDialog->SetOptions(dwOptions);
+			}
+
+			// Set the file type filter
+			COMDLG_FILTERSPEC fileTypes[] = {
+				{extensionDescription, extension},
+			};
+			hr = pFileOpenDialog->SetFileTypes(ARRAYSIZE(fileTypes), fileTypes);
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileOpenDialog->SetFileTypeIndex(1); // Select the first filter in the list
+			}
+
+			// Show the dialog
+			hr = pFileOpenDialog->Show(NULL);
+			if (SUCCEEDED(hr))
+			{
+				// Get the selected file
+				IShellItem* pItem;
+				hr = pFileOpenDialog->GetResult(&pItem);
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+					if (SUCCEEDED(hr))
+					{
+						auto* path = FileSystem::WCharToChar(pszFilePath);
+						retVal	   = path;
+						delete[] path;
+						CoTaskMemFree(pszFilePath);
+					}
+					pItem->Release();
+				}
+			}
+			pFileOpenDialog->Release();
+		}
+		CoUninitialize();
+		return retVal;
+	}
+
+	String Win32PlatformProcess::SaveDialog(const wchar_t* extensionDescription, const wchar_t* extension)
+	{
+		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+
+		// Create the File Save Dialog object
+		IFileSaveDialog* pFileSaveDialog;
+		HRESULT			 hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileSaveDialog));
+
+		String retVal = "";
+		if (SUCCEEDED(hr))
+		{
+			// Set the dialog's options
+			DWORD dwOptions;
+			hr = pFileSaveDialog->GetOptions(&dwOptions);
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileSaveDialog->SetOptions(dwOptions);
+			}
+
+			COMDLG_FILTERSPEC fileTypes[] = {
+				{extensionDescription, extension},
+			};
+			hr = pFileSaveDialog->SetFileTypes(ARRAYSIZE(fileTypes), fileTypes);
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileSaveDialog->SetFileTypeIndex(1); // Select the first filter in the list
+			}
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileSaveDialog->SetDefaultExtension(L"jpg"); // Set the default extension
+			}
+
+			// Show the dialog
+			hr = pFileSaveDialog->Show(NULL);
+			if (SUCCEEDED(hr))
+			{
+				// Get the selected file
+				IShellItem* pItem;
+				hr = pFileSaveDialog->GetResult(&pItem);
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+					if (SUCCEEDED(hr))
+					{
+						auto* path = FileSystem::WCharToChar(pszFilePath);
+						retVal	   = path;
+						delete[] path;
+
+						CoTaskMemFree(pszFilePath);
+					}
+					pItem->Release();
+				}
+			}
+			pFileSaveDialog->Release();
+		}
+
+		CoUninitialize();
+		return retVal;
 	}
 
 } // namespace Lina

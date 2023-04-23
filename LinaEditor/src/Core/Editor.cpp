@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "GUI/Drawers/GUIDrawerSplashScreen.hpp"
 #include "GUI/Drawers/GUIDrawerMainWindow.hpp"
+#include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
@@ -217,6 +218,27 @@ namespace Lina::Editor
 				else if (!dockPreviewActive && m_draggedWindow->GetIsTransparent())
 					m_draggedWindow->SetAlpha(1.0f);
 			}
+		}
+	}
+
+	void Editor::OnShortcut(Shortcut sc, void* windowHandle)
+	{
+		bool consumed = false;
+
+		for (auto [sid, drawer] : m_guiDrawers)
+		{
+			if (drawer->GetWindow()->GetHandle() == windowHandle)
+			{
+				if (drawer->GetRoot()->OnShortcut(sc))
+				{
+					consumed = true;
+					break;
+				}
+			}
+		}
+
+		if (!consumed)
+		{
 		}
 	}
 
