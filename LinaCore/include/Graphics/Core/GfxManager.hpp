@@ -63,8 +63,6 @@ namespace Lina
 		};
 
 	public:
-		static EntityWorld* testWorld;
-
 		GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys);
 		virtual ~GfxManager() = default;
 

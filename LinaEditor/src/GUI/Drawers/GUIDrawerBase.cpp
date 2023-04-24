@@ -200,7 +200,7 @@ namespace Lina::Editor
 		if (type == DockSplitType::Tab)
 		{
 			for (auto panel : panels)
-				area->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), area, panel->GetTitle(), panel->GetSID()));
+				area->AddPanel(panel);
 
 			return nullptr;
 		}
@@ -223,7 +223,7 @@ namespace Lina::Editor
 			m_dockAreas.push_back(newArea);
 
 			for (auto panel : panels)
-				newArea->AddPanel(GUIPanelFactory::CreatePanel(panel->GetPanelType(), newArea, panel->GetTitle(), panel->GetSID()));
+				newArea->AddPanel(panel);
 		}
 
 		DockSplitType oppositeType	  = DockSplitType::None;

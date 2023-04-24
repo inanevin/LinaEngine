@@ -97,6 +97,12 @@ namespace Lina
 			Material* ppMaterial		= nullptr;
 		};
 
+		struct ResizeRequest
+		{
+			Vector2i renderResolution = Vector2i::Zero;
+			float	 aspect			  = 0.0f;
+		};
+
 	public:
 		WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
 		virtual ~WorldRenderer();
@@ -108,6 +114,7 @@ namespace Lina
 		void		 Render(uint32 frameIndex, uint32 imageIndex);
 		void		 CreateTextures();
 		void		 DestroyTextures();
+		void		 AddResizeRequest(const Vector2i& res, float aspect);
 
 		virtual Bitmask32 GetGameEventMask() override
 		{
@@ -132,24 +139,25 @@ namespace Lina
 	protected:
 		static int s_worldRendererCount;
 
-		float				 m_lastInterpolationAlpha = 0.0f;
-		IGfxContext*		 m_contextGraphics;
-		IUploadContext*		 m_uploadContext;
-		Renderer*			 m_renderer	  = nullptr;
-		DrawPass*			 m_opaquePass = nullptr;
-		CameraSystem		 m_cameraSystem;
-		ResourceManager*	 m_resourceManager = nullptr;
-		View				 m_playerView;
-		uint32				 m_imageCount = 0;
-		RenderData			 m_renderData;
-		GfxManager*			 m_gfxManager	   = nullptr;
-		SurfaceRenderer*	 m_surfaceRenderer = nullptr;
-		Bitmask16			 m_mask			   = 0;
-		EntityWorld*		 m_world		   = nullptr;
-		DataPerFrame		 m_frames[FRAMES_IN_FLIGHT];
-		Vector<DataPerImage> m_dataPerImage;
-		WorldData			 m_worldData;
-		WorldData			 m_syncedWorldData;
+		float				  m_lastInterpolationAlpha = 0.0f;
+		Vector<ResizeRequest> m_resizeRequests;
+		IGfxContext*		  m_contextGraphics;
+		IUploadContext*		  m_uploadContext;
+		Renderer*			  m_renderer   = nullptr;
+		DrawPass*			  m_opaquePass = nullptr;
+		CameraSystem		  m_cameraSystem;
+		ResourceManager*	  m_resourceManager = nullptr;
+		View				  m_playerView;
+		uint32				  m_imageCount = 0;
+		RenderData			  m_renderData;
+		GfxManager*			  m_gfxManager		= nullptr;
+		SurfaceRenderer*	  m_surfaceRenderer = nullptr;
+		Bitmask16			  m_mask			= 0;
+		EntityWorld*		  m_world			= nullptr;
+		DataPerFrame		  m_frames[FRAMES_IN_FLIGHT];
+		Vector<DataPerImage>  m_dataPerImage;
+		WorldData			  m_worldData;
+		WorldData			  m_syncedWorldData;
 	};
 } // namespace Lina
 

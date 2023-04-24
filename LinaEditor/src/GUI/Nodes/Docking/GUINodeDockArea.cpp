@@ -127,13 +127,13 @@ namespace Lina::Editor
 					const EditorPanel panelType	 = panel->GetPanelType();
 					const String	  panelTitle = panel->GetTitle();
 					const StringID	  panelSID	 = panel->GetSID();
-					RemovePanel(panel);
+					RemovePanel(panel, false);
 					m_tabArea->RemoveTab(data.tab->GetSID());
-					m_editor->OpenPanel(panelType, panelTitle, panelSID, true);
+					m_editor->OpenPanel(panelType, panelTitle, panelSID, true, panel);
 				}
 				else
 				{
-					RemovePanel(panel);
+					RemovePanel(panel, true);
 					m_tabArea->RemoveTab(data.tab->GetSID());
 				}
 			}
@@ -163,7 +163,7 @@ namespace Lina::Editor
 		m_drawer->OnDockAreasModified();
 	}
 
-	void GUINodeDockArea::RemovePanel(GUINodePanel* panel)
+	void GUINodeDockArea::RemovePanel(GUINodePanel* panel, bool deletePanel)
 	{
 		m_panels.erase(linatl::find_if(m_panels.begin(), m_panels.end(), [panel](GUINodePanel* p) { return p == panel; }));
 		RemoveChildren(panel);
@@ -171,7 +171,8 @@ namespace Lina::Editor
 		if (panel == m_focusedPanel)
 			m_focusedPanel = m_panels.empty() ? nullptr : m_panels[0];
 
-		delete panel;
+		if (deletePanel)
+			delete panel;
 
 		m_drawer->OnDockAreasModified();
 	}
@@ -272,7 +273,7 @@ namespace Lina::Editor
 		for (auto p : panels)
 		{
 			const StringID sid = p->GetSID();
-			RemovePanel(p);
+			RemovePanel(p, true);
 			m_tabArea->RemoveTab(sid);
 		}
 	}

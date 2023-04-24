@@ -33,9 +33,6 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Data/CommonData.hpp"
 
-// Debug
-#include "Graphics/Core/GfxManager.hpp"
-
 namespace Lina
 {
 	void LevelManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -77,7 +74,10 @@ namespace Lina
 
 			// We'll unload if not gon be used.
 			if (it == levelResourcesToLoad.end())
-				resourcesToUnload.push_back(ResourceIdentifier{res->GetPath(), res->GetTID(), res->GetSID()});
+			{
+				if (res->GetSID() != sid)
+					resourcesToUnload.push_back(ResourceIdentifier{res->GetPath(), res->GetTID(), res->GetSID()});
+			}
 			else
 			{
 				// Already exists, don't load again.
@@ -85,13 +85,16 @@ namespace Lina
 			}
 		}
 
-		rm->UnloadResources(resourcesToUnload);
-		rm->LoadResources(resourcesToLoad);
+		if (!resourcesToUnload.empty())
+			rm->UnloadResources(resourcesToUnload);
+
+		if (!resourcesToLoad.empty())
+			rm->LoadResources(resourcesToLoad);
 		rm->WaitForAll();
 		m_currentLevel->Install();
 
 		Event data;
-		data.pParams[0] = static_cast<void*>(m_currentLevel->GetWorld());
+		data.pParams[0] = static_cast<void*>(m_currentLevel);
 		m_system->DispatchEvent(EVS_LevelInstalled, data);
 	}
 
@@ -102,7 +105,7 @@ namespace Lina
 			m_currentLevel->Uninstall();
 
 			Event data;
-			data.pParams[0] = static_cast<void*>(m_currentLevel->GetWorld());
+			data.pParams[0] = static_cast<void*>(m_currentLevel);
 			m_system->DispatchEvent(EVS_LevelUninstalled, data);
 
 			m_currentLevel = nullptr;
@@ -111,18 +114,12 @@ namespace Lina
 
 	void LevelManager::Simulate(float fixedDelta)
 	{
-		if (GfxManager::testWorld != nullptr)
-			GfxManager::testWorld->Simulate(fixedDelta);
-
 		if (m_currentLevel != nullptr)
 			m_currentLevel->GetWorld()->Simulate(fixedDelta);
 	}
 
 	void LevelManager::Tick(float deltaTime)
 	{
-		if (GfxManager::testWorld != nullptr)
-			GfxManager::testWorld->Tick(deltaTime);
-
 		if (m_currentLevel != nullptr)
 			m_currentLevel->GetWorld()->Tick(deltaTime);
 	}

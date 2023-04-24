@@ -42,6 +42,8 @@ namespace Lina
 		ISerializable()			 = default;
 		virtual ~ISerializable() = default;
 
+	public:
+
 		virtual void SaveToStream(OStream& stream)	 = 0;
 		virtual void LoadFromStream(IStream& stream) = 0;
 		virtual void SaveToFile(const char* path);

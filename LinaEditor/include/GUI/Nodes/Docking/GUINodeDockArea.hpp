@@ -65,7 +65,7 @@ namespace Lina::Editor
 		virtual void Draw(int threadID) override;
 		void		 HandleRemoval();
 		void		 AddPanel(GUINodePanel* panel);
-		void		 RemovePanel(GUINodePanel* panel);
+		void		 RemovePanel(GUINodePanel* panel, bool deletePanel);
 		void		 SetDockPreviewEnabled(bool enabled);
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;

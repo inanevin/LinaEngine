@@ -45,19 +45,8 @@ SOFTWARE.
 #include "Graphics/Core/GUIBackend.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 
-// Debug
-#include "Graphics/Core/WorldRenderer.hpp"
-#include "World/Core/EntityWorld.hpp"
-#include "Graphics/Components/CameraComponent.hpp"
-#include "Graphics/Resource/Model.hpp"
-#include "Math/Math.hpp"
-
 namespace Lina
 {
-	WorldRenderer* testWorldRenderer	 = nullptr;
-	EntityWorld*   GfxManager::testWorld = nullptr;
-	Entity*		   camEntity			 = nullptr;
-
 	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -139,37 +128,12 @@ namespace Lina
 		}
 
 		m_renderer->ResetResources();
-
-		// Debug
-		{
-			testWorld = new EntityWorld();
-			camEntity = testWorld->CreateEntity("Cam Entity");
-			auto cam  = testWorld->AddComponent<CameraComponent>(camEntity);
-			camEntity->SetPosition(Vector3(0, 0, -5));
-			camEntity->SetRotationAngles(Vector3(0, 0, 0));
-
-			testWorld->SetActiveCamera(cam);
-			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-			aq->SetName("Cube");
-			//	auto aq2 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-			/// auto aq3 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
-			aq->SetPosition(Vector3(-3.5f, 0, 0));
-			//	aq2->SetPosition(Vector3(3, 0, 0));
-			// aq3->SetPosition(Vector3(0, 0, 0));
-
-			testWorldRenderer = new WorldRenderer(this, BACK_BUFFER_COUNT, m_surfaceRenderers[0], 0, testWorld, Vector2(1440, 960), 1440.0f / 900.0f);
-		}
-
 		m_postInited = true;
 	}
 
 	void GfxManager::PreShutdown()
 	{
 		LinaVG::Terminate();
-
-		delete testWorldRenderer;
-		delete testWorld;
-		testWorld = nullptr;
 
 		for (auto m : m_engineMaterials)
 			delete m;

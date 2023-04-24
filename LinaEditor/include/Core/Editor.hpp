@@ -45,7 +45,10 @@ namespace Lina
 	class GfxManager;
 	class WindowManager;
 	class IWindow;
+	class LevelManager;
 	class Input;
+	class ResourceManager;
+
 } // namespace Lina
 
 namespace Lina::Editor
@@ -61,11 +64,12 @@ namespace Lina::Editor
 	private:
 		struct CreateWindowRequest
 		{
-			EditorPanel panelType = EditorPanel::None;
-			StringID	panelSid  = 0;
-			StringID	windowSid = 0;
-			String		title	  = "";
-			bool		byDetach  = false;
+			EditorPanel	  panelType = EditorPanel::None;
+			StringID	  panelSid	= 0;
+			StringID	  windowSid = 0;
+			String		  title		= "";
+			GUINodePanel* panel		= nullptr;
+			bool		  byDetach	= false;
 		};
 
 		struct DeleteWindowRequest
@@ -83,11 +87,15 @@ namespace Lina::Editor
 		void Tick();
 		void OnShortcut(Shortcut sc, void* windowHandle);
 
-		void	 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false);
+		void	 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
 		IWindow* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
 		void	 CloseWindow(StringID sid);
 		void	 OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
 		void	 CloseAllChildWindows();
+		void	 CreateNewLevel(const char* path);
+		void	 LoadLevel(const char* path);
+		void	 SaveCurrentLevel();
+		void	 SaveCurrentLevelAs(const char* path);
 
 		// Inherited via ISubsystem
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
@@ -116,8 +124,10 @@ namespace Lina::Editor
 		static uint32 s_childWindowCtr;
 
 	private:
-		IWindow*						  m_draggedWindow = nullptr;
-		Input*							  m_input		  = nullptr;
+		ResourceManager*				  m_resourceManager = nullptr;
+		LevelManager*					  m_levelManager	= nullptr;
+		IWindow*						  m_draggedWindow	= nullptr;
+		Input*							  m_input			= nullptr;
 		EditorPayloadManager			  m_payloadManager;
 		EditorShortcutManager			  m_shortcutManager;
 		WindowManager*					  m_windowManager		= nullptr;

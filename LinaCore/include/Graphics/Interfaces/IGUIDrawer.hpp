@@ -37,6 +37,7 @@ namespace Lina
 {
 	class ISwapchain;
 	class IWindow;
+	class SurfaceRenderer;
 
 	class IGUIDrawer
 	{
@@ -63,9 +64,20 @@ namespace Lina
 			return m_swapchain;
 		}
 
+		inline void SetSurfaceRenderer(SurfaceRenderer* rend)
+		{
+			m_surfaceRenderer = rend;
+		}
+
+		inline SurfaceRenderer* GetSurfaceRenderer() const
+		{
+			return m_surfaceRenderer;
+		}
+
 	protected:
-		ISwapchain* m_swapchain = nullptr;
-		IWindow*	m_window	= nullptr;
+		SurfaceRenderer* m_surfaceRenderer = nullptr;
+		ISwapchain*		 m_swapchain	   = nullptr;
+		IWindow*		 m_window		   = nullptr;
 	};
 } // namespace Lina
 

@@ -29,24 +29,28 @@ SOFTWARE.
 #include "Core/Editor.hpp"
 #include "Resources/Core/CommonResources.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "Serialization/Serialization.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include "Reflection/ReflectionSystem.hpp"
-#include "Serialization/Compressor.hpp"
-#include "System/ISystem.hpp"
+#include "Resources/Core/IResource.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/WindowManager.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
+#include "World/Level/LevelManager.hpp"
+#include "World/Level/Level.hpp"
+#include "Serialization/Serialization.hpp"
+#include "Serialization/Compressor.hpp"
+#include "Input/Core/Input.hpp"
+#include "FileSystem/FileSystem.hpp"
+#include "Reflection/ReflectionSystem.hpp"
+#include "System/ISystem.hpp"
 #include "GUI/Drawers/GUIDrawerSplashScreen.hpp"
 #include "GUI/Drawers/GUIDrawerMainWindow.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
-#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
-#include "Graphics/Core/WindowManager.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Core/Theme.hpp"
+#include "GUI/Drawers/GUIDrawerChildWindow.hpp"
+#include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
-#include "GUI/Drawers/GUIDrawerChildWindow.hpp"
-#include "Input/Core/Input.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
+#include "Core/Theme.hpp"
 
 namespace Lina::Editor
 {
@@ -54,10 +58,13 @@ namespace Lina::Editor
 
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		Theme::s_resourceManagerInst = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_resourceManager			 = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_gfxManager				 = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_windowManager				 = m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
 		m_input						 = m_system->CastSubsystem<Input>(SubsystemType::Input);
+		m_levelManager				 = m_system->CastSubsystem<LevelManager>(SubsystemType::LevelManager);
+		Theme::s_resourceManagerInst = m_resourceManager;
+
 		m_payloadManager.Initialize();
 	}
 
@@ -173,8 +180,14 @@ namespace Lina::Editor
 				auto guiDrawer = m_guiDrawers.at(req.windowSid);
 
 				auto targetDockArea = guiDrawer->GetFirstDockArea();
-				auto createdPanel	= GUIPanelFactory::CreatePanel(req.panelType, targetDockArea, req.title, req.panelSid);
-				targetDockArea->AddPanel(static_cast<GUINodePanel*>(createdPanel));
+
+				if (req.panel)
+					targetDockArea->AddPanel(req.panel);
+				else
+				{
+					auto createdPanel = GUIPanelFactory::CreatePanel(req.panelType, targetDockArea, req.title, req.panelSid);
+					targetDockArea->AddPanel(static_cast<GUINodePanel*>(createdPanel));
+				}
 
 				if (req.byDetach)
 				{
@@ -242,7 +255,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach)
+	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach, GUINodePanel* srcPanel)
 	{
 		auto wm		= m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
 		auto gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
@@ -273,6 +286,7 @@ namespace Lina::Editor
 			.panelSid  = sid,
 			.windowSid = TO_SID(windowSidStr),
 			.title	   = title,
+			.panel	   = srcPanel,
 			.byDetach  = byDetach,
 		};
 
@@ -349,6 +363,10 @@ namespace Lina::Editor
 		if (drawerToDock)
 		{
 			const auto& panels = owner->GetFirstDockArea()->GetPanels();
+
+			for (auto p : panels)
+				owner->GetFirstDockArea()->RemovePanel(p, false);
+
 			drawerToDock->SplitDockArea(splittedDockArea, split, panels);
 			CloseWindow(m_draggedWindow->GetSID());
 			m_draggedWindow = nullptr;
@@ -371,6 +389,32 @@ namespace Lina::Editor
 
 		for (auto sid : sids)
 			CloseWindow(sid);
+	}
+
+	void Editor::CreateNewLevel(const char* path)
+	{
+		auto* currentLevel = m_levelManager->GetCurrentLevel();
+
+		if (!currentLevel)
+		{
+			const StringID pathSID = TO_SIDC(path);
+			Level*		   level   = new Level(m_resourceManager, true, path, pathSID);
+			level->SaveToFile(path);
+			delete level;
+			m_levelManager->InstallLevel(path);
+		}
+	}
+
+	void Editor::LoadLevel(const char* path)
+	{
+	}
+
+	void Editor::SaveCurrentLevel()
+	{
+	}
+
+	void Editor::SaveCurrentLevelAs(const char* path)
+	{
 	}
 
 } // namespace Lina::Editor

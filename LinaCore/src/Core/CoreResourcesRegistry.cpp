@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Resource/Material.hpp"
+#include "World/Level/Level.hpp"
 
 namespace Lina
 {
@@ -44,6 +45,7 @@ namespace Lina
 		rm.RegisterResourceType<Font>(10, {"ttf", "otf"}, PackageType::Package1);
 		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1);
 		rm.RegisterResourceType<TextureSampler>(100, {"linasampler"}, PackageType::Package1);
+		rm.RegisterResourceType<Level>(10, {"linalevel"}, PackageType::PackageLevels);
 	}
 
 	Vector<ResourceIdentifier> CoreResourcesRegistry::GetPriorityResources()

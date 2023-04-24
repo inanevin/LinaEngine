@@ -67,6 +67,7 @@ namespace Lina::Editor
 		}
 
 		panel->SetSID(sid);
+
 		return panel;
 	}
 } // namespace Lina::Editor

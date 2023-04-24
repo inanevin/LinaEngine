@@ -75,7 +75,6 @@ namespace Lina
 		m_opaquePass				  = new DrawPass(gfxManager, m_uploadContext);
 
 		world->AddListener(this);
-		m_surfaceRenderer->AddWorldRenderer(this);
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		AddRenderables<ModelNodeComponent>(world, m_worldData, m_worldData.renderableIDs);
 
@@ -123,7 +122,6 @@ namespace Lina
 		DestroyTextures();
 
 		m_world->RemoveListener(this);
-		m_surfaceRenderer->RemoveWorldRenderer(this);
 		m_worldData.allRenderables.Reset();
 		m_syncedWorldData.allRenderables.Reset();
 	}
@@ -172,6 +170,11 @@ namespace Lina
 			delete data.renderTargetPP;
 			delete data.ppMaterial;
 		}
+	}
+
+	void WorldRenderer::AddResizeRequest(const Vector2i& res, float aspect)
+	{
+		m_resizeRequests.push_back({res, aspect});
 	}
 
 	Texture* WorldRenderer::GetFinalTexture()
@@ -224,6 +227,18 @@ namespace Lina
 	void WorldRenderer::Sync()
 	{
 		PROFILER_FUNCTION();
+
+		if (!m_resizeRequests.empty())
+		{
+			m_gfxManager->Join();
+			auto& last = m_resizeRequests[m_resizeRequests.size() - 1];
+			DestroyTextures();
+			SetResolution(last.renderResolution);
+			SetAspect(last.aspect);
+			CreateTextures();
+		}
+
+		m_resizeRequests.clear();
 
 		ObjectWrapper<CameraComponent> camRef = m_world->GetActiveCamera();
 

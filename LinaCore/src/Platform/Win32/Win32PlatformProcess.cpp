@@ -229,6 +229,7 @@ namespace Lina
 			// Set the dialog's options
 			DWORD dwOptions;
 			hr = pFileSaveDialog->GetOptions(&dwOptions);
+			
 			if (SUCCEEDED(hr))
 			{
 				hr = pFileSaveDialog->SetOptions(dwOptions);
@@ -244,7 +245,7 @@ namespace Lina
 			}
 			if (SUCCEEDED(hr))
 			{
-				hr = pFileSaveDialog->SetDefaultExtension(L"jpg"); // Set the default extension
+				hr = pFileSaveDialog->SetDefaultExtension(extension); // Set the default extension
 			}
 
 			// Show the dialog

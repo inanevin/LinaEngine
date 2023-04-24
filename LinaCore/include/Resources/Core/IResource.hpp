@@ -38,6 +38,10 @@ SOFTWARE.
 
 namespace Lina
 {
+	namespace Editor
+	{
+		class Editor;
+	}
 	class ResourceManager;
 	class ISystem;
 
@@ -74,6 +78,8 @@ namespace Lina
 
 	protected:
 		friend class ResourceManager;
+		friend class Editor::Editor;
+
 		template <typename U> friend class ResourceCache;
 
 		virtual void Flush(){};

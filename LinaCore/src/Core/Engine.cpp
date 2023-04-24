@@ -112,8 +112,6 @@ namespace Lina
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
-		auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
-
 		while (m_fixedTimestepAccumulator >= fixedTimestep)
 		{
 			m_levelManager.Simulate(static_cast<float>(fixedTimestepDb * 0.000001 * SystemInfo::GetTimescale()));
@@ -125,16 +123,19 @@ namespace Lina
 		const double interpolationAlpha = static_cast<double>(m_fixedTimestepAccumulator) / fixedTimestepDb;
 
 		if (m_gfxManager)
+		{
 			m_gfxManager->Tick(static_cast<float>(SystemInfo::GetInterpolationAlpha()));
+			m_gfxManager->Sync();
+			auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
+			renderJob.get();
+		}
 
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 		//	audioJob.get();
 		//	m_levelManager.WaitForSimulation();
 
-		renderJob.get();
-
-		if (m_gfxManager)
-			m_gfxManager->Sync();
+		// if (m_gfxManager)
+		//	m_gfxManager->Sync();
 
 		if (m_input.GetKeyDown(LINA_KEY_1))
 		{

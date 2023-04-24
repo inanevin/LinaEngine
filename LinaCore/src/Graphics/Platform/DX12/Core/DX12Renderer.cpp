@@ -147,7 +147,6 @@ namespace Lina
 				{
 					ComPtr<IDXGIAdapter> warpAdapter;
 					ThrowIfFailed(m_factory->EnumWarpAdapter(IID_PPV_ARGS(&warpAdapter)));
-
 					ThrowIfFailed(D3D12CreateDevice(warpAdapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_device)));
 				}
 				else

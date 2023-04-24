@@ -100,6 +100,7 @@ namespace Lina
 
 							if (it != m_priorityResourcesDefaultMetadata.end())
 								res->SetMetadata(it->second);
+
 						}
 						else if (IsCoreResource(ident.sid))
 						{

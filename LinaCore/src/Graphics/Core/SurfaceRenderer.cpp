@@ -86,6 +86,10 @@ namespace Lina
 		delete m_guiRenderer;
 		delete m_uploadContext;
 
+		// If some requests left hanging
+		for (auto r : m_worldRendererDeleteRequests)
+			delete r.renderer;
+
 		DestroyTextures();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -101,14 +105,20 @@ namespace Lina
 		delete m_swapchain;
 	}
 
-	void SurfaceRenderer::AddWorldRenderer(WorldRenderer* renderer)
+	void SurfaceRenderer::CreateWorldRenderer(Delegate<void(WorldRenderer*)>&& onCreated, EntityWorld* world, const Vector2& size, WorldRendererMask mask)
 	{
-		m_worldRenderers.push_back(renderer);
+		CreateWorldRendererRequest req;
+		req.onCreated = onCreated;
+		req.mask	  = mask;
+		req.size	  = size;
+		req.world	  = world;
+
+		m_worldRendererCreateRequests.push_back(req);
 	}
 
-	void SurfaceRenderer::RemoveWorldRenderer(WorldRenderer* renderer)
+	void SurfaceRenderer::DeleteWorldRenderer(WorldRenderer* renderer)
 	{
-		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [renderer](WorldRenderer* r) { return r == renderer; }));
+		m_worldRendererDeleteRequests.push_back({renderer});
 	}
 
 	void SurfaceRenderer::SetOffscreenTexture(Texture* txt, uint32 imageIndex)
@@ -150,15 +160,24 @@ namespace Lina
 				for (uint32 i = 0; i < m_imageCount; i++)
 					m_dataPerImage[i].updateTexture = true;
 
-				for (auto wr : m_worldRenderers)
+				if (m_mask.IsSet(SRM_DrawOffscreenTexture))
 				{
-					wr->DestroyTextures();
-					wr->SetResolution(newSize);
-					wr->SetAspect(static_cast<float>(newSize.x) / static_cast<float>(newSize.y));
-					wr->CreateTextures();
+					for (auto wr : m_worldRenderers)
+					{
+						wr->DestroyTextures();
+						wr->SetResolution(newSize);
+						wr->SetAspect(static_cast<float>(newSize.x) / static_cast<float>(newSize.y));
+						wr->CreateTextures();
+					}
 				}
 			}
 		}
+	}
+
+	void SurfaceRenderer::SetGUIDrawer(IGUIDrawer* drawer)
+	{
+		m_guiDrawer = drawer;
+		m_guiDrawer->SetSurfaceRenderer(this);
 	}
 
 	void SurfaceRenderer::CreateTextures()
@@ -239,6 +258,28 @@ namespace Lina
 		Taskflow tf;
 		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Sync(); });
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+
+		// Deletion of world renderers.
+		{
+			if (!m_worldRendererDeleteRequests.empty())
+				m_gfxManager->Join();
+
+			for (auto& req : m_worldRendererDeleteRequests)
+			{
+				m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [&req](WorldRenderer* r) { return r == req.renderer; }));
+				delete req.renderer;
+			}
+
+			for (auto& req : m_worldRendererCreateRequests)
+			{
+				WorldRenderer* renderer = new WorldRenderer(m_gfxManager, BACK_BUFFER_COUNT, this, req.mask, req.world, req.size, req.size.x / req.size.y);
+				m_worldRenderers.push_back(renderer);
+				req.onCreated(renderer);
+			}
+
+			m_worldRendererCreateRequests.clear();
+			m_worldRendererDeleteRequests.clear();
+		}
 	}
 
 	void SurfaceRenderer::Render(int surfaceRendererIndex, uint32 frameIndex)
@@ -265,6 +306,8 @@ namespace Lina
 		Taskflow  worldRendererTaskFlow;
 		worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
 		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
+		// Wait for world renderers to finish.
+		worldRendererFuture.get();
 
 		if (m_mask.IsSet(SRM_DrawOffscreenTexture) && imgData.updateTexture)
 		{
@@ -280,8 +323,6 @@ namespace Lina
 
 		// Main Render Pass
 		{
-			// Wait for world renderers to finish.
-			worldRendererFuture.get();
 
 			ResourceTransition present2RT = {ResourceTransitionType::Present2RT, imgData.renderTargetColor};
 			ResourceTransition rt2Present = {ResourceTransitionType::RT2Present, imgData.renderTargetColor};

@@ -43,13 +43,18 @@ namespace Lina
 	void Level::Install()
 	{
 		m_world = new EntityWorld();
-		m_world->LoadFromStream(m_worldStream);
-		m_worldStream.Destroy();
+
+		if (m_worldStream.GetSize() != 0)
+		{
+			m_world->LoadFromStream(m_worldStream);
+			m_worldStream.Destroy();
+		}
 	}
 
 	void Level::Uninstall()
 	{
 		delete m_world;
+		m_world = nullptr;
 	}
 
 	void Level::SaveToStream(OStream& stream)
@@ -59,7 +64,10 @@ namespace Lina
 
 		// world.
 		const size_t streamSize = stream.GetCurrentSize();
-		m_world->SaveToStream(stream);
+
+		if (m_world)
+			m_world->SaveToStream(stream);
+
 		const size_t totalSize = stream.GetCurrentSize();
 		const uint32 worldSize = static_cast<uint32>(totalSize - streamSize);
 		stream << worldSize;
@@ -76,7 +84,8 @@ namespace Lina
 		VectorSerialization::LoadFromStream_OBJ(stream, m_usedResources);
 
 		// world.
-		m_worldStream.Create(stream.GetDataCurrent(), worldSize);
+		if (worldSize != 0)
+			m_worldStream.Create(stream.GetDataCurrent(), worldSize);
 	}
 
 } // namespace Lina

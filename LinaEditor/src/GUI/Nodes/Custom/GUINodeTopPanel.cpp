@@ -200,27 +200,28 @@ namespace Lina::Editor
 		}
 		else if (nodeSID == "New Level"_hs)
 		{
-			String savePath = PlatformProcess::SaveDialog(L"Lina Engine Level", L".linalevel");
+			String savePath = PlatformProcess::SaveDialog(L"Lina Engine Level", L"*.linalevel");
 
 			if (!savePath.empty())
-			{
-			}
+				m_editor->CreateNewLevel(savePath.c_str());
 		}
 		else if (nodeSID == "Save Level As"_hs)
 		{
-			String savePath = PlatformProcess::SaveDialog(L"Lina Engine Level", L".linalevel");
+			String savePath = PlatformProcess::SaveDialog(L"Lina Engine Level", L"*.linalevel");
 
 			if (!savePath.empty())
-			{
-			}
+				m_editor->SaveCurrentLevelAs(savePath.c_str());
+		}
+		else if (nodeSID == "Save Level"_hs)
+		{
+			m_editor->SaveCurrentLevel();
 		}
 		else if (nodeSID == "Load Level"_hs)
 		{
-			String loadPath = PlatformProcess::OpenDialog(L"Lina Engine Level", L".linalevel");
+			String loadPath = PlatformProcess::OpenDialog(L"Lina Engine Level", L"*.linalevel");
 
 			if (!loadPath.empty())
-			{
-			}
+				m_editor->LoadLevel(loadPath.c_str());
 		}
 	};
 } // namespace Lina::Editor

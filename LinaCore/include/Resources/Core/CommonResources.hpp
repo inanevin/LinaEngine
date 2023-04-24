@@ -48,6 +48,7 @@ namespace Lina
 		Default,
 		Package1,
 		Package2,
+		PackageLevels,
 	};
 
 	extern String GGetPackagePath(PackageType pt);
