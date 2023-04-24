@@ -65,7 +65,7 @@ namespace Lina::Editor
 		const float	   desiredAspect		  = 1920.0f / 1080.0f;
 		const float	   targetX				  = static_cast<float>(1920.0f / 2.5f * wm.GetPrimaryMonitor()->m_dpiScale);
 		const Vector2i targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
-		auto		   window				  = wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, targetSplashScreenSize, SRM_DrawGUI);
+		auto		   window				  = wm.CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, targetSplashScreenSize, SRM_DrawOffscreenTexture);
 		window->SetToCenter();
 	}
 

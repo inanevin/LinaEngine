@@ -74,6 +74,7 @@ namespace Lina
 		void			 WaitForSwapchains();
 		void			 Join();
 		void			 Tick(float interpolationAlpha);
+		void			 Sync();
 		void			 Render();
 		void			 CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		void			 DestroySurfaceRenderer(StringID sid);

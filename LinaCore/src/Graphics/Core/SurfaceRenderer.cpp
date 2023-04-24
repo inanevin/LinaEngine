@@ -229,6 +229,18 @@ namespace Lina
 		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 	}
 
+	void SurfaceRenderer::Sync()
+	{
+		if (!m_swapchain->GetWindow()->GetIsVisible())
+			return;
+
+		PROFILER_FUNCTION();
+
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Sync(); });
+		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+	}
+
 	void SurfaceRenderer::Render(int surfaceRendererIndex, uint32 frameIndex)
 	{
 		if (!m_swapchain->GetWindow()->GetIsVisible())

@@ -63,16 +63,21 @@ namespace Lina
 	private:
 		struct RenderData
 		{
-			RenderData() : allRenderables(100, ObjectWrapper<RenderableComponent>(nullptr)){};
+			float	 aspectRatio	  = 0.0f;
+			Vector2i renderResolution = Vector2i::Zero;
 
-			float												aspectRatio		 = 0.0f;
-			Vector2i											renderResolution = Vector2i::Zero;
+			GPUSceneData gpuSceneData;
+			GPUViewData	 gpuViewData;
+			Viewport	 viewport = Viewport();
+			Recti		 scissors = Recti();
+		};
+
+		struct WorldData
+		{
+			WorldData() : allRenderables(100, ObjectWrapper<RenderableComponent>(nullptr)){};
+
 			HashMap<uint32, ObjectWrapper<RenderableComponent>> renderableIDs;
 			IDList<ObjectWrapper<RenderableComponent>>			allRenderables;
-			GPUSceneData										gpuSceneData;
-			GPUViewData											gpuViewData;
-			Viewport											viewport = Viewport();
-			Recti												scissors = Recti();
 			Vector<RenderableData>								extractedRenderables;
 		};
 
@@ -99,6 +104,7 @@ namespace Lina
 		Texture*	 GetFinalTexture();
 		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
 		void		 Tick(float interpolationAlpha);
+		void		 Sync();
 		void		 Render(uint32 frameIndex, uint32 imageIndex);
 		void		 CreateTextures();
 		void		 DestroyTextures();
@@ -126,6 +132,7 @@ namespace Lina
 	protected:
 		static int s_worldRendererCount;
 
+		float				 m_lastInterpolationAlpha = 0.0f;
 		IGfxContext*		 m_contextGraphics;
 		IUploadContext*		 m_uploadContext;
 		Renderer*			 m_renderer	  = nullptr;
@@ -141,6 +148,8 @@ namespace Lina
 		EntityWorld*		 m_world		   = nullptr;
 		DataPerFrame		 m_frames[FRAMES_IN_FLIGHT];
 		Vector<DataPerImage> m_dataPerImage;
+		WorldData			 m_worldData;
+		WorldData			 m_syncedWorldData;
 	};
 } // namespace Lina
 

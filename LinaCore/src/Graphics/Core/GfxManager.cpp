@@ -216,9 +216,17 @@ namespace Lina
 		m_system->GetMainExecutor()->RunAndWait(tf);
 	}
 
+	void GfxManager::Sync()
+	{
+		PROFILER_FUNCTION();
+		Taskflow tf;
+		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Sync(); });
+		m_system->GetMainExecutor()->RunAndWait(tf);
+	}
+
 	void GfxManager::Render()
 	{
-		//PROFILER_FUNCTION();
+		// PROFILER_FUNCTION();
 
 		if (!m_renderer->IsOK())
 		{
@@ -235,9 +243,7 @@ namespace Lina
 			frame.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
 		}
 
-
 		m_renderer->BeginFrame(m_frameIndex);
-
 
 		LinaVG::StartFrame(static_cast<int>(m_surfaceRenderers.size()));
 		m_guiBackend->BindTextures();
@@ -248,11 +254,9 @@ namespace Lina
 			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
 				m_surfaceRenderers[i]->Render(i, m_frameIndex);
 				m_surfaceRenderers[i]->Present();
-
 			});
 
 			m_system->GetMainExecutor()->RunAndWait(tf);
-
 		}
 
 		LinaVG::EndFrame();
@@ -314,7 +318,6 @@ namespace Lina
 				m_renderer->GetUploadContext()->MarkRequireReset();
 
 			m_guiBackend->OnResourceBatchLoaded(ev);
-
 
 			if (flushModels || requireReset)
 				m_renderer->GetUploadContext()->Flush();

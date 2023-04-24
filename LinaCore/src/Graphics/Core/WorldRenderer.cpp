@@ -48,7 +48,7 @@ namespace Lina
 {
 	int WorldRenderer::s_worldRendererCount = 0;
 
-	template <typename T> void AddRenderables(EntityWorld* world, WorldRenderer::RenderData& data, HashMap<uint32, ObjectWrapper<RenderableComponent>>& renderableIDs)
+	template <typename T> void AddRenderables(EntityWorld* world, WorldRenderer::WorldData& data, HashMap<uint32, ObjectWrapper<RenderableComponent>>& renderableIDs)
 	{
 		Vector<ObjectWrapper<T>> comps = world->GetAllComponents<T>();
 
@@ -77,7 +77,7 @@ namespace Lina
 		world->AddListener(this);
 		m_surfaceRenderer->AddWorldRenderer(this);
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		AddRenderables<ModelNodeComponent>(world, m_renderData, m_renderData.renderableIDs);
+		AddRenderables<ModelNodeComponent>(world, m_worldData, m_worldData.renderableIDs);
 
 		// Image resources
 		{
@@ -100,7 +100,8 @@ namespace Lina
 
 		CreateTextures();
 
-		m_renderData.extractedRenderables.reserve(100);
+		m_worldData.extractedRenderables.reserve(100);
+		m_syncedWorldData.extractedRenderables.reserve(100);
 		s_worldRendererCount++;
 	}
 
@@ -123,7 +124,8 @@ namespace Lina
 
 		m_world->RemoveListener(this);
 		m_surfaceRenderer->RemoveWorldRenderer(this);
-		m_renderData.allRenderables.Reset();
+		m_worldData.allRenderables.Reset();
+		m_syncedWorldData.allRenderables.Reset();
 	}
 
 	void WorldRenderer::CreateTextures()
@@ -191,7 +193,7 @@ namespace Lina
 				ObjectWrapper<RenderableComponent> renderable = comp->GetWrapperAs<RenderableComponent>();
 
 				if (renderable.Get().GetEntity()->IsVisible())
-					m_renderData.renderableIDs[m_renderData.allRenderables.AddItem(renderable)] = renderable;
+					m_worldData.renderableIDs[m_worldData.allRenderables.AddItem(renderable)] = renderable;
 			}
 		}
 		else if (eventType & EVG_ComponentDestroyed)
@@ -202,12 +204,12 @@ namespace Lina
 			{
 				ObjectWrapper<RenderableComponent> renderable = comp->GetWrapperAs<RenderableComponent>();
 
-				for (auto& [id, rend] : m_renderData.renderableIDs)
+				for (auto& [id, rend] : m_worldData.renderableIDs)
 				{
 					if (rend == renderable)
 					{
-						m_renderData.allRenderables.RemoveItem(id);
-						m_renderData.renderableIDs.erase(id);
+						m_worldData.allRenderables.RemoveItem(id);
+						m_worldData.renderableIDs.erase(id);
 					}
 				}
 			}
@@ -215,6 +217,11 @@ namespace Lina
 	}
 
 	void WorldRenderer::Tick(float interpolationAlpha)
+	{
+		m_lastInterpolationAlpha = interpolationAlpha;
+	}
+
+	void WorldRenderer::Sync()
 	{
 		PROFILER_FUNCTION();
 
@@ -227,8 +234,9 @@ namespace Lina
 			m_playerView.Tick(cam.GetEntity()->GetPosition(), cam.GetView(), cam.GetProjection(), cam.zNear, cam.zFar);
 		}
 
-		const auto& renderables = m_renderData.allRenderables.GetItems();
-		m_renderData.extractedRenderables.clear();
+		m_syncedWorldData = m_worldData;
+
+		const auto& renderables = m_syncedWorldData.allRenderables.GetItems();
 
 		uint32 i = 0;
 		for (auto rend : renderables)
@@ -245,7 +253,7 @@ namespace Lina
 			RenderableData		 data;
 			const Transformation prev		  = e->GetPrevTransform();
 			const Transformation current	  = e->GetTransform();
-			const Transformation interpolated = Transformation::Interpolate(prev, current, interpolationAlpha);
+			const Transformation interpolated = Transformation::Interpolate(prev, current, m_lastInterpolationAlpha);
 			e->SyncPrevTransform();
 
 			data.entityID		   = e->GetID();
@@ -256,10 +264,10 @@ namespace Lina
 			data.passMask		   = r.GetDrawPasses(m_resourceManager);
 			data.type			   = r.GetType();
 			data.meshMaterialPairs = r.GetMeshMaterialPairs(m_resourceManager);
-			m_renderData.extractedRenderables.push_back(data);
+			m_syncedWorldData.extractedRenderables.push_back(data);
 		}
 
-		m_opaquePass->Process(m_renderData.extractedRenderables, m_playerView, 1000.0f, DrawPassMask::Opaque);
+		m_opaquePass->Process(m_syncedWorldData.extractedRenderables, m_playerView, 1000.0f, DrawPassMask::Opaque);
 	}
 
 	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
