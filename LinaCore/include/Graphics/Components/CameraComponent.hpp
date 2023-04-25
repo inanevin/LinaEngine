@@ -51,7 +51,7 @@ namespace Lina
 		{
 			return GetTypeID<CameraComponent>();
 		}
-		
+
 		virtual void SaveToStream(OStream& stream)
 		{
 			stream << fieldOfView << zNear << zFar;
@@ -76,8 +76,11 @@ namespace Lina
 		friend class CameraSystem;
 
 		Matrix4 m_projection = Matrix4::Identity();
-		Matrix4 m_view		= Matrix4::Identity();
+		Matrix4 m_view		 = Matrix4::Identity();
 	};
+
+	LINA_REFLECTCOMPONENT_BEGIN(CameraComponent, "Camera", "Graphics")
+	LINA_REFLECTCOMPONENT_END(CameraComponent);
 } // namespace Lina
 
 #endif

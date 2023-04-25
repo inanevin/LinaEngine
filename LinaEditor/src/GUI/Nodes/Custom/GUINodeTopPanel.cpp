@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Core/Editor.hpp"
 #include "Input/Core/InputMappings.hpp"
 #include "Core/PlatformProcess.hpp"
+#include "System/ISystem.hpp"
 
 namespace Lina::Editor
 {
@@ -71,9 +72,18 @@ namespace Lina::Editor
 
 		GUINodeFMPopup* levelPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
 		levelPopup->AddDefault("New Level");
-		levelPopup->AddDefault("Save Level")->SetShortcut(Shortcut::CTRL_S);
-		levelPopup->AddDefault("Save Level As")->SetShortcut(Shortcut::CTRL_SHIFT_S);
+		m_elementSaveLevel = levelPopup->AddDefault("Save Level");
+		m_elementSaveLevel->SetShortcut(Shortcut::CTRL_S);
+		m_elementSaveLevel->SetDisabled(true);
+
+		m_elementSaveLevelAs = levelPopup->AddDefault("Save Level As");
+		m_elementSaveLevelAs->SetShortcut(Shortcut::CTRL_SHIFT_S);
+		m_elementSaveLevelAs->SetDisabled(true);
+
 		levelPopup->AddDefault("Load Level");
+		m_elementUninstallCurrentLevel = levelPopup->AddDefault("Uninstall Current");
+		m_elementUninstallCurrentLevel->SetDisabled(true);
+
 		levelPopup->SetTitle("Level");
 
 		GUINodeFMPopup* entitiesPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
@@ -116,6 +126,13 @@ namespace Lina::Editor
 
 		m_customLogo = new GUINodeCustomLogo(drawer, drawOrder);
 		AddChildren(m_fileMenu)->AddChildren(m_windowButtons)->AddChildren(m_customLogo);
+
+		m_editor->GetSystem()->AddListener(this);
+	}
+
+	GUINodeTopPanel::~GUINodeTopPanel()
+	{
+		m_editor->GetSystem()->RemoveListener(this);
 	}
 
 	void GUINodeTopPanel::Draw(int threadID)
@@ -172,6 +189,22 @@ namespace Lina::Editor
 		}
 	}
 
+	void GUINodeTopPanel::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+		if (eventType & EVS_LevelInstalled)
+		{
+			m_elementSaveLevel->SetDisabled(false);
+			m_elementSaveLevelAs->SetDisabled(false);
+			m_elementUninstallCurrentLevel->SetDisabled(false);
+		}
+		else if (eventType & EVS_LevelUninstalled)
+		{
+			m_elementSaveLevel->SetDisabled(true);
+			m_elementSaveLevelAs->SetDisabled(true);
+			m_elementUninstallCurrentLevel->SetDisabled(true);
+		}
+	}
+
 	void GUINodeTopPanel::OnPressedItem(GUINode* node)
 	{
 		const StringID nodeSID = node->GetSID();
@@ -222,6 +255,10 @@ namespace Lina::Editor
 
 			if (!loadPath.empty())
 				m_editor->LoadLevel(loadPath.c_str());
+		}
+		else if (nodeSID == "Uninstall Current"_hs)
+		{
+			m_editor->UninstallCurrentLevel();
 		}
 	};
 } // namespace Lina::Editor

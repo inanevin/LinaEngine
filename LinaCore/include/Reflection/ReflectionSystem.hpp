@@ -41,264 +41,282 @@ SOFTWARE.
 
 namespace Lina
 {
-    class PropertyCacheBase
-    {
-    public:
-        PropertyCacheBase()          = default;
-        virtual ~PropertyCacheBase() = default;
-    };
+	class PropertyCacheBase
+	{
+	public:
+		PropertyCacheBase()			 = default;
+		virtual ~PropertyCacheBase() = default;
+	};
 
-    template <typename T> class PropertyCache : public PropertyCacheBase
-    {
-    public:
-        void AddProperty(StringID sid, T p)
-        {
-            m_properties[sid] = p;
-        }
+	template <typename T> class PropertyCache : public PropertyCacheBase
+	{
+	public:
+		void AddProperty(StringID sid, T p)
+		{
+			m_properties[sid] = p;
+		}
 
-        T GetProperty(StringID sid)
-        {
-            return m_properties[sid];
-        }
+		T GetProperty(StringID sid)
+		{
+			return m_properties[sid];
+		}
 
-    private:
-        HashMap<StringID, T> m_properties;
-    };
+		bool HasProperty(StringID sid)
+		{
+			return m_properties.find(sid) != m_properties.end();
+		}
 
-    class PropertyCacheManager
-    {
-    public:
-        PropertyCacheManager() = default;
+	private:
+		HashMap<StringID, T> m_properties;
+	};
 
-        virtual ~PropertyCacheManager()
-        {
-            for (auto [sid, cache] : m_propertyCaches)
-                delete cache;
+	class PropertyCacheManager
+	{
+	public:
+		PropertyCacheManager() = default;
 
-            m_propertyCaches.clear();
-        }
+		virtual ~PropertyCacheManager()
+		{
+			
+		}
 
-        template <typename T> inline void AddProperty(StringID sid, T param)
-        {
-            const TypeID tid = GetTypeID<T>();
-            auto         it  = m_propertyCaches.find(tid);
-            if (it == m_propertyCaches.end())
-            {
-                PropertyCache<T>* cache = new PropertyCache<T>();
-                m_propertyCaches[tid]   = cache;
-                cache->AddProperty(sid, param);
-            }
-            else
-            {
-                PropertyCache<T>* cache = static_cast<PropertyCache<T>*>(it->second);
-                cache->AddProperty(sid, param);
-            }
-        }
+		template <typename T> inline void AddProperty(StringID sid, T param)
+		{
+			const TypeID tid = GetTypeID<T>();
+			auto		 it	 = m_propertyCaches.find(tid);
+			if (it == m_propertyCaches.end())
+			{
+				PropertyCache<T>* cache = new PropertyCache<T>();
+				m_propertyCaches[tid]	= cache;
+				cache->AddProperty(sid, param);
+			}
+			else
+			{
+				PropertyCache<T>* cache = static_cast<PropertyCache<T>*>(it->second);
+				cache->AddProperty(sid, param);
+			}
+		}
 
-        template <typename T> inline T GetProperty(StringID sid)
-        {
-            const TypeID       tid   = GetTypeID<T>();
-            PropertyCacheBase* cache = m_propertyCaches.at(tid);
-            return static_cast<PropertyCache<T>*>(cache)->GetProperty(sid);
-        }
+		template <typename T> inline T GetProperty(StringID sid)
+		{
+			const TypeID	   tid	 = GetTypeID<T>();
+			PropertyCacheBase* cache = m_propertyCaches.at(tid);
+			return static_cast<PropertyCache<T>*>(cache)->GetProperty(sid);
+		}
 
-    private:
-        HashMap<TypeID, PropertyCacheBase*> m_propertyCaches;
-    };
+		void Destroy()
+		{
+			for (auto& [tid, p] : m_propertyCaches)
+				delete p;
 
-    class FieldValue
-    {
-    public:
-        template <typename T> T GetValue()
-        {
-            return Cast<T>();
-        }
+			m_propertyCaches.clear();
+		}
 
-        template <typename T> void SetValue(T t)
-        {
-            Cast<T>() = t;
-        }
+	private:
+		HashMap<TypeID, PropertyCacheBase*> m_propertyCaches;
+	};
 
-        template <typename T> T Cast()
-        {
-            return *static_cast<T*>(ptr);
-        }
+	class FieldValue
+	{
+	public:
+		template <typename T> T GetValue()
+		{
+			return Cast<T>();
+		}
 
-        template <typename T> T& CastRef()
-        {
-            return *static_cast<T*>(ptr);
-        }
+		template <typename T> void SetValue(T t)
+		{
+			Cast<T>() = t;
+		}
 
-        template <typename T> T* CastPtr()
-        {
-            return static_cast<T*>(ptr);
-        }
+		template <typename T> T Cast()
+		{
+			return *static_cast<T*>(ptr);
+		}
 
-    private:
-        template <typename T, typename U> friend class Field;
-        void* ptr = nullptr;
-    };
-    class FieldBase
-    {
-    public:
-        FieldBase()          = default;
-        virtual ~FieldBase() = default;
+		template <typename T> T& CastRef()
+		{
+			return *static_cast<T*>(ptr);
+		}
 
-        virtual FieldValue Value(void* obj) = 0;
+		template <typename T> T* CastPtr()
+		{
+			return static_cast<T*>(ptr);
+		}
 
-        template <typename T> inline void AddProperty(StringID sid, T param)
-        {
-            m_propertyCacheManager.AddProperty<T>(sid, param);
-        }
+	private:
+		template <typename T, typename U> friend class Field;
+		void* ptr = nullptr;
+	};
+	class FieldBase
+	{
+	public:
+		FieldBase()			 = default;
+		virtual ~FieldBase() = default;
 
-        template <typename T> inline T GetProperty(StringID sid)
-        {
-            return m_propertyCacheManager.GetProperty<T>(sid);
-        }
+		virtual FieldValue Value(void* obj) = 0;
 
-    private:
-        PropertyCacheManager m_propertyCacheManager;
-    };
+		template <typename T> inline void AddProperty(StringID sid, T param)
+		{
+			m_propertyCacheManager.AddProperty<T>(sid, param);
+		}
 
-    template <typename T, class C> class Field : public FieldBase
-    {
-    public:
-        Field()          = default;
-        virtual ~Field() = default;
+		template <typename T> inline T GetProperty(StringID sid)
+		{
+			return m_propertyCacheManager.GetProperty<T>(sid);
+		}
 
-        inline virtual FieldValue Value(void* obj) override
-        {
-            FieldValue val;
-            val.ptr = &((static_cast<C*>(obj))->*(m_var));
-            return val;
-        }
+	private:
+		PropertyCacheManager m_propertyCacheManager;
+	};
 
-        T m_var = T();
-    };
+	template <typename T, class C> class Field : public FieldBase
+	{
+	public:
+		Field()			 = default;
+		virtual ~Field() = default;
 
-    class FunctionCacheBase
-    {
-    public:
-        FunctionCacheBase()          = default;
-        virtual ~FunctionCacheBase() = default;
-    };
+		inline virtual FieldValue Value(void* obj) override
+		{
+			FieldValue val;
+			val.ptr = &((static_cast<C*>(obj))->*(m_var));
+			return val;
+		}
 
-    template <typename T> class FunctionCache : public FunctionCacheBase
-    {
-    public:
-        void AddFunction(StringID sid, Delegate<T>&& f)
-        {
-            m_functions[sid] = f;
-        }
+		T m_var = T();
+	};
 
-        Delegate<T> GetFunction(StringID sid)
-        {
-            return m_functions[sid];
-        }
+	class FunctionCacheBase
+	{
+	public:
+		FunctionCacheBase()			 = default;
+		virtual ~FunctionCacheBase() = default;
+	};
 
-        FunctionCache()          = default;
-        virtual ~FunctionCache() = default;
+	template <typename T> class FunctionCache : public FunctionCacheBase
+	{
+	public:
+		void AddFunction(StringID sid, Delegate<T>&& f)
+		{
+			m_functions[sid] = f;
+		}
 
-    private:
-        HashMap<StringID, Delegate<T>> m_functions;
-    };
+		Delegate<T> GetFunction(StringID sid)
+		{
+			return m_functions[sid];
+		}
 
-    class MetaType
-    {
-    public:
-        inline FieldBase* GetField(StringID sid)
-        {
-            return m_fields[sid];
-        }
+		bool HasFunction(StringID sid)
+		{
+			return m_functions.find(sid) != m_functions.end();
+		}
 
-        template <auto DATA, typename Class> void AddField(StringID sid)
-        {
-            Field<decltype(DATA), Class>* f = new Field<decltype(DATA), Class>();
-            f->m_var                        = DATA;
-            m_fields[sid]                   = f;
-        }
+		FunctionCache()			 = default;
+		virtual ~FunctionCache() = default;
 
-        template <typename T> inline void AddProperty(StringID sid, T param)
-        {
-            m_propertyCacheManager.AddProperty<T>(sid, param);
-        }
+	private:
+		HashMap<StringID, Delegate<T>> m_functions;
+	};
 
-        template <typename T> inline T GetProperty(StringID sid)
-        {
-            return m_propertyCacheManager.GetProperty<T>(sid);
-        }
+	class MetaType
+	{
+	public:
+		inline FieldBase* GetField(StringID sid)
+		{
+			return m_fields[sid];
+		}
 
-        template <typename T> inline void AddFunction(StringID sid, Delegate<T>&& del)
-        {
-            const TypeID tid = GetTypeID<T>();
-            auto         it  = m_functionCaches.find(tid);
-            if (it == m_functionCaches.end())
-            {
-                FunctionCache<T>* cache = new FunctionCache<T>();
-                m_functionCaches[tid]   = cache;
-                cache->AddFunction(sid, linatl::move(del));
-            }
-            else
-            {
-                FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(it->second);
-                cache->AddFunction(sid, linatl::move(del));
-            }
-        }
+		template <auto DATA, typename Class> void AddField(StringID sid)
+		{
+			Field<decltype(DATA), Class>* f = new Field<decltype(DATA), Class>();
+			f->m_var						= DATA;
+			m_fields[sid]					= f;
+		}
 
-        template <typename T> inline Delegate<T> GetFunction(StringID sid)
-        {
-            const TypeID      tid   = GetTypeID<T>();
-            FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(m_functionCaches[tid]);
-            return cache->GetFunction(sid);
-        }
+		template <typename T> inline void AddProperty(StringID sid, T param)
+		{
+			m_propertyCacheManager.AddProperty<T>(sid, param);
+		}
 
-    private:
-        friend class ReflectionSystem;
-        PropertyCacheManager                m_propertyCacheManager;
-        HashMap<TypeID, FunctionCacheBase*> m_functionCaches;
-        HashMap<StringID, FieldBase*>       m_fields;
-    };
+		template <typename T> inline T GetProperty(StringID sid)
+		{
+			return m_propertyCacheManager.GetProperty<T>(sid);
+		}
 
-    class GlobalAllocatorWrapper;
+		template <typename T> inline void AddFunction(StringID sid, Delegate<T>&& del)
+		{
+			const TypeID tid = GetTypeID<T>();
+			auto		 it	 = m_functionCaches.find(tid);
+			if (it == m_functionCaches.end())
+			{
+				FunctionCache<T>* cache = new FunctionCache<T>();
+				m_functionCaches[tid]	= cache;
+				cache->AddFunction(sid, linatl::move(del));
+			}
+			else
+			{
+				FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(it->second);
 
-    class ReflectionSystem : public ISingleton
-    {
-    public:
-        static inline ReflectionSystem& Get()
-        {
-            static ReflectionSystem instance;
-            return instance;
-        }
+				if (cache->HasFunction(sid))
+					return;
+				cache->AddFunction(sid, linatl::move(del));
+			}
+		}
 
-        template <typename T> MetaType& Meta()
-        {
-            return m_metaData[GetTypeID<T>()];
-        }
+		template <typename T> inline Delegate<T> GetFunction(StringID sid)
+		{
+			const TypeID	  tid	= GetTypeID<T>();
+			FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(m_functionCaches[tid]);
+			return cache->GetFunction(sid);
+		}
 
-        template <typename T> MetaType& Resolve()
-        {
-            return m_metaData[GetTypeID<T>()];
-        }
+	private:
+		friend class ReflectionSystem;
+		PropertyCacheManager				m_propertyCacheManager;
+		HashMap<TypeID, FunctionCacheBase*> m_functionCaches;
+		HashMap<StringID, FieldBase*>		m_fields;
+	};
 
-        MetaType& Resolve(TypeID tid)
-        {
-            return m_metaData[tid];
-        }
+	class GlobalAllocatorWrapper;
 
-    protected:
-        virtual void Destroy() override;
+	class ReflectionSystem : public ISingleton
+	{
+	public:
+		static inline ReflectionSystem& Get()
+		{
+			static ReflectionSystem instance;
+			return instance;
+		}
 
-    private:
-        friend class GlobalAllocatorWrapper;
+		template <typename T> MetaType& Meta()
+		{
+			return m_metaData[GetTypeID<T>()];
+		}
 
-        ReflectionSystem() = default;
-        virtual ~ReflectionSystem()
-        {
-            Destroy();
-        }
+		template <typename T> MetaType& Resolve()
+		{
+			return m_metaData[GetTypeID<T>()];
+		}
 
-    private:
-        HashMap<TypeID, MetaType> m_metaData;
-    };
+		MetaType& Resolve(TypeID tid)
+		{
+			return m_metaData[tid];
+		}
+
+	protected:
+		virtual void Destroy() override;
+
+	private:
+		friend class GlobalAllocatorWrapper;
+
+		ReflectionSystem() = default;
+		virtual ~ReflectionSystem()
+		{
+			Destroy();
+		}
+
+	private:
+		HashMap<TypeID, MetaType> m_metaData;
+	};
 } // namespace Lina
 #endif

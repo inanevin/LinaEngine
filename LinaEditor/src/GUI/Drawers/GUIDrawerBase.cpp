@@ -576,9 +576,7 @@ namespace Lina::Editor
 		const uint32 dividerSize  = static_cast<uint32>(m_dividers.size());
 		stream << m_dockAreaCounter << m_dividerCounter << dockAreaSize << dividerSize;
 
-		m_dockAreas[0]->SaveToStream(stream);
-
-		for (uint32 i = 1; i < dockAreaSize; i++)
+		for (uint32 i = 0; i < dockAreaSize; i++)
 		{
 			auto* d = m_dockAreas[i];
 			d->SaveToStream(stream);

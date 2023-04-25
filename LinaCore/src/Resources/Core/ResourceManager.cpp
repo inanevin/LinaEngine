@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Core/PlatformProcess.hpp"
 #include "Math/Math.hpp"
 
-#include "Graphics/Resource/Font.hpp"
+#include "World/Level/Level.hpp"
 
 namespace Lina
 {
@@ -55,6 +55,26 @@ namespace Lina
 	PackageType ResourceManager::GetPackageType(TypeID tid)
 	{
 		return m_caches.at(tid)->GetPackageType();
+	}
+
+	void ResourceManager::ResaveResource(IResource* res)
+	{
+		OStream stream;
+		stream.CreateReserve(512);
+		res->SaveToStream(stream);
+		Serialization::SaveToFile(res->GetPath().c_str(), stream);
+
+		if (res->GetTID() == GetTypeID<Level>())
+			return;
+
+		const String metacachePath = GetMetacachePath(res->GetPath(), res->GetSID());
+
+		if (FileSystem::FileExists(metacachePath))
+			FileSystem::DeleteFileInPath(metacachePath);
+
+		Serialization::SaveToFile(metacachePath.c_str(), stream);
+
+		stream.Destroy();
 	}
 
 	int32 ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers)
@@ -100,7 +120,6 @@ namespace Lina
 
 							if (it != m_priorityResourcesDefaultMetadata.end())
 								res->SetMetadata(it->second);
-
 						}
 						else if (IsCoreResource(ident.sid))
 						{
@@ -114,11 +133,16 @@ namespace Lina
 						res->LoadFromFile(ident.path.c_str());
 						res->Upload();
 
-						OStream metastream;
-						metastream.CreateReserve(512);
-						res->SaveToStream(metastream);
-						Serialization::SaveToFile(metacachePath.c_str(), metastream);
-						metastream.Destroy();
+						// Level has lazy-loading for the world stream
+						// Thus we can't metacache it right now, otherwise cached file will always gonna have an empty world.
+						if (res->GetTID() != GetTypeID<Level>())
+						{
+							OStream metastream;
+							metastream.CreateReserve(512);
+							res->SaveToStream(metastream);
+							Serialization::SaveToFile(metacachePath.c_str(), metastream);
+							metastream.Destroy();
+						}
 					}
 
 					Event			   data;

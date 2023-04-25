@@ -30,26 +30,27 @@ SOFTWARE.
 
 namespace Lina
 {
-    void ReflectionSystem::Destroy()
-    {
-        if (m_destroyed)
-            return;
+	void ReflectionSystem::Destroy()
+	{
+		if (m_destroyed)
+			return;
 
-        m_destroyed = false;
+		m_destroyed = false;
 
-        for (auto& [tid, type] : m_metaData)
-        {
-            for (auto& [sid, f] : type.m_fields)
-                delete f;
+		for (auto& [tid, type] : m_metaData)
+		{
+			for (auto& [sid, f] : type.m_fields)
+				delete f;
 
-            for (auto& [tid, f] : type.m_functionCaches)
-                delete f;
+			for (auto& [tid, f] : type.m_functionCaches)
+				delete f;
 
-            type.m_functionCaches.clear();
-            type.m_fields.clear();
-        }
+			type.m_propertyCacheManager.Destroy();
+			type.m_functionCaches.clear();
+			type.m_fields.clear();
+		}
 
-        m_metaData.clear();
-    }
+		m_metaData.clear();
+	}
 
 } // namespace Lina

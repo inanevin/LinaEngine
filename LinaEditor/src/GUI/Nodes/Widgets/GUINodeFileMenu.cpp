@@ -49,6 +49,7 @@ namespace Lina::Editor
 
 		LinaVG::TextOptions textOpts;
 		textOpts.font		= Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+		textOpts.color		= m_disabled ? LV4(Theme::TC_SilentTransparent) : LV4(Color::White);
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		if (m_isHovered)
@@ -59,7 +60,7 @@ namespace Lina::Editor
 		}
 
 		const Vector2 textPos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + m_lastCalculatedSize.y * 0.5f);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder, true);
 
 		if (m_shortcut != Shortcut::None)
 		{

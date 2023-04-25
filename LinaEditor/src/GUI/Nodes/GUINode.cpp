@@ -100,7 +100,9 @@ namespace Lina::Editor
 				if (lastPressedNode == this && GetIsHovered())
 				{
 					lastPressedNode = nullptr;
-					OnClicked(LINA_MOUSE_0);
+
+					if (m_visible && !m_disabled)
+						OnClicked(LINA_MOUSE_0);
 				}
 
 				if (m_isDragging)

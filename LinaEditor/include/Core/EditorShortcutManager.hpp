@@ -47,9 +47,10 @@ namespace Lina::Editor
 
 	struct ShortcutEntry
 	{
-		Shortcut shortCut	  = Shortcut::None;
-		uint32	 keyPrimary	  = 0;
-		uint32	 keySecondary = 0;
+		Shortcut shortCut  = Shortcut::None;
+		uint32	 holdKey1  = 0;
+		uint32	 holdKey2  = 0;
+		uint32	 actionKey = 0;
 	};
 
 	class EditorShortcutManager : public ISystemEventListener
@@ -58,6 +59,8 @@ namespace Lina::Editor
 		EditorShortcutManager(Editor* editor);
 		~EditorShortcutManager();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
+
+		void AddShortcut(Shortcut shortcut, uint32 holdKey1, uint32 holdKey2, uint32 actionKey);
 
 		virtual Bitmask32 GetSystemEventMask()
 		{

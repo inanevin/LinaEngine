@@ -157,9 +157,7 @@ namespace Lina::Editor
 
 		guiDrawer->SplitDockArea(dockArea, DockSplitType::Left, {entPanel}, 0.15f);
 		guiDrawer->SplitDockArea(dockArea, DockSplitType::Down, {contentBrowserPanel}, 0.25f);
-		delete entPanel;
-		delete contentBrowserPanel;
-
+		
 		SaveCurrentLayout();
 	}
 

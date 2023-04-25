@@ -38,10 +38,18 @@ namespace Lina::Editor
 	{
 		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 		m_editor->GetSystem()->AddListener(this);
+
+		AddShortcut(Shortcut::CTRL_A, LINA_KEY_LCTRL, 0, LINA_KEY_A);
+		AddShortcut(Shortcut::CTRL_D, LINA_KEY_LCTRL, 0, LINA_KEY_D);
+		AddShortcut(Shortcut::CTRL_S, LINA_KEY_LCTRL, 0, LINA_KEY_S);
+		AddShortcut(Shortcut::CTRL_T, LINA_KEY_LCTRL, 0, LINA_KEY_T);
+		AddShortcut(Shortcut::CTRL_W, LINA_KEY_LCTRL, 0, LINA_KEY_W);
+		AddShortcut(Shortcut::CTRL_SHIFT_S, LINA_KEY_LCTRL, LINA_KEY_LSHIFT, LINA_KEY_S);
 	}
 
 	EditorShortcutManager::~EditorShortcutManager()
 	{
+		m_shortcuts.clear();
 		m_editor->GetSystem()->RemoveListener(this);
 	}
 
@@ -55,15 +63,54 @@ namespace Lina::Editor
 			if (action != InputAction::Pressed)
 				return;
 
+			Vector<ShortcutEntry*> eligibleEntries;
+
 			for (auto& sc : m_shortcuts)
 			{
-				if (key == sc.keySecondary && m_input->GetKey(sc.keyPrimary))
+				if (key == sc.actionKey)
 				{
-					m_editor->OnShortcut(sc.shortCut, ev.pParams[0]);
-					return;
+					if (sc.holdKey2 != 0)
+					{
+						if (!m_input->GetKey(sc.holdKey1) || !m_input->GetKey(sc.holdKey2))
+							continue;
+					}
+					else
+					{
+						if (!m_input->GetKey(sc.holdKey1))
+							continue;
+					}
+
+					eligibleEntries.push_back(&sc);
 				}
 			}
+
+			if (!eligibleEntries.empty())
+			{
+				// Prioritize 3 keys.
+				for (auto e : eligibleEntries)
+				{
+					if (e->holdKey2 != 0)
+					{
+						m_editor->OnShortcut(e->shortCut, ev.pParams[0]);
+						return;
+					}
+				}
+
+				m_editor->OnShortcut(eligibleEntries[0]->shortCut, ev.pParams[0]);
+			}
 		}
+	}
+
+	void EditorShortcutManager::AddShortcut(Shortcut shortcut, uint32 holdKey1, uint32 holdKey2, uint32 actionKey)
+	{
+		ShortcutEntry entry = ShortcutEntry{
+			.shortCut  = shortcut,
+			.holdKey1  = holdKey1,
+			.holdKey2  = holdKey2,
+			.actionKey = actionKey,
+		};
+
+		m_shortcuts.push_back(entry);
 	}
 
 } // namespace Lina::Editor

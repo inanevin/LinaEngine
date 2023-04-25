@@ -64,6 +64,7 @@ namespace Lina
 		bool			   IsCoreResource(StringID sid);
 		Vector<IResource*> GetAllResources(bool includeUserManagedResources);
 		PackageType		   GetPackageType(TypeID tid);
+		void			   ResaveResource(IResource* res);
 		static String	   GetMetacachePath(const String& resourcePath, StringID sid);
 
 		inline void SetPriorityResources(const Vector<ResourceIdentifier>& priorityResources)
@@ -127,7 +128,7 @@ namespace Lina
 
 		void AddUserManaged(IResource* res);
 		void RemoveUserManaged(IResource* res);
-		
+
 	private:
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 

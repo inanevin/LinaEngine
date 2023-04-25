@@ -32,21 +32,29 @@ SOFTWARE.
 #define GUINodeTopPanel_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
+#include "Event/ISystemEventListener.hpp"
 
 namespace Lina::Editor
 {
 	class GUINodeFileMenu;
+	class GUINodeFMPopupElement;
 	class GUINodeWindowButtons;
 	class GUINodeCustomLogo;
 
-	class GUINodeTopPanel : public GUINode
+	class GUINodeTopPanel : public GUINode, public ISystemEventListener
 	{
 	public:
 		GUINodeTopPanel(GUIDrawerBase* drawer, int drawOrder);
-		virtual ~GUINodeTopPanel() = default;
+		virtual ~GUINodeTopPanel();
 
 		virtual void Draw(int threadID) override;
-		
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_LevelInstalled | EVS_LevelUninstalled;
+		}
+
 	private:
 		void OnPressedItem(GUINode* node);
 
@@ -54,6 +62,10 @@ namespace Lina::Editor
 		GUINodeFileMenu*	  m_fileMenu	  = nullptr;
 		GUINodeWindowButtons* m_windowButtons = nullptr;
 		GUINodeCustomLogo*	  m_customLogo	  = nullptr;
+
+		GUINodeFMPopupElement* m_elementSaveLevel			  = nullptr;
+		GUINodeFMPopupElement* m_elementSaveLevelAs			  = nullptr;
+		GUINodeFMPopupElement* m_elementUninstallCurrentLevel = nullptr;
 	};
 } // namespace Lina::Editor
 

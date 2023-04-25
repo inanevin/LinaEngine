@@ -51,6 +51,7 @@ SOFTWARE.
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Core/Theme.hpp"
+#include "Core/PlatformProcess.hpp"
 
 namespace Lina::Editor
 {
@@ -252,6 +253,17 @@ namespace Lina::Editor
 
 		if (!consumed)
 		{
+			if (sc == Shortcut::CTRL_S && m_levelManager->GetCurrentLevel())
+			{
+				SaveCurrentLevel();
+			}
+			else if (sc == Shortcut::CTRL_SHIFT_S && m_levelManager->GetCurrentLevel())
+			{
+				String savePath = PlatformProcess::SaveDialog(L"Lina Engine Level", L"*.linalevel");
+
+				if (!savePath.empty())
+					SaveCurrentLevelAs(savePath.c_str());
+			}
 		}
 	}
 
@@ -422,10 +434,14 @@ namespace Lina::Editor
 
 	void Editor::SaveCurrentLevel()
 	{
+		auto level = m_levelManager->GetCurrentLevel();
+		level->SaveToFile(level->GetPath().c_str());
 	}
 
 	void Editor::SaveCurrentLevelAs(const char* path)
 	{
+		auto level = m_levelManager->GetCurrentLevel();
+		level->SaveToFile(path);
 	}
 
 	void Editor::UninstallCurrentLevel()

@@ -200,9 +200,20 @@ namespace Lina::Editor
 			return m_drawer;
 		}
 
+		inline bool GetIsDisabled() const
+		{
+			return m_disabled;
+		}
+
+		void SetDisabled(bool isDisabled)
+		{
+			m_disabled = isDisabled;
+		}
+
 	protected:
 		friend class GUIDrawerBase;
 
+		bool					 m_disabled = false;
 		GUIDrawerBase*			 m_drawer;
 		Editor*					 m_editor			   = nullptr;
 		ISwapchain*				 m_swapchain		   = nullptr;
