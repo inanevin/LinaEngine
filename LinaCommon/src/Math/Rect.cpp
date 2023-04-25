@@ -46,6 +46,14 @@ namespace Lina
 		return r;
 	}
 
+	Rect Rect::ShrinkByAmount(float amt) const
+	{
+		Rect r = *this;
+		r.pos += amt;
+		r.size -= amt * 2.0f;
+		return r;
+	}
+
 	bool Rect::IsPointInside(const Vector2& p) const
 	{
 		return p.x > pos.x && p.x < pos.x + size.x && p.y > pos.y && p.y < pos.y + size.y;
@@ -98,9 +106,27 @@ namespace Lina
 		return false;
 	}
 
-	Vector2 Rect::GetCenter()
+	Vector2 Rect::GetCenter() const
 	{
 		return Vector2(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f);
+	}
+
+	Recti Recti::Shrink(float percentage) const
+	{
+		Recti		 r	  = *this;
+		const int amtX = static_cast<int>(static_cast<float>(r.size.x) * percentage / 100.0f);
+		const int amtY = static_cast<int>(static_cast<float>(r.size.y) * percentage / 100.0f);
+		r.size -= Vector2i(amtX * 2, amtY * 2);
+		r.pos += Vector2i(amtX, amtY);
+		return r;
+	}
+
+	Recti Recti::ShrinkByAmount(uint32 amt) const
+	{
+		Recti r = *this;
+		r.pos += amt;
+		r.size -= amt * 2;
+		return r;
 	}
 
 	bool Recti::IsPointInside(const Vector2i& p) const
@@ -155,7 +181,7 @@ namespace Lina
 		return false;
 	}
 
-	Vector2i Recti::GetCenter()
+	Vector2i Recti::GetCenter() const
 	{
 		return Vector2i(pos.x + size.x / 2, pos.y + size.x / 2);
 	}

@@ -62,17 +62,12 @@ namespace Lina::Editor
 		}
 
 	private:
-		void OnWorldRendererCreated(WorldRenderer* renderer);
-
-	private:
-		Vector2				   m_sizeWhenWorldRendererCreated = Vector2::Zero;
-		WorldRenderer*		   m_worldRenderer				  = nullptr;
-		ResourceManager*	   m_resourceManager			  = nullptr;
-		GfxManager*			   m_gfxManager					  = nullptr;
-		GUINodeText*		   m_noLevelText				  = nullptr;
-		GUINodeTextRichColors* m_noLevelTextAlt				  = nullptr;
-		Level*				   m_loadedLevel				  = nullptr;
-		LevelManager*		   m_levelManager				  = nullptr;
+		ResourceManager*	   m_resourceManager = nullptr;
+		GfxManager*			   m_gfxManager		 = nullptr;
+		GUINodeText*		   m_noLevelText	 = nullptr;
+		GUINodeTextRichColors* m_noLevelTextAlt	 = nullptr;
+		Level*				   m_loadedLevel	 = nullptr;
+		LevelManager*		   m_levelManager	 = nullptr;
 	};
 } // namespace Lina::Editor
 

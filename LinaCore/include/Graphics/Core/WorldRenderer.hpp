@@ -47,7 +47,6 @@ SOFTWARE.
 namespace Lina
 {
 	class GfxManager;
-	class SurfaceRenderer;
 	class EntityWorld;
 	class Texture;
 	class Material;
@@ -83,18 +82,14 @@ namespace Lina
 
 		struct DataPerFrame
 		{
-			uint32			 cmdAllocator	 = 0;
-			uint32			 cmdList		 = 0;
-			IGfxResourceCPU* sceneDataBuffer = nullptr;
-			IGfxResourceCPU* viewDataBuffer	 = nullptr;
-		};
-
-		struct DataPerImage
-		{
-			Texture*  renderTargetColor = nullptr;
-			Texture*  renderTargetDepth = nullptr;
-			Texture*  renderTargetPP	= nullptr;
-			Material* ppMaterial		= nullptr;
+			uint32			 cmdAllocator	   = 0;
+			uint32			 cmdList		   = 0;
+			IGfxResourceCPU* sceneDataBuffer   = nullptr;
+			IGfxResourceCPU* viewDataBuffer	   = nullptr;
+			Texture*		 renderTargetColor = nullptr;
+			Texture*		 renderTargetDepth = nullptr;
+			Texture*		 renderTargetPP	   = nullptr;
+			Material*		 ppMaterial		   = nullptr;
 		};
 
 		struct ResizeRequest
@@ -104,14 +99,14 @@ namespace Lina
 		};
 
 	public:
-		WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
+		WorldRenderer(GfxManager* gfxManager, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio);
 		virtual ~WorldRenderer();
 
-		Texture*	 GetFinalTexture();
+		Texture*	 GetFinalTexture(uint32 frameIndex);
 		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
 		void		 Tick(float interpolationAlpha);
 		void		 Sync();
-		void		 Render(uint32 frameIndex, uint32 imageIndex);
+		void		 Render(uint32 frameIndex);
 		void		 CreateTextures();
 		void		 DestroyTextures();
 		void		 AddResizeRequest(const Vector2i& res, float aspect);
@@ -136,26 +131,28 @@ namespace Lina
 			return m_frames[frameIndex].cmdList;
 		}
 
+		inline const Vector2i& GetResolution() const
+		{
+			return m_renderData.renderResolution;
+		}
+		
 	protected:
 		static int s_worldRendererCount;
 
 		float				  m_lastInterpolationAlpha = 0.0f;
 		Vector<ResizeRequest> m_resizeRequests;
-		IGfxContext*		  m_contextGraphics;
-		IUploadContext*		  m_uploadContext;
-		Renderer*			  m_renderer   = nullptr;
-		DrawPass*			  m_opaquePass = nullptr;
+		IGfxContext*		  m_contextGraphics = nullptr;
+		IUploadContext*		  m_uploadContext	= nullptr;
+		Renderer*			  m_renderer		= nullptr;
+		DrawPass*			  m_opaquePass		= nullptr;
 		CameraSystem		  m_cameraSystem;
 		ResourceManager*	  m_resourceManager = nullptr;
 		View				  m_playerView;
-		uint32				  m_imageCount = 0;
 		RenderData			  m_renderData;
-		GfxManager*			  m_gfxManager		= nullptr;
-		SurfaceRenderer*	  m_surfaceRenderer = nullptr;
-		Bitmask16			  m_mask			= 0;
-		EntityWorld*		  m_world			= nullptr;
+		GfxManager*			  m_gfxManager = nullptr;
+		Bitmask16			  m_mask	   = 0;
+		EntityWorld*		  m_world	   = nullptr;
 		DataPerFrame		  m_frames[FRAMES_IN_FLIGHT];
-		Vector<DataPerImage>  m_dataPerImage;
 		WorldData			  m_worldData;
 		WorldData			  m_syncedWorldData;
 	};

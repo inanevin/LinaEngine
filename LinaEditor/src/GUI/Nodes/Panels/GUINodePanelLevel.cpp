@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/GfxManager.hpp"
 #include "Core/Editor.hpp"
 #include "Core/Theme.hpp"
 #include "System/ISystem.hpp"
@@ -83,11 +84,6 @@ namespace Lina::Editor
 
 	GUINodePanelLevel::~GUINodePanelLevel()
 	{
-		if (m_worldRenderer)
-		{
-			m_drawer->GetSurfaceRenderer()->DeleteWorldRenderer(m_worldRenderer);
-			LINA_WARN("DELETED WORLD RENDERER");
-		}
 		m_levelManager->GetSystem()->RemoveListener(this);
 	}
 
@@ -109,13 +105,9 @@ namespace Lina::Editor
 			}
 		}
 
-		if (m_loadedLevel && !m_worldRenderer)
-		{
-			LINA_WARN("CREATED WORLD RENDERER");
-			m_drawer->GetSurfaceRenderer()->CreateWorldRenderer(BIND(&GUINodePanelLevel::OnWorldRendererCreated, this, std::placeholders::_1), m_loadedLevel->GetWorld(), m_rect.size, WRM_None);
-		}
+		auto wr = m_loadedLevel->GetWorldRenderer();
 
-		if (m_worldRenderer)
+		if (wr)
 		{
 			auto e = m_loadedLevel->GetWorld()->GetEntity("Cube");
 
@@ -128,13 +120,14 @@ namespace Lina::Editor
 					e->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
 			}
 
-			const StringID textureHandle = m_worldRenderer->GetFinalTexture()->GetSID();
-			LinaVG::DrawImage(threadID, textureHandle, LV2(m_rect.GetCenter()), LV2(m_rect.size));
+			const Rect	   imageRect	 = m_rect.ShrinkByAmount(4.0f);
+			const StringID textureHandle = wr->GetFinalTexture(m_gfxManager->GetFrameIndex())->GetSID();
 
-			if (!m_rect.size.Equals(m_sizeWhenWorldRendererCreated, 0.01f))
+			LinaVG::DrawImage(threadID, textureHandle, LV2(imageRect.GetCenter()), LV2(imageRect.size));
+
+			if (!imageRect.size.Equals(m_loadedLevel->GetWorldRenderer()->GetResolution(), 0.01f))
 			{
-				m_sizeWhenWorldRendererCreated = m_rect.size;
-				m_worldRenderer->AddResizeRequest(m_rect.size, m_rect.size.x / m_rect.size.y);
+				wr->AddResizeRequest(imageRect.size, imageRect.size.x / imageRect.size.y);
 			}
 		}
 	}
@@ -144,29 +137,25 @@ namespace Lina::Editor
 		if (eventType & EVS_LevelInstalled)
 		{
 			m_loadedLevel = static_cast<Level*>(ev.pParams[0]);
+
+			camEntity = m_loadedLevel->GetWorld()->CreateEntity("Cam Entity");
+			auto cam  = m_loadedLevel->GetWorld()->AddComponent<CameraComponent>(camEntity);
+			camEntity->SetPosition(Vector3(0, 0, -5));
+			camEntity->SetRotationAngles(Vector3(0, 0, 0));
+
+			m_loadedLevel->GetWorld()->SetActiveCamera(cam);
+			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(m_loadedLevel->GetWorld());
+			aq->SetName("Cube");
+			//	auto aq2 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			/// auto aq3 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
+			aq->SetPosition(Vector3(-3.5f, 0, 0));
+			//	aq2->SetPosition(Vector3(3, 0, 0));
+			// aq3->SetPosition(Vector3(0, 0, 0));
 		}
 		else if (eventType & EVS_LevelUninstalled)
 			m_loadedLevel = nullptr;
 
 		m_noLevelText->SetVisible(m_loadedLevel != nullptr);
 	}
-	void GUINodePanelLevel::OnWorldRendererCreated(WorldRenderer* renderer)
-	{
-		m_worldRenderer = renderer;
 
-		camEntity = m_loadedLevel->GetWorld()->CreateEntity("Cam Entity");
-		auto cam  = m_loadedLevel->GetWorld()->AddComponent<CameraComponent>(camEntity);
-		camEntity->SetPosition(Vector3(0, 0, -5));
-		camEntity->SetRotationAngles(Vector3(0, 0, 0));
-
-		m_loadedLevel->GetWorld()->SetActiveCamera(cam);
-		auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(m_loadedLevel->GetWorld());
-		aq->SetName("Cube");
-		//	auto aq2 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-		/// auto aq3 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
-		aq->SetPosition(Vector3(-3.5f, 0, 0));
-		//	aq2->SetPosition(Vector3(3, 0, 0));
-		// aq3->SetPosition(Vector3(0, 0, 0));
-		m_sizeWhenWorldRendererCreated = m_rect.size;
-	}
 } // namespace Lina::Editor

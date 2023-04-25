@@ -81,6 +81,9 @@ namespace Lina::Editor
 		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this), m_layoutManager(this), m_shortcutManager(this){};
 		virtual ~Editor() = default;
 
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
+
 		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
 		void BeginSplashScreen();
 		void EndSplashScreen();
@@ -96,10 +99,7 @@ namespace Lina::Editor
 		void	 LoadLevel(const char* path);
 		void	 SaveCurrentLevel();
 		void	 SaveCurrentLevelAs(const char* path);
-
-		// Inherited via ISubsystem
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
+		void	 UninstallCurrentLevel();
 
 		inline const TextureSheetItem GetEditorImage(uint32 index)
 		{

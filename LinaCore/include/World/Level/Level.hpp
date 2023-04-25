@@ -41,6 +41,7 @@ namespace Lina
 {
 	class EntityWorld;
 	class IEventDispatcher;
+	class WorldRenderer;
 
 	class Level : public IResource
 	{
@@ -61,12 +62,23 @@ namespace Lina
 			return m_usedResources;
 		}
 
+		inline WorldRenderer* GetWorldRenderer() const
+		{
+			return m_renderer;
+		}
+
+		inline void SetWorldRenderer(WorldRenderer* renderer)
+		{
+			m_renderer = renderer;
+		}
+
 	private:
 		// Inherited via IResource
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
+		WorldRenderer*			   m_renderer = nullptr;
 		Vector<ResourceIdentifier> m_usedResources;
 		EntityWorld*			   m_world = nullptr;
 		IStream					   m_worldStream;

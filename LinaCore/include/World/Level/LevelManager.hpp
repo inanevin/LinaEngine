@@ -36,6 +36,8 @@ SOFTWARE.
 namespace Lina
 {
 	class Level;
+	class GfxManager;
+	class WorldRenderer;
 
 	class LevelManager : public ISubsystem
 	{
@@ -47,7 +49,8 @@ namespace Lina
 		virtual void Shutdown() override;
 
 		void InstallLevel(const char* level);
-		void UninstallLevel();
+		void UninstallLevel(bool immediate);
+		void QueueLevel(const char* level);
 		void Simulate(float fixedDelta);
 		void Tick(float deltaTime);
 		void WaitForSimulation();
@@ -57,8 +60,12 @@ namespace Lina
 			return m_currentLevel;
 		}
 
+
 	private:
-		Level* m_currentLevel = nullptr;
+		String		m_queuedLevel		= "";
+		bool		m_queuedLevelExists = false;
+		GfxManager* m_gfxManager		= nullptr;
+		Level*		m_currentLevel		= nullptr;
 	};
 } // namespace Lina
 

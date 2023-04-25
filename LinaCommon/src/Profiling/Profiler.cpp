@@ -145,7 +145,7 @@ namespace Lina
 		m_frameQueue.push_back(frame);
 	}
 
-	void Profiler::StartBlock(const char* blockName, StringID thread)
+	uint32 Profiler::StartBlock(const char* blockName, StringID thread)
 	{
 		const uint64 cycles = PlatformTime::GetCPUCycles();
 		auto&		 frame	= m_frameQueue.back();
@@ -153,27 +153,34 @@ namespace Lina
 		Block block;
 		block.name		  = blockName;
 		block.startCycles = PlatformTime::GetCPUCycles();
+		uint32 id		  = 0;
 		frame.threadBlocks.try_emplace_l(
-			thread, [&block](auto& blocks) { blocks.second.push_back(block); }, Vector<Block>{block});
+			thread,
+			[&block, &id](auto& blocks) {
+				id = static_cast<uint32>(blocks.second.size());
+				blocks.second.push_back(block);
+			},
+			Vector<Block>{block});
+		return id;
 	}
 
-	void Profiler::EndBlock(StringID thread)
+	void Profiler::EndBlock(StringID thread, uint32 id)
 	{
 		const uint64 cycles = PlatformTime::GetCPUCycles();
 		auto&		 frame	= m_frameQueue.back();
-		frame.threadBlocks.modify_if(thread, [cycles](auto& blocks) { blocks.second[blocks.second.size() - 1].endCycles = cycles; });
+		frame.threadBlocks.modify_if(thread, [cycles, id](auto& blocks) { blocks.second[id].endCycles = cycles; });
 	}
 
 	Scope::Scope(const char* funcName, StringID thread)
 	{
 		blockName	= funcName;
 		blockThread = thread;
-		Profiler::Get().StartBlock(funcName, thread);
+		id = Profiler::Get().StartBlock(funcName, thread);
 	}
 
 	Scope::~Scope()
 	{
-		Profiler::Get().EndBlock(blockThread);
+		Profiler::Get().EndBlock(blockThread, id);
 	}
 
 	void Profiler::DumpFrameAnalysis(const String& path)

@@ -44,7 +44,6 @@ namespace Lina
 	class GfxManager;
 	class ISwapchain;
 	class Material;
-	class WorldRenderer;
 	class Texture;
 	class Renderer;
 	class IWindow;
@@ -52,7 +51,6 @@ namespace Lina
 	class GUIRenderer;
 	class IUploadContext;
 	class IGfxContext;
-	class EntityWorld;
 
 	class SurfaceRenderer : public ISystemEventListener
 	{
@@ -81,34 +79,17 @@ namespace Lina
 			uint32 cmdListTransfer		= 0;
 		};
 
-		struct CreateWorldRendererRequest
-		{
-			Delegate<void(WorldRenderer*)> onCreated;
-			EntityWorld*				   world = nullptr;
-			Vector2						   size	 = Vector2::Zero;
-			WorldRendererMask			   mask;
-		};
-
-		struct DeleteWorldRendererRequest
-		{
-			WorldRenderer* renderer = nullptr;
-		};
-
 	public:
 		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
-		void		 Tick(float interpolationAlpha);
-		void		 Sync();
 		void		 Render(int surfaceRendererIndex, uint32 frameIndex);
 		void		 Present();
 		void		 SetOffscreenTexture(Texture* txt, uint32 imageIndex);
 		void		 ClearOffscreenTexture();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void		 SetGUIDrawer(IGUIDrawer* rend);
-		void		 CreateWorldRenderer(Delegate<void(WorldRenderer*)>&& onCreated, EntityWorld* world, const Vector2& size, WorldRendererMask mask);
-		void		 DeleteWorldRenderer(WorldRenderer* renderer);
-
+		
 		virtual Bitmask32 GetSystemEventMask() override
 		{
 			return EVS_WindowResized;
@@ -118,16 +99,6 @@ namespace Lina
 		{
 			return m_swapchain;
 		};
-
-		inline uint32 GetWorldRendererSize()
-		{
-			return static_cast<uint32>(m_worldRenderers.size());
-		}
-
-		inline Vector<WorldRenderer*> GetWorldRenderers()
-		{
-			return m_worldRenderers;
-		}
 
 		inline uint32 GetImageCount()
 		{
@@ -156,8 +127,7 @@ namespace Lina
 	protected:
 		static int						   s_surfaceRendererCount;
 		int								   m_surfaceRendererIndex = 0;
-		Vector<CreateWorldRendererRequest> m_worldRendererCreateRequests;
-		Vector<DeleteWorldRendererRequest> m_worldRendererDeleteRequests;
+		
 		IGfxContext*					   m_contextGraphics   = nullptr;
 		IGfxContext*					   m_contextTransfer   = nullptr;
 		IUploadContext*					   m_uploadContext	   = nullptr;
@@ -167,7 +137,6 @@ namespace Lina
 		ISwapchain*						   m_swapchain		   = nullptr;
 		Bitmask16						   m_mask			   = 0;
 		uint32							   m_imageCount		   = 0;
-		Vector<WorldRenderer*>			   m_worldRenderers;
 		IGUIDrawer*						   m_guiDrawer = nullptr;
 		Renderer*						   m_renderer  = nullptr;
 		Vector<DataPerImage>			   m_dataPerImage;

@@ -115,7 +115,7 @@ namespace Lina
 		};
 
 	public:
-		GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount, IUploadContext* context);
+		GUIRenderer(GfxManager* gfxMan, StringID ownerSid, IUploadContext* context);
 		virtual ~GUIRenderer();
 
 		void FeedGradient(LinaVG::GradientDrawBuffer* buf);
@@ -148,7 +148,6 @@ namespace Lina
 		uint32				m_imageIndex	  = 0;
 		uint32				m_frameIndex	  = 0;
 		StringID			m_ownerSid		  = 0;
-		uint32				m_imageCount	  = 0;
 		GfxManager*			m_gfxManager	  = nullptr;
 		Renderer*			m_renderer		  = nullptr;
 		DataPerFrame		m_frames[FRAMES_IN_FLIGHT];

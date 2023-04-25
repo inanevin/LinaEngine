@@ -32,18 +32,22 @@ SOFTWARE.
 #include "Resources/Core/ResourceManager.hpp"
 #include "System/ISystem.hpp"
 #include "Data/CommonData.hpp"
+#include "Graphics/Core/GfxManager.hpp"
 
 namespace Lina
 {
 	void LevelManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Level Manager] -> Initialization.");
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 	}
 
 	void LevelManager::Shutdown()
 	{
 		LINA_TRACE("[Level Manager] -> Shutdown.");
-		UninstallLevel();
+
+		if (m_currentLevel)
+			UninstallLevel(true);
 	}
 
 	void LevelManager::InstallLevel(const char* level)
@@ -96,20 +100,39 @@ namespace Lina
 		Event data;
 		data.pParams[0] = static_cast<void*>(m_currentLevel);
 		m_system->DispatchEvent(EVS_LevelInstalled, data);
+
+		m_gfxManager->CreateWorldRenderer([this](WorldRenderer* rend) { m_currentLevel->SetWorldRenderer(rend); }, m_currentLevel->GetWorld(), Vector2(800, 600), WRM_None);
 	}
 
-	void LevelManager::UninstallLevel()
+	void LevelManager::UninstallLevel(bool immediate)
 	{
-		if (m_currentLevel != nullptr)
-		{
+		auto uninstall = [this]() {
 			m_currentLevel->Uninstall();
+
+			ResourceManager* rm = (ResourceManager*)m_system->CastSubsystem(SubsystemType::ResourceManager);
+
+			ResourceIdentifier ident;
+			ident.tid  = m_currentLevel->GetTID();
+			ident.sid  = m_currentLevel->GetSID();
+			ident.path = m_currentLevel->GetPath();
+			rm->UnloadResources({ident});
 
 			Event data;
 			data.pParams[0] = static_cast<void*>(m_currentLevel);
 			m_system->DispatchEvent(EVS_LevelUninstalled, data);
-
 			m_currentLevel = nullptr;
-		}
+		};
+
+		m_gfxManager->DestroyWorldRenderer(uninstall, m_currentLevel->GetWorldRenderer(), immediate);
+
+		if (immediate)
+			uninstall();
+	}
+
+	void LevelManager::QueueLevel(const char* level)
+	{
+		m_queuedLevel		= level;
+		m_queuedLevelExists = true;
 	}
 
 	void LevelManager::Simulate(float fixedDelta)
@@ -122,6 +145,13 @@ namespace Lina
 	{
 		if (m_currentLevel != nullptr)
 			m_currentLevel->GetWorld()->Tick(deltaTime);
+
+		if (m_currentLevel == nullptr && m_queuedLevelExists)
+		{
+			InstallLevel(m_queuedLevel.c_str());
+			m_queuedLevelExists = false;
+			m_queuedLevel.clear();
+		}
 	}
 
 	void LevelManager::WaitForSimulation()
@@ -129,4 +159,5 @@ namespace Lina
 		if (m_currentLevel != nullptr)
 			m_currentLevel->GetWorld()->WaitForSimulation();
 	}
+
 } // namespace Lina

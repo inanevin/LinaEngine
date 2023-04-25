@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Interfaces/IGfxResourceCPU.hpp"
 #include "Graphics/Resource/Material.hpp"
@@ -147,8 +148,6 @@ namespace Lina
 
 	void GfxManager::Shutdown()
 	{
-		Join();
-
 		m_meshManager.Shutdown();
 
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -175,22 +174,57 @@ namespace Lina
 	void GfxManager::Tick(float interpolationAlpha)
 	{
 		PROFILER_FUNCTION();
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Tick(interpolationAlpha); });
-		m_system->GetMainExecutor()->RunAndWait(tf);
+
+		if (m_worldRenderers.size() == 1)
+			m_worldRenderers[0]->Tick(interpolationAlpha);
+		else
+		{
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(interpolationAlpha); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 	}
 
 	void GfxManager::Sync()
 	{
 		PROFILER_FUNCTION();
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) { m_surfaceRenderers[i]->Sync(); });
-		m_system->GetMainExecutor()->RunAndWait(tf);
+
+		// Deletion of world renderers.
+		{
+			if (!m_worldRendererDeleteRequests.empty())
+				Join();
+
+			for (auto& req : m_worldRendererDeleteRequests)
+			{
+				m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [&req](WorldRenderer* r) { return r == req.renderer; }));
+				delete req.renderer;
+				req.onDestroyed();
+			}
+
+			for (auto& req : m_worldRendererCreateRequests)
+			{
+				WorldRenderer* renderer = new WorldRenderer(this, req.mask, req.world, req.size, req.size.x / req.size.y);
+				m_worldRenderers.push_back(renderer);
+				req.onCreated(renderer);
+			}
+
+			m_worldRendererCreateRequests.clear();
+			m_worldRendererDeleteRequests.clear();
+		}
+
+		if (m_worldRenderers.size() == 1)
+			m_worldRenderers[0]->Sync();
+		else
+		{
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Sync(); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 	}
 
 	void GfxManager::Render()
 	{
-		// PROFILER_FUNCTION();
+		PROFILER_FUNCTION();
 
 		if (!m_renderer->IsOK())
 		{
@@ -208,19 +242,44 @@ namespace Lina
 		}
 
 		m_renderer->BeginFrame(m_frameIndex);
-
 		LinaVG::StartFrame(static_cast<int>(m_surfaceRenderers.size()));
 		m_guiBackend->BindTextures();
 
+		// World renderers.
+		{
+			const int worldRenderersSz = static_cast<int>(m_worldRenderers.size());
+
+			if (worldRenderersSz == 1)
+				m_worldRenderers[0]->Render(m_frameIndex);
+			else
+			{
+				Taskflow worldRendererTaskFlow;
+				worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) {
+					auto wr = m_worldRenderers[i];
+					wr->Render(m_frameIndex);
+				});
+
+				m_system->GetMainExecutor()->RunAndWait(worldRendererTaskFlow);
+			}
+		}
+
 		// Surface renderers.
 		{
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
-				m_surfaceRenderers[i]->Render(i, m_frameIndex);
-				m_surfaceRenderers[i]->Present();
-			});
+			if (m_surfaceRenderers.size() == 1)
+			{
+				m_surfaceRenderers[0]->Render(0, m_frameIndex);
+				m_surfaceRenderers[0]->Present();
+			}
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
+					m_surfaceRenderers[i]->Render(i, m_frameIndex);
+					m_surfaceRenderers[i]->Present();
+				});
 
-			m_system->GetMainExecutor()->RunAndWait(tf);
+				m_system->GetMainExecutor()->RunAndWait(tf);
+			}
 		}
 
 		LinaVG::EndFrame();
@@ -314,6 +373,28 @@ namespace Lina
 	{
 		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) { return renderer->GetSwapchain()->GetSID() == sid; });
 		return *it;
+	}
+
+	void GfxManager::CreateWorldRenderer(Delegate<void(WorldRenderer*)>&& onCreated, EntityWorld* world, const Vector2& size, WorldRendererMask mask)
+	{
+		CreateWorldRendererRequest req;
+		req.onCreated = onCreated;
+		req.mask	  = mask;
+		req.size	  = size;
+		req.world	  = world;
+
+		m_worldRendererCreateRequests.push_back(req);
+	}
+
+	void GfxManager::DestroyWorldRenderer(Delegate<void()>&& onDestroyed, WorldRenderer* renderer, bool immediate)
+	{
+		if (immediate)
+		{
+			m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [&renderer](WorldRenderer* r) { return r == renderer; }));
+			delete renderer;
+			return;
+		}
+		m_worldRendererDeleteRequests.push_back({renderer, onDestroyed});
 	}
 
 } // namespace Lina

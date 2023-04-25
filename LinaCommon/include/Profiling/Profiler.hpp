@@ -62,6 +62,7 @@ namespace Lina
 
 		const char* blockName	= "";
 		StringID	blockThread = 0;
+		uint32		id			= 0;
 	};
 
 	struct ProfilerFrame
@@ -101,8 +102,8 @@ namespace Lina
 
 		DeviceCPUInfo& QueryCPUInfo();
 		void		   StartFrame();
-		void		   StartBlock(const char* blockName, StringID threadName);
-		void		   EndBlock(StringID threadName);
+		uint32		   StartBlock(const char* blockName, StringID threadName);
+		void		   EndBlock(StringID threadName, uint32 id);
 		void		   DumpFrameAnalysis(const String& path);
 		void		   RegisterThread(const char* name, StringID sid);
 
@@ -136,7 +137,7 @@ namespace Lina
 
 #define PROFILER_FRAME_START()				  Lina::Profiler::Get().StartFrame()
 #define PROFILER_STARTBLOCK(BLOCKNAME)		  Lina::Profiler::Get().StartBlock(BLOCKNAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
-#define PROFILER_ENDBLOCK()					  Lina::Profiler::Get().EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
+#define PROFILER_ENDBLOCK(id)				  Lina::Profiler::Get().EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())), id)
 #define PROFILER_FUNCTION(...)				  Lina::Scope function(__FUNCTION__, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE) Lina::Profiler::Get().FrameAnalysisFile = FILE
 #define PROFILER_REGISTER_THREAD(NAME)		  Lina::Profiler::Get().RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
@@ -147,7 +148,7 @@ namespace Lina
 
 #define PROFILER_FRAME_START()
 #define PROFILER_STARTBLOCK(BLOCKNAME)
-#define PROFILER_ENDBLOCK()			
+#define PROFILER_ENDBLOCK()
 #define PROFILER_FUNCTION(...)
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)
 #define PROFILER_REGISTER_THREAD(NAME)

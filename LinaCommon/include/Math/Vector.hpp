@@ -77,6 +77,19 @@ namespace Lina
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
+
+		Vector2i& operator+=(Vector2i const& v)
+		{
+			this->x += v.x;
+			this->y += v.y;
+			return *this;
+		}
+		Vector2i& operator-=(Vector2i const& v)
+		{
+			this->x -= v.x;
+			this->y -= v.y;
+			return *this;
+		}
 	};
 
 	inline Vector2i operator-(Vector2i const& v, Vector2i const& v2)

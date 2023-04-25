@@ -50,8 +50,8 @@ namespace Lina
 	class TextureSampler;
 	class IWindow;
 	class GUIBackend;
-
 	class EntityWorld;
+	class WorldRenderer;
 
 	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
@@ -60,6 +60,20 @@ namespace Lina
 		struct DataPerFrame
 		{
 			IGfxResourceCPU* globalDataBuffer = nullptr;
+		};
+
+		struct CreateWorldRendererRequest
+		{
+			Delegate<void(WorldRenderer*)> onCreated;
+			EntityWorld*				   world = nullptr;
+			Vector2						   size	 = Vector2::Zero;
+			WorldRendererMask			   mask;
+		};
+
+		struct DeleteWorldRendererRequest
+		{
+			WorldRenderer*	 renderer = nullptr;
+			Delegate<void()> onDestroyed;
 		};
 
 	public:
@@ -82,6 +96,8 @@ namespace Lina
 		void			 OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
 		void			 OnVsyncChanged(VsyncMode mode);
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
+		void			 CreateWorldRenderer(Delegate<void(WorldRenderer*)>&& onCreated, EntityWorld* world, const Vector2& size, WorldRendererMask mask);
+		void			 DestroyWorldRenderer(Delegate<void()>&& onDestroyed, WorldRenderer* renderer, bool immediate);
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
@@ -103,18 +119,26 @@ namespace Lina
 			return m_guiBackend;
 		}
 
+		inline uint32 GetFrameIndex() const
+		{
+			return m_frameIndex;
+		}
+
 	private:
-		Vector<TextureSampler*>	 m_engineSamplers;
-		ResourceManager*		 m_resourceManager = nullptr;
-		Renderer*				 m_renderer		   = nullptr;
-		GfxMeshManager			 m_meshManager;
-		DataPerFrame			 m_dataPerFrame[FRAMES_IN_FLIGHT];
-		GPUGlobalData			 m_globalData;
-		Vector<Material*>		 m_engineMaterials;
-		Vector<SurfaceRenderer*> m_surfaceRenderers;
-		uint32					 m_frameIndex = 0;
-		GUIBackend*				 m_guiBackend = nullptr;
-		bool					 m_postInited = false;
+		Vector<TextureSampler*>			   m_engineSamplers;
+		Vector<CreateWorldRendererRequest> m_worldRendererCreateRequests;
+		Vector<DeleteWorldRendererRequest> m_worldRendererDeleteRequests;
+		Vector<WorldRenderer*>			   m_worldRenderers;
+		ResourceManager*				   m_resourceManager = nullptr;
+		Renderer*						   m_renderer		 = nullptr;
+		GfxMeshManager					   m_meshManager;
+		DataPerFrame					   m_dataPerFrame[FRAMES_IN_FLIGHT];
+		GPUGlobalData					   m_globalData;
+		Vector<Material*>				   m_engineMaterials;
+		Vector<SurfaceRenderer*>		   m_surfaceRenderers;
+		uint32							   m_frameIndex = 0;
+		GUIBackend*						   m_guiBackend = nullptr;
+		bool							   m_postInited = false;
 	};
 } // namespace Lina
 #endif

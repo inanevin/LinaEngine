@@ -45,8 +45,8 @@ namespace Lina
 #define DEF_INDEX_BUF_SIZE 4
 #define DEF_MAT_SIZE	   24
 
-	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, uint32 imageCount, IUploadContext* context)
-		: m_uploadContext(context), m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_imageCount(imageCount),
+	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, IUploadContext* context)
+		: m_uploadContext(context), m_gfxManager(gfxMan), m_ownerSid(ownerSid),
 		  m_materialPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Material) * DEF_MAT_SIZE, sizeof(Material), "GUI Renderer Material Pool")
 	{
 		m_renderer		  = m_gfxManager->GetRenderer();

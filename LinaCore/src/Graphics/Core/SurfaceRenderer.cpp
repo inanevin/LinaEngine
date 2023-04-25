@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/WorldRenderer.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Graphics/Interfaces/IGfxContext.hpp"
@@ -78,17 +77,13 @@ namespace Lina
 		}
 
 		m_uploadContext = m_renderer->CreateUploadContext();
-		m_guiRenderer	= new GUIRenderer(man, sid, m_imageCount, m_uploadContext);
+		m_guiRenderer	= new GUIRenderer(man, sid, m_uploadContext);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
 		delete m_guiRenderer;
 		delete m_uploadContext;
-
-		// If some requests left hanging
-		for (auto r : m_worldRendererDeleteRequests)
-			delete r.renderer;
 
 		DestroyTextures();
 
@@ -103,22 +98,6 @@ namespace Lina
 
 		m_gfxManager->GetSystem()->RemoveListener(this);
 		delete m_swapchain;
-	}
-
-	void SurfaceRenderer::CreateWorldRenderer(Delegate<void(WorldRenderer*)>&& onCreated, EntityWorld* world, const Vector2& size, WorldRendererMask mask)
-	{
-		CreateWorldRendererRequest req;
-		req.onCreated = onCreated;
-		req.mask	  = mask;
-		req.size	  = size;
-		req.world	  = world;
-
-		m_worldRendererCreateRequests.push_back(req);
-	}
-
-	void SurfaceRenderer::DeleteWorldRenderer(WorldRenderer* renderer)
-	{
-		m_worldRendererDeleteRequests.push_back({renderer});
 	}
 
 	void SurfaceRenderer::SetOffscreenTexture(Texture* txt, uint32 imageIndex)
@@ -159,17 +138,6 @@ namespace Lina
 
 				for (uint32 i = 0; i < m_imageCount; i++)
 					m_dataPerImage[i].updateTexture = true;
-
-				if (m_mask.IsSet(SRM_DrawOffscreenTexture))
-				{
-					for (auto wr : m_worldRenderers)
-					{
-						wr->DestroyTextures();
-						wr->SetResolution(newSize);
-						wr->SetAspect(static_cast<float>(newSize.x) / static_cast<float>(newSize.y));
-						wr->CreateTextures();
-					}
-				}
 			}
 		}
 	}
@@ -236,56 +204,12 @@ namespace Lina
 		}
 	}
 
-	void SurfaceRenderer::Tick(float interpolationAlpha)
-	{
-		if (!m_swapchain->GetWindow()->GetIsVisible())
-			return;
-
-		PROFILER_FUNCTION();
-
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Tick(interpolationAlpha); });
-		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-	}
-
-	void SurfaceRenderer::Sync()
-	{
-		if (!m_swapchain->GetWindow()->GetIsVisible())
-			return;
-
-		PROFILER_FUNCTION();
-
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { m_worldRenderers[i]->Sync(); });
-		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
-
-		// Deletion of world renderers.
-		{
-			if (!m_worldRendererDeleteRequests.empty())
-				m_gfxManager->Join();
-
-			for (auto& req : m_worldRendererDeleteRequests)
-			{
-				m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [&req](WorldRenderer* r) { return r == req.renderer; }));
-				delete req.renderer;
-			}
-
-			for (auto& req : m_worldRendererCreateRequests)
-			{
-				WorldRenderer* renderer = new WorldRenderer(m_gfxManager, BACK_BUFFER_COUNT, this, req.mask, req.world, req.size, req.size.x / req.size.y);
-				m_worldRenderers.push_back(renderer);
-				req.onCreated(renderer);
-			}
-
-			m_worldRendererCreateRequests.clear();
-			m_worldRendererDeleteRequests.clear();
-		}
-	}
-
 	void SurfaceRenderer::Render(int surfaceRendererIndex, uint32 frameIndex)
 	{
 		if (!m_swapchain->GetWindow()->GetIsVisible())
 			return;
+
+		PROFILER_FUNCTION();
 
 		// PROFILER_FUNCTION();
 		m_surfaceRendererIndex = surfaceRendererIndex;
@@ -300,14 +224,6 @@ namespace Lina
 			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_GlobalData, m_gfxManager->GetCurrentGlobalDataResource());
 			m_contextGraphics->SetTopology(frame.cmdList, Topology::TriangleList);
 		}
-
-		// Render worlds.
-		const int worldRenderersSz = static_cast<int>(m_worldRenderers.size());
-		Taskflow  worldRendererTaskFlow;
-		worldRendererTaskFlow.for_each_index(0, worldRenderersSz, 1, [&](int i) { m_worldRenderers[i]->Render(frameIndex, m_currentImageIndex); });
-		auto worldRendererFuture = m_gfxManager->GetSystem()->GetMainExecutor()->Run(worldRendererTaskFlow);
-		// Wait for world renderers to finish.
-		worldRendererFuture.get();
 
 		if (m_mask.IsSet(SRM_DrawOffscreenTexture) && imgData.updateTexture)
 		{
@@ -362,6 +278,8 @@ namespace Lina
 	{
 		if (!m_swapchain->GetWindow())
 			return;
+
+		PROFILER_FUNCTION();
 
 		m_renderer->Present(m_swapchain);
 		m_currentImageIndex = m_renderer->GetNextBackBuffer(m_swapchain);

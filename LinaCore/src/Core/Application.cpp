@@ -112,17 +112,21 @@ namespace Lina
 	void Application::PreTick()
 	{
 		PROFILER_FRAME_START();
+		PROFILER_FUNCTION();
 		m_engine.PreTick();
 	}
 
 	void Application::Poll()
 	{
+		PROFILER_FUNCTION();
 		PlatformProcess::PumpMessages();
 		m_engine.Poll();
 	}
 
 	void Application::Tick()
 	{
+		PROFILER_FUNCTION();
+
 		m_engine.Tick();
 
 		SystemInfo::SetFrames(SystemInfo::GetFrames() + 1);

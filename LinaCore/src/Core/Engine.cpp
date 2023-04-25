@@ -91,6 +91,8 @@ namespace Lina
 
 	void Engine::PreTick()
 	{
+		PROFILER_FUNCTION();
+
 		if (m_gfxManager)
 			m_gfxManager->WaitForSwapchains();
 
@@ -101,16 +103,21 @@ namespace Lina
 
 	void Engine::Poll()
 	{
+		PROFILER_FUNCTION();
 		m_resourceManager.Tick();
 		m_input.Tick();
 	}
 
 	void Engine::Tick()
 	{
+		PROFILER_FUNCTION();
+
 		const double delta			 = SystemInfo::GetDeltaTime();
 		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
+
+		auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
 
 		while (m_fixedTimestepAccumulator >= fixedTimestep)
 		{
@@ -123,19 +130,16 @@ namespace Lina
 		const double interpolationAlpha = static_cast<double>(m_fixedTimestepAccumulator) / fixedTimestepDb;
 
 		if (m_gfxManager)
-		{
 			m_gfxManager->Tick(static_cast<float>(SystemInfo::GetInterpolationAlpha()));
-			m_gfxManager->Sync();
-			auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
-			renderJob.get();
-		}
 
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 		//	audioJob.get();
 		//	m_levelManager.WaitForSimulation();
 
-		// if (m_gfxManager)
-		//	m_gfxManager->Sync();
+		renderJob.get();
+
+		if (m_gfxManager)
+			m_gfxManager->Sync();
 
 		if (m_input.GetKeyDown(LINA_KEY_1))
 		{

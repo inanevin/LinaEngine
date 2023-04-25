@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Graphics/Resource/Material.hpp"
 #include "Math/Rect.hpp"
 #include "System/ISystem.hpp"
+#include "Profiling/Profiler.hpp"
 
 using Microsoft::WRL::ComPtr;
 
@@ -317,8 +318,8 @@ namespace Lina
 		srcDescriptors.resize(materialsSize, {});
 		destDescriptors.resize(materialsSize, {});
 
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(materialsSize), 1, [&](int i) {
+		for (uint32 i = 0; i < materialsSize; i++)
+		{
 			Material* mat = materials[i];
 			mat->SetBindlessIndex(currentDescriptorIndex + i);
 
@@ -339,9 +340,8 @@ namespace Lina
 				}
 			}
 			srcDescriptors[i] = {mat->GetDescriptor(m_renderer->GetCurrentFrameIndex()).GetCPUHandle()};
-		});
+		}
 
-		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 		m_device->CopyDescriptors(materialsSize, destDescriptors.data(), NULL, materialsSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 
@@ -354,6 +354,7 @@ namespace Lina
 	void DX12GfxContext::BindDynamicTextures(Texture** textures, uint32 texturesSize)
 	{
 		LOCK_GUARD(m_bindMtx);
+
 		auto		 heap					= m_renderer->DX12GetBufferHeap(m_renderer->GetCurrentFrameIndex());
 		const uint32 currentDescriptorIndex = heap->GetCurrentDescriptorIndex();
 		const uint32 heapIncrement			= heap->GetDescriptorSize();
@@ -364,8 +365,8 @@ namespace Lina
 		srcDescriptors.resize(texturesSize, {});
 		destDescriptors.resize(texturesSize, {});
 
-		Taskflow tf;
-		tf.for_each_index(0, static_cast<int>(texturesSize), 1, [&](int i) {
+		for (uint32 i = 0; i < texturesSize; i++)
+		{
 			auto* texture = textures[i];
 
 			texture->SetBindlessIndex(currentDescriptorIndex + i);
@@ -380,9 +381,8 @@ namespace Lina
 			{
 				LINA_ERR("[Renderer] -> You should only bind dynamic textures or color render targets via BindDynamicTextures()!");
 			}
-		});
+		}
 
-		m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
 		m_device->CopyDescriptors(texturesSize, destDescriptors.data(), NULL, texturesSize, srcDescriptors.data(), NULL, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	}
 

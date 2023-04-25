@@ -393,20 +393,31 @@ namespace Lina::Editor
 
 	void Editor::CreateNewLevel(const char* path)
 	{
-		auto* currentLevel = m_levelManager->GetCurrentLevel();
+		const StringID pathSID = TO_SIDC(path);
+		Level*		   level   = new Level(m_resourceManager, true, path, pathSID);
+		level->SaveToFile(path);
+		delete level;
 
-		if (!currentLevel)
+		if (m_levelManager->GetCurrentLevel())
 		{
-			const StringID pathSID = TO_SIDC(path);
-			Level*		   level   = new Level(m_resourceManager, true, path, pathSID);
-			level->SaveToFile(path);
-			delete level;
-			m_levelManager->InstallLevel(path);
+			m_levelManager->UninstallLevel(false);
+			m_levelManager->QueueLevel(path);
+			return;
 		}
+
+		m_levelManager->InstallLevel(path);
 	}
 
 	void Editor::LoadLevel(const char* path)
 	{
+		if (m_levelManager->GetCurrentLevel())
+		{
+			m_levelManager->UninstallLevel(false);
+			m_levelManager->QueueLevel(path);
+			return;
+		}
+
+		m_levelManager->InstallLevel(path);
 	}
 
 	void Editor::SaveCurrentLevel()
@@ -417,4 +428,8 @@ namespace Lina::Editor
 	{
 	}
 
+	void Editor::UninstallCurrentLevel()
+	{
+		m_levelManager->UninstallLevel(false);
+	}
 } // namespace Lina::Editor

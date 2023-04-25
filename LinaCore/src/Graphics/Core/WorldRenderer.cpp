@@ -64,8 +64,7 @@ namespace Lina
 		}
 	}
 
-	WorldRenderer::WorldRenderer(GfxManager* gfxManager, uint32 imageCount, SurfaceRenderer* surface, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio)
-		: m_gfxManager(gfxManager), m_imageCount(imageCount), m_surfaceRenderer(surface), m_mask(mask), m_world(world)
+	WorldRenderer::WorldRenderer(GfxManager* gfxManager, Bitmask16 mask, EntityWorld* world, const Vector2i& renderResolution, float aspectRatio) : m_gfxManager(gfxManager), m_mask(mask), m_world(world)
 	{
 		m_renderer					  = m_gfxManager->GetRenderer();
 		m_contextGraphics			  = m_renderer->GetContextGraphics();
@@ -77,11 +76,6 @@ namespace Lina
 		world->AddListener(this);
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		AddRenderables<ModelNodeComponent>(world, m_worldData, m_worldData.renderableIDs);
-
-		// Image resources
-		{
-			m_dataPerImage.resize(imageCount, DataPerImage());
-		}
 
 		// Frame resources
 		{
@@ -128,7 +122,7 @@ namespace Lina
 
 	void WorldRenderer::CreateTextures()
 	{
-		for (uint32 i = 0; i < m_imageCount; i++)
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			const String   rtColorName = "WorldRenderer_Txt_Color_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
 			const String   rtPPName	   = "WorldRenderer_Txt_PP_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
@@ -137,7 +131,7 @@ namespace Lina
 			const StringID rtPPSid	   = TO_SID(rtColorName);
 			const StringID rtDepthSid  = TO_SID(rtDepthName);
 
-			auto& data = m_dataPerImage[i];
+			auto& data = m_frames[i];
 
 			data.renderTargetColor = m_renderer->CreateRenderTargetColor(rtColorName, m_renderData.renderResolution);
 			data.renderTargetDepth = m_renderer->CreateRenderTargetDepthStencil(rtDepthName, m_renderData.renderResolution);
@@ -145,7 +139,6 @@ namespace Lina
 
 			const String ppMaterialName = "WorldRenderer_Mat_PP_" + TO_STRING(m_world->GetID()) + "_" + TO_STRING(i);
 			data.ppMaterial				= new Material(m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, ppMaterialName, TO_SID(ppMaterialName));
-			m_surfaceRenderer->SetOffscreenTexture(data.renderTargetPP, i);
 		}
 		m_renderData.viewport = Viewport{
 			.x		  = 0.0f,
@@ -162,9 +155,9 @@ namespace Lina
 
 	void WorldRenderer::DestroyTextures()
 	{
-		for (uint32 i = 0; i < m_imageCount; i++)
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& data = m_dataPerImage[i];
+			auto& data = m_frames[i];
 			delete data.renderTargetColor;
 			delete data.renderTargetDepth;
 			delete data.renderTargetPP;
@@ -177,9 +170,9 @@ namespace Lina
 		m_resizeRequests.push_back({res, aspect});
 	}
 
-	Texture* WorldRenderer::GetFinalTexture()
+	Texture* WorldRenderer::GetFinalTexture(uint32 frameIndex)
 	{
-		return m_dataPerImage[m_surfaceRenderer->GetCurrentImageIndex()].renderTargetPP;
+		return m_frames[frameIndex].renderTargetPP;
 	}
 
 	void WorldRenderer::OnGameEvent(GameEvent eventType, const Event& ev)
@@ -285,17 +278,17 @@ namespace Lina
 		m_opaquePass->Process(m_syncedWorldData.extractedRenderables, m_playerView, 1000.0f, DrawPassMask::Opaque);
 	}
 
-	void WorldRenderer::Render(uint32 frameIndex, uint32 imageIndex)
+	void WorldRenderer::Render(uint32 frameIndex)
 	{
 		PROFILER_FUNCTION();
-		auto& frame	  = m_frames[frameIndex];
-		auto& imgData = m_dataPerImage[imageIndex];
+
+		auto& frame = m_frames[frameIndex];
 
 		// Lazy init pp material
-		if (imgData.ppMaterial->GetShader() == nullptr)
+		if (frame.ppMaterial->GetShader() == nullptr)
 		{
-			imgData.ppMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader"_hs);
-			imgData.ppMaterial->SetProperty("diffuse", imgData.renderTargetColor->GetSID());
+			frame.ppMaterial->SetShader("Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader"_hs);
+			frame.ppMaterial->SetProperty("diffuse", frame.renderTargetColor->GetSID());
 		}
 
 		// Command buffer prep
@@ -311,9 +304,9 @@ namespace Lina
 			m_contextGraphics->BindUniformBuffer(frame.cmdList, GBB_SceneData, frame.sceneDataBuffer);
 		}
 
-		ResourceTransition srv2RT[2] = {{ResourceTransitionType::SRV2RT, imgData.renderTargetColor}, {ResourceTransitionType::SRV2RT, imgData.renderTargetPP}};
-		ResourceTransition rt2SRV1	 = {ResourceTransitionType::RT2SRV, imgData.renderTargetColor};
-		ResourceTransition rt2SRV2	 = {ResourceTransitionType::RT2SRV, imgData.renderTargetPP};
+		ResourceTransition srv2RT[2] = {{ResourceTransitionType::SRV2RT, frame.renderTargetColor}, {ResourceTransitionType::SRV2RT, frame.renderTargetPP}};
+		ResourceTransition rt2SRV1	 = {ResourceTransitionType::RT2SRV, frame.renderTargetColor};
+		ResourceTransition rt2SRV2	 = {ResourceTransitionType::RT2SRV, frame.renderTargetPP};
 
 		// Main Render Pass
 		{
@@ -330,7 +323,7 @@ namespace Lina
 			}
 
 			m_contextGraphics->ResourceBarrier(frame.cmdList, srv2RT, 2);
-			m_contextGraphics->BeginRenderPass(frame.cmdList, imgData.renderTargetColor, imgData.renderTargetDepth);
+			m_contextGraphics->BeginRenderPass(frame.cmdList, frame.renderTargetColor, frame.renderTargetDepth);
 
 			// Draw scene objects.
 			{
@@ -342,24 +335,24 @@ namespace Lina
 
 			m_contextGraphics->EndRenderPass(frame.cmdList);
 			m_contextGraphics->ResourceBarrier(frame.cmdList, &rt2SRV1, 1);
-			m_contextGraphics->BindDynamicTextures(&imgData.renderTargetColor, 1);
+			m_contextGraphics->BindDynamicTextures(&frame.renderTargetColor, 1);
 		}
 
 		// Post process pass.
 		{
-			m_contextGraphics->BeginRenderPass(frame.cmdList, imgData.renderTargetPP, imgData.renderTargetDepth);
+			m_contextGraphics->BeginRenderPass(frame.cmdList, frame.renderTargetPP, frame.renderTargetDepth);
 
 			// Draw
 			{
-				m_contextGraphics->BindMaterials(&imgData.ppMaterial, 1);
-				m_contextGraphics->BindPipeline(frame.cmdList, imgData.ppMaterial->GetShader());
-				m_contextGraphics->SetMaterialID(frame.cmdList, imgData.ppMaterial->GetGPUBindlessIndex());
+				m_contextGraphics->BindMaterials(&frame.ppMaterial, 1);
+				m_contextGraphics->BindPipeline(frame.cmdList, frame.ppMaterial->GetShader());
+				m_contextGraphics->SetMaterialID(frame.cmdList, frame.ppMaterial->GetGPUBindlessIndex());
 				m_contextGraphics->DrawInstanced(frame.cmdList, 3, 1, 0, 0);
 			}
 
 			m_contextGraphics->EndRenderPass(frame.cmdList);
 			m_contextGraphics->ResourceBarrier(frame.cmdList, &rt2SRV2, 1);
-			m_contextGraphics->BindDynamicTextures(&imgData.renderTargetPP, 1);
+			m_contextGraphics->BindDynamicTextures(&frame.renderTargetPP, 1);
 		}
 
 		// Submit
