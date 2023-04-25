@@ -211,7 +211,6 @@ namespace Lina
 
 		PROFILER_FUNCTION();
 
-		// PROFILER_FUNCTION();
 		m_surfaceRendererIndex = surfaceRendererIndex;
 		auto& frame			   = m_frames[frameIndex];
 		auto& imgData		   = m_dataPerImage[m_currentImageIndex];
@@ -257,6 +256,7 @@ namespace Lina
 			// Render GUI
 			if (m_mask.IsSet(SRM_DrawGUI) && m_guiDrawer != nullptr)
 			{
+
 				m_guiRenderer->Prepare(Vector2i(static_cast<int>(m_renderData.viewport.width), static_cast<int>(m_renderData.viewport.height)), frameIndex, m_currentImageIndex);
 				m_guiDrawer->DrawGUI(m_surfaceRendererIndex);
 				m_gfxManager->GetGUIBackend()->SetFrameGUIRenderer(m_surfaceRendererIndex, m_guiRenderer);
@@ -276,7 +276,7 @@ namespace Lina
 
 	void SurfaceRenderer::Present()
 	{
-		if (!m_swapchain->GetWindow())
+		if (!m_swapchain->GetWindow()->GetIsVisible())
 			return;
 
 		PROFILER_FUNCTION();

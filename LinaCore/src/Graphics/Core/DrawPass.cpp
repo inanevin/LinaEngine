@@ -152,8 +152,6 @@ namespace Lina
 
 		auto& frame = m_frameData[frameIndex];
 
-		uint32 id = PROFILER_STARTBLOCK("Obj Data Buf");
-
 		m_contextTransfer->ResetCommandListAndAllocator(frame.cmdListAllocatorTransfer, frame.cmdListTransfer);
 
 		// Update object data buffer.
@@ -178,14 +176,10 @@ namespace Lina
 			m_contextGraphics->BindObjectBuffer(cmdListHandle, frame.objDataBuffer);
 		}
 
-		PROFILER_ENDBLOCK(id);
-
 		const auto& mergedMeshes = m_gfxManager->GetMeshManager().GetMergedMeshes();
 
 		// Update indirect commands.
 		{
-			id = PROFILER_STARTBLOCK("Bind mats");
-
 			Vector<DrawIndexedIndirectCommand> commands;
 
 			// Bind materials.
@@ -199,9 +193,6 @@ namespace Lina
 
 				m_contextGraphics->BindMaterials(materials.data(), matsSize);
 			}
-
-			PROFILER_ENDBLOCK(id);
-			id = PROFILER_STARTBLOCK("batches and indirect");
 
 			for (auto b : m_batches)
 			{
@@ -223,8 +214,6 @@ namespace Lina
 			}
 
 			m_frameData[frameIndex].indirectBuffer->BufferData(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
-
-			PROFILER_ENDBLOCK(id);
 		}
 	}
 

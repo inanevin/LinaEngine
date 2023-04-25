@@ -154,6 +154,8 @@ namespace Lina
 
 	void GUIRenderer::Render(uint32 cmdList, uint32 cmdListAllocatorTransfer, uint32 cmdListTransfer)
 	{
+		PROFILER_FUNCTION();
+	
 		auto& frame = m_frames[m_frameIndex];
 		if (frame.drawRequests.empty())
 			return;
