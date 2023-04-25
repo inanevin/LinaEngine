@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Platform/RendererIncl.hpp"
+#include "Profiling/Profiler.hpp"
 
 namespace Lina
 {
@@ -64,7 +65,7 @@ namespace Lina
 	DrawPass::~DrawPass()
 	{
 		m_renderer->ReleaseFence(m_transferFence);
-		
+
 		for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& frame = m_frameData[i];
@@ -77,6 +78,8 @@ namespace Lina
 
 	void DrawPass::Process(Vector<RenderableData>& drawList, const View& targetView, float drawDistance, DrawPassMask drawPassMask)
 	{
+		PROFILER_FUNCTION();
+
 		// Cull the draw list & finalize renderables.
 		{
 			m_renderables.clear();
@@ -145,7 +148,11 @@ namespace Lina
 
 	void DrawPass::UpdateBuffers(uint32 frameIndex, uint32 cmdListHandle)
 	{
+		PROFILER_FUNCTION();
+
 		auto& frame = m_frameData[frameIndex];
+
+		uint32 id = PROFILER_STARTBLOCK("Obj Data Buf");
 
 		m_contextTransfer->ResetCommandListAndAllocator(frame.cmdListAllocatorTransfer, frame.cmdListTransfer);
 
@@ -155,13 +162,12 @@ namespace Lina
 			const size_t		  sz = static_cast<size_t>(m_renderables.size());
 			objData.resize(sz);
 
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(sz), 1, [&](int i) {
+			for (size_t i = 0; i < sz; i++)
+			{
 				GPUObjectData od;
 				od.modelMatrix = m_renderables[i].modelMatrix;
 				objData[i]	   = od;
-			});
-			m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+			}
 
 			frame.objDataBuffer->BufferData(objData.data(), sizeof(GPUObjectData) * sz, 0);
 			frame.objDataBuffer->CopyImmediately(frame.cmdListTransfer, m_contextTransfer);
@@ -172,10 +178,14 @@ namespace Lina
 			m_contextGraphics->BindObjectBuffer(cmdListHandle, frame.objDataBuffer);
 		}
 
+		PROFILER_ENDBLOCK(id);
+
 		const auto& mergedMeshes = m_gfxManager->GetMeshManager().GetMergedMeshes();
 
 		// Update indirect commands.
 		{
+			id = PROFILER_STARTBLOCK("Bind mats");
+
 			Vector<DrawIndexedIndirectCommand> commands;
 
 			// Bind materials.
@@ -183,11 +193,15 @@ namespace Lina
 				const uint32	  matsSize = static_cast<uint32>(m_batches.size());
 				Vector<Material*> materials;
 				materials.resize(m_batches.size());
-				Taskflow tf;
-				tf.for_each_index(0, static_cast<int>(matsSize), 1, [&](int i) { materials[i] = m_batches[i].mat; });
-				m_gfxManager->GetSystem()->GetMainExecutor()->RunAndWait(tf);
+
+				for (uint32 i = 0; i < matsSize; i++)
+					materials[i] = m_batches[i].mat;
+
 				m_contextGraphics->BindMaterials(materials.data(), matsSize);
 			}
+
+			PROFILER_ENDBLOCK(id);
+			id = PROFILER_STARTBLOCK("batches and indirect");
 
 			for (auto b : m_batches)
 			{
@@ -209,11 +223,15 @@ namespace Lina
 			}
 
 			m_frameData[frameIndex].indirectBuffer->BufferData(commands.data(), sizeof(DrawIndexedIndirectCommand) * commands.size());
+
+			PROFILER_ENDBLOCK(id);
 		}
 	}
 
 	void DrawPass::Draw(uint32 frameIndex, uint32 cmdListHandle)
 	{
+		PROFILER_FUNCTION();
+
 		const uint32 batchesSize	 = static_cast<uint32>(m_batches.size());
 		uint32		 firstInstance	 = 0;
 		Shader*		 lastBoundShader = nullptr;

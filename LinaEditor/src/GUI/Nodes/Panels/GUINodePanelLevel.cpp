@@ -125,7 +125,7 @@ namespace Lina::Editor
 
 			LinaVG::DrawImage(threadID, textureHandle, LV2(imageRect.GetCenter()), LV2(imageRect.size));
 
-			if (!imageRect.size.Equals(m_loadedLevel->GetWorldRenderer()->GetResolution(), 0.01f))
+			if (!imageRect.size.Equals(m_loadedLevel->GetWorldRenderer()->GetResolution(), 2.0f))
 			{
 				wr->AddResizeRequest(imageRect.size, imageRect.size.x / imageRect.size.y);
 			}
