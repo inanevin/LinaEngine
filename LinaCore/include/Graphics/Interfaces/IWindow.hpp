@@ -67,7 +67,7 @@ namespace Lina
 		virtual void BringToFront()																		= 0;
 		virtual void SetMouseFocus(bool focused)														= 0;
 		virtual void SetInputPassthrough(bool isInputPassThrough)										= 0;
-		virtual void Tick()																		= 0;
+		virtual void Tick()																				= 0;
 		virtual void SetCursorType(CursorType type)														= 0;
 		virtual void OnDragEnabled()																	= 0;
 		virtual void OnDragDisabled()																	= 0;
@@ -205,6 +205,12 @@ namespace Lina
 				OnDragDisabled();
 		}
 
+		inline void AddSizeRequest(const Vector2i& req)
+		{
+			m_lastSizeRequest	= req;
+			m_sizeRequestExists = true;
+		}
+
 	private:
 		friend class WindowManager;
 
@@ -214,10 +220,12 @@ namespace Lina
 		}
 
 	protected:
-		CursorType		 m_cursorType	   = CursorType::None;
-		Vector2i		 m_mousePosition   = Vector2i::Zero;
-		Vector2i		 m_mouseDelta	   = Vector2i::Zero;
-		SurfaceRenderer* m_surfaceRenderer = nullptr;
+		Vector2i		 m_lastSizeRequest	 = Vector2i::Zero;
+		bool			 m_sizeRequestExists = false;
+		CursorType		 m_cursorType		 = CursorType::None;
+		Vector2i		 m_mousePosition	 = Vector2i::Zero;
+		Vector2i		 m_mouseDelta		 = Vector2i::Zero;
+		SurfaceRenderer* m_surfaceRenderer	 = nullptr;
 		MonitorInfo		 m_monitorInfo;
 		ISystem*		 m_system			  = nullptr;
 		Recti			 m_rect				  = Recti();

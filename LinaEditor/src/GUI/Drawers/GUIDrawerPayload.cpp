@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "GUI/Drawers/GUIDrawerPayload.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
@@ -35,6 +36,8 @@ SOFTWARE.
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Core/Theme.hpp"
+#include "Core/Editor.hpp"
+#include "World/Core/Entity.hpp"
 
 namespace Lina::Editor
 {
@@ -50,7 +53,16 @@ namespace Lina::Editor
 
 		const Vector2 swpSize = m_swapchain->GetSize();
 
-		
+		const Rect rect = Rect(Vector2i::Zero, swpSize);
+		GUIUtility::DrawPopupBackground(threadID, rect, 1.0f, 0);
+
+		const auto& meta = m_editor->GetPayloadManager().GetCurrentPayloadMeta();
+		if (meta.type == PayloadType::EPL_Entity)
+		{
+			LinaVG::TextOptions opts;
+			opts.font	   = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+			GUIUtility::DrawTextCentered(threadID, static_cast<Entity*>(meta.data)->GetName().c_str(), rect, opts, 0);
+		}
 
 		LinaVG::StyleOptions opts;
 		const float			 thickness = m_window->GetDPIScale();

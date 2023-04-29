@@ -46,7 +46,13 @@ namespace Lina
 		Rect(const Recti& r);
 		Rect(float x, float y, float w, float h) : pos(x, y), size(w, h){};
 
-		Rect	Shrink(float percentage) const;
+		/// <summary>
+		/// Shrink by percentage [0.0f, 1.0f]
+		/// </summary>
+		/// <param name="percentage"></param>
+		/// <returns></returns>
+		Rect Shrink(float percentage) const;
+
 		Rect	ShrinkByAmount(float amt) const;
 		bool	IsPointInside(const Vector2& p) const;
 		bool	IsInBorder(const Vector2& p, float borderThickness, int& border) const;
@@ -77,7 +83,13 @@ namespace Lina
 		}
 		Recti(int x, int y, int w, int h) : pos(x, y), size(w, h){};
 
-		Recti	 Shrink(float percentage) const;
+		/// <summary>
+		/// Shrink by percentage [0.0f, 1.0f]
+		/// </summary>
+		/// <param name="percentage"></param>
+		/// <returns></returns>
+		Recti Shrink(float percentage) const;
+
 		Recti	 ShrinkByAmount(uint32 amt) const;
 		bool	 IsPointInside(const Vector2i& p) const;
 		bool	 IsInBorder(const Vector2& p, int borderThickness, int& border) const;

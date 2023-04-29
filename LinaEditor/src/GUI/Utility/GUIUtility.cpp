@@ -51,7 +51,7 @@ std::string from_u8string(const std::u8string& s)
 
 namespace Lina::Editor
 {
-	void GUIUtility::DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, float scale, Color tint, int drawOrder, float rotation, bool skipCache)
+	Vector2 GUIUtility::DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, float scale, Color tint, int drawOrder, float rotation, bool skipCache)
 	{
 		LinaVG::SDFTextOptions opts;
 		opts.font		  = Theme::GetFont(FontType::EditorIcons, dpiScale);
@@ -63,6 +63,7 @@ namespace Lina::Editor
 		const Vector2 iconSize = FL2(LinaVG::CalculateTextSize(icon, opts));
 		const Vector2 pos	   = Vector2(centerPos.x - iconSize.x * 0.5f, centerPos.y + iconSize.y * 0.5f * opts.sdfThickness + 1.0f);
 		LinaVG::DrawTextSDF(threadID, icon, LV2(pos), opts, rotation, drawOrder, skipCache);
+		return iconSize;
 	}
 
 	void GUIUtility::DrawTitleBackground(int threadID, const Rect& rect, int drawOrder)

@@ -32,7 +32,6 @@ SOFTWARE.
 #define GUIDrawerPayload_HPP
 
 #include "GUIDrawerBase.hpp"
-#include "Core/EditorCommon.hpp"
 
 namespace Lina::Editor
 {
@@ -44,14 +43,6 @@ namespace Lina::Editor
 		GUIDrawerPayload(Editor* editor, ISwapchain* swap);
 		virtual ~GUIDrawerPayload(){};
 		virtual void DrawGUI(int threadID) override;
-
-		inline void SetPayloadType(PayloadType type)
-		{
-			m_payloadType = type;
-		}
-
-	private:
-		PayloadType m_payloadType = PayloadType::None;
 	};
 } // namespace Lina::Editor
 

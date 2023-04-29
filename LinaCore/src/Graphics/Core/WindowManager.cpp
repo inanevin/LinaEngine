@@ -137,8 +137,8 @@ namespace Lina
 		m_gfxManager->DestroySurfaceRenderer(sid);
 
 		auto it = m_windows.find(sid);
-
 		it->second->Destroy();
+
 		delete it->second;
 		m_windows.erase(it);
 	}

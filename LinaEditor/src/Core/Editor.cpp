@@ -237,6 +237,9 @@ namespace Lina::Editor
 
 	void Editor::OnShortcut(Shortcut sc, void* windowHandle)
 	{
+		if (m_payloadManager.GetCurrentPayloadMeta().type != PayloadType::EPL_None)
+			return;
+
 		bool consumed = false;
 
 		for (auto [sid, drawer] : m_guiDrawers)
@@ -263,6 +266,10 @@ namespace Lina::Editor
 
 				if (!savePath.empty())
 					SaveCurrentLevelAs(savePath.c_str());
+			}
+			else if (sc == Shortcut::CTRL_Z)
+			{
+				m_commandManager.Undo();
 			}
 		}
 	}
@@ -374,7 +381,7 @@ namespace Lina::Editor
 
 		if (drawerToDock)
 		{
-			const auto& panels = owner->GetFirstDockArea()->GetPanels();
+			const auto panels = owner->GetFirstDockArea()->GetPanels();
 
 			for (auto p : panels)
 				owner->GetFirstDockArea()->RemovePanel(p, false);
@@ -434,12 +441,14 @@ namespace Lina::Editor
 
 	void Editor::SaveCurrentLevel()
 	{
+		DispatchEvent(EVE_PreSavingCurrentLevel, {});
 		auto level = m_levelManager->GetCurrentLevel();
 		level->SaveToFile(level->GetPath().c_str());
 	}
 
 	void Editor::SaveCurrentLevelAs(const char* path)
 	{
+		DispatchEvent(EVE_PreSavingCurrentLevel, {});
 		auto level = m_levelManager->GetCurrentLevel();
 		level->SaveToFile(path);
 	}

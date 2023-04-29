@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef DataStructuresVector_HPP
@@ -36,8 +35,44 @@ SOFTWARE.
 
 namespace Lina
 {
-    template <typename T>
-    using Vector = eastl::vector<T>;
+	template <typename T> using Vector = eastl::vector<T>;
+
+	namespace Internal
+	{
+		template <typename T> inline int32 IndexOf(const Lina::Vector<T>& vec, const T& value)
+		{
+			const int32 sz = static_cast<int32>(vec.size());
+
+			for (int32 i = 0; i < sz; ++i)
+			{
+				if (vec[i] == value)
+					return i;
+			}
+
+			return -1;
+		}
+
+		template <typename T> inline void PlaceAfter(Lina::Vector<T>& vec, T& src, T& target)
+		{
+			auto itSrc	  = eastl::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });
+			auto itTarget = eastl::find_if(vec.begin(), vec.end(), [target](const T& child) { return child == target; });
+			vec.insert(itTarget + 1, *itSrc);
+			vec.erase(itSrc);
+		}
+
+		template <typename T> inline void PlaceBefore(Lina::Vector<T>& vec, const T& src, const T& target)
+		{
+			auto itSrc	  = eastl::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });
+			auto itTarget = eastl::find_if(vec.begin(), vec.end(), [target](const T& child) { return child == target; });
+
+			vec.insert(itTarget, *itSrc);
+			if (itSrc < itTarget)
+				vec.erase(itSrc);
+			else
+				vec.erase(itSrc + 1);
+		}
+
+	} // namespace Internal
 
 } // namespace Lina
 

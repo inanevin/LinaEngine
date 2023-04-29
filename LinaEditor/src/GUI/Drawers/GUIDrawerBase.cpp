@@ -106,18 +106,12 @@ namespace Lina::Editor
 		if (hoveredNode == nullptr && m_hoveredNode)
 		{
 			// Switched to non-hovering from hover
-			m_hoveredNode->m_isHovered = false;
-			m_hoveredNode->m_isPressed = false;
-			m_hoveredNode->OnHoverEnd();
-			m_hoveredNode = nullptr;
+			ClearHovered();
 		}
 		else if (hoveredNode && m_hoveredNode && hoveredNode != m_hoveredNode)
 		{
 			// Swithed hovering nodes
-			m_hoveredNode->m_isHovered = false;
-			m_hoveredNode->m_isPressed = false;
-			m_hoveredNode->OnHoverEnd();
-			m_hoveredNode = nullptr;
+			ClearHovered();
 
 			if (!m_mouseDisablingNode)
 				m_hoveredNode = hoveredNode;
@@ -148,21 +142,24 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnLostFocus()
 	{
-		if (m_hoveredNode)
-		{
-			m_hoveredNode->OnHoverEnd();
-			m_hoveredNode->m_isHovered = false;
-			m_hoveredNode->m_isPressed = false;
-		}
-
-		m_mouseDisablingNode = nullptr;
-
+		ClearHovered();
 		m_root->OnLostFocus();
 	}
 
 	void GUIDrawerBase::OnWindowDrag(bool isDragging)
 	{
 		m_editor->OnWindowDrag(this, isDragging);
+	}
+
+	void GUIDrawerBase::OnPayloadCreated(PayloadType type, void* userData)
+	{
+		m_root->OnPayloadCreated(type, userData);
+	}
+
+	void GUIDrawerBase::OnPayloadEnded(PayloadType type)
+	{
+		ClearHovered();
+		m_root->OnPayloadEnded(type);
 	}
 
 	void GUIDrawerBase::OnNodeDeleted(GUINode* node)
@@ -443,16 +440,6 @@ namespace Lina::Editor
 		return m_root->FindChildren(sid);
 	}
 
-	void GUIDrawerBase::OnPayloadCreated(PayloadType type, void* data)
-	{
-		m_root->OnPayloadCreated(type, data);
-	}
-
-	bool GUIDrawerBase::OnPayloadDropped(PayloadType type, void* data)
-	{
-		return m_root->OnPayloadDropped(type, data);
-	}
-
 	void GUIDrawerBase::RemoveDockArea(GUINodeDockArea* area)
 	{
 		auto splitDivider = area->FindDividerToRemove();
@@ -568,6 +555,17 @@ namespace Lina::Editor
 		}
 
 		return hovered;
+	}
+
+	void GUIDrawerBase::ClearHovered()
+	{
+		if (m_hoveredNode)
+		{
+			m_hoveredNode->OnHoverEnd();
+			m_hoveredNode->m_isHovered = false;
+			m_hoveredNode->m_isPressed = false;
+		}
+		m_hoveredNode = nullptr;
 	}
 
 	void GUIDrawerBase::SaveToStream(OStream& stream)

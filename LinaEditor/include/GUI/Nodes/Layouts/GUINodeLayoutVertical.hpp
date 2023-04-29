@@ -46,10 +46,16 @@ namespace Lina::Editor
 			m_spacing = spacing;
 		}
 
+		inline void SetFixedHorizontalSize(bool isFixedHorizontalSize)
+		{
+			m_isFixedHorizontalSize = isFixedHorizontalSize;
+		}
+
 		virtual void Draw(int threadID) override;
 
 	private:
-		float m_spacing = 0.0f;
+		bool  m_isFixedHorizontalSize = false;
+		float m_spacing				  = 0.0f;
 	};
 } // namespace Lina::Editor
 

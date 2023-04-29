@@ -55,12 +55,12 @@ namespace Lina::Editor
 	class GUIUtility
 	{
 	public:
-		static void DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, float scale, Color tint = Color::White, int drawOrder = 0, float rotation = 0.0f, bool skipCache = false);
-		static void DrawTitleBackground(int threadID, const Rect& rect, int drawOrder);
-		static void DrawDockBackground(int threadID, const Rect& rect, int drawOrder);
-		static void DrawPanelBackground(int threadID, const Rect& rect, int drawOrder);
-		static void DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
-		static void DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder);
+		static Vector2 DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, float scale, Color tint = Color::White, int drawOrder = 0, float rotation = 0.0f, bool skipCache = false);
+		static void	   DrawTitleBackground(int threadID, const Rect& rect, int drawOrder);
+		static void	   DrawDockBackground(int threadID, const Rect& rect, int drawOrder);
+		static void	   DrawPanelBackground(int threadID, const Rect& rect, int drawOrder);
+		static void	   DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
+		static void	   DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder);
 
 		static Vector2 DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::TextOptions& opts, int drawOrder);
 		static Vector2 DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::SDFTextOptions& opts, int drawOrder);

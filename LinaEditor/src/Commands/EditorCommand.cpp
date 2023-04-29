@@ -26,50 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Commands/EditorCommand.hpp"
+#include "Commands/EditorCommandManager.hpp"
 
-#ifndef Event_HPP
-#define Event_HPP
-
-#include "Core/SizeDefinitions.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	struct Event
+	EditorCommand::EditorCommand(EditorCommandManager* manager) : m_commandManager(manager)
 	{
-		void*  pParams[2];
-		float  fParams[4];
-		uint32 iParams[4];
-	};
-
-	enum SystemEvent
+		m_editor = m_commandManager->GetEditor();
+	}
+	EditorCommand::~EditorCommand()
 	{
-		EVS_ResourceLoaded			  = 1 << 0,
-		EVS_ResourceLoadTaskCompleted = 1 << 1,
-		EVS_ResourceUnloaded		  = 1 << 2,
-		EVS_ResourceBatchUnloaded	  = 1 << 3,
-		EVS_LevelInstalled			  = 1 << 4,
-		EVS_LevelUninstalled		  = 1 << 5,
-		EVS_WindowResized			  = 1 << 6,
-		EVS_VsyncModeChanged		  = 1 << 7,
-		EVS_Key						  = 1 << 8,
-		EVS_PreLevelUninstall		  = 1 << 9,
-	};
-
-	enum GameEvent
-	{
-		EVG_Start			   = 1 << 0,
-		EVG_PostStart		   = 1 << 1,
-		EVG_Tick			   = 1 << 2,
-		EVG_PostTick		   = 1 << 3,
-		EVG_Simulate		   = 1 << 4,
-		EVG_PostSimulate	   = 1 << 5,
-		EVG_ComponentCreated   = 1 << 6,
-		EVG_ComponentDestroyed = 1 << 7,
-		EVG_EntityCreated	   = 1 << 8,
-		EVG_EntityDestroyed	   = 1 << 9,
-		EVG_End				   = 1 << 10,
-	};
-} // namespace Lina
-
-#endif
+	}
+} // namespace Lina::Editor

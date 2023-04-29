@@ -31,21 +31,21 @@ SOFTWARE.
 #include "Serialization/StringSerialization.hpp"
 #include "Serialization/VectorSerialization.hpp"
 #include "Serialization/SetSerialization.hpp"
+#include "Data/CommonData.hpp"
 
 namespace Lina
 {
 	void Entity::AddChild(Entity* e)
 	{
-		m_childrenID.insert(e->m_id);
-		m_children.insert(e);
+		e->RemoveFromParent();
+		m_children.push_back(e);
 		e->m_parentID = m_id;
 		e->m_parent	  = this;
 	}
 
 	void Entity::RemoveChild(Entity* e)
 	{
-		m_childrenID.erase(e->m_id);
-		m_children.erase(e);
+		m_children.erase(linatl::find_if(m_children.begin(), m_children.end(), [e](Entity* c) { return e == c; }));
 		e->m_parentID = ENTITY_NULL;
 		e->m_parent	  = nullptr;
 	}
@@ -111,6 +111,12 @@ namespace Lina
 		return t;
 	}
 
+	bool Entity::HasChildInTree(Entity* other) const
+	{
+		auto it = linatl::find_if(m_children.begin(), m_children.end(), [other](Entity* e) { return e == other || e->HasChildInTree(other); });
+		return it != m_children.end();
+	}
+
 	void Entity::SetLocalPosition(const Vector3& loc)
 	{
 		m_transform.m_localPosition = loc;
@@ -123,7 +129,7 @@ namespace Lina
 	{
 		m_mask.Set(EntityMask::NeedsVisualUpdate);
 
-		m_transform.m_position	   = loc;
+		m_transform.m_position = loc;
 		UpdateLocalPosition();
 
 		for (auto child : m_children)
@@ -165,8 +171,8 @@ namespace Lina
 	{
 		m_mask.Set(EntityMask::NeedsVisualUpdate);
 
-		m_transform.m_rotation			 = rot;
-		m_transform.m_rotationAngles	 = rot.GetEuler();
+		m_transform.m_rotation		 = rot;
+		m_transform.m_rotationAngles = rot.GetEuler();
 		UpdateLocalRotation();
 
 		for (auto child : m_children)
@@ -180,8 +186,8 @@ namespace Lina
 
 	void Entity::SetRotationAngles(const Vector3& angles, bool isThisPivot)
 	{
-		m_transform.m_rotationAngles	 = angles;
-		m_transform.m_rotation			 = Quaternion::FromVector(glm::radians(static_cast<glm::vec3>(angles)));
+		m_transform.m_rotationAngles = angles;
+		m_transform.m_rotation		 = Quaternion::FromVector(glm::radians(static_cast<glm::vec3>(angles)));
 		UpdateLocalRotation();
 
 		for (auto child : m_children)
@@ -195,7 +201,7 @@ namespace Lina
 
 	void Entity::SetLocalScale(const Vector3& scale, bool isThisPivot)
 	{
-		m_transform.m_localScale	 = scale;
+		m_transform.m_localScale = scale;
 		UpdateGlobalScale();
 
 		for (auto child : m_children)
@@ -211,7 +217,7 @@ namespace Lina
 	{
 		m_mask.Set(EntityMask::NeedsVisualUpdate);
 
-		m_transform.m_scale		= scale;
+		m_transform.m_scale = scale;
 		UpdateLocalScale();
 
 		for (auto child : m_children)
@@ -226,12 +232,12 @@ namespace Lina
 	void Entity::UpdateGlobalPosition()
 	{
 		if (m_parent == nullptr)
-			m_transform.m_position	   = m_transform.m_localPosition;
+			m_transform.m_position = m_transform.m_localPosition;
 		else
 		{
-			Matrix4 global			   = m_parent->m_transform.ToMatrix() * m_transform.ToLocalMatrix();
-			Vector3 translation		   = global.GetTranslation();
-			m_transform.m_position	   = translation;
+			Matrix4 global		   = m_parent->m_transform.ToMatrix() * m_transform.ToLocalMatrix();
+			Vector3 translation	   = global.GetTranslation();
+			m_transform.m_position = translation;
 		}
 
 		for (auto child : m_children)
@@ -254,13 +260,13 @@ namespace Lina
 	void Entity::UpdateGlobalScale()
 	{
 		if (m_parent == nullptr)
-			m_transform.m_scale		= m_transform.m_localScale;
+			m_transform.m_scale = m_transform.m_localScale;
 		else
 		{
 			Matrix4 global = Matrix4::Scale(m_parent->m_transform.m_scale) * Matrix4::Scale(m_transform.m_localScale);
 			Vector3 scale  = global.GetScale();
 
-			m_transform.m_scale		= scale;
+			m_transform.m_scale = scale;
 		}
 
 		for (auto child : m_children)
@@ -273,8 +279,8 @@ namespace Lina
 	{
 		if (m_parent == nullptr)
 		{
-			m_transform.m_rotation			 = m_transform.m_localRotation;
-			m_transform.m_rotationAngles	 = m_transform.m_localRotationAngles;
+			m_transform.m_rotation		 = m_transform.m_localRotation;
+			m_transform.m_rotationAngles = m_transform.m_localRotationAngles;
 		}
 		else
 		{
@@ -282,8 +288,8 @@ namespace Lina
 			Quaternion targetRot;
 			Vector3	   s = Vector3(), p = Vector3();
 			global.Decompose(p, targetRot, s);
-			m_transform.m_rotation			 = targetRot;
-			m_transform.m_rotationAngles	 = m_transform.m_rotation.GetEuler();
+			m_transform.m_rotation		 = targetRot;
+			m_transform.m_rotationAngles = m_transform.m_rotation.GetEuler();
 		}
 
 		for (auto child : m_children)
@@ -310,7 +316,14 @@ namespace Lina
 		m_mask.SaveToStream(stream);
 		m_transform.SaveToStream(stream);
 		StringSerialization::SaveToStream(stream, m_name);
-		SetSerialization::SaveToStream_PT(stream, m_childrenID);
+
+		m_childrenIDsForLoad.clear();
+		m_childrenIDsForLoad.reserve(m_children.size());
+
+		for (auto c : m_children)
+			m_childrenIDsForLoad.push_back(c->GetID());
+
+		VectorSerialization::SaveToStream_PT(stream, m_childrenIDsForLoad);
 	}
 
 	void Entity::LoadFromStream(IStream& stream)
@@ -319,7 +332,9 @@ namespace Lina
 		m_mask.LoadFromStream(stream);
 		m_transform.LoadFromStream(stream);
 		StringSerialization::LoadFromStream(stream, m_name);
-		SetSerialization::LoadFromStream_PT<uint32>(stream, m_childrenID);
+
+		m_childrenIDsForLoad.clear();
+		VectorSerialization::LoadFromStream_PT<uint32>(stream, m_childrenIDsForLoad);
 	}
 
 	void Entity::UpdateLocalRotation()

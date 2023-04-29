@@ -47,6 +47,12 @@ namespace Lina::Editor
 	class GUIDrawerPayload;
 	class GUINodePanel;
 
+	struct PayloadMeta
+	{
+		Vector2		delta = Vector2::Zero;
+		void*		data  = nullptr;
+		PayloadType type  = PayloadType::EPL_None;
+	};
 	class EditorPayloadManager
 	{
 	public:
@@ -56,6 +62,12 @@ namespace Lina::Editor
 		void Initialize();
 		void Tick();
 		void Shutdown();
+		void CreatePayload(PayloadType type, const Vector2i& windowSize, const Vector2i& delta, void* userData);
+
+		inline const PayloadMeta& GetCurrentPayloadMeta() const
+		{
+			return m_currentPayloadMeta;
+		}
 
 	private:
 		Editor*			  m_editor		  = nullptr;
@@ -64,10 +76,7 @@ namespace Lina::Editor
 		Input*			  m_input		  = nullptr;
 		IWindow*		  m_window		  = nullptr;
 		GUIDrawerPayload* m_guiDrawer	  = nullptr;
-
-		Vector2			 m_currentPayloadDelta = Vector2::Zero;
-		PayloadType		 m_currentPayloadType  = PayloadType::None;
-		PayloadDataPanel m_currentPayloadPanel;
+		PayloadMeta		  m_currentPayloadMeta;
 	};
 } // namespace Lina::Editor
 

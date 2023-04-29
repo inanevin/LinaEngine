@@ -26,50 +26,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Commands/EditorCommandManager.hpp"
+#include "Commands/EditorCommandEntity.hpp"
+#include "Data/CommonData.hpp"
 
-#ifndef Event_HPP
-#define Event_HPP
-
-#include "Core/SizeDefinitions.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	struct Event
-	{
-		void*  pParams[2];
-		float  fParams[4];
-		uint32 iParams[4];
-	};
 
-	enum SystemEvent
-	{
-		EVS_ResourceLoaded			  = 1 << 0,
-		EVS_ResourceLoadTaskCompleted = 1 << 1,
-		EVS_ResourceUnloaded		  = 1 << 2,
-		EVS_ResourceBatchUnloaded	  = 1 << 3,
-		EVS_LevelInstalled			  = 1 << 4,
-		EVS_LevelUninstalled		  = 1 << 5,
-		EVS_WindowResized			  = 1 << 6,
-		EVS_VsyncModeChanged		  = 1 << 7,
-		EVS_Key						  = 1 << 8,
-		EVS_PreLevelUninstall		  = 1 << 9,
-	};
+#define MAX_QUEUE_SIZE 15
 
-	enum GameEvent
+	EditorCommandManager::EditorCommandManager(Editor* editor) : m_editor(editor)
 	{
-		EVG_Start			   = 1 << 0,
-		EVG_PostStart		   = 1 << 1,
-		EVG_Tick			   = 1 << 2,
-		EVG_PostTick		   = 1 << 3,
-		EVG_Simulate		   = 1 << 4,
-		EVG_PostSimulate	   = 1 << 5,
-		EVG_ComponentCreated   = 1 << 6,
-		EVG_ComponentDestroyed = 1 << 7,
-		EVG_EntityCreated	   = 1 << 8,
-		EVG_EntityDestroyed	   = 1 << 9,
-		EVG_End				   = 1 << 10,
-	};
-} // namespace Lina
+	}
 
-#endif
+	EditorCommandManager::~EditorCommandManager()
+	{
+		while (!m_commandStack.empty())
+		{
+			EditorCommand* cmd = m_commandStack.front();
+			delete cmd;
+			m_commandStack.pop_front();
+		}
+	}
+
+	void EditorCommandManager::Undo()
+	{
+		if (m_commandStack.empty())
+			return;
+
+		auto cmd = m_commandStack.front();
+		cmd->Undo();
+		delete cmd;
+		m_commandStack.pop_front();
+	}
+
+	void EditorCommandManager::CreateCommand_SelectEntity(Entity* previousSelected, Entity* entity)
+	{
+		EditorCommand* cmd = new EditorCommandSelectEntity(this, previousSelected, entity);
+		cmd->Execute(nullptr);
+		m_commandStack.push_front(cmd);
+
+		while (m_commandStack.size() > MAX_QUEUE_SIZE)
+		{
+			EditorCommand* cmd = m_commandStack.back();
+			m_commandStack.pop_back();
+			delete cmd;
+		}
+	}
+} // namespace Lina::Editor

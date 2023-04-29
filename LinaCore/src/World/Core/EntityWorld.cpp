@@ -41,6 +41,7 @@ namespace Lina
 
 	void EntityWorld::DestroyWorld()
 	{
+	
 		for (auto* e : m_entities)
 		{
 			if (e != nullptr)
@@ -64,14 +65,8 @@ namespace Lina
 
 	Entity* EntityWorld::GetEntity(const String& name)
 	{
-		for (auto* e : m_entities)
-		{
-			if (e != nullptr && e->GetName().compare(name) == 0)
-				return e;
-		}
-
 		auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [&name](Entity* e) { return e != nullptr && e->GetName().compare(name) == 0; });
-		return *it;
+		return it == m_entities.end() ? nullptr : *it;
 	}
 
 	Entity* EntityWorld::GetEntityFromSID(StringID sid)
@@ -119,6 +114,10 @@ namespace Lina
 			return nullptr;
 		}
 
+		Event ev	  = Event();
+		ev.pParams[0] = e;
+		DispatchEvent(EVG_EntityCreated, ev);
+
 		return e;
 	}
 
@@ -132,6 +131,9 @@ namespace Lina
 
 	void EntityWorld::DestroyEntityData(Entity* e)
 	{
+		Event ev	  = Event();
+		ev.iParams[0] = e->GetID();
+
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
 
@@ -142,6 +144,8 @@ namespace Lina
 		m_entities.RemoveItem(id);
 		e->~Entity();
 		m_allocatorPool.Free(e);
+
+		DispatchEvent(EVG_EntityDestroyed, ev);
 	}
 
 	void EntityWorld::Simulate(float fixedDelta)
@@ -216,10 +220,10 @@ namespace Lina
 		{
 			if (e != nullptr)
 			{
-				auto& childrenIDs = e->m_childrenID;
+				auto& childrenIDs = e->m_childrenIDsForLoad;
 
 				for (auto& childID : childrenIDs)
-					e->m_children.insert(m_entities.GetItem(childID));
+					e->m_children.push_back(m_entities.GetItem(childID));
 
 				if (e->m_parentID != ENTITY_NULL)
 					e->m_parent = m_entities.GetItem(e->m_parentID);

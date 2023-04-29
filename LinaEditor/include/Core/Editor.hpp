@@ -38,6 +38,8 @@ SOFTWARE.
 #include "GUI/EditorPayloadManager.hpp"
 #include "GUI/EditorLayoutManager.hpp"
 #include "EditorShortcutManager.hpp"
+#include "Commands/EditorCommandManager.hpp"
+#include "Event/IEditorEventDispatcher.hpp"
 
 namespace Lina
 {
@@ -58,7 +60,7 @@ namespace Lina::Editor
 	class GUINodePanel;
 	class GUINodeDockArea;
 
-	class Editor : public ISubsystem
+	class Editor : public ISubsystem, public IEditorEventDispatcher
 	{
 
 	private:
@@ -78,7 +80,7 @@ namespace Lina::Editor
 		};
 
 	public:
-		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this), m_layoutManager(this), m_shortcutManager(this){};
+		Editor(ISystem* system) : ISubsystem(system, SubsystemType::Editor), m_payloadManager(this), m_layoutManager(this), m_shortcutManager(this), m_commandManager(this){};
 		virtual ~Editor() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
@@ -121,6 +123,11 @@ namespace Lina::Editor
 			return m_layoutManager;
 		}
 
+		inline EditorCommandManager& GetCommandManager()
+		{
+			return m_commandManager;
+		}
+
 		static uint32 s_childWindowCtr;
 
 	private:
@@ -130,6 +137,7 @@ namespace Lina::Editor
 		Input*							  m_input			= nullptr;
 		EditorPayloadManager			  m_payloadManager;
 		EditorShortcutManager			  m_shortcutManager;
+		EditorCommandManager			  m_commandManager;
 		WindowManager*					  m_windowManager		= nullptr;
 		GfxManager*						  m_gfxManager			= nullptr;
 		GUIDrawerBase*					  m_guiDrawerMainWindow = nullptr;

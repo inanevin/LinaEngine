@@ -43,7 +43,6 @@ SOFTWARE.
 #include "Input/Core/InputMappings.hpp"
 namespace Lina::Editor
 {
-
 	EditorPayloadManager::EditorPayloadManager(Editor* editor) : m_editor(editor)
 	{
 	}
@@ -57,7 +56,7 @@ namespace Lina::Editor
 		m_window = m_windowManager->CreateAppWindow(EDITOR_PAYLOAD_WINDOW_SID, "EditorPayloadWindow", Vector2i::Zero, Vector2i(800, 600), SRM_DrawGUI);
 		m_window->SetStyle(WindowStyle::BorderlessNoResize);
 		m_window->SetVisible(false);
-		m_window->SetAlpha(0.5f);
+		m_window->SetAlpha(0.8f);
 		m_window->SetInputPassthrough(true);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(EDITOR_PAYLOAD_WINDOW_SID);
@@ -67,22 +66,29 @@ namespace Lina::Editor
 
 	void EditorPayloadManager::Tick()
 	{
-		if (m_currentPayloadType == PayloadType::None)
+		if (m_currentPayloadMeta.type == PayloadType::EPL_None)
 			return;
 
 		if (!m_window->GetIsVisible())
-		{
 			m_window->SetVisible(true);
-		}
 
-		const Vector2i windowPos = m_input->GetMousePositionAbs() - Vector2i(m_currentPayloadDelta);
+		const Vector2i windowPos = m_input->GetMousePositionAbs() + Vector2i(m_currentPayloadMeta.delta);
 		m_window->SetPos(windowPos);
+		m_window->BringToFront();
 
 		if (!m_input->GetMouseButton(LINA_MOUSE_0))
 		{
+			Event ev	  = Event();
+			ev.pParams[0] = &m_currentPayloadMeta;
+			m_editor->DispatchEvent(EVE_PayloadDropped, ev);
+
 			const auto& drawers = m_editor->GetGUIDrawers();
-			bool payloadAccepted = false;
-			// TODO: drop payload
+
+			for (auto [sid, drawer] : drawers)
+				drawer->OnPayloadEnded(m_currentPayloadMeta.type);
+
+			m_currentPayloadMeta = PayloadMeta();
+			m_window->SetVisible(false);
 		}
 	}
 
@@ -90,6 +96,23 @@ namespace Lina::Editor
 	{
 		delete m_guiDrawer;
 		m_windowManager->DestroyAppWindow(EDITOR_PAYLOAD_WINDOW_SID);
+	}
+
+	void EditorPayloadManager::CreatePayload(PayloadType type, const Vector2i& windowSize, const Vector2i& delta, void* userData)
+	{
+		m_currentPayloadMeta.type  = type;
+		m_currentPayloadMeta.data  = userData;
+		m_currentPayloadMeta.delta = delta;
+		m_window->AddSizeRequest(windowSize);
+
+		Event ev	  = Event();
+		ev.pParams[0] = &m_currentPayloadMeta;
+		m_editor->DispatchEvent(EVE_PayloadCreated, ev);
+
+		const auto& drawers = m_editor->GetGUIDrawers();
+
+		for (auto [sid, drawer] : drawers)
+			drawer->OnPayloadCreated(type, userData);
 	}
 
 } // namespace Lina::Editor

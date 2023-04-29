@@ -50,7 +50,8 @@ namespace Lina
 
 	template <typename T> void AddRenderables(EntityWorld* world, WorldRenderer::WorldData& data, HashMap<uint32, ObjectWrapper<RenderableComponent>>& renderableIDs)
 	{
-		Vector<ObjectWrapper<T>> comps = world->GetAllComponents<T>();
+		Vector<ObjectWrapper<T>> comps;
+		world->GetAllComponents<T>(comps);
 
 		for (auto& wrp : comps)
 		{

@@ -588,6 +588,7 @@ namespace Lina
 	void Win32Window::BringToFront()
 	{
 		OpenIcon(m_window);
+		SetWindowPos(m_window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	}
 
 	void Win32Window::SetMouseFocus(bool focus)
@@ -622,6 +623,13 @@ namespace Lina
 	{
 		// Reset as this will be called pre-pump messages
 		m_mouseDelta = Vector2i::Zero;
+
+		if (m_sizeRequestExists)
+		{
+			m_sizeRequestExists = false;
+			SetSize(m_lastSizeRequest);
+			m_lastSizeRequest	= Vector2i::Zero;
+		}
 
 		const Vector2i localMousePos = m_input->GetMousePositionAbs() - m_rect.pos;
 

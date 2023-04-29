@@ -39,10 +39,10 @@ namespace Lina
 	Rect Rect::Shrink(float percentage) const
 	{
 		Rect		r	 = *this;
-		const float amtX = r.size.x * percentage / 100.0f;
-		const float amtY = r.size.y * percentage / 100.0f;
-		r.size -= Vector2(amtX, amtY) * 2.0f;
-		r.pos += Vector2(amtX, amtY);
+		const float amtX = r.size.x * percentage;
+		const float amtY = r.size.y * percentage;
+		r.size -= Vector2(amtX, amtY);
+		r.pos += Vector2(amtX, amtY) * 0.5f;
 		return r;
 	}
 
@@ -113,11 +113,11 @@ namespace Lina
 
 	Recti Recti::Shrink(float percentage) const
 	{
-		Recti		 r	  = *this;
-		const int amtX = static_cast<int>(static_cast<float>(r.size.x) * percentage / 100.0f);
-		const int amtY = static_cast<int>(static_cast<float>(r.size.y) * percentage / 100.0f);
-		r.size -= Vector2i(amtX * 2, amtY * 2);
-		r.pos += Vector2i(amtX, amtY);
+		Recti	  r	   = *this;
+		const int amtX = static_cast<int>(static_cast<float>(r.size.x) * percentage);
+		const int amtY = static_cast<int>(static_cast<float>(r.size.y) * percentage);
+		r.size -= Vector2i(amtX, amtY);
+		r.pos += Vector2i(amtX / 2, amtY /2);
 		return r;
 	}
 

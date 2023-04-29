@@ -45,9 +45,11 @@ src/GUI/Nodes/Docking/GUINodeDockPreview.cpp
 src/GUI/Nodes/Custom/GUINodeTitleSection.cpp
 src/GUI/Nodes/Custom/GUINodeTopPanel.cpp
 src/GUI/Nodes/Custom/GUINodeCustomLogo.cpp
+src/GUI/Nodes/Custom/GUINodeEntitySelection.cpp
 src/GUI/Nodes/Widgets/GUINodeFileMenu.cpp
 src/GUI/Nodes/Widgets/GUINodeButton.cpp
 src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
+src/GUI/Nodes/Widgets/GUINodeSelection.cpp
 src/GUI/Nodes/Widgets/GUINodeText.cpp
 src/GUI/Nodes/Widgets/GUINodeTab.cpp
 src/GUI/Nodes/Widgets/GUINodeTabArea.cpp
@@ -63,6 +65,11 @@ src/GUI/Drawers/GUIDrawerSplashScreen.cpp
 src/GUI/Drawers/GUIDrawerPayload.cpp
 src/GUI/EditorPayloadManager.cpp
 src/GUI/EditorLayoutManager.cpp
+src/Commands/EditorCommand.cpp
+src/Commands/EditorCommandManager.cpp
+src/Commands/EditorCommandEntity.cpp
+src/Event/IEditorEventListener.cpp
+src/Event/IEditorEventDispatcher.cpp
 )
 
 
@@ -83,9 +90,11 @@ include/GUI/Nodes/Docking/GUINodeDockPreview.hpp
 include/GUI/Nodes/Custom/GUINodeTitleSection.hpp
 include/GUI/Nodes/Custom/GUINodeTopPanel.hpp
 include/GUI/Nodes/Custom/GUINodeCustomLogo.hpp
+include/GUI/Nodes/Custom/GUINodeEntitySelection.hpp
 include/GUI/Nodes/Widgets/GUINodeFileMenu.hpp
 include/GUI/Nodes/Widgets/GUINodeButton.hpp
 include/GUI/Nodes/Widgets/GUINodeTooltip.hpp
+include/GUI/Nodes/Widgets/GUINodeSelection.hpp
 include/GUI/Nodes/Widgets/GUINodeText.hpp
 include/GUI/Nodes/Widgets/GUINodeTab.hpp
 include/GUI/Nodes/Widgets/GUINodeTabArea.hpp
@@ -110,7 +119,12 @@ include/Core/Editor.hpp
 include/Core/Theme.hpp
 include/Core/EditorShortcutManager.hpp
 include/Core/EditorResourcesRegistry.hpp
-
+include/Commands/EditorCommand.hpp
+include/Commands/EditorCommandManager.hpp
+include/Commands/EditorCommandEntity.hpp
+include/Event/EditorEvents.hpp
+include/Event/IEditorEventDispatcher.hpp
+include/Event/IEditorEventListener.hpp
 )
 
 #--------------------------------------------------------------------

@@ -91,7 +91,7 @@ namespace Lina::Editor
 			const Rect splitAreaRect = Rect(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f), rectSize);
 
 			LinaVG::DrawRect(threadID, LV2(splitAreaRect.pos), LV2((splitAreaRect.pos + splitAreaRect.size)), opts, 0.0f, FRONT_DRAW_ORDER);
-			GUIUtility::DrawSheetImage(threadID, item, (splitAreaRect.pos + splitAreaRect.pos + splitAreaRect.size) * 0.5f, itemSize, Color::White, m_drawOrder);
+			GUIUtility::DrawSheetImage(threadID, item, (splitAreaRect.pos + splitAreaRect.pos + splitAreaRect.size) * 0.5f, itemSize, Color::White, FRONT_DRAW_ORDER);
 
 			if (splitAreaRect.IsPointInside(mousePos))
 			{

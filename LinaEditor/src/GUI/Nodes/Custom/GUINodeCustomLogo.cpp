@@ -59,7 +59,7 @@ namespace Lina::Editor
 
 		// Tooltip
 		{
-			m_tooltip->SetPos(m_window->GetMousePosition() + Vector2(10, 10));
+			m_tooltip->SetPos(m_window->GetMousePosition() + Vector2i(10, 10));
 			m_tooltip->SetVisible(m_isHovered);
 		}
 
@@ -71,7 +71,7 @@ namespace Lina::Editor
 		Vector2		   center			= Vector2(swapchainSize.x * 0.5f, itemSize.y * 0.5f + padding * 0.5f);
 		center							= center.Max(m_minRect.pos + Vector2(itemSize.x * 0.5f + padding * 8, 0.0f));
 		m_rect.pos						= Vector2(center.x - itemSize.x * 0.5f - stretchedPadding, center.y - itemSize.y * 0.5f);
-		m_rect.size						= itemSize + Vector2(stretchedPadding * 2, 0.0f);
+		m_rect.size						= itemSize + Vector2i(static_cast<int>(stretchedPadding * 2.0f), 0);
 
 		// Background convex shape
 		{

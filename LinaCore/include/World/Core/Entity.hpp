@@ -68,6 +68,7 @@ namespace Lina
 		void		   SetVisible(bool visible);
 		void		   SetStatic(bool isStatic);
 		Transformation GetInterpolated(float interpolation);
+		bool		   HasChildInTree(Entity* other) const;
 
 		// Inherited via ISerializable
 		virtual void SaveToStream(OStream& stream) override;
@@ -177,6 +178,16 @@ namespace Lina
 			return m_mask;
 		}
 
+		inline const Vector<Entity*>& GetChildren() const
+		{
+			return m_children;
+		}
+
+		inline Entity* GetParent() const
+		{
+			return m_parent;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -197,17 +208,17 @@ namespace Lina
 		friend class EntityWorld;
 		~Entity() = default;
 
-		EntityWorld*	 m_world	= nullptr;
-		Entity*			 m_parent	= nullptr;
-		uint32			 m_id		= 0;
-		String			 m_name		= "";
-		uint32			 m_parentID = ENTITY_NULL;
-		HashSet<Entity*> m_children;
-		HashSet<uint32>	 m_childrenID;
-		Transformation	 m_transform;
-		Transformation	 m_prevTransform;
-		Bitmask16		 m_mask;
-		StringID		 m_sid = 0;
+		EntityWorld*	m_world	   = nullptr;
+		Entity*			m_parent   = nullptr;
+		uint32			m_id	   = 0;
+		String			m_name	   = "";
+		uint32			m_parentID = ENTITY_NULL;
+		Vector<Entity*> m_children;
+		Vector<uint32>	m_childrenIDsForLoad;
+		Transformation	m_transform;
+		Transformation	m_prevTransform;
+		Bitmask16		m_mask;
+		StringID		m_sid = 0;
 	};
 
 } // namespace Lina

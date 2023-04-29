@@ -107,18 +107,21 @@ namespace Lina
 	void LevelManager::UninstallLevel(bool immediate)
 	{
 		auto uninstall = [this]() {
+			Event data;
+			data.pParams[0] = static_cast<void*>(m_currentLevel);
+
+			m_system->DispatchEvent(EVS_PreLevelUninstall, data);
 			m_currentLevel->Uninstall();
 
 			ResourceManager* rm = (ResourceManager*)m_system->CastSubsystem(SubsystemType::ResourceManager);
 
+			// Unload level.
 			ResourceIdentifier ident;
 			ident.tid  = m_currentLevel->GetTID();
 			ident.sid  = m_currentLevel->GetSID();
 			ident.path = m_currentLevel->GetPath();
 			rm->UnloadResources({ident});
 
-			Event data;
-			data.pParams[0] = static_cast<void*>(m_currentLevel);
 			m_system->DispatchEvent(EVS_LevelUninstalled, data);
 			m_currentLevel = nullptr;
 		};

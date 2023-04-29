@@ -40,14 +40,24 @@ namespace Lina::Editor
 {
 	GUINode::GUINode(GUIDrawerBase* drawer, int drawOrder) : m_drawOrder(drawOrder)
 	{
+		SetDrawer(drawer);
+	}
+
+	void GUINode::SetDrawer(GUIDrawerBase* drawer)
+	{
 		m_drawer	= drawer;
 		m_swapchain = m_drawer->GetSwapchain();
 		m_editor	= m_drawer->GetEditor();
 		m_window	= m_swapchain->GetWindow();
+
+		for (auto c : m_children)
+			c->SetDrawer(drawer);
 	}
 
 	GUINode::~GUINode()
 	{
+		m_drawer->OnNodeDeleted(this);
+
 		for (auto c : m_children)
 			delete c;
 
@@ -81,6 +91,9 @@ namespace Lina::Editor
 	{
 		static GUINode* lastPressedNode = nullptr;
 
+		if (!m_visible)
+			return false;
+
 		if (button == LINA_MOUSE_0)
 		{
 			if (action == InputAction::Pressed)
@@ -90,6 +103,7 @@ namespace Lina::Editor
 					lastPressedNode = this;
 					m_isPressed		= true;
 					m_isDragging	= true;
+					OnPressed(button);
 					OnDragBegin();
 					m_dragStartMousePos	  = m_window->GetMousePosition();
 					m_dragStartMouseDelta = Vector2(m_dragStartMousePos) - m_rect.pos;
@@ -110,6 +124,11 @@ namespace Lina::Editor
 
 				m_isPressed	 = false;
 				m_isDragging = false;
+			}
+			else if (action == InputAction::Repeated)
+			{
+				if (GetIsHovered())
+					OnDoubleClicked();
 			}
 		}
 		else
@@ -152,29 +171,6 @@ namespace Lina::Editor
 			m_children[i]->OnLostFocus();
 	}
 
-	void GUINode::OnPayloadCreated(PayloadType type, void* data)
-	{
-		const uint32 sz = static_cast<uint32>(m_children.size());
-		for (uint32 i = 0; i < sz; i++)
-			m_children[i]->OnPayloadCreated(type, data);
-	}
-
-	bool GUINode::OnPayloadDropped(PayloadType type, void* data)
-	{
-		const uint32 sz		= static_cast<uint32>(m_children.size());
-		bool		 retVal = false;
-
-		for (uint32 i = 0; i < sz; i++)
-		{
-			const bool ret = m_children[i]->OnPayloadDropped(type, data);
-
-			if (ret)
-				retVal = true;
-		}
-
-		return retVal;
-	}
-
 	bool GUINode::OnShortcut(Shortcut sc)
 	{
 		const uint32 sz = static_cast<uint32>(m_children.size());
@@ -184,6 +180,27 @@ namespace Lina::Editor
 				return true;
 		}
 		return false;
+	}
+
+	void GUINode::OnPayloadCreated(PayloadType type, void* userData)
+	{
+		m_payloadAvailable = m_payloadMask.IsSet(type);
+
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->OnPayloadCreated(type, userData);
+	}
+
+	void GUINode::OnPayloadEnded(PayloadType type)
+	{
+		m_payloadAvailable = false;
+
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->OnPayloadEnded(type);
+
+		if (m_payloadMask.IsSet(type) && m_rect.IsPointInside(m_window->GetMousePosition()))
+			OnPayloadAccepted();
 	}
 
 	void GUINode::SaveToStream(OStream& stream)

@@ -85,17 +85,27 @@ namespace Lina
 			return m_activeCamera;
 		}
 
-		template <typename T> Vector<ObjectWrapper<T>> GetAllComponents()
+		void GetAllEntities(Vector<Entity*>& entities)
 		{
-			auto*					 cache = Cache<T>();
-			Vector<ObjectWrapper<T>> comps;
+			entities.reserve(m_entities.GetNextFreeID());
+
+			for (auto e : m_entities)
+			{
+				if (e != nullptr)
+					entities.push_back(e);
+			}
+		}
+
+		template <typename T> void GetAllComponents(Vector<ObjectWrapper<T>>& comps)
+		{
+			auto* cache = Cache<T>();
 
 			Vector<T*> ptrs = cache->GetAllComponents();
 
+			comps.reserve(ptrs.size());
+
 			for (auto p : ptrs)
 				comps.push_back(ObjectWrapper<T>(p));
-
-			return comps;
 		}
 
 		template <typename T> ObjectWrapper<T> GetComponent(Entity* e)

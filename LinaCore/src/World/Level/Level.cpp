@@ -35,9 +35,15 @@ namespace Lina
 	Level::~Level()
 	{
 		if (m_world)
+		{
+			Event ev = Event();
+			m_world->DispatchEvent(EVG_End, ev);
 			delete m_world;
+		}
 
 		m_worldStream.Destroy();
+		m_loadedRuntimeUserStream.Destroy();
+		m_runtimeUserStream.Destroy();
 	}
 
 	void Level::Install()
@@ -49,43 +55,71 @@ namespace Lina
 			m_world->LoadFromStream(m_worldStream);
 			m_worldStream.Destroy();
 		}
+
+		m_runtimeUserStream.CreateReserve(4);
 	}
 
 	void Level::Uninstall()
 	{
+		Event ev = Event();
+		m_world->DispatchEvent(EVG_End, ev);
 		delete m_world;
 		m_world = nullptr;
 	}
 
 	void Level::SaveToStream(OStream& stream)
 	{
-		// custom data.
+		if (m_world)
+		{
+			OStream worldStream;
+			worldStream.CreateReserve(4);
+			m_world->SaveToStream(worldStream);
+
+			const uint32 worldStreamSize = static_cast<uint32>(worldStream.GetCurrentSize());
+			stream << worldStreamSize;
+
+			if (worldStreamSize > 0)
+				stream.WriteEndianSafe(worldStream.GetDataRaw(), worldStream.GetCurrentSize());
+
+			worldStream.Destroy();
+		}
+		else
+		{
+			const uint32 worldStreamSize = 0;
+			stream << worldStreamSize;
+		}
+
 		VectorSerialization::SaveToStream_OBJ(stream, m_usedResources);
 
-		// world.
-		const size_t streamSize = stream.GetCurrentSize();
+		const uint32 userStreamSize = static_cast<uint32>(m_runtimeUserStream.GetCurrentSize());
+		stream << userStreamSize;
 
-		if (m_world)
-			m_world->SaveToStream(stream);
+		if (userStreamSize > 0)
+			stream.WriteEndianSafe(m_runtimeUserStream.GetDataRaw(), m_runtimeUserStream.GetCurrentSize());
 
-		const size_t totalSize = stream.GetCurrentSize();
-		const uint32 worldSize = static_cast<uint32>(totalSize - streamSize);
-		stream << worldSize;
+		// Refresh after saving
+		m_runtimeUserStream.Destroy();
+		m_runtimeUserStream.CreateReserve(4);
 	}
 
 	void Level::LoadFromStream(IStream& stream)
 	{
 		uint32 worldSize = 0;
-		stream.Seek(stream.GetSize() - sizeof(uint32));
-		stream.Read(worldSize);
-		stream.Seek(0);
+		stream >> worldSize;
 
-		// custom data
+		if (worldSize > 0)
+		{
+			m_worldStream.Create(worldSize);
+			stream.ReadEndianSafe(m_worldStream.GetDataCurrent(), worldSize);
+		}
+
 		VectorSerialization::LoadFromStream_OBJ(stream, m_usedResources);
 
-		// world.
-		if (worldSize != 0)
-			m_worldStream.Create(stream.GetDataCurrent(), worldSize);
+		uint32 userStreamSize = 0;
+		stream >> userStreamSize;
+
+		if (userStreamSize > 0)
+			m_loadedRuntimeUserStream.Create(stream.GetDataCurrent(), userStreamSize);
 	}
 
 } // namespace Lina

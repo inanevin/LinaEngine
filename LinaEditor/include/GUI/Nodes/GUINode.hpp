@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Data/String.hpp"
 #include "Core/EditorCommon.hpp"
 #include "Serialization/ISerializable.hpp"
+#include "Data/Bitmask.hpp"
 
 namespace Lina
 {
@@ -63,10 +64,13 @@ namespace Lina::Editor
 		virtual bool OnMouse(uint32 button, InputAction action);
 		virtual bool OnMouseWheel(uint32 delta);
 		virtual void OnLostFocus();
-		virtual void OnPayloadCreated(PayloadType type, void* data);
-		virtual bool OnPayloadDropped(PayloadType type, void* data);
 		virtual bool OnShortcut(Shortcut sc);
+		virtual void OnPayloadCreated(PayloadType type, void* userData);
+		virtual void OnPayloadEnded(PayloadType type);
+		virtual void OnPayloadAccepted(){};
 		virtual void OnClicked(uint32 button){};
+		virtual void OnPressed(uint32 button){};
+		virtual void OnDoubleClicked(){};
 		virtual void OnHoverBegin(){};
 		virtual void OnHoverEnd(){};
 		virtual void OnDragBegin(){};
@@ -74,16 +78,17 @@ namespace Lina::Editor
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 
-		virtual Vector2 CalculateSize()
-		{
-			return Vector2::Zero;
-		}
-
+		void	 SetDrawer(GUIDrawerBase* drawer);
 		GUINode* AddChildren(GUINode* node);
 		GUINode* RemoveChildren(GUINode* node);
 		GUINode* SetVisible(bool visible);
 		GUINode* FindChildren(StringID sid);
 		bool	 ChildExists(GUINode* node);
+		
+		virtual Vector2 CalculateSize()
+		{
+			return Vector2::Zero;
+		}
 
 		inline Vector<GUINode*>& GetChildren()
 		{
@@ -133,6 +138,11 @@ namespace Lina::Editor
 		inline void SetCallbackDismissed(Delegate<void(GUINode*)>&& onDismissed)
 		{
 			m_onDismissed = onDismissed;
+		}
+
+		inline void SetCallbackPayloadAccepted(Delegate<void(GUINode*, void*)>&& onPayloadAccepted)
+		{
+			m_onPayloadAccepted = onPayloadAccepted;
 		}
 
 		inline void SetTitle(const char* title)
@@ -210,31 +220,39 @@ namespace Lina::Editor
 			m_disabled = isDisabled;
 		}
 
+		inline Bitmask16& GetPayloadMask()
+		{
+			return m_payloadMask;
+		}
+
 	protected:
 		friend class GUIDrawerBase;
 
-		bool					 m_disabled = false;
-		GUIDrawerBase*			 m_drawer;
-		Editor*					 m_editor			   = nullptr;
-		ISwapchain*				 m_swapchain		   = nullptr;
-		IWindow*				 m_window			   = nullptr;
-		StringID				 m_sid				   = 0;
-		bool					 m_visible			   = true;
-		int						 m_drawOrder		   = 0;
-		bool					 m_isHovered		   = false;
-		bool					 m_isPressed		   = false;
-		bool					 m_isDragging		   = false;
-		Vector2i				 m_dragStartMousePos   = Vector2i::Zero;
-		Vector2i				 m_dragStartMouseDelta = Vector2i::Zero;
-		Vector<GUINode*>		 m_children;
-		Rect					 m_rect				  = Rect();
-		Rect					 m_minRect			  = Rect();
-		Rect					 m_maxRect			  = Rect();
-		Vector2					 m_lastCalculatedSize = Vector2::Zero;
-		float					 m_lastDpi			  = 0.0f;
-		String					 m_title			  = "";
-		Delegate<void(GUINode*)> m_onClicked;
-		Delegate<void(GUINode*)> m_onDismissed;
+		bool							m_payloadAvailable = false;
+		bool							m_disabled		   = false;
+		Bitmask16						m_payloadMask	   = 0;
+		GUIDrawerBase*					m_drawer;
+		Editor*							m_editor			  = nullptr;
+		ISwapchain*						m_swapchain			  = nullptr;
+		IWindow*						m_window			  = nullptr;
+		StringID						m_sid				  = 0;
+		bool							m_visible			  = true;
+		int								m_drawOrder			  = 0;
+		bool							m_isHovered			  = false;
+		bool							m_isPressed			  = false;
+		bool							m_isDragging		  = false;
+		Vector2i						m_dragStartMousePos	  = Vector2i::Zero;
+		Vector2i						m_dragStartMouseDelta = Vector2i::Zero;
+		Vector<GUINode*>				m_children;
+		Rect							m_rect				 = Rect();
+		Rect							m_minRect			 = Rect();
+		Rect							m_maxRect			 = Rect();
+		Vector2							m_lastCalculatedSize = Vector2::Zero;
+		float							m_lastDpi			 = 0.0f;
+		String							m_title				 = "";
+		Delegate<void(GUINode*)>		m_onClicked;
+		Delegate<void(GUINode*)>		m_onDismissed;
+		Delegate<void(GUINode*, void*)> m_onPayloadAccepted;
 	};
 } // namespace Lina::Editor
 

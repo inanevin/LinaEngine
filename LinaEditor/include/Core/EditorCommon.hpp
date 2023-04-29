@@ -91,6 +91,7 @@ namespace Lina::Editor
 		CTRL_W,
 		CTRL_T,
 		CTRL_S,
+		CTRL_Z,
 		CTRL_SHIFT_S,
 	};
 
@@ -107,22 +108,17 @@ namespace Lina::Editor
 		{Shortcut::None, ""},
 		{Shortcut::CTRL_A, "CTRL+A"},
 		{Shortcut::CTRL_D, "CTRL+D"},
-		{Shortcut::CTRL_S, "CTRL+S"},
-		{Shortcut::CTRL_T, "CTRL+T"},
 		{Shortcut::CTRL_W, "CTRL+W"},
+		{Shortcut::CTRL_T, "CTRL+T"},
+		{Shortcut::CTRL_S, "CTRL+S"},
+		{Shortcut::CTRL_Z, "CTRL+Z"},
 		{Shortcut::CTRL_SHIFT_S, "CTRL+SHIFT+S"},
 	};
 
-	enum class PayloadType
+	enum PayloadType
 	{
-		None,
-	};
-
-	struct PayloadDataPanel
-	{
-		GUINodePanel*	 srcPanel	   = nullptr;
-		GUINodePanel*	 onFlightPanel = nullptr;
-		GUINodeDockArea* ownerDockArea = nullptr;
+		EPL_None	  = 1 << 0,
+		EPL_Entity = 1 << 1,
 	};
 
 #define EDITOR_DEFAULT_DOCK_SPLIT		0.35f

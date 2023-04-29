@@ -150,6 +150,7 @@ namespace Lina::Editor
 
 	void GUINodeDockArea::AddPanel(GUINodePanel* panel)
 	{
+		panel->SetDrawer(m_drawer);
 		AddChildren(panel);
 		panel->SetParentDockArea(this);
 		m_panels.push_back(panel);

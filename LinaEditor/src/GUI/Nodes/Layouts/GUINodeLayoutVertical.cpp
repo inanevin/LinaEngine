@@ -35,13 +35,17 @@ namespace Lina::Editor
 	{
 		if (!m_visible)
 			return;
-			
+
 		Vector2 pos		  = m_rect.pos;
 		Vector2 totalSize = Vector2::Zero;
 
 		for (auto c : m_children)
 		{
 			c->SetPos(pos);
+
+			if (m_isFixedHorizontalSize)
+				c->SetSize(Vector2(m_rect.size.x, c->GetRect().size.y));
+
 			c->Draw(threadID);
 			const Vector2 sz = c->GetRect().size;
 			pos.y += sz.y + m_spacing;

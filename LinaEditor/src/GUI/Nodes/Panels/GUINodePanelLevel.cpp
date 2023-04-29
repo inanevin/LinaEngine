@@ -123,7 +123,7 @@ namespace Lina::Editor
 			const Rect	   imageRect	 = m_rect.ShrinkByAmount(4.0f);
 			const StringID textureHandle = wr->GetFinalTexture(m_gfxManager->GetFrameIndex())->GetSID();
 
-			LinaVG::DrawImage(threadID, textureHandle, LV2(imageRect.GetCenter()), LV2(imageRect.size));
+			LinaVG::DrawImage(threadID, textureHandle, LV2(imageRect.GetCenter()), LV2(imageRect.size), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder);
 
 			if (!imageRect.size.Equals(m_loadedLevel->GetWorldRenderer()->GetResolution(), 2.0f))
 			{
@@ -143,6 +143,15 @@ namespace Lina::Editor
 			camEntity->SetPosition(Vector3(0, 0, -5));
 			camEntity->SetRotationAngles(Vector3(0, 0, 0));
 
+			auto test1 = m_loadedLevel->GetWorld()->CreateEntity("This is a test entity");
+			auto test2 = m_loadedLevel->GetWorld()->CreateEntity("hmm");
+			auto test3 = m_loadedLevel->GetWorld()->CreateEntity("uuuuh");
+			auto test4 = m_loadedLevel->GetWorld()->CreateEntity("aq1");
+			auto test5 = m_loadedLevel->GetWorld()->CreateEntity("aq2");
+
+			test1->AddChild(test2);
+			test2->AddChild(test3);
+
 			m_loadedLevel->GetWorld()->SetActiveCamera(cam);
 			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(m_loadedLevel->GetWorld());
 			aq->SetName("Cube");
@@ -155,7 +164,8 @@ namespace Lina::Editor
 		else if (eventType & EVS_LevelUninstalled)
 			m_loadedLevel = nullptr;
 
-		m_noLevelText->SetVisible(m_loadedLevel != nullptr);
+		m_noLevelText->SetVisible(m_loadedLevel == nullptr);
+		m_noLevelTextAlt->SetVisible(m_loadedLevel == nullptr);
 	}
 
 } // namespace Lina::Editor

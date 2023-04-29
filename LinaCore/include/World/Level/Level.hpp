@@ -72,12 +72,24 @@ namespace Lina
 			m_renderer = renderer;
 		}
 
+		inline IStream& GetLoadedRuntimeUserStream()
+		{
+			return m_loadedRuntimeUserStream;
+		}
+
+		inline OStream& GetOutRuntimeUserStream()
+		{
+			return m_runtimeUserStream;
+		}
+
 	private:
 		// Inherited via IResource
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
+		OStream					   m_runtimeUserStream;
+		IStream					   m_loadedRuntimeUserStream;
 		WorldRenderer*			   m_renderer = nullptr;
 		Vector<ResourceIdentifier> m_usedResources;
 		EntityWorld*			   m_world = nullptr;

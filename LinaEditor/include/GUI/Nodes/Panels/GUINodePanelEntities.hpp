@@ -32,15 +32,96 @@ SOFTWARE.
 #define GUINodePanelEntities_HPP
 
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "Event/IGameEventListener.hpp"
+#include "Event/ISystemEventListener.hpp"
+#include "Event/IEditorEventListener.hpp"
+#include "Data/HashMap.hpp"
+#include "Serialization/ISerializable.hpp"
+
+namespace Lina
+{
+	class LevelManager;
+	class EntityWorld;
+	class Entity;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class GUINodePanelEntities : public GUINodePanel
+	class GUINodeLayoutVertical;
+	class GUINodeSelection;
+
+	class GUINodePanelEntities : public GUINodePanel, public ISystemEventListener, public IGameEventListener, public IEditorEventListener
 	{
+
+	private:
+		struct EntityDropData
+		{
+			bool	active		 = false;
+			int		dropState	 = 0;
+			Entity* targetEntity = nullptr;
+			Entity* srcEntity	 = nullptr;
+		};
+
+		struct EntityState
+		{
+			GUINodeSelection* node		  = nullptr;
+			bool			  expandState = false;
+		};
+
+		struct EntityMeta : public ISerializable
+		{
+			bool   expandState = false;
+			uint32 localOrder  = 0;
+
+			// Inherited via ISerializable
+			virtual void SaveToStream(OStream& stream) override;
+			virtual void LoadFromStream(IStream& stream) override;
+		};
+
 	public:
-		GUINodePanelEntities(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(drawer, drawOrder, panelType, title, parentDockArea){};
-		virtual ~GUINodePanelEntities() = default;
+		GUINodePanelEntities(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea);
+		virtual ~GUINodePanelEntities();
 		virtual void Draw(int threadID);
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
+		virtual void OnGameEvent(GameEvent eventType, const Event& ev);
+		virtual void OnEditorEvent(EditorEvent eventType, const Event& ev);
+		virtual void OnPayloadAccepted() override;
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_LevelInstalled | EVS_PreLevelUninstall;
+		}
+
+		virtual Bitmask32 GetGameEventMask()
+		{
+			return EVG_EntityCreated | EVG_EntityDestroyed;
+		}
+
+		virtual Bitmask32 GetEditorEventMask()
+		{
+			return EVE_SelectEntity | EVE_UnselectCurrentEntity | EVE_PreSavingCurrentLevel;
+		}
+
+	private:
+		void	RefreshEntityList();
+		void	ClearEntityList();
+		void	AddEntityToTree(Entity* entity, GUINodeSelection* parentNode);
+		void	OnClickedSelection(GUINode* selectionNode);
+		void	OnSelectionDetached(GUINodeSelection* selection, const Vector2& delta);
+		void	OnSelectionPayloadAccepted(GUINode* selection, void* userData);
+		Entity* FindEntityFromNode(GUINode* node);
+
+		void GetLevelEntityMeta();
+
+	private:
+		HashMap<uint32, EntityMeta>	  m_levelEntityMeta;
+		Vector<Entity*>				  m_orderedEntities;
+		HashMap<Entity*, EntityState> m_entityState;
+		EntityDropData				  m_entityDropData;
+		Entity*						  m_selectedEntity = nullptr;
+		GUINodeLayoutVertical*		  m_layout		   = nullptr;
+		EntityWorld*				  m_world		   = nullptr;
+		LevelManager*				  m_levelManager   = nullptr;
 	};
 } // namespace Lina::Editor
 
