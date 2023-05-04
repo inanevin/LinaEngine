@@ -38,7 +38,7 @@ namespace Lina::Editor
 {
 	void GUINodeTabArea::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		const uint32 sz		 = static_cast<uint32>(m_tabs.size());
@@ -48,7 +48,7 @@ namespace Lina::Editor
 		for (uint32 i = 0; i < sz; i++)
 		{
 			auto* tab  = m_tabs[i];
-			maxTabSize = maxTabSize.Max(tab->CalculateSize());
+			maxTabSize = maxTabSize.Max(tab->GetStoreSize("TitleSize"_hs, tab->GetTitle()) + padding * 4.0f);
 		}
 
 		Rect tabRect = Rect(Vector2(m_rect.pos.x, m_rect.pos.y), Vector2(maxTabSize.x, m_rect.size.y));

@@ -56,8 +56,8 @@ namespace Lina
 		{
 			auto itSrc	  = eastl::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });
 			auto itTarget = eastl::find_if(vec.begin(), vec.end(), [target](const T& child) { return child == target; });
-			vec.insert(itTarget + 1, *itSrc);
 			vec.erase(itSrc);
+			vec.insert(itTarget + 1, *itSrc);
 		}
 
 		template <typename T> inline void PlaceBefore(Lina::Vector<T>& vec, const T& src, const T& target)

@@ -56,6 +56,10 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_2x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_3x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_4x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_Bold_1x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_Bold_2x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_Bold_3x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_Bold_4x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_1x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_2x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_3x.ttf", GetTypeID<Font>(), 0));
@@ -102,6 +106,30 @@ namespace Lina
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 20);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_4x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 12);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_1x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 14);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 16);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_3x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetBool("IsSDF"_hs, false);
+		metadata.SetInt("Size"_hs, 20);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------

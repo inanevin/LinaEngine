@@ -51,7 +51,7 @@ namespace Lina::Editor
 		m_isActive			  = false;
 		m_currentHoveredSplit = DockSplitType::None;
 
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		auto mousePos = m_window->GetMousePosition();

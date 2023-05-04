@@ -38,26 +38,14 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	enum class ButtonFitType
-	{
-		None,
-		AutoFitFromTextAndPadding,
-	};
-
 	class GUINodeButton : public GUINode
 	{
 	public:
 		GUINodeButton(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
 		virtual ~GUINodeButton() = default;
 
-		virtual void	Draw(int threadID) override;
-		virtual void	OnClicked(uint32 button) override;
-		virtual Vector2 CalculateSize() override;
-
-		inline void SetFontType(FontType ft)
-		{
-			m_fontType = ft;
-		}
+		virtual void Draw(int threadID) override;
+		virtual void OnClicked(uint32 button) override;
 
 		inline void SetTextColor(const Color& color)
 		{
@@ -89,11 +77,6 @@ namespace Lina::Editor
 			m_enableHoverOutline = enableOutline;
 		}
 
-		inline void SetFitType(ButtonFitType ft)
-		{
-			m_fitType = ft;
-		}
-
 		inline void SetRounding(float rounding)
 		{
 			m_rounding = rounding;
@@ -110,17 +93,15 @@ namespace Lina::Editor
 		}
 
 	protected:
-		float		  m_rounding		   = 0.1f;
-		float		  m_textScale		   = 1.0f;
-		bool		  m_enableHoverOutline = false;
-		bool		  m_isIcon			   = false;
-		ButtonFitType m_fitType			   = ButtonFitType::None;
-		FontType	  m_fontType		   = FontType::DefaultEditor;
-		Color		  m_defaultColor	   = Color::White;
-		Color		  m_hoveredColor	   = Color::Gray;
-		Color		  m_pressedColor	   = Color::Black;
-		Color		  m_outlineColor	   = Color::Black;
-		Color		  m_textColor		   = Color::White;
+		float m_rounding		   = 0.1f;
+		float m_textScale		   = 1.0f;
+		bool  m_enableHoverOutline = false;
+		bool  m_isIcon			   = false;
+		Color m_defaultColor	   = Color::White;
+		Color m_hoveredColor	   = Color::Gray;
+		Color m_pressedColor	   = Color::Black;
+		Color m_outlineColor	   = Color::Black;
+		Color m_textColor		   = Color::White;
 	};
 
 } // namespace Lina::Editor

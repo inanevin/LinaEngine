@@ -41,7 +41,7 @@ namespace Lina
 
 	void EntityWorld::DestroyWorld()
 	{
-	
+
 		for (auto* e : m_entities)
 		{
 			if (e != nullptr)
@@ -73,6 +73,11 @@ namespace Lina
 	{
 		auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [sid](Entity* e) { return e != nullptr && e->GetSID() == sid; });
 		return *it;
+	}
+
+	Entity* EntityWorld::GetEntityFromID(uint32 id)
+	{
+		return m_entities.GetItem(id);
 	}
 
 	void EntityWorld::CopyFrom(EntityWorld& world)

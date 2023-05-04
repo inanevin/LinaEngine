@@ -65,6 +65,7 @@ namespace Lina
 		Entity*		 GetEntity(uint32 id);
 		Entity*		 GetEntity(const String& name);
 		Entity*		 GetEntityFromSID(StringID sid);
+		Entity*		 GetEntityFromID(uint32 id);
 		Entity*		 CreateEntity(const String& name);
 		void		 DestroyEntity(Entity* e);
 		virtual void SaveToStream(OStream& stream) override;

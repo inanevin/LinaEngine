@@ -49,6 +49,7 @@ namespace Lina::Editor
 	enum class FontType
 	{
 		DefaultEditor,
+		DefaultEditorBold,
 		AltEditor,
 		TitleEditor,
 		BigEditor,
@@ -59,6 +60,8 @@ namespace Lina::Editor
 	{
 		MenuButtonPadding,
 		GeneralItemPadding,
+		WidgetHeightShort,
+		WidgetHeightTall,
 		DockDividerThickness,
 	};
 
@@ -75,6 +78,7 @@ namespace Lina::Editor
 #define TI_MINIMIZE		   "\u004B"
 #define TI_RESTORE		   "\u004C"
 #define TI_CROSS		   "\u004D"
+#define TI_FOLDER		   "\u004E"
 
 #define FRONT_DRAW_ORDER   1000
 #define FRONTER_DRAW_ORDER 1200

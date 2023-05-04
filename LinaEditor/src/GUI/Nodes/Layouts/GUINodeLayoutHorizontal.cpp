@@ -33,7 +33,7 @@ namespace Lina::Editor
 {
 	void GUINodeLayoutHorizontal::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		Vector2 pos		  = m_rect.pos;

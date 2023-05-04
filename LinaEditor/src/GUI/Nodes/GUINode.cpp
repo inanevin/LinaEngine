@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "Serialization/StringSerialization.hpp"
+#include "Math/Math.hpp"
+#include "Serialization/HashMapSerialization.hpp"
 
 namespace Lina::Editor
 {
@@ -66,7 +68,7 @@ namespace Lina::Editor
 
 	void GUINode::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
@@ -91,7 +93,7 @@ namespace Lina::Editor
 	{
 		static GUINode* lastPressedNode = nullptr;
 
-		if (!m_visible)
+		if (!GetIsVisible())
 			return false;
 
 		if (button == LINA_MOUSE_0)
@@ -115,7 +117,7 @@ namespace Lina::Editor
 				{
 					lastPressedNode = nullptr;
 
-					if (m_visible && !m_disabled)
+					if (GetIsVisible() && !m_disabled)
 						OnClicked(LINA_MOUSE_0);
 				}
 
@@ -198,9 +200,6 @@ namespace Lina::Editor
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
 			m_children[i]->OnPayloadEnded(type);
-
-		if (m_payloadMask.IsSet(type) && m_rect.IsPointInside(m_window->GetMousePosition()))
-			OnPayloadAccepted();
 	}
 
 	void GUINode::SaveToStream(OStream& stream)
@@ -208,7 +207,7 @@ namespace Lina::Editor
 		stream << m_sid << m_visible << m_drawOrder << m_lastDpi;
 		m_rect.pos.SaveToStream(stream);
 		m_rect.size.SaveToStream(stream);
-		m_lastCalculatedSize.SaveToStream(stream);
+		HashMapSerialization::SaveToStream_OBJ(stream, m_storedSizes);
 		StringSerialization::SaveToStream(stream, m_title);
 	}
 
@@ -217,31 +216,29 @@ namespace Lina::Editor
 		stream >> m_sid >> m_visible >> m_drawOrder >> m_lastDpi;
 		m_rect.pos.LoadFromStream(stream);
 		m_rect.size.LoadFromStream(stream);
-		m_lastCalculatedSize.LoadFromStream(stream);
+		HashMapSerialization::LoadFromStream_OBJ(stream, m_storedSizes);
 		StringSerialization::LoadFromStream(stream, m_title);
 	}
 
-	GUINode* GUINode::AddChildren(GUINode* node)
+	void GUINode::AddChildren(GUINode* node)
 	{
 		m_children.push_back(node);
-		return this;
+		node->m_parent = this;
 	}
 
-	GUINode* GUINode::RemoveChildren(GUINode* node)
+	void GUINode::RemoveChildren(GUINode* node)
 	{
 		auto it = linatl::find_if(m_children.begin(), m_children.end(), [node](GUINode* child) { return child == node; });
 		m_children.erase(it);
-		return this;
+		node->m_parent = nullptr;
 	}
 
-	GUINode* GUINode::SetVisible(bool visible)
+	void GUINode::SetVisible(bool visible)
 	{
 		m_visible		= visible;
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
-			m_children[i]->SetVisible(visible);
-
-		return this;
+			m_children[i]->SetParentVisible(visible);
 	}
 
 	GUINode* GUINode::FindChildren(StringID sid)
@@ -274,6 +271,54 @@ namespace Lina::Editor
 		}
 
 		return false;
+	}
+
+	void GUINode::SetParentVisible(bool parentVisible)
+	{
+		m_parentVisible = parentVisible;
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->SetParentVisible(parentVisible);
+	}
+
+	void GUINode::ConsumeAvailableWidth()
+	{
+		if (m_parent)
+		{
+			const float padding	   = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+			const Rect& parentRect = m_parent->GetRect();
+			m_rect.size.x		   = parentRect.pos.x + parentRect.size.x - m_rect.pos.x - padding;
+		}
+	}
+
+	void GUINode::SetWidgetHeight(ThemeProperty prop)
+	{
+		m_rect.size.y = Theme::GetProperty(prop, m_window->GetDPIScale());
+	}
+
+	Vector2 GUINode::GetStoreSize(StringID sid, const String& text, FontType ft, float textScale, bool calculateEveryTime)
+	{
+		const float windowDpi = m_window->GetDPIScale();
+
+		if (Math::Equals(m_lastDpi, windowDpi, 0.0001f) && !calculateEveryTime)
+		{
+			const Vector2 retSize = m_storedSizes[sid];
+			if (!Math::Equals(retSize.x, 0.0f, 0.001f) || !Math::Equals(retSize.y, 0.0f, 0.001f))
+				return retSize;
+		}
+
+		m_lastDpi = windowDpi;
+		LinaVG::TextOptions textOpts;
+		textOpts.font	   = Theme::GetFont(ft, m_lastDpi);
+		textOpts.textScale = textScale;
+		const Vector2 sz   = FL2(LinaVG::CalculateTextSize(text.c_str(), textOpts));
+		m_storedSizes[sid] = sz;
+		return sz;
+	}
+
+	void GUINode::ClearStoredSizes()
+	{
+		m_storedSizes.clear();
 	}
 
 } // namespace Lina::Editor

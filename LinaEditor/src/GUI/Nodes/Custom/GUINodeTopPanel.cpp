@@ -105,6 +105,7 @@ namespace Lina::Editor
 
 		GUINodeFMPopup* debugPanelsPopup = new GUINodeFMPopup(drawer, FRONTER_DRAW_ORDER);
 		debugPanelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::DebugResourceView));
+		debugPanelsPopup->AddDefault(PANEL_TO_NAME_MAP.at(EditorPanel::DebugWidgets));
 		debugPanelsPopup->SetTitle("");
 		panelsPopup->AddExpandable("Debug", debugPanelsPopup);
 		debugPanelsPopup->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
@@ -125,7 +126,9 @@ namespace Lina::Editor
 		m_windowButtons->SetCallbackDismissed([&](GUINode* node) { m_window->Close(); });
 
 		m_customLogo = new GUINodeCustomLogo(drawer, drawOrder);
-		AddChildren(m_fileMenu)->AddChildren(m_windowButtons)->AddChildren(m_customLogo);
+		AddChildren(m_fileMenu);
+		AddChildren(m_windowButtons);
+		AddChildren(m_customLogo);
 
 		m_editor->GetSystem()->AddListener(this);
 	}
@@ -137,7 +140,7 @@ namespace Lina::Editor
 
 	void GUINodeTopPanel::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		// Top panel background

@@ -52,7 +52,7 @@ namespace Lina::Editor
 
 	void GUINodeCustomLogo::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		GUINode::Draw(threadID);

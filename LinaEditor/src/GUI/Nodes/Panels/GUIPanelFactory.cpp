@@ -29,7 +29,7 @@ SOFTWARE.
 
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelContentBrowser.hpp"
-#include "GUI/Nodes/Panels/GUINodePanelHierarchy.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelDebugWidgets.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelProperties.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelLevel.hpp"
 #include "GUI/Nodes/Panels/GUINodePanelEntities.hpp"
@@ -47,8 +47,8 @@ namespace Lina::Editor
 		case EditorPanel::ContentBrowser:
 			panel = new GUINodePanelContentBrowser(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
-		case EditorPanel::Hierarchy:
-			panel = new GUINodePanelHierarchy(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
+		case EditorPanel::DebugWidgets:
+			panel = new GUINodePanelDebugWidgets(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);
 			break;
 		case EditorPanel::Properties:
 			panel = new GUINodePanelProperties(targetDockArea->GetDrawer(), targetDockArea->GetDrawOrder(), panelType, panelTitle, targetDockArea);

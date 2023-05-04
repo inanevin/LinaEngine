@@ -35,7 +35,7 @@ src/GUI/Nodes/Panels/GUIPanelFactory.cpp
 src/GUI/Nodes/Panels/GUINodePanel.cpp
 src/GUI/Nodes/Panels/GUINodePanelResourceViewer.cpp
 src/GUI/Nodes/Panels/GUINodePanelEntities.cpp
-src/GUI/Nodes/Panels/GUINodePanelHierarchy.cpp
+src/GUI/Nodes/Panels/GUINodePanelDebugWidgets.cpp
 src/GUI/Nodes/Panels/GUINodePanelContentBrowser.cpp
 src/GUI/Nodes/Panels/GUINodePanelProperties.cpp
 src/GUI/Nodes/Panels/GUINodePanelLevel.cpp
@@ -49,6 +49,9 @@ src/GUI/Nodes/Custom/GUINodeEntitySelection.cpp
 src/GUI/Nodes/Widgets/GUINodeFileMenu.cpp
 src/GUI/Nodes/Widgets/GUINodeButton.cpp
 src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
+src/GUI/Nodes/Widgets/GUINodeTextArea.cpp
+src/GUI/Nodes/Widgets/GUINodeSliderFilled.cpp
+src/GUI/Nodes/Widgets/GUINodeColorWheel.cpp
 src/GUI/Nodes/Widgets/GUINodeSelection.cpp
 src/GUI/Nodes/Widgets/GUINodeText.cpp
 src/GUI/Nodes/Widgets/GUINodeTab.cpp
@@ -78,7 +81,7 @@ set(LINAEDITOR_HEADERS
 # Core
 include/GUI/Nodes/Panels/GUINodePanelResourceViewer.hpp
 include/GUI/Nodes/Panels/GUINodePanelEntities.hpp
-include/GUI/Nodes/Panels/GUINodePanelHierarchy.hpp
+include/GUI/Nodes/Panels/GUINodePanelDebugWidgets.hpp
 include/GUI/Nodes/Panels/GUINodePanelContentBrowser.hpp
 include/GUI/Nodes/Panels/GUINodePanelProperties.hpp
 include/GUI/Nodes/Panels/GUINodePanelLevel.hpp
@@ -94,8 +97,11 @@ include/GUI/Nodes/Custom/GUINodeEntitySelection.hpp
 include/GUI/Nodes/Widgets/GUINodeFileMenu.hpp
 include/GUI/Nodes/Widgets/GUINodeButton.hpp
 include/GUI/Nodes/Widgets/GUINodeTooltip.hpp
+include/GUI/Nodes/Widgets/GUINodeColorWheel.hpp
 include/GUI/Nodes/Widgets/GUINodeSelection.hpp
 include/GUI/Nodes/Widgets/GUINodeText.hpp
+include/GUI/Nodes/Widgets/GUINodeTextArea.hpp
+include/GUI/Nodes/Widgets/GUINodeSliderFilled.hpp
 include/GUI/Nodes/Widgets/GUINodeTab.hpp
 include/GUI/Nodes/Widgets/GUINodeTabArea.hpp
 include/GUI/Nodes/Widgets/GUINodeWindowButtons.hpp

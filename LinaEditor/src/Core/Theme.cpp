@@ -64,6 +64,17 @@ namespace Lina::Editor
 			else
 				sid = "Resources/Core/Fonts/NunitoSans_4x.ttf"_hs;
 		}
+		if (font == FontType::DefaultEditorBold)
+		{
+			if (dpiScale < 1.1f)
+				sid = "Resources/Core/Fonts/NunitoSans_Bold_1x.ttf"_hs;
+			else if (dpiScale < 1.15f)
+				sid = "Resources/Core/Fonts/NunitoSans_Bold_2x.ttf"_hs;
+			else if (dpiScale < 1.35f)
+				sid = "Resources/Core/Fonts/NunitoSans_Bold_3x.ttf"_hs;
+			else
+				sid = "Resources/Core/Fonts/NunitoSans_Bold_4x.ttf"_hs;
+		}
 		else if (font == FontType::AltEditor)
 		{
 			if (dpiScale < 1.1f)
@@ -125,6 +136,10 @@ namespace Lina::Editor
 			return 15.0f * multiplier;
 		case ThemeProperty::GeneralItemPadding:
 			return 12.0f * multiplier;
+		case ThemeProperty::WidgetHeightShort:
+			return 22.0f * multiplier;
+		case ThemeProperty::WidgetHeightTall:
+			return 24.0f * multiplier;
 		case ThemeProperty::DockDividerThickness:
 			return 1.5f * multiplier;
 		default:

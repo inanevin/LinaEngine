@@ -70,7 +70,6 @@ namespace Lina::Editor
 		void			 OnNodeDeleted(GUINode* node);
 		void			 SetDockPreviewEnabled(bool enabled);
 		GUINodeDockArea* SplitDockArea(GUINodeDockArea* area, DockSplitType type, const Vector<GUINodePanel*>& panels, float customSplit = 0.0f);
-		GUINode*		 FindNode(StringID sid);
 		void			 RemoveDockArea(GUINodeDockArea* area);
 		virtual void	 SaveToStream(OStream& stream) override;
 		virtual void	 LoadFromStream(IStream& stream) override;

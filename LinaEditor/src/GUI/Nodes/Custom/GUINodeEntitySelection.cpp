@@ -41,7 +41,7 @@ namespace Lina::Editor
 
 	void GUINodeEntitySelection::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 	}
 } // namespace Lina::Editor

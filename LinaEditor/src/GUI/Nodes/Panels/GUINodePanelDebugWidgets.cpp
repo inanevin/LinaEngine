@@ -26,35 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Nodes/Widgets/GUINodeTooltip.hpp"
-#include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "GUI/Nodes/Panels/GUINodePanelDebugWidgets.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTextArea.hpp"
+#include "GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
-
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Core/Theme.hpp"
 namespace Lina::Editor
 {
-	GUINodeTooltip::GUINodeTooltip(GUIDrawerBase* drawer) : GUINode(drawer, FRONTER_DRAW_ORDER)
+	GUINodePanelDebugWidgets::GUINodePanelDebugWidgets(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(drawer, drawOrder, panelType, title, parentDockArea)
 	{
+		m_textArea = new GUINodeTextArea(m_drawer, m_drawOrder);
+		m_textArea->SetTitle("Debug Title");
+		AddChildren(m_textArea);
 	}
-	void GUINodeTooltip::Draw(int threadID)
+
+	void GUINodePanelDebugWidgets::Draw(int threadID)
 	{
-		if (!GetIsVisible())
-			return;
+		GUINodePanel::Draw(threadID);
 
-		const float padding		  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const float textWrapWidth = 200.0f;
-
-		LinaVG::TextOptions opts;
-		opts.font	   = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
-		//opts.wrapWidth = textWrapWidth;
-
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
-		m_rect.size			   = textSize + Vector2(padding * 2, padding * 2);
-
-		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), m_drawOrder);
-
-		const Vector2 textStart = m_rect.pos + Vector2(padding, padding + textSize.y);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textStart), opts, 0.0f, m_drawOrder);
+		const float padding	 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+		Vector2		startPos = m_rect.pos + Vector2(padding, padding);
+		m_textArea->SetPos(startPos);
+		m_textArea->Draw(threadID);
 	}
 } // namespace Lina::Editor

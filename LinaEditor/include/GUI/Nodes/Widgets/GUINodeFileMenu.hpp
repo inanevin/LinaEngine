@@ -58,9 +58,9 @@ namespace Lina::Editor
 		GUINodeFMPopupElement(GUIDrawerBase* drawer, int drawOrder, FMPopupElementType type) : m_type(type), GUINode(drawer, drawOrder){};
 		virtual ~GUINodeFMPopupElement() = default;
 
-		virtual void	Draw(int threadID) override;
-		virtual Vector2 CalculateSize() override;
-		virtual void	OnClicked(uint32 button) override;
+		virtual void  Draw(int threadID) override;
+		virtual void  OnClicked(uint32 button) override;
+		virtual float GetTotalWidth();
 
 		inline FMPopupElementType GetType() const
 		{
@@ -79,7 +79,6 @@ namespace Lina::Editor
 
 	protected:
 		float			   m_shortcutXStartRight = 0.0f;
-		Vector2			   m_shortcutTextSize	 = Vector2::Zero;
 		Shortcut		   m_shortcut			 = Shortcut::None;
 		bool			   m_isLastHovered		 = false;
 		FMPopupElementType m_type				 = FMPopupElementType::Default;
@@ -90,9 +89,9 @@ namespace Lina::Editor
 	public:
 		GUINodeFMPopupElementDivider(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Divider){};
 		virtual ~GUINodeFMPopupElementDivider() = default;
-		virtual void	Draw(int threadID) override;
-		virtual Vector2 CalculateSize() override;
-		virtual void	OnClicked(uint32 button) override{};
+		virtual void  Draw(int threadID) override;
+		virtual void  OnClicked(uint32 button) override{};
+		virtual float GetTotalWidth() override;
 	};
 
 	class GUINodeFMPopupElementToggle : public GUINodeFMPopupElement
@@ -100,9 +99,9 @@ namespace Lina::Editor
 	public:
 		GUINodeFMPopupElementToggle(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Toggle){};
 		virtual ~GUINodeFMPopupElementToggle() = default;
-		virtual void	Draw(int threadID) override;
-		virtual Vector2 CalculateSize() override;
-		virtual void	OnClicked(uint32 button) override;
+		virtual void  Draw(int threadID) override;
+		virtual void  OnClicked(uint32 button) override;
+		virtual float GetTotalWidth() override;
 
 		inline void SetValue(bool val)
 		{
@@ -110,8 +109,7 @@ namespace Lina::Editor
 		}
 
 	protected:
-		Vector2 m_iconSize = Vector2::Zero;
-		bool	m_value	   = false;
+		bool m_value = false;
 	};
 
 	class GUINodeFMPopup;
@@ -120,9 +118,9 @@ namespace Lina::Editor
 	public:
 		GUINodeFMPopupElementExpandable(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Expandable){};
 		virtual ~GUINodeFMPopupElementExpandable() = default;
-		virtual void	Draw(int threadID) override;
-		virtual Vector2 CalculateSize() override;
-		virtual void	OnClicked(uint32 button) override{};
+		virtual void  Draw(int threadID) override;
+		virtual void  OnClicked(uint32 button) override{};
+		virtual float GetTotalWidth() override;
 
 		inline void SetExpandedPopup(GUINodeFMPopup* popup)
 		{
@@ -130,8 +128,7 @@ namespace Lina::Editor
 		}
 
 	protected:
-		Vector2			m_iconSize = Vector2::Zero;
-		GUINodeFMPopup* m_popup	   = nullptr;
+		GUINodeFMPopup* m_popup = nullptr;
 	};
 
 	class GUINodeFMPopup : public GUINode
@@ -155,12 +152,6 @@ namespace Lina::Editor
 		{
 			return m_elements;
 		}
-
-		inline void SetLayoutOffset(float offset)
-		{
-			m_layoutOffset = offset;
-		}
-
 		inline void SwitchedFrom()
 		{
 			m_lastHoveredElement = nullptr;
@@ -172,8 +163,7 @@ namespace Lina::Editor
 	protected:
 		GUINodeFMPopupElement*		   m_lastHoveredElement = nullptr;
 		Vector<GUINodeFMPopupElement*> m_elements;
-		GUINodeLayoutVertical*		   m_layout		  = nullptr;
-		float						   m_layoutOffset = 0.0f;
+		GUINodeLayoutVertical*		   m_layout = nullptr;
 	};
 
 	class GUINodeFileMenu : public GUINode

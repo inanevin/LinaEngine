@@ -45,8 +45,7 @@ namespace Lina::Editor
 		GUINodeText(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeText() = default;
 
-		virtual void	Draw(int threadID) override;
-		virtual Vector2 CalculateSize() override;
+		virtual void Draw(int threadID) override;
 
 		inline void SetColorStart(const Color& col)
 		{
@@ -80,16 +79,12 @@ namespace Lina::Editor
 
 		inline void SetText(const char* text)
 		{
-			m_text	  = text;
-			m_lastDpi = 0.0f;
-			CalculateSize();
+			m_text = text;
 		}
 
 		inline void SetText(const String& text)
 		{
-			m_text	  = text;
-			m_lastDpi = 0.0f;
-			CalculateSize();
+			m_text = text;
 		}
 
 	protected:
@@ -115,10 +110,8 @@ namespace Lina::Editor
 		GUINodeTextRichColors(GUIDrawerBase* drawer, int drawOrder) : GUINodeText(drawer, drawOrder){};
 		virtual ~GUINodeTextRichColors() = default;
 
-		virtual void	Draw(int threadID) override;
-		virtual Vector2 CalculateSize() override;
-
-		void AddText(const String& text, const Color& col);
+		virtual void Draw(int threadID) override;
+		void		 AddText(const String& text, const Color& col);
 
 	private:
 		Vector<TextData> m_textData;

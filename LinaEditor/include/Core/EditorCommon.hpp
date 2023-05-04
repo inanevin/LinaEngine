@@ -53,10 +53,10 @@ namespace Lina::Editor
 		Level,
 		Properties,
 		ContentBrowser,
-		Hierarchy,
 		DebugResourceView,
 		TextureViewer,
 		ModelViewer,
+		DebugWidgets,
 	};
 
 	enum class DockSplitType
@@ -99,10 +99,10 @@ namespace Lina::Editor
 																 {EditorPanel::Level, "Level"},
 																 {EditorPanel::Properties, "Properties"},
 																 {EditorPanel::ContentBrowser, "Content Browser"},
-																 {EditorPanel::Hierarchy, "Hierarchy"},
 																 {EditorPanel::ModelViewer, "Model Viewer"},
 																 {EditorPanel::TextureViewer, "Texture Viewer"},
-																 {EditorPanel::DebugResourceView, "Debug Resource View"}};
+																 {EditorPanel::DebugResourceView, "Debug Resource View"},
+																 {EditorPanel::DebugWidgets, "Debug Widgets"}};
 
 	const HashMap<Shortcut, const char*> SHORTCUT_TO_NAME_MAP = {
 		{Shortcut::None, ""},
@@ -117,7 +117,7 @@ namespace Lina::Editor
 
 	enum PayloadType
 	{
-		EPL_None	  = 1 << 0,
+		EPL_None   = 1 << 0,
 		EPL_Entity = 1 << 1,
 	};
 

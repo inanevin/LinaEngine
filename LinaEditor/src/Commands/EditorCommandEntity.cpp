@@ -58,7 +58,6 @@ namespace Lina::Editor
 		}
 		else if (eventType & EVG_End)
 		{
-			m_world->RemoveListener(this);
 			m_world = nullptr;
 		}
 	}

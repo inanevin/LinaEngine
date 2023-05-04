@@ -38,6 +38,8 @@ SOFTWARE.
 #include "World/Level/Level.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Data/CommonData.hpp"
+#include "Input/Core/InputMappings.hpp"
+#include "GUI/Nodes/Widgets/GUINodeFileMenu.hpp"
 
 namespace Lina::Editor
 {
@@ -51,12 +53,22 @@ namespace Lina::Editor
 		AddChildren(m_layout);
 		m_editor->AddListener(this);
 
+		auto* colorPopup = new GUINodeFMPopup(m_drawer, FRONTER_DRAW_ORDER);
+		colorPopup->AddDefault("None");
+		colorPopup->AddDefault("Select");
+		colorPopup->SetCallbackClicked(BIND(&GUINodePanelEntities::OnPressedContextItem, this, std::placeholders::_1));
+		m_contextMenuSelection = new GUINodeFMPopup(m_drawer, FRONTER_DRAW_ORDER);
+		m_contextMenuSelection->AddExpandable("Color", colorPopup);
+		m_contextMenuBoldToggle = m_contextMenuSelection->AddToggle("Bold Font", false);
+		m_contextMenuSelection->SetVisible(false);
+		m_contextMenuSelection->SetCallbackClicked(BIND(&GUINodePanelEntities::OnPressedContextItem, this, std::placeholders::_1));
+		AddChildren(m_contextMenuSelection);
+
 		if (m_levelManager->GetCurrentLevel() != nullptr)
 		{
 			m_world = m_levelManager->GetCurrentLevel()->GetWorld();
 			m_world->AddListener(this);
-			GetLevelEntityMeta();
-			RefreshEntityList();
+			LoadLevelMeta();
 		}
 	}
 
@@ -81,47 +93,93 @@ namespace Lina::Editor
 				// Reorder drop
 				if (m_entityDropData.dropState == 1)
 				{
-					m_entityDropData.srcEntity->RemoveFromParent();
+					auto* src			  = m_entityDropData.srcEntity;
+					auto* target		  = m_entityDropData.targetEntity;
+					auto* srcSelection	  = Internal::KeyFromValue(m_nodeToEntityMap, src);
+					auto* targetSelection = Internal::KeyFromValue(m_nodeToEntityMap, target);
 
-					auto targetParent = m_entityDropData.targetEntity->GetParent();
+					if (src->GetParent())
+					{
+						auto* srcParentSelection = Internal::KeyFromValue(m_nodeToEntityMap, src->GetParent());
+						srcParentSelection->RemoveChildSelection(srcSelection);
+						src->RemoveFromParent();
+					}
+					else
+						m_layout->RemoveChildren(srcSelection);
+
+					auto targetParent = target->GetParent();
 
 					if (targetParent != nullptr)
+					{
 						targetParent->AddChild(m_entityDropData.srcEntity);
+						auto* targetParentSelection = Internal::KeyFromValue(m_nodeToEntityMap, targetParent);
+						targetParentSelection->AddChildSelection(srcSelection);
 
-					ClearEntityList();
-					for (auto e : m_orderedEntities)
-						AddEntityToTree(e, nullptr);
+						auto& selectionChildren = targetParentSelection->GetSelectionChildren();
+						Internal::PlaceAfter(selectionChildren, srcSelection, targetSelection);
+					}
+					else
+					{
+						m_layout->AddChildren(srcSelection);
+						srcSelection->SetXOffset(0);
 
-					auto* srcNode	 = m_entityState[m_entityDropData.srcEntity].node;
-					auto* targetNode = m_entityState[m_entityDropData.targetEntity].node;
-
-					// if (targetParent)
-					//{
-					//	auto* parentNode = m_entityState[targetParent].node;
-					//	parentNode->PlaceChildAfter(srcNode, targetNode);
-					// }
-					// else
-					//{
-					//	auto a = static_cast<GUINode*>(srcNode);
-					//	auto b = static_cast<GUINode*>(targetNode);
-					//	Internal::PlaceAfter(m_layout->GetChildren(), a, b);
-					// }
+						auto& children = m_layout->GetChildren();
+						auto* n1	   = static_cast<GUINode*>(srcSelection);
+						auto* n2	   = static_cast<GUINode*>(targetSelection);
+						Internal::PlaceAfter(children, n1, n2);
+					}
 				}
 				else
 				{
-					// If the entity we are dropping is the parent of the target, free target first.
-					if (m_entityDropData.srcEntity->HasChildInTree(m_entityDropData.targetEntity))
-					{
-						auto* parentOfSrc = m_entityDropData.srcEntity->GetParent();
-						m_entityDropData.targetEntity->RemoveFromParent();
+					auto* src			  = m_entityDropData.srcEntity;
+					auto* target		  = m_entityDropData.targetEntity;
+					auto* srcSelection	  = Internal::KeyFromValue(m_nodeToEntityMap, src);
+					auto* targetSelection = Internal::KeyFromValue(m_nodeToEntityMap, target);
 
-						if (parentOfSrc != nullptr)
-							parentOfSrc->AddChild(m_entityDropData.targetEntity);
+					// Remove the selection node of the source entity from its parent.
+					{
+						if (src->GetParent() == nullptr)
+						{
+							auto n = static_cast<GUINode*>(srcSelection);
+							m_layout->RemoveChildren(n);
+						}
+						else
+						{
+							auto* srcParent			 = src->GetParent();
+							auto* srcParentSelection = Internal::KeyFromValue(m_nodeToEntityMap, srcParent);
+							srcParentSelection->RemoveChildSelection(srcSelection);
+						}
 					}
 
-					m_entityDropData.targetEntity->AddChild(m_entityDropData.srcEntity);
+					// If the entity we are dropping is the parent of the target, free target first.
+					if (src->HasChildInTree(target))
+					{
+						auto* parentOfSrc	 = src->GetParent();
+						auto* parentOfTarget = target->GetParent();
 
-					RefreshEntityList();
+						if (parentOfTarget)
+						{
+							target->RemoveFromParent();
+							auto* parentSelectionOfTarget = Internal::KeyFromValue(m_nodeToEntityMap, parentOfTarget);
+							parentSelectionOfTarget->RemoveChildSelection(targetSelection);
+						}
+
+						// Make em siblings
+						if (parentOfSrc != nullptr)
+						{
+							auto* parentSelectionOfSrc = Internal::KeyFromValue(m_nodeToEntityMap, parentOfSrc);
+							parentSelectionOfSrc->AddChildSelection(targetSelection);
+							parentOfSrc->AddChild(target);
+						}
+						else
+						{
+							m_layout->AddChildren(targetSelection);
+							targetSelection->SetXOffset(0);
+						}
+					}
+
+					target->AddChild(src);
+					targetSelection->AddChildSelection(srcSelection);
 				}
 
 				m_entityDropData = EntityDropData();
@@ -132,6 +190,9 @@ namespace Lina::Editor
 		m_layout->SetPos(m_rect.pos + Vector2(0.0f, padding * 0.5f));
 		m_layout->SetSize(m_rect.size);
 		m_layout->Draw(threadID);
+
+		if (m_contextMenuSelection->GetIsVisible())
+			m_contextMenuSelection->Draw(threadID);
 	}
 
 	void GUINodePanelEntities::OnSystemEvent(SystemEvent eventType, const Event& ev)
@@ -140,25 +201,25 @@ namespace Lina::Editor
 		{
 			m_world = m_levelManager->GetCurrentLevel()->GetWorld();
 			m_world->AddListener(this);
-			GetLevelEntityMeta();
-			RefreshEntityList();
+			LoadLevelMeta();
 		}
 		else if (eventType & EVS_PreLevelUninstall)
 		{
 			m_world->RemoveListener(this);
 			m_world			 = nullptr;
 			m_selectedEntity = nullptr;
-			m_levelEntityMeta.clear();
-			ClearEntityList();
+			ClearEntityHierarchy();
 		}
 	}
 
 	void GUINodePanelEntities::OnGameEvent(GameEvent eventType, const Event& ev)
 	{
 		if (eventType & EVG_EntityCreated)
-			RefreshEntityList();
+		{
+		}
 		else if (eventType & EVG_EntityDestroyed)
-			RefreshEntityList();
+		{
+		}
 	}
 
 	void GUINodePanelEntities::OnEditorEvent(EditorEvent eventType, const Event& ev)
@@ -166,54 +227,120 @@ namespace Lina::Editor
 		if (eventType & EVE_SelectEntity)
 		{
 			if (m_selectedEntity != nullptr)
-				m_entityState[m_selectedEntity].node->SetSelected(false);
+			{
+				GUINodeSelection* key = Internal::KeyFromValue(m_nodeToEntityMap, m_selectedEntity);
+				key->SetSelected(false);
+			}
 
 			m_selectedEntity = static_cast<Entity*>(ev.pParams[0]);
-			m_entityState[m_selectedEntity].node->SetSelected(true);
+
+			GUINodeSelection* key = Internal::KeyFromValue(m_nodeToEntityMap, m_selectedEntity);
+			key->SetSelected(true);
 		}
 		else if (eventType & EVE_UnselectCurrentEntity)
 		{
-			m_entityState[m_selectedEntity].node->SetSelected(false);
+			GUINodeSelection* key = Internal::KeyFromValue(m_nodeToEntityMap, m_selectedEntity);
+			key->SetSelected(false);
 			m_selectedEntity = nullptr;
 		}
 		else if (eventType & EVE_PreSavingCurrentLevel)
 		{
 			OStream& outStream = m_levelManager->GetCurrentLevel()->GetOutRuntimeUserStream();
-			HashMapSerialization::SaveToStream_OBJ(outStream, m_levelEntityMeta);
+
+			Vector<GUINodeSelection*> items;
+			items.reserve(m_layout->GetChildren().size());
+
+			for (auto c : m_layout->GetChildren())
+				items.push_back(static_cast<GUINodeSelection*>(c));
+
+			SaveHierarchy(outStream, items);
 		}
 	}
 
 	void GUINodePanelEntities::OnPayloadAccepted()
 	{
-		Entity* draggedEntity = static_cast<Entity*>(m_editor->GetPayloadManager().GetCurrentPayloadMeta().data);
-		draggedEntity->RemoveFromParent();
-		RefreshEntityList();
+		Entity* src			 = static_cast<Entity*>(m_editor->GetPayloadManager().GetCurrentPayloadMeta().data);
+		auto*	srcSelection = Internal::KeyFromValue(m_nodeToEntityMap, src);
+
+		// Remove the selection node of the source entity from its parent.
+		{
+			if (src->GetParent() != nullptr)
+			{
+				auto* srcParent			 = src->GetParent();
+				auto* srcParentSelection = Internal::KeyFromValue(m_nodeToEntityMap, srcParent);
+				srcParentSelection->RemoveChildSelection(srcSelection);
+				src->RemoveFromParent();
+				m_layout->AddChildren(srcSelection);
+				srcSelection->SetXOffset(0);
+			}
+		}
 	}
 
-	void GUINodePanelEntities::RefreshEntityList()
+	bool GUINodePanelEntities::OnMouse(uint32 button, InputAction action)
 	{
-		// Clear layout
-		ClearEntityList();
+		const bool retVal = GUINode::OnMouse(button, action);
+
+		if (action == InputAction::Released)
+		{
+			if (button == LINA_MOUSE_1)
+			{
+				for (auto [node, entity] : m_nodeToEntityMap)
+				{
+					if (node->GetIsHovered())
+					{
+						m_editor->GetCommandManager().CreateCommand_SelectEntity(m_selectedEntity, entity);
+						m_contextMenuSelection->SetPos(m_window->GetMousePosition());
+						m_contextMenuSelection->SetVisible(true);
+						m_contextMenuBoldToggle->SetValue(node->GetIsBoldFont());
+						return retVal;
+					}
+				}
+			}
+
+			m_contextMenuSelection->SetVisible(false);
+		}
+
+		return retVal;
+	}
+
+	void GUINodePanelEntities::RecreateEntityHierarchy()
+	{
+		ClearEntityHierarchy();
 
 		Vector<Entity*> entities;
 		m_world->GetAllEntities(entities);
 
-		m_orderedEntities.clear();
+		Vector<Entity*> parentlessEntities;
+		parentlessEntities.reserve(entities.size());
+
 		for (auto e : entities)
 		{
 			if (e->GetParent() == nullptr)
-				m_orderedEntities.push_back(e);
+				parentlessEntities.push_back(e);
 		}
 
-		for (auto e : m_orderedEntities)
-			AddEntityToTree(e, nullptr);
+		CreateHierarchyForList(parentlessEntities, nullptr);
 	}
 
-	void GUINodePanelEntities::ClearEntityList()
+	void GUINodePanelEntities::CreateHierarchyForList(const Vector<Entity*>& list, GUINodeSelection* parent)
 	{
-		for (auto [e, n] : m_entityState)
-			n.expandState = n.node->GetIsExpanded();
+		for (auto* entity : list)
+		{
+			GUINodeSelection* selection = CreateSelectionForEntity(entity);
 
+			if (parent)
+				parent->AddChildSelection(selection);
+			else
+				m_layout->AddChildren(selection);
+
+			const Vector<Entity*>& children = entity->GetChildren();
+			CreateHierarchyForList(children, selection);
+		}
+	}
+
+	void GUINodePanelEntities::ClearEntityHierarchy()
+	{
+		m_nodeToEntityMap.clear();
 		RemoveChildren(m_layout);
 		delete m_layout;
 		m_layout = new GUINodeLayoutVertical(m_drawer, m_drawOrder);
@@ -221,45 +348,66 @@ namespace Lina::Editor
 		AddChildren(m_layout);
 	}
 
-	void GUINodePanelEntities::AddEntityToTree(Entity* entity, GUINodeSelection* parentNode)
+	void GUINodePanelEntities::LoadHierarchy(IStream& inStream, GUINodeSelection* parent)
 	{
-		// create new selection
-		GUINodeSelection* myTreeItem = new GUINodeSelection(m_drawer, m_drawOrder);
-		m_entityState[entity].node	 = myTreeItem;
+		uint32 sz = 0;
+		inStream >> sz;
 
-		myTreeItem->SetCallbackClicked(BIND(&GUINodePanelEntities::OnClickedSelection, this, std::placeholders::_1));
-		myTreeItem->SetCallbackDetached(BIND(&GUINodePanelEntities::OnSelectionDetached, this, std::placeholders::_1, std::placeholders::_2));
-		myTreeItem->SetCallbackPayloadAccepted(BIND(&GUINodePanelEntities::OnSelectionPayloadAccepted, this, std::placeholders::_1, std::placeholders::_2));
-		myTreeItem->SetTitle(entity->GetName().c_str());
-		myTreeItem->GetPayloadMask().Set(EPL_Entity);
-		myTreeItem->SetIsExpanded(m_entityState[entity].expandState);
+		for (uint32 i = 0; i < sz; i++)
+		{
+			StringID sid		 = 0;
+			bool	 expandState = false;
+			inStream >> sid >> expandState;
 
-		if (parentNode != nullptr)
-			parentNode->AddChildSelection(myTreeItem);
-		else
-			m_layout->AddChildren(myTreeItem);
+			Entity* e = m_world->GetEntityFromID(sid);
 
-		const auto& children = entity->GetChildren();
-		for (const auto& c : children)
-			AddEntityToTree(c, myTreeItem);
+			GUINodeSelection* selection = CreateSelectionForEntity(e);
+			selection->SetIsExpanded(expandState);
+
+			if (parent == nullptr)
+				m_layout->AddChildren(selection);
+			else
+				parent->AddChildSelection(selection);
+
+			LoadHierarchy(inStream, selection);
+		}
+	}
+
+	void GUINodePanelEntities::SaveHierarchy(OStream& outStream, const Vector<GUINodeSelection*>& items)
+	{
+		const uint32 sz = static_cast<uint32>(items.size());
+		outStream << sz;
+
+		for (uint32 i = 0; i < sz; i++)
+		{
+			auto*		   item		   = items[i];
+			const StringID sid		   = item->GetSID();
+			const bool	   expandState = item->GetIsExpanded();
+			outStream << sid;
+			outStream << expandState;
+
+			const Vector<GUINodeSelection*>& children = item->GetSelectionChildren();
+			SaveHierarchy(outStream, children);
+		}
 	}
 
 	void GUINodePanelEntities::OnClickedSelection(GUINode* selectionNode)
 	{
-		Entity* target = FindEntityFromNode(selectionNode);
-
+		auto	sel	   = static_cast<GUINodeSelection*>(selectionNode);
+		Entity* target = m_nodeToEntityMap[sel];
 		m_editor->GetCommandManager().CreateCommand_SelectEntity(m_selectedEntity, target);
 	}
 
 	void GUINodePanelEntities::OnSelectionDetached(GUINodeSelection* selection, const Vector2& delta)
 	{
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		m_editor->GetPayloadManager().CreatePayload(PayloadType::EPL_Entity, selection->GetLastCalculatedTextSize() + Vector2(padding * 2, padding), Vector2i(delta), FindEntityFromNode(selection));
+		m_editor->GetPayloadManager().CreatePayload(PayloadType::EPL_Entity, selection->GetStoreSize("TitleSize"_hs, selection->GetTitle()) + Vector2(padding * 2, padding), Vector2i(delta), m_nodeToEntityMap[selection]);
 	}
 
 	void GUINodePanelEntities::OnSelectionPayloadAccepted(GUINode* selection, void* userData)
 	{
-		Entity* target		  = FindEntityFromNode(selection);
+		auto	sel			  = static_cast<GUINodeSelection*>(selection);
+		Entity* target		  = m_nodeToEntityMap[sel];
 		Entity* draggedEntity = static_cast<Entity*>(m_editor->GetPayloadManager().GetCurrentPayloadMeta().data);
 
 		if (draggedEntity == target)
@@ -271,33 +419,43 @@ namespace Lina::Editor
 		m_entityDropData.dropState	  = *static_cast<int*>(userData);
 	}
 
-	Entity* GUINodePanelEntities::FindEntityFromNode(GUINode* node)
+	GUINodeSelection* GUINodePanelEntities::CreateSelectionForEntity(Entity* e)
 	{
-		for (auto [ent, state] : m_entityState)
-		{
-			if (node == state.node)
-				return ent;
-		}
-		return nullptr;
+		GUINodeSelection* selection = new GUINodeSelection(m_drawer, m_drawOrder);
+		selection->SetCallbackClicked(BIND(&GUINodePanelEntities::OnClickedSelection, this, std::placeholders::_1));
+		selection->SetCallbackDetached(BIND(&GUINodePanelEntities::OnSelectionDetached, this, std::placeholders::_1, std::placeholders::_2));
+		selection->SetCallbackPayloadAccepted(BIND(&GUINodePanelEntities::OnSelectionPayloadAccepted, this, std::placeholders::_1, std::placeholders::_2));
+		selection->SetTitle(e->GetName().c_str());
+		selection->GetPayloadMask().Set(EPL_Entity);
+		selection->SetSID(e->GetID());
+		m_nodeToEntityMap[selection] = e;
+		return selection;
 	}
 
-	void GUINodePanelEntities::GetLevelEntityMeta()
+	void GUINodePanelEntities::LoadLevelMeta()
 	{
 		auto& loadedStream = m_levelManager->GetCurrentLevel()->GetLoadedRuntimeUserStream();
 
 		if (loadedStream.GetSize() != 0)
-			HashMapSerialization::LoadFromStream_OBJ(loadedStream, m_levelEntityMeta);
+		{
+			ClearEntityHierarchy();
+			LoadHierarchy(loadedStream, nullptr);
+		}
+		else
+			RecreateEntityHierarchy();
 	}
 
-	void GUINodePanelEntities::EntityMeta::SaveToStream(OStream& stream)
+	void GUINodePanelEntities::OnPressedContextItem(GUINode* node)
 	{
-		stream << expandState;
-		stream << localOrder;
-	}
+		const StringID sid		 = node->GetSID();
+		auto*		   selection = Internal::KeyFromValue(m_nodeToEntityMap, m_selectedEntity);
 
-	void GUINodePanelEntities::EntityMeta::LoadFromStream(IStream& stream)
-	{
-		stream >> expandState;
-		stream >> localOrder;
+		if (sid == "Bold Font"_hs)
+			selection->SetIsBoldFont(!selection->GetIsBoldFont());
+		else if (sid == "None"_hs)
+			selection->SetIsHighlightEnabled(false);
+		else if (sid == "Select"_hs)
+		{
+		}
 	}
 } // namespace Lina::Editor

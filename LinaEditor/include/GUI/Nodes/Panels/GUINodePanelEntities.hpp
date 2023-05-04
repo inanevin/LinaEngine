@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Event/ISystemEventListener.hpp"
 #include "Event/IEditorEventListener.hpp"
 #include "Data/HashMap.hpp"
-#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
@@ -49,6 +48,8 @@ namespace Lina::Editor
 {
 	class GUINodeLayoutVertical;
 	class GUINodeSelection;
+	class GUINodeFMPopup;
+	class GUINodeFMPopupElementToggle;
 
 	class GUINodePanelEntities : public GUINodePanel, public ISystemEventListener, public IGameEventListener, public IEditorEventListener
 	{
@@ -62,22 +63,6 @@ namespace Lina::Editor
 			Entity* srcEntity	 = nullptr;
 		};
 
-		struct EntityState
-		{
-			GUINodeSelection* node		  = nullptr;
-			bool			  expandState = false;
-		};
-
-		struct EntityMeta : public ISerializable
-		{
-			bool   expandState = false;
-			uint32 localOrder  = 0;
-
-			// Inherited via ISerializable
-			virtual void SaveToStream(OStream& stream) override;
-			virtual void LoadFromStream(IStream& stream) override;
-		};
-
 	public:
 		GUINodePanelEntities(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea);
 		virtual ~GUINodePanelEntities();
@@ -86,6 +71,7 @@ namespace Lina::Editor
 		virtual void OnGameEvent(GameEvent eventType, const Event& ev);
 		virtual void OnEditorEvent(EditorEvent eventType, const Event& ev);
 		virtual void OnPayloadAccepted() override;
+		virtual bool OnMouse(uint32 button, InputAction action) override;
 
 		virtual Bitmask32 GetSystemEventMask()
 		{
@@ -103,25 +89,30 @@ namespace Lina::Editor
 		}
 
 	private:
-		void	RefreshEntityList();
-		void	ClearEntityList();
-		void	AddEntityToTree(Entity* entity, GUINodeSelection* parentNode);
-		void	OnClickedSelection(GUINode* selectionNode);
-		void	OnSelectionDetached(GUINodeSelection* selection, const Vector2& delta);
-		void	OnSelectionPayloadAccepted(GUINode* selection, void* userData);
-		Entity* FindEntityFromNode(GUINode* node);
+		void RecreateEntityHierarchy();
+		void CreateHierarchyForList(const Vector<Entity*>& list, GUINodeSelection* parent);
+		void ClearEntityHierarchy();
+		void SaveHierarchy(OStream& outStream, const Vector<GUINodeSelection*>& items);
+		void LoadHierarchy(IStream& inStream, GUINodeSelection* parent);
 
-		void GetLevelEntityMeta();
+		void			  OnClickedSelection(GUINode* selectionNode);
+		void			  OnSelectionDetached(GUINodeSelection* selection, const Vector2& delta);
+		void			  OnSelectionPayloadAccepted(GUINode* selection, void* userData);
+		GUINodeSelection* CreateSelectionForEntity(Entity* e);
+
+		void LoadLevelMeta();
+		void OnPressedContextItem(GUINode* node);
 
 	private:
-		HashMap<uint32, EntityMeta>	  m_levelEntityMeta;
-		Vector<Entity*>				  m_orderedEntities;
-		HashMap<Entity*, EntityState> m_entityState;
-		EntityDropData				  m_entityDropData;
-		Entity*						  m_selectedEntity = nullptr;
-		GUINodeLayoutVertical*		  m_layout		   = nullptr;
-		EntityWorld*				  m_world		   = nullptr;
-		LevelManager*				  m_levelManager   = nullptr;
+		GUINodeFMPopup*						m_contextMenuSelection	  = nullptr;
+		GUINodeFMPopupElementToggle*		m_contextMenuBoldToggle	  = nullptr;
+		GUINodeFMPopupElementToggle*		m_contextMenuFolderToggle = nullptr;
+		HashMap<GUINodeSelection*, Entity*> m_nodeToEntityMap;
+		EntityDropData						m_entityDropData;
+		Entity*								m_selectedEntity = nullptr;
+		GUINodeLayoutVertical*				m_layout		 = nullptr;
+		EntityWorld*						m_world			 = nullptr;
+		LevelManager*						m_levelManager	 = nullptr;
 	};
 } // namespace Lina::Editor
 

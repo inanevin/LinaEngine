@@ -34,12 +34,6 @@ SOFTWARE.
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
-#include "GUI/Nodes/Panels/GUINodePanelContentBrowser.hpp"
-#include "GUI/Nodes/Panels/GUINodePanelHierarchy.hpp"
-#include "GUI/Nodes/Panels/GUINodePanelProperties.hpp"
-#include "GUI/Nodes/Panels/GUINodePanelEntities.hpp"
-#include "GUI/Nodes/Panels/GUINodePanelLevel.hpp"
-#include "GUI/Nodes/Panels/GUINodePanelResourceViewer.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
 #include "GUI/Nodes/Widgets/GUINodeTabArea.hpp"
 #include "GUI/Nodes/Widgets/GUINodeTab.hpp"
@@ -63,7 +57,8 @@ namespace Lina::Editor
 		m_dockPreview = new GUINodeDockPreview(drawer, drawOrder);
 		m_dockPreview->SetVisible(false);
 
-		AddChildren(m_tabArea)->AddChildren(m_dockPreview);
+		AddChildren(m_tabArea);
+		AddChildren(m_dockPreview);
 		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 
 		SetMinSize(Vector2(200, 200));

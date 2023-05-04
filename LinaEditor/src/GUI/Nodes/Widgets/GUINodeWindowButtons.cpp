@@ -58,12 +58,14 @@ namespace Lina::Editor
 		m_minimize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
 		m_maximize->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
 		m_close->SetCallbackClicked(BIND(&GUINodeWindowButtons::OnButtonPressed, this, std::placeholders::_1));
-		AddChildren(m_minimize)->AddChildren(m_maximize)->AddChildren(m_close);
+		AddChildren(m_minimize);
+		AddChildren(m_maximize);
+		AddChildren(m_close);
 	}
 
 	void GUINodeWindowButtons::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);

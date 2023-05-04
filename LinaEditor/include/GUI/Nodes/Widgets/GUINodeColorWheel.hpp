@@ -28,20 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUINodePanelHierarchy_HPP
-#define GUINodePanelHierarchy_HPP
+#ifndef GUINodeColorWheel_HPP
+#define GUINodeColorWheel_HPP
 
-#include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "GUI/Nodes/GUINode.hpp"
+#include "Data/String.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodePanelHierarchy : public GUINodePanel
+	class GUINodeColorWheel : public GUINode
 	{
 	public:
-		GUINodePanelHierarchy(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(drawer, drawOrder, panelType, title, parentDockArea){};
-		virtual ~GUINodePanelHierarchy() = default;
-		virtual void Draw(int threadID);
+		GUINodeColorWheel(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
+		virtual ~GUINodeColorWheel() = default;
+
+		virtual void Draw(int threadID) override;
 	};
+
 } // namespace Lina::Editor
 
 #endif

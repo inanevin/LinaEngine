@@ -97,6 +97,16 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
 	}
 
+	void GUIUtility::DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder)
+	{
+		LinaVG::StyleOptions bg;
+		bg.color						= LV4(Theme::TC_Dark1);
+		bg.outlineOptions.thickness		= 1.0f;
+		bg.outlineOptions.color			= LV4(Theme::TC_Silent1);
+		bg.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
+		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+	}
+
 	void GUIUtility::DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder)
 	{
 		LinaVG::DrawImage(threadID, item.texture->GetSID(), LV2(center), LV2(size), LV4(tint), 0.0f, drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LinaVG::Vec2(item.uvTL.x, item.uvTL.y), LinaVG::Vec2(item.uvBR.x, item.uvBR.y));

@@ -46,13 +46,14 @@ namespace Lina::Editor
 
 	void GUINodeSelection::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
-		const Vector2 calculatedSize = CalculateSize();
-		const float	  padding		 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const float	  iconPadding	 = m_xOffset + padding;
-		float		  totalSizeY	 = calculatedSize.y;
+		const float padding		 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+		const float widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightShort, m_window->GetDPIScale());
+		const float iconPadding	 = m_xOffset + padding;
+		float		totalSizeY	 = widgetHeight;
+		m_rect.size.y			 = widgetHeight;
 
 		// Childs
 		{
@@ -70,17 +71,16 @@ namespace Lina::Editor
 			{
 				for (auto c : m_childSelections)
 				{
-					c->SetSize(Vector2(m_rect.size.x, c->GetRect().size.y));
+					c->SetSize(Vector2(m_rect.size.x, widgetHeight));
 					c->SetXOffset(m_xOffset + padding);
 					c->SetPos(m_rect.pos + Vector2(0.0f, totalSizeY));
 					c->Draw(threadID);
-					totalSizeY += c->GetRect().size.y;
+					totalSizeY += widgetHeight;
 				}
 			}
 		}
 
-		m_ownRect	  = Rect(m_rect.pos, Vector2(m_rect.size.x, calculatedSize.y));
-		m_rect.size.y = totalSizeY;
+		m_ownRect = Rect(m_rect.pos, Vector2(m_rect.size.x, m_rect.size.y));
 
 		DrawBackground(threadID);
 		DrawIcons(threadID, iconPadding);
@@ -89,28 +89,11 @@ namespace Lina::Editor
 		HandlePayload(threadID);
 	}
 
-	Vector2 GUINodeSelection::CalculateSize()
-	{
-		const float padding	  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const float windowDpi = m_window->GetDPIScale();
-
-		if (Math::Equals(windowDpi, m_lastDpi, 0.001f))
-			return m_lastCalculatedSize;
-
-		m_lastDpi = windowDpi;
-
-		LinaVG::TextOptions opts;
-		opts.font				 = Theme::GetFont(FontType::DefaultEditor, windowDpi);
-		m_lastCalculatedTextSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
-
-		m_lastCalculatedSize = Vector2(m_rect.size.x, m_lastCalculatedTextSize.y + padding);
-		return m_lastCalculatedSize;
-	}
-
 	void GUINodeSelection::AddChildSelection(GUINodeSelection* sel)
 	{
 		AddChildren(sel);
 		m_childSelections.push_back(sel);
+		sel->SetVisible(m_isExpanded);
 	}
 
 	void GUINodeSelection::RemoveChildSelection(GUINodeSelection* sel)
@@ -135,24 +118,33 @@ namespace Lina::Editor
 
 	void GUINodeSelection::DrawBackground(int threadID)
 	{
-		if (m_isSelected)
+		LinaVG::StyleOptions opts;
+
+		if (m_isHighlightEnabled)
 		{
-			LinaVG::StyleOptions opts;
-			opts.color = LV4(Theme::TC_Dark2);
+			opts.color = LV4(m_highlightColor);
 			LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder);
 		}
-		else if (m_isHovered)
+		else
 		{
-			LinaVG::StyleOptions opts;
-			opts.color		   = LV4(Theme::TC_Dark1);
-			opts.color.start.w = opts.color.end.w = 0.3f;
-			LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder);
+			if (m_isSelected)
+			{
+				opts.color = LV4(Theme::TC_Dark2);
+				LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder);
+			}
+			else if (m_isHovered)
+			{
+				opts.color		   = LV4(Theme::TC_Dark1);
+				opts.color.start.w = opts.color.end.w = 0.3f;
+				LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder);
+			}
 		}
 	}
 
 	Vector2 GUINodeSelection::DrawIcons(int threadID, float iconsStart)
 	{
 		Vector2 iconSize = Vector2::Zero;
+
 		if (!m_childSelections.empty())
 		{
 			m_caretRotationTarget = Math::Lerp(m_caretRotationTarget, m_isExpanded ? 90.0f : 0.0f, SystemInfo::GetDeltaTimeF() * CARET_SPEED);
@@ -169,8 +161,10 @@ namespace Lina::Editor
 	void GUINodeSelection::DrawTitleText(int threadID, float textStart)
 	{
 		LinaVG::TextOptions textOpts;
-		textOpts.font		  = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-		const Vector2 textPos = Vector2(m_ownRect.pos.x + textStart, m_ownRect.pos.y + m_ownRect.size.y * 0.5f + m_lastCalculatedTextSize.y * 0.5f);
+		const FontType		fontType = m_isBoldFont ? FontType::DefaultEditorBold : FontType::DefaultEditor;
+		textOpts.font				 = Theme::GetFont(fontType, m_window->GetDPIScale());
+		const Vector2 titleSize		 = GetStoreSize("TitleSize"_hs, m_title, fontType);
+		const Vector2 textPos		 = Vector2(m_ownRect.pos.x + textStart, m_ownRect.pos.y + m_ownRect.size.y * 0.5f + titleSize.y * 0.5f);
 		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
 	}
 
@@ -228,6 +222,14 @@ namespace Lina::Editor
 		}
 	}
 
+	void GUINodeSelection::SetExpandStateImpl(bool expandState)
+	{
+		m_isExpanded = expandState;
+
+		for (auto c : m_childSelections)
+			c->SetVisible(expandState);
+	}
+
 	void GUINodeSelection::OnPressed(uint32 button)
 	{
 		if (button != LINA_MOUSE_0)
@@ -237,7 +239,7 @@ namespace Lina::Editor
 			m_onClicked(this);
 
 		if (!m_childSelections.empty() && m_caretRect.IsPointInside(m_window->GetMousePosition()))
-			m_isExpanded = !m_isExpanded;
+			SetExpandStateImpl(!m_isExpanded);
 	}
 
 	void GUINodeSelection::OnDoubleClicked()
@@ -245,7 +247,7 @@ namespace Lina::Editor
 		if (m_childSelections.empty() || m_caretRect.IsPointInside(m_window->GetMousePosition()))
 			return;
 
-		m_isExpanded = !m_isExpanded;
+		SetExpandStateImpl(!m_isExpanded);
 	}
 
 	void GUINodeSelection::OnPayloadAccepted()

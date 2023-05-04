@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Serialization/ISerializable.hpp"
 #include "Data/Bitmask.hpp"
+#include "Core/Theme.hpp"
 
 namespace Lina
 {
@@ -79,16 +80,16 @@ namespace Lina::Editor
 		virtual void LoadFromStream(IStream& stream) override;
 
 		void	 SetDrawer(GUIDrawerBase* drawer);
-		GUINode* AddChildren(GUINode* node);
-		GUINode* RemoveChildren(GUINode* node);
-		GUINode* SetVisible(bool visible);
+		void	 AddChildren(GUINode* node);
+		void	 RemoveChildren(GUINode* node);
+		void	 SetVisible(bool visible);
 		GUINode* FindChildren(StringID sid);
 		bool	 ChildExists(GUINode* node);
-		
-		virtual Vector2 CalculateSize()
-		{
-			return Vector2::Zero;
-		}
+		void	 SetParentVisible(bool parentVisible);
+		void	 ConsumeAvailableWidth();
+		void	 SetWidgetHeight(ThemeProperty prop);
+		Vector2	 GetStoreSize(StringID sid, const String& text, FontType ft = FontType::DefaultEditor, float textScale = 1.0f, bool calculatedEveryTime = false);
+		void	 ClearStoredSizes();
 
 		inline Vector<GUINode*>& GetChildren()
 		{
@@ -147,7 +148,8 @@ namespace Lina::Editor
 
 		inline void SetTitle(const char* title)
 		{
-			m_title = title;
+			m_title	  = title;
+			m_lastDpi = 0.0f;
 		}
 
 		inline void SetSID(StringID sid)
@@ -173,11 +175,6 @@ namespace Lina::Editor
 		inline int GetDrawOrder() const
 		{
 			return m_drawOrder;
-		}
-
-		inline bool GetIsVisible() const
-		{
-			return m_visible;
 		}
 
 		inline bool GetIsPressed() const
@@ -225,34 +222,71 @@ namespace Lina::Editor
 			return m_payloadMask;
 		}
 
+		inline GUINode* GetParent() const
+		{
+			return m_parent;
+		}
+
+		inline bool GetIsVisible() const
+		{
+			return m_visible && m_parentVisible;
+		}
+
+		inline bool GetIsBoldFont() const
+		{
+			return m_isBoldFont;
+		}
+
+		inline void SetIsBoldFont(bool isBold)
+		{
+			m_isBoldFont = isBold;
+			ClearStoredSizes();
+		}
+
+		inline const Vector2& GetCalculatedSize(StringID sid) const
+		{
+			return m_storedSizes.at(sid);
+		}
+
+		inline void SetOverrideWidth(bool overrideW)
+		{
+			m_widthOverridenOutside = overrideW;
+		}
+
 	protected:
 		friend class GUIDrawerBase;
 
-		bool							m_payloadAvailable = false;
-		bool							m_disabled		   = false;
-		Bitmask16						m_payloadMask	   = 0;
+		bool							m_widthOverridenOutside = false;
+		GUINode*						m_parent				= nullptr;
+		bool							m_payloadAvailable		= false;
+		bool							m_disabled				= false;
+		Bitmask16						m_payloadMask			= 0;
 		GUIDrawerBase*					m_drawer;
 		Editor*							m_editor			  = nullptr;
 		ISwapchain*						m_swapchain			  = nullptr;
 		IWindow*						m_window			  = nullptr;
 		StringID						m_sid				  = 0;
 		bool							m_visible			  = true;
+		bool							m_parentVisible		  = true;
 		int								m_drawOrder			  = 0;
 		bool							m_isHovered			  = false;
 		bool							m_isPressed			  = false;
 		bool							m_isDragging		  = false;
+		bool							m_isBoldFont		  = false;
 		Vector2i						m_dragStartMousePos	  = Vector2i::Zero;
 		Vector2i						m_dragStartMouseDelta = Vector2i::Zero;
 		Vector<GUINode*>				m_children;
-		Rect							m_rect				 = Rect();
-		Rect							m_minRect			 = Rect();
-		Rect							m_maxRect			 = Rect();
-		Vector2							m_lastCalculatedSize = Vector2::Zero;
-		float							m_lastDpi			 = 0.0f;
-		String							m_title				 = "";
+		Rect							m_rect	  = Rect();
+		Rect							m_minRect = Rect();
+		Rect							m_maxRect = Rect();
+		String							m_title	  = "";
 		Delegate<void(GUINode*)>		m_onClicked;
 		Delegate<void(GUINode*)>		m_onDismissed;
 		Delegate<void(GUINode*, void*)> m_onPayloadAccepted;
+
+	private:
+		HashMap<StringID, Vector2> m_storedSizes;
+		float					   m_lastDpi = 0.0f;
 	};
 } // namespace Lina::Editor
 

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Nodes/Widgets/GUINodeTooltip.hpp"
+#include "GUI/Nodes/Widgets/GUINodeColorWheel.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
@@ -34,27 +34,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTooltip::GUINodeTooltip(GUIDrawerBase* drawer) : GUINode(drawer, FRONTER_DRAW_ORDER)
+	void GUINodeColorWheel::Draw(int threadID)
 	{
-	}
-	void GUINodeTooltip::Draw(int threadID)
-	{
-		if (!GetIsVisible())
-			return;
-
-		const float padding		  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const float textWrapWidth = 200.0f;
-
-		LinaVG::TextOptions opts;
-		opts.font	   = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
-		//opts.wrapWidth = textWrapWidth;
-
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
-		m_rect.size			   = textSize + Vector2(padding * 2, padding * 2);
-
-		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), m_drawOrder);
-
-		const Vector2 textStart = m_rect.pos + Vector2(padding, padding + textSize.y);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textStart), opts, 0.0f, m_drawOrder);
 	}
 } // namespace Lina::Editor

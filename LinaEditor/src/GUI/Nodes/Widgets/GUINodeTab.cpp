@@ -52,7 +52,7 @@ namespace Lina::Editor
 
 	void GUINodeTab::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
 		const float padding	  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
@@ -170,29 +170,6 @@ namespace Lina::Editor
 				}
 			}
 		}
-	}
-
-	Vector2 GUINodeTab::CalculateSize()
-	{
-		const float windowDPI = m_window->GetDPIScale();
-		if (Math::Equals(m_lastDpi, windowDPI, 0.0001f))
-			return m_lastCalculatedSize;
-		m_lastDpi = windowDPI;
-
-		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_lastDpi);
-		float		totalX	= 0.0f;
-		totalX += padding;
-
-		LinaVG::TextOptions opts;
-		opts.font			   = Theme::GetFont(FontType::DefaultEditor, m_lastDpi);
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
-		totalX += textSize.x + padding;
-
-		const float closeButtonSize = textSize.y;
-		totalX += closeButtonSize + padding;
-
-		m_lastCalculatedSize = Vector2(totalX, textSize.y + padding);
-		return m_lastCalculatedSize;
 	}
 
 	void GUINodeTab::OnClicked(uint32 button)

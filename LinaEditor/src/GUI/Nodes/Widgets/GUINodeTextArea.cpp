@@ -26,35 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Nodes/Widgets/GUINodeTooltip.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTextArea.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "Core/Theme.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Editor
 {
-	GUINodeTooltip::GUINodeTooltip(GUIDrawerBase* drawer) : GUINode(drawer, FRONTER_DRAW_ORDER)
-	{
-	}
-	void GUINodeTooltip::Draw(int threadID)
+	void GUINodeTextArea::Draw(int threadID)
 	{
 		if (!GetIsVisible())
 			return;
 
-		const float padding		  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const float textWrapWidth = 200.0f;
+		const float	  padding	   = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+		const float	  widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale());
+		const Vector2 lastTextSize = Vector2::Zero;
+
+		m_rect.size.y = widgetHeight;
+
+		GUINode::ConsumeAvailableWidth();
+
+		GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder + 1);
 
 		LinaVG::TextOptions opts;
-		opts.font	   = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
-		//opts.wrapWidth = textWrapWidth;
-
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
-		m_rect.size			   = textSize + Vector2(padding * 2, padding * 2);
-
-		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), m_drawOrder);
-
-		const Vector2 textStart = m_rect.pos + Vector2(padding, padding + textSize.y);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textStart), opts, 0.0f, m_drawOrder);
+		opts.font			  = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+		const Vector2 textPos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), opts, 0.0f, m_drawOrder + 1, true);
 	}
+
 } // namespace Lina::Editor

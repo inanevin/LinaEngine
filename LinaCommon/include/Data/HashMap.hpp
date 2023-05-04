@@ -37,10 +37,24 @@ SOFTWARE.
 
 namespace Lina
 {
-	template <typename T, typename U> using HashMap = phmap::flat_hash_map<T, U>;
-	template <typename T, typename U> using ParallelHashMap = phmap::parallel_flat_hash_map<T, U>;
+	template <typename T, typename U> using HashMap					   = phmap::flat_hash_map<T, U>;
+	template <typename T, typename U> using ParallelHashMap			   = phmap::parallel_flat_hash_map<T, U>;
 	template <typename T, typename U> using ParallelHashMapMutex	   = phmap::parallel_flat_hash_map<T, U, phmap::priv::hash_default_hash<T>, phmap::priv::hash_default_eq<T>, phmap::priv::Allocator<T>, 4, Mutex>;
 	template <typename T, typename U> using ParallelHashMapMutexMalloc = phmap::parallel_flat_hash_map<T, U, phmap::priv::hash_default_hash<T>, phmap::priv::hash_default_eq<T>, MallocAllocator<T>, 4, Mutex>;
+
+	namespace Internal
+	{
+		template <typename T, typename U> T KeyFromValue(const HashMap<T, U>& map, U findValue)
+		{
+			for (const auto& [key, value] : map)
+			{
+				if (value == findValue)
+					return key;
+			}
+
+			return T();
+		}
+	} // namespace Internal
 
 } // namespace Lina
 

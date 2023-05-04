@@ -110,6 +110,7 @@ namespace Lina::Editor
 		if (wr)
 		{
 			auto e = m_loadedLevel->GetWorld()->GetEntity("Cube");
+			auto c = m_loadedLevel->GetWorld()->GetEntity("Cam Entity");
 
 			if (e)
 			{
@@ -138,28 +139,35 @@ namespace Lina::Editor
 		{
 			m_loadedLevel = static_cast<Level*>(ev.pParams[0]);
 
-			camEntity = m_loadedLevel->GetWorld()->CreateEntity("Cam Entity");
-			auto cam  = m_loadedLevel->GetWorld()->AddComponent<CameraComponent>(camEntity);
-			camEntity->SetPosition(Vector3(0, 0, -5));
-			camEntity->SetRotationAngles(Vector3(0, 0, 0));
-
-			auto test1 = m_loadedLevel->GetWorld()->CreateEntity("This is a test entity");
-			auto test2 = m_loadedLevel->GetWorld()->CreateEntity("hmm");
-			auto test3 = m_loadedLevel->GetWorld()->CreateEntity("uuuuh");
-			auto test4 = m_loadedLevel->GetWorld()->CreateEntity("aq1");
-			auto test5 = m_loadedLevel->GetWorld()->CreateEntity("aq2");
-
-			test1->AddChild(test2);
-			test2->AddChild(test3);
-
-			m_loadedLevel->GetWorld()->SetActiveCamera(cam);
-			auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(m_loadedLevel->GetWorld());
-			aq->SetName("Cube");
-			//	auto aq2 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
-			/// auto aq3 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
-			aq->SetPosition(Vector3(-3.5f, 0, 0));
+			auto c = m_loadedLevel->GetWorld()->GetEntity("Cam Entity");
+			if (c)
+			{
+				auto cc = m_loadedLevel->GetWorld()->GetComponent<CameraComponent>(c);
+				c->SetPosition(Vector3(0, 0, -5));
+				m_loadedLevel->GetWorld()->SetActiveCamera(cc);
+			}
+			// camEntity = m_loadedLevel->GetWorld()->CreateEntity("Cam Entity");
+			// auto cam  = m_loadedLevel->GetWorld()->AddComponent<CameraComponent>(camEntity);
+			// camEntity->SetPosition(Vector3(0, 0, -5));
+			// camEntity->SetRotationAngles(Vector3(0, 0, 0));
+			//
+			// auto test1 = m_loadedLevel->GetWorld()->CreateEntity("This is a test entity");
+			// auto test2 = m_loadedLevel->GetWorld()->CreateEntity("hmm");
+			// auto test3 = m_loadedLevel->GetWorld()->CreateEntity("uuuuh");
+			// auto test4 = m_loadedLevel->GetWorld()->CreateEntity("aq1");
+			// auto test5 = m_loadedLevel->GetWorld()->CreateEntity("aq2");
+			//
+			// test1->AddChild(test2);
+			// test2->AddChild(test3);
+			//
+			// m_loadedLevel->GetWorld()->SetActiveCamera(cam);
+			// auto aq = m_resourceManager->GetResource<Model>("Resources/Core/Models/Cube.fbx"_hs)->AddToWorld(m_loadedLevel->GetWorld());
+			// aq->SetName("Cube");
+			////	auto aq2 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Cube.fbx"_hs)->AddToWorld(testWorld);
+			///// auto aq3 = m_resourceManager->GetResource<Model>("ContentBrowser/Core/Models/Capsule.fbx"_hs)->AddToWorld(testWorld);
+			// aq->SetPosition(Vector3(-3.5f, 0, 0));
 			//	aq2->SetPosition(Vector3(3, 0, 0));
-			// aq3->SetPosition(Vector3(0, 0, 0));
+			//  aq3->SetPosition(Vector3(0, 0, 0));
 		}
 		else if (eventType & EVS_LevelUninstalled)
 			m_loadedLevel = nullptr;

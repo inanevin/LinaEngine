@@ -26,12 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Nodes/Panels/GUINodePanelHierarchy.hpp"
+#include "GUI/Nodes/Widgets/GUINodeSliderFilled.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
-	void GUINodePanelHierarchy::Draw(int threadID)
+	void GUINodeSliderFilled::Draw(int threadID)
 	{
 	}
 } // namespace Lina::Editor

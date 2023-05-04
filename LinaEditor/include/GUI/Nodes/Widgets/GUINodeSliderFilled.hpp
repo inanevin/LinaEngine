@@ -28,63 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUINodeTab_HPP
-#define GUINodeTab_HPP
+#ifndef GUINodeSliderFilled_HPP
+#define GUINodeSliderFilled_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
 #include "Data/String.hpp"
-#include "Data/Functional.hpp"
 
 namespace Lina::Editor
 {
-	class GUINodeButton;
-	class GUINodeTabArea;
-
-	class GUINodeTab : public GUINode
+	class GUINodeSliderFilled : public GUINode
 	{
 	public:
-		GUINodeTab(GUIDrawerBase* drawer, GUINodeTabArea* tabArea, int drawOrder);
-		virtual ~GUINodeTab() = default;
+		GUINodeSliderFilled(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
+		virtual ~GUINodeSliderFilled() = default;
 
 		virtual void Draw(int threadID) override;
-		virtual void OnClicked(uint32 button) override;
-		virtual void OnDragBegin() override;
-		void		 AnimateFlash();
-
-		inline void SetCloseButtonEnabled(bool closeButtonEnabled)
-		{
-			m_closeButtonEnabled = closeButtonEnabled;
-		}
-
-		inline void SetIsReorderEnabled(bool isEnabled)
-		{
-			m_isReorderEnabled = isEnabled;
-		}
-
-		inline void SetCanDetach(bool canDetach)
-		{
-			m_canDetach = canDetach;
-		}
-
-		inline void SetIsFocused(bool isFocused)
-		{
-			m_isFocused = isFocused;
-		}
-
-	private:
-		void DrawCloseButton(int threadID, float t, int baseDrawOrder);
-
-	protected:
-		int				m_flashAnimState			= 0;
-		float			m_textScale					= 1.0f;
-		float			m_indicatorAnimationAlpha	= 0.0f;
-		GUINodeTabArea* m_parentArea				= nullptr;
-		bool			m_isFocused					= false;
-		bool			m_isInCloseRect				= false;
-		float			m_closeButtonAnimationAlpha = 0.0f;
-		bool			m_closeButtonEnabled		= true;
-		bool			m_isReorderEnabled			= true;
-		bool			m_canDetach					= false;
 	};
 
 } // namespace Lina::Editor

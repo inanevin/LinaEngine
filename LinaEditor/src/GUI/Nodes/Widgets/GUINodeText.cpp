@@ -41,10 +41,10 @@ namespace Lina::Editor
 
 	void GUINodeText::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
-		m_rect.size = CalculateSize();
+		m_rect.size = GetStoreSize("TitleSize"_hs, m_title, m_fontType, m_scale);
 
 		LinaVG::TextOptions opts;
 		opts.font		 = Theme::GetFont(m_fontType, m_window->GetDPIScale());
@@ -60,31 +60,18 @@ namespace Lina::Editor
 		LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(m_rect.pos), opts, 0.0f, m_drawOrder);
 	}
 
-	Vector2 GUINodeText::CalculateSize()
-	{
-		const float windowDpi = m_window->GetDPIScale();
-		if (Math::Equals(m_lastDpi, windowDpi, 0.001f))
-			return m_lastCalculatedSize;
-
-		LinaVG::TextOptions opts;
-		opts.font			 = Theme::GetFont(m_fontType, windowDpi);
-		opts.textScale		 = m_scale;
-		m_lastCalculatedSize = FL2(LinaVG::CalculateTextSize(m_text.c_str(), opts));
-		return m_lastCalculatedSize;
-	}
-
 	void GUINodeTextRichColors::Draw(int threadID)
 	{
-		if (!m_visible)
+		if (!GetIsVisible())
 			return;
 
-		m_rect.size		= CalculateSize();
+		m_rect.size		= GetStoreSize("TitleSize"_hs, m_title, m_fontType, m_scale);
 		Vector2 textPos = m_rect.pos;
 
 		if (m_alignment == TextAlignment::Center)
 		{
-			textPos.x -= m_lastCalculatedSize.x * 0.5f;
-			textPos.y += m_lastCalculatedSize.y * 0.5f;
+			textPos.x -= m_rect.size.x * 0.5f;
+			textPos.y += m_rect.size.y * 0.5f;
 		}
 
 		for (auto& d : m_textData)
@@ -98,30 +85,9 @@ namespace Lina::Editor
 		}
 	}
 
-	Vector2 GUINodeTextRichColors::CalculateSize()
-	{
-		const float windowDpi = m_window->GetDPIScale();
-		if (Math::Equals(m_lastDpi, windowDpi, 0.001f))
-			return m_lastCalculatedSize;
-
-		m_lastCalculatedSize = Vector2::Zero;
-
-		for (auto& d : m_textData)
-		{
-			LinaVG::TextOptions opts;
-			opts.font	   = Theme::GetFont(m_fontType, windowDpi);
-			opts.textScale = m_scale;
-
-			d.calculatedSize = FL2(LinaVG::CalculateTextSize(d.text.c_str(), opts));
-			m_lastCalculatedSize += d.calculatedSize;
-		}
-
-		return m_lastCalculatedSize;
-	}
-
 	void GUINodeTextRichColors::AddText(const String& text, const Color& col)
 	{
 		m_textData.push_back({text, col});
-		m_lastDpi = 0.0f;
+		ClearStoredSizes();
 	}
 } // namespace Lina::Editor

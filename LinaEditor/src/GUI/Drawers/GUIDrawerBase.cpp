@@ -81,15 +81,15 @@ namespace Lina::Editor
 
 		if (button == LINA_MOUSE_0 && action == InputAction::Pressed)
 		{
-			if (m_hoveredNode)
-			{
-				m_mouseDisablingNode = m_hoveredNode;
-			}
+			// if (m_hoveredNode)
+			//{
+			//	m_mouseDisablingNode = m_hoveredNode;
+			// }
 		}
 		else if (button == LINA_MOUSE_0 && action == InputAction::Released)
 		{
-			if (m_mouseDisablingNode)
-				m_mouseDisablingNode = nullptr;
+			// if (m_mouseDisablingNode)
+			//	m_mouseDisablingNode = nullptr;
 		}
 	}
 
@@ -97,11 +97,11 @@ namespace Lina::Editor
 	{
 		auto* hoveredNode = GetHovered(m_root);
 
-		if (m_mouseDisablingNode)
-		{
-			if (hoveredNode != m_hoveredNode)
-				hoveredNode = nullptr;
-		}
+		// if (m_mouseDisablingNode)
+		//{
+		//	if (hoveredNode != m_hoveredNode)
+		//		hoveredNode = nullptr;
+		// }
 
 		if (hoveredNode == nullptr && m_hoveredNode)
 		{
@@ -113,8 +113,8 @@ namespace Lina::Editor
 			// Swithed hovering nodes
 			ClearHovered();
 
-			if (!m_mouseDisablingNode)
-				m_hoveredNode = hoveredNode;
+			// if (!m_mouseDisablingNode)
+			//	m_hoveredNode = hoveredNode;
 		}
 		else if (m_hoveredNode == nullptr && hoveredNode)
 		{
@@ -158,8 +158,12 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnPayloadEnded(PayloadType type)
 	{
-		ClearHovered();
 		m_root->OnPayloadEnded(type);
+
+		if (m_hoveredNode && m_hoveredNode->GetPayloadMask().IsSet(type))
+			m_hoveredNode->OnPayloadAccepted();
+
+		ClearHovered();
 	}
 
 	void GUIDrawerBase::OnNodeDeleted(GUINode* node)
@@ -435,11 +439,6 @@ namespace Lina::Editor
 		return newArea;
 	}
 
-	GUINode* GUIDrawerBase::FindNode(StringID sid)
-	{
-		return m_root->FindChildren(sid);
-	}
-
 	void GUIDrawerBase::RemoveDockArea(GUINodeDockArea* area)
 	{
 		auto splitDivider = area->FindDividerToRemove();
@@ -534,15 +533,19 @@ namespace Lina::Editor
 
 	GUINode* GUIDrawerBase::GetHovered(GUINode* parent)
 	{
-		GUINode* hovered = nullptr;
+		GUINode*		  hovered			 = nullptr;
+		const PayloadType currentPayloadType = m_editor->GetPayloadManager().GetCurrentPayloadMeta().type;
 
 		if (GUIUtility::IsInRect(m_window->GetMousePosition(), parent->GetRect()) && parent->GetIsVisible())
-			hovered = parent;
+		{
+			if (currentPayloadType == PayloadType::EPL_None || parent->GetPayloadMask().IsSet(currentPayloadType))
+				hovered = parent;
+		}
 
 		for (auto c : parent->GetChildren())
 		{
 			GUINode* childHovered = GetHovered(c);
-			if (childHovered != nullptr && childHovered->GetIsVisible())
+			if (childHovered != nullptr && childHovered->GetIsVisible() && (currentPayloadType == PayloadType::EPL_None || childHovered->GetPayloadMask().IsSet(currentPayloadType)))
 			{
 				if (hovered != nullptr)
 				{

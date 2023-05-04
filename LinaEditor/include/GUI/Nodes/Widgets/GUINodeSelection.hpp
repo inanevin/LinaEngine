@@ -34,6 +34,7 @@ SOFTWARE.
 #include "GUI/Nodes/GUINode.hpp"
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
+#include "Math/Color.hpp"
 
 namespace Lina::Editor
 {
@@ -53,7 +54,6 @@ namespace Lina::Editor
 		virtual ~GUINodeSelection() = default;
 
 		virtual void	Draw(int threadID) override;
-		virtual Vector2 CalculateSize() override;
 		virtual void	OnPressed(uint32 button) override;
 		virtual void	OnDoubleClicked() override;
 		virtual void	OnPayloadAccepted() override;
@@ -77,11 +77,6 @@ namespace Lina::Editor
 			m_onDetached = onDetached;
 		}
 
-		inline const Vector2& GetLastCalculatedTextSize() const
-		{
-			return m_lastCalculatedTextSize;
-		}
-
 		inline bool GetIsExpanded() const
 		{
 			return m_isExpanded;
@@ -89,8 +84,28 @@ namespace Lina::Editor
 
 		inline void SetIsExpanded(bool isExpanded)
 		{
-			m_isExpanded		  = isExpanded;
 			m_caretRotationTarget = m_isExpanded ? 90.0f : 0.0f;
+			SetExpandStateImpl(isExpanded);
+		}
+
+		inline Vector<GUINodeSelection*>& GetSelectionChildren()
+		{
+			return m_childSelections;
+		}
+
+		inline bool GetIsHighlightEnabled() const
+		{
+			return m_isHighlightEnabled;
+		}
+
+		inline void SetIsHighlightEnabled(bool isHighlightEnabled)
+		{
+			m_isHighlightEnabled = isHighlightEnabled;
+		}
+
+		inline void SetHighlightColor(const Color& col)
+		{
+			m_highlightColor = col;
 		}
 
 	protected:
@@ -99,12 +114,12 @@ namespace Lina::Editor
 		virtual void	DrawTitleText(int threadID, float textStart);
 		virtual void	HandleDrag(int threadID);
 		virtual void	HandlePayload(int threadID);
+		void			SetExpandStateImpl(bool expandState);
 
 	protected:
 		ReorderRequest									  m_currentReorderRequest;
 		Delegate<void(GUINodeSelection*, const Vector2&)> m_onDetached;
 		Vector<GUINodeSelection*>						  m_childSelections;
-		Vector2											  m_lastCalculatedTextSize = Vector2::Zero;
 		Rect											  m_caretRect			   = Rect();
 		Rect											  m_ownRect				   = Rect();
 		float											  m_caretRotationTarget	   = 0.0f;
@@ -112,6 +127,8 @@ namespace Lina::Editor
 		bool											  m_isExpanded			   = false;
 		float											  m_xOffset				   = 0.0f;
 		int												  m_payloadDropState	   = 0;
+		bool											  m_isHighlightEnabled	   = false;
+		Color											  m_highlightColor		   = Color::Black;
 	};
 
 } // namespace Lina::Editor
