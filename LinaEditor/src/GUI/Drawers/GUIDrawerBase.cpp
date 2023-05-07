@@ -128,6 +128,7 @@ namespace Lina::Editor
 				m_hoveredNode->OnHoverBegin();
 
 			m_hoveredNode->m_isHovered = true;
+			m_hoveredNode->OnMousePos();
 		}
 	}
 

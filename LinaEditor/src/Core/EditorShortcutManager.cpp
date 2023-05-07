@@ -45,6 +45,9 @@ namespace Lina::Editor
 		AddShortcut(Shortcut::CTRL_T, LINA_KEY_LCTRL, 0, LINA_KEY_T);
 		AddShortcut(Shortcut::CTRL_W, LINA_KEY_LCTRL, 0, LINA_KEY_W);
 		AddShortcut(Shortcut::CTRL_Z, LINA_KEY_LCTRL, 0, LINA_KEY_Z);
+		AddShortcut(Shortcut::CTRL_X, LINA_KEY_LCTRL, 0, LINA_KEY_X);
+		AddShortcut(Shortcut::CTRL_C, LINA_KEY_LCTRL, 0, LINA_KEY_C);
+		AddShortcut(Shortcut::CTRL_V, LINA_KEY_LCTRL, 0, LINA_KEY_V);
 		AddShortcut(Shortcut::CTRL_SHIFT_S, LINA_KEY_LCTRL, LINA_KEY_LSHIFT, LINA_KEY_S);
 	}
 

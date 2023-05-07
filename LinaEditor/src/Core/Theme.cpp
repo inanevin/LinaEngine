@@ -139,7 +139,7 @@ namespace Lina::Editor
 		case ThemeProperty::WidgetHeightShort:
 			return 22.0f * multiplier;
 		case ThemeProperty::WidgetHeightTall:
-			return 24.0f * multiplier;
+			return 25.0f * multiplier;
 		case ThemeProperty::DockDividerThickness:
 			return 1.5f * multiplier;
 		default:

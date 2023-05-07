@@ -244,7 +244,7 @@ namespace Lina::Editor
 
 		for (auto [sid, drawer] : m_guiDrawers)
 		{
-			if (drawer->GetWindow()->GetHandle() == windowHandle)
+			if (drawer->GetWindow() == windowHandle)
 			{
 				if (drawer->GetRoot()->OnShortcut(sc))
 				{

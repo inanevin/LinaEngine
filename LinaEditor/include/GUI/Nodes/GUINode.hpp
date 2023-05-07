@@ -61,15 +61,17 @@ namespace Lina::Editor
 		virtual ~GUINode();
 
 		virtual void Draw(int threadID);
-		virtual bool OnKey(uint32 key, InputAction action);
+		virtual void OnKey(uint32 key, InputAction action);
 		virtual bool OnMouse(uint32 button, InputAction action);
 		virtual bool OnMouseWheel(uint32 delta);
+		virtual void OnMousePos();
 		virtual void OnLostFocus();
 		virtual bool OnShortcut(Shortcut sc);
 		virtual void OnPayloadCreated(PayloadType type, void* userData);
 		virtual void OnPayloadEnded(PayloadType type);
 		virtual void OnPayloadAccepted(){};
 		virtual void OnClicked(uint32 button){};
+		virtual void OnClickedOutside(uint32 button){};
 		virtual void OnPressed(uint32 button){};
 		virtual void OnDoubleClicked(){};
 		virtual void OnHoverBegin(){};
@@ -78,6 +80,7 @@ namespace Lina::Editor
 		virtual void OnDragEnd(){};
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
+		virtual void SetTitle(const String& str);
 
 		void	 SetDrawer(GUIDrawerBase* drawer);
 		void	 AddChildren(GUINode* node);
@@ -144,12 +147,6 @@ namespace Lina::Editor
 		inline void SetCallbackPayloadAccepted(Delegate<void(GUINode*, void*)>&& onPayloadAccepted)
 		{
 			m_onPayloadAccepted = onPayloadAccepted;
-		}
-
-		inline void SetTitle(const char* title)
-		{
-			m_title	  = title;
-			m_lastDpi = 0.0f;
 		}
 
 		inline void SetSID(StringID sid)

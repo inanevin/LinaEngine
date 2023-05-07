@@ -46,6 +46,8 @@ namespace Lina
 	public:
 		static String OpenDialog(const wchar_t* extensionDescription, const wchar_t* extension);
 		static String SaveDialog(const wchar_t* extensionDescription, const wchar_t* extension);
+		static void	  CopyToClipboard(const wchar_t* str);
+		static bool	  TryGetStringFromClipboard(WString& outStr);
 
 	private:
 		friend class Application;

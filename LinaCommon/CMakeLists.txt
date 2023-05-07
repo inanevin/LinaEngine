@@ -37,6 +37,7 @@ set (LINACOMMON_SOURCES
 	src/Data/SyncQueue.cpp
 	src/Data/ActionQueue.cpp
 	src/Data/DelegateQueue.cpp
+	src/Data/String.cpp
 
 	# Events
 	src/Event/Event.cpp

@@ -58,6 +58,18 @@ namespace Lina
 		SizeVertical,
 	};
 
+	enum CharacterMask
+	{
+		Letter	   = 1 << 0,
+		Number	   = 1 << 1,
+		Separator  = 1 << 2,
+		Symbol	   = 1 << 4,
+		Whitespace = 1 << 5,
+		Control	   = 1 << 6,
+		Printable  = 1 << 7,
+		Any		   = Letter | Number | Separator | Whitespace | Control | Symbol | Printable,
+	};
+
 } // namespace Lina
 
 #endif

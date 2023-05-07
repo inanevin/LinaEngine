@@ -141,66 +141,51 @@ namespace Lina
 		if (m_gfxManager)
 			m_gfxManager->Sync();
 
-		if (m_input.GetKeyDown(LINA_KEY_1))
-		{
-			m_windowManager.SetVsync(VsyncMode::None);
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_2))
-		{
-			m_windowManager.SetVsync(VsyncMode::EveryVBlank);
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_3))
-		{
-			m_windowManager.SetVsync(VsyncMode::EverySecondVBlank);
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_4))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Fullscreen);
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_K))
-		{
-			OnCriticalGfxError();
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_5))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Windowed);
-		}
-		if (m_input.GetKeyDown(LINA_KEY_6))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::WindowedNoResize);
-		}
-		if (m_input.GetKeyDown(LINA_KEY_7))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Borderless);
-		}
-		if (m_input.GetKeyDown(LINA_KEY_8))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::BorderlessNoResize);
-		}
-		if (m_input.GetKeyDown(LINA_KEY_9))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::None);
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_A))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->Maximize();
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_B))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->Restore();
-		}
-
-		if (m_input.GetKeyDown(LINA_KEY_D))
-		{
-			m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->Minimize();
-		}
+	// if (m_input.GetKeyDown(LINA_KEY_1))
+	// {
+	// 	m_windowManager.SetVsync(VsyncMode::None);
+	// }
+	// 
+	// if (m_input.GetKeyDown(LINA_KEY_2))
+	// {
+	// 	m_windowManager.SetVsync(VsyncMode::EveryVBlank);
+	// }
+	// 
+	// if (m_input.GetKeyDown(LINA_KEY_3))
+	// {
+	// 	m_windowManager.SetVsync(VsyncMode::EverySecondVBlank);
+	// }
+	// 
+	// if (m_input.GetKeyDown(LINA_KEY_4))
+	// {
+	// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Fullscreen);
+	// }
+	// 
+	// if (m_input.GetKeyDown(LINA_KEY_K))
+	// {
+	// 	OnCriticalGfxError();
+	// }
+	// 
+	// if (m_input.GetKeyDown(LINA_KEY_5))
+	// {
+	// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Windowed);
+	// }
+	// if (m_input.GetKeyDown(LINA_KEY_6))
+	// {
+	// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::WindowedNoResize);
+	// }
+	// if (m_input.GetKeyDown(LINA_KEY_7))
+	// {
+	// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Borderless);
+	// }
+	// if (m_input.GetKeyDown(LINA_KEY_8))
+	// {
+	// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::BorderlessNoResize);
+	// }
+	// if (m_input.GetKeyDown(LINA_KEY_9))
+	// {
+	// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::None);
+	// }
 	}
 
 	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)

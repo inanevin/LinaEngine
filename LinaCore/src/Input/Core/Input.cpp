@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Input/Core/Input.hpp"
 #include "Math/Rect.hpp"
+#include "Input/Core/InputMappings.hpp"
 #include "System/ISystem.hpp"
 #ifdef LINA_PLATFORM_WINDOWS
 #include "Platform/Win32/Win32WindowsInclude.hpp"
@@ -76,6 +77,73 @@ namespace Lina
 		m_appActive = isActive;
 	}
 
+	uint16 Input::GetCharacterMask(uint32 keycode)
+	{
+		uint16 mask = 0;
+
+#ifdef LINA_PLATFORM_WINDOWS
+
+		if (keycode == LINA_KEY_SPACE)
+			mask |= Whitespace;
+		else
+		{
+			WCHAR ch = GetCharacterFromKey(keycode);
+			if (IsCharAlphaNumericW(ch))
+			{
+				if (keycode >= '0' && keycode <= '9')
+					mask |= Number;
+				else
+					mask |= Letter;
+			}
+			else if (iswctype(ch, _PUNCT))
+				mask |= Symbol;
+			else
+				mask |= Control;
+		}
+
+		if (keycode == LINA_KEY_COMMA || keycode == LINA_KEY_PERIOD)
+			mask |= Separator;
+
+		if (mask & (Letter | Number | Whitespace | Separator | Symbol))
+			mask |= Printable;
+
+#else
+		LINA_NOTIMPLEMENTED;
+#endif
+		return mask;
+	}
+
+	wchar_t Input::GetCharacterFromKey(uint32 key)
+	{
+		wchar_t ch = 0;
+#ifdef LINA_PLATFORM_WINDOWS
+		BYTE keyboardState[256];
+
+		// Get the current keyboard state
+		if (!GetKeyboardState(keyboardState))
+		{
+			return ch;
+		}
+
+		// Map the virtual keycode to a scan code
+		UINT scanCode = MapVirtualKeyEx(key, MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
+
+		// Convert the scan code to a character
+		WCHAR unicodeChar[2] = {0};
+		int	  result		 = ToUnicodeEx(key, scanCode, keyboardState, unicodeChar, 2, 0, GetKeyboardLayout(0));
+
+		// If the conversion is successful and the character is a printable character
+		if (result == 1)
+		{
+			ch = unicodeChar[0];
+		}
+#else
+		LINA_NOTIMPLEMENTED;
+#endif
+
+		return ch;
+	}
+
 	bool Input::GetKey(int keycode)
 	{
 		if (!m_appActive)
@@ -85,7 +153,10 @@ namespace Lina
 
 #ifdef LINA_PLATFORM_WINDOWS
 		keyState = GetKeyState(keycode) & 0x8000 ? 1 : 0;
+#else
+		LINA_NOTIMPLEMENTED;
 #endif
+
 		m_currentStates[keycode] = keyState;
 		return keyState == 1;
 	}

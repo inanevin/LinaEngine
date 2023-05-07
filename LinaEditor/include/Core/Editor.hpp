@@ -86,11 +86,11 @@ namespace Lina::Editor
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
-		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
-		void BeginSplashScreen();
-		void EndSplashScreen();
-		void Tick();
-		void OnShortcut(Shortcut sc, void* windowHandle);
+		void   PackageResources(const Vector<ResourceIdentifier>& identifiers);
+		void   BeginSplashScreen();
+		void   EndSplashScreen();
+		void   Tick();
+		void   OnShortcut(Shortcut sc, void* windowHandle);
 
 		void	 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
 		IWindow* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);

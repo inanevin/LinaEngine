@@ -53,7 +53,7 @@ namespace Lina::Editor
 		const float widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightShort, m_window->GetDPIScale());
 		const float iconPadding	 = m_xOffset + padding;
 		float		totalSizeY	 = widgetHeight;
-		m_rect.size.y			 = widgetHeight;
+		SetWidgetHeight(ThemeProperty::WidgetHeightShort);
 
 		// Childs
 		{
@@ -75,12 +75,13 @@ namespace Lina::Editor
 					c->SetXOffset(m_xOffset + padding);
 					c->SetPos(m_rect.pos + Vector2(0.0f, totalSizeY));
 					c->Draw(threadID);
-					totalSizeY += widgetHeight;
+					totalSizeY += c->GetRect().size.y;
 				}
 			}
 		}
 
-		m_ownRect = Rect(m_rect.pos, Vector2(m_rect.size.x, m_rect.size.y));
+		m_ownRect	  = Rect(m_rect.pos, Vector2(m_rect.size.x, m_rect.size.y));
+		m_rect.size.y = totalSizeY;
 
 		DrawBackground(threadID);
 		DrawIcons(threadID, iconPadding);

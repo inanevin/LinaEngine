@@ -76,24 +76,18 @@ namespace Lina::Editor
 			m_children[i]->Draw(threadID);
 	}
 
-	bool GUINode::OnKey(uint32 key, InputAction action)
+	void GUINode::OnKey(uint32 key, InputAction action)
 	{
-
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
-		{
-			if (m_children[i]->OnKey(key, action))
-				return true;
-		}
-
-		return false;
+			m_children[i]->OnKey(key, action);
 	}
 
 	bool GUINode::OnMouse(uint32 button, InputAction action)
 	{
 		static GUINode* lastPressedNode = nullptr;
 
-		if (!GetIsVisible())
+		if (!GetIsVisible() || m_disabled)
 			return false;
 
 		if (button == LINA_MOUSE_0)
@@ -104,25 +98,28 @@ namespace Lina::Editor
 				{
 					lastPressedNode = this;
 					m_isPressed		= true;
-					m_isDragging	= true;
 					OnPressed(button);
-					OnDragBegin();
 					m_dragStartMousePos	  = m_window->GetMousePosition();
 					m_dragStartMouseDelta = Vector2(m_dragStartMousePos) - m_rect.pos;
 				}
 			}
 			else if (action == InputAction::Released)
 			{
-				if (lastPressedNode == this && GetIsHovered())
-				{
-					lastPressedNode = nullptr;
-
-					if (GetIsVisible() && !m_disabled)
-						OnClicked(LINA_MOUSE_0);
-				}
-
 				if (m_isDragging)
 					OnDragEnd();
+
+				const Vector2 delta = (m_window->GetMousePosition() - m_dragStartMousePos);
+
+				if (!m_isDragging || delta.Magnitude() < 5.0f)
+				{
+					if (lastPressedNode == this && GetIsHovered())
+					{
+						lastPressedNode = nullptr;
+						OnClicked(LINA_MOUSE_0);
+					}
+					else if (!GetIsHovered())
+						OnClickedOutside(LINA_MOUSE_0);
+				}
 
 				m_isPressed	 = false;
 				m_isDragging = false;
@@ -136,7 +133,12 @@ namespace Lina::Editor
 		else
 		{
 			if (action == InputAction::Released)
-				OnClicked(button);
+			{
+				if (GetIsHovered())
+					OnClicked(button);
+				else
+					OnClickedOutside(button);
+			}
 		}
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
@@ -156,6 +158,15 @@ namespace Lina::Editor
 		}
 
 		return false;
+	}
+
+	void GUINode::OnMousePos()
+	{
+		if (m_isPressed && !m_isDragging)
+		{
+			m_isDragging = true;
+			OnDragBegin();
+		}
 	}
 
 	void GUINode::OnLostFocus()
@@ -218,6 +229,12 @@ namespace Lina::Editor
 		m_rect.size.LoadFromStream(stream);
 		HashMapSerialization::LoadFromStream_OBJ(stream, m_storedSizes);
 		StringSerialization::LoadFromStream(stream, m_title);
+	}
+
+	void GUINode::SetTitle(const String& title)
+	{
+		m_title = title;
+		ClearStoredSizes();
 	}
 
 	void GUINode::AddChildren(GUINode* node)

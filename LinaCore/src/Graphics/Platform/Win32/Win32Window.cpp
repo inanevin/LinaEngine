@@ -182,20 +182,24 @@ namespace Lina
 			if (!s_isAppActive)
 				break;
 
-			if ((HIWORD(lParam) & KF_REPEAT) == 0)
-			{
-				WORD   keyFlags = HIWORD(lParam);
-				WORD   scanCode = LOBYTE(keyFlags);
-				uint32 key		= static_cast<uint32>(wParam);
-				int	   extended = (lParam & 0x01000000) != 0;
+			WORD   keyFlags	  = HIWORD(lParam);
+			WORD   scanCode	  = LOBYTE(keyFlags);
+			uint32 key		  = static_cast<uint32>(wParam);
+			int	   extended	  = (lParam & 0x01000000) != 0;
+			bool   isRepeated = (HIWORD(lParam) & KF_REPEAT) != 0;
 
-				if (wParam == VK_SHIFT)
-					key = extended == 0 ? VK_LSHIFT : VK_RSHIFT;
-				else if (wParam == VK_CONTROL)
-					key = extended == 0 ? VK_LCONTROL : VK_RCONTROL;
+			if (wParam == VK_SHIFT)
+				key = extended == 0 ? VK_LSHIFT : VK_RSHIFT;
+			else if (wParam == VK_CONTROL)
+				key = extended == 0 ? VK_LCONTROL : VK_RCONTROL;
 
-				win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), InputAction::Pressed);
-			}
+			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), isRepeated ? InputAction::Repeated : InputAction::Pressed);
+
+			auto aq = win32Window->m_input->GetCharacterFromKey(key);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnKey(key, isRepeated ? InputAction::Repeated : InputAction::Pressed);
 		}
 		break;
 		case WM_KEYUP: {
@@ -220,6 +224,10 @@ namespace Lina
 			data.iParams[1] = static_cast<int>(scanCode);
 			data.iParams[2] = static_cast<int>(InputAction::Released);
 			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), InputAction::Released);
+
+			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
+			if (guiDrawer)
+				guiDrawer->OnKey(key, InputAction::Released);
 		}
 		break;
 		case WM_MOUSEMOVE: {
@@ -254,11 +262,7 @@ namespace Lina
 		break;
 		case WM_LBUTTONDOWN: {
 
-			win32Window->OnMouseButton(VK_LBUTTON, 0);
-
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnMouse(VK_LBUTTON, InputAction::Pressed);
 
 			static uint64 lastLBCycles = 0;
 			const uint64  current	   = PlatformTime::GetCPUCycles();
@@ -273,15 +277,17 @@ namespace Lina
 				if (guiDrawer)
 					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Repeated);
 			}
+			else
+			{
+				if (guiDrawer)
+					guiDrawer->OnMouse(VK_LBUTTON, InputAction::Pressed);
+				win32Window->OnMouseButton(VK_LBUTTON, 0);
+			}
 		}
 		break;
 		case WM_RBUTTONDOWN: {
 
-			win32Window->OnMouseButton(VK_RBUTTON, 0);
-
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnMouse(VK_RBUTTON, InputAction::Pressed);
 
 			static uint64 lastRBCycles = 0;
 			const uint64  current	   = PlatformTime::GetCPUCycles();
@@ -296,15 +302,17 @@ namespace Lina
 				if (guiDrawer)
 					guiDrawer->OnMouse(VK_RBUTTON, InputAction::Repeated);
 			}
+			else
+			{
+				win32Window->OnMouseButton(VK_RBUTTON, 0);
+				if (guiDrawer)
+					guiDrawer->OnMouse(VK_RBUTTON, InputAction::Pressed);
+			}
 		}
 		break;
 		case WM_MBUTTONDOWN: {
 
-			win32Window->OnMouseButton(VK_MBUTTON, 0);
-
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
-			if (guiDrawer)
-				guiDrawer->OnMouse(VK_MBUTTON, InputAction::Pressed);
 
 			static uint64 lastMBCycles = 0;
 			const uint64  current	   = PlatformTime::GetCPUCycles();
@@ -318,6 +326,12 @@ namespace Lina
 				win32Window->m_input->OnMouseButton(static_cast<void*>(win32Window), VK_MBUTTON, InputAction::Repeated);
 				if (guiDrawer)
 					guiDrawer->OnMouse(VK_MBUTTON, InputAction::Repeated);
+			}
+			else
+			{
+				win32Window->OnMouseButton(VK_MBUTTON, 0);
+				if (guiDrawer)
+					guiDrawer->OnMouse(VK_MBUTTON, InputAction::Pressed);
 			}
 		}
 		break;
@@ -628,7 +642,7 @@ namespace Lina
 		{
 			m_sizeRequestExists = false;
 			SetSize(m_lastSizeRequest);
-			m_lastSizeRequest	= Vector2i::Zero;
+			m_lastSizeRequest = Vector2i::Zero;
 		}
 
 		const Vector2i localMousePos = m_input->GetMousePositionAbs() - m_rect.pos;

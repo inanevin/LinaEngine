@@ -92,6 +92,9 @@ namespace Lina::Editor
 		CTRL_T,
 		CTRL_S,
 		CTRL_Z,
+		CTRL_C,
+		CTRL_X,
+		CTRL_V,
 		CTRL_SHIFT_S,
 	};
 
@@ -112,6 +115,9 @@ namespace Lina::Editor
 		{Shortcut::CTRL_T, "CTRL+T"},
 		{Shortcut::CTRL_S, "CTRL+S"},
 		{Shortcut::CTRL_Z, "CTRL+Z"},
+		{Shortcut::CTRL_X, "CTRL+X"},
+		{Shortcut::CTRL_C, "CTRL+C"},
+		{Shortcut::CTRL_V, "CTRL+V"},
 		{Shortcut::CTRL_SHIFT_S, "CTRL+SHIFT+S"},
 	};
 

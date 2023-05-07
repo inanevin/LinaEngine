@@ -65,7 +65,16 @@ namespace Lina::Editor
 		if (!GetIsVisible())
 			return;
 
-		m_rect.size		= GetStoreSize("TitleSize"_hs, m_title, m_fontType, m_scale);
+		m_rect.size = Vector2::Zero;
+
+		int i = 0;
+		for (auto& d : m_textData)
+		{
+			d.calculatedSize = GetStoreSize(i++, d.text.c_str(), m_fontType, m_scale);
+			m_rect.size.x += d.calculatedSize.x;
+			m_rect.size.y = Math::Max(m_rect.size.y, d.calculatedSize.y);
+		}
+
 		Vector2 textPos = m_rect.pos;
 
 		if (m_alignment == TextAlignment::Center)

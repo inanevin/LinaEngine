@@ -87,48 +87,72 @@ namespace Lina
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 12);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_1x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 14);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_2x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 16);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_3x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 20);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 12);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_1x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 14);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_2x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 16);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_3x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		//-------------
 		metadata.SetBool("IsSDF"_hs, false);
 		metadata.SetInt("Size"_hs, 20);
+		metadata.SetInt("CustomGlyphRanges"_hs, 2);
+		metadata.SetInt("Range_0"_hs, 160);
+		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 

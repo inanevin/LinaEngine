@@ -67,7 +67,7 @@ namespace Lina
 			Delegate<void(WorldRenderer*)> onCreated;
 			EntityWorld*				   world = nullptr;
 			Vector2						   size	 = Vector2::Zero;
-			WorldRendererMask			   mask;
+			WorldRendererMask			   mask	 = WRM_None;
 		};
 
 		struct DeleteWorldRendererRequest

@@ -32,23 +32,6 @@ SOFTWARE.
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Resource/Texture.hpp"
 
-using namespace Lina;
-
-std::string from_u8string(const std::string& s)
-{
-	return s;
-}
-std::string from_u8string(std::string&& s)
-{
-	return std::move(s);
-}
-#if defined(__cpp_lib_char8_t)
-std::string from_u8string(const std::u8string& s)
-{
-	return std::string(s.begin(), s.end());
-}
-#endif
-
 namespace Lina::Editor
 {
 	Vector2 GUIUtility::DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, float scale, Color tint, int drawOrder, float rotation, bool skipCache)

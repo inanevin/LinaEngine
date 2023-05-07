@@ -65,7 +65,7 @@ namespace Lina::Editor
 		m_noLevelText = new GUINodeText(drawer, drawOrder);
 		m_noLevelText->SetAlignment(TextAlignment::Center);
 		m_noLevelText->SetFont(FontType::BigEditor);
-		m_noLevelText->SetVisible(m_loadedLevel != nullptr);
+		m_noLevelText->SetVisible(m_loadedLevel == nullptr);
 		m_noLevelText->SetText("NO LEVEL INSTALLED");
 		m_noLevelText->SetBothColors(Theme::TC_SilentTransparent);
 
@@ -73,7 +73,7 @@ namespace Lina::Editor
 		m_noLevelTextAlt->SetAlignment(TextAlignment::Center);
 		m_noLevelTextAlt->SetFont(FontType::BigEditor);
 		m_noLevelTextAlt->SetScale(0.5f);
-		m_noLevelTextAlt->SetVisible(m_loadedLevel != nullptr);
+		m_noLevelTextAlt->SetVisible(m_loadedLevel == nullptr);
 		m_noLevelTextAlt->AddText("Go to ", Theme::TC_Dark1);
 		m_noLevelTextAlt->AddText("Level > New Level ", Theme::TC_SilentTransparent);
 		m_noLevelTextAlt->AddText("to add one.", Theme::TC_Dark2);

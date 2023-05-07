@@ -59,17 +59,19 @@ namespace Lina
 		void OnMouseMove(void* windowPtr, int xPosRel, int yPosRel);
 		void OnActiveAppChanged(bool isActive);
 
-		bool GetKey(int button);
-		bool GetKeyDown(int button);
-		bool GetKeyUp(int button);
-		bool GetMouseButton(int button);
-		bool GetMouseButtonDown(int button);
-		bool GetMouseButtonUp(int button);
-		bool GetMouseButtonDoubleClick(int button);
-		bool GetMouseButtonClicked(int button);
-		bool IsPointInRect(const Vector2i& point, const Recti& rect);
-		void SetCursorMode(CursorMode mode);
-		void SetMousePosition(const Vector2& v) const;
+		uint16	GetCharacterMask(uint32 key);
+		wchar_t GetCharacterFromKey(uint32 key);
+		bool	GetKey(int button);
+		bool	GetKeyDown(int button);
+		bool	GetKeyUp(int button);
+		bool	GetMouseButton(int button);
+		bool	GetMouseButtonDown(int button);
+		bool	GetMouseButtonUp(int button);
+		bool	GetMouseButtonDoubleClick(int button);
+		bool	GetMouseButtonClicked(int button);
+		bool	IsPointInRect(const Vector2i& point, const Recti& rect);
+		void	SetCursorMode(CursorMode mode);
+		void	SetMousePosition(const Vector2& v) const;
 
 		inline Vector2i GetMousePositionAbs()
 		{
@@ -112,7 +114,7 @@ namespace Lina
 		Vector2i		   m_mouseDeltaRawPrev		 = Vector2i::Zero;
 		Vector2i		   m_previousMousePosition	 = Vector2i::Zero;
 		Vector2i		   m_currentMousePositionAbs = Vector2i::Zero;
-		bool			   m_appActive			 = false;
+		bool			   m_appActive				 = false;
 		void*			   m_lastFocusedWindowHandle = nullptr;
 		bool			   m_currentStates[256]		 = {0};
 		bool			   m_previousStates[256]	 = {0};

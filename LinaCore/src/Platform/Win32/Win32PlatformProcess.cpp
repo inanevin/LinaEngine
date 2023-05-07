@@ -35,6 +35,16 @@ SOFTWARE.
 #include "Lina.hpp"
 #include <shobjidl.h> // For IFileDialog and related interfaces
 
+#ifdef LINA_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable : 4696)
+#pragma warning(disable : 6387)
+#pragma warning(disable : 28183)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 void InitializeWinPlatform()
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
@@ -159,6 +169,50 @@ namespace Lina
 		BOOL fFreeResult = FreeLibrary(hinstLib);
 	}
 
+	void Win32PlatformProcess::CopyToClipboard(const wchar_t* str)
+	{
+		if (OpenClipboard(0))
+		{
+			EmptyClipboard();
+			HGLOBAL hClipboardData;
+			hClipboardData = GlobalAlloc(GMEM_DDESHARE, sizeof(WCHAR) * (wcslen(str) + 1));
+			WCHAR* pchData;
+			pchData = (WCHAR*)GlobalLock(hClipboardData);
+			wcscpy(pchData, str);
+			GlobalUnlock(hClipboardData);
+			SetClipboardData(CF_UNICODETEXT, hClipboardData);
+			CloseClipboard();
+		}
+	}
+
+	bool Win32PlatformProcess::TryGetStringFromClipboard(WString& outStr)
+	{
+		if (!OpenClipboard(NULL))
+		{
+			return false;
+		}
+
+		bool success = false;
+
+		if (IsClipboardFormatAvailable(CF_UNICODETEXT))
+		{
+			HGLOBAL hGlobal = GetClipboardData(CF_UNICODETEXT);
+			if (hGlobal)
+			{
+				wchar_t* pGlobal = reinterpret_cast<wchar_t*>(GlobalLock(hGlobal));
+				if (pGlobal)
+				{
+					outStr = WString(pGlobal);
+					GlobalUnlock(hGlobal);
+					success = true;
+				}
+			}
+		}
+
+		CloseClipboard();
+		return success;
+	}
+
 	String Win32PlatformProcess::OpenDialog(const wchar_t* extensionDescription, const wchar_t* extension)
 	{
 		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
@@ -229,7 +283,7 @@ namespace Lina
 			// Set the dialog's options
 			DWORD dwOptions;
 			hr = pFileSaveDialog->GetOptions(&dwOptions);
-			
+
 			if (SUCCEEDED(hr))
 			{
 				hr = pFileSaveDialog->SetOptions(dwOptions);
@@ -278,3 +332,9 @@ namespace Lina
 	}
 
 } // namespace Lina
+
+#ifdef LINA_COMPILER_MSVC
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
