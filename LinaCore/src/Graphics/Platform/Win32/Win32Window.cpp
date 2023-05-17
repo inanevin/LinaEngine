@@ -54,7 +54,7 @@ SOFTWARE.
 namespace Lina
 {
 	HashMap<HWND__*, Win32Window*> Win32Window::s_win32Windows;
-	bool						   Win32Window::s_isAppActive;
+	bool						   Win32Window::s_isAppActive = true;
 
 	LRESULT HandleNonclientHitTest(HWND wnd, LPARAM lparam, const Recti& dragRect)
 	{
@@ -194,8 +194,6 @@ namespace Lina
 				key = extended == 0 ? VK_LCONTROL : VK_RCONTROL;
 
 			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), isRepeated ? InputAction::Repeated : InputAction::Pressed);
-
-			auto aq = win32Window->m_input->GetCharacterFromKey(key);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
 			if (guiDrawer)

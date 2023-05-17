@@ -71,6 +71,8 @@ namespace Lina::Editor
 
 	void GUIDrawerSplashScreen::DrawGUI(int threadID)
 	{
+		LOCK_GUARD(m_mtx);
+
 		const Vector2 size = m_swapchain->GetSize();
 
 		// Base image.

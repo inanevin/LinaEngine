@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Serialization/StringSerialization.hpp"
 #include "Math/Math.hpp"
 #include "Serialization/HashMapSerialization.hpp"
+#include "Core/SystemInfo.hpp"
 
 namespace Lina::Editor
 {
@@ -101,6 +102,7 @@ namespace Lina::Editor
 					OnPressed(button);
 					m_dragStartMousePos	  = m_window->GetMousePosition();
 					m_dragStartMouseDelta = Vector2(m_dragStartMousePos) - m_rect.pos;
+					m_lastPressTime		  = SystemInfo::GetAppTimeF();
 				}
 			}
 			else if (action == InputAction::Released)
@@ -110,7 +112,10 @@ namespace Lina::Editor
 
 				const Vector2 delta = (m_window->GetMousePosition() - m_dragStartMousePos);
 
-				if (!m_isDragging || delta.Magnitude() < 5.0f)
+				const float diff	= SystemInfo::GetAppTimeF() - m_lastPressTime;
+				const bool	isClick = diff < 0.15f;
+
+				if (isClick || delta < 15.0f || !m_isDragging)
 				{
 					if (lastPressedNode == this && GetIsHovered())
 					{

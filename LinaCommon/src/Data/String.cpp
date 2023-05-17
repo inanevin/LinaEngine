@@ -30,6 +30,9 @@ SOFTWARE.
 #include <string>
 #include <codecvt>
 #include <locale>
+#include <iostream>
+#include <cwchar>
+#include <cstring>
 
 #ifdef LINA_COMPILER_MSVC
 #pragma warning(push)
@@ -43,6 +46,7 @@ namespace Lina
 {
 	namespace Internal
 	{
+
 		String WideStringToString(const WString& wstring)
 		{
 			std::wstring											  wstr = wstring.c_str();
@@ -58,6 +62,35 @@ namespace Lina
 			auto													  converted = converter.from_bytes(str);
 			return converted.c_str();
 		}
+
+		String EncodeUTF8(wchar_t ch)
+		{
+			String utf8str;
+			if (ch < 0x80)
+			{
+				utf8str.push_back(static_cast<char>(ch));
+			}
+			else if (ch < 0x800)
+			{
+				utf8str.push_back(static_cast<char>(0xC0 | (ch >> 6)));
+				utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+			}
+			else if (ch < 0x10000)
+			{
+				utf8str.push_back(static_cast<char>(0xE0 | (ch >> 12)));
+				utf8str.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
+				utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+			}
+			else
+			{
+				utf8str.push_back(static_cast<char>(0xF0 | (ch >> 18)));
+				utf8str.push_back(static_cast<char>(0x80 | ((ch >> 12) & 0x3F)));
+				utf8str.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
+				utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+			}
+			return utf8str;
+		}
+
 	} // namespace Internal
 } // namespace Lina
 

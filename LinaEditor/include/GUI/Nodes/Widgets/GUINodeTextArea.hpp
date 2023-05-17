@@ -48,9 +48,9 @@ namespace Lina::Editor
 	private:
 		struct CharData
 		{
-			wchar_t c	  = 0;
-			float	x	  = 0.0f;
-			float	sizeX = 0.0f;
+			float x			= 0.0f;
+			float sizeX		= 0.0f;
+			uint8 byteCount = 0;
 		};
 
 	public:
@@ -76,10 +76,9 @@ namespace Lina::Editor
 		uint32 FindCaretIndexFromMouse();
 		void   FinishEditing();
 		void   EraseChar();
-		void   AddCharToCurrent(wchar_t ch);
 		String Convert(const Vector<wchar_t>& v);
-		void   RefreshTitle();
 		void   SelectAll();
+		void   FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax);
 
 	protected:
 		Bitmask16		 m_inputMask = CharacterMask::Printable;

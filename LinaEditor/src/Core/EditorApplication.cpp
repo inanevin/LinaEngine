@@ -111,10 +111,8 @@ namespace Lina::Editor
 			{
 				m_editor.EndSplashScreen();
 				auto window = m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
-				window->SetVisible(false);
 				window->SetToWorkingArea();
 				window->SetCursorType(CursorType::Default);
-
 				m_systemEventMask = 0;
 			}
 		}

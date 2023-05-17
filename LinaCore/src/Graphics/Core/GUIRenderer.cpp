@@ -46,8 +46,7 @@ namespace Lina
 #define DEF_MAT_SIZE	   24
 
 	GUIRenderer::GUIRenderer(GfxManager* gfxMan, StringID ownerSid, IUploadContext* context)
-		: m_uploadContext(context), m_gfxManager(gfxMan), m_ownerSid(ownerSid),
-		  m_materialPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Material) * DEF_MAT_SIZE, sizeof(Material), "GUI Renderer Material Pool")
+		: m_uploadContext(context), m_gfxManager(gfxMan), m_ownerSid(ownerSid), m_materialPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Material) * DEF_MAT_SIZE, sizeof(Material), "GUI Renderer Material Pool")
 	{
 		m_renderer		  = m_gfxManager->GetRenderer();
 		m_contextGraphics = m_renderer->GetContextGraphics();
@@ -155,7 +154,7 @@ namespace Lina
 	void GUIRenderer::Render(uint32 cmdList, uint32 cmdListAllocatorTransfer, uint32 cmdListTransfer)
 	{
 		PROFILER_FUNCTION();
-	
+
 		auto& frame = m_frames[m_frameIndex];
 		if (frame.drawRequests.empty())
 			return;

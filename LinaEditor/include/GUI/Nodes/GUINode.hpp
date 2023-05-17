@@ -283,7 +283,8 @@ namespace Lina::Editor
 
 	private:
 		HashMap<StringID, Vector2> m_storedSizes;
-		float					   m_lastDpi = 0.0f;
+		float					   m_lastDpi	   = 0.0f;
+		float					   m_lastPressTime = 0.0f;
 	};
 } // namespace Lina::Editor
 

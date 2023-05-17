@@ -46,8 +46,9 @@ namespace Lina
 
 	namespace Internal
 	{
-		extern String  WideStringToString(const WString& wstring);
-		extern WString StringToWString(const String& string);
+		extern String		  WideStringToString(const WString& wstring);
+		extern WString		  StringToWString(const String& string);
+		extern String		  EncodeUTF8(wchar_t wch);
 	} // namespace Internal
 
 } // namespace Lina

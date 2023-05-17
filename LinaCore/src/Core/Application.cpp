@@ -61,7 +61,6 @@ namespace Lina
 		}
 
 		m_engine.Initialize(initInfo);
-
 		LoadPlugins();
 		OnInited();
 	}

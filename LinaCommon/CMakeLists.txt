@@ -38,6 +38,8 @@ set (LINACOMMON_SOURCES
 	src/Data/ActionQueue.cpp
 	src/Data/DelegateQueue.cpp
 	src/Data/String.cpp
+	src/Data/CommonData.cpp
+
 
 	# Events
 	src/Event/Event.cpp

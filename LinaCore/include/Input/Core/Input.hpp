@@ -114,7 +114,7 @@ namespace Lina
 		Vector2i		   m_mouseDeltaRawPrev		 = Vector2i::Zero;
 		Vector2i		   m_previousMousePosition	 = Vector2i::Zero;
 		Vector2i		   m_currentMousePositionAbs = Vector2i::Zero;
-		bool			   m_appActive				 = false;
+		bool			   m_appActive				 = true;
 		void*			   m_lastFocusedWindowHandle = nullptr;
 		bool			   m_currentStates[256]		 = {0};
 		bool			   m_previousStates[256]	 = {0};

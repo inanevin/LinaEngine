@@ -32,6 +32,8 @@ SOFTWARE.
 #define DataStructuresDataCommon_HPP
 #include <EASTL/utility.h>
 #include <EASTL/sort.h>
+#include "Data/Vector.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
@@ -43,6 +45,11 @@ namespace Lina
 	{
 		(f(std::forward<Args>(args)), ...);
 		return f;
+	}
+
+	namespace Internal
+	{
+		extern Vector<String> SplitIntoUTF8Chars(const String& str);
 	}
 
 #define ALIGN_SIZE_POW(sizeToAlign, PowerOfTwo) (((sizeToAlign) + (PowerOfTwo)-1) & ~((PowerOfTwo)-1))
@@ -79,7 +86,6 @@ namespace Lina
 #define LINA_RESTORE_VC_WARNING()
 #endif
 #endif
-
 
 } // namespace Lina
 

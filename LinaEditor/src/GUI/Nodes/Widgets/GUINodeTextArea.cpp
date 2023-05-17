@@ -42,6 +42,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Core/PlatformProcess.hpp"
+#include "Data/CommonData.hpp"
 
 namespace Lina::Editor
 {
@@ -72,28 +73,14 @@ namespace Lina::Editor
 		opts.font		 = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
 		m_initialTextPos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
 
-		if (!m_isEditing)
-		{
-			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
-		}
-		else
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
+		if (m_isEditing)
 		{
 
 			LinaVG::StyleOptions caretStyle;
 			caretStyle.color		 = LV4(Theme::TC_Silent3);
 			caretStyle.color.start.w = caretStyle.color.end.w = 0.5f;
 			caretStyle.thickness							  = 1.2f * m_window->GetDPIScale();
-
-			// One by one.
-			const uint32 sz = static_cast<uint32>(m_characters.size());
-			for (uint32 i = 0; i < sz; i++)
-			{
-				const auto&	  cd   = m_characters[i];
-				const WString wstr = WString(1, cd.c);
-				const String  str  = Internal::WideStringToString(wstr);
-				const Vector2 pos  = m_initialTextPos + Vector2(cd.x, 0.0f);
-				LinaVG::DrawTextNormal(threadID, str.c_str(), LV2(pos), opts, 0.0f, m_drawOrder + 1, true);
-			}
 
 			// Caret
 			{
@@ -116,6 +103,7 @@ namespace Lina::Editor
 				{
 					const uint32 caretIndex = m_caretIndexEnd;
 					float		 caretX		= 0.0f;
+					const uint32 sz			= static_cast<uint32>(m_characters.size());
 
 					if (sz != 0)
 					{
@@ -179,21 +167,17 @@ namespace Lina::Editor
 		GUINode::SetTitle(title);
 		m_characters.clear();
 
-		WString wstr = Internal::StringToWString(title);
+		float		   x	 = 0.0f;
+		Vector<String> chars = Internal::SplitIntoUTF8Chars(title.c_str());
 
-		const wchar_t* currChar = wstr.c_str();
-		float		   x		= 0.0f;
-
-		while (*currChar != '\0')
+		for (const String& ch : chars)
 		{
-			const WString  wstr		= WString(1, *currChar);
-			const String   str		= Internal::WideStringToString(wstr);
-			const StringID sid		= TO_SID(str);
-			const Vector2  charSize = GetStoreSize(sid, str, FontType::DefaultEditor);
-			CharData	   cd		= CharData{.c = *currChar, .x = x, .sizeX = charSize.x};
+			const char*	   c_str	= ch.c_str();
+			const StringID sid		= TO_SIDC(c_str);
+			const Vector2  charSize = GetStoreSize(sid, c_str, FontType::DefaultEditor);
+			const CharData cd		= CharData{.x = x, .sizeX = charSize.x, .byteCount = static_cast<uint8>(ch.size())};
 			m_characters.push_back(cd);
 			x += charSize.x;
-			currChar++;
 		}
 	}
 
@@ -259,7 +243,29 @@ namespace Lina::Editor
 				wchar_t ch = m_input->GetCharacterFromKey(key);
 
 				if (ch != 0)
-					AddCharToCurrent(ch);
+				{
+					if (m_caretIndexEnd != m_caretIndexStart)
+						EraseChar();
+
+					const String encoded = Internal::EncodeUTF8(ch);
+
+					if (m_caretIndexEnd == sz)
+					{
+						m_title.append(encoded);
+						m_caretIndexStart = ++m_caretIndexEnd;
+					}
+					else
+					{
+						uint32 pos = 0;
+						for (uint32 i = 0; i < m_caretIndexEnd; i++)
+							pos += m_characters[i].byteCount;
+
+						m_caretIndexStart = ++m_caretIndexEnd;
+						m_title.insert(pos, encoded);
+					}
+
+					SetTitle(m_title);
+				}
 			}
 		}
 	}
@@ -273,13 +279,14 @@ namespace Lina::Editor
 		{
 			if (m_caretIndexEnd != m_caretIndexStart)
 			{
-				WString		 finalString = L"";
-				const uint32 min		 = Math::Min(m_caretIndexStart, m_caretIndexEnd);
-				const uint32 max		 = Math::Max(m_caretIndexStart, m_caretIndexEnd);
-				for (uint32 i = min; i < max; i++)
-					finalString += m_characters[i].c;
+				const uint32 min	= Math::Min(m_caretIndexStart, m_caretIndexEnd);
+				const uint32 max	= Math::Max(m_caretIndexStart, m_caretIndexEnd);
+				uint32		 posMin = 0, posMax = 0;
+				FindPositions(min, max, posMin, posMax);
 
-				PlatformProcess::CopyToClipboard(finalString.c_str());
+				const String  substr = m_title.substr(posMin, posMax - posMin);
+				const WString wstr	 = Internal::StringToWString(substr);
+				PlatformProcess::CopyToClipboard(wstr.c_str());
 
 				if (sc == Shortcut::CTRL_X)
 					EraseChar();
@@ -291,14 +298,23 @@ namespace Lina::Editor
 		}
 		else if (sc == Shortcut::CTRL_V)
 		{
-			WString str = L"";
-			if (PlatformProcess::TryGetStringFromClipboard(str))
+			WString wstr = L"";
+			if (PlatformProcess::TryGetStringFromClipboard(wstr))
 			{
 				if (m_caretIndexEnd != m_caretIndexStart)
 					EraseChar();
 
-				for (wchar_t ch : str)
-					AddCharToCurrent(ch);
+				const String str	= Internal::WideStringToString(wstr);
+				uint32		 posMin = 0, posMax = 0;
+				FindPositions(m_caretIndexStart, m_caretIndexEnd, posMin, posMax);
+				m_title.insert(posMax, str);
+
+				const uint32 szNow = static_cast<uint32>(m_characters.size());
+				SetTitle(m_title);
+
+				const uint32 szDiff = static_cast<uint32>(m_characters.size()) - szNow;
+				m_caretIndexEnd += szDiff;
+				m_caretIndexStart = m_caretIndexEnd;
 			}
 		}
 
@@ -376,31 +392,34 @@ namespace Lina::Editor
 		{
 			const uint32 min = Math::Min(m_caretIndexStart, m_caretIndexEnd);
 			const uint32 max = Math::Max(m_caretIndexStart, m_caretIndexEnd);
+
+			uint32 posMin = 0, posMax = 0;
+			FindPositions(min, max, posMin, posMax);
+
+			m_title.erase(posMin, posMax - posMin);
 			m_characters.erase(m_characters.begin() + min, m_characters.begin() + max);
 			m_caretIndexStart = m_caretIndexEnd = min;
+			SetTitle(m_title);
 		}
 		else
 		{
 			if (m_caretIndexEnd != 0)
 			{
+				const int32 indexToErase = m_caretIndexEnd - 1;
+				const uint8 byteCount	 = m_characters[indexToErase].byteCount;
+
+				uint32 position = 0;
+
+				for (uint32 i = 0; i < indexToErase; i++)
+					position += m_characters[i].byteCount;
+
+				m_title.erase(position, byteCount);
+
 				m_characters.erase(m_characters.begin() + m_caretIndexEnd - 1);
 				m_caretIndexStart = --m_caretIndexEnd;
+				SetTitle(m_title);
 			}
 		}
-
-		RefreshTitle();
-	}
-
-	void GUINodeTextArea::AddCharToCurrent(wchar_t ch)
-	{
-		if (m_caretIndexStart != m_caretIndexEnd)
-			EraseChar();
-
-		CharData cd;
-		cd.c = ch;
-		m_characters.insert(m_characters.begin() + m_caretIndexEnd, cd);
-		RefreshTitle();
-		m_caretIndexStart = ++m_caretIndexEnd;
 	}
 
 	String GUINodeTextArea::Convert(const Vector<wchar_t>& v)
@@ -409,20 +428,25 @@ namespace Lina::Editor
 		return Internal::WideStringToString(wstr);
 	}
 
-	void GUINodeTextArea::RefreshTitle()
-	{
-		Vector<wchar_t> data;
-		for (auto& ch : m_characters)
-			data.push_back(ch.c);
-		const String str = Convert(data);
-		SetTitle(str);
-	}
-
 	void GUINodeTextArea::SelectAll()
 	{
 		m_isEditing		  = true;
 		m_caretIndexStart = 0;
 		m_caretIndexEnd	  = static_cast<uint32>(m_characters.size());
+	}
+
+	void GUINodeTextArea::FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax)
+	{
+		posMin = posMax = 0;
+		for (uint32 i = 0; i < max; i++)
+		{
+			const auto& cd = m_characters[i];
+
+			if (i < min)
+				posMin += cd.byteCount;
+
+			posMax += cd.byteCount;
+		}
 	}
 
 } // namespace Lina::Editor
