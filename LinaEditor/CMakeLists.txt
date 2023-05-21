@@ -61,6 +61,7 @@ src/GUI/Nodes/Layouts/GUINodeDivisible.cpp
 src/GUI/Nodes/Layouts/GUINodeDivider.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.cpp
 src/GUI/Nodes/Layouts/GUINodeLayoutVertical.cpp
+src/GUI/Nodes/Layouts/GUINodeScrollArea.cpp
 src/GUI/Drawers/GUIDrawerBase.cpp
 src/GUI/Drawers/GUIDrawerMainWindow.cpp
 src/GUI/Drawers/GUIDrawerChildWindow.cpp
@@ -109,6 +110,7 @@ include/GUI/Nodes/Layouts/GUINodeDivider.hpp
 include/GUI/Nodes/Layouts/GUINodeDivisible.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutHorizontal.hpp
 include/GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp
+include/GUI/Nodes/Layouts/GUINodeScrollArea.hpp
 include/GUI/Drawers/GUIDrawerBase.hpp
 include/GUI/Drawers/GUIDrawerSplashScreen.hpp
 include/GUI/Drawers/GUIDrawerMainWindow.hpp

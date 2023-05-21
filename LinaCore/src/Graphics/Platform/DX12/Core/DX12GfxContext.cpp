@@ -445,6 +445,7 @@ namespace Lina
 
 	void DX12GfxContext::WaitForFences(uint32 fenceHandle, uint64 frameFenceValue)
 	{
+		PROFILER_FUNCTION();
 		auto&		 fences	   = m_renderer->DX12GetFences();
 		auto&		 fence	   = fences.GetItemR(fenceHandle);
 		const UINT64 lastFence = fence->GetCompletedValue();

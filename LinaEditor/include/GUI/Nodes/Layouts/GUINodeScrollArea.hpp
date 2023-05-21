@@ -26,37 +26,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Drawers/GUIDrawerMainWindow.hpp"
-#include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
-#include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
-#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
-#include "Core/Theme.hpp"
-#include "Profiling/Profiler.hpp"
+#pragma once
+
+#ifndef GUINodeScrollArea_HPP
+#define GUINodeScrollArea_HPP
+
+#include "GUI/Nodes/GUINode.hpp"
+#include "Core/EditorCommon.hpp"
 
 namespace Lina::Editor
 {
-	GUIDrawerMainWindow::GUIDrawerMainWindow(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
+	class GUINodeScrollArea : public GUINode
 	{
-		m_editor   = editor;
-		m_topPanel = new GUINodeTopPanel(this, 0);
-		m_root->AddChildren(m_topPanel);
-	}
+	public:
+		GUINodeScrollArea(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
+		virtual ~GUINodeScrollArea() = default;
 
-	void GUIDrawerMainWindow::DrawGUI(int threadID)
-	{
-		PROFILER_FUNCTION();
+		virtual void Draw(int threadID) override;
 
-		const Vector2 swapchainSize = m_swapchain->GetSize();
-		const Vector2 monitorSize	= m_window->GetMonitorInformation().size;
-		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_window->GetDPIScale()));
-		m_topPanel->SetRect(topRect);
-		m_topPanel->Draw(threadID);
+		virtual void  ShowScrollIfRequired();
+		virtual void  OnChildExceededSize(float amt){};
+		virtual void  AddScrollValue(float amt);
+		virtual float GetChildSize();
+		virtual float GetMySize();
+		virtual void  DetermineScroll(float mySize, float targetSize);
 
-		const Rect dockRect			 = Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
-		GUIDrawerBase::DrawDockAreas(threadID, dockRect);
-	}
+		inline void SetDirection(Direction dir)
+		{
+			m_direction = dir;
+		}
+
+	protected:
+		Direction m_direction		 = Direction::Horizontal;
+		float	  m_scrollValue		 = 0.0f;
+		bool	  m_shouldShowScroll = false;
+	};
 } // namespace Lina::Editor
+
+#endif

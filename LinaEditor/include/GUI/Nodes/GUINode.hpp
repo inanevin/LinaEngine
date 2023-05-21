@@ -81,6 +81,8 @@ namespace Lina::Editor
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SetTitle(const String& str);
+		virtual void SetClip(int threadID, const Rect& margin);
+		virtual void UnsetClip(int threadID);
 
 		void	 SetDrawer(GUIDrawerBase* drawer);
 		void	 AddChildren(GUINode* node);

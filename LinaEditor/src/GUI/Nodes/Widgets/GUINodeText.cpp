@@ -44,7 +44,7 @@ namespace Lina::Editor
 		if (!GetIsVisible())
 			return;
 
-		m_rect.size = GetStoreSize("TitleSize"_hs, m_title, m_fontType, m_scale);
+		m_rect.size = GetStoreSize("TitleSize"_hs, m_text, m_fontType, m_scale);
 
 		LinaVG::TextOptions opts;
 		opts.font		 = Theme::GetFont(m_fontType, m_window->GetDPIScale());
@@ -57,7 +57,7 @@ namespace Lina::Editor
 			opts.alignment = LinaVG::TextAlignment::Center;
 
 		opts.textScale = m_scale;
-		LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(m_rect.pos), opts, 0.0f, m_drawOrder);
+		LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(m_rect.pos), opts, 0.0f, m_drawOrder, m_skipCache);
 	}
 
 	void GUINodeTextRichColors::Draw(int threadID)
@@ -89,7 +89,7 @@ namespace Lina::Editor
 			opts.font	   = Theme::GetFont(m_fontType, m_window->GetDPIScale());
 			opts.textScale = m_scale;
 			opts.color	   = LV4(d.color);
-			LinaVG::DrawTextNormal(threadID, d.text.c_str(), LV2(textPos), opts, 0.0f, m_drawOrder);
+			LinaVG::DrawTextNormal(threadID, d.text.c_str(), LV2(textPos), opts, 0.0f, m_drawOrder, m_skipCache);
 			textPos.x += d.calculatedSize.x;
 		}
 	}

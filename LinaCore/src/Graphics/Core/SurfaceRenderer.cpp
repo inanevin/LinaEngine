@@ -204,9 +204,14 @@ namespace Lina
 		}
 	}
 
+	bool SurfaceRenderer::IsVisible()
+	{
+		return m_swapchain->GetWindow()->GetIsVisible();
+	}
+
 	void SurfaceRenderer::Render(int surfaceRendererIndex, uint32 frameIndex)
 	{
-		if (!m_swapchain->GetWindow()->GetIsVisible())
+		if (!IsVisible())
 			return;
 
 		PROFILER_FUNCTION();
@@ -276,7 +281,7 @@ namespace Lina
 
 	void SurfaceRenderer::Present()
 	{
-		if (!m_swapchain->GetWindow()->GetIsVisible())
+		if (!IsVisible())
 			return;
 
 		PROFILER_FUNCTION();

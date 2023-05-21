@@ -87,6 +87,11 @@ namespace Lina::Editor
 			m_text = text;
 		}
 
+		inline void SetSkipCache(bool skipCache)
+		{
+			m_skipCache = skipCache;
+		}
+
 	protected:
 		String		  m_text	   = "";
 		float		  m_scale	   = 1.0f;
@@ -94,6 +99,7 @@ namespace Lina::Editor
 		FontType	  m_fontType   = FontType::DefaultEditor;
 		Color		  m_startColor = Color::White;
 		Color		  m_endColor   = Color::White;
+		bool		  m_skipCache  = false;
 	};
 
 	class GUINodeTextRichColors : public GUINodeText

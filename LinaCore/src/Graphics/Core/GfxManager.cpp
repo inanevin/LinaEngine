@@ -265,17 +265,25 @@ namespace Lina
 
 		// Surface renderers.
 		{
-			if (m_surfaceRenderers.size() == 1)
+			Vector<SurfaceRenderer*> visibleRenderers;
+
+			for (auto r : m_surfaceRenderers)
 			{
-				m_surfaceRenderers[0]->Render(0, m_frameIndex);
-				m_surfaceRenderers[0]->Present();
+				if (r->IsVisible())
+					visibleRenderers.push_back(r);
+			}
+
+			if (visibleRenderers.size() == 1)
+			{
+				visibleRenderers[0]->Render(0, m_frameIndex);
+				visibleRenderers[0]->Present();
 			}
 			else
 			{
 				Taskflow tf;
-				tf.for_each_index(0, static_cast<int>(m_surfaceRenderers.size()), 1, [&](int i) {
-					m_surfaceRenderers[i]->Render(i, m_frameIndex);
-					m_surfaceRenderers[i]->Present();
+				tf.for_each_index(0, static_cast<int>(visibleRenderers.size()), 1, [&](int i) {
+					visibleRenderers[i]->Render(i, m_frameIndex);
+					visibleRenderers[i]->Present();
 				});
 
 				m_system->GetMainExecutor()->RunAndWait(tf);

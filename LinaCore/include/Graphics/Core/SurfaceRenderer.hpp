@@ -83,13 +83,14 @@ namespace Lina
 		SurfaceRenderer(GfxManager* man, uint32 imageCount, StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
 		virtual ~SurfaceRenderer();
 
+		bool		 IsVisible();
 		void		 Render(int surfaceRendererIndex, uint32 frameIndex);
 		void		 Present();
 		void		 SetOffscreenTexture(Texture* txt, uint32 imageIndex);
 		void		 ClearOffscreenTexture();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void		 SetGUIDrawer(IGUIDrawer* rend);
-		
+
 		virtual Bitmask32 GetSystemEventMask() override
 		{
 			return EVS_WindowResized;
@@ -125,23 +126,23 @@ namespace Lina
 		void DestroyTextures();
 
 	protected:
-		static int						   s_surfaceRendererCount;
-		int								   m_surfaceRendererIndex = 0;
-		
-		IGfxContext*					   m_contextGraphics   = nullptr;
-		IGfxContext*					   m_contextTransfer   = nullptr;
-		IUploadContext*					   m_uploadContext	   = nullptr;
-		GUIRenderer*					   m_guiRenderer	   = nullptr;
-		uint32							   m_currentImageIndex = 0;
-		GfxManager*						   m_gfxManager		   = nullptr;
-		ISwapchain*						   m_swapchain		   = nullptr;
-		Bitmask16						   m_mask			   = 0;
-		uint32							   m_imageCount		   = 0;
-		IGUIDrawer*						   m_guiDrawer = nullptr;
-		Renderer*						   m_renderer  = nullptr;
-		Vector<DataPerImage>			   m_dataPerImage;
-		DataPerFrame					   m_frames[FRAMES_IN_FLIGHT];
-		RenderData						   m_renderData;
+		static int s_surfaceRendererCount;
+		int		   m_surfaceRendererIndex = 0;
+
+		IGfxContext*		 m_contextGraphics	 = nullptr;
+		IGfxContext*		 m_contextTransfer	 = nullptr;
+		IUploadContext*		 m_uploadContext	 = nullptr;
+		GUIRenderer*		 m_guiRenderer		 = nullptr;
+		uint32				 m_currentImageIndex = 0;
+		GfxManager*			 m_gfxManager		 = nullptr;
+		ISwapchain*			 m_swapchain		 = nullptr;
+		Bitmask16			 m_mask				 = 0;
+		uint32				 m_imageCount		 = 0;
+		IGUIDrawer*			 m_guiDrawer		 = nullptr;
+		Renderer*			 m_renderer			 = nullptr;
+		Vector<DataPerImage> m_dataPerImage;
+		DataPerFrame		 m_frames[FRAMES_IN_FLIGHT];
+		RenderData			 m_renderData;
 	};
 
 } // namespace Lina

@@ -32,6 +32,7 @@ SOFTWARE.
 #define GUINodeTextArea_HPP
 
 #include "GUI/Nodes/GUINode.hpp"
+#include "GUI/Nodes/Layouts/GUINodeScrollArea.hpp"
 #include "Data/String.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Bitmask.hpp"
@@ -43,7 +44,9 @@ namespace Lina
 
 namespace Lina::Editor
 {
-	class GUINodeTextArea : public GUINode
+	class GUINodeText;
+
+	class GUINodeTextArea : public GUINodeScrollArea
 	{
 	private:
 		struct CharData
@@ -65,6 +68,7 @@ namespace Lina::Editor
 		virtual void OnDoubleClicked() override;
 		virtual void OnKey(uint32 key, InputAction act) override;
 		virtual bool OnShortcut(Shortcut sc) override;
+		virtual void OnChildExceededSize(float amt) override;
 
 		inline Bitmask16& GetInputMask()
 		{
@@ -72,13 +76,13 @@ namespace Lina::Editor
 		}
 
 	protected:
-		void   DrawMultiSelection(int threadID);
+		void   DrawCaretAndSelection(int threadID);
 		uint32 FindCaretIndexFromMouse();
 		void   FinishEditing();
 		void   EraseChar();
-		String Convert(const Vector<wchar_t>& v);
 		void   SelectAll();
 		void   FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax);
+		void   CheckCaretIndexAndScroll(bool preferLeft);
 
 	protected:
 		Bitmask16		 m_inputMask = CharacterMask::Printable;

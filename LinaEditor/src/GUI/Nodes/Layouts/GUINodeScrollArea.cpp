@@ -26,37 +26,60 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "GUI/Drawers/GUIDrawerMainWindow.hpp"
-#include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
+#include "GUI/Nodes/Layouts/GUINodeScrollArea.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
-#include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
-#include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
-#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
-#include "Core/Theme.hpp"
-#include "Profiling/Profiler.hpp"
+#include "Math/Math.hpp"
 
 namespace Lina::Editor
 {
-	GUIDrawerMainWindow::GUIDrawerMainWindow(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
+	void GUINodeScrollArea::Draw(int threadID)
 	{
-		m_editor   = editor;
-		m_topPanel = new GUINodeTopPanel(this, 0);
-		m_root->AddChildren(m_topPanel);
+		if (m_children.empty() || !m_visible)
+			return;
+
+		Vector2 childPos = m_rect.pos;
+
+		if (m_direction == Direction::Horizontal)
+			childPos.x -= m_scrollValue;
+		else
+			childPos.y -= m_scrollValue;
 	}
 
-	void GUIDrawerMainWindow::DrawGUI(int threadID)
+	void GUINodeScrollArea::ShowScrollIfRequired()
 	{
-		PROFILER_FUNCTION();
+		if (m_shouldShowScroll)
+		{
+		}
+	}
 
-		const Vector2 swapchainSize = m_swapchain->GetSize();
-		const Vector2 monitorSize	= m_window->GetMonitorInformation().size;
-		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_window->GetDPIScale()));
-		m_topPanel->SetRect(topRect);
-		m_topPanel->Draw(threadID);
+	void GUINodeScrollArea::AddScrollValue(float amt)
+	{
+		m_scrollValue = Math::Clamp(m_scrollValue + amt, 0.0f, 999.0f);
+	}
+	float GUINodeScrollArea::GetChildSize()
+	{
+		float totalSize = 0.0f;
 
-		const Rect dockRect			 = Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
-		GUIDrawerBase::DrawDockAreas(threadID, dockRect);
+		for (auto c : m_children)
+		{
+			if (m_direction == Direction::Horizontal)
+				totalSize += c->GetRect().size.x;
+			else
+				totalSize += c->GetRect().size.y;
+		}
+
+		return totalSize;
+	}
+
+	float GUINodeScrollArea::GetMySize()
+	{
+		return m_direction == Direction::Horizontal ? m_rect.size.x : m_rect.size.y;
+	}
+
+	void GUINodeScrollArea::DetermineScroll(float mySize, float targetSize)
+	{
+		m_shouldShowScroll = targetSize > mySize;
+		if (m_shouldShowScroll)
+			OnChildExceededSize(targetSize - mySize);
 	}
 } // namespace Lina::Editor

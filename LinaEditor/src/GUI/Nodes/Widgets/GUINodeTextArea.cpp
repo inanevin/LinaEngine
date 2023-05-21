@@ -27,17 +27,19 @@ SOFTWARE.
 */
 
 #include "GUI/Nodes/Widgets/GUINodeTextArea.hpp"
-#include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
+#include "GUI/Drawers/GUIDrawerBase.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "GUI/Nodes/Layouts/GUINodeScrollArea.hpp"
+#include "GUI/Nodes/Widgets/GUINodeText.hpp"
 #include "Core/Theme.hpp"
 #include "Math/Math.hpp"
 #include "Input/Core/InputMappings.hpp"
 #include "Input/Core/Input.hpp"
 #include "Core/SystemInfo.hpp"
-#include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
 #include "FileSystem/FileSystem.hpp"
@@ -46,9 +48,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTextArea::GUINodeTextArea(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
+	GUINodeTextArea::GUINodeTextArea(GUIDrawerBase* drawer, int drawOrder) : GUINodeScrollArea(drawer, drawOrder)
 	{
 		m_input = m_drawer->GetEditor()->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		SetDirection(Direction::Horizontal);
 	}
 
 	void GUINodeTextArea::Draw(int threadID)
@@ -68,64 +71,27 @@ namespace Lina::Editor
 				GUINode::ConsumeAvailableWidth();
 		}
 
-		GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder);
-		LinaVG::TextOptions opts;
-		opts.font		 = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-		m_initialTextPos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
-
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
-		if (m_isEditing)
+		// Bg
 		{
-
-			LinaVG::StyleOptions caretStyle;
-			caretStyle.color		 = LV4(Theme::TC_Silent3);
-			caretStyle.color.start.w = caretStyle.color.end.w = 0.5f;
-			caretStyle.thickness							  = 1.2f * m_window->GetDPIScale();
-
-			// Caret
-			{
-				// First timer
-				{
-					m_caretTimer += SystemInfo::GetDeltaTimeF();
-					if (m_caretTimer > 0.5f)
-					{
-						m_caretTimer	  = 0.0f;
-						m_shouldDrawCaret = !m_shouldDrawCaret;
-					}
-				}
-
-				if (m_isDragging && !m_characters.empty())
-				{
-					m_caretIndexEnd = FindCaretIndexFromMouse();
-				}
-
-				if (m_shouldDrawCaret)
-				{
-					const uint32 caretIndex = m_caretIndexEnd;
-					float		 caretX		= 0.0f;
-					const uint32 sz			= static_cast<uint32>(m_characters.size());
-
-					if (sz != 0)
-					{
-						if (caretIndex == sz)
-						{
-							const auto& cd = m_characters[sz - 1];
-							caretX		   = cd.x + cd.sizeX;
-						}
-						else
-							caretX = m_characters[caretIndex].x;
-					}
-
-					const Vector2 p1 = Vector2(m_initialTextPos.x + caretX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
-					const Vector2 p2 = Vector2(m_initialTextPos.x + caretX, m_rect.pos.y + m_rect.size.y * 0.5f + m_caretHeight * 0.5f);
-					LinaVG::DrawLine(threadID, LV2(p1), LV2(p2), caretStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
-				}
-			}
-
-			// Background if multi-selected
-			if (m_caretIndexStart != m_caretIndexEnd)
-				DrawMultiSelection(threadID);
+			GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder);
 		}
+
+		GUINode::SetClip(threadID, Rect(Vector2(padding, 0), Vector2(-padding * 2.0f, 0)));
+
+		// Text
+		{
+			LinaVG::TextOptions opts;
+			opts.font		 = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+			m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
+			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
+		}
+
+		// Caret - multiselection background
+		{
+			DrawCaretAndSelection(threadID);
+		}
+
+		GUINode::UnsetClip(threadID);
 	}
 
 	void GUINodeTextArea::OnClicked(uint32 button)
@@ -214,6 +180,8 @@ namespace Lina::Editor
 				if (m_caretIndexStart != sz)
 					m_caretIndexStart = ++m_caretIndexEnd;
 			}
+
+			CheckCaretIndexAndScroll(false);
 		}
 		else if (key == LINA_KEY_LEFT)
 		{
@@ -227,9 +195,14 @@ namespace Lina::Editor
 				if (m_caretIndexStart != 0)
 					m_caretIndexStart = --m_caretIndexEnd;
 			}
+
+			CheckCaretIndexAndScroll(true);
 		}
 		else if (key == LINA_KEY_DOWN || key == LINA_KEY_UP)
+		{
 			m_caretIndexStart = m_caretIndexEnd;
+			CheckCaretIndexAndScroll(false);
+		}
 		else
 		{
 			if (key == LINA_KEY_RETURN)
@@ -265,6 +238,7 @@ namespace Lina::Editor
 					}
 
 					SetTitle(m_title);
+					CheckCaretIndexAndScroll(false);
 				}
 			}
 		}
@@ -290,6 +264,8 @@ namespace Lina::Editor
 
 				if (sc == Shortcut::CTRL_X)
 					EraseChar();
+
+				CheckCaretIndexAndScroll(false);
 			}
 		}
 		else if (sc == Shortcut::CTRL_A)
@@ -315,38 +291,103 @@ namespace Lina::Editor
 				const uint32 szDiff = static_cast<uint32>(m_characters.size()) - szNow;
 				m_caretIndexEnd += szDiff;
 				m_caretIndexStart = m_caretIndexEnd;
+
+				CheckCaretIndexAndScroll(false);
 			}
 		}
 
 		return true;
 	}
 
-	void GUINodeTextArea::DrawMultiSelection(int threadID)
+	void GUINodeTextArea::OnChildExceededSize(float amt)
 	{
-		LinaVG::StyleOptions opts;
-		opts.color		   = LV4(Theme::TC_CyanAccent);
-		opts.color.start.w = opts.color.end.w = 0.2f;
+		// AddScrollValue(amt);
+	}
 
-		const uint32 sz = static_cast<uint32>(m_characters.size());
+	void GUINodeTextArea::DrawCaretAndSelection(int threadID)
+	{
+		if (!m_isEditing)
+			return;
 
-		const uint32 from = m_caretIndexStart;
-		const uint32 to	  = m_caretIndexEnd;
+		LinaVG::StyleOptions caretStyle;
+		caretStyle.color		 = LV4(Theme::TC_Silent3);
+		caretStyle.color.start.w = caretStyle.color.end.w = 0.5f;
+		caretStyle.thickness							  = 1.2f * m_window->GetDPIScale();
 
-		if (from < to)
+		// Caret
 		{
-			const float	  startX = m_characters[from].x;
-			const float	  endX	 = to == sz ? (m_characters[sz - 1].x + m_characters[sz - 1].sizeX) : m_characters[to].x;
-			const Vector2 start	 = Vector2(m_initialTextPos.x + startX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
-			const Vector2 end	 = Vector2(m_initialTextPos.x + endX, start.y + m_caretHeight);
-			LinaVG::DrawRect(threadID, LV2(start), LV2(end), opts, 0.0f, m_drawOrder);
+			// First timer
+			{
+				m_caretTimer += SystemInfo::GetDeltaTimeF();
+				if (m_caretTimer > 0.5f)
+				{
+					m_caretTimer	  = 0.0f;
+					m_shouldDrawCaret = !m_shouldDrawCaret;
+				}
+			}
+
+			if (m_isDragging && !m_characters.empty())
+			{
+				const uint32 current = m_caretIndexEnd;
+				m_caretIndexEnd		 = FindCaretIndexFromMouse();
+
+				if (current != m_caretIndexEnd)
+				{
+					CheckCaretIndexAndScroll(m_caretIndexEnd < m_caretIndexStart);
+				}
+			}
+
+			if (m_shouldDrawCaret)
+			{
+				const uint32 caretIndex = m_caretIndexEnd;
+				float		 caretX		= 0.0f;
+				const uint32 sz			= static_cast<uint32>(m_characters.size());
+
+				if (sz != 0)
+				{
+					if (caretIndex == sz)
+					{
+						const auto& cd = m_characters[sz - 1];
+						caretX		   = cd.x + cd.sizeX;
+					}
+					else
+						caretX = m_characters[caretIndex].x;
+				}
+
+				const Vector2 p1 = Vector2(m_initialTextPos.x + caretX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
+				const Vector2 p2 = Vector2(m_initialTextPos.x + caretX, m_rect.pos.y + m_rect.size.y * 0.5f + m_caretHeight * 0.5f);
+				LinaVG::DrawLine(threadID, LV2(p1), LV2(p2), caretStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
+			}
 		}
-		else if (from > to)
+
+		// Background if multi-selected
+		if (m_caretIndexStart != m_caretIndexEnd)
 		{
-			const float	  startX = m_characters[to].x;
-			const float	  endX	 = from == sz ? (m_characters[sz - 1].x + m_characters[sz - 1].sizeX) : m_characters[from].x;
-			const Vector2 start	 = Vector2(m_initialTextPos.x + startX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
-			const Vector2 end	 = Vector2(m_initialTextPos.x + endX, start.y + m_caretHeight);
-			LinaVG::DrawRect(threadID, LV2(start), LV2(end), opts, 0.0f, m_drawOrder);
+			LinaVG::StyleOptions opts;
+			opts.color		   = LV4(Theme::TC_CyanAccent);
+			opts.color.start.w = opts.color.end.w = 0.2f;
+
+			const uint32 sz = static_cast<uint32>(m_characters.size());
+
+			const uint32 from = m_caretIndexStart;
+			const uint32 to	  = m_caretIndexEnd;
+
+			if (from < to)
+			{
+				const float	  startX = m_characters[from].x;
+				const float	  endX	 = to == sz ? (m_characters[sz - 1].x + m_characters[sz - 1].sizeX) : m_characters[to].x;
+				const Vector2 start	 = Vector2(m_initialTextPos.x + startX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
+				const Vector2 end	 = Vector2(m_initialTextPos.x + endX, start.y + m_caretHeight);
+				LinaVG::DrawRect(threadID, LV2(start), LV2(end), opts, 0.0f, m_drawOrder);
+			}
+			else if (from > to)
+			{
+				const float	  startX = m_characters[to].x;
+				const float	  endX	 = from == sz ? (m_characters[sz - 1].x + m_characters[sz - 1].sizeX) : m_characters[from].x;
+				const Vector2 start	 = Vector2(m_initialTextPos.x + startX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
+				const Vector2 end	 = Vector2(m_initialTextPos.x + endX, start.y + m_caretHeight);
+				LinaVG::DrawRect(threadID, LV2(start), LV2(end), opts, 0.0f, m_drawOrder);
+			}
 		}
 	}
 
@@ -410,7 +451,7 @@ namespace Lina::Editor
 
 				uint32 position = 0;
 
-				for (uint32 i = 0; i < indexToErase; i++)
+				for (int32 i = 0; i < indexToErase; i++)
 					position += m_characters[i].byteCount;
 
 				m_title.erase(position, byteCount);
@@ -420,12 +461,7 @@ namespace Lina::Editor
 				SetTitle(m_title);
 			}
 		}
-	}
-
-	String GUINodeTextArea::Convert(const Vector<wchar_t>& v)
-	{
-		WString wstr = WString(v.begin(), v.end());
-		return Internal::WideStringToString(wstr);
+		CheckCaretIndexAndScroll(false);
 	}
 
 	void GUINodeTextArea::SelectAll()
@@ -449,4 +485,39 @@ namespace Lina::Editor
 		}
 	}
 
+	void GUINodeTextArea::CheckCaretIndexAndScroll(bool preferLeft)
+	{
+		if (m_characters.empty())
+			return;
+
+		const uint32 min		   = Math::Min(m_caretIndexStart, m_caretIndexEnd);
+		const uint32 max		   = Math::Max(m_caretIndexStart, m_caretIndexEnd);
+		const uint32 sz			   = static_cast<uint32>(m_characters.size());
+		const float	 padding	   = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+		const float	 visibleStartX = m_initialTextPos.x + m_scrollValue;
+		float		 visibleEndX   = visibleStartX + m_rect.size.x - padding * 2.0f;
+		const float	 leftMargin	   = 8.0f;
+
+		auto exec = [&](uint32 targetIndex) {
+			float targetX = 0.0f;
+
+			if (targetIndex == sz)
+			{
+				const auto& lastChar = m_characters[targetIndex - 1];
+				targetX				 = visibleStartX + lastChar.sizeX + lastChar.x;
+			}
+			else
+				targetX = visibleStartX + m_characters[targetIndex].x;
+
+			if (targetX > visibleEndX + m_scrollValue)
+				AddScrollValue(targetX - visibleEndX - m_scrollValue);
+			else if (targetX < visibleStartX + m_scrollValue + leftMargin)
+				AddScrollValue(-((visibleStartX + m_scrollValue + leftMargin) - targetX));
+		};
+
+		if (m_caretIndexEnd == m_caretIndexStart || !preferLeft)
+			exec(max);
+		else
+			exec(min);
+	}
 } // namespace Lina::Editor
