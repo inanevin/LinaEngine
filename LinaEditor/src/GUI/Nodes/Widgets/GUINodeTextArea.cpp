@@ -36,6 +36,7 @@ SOFTWARE.
 #include "GUI/Nodes/Layouts/GUINodeScrollArea.hpp"
 #include "GUI/Nodes/Widgets/GUINodeText.hpp"
 #include "Core/Theme.hpp"
+#include "Commands/EditorCommandWidgets.hpp"
 #include "Math/Math.hpp"
 #include "Input/Core/InputMappings.hpp"
 #include "Input/Core/Input.hpp"
@@ -52,6 +53,12 @@ namespace Lina::Editor
 	{
 		m_input = m_drawer->GetEditor()->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 		SetDirection(Direction::Horizontal);
+		m_minY = GetStoreSize("A"_hs, "A").y;
+	}
+
+	GUINodeTextArea::~GUINodeTextArea()
+	{
+		m_editor->GetCommandManager()->OnReferenceDestroyed(this);
 	}
 
 	void GUINodeTextArea::Draw(int threadID)
@@ -59,10 +66,11 @@ namespace Lina::Editor
 		if (!GetIsVisible())
 			return;
 
-		const float	  padding	   = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const float	  widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale());
-		const Vector2 lastTextSize = GetStoreSize("TitleText"_hs, m_title);
-		m_caretHeight			   = widgetHeight * 0.6f;
+		const float padding		 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+		const float widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale());
+		Vector2		lastTextSize = GetStoreSize("TitleText"_hs, m_title);
+		lastTextSize.y			 = Math::Max(lastTextSize.y, m_minY);
+		m_caretHeight			 = widgetHeight * 0.6f;
 
 		// Adjust rect
 		{
@@ -73,16 +81,17 @@ namespace Lina::Editor
 
 		// Bg
 		{
-			GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder);
+			DrawBackground(threadID);
 		}
 
-		GUINode::SetClip(threadID, Rect(Vector2(padding, 0), Vector2(-padding * 2.0f, 0)));
+		GUIUtility::SetClip(threadID, m_rect, Rect(Vector2(padding + m_textOffset, 0), Vector2(-padding * 2.0f - m_textOffset, 0)));
 
 		// Text
 		{
 			LinaVG::TextOptions opts;
 			opts.font		 = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-			m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
+			opts.color		 = LV4((m_isEnabled ? Color::White : Theme::TC_Silent2));
+			m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
 			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
 		}
 
@@ -91,7 +100,7 @@ namespace Lina::Editor
 			DrawCaretAndSelection(threadID);
 		}
 
-		GUINode::UnsetClip(threadID);
+		GUIUtility::UnsetClip(threadID);
 	}
 
 	void GUINodeTextArea::OnClicked(uint32 button)
@@ -101,9 +110,9 @@ namespace Lina::Editor
 
 		if (!m_isEditing)
 		{
-			m_isEditing		  = true;
 			m_caretIndexStart = 0;
 			m_caretIndexEnd	  = static_cast<uint32>(m_characters.size());
+			StartEditing();
 		}
 		else
 		{
@@ -125,7 +134,8 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::OnClickedOutside(uint32 button)
 	{
-		FinishEditing();
+		if (m_isEditing)
+			FinishEditing();
 	}
 
 	void GUINodeTextArea::SetTitle(const String& title)
@@ -211,8 +221,11 @@ namespace Lina::Editor
 			{
 				EraseChar();
 			}
-			else if (m_inputMask.IsSet(m_input->GetCharacterMask(key)))
+			else if (m_input->GetCharacterMask(key) & CharacterMask::Printable)
 			{
+				if (m_input->IsControlPressed())
+					return;
+
 				wchar_t ch = m_input->GetCharacterFromKey(key);
 
 				if (ch != 0)
@@ -221,10 +234,11 @@ namespace Lina::Editor
 						EraseChar();
 
 					const String encoded = Internal::EncodeUTF8(ch);
+					String		 copy	 = m_title;
 
 					if (m_caretIndexEnd == sz)
 					{
-						m_title.append(encoded);
+						copy.append(encoded);
 						m_caretIndexStart = ++m_caretIndexEnd;
 					}
 					else
@@ -234,10 +248,10 @@ namespace Lina::Editor
 							pos += m_characters[i].byteCount;
 
 						m_caretIndexStart = ++m_caretIndexEnd;
-						m_title.insert(pos, encoded);
+						copy.insert(pos, encoded);
 					}
 
-					SetTitle(m_title);
+					SetTitle(copy);
 					CheckCaretIndexAndScroll(false);
 				}
 			}
@@ -280,13 +294,16 @@ namespace Lina::Editor
 				if (m_caretIndexEnd != m_caretIndexStart)
 					EraseChar();
 
-				const String str	= Internal::WideStringToString(wstr);
-				uint32		 posMin = 0, posMax = 0;
+				const String str = Internal::WideStringToString(wstr);
+
+				uint32 posMin = 0, posMax = 0;
 				FindPositions(m_caretIndexStart, m_caretIndexEnd, posMin, posMax);
-				m_title.insert(posMax, str);
+
+				String copy = m_title;
+				copy.insert(posMax, str);
 
 				const uint32 szNow = static_cast<uint32>(m_characters.size());
-				SetTitle(m_title);
+				SetTitle(copy);
 
 				const uint32 szDiff = static_cast<uint32>(m_characters.size()) - szNow;
 				m_caretIndexEnd += szDiff;
@@ -419,11 +436,34 @@ namespace Lina::Editor
 		return caretIndex;
 	}
 
+	void GUINodeTextArea::StartEditing()
+	{
+		if (!m_isEnabled)
+			return;
+
+		m_isEditing	   = true;
+		m_preEditTitle = m_title;
+	}
+
 	void GUINodeTextArea::FinishEditing()
 	{
 		m_isEditing		  = false;
 		m_caretIndexStart = 0;
 		m_caretIndexEnd	  = 0;
+
+		if (m_preEditTitle.compare(m_title) == 0)
+			return;
+
+		if (!VerifyTitle())
+		{
+			SetTitle(m_preEditTitle);
+			m_preEditTitle.clear();
+		}
+		else
+		{
+			m_editor->GetCommandManager()->AddCommand(new EditorCommandTextEdit(m_editor, this, m_preEditTitle, m_title));
+			OnTitleChanged(m_title);
+		}
 	}
 
 	void GUINodeTextArea::EraseChar()
@@ -437,10 +477,11 @@ namespace Lina::Editor
 			uint32 posMin = 0, posMax = 0;
 			FindPositions(min, max, posMin, posMax);
 
-			m_title.erase(posMin, posMax - posMin);
+			String copy = m_title;
+			copy.erase(posMin, posMax - posMin);
 			m_characters.erase(m_characters.begin() + min, m_characters.begin() + max);
 			m_caretIndexStart = m_caretIndexEnd = min;
-			SetTitle(m_title);
+			SetTitle(copy);
 		}
 		else
 		{
@@ -454,11 +495,12 @@ namespace Lina::Editor
 				for (int32 i = 0; i < indexToErase; i++)
 					position += m_characters[i].byteCount;
 
-				m_title.erase(position, byteCount);
+				String copy = m_title;
+				copy.erase(position, byteCount);
 
 				m_characters.erase(m_characters.begin() + m_caretIndexEnd - 1);
 				m_caretIndexStart = --m_caretIndexEnd;
-				SetTitle(m_title);
+				SetTitle(copy);
 			}
 		}
 		CheckCaretIndexAndScroll(false);
@@ -466,9 +508,9 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::SelectAll()
 	{
-		m_isEditing		  = true;
 		m_caretIndexStart = 0;
 		m_caretIndexEnd	  = static_cast<uint32>(m_characters.size());
+		StartEditing();
 	}
 
 	void GUINodeTextArea::FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax)
@@ -495,7 +537,7 @@ namespace Lina::Editor
 		const uint32 sz			   = static_cast<uint32>(m_characters.size());
 		const float	 padding	   = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const float	 visibleStartX = m_initialTextPos.x + m_scrollValue;
-		float		 visibleEndX   = visibleStartX + m_rect.size.x - padding * 2.0f;
+		float		 visibleEndX   = visibleStartX + m_rect.size.x - padding * 2.0f - m_textOffset;
 		const float	 leftMargin	   = 8.0f;
 
 		auto exec = [&](uint32 targetIndex) {
@@ -519,5 +561,24 @@ namespace Lina::Editor
 			exec(max);
 		else
 			exec(min);
+	}
+
+	void GUINodeTextArea::DrawBackground(int threadID)
+	{
+		GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder, m_isEnabled);
+	}
+
+	bool GUINodeTextArea::VerifyTitle()
+	{
+		// Invalid characters.
+		for (auto c : m_title)
+		{
+			uint32 keycode = m_input->GetKeycode(c);
+
+			if (!m_inputMask.IsSet(m_input->GetCharacterMask(keycode)))
+				return false;
+		}
+
+		return true;
 	}
 } // namespace Lina::Editor

@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	EditorCommandSelectEntity::EditorCommandSelectEntity(EditorCommandManager* manager, Entity* previous, Entity* current) : EditorCommand(manager), m_previous(previous), m_current(current)
+	EditorCommandSelectEntity::EditorCommandSelectEntity(Editor* editor, Entity* previous, Entity* current) : EditorCommand(editor), m_previous(previous), m_current(current)
 	{
 		m_world = m_editor->GetSystem()->CastSubsystem<LevelManager>(SubsystemType::LevelManager)->GetCurrentLevel()->GetWorld();
 		m_world->AddListener(this);

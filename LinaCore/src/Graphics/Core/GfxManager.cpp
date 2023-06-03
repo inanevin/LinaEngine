@@ -241,8 +241,17 @@ namespace Lina
 			frame.globalDataBuffer->BufferData(&m_globalData, sizeof(GPUGlobalData));
 		}
 
+		const int threadCount = static_cast<int>(m_surfaceRenderers.size());
+
+		// Notify
+		{
+			Event ev	  = {};
+			ev.iParams[0] = threadCount;
+			m_system->DispatchEvent(EVS_StartFrame, ev);
+		}
+
 		m_renderer->BeginFrame(m_frameIndex);
-		LinaVG::StartFrame(static_cast<int>(m_surfaceRenderers.size()));
+		LinaVG::StartFrame(threadCount);
 		m_guiBackend->BindTextures();
 
 		// World renderers.

@@ -46,9 +46,27 @@ namespace Lina
 
 	namespace Internal
 	{
-		extern String		  WideStringToString(const WString& wstring);
-		extern WString		  StringToWString(const String& string);
-		extern String		  EncodeUTF8(wchar_t wch);
+		extern String  WideStringToString(const WString& wstring);
+		extern WString StringToWString(const String& string);
+		extern String  EncodeUTF8(wchar_t wch);
+		extern String  RemoveAllDotsExceptFirst(const String& str);
+		extern String  FixStringNumber(const String& str);
+		extern String  FloatToString(float val, int decimals);
+
+		/// <summary>
+		/// Might throw.
+		/// </summary>
+		/// <param name="str"></param>
+		/// <returns></returns>
+		extern float StringToFloat(const String& str, int& decimals);
+
+		/// <summary>
+		/// Might throw.
+		/// </summary>
+		/// <param name="str"></param>
+		/// <returns></returns>
+		extern int StringToInt(const String& str);
+
 	} // namespace Internal
 
 } // namespace Lina

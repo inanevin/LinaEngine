@@ -54,6 +54,7 @@ namespace Lina
 		EVS_VsyncModeChanged		  = 1 << 7,
 		EVS_Key						  = 1 << 8,
 		EVS_PreLevelUninstall		  = 1 << 9,
+		EVS_StartFrame				  = 1 << 10,
 	};
 
 	enum GameEvent

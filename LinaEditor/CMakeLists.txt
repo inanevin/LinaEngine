@@ -50,6 +50,7 @@ src/GUI/Nodes/Widgets/GUINodeFileMenu.cpp
 src/GUI/Nodes/Widgets/GUINodeButton.cpp
 src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
 src/GUI/Nodes/Widgets/GUINodeTextArea.cpp
+src/GUI/Nodes/Widgets/GUINodeNumberArea.cpp
 src/GUI/Nodes/Widgets/GUINodeSliderFilled.cpp
 src/GUI/Nodes/Widgets/GUINodeColorWheel.cpp
 src/GUI/Nodes/Widgets/GUINodeSelection.cpp
@@ -72,6 +73,7 @@ src/GUI/EditorLayoutManager.cpp
 src/Commands/EditorCommand.cpp
 src/Commands/EditorCommandManager.cpp
 src/Commands/EditorCommandEntity.cpp
+src/Commands/EditorCommandWidgets.cpp
 src/Event/IEditorEventListener.cpp
 src/Event/IEditorEventDispatcher.cpp
 )
@@ -102,6 +104,7 @@ include/GUI/Nodes/Widgets/GUINodeColorWheel.hpp
 include/GUI/Nodes/Widgets/GUINodeSelection.hpp
 include/GUI/Nodes/Widgets/GUINodeText.hpp
 include/GUI/Nodes/Widgets/GUINodeTextArea.hpp
+include/GUI/Nodes/Widgets/GUINodeNumberArea.hpp
 include/GUI/Nodes/Widgets/GUINodeSliderFilled.hpp
 include/GUI/Nodes/Widgets/GUINodeTab.hpp
 include/GUI/Nodes/Widgets/GUINodeTabArea.hpp
@@ -130,6 +133,7 @@ include/Core/EditorResourcesRegistry.hpp
 include/Commands/EditorCommand.hpp
 include/Commands/EditorCommandManager.hpp
 include/Commands/EditorCommandEntity.hpp
+include/Commands/EditorCommandWidgets.hpp
 include/Event/EditorEvents.hpp
 include/Event/IEditorEventDispatcher.hpp
 include/Event/IEditorEventListener.hpp

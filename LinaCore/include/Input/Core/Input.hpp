@@ -60,7 +60,9 @@ namespace Lina
 		void OnActiveAppChanged(bool isActive);
 
 		uint16	GetCharacterMask(uint32 key);
+		uint32	GetKeycode(char c);
 		wchar_t GetCharacterFromKey(uint32 key);
+		bool	IsControlPressed();
 		bool	GetKey(int button);
 		bool	GetKeyDown(int button);
 		bool	GetKeyUp(int button);

@@ -28,38 +28,31 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorCommandEntity_HPP
-#define EditorCommandEntity_HPP
+#ifndef EditorCommandWidgets_HPP
+#define EditorCommandWidgets_HPP
 
 #include "EditorCommand.hpp"
 #include "Event/IGameEventListener.hpp"
+#include "Data/String.hpp"
 
-namespace Lina
-{
-	class Entity;
-	class EntityWorld;
-} // namespace Lina
 namespace Lina::Editor
 {
-	class EditorCommandSelectEntity : public EditorCommand, public IGameEventListener
+	class GUINode;
+
+	class EditorCommandTextEdit : public EditorCommand
 	{
 	public:
-		EditorCommandSelectEntity(Editor* editor, Entity* previous, Entity* current);
-		virtual ~EditorCommandSelectEntity();
-		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
+		EditorCommandTextEdit(Editor* editor, GUINode* node, const String& oldTitle, const String& newTitle) : EditorCommand(editor), m_node(node), m_oldTitle(oldTitle), m_title(newTitle){};
+		virtual ~EditorCommandTextEdit(){};
 
-		virtual Bitmask32 GetGameEventMask() override
-		{
-			return EVG_EntityDestroyed | EVG_End;
-		}
-
-		virtual void Execute(void* userData);
-		virtual void Undo();
+		virtual void Execute(void* userData) override;
+		virtual void Undo() override;
+		virtual bool OnReferenceDestroyed(void* ref) override;
 
 	private:
-		EntityWorld* m_world	= nullptr;
-		Entity*		 m_previous = nullptr;
-		Entity*		 m_current	= nullptr;
+		GUINode* m_node		= nullptr;
+		String	 m_oldTitle = "";
+		String	 m_title	= "";
 	};
 } // namespace Lina::Editor
 

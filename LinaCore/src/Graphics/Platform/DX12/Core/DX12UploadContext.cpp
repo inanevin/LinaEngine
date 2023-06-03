@@ -231,10 +231,10 @@ namespace Lina
 
 		auto calcTd = [&](void* data, uint32 width, uint32 height, uint32 channels) {
 			D3D12_SUBRESOURCE_DATA textureData = {};
-			auto				   aligned	   = ALIGN_SIZE_POW(textureData.RowPitch * height, req.targetResource->GetRequiredAlignment());
+			LONG_PTR			   aligned	   = static_cast<LONG_PTR>(ALIGN_SIZE_POW(textureData.RowPitch * static_cast<LONG_PTR>(height), static_cast<LONG_PTR>(req.targetResource->GetRequiredAlignment())));
 			textureData.pData				   = data;
 			textureData.RowPitch			   = static_cast<LONG_PTR>(width * channels);
-			textureData.SlicePitch			   = static_cast<LONG_PTR>(aligned);
+			textureData.SlicePitch			   = aligned;
 			allData.push_back(textureData);
 		};
 

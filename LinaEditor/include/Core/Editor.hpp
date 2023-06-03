@@ -60,7 +60,7 @@ namespace Lina::Editor
 	class GUINodePanel;
 	class GUINodeDockArea;
 
-	class Editor : public ISubsystem, public IEditorEventDispatcher
+	class Editor : public ISubsystem, public IEditorEventDispatcher, public ISystemEventListener
 	{
 
 	private:
@@ -86,22 +86,28 @@ namespace Lina::Editor
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
-		void   PackageResources(const Vector<ResourceIdentifier>& identifiers);
-		void   BeginSplashScreen();
-		void   EndSplashScreen();
-		void   Tick();
-		void   OnShortcut(Shortcut sc, void* windowHandle);
+		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
+		void BeginSplashScreen();
+		void EndSplashScreen();
+		void Tick();
+		void OnShortcut(Shortcut sc, void* windowHandle);
 
-		void	 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
-		IWindow* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
-		void	 CloseWindow(StringID sid);
-		void	 OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
-		void	 CloseAllChildWindows();
-		void	 CreateNewLevel(const char* path);
-		void	 LoadLevel(const char* path);
-		void	 SaveCurrentLevel();
-		void	 SaveCurrentLevelAs(const char* path);
-		void	 UninstallCurrentLevel();
+		void		 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
+		IWindow*	 CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
+		void		 CloseWindow(StringID sid);
+		void		 OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
+		void		 CloseAllChildWindows();
+		void		 CreateNewLevel(const char* path);
+		void		 LoadLevel(const char* path);
+		void		 SaveCurrentLevel();
+		void		 SaveCurrentLevelAs(const char* path);
+		void		 UninstallCurrentLevel();
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return EVS_StartFrame;
+		}
 
 		inline const TextureSheetItem GetEditorImage(uint32 index)
 		{
@@ -123,9 +129,9 @@ namespace Lina::Editor
 			return m_layoutManager;
 		}
 
-		inline EditorCommandManager& GetCommandManager()
+		inline EditorCommandManager* GetCommandManager()
 		{
-			return m_commandManager;
+			return &m_commandManager;
 		}
 
 		static uint32 s_childWindowCtr;

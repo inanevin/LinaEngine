@@ -242,22 +242,6 @@ namespace Lina::Editor
 		ClearStoredSizes();
 	}
 
-	void GUINode::SetClip(int threadID, const Rect& margin)
-	{
-		LinaVG::SetClipPosX(static_cast<uint32>(m_rect.pos.x + margin.pos.x), threadID);
-		LinaVG::SetClipPosY(static_cast<uint32>(m_rect.pos.y + margin.pos.y), threadID);
-		LinaVG::SetClipSizeX(static_cast<uint32>(m_rect.size.x + margin.size.x), threadID);
-		LinaVG::SetClipSizeY(static_cast<uint32>(m_rect.size.y + margin.size.y), threadID);
-	}
-
-	void GUINode::UnsetClip(int threadID)
-	{
-		LinaVG::SetClipPosX(0, threadID);
-		LinaVG::SetClipPosY(0, threadID);
-		LinaVG::SetClipSizeX(0, threadID);
-		LinaVG::SetClipSizeY(0, threadID);
-	}
-
 	void GUINode::AddChildren(GUINode* node)
 	{
 		m_children.push_back(node);

@@ -58,7 +58,7 @@ namespace Lina::Editor
 
 	public:
 		GUINodeTextArea(GUIDrawerBase* drawer, int drawOrder);
-		virtual ~GUINodeTextArea() = default;
+		virtual ~GUINodeTextArea();
 
 		virtual void Draw(int threadID) override;
 		virtual void OnClicked(uint32 button) override;
@@ -75,18 +75,29 @@ namespace Lina::Editor
 			return m_inputMask;
 		}
 
+		inline void SetTextOffset(float val)
+		{
+			m_textOffset = val;
+		}
+
 	protected:
 		void   DrawCaretAndSelection(int threadID);
 		uint32 FindCaretIndexFromMouse();
+		void   StartEditing();
 		void   FinishEditing();
 		void   EraseChar();
 		void   SelectAll();
 		void   FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax);
 		void   CheckCaretIndexAndScroll(bool preferLeft);
 
+		virtual void DrawBackground(int threadID);
+		virtual bool VerifyTitle();
+		virtual void OnTitleChanged(const String& val){};
+
 	protected:
-		Bitmask16		 m_inputMask = CharacterMask::Printable;
-		Input*			 m_input	 = nullptr;
+		String			 m_preEditTitle = "";
+		Bitmask16		 m_inputMask	= 0;
+		Input*			 m_input		= nullptr;
 		Vector<CharData> m_characters;
 		bool			 m_isEditing	   = false;
 		uint32			 m_caretIndexStart = 0;
@@ -95,6 +106,8 @@ namespace Lina::Editor
 		float			 m_caretTimer	   = 0.0f;
 		float			 m_caretHeight	   = 0.0f;
 		Vector2			 m_initialTextPos  = Vector2::Zero;
+		float			 m_minY			   = 0.0f;
+		float			 m_textOffset	   = 0.0f;
 	};
 
 } // namespace Lina::Editor

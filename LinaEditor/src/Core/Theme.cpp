@@ -44,6 +44,7 @@ namespace Lina::Editor
 	Color Theme::TC_Dark0			  = Color(0.15f, 0.15f, 0.15f, 255.0f, true);
 	Color Theme::TC_Dark1			  = Color(1.0f, 1.0f, 1.0f, 255.0f, true);
 	Color Theme::TC_Dark2			  = Color(2.0f, 2.0f, 2.0f, 255.0f, true);
+	Color Theme::TC_Dark25			  = Color(3.5f, 3.5f, 3.5f, 255.0f, true);
 	Color Theme::TC_Dark3			  = Color(5.0f, 5.0f, 5.0f, 255.0f, true);
 	Color Theme::TC_Light1			  = Color(12.0f, 12.0f, 12.0f, 255.0f, true);
 

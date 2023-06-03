@@ -101,6 +101,7 @@ namespace Lina::Editor
 		static Color TC_Dark0;
 		static Color TC_Dark1;
 		static Color TC_Dark2;
+		static Color TC_Dark25;
 		static Color TC_Dark3;
 		static Color TC_Light1;
 

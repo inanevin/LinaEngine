@@ -36,7 +36,8 @@ SOFTWARE.
 
 #ifdef LINA_COMPILER_MSVC
 #pragma warning(push)
-#pragma warning(disable : 4696)
+#pragma warning(disable : 4996)
+#pragma warning(disable : 4333)
 #else
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
@@ -89,6 +90,72 @@ namespace Lina
 				utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
 			}
 			return utf8str;
+		}
+
+		float StringToFloat(const String& str, int& decimals)
+		{
+			std::size_t pos = str.find('.');
+			if (pos != std::string::npos)
+				decimals = str.length() - pos - 1;
+
+			return std::stof(str.c_str());
+		}
+
+		int StringToInt(const String& str)
+		{
+			return std::stoi(str.c_str());
+		}
+
+		String RemoveAllDotsExceptFirst(const String& str)
+		{
+			String		result = str;
+			std::size_t pos	   = result.find('.'); // find the first dot
+
+			// if there is a dot in the string
+			if (pos != std::string::npos)
+			{
+				// remove all subsequent dots
+				pos++; // start from the next character
+				std::size_t next;
+				while ((next = result.find('.', pos)) != std::string::npos)
+				{
+					result.erase(next, 1); // erase the dot
+				}
+			}
+
+			return result;
+		}
+
+		String FixStringNumber(const String& str)
+		{
+			String		copy = str;
+			std::size_t dot	 = copy.find(".");
+
+			if (dot != std::string::npos)
+			{
+				copy = RemoveAllDotsExceptFirst(copy);
+
+				const int dotPos = static_cast<int>(dot);
+				const int sz	 = static_cast<int>(copy.length());
+
+				// If nothing exists after dot, insert 0.
+				if (dotPos == sz - 1)
+					copy.insert(dot + 1, "0");
+
+				// If nothing exists before dot insert 0.
+				if (dotPos == 0)
+					copy.insert(0, "0");
+			}
+
+			return copy;
+		}
+
+		String FloatToString(float val, int decimals)
+		{
+			std::ostringstream out;
+			out << std::fixed << std::setprecision(decimals) << val;
+			const String str = out.str().c_str();
+			return str;
 		}
 
 	} // namespace Internal

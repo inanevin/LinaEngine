@@ -41,6 +41,8 @@ namespace Lina
 
 	namespace linatl = eastl;
 
+	typedef std::exception Exception;
+
 	template <class F, class... Args> F ForEachArg(F f, Args&&... args)
 	{
 		(f(std::forward<Args>(args)), ...);

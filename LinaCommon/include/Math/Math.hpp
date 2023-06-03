@@ -475,6 +475,15 @@ namespace Lina
 			return Abs(val1 - val2) < errorMargin;
 		}
 
+		static float Decimal(float val, int decimals)
+		{
+			if (decimals == 0)
+				return static_cast<float>(static_cast<int>(val));
+
+			float multiplier = static_cast<float>(std::pow(10.0f, decimals));
+			return std::floor(val * multiplier) / multiplier;
+		}
+
 		// TODO: Min and max of array
 	};
 } // namespace Lina

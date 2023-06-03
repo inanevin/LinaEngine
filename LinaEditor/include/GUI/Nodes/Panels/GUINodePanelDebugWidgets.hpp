@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	class GUINodeTextArea;
 	class GUINodeSliderFilled;
 
 	class GUINodePanelDebugWidgets : public GUINodePanel
@@ -46,7 +45,6 @@ namespace Lina::Editor
 		virtual void Draw(int threadID);
 
 	private:
-		GUINodeTextArea*	 m_textArea		= nullptr;
 		GUINodeSliderFilled* m_sliderFilled = nullptr;
 	};
 } // namespace Lina::Editor

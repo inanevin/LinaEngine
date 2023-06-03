@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "System/ISystem.hpp"
 #include "Core/Editor.hpp"
+#include "Commands/EditorCommandEntity.hpp"
 #include "Core/Theme.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "World/Level/Level.hpp"
@@ -288,7 +289,7 @@ namespace Lina::Editor
 				{
 					if (node->GetIsHovered())
 					{
-						m_editor->GetCommandManager().CreateCommand_SelectEntity(m_selectedEntity, entity);
+						m_editor->GetCommandManager()->AddCommand(new EditorCommandSelectEntity(m_editor, m_selectedEntity, entity));
 						m_contextMenuSelection->SetPos(m_window->GetMousePosition());
 						m_contextMenuSelection->SetVisible(true);
 						m_contextMenuBoldToggle->SetValue(node->GetIsBoldFont());
@@ -395,7 +396,7 @@ namespace Lina::Editor
 	{
 		auto	sel	   = static_cast<GUINodeSelection*>(selectionNode);
 		Entity* target = m_nodeToEntityMap[sel];
-		m_editor->GetCommandManager().CreateCommand_SelectEntity(m_selectedEntity, target);
+		m_editor->GetCommandManager()->AddCommand(new EditorCommandSelectEntity(m_editor, m_selectedEntity, target));
 	}
 
 	void GUINodePanelEntities::OnSelectionDetached(GUINodeSelection* selection, const Vector2& delta)

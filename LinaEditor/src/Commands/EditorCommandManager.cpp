@@ -49,6 +49,19 @@ namespace Lina::Editor
 		}
 	}
 
+	void EditorCommandManager::AddCommand(EditorCommand* cmd)
+	{
+		cmd->Execute(nullptr);
+		m_commandStack.push_front(cmd);
+
+		while (m_commandStack.size() > MAX_QUEUE_SIZE)
+		{
+			EditorCommand* cmd = m_commandStack.back();
+			m_commandStack.pop_back();
+			delete cmd;
+		}
+	}
+
 	void EditorCommandManager::Undo()
 	{
 		if (m_commandStack.empty())
@@ -60,17 +73,19 @@ namespace Lina::Editor
 		m_commandStack.pop_front();
 	}
 
-	void EditorCommandManager::CreateCommand_SelectEntity(Entity* previousSelected, Entity* entity)
+	void EditorCommandManager::OnReferenceDestroyed(void* ptr)
 	{
-		EditorCommand* cmd = new EditorCommandSelectEntity(this, previousSelected, entity);
-		cmd->Execute(nullptr);
-		m_commandStack.push_front(cmd);
+		Deque<EditorCommand*> newStack;
 
-		while (m_commandStack.size() > MAX_QUEUE_SIZE)
+		for (auto s : m_commandStack)
 		{
-			EditorCommand* cmd = m_commandStack.back();
-			m_commandStack.pop_back();
-			delete cmd;
+			if (!s->OnReferenceDestroyed(ptr))
+				newStack.push_front(s);
+			else
+				delete s;
 		}
+
+		m_commandStack = newStack;
 	}
+
 } // namespace Lina::Editor

@@ -31,11 +31,5 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	EditorCommand::EditorCommand(EditorCommandManager* manager) : m_commandManager(manager)
-	{
-		m_editor = m_commandManager->GetEditor();
-	}
-	EditorCommand::~EditorCommand()
-	{
-	}
+	
 } // namespace Lina::Editor

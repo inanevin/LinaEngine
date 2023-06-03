@@ -75,10 +75,7 @@ namespace Lina::Editor
 		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
 		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
 
-		LinaVG::SetClipPosX(static_cast<uint32>(m_rect.pos.x), threadID);
-		LinaVG::SetClipPosY(static_cast<uint32>(m_rect.pos.y), threadID);
-		LinaVG::SetClipSizeX(static_cast<uint32>(m_rect.size.x), threadID);
-		LinaVG::SetClipSizeY(static_cast<uint32>(m_rect.size.y), threadID);
+		GUIUtility::SetClip(threadID, m_rect, Rect());
 
 		const bool isSingleMainWindow = m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN && m_isAlone && m_panels.size() == 1;
 		m_tabArea->SetCanClosePanels(!isSingleMainWindow);
@@ -102,10 +99,7 @@ namespace Lina::Editor
 		m_dockPreview->SetRect(m_rect);
 		m_dockPreview->Draw(threadID);
 
-		LinaVG::SetClipPosX(0);
-		LinaVG::SetClipPosY(0);
-		LinaVG::SetClipSizeX(0);
-		LinaVG::SetClipSizeY(0);
+		GUIUtility::UnsetClip(threadID);
 	}
 
 	void GUINodeDockArea::HandleRemoval()

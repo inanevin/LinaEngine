@@ -26,41 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Commands/EditorCommandWidgets.hpp"
+#include "Core/Editor.hpp"
+#include "GUI/Nodes/GUINode.hpp"
 
-#ifndef EditorCommandEntity_HPP
-#define EditorCommandEntity_HPP
-
-#include "EditorCommand.hpp"
-#include "Event/IGameEventListener.hpp"
-
-namespace Lina
-{
-	class Entity;
-	class EntityWorld;
-} // namespace Lina
 namespace Lina::Editor
 {
-	class EditorCommandSelectEntity : public EditorCommand, public IGameEventListener
+	void EditorCommandTextEdit::Execute(void* userData)
 	{
-	public:
-		EditorCommandSelectEntity(Editor* editor, Entity* previous, Entity* current);
-		virtual ~EditorCommandSelectEntity();
-		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
+		m_node->SetTitle(m_title);
+	}
 
-		virtual Bitmask32 GetGameEventMask() override
-		{
-			return EVG_EntityDestroyed | EVG_End;
-		}
-
-		virtual void Execute(void* userData);
-		virtual void Undo();
-
-	private:
-		EntityWorld* m_world	= nullptr;
-		Entity*		 m_previous = nullptr;
-		Entity*		 m_current	= nullptr;
-	};
+	void EditorCommandTextEdit::Undo()
+	{
+		m_node->SetTitle(m_oldTitle);
+	}
+	bool EditorCommandTextEdit::OnReferenceDestroyed(void* ref)
+	{
+		return ref == m_node;
+	}
 } // namespace Lina::Editor
-
-#endif

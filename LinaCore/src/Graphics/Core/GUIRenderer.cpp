@@ -197,14 +197,8 @@ namespace Lina
 			{
 				auto& req = frame.drawRequests[i];
 				m_contextGraphics->SetMaterialID(cmdList, m_materials[i]->GetGPUBindlessIndex());
-
-				if (req.clipSizeX == 0 || req.clipSizeY == 0)
-					m_contextGraphics->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
-				else
-					m_contextGraphics->SetScissors(cmdList, Recti(Vector2i(req.clipPosX, req.clipPosY), Vector2i(req.clipSizeX, req.clipSizeY)));
-
+				m_contextGraphics->SetScissors(cmdList, Recti(Vector2i(req.meta.clipX, req.meta.clipY), Vector2i(req.meta.clipW, req.meta.clipH)));
 				m_contextGraphics->DrawIndexedInstanced(cmdList, req.indexSize, 1, req.firstIndex, req.vertexOffset, 0);
-
 				m_contextGraphics->SetScissors(cmdList, Recti(Vector2i::Zero, m_size));
 			}
 		}

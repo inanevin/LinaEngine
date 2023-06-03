@@ -34,6 +34,8 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	Vector<Vector<ClipData>> GUIUtility::s_clipStack;
+
 	Vector2 GUIUtility::DrawIcon(int threadID, float dpiScale, const char* icon, const Vector2& centerPos, float scale, Color tint, int drawOrder, float rotation, bool skipCache)
 	{
 		LinaVG::SDFTextOptions opts;
@@ -80,10 +82,10 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
 	}
 
-	void GUIUtility::DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder)
+	void GUIUtility::DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder, bool enabled)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color						= LV4(Theme::TC_Dark1);
+		bg.color						= LV4((enabled ? Theme::TC_Dark1 : Theme::TC_Dark25));
 		bg.outlineOptions.thickness		= 1.0f;
 		bg.outlineOptions.color			= LV4(Theme::TC_Silent1);
 		bg.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
@@ -114,5 +116,47 @@ namespace Lina::Editor
 	bool GUIUtility::IsInRect(const Vector2& pos, const Rect& rect)
 	{
 		return pos.x > rect.pos.x && pos.x < rect.pos.x + rect.size.x && pos.y > rect.pos.y && pos.y < rect.pos.y + rect.size.y;
+	}
+	void GUIUtility::PrepareClipStack(int threadCount)
+	{
+		s_clipStack.clear();
+		s_clipStack.resize(threadCount);
+	}
+
+	void GUIUtility::SetClip(int threadID, const Rect& r, const Rect& margin)
+	{
+		ClipData cd = {
+			.clipRect	= r,
+			.clipMargin = margin,
+		};
+
+		s_clipStack[threadID].push_back(cd);
+
+		LinaVG::SetClipPosX(static_cast<uint32>(r.pos.x + margin.pos.x), threadID);
+		LinaVG::SetClipPosY(static_cast<uint32>(r.pos.y + margin.pos.y), threadID);
+		LinaVG::SetClipSizeX(static_cast<uint32>(r.size.x + margin.size.x), threadID);
+		LinaVG::SetClipSizeY(static_cast<uint32>(r.size.y + margin.size.y), threadID);
+	}
+
+	void GUIUtility::UnsetClip(int threadID)
+	{
+		auto& vec = s_clipStack[threadID];
+		vec.pop_back();
+
+		if (vec.empty())
+		{
+			LinaVG::SetClipPosX(0, threadID);
+			LinaVG::SetClipPosY(0, threadID);
+			LinaVG::SetClipSizeX(0, threadID);
+			LinaVG::SetClipSizeY(0, threadID);
+		}
+		else
+		{
+			const ClipData& cd = vec[vec.size() - 1];
+			LinaVG::SetClipPosX(static_cast<uint32>(cd.clipRect.pos.x + cd.clipMargin.pos.x), threadID);
+			LinaVG::SetClipPosY(static_cast<uint32>(cd.clipRect.pos.y + cd.clipMargin.pos.y), threadID);
+			LinaVG::SetClipSizeX(static_cast<uint32>(cd.clipRect.size.x + cd.clipMargin.size.x), threadID);
+			LinaVG::SetClipSizeY(static_cast<uint32>(cd.clipRect.size.y + cd.clipMargin.size.y), threadID);
+		}
 	}
 } // namespace Lina::Editor

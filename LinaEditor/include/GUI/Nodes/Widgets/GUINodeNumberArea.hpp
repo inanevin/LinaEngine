@@ -28,39 +28,48 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef EditorCommandEntity_HPP
-#define EditorCommandEntity_HPP
+#ifndef GUINodeNumberArea_HPP
+#define GUINodeNumberArea_HPP
 
-#include "EditorCommand.hpp"
-#include "Event/IGameEventListener.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTextArea.hpp"
 
-namespace Lina
-{
-	class Entity;
-	class EntityWorld;
-} // namespace Lina
 namespace Lina::Editor
 {
-	class EditorCommandSelectEntity : public EditorCommand, public IGameEventListener
+	class GUINodeNumberArea : public GUINodeTextArea
 	{
 	public:
-		EditorCommandSelectEntity(Editor* editor, Entity* previous, Entity* current);
-		virtual ~EditorCommandSelectEntity();
-		virtual void OnGameEvent(GameEvent eventType, const Event& ev) override;
+		GUINodeNumberArea(GUIDrawerBase* drawer, int drawOrder);
+		virtual ~GUINodeNumberArea(){};
 
-		virtual Bitmask32 GetGameEventMask() override
+		void		 SetValue(float value, int decimals);
+		virtual void OnTitleChanged(const String& str) override;
+		virtual bool VerifyTitle() override;
+
+		inline void SetIsInteger(bool isInteger)
 		{
-			return EVG_EntityDestroyed | EVG_End;
+			m_isInteger = isInteger;
 		}
 
-		virtual void Execute(void* userData);
-		virtual void Undo();
+		inline void SetMaxDecimals(int maxDecimals)
+		{
+			m_maxDecimals = maxDecimals;
+		}
+
+		inline void SetMinMax(float min, float max)
+		{
+			m_minValue = min;
+			m_maxValue = max;
+		}
 
 	private:
-		EntityWorld* m_world	= nullptr;
-		Entity*		 m_previous = nullptr;
-		Entity*		 m_current	= nullptr;
+		float  m_minValue	 = -999999.9f;
+		float  m_maxValue	 = 99999.9f;
+		int	   m_maxDecimals = 5;
+		bool   m_isInteger	 = false;
+		float* m_floatVar	 = nullptr;
+		int*   m_intVar		 = nullptr;
 	};
+
 } // namespace Lina::Editor
 
 #endif

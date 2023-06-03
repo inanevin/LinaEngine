@@ -52,6 +52,7 @@ SOFTWARE.
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Core/Theme.hpp"
 #include "Core/PlatformProcess.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
 
 namespace Lina::Editor
 {
@@ -67,10 +68,13 @@ namespace Lina::Editor
 		Theme::s_resourceManagerInst = m_resourceManager;
 
 		m_payloadManager.Initialize();
+		m_system->AddListener(this);
 	}
 
 	void Editor::Shutdown()
 	{
+		m_system->RemoveListener(this);
+
 		for (auto [sid, drawer] : m_guiDrawers)
 			delete drawer;
 
@@ -456,5 +460,12 @@ namespace Lina::Editor
 	void Editor::UninstallCurrentLevel()
 	{
 		m_levelManager->UninstallLevel(false);
+	}
+	void Editor::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+		if (eventType & EVS_StartFrame)
+		{
+			GUIUtility::PrepareClipStack(ev.iParams[0]);
+		}
 	}
 } // namespace Lina::Editor

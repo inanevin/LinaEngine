@@ -81,8 +81,6 @@ namespace Lina::Editor
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SetTitle(const String& str);
-		virtual void SetClip(int threadID, const Rect& margin);
-		virtual void UnsetClip(int threadID);
 
 		void	 SetDrawer(GUIDrawerBase* drawer);
 		void	 AddChildren(GUINode* node);
@@ -252,28 +250,34 @@ namespace Lina::Editor
 			m_widthOverridenOutside = overrideW;
 		}
 
+		inline void SetEnabled(bool enabled)
+		{
+			m_isEnabled = enabled;
+		}
+
 	protected:
 		friend class GUIDrawerBase;
 
-		bool							m_widthOverridenOutside = false;
-		GUINode*						m_parent				= nullptr;
+		GUINode*						m_parent	  = nullptr;
+		Bitmask16						m_payloadMask = 0;
+		GUIDrawerBase*					m_drawer;
+		Editor*							m_editor				= nullptr;
+		ISwapchain*						m_swapchain				= nullptr;
+		IWindow*						m_window				= nullptr;
+		StringID						m_sid					= 0;
+		bool							m_isEnabled				= true;
+		bool							m_visible				= true;
+		bool							m_parentVisible			= true;
+		int								m_drawOrder				= 0;
+		bool							m_isHovered				= false;
+		bool							m_isPressed				= false;
+		bool							m_isDragging			= false;
+		bool							m_isBoldFont			= false;
 		bool							m_payloadAvailable		= false;
 		bool							m_disabled				= false;
-		Bitmask16						m_payloadMask			= 0;
-		GUIDrawerBase*					m_drawer;
-		Editor*							m_editor			  = nullptr;
-		ISwapchain*						m_swapchain			  = nullptr;
-		IWindow*						m_window			  = nullptr;
-		StringID						m_sid				  = 0;
-		bool							m_visible			  = true;
-		bool							m_parentVisible		  = true;
-		int								m_drawOrder			  = 0;
-		bool							m_isHovered			  = false;
-		bool							m_isPressed			  = false;
-		bool							m_isDragging		  = false;
-		bool							m_isBoldFont		  = false;
-		Vector2i						m_dragStartMousePos	  = Vector2i::Zero;
-		Vector2i						m_dragStartMouseDelta = Vector2i::Zero;
+		bool							m_widthOverridenOutside = false;
+		Vector2i						m_dragStartMousePos		= Vector2i::Zero;
+		Vector2i						m_dragStartMouseDelta	= Vector2i::Zero;
 		Vector<GUINode*>				m_children;
 		Rect							m_rect	  = Rect();
 		Rect							m_minRect = Rect();

@@ -33,21 +33,23 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	class EditorCommandManager;
 	class Editor;
 
 	class EditorCommand
 	{
 	public:
-		EditorCommand(EditorCommandManager* manager);
-		virtual ~EditorCommand();
+		EditorCommand(Editor* editor) : m_editor(editor){};
+		virtual ~EditorCommand(){};
 
 		virtual void Execute(void* userData) = 0;
 		virtual void Undo()					 = 0;
+		virtual bool OnReferenceDestroyed(void* ref)
+		{
+			return false;
+		};
 
 	protected:
-		Editor*				  m_editor		   = nullptr;
-		EditorCommandManager* m_commandManager = nullptr;
+		Editor* m_editor = nullptr;
 	};
 } // namespace Lina::Editor
 

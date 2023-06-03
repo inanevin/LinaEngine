@@ -34,11 +34,11 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Core/Theme.hpp"
 #include "Data/String.hpp"
+#include "Math/Rect.hpp"
 
 namespace Lina
 {
 	class Vector2;
-	class Rect;
 	struct TextureSheetItem;
 
 } // namespace Lina
@@ -52,6 +52,12 @@ namespace LinaVG
 namespace Lina::Editor
 {
 
+	struct ClipData
+	{
+		Rect clipRect	= Rect();
+		Rect clipMargin = Rect();
+	};
+
 	class GUIUtility
 	{
 	public:
@@ -60,13 +66,20 @@ namespace Lina::Editor
 		static void	   DrawDockBackground(int threadID, const Rect& rect, int drawOrder);
 		static void	   DrawPanelBackground(int threadID, const Rect& rect, int drawOrder);
 		static void	   DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
-		static void	   DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
+		static void	   DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder, bool enabled = true);
 		static void	   DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder);
 
 		static Vector2 DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::TextOptions& opts, int drawOrder);
 		static Vector2 DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::SDFTextOptions& opts, int drawOrder);
 
 		static bool IsInRect(const Vector2& pos, const Rect& rect);
+
+		static void PrepareClipStack(int threadCount);
+		static void SetClip(int threadID, const Rect& r, const Rect& margin);
+		static void UnsetClip(int threadID);
+
+	private:
+		static Vector<Vector<ClipData>> s_clipStack;
 	};
 } // namespace Lina::Editor
 

@@ -31,6 +31,7 @@ SOFTWARE.
 #ifndef EditorCommandManager_HPP
 #define EditorCommandManager_HPP
 
+#include "Data/String.hpp"
 #include "Data/Deque.hpp"
 
 namespace Lina
@@ -42,6 +43,7 @@ namespace Lina::Editor
 {
 	class Editor;
 	class EditorCommand;
+	class GUINode;
 
 	class EditorCommandManager
 	{
@@ -49,8 +51,9 @@ namespace Lina::Editor
 		EditorCommandManager(Editor* editor);
 		~EditorCommandManager();
 
+		void AddCommand(EditorCommand* cmd);
 		void Undo();
-		void CreateCommand_SelectEntity(Entity* previousSelected, Entity* newSelected);
+		void OnReferenceDestroyed(void* ptr);
 
 		inline Editor* GetEditor() const
 		{

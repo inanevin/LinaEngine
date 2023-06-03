@@ -177,8 +177,9 @@ namespace Lina
 			HGLOBAL hClipboardData;
 			hClipboardData = GlobalAlloc(GMEM_DDESHARE, sizeof(WCHAR) * (wcslen(str) + 1));
 			WCHAR* pchData;
-			pchData = (WCHAR*)GlobalLock(hClipboardData);
-			wcscpy(pchData, str);
+			pchData			  = (WCHAR*)GlobalLock(hClipboardData);
+			size_t bufferSize = GlobalSize(hClipboardData) / sizeof(WCHAR); // get buffer size in WCHARs
+			wcscpy_s(pchData, bufferSize, str);
 			GlobalUnlock(hClipboardData);
 			SetClipboardData(CF_UNICODETEXT, hClipboardData);
 			CloseClipboard();
