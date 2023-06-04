@@ -66,7 +66,8 @@ namespace Lina::Editor
 		static void	   DrawDockBackground(int threadID, const Rect& rect, int drawOrder);
 		static void	   DrawPanelBackground(int threadID, const Rect& rect, int drawOrder);
 		static void	   DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder);
-		static void	   DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder, bool enabled = true);
+		static void	   DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder, bool disabled, bool hasFocus);
+		static void	   DrawWidgetLabelBox(int threadID, const Rect& rect, int drawOrder);
 		static void	   DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder);
 
 		static Vector2 DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::TextOptions& opts, int drawOrder);

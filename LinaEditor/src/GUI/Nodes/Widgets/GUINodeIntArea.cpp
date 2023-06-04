@@ -1,4 +1,4 @@
-/*
+﻿/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,60 +26,73 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "GUI/Nodes/Widgets/GUINodeIntArea.hpp"
+#include "Math/Math.hpp"
+#include "Data/CommonData.hpp"
 
-#ifndef IGUIDrawer_HPP
-#define IGUIDrawer_HPP
-
-#include "Input/Core/CommonInput.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class ISwapchain;
-	class IWindow;
-	class SurfaceRenderer;
-
-	class IGUIDrawer
+	GUINodeIntArea::GUINodeIntArea(GUIDrawerBase* drawer, int drawOrder) : GUINodeNumberArea(drawer, drawOrder)
 	{
-	public:
-		IGUIDrawer(ISwapchain* swap);
-		virtual ~IGUIDrawer() = default;
+	}
 
-		virtual void DrawGUI(int threadID) = 0;
-		virtual void OnKey(uint32 key, InputAction action){};
-		virtual void OnMouse(uint32 button, InputAction action){};
-		virtual void OnMousePos(const Vector2i& pos){};
-		virtual void OnMouseMove(const Vector2i& pos){};
-		virtual void OnMouseWheel(uint32 delta){};
-		virtual void OnFocus(bool hasFocus){};
-		virtual void OnMouseHoverEnd(){};
-		virtual void OnWindowDrag(bool isDragging){};
-
-		inline IWindow* GetWindow()
+	void GUINodeIntArea::Draw(int threadID)
+	{
+		if (m_ptr != nullptr)
 		{
-			return m_window;
+			if (m_lastUpdatedValue != *m_ptr)
+				UpdateTitle(0);
 		}
+		GUINodeNumberArea::Draw(threadID);
+	}
 
-		inline ISwapchain* GetSwapchain()
+	void GUINodeIntArea::OnTitleChanged(const String& str)
+	{
+		try
 		{
-			return m_swapchain;
-		}
+			const int intVal = Internal::StringToInt(str);
 
-		inline void SetSurfaceRenderer(SurfaceRenderer* rend)
+			if (m_ptr != nullptr)
+				*m_ptr = intVal;
+
+			UpdateTitle(0);
+		}
+		catch (Exception& e)
 		{
-			m_surfaceRenderer = rend;
+			LINA_ERR("[GUINodeIntArea] -> Exception! {0}", e.what());
+			return;
 		}
+	}
 
-		inline SurfaceRenderer* GetSurfaceRenderer() const
+	void GUINodeIntArea::UpdateTitle(int decimals)
+	{
+		if (m_isEditing)
+			return;
+
+		if (m_ptr != nullptr)
 		{
-			return m_surfaceRenderer;
+			const int myValue = *m_ptr;
+
+			m_lastUpdatedValue = myValue;
+
+			GUINodeTextArea::SetTitle(TO_STRING(myValue));
 		}
+	}
 
-	protected:
-		SurfaceRenderer* m_surfaceRenderer = nullptr;
-		ISwapchain*		 m_swapchain	   = nullptr;
-		IWindow*		 m_window		   = nullptr;
-	};
-} // namespace Lina
+	void GUINodeIntArea::IncrementValue(const Vector2i& delta)
+	{
+		if (m_ptr == nullptr)
+			return;
 
-#endif
+		*m_ptr = m_valOnIncrementStart + delta.x;
+	}
+
+	void GUINodeIntArea::OnStartedIncrementing()
+	{
+		if (m_ptr == nullptr)
+			return;
+
+		m_valOnIncrementStart = *m_ptr;
+	}
+
+} // namespace Lina::Editor

@@ -90,7 +90,7 @@ namespace Lina::Editor
 		{
 			LinaVG::TextOptions opts;
 			opts.font		 = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-			opts.color		 = LV4((m_isEnabled ? Color::White : Theme::TC_Silent2));
+			opts.color		 = LV4((!m_disabled ? Color::White : Theme::TC_Silent2));
 			m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
 			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
 		}
@@ -100,39 +100,33 @@ namespace Lina::Editor
 			DrawCaretAndSelection(threadID);
 		}
 
+		// Mouse curosr
+		{
+			HandleMouseCursor();
+		}
+
 		GUIUtility::UnsetClip(threadID);
 	}
 
-	void GUINodeTextArea::OnClicked(uint32 button)
+	void GUINodeTextArea::OnPressBegin(uint32 button)
 	{
 		if (button != LINA_MOUSE_0)
 			return;
 
-		if (!m_isEditing)
+		if (m_characters.empty())
 		{
-			m_caretIndexStart = 0;
-			m_caretIndexEnd	  = static_cast<uint32>(m_characters.size());
 			StartEditing();
+			m_caretIndexEnd = m_caretIndexStart = 0;
+			return;
 		}
-		else
-		{
-			if (m_characters.empty())
-				return;
 
-			// Find the correct caret position based on click
-			uint32 caretIndex = 0;
+		StartEditing();
 
-			const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-
-			const Vector2 mp = m_window->GetMousePosition();
-			if (m_rect.IsPointInside(mp))
-				caretIndex = FindCaretIndexFromMouse();
-
-			m_caretIndexEnd = m_caretIndexStart = caretIndex;
-		}
+		uint32 caretIndex = FindCaretIndexFromMouse();
+		m_caretIndexEnd = m_caretIndexStart = caretIndex;
 	}
 
-	void GUINodeTextArea::OnClickedOutside(uint32 button)
+	void GUINodeTextArea::OnLostFocus()
 	{
 		if (m_isEditing)
 			FinishEditing();
@@ -157,15 +151,6 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUINodeTextArea::OnDragBegin()
-	{
-		if (m_characters.empty())
-			return;
-
-		m_isEditing		  = true;
-		m_caretIndexStart = FindCaretIndexFromMouse();
-	}
-
 	void GUINodeTextArea::OnDoubleClicked()
 	{
 		SelectAll();
@@ -173,7 +158,18 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::OnKey(uint32 key, InputAction act)
 	{
-		if (!m_isEditing || act == InputAction::Released)
+		if (!m_hasFocus || act == InputAction::Released)
+			return;
+
+		if (key == LINA_KEY_RETURN)
+		{
+			if (m_isEditing)
+				FinishEditing();
+			else
+				SelectAll();
+		}
+
+		if (!m_isEditing)
 			return;
 
 		const uint32 sz = static_cast<uint32>(m_characters.size());
@@ -215,9 +211,7 @@ namespace Lina::Editor
 		}
 		else
 		{
-			if (key == LINA_KEY_RETURN)
-				FinishEditing();
-			else if (key == LINA_KEY_BACKSPACE)
+			if (key == LINA_KEY_BACKSPACE)
 			{
 				EraseChar();
 			}
@@ -321,6 +315,11 @@ namespace Lina::Editor
 		// AddScrollValue(amt);
 	}
 
+	void GUINodeTextArea::OnHoverEnd()
+	{
+		m_window->SetCursorType(CursorType::Default);
+	}
+
 	void GUINodeTextArea::DrawCaretAndSelection(int threadID)
 	{
 		if (!m_isEditing)
@@ -343,7 +342,7 @@ namespace Lina::Editor
 				}
 			}
 
-			if (m_isDragging && !m_characters.empty())
+			if (m_isPressed && !m_characters.empty())
 			{
 				const uint32 current = m_caretIndexEnd;
 				m_caretIndexEnd		 = FindCaretIndexFromMouse();
@@ -421,14 +420,27 @@ namespace Lina::Editor
 
 		if (xAlpha < textStartAlpha)
 			caretIndex = 0;
-		else if (xAlpha > textEndAlpha - textStartAlpha)
+		else if (xAlpha > m_textOffset + textEndAlpha - textStartAlpha)
 			caretIndex = sz;
 		else
 		{
 			for (uint32 i = 0; i < sz; i++)
 			{
 				const auto& cd = m_characters[i];
-				if (xAlpha - textStartAlpha > cd.x)
+
+				float compare = 0.0f;
+
+				if (i == 0)
+				{
+					compare = cd.x;
+				}
+				else
+				{
+					const auto& prev = m_characters[i - 1];
+					compare			 = prev.x + prev.sizeX * 0.5f;
+				}
+
+				if (xAlpha - textStartAlpha > compare)
 					caretIndex = i;
 			}
 		}
@@ -438,7 +450,7 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::StartEditing()
 	{
-		if (!m_isEnabled)
+		if (m_disabled)
 			return;
 
 		m_isEditing	   = true;
@@ -565,13 +577,14 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::DrawBackground(int threadID)
 	{
-		GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder, m_isEnabled);
+		GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder, m_disabled, m_hasFocus);
 	}
 
 	bool GUINodeTextArea::VerifyTitle()
 	{
-		// Invalid characters.
-		for (auto c : m_title)
+		WString wstr = Internal::StringToWString(m_title);
+
+		for (auto c : wstr)
 		{
 			uint32 keycode = m_input->GetKeycode(c);
 
@@ -580,5 +593,21 @@ namespace Lina::Editor
 		}
 
 		return true;
+	}
+
+	void GUINodeTextArea::HandleMouseCursor()
+	{
+		if (GetIsHovered())
+		{
+			const float	  padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+			const Vector2 start	   = Vector2(m_rect.pos.x + m_initialTextPos.x - padding, m_rect.pos.y);
+			const Vector2 sz	   = Vector2(m_rect.size.x - m_initialTextPos.x, m_rect.size.y);
+			const Rect	  textRect = Rect(start, sz);
+			if (textRect.IsPointInside(m_window->GetMousePosition()))
+			{
+				m_window->SetCursorType(CursorType::Caret);
+				return;
+			}
+		}
 	}
 } // namespace Lina::Editor

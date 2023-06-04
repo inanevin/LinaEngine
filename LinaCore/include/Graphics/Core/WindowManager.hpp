@@ -59,7 +59,7 @@ namespace Lina
 		void		SetVsync(VsyncMode mode);
 		MonitorInfo GetMonitorInfoFromWindow(IWindow* window) const;
 		void		RecreateSurfaces();
-		void		ReceivingMouseFocus(IWindow* window);
+		void		ReceivingMouseHover(IWindow* window);
 
 		inline const Vector<MonitorInfo>& GetMonitors() const
 		{

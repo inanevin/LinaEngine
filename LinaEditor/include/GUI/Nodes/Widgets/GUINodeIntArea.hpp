@@ -28,49 +28,45 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CommonInput_HPP
-#define CommonInput_HPP
+#ifndef GUINodeIntArea_HPP
+#define GUINodeIntArea_HPP
 
-// Headers here.
+#include "GUI/Nodes/Widgets/GUINodeNumberArea.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	enum class InputAction
+	class GUINodeIntArea : public GUINodeNumberArea
 	{
-		Pressed	 = 0,
-		Released = 1,
-		Repeated = 2
+	public:
+		GUINodeIntArea(GUIDrawerBase* drawer, int drawOrder);
+		virtual ~GUINodeIntArea(){};
+
+		virtual void Draw(int threadID) override;
+		virtual void OnTitleChanged(const String& str) override;
+
+		inline void SetOwnValue(int val)
+		{
+			m_ptr		  = &m_ownVariable;
+			m_ownVariable = val;
+		}
+
+	protected:
+		virtual void UpdateTitle(int decimals) override;
+		virtual void IncrementValue(const Vector2i& delta) override;
+		virtual void OnStartedIncrementing() override;
+
+		virtual String GetDefaultValueStr() override
+		{
+			return "0";
+		}
+
+	private:
+		int* m_ptr				   = nullptr;
+		int	 m_lastUpdatedValue	   = 0;
+		int	 m_ownVariable		   = 0;
+		int	 m_valOnIncrementStart = 0;
 	};
 
-	// Cursor Modes
-	enum class CursorMode
-	{
-		Visible	 = 1 << 0,
-		Hidden	 = 1 << 1,
-		Disabled = 1 << 2
-	};
-
-	enum class CursorType
-	{
-		None,
-		Default,
-		SizeHorizontal,
-		SizeVertical,
-		Caret,
-	};
-
-	enum CharacterMask
-	{
-		Letter	   = 1 << 0,
-		Number	   = 1 << 1,
-		Separator  = 1 << 2,
-		Symbol	   = 1 << 4,
-		Whitespace = 1 << 5,
-		Control	   = 1 << 6,
-		Printable  = 1 << 7,
-		Any		   = Letter | Number | Separator | Whitespace | Control | Symbol | Printable,
-	};
-
-} // namespace Lina
+} // namespace Lina::Editor
 
 #endif

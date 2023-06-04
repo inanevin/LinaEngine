@@ -59,7 +59,7 @@ namespace Lina::Editor
 		virtual ~GUINodeFMPopupElement() = default;
 
 		virtual void  Draw(int threadID) override;
-		virtual void  OnClicked(uint32 button) override;
+		virtual void  OnPressEnd(uint32 button) override;
 		virtual float GetTotalWidth();
 
 		inline FMPopupElementType GetType() const
@@ -90,7 +90,7 @@ namespace Lina::Editor
 		GUINodeFMPopupElementDivider(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Divider){};
 		virtual ~GUINodeFMPopupElementDivider() = default;
 		virtual void  Draw(int threadID) override;
-		virtual void  OnClicked(uint32 button) override{};
+		virtual void  OnPressEnd(uint32 button) override{};
 		virtual float GetTotalWidth() override;
 	};
 
@@ -100,7 +100,7 @@ namespace Lina::Editor
 		GUINodeFMPopupElementToggle(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Toggle){};
 		virtual ~GUINodeFMPopupElementToggle() = default;
 		virtual void  Draw(int threadID) override;
-		virtual void  OnClicked(uint32 button) override;
+		virtual void  OnPressEnd(uint32 button) override;
 		virtual float GetTotalWidth() override;
 
 		inline void SetValue(bool val)
@@ -119,7 +119,7 @@ namespace Lina::Editor
 		GUINodeFMPopupElementExpandable(GUIDrawerBase* drawer, int drawOrder) : GUINodeFMPopupElement(drawer, drawOrder, FMPopupElementType::Expandable){};
 		virtual ~GUINodeFMPopupElementExpandable() = default;
 		virtual void  Draw(int threadID) override;
-		virtual void  OnClicked(uint32 button) override{};
+		virtual void  OnPressEnd(uint32 button) override{};
 		virtual float GetTotalWidth() override;
 
 		inline void SetExpandedPopup(GUINodeFMPopup* popup)

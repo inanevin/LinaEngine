@@ -61,14 +61,14 @@ namespace Lina::Editor
 		virtual ~GUINodeTextArea();
 
 		virtual void Draw(int threadID) override;
-		virtual void OnClicked(uint32 button) override;
-		virtual void OnClickedOutside(uint32 button) override;
+		virtual void OnPressBegin(uint32 button) override;
+		virtual void OnLostFocus() override;
 		virtual void SetTitle(const String& title) override;
-		virtual void OnDragBegin() override;
 		virtual void OnDoubleClicked() override;
 		virtual void OnKey(uint32 key, InputAction act) override;
 		virtual bool OnShortcut(Shortcut sc) override;
 		virtual void OnChildExceededSize(float amt) override;
+		virtual void OnHoverEnd() override;
 
 		inline Bitmask16& GetInputMask()
 		{
@@ -93,6 +93,7 @@ namespace Lina::Editor
 		virtual void DrawBackground(int threadID);
 		virtual bool VerifyTitle();
 		virtual void OnTitleChanged(const String& val){};
+		virtual void HandleMouseCursor();
 
 	protected:
 		String			 m_preEditTitle = "";

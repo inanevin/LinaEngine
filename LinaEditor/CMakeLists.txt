@@ -51,6 +51,8 @@ src/GUI/Nodes/Widgets/GUINodeButton.cpp
 src/GUI/Nodes/Widgets/GUINodeTooltip.cpp
 src/GUI/Nodes/Widgets/GUINodeTextArea.cpp
 src/GUI/Nodes/Widgets/GUINodeNumberArea.cpp
+src/GUI/Nodes/Widgets/GUINodeFloatArea.cpp
+src/GUI/Nodes/Widgets/GUINodeIntArea.cpp
 src/GUI/Nodes/Widgets/GUINodeSliderFilled.cpp
 src/GUI/Nodes/Widgets/GUINodeColorWheel.cpp
 src/GUI/Nodes/Widgets/GUINodeSelection.cpp
@@ -105,6 +107,8 @@ include/GUI/Nodes/Widgets/GUINodeSelection.hpp
 include/GUI/Nodes/Widgets/GUINodeText.hpp
 include/GUI/Nodes/Widgets/GUINodeTextArea.hpp
 include/GUI/Nodes/Widgets/GUINodeNumberArea.hpp
+include/GUI/Nodes/Widgets/GUINodeFloatArea.hpp
+include/GUI/Nodes/Widgets/GUINodeIntArea.hpp
 include/GUI/Nodes/Widgets/GUINodeSliderFilled.hpp
 include/GUI/Nodes/Widgets/GUINodeTab.hpp
 include/GUI/Nodes/Widgets/GUINodeTabArea.hpp

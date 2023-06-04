@@ -48,7 +48,7 @@ namespace Lina::Editor
 		virtual void Draw(int threadID) override;
 		virtual void OnHoverBegin() override;
 		virtual void OnHoverEnd() override;
-		virtual void OnDragEnd() override;
+		virtual void OnPressEnd(uint32 button) override;
 		void		 PreDestroy(GUINodeDivisible* divisible);
 		void		 AddPositiveNode(GUINodeDivisible* node);
 		void		 AddNegativeNode(GUINodeDivisible* node);

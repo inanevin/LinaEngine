@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
+#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -116,14 +117,14 @@ namespace Lina::Editor
 
 		if (m_dragDirection != Direction::None)
 		{
-			if (m_isDragging)
+			if (m_isPressed)
 			{
 				m_window->SetCursorType(m_dragDirection == Direction::Horizontal ? CursorType::SizeHorizontal : CursorType::SizeVertical);
 
 				const Vector2i mousePos = m_window->GetMousePosition();
 
-				const float deltaX = static_cast<float>(m_window->GetMousePosition().x - (m_rect.pos.x + m_dragStartMouseDelta.x));
-				const float deltaY = static_cast<float>(m_window->GetMousePosition().y - (m_rect.pos.y + m_dragStartMouseDelta.y));
+				const float deltaX = static_cast<float>(m_window->GetMousePosition().x - (m_rect.pos.x + m_pressStartMouseDelta.x));
+				const float deltaY = static_cast<float>(m_window->GetMousePosition().y - (m_rect.pos.y + m_pressStartMouseDelta.y));
 				const float delta  = m_dragDirection == Direction::Horizontal ? deltaX : deltaY;
 
 				if (delta > 0.0f)
@@ -183,8 +184,11 @@ namespace Lina::Editor
 		m_window->SetCursorType(CursorType::Default);
 	}
 
-	void GUINodeDivider::OnDragEnd()
+	void GUINodeDivider::OnPressEnd(uint32 button)
 	{
+		if (button != LINA_MOUSE_0)
+			return;
+
 		m_window->SetCursorType(CursorType::Default);
 	}
 

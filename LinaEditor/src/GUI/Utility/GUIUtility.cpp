@@ -82,13 +82,20 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
 	}
 
-	void GUIUtility::DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder, bool enabled)
+	void GUIUtility::DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder, bool disabled, bool hasFocus)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color						= LV4((enabled ? Theme::TC_Dark1 : Theme::TC_Dark25));
+		bg.color						= LV4((!disabled ? Theme::TC_Dark1 : Theme::TC_Dark25));
 		bg.outlineOptions.thickness		= 1.0f;
-		bg.outlineOptions.color			= LV4(Theme::TC_Silent1);
-		bg.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
+		bg.outlineOptions.color			= LV4((hasFocus ? Theme::TC_CyanAccent : Theme::TC_Silent1));
+		bg.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Outwards;
+		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+	}
+
+	void GUIUtility::DrawWidgetLabelBox(int threadID, const Rect& rect, int drawOrder)
+	{
+		LinaVG::StyleOptions bg;
+		bg.color = LV4(Theme::TC_Dark2);
 		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
 	}
 

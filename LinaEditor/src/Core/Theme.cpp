@@ -138,9 +138,9 @@ namespace Lina::Editor
 		case ThemeProperty::GeneralItemPadding:
 			return 12.0f * multiplier;
 		case ThemeProperty::WidgetHeightShort:
-			return 22.0f * multiplier;
+			return 20.0f * multiplier;
 		case ThemeProperty::WidgetHeightTall:
-			return 25.0f * multiplier;
+			return 23.0f * multiplier;
 		case ThemeProperty::DockDividerThickness:
 			return 1.5f * multiplier;
 		default:

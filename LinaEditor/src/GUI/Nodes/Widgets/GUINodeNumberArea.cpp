@@ -29,65 +29,16 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeNumberArea.hpp"
 #include "Math/Math.hpp"
 #include "Data/CommonData.hpp"
+#include "Graphics/Interfaces/IWindow.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "Input/Core/InputMappings.hpp"
+#include "Input/Core/Input.hpp"
 
 namespace Lina::Editor
 {
 	GUINodeNumberArea::GUINodeNumberArea(GUIDrawerBase* drawer, int drawOrder) : GUINodeTextArea(drawer, drawOrder)
 	{
 		m_inputMask.Set(CharacterMask::Number | CharacterMask::Separator);
-	}
-
-	void GUINodeNumberArea::SetValue(float value, int decimals)
-	{
-		value = Math::Clamp(value, m_minValue, m_maxValue);
-
-		if (m_isInteger)
-		{
-			const int intVal = static_cast<int>(value);
-
-			GUINodeTextArea::SetTitle(TO_STRING(intVal));
-
-			if (m_intVar != nullptr)
-				*m_intVar = intVal;
-		}
-		else
-		{
-			GUINodeTextArea::SetTitle(Internal::FloatToString(value, decimals));
-
-			if (m_floatVar != nullptr)
-				*m_floatVar = value;
-		}
-	}
-
-	void GUINodeNumberArea::OnTitleChanged(const String& str)
-	{
-		if (m_isInteger)
-		{
-			try
-			{
-				const int intVal = Internal::StringToInt(str);
-				SetValue(static_cast<float>(intVal), 0);
-			}
-			catch (Exception& e)
-			{
-				LINA_ERR("[GUINodeNumberArea] -> Exception! {0}", e.what());
-				return;
-			}
-		}
-		else
-		{
-			try
-			{
-				int			decimals = 0;
-				const float floatVal = Internal::StringToFloat(str, decimals);
-				SetValue(floatVal, Math::Min(m_maxDecimals, decimals));
-			}
-			catch (Exception& e)
-			{
-				LINA_ERR("[GUINodeNumberArea] -> Exception! {0}", e.what());
-				return;
-			}
-		}
 	}
 
 	bool GUINodeNumberArea::VerifyTitle()
@@ -97,9 +48,92 @@ namespace Lina::Editor
 		if (!passes)
 			return false;
 
+		if (m_title.empty())
+			m_title = GetDefaultValueStr();
+
 		m_title = Internal::FixStringNumber(m_title);
 
 		return true;
+	}
+
+	void GUINodeNumberArea::Draw(int threadID)
+	{
+		if (m_hasLabelBox)
+		{
+			const float widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale());
+			const float padding		 = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+			SetTextOffset(widgetHeight - padding * 0.5f);
+		}
+
+		GUINodeTextArea::Draw(threadID);
+
+		if (m_draggingLabelBox && !m_input->GetMouseButton(LINA_MOUSE_0))
+			m_draggingLabelBox = false;
+
+		if (m_draggingLabelBox)
+		{
+			const Vector2 mouseDelta = m_input->GetMousePositionAbs() - (m_window->GetPos() + m_pressStartMousePos);
+			IncrementValue(mouseDelta);
+		}
+	}
+
+	void GUINodeNumberArea::DrawBackground(int threadID)
+	{
+		GUINodeTextArea::DrawBackground(threadID);
+
+		if (m_hasLabelBox)
+		{
+			const float widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale());
+			m_labelBoxRect			 = Rect(m_rect.pos, Vector2(widgetHeight, widgetHeight));
+			GUIUtility::DrawWidgetLabelBox(threadID, m_labelBoxRect, m_drawOrder + 1);
+		}
+	}
+
+	void GUINodeNumberArea::OnPressBegin(uint32 button)
+	{
+		if (button != LINA_MOUSE_0)
+			return;
+
+		if (m_hasLabelBox)
+		{
+			const Vector2i mp = m_window->GetMousePosition();
+			if (m_labelBoxRect.IsPointInside(mp))
+			{
+				OnStartedIncrementing();
+				m_draggingLabelBox = true;
+
+				if (m_isEditing)
+					FinishEditing();
+
+				return;
+			}
+		}
+
+		GUINodeTextArea::OnPressBegin(button);
+	}
+
+	void GUINodeNumberArea::HandleMouseCursor()
+	{
+		if (!m_hasLabelBox)
+		{
+			GUINodeTextArea::HandleMouseCursor();
+			return;
+		}
+
+		if (m_draggingLabelBox)
+		{
+			m_window->SetCursorType(CursorType::SizeHorizontal);
+			return;
+		}
+
+		if (GetIsHovered())
+		{
+			const Vector2i mp = m_window->GetMousePosition();
+			if (m_labelBoxRect.IsPointInside(mp))
+				m_window->SetCursorType(CursorType::SizeHorizontal);
+			else
+				GUINodeTextArea::HandleMouseCursor();
+		}
 	}
 
 } // namespace Lina::Editor

@@ -89,7 +89,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUINodeButton::OnClicked(uint32 button)
+	void GUINodeButton::OnPressEnd(uint32 button)
 	{
 		if (button != LINA_MOUSE_0)
 			return;

@@ -91,59 +91,49 @@ namespace Lina::Editor
 		if (!GetIsVisible() || m_disabled)
 			return false;
 
-		if (button == LINA_MOUSE_0)
+		if (action == InputAction::Pressed && !m_isPressed)
 		{
-			if (action == InputAction::Pressed)
+			if (GetIsHovered())
 			{
-				if (GetIsHovered())
-				{
-					lastPressedNode = this;
-					m_isPressed		= true;
-					OnPressed(button);
-					m_dragStartMousePos	  = m_window->GetMousePosition();
-					m_dragStartMouseDelta = Vector2(m_dragStartMousePos) - m_rect.pos;
-					m_lastPressTime		  = SystemInfo::GetAppTimeF();
-				}
+				lastPressedNode		   = this;
+				m_lastPressedButton	   = button;
+				m_isPressed			   = true;
+				m_hasFocus			   = true;
+				m_pressStartMousePos   = m_window->GetMousePosition();
+				m_pressStartMouseDelta = Vector2(m_pressStartMousePos) - m_rect.pos;
+				m_lastPressTime		   = SystemInfo::GetAppTimeF();
+				OnGainedFocus();
+				OnPressBegin(button);
 			}
-			else if (action == InputAction::Released)
+			else
 			{
-				if (m_isDragging)
-					OnDragEnd();
-
-				const Vector2 delta = (m_window->GetMousePosition() - m_dragStartMousePos);
-
-				const float diff	= SystemInfo::GetAppTimeF() - m_lastPressTime;
-				const bool	isClick = diff < 0.15f;
-
-				if (isClick || delta < 15.0f || !m_isDragging)
+				if (m_hasFocus)
 				{
-					if (lastPressedNode == this && GetIsHovered())
-					{
-						lastPressedNode = nullptr;
-						OnClicked(LINA_MOUSE_0);
-					}
-					else if (!GetIsHovered())
-						OnClickedOutside(LINA_MOUSE_0);
+					m_hasFocus = false;
+					OnLostFocus();
 				}
-
-				m_isPressed	 = false;
-				m_isDragging = false;
-			}
-			else if (action == InputAction::Repeated)
-			{
-				if (GetIsHovered())
-					OnDoubleClicked();
 			}
 		}
-		else
+		else if (action == InputAction::Released && button == m_lastPressedButton)
 		{
-			if (action == InputAction::Released)
+			if (GetIsHovered())
 			{
-				if (GetIsHovered())
-					OnClicked(button);
-				else
-					OnClickedOutside(button);
+				if (lastPressedNode == this)
+				{
+					lastPressedNode = nullptr;
+					OnPressEnd(button);
+				}
 			}
+
+			if (m_isPressed)
+				OnReleased(button);
+
+			m_isPressed = false;
+		}
+		else if (action == InputAction::Repeated)
+		{
+			if (GetIsHovered())
+				OnDoubleClicked();
 		}
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
@@ -167,26 +157,24 @@ namespace Lina::Editor
 
 	void GUINode::OnMousePos()
 	{
-		if (m_isPressed && !m_isDragging)
-		{
-			m_isDragging = true;
-			OnDragBegin();
-		}
 	}
 
-	void GUINode::OnLostFocus()
+	void GUINode::MouseOutOfWindow()
 	{
 		if (m_isHovered)
 			OnHoverEnd();
 
-		if (m_isDragging)
-			OnDragEnd();
+		if (m_isPressed)
+		{
+			OnPressEnd(m_lastPressedButton);
+			OnReleased(m_lastPressedButton);
+		}
 
-		m_isPressed = m_isHovered = m_isDragging = false;
+		m_isPressed = m_isHovered = false;
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
-			m_children[i]->OnLostFocus();
+			m_children[i]->MouseOutOfWindow();
 	}
 
 	bool GUINode::OnShortcut(Shortcut sc)
@@ -216,6 +204,19 @@ namespace Lina::Editor
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
 			m_children[i]->OnPayloadEnded(type);
+	}
+
+	void GUINode::WindowFocusChanged(bool hasFocus)
+	{
+		if (!hasFocus)
+			m_hasFocus = false;
+
+		if (!hasFocus)
+			OnLostFocus();
+
+		const uint32 sz = static_cast<uint32>(m_children.size());
+		for (uint32 i = 0; i < sz; i++)
+			m_children[i]->WindowFocusChanged(hasFocus);
 	}
 
 	void GUINode::SaveToStream(OStream& stream)

@@ -66,7 +66,7 @@ namespace Lina
 		virtual void SetFocus(bool hasFocus) override;
 		virtual void SetAlpha(float alpha) override;
 		virtual void BringToFront() override;
-		virtual void SetMouseFocus(bool focus) override;
+		virtual void HasMouseHovered(bool focus) override;
 		virtual void SetInputPassthrough(bool isInputPassThrough) override;
 		virtual void Tick() override;
 		virtual void SetCursorType(CursorType type) override;

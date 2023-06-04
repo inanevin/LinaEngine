@@ -65,7 +65,7 @@ namespace Lina::Editor
 			auto* tab = m_tabs[i];
 			tab->SetCloseButtonEnabled(m_canClosePanels);
 
-			if (!tab->GetIsDragging())
+			if (!tab->GetIsPressed())
 				tab->SetRect(tabRect);
 
 			tab->SetMinPos(m_rect.pos);

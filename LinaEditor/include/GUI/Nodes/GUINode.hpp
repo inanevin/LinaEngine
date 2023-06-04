@@ -65,19 +65,19 @@ namespace Lina::Editor
 		virtual bool OnMouse(uint32 button, InputAction action);
 		virtual bool OnMouseWheel(uint32 delta);
 		virtual void OnMousePos();
-		virtual void OnLostFocus();
 		virtual bool OnShortcut(Shortcut sc);
 		virtual void OnPayloadCreated(PayloadType type, void* userData);
 		virtual void OnPayloadEnded(PayloadType type);
+		virtual void OnGainedFocus(){};
+		virtual void OnLostFocus(){};
 		virtual void OnPayloadAccepted(){};
-		virtual void OnClicked(uint32 button){};
-		virtual void OnClickedOutside(uint32 button){};
-		virtual void OnPressed(uint32 button){};
+		virtual void OnPressEnd(uint32 button){};
+		virtual void OnPressBegin(uint32 button){};
+		virtual void OnReleased(uint32 button){};
 		virtual void OnDoubleClicked(){};
 		virtual void OnHoverBegin(){};
 		virtual void OnHoverEnd(){};
-		virtual void OnDragBegin(){};
-		virtual void OnDragEnd(){};
+		virtual void WindowFocusChanged(bool hasFocus);
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SetTitle(const String& str);
@@ -179,11 +179,6 @@ namespace Lina::Editor
 			return m_isPressed;
 		}
 
-		inline bool GetIsDragging() const
-		{
-			return m_isDragging;
-		}
-
 		inline StringID GetSID() const
 		{
 			return m_sid;
@@ -250,10 +245,8 @@ namespace Lina::Editor
 			m_widthOverridenOutside = overrideW;
 		}
 
-		inline void SetEnabled(bool enabled)
-		{
-			m_isEnabled = enabled;
-		}
+	private:
+		void MouseOutOfWindow();
 
 	protected:
 		friend class GUIDrawerBase;
@@ -265,19 +258,18 @@ namespace Lina::Editor
 		ISwapchain*						m_swapchain				= nullptr;
 		IWindow*						m_window				= nullptr;
 		StringID						m_sid					= 0;
-		bool							m_isEnabled				= true;
 		bool							m_visible				= true;
 		bool							m_parentVisible			= true;
 		int								m_drawOrder				= 0;
 		bool							m_isHovered				= false;
 		bool							m_isPressed				= false;
-		bool							m_isDragging			= false;
 		bool							m_isBoldFont			= false;
 		bool							m_payloadAvailable		= false;
 		bool							m_disabled				= false;
 		bool							m_widthOverridenOutside = false;
-		Vector2i						m_dragStartMousePos		= Vector2i::Zero;
-		Vector2i						m_dragStartMouseDelta	= Vector2i::Zero;
+		bool							m_hasFocus				= false;
+		Vector2i						m_pressStartMousePos	= Vector2i::Zero;
+		Vector2i						m_pressStartMouseDelta	= Vector2i::Zero;
 		Vector<GUINode*>				m_children;
 		Rect							m_rect	  = Rect();
 		Rect							m_minRect = Rect();
@@ -289,8 +281,9 @@ namespace Lina::Editor
 
 	private:
 		HashMap<StringID, Vector2> m_storedSizes;
-		float					   m_lastDpi	   = 0.0f;
-		float					   m_lastPressTime = 0.0f;
+		float					   m_lastDpi		   = 0.0f;
+		float					   m_lastPressTime	   = 0.0f;
+		uint32					   m_lastPressedButton = 0;
 	};
 } // namespace Lina::Editor
 

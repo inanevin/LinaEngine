@@ -242,7 +242,7 @@ namespace Lina
 			if (guiDrawer)
 				guiDrawer->OnMousePos(mp);
 
-			win32Window->m_manager->ReceivingMouseFocus(win32Window);
+			win32Window->m_manager->ReceivingMouseHover(win32Window);
 		}
 		break;
 		case WM_MOUSEWHEEL: {
@@ -587,6 +587,11 @@ namespace Lina
 	{
 		m_hasFocus = hasFocus;
 		m_manager->OnWindowFocused(m_sid);
+
+		IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
+
+		if (guiDrawer)
+			guiDrawer->OnFocus(hasFocus);
 	}
 
 	void Win32Window::SetAlpha(float alpha)
@@ -603,7 +608,7 @@ namespace Lina
 		SetWindowPos(m_window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 	}
 
-	void Win32Window::SetMouseFocus(bool focus)
+	void Win32Window::HasMouseHovered(bool focus)
 	{
 		if (focus == false)
 		{
@@ -613,7 +618,7 @@ namespace Lina
 			IGUIDrawer* guiDrawer = m_surfaceRenderer->GetGUIDrawer();
 
 			if (guiDrawer)
-				guiDrawer->OnLostFocus();
+				guiDrawer->OnMouseHoverEnd();
 		}
 	}
 
@@ -712,6 +717,9 @@ namespace Lina
 			break;
 		case CursorType::SizeVertical:
 			cursor = LoadCursor(NULL, IDC_SIZENS);
+			break;
+		case CursorType::Caret:
+			cursor = LoadCursor(NULL, IDC_IBEAM);
 			break;
 		default:
 			break;

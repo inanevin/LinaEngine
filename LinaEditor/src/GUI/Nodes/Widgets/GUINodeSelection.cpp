@@ -172,14 +172,14 @@ namespace Lina::Editor
 	void GUINodeSelection::HandleDrag(int threadID)
 	{
 		// Drag and detach
-		if (m_isDragging)
+		if (m_isPressed)
 		{
 			const Vector2 mousePosNow = m_window->GetMousePosition();
-			const Vector2 deltaPress  = mousePosNow - Vector2(m_dragStartMousePos);
+			const Vector2 deltaPress  = mousePosNow - Vector2(m_pressStartMousePos);
 
 			if (!m_ownRect.IsPointInside(mousePosNow))
 			{
-				m_isDragging		= false;
+				m_isPressed		= false;
 				const Vector2 delta = Vector2(5, 5);
 				if (m_onDetached)
 					m_onDetached(this, delta);
@@ -231,7 +231,7 @@ namespace Lina::Editor
 			c->SetVisible(expandState);
 	}
 
-	void GUINodeSelection::OnPressed(uint32 button)
+	void GUINodeSelection::OnPressBegin(uint32 button)
 	{
 		if (button != LINA_MOUSE_0)
 			return;

@@ -41,33 +41,27 @@ namespace Lina::Editor
 		GUINodeNumberArea(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeNumberArea(){};
 
-		void		 SetValue(float value, int decimals);
-		virtual void OnTitleChanged(const String& str) override;
 		virtual bool VerifyTitle() override;
+		virtual void Draw(int threadID) override;
+		virtual void DrawBackground(int threadID) override;
+		virtual void OnPressBegin(uint32 button) override;
+		virtual void HandleMouseCursor() override;
 
-		inline void SetIsInteger(bool isInteger)
+		inline void SetHasLabelBox(bool hasLabelBox)
 		{
-			m_isInteger = isInteger;
+			m_hasLabelBox = hasLabelBox;
 		}
 
-		inline void SetMaxDecimals(int maxDecimals)
-		{
-			m_maxDecimals = maxDecimals;
-		}
-
-		inline void SetMinMax(float min, float max)
-		{
-			m_minValue = min;
-			m_maxValue = max;
-		}
+	protected:
+		virtual void   UpdateTitle(int decimals)			 = 0;
+		virtual void   IncrementValue(const Vector2i& delta) = 0;
+		virtual String GetDefaultValueStr()					 = 0;
+		virtual void   OnStartedIncrementing()				 = 0;
 
 	private:
-		float  m_minValue	 = -999999.9f;
-		float  m_maxValue	 = 99999.9f;
-		int	   m_maxDecimals = 5;
-		bool   m_isInteger	 = false;
-		float* m_floatVar	 = nullptr;
-		int*   m_intVar		 = nullptr;
+		Rect m_labelBoxRect		= Rect();
+		bool m_hasLabelBox		= false;
+		bool m_draggingLabelBox = false;
 	};
 
 } // namespace Lina::Editor

@@ -28,7 +28,8 @@ SOFTWARE.
 
 #include "GUI/Nodes/Panels/GUINodePanelDebugWidgets.hpp"
 #include "GUI/Nodes/Widgets/GUINodeTextArea.hpp"
-#include "GUI/Nodes/Widgets/GUINodeNumberArea.hpp"
+#include "GUI/Nodes/Widgets/GUINodeFloatArea.hpp"
+#include "GUI/Nodes/Widgets/GUINodeIntArea.hpp"
 #include "GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp"
 #include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
@@ -36,23 +37,27 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTextArea*   m_textArea  = nullptr;
-	GUINodeNumberArea* m_floatArea = nullptr;
+	GUINodeTextArea*  m_textArea  = nullptr;
+	GUINodeFloatArea* m_floatArea = nullptr;
+	GUINodeIntArea*	  m_intArea	  = nullptr;
 
 	GUINodePanelDebugWidgets::GUINodePanelDebugWidgets(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(drawer, drawOrder, panelType, title, parentDockArea)
 	{
 		m_textArea = new GUINodeTextArea(m_drawer, m_drawOrder);
 		m_textArea->SetTitle("Debug Title");
 		m_textArea->GetInputMask().Set(CharacterMask::Printable);
-		m_textArea->SetTextOffset(25);
 
-		m_floatArea = new GUINodeNumberArea(m_drawer, m_drawOrder);
-		m_floatArea->SetTitle("25.0");
-		m_floatArea->SetMaxDecimals(3);
-		m_floatArea->SetEnabled(false);
+		m_floatArea = new GUINodeFloatArea(m_drawer, m_drawOrder);
+		m_floatArea->SetHasLabelBox(true);
+		m_floatArea->SetOwnValue(25.0f);
+
+		m_intArea = new GUINodeIntArea(m_drawer, m_drawOrder);
+		m_intArea->SetHasLabelBox(true);
+		m_intArea->SetOwnValue(5);
 
 		AddChildren(m_textArea);
 		AddChildren(m_floatArea);
+		AddChildren(m_intArea);
 	}
 
 	void GUINodePanelDebugWidgets::Draw(int threadID)
@@ -69,5 +74,9 @@ namespace Lina::Editor
 		startPos.y += yIncrease;
 		m_floatArea->SetPos(startPos);
 		m_floatArea->Draw(threadID);
+
+		startPos.y += yIncrease;
+		m_intArea->SetPos(startPos);
+		m_intArea->Draw(threadID);
 	}
 } // namespace Lina::Editor

@@ -78,30 +78,16 @@ namespace Lina::Editor
 	void GUIDrawerBase::OnMouse(uint32 button, InputAction action)
 	{
 		m_root->OnMouse(button, action);
-
-		if (button == LINA_MOUSE_0 && action == InputAction::Pressed)
-		{
-			// if (m_hoveredNode)
-			//{
-			//	m_mouseDisablingNode = m_hoveredNode;
-			// }
-		}
-		else if (button == LINA_MOUSE_0 && action == InputAction::Released)
-		{
-			// if (m_mouseDisablingNode)
-			//	m_mouseDisablingNode = nullptr;
-		}
 	}
 
 	void GUIDrawerBase::OnMousePos(const Vector2i& pos)
 	{
 		auto* hoveredNode = GetHovered(m_root);
 
-		// if (m_mouseDisablingNode)
-		//{
-		//	if (hoveredNode != m_hoveredNode)
-		//		hoveredNode = nullptr;
-		// }
+		if (m_hoveredNode && m_hoveredNode->m_isPressed && hoveredNode != m_hoveredNode)
+		{
+			return;
+		}
 
 		if (hoveredNode == nullptr && m_hoveredNode)
 		{
@@ -112,9 +98,6 @@ namespace Lina::Editor
 		{
 			// Swithed hovering nodes
 			ClearHovered();
-
-			// if (!m_mouseDisablingNode)
-			//	m_hoveredNode = hoveredNode;
 		}
 		else if (m_hoveredNode == nullptr && hoveredNode)
 		{
@@ -141,10 +124,15 @@ namespace Lina::Editor
 		m_root->OnMouseWheel(delta);
 	}
 
-	void GUIDrawerBase::OnLostFocus()
+	void GUIDrawerBase::OnFocus(bool hasFocus)
+	{
+		m_root->WindowFocusChanged(hasFocus);
+	}
+
+	void GUIDrawerBase::OnMouseHoverEnd()
 	{
 		ClearHovered();
-		m_root->OnLostFocus();
+		m_root->MouseOutOfWindow();
 	}
 
 	void GUIDrawerBase::OnWindowDrag(bool isDragging)

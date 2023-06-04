@@ -47,8 +47,8 @@ namespace Lina::Editor
 		virtual ~GUINodeTab() = default;
 
 		virtual void Draw(int threadID) override;
-		virtual void OnClicked(uint32 button) override;
-		virtual void OnDragBegin() override;
+		virtual void OnPressEnd(uint32 button) override;
+		virtual void OnPressBegin(uint32 button) override;
 		void		 AnimateFlash();
 
 		inline void SetCloseButtonEnabled(bool closeButtonEnabled)

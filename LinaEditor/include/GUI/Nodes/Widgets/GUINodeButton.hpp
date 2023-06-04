@@ -45,7 +45,7 @@ namespace Lina::Editor
 		virtual ~GUINodeButton() = default;
 
 		virtual void Draw(int threadID) override;
-		virtual void OnClicked(uint32 button) override;
+		virtual void OnPressEnd(uint32 button) override;
 
 		inline void SetTextColor(const Color& color)
 		{

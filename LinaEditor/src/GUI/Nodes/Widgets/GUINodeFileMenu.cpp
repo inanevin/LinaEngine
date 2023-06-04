@@ -80,7 +80,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUINodeFMPopupElement::OnClicked(uint32 button)
+	void GUINodeFMPopupElement::OnPressEnd(uint32 button)
 	{
 		if (button != LINA_MOUSE_0)
 			return;
@@ -147,12 +147,12 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUINodeFMPopupElementToggle::OnClicked(uint32 button)
+	void GUINodeFMPopupElementToggle::OnPressEnd(uint32 button)
 	{
 		if (button != LINA_MOUSE_0)
 			return;
 
-		GUINodeFMPopupElement::OnClicked(button);
+		GUINodeFMPopupElement::OnPressEnd(button);
 		m_value = !m_value;
 	}
 

@@ -222,14 +222,14 @@ namespace Lina
 			m_gfxManager->CreateSurfaceRenderer(sid, window, window->GetSize(), 0);
 	}
 
-	void WindowManager::ReceivingMouseFocus(IWindow* window)
+	void WindowManager::ReceivingMouseHover(IWindow* window)
 	{
 		for (auto [sid, w] : m_windows)
 		{
 			if (w == window)
-				w->SetMouseFocus(true);
+				w->HasMouseHovered(true);
 			else
-				w->SetMouseFocus(false);
+				w->HasMouseHovered(false);
 		}
 	}
 

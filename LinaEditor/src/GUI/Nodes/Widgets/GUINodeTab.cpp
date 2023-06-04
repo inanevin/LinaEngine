@@ -150,10 +150,10 @@ namespace Lina::Editor
 			}
 		}
 
-		if (m_isDragging)
+		if (m_isPressed)
 		{
 			const Vector2 mousePosNow = m_window->GetMousePosition();
-			const Vector2 deltaPress  = mousePosNow - Vector2(m_dragStartMousePos);
+			const Vector2 deltaPress  = mousePosNow - Vector2(m_pressStartMousePos);
 
 			if (m_isReorderEnabled)
 			{
@@ -165,14 +165,14 @@ namespace Lina::Editor
 			{
 				if (Math::Abs(deltaPress.y) > m_rect.size.y)
 				{
-					m_isDragging = false;
-					m_parentArea->OnTabDetached(this, Vector2(m_dragStartMousePos) - m_rect.pos + Vector2(deltaPress.x, 0.0f));
+					m_isPressed = false;
+					m_parentArea->OnTabDetached(this, Vector2(m_pressStartMousePos) - m_rect.pos + Vector2(deltaPress.x, 0.0f));
 				}
 			}
 		}
 	}
 
-	void GUINodeTab::OnClicked(uint32 button)
+	void GUINodeTab::OnPressEnd(uint32 button)
 	{
 		if (button == LINA_MOUSE_0)
 		{
@@ -183,8 +183,11 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUINodeTab::OnDragBegin()
+	void GUINodeTab::OnPressBegin(uint32 button)
 	{
+		if (button != LINA_MOUSE_0)
+			return;
+
 		m_parentArea->OnTabClicked(this);
 	}
 

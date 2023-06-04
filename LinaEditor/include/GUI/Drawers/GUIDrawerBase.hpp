@@ -61,7 +61,8 @@ namespace Lina::Editor
 		virtual void OnMousePos(const Vector2i& pos) override;
 		virtual void OnMouseMove(const Vector2i& pos) override;
 		virtual void OnMouseWheel(uint32 delta) override;
-		virtual void OnLostFocus() override;
+		virtual void OnFocus(bool hasFocus) override;
+		virtual void OnMouseHoverEnd() override;
 		virtual void OnWindowDrag(bool isDragging) override;
 		virtual void OnPayloadCreated(PayloadType type, void* userData);
 		virtual void OnPayloadEnded(PayloadType type);

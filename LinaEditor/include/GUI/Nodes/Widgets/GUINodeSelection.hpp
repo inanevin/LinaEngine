@@ -54,7 +54,7 @@ namespace Lina::Editor
 		virtual ~GUINodeSelection() = default;
 
 		virtual void	Draw(int threadID) override;
-		virtual void	OnPressed(uint32 button) override;
+		virtual void	OnPressBegin(uint32 button) override;
 		virtual void	OnDoubleClicked() override;
 		virtual void	OnPayloadAccepted() override;
 		void			AddChildSelection(GUINodeSelection* sel);

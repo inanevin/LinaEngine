@@ -65,7 +65,7 @@ namespace Lina
 		virtual void SetFocus(bool hasFocus)															= 0;
 		virtual void SetAlpha(float alpha)																= 0;
 		virtual void BringToFront()																		= 0;
-		virtual void SetMouseFocus(bool focused)														= 0;
+		virtual void HasMouseHovered(bool focused)														= 0;
 		virtual void SetInputPassthrough(bool isInputPassThrough)										= 0;
 		virtual void Tick()																				= 0;
 		virtual void SetCursorType(CursorType type)														= 0;

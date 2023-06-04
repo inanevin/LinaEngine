@@ -113,10 +113,10 @@ namespace Lina
 		return mask;
 	}
 
-	uint32 Input::GetKeycode(char c)
+	uint32 Input::GetKeycode(char32_t c)
 	{
 #ifdef LINA_PLATFORM_WINDOWS
-		return VkKeyScanEx(c, GetKeyboardLayout(0));
+		return VkKeyScanExW(c, GetKeyboardLayout(0));
 #else
 		LINA_NOTIMPLEMENTED;
 #endif
@@ -125,6 +125,7 @@ namespace Lina
 
 	wchar_t Input::GetCharacterFromKey(uint32 key)
 	{
+
 		wchar_t ch = 0;
 #ifdef LINA_PLATFORM_WINDOWS
 		BYTE keyboardState[256];
@@ -136,7 +137,7 @@ namespace Lina
 		}
 
 		// Set the keyboard state to a known state
-		memset(keyboardState, 0, sizeof(keyboardState));
+		// memset(keyboardState, 0, sizeof(keyboardState));
 
 		// Map the virtual keycode to a scan code
 		UINT scanCode = MapVirtualKeyEx(key, MAPVK_VK_TO_VSC, GetKeyboardLayout(0));
@@ -159,8 +160,7 @@ namespace Lina
 
 	bool Input::IsControlPressed()
 	{
-		return GetKey(LINA_KEY_LCTRL) || GetKey(LINA_KEY_RCTRL) || GetKey(LINA_KEY_LALT) || GetKey(LINA_KEY_RALT) || GetKey(LINA_KEY_LSHIFT) || GetKey(LINA_KEY_RSHIFT) || GetKey(LINA_KEY_TAB) || GetKey(LINA_KEY_CAPSLOCK) || GetKey(LINA_KEY_LWIN) ||
-			   GetKey(LINA_KEY_RWIN);
+		return GetKey(LINA_KEY_LCTRL) || GetKey(LINA_KEY_RCTRL) || GetKey(LINA_KEY_LALT) || GetKey(LINA_KEY_RALT) || GetKey(LINA_KEY_TAB) || GetKey(LINA_KEY_CAPSLOCK) || GetKey(LINA_KEY_LWIN) || GetKey(LINA_KEY_RWIN);
 	}
 
 	bool Input::GetKey(int keycode)
