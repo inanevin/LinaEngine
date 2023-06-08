@@ -74,7 +74,8 @@ namespace Lina::Editor
 
 		// Adjust rect
 		{
-			SetWidgetHeight(ThemeProperty::WidgetHeightTall);
+			m_rect.size.y = widgetHeight + m_additionalHeight;
+
 			if (!m_widthOverridenOutside)
 				GUINode::ConsumeAvailableWidth();
 		}
@@ -84,25 +85,68 @@ namespace Lina::Editor
 			DrawBackground(threadID);
 		}
 
+		// Expand logic
+		if (m_expandable)
+		{
+			const float	  triSize	 = m_window->GetDPIScale() * 14.0f;
+			const float	  triYOffset = m_window->GetDPIScale() * 2;
+			const Vector2 triStart	 = Vector2(m_rect.pos.x + m_rect.size.x - triSize, m_rect.pos.y + m_rect.size.y + triYOffset);
+			const Vector2 triEnd	 = Vector2(triStart.x + triSize, triStart.y);
+			const Vector2 triBot	 = Vector2(triStart.x + triSize * 0.5f, triStart.y + triSize * 0.6f);
+
+			LinaVG::StyleOptions style;
+			style.aaEnabled = true;
+			style.color		= LV4(Theme::TC_Dark2);
+
+			const Vector2 wp		   = m_window->GetPos();
+			const Rect	  triangleRect = Rect(wp + triStart, Vector2(triEnd.x - triStart.x, triBot.y - triStart.y));
+			const Vector2 mp		   = m_input->GetMousePositionAbs();
+			const bool	  hovered	   = triangleRect.IsPointInside(mp);
+
+			if (hovered || m_draggingExpandRect)
+				style.color = LV4(Theme::TC_Light1);
+
+			LinaVG::DrawTriangle(threadID, LV2(triStart), LV2(triEnd), LV2(triBot), style, 0.0f, m_drawOrder);
+
+			if (hovered && m_input->GetMouseButtonDown(LINA_MOUSE_0))
+			{
+				m_draggingExpandRect = true;
+			}
+
+			if (m_draggingExpandRect)
+			{
+				m_additionalHeight += m_window->GetMouseDelta().y;
+				m_additionalHeight = Math::Clamp(m_additionalHeight, 0.0f, widgetHeight * 4);
+
+				if (!m_input->GetMouseButton(LINA_MOUSE_0))
+					m_draggingExpandRect = false;
+			}
+		}
+
 		GUIUtility::SetClip(threadID, m_rect, Rect(Vector2(padding + m_textOffset, 0), Vector2(-padding * 2.0f - m_textOffset, 0)));
+
+		const bool expanded = m_expandable && !Math::Equals(m_additionalHeight, 0.0f, 0.001f);
 
 		// Text
 		{
 			LinaVG::TextOptions opts;
-			opts.font		 = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-			opts.color		 = LV4((!m_disabled ? Color::White : Theme::TC_Silent2));
-			m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f);
+			opts.font  = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+			opts.color = LV4((!m_disabled ? Color::White : Theme::TC_Silent2));
+
+			const float posY = expanded ? m_rect.pos.y + m_minY * 2.0f : m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f;
+			m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, posY);
+
+			if (expanded)
+			{
+				opts.wrapWidth = m_rect.size.x - padding * 2.0f;
+			}
+
 			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
 		}
 
 		// Caret - multiselection background
 		{
 			DrawCaretAndSelection(threadID);
-		}
-
-		// Mouse curosr
-		{
-			HandleMouseCursor();
 		}
 
 		GUIUtility::UnsetClip(threadID);
@@ -134,6 +178,9 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::SetTitle(const String& title)
 	{
+		if (title.compare(m_title) == 0)
+			return;
+
 		GUINode::SetTitle(title);
 		m_characters.clear();
 
@@ -215,7 +262,7 @@ namespace Lina::Editor
 			{
 				EraseChar();
 			}
-			else if (m_input->GetCharacterMask(key) & CharacterMask::Printable)
+			else if (m_input->GetCharacterMask(m_input->GetCharacterFromKey(key)) & CharacterMask::Printable)
 			{
 				if (m_input->IsControlPressed())
 					return;
@@ -313,11 +360,6 @@ namespace Lina::Editor
 	void GUINodeTextArea::OnChildExceededSize(float amt)
 	{
 		// AddScrollValue(amt);
-	}
-
-	void GUINodeTextArea::OnHoverEnd()
-	{
-		m_window->SetCursorType(CursorType::Default);
 	}
 
 	void GUINodeTextArea::DrawCaretAndSelection(int threadID)
@@ -450,7 +492,7 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::StartEditing()
 	{
-		if (m_disabled)
+		if (m_disabled || !m_allowEditing)
 			return;
 
 		m_isEditing	   = true;
@@ -466,14 +508,17 @@ namespace Lina::Editor
 		if (m_preEditTitle.compare(m_title) == 0)
 			return;
 
-		if (!VerifyTitle())
+		bool		 titleOK = false;
+		const String ret	 = VerifyTitle(titleOK);
+
+		if (!titleOK)
 		{
 			SetTitle(m_preEditTitle);
 			m_preEditTitle.clear();
 		}
 		else
 		{
-			m_editor->GetCommandManager()->AddCommand(new EditorCommandTextEdit(m_editor, this, m_preEditTitle, m_title));
+			m_editor->GetCommandManager()->AddCommand(new EditorCommandTextEdit(m_editor, this, m_preEditTitle, ret));
 			OnTitleChanged(m_title);
 		}
 	}
@@ -580,34 +625,21 @@ namespace Lina::Editor
 		GUIUtility::DrawWidgetBackground(threadID, m_rect, m_window->GetDPIScale(), m_drawOrder, m_disabled, m_hasFocus);
 	}
 
-	bool GUINodeTextArea::VerifyTitle()
+	String GUINodeTextArea::VerifyTitle(bool& titleOK)
 	{
 		WString wstr = Internal::StringToWString(m_title);
 
 		for (auto c : wstr)
 		{
-			uint32 keycode = m_input->GetKeycode(c);
-
-			if (!m_inputMask.IsSet(m_input->GetCharacterMask(keycode)))
-				return false;
-		}
-
-		return true;
-	}
-
-	void GUINodeTextArea::HandleMouseCursor()
-	{
-		if (GetIsHovered())
-		{
-			const float	  padding  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-			const Vector2 start	   = Vector2(m_rect.pos.x + m_initialTextPos.x - padding, m_rect.pos.y);
-			const Vector2 sz	   = Vector2(m_rect.size.x - m_initialTextPos.x, m_rect.size.y);
-			const Rect	  textRect = Rect(start, sz);
-			if (textRect.IsPointInside(m_window->GetMousePosition()))
+			if (!m_inputMask.IsSet(m_input->GetCharacterMask(c)))
 			{
-				m_window->SetCursorType(CursorType::Caret);
-				return;
+				titleOK = false;
+				return "";
 			}
 		}
+
+		titleOK = true;
+		return m_title;
 	}
+
 } // namespace Lina::Editor

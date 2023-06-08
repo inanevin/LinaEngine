@@ -119,7 +119,6 @@ namespace Lina::Editor
 		{
 			if (m_isPressed)
 			{
-				m_window->SetCursorType(m_dragDirection == Direction::Horizontal ? CursorType::SizeHorizontal : CursorType::SizeVertical);
 
 				const Vector2i mousePos = m_window->GetMousePosition();
 
@@ -174,23 +173,11 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUINodeDivider::OnHoverBegin()
+	CursorType GUINodeDivider::GetHoveredCursor()
 	{
-		m_window->SetCursorType(m_dragDirection == Direction::Horizontal ? CursorType::SizeHorizontal : CursorType::SizeVertical);
+		return m_dragDirection == Direction::Horizontal ? CursorType::SizeHorizontal : CursorType::SizeVertical;
 	}
 
-	void GUINodeDivider::OnHoverEnd()
-	{
-		m_window->SetCursorType(CursorType::Default);
-	}
-
-	void GUINodeDivider::OnPressEnd(uint32 button)
-	{
-		if (button != LINA_MOUSE_0)
-			return;
-
-		m_window->SetCursorType(CursorType::Default);
-	}
 
 	void GUINodeDivider::PreDestroy(GUINodeDivisible* divisible)
 	{

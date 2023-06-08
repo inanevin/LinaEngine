@@ -49,7 +49,7 @@ namespace Lina::Editor
 		{
 			const float padding = Theme::GetProperty(ThemeProperty::MenuButtonPadding, m_window->GetDPIScale());
 
-			SetWidgetHeight(ThemeProperty::WidgetHeightShort);
+			SetWidgetHeight(ThemeProperty::WidgetHeightTall);
 			if (!m_widthOverridenOutside)
 				m_rect.size.x = textSize.x + padding * 2;
 		}

@@ -38,22 +38,28 @@ namespace Lina::Editor
 {
 	GUINodeNumberArea::GUINodeNumberArea(GUIDrawerBase* drawer, int drawOrder) : GUINodeTextArea(drawer, drawOrder)
 	{
-		m_inputMask.Set(CharacterMask::Number | CharacterMask::Separator);
+		m_inputMask.Set(CharacterMask::Number | CharacterMask::Separator | CharacterMask::Sign);
 	}
 
-	bool GUINodeNumberArea::VerifyTitle()
+	String GUINodeNumberArea::VerifyTitle(bool& titleOK)
 	{
-		const bool passes = GUINodeTextArea::VerifyTitle();
+		bool parentOK = false;
+		GUINodeTextArea::VerifyTitle(parentOK);
 
-		if (!passes)
-			return false;
+		if (!parentOK)
+		{
+			titleOK = false;
+			return m_title;
+		}
 
-		if (m_title.empty())
-			m_title = GetDefaultValueStr();
+		String copy = m_title;
+		if (copy.empty())
+			copy = GetDefaultValueStr();
+		else
+			copy = Internal::FixStringNumber(copy);
 
-		m_title = Internal::FixStringNumber(m_title);
-
-		return true;
+		titleOK = true;
+		return copy;
 	}
 
 	void GUINodeNumberArea::Draw(int threadID)
@@ -65,15 +71,31 @@ namespace Lina::Editor
 			SetTextOffset(widgetHeight - padding * 0.5f);
 		}
 
+		if (m_hasSlider)
+		{
+			m_sliderPercentage = GetSliderPerc();
+			m_sliderPercentage = Math::Clamp(m_sliderPercentage, 0.0f, 1.0f);
+		}
+
 		GUINodeTextArea::Draw(threadID);
 
 		if (m_draggingLabelBox && !m_input->GetMouseButton(LINA_MOUSE_0))
 			m_draggingLabelBox = false;
 
+		if (m_draggingSlider && !m_input->GetMouseButton(LINA_MOUSE_0))
+			m_draggingSlider = false;
+
 		if (m_draggingLabelBox)
 		{
 			const Vector2 mouseDelta = m_input->GetMousePositionAbs() - (m_window->GetPos() + m_pressStartMousePos);
 			IncrementValue(mouseDelta);
+		}
+
+		if (m_draggingSlider)
+		{
+			const float mouseXLocal = static_cast<float>(m_input->GetMousePositionAbs().x - m_window->GetPos().x);
+			const float mousePerc	= (mouseXLocal - m_rect.pos.x) / m_rect.size.x;
+			SetValueFromPerc(mousePerc);
 		}
 	}
 
@@ -85,7 +107,12 @@ namespace Lina::Editor
 		{
 			const float widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale());
 			m_labelBoxRect			 = Rect(m_rect.pos, Vector2(widgetHeight, widgetHeight));
-			GUIUtility::DrawWidgetLabelBox(threadID, m_labelBoxRect, m_drawOrder + 1);
+			GUIUtility::DrawWidgetLabelBox(threadID, m_window->GetDPIScale(), m_label.c_str(), m_labelBoxRect, m_drawOrder + 1, m_labelColor);
+		}
+		else if (m_hasSlider)
+		{
+			const Rect sliderRect = Rect(m_rect.pos, Vector2(m_rect.size.x * m_sliderPercentage, m_rect.size.y));
+			GUIUtility::DrawWidgetSliderBox(threadID, sliderRect, m_drawOrder);
 		}
 	}
 
@@ -109,31 +136,29 @@ namespace Lina::Editor
 			}
 		}
 
+		if (m_hasSlider && !m_isEditing)
+		{
+			m_draggingSlider = true;
+			return;
+		}
+
 		GUINodeTextArea::OnPressBegin(button);
 	}
 
-	void GUINodeNumberArea::HandleMouseCursor()
+	CursorType GUINodeNumberArea::GetHoveredCursor()
 	{
-		if (!m_hasLabelBox)
-		{
-			GUINodeTextArea::HandleMouseCursor();
-			return;
-		}
+		if (!m_hasLabelBox && !m_hasSlider)
+			return CursorType::Caret;
 
-		if (m_draggingLabelBox)
-		{
-			m_window->SetCursorType(CursorType::SizeHorizontal);
-			return;
-		}
+		const Vector2i mp = m_window->GetMousePosition();
+		if (m_labelBoxRect.IsPointInside(mp) || m_draggingLabelBox)
+			return CursorType::SizeHorizontal;
+		else if (m_hasSlider && m_isEditing)
+			return CursorType::Caret;
+		else if (!m_hasSlider)
+			return CursorType::Caret;
 
-		if (GetIsHovered())
-		{
-			const Vector2i mp = m_window->GetMousePosition();
-			if (m_labelBoxRect.IsPointInside(mp))
-				m_window->SetCursorType(CursorType::SizeHorizontal);
-			else
-				GUINodeTextArea::HandleMouseCursor();
-		}
+		return CursorType::Default;
 	}
 
 } // namespace Lina::Editor

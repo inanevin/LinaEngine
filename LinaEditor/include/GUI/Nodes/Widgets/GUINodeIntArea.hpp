@@ -46,14 +46,27 @@ namespace Lina::Editor
 
 		inline void SetOwnValue(int val)
 		{
-			m_ptr		  = &m_ownVariable;
-			m_ownVariable = val;
+			m_ownValue = val;
+			SetPtr(&m_ownValue);
+		}
+
+		inline void SetPtr(int* ptr)
+		{
+			m_ptr = ptr;
+		}
+
+		inline void SetMinMax(int min, int max)
+		{
+			m_minValue = min;
+			m_maxValue = max;
 		}
 
 	protected:
-		virtual void UpdateTitle(int decimals) override;
-		virtual void IncrementValue(const Vector2i& delta) override;
-		virtual void OnStartedIncrementing() override;
+		virtual void  UpdateTitle(int decimals) override;
+		virtual void  IncrementValue(const Vector2i& delta) override;
+		virtual void  OnStartedIncrementing() override;
+		virtual void  SetValueFromPerc(float perc) override;
+		virtual float GetSliderPerc() override;
 
 		virtual String GetDefaultValueStr() override
 		{
@@ -62,9 +75,10 @@ namespace Lina::Editor
 
 	private:
 		int* m_ptr				   = nullptr;
-		int	 m_lastUpdatedValue	   = 0;
-		int	 m_ownVariable		   = 0;
+		int	 m_ownValue			   = 0;
 		int	 m_valOnIncrementStart = 0;
+		int	 m_minValue			   = -99999;
+		int	 m_maxValue			   = 99999;
 	};
 
 } // namespace Lina::Editor

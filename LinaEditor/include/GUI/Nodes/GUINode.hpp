@@ -42,11 +42,13 @@ SOFTWARE.
 #include "Serialization/ISerializable.hpp"
 #include "Data/Bitmask.hpp"
 #include "Core/Theme.hpp"
+#include "Input/Core/CommonInput.hpp"
 
 namespace Lina
 {
 	class ISwapchain;
 	class IWindow;
+	class WindowManager;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -93,6 +95,11 @@ namespace Lina::Editor
 		void	 SetWidgetHeight(ThemeProperty prop);
 		Vector2	 GetStoreSize(StringID sid, const String& text, FontType ft = FontType::DefaultEditor, float textScale = 1.0f, bool calculatedEveryTime = false);
 		void	 ClearStoredSizes();
+
+		virtual CursorType GetHoveredCursor()
+		{
+			return CursorType::Default;
+		}
 
 		inline Vector<GUINode*>& GetChildren()
 		{
@@ -257,6 +264,7 @@ namespace Lina::Editor
 		Editor*							m_editor				= nullptr;
 		ISwapchain*						m_swapchain				= nullptr;
 		IWindow*						m_window				= nullptr;
+		WindowManager*					m_windowManager			= nullptr;
 		StringID						m_sid					= 0;
 		bool							m_visible				= true;
 		bool							m_parentVisible			= true;

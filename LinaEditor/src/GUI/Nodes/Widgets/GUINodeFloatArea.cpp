@@ -41,8 +41,9 @@ namespace Lina::Editor
 	{
 		if (m_ptr != nullptr)
 		{
-			if (!Math::Equals(m_lastUpdatedValue, *m_ptr, 0.0001f))
-				UpdateTitle(m_lastDecimals);
+			UpdateTitle(m_lastDecimals);
+
+			*m_ptr = Math::Clamp(*m_ptr, m_minValue, m_maxValue);
 		}
 
 		GUINodeNumberArea::Draw(threadID);
@@ -75,8 +76,6 @@ namespace Lina::Editor
 		if (m_ptr != nullptr)
 		{
 			const float myValue = *m_ptr;
-
-			m_lastUpdatedValue = myValue;
 			GUINodeTextArea::SetTitle(Internal::FloatToString(myValue, decimals));
 		}
 	}
@@ -86,7 +85,10 @@ namespace Lina::Editor
 		if (m_ptr == nullptr)
 			return;
 
-		*m_ptr = m_valOnIncrementStart + 0.1f * delta.x;
+		float val = *m_ptr;
+		val		  = m_valOnIncrementStart + 0.1f * delta.x;
+		val		  = Math::Clamp(val, m_minValue, m_maxValue);
+		*m_ptr	  = val;
 	}
 
 	void GUINodeFloatArea::OnStartedIncrementing()
@@ -95,6 +97,24 @@ namespace Lina::Editor
 			return;
 
 		m_valOnIncrementStart = *m_ptr;
+	}
+
+	void GUINodeFloatArea::SetValueFromPerc(float perc)
+	{
+		if (m_ptr == nullptr)
+			return;
+
+		float val = Math::Remap(perc, 0.0f, 1.0f, m_minValue, m_maxValue);
+		val		  = Math::Clamp(val, m_minValue, m_maxValue);
+		*m_ptr	  = val;
+	}
+
+	float GUINodeFloatArea::GetSliderPerc()
+	{
+		if (m_ptr == nullptr)
+			return 0.0f;
+
+		return Math::Remap(*m_ptr, m_minValue, m_maxValue, 0.0f, 1.0f);
 	}
 
 } // namespace Lina::Editor

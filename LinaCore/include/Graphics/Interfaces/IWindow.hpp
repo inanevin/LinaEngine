@@ -211,6 +211,11 @@ namespace Lina
 			m_sizeRequestExists = true;
 		}
 
+		inline bool GetHasMouseHover()
+		{
+			return m_hasMouseHover;
+		}
+
 	private:
 		friend class WindowManager;
 
@@ -231,6 +236,7 @@ namespace Lina
 		Recti			 m_rect				  = Recti();
 		Recti			 m_dragRect			  = Recti();
 		StringID		 m_sid				  = 0;
+		bool			 m_hasMouseHover	  = false;
 		bool			 m_isDragged		  = false;
 		bool			 m_isInputPassthrough = false;
 		bool			 m_isMinimized		  = false;

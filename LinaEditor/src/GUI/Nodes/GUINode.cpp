@@ -38,6 +38,8 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Serialization/HashMapSerialization.hpp"
 #include "Core/SystemInfo.hpp"
+#include "Core/Editor.hpp"
+#include "System/ISystem.hpp"
 
 namespace Lina::Editor
 {
@@ -48,10 +50,11 @@ namespace Lina::Editor
 
 	void GUINode::SetDrawer(GUIDrawerBase* drawer)
 	{
-		m_drawer	= drawer;
-		m_swapchain = m_drawer->GetSwapchain();
-		m_editor	= m_drawer->GetEditor();
-		m_window	= m_swapchain->GetWindow();
+		m_drawer		= drawer;
+		m_swapchain		= m_drawer->GetSwapchain();
+		m_editor		= m_drawer->GetEditor();
+		m_window		= m_swapchain->GetWindow();
+		m_windowManager = m_editor->GetSystem()->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
 
 		for (auto c : m_children)
 			c->SetDrawer(drawer);
@@ -116,6 +119,9 @@ namespace Lina::Editor
 		}
 		else if (action == InputAction::Released && button == m_lastPressedButton)
 		{
+			if (m_isPressed)
+				OnReleased(button);
+
 			if (GetIsHovered())
 			{
 				if (lastPressedNode == this)
@@ -124,9 +130,6 @@ namespace Lina::Editor
 					OnPressEnd(button);
 				}
 			}
-
-			if (m_isPressed)
-				OnReleased(button);
 
 			m_isPressed = false;
 		}

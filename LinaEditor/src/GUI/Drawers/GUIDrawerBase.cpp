@@ -77,6 +77,19 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnMouse(uint32 button, InputAction action)
 	{
+		// If we are releasing button, check the currently pressed/hovered node and cancel its state.
+		if (m_hoveredNode && m_hoveredNode->m_isPressed && action == InputAction::Released && button == m_hoveredNode->m_lastPressedButton)
+		{
+			auto* hov = GetHovered(m_root);
+
+			if (m_hoveredNode != hov)
+			{
+				ClearHovered();
+				const Vector2i pos = m_window->GetMousePosition();
+				OnMousePos(pos);
+			}
+		}
+
 		m_root->OnMouse(button, action);
 	}
 
@@ -84,10 +97,9 @@ namespace Lina::Editor
 	{
 		auto* hoveredNode = GetHovered(m_root);
 
+		// Prevent other nodes from being hovered if we have a pressed node.
 		if (m_hoveredNode && m_hoveredNode->m_isPressed && hoveredNode != m_hoveredNode)
-		{
 			return;
-		}
 
 		if (hoveredNode == nullptr && m_hoveredNode)
 		{
@@ -462,6 +474,10 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::DrawDockAreas(int threadID, const Rect& availableDockRect)
 	{
+		// Handle mouse cursor
+		if (m_hoveredNode)
+			m_window->SetCursorType(m_hoveredNode->GetHoveredCursor());
+
 		const Vector2 swpSize = m_swapchain->GetSize();
 
 		// Bg
@@ -555,7 +571,6 @@ namespace Lina::Editor
 		{
 			m_hoveredNode->OnHoverEnd();
 			m_hoveredNode->m_isHovered = false;
-			m_hoveredNode->m_isPressed = false;
 		}
 		m_hoveredNode = nullptr;
 	}

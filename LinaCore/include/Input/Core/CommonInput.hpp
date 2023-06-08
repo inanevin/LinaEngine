@@ -68,7 +68,9 @@ namespace Lina
 		Whitespace = 1 << 5,
 		Control	   = 1 << 6,
 		Printable  = 1 << 7,
-		Any		   = Letter | Number | Separator | Whitespace | Control | Symbol | Printable,
+		Operator   = 1 << 8,
+		Sign	   = 1 << 9,
+		Any		   = Letter | Number | Separator | Whitespace | Control | Symbol | Printable | Operator | Sign,
 	};
 
 } // namespace Lina

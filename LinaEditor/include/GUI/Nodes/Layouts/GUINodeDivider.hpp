@@ -45,16 +45,14 @@ namespace Lina::Editor
 		GUINodeDivider(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
 		virtual ~GUINodeDivider() = default;
 
-		virtual void Draw(int threadID) override;
-		virtual void OnHoverBegin() override;
-		virtual void OnHoverEnd() override;
-		virtual void OnPressEnd(uint32 button) override;
-		void		 PreDestroy(GUINodeDivisible* divisible);
-		void		 AddPositiveNode(GUINodeDivisible* node);
-		void		 AddNegativeNode(GUINodeDivisible* node);
-		void		 RemovePositiveNode(GUINodeDivisible* node);
-		void		 RemoveNegativeNode(GUINodeDivisible* node);
-		bool		 IsOnPositiveSide(GUINodeDivisible* div);
+		virtual void	   Draw(int threadID) override;
+		virtual CursorType GetHoveredCursor() override;
+		void			   PreDestroy(GUINodeDivisible* divisible);
+		void			   AddPositiveNode(GUINodeDivisible* node);
+		void			   AddNegativeNode(GUINodeDivisible* node);
+		void			   RemovePositiveNode(GUINodeDivisible* node);
+		void			   RemoveNegativeNode(GUINodeDivisible* node);
+		bool			   IsOnPositiveSide(GUINodeDivisible* div);
 
 		inline void SetDragDirection(Direction dir)
 		{

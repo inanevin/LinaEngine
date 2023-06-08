@@ -68,7 +68,11 @@ namespace Lina::Editor
 		virtual void OnKey(uint32 key, InputAction act) override;
 		virtual bool OnShortcut(Shortcut sc) override;
 		virtual void OnChildExceededSize(float amt) override;
-		virtual void OnHoverEnd() override;
+
+		virtual CursorType GetHoveredCursor() override
+		{
+			return CursorType::Caret;
+		}
 
 		inline Bitmask16& GetInputMask()
 		{
@@ -78,6 +82,16 @@ namespace Lina::Editor
 		inline void SetTextOffset(float val)
 		{
 			m_textOffset = val;
+		}
+
+		inline void SetAllowEditing(bool allow)
+		{
+			m_allowEditing = allow;
+		}
+
+		inline void SetExpandable(bool expandable)
+		{
+			m_expandable = expandable;
 		}
 
 	protected:
@@ -90,15 +104,18 @@ namespace Lina::Editor
 		void   FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax);
 		void   CheckCaretIndexAndScroll(bool preferLeft);
 
-		virtual void DrawBackground(int threadID);
-		virtual bool VerifyTitle();
-		virtual void OnTitleChanged(const String& val){};
-		virtual void HandleMouseCursor();
+		virtual void   DrawBackground(int threadID);
+		virtual String VerifyTitle(bool& titleOK);
+		virtual void   OnTitleChanged(const String& val){};
 
 	protected:
-		String			 m_preEditTitle = "";
-		Bitmask16		 m_inputMask	= 0;
-		Input*			 m_input		= nullptr;
+		bool			 m_allowEditing		  = true;
+		bool			 m_expandable		  = false;
+		bool			 m_draggingExpandRect = false;
+		float			 m_additionalHeight	  = 0.0f;
+		String			 m_preEditTitle		  = "";
+		Bitmask16		 m_inputMask		  = 0;
+		Input*			 m_input			  = nullptr;
 		Vector<CharData> m_characters;
 		bool			 m_isEditing	   = false;
 		uint32			 m_caretIndexStart = 0;

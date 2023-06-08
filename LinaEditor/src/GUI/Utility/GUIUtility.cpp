@@ -92,7 +92,22 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
 	}
 
-	void GUIUtility::DrawWidgetLabelBox(int threadID, const Rect& rect, int drawOrder)
+	void GUIUtility::DrawWidgetLabelBox(int threadID, float dpiScale, const char* label, const Rect& rect, int drawOrder, const Color& labelColor)
+	{
+		LinaVG::StyleOptions bg;
+		bg.color = LV4(Theme::TC_Dark2);
+		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+
+		LinaVG::TextOptions txtOpts;
+		txtOpts.font  = Theme::GetFont(FontType::AltEditor, dpiScale);
+		txtOpts.color = LV4(labelColor);
+
+		const Vector2 txtSize = FL2(LinaVG::CalculateTextSize(label, txtOpts));
+		const Vector2 txtPos  = Vector2(rect.pos.x + rect.size.x * 0.5f - txtSize.x * 0.5f, rect.pos.y + rect.size.y * 0.5f + txtSize.y * 0.5f);
+		LinaVG::DrawTextNormal(threadID, label, LV2(txtPos), txtOpts, 0.0f, drawOrder);
+	}
+
+	void GUIUtility::DrawWidgetSliderBox(int threadID, const Rect& rect, int drawOrder)
 	{
 		LinaVG::StyleOptions bg;
 		bg.color = LV4(Theme::TC_Dark2);

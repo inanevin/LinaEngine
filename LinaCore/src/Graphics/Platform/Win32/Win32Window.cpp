@@ -193,6 +193,10 @@ namespace Lina
 			else if (wParam == VK_CONTROL)
 				key = extended == 0 ? VK_LCONTROL : VK_RCONTROL;
 
+			if (key == VK_OEM_PLUS || scanCode == VK_OEM_PLUS)
+			{
+				int a = 5;
+			}
 			win32Window->m_input->OnKey(static_cast<void*>(win32Window), key, static_cast<int>(scanCode), isRepeated ? InputAction::Repeated : InputAction::Pressed);
 
 			IGUIDrawer* guiDrawer = win32Window->m_surfaceRenderer->GetGUIDrawer();
@@ -610,6 +614,11 @@ namespace Lina
 
 	void Win32Window::HasMouseHovered(bool focus)
 	{
+		if (m_hasMouseHover == focus)
+			return;
+
+		m_hasMouseHover = focus;
+
 		if (focus == false)
 		{
 			m_mousePosition = Vector2i::Zero;

@@ -59,7 +59,7 @@ namespace Lina
 		void OnMouseMove(void* windowPtr, int xPosRel, int yPosRel);
 		void OnActiveAppChanged(bool isActive);
 
-		uint16	GetCharacterMask(uint32 key);
+		uint16	GetCharacterMask(wchar_t ch);
 		uint32	GetKeycode(char32_t c);
 		wchar_t GetCharacterFromKey(uint32 key);
 		bool	IsControlPressed();

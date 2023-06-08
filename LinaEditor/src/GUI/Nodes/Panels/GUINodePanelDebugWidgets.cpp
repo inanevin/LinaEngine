@@ -37,27 +37,49 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUINodeTextArea*  m_textArea  = nullptr;
-	GUINodeFloatArea* m_floatArea = nullptr;
-	GUINodeIntArea*	  m_intArea	  = nullptr;
+	GUINodeTextArea*  m_textArea		= nullptr;
+	GUINodeFloatArea* m_floatArea		= nullptr;
+	GUINodeIntArea*	  m_intArea			= nullptr;
+	GUINodeFloatArea* m_floatAreaSlider = nullptr;
+	GUINodeIntArea*	  m_intAreaSlider	= nullptr;
+
+	float test	= 15.0f;
+	int	  test2 = 22;
 
 	GUINodePanelDebugWidgets::GUINodePanelDebugWidgets(GUIDrawerBase* drawer, int drawOrder, EditorPanel panelType, const String& title, GUINodeDockArea* parentDockArea) : GUINodePanel(drawer, drawOrder, panelType, title, parentDockArea)
 	{
 		m_textArea = new GUINodeTextArea(m_drawer, m_drawOrder);
 		m_textArea->SetTitle("Debug Title");
 		m_textArea->GetInputMask().Set(CharacterMask::Printable);
+		m_textArea->SetExpandable(true);
 
 		m_floatArea = new GUINodeFloatArea(m_drawer, m_drawOrder);
+		m_floatArea->SetPtr(&test);
+		m_floatArea->SetLabel("X");
 		m_floatArea->SetHasLabelBox(true);
-		m_floatArea->SetOwnValue(25.0f);
 
 		m_intArea = new GUINodeIntArea(m_drawer, m_drawOrder);
+		m_intArea->SetPtr(&test2);
+		m_intArea->SetLabel("Z");
+		m_intArea->SetLabelColor(Theme::TC_RedAccent);
 		m_intArea->SetHasLabelBox(true);
-		m_intArea->SetOwnValue(5);
+
+		m_floatAreaSlider = new GUINodeFloatArea(m_drawer, m_drawOrder);
+		m_floatAreaSlider->SetPtr(&test);
+		m_floatAreaSlider->SetMinMax(-10.0f, 10.0f);
+		m_floatAreaSlider->SetHasSlider(true);
+		m_floatAreaSlider->SetAllowEditing(false);
+
+		m_intAreaSlider = new GUINodeIntArea(m_drawer, m_drawOrder);
+		m_intAreaSlider->SetPtr(&test2);
+		m_intAreaSlider->SetMinMax(-10, 10);
+		m_intAreaSlider->SetHasSlider(true);
 
 		AddChildren(m_textArea);
 		AddChildren(m_floatArea);
 		AddChildren(m_intArea);
+		AddChildren(m_floatAreaSlider);
+		AddChildren(m_intAreaSlider);
 	}
 
 	void GUINodePanelDebugWidgets::Draw(int threadID)
@@ -68,15 +90,25 @@ namespace Lina::Editor
 		const float yIncrease = 50.0f;
 
 		Vector2 startPos = m_rect.pos + Vector2(padding, padding);
-		m_textArea->SetPos(startPos);
-		m_textArea->Draw(threadID);
-
-		startPos.y += yIncrease;
+		
 		m_floatArea->SetPos(startPos);
 		m_floatArea->Draw(threadID);
 
 		startPos.y += yIncrease;
 		m_intArea->SetPos(startPos);
 		m_intArea->Draw(threadID);
+
+		startPos.y += yIncrease;
+		m_floatAreaSlider->SetPos(startPos);
+		m_floatAreaSlider->Draw(threadID);
+
+		startPos.y += yIncrease;
+		m_intAreaSlider->SetPos(startPos);
+		m_intAreaSlider->Draw(threadID);
+
+		startPos.y += yIncrease;
+		m_textArea->SetPos(startPos);
+		m_textArea->Draw(threadID);
+
 	}
 } // namespace Lina::Editor

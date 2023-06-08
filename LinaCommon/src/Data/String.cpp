@@ -129,6 +129,7 @@ namespace Lina
 		String FixStringNumber(const String& str)
 		{
 			String		copy = str;
+
 			std::size_t dot	 = copy.find(".");
 
 			if (dot != std::string::npos)

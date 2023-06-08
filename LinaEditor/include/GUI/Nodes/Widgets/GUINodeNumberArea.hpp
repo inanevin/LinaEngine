@@ -41,27 +41,52 @@ namespace Lina::Editor
 		GUINodeNumberArea(GUIDrawerBase* drawer, int drawOrder);
 		virtual ~GUINodeNumberArea(){};
 
-		virtual bool VerifyTitle() override;
-		virtual void Draw(int threadID) override;
-		virtual void DrawBackground(int threadID) override;
-		virtual void OnPressBegin(uint32 button) override;
-		virtual void HandleMouseCursor() override;
+		virtual String	   VerifyTitle(bool& titleOK) override;
+		virtual void	   Draw(int threadID) override;
+		virtual void	   DrawBackground(int threadID) override;
+		virtual void	   OnPressBegin(uint32 button) override;
+		virtual CursorType GetHoveredCursor() override;
 
 		inline void SetHasLabelBox(bool hasLabelBox)
 		{
 			m_hasLabelBox = hasLabelBox;
 		}
 
+		inline void SetLabel(const String& lbl)
+		{
+			m_label = lbl;
+		}
+
+		inline void SetLabelColor(const Color& col)
+		{
+			m_labelColor = col;
+		}
+
+		inline void SetHasSlider(bool hasSlider)
+		{
+			m_hasSlider = hasSlider;
+		}
+
+
 	protected:
 		virtual void   UpdateTitle(int decimals)			 = 0;
 		virtual void   IncrementValue(const Vector2i& delta) = 0;
 		virtual String GetDefaultValueStr()					 = 0;
 		virtual void   OnStartedIncrementing()				 = 0;
+		virtual void   SetValueFromPerc(float perc)			 = 0;
+		virtual float  GetSliderPerc()						 = 0;
+
+	protected:
+		bool  m_hasLabelBox		 = false;
+		bool  m_hasSlider		 = false;
+		float m_sliderPercentage = 0.0f;
 
 	private:
-		Rect m_labelBoxRect		= Rect();
-		bool m_hasLabelBox		= false;
-		bool m_draggingLabelBox = false;
+		Color  m_labelColor		  = Color::White;
+		String m_label			  = "-";
+		Rect   m_labelBoxRect	  = Rect();
+		bool   m_draggingLabelBox = false;
+		bool   m_draggingSlider	  = false;
 	};
 
 } // namespace Lina::Editor

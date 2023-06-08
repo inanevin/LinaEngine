@@ -77,17 +77,17 @@ namespace Lina
 		m_appActive = isActive;
 	}
 
-	uint16 Input::GetCharacterMask(uint32 keycode)
+	uint16 Input::GetCharacterMask(wchar_t ch)
 	{
-		uint16 mask = 0;
+		uint16		 mask	 = 0;
+		const uint32 keycode = GetKeycode(ch);
 
 #ifdef LINA_PLATFORM_WINDOWS
 
-		if (keycode == LINA_KEY_SPACE)
+		if (ch == L' ')
 			mask |= Whitespace;
 		else
 		{
-			WCHAR ch = GetCharacterFromKey(keycode);
 			if (IsCharAlphaNumericW(ch))
 			{
 				if (keycode >= '0' && keycode <= '9')
@@ -96,12 +96,20 @@ namespace Lina
 					mask |= Letter;
 			}
 			else if (iswctype(ch, _PUNCT))
+			{
 				mask |= Symbol;
+
+				if (ch == '-' || ch == '+' || ch == '*' || ch == '/')
+					mask |= Operator;
+
+				if (ch == L'-' || ch == L'+')
+					mask |= Sign;
+			}
 			else
 				mask |= Control;
 		}
 
-		if (keycode == LINA_KEY_PERIOD)
+		if (ch == L'.')
 			mask |= Separator;
 
 		if (mask & (Letter | Number | Whitespace | Separator | Symbol))
@@ -116,7 +124,7 @@ namespace Lina
 	uint32 Input::GetKeycode(char32_t c)
 	{
 #ifdef LINA_PLATFORM_WINDOWS
-		return VkKeyScanExW(c, GetKeyboardLayout(0));
+		return VkKeyScanExW(static_cast<WCHAR>(c), GetKeyboardLayout(0));
 #else
 		LINA_NOTIMPLEMENTED;
 #endif
