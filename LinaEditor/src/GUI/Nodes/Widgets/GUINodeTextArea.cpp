@@ -53,12 +53,15 @@ namespace Lina::Editor
 	{
 		m_input = m_drawer->GetEditor()->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
 		SetDirection(Direction::Horizontal);
-		m_minY = GetStoreSize("A"_hs, "A").y;
+		m_minY					   = GetStoreSize("A"_hs, "A").y;
+		m_recalculateCharacterInfo = true;
+		m_outTextData			   = new LinaVG::TextOutData();
 	}
 
 	GUINodeTextArea::~GUINodeTextArea()
 	{
 		m_editor->GetCommandManager()->OnReferenceDestroyed(this);
+		delete m_outTextData;
 	}
 
 	void GUINodeTextArea::Draw(int threadID)
@@ -71,19 +74,6 @@ namespace Lina::Editor
 		Vector2		lastTextSize = GetStoreSize("TitleText"_hs, m_title);
 		lastTextSize.y			 = Math::Max(lastTextSize.y, m_minY);
 		m_caretHeight			 = widgetHeight * 0.6f;
-
-		// Adjust rect
-		{
-			m_rect.size.y = widgetHeight + m_additionalHeight;
-
-			if (!m_widthOverridenOutside)
-				GUINode::ConsumeAvailableWidth();
-		}
-
-		// Bg
-		{
-			DrawBackground(threadID);
-		}
 
 		// Expand logic
 		if (m_expandable)
@@ -115,17 +105,49 @@ namespace Lina::Editor
 
 			if (m_draggingExpandRect)
 			{
+				m_scrollValue = 0.0f;
 				m_additionalHeight += m_window->GetMouseDelta().y;
-				m_additionalHeight = Math::Clamp(m_additionalHeight, 0.0f, widgetHeight * 4);
+				m_additionalHeight = Math::Clamp(m_additionalHeight, 0.0f, widgetHeight * 6);
 
 				if (!m_input->GetMouseButton(LINA_MOUSE_0))
 					m_draggingExpandRect = false;
 			}
 		}
 
-		GUIUtility::SetClip(threadID, m_rect, Rect(Vector2(padding + m_textOffset, 0), Vector2(-padding * 2.0f - m_textOffset, 0)));
+		m_expandActive = m_expandable && !Math::Equals(m_additionalHeight, 0.0f, 0.001f);
+		m_direction	   = m_expandActive ? Direction::Vertical : Direction::Horizontal;
 
-		const bool expanded = m_expandable && !Math::Equals(m_additionalHeight, 0.0f, 0.001f);
+		// Adjust rect
+		{
+			m_rect.size.y = widgetHeight + m_additionalHeight;
+
+			if (!m_widthOverridenOutside)
+				GUINode::ConsumeAvailableWidth();
+		}
+
+		bool shouldRecalcCharInfo  = false;
+		m_recalculateCharacterInfo = true;
+
+		{
+			if (m_recalculateCharacterInfo || !Math::Equals(m_lastWidth, m_rect.size.x, 0.001f))
+			{
+				shouldRecalcCharInfo	   = true;
+				m_recalculateCharacterInfo = false;
+				m_outTextData->Shrink();
+			}
+
+			m_lastWidth = m_rect.size.x;
+		}
+
+		// Bg
+		{
+			DrawBackground(threadID);
+		}
+
+		if (m_expandActive)
+			GUIUtility::SetClip(threadID, m_rect, Rect(Vector2(padding + m_textOffset, padding * 0.2f), Vector2(-padding * 2.0f - m_textOffset, -padding * 0.2f * 2.0f)));
+		else
+			GUIUtility::SetClip(threadID, m_rect, Rect(Vector2(padding + m_textOffset, 0), Vector2(-padding * 2.0f - m_textOffset, 0)));
 
 		// Text
 		{
@@ -133,15 +155,27 @@ namespace Lina::Editor
 			opts.font  = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
 			opts.color = LV4((!m_disabled ? Color::White : Theme::TC_Silent2));
 
-			const float posY = expanded ? m_rect.pos.y + m_minY * 2.0f : m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f;
-			m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, posY);
+			float posY = 0.0f;
 
-			if (expanded)
+			if (m_expandActive)
 			{
-				opts.wrapWidth = m_rect.size.x - padding * 2.0f;
+				posY			 = m_rect.pos.y + widgetHeight * 0.5f + m_minY * 0.5f;
+				m_wrapWidth		 = m_rect.size.x - padding * 2.0f;
+				opts.wrapWidth	 = m_wrapWidth;
+				m_initialTextPos = Vector2(m_rect.pos.x + padding + m_textOffset, posY - m_scrollValue);
 			}
+			else
+			{
+				posY			 = m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f;
+				m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, posY);
+			}
+			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true, shouldRecalcCharInfo ? m_outTextData : nullptr);
+		}
 
-			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true);
+		if (m_caretScrollCheckState != 0)
+		{
+			CheckCaretIndexAndScroll(m_caretScrollCheckState == 1 ? false : true);
+			m_caretScrollCheckState = 0;
 		}
 
 		// Caret - multiselection background
@@ -166,8 +200,9 @@ namespace Lina::Editor
 
 		StartEditing();
 
-		uint32 caretIndex = FindCaretIndexFromMouse();
-		m_caretIndexEnd = m_caretIndexStart = caretIndex;
+		SetCaretFromMouse(true);
+		m_caretScrollCheckState = 1;
+		m_caretIndexEnd			= m_caretIndexStart;
 	}
 
 	void GUINodeTextArea::OnLostFocus()
@@ -183,6 +218,7 @@ namespace Lina::Editor
 
 		GUINode::SetTitle(title);
 		m_characters.clear();
+		m_recalculateCharacterInfo = true;
 
 		float		   x	 = 0.0f;
 		Vector<String> chars = Internal::SplitIntoUTF8Chars(title.c_str());
@@ -192,7 +228,7 @@ namespace Lina::Editor
 			const char*	   c_str	= ch.c_str();
 			const StringID sid		= TO_SIDC(c_str);
 			const Vector2  charSize = GetStoreSize(sid, c_str, FontType::DefaultEditor);
-			const CharData cd		= CharData{.x = x, .sizeX = charSize.x, .byteCount = static_cast<uint8>(ch.size())};
+			const CharData cd		= CharData{.byteCount = static_cast<uint8>(ch.size())};
 			m_characters.push_back(cd);
 			x += charSize.x;
 		}
@@ -234,7 +270,7 @@ namespace Lina::Editor
 					m_caretIndexStart = ++m_caretIndexEnd;
 			}
 
-			CheckCaretIndexAndScroll(false);
+			m_caretScrollCheckState = 1;
 		}
 		else if (key == LINA_KEY_LEFT)
 		{
@@ -249,12 +285,12 @@ namespace Lina::Editor
 					m_caretIndexStart = --m_caretIndexEnd;
 			}
 
-			CheckCaretIndexAndScroll(true);
+			m_caretScrollCheckState = 2;
 		}
 		else if (key == LINA_KEY_DOWN || key == LINA_KEY_UP)
 		{
-			m_caretIndexStart = m_caretIndexEnd;
-			CheckCaretIndexAndScroll(false);
+			m_caretIndexStart		= m_caretIndexEnd;
+			m_caretScrollCheckState = 1;
 		}
 		else
 		{
@@ -293,7 +329,7 @@ namespace Lina::Editor
 					}
 
 					SetTitle(copy);
-					CheckCaretIndexAndScroll(false);
+					m_caretScrollCheckState = 1;
 				}
 			}
 		}
@@ -320,7 +356,7 @@ namespace Lina::Editor
 				if (sc == Shortcut::CTRL_X)
 					EraseChar();
 
-				CheckCaretIndexAndScroll(false);
+				m_caretScrollCheckState = 1;
 			}
 		}
 		else if (sc == Shortcut::CTRL_A)
@@ -350,7 +386,8 @@ namespace Lina::Editor
 				m_caretIndexEnd += szDiff;
 				m_caretIndexStart = m_caretIndexEnd;
 
-				CheckCaretIndexAndScroll(false);
+				// prefer right
+				m_caretScrollCheckState = 1;
 			}
 		}
 
@@ -386,34 +423,47 @@ namespace Lina::Editor
 
 			if (m_isPressed && !m_characters.empty())
 			{
-				const uint32 current = m_caretIndexEnd;
-				m_caretIndexEnd		 = FindCaretIndexFromMouse();
+				const uint32   current = m_caretIndexEnd;
+				const Vector2i delta   = m_window->GetMouseDelta();
+
+				if (!m_expandActive || delta.x != 0 || delta.y != 0)
+					SetCaretFromMouse(false);
 
 				if (current != m_caretIndexEnd)
 				{
-					CheckCaretIndexAndScroll(m_caretIndexEnd < m_caretIndexStart);
+					m_caretScrollCheckState = m_caretIndexEnd < m_caretIndexStart ? 1 : 2;
 				}
 			}
 
 			if (m_shouldDrawCaret)
 			{
-				const uint32 caretIndex = m_caretIndexEnd;
 				float		 caretX		= 0.0f;
-				const uint32 sz			= static_cast<uint32>(m_characters.size());
+				const uint32 sz			= static_cast<uint32>(m_outTextData->characterInfo.m_size);
+				const uint32 caretIndex = m_caretIndexEnd;
 
-				if (sz != 0)
+				float targetX = 0.0f;
+				float targetY = 0.0f;
+
+				if (sz == 0)
 				{
-					if (caretIndex == sz)
-					{
-						const auto& cd = m_characters[sz - 1];
-						caretX		   = cd.x + cd.sizeX;
-					}
-					else
-						caretX = m_characters[caretIndex].x;
+					targetX = m_initialTextPos.x;
+					targetY = m_initialTextPos.y;
+				}
+				else if (caretIndex == sz)
+				{
+					const auto& last = m_outTextData->characterInfo[caretIndex - 1];
+					targetX			 = last.x + last.sizeX;
+					targetY			 = last.y;
+				}
+				else
+				{
+					const auto& tgt = m_outTextData->characterInfo[caretIndex];
+					targetX			= tgt.x;
+					targetY			= tgt.y;
 				}
 
-				const Vector2 p1 = Vector2(m_initialTextPos.x + caretX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
-				const Vector2 p2 = Vector2(m_initialTextPos.x + caretX, m_rect.pos.y + m_rect.size.y * 0.5f + m_caretHeight * 0.5f);
+				const Vector2 p1 = Vector2(targetX, targetY - m_caretHeight);
+				const Vector2 p2 = Vector2(targetX, targetY + m_caretHeight * 0.1f);
 				LinaVG::DrawLine(threadID, LV2(p1), LV2(p2), caretStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
 			}
 		}
@@ -424,70 +474,130 @@ namespace Lina::Editor
 			LinaVG::StyleOptions opts;
 			opts.color		   = LV4(Theme::TC_CyanAccent);
 			opts.color.start.w = opts.color.end.w = 0.2f;
+			const uint32 sz						  = static_cast<uint32>(m_outTextData->characterInfo.m_size);
 
-			const uint32 sz = static_cast<uint32>(m_characters.size());
+			const float	 lineHeight		 = m_minY * 1.2f;
+			const float	 lineExtraBottom = m_minY * 0.35f;
+			const uint32 min			 = Math::Min(m_caretIndexStart, m_caretIndexEnd);
+			const uint32 max			 = Math::Max(m_caretIndexStart, m_caretIndexEnd);
 
-			const uint32 from = m_caretIndexStart;
-			const uint32 to	  = m_caretIndexEnd;
+			const uint32 lineMin = Math::Min(m_caretLineStart, m_caretLineEnd);
+			const uint32 lineMax = Math::Max(m_caretLineStart, m_caretLineEnd);
 
-			if (from < to)
+			if (m_outTextData->lineInfo.isEmpty() || m_caretLineStart == m_caretLineEnd)
 			{
-				const float	  startX = m_characters[from].x;
-				const float	  endX	 = to == sz ? (m_characters[sz - 1].x + m_characters[sz - 1].sizeX) : m_characters[to].x;
-				const Vector2 start	 = Vector2(m_initialTextPos.x + startX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
-				const Vector2 end	 = Vector2(m_initialTextPos.x + endX, start.y + m_caretHeight);
+
+				const auto& minChar = m_outTextData->characterInfo[min];
+				const auto& maxChar = m_outTextData->characterInfo[max == sz ? sz - 1 : max];
+
+				const Vector2 start = Vector2(minChar.x, minChar.y - lineHeight);
+				const Vector2 end	= Vector2(maxChar.x + maxChar.sizeX, minChar.y + lineExtraBottom);
+
 				LinaVG::DrawRect(threadID, LV2(start), LV2(end), opts, 0.0f, m_drawOrder);
 			}
-			else if (from > to)
+			else
 			{
-				const float	  startX = m_characters[to].x;
-				const float	  endX	 = from == sz ? (m_characters[sz - 1].x + m_characters[sz - 1].sizeX) : m_characters[from].x;
-				const Vector2 start	 = Vector2(m_initialTextPos.x + startX, m_rect.pos.y + m_rect.size.y * 0.5f - m_caretHeight * 0.5f);
-				const Vector2 end	 = Vector2(m_initialTextPos.x + endX, start.y + m_caretHeight);
-				LinaVG::DrawRect(threadID, LV2(start), LV2(end), opts, 0.0f, m_drawOrder);
+				const auto& firstCharacter		   = m_outTextData->characterInfo[min];
+				const auto& lastCharacter		   = m_outTextData->characterInfo[max == sz ? max - 1 : max];
+				const auto& firstLineLastCharacter = m_outTextData->characterInfo[m_outTextData->lineInfo[lineMin].endCharacterIndex];
+				const auto& lastLineFirstCharacter = m_outTextData->characterInfo[m_outTextData->lineInfo[lineMax].startCharacterIndex];
+
+				// First line coverage
+				const Vector2 firstLineStart = Vector2(firstCharacter.x, firstCharacter.y - lineHeight);
+				const Vector2 firstLineEnd	 = Vector2(firstLineLastCharacter.x, firstCharacter.y + lineExtraBottom);
+				LinaVG::DrawRect(threadID, LV2(firstLineStart), LV2(firstLineEnd), opts, 0.0f, m_drawOrder);
+
+				// Last line coverage
+				const Vector2 lastLineStart = Vector2(lastLineFirstCharacter.x, lastLineFirstCharacter.y - lineHeight);
+				const Vector2 lastLineEnd	= Vector2(lastCharacter.x + (max == sz ? lastCharacter.sizeX : 0.0f), lastLineFirstCharacter.y + lineExtraBottom);
+				LinaVG::DrawRect(threadID, LV2(lastLineStart), LV2(lastLineEnd), opts, 0.0f, m_drawOrder);
+
+				for (uint32 i = lineMin + 1; i < lineMax; i++)
+				{
+					const auto& midLineFirstCharacter = m_outTextData->characterInfo[m_outTextData->lineInfo[i].startCharacterIndex];
+					const auto& midLineLastCharacter  = m_outTextData->characterInfo[m_outTextData->lineInfo[i].endCharacterIndex];
+
+					const Vector2 midLineStart = Vector2(midLineFirstCharacter.x, midLineFirstCharacter.y - lineHeight);
+					const Vector2 midLineEnd   = Vector2(midLineLastCharacter.x, midLineFirstCharacter.y + lineExtraBottom);
+					LinaVG::DrawRect(threadID, LV2(midLineStart), LV2(midLineEnd), opts, 0.0f, m_drawOrder);
+				}
 			}
 		}
 	}
 
-	uint32 GUINodeTextArea::FindCaretIndexFromMouse()
+	void GUINodeTextArea::SetCaretFromMouse(bool isStartIndex)
 	{
-		uint32		  caretIndex	 = 0;
-		const Vector2 mp			 = m_window->GetMousePosition();
-		const auto&	  lastChar		 = m_characters[m_characters.size() - 1];
-		const float	  xAlpha		 = mp.x - m_rect.pos.x;
-		const float	  textStartAlpha = m_initialTextPos.x - m_rect.pos.x;
-		const float	  textEndAlpha	 = m_initialTextPos.x + lastChar.x + lastChar.sizeX;
+		const Vector2 mp		 = m_window->GetMousePosition();
+		const Vector2 mouseLocal = mp - Vector2(m_initialTextPos.x, m_rect.pos.y);
 
-		const uint32 sz = static_cast<uint32>(m_characters.size());
+		uint32 chosenLine = 0;
+		int32  chosen	  = 0;
 
-		if (xAlpha < textStartAlpha)
-			caretIndex = 0;
-		else if (xAlpha > m_textOffset + textEndAlpha - textStartAlpha)
-			caretIndex = sz;
+		const int32 sz = static_cast<int32>(m_outTextData->characterInfo.m_size);
+
+		auto findCharacter = [&](int32 beginIndex, int32 endIndex) {
+			float minHorizontalDistance = 9999.0f;
+			int32 selected				= -1;
+			for (int32 i = beginIndex; i < endIndex; i++)
+			{
+				auto&		  charInfo			 = m_outTextData->characterInfo[i];
+				const Vector2 localPos			 = Vector2(charInfo.x - m_initialTextPos.x, charInfo.y - m_rect.pos.y);
+				float		  horizontalDistance = std::abs(mouseLocal.x - localPos.x);
+
+				if (horizontalDistance < minHorizontalDistance)
+				{
+					minHorizontalDistance = horizontalDistance;
+					selected			  = i;
+				}
+			}
+
+			return selected;
+		};
+
+		if (m_outTextData->lineInfo.m_size == 0)
+		{
+			// single line
+			chosen = findCharacter(0, sz);
+
+			if (chosen == sz - 1 && mouseLocal.x > (m_outTextData->characterInfo[sz - 1].x - m_initialTextPos.x))
+				chosen = sz;
+		}
 		else
 		{
-			for (uint32 i = 0; i < sz; i++)
+			// find which line
+			uint32		lastLine = static_cast<uint32>(m_outTextData->lineInfo.m_size) - 1;
+			const auto& fl		 = m_outTextData->lineInfo[0];
+			const auto& ll		 = m_outTextData->lineInfo[lastLine];
+			if (mp.y < fl.posY || Math::Equals(mp.y, fl.posY, 0.1f))
+				chosenLine = 0;
+			else if (mp.y > ll.posY || Math::Equals(mp.y, ll.posY, 0.1f))
+				chosenLine = lastLine;
+			else
 			{
-				const auto& cd = m_characters[i];
-
-				float compare = 0.0f;
-
-				if (i == 0)
+				for (uint32 i = lastLine; i > 0; i--)
 				{
-					compare = cd.x;
+					if (mp.y < m_outTextData->lineInfo[i].posY)
+						chosenLine = i;
 				}
-				else
-				{
-					const auto& prev = m_characters[i - 1];
-					compare			 = prev.x + prev.sizeX * 0.5f;
-				}
-
-				if (xAlpha - textStartAlpha > compare)
-					caretIndex = i;
 			}
+
+			const auto& selectedLine = m_outTextData->lineInfo[chosenLine];
+			chosen					 = findCharacter(selectedLine.startCharacterIndex, selectedLine.endCharacterIndex + 1);
+
+			if (chosenLine == lastLine && chosen == selectedLine.endCharacterIndex && mouseLocal.x > (m_outTextData->characterInfo[selectedLine.endCharacterIndex].x - m_initialTextPos.x))
+				chosen = selectedLine.endCharacterIndex + 1;
 		}
 
-		return caretIndex;
+		if (isStartIndex)
+		{
+			m_caretIndexStart = static_cast<uint32>(chosen);
+			m_caretLineStart  = chosenLine;
+		}
+		else
+		{
+			m_caretIndexEnd = static_cast<uint32>(chosen);
+			m_caretLineEnd	= chosenLine;
+		}
 	}
 
 	void GUINodeTextArea::StartEditing()
@@ -560,13 +670,15 @@ namespace Lina::Editor
 				SetTitle(copy);
 			}
 		}
-		CheckCaretIndexAndScroll(false);
+		m_caretScrollCheckState = 1;
 	}
 
 	void GUINodeTextArea::SelectAll()
 	{
 		m_caretIndexStart = 0;
 		m_caretIndexEnd	  = static_cast<uint32>(m_characters.size());
+		m_caretLineStart  = 0;
+		m_caretLineEnd	  = m_outTextData->lineInfo.m_size - 1;
 		StartEditing();
 	}
 
@@ -589,35 +701,57 @@ namespace Lina::Editor
 		if (m_characters.empty())
 			return;
 
-		const uint32 min		   = Math::Min(m_caretIndexStart, m_caretIndexEnd);
-		const uint32 max		   = Math::Max(m_caretIndexStart, m_caretIndexEnd);
-		const uint32 sz			   = static_cast<uint32>(m_characters.size());
-		const float	 padding	   = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		const float	 visibleStartX = m_initialTextPos.x + m_scrollValue;
-		float		 visibleEndX   = visibleStartX + m_rect.size.x - padding * 2.0f - m_textOffset;
-		const float	 leftMargin	   = 8.0f;
+		const float	 padding	  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+		const float	 widgetHeight = Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale());
+		const uint32 min		  = Math::Min(m_caretIndexStart, m_caretIndexEnd);
+		const uint32 max		  = Math::Max(m_caretIndexStart, m_caretIndexEnd);
+		const uint32 sz			  = static_cast<uint32>(m_outTextData->characterInfo.m_size);
 
-		auto exec = [&](uint32 targetIndex) {
-			float targetX = 0.0f;
+		if (m_expandActive)
+		{
+			m_caretLineStart = FindLineFromIndex(m_caretIndexStart);
 
-			if (targetIndex == sz)
-			{
-				const auto& lastChar = m_characters[targetIndex - 1];
-				targetX				 = visibleStartX + lastChar.sizeX + lastChar.x;
-			}
+			if (m_caretIndexStart == m_caretIndexEnd)
+				m_caretLineEnd = m_caretLineStart;
 			else
-				targetX = visibleStartX + m_characters[targetIndex].x;
+				m_caretLineEnd = FindLineFromIndex(m_caretIndexEnd);
 
-			if (targetX > visibleEndX + m_scrollValue)
-				AddScrollValue(targetX - visibleEndX - m_scrollValue);
-			else if (targetX < visibleStartX + m_scrollValue + leftMargin)
-				AddScrollValue(-((visibleStartX + m_scrollValue + leftMargin) - targetX));
-		};
+			const auto& maxChar	  = m_outTextData->characterInfo[max == sz ? max - 1 : max];
+			const auto& caretLine = m_outTextData->lineInfo[m_caretLineEnd];
+			const float localY	  = caretLine.posY - m_rect.pos.y - m_scrollValue;
+			const float minY	  = m_rect.pos.y + widgetHeight * 0.5f + m_minY * 0.5f;
+			const float maxY	  = m_rect.pos.y + m_rect.size.y - widgetHeight * 0.5f - m_minY * 0.5f;
+			const float desiredY  = Math::Clamp(caretLine.posY, Math::Min(minY, maxY), Math::Max(minY, maxY));
 
-		if (m_caretIndexEnd == m_caretIndexStart || !preferLeft)
-			exec(max);
+			if (caretLine.posY > desiredY || caretLine.posY < desiredY)
+				AddScrollValue(caretLine.posY - desiredY);
+		}
 		else
-			exec(min);
+		{
+			const auto& targetChar = m_outTextData->characterInfo[!preferLeft ? (min == sz ? sz - 1 : min) : (max == sz ? sz - 1 : max)];
+			const float minX	   = m_rect.pos.x + padding;
+			const float maxX	   = m_rect.pos.x + m_rect.size.x - padding * 1.5f;
+			const float desiredX   = Math::Clamp(targetChar.x, minX, maxX);
+
+			if (targetChar.x > desiredX || targetChar.x < desiredX)
+				AddScrollValue(targetChar.x - desiredX);
+		}
+	}
+
+	uint32 GUINodeTextArea::FindLineFromIndex(uint32 index)
+	{
+		if (index == m_outTextData->characterInfo.m_size)
+			index--;
+
+		const uint32 sz = static_cast<uint32>(m_outTextData->lineInfo.m_size);
+		for (uint32 i = 0; i < sz; i++)
+		{
+			const auto& line = m_outTextData->lineInfo[i];
+			if (index >= line.startCharacterIndex && index <= line.endCharacterIndex)
+				return i;
+		}
+
+		return 0;
 	}
 
 	void GUINodeTextArea::DrawBackground(int threadID)

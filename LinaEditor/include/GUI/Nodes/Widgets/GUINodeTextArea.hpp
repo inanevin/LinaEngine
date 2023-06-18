@@ -42,6 +42,11 @@ namespace Lina
 	class Input;
 }
 
+namespace LinaVG
+{
+	struct TextOutData;
+}
+
 namespace Lina::Editor
 {
 	class GUINodeText;
@@ -51,8 +56,6 @@ namespace Lina::Editor
 	private:
 		struct CharData
 		{
-			float x			= 0.0f;
-			float sizeX		= 0.0f;
 			uint8 byteCount = 0;
 		};
 
@@ -96,36 +99,45 @@ namespace Lina::Editor
 
 	protected:
 		void   DrawCaretAndSelection(int threadID);
-		uint32 FindCaretIndexFromMouse();
+		void   SetCaretFromMouse(bool isStartIndex);
 		void   StartEditing();
 		void   FinishEditing();
 		void   EraseChar();
 		void   SelectAll();
 		void   FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax);
 		void   CheckCaretIndexAndScroll(bool preferLeft);
+		uint32 FindLineFromIndex(uint32 index);
 
 		virtual void   DrawBackground(int threadID);
 		virtual String VerifyTitle(bool& titleOK);
 		virtual void   OnTitleChanged(const String& val){};
 
 	protected:
-		bool			 m_allowEditing		  = true;
-		bool			 m_expandable		  = false;
-		bool			 m_draggingExpandRect = false;
-		float			 m_additionalHeight	  = 0.0f;
-		String			 m_preEditTitle		  = "";
-		Bitmask16		 m_inputMask		  = 0;
-		Input*			 m_input			  = nullptr;
-		Vector<CharData> m_characters;
-		bool			 m_isEditing	   = false;
-		uint32			 m_caretIndexStart = 0;
-		uint32			 m_caretIndexEnd   = 0;
-		bool			 m_shouldDrawCaret = true;
-		float			 m_caretTimer	   = 0.0f;
-		float			 m_caretHeight	   = 0.0f;
-		Vector2			 m_initialTextPos  = Vector2::Zero;
-		float			 m_minY			   = 0.0f;
-		float			 m_textOffset	   = 0.0f;
+		LinaVG::TextOutData* m_outTextData				= nullptr;
+		bool				 m_recalculateCharacterInfo = false;
+		float				 m_lastWidth				= 0.0f;
+		bool				 m_allowEditing				= true;
+		bool				 m_expandable				= false;
+		bool				 m_draggingExpandRect		= false;
+		bool				 m_expandActive				= false;
+		float				 m_additionalHeight			= 0.0f;
+		String				 m_preEditTitle				= "";
+		Bitmask16			 m_inputMask				= 0;
+		Input*				 m_input					= nullptr;
+		Vector<CharData>	 m_characters;
+		bool				 m_isEditing			 = false;
+		uint32				 m_caretIndexStart		 = 0;
+		uint32				 m_caretIndexEnd		 = 0;
+		uint32				 m_caretLineStart		 = 0;
+		uint32				 m_caretLineEnd			 = 0;
+		bool				 m_shouldDrawCaret		 = true;
+		float				 m_caretTimer			 = 0.0f;
+		float				 m_caretHeight			 = 0.0f;
+		Vector2				 m_initialTextPos		 = Vector2::Zero;
+		float				 m_minY					 = 0.0f;
+		float				 m_textOffset			 = 0.0f;
+		float				 m_wrapWidth			 = 0.0f;
+		int					 m_caretScrollCheckState = 0;
 	};
 
 } // namespace Lina::Editor

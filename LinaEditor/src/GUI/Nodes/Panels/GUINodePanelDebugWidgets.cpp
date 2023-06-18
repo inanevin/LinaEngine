@@ -90,25 +90,32 @@ namespace Lina::Editor
 		const float yIncrease = 50.0f;
 
 		Vector2 startPos = m_rect.pos + Vector2(padding, padding);
+
+		 m_floatArea->SetPos(startPos);
+		 m_floatArea->Draw(threadID);
 		
-		m_floatArea->SetPos(startPos);
-		m_floatArea->Draw(threadID);
+		 startPos.y += yIncrease;
+		 m_intArea->SetPos(startPos);
+		 m_intArea->Draw(threadID);
+		
+		 startPos.y += yIncrease;
+		 m_floatAreaSlider->SetPos(startPos);
+		 m_floatAreaSlider->Draw(threadID);
+		
+		 startPos.y += yIncrease;
+		 m_intAreaSlider->SetPos(startPos);
+		 m_intAreaSlider->Draw(threadID);
+		
+		 startPos.y += yIncrease;
+		 m_textArea->SetPos(startPos);
+		 m_textArea->Draw(threadID);
 
-		startPos.y += yIncrease;
-		m_intArea->SetPos(startPos);
-		m_intArea->Draw(threadID);
+		LinaVG::TextOptions opts;
+		opts.font = Theme::GetFont(FontType::DefaultEditor, 1.0f);
+		opts.wrapWidth = m_rect.size.x - 10;
 
-		startPos.y += yIncrease;
-		m_floatAreaSlider->SetPos(startPos);
-		m_floatAreaSlider->Draw(threadID);
+		//String sa = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.";
 
-		startPos.y += yIncrease;
-		m_intAreaSlider->SetPos(startPos);
-		m_intAreaSlider->Draw(threadID);
-
-		startPos.y += yIncrease;
-		m_textArea->SetPos(startPos);
-		m_textArea->Draw(threadID);
-
+		//LinaVG::DrawTextNormal(threadID, sa.c_str(), LV2(startPos), opts, 0.0f, m_drawOrder, true, nullptr);
 	}
 } // namespace Lina::Editor

@@ -42,7 +42,6 @@ namespace Lina::Editor
 		GUINodeScrollArea(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
 		virtual ~GUINodeScrollArea() = default;
 
-		virtual void Draw(int threadID) override;
 
 		virtual void  ShowScrollIfRequired();
 		virtual void  OnChildExceededSize(float amt){};

@@ -32,19 +32,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void GUINodeScrollArea::Draw(int threadID)
-	{
-		if (m_children.empty() || !m_visible)
-			return;
-
-		Vector2 childPos = m_rect.pos;
-
-		if (m_direction == Direction::Horizontal)
-			childPos.x -= m_scrollValue;
-		else
-			childPos.y -= m_scrollValue;
-	}
-
 	void GUINodeScrollArea::ShowScrollIfRequired()
 	{
 		if (m_shouldShowScroll)
@@ -54,8 +41,9 @@ namespace Lina::Editor
 
 	void GUINodeScrollArea::AddScrollValue(float amt)
 	{
-		m_scrollValue = Math::Clamp(m_scrollValue + amt, 0.0f, 999.0f);
+		m_scrollValue = Math::Clamp(m_scrollValue + amt, 0.0f, 99999.0f);
 	}
+
 	float GUINodeScrollArea::GetChildSize()
 	{
 		float totalSize = 0.0f;
