@@ -125,8 +125,10 @@ namespace Lina::Editor
 				GUINode::ConsumeAvailableWidth();
 		}
 
-		bool shouldRecalcCharInfo  = false;
-		m_recalculateCharacterInfo = true;
+		bool shouldRecalcCharInfo = false;
+
+		if (m_isEditing)
+			m_recalculateCharacterInfo = true;
 
 		{
 			if (m_recalculateCharacterInfo || !Math::Equals(m_lastWidth, m_rect.size.x, 0.001f))
@@ -169,7 +171,7 @@ namespace Lina::Editor
 				posY			 = m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f;
 				m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, posY);
 			}
-			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, true, shouldRecalcCharInfo ? m_outTextData : nullptr);
+			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, shouldRecalcCharInfo, shouldRecalcCharInfo ? m_outTextData : nullptr);
 		}
 
 		if (m_caretScrollCheckState != 0)
@@ -289,8 +291,36 @@ namespace Lina::Editor
 		}
 		else if (key == LINA_KEY_DOWN || key == LINA_KEY_UP)
 		{
-			m_caretIndexStart		= m_caretIndexEnd;
-			m_caretScrollCheckState = 1;
+			if (m_expandActive)
+			{
+				const auto& currentLine = m_outTextData->lineInfo[m_caretLineEnd];
+
+				if (key == LINA_KEY_UP)
+				{
+					if (m_caretLineEnd != 0)
+					{
+						const auto& targetLine = m_outTextData->lineInfo[--m_caretLineEnd];
+						m_caretIndexStart = m_caretIndexEnd = GetIndexInLine(m_caretLineEnd, m_outTextData->characterInfo[m_caretIndexEnd].x);
+						m_caretLineStart					= m_caretLineEnd;
+						m_caretScrollCheckState				= 1;
+					}
+				}
+				else if (key == LINA_KEY_DOWN)
+				{
+					if (m_caretLineEnd != static_cast<uint32>(m_outTextData->lineInfo.m_size) - 1)
+					{
+						const auto& targetLine = m_outTextData->lineInfo[++m_caretLineEnd];
+						m_caretIndexStart = m_caretIndexEnd = GetIndexInLine(m_caretLineEnd, m_outTextData->characterInfo[m_caretIndexEnd].x);
+						m_caretLineStart					= m_caretLineEnd;
+						m_caretScrollCheckState				= 1;
+					}
+				}
+			}
+			else
+			{
+				m_caretIndexStart		= m_caretIndexEnd;
+				m_caretScrollCheckState = 1;
+			}
 		}
 		else
 		{
@@ -752,6 +782,27 @@ namespace Lina::Editor
 		}
 
 		return 0;
+	}
+
+	uint32 GUINodeTextArea::GetIndexInLine(uint32 lineIndex, float posX)
+	{
+
+		const auto& line  = m_outTextData->lineInfo[lineIndex];
+		uint32		index = line.endCharacterIndex;
+
+		float minDistance = 999.0f;
+		for (uint32 i = line.startCharacterIndex; i < line.endCharacterIndex + 1; i++)
+		{
+			const float charPosX = m_outTextData->characterInfo[i].x;
+			const float dist	 = Math::Abs(charPosX - posX);
+			if (dist < minDistance)
+			{
+				minDistance = dist;
+				index		= i;
+			}
+		}
+
+		return index;
 	}
 
 	void GUINodeTextArea::DrawBackground(int threadID)

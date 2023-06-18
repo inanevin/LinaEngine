@@ -107,6 +107,7 @@ namespace Lina::Editor
 		void   FindPositions(uint32 min, uint32 max, uint32& posMin, uint32& posMax);
 		void   CheckCaretIndexAndScroll(bool preferLeft);
 		uint32 FindLineFromIndex(uint32 index);
+		uint32 GetIndexInLine(uint32 line, float posX);
 
 		virtual void   DrawBackground(int threadID);
 		virtual String VerifyTitle(bool& titleOK);
