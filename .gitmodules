@@ -1,0 +1,3 @@
+[submodule "LinaGX"]
+	path = LinaGX
+	url = https://github.com/inanevin/LinaGX

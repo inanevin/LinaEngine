@@ -56,6 +56,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 file(MAKE_DIRECTORY ${LINA_WORKING_DIRECTORY})
 
 add_subdirectory(LinaCommon)
+add_subdirectory(LinaGX)
 add_subdirectory(LinaCore)
 add_subdirectory(LinaEditor)
 add_subdirectory(GamePlugin)

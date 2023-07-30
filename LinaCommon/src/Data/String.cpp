@@ -96,7 +96,7 @@ namespace Lina
 		{
 			std::size_t pos = str.find('.');
 			if (pos != std::string::npos)
-				decimals = str.length() - pos - 1;
+				decimals = static_cast<int>(str.length() - pos - 1);
 
 			return std::stof(str.c_str());
 		}
@@ -128,9 +128,9 @@ namespace Lina
 
 		String FixStringNumber(const String& str)
 		{
-			String		copy = str;
+			String copy = str;
 
-			std::size_t dot	 = copy.find(".");
+			std::size_t dot = copy.find(".");
 
 			if (dot != std::string::npos)
 			{
