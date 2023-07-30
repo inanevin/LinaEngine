@@ -49,7 +49,6 @@ src/Graphics/Core/GUIBackend.cpp
 src/Graphics/Core/GfxManager.cpp
 src/Graphics/Core/View.cpp
 src/Graphics/Core/GUIRenderer.cpp
-src/Graphics/Core/ISwapchain.cpp
 src/Graphics/Core/DrawPass.cpp
 src/Graphics/Core/CameraSystem.cpp
 src/Graphics/Core/WorldRenderer.cpp
@@ -59,9 +58,6 @@ src/Graphics/Interfaces/IGUIDrawer.cpp
 src/Graphics/Components/RenderableComponent.cpp
 src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp
-src/Graphics/Platform/Win32/Win32Window.cpp
-src/Graphics/Utility/ModelLoader.cpp
-src/Graphics/Utility/HLSLParser.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/Mesh.cpp
 src/Graphics/Resource/Model.cpp
@@ -152,23 +148,13 @@ include/Graphics/Core/DrawPass.hpp
 include/Graphics/Core/GfxMeshManager.hpp
 include/Graphics/Core/CameraSystem.hpp
 include/Graphics/Interfaces/IGUIDrawer.hpp
-include/Graphics/Interfaces/IWindow.hpp
-include/Graphics/Interfaces/IGfxResourceCPU.hpp
-include/Graphics/Interfaces/IGfxResourceGPU.hpp
-include/Graphics/Interfaces/IGfxResourceTexture.hpp
-include/Graphics/Interfaces/IUploadContext.hpp
-include/Graphics/Interfaces/IGfxContext.hpp
-include/Graphics/Interfaces/ISwapchain.hpp
-include/Graphics/Interfaces/IPipeline.hpp
 include/Graphics/Data/RenderData.hpp
 include/Graphics/Data/Vertex.hpp
 include/Graphics/Data/DescriptorHandle.hpp
 include/Graphics/Components/CameraComponent.hpp
 include/Graphics/Components/RenderableComponent.hpp
 include/Graphics/Components/ModelNodeComponent.hpp
-include/Graphics/Platform/Win32/Win32Window.hpp
 include/Graphics/Platform/LinaVGIncl.hpp
-include/Graphics/Platform/RendererIncl.hpp
 include/Graphics/Resource/Shader.hpp
 include/Graphics/Resource/Mesh.hpp
 include/Graphics/Resource/Model.hpp
@@ -180,11 +166,6 @@ include/Graphics/Resource/TextureSampler.hpp
 include/Graphics/Resource/Material.hpp
 include/Graphics/Resource/MaterialProperty.hpp
 include/Graphics/Resource/Font.hpp
-include/Graphics/Utility/stb/stb_image.h
-include/Graphics/Utility/stb/stb_image_resize.h
-include/Graphics/Utility/stb/stb_image_write.h
-include/Graphics/Utility/ModelLoader.hpp
-include/Graphics/Utility/HLSLParser.hpp
 
 )
 
@@ -200,86 +181,15 @@ src/Platform/Win32/Win32PlatformProcess.cpp
 
 endif()
 
-if(${LINA_GRAPHICS_DX12})
-
-set(LINACORE_GRAPHICS_API_HEADERS
-include/Graphics/Platform/DX12/Core/DX12Common.hpp
-include/Graphics/Platform/DX12/Core/DX12Renderer.hpp
-include/Graphics/Platform/DX12/Core/DX12Swapchain.hpp
-include/Graphics/Platform/DX12/Core/DX12DescriptorHeap.hpp
-include/Graphics/Platform/DX12/Core/DX12StagingHeap.hpp
-include/Graphics/Platform/DX12/Core/DX12GPUHeap.hpp
-include/Graphics/Platform/DX12/Core/DX12UploadContext.hpp
-include/Graphics/Platform/DX12/Core/DX12ResourceCPU.hpp
-include/Graphics/Platform/DX12/Core/DX12ResourceGPU.hpp
-include/Graphics/Platform/DX12/Core/DX12ResourceTexture.hpp
-include/Graphics/Platform/DX12/Core/DX12Pipeline.hpp
-include/Graphics/Platform/DX12/Core/DX12GfxContext.hpp
-include/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.hpp
-include/Graphics/Platform/DX12/SDK/d3d12.h
-include/Graphics/Platform/DX12/SDK/d3d12compatibility.h
-include/Graphics/Platform/DX12/SDK/d3d12sdklayers.h
-include/Graphics/Platform/DX12/SDK/d3d12shader.h
-include/Graphics/Platform/DX12/SDK/d3d12video.h
-include/Graphics/Platform/DX12/SDK/d3dcommon.h
-include/Graphics/Platform/DX12/SDK/d3dx12.h
-include/Graphics/Platform/DX12/SDK/d3dx12_barriers.h
-include/Graphics/Platform/DX12/SDK/d3dx12_check_feature_support.h
-include/Graphics/Platform/DX12/SDK/d3dx12_core.h
-include/Graphics/Platform/DX12/SDK/d3dx12_default.h
-include/Graphics/Platform/DX12/SDK/d3dx12_pipeline_state_stream.h
-include/Graphics/Platform/DX12/SDK/d3dx12_property_format_table.h
-include/Graphics/Platform/DX12/SDK/d3dx12_render_pass.h
-include/Graphics/Platform/DX12/SDK/d3dx12_resource_helpers.h
-include/Graphics/Platform/DX12/SDK/d3dx12_root_signature.h
-include/Graphics/Platform/DX12/SDK/d3dx12_state_object.h
-include/Graphics/Platform/DX12/SDK/dxcore.h
-include/Graphics/Platform/DX12/SDK/dxcore_interface.h
-include/Graphics/Platform/DX12/SDK/dxgicommon.h
-include/Graphics/Platform/DX12/SDK/dxgiformat.h
-include/Graphics/Platform/DX12/SDK/Residency/d3dx12Residency.h
-include/Graphics/Platform/DX12/SDK/D3D12MemAlloc.h
-)
-
-set(LINACORE_GRAPHICS_API_SOURCES
-src/Graphics/Platform/DX12/Core/DX12Common.cpp
-src/Graphics/Platform/DX12/Core/DX12Renderer.cpp
-src/Graphics/Platform/DX12/Core/DX12Swapchain.cpp
-src/Graphics/Platform/DX12/Core/DX12DescriptorHeap.cpp
-src/Graphics/Platform/DX12/Core/DX12StagingHeap.cpp
-src/Graphics/Platform/DX12/Core/DX12GPUHeap.cpp
-src/Graphics/Platform/DX12/Core/DX12UploadContext.cpp
-src/Graphics/Platform/DX12/Core/DX12ResourceCPU.cpp
-src/Graphics/Platform/DX12/Core/DX12ResourceGPU.cpp
-src/Graphics/Platform/DX12/Core/DX12ResourceTexture.cpp
-src/Graphics/Platform/DX12/Core/DX12Pipeline.cpp
-src/Graphics/Platform/DX12/Core/DX12GfxContext.cpp
-src/Graphics/Platform/DX12/SDK/D3D12MemAlloc.cpp
-src/Graphics/Platform/DX12/Utility/ID3DIncludeInterface.cpp
-)
-
-endif()
-
-
 set(SHADER_SOURCES
-_Resources/Core/Shaders/LitStandard.linashader
-_Resources/Core/Shaders/GUIStandard.linashader
-_Resources/Core/Shaders/GUIText.linashader
-_Resources/Core/Shaders/Common/GlobalData.linashader
-_Resources/Core/Shaders/Common/ViewData.linashader
-_Resources/Core/Shaders/Common/ObjectData.linashader
-_Resources/Core/Shaders/Common/SceneData.linashader
-_Resources/Core/Shaders/Common/ViewData.linashader
-_Resources/Core/Shaders/ScreenQuads/SQTexture.linashader
-_Resources/Core/Shaders/ScreenQuads/SQPostProcess.linashader)
+)
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
 
 
-
-add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES} ${LINACORE_GRAPHICS_API_HEADERS} ${LINACORE_GRAPHICS_API_SOURCES} ${SHADER_SOURCES})
+add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES} ${SHADER_SOURCES})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
 
 
@@ -299,7 +209,6 @@ include(../CMake/ProjectSettings.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
-target_include_directories(${PROJECT_NAME} PUBLIC ${Vulkan_INCLUDE_DIRS})
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -325,20 +234,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Lina::Common
 )
 
-if(${LINA_GRAPHICS_DX12})
-include(../_Dependencies/dxc/link.cmake)
-include(../_Dependencies/nvapi/link.cmake)
-link_dxc()
-link_nvapi()
-target_link_libraries(${PROJECT_NAME} 
-	PUBLIC d3d12.lib
-	PUBLIC dxgi.lib
-	PUBLIC dxguid.lib
-)
-message("LinaCore -> D3D12 Linked.")
-endif()
-
-
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC user32.lib
@@ -361,7 +256,7 @@ endif()
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
 if(MSVC_IDE)
-	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES LINACORE_GRAPHICS_API_HEADERS LINACORE_GRAPHICS_API_SOURCES SHADER_SOURCES) 
+	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES SHADER_SOURCES) 
 		get_filename_component(source_path "${source}" PATH)
 		string(REPLACE "${LinaCore_SOURCE_DIR}" "" relative_source_path "${source_path}")
 		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
