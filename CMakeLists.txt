@@ -21,17 +21,6 @@ project (Lina)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;" CACHE STRING "" FORCE)
 
 #--------------------------------------------------------------------
-# Download dependencies
-#--------------------------------------------------------------------
-
-include(CMake/GitUtils.cmake)
-git_clone(
-		PROJECT_NAME    _Dependencies
-		GIT_URL         https://github.com/inanevin/LinaDependencies.git
-		GIT_BRANCH      master
-		DIRECTORY 	    ${CMAKE_SOURCE_DIR})
-
-#--------------------------------------------------------------------
 # Options & Definitions
 #--------------------------------------------------------------------
 
