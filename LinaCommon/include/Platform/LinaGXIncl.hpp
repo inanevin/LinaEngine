@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaGXInc_HPP
-#define LinaGXInc_HPP
+#ifndef LinaGXIncl_HPP
+#define LinaGXIncl_HPP
 
 #include "LinaGX/LinaGX.hpp"
 

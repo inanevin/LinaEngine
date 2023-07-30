@@ -34,33 +34,10 @@ SOFTWARE.
 // Headers here.
 #include "Core/SizeDefinitions.hpp"
 #include "Data/Bitmask.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	enum class PreferredGPUType
-	{
-		Discrete = 0,
-		Integrated,
-		CPU
-	};
-
-	enum class VsyncMode
-	{
-		None = 0,
-		EveryVBlank,
-		EverySecondVBlank,
-	};
-
-	enum class WindowStyle
-	{
-		None = 0,
-		Windowed,
-		WindowedNoResize,
-		Borderless,
-		BorderlessNoResize,
-		Fullscreen
-	};
-
 	enum class ApplicationMode
 	{
 		Standalone,

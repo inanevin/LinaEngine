@@ -155,7 +155,6 @@ include/Graphics/Components/CameraComponent.hpp
 include/Graphics/Components/RenderableComponent.hpp
 include/Graphics/Components/ModelNodeComponent.hpp
 include/Graphics/Platform/LinaVGIncl.hpp
-include/Graphics/Platform/LinaGXIncl.hpp
 include/Graphics/Resource/Shader.hpp
 include/Graphics/Resource/Mesh.hpp
 include/Graphics/Resource/Model.hpp
@@ -234,12 +233,6 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC user32.lib
 	PUBLIC Shcore.lib
 )
-
-target_link_libraries(${PROJECT_NAME}
-    PUBLIC Lina::GX
-)
-
-set_target_properties(LinaGX PROPERTIES FOLDER "Lina")
 
 message("LinaCore -> User32 Linked.")
 message("LinaCore -> Shcore Linked.")

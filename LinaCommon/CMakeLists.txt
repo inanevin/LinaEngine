@@ -184,6 +184,9 @@ set(LINACOMMON_HEADERS
 	include/System/IPlugin.hpp
 	include/System/ISystem.hpp
 	include/System/ISubsystem.hpp
+
+	# Platform
+	include/Platform/LinaGXIncl.hpp
 )
 
 if(WIN32)
@@ -246,6 +249,12 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Lina")
 #--------------------------------------------------------------------
 # Subdirectories & linking
 #--------------------------------------------------------------------
+
+target_link_libraries(${PROJECT_NAME}
+    PUBLIC Lina::GX
+)
+
+set_target_properties(LinaGX PROPERTIES FOLDER "Lina")
 
 include(../_Dependencies/glm/link.cmake)
 include(../_Dependencies/fmt/link.cmake)

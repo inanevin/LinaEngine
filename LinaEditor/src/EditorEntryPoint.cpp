@@ -31,14 +31,14 @@ SOFTWARE.
 
 Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInfo)
 {
-	outInfo = Lina::SystemInitializationInfo{
-		.appName		  = "Lina Editor",
-		.windowWidth	  = 1920,
-		.windowHeight	  = 1080,
-		.windowStyle	  = Lina::WindowStyle::Windowed,
-		.preferredGPUType = Lina::PreferredGPUType::Integrated,
-		.vsyncMode		  = Lina::VsyncMode::None,
-	};
+	//outInfo = Lina::SystemInitializationInfo{
+	//	.appName		  = "Lina Editor",
+	//	.windowWidth	  = 1920,
+	//	.windowHeight	  = 1080,
+	//	.windowStyle	  = Lina::WindowStyle::Windowed,
+	//	.preferredGPUType = Lina::PreferredGPUType::Integrated,
+	//	.vsyncMode		  = Lina::VsyncMode::None,
+	//};
 	
 	return new Lina::Editor::EditorApplication();
 }
