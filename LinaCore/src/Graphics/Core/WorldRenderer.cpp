@@ -306,8 +306,6 @@ namespace Lina
 		}
 
 		ResourceTransition srv2RT[2] = {{ResourceTransitionType::SRV2RT, frame.renderTargetColor}, {ResourceTransitionType::SRV2RT, frame.renderTargetPP}};
-		ResourceTransition rt2SRV1	 = {ResourceTransitionType::RT2SRV, frame.renderTargetColor};
-		ResourceTransition rt2SRV2	 = {ResourceTransitionType::RT2SRV, frame.renderTargetPP};
 
 		// Main Render Pass
 		{
@@ -335,6 +333,8 @@ namespace Lina
 			}
 
 			m_contextGraphics->EndRenderPass(frame.cmdList);
+
+			ResourceTransition rt2SRV1 = {ResourceTransitionType::RT2SRV, frame.renderTargetColor};
 			m_contextGraphics->ResourceBarrier(frame.cmdList, &rt2SRV1, 1);
 			m_contextGraphics->BindDynamicTextures(&frame.renderTargetColor, 1);
 		}
@@ -352,6 +352,8 @@ namespace Lina
 			}
 
 			m_contextGraphics->EndRenderPass(frame.cmdList);
+
+			ResourceTransition rt2SRV2 = {ResourceTransitionType::RT2SRV, frame.renderTargetPP};
 			m_contextGraphics->ResourceBarrier(frame.cmdList, &rt2SRV2, 1);
 			m_contextGraphics->BindDynamicTextures(&frame.renderTargetPP, 1);
 		}
