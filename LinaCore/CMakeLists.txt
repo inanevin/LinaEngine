@@ -214,18 +214,12 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-include(../_Dependencies/assimp/link.cmake)
-include(../_Dependencies/glslang/link.cmake)
 include(../_Dependencies/freetype/link.cmake)
 include(../_Dependencies/linavg/link.cmake)
-include(../_Dependencies/physx/link.cmake)
 include(../_Dependencies/alut/link.cmake)
 include(../_Dependencies/openal/link.cmake)
-link_assimp()
-link_glslang()
 link_freetype()
 link_linavg()
-link_physx()
 link_alut()
 link_openal()
 
