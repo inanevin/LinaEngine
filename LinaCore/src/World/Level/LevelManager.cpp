@@ -100,8 +100,6 @@ namespace Lina
 		Event data;
 		data.pParams[0] = static_cast<void*>(m_currentLevel);
 		m_system->DispatchEvent(EVS_LevelInstalled, data);
-
-		m_gfxManager->CreateWorldRenderer([this](WorldRenderer* rend) { m_currentLevel->SetWorldRenderer(rend); }, m_currentLevel->GetWorld(), Vector2(800, 600), WRM_None);
 	}
 
 	void LevelManager::UninstallLevel(bool immediate)
@@ -125,8 +123,6 @@ namespace Lina
 			m_system->DispatchEvent(EVS_LevelUninstalled, data);
 			m_currentLevel = nullptr;
 		};
-
-		m_gfxManager->DestroyWorldRenderer(uninstall, m_currentLevel->GetWorldRenderer(), immediate);
 
 		if (immediate)
 			uninstall();

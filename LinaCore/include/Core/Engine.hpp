@@ -32,9 +32,8 @@ SOFTWARE.
 #define Engine_HPP
 
 #include "System/ISystem.hpp"
-#include "Input/Core/Input.hpp"
 #include "Audio/Core/AudioManager.hpp"
-#include "Graphics/Core/WindowManager.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
@@ -49,12 +48,12 @@ namespace Lina
 	class Engine : public ISystem, public ISystemEventListener
 	{
 	public:
-		Engine(Application* app) : ISystem(app), m_input(this), m_audioManager(this), m_levelManager(this), m_windowManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : ISystem(app), m_lgxWrapper(this), m_audioManager(this), m_levelManager(this), m_resourceManager(this), m_engineInterface(this){};
 
 		virtual ~Engine() = default;
 
 		// Inherited via ISystem
-		void		 SetupBackend(const SystemInitializationInfo& initInfo);
+		void		 PreInitialize(const SystemInitializationInfo& initInfo);
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;
@@ -68,11 +67,6 @@ namespace Lina
 			return EVS_ResourceLoaded | EVS_ResourceUnloaded;
 		}
 
-		inline Input& GetInput()
-		{
-			return m_input;
-		}
-
 		inline GfxManager* GetGfxManager()
 		{
 			return m_gfxManager;
@@ -83,14 +77,14 @@ namespace Lina
 			return &m_engineInterface;
 		}
 
-		inline WindowManager& GetWindowManager()
-		{
-			return m_windowManager;
-		}
-
 		inline ResourceManager& GetResourceManager()
 		{
 			return m_resourceManager;
+		}
+
+		inline LGXWrapper& GetLGXWrapper()
+		{
+			return m_lgxWrapper;
 		}
 
 	private:
@@ -99,12 +93,11 @@ namespace Lina
 	protected:
 		ResourceManager	 m_resourceManager;
 		Executor		 m_executor;
-		Input			 m_input;
 		AudioManager	 m_audioManager;
 		GfxManager*		 m_gfxManager = nullptr;
-		WindowManager	 m_windowManager;
 		LevelManager	 m_levelManager;
 		IEngineInterface m_engineInterface;
+		LGXWrapper		 m_lgxWrapper;
 
 		// Time
 		int64 m_frameCapAccumulator		 = 0;

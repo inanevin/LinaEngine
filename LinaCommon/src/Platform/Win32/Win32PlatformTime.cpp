@@ -114,7 +114,9 @@ namespace Lina
 			LARGE_INTEGER frequency;
 
 			if (!QueryPerformanceFrequency(&frequency))
+			{
 				LINA_ERR("[Time] -> QueryPerformanceFrequency failed!");
+			}
 
 			s_frequency = frequency.QuadPart;
 		}

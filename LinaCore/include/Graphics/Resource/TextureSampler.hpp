@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Resources/Core/IResource.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Graphics/Data/DescriptorHandle.hpp"
 
 namespace Lina
 {
@@ -45,45 +44,6 @@ namespace Lina
 		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~TextureSampler();
 
-		void SetSamplerData(const SamplerData& data);
-
-		inline const SamplerData& GetSamplerData() const
-		{
-			return m_samplerData;
-		}
-
-		inline int32 GetGPUBindlessIndex() const
-		{
-			return m_gpuBindlessIndex;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline DescriptorHandle GetDescriptor()
-		{
-			return m_descriptor;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline void SetDescriptor(DescriptorHandle desc)
-		{
-			m_descriptor = desc;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline void SetBindlessIndex(uint32 index)
-		{
-			m_gpuBindlessIndex = index;
-		}
-
 	protected:
 		// Inherited via IResource
 		virtual void Upload() override;
@@ -91,10 +51,6 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
-		DescriptorHandle m_descriptor		= {};
-		int32			 m_gpuBindlessIndex = -1;
-		Renderer*		 m_renderer			= nullptr;
-		SamplerData		 m_samplerData;
 	};
 } // namespace Lina
 

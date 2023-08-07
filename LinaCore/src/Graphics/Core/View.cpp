@@ -37,22 +37,14 @@ namespace Lina
 		return test != FrustumTest::Outside;
 	}
 
-	void View::Tick(const Vector3& pos, const Matrix4& view, const Matrix4& proj, float near, float far)
+	void View::Tick(const Vector3& pos, const Matrix4& view, const Matrix4& proj, float n, float f)
 	{
 		m_pos  = pos;
 		m_view = view;
 		m_proj = proj;
-		m_near = near;
-		m_far  = far;
+		m_near = n;
+		m_far  = f;
 		m_frustum.Calculate(proj * view, false);
 	}
 
-	void View::FillGPUViewData(GPUViewData& vd)
-	{
-		vd.camNearFar = Vector2(GetNear(), GetFar());
-		vd.camPos	  = GetPos();
-		vd.proj		  = GetProj();
-		vd.view		  = GetView();
-		vd.viewProj	  = vd.proj * vd.view;
-	}
 } // namespace Lina

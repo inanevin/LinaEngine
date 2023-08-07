@@ -42,13 +42,9 @@ namespace Lina
 	class GfxManager;
 	class ResourceManager;
 	class Texture;
-	class Renderer;
-	class IGfxContext;
 
 	class GUIBackend : public LinaVG::Backend::BaseBackend
 	{
-
-	private:
 	public:
 		GUIBackend(GfxManager* man);
 		~GUIBackend() = default;
@@ -69,16 +65,10 @@ namespace Lina
 		virtual void				  RestoreAPIState(){};
 		virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
-		void OnResourceBatchLoaded(const Event& ev);
 		void SetFrameGUIRenderer(int threadID, GUIRenderer* rend);
 		void BindTextures();
 
 	private:
-		void CheckFontTexturesForUpload();
-
-	private:
-		IGfxContext*				m_contextGraphics = nullptr;
-		Renderer*					m_renderer		  = nullptr;
 		HashMap<Texture*, bool>		m_textureDirtyStatus;
 		StringID					m_boundFontTexture	 = 0;
 		uint32						m_fontTextureCounter = 0;

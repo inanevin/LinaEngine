@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.8)
 project(LinaEditor)
 
 #--------------------------------------------------------------------
@@ -154,6 +154,7 @@ endif()
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 include(../CMake/ProjectSettings.cmake)
+include(../CMake/ExecutableSettings.cmake)
 
 #--------------------------------------------------------------------
 # Include & Link
@@ -161,8 +162,7 @@ include(../CMake/ProjectSettings.cmake)
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCore/include)
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Lina")
-
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
 
 #--------------------------------------------------------------------
 # Links
@@ -172,8 +172,6 @@ PUBLIC Lina::Core
 )
 
 include(../CMake/EditorSandboxCommands.cmake)
-include(../_Dependencies/linavg/link.cmake)
-link_linavg()
 
 #--------------------------------------------------------------------
 # Folder structuring in visual studio

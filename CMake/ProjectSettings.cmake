@@ -6,12 +6,7 @@ if(MSVC)
 add_definitions("/MP")
 endif()
 
-if(MSVC)
-   set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${LINA_WORKING_DIRECTORY})
-endif()
-
 target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
-
 
 #--------------------------------------------------------------------
 # Platform

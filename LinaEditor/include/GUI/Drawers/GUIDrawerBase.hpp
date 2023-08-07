@@ -41,6 +41,7 @@ namespace Lina
 {
 	class Rect;
 }
+
 namespace Lina::Editor
 {
 	class GUINode;
@@ -56,8 +57,8 @@ namespace Lina::Editor
 		GUIDrawerBase(Editor* editor, ISwapchain* swap);
 		virtual ~GUIDrawerBase();
 
-		virtual void OnKey(uint32 key, InputAction action) override;
-		virtual void OnMouse(uint32 button, InputAction action) override;
+		virtual void OnKey(uint32 key, LinaGX::InputAction action) override;
+		virtual void OnMouse(uint32 button, LinaGX::InputAction action) override;
 		virtual void OnMousePos(const Vector2i& pos) override;
 		virtual void OnMouseMove(const Vector2i& pos) override;
 		virtual void OnMouseWheel(uint32 delta) override;

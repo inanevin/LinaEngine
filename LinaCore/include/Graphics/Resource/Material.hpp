@@ -34,13 +34,11 @@ SOFTWARE.
 #include "Resources/Core/IResource.hpp"
 #include "Graphics/Resource/MaterialProperty.hpp"
 #include "Graphics/Data/RenderData.hpp"
-#include "Graphics/Data/DescriptorHandle.hpp"
 
 namespace Lina
 {
 	class MaterialPropertyBase;
 	class Shader;
-	class Renderer;
 
 	class Material : public IResource
 	{
@@ -48,151 +46,12 @@ namespace Lina
 		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Material();
 
-		void	SetShader(StringID shader);
-		void	GetPropertyBlob(uint8*& outData, size_t& outSize);
-		Shader* GetShader();
-
-		inline StringID GetShaderHandle() const
-		{
-			return m_shaderHandle;
-		}
-
-		inline uint32 GetTotalPropertySize() const
-		{
-			return m_totalPropertySize;
-		}
-
-		inline int32 GetGPUBindlessIndex() const
-		{
-			return m_gpuBindlessIndex;
-		}
-
-		inline uint32 GetTotalAlignedSize() const
-		{
-			return m_totalAlignedSize;
-		}
-
-		inline bool IsDirty(uint32 frameIndex) const
-		{
-			return m_isDirty[frameIndex];
-		}
-
-		template <typename T> bool SetProperty(uint32 index, T value)
-		{
-			if (m_properties.size() <= index)
-			{
-				LINA_WARN("[Material] -> Can't set property because index is overflowing.");
-				return false;
-			}
-
-			MaterialProperty<T>* p = static_cast<MaterialProperty<T>*>(m_properties[index]);
-			p->SetValue(value);
-
-			for (int i = 0; i < FRAMES_IN_FLIGHT; i++)
-				m_isDirty[i] = true;
-
-			return true;
-		}
-
-		template <typename T> bool SetProperty(const String& name, T value)
-		{
-			int32 selected = -1;
-			int32 index	   = 0;
-			for (auto& p : m_properties)
-			{
-				if (p->GetName().compare(name) == 0)
-				{
-					selected = index;
-					break;
-				}
-				index++;
-			}
-
-			if (selected == -1)
-			{
-				LINA_WARN("[Material] -> Can't set property because name isn't found!");
-				return false;
-			}
-
-			return SetProperty(static_cast<uint32>(selected), value);
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline void SetBindlessIndex(uint32 index)
-		{
-			m_gpuBindlessIndex = index;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline IGfxResourceCPU* GetGfxResource(uint32 index)
-		{
-			return m_buffer[index];
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline void SetGfxResource(uint32 index, IGfxResourceCPU* res)
-		{
-			m_buffer[index] = res;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline void SetDescriptor(uint32 index, DescriptorHandle desc)
-		{
-			m_descriptor[index] = desc;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline void SetIsDirty(uint32 index, bool isDirty)
-		{
-			m_isDirty[index] = isDirty;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline DescriptorHandle GetDescriptor(uint32 index)
-		{
-			return m_descriptor[index];
-		}
-
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
-
-		uint32 GetPropertyTypeAlignment(MaterialPropertyType type);
-		uint32 GetPropertiesTotalAlignedSize();
-
-	private:
-		IGfxResourceCPU*			  m_buffer[FRAMES_IN_FLIGHT] = {nullptr};
-		DescriptorHandle			  m_descriptor[FRAMES_IN_FLIGHT];
-		bool						  m_isDirty[FRAMES_IN_FLIGHT];
-		HashMap<int32, Texture*>	  m_runtimeTextures;
-		Renderer*					  m_renderer = nullptr;
-		Vector<MaterialPropertyBase*> m_properties;
-		int32						  m_gpuBindlessIndex  = -1;
-		StringID					  m_shaderHandle	  = 0;
-		Shader*						  m_shader			  = nullptr;
-		uint32						  m_totalPropertySize = 0;
-		uint32						  m_totalAlignedSize  = 0;
 	};
 
 } // namespace Lina

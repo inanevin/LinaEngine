@@ -43,8 +43,7 @@ namespace Lina
 
 #define OBJ_BUFFER_MAX	  15
 #define MAX_LIGHTS		  10
-#define FRAMES_IN_FLIGHT  2
-#define BACK_BUFFER_COUNT 3
+
 
 	enum RenderableType
 	{
@@ -61,118 +60,6 @@ namespace Lina
 		Opaque		= 1 << 0,
 		Transparent = 1 << 1,
 		Shadow		= 1 << 2,
-	};
-
-	enum SurfaceRendererMask
-	{
-		SRM_None				 = 1 << 0,
-		SRM_DrawOffscreenTexture = 1 << 1,
-		SRM_DrawGUI				 = 1 << 2,
-	};
-
-	enum WorldRendererMask
-	{
-		WRM_None = 1 << 0,
-	};
-
-	enum class RendererType
-	{
-		None,
-		WorldRenderer,
-		SurfaceRenderer
-	};
-
-	struct VisibilityData
-	{
-		RenderableComponent* renderable = nullptr;
-		Vector3				 position	= Vector3::Zero;
-		AABB				 aabb		= AABB();
-		bool				 valid		= false;
-	};
-
-	struct TestData
-	{
-		uint32 id = 0;
-	};
-
-	struct MeshMaterialPair
-	{
-		Mesh*	  mesh	   = nullptr;
-		Material* material = nullptr;
-	};
-	struct InstancedBatch
-	{
-		Material*	   mat = nullptr;
-		Vector<Mesh*>  meshes;
-		Vector<uint32> renderableIndices;
-		uint32		   firstInstance = 0;
-		uint32		   count		 = 0;
-	};
-
-	struct RenderableData
-	{
-		RenderableType			 type		 = RenderableType::RenderableDecal;
-		Bitmask16				 passMask	 = DrawPassMask::Opaque;
-		Matrix4					 modelMatrix = Matrix4::Identity();
-		Vector3					 position	 = Vector3();
-		AABB					 aabb		 = AABB();
-		uint32					 entityID	 = 0;
-		uint32					 batchID	 = 0;
-		Bitmask16				 entityMask	 = 0;
-		Vector<MeshMaterialPair> meshMaterialPairs;
-	};
-
-	struct GPUGlobalData
-	{
-		Vector4 screenSizeMousePos = Vector4::Zero;
-		Vector2 deltaElapsed	   = Vector2::Zero;
-	};
-
-	struct GPUObjectData
-	{
-		Matrix4 modelMatrix = Matrix4::Identity();
-	};
-
-	struct LightData
-	{
-		Vector4 position = Vector4::Zero;
-	};
-
-	struct GPUSceneData
-	{
-		Vector4	  fogColor			= Vector4::Zero;
-		Vector4	  fogDistances		= Vector4::Zero;
-		Vector4	  ambientColor		= Vector4::Zero;
-		Vector4	  sunlightDirection = Vector4::Zero;
-		Vector4	  sunlightColor		= Vector4::Zero;
-		LightData lights[MAX_LIGHTS];
-	};
-
-	struct GPUViewData
-	{
-		Matrix4 view	   = Matrix4::Identity();
-		Matrix4 proj	   = Matrix4::Identity();
-		Matrix4 viewProj   = Matrix4::Identity();
-		Vector4 camPos	   = Vector4::Zero;
-		Vector2 camNearFar = Vector2::Zero;
-	};
-
-	struct MergedBufferMeshEntry
-	{
-		uint32 vertexOffset = 0;
-		uint32 indexSize	= 0;
-		uint32 firstIndex	= 0;
-	};
-
-	struct DrawIndexedIndirectCommand
-	{
-		uint32 instanceID			 = 0;
-		uint32 materialID			 = 0;
-		uint32 indexCountPerInstance = 0;
-		uint32 instanceCount		 = 0;
-		uint32 startIndexLocation	 = 0;
-		int	   baseVertexLocation	 = 0;
-		uint32 startInstanceLocation = 0;
 	};
 
 } // namespace Lina

@@ -38,13 +38,12 @@ namespace Lina
 	enum class SubsystemType
 	{
 		None = 0,
-		Input,
 		GfxManager,
 		PhysicsWorld,
 		AudioManager,
-		WindowManager,
 		LevelManager,
 		ResourceManager,
+		LGXWrapper,
 		Editor,
 		Count
 	};

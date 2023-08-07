@@ -29,10 +29,7 @@ SOFTWARE.
 #include "GUI/Nodes/GUINode.hpp"
 #include "Data/CommonData.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Input/Core/InputMappings.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "Serialization/StringSerialization.hpp"
 #include "Math/Math.hpp"
@@ -51,10 +48,8 @@ namespace Lina::Editor
 	void GUINode::SetDrawer(GUIDrawerBase* drawer)
 	{
 		m_drawer		= drawer;
-		m_swapchain		= m_drawer->GetSwapchain();
 		m_editor		= m_drawer->GetEditor();
-		m_window		= m_swapchain->GetWindow();
-		m_windowManager = m_editor->GetSystem()->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
+		m_window		= m_drawer->GetWindow();
 
 		for (auto c : m_children)
 			c->SetDrawer(drawer);
@@ -80,21 +75,21 @@ namespace Lina::Editor
 			m_children[i]->Draw(threadID);
 	}
 
-	void GUINode::OnKey(uint32 key, InputAction action)
+	void GUINode::OnKey(uint32 key, LinaGX::InputAction action)
 	{
 		const uint32 sz = static_cast<uint32>(m_children.size());
 		for (uint32 i = 0; i < sz; i++)
 			m_children[i]->OnKey(key, action);
 	}
 
-	bool GUINode::OnMouse(uint32 button, InputAction action)
+	bool GUINode::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		static GUINode* lastPressedNode = nullptr;
 
 		if (!GetIsVisible() || m_disabled)
 			return false;
 
-		if (action == InputAction::Pressed && !m_isPressed)
+		if (action == LinaGX::InputAction::Pressed && !m_isPressed)
 		{
 			if (GetIsHovered())
 			{
@@ -117,7 +112,7 @@ namespace Lina::Editor
 				}
 			}
 		}
-		else if (action == InputAction::Released && button == m_lastPressedButton)
+		else if (action == LinaGX::InputAction::Released && button == m_lastPressedButton)
 		{
 			if (m_isPressed)
 				OnReleased(button);
@@ -133,7 +128,7 @@ namespace Lina::Editor
 
 			m_isPressed = false;
 		}
-		else if (action == InputAction::Repeated)
+		else if (action == LinaGX::InputAction::Repeated)
 		{
 			if (GetIsHovered())
 				OnDoubleClicked();

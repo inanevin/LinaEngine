@@ -31,8 +31,7 @@ SOFTWARE.
 #ifndef LinaVGInc_HPP
 #define LinaVGInc_HPP
 
-#define LINAVG_TEXT_SUPPORT
-#include <LinaVG/LinaVG.hpp>
+#include "LinaVG/LinaVG.hpp"
 
 #define LV2(V) LinaVG::Vec2(static_cast<float>((int)V.x), static_cast<float>((int)V.y))
 #define LV4(V) LinaVG::Vec4(V.x, V.y, V.z, V.w)

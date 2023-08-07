@@ -31,39 +31,27 @@ SOFTWARE.
 #ifndef IGUIDrawer_HPP
 #define IGUIDrawer_HPP
 
-#include "Input/Core/CommonInput.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	class ISwapchain;
-	class IWindow;
 	class SurfaceRenderer;
 
 	class IGUIDrawer
 	{
 	public:
-		IGUIDrawer(ISwapchain* swap);
+		IGUIDrawer();
 		virtual ~IGUIDrawer() = default;
 
 		virtual void DrawGUI(int threadID) = 0;
-		virtual void OnKey(uint32 key, InputAction action){};
-		virtual void OnMouse(uint32 button, InputAction action){};
+		virtual void OnKey(uint32 key, LinaGX::InputAction action){};
+		virtual void OnMouse(uint32 button, LinaGX::InputAction action){};
 		virtual void OnMousePos(const Vector2i& pos){};
 		virtual void OnMouseMove(const Vector2i& pos){};
 		virtual void OnMouseWheel(uint32 delta){};
 		virtual void OnFocus(bool hasFocus){};
 		virtual void OnMouseHoverEnd(){};
 		virtual void OnWindowDrag(bool isDragging){};
-
-		inline IWindow* GetWindow()
-		{
-			return m_window;
-		}
-
-		inline ISwapchain* GetSwapchain()
-		{
-			return m_swapchain;
-		}
 
 		inline void SetSurfaceRenderer(SurfaceRenderer* rend)
 		{
@@ -77,8 +65,6 @@ namespace Lina
 
 	protected:
 		SurfaceRenderer* m_surfaceRenderer = nullptr;
-		ISwapchain*		 m_swapchain	   = nullptr;
-		IWindow*		 m_window		   = nullptr;
 	};
 } // namespace Lina
 

@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Serialization/CommonSerialization.hpp"
 
 #define LZ4_STATIC_LINKING_ONLY_DISABLE_MEMORY_ALLOCATION
-#include <lz4/lz4.h>
+#include "lz4/lz4.h"
 
 namespace Lina
 {
@@ -69,7 +69,9 @@ namespace Lina
 		int	  bytesWritten = LZ4_compress_default(data, dest, size, compressBound);
 
 		if (bytesWritten == 0)
+		{
 			LINA_ERR("[Compressor] -> LZ4 compression failed!");
+		}
 
 		compressedStream.Shrink(static_cast<size_t>(bytesWritten));
 		return compressedStream;

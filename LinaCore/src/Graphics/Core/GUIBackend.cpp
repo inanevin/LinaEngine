@@ -28,10 +28,8 @@ SOFTWARE.
 
 #include "Graphics/Core/GUIBackend.hpp"
 #include "Graphics/Core/GUIRenderer.hpp"
-#include "Graphics/Interfaces/IGfxContext.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Font.hpp"
-#include "Graphics/Platform/RendererIncl.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/CommonResources.hpp"
@@ -41,8 +39,6 @@ namespace Lina
 	GUIBackend::GUIBackend(GfxManager* man)
 	{
 		m_gfxManager	  = man;
-		m_renderer		  = m_gfxManager->GetRenderer();
-		m_contextGraphics = m_renderer->GetContextGraphics();
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
@@ -96,19 +92,6 @@ namespace Lina
 
 	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
 	{
-		auto*		   txt		   = m_fontTextures[m_boundFontTexture];
-		auto*		   pixels	   = txt->GetPixels();
-		const uint32   bufSize	   = width * height;
-		const Extent3D ext		   = txt->GetExtent();
-		uint32		   startOffset = offsetY * ext.width + offsetX;
-		m_textureDirtyStatus[txt]  = true;
-
-		for (int i = 0; i < height; i++)
-		{
-			const uint32 size = width;
-			MEMCPY(pixels + startOffset, &data[width * i], size);
-			startOffset += ext.width;
-		}
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
@@ -118,46 +101,7 @@ namespace Lina
 
 	LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
 	{
-		const String   path = "GUIBackendFont_" + TO_STRING(m_fontTextureCounter++);
-		const StringID sid	= TO_SID(path);
-
-		Extent3D extent = Extent3D{
-			.width	= static_cast<uint32>(width),
-			.height = static_cast<uint32>(height),
-		};
-
-		UserGeneratedTextureData textureData = UserGeneratedTextureData{
-			.resourceType				   = TextureResourceType::Texture2DDefaultDynamic,
-			.path						   = path,
-			.sid						   = sid,
-			.extent						   = extent,
-			.format						   = Format::R8_UNORM,
-			.targetSampler				   = DEFAULT_GUI_TEXT_SAMPLER_SID,
-			.tiling						   = ImageTiling::Linear,
-			.channels					   = 1,
-			.createPixelBuffer			   = true,
-			.destroyPixelBufferAfterUpload = false,
-		};
-
-		Texture* txt			  = new Texture(m_resourceManager, textureData);
-		m_textureDirtyStatus[txt] = false;
-		m_fontTextures[sid]		  = txt;
-		m_boundFontTexture		  = sid;
-		return sid;
-	}
-
-	void GUIBackend::OnResourceBatchLoaded(const Event& ev)
-	{
-		ResourceLoadTask* task = static_cast<ResourceLoadTask*>(ev.pParams[0]);
-
-		for (const auto& ident : task->identifiers)
-		{
-			if (ident.tid == GetTypeID<Font>())
-			{
-				CheckFontTexturesForUpload();
-				break;
-			}
-		}
+		return 0;
 	}
 
 	void GUIBackend::SetFrameGUIRenderer(int threadID, GUIRenderer* rend)
@@ -167,25 +111,6 @@ namespace Lina
 
 	void GUIBackend::BindTextures()
 	{
-		const uint32	 texturesSize = static_cast<uint32>(m_renderReadyFontTextures.size());
-		Vector<Texture*> textures;
-		textures.reserve(texturesSize);
-
-		for (auto& [sid, txt] : m_renderReadyFontTextures)
-			textures.push_back(txt);
-
-		m_contextGraphics->BindDynamicTextures(textures.data(), texturesSize);
-	}
-
-	void GUIBackend::CheckFontTexturesForUpload()
-	{
-		for (auto& [txt, isDirty] : m_textureDirtyStatus)
-		{
-			if (isDirty)
-				txt->Upload();
-		}
-
-		m_renderReadyFontTextures = m_fontTextures;
 	}
 
 } // namespace Lina

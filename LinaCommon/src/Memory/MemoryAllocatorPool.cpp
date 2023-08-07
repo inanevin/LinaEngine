@@ -32,10 +32,10 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 #include "Data/String.hpp"
 #include "Profiling/MemoryTracer.hpp"
-#include <memallocators/FreeListAllocator.h>
-#include <memallocators/StackAllocator.h>
-#include <memallocators/PoolAllocator.h>
-#include <memallocators/LinearAllocator.h>
+#include "memoryallocators/FreeListAllocator.h"
+#include "memoryallocators/StackAllocator.h"
+#include "memoryallocators/PoolAllocator.h"
+#include "memoryallocators/LinearAllocator.h"
 
 namespace Lina
 {

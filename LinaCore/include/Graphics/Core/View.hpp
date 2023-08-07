@@ -67,8 +67,7 @@ namespace Lina
 			return m_far;
 		}
 
-		void Tick(const Vector3& pos, const Matrix4& view, const Matrix4& proj, float near, float far);
-		void FillGPUViewData(GPUViewData& vd);
+		void Tick(const Vector3& pos, const Matrix4& view, const Matrix4& proj, float n, float f);
 
 	private:
 		Matrix4 m_view;

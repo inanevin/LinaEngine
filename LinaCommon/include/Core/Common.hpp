@@ -46,26 +46,15 @@ namespace Lina
 
 	struct SystemInitializationInfo
 	{
-		const char*		 appName		  = "";
-		int				 windowWidth	  = 0;
-		int				 windowHeight	  = 0;
-		WindowStyle		 windowStyle	  = WindowStyle::Windowed;
-		PreferredGPUType preferredGPUType = PreferredGPUType::Discrete;
-		VsyncMode		 vsyncMode		  = VsyncMode::None;
+		const char*				 appName		  = "";
+		int						 windowWidth	  = 0;
+		int						 windowHeight	  = 0;
+		LinaGX::WindowStyle		 windowStyle	  = LinaGX::WindowStyle::Windowed;
+		LinaGX::PreferredGPUType preferredGPUType = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::VsyncMode		 vsyncMode		  = LinaGX::VsyncMode::None;
 	};
 
-	struct MonitorInfo
-	{
-		bool	 isPrimary	   = false;
-		float	 m_dpiScale	   = 0.0f;
-		Vector2i size		   = Vector2i::Zero;
-		Vector2i workArea	   = Vector2i::Zero;
-		Vector2i workTopLeft   = Vector2i::Zero;
-		uint32	 m_dpi		   = 0;
-		void*	 monitorHandle = nullptr;
-	};
-
-	extern const char* VsyncModeToStr(VsyncMode mode);
+	extern const char* VsyncModeToStr(LinaGX::VsyncMode mode);
 } // namespace Lina
 
 #endif

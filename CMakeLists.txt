@@ -15,7 +15,7 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.8)
 project (Lina)
 
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;" CACHE STRING "" FORCE)
@@ -24,21 +24,12 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release;" CACHE STRING "" FORCE)
 # Options & Definitions
 #--------------------------------------------------------------------
 
-# Used by other CMake macros to determine library folders
-if(WIN32)
-	set(PLATFORM "Win64")
-    set(LINA_GRAPHICS_DX12 TRUE)
-endif()
-		
-if(UNIX)
-	set(PLATFORM "Unix")
-endif()
-
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
 set(LINA_WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/_bin)
+set(LINA_ITERATOR_DEBUG_LEVEL 0)
 
 option(LINA_ENABLE_LOGGING "Enables logging." ON)
 option(LINA_ENABLE_PROFILING "Enables profiling." ON)
@@ -56,11 +47,15 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 file(MAKE_DIRECTORY ${LINA_WORKING_DIRECTORY})
 
 add_subdirectory(LinaGX)
+add_subdirectory(LinaVG)
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaCore)
 add_subdirectory(LinaEditor)
+add_subdirectory(LinaGameLauncher)
 add_subdirectory(GamePlugin)
-add_subdirectory(GameLauncher)
+
+include(Dependencies/Dependencies.cmake)
+
 # add_subdirectory(LinaHeaderTool)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CustomTargets")

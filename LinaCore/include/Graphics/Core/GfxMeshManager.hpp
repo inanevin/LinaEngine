@@ -31,19 +31,9 @@ SOFTWARE.
 #ifndef GfxMeshManager_HPP
 #define GfxMeshManager_HPP
 
-#include "Graphics/Data/RenderData.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-#include "Core/StringID.hpp"
-
 namespace Lina
 {
 	class GfxManager;
-	class ResourceManager;
-	class Mesh;
-	class IGfxResourceGPU;
-	class Renderer;
-	class IUploadContext;
 
 	class GfxMeshManager
 	{
@@ -51,34 +41,11 @@ namespace Lina
 		GfxMeshManager(GfxManager* gfxManager);
 		~GfxMeshManager() = default;
 
-		void Initialize(IUploadContext* context);
+		void Initialize();
 		void Shutdown();
-		void MergeMeshes();
-
-		inline IGfxResourceGPU* GetGPUVertexBuffer() const
-		{
-			return m_gpuVtxBuffer;
-		}
-
-		inline IGfxResourceGPU* GetGPUIndexBuffer() const
-		{
-			return m_gpuIndexBuffer;
-		}
-
-		inline const HashMap<Mesh*, MergedBufferMeshEntry>& GetMergedMeshes() const
-		{
-			return m_meshEntries;
-		}
 
 	private:
-		IUploadContext*						  m_uploadContext	= nullptr;
-		Renderer*							  m_renderer		= nullptr;
-		ResourceManager*					  m_resourceManager = nullptr;
-		GfxManager*							  m_gfxManager		= nullptr;
-		HashMap<Mesh*, MergedBufferMeshEntry> m_meshEntries;
-		Vector<StringID>					  m_mergedModelIDs;
-		IGfxResourceGPU*					  m_gpuVtxBuffer   = nullptr;
-		IGfxResourceGPU*					  m_gpuIndexBuffer = nullptr;
+		GfxManager* m_gfxManager = nullptr;
 	};
 } // namespace Lina
 

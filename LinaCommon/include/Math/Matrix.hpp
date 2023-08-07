@@ -33,7 +33,7 @@ SOFTWARE.
 
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
-#include <glm/matrix.hpp>
+#include "glm/matrix.hpp"
 
 namespace Lina
 {

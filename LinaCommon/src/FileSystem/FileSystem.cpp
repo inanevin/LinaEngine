@@ -45,7 +45,9 @@ namespace Lina
 		bool success = std::filesystem::create_directory(path.c_str());
 
 		if (!success)
-			LINA_ERR("Could not create directory. {0}", path);
+		{
+			LINA_ERR("Could not create directory: {0}", path);
+		}
 
 		return success;
 	}
@@ -58,7 +60,7 @@ namespace Lina
 		}
 		catch (const std::exception& err)
 		{
-			LINA_ERR("Could not delete directory. {0} {1}", path, err.what());
+			LINA_ERR("Could not delete directory: {0}, {1}", path, err.what());
 			return false;
 		}
 
@@ -108,7 +110,7 @@ namespace Lina
 		/*	Deletes the file if exists */
 		if (std::rename(oldPath.c_str(), newPath.c_str()) != 0)
 		{
-			LINA_ERR("Failed to rename directory! Old Name: {1}, New Name: {2}", oldPath, newPath);
+			LINA_ERR("Failed to rename directory! Old Name: {0}, New Name: {1}", oldPath, newPath);
 			return false;
 		}
 

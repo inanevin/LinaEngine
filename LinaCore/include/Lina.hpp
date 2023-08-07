@@ -32,12 +32,7 @@ SOFTWARE.
 #define Lina_HPP
 
 #include "Core/Common.hpp"
-
-namespace Lina
-{
-	class Application;
-
-} // namespace Lina
+#include "Core/Application.hpp"
 
 extern Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInitializationInfo);
 

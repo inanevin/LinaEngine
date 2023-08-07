@@ -34,48 +34,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "System/ISubsystem.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Vector.hpp"
-#include "Graphics/Data/RenderData.hpp"
 #include "GfxMeshManager.hpp"
 #include "Event/ISystemEventListener.hpp"
 #include "CommonGraphics.hpp"
 
+namespace LinaGX
+{
+	class Window;
+}
+
 namespace Lina
 {
-	class Material;
 	class SurfaceRenderer;
-	class IGfxResourceCPU;
 	class Renderer;
 	class ResourceManager;
-	class Recti;
-	class TextureSampler;
-	class IWindow;
 	class GUIBackend;
-	class EntityWorld;
-	class WorldRenderer;
 
 	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
 
 	private:
-		struct DataPerFrame
-		{
-			IGfxResourceCPU* globalDataBuffer = nullptr;
-		};
-
-		struct CreateWorldRendererRequest
-		{
-			Delegate<void(WorldRenderer*)> onCreated;
-			EntityWorld*				   world = nullptr;
-			Vector2						   size	 = Vector2::Zero;
-			WorldRendererMask			   mask	 = WRM_None;
-		};
-
-		struct DeleteWorldRendererRequest
-		{
-			WorldRenderer*	 renderer = nullptr;
-			Delegate<void()> onDestroyed;
-		};
-
 	public:
 		GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys);
 		virtual ~GfxManager() = default;
@@ -88,20 +66,14 @@ namespace Lina
 		void			 Tick(float interpolationAlpha);
 		void			 Sync();
 		void			 Render();
-		void			 CreateSurfaceRenderer(StringID sid, IWindow* window, const Vector2i& initialSize, Bitmask16 mask);
+		void			 CreateSurfaceRenderer(StringID sid, const Vector2ui& initialSize);
 		void			 DestroySurfaceRenderer(StringID sid);
-		IGfxResourceCPU* GetCurrentGlobalDataResource();
 		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-		void			 OnWindowMoved(IWindow* window, StringID sid, const Recti& rect);
-		void			 OnWindowResized(IWindow* window, StringID sid, const Recti& rect);
-		void			 OnVsyncChanged(VsyncMode mode);
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
-		void			 CreateWorldRenderer(Delegate<void(WorldRenderer*)>&& onCreated, EntityWorld* world, const Vector2& size, WorldRendererMask mask);
-		void			 DestroyWorldRenderer(Delegate<void()>&& onDestroyed, WorldRenderer* renderer, bool immediate);
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_ResourceLoadTaskCompleted;
+			return EVS_ResourceLoadTaskCompleted | EVS_WindowResized | EVS_VsyncModeChanged;
 		}
 
 		inline const GfxMeshManager& GetMeshManager()
@@ -109,36 +81,16 @@ namespace Lina
 			return m_meshManager;
 		}
 
-		inline Renderer* GetRenderer()
-		{
-			return m_renderer;
-		}
-
 		inline GUIBackend* GetGUIBackend()
 		{
 			return m_guiBackend;
 		}
 
-		inline uint32 GetFrameIndex() const
-		{
-			return m_frameIndex;
-		}
-
 	private:
-		Vector<TextureSampler*>			   m_engineSamplers;
-		Vector<CreateWorldRendererRequest> m_worldRendererCreateRequests;
-		Vector<DeleteWorldRendererRequest> m_worldRendererDeleteRequests;
-		Vector<WorldRenderer*>			   m_worldRenderers;
-		ResourceManager*				   m_resourceManager = nullptr;
-		Renderer*						   m_renderer		 = nullptr;
-		GfxMeshManager					   m_meshManager;
-		DataPerFrame					   m_dataPerFrame[FRAMES_IN_FLIGHT];
-		GPUGlobalData					   m_globalData;
-		Vector<Material*>				   m_engineMaterials;
-		Vector<SurfaceRenderer*>		   m_surfaceRenderers;
-		uint32							   m_frameIndex = 0;
-		GUIBackend*						   m_guiBackend = nullptr;
-		bool							   m_postInited = false;
+		GfxMeshManager			 m_meshManager;
+		Vector<SurfaceRenderer*> m_surfaceRenderers;
+		GUIBackend*				 m_guiBackend	   = nullptr;
+		ResourceManager*		 m_resourceManager = nullptr;
 	};
 } // namespace Lina
 #endif

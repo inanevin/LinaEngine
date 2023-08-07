@@ -27,13 +27,10 @@ SOFTWARE.
 */
 
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
 
 namespace Lina
 {
-	IGUIDrawer::IGUIDrawer(ISwapchain* swap)
+	IGUIDrawer::IGUIDrawer()
 	{
-		m_swapchain = swap;
-		m_window	= swap->GetWindow();
 	}
 } // namespace Lina

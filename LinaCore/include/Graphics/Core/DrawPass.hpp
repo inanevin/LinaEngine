@@ -31,54 +31,19 @@ SOFTWARE.
 #ifndef DrawPass_HPP
 #define DrawPass_HPP
 
-#include "Graphics/Data/RenderData.hpp"
-#include "Data/Mutex.hpp"
-#include "Data/Vector.hpp"
-
 namespace Lina
 {
 	class GfxManager;
-	class View;
-	class IGfxResourceGPU;
-	class IGfxResourceCPU;
-	class Renderer;
-	class IUploadContext;
-	class IGfxContext;
 
 	class DrawPass
 	{
-		struct PerFrameData
-		{
-			IGfxResourceGPU* objDataBuffer			  = nullptr;
-			IGfxResourceCPU* indirectBuffer			  = nullptr;
-			uint32			 cmdListAllocatorTransfer = 0;
-			uint32			 cmdListTransfer		  = 0;
-		};
 
 	public:
-		DrawPass(GfxManager* gfxMan, IUploadContext* uploadContext);
+		DrawPass(GfxManager* gfxMan);
 		virtual ~DrawPass();
 
-		void Process(Vector<RenderableData>& drawList, const View& targetView, float drawDistance, DrawPassMask drawPassMask);
-		void UpdateBuffers(uint32 frameIndex, uint32 cmdListHandle);
-		void Draw(uint32 frameIndex, uint32 cmdListHandle);
-
 	private:
-		int32 FindInBatches(const MeshMaterialPair& pair);
-
-	private:
-		uint32				   m_transferFence		= 0;
-		uint64				   m_transferFenceValue = 0;
-		IGfxContext*		   m_contextGraphics	= nullptr;
-		IGfxContext*		   m_contextTransfer	= nullptr;
-		IUploadContext*		   m_uploadContext;
-		Renderer*			   m_renderer	= nullptr;
-		GfxManager*			   m_gfxManager = nullptr;
-		Mutex				   m_mtx;
-		Vector<RenderableData> m_renderables;
-		Vector<InstancedBatch> m_batches;
-
-		PerFrameData m_frameData[FRAMES_IN_FLIGHT];
+		GfxManager* m_gfxManager = nullptr;
 	};
 } // namespace Lina
 

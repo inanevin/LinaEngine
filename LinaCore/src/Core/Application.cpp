@@ -35,8 +35,8 @@ SOFTWARE.
 #include "System/IPlugin.hpp"
 #include "Core/CoreResourcesRegistry.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Core/GfxManager.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
@@ -54,7 +54,7 @@ namespace Lina
 
 		// pre-init priority resources, rendering systems & window
 		{
-			m_engine.SetupBackend(initInfo);
+			m_engine.PreInitialize(initInfo);
 			resourceManager.LoadResources(resourceManager.GetPriorityResources());
 			resourceManager.WaitForAll();
 			CreateMainWindow(initInfo);
@@ -85,8 +85,10 @@ namespace Lina
 
 	void Application::CreateMainWindow(const SystemInitializationInfo& initInfo)
 	{
-		auto window = m_engine.GetWindowManager().CreateAppWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2i(initInfo.windowWidth, initInfo.windowHeight), SRM_DrawOffscreenTexture);
-		window->SetStyle(initInfo.windowStyle);
+		auto& lgxwrap = m_engine.GetLGXWrapper();
+		const auto& wm = lgxwrap.GetWindowManager();
+		auto window = wm->CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, 0, 0, initInfo.windowWidth, initInfo.windowHeight, initInfo.windowStyle);
+		window->CenterPositionToCurrentMonitor();
 	}
 
 	void Application::OnInited()
@@ -94,7 +96,7 @@ namespace Lina
 		auto& resourceManager = m_engine.GetResourceManager();
 		resourceManager.LoadResources(resourceManager.GetCoreResources());
 		resourceManager.WaitForAll();
-		auto window = m_engine.GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+		auto window = m_engine.GetLGXWrapper().GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN);
 		window->SetVisible(true);
 	}
 
@@ -118,7 +120,6 @@ namespace Lina
 	void Application::Poll()
 	{
 		PROFILER_FUNCTION();
-		PlatformProcess::PumpMessages();
 		m_engine.Poll();
 	}
 

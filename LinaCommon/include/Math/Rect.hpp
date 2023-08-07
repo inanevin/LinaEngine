@@ -99,6 +99,14 @@ namespace Lina
 		Vector2i size = Vector2i(0, 0);
 	};
 
+	class Rectui
+	{
+	public:
+		Rectui(){};
+		Vector2ui pos  = Vector2ui(0, 0);
+		Vector2ui size = Vector2ui(0, 0);
+	};
+
 } // namespace Lina
 
 #endif

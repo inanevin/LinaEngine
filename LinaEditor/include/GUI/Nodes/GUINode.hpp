@@ -32,7 +32,6 @@ SOFTWARE.
 #define GUINode_HPP
 
 #include "Math/Rect.hpp"
-#include "Input/Core/CommonInput.hpp"
 #include "Data/Vector.hpp"
 #include "Math/Vector.hpp"
 #include "Core/StringID.hpp"
@@ -42,12 +41,10 @@ SOFTWARE.
 #include "Serialization/ISerializable.hpp"
 #include "Data/Bitmask.hpp"
 #include "Core/Theme.hpp"
-#include "Input/Core/CommonInput.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	class ISwapchain;
-	class IWindow;
 	class WindowManager;
 } // namespace Lina
 
@@ -63,8 +60,8 @@ namespace Lina::Editor
 		virtual ~GUINode();
 
 		virtual void Draw(int threadID);
-		virtual void OnKey(uint32 key, InputAction action);
-		virtual bool OnMouse(uint32 button, InputAction action);
+		virtual void OnKey(uint32 key, LinaGX::InputAction action);
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
 		virtual bool OnMouseWheel(uint32 delta);
 		virtual void OnMousePos();
 		virtual bool OnShortcut(Shortcut sc);
@@ -96,9 +93,9 @@ namespace Lina::Editor
 		Vector2	 GetStoreSize(StringID sid, const String& text, FontType ft = FontType::DefaultEditor, float textScale = 1.0f, bool calculatedEveryTime = false);
 		void	 ClearStoredSizes();
 
-		virtual CursorType GetHoveredCursor()
+		virtual LinaGX::CursorType GetHoveredCursor()
 		{
-			return CursorType::Default;
+			return LinaGX::CursorType::Default;
 		}
 
 		inline Vector<GUINode*>& GetChildren()
@@ -196,11 +193,6 @@ namespace Lina::Editor
 			return m_editor;
 		}
 
-		inline ISwapchain* GetSwapchain() const
-		{
-			return m_swapchain;
-		}
-
 		inline GUIDrawerBase* GetDrawer() const
 		{
 			return m_drawer;
@@ -262,9 +254,7 @@ namespace Lina::Editor
 		Bitmask16						m_payloadMask = 0;
 		GUIDrawerBase*					m_drawer;
 		Editor*							m_editor				= nullptr;
-		ISwapchain*						m_swapchain				= nullptr;
-		IWindow*						m_window				= nullptr;
-		WindowManager*					m_windowManager			= nullptr;
+		LinaGX::Window*					m_window				= nullptr;
 		StringID						m_sid					= 0;
 		bool							m_visible				= true;
 		bool							m_parentVisible			= true;

@@ -32,55 +32,18 @@ SOFTWARE.
 #define Model_HPP
 
 #include "Resources/Core/IResource.hpp"
-#include "Graphics/Data/Vertex.hpp"
-#include "Data/String.hpp"
-#include "Data/Vector.hpp"
 
 namespace Lina
 {
-	class ModelNode;
-	class Entity;
-	class EntityWorld;
-	class ModelLoader;
-
 	class Model : public IResource
 	{
 	public:
-		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Model>()){};
+		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Model();
 
-		Entity* AddToWorld(EntityWorld* w);
-
-		inline ModelNode* GetRootNode()
-		{
-			return m_rootNode;
-		}
-
-		inline const Vector<ModelNode*>& GetNodes()
-		{
-			return m_nodes;
-		}
-
-	protected:
 		// Inherited via IResource
-		virtual void LoadFromFile(const char* path);
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
-
-	private:
-		Entity* CreateEntityForNode(Entity* parent, EntityWorld* w, ModelNode* n);
-
-	private:
-		friend class ModelLoader;
-
-		// Runtime
-		int				   m_numMaterials = 0;
-		int				   m_numMeshes	  = 0;
-		int				   m_numAnims	  = 0;
-		int				   m_numVertices  = 0;
-		int				   m_numBones	  = 0;
-		ModelNode*		   m_rootNode	  = nullptr;
-		Vector<ModelNode*> m_nodes;
 	};
 
 } // namespace Lina

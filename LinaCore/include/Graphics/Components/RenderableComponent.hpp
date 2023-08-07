@@ -52,12 +52,11 @@ namespace Lina
 			return ComponentMask::Renderable;
 		}
 
-		virtual void					 SaveToStream(OStream& stream) override;
-		virtual void					 LoadFromStream(IStream& stream) override;
-		virtual AABB&					 GetAABB(ResourceManager* rm)			   = 0;
-		virtual Vector<MeshMaterialPair> GetMeshMaterialPairs(ResourceManager* rm) = 0;
-		virtual Bitmask16				 GetDrawPasses(ResourceManager* rm)		   = 0;
-		virtual RenderableType			 GetType()								   = 0;
+		virtual void		   SaveToStream(OStream& stream) override;
+		virtual void		   LoadFromStream(IStream& stream) override;
+		virtual AABB&		   GetAABB(ResourceManager* rm)		  = 0;
+		virtual Bitmask16	   GetDrawPasses(ResourceManager* rm) = 0;
+		virtual RenderableType GetType()						  = 0;
 	};
 
 } // namespace Lina

@@ -27,46 +27,8 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Mesh.hpp"
-#include "Math/Color.hpp"
-#include "Log/Log.hpp"
-#include "Serialization/StringSerialization.hpp"
-#include "Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
-	void Mesh::AddVertex(const Vector3& pos, const Vector3& normal, const Vector2& uv)
-	{
-		m_vertices.emplace_back(Vertex(pos, normal, Color(normal.r, normal.g, normal.b, 1), Vector2(uv.x, 1.0f - uv.y)));
-	}
-
-	void Mesh::AddIndices(uint32 i1)
-	{
-		m_indices.push_back(i1);
-	}
-
-	void Mesh::Flush()
-	{
-		m_vertices.clear();
-		m_indices.clear();
-	}
-
-	void Mesh::SaveToStream(OStream& stream)
-	{
-		stream << m_materialSlot;
-		m_vertexCenter.SaveToStream(stream);
-		m_aabb.SaveToStream(stream);
-		StringSerialization::SaveToStream(stream, m_name);
-		VectorSerialization::SaveToStream_OBJ(stream, m_vertices);
-		VectorSerialization::SaveToStream_PT(stream, m_indices);
-	}
-
-	void Mesh::LoadFromStream(IStream& stream)
-	{
-		stream >> m_materialSlot;
-		m_vertexCenter.LoadFromStream(stream);
-		m_aabb.LoadFromStream(stream);
-		StringSerialization::LoadFromStream(stream, m_name);
-		VectorSerialization::LoadFromStream_OBJ(stream, m_vertices);
-		VectorSerialization::LoadFromStream_PT(stream, m_indices);
-	}
+	
 } // namespace Lina

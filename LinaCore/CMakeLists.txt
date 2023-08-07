@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.8)
 project(LinaCore)
 
 #--------------------------------------------------------------------
@@ -39,14 +39,10 @@ src/World/Level/Level.cpp
 src/World/Level/LevelManager.cpp
 src/World/Core/EntityWorld.cpp
 
-# Input
-src/Input/Core/Input.cpp
-
 # Graphics
-
-src/Graphics/Core/WindowManager.cpp
 src/Graphics/Core/GUIBackend.cpp
 src/Graphics/Core/GfxManager.cpp
+src/Graphics/Core/LGXWrapper.cpp
 src/Graphics/Core/View.cpp
 src/Graphics/Core/GUIRenderer.cpp
 src/Graphics/Core/DrawPass.cpp
@@ -56,14 +52,10 @@ src/Graphics/Core/SurfaceRenderer.cpp
 src/Graphics/Core/GfxMeshManager.cpp
 src/Graphics/Interfaces/IGUIDrawer.cpp
 src/Graphics/Components/RenderableComponent.cpp
-src/Graphics/Components/ModelNodeComponent.cpp
 src/Graphics/Data/Vertex.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/Mesh.cpp
 src/Graphics/Resource/Model.cpp
-src/Graphics/Resource/ModelNode.cpp
-src/Graphics/Resource/SkinnedMesh.cpp
-src/Graphics/Resource/StaticMesh.cpp
 src/Graphics/Resource/Texture.cpp
 src/Graphics/Resource/TextureSampler.cpp
 src/Graphics/Resource/Material.cpp
@@ -114,11 +106,6 @@ include/World/Level/LevelManager.hpp
 include/World/Core/EntityWorld.hpp
 include/World/Core/CommonWorld.hpp
 
-# Input
-include/Input/Core/Input.hpp
-include/Input/Core/CommonInput.hpp
-include/Input/Core/InputMappings.hpp
-
 # Physics
 include/Physics/Core/PhysicsWorld.hpp
 
@@ -135,10 +122,9 @@ include/Resources/Core/ResourcesReflection.hpp
 include/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
-include/Graphics/Core/WindowManager.hpp
 include/Graphics/Core/GUIBackend.hpp
 include/Graphics/Core/GUIRenderer.hpp
-
+include/Graphics/Core/LGXWrapper.hpp
 include/Graphics/Core/GfxManager.hpp
 include/Graphics/Core/WorldRenderer.hpp
 include/Graphics/Core/SurfaceRenderer.hpp
@@ -150,17 +136,12 @@ include/Graphics/Core/CameraSystem.hpp
 include/Graphics/Interfaces/IGUIDrawer.hpp
 include/Graphics/Data/RenderData.hpp
 include/Graphics/Data/Vertex.hpp
-include/Graphics/Data/DescriptorHandle.hpp
 include/Graphics/Components/CameraComponent.hpp
 include/Graphics/Components/RenderableComponent.hpp
-include/Graphics/Components/ModelNodeComponent.hpp
 include/Graphics/Platform/LinaVGIncl.hpp
 include/Graphics/Resource/Shader.hpp
 include/Graphics/Resource/Mesh.hpp
 include/Graphics/Resource/Model.hpp
-include/Graphics/Resource/ModelNode.hpp
-include/Graphics/Resource/SkinnedMesh.hpp
-include/Graphics/Resource/StaticMesh.hpp
 include/Graphics/Resource/Texture.hpp
 include/Graphics/Resource/TextureSampler.hpp
 include/Graphics/Resource/Material.hpp
@@ -195,7 +176,7 @@ add_library(Lina::Core ALIAS ${PROJECT_NAME})
 
 ## Remove Nvidia PhysX linker pdb warning
 target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Lina")
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -214,19 +195,13 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 # Subdirectories & linking
 #--------------------------------------------------------------------
 
-include(../_Dependencies/freetype/link.cmake)
-include(../_Dependencies/linavg/link.cmake)
-include(../_Dependencies/alut/link.cmake)
-include(../_Dependencies/openal/link.cmake)
-link_freetype()
-link_linavg()
-link_alut()
-link_openal()
-
-
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC Lina::Common
+	PUBLIC Lina::VG
 )
+
+message("LinaCore -> LinaCommon has been linked.")
+message("LinaCore -> LinaVG has been linked.")
 
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} 
@@ -234,8 +209,8 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC Shcore.lib
 )
 
-message("LinaCore -> User32 Linked.")
-message("LinaCore -> Shcore Linked.")
+message("LinaCore -> User32 has been linked.")
+message("LinaCore -> Shcore has been linked.")
 endif()
 
 

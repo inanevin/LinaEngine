@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Graphics/Core/CameraSystem.hpp"
 #include "Graphics/Components/CameraComponent.hpp"
 #include "World/Core/Entity.hpp"
-#include "Graphics/Platform/DX12/Core/DX12Common.hpp"
 
 namespace Lina
 {
@@ -41,16 +40,10 @@ namespace Lina
 		cam.m_view				= Matrix4::InitLookAt(pos, pos + camRot.GetForward(), camRot.GetUp());
 		cam.m_projection		= Matrix4::Perspective(cam.fieldOfView / 2.0f, aspect, cam.zNear, cam.zFar);
 
-#ifdef LINA_GRAPHICS_DX12
 		cam.m_view[2][0] *= -1.0f;
 		cam.m_view[2][1] *= -1.0f;
 		cam.m_view[2][2] *= -1.0f;
 		cam.m_view[2][3] *= -1.0f;
 		// cam.m_view[1][1] *= -1;
-		
-#elif LINA_GRAPHICS_VULKAN
-		const glm::mat4 clip(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 1.0f);
-		cam.m_projection = clip * cam.m_projection;
-#endif
 	}
 } // namespace Lina

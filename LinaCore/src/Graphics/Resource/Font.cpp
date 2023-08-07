@@ -34,8 +34,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	Mutex Font::aqqqqq;
-
 	Font::~Font()
 	{
 		if (m_lvgFont)

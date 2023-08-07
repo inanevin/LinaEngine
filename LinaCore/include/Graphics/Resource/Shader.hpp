@@ -32,73 +32,15 @@ SOFTWARE.
 #define Shader_HPP
 
 #include "Resources/Core/IResource.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
-#include "Data/String.hpp"
-#include "Data/Vector.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Bitmask.hpp"
 
 namespace Lina
 {
-	class MaterialPropertyBase;
-	class Renderer;
-	class IPipeline;
 
 	class Shader : public IResource
 	{
 	public:
 		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Shader();
-
-		const ShaderByteCode& GetCompiledCode(ShaderStage stage) const;
-
-		inline Bitmask16 GetDrawPassMask() const
-		{
-			return m_drawPassMask;
-		}
-
-		inline const Vector<MaterialPropertyBase*>& GetProperties() const
-		{
-			return m_properties;
-		}
-
-		inline const Vector<MaterialPropertyBase*>& GetTextures() const
-		{
-			return m_textures;
-		}
-
-		const HashMap<ShaderStage, String>& GetStages()
-		{
-			return m_stages;
-		}
-
-		const Vector<UserBinding>& GetBindings()
-		{
-			return m_materialBindings;
-		}
-
-		inline PipelineType GetPipelineType() const
-		{
-			return m_pipelineType;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline IPipeline* GetPipeline()
-		{
-			return m_pipeline;
-		}
-
-		/// <summary>
-		/// INTERNAL!
-		/// </summary>
-		/// <param name="index"></param>
-		inline void SetPipeline(IPipeline* p)
-		{
-			m_pipeline = p;
-		}
 
 	protected:
 		// Inherited via IResource
@@ -109,18 +51,6 @@ namespace Lina
 		virtual void Flush() override;
 
 	private:
-		IPipeline*							 m_pipeline = nullptr;
-		Renderer*							 m_renderer = nullptr;
-		Vector<MaterialPropertyBase*>		 m_properties;
-		Vector<MaterialPropertyBase*>		 m_textures;
-		HashMap<ShaderStage, String>		 m_stages;
-		Vector<UserBinding>					 m_materialBindings;
-		HashMap<ShaderStage, ShaderByteCode> m_compiledCode;
-		PipelineType						 m_pipelineType = PipelineType::Standard;
-
-		// Runtime
-		String	  m_text = "";
-		Bitmask16 m_drawPassMask;
 	};
 
 } // namespace Lina

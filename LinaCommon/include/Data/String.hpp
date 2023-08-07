@@ -34,6 +34,7 @@ SOFTWARE.
 #include <EASTL/string.h>
 
 #ifdef LINA_ENABLE_LOGGING
+#define FMT_HEADER_ONLY
 #include <fmt/format.h>
 #endif
 

@@ -52,8 +52,6 @@ namespace Lina
 	private:
 		friend class Application;
 
-		static void PumpMessages();
-
 		static void LoadPlugin(const char* name, IEngineInterface* engInterface, ISystemEventDispatcher* dispatcher);
 		static void UnloadPlugin(const char* name, ISystemEventDispatcher* dispatcher);
 

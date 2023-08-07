@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions 
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-cmake_minimum_required (VERSION 3.6)
+cmake_minimum_required (VERSION 3.8)
 project(LinaCommon CXX)
 
 
@@ -39,7 +39,6 @@ set (LINACOMMON_SOURCES
 	src/Data/DelegateQueue.cpp
 	src/Data/String.cpp
 	src/Data/CommonData.cpp
-
 
 	# Events
 	src/Event/Event.cpp
@@ -81,6 +80,7 @@ set (LINACOMMON_SOURCES
 	src/System/IPlugin.cpp
 	src/System/ISystem.cpp
 	src/System/ISubsystem.cpp
+
 )
 
 
@@ -244,7 +244,7 @@ PUBLIC
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Lina")
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
 
 #--------------------------------------------------------------------
 # Subdirectories & linking
@@ -254,29 +254,31 @@ target_link_libraries(${PROJECT_NAME}
     PUBLIC Lina::GX
 )
 
-set_target_properties(LinaGX PROPERTIES FOLDER "Lina")
-
-include(../_Dependencies/glm/link.cmake)
-include(../_Dependencies/fmt/link.cmake)
-include(../_Dependencies/eastl/link.cmake)
-include(../_Dependencies/phmap/link.cmake)
-include(../_Dependencies/taskflow/link.cmake)
-include(../_Dependencies/memallocators/link.cmake)
-include(../_Dependencies/lz4/link.cmake)
-link_glm()
-link_fmt()
-link_eastl()
+include(../Dependencies/phmap/link.cmake)
+include(../Dependencies/taskflow/link.cmake)
 link_phmap()
 link_taskflow()
-link_memallocators()
-link_lz4()
+
+target_link_libraries(${PROJECT_NAME} 
+PUBLIC memory-allocators
+PUBLIC lz4
+PUBLIC fmt
+PUBLIC EASTL
+PUBLIC glm_static
+)
+
+message("LinaCommon -> memory-allocators has been linked.")
+message("LinaCommon -> lz4 has been linked.")
+message("LinaCommon -> fmt has been linked.")
+message("LinaCommon -> EASTL has been linked.")
+message("LinaCommon -> glm has been linked.")
 
 # timeBeginPeriod for adjusting timer precision requires Winmm.lib
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC Winmm.lib
 )
-message("LinaCore -> Winmm Linked.")
+message("LinaCommon -> Winmm Linked.")
 endif()
 
 

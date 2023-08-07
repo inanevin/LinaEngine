@@ -696,6 +696,29 @@ namespace Lina
 		return Vector4i((int)((float)v.x - scalar), (int)(((float)v.y - scalar)), (int)(((float)v.z - scalar)), (int)(((float)v.w - scalar)));
 	}
 
+	class Vector4ui16 : public glm::u16vec4
+	{
+	public:
+		Vector4ui16() = default;
+		Vector4ui16(int x, int y, int z, int w) : glm::u16vec4(x, y, z, w){};
+		Vector4ui16(const Vector4ui16& rhs) : glm::u16vec4(rhs){};
+		Vector4ui16(unsigned int val) : glm::u16vec4(val, val, val, val){};
+		Vector4ui16(const glm::u16vec4& rhs) : glm::u16vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
+	};
+
+	inline Vector4ui16 operator-(Vector4ui16 const& v, Vector4ui16 const& v2)
+	{
+		return Vector4ui16(v.x - v2.x, v.y - v2.y, v.z - v2.z, v.w - v2.w);
+	}
+	inline Vector4ui16 operator+(Vector4ui16 const& v, float scalar)
+	{
+		return Vector4ui16((int)((float)v.x + scalar), (int)(((float)v.y + scalar)), (int)((float)v.z + scalar), (int)((float)v.w + scalar));
+	}
+	inline Vector4ui16 operator-(Vector4ui16 const& v, float scalar)
+	{
+		return Vector4ui16((int)((float)v.x - scalar), (int)(((float)v.y - scalar)), (int)(((float)v.z - scalar)), (int)(((float)v.w - scalar)));
+	}
+
 } // namespace Lina
 
 #endif

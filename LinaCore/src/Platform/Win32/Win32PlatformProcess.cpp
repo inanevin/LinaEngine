@@ -95,17 +95,6 @@ namespace Lina
 	typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
 	typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);
 
-	void Win32PlatformProcess::PumpMessages()
-	{
-		MSG msg	   = {0};
-		msg.wParam = 0;
-		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-
 	void Win32PlatformProcess::LoadPlugin(const char* name, IEngineInterface* engInterface, ISystemEventDispatcher* dispatcher)
 	{
 		HINSTANCE hinstLib;

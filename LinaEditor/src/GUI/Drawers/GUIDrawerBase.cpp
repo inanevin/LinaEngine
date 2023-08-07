@@ -28,8 +28,6 @@ SOFTWARE.
 
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "Math/Rect.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Core/Theme.hpp"
@@ -40,7 +38,6 @@ SOFTWARE.
 #include "GUI/Nodes/Layouts/GUINodeDivider.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
-#include "Input/Core/InputMappings.hpp"
 #include "Core/Editor.hpp"
 #include "Math/Math.hpp"
 #include "Data/CommonData.hpp"
@@ -70,12 +67,12 @@ namespace Lina::Editor
 		delete m_root;
 	}
 
-	void GUIDrawerBase::OnKey(uint32 key, InputAction action)
+	void GUIDrawerBase::OnKey(uint32 key, LinaGX::InputAction action)
 	{
 		m_root->OnKey(key, action);
 	}
 
-	void GUIDrawerBase::OnMouse(uint32 button, InputAction action)
+	void GUIDrawerBase::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		// If we are releasing button, check the currently pressed/hovered node and cancel its state.
 		if (m_hoveredNode && m_hoveredNode->m_isPressed && action == InputAction::Released && button == m_hoveredNode->m_lastPressedButton)

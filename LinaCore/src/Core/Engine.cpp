@@ -38,23 +38,17 @@ SOFTWARE.
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Shader.hpp"
-#include "Graphics/Platform/RendererIncl.hpp"
 #include "Math/Math.hpp"
-
-//********** DEBUG
-#include "Input/Core/InputMappings.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
 
 #define DEFAULT_RATE 1.0f / 60.0f
 
 namespace Lina
 {
-	void Engine::SetupBackend(const SystemInitializationInfo& initInfo)
+	void Engine::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		m_gfxManager = new GfxManager(initInfo, this);
-		m_windowManager.SetupBackend(initInfo);
 		m_resourceManager.AddListener(this);
+		m_lgxWrapper.PreInitialize(initInfo);
 	}
 
 	void Engine::Initialize(const SystemInitializationInfo& initInfo)
@@ -83,8 +77,7 @@ namespace Lina
 		m_resourceManager.Shutdown();
 		m_gfxManager->Shutdown();
 		m_audioManager.Shutdown();
-		m_windowManager.Shutdown();
-		m_input.Shutdown();
+		m_lgxWrapper.Shutdown();
 
 		delete m_gfxManager;
 	}
@@ -97,15 +90,13 @@ namespace Lina
 			m_gfxManager->WaitForSwapchains();
 
 		CalculateTime();
-		m_input.PreTick();
-		m_windowManager.Tick();
 	}
 
 	void Engine::Poll()
 	{
 		PROFILER_FUNCTION();
 		m_resourceManager.Tick();
-		m_input.Tick();
+		m_lgxWrapper.GetLGX()->PollWindow();
 	}
 
 	void Engine::Tick()
@@ -221,13 +212,7 @@ namespace Lina
 
 			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
 		}
-		for (auto res : allModelsRaw)
-		{
-			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
-				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-
-			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-		}
+		
 		for (auto res : allFontsRaw)
 		{
 			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
@@ -259,7 +244,6 @@ namespace Lina
 			m_resourceManager.WaitForAll();
 		}
 
-		m_windowManager.RecreateSurfaces();
 		m_gfxManager->Initialize(m_initInfo);
 	}
 
