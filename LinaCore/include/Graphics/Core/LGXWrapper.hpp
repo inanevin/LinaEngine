@@ -32,37 +32,44 @@ SOFTWARE.
 #define LGXWrapper_HPP
 
 #include "System/ISubsystem.hpp"
+#include "Math/Vector.hpp"
+#include "Core/StringID.hpp"
 
 namespace LinaGX
 {
 	class Instance;
 	class WindowManager;
 	class Input;
+	class Window;
 } // namespace LinaGX
 
 namespace Lina
 {
+	class GfxManager;
+
 	class LGXWrapper : public ISubsystem
 	{
 	public:
 		LGXWrapper(ISystem* sys);
 		virtual ~LGXWrapper() = default;
 
-		void		 PreInitialize(const SystemInitializationInfo& initInfo);
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void PreShutdown() override;
-		virtual void Shutdown() override;
+		void				   PreInitialize(const SystemInitializationInfo& initInfo);
+		virtual void		   Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void		   PreShutdown() override;
+		virtual void		   Shutdown() override;
+		void				   DestroyApplicationWindow(StringID sid);
+		LinaGX::Window*		   CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, bool isBorderless);
+		LinaGX::WindowManager* GetWindowManager();
+		LinaGX::Input*		   GetInput();
 
 		LinaGX::Instance* GetLGX()
 		{
 			return m_lgx;
 		}
 
-		LinaGX::WindowManager* GetWindowManager();
-		LinaGX::Input*		   GetInput();
-
 	private:
-		LinaGX::Instance* m_lgx = nullptr;
+		LinaGX::Instance* m_lgx		   = nullptr;
+		GfxManager*		  m_gfxManager = nullptr;
 	};
 } // namespace Lina
 

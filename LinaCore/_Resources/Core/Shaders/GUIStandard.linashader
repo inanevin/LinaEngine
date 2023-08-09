@@ -26,102 +26,121 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-LINA_PIPELINE_GUI
+#LINA_VS
 
-#include "GlobalData.linashader"
+#version 460
 
-struct LinaShaderMaterial
+layout (location = 0) in vec2 pos;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec4 col;
+
+layout (location = 0) out vec4 fCol;
+layout (location = 1) out vec2 fUV;
+
+layout(set = 0, binding = 0) uniform MaterialData
 {
-	float4 color1;
-	float4 color2;
-	float4 float4pack1;
-	float4 float4pack2;
-	int4 int4pack1;
-	LinaTexture2D diffuse;
-};
+   mat4 projection;
+   vec4 color1;
+   vec4 color2;
+   vec2 vec2pack1;
+   int intvar1;
+   int intvar2;
+   int intvar3;
+} LINA_MATERIAL;
 
-struct PSInput
+void main()
 {
-	float4 position : SV_POSITION;
-	float2 uv : TEXCOORD;
-	float4 color : COLOR;
-};
-
-
-PSInput VSMain(float2 position : POSITION, float2 uv : TEXCOORD, float4 color : COLOR)
-{
-	PSInput result;
-	result.color = color;
-	result.uv = uv;
-	result.position = mul(LINA_PROJ, float4(position.xy, 0.0f, 1.0));
-	return result;
+   fCol = col;
+   fUV = uv;
+   gl_Position = LINA_MATERIAL.projection * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
-float4 PSMain(PSInput input) : SV_TARGET
+#LINA_END
+
+#LINA_FS
+
+#version 460
+
+layout (location = 0) in vec4 fCol;
+layout (location = 1) in vec2 fUV;
+
+layout (location = 0) out vec4 fragColor;
+
+layout(set = 0, binding = 0) uniform MaterialData
 {
-	LinaShaderMaterial material = Lina_GetMaterial<LinaShaderMaterial>(LINA_MATID);
-	float4 finalColor = input.color;
+   mat4 projection;
+   vec4 color1;
+   vec4 color2;
+   vec2 vec2pack1;
+   vec2 vec2pack2;
+   float floatvar1;
+   float floatvar2;
+   float floatvar3;
+   int intvar1;
+   int intvar2;
+   int intvar3;
+} LINA_MATERIAL;
 
-	if (material.int4pack1.x == 0)
-	{
-		return finalColor;
-	}
-	else if (material.int4pack1.x == 1)
-	{
-		if (material.int4pack1.y == 0)
-		{
-			// Horizontal
-			float4 col = lerp(material.color1, material.color2, input.uv.x);
-			finalColor = float4(col.rgb, material.int4pack1.z == 1 ? input.color.a : col.a);
-		}
-		else if (material.int4pack1.y == 1)
-		{
-			// Vertical
-			float4 col = lerp(material.color1, material.color2, input.uv.y);
-			finalColor = float4(col.rgb, material.int4pack1.z == 1 ? input.color.a : col.a);
-		}
-		else if (material.int4pack1.y == 2)
-		{
-			// Radial
-			float2 uv = input.uv - float2(0.5, 0.5);
-			float dist = length(uv * material.float4pack2.x);
-			float4 col = lerp(material.color1, material.color2, dist);
-			finalColor = float4(col.rgb, material.int4pack1.z == 1 ? input.color.a : col.a);
-		}
-		else if (material.int4pack1.y == 3)
-		{
-			// Radial corner
-			float dist = length(input.uv * material.float4pack2.x);
-			float4 col = lerp(material.color1, material.color2, dist);
-			finalColor = float4(col.rgb, material.int4pack1.z == 1 ? input.color.a : col.a);
-		}
-	}
-	else if (material.int4pack1.x == 2)
-	{
-        // Textured
-		float2 uv = float2(input.uv.x, input.uv.y);
-		float4 col = Lina_SampleTexture2D(material.diffuse, uv * material.float4pack1.xy + material.float4pack1.zw);
-		finalColor = float4(col.rgb, material.int4pack1.z == 1 ? input.color.a : col.a) * material.color1;
-	}
-	else if (material.int4pack1.x == 3)
-	{
-        // Simple Text
-		float a = Lina_SampleTexture2D(material.diffuse, input.uv).r;
-		finalColor = float4(input.color.rgb, a * input.color.a);
-	}
-	else if (material.int4pack1.x == 4)
-	{
-        // SDF text
-		float d = Lina_SampleTexture2D(material.diffuse, input.uv).r;
-		float alpha = smoothstep(material.float4pack2.x - material.float4pack2.y, material.float4pack2.x + material.float4pack2.y, d);
-		float3 baseColor = input.color.rgb;
-		if (material.int4pack1.y == 1)
-		{
-			float border = smoothstep(material.float4pack2.x + material.float4pack2.z - material.float4pack2.y, material.float4pack2.x + material.float4pack2.z + material.float4pack2.y, d);
-			baseColor = lerp(material.color1, input.color, border).rgb;
-		}
-		finalColor = float4(baseColor, material.int4pack1.z == 1 ? (1.0f - alpha) * input.color.a : alpha * input.color.a);
-	}
+layout(set = 0, binding = 1) uniform sampler2D diffuse;
 
-	return finalColor;
+void main()
+{
+   vec4 finalColor = fCol;
+
+   // Gradient
+   if(LINA_MATERIAL.intvar1 == 1)
+   {
+      if(LINA_MATERIAL.intvar2 == 0)
+      {
+         vec4 col = mix(LINA_MATERIAL.color1, LINA_MATERIAL.color2, fUV.x);
+         finalColor = vec4(col.rgb, LINA_MATERIAL.intvar3 == 1 ? fCol.a : col.a);
+      }
+      else if(LINA_MATERIAL.intvar2 == 1)
+      {
+         vec4 col = mix(LINA_MATERIAL.color1, LINA_MATERIAL.color2, fUV.y);
+         finalColor = vec4(col.rgb, LINA_MATERIAL.intvar3 == 1 ? fCol.a : col.a);
+      }
+      else if(LINA_MATERIAL.intvar2 == 2)
+      {
+         vec2 uv = fUV - vec2(0.5, 0.5);
+         float dist = length(uv * LINA_MATERIAL.floatvar1);
+         vec4 col = mix(LINA_MATERIAL.color1, LINA_MATERIAL.color2, dist);
+         finalColor = vec4(col.rgb, LINA_MATERIAL.intvar3 == 1 ? fCol.a : col.a);
+      }
+      else if(LINA_MATERIAL.intvar2 == 3)
+      {
+         float dist = length(fUV * LINA_MATERIAL.floatvar1);
+         vec4 col = mix(LINA_MATERIAL.color1, LINA_MATERIAL.color2, dist);
+         finalColor = vec4(col.rgb, LINA_MATERIAL.intvar3 == 1 ? fCol.a : col.a); 
+      }
+   }
+   else if(LINA_MATERIAL.intvar1 == 2)
+   {
+      // Textured
+      vec4 col = texture(diffuse, fUV * LINA_MATERIAL.vec2pack1 + LINA_MATERIAL.vec2pack2);
+      finalColor = vec4(col.rgb, LINA_MATERIAL.intvar3 == 1 ? fCol.a : col.a) * LINA_MATERIAL.color1; 
+   }
+   else if(LINA_MATERIAL.intvar1 == 3)
+   {
+      // Simple Text
+      float a = texture(diffuse, fUV).r;
+      finalColor = vec4(fCol.rgb, a * fCol.a);
+   }
+   else if(LINA_MATERIAL.intvar1 == 4)
+   {
+      // SDF text
+      float d = texture(diffuse, fUV).r;
+      float alpha = smoothstep(LINA_MATERIAL.floatvar1 - LINA_MATERIAL.floatvar2, LINA_MATERIAL.floatvar1 + LINA_MATERIAL.floatvar2, d);
+      vec3 baseColor = fCol.rgb;
+      if(LINA_MATERIAL.intvar2 == 1)
+      {
+         float border = smoothstep(LINA_MATERIAL.floatvar1 + LINA_MATERIAL.floatvar3 - LINA_MATERIAL.floatvar2, LINA_MATERIAL.floatvar1 + LINA_MATERIAL.floatvar3 + LINA_MATERIAL.floatvar2, d);
+         baseColor = mix(LINA_MATERIAL.color1, fCol, border).rgb;
+      }
+      finalColor = vec4(baseColor, LINA_MATERIAL.intvar3 == 1 ? 1.0f - alpha : alpha);
+   }
+
+   fragColor = finalColor;
 }
+
+#LINA_END

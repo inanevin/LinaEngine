@@ -92,12 +92,12 @@ namespace Lina
 
 	protected:
 		ResourceManager	 m_resourceManager;
+		LGXWrapper		 m_lgxWrapper;
 		Executor		 m_executor;
 		AudioManager	 m_audioManager;
 		GfxManager*		 m_gfxManager = nullptr;
 		LevelManager	 m_levelManager;
 		IEngineInterface m_engineInterface;
-		LGXWrapper		 m_lgxWrapper;
 
 		// Time
 		int64 m_frameCapAccumulator		 = 0;

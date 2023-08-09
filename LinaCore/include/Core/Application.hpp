@@ -33,6 +33,11 @@ SOFTWARE.
 
 #include "Core/Engine.hpp"
 
+namespace LinaGX
+{
+	class Window;
+}
+
 namespace Lina
 {
 	struct SystemInitializationInfo;
@@ -44,11 +49,12 @@ namespace Lina
 		Application() : m_engine(this){};
 		virtual ~Application(){};
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) final;
-		virtual void PreTick();
-		virtual void Poll();
-		virtual void Tick();
-		virtual void Shutdown();
+		virtual void	Initialize(const SystemInitializationInfo& initInfo) final;
+		virtual void	PreTick();
+		virtual void	Poll();
+		virtual void	Tick();
+		virtual void	Shutdown();
+	
 
 		inline void Quit()
 		{

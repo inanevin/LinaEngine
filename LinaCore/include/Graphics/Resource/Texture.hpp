@@ -32,27 +32,60 @@ SOFTWARE.
 #define Texture_HPP
 
 #include "Resources/Core/IResource.hpp"
+#include "Platform/LinaGXIncl.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
-	class Renderer;
+
+#define TEXTURE_META_FORMAT		   "Format"_hs
+#define TEXTURE_META_GENMIPS	   "GenerateMipmaps"_hs
+#define TEXTURE_META_MIPFILTER	   "MipmapFilter"_hs
+#define TEXTURE_META_MIPMODE	   "MipmapMode"_hs
+#define TEXTURE_META_ISLINEAR	   "IsLinear"_hs
+#define TEXTURE_META_CHANNEL_COUNT "ChannelCount"_hs
+#define TEXTURE_META_SAMPLER_SID   "SamplerSID"_hs
 
 	class Texture : public IResource
 	{
 	public:
-		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
+		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
 		virtual ~Texture();
 
-		virtual void Upload() override;
+		virtual void BatchLoaded() override;
+
+		inline uint32 GetGPUHandle() const
+		{
+			return m_gpuHandle;
+		}
+
+		inline Vector<LinaGX::TextureBuffer> GetAllLevels() const
+		{
+			return m_allLevels;
+		}
+
+		inline uint32 GetSamplerSID() const
+		{
+			return m_sampler;
+		}
+
+		inline void SetSamplerSID(StringID sid)
+		{
+			m_sampler = sid;
+		}
 
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void BatchLoaded() override;
 
 	private:
+		Vector<LinaGX::TextureBuffer> m_allLevels;
+		LinaGX::ImageChannelMask	  m_channelMask		 = LinaGX::ImageChannelMask::Rgba;
+		uint32						  m_gpuHandle		 = 0;
+		StringID					  m_sampler			 = 0;
+		bool						  m_loadedFromStream = false;
 	};
 } // namespace Lina
 

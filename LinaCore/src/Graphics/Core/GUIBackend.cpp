@@ -30,9 +30,11 @@ SOFTWARE.
 #include "Graphics/Core/GUIRenderer.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Font.hpp"
+#include "Graphics/Core/GPUBuffer.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/CommonResources.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
@@ -57,37 +59,64 @@ namespace Lina
 
 	void GUIBackend::StartFrame(int threadCount)
 	{
-		m_frameGUIRenderers.resize(threadCount);
+		m_guiRenderData.resize(threadCount);
 	}
 
 	void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf, int thread)
 	{
-		m_frameGUIRenderers[thread]->FeedGradient(buf);
 	}
 
 	void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf, int thread)
 	{
-		m_frameGUIRenderers[thread]->FeedTextured(buf);
 	}
 
 	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int thread)
 	{
-		m_frameGUIRenderers[thread]->FeedDefault(buf);
+		AddDrawRequest(buf, m_guiRenderData[thread]);
 	}
 
 	void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int thread)
 	{
-		m_frameGUIRenderers[thread]->FeedSimpleText(buf);
 	}
 
 	void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int thread)
 	{
-		m_frameGUIRenderers[thread]->FeedSDFText(buf);
+	}
+
+	void GUIBackend::Render(int threadID)
+	{
+		auto& data = m_guiRenderData[threadID];
+
+		// Draw
+		{
+			uint32 i = 0;
+			for (const auto& req : data.drawRequests)
+			{
+				// Material id.
+				LinaGX::CMDBindConstants* constants = data.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
+				constants->extension				= nullptr;
+				constants->offset					= 0;
+				constants->stages					= data.gfxStream->EmplaceAuxMemory<LinaGX::ShaderStage>(LinaGX::ShaderStage::Fragment);
+				constants->stagesSize				= 1;
+				constants->size						= sizeof(uint32);
+				constants->data						= data.gfxStream->EmplaceAuxMemory<uint32>(i);
+
+				// Draw command.
+				LinaGX::CMDDrawIndexedInstanced* draw = data.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+				draw->extension						  = nullptr;
+				draw->indexCountPerInstance			  = req.indexCount;
+				draw->instanceCount					  = 1;
+				draw->startInstanceLocation			  = 0;
+				draw->startIndexLocation			  = req.firstIndex;
+				draw->baseVertexLocation			  = req.vertexOffset;
+
+				i++;
+			}
+		}
 	}
 
 	void GUIBackend::EndFrame()
 	{
-		m_frameGUIRenderers.clear();
 	}
 
 	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
@@ -104,13 +133,28 @@ namespace Lina
 		return 0;
 	}
 
-	void GUIBackend::SetFrameGUIRenderer(int threadID, GUIRenderer* rend)
+	void GUIBackend::Prepare(int threadID, const GUIRenderData& data)
 	{
-		m_frameGUIRenderers[threadID] = rend;
+		m_guiRenderData[threadID] = data;
 	}
 
 	void GUIBackend::BindTextures()
 	{
+	}
+
+	GUIBackend::DrawRequest& GUIBackend::AddDrawRequest(LinaVG::DrawBuffer* buf, GUIRenderData& data)
+	{
+		data.drawRequests.push_back(DrawRequest());
+		DrawRequest& req = data.drawRequests.back();
+		req.indexCount	 = static_cast<uint32>(buf->m_indexBuffer.m_size);
+		req.vertexOffset = data.vertexCounter;
+		req.firstIndex	 = data.indexCounter;
+
+		data.indexBuffer->BufferData(data.vertexCounter * sizeof(LinaVG::Index));
+		data.indexCounter += req.indexCount;
+		data.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
+
+		return req;
 	}
 
 } // namespace Lina

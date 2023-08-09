@@ -37,11 +37,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "GfxMeshManager.hpp"
 #include "Event/ISystemEventListener.hpp"
 #include "CommonGraphics.hpp"
-
-namespace LinaGX
-{
-	class Window;
-}
+#include "ResourceUploadQueue.hpp"
+#include "Graphics/Resource/TextureSampler.hpp"
+#include "Graphics/Resource/Material.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
@@ -49,6 +48,8 @@ namespace Lina
 	class Renderer;
 	class ResourceManager;
 	class GUIBackend;
+	class LGXWrapper;
+	class WorldRenderer;
 
 	class GfxManager : public ISubsystem, public ISystemEventListener
 	{
@@ -66,7 +67,7 @@ namespace Lina
 		void			 Tick(float interpolationAlpha);
 		void			 Sync();
 		void			 Render();
-		void			 CreateSurfaceRenderer(StringID sid, const Vector2ui& initialSize);
+		void			 CreateSurfaceRenderer(StringID sid, LinaGX::Window* window, const Vector2ui& initialSize);
 		void			 DestroySurfaceRenderer(StringID sid);
 		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
@@ -86,11 +87,28 @@ namespace Lina
 			return m_guiBackend;
 		}
 
+		inline ResourceUploadQueue& GetResourceUploadQueue()
+		{
+			return m_resourceUploadQueue;
+		}
+
+		inline LinaGX::VsyncMode GetCurrentVsync() const
+		{
+			return m_currentVsync;
+		}
+
 	private:
+		ResourceUploadQueue		 m_resourceUploadQueue;
 		GfxMeshManager			 m_meshManager;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
+		Vector<WorldRenderer*>	 m_worldRenderers;
 		GUIBackend*				 m_guiBackend	   = nullptr;
 		ResourceManager*		 m_resourceManager = nullptr;
+		Vector<TextureSampler*>	 m_defaultSamplers;
+		Vector<Material*>		 m_defaultMaterials;
+		LGXWrapper*				 m_lgxWrapper	= nullptr;
+		LinaGX::Instance*		 m_lgx			= nullptr;
+		LinaGX::VsyncMode		 m_currentVsync = LinaGX::VsyncMode::None;
 	};
 } // namespace Lina
 #endif

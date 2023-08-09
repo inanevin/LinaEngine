@@ -39,7 +39,7 @@ SOFTWARE.
 
 namespace Lina
 {
-#define MEMORY_STACK_TRACE_SIZE 10
+#define MEMORY_STACK_TRACE_SIZE 15
 
 	struct MemoryTrack
 	{

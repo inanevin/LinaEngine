@@ -32,8 +32,8 @@ SOFTWARE.
 #define Material_HPP
 
 #include "Resources/Core/IResource.hpp"
-#include "Graphics/Resource/MaterialProperty.hpp"
 #include "Graphics/Data/RenderData.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
@@ -43,8 +43,73 @@ namespace Lina
 	class Material : public IResource
 	{
 	public:
-		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
+		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Material>()){};
 		virtual ~Material();
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="sid"></param>
+		void SetShader(StringID sid);
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <param name="ptr"></param>
+		/// <param name="size"></param>
+		void GetDataBlob(uint8* ptr, size_t size);
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <param name="value"></param>
+		template <typename T> inline void SetProperty(const String& name, T& value)
+		{
+			const StringID sid = TO_SID(name);
+
+			size_t dataIndex = 0;
+			for (const auto& mem : m_uboDefinition.members)
+			{
+				const StringID memSid = TO_SID(mem.name);
+
+				if (memSid == sid)
+				{
+					MEMCPY(m_data + dataIndex, &value, sizeof(T));
+					break;
+				}
+
+				dataIndex += mem.alignment;
+			}
+		}
+
+		/// <summary>
+		///
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="name"></param>
+		/// <returns></returns>
+		template <typename T> inline T GetProperty(const String& name)
+		{
+			const StringID sid = TO_SID(name);
+
+			size_t dataIndex = 0;
+			for (const auto& mem : m_uboDefinition.members)
+			{
+				const StringID memSid = TO_SID(mem.name);
+
+				if (memSid == sid)
+				{
+					T* ptr = reinterpret_cast<T*>(m_data + dataIndex);
+					return *ptr;
+				}
+
+				dataIndex += mem.alignment;
+			}
+
+			return nullptr;
+		}
 
 	protected:
 		// Inherited via IResource
@@ -52,6 +117,12 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
+
+	private:
+		uint32			  m_shader		  = 0;
+		uint8*			  m_data		  = nullptr;
+		size_t			  m_totalDataSize = 0;
+		LinaGX::ShaderUBO m_uboDefinition = {};
 	};
 
 } // namespace Lina

@@ -40,128 +40,197 @@ SOFTWARE.
 
 namespace Lina
 {
-    class IStream
-    {
-    public:
-        void Create(size_t size);
-        void Create(uint8* data, size_t size);
-        void Destroy();
-        void ReadFromIFStream(std::ifstream& stream);
-        void ReadEndianSafe(void* ptr, size_t size);
-        void ReadIntoRaw(void* ptr, size_t size);
+	class IStream
+	{
+	public:
+		void Create(size_t size);
+		void Create(uint8* data, size_t size);
+		void Destroy();
+		void ReadFromIFStream(std::ifstream& stream);
+		void ReadEndianSafe(void* ptr, size_t size);
+		void ReadIntoRaw(void* ptr, size_t size);
 
-        template <typename T> void Read(T& t)
-        {
-            MEMCPY(reinterpret_cast<uint8*>(&t), &m_data[m_index], sizeof(T));
-            m_index += sizeof(T);
-        }
+		template <typename T> void Read(T& t)
+		{
+			MEMCPY(reinterpret_cast<uint8*>(&t), &m_data[m_index], sizeof(T));
+			m_index += sizeof(T);
+		}
 
-        inline void SkipBy(size_t size)
-        {
-            m_index += size;
-        }
+		inline void SkipBy(size_t size)
+		{
+			m_index += size;
+		}
 
-        inline void Seek(size_t ind)
-        {
-            m_index = ind;
-        }
+		inline void Seek(size_t ind)
+		{
+			m_index = ind;
+		}
 
-        inline bool IsCompleted()
-        {
-            return m_index >= m_size;
-        }
+		inline bool IsCompleted()
+		{
+			return m_index >= m_size;
+		}
 
-        inline size_t GetSize() const
-        {
-            return m_size;
-        }
+		inline size_t GetSize() const
+		{
+			return m_size;
+		}
 
-        inline uint8* GetDataRaw()
-        {
-            return m_data;
-        }
+		inline uint8* GetDataRaw()
+		{
+			return m_data;
+		}
 
-        inline uint8* GetDataCurrent()
-        {
-            return &m_data[m_index];
-        }
+		inline uint8* GetDataCurrent()
+		{
+			return &m_data[m_index];
+		}
 
-        inline void Shrink(size_t size)
-        {
-            m_size = size;
-        }
+		inline void Shrink(size_t size)
+		{
+			m_size = size;
+		}
 
-    private:
-        uint8*               m_data      = nullptr;
-        size_t               m_index     = 0;
-        size_t               m_size      = 0;
-    };
+	private:
+		uint8* m_data  = nullptr;
+		size_t m_index = 0;
+		size_t m_size  = 0;
+	};
 
-    template <typename T> IStream& operator>>(IStream& istm, T& val)
-    {
-        istm.Read(val);
+	template <typename T, typename Enable = void> struct LoadHelper;
 
-        if (Endianness::ShouldSwap())
-            Endianness::SwapEndian(val);
+	template <typename T> struct LoadHelper<T, typename std::enable_if<!std::is_same<T, size_t>::value && !std::is_same<T, const size_t>::value>::type>
+	{
+		static void ReadFromStream(IStream& istm, T& val)
+		{
+			istm.Read(val);
+			if (Endianness::ShouldSwap())
+			{
+				Endianness::SwapEndian(val);
+			}
+		}
+	};
 
-        return istm;
-    }
+	template <typename T> struct LoadHelper<T, typename std::enable_if<std::is_same<T, const size_t>::value>::type>
+	{
+		static void ReadFromStream(IStream& istm, T& val)
+		{
+			uint32_t loadedValue;
+			istm.Read(loadedValue);
+			if (Endianness::ShouldSwap())
+			{
+				Endianness::SwapEndian(loadedValue);
+			}
+			val = static_cast<size_t>(loadedValue); // Cast back to size_t after reading
+		}
+	};
 
-    class OStream;
+	template <typename T> struct LoadHelper<T, typename std::enable_if<std::is_same<T, size_t>::value>::type>
+	{
+		static void ReadFromStream(IStream& istm, T& val)
+		{
+			uint32_t loadedValue;
+			istm.Read(loadedValue);
+			if (Endianness::ShouldSwap())
+			{
+				Endianness::SwapEndian(loadedValue);
+			}
+			val = static_cast<size_t>(loadedValue); // Cast back to size_t after reading
+		}
+	};
 
-    class OStream
-    {
-    public:
-        void CreateReserve(size_t size);
-        void Destroy();
-        void CheckGrow(size_t sz);
-        void WriteToOFStream(std::ofstream& stream);
-        void WriteEndianSafe(const uint8* ptr, size_t size);
-        void WriteRaw(const uint8* ptr, size_t size);
+	template <typename T> IStream& operator>>(IStream& istm, T& val)
+	{
+		LoadHelper<T>::ReadFromStream(istm, val);
+		return istm;
+	}
 
-        template <typename T> void Write(T& t)
-        {
-            if (m_data == nullptr)
-                CreateReserve(sizeof(T));
+	class OStream;
 
-            uint8* ptr  = (uint8*)&t;
-            size_t size = sizeof(T);
+	class OStream
+	{
+	public:
+		void CreateReserve(size_t size);
+		void Destroy();
+		void CheckGrow(size_t sz);
+		void WriteToOFStream(std::ofstream& stream);
+		void WriteEndianSafe(const uint8* ptr, size_t size);
+		void WriteRaw(const uint8* ptr, size_t size);
 
-            CheckGrow(size);
-            MEMCPY(&m_data[m_currentSize], ptr, size);
-            m_currentSize += size;
-        }
+		template <typename T> void Write(T& t)
+		{
+			if (m_data == nullptr)
+				CreateReserve(sizeof(T));
 
-        inline size_t GetCurrentSize() const
-        {
-            return m_currentSize;
-        }
+			uint8* ptr	= (uint8*)&t;
+			size_t size = sizeof(T);
 
-        inline uint8* GetDataRaw() const
-        {
-            return m_data;
-        }
+			CheckGrow(size);
+			MEMCPY(&m_data[m_currentSize], ptr, size);
+			m_currentSize += size;
+		}
 
-        inline void Shrink(size_t size)
-        {
-            m_currentSize = size;
-        }
+		inline size_t GetCurrentSize() const
+		{
+			return m_currentSize;
+		}
 
-    private:
-        uint8*               m_data        = nullptr;
-        size_t               m_currentSize = 0;
-        size_t               m_totalSize   = 0;
-    };
+		inline uint8* GetDataRaw() const
+		{
+			return m_data;
+		}
 
-    template <typename T> OStream& operator<<(OStream& stream, T& val)
-    {
-        auto copy = const_cast<typename std::remove_const<T>::type&>(val);
-        if (Endianness::ShouldSwap())
-            Endianness::SwapEndian(copy);
+		inline void Shrink(size_t size)
+		{
+			m_currentSize = size;
+		}
 
-        stream.Write<T>(copy);
-        return stream;
-    }
+	private:
+		uint8* m_data		 = nullptr;
+		size_t m_currentSize = 0;
+		size_t m_totalSize	 = 0;
+	};
+
+	template <typename T, typename Enable = void> struct StreamHelper;
+
+	template <typename T> struct StreamHelper<T, typename std::enable_if<!std::is_same<T, size_t>::value && !std::is_same<T, const size_t>::value>::type>
+	{
+		static void WriteToStream(OStream& stream, T& val)
+		{
+			auto copy = const_cast<typename std::remove_const<T>::type&>(val);
+			if (Endianness::ShouldSwap())
+				Endianness::SwapEndian(copy);
+			stream.Write<T>(copy);
+		}
+	};
+
+	template <typename T> struct StreamHelper<T, typename std::enable_if<std::is_same<T, size_t>::value>::type>
+	{
+		static void WriteToStream(OStream& stream, T& val)
+		{
+			uint32_t copy = static_cast<uint32_t>(val); // Cast to uint32_t
+			if (Endianness::ShouldSwap())
+				Endianness::SwapEndian(copy);
+			stream.Write<uint32_t>(copy);
+		}
+	};
+
+	template <typename T> struct StreamHelper<T, typename std::enable_if<std::is_same<T, const size_t>::value>::type>
+	{
+		static void WriteToStream(OStream& stream, T& val)
+		{
+			uint32_t copy = static_cast<uint32_t>(val); // Cast to uint32_t
+			if (Endianness::ShouldSwap())
+				Endianness::SwapEndian(copy);
+			stream.Write<uint32_t>(copy);
+		}
+	};
+
+	template <typename T> OStream& operator<<(OStream& stream, T& val)
+	{
+		StreamHelper<T>::WriteToStream(stream, val);
+		return stream;
+	}
 
 } // namespace Lina
 

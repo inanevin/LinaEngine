@@ -31,9 +31,9 @@ SOFTWARE.
 Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInfo)
 {
 	outInfo = Lina::SystemInitializationInfo{
-		.appName		  = "Lina Editor",
-		.windowWidth	  = 1920,
-		.windowHeight	  = 1080,
+		.appName		  = "Lina Game",
+		.windowWidth	  = 800,
+		.windowHeight	  = 600,
 		.windowStyle	  = LinaGX::WindowStyle::Windowed,
 		.preferredGPUType = LinaGX::PreferredGPUType::Integrated,
 		.vsyncMode		  = LinaGX::VsyncMode::None,

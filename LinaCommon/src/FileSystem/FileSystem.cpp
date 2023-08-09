@@ -218,8 +218,27 @@ namespace Lina
 		String exeFilename		= String(buffer);
 		String runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
 		return runningDirectory;
+#elif LINA_PLATFORM_LINUX
+		char	buf[PATH_MAX];
+		ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
+		if (len != -1)
+		{
+			buf[len] = '\0';
+			String exeFilename(buf);
+			String runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
+			return runningDirectory;
+		}
+#elif LINA_PLATFORM_APPLE
+		char	 buf[PATH_MAX];
+		uint32_t size = sizeof(buf);
+		if (_NSGetExecutablePath(buf, &size) == 0)
+		{
+			String exeFilename(buf);
+			String runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
+			return runningDirectory;
+		}
 #else
-		LINA_ERR("GetRunningDirectory() implementation missing for other platforms!");
+		LINA_NOTIMPLEMENTED;
 #endif
 		return "";
 	}
@@ -490,8 +509,12 @@ namespace Lina
 		wchar_t* wideBuf	  = new wchar_t[bufferLength];
 		MultiByteToWideChar(CP_UTF8, 0, input, -1, wideBuf, bufferLength);
 		return wideBuf;
+#else
+		size_t	 inputLength = strlen(input) + 1;
+		wchar_t* wideBuf	 = new wchar_t[inputLength];
+		mbstowcs(wideBuf, input, inputLength);
+		return wideBuf;
 #endif
-
 		return nullptr;
 	}
 

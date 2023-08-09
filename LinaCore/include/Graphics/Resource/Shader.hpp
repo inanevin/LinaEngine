@@ -32,25 +32,53 @@ SOFTWARE.
 #define Shader_HPP
 
 #include "Resources/Core/IResource.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
+	struct ShaderMeta
+	{
+		bool disableBlend = false;
+		bool disableDepth = false;
+		bool isFinalPass  = false;
+	};
 
 	class Shader : public IResource
 	{
 	public:
-		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
+		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
 		virtual ~Shader();
+
+		inline uint32 GetGPUHandle() const
+		{
+			return m_gpuHandle;
+		}
+
+		inline const LinaGX::ShaderLayout& GetLayout() const
+		{
+			return m_layout;
+		}
+
+		inline const LinaGX::ShaderUBO& GetMaterialUBO() const
+		{
+			return m_materialUBO;
+		}
 
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void Upload() override;
+		virtual void BatchLoaded() override;
 		virtual void Flush() override;
 
 	private:
+	private:
+		uint32											  m_gpuHandle = 0;
+		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
+		LinaGX::ShaderLayout							  m_layout		= {};
+		LinaGX::ShaderUBO								  m_materialUBO = {};
+		ShaderMeta										  m_meta;
 	};
 
 } // namespace Lina

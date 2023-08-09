@@ -40,39 +40,11 @@ namespace Lina
 			delete m_lvgFont;
 	}
 
-	void Font::Flush()
-	{
-		// m_file.clear();
-	}
-
-	void Font::Upload()
-	{
-		return;
-		const bool					  isSdf		   = m_metadata.GetBool("IsSDF"_hs, false);
-		const int					  size		   = m_metadata.GetInt("Size"_hs);
-		const int					  customRanges = m_metadata.GetInt("CustomGlyphRanges"_hs, 0);
-		Vector<LinaVG::GlyphEncoding> customRangeVec;
-		for (int i = 0; i < customRanges; i += 2)
-		{
-			const String   range0	 = "Range_" + TO_STRING(i);
-			const String   range1	 = "Range_" + TO_STRING(i + 1);
-			const StringID range0Sid = TO_SID(range0);
-			const StringID range1Sid = TO_SID(range1);
-			customRangeVec.push_back(m_metadata.GetInt(range0Sid));
-			customRangeVec.push_back(m_metadata.GetInt(range1Sid));
-		}
-
-		if (customRangeVec.empty())
-			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size);
-		else
-			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size, customRangeVec.data(), customRanges);
-	}
-
 	void Font::BatchLoaded()
 	{
-		const bool					  isSdf		   = m_metadata.GetBool("IsSDF"_hs, false);
-		const int					  size		   = m_metadata.GetInt("Size"_hs);
-		const int					  customRanges = m_metadata.GetInt("CustomGlyphRanges"_hs, 0);
+		const bool					  isSdf		   = m_metadata.GetBool(FONT_META_ISSDF, false);
+		const int					  size		   = m_metadata.GetInt(FONT_META_SIZE);
+		const int					  customRanges = m_metadata.GetInt(FONT_META_CUSTOM_GLPYHS, 0);
 		Vector<LinaVG::GlyphEncoding> customRangeVec;
 		for (int i = 0; i < customRanges; i += 2)
 		{
@@ -93,8 +65,8 @@ namespace Lina
 	void Font::LoadFromFile(const char* path)
 	{
 		// Popuplate if not existing.
-		m_metadata.GetBool("IsSDF"_hs, false);
-		m_metadata.GetInt("Size"_hs, 12);
+		m_metadata.GetBool(FONT_META_ISSDF, false);
+		m_metadata.GetInt(FONT_META_SIZE, 12);
 		FileSystem::ReadFileContentsToVector(path, m_file);
 	}
 

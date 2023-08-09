@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Core/WorldRenderer.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -45,11 +46,12 @@ SOFTWARE.
 
 namespace Lina
 {
-	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
+	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_resourceManager->AddListener(this);
-		m_meshManager.Initialize();
+		m_lgxWrapper = sys->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		m_lgx		 = m_lgxWrapper->GetLGX();
 
 		// GUIBackend
 		{
@@ -70,17 +72,75 @@ namespace Lina
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		m_resourceUploadQueue.Initialize();
+		m_meshManager.Initialize();
+		m_currentVsync = initInfo.vsyncMode;
+
+		// Default samplers
+		{
+			LinaGX::SamplerDesc samplerData = {};
+			samplerData.minFilter			= LinaGX::Filter::Anisotropic;
+			samplerData.magFilter			= LinaGX::Filter::Anisotropic;
+			samplerData.mode				= LinaGX::SamplerAddressMode::Repeat;
+			samplerData.anisotropy			= 6;
+			samplerData.borderColor			= LinaGX::BorderColor::WhiteOpaque;
+			samplerData.mipLodBias			= 0.0f;
+			samplerData.minLod				= 0.0f;
+			samplerData.maxLod				= 30.0f; // upper limit
+
+			TextureSampler* defaultSampler		  = new TextureSampler(m_resourceManager, true, "Resources/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
+			TextureSampler* defaultGUISampler	  = new TextureSampler(m_resourceManager, true, "Resources/Core/Samplers/DefaultGUISampler.linasampler", DEFAULT_GUI_SAMPLER_SID);
+			TextureSampler* defaultGUITextSampler = new TextureSampler(m_resourceManager, true, "Resources/Core/Samplers/DefaultGUITextSampler.linasampler", DEFAULT_GUI_TEXT_SAMPLER_SID);
+			defaultSampler->m_samplerDesc		  = samplerData;
+
+			samplerData.mipLodBias			 = -1.0f;
+			defaultGUISampler->m_samplerDesc = samplerData;
+
+			samplerData.minFilter				 = LinaGX::Filter::Nearest;
+			samplerData.magFilter				 = LinaGX::Filter::Anisotropic;
+			samplerData.mipLodBias				 = 0.0f;
+			defaultGUITextSampler->m_samplerDesc = samplerData;
+
+			// Force creation.
+			defaultSampler->BatchLoaded();
+			defaultGUISampler->BatchLoaded();
+			defaultGUITextSampler->BatchLoaded();
+
+			m_defaultSamplers.push_back(defaultSampler);
+			m_defaultSamplers.push_back(defaultGUISampler);
+			m_defaultSamplers.push_back(defaultGUITextSampler);
+		}
+
+		// Default materials
+		{
+			Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
+			Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
+
+			defaultLitMaterial->SetShader("Resources/Core/Shaders/LitStandard.linashader"_hs);
+			defaultUnlitMaterial->SetShader("Resources/Core/Shaders/UnlitStandard.linashader"_hs);
+			m_defaultMaterials.push_back(defaultLitMaterial);
+			m_defaultMaterials.push_back(defaultUnlitMaterial);
+		}
 	}
 
 	void GfxManager::PreShutdown()
 	{
 		LinaVG::Terminate();
 
+		for (auto m : m_defaultMaterials)
+			delete m;
+		for (auto s : m_defaultSamplers)
+			delete s;
+
+		for (auto sr : m_surfaceRenderers)
+			delete sr;
+
 		m_surfaceRenderers.clear();
 	}
 
 	void GfxManager::Shutdown()
 	{
+		m_resourceUploadQueue.Shutdown();
 		m_meshManager.Shutdown();
 		m_resourceManager->RemoveListener(this);
 	}
@@ -91,6 +151,7 @@ namespace Lina
 
 	void GfxManager::Join()
 	{
+		m_lgxWrapper->GetLGX()->Join();
 	}
 
 	void GfxManager::Tick(float interpolationAlpha)
@@ -106,11 +167,47 @@ namespace Lina
 	void GfxManager::Render()
 	{
 		PROFILER_FUNCTION();
+
+		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
+		m_resourceUploadQueue.FlushAll();
+
+		Vector<SurfaceRenderer*> validSurfaceRenderers;
+		for (const auto& sr : m_surfaceRenderers)
+		{
+			if (sr->IsVisible())
+				validSurfaceRenderers.push_back(sr);
+		}
+		const uint32 surfaceRenderersCount = static_cast<uint32>(validSurfaceRenderers.size());
+		const uint32 worldRenderersCount   = static_cast<uint32>(m_worldRenderers.size());
+
+		m_lgx->StartFrame();
+		LinaVG::StartFrame(worldRenderersCount + surfaceRenderersCount);
+
+		if (surfaceRenderersCount == 1)
+		{
+			validSurfaceRenderers[0]->Render(worldRenderersCount, currentFrameIndex, hasTransferOperation);
+			validSurfaceRenderers[0]->Present();
+		}
+		else
+		{
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) {
+				auto	  sr	   = validSurfaceRenderers[i];
+				const int threadID = worldRenderersCount + i;
+				sr->Render(threadID, currentFrameIndex);
+				sr->Present();
+			});
+
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
+
+		LinaVG::EndFrame();
+		m_lgx->EndFrame();
 	}
 
-	void GfxManager::CreateSurfaceRenderer(StringID sid, const Vector2ui& initialSize)
+	void GfxManager::CreateSurfaceRenderer(StringID sid, LinaGX::Window* window, const Vector2ui& initialSize)
 	{
-		SurfaceRenderer* renderer = new SurfaceRenderer(this, sid, initialSize);
+		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, initialSize);
 		m_surfaceRenderers.push_back(renderer);
 	}
 

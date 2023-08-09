@@ -26,58 +26,70 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Resource/MaterialProperty.hpp"
-#include "Serialization/StringSerialization.hpp"
+#pragma once
+
+#ifndef ResourceUploadQueue_HPP
+#define ResourceUploadQueue_HPP
+
+#include "Data/Mutex.hpp"
+#include "Data/Vector.hpp"
+#include "Data/Functional.hpp"
+
+namespace LinaGX
+{
+	class CommandStream;
+}
 
 namespace Lina
 {
-	MaterialPropertyBase* MaterialPropertyBase::CreateProperty(MaterialPropertyType type, const String& name)
+	class Texture;
+	class GfxManager;
+	class LGXWrapper;
+
+	struct TextureUploadRequest
 	{
-		MaterialPropertyBase* p = nullptr;
-		switch (type)
+		Texture*		 txt = nullptr;
+		Delegate<void()> onComplete;
+		uint64			 sentFrame = 0;
+	};
+
+	class ResourceUploadQueue
+	{
+	public:
+		ResourceUploadQueue(GfxManager* gfxMan);
+		~ResourceUploadQueue() = default;
+
+		void Initialize();
+		void Shutdown();
+		void AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete);
+
+		void FlushAll();
+
+		inline bool HasTransfer() const
 		{
-		case MaterialPropertyType::Float: {
-			p = new MaterialProperty<float>();
-			break;
-		}
-		case MaterialPropertyType::Int: {
-			p = new MaterialProperty<int>();
-			break;
-		}
-		case MaterialPropertyType::Bool: {
-			p = new MaterialProperty<bool>();
-			break;
-		}
-		case MaterialPropertyType::Vector2: {
-			p = new MaterialProperty<Vector2>();
-			break;
-		}
-		case MaterialPropertyType::Vector2i: {
-			p = new MaterialProperty<Vector2i>();
-			break;
-		}
-		case MaterialPropertyType::Vector4: {
-			p = new MaterialProperty<Vector4>();
-			break;
-		}
-		case MaterialPropertyType::Vector4i: {
-			p = new MaterialProperty<Vector4i>();
-			break;
-		}
-		case MaterialPropertyType::Mat4: {
-			p = new MaterialProperty<Matrix4>();
-			break;
-		}
-		case MaterialPropertyType::Texture: {
-			p = new MaterialProperty<StringID>();
-			break;
-		}
-		default:
-			LINA_ASSERT(false, "Type not found!");
+			return m_hasTransferForThisFrame;
 		}
 
-		p->m_name = name;
-		p->m_type = type;
-		return p;
-	}
+		inline uint16 GetSemaphore() const
+		{
+			return m_copySemaphore;
+		}
+
+		inline uint64 GetSemaphoreValue() const
+		{
+			return m_copySemaphoreValue;
+		}
+
+	private:
+		bool						 m_hasTransferForThisFrame = false;
+		Mutex						 m_mtx;
+		Vector<TextureUploadRequest> m_textureRequests;
+		LGXWrapper*					 m_lgxWrapper		  = nullptr;
+		GfxManager*					 m_gfxManager		  = nullptr;
+		LinaGX::CommandStream*		 m_copyStream		  = nullptr;
+		uint16						 m_copySemaphore	  = 0;
+		uint64						 m_copySemaphoreValue = 0;
+	};
 } // namespace Lina
+
+#endif

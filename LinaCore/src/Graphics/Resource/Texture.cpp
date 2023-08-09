@@ -31,35 +31,118 @@ SOFTWARE.
 #include "Resources/Core/ResourceManager.hpp"
 #include "System/ISystem.hpp"
 #include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 
 namespace Lina
 {
-	Texture::Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>())
-	{
-	}
-
 	Texture::~Texture()
 	{
+		LINA_ASSERT(m_allLevels.empty(), "Texture buffers are still filled, are you trying to delete mid-transfer?");
+		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		auto lgx		= lgxWrapper->GetLGX();
+		lgx->DestroyTexture2D(m_gpuHandle);
 	}
 
 	void Texture::LoadFromFile(const char* path)
 	{
+		const bool				   generateMipmaps = m_metadata.GetBool(TEXTURE_META_GENMIPS, true);
+		const LinaGX::MipmapFilter mipFilter	   = static_cast<LinaGX::MipmapFilter>(m_metadata.GetUInt8(TEXTURE_META_MIPFILTER, static_cast<uint8>(LinaGX::MipmapFilter::Mitchell)));
+		const bool				   isLinear		   = m_metadata.GetBool(TEXTURE_META_ISLINEAR, false);
+		m_channelMask							   = static_cast<LinaGX::ImageChannelMask>(m_metadata.GetUInt8(TEXTURE_META_CHANNEL_COUNT, 4));
+
+		m_metadata.GetUInt8(TEXTURE_META_FORMAT, static_cast<uint8>(LinaGX::Format::R8G8B8A8_SRGB));
+		m_metadata.GetUInt8(TEXTURE_META_MIPMODE, static_cast<uint8>(LinaGX::MipmapMode::Linear));
+		m_metadata.GetSID(TEXTURE_META_SAMPLER_SID, DEFAULT_SAMPLER_SID);
+
+		const uint32 bytesPerPixel = static_cast<uint32>(m_channelMask);
+
+		LinaGX::TextureLoadData outLoadData;
+		LinaGX::LoadImageFromFile(path, outLoadData);
+		LINA_ASSERT(outLoadData.pixels != nullptr, "Failed loading texture! {0}", path);
+
+		m_allLevels.push_back({outLoadData.pixels, outLoadData.width, outLoadData.height, bytesPerPixel});
+
+		if (generateMipmaps)
+		{
+			LINAGX_VEC<LinaGX::MipData> mipData;
+			LinaGX::GenerateMipmaps(outLoadData, mipData, mipFilter, LinaGX::ImageChannelMask::Rgba, isLinear);
+
+			for (const auto& mp : mipData)
+				m_allLevels.push_back({mp.pixels, mp.width, mp.height, bytesPerPixel});
+		}
 	}
 
 	void Texture::SaveToStream(OStream& stream)
 	{
+		m_metadata.SaveToStream(stream);
+		const uint32 bytesPerPixel = static_cast<uint32>(m_channelMask);
+		const uint32 allLevels	   = static_cast<uint32>(m_allLevels.size());
+
+		stream << allLevels;
+
+		for (const auto& buffer : m_allLevels)
+		{
+			const uint32 pixelSize = buffer.width * buffer.height * bytesPerPixel;
+			stream << buffer.width << buffer.height << pixelSize;
+
+			if (pixelSize != 0)
+				stream.WriteEndianSafe(buffer.pixels, pixelSize);
+		}
 	}
 
 	void Texture::LoadFromStream(IStream& stream)
 	{
-	}
+		m_metadata.LoadFromStream(stream);
+		m_channelMask = static_cast<LinaGX::ImageChannelMask>(m_metadata.GetUInt8(TEXTURE_META_CHANNEL_COUNT, 4));
 
-	void Texture::Upload()
-	{
+		uint32 allLevels = 0;
+		stream >> allLevels;
+		m_loadedFromStream = true;
+
+		for (uint32 i = 0; i < allLevels; i++)
+		{
+			uint32				  pixelSize = 0;
+			LinaGX::TextureBuffer buffer;
+			stream >> buffer.width >> buffer.height >> pixelSize;
+
+			if (pixelSize != 0)
+			{
+				buffer.pixels = new uint8[pixelSize];
+				stream.ReadEndianSafe(buffer.pixels, pixelSize);
+			}
+
+			buffer.bytesPerPixel = static_cast<uint32>(m_channelMask);
+
+			m_allLevels.push_back(buffer);
+		}
 	}
 
 	void Texture::BatchLoaded()
 	{
-	}
+		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		auto lgx		= lgxWrapper->GetLGX();
+		auto format		= static_cast<LinaGX::Format>(m_metadata.GetUInt8(TEXTURE_META_FORMAT));
+		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
+		LinaGX::Texture2DDesc desc = LinaGX::Texture2DDesc{
+			.usage	   = LinaGX::Texture2DUsage::ColorTexture,
+			.width	   = m_allLevels[0].width,
+			.height	   = m_allLevels[0].height,
+			.mipLevels = static_cast<uint32>(m_allLevels.size()),
+			.format	   = format,
+			.debugName = m_path.c_str(),
+		};
+		m_gpuHandle = lgx->CreateTexture2D(desc);
+
+		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
+			for (auto& buffer : m_allLevels)
+			{
+				if (m_loadedFromStream)
+					delete buffer.pixels;
+				else
+					LinaGX::FreeImage(buffer.pixels);
+			}
+			m_allLevels.clear();
+		});
+	}
 } // namespace Lina

@@ -35,16 +35,48 @@ SOFTWARE.
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Data/HashMap.hpp"
 #include "Event/Event.hpp"
+#include "Math/Rect.hpp"
+
+namespace LinaGX
+{
+	class Window;
+} // namespace LinaGX
+
+namespace LinaVG
+{
+	struct DrawBuffer;
+}
 
 namespace Lina
 {
-	class GUIRenderer;
 	class GfxManager;
 	class ResourceManager;
 	class Texture;
+	class GPUBuffer;
 
 	class GUIBackend : public LinaVG::Backend::BaseBackend
 	{
+	public:
+		struct DrawRequest
+		{
+			uint32 firstIndex	= 0;
+			uint32 vertexOffset = 0;
+			uint32 indexCount	= 0;
+			Rectui clip			= {};
+		};
+
+		struct GUIRenderData
+		{
+			Vector2ui			   size			= Vector2ui::Zero;
+			LinaGX::CommandStream* gfxStream	= nullptr;
+			LinaGX::CommandStream* copyStream	= nullptr;
+			GPUBuffer*			   vertexBuffer = nullptr;
+			GPUBuffer*			   indexBuffer	= nullptr;
+			Vector<DrawRequest>	   drawRequests;
+			uint32				   indexCounter	 = 0;
+			uint32				   vertexCounter = 0;
+		};
+
 	public:
 		GUIBackend(GfxManager* man);
 		~GUIBackend() = default;
@@ -65,8 +97,12 @@ namespace Lina
 		virtual void				  RestoreAPIState(){};
 		virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
-		void SetFrameGUIRenderer(int threadID, GUIRenderer* rend);
+		void Prepare(int threadID, const GUIRenderData& data);
+		void Render(int threadID);
 		void BindTextures();
+
+	private:
+		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf, GUIRenderData& data);
 
 	private:
 		HashMap<Texture*, bool>		m_textureDirtyStatus;
@@ -76,7 +112,7 @@ namespace Lina
 		HashMap<StringID, Texture*> m_renderReadyFontTextures;
 		GfxManager*					m_gfxManager	  = nullptr;
 		ResourceManager*			m_resourceManager = nullptr;
-		Vector<GUIRenderer*>		m_frameGUIRenderers;
+		Vector<GUIRenderData>		m_guiRenderData;
 	};
 } // namespace Lina
 

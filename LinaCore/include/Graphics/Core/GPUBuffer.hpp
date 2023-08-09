@@ -26,32 +26,39 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-LINA_PIPELINE_NOVERTEX
+#pragma once
 
-#include "GlobalData.linashader"
+#ifndef GPUBuffer_HPP
+#define GPUBuffer_HPP
 
-struct LinaShaderMaterial
+#include "Platform/LinaGXIncl.hpp"
+#include "Data/String.hpp"
+namespace LinaGX
 {
-	LinaTexture2D diffuse;
-};
-
-struct PSInput
-{
-	float4 position : SV_POSITION;
-	float2 uv : TEXCOORD;
-};
-
-PSInput VSMain(uint vertexID : SV_VertexID)
-{
-	PSInput result;
-	result.uv = float2((vertexID << 1) & 2, vertexID & 2);
-	result.position = float4(result.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
-	return result;
+	class Instance;
 }
 
-float4 PSMain(PSInput input) : SV_TARGET
+namespace Lina
 {
-	LinaShaderMaterial mat = Lina_GetMaterial < LinaShaderMaterial > (LINA_MATID);
-	float4 txt = Lina_SampleTexture2D(mat.diffuse, input.uv);
-	return float4(txt.xyz, 1.0f);
-}
+	class GPUBuffer
+	{
+	public:
+		~GPUBuffer();
+		void Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName = "GPUBuffer");
+		void BufferData(size_t padding, void* data, size_t size);
+		bool Copy(LinaGX::CommandStream* stream);
+		void Destroy();
+
+	private:
+		static uint64 s_usedCPUVisibleGPUMemory;
+
+		LinaGX::Instance* m_lgx						= nullptr;
+		uint32			  m_staging					= 0;
+		uint32			  m_gpu						= 0;
+		uint32			  m_size					= 0;
+		uint8*			  m_mapped					= nullptr;
+		bool			  m_isCPUVisibleGPUResource = false;
+	};
+} // namespace Lina
+
+#endif

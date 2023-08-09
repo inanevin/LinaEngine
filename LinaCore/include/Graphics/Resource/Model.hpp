@@ -38,10 +38,11 @@ namespace Lina
 	class Model : public IResource
 	{
 	public:
-		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
+		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Model>()){};
 		virtual ~Model();
 
 		// Inherited via IResource
+		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 	};

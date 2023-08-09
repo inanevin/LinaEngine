@@ -44,6 +44,10 @@ namespace LinaVG
 
 namespace Lina
 {
+#define FONT_META_SIZE			"Size"_hs
+#define FONT_META_ISSDF			"IsSDF"_hs
+#define FONT_META_CUSTOM_GLPYHS "CustomGlyphRanges"_hs
+
 	class Font : public IResource
 	{
 	public:
@@ -56,8 +60,6 @@ namespace Lina
 		}
 
 	protected:
-		virtual void Flush() override;
-		virtual void Upload() override;
 		virtual void BatchLoaded() override;
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;

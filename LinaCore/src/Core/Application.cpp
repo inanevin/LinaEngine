@@ -85,10 +85,9 @@ namespace Lina
 
 	void Application::CreateMainWindow(const SystemInitializationInfo& initInfo)
 	{
-		auto& lgxwrap = m_engine.GetLGXWrapper();
-		const auto& wm = lgxwrap.GetWindowManager();
-		auto window = wm->CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, 0, 0, initInfo.windowWidth, initInfo.windowHeight, initInfo.windowStyle);
+		auto window = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), initInfo.windowStyle == LinaGX::WindowStyle::Borderless);
 		window->CenterPositionToCurrentMonitor();
+		window->SetCallbackClose([&]() { m_exitRequested = true; });
 	}
 
 	void Application::OnInited()
@@ -139,6 +138,7 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+		m_engine.GetLGXWrapper().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		UnloadPlugins();
 		m_engine.Shutdown();
 		delete m_coreResourceRegistry;

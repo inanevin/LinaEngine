@@ -52,6 +52,12 @@ namespace Lina
 		void LoadFromStream(IStream& stream);
 	};
 
+	struct GUIVertex
+	{
+		Vector2 pos;
+		Vector2 uv;
+		Vector4 color;
+	};
 } // namespace Lina
 
 #endif

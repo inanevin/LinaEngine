@@ -28,29 +28,49 @@ SOFTWARE.
 
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Graphics/Core/GfxManager.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 
 namespace Lina
 {
-	TextureSampler::TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>())
-	{
-	}
-
 	TextureSampler::~TextureSampler()
 	{
-	}
-
-	void TextureSampler::Upload()
-	{
+		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		auto lgx		= lgxWrapper->GetLGX();
+		lgx->DestroySampler(m_gpuHandle);
 	}
 
 	void TextureSampler::SaveToStream(OStream& stream)
 	{
+		const uint8 minFilter	= static_cast<uint8>(m_samplerDesc.minFilter);
+		const uint8 magFilter	= static_cast<uint8>(m_samplerDesc.magFilter);
+		const uint8 mode		= static_cast<uint8>(m_samplerDesc.mode);
+		const uint8 mipmapMode	= static_cast<uint8>(m_samplerDesc.mipmapMode);
+		const uint8 borderColor = static_cast<uint8>(m_samplerDesc.borderColor);
+		stream << m_samplerDesc.minLod << m_samplerDesc.maxLod << m_samplerDesc.mipLodBias;
+		stream << m_samplerDesc.anisotropy;
+		stream << minFilter << magFilter << mode << mipmapMode << borderColor;
 	}
 
 	void TextureSampler::LoadFromStream(IStream& stream)
 	{
+		uint8 minFilter = 0, magFilter = 0, mode = 0, mipmapMode = 0, borderColor = 0;
+		stream >> m_samplerDesc.minLod >> m_samplerDesc.maxLod >> m_samplerDesc.mipLodBias;
+		stream >> m_samplerDesc.anisotropy;
+		stream >> minFilter >> magFilter >> mode >> mipmapMode >> borderColor;
+		m_samplerDesc.minFilter	 = static_cast<LinaGX::Filter>(minFilter);
+		m_samplerDesc.magFilter	 = static_cast<LinaGX::Filter>(magFilter);
+		m_samplerDesc.mode		 = static_cast<LinaGX::SamplerAddressMode>(mode);
+		m_samplerDesc.mipmapMode = static_cast<LinaGX::MipmapMode>(mipmapMode);
+	}
+
+	void TextureSampler::BatchLoaded()
+	{
+		auto lgxWrapper			= m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		auto lgx				= lgxWrapper->GetLGX();
+		m_samplerDesc.debugName = m_path.c_str();
+		m_gpuHandle				= lgx->CreateSampler(m_samplerDesc);
 	}
 
 } // namespace Lina

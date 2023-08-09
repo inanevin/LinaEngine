@@ -27,15 +27,19 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Model.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	Model::Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Model>())
-	{
-	}
 	Model::~Model()
 	{
 	}
+
+	void Model::LoadFromFile(const char* path)
+	{
+		
+	}
+
 	void Model::SaveToStream(OStream& stream)
 	{
 	}

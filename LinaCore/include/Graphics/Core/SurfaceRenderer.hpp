@@ -34,32 +34,46 @@ SOFTWARE.
 #include "Event/ISystemEventListener.hpp"
 #include "Core/StringID.hpp"
 #include "Math/Vector.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+#include "Graphics/Core/GPUBuffer.hpp"
+
+namespace LinaGX
+{
+	class CommandStream;
+	class Window;
+	class Instance;
+} // namespace LinaGX
 
 namespace Lina
 {
 	class IGUIDrawer;
-	class GUIRenderer;
+	class GUIBackend;
 	class GfxManager;
 
 	class SurfaceRenderer : public ISystemEventListener
 	{
+	private:
+		struct PerFrameData
+		{
+			LinaGX::CommandStream* gfxStream  = nullptr;
+			LinaGX::CommandStream* copyStream = nullptr;
+			GPUBuffer			   guiVertexBuffer;
+			GPUBuffer			   guiIndexBuffer;
+		};
+
 	public:
-		SurfaceRenderer(GfxManager* man, StringID sid, const Vector2ui& initialSize);
+		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize);
 		virtual ~SurfaceRenderer();
 
-		void		 Render(int surfaceRendererIndex, uint32 frameIndex);
+		void		 Render(int guiThreadID, uint32 frameIndex);
 		void		 Present();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void		 SetGUIDrawer(IGUIDrawer* rend);
+		bool		 IsVisible();
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
 			return EVS_WindowResized;
-		}
-
-		inline int GetSurfaceRendererIndex() const
-		{
-			return m_surfaceRendererIndex;
 		}
 
 		inline IGUIDrawer* GetGUIDrawer() const
@@ -74,12 +88,16 @@ namespace Lina
 
 	protected:
 		static int s_surfaceRendererCount;
-		int		   m_surfaceRendererIndex = 0;
 
-		StringID	 m_sid		   = 0;
-		GUIRenderer* m_guiRenderer = nullptr;
-		GfxManager*	 m_gfxManager  = nullptr;
-		IGUIDrawer*	 m_guiDrawer   = nullptr;
+		StringID		  m_sid		   = 0;
+		GfxManager*		  m_gfxManager = nullptr;
+		IGUIDrawer*		  m_guiDrawer  = nullptr;
+		GUIBackend*		  m_guiBackend = nullptr;
+		Vector2ui		  m_size	   = Vector2ui::Zero;
+		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
+		LinaGX::Instance* m_lgx		  = nullptr;
+		LinaGX::Window*	  m_window	  = nullptr;
+		uint8			  m_swapchain = 0;
 	};
 
 } // namespace Lina

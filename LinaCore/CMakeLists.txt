@@ -44,11 +44,13 @@ src/Graphics/Core/GUIBackend.cpp
 src/Graphics/Core/GfxManager.cpp
 src/Graphics/Core/LGXWrapper.cpp
 src/Graphics/Core/View.cpp
+src/Graphics/Core/GPUBuffer.cpp
 src/Graphics/Core/GUIRenderer.cpp
 src/Graphics/Core/DrawPass.cpp
 src/Graphics/Core/CameraSystem.cpp
 src/Graphics/Core/WorldRenderer.cpp
 src/Graphics/Core/SurfaceRenderer.cpp
+src/Graphics/Core/ResourceUploadQueue.cpp
 src/Graphics/Core/GfxMeshManager.cpp
 src/Graphics/Interfaces/IGUIDrawer.cpp
 src/Graphics/Components/RenderableComponent.cpp
@@ -59,7 +61,6 @@ src/Graphics/Resource/Model.cpp
 src/Graphics/Resource/Texture.cpp
 src/Graphics/Resource/TextureSampler.cpp
 src/Graphics/Resource/Material.cpp
-src/Graphics/Resource/MaterialProperty.cpp
 src/Graphics/Resource/Font.cpp
 
 
@@ -130,6 +131,8 @@ include/Graphics/Core/WorldRenderer.hpp
 include/Graphics/Core/SurfaceRenderer.hpp
 include/Graphics/Core/CommonGraphics.hpp
 include/Graphics/Core/View.hpp
+include/Graphics/Core/GPUBuffer.hpp
+include/Graphics/Core/ResourceUploadQueue.hpp
 include/Graphics/Core/DrawPass.hpp
 include/Graphics/Core/GfxMeshManager.hpp
 include/Graphics/Core/CameraSystem.hpp
@@ -145,7 +148,6 @@ include/Graphics/Resource/Model.hpp
 include/Graphics/Resource/Texture.hpp
 include/Graphics/Resource/TextureSampler.hpp
 include/Graphics/Resource/Material.hpp
-include/Graphics/Resource/MaterialProperty.hpp
 include/Graphics/Resource/Font.hpp
 
 )

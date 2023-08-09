@@ -26,32 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-LINA_PIPELINE_NOVERTEX
+#LINA_FINAL_PASS
 
-#include "GlobalData.linashader"
+#LINA_VS
 
-struct LinaShaderMaterial
+#version 460
+layout (location = 0) out vec2 outTexCoords;
+
+void main()
 {
-	LinaTexture2D diffuse;
-};
-
-struct PSInput
-{
-	float4 position : SV_POSITION;
-    float2 uv : TEXCOORD;
-};
-
-PSInput VSMain(uint vertexID : SV_VertexID)
-{
-    PSInput result;
-	result.uv = float2((vertexID << 1) & 2, vertexID & 2);
-	result.position = float4(result.uv * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
-    return result;
+	outTexCoords = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
+    gl_Position = vec4(outTexCoords * 2.0f + -1.0f, 0.0f, 1.0f);
 }
 
-float4 PSMain(PSInput input) : SV_TARGET
+#LINA_END
+
+#LINA_FS
+
+#version 460
+layout (location = 0) in vec2 inTexCoords;
+
+//output write
+layout (location = 0) out vec4 outFragColor;
+
+layout(set = 0, binding = 0) uniform sampler2D quad;
+
+void main()
 {
-	LinaShaderMaterial mat = Lina_GetMaterial < LinaShaderMaterial > (LINA_MATID);
-	float4 txt = Lina_SampleTexture2D(mat.diffuse, input.uv);
-	return float4(txt.xyz, 1.0f);
+	vec4 color = vec4(texture(quad, inTexCoords).xyz, 1.0f);
+	outFragColor = color;
 }
+
+#LINA_END

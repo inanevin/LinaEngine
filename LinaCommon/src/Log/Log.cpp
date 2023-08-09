@@ -36,62 +36,57 @@ SOFTWARE.
 
 namespace Lina
 {
-    Mutex Log::s_logMtx;
+	Mutex Log::s_logMtx;
 
-    void Log::LogImpl(LogLevel level, const char* msg)
-    {
-        LOCK_GUARD(s_logMtx);
+	void Log::LogImpl(LogLevel level, const char* msg)
+	{
+		LOCK_GUARD(s_logMtx);
 
-        String msgStr = "[" + String(GetLogLevel(level)) + "] " + msg + "\n";
+		String msgStr = "[" + String(GetLogLevel(level)) + "] " + msg + "\n";
 
 #ifdef LINA_PLATFORM_WINDOWS
-        HANDLE hConsole;
-        int    color = 15;
+		HANDLE hConsole;
+		int	   color = 15;
 
-        if ((level == LogLevel::Trace) || (level == LogLevel::Debug))
-            color = 3;
-        else if ((level == LogLevel::Info) || (level == LogLevel::None))
-            color = 15;
-        else if ((level == LogLevel::Warn))
-            color = 6;
-        else if ((level == LogLevel::Error) || (level == LogLevel::Critical))
-            color = 4;
+		if ((level == LogLevel::Trace) || (level == LogLevel::Debug))
+			color = 3;
+		else if ((level == LogLevel::Info) || (level == LogLevel::None))
+			color = 15;
+		else if ((level == LogLevel::Warn))
+			color = 6;
+		else if ((level == LogLevel::Error) || (level == LogLevel::Critical))
+			color = 4;
 
-        hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleTextAttribute(hConsole, color);
+		hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		SetConsoleTextAttribute(hConsole, color);
 
-        WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), msgStr.c_str(), static_cast<DWORD>(strlen(msgStr.c_str())), NULL, NULL);
+		WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), msgStr.c_str(), static_cast<DWORD>(strlen(msgStr.c_str())), NULL, NULL);
 
-#elif LINA_LINUX
-        if (dump.level == LogLevel::Error)
-            msg = "\033{1;31m" + dump.m_message + "\033[0m";
-        else if (dump.level == LogLevel::Warn)
-            msg = "\033{1;33m" + dump.m_message + "\033[0m";
-
-        std::cout << msgStr.c_str() << std::endl;
+#elif
+		std::cout << msgStr.c_str() << std::endl;
 #endif
-    }
+	}
 
-    const char* Log::GetLogLevel(LogLevel level)
-    {
-        switch (level)
-        {
-        case LogLevel::Critical:
-            return "Critical";
-        case LogLevel::Debug:
-            return "Debug";
-        case LogLevel::Error:
-            return "Error";
-        case LogLevel::Info:
-            return "Info";
-        case LogLevel::None:
-            return "None";
-        case LogLevel::Trace:
-            return "Trace";
-        case LogLevel::Warn:
-            return "Warn";
-        default:
-            return "";
-        }
-    }
+	const char* Log::GetLogLevel(LogLevel level)
+	{
+		switch (level)
+		{
+		case LogLevel::Critical:
+			return "Critical";
+		case LogLevel::Debug:
+			return "Debug";
+		case LogLevel::Error:
+			return "Error";
+		case LogLevel::Info:
+			return "Info";
+		case LogLevel::None:
+			return "None";
+		case LogLevel::Trace:
+			return "Trace";
+		case LogLevel::Warn:
+			return "Warn";
+		default:
+			return "";
+		}
+	}
 } // namespace Lina

@@ -81,6 +81,9 @@ set (LINACOMMON_SOURCES
 	src/System/ISystem.cpp
 	src/System/ISubsystem.cpp
 
+	# Platform
+	src/Platform/LinaGXIncl.cpp
+
 )
 
 

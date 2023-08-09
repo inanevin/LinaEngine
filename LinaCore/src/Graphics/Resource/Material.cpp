@@ -27,31 +27,83 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Material.hpp"
+#include "Serialization/StringSerialization.hpp"
+#include "Resources/Core/ResourceManager.hpp"
+#include "Graphics/Resource/Shader.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina
 {
-	Material::Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Material>())
-	{
-	}
-
 	Material::~Material()
 	{
+		if (m_data != nullptr)
+			delete[] m_data;
+	}
+
+	void Material::SetShader(StringID sid)
+	{
+		m_shader = sid;
+
+		if (m_data != nullptr)
+			delete[] m_data;
+
+		Shader* shader = m_resourceManager->GetResource<Shader>(m_shader);
+
+		if (shader == nullptr)
+		{
+			// possibly deleted shader.
+			m_shader = DEFAULT_SHADER_SID;
+			shader	 = m_resourceManager->GetResource<Shader>(m_shader);
+		}
+
+		if (shader)
+		{
+			m_uboDefinition = shader->GetMaterialUBO();
+
+			m_totalDataSize = 0;
+			for (const auto& mem : m_uboDefinition.members)
+				m_totalDataSize += mem.alignment;
+
+			if (m_totalDataSize == 0)
+				return;
+
+			m_data = new uint8[m_totalDataSize];
+		}
+	}
+
+	void Material::GetDataBlob(uint8* ptr, size_t size)
+	{
+		ptr = new uint8[m_totalDataSize];
+		MEMCPY(ptr, m_data, m_totalDataSize);
 	}
 
 	void Material::LoadFromFile(const char* path)
 	{
+		IResource::LoadFromFile(path);
 	}
 
 	void Material::SaveToStream(OStream& stream)
 	{
+		stream << m_shader << m_totalDataSize;
+
+		if (m_totalDataSize != 0)
+			stream.WriteEndianSafe(m_data, m_totalDataSize);
 	}
 
 	void Material::LoadFromStream(IStream& stream)
 	{
+		stream >> m_shader >> m_totalDataSize;
+
+		if (m_totalDataSize != 0)
+		{
+			m_data = new uint8[m_totalDataSize];
+			stream.ReadEndianSafe(m_data, m_totalDataSize);
+		}
 	}
 
 	void Material::BatchLoaded()
 	{
+		SetShader(m_shader);
 	}
 
 } // namespace Lina

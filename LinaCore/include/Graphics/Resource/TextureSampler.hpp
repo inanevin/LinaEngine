@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Resources/Core/IResource.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
@@ -41,16 +42,20 @@ namespace Lina
 	class TextureSampler : public IResource
 	{
 	public:
-		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
+		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>()){};
 		virtual ~TextureSampler();
 
+	private:
+		friend class GfxManager;
+
 	protected:
-		// Inherited via IResource
-		virtual void Upload() override;
+		virtual void BatchLoaded() override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
+		uint32				m_gpuHandle	  = 0;
+		LinaGX::SamplerDesc m_samplerDesc = {};
 	};
 } // namespace Lina
 
