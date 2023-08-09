@@ -36,10 +36,13 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Event/Event.hpp"
 #include "Math/Rect.hpp"
+#include "Graphics/Data/RenderData.hpp"
 
 namespace LinaGX
 {
 	class Window;
+	class CommandStream;
+	class Instance;
 } // namespace LinaGX
 
 namespace LinaVG
@@ -57,21 +60,49 @@ namespace Lina
 	class GUIBackend : public LinaVG::Backend::BaseBackend
 	{
 	public:
+		struct GPUGUISceneData
+		{
+			Matrix4 projection;
+		};
+
+		struct GPUGUIMaterialData
+		{
+			Vector4			 color1;
+			Vector4			 color2;
+			Vector4			 floatPack1;
+			Vector4			 floatPack2;
+			GPULinaTexture2D diffuse;
+		};
+
+		struct GPUGUIConstants
+		{
+			uint32 bufferType;
+			uint32 materialID;
+		};
+
 		struct DrawRequest
 		{
-			uint32 firstIndex	= 0;
-			uint32 vertexOffset = 0;
-			uint32 indexCount	= 0;
-			Rectui clip			= {};
+			uint32			   firstIndex	= 0;
+			uint32			   vertexOffset = 0;
+			uint32			   indexCount	= 0;
+			Rectui			   clip			= {};
+			GPUGUIMaterialData materialData;
+			GPUGUIConstants	   constants;
 		};
 
 		struct GUIRenderData
 		{
-			Vector2ui			   size			= Vector2ui::Zero;
-			LinaGX::CommandStream* gfxStream	= nullptr;
-			LinaGX::CommandStream* copyStream	= nullptr;
-			GPUBuffer*			   vertexBuffer = nullptr;
-			GPUBuffer*			   indexBuffer	= nullptr;
+			Vector2ui			   size				  = Vector2ui::Zero;
+			LinaGX::CommandStream* gfxStream		  = nullptr;
+			LinaGX::CommandStream* copyStream		  = nullptr;
+			uint16				   copySemaphore	  = 0;
+			uint64*				   copySemaphoreValue = nullptr;
+			GPUBuffer*			   vertexBuffer		  = nullptr;
+			GPUBuffer*			   indexBuffer		  = nullptr;
+			GPUBuffer*			   materialBuffer	  = nullptr;
+			uint16				   descriptorSet1	  = 0;
+			uint16				   descriptorSet2	  = 0;
+			uint8*				   sceneDataMapping	  = nullptr;
 			Vector<DrawRequest>	   drawRequests;
 			uint32				   indexCounter	 = 0;
 			uint32				   vertexCounter = 0;
@@ -99,10 +130,10 @@ namespace Lina
 
 		void Prepare(int threadID, const GUIRenderData& data);
 		void Render(int threadID);
-		void BindTextures();
 
 	private:
 		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf, GUIRenderData& data);
+		Matrix4		 GetProjectionFromSize(const Vector2ui& size);
 
 	private:
 		HashMap<Texture*, bool>		m_textureDirtyStatus;
@@ -113,6 +144,7 @@ namespace Lina
 		GfxManager*					m_gfxManager	  = nullptr;
 		ResourceManager*			m_resourceManager = nullptr;
 		Vector<GUIRenderData>		m_guiRenderData;
+		LinaGX::Instance*			m_lgx = nullptr;
 	};
 } // namespace Lina
 

@@ -45,8 +45,9 @@ namespace Lina
 {
 	int SurfaceRenderer::s_surfaceRendererCount = 0;
 
-#define MAX_GUI_VERTEX_BUFFERS 5000
-#define MAX_GUI_INDEX_BUFFERS  5000
+#define MAX_GUI_VERTICES  5000
+#define MAX_GUI_INDICES	  5000
+#define MAX_GUI_MATERIALS 100
 
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
 	{
@@ -59,8 +60,77 @@ namespace Lina
 			auto& data		= m_pfd[i];
 			data.gfxStream	= m_lgx->CreateCommandStream(100, LinaGX::QueueType::Graphics);
 			data.copyStream = m_lgx->CreateCommandStream(100, LinaGX::QueueType::Transfer);
-			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTEX_BUFFERS * sizeof(GUIVertex), "Surface Renderer GUI Vertex Buffer");
-			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDEX_BUFFERS * sizeof(uint16), "Surface Renderer GUI Vertex Buffer");
+			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
+			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Vertex Buffer");
+			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GUIBackend::GPUGUIMaterialData));
+			data.copySemaphore = m_lgx->CreateUserSemaphore();
+
+			LinaGX::ResourceDesc resourceDesc = {
+				.size		   = sizeof(GUIBackend::GPUGUISceneData),
+				.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+				.heapType	   = LinaGX::ResourceHeap::StagingHeap,
+				.debugName	   = "Surface Renderer GUI Scene Data",
+			};
+
+			data.guiSceneResource = m_lgx->CreateResource(resourceDesc);
+			m_lgx->MapResource(data.guiSceneResource, data.guiSceneDataMapping);
+
+			// Set 1 - Scene Data
+			{
+				LinaGX::DescriptorBinding set1Binding = {
+					.binding		 = 0,
+					.descriptorCount = 1,
+					.type			 = LinaGX::DescriptorType::UBO,
+					.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+				};
+
+				LinaGX::DescriptorSetDesc set1Desc = {
+					.bindings	   = &set1Binding,
+					.bindingsCount = 1,
+				};
+
+				data.guiDescriptorSet1 = m_lgx->CreateDescriptorSet(set1Desc);
+
+				LinaGX::DescriptorUpdateBufferDesc sceneDataUpdate = {
+					.setHandle		 = data.guiDescriptorSet1,
+					.binding		 = 0,
+					.descriptorCount = 1,
+					.resources		 = &data.guiSceneResource,
+					.descriptorType	 = LinaGX::DescriptorType::UBO,
+				};
+
+				m_lgx->DescriptorUpdateBuffer(sceneDataUpdate);
+			}
+
+			// Set 2 - Material Data
+			{
+				// Material data
+				LinaGX::DescriptorBinding set2Binding = {
+					.binding		 = 0,
+					.descriptorCount = 1,
+					.type			 = LinaGX::DescriptorType::SSBO,
+					.stages			 = {LinaGX::ShaderStage::Fragment},
+				};
+
+				LinaGX::DescriptorSetDesc set2Desc = {
+					.bindings	   = &set2Binding,
+					.bindingsCount = 1,
+				};
+
+				data.guiDescriptorSet2 = m_lgx->CreateDescriptorSet(set2Desc);
+
+				uint32 res = data.guiMaterialBuffer.GetGPUResource();
+
+				LinaGX::DescriptorUpdateBufferDesc update = {
+					.setHandle		 = data.guiDescriptorSet2,
+					.binding		 = 0,
+					.descriptorCount = 1,
+					.resources		 = &res,
+					.descriptorType	 = LinaGX::DescriptorType::SSBO,
+				};
+
+				m_lgx->DescriptorUpdateBuffer(update);
+			}
 		}
 
 		const auto monitorSize = window->GetMonitorSize();
@@ -84,6 +154,21 @@ namespace Lina
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data = m_pfd[i];
+			data.guiIndexBuffer.Destroy();
+			data.guiVertexBuffer.Destroy();
+			data.guiMaterialBuffer.Destroy();
+			m_lgx->DestroyCommandStream(data.gfxStream);
+			m_lgx->DestroyCommandStream(data.copyStream);
+			m_lgx->DestroyDescriptorSet(data.guiDescriptorSet1);
+			m_lgx->DestroyDescriptorSet(data.guiDescriptorSet2);
+			m_lgx->DestroyResource(data.guiSceneResource);
+			m_lgx->DestroyUserSemaphore(data.copySemaphore);
+		}
+
+		m_lgx->DestroySwapchain(m_swapchain);
 		m_gfxManager->GetSystem()->RemoveListener(this);
 	}
 
@@ -109,6 +194,11 @@ namespace Lina
 	{
 		if (!IsVisible())
 			return;
+		return;
+
+		auto& currentFrame = m_pfd[frameIndex];
+
+		const uint64 copySemaphoreValue = currentFrame.copySemaphoreValue;
 
 		LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -125,8 +215,6 @@ namespace Lina
 			.width	= m_size.x,
 			.height = m_size.y,
 		};
-
-		auto& currentFrame = m_pfd[frameIndex];
 
 		// Begin render pass
 		{
@@ -148,12 +236,19 @@ namespace Lina
 		if (m_guiDrawer != nullptr)
 		{
 			GUIBackend::GUIRenderData guiRenderData = {
-				.size		  = m_size,
-				.gfxStream	  = currentFrame.gfxStream,
-				.copyStream	  = currentFrame.copyStream,
-				.vertexBuffer = &currentFrame.guiVertexBuffer,
-				.indexBuffer  = &currentFrame.guiIndexBuffer,
+				.size				= m_size,
+				.gfxStream			= currentFrame.gfxStream,
+				.copyStream			= currentFrame.copyStream,
+				.copySemaphore		= currentFrame.copySemaphore,
+				.copySemaphoreValue = &currentFrame.copySemaphoreValue,
+				.vertexBuffer		= &currentFrame.guiVertexBuffer,
+				.indexBuffer		= &currentFrame.guiIndexBuffer,
+				.materialBuffer		= &currentFrame.guiMaterialBuffer,
+				.descriptorSet1		= currentFrame.guiDescriptorSet1,
+				.descriptorSet2		= currentFrame.guiDescriptorSet2,
+				.sceneDataMapping	= currentFrame.guiSceneDataMapping,
 			};
+
 			guiRenderData.drawRequests.reserve(50);
 
 			m_guiDrawer->DrawGUI(guiThreadID);
@@ -172,17 +267,30 @@ namespace Lina
 
 		// Send
 		{
-			const auto& uploadQueue		   = m_gfxManager->GetResourceUploadQueue();
-			uint16		waitSemaphore	   = uploadQueue.GetSemaphore();
-			uint64		waitSemaphoreValue = uploadQueue.GetSemaphoreValue();
+			const auto& uploadQueue = m_gfxManager->GetResourceUploadQueue();
+
+			Vector<uint16> waitSemaphores;
+			Vector<uint64> waitValues;
+
+			if (copySemaphoreValue != currentFrame.copySemaphoreValue)
+			{
+				waitSemaphores.push_back(currentFrame.copySemaphore);
+				waitValues.push_back(currentFrame.copySemaphoreValue);
+			}
+
+			if (uploadQueue.HasTransfer())
+			{
+				waitSemaphores.push_back(uploadQueue.GetSemaphore());
+				waitValues.push_back(uploadQueue.GetSemaphoreValue());
+			}
 
 			LinaGX::SubmitDesc desc = {
 				.streams		= &currentFrame.gfxStream,
 				.streamCount	= 1,
-				.useWait		= uploadQueue.HasTransfer(),
-				.waitCount		= 1,
-				.waitSemaphores = &waitSemaphore,
-				.waitValues		= &waitSemaphoreValue,
+				.useWait		= !waitSemaphores.empty(),
+				.waitCount		= static_cast<uint32>(waitSemaphores.size()),
+				.waitSemaphores = waitSemaphores.data(),
+				.waitValues		= waitValues.data(),
 			};
 
 			m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);

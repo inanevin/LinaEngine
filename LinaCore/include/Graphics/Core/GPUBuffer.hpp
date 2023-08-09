@@ -49,6 +49,11 @@ namespace Lina
 		bool Copy(LinaGX::CommandStream* stream);
 		void Destroy();
 
+		inline uint32 GetGPUResource() const
+		{
+			return m_gpu;
+		}
+
 	private:
 		static uint64 s_usedCPUVisibleGPUMemory;
 

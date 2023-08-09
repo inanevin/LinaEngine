@@ -46,6 +46,8 @@ namespace Lina
 #define IDEAL_RT					 16667
 #define FRAMES_IN_FLIGHT			 2
 #define BACK_BUFFER_COUNT			 3
+#define MAX_BOUND_TEXTURES			 512
+#define MAX_BOUND_SAMPLERS			 128
 
 	enum class MaterialPropertyType
 	{

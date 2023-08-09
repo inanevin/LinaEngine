@@ -55,6 +55,15 @@ namespace Lina
 	{
 
 	private:
+		struct PerFrameData
+		{
+			uint16 descriptorSet0GlobalData = 0;
+			uint32 globalDataResource		= 0;
+			uint8* globalDataMapped			= nullptr;
+			bool   bindlessTexturesDirty	= true;
+			bool   bindlessSamplersDirty	= true;
+		};
+
 	public:
 		GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys);
 		virtual ~GfxManager() = default;
@@ -71,10 +80,13 @@ namespace Lina
 		void			 DestroySurfaceRenderer(StringID sid);
 		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
+		uint16			 GetCurrentDescriptorSet0GlobalData();
+		void			 UpdateBindlessTextures();
+		void			 UpdateBindlessSamplers();
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_ResourceLoadTaskCompleted | EVS_WindowResized | EVS_VsyncModeChanged;
+			return EVS_ResourceLoadTaskCompleted | EVS_ResourceBatchUnloaded | EVS_WindowResized | EVS_VsyncModeChanged;
 		}
 
 		inline const GfxMeshManager& GetMeshManager()
@@ -97,6 +109,18 @@ namespace Lina
 			return m_currentVsync;
 		}
 
+		inline void MarkBindlessTexturesDirty()
+		{
+			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+				m_pfd[i].bindlessTexturesDirty = true;
+		}
+
+		inline void MarkBindlessSamplersDirty()
+		{
+			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+				m_pfd[i].bindlessSamplersDirty = true;
+		}
+
 	private:
 		ResourceUploadQueue		 m_resourceUploadQueue;
 		GfxMeshManager			 m_meshManager;
@@ -109,6 +133,8 @@ namespace Lina
 		LGXWrapper*				 m_lgxWrapper	= nullptr;
 		LinaGX::Instance*		 m_lgx			= nullptr;
 		LinaGX::VsyncMode		 m_currentVsync = LinaGX::VsyncMode::None;
+
+		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina
 #endif

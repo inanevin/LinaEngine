@@ -45,6 +45,11 @@ namespace Lina
 		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>()){};
 		virtual ~TextureSampler();
 
+		inline uint32 GetGPUHandle() const
+		{
+			return m_gpuHandle;
+		}
+
 	private:
 		friend class GfxManager;
 

@@ -59,8 +59,7 @@ namespace Lina
 	{
 		m_lgx = new LinaGX::Instance();
 
-		typedef void (*LogCallback)(const char*, ...);
-
+		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = [](const char* err, ...) {
 			va_list args;
 			va_start(args, err);
@@ -77,9 +76,7 @@ namespace Lina
 			va_end(args);
 		};
 
-		LinaGX::Config.logLevel = LinaGX::LogLevel::Verbose;
-
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
+		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -88,7 +85,7 @@ namespace Lina
 		LinaGX::GPULimits limits = {
 			.textureLimit		= 2048,
 			.samplerLimit		= 512,
-			.bufferLimit		= 1024,
+			.bufferLimit		= 4096,
 			.maxSubmitsPerFrame = 30,
 		};
 

@@ -55,10 +55,17 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* gfxStream  = nullptr;
-			LinaGX::CommandStream* copyStream = nullptr;
+			LinaGX::CommandStream* gfxStream		  = nullptr;
+			LinaGX::CommandStream* copyStream		  = nullptr;
+			uint16				   copySemaphore	  = 0;
+			uint64				   copySemaphoreValue = 0;
 			GPUBuffer			   guiVertexBuffer;
 			GPUBuffer			   guiIndexBuffer;
+			GPUBuffer			   guiMaterialBuffer;
+			uint16				   guiDescriptorSet1   = 0;
+			uint16				   guiDescriptorSet2   = 0;
+			uint32				   guiSceneResource	   = 0;
+			uint8*				   guiSceneDataMapping = nullptr;
 		};
 
 	public:

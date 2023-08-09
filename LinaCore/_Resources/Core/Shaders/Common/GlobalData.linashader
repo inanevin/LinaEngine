@@ -26,63 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-cbuffer LinaGlobal : register(b0)
+layout(set = 0, binding = 0) uniform GlobalData
 {
-	float4 ScreenSizeMousePos;
-	float2 DeltaElapsed;
-}
+	vec2 mousePosition;
+	float deltaTime;
+	float elapsedTime;
+} LINA_GLOBAL;
 
-#define LINA_SCREEN ScreenSizeMousePos.xy
-#define LINA_MOUSE ScreenSizeMousePos.zw
-#define LINA_DT DeltaElapsed.x
-#define LINA_ET DeltaElapsed.y
-						
-struct IndirectConstant
-{
-	uint instanceID;
-	uint materialID;
-};
+#define LINA_MOUSEPOS LINA_GLOBAL.mousePosition
+#define LINA_DT LINA_GLOBAL.deltaTime
+#define LINA_ET LINA_GLOBAL.elapsedTime
 
-ConstantBuffer<IndirectConstant> IndirectConstants : register(b1);
-				
-#define LINA_INSTANCEID IndirectConstants.instanceID
-#define LINA_MATID IndirectConstants.materialID
-
-struct Light
-{
-	float4 Position;
-};
-
-cbuffer LinaScene : register(b2)
-{
-	float4 FogColor;
-	float4 FogDistances;
-	float4 AmbientColor;
-	float4 SunlightDirection;
-	float4 SunlightColor;
-	Light lights[10];
-}
-
-cbuffer LinaView : register(b3)
-{
-	float4x4 View;
-	float4x4 Proj;
-	float4x4 ViewProj;
-	float4 CamPos;
-	float2 CamNearFar;
-}
-
-#define LINA_VIEW View
-#define LINA_PROJ Proj
-#define LINA_VIEWPROJ ViewProj
-#define LINA_CAMLOC CamPos.xyz
-#define LINA_CAMNEAR CamNearFar.x
-#define LINA_CAMFAR CamNearFar.y
-
-struct ObjectData
-{
-	float4x4 model;
-};
+layout(set = 0, binding = 1) uniform texture2D allTextures[];
+layout(set = 0, binding = 2) uniform sampler allSamplers[];
 
 struct LinaTexture2D
 {
@@ -90,25 +46,7 @@ struct LinaTexture2D
 	uint samplerIndex;
 };
 
-Texture2D Texture2DTable[] : register(t0, space0);
-StructuredBuffer<ObjectData> Objects : register(t0, space1);
-ByteAddressBuffer MaterialTable[] : register(t0, space2);
-SamplerState Sampler2DTable[] : register(s0, space0);
-SamplerState StaticSampler : register(s0, space1);
-
-
-float4 Lina_SampleTexture2D(LinaTexture2D texture, float2 uv)
+vec4 LinaSampleTexture2D(LinaTexture2D data, vec2 uv)
 {
-	return Texture2DTable[texture.textureIndex].Sample(Sampler2DTable[texture.samplerIndex], uv);
-}
-
-template<typename T>
-T Lina_GetMaterial(uint matID)
-{
-	return MaterialTable[matID].Load<T> (0);
-}
-
-ObjectData Lina_GetObject(uint instanceID)
-{
-	return Objects[instanceID];
+	return texture(sampler2D(allTextures[data.textureIndex], allSamplers[data.samplerIndex]), uv);
 }

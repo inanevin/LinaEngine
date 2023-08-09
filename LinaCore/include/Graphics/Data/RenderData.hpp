@@ -34,6 +34,8 @@ SOFTWARE.
 #include "Math/AABB.hpp"
 #include "Data/Vector.hpp"
 #include "Data/Bitmask.hpp"
+#include "Math/Vector.hpp"
+#include "Math/Matrix.hpp"
 
 namespace Lina
 {
@@ -41,9 +43,8 @@ namespace Lina
 	class Mesh;
 	class Material;
 
-#define OBJ_BUFFER_MAX	  15
-#define MAX_LIGHTS		  10
-
+#define OBJ_BUFFER_MAX 15
+#define MAX_LIGHTS	   10
 
 	enum RenderableType
 	{
@@ -60,6 +61,29 @@ namespace Lina
 		Opaque		= 1 << 0,
 		Transparent = 1 << 1,
 		Shadow		= 1 << 2,
+	};
+
+	struct GPUGlobalData
+	{
+		Vector2 mousePosition = Vector2::Zero;
+		float	deltaTime	  = 0.0f;
+		float	elapsedTime	  = 0.0f;
+	};
+
+	struct GPUSceneData
+	{
+		Matrix4 view;
+		Matrix4 proj;
+		Matrix4 viewProj;
+		Vector4 cameraPosition;
+		Vector2 cameraNearFar;
+		Vector2 screenSize;
+	};
+
+	struct GPULinaTexture2D
+	{
+		uint32 textureIndex;
+		uint32 samplerIndex;
 	};
 
 } // namespace Lina

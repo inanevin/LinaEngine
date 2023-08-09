@@ -38,8 +38,26 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Platform/LinaGXIncl.hpp"
 
+#include "Graphics/Interfaces/IGUIDrawer.hpp"
+#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+
 namespace Lina
 {
+
+	class TestGUIDrawer : public IGUIDrawer
+	{
+	public:
+		TestGUIDrawer() {};
+		virtual ~TestGUIDrawer() = default;
+
+		virtual void DrawGUI(int threadID)
+		{
+			LinaVG::StyleOptions opts;
+			LinaVG::DrawRect(LinaVG::Vec2(100, 100), LinaVG::Vec2(500, 500), opts, 0.0f, 1);
+		}
+	};
+
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		auto& resourceManager = m_engine.GetResourceManager();
@@ -88,6 +106,10 @@ namespace Lina
 		auto window = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), initInfo.windowStyle == LinaGX::WindowStyle::Borderless);
 		window->CenterPositionToCurrentMonitor();
 		window->SetCallbackClose([&]() { m_exitRequested = true; });
+
+		auto		   sf  = m_engine.GetGfxManager()->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
+		IGUIDrawer* heh = new TestGUIDrawer();
+		sf->SetGUIDrawer(heh);
 	}
 
 	void Application::OnInited()
