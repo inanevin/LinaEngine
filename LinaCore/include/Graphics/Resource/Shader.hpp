@@ -33,14 +33,23 @@ SOFTWARE.
 
 #include "Resources/Core/IResource.hpp"
 #include "Platform/LinaGXIncl.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+#include "Data/Streams.hpp"
 
 namespace Lina
 {
-	struct ShaderMeta
+	struct ShaderVariant
 	{
-		bool disableBlend = false;
-		bool disableDepth = false;
-		bool isFinalPass  = false;
+		uint32				  gpuHandle	   = 0;
+		String				  name		   = "";
+		String				  passName	   = "";
+		bool				  blendDisable = false;
+		bool				  depthDisable = false;
+		ShaderVariantPassType passType	   = ShaderVariantPassType::RenderTarget;
+		LinaGX::CullMode	  cullMode	   = LinaGX::CullMode::Back;
+
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 	};
 
 	class Shader : public IResource
@@ -51,7 +60,23 @@ namespace Lina
 
 		inline uint32 GetGPUHandle() const
 		{
-			return m_gpuHandle;
+			return m_variants.begin()->second.gpuHandle;
+		}
+
+		inline uint32 GetGPUHandle(StringID variant) const
+		{
+			return m_variants.at(variant).gpuHandle;
+		}
+
+		inline uint32 GetGPUHandle(ShaderVariantPassType passType) const
+		{
+			for (const auto& [sid, var] : m_variants)
+			{
+				if (var.passType == passType)
+					return var.gpuHandle;
+			}
+
+			return m_variants.begin()->second.gpuHandle;
 		}
 
 		inline const LinaGX::ShaderLayout& GetLayout() const
@@ -74,11 +99,10 @@ namespace Lina
 
 	private:
 	private:
-		uint32											  m_gpuHandle = 0;
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
 		LinaGX::ShaderLayout							  m_layout		= {};
 		LinaGX::ShaderUBO								  m_materialUBO = {};
-		ShaderMeta										  m_meta;
+		HashMap<StringID, ShaderVariant>				  m_variants;
 	};
 
 } // namespace Lina

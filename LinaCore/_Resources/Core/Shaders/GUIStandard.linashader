@@ -26,9 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_VS
+#lina_shader_variant
+#lina_name : default
+#lina_pass : rendertarget
+#lina_cull : front
+#lina_end
 
-#version 460
+#lina_shader_variant
+#lina_name : final
+#lina_pass : swapchain
+#lina_cull : front
+#lina_end
+
+#lina_vs
 
 layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 uv;
@@ -37,25 +47,16 @@ layout (location = 2) in vec4 col;
 layout (location = 0) out vec4 fCol;
 layout (location = 1) out vec2 fUV;
 
-layout(set = 1, binding = 0) uniform SceneData
-{
-   mat4 proj;
-} sceneData;
-
 void main()
 {
    fCol = col;
    fUV = uv;
-   gl_Position = sceneData.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
+   gl_Position = LINA_PROJ * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
-#LINA_END
+#lina_end
 
-#LINA_FS
-
-#version 460
-#extension GL_EXT_nonuniform_qualifier : enable
-#include "Common/GlobalData.linashader"
+#lina_fs
 
 layout (location = 0) in vec4 fCol;
 layout (location = 1) in vec2 fUV;
@@ -144,4 +145,4 @@ void main()
 
 }
 
-#LINA_END
+#lina_end

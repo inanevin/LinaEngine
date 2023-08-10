@@ -52,6 +52,7 @@ src/Graphics/Core/WorldRenderer.cpp
 src/Graphics/Core/SurfaceRenderer.cpp
 src/Graphics/Core/ResourceUploadQueue.cpp
 src/Graphics/Core/GfxMeshManager.cpp
+src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Interfaces/IGUIDrawer.cpp
 src/Graphics/Components/RenderableComponent.cpp
 src/Graphics/Data/Vertex.cpp
@@ -136,6 +137,7 @@ include/Graphics/Core/ResourceUploadQueue.hpp
 include/Graphics/Core/DrawPass.hpp
 include/Graphics/Core/GfxMeshManager.hpp
 include/Graphics/Core/CameraSystem.hpp
+include/Graphics/Utility/ShaderPreprocessor.hpp
 include/Graphics/Interfaces/IGUIDrawer.hpp
 include/Graphics/Data/RenderData.hpp
 include/Graphics/Data/Vertex.hpp

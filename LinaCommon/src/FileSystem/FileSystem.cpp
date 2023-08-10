@@ -243,6 +243,17 @@ namespace Lina
 		return "";
 	}
 
+	String FileSystem::RemoveWhitespaces(const String& str)
+	{
+		std::string result;
+        for (char c : str) {
+            if (!std::isspace(static_cast<unsigned char>(c))) {
+                result.push_back(c);
+            }
+        }
+        return result.c_str();
+	}
+
 	bool FileSystem::FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem)
 	{
 		bool contains = false;

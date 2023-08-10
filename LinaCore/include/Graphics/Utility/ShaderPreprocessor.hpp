@@ -28,33 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CommonGraphics_HPP
-#define CommonGraphics_HPP
+#ifndef ShaderPreProcessor_HPP
+#define ShaderPreProcessor_HPP
+
+#include "Graphics/Resource/Shader.hpp"
+#include "Data/HashMap.hpp"
+#include "Platform/LinaGXIncl.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
-
-#define LINA_MAIN_SWAPCHAIN			 "LinaMainSwapchain"_hs
-#define DEFAULT_SHADER_SID			 "Resource/Core/Shaders/UnlitStandard.linashader"_hs
-#define DEFAULT_SAMPLER_SID			 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
-#define DEFAULT_GUI_SAMPLER_SID		 "Resource/Core/Samplers/DefaultGUISampler.linasampler"_hs
-#define DEFAULT_GUI_TEXT_SAMPLER_SID "Resource/Core/Samplers/DefaultGUITextSampler.linasampler"_hs
-#define DEFAULT_TEXTURE_SID			 "Resources/Core/Textures/StubLinaLogo.png"_hs
-#define DEFAULT_LIT_MATERIAL		 "Resources/Core/Materials/DefaultLit.linamaterial"_hs
-#define DEFAULT_UNLIT_MATERIAL		 "Resources/Core/Materials/DefaultUnlit.linamaterial"_hs
-#define DEFAULT_CLEAR_CLR			 Color(0.3f, 0.3f, 0.5f, 1.0f)
-#define IDEAL_RT					 16667
-#define FRAMES_IN_FLIGHT			 2
-#define BACK_BUFFER_COUNT			 3
-#define MAX_BOUND_TEXTURES			 512
-#define MAX_BOUND_SAMPLERS			 128
-
-	enum class ShaderVariantPassType
+	class ShaderPreprocessor
 	{
-		RenderTarget,
-		Swapchain,
+	public:
+		static bool Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, HashMap<StringID, ShaderVariant>& outVariants);
 	};
-
 } // namespace Lina
 
 #endif

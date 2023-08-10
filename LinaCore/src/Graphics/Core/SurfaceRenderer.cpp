@@ -61,12 +61,12 @@ namespace Lina
 			data.gfxStream	= m_lgx->CreateCommandStream(100, LinaGX::QueueType::Graphics);
 			data.copyStream = m_lgx->CreateCommandStream(100, LinaGX::QueueType::Transfer);
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
-			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Vertex Buffer");
+			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Index Buffer");
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GUIBackend::GPUGUIMaterialData));
 			data.copySemaphore = m_lgx->CreateUserSemaphore();
 
 			LinaGX::ResourceDesc resourceDesc = {
-				.size		   = sizeof(GUIBackend::GPUGUISceneData),
+				.size		   = sizeof(GPUSceneData),
 				.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
 				.heapType	   = LinaGX::ResourceHeap::StagingHeap,
 				.debugName	   = "Surface Renderer GUI Scene Data",
@@ -194,7 +194,6 @@ namespace Lina
 	{
 		if (!IsVisible())
 			return;
-		return;
 
 		auto& currentFrame = m_pfd[frameIndex];
 
@@ -222,9 +221,9 @@ namespace Lina
 			rp->extension				   = nullptr;
 			rp->isSwapchain				   = true;
 			rp->swapchain				   = m_swapchain;
-			rp->clearColor[0]			   = 0.0f;
-			rp->clearColor[1]			   = 0.0f;
-			rp->clearColor[2]			   = 0.0f;
+			rp->clearColor[0]			   = 0.2f;
+			rp->clearColor[1]			   = 0.2f;
+			rp->clearColor[2]			   = 0.2f;
 			rp->clearColor[3]			   = 1.0f;
 			rp->viewport				   = viewport;
 			rp->scissors				   = scissors;
@@ -247,6 +246,7 @@ namespace Lina
 				.descriptorSet1		= currentFrame.guiDescriptorSet1,
 				.descriptorSet2		= currentFrame.guiDescriptorSet2,
 				.sceneDataMapping	= currentFrame.guiSceneDataMapping,
+				.variantPassType	= ShaderVariantPassType::Swapchain,
 			};
 
 			guiRenderData.drawRequests.reserve(50);

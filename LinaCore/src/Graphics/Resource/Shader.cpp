@@ -32,6 +32,8 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Serialization/StringSerialization.hpp"
 #include "FileSystem//FileSystem.hpp"
+#include "Graphics/Utility/ShaderPreprocessor.hpp"
+#include "Serialization/HashMapSerialization.hpp"
 
 namespace Lina
 {
@@ -39,25 +41,9 @@ namespace Lina
 	{
 		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		auto lgx		= lgxWrapper->GetLGX();
-		lgx->DestroyShader(m_gpuHandle);
-	}
 
-	String ExtractBlock(const String& source, const String& startDelimiter, const String& endDelimiter)
-	{
-		size_t startPos = source.find(startDelimiter);
-		if (startPos == String::npos)
-		{
-			return ""; // Start delimiter not found
-		}
-
-		startPos += startDelimiter.length(); // Move past the delimiter
-		size_t endPos = source.find(endDelimiter, startPos);
-		if (endPos == String::npos)
-		{
-			return ""; // End delimiter not found
-		}
-
-		return source.substr(startPos, endPos - startPos);
+		for (const auto& [sid, var] : m_variants)
+			lgx->DestroyShader(var.gpuHandle);
 	}
 
 	void Shader::LoadFromFile(const char* path)
@@ -67,42 +53,29 @@ namespace Lina
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> data;
 		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;
 
-		const String txt		 = FileSystem::ReadFileContentsAsString(path);
+		String		 txt		 = FileSystem::ReadFileContentsAsString(path);
 		const String includePath = FileSystem::GetFilePath(path);
 
-		if (txt.find("#LINA_NOBLEND") != String::npos)
-			m_meta.disableBlend = true;
+		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		if (txt.find("#LINA_NODEPTH") != String::npos)
-			m_meta.disableDepth = true;
+		const bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_variants);
+		if (!success)
+			return;
 
-		if (txt.find("#LINA_FINAL_PASS") != String::npos)
-			m_meta.isFinalPass = true;
-
-		HashMap<LinaGX::ShaderStage, String> blockIdentifiers;
-		blockIdentifiers[LinaGX::ShaderStage::Fragment] = "#LINA_FS";
-		blockIdentifiers[LinaGX::ShaderStage::Vertex]	= "#LINA_VS";
-		blockIdentifiers[LinaGX::ShaderStage::Compute]	= "#LINA_CS";
-
-		for (const auto& [stage, ident] : blockIdentifiers)
+		for (const auto& [stg, text] : outStages)
 		{
-			String					  block = ExtractBlock(txt.c_str(), ident.c_str(), "#LINA_END");
-			LinaGX::ShaderCompileData compileData;
-
-			if (!block.empty())
-			{
-				blocks[stage]			= block;
-				compileData.includePath = includePath.c_str();
-				compileData.text		= blocks[stage].c_str();
-				data[stage]				= compileData;
-			}
+			LinaGX::ShaderCompileData compData;
+			compData.includePath = includePath.c_str();
+			compData.text		 = text.c_str();
+			data[stg]			 = compData;
 		}
+
 		lgx->CompileShader(data, m_outCompiledBlobs, m_layout);
 	}
 
 	void Shader::SaveToStream(OStream& stream)
 	{
-		stream << m_meta.disableBlend << m_meta.disableDepth;
+		HashMapSerialization::SaveToStream_OBJ(stream, m_variants);
 
 		const uint32 size = static_cast<uint32>(m_outCompiledBlobs.size());
 		stream << size;
@@ -120,7 +93,7 @@ namespace Lina
 
 	void Shader::LoadFromStream(IStream& stream)
 	{
-		stream >> m_meta.disableBlend >> m_meta.disableDepth;
+		HashMapSerialization::LoadFromStream_OBJ(stream, m_variants);
 
 		uint32 size = 0;
 		stream >> size;
@@ -158,34 +131,43 @@ namespace Lina
 		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		auto lgx		= lgxWrapper->GetLGX();
 
-		LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
-			.blendEnabled		 = !m_meta.disableBlend,
-			.srcColorBlendFactor = LinaGX::BlendFactor::SrcAlpha,
-			.dstColorBlendFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-			.colorBlendOp		 = LinaGX::BlendOp::Add,
-			.srcAlphaBlendFactor = LinaGX::BlendFactor::One,
-			.dstAlphaBlendFactor = LinaGX::BlendFactor::Zero,
-			.alphaBlendOp		 = LinaGX::BlendOp::Add,
-			.componentFlags		 = LinaGX::ColorComponentFlags::RGBA,
-		};
+		for (auto& [sid, variant] : m_variants)
+		{
+			LinaGX::Format format = LinaGX::Format::B8G8R8A8_UNORM;
 
-		LinaGX::ShaderDesc desc = LinaGX::ShaderDesc{
-			.stages				   = m_outCompiledBlobs,
-			.colorAttachmentFormat = m_meta.isFinalPass ? LinaGX::Format::B8G8R8A8_UNORM : LinaGX::Format::R32G32B32A32_SFLOAT,
-			.depthAttachmentFormat = LinaGX::Format::D32_SFLOAT,
-			.layout				   = m_layout,
-			.polygonMode		   = LinaGX::PolygonMode::Fill,
-			.cullMode			   = LinaGX::CullMode::Back,
-			.frontFace			   = LinaGX::FrontFace::CCW,
-			.depthTest			   = !m_meta.disableDepth,
-			.depthWrite			   = !m_meta.disableDepth,
-			.depthCompare		   = LinaGX::CompareOp::Less,
-			.topology			   = LinaGX::Topology::TriangleList,
-			.blendAttachment	   = blend,
-			.debugName			   = m_path.c_str(),
-		};
+			if (variant.passType == ShaderVariantPassType::RenderTarget)
+				format = LinaGX::Format::B8G8R8A8_UNORM;
 
-		m_gpuHandle = lgx->CreateShader(desc);
+			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
+				.blendEnabled		 = !variant.blendDisable,
+				.srcColorBlendFactor = LinaGX::BlendFactor::SrcAlpha,
+				.dstColorBlendFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.colorBlendOp		 = LinaGX::BlendOp::Add,
+				.srcAlphaBlendFactor = LinaGX::BlendFactor::One,
+				.dstAlphaBlendFactor = LinaGX::BlendFactor::Zero,
+				.alphaBlendOp		 = LinaGX::BlendOp::Add,
+				.componentFlags		 = LinaGX::ColorComponentFlags::RGBA,
+			};
+
+
+			LinaGX::ShaderDesc desc = LinaGX::ShaderDesc{
+				.stages				   = m_outCompiledBlobs,
+				.colorAttachmentFormat = format,
+				.depthAttachmentFormat = LinaGX::Format::D32_SFLOAT,
+				.layout				   = m_layout,
+				.polygonMode		   = LinaGX::PolygonMode::Fill,
+				.cullMode			   = variant.cullMode,
+				.frontFace			   = LinaGX::FrontFace::CCW,
+				.depthTest			   = !variant.depthDisable,
+				.depthWrite			   = !variant.depthDisable,
+				.depthCompare		   = LinaGX::CompareOp::Less,
+				.topology			   = LinaGX::Topology::TriangleList,
+				.blendAttachment	   = blend,
+				.debugName			   = m_path.c_str(),
+			};
+
+			variant.gpuHandle = lgx->CreateShader(desc);
+		}
 
 		for (auto& [stage, blob] : m_outCompiledBlobs)
 		{
@@ -195,6 +177,23 @@ namespace Lina
 
 	void Shader::Flush()
 	{
+	}
+
+	void ShaderVariant::SaveToStream(OStream& stream)
+	{
+		const uint8 passTypeInt = static_cast<uint8>(passType);
+		stream << gpuHandle << blendDisable << depthDisable << passTypeInt;
+		StringSerialization::SaveToStream(stream, passName);
+		StringSerialization::SaveToStream(stream, name);
+	}
+
+	void ShaderVariant::LoadFromStream(IStream& stream)
+	{
+		uint8 passTypeInt = 0;
+		stream >> gpuHandle >> blendDisable >> depthDisable >> passTypeInt;
+		StringSerialization::LoadFromStream(stream, passName);
+		StringSerialization::LoadFromStream(stream, name);
+		passType = static_cast<ShaderVariantPassType>(passTypeInt);
 	}
 
 } // namespace Lina

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Graphics/Core/GUIRenderer.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
 #include "Graphics/Resource/Texture.hpp"
+#include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Core/GPUBuffer.hpp"
 #include "Graphics/Core/GfxManager.hpp"
@@ -132,13 +133,17 @@ namespace Lina
 
 	void GUIBackend::Render(int threadID)
 	{
+		// Lazy-get shader
+		if (m_shader == nullptr)
+			m_shader = m_resourceManager->GetResource<Shader>("Resources/Core/Shaders/GUIStandard.linashader"_hs);
+
 		auto& data = m_guiRenderData[threadID];
 
 		// Update set 1 scene data
 		{
-			GPUGUISceneData sceneData;
-			sceneData.projection = GetProjectionFromSize(data.size);
-			MEMCPY(data.sceneDataMapping, &sceneData, sizeof(GPUGUISceneData));
+			GPUSceneData sceneData;
+			sceneData.proj = GetProjectionFromSize(data.size);
+			MEMCPY(data.sceneDataMapping, &sceneData, sizeof(GPUSceneData));
 		}
 
 		// Update material data.
@@ -184,6 +189,13 @@ namespace Lina
 
 				m_lgx->SubmitCommandStreams(desc);
 			}
+		}
+
+		// Pipeline
+		{
+			LinaGX::CMDBindPipeline* pipeline = data.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
+			pipeline->extension				  = nullptr;
+			pipeline->shader				  = m_shader->GetGPUHandle(data.variantPassType);
 		}
 
 		// Buffers

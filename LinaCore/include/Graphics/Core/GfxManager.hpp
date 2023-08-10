@@ -135,6 +135,7 @@ namespace Lina
 		LinaGX::VsyncMode		 m_currentVsync = LinaGX::VsyncMode::None;
 
 		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
+
 	};
 } // namespace Lina
 #endif

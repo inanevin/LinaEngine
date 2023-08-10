@@ -151,8 +151,8 @@ namespace Lina
 				// All textures
 				set0Bindings[1] = LinaGX::DescriptorBinding{
 					.binding		 = 1,
-					.descriptorCount = MAX_BOUND_TEXTURES,
-					.type			 = LinaGX::DescriptorType::SSBO,
+					.descriptorCount = 50,
+					.type			 = LinaGX::DescriptorType::SeparateImage,
 					.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 					.bindless		 = true,
 				};
@@ -160,8 +160,8 @@ namespace Lina
 				// All samplers
 				set0Bindings[2] = LinaGX::DescriptorBinding{
 					.binding		 = 2,
-					.descriptorCount = MAX_BOUND_SAMPLERS,
-					.type			 = LinaGX::DescriptorType::SSBO,
+					.descriptorCount = 50,
+					.type			 = LinaGX::DescriptorType::SeparateSampler,
 					.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 					.bindless		 = true,
 				};
@@ -174,7 +174,7 @@ namespace Lina
 				data.descriptorSet0GlobalData = m_lgx->CreateDescriptorSet(setDescription0);
 
 				LinaGX::DescriptorUpdateBufferDesc globalDataUpdateDesc = {
-					.setHandle		 = 0,
+					.setHandle		 = data.descriptorSet0GlobalData,
 					.binding		 = 0,
 					.descriptorCount = 1,
 					.resources		 = &data.globalDataResource,
@@ -378,8 +378,6 @@ namespace Lina
 
 	void GfxManager::UpdateBindlessTextures()
 	{
-		return;
-
 		auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
 
 		if (currentFrame.bindlessTexturesDirty)
@@ -409,7 +407,6 @@ namespace Lina
 
 	void GfxManager::UpdateBindlessSamplers()
 	{
-		return;
 		auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
 
 		if (currentFrame.bindlessSamplersDirty)

@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Event/Event.hpp"
 #include "Math/Rect.hpp"
 #include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace LinaGX
 {
@@ -56,15 +57,11 @@ namespace Lina
 	class ResourceManager;
 	class Texture;
 	class GPUBuffer;
+	class Shader;
 
 	class GUIBackend : public LinaVG::Backend::BaseBackend
 	{
 	public:
-		struct GPUGUISceneData
-		{
-			Matrix4 projection;
-		};
-
 		struct GPUGUIMaterialData
 		{
 			Vector4			 color1;
@@ -104,8 +101,9 @@ namespace Lina
 			uint16				   descriptorSet2	  = 0;
 			uint8*				   sceneDataMapping	  = nullptr;
 			Vector<DrawRequest>	   drawRequests;
-			uint32				   indexCounter	 = 0;
-			uint32				   vertexCounter = 0;
+			uint32				   indexCounter	   = 0;
+			uint32				   vertexCounter   = 0;
+			ShaderVariantPassType  variantPassType = ShaderVariantPassType::RenderTarget;
 		};
 
 	public:
@@ -144,7 +142,8 @@ namespace Lina
 		GfxManager*					m_gfxManager	  = nullptr;
 		ResourceManager*			m_resourceManager = nullptr;
 		Vector<GUIRenderData>		m_guiRenderData;
-		LinaGX::Instance*			m_lgx = nullptr;
+		LinaGX::Instance*			m_lgx	 = nullptr;
+		Shader*						m_shader = nullptr;
 	};
 } // namespace Lina
 

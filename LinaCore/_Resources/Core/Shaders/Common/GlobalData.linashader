@@ -50,3 +50,20 @@ vec4 LinaSampleTexture2D(LinaTexture2D data, vec2 uv)
 {
 	return texture(sampler2D(allTextures[data.textureIndex], allSamplers[data.samplerIndex]), uv);
 }
+
+layout(set = 1, binding = 0) uniform SceneData
+{
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+	vec4 cameraPosition;
+	vec2 cameraNearFar;
+	vec2 screenSize;
+} LINA_SCENE;
+
+#define LINA_VIEW LINA_SCENE.view
+#define LINA_PROJ LINA_SCENE.proj
+#define LINA_VIEWPROJ LINA_SCENE.viewProj
+#define LINA_CAMPOS LINA_SCENE.cameraPosition
+#define LINA_CAMNEARFAR LINA_SCENE.cameraNeaerFar
+#define LINA_SCREENSIZE LINA_SCENE.screenSize
