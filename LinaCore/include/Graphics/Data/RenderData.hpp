@@ -84,6 +84,7 @@ namespace Lina
 	{
 		uint32 textureIndex;
 		uint32 samplerIndex;
+		uint32 padding[2];
 	};
 
 } // namespace Lina

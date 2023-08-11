@@ -29,13 +29,17 @@ SOFTWARE.
 #lina_shader_variant
 #lina_name : default
 #lina_pass : rendertarget
-#lina_cull : front
+#lina_cull : none
+#lina_front : cw
+#lina_depth : disable
 #lina_end
 
 #lina_shader_variant
 #lina_name : final
 #lina_pass : swapchain
-#lina_cull : front
+#lina_cull : none
+#lina_front : cw
+#lina_depth : disable
 #lina_end
 
 #lina_vs
@@ -140,7 +144,7 @@ void main()
       vec3 outlinedColor = mix(material.color1, fCol, border).rgb;
       vec3 baseColor = mix(fCol.rgb, outlinedColor, material.floatPack1.a);
       alpha = (1.0f - alpha) * material.floatPack2.r + alpha * (1.0f - material.floatPack2.r);
-      fragColor = vec4(baseColor, alpha);
+      fragColor = vec4(baseColor, alpha * fCol.a);
    }
 
 }

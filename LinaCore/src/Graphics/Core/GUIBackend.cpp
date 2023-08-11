@@ -45,7 +45,6 @@ namespace Lina
 	{
 		m_gfxManager	  = man;
 		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_lgx			  = m_gfxManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper)->GetLGX();
 	}
 
 	bool Lina::GUIBackend::Initialize()
@@ -55,8 +54,11 @@ namespace Lina
 
 	void GUIBackend::Terminate()
 	{
-		for (auto [sid, txt] : m_fontTextures)
-			delete txt;
+		for (const auto& ft : m_fontTextures)
+		{
+			delete ft.texture;
+			delete[] ft.pixels;
+		}
 
 		m_fontTextures.clear();
 	}
@@ -84,7 +86,7 @@ namespace Lina
 		}
 		else if (buf->m_color.gradientType == LinaVG::GradientType::Radial)
 		{
-			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
 			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, 0.0f);
 		}
 		else if (buf->m_color.gradientType == LinaVG::GradientType::RadialCorner)
@@ -101,8 +103,9 @@ namespace Lina
 		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(txt->GetSamplerSID());
 		req.materialData.floatPack1			  = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
 		req.materialData.floatPack2			  = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, 0.0f);
-		req.materialData.diffuse.textureIndex = txt->GetGPUHandle();
-		req.materialData.diffuse.samplerIndex = sampler->GetGPUHandle();
+		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
+		req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
+		req.materialData.color1				  = FL4(buf->m_tint);
 	}
 
 	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int thread)
@@ -113,22 +116,22 @@ namespace Lina
 	void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int thread)
 	{
 		auto& req							  = AddDrawRequest(buf, m_guiRenderData[thread]);
-		auto  txt							  = m_resourceManager->GetResource<Texture>(buf->m_textureHandle);
-		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(txt->GetSamplerSID());
-		req.materialData.diffuse.textureIndex = txt->GetGPUHandle();
-		req.materialData.diffuse.samplerIndex = sampler->GetGPUHandle();
+		auto  txt							  = m_fontTextures[buf->m_textureHandle].texture;
+		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
+		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
+		req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 	}
 
 	void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int thread)
 	{
 		auto& req							  = AddDrawRequest(buf, m_guiRenderData[thread]);
-		auto  txt							  = m_resourceManager->GetResource<Texture>(buf->m_textureHandle);
-		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(txt->GetSamplerSID());
+		auto  txt							  = m_fontTextures[buf->m_textureHandle].texture;
+		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
 		req.materialData.color1				  = FL4(buf->m_outlineColor);
-		req.materialData.floatPack1			  = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f);
+		req.materialData.floatPack1			  = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f ? 1.0f : 0.0f);
 		req.materialData.floatPack2			  = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
-		req.materialData.diffuse.textureIndex = txt->GetGPUHandle();
-		req.materialData.diffuse.samplerIndex = sampler->GetGPUHandle();
+		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
+		req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 	}
 
 	void GUIBackend::Render(int threadID)
@@ -136,6 +139,9 @@ namespace Lina
 		// Lazy-get shader
 		if (m_shader == nullptr)
 			m_shader = m_resourceManager->GetResource<Shader>("Resources/Core/Shaders/GUIStandard.linashader"_hs);
+
+		if (m_lgx == nullptr)
+			m_lgx = m_gfxManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper)->GetLGX();
 
 		auto& data = m_guiRenderData[threadID];
 
@@ -153,7 +159,10 @@ namespace Lina
 
 			uint32 i = 0;
 			for (const auto& req : data.drawRequests)
+			{
 				materials[i] = req.materialData;
+				i++;
+			}
 
 			data.materialBuffer->BufferData(0, materials.data(), materials.size() * sizeof(GPUGUIMaterialData));
 		}
@@ -187,6 +196,7 @@ namespace Lina
 					.signalValues	  = &val,
 				};
 
+				m_lgx->CloseCommandStreams(&data.copyStream, 1);
 				m_lgx->SubmitCommandStreams(desc);
 			}
 		}
@@ -227,9 +237,28 @@ namespace Lina
 
 		// Draw
 		{
-			uint32 i = 0;
+			Rectui scissorsRect = Rectui(0, 0, data.size.x, data.size.y);
 			for (const auto& req : data.drawRequests)
 			{
+				Rectui currentRect = Rectui(0, 0, data.size.x, data.size.y);
+
+				if (req.clip.size.x != 0 || req.clip.size.y != 0)
+				{
+					currentRect.pos	 = req.clip.pos;
+					currentRect.size = req.clip.size;
+				}
+
+				if (!currentRect.Equals(scissorsRect))
+				{
+					scissorsRect					 = currentRect;
+					LinaGX::CMDSetScissors* scissors = data.gfxStream->AddCommand<LinaGX::CMDSetScissors>();
+					scissors->extension				 = nullptr;
+					scissors->x						 = scissorsRect.pos.x;
+					scissors->y						 = scissorsRect.pos.y;
+					scissors->width					 = scissorsRect.size.x;
+					scissors->height				 = scissorsRect.size.y;
+				}
+
 				// Material id.
 				LinaGX::CMDBindConstants* constants = data.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
 				constants->extension				= nullptr;
@@ -247,10 +276,23 @@ namespace Lina
 				draw->startInstanceLocation			  = 0;
 				draw->startIndexLocation			  = req.firstIndex;
 				draw->baseVertexLocation			  = req.vertexOffset;
-
-				i++;
 			}
 		}
+	}
+
+	Vector<Texture*> GUIBackend::GetFontTextures()
+	{
+		Vector<Texture*> vec;
+		vec.resize(m_fontTextures.size());
+
+		uint32 i = 0;
+		for (const auto& ft : m_fontTextures)
+		{
+			vec[i] = ft.texture;
+			i++;
+		}
+
+		return vec;
 	}
 
 	void GUIBackend::EndFrame()
@@ -259,6 +301,21 @@ namespace Lina
 
 	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
 	{
+		auto&  ft		   = m_fontTextures[m_boundFontTexture];
+		uint32 startOffset = offsetY * ft.width + offsetX;
+
+		for (int i = 0; i < height; i++)
+		{
+			const uint32 size = width;
+			MEMCPY(ft.pixels + startOffset, &data[width * i], size);
+			startOffset += ft.width;
+		}
+	}
+
+	void GUIBackend::BufferEnded()
+	{
+		auto& ft = m_fontTextures[m_boundFontTexture];
+		ft.texture->SetCustomData(ft.pixels, ft.width, ft.height, 1, LinaGX::Format::R8_UNORM);
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
@@ -268,7 +325,18 @@ namespace Lina
 
 	LinaVG::BackendHandle GUIBackend::CreateFontTexture(int width, int height)
 	{
-		return 0;
+		const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontTextures.size());
+		FontTexture	 fontTexture = {
+			 .texture = new Texture(m_resourceManager, true, name, TO_SID(name)),
+			 .width	  = width,
+			 .height  = height,
+		 };
+
+		fontTexture.pixels = new uint8[width * height];
+
+		m_fontTextures.push_back(fontTexture);
+		m_boundFontTexture = static_cast<LinaVG::BackendHandle>(m_fontTextures.size() - 1);
+		return m_boundFontTexture;
 	}
 
 	void GUIBackend::Prepare(int threadID, const GUIRenderData& data)

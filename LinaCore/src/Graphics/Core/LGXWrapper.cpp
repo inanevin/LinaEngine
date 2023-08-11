@@ -134,6 +134,14 @@ namespace Lina
 
 		m_lgx->Join();
 		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, isBorderless ? LinaGX::WindowStyle::Borderless : LinaGX::WindowStyle::Windowed);
+		window->SetCallbackSizeChanged([this, sid](const LinaGX::LGXVector2ui& newSize) {
+			Event ev;
+			ev.pParams[0] = m_lgx->GetWindowManager().GetWindow(sid);
+			ev.iParams[0] = newSize.x;
+			ev.iParams[1] = newSize.y;
+			m_system->DispatchEvent(SystemEvent::EVS_WindowResized, ev);
+		});
+
 		m_gfxManager->CreateSurfaceRenderer(sid, window, size);
 		return window;
 	}

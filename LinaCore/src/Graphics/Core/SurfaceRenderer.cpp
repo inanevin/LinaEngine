@@ -174,9 +174,6 @@ namespace Lina
 
 	void SurfaceRenderer::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
-		if (eventType & EVS_WindowResized)
-		{
-		}
 	}
 
 	void SurfaceRenderer::SetGUIDrawer(IGUIDrawer* drawer)
@@ -188,6 +185,21 @@ namespace Lina
 	bool SurfaceRenderer::IsVisible()
 	{
 		return m_window->GetIsVisible();
+	}
+
+	void SurfaceRenderer::Resize(const Vector2ui& newSize)
+	{
+		const LinaGX::LGXVector2ui monitorSize = m_window->GetMonitorSize();
+
+		LinaGX::SwapchainRecreateDesc desc = {
+			.swapchain	  = m_swapchain,
+			.width		  = newSize.x,
+			.height		  = newSize.y,
+			.isFullscreen = newSize.x == monitorSize.x && newSize.y == monitorSize.y,
+		};
+
+		m_lgx->RecreateSwapchain(desc);
+		m_size = newSize;
 	}
 
 	void SurfaceRenderer::Render(int guiThreadID, uint32 frameIndex)

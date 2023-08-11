@@ -43,6 +43,95 @@ namespace Lina
 		lgx->DestroyTexture2D(m_gpuHandle);
 	}
 
+	uint32 Texture::GetSamplerSID() const
+	{
+		if (m_sampler == 0)
+			return DEFAULT_SAMPLER_SID;
+		return m_sampler;
+	}
+
+	void Texture::SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format)
+	{
+		if (!m_userManaged)
+		{
+			LINA_ERR("Custom pixels can only be set on user managed textures!");
+			return;
+		}
+
+		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		auto lgx		= lgxWrapper->GetLGX();
+		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		// Means we are refreshing data.
+		if (!m_allLevels.empty())
+		{
+			lgx->DestroyTexture2D(m_gpuHandle);
+			m_allLevels.clear();
+		}
+
+		LinaGX::TextureBuffer level0 = {
+			.width		   = width,
+			.height		   = height,
+			.bytesPerPixel = bytesPerPixel,
+		};
+
+		m_channelMask = static_cast<LinaGX::ImageChannelMask>(bytesPerPixel);
+
+		const size_t sz = width * height * bytesPerPixel;
+		level0.pixels	= new uint8[sz];
+		MEMCPY(level0.pixels, pixels, sz);
+
+		m_allLevels.push_back(level0);
+
+		LinaGX::Texture2DDesc desc = LinaGX::Texture2DDesc{
+			.usage	   = LinaGX::Texture2DUsage::ColorTexture,
+			.width	   = m_allLevels[0].width,
+			.height	   = m_allLevels[0].height,
+			.mipLevels = static_cast<uint32>(m_allLevels.size()),
+			.format	   = format,
+			.debugName = m_path.c_str(),
+		};
+		m_gpuHandle = lgx->CreateTexture2D(desc);
+
+		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() { delete[] m_allLevels[0].pixels; });
+		gfxManager->MarkBindlessTexturesDirty();
+	}
+
+	Vector<TextureSheetItem> Texture::GetSheetItems(uint32 columns, uint32 rows)
+	{
+		const uint32 width	= m_allLevels[0].width;
+		const uint32 height = m_allLevels[0].height;
+
+		Vector<TextureSheetItem> items;
+		const float				 gridX = static_cast<float>(width) / static_cast<float>(columns);
+		const float				 gridY = static_cast<float>(height) / static_cast<float>(rows);
+		const Vector2ui			 size  = Vector2ui(static_cast<uint32>(gridX), static_cast<uint32>(gridY));
+
+		items.reserve(columns * rows);
+		const float uvProgX = 1.0f / static_cast<float>(columns);
+		const float uvProgY = 1.0f / static_cast<float>(rows);
+
+		for (uint32 i = 0; i < rows; i++)
+		{
+			for (uint32 j = 0; j < columns; j++)
+			{
+				const Vector2 uvTL = Vector2(j * uvProgX, i * uvProgY);
+				const Vector2 uvBR = Vector2((j + 1) * uvProgX, (i + 1) * uvProgY);
+
+				TextureSheetItem item = TextureSheetItem{
+					.texture = this,
+					.uvTL	 = uvTL,
+					.uvBR	 = uvBR,
+					.size	 = size,
+				};
+
+				items.push_back(item);
+			}
+		}
+
+		return items;
+	}
+
 	void Texture::LoadFromFile(const char* path)
 	{
 		const bool				   generateMipmaps = m_metadata.GetBool(TEXTURE_META_GENMIPS, true);
@@ -142,7 +231,6 @@ namespace Lina
 				else
 					LinaGX::FreeImage(buffer.pixels);
 			}
-			m_allLevels.clear();
 		});
 	}
 } // namespace Lina

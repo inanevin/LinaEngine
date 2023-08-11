@@ -50,7 +50,6 @@ namespace Lina
 	{
 		Texture*		 txt = nullptr;
 		Delegate<void()> onComplete;
-		uint64			 sentFrame = 0;
 	};
 
 	class ResourceUploadQueue

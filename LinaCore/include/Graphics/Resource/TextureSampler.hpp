@@ -50,6 +50,11 @@ namespace Lina
 			return m_gpuHandle;
 		}
 
+		inline uint32 GetBindlessIndex() const
+		{
+			return m_bindlessIndex;
+		}
+
 	private:
 		friend class GfxManager;
 
@@ -59,8 +64,9 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
-		uint32				m_gpuHandle	  = 0;
-		LinaGX::SamplerDesc m_samplerDesc = {};
+		uint32				m_bindlessIndex = 0;
+		uint32				m_gpuHandle		= 0;
+		LinaGX::SamplerDesc m_samplerDesc	= {};
 	};
 } // namespace Lina
 

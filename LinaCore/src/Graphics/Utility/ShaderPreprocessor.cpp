@@ -63,6 +63,7 @@ namespace Lina
 		const String blendIdentifier		= "#lina_blend";
 		const String depthIdentifier		= "#lina_depth";
 		const String cullIdentifier			= "#lina_cull";
+		const String frontIdentifier		= "#lina_front";
 		const String endIdentifier			= "#lina_end";
 		const String variantBeginIdentifier = "#lina_shader_variant";
 
@@ -112,6 +113,7 @@ namespace Lina
 				size_t blendBlock = lineSqueezed.find(blendIdentifier.c_str());
 				size_t depthBlock = lineSqueezed.find(depthIdentifier.c_str());
 				size_t cullBlock  = lineSqueezed.find(cullIdentifier.c_str());
+				size_t frontBlock = lineSqueezed.find(frontIdentifier.c_str());
 
 				if (nameBlock != std::string::npos)
 					variantData.name = lineSqueezed.substr(nameIdentifier.size() + 1, lineSqueezed.size() - nameIdentifier.size() - 1).c_str();
@@ -150,6 +152,14 @@ namespace Lina
 						variantData.cullMode = LinaGX::CullMode::None;
 					else if (cull.compare("front") == 0)
 						variantData.cullMode = LinaGX::CullMode::Front;
+				}
+
+				if (frontBlock != std::string::npos)
+				{
+					String front = lineSqueezed.substr(frontIdentifier.size() + 1, lineSqueezed.size() - frontIdentifier.size() - 1).c_str();
+
+					if (front.compare("cw") == 0)
+						variantData.frontFace = LinaGX::FrontFace::CW;
 				}
 			}
 		}

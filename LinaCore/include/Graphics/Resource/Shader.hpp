@@ -47,6 +47,7 @@ namespace Lina
 		bool				  depthDisable = false;
 		ShaderVariantPassType passType	   = ShaderVariantPassType::RenderTarget;
 		LinaGX::CullMode	  cullMode	   = LinaGX::CullMode::Back;
+		LinaGX::FrontFace	  frontFace	   = LinaGX::FrontFace::CCW;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);

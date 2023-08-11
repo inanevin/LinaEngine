@@ -103,8 +103,14 @@ namespace Lina
 	{
 	public:
 		Rectui(){};
+		Rectui(uint32 x, uint32 y, uint32 w, uint32 h) : pos(x, y), size(w, h){};
 		Vector2ui pos  = Vector2ui(0, 0);
 		Vector2ui size = Vector2ui(0, 0);
+
+		bool Equals(const Rectui& other)
+		{
+			return pos.Equals(other.pos) && size.Equals(other.size);
+		}
 	};
 
 } // namespace Lina

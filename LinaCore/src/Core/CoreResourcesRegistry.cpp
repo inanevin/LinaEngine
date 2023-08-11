@@ -232,8 +232,8 @@ namespace Lina
 		metadata.ClearAll();
 
 		//-------------
-		metadata.SetInt(FONT_META_SIZE, 20);
-		metadata.SetBool(FONT_META_ISSDF, false);
+		metadata.SetInt(FONT_META_SIZE, 45);
+		metadata.SetBool(FONT_META_ISSDF, true);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 

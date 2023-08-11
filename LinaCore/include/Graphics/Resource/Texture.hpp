@@ -46,13 +46,24 @@ namespace Lina
 #define TEXTURE_META_CHANNEL_COUNT "ChannelCount"_hs
 #define TEXTURE_META_SAMPLER_SID   "SamplerSID"_hs
 
+	struct TextureSheetItem
+	{
+		Texture*  texture = nullptr;
+		Vector2	  uvTL	  = Vector2::Zero;
+		Vector2	  uvBR	  = Vector2::Zero;
+		Vector2ui size	  = Vector2ui::Zero;
+	};
+
 	class Texture : public IResource
 	{
 	public:
 		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
 		virtual ~Texture();
 
-		virtual void BatchLoaded() override;
+		virtual void			 BatchLoaded() override;
+		uint32					 GetSamplerSID() const;
+		void					 SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format);
+		Vector<TextureSheetItem> GetSheetItems(uint32 columns, uint32 rows);
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -64,15 +75,18 @@ namespace Lina
 			return m_allLevels;
 		}
 
-		inline uint32 GetSamplerSID() const
-		{
-			return m_sampler;
-		}
-
 		inline void SetSamplerSID(StringID sid)
 		{
 			m_sampler = sid;
 		}
+
+		inline uint32 GetBindlessIndex() const
+		{
+			return m_bindlessIndex;
+		}
+
+	private:
+		friend class GfxManager;
 
 	protected:
 		// Inherited via IResource
@@ -81,6 +95,7 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:
+		uint32						  m_bindlessIndex = 0;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
 		LinaGX::ImageChannelMask	  m_channelMask		 = LinaGX::ImageChannelMask::Rgba;
 		uint32						  m_gpuHandle		 = 0;

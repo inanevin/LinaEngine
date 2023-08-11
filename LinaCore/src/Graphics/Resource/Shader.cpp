@@ -149,7 +149,6 @@ namespace Lina
 				.componentFlags		 = LinaGX::ColorComponentFlags::RGBA,
 			};
 
-
 			LinaGX::ShaderDesc desc = LinaGX::ShaderDesc{
 				.stages				   = m_outCompiledBlobs,
 				.colorAttachmentFormat = format,
@@ -157,7 +156,7 @@ namespace Lina
 				.layout				   = m_layout,
 				.polygonMode		   = LinaGX::PolygonMode::Fill,
 				.cullMode			   = variant.cullMode,
-				.frontFace			   = LinaGX::FrontFace::CCW,
+				.frontFace			   = variant.frontFace,
 				.depthTest			   = !variant.depthDisable,
 				.depthWrite			   = !variant.depthDisable,
 				.depthCompare		   = LinaGX::CompareOp::Less,
@@ -181,19 +180,23 @@ namespace Lina
 
 	void ShaderVariant::SaveToStream(OStream& stream)
 	{
-		const uint8 passTypeInt = static_cast<uint8>(passType);
-		stream << gpuHandle << blendDisable << depthDisable << passTypeInt;
+		const uint8 passTypeInt	 = static_cast<uint8>(passType);
+		const uint8 cullModeInt	 = static_cast<uint8>(cullMode);
+		const uint8 frontFaceInt = static_cast<uint8>(frontFace);
+		stream << gpuHandle << blendDisable << depthDisable << passTypeInt << cullModeInt << frontFaceInt;
 		StringSerialization::SaveToStream(stream, passName);
 		StringSerialization::SaveToStream(stream, name);
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
-		uint8 passTypeInt = 0;
-		stream >> gpuHandle >> blendDisable >> depthDisable >> passTypeInt;
+		uint8 passTypeInt = 0, cullModeInt = 0, frontFaceInt = 0;
+		stream >> gpuHandle >> blendDisable >> depthDisable >> passTypeInt >> cullModeInt >> frontFaceInt;
 		StringSerialization::LoadFromStream(stream, passName);
 		StringSerialization::LoadFromStream(stream, name);
-		passType = static_cast<ShaderVariantPassType>(passTypeInt);
+		passType  = static_cast<ShaderVariantPassType>(passTypeInt);
+		cullMode  = static_cast<LinaGX::CullMode>(cullModeInt);
+		frontFace = static_cast<LinaGX::FrontFace>(frontFaceInt);
 	}
 
 } // namespace Lina

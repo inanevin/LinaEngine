@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Graphics/Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Graphics/Resource/Font.hpp"
 
 namespace Lina
 {
@@ -48,13 +49,40 @@ namespace Lina
 	class TestGUIDrawer : public IGUIDrawer
 	{
 	public:
-		TestGUIDrawer() {};
+		TestGUIDrawer(ResourceManager* man) : rm(man){};
 		virtual ~TestGUIDrawer() = default;
+
+		ResourceManager* rm = nullptr;
 
 		virtual void DrawGUI(int threadID)
 		{
 			LinaVG::StyleOptions opts;
-			LinaVG::DrawRect(LinaVG::Vec2(100, 100), LinaVG::Vec2(500, 500), opts, 0.0f, 1);
+			// opts.aaEnabled = true;
+
+			LinaVG::DrawRect(LinaVG::Vec2(0, 0), LinaVG::Vec2(50, 50), opts, 0.0f, 1);
+
+			opts.textureHandle = "Resources/Core/Textures/StubLinaLogo.png"_hs;
+			LinaVG::DrawRect(LinaVG::Vec2(100, 0), LinaVG::Vec2(200, 100), opts, 0.0f, 1);
+
+			opts.textureHandle = 0;
+			opts.color.start   = LinaVG::Vec4(0, 1, 0, 1);
+			opts.color.end	   = LinaVG::Vec4(0, 1, 1, 1);
+
+			LinaVG::DrawTriangle(LinaVG::Vec2(300, 300), LinaVG::Vec2(400, 200), LinaVG::Vec2(200, 200), opts);
+
+			opts.color.gradientType = LinaVG::GradientType::Radial;
+			opts.color.radialSize	= 1.5f;
+			LinaVG::DrawCircle(LinaVG::Vec2(200, 200), 60, opts);
+
+			auto				f  = rm->GetResource<Font>("Resources/Core/Fonts/WorkSans-Regular_1x.ttf"_hs);
+			auto				f2 = rm->GetResource<Font>("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs);
+			LinaVG::TextOptions aq;
+			aq.font = f->GetLinaVGFont();
+			LinaVG::DrawTextNormal("vesselamun alekyum", LinaVG::Vec2(250, 450), aq);
+
+			LinaVG::SDFTextOptions sdf;
+			sdf.font = f2->GetLinaVGFont();
+		LinaVG::DrawTextSDF("NANNNANANA ", LinaVG::Vec2(250, 550), sdf);
 		}
 	};
 
@@ -107,8 +135,8 @@ namespace Lina
 		window->CenterPositionToCurrentMonitor();
 		window->SetCallbackClose([&]() { m_exitRequested = true; });
 
-		auto		   sf  = m_engine.GetGfxManager()->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		IGUIDrawer* heh = new TestGUIDrawer();
+		auto		sf	= m_engine.GetGfxManager()->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
+		IGUIDrawer* heh = new TestGUIDrawer(&m_engine.GetResourceManager());
 		sf->SetGUIDrawer(heh);
 	}
 

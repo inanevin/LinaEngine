@@ -50,7 +50,7 @@ namespace Lina
 	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_resourceManager->AddListener(this);
+		m_system->AddListener(this);
 		m_lgxWrapper = sys->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 
 		// GUIBackend
@@ -72,6 +72,7 @@ namespace Lina
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		m_resourceManager->AddListener(this);
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 		m_currentVsync = initInfo.vsyncMode;
@@ -205,6 +206,8 @@ namespace Lina
 
 	void GfxManager::Shutdown()
 	{
+		m_system->RemoveListener(this);
+
 		// pfd
 		{
 			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -326,7 +329,7 @@ namespace Lina
 
 	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
 	{
-		bool updateBindlessTextures, updateBindlessSamplers = false;
+		bool updateBindlessTextures = false, updateBindlessSamplers = false;
 
 		if (eventType & EVS_ResourceLoadTaskCompleted)
 		{
@@ -357,6 +360,15 @@ namespace Lina
 		else if (eventType & EVS_LevelInstalled)
 		{
 		}
+		else if (eventType & EVS_WindowResized)
+		{
+
+			for (auto sr : m_surfaceRenderers)
+			{
+				if (sr->GetWindow() == ev.pParams[0])
+					sr->Resize(Vector2ui(ev.iParams[0], ev.iParams[1]));
+			}
+		}
 
 		if (updateBindlessTextures)
 			MarkBindlessTexturesDirty();
@@ -384,14 +396,20 @@ namespace Lina
 		{
 			currentFrame.bindlessTexturesDirty = false;
 
-			const auto&	   allTextures = m_resourceManager->GetAllResourcesRaw<Texture>(true);
+			Vector<Texture*> allTextures = m_resourceManager->GetAllResourcesRaw<Texture>(true);
+
+			// TODO: ask world renderers for their bindless textures.
+
 			Vector<uint32> textureHandles;
 			textureHandles.reserve(allTextures.size());
 
+			uint32 i = 0;
 			for (auto txt : allTextures)
+			{
 				textureHandles.push_back(txt->GetGPUHandle());
-
-			// TODO: ask world renderers for their bindless textures.
+				txt->m_bindlessIndex = i;
+				i++;
+			}
 
 			LinaGX::DescriptorUpdateImageDesc desc = {
 				.setHandle		 = currentFrame.descriptorSet0GlobalData,
@@ -417,8 +435,13 @@ namespace Lina
 			Vector<uint32> samplerHandles;
 			samplerHandles.reserve(allSamplers.size());
 
+			uint32 i = 0;
 			for (auto sampler : allSamplers)
+			{
 				samplerHandles.push_back(sampler->GetGPUHandle());
+				sampler->m_bindlessIndex = i;
+				i++;
+			}
 
 			LinaGX::DescriptorUpdateImageDesc desc = {
 				.setHandle		 = currentFrame.descriptorSet0GlobalData,

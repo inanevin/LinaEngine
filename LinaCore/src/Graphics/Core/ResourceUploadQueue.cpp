@@ -57,6 +57,14 @@ namespace Lina
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
 	{
 		LOCK_GUARD(m_mtx);
+
+		// No duplicates allowed
+		for (const auto& req : m_textureRequests)
+		{
+			if (req.txt == txt)
+				return;
+		}
+
 		TextureUploadRequest req;
 		req.txt		   = txt;
 		req.onComplete = std::forward<Delegate<void()>>(onComplete);
@@ -78,10 +86,9 @@ namespace Lina
 			Vector<LinaGX::TextureBuffer>	  allBuffers = req.txt->GetAllLevels();
 			LinaGX::CMDCopyBufferToTexture2D* cmd		 = m_copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
 			cmd->extension								 = nullptr;
-			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
 			cmd->destTexture							 = req.txt->GetGPUHandle();
+			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
 			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
-			req.sentFrame								 = SystemInfo::GetFrames();
 		}
 
 		m_lgxWrapper->GetLGX()->CloseCommandStreams(&m_copyStream, 1);

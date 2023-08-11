@@ -418,6 +418,13 @@ namespace Lina
 		stream >> x >> y;
 	}
 
+	//////////////////////////////////////////////
+
+	bool Vector2ui::Equals(const Vector2ui& other) const
+	{
+		return x == other.x && y == other.y;
+	}
+
 	/////////////////////////////////////
 	bool Vector2i::Equals(const Vector2i& other, int epsilon) const
 	{

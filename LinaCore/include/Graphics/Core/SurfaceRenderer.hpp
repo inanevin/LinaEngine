@@ -77,10 +77,11 @@ namespace Lina
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void		 SetGUIDrawer(IGUIDrawer* rend);
 		bool		 IsVisible();
+		void		 Resize(const Vector2ui& newSize);
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_WindowResized;
+			return 0;
 		}
 
 		inline IGUIDrawer* GetGUIDrawer() const
@@ -91,6 +92,11 @@ namespace Lina
 		inline StringID GetSID() const
 		{
 			return m_sid;
+		}
+
+		inline LinaGX::Window* GetWindow()
+		{
+			return m_window;
 		}
 
 	protected:

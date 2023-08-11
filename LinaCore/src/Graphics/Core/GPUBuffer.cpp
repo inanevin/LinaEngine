@@ -42,7 +42,7 @@ namespace Lina
 		m_size = size;
 		m_lgx  = lgx;
 
-		if (LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory > m_size)
+		if (LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory > m_size && false)
 		{
 			s_usedCPUVisibleGPUMemory += static_cast<uint64>(m_size);
 			m_isCPUVisibleGPUResource = true;

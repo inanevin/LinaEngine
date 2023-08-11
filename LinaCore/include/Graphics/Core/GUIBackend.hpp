@@ -106,6 +106,14 @@ namespace Lina
 			ShaderVariantPassType  variantPassType = ShaderVariantPassType::RenderTarget;
 		};
 
+		struct FontTexture
+		{
+			Texture* texture = nullptr;
+			uint8*	 pixels	 = nullptr;
+			int		 width	 = 0;
+			int		 height	 = 0;
+		};
+
 	public:
 		GUIBackend(GfxManager* man);
 		~GUIBackend() = default;
@@ -121,29 +129,28 @@ namespace Lina
 		virtual void				  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int thread) override;
 		virtual void				  EndFrame() override;
 		virtual void				  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data) override;
+		virtual void				  BufferEnded() override;
 		virtual void				  BindFontTexture(LinaVG::BackendHandle texture) override;
 		virtual void				  SaveAPIState(){};
 		virtual void				  RestoreAPIState(){};
 		virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
-		void Prepare(int threadID, const GUIRenderData& data);
-		void Render(int threadID);
+		void			 Prepare(int threadID, const GUIRenderData& data);
+		void			 Render(int threadID);
+		Vector<Texture*> GetFontTextures();
 
 	private:
 		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf, GUIRenderData& data);
 		Matrix4		 GetProjectionFromSize(const Vector2ui& size);
 
 	private:
-		HashMap<Texture*, bool>		m_textureDirtyStatus;
-		StringID					m_boundFontTexture	 = 0;
-		uint32						m_fontTextureCounter = 0;
-		HashMap<StringID, Texture*> m_fontTextures;
-		HashMap<StringID, Texture*> m_renderReadyFontTextures;
-		GfxManager*					m_gfxManager	  = nullptr;
-		ResourceManager*			m_resourceManager = nullptr;
-		Vector<GUIRenderData>		m_guiRenderData;
-		LinaGX::Instance*			m_lgx	 = nullptr;
-		Shader*						m_shader = nullptr;
+		StringID			  m_boundFontTexture = 0;
+		GfxManager*			  m_gfxManager		 = nullptr;
+		ResourceManager*	  m_resourceManager	 = nullptr;
+		Vector<GUIRenderData> m_guiRenderData;
+		LinaGX::Instance*	  m_lgx	   = nullptr;
+		Shader*				  m_shader = nullptr;
+		Vector<FontTexture>	  m_fontTextures;
 	};
 } // namespace Lina
 
