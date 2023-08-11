@@ -41,7 +41,7 @@ namespace Lina::Editor
 	class GUIDrawerSplashScreen : public GUIDrawerBase, public ISystemEventListener
 	{
 	public:
-		GUIDrawerSplashScreen(Editor* editor, ISwapchain* swa);
+		GUIDrawerSplashScreen(Editor* editor, LinaGX::Window* window);
 		virtual ~GUIDrawerSplashScreen();
 
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);

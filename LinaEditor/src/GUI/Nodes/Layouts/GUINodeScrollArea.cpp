@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "GUI/Nodes/Layouts/GUINodeScrollArea.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
 
 namespace Lina::Editor

@@ -29,9 +29,7 @@ SOFTWARE.
 #include "GUI/Drawers/GUIDrawerPayload.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
@@ -41,7 +39,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	GUIDrawerPayload::GUIDrawerPayload(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
+	GUIDrawerPayload::GUIDrawerPayload(Editor* editor, LinaGX::Window* window) : GUIDrawerBase(editor, window)
 	{
 		m_editor = editor;
 	}

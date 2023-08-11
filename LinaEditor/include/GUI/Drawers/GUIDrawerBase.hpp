@@ -42,6 +42,7 @@ namespace Lina
 	class Rect;
 }
 
+
 namespace Lina::Editor
 {
 	class GUINode;
@@ -54,7 +55,7 @@ namespace Lina::Editor
 	class GUIDrawerBase : public IGUIDrawer, public ISerializable
 	{
 	public:
-		GUIDrawerBase(Editor* editor, ISwapchain* swap);
+		GUIDrawerBase(Editor* editor, LinaGX::Window* window);
 		virtual ~GUIDrawerBase();
 
 		virtual void OnKey(uint32 key, LinaGX::InputAction action) override;

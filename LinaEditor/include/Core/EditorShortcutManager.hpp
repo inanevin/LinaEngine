@@ -36,10 +36,6 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Core/EditorCommon.hpp"
 
-namespace Lina
-{
-	class Input;
-}
 
 namespace Lina::Editor
 {

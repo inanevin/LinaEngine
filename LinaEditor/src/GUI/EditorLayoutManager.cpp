@@ -29,8 +29,6 @@ SOFTWARE.
 #include "GUI/EditorLayoutManager.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
-#include "Graphics/Core/WindowManager.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "Serialization/Serialization.hpp"
 #include "Serialization/StringSerialization.hpp"
 #include "FileSystem/FileSystem.hpp"

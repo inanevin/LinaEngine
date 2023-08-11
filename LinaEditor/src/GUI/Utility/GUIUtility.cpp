@@ -27,8 +27,7 @@ SOFTWARE.
 */
 
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Resource/Texture.hpp"
 

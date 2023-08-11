@@ -28,11 +28,9 @@ SOFTWARE.
 
 #include "GUI/Nodes/Widgets/GUINodeTabArea.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Widgets/GUINodeTab.hpp"
 #include "Data/CommonData.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {

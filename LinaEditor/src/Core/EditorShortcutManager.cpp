@@ -29,8 +29,6 @@ SOFTWARE.
 #include "Core/EditorShortcutManager.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
-#include "Input/Core/Input.hpp"
-#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {

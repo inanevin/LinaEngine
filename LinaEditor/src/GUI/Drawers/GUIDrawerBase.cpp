@@ -29,7 +29,7 @@ SOFTWARE.
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "Math/Rect.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Core/Theme.hpp"
 #include "GUI/Nodes/GUINode.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
@@ -46,7 +46,7 @@ using namespace Lina;
 
 namespace Lina::Editor
 {
-	GUIDrawerBase::GUIDrawerBase(Editor* editor, ISwapchain* swap) : m_editor(editor), IGUIDrawer(swap)
+	GUIDrawerBase::GUIDrawerBase(Editor* editor, LinaGX::Window* window) : m_editor(editor), IGUIDrawer(window)
 	{
 		m_root = new GUINode(this, 0);
 

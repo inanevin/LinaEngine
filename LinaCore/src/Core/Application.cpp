@@ -39,7 +39,7 @@ SOFTWARE.
 #include "Platform/LinaGXIncl.hpp"
 
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Resource/Font.hpp"
 
@@ -49,7 +49,7 @@ namespace Lina
 	class TestGUIDrawer : public IGUIDrawer
 	{
 	public:
-		TestGUIDrawer(ResourceManager* man) : rm(man){};
+		TestGUIDrawer(ResourceManager* man, LinaGX::Window* win) : rm(man), IGUIDrawer(win){};
 		virtual ~TestGUIDrawer() = default;
 
 		ResourceManager* rm = nullptr;
@@ -136,7 +136,7 @@ namespace Lina
 		window->SetCallbackClose([&]() { m_exitRequested = true; });
 
 		auto		sf	= m_engine.GetGfxManager()->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		IGUIDrawer* heh = new TestGUIDrawer(&m_engine.GetResourceManager());
+		IGUIDrawer* heh = new TestGUIDrawer(&m_engine.GetResourceManager(), window);
 		sf->SetGUIDrawer(heh);
 	}
 

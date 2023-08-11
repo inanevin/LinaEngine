@@ -27,9 +27,8 @@ SOFTWARE.
 */
 
 #include "GUI/Drawers/GUIDrawerSplashScreen.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
 #include "Resources/Core/CommonResources.hpp"
@@ -37,11 +36,10 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "GUI/Nodes/GUINode.hpp"
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {
-	GUIDrawerSplashScreen::GUIDrawerSplashScreen(Editor* editor, ISwapchain* swap) : m_progressBar(swap), GUIDrawerBase(editor, swap)
+	GUIDrawerSplashScreen::GUIDrawerSplashScreen(Editor* editor, LinaGX::Window* window) : m_progressBar(window), GUIDrawerBase(editor, window)
 	{
 		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->AddListener(this);
 
@@ -73,7 +71,7 @@ namespace Lina::Editor
 	{
 		LOCK_GUARD(m_mtx);
 
-		const Vector2 size = m_swapchain->GetSize();
+		const Vector2ui size = FG2UI(m_window->GetSize());
 
 		// Base image.
 		{

@@ -30,7 +30,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	IGUIDrawer::IGUIDrawer()
-	{
-	}
+	
 } // namespace Lina

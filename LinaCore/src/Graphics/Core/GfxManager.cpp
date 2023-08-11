@@ -43,7 +43,7 @@ SOFTWARE.
 #include "Core/SystemInfo.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {

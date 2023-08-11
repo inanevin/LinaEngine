@@ -28,13 +28,10 @@ SOFTWARE.
 
 #include "GUI/Nodes/Widgets/GUINodeButton.hpp"
 #include "Data/CommonData.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Core/Theme.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Math/Math.hpp"
-#include "Input/Core/InputMappings.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {

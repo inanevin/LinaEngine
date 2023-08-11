@@ -28,11 +28,8 @@ SOFTWARE.
 
 #include "GUI/Nodes/Widgets/GUINodeSelection.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
-#include "Input/Core/InputMappings.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Data/CommonData.hpp"
 

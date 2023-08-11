@@ -33,6 +33,11 @@ SOFTWARE.
 
 #include "Platform/LinaGXIncl.hpp"
 
+namespace LinaGX
+{
+	class Window;
+}
+
 namespace Lina
 {
 	class SurfaceRenderer;
@@ -40,7 +45,7 @@ namespace Lina
 	class IGUIDrawer
 	{
 	public:
-		IGUIDrawer();
+		IGUIDrawer(LinaGX::Window* window) : m_window(window){};
 		virtual ~IGUIDrawer() = default;
 
 		virtual void DrawGUI(int threadID) = 0;
@@ -65,6 +70,7 @@ namespace Lina
 
 	protected:
 		SurfaceRenderer* m_surfaceRenderer = nullptr;
+		LinaGX::Window*	 m_window		   = nullptr;
 	};
 } // namespace Lina
 

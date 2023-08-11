@@ -28,9 +28,7 @@ SOFTWARE.
 
 #include "GUI/Drawers/GUIDrawerChildWindow.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
 #include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
@@ -40,13 +38,13 @@ SOFTWARE.
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
-#include "Input/Core/Input.hpp"
-#include "Input/Core/InputMappings.hpp"
+#include "Platform/LinaGXIncl.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 #include "Profiling/Profiler.hpp"
 
 namespace Lina::Editor
 {
-	GUIDrawerChildWindow::GUIDrawerChildWindow(Editor* editor, ISwapchain* swap) : GUIDrawerBase(editor, swap)
+	GUIDrawerChildWindow::GUIDrawerChildWindow(Editor* editor, LinaGX::Window* window) : GUIDrawerBase(editor, window)
 	{
 		m_editor	   = editor;
 		m_titleSection = new GUINodeTitleSection(this, 0);

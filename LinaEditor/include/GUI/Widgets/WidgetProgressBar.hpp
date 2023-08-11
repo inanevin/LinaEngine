@@ -44,7 +44,7 @@ namespace Lina::Editor
 	class WidgetProgressBar : public Widget
 	{
 	public:
-		WidgetProgressBar(ISwapchain* swap) : Widget(swap){};
+		WidgetProgressBar(LinaGX::Window* window) : Widget(window){};
 		virtual ~WidgetProgressBar() = default;
 
 		void Draw(int threadID, const Vector2& start, const Vector2& size, const Vector2& textPos, float progress, const char* text);

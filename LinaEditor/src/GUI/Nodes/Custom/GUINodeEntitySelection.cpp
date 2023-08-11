@@ -28,9 +28,7 @@ SOFTWARE.
 
 #include "GUI/Nodes/Custom/GUINodeEntitySelection.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {

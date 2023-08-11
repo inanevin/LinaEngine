@@ -29,12 +29,10 @@ SOFTWARE.
 #include "GUI/Nodes/Layouts/GUINodeDivider.hpp"
 #include "GUI/Nodes/Layouts/GUINodeDivisible.hpp"
 #include "Data/CommonData.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Core/Theme.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
-#include "Input/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {

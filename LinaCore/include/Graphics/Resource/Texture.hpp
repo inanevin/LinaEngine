@@ -46,6 +46,7 @@ namespace Lina
 #define TEXTURE_META_CHANNEL_COUNT "ChannelCount"_hs
 #define TEXTURE_META_SAMPLER_SID   "SamplerSID"_hs
 
+	class Texture;
 	struct TextureSheetItem
 	{
 		Texture*  texture = nullptr;

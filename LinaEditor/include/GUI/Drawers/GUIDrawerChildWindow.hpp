@@ -33,10 +33,6 @@ SOFTWARE.
 
 #include "GUIDrawerBase.hpp"
 
-namespace Lina
-{
-	class Input;
-}
 namespace Lina::Editor
 {
 	class GUINodeTitleSection;
@@ -44,7 +40,7 @@ namespace Lina::Editor
 	class GUIDrawerChildWindow : public GUIDrawerBase
 	{
 	public:
-		GUIDrawerChildWindow(Editor* editor, ISwapchain* swap);
+		GUIDrawerChildWindow(Editor* editor, LinaGX::Window* window);
 		virtual ~GUIDrawerChildWindow(){};
 		virtual void DrawGUI(int threadID) override;
 		virtual void OnDockAreasModified() override;

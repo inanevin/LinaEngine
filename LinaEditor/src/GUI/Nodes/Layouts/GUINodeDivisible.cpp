@@ -29,7 +29,6 @@ SOFTWARE.
 #include "GUI/Nodes/Layouts/GUINodeDivisible.hpp"
 #include "GUI/Nodes/Layouts/GUINodeDivider.hpp"
 #include "Core/Theme.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {

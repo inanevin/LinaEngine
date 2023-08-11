@@ -29,14 +29,12 @@ SOFTWARE.
 #include "GUI/Nodes/Custom/GUINodeCustomLogo.hpp"
 #include "GUI/Nodes/Widgets/GUINodeTooltip.hpp"
 #include "Data/CommonData.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Core/Editor.hpp"
 #include "Core/Theme.hpp"
 #include "System/ISystem.hpp"
 #include "Core/SystemInfo.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {

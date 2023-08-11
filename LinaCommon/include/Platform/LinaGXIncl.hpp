@@ -34,10 +34,6 @@ SOFTWARE.
 #include "LinaGX/LinaGX.hpp"
 #include "Data/Streams.hpp"
 
-#define LG2(V) LinaGX::Vector2(static_cast<float>((int)V.x), static_cast<float>((int)V.y))
-#define LG4(V) LinaGX::Vector4(V.x, V.y, V.z, V.w)
-#define FG2(V) Vector2(V.x, V.y)
-#define FG4(V) Vector4(V.x, V.y, V.z, V.w)
 
 namespace Lina
 {

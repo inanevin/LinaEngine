@@ -29,8 +29,6 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeWindowButtons.hpp"
 #include "Data/CommonData.hpp"
 #include "GUI/Nodes/Widgets/GUINodeButton.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "Math/Math.hpp"
 
 namespace Lina::Editor

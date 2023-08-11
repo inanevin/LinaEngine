@@ -34,13 +34,10 @@ SOFTWARE.
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
-#include "Graphics/Core/WindowManager.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "Graphics/Data/RenderData.hpp"
-#include "Input/Core/Input.hpp"
-#include "Input/Core/InputMappings.hpp"
+
 namespace Lina::Editor
 {
 	EditorPayloadManager::EditorPayloadManager(Editor* editor) : m_editor(editor)

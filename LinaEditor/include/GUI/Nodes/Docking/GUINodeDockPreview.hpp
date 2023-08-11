@@ -36,11 +36,6 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Data/HashMap.hpp"
 
-namespace Lina
-{
-	class Input;
-}
-
 namespace Lina::Editor
 {
 

@@ -35,10 +35,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	class IWindow;
-	class WindowManager;
 	class GfxManager;
-	class Input;
 } // namespace Lina
 
 namespace Lina::Editor

@@ -40,7 +40,7 @@ namespace Lina::Editor
 	class GUIDrawerPayload : public GUIDrawerBase
 	{
 	public:
-		GUIDrawerPayload(Editor* editor, ISwapchain* swap);
+		GUIDrawerPayload(Editor* editor, LinaGX::Window* window);
 		virtual ~GUIDrawerPayload(){};
 		virtual void DrawGUI(int threadID) override;
 	};

@@ -45,13 +45,15 @@ namespace Lina
 {
 	struct ResourceIdentifier;
 	class GfxManager;
-	class WindowManager;
-	class IWindow;
 	class LevelManager;
-	class Input;
 	class ResourceManager;
-
+	class LGXWrapper;
 } // namespace Lina
+
+namespace LinaGX
+{
+	class Window;
+}
 
 namespace Lina::Editor
 {
@@ -92,17 +94,17 @@ namespace Lina::Editor
 		void Tick();
 		void OnShortcut(Shortcut sc, void* windowHandle);
 
-		void		 OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
-		IWindow*	 CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
-		void		 CloseWindow(StringID sid);
-		void		 OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
-		void		 CloseAllChildWindows();
-		void		 CreateNewLevel(const char* path);
-		void		 LoadLevel(const char* path);
-		void		 SaveCurrentLevel();
-		void		 SaveCurrentLevelAs(const char* path);
-		void		 UninstallCurrentLevel();
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);
+		void			OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
+		LinaGX::Window* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
+		void			CloseWindow(StringID sid);
+		void			OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
+		void			CloseAllChildWindows();
+		void			CreateNewLevel(const char* path);
+		void			LoadLevel(const char* path);
+		void			SaveCurrentLevel();
+		void			SaveCurrentLevelAs(const char* path);
+		void			UninstallCurrentLevel();
+		virtual void	OnSystemEvent(SystemEvent eventType, const Event& ev);
 
 		virtual Bitmask32 GetSystemEventMask()
 		{
@@ -139,12 +141,10 @@ namespace Lina::Editor
 	private:
 		ResourceManager*				  m_resourceManager = nullptr;
 		LevelManager*					  m_levelManager	= nullptr;
-		IWindow*						  m_draggedWindow	= nullptr;
-		Input*							  m_input			= nullptr;
 		EditorPayloadManager			  m_payloadManager;
 		EditorShortcutManager			  m_shortcutManager;
 		EditorCommandManager			  m_commandManager;
-		WindowManager*					  m_windowManager		= nullptr;
+		LGXWrapper*						  m_lgxWrapper			= nullptr;
 		GfxManager*						  m_gfxManager			= nullptr;
 		GUIDrawerBase*					  m_guiDrawerMainWindow = nullptr;
 		Vector<DeleteWindowRequest>		  m_deleteWindowRequests;

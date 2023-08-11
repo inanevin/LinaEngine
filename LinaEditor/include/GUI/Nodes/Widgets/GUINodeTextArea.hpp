@@ -37,11 +37,6 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Data/Bitmask.hpp"
 
-namespace Lina
-{
-	class Input;
-}
-
 namespace LinaVG
 {
 	struct TextOutData;

@@ -29,8 +29,7 @@ SOFTWARE.
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Data/CommonData.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "GUI/Nodes/Panels/GUIPanelFactory.hpp"
@@ -39,10 +38,7 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeTab.hpp"
 #include "Core/Editor.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
-#include "Input/Core/InputMappings.hpp"
 #include "System/ISystem.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Input/Core/Input.hpp"
 #include "Serialization/StringSerialization.hpp"
 
 namespace Lina::Editor

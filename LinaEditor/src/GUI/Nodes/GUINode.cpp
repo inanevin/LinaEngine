@@ -29,7 +29,7 @@ SOFTWARE.
 #include "GUI/Nodes/GUINode.hpp"
 #include "Data/CommonData.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "Serialization/StringSerialization.hpp"
 #include "Math/Math.hpp"

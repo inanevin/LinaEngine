@@ -190,6 +190,7 @@ set(LINACOMMON_HEADERS
 
 	# Platform
 	include/Platform/LinaGXIncl.hpp
+	include/Platform/LinaVGIncl.hpp
 )
 
 if(WIN32)
@@ -255,6 +256,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
 
 target_link_libraries(${PROJECT_NAME}
     PUBLIC Lina::GX
+	PUBLIC Lina::VG
 )
 
 include(../Dependencies/phmap/link.cmake)

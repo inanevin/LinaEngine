@@ -31,12 +31,9 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeButton.hpp"
 #include "GUI/Nodes/Layouts/GUINodeLayoutHorizontal.hpp"
 #include "GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Input/Core/InputMappings.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 
 namespace Lina::Editor
 {

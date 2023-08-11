@@ -39,6 +39,7 @@ SOFTWARE.
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
+#include "LinaGX/Common/Vectors.hpp"
 
 namespace Lina
 {
@@ -53,6 +54,7 @@ namespace Lina
 		Vector2ui(const Vector2ui& rhs) : glm::uvec2(rhs){};
 		Vector2ui(unsigned int val) : glm::uvec2(val, val){};
 		Vector2ui(const glm::vec2& rhs) : glm::uvec2(rhs.x, rhs.y){};
+		Vector2ui(const LinaGX::LGXVector2ui& vec) : glm::uvec2(vec.x, vec.y){};
 
 		static Vector2ui Zero;
 		static Vector2ui One;
@@ -71,6 +73,7 @@ namespace Lina
 		Vector2i(const Vector2i& rhs) : glm::ivec2(rhs){};
 		Vector2i(unsigned int val) : glm::ivec2(val, val){};
 		Vector2i(const glm::vec2& rhs) : glm::ivec2(rhs.x, rhs.y){};
+		Vector2i(const LinaGX::LGXVector2i& vec) : glm::ivec2(vec.x, vec.y){};
 
 		static Vector2i Zero;
 		static Vector2i One;
@@ -120,6 +123,8 @@ namespace Lina
 		Vector2(float val) : glm::vec2(val, val){};
 		Vector2(const glm::vec2& rhs) : glm::vec2(rhs.x, rhs.y){};
 		Vector2(const Vector2i& rhs) : glm::vec2(static_cast<float>(rhs.x), static_cast<float>(rhs.y)){};
+		Vector2(const Vector2ui& rhs) : glm::vec2(static_cast<float>(rhs.x), static_cast<float>(rhs.y)){};
+		Vector2(const LinaGX::LGXVector2& vec) : glm::vec2(vec.x, vec.y){};
 
 		static Vector2 Zero;
 		static Vector2 One;
@@ -285,6 +290,7 @@ namespace Lina
 		Vector3(const Vector2& rhs) : glm::vec3(rhs.x, rhs.y, 0.0f){};
 		Vector3(float val) : glm::vec3(val, val, val){};
 		Vector3(const glm::vec3& rhs) : glm::vec3(rhs.x, rhs.y, rhs.z){};
+		Vector3(const LinaGX::LGXVector3& vec) : glm::vec3(vec.x, vec.y, vec.z){};
 
 		static Vector3 Zero;
 		static Vector3 Up;
@@ -488,6 +494,8 @@ namespace Lina
 		Vector4(float f) : glm::vec4(f, f, f, f){};
 		Vector4(const glm::vec4& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
 		Vector4(const Vector3& src, float w) : glm::vec4(src, w){};
+		Vector4(const LinaGX::LGXVector4& vec) : glm::vec4(vec.x, vec.y, vec.z, vec.w){};
+
 		static Vector4 Zero;
 		static Vector4 One;
 
@@ -706,6 +714,7 @@ namespace Lina
 		Vector4ui16(const Vector4ui16& rhs) : glm::u16vec4(rhs){};
 		Vector4ui16(unsigned int val) : glm::u16vec4(val, val, val, val){};
 		Vector4ui16(const glm::u16vec4& rhs) : glm::u16vec4(rhs.x, rhs.y, rhs.z, rhs.w){};
+		Vector4ui16(const LinaGX::LGXVector4ui16& vec) : glm::u16vec4(vec.x, vec.y, vec.z, vec.w){};
 	};
 
 	inline Vector4ui16 operator-(Vector4ui16 const& v, Vector4ui16 const& v2)

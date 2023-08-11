@@ -32,13 +32,10 @@ SOFTWARE.
 #include "Resources/Core/IResource.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Core/WindowManager.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "World/Level/Level.hpp"
 #include "Serialization/Serialization.hpp"
 #include "Serialization/Compressor.hpp"
-#include "Input/Core/Input.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 #include "System/ISystem.hpp"
@@ -53,6 +50,7 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "Core/PlatformProcess.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 
 namespace Lina::Editor
 {
@@ -62,8 +60,7 @@ namespace Lina::Editor
 	{
 		m_resourceManager			 = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_gfxManager				 = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_windowManager				 = m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
-		m_input						 = m_system->CastSubsystem<Input>(SubsystemType::Input);
+		m_lgxWrapper				 = m_system->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		m_levelManager				 = m_system->CastSubsystem<LevelManager>(SubsystemType::LevelManager);
 		Theme::s_resourceManagerInst = m_resourceManager;
 

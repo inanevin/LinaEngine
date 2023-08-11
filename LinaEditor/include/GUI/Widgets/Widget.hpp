@@ -33,26 +33,24 @@ SOFTWARE.
 
 #include "Core/SizeDefinitions.hpp"
 
-namespace Lina
+namespace LinaGX
 {
-	class ISwapchain;
-	class IWindow;
-} // namespace Lina
+	class Window;
+}
 
 namespace Lina::Editor
 {
 	class Widget
 	{
 	public:
-		Widget(ISwapchain* swapchain);
+		Widget(LinaGX::Window* windown);
 		virtual ~Widget();
 
 		uint32 GetDPI() const;
 		float  GetDPIScale() const;
 
 	protected:
-		ISwapchain* m_swapchain = nullptr;
-		IWindow*	m_window	= nullptr;
+		LinaGX::Window* m_window = nullptr;
 	};
 } // namespace Lina::Editor
 

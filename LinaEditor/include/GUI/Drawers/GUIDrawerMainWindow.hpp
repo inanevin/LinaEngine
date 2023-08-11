@@ -42,7 +42,7 @@ namespace Lina::Editor
 	class GUIDrawerMainWindow : public GUIDrawerBase
 	{
 	public:
-		GUIDrawerMainWindow(Editor* editor, ISwapchain* swap);
+		GUIDrawerMainWindow(Editor* editor, LinaGX::Window* window);
 		virtual ~GUIDrawerMainWindow(){};
 		virtual void DrawGUI(int threadID) override;
 

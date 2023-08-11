@@ -43,11 +43,6 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "Platform/LinaGXIncl.hpp"
 
-namespace Lina
-{
-	class WindowManager;
-} // namespace Lina
-
 namespace Lina::Editor
 {
 	class Editor;

@@ -32,7 +32,7 @@ SOFTWARE.
 #define GUIBackend_HPP
 
 #include "Data/Vector.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Data/HashMap.hpp"
 #include "Event/Event.hpp"
 #include "Math/Rect.hpp"

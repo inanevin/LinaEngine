@@ -30,10 +30,7 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeWindowButtons.hpp"
 #include "Data/CommonData.hpp"
 #include "Core/Theme.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Input/Core/InputMappings.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Core/Editor.hpp"
 

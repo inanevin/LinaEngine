@@ -29,10 +29,8 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeNumberArea.hpp"
 #include "Math/Math.hpp"
 #include "Data/CommonData.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Input/Core/InputMappings.hpp"
-#include "Input/Core/Input.hpp"
+
 
 namespace Lina::Editor
 {

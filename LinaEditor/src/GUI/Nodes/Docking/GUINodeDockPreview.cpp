@@ -27,15 +27,12 @@ SOFTWARE.
 */
 
 #include "GUI/Nodes/Docking/GUINodeDockPreview.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Core/Editor.hpp"
 #include "Core/Theme.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
 #include "System/ISystem.hpp"
-#include "Input/Core/Input.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
 

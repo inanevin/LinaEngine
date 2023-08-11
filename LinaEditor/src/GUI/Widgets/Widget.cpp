@@ -28,17 +28,14 @@ SOFTWARE.
 
 #include "GUI/Widgets/Widget.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
 
 using namespace Lina;
 
 namespace Lina::Editor
 {
-	Widget::Widget(ISwapchain* swap)
+	Widget::Widget(LinaGX::Window* window)
 	{
-		m_swapchain = swap;
-		m_window	= m_swapchain->GetWindow();
+		m_window = window;
 	}
 
 	Widget::~Widget()
@@ -47,7 +44,7 @@ namespace Lina::Editor
 
 	uint32 Widget::GetDPI() const
 	{
-		return m_swapchain->GetWindowDPI();
+		return m_window->GetDPI();
 	}
 
 	float Widget::GetDPIScale() const

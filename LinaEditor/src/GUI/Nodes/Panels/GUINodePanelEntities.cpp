@@ -29,8 +29,7 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUINodePanelEntities.hpp"
 #include "GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp"
 #include "GUI/Nodes/Widgets/GUINodeSelection.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "System/ISystem.hpp"
 #include "Core/Editor.hpp"
 #include "Commands/EditorCommandEntity.hpp"
@@ -39,7 +38,6 @@ SOFTWARE.
 #include "World/Level/Level.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Data/CommonData.hpp"
-#include "Input/Core/InputMappings.hpp"
 #include "GUI/Nodes/Widgets/GUINodeFileMenu.hpp"
 
 namespace Lina::Editor

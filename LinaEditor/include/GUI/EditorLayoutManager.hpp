@@ -38,7 +38,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class WindowManager;
 	class OStream;
 } // namespace Lina
 

@@ -37,7 +37,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Graphics/Data/Vertex.hpp"
 

@@ -143,7 +143,6 @@ include/Graphics/Data/RenderData.hpp
 include/Graphics/Data/Vertex.hpp
 include/Graphics/Components/CameraComponent.hpp
 include/Graphics/Components/RenderableComponent.hpp
-include/Graphics/Platform/LinaVGIncl.hpp
 include/Graphics/Resource/Shader.hpp
 include/Graphics/Resource/Mesh.hpp
 include/Graphics/Resource/Model.hpp
@@ -201,7 +200,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC Lina::Common
-	PUBLIC Lina::VG
 )
 
 message("LinaCore -> LinaCommon has been linked.")

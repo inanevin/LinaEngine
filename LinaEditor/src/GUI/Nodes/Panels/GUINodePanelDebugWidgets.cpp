@@ -31,8 +31,7 @@ SOFTWARE.
 #include "GUI/Nodes/Widgets/GUINodeFloatArea.hpp"
 #include "GUI/Nodes/Widgets/GUINodeIntArea.hpp"
 #include "GUI/Nodes/Layouts/GUINodeLayoutVertical.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Core/Theme.hpp"
 
 namespace Lina::Editor

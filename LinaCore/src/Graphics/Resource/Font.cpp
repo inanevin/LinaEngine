@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Serialization/VectorSerialization.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Data/Streams.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {

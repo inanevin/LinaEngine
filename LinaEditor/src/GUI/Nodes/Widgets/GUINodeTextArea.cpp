@@ -27,9 +27,7 @@ SOFTWARE.
 */
 
 #include "GUI/Nodes/Widgets/GUINodeTextArea.hpp"
-#include "Graphics/Interfaces/ISwapchain.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
-#include "Graphics/Interfaces/IWindow.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
@@ -38,8 +36,6 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "Commands/EditorCommandWidgets.hpp"
 #include "Math/Math.hpp"
-#include "Input/Core/InputMappings.hpp"
-#include "Input/Core/Input.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"

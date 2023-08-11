@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "GUI/Widgets/WidgetProgressBar.hpp"
 #include "Math/Vector.hpp"
-#include "Graphics/Platform/LinaVGIncl.hpp"
+#include "Platform/LinaVGIncl.hpp"
 #include "Core/Theme.hpp"
 
 using namespace Lina;

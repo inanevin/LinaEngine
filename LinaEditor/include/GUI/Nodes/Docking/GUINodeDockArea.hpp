@@ -37,11 +37,6 @@ SOFTWARE.
 #include "Math/Rect.hpp"
 #include "Core/EditorCommon.hpp"
 
-namespace Lina
-{
-	class Input;
-}
-
 namespace Lina::Editor
 {
 	class GUINodePanel;
