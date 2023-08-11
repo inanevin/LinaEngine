@@ -109,8 +109,8 @@ namespace Lina::Editor
 		// Draw
 		{
 			LinaVG::StyleOptions opts;
-			opts.color = LV4((m_isHovered ? Theme::TC_Dark0 : Theme::TC_Dark2));
-			LinaVG::DrawRect(threadID, LV2(usedRect.pos), LV2((usedRect.pos + usedRect.size)), opts, 0.0f, FRONT_DRAW_ORDER);
+			opts.color = (m_isHovered ? Theme::TC_Dark0 : Theme::TC_Dark2).AsLVG4();
+			LinaVG::DrawRect(threadID, usedRect.pos.AsLVG2(), (usedRect.pos + usedRect.size).AsLVG2(), opts, 0.0f, FRONT_DRAW_ORDER);
 		}
 
 		if (m_dragDirection != Direction::None)
@@ -118,7 +118,7 @@ namespace Lina::Editor
 			if (m_isPressed)
 			{
 
-				const Vector2i mousePos = m_window->GetMousePosition();
+				const Vector2ui mousePos = m_window->GetMousePosition();
 
 				const float deltaX = static_cast<float>(m_window->GetMousePosition().x - (m_rect.pos.x + m_pressStartMouseDelta.x));
 				const float deltaY = static_cast<float>(m_window->GetMousePosition().y - (m_rect.pos.y + m_pressStartMouseDelta.y));
@@ -171,9 +171,9 @@ namespace Lina::Editor
 		}
 	}
 
-	CursorType GUINodeDivider::GetHoveredCursor()
+	LinaGX::CursorType GUINodeDivider::GetHoveredCursor()
 	{
-		return m_dragDirection == Direction::Horizontal ? CursorType::SizeHorizontal : CursorType::SizeVertical;
+		return m_dragDirection == Direction::Horizontal ? LinaGX::CursorType::SizeHorizontal : LinaGX::CursorType::SizeVertical;
 	}
 
 

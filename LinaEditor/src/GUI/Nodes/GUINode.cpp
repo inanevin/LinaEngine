@@ -332,7 +332,7 @@ namespace Lina::Editor
 		LinaVG::TextOptions textOpts;
 		textOpts.font	   = Theme::GetFont(ft, m_lastDpi);
 		textOpts.textScale = textScale;
-		const Vector2 sz   = FL2(LinaVG::CalculateTextSize(text.c_str(), textOpts));
+		const Vector2 sz   = LinaVG::CalculateTextSize(text.c_str(), textOpts);
 		m_storedSizes[sid] = sz;
 		return sz;
 	}

@@ -71,8 +71,8 @@ namespace Lina
 	void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf, int thread)
 	{
 		auto& req				= AddDrawRequest(buf, m_guiRenderData[thread]);
-		req.materialData.color1 = FL4(buf->m_color.start);
-		req.materialData.color2 = FL4(buf->m_color.end);
+		req.materialData.color1 = buf->m_color.start;
+		req.materialData.color2 = buf->m_color.end;
 
 		if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
 		{
@@ -105,7 +105,7 @@ namespace Lina
 		req.materialData.floatPack2			  = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, 0.0f);
 		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
 		req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
-		req.materialData.color1				  = FL4(buf->m_tint);
+		req.materialData.color1				  = buf->m_tint;
 	}
 
 	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int thread)
@@ -127,7 +127,7 @@ namespace Lina
 		auto& req							  = AddDrawRequest(buf, m_guiRenderData[thread]);
 		auto  txt							  = m_fontTextures[buf->m_textureHandle].texture;
 		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
-		req.materialData.color1				  = FL4(buf->m_outlineColor);
+		req.materialData.color1				  = buf->m_outlineColor;
 		req.materialData.floatPack1			  = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f ? 1.0f : 0.0f);
 		req.materialData.floatPack2			  = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
 		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();

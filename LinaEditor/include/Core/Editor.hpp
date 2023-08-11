@@ -95,7 +95,7 @@ namespace Lina::Editor
 		void OnShortcut(Shortcut sc, void* windowHandle);
 
 		void			OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
-		LinaGX::Window* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size);
+		LinaGX::Window* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2ui& size);
 		void			CloseWindow(StringID sid);
 		void			OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
 		void			CloseAllChildWindows();
@@ -152,6 +152,7 @@ namespace Lina::Editor
 		Vector<TextureSheetItem>		  m_editorImages;
 		HashMap<StringID, GUIDrawerBase*> m_guiDrawers;
 		EditorLayoutManager				  m_layoutManager;
+		LinaGX::Window*					  m_draggedWindow = nullptr;
 	};
 } // namespace Lina::Editor
 

@@ -33,11 +33,6 @@ SOFTWARE.
 
 #include "LinaVG/LinaVG.hpp"
 
-#define LV2(V) LinaVG::Vec2(static_cast<float>((int)V.x), static_cast<float>((int)V.y))
-#define LV4(V) LinaVG::Vec4(V.x, V.y, V.z, V.w)
-#define FL2(V) Vector2(V.x, V.y)
-#define FL4(V) Vector4(V.x, V.y, V.z, V.w)
-
 namespace Lina
 {
 

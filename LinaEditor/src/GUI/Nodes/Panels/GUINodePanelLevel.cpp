@@ -123,7 +123,7 @@ namespace Lina::Editor
 			const Rect	   imageRect	 = m_rect.ShrinkByAmount(4.0f);
 			const StringID textureHandle = wr->GetFinalTexture(m_gfxManager->GetFrameIndex())->GetSID();
 
-			LinaVG::DrawImage(threadID, textureHandle, LV2(imageRect.GetCenter()), LV2(imageRect.size), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder);
+			LinaVG::DrawImage(threadID, textureHandle, imageRect.GetCenter().AsLVG2(), imageRect.size.AsLVG2(), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder);
 
 			if (!imageRect.size.Equals(m_loadedLevel->GetWorldRenderer()->GetResolution(), 2.0f))
 			{

@@ -46,20 +46,20 @@ namespace Lina::Editor
 
 		LinaVG::TextOptions textOpts;
 		textOpts.font  = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-		textOpts.color = m_disabled ? LV4(Theme::TC_SilentTransparent) : LV4(Color::White);
+		textOpts.color = (m_disabled ? Theme::TC_SilentTransparent : Color::White).AsLVG4();
 
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		if (m_isHovered)
 		{
 			LinaVG::StyleOptions bgRect;
-			bgRect.color = LV4(Theme::TC_CyanAccent);
-			LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), bgRect, 0.0f, m_drawOrder);
+			bgRect.color = Theme::TC_CyanAccent.AsLVG4();
+			LinaVG::DrawRect(threadID, m_rect.pos.AsLVG2(), (m_rect.pos + m_rect.size).AsLVG2(), bgRect, 0.0f, m_drawOrder);
 		}
 
 		const Vector2 titleSize = GetStoreSize("TitleSize"_hs, m_title);
 		const Vector2 textPos	= Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + titleSize.y * 0.5f);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder, true);
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), textPos.AsLVG2(), textOpts, 0.0f, m_drawOrder, true);
 
 		if (m_shortcut != Shortcut::None)
 		{
@@ -69,11 +69,11 @@ namespace Lina::Editor
 			LinaVG::TextOptions scOpts;
 			scOpts.font		 = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
 			scOpts.textScale = SHORTCUT_TEXT_SCALE;
-			scOpts.color	 = LV4(Theme::TC_Light1);
+			scOpts.color	 = Theme::TC_Light1.AsLVG4();
 
 			const Vector2 shortcutSize = GetStoreSize("ShortcutSize"_hs, SHORTCUT_TO_NAME_MAP.at(m_shortcut), FontType::AltEditor);
 			const Vector2 shortcutPos  = Vector2(m_shortcutXStartRight - shortcutSize.x, m_rect.pos.y + m_rect.size.y * 0.5f + shortcutSize.y * 0.5f);
-			LinaVG::DrawTextNormal(threadID, SHORTCUT_TO_NAME_MAP.at(m_shortcut), LV2(shortcutPos), scOpts, 0.0f, m_drawOrder);
+			LinaVG::DrawTextNormal(threadID, SHORTCUT_TO_NAME_MAP.at(m_shortcut), shortcutPos.AsLVG2(), scOpts, 0.0f, m_drawOrder);
 		}
 	}
 
@@ -98,7 +98,7 @@ namespace Lina::Editor
 
 		LinaVG::TextOptions textOpts;
 		textOpts.font	   = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
-		textOpts.color	   = LV4(Theme::TC_Silent2);
+		textOpts.color	   = Theme::TC_Silent2.AsLVG4();
 		textOpts.alignment = LinaVG::TextAlignment::Right;
 
 		const float	  padding	= Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
@@ -111,11 +111,11 @@ namespace Lina::Editor
 
 		LinaVG::StyleOptions lineStyle;
 		lineStyle.thickness	  = 1.5f * m_window->GetDPIScale();
-		lineStyle.color		  = LV4(Theme::TC_Silent2);
+		lineStyle.color		  = Theme::TC_Silent2.AsLVG4();
 		lineStyle.color.end.w = 0.2f;
-		LinaVG::DrawLine(threadID, LV2(lineStart), LV2(lineEnd), lineStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		LinaVG::DrawLine(threadID, lineStart.AsLVG2(), lineEnd.AsLVG2(), lineStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), textPos.AsLVG2(), textOpts, 0.0f, m_drawOrder);
 	}
 
 	float GUINodeFMPopupElementDivider::GetTotalWidth()

@@ -47,12 +47,12 @@ namespace Lina::Editor
 		opts.font	   = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
 		//opts.wrapWidth = textWrapWidth;
 
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), opts));
+		const Vector2 textSize = LinaVG::CalculateTextSize(m_title.c_str(), opts);
 		m_rect.size			   = textSize + Vector2(padding * 2, padding * 2);
 
 		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), m_drawOrder);
 
 		const Vector2 textStart = m_rect.pos + Vector2(padding, padding + textSize.y);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textStart), opts, 0.0f, m_drawOrder);
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), textStart.AsLVG2(), opts, 0.0f, m_drawOrder);
 	}
 } // namespace Lina::Editor

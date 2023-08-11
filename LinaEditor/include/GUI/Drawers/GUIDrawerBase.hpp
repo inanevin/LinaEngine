@@ -60,8 +60,8 @@ namespace Lina::Editor
 
 		virtual void OnKey(uint32 key, LinaGX::InputAction action) override;
 		virtual void OnMouse(uint32 button, LinaGX::InputAction action) override;
-		virtual void OnMousePos(const Vector2i& pos) override;
-		virtual void OnMouseMove(const Vector2i& pos) override;
+		virtual void OnMousePos(const Vector2ui& pos) override;
+		virtual void OnMouseMove(const Vector2ui& pos) override;
 		virtual void OnMouseWheel(uint32 delta) override;
 		virtual void OnFocus(bool hasFocus) override;
 		virtual void OnMouseHoverEnd() override;

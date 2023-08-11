@@ -39,98 +39,98 @@ namespace Lina::Editor
 	{
 		LinaVG::SDFTextOptions opts;
 		opts.font		  = Theme::GetFont(FontType::EditorIcons, dpiScale);
-		opts.color		  = LV4(tint);
+		opts.color		  = tint.AsLVG4();
 		opts.sdfThickness = 0.5f;
 		opts.sdfSoftness  = 0.5f;
 		opts.textScale	  = scale;
 
-		const Vector2 iconSize = FL2(LinaVG::CalculateTextSize(icon, opts));
+		const Vector2 iconSize = LinaVG::CalculateTextSize(icon, opts);
 		const Vector2 pos	   = Vector2(centerPos.x - iconSize.x * 0.5f, centerPos.y + iconSize.y * 0.5f * opts.sdfThickness + 1.0f);
-		LinaVG::DrawTextSDF(threadID, icon, LV2(pos), opts, rotation, drawOrder, skipCache);
+		LinaVG::DrawTextSDF(threadID, icon, pos.AsLVG2(), opts, rotation, drawOrder, skipCache);
 		return iconSize;
 	}
 
 	void GUIUtility::DrawTitleBackground(int threadID, const Rect& rect, int drawOrder)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color = LV4(Theme::TC_Dark1);
-		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+		bg.color = Theme::TC_Dark1.AsLVG4();
+		LinaVG::DrawRect(threadID, rect.pos.AsLVG2(), (rect.pos + rect.size).AsLVG2(), bg, 0.0f, drawOrder);
 	}
 
 	void GUIUtility::DrawDockBackground(int threadID, const Rect& rect, int drawOrder)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color = LV4(Theme::TC_Dark2);
-		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+		bg.color = Theme::TC_Dark2.AsLVG4();
+		LinaVG::DrawRect(threadID, rect.pos.AsLVG2(), (rect.pos + rect.size).AsLVG2(), bg, 0.0f, drawOrder);
 	}
 
 	void GUIUtility::DrawPanelBackground(int threadID, const Rect& rect, int drawOrder)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color = LV4(Theme::TC_Dark3);
-		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+		bg.color = Theme::TC_Dark3.AsLVG4();
+		LinaVG::DrawRect(threadID, rect.pos.AsLVG2(), (rect.pos + rect.size).AsLVG2(), bg, 0.0f, drawOrder);
 	}
 
 	void GUIUtility::DrawPopupBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color						= LV4(Theme::TC_Dark1);
+		bg.color						= Theme::TC_Dark1.AsLVG4();
 		bg.outlineOptions.thickness		= borderThickness;
-		bg.outlineOptions.color			= LV4(Theme::TC_Silent0);
+		bg.outlineOptions.color			= Theme::TC_Silent0.AsLVG4();
 		bg.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
-		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+		LinaVG::DrawRect(threadID, rect.pos.AsLVG2(), (rect.pos + rect.size).AsLVG2(), bg, 0.0f, drawOrder);
 	}
 
 	void GUIUtility::DrawWidgetBackground(int threadID, const Rect& rect, float borderThickness, int drawOrder, bool disabled, bool hasFocus)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color						= LV4((!disabled ? Theme::TC_Dark1 : Theme::TC_Dark25));
+		bg.color						= (!disabled ? Theme::TC_Dark1 : Theme::TC_Dark25).AsLVG4();
 		bg.outlineOptions.thickness		= 1.0f;
-		bg.outlineOptions.color			= LV4((hasFocus ? Theme::TC_CyanAccent : Theme::TC_Silent1));
+		bg.outlineOptions.color			= (hasFocus ? Theme::TC_CyanAccent : Theme::TC_Silent1).AsLVG4();
 		bg.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Outwards;
-		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+		LinaVG::DrawRect(threadID, rect.pos.AsLVG2(), (rect.pos + rect.size).AsLVG2(), bg, 0.0f, drawOrder);
 	}
 
 	void GUIUtility::DrawWidgetLabelBox(int threadID, float dpiScale, const char* label, const Rect& rect, int drawOrder, const Color& labelColor)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color = LV4(Theme::TC_Dark2);
-		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+		bg.color = Theme::TC_Dark2.AsLVG4();
+		LinaVG::DrawRect(threadID, rect.pos.AsLVG2(), (rect.pos + rect.size).AsLVG2(), bg, 0.0f, drawOrder);
 
 		LinaVG::TextOptions txtOpts;
 		txtOpts.font  = Theme::GetFont(FontType::AltEditor, dpiScale);
-		txtOpts.color = LV4(labelColor);
+		txtOpts.color = labelColor.AsLVG4();
 
-		const Vector2 txtSize = FL2(LinaVG::CalculateTextSize(label, txtOpts));
+		const Vector2 txtSize = LinaVG::CalculateTextSize(label, txtOpts);
 		const Vector2 txtPos  = Vector2(rect.pos.x + rect.size.x * 0.5f - txtSize.x * 0.5f, rect.pos.y + rect.size.y * 0.5f + txtSize.y * 0.5f);
-		LinaVG::DrawTextNormal(threadID, label, LV2(txtPos), txtOpts, 0.0f, drawOrder);
+		LinaVG::DrawTextNormal(threadID, label, txtPos.AsLVG2(), txtOpts, 0.0f, drawOrder);
 	}
 
 	void GUIUtility::DrawWidgetSliderBox(int threadID, const Rect& rect, int drawOrder)
 	{
 		LinaVG::StyleOptions bg;
-		bg.color = LV4(Theme::TC_Dark2);
-		LinaVG::DrawRect(threadID, LV2(rect.pos), LV2((rect.pos + rect.size)), bg, 0.0f, drawOrder);
+		bg.color = Theme::TC_Dark2.AsLVG4();
+		LinaVG::DrawRect(threadID, rect.pos.AsLVG2(), (rect.pos + rect.size).AsLVG2(), bg, 0.0f, drawOrder);
 	}
 
 	void GUIUtility::DrawSheetImage(int threadID, const TextureSheetItem& item, const Vector2& center, const Vector2& size, const Color& tint, int drawOrder)
 	{
-		LinaVG::DrawImage(threadID, item.texture->GetSID(), LV2(center), LV2(size), LV4(tint), 0.0f, drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LinaVG::Vec2(item.uvTL.x, item.uvTL.y), LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
+		LinaVG::DrawImage(threadID, item.texture->GetSID(), center.AsLVG2(), size.AsLVG2(), tint.AsLVG4(), 0.0f, drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LinaVG::Vec2(item.uvTL.x, item.uvTL.y), LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
 	}
 
 	Vector2 GUIUtility::DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::TextOptions& opts, int drawOrder)
 	{
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(text, opts));
+		const Vector2 textSize = LinaVG::CalculateTextSize(text, opts);
 		const Vector2 textPos  = Vector2(rect.pos.x + rect.size.x * 0.5f - textSize.x * 0.5f, rect.pos.y + rect.size.y * 0.5f + textSize.y * 0.5f);
-		LinaVG::DrawTextNormal(threadID, text, LV2(textPos), opts, 0.0f, drawOrder);
+		LinaVG::DrawTextNormal(threadID, text, textPos.AsLVG2(), opts, 0.0f, drawOrder);
 		return textSize;
 	}
 
 	Vector2 GUIUtility::DrawTextCentered(int threadID, const char* text, const Rect& rect, LinaVG::SDFTextOptions& opts, int drawOrder)
 	{
-		const Vector2 textSize = FL2(LinaVG::CalculateTextSize(text, opts));
+		const Vector2 textSize = LinaVG::CalculateTextSize(text, opts);
 		const Vector2 textPos  = Vector2(rect.pos.x + rect.size.x * 0.5f - textSize.x * 0.5f, rect.pos.y + rect.size.y * 0.5f + textSize.y * 0.5f);
-		LinaVG::DrawTextSDF(threadID, text, LV2(textPos), opts, 0.0f, drawOrder);
+		LinaVG::DrawTextSDF(threadID, text, textPos.AsLVG2(), opts, 0.0f, drawOrder);
 		return textSize;
 	}
 

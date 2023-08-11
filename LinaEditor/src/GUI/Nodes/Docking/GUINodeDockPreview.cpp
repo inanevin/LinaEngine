@@ -70,7 +70,7 @@ namespace Lina::Editor
 			col.w	  = 0.3f;
 
 			LinaVG::StyleOptions opts;
-			opts.color	   = LV4(col);
+			opts.color	   = col.AsLVG4();
 			opts.rounding  = 0.2f;
 			opts.aaEnabled = true;
 
@@ -87,13 +87,13 @@ namespace Lina::Editor
 
 			const Rect splitAreaRect = Rect(Vector2(center.x - rectSize.x * 0.5f, center.y - rectSize.y * 0.5f), rectSize);
 
-			LinaVG::DrawRect(threadID, LV2(splitAreaRect.pos), LV2((splitAreaRect.pos + splitAreaRect.size)), opts, 0.0f, FRONT_DRAW_ORDER);
+			LinaVG::DrawRect(threadID, splitAreaRect.pos.AsLVG2(), (splitAreaRect.pos + splitAreaRect.size).AsLVG2(), opts, 0.0f, FRONT_DRAW_ORDER);
 			GUIUtility::DrawSheetImage(threadID, item, (splitAreaRect.pos + splitAreaRect.pos + splitAreaRect.size) * 0.5f, itemSize, Color::White, FRONT_DRAW_ORDER);
 
 			if (splitAreaRect.IsPointInside(mousePos))
 			{
 				LinaVG::StyleOptions rectOpts;
-				rectOpts.color = LV4(col);
+				rectOpts.color = col.AsLVG4();
 
 				m_currentHoveredSplit = splitType;
 
@@ -128,7 +128,7 @@ namespace Lina::Editor
 					rectSize	 = m_rect.size;
 				}
 
-				LinaVG::DrawRect(threadID, LV2(rectStartPos), LV2((rectStartPos + rectSize)), rectOpts, 0.0f, FRONT_DRAW_ORDER);
+				LinaVG::DrawRect(threadID, rectStartPos.AsLVG2(), (rectStartPos + rectSize).AsLVG2(), rectOpts, 0.0f, FRONT_DRAW_ORDER);
 
 				m_scales[splitType] = 1.0f + (Math::Sin(SystemInfo::GetAppTimeF() * 8.0f) * 0.1f);
 			}

@@ -55,16 +55,16 @@ namespace Lina::Editor
 		{
 			LinaVG::StyleOptions opts;
 			opts.rounding = m_rounding;
-			opts.color	  = m_isPressed ? LV4(m_pressedColor) : (m_isHovered ? LV4(m_hoveredColor) : LV4(m_defaultColor));
+			opts.color	  = m_isPressed ? m_pressedColor.AsLVG4() : (m_isHovered ? m_hoveredColor.AsLVG4() : m_defaultColor.AsLVG4());
 
 			if (m_isHovered && m_enableHoverOutline)
 			{
 				opts.outlineOptions.thickness	  = 1.0f * m_window->GetDPIScale();
 				opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
-				opts.outlineOptions.color		  = LV4(m_outlineColor);
+				opts.outlineOptions.color		  = m_outlineColor.AsLVG4();
 			}
 
-			LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), opts, 0.0f, m_drawOrder);
+			LinaVG::DrawRect(threadID, m_rect.pos.AsLVG2(), (m_rect.pos + m_rect.size).AsLVG2(), opts, 0.0f, m_drawOrder);
 		}
 
 		// Draw actual text
@@ -78,10 +78,10 @@ namespace Lina::Editor
 			{
 				const Vector2		textPos = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
 				LinaVG::TextOptions textOpts;
-				textOpts.color	   = LV4(m_textColor);
+				textOpts.color	   = m_textColor.AsLVG4();
 				textOpts.font	   = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
 				textOpts.textScale = m_textScale;
-				LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder + 1);
+				LinaVG::DrawTextNormal(threadID, m_title.c_str(), textPos.AsLVG2(), textOpts, 0.0f, m_drawOrder + 1);
 			}
 		}
 	}

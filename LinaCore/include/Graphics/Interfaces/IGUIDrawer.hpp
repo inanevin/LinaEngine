@@ -51,8 +51,8 @@ namespace Lina
 		virtual void DrawGUI(int threadID) = 0;
 		virtual void OnKey(uint32 key, LinaGX::InputAction action){};
 		virtual void OnMouse(uint32 button, LinaGX::InputAction action){};
-		virtual void OnMousePos(const Vector2i& pos){};
-		virtual void OnMouseMove(const Vector2i& pos){};
+		virtual void OnMousePos(const Vector2ui& pos){};
+		virtual void OnMouseMove(const Vector2ui& pos){};
 		virtual void OnMouseWheel(uint32 delta){};
 		virtual void OnFocus(bool hasFocus){};
 		virtual void OnMouseHoverEnd(){};
@@ -66,6 +66,11 @@ namespace Lina
 		inline SurfaceRenderer* GetSurfaceRenderer() const
 		{
 			return m_surfaceRenderer;
+		}
+
+		inline LinaGX::Window* GetWindow()
+		{
+			return m_window;
 		}
 
 	protected:

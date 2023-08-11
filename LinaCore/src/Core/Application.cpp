@@ -135,9 +135,9 @@ namespace Lina
 		window->CenterPositionToCurrentMonitor();
 		window->SetCallbackClose([&]() { m_exitRequested = true; });
 
-		auto		sf	= m_engine.GetGfxManager()->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		IGUIDrawer* heh = new TestGUIDrawer(&m_engine.GetResourceManager(), window);
-		sf->SetGUIDrawer(heh);
+		// auto		sf	= m_engine.GetGfxManager()->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
+		// IGUIDrawer* heh = new TestGUIDrawer(&m_engine.GetResourceManager(), window);
+		// sf->SetGUIDrawer(heh);
 	}
 
 	void Application::OnInited()

@@ -82,7 +82,7 @@ namespace Lina::Editor
 
 			LinaVG::StyleOptions style;
 			style.aaEnabled = true;
-			style.color		= LV4(Theme::TC_Dark2);
+			style.color		= Theme::TC_Dark2.AsLVG4();
 
 			const Vector2 wp		   = m_window->GetPos();
 			const Rect	  triangleRect = Rect(wp + triStart, Vector2(triEnd.x - triStart.x, triBot.y - triStart.y));
@@ -90,11 +90,11 @@ namespace Lina::Editor
 			const bool	  hovered	   = triangleRect.IsPointInside(mp);
 
 			if (hovered || m_draggingExpandRect)
-				style.color = LV4(Theme::TC_Light1);
+				style.color = Theme::TC_Light1.AsLVG4();
 
-			LinaVG::DrawTriangle(threadID, LV2(triStart), LV2(triEnd), LV2(triBot), style, 0.0f, m_drawOrder);
+			LinaVG::DrawTriangle(threadID, triStart.AsLVG2(), triEnd.AsLVG2(), triBot), style, 0.0f, m_drawOrder);
 
-			if (hovered && m_input->GetMouseButtonDown(LINA_MOUSE_0))
+			if (hovered && m_input->GetMouseButtonDown(LINAGX_MOUSE_0))
 			{
 				m_draggingExpandRect = true;
 			}
@@ -151,7 +151,7 @@ namespace Lina::Editor
 		{
 			LinaVG::TextOptions opts;
 			opts.font  = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-			opts.color = LV4((!m_disabled ? Color::White : Theme::TC_Silent2));
+			opts.color = (!m_disabled ? Color::White : Theme::TC_Silent2).AsLVG4();;
 
 			float posY = 0.0f;
 
@@ -167,7 +167,7 @@ namespace Lina::Editor
 				posY			 = m_rect.pos.y + m_rect.size.y * 0.5f + lastTextSize.y * 0.5f;
 				m_initialTextPos = Vector2(m_rect.pos.x + padding - m_scrollValue + m_textOffset, posY);
 			}
-			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(m_initialTextPos), opts, 0.0f, m_drawOrder, shouldRecalcCharInfo, shouldRecalcCharInfo ? m_outTextData : nullptr);
+			LinaVG::DrawTextNormal(threadID, m_title.c_str(), m_initialTextPos.AsLVG2(), opts, 0.0f, m_drawOrder, shouldRecalcCharInfo, shouldRecalcCharInfo ? m_outTextData : nullptr);
 		}
 
 		if (m_caretScrollCheckState != 0)
@@ -431,7 +431,7 @@ namespace Lina::Editor
 			return;
 
 		LinaVG::StyleOptions caretStyle;
-		caretStyle.color		 = LV4(Theme::TC_Silent3);
+		caretStyle.color		 = Theme::TC_Silent3.AsLVG4();
 		caretStyle.color.start.w = caretStyle.color.end.w = 0.5f;
 		caretStyle.thickness							  = 1.2f * m_window->GetDPIScale();
 
@@ -490,7 +490,7 @@ namespace Lina::Editor
 
 				const Vector2 p1 = Vector2(targetX, targetY - m_caretHeight);
 				const Vector2 p2 = Vector2(targetX, targetY + m_caretHeight * 0.1f);
-				LinaVG::DrawLine(threadID, LV2(p1), LV2(p2), caretStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
+				LinaVG::DrawLine(threadID, p1.AsLVG2(), p2.AsLVG2(), caretStyle, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder + 1);
 			}
 		}
 
@@ -498,7 +498,7 @@ namespace Lina::Editor
 		if (m_caretIndexStart != m_caretIndexEnd)
 		{
 			LinaVG::StyleOptions opts;
-			opts.color		   = LV4(Theme::TC_CyanAccent);
+			opts.color		   = Theme::TC_CyanAccent.AsLVG4();
 			opts.color.start.w = opts.color.end.w = 0.2f;
 			const uint32 sz						  = static_cast<uint32>(m_outTextData->characterInfo.m_size);
 
@@ -519,7 +519,7 @@ namespace Lina::Editor
 				const Vector2 start = Vector2(minChar.x, minChar.y - lineHeight);
 				const Vector2 end	= Vector2(maxChar.x + maxChar.sizeX, minChar.y + lineExtraBottom);
 
-				LinaVG::DrawRect(threadID, LV2(start), LV2(end), opts, 0.0f, m_drawOrder);
+				LinaVG::DrawRect(threadID, start.AsLVG2(), end.AsLVG2(), opts, 0.0f, m_drawOrder);
 			}
 			else
 			{
@@ -531,12 +531,12 @@ namespace Lina::Editor
 				// First line coverage
 				const Vector2 firstLineStart = Vector2(firstCharacter.x, firstCharacter.y - lineHeight);
 				const Vector2 firstLineEnd	 = Vector2(firstLineLastCharacter.x, firstCharacter.y + lineExtraBottom);
-				LinaVG::DrawRect(threadID, LV2(firstLineStart), LV2(firstLineEnd), opts, 0.0f, m_drawOrder);
+				LinaVG::DrawRect(threadID, firstLineStart.AsLVG2(), firstLineEnd.AsLVG2(), opts, 0.0f, m_drawOrder);
 
 				// Last line coverage
 				const Vector2 lastLineStart = Vector2(lastLineFirstCharacter.x, lastLineFirstCharacter.y - lineHeight);
 				const Vector2 lastLineEnd	= Vector2(lastCharacter.x + (max == sz ? lastCharacter.sizeX : 0.0f), lastLineFirstCharacter.y + lineExtraBottom);
-				LinaVG::DrawRect(threadID, LV2(lastLineStart), LV2(lastLineEnd), opts, 0.0f, m_drawOrder);
+				LinaVG::DrawRect(threadID, lastLineStart.AsLVG2(), lastLineEnd.AsLVG2(), opts, 0.0f, m_drawOrder);
 
 				for (uint32 i = lineMin + 1; i < lineMax; i++)
 				{
@@ -545,7 +545,7 @@ namespace Lina::Editor
 
 					const Vector2 midLineStart = Vector2(midLineFirstCharacter.x, midLineFirstCharacter.y - lineHeight);
 					const Vector2 midLineEnd   = Vector2(midLineLastCharacter.x, midLineFirstCharacter.y + lineExtraBottom);
-					LinaVG::DrawRect(threadID, LV2(midLineStart), LV2(midLineEnd), opts, 0.0f, m_drawOrder);
+					LinaVG::DrawRect(threadID, midLineStart.AsLVG2(), midLineEnd.AsLVG2(), opts, 0.0f, m_drawOrder);
 				}
 			}
 		}

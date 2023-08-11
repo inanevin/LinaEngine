@@ -75,14 +75,14 @@ namespace Lina::Editor
 	void GUIDrawerBase::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		// If we are releasing button, check the currently pressed/hovered node and cancel its state.
-		if (m_hoveredNode && m_hoveredNode->m_isPressed && action == InputAction::Released && button == m_hoveredNode->m_lastPressedButton)
+		if (m_hoveredNode && m_hoveredNode->m_isPressed && action == LinaGX::InputAction::Released && button == m_hoveredNode->m_lastPressedButton)
 		{
 			auto* hov = GetHovered(m_root);
 
 			if (m_hoveredNode != hov)
 			{
 				ClearHovered();
-				const Vector2i pos = m_window->GetMousePosition();
+				const Vector2ui pos = m_window->GetMousePosition();
 				OnMousePos(pos);
 			}
 		}
@@ -90,7 +90,7 @@ namespace Lina::Editor
 		m_root->OnMouse(button, action);
 	}
 
-	void GUIDrawerBase::OnMousePos(const Vector2i& pos)
+	void GUIDrawerBase::OnMousePos(const Vector2ui& pos)
 	{
 		auto* hoveredNode = GetHovered(m_root);
 
@@ -124,7 +124,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void GUIDrawerBase::OnMouseMove(const Vector2i& pos)
+	void GUIDrawerBase::OnMouseMove(const Vector2ui& pos)
 	{
 	}
 
@@ -177,8 +177,8 @@ namespace Lina::Editor
 	{
 		if (enabled)
 		{
-			const Vector2i& targetSize		   = m_swapchain->GetSize();
-			const bool		sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
+			const Vector2ui& targetSize			= m_window->GetSize();
+			const bool		 sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
 			if (sizeSuitableToDock)
 				m_dockPreview->SetVisible(true);
 		}
@@ -475,7 +475,7 @@ namespace Lina::Editor
 		if (m_hoveredNode)
 			m_window->SetCursorType(m_hoveredNode->GetHoveredCursor());
 
-		const Vector2 swpSize = m_swapchain->GetSize();
+		const Vector2 swpSize = Vector2(m_window->GetSize());
 
 		// Bg
 		{
@@ -518,9 +518,9 @@ namespace Lina::Editor
 			LinaVG::StyleOptions opts;
 			const float			 thickness = m_window->GetDPIScale();
 			opts.thickness				   = thickness * 2;
-			opts.color					   = LV4(Theme::TC_Silent1);
+			opts.color					   = Theme::TC_Silent1.AsLVG4();
 			opts.isFilled				   = false;
-			LinaVG::DrawRect(threadID, LV2(Vector2(thickness, thickness)), LV2((swpSize - Vector2(thickness, thickness))), opts, 0.0f, FRONT_DRAW_ORDER);
+			LinaVG::DrawRect(threadID, Vector2(thickness, thickness).AsLVG2(), (swpSize - Vector2(thickness, thickness)).AsLVG2(), opts, 0.0f, FRONT_DRAW_ORDER);
 		}
 
 		// Debug
@@ -529,7 +529,7 @@ namespace Lina::Editor
 			LinaVG::StyleOptions style;
 			style.isFilled	  = false;
 			const Vector2 pad = Vector2(2, 2);
-			LinaVG::DrawRect(threadID, LV2((m_hoveredNode->GetRect().pos + pad)), LV2((m_hoveredNode->GetRect().pos + m_hoveredNode->GetRect().size - pad)), style, 0.0f, FRONT_DRAW_ORDER);
+			LinaVG::DrawRect(threadID, (m_hoveredNode->GetRect().pos + pad).AsLVG2(), (m_hoveredNode->GetRect().pos + m_hoveredNode->GetRect().size - pad).AsLVG2(), style, 0.0f, FRONT_DRAW_ORDER);
 		}
 	}
 
@@ -538,7 +538,7 @@ namespace Lina::Editor
 		GUINode*		  hovered			 = nullptr;
 		const PayloadType currentPayloadType = m_editor->GetPayloadManager().GetCurrentPayloadMeta().type;
 
-		if (GUIUtility::IsInRect(m_window->GetMousePosition(), parent->GetRect()) && parent->GetIsVisible())
+		if (GUIUtility::IsInRect(Vector2(m_window->GetMousePosition()), parent->GetRect()) && parent->GetIsVisible())
 		{
 			if (currentPayloadType == PayloadType::EPL_None || parent->GetPayloadMask().IsSet(currentPayloadType))
 				hovered = parent;

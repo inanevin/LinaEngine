@@ -120,21 +120,21 @@ namespace Lina::Editor
 
 		if (m_isHighlightEnabled)
 		{
-			opts.color = LV4(m_highlightColor);
-			LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder);
+			opts.color = m_highlightColor.AsLVG4();
+			LinaVG::DrawRect(threadID, m_ownRect.pos.AsLVG2(), (m_ownRect.pos + m_ownRect.size).AsLVG2(), opts, 0.0f, m_drawOrder);
 		}
 		else
 		{
 			if (m_isSelected)
 			{
-				opts.color = LV4(Theme::TC_Dark2);
-				LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder);
+				opts.color = Theme::TC_Dark2.AsLVG4();
+				LinaVG::DrawRect(threadID, m_ownRect.pos.AsLVG2(), (m_ownRect.pos + m_ownRect.size).AsLVG2(), opts, 0.0f, m_drawOrder);
 			}
 			else if (m_isHovered)
 			{
-				opts.color		   = LV4(Theme::TC_Dark1);
+				opts.color		   = Theme::TC_Dark1.AsLVG4();
 				opts.color.start.w = opts.color.end.w = 0.3f;
-				LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder);
+				LinaVG::DrawRect(threadID, m_ownRect.pos.AsLVG2(), (m_ownRect.pos + m_ownRect.size).AsLVG2(), opts, 0.0f, m_drawOrder);
 			}
 		}
 	}
@@ -163,7 +163,7 @@ namespace Lina::Editor
 		textOpts.font				 = Theme::GetFont(fontType, m_window->GetDPIScale());
 		const Vector2 titleSize		 = GetStoreSize("TitleSize"_hs, m_title, fontType);
 		const Vector2 textPos		 = Vector2(m_ownRect.pos.x + textStart, m_ownRect.pos.y + m_ownRect.size.y * 0.5f + titleSize.y * 0.5f);
-		LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, m_drawOrder);
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), textPos.AsLVG2(), textOpts, 0.0f, m_drawOrder);
 	}
 
 	void GUINodeSelection::HandleDrag(int threadID)
@@ -196,21 +196,21 @@ namespace Lina::Editor
 
 				// Draw underline or full rect.
 				LinaVG::StyleOptions opts;
-				opts.color = LV4(Theme::TC_CyanAccent);
+				opts.color = Theme::TC_CyanAccent.AsLVG4();
 
 				if (halfRectDown.IsPointInside(mousePos))
 				{
 					if (m_isExpanded)
-						LinaVG::DrawRect(threadID, LV2(Vector2(halfRectDown.pos.x, m_rect.pos.y + m_rect.size.y - halfRectDown.size.y)), LV2((m_rect.pos + m_rect.size)), opts, 0.0f, m_drawOrder + 1);
+						LinaVG::DrawRect(threadID, Vector2(halfRectDown.pos.x, m_rect.pos.y + m_rect.size.y - halfRectDown.size.y).AsLVG2(), (m_rect.pos + m_rect.size).AsLVG2(), opts, 0.0f, m_drawOrder + 1);
 					else
-						LinaVG::DrawRect(threadID, LV2(halfRectDown.pos), LV2((halfRectDown.pos + halfRectDown.size)), opts, 0.0f, m_drawOrder + 1);
+						LinaVG::DrawRect(threadID, halfRectDown.pos.AsLVG2(), (halfRectDown.pos + halfRectDown.size).AsLVG2(), opts, 0.0f, m_drawOrder + 1);
 
 					m_payloadDropState = 1;
 				}
 				else
 				{
 					opts.color.start.w = opts.color.end.w = 0.3f;
-					LinaVG::DrawRect(threadID, LV2(m_ownRect.pos), LV2((m_ownRect.pos + m_ownRect.size)), opts, 0.0f, m_drawOrder + 1);
+					LinaVG::DrawRect(threadID, m_ownRect.pos.AsLVG2(), (m_ownRect.pos + m_ownRect.size).AsLVG2(), opts, 0.0f, m_drawOrder + 1);
 
 					m_payloadDropState = 2;
 				}

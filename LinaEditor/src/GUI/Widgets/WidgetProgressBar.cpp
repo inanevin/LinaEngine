@@ -38,16 +38,16 @@ namespace Lina::Editor
 	void WidgetProgressBar::Draw(int threadID, const Vector2& start, const Vector2& size, const Vector2& textPos, float progress, const char* text)
 	{
 		LinaVG::StyleOptions style;
-		style.color = LV4(BackgroundColor);
-		LinaVG::DrawRect(threadID, LV2(start), LV2((start + size)), style, 0.0f, 1);
+		style.color = BackgroundColor.AsLVG4();
+		LinaVG::DrawRect(threadID, start.AsLVG2(), (start + size).AsLVG2(), style, 0.0f, 1);
 
-		style.color.start			 = LV4(ForegroundStartColor);
-		style.color.end				 = LV4(ForegroundEndColor);
+		style.color.start			 = ForegroundStartColor.AsLVG4();
+		style.color.end				 = ForegroundEndColor.AsLVG4();
 		const Vector2 foregroundSize = Vector2(size.x * Progress, size.y);
-		LinaVG::DrawRect(threadID, LV2(start), LV2((start + foregroundSize)), style, 0.0f, 1);
+		LinaVG::DrawRect(threadID, start.AsLVG2(), (start + foregroundSize).AsLVG2(), style, 0.0f, 1);
 
 		LinaVG::TextOptions textStyle;
 		textStyle.font = Theme::GetFont(FontType::DefaultEditor, GetDPIScale());
-		LinaVG::DrawTextNormal(threadID, text, LV2(textPos), textStyle, 0.0f, 2);
+		LinaVG::DrawTextNormal(threadID, text, textPos.AsLVG2(), textStyle, 0.0f, 2);
 	}
 } // namespace Lina::Editor

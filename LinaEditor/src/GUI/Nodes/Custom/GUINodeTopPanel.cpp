@@ -145,7 +145,7 @@ namespace Lina::Editor
 			GUIUtility::DrawTitleBackground(threadID, m_rect, m_drawOrder);
 		}
 
-		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_swapchain->GetWindowDPIScale());
+		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 
 		// File menu
 		{
@@ -178,8 +178,8 @@ namespace Lina::Editor
 			const Vector2		 lineEnd   = Vector2(m_rect.size.x, m_rect.size.y * 0.5f);
 			LinaVG::StyleOptions opts;
 			opts.thickness = 4.0f * m_swapchain->GetWindowDPIScale();
-			opts.color	   = LV4(Theme::TC_Dark0);
-			LinaVG::DrawLine(threadID, LV2(lineStart), LV2(lineEnd), opts, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+			opts.color	   = Theme::TC_Dark0.AsLVG4();
+			LinaVG::DrawLine(threadID, lineStart.AsLVG2(), lineEnd.AsLVG2(), opts, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 		}
 
 		// Drag rect

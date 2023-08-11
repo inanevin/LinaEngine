@@ -36,6 +36,10 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Core/EditorCommon.hpp"
 
+namespace Lina
+{
+	class LGXWrapper;
+}
 
 namespace Lina::Editor
 {
@@ -65,8 +69,8 @@ namespace Lina::Editor
 
 	private:
 		Vector<ShortcutEntry> m_shortcuts;
-		Editor*				  m_editor = nullptr;
-		Input*				  m_input  = nullptr;
+		Editor*				  m_editor	   = nullptr;
+		LGXWrapper*			  m_lgxWrapper = nullptr;
 	};
 } // namespace Lina::Editor
 

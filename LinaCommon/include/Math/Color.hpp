@@ -30,6 +30,7 @@ SOFTWARE.
 
 #ifndef Lina_Color_HPP
 #define Lina_Color_HPP
+#include "LinaVG/Core/Vectors.hpp"
 
 namespace Lina
 {
@@ -38,6 +39,12 @@ namespace Lina
 
 	public:
 		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av){};
+		Color(const LinaVG::Vec4& v) : x(v.x), y(v.y), z(v.z), w(v.w){};
+
+		LinaVG::Vec4 AsLVG4() const
+		{
+			return LinaVG::Vec4(x, y, z, w);
+		}
 
 		float x, y, z, w = 1.0f;
 

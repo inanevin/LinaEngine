@@ -141,15 +141,17 @@ namespace Lina::Editor
 	void Editor::BeginSplashScreen()
 	{
 		auto sf				  = m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		m_guiDrawerMainWindow = new GUIDrawerSplashScreen(this, sf->GetSwapchain());
+		auto window			  = m_lgxWrapper->GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN);
+		m_guiDrawerMainWindow = new GUIDrawerSplashScreen(this, window);
 		sf->SetGUIDrawer(m_guiDrawerMainWindow);
 	}
 
 	void Editor::EndSplashScreen()
 	{
-		auto sf = m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
+		auto sf		= m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
+		auto window = m_lgxWrapper->GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN);
 		delete m_guiDrawerMainWindow;
-		m_guiDrawerMainWindow = new GUIDrawerMainWindow(this, sf->GetSwapchain());
+		m_guiDrawerMainWindow = new GUIDrawerMainWindow(this, window);
 		sf->SetGUIDrawer(m_guiDrawerMainWindow);
 		m_guiDrawers[LINA_MAIN_SWAPCHAIN] = m_guiDrawerMainWindow;
 
@@ -169,7 +171,7 @@ namespace Lina::Editor
 
 			for (auto& req : m_deleteWindowRequests)
 			{
-				m_windowManager->DestroyAppWindow(req.sid);
+				m_lgxWrapper->DestroyApplicationWindow(req.sid);
 				auto it = m_guiDrawers.find(req.sid);
 
 				delete it->second;
@@ -178,7 +180,7 @@ namespace Lina::Editor
 
 			for (auto& req : m_createWindowRequests)
 			{
-				auto window	   = CreateChildWindow(req.windowSid, req.title, Vector2i::Zero, Vector2i(500, 500));
+				auto window	   = CreateChildWindow(req.windowSid, req.title, Vector2i::Zero, Vector2ui(500, 500));
 				auto guiDrawer = m_guiDrawers.at(req.windowSid);
 
 				auto targetDockArea = guiDrawer->GetFirstDockArea();
@@ -193,11 +195,13 @@ namespace Lina::Editor
 
 				if (req.byDetach)
 				{
-					window->SetPos(m_input->GetMousePositionAbs() - Vector2i(15, 10));
-					window->SetForceIsDragged(true);
+					const auto p = m_lgxWrapper->GetInput()->GetMousePositionAbs();
+					const auto pos = Vector2i(p.x, p.y) - Vector2i(15, 10);
+					window->SetPosition(pos.AsLGX2I());
+					// window->SetForceIsDragged(true);
 				}
 				else
-					window->SetToCenter();
+					window->CenterPositionToCurrentMonitor();
 			}
 
 			m_createWindowRequests.clear();
@@ -277,7 +281,6 @@ namespace Lina::Editor
 
 	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach, GUINodePanel* srcPanel)
 	{
-		auto wm		= m_system->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
 		auto gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		const String   panelName = title;
@@ -292,7 +295,7 @@ namespace Lina::Editor
 				GUINode* node = area->FindChildren(panelSID);
 				if (node)
 				{
-					wm->GetWindow(sid)->BringToFront();
+					m_lgxWrapper->GetWindowManager()->GetWindow(sid)->BringToFront();
 					area->FocusPanel(panelSID);
 					return;
 				}
@@ -313,14 +316,13 @@ namespace Lina::Editor
 		m_createWindowRequests.push_back(req);
 	}
 
-	IWindow* Editor::CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2i& size)
+	LinaGX::Window* Editor::CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2ui& size)
 	{
-		auto window = m_windowManager->CreateAppWindow(sid, title.c_str(), pos, size, SRM_DrawGUI);
-		window->SetStyle(WindowStyle::Borderless);
+		auto window = m_lgxWrapper->CreateApplicationWindow(sid, title.c_str(), pos, size, true);
 		window->SetVisible(true);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(sid);
-		auto guiDrawer		 = new GUIDrawerChildWindow(this, surfaceRenderer->GetSwapchain());
+		auto guiDrawer		 = new GUIDrawerChildWindow(this, window);
 		surfaceRenderer->SetGUIDrawer(guiDrawer);
 		m_guiDrawers[sid] = guiDrawer;
 
@@ -397,7 +399,7 @@ namespace Lina::Editor
 
 	void Editor::CloseAllChildWindows()
 	{
-		const auto& windows = m_windowManager->GetWindows();
+		const auto& windows = m_lgxWrapper->GetWindowManager()->GetWindows();
 
 		Vector<StringID> sids;
 

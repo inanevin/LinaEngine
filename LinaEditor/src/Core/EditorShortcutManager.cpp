@@ -29,24 +29,26 @@ SOFTWARE.
 #include "Core/EditorShortcutManager.hpp"
 #include "Core/Editor.hpp"
 #include "System/ISystem.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
 	EditorShortcutManager::EditorShortcutManager(Editor* editor) : m_editor(editor)
 	{
-		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		m_lgxWrapper = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		m_editor->GetSystem()->AddListener(this);
 
-		AddShortcut(Shortcut::CTRL_A, LINA_KEY_LCTRL, 0, LINA_KEY_A);
-		AddShortcut(Shortcut::CTRL_D, LINA_KEY_LCTRL, 0, LINA_KEY_D);
-		AddShortcut(Shortcut::CTRL_S, LINA_KEY_LCTRL, 0, LINA_KEY_S);
-		AddShortcut(Shortcut::CTRL_T, LINA_KEY_LCTRL, 0, LINA_KEY_T);
-		AddShortcut(Shortcut::CTRL_W, LINA_KEY_LCTRL, 0, LINA_KEY_W);
-		AddShortcut(Shortcut::CTRL_Z, LINA_KEY_LCTRL, 0, LINA_KEY_Z);
-		AddShortcut(Shortcut::CTRL_X, LINA_KEY_LCTRL, 0, LINA_KEY_X);
-		AddShortcut(Shortcut::CTRL_C, LINA_KEY_LCTRL, 0, LINA_KEY_C);
-		AddShortcut(Shortcut::CTRL_V, LINA_KEY_LCTRL, 0, LINA_KEY_V);
-		AddShortcut(Shortcut::CTRL_SHIFT_S, LINA_KEY_LCTRL, LINA_KEY_LSHIFT, LINA_KEY_S);
+		AddShortcut(Shortcut::CTRL_A, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_A);
+		AddShortcut(Shortcut::CTRL_D, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_D);
+		AddShortcut(Shortcut::CTRL_S, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_S);
+		AddShortcut(Shortcut::CTRL_T, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_T);
+		AddShortcut(Shortcut::CTRL_W, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_W);
+		AddShortcut(Shortcut::CTRL_Z, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_Z);
+		AddShortcut(Shortcut::CTRL_X, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_X);
+		AddShortcut(Shortcut::CTRL_C, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_C);
+		AddShortcut(Shortcut::CTRL_V, LINAGX_KEY_LCTRL, 0, LINAGX_KEY_V);
+		AddShortcut(Shortcut::CTRL_SHIFT_S, LINAGX_KEY_LCTRL, LINAGX_KEY_LSHIFT, LINAGX_KEY_S);
 	}
 
 	EditorShortcutManager::~EditorShortcutManager()
@@ -60,9 +62,9 @@ namespace Lina::Editor
 		if (eventType & EVS_Key)
 		{
 			const uint32	  key	 = ev.iParams[0];
-			const InputAction action = static_cast<InputAction>(ev.iParams[1]);
+			const LinaGX::InputAction action = static_cast<LinaGX::InputAction>(ev.iParams[1]);
 
-			if (action != InputAction::Pressed)
+			if (action != LinaGX::InputAction::Pressed)
 				return;
 
 			Vector<ShortcutEntry*> eligibleEntries;
@@ -73,12 +75,12 @@ namespace Lina::Editor
 				{
 					if (sc.holdKey2 != 0)
 					{
-						if (!m_input->GetKey(sc.holdKey1) || !m_input->GetKey(sc.holdKey2))
+						if (!m_lgxWrapper->GetInput()->GetKey(sc.holdKey1) || !m_lgxWrapper->GetInput()->GetKey(sc.holdKey2))
 							continue;
 					}
 					else
 					{
-						if (!m_input->GetKey(sc.holdKey1))
+						if (!m_lgxWrapper->GetInput()->GetKey(sc.holdKey1))
 							continue;
 					}
 

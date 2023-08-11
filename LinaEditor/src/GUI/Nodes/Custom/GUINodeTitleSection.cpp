@@ -39,7 +39,7 @@ namespace Lina::Editor
 	GUINodeTitleSection::GUINodeTitleSection(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
 		m_windowButtons = new GUINodeWindowButtons(drawer, drawOrder);
-		m_windowButtons->SetCallbackDismissed([this](GUINode* node) { m_editor->CloseWindow(m_swapchain->GetSID()); });
+		m_windowButtons->SetCallbackDismissed([this](GUINode* node) { m_editor->CloseWindow(m_window->GetSID()); });
 		AddChildren(m_windowButtons);
 	}
 
@@ -48,8 +48,8 @@ namespace Lina::Editor
 		// Background
 		{
 			LinaVG::StyleOptions style;
-			style.color = LV4(Theme::TC_Dark1);
-			LinaVG::DrawRect(threadID, LV2(m_rect.pos), LV2((m_rect.pos + m_rect.size)), style, 0.0f, m_drawOrder);
+			style.color = Theme::TC_Dark1);
+			LinaVG::DrawRect(threadID, m_rect.pos.AsLVG2(), (m_rect.pos + m_rect.size).AsLVG2(), style, 0.0f, m_drawOrder);
 		}
 
 		// Setup
@@ -73,7 +73,7 @@ namespace Lina::Editor
 			const Vector2		 logoPos  = Vector2(padding, m_rect.size.y * 0.5f - logoSize.y * 0.5f);
 			LinaVG::StyleOptions logo;
 			logo.textureHandle = "Resources/Core/Textures/Logo_Colored_1024.png"_hs;
-			LinaVG::DrawRect(threadID, LV2(logoPos), LV2((logoPos + logoSize)), logo, 0.0f, m_drawOrder);
+			LinaVG::DrawRect(threadID, logoPos.AsLVG2(), (logoPos + logoSize).AsLVG2(), logo, 0.0f, m_drawOrder);
 			logoEndX = logoPos.x + logoSize.x * 0.5f + padding * 1.5f;
 		}
 
@@ -82,9 +82,9 @@ namespace Lina::Editor
 			const char*			title = m_window->GetTitle().c_str();
 			LinaVG::TextOptions opts;
 			opts.font			   = Theme::GetFont(FontType::TitleEditor, m_window->GetDPIScale());
-			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(title, opts));
+			const Vector2 textSize = LinaVG::CalculateTextSize(title, opts);
 			const Vector2 titlePos = Vector2(logoEndX, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
-			LinaVG::DrawTextNormal(threadID, title, LV2(titlePos), opts, 0.0f, m_drawOrder, true);
+			LinaVG::DrawTextNormal(threadID, title, titlePos.AsLVG2(), opts, 0.0f, m_drawOrder, true);
 		}
 
 		// Drag rect

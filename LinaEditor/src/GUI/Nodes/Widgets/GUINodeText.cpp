@@ -46,8 +46,8 @@ namespace Lina::Editor
 
 		LinaVG::TextOptions opts;
 		opts.font		 = Theme::GetFont(m_fontType, m_window->GetDPIScale());
-		opts.color.start = LV4(m_startColor);
-		opts.color.end	 = LV4(m_endColor);
+		opts.color.start = m_startColor.AsLVG4();
+		opts.color.end	 = m_endColor.AsLVG4();
 
 		if (m_alignment == TextAlignment::Right)
 			opts.alignment = LinaVG::TextAlignment::Right;
@@ -55,7 +55,7 @@ namespace Lina::Editor
 			opts.alignment = LinaVG::TextAlignment::Center;
 
 		opts.textScale = m_scale;
-		LinaVG::DrawTextNormal(threadID, m_text.c_str(), LV2(m_rect.pos), opts, 0.0f, m_drawOrder, m_skipCache);
+		LinaVG::DrawTextNormal(threadID, m_text.c_str(), m_rect.pos.AsLVG2(), opts, 0.0f, m_drawOrder, m_skipCache);
 	}
 
 	void GUINodeTextRichColors::Draw(int threadID)
@@ -86,8 +86,8 @@ namespace Lina::Editor
 			LinaVG::TextOptions opts;
 			opts.font	   = Theme::GetFont(m_fontType, m_window->GetDPIScale());
 			opts.textScale = m_scale;
-			opts.color	   = LV4(d.color);
-			LinaVG::DrawTextNormal(threadID, d.text.c_str(), LV2(textPos), opts, 0.0f, m_drawOrder, m_skipCache);
+			opts.color	   = d.color.AsLVG4();
+			LinaVG::DrawTextNormal(threadID, d.text.c_str(), textPos.AsLVG2(), opts, 0.0f, m_drawOrder, m_skipCache);
 			textPos.x += d.calculatedSize.x;
 		}
 	}

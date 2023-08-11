@@ -46,10 +46,10 @@ namespace Lina::Editor
 
 	void GUIDrawerPayload::DrawGUI(int threadID)
 	{
-		const float dragHeight		= m_window->GetMonitorInformation().size.y * 0.02f;
-		const float titleAreaHeight = m_window->GetMonitorInformation().size.y * 0.05f;
+		const float dragHeight		= static_cast<float>(m_window->GetMonitorSize().y) * 0.02f;
+		const float titleAreaHeight = static_cast<float>(m_window->GetMonitorSize().y) * 0.05f;
 
-		const Vector2 swpSize = m_swapchain->GetSize();
+		const Vector2 swpSize = m_window->GetSize();
 
 		const Rect rect = Rect(Vector2i::Zero, swpSize);
 		GUIUtility::DrawPopupBackground(threadID, rect, 1.0f, 0);
@@ -65,8 +65,8 @@ namespace Lina::Editor
 		LinaVG::StyleOptions opts;
 		const float			 thickness = m_window->GetDPIScale();
 		opts.thickness				   = thickness * 2;
-		opts.color					   = LV4(Theme::TC_Silent0);
+		opts.color					   = Theme::TC_Silent0.AsLVG4();
 		opts.isFilled				   = false;
-		LinaVG::DrawRect(threadID, LV2(Vector2(thickness, thickness)), LV2((swpSize - Vector2(thickness, thickness))), opts, 0.0f, FRONT_DRAW_ORDER);
+		LinaVG::DrawRect(threadID, Vector2(thickness, thickness).AsLVG2(), (swpSize - Vector2(thickness, thickness)).AsLVG2(), opts, 0.0f, FRONT_DRAW_ORDER);
 	}
 } // namespace Lina::Editor

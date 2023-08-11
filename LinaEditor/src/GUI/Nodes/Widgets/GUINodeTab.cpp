@@ -82,13 +82,13 @@ namespace Lina::Editor
 		// Background convex shape
 		{
 			Vector<LinaVG::Vec2> points;
-			points.push_back(LV2(m_rect.pos));
-			points.push_back(LV2(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END, m_rect.pos.y)));
-			points.push_back(LV2((m_rect.pos + m_rect.size)));
-			points.push_back(LV2(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y)));
+			points.push_back(m_rect.pos.AsLVG2());
+			points.push_back(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END, m_rect.pos.y).AsLVG2());
+			points.push_back((m_rect.pos + m_rect.size).AsLVG2());
+			points.push_back(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y).AsLVG2());
 
 			LinaVG::StyleOptions opts;
-			opts.color		   = LV4(Theme::TC_Dark3);
+			opts.color		   = Theme::TC_Dark3.AsLVG4();
 			opts.color.start.w = opts.color.end.w = m_isFocused ? 1.0f : 0.3f;
 			opts.aaEnabled						  = true;
 			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, drawOrder);
@@ -98,8 +98,8 @@ namespace Lina::Editor
 				if (!Math::Equals(m_indicatorAnimationAlpha, 0.0f, 0.05f))
 				{
 					LinaVG::StyleOptions lineStyle;
-					lineStyle.color.start = LV4(Theme::TC_CyanAccent);
-					lineStyle.color.end	  = LV4(Theme::TC_PurpleAccent);
+					lineStyle.color.start = Theme::TC_CyanAccent.AsLVG4();
+					lineStyle.color.end	  = Theme::TC_PurpleAccent.AsLVG4();
 					lineStyle.thickness	  = 2.0f * m_window->GetDPIScale();
 
 					Vector2 lineBegin = Vector2(m_rect.pos.x + padding * 0.5f, m_rect.pos.y + padding * 0.25f);
@@ -107,12 +107,12 @@ namespace Lina::Editor
 
 					const Vector2 usedLineBegin = Math::Lerp(lineEnd, lineBegin, m_indicatorAnimationAlpha);
 
-					LinaVG::DrawLine(threadID, LV2(usedLineBegin), LV2(lineEnd), lineStyle, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
+					LinaVG::DrawLine(threadID, usedLineBegin.AsLVG2(), lineEnd.AsLVG2(), lineStyle, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
 
 					lineBegin		= Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y - 1.0f);
 					lineEnd			= Vector2(m_rect.pos.x + m_rect.size.x, m_rect.pos.y + m_rect.size.y - 1.0f);
-					lineStyle.color = LV4(Theme::TC_Dark2);
-					// LinaVG::DrawLine(threadID, LV2(lineBegin), LV2(lineEnd), lineStyle, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
+					lineStyle.color = Theme::TC_Dark2.AsLVG4();
+					// LinaVG::DrawLine(threadID, lineBegin.AsLVG2(), lineEnd.AsLVG2(), lineStyle, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
 				}
 			}
 		}
@@ -124,9 +124,9 @@ namespace Lina::Editor
 			textOpts.color.start.w = textOpts.color.end.w = m_isFocused ? 1.0f : 0.3f;
 			textOpts.textScale							  = m_textScale;
 
-			const Vector2 textSize = FL2(LinaVG::CalculateTextSize(m_title.c_str(), textOpts));
+			const Vector2 textSize = LinaVG::CalculateTextSize(m_title.c_str(), textOpts);
 			const Vector2 textPos  = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y * 0.5f + textSize.y * 0.5f);
-			LinaVG::DrawTextNormal(threadID, m_title.c_str(), LV2(textPos), textOpts, 0.0f, drawOrder, true);
+			LinaVG::DrawTextNormal(threadID, m_title.c_str(), textPos.AsLVG2(), textOpts, 0.0f, drawOrder, true);
 		}
 
 		// Close button
@@ -136,7 +136,7 @@ namespace Lina::Editor
 				if (m_isHovered)
 				{
 					const Rect closeRect		= Rect(Vector2(m_rect.pos.x + m_rect.size.x * OFFSET_FROM_END - padding * 1.0f, m_rect.pos.y), Vector2(m_rect.size.x * (1.0f - OFFSET_FROM_END) + padding * 1.5f, m_rect.size.y));
-					m_isInCloseRect				= GUIUtility::IsInRect(m_window->GetMousePosition(), closeRect);
+					m_isInCloseRect				= GUIUtility::IsInRect(Vector2(m_window->GetMousePosition()), closeRect);
 					m_closeButtonAnimationAlpha = Math::Lerp(m_closeButtonAnimationAlpha, m_isInCloseRect ? 1.0f : 0.0f, SystemInfo::GetDeltaTime() * CLOSEBUT_SPEED);
 				}
 				else
@@ -210,10 +210,10 @@ namespace Lina::Editor
 		const Vector2 p2		 = m_rect.pos + m_rect.size - Vector2(0, yOffset);
 
 		Vector<LinaVG::Vec2> points;
-		points.push_back(LV2(p0));
-		points.push_back(LV2(p1));
-		points.push_back(LV2(p2));
-		points.push_back(LV2(p3));
+		points.push_back(p0.AsLVG2());
+		points.push_back(p1.AsLVG2());
+		points.push_back(p2.AsLVG2());
+		points.push_back(p3.AsLVG2());
 
 		// Don't bother drawing if too small.
 		if (t > 0.05f)
@@ -221,7 +221,7 @@ namespace Lina::Editor
 			LinaVG::StyleOptions opts;
 			Color				 bg = Theme::TC_RedAccent;
 			bg.w					= Math::Lerp(0.0f, m_isPressed ? 0.5f : 1.0f, t);
-			opts.color				= LV4(bg);
+			opts.color				= bg.AsLVG4();
 			opts.aaEnabled			= true;
 			opts.aaMultiplier		= 1.0f;
 			LinaVG::DrawConvex(threadID, points.data(), static_cast<int>(points.size()), opts, 0.0f, baseDrawOrder + 1);

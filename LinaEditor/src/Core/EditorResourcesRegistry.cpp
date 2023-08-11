@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/EditorResourcesRegistry.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Font.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina::Editor
 {

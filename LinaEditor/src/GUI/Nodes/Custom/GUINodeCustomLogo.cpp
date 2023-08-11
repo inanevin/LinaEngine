@@ -74,7 +74,7 @@ namespace Lina::Editor
 		// Background convex shape
 		{
 			LinaVG::StyleOptions pointsStyle;
-			pointsStyle.color		 = LV4(Theme::TC_Dark0);
+			pointsStyle.color		 = Theme::TC_Dark0.AsLVG4();
 			pointsStyle.aaMultiplier = 1.0f;
 
 			Vector<LinaVG::Vec2> points;
@@ -89,7 +89,7 @@ namespace Lina::Editor
 		{
 			auto draw = [&](TextureSheetItem& item) {
 				LinaVG::DrawImage(
-					threadID, item.texture->GetSID(), LV2(center), LV2(itemSize), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LinaVG::Vec2(item.uvTL.x, item.uvTL.y), LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
+					threadID, item.texture->GetSID(), center.AsLVG2(), Vector2(itemSize).AsLVG2(), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LinaVG::Vec2(item.uvTL.x, item.uvTL.y), LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
 			};
 
 			if (!m_isHovered)

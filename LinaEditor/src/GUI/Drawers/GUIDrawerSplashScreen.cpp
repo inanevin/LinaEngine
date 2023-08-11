@@ -71,13 +71,13 @@ namespace Lina::Editor
 	{
 		LOCK_GUARD(m_mtx);
 
-		const Vector2ui size = FG2UI(m_window->GetSize());
+		const Vector2 size = Vector2(m_window->GetSize());
 
 		// Base image.
 		{
 			LinaVG::StyleOptions style;
 			style.textureHandle = "Resources/Editor/Textures/SplashScreen.png"_hs;
-			LinaVG::DrawRect(LV2(Vector2(0, 0)), LV2(size), style);
+			LinaVG::DrawRect(Vector2::Zero.AsLVG2(), size.AsLVG2(), style);
 		}
 
 		// Progress bar & copyright text.
@@ -90,24 +90,24 @@ namespace Lina::Editor
 
 			LinaVG::TextOptions copyrightText;
 			copyrightText.font	= Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
-			copyrightText.color = LV4(Theme::TC_Silent2);
+			copyrightText.color = Theme::TC_Silent2.AsLVG4();
 
 			Vector2		 copyrightTextLine = Vector2(size.x * 0.06f, size.y * 0.425f);
 			const String versionText	   = "v" + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " b" + TO_STRING(LINA_BUILD);
 			const char*	 text			   = versionText.c_str();
 			const char*	 text2			   = "Copyright (c) [2018-] Inan Evin";
 			const char*	 text3			   = "https://github.com/inanevin/LinaEngine";
-			LinaVG::DrawTextNormal(threadID, text, LV2(copyrightTextLine), copyrightText, 0.0f, 1);
+			LinaVG::DrawTextNormal(threadID, text, copyrightTextLine.AsLVG2(), copyrightText, 0.0f, 1);
 
-			Vector2 textSize = FL2(LinaVG::CalculateTextSize(text, copyrightText));
+			Vector2 textSize = LinaVG::CalculateTextSize(text, copyrightText);
 			copyrightTextLine.y += textSize.y * 2.25f;
-			LinaVG::DrawTextNormal(threadID, text2, LV2(copyrightTextLine), copyrightText, 0.0f, 1);
+			LinaVG::DrawTextNormal(threadID, text2, copyrightTextLine.AsLVG2(), copyrightText, 0.0f, 1);
 
-			textSize = FL2(LinaVG::CalculateTextSize(text2, copyrightText));
+			textSize = LinaVG::CalculateTextSize(text2, copyrightText);
 			copyrightTextLine.y += textSize.y * 2.25f;
 			copyrightText.font	= Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-			copyrightText.color = LV4(Theme::TC_White);
-			LinaVG::DrawTextNormal(threadID, text3, LV2(copyrightTextLine), copyrightText, 0.0f, 1);
+			copyrightText.color = Theme::TC_White.AsLVG4();
+			LinaVG::DrawTextNormal(threadID, text3, copyrightTextLine.AsLVG2(), copyrightText, 0.0f, 1);
 		}
 	}
 } // namespace Lina::Editor
