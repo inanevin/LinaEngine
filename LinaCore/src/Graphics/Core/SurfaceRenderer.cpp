@@ -57,13 +57,13 @@ namespace Lina
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& data		= m_pfd[i];
-			data.gfxStream	= m_lgx->CreateCommandStream(100, LinaGX::QueueType::Graphics);
-			data.copyStream = m_lgx->CreateCommandStream(100, LinaGX::QueueType::Transfer);
+			auto& data		   = m_pfd[i];
+			data.gfxStream	   = m_lgx->CreateCommandStream(100, LinaGX::QueueType::Graphics);
+			data.guiCopyStream = m_lgx->CreateCommandStream(100, LinaGX::QueueType::Transfer);
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Index Buffer");
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GUIBackend::GPUGUIMaterialData));
-			data.copySemaphore = m_lgx->CreateUserSemaphore();
+			data.guiCopySemaphore = m_lgx->CreateUserSemaphore();
 
 			LinaGX::ResourceDesc resourceDesc = {
 				.size		   = sizeof(GPUSceneData),
@@ -137,7 +137,7 @@ namespace Lina
 		const auto windowSize  = window->GetSize();
 
 		LinaGX::SwapchainDesc swapchainDesc = LinaGX::SwapchainDesc{
-			.format		  = LinaGX::Format::B8G8R8A8_UNORM,
+			.format		  = LinaGX::Format::R8G8B8A8_SRGB,
 			.depthFormat  = LinaGX::Format::D32_SFLOAT,
 			.x			  = 0,
 			.y			  = 0,
@@ -161,11 +161,11 @@ namespace Lina
 			data.guiVertexBuffer.Destroy();
 			data.guiMaterialBuffer.Destroy();
 			m_lgx->DestroyCommandStream(data.gfxStream);
-			m_lgx->DestroyCommandStream(data.copyStream);
+			m_lgx->DestroyCommandStream(data.guiCopyStream);
 			m_lgx->DestroyDescriptorSet(data.guiDescriptorSet1);
 			m_lgx->DestroyDescriptorSet(data.guiDescriptorSet2);
 			m_lgx->DestroyResource(data.guiSceneResource);
-			m_lgx->DestroyUserSemaphore(data.copySemaphore);
+			m_lgx->DestroyUserSemaphore(data.guiCopySemaphore);
 		}
 
 		m_lgx->DestroySwapchain(m_swapchain);
@@ -209,7 +209,7 @@ namespace Lina
 
 		auto& currentFrame = m_pfd[frameIndex];
 
-		const uint64 copySemaphoreValue = currentFrame.copySemaphoreValue;
+		const uint64 copySemaphoreValue = currentFrame.guiCopySemaphoreValue;
 
 		LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -249,9 +249,9 @@ namespace Lina
 			GUIBackend::GUIRenderData guiRenderData = {
 				.size				= m_size,
 				.gfxStream			= currentFrame.gfxStream,
-				.copyStream			= currentFrame.copyStream,
-				.copySemaphore		= currentFrame.copySemaphore,
-				.copySemaphoreValue = &currentFrame.copySemaphoreValue,
+				.copyStream			= currentFrame.guiCopyStream,
+				.copySemaphore		= currentFrame.guiCopySemaphore,
+				.copySemaphoreValue = &currentFrame.guiCopySemaphoreValue,
 				.vertexBuffer		= &currentFrame.guiVertexBuffer,
 				.indexBuffer		= &currentFrame.guiIndexBuffer,
 				.materialBuffer		= &currentFrame.guiMaterialBuffer,
@@ -281,45 +281,23 @@ namespace Lina
 		{
 			const auto& uploadQueue = m_gfxManager->GetResourceUploadQueue();
 
-			Vector<uint16> waitSemaphores;
-			Vector<uint64> waitValues;
+			m_waitSemaphores.clear();
+			m_waitValues.clear();
 
-			if (copySemaphoreValue != currentFrame.copySemaphoreValue)
+			if (copySemaphoreValue != currentFrame.guiCopySemaphoreValue)
 			{
-				waitSemaphores.push_back(currentFrame.copySemaphore);
-				waitValues.push_back(currentFrame.copySemaphoreValue);
+				m_waitSemaphores.push_back(currentFrame.guiCopySemaphore);
+				m_waitValues.push_back(currentFrame.guiCopySemaphoreValue);
 			}
 
 			if (uploadQueue.HasTransfer())
 			{
-				waitSemaphores.push_back(uploadQueue.GetSemaphore());
-				waitValues.push_back(uploadQueue.GetSemaphoreValue());
+				m_waitSemaphores.push_back(uploadQueue.GetSemaphore());
+				m_waitValues.push_back(uploadQueue.GetSemaphoreValue());
 			}
 
-			LinaGX::SubmitDesc desc = {
-				.streams		= &currentFrame.gfxStream,
-				.streamCount	= 1,
-				.useWait		= !waitSemaphores.empty(),
-				.waitCount		= static_cast<uint32>(waitSemaphores.size()),
-				.waitSemaphores = waitSemaphores.data(),
-				.waitValues		= waitValues.data(),
-			};
-
 			m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
-			m_lgx->SubmitCommandStreams(desc);
 		}
-	}
-
-	void SurfaceRenderer::Present()
-	{
-		if (!IsVisible())
-			return;
-
-		LinaGX::PresentDesc desc = {
-			.swapchain = m_swapchain,
-		};
-
-		m_lgx->Present(desc);
 	}
 
 } // namespace Lina

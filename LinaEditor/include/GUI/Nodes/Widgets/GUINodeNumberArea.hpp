@@ -45,7 +45,7 @@ namespace Lina::Editor
 		virtual void	   Draw(int threadID) override;
 		virtual void	   DrawBackground(int threadID) override;
 		virtual void	   OnPressBegin(uint32 button) override;
-		virtual CursorType GetHoveredCursor() override;
+		virtual LinaGX::CursorType GetHoveredCursor() override;
 
 		inline void SetHasLabelBox(bool hasLabelBox)
 		{

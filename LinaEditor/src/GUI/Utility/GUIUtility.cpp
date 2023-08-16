@@ -41,7 +41,7 @@ namespace Lina::Editor
 		opts.font		  = Theme::GetFont(FontType::EditorIcons, dpiScale);
 		opts.color		  = tint.AsLVG4();
 		opts.sdfThickness = 0.5f;
-		opts.sdfSoftness  = 0.5f;
+		opts.sdfSoftness  = 0.06f;
 		opts.textScale	  = scale;
 
 		const Vector2 iconSize = LinaVG::CalculateTextSize(icon, opts);

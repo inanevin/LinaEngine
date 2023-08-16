@@ -48,7 +48,7 @@ namespace Lina::Editor
 		m_maximize->SetHoveredColor(Theme::TC_Light1);
 		m_maximize->SetPressedColor(Theme::TC_Dark3);
 		m_maximize->SetIsIcon(true);
-		m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_maximize->SetTitle(m_window->GetIsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 		m_maximize->SetOverrideWidth(true);
 		m_close->SetDefaultColor(Theme::TC_Dark0);
 		m_close->SetHoveredColor(Theme::TC_RedAccent);
@@ -69,7 +69,7 @@ namespace Lina::Editor
 		if (!GetIsVisible())
 			return;
 
-		m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_maximize->SetTitle(m_window->GetIsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 
 		// Clamp
 		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minRect.pos.x);
@@ -92,12 +92,12 @@ namespace Lina::Editor
 		}
 		else if (button == m_maximize)
 		{
-			if (m_window->IsCurrentlyMaximized())
+			if (m_window->GetIsMaximized())
 				m_window->Restore();
 			else
 				m_window->Maximize();
 
-			m_maximize->SetTitle(m_window->IsCurrentlyMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+			m_maximize->SetTitle(m_window->GetIsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 		}
 		else if (button == m_close)
 		{

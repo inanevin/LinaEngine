@@ -30,5 +30,31 @@ SOFTWARE.
 
 namespace Lina
 {
-	
+	IGUIDrawer::IGUIDrawer(LinaGX::Window* window) : m_window(window)
+	{
+		m_window->SetCallbackKey([this](uint32 key, int32 scanCode, LinaGX::InputAction act) { OnKey(key, act); });
+
+		m_window->SetCallbackMouse([this](uint32 b, LinaGX::InputAction act) { OnMouse(b, act); });
+
+		m_window->SetCallbackMouseMove([this](const LinaGX::LGXVector2ui& pos) {
+			OnMousePos(pos);
+			OnMouseMove(pos);
+		});
+
+		m_window->SetCallbackMouseWheel([this](uint32 d) { OnMouseWheel(d); });
+
+		m_window->SetCallbackFocus([this](bool focus) { OnFocus(focus); });
+
+		m_window->SetCallbackHoverEnd([this]() {
+			OnMouseHoverEnd();
+		});
+
+		m_window->SetCallbackDragBegin([this]() {
+			OnWindowDrag(true);
+		});
+
+		m_window->SetCallbackDragEnd([this]() {
+			OnWindowDrag(false);
+		});
+	}
 } // namespace Lina

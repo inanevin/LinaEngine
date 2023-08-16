@@ -39,6 +39,7 @@ SOFTWARE.
 namespace Lina
 {
 	class OStream;
+	class LGXWrapper;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -47,10 +48,10 @@ namespace Lina::Editor
 
 	struct LayoutWindow
 	{
-		String	 title = "";
-		StringID sid   = 0;
-		Vector2i pos   = Vector2i::Zero;
-		Vector2i size  = Vector2i::Zero;
+		String	  title = "";
+		StringID  sid	= 0;
+		Vector2i  pos	= Vector2i::Zero;
+		Vector2ui size	= Vector2ui::Zero;
 	};
 
 	struct Layout
@@ -74,8 +75,8 @@ namespace Lina::Editor
 		void ClearLayout();
 
 	private:
-		Editor*		   m_editor		   = nullptr;
-		WindowManager* m_windowManager = nullptr;
+		Editor*		m_editor	 = nullptr;
+		LGXWrapper* m_lgxWrapper = nullptr;
 	};
 } // namespace Lina::Editor
 

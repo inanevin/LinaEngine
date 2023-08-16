@@ -48,16 +48,16 @@ namespace Lina::Editor
 	{
 		m_editor	   = editor;
 		m_titleSection = new GUINodeTitleSection(this, 0);
-		m_input		   = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		m_lgxWrapper   = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		m_root->AddChildren(m_titleSection);
 	}
 
 	void GUIDrawerChildWindow::DrawGUI(int threadID)
 	{
-		const float dragHeight		= m_window->GetMonitorInformation().size.y * 0.02f;
-		const float titleAreaHeight = m_window->GetMonitorInformation().size.y * 0.05f;
+		const float dragHeight		= static_cast<float>(m_window->GetMonitorSize().y) * 0.02f;
+		const float titleAreaHeight = static_cast<float>(m_window->GetMonitorSize().y) * 0.05f;
 
-		const Vector2 swpSize		   = m_swapchain->GetSize();
+		const Vector2 swpSize		   = m_window->GetSize();
 		const Vector2 titleSectionSize = Vector2(swpSize.x, m_titleSection ? 30.0f * m_window->GetDPIScale() : 0.0f);
 
 		LinaVG::SetClipPosX(static_cast<uint32>(0), threadID);
@@ -72,7 +72,7 @@ namespace Lina::Editor
 		LinaVG::SetClipPosY(static_cast<uint32>(0), threadID);
 		LinaVG::SetClipSizeX(static_cast<uint32>(0), threadID);
 		LinaVG::SetClipSizeY(static_cast<uint32>(0), threadID);
-		
+
 		const Rect availableDockRect = Rect(Vector2(0, titleSectionSize.y), Vector2(titleSectionSize.x, swpSize.y - titleSectionSize.y));
 		GUIDrawerBase::DrawDockAreas(threadID, availableDockRect);
 	}
@@ -82,7 +82,7 @@ namespace Lina::Editor
 		if (m_dockAreas.size() == 1 && m_dockAreas[0]->GetPanels().size() == 1)
 		{
 			auto* panel = m_dockAreas[0]->GetPanels()[0];
-			m_window->SetTitle(panel->GetTitle());
+			m_window->SetTitle(panel->GetTitle().c_str());
 		}
 		else
 		{

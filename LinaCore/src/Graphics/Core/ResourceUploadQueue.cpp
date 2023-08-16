@@ -96,7 +96,7 @@ namespace Lina
 		m_copySemaphoreValue++;
 
 		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
-			.queue			  = LinaGX::QueueType::Transfer,
+			.targetQueue	  = m_lgxWrapper->GetLGX()->GetPrimaryQueue(LinaGX::QueueType::Transfer),
 			.streams		  = &m_copyStream,
 			.streamCount	  = 1,
 			.useSignal		  = true,

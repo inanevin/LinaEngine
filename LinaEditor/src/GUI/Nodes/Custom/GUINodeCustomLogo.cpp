@@ -64,7 +64,7 @@ namespace Lina::Editor
 		// Setup
 		const float	   padding			= Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const float	   stretchedPadding = padding * 8.0f;
-		const Vector2i swapchainSize	= m_swapchain->GetSize();
+		const Vector2i swapchainSize	= m_window->GetSize();
 		const Vector2i itemSize			= m_sheetItems[0].size * 0.35f * m_window->GetDPIScale();
 		Vector2		   center			= Vector2(swapchainSize.x * 0.5f, itemSize.y * 0.5f + padding * 0.5f);
 		center							= center.Max(m_minRect.pos + Vector2(itemSize.x * 0.5f + padding * 8, 0.0f));
@@ -88,8 +88,17 @@ namespace Lina::Editor
 		// Image
 		{
 			auto draw = [&](TextureSheetItem& item) {
-				LinaVG::DrawImage(
-					threadID, item.texture->GetSID(), center.AsLVG2(), Vector2(itemSize).AsLVG2(), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder, LinaVG::Vec2(1, 1), LinaVG::Vec2(0, 0), LinaVG::Vec2(item.uvTL.x, item.uvTL.y), LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
+				LinaVG::DrawImage(threadID,
+								  item.texture->GetSID(),
+								  center.AsLVG2(),
+								  Vector2(itemSize).AsLVG2(),
+								  LinaVG::Vec4(1, 1, 1, 1),
+								  0.0f,
+								  m_drawOrder,
+								  LinaVG::Vec2(1, 1),
+								  LinaVG::Vec2(0, 0),
+								  LinaVG::Vec2(item.uvTL.x, item.uvTL.y),
+								  LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
 			};
 
 			if (!m_isHovered)

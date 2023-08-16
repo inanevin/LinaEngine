@@ -42,6 +42,11 @@ namespace LinaVG
 	struct TextOutData;
 }
 
+namespace Lina
+{
+	class LGXWrapper;
+}
+
 namespace Lina::Editor
 {
 	class GUINodeText;
@@ -63,13 +68,13 @@ namespace Lina::Editor
 		virtual void OnLostFocus() override;
 		virtual void SetTitle(const String& title) override;
 		virtual void OnDoubleClicked() override;
-		virtual void OnKey(uint32 key, InputAction act) override;
+		virtual void OnKey(uint32 key, LinaGX::InputAction act) override;
 		virtual bool OnShortcut(Shortcut sc) override;
 		virtual void OnChildExceededSize(float amt) override;
 
-		virtual CursorType GetHoveredCursor() override
+		virtual LinaGX::CursorType GetHoveredCursor() override
 		{
-			return CursorType::Caret;
+			return LinaGX::CursorType::Caret;
 		}
 
 		inline Bitmask16& GetInputMask()
@@ -119,7 +124,6 @@ namespace Lina::Editor
 		float				 m_additionalHeight			= 0.0f;
 		String				 m_preEditTitle				= "";
 		Bitmask16			 m_inputMask				= 0;
-		Input*				 m_input					= nullptr;
 		Vector<CharData>	 m_characters;
 		bool				 m_isEditing			 = false;
 		uint32				 m_caretIndexStart		 = 0;
@@ -134,6 +138,7 @@ namespace Lina::Editor
 		float				 m_textOffset			 = 0.0f;
 		float				 m_wrapWidth			 = 0.0f;
 		int					 m_caretScrollCheckState = 0;
+		LGXWrapper*			 m_lgxWrapper			 = nullptr;
 	};
 
 } // namespace Lina::Editor

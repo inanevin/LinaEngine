@@ -43,7 +43,8 @@ namespace Lina
 	class GPUBuffer
 	{
 	public:
-		~GPUBuffer();
+		GPUBuffer()	 = default;
+		~GPUBuffer() = default;
 		void Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName = "GPUBuffer");
 		void BufferData(size_t padding, void* data, size_t size);
 		bool Copy(LinaGX::CommandStream* stream);

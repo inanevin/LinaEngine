@@ -32,11 +32,6 @@ namespace Lina
 {
 	uint64 GPUBuffer::s_usedCPUVisibleGPUMemory = 0;
 
-	GPUBuffer::~GPUBuffer()
-	{
-		Destroy();
-	}
-
 	void GPUBuffer::Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName)
 	{
 		m_size = size;

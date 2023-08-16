@@ -37,7 +37,8 @@ namespace Lina
 {
 	Texture::~Texture()
 	{
-		LINA_ASSERT(m_allLevels.empty(), "Texture buffers are still filled, are you trying to delete mid-transfer?");
+		for (const auto& b : m_allLevels)
+			LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
 		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		auto lgx		= lgxWrapper->GetLGX();
 		lgx->DestroyTexture2D(m_gpuHandle);
@@ -66,6 +67,13 @@ namespace Lina
 		if (!m_allLevels.empty())
 		{
 			lgx->DestroyTexture2D(m_gpuHandle);
+
+			for (auto& b : m_allLevels)
+			{
+				delete[] b.pixels;
+				b.pixels = nullptr;
+			}
+
 			m_allLevels.clear();
 		}
 
@@ -93,7 +101,10 @@ namespace Lina
 		};
 		m_gpuHandle = lgx->CreateTexture2D(desc);
 
-		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() { delete[] m_allLevels[0].pixels; });
+		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
+			delete[] m_allLevels[0].pixels;
+			m_allLevels[0].pixels = nullptr;
+		});
 		gfxManager->MarkBindlessTexturesDirty();
 	}
 
@@ -227,10 +238,16 @@ namespace Lina
 			for (auto& buffer : m_allLevels)
 			{
 				if (m_loadedFromStream)
+				{
 					delete buffer.pixels;
+				}
 				else
 					LinaGX::FreeImage(buffer.pixels);
+
+				buffer.pixels = nullptr;
 			}
+
+			m_allLevels.clear();
 		});
 	}
 } // namespace Lina

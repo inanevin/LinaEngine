@@ -37,6 +37,11 @@ SOFTWARE.
 #include "Math/Rect.hpp"
 #include "Core/EditorCommon.hpp"
 
+namespace Lina
+{
+	class LGXWrapper;
+}
+
 namespace Lina::Editor
 {
 	class GUINodePanel;
@@ -101,7 +106,7 @@ namespace Lina::Editor
 		Vector<DismissTabData> m_dismissedTabs;
 		bool				   m_isAlone				 = true;
 		bool				   m_isDockingPreviewEnabled = false;
-		Lina::Input*		   m_input					 = nullptr;
+		LGXWrapper*			   m_lgxWrapper				 = nullptr;
 		Vector<GUINodePanel*>  m_panels;
 		GUINodePanel*		   m_focusedPanel = nullptr;
 		GUINodeTabArea*		   m_tabArea	  = nullptr;

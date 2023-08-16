@@ -42,12 +42,14 @@ SOFTWARE.
 #include "FileSystem/FileSystem.hpp"
 #include "Core/PlatformProcess.hpp"
 #include "Data/CommonData.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 
 namespace Lina::Editor
 {
 	GUINodeTextArea::GUINodeTextArea(GUIDrawerBase* drawer, int drawOrder) : GUINodeScrollArea(drawer, drawOrder)
 	{
-		m_input = m_drawer->GetEditor()->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		m_lgxWrapper = m_drawer->GetEditor()->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		SetDirection(Direction::Horizontal);
 		m_minY					   = GetStoreSize("A"_hs, "A").y;
 		m_recalculateCharacterInfo = true;
@@ -84,17 +86,17 @@ namespace Lina::Editor
 			style.aaEnabled = true;
 			style.color		= Theme::TC_Dark2.AsLVG4();
 
-			const Vector2 wp		   = m_window->GetPos();
+			const Vector2 wp		   = m_window->GetPosition();
 			const Rect	  triangleRect = Rect(wp + triStart, Vector2(triEnd.x - triStart.x, triBot.y - triStart.y));
-			const Vector2 mp		   = m_input->GetMousePositionAbs();
+			const Vector2 mp		   = m_lgxWrapper->GetInput()->GetMousePositionAbs();
 			const bool	  hovered	   = triangleRect.IsPointInside(mp);
 
 			if (hovered || m_draggingExpandRect)
 				style.color = Theme::TC_Light1.AsLVG4();
 
-			LinaVG::DrawTriangle(threadID, triStart.AsLVG2(), triEnd.AsLVG2(), triBot), style, 0.0f, m_drawOrder);
+			LinaVG::DrawTriangle(threadID, triStart.AsLVG2(), triEnd.AsLVG2(), triBot.AsLVG2(), style, 0.0f, m_drawOrder);
 
-			if (hovered && m_input->GetMouseButtonDown(LINAGX_MOUSE_0))
+			if (hovered && m_lgxWrapper->GetInput()->GetMouseButtonDown(LINAGX_MOUSE_0))
 			{
 				m_draggingExpandRect = true;
 			}
@@ -105,7 +107,7 @@ namespace Lina::Editor
 				m_additionalHeight += m_window->GetMouseDelta().y;
 				m_additionalHeight = Math::Clamp(m_additionalHeight, 0.0f, widgetHeight * 6);
 
-				if (!m_input->GetMouseButton(LINA_MOUSE_0))
+				if (!m_lgxWrapper->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 					m_draggingExpandRect = false;
 			}
 		}
@@ -151,7 +153,8 @@ namespace Lina::Editor
 		{
 			LinaVG::TextOptions opts;
 			opts.font  = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
-			opts.color = (!m_disabled ? Color::White : Theme::TC_Silent2).AsLVG4();;
+			opts.color = (!m_disabled ? Color::White : Theme::TC_Silent2).AsLVG4();
+			;
 
 			float posY = 0.0f;
 
@@ -186,7 +189,7 @@ namespace Lina::Editor
 
 	void GUINodeTextArea::OnPressBegin(uint32 button)
 	{
-		if (button != LINA_MOUSE_0)
+		if (button != LINAGX_MOUSE_0)
 			return;
 
 		if (m_characters.empty())
@@ -237,12 +240,12 @@ namespace Lina::Editor
 		SelectAll();
 	}
 
-	void GUINodeTextArea::OnKey(uint32 key, InputAction act)
+	void GUINodeTextArea::OnKey(uint32 key, LinaGX::InputAction act)
 	{
-		if (!m_hasFocus || act == InputAction::Released)
+		if (!m_hasFocus || act == LinaGX::InputAction::Released)
 			return;
 
-		if (key == LINA_KEY_RETURN)
+		if (key == LINAGX_KEY_RETURN)
 		{
 			if (m_isEditing)
 				FinishEditing();
@@ -255,7 +258,7 @@ namespace Lina::Editor
 
 		const uint32 sz = static_cast<uint32>(m_characters.size());
 
-		if (key == LINA_KEY_RIGHT)
+		if (key == LINAGX_KEY_RIGHT)
 		{
 			if (m_caretIndexEnd != m_caretIndexStart)
 			{
@@ -270,7 +273,7 @@ namespace Lina::Editor
 
 			m_caretScrollCheckState = 1;
 		}
-		else if (key == LINA_KEY_LEFT)
+		else if (key == LINAGX_KEY_LEFT)
 		{
 			if (m_caretIndexEnd != m_caretIndexStart)
 			{
@@ -285,13 +288,13 @@ namespace Lina::Editor
 
 			m_caretScrollCheckState = 2;
 		}
-		else if (key == LINA_KEY_DOWN || key == LINA_KEY_UP)
+		else if (key == LINAGX_KEY_DOWN || key == LINAGX_KEY_UP)
 		{
 			if (m_expandActive)
 			{
 				const auto& currentLine = m_outTextData->lineInfo[m_caretLineEnd];
 
-				if (key == LINA_KEY_UP)
+				if (key == LINAGX_KEY_UP)
 				{
 					if (m_caretLineEnd != 0)
 					{
@@ -301,7 +304,7 @@ namespace Lina::Editor
 						m_caretScrollCheckState				= 1;
 					}
 				}
-				else if (key == LINA_KEY_DOWN)
+				else if (key == LINAGX_KEY_DOWN)
 				{
 					if (m_caretLineEnd != static_cast<uint32>(m_outTextData->lineInfo.m_size) - 1)
 					{
@@ -320,16 +323,16 @@ namespace Lina::Editor
 		}
 		else
 		{
-			if (key == LINA_KEY_BACKSPACE)
+			if (key == LINAGX_KEY_BACKSPACE)
 			{
 				EraseChar();
 			}
-			else if (m_input->GetCharacterMask(m_input->GetCharacterFromKey(key)) & CharacterMask::Printable)
+			else if (m_lgxWrapper->GetInput()->GetCharacterMask(m_lgxWrapper->GetInput()->GetCharacterFromKey(key)) & LinaGX::CharacterMask::Printable)
 			{
-				if (m_input->IsControlPressed())
+				if (m_lgxWrapper->GetInput()->IsControlPressed())
 					return;
 
-				wchar_t ch = m_input->GetCharacterFromKey(key);
+				wchar_t ch = m_lgxWrapper->GetInput()->GetCharacterFromKey(key);
 
 				if (ch != 0)
 				{
@@ -812,7 +815,7 @@ namespace Lina::Editor
 
 		for (auto c : wstr)
 		{
-			if (!m_inputMask.IsSet(m_input->GetCharacterMask(c)))
+			if (!m_inputMask.IsSet(m_lgxWrapper->GetInput()->GetCharacterMask(c)))
 			{
 				titleOK = false;
 				return "";

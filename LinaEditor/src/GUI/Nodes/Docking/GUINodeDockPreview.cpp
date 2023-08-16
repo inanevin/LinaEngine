@@ -40,7 +40,7 @@ namespace Lina::Editor
 {
 	GUINodeDockPreview::GUINodeDockPreview(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
-		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		
 	}
 
 	void GUINodeDockPreview::Draw(int threadID)

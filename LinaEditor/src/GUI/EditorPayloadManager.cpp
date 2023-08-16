@@ -37,6 +37,8 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Data/RenderData.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -46,18 +48,16 @@ namespace Lina::Editor
 
 	void EditorPayloadManager::Initialize()
 	{
-		m_windowManager = m_editor->GetSystem()->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
-		m_input			= m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
-		m_gfxManager	= m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_lgxWrapper = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		m_gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		m_window = m_windowManager->CreateAppWindow(EDITOR_PAYLOAD_WINDOW_SID, "EditorPayloadWindow", Vector2i::Zero, Vector2i(800, 600), SRM_DrawGUI);
-		m_window->SetStyle(WindowStyle::BorderlessNoResize);
+		m_window = m_lgxWrapper->CreateApplicationWindow(EDITOR_PAYLOAD_WINDOW_SID, "EditorPayloadWindow", Vector2i::Zero, Vector2ui(800, 600), true);
 		m_window->SetVisible(false);
 		m_window->SetAlpha(0.8f);
 		m_window->SetInputPassthrough(true);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(EDITOR_PAYLOAD_WINDOW_SID);
-		m_guiDrawer			 = new GUIDrawerPayload(m_editor, surfaceRenderer->GetSwapchain());
+		m_guiDrawer			 = new GUIDrawerPayload(m_editor, surfaceRenderer->GetWindow());
 		surfaceRenderer->SetGUIDrawer(m_guiDrawer);
 	}
 
@@ -69,11 +69,11 @@ namespace Lina::Editor
 		if (!m_window->GetIsVisible())
 			m_window->SetVisible(true);
 
-		const Vector2i windowPos = m_input->GetMousePositionAbs() + Vector2i(m_currentPayloadMeta.delta);
-		m_window->SetPos(windowPos);
+		const Vector2i windowPos = m_lgxWrapper->GetInput()->GetMousePositionAbs() + Vector2i(m_currentPayloadMeta.delta);
+		m_window->SetPosition(windowPos.AsLGX2I());
 		m_window->BringToFront();
 
-		if (!m_input->GetMouseButton(LINA_MOUSE_0))
+		if (!m_lgxWrapper->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 		{
 			Event ev	  = Event();
 			ev.pParams[0] = &m_currentPayloadMeta;
@@ -92,15 +92,15 @@ namespace Lina::Editor
 	void EditorPayloadManager::Shutdown()
 	{
 		delete m_guiDrawer;
-		m_windowManager->DestroyAppWindow(EDITOR_PAYLOAD_WINDOW_SID);
+		m_lgxWrapper->DestroyApplicationWindow(EDITOR_PAYLOAD_WINDOW_SID);
 	}
 
-	void EditorPayloadManager::CreatePayload(PayloadType type, const Vector2i& windowSize, const Vector2i& delta, void* userData)
+	void EditorPayloadManager::CreatePayload(PayloadType type, const Vector2ui& windowSize, const Vector2ui& delta, void* userData)
 	{
 		m_currentPayloadMeta.type  = type;
 		m_currentPayloadMeta.data  = userData;
 		m_currentPayloadMeta.delta = delta;
-		m_window->AddSizeRequest(windowSize);
+		m_window->AddSizeRequest(windowSize.AsLGX2UI());
 
 		Event ev	  = Event();
 		ev.pParams[0] = &m_currentPayloadMeta;

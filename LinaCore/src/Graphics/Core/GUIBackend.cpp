@@ -187,13 +187,14 @@ namespace Lina
 				*data.copySemaphoreValue = val;
 
 				LinaGX::SubmitDesc desc = {
-					.queue			  = LinaGX::QueueType::Transfer,
+					.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::QueueType::Transfer),
 					.streams		  = &data.copyStream,
 					.streamCount	  = 1,
 					.useSignal		  = true,
 					.signalCount	  = 1,
 					.signalSemaphores = &data.copySemaphore,
 					.signalValues	  = &val,
+					.isMultithreaded  = true,
 				};
 
 				m_lgx->CloseCommandStreams(&data.copyStream, 1);

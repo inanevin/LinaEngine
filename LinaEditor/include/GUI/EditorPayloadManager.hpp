@@ -36,8 +36,13 @@ SOFTWARE.
 namespace Lina
 {
 	class GfxManager;
+	class LGXWrapper;
 } // namespace Lina
 
+namespace LinaGX
+{
+	class Window;
+}
 namespace Lina::Editor
 {
 	class Editor;
@@ -59,7 +64,7 @@ namespace Lina::Editor
 		void Initialize();
 		void Tick();
 		void Shutdown();
-		void CreatePayload(PayloadType type, const Vector2i& windowSize, const Vector2i& delta, void* userData);
+		void CreatePayload(PayloadType type, const Vector2ui& windowSize, const Vector2ui& delta, void* userData);
 
 		inline const PayloadMeta& GetCurrentPayloadMeta() const
 		{
@@ -67,13 +72,12 @@ namespace Lina::Editor
 		}
 
 	private:
-		Editor*			  m_editor		  = nullptr;
-		WindowManager*	  m_windowManager = nullptr;
-		GfxManager*		  m_gfxManager	  = nullptr;
-		Input*			  m_input		  = nullptr;
-		IWindow*		  m_window		  = nullptr;
-		GUIDrawerPayload* m_guiDrawer	  = nullptr;
+		Editor*			  m_editor	   = nullptr;
+		GfxManager*		  m_gfxManager = nullptr;
+		GUIDrawerPayload* m_guiDrawer  = nullptr;
 		PayloadMeta		  m_currentPayloadMeta;
+		LGXWrapper*		  m_lgxWrapper = nullptr;
+		LinaGX::Window*	  m_window	   = nullptr;
 	};
 } // namespace Lina::Editor
 

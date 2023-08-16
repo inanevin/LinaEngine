@@ -33,6 +33,11 @@ SOFTWARE.
 
 #include "GUIDrawerBase.hpp"
 
+namespace Lina
+{
+	class LGXWrapper;
+}
+
 namespace Lina::Editor
 {
 	class GUINodeTitleSection;
@@ -46,8 +51,8 @@ namespace Lina::Editor
 		virtual void OnDockAreasModified() override;
 
 	private:
-		Input*				 m_input		= nullptr;
 		GUINodeTitleSection* m_titleSection = nullptr;
+		LGXWrapper*			 m_lgxWrapper	= nullptr;
 	};
 } // namespace Lina::Editor
 

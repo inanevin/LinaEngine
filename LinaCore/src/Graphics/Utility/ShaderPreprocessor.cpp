@@ -168,9 +168,9 @@ namespace Lina
 		{
 			ShaderVariant variant = {
 				.name	  = "Default",
-				.passName = "swapchain",
+				.passName = "rendertarget",
+				.passType = ShaderVariantPassType::RenderTarget,
 			};
-
 			outVariants["Default"_hs] = variant;
 		}
 

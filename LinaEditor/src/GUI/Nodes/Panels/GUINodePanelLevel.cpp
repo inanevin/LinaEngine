@@ -120,15 +120,15 @@ namespace Lina::Editor
 					e->SetPosition(Vector3(-3.5f, 0.0f, 0.0f));
 			}
 
-			const Rect	   imageRect	 = m_rect.ShrinkByAmount(4.0f);
-			const StringID textureHandle = wr->GetFinalTexture(m_gfxManager->GetFrameIndex())->GetSID();
-
-			LinaVG::DrawImage(threadID, textureHandle, imageRect.GetCenter().AsLVG2(), imageRect.size.AsLVG2(), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder);
-
-			if (!imageRect.size.Equals(m_loadedLevel->GetWorldRenderer()->GetResolution(), 2.0f))
-			{
-				wr->AddResizeRequest(imageRect.size, imageRect.size.x / imageRect.size.y);
-			}
+			// const Rect	   imageRect	 = m_rect.ShrinkByAmount(4.0f);
+			// const StringID textureHandle = wr->GetFinalTexture(m_gfxManager->GetFrameIndex())->GetSID();
+			// 
+			// LinaVG::DrawImage(threadID, textureHandle, imageRect.GetCenter().AsLVG2(), imageRect.size.AsLVG2(), LinaVG::Vec4(1, 1, 1, 1), 0.0f, m_drawOrder);
+			// 
+			// if (!imageRect.size.Equals(m_loadedLevel->GetWorldRenderer()->GetResolution(), 2.0f))
+			// {
+			// 	wr->AddResizeRequest(imageRect.size, imageRect.size.x / imageRect.size.y);
+			// }
 		}
 	}
 

@@ -26,9 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#LINA_VS
-#version 460
-
+#lina_vs
 layout (location = 0) in vec3 inPosition;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inTexCoords;
@@ -37,17 +35,13 @@ void main()
 {
 	gl_Position = vec4(inPosition, 1.0f);
 }
+#lina_end
 
-#LINA_END
-
-#LINA_FS
-
-#version 460
+#lina_fs
 layout (location = 0) out vec4 outFragColor;
 
 void main()
 {
 	outFragColor = vec4(1,1,1,1);
 }
-
-#LINA_END
+#lina_end

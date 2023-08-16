@@ -48,8 +48,8 @@ namespace Lina::Editor
 	{
 		PROFILER_FUNCTION();
 
-		const Vector2 swapchainSize = m_swapchain->GetSize();
-		const Vector2 monitorSize	= m_window->GetMonitorInformation().size;
+		const Vector2 swapchainSize = m_window->GetSize();
+		const Vector2 monitorSize	= m_window->GetSize();
 		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_window->GetDPIScale()));
 		m_topPanel->SetRect(topRect);
 		m_topPanel->Draw(threadID);

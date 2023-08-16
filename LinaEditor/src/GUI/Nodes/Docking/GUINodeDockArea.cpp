@@ -40,6 +40,8 @@ SOFTWARE.
 #include "GUI/Drawers/GUIDrawerBase.hpp"
 #include "System/ISystem.hpp"
 #include "Serialization/StringSerialization.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina::Editor
 {
@@ -55,7 +57,7 @@ namespace Lina::Editor
 
 		AddChildren(m_tabArea);
 		AddChildren(m_dockPreview);
-		m_input = m_editor->GetSystem()->CastSubsystem<Input>(SubsystemType::Input);
+		m_lgxWrapper = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 
 		SetMinSize(Vector2(200, 200));
 	}
@@ -66,14 +68,14 @@ namespace Lina::Editor
 
 		GUIUtility::DrawDockBackground(threadID, m_rect, m_drawOrder);
 
-		const bool	needTabArea	  = (!m_isAlone) || (m_panels.size() > 1) || m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN;
+		const bool	needTabArea	  = (!m_isAlone) || (m_panels.size() > 1) || m_window->GetSID() == LINA_MAIN_SWAPCHAIN;
 		const float tabAreaHeight = needTabArea ? 24.0f * m_window->GetDPIScale() : 0.0f;
 		const Rect	panelRect	  = Rect(Vector2(m_rect.pos.x, m_rect.pos.y + tabAreaHeight), Vector2(m_rect.size.x, m_rect.size.y - tabAreaHeight));
 		const Rect	tabRect		  = Rect(m_rect.pos, Vector2(m_rect.size.x, tabAreaHeight));
 
 		GUIUtility::SetClip(threadID, m_rect, Rect());
 
-		const bool isSingleMainWindow = m_swapchain->GetSID() == LINA_MAIN_SWAPCHAIN && m_isAlone && m_panels.size() == 1;
+		const bool isSingleMainWindow = m_window->GetSID() == LINA_MAIN_SWAPCHAIN && m_isAlone && m_panels.size() == 1;
 		m_tabArea->SetCanClosePanels(!isSingleMainWindow);
 		m_tabArea->SetCanDetach(!isSingleMainWindow);
 		m_tabArea->SetVisible(needTabArea);
@@ -126,7 +128,7 @@ namespace Lina::Editor
 		m_dismissedTabs.clear();
 
 		// wuup wupp we are done.
-		if (m_tabArea->GetIsEmpty() && (m_swapchain->GetSID() != LINA_MAIN_SWAPCHAIN || !m_isAlone))
+		if (m_tabArea->GetIsEmpty() && (m_window->GetSID() != LINA_MAIN_SWAPCHAIN || !m_isAlone))
 		{
 			m_drawer->RemoveDockArea(this);
 			return;
@@ -167,7 +169,7 @@ namespace Lina::Editor
 	{
 		if (enabled)
 		{
-			const Vector2i& targetSize		   = m_swapchain->GetSize();
+			const Vector2i& targetSize		   = m_window->GetSize();
 			const bool		sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
 			if (sizeSuitableToDock)
 				m_dockPreview->SetVisible(true);

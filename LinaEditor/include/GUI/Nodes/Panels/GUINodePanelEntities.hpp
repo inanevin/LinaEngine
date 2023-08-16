@@ -71,7 +71,7 @@ namespace Lina::Editor
 		virtual void OnGameEvent(GameEvent eventType, const Event& ev);
 		virtual void OnEditorEvent(EditorEvent eventType, const Event& ev);
 		virtual void OnPayloadAccepted() override;
-		virtual bool OnMouse(uint32 button, InputAction action) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
 		virtual Bitmask32 GetSystemEventMask()
 		{

@@ -76,7 +76,7 @@ namespace Lina
 			va_end(args);
 		};
 
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "GUI/Utility/GUIUtility.hpp"
 #include "Core/Theme.hpp"
 #include "Math/Math.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -88,7 +89,7 @@ namespace Lina::Editor
 
 	void GUINodeButton::OnPressEnd(uint32 button)
 	{
-		if (button != LINA_MOUSE_0)
+		if (button != LINAGX_MOUSE_0)
 			return;
 
 		if (m_onClicked)

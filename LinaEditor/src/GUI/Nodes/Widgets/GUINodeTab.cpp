@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Core/SystemInfo.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -171,7 +172,7 @@ namespace Lina::Editor
 
 	void GUINodeTab::OnPressEnd(uint32 button)
 	{
-		if (button == LINA_MOUSE_0)
+		if (button == LINAGX_MOUSE_0)
 		{
 			if (m_isInCloseRect)
 				m_parentArea->OnTabDismissed(this);
@@ -182,7 +183,7 @@ namespace Lina::Editor
 
 	void GUINodeTab::OnPressBegin(uint32 button)
 	{
-		if (button != LINA_MOUSE_0)
+		if (button != LINAGX_MOUSE_0)
 			return;
 
 		m_parentArea->OnTabClicked(this);

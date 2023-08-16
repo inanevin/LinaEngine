@@ -37,6 +37,8 @@ SOFTWARE.
 #include "Core/Editor.hpp"
 #include "Core/PlatformProcess.hpp"
 #include "System/ISystem.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina::Editor
 {
@@ -120,7 +122,7 @@ namespace Lina::Editor
 		m_fileMenu->SetCallbackClicked(BIND(&GUINodeTopPanel::OnPressedItem, this, std::placeholders::_1));
 
 		m_windowButtons = new GUINodeWindowButtons(drawer, drawOrder);
-		m_windowButtons->SetCallbackDismissed([&](GUINode* node) { m_window->Close(); });
+		m_windowButtons->SetCallbackDismissed([&](GUINode* node) { m_editor->GetSystem()->GetApp()->Quit(); });
 
 		m_customLogo = new GUINodeCustomLogo(drawer, drawOrder);
 		AddChildren(m_fileMenu);
@@ -165,7 +167,7 @@ namespace Lina::Editor
 		// Window buttons
 		{
 			m_windowButtons->SetMinPos(m_customLogo->GetRect().pos + Vector2(m_customLogo->GetRect().size.x, 0));
-			const float	  buttonY	  = 25.0f * m_swapchain->GetWindowDPIScale();
+			const float	  buttonY	  = 25.0f * m_window->GetDPIScale();
 			const float	  buttonX	  = buttonY * 16.0f / 9.0f;
 			const Vector2 wbuttonsPos = Vector2(m_rect.pos.x + m_rect.size.x - buttonX * 3, 0.0f);
 			m_windowButtons->SetRect(Rect(wbuttonsPos, Vector2(buttonX * 3, buttonY)));
@@ -177,15 +179,17 @@ namespace Lina::Editor
 			const Vector2		 lineStart = Vector2(0.0f, m_rect.size.y * 0.5f);
 			const Vector2		 lineEnd   = Vector2(m_rect.size.x, m_rect.size.y * 0.5f);
 			LinaVG::StyleOptions opts;
-			opts.thickness = 4.0f * m_swapchain->GetWindowDPIScale();
+			opts.thickness = 4.0f * m_window->GetDPIScale();
 			opts.color	   = Theme::TC_Dark0.AsLVG4();
 			LinaVG::DrawLine(threadID, lineStart.AsLVG2(), lineEnd.AsLVG2(), opts, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 		}
 
 		// Drag rect
 		{
-			const Rect dragRect = Rect(fileMenuEnd, Vector2(m_windowButtons->GetRect().pos.x - fileMenuEnd.x, padding * 2));
-			m_window->SetDragRect(dragRect);
+			const Rect				   dragRect = Rect(fileMenuEnd, Vector2(m_windowButtons->GetRect().pos.x - fileMenuEnd.x, padding * 2));
+			const LinaGX::LGXVector2ui pos		= {dragRect.pos.x, dragRect.pos.y};
+			const LinaGX::LGXVector2ui size		= {dragRect.size.x, dragRect.size.y};
+			m_window->SetDragRect({.pos = pos, .size = size});
 		}
 	}
 

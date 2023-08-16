@@ -55,10 +55,10 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* gfxStream		  = nullptr;
-			LinaGX::CommandStream* copyStream		  = nullptr;
-			uint16				   copySemaphore	  = 0;
-			uint64				   copySemaphoreValue = 0;
+			LinaGX::CommandStream* gfxStream			 = nullptr;
+			LinaGX::CommandStream* guiCopyStream		 = nullptr;
+			uint16				   guiCopySemaphore		 = 0;
+			uint64				   guiCopySemaphoreValue = 0;
 			GPUBuffer			   guiVertexBuffer;
 			GPUBuffer			   guiIndexBuffer;
 			GPUBuffer			   guiMaterialBuffer;
@@ -73,7 +73,6 @@ namespace Lina
 		virtual ~SurfaceRenderer();
 
 		void		 Render(int guiThreadID, uint32 frameIndex);
-		void		 Present();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void		 SetGUIDrawer(IGUIDrawer* rend);
 		bool		 IsVisible();
@@ -99,6 +98,26 @@ namespace Lina
 			return m_window;
 		}
 
+		inline uint8 GetSwapchain() const
+		{
+			return m_swapchain;
+		}
+
+		inline LinaGX::CommandStream* GetStream(uint32 index)
+		{
+			return m_pfd[index].gfxStream;
+		}
+
+		inline const Vector<uint16>& GetCurrentWaitSemaphores() const
+		{
+			return m_waitSemaphores;
+		}
+
+		inline const Vector<uint64>& GetCurrentWaitValues() const
+		{
+			return m_waitValues;
+		}
+
 	protected:
 		static int s_surfaceRendererCount;
 
@@ -111,6 +130,8 @@ namespace Lina
 		LinaGX::Instance* m_lgx		  = nullptr;
 		LinaGX::Window*	  m_window	  = nullptr;
 		uint8			  m_swapchain = 0;
+		Vector<uint16>	  m_waitSemaphores;
+		Vector<uint64>	  m_waitValues;
 	};
 
 } // namespace Lina

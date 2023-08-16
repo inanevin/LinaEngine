@@ -258,12 +258,23 @@ namespace Lina
 		{
 			if (sr->IsVisible())
 				validSurfaceRenderers.push_back(sr);
+
+			m_lgx->SetSwapchainActive(sr->GetSwapchain(), sr->IsVisible());
 		}
+
 		const uint32 surfaceRenderersCount = static_cast<uint32>(validSurfaceRenderers.size());
 		const uint32 worldRenderersCount   = static_cast<uint32>(m_worldRenderers.size());
+		const uint32 guiThreads			   = worldRenderersCount + surfaceRenderersCount;
+
+		// Notify
+		{
+			Event ev	  = {};
+			ev.iParams[0] = guiThreads;
+			m_system->DispatchEvent(EVS_StartFrame, ev);
+		}
 
 		m_lgx->StartFrame();
-		LinaVG::StartFrame(worldRenderersCount + surfaceRenderersCount);
+		LinaVG::StartFrame(guiThreads);
 
 		// Update data.
 		{
@@ -284,13 +295,10 @@ namespace Lina
 
 		}
 
-		// Surface Renderers
+		// Record surface renderers.
 		{
 			if (surfaceRenderersCount == 1)
-			{
 				validSurfaceRenderers[0]->Render(worldRenderersCount, currentFrameIndex);
-				validSurfaceRenderers[0]->Present();
-			}
 			else
 			{
 				Taskflow tf;
@@ -298,14 +306,60 @@ namespace Lina
 					auto	  sr	   = validSurfaceRenderers[i];
 					const int threadID = worldRenderersCount + i;
 					sr->Render(threadID, currentFrameIndex);
-					sr->Present();
 				});
 
 				m_system->GetMainExecutor()->RunAndWait(tf);
 			}
 		}
 
+		// Submit surface renderers.
+		{
+			Vector<LinaGX::CommandStream*> streams;
+			Vector<uint16>				   waitSemaphores;
+			Vector<uint64>				   waitValues;
+
+			for (auto sf : validSurfaceRenderers)
+			{
+				const auto& ws = sf->GetCurrentWaitSemaphores();
+				const auto& wv = sf->GetCurrentWaitValues();
+				streams.push_back(sf->GetStream(currentFrameIndex));
+				waitSemaphores.insert(waitSemaphores.begin(), ws.begin(), ws.end());
+				waitValues.insert(waitValues.begin(), wv.begin(), wv.end());
+			}
+
+			LinaGX::SubmitDesc desc = {
+				.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::QueueType::Graphics),
+				.streams		= streams.data(),
+				.streamCount	= static_cast<uint32>(streams.size()),
+				.useWait		= !waitSemaphores.empty(),
+				.waitCount		= static_cast<uint32>(waitSemaphores.size()),
+				.waitSemaphores = waitSemaphores.data(),
+				.waitValues		= waitValues.data(),
+			};
+
+			m_lgx->SubmitCommandStreams(desc);
+		}
+
 		LinaVG::EndFrame();
+
+		// Present surface renderers.
+		{
+			// Present.
+			Vector<uint8> swapchains;
+			swapchains.resize(validSurfaceRenderers.size());
+
+			uint32 i = 0;
+			for (auto sf : validSurfaceRenderers)
+				swapchains[i] = sf->GetSwapchain();
+
+			LinaGX::PresentDesc desc = {
+				.swapchains		= swapchains.data(),
+				.swapchainCount = static_cast<uint32>(swapchains.size()),
+			};
+
+			m_lgx->Present(desc);
+		}
+
 		m_lgx->EndFrame();
 	}
 

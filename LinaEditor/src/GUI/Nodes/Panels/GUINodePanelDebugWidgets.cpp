@@ -49,7 +49,7 @@ namespace Lina::Editor
 	{
 		m_textArea = new GUINodeTextArea(m_drawer, m_drawOrder);
 		m_textArea->SetTitle("Debug Title");
-		m_textArea->GetInputMask().Set(CharacterMask::Printable);
+		m_textArea->GetInputMask().Set(LinaGX::CharacterMask::Printable);
 		m_textArea->SetExpandable(true);
 
 		m_floatArea = new GUINodeFloatArea(m_drawer, m_drawOrder);

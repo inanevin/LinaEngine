@@ -48,7 +48,7 @@ namespace Lina::Editor
 		// Background
 		{
 			LinaVG::StyleOptions style;
-			style.color = Theme::TC_Dark1);
+			style.color = Theme::TC_Dark1.AsLVG4();
 			LinaVG::DrawRect(threadID, m_rect.pos.AsLVG2(), (m_rect.pos + m_rect.size).AsLVG2(), style, 0.0f, m_drawOrder);
 		}
 
@@ -72,7 +72,7 @@ namespace Lina::Editor
 			const Vector2		 logoSize = Vector2(imageHeight, imageHeight);
 			const Vector2		 logoPos  = Vector2(padding, m_rect.size.y * 0.5f - logoSize.y * 0.5f);
 			LinaVG::StyleOptions logo;
-			logo.textureHandle = "Resources/Core/Textures/Logo_Colored_1024.png"_hs;
+			logo.textureHandle = "Resources/Core/Textures/StubLinaLogo.png"_hs;
 			LinaVG::DrawRect(threadID, logoPos.AsLVG2(), (logoPos + logoSize).AsLVG2(), logo, 0.0f, m_drawOrder);
 			logoEndX = logoPos.x + logoSize.x * 0.5f + padding * 1.5f;
 		}
@@ -89,8 +89,10 @@ namespace Lina::Editor
 
 		// Drag rect
 		{
-			const Rect dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, m_rect.size.y));
-			m_window->SetDragRect(dragRect);
+			const Rect				   dragRect = Rect(Vector2::Zero, Vector2(m_windowButtons->GetRect().pos.x, m_rect.size.y));
+			const LinaGX::LGXVector2ui pos		= {dragRect.pos.x, dragRect.pos.y};
+			const LinaGX::LGXVector2ui size		= {dragRect.size.x, dragRect.size.y};
+			m_window->SetDragRect({.pos = pos, .size = size});
 		}
 	}
 

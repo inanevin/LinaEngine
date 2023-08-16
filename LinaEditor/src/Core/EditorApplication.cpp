@@ -41,7 +41,6 @@ namespace Lina::Editor
 		auto& resourceManager = m_engine.GetResourceManager();
 		SetApplicationMode(ApplicationMode::Editor);
 		resourceManager.SetMode(ResourceManagerMode::File);
-
 		m_coreResourceRegistry = new EditorResourcesRegistry();
 		m_coreResourceRegistry->RegisterResourceTypes(resourceManager);
 		resourceManager.SetPriorityResources(m_coreResourceRegistry->GetPriorityResources());
@@ -63,6 +62,7 @@ namespace Lina::Editor
 		const Vector2i			   targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
 		auto					   window				  = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(targetSplashScreenSize.x, targetSplashScreenSize.y), true);
 		window->CenterPositionToCurrentMonitor();
+		window->SetCallbackClose([&]() { m_exitRequested = true; });
 	}
 
 	void EditorApplication::OnInited()
@@ -93,7 +93,6 @@ namespace Lina::Editor
 
 	void EditorApplication::Shutdown()
 	{
-		m_engine.GetGfxManager()->Join();
 		m_editor.Shutdown();
 		m_engine.GetResourceManager().RemoveListener(this);
 		Application::Shutdown();
@@ -111,6 +110,7 @@ namespace Lina::Editor
 				auto window	  = wm->GetWindow(LINA_MAIN_SWAPCHAIN);
 				auto workArea = window->GetMonitorWorkArea();
 				window->SetSize(workArea);
+				window->SetPosition({0, 0});
 				window->SetCursorType(LinaGX::CursorType::Default);
 				m_systemEventMask = 0;
 			}

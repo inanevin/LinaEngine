@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Data/CommonData.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -230,7 +231,7 @@ namespace Lina::Editor
 
 	void GUINodeSelection::OnPressBegin(uint32 button)
 	{
-		if (button != LINA_MOUSE_0)
+		if (button != LINAGX_MOUSE_0)
 			return;
 
 		if (m_onClicked)

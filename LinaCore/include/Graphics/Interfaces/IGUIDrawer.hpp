@@ -45,7 +45,7 @@ namespace Lina
 	class IGUIDrawer
 	{
 	public:
-		IGUIDrawer(LinaGX::Window* window) : m_window(window){};
+		IGUIDrawer(LinaGX::Window* window);
 		virtual ~IGUIDrawer() = default;
 
 		virtual void DrawGUI(int threadID) = 0;

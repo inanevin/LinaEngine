@@ -58,11 +58,15 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_2x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_3x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_4x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_1x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_2x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_3x.ttf", GetTypeID<Font>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_4x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
-		//list.push_back(ResourceIdentifier("Resources/Core/Shaders/UnlitStandard.linashader", GetTypeID<Shader>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Shaders/LitStandard.linashader", GetTypeID<Shader>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Shaders/UnlitStandard.linashader", GetTypeID<Shader>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0));
-	//	list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
 
 		for (auto& ident : list)
 			ident.sid = TO_SID(ident.path);
@@ -111,6 +115,30 @@ namespace Lina
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
+		//-------------
+		metadata.SetInt(FONT_META_SIZE, 12);
+		metadata.SetBool(FONT_META_ISSDF, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		////-------------
+		metadata.SetInt(FONT_META_SIZE, 14);
+		metadata.SetBool(FONT_META_ISSDF, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt(FONT_META_SIZE, 16);
+		metadata.SetBool(FONT_META_ISSDF, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
+		//-------------
+		metadata.SetInt(FONT_META_SIZE, 18);
+		metadata.SetBool(FONT_META_ISSDF, false);
+		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs, metadata));
+		metadata.ClearAll();
+
 		return list;
 	}
 
@@ -129,10 +157,6 @@ namespace Lina
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_Bold_2x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_Bold_3x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_Bold_4x.ttf", GetTypeID<Font>(), 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_1x.ttf", GetTypeID<Font>(), 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_2x.ttf", GetTypeID<Font>(), 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_3x.ttf", GetTypeID<Font>(), 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_4x.ttf", GetTypeID<Font>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0));
 
 		for (auto& ident : list)
@@ -211,30 +235,6 @@ namespace Lina
 		metadata.SetInt("Range_0"_hs, 160);
 		metadata.SetInt("Range_1"_hs, 380);
 		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_4x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 12);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		////-------------
-		metadata.SetInt(FONT_META_SIZE, 14);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 16);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 45);
-		metadata.SetBool(FONT_META_ISSDF, true);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs, metadata));
 		metadata.ClearAll();
 
 		return list;

@@ -30,13 +30,14 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Data/CommonData.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
-
+#include "LinaGX/Core/InputMappings.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 
 namespace Lina::Editor
 {
 	GUINodeNumberArea::GUINodeNumberArea(GUIDrawerBase* drawer, int drawOrder) : GUINodeTextArea(drawer, drawOrder)
 	{
-		m_inputMask.Set(CharacterMask::Number | CharacterMask::Separator | CharacterMask::Sign);
+		m_inputMask.Set(LinaGX::CharacterMask::Number | LinaGX::CharacterMask::Separator | LinaGX::CharacterMask::Sign);
 	}
 
 	String GUINodeNumberArea::VerifyTitle(bool& titleOK)
@@ -77,21 +78,21 @@ namespace Lina::Editor
 
 		GUINodeTextArea::Draw(threadID);
 
-		if (m_draggingLabelBox && !m_input->GetMouseButton(LINA_MOUSE_0))
+		if (m_draggingLabelBox && !m_lgxWrapper->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 			m_draggingLabelBox = false;
 
-		if (m_draggingSlider && !m_input->GetMouseButton(LINA_MOUSE_0))
+		if (m_draggingSlider && !m_lgxWrapper->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 			m_draggingSlider = false;
 
 		if (m_draggingLabelBox)
 		{
-			const Vector2 mouseDelta = m_input->GetMousePositionAbs() - (m_window->GetPos() + m_pressStartMousePos);
+			const Vector2 mouseDelta = m_lgxWrapper->GetInput()->GetMousePositionAbs() - (m_window->GetPosition() + m_pressStartMousePos);
 			IncrementValue(mouseDelta);
 		}
 
 		if (m_draggingSlider)
 		{
-			const float mouseXLocal = static_cast<float>(m_input->GetMousePositionAbs().x - m_window->GetPos().x);
+			const float mouseXLocal = static_cast<float>(m_lgxWrapper->GetInput()->GetMousePositionAbs().x - m_window->GetPosition().x);
 			const float mousePerc	= (mouseXLocal - m_rect.pos.x) / m_rect.size.x;
 			SetValueFromPerc(mousePerc);
 		}
@@ -116,7 +117,7 @@ namespace Lina::Editor
 
 	void GUINodeNumberArea::OnPressBegin(uint32 button)
 	{
-		if (button != LINA_MOUSE_0)
+		if (button != LINAGX_MOUSE_0)
 			return;
 
 		if (m_hasLabelBox)
@@ -143,20 +144,20 @@ namespace Lina::Editor
 		GUINodeTextArea::OnPressBegin(button);
 	}
 
-	CursorType GUINodeNumberArea::GetHoveredCursor()
+	LinaGX::CursorType GUINodeNumberArea::GetHoveredCursor()
 	{
 		if (!m_hasLabelBox && !m_hasSlider)
-			return CursorType::Caret;
+			return LinaGX::CursorType::Caret;
 
 		const Vector2i mp = m_window->GetMousePosition();
 		if (m_labelBoxRect.IsPointInside(mp) || m_draggingLabelBox)
-			return CursorType::SizeHorizontal;
+			return LinaGX::CursorType::SizeHorizontal;
 		else if (m_hasSlider && m_isEditing)
-			return CursorType::Caret;
+			return LinaGX::CursorType::Caret;
 		else if (!m_hasSlider)
-			return CursorType::Caret;
+			return LinaGX::CursorType::Caret;
 
-		return CursorType::Default;
+		return LinaGX::CursorType::Default;
 	}
 
 } // namespace Lina::Editor

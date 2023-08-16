@@ -38,7 +38,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
 	class GUINodeDockPreview : public GUINode
 	{
 	public:
@@ -71,7 +70,6 @@ namespace Lina::Editor
 		HashMap<DockSplitType, float> m_scales;
 		bool						  m_isActive			= false;
 		bool						  m_isOuter				= false;
-		Lina::Input*				  m_input				= nullptr;
 		DockSplitType				  m_currentHoveredSplit = DockSplitType::None;
 	};
 } // namespace Lina::Editor

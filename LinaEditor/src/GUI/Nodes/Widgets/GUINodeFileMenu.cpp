@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Platform/LinaVGIncl.hpp"
 #include "Math/Math.hpp"
 #include "GUI/Utility/GUIUtility.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -79,7 +80,7 @@ namespace Lina::Editor
 
 	void GUINodeFMPopupElement::OnPressEnd(uint32 button)
 	{
-		if (button != LINA_MOUSE_0)
+		if (button != LINAGX_MOUSE_0)
 			return;
 
 		if (m_onClicked)
@@ -146,7 +147,7 @@ namespace Lina::Editor
 
 	void GUINodeFMPopupElementToggle::OnPressEnd(uint32 button)
 	{
-		if (button != LINA_MOUSE_0)
+		if (button != LINAGX_MOUSE_0)
 			return;
 
 		GUINodeFMPopupElement::OnPressEnd(button);
@@ -336,11 +337,11 @@ namespace Lina::Editor
 		}
 	}
 
-	bool GUINodeFileMenu::OnMouse(uint32 button, InputAction act)
+	bool GUINodeFileMenu::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		bool retVal = GUINode::OnMouse(button, act);
 
-		if (button = LINA_MOUSE_0 && act == InputAction::Released && m_targetPopup && !GUIUtility::IsInRect(m_window->GetMousePosition(), m_rect) && !GUIUtility::IsInRect(m_window->GetMousePosition(), m_targetPopup->GetRect()))
+		if (button = LINAGX_MOUSE_0 && act == LinaGX::InputAction::Released && m_targetPopup && !GUIUtility::IsInRect(m_window->GetMousePosition(), m_rect) && !GUIUtility::IsInRect(m_window->GetMousePosition(), m_targetPopup->GetRect()))
 			ResetTargets();
 
 		return retVal;

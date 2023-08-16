@@ -39,6 +39,7 @@ SOFTWARE.
 #include "World/Core/EntityWorld.hpp"
 #include "Data/CommonData.hpp"
 #include "GUI/Nodes/Widgets/GUINodeFileMenu.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina::Editor
 {
@@ -275,13 +276,13 @@ namespace Lina::Editor
 		}
 	}
 
-	bool GUINodePanelEntities::OnMouse(uint32 button, InputAction action)
+	bool GUINodePanelEntities::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		const bool retVal = GUINode::OnMouse(button, action);
 
-		if (action == InputAction::Released)
+		if (action == LinaGX::InputAction::Released)
 		{
-			if (button == LINA_MOUSE_1)
+			if (button == LINAGX_MOUSE_1)
 			{
 				for (auto [node, entity] : m_nodeToEntityMap)
 				{
@@ -400,7 +401,8 @@ namespace Lina::Editor
 	void GUINodePanelEntities::OnSelectionDetached(GUINodeSelection* selection, const Vector2& delta)
 	{
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
-		m_editor->GetPayloadManager().CreatePayload(PayloadType::EPL_Entity, selection->GetStoreSize("TitleSize"_hs, selection->GetTitle()) + Vector2(padding * 2, padding), Vector2i(delta), m_nodeToEntityMap[selection]);
+		m_editor->GetPayloadManager().CreatePayload(
+			PayloadType::EPL_Entity, selection->GetStoreSize("TitleSize"_hs, selection->GetTitle()) + Vector2(padding * 2, padding), Vector2ui(static_cast<uint32>(delta.x), static_cast<uint32>(delta.y)), m_nodeToEntityMap[selection]);
 	}
 
 	void GUINodePanelEntities::OnSelectionPayloadAccepted(GUINode* selection, void* userData)

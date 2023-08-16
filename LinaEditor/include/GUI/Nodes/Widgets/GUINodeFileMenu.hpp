@@ -174,7 +174,7 @@ namespace Lina::Editor
 		virtual ~GUINodeFileMenu() = default;
 
 		virtual void Draw(int threadID) override;
-		virtual bool OnMouse(uint32 button, InputAction act) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		template <typename T, typename... Popups> void AddPopup(T& popup, Popups&&... rest)
 		{

@@ -80,6 +80,7 @@ namespace Lina
 		Vector2i(unsigned int val) : glm::ivec2(val, val){};
 		Vector2i(const glm::vec2& rhs) : glm::ivec2(rhs.x, rhs.y){};
 		Vector2i(const LinaGX::LGXVector2i& vec) : glm::ivec2(vec.x, vec.y){};
+		Vector2i(const LinaGX::LGXVector2ui& vec) : glm::ivec2(vec.x, vec.y){};
 
 		LinaGX::LGXVector2i AsLGX2I() const
 		{

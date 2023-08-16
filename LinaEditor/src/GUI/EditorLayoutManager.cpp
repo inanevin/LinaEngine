@@ -38,6 +38,8 @@ SOFTWARE.
 #include "GUI/Nodes/Panels/GUINodePanel.hpp"
 #include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
 #include "Math/Rect.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
+#include "Graphics/Core/CommonGraphics.hpp"
 
 namespace Lina::Editor
 {
@@ -45,12 +47,12 @@ namespace Lina::Editor
 
 	EditorLayoutManager::EditorLayoutManager(Editor* editor) : m_editor(editor)
 	{
-		m_windowManager = m_editor->GetSystem()->CastSubsystem<WindowManager>(SubsystemType::WindowManager);
+		m_lgxWrapper = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 	}
 
 	void EditorLayoutManager::SaveCurrentLayout()
 	{
-		const auto& windows	   = m_windowManager->GetWindows();
+		const auto& windows	   = m_lgxWrapper->GetWindowManager()->GetWindows();
 		const auto& guiDrawers = m_editor->GetGUIDrawers();
 
 		OStream stream;
@@ -68,9 +70,9 @@ namespace Lina::Editor
 				continue;
 
 			LayoutWindow layoutWindow = LayoutWindow{
-				.title = w->GetTitle(),
+				.title = w->GetTitle().c_str(),
 				.sid   = sid,
-				.pos   = w->GetPos(),
+				.pos   = w->GetPosition(),
 				.size  = w->GetSize(),
 			};
 
@@ -103,7 +105,7 @@ namespace Lina::Editor
 
 		stream >> Editor::s_childWindowCtr;
 
-		const auto& monitors = m_windowManager->GetMonitors();
+		const auto& monitors = m_lgxWrapper->GetWindowManager()->GetMonitors();
 
 		for (uint32 i = 0; i < windowsSize; i++)
 		{
@@ -118,7 +120,7 @@ namespace Lina::Editor
 
 				for (const auto& monitor : monitors)
 				{
-					const Recti monitorRect = Recti(monitor.workTopLeft, Vector2(monitor.workTopLeft + monitor.workArea));
+					const Recti monitorRect = Recti(monitor.workTopLeft, Vector2(monitor.workTopLeft.x + monitor.workArea.x, monitor.workTopLeft.y + monitor.workArea.y));
 					if (monitorRect.IsPointInside(w.pos))
 					{
 						fitsMonitor = true;
@@ -155,7 +157,7 @@ namespace Lina::Editor
 
 		guiDrawer->SplitDockArea(dockArea, DockSplitType::Left, {entPanel}, 0.15f);
 		guiDrawer->SplitDockArea(dockArea, DockSplitType::Down, {contentBrowserPanel}, 0.25f);
-		
+
 		SaveCurrentLayout();
 	}
 
