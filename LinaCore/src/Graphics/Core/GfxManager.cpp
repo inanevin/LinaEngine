@@ -249,8 +249,14 @@ namespace Lina
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
 		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
 
+		auto id = PROFILER_STARTBLOCK("Flushing Resource Upload Queue");
+
 		// Transfer.
 		m_resourceUploadQueue.FlushAll();
+
+		PROFILER_ENDBLOCK(id);
+
+		id = PROFILER_STARTBLOCK("Surface Renderer Eligibility");
 
 		// Determine eligible surface renderers.
 		Vector<SurfaceRenderer*> validSurfaceRenderers;
@@ -262,9 +268,13 @@ namespace Lina
 			m_lgx->SetSwapchainActive(sr->GetSwapchain(), sr->IsVisible());
 		}
 
+		PROFILER_ENDBLOCK(id);
+
 		const uint32 surfaceRenderersCount = static_cast<uint32>(validSurfaceRenderers.size());
 		const uint32 worldRenderersCount   = static_cast<uint32>(m_worldRenderers.size());
 		const uint32 guiThreads			   = worldRenderersCount + surfaceRenderersCount;
+
+		id = PROFILER_STARTBLOCK("Dispatching System Event");
 
 		// Notify
 		{
@@ -273,8 +283,14 @@ namespace Lina
 			m_system->DispatchEvent(EVS_StartFrame, ev);
 		}
 
+		PROFILER_ENDBLOCK(id);
+
+		id = PROFILER_STARTBLOCK("StartFrame");
+
 		m_lgx->StartFrame();
 		LinaVG::StartFrame(guiThreads);
+
+		PROFILER_ENDBLOCK(id);
 
 		// Update data.
 		{
@@ -292,8 +308,9 @@ namespace Lina
 
 		// World Renderers
 		{
-
 		}
+
+		id = PROFILER_STARTBLOCK("Render SF");
 
 		// Record surface renderers.
 		{
@@ -311,6 +328,10 @@ namespace Lina
 				m_system->GetMainExecutor()->RunAndWait(tf);
 			}
 		}
+
+		PROFILER_ENDBLOCK(id);
+
+		id = PROFILER_STARTBLOCK("Submit");
 
 		// Submit surface renderers.
 		{
@@ -340,7 +361,11 @@ namespace Lina
 			m_lgx->SubmitCommandStreams(desc);
 		}
 
+		PROFILER_ENDBLOCK(id);
+
 		LinaVG::EndFrame();
+
+		id = PROFILER_STARTBLOCK("Present");
 
 		// Present surface renderers.
 		{
@@ -360,7 +385,13 @@ namespace Lina
 			m_lgx->Present(desc);
 		}
 
+		PROFILER_ENDBLOCK(id);
+
+		id = PROFILER_STARTBLOCK("End Frame");
+
 		m_lgx->EndFrame();
+
+		PROFILER_ENDBLOCK(id);
 	}
 
 	void GfxManager::CreateSurfaceRenderer(StringID sid, LinaGX::Window* window, const Vector2ui& initialSize)

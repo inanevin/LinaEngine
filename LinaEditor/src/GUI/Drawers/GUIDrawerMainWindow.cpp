@@ -46,8 +46,6 @@ namespace Lina::Editor
 
 	void GUIDrawerMainWindow::DrawGUI(int threadID)
 	{
-		PROFILER_FUNCTION();
-
 		const Vector2 swapchainSize = m_window->GetSize();
 		const Vector2 monitorSize	= m_window->GetSize();
 		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_window->GetDPIScale()));

@@ -153,11 +153,21 @@ namespace Lina
 		Block block;
 		block.name		  = blockName;
 		block.startCycles = PlatformTime::GetCPUCycles();
-		uint32 id		  = 0;
+		block.open		  = true;
+
+		uint32 id = 0;
+
 		frame.threadBlocks.try_emplace_l(
 			thread,
 			[&block, &id](auto& blocks) {
 				id = static_cast<uint32>(blocks.second.size());
+
+				for (const auto& b : blocks.second)
+				{
+					if (b.open)
+						block.hasParent = true;
+				}
+
 				blocks.second.push_back(block);
 			},
 			Vector<Block>{block});
@@ -168,14 +178,17 @@ namespace Lina
 	{
 		const uint64 cycles = PlatformTime::GetCPUCycles();
 		auto&		 frame	= m_frameQueue.back();
-		frame.threadBlocks.modify_if(thread, [cycles, id](auto& blocks) { blocks.second[id].endCycles = cycles; });
+		frame.threadBlocks.modify_if(thread, [cycles, id](auto& blocks) {
+			blocks.second[id].endCycles = cycles;
+			blocks.second[id].open		= false;
+		});
 	}
 
 	Scope::Scope(const char* funcName, StringID thread)
 	{
 		blockName	= funcName;
 		blockThread = thread;
-		id = Profiler::Get().StartBlock(funcName, thread);
+		id			= Profiler::Get().StartBlock(funcName, thread);
 	}
 
 	Scope::~Scope()
@@ -213,6 +226,9 @@ namespace Lina
 					double threadduration = 0.0;
 					for (auto& b : blocks)
 					{
+						if (b.hasParent)
+							continue;
+
 						const double dur = PlatformTime::GetDeltaSeconds64(b.startCycles, b.endCycles);
 						threadduration += dur;
 					}

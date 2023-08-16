@@ -53,6 +53,8 @@ namespace Lina
 		const char* name		= "";
 		uint64		endCycles	= 0;
 		uint64		startCycles = 0;
+		bool		open		= false;
+		bool		hasParent	= false;
 	};
 
 	struct Scope
@@ -137,7 +139,7 @@ namespace Lina
 
 #define PROFILER_FRAME_START()				  Lina::Profiler::Get().StartFrame()
 #define PROFILER_STARTBLOCK(BLOCKNAME)		  Lina::Profiler::Get().StartBlock(BLOCKNAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
-#define PROFILER_ENDBLOCK(id)				  Lina::Profiler::Get().EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())), id)
+#define PROFILER_ENDBLOCK(X)				  Lina::Profiler::Get().EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())), X)
 #define PROFILER_FUNCTION(...)				  Lina::Scope function(__FUNCTION__, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE) Lina::Profiler::Get().FrameAnalysisFile = FILE
 #define PROFILER_REGISTER_THREAD(NAME)		  Lina::Profiler::Get().RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
