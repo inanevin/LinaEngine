@@ -188,6 +188,15 @@ namespace Lina
 		return m_window->GetIsVisible() && ws.x != 0 && ws.y;
 	}
 
+	void SurfaceRenderer::Present()
+	{
+		LinaGX::PresentDesc desc = {
+			.swapchains		= &m_swapchain,
+			.swapchainCount = 1,
+		};
+		m_lgx->Present(desc);
+	}
+
 	void SurfaceRenderer::Resize(const Vector2ui& newSize)
 	{
 		const LinaGX::LGXVector2ui monitorSize = m_window->GetMonitorSize();

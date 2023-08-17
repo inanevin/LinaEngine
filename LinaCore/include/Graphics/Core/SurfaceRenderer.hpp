@@ -73,6 +73,7 @@ namespace Lina
 		virtual ~SurfaceRenderer();
 
 		void		 Render(int guiThreadID, uint32 frameIndex);
+		void		 Present();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void		 SetGUIDrawer(IGUIDrawer* rend);
 		bool		 IsVisible();
