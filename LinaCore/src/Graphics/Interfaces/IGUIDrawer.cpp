@@ -50,10 +50,12 @@ namespace Lina
 		});
 
 		m_window->SetCallbackDragBegin([this]() {
+			m_window->SetInputPassthrough(true);
 			OnWindowDrag(true);
 		});
 
 		m_window->SetCallbackDragEnd([this]() {
+			m_window->SetInputPassthrough(false);
 			OnWindowDrag(false);
 		});
 	}

@@ -100,7 +100,7 @@ namespace Lina
 			.backbufferCount	   = BACK_BUFFER_COUNT,
 			.gpuLimits			   = limits,
 			.gpuFeatures		   = features,
-			.checkForFormatSupport = {LinaGX::Format::R8G8B8A8_SRGB, LinaGX::Format::R32G32B32A32_SFLOAT, LinaGX::Format::D32_SFLOAT},
+			.checkForFormatSupport = {LinaGX::Format::B8G8R8A8_SRGB, LinaGX::Format::R32G32B32A32_SFLOAT, LinaGX::Format::D32_SFLOAT},
 		};
 
 		m_lgx->Initialize(lgxInitInfo);
@@ -127,13 +127,13 @@ namespace Lina
 		delete m_lgx;
 	}
 
-	LinaGX::Window* LGXWrapper::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, bool isBorderless)
+	LinaGX::Window* LGXWrapper::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, bool isBorderless, LinaGX::Window* parentWindow)
 	{
 		if (!m_gfxManager)
 			m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		m_lgx->Join();
-		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, isBorderless ? LinaGX::WindowStyle::Borderless : LinaGX::WindowStyle::Windowed);
+		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, isBorderless ? LinaGX::WindowStyle::Borderless : LinaGX::WindowStyle::Windowed, parentWindow);
 		window->SetCallbackSizeChanged([this, sid](const LinaGX::LGXVector2ui& newSize) {
 			Event ev;
 			ev.pParams[0] = m_lgx->GetWindowManager().GetWindow(sid);

@@ -156,6 +156,7 @@ namespace Lina::Editor
 			if (m_isReorderEnabled)
 			{
 				m_rect.pos.x += m_window->GetMouseDelta().x;
+				LINA_TRACE("{0}", m_window->GetMouseDelta().x);
 				m_rect.pos.x = Math::Clamp(m_rect.pos.x, m_minRect.pos.x, m_maxRect.pos.x);
 			}
 

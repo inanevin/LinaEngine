@@ -58,7 +58,7 @@ namespace Lina
 		virtual void		   PreShutdown() override;
 		virtual void		   Shutdown() override;
 		void				   DestroyApplicationWindow(StringID sid);
-		LinaGX::Window*		   CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, bool isBorderless);
+		LinaGX::Window*		   CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, bool isBorderless, LinaGX::Window* parentWindow = nullptr);
 		LinaGX::WindowManager* GetWindowManager();
 		LinaGX::Input*		   GetInput();
 

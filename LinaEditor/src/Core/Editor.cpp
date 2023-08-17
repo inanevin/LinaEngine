@@ -73,7 +73,12 @@ namespace Lina::Editor
 		m_system->RemoveListener(this);
 
 		for (auto [sid, drawer] : m_guiDrawers)
+		{
+			if (sid != LINA_MAIN_SWAPCHAIN)
+				m_lgxWrapper->DestroyApplicationWindow(sid);
+
 			delete drawer;
+		}
 
 		m_payloadManager.Shutdown();
 	}
@@ -195,7 +200,7 @@ namespace Lina::Editor
 
 				if (req.byDetach)
 				{
-					const auto p = m_lgxWrapper->GetInput()->GetMousePositionAbs();
+					const auto p   = m_lgxWrapper->GetInput()->GetMousePositionAbs();
 					const auto pos = Vector2i(p.x, p.y) - Vector2i(15, 10);
 					window->SetPosition(pos.AsLGX2I());
 					// window->SetForceIsDragged(true);
@@ -318,8 +323,8 @@ namespace Lina::Editor
 
 	LinaGX::Window* Editor::CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2ui& size)
 	{
-		auto window = m_lgxWrapper->CreateApplicationWindow(sid, title.c_str(), pos, size, true);
-		window->SetVisible(true);
+		auto mainWindow = m_lgxWrapper->GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN);
+		auto window		= m_lgxWrapper->CreateApplicationWindow(sid, title.c_str(), pos, size, true, mainWindow);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(sid);
 		auto guiDrawer		 = new GUIDrawerChildWindow(this, window);

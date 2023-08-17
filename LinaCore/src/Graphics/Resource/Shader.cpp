@@ -133,7 +133,7 @@ namespace Lina
 
 		for (auto& [sid, variant] : m_variants)
 		{
-			LinaGX::Format format = LinaGX::Format::R8G8B8A8_SRGB;
+			LinaGX::Format format = LinaGX::Format::B8G8R8A8_SRGB;
 
 			if (variant.passType == ShaderVariantPassType::RenderTarget)
 				format = LinaGX::Format::R32G32B32A32_SFLOAT;

@@ -58,14 +58,13 @@ namespace Lina
 		bool			   isParsingVariant = false;
 		ShaderVariant	   variantData;
 
-		const String nameIdentifier			= "#lina_name";
 		const String passIdentifier			= "#lina_pass";
 		const String blendIdentifier		= "#lina_blend";
 		const String depthIdentifier		= "#lina_depth";
 		const String cullIdentifier			= "#lina_cull";
 		const String frontIdentifier		= "#lina_front";
 		const String endIdentifier			= "#lina_end";
-		const String variantBeginIdentifier = "#lina_shader_variant";
+		const String variantBeginIdentifier = "#lina_define_variant";
 
 		while (std::getline(f, line))
 		{
@@ -94,6 +93,9 @@ namespace Lina
 			{
 				isParsingVariant = true;
 				variantData		 = {};
+
+				const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
+				variantData.name = lineSqueezed.substr(variantBeginIdentifier.size() + 1, lineSqueezed.size() - variantBeginIdentifier.size() - 1).c_str();
 				continue;
 			}
 
@@ -108,15 +110,11 @@ namespace Lina
 					continue;
 				}
 
-				size_t nameBlock  = lineSqueezed.find(nameIdentifier.c_str());
 				size_t passBlock  = lineSqueezed.find(passIdentifier.c_str());
 				size_t blendBlock = lineSqueezed.find(blendIdentifier.c_str());
 				size_t depthBlock = lineSqueezed.find(depthIdentifier.c_str());
 				size_t cullBlock  = lineSqueezed.find(cullIdentifier.c_str());
 				size_t frontBlock = lineSqueezed.find(frontIdentifier.c_str());
-
-				if (nameBlock != std::string::npos)
-					variantData.name = lineSqueezed.substr(nameIdentifier.size() + 1, lineSqueezed.size() - nameIdentifier.size() - 1).c_str();
 
 				if (passBlock != std::string::npos)
 				{

@@ -137,7 +137,7 @@ namespace Lina
 		const auto windowSize  = window->GetSize();
 
 		LinaGX::SwapchainDesc swapchainDesc = LinaGX::SwapchainDesc{
-			.format		  = LinaGX::Format::R8G8B8A8_SRGB,
+			.format		  = LinaGX::Format::B8G8R8A8_SRGB,
 			.depthFormat  = LinaGX::Format::D32_SFLOAT,
 			.x			  = 0,
 			.y			  = 0,
@@ -184,7 +184,8 @@ namespace Lina
 
 	bool SurfaceRenderer::IsVisible()
 	{
-		return m_window->GetIsVisible();
+		auto ws = m_window->GetSize();
+		return m_window->GetIsVisible() && ws.x != 0 && ws.y;
 	}
 
 	void SurfaceRenderer::Resize(const Vector2ui& newSize)

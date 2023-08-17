@@ -375,7 +375,10 @@ namespace Lina
 
 			uint32 i = 0;
 			for (auto sf : validSurfaceRenderers)
+			{
 				swapchains[i] = sf->GetSwapchain();
+				i++;
+			}
 
 			LinaGX::PresentDesc desc = {
 				.swapchains		= swapchains.data(),
@@ -447,7 +450,7 @@ namespace Lina
 		}
 		else if (eventType & EVS_WindowResized)
 		{
-
+			Join();
 			for (auto sr : m_surfaceRenderers)
 			{
 				if (sr->GetWindow() == ev.pParams[0])

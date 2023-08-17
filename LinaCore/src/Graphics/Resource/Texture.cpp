@@ -66,6 +66,7 @@ namespace Lina
 		// Means we are refreshing data.
 		if (!m_allLevels.empty())
 		{
+			lgx->Join();
 			lgx->DestroyTexture2D(m_gpuHandle);
 
 			for (auto& b : m_allLevels)

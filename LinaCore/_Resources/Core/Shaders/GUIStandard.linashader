@@ -26,16 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_shader_variant
-#lina_name : default
+#lina_define_variant : default
 #lina_pass : rendertarget
 #lina_cull : none
 #lina_front : cw
 #lina_depth : disable
 #lina_end
 
-#lina_shader_variant
-#lina_name : final
+#lina_define_variant : final
 #lina_pass : swapchain
 #lina_cull : none
 #lina_front : cw
