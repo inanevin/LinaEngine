@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 
 #define DEFAULT_RATE 1.0f / 60.0f
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina
 {
@@ -132,10 +133,10 @@ namespace Lina
 		if (m_gfxManager)
 			m_gfxManager->Sync();
 
-		// if (m_input.GetKeyDown(LINA_KEY_1))
-		// {
-		// 	m_windowManager.SetVsync(VsyncMode::None);
-		// }
+		 if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_SPACE))
+		 {
+		 	m_app->Quit();
+		 }
 		//
 		// if (m_input.GetKeyDown(LINA_KEY_2))
 		// {

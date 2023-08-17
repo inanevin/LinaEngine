@@ -358,7 +358,7 @@ namespace Lina
 				.waitValues		= waitValues.data(),
 			};
 
-			m_lgx->SubmitCommandStreams(desc);
+			 m_lgx->SubmitCommandStreams(desc);
 		}
 
 		PROFILER_ENDBLOCK(id);

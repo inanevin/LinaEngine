@@ -36,7 +36,7 @@ Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& o
 		.windowWidth	  = 1920,
 		.windowHeight	  = 1080,
 		.windowStyle	  = LinaGX::WindowStyle::Windowed,
-		.preferredGPUType = LinaGX::PreferredGPUType::Discrete,
+		.preferredGPUType = LinaGX::PreferredGPUType::Integrated,
 		.vsyncMode		  = LinaGX::VsyncMode::None,
 	};
 
