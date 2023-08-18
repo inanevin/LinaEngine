@@ -145,7 +145,7 @@ include/Event/IEditorEventListener.hpp
 # Create executable project
 #--------------------------------------------------------------------
 if(WIN32)
-	add_executable(${PROJECT_NAME} WIN32 ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
+	add_executable(${PROJECT_NAME} WIN32 ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS} "${CMAKE_CURRENT_SOURCE_DIR}/_Resources/Lina.rc")
 else()
 	add_executable(${PROJECT_NAME} ${LINAEDITOR_SOURCES} ${LINAEDITOR_HEADERS})
 endif()

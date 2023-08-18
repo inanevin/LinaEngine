@@ -35,7 +35,6 @@ Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& o
 		.appName		  = "Lina Editor",
 		.windowWidth	  = 1920,
 		.windowHeight	  = 1080,
-		.windowStyle	  = LinaGX::WindowStyle::Windowed,
 		.preferredGPUType = LinaGX::PreferredGPUType::Integrated,
 		.vsyncMode		  = LinaGX::VsyncMode::None,
 	};

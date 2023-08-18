@@ -103,6 +103,7 @@ namespace Lina
 			.signalCount	  = 1,
 			.signalSemaphores = &m_copySemaphore,
 			.signalValues	  = &m_copySemaphoreValue,
+			.isMultithreaded  = true,
 		};
 
 		m_lgxWrapper->GetLGX()->SubmitCommandStreams(desc);

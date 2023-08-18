@@ -133,6 +133,7 @@ namespace Lina
 		uint8			  m_swapchain = 0;
 		Vector<uint16>	  m_waitSemaphores;
 		Vector<uint64>	  m_waitValues;
+		uint8			  m_gfxQueue = 0;
 	};
 
 } // namespace Lina

@@ -36,6 +36,11 @@ SOFTWARE.
 #include "Core/EditorCommon.hpp"
 #include "Data/HashMap.hpp"
 
+namespace LinaGX
+{
+	class Input;
+}
+
 namespace Lina::Editor
 {
 	class GUINodeDockPreview : public GUINode
@@ -71,6 +76,7 @@ namespace Lina::Editor
 		bool						  m_isActive			= false;
 		bool						  m_isOuter				= false;
 		DockSplitType				  m_currentHoveredSplit = DockSplitType::None;
+		LinaGX::Input*				  m_input				= nullptr;
 	};
 } // namespace Lina::Editor
 

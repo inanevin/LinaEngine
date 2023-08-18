@@ -76,7 +76,7 @@ namespace Lina
 			va_end(args);
 		};
 
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
+		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -90,7 +90,8 @@ namespace Lina
 		};
 
 		LinaGX::GPUFeatures features = {
-			.enableBindless = true,
+			.enableBindless			 = true,
+			.extraGraphicsQueueCount = 5,
 		};
 
 		LinaGX::InitInfo lgxInitInfo = LinaGX::InitInfo{
@@ -108,10 +109,11 @@ namespace Lina
 
 	void LGXWrapper::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		m_lgx->GetInput().SetCallbackKey([&](uint32 key, int32 scanCode, LinaGX::InputAction action) {
+		m_lgx->GetInput().SetCallbackKey([&](uint32 key, int32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
 			Event ev;
 			ev.iParams[0] = key;
 			ev.iParams[1] = static_cast<uint32>(action);
+			ev.pParams[0] = window;
 			m_system->DispatchEvent(EVS_Key, ev);
 		});
 

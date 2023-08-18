@@ -133,10 +133,10 @@ namespace Lina
 		if (m_gfxManager)
 			m_gfxManager->Sync();
 
-		 if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_SPACE))
-		 {
-		 	m_app->Quit();
-		 }
+		// if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_SPACE))
+		//{
+		//	m_app->Quit();
+		//  }
 		//
 		// if (m_input.GetKeyDown(LINA_KEY_2))
 		// {
@@ -213,7 +213,7 @@ namespace Lina
 
 			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
 		}
-		
+
 		for (auto res : allFontsRaw)
 		{
 			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))

@@ -61,7 +61,7 @@ namespace Lina::Editor
 	{
 		if (eventType & EVS_Key)
 		{
-			const uint32	  key	 = ev.iParams[0];
+			const uint32			  key	 = ev.iParams[0];
 			const LinaGX::InputAction action = static_cast<LinaGX::InputAction>(ev.iParams[1]);
 
 			if (action != LinaGX::InputAction::Pressed)
@@ -95,12 +95,12 @@ namespace Lina::Editor
 				{
 					if (e->holdKey2 != 0)
 					{
-						m_editor->OnShortcut(e->shortCut, ev.pParams[0]);
+						m_editor->OnShortcut(e->shortCut, static_cast<LinaGX::Window*>(ev.pParams[0]));
 						return;
 					}
 				}
 
-				m_editor->OnShortcut(eligibleEntries[0]->shortCut, ev.pParams[0]);
+				m_editor->OnShortcut(eligibleEntries[0]->shortCut, static_cast<LinaGX::Window*>(ev.pParams[0]));
 			}
 		}
 	}

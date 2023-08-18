@@ -54,7 +54,6 @@ namespace Lina
 		virtual void	Poll();
 		virtual void	Tick();
 		virtual void	Shutdown();
-	
 
 		inline void Quit()
 		{

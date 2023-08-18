@@ -47,9 +47,10 @@ namespace Lina::Editor
 		{
 			const float padding = Theme::GetProperty(ThemeProperty::MenuButtonPadding, m_window->GetDPIScale());
 
-			SetWidgetHeight(ThemeProperty::WidgetHeightTall);
 			if (!m_widthOverridenOutside)
 				m_rect.size.x = textSize.x + padding * 2;
+
+			m_rect.size.y = Math::Max(m_minRect.size.y, Theme::GetProperty(ThemeProperty::WidgetHeightTall, m_window->GetDPIScale()));
 		}
 
 		// Draw background rect

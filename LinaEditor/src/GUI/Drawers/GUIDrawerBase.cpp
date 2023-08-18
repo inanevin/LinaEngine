@@ -74,6 +74,20 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
+		if (action == LinaGX::InputAction::Repeated)
+		{
+			if (m_window->GetDragRect().IsPointInside(m_window->GetMousePosition()))
+			{
+				if (m_window->GetIsMaximized())
+					m_window->Restore();
+				else
+				{
+					m_window->Maximize();
+				}
+				return;
+			}
+		}
+
 		// If we are releasing button, check the currently pressed/hovered node and cancel its state.
 		if (m_hoveredNode && m_hoveredNode->m_isPressed && action == LinaGX::InputAction::Released && button == m_hoveredNode->m_lastPressedButton)
 		{

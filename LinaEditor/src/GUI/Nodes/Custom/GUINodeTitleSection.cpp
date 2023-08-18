@@ -61,6 +61,7 @@ namespace Lina::Editor
 			const float	  buttonX	 = buttonY * 16.0f / 9.0f;
 			const Vector2 buttonSize = Vector2(buttonX, buttonY);
 			m_windowButtons->SetRect(Rect(Vector2(m_rect.size.x - buttonX * 3.0f, 0.0f), Vector2(buttonX * 3.0f, buttonY)));
+			m_windowButtons->SetMinSize(Vector2(0, m_rect.size.y));
 			m_windowButtons->Draw(threadID);
 		}
 

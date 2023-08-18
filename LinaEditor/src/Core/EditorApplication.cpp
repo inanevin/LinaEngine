@@ -63,6 +63,8 @@ namespace Lina::Editor
 		auto					   window				  = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(targetSplashScreenSize.x, targetSplashScreenSize.y), true);
 		window->CenterPositionToCurrentMonitor();
 		window->SetCallbackClose([&]() { m_exitRequested = true; });
+		window->SetIcon("Lina");
+		window->SetDefaultMaxIsWorkArea(true);
 	}
 
 	void EditorApplication::OnInited()

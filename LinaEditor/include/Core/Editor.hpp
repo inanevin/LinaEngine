@@ -92,7 +92,7 @@ namespace Lina::Editor
 		void BeginSplashScreen();
 		void EndSplashScreen();
 		void Tick();
-		void OnShortcut(Shortcut sc, void* windowHandle);
+		void OnShortcut(Shortcut sc, LinaGX::Window* windowHandle);
 
 		void			OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
 		LinaGX::Window* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2ui& size);

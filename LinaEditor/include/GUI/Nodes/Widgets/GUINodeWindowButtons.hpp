@@ -49,9 +49,10 @@ namespace Lina::Editor
 		void OnButtonPressed(GUINode* button);
 
 	private:
-		GUINodeButton* m_minimize = nullptr;
-		GUINodeButton* m_maximize = nullptr;
-		GUINodeButton* m_close	  = nullptr;
+		GUINodeButton* m_minimize			= nullptr;
+		GUINodeButton* m_maximize			= nullptr;
+		GUINodeButton* m_close				= nullptr;
+		bool		   m_windowLastMaximize = false;
 	};
 } // namespace Lina::Editor
 

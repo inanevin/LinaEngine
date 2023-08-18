@@ -54,7 +54,6 @@ namespace Lina::Editor
 		m_window = m_lgxWrapper->CreateApplicationWindow(EDITOR_PAYLOAD_WINDOW_SID, "EditorPayloadWindow", Vector2i::Zero, Vector2ui(800, 600), true);
 		m_window->SetVisible(false);
 		m_window->SetAlpha(0.8f);
-		m_window->SetInputPassthrough(true);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(EDITOR_PAYLOAD_WINDOW_SID);
 		m_guiDrawer			 = new GUIDrawerPayload(m_editor, surfaceRenderer->GetWindow());

@@ -136,7 +136,15 @@ namespace Lina
 		const auto monitorSize = window->GetMonitorSize();
 		const auto windowSize  = window->GetSize();
 
+		LinaGX::QueueDesc queueDesc = {
+			.type	   = LinaGX::QueueType::Graphics,
+			.debugName = "Surface Renderer GFX Queue",
+		};
+
+		m_gfxQueue = m_lgx->GetPrimaryQueue(LinaGX::QueueType::Graphics);
+
 		LinaGX::SwapchainDesc swapchainDesc = LinaGX::SwapchainDesc{
+			.queue		  = m_gfxQueue,
 			.format		  = LinaGX::Format::B8G8R8A8_SRGB,
 			.depthFormat  = LinaGX::Format::D32_SFLOAT,
 			.x			  = 0,
@@ -244,7 +252,7 @@ namespace Lina
 			rp->isSwapchain				   = true;
 			rp->swapchain				   = m_swapchain;
 			rp->clearColor[0]			   = 0.2f;
-			rp->clearColor[1]			   = 0.5f;
+			rp->clearColor[1]			   = 0.2f;
 			rp->clearColor[2]			   = 0.2f;
 			rp->clearColor[3]			   = 1.0f;
 			rp->viewport				   = viewport;
@@ -254,7 +262,7 @@ namespace Lina
 		// TODO: Draw full-screen quad texture if set.
 
 		// Draw GUI if set.
-		if (m_guiDrawer != nullptr )
+		if (m_guiDrawer != nullptr)
 		{
 			GUIBackend::GUIRenderData guiRenderData = {
 				.size				= m_size,
@@ -309,13 +317,14 @@ namespace Lina
 			m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
 
 			// LinaGX::SubmitDesc desc = {
-			// 	.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::QueueType::Graphics),
-			// 	.streams		= &currentFrame.gfxStream,
-			// 	.streamCount	= 1,
-			// 	.useWait		= !m_waitSemaphores.empty(),
-			// 	.waitCount		= static_cast<uint32>(m_waitSemaphores.size()),
-			// 	.waitSemaphores = m_waitSemaphores.data(),
-			// 	.waitValues		= m_waitValues.data(),
+			// 	.targetQueue	 = m_gfxQueue,
+			// 	.streams		 = &currentFrame.gfxStream,
+			// 	.streamCount	 = 1,
+			// 	.useWait		 = !m_waitSemaphores.empty(),
+			// 	.waitCount		 = static_cast<uint32>(m_waitSemaphores.size()),
+			// 	.waitSemaphores	 = m_waitSemaphores.data(),
+			// 	.waitValues		 = m_waitValues.data(),
+			// 	.isMultithreaded = true,
 			// };
 			// 
 			// m_lgx->SubmitCommandStreams(desc);

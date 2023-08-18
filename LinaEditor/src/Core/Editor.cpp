@@ -201,9 +201,9 @@ namespace Lina::Editor
 				if (req.byDetach)
 				{
 					const auto p   = m_lgxWrapper->GetInput()->GetMousePositionAbs();
-					const auto pos = Vector2i(p.x, p.y) - Vector2i(15, 10);
+					const auto pos = Vector2i(p.x, p.y);
 					window->SetPosition(pos.AsLGX2I());
-					// window->SetForceIsDragged(true);
+					window->SetForceIsDragged(true, {15, 10});
 				}
 				else
 					window->CenterPositionToCurrentMonitor();
@@ -245,7 +245,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void Editor::OnShortcut(Shortcut sc, void* windowHandle)
+	void Editor::OnShortcut(Shortcut sc, LinaGX::Window* windowHandle)
 	{
 		if (m_payloadManager.GetCurrentPayloadMeta().type != PayloadType::EPL_None)
 			return;
@@ -325,6 +325,8 @@ namespace Lina::Editor
 	{
 		auto mainWindow = m_lgxWrapper->GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN);
 		auto window		= m_lgxWrapper->CreateApplicationWindow(sid, title.c_str(), pos, size, true, mainWindow);
+		window->SetIcon("Lina");
+		window->SetDefaultMaxIsWorkArea(true);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(sid);
 		auto guiDrawer		 = new GUIDrawerChildWindow(this, window);

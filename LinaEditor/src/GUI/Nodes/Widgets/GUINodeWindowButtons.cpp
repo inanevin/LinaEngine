@@ -35,9 +35,10 @@ namespace Lina::Editor
 {
 	GUINodeWindowButtons::GUINodeWindowButtons(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
-		m_minimize = (new GUINodeButton(drawer, m_drawOrder));
-		m_maximize = (new GUINodeButton(drawer, m_drawOrder));
-		m_close	   = (new GUINodeButton(drawer, m_drawOrder));
+		m_windowLastMaximize = m_window->GetIsMaximized();
+		m_minimize			 = (new GUINodeButton(drawer, m_drawOrder));
+		m_maximize			 = (new GUINodeButton(drawer, m_drawOrder));
+		m_close				 = (new GUINodeButton(drawer, m_drawOrder));
 		m_minimize->SetDefaultColor(Theme::TC_Dark0);
 		m_minimize->SetHoveredColor(Theme::TC_Light1);
 		m_minimize->SetPressedColor(Theme::TC_Dark3);
@@ -48,7 +49,7 @@ namespace Lina::Editor
 		m_maximize->SetHoveredColor(Theme::TC_Light1);
 		m_maximize->SetPressedColor(Theme::TC_Dark3);
 		m_maximize->SetIsIcon(true);
-		m_maximize->SetTitle(m_window->GetIsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
+		m_maximize->SetTitle(m_windowLastMaximize ? TI_RESTORE : TI_MAXIMIZE);
 		m_maximize->SetOverrideWidth(true);
 		m_close->SetDefaultColor(Theme::TC_Dark0);
 		m_close->SetHoveredColor(Theme::TC_RedAccent);
@@ -69,16 +70,26 @@ namespace Lina::Editor
 		if (!GetIsVisible())
 			return;
 
-		m_maximize->SetTitle(m_window->GetIsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
-
 		// Clamp
 		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minRect.pos.x);
+
+		if (m_window->GetIsMaximized() && !m_windowLastMaximize)
+		{
+			m_windowLastMaximize = true;
+			m_maximize->SetTitle(TI_RESTORE);
+		}
+		else if (!m_window->GetIsMaximized() && m_windowLastMaximize)
+		{
+			m_windowLastMaximize = false;
+			m_maximize->SetTitle(TI_MAXIMIZE);
+		}
 
 		auto&	buttons	  = GetChildren();
 		Vector2 buttonPos = m_rect.pos;
 		for (auto c : buttons)
 		{
 			c->SetRect(Rect(buttonPos, Vector2(m_rect.size.x / 3.0f, m_rect.size.y)));
+			c->SetMinSize(Vector2(0, m_minRect.size.y));
 			c->Draw(threadID);
 			buttonPos.x += m_rect.size.x / 3.0f;
 		}
@@ -96,8 +107,6 @@ namespace Lina::Editor
 				m_window->Restore();
 			else
 				m_window->Maximize();
-
-			m_maximize->SetTitle(m_window->GetIsMaximized() ? TI_RESTORE : TI_MAXIMIZE);
 		}
 		else if (button == m_close)
 		{

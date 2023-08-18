@@ -32,7 +32,7 @@ namespace Lina
 {
 	IGUIDrawer::IGUIDrawer(LinaGX::Window* window) : m_window(window)
 	{
-		m_window->SetCallbackKey([this](uint32 key, int32 scanCode, LinaGX::InputAction act) { OnKey(key, act); });
+		m_window->SetCallbackKey([this](uint32 key, int32 scanCode, LinaGX::InputAction act, LinaGX::Window* window) { OnKey(key, act); });
 
 		m_window->SetCallbackMouse([this](uint32 b, LinaGX::InputAction act) { OnMouse(b, act); });
 
@@ -45,18 +45,10 @@ namespace Lina
 
 		m_window->SetCallbackFocus([this](bool focus) { OnFocus(focus); });
 
-		m_window->SetCallbackHoverEnd([this]() {
-			OnMouseHoverEnd();
-		});
+		m_window->SetCallbackHoverEnd([this]() { OnMouseHoverEnd(); });
 
-		m_window->SetCallbackDragBegin([this]() {
-			m_window->SetInputPassthrough(true);
-			OnWindowDrag(true);
-		});
+		m_window->SetCallbackDragBegin([this]() { OnWindowDrag(true); });
 
-		m_window->SetCallbackDragEnd([this]() {
-			m_window->SetInputPassthrough(false);
-			OnWindowDrag(false);
-		});
+		m_window->SetCallbackDragEnd([this]() { OnWindowDrag(false); });
 	}
 } // namespace Lina

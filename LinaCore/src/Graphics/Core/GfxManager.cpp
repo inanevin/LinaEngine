@@ -99,7 +99,7 @@ namespace Lina
 			defaultGUISampler->m_samplerDesc = samplerData;
 
 			samplerData.minFilter				 = LinaGX::Filter::Nearest;
-			samplerData.magFilter				 = LinaGX::Filter::Anisotropic;
+			samplerData.magFilter				 = LinaGX::Filter::Nearest;
 			samplerData.mipLodBias				 = 0.0f;
 			defaultGUITextSampler->m_samplerDesc = samplerData;
 
@@ -315,7 +315,10 @@ namespace Lina
 		// Record surface renderers.
 		{
 			if (surfaceRenderersCount == 1)
-				validSurfaceRenderers[0]->Render(worldRenderersCount, currentFrameIndex);
+			{
+				auto sf = validSurfaceRenderers[0];
+				sf->Render(worldRenderersCount, currentFrameIndex);
+			}
 			else
 			{
 				Taskflow tf;
@@ -358,7 +361,7 @@ namespace Lina
 				.waitValues		= waitValues.data(),
 			};
 
-			 m_lgx->SubmitCommandStreams(desc);
+			m_lgx->SubmitCommandStreams(desc);
 		}
 
 		PROFILER_ENDBLOCK(id);

@@ -35,12 +35,14 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 
 namespace Lina::Editor
 {
 	GUINodeDockPreview::GUINodeDockPreview(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder)
 	{
-		
+		auto lgx = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		m_input	 = lgx->GetInput();
 	}
 
 	void GUINodeDockPreview::Draw(int threadID)
@@ -51,7 +53,9 @@ namespace Lina::Editor
 		if (!GetIsVisible())
 			return;
 
-		auto mousePos = m_window->GetMousePosition();
+		auto mousePosAbs = m_input->GetMousePositionAbs();
+		auto windowPos	 = m_window->GetPosition();
+		auto mousePos	 = Vector2i(mousePosAbs.x - windowPos.x, mousePosAbs.y - windowPos.y);
 
 		if (!m_rect.IsPointInside(mousePos))
 			return;
