@@ -36,6 +36,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	class GUINodeTitleSection;
+	class GUINodeTabArea;
 
 	class GUIDrawerPayload : public GUIDrawerBase
 	{
@@ -43,6 +44,9 @@ namespace Lina::Editor
 		GUIDrawerPayload(Editor* editor, LinaGX::Window* window);
 		virtual ~GUIDrawerPayload(){};
 		virtual void DrawGUI(int threadID) override;
+
+	private:
+		GUINodeTabArea* m_tabArea = nullptr;
 	};
 } // namespace Lina::Editor
 

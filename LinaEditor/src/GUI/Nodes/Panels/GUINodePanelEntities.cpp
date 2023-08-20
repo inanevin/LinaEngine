@@ -402,7 +402,7 @@ namespace Lina::Editor
 	{
 		const float padding = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		m_editor->GetPayloadManager().CreatePayload(
-			PayloadType::EPL_Entity, selection->GetStoreSize("TitleSize"_hs, selection->GetTitle()) + Vector2(padding * 2, padding), Vector2ui(static_cast<uint32>(delta.x), static_cast<uint32>(delta.y)), m_nodeToEntityMap[selection]);
+			PayloadType::EPL_Entity, selection->GetStoreSize("TitleSize"_hs, selection->GetTitle()) + Vector2(padding * 2, padding), Vector2i(static_cast<int32>(delta.x), static_cast<int32>(delta.y)), m_nodeToEntityMap[selection]);
 	}
 
 	void GUINodePanelEntities::OnSelectionPayloadAccepted(GUINode* selection, void* userData)

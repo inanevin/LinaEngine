@@ -59,6 +59,11 @@ namespace Lina
 	{
 		m_lgx = new LinaGX::Instance();
 
+
+		LinaGX::Config.dx12Config = {
+			.allowTearing = initInfo.allowTearing,
+		};
+
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = [](const char* err, ...) {
 			va_list args;
@@ -76,7 +81,7 @@ namespace Lina
 			va_end(args);
 		};
 
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -129,13 +134,13 @@ namespace Lina
 		delete m_lgx;
 	}
 
-	LinaGX::Window* LGXWrapper::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, bool isBorderless, LinaGX::Window* parentWindow)
+	LinaGX::Window* LGXWrapper::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
 	{
 		if (!m_gfxManager)
 			m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		m_lgx->Join();
-		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, isBorderless ? LinaGX::WindowStyle::Borderless : LinaGX::WindowStyle::Windowed, parentWindow);
+		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
 		window->SetCallbackSizeChanged([this, sid](const LinaGX::LGXVector2ui& newSize) {
 			Event ev;
 			ev.pParams[0] = m_lgx->GetWindowManager().GetWindow(sid);

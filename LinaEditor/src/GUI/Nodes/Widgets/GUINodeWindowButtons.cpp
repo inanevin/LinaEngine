@@ -72,17 +72,17 @@ namespace Lina::Editor
 
 		// Clamp
 		m_rect.pos.x = Math::Max(m_rect.pos.x, m_minRect.pos.x);
-
-		if (m_window->GetIsMaximized() && !m_windowLastMaximize)
-		{
-			m_windowLastMaximize = true;
-			m_maximize->SetTitle(TI_RESTORE);
-		}
-		else if (!m_window->GetIsMaximized() && m_windowLastMaximize)
-		{
-			m_windowLastMaximize = false;
-			m_maximize->SetTitle(TI_MAXIMIZE);
-		}
+		//
+		// if (m_window->GetIsMaximized() && !m_windowLastMaximize)
+		//{
+		//	m_windowLastMaximize = true;
+		//	m_maximize->SetTitle(TI_RESTORE);
+		//}
+		// else if (!m_window->GetIsMaximized() && m_windowLastMaximize)
+		//{
+		//	m_windowLastMaximize = false;
+		//	m_maximize->SetTitle(TI_MAXIMIZE);
+		//}
 
 		auto&	buttons	  = GetChildren();
 		Vector2 buttonPos = m_rect.pos;
@@ -104,9 +104,15 @@ namespace Lina::Editor
 		else if (button == m_maximize)
 		{
 			if (m_window->GetIsMaximized())
+			{
 				m_window->Restore();
+				m_maximize->SetTitle(TI_MAXIMIZE);
+			}
 			else
+			{
 				m_window->Maximize();
+				m_maximize->SetTitle(TI_RESTORE);
+			}
 		}
 		else if (button == m_close)
 		{

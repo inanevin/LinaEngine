@@ -64,7 +64,7 @@ namespace Lina::Editor
 		void Initialize();
 		void Tick();
 		void Shutdown();
-		void CreatePayload(PayloadType type, const Vector2ui& windowSize, const Vector2ui& delta, void* userData);
+		void CreatePayload(PayloadType type, const Vector2ui& windowSize, const Vector2i& delta, void* userData);
 
 		inline const PayloadMeta& GetCurrentPayloadMeta() const
 		{

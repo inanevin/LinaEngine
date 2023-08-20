@@ -73,7 +73,8 @@ namespace Lina::Editor
 			StringID	  windowSid = 0;
 			String		  title		= "";
 			GUINodePanel* panel		= nullptr;
-			bool		  byDetach	= false;
+			Vector2i	  position	= Vector2i::Zero;
+			Vector2ui	  size		= Vector2ui::Zero;
 		};
 
 		struct DeleteWindowRequest
@@ -91,13 +92,13 @@ namespace Lina::Editor
 		void PackageResources(const Vector<ResourceIdentifier>& identifiers);
 		void BeginSplashScreen();
 		void EndSplashScreen();
+		void PreTick();
 		void Tick();
 		void OnShortcut(Shortcut sc, LinaGX::Window* windowHandle);
 
-		void			OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach = false, GUINodePanel* srcPanel = nullptr);
+		void			OpenPanel(EditorPanel panel, const String& title, StringID sid, GUINodePanel* srcPanel = nullptr, const Vector2i& pos = Vector2i::Zero, const Vector2ui& size = Vector2ui::Zero);
 		LinaGX::Window* CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2ui& size);
 		void			CloseWindow(StringID sid);
-		void			OnWindowDrag(GUIDrawerBase* owner, bool isDragging);
 		void			CloseAllChildWindows();
 		void			CreateNewLevel(const char* path);
 		void			LoadLevel(const char* path);
@@ -105,6 +106,7 @@ namespace Lina::Editor
 		void			SaveCurrentLevelAs(const char* path);
 		void			UninstallCurrentLevel();
 		virtual void	OnSystemEvent(SystemEvent eventType, const Event& ev);
+		bool			CheckForDockPreviewPayloads(GUIDrawerBase* owner, GUINodePanel* panel);
 
 		virtual Bitmask32 GetSystemEventMask()
 		{
@@ -152,7 +154,6 @@ namespace Lina::Editor
 		Vector<TextureSheetItem>		  m_editorImages;
 		HashMap<StringID, GUIDrawerBase*> m_guiDrawers;
 		EditorLayoutManager				  m_layoutManager;
-		LinaGX::Window*					  m_draggedWindow = nullptr;
 	};
 } // namespace Lina::Editor
 

@@ -45,9 +45,11 @@ namespace Lina
 {
 	int SurfaceRenderer::s_surfaceRendererCount = 0;
 
-#define MAX_GUI_VERTICES  5000
-#define MAX_GUI_INDICES	  5000
-#define MAX_GUI_MATERIALS 100
+#define MAX_GUI_VERTICES	  5000
+#define MAX_GUI_INDICES		  5000
+#define MAX_GUI_MATERIALS	  100
+#define MAX_GFX_COMMANDS	  250
+#define MAX_TRANSFER_COMMANDS 150
 
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
 	{
@@ -58,8 +60,8 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
-			data.gfxStream	   = m_lgx->CreateCommandStream(100, LinaGX::QueueType::Graphics);
-			data.guiCopyStream = m_lgx->CreateCommandStream(100, LinaGX::QueueType::Transfer);
+			data.gfxStream	   = m_lgx->CreateCommandStream(MAX_GFX_COMMANDS, LinaGX::QueueType::Graphics);
+			data.guiCopyStream = m_lgx->CreateCommandStream(MAX_TRANSFER_COMMANDS, LinaGX::QueueType::Transfer);
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Index Buffer");
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GUIBackend::GPUGUIMaterialData));
@@ -193,7 +195,7 @@ namespace Lina
 	bool SurfaceRenderer::IsVisible()
 	{
 		auto ws = m_window->GetSize();
-		return m_window->GetIsVisible() && ws.x != 0 && ws.y;
+		return m_window->GetIsVisible() && ws.x != 0 && ws.y && !m_window->GetIsMinimized();
 	}
 
 	void SurfaceRenderer::Present()
@@ -251,7 +253,7 @@ namespace Lina
 			rp->extension				   = nullptr;
 			rp->isSwapchain				   = true;
 			rp->swapchain				   = m_swapchain;
-			rp->clearColor[0]			   = 0.2f;
+			rp->clearColor[0]			   = 0.9f;
 			rp->clearColor[1]			   = 0.2f;
 			rp->clearColor[2]			   = 0.2f;
 			rp->clearColor[3]			   = 1.0f;
@@ -326,7 +328,7 @@ namespace Lina
 			// 	.waitValues		 = m_waitValues.data(),
 			// 	.isMultithreaded = true,
 			// };
-			// 
+			//
 			// m_lgx->SubmitCommandStreams(desc);
 		}
 	}

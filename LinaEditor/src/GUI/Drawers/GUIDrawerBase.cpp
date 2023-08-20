@@ -58,7 +58,6 @@ namespace Lina::Editor
 
 		m_dockPreview = new GUINodeDockPreview(this, FRONT_DRAW_ORDER);
 		m_dockPreview->SetIsOuterPreview(true);
-		m_dockPreview->SetVisible(false);
 		m_root->AddChildren(m_dockPreview);
 	}
 
@@ -74,20 +73,6 @@ namespace Lina::Editor
 
 	void GUIDrawerBase::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
-		if (action == LinaGX::InputAction::Repeated)
-		{
-			if (m_window->GetDragRect().IsPointInside(m_window->GetMousePosition()))
-			{
-				if (m_window->GetIsMaximized())
-					m_window->Restore();
-				else
-				{
-					m_window->Maximize();
-				}
-				return;
-			}
-		}
-
 		// If we are releasing button, check the currently pressed/hovered node and cancel its state.
 		if (m_hoveredNode && m_hoveredNode->m_isPressed && action == LinaGX::InputAction::Released && button == m_hoveredNode->m_lastPressedButton)
 		{
@@ -158,21 +143,16 @@ namespace Lina::Editor
 		m_root->MouseOutOfWindow();
 	}
 
-	void GUIDrawerBase::OnWindowDrag(bool isDragging)
-	{
-		m_editor->OnWindowDrag(this, isDragging);
-	}
-
 	void GUIDrawerBase::OnPayloadCreated(PayloadType type, void* userData)
 	{
 		m_root->OnPayloadCreated(type, userData);
 	}
 
-	void GUIDrawerBase::OnPayloadEnded(PayloadType type)
+	void GUIDrawerBase::OnPayloadEnded(PayloadType type, bool consumed)
 	{
 		m_root->OnPayloadEnded(type);
 
-		if (m_hoveredNode && m_hoveredNode->GetPayloadMask().IsSet(type))
+		if (!consumed && m_hoveredNode && m_hoveredNode->GetPayloadMask().IsSet(type))
 			m_hoveredNode->OnPayloadAccepted();
 
 		ClearHovered();
@@ -185,25 +165,6 @@ namespace Lina::Editor
 			m_hoveredNode		 = nullptr;
 			m_mouseDisablingNode = nullptr;
 		}
-	}
-
-	void GUIDrawerBase::SetDockPreviewEnabled(bool enabled)
-	{
-		if (enabled)
-		{
-			const Vector2ui& targetSize			= m_window->GetSize();
-			const bool		 sizeSuitableToDock = targetSize.x > 400 && targetSize.y > 400;
-			if (sizeSuitableToDock)
-				m_dockPreview->SetVisible(true);
-		}
-		else
-		{
-			m_dockPreview->Reset();
-			m_dockPreview->SetVisible(false);
-		}
-
-		for (auto n : m_dockAreas)
-			n->SetDockPreviewEnabled(enabled);
 	}
 
 	GUINodeDockArea* GUIDrawerBase::SplitDockArea(GUINodeDockArea* area, DockSplitType type, const Vector<GUINodePanel*>& panels, float customSplit)

@@ -46,9 +46,5 @@ namespace Lina
 		m_window->SetCallbackFocus([this](bool focus) { OnFocus(focus); });
 
 		m_window->SetCallbackHoverEnd([this]() { OnMouseHoverEnd(); });
-
-		m_window->SetCallbackDragBegin([this]() { OnWindowDrag(true); });
-
-		m_window->SetCallbackDragEnd([this]() { OnWindowDrag(false); });
 	}
 } // namespace Lina

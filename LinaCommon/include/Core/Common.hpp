@@ -49,9 +49,10 @@ namespace Lina
 		const char*				 appName		  = "";
 		int						 windowWidth	  = 0;
 		int						 windowHeight	  = 0;
-		LinaGX::WindowStyle		 windowStyle	  = LinaGX::WindowStyle::Windowed;
+		LinaGX::WindowStyle		 windowStyle	  = LinaGX::WindowStyle::WindowedApplication;
 		LinaGX::PreferredGPUType preferredGPUType = LinaGX::PreferredGPUType::Discrete;
 		LinaGX::VsyncMode		 vsyncMode		  = LinaGX::VsyncMode::None;
+		bool					 allowTearing	  = false;
 	};
 
 	extern const char* VsyncModeToStr(LinaGX::VsyncMode mode);

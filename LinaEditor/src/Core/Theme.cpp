@@ -143,6 +143,8 @@ namespace Lina::Editor
 			return 23.0f * multiplier;
 		case ThemeProperty::DockDividerThickness:
 			return 1.5f * multiplier;
+		case ThemeProperty::TabHeight:
+			return 24 * multiplier;
 		default:
 			return 1.0f;
 		}

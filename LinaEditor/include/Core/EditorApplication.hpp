@@ -42,6 +42,7 @@ namespace Lina::Editor
 		EditorApplication() : m_editor(&m_engine){};
 		virtual ~EditorApplication() = default;
 
+		virtual void PreTick() override;
 		virtual void Tick() override;
 		virtual void Shutdown() override;
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev);

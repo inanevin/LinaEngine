@@ -48,7 +48,6 @@ namespace Lina::Editor
 		GUIDrawerChildWindow(Editor* editor, LinaGX::Window* window);
 		virtual ~GUIDrawerChildWindow(){};
 		virtual void DrawGUI(int threadID) override;
-		virtual void OnDockAreasModified() override;
 
 	private:
 		GUINodeTitleSection* m_titleSection = nullptr;

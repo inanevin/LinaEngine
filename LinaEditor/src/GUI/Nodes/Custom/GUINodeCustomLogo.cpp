@@ -35,6 +35,7 @@ SOFTWARE.
 #include "System/ISystem.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Platform/LinaVGIncl.hpp"
+#include "Graphics/Core/LGXWrapper.hpp"
 
 namespace Lina::Editor
 {
@@ -42,6 +43,8 @@ namespace Lina::Editor
 	{
 		m_sheetItems = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetResource<Texture>("Resources/Editor/Textures/TitleTextAnimation.png"_hs)->GetSheetItems(2, 14);
 		m_tooltip	 = new GUINodeTooltip(drawer);
+		auto lgx	 = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
+		m_input		 = lgx->GetInput();
 
 		String tooltipText = "Lina Engine v" + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " Build: " + TO_STRING(LINA_BUILD);
 		m_tooltip->SetTitle(tooltipText.c_str());
@@ -55,12 +58,6 @@ namespace Lina::Editor
 
 		GUINode::Draw(threadID);
 
-		// Tooltip
-		{
-			m_tooltip->SetPos(m_window->GetMousePosition() + Vector2i(10, 10));
-			m_tooltip->SetVisible(m_isHovered);
-		}
-
 		// Setup
 		const float	   padding			= Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
 		const float	   stretchedPadding = padding * 8.0f;
@@ -70,6 +67,17 @@ namespace Lina::Editor
 		center							= center.Max(m_minRect.pos + Vector2(itemSize.x * 0.5f + padding * 8, 0.0f));
 		m_rect.pos						= Vector2(center.x - itemSize.x * 0.5f - stretchedPadding, center.y - itemSize.y * 0.5f);
 		m_rect.size						= itemSize + Vector2i(static_cast<int>(stretchedPadding * 2.0f), 0);
+
+		const Vector2i absMP   = m_input->GetMousePositionAbs();
+		const Vector2i wp	   = m_window->GetPosition();
+		const Vector2  localMP = Vector2(absMP.x < wp.x ? 0 : absMP.x - wp.x, absMP.y < wp.y ? 0 : absMP.y - wp.y);
+		const bool	   hovered = m_rect.IsPointInside(localMP);
+
+		// Tooltip
+		{
+			m_tooltip->SetPos(localMP + Vector2(10, 10));
+			m_tooltip->SetVisible(hovered);
+		}
 
 		// Background convex shape
 		{
@@ -101,7 +109,7 @@ namespace Lina::Editor
 								  LinaVG::Vec2(item.uvBR.x, item.uvBR.y));
 			};
 
-			if (!m_isHovered)
+			if (!hovered)
 				draw(m_sheetItems[0]);
 			else
 			{

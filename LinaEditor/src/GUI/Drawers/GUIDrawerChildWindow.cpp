@@ -50,6 +50,7 @@ namespace Lina::Editor
 		m_titleSection = new GUINodeTitleSection(this, 0);
 		m_lgxWrapper   = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		m_root->AddChildren(m_titleSection);
+		m_window->SetTitle("Lina");
 	}
 
 	void GUIDrawerChildWindow::DrawGUI(int threadID)
@@ -77,16 +78,4 @@ namespace Lina::Editor
 		GUIDrawerBase::DrawDockAreas(threadID, availableDockRect);
 	}
 
-	void GUIDrawerChildWindow::OnDockAreasModified()
-	{
-		if (m_dockAreas.size() == 1 && m_dockAreas[0]->GetPanels().size() == 1)
-		{
-			auto* panel = m_dockAreas[0]->GetPanels()[0];
-			m_window->SetTitle(panel->GetTitle().c_str());
-		}
-		else
-		{
-			m_window->SetTitle("Lina");
-		}
-	}
 } // namespace Lina::Editor

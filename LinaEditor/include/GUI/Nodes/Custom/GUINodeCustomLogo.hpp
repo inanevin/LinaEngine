@@ -34,6 +34,10 @@ SOFTWARE.
 #include "GUI/Nodes/GUINode.hpp"
 #include "Graphics/Resource/Texture.hpp"
 
+namespace LinaGX
+{
+	class Input;
+}
 namespace Lina::Editor
 {
 	class GUINodeTooltip;
@@ -49,6 +53,7 @@ namespace Lina::Editor
 	private:
 		Vector<TextureSheetItem> m_sheetItems;
 		GUINodeTooltip*			 m_tooltip = nullptr;
+		LinaGX::Input*			 m_input   = nullptr;
 	};
 } // namespace Lina::Editor
 

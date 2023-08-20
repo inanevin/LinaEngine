@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Math/Math.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
+#include "GUI/Drawers/GUIDrawerBase.hpp"
 
 namespace Lina::Editor
 {
@@ -43,23 +44,29 @@ namespace Lina::Editor
 	{
 		auto lgx = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		m_input	 = lgx->GetInput();
+		m_payloadMask.Set(EPL_Panel);
+
+		// Prevent from being hovered
+		SetVisible(false);
 	}
 
 	void GUINodeDockPreview::Draw(int threadID)
 	{
-		m_isActive			  = false;
-		m_currentHoveredSplit = DockSplitType::None;
-
-		if (!GetIsVisible())
-			return;
-
 		auto mousePosAbs = m_input->GetMousePositionAbs();
 		auto windowPos	 = m_window->GetPosition();
 		auto mousePos	 = Vector2i(mousePosAbs.x - windowPos.x, mousePosAbs.y - windowPos.y);
 
-		if (!m_rect.IsPointInside(mousePos))
-			return;
+		const bool isOK = m_payloadAvailable && m_rect.IsPointInside(mousePos);
 
+		if (!isOK)
+		{
+			m_isActive			  = false;
+			m_currentHoveredSplit = DockSplitType::None;
+			SetVisible(false);
+			return;
+		}
+
+		SetVisible(true);
 		m_isActive = true;
 
 		const Vector2 panelCenter = Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f);
@@ -148,4 +155,5 @@ namespace Lina::Editor
 		if (!m_isOuter)
 			drawDockArea(EDITOR_IMAGE_DOCK_CENTER, DockSplitType::Tab, Vector2(0.0f, 0.0f));
 	}
+
 } // namespace Lina::Editor

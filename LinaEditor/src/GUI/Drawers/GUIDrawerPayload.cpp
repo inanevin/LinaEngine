@@ -36,12 +36,16 @@ SOFTWARE.
 #include "Core/Theme.hpp"
 #include "Core/Editor.hpp"
 #include "World/Core/Entity.hpp"
+#include "GUI/Nodes/Panels/GUINodePanel.hpp"
+#include "GUI/Nodes/Widgets/GUINodeTabArea.hpp"
 
 namespace Lina::Editor
 {
 	GUIDrawerPayload::GUIDrawerPayload(Editor* editor, LinaGX::Window* window) : GUIDrawerBase(editor, window)
 	{
-		m_editor = editor;
+		m_editor  = editor;
+		m_tabArea = new GUINodeTabArea(this, 0);
+		m_root->AddChildren(m_tabArea);
 	}
 
 	void GUIDrawerPayload::DrawGUI(int threadID)
@@ -55,12 +59,30 @@ namespace Lina::Editor
 		GUIUtility::DrawPopupBackground(threadID, rect, 1.0f, 0);
 
 		const auto& meta = m_editor->GetPayloadManager().GetCurrentPayloadMeta();
-		if (meta.type == PayloadType::EPL_Entity)
+		if (meta.type & PayloadType::EPL_Entity)
 		{
 			LinaVG::TextOptions opts;
-			opts.font	   = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
+			opts.font = Theme::GetFont(FontType::DefaultEditor, m_window->GetDPIScale());
 			GUIUtility::DrawTextCentered(threadID, static_cast<Entity*>(meta.data)->GetName().c_str(), rect, opts, 0);
 		}
+		else if (meta.type & PayloadType::EPL_Panel)
+		{
+			GUINodePanel* panel = static_cast<GUINodePanel*>(meta.data);
+
+			const float tabAreaHeight = Theme::GetProperty(ThemeProperty::TabHeight, m_window->GetDPIScale());
+
+			if (m_tabArea->GetIsEmpty())
+			{
+				panel->SetDrawer(this);
+				m_tabArea->AddTab(panel->GetTitle(), panel->GetSID());
+			}
+
+			m_tabArea->SetRect(Rect(Vector2::Zero, Vector2(swpSize.x, tabAreaHeight)));
+			m_tabArea->Draw(threadID);
+			panel->SetRect(Rect(Vector2(0, tabAreaHeight), Vector2(swpSize.x, swpSize.y - tabAreaHeight)));
+			panel->Draw(threadID);
+		}
+	
 
 		LinaVG::StyleOptions opts;
 		const float			 thickness = m_window->GetDPIScale();

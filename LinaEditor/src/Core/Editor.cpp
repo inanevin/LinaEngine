@@ -165,10 +165,8 @@ namespace Lina::Editor
 		m_layoutManager.LoadSavedLayout();
 	}
 
-	void Editor::Tick()
+	void Editor::PreTick()
 	{
-		m_payloadManager.Tick();
-
 		// Window create & destroy requests.
 		{
 			if (!m_createWindowRequests.empty() || !m_deleteWindowRequests.empty())
@@ -183,9 +181,24 @@ namespace Lina::Editor
 				m_guiDrawers.erase(it);
 			}
 
-			for (auto& req : m_createWindowRequests)
+			for (const auto& req : m_createWindowRequests)
 			{
-				auto window	   = CreateChildWindow(req.windowSid, req.title, Vector2i::Zero, Vector2ui(500, 500));
+				const auto& mi = m_lgxWrapper->GetWindowManager()->GetPrimaryMonitorInfo();
+
+				Vector2ui windowSize	 = Vector2ui::Zero;
+				Vector2i  windowPosition = Vector2i::Zero;
+
+				if (req.size.x == 0 || req.size.y == 0)
+					windowSize = Vector2ui(mi.workArea.x / 2, mi.workArea.y / 2);
+				else
+					windowSize = req.size;
+
+				if (req.position.x == 0 && req.position.y == 0)
+					windowPosition = Vector2i(mi.workTopLeft.x + mi.workArea.x / 2 - windowSize.x / 2, mi.workTopLeft.y + mi.workArea.y / 2 - windowSize.y / 2);
+				else
+					windowPosition = req.position;
+
+				auto window	   = CreateChildWindow(req.windowSid, req.title, windowPosition, windowSize);
 				auto guiDrawer = m_guiDrawers.at(req.windowSid);
 
 				auto targetDockArea = guiDrawer->GetFirstDockArea();
@@ -197,52 +210,16 @@ namespace Lina::Editor
 					auto createdPanel = GUIPanelFactory::CreatePanel(req.panelType, targetDockArea, req.title, req.panelSid);
 					targetDockArea->AddPanel(static_cast<GUINodePanel*>(createdPanel));
 				}
-
-				if (req.byDetach)
-				{
-					const auto p   = m_lgxWrapper->GetInput()->GetMousePositionAbs();
-					const auto pos = Vector2i(p.x, p.y);
-					window->SetPosition(pos.AsLGX2I());
-					window->SetForceIsDragged(true, {15, 10});
-				}
-				else
-					window->CenterPositionToCurrentMonitor();
 			}
 
 			m_createWindowRequests.clear();
 			m_deleteWindowRequests.clear();
 		}
+	}
 
-		// Controlling alpha of the current dragged window according to dock-hovers
-		{
-			if (m_draggedWindow)
-			{
-				bool dockPreviewActive = false;
-				for (auto [sid, drawer] : m_guiDrawers)
-				{
-					if (drawer->GetDockPreview()->GetIsActive())
-					{
-						dockPreviewActive = true;
-						break;
-					}
-
-					const auto& dockAreas = drawer->GetDockAreas();
-					for (auto d : dockAreas)
-					{
-						if (d->GetDockPreview()->GetIsActive())
-						{
-							dockPreviewActive = true;
-							break;
-						}
-					}
-				}
-
-				if (dockPreviewActive && !m_draggedWindow->GetIsTransparent())
-					m_draggedWindow->SetAlpha(0.3f);
-				else if (!dockPreviewActive && m_draggedWindow->GetIsTransparent())
-					m_draggedWindow->SetAlpha(1.0f);
-			}
-		}
+	void Editor::Tick()
+	{
+		m_payloadManager.Tick();
 	}
 
 	void Editor::OnShortcut(Shortcut sc, LinaGX::Window* windowHandle)
@@ -284,7 +261,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid, bool byDetach, GUINodePanel* srcPanel)
+	void Editor::OpenPanel(EditorPanel panel, const String& title, StringID sid, GUINodePanel* srcPanel, const Vector2i& pos, const Vector2ui& size)
 	{
 		auto gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
@@ -315,7 +292,8 @@ namespace Lina::Editor
 			.windowSid = TO_SID(windowSidStr),
 			.title	   = title,
 			.panel	   = srcPanel,
-			.byDetach  = byDetach,
+			.position  = pos,
+			.size	   = size,
 		};
 
 		m_createWindowRequests.push_back(req);
@@ -324,9 +302,8 @@ namespace Lina::Editor
 	LinaGX::Window* Editor::CreateChildWindow(StringID sid, const String& title, const Vector2i& pos, const Vector2ui& size)
 	{
 		auto mainWindow = m_lgxWrapper->GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN);
-		auto window		= m_lgxWrapper->CreateApplicationWindow(sid, title.c_str(), pos, size, true, mainWindow);
+		auto window		= m_lgxWrapper->CreateApplicationWindow(sid, title.c_str(), pos, size, static_cast<uint32>(LinaGX::WindowStyle::BorderlessApplication), mainWindow);
 		window->SetIcon("Lina");
-		window->SetDefaultMaxIsWorkArea(true);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(sid);
 		auto guiDrawer		 = new GUIDrawerChildWindow(this, window);
@@ -342,26 +319,16 @@ namespace Lina::Editor
 		m_deleteWindowRequests.push_back(req);
 	}
 
-	void Editor::OnWindowDrag(GUIDrawerBase* owner, bool isDragging)
+	bool Editor::CheckForDockPreviewPayloads(GUIDrawerBase* owner, GUINodePanel* panel)
 	{
-		if (!isDragging && m_draggedWindow && m_draggedWindow->GetIsTransparent())
-			m_draggedWindow->SetAlpha(1.0f);
-
-		// Only single dock area windows can be docked to others.
-		if (!owner->GetDockAreas()[0]->GetIsAlone())
-		{
-			m_draggedWindow = isDragging ? owner->GetWindow() : nullptr;
-			return;
-		}
-
 		GUIDrawerBase*	 drawerToDock	  = nullptr;
 		GUINodeDockArea* splittedDockArea = nullptr;
 		DockSplitType	 split			  = DockSplitType::None;
 
 		for (auto [sid, drawer] : m_guiDrawers)
 		{
-			if (owner == drawer)
-				continue;
+			// if (owner == drawer)
+			// 	continue;
 
 			if (drawerToDock == nullptr)
 			{
@@ -385,23 +352,15 @@ namespace Lina::Editor
 					}
 				}
 			}
-
-			drawer->SetDockPreviewEnabled(isDragging);
 		}
 
 		if (drawerToDock)
 		{
-			const auto panels = owner->GetFirstDockArea()->GetPanels();
-
-			for (auto p : panels)
-				owner->GetFirstDockArea()->RemovePanel(p, false);
-
-			drawerToDock->SplitDockArea(splittedDockArea, split, panels);
-			CloseWindow(m_draggedWindow->GetSID());
-			m_draggedWindow = nullptr;
+			drawerToDock->SplitDockArea(splittedDockArea, split, {panel});
+			return true;
 		}
-		else
-			m_draggedWindow = isDragging ? owner->GetWindow() : nullptr;
+
+		return false;
 	}
 
 	void Editor::CloseAllChildWindows()

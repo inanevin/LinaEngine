@@ -42,7 +42,6 @@ namespace Lina
 	class Rect;
 }
 
-
 namespace Lina::Editor
 {
 	class GUINode;
@@ -65,13 +64,11 @@ namespace Lina::Editor
 		virtual void OnMouseWheel(uint32 delta) override;
 		virtual void OnFocus(bool hasFocus) override;
 		virtual void OnMouseHoverEnd() override;
-		virtual void OnWindowDrag(bool isDragging) override;
 		virtual void OnPayloadCreated(PayloadType type, void* userData);
-		virtual void OnPayloadEnded(PayloadType type);
+		virtual void OnPayloadEnded(PayloadType type, bool consumed);
 		virtual void OnDockAreasModified(){};
 
 		void			 OnNodeDeleted(GUINode* node);
-		void			 SetDockPreviewEnabled(bool enabled);
 		GUINodeDockArea* SplitDockArea(GUINodeDockArea* area, DockSplitType type, const Vector<GUINodePanel*>& panels, float customSplit = 0.0f);
 		void			 RemoveDockArea(GUINodeDockArea* area);
 		virtual void	 SaveToStream(OStream& stream) override;

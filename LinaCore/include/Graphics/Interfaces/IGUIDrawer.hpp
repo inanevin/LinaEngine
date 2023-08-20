@@ -56,7 +56,6 @@ namespace Lina
 		virtual void OnMouseWheel(uint32 delta){};
 		virtual void OnFocus(bool hasFocus){};
 		virtual void OnMouseHoverEnd(){};
-		virtual void OnWindowDrag(bool isDragging){};
 
 		inline void SetSurfaceRenderer(SurfaceRenderer* rend)
 		{

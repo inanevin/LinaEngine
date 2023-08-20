@@ -51,9 +51,9 @@ namespace Lina::Editor
 		m_lgxWrapper = m_editor->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		m_gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		m_window = m_lgxWrapper->CreateApplicationWindow(EDITOR_PAYLOAD_WINDOW_SID, "EditorPayloadWindow", Vector2i::Zero, Vector2ui(800, 600), true);
+		m_window = m_lgxWrapper->CreateApplicationWindow(EDITOR_PAYLOAD_WINDOW_SID, "EditorPayloadWindow", Vector2i::Zero, Vector2ui(800, 600), static_cast<uint32>(LinaGX::WindowStyle::BorderlessAlpha));
 		m_window->SetVisible(false);
-		m_window->SetAlpha(0.8f);
+		m_window->SetAlpha(0.9f);
 
 		auto surfaceRenderer = m_gfxManager->GetSurfaceRenderer(EDITOR_PAYLOAD_WINDOW_SID);
 		m_guiDrawer			 = new GUIDrawerPayload(m_editor, surfaceRenderer->GetWindow());
@@ -62,7 +62,7 @@ namespace Lina::Editor
 
 	void EditorPayloadManager::Tick()
 	{
-		if (m_currentPayloadMeta.type == PayloadType::EPL_None)
+		if (m_currentPayloadMeta.type & PayloadType::EPL_None)
 			return;
 
 		if (!m_window->GetIsVisible())
@@ -78,10 +78,23 @@ namespace Lina::Editor
 			ev.pParams[0] = &m_currentPayloadMeta;
 			m_editor->DispatchEvent(EVE_PayloadDropped, ev);
 
+			bool payloadConsumed = false;
+
+			// Dock previews are snowflakes.
+			if (m_currentPayloadMeta.type & PayloadType::EPL_Panel)
+			{
+				GUINodePanel* panel = static_cast<GUINodePanel*>(m_currentPayloadMeta.data);
+
+				if (!m_editor->CheckForDockPreviewPayloads(panel->GetDrawer(), panel))
+					m_editor->OpenPanel(panel->GetPanelType(), panel->GetTitle(), panel->GetSID(), panel, windowPos);
+
+				payloadConsumed = true;
+			}
+
 			const auto& drawers = m_editor->GetGUIDrawers();
 
 			for (auto [sid, drawer] : drawers)
-				drawer->OnPayloadEnded(m_currentPayloadMeta.type);
+				drawer->OnPayloadEnded(m_currentPayloadMeta.type, payloadConsumed);
 
 			m_currentPayloadMeta = PayloadMeta();
 			m_window->SetVisible(false);
@@ -94,7 +107,7 @@ namespace Lina::Editor
 		m_lgxWrapper->DestroyApplicationWindow(EDITOR_PAYLOAD_WINDOW_SID);
 	}
 
-	void EditorPayloadManager::CreatePayload(PayloadType type, const Vector2ui& windowSize, const Vector2ui& delta, void* userData)
+	void EditorPayloadManager::CreatePayload(PayloadType type, const Vector2ui& windowSize, const Vector2i& delta, void* userData)
 	{
 		m_currentPayloadMeta.type  = type;
 		m_currentPayloadMeta.data  = userData;

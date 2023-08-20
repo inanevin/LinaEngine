@@ -60,11 +60,10 @@ namespace Lina::Editor
 		const float				   desiredAspect		  = 1920.0f / 1080.0f;
 		const float				   targetX				  = static_cast<float>(1920.0f / 2.5f * mi.dpiScale);
 		const Vector2i			   targetSplashScreenSize = Vector2i(static_cast<int>(targetX), static_cast<int>(targetX / desiredAspect));
-		auto					   window				  = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(targetSplashScreenSize.x, targetSplashScreenSize.y), true);
+		auto window = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(targetSplashScreenSize.x, targetSplashScreenSize.y), static_cast<uint32>(LinaGX::WindowStyle::BorderlessApplication));
 		window->CenterPositionToCurrentMonitor();
 		window->SetCallbackClose([&]() { m_exitRequested = true; });
 		window->SetIcon("Lina");
-		window->SetDefaultMaxIsWorkArea(true);
 	}
 
 	void EditorApplication::OnInited()
@@ -72,10 +71,16 @@ namespace Lina::Editor
 		auto& resourceManager = m_engine.GetResourceManager();
 		auto  wm			  = m_engine.GetLGXWrapper().GetWindowManager();
 		auto  window		  = wm->GetWindow(LINA_MAIN_SWAPCHAIN);
-		m_editor.BeginSplashScreen();
 		window->SetVisible(true);
+		m_editor.BeginSplashScreen();
 		m_engine.GetResourceManager().AddListener(this);
 		m_loadCoreResourcesTask = resourceManager.LoadResources(resourceManager.GetCoreResources());
+	}
+
+	void EditorApplication::PreTick()
+	{
+		Application::PreTick();
+		m_editor.PreTick();
 	}
 
 	void EditorApplication::Tick()
@@ -88,6 +93,8 @@ namespace Lina::Editor
 			m_doneWithSplash = true;
 			auto wm			 = m_engine.GetLGXWrapper().GetWindowManager();
 			auto window		 = wm->GetWindow(LINA_MAIN_SWAPCHAIN);
+			window->Maximize();
+			window->SetCursorType(LinaGX::CursorType::Default);
 			window->SetVisible(true);
 		}
 	}
@@ -107,12 +114,9 @@ namespace Lina::Editor
 			if (task->id == m_loadCoreResourcesTask)
 			{
 				m_editor.EndSplashScreen();
-				auto wm		  = m_engine.GetLGXWrapper().GetWindowManager();
-				auto window	  = wm->GetWindow(LINA_MAIN_SWAPCHAIN);
-				auto workArea = window->GetMonitorWorkArea();
-				window->SetSize(workArea);
-				window->SetPosition({0, 0});
-				window->SetCursorType(LinaGX::CursorType::Default);
+				auto wm		= m_engine.GetLGXWrapper().GetWindowManager();
+				auto window = wm->GetWindow(LINA_MAIN_SWAPCHAIN);
+				window->SetVisible(false);
 				m_systemEventMask = 0;
 			}
 		}

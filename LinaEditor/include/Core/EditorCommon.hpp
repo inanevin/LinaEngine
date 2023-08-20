@@ -125,6 +125,7 @@ namespace Lina::Editor
 	{
 		EPL_None   = 1 << 0,
 		EPL_Entity = 1 << 1,
+		EPL_Panel  = 1 << 2,
 	};
 
 #define EDITOR_DEFAULT_DOCK_SPLIT		0.35f

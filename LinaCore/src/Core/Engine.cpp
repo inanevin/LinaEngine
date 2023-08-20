@@ -133,10 +133,30 @@ namespace Lina
 		if (m_gfxManager)
 			m_gfxManager->Sync();
 
-		// if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_SPACE))
-		//{
-		//	m_app->Quit();
-		//  }
+		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_1))
+		{
+			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::WindowedApplication);
+		}
+
+		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_2))
+		{
+			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::BorderlessApplication);
+		}
+
+		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_3))
+		{
+			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::Borderless);
+		}
+		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_4))
+		{
+			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::BorderlessFullscreen);
+		}
+
+		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_5))
+		{
+			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::Fullscreen);
+		}
+
 		//
 		// if (m_input.GetKeyDown(LINA_KEY_2))
 		// {

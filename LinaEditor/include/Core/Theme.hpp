@@ -63,6 +63,7 @@ namespace Lina::Editor
 		WidgetHeightShort,
 		WidgetHeightTall,
 		DockDividerThickness,
+		TabHeight,
 	};
 
 #define TI_CARET_DOWN	   "\u0041"
