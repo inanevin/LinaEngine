@@ -59,7 +59,6 @@ namespace Lina
 	{
 		m_lgx = new LinaGX::Instance();
 
-
 		LinaGX::Config.dx12Config = {
 			.allowTearing = initInfo.allowTearing,
 		};
@@ -82,34 +81,17 @@ namespace Lina
 		};
 
 		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
-
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
 #endif
 
-		LinaGX::GPULimits limits = {
-			.textureLimit		= 2048,
-			.samplerLimit		= 512,
-			.bufferLimit		= 4096,
-			.maxSubmitsPerFrame = 30,
-		};
+		LinaGX::Config.api			   = api;
+		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
+		LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
+		LinaGX::Config.gpuLimits	   = {};
 
-		LinaGX::GPUFeatures features = {
-			.enableBindless			 = true,
-			.extraGraphicsQueueCount = 5,
-		};
-
-		LinaGX::InitInfo lgxInitInfo = LinaGX::InitInfo{
-			.api				   = api,
-			.gpu				   = initInfo.preferredGPUType,
-			.framesInFlight		   = FRAMES_IN_FLIGHT,
-			.backbufferCount	   = BACK_BUFFER_COUNT,
-			.gpuLimits			   = limits,
-			.gpuFeatures		   = features,
-			.checkForFormatSupport = {LinaGX::Format::B8G8R8A8_SRGB, LinaGX::Format::R32G32B32A32_SFLOAT, LinaGX::Format::D32_SFLOAT},
-		};
-
-		m_lgx->Initialize(lgxInitInfo);
+		m_lgx->Initialize();
 	}
 
 	void LGXWrapper::Initialize(const SystemInitializationInfo& initInfo)

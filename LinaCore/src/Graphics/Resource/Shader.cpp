@@ -120,14 +120,6 @@ namespace Lina
 
 	void Shader::BatchLoaded()
 	{
-		for (const auto& ubo : m_layout.ubos)
-		{
-			if (ubo.name.compare("LINA_MATERIAL") != 0)
-			{
-				m_materialUBO = ubo;
-				break;
-			}
-		}
 		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 		auto lgx		= lgxWrapper->GetLGX();
 
@@ -146,23 +138,34 @@ namespace Lina
 				.srcAlphaBlendFactor = LinaGX::BlendFactor::One,
 				.dstAlphaBlendFactor = LinaGX::BlendFactor::Zero,
 				.alphaBlendOp		 = LinaGX::BlendOp::Add,
-				.componentFlags		 = LinaGX::ColorComponentFlags::RGBA,
+				.componentFlags		 = {},
+			};
+
+			LINAGX_VEC<LinaGX::ShaderColorAttachment> colorAttachments;
+			colorAttachments.resize(1);
+
+			colorAttachments[0] = {
+				.format			 = format,
+				.blendAttachment = blend,
+			};
+
+			LinaGX::ShaderDepthStencilDesc depthStencilAtt = {
+				.depthStencilAttachmentFormat = LinaGX::Format::D32_SFLOAT,
+				.depthWrite					  = !variant.depthDisable,
+				.depthTest					  = !variant.depthDisable,
+				.depthCompare				  = LinaGX::CompareOp::Less,
 			};
 
 			LinaGX::ShaderDesc desc = LinaGX::ShaderDesc{
-				.stages				   = m_outCompiledBlobs,
-				.colorAttachmentFormat = format,
-				.depthAttachmentFormat = LinaGX::Format::D32_SFLOAT,
-				.layout				   = m_layout,
-				.polygonMode		   = LinaGX::PolygonMode::Fill,
-				.cullMode			   = variant.cullMode,
-				.frontFace			   = variant.frontFace,
-				.depthTest			   = !variant.depthDisable,
-				.depthWrite			   = !variant.depthDisable,
-				.depthCompare		   = LinaGX::CompareOp::Less,
-				.topology			   = LinaGX::Topology::TriangleList,
-				.blendAttachment	   = blend,
-				.debugName			   = m_path.c_str(),
+				.stages			  = m_outCompiledBlobs,
+				.colorAttachments = colorAttachments,
+				.depthStencilDesc = depthStencilAtt,
+				.layout			  = m_layout,
+				.polygonMode	  = LinaGX::PolygonMode::Fill,
+				.cullMode		  = variant.cullMode,
+				.frontFace		  = variant.frontFace,
+				.topology		  = LinaGX::Topology::TriangleList,
+				.debugName		  = m_path.c_str(),
 			};
 
 			variant.gpuHandle = lgx->CreateShader(desc);

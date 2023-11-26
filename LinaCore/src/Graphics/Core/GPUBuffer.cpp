@@ -81,7 +81,6 @@ namespace Lina
 			return false;
 
 		LinaGX::CMDCopyResource* copy = stream->AddCommand<LinaGX::CMDCopyResource>();
-		copy->extension				  = nullptr;
 		copy->destination			  = m_gpu;
 		copy->source				  = m_staging;
 

@@ -44,7 +44,7 @@ namespace Lina
 
 	void ResourceUploadQueue::Initialize()
 	{
-		m_copyStream	= m_lgxWrapper->GetLGX()->CreateCommandStream(500, LinaGX::QueueType::Transfer);
+		m_copyStream	= m_lgxWrapper->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
 		m_copySemaphore = m_lgxWrapper->GetLGX()->CreateUserSemaphore();
 	}
 
@@ -85,7 +85,6 @@ namespace Lina
 		{
 			Vector<LinaGX::TextureBuffer>	  allBuffers = req.txt->GetAllLevels();
 			LinaGX::CMDCopyBufferToTexture2D* cmd		 = m_copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
-			cmd->extension								 = nullptr;
 			cmd->destTexture							 = req.txt->GetGPUHandle();
 			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
 			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
@@ -96,7 +95,7 @@ namespace Lina
 		m_copySemaphoreValue++;
 
 		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
-			.targetQueue	  = m_lgxWrapper->GetLGX()->GetPrimaryQueue(LinaGX::QueueType::Transfer),
+			.targetQueue	  = m_lgxWrapper->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
 			.streams		  = &m_copyStream,
 			.streamCount	  = 1,
 			.useSignal		  = true,

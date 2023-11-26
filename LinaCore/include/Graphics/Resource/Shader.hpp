@@ -85,11 +85,6 @@ namespace Lina
 			return m_layout;
 		}
 
-		inline const LinaGX::ShaderUBO& GetMaterialUBO() const
-		{
-			return m_materialUBO;
-		}
-
 	protected:
 		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
@@ -101,8 +96,7 @@ namespace Lina
 	private:
 	private:
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
-		LinaGX::ShaderLayout							  m_layout		= {};
-		LinaGX::ShaderUBO								  m_materialUBO = {};
+		LinaGX::ShaderLayout							  m_layout = {};
 		HashMap<StringID, ShaderVariant>				  m_variants;
 	};
 

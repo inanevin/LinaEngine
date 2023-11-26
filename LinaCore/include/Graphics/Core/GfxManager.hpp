@@ -104,7 +104,7 @@ namespace Lina
 			return m_resourceUploadQueue;
 		}
 
-		inline LinaGX::VsyncMode GetCurrentVsync() const
+		inline const LinaGX::VSyncStyle& GetCurrentVsync() const
 		{
 			return m_currentVsync;
 		}
@@ -132,10 +132,9 @@ namespace Lina
 		Vector<Material*>		 m_defaultMaterials;
 		LGXWrapper*				 m_lgxWrapper	= nullptr;
 		LinaGX::Instance*		 m_lgx			= nullptr;
-		LinaGX::VsyncMode		 m_currentVsync = LinaGX::VsyncMode::None;
+		LinaGX::VSyncStyle		 m_currentVsync = {};
 
 		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
-
 	};
 } // namespace Lina
 #endif

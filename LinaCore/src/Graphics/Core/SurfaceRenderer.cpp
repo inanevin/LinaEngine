@@ -53,113 +53,113 @@ namespace Lina
 
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
 	{
-		m_gfxManager->GetSystem()->AddListener(this);
-		m_guiBackend = m_gfxManager->GetGUIBackend();
-		m_lgx		 = m_gfxManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper)->GetLGX();
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data		   = m_pfd[i];
-			data.gfxStream	   = m_lgx->CreateCommandStream(MAX_GFX_COMMANDS, LinaGX::QueueType::Graphics);
-			data.guiCopyStream = m_lgx->CreateCommandStream(MAX_TRANSFER_COMMANDS, LinaGX::QueueType::Transfer);
-			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
-			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Index Buffer");
-			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GUIBackend::GPUGUIMaterialData));
-			data.guiCopySemaphore = m_lgx->CreateUserSemaphore();
-
-			LinaGX::ResourceDesc resourceDesc = {
-				.size		   = sizeof(GPUSceneData),
-				.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-				.heapType	   = LinaGX::ResourceHeap::StagingHeap,
-				.debugName	   = "Surface Renderer GUI Scene Data",
-			};
-
-			data.guiSceneResource = m_lgx->CreateResource(resourceDesc);
-			m_lgx->MapResource(data.guiSceneResource, data.guiSceneDataMapping);
-
-			// Set 1 - Scene Data
-			{
-				LinaGX::DescriptorBinding set1Binding = {
-					.binding		 = 0,
-					.descriptorCount = 1,
-					.type			 = LinaGX::DescriptorType::UBO,
-					.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-				};
-
-				LinaGX::DescriptorSetDesc set1Desc = {
-					.bindings	   = &set1Binding,
-					.bindingsCount = 1,
-				};
-
-				data.guiDescriptorSet1 = m_lgx->CreateDescriptorSet(set1Desc);
-
-				LinaGX::DescriptorUpdateBufferDesc sceneDataUpdate = {
-					.setHandle		 = data.guiDescriptorSet1,
-					.binding		 = 0,
-					.descriptorCount = 1,
-					.resources		 = &data.guiSceneResource,
-					.descriptorType	 = LinaGX::DescriptorType::UBO,
-				};
-
-				m_lgx->DescriptorUpdateBuffer(sceneDataUpdate);
-			}
-
-			// Set 2 - Material Data
-			{
-				// Material data
-				LinaGX::DescriptorBinding set2Binding = {
-					.binding		 = 0,
-					.descriptorCount = 1,
-					.type			 = LinaGX::DescriptorType::SSBO,
-					.stages			 = {LinaGX::ShaderStage::Fragment},
-				};
-
-				LinaGX::DescriptorSetDesc set2Desc = {
-					.bindings	   = &set2Binding,
-					.bindingsCount = 1,
-				};
-
-				data.guiDescriptorSet2 = m_lgx->CreateDescriptorSet(set2Desc);
-
-				uint32 res = data.guiMaterialBuffer.GetGPUResource();
-
-				LinaGX::DescriptorUpdateBufferDesc update = {
-					.setHandle		 = data.guiDescriptorSet2,
-					.binding		 = 0,
-					.descriptorCount = 1,
-					.resources		 = &res,
-					.descriptorType	 = LinaGX::DescriptorType::SSBO,
-				};
-
-				m_lgx->DescriptorUpdateBuffer(update);
-			}
-		}
-
-		const auto monitorSize = window->GetMonitorSize();
-		const auto windowSize  = window->GetSize();
-
-		LinaGX::QueueDesc queueDesc = {
-			.type	   = LinaGX::QueueType::Graphics,
-			.debugName = "Surface Renderer GFX Queue",
-		};
-
-		m_gfxQueue = m_lgx->GetPrimaryQueue(LinaGX::QueueType::Graphics);
-
-		LinaGX::SwapchainDesc swapchainDesc = LinaGX::SwapchainDesc{
-			.queue		  = m_gfxQueue,
-			.format		  = LinaGX::Format::B8G8R8A8_SRGB,
-			.depthFormat  = LinaGX::Format::D32_SFLOAT,
-			.x			  = 0,
-			.y			  = 0,
-			.width		  = windowSize.x,
-			.height		  = windowSize.y,
-			.window		  = window->GetWindowHandle(),
-			.osHandle	  = window->GetOSHandle(),
-			.isFullscreen = windowSize.x == monitorSize.x && windowSize.y == monitorSize.y,
-			.vsyncMode	  = m_gfxManager->GetCurrentVsync(),
-		};
-
-		m_swapchain = m_lgx->CreateSwapchain(swapchainDesc);
+		// m_gfxManager->GetSystem()->AddListener(this);
+		// m_guiBackend = m_gfxManager->GetGUIBackend();
+		// m_lgx		 = m_gfxManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper)->GetLGX();
+		//
+		// for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		// {
+		// 	auto& data		   = m_pfd[i];
+		// 	data.gfxStream	   = m_lgx->CreateCommandStream(MAX_GFX_COMMANDS, LinaGX::QueueType::Graphics);
+		// 	data.guiCopyStream = m_lgx->CreateCommandStream(MAX_TRANSFER_COMMANDS, LinaGX::QueueType::Transfer);
+		// 	data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
+		// 	data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Index Buffer");
+		// 	data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GUIBackend::GPUGUIMaterialData));
+		// 	data.guiCopySemaphore = m_lgx->CreateUserSemaphore();
+		//
+		// 	LinaGX::ResourceDesc resourceDesc = {
+		// 		.size		   = sizeof(GPUSceneData),
+		// 		.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+		// 		.heapType	   = LinaGX::ResourceHeap::StagingHeap,
+		// 		.debugName	   = "Surface Renderer GUI Scene Data",
+		// 	};
+		//
+		// 	data.guiSceneResource = m_lgx->CreateResource(resourceDesc);
+		// 	m_lgx->MapResource(data.guiSceneResource, data.guiSceneDataMapping);
+		//
+		// 	// Set 1 - Scene Data
+		// 	{
+		// 		LinaGX::DescriptorBinding set1Binding = {
+		// 			.binding		 = 0,
+		// 			.descriptorCount = 1,
+		// 			.type			 = LinaGX::DescriptorType::UBO,
+		// 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		// 		};
+		//
+		// 		LinaGX::DescriptorSetDesc set1Desc = {
+		// 			.bindings	   = &set1Binding,
+		// 			.bindingsCount = 1,
+		// 		};
+		//
+		// 		data.guiDescriptorSet1 = m_lgx->CreateDescriptorSet(set1Desc);
+		//
+		// 		LinaGX::DescriptorUpdateBufferDesc sceneDataUpdate = {
+		// 			.setHandle		 = data.guiDescriptorSet1,
+		// 			.binding		 = 0,
+		// 			.descriptorCount = 1,
+		// 			.resources		 = &data.guiSceneResource,
+		// 			.descriptorType	 = LinaGX::DescriptorType::UBO,
+		// 		};
+		//
+		// 		m_lgx->DescriptorUpdateBuffer(sceneDataUpdate);
+		// 	}
+		//
+		// 	// Set 2 - Material Data
+		// 	{
+		// 		// Material data
+		// 		LinaGX::DescriptorBinding set2Binding = {
+		// 			.binding		 = 0,
+		// 			.descriptorCount = 1,
+		// 			.type			 = LinaGX::DescriptorType::SSBO,
+		// 			.stages			 = {LinaGX::ShaderStage::Fragment},
+		// 		};
+		//
+		// 		LinaGX::DescriptorSetDesc set2Desc = {
+		// 			.bindings	   = &set2Binding,
+		// 			.bindingsCount = 1,
+		// 		};
+		//
+		// 		data.guiDescriptorSet2 = m_lgx->CreateDescriptorSet(set2Desc);
+		//
+		// 		uint32 res = data.guiMaterialBuffer.GetGPUResource();
+		//
+		// 		LinaGX::DescriptorUpdateBufferDesc update = {
+		// 			.setHandle		 = data.guiDescriptorSet2,
+		// 			.binding		 = 0,
+		// 			.descriptorCount = 1,
+		// 			.resources		 = &res,
+		// 			.descriptorType	 = LinaGX::DescriptorType::SSBO,
+		// 		};
+		//
+		// 		m_lgx->DescriptorUpdateBuffer(update);
+		// 	}
+		// }
+		//
+		// const auto monitorSize = window->GetMonitorSize();
+		// const auto windowSize  = window->GetSize();
+		//
+		// LinaGX::QueueDesc queueDesc = {
+		// 	.type	   = LinaGX::QueueType::Graphics,
+		// 	.debugName = "Surface Renderer GFX Queue",
+		// };
+		//
+		// m_gfxQueue = m_lgx->GetPrimaryQueue(LinaGX::QueueType::Graphics);
+		//
+		// LinaGX::SwapchainDesc swapchainDesc = LinaGX::SwapchainDesc{
+		// 	.queue		  = m_gfxQueue,
+		// 	.format		  = LinaGX::Format::B8G8R8A8_SRGB,
+		// 	.depthFormat  = LinaGX::Format::D32_SFLOAT,
+		// 	.x			  = 0,
+		// 	.y			  = 0,
+		// 	.width		  = windowSize.x,
+		// 	.height		  = windowSize.y,
+		// 	.window		  = window->GetWindowHandle(),
+		// 	.osHandle	  = window->GetOSHandle(),
+		// 	.isFullscreen = windowSize.x == monitorSize.x && windowSize.y == monitorSize.y,
+		// 	.vsyncMode	  = m_gfxManager->GetCurrentVsync(),
+		// };
+		//
+		// m_swapchain = m_lgx->CreateSwapchain(swapchainDesc);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
@@ -246,91 +246,91 @@ namespace Lina
 			.width	= m_size.x,
 			.height = m_size.y,
 		};
-
-		// Begin render pass
-		{
-			LinaGX::CMDBeginRenderPass* rp = currentFrame.gfxStream->AddCommand<LinaGX::CMDBeginRenderPass>();
-			rp->extension				   = nullptr;
-			rp->isSwapchain				   = true;
-			rp->swapchain				   = m_swapchain;
-			rp->clearColor[0]			   = 0.9f;
-			rp->clearColor[1]			   = 0.2f;
-			rp->clearColor[2]			   = 0.2f;
-			rp->clearColor[3]			   = 1.0f;
-			rp->viewport				   = viewport;
-			rp->scissors				   = scissors;
-		}
-
-		// TODO: Draw full-screen quad texture if set.
-
-		// Draw GUI if set.
-		if (m_guiDrawer != nullptr)
-		{
-			GUIBackend::GUIRenderData guiRenderData = {
-				.size				= m_size,
-				.gfxStream			= currentFrame.gfxStream,
-				.copyStream			= currentFrame.guiCopyStream,
-				.copySemaphore		= currentFrame.guiCopySemaphore,
-				.copySemaphoreValue = &currentFrame.guiCopySemaphoreValue,
-				.vertexBuffer		= &currentFrame.guiVertexBuffer,
-				.indexBuffer		= &currentFrame.guiIndexBuffer,
-				.materialBuffer		= &currentFrame.guiMaterialBuffer,
-				.descriptorSet1		= currentFrame.guiDescriptorSet1,
-				.descriptorSet2		= currentFrame.guiDescriptorSet2,
-				.sceneDataMapping	= currentFrame.guiSceneDataMapping,
-				.variantPassType	= ShaderVariantPassType::Swapchain,
-			};
-
-			guiRenderData.drawRequests.reserve(50);
-
-			m_guiDrawer->DrawGUI(guiThreadID);
-			m_guiBackend->Prepare(guiThreadID, guiRenderData);
-			LinaVG::Render(guiThreadID);
-			m_guiBackend->Render(guiThreadID);
-		}
-
-		// End render pass
-		{
-			LinaGX::CMDEndRenderPass* end = currentFrame.gfxStream->AddCommand<LinaGX::CMDEndRenderPass>();
-			end->extension				  = nullptr;
-			end->isSwapchain			  = true;
-			end->swapchain				  = m_swapchain;
-		}
-
-		// Send
-		{
-			const auto& uploadQueue = m_gfxManager->GetResourceUploadQueue();
-
-			m_waitSemaphores.clear();
-			m_waitValues.clear();
-
-			if (copySemaphoreValue != currentFrame.guiCopySemaphoreValue)
-			{
-				m_waitSemaphores.push_back(currentFrame.guiCopySemaphore);
-				m_waitValues.push_back(currentFrame.guiCopySemaphoreValue);
-			}
-
-			if (uploadQueue.HasTransfer())
-			{
-				m_waitSemaphores.push_back(uploadQueue.GetSemaphore());
-				m_waitValues.push_back(uploadQueue.GetSemaphoreValue());
-			}
-
-			m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
-
-			// LinaGX::SubmitDesc desc = {
-			// 	.targetQueue	 = m_gfxQueue,
-			// 	.streams		 = &currentFrame.gfxStream,
-			// 	.streamCount	 = 1,
-			// 	.useWait		 = !m_waitSemaphores.empty(),
-			// 	.waitCount		 = static_cast<uint32>(m_waitSemaphores.size()),
-			// 	.waitSemaphores	 = m_waitSemaphores.data(),
-			// 	.waitValues		 = m_waitValues.data(),
-			// 	.isMultithreaded = true,
-			// };
-			//
-			// m_lgx->SubmitCommandStreams(desc);
-		}
+		//
+		// // Begin render pass
+		// {
+		// 	LinaGX::CMDBeginRenderPass* rp = currentFrame.gfxStream->AddCommand<LinaGX::CMDBeginRenderPass>();
+		// 	rp->extension				   = nullptr;
+		// 	rp->isSwapchain				   = true;
+		// 	rp->swapchain				   = m_swapchain;
+		// 	rp->clearColor[0]			   = 0.9f;
+		// 	rp->clearColor[1]			   = 0.2f;
+		// 	rp->clearColor[2]			   = 0.2f;
+		// 	rp->clearColor[3]			   = 1.0f;
+		// 	rp->viewport				   = viewport;
+		// 	rp->scissors				   = scissors;
+		// }
+		//
+		// // TODO: Draw full-screen quad texture if set.
+		//
+		// // Draw GUI if set.
+		// if (m_guiDrawer != nullptr)
+		// {
+		// 	GUIBackend::GUIRenderData guiRenderData = {
+		// 		.size				= m_size,
+		// 		.gfxStream			= currentFrame.gfxStream,
+		// 		.copyStream			= currentFrame.guiCopyStream,
+		// 		.copySemaphore		= currentFrame.guiCopySemaphore,
+		// 		.copySemaphoreValue = &currentFrame.guiCopySemaphoreValue,
+		// 		.vertexBuffer		= &currentFrame.guiVertexBuffer,
+		// 		.indexBuffer		= &currentFrame.guiIndexBuffer,
+		// 		.materialBuffer		= &currentFrame.guiMaterialBuffer,
+		// 		.descriptorSet1		= currentFrame.guiDescriptorSet1,
+		// 		.descriptorSet2		= currentFrame.guiDescriptorSet2,
+		// 		.sceneDataMapping	= currentFrame.guiSceneDataMapping,
+		// 		.variantPassType	= ShaderVariantPassType::Swapchain,
+		// 	};
+		//
+		// 	guiRenderData.drawRequests.reserve(50);
+		//
+		// 	m_guiDrawer->DrawGUI(guiThreadID);
+		// 	m_guiBackend->Prepare(guiThreadID, guiRenderData);
+		// 	LinaVG::Render(guiThreadID);
+		// 	m_guiBackend->Render(guiThreadID);
+		// }
+		//
+		// // End render pass
+		// {
+		// 	LinaGX::CMDEndRenderPass* end = currentFrame.gfxStream->AddCommand<LinaGX::CMDEndRenderPass>();
+		// 	end->extension				  = nullptr;
+		// 	end->isSwapchain			  = true;
+		// 	end->swapchain				  = m_swapchain;
+		// }
+		//
+		// // Send
+		// {
+		// 	const auto& uploadQueue = m_gfxManager->GetResourceUploadQueue();
+		//
+		// 	m_waitSemaphores.clear();
+		// 	m_waitValues.clear();
+		//
+		// 	if (copySemaphoreValue != currentFrame.guiCopySemaphoreValue)
+		// 	{
+		// 		m_waitSemaphores.push_back(currentFrame.guiCopySemaphore);
+		// 		m_waitValues.push_back(currentFrame.guiCopySemaphoreValue);
+		// 	}
+		//
+		// 	if (uploadQueue.HasTransfer())
+		// 	{
+		// 		m_waitSemaphores.push_back(uploadQueue.GetSemaphore());
+		// 		m_waitValues.push_back(uploadQueue.GetSemaphoreValue());
+		// 	}
+		//
+		// 	m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
+		//
+		// 	// LinaGX::SubmitDesc desc = {
+		// 	// 	.targetQueue	 = m_gfxQueue,
+		// 	// 	.streams		 = &currentFrame.gfxStream,
+		// 	// 	.streamCount	 = 1,
+		// 	// 	.useWait		 = !m_waitSemaphores.empty(),
+		// 	// 	.waitCount		 = static_cast<uint32>(m_waitSemaphores.size()),
+		// 	// 	.waitSemaphores	 = m_waitSemaphores.data(),
+		// 	// 	.waitValues		 = m_waitValues.data(),
+		// 	// 	.isMultithreaded = true,
+		// 	// };
+		// 	//
+		// 	// m_lgx->SubmitCommandStreams(desc);
+		// }
 	}
 
 } // namespace Lina

@@ -64,18 +64,5 @@ namespace EA
 
 namespace Lina
 {
-	const char* VsyncModeToStr(LinaGX::VsyncMode mode)
-	{
-		switch (mode)
-		{
-		case LinaGX::VsyncMode::None:
-			return "None";
-		case LinaGX::VsyncMode::EveryVBlank:
-			return "Every V Blank";
-		case LinaGX::VsyncMode::EverySecondVBlank:
-			return "Every Second VBlank";
-		}
-
-		return "None";
-	}
+	
 } // namespace Lina

@@ -67,21 +67,21 @@ namespace Lina
 		/// <param name="value"></param>
 		template <typename T> inline void SetProperty(const String& name, T& value)
 		{
-			const StringID sid = TO_SID(name);
-
-			size_t dataIndex = 0;
-			for (const auto& mem : m_uboDefinition.members)
-			{
-				const StringID memSid = TO_SID(mem.name);
-
-				if (memSid == sid)
-				{
-					MEMCPY(m_data + dataIndex, &value, sizeof(T));
-					break;
-				}
-
-				dataIndex += mem.alignment;
-			}
+			// const StringID sid = TO_SID(name);
+			// 
+			// size_t dataIndex = 0;
+			// for (const auto& mem : m_uboDefinition.members)
+			// {
+			// 	const StringID memSid = TO_SID(mem.name);
+			// 
+			// 	if (memSid == sid)
+			// 	{
+			// 		MEMCPY(m_data + dataIndex, &value, sizeof(T));
+			// 		break;
+			// 	}
+			// 
+			// 	dataIndex += mem.alignment;
+			// }
 		}
 
 		/// <summary>
@@ -92,23 +92,23 @@ namespace Lina
 		/// <returns></returns>
 		template <typename T> inline T GetProperty(const String& name)
 		{
-			const StringID sid = TO_SID(name);
-
-			size_t dataIndex = 0;
-			for (const auto& mem : m_uboDefinition.members)
-			{
-				const StringID memSid = TO_SID(mem.name);
-
-				if (memSid == sid)
-				{
-					T* ptr = reinterpret_cast<T*>(m_data + dataIndex);
-					return *ptr;
-				}
-
-				dataIndex += mem.alignment;
-			}
-
-			return nullptr;
+			// const StringID sid = TO_SID(name);
+			// 
+			// size_t dataIndex = 0;
+			// for (const auto& mem : m_uboDefinition.members)
+			// {
+			// 	const StringID memSid = TO_SID(mem.name);
+			// 
+			// 	if (memSid == sid)
+			// 	{
+			// 		T* ptr = reinterpret_cast<T*>(m_data + dataIndex);
+			// 		return *ptr;
+			// 	}
+			// 
+			// 	dataIndex += mem.alignment;
+			// }
+			// 
+			// return nullptr;
 		}
 
 	protected:
@@ -122,7 +122,6 @@ namespace Lina
 		uint32			  m_shader		  = 0;
 		uint8*			  m_data		  = nullptr;
 		size_t			  m_totalDataSize = 0;
-		LinaGX::ShaderUBO m_uboDefinition = {};
 	};
 
 } // namespace Lina

@@ -75,7 +75,7 @@ namespace Lina
 		m_resourceManager->AddListener(this);
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
-		m_currentVsync = initInfo.vsyncMode;
+		m_currentVsync = initInfo.vsyncStyle;
 		m_lgx		   = m_lgxWrapper->GetLGX();
 
 		// Default samplers
@@ -124,68 +124,62 @@ namespace Lina
 			m_defaultMaterials.push_back(defaultUnlitMaterial);
 		}
 
-		// pfd
-		{
-			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				auto& data = m_pfd[i];
-
-				LinaGX::ResourceDesc globalDataDesc = {
-					.size		   = sizeof(GPUGlobalData),
-					.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-					.heapType	   = LinaGX::ResourceHeap::StagingHeap,
-					.debugName	   = "GfxManager: Global Data Buffer",
-				};
-				data.globalDataResource = m_lgx->CreateResource(globalDataDesc);
-				m_lgx->MapResource(data.globalDataResource, data.globalDataMapped);
-
-				LinaGX::DescriptorBinding set0Bindings[3];
-
-				// Scene data
-				set0Bindings[0] = LinaGX::DescriptorBinding{
-					.binding		 = 0,
-					.descriptorCount = 1,
-					.type			 = LinaGX::DescriptorType::UBO,
-					.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-				};
-
-				// All textures
-				set0Bindings[1] = LinaGX::DescriptorBinding{
-					.binding		 = 1,
-					.descriptorCount = 50,
-					.type			 = LinaGX::DescriptorType::SeparateImage,
-					.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-					.bindless		 = true,
-				};
-
-				// All samplers
-				set0Bindings[2] = LinaGX::DescriptorBinding{
-					.binding		 = 2,
-					.descriptorCount = 50,
-					.type			 = LinaGX::DescriptorType::SeparateSampler,
-					.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-					.bindless		 = true,
-				};
-
-				LinaGX::DescriptorSetDesc setDescription0 = {
-					.bindings	   = set0Bindings,
-					.bindingsCount = 3,
-				};
-
-				data.descriptorSet0GlobalData = m_lgx->CreateDescriptorSet(setDescription0);
-
-				LinaGX::DescriptorUpdateBufferDesc globalDataUpdateDesc = {
-					.setHandle		 = data.descriptorSet0GlobalData,
-					.binding		 = 0,
-					.descriptorCount = 1,
-					.resources		 = &data.globalDataResource,
-					.descriptorType	 = LinaGX::DescriptorType::UBO,
-					.isWriteAccess	 = false,
-				};
-
-				m_lgx->DescriptorUpdateBuffer(globalDataUpdateDesc);
-			}
-		}
+		// // pfd
+		// {
+		// 	for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		// 	{
+		// 		auto& data = m_pfd[i];
+		//
+		// 		LinaGX::ResourceDesc globalDataDesc = {
+		// 			.size		   = sizeof(GPUGlobalData),
+		// 			.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+		// 			.heapType	   = LinaGX::ResourceHeap::StagingHeap,
+		// 			.debugName	   = "GfxManager: Global Data Buffer",
+		// 		};
+		// 		data.globalDataResource = m_lgx->CreateResource(globalDataDesc);
+		// 		m_lgx->MapResource(data.globalDataResource, data.globalDataMapped);
+		//
+		// 		LinaGX::DescriptorBinding set0Bindings[3];
+		//
+		// 		// Scene data
+		// 		set0Bindings[0] = LinaGX::DescriptorBinding{
+		// 			.descriptorCount = 1,
+		// 			.type			 = LinaGX::DescriptorType::UBO,
+		// 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		// 		};
+		//
+		// 		// All textures
+		// 		set0Bindings[1] = LinaGX::DescriptorBinding{
+		// 			.descriptorCount = 50,
+		// 			.type			 = LinaGX::DescriptorType::SeparateImage,
+		// 			.unbounded		 = true,
+		// 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		// 		};
+		//
+		// 		// All samplers
+		// 		set0Bindings[2] = LinaGX::DescriptorBinding{
+		// 			.descriptorCount = 50,
+		// 			.type			 = LinaGX::DescriptorType::SeparateSampler,
+		// 			.unbounded		 = true,
+		// 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		// 		};
+		//
+		// 		LinaGX::DescriptorSetDesc setDescription0 = {
+		// 			.bindings = set0Bindings,
+		// 		};
+		//
+		// 		data.descriptorSet0GlobalData = m_lgx->CreateDescriptorSet(setDescription0);
+		//
+		// 		LinaGX::DescriptorUpdateBufferDesc globalDataUpdateDesc = {
+		// 			.setHandle	   = data.descriptorSet0GlobalData,
+		// 			.binding	   = 0,
+		// 			.buffers	   = {data.globalDataResource},
+		// 			.isWriteAccess = false,
+		// 		};
+		//
+		// 		m_lgx->DescriptorUpdateBuffer(globalDataUpdateDesc);
+		// 	}
+		// }
 	}
 
 	void GfxManager::PreShutdown()
@@ -352,7 +346,7 @@ namespace Lina
 			}
 
 			LinaGX::SubmitDesc desc = {
-				.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::QueueType::Graphics),
+				.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
 				.streams		= streams.data(),
 				.streamCount	= static_cast<uint32>(streams.size()),
 				.useWait		= !waitSemaphores.empty(),
@@ -481,69 +475,69 @@ namespace Lina
 
 	void GfxManager::UpdateBindlessTextures()
 	{
-		auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
-
-		if (currentFrame.bindlessTexturesDirty)
-		{
-			currentFrame.bindlessTexturesDirty = false;
-
-			Vector<Texture*> allTextures = m_resourceManager->GetAllResourcesRaw<Texture>(true);
-
-			// TODO: ask world renderers for their bindless textures.
-
-			Vector<uint32> textureHandles;
-			textureHandles.reserve(allTextures.size());
-
-			uint32 i = 0;
-			for (auto txt : allTextures)
-			{
-				textureHandles.push_back(txt->GetGPUHandle());
-				txt->m_bindlessIndex = i;
-				i++;
-			}
-
-			LinaGX::DescriptorUpdateImageDesc desc = {
-				.setHandle		 = currentFrame.descriptorSet0GlobalData,
-				.binding		 = 1,
-				.descriptorCount = static_cast<uint32>(textureHandles.size()),
-				.textures		 = textureHandles.data(),
-				.descriptorType	 = LinaGX::DescriptorType::SeparateImage,
-			};
-
-			m_lgx->DescriptorUpdateImage(desc);
-		}
+		// auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
+		//
+		// if (currentFrame.bindlessTexturesDirty)
+		// {
+		// 	currentFrame.bindlessTexturesDirty = false;
+		//
+		// 	Vector<Texture*> allTextures = m_resourceManager->GetAllResourcesRaw<Texture>(true);
+		//
+		// 	// TODO: ask world renderers for their bindless textures.
+		//
+		// 	Vector<uint32> textureHandles;
+		// 	textureHandles.reserve(allTextures.size());
+		//
+		// 	uint32 i = 0;
+		// 	for (auto txt : allTextures)
+		// 	{
+		// 		textureHandles.push_back(txt->GetGPUHandle());
+		// 		txt->m_bindlessIndex = i;
+		// 		i++;
+		// 	}
+		//
+		// 	LinaGX::DescriptorUpdateImageDesc desc = {
+		// 		.setHandle		 = currentFrame.descriptorSet0GlobalData,
+		// 		.binding		 = 1,
+		// 		.descriptorCount = static_cast<uint32>(textureHandles.size()),
+		// 		.textures		 = textureHandles.data(),
+		// 		.descriptorType	 = LinaGX::DescriptorType::SeparateImage,
+		// 	};
+		//
+		// 	m_lgx->DescriptorUpdateImage(desc);
+		// }
 	}
 
 	void GfxManager::UpdateBindlessSamplers()
 	{
-		auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
-
-		if (currentFrame.bindlessSamplersDirty)
-		{
-			currentFrame.bindlessSamplersDirty = false;
-
-			const auto&	   allSamplers = m_resourceManager->GetAllResourcesRaw<TextureSampler>(true);
-			Vector<uint32> samplerHandles;
-			samplerHandles.reserve(allSamplers.size());
-
-			uint32 i = 0;
-			for (auto sampler : allSamplers)
-			{
-				samplerHandles.push_back(sampler->GetGPUHandle());
-				sampler->m_bindlessIndex = i;
-				i++;
-			}
-
-			LinaGX::DescriptorUpdateImageDesc desc = {
-				.setHandle		 = currentFrame.descriptorSet0GlobalData,
-				.binding		 = 2,
-				.descriptorCount = static_cast<uint32>(samplerHandles.size()),
-				.samplers		 = samplerHandles.data(),
-				.descriptorType	 = LinaGX::DescriptorType::SeparateSampler,
-			};
-
-			m_lgx->DescriptorUpdateImage(desc);
-		}
+		// auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
+		//
+		// if (currentFrame.bindlessSamplersDirty)
+		// {
+		// 	currentFrame.bindlessSamplersDirty = false;
+		//
+		// 	const auto&	   allSamplers = m_resourceManager->GetAllResourcesRaw<TextureSampler>(true);
+		// 	Vector<uint32> samplerHandles;
+		// 	samplerHandles.reserve(allSamplers.size());
+		//
+		// 	uint32 i = 0;
+		// 	for (auto sampler : allSamplers)
+		// 	{
+		// 		samplerHandles.push_back(sampler->GetGPUHandle());
+		// 		sampler->m_bindlessIndex = i;
+		// 		i++;
+		// 	}
+		//
+		// 	LinaGX::DescriptorUpdateImageDesc desc = {
+		// 		.setHandle		 = currentFrame.descriptorSet0GlobalData,
+		// 		.binding		 = 2,
+		// 		.descriptorCount = static_cast<uint32>(samplerHandles.size()),
+		// 		.samplers		 = samplerHandles.data(),
+		// 		.descriptorType	 = LinaGX::DescriptorType::SeparateSampler,
+		// 	};
+		//
+		// 	m_lgx->DescriptorUpdateImage(desc);
+		// }
 	}
 
 } // namespace Lina

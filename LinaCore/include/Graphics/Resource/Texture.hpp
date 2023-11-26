@@ -98,7 +98,7 @@ namespace Lina
 	private:
 		uint32						  m_bindlessIndex = 0;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
-		LinaGX::ImageChannelMask	  m_channelMask		 = LinaGX::ImageChannelMask::Rgba;
+		LinaGX::ImageChannelMask	  m_channelMask		 = LinaGX::ImageChannelMask::RGBA;
 		uint32						  m_gpuHandle		 = 0;
 		StringID					  m_sampler			 = 0;
 		bool						  m_loadedFromStream = false;

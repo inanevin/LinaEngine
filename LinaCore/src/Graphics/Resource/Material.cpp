@@ -58,16 +58,16 @@ namespace Lina
 
 		if (shader)
 		{
-			m_uboDefinition = shader->GetMaterialUBO();
-
-			m_totalDataSize = 0;
-			for (const auto& mem : m_uboDefinition.members)
-				m_totalDataSize += mem.alignment;
-
-			if (m_totalDataSize == 0)
-				return;
-
-			m_data = new uint8[m_totalDataSize];
+			// m_uboDefinition = shader->GetMaterialUBO();
+			// 
+			// m_totalDataSize = 0;
+			// for (const auto& mem : m_uboDefinition.members)
+			// 	m_totalDataSize += mem.alignment;
+			// 
+			// if (m_totalDataSize == 0)
+			// 	return;
+			// 
+			// m_data = new uint8[m_totalDataSize];
 		}
 	}
 

@@ -31,12 +31,10 @@ SOFTWARE.
 Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInfo)
 {
 	outInfo = Lina::SystemInitializationInfo{
-		.appName		  = "Lina Game",
-		.windowWidth	  = 800,
-		.windowHeight	  = 600,
-		.windowStyle	  = LinaGX::WindowStyle::Windowed,
-		.preferredGPUType = LinaGX::PreferredGPUType::Discrete,
-		.vsyncMode		  = LinaGX::VsyncMode::None,
+		.appName	  = "Lina Game",
+		.windowWidth  = 800,
+		.windowHeight = 600,
+		.windowStyle  = LinaGX::WindowStyle::WindowedApplication,
 	};
 
 	return new Lina::Application();

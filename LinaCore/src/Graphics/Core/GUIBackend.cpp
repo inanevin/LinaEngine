@@ -187,7 +187,7 @@ namespace Lina
 				*data.copySemaphoreValue = val;
 
 				LinaGX::SubmitDesc desc = {
-					.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::QueueType::Transfer),
+					.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
 					.streams		  = &data.copyStream,
 					.streamCount	  = 1,
 					.useSignal		  = true,
@@ -205,7 +205,6 @@ namespace Lina
 		// Pipeline
 		{
 			LinaGX::CMDBindPipeline* pipeline = data.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
-			pipeline->extension				  = nullptr;
 			pipeline->shader				  = m_shader->GetGPUHandle(data.variantPassType);
 		}
 
@@ -213,15 +212,13 @@ namespace Lina
 		{
 
 			LinaGX::CMDBindVertexBuffers* vtx = data.gfxStream->AddCommand<LinaGX::CMDBindVertexBuffers>();
-			vtx->extension					  = nullptr;
 			vtx->offset						  = 0;
 			vtx->slot						  = 0;
 			vtx->vertexSize					  = sizeof(LinaVG::Vertex);
 			vtx->resource					  = data.vertexBuffer->GetGPUResource();
 
 			LinaGX::CMDBindIndexBuffers* index = data.gfxStream->AddCommand<LinaGX::CMDBindIndexBuffers>();
-			index->extension				   = nullptr;
-			index->indexFormat				   = LinaGX::IndexType::Uint16;
+			index->indexType				   = LinaGX::IndexType::Uint16;
 			index->offset					   = 0;
 			index->resource					   = data.indexBuffer->GetGPUResource();
 		}
@@ -229,7 +226,6 @@ namespace Lina
 		// Descriptors
 		{
 			LinaGX::CMDBindDescriptorSets* bind = data.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-			bind->extension						= nullptr;
 			bind->descriptorSetHandles			= data.gfxStream->EmplaceAuxMemory<uint16>(m_gfxManager->GetCurrentDescriptorSet0GlobalData(), data.descriptorSet1, data.descriptorSet2);
 			bind->firstSet						= 0;
 			bind->setCount						= 3;
@@ -253,7 +249,6 @@ namespace Lina
 				{
 					scissorsRect					 = currentRect;
 					LinaGX::CMDSetScissors* scissors = data.gfxStream->AddCommand<LinaGX::CMDSetScissors>();
-					scissors->extension				 = nullptr;
 					scissors->x						 = scissorsRect.pos.x;
 					scissors->y						 = scissorsRect.pos.y;
 					scissors->width					 = scissorsRect.size.x;
@@ -262,7 +257,6 @@ namespace Lina
 
 				// Material id.
 				LinaGX::CMDBindConstants* constants = data.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
-				constants->extension				= nullptr;
 				constants->offset					= 0;
 				constants->stages					= data.gfxStream->EmplaceAuxMemory<LinaGX::ShaderStage>(LinaGX::ShaderStage::Fragment);
 				constants->stagesSize				= 1;
@@ -271,7 +265,6 @@ namespace Lina
 
 				// Draw command.
 				LinaGX::CMDDrawIndexedInstanced* draw = data.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-				draw->extension						  = nullptr;
 				draw->indexCountPerInstance			  = req.indexCount;
 				draw->instanceCount					  = 1;
 				draw->startInstanceLocation			  = 0;

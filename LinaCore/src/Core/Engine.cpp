@@ -97,7 +97,7 @@ namespace Lina
 	{
 		PROFILER_FUNCTION();
 		m_resourceManager.Tick();
-		m_lgxWrapper.GetLGX()->PollWindow();
+		m_lgxWrapper.GetLGX()->TickWindowSystem();
 	}
 
 	void Engine::Tick()
