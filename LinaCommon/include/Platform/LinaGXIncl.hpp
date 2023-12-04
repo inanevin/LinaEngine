@@ -34,7 +34,6 @@ SOFTWARE.
 #include "LinaGX/LinaGX.hpp"
 #include "Data/Streams.hpp"
 
-
 namespace Lina
 {
 	extern void SaveLinaGXShaderLayout(OStream& stream, const LinaGX::ShaderLayout& layout);

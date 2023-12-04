@@ -33,7 +33,11 @@ SOFTWARE.
 
 #include "Core/Common.hpp"
 #include "Core/Application.hpp"
+#include "Core/ApplicationListener.hpp"
 
-extern Lina::Application* LinaLaunchCreateApplication(Lina::SystemInitializationInfo& outInitializationInfo);
+namespace Lina
+{
+	extern SystemInitializationInfo Lina_GetInitInfo();
+}
 
 #endif

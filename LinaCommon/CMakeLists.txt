@@ -15,11 +15,10 @@
 cmake_minimum_required (VERSION 3.8)
 project(LinaCommon CXX)
 
-
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
-set (LINACOMMON_SOURCES
+set (SOURCES
 
 	src/Core/Common.cpp
 	src/Core/StringID.cpp
@@ -90,7 +89,7 @@ set (LINACOMMON_SOURCES
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
-set(LINACOMMON_HEADERS
+set(HEADERS
 
 	#CORE
 	include/Core/Common.hpp
@@ -195,12 +194,12 @@ set(LINACOMMON_HEADERS
 
 if(WIN32)
 
-set (LINACOMMON_PLATFORM_HEADERS
+set (PLATFORM_HEADERS
 include/Platform/Win32/Win32PlatformTime.hpp
 include/Platform/Win32/Win32WindowsInclude.hpp
 )
 
-set (LINACOMMON_PLATFORM_SOURCES 
+set (PLATFORM_SOURCES 
 src/Platform/Win32/Win32PlatformTime.cpp
 )
 
@@ -209,8 +208,8 @@ endif()
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-add_library(${PROJECT_NAME} ${LINACOMMON_SOURCES} ${LINACOMMON_HEADERS} ${LINACOMMON_PLATFORM_HEADERS} ${LINACOMMON_PLATFORM_SOURCES})
-add_library(Lina::Common ALIAS ${PROJECT_NAME} ) 
+add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${PLATFORM_HEADERS} ${PLATFORM_SOURCES})
+add_library(Lina::Common ALIAS ${PROJECT_NAME}) 
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -239,7 +238,6 @@ PUBLIC
 	include/Serialization/Endianness.hpp
 	include/Data/Streams.hpp
 	include/Log/Log.hpp
-	
 )
 
 
@@ -287,23 +285,8 @@ message("LinaCommon -> Winmm Linked.")
 endif()
 
 
-##include (GenerateExportHeader)
-##	GENERATE_EXPORT_HEADER (LinaCommon
-##	BASE_NAME LinaCommon
-##	EXPORT_MACRO_NAME LINACOMMON_API
-##	EXPORT_FILE_NAME LinaCommonExports.hpp
-##)
-
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
-if(MSVC_IDE)
-	foreach(source IN LISTS LINACOMMON_HEADERS LINACOMMON_SOURCES LINACOMMON_PLATFORM_HEADERS LINACOMMON_PLATFORM_SOURCES)
-		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LinaCommon_SOURCE_DIR}" "" relative_source_path "${source_path}")
-		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-				source_group("${source_path_msvc}" FILES "${source}")
-	endforeach()
-endif()
-
-
+include(../CMake/CommonFunctions.cmake)
+group_sources(HEADERS SOURCES PLATFORM_HEADERS PLATFORM_SOURCES)

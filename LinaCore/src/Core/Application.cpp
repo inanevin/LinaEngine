@@ -27,17 +27,16 @@ SOFTWARE.
 */
 
 #include "Core/Application.hpp"
+#include "Core/ApplicationListener.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Core/PlatformProcess.hpp"
 #include "Core/PlatformTime.hpp"
 #include "Math/Math.hpp"
 #include "System/IPlugin.hpp"
-#include "Core/CoreResourcesRegistry.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Platform/LinaGXIncl.hpp"
-
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
 #include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
@@ -45,118 +44,72 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	class TestGUIDrawer : public IGUIDrawer
-	{
-	public:
-		TestGUIDrawer(ResourceManager* man, LinaGX::Window* win) : rm(man), IGUIDrawer(win){};
-		virtual ~TestGUIDrawer() = default;
-
-		ResourceManager* rm = nullptr;
-
-		virtual void DrawGUI(int threadID)
-		{
-			LinaVG::StyleOptions opts;
-			// opts.aaEnabled = true;
-
-			LinaVG::DrawRect(LinaVG::Vec2(0, 0), LinaVG::Vec2(50, 50), opts, 0.0f, 1);
-
-			opts.textureHandle = "Resources/Core/Textures/StubLinaLogo.png"_hs;
-			LinaVG::DrawRect(LinaVG::Vec2(100, 0), LinaVG::Vec2(200, 100), opts, 0.0f, 1);
-
-			opts.textureHandle = 0;
-			opts.color.start   = LinaVG::Vec4(0, 1, 0, 1);
-			opts.color.end	   = LinaVG::Vec4(0, 1, 1, 1);
-
-			LinaVG::DrawTriangle(LinaVG::Vec2(300, 300), LinaVG::Vec2(400, 200), LinaVG::Vec2(200, 200), opts);
-
-			opts.color.gradientType = LinaVG::GradientType::Radial;
-			opts.color.radialSize	= 1.5f;
-			LinaVG::DrawCircle(LinaVG::Vec2(200, 200), 60, opts);
-
-			auto				f  = rm->GetResource<Font>("Resources/Core/Fonts/WorkSans-Regular_1x.ttf"_hs);
-			auto				f2 = rm->GetResource<Font>("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs);
-			LinaVG::TextOptions aq;
-			aq.font = f->GetLinaVGFont();
-			LinaVG::DrawTextNormal("vesselamun alekyum", LinaVG::Vec2(250, 450), aq);
-
-			LinaVG::SDFTextOptions sdf;
-			sdf.font = f2->GetLinaVGFont();
-		LinaVG::DrawTextSDF("NANNNANANA ", LinaVG::Vec2(250, 550), sdf);
-		}
-	};
-
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		auto& resourceManager = m_engine.GetResourceManager();
+		m_appListener		  = initInfo.appListener;
+		LINA_ASSERT(m_appListener != nullptr, "Application listener can not be empty!");
 
 		// Platform setup
 		{
 			PlatformTime::QueryFreq();
 			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
 			PROFILER_REGISTER_THREAD("Main");
-			SetupEnvironment();
 		}
 
-		// pre-init priority resources, rendering systems & window
+		// Resource registry
+		{
+			auto& resourceManager = m_engine.GetResourceManager();
+			resourceManager.SetMode(initInfo.resourceManagerMode);
+
+			m_appListener->RegisterResourceTypes(resourceManager);
+			resourceManager.SetPriorityResources(m_appListener->GetPriorityResources());
+			resourceManager.SetPriorityResourcesMetadata(m_appListener->GetPriorityResourcesMetadata());
+			resourceManager.SetCoreResources(m_appListener->GetCoreResources());
+			resourceManager.SetCoreResourcesMetadata(m_appListener->GetCoreResourcesMetadata());
+		}
+
+		// Timing
+		{
+			// SetFrameCap(16667);
+			SetFixedTimestep(10000);
+			SetFixedTimestep(true);
+		}
+
+		// Pre-initialization
 		{
 			m_engine.PreInitialize(initInfo);
 			resourceManager.LoadResources(resourceManager.GetPriorityResources());
 			resourceManager.WaitForAll();
-			CreateMainWindow(initInfo);
+			m_engine.DispatchEvent(EVS_PreInitComplete, {});
 		}
 
-		m_engine.Initialize(initInfo);
-		LoadPlugins();
-		OnInited();
-	}
+		// Main window
+		{
+			auto window = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
+			window->CenterPositionToCurrentMonitor();
+			window->SetCallbackClose([&]() { m_exitRequested = true; });
+			window->SetVisible(true);
+		}
 
-	void Application::SetupEnvironment()
-	{
-		auto& resourceManager = m_engine.GetResourceManager();
-		// SetApplicationMode(ApplicationMode::Standalone);
-		// resourceManager.SetMode(ResourceManagerMode::Package);
-		SetApplicationMode(ApplicationMode::Standalone);
-		resourceManager.SetMode(ResourceManagerMode::File);
-		m_coreResourceRegistry = new CoreResourcesRegistry();
-		m_coreResourceRegistry->RegisterResourceTypes(resourceManager);
-		resourceManager.SetPriorityResources(m_coreResourceRegistry->GetPriorityResources());
-		resourceManager.SetPriorityResourcesMetadata(m_coreResourceRegistry->GetPriorityResourcesMetadata());
-		resourceManager.SetCoreResources(m_coreResourceRegistry->GetCoreResources());
-		resourceManager.SetCoreResourcesMetadata(m_coreResourceRegistry->GetCoreResourcesMetadata());
-		// SetFrameCap(16667);
-		SetFixedTimestep(10000);
-		SetFixedTimestep(true);
-	}
-
-	void Application::CreateMainWindow(const SystemInitializationInfo& initInfo)
-	{
-		auto window = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
-		window->CenterPositionToCurrentMonitor();
-		window->SetCallbackClose([&]() { m_exitRequested = true; });
-
-		// auto		sf	= m_engine.GetGfxManager()->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN);
-		// IGUIDrawer* heh = new TestGUIDrawer(&m_engine.GetResourceManager(), window);
-		// sf->SetGUIDrawer(heh);
-	}
-
-	void Application::OnInited()
-	{
-		auto& resourceManager = m_engine.GetResourceManager();
-		resourceManager.LoadResources(resourceManager.GetCoreResources());
-		resourceManager.WaitForAll();
-		auto window = m_engine.GetLGXWrapper().GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN);
-		window->SetVisible(true);
+		// Initialization
+		{
+			m_engine.Initialize(initInfo);
+			auto& resourceManager = m_engine.GetResourceManager();
+			resourceManager.LoadResources(resourceManager.GetCoreResources());
+			resourceManager.WaitForAll();
+			m_engine.DispatchEvent(EVS_InitComplete, {});
+		}
 	}
 
 	void Application::LoadPlugins()
 	{
-		PlatformProcess::LoadPlugin("GamePlugin.dll", m_engine.GetInterface(), &m_engine);
+		// PlatformProcess::LoadPlugin("GamePlugin.dll", m_engine.GetInterface(), &m_engine);
 	}
 
 	void Application::UnloadPlugins()
 	{
-		PlatformProcess::UnloadPlugin("GamePlugin.dll", &m_engine);
+		// PlatformProcess::UnloadPlugin("GamePlugin.dll", &m_engine);
 	}
 
 	void Application::PreTick()
@@ -191,13 +144,9 @@ namespace Lina
 		m_engine.GetLGXWrapper().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		UnloadPlugins();
 		m_engine.Shutdown();
-		delete m_coreResourceRegistry;
+		delete m_appListener;
 	}
 
-	void Application::SetApplicationMode(ApplicationMode mode)
-	{
-		SystemInfo::SetApplicationMode(mode);
-	}
 	void Application::SetFrameCap(int64 microseconds)
 	{
 		SystemInfo::SetFrameCap(microseconds);

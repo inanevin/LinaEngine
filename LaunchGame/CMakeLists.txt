@@ -13,47 +13,43 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.8)
-project(LinaGameLauncher)
+project(LaunchGame)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
-set(LINAGAMELAUNCHER_SOURCES 
-
+set(SOURCES 
+include/LaunchGame.hpp
 )
 
-set(LINAGAMELAUNCHER_HEADERS
-
-src/Main.cpp
-
+set(HEADERS
+src/LaunchGame.cpp
 )
 
 #--------------------------------------------------------------------
 # Create executable project
 #--------------------------------------------------------------------
 
-## WIN32 Console Subsystem
+# WIN32 Console Subsystem
 if(WIN32)
-	add_executable(${PROJECT_NAME} WIN32 ${LINAGAMELAUNCHER_SOURCES} ${LINAGAMELAUNCHER_HEADERS})
+	add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS})
 else()
-	add_executable(${PROJECT_NAME} ${LINAGAMELAUNCHER_SOURCES} ${LINAGAMELAUNCHER_HEADERS})
+	add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine/Launch/)
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 include(../CMake/ProjectSettings.cmake)
-include(../CMake/ExecutableSettings.cmake)
 
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCore/include)
-target_compile_definitions(${PROJECT_NAME} PUBLIC _ITERATOR_DEBUG_LEVEL=0)
 #--------------------------------------------------------------------
 # Links
 #--------------------------------------------------------------------
@@ -61,24 +57,8 @@ target_link_libraries(${PROJECT_NAME}
 PUBLIC Lina::Core
 )
 
-if(WIN32 AND LINA_ENABLE_PROFILING)
-  target_link_libraries(${PROJECT_NAME} PUBLIC Dbghelp)
-endif()
-
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")
-endif()
-
-include(../CMake/EditorSandboxCommands.cmake)
-
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
-if(MSVC_IDE)
-	foreach(source IN LISTS LINAGAMELAUNCHER_HEADERS LINAGAMELAUNCHER_SOURCES)
-		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LINAGAMELAUNCHER_SOURCE_DIR}" "" relative_source_path "${source_path}")
-		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-				source_group("${source_path_msvc}" FILES "${source}")
-	endforeach()
-endif()
+include(../CMake/CommonFunctions.cmake)
+group_sources(HEADERS SOURCES)

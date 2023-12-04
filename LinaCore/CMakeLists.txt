@@ -18,18 +18,18 @@ project(LinaCore)
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
-set (LINACORE_SOURCES
+set (SOURCES
 	
 # Audio
 src/Audio/Core/AudioManager.cpp
 
 # Core
 src/Core/Application.cpp
+src/Core/ApplicationListener.cpp
 src/Core/Engine.cpp
 src/Core/SystemInfo.cpp
 src/Core/CommonCore.cpp
-src/Core/IEngineInterface.cpp
-src/Core/CoreResourcesRegistry.cpp
+src/Core/EngineInterface.cpp
 
 # World
 src/World/Core/Entity.cpp
@@ -83,7 +83,7 @@ src/Resources/Data/ResourceMetadata.cpp
 #--------------------------------------------------------------------
 # Set headers
 #--------------------------------------------------------------------
-set(LINACORE_HEADERS
+set(HEADERS
 
 include/Lina.hpp
 
@@ -92,12 +92,12 @@ include/Audio/Core/AudioManager.hpp
 
 # Core
 include/Core/Application.hpp
+include/Core/ApplicationListener.hpp
 include/Core/Engine.hpp
 include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
-include/Core/IEngineInterface.hpp
+include/Core/EngineInterface.hpp
 include/Core/PlatformProcess.hpp
-include/Core/CoreResourcesRegistry.hpp
 
 # World
 include/World/Core/Entity.hpp
@@ -155,30 +155,25 @@ include/Graphics/Resource/Font.hpp
 
 if(WIN32)
 
-set (LINACORE_PLATFORM_HEADERS
+set (PLATFORM_HEADERS
 include/Platform/Win32/Win32PlatformProcess.hpp
 )
 
-set (LINACORE_PLATFORM_SOURCES 
+set (PLATFORM_SOURCES 
 src/Platform/Win32/Win32PlatformProcess.cpp
 )
 
 endif()
 
-set(SHADER_SOURCES
-)
+
 
 #--------------------------------------------------------------------
 # Define the library & create an alias
 #--------------------------------------------------------------------
-
-
-add_library(${PROJECT_NAME} ${LINACORE_SOURCES} ${LINACORE_HEADERS} ${LINACORE_PLATFORM_HEADERS} ${LINACORE_PLATFORM_SOURCES} ${SHADER_SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${PLATFORM_HEADERS} ${PLATFORM_SOURCES})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
 
-
 ## Remove Nvidia PhysX linker pdb warning
-target_link_options(${PROJECT_NAME} INTERFACE "/ignore:4099") 
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
 
 #--------------------------------------------------------------------
@@ -189,7 +184,6 @@ include(../CMake/ProjectSettings.cmake)
 #--------------------------------------------------------------------
 # Set include directories
 #--------------------------------------------------------------------
-
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon/include)
@@ -210,29 +204,12 @@ target_link_libraries(${PROJECT_NAME}
 	PUBLIC user32.lib
 	PUBLIC Shcore.lib
 )
-
 message("LinaCore -> User32 has been linked.")
 message("LinaCore -> Shcore has been linked.")
 endif()
 
-
-
-##include (GenerateExportHeader)
-##	GENERATE_EXPORT_HEADER (LinaCore
-##	BASE_NAME LinaCore
-##	EXPORT_MACRO_NAME LINACORE_API
-##	EXPORT_FILE_NAME LinaCoreExports.hpp
-##)
-
 #--------------------------------------------------------------------
-# Folder structuring in visual studio
+# Folder structuring
 #--------------------------------------------------------------------
-if(MSVC_IDE)
-	foreach(source IN LISTS LINACORE_HEADERS LINACORE_SOURCES LINACORE_PLATFORM_HEADERS LINACORE_PLATFORM_SOURCES SHADER_SOURCES) 
-		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${LinaCore_SOURCE_DIR}" "" relative_source_path "${source_path}")
-		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-				source_group("${source_path_msvc}" FILES "${source}")
-	endforeach()
-
-endif()
+include(../CMake/CommonFunctions.cmake)
+group_sources(HEADERS SOURCES PLATFORM_HEADERS PLATFORM_SOURCES)

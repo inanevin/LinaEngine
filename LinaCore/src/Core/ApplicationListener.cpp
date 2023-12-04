@@ -1,32 +1,4 @@
-/*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
-
-Author: Inan Evin
-http://www.inanevin.com
-
-Copyright (c) [2018-] [Inan Evin]
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-*/
-
-#include "Core/CoreResourcesRegistry.hpp"
+#include "Core/ApplicationListener.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Texture.hpp"
@@ -39,7 +11,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	void CoreResourcesRegistry::RegisterResourceTypes(ResourceManager& rm)
+	void ApplicationListener::RegisterResourceTypes(ResourceManager& rm)
 	{
 		rm.RegisterResourceType<Model>(50, {"glb"}, PackageType::Package1);
 		rm.RegisterResourceType<Shader>(25, {"linashader"}, PackageType::Package1);
@@ -50,7 +22,7 @@ namespace Lina
 		rm.RegisterResourceType<Level>(10, {"linalevel"}, PackageType::PackageLevels);
 	}
 
-	Vector<ResourceIdentifier> CoreResourcesRegistry::GetPriorityResources()
+	Vector<ResourceIdentifier> ApplicationListener::GetPriorityResources()
 	{
 		Vector<ResourceIdentifier> list;
 
@@ -74,7 +46,7 @@ namespace Lina
 		return list;
 	}
 
-	Vector<Pair<StringID, ResourceMetadata>> CoreResourcesRegistry::GetPriorityResourcesMetadata()
+	Vector<Pair<StringID, ResourceMetadata>> ApplicationListener::GetPriorityResourcesMetadata()
 	{
 		Vector<Pair<StringID, ResourceMetadata>> list;
 		ResourceMetadata						 metadata;
@@ -142,7 +114,7 @@ namespace Lina
 		return list;
 	}
 
-	Vector<ResourceIdentifier> CoreResourcesRegistry::GetCoreResources()
+	Vector<ResourceIdentifier> ApplicationListener::GetCoreResources()
 	{
 		Vector<ResourceIdentifier> list;
 
@@ -165,7 +137,7 @@ namespace Lina
 		return list;
 	}
 
-	Vector<Pair<StringID, ResourceMetadata>> CoreResourcesRegistry::GetCoreResourcesMetadata()
+	Vector<Pair<StringID, ResourceMetadata>> ApplicationListener::GetCoreResourcesMetadata()
 	{
 		Vector<Pair<StringID, ResourceMetadata>> list;
 		ResourceMetadata						 metadata;

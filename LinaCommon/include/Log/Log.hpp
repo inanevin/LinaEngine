@@ -34,7 +34,7 @@ SOFTWARE.
 #define FMT_HEADER_ONLY
 #include "fmt/core.h"
 
-#ifdef LINA_ENABLE_LOGGING
+#ifdef LINA_DEBUG
 
 #define LINA_ERR(...)	   Lina::Log::LogMessage(Lina::LogLevel::Error, __VA_ARGS__)
 #define LINA_WARN(...)	   Lina::Log::LogMessage(Lina::LogLevel::Warn, __VA_ARGS__)
@@ -44,23 +44,12 @@ SOFTWARE.
 
 #else
 
-#ifdef LINA_PRODUCTION_BUILD
-
+#define LINA_TRACE(...)
 #define LINA_ERR(...)
 #define LINA_WARN(...)
 #define LINA_INFO(...)
-#define LINA_TRACE(...)
 #define LINA_CRITICAL(...)
 
-#else
-
-#define LINA_TRACE(...)
-#define LINA_ERR(...)	   Log::LogMessage(LogLevel::Error, __VA_ARGS__);
-#define LINA_WARN(...)	   Log::LogMessage(LogLevel::Warn, __VA_ARGS__);
-#define LINA_INFO(...)	   Log::LogMessage(LogLevel::Info, __VA_ARGS__);
-#define LINA_CRITICAL(...) Log::LogMessage(LogLevel::Critical, __VA_ARGS__);
-
-#endif
 #endif
 
 #ifdef LINA_DEBUG

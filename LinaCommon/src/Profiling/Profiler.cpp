@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifdef LINA_ENABLE_PROFILING
+#ifdef LINA_DEBUG
 
 #include "Profiling/Profiler.hpp"
 #include "Core/PlatformTime.hpp"

@@ -34,15 +34,10 @@ SOFTWARE.
 #include "Core/StringID.hpp"
 #include "Data/String.hpp"
 #include "Serialization/ISerializable.hpp"
+#include "Core/Common.hpp"
 
 namespace Lina
 {
-	enum class ResourceManagerMode
-	{
-		File,
-		Package
-	};
-
 	enum class PackageType
 	{
 		Default,

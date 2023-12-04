@@ -41,11 +41,6 @@ namespace Lina
 	class SystemInfo
 	{
 	public:
-		static inline ApplicationMode GetApplicationMode()
-		{
-			return s_appMode;
-		}
-
 		/// <summary>
 		/// Total elapsed seconds since application start.
 		/// </summary>
@@ -150,11 +145,6 @@ namespace Lina
 			return s_measuredFPS;
 		}
 
-		static inline bool IsEditor()
-		{
-			return s_appMode == ApplicationMode::Editor;
-		}
-
 		static inline bool GetAppHasFocus()
 		{
 			return s_appHasFocus;
@@ -195,11 +185,6 @@ namespace Lina
 		static inline void SetAppTime(double seconds)
 		{
 			s_appTime = seconds;
-		}
-
-		static inline void SetApplicationMode(ApplicationMode mode)
-		{
-			s_appMode = mode;
 		}
 
 		static inline void SetFixedTimestep(int64 microseconds)
@@ -244,20 +229,19 @@ namespace Lina
 		}
 
 	private:
-		static ApplicationMode s_appMode;
-		static double		   s_appTime;
-		static double		   s_deltaTime;
-		static double		   s_realDeltaTime;
-		static double		   s_timescale;
-		static double		   s_interpolationAlpha;
-		static bool			   s_appHasFocus;
-		static int64		   s_fixedTimestepMicroseconds;
-		static int64		   s_frameCapMicroseconds;
-		static int64		   s_deltaTimeMicroseconds;
-		static int64		   s_realDeltaTimeMicroseconds;
-		static int64		   s_appStartCycles;
-		static uint64		   s_frames;
-		static uint32		   s_measuredFPS;
+		static double s_appTime;
+		static double s_deltaTime;
+		static double s_realDeltaTime;
+		static double s_timescale;
+		static double s_interpolationAlpha;
+		static bool	  s_appHasFocus;
+		static int64  s_fixedTimestepMicroseconds;
+		static int64  s_frameCapMicroseconds;
+		static int64  s_deltaTimeMicroseconds;
+		static int64  s_realDeltaTimeMicroseconds;
+		static int64  s_appStartCycles;
+		static uint64 s_frames;
+		static uint32 s_measuredFPS;
 	};
 } // namespace Lina
 

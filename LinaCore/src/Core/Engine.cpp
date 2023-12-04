@@ -109,7 +109,7 @@ namespace Lina
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
-		auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
+		// auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
 
 		while (m_fixedTimestepAccumulator >= fixedTimestep)
 		{
@@ -121,14 +121,14 @@ namespace Lina
 
 		const double interpolationAlpha = static_cast<double>(m_fixedTimestepAccumulator) / fixedTimestepDb;
 
-		if (m_gfxManager)
-			m_gfxManager->Tick(static_cast<float>(SystemInfo::GetInterpolationAlpha()));
+		// if (m_gfxManager)
+		// 	m_gfxManager->Tick(static_cast<float>(SystemInfo::GetInterpolationAlpha()));
 
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 		//	audioJob.get();
 		//	m_levelManager.WaitForSimulation();
 
-		renderJob.get();
+		// renderJob.get();
 
 		if (m_gfxManager)
 			m_gfxManager->Sync();
@@ -156,48 +156,6 @@ namespace Lina
 		{
 			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::Fullscreen);
 		}
-
-		//
-		// if (m_input.GetKeyDown(LINA_KEY_2))
-		// {
-		// 	m_windowManager.SetVsync(VsyncMode::EveryVBlank);
-		// }
-		//
-		// if (m_input.GetKeyDown(LINA_KEY_3))
-		// {
-		// 	m_windowManager.SetVsync(VsyncMode::EverySecondVBlank);
-		// }
-		//
-		// if (m_input.GetKeyDown(LINA_KEY_4))
-		// {
-		// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Fullscreen);
-		// }
-		//
-		// if (m_input.GetKeyDown(LINA_KEY_K))
-		// {
-		// 	OnCriticalGfxError();
-		// }
-		//
-		// if (m_input.GetKeyDown(LINA_KEY_5))
-		// {
-		// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Windowed);
-		// }
-		// if (m_input.GetKeyDown(LINA_KEY_6))
-		// {
-		// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::WindowedNoResize);
-		// }
-		// if (m_input.GetKeyDown(LINA_KEY_7))
-		// {
-		// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::Borderless);
-		// }
-		// if (m_input.GetKeyDown(LINA_KEY_8))
-		// {
-		// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::BorderlessNoResize);
-		// }
-		// if (m_input.GetKeyDown(LINA_KEY_9))
-		// {
-		// 	m_windowManager.GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(WindowStyle::None);
-		// }
 	}
 
 	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)

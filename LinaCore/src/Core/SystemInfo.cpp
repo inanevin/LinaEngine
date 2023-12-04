@@ -35,7 +35,6 @@ namespace Lina
 {
 #define IDEAL_DT 16667
 
-	ApplicationMode SystemInfo::s_appMode					= ApplicationMode::Editor;
 	bool			SystemInfo::s_appHasFocus				= true;
 	int64			SystemInfo::s_fixedTimestepMicroseconds = 20000;
 	int64			SystemInfo::s_frameCapMicroseconds		= 0;

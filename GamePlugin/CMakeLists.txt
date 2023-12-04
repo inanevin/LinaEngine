@@ -19,24 +19,21 @@ project(GamePlugin)
 # Set sources
 #--------------------------------------------------------------------
 
-set(GAMEPLUGIN_SOURCES 
+set(SOURCES 
 include/GamePluginExports.hpp
 include/GamePlugin.hpp
 )
 
-set(GAMEPLUGIN_HEADERS
-
+set(HEADERS
 src/GamePluginEntryPoint.cpp
 src/GamePlugin.cpp
-
 )
 
 #--------------------------------------------------------------------
-# Create executable project
+# Create project
 #--------------------------------------------------------------------
-
 ## WIN32 Console Subsystem
-add_library(${PROJECT_NAME} SHARED ${GAMEPLUGIN_SOURCES} ${GAMEPLUGIN_HEADERS})
+add_library(${PROJECT_NAME} SHARED ${SOURCES} ${HEADERS})
 
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
@@ -56,26 +53,8 @@ target_link_libraries(${PROJECT_NAME}
 PUBLIC Lina::Core
 )
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-  target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")
-endif()
-
-#include (GenerateExportHeader)
-#	GENERATE_EXPORT_HEADER (GamePlugin
-#	BASE_NAME GamePlugin
-#	EXPORT_MACRO_NAME GamePlugin_API
-#	EXPORT_FILE_NAME GamePluginExports.hpp
-#)
-
-
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
-if(MSVC_IDE)
-	foreach(source IN LISTS GAMEPLUGIN_HEADERS GAMEPLUGIN_SOURCES)
-		get_filename_component(source_path "${source}" PATH)
-		string(REPLACE "${GAMEPLUGIN_SOURCE_DIR}" "" relative_source_path "${source_path}")
-		string(REPLACE "/" "\\" source_path_msvc "${relative_source_path}")
-				source_group("${source_path_msvc}" FILES "${source}")
-	endforeach()
-endif()
+include(../CMake/CommonFunctions.cmake)
+group_sources(HEADERS SOURCES)

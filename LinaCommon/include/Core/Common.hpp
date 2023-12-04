@@ -38,20 +38,24 @@ SOFTWARE.
 
 namespace Lina
 {
-	enum class ApplicationMode
+	enum class ResourceManagerMode
 	{
-		Standalone,
-		Editor
+		File,
+		Package
 	};
+
+	class ApplicationListener;
 
 	struct SystemInitializationInfo
 	{
-		const char*				 appName		  = "";
-		int						 windowWidth	  = 0;
-		int						 windowHeight	  = 0;
-		LinaGX::WindowStyle		 windowStyle	  = LinaGX::WindowStyle::WindowedApplication;
-		LinaGX::VSyncStyle		 vsyncStyle		  = {};
-		bool					 allowTearing	  = false;
+		const char*			   appName				  = "";
+		int					   windowWidth			  = 0;
+		int					   windowHeight			  = 0;
+		LinaGX::WindowStyle	   windowStyle			  = LinaGX::WindowStyle::WindowedApplication;
+		LinaGX::VSyncStyle	   vsyncStyle			  = {};
+		bool				   allowTearing			  = false;
+		ApplicationListener*   appListener			  = nullptr;
+		ResourceManagerMode	   resourceManagerMode	  = ResourceManagerMode::File;
 	};
 
 } // namespace Lina

@@ -42,6 +42,7 @@ namespace Lina
 {
 	struct SystemInitializationInfo;
 	class CoreResourcesRegistry;
+	class ApplicationListener;
 
 	class Application
 	{
@@ -49,11 +50,11 @@ namespace Lina
 		Application() : m_engine(this){};
 		virtual ~Application(){};
 
-		virtual void	Initialize(const SystemInitializationInfo& initInfo) final;
-		virtual void	PreTick();
-		virtual void	Poll();
-		virtual void	Tick();
-		virtual void	Shutdown();
+		virtual void Initialize(const SystemInitializationInfo& initInfo) final;
+		virtual void PreTick();
+		virtual void Poll();
+		virtual void Tick();
+		virtual void Shutdown();
 
 		inline void Quit()
 		{
@@ -65,19 +66,20 @@ namespace Lina
 			return m_exitRequested;
 		}
 
+		inline void SetListener(ApplicationListener* listener)
+		{
+			m_appListener = listener;
+		}
+
 	protected:
-		void SetApplicationMode(ApplicationMode mode);
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);
 
-		virtual void SetupEnvironment();
-		virtual void CreateMainWindow(const SystemInitializationInfo& initInfo);
-		virtual void OnInited();
 		virtual void LoadPlugins();
 		virtual void UnloadPlugins();
 
 	protected:
-		CoreResourcesRegistry* m_coreResourceRegistry = nullptr;
+		ApplicationListener*   m_appListener		  = nullptr;
 		Engine				   m_engine;
 		bool				   m_exitRequested = false;
 		bool				   m_isIdleMode	   = false;

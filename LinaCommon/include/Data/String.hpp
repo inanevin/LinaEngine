@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include <EASTL/string.h>
 
-#ifdef LINA_ENABLE_LOGGING
+#ifdef LINA_DEBUG
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 #endif
@@ -80,7 +80,7 @@ template <> struct std::hash<eastl::string>
 	}
 };
 
-#ifdef LINA_ENABLE_LOGGING
+#ifdef LINA_DEBUG
 
 template <> struct fmt::formatter<eastl::string>
 {

@@ -26,26 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef IEngineInterface_HPP
-#define IEngineInterface_HPP
+#include "Lina.hpp"
+#include "LaunchGame.hpp"
 
 namespace Lina
 {
-	class Engine;
-
-	class IEngineInterface
+	SystemInitializationInfo Lina_GetInitInfo()
 	{
-	public:
-		IEngineInterface(Engine* engine) : m_engine(engine){};
-		virtual ~IEngineInterface() = default;
+		return SystemInitializationInfo{
+			.appName			 = "Lina Game",
+			.windowWidth		 = 800,
+			.windowHeight		 = 600,
+			.windowStyle		 = LinaGX::WindowStyle::WindowedApplication,
+			.appListener		 = new GameAppListener(),
+			.resourceManagerMode = Lina::ResourceManagerMode::File,
+		};
+	}
 
-		// Engine-Plugin communications.
+	void GameAppListener::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+	}
 
-	private:
-		Engine* m_engine = nullptr;
-	};
 } // namespace Lina
-
-#endif

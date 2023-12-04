@@ -28,34 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CoreResourceRegistry_HPP
-#define CoreResourceRegistry_HPP
-
-#include "Resources/Core/CommonResources.hpp"
-#include "Data/Vector.hpp"
-#include "Resources/Data/ResourceMetadata.hpp"
-#include "Data/CommonData.hpp"
-#include "Core/Common.hpp"
+#ifndef EngineInterface_HPP
+#define EngineInterface_HPP
 
 namespace Lina
 {
-	class ResourceManager;
+	class Engine;
 
-	class CoreResourcesRegistry
+	class EngineInterface
 	{
 	public:
-		CoreResourcesRegistry()			 = default;
-		virtual ~CoreResourcesRegistry() = default;
+		EngineInterface(Engine* engine) : m_engine(engine){};
+		virtual ~EngineInterface() = default;
 
-		virtual void RegisterResourceTypes(ResourceManager& rm);
+		// Engine-Plugin communications.
 
-		// Loaded prior to initialization.
-		virtual Vector<ResourceIdentifier>				 GetPriorityResources();
-		virtual Vector<Pair<StringID, ResourceMetadata>> GetPriorityResourcesMetadata();
-
-		// Loaded after systems are ready.
-		virtual Vector<ResourceIdentifier>				 GetCoreResources();
-		virtual Vector<Pair<StringID, ResourceMetadata>> GetCoreResourcesMetadata();
+	private:
+		Engine* m_engine = nullptr;
 	};
 } // namespace Lina
 

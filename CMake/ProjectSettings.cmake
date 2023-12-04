@@ -1,12 +1,9 @@
 
 # Language standard
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_20)
 
 if(MSVC)
-add_definitions("/MP")
+   add_definitions("/MP")
 endif()
-
-target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
 
 #--------------------------------------------------------------------
 # Platform
@@ -27,23 +24,8 @@ if(NOT WIN32 AND NOT APPLE AND NOT UNIX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PLATFORM_UNKNOWN=1)
 endif()
 
-if(LINA_ENABLE_LOGGING)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_LOGGING=1)
-endif()
 
-if(LINA_ENABLE_PROFILING)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_ENABLE_PROFILING=1)
-endif()
-
-if(LINA_PRODUCTION_BUILD)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_PRODUCTION=1)
-else()
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_DEBUG=1)
-endif()
-
-if(LINA_ENABLE_EDITOR)
-target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_EDITOR=1)
-endif()
+target_compile_definitions(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:LINA_DEBUG>")
 
 
 #--------------------------------------------------------------------
@@ -57,6 +39,7 @@ set_target_properties(
         CXX_STANDARD_REQUIRED YES 
         CXX_EXTENSIONS NO
 )
+target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
    
 # To be retrieved from git later.
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILD=0)

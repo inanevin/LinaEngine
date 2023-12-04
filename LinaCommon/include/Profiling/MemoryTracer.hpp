@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef MemoryTracer_HPP
 #define MemoryTracer_HPP
 
-#if defined LINA_ENABLE_PROFILING
+#ifdef LINA_DEBUG
 
 #include "Data/Mutex.hpp"
 #include "Data/SimpleArray.hpp"

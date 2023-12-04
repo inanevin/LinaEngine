@@ -68,8 +68,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	InitializeWinPlatform();
 
-	Lina::SystemInitializationInfo initInfo;
-	Lina::Application*			   app = LinaLaunchCreateApplication(initInfo);
+	Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
+	Lina::Application* app = new Lina::Application();
 	app->Initialize(initInfo);
 
 	while (!app->GetExitRequested())
@@ -81,10 +81,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	app->Shutdown();
 	delete app;
-
-	// while (true)
-	// {
-	// }
 
 	FreeConsole();
 }

@@ -55,6 +55,8 @@ namespace Lina
 		EVS_Key						  = 1 << 8,
 		EVS_PreLevelUninstall		  = 1 << 9,
 		EVS_StartFrame				  = 1 << 10,
+		EVS_PreInitComplete			  = 1 << 11,
+		EVS_InitComplete			  = 1 << 12,
 	};
 
 	enum GameEvent

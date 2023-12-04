@@ -37,7 +37,7 @@ SOFTWARE.
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
-#include "IEngineInterface.hpp"
+#include "EngineInterface.hpp"
 #include "Event/ISystemEventListener.hpp"
 
 namespace Lina
@@ -72,7 +72,7 @@ namespace Lina
 			return m_gfxManager;
 		}
 
-		inline IEngineInterface* GetInterface()
+		inline EngineInterface* GetInterface()
 		{
 			return &m_engineInterface;
 		}
@@ -91,13 +91,13 @@ namespace Lina
 		void CalculateTime();
 
 	protected:
-		ResourceManager	 m_resourceManager;
-		LGXWrapper		 m_lgxWrapper;
-		Executor		 m_executor;
-		AudioManager	 m_audioManager;
-		GfxManager*		 m_gfxManager = nullptr;
-		LevelManager	 m_levelManager;
-		IEngineInterface m_engineInterface;
+		ResourceManager m_resourceManager;
+		LGXWrapper		m_lgxWrapper;
+		Executor		m_executor;
+		AudioManager	m_audioManager;
+		GfxManager*		m_gfxManager = nullptr;
+		LevelManager	m_levelManager;
+		EngineInterface m_engineInterface;
 
 		// Time
 		int64 m_frameCapAccumulator		 = 0;
