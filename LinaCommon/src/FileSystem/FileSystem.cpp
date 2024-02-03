@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "FileSystem/FileSystem.hpp"
 #include "Data/CommonData.hpp"
+#include "Data/Vector.hpp"
 #include "Platform/PlatformInclude.hpp"
 
 namespace Lina
@@ -39,7 +40,9 @@ namespace Lina
 
 	bool FileSystem::CreateFolderInPath(const String& path)
 	{
-		bool success = std::filesystem::create_directory(path.c_str());
+
+#ifdef LINA_PLATFORM_WINDOWS
+		const bool success = std::filesystem::create_directory(path.c_str());
 
 		if (!success)
 		{
@@ -47,6 +50,36 @@ namespace Lina
 		}
 
 		return success;
+#endif
+
+#ifdef LINA_PLATFORM_APPLE
+
+		const auto& filesAndFolders = GetFilesAndFoldersInDirectory(GetRunningDirectory());
+
+		for (const auto& p : filesAndFolders)
+		{
+			LINA_INFO("{0}", p);
+		}
+
+		Vector<String> directories = UtilStr::SplitBy(path, "/");
+
+		String currentPath = "";
+
+		// Create each directory in the path
+		for (const auto& dir : directories)
+		{
+			currentPath += dir + "/";
+			bool success = std::filesystem::create_directory(currentPath.c_str());
+
+			if (!success)
+			{
+				LINA_ERR("Could not create directory: {0}", currentPath);
+				return false; // Return false if any directory creation fails
+			}
+		}
+
+		return true; // All directories were created successfully
+#endif
 	}
 
 	bool FileSystem::DeleteDirectory(const String& path)
@@ -114,9 +147,9 @@ namespace Lina
 		return true;
 	}
 
-	bool FileSystem::FileExists(const String& path)
+	bool FileSystem::FileOrPathExists(const String& path)
 	{
-        return std::filesystem::exists(path.c_str());
+		return std::filesystem::exists(path.c_str());
 	}
 
 	String FileSystem::GetFilePath(const String& fileName)
@@ -195,18 +228,20 @@ namespace Lina
 
 	String FileSystem::GetRunningDirectory()
 	{
-        return std::filesystem::current_path().string().c_str();
+		return std::filesystem::current_path().string().c_str();
 	}
 
 	String FileSystem::RemoveWhitespaces(const String& str)
 	{
 		std::string result;
-        for (char c : str) {
-            if (!std::isspace(static_cast<unsigned char>(c))) {
-                result.push_back(c);
-            }
-        }
-        return result.c_str();
+		for (char c : str)
+		{
+			if (!std::isspace(static_cast<unsigned char>(c)))
+			{
+				result.push_back(c);
+			}
+		}
+		return result.c_str();
 	}
 
 	bool FileSystem::FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem)

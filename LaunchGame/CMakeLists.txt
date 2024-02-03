@@ -40,10 +40,12 @@ endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine/Launch/)
 
+
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
 include(../CMake/ProjectSettings.cmake)
+include(../CMake/ExecutableSettings.cmake)
 
 #--------------------------------------------------------------------
 # Set include directories

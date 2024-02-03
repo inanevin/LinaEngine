@@ -30,14 +30,12 @@ SOFTWARE.
 #include "Core/ApplicationListener.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Profiling/Profiler.hpp"
+#include "Profiling/MemoryTracer.hpp"
 #include "Platform/PlatformTime.hpp"
-#include "Math/Math.hpp"
 #include "System/IPlugin.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Platform/LinaGXIncl.hpp"
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
-#include "Platform/LinaVGIncl.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Resource/Font.hpp"
 
@@ -51,8 +49,9 @@ namespace Lina
 
 		// Setup
 		{
-            PlatformTime::Initialize();
-            SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+			PlatformTime::Initialize();
+			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+			MEMORY_TRACER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
 		}
 
@@ -140,6 +139,7 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+		MEMORY_TRACER_SHUTDOWN();
 		m_engine.GetLGXWrapper().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		UnloadPlugins();
 		m_engine.Shutdown();

@@ -62,11 +62,11 @@ namespace {
 int main(int argc, char* argv[])
 {
     Lina_InitializeMacOSPlatform();
-//
-    //Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
-    //Lina::Application* app = new Lina::Application();
-    //app->Initialize(initInfo);
-//
+
+    Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
+    Lina::Application* app = new Lina::Application();
+    app->Initialize(initInfo);
+
     //while (!app->GetExitRequested())
     //{
     //    app->PreTick();
@@ -74,8 +74,8 @@ int main(int argc, char* argv[])
     //    app->Tick();
     //}
 //
-    //app->Shutdown();
-    //delete app;
+    app->Shutdown();
+    delete app;
 }
 
 

@@ -68,7 +68,7 @@ namespace Lina
 
 		const String metacachePath = GetMetacachePath(res->GetPath(), res->GetSID());
 
-		if (FileSystem::FileExists(metacachePath))
+		if (FileSystem::FileOrPathExists(metacachePath))
 			FileSystem::DeleteFileInPath(metacachePath);
 
 		Serialization::SaveToFile(metacachePath.c_str(), stream);
@@ -92,7 +92,7 @@ namespace Lina
 
 		if (m_mode == ResourceManagerMode::File)
 		{
-			if (!FileSystem::FileExists("Resources/Editor/Metacache"))
+			if (!FileSystem::FileOrPathExists("Resources/Editor/Metacache"))
 				FileSystem::CreateFolderInPath("Resources/Editor/Metacache");
 
 			for (auto& ident : identifiers)
@@ -101,7 +101,7 @@ namespace Lina
 					auto&		 cache		   = m_caches.at(ident.tid);
 					IResource*	 res		   = cache->CreateResource(ident.sid, ident.path, this);
 					const String metacachePath = GetMetacachePath(ident.path, ident.sid);
-					if (FileSystem::FileExists(metacachePath))
+					if (FileSystem::FileOrPathExists(metacachePath))
 					{
 						IStream input = Serialization::LoadFromFile(metacachePath.c_str());
 						res->LoadFromStream(input);

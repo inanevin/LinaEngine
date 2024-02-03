@@ -45,53 +45,54 @@ SOFTWARE.
 
 namespace Lina
 {
-	namespace UtilityString
+
+	String UtilStr::WideStringToString(const WString& wstring)
 	{
-		String WideStringToString(const WString& wstring)
-		{
-			std::wstring											  wstr = wstring.c_str();
-			std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-			auto													  converted = converter.to_bytes(wstr);
-			return converted.c_str();
-		}
+		std::wstring											  wstr = wstring.c_str();
+		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+		auto													  converted = converter.to_bytes(wstr);
+		return converted.c_str();
+	}
 
-		WString StringToWString(const String& string)
-		{
-			std::string												  str = string.c_str();
-			std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-			auto													  converted = converter.from_bytes(str);
-			return converted.c_str();
-		}
+	WString UtilStr::StringToWString(const String& string)
+	{
+		std::string												  str = string.c_str();
+		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+		auto													  converted = converter.from_bytes(str);
+		return converted.c_str();
+	}
 
-		String EncodeUTF8(wchar_t ch)
+	String UtilStr::EncodeUTF8(wchar_t ch)
+	{
+		String utf8str;
+		if (ch < 0x80)
 		{
-			String utf8str;
-			if (ch < 0x80)
-			{
-				utf8str.push_back(static_cast<char>(ch));
-			}
-			else if (ch < 0x800)
-			{
-				utf8str.push_back(static_cast<char>(0xC0 | (ch >> 6)));
-				utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
-			}
-			else if (ch < 0x10000)
-			{
-				utf8str.push_back(static_cast<char>(0xE0 | (ch >> 12)));
-				utf8str.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
-				utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
-			}
-			else
-			{
-				utf8str.push_back(static_cast<char>(0xF0 | (ch >> 18)));
-				utf8str.push_back(static_cast<char>(0x80 | ((ch >> 12) & 0x3F)));
-				utf8str.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
-				utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
-			}
-			return utf8str;
+			utf8str.push_back(static_cast<char>(ch));
 		}
+		else if (ch < 0x800)
+		{
+			utf8str.push_back(static_cast<char>(0xC0 | (ch >> 6)));
+			utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+		}
+		else if (ch < 0x10000)
+		{
+			utf8str.push_back(static_cast<char>(0xE0 | (ch >> 12)));
+			utf8str.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
+			utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+		}
+		else
+		{
+			utf8str.push_back(static_cast<char>(0xF0 | (ch >> 18)));
+			utf8str.push_back(static_cast<char>(0x80 | ((ch >> 12) & 0x3F)));
+			utf8str.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
+			utf8str.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+		}
+		return utf8str;
+	}
 
-		float StringToFloat(const String& str, int& decimals)
+	float UtilStr::StringToFloat(const String& str, int& decimals)
+	{
+		try
 		{
 			std::size_t pos = str.find('.');
 			if (pos != std::string::npos)
@@ -99,66 +100,105 @@ namespace Lina
 
 			return std::stof(str.c_str());
 		}
+		catch (const std::exception& e)
+		{
+			LINA_ERR("Exception: StringToFloat() string: {0} - decimals: {1}", str, decimals);
+			return 0.0f;
+		}
+	}
 
-		int StringToInt(const String& str)
+	int UtilStr::StringToInt(const String& str)
+	{
+		try
 		{
 			return std::stoi(str.c_str());
 		}
-
-		String RemoveAllDotsExceptFirst(const String& str)
+		catch (const std::exception& e)
 		{
-			String		result = str;
-			std::size_t pos	   = result.find('.'); // find the first dot
+			LINA_ERR("Exception: StringToInt() string: {0}", str);
+			return 0;
+		}
+	}
 
-			// if there is a dot in the string
-			if (pos != std::string::npos)
+	String UtilStr::RemoveAllDotsExceptFirst(const String& str)
+	{
+		String		result = str;
+		std::size_t pos	   = result.find('.'); // find the first dot
+
+		// if there is a dot in the string
+		if (pos != std::string::npos)
+		{
+			// remove all subsequent dots
+			pos++; // start from the next character
+			std::size_t next;
+			while ((next = result.find('.', pos)) != std::string::npos)
 			{
-				// remove all subsequent dots
-				pos++; // start from the next character
-				std::size_t next;
-				while ((next = result.find('.', pos)) != std::string::npos)
-				{
-					result.erase(next, 1); // erase the dot
-				}
+				result.erase(next, 1); // erase the dot
 			}
-
-			return result;
 		}
 
-		String FixStringNumber(const String& str)
+		return result;
+	}
+
+	String UtilStr::FixStringNumber(const String& str)
+	{
+		String copy = str;
+
+		std::size_t dot = copy.find(".");
+
+		if (dot != std::string::npos)
 		{
-			String copy = str;
+			copy = RemoveAllDotsExceptFirst(copy);
 
-			std::size_t dot = copy.find(".");
+			const int dotPos = static_cast<int>(dot);
+			const int sz	 = static_cast<int>(copy.length());
 
-			if (dot != std::string::npos)
-			{
-				copy = RemoveAllDotsExceptFirst(copy);
+			// If nothing exists after dot, insert 0.
+			if (dotPos == sz - 1)
+				copy.insert(dot + 1, "0");
 
-				const int dotPos = static_cast<int>(dot);
-				const int sz	 = static_cast<int>(copy.length());
-
-				// If nothing exists after dot, insert 0.
-				if (dotPos == sz - 1)
-					copy.insert(dot + 1, "0");
-
-				// If nothing exists before dot insert 0.
-				if (dotPos == 0)
-					copy.insert(0, "0");
-			}
-
-			return copy;
+			// If nothing exists before dot insert 0.
+			if (dotPos == 0)
+				copy.insert(0, "0");
 		}
 
-		String FloatToString(float val, int decimals)
+		return copy;
+	}
+
+	String UtilStr::FloatToString(float val, int decimals)
+	{
+		std::ostringstream out;
+		out << std::fixed << std::setprecision(decimals) << val;
+		const String str = out.str().c_str();
+		return str;
+	}
+
+	String UtilStr::GetUntilFirstOf(const String& str)
+	{
+		const size_t pos = str.find_first_of(str);
+
+		if (pos == String::npos)
+			return "";
+
+		return str.substr(0, str.find_first_of(str));
+	}
+
+	Vector<String> UtilStr::SplitBy(const String& str, const String& splitStr)
+	{
+		// Split the path into directories
+		Vector<String> directories;
+		size_t		   start = 0, end = str.find(splitStr.c_str());
+		while (end != String::npos)
 		{
-			std::ostringstream out;
-			out << std::fixed << std::setprecision(decimals) << val;
-			const String str = out.str().c_str();
-			return str;
+			const auto aq = str.substr(start, end - start);
+			directories.push_back(aq);
+			start = end + splitStr.size();
+			end	  = str.find(splitStr.c_str(), start);
 		}
+		directories.push_back(str.substr(start));
+		return directories;
+	}
 
-	} // namespace Internal
 } // namespace Lina
 
 #ifdef LINA_COMPILER_MSVC

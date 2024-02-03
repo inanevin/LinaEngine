@@ -48,13 +48,13 @@ namespace Lina
 	{
 	public:
 		Application() : m_engine(this){};
-		virtual ~Application(){};
+		~Application(){};
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) final;
-		virtual void PreTick();
-		virtual void Poll();
-		virtual void Tick();
-		virtual void Shutdown();
+		void Initialize(const SystemInitializationInfo& initInfo);
+		void PreTick();
+		void Poll();
+		void Tick();
+		void Shutdown();
 
 		inline void Quit()
 		{
@@ -75,14 +75,14 @@ namespace Lina
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);
 
-		virtual void LoadPlugins();
-		virtual void UnloadPlugins();
+		void LoadPlugins();
+		void UnloadPlugins();
 
 	protected:
-		ApplicationListener*   m_appListener		  = nullptr;
-		Engine				   m_engine;
-		bool				   m_exitRequested = false;
-		bool				   m_isIdleMode	   = false;
+		ApplicationListener* m_appListener = nullptr;
+		Engine				 m_engine;
+		bool				 m_exitRequested = false;
+		bool				 m_isIdleMode	 = false;
 	};
 } // namespace Lina
 

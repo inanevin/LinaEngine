@@ -32,6 +32,7 @@ SOFTWARE.
 #define DataStructuresString_HPP
 
 #include <EASTL/string.h>
+#include "Data/Vector.hpp"
 
 #ifdef LINA_DEBUG
 #define FMT_HEADER_ONLY
@@ -45,30 +46,25 @@ namespace Lina
 
 #define TO_STRING(...) eastl::to_string(__VA_ARGS__)
 
-	namespace UtilityString
+	class UtilStr
 	{
-		extern String  WideStringToString(const WString& wstring);
-		extern WString StringToWString(const String& string);
-		extern String  EncodeUTF8(wchar_t wch);
-		extern String  RemoveAllDotsExceptFirst(const String& str);
-		extern String  FixStringNumber(const String& str);
-		extern String  FloatToString(float val, int decimals);
+	public:
+		static String  WideStringToString(const WString& wstring);
+		static WString StringToWString(const String& string);
+		static String  EncodeUTF8(wchar_t wch);
+		static String  RemoveAllDotsExceptFirst(const String& str);
+		static String  FixStringNumber(const String& str);
+		static String  FloatToString(float val, int decimals);
+		static float   StringToFloat(const String& str, int& decimals);
+		static int	   StringToInt(const String& str);
+		static String  GetUntilFirstOf(const String& str);
 
 		/// <summary>
-		/// Might throw.
+		/// Returns a list of strings that fall in between each of the split string.
+		/// e.g. given a filesystem path will return a list of all directories in the path and the last file if there is one
 		/// </summary>
-		/// <param name="str"></param>
-		/// <returns></returns>
-		extern float StringToFloat(const String& str, int& decimals);
-
-		/// <summary>
-		/// Might throw.
-		/// </summary>
-		/// <param name="str"></param>
-		/// <returns></returns>
-		extern int StringToInt(const String& str);
-
-	} // namespace Internal
+		static Vector<String> SplitBy(const String& str, const String& splitStr);
+	};
 
 } // namespace Lina
 

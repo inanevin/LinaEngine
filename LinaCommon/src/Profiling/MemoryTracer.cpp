@@ -47,15 +47,16 @@ SOFTWARE.
 
 namespace Lina
 {
-    void MemoryTracer::Initialize()
-    {
-        
-    }
+	void MemoryTracer::Initialize()
+	{
+		m_isInitialized = true;
+	}
 
-    void MemoryTracer::Shutdown()
-    {
-        
-    }
+	void MemoryTracer::Shutdown()
+	{
+		m_isInitialized = false;
+		Destroy();
+	}
 
 	void MemoryTracer::RegisterAllocator(MemoryAllocatorPool* alloc)
 	{
@@ -76,6 +77,9 @@ namespace Lina
 
 	void MemoryTracer::OnAllocation(void* ptr, size_t sz)
 	{
+		if (!m_isInitialized)
+			return;
+
 		MemoryTrack track = MemoryTrack{
 			.ptr  = ptr,
 			.size = sz,
@@ -89,6 +93,9 @@ namespace Lina
 
 	void MemoryTracer::OnFree(void* ptr)
 	{
+		if (!m_isInitialized)
+			return;
+
 		m_allocationMap.erase_if(ptr, [](auto&) { return true; });
 	}
 
@@ -109,7 +116,7 @@ namespace Lina
 		info.totalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
 		info.totalProcessRAM		   = static_cast<unsigned long>(pmc.WorkingSetSize);
 #else
-        LINA_NOTIMPLEMENTED;
+		LINA_NOTIMPLEMENTED;
 #endif
 
 		return info;
@@ -131,12 +138,11 @@ namespace Lina
 		HANDLE process = GetCurrentProcess();
 		SymCleanup(process);
 #endif
-        
 	}
 
 	void MemoryTracer::DumpLeaks(const char* path)
 	{
-		if (FileSystem::FileExists(path))
+		if (FileSystem::FileOrPathExists(path))
 			FileSystem::DeleteFileInPath(path);
 
 		std::ofstream file(path);
@@ -215,26 +221,26 @@ namespace Lina
 			}
 		};
 
-        if (file.is_open())
-        {
-            size_t totalSizeBytes = 0;
-            size_t totalSizeKB	  = 0;
-            
-            for (auto& [ptr, alloc] : m_allocationMap)
-                totalSizeBytes += alloc.size;
-            
-            totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
-            
-            file << "-------------------------------------------\n";
-            file << "PROCESS MEMORY LEAKS\n";
-            file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (kb)\n";
-            file << "-------------------------------------------\n";
-            file << "\n";
-            
-            writeTrace();
-            
-            file.close();
-        }
+		if (file.is_open())
+		{
+			size_t totalSizeBytes = 0;
+			size_t totalSizeKB	  = 0;
+
+			for (auto& [ptr, alloc] : m_allocationMap)
+				totalSizeBytes += alloc.size;
+
+			totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
+
+			file << "-------------------------------------------\n";
+			file << "PROCESS MEMORY LEAKS\n";
+			file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (kb)\n";
+			file << "-------------------------------------------\n";
+			file << "\n";
+
+			writeTrace();
+
+			file.close();
+		}
 
 		LINA_ASSERT_F(m_allocationMap.empty());
 	}

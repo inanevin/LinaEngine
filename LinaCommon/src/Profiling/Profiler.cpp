@@ -37,7 +37,6 @@ SOFTWARE.
 #include <fstream>
 #include <iostream>
 
-
 namespace Lina
 {
 #define QUERY_CPU_INTERVAL_SECS 2
@@ -115,7 +114,7 @@ namespace Lina
 		// m_cpuInfo.averageFrameTimeNS = m_totalFrameTimeNS / (m_totalFrameQueueReached ? static_cast<double>(MAX_FRAME_BACKTRACE) : static_cast<double>(m_frames.size()));
 
 #else
-        LINA_NOTIMPLEMENTED;
+		LINA_NOTIMPLEMENTED;
 #endif
 
 		return m_cpuInfo;
@@ -196,7 +195,7 @@ namespace Lina
 
 	void Profiler::DumpFrameAnalysis(const String& path)
 	{
-		if (FileSystem::FileExists(path))
+		if (FileSystem::FileOrPathExists(path))
 			FileSystem::DeleteFileInPath(path);
 
 		std::ofstream file(path.c_str());

@@ -33,57 +33,57 @@ SOFTWARE.
 
 namespace Lina
 {
-    bool Serialization::SaveToFile(const char* path, OStream& stream)
-    {
-        std::ofstream wf(path, std::ios::out | std::ios::binary);
+	bool Serialization::SaveToFile(const char* path, OStream& stream)
+	{
+		std::ofstream wf(path, std::ios::out | std::ios::binary);
 
-        if (!wf)
-        {
-            LINA_ERR("[Serialization] -> Could not open file for writing! {0}", path);
-            return false;
-        }
+		if (!wf)
+		{
+			LINA_ERR("[Serialization] -> Could not open file for writing! {0}", path);
+			return false;
+		}
 
-        if (FileSystem::FileExists(path))
-            FileSystem::DeleteFileInPath(path);
+		if (FileSystem::FileOrPathExists(path))
+			FileSystem::DeleteFileInPath(path);
 
-        OStream compressed = Compressor::Compress(stream);
-        compressed.WriteToOFStream(wf);
-        wf.close();
-        compressed.Destroy();
+		OStream compressed = Compressor::Compress(stream);
+		compressed.WriteToOFStream(wf);
+		wf.close();
+		compressed.Destroy();
 
-        if (!wf.good())
-        {
-            LINA_ERR("[Serialization] -> Error occured while writing the file! {0}", path);
-            return false;
-        }
+		if (!wf.good())
+		{
+			LINA_ERR("[Serialization] -> Error occured while writing the file! {0}", path);
+			return false;
+		}
 
-        return true;
-    }
+		return true;
+	}
 
-    IStream Serialization::LoadFromFile(const char* path)
-    {
-        std::ifstream rf(path, std::ios::out | std::ios::binary);
+	IStream Serialization::LoadFromFile(const char* path)
+	{
+		std::ifstream rf(path, std::ios::out | std::ios::binary);
 
-        if (!rf)
-        {
-            LINA_ERR("[Serialization] -> Could not open file for reading! {0}", path);
-            return IStream();
-        }
+		if (!rf)
+		{
+			LINA_ERR("[Serialization] -> Could not open file for reading! {0}", path);
+			return IStream();
+		}
 
-        auto size = std::filesystem::file_size(path);
+		auto size = std::filesystem::file_size(path);
 
-        // Create
-        IStream readStream;
-        readStream.Create(size);
-        readStream.ReadFromIFStream(rf);
-        rf.close();
+		// Create
+		IStream readStream;
+		readStream.Create(size);
+		readStream.ReadFromIFStream(rf);
+		rf.close();
 
-        if (!rf.good())
-            LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
+		if (!rf.good())
+			LINA_ERR("[Serialization] -> Error occured while reading the file! {0}", path);
 
-        IStream decompressedStream = Compressor::Decompress(readStream);
-        readStream.Destroy();
-        return decompressedStream;
-    }
+		IStream decompressedStream = Compressor::Decompress(readStream);
+		readStream.Destroy();
+		return decompressedStream;
+	}
 
 } // namespace Lina
