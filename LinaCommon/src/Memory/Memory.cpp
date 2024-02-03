@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Memory/Memory.hpp"
-#include "Core/ISingleton.hpp"
 
 // EASTL OPERATOR NEW[] REQUIREMENTS
 
@@ -106,14 +105,7 @@ namespace Lina
 
 	GlobalAllocationWrapper::~GlobalAllocationWrapper()
 	{
-		// All globals must free resources before the allocator pool is destroyed.
-		// 3 cases to consider:
-		// 1:   Singleton Tracker is destroyed before memory wrapper -> it will release the resources of all singletons.
-		//      The below call will create a new instance with 0 singletons registered.
-		//      Said singletons can be "destroyed" after memory wrapper, but they won't release resources for the second time.
-		// 2:   Singleton Tracker is still alive when memory wrapper is destroyed -> release the resources of all singletons.
-		// 3:   Some singletons are destroyed before memory wrapper -> they will release their resoruces & unregister themselves from tracker.
-		SingletonTracker::Get().ReleaseSingletons();
+		
 	}
 
 } // namespace Lina

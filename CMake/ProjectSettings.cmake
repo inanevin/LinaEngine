@@ -5,6 +5,12 @@ if(MSVC)
    add_definitions("/MP")
 endif()
 
+if(APPLE)
+   set_target_properties(${PROJECT_NAME} PROPERTIES
+       MACOSX_BUNDLE TRUE
+   )
+endif()
+
 #--------------------------------------------------------------------
 # Platform
 #--------------------------------------------------------------------

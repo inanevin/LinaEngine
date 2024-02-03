@@ -32,11 +32,6 @@ namespace Lina
 {
 	void ReflectionSystem::Destroy()
 	{
-		if (m_destroyed)
-			return;
-
-		m_destroyed = false;
-
 		for (auto& [tid, type] : m_metaData)
 		{
 			for (auto& [sid, f] : type.m_fields)

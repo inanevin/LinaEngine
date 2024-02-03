@@ -266,10 +266,6 @@ namespace Lina
 
 	void Profiler::Destroy()
 	{
-		if (m_destroyed)
-			return;
-
-		m_destroyed = true;
 		if (FrameAnalysisFile != NULL && FrameAnalysisFile[0] != '\0')
 			DumpFrameAnalysis(FrameAnalysisFile);
 

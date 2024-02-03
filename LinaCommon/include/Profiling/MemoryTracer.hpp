@@ -35,7 +35,6 @@ SOFTWARE.
 
 #include "Data/Mutex.hpp"
 #include "Data/SimpleArray.hpp"
-#include "Core/ISingleton.hpp"
 
 namespace Lina
 {
@@ -61,7 +60,7 @@ namespace Lina
 
 	class MemoryAllocatorPool;
 
-	class MemoryTracer : public ISingleton
+	class MemoryTracer
 	{
 	public:
 		static MemoryTracer& Get()
@@ -84,24 +83,27 @@ namespace Lina
 		}
 
 	protected:
-		virtual void Destroy() override;
+		void Destroy();
 
 	private:
-		friend class GlobalAllocationWrapper;
+        
+        friend class Application;
 
 		MemoryTracer(){};
-		virtual ~MemoryTracer()
+		~MemoryTracer()
 		{
 			Destroy();
 		};
 
+        void Initialize();
+        void Shutdown();
 		void CaptureTrace(MemoryTrack& track);
 		void DumpLeaks(const char* path);
 
 	private:
 		SimpleArray<MemoryAllocatorPool*>			   m_registeredAllocators;
 		ParallelHashMapMutexMalloc<void*, MemoryTrack> m_allocationMap;
-		Atomic<bool>								   m_skip;
+            Atomic<bool>								   m_skip;
 	};
 
 #define MEMORY_TRACER_ONALLOC(PTR, SZ)				Lina::MemoryTracer::Get().OnAllocation(PTR, SZ)

@@ -55,13 +55,13 @@ namespace {
     void Lina_InitializeMacOSPlatform()
     {
         // DPI, priority, thread affinity e.g on win, whats needed on macos?
+        
     }
 }
 
 int main(int argc, char* argv[])
 {
-    int a  = 5;
-    //Lina_InitializeMacOSPlatform();
+    Lina_InitializeMacOSPlatform();
 //
     //Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
     //Lina::Application* app = new Lina::Application();

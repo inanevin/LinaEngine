@@ -47,6 +47,16 @@ SOFTWARE.
 
 namespace Lina
 {
+    void MemoryTracer::Initialize()
+    {
+        
+    }
+
+    void MemoryTracer::Shutdown()
+    {
+        
+    }
+
 	void MemoryTracer::RegisterAllocator(MemoryAllocatorPool* alloc)
 	{
 		m_registeredAllocators.push_back(alloc);
@@ -114,11 +124,6 @@ namespace Lina
 
 	void MemoryTracer::Destroy()
 	{
-		if (m_destroyed)
-			return;
-
-		m_destroyed = true;
-
 		if (MemoryLeaksFile != NULL && MemoryLeaksFile[0] != '\0')
 			DumpLeaks(MemoryLeaksFile);
 

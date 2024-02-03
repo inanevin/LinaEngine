@@ -23,7 +23,6 @@ set (SOURCES
 
 	src/Core/Common.cpp
 	src/Core/StringID.cpp
-	src/Core/ISingleton.cpp
 	
 	# FileSystem
 	src/FileSystem/FileSystem.cpp
@@ -96,7 +95,6 @@ set(HEADERS
 	include/Core/Common.hpp
 	include/Core/SizeDefinitions.hpp
 	include/Core/StringID.hpp
-	include/Core/ISingleton.hpp
 	include/Core/ObjectWrapper.hpp
 	
 	# FileSystem

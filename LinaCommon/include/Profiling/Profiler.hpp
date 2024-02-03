@@ -42,7 +42,6 @@ SOFTWARE.
 #include "Data/Queue.hpp"
 #include "Data/Deque.hpp"
 #include "Core/StringID.hpp"
-#include "Core/ISingleton.hpp"
 #include <source_location>
 
 namespace Lina
@@ -93,7 +92,7 @@ namespace Lina
 		uint32 m_memoryHeapCount = 0;
 	};
 
-	class Profiler : public ISingleton
+	class Profiler
 	{
 	public:
 		static Profiler& Get()
@@ -117,7 +116,7 @@ namespace Lina
 		const char* FrameAnalysisFile = "lina_frame_analysis.txt";
 
 	protected:
-		virtual void Destroy() override;
+		void Destroy();
 
 	private:
 		friend class GlobalAllocationWrapper;

@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Data/HashMap.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Functional.hpp"
-#include "Core/ISingleton.hpp"
 #include "Data/CommonData.hpp"
 #include <type_traits>
 
@@ -279,7 +278,7 @@ namespace Lina
 
 	class GlobalAllocationWrapper;
 
-	class ReflectionSystem : public ISingleton
+	class ReflectionSystem
 	{
 	public:
 		static inline ReflectionSystem& Get()
@@ -304,7 +303,7 @@ namespace Lina
 		}
 
 	protected:
-		virtual void Destroy() override;
+		void Destroy();
 
 	private:
 		friend class GlobalAllocationWrapper;
