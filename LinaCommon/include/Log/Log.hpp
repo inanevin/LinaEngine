@@ -52,13 +52,26 @@ SOFTWARE.
 
 #endif
 
+#ifdef LINA_PLATFORM_WINDOWS
+#define DBG_BRK __debugbreak();
+#else
+#define DBG_BRK __builtin_trap();
+#endif
+
 #ifdef LINA_DEBUG
 #define LINA_ASSERT(x, ...)                                                                                                                                                                                                                                        \
 	if (!(x))                                                                                                                                                                                                                                                      \
 	{                                                                                                                                                                                                                                                              \
 		LINA_CRITICAL(__VA_ARGS__);                                                                                                                                                                                                                                \
-		__debugbreak();                                                                                                                                                                                                                                            \
+        DBG_BRK                                                                                                                                                                                                                                                    \
 	}
+
+#define LINA_ASSERT_F(x) \
+    if (!(x)) \
+    {   \
+        DBG_BRK \
+    }
+
 #else
 #define LINA_ASSERT(x, ...)
 #endif

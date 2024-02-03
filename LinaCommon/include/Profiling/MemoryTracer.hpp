@@ -87,7 +87,7 @@ namespace Lina
 		virtual void Destroy() override;
 
 	private:
-		friend class GlobalAllocatorWrapper;
+		friend class GlobalAllocationWrapper;
 
 		MemoryTracer(){};
 		virtual ~MemoryTracer()

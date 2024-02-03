@@ -11,7 +11,7 @@ protected:
     std::size_t m_peak;
 
 public:
-    Allocator(const std::size_t totalSize) : m_totalSize{totalSize}, m_used{0}, m_peak{0}
+    Allocator(const std::size_t totalSize) : m_totalSize(totalSize), m_used(0), m_peak(0)
     {
     }
 

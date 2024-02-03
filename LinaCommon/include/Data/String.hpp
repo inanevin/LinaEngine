@@ -45,7 +45,7 @@ namespace Lina
 
 #define TO_STRING(...) eastl::to_string(__VA_ARGS__)
 
-	namespace Internal
+	namespace UtilityString
 	{
 		extern String  WideStringToString(const WString& wstring);
 		extern WString StringToWString(const String& string);

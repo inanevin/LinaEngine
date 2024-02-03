@@ -28,14 +28,15 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Win32PlatformTime_HPP
-#define Win32PlatformTime_HPP
-
 #include "Core/SizeDefinitions.hpp"
+
+#ifdef LINA_PLATFORM_APPLE
+#include <mach/mach_time.h>
+#endif
 
 namespace Lina
 {
-	class Win32PlatformTime
+	class PlatformTime
 	{
 	public:
 		static int64  GetCPUMicroseconds();
@@ -46,19 +47,19 @@ namespace Lina
 		static void	  Throttle(int64 microseconds);
 		static void	  Sleep(uint32 milliseconds);
 
-		inline static int64 GetFrequency()
-		{
-			return s_frequency;
-		}
-
 	private:
 		friend class Application;
-
-		static void QueryFreq();
+		static void Initialize();
 
 	private:
-		static int64 s_frequency;
+#ifdef LINA_PLATFORM_APPLE
+        static mach_timebase_info_data_t s_timebaseInfo;
+#endif
+        
+#ifdef LINA_PLATFORM_WINDOWS
+        static int64 s_frequency;
+#endif
+        
 	};
 
 } // namespace Lina
-#endif

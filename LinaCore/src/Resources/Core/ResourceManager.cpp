@@ -31,8 +31,7 @@ SOFTWARE.
 #include "Data/CommonData.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "System/ISystem.hpp"
-#include "Core/PlatformTime.hpp"
-#include "Core/PlatformProcess.hpp"
+#include "Platform/PlatformTime.hpp"
 #include "Math/Math.hpp"
 
 #include "World/Level/Level.hpp"

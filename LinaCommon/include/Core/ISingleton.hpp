@@ -60,7 +60,7 @@ namespace Lina
         void UnregisterSingleton(ISingleton* singleton);
 
     private:
-        friend class GlobalAllocatorWrapper;
+        friend class GlobalAllocationWrapper;
 
         SingletonTracker() = default;
         ~SingletonTracker()

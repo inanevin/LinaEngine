@@ -28,10 +28,7 @@ SOFTWARE.
 
 #include "FileSystem/FileSystem.hpp"
 #include "Data/CommonData.hpp"
-
-#ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/Win32WindowsInclude.hpp"
-#endif
+#include "Platform/PlatformInclude.hpp"
 
 namespace Lina
 {
@@ -119,8 +116,7 @@ namespace Lina
 
 	bool FileSystem::FileExists(const String& path)
 	{
-		struct stat buffer;
-		return (stat(path.c_str(), &buffer) == 0);
+        return std::filesystem::exists(path.c_str());
 	}
 
 	String FileSystem::GetFilePath(const String& fileName)
@@ -187,19 +183,6 @@ namespace Lina
 			return;
 		}
 
-		// std::ifstream::pos_type pos = file.tellg();
-		// vec.resize(pos);
-		// file.seekg(0, std::ios::beg);
-		// file.read(&vec[0], pos);
-
-		// std::istream_iterator<char> start(file), end;
-		// std::vector<char>			vv = std::vector<char>(start, end);
-		//
-		// vec.clear();
-		// vec.reserve(vv.size());
-		// for (auto& c : vv)
-		//	vec.push_back(c);
-
 		// Size
 		file.seekg(0, std::ios::end);
 		std::streampos length = file.tellg();
@@ -212,35 +195,7 @@ namespace Lina
 
 	String FileSystem::GetRunningDirectory()
 	{
-#ifdef LINA_PLATFORM_WINDOWS
-		TCHAR buffer[MAX_PATH] = {0};
-		GetModuleFileName(NULL, buffer, MAX_PATH);
-		String exeFilename		= String(buffer);
-		String runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
-		return runningDirectory;
-#elif LINA_PLATFORM_LINUX
-		char	buf[PATH_MAX];
-		ssize_t len = readlink("/proc/self/exe", buf, sizeof(buf) - 1);
-		if (len != -1)
-		{
-			buf[len] = '\0';
-			String exeFilename(buf);
-			String runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
-			return runningDirectory;
-		}
-#elif LINA_PLATFORM_APPLE
-		char	 buf[PATH_MAX];
-		uint32_t size = sizeof(buf);
-		if (_NSGetExecutablePath(buf, &size) == 0)
-		{
-			String exeFilename(buf);
-			String runningDirectory = exeFilename.substr(0, exeFilename.find_last_of("\\/"));
-			return runningDirectory;
-		}
-#else
-		LINA_NOTIMPLEMENTED;
-#endif
-		return "";
+        return std::filesystem::current_path().string().c_str();
 	}
 
 	String FileSystem::RemoveWhitespaces(const String& str)

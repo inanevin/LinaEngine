@@ -26,12 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/PlatformProcess.hpp"
-#include "Platform/PlatformInclude.hpp"
-#include "Platform/PlatformTime.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Platform/Win32/Win32PlatformProcess.hpp"
 #include "Log/Log.hpp"
+#include "Core/Application.hpp"
 #include "System/IPlugin.hpp"
+#include "Platform/Win32/Win32WindowsInclude.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Lina.hpp"
 #include <shobjidl.h> // For IFileDialog and related interfaces
@@ -46,22 +45,20 @@ SOFTWARE.
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-namespace {
-    void Lina_InitializeWinPlatform()
-    {
-        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-        SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
-        
-        DWORD_PTR mask = 1;
-        SetThreadAffinityMask(GetCurrentThread(), mask);
-        
-        DWORD dwError;
-        if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
-        {
-            dwError = GetLastError();
-            LINA_ERR("[Windows Platform Process] -> Failed setting priority: {0}", dwError);
-        }
-    }
+void InitializeWinPlatform()
+{
+	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
+
+	DWORD_PTR mask = 1;
+	SetThreadAffinityMask(GetCurrentThread(), mask);
+
+	DWORD dwError;
+	if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
+	{
+		dwError = GetLastError();
+		LINA_ERR("[Windows Platform Process] -> Failed setting priority: {0}", dwError);
+	}
 }
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR pCmdLine, _In_ int nCmdShow)
@@ -69,9 +66,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	if (AllocConsole() == FALSE)
 		LINA_ERR("Windows Platform Process] -> Failed to allocate console!");
 
-	Lina_InitializeWinPlatform();
-    PlatformTime::Initialize();
-    SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+	InitializeWinPlatform();
 
 	Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
 	Lina::Application* app = new Lina::Application();

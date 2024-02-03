@@ -28,17 +28,14 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef PlatformProcess_HPP
-#define PlatformProcess_HPP
 
 #ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/Win32PlatformProcess.hpp"
-
-namespace Lina
-{
-typedef Win32PlatformProcess PlatformProcess;
-}
-#else
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
 #endif
+#include <windows.h>
+#endif
+
+#ifdef LINA_PLATFORM_APPLE
 
 #endif

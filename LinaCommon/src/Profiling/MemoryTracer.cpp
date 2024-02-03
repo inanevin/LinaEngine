@@ -25,6 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+
 #include "Profiling/MemoryTracer.hpp"
 
 #ifdef LINA_DEBUG
@@ -32,11 +33,11 @@ SOFTWARE.
 #include "FileSystem/FileSystem.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
+#include "Platform/PlatformInclude.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
 #include <process.h>
 #include <iostream>
-#include "Platform/Win32/Win32WindowsInclude.hpp"
 #include <psapi.h>
 #include <DbgHelp.h>
 #include <Pdh.h>
@@ -98,7 +99,7 @@ namespace Lina
 		info.totalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
 		info.totalProcessRAM		   = static_cast<unsigned long>(pmc.WorkingSetSize);
 #else
-		LINA_ERR("[Profiler] -> Memory query for other platforms not implemented!");
+        LINA_NOTIMPLEMENTED;
 #endif
 
 		return info;
@@ -108,19 +109,6 @@ namespace Lina
 	{
 #ifdef LINA_PLATFORM_WINDOWS
 		track.stackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, track.stack, nullptr);
-#else
-
-		void*  stack[MEMORY_STACK_TRACE_SIZE];
-		int	   frames		= backtrace(stack, numElementsInArray(stack));
-		char** frameStrings = backtrace_symbols(stack, frames);
-
-		for (int i = 4; i < frames; ++i)
-		{
-			// TODO: Use backtrace to implement Linux & MacOs functionality.
-			LINA_ERR("Backtrace is not implemented yet! Profiler allocation data will be empty.");
-		}
-
-		::free(frameStrings);
 #endif
 	}
 
@@ -138,6 +126,7 @@ namespace Lina
 		HANDLE process = GetCurrentProcess();
 		SymCleanup(process);
 #endif
+        
 	}
 
 	void MemoryTracer::DumpLeaks(const char* path)
@@ -221,28 +210,28 @@ namespace Lina
 			}
 		};
 
-		if (file.is_open())
-		{
-			size_t totalSizeBytes = 0;
-			size_t totalSizeKB	  = 0;
+        if (file.is_open())
+        {
+            size_t totalSizeBytes = 0;
+            size_t totalSizeKB	  = 0;
+            
+            for (auto& [ptr, alloc] : m_allocationMap)
+                totalSizeBytes += alloc.size;
+            
+            totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
+            
+            file << "-------------------------------------------\n";
+            file << "PROCESS MEMORY LEAKS\n";
+            file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (kb)\n";
+            file << "-------------------------------------------\n";
+            file << "\n";
+            
+            writeTrace();
+            
+            file.close();
+        }
 
-			for (auto& [ptr, alloc] : m_allocationMap)
-				totalSizeBytes += alloc.size;
-
-			totalSizeKB = static_cast<size_t>(static_cast<float>(totalSizeBytes) / 1000.0f);
-
-			file << "-------------------------------------------\n";
-			file << "PROCESS MEMORY LEAKS\n";
-			file << "Total leaked size: " << totalSizeBytes << " (bytes) " << totalSizeKB << " (kb)\n";
-			file << "-------------------------------------------\n";
-			file << "\n";
-
-			writeTrace();
-
-			file.close();
-		}
-
-		LINA_ASSERT(m_allocationMap.empty(), "Memory leaks detected! Check the leaks file.");
+		LINA_ASSERT_F(m_allocationMap.empty());
 	}
 } // namespace Lina
 

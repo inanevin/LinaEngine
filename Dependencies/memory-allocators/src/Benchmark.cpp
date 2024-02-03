@@ -3,7 +3,7 @@
 #include <iostream>
 #include <stdlib.h>     /* srand, rand */
 #include <cassert>
-
+/*
 void Benchmark::SingleAllocation(Allocator* allocator, const std::size_t size, const std::size_t alignment) {
     std::cout << "BENCHMARK: ALLOCATION" << IO::endl;
     std::cout << "\tSize:     \t" << size << IO::endl;
@@ -167,4 +167,5 @@ void Benchmark::RandomAllocationAttr(const std::vector<std::size_t>& allocationS
     size = allocationSizes[r];
     alignment = alignments[r];
 }
+ */
 

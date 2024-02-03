@@ -43,13 +43,13 @@ namespace Lina
 #define LINA_GLOBALLOC_INITIAL_SIZE 1024 * 1024 * 10
 	// #define LINA_GLOBALLOC_INITIAL_SIZE 30
 
-	class GlobalAllocatorWrapper
+	class GlobalAllocationWrapper
 	{
 	public:
 		// courtesy of static initialization order
-		static GlobalAllocatorWrapper& Get()
+		static GlobalAllocationWrapper& Get()
 		{
-			static GlobalAllocatorWrapper instance;
+			static GlobalAllocationWrapper instance;
 			return instance;
 		}
 
@@ -57,8 +57,8 @@ namespace Lina
 		void  Free(void* ptr);
 
 	private:
-		GlobalAllocatorWrapper();
-		~GlobalAllocatorWrapper();
+		GlobalAllocationWrapper();
+		~GlobalAllocationWrapper();
 		MemoryAllocatorPool m_allocator;
 	};
 

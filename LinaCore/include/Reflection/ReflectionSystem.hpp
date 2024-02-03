@@ -277,7 +277,7 @@ namespace Lina
 		HashMap<StringID, FieldBase*>		m_fields;
 	};
 
-	class GlobalAllocatorWrapper;
+	class GlobalAllocationWrapper;
 
 	class ReflectionSystem : public ISingleton
 	{
@@ -307,7 +307,7 @@ namespace Lina
 		virtual void Destroy() override;
 
 	private:
-		friend class GlobalAllocatorWrapper;
+		friend class GlobalAllocationWrapper;
 
 		ReflectionSystem() = default;
 		virtual ~ReflectionSystem()

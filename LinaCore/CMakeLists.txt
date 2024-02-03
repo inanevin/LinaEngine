@@ -97,7 +97,6 @@ include/Core/Engine.hpp
 include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
 include/Core/EngineInterface.hpp
-include/Core/PlatformProcess.hpp
 
 # World
 include/World/Core/Entity.hpp
@@ -107,6 +106,9 @@ include/World/Level/Level.hpp
 include/World/Level/LevelManager.hpp
 include/World/Core/EntityWorld.hpp
 include/World/Core/CommonWorld.hpp
+
+# Platform
+include/Platform/PlatformProcess.hpp
 
 # Physics
 include/Physics/Core/PhysicsWorld.hpp
@@ -156,7 +158,6 @@ include/Graphics/Resource/Font.hpp
 if(WIN32)
 
 set (PLATFORM_HEADERS
-include/Platform/Win32/Win32PlatformProcess.hpp
 )
 
 set (PLATFORM_SOURCES 
@@ -165,6 +166,16 @@ src/Platform/Win32/Win32PlatformProcess.cpp
 
 endif()
 
+if(APPLE)
+
+set (PLATFORM_HEADERS
+)
+
+set (PLATFORM_SOURCES 
+src/Platform/Apple/ApplePlatformProcess.mm
+)
+
+endif()
 
 
 #--------------------------------------------------------------------
@@ -195,6 +206,15 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_SOURCE_DIR}/LinaCommon
 target_link_libraries(${PROJECT_NAME} 
 	PUBLIC Lina::Common
 )
+
+if(APPLE)
+	target_link_libraries(${PROJECT_NAME}
+		PUBLIC "-framework AppKit"
+		PUBLIC "-framework Foundation"
+		PUBLIC "-framework QuartzCore"
+		PUBLIC "-framework UniformTypeIdentifiers"
+	)
+endif()
 
 message("LinaCore -> LinaCommon has been linked.")
 message("LinaCore -> LinaVG has been linked.")

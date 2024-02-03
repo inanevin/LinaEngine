@@ -28,26 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef PlatformTime_HPP
-#define PlatformTime_HPP
-
-/* PLATFORM TIME REQUIRED INTERFACE
-static double GetSeconds();
-static uint32 GetCycles();
-static uint64 GetCPUCycles();
-static double GetDeltaSeconds(uint32 from, uint32 to, double timeScale = 1.0);
-static double GetDeltaSeconds64(uint64 from, uint64 to, double timeScale = 1.0);
-*/
-
-#ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/Win32PlatformTime.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
-	typedef Win32PlatformTime PlatformTime;
+    class EngineInterface;
+    class ISystemEventDispatcher;
+
+    class PlatformProcess
+    {
+    public:
+        static void LoadPlugin(const char* name, EngineInterface* engInterface, ISystemEventDispatcher* dispatcher);
+        static void UnloadPlugin(const char* name, ISystemEventDispatcher* dispatcher);
+        static void CopyToClipboard(const wchar_t* str);
+        static bool TryGetStringFromClipboard(WString& outStr);
+        static String OpenDialog(const wchar_t* extensionDescription, const wchar_t* extension);
+        static String SaveDialog(const wchar_t* extensionDescription, const wchar_t* extension);
+    };
 }
-
-#else
-
-#endif
-#endif

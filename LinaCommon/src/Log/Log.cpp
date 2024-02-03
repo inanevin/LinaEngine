@@ -28,11 +28,8 @@ SOFTWARE.
 
 #include "Log/Log.hpp"
 #include "Data/String.hpp"
+#include "Platform/PlatformInclude.hpp"
 #include <sstream>
-
-#ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/Win32WindowsInclude.hpp"
-#endif
 
 namespace Lina
 {
@@ -62,7 +59,7 @@ namespace Lina
 
 		WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), msgStr.c_str(), static_cast<DWORD>(strlen(msgStr.c_str())), NULL, NULL);
 
-#elif
+#else
 		std::cout << msgStr.c_str() << std::endl;
 #endif
 	}

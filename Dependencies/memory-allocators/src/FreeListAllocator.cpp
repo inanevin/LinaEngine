@@ -133,7 +133,7 @@ void FreeListAllocator::Free(void* ptr) {
 	// Insert it in a sorted position by the address number
 	const std::size_t currentAddress = (std::size_t)ptr;
 	const std::size_t headerAddress = currentAddress - sizeof(FreeListAllocator::AllocationHeader);
-	const FreeListAllocator::AllocationHeader* allocationHeader{ (FreeListAllocator::AllocationHeader*)headerAddress };
+	const FreeListAllocator::AllocationHeader* allocationHeader = (FreeListAllocator::AllocationHeader*)headerAddress;
 
 	Node* freeNode = (Node*)(headerAddress - allocationHeader->padding);
 	freeNode->data.blockSize = allocationHeader->blockSize;

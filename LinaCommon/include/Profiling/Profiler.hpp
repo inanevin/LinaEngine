@@ -120,7 +120,7 @@ namespace Lina
 		virtual void Destroy() override;
 
 	private:
-		friend class GlobalAllocatorWrapper;
+		friend class GlobalAllocationWrapper;
 
 		Profiler();
 		virtual ~Profiler()

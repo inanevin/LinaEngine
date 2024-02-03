@@ -16,6 +16,7 @@
 #define OPERATIONS (10)
 #endif
 
+/*
 struct BenchmarkResults
 {
 	std::size_t Operations;
@@ -29,7 +30,7 @@ class Benchmark {
 public:
     Benchmark() = delete;
 
-    Benchmark(const unsigned int nOperations) : m_nOperations { nOperations } { }
+    Benchmark(const unsigned int nOperations) : m_nOperations (static_cast<std::size_t>(nOperations)) { }
 
 	void SingleAllocation(Allocator* allocator, const std::size_t size, const std::size_t alignment);
 	void SingleFree(Allocator* allocator, const std::size_t size, const std::size_t alignment);
@@ -69,5 +70,6 @@ private:
 
     std::chrono::milliseconds TimeElapsed;
 };
+*/
 
 #endif /* BENCHMARK_H */

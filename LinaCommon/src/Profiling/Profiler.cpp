@@ -29,16 +29,14 @@ SOFTWARE.
 #ifdef LINA_DEBUG
 
 #include "Profiling/Profiler.hpp"
-#include "Core/PlatformTime.hpp"
+#include "Platform/PlatformTime.hpp"
 #include "Memory/Memory.hpp"
 #include "Log/Log.hpp"
 #include "FileSystem/FileSystem.hpp"
+#include "Platform/PlatformInclude.hpp"
 #include <fstream>
 #include <iostream>
 
-#ifdef LINA_PLATFORM_WINDOWS
-#include "Platform/Win32/Win32WindowsInclude.hpp"
-#endif
 
 namespace Lina
 {
@@ -117,7 +115,7 @@ namespace Lina
 		// m_cpuInfo.averageFrameTimeNS = m_totalFrameTimeNS / (m_totalFrameQueueReached ? static_cast<double>(MAX_FRAME_BACKTRACE) : static_cast<double>(m_frames.size()));
 
 #else
-		LINA_ERR("[Profiler] -> CPU query for other platforms not implemented!");
+        LINA_NOTIMPLEMENTED;
 #endif
 
 		return m_cpuInfo;

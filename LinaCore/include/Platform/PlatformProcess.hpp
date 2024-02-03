@@ -28,13 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Win32WindowsInclude_HPP
-#define Win32WindowsInclude_HPP
+#include "Data/String.hpp"
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN // Exclude rarely-used stuff from Windows headers.
-#endif
+namespace Lina
+{
+    class EngineInterface;
+    class ISystemEventDispatcher;
 
-#include <windows.h>
-
-#endif
+    class PlatformProcess
+    {
+    public:
+        static void LoadPlugin(const char* name, EngineInterface* engInterface, ISystemEventDispatcher* dispatcher);
+        static void UnloadPlugin(void* handle);
+        static void CopyToClipboard(const char* str);
+        static bool TryGetStringFromClipboard(String& outStr);
+        static String OpenDialog(const char* extensionDescription, const char* extension);
+        static String SaveDialog(const char* extensionDescription, const char* extension);
+    };
+}

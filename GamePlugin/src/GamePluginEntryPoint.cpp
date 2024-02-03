@@ -30,10 +30,9 @@ SOFTWARE.
 #include "Profiling/MemoryTracer.hpp"
 #include "GamePlugin.hpp"
 #include "GamePluginExports.hpp"
+#include "Platform/PlatformInclude.hpp"
 
 #ifdef LINA_PLATFORM_WINDOWS
-
-#include "Platform/Win32/Win32WindowsInclude.hpp"
 
 GamePlugin* g_plugin = nullptr;
 

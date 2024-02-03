@@ -55,6 +55,22 @@ namespace Lina
 		return std::string(buffer.data());
 	}
 
+    void LinaGX_ErrorCallback(const char* err, ...) {
+        va_list args;
+        va_start(args, err);
+        std::string formattedStr = FormatString(err, args);
+        LINA_ERR(formattedStr.c_str());
+        va_end(args);
+    }
+
+    void LinaGX_LogCallback(const char* err, ...) {
+        va_list args;
+        va_start(args, err);
+        std::string formattedStr = FormatString(err, args);
+        LINA_ERR(formattedStr.c_str());
+        va_end(args);
+    }
+
 	void LGXWrapper::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		m_lgx = new LinaGX::Instance();
@@ -64,21 +80,8 @@ namespace Lina
 		};
 
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
-		LinaGX::Config.errorCallback = [](const char* err, ...) {
-			va_list args;
-			va_start(args, err);
-			std::string formattedStr = FormatString(err, args);
-			LINA_ERR(formattedStr.c_str());
-			va_end(args);
-		};
-
-		LinaGX::Config.infoCallback = [](const char* info, ...) {
-			va_list args;
-			va_start(args, info);
-			std::string formattedStr = FormatString(info, args);
-			LINA_TRACE(formattedStr.c_str());
-			va_end(args);
-		};
+        LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
+        LinaGX::Config.infoCallback = LinaGX_LogCallback;
 
 		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
 #ifdef LINA_PLATFORM_APPLE

@@ -36,8 +36,10 @@ void* StackAllocator::Allocate(const std::size_t size, const std::size_t alignme
 
     const std::size_t nextAddress = currentAddress + padding;
     const std::size_t headerAddress = nextAddress - sizeof (AllocationHeader);
-    AllocationHeader allocationHeader{static_cast<char>(padding)};
-    AllocationHeader * headerPtr = (AllocationHeader*) headerAddress;
+    AllocationHeader allocationHeader = {};
+    allocationHeader.padding = static_cast<char>(padding);
+    
+    AllocationHeader * headerPtr = (AllocationHeader*)headerAddress;
     headerPtr = &allocationHeader;
     
     m_offset += size;
@@ -55,7 +57,7 @@ void StackAllocator::Free(void *ptr) {
     // Move offset back to clear address
     const std::size_t currentAddress = (std::size_t) ptr;
     const std::size_t headerAddress = currentAddress - sizeof (AllocationHeader);
-    const AllocationHeader * allocationHeader{ (AllocationHeader *) headerAddress};
+    const AllocationHeader* allocationHeader = (AllocationHeader *)headerAddress;
 
     m_offset = currentAddress - allocationHeader->padding - (std::size_t) m_start_ptr;
     m_used = m_offset;

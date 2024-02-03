@@ -13,7 +13,7 @@ namespace IO
     //
     // Jose Fernando Lopez Fernandez 11/07/2018 @ 2:19am (UTC)
 
-    template <typename T, typename CharT = std::char_traits<T>>
+template <typename T, typename CharT = std::char_traits<T> >
     std::basic_ostream<T, CharT>&
         endl(std::basic_ostream<T, CharT>& outputStream)
     {

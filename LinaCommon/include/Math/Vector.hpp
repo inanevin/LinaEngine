@@ -59,7 +59,7 @@ namespace Lina
 
 		LinaGX::LGXVector2ui AsLGX2UI() const
 		{
-			return LinaGX::LGXVector2ui(x, y);
+            return LinaGX::LGXVector2ui{x, y};
 		}
 
 		static Vector2ui Zero;
@@ -84,7 +84,7 @@ namespace Lina
 
 		LinaGX::LGXVector2i AsLGX2I() const
 		{
-			return LinaGX::LGXVector2i(x, y);
+            return LinaGX::LGXVector2i{x, y};
 		}
 
 		static Vector2i Zero;
@@ -143,7 +143,7 @@ namespace Lina
 
 		LinaGX::LGXVector2 AsLGX2() const
 		{
-			return LinaGX::LGXVector2(x, y);
+            return LinaGX::LGXVector2{x, y};
 		}
 
 		LinaVG::Vec2 AsLVG2() const
@@ -319,7 +319,7 @@ namespace Lina
 
 		LinaGX::LGXVector3 AsLGX3() const
 		{
-			return LinaGX::LGXVector3(x, y, z);
+            return LinaGX::LGXVector3{x, y, z};
 		}
 
 		static Vector3 Zero;
@@ -534,7 +534,7 @@ namespace Lina
 
 		LinaGX::LGXVector4 AsLGX4() const
 		{
-			return LinaGX::LGXVector4(x, y, z, w);
+            return LinaGX::LGXVector4{x, y, z, w};
 		}
 
 		static Vector4 Zero;
@@ -759,7 +759,7 @@ namespace Lina
 
 		LinaGX::LGXVector4ui16 AsLGX4UI16() const
 		{
-			return LinaGX::LGXVector4ui16(x, y, z, w);
+            return LinaGX::LGXVector4ui16{x, y, z, w};
 		}
 	};
 

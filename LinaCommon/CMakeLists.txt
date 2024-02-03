@@ -13,7 +13,8 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.8)
-project(LinaCommon CXX)
+project(LinaCommon)
+set(CMAKE_CXX_STANDARD 17)
 
 #--------------------------------------------------------------------
 # Set sources
@@ -96,7 +97,6 @@ set(HEADERS
 	include/Core/SizeDefinitions.hpp
 	include/Core/StringID.hpp
 	include/Core/ISingleton.hpp
-	include/Core/PlatformTime.hpp
 	include/Core/ObjectWrapper.hpp
 	
 	# FileSystem
@@ -190,17 +190,28 @@ set(HEADERS
 	# Platform
 	include/Platform/LinaGXIncl.hpp
 	include/Platform/LinaVGIncl.hpp
+    	include/Platform/PlatformTime.hpp
+	include/Platform/PlatformInclude.hpp
 )
 
 if(WIN32)
 
 set (PLATFORM_HEADERS
-include/Platform/Win32/Win32PlatformTime.hpp
-include/Platform/Win32/Win32WindowsInclude.hpp
 )
 
 set (PLATFORM_SOURCES 
 src/Platform/Win32/Win32PlatformTime.cpp
+)
+
+endif()
+
+if(APPLE)
+
+set (PLATFORM_HEADERS
+)
+
+set (PLATFORM_SOURCES 
+src/Platform/Apple/ApplePlatformTime.mm
 )
 
 endif()
@@ -222,11 +233,10 @@ PUBLIC
 	<functional>
 	<chrono>
 	<assert.h>
-	<xutility>
-	<xstring>
+	<string>
 	<exception>
 	<filesystem>
-	<xmemory>
+	<memory>
 	<type_traits>
 	include/Math/Matrix.hpp
 	include/Math/Vector.hpp

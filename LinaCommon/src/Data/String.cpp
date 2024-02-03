@@ -45,9 +45,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	namespace Internal
+	namespace UtilityString
 	{
-
 		String WideStringToString(const WString& wstring)
 		{
 			std::wstring											  wstr = wstring.c_str();

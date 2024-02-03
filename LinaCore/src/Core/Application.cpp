@@ -30,8 +30,7 @@ SOFTWARE.
 #include "Core/ApplicationListener.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Profiling/Profiler.hpp"
-#include "Core/PlatformProcess.hpp"
-#include "Core/PlatformTime.hpp"
+#include "Platform/PlatformTime.hpp"
 #include "Math/Math.hpp"
 #include "System/IPlugin.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
@@ -50,10 +49,10 @@ namespace Lina
 		m_appListener		  = initInfo.appListener;
 		LINA_ASSERT(m_appListener != nullptr, "Application listener can not be empty!");
 
-		// Platform setup
+		// Setup
 		{
-			PlatformTime::QueryFreq();
-			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+            PlatformTime::Initialize();
+            SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
 			PROFILER_REGISTER_THREAD("Main");
 		}
 

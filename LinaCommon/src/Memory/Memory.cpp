@@ -33,65 +33,65 @@ SOFTWARE.
 
 void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
 	return ptr;
 }
 
 void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
 {
-	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
 	return ptr;
 }
 
 void* operator new(std::size_t size)
 {
-	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
 	return ptr;
 }
 
 void* operator new[](size_t size)
 {
-	void* ptr = Lina::GlobalAllocatorWrapper::Get().Allocate(size);
+	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
 	return ptr;
 }
 
 void operator delete[](void* ptr)
 {
-	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocationWrapper::Get().Free(ptr);
 }
 
 void operator delete(void* ptr)
 {
-	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocationWrapper::Get().Free(ptr);
 }
 
 void operator delete(void* ptr, size_t sz)
 {
-	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocationWrapper::Get().Free(ptr);
 }
 void operator delete[](void* ptr, std::size_t sz)
 {
-	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocationWrapper::Get().Free(ptr);
 }
 
 void operator delete(void* ptr, const std::nothrow_t& tag)
 {
-	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocationWrapper::Get().Free(ptr);
 }
 
 void operator delete[](void* ptr, const std::nothrow_t& tag)
 {
-	Lina::GlobalAllocatorWrapper::Get().Free(ptr);
+	Lina::GlobalAllocationWrapper::Get().Free(ptr);
 }
 
 namespace Lina
 {
-	void* GlobalAllocatorWrapper::Allocate(size_t sz)
+	void* GlobalAllocationWrapper::Allocate(size_t sz)
 	{
 		return m_allocator.Allocate(sz);
 	}
 
-	void GlobalAllocatorWrapper::Free(void* ptr)
+	void GlobalAllocationWrapper::Free(void* ptr)
 	{
 		// Some libraries may do so, as in most runtimes this is valid
 		if (ptr == nullptr)
@@ -100,11 +100,11 @@ namespace Lina
 		m_allocator.Free(ptr);
 	}
 
-	GlobalAllocatorWrapper::GlobalAllocatorWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::StandardMallocFree, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, "Global", 0))
+	GlobalAllocationWrapper::GlobalAllocationWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::StandardMallocFree, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, "Global", 0))
 	{
 	}
 
-	GlobalAllocatorWrapper::~GlobalAllocatorWrapper()
+	GlobalAllocationWrapper::~GlobalAllocationWrapper()
 	{
 		// All globals must free resources before the allocator pool is destroyed.
 		// 3 cases to consider:
