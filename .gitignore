@@ -22,6 +22,8 @@ _[Bb]in
 #Lina Engine Tools
 *.jar
 
+*.DS_Store
+
 # Build results
 
 [Bb]in-obj/
