@@ -272,7 +272,7 @@ namespace Lina
 				//     continue;
 				// }
 
-				char** symbols = backtrace_symbols(alloc.stack + 4, alloc.stackSize - 4);
+				char** symbols = backtrace_symbols(alloc.stack, alloc.stackSize);
 				if (symbols == nullptr)
 				{
 					ss << "\n";
@@ -280,7 +280,7 @@ namespace Lina
 					continue;
 				}
 
-				for (int i = 0; i < alloc.stackSize - 4; ++i)
+				for (int i = 4; i < alloc.stackSize; ++i)
 				{
 
 					ss << "\n";
@@ -289,37 +289,48 @@ namespace Lina
 					// Print the address
 					ss << "Address: " << alloc.stack[i] << "\n";
 
-					// Find the start of the mangled name
-					char* start = strchr(symbols[i], ' ');
-					if (start)
-						start = strchr(start + 1, '_');
-
-					// Find the end of the mangled name (before the ' + ')
-					char* end = strchr(start ? start : symbols[i], ' ');
-
-					if (start && end)
+					const String debugFile = String(LINA_APP_NAME) + String(".app.dSYM");
+					if (FileSystem::FileOrPathExists(debugFile))
 					{
-						*end = '\0'; // Null terminate the string at the space before '+'
-						int	  status;
-						char* demangled = abi::__cxa_demangle(start, NULL, NULL, &status);
-						if (status == 0 && demangled)
-						{
-							ss << demangled;
-							free(demangled);
-						}
-						else
-						{
-							// Print the mangled name
-							ss << start;
-						}
+						std::ostringstream cmd;
+						cmd << "atos -arch arm64 -o " << LINA_APP_NAME << ".app.dSYM/Contents/Resources/DWARF/" << LINA_APP_NAME << " " << alloc.stack[i];
+						std::string fileAndLine = exec(cmd.str().c_str());
+						ss << fileAndLine;
 					}
 					else
 					{
-						// If unable to parse, print the whole symbol
-						ss << symbols[i];
-					}
+						// Find the start of the mangled name
+						char* start = strchr(symbols[i], ' ');
+						if (start)
+							start = strchr(start + 1, '_');
 
-					ss << "\n";
+						// Find the end of the mangled name (before the ' + ')
+						char* end = strchr(start ? start : symbols[i], ' ');
+
+						if (start && end)
+						{
+							*end = '\0'; // Null terminate the string at the space before '+'
+							int	  status;
+							char* demangled = abi::__cxa_demangle(start, NULL, NULL, &status);
+							if (status == 0 && demangled)
+							{
+								ss << demangled;
+								free(demangled);
+							}
+							else
+							{
+								// Print the mangled name
+								ss << start;
+							}
+						}
+						else
+						{
+							// If unable to parse, print the whole symbol
+							ss << symbols[i];
+						}
+
+						ss << "\n";
+					}
 				}
 
 				free(symbols);

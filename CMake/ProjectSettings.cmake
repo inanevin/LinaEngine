@@ -12,6 +12,8 @@ if(APPLE)
    
 endif()
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_APP_NAME="${LINA_APP_NAME}")
+
 #--------------------------------------------------------------------
 # Platform
 #--------------------------------------------------------------------
