@@ -55,72 +55,67 @@ SOFTWARE.
 
 CVDisplayLinkRef displayLink;
 
-CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink,
-                               const CVTimeStamp *inNow,
-                               const CVTimeStamp *inOutputTime,
-                               CVOptionFlags flagsIn,
-                               CVOptionFlags *flagsOut,
-                               void *displayLinkContext)
+CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* inNow, const CVTimeStamp* inOutputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
 {
-    Lina::Application* app = static_cast<Lina::Application*>(displayLinkContext);
-       app->PreTick();
-       app->Poll();
-       app->Tick();
-       
-       if(app->GetExitRequested())
-       {
-           dispatch_async(dispatch_get_main_queue(), ^{
-                       [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:nil waitUntilDone:NO];
-                   });
-       }
-    return kCVReturnSuccess;
+	Lina::Application* app = static_cast<Lina::Application*>(displayLinkContext);
+	app->PreTick();
+	app->Poll();
+	app->Tick();
+
+	if (app->GetExitRequested())
+	{
+		dispatch_async(dispatch_get_main_queue(), ^{
+		  [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:nil waitUntilDone:NO];
+		});
+	}
+	return kCVReturnSuccess;
 }
 
-
-@interface AppDelegate : NSObject <NSApplicationDelegate>
-@property (assign) void *linaApp;
-@property (assign) Lina::SystemInitializationInfo initInfo;
+@interface										 AppDelegate : NSObject <NSApplicationDelegate>
+@property(assign) void*							 linaApp;
+@property(assign) Lina::SystemInitializationInfo initInfo;
 @end
 
 @implementation AppDelegate
 
-- (void)applicationWillTerminate:(NSNotification *)notification
+- (void)applicationWillTerminate:(NSNotification*)notification
 {
-    CVDisplayLinkStop(displayLink);
+	CVDisplayLinkStop(displayLink);
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-    
-    if (self.linaApp) {
-        Lina::Application* appPointer = static_cast<Lina::Application*>(self.linaApp);
-        appPointer->Initialize(self.initInfo);
-    }
-   
-    CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
-    CVDisplayLinkSetOutputCallback(displayLink, &DisplayLinkCallback, self.linaApp);
-    CVDisplayLinkStart(displayLink);
+- (void)applicationDidFinishLaunching:(NSNotification*)aNotification
+{
+
+	if (self.linaApp)
+	{
+		Lina::Application* appPointer = static_cast<Lina::Application*>(self.linaApp);
+		appPointer->Initialize(self.initInfo);
+	}
+
+	CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
+	CVDisplayLinkSetOutputCallback(displayLink, &DisplayLinkCallback, self.linaApp);
+	CVDisplayLinkStart(displayLink);
 }
 
 @end
 
-
-
 int main(int argc, char* argv[])
 {
-    Lina::Application* linaApp = new Lina::Application();
-    
-    @autoreleasepool {
-                NSApplication *app = [NSApplication sharedApplication];
-                AppDelegate *appDelegate = [[AppDelegate alloc] init];
-                appDelegate.linaApp = (void *)linaApp;
-                appDelegate.initInfo = Lina::Lina_GetInitInfo();
-                [app setDelegate:appDelegate];
-                [app activateIgnoringOtherApps:YES];
-                [app run];
-            }
-    
-   linaApp->Shutdown();
-    delete linaApp;
+	Lina::Application* linaApp = new Lina::Application();
+
+	@autoreleasepool
+	{
+		NSApplication* app		   = [NSApplication sharedApplication];
+		AppDelegate*   appDelegate = [[AppDelegate alloc] init];
+		appDelegate.linaApp		   = (void*)linaApp;
+		appDelegate.initInfo	   = Lina::Lina_GetInitInfo();
+		[app setDelegate:appDelegate];
+		[app activateIgnoringOtherApps:YES];
+		[app run];
+	}
+
+	linaApp->Shutdown();
+	delete linaApp;
 }
 
 namespace Lina
@@ -130,106 +125,113 @@ namespace Lina
 
 	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher)
 	{
-        // void* handle = dlopen(name, RTLD_NOW);
-        // if (handle != NULL)
-        // {
-        //     CreatePluginFunc createPluginAddr = (CreatePluginFunc)dlsym(handle, "CreatePlugin");
-        //     if (createPluginAddr != NULL)
-        //     {
-        //         Plugin* plugin = createPluginAddr(engInterface, name);
-        //         dispatcher->AddListener(plugin);
-        //         plugin->OnAttached();
-        //         // Store the handle for later use (e.g., in a map like s_pluginHandles)
-        //     }
-        //     else
-        //     {
-        //         // Error handling: could not find the CreatePlugin function
-        //         std::string error = dlerror();
-        //         LINA_ERR("[macOS Platform Process] -> Could not load plugin create function! {0}", name);
-        //     }
-        // }
-        // else
-        // {
-        //     // Error handling: could not open the library
-        //     std::string error = dlerror();
-        //     LINA_ERR("[macOS Platform Process] -> Could not find plugin! {0}", name);
-        // }
+		// void* handle = dlopen(name, RTLD_NOW);
+		// if (handle != NULL)
+		// {
+		//     CreatePluginFunc createPluginAddr = (CreatePluginFunc)dlsym(handle, "CreatePlugin");
+		//     if (createPluginAddr != NULL)
+		//     {
+		//         Plugin* plugin = createPluginAddr(engInterface, name);
+		//         dispatcher->AddListener(plugin);
+		//         plugin->OnAttached();
+		//         // Store the handle for later use (e.g., in a map like s_pluginHandles)
+		//     }
+		//     else
+		//     {
+		//         // Error handling: could not find the CreatePlugin function
+		//         std::string error = dlerror();
+		//         LINA_ERR("[macOS Platform Process] -> Could not load plugin create function! {0}", name);
+		//     }
+		// }
+		// else
+		// {
+		//     // Error handling: could not open the library
+		//     std::string error = dlerror();
+		//     LINA_ERR("[macOS Platform Process] -> Could not find plugin! {0}", name);
+		// }
 	}
 
 	void PlatformProcess::UnloadPlugin(void* handle)
 	{
-       // if (handle != NULL)
-       // {
-       //     dlclose(handle);
-       // }
+		// if (handle != NULL)
+		// {
+		//     dlclose(handle);
+		// }
 	}
 
 	void PlatformProcess::CopyToClipboard(const char* str)
 	{
-        @autoreleasepool {
-                NSString* string = [NSString stringWithUTF8String:str];
-                NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
-                [pasteboard clearContents];
-                [pasteboard setString:string forType:NSPasteboardTypeString];
-            }
+		@autoreleasepool
+		{
+			NSString*	  string	 = [NSString stringWithUTF8String:str];
+			NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+			[pasteboard clearContents];
+			[pasteboard setString:string forType:NSPasteboardTypeString];
+		}
 	}
 
 	bool PlatformProcess::TryGetStringFromClipboard(String& outStr)
 	{
-        @autoreleasepool {
-               NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
-               NSString* string = [pasteboard stringForType:NSPasteboardTypeString];
-               if (string != nil) {
-                   outStr = [string UTF8String];
-                   return true;
-               }
-               return false;
-           }
+		@autoreleasepool
+		{
+			NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+			NSString*	  string	 = [pasteboard stringForType:NSPasteboardTypeString];
+			if (string != nil)
+			{
+				outStr = [string UTF8String];
+				return true;
+			}
+			return false;
+		}
 	}
 
 	String PlatformProcess::OpenDialog(const char* extensionDescription, const char* extension)
 	{
-        @autoreleasepool {
-                NSOpenPanel* panel = [NSOpenPanel openPanel];
+		@autoreleasepool
+		{
+			NSOpenPanel* panel = [NSOpenPanel openPanel];
 
-        #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
-                UTType* type = [UTType typeWithFilenameExtension:@(extension)];
-                [panel setAllowedContentTypes:@[type]];
-        #else
-                [panel setAllowedFileTypes:@[@(extension)]];
-        #endif
+#if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
+			UTType* type = [UTType typeWithFilenameExtension:@(extension)];
+			[panel setAllowedContentTypes:@[ type ]];
+#else
+			[panel setAllowedFileTypes:@[ @(extension) ]];
+#endif
 
-                if ([panel runModal] == NSModalResponseOK) {
-                    NSURL* url = [[panel URLs] firstObject];
-                    if (url != nil) {
-                        return [[url path] UTF8String];
-                    }
-                }
-                return "";
-            }
+			if ([panel runModal] == NSModalResponseOK)
+			{
+				NSURL* url = [[panel URLs] firstObject];
+				if (url != nil)
+				{
+					return [[url path] UTF8String];
+				}
+			}
+			return "";
+		}
 	}
 
 	String PlatformProcess::SaveDialog(const char* extensionDescription, const char* extension)
 	{
-        @autoreleasepool {
-               NSSavePanel* panel = [NSSavePanel savePanel];
+		@autoreleasepool
+		{
+			NSSavePanel* panel = [NSSavePanel savePanel];
 
-           
-            
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
-            UTType* type = [UTType typeWithFilenameExtension:@(extension)];
-            [panel setAllowedContentTypes:@[type]];
+			UTType* type = [UTType typeWithFilenameExtension:@(extension)];
+			[panel setAllowedContentTypes:@[ type ]];
 #else
-            [panel setAllowedFileTypes:@[@(extension)]];
+			[panel setAllowedFileTypes:@[ @(extension) ]];
 #endif
-               if ([panel runModal] == NSModalResponseOK) {
-                   NSURL* url = [panel URL];
-                   if (url != nil) {
-                       return [[url path] UTF8String];
-                   }
-               }
-               return "";
-           }
+			if ([panel runModal] == NSModalResponseOK)
+			{
+				NSURL* url = [panel URL];
+				if (url != nil)
+				{
+					return [[url path] UTF8String];
+				}
+			}
+			return "";
+		}
 	}
 
 } // namespace Lina

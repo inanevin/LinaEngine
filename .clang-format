@@ -10,7 +10,6 @@ BasedOnStyle: Microsoft
 BinPackArguments: false
 BinPackParameters: false
 ColumnLimit: 260
-Language: Cpp
 NamespaceIndentation: All
 PointerAlignment: Left
 ReflowComments: true
