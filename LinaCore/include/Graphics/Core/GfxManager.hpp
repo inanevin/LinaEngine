@@ -80,7 +80,7 @@ namespace Lina
 		void			 DestroySurfaceRenderer(StringID sid);
 		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
-		uint16			 GetCurrentDescriptorSet0GlobalData();
+		uint16			 GetDescriptorSet0();
 		void			 UpdateBindlessTextures();
 		void			 UpdateBindlessSamplers();
 

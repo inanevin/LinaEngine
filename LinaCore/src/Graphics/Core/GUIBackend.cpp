@@ -226,9 +226,9 @@ namespace Lina
 		// Descriptors
 		{
 			LinaGX::CMDBindDescriptorSets* bind = data.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-			bind->descriptorSetHandles			= data.gfxStream->EmplaceAuxMemory<uint16>(m_gfxManager->GetCurrentDescriptorSet0GlobalData(), data.descriptorSet1, data.descriptorSet2);
-			bind->firstSet						= 0;
-			bind->setCount						= 3;
+			bind->descriptorSetHandles			= data.gfxStream->EmplaceAuxMemory<uint16>(data.descriptorSet1, data.descriptorSet2);
+			bind->firstSet						= 1;
+			bind->setCount						= 2;
 			bind->isCompute						= false;
 		}
 

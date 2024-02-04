@@ -137,20 +137,21 @@ namespace Lina
 				data.globalDataResource = m_lgx->CreateResource(globalDataDesc);
 				m_lgx->MapResource(data.globalDataResource, data.globalDataMapped);
 
-				data.descriptorSet0GlobalData = m_lgx->CreateDescriptorSet({.bindings = {{
-																				.descriptorCount = 1,
-																				.type			 = LinaGX::DescriptorType::UBO,
-																				.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-																			}}});
-
-				LinaGX::DescriptorUpdateBufferDesc globalDataUpdateDesc = {
-					.setHandle	   = data.descriptorSet0GlobalData,
-					.binding	   = 0,
-					.buffers	   = {data.globalDataResource},
-					.isWriteAccess = false,
-				};
-
-				m_lgx->DescriptorUpdateBuffer(globalDataUpdateDesc);
+				// Descriptor set 0 - global res
+				{
+					LinaGX::DescriptorBinding set0Binding0 = {
+						.descriptorCount = 1,
+						.type			 = LinaGX::DescriptorType::UBO,
+						.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+					};
+					data.descriptorSet0GlobalData = m_lgx->CreateDescriptorSet({.bindings = {set0Binding0}});
+					m_lgx->DescriptorUpdateBuffer({
+						.setHandle	   = data.descriptorSet0GlobalData,
+						.binding	   = 0,
+						.buffers	   = {data.globalDataResource},
+						.isWriteAccess = false,
+					});
+				}
 			}
 		}
 	}
@@ -202,6 +203,16 @@ namespace Lina
 	void GfxManager::Tick(float interpolationAlpha)
 	{
 		PROFILER_FUNCTION();
+
+		const uint32  currentFrameIndex = m_lgx->GetCurrentFrameIndex();
+		auto&		  currentFrame		= m_pfd[currentFrameIndex];
+		const auto&	  mp				= m_lgx->GetInput().GetMousePositionAbs();
+		GPUGlobalData globalData		= {
+				   .mousePosition = Vector2(static_cast<float>(mp.x), static_cast<float>(mp.y)),
+				   .deltaTime	  = SystemInfo::GetDeltaTimeF(),
+				   .elapsedTime	  = SystemInfo::GetAppTimeF(),
+		   };
+		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUGlobalData));
 	}
 
 	void GfxManager::Sync()
@@ -258,20 +269,6 @@ namespace Lina
 		LinaVG::StartFrame(guiThreads);
 
 		PROFILER_ENDBLOCK(id);
-
-		// Update data.
-		{
-			// UpdateBindlessTextures();
-			// UpdateBindlessSamplers();
-			//
-			// const auto&	  mp		 = m_lgx->GetInput().GetMousePositionAbs();
-			// GPUGlobalData globalData = {
-			// 	.mousePosition = Vector2(static_cast<float>(mp.x), static_cast<float>(mp.y)),
-			// 	.deltaTime	   = SystemInfo::GetDeltaTimeF(),
-			// 	.elapsedTime   = SystemInfo::GetAppTimeF(),
-			// };
-			// MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUGlobalData));
-		}
 
 		// World Renderers
 		{
@@ -441,7 +438,7 @@ namespace Lina
 		return *it;
 	}
 
-	uint16 GfxManager::GetCurrentDescriptorSet0GlobalData()
+	uint16 GfxManager::GetDescriptorSet0()
 	{
 		return m_pfd[m_lgx->GetCurrentFrameIndex()].descriptorSet0GlobalData;
 	}
