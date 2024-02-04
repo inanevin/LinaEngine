@@ -60,7 +60,7 @@ namespace Lina
 		WriteConsole(GetStdHandle(STD_OUTPUT_HANDLE), msgStr.c_str(), static_cast<DWORD>(strlen(msgStr.c_str())), NULL, NULL);
 
 #else
-		std::cout << msgStr.c_str() << std::endl;
+		std::cout << msgStr.c_str();
 #endif
 	}
 

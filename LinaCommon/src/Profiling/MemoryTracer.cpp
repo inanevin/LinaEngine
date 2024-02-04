@@ -45,8 +45,54 @@ SOFTWARE.
 #pragma comment(lib, "pdh.lib")
 #endif
 
+#ifdef LINA_PLATFORM_APPLE
+#include <execinfo.h>
+#include <cxxabi.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
 namespace Lina
 {
+
+	namespace
+	{
+		// Define a custom demangle function for symbol names
+		String DemangleSymbol(const char* symbol)
+		{
+
+			int	  status;
+			char* demangled = abi::__cxa_demangle(symbol, nullptr, nullptr, &status);
+			if (status == 0)
+			{
+				String demangled_str(demangled);
+				free(demangled);
+				return demangled_str;
+			}
+			else
+			{
+				// Demangling failed, return the original symbol
+				return symbol;
+			}
+		}
+
+		std::string exec(const char* cmd)
+		{
+			std::array<char, 128>					 buffer;
+			std::string								 result;
+			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+			if (!pipe)
+			{
+				throw std::runtime_error("popen() failed!");
+			}
+			while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+			{
+				result += buffer.data();
+			}
+			return result;
+		}
+
+	}; // namespace
 	void MemoryTracer::Initialize()
 	{
 		m_isInitialized = true;
@@ -126,6 +172,10 @@ namespace Lina
 	{
 #ifdef LINA_PLATFORM_WINDOWS
 		track.stackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, track.stack, nullptr);
+#endif
+
+#ifdef LINA_PLATFORM_APPLE
+		track.stackSize = backtrace(track.stack, MEMORY_STACK_TRACE_SIZE);
 #endif
 	}
 
@@ -211,6 +261,69 @@ namespace Lina
 				}
 				std::free(line);
 				std::free(symbolAll);
+#endif
+
+#ifdef LINA_PLATFORM_APPLE
+
+				// char** symbols = backtrace_symbols(alloc.stack + 1, alloc.stackSize - 1);
+				//
+				// if (symbols == nullptr) {
+				//     // Handle error
+				//     continue;
+				// }
+
+				char** symbols = backtrace_symbols(alloc.stack + 4, alloc.stackSize - 4);
+				if (symbols == nullptr)
+				{
+					ss << "\n";
+					ss << "No stack information...\n";
+					continue;
+				}
+
+				for (int i = 0; i < alloc.stackSize - 4; ++i)
+				{
+
+					ss << "\n";
+					ss << "------ Stack Trace " << i << "------\n";
+
+					// Print the address
+					ss << "Address: " << alloc.stack[i] << "\n";
+
+					// Find the start of the mangled name
+					char* start = strchr(symbols[i], ' ');
+					if (start)
+						start = strchr(start + 1, '_');
+
+					// Find the end of the mangled name (before the ' + ')
+					char* end = strchr(start ? start : symbols[i], ' ');
+
+					if (start && end)
+					{
+						*end = '\0'; // Null terminate the string at the space before '+'
+						int	  status;
+						char* demangled = abi::__cxa_demangle(start, NULL, NULL, &status);
+						if (status == 0 && demangled)
+						{
+							ss << demangled;
+							free(demangled);
+						}
+						else
+						{
+							// Print the mangled name
+							ss << start;
+						}
+					}
+					else
+					{
+						// If unable to parse, print the whole symbol
+						ss << symbols[i];
+					}
+
+					ss << "\n";
+				}
+
+				free(symbols);
+
 #endif
 
 				ss << "\n";

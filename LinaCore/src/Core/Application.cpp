@@ -43,6 +43,7 @@ namespace Lina
 {
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
+
 		auto& resourceManager = m_engine.GetResourceManager();
 		m_appListener		  = initInfo.appListener;
 		LINA_ASSERT(m_appListener != nullptr, "Application listener can not be empty!");
@@ -52,8 +53,13 @@ namespace Lina
 			PlatformTime::Initialize();
 			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
 			MEMORY_TRACER_INIT();
+			PROFILER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
 		}
+
+		int* ptr = new int[5];
+
+		return;
 
 		// Resource registry
 		{
@@ -139,10 +145,15 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+		// m_engine.GetLGXWrapper().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		// UnloadPlugins();
+		// m_engine.Shutdown();
+
+		PROFILER_SHUTDOWN();
 		MEMORY_TRACER_SHUTDOWN();
-		m_engine.GetLGXWrapper().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		UnloadPlugins();
-		m_engine.Shutdown();
+
+		return;
+
 		delete m_appListener;
 	}
 

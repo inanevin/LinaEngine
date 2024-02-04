@@ -41,9 +41,17 @@ namespace Lina
 {
 #define QUERY_CPU_INTERVAL_SECS 2
 
-	Profiler::Profiler()
+	Profiler* Profiler::s_instance = nullptr;
+
+	void Profiler::Initialize()
 	{
-		m_frameQueue.resize(MAX_FRAME_BACKTRACE);
+		s_instance = new Profiler();
+		s_instance->m_frameQueue.resize(MAX_FRAME_BACKTRACE);
+	}
+
+	void Profiler::Shutdown()
+	{
+		delete s_instance;
 	}
 
 	DeviceCPUInfo& Profiler::QueryCPUInfo()
@@ -185,12 +193,12 @@ namespace Lina
 	{
 		blockName	= funcName;
 		blockThread = thread;
-		id			= Profiler::Get().StartBlock(funcName, thread);
+		id			= Profiler::Get()->StartBlock(funcName, thread);
 	}
 
 	Scope::~Scope()
 	{
-		Profiler::Get().EndBlock(blockThread, id);
+		Profiler::Get()->EndBlock(blockThread, id);
 	}
 
 	void Profiler::DumpFrameAnalysis(const String& path)

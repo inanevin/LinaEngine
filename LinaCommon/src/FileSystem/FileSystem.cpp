@@ -53,32 +53,23 @@ namespace Lina
 #endif
 
 #ifdef LINA_PLATFORM_APPLE
-
-		const auto& filesAndFolders = GetFilesAndFoldersInDirectory(GetRunningDirectory());
-
-		for (const auto& p : filesAndFolders)
-		{
-			LINA_INFO("{0}", p);
-		}
-
-		Vector<String> directories = UtilStr::SplitBy(path, "/");
-
-		String currentPath = "";
-
-		// Create each directory in the path
+		const Vector<String> directories = UtilStr::SplitBy(path, "/");
+		String				 currentPath = "";
 		for (const auto& dir : directories)
 		{
 			currentPath += dir + "/";
-			bool success = std::filesystem::create_directory(currentPath.c_str());
 
-			if (!success)
+			if (!FileOrPathExists(currentPath))
 			{
-				LINA_ERR("Could not create directory: {0}", currentPath);
-				return false; // Return false if any directory creation fails
+				bool success = std::filesystem::create_directory(currentPath.c_str());
+				if (!success)
+				{
+					LINA_ERR("Could not create directory: {0}", currentPath);
+					return false;
+				}
 			}
 		}
-
-		return true; // All directories were created successfully
+		return true;
 #endif
 	}
 

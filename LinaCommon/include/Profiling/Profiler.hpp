@@ -95,10 +95,10 @@ namespace Lina
 	class Profiler
 	{
 	public:
-		static Profiler& Get()
+        
+		static Profiler* Get()
 		{
-			static Profiler instance;
-			return instance;
+            return s_instance;
 		}
 
 		DeviceCPUInfo& QueryCPUInfo();
@@ -119,15 +119,16 @@ namespace Lina
 		void Destroy();
 
 	private:
-		friend class GlobalAllocationWrapper;
+        friend class Application;
+        
+        static void Initialize();
+        static void Shutdown();
 
-		Profiler();
-		virtual ~Profiler()
-		{
-			Destroy();
-		}
+        Profiler() = default;
+        ~Profiler() = default;
 
 	private:
+        static Profiler* s_instance;
 		HashMap<StringID, const char*> m_threadNames;
 		Deque<ProfilerFrame>		   m_frameQueue;
 		double						   m_lastCPUQueryTime		= 0.0;
@@ -136,17 +137,21 @@ namespace Lina
 		DeviceGPUInfo				   m_gpuInfo;
 	};
 
-#define PROFILER_FRAME_START()				  Lina::Profiler::Get().StartFrame()
-#define PROFILER_STARTBLOCK(BLOCKNAME)		  Lina::Profiler::Get().StartBlock(BLOCKNAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
-#define PROFILER_ENDBLOCK(X)				  Lina::Profiler::Get().EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())), X)
+#define PROFILER_INIT                      Lina::Profiler::Initialize
+#define PROFILER_SHUTDOWN                     Lina::Profiler::Shutdown
+#define PROFILER_FRAME_START()				  Lina::Profiler::Get()->StartFrame()
+#define PROFILER_STARTBLOCK(BLOCKNAME)		  Lina::Profiler::Get()->StartBlock(BLOCKNAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
+#define PROFILER_ENDBLOCK(X)				  Lina::Profiler::Get()->EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())), X)
 #define PROFILER_FUNCTION(...)				  Lina::Scope function(__FUNCTION__, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
-#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE) Lina::Profiler::Get().FrameAnalysisFile = FILE
-#define PROFILER_REGISTER_THREAD(NAME)		  Lina::Profiler::Get().RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
+#define PROFILER_SET_FRAMEANALYSIS_FILE(FILE) Lina::Profiler::Get()->FrameAnalysisFile = FILE
+#define PROFILER_REGISTER_THREAD(NAME)		  Lina::Profiler::Get()->RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 
 } // namespace Lina
 
 #else
 
+#define PROFILER_INIT
+#define PROFILER_SHUTDOWN
 #define PROFILER_FRAME_START()
 #define PROFILER_STARTBLOCK(BLOCKNAME) 0
 #define PROFILER_ENDBLOCK(X)
