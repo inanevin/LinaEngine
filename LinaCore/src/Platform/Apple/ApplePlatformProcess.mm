@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Profiling/MemoryTracer.hpp"
 
 #include <Cocoa/Cocoa.h>
+#include <CoreVideo/CoreVideo.h>
+
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
 #include <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
 #endif
@@ -51,34 +53,75 @@ SOFTWARE.
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+CVDisplayLinkRef displayLink;
 
-namespace {
-    void Lina_InitializeMacOSPlatform()
-    {
-        // DPI, priority, thread affinity e.g on win, whats needed on macos?
-        
-    }
+CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink,
+                               const CVTimeStamp *inNow,
+                               const CVTimeStamp *inOutputTime,
+                               CVOptionFlags flagsIn,
+                               CVOptionFlags *flagsOut,
+                               void *displayLinkContext)
+{
+    Lina::Application* app = static_cast<Lina::Application*>(displayLinkContext);
+       app->PreTick();
+       app->Poll();
+       app->Tick();
+       
+       if(app->GetExitRequested())
+       {
+           dispatch_async(dispatch_get_main_queue(), ^{
+                       [NSApp performSelectorOnMainThread:@selector(terminate:) withObject:nil waitUntilDone:NO];
+                   });
+       }
+    return kCVReturnSuccess;
 }
+
+
+@interface AppDelegate : NSObject <NSApplicationDelegate>
+@property (assign) void *linaApp;
+@property (assign) Lina::SystemInitializationInfo initInfo;
+@end
+
+@implementation AppDelegate
+
+- (void)applicationWillTerminate:(NSNotification *)notification
+{
+    CVDisplayLinkStop(displayLink);
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    
+    if (self.linaApp) {
+        Lina::Application* appPointer = static_cast<Lina::Application*>(self.linaApp);
+        appPointer->Initialize(self.initInfo);
+    }
+   
+    CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
+    CVDisplayLinkSetOutputCallback(displayLink, &DisplayLinkCallback, self.linaApp);
+    CVDisplayLinkStart(displayLink);
+}
+
+@end
+
+
 
 int main(int argc, char* argv[])
 {
-    Lina_InitializeMacOSPlatform();
+    Lina::Application* linaApp = new Lina::Application();
     
-    Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
-    Lina::Application* app = new Lina::Application();
-    app->Initialize(initInfo);
-
-    //while (!app->GetExitRequested())
-    //{
-    //    app->PreTick();
-    //    app->Poll();
-    //    app->Tick();
-    //}
-//
-    app->Shutdown();
-    delete app;
+    @autoreleasepool {
+                NSApplication *app = [NSApplication sharedApplication];
+                AppDelegate *appDelegate = [[AppDelegate alloc] init];
+                appDelegate.linaApp = (void *)linaApp;
+                appDelegate.initInfo = Lina::Lina_GetInitInfo();
+                [app setDelegate:appDelegate];
+                [app activateIgnoringOtherApps:YES];
+                [app run];
+            }
+    
+   linaApp->Shutdown();
+    delete linaApp;
 }
-
 
 namespace Lina
 {

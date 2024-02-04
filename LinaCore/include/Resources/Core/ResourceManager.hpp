@@ -51,10 +51,9 @@ namespace Lina
 		ResourceManager(System* sys) : Subsystem(sys, SubsystemType::ResourceManager){};
 		~ResourceManager() = default;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		void		 Tick();
-
+		virtual void	  Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void	  Shutdown() override;
+		void			  Tick();
 		int32			  LoadResources(const Vector<ResourceIdentifier>& identifiers);
 		void			  WaitForAll();
 		bool			  IsLoadTaskComplete(uint32 id);
