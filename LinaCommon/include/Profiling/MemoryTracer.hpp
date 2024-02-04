@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#ifdef LINA_DEBUG&& defined LINA_PLATFORM_WINDOWS
+#if defined LINA_DEBUG && defined LINA_PLATFORM_WINDOWS
 
 #include "Data/Mutex.hpp"
 #include "Data/SimpleArray.hpp"
