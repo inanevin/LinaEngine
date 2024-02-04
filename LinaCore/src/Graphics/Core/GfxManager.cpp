@@ -226,7 +226,7 @@ namespace Lina
 
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
 		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
-		auto id = PROFILER_STARTBLOCK("Flushing Resource Upload Queue");
+		auto		 id				   = PROFILER_STARTBLOCK("Flushing Resource Upload Queue");
 
 		// Transfer.
 		m_resourceUploadQueue.FlushAll();
