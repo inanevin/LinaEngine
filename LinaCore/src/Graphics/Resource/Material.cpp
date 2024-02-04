@@ -60,14 +60,14 @@ namespace Lina
 		if (shader)
 		{
 			// m_uboDefinition = shader->GetMaterialUBO();
-			// 
+			//
 			// m_totalDataSize = 0;
 			// for (const auto& mem : m_uboDefinition.members)
 			// 	m_totalDataSize += mem.alignment;
-			// 
+			//
 			// if (m_totalDataSize == 0)
 			// 	return;
-			// 
+			//
 			// m_data = new uint8[m_totalDataSize];
 		}
 	}
@@ -80,12 +80,12 @@ namespace Lina
 
 	void Material::LoadFromFile(const char* path)
 	{
-        IStream stream = Serialization::LoadFromFile(path);
+		IStream stream = Serialization::LoadFromFile(path);
 
-        if (stream.GetDataRaw() != nullptr)
-            LoadFromStream(stream);
+		if (stream.GetDataRaw() != nullptr)
+			LoadFromStream(stream);
 
-        stream.Destroy();
+		stream.Destroy();
 	}
 
 	void Material::SaveToStream(OStream& stream)

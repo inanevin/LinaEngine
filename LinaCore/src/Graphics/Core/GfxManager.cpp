@@ -218,7 +218,6 @@ namespace Lina
 
 		m_resourceUploadQueue.Shutdown();
 		m_meshManager.Shutdown();
-		
 	}
 
 	void GfxManager::WaitForSwapchains()

@@ -83,7 +83,6 @@ namespace Lina
 		}
 
 	private:
-        
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 

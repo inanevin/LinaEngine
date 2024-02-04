@@ -52,12 +52,12 @@ namespace Lina
 		ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource*		   CreateResource(StringID sid, const String& path, ResourceManager* rm) = 0;
-		virtual Resource*		   GetResource(StringID sid)											 = 0;
-		virtual void			   DestroyResource(StringID sid)										 = 0;
-		virtual Vector<Resource*> GetAllResources(bool includeUserManagedResources) const				 = 0;
-		virtual void			   AddUserManaged(Resource* res)										 = 0;
-		virtual void			   RemoveUserManaged(Resource* res)									 = 0;
+		virtual Resource*		  CreateResource(StringID sid, const String& path, ResourceManager* rm) = 0;
+		virtual Resource*		  GetResource(StringID sid)												= 0;
+		virtual void			  DestroyResource(StringID sid)											= 0;
+		virtual Vector<Resource*> GetAllResources(bool includeUserManagedResources) const				= 0;
+		virtual void			  AddUserManaged(Resource* res)											= 0;
+		virtual void			  RemoveUserManaged(Resource* res)										= 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -125,7 +125,7 @@ namespace Lina
 
 				if (it2 == m_userManagedResources.end())
 					return nullptr;
-				
+
 				return it2->second;
 			}
 

@@ -90,7 +90,6 @@ namespace Lina
 		friend class GfxManager;
 
 	protected:
-        
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
