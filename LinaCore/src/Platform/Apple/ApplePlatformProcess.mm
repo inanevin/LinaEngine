@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Platform/PlatformInclude.hpp"
 #include "FileSystem/FileSystem.hpp"
 #include "Log/Log.hpp"
-#include "System/IPlugin.hpp"
+#include "System/Plugin.hpp"
 #include "Lina.hpp"
 #include "Profiling/MemoryTracer.hpp"
 
@@ -82,10 +82,10 @@ int main(int argc, char* argv[])
 
 namespace Lina
 {
-	typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
-	typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);
+	// typedef Plugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
+	// typedef void(__cdecl* DestroyPluginFunc)(Plugin*);
 
-	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, ISystemEventDispatcher* dispatcher)
+	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher)
 	{
         // void* handle = dlopen(name, RTLD_NOW);
         // if (handle != NULL)
@@ -93,7 +93,7 @@ namespace Lina
         //     CreatePluginFunc createPluginAddr = (CreatePluginFunc)dlsym(handle, "CreatePlugin");
         //     if (createPluginAddr != NULL)
         //     {
-        //         IPlugin* plugin = createPluginAddr(engInterface, name);
+        //         Plugin* plugin = createPluginAddr(engInterface, name);
         //         dispatcher->AddListener(plugin);
         //         plugin->OnAttached();
         //         // Store the handle for later use (e.g., in a map like s_pluginHandles)

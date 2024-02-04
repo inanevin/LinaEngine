@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Data/IDList.hpp"
 #include "Serialization/HashMapSerialization.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
-#include "Event/IGameEventDispatcher.hpp"
+#include "Event/GameEventDispatcher.hpp"
 
 namespace Lina
 {
@@ -45,21 +45,23 @@ namespace Lina
 
 #define COMPONENT_POOL_SIZE 100
 
-	class ComponentCacheBase : public ISerializable
+	class ComponentCacheBase
 	{
 	public:
 		ComponentCacheBase()		  = default;
 		virtual ~ComponentCacheBase() = default;
 
-		virtual ComponentCacheBase* CopyCreate()				 = 0;
-		virtual void				OnEntityDestroyed(Entity* e) = 0;
-		Entity**					m_entities					 = nullptr;
+		virtual void				LoadFromStream(IStream& stream) = 0;
+		virtual void				SaveToStream(OStream& stream)	= 0;
+		virtual void				OnEntityDestroyed(Entity* e)	= 0;
+		virtual ComponentCacheBase* CopyCreate()					= 0;
+		Entity**					m_entities						= nullptr;
 	};
 
 	template <typename T> class ComponentCache : public ComponentCacheBase
 	{
 	public:
-		ComponentCache(EntityWorld* world, IGameEventDispatcher* eventDispatcher)
+		ComponentCache(EntityWorld* world, GameEventDispatcher* eventDispatcher)
 			: m_world(world), m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)),
 			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
 		{
@@ -147,7 +149,6 @@ namespace Lina
 			DestroyComponent(e);
 		}
 
-		// Inherited via ComponentCacheBase
 		virtual void SaveToStream(OStream& stream) override
 		{
 			m_components.SaveToStream(stream);
@@ -230,10 +231,10 @@ namespace Lina
 		}
 
 	private:
-		EntityWorld*		  m_world			= nullptr;
-		IGameEventDispatcher* m_eventDispatcher = nullptr;
-		MemoryAllocatorPool	  m_allocatorPool;
-		IDList<T*>			  m_components;
+		EntityWorld*		 m_world		   = nullptr;
+		GameEventDispatcher* m_eventDispatcher = nullptr;
+		MemoryAllocatorPool	 m_allocatorPool;
+		IDList<T*>			 m_components;
 	};
 
 } // namespace Lina

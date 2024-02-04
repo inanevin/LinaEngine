@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Data/Streams.hpp"
 #include "Data/Vector.hpp"
 #include "Resources/Core/CommonResources.hpp"
-#include "Resources/Core/IResource.hpp"
+#include "Resources/Core/Resource.hpp"
 
 namespace Lina
 {
@@ -43,10 +43,10 @@ namespace Lina
 	class IEventDispatcher;
 	class WorldRenderer;
 
-	class Level : public IResource
+	class Level : public Resource
 	{
 	public:
-		Level(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Level>()){};
+		Level(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Level>()){};
 		virtual ~Level();
 
 		void Install();
@@ -83,7 +83,7 @@ namespace Lina
 		}
 
 	private:
-		// Inherited via IResource
+        
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 

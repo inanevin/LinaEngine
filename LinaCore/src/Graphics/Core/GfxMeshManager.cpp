@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Mesh.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Data/Vertex.hpp"
 
@@ -38,7 +38,6 @@ namespace Lina
 {
 	GfxMeshManager::GfxMeshManager(GfxManager* gfxManager) : m_gfxManager(gfxManager)
 	{
-		
 	}
 
 	void GfxMeshManager::Initialize()

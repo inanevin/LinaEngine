@@ -28,62 +28,35 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ISystem_HPP
-#define ISystem_HPP
+#ifndef IPlugin_HPP
+#define IPlugin_HPP
 
-#include "Event/ISystemEventDispatcher.hpp"
-#include "System/ISubsystem.hpp"
-#include "Data/HashMap.hpp"
-#include "Core/Common.hpp"
-#include "JobSystem/JobSystem.hpp"
+#include "Event/SystemEventListener.hpp"
+#include "Data/String.hpp"
 
 namespace Lina
 {
-	class ISubsystem;
-	class Application;
+	class IEngineInterface;
 
-	class ISystem : public ISystemEventDispatcher
+	class IPlugin : public SystemEventListener
 	{
 	public:
-		ISystem(Application* app) : m_app(app){};
-		virtual ~ISystem() = default;
+		IPlugin(IEngineInterface* interface, const String& name) : m_engineInterface(interface), m_name(name){};
+		virtual ~IPlugin() = default;
 
-		void		 AddSubsystem(ISubsystem* sub);
-		void		 RemoveSubsystem(ISubsystem* sub);
-		ISubsystem*	 CastSubsystem(SubsystemType type);
-		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void Shutdown()											  = 0;
-		virtual void PreTick()											  = 0;
-		virtual void Poll()												  = 0;
-		virtual void Tick()												  = 0;
-		virtual void OnCriticalGfxError()								  = 0;
+		virtual void OnAttached() = 0;
+		virtual void OnDetached() = 0;
 
-		template <typename T> T* CastSubsystem(SubsystemType type)
+		inline const String& GetName()
 		{
-			return (T*)(m_subsystems[type]);
-		}
-
-		inline const SystemInitializationInfo& GetInitInfo()
-		{
-			return m_initInfo;
-		}
-
-		inline Executor* GetMainExecutor()
-		{
-			return &m_mainExecutor;
-		}
-
-		inline Application* GetApp()
-		{
-			return m_app;
+			return m_name;
 		}
 
 	protected:
-		Application*						m_app = nullptr;
-		Executor							m_mainExecutor;
-		SystemInitializationInfo			m_initInfo;
-		HashMap<SubsystemType, ISubsystem*> m_subsystems;
+		String			  m_name			= "";
+		IEngineInterface* m_engineInterface = nullptr;
 	};
+
 } // namespace Lina
 
 #endif

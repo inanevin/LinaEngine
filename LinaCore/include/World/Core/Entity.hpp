@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Core/SizeDefinitions.hpp"
 #include "Math/Transformation.hpp"
 #include "Data/HashSet.hpp"
-#include "Serialization/ISerializable.hpp"
 #include "Core/ObjectWrapper.hpp"
 
 namespace Lina
@@ -43,7 +42,7 @@ namespace Lina
 	class EntityWorld;
 
 	// Actual game state
-	class Entity final : public ISerializable
+	class Entity final
 	{
 	public:
 		Entity() = default;
@@ -70,9 +69,8 @@ namespace Lina
 		Transformation GetInterpolated(float interpolation);
 		bool		   HasChildInTree(Entity* other) const;
 
-		// Inherited via ISerializable
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 
 		ObjectWrapper<EntityWorld> GetWorld()
 		{

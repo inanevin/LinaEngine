@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef TextureSampler_HPP
 #define TextureSampler_HPP
 
-#include "Resources/Core/IResource.hpp"
+#include "Resources/Core/Resource.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Platform/LinaGXIncl.hpp"
 
@@ -39,10 +39,10 @@ namespace Lina
 {
 	class Renderer;
 
-	class TextureSampler : public IResource
+	class TextureSampler : public Resource
 	{
 	public:
-		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>()){};
+		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>()){};
 		virtual ~TextureSampler();
 
 		inline uint32 GetGPUHandle() const

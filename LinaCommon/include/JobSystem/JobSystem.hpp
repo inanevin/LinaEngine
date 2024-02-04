@@ -41,7 +41,7 @@ namespace Lina
 
 	template <typename T> using Future = tf::Future<T>;
 
-	class Executor
+	class JobExecutor
 	{
 	public:
 		/// <summary>

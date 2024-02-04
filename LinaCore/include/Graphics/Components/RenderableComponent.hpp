@@ -52,8 +52,8 @@ namespace Lina
 			return ComponentMask::Renderable;
 		}
 
-		virtual void		   SaveToStream(OStream& stream) override;
-		virtual void		   LoadFromStream(IStream& stream) override;
+		void				   SaveToStream(OStream& stream);
+		void				   LoadFromStream(IStream& stream);
 		virtual AABB&		   GetAABB(ResourceManager* rm)		  = 0;
 		virtual Bitmask16	   GetDrawPasses(ResourceManager* rm) = 0;
 		virtual RenderableType GetType()						  = 0;

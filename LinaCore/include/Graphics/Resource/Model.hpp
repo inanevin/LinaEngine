@@ -31,17 +31,16 @@ SOFTWARE.
 #ifndef Model_HPP
 #define Model_HPP
 
-#include "Resources/Core/IResource.hpp"
+#include "Resources/Core/Resource.hpp"
 
 namespace Lina
 {
-	class Model : public IResource
+	class Model : public Resource
 	{
 	public:
-		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Model>()){};
+		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Model>()){};
 		virtual ~Model();
 
-		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;

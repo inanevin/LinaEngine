@@ -26,9 +26,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Event/ISystemEventListener.hpp"
+#pragma once
+
+#ifndef EventDispatcher_HPP
+#define EventDispatcher_HPP
+
+#include "Event/Event.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
+	class SystemEventListener;
+
+	class SystemEventDispatcher
+	{
+	public:
+		SystemEventDispatcher();
+		virtual ~SystemEventDispatcher() = default;
+
+		void AddListener(SystemEventListener* listener);
+		void RemoveListener(SystemEventListener* listener);
+		void DispatchEvent(SystemEvent eventType, const Event& ev);
+
+	private:
+		Vector<SystemEventListener*> m_listeners;
+	};
 
 } // namespace Lina
+
+#endif

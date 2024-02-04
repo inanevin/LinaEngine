@@ -31,11 +31,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #define GfxManager_HPP
 
 #include "Core/Common.hpp"
-#include "System/ISubsystem.hpp"
+#include "System/Subsystem.hpp"
 #include "Core/StringID.hpp"
 #include "Data/Vector.hpp"
 #include "GfxMeshManager.hpp"
-#include "Event/ISystemEventListener.hpp"
+#include "Event/SystemEventListener.hpp"
 #include "CommonGraphics.hpp"
 #include "ResourceUploadQueue.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
@@ -51,7 +51,7 @@ namespace Lina
 	class LGXWrapper;
 	class WorldRenderer;
 
-	class GfxManager : public ISubsystem, public ISystemEventListener
+	class GfxManager : public Subsystem, public SystemEventListener
 	{
 
 	private:
@@ -65,7 +65,7 @@ namespace Lina
 		};
 
 	public:
-		GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys);
+		GfxManager(const SystemInitializationInfo& initInfo, System* sys);
 		virtual ~GfxManager() = default;
 
 		virtual void	 Initialize(const SystemInitializationInfo& initInfo) override;

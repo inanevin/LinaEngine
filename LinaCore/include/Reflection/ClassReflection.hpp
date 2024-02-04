@@ -37,11 +37,11 @@ SOFTWARE.
 
 namespace Lina
 {
-	class ISystemEventDispatcher;
+	class SystemEventDispatcher;
 	class ReflectionClassUtility
 	{
 	public:
-		template <typename T> static inline void* REF_CreateComponentCacheFunc(EntityWorld* world, IGameEventDispatcher* dispatcher)
+		template <typename T> static inline void* REF_CreateComponentCacheFunc(EntityWorld* world, GameEventDispatcher* dispatcher)
 		{
 			Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>(world, dispatcher);
 			return static_cast<void*>(c);
@@ -77,7 +77,7 @@ namespace Lina
 				return;                                                                                                                                                                                                                                            \
 			reflected = true;                                                                                                                                                                                                                                      \
 			LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
-			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(EntityWorld * w, IGameEventDispatcher * dispatcher)>(                                                                                                                                \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(EntityWorld * w, GameEventDispatcher * dispatcher)>(                                                                                                                                 \
 				Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1, std::placeholders::_2));
 
 	/* BEGINNING A REFLECTED CLASS */

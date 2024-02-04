@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
+#include "Serialization/Serialization.hpp"
 
 namespace Lina
 {
@@ -79,7 +80,12 @@ namespace Lina
 
 	void Material::LoadFromFile(const char* path)
 	{
-		IResource::LoadFromFile(path);
+        IStream stream = Serialization::LoadFromFile(path);
+
+        if (stream.GetDataRaw() != nullptr)
+            LoadFromStream(stream);
+
+        stream.Destroy();
 	}
 
 	void Material::SaveToStream(OStream& stream)

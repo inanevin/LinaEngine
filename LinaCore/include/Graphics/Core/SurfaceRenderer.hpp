@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef SurfaceRenderer_HPP
 #define SurfaceRenderer_HPP
 
-#include "Event/ISystemEventListener.hpp"
+#include "Event/SystemEventListener.hpp"
 #include "Core/StringID.hpp"
 #include "Math/Vector.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
@@ -50,7 +50,7 @@ namespace Lina
 	class GUIBackend;
 	class GfxManager;
 
-	class SurfaceRenderer : public ISystemEventListener
+	class SurfaceRenderer : public SystemEventListener
 	{
 	private:
 		struct PerFrameData

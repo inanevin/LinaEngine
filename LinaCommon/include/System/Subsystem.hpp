@@ -26,9 +26,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Event/ISystemEventListener.hpp"
+#pragma once
+
+#ifndef ISubsystem_HPP
+#define ISubsystem_HPP
+
+#include "Data/HashMap.hpp"
 
 namespace Lina
 {
+	enum class SubsystemType
+	{
+		None = 0,
+		GfxManager,
+		PhysicsWorld,
+		AudioManager,
+		LevelManager,
+		ResourceManager,
+		LGXWrapper,
+		Editor,
+		Count
+	};
 
+	class System;
+	struct SystemInitializationInfo;
+
+	class Subsystem
+	{
+	public:
+		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
+		virtual void PreShutdown(){};
+		virtual void Shutdown() = 0;
+
+		inline SubsystemType GetType() const
+		{
+			return m_systemType;
+		}
+
+		inline System* GetSystem()
+		{
+			return m_system;
+		}
+
+	protected:
+		Subsystem(System* sys, SubsystemType type);
+		virtual ~Subsystem();
+
+	protected:
+		System*		  m_system	   = nullptr;
+		SubsystemType m_systemType = SubsystemType::None;
+	};
 } // namespace Lina
+
+#endif

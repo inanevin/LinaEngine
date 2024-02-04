@@ -37,35 +37,34 @@ SOFTWARE.
 #include "ResourceCache.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "Core/ObjectWrapper.hpp"
-#include "System/ISubsystem.hpp"
+#include "System/Subsystem.hpp"
 #include "Data/CommonData.hpp"
-#include "Event/ISystemEventDispatcher.hpp"
 #include "Data/Functional.hpp"
 
 namespace Lina
 {
 	class IStream;
 
-	class ResourceManager : public ISubsystem, public ISystemEventDispatcher
+	class ResourceManager : public Subsystem
 	{
 	public:
-		ResourceManager(ISystem* sys) : ISubsystem(sys, SubsystemType::ResourceManager){};
+		ResourceManager(System* sys) : Subsystem(sys, SubsystemType::ResourceManager){};
 		~ResourceManager() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		void		 Tick();
 
-		int32			   LoadResources(const Vector<ResourceIdentifier>& identifiers);
-		void			   WaitForAll();
-		bool			   IsLoadTaskComplete(uint32 id);
-		void			   UnloadResources(const Vector<ResourceIdentifier> identifiers);
-		bool			   IsPriorityResource(StringID sid);
-		bool			   IsCoreResource(StringID sid);
-		Vector<IResource*> GetAllResources(bool includeUserManagedResources);
-		PackageType		   GetPackageType(TypeID tid);
-		void			   ResaveResource(IResource* res);
-		static String	   GetMetacachePath(const String& resourcePath, StringID sid);
+		int32			  LoadResources(const Vector<ResourceIdentifier>& identifiers);
+		void			  WaitForAll();
+		bool			  IsLoadTaskComplete(uint32 id);
+		void			  UnloadResources(const Vector<ResourceIdentifier> identifiers);
+		bool			  IsPriorityResource(StringID sid);
+		bool			  IsCoreResource(StringID sid);
+		Vector<Resource*> GetAllResources(bool includeUserManagedResources);
+		PackageType		  GetPackageType(TypeID tid);
+		void			  ResaveResource(Resource* res);
+		static String	  GetMetacachePath(const String& resourcePath, StringID sid);
 
 		inline void SetPriorityResources(const Vector<ResourceIdentifier>& priorityResources)
 		{
@@ -126,8 +125,8 @@ namespace Lina
 			return resources;
 		}
 
-		void AddUserManaged(IResource* res);
-		void RemoveUserManaged(IResource* res);
+		void AddUserManaged(Resource* res);
+		void RemoveUserManaged(Resource* res);
 
 	private:
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
@@ -135,7 +134,7 @@ namespace Lina
 	private:
 		int32									 m_loadTaskCounter = 0;
 		HashMap<uint32, ResourceLoadTask*>		 m_loadTasks;
-		Executor								 m_executor;
+		JobExecutor								 m_executor;
 		ResourceManagerMode						 m_mode = ResourceManagerMode::File;
 		HashMap<TypeID, ResourceCacheBase*>		 m_caches;
 		Vector<ResourceIdentifier>				 m_priorityResources;

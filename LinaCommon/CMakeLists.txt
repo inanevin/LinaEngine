@@ -41,10 +41,10 @@ set (SOURCES
 
 	# Events
 	src/Event/Event.cpp
-	src/Event/ISystemEventListener.cpp
-	src/Event/IGameEventListener.cpp
-	src/Event/ISystemEventDispatcher.cpp
-	src/Event/IGameEventDispatcher.cpp
+	src/Event/SystemEventListener.cpp
+	src/Event/GameEventListener.cpp
+	src/Event/SystemEventDispatcher.cpp
+	src/Event/GameEventDispatcher.cpp
 
 	#Math
 	src/Math/Matrix.cpp
@@ -61,7 +61,6 @@ set (SOURCES
 	src/Serialization/Serialization.cpp
 	src/Serialization/Endianness.cpp
 	src/Serialization/Compressor.cpp
-	src/Serialization/ISerializable.cpp
 	src/Serialization/StringSerialization.cpp
 	
 	# Memory
@@ -76,9 +75,9 @@ set (SOURCES
 	src/JobSystem/JobSystem.cpp
 
 	# System
-	src/System/IPlugin.cpp
-	src/System/ISystem.cpp
-	src/System/ISubsystem.cpp
+	src/System/Plugin.cpp
+	src/System/System.cpp
+	src/System/Subsystem.cpp
 
 	# Platform
 	src/Platform/LinaGXIncl.cpp
@@ -110,10 +109,10 @@ set(HEADERS
 	
 	# Events
 	include/Event/Event.hpp
-	include/Event/ISystemEventListener.hpp
-	include/Event/IGameEventListener.hpp
-	include/Event/ISystemEventDispatcher.hpp
-	include/Event/IGameEventDispatcher.hpp
+	include/Event/SystemEventListener.hpp
+	include/Event/GameEventListener.hpp
+	include/Event/SystemEventDispatcher.hpp
+	include/Event/GameEventDispatcher.hpp
 
 	# Data
 	include/Data/Functional.hpp
@@ -158,7 +157,6 @@ set(HEADERS
 
 	# Serialization
 	include/Serialization/CommonSerialization.hpp
-	include/Serialization/ISerializable.hpp
 	include/Serialization/Compressor.hpp
 	include/Serialization/Endianness.hpp
 	include/Serialization/Serialization.hpp
@@ -181,9 +179,9 @@ set(HEADERS
 	include/Math/Plane.hpp
 
 	# System
-	include/System/IPlugin.hpp
-	include/System/ISystem.hpp
-	include/System/ISubsystem.hpp
+	include/System/Plugin.hpp
+	include/System/System.hpp
+	include/System/Subsystem.hpp
 
 	# Platform
 	include/Platform/LinaGXIncl.hpp

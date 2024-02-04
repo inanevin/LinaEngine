@@ -26,29 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Serialization/ISerializable.hpp"
-#include "Data/Streams.hpp"
-#include "Serialization/Serialization.hpp"
-#include "Serialization/CommonSerialization.hpp"
+#include "System/Subsystem.hpp"
+#include "System/System.hpp"
 
 namespace Lina
 {
-    void ISerializable::SaveToFile(const char* path)
-    {
-        OStream stream;
-        stream.CreateReserve(120);
-        SaveToStream(stream);
-        Serialization::SaveToFile(path, stream);
-        stream.Destroy();
-    }
+	Subsystem::Subsystem(System* sys, SubsystemType type) : m_system(sys), m_systemType(type)
+	{
+		m_system->AddSubsystem(this);
+	}
 
-    void ISerializable::LoadFromFile(const char* path)
-    {
-        IStream stream = Serialization::LoadFromFile(path);
-
-        if (stream.GetDataRaw() != nullptr)
-            LoadFromStream(stream);
-
-        stream.Destroy();
-    }
+	Subsystem::~Subsystem()
+	{
+		m_system->RemoveSubsystem(this);
+	}
 } // namespace Lina

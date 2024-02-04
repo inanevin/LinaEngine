@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Math/Transformation.hpp"
-
 #include "Math/Math.hpp"
 
 namespace Lina

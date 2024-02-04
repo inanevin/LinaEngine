@@ -33,7 +33,6 @@ SOFTWARE.
 
 #include "Core/StringID.hpp"
 #include "Data/String.hpp"
-#include "Serialization/ISerializable.hpp"
 #include "Core/Common.hpp"
 
 namespace Lina
@@ -48,7 +47,7 @@ namespace Lina
 
 	extern String GGetPackagePath(PackageType pt);
 
-	struct ResourceIdentifier : public ISerializable
+	struct ResourceIdentifier
 	{
 		ResourceIdentifier() = default;
 		ResourceIdentifier(const String& path, TypeID tid, StringID sid)
@@ -62,9 +61,8 @@ namespace Lina
 		StringID sid  = 0;
 		String	 path = "";
 
-		// Inherited via ISerializable
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 	};
 
 	struct ResourceLoadTask

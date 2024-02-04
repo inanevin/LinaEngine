@@ -28,12 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IResource_HPP
-#define IResource_HPP
-
 #include "Core/StringID.hpp"
 #include "Data/String.hpp"
-#include "Serialization/ISerializable.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
 
 namespace Lina
@@ -43,13 +39,13 @@ namespace Lina
 		class Editor;
 	}
 	class ResourceManager;
-	class ISystem;
+	class System;
 
-	class IResource : protected ISerializable
+	class Resource
 	{
 	public:
-		IResource(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid, TypeID tid);
-		virtual ~IResource();
+		Resource(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid, TypeID tid);
+		virtual ~Resource();
 
 		inline const String& GetPath() const
 		{
@@ -85,6 +81,9 @@ namespace Lina
 		virtual void Flush(){};
 		virtual void Upload(){};
 		virtual void BatchLoaded(){};
+		virtual void LoadFromFile(const char* path){};
+		virtual void LoadFromStream(IStream& stream){};
+		virtual void SaveToStream(OStream& stream){};
 
 		inline void SetMetadata(const ResourceMetadata& md)
 		{
@@ -115,5 +114,3 @@ namespace Lina
 		StringID		 m_sid			   = 0;
 	};
 } // namespace Lina
-
-#endif

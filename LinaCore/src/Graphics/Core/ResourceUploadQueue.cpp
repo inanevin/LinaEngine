@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Graphics/Core/ResourceUploadQueue.hpp"
-#include "System/ISubsystem.hpp"
-#include "System/ISystem.hpp"
+#include "System/Subsystem.hpp"
+#include "System/System.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Texture.hpp"

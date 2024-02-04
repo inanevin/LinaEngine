@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Graphics/Resource/Font.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "FileSystem/FileSystem.hpp"
@@ -47,7 +47,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
+	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
 	{
 		return;
 
@@ -75,7 +75,6 @@ namespace Lina
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		return;
-		m_resourceManager->AddListener(this);
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 		m_currentVsync = initInfo.vsyncStyle;
@@ -219,7 +218,7 @@ namespace Lina
 
 		m_resourceUploadQueue.Shutdown();
 		m_meshManager.Shutdown();
-		m_resourceManager->RemoveListener(this);
+		
 	}
 
 	void GfxManager::WaitForSwapchains()

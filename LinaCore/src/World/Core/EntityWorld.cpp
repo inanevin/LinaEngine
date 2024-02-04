@@ -241,7 +241,7 @@ namespace Lina
 		for (uint32 i = 0; i < tids.size(); i++)
 		{
 			MetaType&			type  = ReflectionSystem::Get().Resolve(tids[i]);
-			void*				ptr	  = type.GetFunction<void*(EntityWorld*, IGameEventDispatcher*)>("CreateCompCache"_hs)(this, this);
+			void*				ptr	  = type.GetFunction<void*(EntityWorld*, GameEventDispatcher*)>("CreateCompCache"_hs)(this, this);
 			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
 			cache->m_entities		  = m_entities.GetRaw();
 			cache->LoadFromStream(stream);

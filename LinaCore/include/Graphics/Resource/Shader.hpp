@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Shader_HPP
 #define Shader_HPP
 
-#include "Resources/Core/IResource.hpp"
+#include "Resources/Core/Resource.hpp"
 #include "Platform/LinaGXIncl.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Data/Streams.hpp"
@@ -53,10 +53,10 @@ namespace Lina
 		void LoadFromStream(IStream& stream);
 	};
 
-	class Shader : public IResource
+	class Shader : public Resource
 	{
 	public:
-		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
+		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
 		virtual ~Shader();
 
 		inline uint32 GetGPUHandle() const
@@ -86,7 +86,6 @@ namespace Lina
 		}
 
 	protected:
-		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;

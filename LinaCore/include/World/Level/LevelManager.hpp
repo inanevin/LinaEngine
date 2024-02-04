@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef LevelManager_HPP
 #define LevelManager_HPP
 
-#include "System/ISubsystem.hpp"
+#include "System/Subsystem.hpp"
 
 namespace Lina
 {
@@ -39,10 +39,10 @@ namespace Lina
 	class GfxManager;
 	class WorldRenderer;
 
-	class LevelManager : public ISubsystem
+	class LevelManager : public Subsystem
 	{
 	public:
-		LevelManager(ISystem* sys) : ISubsystem(sys, SubsystemType::LevelManager){};
+		LevelManager(System* sys) : Subsystem(sys, SubsystemType::LevelManager){};
 		virtual ~LevelManager() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
@@ -59,7 +59,6 @@ namespace Lina
 		{
 			return m_currentLevel;
 		}
-
 
 	private:
 		String		m_queuedLevel		= "";

@@ -32,59 +32,58 @@ SOFTWARE.
 #define DataStructuresBitmask_HPP
 
 #include "Core/SizeDefinitions.hpp"
-#include "Serialization/ISerializable.hpp"
 #include "Data/Streams.hpp"
 
 namespace Lina
 {
-    template <typename T> class Bitmask : public ISerializable
-    {
-    public:
-        Bitmask()  = default;
-        ~Bitmask() = default;
-        Bitmask(T m) : m_mask(m){};
-        inline bool IsSet(T m) const
-        {
-            return (m_mask & m) != 0;
-        }
+	template <typename T> class Bitmask
+	{
+	public:
+		Bitmask()  = default;
+		~Bitmask() = default;
+		Bitmask(T m) : m_mask(m){};
+		inline bool IsSet(T m) const
+		{
+			return (m_mask & m) != 0;
+		}
 
-        inline bool IsAllSet(T bits) const
-        {
-            return (m_mask & bits) == bits;
-        }
+		inline bool IsAllSet(T bits) const
+		{
+			return (m_mask & bits) == bits;
+		}
 
-        inline void Set(T m)
-        {
-            m_mask |= m;
-        }
+		inline void Set(T m)
+		{
+			m_mask |= m;
+		}
 
-        inline void Remove(T m)
-        {
-            m_mask &= ~m;
-        }
+		inline void Remove(T m)
+		{
+			m_mask &= ~m;
+		}
 
-        inline T GetValue()
-        {
-            return m_mask;
-        }
+		inline T GetValue()
+		{
+			return m_mask;
+		}
 
-        // Inherited via ISerializable
-        virtual void SaveToStream(OStream& stream) override
-        {
-            stream << m_mask;
-        }
-        virtual void LoadFromStream(IStream& stream) override
-        {
-            stream >> m_mask;
-        }
+		void SaveToStream(OStream& stream)
+		{
+			stream << m_mask;
+		}
 
-    private:
-        T m_mask = 0;
-    };
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> m_mask;
+		}
 
-    typedef Bitmask<uint8>  Bitmask8;
-    typedef Bitmask<uint16> Bitmask16;
-    typedef Bitmask<uint32> Bitmask32;
+	private:
+		T m_mask = 0;
+	};
+
+	typedef Bitmask<uint8>	Bitmask8;
+	typedef Bitmask<uint16> Bitmask16;
+	typedef Bitmask<uint32> Bitmask32;
 } // namespace Lina
 
 #endif

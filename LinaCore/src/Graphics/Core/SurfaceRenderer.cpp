@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Platform/LinaVGIncl.hpp"

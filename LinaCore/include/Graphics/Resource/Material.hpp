@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Material_HPP
 #define Material_HPP
 
-#include "Resources/Core/IResource.hpp"
+#include "Resources/Core/Resource.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Platform/LinaGXIncl.hpp"
 
@@ -40,10 +40,10 @@ namespace Lina
 	class MaterialPropertyBase;
 	class Shader;
 
-	class Material : public IResource
+	class Material : public Resource
 	{
 	public:
-		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Material>()){};
+		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Material>()){};
 		virtual ~Material();
 
 		/// <summary>
@@ -68,18 +68,18 @@ namespace Lina
 		template <typename T> inline void SetProperty(const String& name, T& value)
 		{
 			// const StringID sid = TO_SID(name);
-			// 
+			//
 			// size_t dataIndex = 0;
 			// for (const auto& mem : m_uboDefinition.members)
 			// {
 			// 	const StringID memSid = TO_SID(mem.name);
-			// 
+			//
 			// 	if (memSid == sid)
 			// 	{
 			// 		MEMCPY(m_data + dataIndex, &value, sizeof(T));
 			// 		break;
 			// 	}
-			// 
+			//
 			// 	dataIndex += mem.alignment;
 			// }
 		}
@@ -93,35 +93,34 @@ namespace Lina
 		template <typename T> inline T GetProperty(const String& name)
 		{
 			// const StringID sid = TO_SID(name);
-			// 
+			//
 			// size_t dataIndex = 0;
 			// for (const auto& mem : m_uboDefinition.members)
 			// {
 			// 	const StringID memSid = TO_SID(mem.name);
-			// 
+			//
 			// 	if (memSid == sid)
 			// 	{
 			// 		T* ptr = reinterpret_cast<T*>(m_data + dataIndex);
 			// 		return *ptr;
 			// 	}
-			// 
+			//
 			// 	dataIndex += mem.alignment;
 			// }
-			// 
+			//
 			// return nullptr;
 		}
 
 	protected:
-		// Inherited via IResource
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
 
 	private:
-		uint32			  m_shader		  = 0;
-		uint8*			  m_data		  = nullptr;
-		size_t			  m_totalDataSize = 0;
+		uint32 m_shader		   = 0;
+		uint8* m_data		   = nullptr;
+		size_t m_totalDataSize = 0;
 	};
 
 } // namespace Lina

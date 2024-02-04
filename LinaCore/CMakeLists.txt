@@ -75,7 +75,7 @@ src/Reflection/ReflectionSystem.cpp
 src/Resources/Core/CommonResources.cpp
 src/Resources/Core/ResourceManager.cpp
 src/Resources/Core/ResourceCache.cpp
-src/Resources/Core/IResource.cpp
+src/Resources/Core/Resource.cpp
 src/Resources/Data/ResourceMetadata.cpp
 
 )
@@ -121,7 +121,7 @@ include/Reflection/ReflectionSystem.hpp
 include/Resources/Core/CommonResources.hpp
 include/Resources/Core/ResourceManager.hpp
 include/Resources/Core/ResourceCache.hpp
-include/Resources/Core/IResource.hpp
+include/Resources/Core/Resource.hpp
 include/Resources/Core/ResourcesReflection.hpp
 include/Resources/Data/ResourceMetadata.hpp
 

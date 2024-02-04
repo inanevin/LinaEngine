@@ -34,12 +34,11 @@ SOFTWARE.
 // Headers here.
 #include "Math/Vector.hpp"
 #include "Data/Vector.hpp"
-#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
 	class Plane;
-	class AABB : public ISerializable
+	class AABB
 	{
 
 	public:
@@ -62,9 +61,8 @@ namespace Lina
 		Vector3 GetPositive(const Vector3& normal) const;
 		Vector3 GetNegative(const Vector3& normal) const;
 
-		// Inherited via ISerializable
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 
 		Vector3			boundsHalfExtents = Vector3::Zero;
 		Vector3			boundsMin		  = Vector3::Zero;

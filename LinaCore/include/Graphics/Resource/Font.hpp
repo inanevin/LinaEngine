@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef LinaFont_HPP
 #define LinaFont_HPP
 
-#include "Resources/Core/IResource.hpp"
+#include "Resources/Core/Resource.hpp"
 #include "Data/HashMap.hpp"
 #include "Data/Vector.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
@@ -48,10 +48,10 @@ namespace Lina
 #define FONT_META_ISSDF			"IsSDF"_hs
 #define FONT_META_CUSTOM_GLPYHS "CustomGlyphRanges"_hs
 
-	class Font : public IResource
+	class Font : public Resource
 	{
 	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
+		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
 		virtual ~Font();
 
 		inline LinaVG::LinaVGFont* GetLinaVGFont()

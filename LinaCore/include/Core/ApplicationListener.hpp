@@ -32,13 +32,13 @@ SOFTWARE.
 #include "Resources/Data/ResourceMetadata.hpp"
 #include "Data/Vector.hpp"
 #include "Data/CommonData.hpp"
-#include "Event/ISystemEventListener.hpp"
+#include "Event/SystemEventListener.hpp"
 
 namespace Lina
 {
 	class ResourceManager;
 
-	class ApplicationListener : public ISystemEventListener
+	class ApplicationListener : public SystemEventListener
 	{
 	public:
 		ApplicationListener()		   = default;

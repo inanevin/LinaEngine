@@ -31,12 +31,12 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Platform/LinaGXIncl.hpp"
 #include "Core/Common.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Event/Event.hpp"
 
 namespace Lina
 {
-	LGXWrapper::LGXWrapper(ISystem* sys) : ISubsystem(sys, SubsystemType::LGXWrapper)
+	LGXWrapper::LGXWrapper(System* sys) : Subsystem(sys, SubsystemType::LGXWrapper)
 	{
 	}
 
@@ -55,21 +55,23 @@ namespace Lina
 		return std::string(buffer.data());
 	}
 
-    void LinaGX_ErrorCallback(const char* err, ...) {
-        va_list args;
-        va_start(args, err);
-        std::string formattedStr = FormatString(err, args);
-        LINA_ERR(formattedStr.c_str());
-        va_end(args);
-    }
+	void LinaGX_ErrorCallback(const char* err, ...)
+	{
+		va_list args;
+		va_start(args, err);
+		std::string formattedStr = FormatString(err, args);
+		LINA_ERR(formattedStr.c_str());
+		va_end(args);
+	}
 
-    void LinaGX_LogCallback(const char* err, ...) {
-        va_list args;
-        va_start(args, err);
-        std::string formattedStr = FormatString(err, args);
-        LINA_ERR(formattedStr.c_str());
-        va_end(args);
-    }
+	void LinaGX_LogCallback(const char* err, ...)
+	{
+		va_list args;
+		va_start(args, err);
+		std::string formattedStr = FormatString(err, args);
+		LINA_ERR(formattedStr.c_str());
+		va_end(args);
+	}
 
 	void LGXWrapper::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
@@ -80,8 +82,8 @@ namespace Lina
 		};
 
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
-        LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
-        LinaGX::Config.infoCallback = LinaGX_LogCallback;
+		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
+		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
 
 		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
 #ifdef LINA_PLATFORM_APPLE

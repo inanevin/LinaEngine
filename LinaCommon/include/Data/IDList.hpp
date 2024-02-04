@@ -35,132 +35,131 @@ SOFTWARE.
 #include "Queue.hpp"
 #include "Core/SizeDefinitions.hpp"
 #include "Log/Log.hpp"
-#include "Serialization/ISerializable.hpp"
 #include "Data/Streams.hpp"
 #include "Serialization/QueueSerialization.hpp"
 #include "Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
-    template <typename T> class IDList : public ISerializable
-    {
-    public:
-        IDList(uint32 step, T defaultItem)
-        {
-            m_defaultItem = defaultItem;
-            m_defaultStep = step;
-            m_items.resize(m_defaultStep, defaultItem);
-        }
+	template <typename T> class IDList
+	{
+	public:
+		IDList(uint32 step, T defaultItem)
+		{
+			m_defaultItem = defaultItem;
+			m_defaultStep = step;
+			m_items.resize(m_defaultStep, defaultItem);
+		}
 
-        ~IDList() = default;
+		~IDList() = default;
 
-        typename Vector<T>::iterator begin()
-        {
-            return m_items.begin();
-        }
+		typename Vector<T>::iterator begin()
+		{
+			return m_items.begin();
+		}
 
-        typename Vector<T>::iterator end()
-        {
-            return m_items.end();
-        }
+		typename Vector<T>::iterator end()
+		{
+			return m_items.end();
+		}
 
-        inline uint32 AddItem(T item)
-        {
-            uint32 id = 0;
+		inline uint32 AddItem(T item)
+		{
+			uint32 id = 0;
 
-            if (!m_availableIDs.empty())
-            {
-                id = m_availableIDs.front();
-                m_availableIDs.pop();
-            }
-            else
-                id = m_nextFreeID++;
+			if (!m_availableIDs.empty())
+			{
+				id = m_availableIDs.front();
+				m_availableIDs.pop();
+			}
+			else
+				id = m_nextFreeID++;
 
-            const uint32 currentSize = static_cast<uint32>(m_items.size());
-            if (id >= currentSize)
-                m_items.resize(m_defaultStep + currentSize);
+			const uint32 currentSize = static_cast<uint32>(m_items.size());
+			if (id >= currentSize)
+				m_items.resize(m_defaultStep + currentSize);
 
-            m_items[id] = item;
-            return id;
-        }
+			m_items[id] = item;
+			return id;
+		}
 
-        inline void AddItem(T item, uint32 index)
-        {
-            m_items[index] = item;
-        }
+		inline void AddItem(T item, uint32 index)
+		{
+			m_items[index] = item;
+		}
 
-        inline void RemoveItem(uint32 id)
-        {
-            m_items[id] = m_defaultItem;
-            m_availableIDs.push(id);
-        }
+		inline void RemoveItem(uint32 id)
+		{
+			m_items[id] = m_defaultItem;
+			m_availableIDs.push(id);
+		}
 
-        inline const Vector<T>& GetItems() const
-        {
-            return m_items;
-        }
+		inline const Vector<T>& GetItems() const
+		{
+			return m_items;
+		}
 
-        inline Vector<T>& GetItems()
-        {
-            return m_items;
-        }
+		inline Vector<T>& GetItems()
+		{
+			return m_items;
+		}
 
-        inline T GetItem(int index)
-        {
-            return m_items[index];
-        }
+		inline T GetItem(int index)
+		{
+			return m_items[index];
+		}
 
-        inline T& GetItemR(int index)
-        {
-            return m_items[index];
-        }
+		inline T& GetItemR(int index)
+		{
+			return m_items[index];
+		}
 
-        inline uint32 GetNextFreeID()
-        {
-            return m_nextFreeID;
-        }
+		inline uint32 GetNextFreeID()
+		{
+			return m_nextFreeID;
+		}
 
-        inline void Clear()
-        {
-            m_items.clear();
-        }
+		inline void Clear()
+		{
+			m_items.clear();
+		}
 
-        inline void Reset()
-        {
-            Clear();
-            m_items.resize(m_defaultStep, m_defaultItem);
-        }
+		inline void Reset()
+		{
+			Clear();
+			m_items.resize(m_defaultStep, m_defaultItem);
+		}
 
-        inline T* GetRaw()
-        {
-            return m_items.data();
-        }
+		inline T* GetRaw()
+		{
+			return m_items.data();
+		}
 
-        virtual void SaveToStream(OStream& stream)
-        {
-            const uint32 size = static_cast<uint32>(m_items.size());
-            stream << size;
-            stream << m_nextFreeID;
-            QueueSerialization::SaveToStream_PT(stream, m_availableIDs);
-        }
+		void SaveToStream(OStream& stream)
+		{
+			const uint32 size = static_cast<uint32>(m_items.size());
+			stream << size;
+			stream << m_nextFreeID;
+			QueueSerialization::SaveToStream_PT(stream, m_availableIDs);
+		}
 
-        virtual void LoadFromStream(IStream& stream)
-        {
-            Clear();
-            uint32 size = 0;
-            stream >> size;
-            stream >> m_nextFreeID;
-            QueueSerialization::LoadFromStream_PT(stream, m_availableIDs);
-            m_items.resize(size, m_defaultItem);
-        }
+		void LoadFromStream(IStream& stream)
+		{
+			Clear();
+			uint32 size = 0;
+			stream >> size;
+			stream >> m_nextFreeID;
+			QueueSerialization::LoadFromStream_PT(stream, m_availableIDs);
+			m_items.resize(size, m_defaultItem);
+		}
 
-    private:
-        T             m_defaultItem = T();
-        Vector<T>     m_items;
-        Queue<uint32> m_availableIDs;
-        uint32        m_nextFreeID  = 0;
-        uint32        m_defaultStep = 250;
-    };
+	private:
+		T			  m_defaultItem = T();
+		Vector<T>	  m_items;
+		Queue<uint32> m_availableIDs;
+		uint32		  m_nextFreeID	= 0;
+		uint32		  m_defaultStep = 250;
+	};
 } // namespace Lina
 
 #endif

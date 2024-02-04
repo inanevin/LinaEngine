@@ -26,32 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef EventDispatcher_HPP
-#define EventDispatcher_HPP
-
-#include "Event/Event.hpp"
-#include "Data/Vector.hpp"
+#include "Event/GameEventDispatcher.hpp"
+#include "Event/GameEventListener.hpp"
+#include "Data/CommonData.hpp"
 
 namespace Lina
 {
-	class ISystemEventListener;
-
-	class ISystemEventDispatcher
+	GameEventDispatcher::GameEventDispatcher()
 	{
-	public:
-		ISystemEventDispatcher();
-		virtual ~ISystemEventDispatcher() = default;
+		m_listeners.reserve(50);
+	}
 
-		void AddListener(ISystemEventListener* listener);
-		void RemoveListener(ISystemEventListener* listener);
-		void DispatchEvent(SystemEvent eventType, const Event& ev);
+	void GameEventDispatcher::AddListener(GameEventListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
 
-	private:
-		Vector<ISystemEventListener*> m_listeners;
-	};
+	void GameEventDispatcher::RemoveListener(GameEventListener* listener)
+	{
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](GameEventListener* l) { return l == listener; }));
+	}
 
+	void GameEventDispatcher::DispatchEvent(GameEvent eventType, const Event& ev)
+	{
+		for (auto listener : m_listeners)
+		{
+			if (listener->GetGameEventMask().IsSet(eventType))
+				listener->OnGameEvent(eventType, ev);
+		}
+	}
 } // namespace Lina
-
-#endif

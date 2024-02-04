@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Math/Math.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
 

@@ -55,8 +55,6 @@ namespace Lina
 			m_world->LoadFromStream(m_worldStream);
 			m_worldStream.Destroy();
 		}
-
-		m_runtimeUserStream.CreateReserve(4);
 	}
 
 	void Level::Uninstall()
@@ -72,7 +70,6 @@ namespace Lina
 		if (m_world)
 		{
 			OStream worldStream;
-			worldStream.CreateReserve(4);
 			m_world->SaveToStream(worldStream);
 
 			const uint32 worldStreamSize = static_cast<uint32>(worldStream.GetCurrentSize());
@@ -99,7 +96,6 @@ namespace Lina
 
 		// Refresh after saving
 		m_runtimeUserStream.Destroy();
-		m_runtimeUserStream.CreateReserve(4);
 	}
 
 	void Level::LoadFromStream(IStream& stream)

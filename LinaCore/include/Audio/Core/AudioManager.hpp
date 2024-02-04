@@ -31,14 +31,14 @@ SOFTWARE.
 #ifndef AudioManager_HPP
 #define AudioManager_HPP
 
-#include "System/ISubsystem.hpp"
+#include "System/Subsystem.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public ISubsystem
+	class AudioManager final : public Subsystem
 	{
 	public:
-		AudioManager(ISystem* sys) : ISubsystem(sys, SubsystemType::AudioManager){};
+		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
 		~AudioManager() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;

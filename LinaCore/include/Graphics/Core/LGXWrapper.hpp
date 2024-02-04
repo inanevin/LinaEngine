@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef LGXWrapper_HPP
 #define LGXWrapper_HPP
 
-#include "System/ISubsystem.hpp"
+#include "System/Subsystem.hpp"
 #include "Math/Vector.hpp"
 #include "Core/StringID.hpp"
 
@@ -47,10 +47,10 @@ namespace Lina
 {
 	class GfxManager;
 
-	class LGXWrapper : public ISubsystem
+	class LGXWrapper : public Subsystem
 	{
 	public:
-		LGXWrapper(ISystem* sys);
+		LGXWrapper(System* sys);
 		virtual ~LGXWrapper() = default;
 
 		void				   PreInitialize(const SystemInitializationInfo& initInfo);

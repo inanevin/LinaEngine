@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Quaternion.hpp"
 #include "Vector.hpp"
 #include "Data/Set.hpp"
-#include "Serialization/ISerializable.hpp"
 
 namespace Lina
 {
@@ -47,7 +46,7 @@ namespace Lina
 
 namespace Lina
 {
-	class Transformation : public ISerializable
+	class Transformation
 	{
 	public:
 		Transformation() : m_position(0.0f, 0.0f, 0.0f), m_rotation(0.0f, 0.0f, 0.0f, 1.0f), m_scale(1.0f, 1.0f, 1.0f)
@@ -86,9 +85,8 @@ namespace Lina
 		Vector3	   m_localScale			 = Vector3::One;
 		Vector3	   m_localRotationAngles = Vector3::Zero;
 
-		// Inherited via ISerializable
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 	};
 
 } // namespace Lina

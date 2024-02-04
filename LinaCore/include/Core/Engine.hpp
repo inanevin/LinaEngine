@@ -31,24 +31,24 @@ SOFTWARE.
 #ifndef Engine_HPP
 #define Engine_HPP
 
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Audio/Core/AudioManager.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "JobSystem/JobSystem.hpp"
 #include "EngineInterface.hpp"
-#include "Event/ISystemEventListener.hpp"
+#include "Event/SystemEventListener.hpp"
 
 namespace Lina
 {
 	class Application;
 	class GfxManager;
 
-	class Engine : public ISystem, public ISystemEventListener
+	class Engine : public System, public SystemEventListener
 	{
 	public:
-		Engine(Application* app) : ISystem(app), m_lgxWrapper(this), m_audioManager(this), m_levelManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : System(app), m_lgxWrapper(this), m_audioManager(this), m_levelManager(this), m_resourceManager(this), m_engineInterface(this){};
 
 		virtual ~Engine() = default;
 
@@ -93,7 +93,7 @@ namespace Lina
 	protected:
 		ResourceManager m_resourceManager;
 		LGXWrapper		m_lgxWrapper;
-		Executor		m_executor;
+		JobExecutor		m_executor;
 		AudioManager	m_audioManager;
 		GfxManager*		m_gfxManager = nullptr;
 		LevelManager	m_levelManager;

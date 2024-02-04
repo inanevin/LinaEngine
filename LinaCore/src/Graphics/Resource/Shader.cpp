@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Serialization/StringSerialization.hpp"
 #include "FileSystem//FileSystem.hpp"
 #include "Graphics/Utility/ShaderPreprocessor.hpp"

@@ -26,24 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/ISystem.hpp"
-#include "Data/CommonData.hpp"
-#include "Math/Math.hpp"
+#pragma once
+
+#ifndef GameEventListener_HPP
+#define GameEventListener_HPP
+
+#include "Event/Event.hpp"
+#include "Data/Bitmask.hpp"
 
 namespace Lina
 {
-	void ISystem::AddSubsystem(ISubsystem* s)
+	class GameEventListener
 	{
-		m_subsystems[s->GetType()] = s;
-	}
+	public:
+		GameEventListener()			 = default;
+		virtual ~GameEventListener() = default;
 
-	void ISystem::RemoveSubsystem(ISubsystem* s)
-	{
-		m_subsystems.erase(linatl::find_if(m_subsystems.begin(), m_subsystems.end(), [s](auto pair) { return pair.first == s->GetType(); }));
-	}
+		virtual void OnGameEvent(GameEvent eventType, const Event& ev){};
 
-	ISubsystem* ISystem::CastSubsystem(SubsystemType type)
-	{
-		return m_subsystems[type];
-	}
+		virtual Bitmask32 GetGameEventMask()
+		{
+			return 0;
+		}
+	};
+
 } // namespace Lina
+
+#endif

@@ -38,12 +38,12 @@ SOFTWARE.
 #include "Data/Vector.hpp"
 #include "Data/Mutex.hpp"
 #include "Log/Log.hpp"
-#include "IResource.hpp"
+#include "Resource.hpp"
 #include "CommonResources.hpp"
 
 namespace Lina
 {
-	class IResource;
+	class Resource;
 	class ResourceManager;
 
 	class ResourceCacheBase
@@ -52,12 +52,12 @@ namespace Lina
 		ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual IResource*		   CreateResource(StringID sid, const String& path, ResourceManager* rm) = 0;
-		virtual IResource*		   GetResource(StringID sid)											 = 0;
+		virtual Resource*		   CreateResource(StringID sid, const String& path, ResourceManager* rm) = 0;
+		virtual Resource*		   GetResource(StringID sid)											 = 0;
 		virtual void			   DestroyResource(StringID sid)										 = 0;
-		virtual Vector<IResource*> GetAllResources(bool includeUserManagedResources) const				 = 0;
-		virtual void			   AddUserManaged(IResource* res)										 = 0;
-		virtual void			   RemoveUserManaged(IResource* res)									 = 0;
+		virtual Vector<Resource*> GetAllResources(bool includeUserManagedResources) const				 = 0;
+		virtual void			   AddUserManaged(Resource* res)										 = 0;
+		virtual void			   RemoveUserManaged(Resource* res)									 = 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -82,7 +82,7 @@ namespace Lina
 			Destroy();
 		}
 
-		virtual IResource* CreateResource(StringID sid, const String& path, ResourceManager* rm) override
+		virtual Resource* CreateResource(StringID sid, const String& path, ResourceManager* rm) override
 		{
 			LOCK_GUARD(m_mtx);
 
@@ -115,7 +115,7 @@ namespace Lina
 			m_resources.erase(it);
 		}
 
-		virtual IResource* GetResource(StringID sid) override
+		virtual Resource* GetResource(StringID sid) override
 		{
 			auto it = m_resources.find(sid);
 
@@ -132,9 +132,9 @@ namespace Lina
 			return it->second;
 		}
 
-		Vector<IResource*> GetAllResources(bool includeUserManagedResources) const override
+		Vector<Resource*> GetAllResources(bool includeUserManagedResources) const override
 		{
-			Vector<IResource*> resources;
+			Vector<Resource*> resources;
 			resources.reserve(m_resources.size());
 
 			for (auto [sid, res] : m_resources)
@@ -166,7 +166,7 @@ namespace Lina
 			return resources;
 		}
 
-		virtual void AddUserManaged(IResource* res) override
+		virtual void AddUserManaged(Resource* res) override
 		{
 			if (!res->IsUserManaged())
 			{
@@ -177,7 +177,7 @@ namespace Lina
 			m_userManagedResources[res->GetSID()] = static_cast<T*>(res);
 		}
 
-		virtual void RemoveUserManaged(IResource* res) override
+		virtual void RemoveUserManaged(Resource* res) override
 		{
 			m_userManagedResources.erase(m_userManagedResources.find(res->GetSID()));
 		}

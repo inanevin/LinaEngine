@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Texture_HPP
 #define Texture_HPP
 
-#include "Resources/Core/IResource.hpp"
+#include "Resources/Core/Resource.hpp"
 #include "Platform/LinaGXIncl.hpp"
 #include "Data/Vector.hpp"
 
@@ -55,10 +55,10 @@ namespace Lina
 		Vector2ui size	  = Vector2ui::Zero;
 	};
 
-	class Texture : public IResource
+	class Texture : public Resource
 	{
 	public:
-		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : IResource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
+		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
 		virtual ~Texture();
 
 		virtual void			 BatchLoaded() override;
@@ -90,7 +90,7 @@ namespace Lina
 		friend class GfxManager;
 
 	protected:
-		// Inherited via IResource
+        
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;

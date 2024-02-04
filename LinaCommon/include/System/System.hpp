@@ -28,53 +28,61 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ISubsystem_HPP
-#define ISubsystem_HPP
+#ifndef System_HPP
+#define System_HPP
 
+#include "Event/SystemEventDispatcher.hpp"
+#include "System/Subsystem.hpp"
 #include "Data/HashMap.hpp"
+#include "Core/Common.hpp"
+#include "JobSystem/JobSystem.hpp"
 
 namespace Lina
 {
-	enum class SubsystemType
-	{
-		None = 0,
-		GfxManager,
-		PhysicsWorld,
-		AudioManager,
-		LevelManager,
-		ResourceManager,
-		LGXWrapper,
-		Editor,
-		Count
-	};
+	class ISubsystem;
+	class Application;
 
-	class ISystem;
-	struct SystemInitializationInfo;
-
-	class ISubsystem
+	class System : public SystemEventDispatcher
 	{
 	public:
+		System(Application* app) : m_app(app){};
+		virtual ~System() = default;
+
+		void		 AddSubsystem(Subsystem* sub);
+		void		 RemoveSubsystem(Subsystem* sub);
+		Subsystem*	 CastSubsystem(SubsystemType type);
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void PreShutdown(){};
-		virtual void Shutdown() = 0;
+		virtual void Shutdown()											  = 0;
+		virtual void PreTick()											  = 0;
+		virtual void Poll()												  = 0;
+		virtual void Tick()												  = 0;
+		virtual void OnCriticalGfxError()								  = 0;
 
-		inline SubsystemType GetType() const
+		template <typename T> T* CastSubsystem(SubsystemType type)
 		{
-			return m_systemType;
+			return (T*)(m_subsystems[type]);
 		}
 
-		inline ISystem* GetSystem()
+		inline const SystemInitializationInfo& GetInitInfo()
 		{
-			return m_system;
+			return m_initInfo;
+		}
+
+		inline JobExecutor* GetMainExecutor()
+		{
+			return &m_mainExecutor;
+		}
+
+		inline Application* GetApp()
+		{
+			return m_app;
 		}
 
 	protected:
-		ISubsystem(ISystem* sys, SubsystemType type);
-		virtual ~ISubsystem();
-
-	protected:
-		ISystem*	  m_system	   = nullptr;
-		SubsystemType m_systemType = SubsystemType::None;
+		Application*					   m_app = nullptr;
+		JobExecutor						   m_mainExecutor;
+		SystemInitializationInfo		   m_initInfo;
+		HashMap<SubsystemType, Subsystem*> m_subsystems;
 	};
 } // namespace Lina
 

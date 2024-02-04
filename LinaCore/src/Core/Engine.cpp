@@ -46,8 +46,8 @@ namespace Lina
 {
 	void Engine::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
+		AddListener(this);
 		m_gfxManager = new GfxManager(initInfo, this);
-		m_resourceManager.AddListener(this);
 		m_lgxWrapper.PreInitialize(initInfo);
 	}
 
@@ -75,7 +75,8 @@ namespace Lina
 	{
 		LINA_TRACE("[Application] -> Shutdown.");
 
-		m_resourceManager.RemoveListener(this);
+		RemoveListener(this);
+
 		m_levelManager.Shutdown();
 		m_resourceManager.Shutdown();
 		m_gfxManager->Shutdown();

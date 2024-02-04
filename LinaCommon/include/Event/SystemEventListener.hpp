@@ -26,20 +26,30 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Resources/Core/IResource.hpp"
-#include "Resources/Core/ResourceManager.hpp"
+#pragma once
+
+#ifndef SystemEventListener_HPP
+#define SystemEventListener_HPP
+
+#include "Event/Event.hpp"
+#include "Data/Bitmask.hpp"
 
 namespace Lina
 {
-	IResource::IResource(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid, TypeID tid) : m_userManaged(isUserManaged), m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm)
+	class SystemEventListener
 	{
-		if (isUserManaged)
-			rm->AddUserManaged(this);
-	}
+	public:
+		SystemEventListener()		   = default;
+		virtual ~SystemEventListener() = default;
 
-	IResource::~IResource()
-	{
-		if (m_userManaged)
-			m_resourceManager->RemoveUserManaged(this);
-	}
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev){};
+
+		virtual Bitmask32 GetSystemEventMask()
+		{
+			return 0;
+		}
+	};
+
 } // namespace Lina
+
+#endif

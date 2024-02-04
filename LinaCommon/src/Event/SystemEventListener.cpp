@@ -26,30 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef ISerializable_HPP
-#define ISerializable_HPP
+#include "Event/SystemEventListener.hpp"
 
 namespace Lina
 {
-	class OStream;
-	class IStream;
-
-	class ISerializable
-	{
-	public:
-		ISerializable()			 = default;
-		virtual ~ISerializable() = default;
-
-	public:
-
-		virtual void SaveToStream(OStream& stream)	 = 0;
-		virtual void LoadFromStream(IStream& stream) = 0;
-		virtual void SaveToFile(const char* path);
-		virtual void LoadFromFile(const char* path);
-	};
 
 } // namespace Lina
-
-#endif

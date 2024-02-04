@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Serialization/Serialization.hpp"
 #include "Data/CommonData.hpp"
 #include "FileSystem/FileSystem.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Platform/PlatformTime.hpp"
 #include "Math/Math.hpp"
 
@@ -56,10 +56,9 @@ namespace Lina
 		return m_caches.at(tid)->GetPackageType();
 	}
 
-	void ResourceManager::ResaveResource(IResource* res)
+	void ResourceManager::ResaveResource(Resource* res)
 	{
 		OStream stream;
-		stream.CreateReserve(512);
 		res->SaveToStream(stream);
 		Serialization::SaveToFile(res->GetPath().c_str(), stream);
 
@@ -99,7 +98,7 @@ namespace Lina
 			{
 				loadTask->tf.emplace([ident, this, loadTask]() {
 					auto&		 cache		   = m_caches.at(ident.tid);
-					IResource*	 res		   = cache->CreateResource(ident.sid, ident.path, this);
+					Resource*	 res		   = cache->CreateResource(ident.sid, ident.path, this);
 					const String metacachePath = GetMetacachePath(ident.path, ident.sid);
 					if (FileSystem::FileOrPathExists(metacachePath))
 					{
@@ -137,7 +136,6 @@ namespace Lina
 						if (res->GetTID() != GetTypeID<Level>())
 						{
 							OStream metastream;
-							metastream.CreateReserve(512);
 							res->SaveToStream(metastream);
 							Serialization::SaveToFile(metacachePath.c_str(), metastream);
 							metastream.Destroy();
@@ -150,7 +148,7 @@ namespace Lina
 					data.pParams[1]			= static_cast<void*>(loadTask);
 					data.iParams[0]			= ident.sid;
 					data.iParams[1]			= ident.tid;
-					DispatchEvent(EVS_ResourceLoaded, data);
+					m_system->DispatchEvent(EVS_ResourceLoaded, data);
 
 					res->Flush();
 				});
@@ -175,9 +173,9 @@ namespace Lina
 				int totalResourcesSize = static_cast<int>(resourcesToLoad.size());
 
 				auto loadFunc = [this](IStream stream, ResourceIdentifier ident, ResourceLoadTask* loadTask) {
-					IStream	   load	 = stream;
-					auto&	   cache = m_caches.at(ident.tid);
-					IResource* res	 = cache->CreateResource(ident.sid, ident.path, this);
+					IStream	  load	= stream;
+					auto&	  cache = m_caches.at(ident.tid);
+					Resource* res	= cache->CreateResource(ident.sid, ident.path, this);
 					res->LoadFromStream(load);
 					res->Upload();
 					res->Flush();
@@ -187,7 +185,7 @@ namespace Lina
 					data.pParams[1] = static_cast<void*>(loadTask);
 					data.iParams[0] = ident.sid;
 					data.iParams[1] = ident.tid;
-					DispatchEvent(EVS_ResourceLoaded, data);
+					m_system->DispatchEvent(EVS_ResourceLoaded, data);
 					stream.Destroy();
 				};
 
@@ -278,13 +276,13 @@ namespace Lina
 			data.pParams[0]			= &copy.path;
 			data.iParams[0]			= ident.sid;
 			data.iParams[1]			= ident.tid;
-			DispatchEvent(EVS_ResourceUnloaded, data);
+			m_system->DispatchEvent(EVS_ResourceUnloaded, data);
 		}
 
 		Event					   batchEv;
 		Vector<ResourceIdentifier> idents = identifiers;
 		batchEv.pParams[0]				  = &idents;
-		DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
+		m_system->DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
 	}
 
 	bool ResourceManager::IsPriorityResource(StringID sid)
@@ -299,9 +297,9 @@ namespace Lina
 		return it != m_coreResources.end();
 	}
 
-	Vector<IResource*> ResourceManager::GetAllResources(bool includeUserManagedResources)
+	Vector<Resource*> ResourceManager::GetAllResources(bool includeUserManagedResources)
 	{
-		Vector<IResource*> resources;
+		Vector<Resource*> resources;
 		for (auto [tid, cache] : m_caches)
 		{
 			auto cacheResources = cache->GetAllResources(includeUserManagedResources);
@@ -317,7 +315,7 @@ namespace Lina
 		return finalName;
 	}
 
-	void ResourceManager::AddUserManaged(IResource* res)
+	void ResourceManager::AddUserManaged(Resource* res)
 	{
 		m_caches.at(res->GetTID())->AddUserManaged(res);
 	}
@@ -333,10 +331,10 @@ namespace Lina
 
 		Event ev;
 		ev.pParams[0] = task;
-		DispatchEvent(EVS_ResourceLoadTaskCompleted, ev);
+		m_system->DispatchEvent(EVS_ResourceLoadTaskCompleted, ev);
 	}
 
-	void ResourceManager::RemoveUserManaged(IResource* res)
+	void ResourceManager::RemoveUserManaged(Resource* res)
 	{
 		m_caches.at(res->GetTID())->RemoveUserManaged(res);
 	}

@@ -30,7 +30,7 @@ SOFTWARE.
 #include "World/Level/Level.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "System/ISystem.hpp"
+#include "System/System.hpp"
 #include "Data/CommonData.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 
@@ -66,7 +66,7 @@ namespace Lina
 		Vector<ResourceIdentifier> resourcesToUnload;
 		Vector<ResourceIdentifier> resourcesToLoad;
 		Vector<ResourceIdentifier> levelResourcesToLoad = m_currentLevel->GetUsedResources();
-		Vector<IResource*>		   allResources			= rm->GetAllResources(true);
+		Vector<Resource*>		   allResources			= rm->GetAllResources(true);
 
 		for (auto& res : allResources)
 		{

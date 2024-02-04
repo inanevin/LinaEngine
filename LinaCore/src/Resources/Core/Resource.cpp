@@ -26,37 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef IPlugin_HPP
-#define IPlugin_HPP
-
-#include "Event/ISystemEventListener.hpp"
-#include "Data/String.hpp"
+#include "Resources/Core/Resource.hpp"
+#include "Resources/Core/ResourceManager.hpp"
 
 namespace Lina
 {
-	class IEngineInterface;
-
-	class IPlugin : public ISystemEventListener
+	Resource::Resource(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid, TypeID tid) : m_userManaged(isUserManaged), m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm)
 	{
-	public:
-		IPlugin(IEngineInterface* interface, const String& name) : m_engineInterface(interface), m_name(name){};
-		virtual ~IPlugin() = default;
+		if (isUserManaged)
+			rm->AddUserManaged(this);
+	}
 
-		virtual void OnAttached() = 0;
-		virtual void OnDetached() = 0;
-
-		inline const String& GetName()
-		{
-			return m_name;
-		}
-
-	protected:
-		String			  m_name			= "";
-		IEngineInterface* m_engineInterface = nullptr;
-	};
-
+	Resource::~Resource()
+	{
+		if (m_userManaged)
+			m_resourceManager->RemoveUserManaged(this);
+	}
 } // namespace Lina
-
-#endif

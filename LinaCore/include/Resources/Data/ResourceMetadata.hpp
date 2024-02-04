@@ -35,12 +35,11 @@ SOFTWARE.
 #include "Math/Vector.hpp"
 #include "Data/HashMap.hpp"
 #include "Core/SizeDefinitions.hpp"
-#include "Serialization/ISerializable.hpp"
 #include "Core/StringID.hpp"
 
 namespace Lina
 {
-	class ResourceMetadata : public ISerializable
+	class ResourceMetadata
 	{
 	public:
 		Vector2	 GetVector2(StringID sid, const Vector2& defaultValue = Vector2::Zero);
@@ -63,8 +62,8 @@ namespace Lina
 		void SetFloat(StringID sid, float value);
 		void SetBool(StringID sid, bool value);
 
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 
 		void ClearAll();
 

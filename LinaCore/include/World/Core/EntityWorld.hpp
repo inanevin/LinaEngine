@@ -32,11 +32,10 @@ SOFTWARE.
 #define World_HPP
 
 #include "ComponentCache.hpp"
-#include "Serialization/ISerializable.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
 #include "Core/ObjectWrapper.hpp"
 #include "Physics/Core/PhysicsWorld.hpp"
-#include "Event/IGameEventDispatcher.hpp"
+#include "Event/GameEventDispatcher.hpp"
 
 namespace Lina
 {
@@ -46,7 +45,7 @@ namespace Lina
 	class EntityWorld;
 
 	// Actual game state
-	class EntityWorld : public ISerializable, public IGameEventDispatcher
+	class EntityWorld : public GameEventDispatcher
 	{
 	public:
 		EntityWorld()
@@ -62,14 +61,14 @@ namespace Lina
 		}
 
 	public:
-		Entity*		 GetEntity(uint32 id);
-		Entity*		 GetEntity(const String& name);
-		Entity*		 GetEntityFromSID(StringID sid);
-		Entity*		 GetEntityFromID(uint32 id);
-		Entity*		 CreateEntity(const String& name);
-		void		 DestroyEntity(Entity* e);
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
+		Entity* GetEntity(uint32 id);
+		Entity* GetEntity(const String& name);
+		Entity* GetEntityFromSID(StringID sid);
+		Entity* GetEntityFromID(uint32 id);
+		Entity* CreateEntity(const String& name);
+		void	DestroyEntity(Entity* e);
+		void	SaveToStream(OStream& stream);
+		void	LoadFromStream(IStream& stream);
 
 		inline uint32 GetID()
 		{

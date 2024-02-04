@@ -26,18 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/ISubsystem.hpp"
-#include "System/ISystem.hpp"
+#include "Event/SystemEventDispatcher.hpp"
+#include "Event/SystemEventListener.hpp"
+#include "Data/CommonData.hpp"
 
 namespace Lina
 {
-    ISubsystem::ISubsystem(ISystem* sys, SubsystemType type) : m_system(sys), m_systemType(type)
-    {
-        m_system->AddSubsystem(this);
-    }
+	SystemEventDispatcher::SystemEventDispatcher()
+	{
+		m_listeners.reserve(20);
+	}
 
-    ISubsystem::~ISubsystem()
-    {
-        m_system->RemoveSubsystem(this);
-    }
+	void SystemEventDispatcher::AddListener(SystemEventListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
+
+	void SystemEventDispatcher::RemoveListener(SystemEventListener* listener)
+	{
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](SystemEventListener* l) { return l == listener; }));
+	}
+
+	void SystemEventDispatcher::DispatchEvent(SystemEvent eventType, const Event& ev)
+	{
+		for (auto listener : m_listeners)
+		{
+			if (listener->GetSystemEventMask().IsSet(eventType))
+				listener->OnSystemEvent(eventType, ev);
+		}
+	}
 } // namespace Lina

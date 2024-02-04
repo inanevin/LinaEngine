@@ -28,26 +28,28 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef IGameEventListener_HPP
-#define IGameEventListener_HPP
+#ifndef GameEventDispatcher_HPP
+#define GameEventDispatcher_HPP
 
 #include "Event/Event.hpp"
-#include "Data/Bitmask.hpp"
+#include "Data/Vector.hpp"
 
 namespace Lina
 {
-	class IGameEventListener
+	class GameEventListener;
+
+	class GameEventDispatcher
 	{
 	public:
-		IGameEventListener()		  = default;
-		virtual ~IGameEventListener() = default;
+		GameEventDispatcher();
+		virtual ~GameEventDispatcher() = default;
 
-		virtual void OnGameEvent(GameEvent eventType, const Event& ev){};
+		void AddListener(GameEventListener* listener);
+		void RemoveListener(GameEventListener* listener);
+		void DispatchEvent(GameEvent eventType, const Event& ev);
 
-		virtual Bitmask32 GetGameEventMask()
-		{
-			return 0;
-		}
+	private:
+		Vector<GameEventListener*> m_listeners;
 	};
 
 } // namespace Lina

@@ -32,7 +32,7 @@ SOFTWARE.
 #include "Profiling/Profiler.hpp"
 #include "Profiling/MemoryTracer.hpp"
 #include "Platform/PlatformTime.hpp"
-#include "System/IPlugin.hpp"
+#include "System/Plugin.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Interfaces/IGUIDrawer.hpp"
@@ -53,6 +53,10 @@ namespace Lina
 		{
 			PlatformTime::Initialize();
 			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+			SetFixedTimestep(10000);
+			SetFixedTimestep(true);
+			// SetFrameCap(16667);
+
 			PROFILER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
 		}
@@ -61,19 +65,11 @@ namespace Lina
 		{
 			auto& resourceManager = m_engine.GetResourceManager();
 			resourceManager.SetMode(initInfo.resourceManagerMode);
-
 			m_appListener->RegisterResourceTypes(resourceManager);
 			resourceManager.SetPriorityResources(m_appListener->GetPriorityResources());
 			resourceManager.SetPriorityResourcesMetadata(m_appListener->GetPriorityResourcesMetadata());
 			resourceManager.SetCoreResources(m_appListener->GetCoreResources());
 			resourceManager.SetCoreResourcesMetadata(m_appListener->GetCoreResourcesMetadata());
-		}
-
-		// Timing
-		{
-			// SetFrameCap(16667);
-			SetFixedTimestep(10000);
-			SetFixedTimestep(true);
 		}
 
 		// Pre-initialization
