@@ -68,7 +68,7 @@ namespace Lina
 		GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys);
 		virtual ~GfxManager() = default;
 
-		virtual void	 Initialize(const SystemInitializationInfo& initInfo);
+		virtual void	 Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void	 PreShutdown() override;
 		virtual void	 Shutdown() override;
 		void			 WaitForSwapchains();
