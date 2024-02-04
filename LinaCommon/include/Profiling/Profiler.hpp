@@ -95,10 +95,9 @@ namespace Lina
 	class Profiler
 	{
 	public:
-        
 		static Profiler* Get()
 		{
-            return s_instance;
+			return s_instance;
 		}
 
 		DeviceCPUInfo& QueryCPUInfo();
@@ -119,16 +118,16 @@ namespace Lina
 		void Destroy();
 
 	private:
-        friend class Application;
-        
-        static void Initialize();
-        static void Shutdown();
+		friend class Application;
 
-        Profiler() = default;
-        ~Profiler() = default;
+		static void Initialize();
+		static void Shutdown();
+
+		Profiler()	= default;
+		~Profiler() = default;
 
 	private:
-        static Profiler* s_instance;
+		static Profiler*			   s_instance;
 		HashMap<StringID, const char*> m_threadNames;
 		Deque<ProfilerFrame>		   m_frameQueue;
 		double						   m_lastCPUQueryTime		= 0.0;
@@ -137,8 +136,8 @@ namespace Lina
 		DeviceGPUInfo				   m_gpuInfo;
 	};
 
-#define PROFILER_INIT                      Lina::Profiler::Initialize
-#define PROFILER_SHUTDOWN                     Lina::Profiler::Shutdown
+#define PROFILER_INIT						  Lina::Profiler::Initialize
+#define PROFILER_SHUTDOWN					  Lina::Profiler::Shutdown
 #define PROFILER_FRAME_START()				  Lina::Profiler::Get()->StartFrame()
 #define PROFILER_STARTBLOCK(BLOCKNAME)		  Lina::Profiler::Get()->StartBlock(BLOCKNAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 #define PROFILER_ENDBLOCK(X)				  Lina::Profiler::Get()->EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())), X)
