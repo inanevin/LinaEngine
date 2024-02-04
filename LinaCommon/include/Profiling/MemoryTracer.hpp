@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#ifdef LINA_DEBUG
+#ifdef LINA_DEBUG&& defined LINA_PLATFORM_WINDOWS
 
 #include "Data/Mutex.hpp"
 #include "Data/SimpleArray.hpp"
@@ -45,16 +45,6 @@ namespace Lina
 		void*		   stack[MEMORY_STACK_TRACE_SIZE] = {};
 	};
 
-	struct DeviceMemoryInfo
-	{
-		unsigned long totalVirtualMemory		= 0;
-		unsigned long totalUsedVirtualMemory	= 0;
-		unsigned long totalProcessVirtualMemory = 0;
-		unsigned long totalRAM					= 0;
-		unsigned long totalUsedRAM				= 0;
-		unsigned long totalProcessRAM			= 0;
-	};
-
 	class MemoryAllocatorPool;
 
 	class MemoryTracer
@@ -66,11 +56,10 @@ namespace Lina
 			return instance;
 		}
 
-		void			 RegisterAllocator(MemoryAllocatorPool* alloc);
-		void			 UnregisterAllocator(MemoryAllocatorPool* alloc);
-		void			 OnAllocation(void* ptr, size_t sz);
-		void			 OnFree(void* ptr);
-		DeviceMemoryInfo QueryMemoryInfo();
+		void RegisterAllocator(MemoryAllocatorPool* alloc);
+		void UnregisterAllocator(MemoryAllocatorPool* alloc);
+		void OnAllocation(void* ptr, size_t sz);
+		void OnFree(void* ptr);
 
 		const char* MemoryLeaksFile = "lina_memory_leaks.txt";
 
@@ -110,7 +99,6 @@ namespace Lina
 
 namespace Lina
 {
-
 #define MEMORY_TRACER_ONALLOC(PTR, SZ)
 #define MEMORY_TRACER_ONFREE(PTR)
 #define MEMORY_TRACER_VRAM_ONALLOC(PTR, SZ)

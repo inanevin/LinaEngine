@@ -28,14 +28,13 @@ SOFTWARE.
 
 #include "Profiling/MemoryTracer.hpp"
 
-#ifdef LINA_DEBUG
+#if defined LINA_DEBUG && defined LINA_PLATFORM_WINDOWS
 
 #include "FileSystem/FileSystem.hpp"
 #include "Profiling/Profiler.hpp"
 #include "Memory/MemoryAllocatorPool.hpp"
 #include "Platform/PlatformInclude.hpp"
 
-#ifdef LINA_PLATFORM_WINDOWS
 #include <process.h>
 #include <iostream>
 #include <psapi.h>
@@ -44,38 +43,9 @@ SOFTWARE.
 #include <PdhMsg.h>
 #pragma comment(lib, "pdh.lib")
 #pragma comment(lib, "DbgHelp.lib")
-#endif
-
-#ifdef LINA_PLATFORM_APPLE
-#include <execinfo.h>
-#include <cxxabi.h>
-#include <sys/types.h>
-#include <unistd.h>
-#endif
 
 namespace Lina
 {
-	namespace
-	{
-#ifdef LINA_PLATFORM_APPLE
-		std::string exec(const char* cmd)
-		{
-			std::array<char, 128>					 buffer;
-			std::string								 result;
-			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-			if (!pipe)
-			{
-				throw std::runtime_error("popen() failed!");
-			}
-			while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
-			{
-				result += buffer.data();
-			}
-			return result;
-		}
-#endif
-	}; // namespace
-
 	void MemoryTracer::RegisterAllocator(MemoryAllocatorPool* alloc)
 	{
 		m_registeredAllocators.push_back(alloc);
@@ -93,60 +63,25 @@ namespace Lina
 		}
 	}
 
-	static int abc = 0;
-
 	void MemoryTracer::OnAllocation(void* ptr, size_t sz)
 	{
-		abc++;
 		MemoryTrack track = MemoryTrack{
 			.ptr  = ptr,
 			.size = sz,
 		};
-
 		CaptureTrace(track);
-
 		m_allocationMap.try_emplace_l(
 			ptr, [](auto& a) {}, track);
 	}
 
 	void MemoryTracer::OnFree(void* ptr)
 	{
-		abc--;
 		m_allocationMap.erase_if(ptr, [](auto&) { return true; });
-	}
-
-	DeviceMemoryInfo MemoryTracer::QueryMemoryInfo()
-	{
-		DeviceMemoryInfo info;
-
-#ifdef LINA_PLATFORM_WINDOWS
-		MEMORYSTATUSEX memInfo;
-		memInfo.dwLength = sizeof(MEMORYSTATUSEX);
-		GlobalMemoryStatusEx(&memInfo);
-		info.totalVirtualMemory		= static_cast<unsigned long>(memInfo.ullTotalPageFile);
-		info.totalUsedVirtualMemory = static_cast<unsigned long>(memInfo.ullTotalPageFile - memInfo.ullAvailPageFile);
-		info.totalRAM				= static_cast<unsigned long>(memInfo.ullTotalPhys);
-		info.totalUsedRAM			= static_cast<unsigned long>(memInfo.ullTotalPhys - memInfo.ullAvailPhys);
-		PROCESS_MEMORY_COUNTERS_EX pmc;
-		GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS*)&pmc, sizeof(pmc));
-		info.totalProcessVirtualMemory = static_cast<unsigned long>(pmc.PrivateUsage);
-		info.totalProcessRAM		   = static_cast<unsigned long>(pmc.WorkingSetSize);
-#else
-		LINA_NOTIMPLEMENTED;
-#endif
-
-		return info;
 	}
 
 	void MemoryTracer::CaptureTrace(MemoryTrack& track)
 	{
-#ifdef LINA_PLATFORM_WINDOWS
 		track.stackSize = CaptureStackBackTrace(3, MEMORY_STACK_TRACE_SIZE, track.stack, nullptr);
-#endif
-
-#ifdef LINA_PLATFORM_APPLE
-		track.stackSize = backtrace(track.stack, MEMORY_STACK_TRACE_SIZE);
-#endif
 	}
 
 	void MemoryTracer::Destroy()
@@ -154,10 +89,8 @@ namespace Lina
 		if (MemoryLeaksFile != NULL && MemoryLeaksFile[0] != '\0')
 			DumpLeaks(MemoryLeaksFile);
 
-#ifdef LINA_PLATFORM_WINDOWS
 		HANDLE process = GetCurrentProcess();
 		SymCleanup(process);
-#endif
 	}
 
 	void MemoryTracer::DumpLeaks(const char* path)
@@ -175,7 +108,6 @@ namespace Lina
 				ss << "****************** LEAK DETECTED ******************\n";
 				ss << "Size: " << alloc.size << " bytes \n";
 
-#ifdef LINA_PLATFORM_WINDOWS
 				HANDLE		process = GetCurrentProcess();
 				static bool inited	= false;
 
@@ -231,68 +163,6 @@ namespace Lina
 				}
 				std::free(line);
 				std::free(symbolAll);
-#endif
-
-#ifdef LINA_PLATFORM_APPLE
-
-				char** symbols = backtrace_symbols(alloc.stack, alloc.stackSize);
-				if (symbols == nullptr)
-				{
-					ss << "\n";
-					ss << "No stack information...\n";
-					continue;
-				}
-
-				for (int i = 4; i < alloc.stackSize; ++i)
-				{
-
-					ss << "\n";
-					ss << "------ Stack Trace " << i << "------\n";
-
-					// Print the address
-					ss << "Address: " << alloc.stack[i] << "\n";
-
-					const String debugFile = String(LINA_APP_NAME) + String(".app.dSYM");
-					if (FileSystem::FileOrPathExists(debugFile) && false)
-					{
-						std::ostringstream cmd;
-						cmd << "atos -arch arm64 -o " << LINA_APP_NAME << ".app.dSYM/Contents/Resources/DWARF/" << LINA_APP_NAME << " " << alloc.stack[i];
-						std::string fileAndLine = exec(cmd.str().c_str());
-						ss << fileAndLine;
-					}
-					else
-					{
-						// Find the start of the mangled name
-						char* start = strchr(symbols[i], ' ');
-						if (start)
-							start = strchr(start + 1, '_');
-
-						// Find the end of the mangled name (before the ' + ')
-						char* end = strchr(start ? start : symbols[i], ' ');
-
-						if (start && end)
-						{
-							*end = '\0'; // Null terminate the string at the space before '+'
-							int	  status;
-							char* demangled = abi::__cxa_demangle(start, NULL, NULL, &status);
-							if (status == 0 && demangled)
-							{
-								ss << demangled;
-								free(demangled);
-							}
-							else
-								ss << start;
-						}
-						else
-							ss << symbols[i];
-
-						ss << "\n";
-					}
-				}
-
-				free(symbols);
-
-#endif
 
 				ss << "\n";
 				ss << "\n";
@@ -323,7 +193,7 @@ namespace Lina
 			file.close();
 		}
 
-		// "LINA_ASSERT_F(m_allocationMap.empty());
+		LINA_ASSERT_F(m_allocationMap.empty());
 	}
 } // namespace Lina
 
