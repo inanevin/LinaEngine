@@ -26,46 +26,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/Win32/Win32PlatformTime.hpp"
-#include "Platform/Win32/Win32WindowsInclude.hpp"
+#include "Platform/PlatformTime.hpp"
+#include "Platform/PlatformInclude.hpp"
 #include <timeapi.h>
 
 namespace Lina
 {
-	int64 Win32PlatformTime::s_frequency = 0;
+	int64 PlatformTime::s_frequency = 0;
 
-	int64 Win32PlatformTime::GetCPUMicroseconds()
+	int64 PlatformTime::GetCPUMicroseconds()
 	{
 		LARGE_INTEGER cycles;
 		QueryPerformanceCounter(&cycles);
 		return (cycles.QuadPart * 1000000ll) / s_frequency;
 	}
 
-	double Win32PlatformTime::GetCPUSeconds()
+	double PlatformTime::GetCPUSeconds()
 	{
 		LARGE_INTEGER cycles;
 		QueryPerformanceCounter(&cycles);
 		return static_cast<double>(cycles.QuadPart) * 1.0 / static_cast<double>(s_frequency);
 	}
 
-	int64 Win32PlatformTime::GetCPUCycles()
+	int64 PlatformTime::GetCPUCycles()
 	{
 		LARGE_INTEGER Cycles;
 		QueryPerformanceCounter(&Cycles);
 		return Cycles.QuadPart;
 	}
 
-	double Win32PlatformTime::GetDeltaSeconds64(int64 fromCycles, int64 toCycles)
+	double PlatformTime::GetDeltaSeconds64(int64 fromCycles, int64 toCycles)
 	{
 		return static_cast<double>(toCycles - fromCycles) * 1.0 / (static_cast<double>(s_frequency));
 	}
 
-	int64 Win32PlatformTime::GetDeltaMicroseconds64(int64 fromCycles, int64 toCycles)
+	int64 PlatformTime::GetDeltaMicroseconds64(int64 fromCycles, int64 toCycles)
 	{
 		return ((toCycles - fromCycles) * 1000000ll) / s_frequency;
 	}
 
-	void Win32PlatformTime::Throttle(int64 microseconds)
+	void PlatformTime::Throttle(int64 microseconds)
 	{
 		if (microseconds < 0)
 			return;
@@ -97,7 +97,7 @@ namespace Lina
 		}
 	}
 
-	void Win32PlatformTime::Sleep(uint32 milliseconds)
+	void PlatformTime::Sleep(uint32 milliseconds)
 	{
 		if (milliseconds == 0)
 			YieldProcessor();
@@ -105,7 +105,7 @@ namespace Lina
 			::Sleep(milliseconds);
 	}
 
-	void Win32PlatformTime::QueryFreq()
+	void PlatformTime::Initialize()
 	{
 		if (s_frequency == 0)
 		{

@@ -16,6 +16,8 @@
 set(LINAGX_FOLDER_BASE LinaEngine/Dependencies/LinaGXProject)
 set(LINAVG_FOLDER_BASE LinaEngine/Dependencies/LinaVGProject)
 set(LINAGX_ITERATOR_DEBUG_LEVEL ${LINA_ITERATOR_DEBUG_LEVEL})
+set(LINAGX_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>)
+
 add_subdirectory(LinaGX)
 add_subdirectory(LinaVG)
 target_compile_definitions(LinaGX PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})

@@ -56,9 +56,6 @@ target_link_libraries(${PROJECT_NAME}
 PUBLIC Lina::Core
 )
 
-if(WIN32 AND LINA_ENABLE_PROFILING)
-  target_link_libraries(${PROJECT_NAME} PUBLIC Dbghelp)
-endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   target_compile_options(${PROJECT_NAME} PRIVATE "/ZI")

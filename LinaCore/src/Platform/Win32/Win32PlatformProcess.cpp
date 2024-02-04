@@ -46,23 +46,24 @@ SOFTWARE.
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
-namespace {
-    void Lina_InitializeWinPlatform()
-    {
-        SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-        SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
-        
-        DWORD_PTR mask = 1;
-        SetThreadAffinityMask(GetCurrentThread(), mask);
-        
-        DWORD dwError;
-        if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
-        {
-            dwError = GetLastError();
-            LINA_ERR("[Windows Platform Process] -> Failed setting priority: {0}", dwError);
-        }
-    }
-}
+namespace
+{
+	void Lina_InitializeWinPlatform()
+	{
+		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+		SetProcessPriorityBoost(GetCurrentProcess(), FALSE);
+
+		DWORD_PTR mask = 1;
+		SetThreadAffinityMask(GetCurrentThread(), mask);
+
+		DWORD dwError;
+		if (!SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS))
+		{
+			dwError = GetLastError();
+			LINA_ERR("[Windows Platform Process] -> Failed setting priority: {0}", dwError);
+		}
+	}
+} // namespace
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR pCmdLine, _In_ int nCmdShow)
 {
@@ -70,19 +71,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		LINA_ERR("Windows Platform Process] -> Failed to allocate console!");
 
 	Lina_InitializeWinPlatform();
-    PlatformTime::Initialize();
-    SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
 
 	Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
-	Lina::Application* app = new Lina::Application();
+	Lina::Application*			   app		= new Lina::Application();
 	app->Initialize(initInfo);
 
-	while (!app->GetExitRequested())
-	{
-		app->PreTick();
-		app->Poll();
-		app->Tick();
-	}
+	// while (!app->GetExitRequested())
+	// {
+	// 	app->PreTick();
+	// 	app->Poll();
+	// 	app->Tick();
+	// }
 
 	app->Shutdown();
 	delete app;
@@ -92,91 +91,95 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 namespace Lina
 {
-	HashMap<IPlugin*, void*> Win32PlatformProcess::s_pluginHandles;
-	typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
-	typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);
+	// HashMap<IPlugin*, void*> Win32PlatformProcess::s_pluginHandles;
+	// typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
+	// typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);
 
-	void Win32PlatformProcess::LoadPlugin(const char* name, IEngineInterface* engInterface, ISystemEventDispatcher* dispatcher)
+	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, ISystemEventDispatcher* dispatcher)
 	{
-		HINSTANCE hinstLib;
-		BOOL	  fFreeResult = FALSE;
-		hinstLib			  = LoadLibrary(TEXT(name));
-
-		// If the handle is valid, try to get the function address.
-		if (hinstLib != NULL)
-		{
-			CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
-
-			// If the function address is valid, call the function.
-
-			if (NULL != createPluginAddr)
-			{
-				IPlugin* plugin = (createPluginAddr)(engInterface, name);
-				dispatcher->AddListener(plugin);
-				plugin->OnAttached();
-				s_pluginHandles[plugin] = static_cast<void*>(hinstLib);
-			}
-			else
-			{
-				LINA_ERR("[Win32 Platform Process] -> Could not load plugin create function! {0}", name);
-			}
-		}
-		else
-		{
-			LINA_ERR("[Win32 Platform Process] -> Could not find plugin! {0}", name);
-		}
+		// HINSTANCE hinstLib;
+		// BOOL	  fFreeResult = FALSE;
+		// hinstLib			  = LoadLibrary(TEXT(name));
+		// 
+		// // If the handle is valid, try to get the function address.
+		// if (hinstLib != NULL)
+		// {
+		// 	CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
+		// 
+		// 	// If the function address is valid, call the function.
+		// 
+		// 	if (NULL != createPluginAddr)
+		// 	{
+		// 		IPlugin* plugin = (createPluginAddr)(engInterface, name);
+		// 		dispatcher->AddListener(plugin);
+		// 		plugin->OnAttached();
+		// 		s_pluginHandles[plugin] = static_cast<void*>(hinstLib);
+		// 	}
+		// 	else
+		// 	{
+		// 		LINA_ERR("[Win32 Platform Process] -> Could not load plugin create function! {0}", name);
+		// 	}
+		// }
+		// else
+		// {
+		// 	LINA_ERR("[Win32 Platform Process] -> Could not find plugin! {0}", name);
+		// }
 	}
 
-	void Win32PlatformProcess::UnloadPlugin(const char* name, ISystemEventDispatcher* dispatcher)
+	void PlatformProcess::UnloadPlugin(void* handle)
 	{
-		HINSTANCE hinstLib = NULL;
-		IPlugin*  plugin   = nullptr;
-
-		for (auto& [plg, ptr] : s_pluginHandles)
-		{
-			if (plg->GetName().compare(name) == 0)
-			{
-				dispatcher->RemoveListener(plg);
-				plg->OnDetached();
-				hinstLib = static_cast<HINSTANCE>(ptr);
-				plugin	 = plg;
-				break;
-			}
-		}
-
-		if (hinstLib == NULL)
-		{
-			LINA_ERR("[Platform Process] -> Could not find the plugin to unload! {0}", name);
-			return;
-		}
-
-		DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
-
-		if (destroyPluginAddr != NULL)
-			destroyPluginAddr(plugin);
-
-		// Free the DLL module.
-		BOOL fFreeResult = FreeLibrary(hinstLib);
+		// HINSTANCE hinstLib = NULL;
+		// IPlugin*  plugin   = nullptr;
+		// 
+		// for (auto& [plg, ptr] : s_pluginHandles)
+		// {
+		// 	if (plg->GetName().compare(name) == 0)
+		// 	{
+		// 		dispatcher->RemoveListener(plg);
+		// 		plg->OnDetached();
+		// 		hinstLib = static_cast<HINSTANCE>(ptr);
+		// 		plugin	 = plg;
+		// 		break;
+		// 	}
+		// }
+		// 
+		// if (hinstLib == NULL)
+		// {
+		// 	LINA_ERR("[Platform Process] -> Could not find the plugin to unload! {0}", name);
+		// 	return;
+		// }
+		// 
+		// DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
+		// 
+		// if (destroyPluginAddr != NULL)
+		// 	destroyPluginAddr(plugin);
+		// 
+		// // Free the DLL module.
+		// BOOL fFreeResult = FreeLibrary(hinstLib);
 	}
 
-	void Win32PlatformProcess::CopyToClipboard(const wchar_t* str)
+	void PlatformProcess::CopyToClipboard(const char* str)
 	{
+		const wchar_t* strW = FileSystem::CharToWChar(str);
+
 		if (OpenClipboard(0))
 		{
 			EmptyClipboard();
 			HGLOBAL hClipboardData;
-			hClipboardData = GlobalAlloc(GMEM_DDESHARE, sizeof(WCHAR) * (wcslen(str) + 1));
+			hClipboardData = GlobalAlloc(GMEM_DDESHARE, sizeof(WCHAR) * (wcslen(strW) + 1));
 			WCHAR* pchData;
 			pchData			  = (WCHAR*)GlobalLock(hClipboardData);
 			size_t bufferSize = GlobalSize(hClipboardData) / sizeof(WCHAR); // get buffer size in WCHARs
-			wcscpy_s(pchData, bufferSize, str);
+			wcscpy_s(pchData, bufferSize, strW);
 			GlobalUnlock(hClipboardData);
 			SetClipboardData(CF_UNICODETEXT, hClipboardData);
 			CloseClipboard();
 		}
+
+		delete[] strW;
 	}
 
-	bool Win32PlatformProcess::TryGetStringFromClipboard(WString& outStr)
+	bool PlatformProcess::TryGetStringFromClipboard(String& outStr)
 	{
 		if (!OpenClipboard(NULL))
 		{
@@ -193,7 +196,8 @@ namespace Lina
 				wchar_t* pGlobal = reinterpret_cast<wchar_t*>(GlobalLock(hGlobal));
 				if (pGlobal)
 				{
-					outStr = WString(pGlobal);
+					WString wstr = WString(pGlobal);
+					outStr = UtilStr::WideStringToString(wstr);
 					GlobalUnlock(hGlobal);
 					success = true;
 				}
@@ -204,7 +208,7 @@ namespace Lina
 		return success;
 	}
 
-	String Win32PlatformProcess::OpenDialog(const wchar_t* extensionDescription, const wchar_t* extension)
+	String PlatformProcess::OpenDialog(const char* extensionDescription, const char* extension)
 	{
 		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
@@ -212,6 +216,9 @@ namespace Lina
 		IFileOpenDialog* pFileOpenDialog;
 		HRESULT			 hr		= CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOpenDialog));
 		String			 retVal = "";
+
+		const wchar_t* extensionDescriptionW = FileSystem::CharToWChar(extensionDescription);
+		const wchar_t* extensionW			 = FileSystem::CharToWChar(extension);
 
 		if (SUCCEEDED(hr))
 		{
@@ -225,7 +232,7 @@ namespace Lina
 
 			// Set the file type filter
 			COMDLG_FILTERSPEC fileTypes[] = {
-				{extensionDescription, extension},
+				{extensionDescriptionW, extensionW},
 			};
 			hr = pFileOpenDialog->SetFileTypes(ARRAYSIZE(fileTypes), fileTypes);
 			if (SUCCEEDED(hr))
@@ -256,17 +263,23 @@ namespace Lina
 			}
 			pFileOpenDialog->Release();
 		}
+
+		delete[] extensionDescriptionW;
+		delete[] extensionW;
+
 		CoUninitialize();
 		return retVal;
 	}
 
-	String Win32PlatformProcess::SaveDialog(const wchar_t* extensionDescription, const wchar_t* extension)
+	String PlatformProcess::SaveDialog(const char* extensionDescription, const char* extension)
 	{
 		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 		// Create the File Save Dialog object
 		IFileSaveDialog* pFileSaveDialog;
-		HRESULT			 hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileSaveDialog));
+		HRESULT			 hr					   = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileSaveDialog));
+		const wchar_t*	 extensionDescriptionW = FileSystem::CharToWChar(extensionDescription);
+		const wchar_t*	 extensionW			   = FileSystem::CharToWChar(extension);
 
 		String retVal = "";
 		if (SUCCEEDED(hr))
@@ -281,7 +294,7 @@ namespace Lina
 			}
 
 			COMDLG_FILTERSPEC fileTypes[] = {
-				{extensionDescription, extension},
+				{extensionDescriptionW, extensionW},
 			};
 			hr = pFileSaveDialog->SetFileTypes(ARRAYSIZE(fileTypes), fileTypes);
 			if (SUCCEEDED(hr))
@@ -290,7 +303,7 @@ namespace Lina
 			}
 			if (SUCCEEDED(hr))
 			{
-				hr = pFileSaveDialog->SetDefaultExtension(extension); // Set the default extension
+				hr = pFileSaveDialog->SetDefaultExtension(extensionW); // Set the default extension
 			}
 
 			// Show the dialog
@@ -317,6 +330,9 @@ namespace Lina
 			}
 			pFileSaveDialog->Release();
 		}
+
+		delete[] extensionDescriptionW;
+		delete[] extensionW;
 
 		CoUninitialize();
 		return retVal;

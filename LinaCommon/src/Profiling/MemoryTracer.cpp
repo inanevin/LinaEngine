@@ -43,6 +43,7 @@ SOFTWARE.
 #include <Pdh.h>
 #include <PdhMsg.h>
 #pragma comment(lib, "pdh.lib")
+#pragma comment(lib, "DbgHelp.lib")
 #endif
 
 #ifdef LINA_PLATFORM_APPLE
@@ -56,6 +57,7 @@ namespace Lina
 {
 	namespace
 	{
+#ifdef LINA_PLATFORM_APPLE
 		std::string exec(const char* cmd)
 		{
 			std::array<char, 128>					 buffer;
@@ -71,6 +73,7 @@ namespace Lina
 			}
 			return result;
 		}
+#endif
 	}; // namespace
 
 	void MemoryTracer::RegisterAllocator(MemoryAllocatorPool* alloc)
