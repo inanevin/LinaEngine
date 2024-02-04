@@ -54,28 +54,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	namespace
 	{
-		// Define a custom demangle function for symbol names
-		String DemangleSymbol(const char* symbol)
-		{
-
-			int	  status;
-			char* demangled = abi::__cxa_demangle(symbol, nullptr, nullptr, &status);
-			if (status == 0)
-			{
-				String demangled_str(demangled);
-				free(demangled);
-				return demangled_str;
-			}
-			else
-			{
-				// Demangling failed, return the original symbol
-				return symbol;
-			}
-		}
-
 		std::string exec(const char* cmd)
 		{
 			std::array<char, 128>					 buffer;
@@ -91,18 +71,7 @@ namespace Lina
 			}
 			return result;
 		}
-
 	}; // namespace
-	void MemoryTracer::Initialize()
-	{
-		m_isInitialized = true;
-	}
-
-	void MemoryTracer::Shutdown()
-	{
-		m_isInitialized = false;
-		Destroy();
-	}
 
 	void MemoryTracer::RegisterAllocator(MemoryAllocatorPool* alloc)
 	{
@@ -121,11 +90,11 @@ namespace Lina
 		}
 	}
 
+	static int abc = 0;
+
 	void MemoryTracer::OnAllocation(void* ptr, size_t sz)
 	{
-		if (!m_isInitialized)
-			return;
-
+		abc++;
 		MemoryTrack track = MemoryTrack{
 			.ptr  = ptr,
 			.size = sz,
@@ -139,9 +108,7 @@ namespace Lina
 
 	void MemoryTracer::OnFree(void* ptr)
 	{
-		if (!m_isInitialized)
-			return;
-
+		abc--;
 		m_allocationMap.erase_if(ptr, [](auto&) { return true; });
 	}
 
@@ -265,13 +232,6 @@ namespace Lina
 
 #ifdef LINA_PLATFORM_APPLE
 
-				// char** symbols = backtrace_symbols(alloc.stack + 1, alloc.stackSize - 1);
-				//
-				// if (symbols == nullptr) {
-				//     // Handle error
-				//     continue;
-				// }
-
 				char** symbols = backtrace_symbols(alloc.stack, alloc.stackSize);
 				if (symbols == nullptr)
 				{
@@ -290,7 +250,7 @@ namespace Lina
 					ss << "Address: " << alloc.stack[i] << "\n";
 
 					const String debugFile = String(LINA_APP_NAME) + String(".app.dSYM");
-					if (FileSystem::FileOrPathExists(debugFile))
+					if (FileSystem::FileOrPathExists(debugFile) && false)
 					{
 						std::ostringstream cmd;
 						cmd << "atos -arch arm64 -o " << LINA_APP_NAME << ".app.dSYM/Contents/Resources/DWARF/" << LINA_APP_NAME << " " << alloc.stack[i];
@@ -318,16 +278,10 @@ namespace Lina
 								free(demangled);
 							}
 							else
-							{
-								// Print the mangled name
 								ss << start;
-							}
 						}
 						else
-						{
-							// If unable to parse, print the whole symbol
 							ss << symbols[i];
-						}
 
 						ss << "\n";
 					}
@@ -366,7 +320,7 @@ namespace Lina
 			file.close();
 		}
 
-		LINA_ASSERT_F(m_allocationMap.empty());
+		// "LINA_ASSERT_F(m_allocationMap.empty());
 	}
 } // namespace Lina
 

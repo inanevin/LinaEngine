@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef MemoryTracer_HPP
-#define MemoryTracer_HPP
-
 #ifdef LINA_DEBUG
 
 #include "Data/Mutex.hpp"
@@ -38,7 +35,7 @@ SOFTWARE.
 
 namespace Lina
 {
-#define MEMORY_STACK_TRACE_SIZE 15
+#define MEMORY_STACK_TRACE_SIZE 50
 
 	struct MemoryTrack
 	{
@@ -88,22 +85,20 @@ namespace Lina
 	private:
 		friend class Application;
 
-		MemoryTracer()	= default;
-		~MemoryTracer() = default;
+		MemoryTracer() = default;
+		~MemoryTracer()
+		{
+			Destroy();
+		}
 
-		void Initialize();
-		void Shutdown();
 		void CaptureTrace(MemoryTrack& track);
 		void DumpLeaks(const char* path);
 
 	private:
 		SimpleArray<MemoryAllocatorPool*>			   m_registeredAllocators;
 		ParallelHashMapMutexMalloc<void*, MemoryTrack> m_allocationMap;
-		bool										   m_isInitialized = false;
 	};
 
-#define MEMORY_TRACER_INIT							Lina::MemoryTracer::Get().Initialize
-#define MEMORY_TRACER_SHUTDOWN						Lina::MemoryTracer::Get().Shutdown
 #define MEMORY_TRACER_ONALLOC(PTR, SZ)				Lina::MemoryTracer::Get().OnAllocation(PTR, SZ)
 #define MEMORY_TRACER_ONFREE(PTR)					Lina::MemoryTracer::Get().OnFree(PTR)
 #define MEMORY_TRACER_SET_LEAK_FILE(STR)			Lina::MemoryTracer::Get().MemoryLeaksFile = STR
@@ -112,8 +107,10 @@ namespace Lina
 } // namespace Lina
 
 #else
-#define MEMORY_TRACER_INIT
-#define MEMORY_TRACER_SHUTDOWN
+
+namespace Lina
+{
+
 #define MEMORY_TRACER_ONALLOC(PTR, SZ)
 #define MEMORY_TRACER_ONFREE(PTR)
 #define MEMORY_TRACER_VRAM_ONALLOC(PTR, SZ)
@@ -121,6 +118,6 @@ namespace Lina
 #define MEMORY_TRACER_SET_LEAK_FILE(STR)
 #define MEMORY_TRACER_REGISTER_ALLOCATORPOOL(ALL)
 #define MEMORY_TRACER_UNREGISTER_ALLOCATORPOOL(ALL)
-#endif
+} // namespace Lina
 
 #endif

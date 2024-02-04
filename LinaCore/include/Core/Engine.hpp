@@ -52,8 +52,8 @@ namespace Lina
 
 		virtual ~Engine() = default;
 
-		// Inherited via ISystem
 		void		 PreInitialize(const SystemInitializationInfo& initInfo);
+		void		 PreShutdown();
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;

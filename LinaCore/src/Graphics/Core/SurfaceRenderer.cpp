@@ -164,22 +164,22 @@ namespace Lina
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data = m_pfd[i];
-			data.guiIndexBuffer.Destroy();
-			data.guiVertexBuffer.Destroy();
-			data.guiMaterialBuffer.Destroy();
-			m_lgx->DestroyCommandStream(data.gfxStream);
-			m_lgx->DestroyCommandStream(data.guiCopyStream);
-			m_lgx->DestroyDescriptorSet(data.guiDescriptorSet1);
-			m_lgx->DestroyDescriptorSet(data.guiDescriptorSet2);
-			m_lgx->DestroyResource(data.guiSceneResource);
-			m_lgx->DestroyUserSemaphore(data.guiCopySemaphore);
-		}
-
-		m_lgx->DestroySwapchain(m_swapchain);
-		m_gfxManager->GetSystem()->RemoveListener(this);
+		// for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		// {
+		// 	auto& data = m_pfd[i];
+		// 	data.guiIndexBuffer.Destroy();
+		// 	data.guiVertexBuffer.Destroy();
+		// 	data.guiMaterialBuffer.Destroy();
+		// 	m_lgx->DestroyCommandStream(data.gfxStream);
+		// 	m_lgx->DestroyCommandStream(data.guiCopyStream);
+		// 	m_lgx->DestroyDescriptorSet(data.guiDescriptorSet1);
+		// 	m_lgx->DestroyDescriptorSet(data.guiDescriptorSet2);
+		// 	m_lgx->DestroyResource(data.guiSceneResource);
+		// 	m_lgx->DestroyUserSemaphore(data.guiCopySemaphore);
+		// }
+		//
+		// m_lgx->DestroySwapchain(m_swapchain);
+		// m_gfxManager->GetSystem()->RemoveListener(this);
 	}
 
 	void SurfaceRenderer::OnSystemEvent(SystemEvent eventType, const Event& ev)

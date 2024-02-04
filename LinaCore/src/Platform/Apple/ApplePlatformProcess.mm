@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Log/Log.hpp"
 #include "System/IPlugin.hpp"
 #include "Lina.hpp"
+#include "Profiling/MemoryTracer.hpp"
 
 #include <Cocoa/Cocoa.h>
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
@@ -62,7 +63,7 @@ namespace {
 int main(int argc, char* argv[])
 {
     Lina_InitializeMacOSPlatform();
-
+    
     Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
     Lina::Application* app = new Lina::Application();
     app->Initialize(initInfo);

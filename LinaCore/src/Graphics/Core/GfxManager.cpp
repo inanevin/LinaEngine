@@ -49,6 +49,8 @@ namespace Lina
 {
 	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, ISystem* sys) : ISubsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
 	{
+		return;
+
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_system->AddListener(this);
 		m_lgxWrapper = sys->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
@@ -72,6 +74,7 @@ namespace Lina
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		return;
 		m_resourceManager->AddListener(this);
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
@@ -184,6 +187,7 @@ namespace Lina
 
 	void GfxManager::PreShutdown()
 	{
+		return;
 		LinaVG::Terminate();
 
 		for (auto m : m_defaultMaterials)
@@ -200,6 +204,7 @@ namespace Lina
 
 	void GfxManager::Shutdown()
 	{
+		return;
 		m_system->RemoveListener(this);
 
 		// pfd
@@ -223,6 +228,7 @@ namespace Lina
 
 	void GfxManager::Join()
 	{
+		return;
 		m_lgxWrapper->GetLGX()->Join();
 	}
 

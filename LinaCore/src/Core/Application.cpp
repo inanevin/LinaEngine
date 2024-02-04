@@ -41,6 +41,7 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
 
@@ -52,14 +53,9 @@ namespace Lina
 		{
 			PlatformTime::Initialize();
 			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
-			MEMORY_TRACER_INIT();
 			PROFILER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
 		}
-
-		int* ptr = new int[5];
-
-		return;
 
 		// Resource registry
 		{
@@ -83,25 +79,25 @@ namespace Lina
 		// Pre-initialization
 		{
 			m_engine.PreInitialize(initInfo);
-			resourceManager.LoadResources(resourceManager.GetPriorityResources());
-			resourceManager.WaitForAll();
+			// resourceManager.LoadResources(resourceManager.GetPriorityResources());
+			// resourceManager.WaitForAll();
 			m_engine.DispatchEvent(EVS_PreInitComplete, {});
 		}
 
 		// Main window
 		{
-			auto window = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
-			window->CenterPositionToCurrentMonitor();
-			window->SetCallbackClose([&]() { m_exitRequested = true; });
-			window->SetVisible(true);
+			// auto window = m_engine.GetLGXWrapper().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
+			// window->CenterPositionToCurrentMonitor();
+			// window->SetCallbackClose([&]() { m_exitRequested = true; });
+			// window->SetVisible(true);
 		}
 
 		// Initialization
 		{
 			m_engine.Initialize(initInfo);
-			auto& resourceManager = m_engine.GetResourceManager();
-			resourceManager.LoadResources(resourceManager.GetCoreResources());
-			resourceManager.WaitForAll();
+			// auto& resourceManager = m_engine.GetResourceManager();
+			// resourceManager.LoadResources(resourceManager.GetCoreResources());
+			// resourceManager.WaitForAll();
 			m_engine.DispatchEvent(EVS_InitComplete, {});
 		}
 	}
@@ -145,15 +141,11 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+		m_engine.PreShutdown();
 		// m_engine.GetLGXWrapper().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		// UnloadPlugins();
-		// m_engine.Shutdown();
+		m_engine.Shutdown();
 
 		PROFILER_SHUTDOWN();
-		MEMORY_TRACER_SHUTDOWN();
-
-		return;
-
 		delete m_appListener;
 	}
 

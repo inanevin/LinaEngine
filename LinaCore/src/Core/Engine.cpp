@@ -60,10 +60,8 @@ namespace Lina
 			sys->Initialize(initInfo);
 	}
 
-	void Engine::Shutdown()
+	void Engine::PreShutdown()
 	{
-		LINA_TRACE("[Application] -> Shutdown.");
-
 		m_resourceManager.WaitForAll();
 
 		if (m_gfxManager)
@@ -71,6 +69,11 @@ namespace Lina
 
 		for (auto [type, sys] : m_subsystems)
 			sys->PreShutdown();
+	}
+
+	void Engine::Shutdown()
+	{
+		LINA_TRACE("[Application] -> Shutdown.");
 
 		m_resourceManager.RemoveListener(this);
 		m_levelManager.Shutdown();
