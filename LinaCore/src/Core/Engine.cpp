@@ -112,7 +112,8 @@ namespace Lina
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
-		auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
+		// auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
+		m_gfxManager->Render();
 
 		while (m_fixedTimestepAccumulator >= fixedTimestep)
 		{
@@ -131,7 +132,7 @@ namespace Lina
 		//	audioJob.get();
 		//	m_levelManager.WaitForSimulation();
 
-		renderJob.get();
+		// renderJob.get();
 
 		if (m_gfxManager)
 			m_gfxManager->Sync();

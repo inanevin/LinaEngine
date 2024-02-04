@@ -224,6 +224,8 @@ namespace Lina
 
 	void SurfaceRenderer::Render(int guiThreadID, uint32 frameIndex)
 	{
+		return;
+
 		if (!IsVisible())
 			return;
 

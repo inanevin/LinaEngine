@@ -31,14 +31,8 @@ layout(set = 0, binding = 0) uniform GlobalData
 	vec2 mousePosition;
 	float deltaTime;
 	float elapsedTime;
+	vec2 screenSize;
 } LINA_GLOBAL;
-
-#define LINA_MOUSEPOS LINA_GLOBAL.mousePosition
-#define LINA_DT LINA_GLOBAL.deltaTime
-#define LINA_ET LINA_GLOBAL.elapsedTime
-
-layout(set = 0, binding = 1) uniform texture2D allTextures[];
-layout(set = 0, binding = 2) uniform sampler allSamplers[];
 
 struct LinaTexture2D
 {
@@ -46,10 +40,6 @@ struct LinaTexture2D
 	uint samplerIndex;
 };
 
-vec4 LinaSampleTexture2D(LinaTexture2D data, vec2 uv)
-{
-	return texture(sampler2D(allTextures[data.textureIndex], allSamplers[data.samplerIndex]), uv);
-}
 
 layout(set = 1, binding = 0) uniform SceneData
 {
@@ -58,12 +48,6 @@ layout(set = 1, binding = 0) uniform SceneData
 	mat4 viewProj;
 	vec4 cameraPosition;
 	vec2 cameraNearFar;
-	vec2 screenSize;
+
 } LINA_SCENE;
 
-#define LINA_VIEW LINA_SCENE.view
-#define LINA_PROJ LINA_SCENE.proj
-#define LINA_VIEWPROJ LINA_SCENE.viewProj
-#define LINA_CAMPOS LINA_SCENE.cameraPosition
-#define LINA_CAMNEARFAR LINA_SCENE.cameraNeaerFar
-#define LINA_SCREENSIZE LINA_SCENE.screenSize

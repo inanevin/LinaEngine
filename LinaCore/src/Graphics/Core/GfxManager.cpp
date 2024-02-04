@@ -49,8 +49,6 @@ namespace Lina
 {
 	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
 	{
-		return;
-
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_system->AddListener(this);
 		m_lgxWrapper = sys->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
@@ -74,7 +72,6 @@ namespace Lina
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		return;
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 		m_currentVsync = initInfo.vsyncStyle;
@@ -119,74 +116,47 @@ namespace Lina
 		{
 			Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
 			Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
-
 			defaultLitMaterial->SetShader("Resources/Core/Shaders/LitStandard.linashader"_hs);
 			defaultUnlitMaterial->SetShader("Resources/Core/Shaders/UnlitStandard.linashader"_hs);
 			m_defaultMaterials.push_back(defaultLitMaterial);
 			m_defaultMaterials.push_back(defaultUnlitMaterial);
 		}
 
-		// // pfd
-		// {
-		// 	for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		// 	{
-		// 		auto& data = m_pfd[i];
-		//
-		// 		LinaGX::ResourceDesc globalDataDesc = {
-		// 			.size		   = sizeof(GPUGlobalData),
-		// 			.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-		// 			.heapType	   = LinaGX::ResourceHeap::StagingHeap,
-		// 			.debugName	   = "GfxManager: Global Data Buffer",
-		// 		};
-		// 		data.globalDataResource = m_lgx->CreateResource(globalDataDesc);
-		// 		m_lgx->MapResource(data.globalDataResource, data.globalDataMapped);
-		//
-		// 		LinaGX::DescriptorBinding set0Bindings[3];
-		//
-		// 		// Scene data
-		// 		set0Bindings[0] = LinaGX::DescriptorBinding{
-		// 			.descriptorCount = 1,
-		// 			.type			 = LinaGX::DescriptorType::UBO,
-		// 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		// 		};
-		//
-		// 		// All textures
-		// 		set0Bindings[1] = LinaGX::DescriptorBinding{
-		// 			.descriptorCount = 50,
-		// 			.type			 = LinaGX::DescriptorType::SeparateImage,
-		// 			.unbounded		 = true,
-		// 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		// 		};
-		//
-		// 		// All samplers
-		// 		set0Bindings[2] = LinaGX::DescriptorBinding{
-		// 			.descriptorCount = 50,
-		// 			.type			 = LinaGX::DescriptorType::SeparateSampler,
-		// 			.unbounded		 = true,
-		// 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-		// 		};
-		//
-		// 		LinaGX::DescriptorSetDesc setDescription0 = {
-		// 			.bindings = set0Bindings,
-		// 		};
-		//
-		// 		data.descriptorSet0GlobalData = m_lgx->CreateDescriptorSet(setDescription0);
-		//
-		// 		LinaGX::DescriptorUpdateBufferDesc globalDataUpdateDesc = {
-		// 			.setHandle	   = data.descriptorSet0GlobalData,
-		// 			.binding	   = 0,
-		// 			.buffers	   = {data.globalDataResource},
-		// 			.isWriteAccess = false,
-		// 		};
-		//
-		// 		m_lgx->DescriptorUpdateBuffer(globalDataUpdateDesc);
-		// 	}
-		// }
+		// pfd
+		{
+			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+			{
+				auto& data = m_pfd[i];
+
+				LinaGX::ResourceDesc globalDataDesc = {
+					.size		   = sizeof(GPUGlobalData),
+					.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+					.heapType	   = LinaGX::ResourceHeap::StagingHeap,
+					.debugName	   = "GfxManager: Global Data Buffer",
+				};
+				data.globalDataResource = m_lgx->CreateResource(globalDataDesc);
+				m_lgx->MapResource(data.globalDataResource, data.globalDataMapped);
+
+				data.descriptorSet0GlobalData = m_lgx->CreateDescriptorSet({.bindings = {{
+																				.descriptorCount = 1,
+																				.type			 = LinaGX::DescriptorType::UBO,
+																				.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+																			}}});
+
+				LinaGX::DescriptorUpdateBufferDesc globalDataUpdateDesc = {
+					.setHandle	   = data.descriptorSet0GlobalData,
+					.binding	   = 0,
+					.buffers	   = {data.globalDataResource},
+					.isWriteAccess = false,
+				};
+
+				m_lgx->DescriptorUpdateBuffer(globalDataUpdateDesc);
+			}
+		}
 	}
 
 	void GfxManager::PreShutdown()
 	{
-		return;
 		LinaVG::Terminate();
 
 		for (auto m : m_defaultMaterials)
@@ -203,7 +173,6 @@ namespace Lina
 
 	void GfxManager::Shutdown()
 	{
-		return;
 		m_system->RemoveListener(this);
 
 		// pfd
@@ -242,8 +211,6 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
-		return;
-
 		PROFILER_FUNCTION();
 
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
@@ -280,7 +247,7 @@ namespace Lina
 		{
 			Event ev	  = {};
 			ev.iParams[0] = guiThreads;
-			m_system->DispatchEvent(EVS_StartFrame, ev);
+			m_system->DispatchEvent(EVS_StartRenderFrame, ev);
 		}
 
 		PROFILER_ENDBLOCK(id);
@@ -294,16 +261,16 @@ namespace Lina
 
 		// Update data.
 		{
-			UpdateBindlessTextures();
-			UpdateBindlessSamplers();
-
-			const auto&	  mp		 = m_lgx->GetInput().GetMousePositionAbs();
-			GPUGlobalData globalData = {
-				.mousePosition = Vector2(static_cast<float>(mp.x), static_cast<float>(mp.y)),
-				.deltaTime	   = SystemInfo::GetDeltaTimeF(),
-				.elapsedTime   = SystemInfo::GetAppTimeF(),
-			};
-			MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUGlobalData));
+			// UpdateBindlessTextures();
+			// UpdateBindlessSamplers();
+			//
+			// const auto&	  mp		 = m_lgx->GetInput().GetMousePositionAbs();
+			// GPUGlobalData globalData = {
+			// 	.mousePosition = Vector2(static_cast<float>(mp.x), static_cast<float>(mp.y)),
+			// 	.deltaTime	   = SystemInfo::GetDeltaTimeF(),
+			// 	.elapsedTime   = SystemInfo::GetAppTimeF(),
+			// };
+			// MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUGlobalData));
 		}
 
 		// World Renderers
