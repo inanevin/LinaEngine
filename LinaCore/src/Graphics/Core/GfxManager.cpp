@@ -222,13 +222,10 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
-		return;
-
 		PROFILER_FUNCTION();
 
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
 		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
-
 		auto id = PROFILER_STARTBLOCK("Flushing Resource Upload Queue");
 
 		// Transfer.

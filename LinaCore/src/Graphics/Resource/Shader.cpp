@@ -138,7 +138,7 @@ namespace Lina
 				.srcAlphaBlendFactor = LinaGX::BlendFactor::One,
 				.dstAlphaBlendFactor = LinaGX::BlendFactor::Zero,
 				.alphaBlendOp		 = LinaGX::BlendOp::Add,
-				.componentFlags		 = {},
+				.componentFlags		 = {LinaGX::ColorComponentFlags::R, LinaGX::ColorComponentFlags::G, LinaGX::ColorComponentFlags::B, LinaGX::ColorComponentFlags::A},
 			};
 
 			LINAGX_VEC<LinaGX::ShaderColorAttachment> colorAttachments;
@@ -167,7 +167,6 @@ namespace Lina
 				.topology		  = LinaGX::Topology::TriangleList,
 				.debugName		  = m_path.c_str(),
 			};
-
 			variant.gpuHandle = lgx->CreateShader(desc);
 		}
 

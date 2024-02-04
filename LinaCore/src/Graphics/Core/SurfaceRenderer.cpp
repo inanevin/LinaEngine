@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Platform/LinaVGIncl.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Graphics/Data/Vertex.hpp"
+#include "Graphics/Resource/Shader.hpp"
 
 namespace Lina
 {
@@ -224,7 +225,20 @@ namespace Lina
 			bind->setCount						= 1;
 		}
 
-		//
+		// Barrier to Color Attachment
+		{
+			LinaGX::CMDBarrier* barrier				 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags					 = LinaGX::PSF_TopOfPipe;
+			barrier->dstStageFlags					 = LinaGX::PSF_ColorAttachment;
+			barrier->textureBarrierCount			 = 1;
+			barrier->textureBarriers				 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier));
+			barrier->textureBarriers->srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite;
+			barrier->textureBarriers->dstAccessFlags = LinaGX::AF_ColorAttachmentRead;
+			barrier->textureBarriers->isSwapchain	 = true;
+			barrier->textureBarriers->texture		 = static_cast<uint32>(m_swapchain);
+			barrier->textureBarriers->toState		 = LinaGX::TextureBarrierState::ColorAttachment;
+		}
+
 		// Begin render pass
 		{
 			LinaGX::RenderPassColorAttachment colorAtt = {
@@ -267,46 +281,73 @@ namespace Lina
 		// 	m_guiBackend->Render(guiThreadID);
 		// }
 		//
+
+		// Set shader
+		{
+			LinaGX::CMDBindPipeline* bindPipeline = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
+			bindPipeline->shader				  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetResource<Shader>("Resources/Core/Shaders/Test.linashader"_hs)->GetGPUHandle();
+		}
+
+		// Draw the triangle
+		{
+			LinaGX::CMDDrawInstanced* drawInstanced = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
+			drawInstanced->vertexCountPerInstance	= 3;
+			drawInstanced->instanceCount			= 1;
+		}
+
 		// End render pass
 		{
 			LinaGX::CMDEndRenderPass* end = currentFrame.gfxStream->AddCommand<LinaGX::CMDEndRenderPass>();
 		}
 
-		//
-		// // Send
-		// {
-		// 	const auto& uploadQueue = m_gfxManager->GetResourceUploadQueue();
-		//
-		// 	m_waitSemaphores.clear();
-		// 	m_waitValues.clear();
-		//
-		// 	if (copySemaphoreValue != currentFrame.guiCopySemaphoreValue)
-		// 	{
-		// 		m_waitSemaphores.push_back(currentFrame.guiCopySemaphore);
-		// 		m_waitValues.push_back(currentFrame.guiCopySemaphoreValue);
-		// 	}
-		//
-		// 	if (uploadQueue.HasTransfer())
-		// 	{
-		// 		m_waitSemaphores.push_back(uploadQueue.GetSemaphore());
-		// 		m_waitValues.push_back(uploadQueue.GetSemaphoreValue());
-		// 	}
-		//
-		// 	m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
-		//
-		// 	// LinaGX::SubmitDesc desc = {
-		// 	// 	.targetQueue	 = m_gfxQueue,
-		// 	// 	.streams		 = &currentFrame.gfxStream,
-		// 	// 	.streamCount	 = 1,
-		// 	// 	.useWait		 = !m_waitSemaphores.empty(),
-		// 	// 	.waitCount		 = static_cast<uint32>(m_waitSemaphores.size()),
-		// 	// 	.waitSemaphores	 = m_waitSemaphores.data(),
-		// 	// 	.waitValues		 = m_waitValues.data(),
-		// 	// 	.isMultithreaded = true,
-		// 	// };
-		// 	//
-		// 	// m_lgx->SubmitCommandStreams(desc);
-		// }
+		// Barrier to Present
+		{
+			LinaGX::CMDBarrier* barrier				 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags					 = LinaGX::PSF_ColorAttachment;
+			barrier->dstStageFlags					 = LinaGX::PSF_BottomOfPipe;
+			barrier->textureBarrierCount			 = 1;
+			barrier->textureBarriers				 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier));
+			barrier->textureBarriers->srcAccessFlags = LinaGX::AF_ColorAttachmentWrite;
+			barrier->textureBarriers->dstAccessFlags = 0;
+			barrier->textureBarriers->isSwapchain	 = true;
+			barrier->textureBarriers->texture		 = static_cast<uint32>(m_swapchain);
+			barrier->textureBarriers->toState		 = LinaGX::TextureBarrierState::Present;
+		}
+
+		// Send
+		{
+			const auto& uploadQueue = m_gfxManager->GetResourceUploadQueue();
+
+			m_waitSemaphores.clear();
+			m_waitValues.clear();
+
+			if (copySemaphoreValue != currentFrame.guiCopySemaphoreValue)
+			{
+				m_waitSemaphores.push_back(currentFrame.guiCopySemaphore);
+				m_waitValues.push_back(currentFrame.guiCopySemaphoreValue);
+			}
+
+			if (uploadQueue.HasTransfer())
+			{
+				m_waitSemaphores.push_back(uploadQueue.GetSemaphore());
+				m_waitValues.push_back(uploadQueue.GetSemaphoreValue());
+			}
+
+			m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
+
+			// LinaGX::SubmitDesc desc = {
+			// 	.targetQueue	 = m_gfxQueue,
+			// 	.streams		 = &currentFrame.gfxStream,
+			// 	.streamCount	 = 1,
+			// 	.useWait		 = !m_waitSemaphores.empty(),
+			// 	.waitCount		 = static_cast<uint32>(m_waitSemaphores.size()),
+			// 	.waitSemaphores	 = m_waitSemaphores.data(),
+			// 	.waitValues		 = m_waitValues.data(),
+			// 	.isMultithreaded = true,
+			// };
+			//
+			// m_lgx->SubmitCommandStreams(desc);
+		}
 	}
 
 } // namespace Lina

@@ -173,10 +173,10 @@ namespace Lina
 		}
 
 		HashMap<LinaGX::ShaderStage, String> blockIdentifiers;
-		blockIdentifiers[LinaGX::ShaderStage::Fragment]		   = "#lina_fs";
-		blockIdentifiers[LinaGX::ShaderStage::Vertex]		   = "#lina_vs";
-		blockIdentifiers[LinaGX::ShaderStage::Compute]		   = "#lina_cs";
-		blockIdentifiers[LinaGX::ShaderStage::Geometry]		   = "#lina_gs";
+		blockIdentifiers[LinaGX::ShaderStage::Fragment] = "#lina_fs";
+		blockIdentifiers[LinaGX::ShaderStage::Vertex]	= "#lina_vs";
+		blockIdentifiers[LinaGX::ShaderStage::Compute]	= "#lina_cs";
+		blockIdentifiers[LinaGX::ShaderStage::Geometry] = "#lina_gs";
 
 		String		 globalDataInclude	   = FileSystem::ReadFileContentsAsString("Resources/Core/Shaders/Common/GlobalData.linashader");
 		const size_t commentsEnd		   = globalDataInclude.find("*/") + 2;

@@ -69,7 +69,7 @@ namespace Lina
 		va_list args;
 		va_start(args, err);
 		std::string formattedStr = FormatString(err, args);
-		LINA_ERR(formattedStr.c_str());
+		LINA_INFO(formattedStr.c_str());
 		va_end(args);
 	}
 
