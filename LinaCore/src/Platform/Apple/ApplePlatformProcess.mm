@@ -80,42 +80,51 @@ CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* in
 
 - (void)applicationWillTerminate:(NSNotification*)notification
 {
-	CVDisplayLinkStop(displayLink);
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification*)aNotification
 {
-
-	if (self.linaApp)
-	{
-		Lina::Application* appPointer = static_cast<Lina::Application*>(self.linaApp);
-		appPointer->Initialize(self.initInfo);
-	}
-
-	CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
-	CVDisplayLinkSetOutputCallback(displayLink, &DisplayLinkCallback, self.linaApp);
-	CVDisplayLinkStart(displayLink);
 }
 
 @end
 
 int main(int argc, char* argv[])
 {
-	Lina::Application* linaApp = new Lina::Application();
 
-	@autoreleasepool
+	NSApplication* app		   = [NSApplication sharedApplication];
+	AppDelegate*   appDelegate = [[AppDelegate alloc] init];
+	[app setDelegate:appDelegate];
+	[app finishLaunching];
+	[app activateIgnoringOtherApps:YES];
+
+	Lina::Application* linaApp = new Lina::Application();
+	linaApp->Initialize(Lina::Lina_GetInitInfo());
+	while (!linaApp->GetExitRequested())
 	{
-		NSApplication* app		   = [NSApplication sharedApplication];
-		AppDelegate*   appDelegate = [[AppDelegate alloc] init];
-		appDelegate.linaApp		   = (void*)linaApp;
-		appDelegate.initInfo	   = Lina::Lina_GetInitInfo();
-		[app setDelegate:appDelegate];
-		[app activateIgnoringOtherApps:YES];
-		[app run];
+
+		@autoreleasepool
+		{
+			NSEvent* ev;
+			do
+			{
+				ev = [NSApp nextEventMatchingMask:NSEventMaskAny untilDate:nil inMode:NSDefaultRunLoopMode dequeue:YES];
+				if (ev)
+				{
+					// handle events here
+					[NSApp sendEvent:ev];
+				}
+			} while (ev);
+		}
+
+		linaApp->PreTick();
+		linaApp->Poll();
+		linaApp->Tick();
 	}
 
 	linaApp->Shutdown();
 	delete linaApp;
+
+	[app terminate:nil];
 }
 
 namespace Lina

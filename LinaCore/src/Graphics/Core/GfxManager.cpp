@@ -222,6 +222,8 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
+		return;
+
 		PROFILER_FUNCTION();
 
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
