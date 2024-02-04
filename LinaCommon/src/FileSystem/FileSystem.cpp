@@ -40,19 +40,6 @@ namespace Lina
 
 	bool FileSystem::CreateFolderInPath(const String& path)
 	{
-
-#ifdef LINA_PLATFORM_WINDOWS
-		const bool success = std::filesystem::create_directory(path.c_str());
-
-		if (!success)
-		{
-			LINA_ERR("Could not create directory: {0}", path);
-		}
-
-		return success;
-#endif
-
-#ifdef LINA_PLATFORM_APPLE
 		const Vector<String> directories = UtilStr::SplitBy(path, "/");
 		String				 currentPath = "";
 		for (const auto& dir : directories)
@@ -70,7 +57,6 @@ namespace Lina
 			}
 		}
 		return true;
-#endif
 	}
 
 	bool FileSystem::DeleteDirectory(const String& path)

@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-commit_regex='(.+: .+|^[mM]erge.+)'
-error_msg="Commit message err!"
-if ! head -n 1 "$1" | grep -iqE "$commit_regex"; then
-    echo "$error_msg" >&2
-    exit 1
-fi
