@@ -31,11 +31,11 @@ SOFTWARE.
 #ifndef ResourceMetadata_HPP
 #define ResourceMetadata_HPP
 
-#include "Data/String.hpp"
-#include "Math/Vector.hpp"
-#include "Data/HashMap.hpp"
-#include "Core/SizeDefinitions.hpp"
-#include "Core/StringID.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/SizeDefinitions.hpp"
+#include "Common/StringID.hpp"
 
 namespace Lina
 {

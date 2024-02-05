@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Graphics/Core/GUIRenderer.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {

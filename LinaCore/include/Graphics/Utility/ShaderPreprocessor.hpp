@@ -32,9 +32,9 @@ SOFTWARE.
 #define ShaderPreProcessor_HPP
 
 #include "Graphics/Resource/Shader.hpp"
-#include "Data/HashMap.hpp"
-#include "Platform/LinaGXIncl.hpp"
-#include "Data/String.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/String.hpp"
 
 namespace Lina
 {

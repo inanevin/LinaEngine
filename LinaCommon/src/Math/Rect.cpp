@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Rect.hpp"
+#include "Common/Math/Rect.hpp"
 
 namespace Lina
 {
@@ -117,7 +117,7 @@ namespace Lina
 		const int amtX = static_cast<int>(static_cast<float>(r.size.x) * percentage);
 		const int amtY = static_cast<int>(static_cast<float>(r.size.y) * percentage);
 		r.size -= Vector2i(amtX, amtY);
-		r.pos += Vector2i(amtX / 2, amtY /2);
+		r.pos += Vector2i(amtX / 2, amtY / 2);
 		return r;
 	}
 

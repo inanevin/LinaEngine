@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef LevelManager_HPP
 #define LevelManager_HPP
 
-#include "System/Subsystem.hpp"
+#include "Common/System/Subsystem.hpp"
 
 namespace Lina
 {

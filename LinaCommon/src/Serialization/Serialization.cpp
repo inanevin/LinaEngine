@@ -26,10 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Serialization/Serialization.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include "Serialization/Compressor.hpp"
-#include "Serialization/CommonSerialization.hpp"
+#include "Common/Serialization/Serialization.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Serialization/Compressor.hpp"
+#include "Common/Serialization/CommonSerialization.hpp"
 
 namespace Lina
 {

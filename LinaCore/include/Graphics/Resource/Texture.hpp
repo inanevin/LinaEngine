@@ -32,8 +32,8 @@ SOFTWARE.
 #define Texture_HPP
 
 #include "Resources/Core/Resource.hpp"
-#include "Platform/LinaGXIncl.hpp"
-#include "Data/Vector.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {

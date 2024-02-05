@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/System.hpp"
-#include "Data/CommonData.hpp"
-#include "Math/Math.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {

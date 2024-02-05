@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/DelegateQueue.hpp"
+#include "Common/Data/DelegateQueue.hpp"
 
 namespace Lina
 {

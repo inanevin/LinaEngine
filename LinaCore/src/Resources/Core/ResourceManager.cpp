@@ -27,12 +27,12 @@ SOFTWARE.
 */
 
 #include "Resources/Core/ResourceManager.hpp"
-#include "Serialization/Serialization.hpp"
-#include "Data/CommonData.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include "System/System.hpp"
-#include "Platform/PlatformTime.hpp"
-#include "Math/Math.hpp"
+#include "Common/Serialization/Serialization.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Platform/PlatformTime.hpp"
+#include "Common/Math/Math.hpp"
 
 #include "World/Level/Level.hpp"
 

@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "World/Level/Level.hpp"
 #include "World/Core/EntityWorld.hpp"
-#include "Serialization/VectorSerialization.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {

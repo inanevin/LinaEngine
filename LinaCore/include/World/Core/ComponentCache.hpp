@@ -33,11 +33,11 @@ SOFTWARE.
 
 #include "CommonWorld.hpp"
 #include "Entity.hpp"
-#include "Core/SizeDefinitions.hpp"
-#include "Data/IDList.hpp"
-#include "Serialization/HashMapSerialization.hpp"
-#include "Memory/MemoryAllocatorPool.hpp"
-#include "Event/GameEventDispatcher.hpp"
+#include "Common/SizeDefinitions.hpp"
+#include "Common/Data/IDList.hpp"
+#include "Common/Serialization/HashMapSerialization.hpp"
+#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/Event/GameEventDispatcher.hpp"
 
 namespace Lina
 {

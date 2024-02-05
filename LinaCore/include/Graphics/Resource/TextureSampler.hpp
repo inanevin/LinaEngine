@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include "Resources/Core/Resource.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Platform/LinaGXIncl.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {

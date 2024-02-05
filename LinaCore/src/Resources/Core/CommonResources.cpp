@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Resources/Core/CommonResources.hpp"
-#include "Serialization/StringSerialization.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {

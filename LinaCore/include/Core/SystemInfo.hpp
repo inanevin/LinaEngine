@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef SystemInfo_HPP
 #define SystemInfo_HPP
 
-#include "Core/Common.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina
 {

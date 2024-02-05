@@ -26,57 +26,57 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/AABB.hpp"
-#include "Math/Math.hpp"
-#include "Math/Plane.hpp"
-#include "Serialization/VectorSerialization.hpp"
+#include "Common/Math/AABB.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Math/Plane.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
 
-    bool AABB::IsInsidePlane(const Vector3& center, const Plane& plane)
-    {
-        const float r = boundsHalfExtents.x * Math::Abs(plane.normal.x) + boundsHalfExtents.y * Math::Abs(plane.normal.y) + boundsHalfExtents.z * Math::Abs(plane.normal.z);
-        return -r <= plane.GetSignedDistance(center);
-    }
-    Vector3 AABB::GetPositive(const Vector3& normal) const
-    {
-        Vector3 positive = boundsMin;
-        if (normal.x >= 0.0f)
-            positive.x = boundsMax.x;
-        if (normal.y >= 0.0f)
-            positive.y = boundsMax.y;
-        if (normal.z >= 0.0f)
-            positive.z = boundsMax.z;
+	bool AABB::IsInsidePlane(const Vector3& center, const Plane& plane)
+	{
+		const float r = boundsHalfExtents.x * Math::Abs(plane.normal.x) + boundsHalfExtents.y * Math::Abs(plane.normal.y) + boundsHalfExtents.z * Math::Abs(plane.normal.z);
+		return -r <= plane.GetSignedDistance(center);
+	}
+	Vector3 AABB::GetPositive(const Vector3& normal) const
+	{
+		Vector3 positive = boundsMin;
+		if (normal.x >= 0.0f)
+			positive.x = boundsMax.x;
+		if (normal.y >= 0.0f)
+			positive.y = boundsMax.y;
+		if (normal.z >= 0.0f)
+			positive.z = boundsMax.z;
 
-        return positive;
-    }
-    Vector3 AABB::GetNegative(const Vector3& normal) const
-    {
-        Vector3 negative = boundsMax;
-        if (normal.x >= 0.0f)
-            negative.x = boundsMin.x;
-        if (normal.y >= 0.0f)
-            negative.y = boundsMin.y;
-        if (normal.z >= 0.0f)
-            negative.z = boundsMin.z;
+		return positive;
+	}
+	Vector3 AABB::GetNegative(const Vector3& normal) const
+	{
+		Vector3 negative = boundsMax;
+		if (normal.x >= 0.0f)
+			negative.x = boundsMin.x;
+		if (normal.y >= 0.0f)
+			negative.y = boundsMin.y;
+		if (normal.z >= 0.0f)
+			negative.z = boundsMin.z;
 
-        return negative;
-    }
+		return negative;
+	}
 
-    void AABB::SaveToStream(OStream& stream)
-    {
-        boundsHalfExtents.SaveToStream(stream);
-        boundsMin.SaveToStream(stream);
-        boundsMax.SaveToStream(stream);
-        VectorSerialization::SaveToStream_OBJ(stream, positions);
-    }
+	void AABB::SaveToStream(OStream& stream)
+	{
+		boundsHalfExtents.SaveToStream(stream);
+		boundsMin.SaveToStream(stream);
+		boundsMax.SaveToStream(stream);
+		VectorSerialization::SaveToStream_OBJ(stream, positions);
+	}
 
-    void AABB::LoadFromStream(IStream& stream)
-    {
-        boundsHalfExtents.LoadFromStream(stream);
-        boundsMin.LoadFromStream(stream);
-        boundsMax.LoadFromStream(stream);
-        VectorSerialization::LoadFromStream_OBJ(stream, positions);
-    }
+	void AABB::LoadFromStream(IStream& stream)
+	{
+		boundsHalfExtents.LoadFromStream(stream);
+		boundsMin.LoadFromStream(stream);
+		boundsMax.LoadFromStream(stream);
+		VectorSerialization::LoadFromStream_OBJ(stream, positions);
+	}
 } // namespace Lina

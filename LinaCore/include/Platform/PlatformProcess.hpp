@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Data/String.hpp"
+#include "Common/Data/String.hpp"
 
 namespace Lina
 {

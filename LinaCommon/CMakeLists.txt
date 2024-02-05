@@ -21,8 +21,8 @@ set(CMAKE_CXX_STANDARD 17)
 #--------------------------------------------------------------------
 set (SOURCES
 
-	src/Core/Common.cpp
-	src/Core/StringID.cpp
+	src/Common.cpp
+	src/StringID.cpp
 	
 	# FileSystem
 	src/FileSystem/FileSystem.cpp
@@ -91,103 +91,103 @@ set (SOURCES
 set(HEADERS
 
 	#CORE
-	include/Core/Common.hpp
-	include/Core/SizeDefinitions.hpp
-	include/Core/StringID.hpp
-	include/Core/ObjectWrapper.hpp
+	include/Common/Common.hpp
+	include/Common/Common/SizeDefinitions.hpp
+	include/Common/StringID.hpp
+	include/Common/ObjectWrapper.hpp
 	
 	# FileSystem
-	include/FileSystem/FileSystem.hpp
-	include/FileSystem/FileData.hpp
+	include/Common/FileSystem/FileSystem.hpp
+	include/Common/FileSystem/FileData.hpp
 
 	# Job System
-	include/JobSystem/JobSystem.hpp
+	include/Common/JobSystem/JobSystem.hpp
 
 	# Profiler
-	include/Profiling/Profiler.hpp
-	include/Profiling/MemoryTracer.hpp
+	include/Common/Profiling/Profiler.hpp
+	include/Common/Profiling/MemoryTracer.hpp
 	
 	# Events
-	include/Event/Event.hpp
-	include/Event/SystemEventListener.hpp
-	include/Event/GameEventListener.hpp
-	include/Event/SystemEventDispatcher.hpp
-	include/Event/GameEventDispatcher.hpp
+	include/Common/Event/Event.hpp
+	include/Common/Event/SystemEventListener.hpp
+	include/Common/Event/GameEventListener.hpp
+	include/Common/Event/SystemEventDispatcher.hpp
+	include/Common/Event/GameEventDispatcher.hpp
 
 	# Data
-	include/Data/Functional.hpp
-	include/Data/ActionQueue.hpp
-	include/Data/GPUCommand.hpp
-	include/Data/SimpleArray.hpp
-	include/Data/Array.hpp
-	include/Data/Vector.hpp
-	include/Data/IntrusiveList.hpp
-	include/Data/Map.hpp
-	include/Data/MallocAllocator.hpp
-	include/Data/List.hpp
-	include/Data/Ringbuffer.hpp
-	include/Data/IDList.hpp
-	include/Data/SList.hpp
-	include/Data/HashMap.hpp
-	include/Data/Set.hpp
-	include/Data/HashSet.hpp
-	include/Data/Queue.hpp
-	include/Data/PriorityQueue.hpp
-	include/Data/Deque.hpp
-	include/Data/FixedVector.hpp
-	include/Data/FixedMap.hpp
-	include/Data/FixedList.hpp
-	include/Data/FixedSList.hpp
-	include/Data/FixedHashMap.hpp
-	include/Data/FixedSet.hpp
-	include/Data/String.hpp
-	include/Data/CommonData.hpp
-	include/Data/Bitmask.hpp
-	include/Data/Mutex.hpp
-	include/Data/Streams.hpp
-	include/Data/SyncQueue.hpp
-	include/Data/DelegateQueue.hpp
+	include/Common/Data/Functional.hpp
+	include/Common/Data/ActionQueue.hpp
+	include/Common/Data/GPUCommand.hpp
+	include/Common/Data/SimpleArray.hpp
+	include/Common/Data/Array.hpp
+	include/Common/Data/Vector.hpp
+	include/Common/Data/IntrusiveList.hpp
+	include/Common/Data/Map.hpp
+	include/Common/Data/MallocAllocator.hpp
+	include/Common/Data/List.hpp
+	include/Common/Data/Ringbuffer.hpp
+	include/Common/Data/IDList.hpp
+	include/Common/Data/SList.hpp
+	include/Common/Data/HashMap.hpp
+	include/Common/Data/Set.hpp
+	include/Common/Data/HashSet.hpp
+	include/Common/Data/Queue.hpp
+	include/Common/Data/PriorityQueue.hpp
+	include/Common/Data/Deque.hpp
+	include/Common/Data/FixedVector.hpp
+	include/Common/Data/FixedMap.hpp
+	include/Common/Data/FixedList.hpp
+	include/Common/Data/FixedSList.hpp
+	include/Common/Data/FixedHashMap.hpp
+	include/Common/Data/FixedSet.hpp
+	include/Common/Data/String.hpp
+	include/Common/Data/CommonData.hpp
+	include/Common/Data/Bitmask.hpp
+	include/Common/Data/Mutex.hpp
+	include/Common/Data/Streams.hpp
+	include/Common/Data/SyncQueue.hpp
+	include/Common/Data/DelegateQueue.hpp
 
 	# Memory
-	include/Memory/Memory.hpp
-	include/Memory/MemoryAllocatorPool.hpp
+	include/Common/Memory/Memory.hpp
+	include/Common/Memory/MemoryAllocatorPool.hpp
 	
 	# Log
-	include/Log/Log.hpp
+	include/Common/Log/Log.hpp
 
 	# Serialization
-	include/Serialization/CommonSerialization.hpp
-	include/Serialization/Compressor.hpp
-	include/Serialization/Endianness.hpp
-	include/Serialization/Serialization.hpp
-	include/Serialization/StringSerialization.hpp
-	include/Serialization/VectorSerialization.hpp
-	include/Serialization/HashMapSerialization.hpp
-	include/Serialization/QueueSerialization.hpp
-	include/Serialization/SetSerialization.hpp
+	include/Common/Serialization/CommonSerialization.hpp
+	include/Common/Serialization/Compressor.hpp
+	include/Common/Serialization/Endianness.hpp
+	include/Common/Serialization/Serialization.hpp
+	include/Common/Serialization/StringSerialization.hpp
+	include/Common/Serialization/VectorSerialization.hpp
+	include/Common/Serialization/HashMapSerialization.hpp
+	include/Common/Serialization/QueueSerialization.hpp
+	include/Common/Serialization/SetSerialization.hpp
 
 	# Math
-	include/Math/Color.hpp
-	include/Math/Math.hpp
-	include/Math/Matrix.hpp
-	include/Math/Quaternion.hpp
-	include/Math/Transformation.hpp
-	include/Math/Vector.hpp
-	include/Math/Rect.hpp
-	include/Math/AABB.hpp
-	include/Math/Frustum.hpp
-	include/Math/Plane.hpp
+	include/Common/Math/Color.hpp
+	include/Common/Math/Math.hpp
+	include/Common/Math/Matrix.hpp
+	include/Common/Math/Quaternion.hpp
+	include/Common/Math/Transformation.hpp
+	include/Common/Math/Vector.hpp
+	include/Common/Math/Rect.hpp
+	include/Common/Math/AABB.hpp
+	include/Common/Math/Frustum.hpp
+	include/Common/Math/Plane.hpp
 
 	# System
-	include/System/Plugin.hpp
-	include/System/System.hpp
-	include/System/Subsystem.hpp
+	include/Common/System/Plugin.hpp
+	include/Common/System/System.hpp
+	include/Common/System/Subsystem.hpp
 
 	# Platform
-	include/Platform/LinaGXIncl.hpp
-	include/Platform/LinaVGIncl.hpp
-    	include/Platform/PlatformTime.hpp
-	include/Platform/PlatformInclude.hpp
+	include/Common/Platform/LinaGXIncl.hpp
+	include/Common/Platform/LinaVGIncl.hpp
+    include/Common/Platform/PlatformTime.hpp
+	include/Common/Platform/PlatformInclude.hpp
 )
 
 if(WIN32)
@@ -234,16 +234,16 @@ PUBLIC
 	<filesystem>
 	<memory>
 	<type_traits>
-	include/Math/Matrix.hpp
-	include/Math/Vector.hpp
-	include/Math/Quaternion.hpp
-	include/Data/String.hpp
-	include/Data/HashMap.hpp
-	include/Data/Vector.hpp
-	include/JobSystem/JobSystem.hpp
-	include/Serialization/Endianness.hpp
-	include/Data/Streams.hpp
-	include/Log/Log.hpp
+	include/Common/Math/Matrix.hpp
+	include/Common/Math/Vector.hpp
+	include/Common/Math/Quaternion.hpp
+	include/Common/Data/String.hpp
+	include/Common/Data/HashMap.hpp
+	include/Common/Data/Vector.hpp
+	include/Common/JobSystem/JobSystem.hpp
+	include/Common/Serialization/Endianness.hpp
+	include/Common/Data/Streams.hpp
+	include/Common/Log/Log.hpp
 )
 
 

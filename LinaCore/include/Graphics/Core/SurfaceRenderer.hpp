@@ -31,9 +31,9 @@ SOFTWARE.
 #ifndef SurfaceRenderer_HPP
 #define SurfaceRenderer_HPP
 
-#include "Event/SystemEventListener.hpp"
-#include "Core/StringID.hpp"
-#include "Math/Vector.hpp"
+#include "Common/Event/SystemEventListener.hpp"
+#include "Common/StringID.hpp"
+#include "Common/Math/Vector.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Core/GPUBuffer.hpp"
 

@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Physics/Core/PhysicsWorld.hpp"
-#include "System/System.hpp"
+#include "Common/System/System.hpp"
 #include "Core/SystemInfo.hpp"
 #include "World/Core/EntityWorld.hpp"
 

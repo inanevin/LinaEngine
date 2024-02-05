@@ -31,11 +31,11 @@ SOFTWARE.
 #ifndef GUIBackend_HPP
 #define GUIBackend_HPP
 
-#include "Data/Vector.hpp"
-#include "Platform/LinaVGIncl.hpp"
-#include "Data/HashMap.hpp"
-#include "Event/Event.hpp"
-#include "Math/Rect.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/Event/Event.hpp"
+#include "Common/Math/Rect.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 

@@ -30,8 +30,8 @@ SOFTWARE.
 #include "World/Level/Level.hpp"
 #include "World/Core/EntityWorld.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "System/System.hpp"
-#include "Data/CommonData.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Data/CommonData.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 
 namespace Lina

@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Model.hpp"
-#include "Platform/LinaGXIncl.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
@@ -37,7 +37,6 @@ namespace Lina
 
 	void Model::LoadFromFile(const char* path)
 	{
-		
 	}
 
 	void Model::SaveToStream(OStream& stream)

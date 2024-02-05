@@ -29,10 +29,10 @@ SOFTWARE.
 #include "Graphics/Core/LGXWrapper.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "Platform/LinaGXIncl.hpp"
-#include "Core/Common.hpp"
-#include "System/System.hpp"
-#include "Event/Event.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Common.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Event/Event.hpp"
 
 namespace Lina
 {

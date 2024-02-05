@@ -31,9 +31,9 @@ SOFTWARE.
 #ifndef ResourceUploadQueue_HPP
 #define ResourceUploadQueue_HPP
 
-#include "Data/Mutex.hpp"
-#include "Data/Vector.hpp"
-#include "Data/Functional.hpp"
+#include "Common/Data/Mutex.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Data/Functional.hpp"
 
 namespace LinaGX
 {

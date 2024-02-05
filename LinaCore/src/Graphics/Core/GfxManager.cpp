@@ -35,15 +35,15 @@ SOFTWARE.
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Graphics/Resource/Font.hpp"
-#include "System/System.hpp"
-#include "Profiling/Profiler.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Profiling/Profiler.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "FileSystem/FileSystem.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Graphics/Core/GUIBackend.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {

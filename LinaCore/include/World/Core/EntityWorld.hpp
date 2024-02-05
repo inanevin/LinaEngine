@@ -32,10 +32,10 @@ SOFTWARE.
 #define World_HPP
 
 #include "ComponentCache.hpp"
-#include "Memory/MemoryAllocatorPool.hpp"
-#include "Core/ObjectWrapper.hpp"
+#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/ObjectWrapper.hpp"
 #include "Physics/Core/PhysicsWorld.hpp"
-#include "Event/GameEventDispatcher.hpp"
+#include "Common/Event/GameEventDispatcher.hpp"
 
 namespace Lina
 {

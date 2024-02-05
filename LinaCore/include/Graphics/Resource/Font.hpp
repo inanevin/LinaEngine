@@ -32,10 +32,10 @@ SOFTWARE.
 #define LinaFont_HPP
 
 #include "Resources/Core/Resource.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/Data/Vector.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
-#include "Data/Mutex.hpp"
+#include "Common/Data/Mutex.hpp"
 
 namespace LinaVG
 {

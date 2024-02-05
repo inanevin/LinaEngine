@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Profiling/MemoryTracer.hpp"
+#include "Common/Profiling/MemoryTracer.hpp"
 
 #if defined LINA_DEBUG && defined LINA_PLATFORM_WINDOWS
 
-#include "FileSystem/FileSystem.hpp"
-#include "Profiling/Profiler.hpp"
-#include "Memory/MemoryAllocatorPool.hpp"
-#include "Platform/PlatformInclude.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Profiling/Profiler.hpp"
+#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/Platform/PlatformInclude.hpp"
 
 #include <process.h>
 #include <iostream>

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Memory/Memory.hpp"
+#include "Common/Memory/Memory.hpp"
 
 // EASTL OPERATOR NEW[] REQUIREMENTS
 
@@ -105,7 +105,6 @@ namespace Lina
 
 	GlobalAllocationWrapper::~GlobalAllocationWrapper()
 	{
-		
 	}
 
 } // namespace Lina

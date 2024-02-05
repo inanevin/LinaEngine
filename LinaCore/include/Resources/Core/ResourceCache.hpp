@@ -31,13 +31,13 @@ SOFTWARE.
 #ifndef ResourceCache_HPP
 #define ResourceCache_HPP
 
-#include "Memory/MemoryAllocatorPool.hpp"
-#include "Core/StringID.hpp"
-#include "Core/ObjectWrapper.hpp"
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
-#include "Data/Mutex.hpp"
-#include "Log/Log.hpp"
+#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/StringID.hpp"
+#include "Common/ObjectWrapper.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Data/Mutex.hpp"
+#include "Common/Log/Log.hpp"
 #include "Resource.hpp"
 #include "CommonResources.hpp"
 

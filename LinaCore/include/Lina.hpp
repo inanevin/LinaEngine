@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef Lina_HPP
 #define Lina_HPP
 
-#include "Core/Common.hpp"
+#include "Common/Common.hpp"
 #include "Core/Application.hpp"
 #include "Core/ApplicationListener.hpp"
 

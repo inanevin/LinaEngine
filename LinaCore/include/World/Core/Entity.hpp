@@ -32,10 +32,10 @@ SOFTWARE.
 #define Entity_HPP
 
 #include "CommonWorld.hpp"
-#include "Core/SizeDefinitions.hpp"
-#include "Math/Transformation.hpp"
-#include "Data/HashSet.hpp"
-#include "Core/ObjectWrapper.hpp"
+#include "Common/SizeDefinitions.hpp"
+#include "Common/Math/Transformation.hpp"
+#include "Common/Data/HashSet.hpp"
+#include "Common/ObjectWrapper.hpp"
 
 namespace Lina
 {

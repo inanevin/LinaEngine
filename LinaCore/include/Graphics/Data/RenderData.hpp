@@ -31,11 +31,11 @@ SOFTWARE.
 #ifndef RenderData_HPP
 #define RenderData_HPP
 
-#include "Math/AABB.hpp"
-#include "Data/Vector.hpp"
-#include "Data/Bitmask.hpp"
-#include "Math/Vector.hpp"
-#include "Math/Matrix.hpp"
+#include "Common/Math/AABB.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Data/Bitmask.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Math/Matrix.hpp"
 
 namespace Lina
 {

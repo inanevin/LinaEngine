@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/LinaGXIncl.hpp"
-#include "Serialization/StringSerialization.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -64,7 +64,7 @@ namespace Lina
 	// 	StringSerialization::SaveToStream(stream, txt.name.c_str());
 	// 	SaveStages(stream, txt.stages);
 	// }
-	// 
+	//
 	// void LoadSRVTextre2D(IStream& stream, LinaGX::ShaderSRVTexture2D& txt)
 	// {
 	// 	stream >> txt.set >> txt.binding >> txt.elementSize;
@@ -73,14 +73,14 @@ namespace Lina
 	// 	txt.name = str.c_str();
 	// 	LoadStages(stream, txt.stages);
 	// }
-	// 
+	//
 	// void SaveUBOMember(OStream& stream, const LinaGX::ShaderUBOMember& member)
 	// {
 	// 	const uint8 type = static_cast<uint8>(member.type);
 	// 	stream << type << member.size << member.offset << member.elementSize << member.arrayStride << member.matrixStride;
 	// 	StringSerialization::SaveToStream(stream, member.name.c_str());
 	// }
-	// 
+	//
 	// void LoadUBOMember(IStream& stream, LinaGX::ShaderUBOMember& member)
 	// {
 	// 	String str	= "";
@@ -102,48 +102,48 @@ namespace Lina
 		// const uint32 szSetsAndBindings		 = static_cast<uint32>(layout.setsAndBindings.size());
 		// stream << szVertexInputs << szUbos << szSsbos << szCombinedImageSamplers << seperateImages << szSamplers << szSetsAndBindings;
 		// stream << layout.totalDescriptors << layout.hasGLDrawID << layout.drawIDBinding;
-		// 
+		//
 		// for (const auto& vi : layout.vertexInputs)
 		// {
 		// 	const uint8 fmt = static_cast<uint8>(vi.format);
 		// 	StringSerialization::SaveToStream(stream, vi.name.c_str());
 		// 	stream << vi.location << vi.elements << vi.size << fmt << vi.offset;
 		// }
-		// 
+		//
 		// for (const auto& ubo : layout.ubos)
 		// {
 		// 	stream << ubo.set << ubo.binding << ubo.size << ubo.elementSize;
 		// 	StringSerialization::SaveToStream(stream, ubo.name.c_str());
-		// 
+		//
 		// 	SaveStages(stream, ubo.stages);
-		// 
+		//
 		// 	const uint32 membersSz = static_cast<uint32>(ubo.members.size());
 		// 	stream << membersSz;
-		// 
+		//
 		// 	for (const auto& member : ubo.members)
 		// 		SaveUBOMember(stream, member);
 		// }
-		// 
+		//
 		// for (const auto& ssbo : layout.ssbos)
 		// {
 		// 	stream << ssbo.set << ssbo.binding << ssbo.isReadOnly;
 		// 	StringSerialization::SaveToStream(stream, ssbo.name.c_str());
 		// 	SaveStages(stream, ssbo.stages);
 		// }
-		// 
+		//
 		// for (const auto& combinedImg : layout.combinedImageSamplers)
 		// 	SaveSRVTexture2D(stream, combinedImg);
-		// 
+		//
 		// for (const auto& combinedImg : layout.separateImages)
 		// 	SaveSRVTexture2D(stream, combinedImg);
-		// 
+		//
 		// for (const auto& samp : layout.samplers)
 		// {
 		// 	stream << samp.set << samp.binding << samp.elementSize;
 		// 	StringSerialization::SaveToStream(stream, samp.name.c_str());
 		// 	SaveStages(stream, samp.stages);
 		// }
-		// 
+		//
 		// for (const auto& [set, bindingVec] : layout.setsAndBindings)
 		// {
 		// 	const uint32 sz = static_cast<uint32>(bindingVec.size());
@@ -151,13 +151,13 @@ namespace Lina
 		// 	for (auto b : bindingVec)
 		// 		stream << b;
 		// }
-		// 
+		//
 		// const uint32 membersSz = static_cast<uint32>(layout.constantBlock.members.size());
 		// stream << layout.constantBlock.size << layout.constantBlock.set << layout.constantBlock.binding << membersSz;
-		// 
+		//
 		// for (const auto& mem : layout.constantBlock.members)
 		// 	SaveUBOMember(stream, mem);
-		// 
+		//
 		// StringSerialization::SaveToStream(stream, layout.constantBlock.name.c_str());
 		// SaveStages(stream, layout.constantBlock.stages);
 	}
@@ -173,7 +173,7 @@ namespace Lina
 		// uint32 szSetsAndBindings	   = 0;
 		// stream >> szVertexInputs >> szUbos >> szSsbos >> szCombinedImageSamplers >> szSeperateImages >> szSamplers >> szSetsAndBindings;
 		// stream >> layout.totalDescriptors >> layout.hasGLDrawID >> layout.drawIDBinding;
-		// 
+		//
 		// for (uint32 i = 0; i < szVertexInputs; i++)
 		// {
 		// 	LinaGX::ShaderStageInput vi;
@@ -185,7 +185,7 @@ namespace Lina
 		// 	vi.format = static_cast<LinaGX::Format>(fmt);
 		// 	layout.vertexInputs.push_back(vi);
 		// }
-		// 
+		//
 		// for (uint32 i = 0; i < szUbos; i++)
 		// {
 		// 	LinaGX::ShaderUBO ubo;
@@ -193,14 +193,14 @@ namespace Lina
 		// 	String str = "";
 		// 	StringSerialization::LoadFromStream(stream, str);
 		// 	ubo.name = str.c_str();
-		// 
+		//
 		// 	LoadStages(stream, ubo.stages);
-		// 
+		//
 		// 	uint32 membersSz = 0;
 		// 	stream >> membersSz;
-		// 
+		//
 		// 	ubo.members.resize(membersSz);
-		// 
+		//
 		// 	for (uint32 k = 0; k < membersSz; k++)
 		// 	{
 		// 		LinaGX::ShaderUBOMember member;
@@ -209,7 +209,7 @@ namespace Lina
 		// 	}
 		// 	layout.ubos.push_back(ubo);
 		// }
-		// 
+		//
 		// for (uint32 i = 0; i < szSsbos; i++)
 		// {
 		// 	LinaGX::ShaderSSBO ssbo;
@@ -220,21 +220,21 @@ namespace Lina
 		// 	ssbo.name = str.c_str();
 		// 	layout.ssbos.push_back(ssbo);
 		// }
-		// 
+		//
 		// for (uint32 i = 0; i < szCombinedImageSamplers; i++)
 		// {
 		// 	LinaGX::ShaderSRVTexture2D txt;
 		// 	LoadSRVTextre2D(stream, txt);
 		// 	layout.combinedImageSamplers.push_back(txt);
 		// }
-		// 
+		//
 		// for (uint32 i = 0; i < szSeperateImages; i++)
 		// {
 		// 	LinaGX::ShaderSRVTexture2D txt;
 		// 	LoadSRVTextre2D(stream, txt);
 		// 	layout.separateImages.push_back(txt);
 		// }
-		// 
+		//
 		// for (uint32 i = 0; i < szSamplers; i++)
 		// {
 		// 	LinaGX::ShaderSampler samp;
@@ -245,7 +245,7 @@ namespace Lina
 		// 	LoadStages(stream, samp.stages);
 		// 	layout.samplers.push_back(samp);
 		// }
-		// 
+		//
 		// for (uint32 i = 0; i < szSetsAndBindings; i++)
 		// {
 		// 	uint32 sz  = 0;
@@ -253,16 +253,16 @@ namespace Lina
 		// 	stream >> set >> sz;
 		// 	LINAGX_VEC<uint32> bindings;
 		// 	bindings.resize(sz);
-		// 
+		//
 		// 	for (uint32 k = 0; k < sz; k++)
 		// 		stream >> bindings[k];
-		// 
+		//
 		// 	layout.setsAndBindings[set] = bindings;
 		// }
-		// 
+		//
 		// uint32 membersSz = 0;
 		// stream >> layout.constantBlock.size >> layout.constantBlock.set >> layout.constantBlock.binding >> membersSz;
-		// 
+		//
 		// for (uint32 i = 0; i < membersSz; i++)
 		// {
 		// 	LinaGX::ShaderUBOMember member;

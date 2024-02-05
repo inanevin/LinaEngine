@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Quaternion.hpp"
-#include "Math/Vector.hpp"
-#include "Data/Streams.hpp"
+#include "Common/Math/Quaternion.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Data/Streams.hpp"
 
 namespace Lina
 {

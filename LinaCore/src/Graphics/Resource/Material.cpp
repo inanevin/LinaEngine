@@ -27,11 +27,11 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Material.hpp"
-#include "Serialization/StringSerialization.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Serialization/Serialization.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina
 {

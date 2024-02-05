@@ -27,12 +27,12 @@ SOFTWARE.
 */
 
 #include "Platform/PlatformProcess.hpp"
-#include "Platform/PlatformInclude.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include "Log/Log.hpp"
-#include "System/Plugin.hpp"
+#include "Common/Platform/PlatformInclude.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Log/Log.hpp"
+#include "Common/System/Plugin.hpp"
 #include "Lina.hpp"
-#include "Profiling/MemoryTracer.hpp"
+#include "Common/Profiling/MemoryTracer.hpp"
 
 #include <Cocoa/Cocoa.h>
 #include <CoreVideo/CoreVideo.h>

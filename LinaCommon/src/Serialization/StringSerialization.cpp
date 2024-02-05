@@ -26,25 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Serialization/StringSerialization.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
-    void StringSerialization::SaveToStream(OStream& stream, const String& str)
-    {
-        const uint32 size = static_cast<uint32>(str.size());
-        stream << size;
-        stream.WriteEndianSafe((uint8*)str.data(), size);
-    }
+	void StringSerialization::SaveToStream(OStream& stream, const String& str)
+	{
+		const uint32 size = static_cast<uint32>(str.size());
+		stream << size;
+		stream.WriteEndianSafe((uint8*)str.data(), size);
+	}
 
-    void StringSerialization::LoadFromStream(IStream& stream, String& str)
-    {
-        uint32 size = 0;
-        stream >> size;
-        void* d = MALLOC(size);
-        stream.ReadEndianSafe(d, size);
-        String s((char*)d, size);
-        str = s;
-        FREE(d);
-    }
+	void StringSerialization::LoadFromStream(IStream& stream, String& str)
+	{
+		uint32 size = 0;
+		stream >> size;
+		void* d = MALLOC(size);
+		stream.ReadEndianSafe(d, size);
+		String s((char*)d, size);
+		str = s;
+		FREE(d);
+	}
 } // namespace Lina

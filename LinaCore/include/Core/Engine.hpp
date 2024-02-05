@@ -31,14 +31,14 @@ SOFTWARE.
 #ifndef Engine_HPP
 #define Engine_HPP
 
-#include "System/System.hpp"
+#include "Common/System/System.hpp"
 #include "Audio/Core/AudioManager.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
 #include "World/Level/LevelManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "JobSystem/JobSystem.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
 #include "EngineInterface.hpp"
-#include "Event/SystemEventListener.hpp"
+#include "Common/Event/SystemEventListener.hpp"
 
 namespace Lina
 {

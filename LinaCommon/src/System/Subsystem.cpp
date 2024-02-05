@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "System/Subsystem.hpp"
-#include "System/System.hpp"
+#include "Common/System/Subsystem.hpp"
+#include "Common/System/System.hpp"
 
 namespace Lina
 {

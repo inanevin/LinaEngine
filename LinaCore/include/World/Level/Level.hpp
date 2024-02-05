@@ -31,9 +31,9 @@ SOFTWARE.
 #ifndef Level_HPP
 #define Level_HPP
 
-#include "Core/ObjectWrapper.hpp"
-#include "Data/Streams.hpp"
-#include "Data/Vector.hpp"
+#include "Common/ObjectWrapper.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Common/Data/Vector.hpp"
 #include "Resources/Core/CommonResources.hpp"
 #include "Resources/Core/Resource.hpp"
 

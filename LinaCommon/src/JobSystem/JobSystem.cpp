@@ -26,10 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-#include "JobSystem/JobSystem.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
 
 namespace Lina
 {
 } // namespace Lina
-

@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Mesh.hpp"
-#include "System/System.hpp"
+#include "Common/System/System.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Graphics/Data/Vertex.hpp"
 

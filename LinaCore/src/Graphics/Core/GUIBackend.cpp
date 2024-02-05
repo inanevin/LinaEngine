@@ -36,8 +36,8 @@ SOFTWARE.
 #include "Graphics/Core/GfxManager.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 #include "Resources/Core/CommonResources.hpp"
-#include "System/System.hpp"
-#include "Platform/LinaGXIncl.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {

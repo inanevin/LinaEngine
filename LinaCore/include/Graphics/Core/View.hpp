@@ -31,9 +31,9 @@ SOFTWARE.
 #ifndef View_HPP
 #define View_HPP
 
-#include "Math/Frustum.hpp"
-#include "Math/Vector.hpp"
-#include "Data/HashSet.hpp"
+#include "Common/Math/Frustum.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Data/HashSet.hpp"
 #include "Graphics/Data/RenderData.hpp"
 
 namespace Lina

@@ -31,30 +31,30 @@ SOFTWARE.
 #ifndef WorldCommon_HPP
 #define WorldCommon_HPP
 
-#include "Data/Bitmask.hpp"
+#include "Common/Data/Bitmask.hpp"
 
 namespace Lina
 {
 
-#define ENTITY_MAX       ((uint32_t)-2)
-#define ENTITY_NULL      ((uint32_t)-1)
+#define ENTITY_MAX		 ((uint32_t)-2)
+#define ENTITY_NULL		 ((uint32_t)-1)
 #define ENTITY_POOL_SIZE 500
 
-    enum EntityMask
-    {
-        Visible           = 1 << 0,
-        Static            = 1 << 1,
-        NeedsVisualUpdate = 1 << 2,
-        Reserved3         = 1 << 3,
-        Reserved4         = 1 << 4,
-        Reserved5         = 1 << 5,
-        Reserved6         = 1 << 6,
-    };
+	enum EntityMask
+	{
+		Visible			  = 1 << 0,
+		Static			  = 1 << 1,
+		NeedsVisualUpdate = 1 << 2,
+		Reserved3		  = 1 << 3,
+		Reserved4		  = 1 << 4,
+		Reserved5		  = 1 << 5,
+		Reserved6		  = 1 << 6,
+	};
 
-    enum ComponentMask
-    {
-        Renderable = 1 << 0,
-    };
+	enum ComponentMask
+	{
+		Renderable = 1 << 0,
+	};
 
 } // namespace Lina
 

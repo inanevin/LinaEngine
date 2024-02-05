@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef ComponentReflection_HPP
 #define ComponentReflection_HPP
 
-#include "Core/StringID.hpp"
+#include "Common/StringID.hpp"
 #include "World/Core/ComponentCache.hpp"
 #include "Reflection/ReflectionSystem.hpp"
 

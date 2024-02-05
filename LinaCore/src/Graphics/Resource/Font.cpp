@@ -27,10 +27,10 @@ SOFTWARE.
 */
 
 #include "Graphics/Resource/Font.hpp"
-#include "Serialization/VectorSerialization.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include "Data/Streams.hpp"
-#include "Platform/LinaVGIncl.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {

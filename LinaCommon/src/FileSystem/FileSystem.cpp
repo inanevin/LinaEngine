@@ -26,10 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "FileSystem/FileSystem.hpp"
-#include "Data/CommonData.hpp"
-#include "Data/Vector.hpp"
-#include "Platform/PlatformInclude.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Platform/PlatformInclude.hpp"
 
 namespace Lina
 {

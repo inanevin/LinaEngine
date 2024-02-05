@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Graphics/Data/Vertex.hpp"
-#include "Data/Streams.hpp"
+#include "Common/Data/Streams.hpp"
 
 namespace Lina
 {

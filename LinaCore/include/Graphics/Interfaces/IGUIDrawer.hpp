@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef IGUIDrawer_HPP
 #define IGUIDrawer_HPP
 
-#include "Platform/LinaGXIncl.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace LinaGX
 {

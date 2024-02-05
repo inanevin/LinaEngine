@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/String.hpp"
+#include "Common/Data/String.hpp"
 #include <string>
 #include <codecvt>
 #include <locale>

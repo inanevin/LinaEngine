@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Transformation.hpp"
-#include "Math/Math.hpp"
+#include "Common/Math/Transformation.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {

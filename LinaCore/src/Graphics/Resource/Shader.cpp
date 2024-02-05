@@ -29,11 +29,11 @@ SOFTWARE.
 #include "Graphics/Resource/Shader.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
 #include "Resources/Core/ResourceManager.hpp"
-#include "System/System.hpp"
-#include "Serialization/StringSerialization.hpp"
-#include "FileSystem//FileSystem.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
+#include "Common/FileSystem//FileSystem.hpp"
 #include "Graphics/Utility/ShaderPreprocessor.hpp"
-#include "Serialization/HashMapSerialization.hpp"
+#include "Common/Serialization/HashMapSerialization.hpp"
 
 namespace Lina
 {

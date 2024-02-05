@@ -28,10 +28,10 @@ SOFTWARE.
 
 #include "World/Core/Entity.hpp"
 #include "World/Core/Component.hpp"
-#include "Serialization/StringSerialization.hpp"
-#include "Serialization/VectorSerialization.hpp"
-#include "Serialization/SetSerialization.hpp"
-#include "Data/CommonData.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
+#include "Common/Serialization/SetSerialization.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {

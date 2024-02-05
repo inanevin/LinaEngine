@@ -32,7 +32,7 @@ SOFTWARE.
 #define ResourcesReflection_HPP
 
 #include "ResourceManager.hpp"
-#include "Data/Vector.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {

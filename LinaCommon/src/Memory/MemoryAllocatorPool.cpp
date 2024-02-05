@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Memory/MemoryAllocatorPool.hpp"
-#include "Log/Log.hpp"
-#include "Math/Math.hpp"
-#include "Data/CommonData.hpp"
-#include "Data/String.hpp"
-#include "Profiling/MemoryTracer.hpp"
+#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/Log/Log.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Profiling/MemoryTracer.hpp"
 #include "memoryallocators/FreeListAllocator.h"
 #include "memoryallocators/StackAllocator.h"
 #include "memoryallocators/PoolAllocator.h"

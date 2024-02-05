@@ -33,8 +33,8 @@ SOFTWARE.
 #include "Graphics/Resource/Material.hpp"
 #include "Graphics/Core/View.hpp"
 #include "Graphics/Core/GfxManager.hpp"
-#include "System/System.hpp"
-#include "Profiling/Profiler.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Profiling/Profiler.hpp"
 
 namespace Lina
 {

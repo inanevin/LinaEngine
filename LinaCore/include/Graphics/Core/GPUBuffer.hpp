@@ -31,8 +31,8 @@ SOFTWARE.
 #ifndef GPUBuffer_HPP
 #define GPUBuffer_HPP
 
-#include "Platform/LinaGXIncl.hpp"
-#include "Data/String.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/String.hpp"
 namespace LinaGX
 {
 	class Instance;

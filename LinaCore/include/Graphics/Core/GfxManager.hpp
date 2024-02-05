@@ -30,17 +30,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #ifndef GfxManager_HPP
 #define GfxManager_HPP
 
-#include "Core/Common.hpp"
-#include "System/Subsystem.hpp"
-#include "Core/StringID.hpp"
-#include "Data/Vector.hpp"
+#include "Common/Common.hpp"
+#include "Common/System/Subsystem.hpp"
+#include "Common/StringID.hpp"
+#include "Common/Data/Vector.hpp"
 #include "GfxMeshManager.hpp"
-#include "Event/SystemEventListener.hpp"
+#include "Common/Event/SystemEventListener.hpp"
 #include "CommonGraphics.hpp"
 #include "ResourceUploadQueue.hpp"
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Graphics/Resource/Material.hpp"
-#include "Platform/LinaGXIncl.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {

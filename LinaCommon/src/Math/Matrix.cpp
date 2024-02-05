@@ -26,10 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Matrix.hpp"
-#include "Math/Quaternion.hpp"
-#include "Math/Vector.hpp"
-#include "Math/Transformation.hpp"
+#include "Common/Math/Matrix.hpp"
+#include "Common/Math/Quaternion.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Math/Transformation.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_ENABLE_EXPERIMENTAL
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE

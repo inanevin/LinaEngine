@@ -31,15 +31,15 @@ SOFTWARE.
 #ifndef ResourceManager_HPP
 #define ResourceManager_HPP
 
-#include "Data/HashMap.hpp"
-#include "Data/Vector.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/Data/Vector.hpp"
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
-#include "JobSystem/JobSystem.hpp"
-#include "Core/ObjectWrapper.hpp"
-#include "System/Subsystem.hpp"
-#include "Data/CommonData.hpp"
-#include "Data/Functional.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
+#include "Common/ObjectWrapper.hpp"
+#include "Common/System/Subsystem.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Data/Functional.hpp"
 
 namespace Lina
 {

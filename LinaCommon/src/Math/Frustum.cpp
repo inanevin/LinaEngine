@@ -26,11 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Frustum.hpp"
-#include "Math/Vector.hpp"
-#include "Math/Matrix.hpp"
-#include "Math/AABB.hpp"
-#include "Log/Log.hpp"
+#include "Common/Math/Frustum.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Math/Matrix.hpp"
+#include "Common/Math/AABB.hpp"
+#include "Common/Log/Log.hpp"
 
 namespace Lina
 {

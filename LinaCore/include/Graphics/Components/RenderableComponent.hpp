@@ -32,7 +32,7 @@ SOFTWARE.
 #define RenderableComponent_HPP
 
 #include "World/Core/Component.hpp"
-#include "Data/Vector.hpp"
+#include "Common/Data/Vector.hpp"
 #include "Graphics/Data/RenderData.hpp"
 #include "Reflection/ClassReflection.hpp"
 

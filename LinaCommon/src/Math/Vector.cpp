@@ -28,9 +28,9 @@ SOFTWARE.
 
 #define NOMINMAX
 
-#include "Math/Vector.hpp"
-#include "Math/Quaternion.hpp"
-#include "Math/Math.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Math/Quaternion.hpp"
+#include "Common/Math/Math.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtx/projection.hpp>

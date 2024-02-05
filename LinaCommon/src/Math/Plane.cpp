@@ -26,19 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Math/Plane.hpp"
-#include "Math/Math.hpp"
-#include "Log/Log.hpp"
+#include "Common/Math/Plane.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Log/Log.hpp"
 
 namespace Lina
 {
-    void Plane::Normalize()
-    {
-        normal = normal.Normalized();
-    }
+	void Plane::Normalize()
+	{
+		normal = normal.Normalized();
+	}
 
-    float Plane::GetSignedDistance(const Vector3& point) const
-    {
-        return normal.Dot(point) - distance;
-    }
+	float Plane::GetSignedDistance(const Vector3& point) const
+	{
+		return normal.Dot(point) - distance;
+	}
 } // namespace Lina

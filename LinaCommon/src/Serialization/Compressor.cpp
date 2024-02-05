@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Serialization/Compressor.hpp"
-#include "Data/Streams.hpp"
-#include "Serialization/CommonSerialization.hpp"
+#include "Common/Serialization/Compressor.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Common/Serialization/CommonSerialization.hpp"
 
 #define LZ4_STATIC_LINKING_ONLY_DISABLE_MEMORY_ALLOCATION
 #include "lz4/lz4.h"

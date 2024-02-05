@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Graphics/Resource/TextureSampler.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/LGXWrapper.hpp"
-#include "System/System.hpp"
+#include "Common/System/System.hpp"
 #include "Resources/Core/ResourceManager.hpp"
 
 namespace Lina

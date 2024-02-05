@@ -26,64 +26,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Data/SyncQueue.hpp"
+#include "Common/Data/SyncQueue.hpp"
 
 namespace Lina
 {
-    void SyncQueue::Push(const SyncQueueElement& el)
-    {
-        LOCK_GUARD(*m_mtx);
-        m_elements.push_back(el);
-    }
+	void SyncQueue::Push(const SyncQueueElement& el)
+	{
+		LOCK_GUARD(*m_mtx);
+		m_elements.push_back(el);
+	}
 
-    void SyncQueue::Push(uint32 id)
-    {
-        SyncQueueElement el;
-        el.id = id;
-        Push(el);
-    }
+	void SyncQueue::Push(uint32 id)
+	{
+		SyncQueueElement el;
+		el.id = id;
+		Push(el);
+	}
 
-    void SyncQueue::Push(uint32 id, float v)
-    {
-        SyncQueueElement el;
-        el.id = id;
-        el.floats.push_back(v);
-        Push(el);
-    }
+	void SyncQueue::Push(uint32 id, float v)
+	{
+		SyncQueueElement el;
+		el.id = id;
+		el.floats.push_back(v);
+		Push(el);
+	}
 
-    void SyncQueue::Push(uint32 id, int v)
-    {
-        SyncQueueElement el;
-        el.id = id;
-        el.ints.push_back(v);
-        Push(el);
-    }
+	void SyncQueue::Push(uint32 id, int v)
+	{
+		SyncQueueElement el;
+		el.id = id;
+		el.ints.push_back(v);
+		Push(el);
+	}
 
-    void SyncQueue::Push(uint32 id, const Vector2& v)
-    {
-        SyncQueueElement el;
-        el.id = id;
-        el.vector2s.push_back(v);
-        Push(el);
-    }
+	void SyncQueue::Push(uint32 id, const Vector2& v)
+	{
+		SyncQueueElement el;
+		el.id = id;
+		el.vector2s.push_back(v);
+		Push(el);
+	}
 
-    void SyncQueue::Push(uint32 id, const Vector2i& v)
-    {
-        SyncQueueElement el;
-        el.id = id;
-        el.vector2is.push_back(v);
-        Push(el);
-    }
+	void SyncQueue::Push(uint32 id, const Vector2i& v)
+	{
+		SyncQueueElement el;
+		el.id = id;
+		el.vector2is.push_back(v);
+		Push(el);
+	}
 
-    void SyncQueue::Push(uint32 id, const String& v)
-    {
-        SyncQueueElement el;
-        el.id = id;
-        el.strings.push_back(v);
-        Push(el);
-    }
-    void SyncQueue::Reset()
-    {
-        m_elements.clear();
-    }
+	void SyncQueue::Push(uint32 id, const String& v)
+	{
+		SyncQueueElement el;
+		el.id = id;
+		el.strings.push_back(v);
+		Push(el);
+	}
+	void SyncQueue::Reset()
+	{
+		m_elements.clear();
+	}
 } // namespace Lina

@@ -31,10 +31,10 @@ SOFTWARE.
 #ifndef Component_HPP
 #define Component_HPP
 
-#include "Core/SizeDefinitions.hpp"
+#include "Common/SizeDefinitions.hpp"
 #include "World/Core/CommonWorld.hpp"
-#include "Event/GameEventListener.hpp"
-#include "Core/StringID.hpp"
+#include "Common/Event/GameEventListener.hpp"
+#include "Common/StringID.hpp"
 
 namespace Lina
 {

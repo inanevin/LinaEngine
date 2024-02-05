@@ -31,9 +31,9 @@ SOFTWARE.
 #ifndef CommonResources_HPP
 #define CommonResources_HPP
 
-#include "Core/StringID.hpp"
-#include "Data/String.hpp"
-#include "Core/Common.hpp"
+#include "Common/StringID.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina
 {

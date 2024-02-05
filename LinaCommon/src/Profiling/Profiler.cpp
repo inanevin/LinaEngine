@@ -28,12 +28,12 @@ SOFTWARE.
 
 #ifdef LINA_DEBUG
 
-#include "Profiling/Profiler.hpp"
-#include "Platform/PlatformTime.hpp"
-#include "Memory/Memory.hpp"
-#include "Log/Log.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include "Platform/PlatformInclude.hpp"
+#include "Common/Profiling/Profiler.hpp"
+#include "Common/Platform/PlatformTime.hpp"
+#include "Common/Memory/Memory.hpp"
+#include "Common/Log/Log.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Platform/PlatformInclude.hpp"
 #include <fstream>
 #include <iostream>
 

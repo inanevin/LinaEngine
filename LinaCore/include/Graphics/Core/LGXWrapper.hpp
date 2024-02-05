@@ -31,9 +31,9 @@ SOFTWARE.
 #ifndef LGXWrapper_HPP
 #define LGXWrapper_HPP
 
-#include "System/Subsystem.hpp"
-#include "Math/Vector.hpp"
-#include "Core/StringID.hpp"
+#include "Common/System/Subsystem.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/StringID.hpp"
 
 namespace LinaGX
 {

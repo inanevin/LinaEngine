@@ -32,9 +32,9 @@ SOFTWARE.
 #define Shader_HPP
 
 #include "Resources/Core/Resource.hpp"
-#include "Platform/LinaGXIncl.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 #include "Graphics/Core/CommonGraphics.hpp"
-#include "Data/Streams.hpp"
+#include "Common/Data/Streams.hpp"
 
 namespace Lina
 {

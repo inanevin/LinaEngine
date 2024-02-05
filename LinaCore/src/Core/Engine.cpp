@@ -27,17 +27,17 @@ SOFTWARE.
 */
 
 #include "Core/Application.hpp"
-#include "Log/Log.hpp"
-#include "Profiling/Profiler.hpp"
+#include "Common/Log/Log.hpp"
+#include "Common/Profiling/Profiler.hpp"
 #include "Core/SystemInfo.hpp"
-#include "Platform/PlatformTime.hpp"
+#include "Common/Platform/PlatformTime.hpp"
 #include "Graphics/Core/GfxManager.hpp"
 #include "Graphics/Core/SurfaceRenderer.hpp"
 #include "Graphics/Resource/Model.hpp"
 #include "Graphics/Resource/Font.hpp"
 #include "Graphics/Resource/Texture.hpp"
 #include "Graphics/Resource/Shader.hpp"
-#include "Math/Math.hpp"
+#include "Common/Math/Math.hpp"
 
 #define DEFAULT_RATE 1.0f / 60.0f
 #include "LinaGX/Core/InputMappings.hpp"

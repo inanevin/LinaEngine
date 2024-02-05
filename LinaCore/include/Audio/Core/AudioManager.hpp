@@ -31,7 +31,7 @@ SOFTWARE.
 #ifndef AudioManager_HPP
 #define AudioManager_HPP
 
-#include "System/Subsystem.hpp"
+#include "Common/System/Subsystem.hpp"
 
 namespace Lina
 {

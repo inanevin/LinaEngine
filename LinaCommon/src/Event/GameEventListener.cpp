@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Event/SystemEventListener.hpp"
+#include "Common/Event/SystemEventListener.hpp"
 
 namespace Lina
 {

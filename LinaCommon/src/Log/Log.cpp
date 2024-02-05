@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Log/Log.hpp"
-#include "Data/String.hpp"
-#include "Platform/PlatformInclude.hpp"
+#include "Common/Log/Log.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Platform/PlatformInclude.hpp"
 #include <sstream>
 
 namespace Lina

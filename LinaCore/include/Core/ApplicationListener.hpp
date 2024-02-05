@@ -30,9 +30,9 @@ SOFTWARE.
 
 #include "Resources/Core/CommonResources.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
-#include "Data/Vector.hpp"
-#include "Data/CommonData.hpp"
-#include "Event/SystemEventListener.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Event/SystemEventListener.hpp"
 
 namespace Lina
 {

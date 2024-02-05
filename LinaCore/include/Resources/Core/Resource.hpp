@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/StringID.hpp"
-#include "Data/String.hpp"
+#include "Common/StringID.hpp"
+#include "Common/Data/String.hpp"
 #include "Resources/Data/ResourceMetadata.hpp"
 
 namespace Lina

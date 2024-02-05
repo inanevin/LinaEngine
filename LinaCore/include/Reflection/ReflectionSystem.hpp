@@ -31,11 +31,11 @@ SOFTWARE.
 #ifndef ReflectionSystem_HPP
 #define ReflectionSystem_HPP
 
-#include "Data/String.hpp"
-#include "Data/HashMap.hpp"
-#include "Core/StringID.hpp"
-#include "Data/Functional.hpp"
-#include "Data/CommonData.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/StringID.hpp"
+#include "Common/Data/Functional.hpp"
+#include "Common/Data/CommonData.hpp"
 #include <type_traits>
 
 namespace Lina

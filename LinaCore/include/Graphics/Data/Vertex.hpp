@@ -31,8 +31,8 @@ SOFTWARE.
 #ifndef Vertex_HPP
 #define Vertex_HPP
 
-#include "Math/Vector.hpp"
-#include "Math/Color.hpp"
+#include "Common/Math/Vector.hpp"
+#include "Common/Math/Color.hpp"
 
 namespace Lina
 {
