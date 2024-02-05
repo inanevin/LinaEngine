@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/SurfaceRenderer.hpp"
-#include "Core/Graphics/WorldRenderer.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -79,6 +78,7 @@ namespace
 		va_end(args);
 	}
 } // namespace
+
 namespace Lina
 {
 	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
@@ -87,49 +87,47 @@ namespace Lina
 		m_system->AddListener(this);
 
 		// Setup LinaVG
-		{
-			m_guiBackend						  = new GUIBackend(this);
-			LinaVG::Config.globalFramebufferScale = 1.0f;
-			LinaVG::Config.globalAAMultiplier	  = 1.0f;
-			LinaVG::Config.gcCollectInterval	  = 4000;
-			LinaVG::Config.textCachingEnabled	  = true;
-			LinaVG::Config.textCachingSDFEnabled  = true;
-			LinaVG::Config.textCacheReserve		  = 10000;
-			LinaVG::Config.maxFontAtlasSize		  = 2048;
-			LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
-			LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
-			LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
-			LinaVG::Initialize();
-		}
+		m_guiBackend						  = new GUIBackend(this);
+		LinaVG::Config.globalFramebufferScale = 1.0f;
+		LinaVG::Config.globalAAMultiplier	  = 1.0f;
+		LinaVG::Config.gcCollectInterval	  = 4000;
+		LinaVG::Config.textCachingEnabled	  = true;
+		LinaVG::Config.textCachingSDFEnabled  = true;
+		LinaVG::Config.textCacheReserve		  = 10000;
+		LinaVG::Config.maxFontAtlasSize		  = 2048;
+		LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
+		LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
+		LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
+		LinaVG::Initialize();
 	}
 
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		// Setup LinaGX
-		{
-			m_lgx = new LinaGX::Instance();
+		m_lgx = new LinaGX::Instance();
 
-			LinaGX::Config.dx12Config = {
-				.allowTearing = initInfo.allowTearing,
-			};
+		LinaGX::Config.dx12Config = {
+			.allowTearing = initInfo.allowTearing,
+		};
 
-			LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
-			LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
-			LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
+		LinaGX::Config.vulkanConfig = {};
 
-			LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
+		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
+		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
+		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
+
+		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
 #ifdef LINA_PLATFORM_APPLE
-			api = LinaGX::BackendAPI::Metal;
+		api = LinaGX::BackendAPI::Metal;
 #endif
 
-			LinaGX::Config.api			   = api;
-			LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
-			LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
-			LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
-			LinaGX::Config.gpuLimits	   = {};
+		LinaGX::Config.api			   = api;
+		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
+		LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
+		LinaGX::Config.gpuLimits	   = {};
 
-			m_lgx->Initialize();
-		}
+		m_lgx->Initialize();
 	}
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -245,24 +243,21 @@ namespace Lina
 	void GfxManager::Shutdown()
 	{
 		// Frame resources.
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				auto& data = m_pfd[i];
-				m_lgx->DestroyDescriptorSet(data.descriptorSet0GlobalData);
-				m_lgx->DestroyResource(data.globalDataResource);
-			}
+			auto& data = m_pfd[i];
+			m_lgx->DestroyDescriptorSet(data.descriptorSet0GlobalData);
+			m_lgx->DestroyResource(data.globalDataResource);
 		}
 
 		// Other gfx resources
-		{
-			m_resourceUploadQueue.Shutdown();
-			m_meshManager.Shutdown();
-			for (auto sr : m_surfaceRenderers)
-				delete sr;
-			m_surfaceRenderers.clear();
-		}
+		m_resourceUploadQueue.Shutdown();
+		m_meshManager.Shutdown();
+		for (auto sr : m_surfaceRenderers)
+			delete sr;
+		m_surfaceRenderers.clear();
 
+		// Final
 		delete m_lgx;
 		m_system->RemoveListener(this);
 	}
@@ -310,14 +305,9 @@ namespace Lina
 
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
 		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
-		auto		 id				   = PROFILER_STARTBLOCK("Flushing Resource Upload Queue");
 
 		// Transfer.
 		m_resourceUploadQueue.FlushAll();
-
-		PROFILER_ENDBLOCK(id);
-
-		id = PROFILER_STARTBLOCK("Surface Renderer Eligibility");
 
 		// Determine eligible surface renderers.
 		Vector<SurfaceRenderer*> validSurfaceRenderers;
@@ -325,126 +315,66 @@ namespace Lina
 		{
 			if (sr->IsVisible())
 				validSurfaceRenderers.push_back(sr);
-
 			m_lgx->SetSwapchainActive(sr->GetSwapchain(), sr->IsVisible());
 		}
 
-		PROFILER_ENDBLOCK(id);
-
-		const uint32 surfaceRenderersCount = static_cast<uint32>(validSurfaceRenderers.size());
-		const uint32 worldRenderersCount   = static_cast<uint32>(m_worldRenderers.size());
-		const uint32 guiThreads			   = worldRenderersCount + surfaceRenderersCount;
-
-		id = PROFILER_STARTBLOCK("Dispatching System Event");
-
-		// Notify
-		{
-			Event ev	  = {};
-			ev.iParams[0] = guiThreads;
-			m_system->DispatchEvent(EVS_StartRenderFrame, ev);
-		}
-
-		PROFILER_ENDBLOCK(id);
-
-		id = PROFILER_STARTBLOCK("StartFrame");
-
+		// Frame init
 		m_lgx->StartFrame();
-		LinaVG::StartFrame(guiThreads);
-
-		PROFILER_ENDBLOCK(id);
-
-		// World Renderers
-		{
-		}
-
-		id = PROFILER_STARTBLOCK("Render SF");
+		LinaVG::StartFrame(static_cast<int>(validSurfaceRenderers.size()));
 
 		// Record surface renderers.
+		if (validSurfaceRenderers.size() == 1)
 		{
-			if (surfaceRenderersCount == 1)
-			{
-				auto sf = validSurfaceRenderers[0];
-				sf->Render(worldRenderersCount, currentFrameIndex);
-			}
-			else
-			{
-				Taskflow tf;
-				tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) {
-					auto	  sr	   = validSurfaceRenderers[i];
-					const int threadID = worldRenderersCount + i;
-					sr->Render(threadID, currentFrameIndex);
-				});
-
-				m_system->GetMainExecutor()->RunAndWait(tf);
-			}
+			auto sf = validSurfaceRenderers[0];
+			sf->Render(0, currentFrameIndex);
 		}
-
-		PROFILER_ENDBLOCK(id);
-
-		id = PROFILER_STARTBLOCK("Submit");
+		else
+		{
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { validSurfaceRenderers[i]->Render(i, currentFrameIndex); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 
 		// Submit surface renderers.
+		Vector<LinaGX::CommandStream*> streams;
+		Vector<uint16>				   waitSemaphores;
+		Vector<uint64>				   waitValues;
+
+		for (auto sf : validSurfaceRenderers)
 		{
-			Vector<LinaGX::CommandStream*> streams;
-			Vector<uint16>				   waitSemaphores;
-			Vector<uint64>				   waitValues;
-
-			for (auto sf : validSurfaceRenderers)
-			{
-				const auto& ws = sf->GetCurrentWaitSemaphores();
-				const auto& wv = sf->GetCurrentWaitValues();
-				streams.push_back(sf->GetStream(currentFrameIndex));
-				waitSemaphores.insert(waitSemaphores.begin(), ws.begin(), ws.end());
-				waitValues.insert(waitValues.begin(), wv.begin(), wv.end());
-			}
-
-			LinaGX::SubmitDesc desc = {
-				.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
-				.streams		= streams.data(),
-				.streamCount	= static_cast<uint32>(streams.size()),
-				.useWait		= !waitSemaphores.empty(),
-				.waitCount		= static_cast<uint32>(waitSemaphores.size()),
-				.waitSemaphores = waitSemaphores.data(),
-				.waitValues		= waitValues.data(),
-			};
-
-			m_lgx->SubmitCommandStreams(desc);
+			const auto& ws = sf->GetCurrentWaitSemaphores();
+			const auto& wv = sf->GetCurrentWaitValues();
+			streams.push_back(sf->GetStream(currentFrameIndex));
+			waitSemaphores.insert(waitSemaphores.begin(), ws.begin(), ws.end());
+			waitValues.insert(waitValues.begin(), wv.begin(), wv.end());
 		}
 
-		PROFILER_ENDBLOCK(id);
+		LinaGX::SubmitDesc desc = {
+			.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+			.streams		= streams.data(),
+			.streamCount	= static_cast<uint32>(streams.size()),
+			.useWait		= !waitSemaphores.empty(),
+			.waitCount		= static_cast<uint32>(waitSemaphores.size()),
+			.waitSemaphores = waitSemaphores.data(),
+			.waitValues		= waitValues.data(),
+		};
 
-		LinaVG::EndFrame();
-
-		id = PROFILER_STARTBLOCK("Present");
+		m_lgx->SubmitCommandStreams(desc);
 
 		// Present surface renderers.
-		{
-			// Present.
-			Vector<uint8> swapchains;
-			swapchains.resize(validSurfaceRenderers.size());
+		Vector<uint8> swapchains;
+		swapchains.resize(validSurfaceRenderers.size());
+		for (size_t i = 0; i < validSurfaceRenderers.size(); i++)
+			swapchains[i] = validSurfaceRenderers[i]->GetSwapchain();
 
-			uint32 i = 0;
-			for (auto sf : validSurfaceRenderers)
-			{
-				swapchains[i] = sf->GetSwapchain();
-				i++;
-			}
+		m_lgx->Present({
+			.swapchains		= swapchains.data(),
+			.swapchainCount = static_cast<uint32>(swapchains.size()),
+		});
 
-			LinaGX::PresentDesc desc = {
-				.swapchains		= swapchains.data(),
-				.swapchainCount = static_cast<uint32>(swapchains.size()),
-			};
-
-			m_lgx->Present(desc);
-		}
-
-		PROFILER_ENDBLOCK(id);
-
-		id = PROFILER_STARTBLOCK("End Frame");
-
+		// End
+		LinaVG::EndFrame();
 		m_lgx->EndFrame();
-
-		PROFILER_ENDBLOCK(id);
 	}
 
 	LinaGX::Window* GfxManager::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
@@ -479,63 +409,8 @@ namespace Lina
 	void GfxManager::DestroySurfaceRenderer(StringID sid)
 	{
 		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) { return renderer->GetSID() == sid; });
-
-		// Might already be deleted due to critical gfx error.
-		if (it == m_surfaceRenderers.end())
-			return;
-
 		delete *it;
 		m_surfaceRenderers.erase(it);
-	}
-
-	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
-	{
-		bool updateBindlessTextures = false, updateBindlessSamplers = false;
-
-		if (eventType & EVS_ResourceLoadTaskCompleted)
-		{
-			ResourceLoadTask* task = static_cast<ResourceLoadTask*>(ev.pParams[0]);
-
-			for (const auto& ident : task->identifiers)
-			{
-				if (ident.tid == GetTypeID<Texture>())
-					updateBindlessTextures = true;
-
-				if (ident.tid == GetTypeID<TextureSampler>())
-					updateBindlessSamplers = true;
-			}
-		}
-		else if (eventType & EVS_ResourceBatchUnloaded)
-		{
-			Vector<ResourceIdentifier>* idents = static_cast<Vector<ResourceIdentifier>*>(ev.pParams[0]);
-
-			for (const auto& ident : *idents)
-			{
-				if (ident.tid == GetTypeID<Texture>())
-					updateBindlessTextures = true;
-
-				if (ident.tid == GetTypeID<TextureSampler>())
-					updateBindlessSamplers = true;
-			}
-		}
-		else if (eventType & EVS_LevelInstalled)
-		{
-		}
-		else if (eventType & EVS_WindowResized)
-		{
-			Join();
-			for (auto sr : m_surfaceRenderers)
-			{
-				if (sr->GetWindow() == ev.pParams[0])
-					sr->Resize(Vector2ui(ev.iParams[0], ev.iParams[1]));
-			}
-		}
-
-		if (updateBindlessTextures)
-			MarkBindlessTexturesDirty();
-
-		if (updateBindlessSamplers)
-			MarkBindlessSamplersDirty();
 	}
 
 	SurfaceRenderer* GfxManager::GetSurfaceRenderer(StringID sid)
@@ -544,76 +419,22 @@ namespace Lina
 		return *it;
 	}
 
+	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+		if (eventType & EVS_WindowResized)
+		{
+			Join();
+			for (auto sr : m_surfaceRenderers)
+			{
+				if (sr->GetWindow() == ev.pParams[0])
+					sr->Resize(Vector2ui(ev.iParams[0], ev.iParams[1]));
+			}
+		}
+	}
+
 	uint16 GfxManager::GetDescriptorSet0()
 	{
 		return m_pfd[m_lgx->GetCurrentFrameIndex()].descriptorSet0GlobalData;
-	}
-
-	void GfxManager::UpdateBindlessTextures()
-	{
-		// auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
-		//
-		// if (currentFrame.bindlessTexturesDirty)
-		// {
-		// 	currentFrame.bindlessTexturesDirty = false;
-		//
-		// 	Vector<Texture*> allTextures = m_resourceManager->GetAllResourcesRaw<Texture>(true);
-		//
-		// 	// TODO: ask world renderers for their bindless textures.
-		//
-		// 	Vector<uint32> textureHandles;
-		// 	textureHandles.reserve(allTextures.size());
-		//
-		// 	uint32 i = 0;
-		// 	for (auto txt : allTextures)
-		// 	{
-		// 		textureHandles.push_back(txt->GetGPUHandle());
-		// 		txt->m_bindlessIndex = i;
-		// 		i++;
-		// 	}
-		//
-		// 	LinaGX::DescriptorUpdateImageDesc desc = {
-		// 		.setHandle		 = currentFrame.descriptorSet0GlobalData,
-		// 		.binding		 = 1,
-		// 		.descriptorCount = static_cast<uint32>(textureHandles.size()),
-		// 		.textures		 = textureHandles.data(),
-		// 		.descriptorType	 = LinaGX::DescriptorType::SeparateImage,
-		// 	};
-		//
-		// 	m_lgx->DescriptorUpdateImage(desc);
-		// }
-	}
-
-	void GfxManager::UpdateBindlessSamplers()
-	{
-		// auto& currentFrame = m_pfd[m_lgx->GetCurrentFrameIndex()];
-		//
-		// if (currentFrame.bindlessSamplersDirty)
-		// {
-		// 	currentFrame.bindlessSamplersDirty = false;
-		//
-		// 	const auto&	   allSamplers = m_resourceManager->GetAllResourcesRaw<TextureSampler>(true);
-		// 	Vector<uint32> samplerHandles;
-		// 	samplerHandles.reserve(allSamplers.size());
-		//
-		// 	uint32 i = 0;
-		// 	for (auto sampler : allSamplers)
-		// 	{
-		// 		samplerHandles.push_back(sampler->GetGPUHandle());
-		// 		sampler->m_bindlessIndex = i;
-		// 		i++;
-		// 	}
-		//
-		// 	LinaGX::DescriptorUpdateImageDesc desc = {
-		// 		.setHandle		 = currentFrame.descriptorSet0GlobalData,
-		// 		.binding		 = 2,
-		// 		.descriptorCount = static_cast<uint32>(samplerHandles.size()),
-		// 		.samplers		 = samplerHandles.data(),
-		// 		.descriptorType	 = LinaGX::DescriptorType::SeparateSampler,
-		// 	};
-		//
-		// 	m_lgx->DescriptorUpdateImage(desc);
-		// }
 	}
 
 } // namespace Lina

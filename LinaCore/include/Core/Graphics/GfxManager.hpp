@@ -49,7 +49,6 @@ namespace Lina
 	class ResourceManager;
 	class GUIBackend;
 	class LGXWrapper;
-	class WorldRenderer;
 
 	class GfxManager : public Subsystem, public SystemEventListener
 	{
@@ -60,18 +59,18 @@ namespace Lina
 			uint16 descriptorSet0GlobalData = 0;
 			uint32 globalDataResource		= 0;
 			uint8* globalDataMapped			= nullptr;
-			bool   bindlessTexturesDirty	= true;
-			bool   bindlessSamplersDirty	= true;
 		};
 
 	public:
 		GfxManager(System* sys);
 		~GfxManager() = default;
 
-		virtual void	 PreInitialize(const SystemInitializationInfo& initInfo) override;
-		virtual void	 Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void	 PreShutdown() override;
-		virtual void	 Shutdown() override;
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void PreShutdown() override;
+		virtual void Shutdown() override;
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+
 		void			 WaitForSwapchains();
 		void			 Join();
 		void			 Poll();
@@ -82,15 +81,12 @@ namespace Lina
 		LinaGX::Window*	 CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
 		void			 CreateSurfaceRenderer(StringID sid, LinaGX::Window* window, const Vector2ui& initialSize);
 		void			 DestroySurfaceRenderer(StringID sid);
-		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 		uint16			 GetDescriptorSet0();
-		void			 UpdateBindlessTextures();
-		void			 UpdateBindlessSamplers();
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return EVS_ResourceLoadTaskCompleted | EVS_ResourceBatchUnloaded | EVS_WindowResized | EVS_VsyncModeChanged;
+			return EVS_WindowResized;
 		}
 
 		inline const GfxMeshManager& GetMeshManager()
@@ -113,18 +109,6 @@ namespace Lina
 			return m_currentVsync;
 		}
 
-		inline void MarkBindlessTexturesDirty()
-		{
-			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				m_pfd[i].bindlessTexturesDirty = true;
-		}
-
-		inline void MarkBindlessSamplersDirty()
-		{
-			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-				m_pfd[i].bindlessSamplersDirty = true;
-		}
-
 		inline LinaGX::Instance* GetLGX()
 		{
 			return m_lgx;
@@ -134,7 +118,6 @@ namespace Lina
 		ResourceUploadQueue		 m_resourceUploadQueue;
 		GfxMeshManager			 m_meshManager;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
-		Vector<WorldRenderer*>	 m_worldRenderers;
 		GUIBackend*				 m_guiBackend	   = nullptr;
 		ResourceManager*		 m_resourceManager = nullptr;
 		Vector<TextureSampler*>	 m_defaultSamplers;

@@ -103,7 +103,6 @@ namespace Lina
 			delete[] m_allLevels[0].pixels;
 			m_allLevels[0].pixels = nullptr;
 		});
-		gfxManager->MarkBindlessTexturesDirty();
 	}
 
 	Vector<TextureSheetItem> Texture::GetSheetItems(uint32 columns, uint32 rows)
