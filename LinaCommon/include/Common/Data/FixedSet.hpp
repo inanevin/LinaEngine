@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef DataStructuresFixedSet_HPP
@@ -35,8 +34,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	template<typename T, size_t nodeCount>
-	using FixedSet = eastl::fixed_set<T, nodeCount>;
+	template <typename T, size_t nodeCount> using FixedSet = eastl::fixed_set<T, nodeCount>;
 } // namespace Lina
 
 #endif

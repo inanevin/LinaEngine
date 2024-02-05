@@ -34,33 +34,33 @@ SOFTWARE.
 
 namespace Lina
 {
-    mach_timebase_info_data_t PlatformTime::s_timebaseInfo = {0,0};
+	mach_timebase_info_data_t PlatformTime::s_timebaseInfo = {0, 0};
 
 	int64 PlatformTime::GetCPUMicroseconds()
 	{
-        auto time = mach_absolute_time();
-        return (time * s_timebaseInfo.numer) / (s_timebaseInfo.denom * 1000);
+		auto time = mach_absolute_time();
+		return (time * s_timebaseInfo.numer) / (s_timebaseInfo.denom * 1000);
 	}
 
 	double PlatformTime::GetCPUSeconds()
 	{
-        auto time = mach_absolute_time();
-        return static_cast<double>((time * s_timebaseInfo.numer) / s_timebaseInfo.denom) / 1e9;
+		auto time = mach_absolute_time();
+		return static_cast<double>((time * s_timebaseInfo.numer) / s_timebaseInfo.denom) / 1e9;
 	}
 
 	int64 PlatformTime::GetCPUCycles()
 	{
-        return mach_absolute_time();
+		return mach_absolute_time();
 	}
 
 	double PlatformTime::GetDeltaSeconds64(int64 fromCycles, int64 toCycles)
 	{
-        return static_cast<double>((toCycles - fromCycles) * s_timebaseInfo.numer) / (s_timebaseInfo.denom * 1e9);
+		return static_cast<double>((toCycles - fromCycles) * s_timebaseInfo.numer) / (s_timebaseInfo.denom * 1e9);
 	}
 
 	int64 PlatformTime::GetDeltaMicroseconds64(int64 fromCycles, int64 toCycles)
 	{
-        return ((toCycles - fromCycles) * s_timebaseInfo.numer) / (s_timebaseInfo.denom * 1000);
+		return ((toCycles - fromCycles) * s_timebaseInfo.numer) / (s_timebaseInfo.denom * 1000);
 	}
 
 	void PlatformTime::Throttle(int64 microseconds)
@@ -72,37 +72,37 @@ namespace Lina
 		const int64 target = now + microseconds;
 		int64		sleep  = microseconds;
 
-        for (;;)
-        {
-            now = GetCPUMicroseconds();
-            
-            if (now >= target)
-            {
-                break;
-            }
-            
-            int64 diff = target - now;
-            
-            if (diff > 2000)
-            {
-                uint32 ms = static_cast<uint32>((double)(diff - 2000) / 1000.0);
-                Sleep(ms);
-            }
-            else
-            {
-                Sleep(0);
-            }
-        }
+		for (;;)
+		{
+			now = GetCPUMicroseconds();
+
+			if (now >= target)
+			{
+				break;
+			}
+
+			int64 diff = target - now;
+
+			if (diff > 2000)
+			{
+				uint32 ms = static_cast<uint32>((double)(diff - 2000) / 1000.0);
+				Sleep(ms);
+			}
+			else
+			{
+				Sleep(0);
+			}
+		}
 	}
 
 	void PlatformTime::Sleep(uint32 milliseconds)
 	{
-        usleep(milliseconds * 1000);
+		usleep(milliseconds * 1000);
 	}
 
 	void PlatformTime::Initialize()
 	{
-        mach_timebase_info(&s_timebaseInfo);
+		mach_timebase_info(&s_timebaseInfo);
 	}
 
 } // namespace Lina

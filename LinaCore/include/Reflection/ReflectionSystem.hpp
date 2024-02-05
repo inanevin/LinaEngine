@@ -76,7 +76,6 @@ namespace Lina
 
 		virtual ~PropertyCacheManager()
 		{
-			
 		}
 
 		template <typename T> inline void AddProperty(StringID sid, T param)

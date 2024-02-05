@@ -36,46 +36,46 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Matrix4;
-    class AABB;
+	class Matrix4;
+	class AABB;
 
-    enum class FrustumTest
-    {
-        Inside,
-        Outside,
-        Intersects
-    };
+	enum class FrustumTest
+	{
+		Inside,
+		Outside,
+		Intersects
+	};
 
-    class Frustum
-    {
+	class Frustum
+	{
 
-    public:
-        Frustum()  = default;
-        ~Frustum() = default;
+	public:
+		Frustum()  = default;
+		~Frustum() = default;
 
-        /// <summary>
-        /// Extract planes from the given matrix.
-        /// Projection Matrix = results in eye-space
-        /// View*Projection Matrix = results in world-space
-        /// Model*View*Projection Matrix = results in model-space
-        /// </summary>
-        void Calculate(const Matrix4& matrix, bool normalizeAll);
+		/// <summary>
+		/// Extract planes from the given matrix.
+		/// Projection Matrix = results in eye-space
+		/// View*Projection Matrix = results in world-space
+		/// Model*View*Projection Matrix = results in model-space
+		/// </summary>
+		void Calculate(const Matrix4& matrix, bool normalizeAll);
 
-        /// <summary>
-        /// Expects the AABB's bounds to be already transformed according to a world position.
-        /// </summary>
-        /// <param name="aabb"></param>
-        /// <returns></returns>
-        FrustumTest TestIntersection(const AABB& aabb) const;
+		/// <summary>
+		/// Expects the AABB's bounds to be already transformed according to a world position.
+		/// </summary>
+		/// <param name="aabb"></param>
+		/// <returns></returns>
+		FrustumTest TestIntersection(const AABB& aabb) const;
 
-    private:
-        Plane m_left;
-        Plane m_right;
-        Plane m_bottom;
-        Plane m_top;
-        Plane m_near;
-        Plane m_far;
-    };
+	private:
+		Plane m_left;
+		Plane m_right;
+		Plane m_bottom;
+		Plane m_top;
+		Plane m_near;
+		Plane m_far;
+	};
 } // namespace Lina
 
 #endif

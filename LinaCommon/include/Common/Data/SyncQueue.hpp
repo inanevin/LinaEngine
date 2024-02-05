@@ -39,60 +39,60 @@ SOFTWARE.
 
 namespace Lina
 {
-    struct SyncQueueElement
-    {
-        uint32           id = 0;
-        Vector<int>      ints;
-        Vector<float>    floats;
-        Vector<Vector2>  vector2s;
-        Vector<Vector2i> vector2is;
-        Vector<String>   strings;
-    };
+	struct SyncQueueElement
+	{
+		uint32			 id = 0;
+		Vector<int>		 ints;
+		Vector<float>	 floats;
+		Vector<Vector2>	 vector2s;
+		Vector<Vector2i> vector2is;
+		Vector<String>	 strings;
+	};
 
-    class SyncQueue
-    {
-    public:
-        using iterator       = Vector<SyncQueueElement>::iterator;
-        using const_iterator = Vector<SyncQueueElement>::const_iterator;
+	class SyncQueue
+	{
+	public:
+		using iterator		 = Vector<SyncQueueElement>::iterator;
+		using const_iterator = Vector<SyncQueueElement>::const_iterator;
 
-        iterator begin()
-        {
-            return m_elements.begin();
-        }
+		iterator begin()
+		{
+			return m_elements.begin();
+		}
 
-        iterator end()
-        {
-            return m_elements.end();
-        }
+		iterator end()
+		{
+			return m_elements.end();
+		}
 
-        const_iterator begin() const
-        {
-            return m_elements.begin();
-        }
+		const_iterator begin() const
+		{
+			return m_elements.begin();
+		}
 
-        const_iterator end() const
-        {
-            return m_elements.end();
-        }
+		const_iterator end() const
+		{
+			return m_elements.end();
+		}
 
-        void Push(const SyncQueueElement& el);
-        void Push(uint32 id);
-        void Push(uint32 id, float v);
-        void Push(uint32 id, int v);
-        void Push(uint32 id, const Vector2& v);
-        void Push(uint32 id, const Vector2i& v);
-        void Push(uint32 id, const String& v);
-        void Reset();
+		void Push(const SyncQueueElement& el);
+		void Push(uint32 id);
+		void Push(uint32 id, float v);
+		void Push(uint32 id, int v);
+		void Push(uint32 id, const Vector2& v);
+		void Push(uint32 id, const Vector2i& v);
+		void Push(uint32 id, const String& v);
+		void Reset();
 
-        inline void SetMutex(Mutex* mtx)
-        {
-            m_mtx = mtx;
-        }
+		inline void SetMutex(Mutex* mtx)
+		{
+			m_mtx = mtx;
+		}
 
-    private:
-        Mutex*                   m_mtx;
-        Vector<SyncQueueElement> m_elements;
-    };
+	private:
+		Mutex*					 m_mtx;
+		Vector<SyncQueueElement> m_elements;
+	};
 } // namespace Lina
 
 #endif

@@ -1,4 +1,4 @@
-/* 
+/*
 This file is a part of: Lina Engine
 https://github.com/inanevin/LinaEngine
 
@@ -26,7 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 #pragma once
 
 #ifndef DataStructuresIntrusiveList_HPP
@@ -36,10 +35,9 @@ SOFTWARE.
 
 namespace Lina
 {
-    template <typename T>
-    using IntrusiveList = eastl::intrusive_list<T>;
+	template <typename T> using IntrusiveList = eastl::intrusive_list<T>;
 
-    typedef eastl::intrusive_list_node IntrusiveListNode;
+	typedef eastl::intrusive_list_node IntrusiveListNode;
 
 } // namespace Lina
 
