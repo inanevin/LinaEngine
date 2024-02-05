@@ -26,9 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Resource/Mesh.hpp"
+#include "Core/Graphics/Resource/Mesh.hpp"
 
 namespace Lina
 {
-	
+
 } // namespace Lina

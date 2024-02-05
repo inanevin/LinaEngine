@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/Streams.hpp"

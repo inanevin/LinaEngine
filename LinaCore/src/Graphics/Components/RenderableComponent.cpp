@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Components/RenderableComponent.hpp"
+#include "Core/Graphics/Components/RenderableComponent.hpp"
 
 namespace Lina
 {
-    void RenderableComponent::SaveToStream(OStream& stream)
-    {
-    }
-    void RenderableComponent::LoadFromStream(IStream& stream)
-    {
-    }
-} // namespace Lina::Graphics
+	void RenderableComponent::SaveToStream(OStream& stream)
+	{
+	}
+	void RenderableComponent::LoadFromStream(IStream& stream)
+	{
+	}
+} // namespace Lina

@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/Math/Math.hpp"
-#include "Resources/Core/ResourceManager.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
-#include "Graphics/Core/GfxManager.hpp"
-#include "Graphics/Core/LGXWrapper.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/LGXWrapper.hpp"
 
 namespace Lina
 {

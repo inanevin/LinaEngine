@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Lina.hpp"
+#include "Core/Lina.hpp"
 #include "LaunchGame.hpp"
 
 namespace Lina

@@ -32,10 +32,10 @@ SOFTWARE.
 #define Engine_HPP
 
 #include "Common/System/System.hpp"
-#include "Audio/Core/AudioManager.hpp"
-#include "Graphics/Core/LGXWrapper.hpp"
-#include "World/Level/LevelManager.hpp"
-#include "Resources/Core/ResourceManager.hpp"
+#include "Core/Audio/AudioManager.hpp"
+#include "Core/Graphics/LGXWrapper.hpp"
+#include "Core/World/Level/LevelManager.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
 #include "EngineInterface.hpp"
 #include "Common/Event/SystemEventListener.hpp"

@@ -26,11 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
-#include "Resources/Core/ResourceManager.hpp"
-#include "Graphics/Resource/Shader.hpp"
-#include "Graphics/Core/CommonGraphics.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Serialization/Serialization.hpp"
 
 namespace Lina

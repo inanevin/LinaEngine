@@ -26,13 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/Level/LevelManager.hpp"
-#include "World/Level/Level.hpp"
-#include "World/Core/EntityWorld.hpp"
-#include "Resources/Core/ResourceManager.hpp"
+#include "Core/World/Level/LevelManager.hpp"
+#include "Core/World/Level/Level.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Data/CommonData.hpp"
-#include "Graphics/Core/GfxManager.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 
 namespace Lina
 {

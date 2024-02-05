@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Interfaces/IGUIDrawer.hpp"
+#include "Core/Graphics/Interfaces/IGUIDrawer.hpp"
 
 namespace Lina
 {

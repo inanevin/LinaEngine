@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Resources/Data/ResourceMetadata.hpp"
+#include "Core/Resources/Data/ResourceMetadata.hpp"
 #include "Common/Serialization/HashMapSerialization.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 

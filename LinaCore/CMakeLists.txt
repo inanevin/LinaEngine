@@ -21,37 +21,37 @@ project(LinaCore)
 set (SOURCES
 	
 # Audio
-src/Audio/Core/AudioManager.cpp
+src/Audio/AudioManager.cpp
 
 # Core
-src/Core/Application.cpp
-src/Core/ApplicationListener.cpp
-src/Core/Engine.cpp
-src/Core/SystemInfo.cpp
-src/Core/CommonCore.cpp
-src/Core/EngineInterface.cpp
+src/Application.cpp
+src/ApplicationListener.cpp
+src/Engine.cpp
+src/SystemInfo.cpp
+src/CommonCore.cpp
+src/EngineInterface.cpp
 
 # World
-src/World/Core/Entity.cpp
-src/World/Core/Component.cpp
-src/World/Core/ComponentCache.cpp
+src/World/Entity.cpp
+src/World/Component.cpp
+src/World/ComponentCache.cpp
 src/World/Level/Level.cpp
 src/World/Level/LevelManager.cpp
-src/World/Core/EntityWorld.cpp
+src/World/EntityWorld.cpp
 
 # Graphics
-src/Graphics/Core/GUIBackend.cpp
-src/Graphics/Core/GfxManager.cpp
-src/Graphics/Core/LGXWrapper.cpp
-src/Graphics/Core/View.cpp
-src/Graphics/Core/GPUBuffer.cpp
-src/Graphics/Core/GUIRenderer.cpp
-src/Graphics/Core/DrawPass.cpp
-src/Graphics/Core/CameraSystem.cpp
-src/Graphics/Core/WorldRenderer.cpp
-src/Graphics/Core/SurfaceRenderer.cpp
-src/Graphics/Core/ResourceUploadQueue.cpp
-src/Graphics/Core/GfxMeshManager.cpp
+src/Graphics/GUIBackend.cpp
+src/Graphics/GfxManager.cpp
+src/Graphics/LGXWrapper.cpp
+src/Graphics/View.cpp
+src/Graphics/GPUBuffer.cpp
+src/Graphics/GUIRenderer.cpp
+src/Graphics/DrawPass.cpp
+src/Graphics/CameraSystem.cpp
+src/Graphics/WorldRenderer.cpp
+src/Graphics/SurfaceRenderer.cpp
+src/Graphics/ResourceUploadQueue.cpp
+src/Graphics/GfxMeshManager.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Interfaces/IGUIDrawer.cpp
 src/Graphics/Components/RenderableComponent.cpp
@@ -66,16 +66,16 @@ src/Graphics/Resource/Font.cpp
 
 
 # Physics
-src/Physics/Core/PhysicsWorld.cpp
+src/Physics/PhysicsWorld.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
 
 # Resources
-src/Resources/Core/CommonResources.cpp
-src/Resources/Core/ResourceManager.cpp
-src/Resources/Core/ResourceCache.cpp
-src/Resources/Core/Resource.cpp
+src/Resources/CommonResources.cpp
+src/Resources/ResourceManager.cpp
+src/Resources/ResourceCache.cpp
+src/Resources/Resource.cpp
 src/Resources/Data/ResourceMetadata.cpp
 
 )
@@ -85,10 +85,10 @@ src/Resources/Data/ResourceMetadata.cpp
 #--------------------------------------------------------------------
 set(HEADERS
 
-include/Lina.hpp
+include/Core/Lina.hpp
 
 # Audio
-include/Audio/Core/AudioManager.hpp
+include/Core/Audio/AudioManager.hpp
 
 # Core
 include/Core/Application.hpp
@@ -99,59 +99,59 @@ include/Core/CommonCore.hpp
 include/Core/EngineInterface.hpp
 
 # World
-include/World/Core/Entity.hpp
-include/World/Core/Component.hpp
-include/World/Core/ComponentCache.hpp
-include/World/Level/Level.hpp
-include/World/Level/LevelManager.hpp
-include/World/Core/EntityWorld.hpp
-include/World/Core/CommonWorld.hpp
+include/Core/World/Entity.hpp
+include/Core/World/Component.hpp
+include/Core/World/ComponentCache.hpp
+include/Core/World/Level/Level.hpp
+include/Core/World/Level/LevelManager.hpp
+include/Core/World/EntityWorld.hpp
+include/Core/World/CommonWorld.hpp
 
 # Platform
-include/Platform/PlatformProcess.hpp
+include/Core/Platform/PlatformProcess.hpp
 
 # Physics
-include/Physics/Core/PhysicsWorld.hpp
+include/Core/Physics/PhysicsWorld.hpp
 
 # Reflection
-include/Reflection/ClassReflection.hpp
-include/Reflection/ReflectionSystem.hpp
+include/Core/Reflection/ClassReflection.hpp
+include/Core/Reflection/ReflectionSystem.hpp
 
 # Resources
-include/Resources/Core/CommonResources.hpp
-include/Resources/Core/ResourceManager.hpp
-include/Resources/Core/ResourceCache.hpp
-include/Resources/Core/Resource.hpp
-include/Resources/Core/ResourcesReflection.hpp
-include/Resources/Data/ResourceMetadata.hpp
+include/Core/Resources/CommonResources.hpp
+include/Core/Resources/ResourceManager.hpp
+include/Core/Resources/ResourceCache.hpp
+include/Core/Resources/Resource.hpp
+include/Core/Resources/ResourcesReflection.hpp
+include/Core/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
-include/Graphics/Core/GUIBackend.hpp
-include/Graphics/Core/GUIRenderer.hpp
-include/Graphics/Core/LGXWrapper.hpp
-include/Graphics/Core/GfxManager.hpp
-include/Graphics/Core/WorldRenderer.hpp
-include/Graphics/Core/SurfaceRenderer.hpp
-include/Graphics/Core/CommonGraphics.hpp
-include/Graphics/Core/View.hpp
-include/Graphics/Core/GPUBuffer.hpp
-include/Graphics/Core/ResourceUploadQueue.hpp
-include/Graphics/Core/DrawPass.hpp
-include/Graphics/Core/GfxMeshManager.hpp
-include/Graphics/Core/CameraSystem.hpp
-include/Graphics/Utility/ShaderPreprocessor.hpp
-include/Graphics/Interfaces/IGUIDrawer.hpp
-include/Graphics/Data/RenderData.hpp
-include/Graphics/Data/Vertex.hpp
-include/Graphics/Components/CameraComponent.hpp
-include/Graphics/Components/RenderableComponent.hpp
-include/Graphics/Resource/Shader.hpp
-include/Graphics/Resource/Mesh.hpp
-include/Graphics/Resource/Model.hpp
-include/Graphics/Resource/Texture.hpp
-include/Graphics/Resource/TextureSampler.hpp
-include/Graphics/Resource/Material.hpp
-include/Graphics/Resource/Font.hpp
+include/Core/Graphics/GUIBackend.hpp
+include/Core/Graphics/GUIRenderer.hpp
+include/Core/Graphics/LGXWrapper.hpp
+include/Core/Graphics/GfxManager.hpp
+include/Core/Graphics/WorldRenderer.hpp
+include/Core/Graphics/SurfaceRenderer.hpp
+include/Core/Graphics/CommonGraphics.hpp
+include/Core/Graphics/View.hpp
+include/Core/Graphics/GPUBuffer.hpp
+include/Core/Graphics/ResourceUploadQueue.hpp
+include/Core/Graphics/DrawPass.hpp
+include/Core/Graphics/GfxMeshManager.hpp
+include/Core/Graphics/CameraSystem.hpp
+include/Core/Graphics/Utility/ShaderPreprocessor.hpp
+include/Core/Graphics/Interfaces/IGUIDrawer.hpp
+include/Core/Graphics/Data/RenderData.hpp
+include/Core/Graphics/Data/Vertex.hpp
+include/Core/Graphics/Components/CameraComponent.hpp
+include/Core/Graphics/Components/RenderableComponent.hpp
+include/Core/Graphics/Resource/Shader.hpp
+include/Core/Graphics/Resource/Mesh.hpp
+include/Core/Graphics/Resource/Model.hpp
+include/Core/Graphics/Resource/Texture.hpp
+include/Core/Graphics/Resource/TextureSampler.hpp
+include/Core/Graphics/Resource/Material.hpp
+include/Core/Graphics/Resource/Font.hpp
 
 )
 

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Utility/ShaderPreprocessor.hpp"
+#include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 #include "Common/FileSystem//FileSystem.hpp"
 
 namespace Lina

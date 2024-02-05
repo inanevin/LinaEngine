@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "World/Level/Level.hpp"
-#include "World/Core/EntityWorld.hpp"
+#include "Core/World/Level/Level.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina

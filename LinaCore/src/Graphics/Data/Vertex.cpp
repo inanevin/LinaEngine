@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Graphics/Data/Vertex.hpp"
+#include "Core/Graphics/Data/Vertex.hpp"
 #include "Common/Data/Streams.hpp"
 
 namespace Lina

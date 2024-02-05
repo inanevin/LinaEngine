@@ -26,12 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/PlatformProcess.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 #include "Common/Platform/PlatformInclude.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Log/Log.hpp"
 #include "Common/System/Plugin.hpp"
-#include "Lina.hpp"
+#include "Core/Lina.hpp"
 #include "Common/Profiling/MemoryTracer.hpp"
 
 #include <Cocoa/Cocoa.h>
