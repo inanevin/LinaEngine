@@ -65,17 +65,21 @@ namespace Lina
 		};
 
 	public:
-		GfxManager(const SystemInitializationInfo& initInfo, System* sys);
-		virtual ~GfxManager() = default;
+		GfxManager(System* sys);
+		~GfxManager() = default;
 
+		virtual void	 PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void	 Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void	 PreShutdown() override;
 		virtual void	 Shutdown() override;
 		void			 WaitForSwapchains();
 		void			 Join();
+		void			 Poll();
 		void			 Tick(float interpolationAlpha);
 		void			 Sync();
 		void			 Render();
+		void			 DestroyApplicationWindow(StringID sid);
+		LinaGX::Window*	 CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
 		void			 CreateSurfaceRenderer(StringID sid, LinaGX::Window* window, const Vector2ui& initialSize);
 		void			 DestroySurfaceRenderer(StringID sid);
 		virtual void	 OnSystemEvent(SystemEvent eventType, const Event& ev) override;
@@ -119,6 +123,11 @@ namespace Lina
 		{
 			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 				m_pfd[i].bindlessSamplersDirty = true;
+		}
+
+		inline LinaGX::Instance* GetLGX()
+		{
+			return m_lgx;
 		}
 
 	private:

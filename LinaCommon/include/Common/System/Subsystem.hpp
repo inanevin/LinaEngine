@@ -43,7 +43,6 @@ namespace Lina
 		AudioManager,
 		LevelManager,
 		ResourceManager,
-		LGXWrapper,
 		Editor,
 		Count
 	};
@@ -54,6 +53,7 @@ namespace Lina
 	class Subsystem
 	{
 	public:
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo){};
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
 		virtual void PreShutdown(){};
 		virtual void Shutdown() = 0;

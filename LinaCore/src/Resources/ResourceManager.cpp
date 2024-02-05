@@ -215,7 +215,7 @@ namespace Lina
 		return loadTask->id;
 	}
 
-	void ResourceManager::Tick()
+	void ResourceManager::Poll()
 	{
 		const int	   sz = static_cast<uint32>(m_loadTasks.size());
 		Vector<uint32> toErase;

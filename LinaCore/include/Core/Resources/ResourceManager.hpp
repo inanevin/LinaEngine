@@ -53,7 +53,7 @@ namespace Lina
 
 		virtual void	  Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void	  Shutdown() override;
-		void			  Tick();
+		void			  Poll();
 		int32			  LoadResources(const Vector<ResourceIdentifier>& identifiers);
 		void			  WaitForAll();
 		bool			  IsLoadTaskComplete(uint32 id);

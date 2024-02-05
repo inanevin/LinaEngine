@@ -34,7 +34,6 @@ src/EngineInterface.cpp
 # Graphics
 src/Graphics/GUIBackend.cpp
 src/Graphics/GfxManager.cpp
-src/Graphics/LGXWrapper.cpp
 src/Graphics/View.cpp
 src/Graphics/GPUBuffer.cpp
 src/Graphics/GUIRenderer.cpp
@@ -105,7 +104,6 @@ include/Core/Resources/Data/ResourceMetadata.hpp
 # Graphics
 include/Core/Graphics/GUIBackend.hpp
 include/Core/Graphics/GUIRenderer.hpp
-include/Core/Graphics/LGXWrapper.hpp
 include/Core/Graphics/GfxManager.hpp
 include/Core/Graphics/WorldRenderer.hpp
 include/Core/Graphics/SurfaceRenderer.hpp

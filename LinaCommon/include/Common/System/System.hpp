@@ -51,12 +51,13 @@ namespace Lina
 		void		 AddSubsystem(Subsystem* sub);
 		void		 RemoveSubsystem(Subsystem* sub);
 		Subsystem*	 CastSubsystem(SubsystemType type);
-		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
-		virtual void Shutdown()											  = 0;
-		virtual void PreTick()											  = 0;
-		virtual void Poll()												  = 0;
-		virtual void Tick()												  = 0;
-		virtual void OnCriticalGfxError()								  = 0;
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo) = 0;
+		virtual void Initialize(const SystemInitializationInfo& initInfo)	 = 0;
+		virtual void PreShutdown()											 = 0;
+		virtual void Shutdown()												 = 0;
+		virtual void PreTick()												 = 0;
+		virtual void Poll()													 = 0;
+		virtual void Tick()													 = 0;
 
 		template <typename T> T* CastSubsystem(SubsystemType type)
 		{

@@ -47,13 +47,12 @@ namespace Lina
 	void Engine::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		AddListener(this);
-		m_gfxManager = new GfxManager(initInfo, this);
-		m_lgxWrapper.PreInitialize(initInfo);
+		m_gfxManager.PreInitialize(initInfo);
 	}
 
 	void Engine::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		LINA_TRACE("[Application] -> Initialization.");
+		LINA_TRACE("[Engine] -> Initialization.");
 		m_initInfo = initInfo;
 
 		for (auto [type, sys] : m_subsystems)
@@ -62,10 +61,9 @@ namespace Lina
 
 	void Engine::PreShutdown()
 	{
+		LINA_TRACE("[Engine] -> PreShutdown.");
 		m_resourceManager.WaitForAll();
-
-		if (m_gfxManager)
-			m_gfxManager->Join();
+		m_gfxManager.Join();
 
 		for (auto [type, sys] : m_subsystems)
 			sys->PreShutdown();
@@ -73,33 +71,27 @@ namespace Lina
 
 	void Engine::Shutdown()
 	{
-		LINA_TRACE("[Application] -> Shutdown.");
-
-		RemoveListener(this);
+		LINA_TRACE("[Engine] -> Shutdown.");
 
 		m_resourceManager.Shutdown();
-		m_gfxManager->Shutdown();
+		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
-		m_lgxWrapper.Shutdown();
-
-		delete m_gfxManager;
+		RemoveListener(this);
 	}
 
 	void Engine::PreTick()
 	{
 		PROFILER_FUNCTION();
 
-		if (m_gfxManager)
-			m_gfxManager->WaitForSwapchains();
-
+		m_gfxManager.WaitForSwapchains();
 		CalculateTime();
 	}
 
 	void Engine::Poll()
 	{
 		PROFILER_FUNCTION();
-		m_resourceManager.Tick();
-		m_lgxWrapper.GetLGX()->TickWindowSystem();
+		m_resourceManager.Poll();
+		m_gfxManager.Poll();
 	}
 
 	void Engine::Tick()
@@ -111,45 +103,18 @@ namespace Lina
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
-		// auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
-		m_gfxManager->Render();
+		// Kick off audio & render threads
+		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(); });
+		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
 
-		const double interpolationAlpha = static_cast<double>(m_fixedTimestepAccumulator) / fixedTimestepDb;
+		// Update app.
+		m_gfxManager.Tick(0.0f);
+		m_audioManager.Tick();
 
-		if (m_gfxManager)
-			m_gfxManager->Tick(static_cast<float>(SystemInfo::GetInterpolationAlpha()));
+		renderJob.get();
+		m_gfxManager.Sync();
 
-		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
-		//	audioJob.get();
-
-		// renderJob.get();
-
-		if (m_gfxManager)
-			m_gfxManager->Sync();
-
-		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_1))
-		{
-			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::WindowedApplication);
-		}
-
-		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_2))
-		{
-			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::BorderlessApplication);
-		}
-
-		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_3))
-		{
-			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::Borderless);
-		}
-		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_4))
-		{
-			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::BorderlessFullscreen);
-		}
-
-		if (m_lgxWrapper.GetInput()->GetKeyDown(LINAGX_KEY_5))
-		{
-			m_lgxWrapper.GetWindowManager()->GetWindow(LINA_MAIN_SWAPCHAIN)->SetStyle(LinaGX::WindowStyle::Fullscreen);
-		}
+		audioJob.get();
 	}
 
 	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)
@@ -164,60 +129,6 @@ namespace Lina
 			String* path = static_cast<String*>(ev.pParams[0]);
 			LINA_TRACE("[Resource] -> Unloaded resource: {0}", path->c_str());
 		}
-	}
-
-	void Engine::OnCriticalGfxError()
-	{
-		auto allTexturesRaw = m_resourceManager.GetAllResourcesRaw<Texture>(false);
-		auto allModelsRaw	= m_resourceManager.GetAllResourcesRaw<Model>(false);
-		auto allFontsRaw	= m_resourceManager.GetAllResourcesRaw<Font>(false);
-		auto allShadersRaw	= m_resourceManager.GetAllResourcesRaw<Shader>(false);
-
-		Vector<ResourceIdentifier> reloadResources;
-		Vector<ResourceIdentifier> unloadResources;
-		reloadResources.reserve(allTexturesRaw.size() + allFontsRaw.size() + allModelsRaw.size() + allShadersRaw.size());
-		unloadResources.reserve(allTexturesRaw.size() + allFontsRaw.size() + allModelsRaw.size() + allShadersRaw.size());
-
-		for (auto res : allTexturesRaw)
-		{
-			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
-				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-
-			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-		}
-
-		for (auto res : allFontsRaw)
-		{
-			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
-				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-
-			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-		}
-		for (auto res : allShadersRaw)
-		{
-			if (!m_resourceManager.IsCoreResource(res->GetSID()) && !m_resourceManager.IsPriorityResource(res->GetSID()))
-				reloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-
-			unloadResources.push_back(ResourceIdentifier(res->GetPath(), res->GetTID(), res->GetSID()));
-		}
-
-		m_gfxManager->Join();
-		m_gfxManager->PreShutdown();
-		m_resourceManager.UnloadResources(unloadResources);
-		m_gfxManager->Shutdown();
-		delete m_gfxManager;
-		m_gfxManager = new GfxManager(m_initInfo, this);
-		m_resourceManager.LoadResources(m_resourceManager.GetPriorityResources());
-		m_resourceManager.WaitForAll();
-		m_resourceManager.LoadResources(m_resourceManager.GetCoreResources());
-		m_resourceManager.WaitForAll();
-		if (!reloadResources.empty())
-		{
-			m_resourceManager.LoadResources(reloadResources);
-			m_resourceManager.WaitForAll();
-		}
-
-		m_gfxManager->Initialize(m_initInfo);
 	}
 
 	void Engine::CalculateTime()

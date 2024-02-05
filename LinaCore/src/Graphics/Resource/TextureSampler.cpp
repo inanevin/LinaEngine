@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
 #include "Common/System/System.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 
@@ -36,9 +35,8 @@ namespace Lina
 {
 	TextureSampler::~TextureSampler()
 	{
-		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto lgx		= lgxWrapper->GetLGX();
-		lgx->DestroySampler(m_gpuHandle);
+		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		gfxMan->GetLGX()->DestroySampler(m_gpuHandle);
 	}
 
 	void TextureSampler::SaveToStream(OStream& stream)
@@ -67,10 +65,9 @@ namespace Lina
 
 	void TextureSampler::BatchLoaded()
 	{
-		auto lgxWrapper			= m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto lgx				= lgxWrapper->GetLGX();
+		auto gfxMan				= m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_samplerDesc.debugName = m_path.c_str();
-		m_gpuHandle				= lgx->CreateSampler(m_samplerDesc);
+		m_gpuHandle				= gfxMan->GetLGX()->CreateSampler(m_samplerDesc);
 	}
 
 } // namespace Lina

@@ -31,18 +31,16 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
 
 namespace Lina
 {
 	Texture::~Texture()
 	{
-		// for (const auto& b : m_allLevels)
-		//	LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
+		for (const auto& b : m_allLevels)
+			LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
 
-		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto lgx		= lgxWrapper->GetLGX();
-		lgx->DestroyTexture(m_gpuHandle);
+		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		gfxMan->GetLGX()->DestroyTexture(m_gpuHandle);
 	}
 
 	uint32 Texture::GetSamplerSID() const
@@ -60,15 +58,13 @@ namespace Lina
 			return;
 		}
 
-		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto lgx		= lgxWrapper->GetLGX();
 		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		// Means we are refreshing data.
 		if (!m_allLevels.empty())
 		{
-			lgx->Join();
-			lgx->DestroyTexture(m_gpuHandle);
+			gfxManager->GetLGX()->Join();
+			gfxManager->GetLGX()->DestroyTexture(m_gpuHandle);
 
 			for (auto& b : m_allLevels)
 			{
@@ -101,7 +97,7 @@ namespace Lina
 			.mipLevels = static_cast<uint32>(m_allLevels.size()),
 			.debugName = m_path.c_str(),
 		};
-		m_gpuHandle = lgx->CreateTexture(desc);
+		m_gpuHandle = gfxManager->GetLGX()->CreateTexture(desc);
 
 		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
 			delete[] m_allLevels[0].pixels;
@@ -221,8 +217,6 @@ namespace Lina
 
 	void Texture::BatchLoaded()
 	{
-		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto lgx		= lgxWrapper->GetLGX();
 		auto format		= static_cast<LinaGX::Format>(m_metadata.GetUInt8(TEXTURE_META_FORMAT));
 		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
@@ -235,7 +229,7 @@ namespace Lina
 			.debugName = m_path.c_str(),
 		};
 
-		m_gpuHandle = lgx->CreateTexture(desc);
+		m_gpuHandle = gfxManager->GetLGX()->CreateTexture(desc);
 
 		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
 			for (auto& buffer : m_allLevels)

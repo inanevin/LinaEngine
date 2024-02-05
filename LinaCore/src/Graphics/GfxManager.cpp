@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/SurfaceRenderer.hpp"
 #include "Core/Graphics/WorldRenderer.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -45,15 +44,49 @@ SOFTWARE.
 #include "Core/Graphics/GUIBackend.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
+namespace
+{
+	LINAGX_STRING FormatString(const char* fmt, va_list args)
+	{
+		// Determine the required size
+		va_list args_copy;
+		va_copy(args_copy, args);
+		int size = vsnprintf(nullptr, 0, fmt, args_copy) + 1; // +1 for the null terminator
+		va_end(args_copy);
+
+		// Allocate a buffer and format the string
+		std::vector<char> buffer(size);
+		vsnprintf(buffer.data(), size, fmt, args);
+
+		return std::string(buffer.data());
+	}
+
+	void LinaGX_ErrorCallback(const char* err, ...)
+	{
+		va_list args;
+		va_start(args, err);
+		std::string formattedStr = FormatString(err, args);
+		LINA_ERR(formattedStr.c_str());
+		va_end(args);
+	}
+
+	void LinaGX_LogCallback(const char* err, ...)
+	{
+		va_list args;
+		va_start(args, err);
+		std::string formattedStr = FormatString(err, args);
+		LINA_INFO(formattedStr.c_str());
+		va_end(args);
+	}
+} // namespace
 namespace Lina
 {
-	GfxManager::GfxManager(const SystemInitializationInfo& initInfo, System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
+	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_system->AddListener(this);
-		m_lgxWrapper = sys->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 
-		// GUIBackend
+		// Setup LinaVG
 		{
 			m_guiBackend						  = new GUIBackend(this);
 			LinaVG::Config.globalFramebufferScale = 1.0f;
@@ -70,12 +103,51 @@ namespace Lina
 		}
 	}
 
+	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
+	{
+		// Setup LinaGX
+		{
+			m_lgx = new LinaGX::Instance();
+
+			LinaGX::Config.dx12Config = {
+				.allowTearing = initInfo.allowTearing,
+			};
+
+			LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
+			LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
+			LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
+
+			LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
+#ifdef LINA_PLATFORM_APPLE
+			api = LinaGX::BackendAPI::Metal;
+#endif
+
+			LinaGX::Config.api			   = api;
+			LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
+			LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
+			LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
+			LinaGX::Config.gpuLimits	   = {};
+
+			m_lgx->Initialize();
+		}
+	}
+
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 		m_currentVsync = initInfo.vsyncStyle;
-		m_lgx		   = m_lgxWrapper->GetLGX();
+
+		// LinaGX
+		{
+			m_lgx->GetInput().SetCallbackKey([&](uint32 key, int32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
+				Event ev;
+				ev.iParams[0] = key;
+				ev.iParams[1] = static_cast<uint32>(action);
+				ev.pParams[0] = window;
+				m_system->DispatchEvent(EVS_Key, ev);
+			});
+		}
 
 		// Default samplers
 		{
@@ -158,6 +230,8 @@ namespace Lina
 
 	void GfxManager::PreShutdown()
 	{
+		// Preshutdown is before resource manager.
+
 		LinaVG::Terminate();
 
 		for (auto m : m_defaultMaterials)
@@ -165,16 +239,10 @@ namespace Lina
 
 		for (auto s : m_defaultSamplers)
 			delete s;
-
-		for (auto sr : m_surfaceRenderers)
-			delete sr;
-
-		m_surfaceRenderers.clear();
 	}
 
 	void GfxManager::Shutdown()
 	{
-		m_system->RemoveListener(this);
 
 		// pfd
 		{
@@ -188,6 +256,14 @@ namespace Lina
 
 		m_resourceUploadQueue.Shutdown();
 		m_meshManager.Shutdown();
+
+		for (auto sr : m_surfaceRenderers)
+			delete sr;
+		m_surfaceRenderers.clear();
+
+		delete m_lgx;
+
+		m_system->RemoveListener(this);
 	}
 
 	void GfxManager::WaitForSwapchains()
@@ -196,8 +272,12 @@ namespace Lina
 
 	void GfxManager::Join()
 	{
-		return;
-		m_lgxWrapper->GetLGX()->Join();
+		m_lgx->Join();
+	}
+
+	void GfxManager::Poll()
+	{
+		m_lgx->TickWindowSystem();
 	}
 
 	void GfxManager::Tick(float interpolationAlpha)
@@ -213,6 +293,9 @@ namespace Lina
 				   .elapsedTime	  = SystemInfo::GetAppTimeF(),
 		   };
 		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUGlobalData));
+
+		for (const auto& sr : m_surfaceRenderers)
+			sr->Tick();
 	}
 
 	void GfxManager::Sync()
@@ -361,6 +444,29 @@ namespace Lina
 		m_lgx->EndFrame();
 
 		PROFILER_ENDBLOCK(id);
+	}
+
+	LinaGX::Window* GfxManager::CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow)
+	{
+		m_lgx->Join();
+		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
+		window->SetCallbackSizeChanged([this, sid](const LinaGX::LGXVector2ui& newSize) {
+			Event ev;
+			ev.pParams[0] = m_lgx->GetWindowManager().GetWindow(sid);
+			ev.iParams[0] = newSize.x;
+			ev.iParams[1] = newSize.y;
+			m_system->DispatchEvent(SystemEvent::EVS_WindowResized, ev);
+		});
+
+		CreateSurfaceRenderer(sid, window, size);
+		return window;
+	}
+
+	void GfxManager::DestroyApplicationWindow(StringID sid)
+	{
+		m_lgx->Join();
+		DestroySurfaceRenderer(sid);
+		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
 	}
 
 	void GfxManager::CreateSurfaceRenderer(StringID sid, LinaGX::Window* window, const Vector2ui& initialSize)

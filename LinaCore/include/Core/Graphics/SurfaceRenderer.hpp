@@ -72,12 +72,17 @@ namespace Lina
 		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize);
 		virtual ~SurfaceRenderer();
 
+		void		 Tick();
 		void		 Render(int guiThreadID, uint32 frameIndex);
 		void		 Present();
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 		void		 SetGUIDrawer(IGUIDrawer* rend);
-		bool		 IsVisible();
 		void		 Resize(const Vector2ui& newSize);
+
+		inline bool IsVisible()
+		{
+			return m_isVisible;
+		}
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
@@ -133,7 +138,8 @@ namespace Lina
 		uint8			  m_swapchain = 0;
 		Vector<uint16>	  m_waitSemaphores;
 		Vector<uint64>	  m_waitValues;
-		uint8			  m_gfxQueue = 0;
+		uint8			  m_gfxQueue  = 0;
+		bool			  m_isVisible = false;
 	};
 
 } // namespace Lina

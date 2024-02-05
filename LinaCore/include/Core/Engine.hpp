@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include "Common/System/System.hpp"
 #include "Core/Audio/AudioManager.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
 #include "EngineInterface.hpp"
@@ -47,26 +47,25 @@ namespace Lina
 	class Engine : public System, public SystemEventListener
 	{
 	public:
-		Engine(Application* app) : System(app), m_lgxWrapper(this), m_audioManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : System(app), m_audioManager(this), m_resourceManager(this), m_engineInterface(this), m_gfxManager(this){};
 
 		virtual ~Engine() = default;
 
-		void		 PreInitialize(const SystemInitializationInfo& initInfo);
-		void		 PreShutdown();
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void PreShutdown();
 		virtual void Shutdown() override;
 		virtual void PreTick() override;
 		virtual void Poll() override;
 		virtual void Tick() override;
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-		virtual void OnCriticalGfxError() override;
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
 			return EVS_ResourceLoaded | EVS_ResourceUnloaded;
 		}
 
-		inline GfxManager* GetGfxManager()
+		inline GfxManager& GetGfxManager()
 		{
 			return m_gfxManager;
 		}
@@ -81,20 +80,14 @@ namespace Lina
 			return m_resourceManager;
 		}
 
-		inline LGXWrapper& GetLGXWrapper()
-		{
-			return m_lgxWrapper;
-		}
-
 	private:
 		void CalculateTime();
 
 	protected:
 		ResourceManager m_resourceManager;
-		LGXWrapper		m_lgxWrapper;
 		JobExecutor		m_executor;
 		AudioManager	m_audioManager;
-		GfxManager*		m_gfxManager = nullptr;
+		GfxManager		m_gfxManager;
 		EngineInterface m_engineInterface;
 
 		// Time

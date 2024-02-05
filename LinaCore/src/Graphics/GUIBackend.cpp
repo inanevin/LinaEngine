@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Core/Graphics/GUIBackend.hpp"
 #include "Core/Graphics/GUIRenderer.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -141,7 +140,7 @@ namespace Lina
 			m_shader = m_resourceManager->GetResource<Shader>("Resources/Core/Shaders/GUIStandard.linashader"_hs);
 
 		if (m_lgx == nullptr)
-			m_lgx = m_gfxManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper)->GetLGX();
+			m_lgx = m_gfxManager->GetLGX();
 
 		auto& data = m_guiRenderData[threadID];
 

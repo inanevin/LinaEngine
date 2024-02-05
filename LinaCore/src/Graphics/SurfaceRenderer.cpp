@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/Graphics/SurfaceRenderer.hpp"
 #include "Core/Graphics/GUIBackend.hpp"
 #include "Core/Graphics/Interfaces/IGUIDrawer.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -56,7 +55,7 @@ namespace Lina
 	{
 		m_gfxManager->GetSystem()->AddListener(this);
 		m_guiBackend = m_gfxManager->GetGUIBackend();
-		m_lgx		 = m_gfxManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper)->GetLGX();
+		m_lgx		 = m_gfxManager->GetLGX();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -162,12 +161,6 @@ namespace Lina
 		m_guiDrawer->SetSurfaceRenderer(this);
 	}
 
-	bool SurfaceRenderer::IsVisible()
-	{
-		auto ws = m_window->GetSize();
-		return m_window->GetIsVisible() && ws.x != 0 && ws.y && !m_window->GetIsMinimized();
-	}
-
 	void SurfaceRenderer::Present()
 	{
 		LinaGX::PresentDesc desc = {
@@ -190,6 +183,12 @@ namespace Lina
 
 		m_lgx->RecreateSwapchain(desc);
 		m_size = newSize;
+	}
+
+	void SurfaceRenderer::Tick()
+	{
+		auto ws		= m_window->GetSize();
+		m_isVisible = m_window->GetIsVisible() && ws.x != 0 && ws.y && !m_window->GetIsMinimized();
 	}
 
 	void SurfaceRenderer::Render(int guiThreadID, uint32 frameIndex)

@@ -27,8 +27,8 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Common/FileSystem//FileSystem.hpp"
@@ -39,17 +39,15 @@ namespace Lina
 {
 	Shader::~Shader()
 	{
-		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto lgx		= lgxWrapper->GetLGX();
+		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		for (const auto& [sid, var] : m_variants)
-			lgx->DestroyShader(var.gpuHandle);
+			gfxMan->GetLGX()->DestroyShader(var.gpuHandle);
 	}
 
 	void Shader::LoadFromFile(const char* path)
 	{
-		auto													   lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto													   lgx		  = lgxWrapper->GetLGX();
+		auto													   gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> data;
 		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;
 
@@ -70,7 +68,7 @@ namespace Lina
 			data[stg]			 = compData;
 		}
 
-		lgx->CompileShader(data, m_outCompiledBlobs, m_layout);
+		gfxMan->GetLGX()->CompileShader(data, m_outCompiledBlobs, m_layout);
 	}
 
 	void Shader::SaveToStream(OStream& stream)
@@ -120,8 +118,7 @@ namespace Lina
 
 	void Shader::BatchLoaded()
 	{
-		auto lgxWrapper = m_resourceManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
-		auto lgx		= lgxWrapper->GetLGX();
+		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		for (auto& [sid, variant] : m_variants)
 		{
@@ -167,7 +164,7 @@ namespace Lina
 				.topology		  = LinaGX::Topology::TriangleList,
 				.debugName		  = m_path.c_str(),
 			};
-			variant.gpuHandle = lgx->CreateShader(desc);
+			variant.gpuHandle = gfxMan->GetLGX()->CreateShader(desc);
 		}
 
 		for (auto& [stage, blob] : m_outCompiledBlobs)

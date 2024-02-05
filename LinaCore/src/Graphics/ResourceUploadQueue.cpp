@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Common/System/Subsystem.hpp"
 #include "Common/System/System.hpp"
-#include "Core/Graphics/LGXWrapper.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/SystemInfo.hpp"
@@ -39,19 +38,18 @@ namespace Lina
 	ResourceUploadQueue::ResourceUploadQueue(GfxManager* gfxMan)
 	{
 		m_gfxManager = gfxMan;
-		m_lgxWrapper = m_gfxManager->GetSystem()->CastSubsystem<LGXWrapper>(SubsystemType::LGXWrapper);
 	}
 
 	void ResourceUploadQueue::Initialize()
 	{
-		m_copyStream	= m_lgxWrapper->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
-		m_copySemaphore = m_lgxWrapper->GetLGX()->CreateUserSemaphore();
+		m_copyStream	= m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
+		m_copySemaphore = m_gfxManager->GetLGX()->CreateUserSemaphore();
 	}
 
 	void ResourceUploadQueue::Shutdown()
 	{
-		m_lgxWrapper->GetLGX()->DestroyCommandStream(m_copyStream);
-		m_lgxWrapper->GetLGX()->DestroyUserSemaphore(m_copySemaphore);
+        m_gfxManager->GetLGX()->DestroyCommandStream(m_copyStream);
+        m_gfxManager->GetLGX()->DestroyUserSemaphore(m_copySemaphore);
 	}
 
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
@@ -90,12 +88,12 @@ namespace Lina
 			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
 		}
 
-		m_lgxWrapper->GetLGX()->CloseCommandStreams(&m_copyStream, 1);
+        m_gfxManager->GetLGX()->CloseCommandStreams(&m_copyStream, 1);
 
 		m_copySemaphoreValue++;
 
 		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
-			.targetQueue	  = m_lgxWrapper->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+			.targetQueue	  = m_gfxManager->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
 			.streams		  = &m_copyStream,
 			.streamCount	  = 1,
 			.useSignal		  = true,
@@ -105,7 +103,7 @@ namespace Lina
 			.isMultithreaded  = true,
 		};
 
-		m_lgxWrapper->GetLGX()->SubmitCommandStreams(desc);
+        m_gfxManager->GetLGX()->SubmitCommandStreams(desc);
 
 		for (auto& req : m_textureRequests)
 			req.onComplete();
