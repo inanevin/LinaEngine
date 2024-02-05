@@ -110,8 +110,6 @@ include/Core/World/CommonWorld.hpp
 # Platform
 include/Core/Platform/PlatformProcess.hpp
 
-# Physics
-include/Core/Physics/PhysicsWorld.hpp
 
 # Reflection
 include/Core/Reflection/ClassReflection.hpp
@@ -184,7 +182,6 @@ endif()
 add_library(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${PLATFORM_HEADERS} ${PLATFORM_SOURCES})
 add_library(Lina::Core ALIAS ${PROJECT_NAME}) 
 
-## Remove Nvidia PhysX linker pdb warning
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "LinaEngine")
 
 #--------------------------------------------------------------------
@@ -217,7 +214,6 @@ if(APPLE)
 endif()
 
 message("LinaCore -> LinaCommon has been linked.")
-message("LinaCore -> LinaVG has been linked.")
 
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} 
