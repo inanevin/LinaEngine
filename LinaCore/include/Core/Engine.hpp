@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Core/Audio/AudioManager.hpp"
 #include "Core/Graphics/LGXWrapper.hpp"
-#include "Core/World/Level/LevelManager.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
 #include "EngineInterface.hpp"
@@ -48,7 +47,7 @@ namespace Lina
 	class Engine : public System, public SystemEventListener
 	{
 	public:
-		Engine(Application* app) : System(app), m_lgxWrapper(this), m_audioManager(this), m_levelManager(this), m_resourceManager(this), m_engineInterface(this){};
+		Engine(Application* app) : System(app), m_lgxWrapper(this), m_audioManager(this), m_resourceManager(this), m_engineInterface(this){};
 
 		virtual ~Engine() = default;
 
@@ -96,7 +95,6 @@ namespace Lina
 		JobExecutor		m_executor;
 		AudioManager	m_audioManager;
 		GfxManager*		m_gfxManager = nullptr;
-		LevelManager	m_levelManager;
 		EngineInterface m_engineInterface;
 
 		// Time

@@ -34,8 +34,6 @@ SOFTWARE.
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/Math/Math.hpp"
 
-#include "Core/World/Level/Level.hpp"
-
 namespace Lina
 {
 	void ResourceManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -61,9 +59,6 @@ namespace Lina
 		OStream stream;
 		res->SaveToStream(stream);
 		Serialization::SaveToFile(res->GetPath().c_str(), stream);
-
-		if (res->GetTID() == GetTypeID<Level>())
-			return;
 
 		const String metacachePath = GetMetacachePath(res->GetPath(), res->GetSID());
 
@@ -131,15 +126,10 @@ namespace Lina
 						res->LoadFromFile(ident.path.c_str());
 						res->Upload();
 
-						// Level has lazy-loading for the world stream
-						// Thus we can't metacache it right now, otherwise cached file will always gonna have an empty world.
-						if (res->GetTID() != GetTypeID<Level>())
-						{
-							OStream metastream;
-							res->SaveToStream(metastream);
-							Serialization::SaveToFile(metacachePath.c_str(), metastream);
-							metastream.Destroy();
-						}
+						OStream metastream;
+						res->SaveToStream(metastream);
+						Serialization::SaveToFile(metacachePath.c_str(), metastream);
+						metastream.Destroy();
 					}
 
 					Event			   data;

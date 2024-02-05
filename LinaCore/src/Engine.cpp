@@ -77,7 +77,6 @@ namespace Lina
 
 		RemoveListener(this);
 
-		m_levelManager.Shutdown();
 		m_resourceManager.Shutdown();
 		m_gfxManager->Shutdown();
 		m_audioManager.Shutdown();
@@ -115,14 +114,6 @@ namespace Lina
 		// auto renderJob = m_executor.Async([&]() { m_gfxManager->Render(); });
 		m_gfxManager->Render();
 
-		while (m_fixedTimestepAccumulator >= fixedTimestep)
-		{
-			m_levelManager.Simulate(static_cast<float>(fixedTimestepDb * 0.000001 * SystemInfo::GetTimescale()));
-			m_fixedTimestepAccumulator -= fixedTimestep;
-		}
-
-		m_levelManager.Tick(static_cast<float>(delta * SystemInfo::GetTimescale()));
-
 		const double interpolationAlpha = static_cast<double>(m_fixedTimestepAccumulator) / fixedTimestepDb;
 
 		if (m_gfxManager)
@@ -130,7 +121,6 @@ namespace Lina
 
 		// auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 		//	audioJob.get();
-		//	m_levelManager.WaitForSimulation();
 
 		// renderJob.get();
 

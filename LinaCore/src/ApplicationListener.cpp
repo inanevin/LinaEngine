@@ -19,7 +19,6 @@ namespace Lina
 		rm.RegisterResourceType<TextureSampler>(100, {"linasampler"}, PackageType::Package1);
 		rm.RegisterResourceType<Font>(10, {"ttf", "otf"}, PackageType::Package1);
 		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1);
-		rm.RegisterResourceType<Level>(10, {"linalevel"}, PackageType::PackageLevels);
 	}
 
 	Vector<ResourceIdentifier> ApplicationListener::GetPriorityResources()

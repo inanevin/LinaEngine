@@ -31,14 +31,6 @@ src/SystemInfo.cpp
 src/CommonCore.cpp
 src/EngineInterface.cpp
 
-# World
-src/World/Entity.cpp
-src/World/Component.cpp
-src/World/ComponentCache.cpp
-src/World/Level/Level.cpp
-src/World/Level/LevelManager.cpp
-src/World/EntityWorld.cpp
-
 # Graphics
 src/Graphics/GUIBackend.cpp
 src/Graphics/GfxManager.cpp
@@ -64,9 +56,6 @@ src/Graphics/Resource/TextureSampler.cpp
 src/Graphics/Resource/Material.cpp
 src/Graphics/Resource/Font.cpp
 
-
-# Physics
-src/Physics/PhysicsWorld.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -98,18 +87,8 @@ include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
 include/Core/EngineInterface.hpp
 
-# World
-include/Core/World/Entity.hpp
-include/Core/World/Component.hpp
-include/Core/World/ComponentCache.hpp
-include/Core/World/Level/Level.hpp
-include/Core/World/Level/LevelManager.hpp
-include/Core/World/EntityWorld.hpp
-include/Core/World/CommonWorld.hpp
-
 # Platform
 include/Core/Platform/PlatformProcess.hpp
-
 
 # Reflection
 include/Core/Reflection/ClassReflection.hpp
