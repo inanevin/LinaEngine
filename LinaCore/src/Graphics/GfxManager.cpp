@@ -230,7 +230,8 @@ namespace Lina
 
 	void GfxManager::PreShutdown()
 	{
-		// Preshutdown is before resource manager.
+		// Preshutdown is before resource manager, make sure
+		// to remove user managed resources.
 
 		LinaVG::Terminate();
 
@@ -243,8 +244,7 @@ namespace Lina
 
 	void GfxManager::Shutdown()
 	{
-
-		// pfd
+		// Frame resources.
 		{
 			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
@@ -254,15 +254,16 @@ namespace Lina
 			}
 		}
 
-		m_resourceUploadQueue.Shutdown();
-		m_meshManager.Shutdown();
-
-		for (auto sr : m_surfaceRenderers)
-			delete sr;
-		m_surfaceRenderers.clear();
+		// Other gfx resources
+		{
+			m_resourceUploadQueue.Shutdown();
+			m_meshManager.Shutdown();
+			for (auto sr : m_surfaceRenderers)
+				delete sr;
+			m_surfaceRenderers.clear();
+		}
 
 		delete m_lgx;
-
 		m_system->RemoveListener(this);
 	}
 

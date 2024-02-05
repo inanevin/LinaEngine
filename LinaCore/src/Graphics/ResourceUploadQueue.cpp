@@ -48,8 +48,8 @@ namespace Lina
 
 	void ResourceUploadQueue::Shutdown()
 	{
-        m_gfxManager->GetLGX()->DestroyCommandStream(m_copyStream);
-        m_gfxManager->GetLGX()->DestroyUserSemaphore(m_copySemaphore);
+		m_gfxManager->GetLGX()->DestroyCommandStream(m_copyStream);
+		m_gfxManager->GetLGX()->DestroyUserSemaphore(m_copySemaphore);
 	}
 
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
@@ -88,7 +88,7 @@ namespace Lina
 			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
 		}
 
-        m_gfxManager->GetLGX()->CloseCommandStreams(&m_copyStream, 1);
+		m_gfxManager->GetLGX()->CloseCommandStreams(&m_copyStream, 1);
 
 		m_copySemaphoreValue++;
 
@@ -103,7 +103,7 @@ namespace Lina
 			.isMultithreaded  = true,
 		};
 
-        m_gfxManager->GetLGX()->SubmitCommandStreams(desc);
+		m_gfxManager->GetLGX()->SubmitCommandStreams(desc);
 
 		for (auto& req : m_textureRequests)
 			req.onComplete();

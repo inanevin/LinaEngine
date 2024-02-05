@@ -47,7 +47,9 @@ namespace Lina
 	void Engine::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		AddListener(this);
-		m_gfxManager.PreInitialize(initInfo);
+        
+        for (auto [type, sys] : m_subsystems)
+            sys->PreInitialize(initInfo);
 	}
 
 	void Engine::Initialize(const SystemInitializationInfo& initInfo)
@@ -55,8 +57,8 @@ namespace Lina
 		LINA_TRACE("[Engine] -> Initialization.");
 		m_initInfo = initInfo;
 
-		for (auto [type, sys] : m_subsystems)
-			sys->Initialize(initInfo);
+        for (auto [type, sys] : m_subsystems)
+            sys->Initialize(initInfo);
 	}
 
 	void Engine::PreShutdown()
@@ -72,7 +74,9 @@ namespace Lina
 	void Engine::Shutdown()
 	{
 		LINA_TRACE("[Engine] -> Shutdown.");
-
+        
+        // Order matters!
+        // Shutdown resource manager first, clean-up subsystems of active resources.
 		m_resourceManager.Shutdown();
 		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
