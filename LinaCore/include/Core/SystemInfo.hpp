@@ -165,12 +165,6 @@ namespace Lina
 			s_timescale = timescale;
 		}
 
-		static inline void SetDeltaTimeMicroSeconds(int64 microseconds)
-		{
-			s_deltaTimeMicroseconds = microseconds;
-			s_deltaTime				= static_cast<double>(microseconds) * 0.000001;
-		}
-
 		static inline int64 GetAppStartCycles()
 		{
 			return s_appStartCycles;
@@ -181,6 +175,12 @@ namespace Lina
 		friend class Engine;
 
 		static double CalculateRunningAverageDT(int64 deltaMicroseconds);
+
+		static inline void SetDeltaTimeMicroSeconds(int64 microseconds)
+		{
+			s_deltaTimeMicroseconds = microseconds;
+			s_deltaTime				= static_cast<double>(microseconds) * 0.000001;
+		}
 
 		static inline void SetAppTime(double seconds)
 		{
