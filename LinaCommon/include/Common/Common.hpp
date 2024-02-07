@@ -44,7 +44,7 @@ namespace Lina
 		Package
 	};
 
-	class ApplicationListener;
+	class ApplicationDelegate;
 
 	struct SystemInitializationInfo
 	{
@@ -54,7 +54,7 @@ namespace Lina
 		LinaGX::WindowStyle	 windowStyle		 = LinaGX::WindowStyle::WindowedApplication;
 		LinaGX::VSyncStyle	 vsyncStyle			 = {};
 		bool				 allowTearing		 = false;
-		ApplicationListener* appListener		 = nullptr;
+		ApplicationDelegate* appListener		 = nullptr;
 		ResourceManagerMode	 resourceManagerMode = ResourceManagerMode::File;
 	};
 

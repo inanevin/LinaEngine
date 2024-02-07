@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Serialization/Serialization.hpp"
 
 namespace Lina

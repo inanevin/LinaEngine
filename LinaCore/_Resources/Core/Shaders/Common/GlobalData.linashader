@@ -41,13 +41,12 @@ struct LinaTexture2D
 };
 
 
-layout(set = 1, binding = 0) uniform SceneData
+layout(set = 1, binding = 0) uniform ViewData
 {
 	mat4 view;
 	mat4 proj;
 	mat4 viewProj;
 	vec4 cameraPosition;
 	vec2 cameraNearFar;
-
-} LINA_SCENE;
+} LINA_VIEW;
 

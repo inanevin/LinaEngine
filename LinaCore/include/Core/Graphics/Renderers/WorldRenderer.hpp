@@ -28,16 +28,41 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Lina_HPP
-#define Lina_HPP
+#include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
 
-#include "Common/Common.hpp"
-#include "Core/Application.hpp"
-#include "Core/ApplicationDelegate.hpp"
+namespace LinaGX
+{
+	class CommandStream;
+	class Instance;
+} // namespace LinaGX
 
 namespace Lina
 {
-	extern SystemInitializationInfo Lina_GetInitInfo();
-}
+	class GUIBackend;
+	class GfxManager;
 
-#endif
+	class WorldRenderer
+	{
+	private:
+		struct PerFrameData
+		{
+			LinaGX::CommandStream* gfxStream		 = nullptr;
+			LinaGX::CommandStream* copyStream		 = nullptr;
+			SemaphoreData		   copySemaphore	 = {};
+			Buffer				   guiVertexBuffer	 = {};
+			Buffer				   guiIndexBuffer	 = {};
+			Buffer				   guiMaterialBuffer = {};
+		};
+
+	public:
+		WorldRenderer(GfxManager* man);
+		~WorldRenderer();
+
+	private:
+		GfxManager*		  m_gfxManager = nullptr;
+		GUIBackend*		  m_guiBackend = nullptr;
+		LinaGX::Instance* m_lgx		   = nullptr;
+	};
+
+} // namespace Lina

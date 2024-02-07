@@ -28,16 +28,25 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Lina_HPP
-#define Lina_HPP
-
-#include "Common/Common.hpp"
-#include "Core/Application.hpp"
-#include "Core/ApplicationDelegate.hpp"
+#ifndef GfxMeshManager_HPP
+#define GfxMeshManager_HPP
 
 namespace Lina
 {
-	extern SystemInitializationInfo Lina_GetInitInfo();
-}
+	class GfxManager;
+
+	class MeshManager
+	{
+	public:
+		MeshManager(GfxManager* gfxManager);
+		~MeshManager() = default;
+
+		void Initialize();
+		void Shutdown();
+
+	private:
+		GfxManager* m_gfxManager = nullptr;
+	};
+} // namespace Lina
 
 #endif

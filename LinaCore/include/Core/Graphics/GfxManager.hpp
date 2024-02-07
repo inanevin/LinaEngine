@@ -34,7 +34,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "Common/System/Subsystem.hpp"
 #include "Common/StringID.hpp"
 #include "Common/Data/Vector.hpp"
-#include "GfxMeshManager.hpp"
+#include "MeshManager.hpp"
 #include "Common/Event/SystemEventListener.hpp"
 #include "CommonGraphics.hpp"
 #include "ResourceUploadQueue.hpp"
@@ -56,9 +56,11 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			uint16 descriptorSet0GlobalData = 0;
-			uint32 globalDataResource		= 0;
-			uint8* globalDataMapped			= nullptr;
+			uint16 pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16 pipelineLayoutPersistentGlobal = 0;
+			uint16 descriptorSetPersistentGlobal  = 0;
+			uint32 globalDataResource			  = 0;
+			uint8* globalDataMapped				  = nullptr;
 		};
 
 	public:
@@ -71,25 +73,36 @@ namespace Lina
 		virtual void Shutdown() override;
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 
-		void			 WaitForSwapchains();
-		void			 Join();
-		void			 Poll();
-		void			 Tick(float interpolationAlpha);
-		void			 Sync();
-		void			 Render();
-		void			 DestroyApplicationWindow(StringID sid);
-		LinaGX::Window*	 CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
-		void			 CreateSurfaceRenderer(StringID sid, LinaGX::Window* window, const Vector2ui& initialSize);
-		void			 DestroySurfaceRenderer(StringID sid);
-		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
-		uint16			 GetDescriptorSet0();
+		void			WaitForSwapchains();
+		void			Join();
+		void			Poll();
+		void			Tick();
+		void			RenderSync();
+		void			Render();
+		void			DestroyApplicationWindow(StringID sid);
+		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
+
+		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
+		{
+			return m_pfd[frameIndex].descriptorSetPersistentGlobal;
+		}
+
+		uint16 GetPipelineLayoutPersistentGlobal(uint32 frameIndex) const
+		{
+			return m_pfd[frameIndex].pipelineLayoutPersistentGlobal;
+		}
+
+		uint16 GetPipelineLayoutPersistentRenderPass(uint32 frameIndex, RenderPassDescriptorType renderPassType) const
+		{
+			return m_pfd[frameIndex].pipelineLayoutPersistentRenderpass[renderPassType];
+		}
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{
 			return EVS_WindowResized;
 		}
 
-		inline const GfxMeshManager& GetMeshManager()
+		inline const MeshManager& GetMeshManager()
 		{
 			return m_meshManager;
 		}
@@ -116,7 +129,7 @@ namespace Lina
 
 	private:
 		ResourceUploadQueue		 m_resourceUploadQueue;
-		GfxMeshManager			 m_meshManager;
+		MeshManager				 m_meshManager;
 		Vector<SurfaceRenderer*> m_surfaceRenderers;
 		GUIBackend*				 m_guiBackend	   = nullptr;
 		ResourceManager*		 m_resourceManager = nullptr;
@@ -125,6 +138,7 @@ namespace Lina
 		LGXWrapper*				 m_lgxWrapper	= nullptr;
 		LinaGX::Instance*		 m_lgx			= nullptr;
 		LinaGX::VSyncStyle		 m_currentVsync = {};
+		ApplicationDelegate*	 m_appDelegate	= nullptr;
 
 		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};

@@ -26,18 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Lina_HPP
-#define Lina_HPP
-
-#include "Common/Common.hpp"
-#include "Core/Application.hpp"
-#include "Core/ApplicationDelegate.hpp"
+#include "Core/Components/RenderableComponent.hpp"
 
 namespace Lina
 {
-	extern SystemInitializationInfo Lina_GetInitInfo();
-}
-
-#endif
+	void RenderableComponent::SaveToStream(OStream& stream)
+	{
+	}
+	void RenderableComponent::LoadFromStream(IStream& stream)
+	{
+	}
+} // namespace Lina

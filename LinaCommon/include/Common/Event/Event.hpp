@@ -52,10 +52,8 @@ namespace Lina
 		EVS_LevelUninstalled		  = 1 << 5,
 		EVS_WindowResized			  = 1 << 6,
 		EVS_VsyncModeChanged		  = 1 << 7,
-		EVS_Key						  = 1 << 8,
+		EVS_OnKey					  = 1 << 8,
 		EVS_PreLevelUninstall		  = 1 << 9,
-		EVS_PreInitComplete			  = 1 << 11,
-		EVS_InitComplete			  = 1 << 12,
 	};
 
 	enum GameEvent

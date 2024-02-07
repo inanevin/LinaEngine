@@ -31,21 +31,12 @@ SOFTWARE.
 #ifndef RenderData_HPP
 #define RenderData_HPP
 
-#include "Common/Math/AABB.hpp"
 #include "Common/Data/Vector.hpp"
-#include "Common/Data/Bitmask.hpp"
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Matrix.hpp"
 
 namespace Lina
 {
-	class RenderableComponent;
-	class Mesh;
-	class Material;
-
-#define OBJ_BUFFER_MAX 15
-#define MAX_LIGHTS	   10
-
 	enum RenderableType
 	{
 		RenderableSprite	  = 1 << 0,
@@ -56,21 +47,14 @@ namespace Lina
 		RenderableParticle	  = 1 << 5,
 	};
 
-	enum DrawPassMask
-	{
-		Opaque		= 1 << 0,
-		Transparent = 1 << 1,
-		Shadow		= 1 << 2,
-	};
-
-	struct GPUGlobalData
+	struct GPUDataEngineGlobals
 	{
 		Vector2 mousePosition = Vector2::Zero;
 		float	deltaTime	  = 0.0f;
 		float	elapsedTime	  = 0.0f;
 	};
 
-	struct GPUSceneData
+	struct GPUDataView
 	{
 		Matrix4 view;
 		Matrix4 proj;
@@ -80,11 +64,26 @@ namespace Lina
 		Vector2 screenSize;
 	};
 
-	struct GPULinaTexture2D
+	struct GPUTexture2D
 	{
 		uint32 textureIndex;
 		uint32 samplerIndex;
 		uint32 padding[2];
+	};
+
+	struct SemaphoreData
+	{
+		uint16 semaphore;
+		uint64 value;
+	};
+
+	struct GPUMaterialGUI
+	{
+		Vector4 color1;
+		Vector4 color2;
+		Vector4 floatPack1;
+		Vector4 floatPack2;
+		uint32	type;
 	};
 
 } // namespace Lina

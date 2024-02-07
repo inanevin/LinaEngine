@@ -26,6 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#lina_define_variant : final
+#lina_pass : swapchain
+#lina_cull : none
+#lina_front : ccw
+#lina_depth : disable
+#lina_blend : disable
+#lina_end
 
 #lina_vs
 layout (location = 0) out vec2 outTexCoords;

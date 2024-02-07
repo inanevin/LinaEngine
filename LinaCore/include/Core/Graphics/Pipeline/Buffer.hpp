@@ -28,16 +28,41 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Lina_HPP
-#define Lina_HPP
+#include "Common/Data/String.hpp"
 
-#include "Common/Common.hpp"
-#include "Core/Application.hpp"
-#include "Core/ApplicationDelegate.hpp"
+namespace LinaGX
+{
+	class Instance;
+	class CommandStream;
+} // namespace LinaGX
 
 namespace Lina
 {
-	extern SystemInitializationInfo Lina_GetInitInfo();
-}
+	class Buffer
+	{
+	public:
+		Buffer()  = default;
+		~Buffer() = default;
 
-#endif
+		void Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName = "GPUBuffer", bool stagingOnly = false);
+		void BufferData(size_t padding, void* data, size_t size);
+		bool Copy(LinaGX::CommandStream* stream);
+		void Destroy();
+
+		inline uint32 GetGPUResource() const
+		{
+			return m_gpu;
+		}
+
+	private:
+		static uint64 s_usedCPUVisibleGPUMemory;
+
+		bool			  m_stagingOnly				= false;
+		LinaGX::Instance* m_lgx						= nullptr;
+		uint32			  m_staging					= 0;
+		uint32			  m_gpu						= 0;
+		uint32			  m_size					= 0;
+		uint8*			  m_mapped					= nullptr;
+		bool			  m_isCPUVisibleGPUResource = false;
+	};
+} // namespace Lina

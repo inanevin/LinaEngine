@@ -40,14 +40,14 @@ namespace Lina
 {
 	struct ShaderVariant
 	{
-		uint32				  gpuHandle	   = 0;
-		String				  name		   = "";
-		String				  passName	   = "";
-		bool				  blendDisable = false;
-		bool				  depthDisable = false;
-		ShaderVariantPassType passType	   = ShaderVariantPassType::RenderTarget;
-		LinaGX::CullMode	  cullMode	   = LinaGX::CullMode::Back;
-		LinaGX::FrontFace	  frontFace	   = LinaGX::FrontFace::CCW;
+		uint32				 gpuHandle	  = 0;
+		String				 name		  = "";
+		String				 passName	  = "";
+		bool				 blendDisable = false;
+		bool				 depthDisable = false;
+		GfxShaderVariantType passType	  = GfxShaderVariantType::RenderTarget;
+		LinaGX::CullMode	 cullMode	  = LinaGX::CullMode::Back;
+		LinaGX::FrontFace	 frontFace	  = LinaGX::FrontFace::CCW;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
@@ -69,7 +69,7 @@ namespace Lina
 			return m_variants.at(variant).gpuHandle;
 		}
 
-		inline uint32 GetGPUHandle(ShaderVariantPassType passType) const
+		inline uint32 GetGPUHandle(GfxShaderVariantType passType) const
 		{
 			for (const auto& [sid, var] : m_variants)
 			{
@@ -78,11 +78,6 @@ namespace Lina
 			}
 
 			return m_variants.begin()->second.gpuHandle;
-		}
-
-		inline const LinaGX::ShaderLayout& GetLayout() const
-		{
-			return m_layout;
 		}
 
 	protected:

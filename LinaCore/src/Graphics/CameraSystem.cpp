@@ -27,23 +27,21 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/CameraSystem.hpp"
-#include "Core/Graphics/Components/CameraComponent.hpp"
-#include "Core/World/Entity.hpp"
 
 namespace Lina
 {
 	void CameraSystem::CalculateCamera(CameraComponent& cam, float aspect)
 	{
-		Entity*			 e		= cam.GetEntity();
-		const Vector3	 pos	= e->GetPosition();
-		const Quaternion camRot = e->GetRotation();
-		cam.m_view				= Matrix4::InitLookAt(pos, pos + camRot.GetForward(), camRot.GetUp());
-		cam.m_projection		= Matrix4::Perspective(cam.fieldOfView / 2.0f, aspect, cam.zNear, cam.zFar);
-
-		cam.m_view[2][0] *= -1.0f;
-		cam.m_view[2][1] *= -1.0f;
-		cam.m_view[2][2] *= -1.0f;
-		cam.m_view[2][3] *= -1.0f;
+		// Entity*			 e		= cam.GetEntity();
+		// const Vector3	 pos	= e->GetPosition();
+		// const Quaternion camRot = e->GetRotation();
+		// cam.m_view				= Matrix4::InitLookAt(pos, pos + camRot.GetForward(), camRot.GetUp());
+		// cam.m_projection		= Matrix4::Perspective(cam.fieldOfView / 2.0f, aspect, cam.zNear, cam.zFar);
+		//
+		// cam.m_view[2][0] *= -1.0f;
+		// cam.m_view[2][1] *= -1.0f;
+		// cam.m_view[2][2] *= -1.0f;
+		// cam.m_view[2][3] *= -1.0f;
 		// cam.m_view[1][1] *= -1;
 	}
 } // namespace Lina

@@ -28,16 +28,39 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Lina_HPP
-#define Lina_HPP
+#include "Core/Resources/CommonResources.hpp"
+#include "Core/Resources/Data/ResourceMetadata.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Event/SystemEventListener.hpp"
 
-#include "Common/Common.hpp"
-#include "Core/Application.hpp"
-#include "Core/ApplicationDelegate.hpp"
+namespace LinaGX
+{
+	class Window;
+	class CommandStream;
+} // namespace LinaGX
 
 namespace Lina
 {
-	extern SystemInitializationInfo Lina_GetInitInfo();
-}
+	class ResourceManager;
+	struct SemaphoreData;
 
-#endif
+	class ApplicationDelegate : public SystemEventListener
+	{
+	public:
+		ApplicationDelegate()		   = default;
+		virtual ~ApplicationDelegate() = default;
+
+		// Loop
+		virtual void Tick(float delta){};
+
+		virtual void RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex){};
+
+		// Resources
+		virtual void									 RegisterResourceTypes(ResourceManager& rm);
+		virtual Vector<ResourceIdentifier>				 GetPriorityResources();
+		virtual Vector<Pair<StringID, ResourceMetadata>> GetPriorityResourcesMetadata();
+		virtual Vector<ResourceIdentifier>				 GetCoreResources();
+		virtual Vector<Pair<StringID, ResourceMetadata>> GetCoreResourcesMetadata();
+	};
+} // namespace Lina

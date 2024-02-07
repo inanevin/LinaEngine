@@ -25,7 +25,7 @@ src/Audio/AudioManager.cpp
 
 # Core
 src/Application.cpp
-src/ApplicationListener.cpp
+src/ApplicationDelegate.cpp
 src/Engine.cpp
 src/SystemInfo.cpp
 src/CommonCore.cpp
@@ -34,18 +34,11 @@ src/EngineInterface.cpp
 # Graphics
 src/Graphics/GUIBackend.cpp
 src/Graphics/GfxManager.cpp
-src/Graphics/View.cpp
-src/Graphics/GPUBuffer.cpp
-src/Graphics/GUIRenderer.cpp
-src/Graphics/DrawPass.cpp
-src/Graphics/CameraSystem.cpp
-src/Graphics/WorldRenderer.cpp
-src/Graphics/SurfaceRenderer.cpp
 src/Graphics/ResourceUploadQueue.cpp
-src/Graphics/GfxMeshManager.cpp
+src/Graphics/MeshManager.cpp
+src/Graphics/CameraSystem.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
-src/Graphics/Interfaces/IGUIDrawer.cpp
-src/Graphics/Components/RenderableComponent.cpp
+src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Data/Vertex.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/Mesh.cpp
@@ -54,7 +47,10 @@ src/Graphics/Resource/Texture.cpp
 src/Graphics/Resource/TextureSampler.cpp
 src/Graphics/Resource/Material.cpp
 src/Graphics/Resource/Font.cpp
-
+src/Graphics/Renderers/SurfaceRenderer.cpp
+src/Graphics/Renderers/WorldRenderer.cpp
+src/Graphics/Pipeline/Buffer.cpp
+src/Graphics/Pipeline/Renderpass.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -65,6 +61,21 @@ src/Resources/ResourceManager.cpp
 src/Resources/ResourceCache.cpp
 src/Resources/Resource.cpp
 src/Resources/Data/ResourceMetadata.cpp
+
+# World
+src/World/Entity.cpp
+src/World/Component.cpp
+src/World/ComponentCache.cpp
+src/World/Level/Level.cpp
+src/World/Level/LevelManager.cpp
+src/World/EntityWorld.cpp
+
+
+# Physics
+src/Physics/PhysicsWorld.cpp
+
+# Components
+src/Components/RenderableComponent.cpp
 
 )
 
@@ -80,7 +91,7 @@ include/Core/Audio/AudioManager.hpp
 
 # Core
 include/Core/Application.hpp
-include/Core/ApplicationListener.hpp
+include/Core/ApplicationDelegate.hpp
 include/Core/Engine.hpp
 include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
@@ -103,23 +114,15 @@ include/Core/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
 include/Core/Graphics/GUIBackend.hpp
-include/Core/Graphics/GUIRenderer.hpp
 include/Core/Graphics/GfxManager.hpp
-include/Core/Graphics/WorldRenderer.hpp
-include/Core/Graphics/SurfaceRenderer.hpp
-include/Core/Graphics/CommonGraphics.hpp
-include/Core/Graphics/View.hpp
-include/Core/Graphics/GPUBuffer.hpp
-include/Core/Graphics/ResourceUploadQueue.hpp
-include/Core/Graphics/DrawPass.hpp
-include/Core/Graphics/GfxMeshManager.hpp
 include/Core/Graphics/CameraSystem.hpp
+include/Core/Graphics/CommonGraphics.hpp
+include/Core/Graphics/ResourceUploadQueue.hpp
+include/Core/Graphics/MeshManager.hpp
 include/Core/Graphics/Utility/ShaderPreprocessor.hpp
-include/Core/Graphics/Interfaces/IGUIDrawer.hpp
+include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Data/RenderData.hpp
 include/Core/Graphics/Data/Vertex.hpp
-include/Core/Graphics/Components/CameraComponent.hpp
-include/Core/Graphics/Components/RenderableComponent.hpp
 include/Core/Graphics/Resource/Shader.hpp
 include/Core/Graphics/Resource/Mesh.hpp
 include/Core/Graphics/Resource/Model.hpp
@@ -127,6 +130,26 @@ include/Core/Graphics/Resource/Texture.hpp
 include/Core/Graphics/Resource/TextureSampler.hpp
 include/Core/Graphics/Resource/Material.hpp
 include/Core/Graphics/Resource/Font.hpp
+include/Core/Graphics/Renderers/SurfaceRenderer.hpp
+include/Core/Graphics/Renderers/WorldRenderer.hpp
+include/Core/Graphics/Pipeline/Buffer.hpp
+include/Core/Graphics/Pipeline/Renderpass.hpp
+
+# World
+include/Core/World/Entity.hpp
+include/Core/World/Component.hpp
+include/Core/World/ComponentCache.hpp
+include/Core/World/Level/Level.hpp
+include/Core/World/Level/LevelManager.hpp
+include/Core/World/EntityWorld.hpp
+include/Core/World/CommonWorld.hpp
+
+# Physics
+include/Core/Physics/PhysicsWorld.hpp
+
+# Components
+include/Core/Components/CameraComponent.hpp
+include/Core/Components/RenderableComponent.hpp
 
 )
 

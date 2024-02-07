@@ -42,7 +42,7 @@ namespace Lina
 {
 	struct SystemInitializationInfo;
 	class CoreResourcesRegistry;
-	class ApplicationListener;
+	class ApplicationDelegate;
 
 	class Application
 	{
@@ -66,9 +66,14 @@ namespace Lina
 			return m_exitRequested;
 		}
 
-		inline void SetListener(ApplicationListener* listener)
+		inline void SetListener(ApplicationDelegate* listener)
 		{
 			m_appListener = listener;
+		}
+
+		inline ApplicationDelegate* GetAppDelegate()
+		{
+			return m_appListener;
 		}
 
 	protected:
@@ -79,7 +84,7 @@ namespace Lina
 		void UnloadPlugins();
 
 	protected:
-		ApplicationListener* m_appListener = nullptr;
+		ApplicationDelegate* m_appListener = nullptr;
 		Engine				 m_engine;
 		bool				 m_exitRequested = false;
 		bool				 m_isIdleMode	 = false;

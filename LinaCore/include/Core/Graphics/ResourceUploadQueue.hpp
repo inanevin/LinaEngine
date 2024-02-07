@@ -45,6 +45,7 @@ namespace Lina
 	class Texture;
 	class GfxManager;
 	class LGXWrapper;
+	struct SemaphoreData;
 
 	struct TextureUploadRequest
 	{
@@ -62,12 +63,7 @@ namespace Lina
 		void Shutdown();
 		void AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete);
 
-		void FlushAll();
-
-		inline bool HasTransfer() const
-		{
-			return m_hasTransferForThisFrame;
-		}
+		bool FlushAll(SemaphoreData& outSemaphore);
 
 		inline uint16 GetSemaphore() const
 		{
@@ -80,7 +76,6 @@ namespace Lina
 		}
 
 	private:
-		bool						 m_hasTransferForThisFrame = false;
 		Mutex						 m_mtx;
 		Vector<TextureUploadRequest> m_textureRequests;
 		LGXWrapper*					 m_lgxWrapper		  = nullptr;

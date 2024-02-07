@@ -46,13 +46,13 @@ layout (location = 0) in vec2 pos;
 layout (location = 1) in vec2 uv;
 layout (location = 2) in vec4 col;
 
-layout (location = 0) out vec4 fCol;
-layout (location = 1) out vec2 fUV;
+layout (location = 0) out vec4 outCol;
+layout (location = 1) out vec2 outUV;
 
 void main()
 {
-   fCol = col;
-   fUV = uv;
+   outCol = col;
+   outUV = uv;
    gl_Position = LINA_PROJ * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
@@ -60,89 +60,80 @@ void main()
 
 #lina_fs
 
-layout (location = 0) in vec4 fCol;
-layout (location = 1) in vec2 fUV;
+layout (location = 0) in vec4 inCol;
+layout (location = 1) in vec2 inUV;
 
 layout (location = 0) out vec4 fragColor;
 
-struct MaterialData
+
+layout(set = 2, binding = 0) uniform MaterialData
 {
    vec4 color1;
    vec4 color2;
    vec4 floatPack1;
    vec4 floatPack2;
-   LinaTexture2D diffuse;
-};
+   uint bufferType;
+} material;
 
-layout(set = 2, binding = 0) readonly buffer MaterialBuffer
-{
-   MaterialData materials[];
-} materialBuffer;
-
+layout (set = 2, binding = 1) uniform mediump sampler guiSampler;
+layout (set = 2, binding = 2) uniform mediump texture2D guiTexture;
 
 // BufferType 0: Default
 // BufferType 1: Gradient
 // BufferType 2: Textured
 // BufferType 3: Text
 // BufferType 4: SDF Text
-layout( push_constant ) uniform Constants
-{
-	int bufferType;
-   int materialID;
-} constants;
 
 void main()
 {
-   fragColor = fCol;
+   fragColor = inCol;
    
-   MaterialData material = materialBuffer.materials[constants.materialID];
-
-   if(constants.bufferType == 1)
+   if(material.bufferType == 1)
    {
       // floatPack1 = uvMultiply, uvShift
       // floatPack2 = radialInfluence, isAABuffer, radialSize, 0
 
       // Linear gradient
-      float t1 = fUV.x * material.floatPack1.r + fUV.y * material.floatPack1.g;
+      float t1 = inUV.x * material.floatPack1.r + inUV.y * material.floatPack1.g;
 
       // Radial gradient
-      float t2 = length((fUV - material.floatPack1.ba) * material.floatPack2.b);
+      float t2 = length((inUV - material.floatPack1.ba) * material.floatPack2.b);
 
       float t = t1 * (1.0f - material.floatPack2.r) + t2 * (material.floatPack2.r);
 
       vec4 col = mix(material.color1, material.color2, t);
-      float alpha = fCol.a * material.floatPack2.g + col.a * (1.0f - material.floatPack2.g);
+      float alpha = inCol.a * material.floatPack2.g + col.a * (1.0f - material.floatPack2.g);
       fragColor = vec4(col.rgb, alpha); 
    }
-   else if(constants.bufferType == 2)
+   else if(material.bufferType == 2)
    {
       // Textured
       // floatPack1 = uvMultiply, uvShift
       // floatPack2 = isAABuffer, 0,0,0
-
-      vec4 col = LinaSampleTexture2D(material.diffuse, fUV * material.floatPack1.rg + material.floatPack1.ba);
-      float alpha = fCol.a * material.floatPack2.r + col.a * (1.0f - material.floatPack2.r);
+      
+      vec4 col = texture(sampler2D(guiTexture, guiSampler), inUV * material.floatPack1.rg + material.floatPack1.ba);
+      float alpha = inCol.a * material.floatPack2.r + col.a * (1.0f - material.floatPack2.r);
       fragColor = vec4(col.rgb, alpha) * material.color1; 
    }
-   else if(constants.bufferType == 3)
+   else if(material.bufferType == 3)
    {
       // Simple Text
       // floatPack1 = 0,0,0,0
-      fragColor = vec4(fCol.rgb, LinaSampleTexture2D(material.diffuse, fUV).r * fCol.a);
+      fragColor = vec4(inCol.rgb, texture(sampler2D(guiTexture, guiSampler), inUV).r * inCol.a);
    }
-   else if(constants.bufferType == 4)
+   else if(material.bufferType == 4)
    {
       // SDF text
       // floatPack1 = thickness, softness, outlineThickness, hasOutline
       // floatPack2 = flipAlpha, 0, 0, 0
 
-      float d = LinaSampleTexture2D(material.diffuse, fUV).r;
+      float d = texture(sampler2D(guiTexture, guiSampler), inUV).r;
       float alpha = smoothstep(material.floatPack1.r - material.floatPack1.g, material.floatPack1.r + material.floatPack1.g, d);
       float border = smoothstep(material.floatPack1.r + material.floatPack1.b - material.floatPack1.g, material.floatPack1.r + material.floatPack1.b + material.floatPack1.g, d);
-      vec3 outlinedColor = mix(material.color1, fCol, border).rgb;
-      vec3 baseColor = mix(fCol.rgb, outlinedColor, material.floatPack1.a);
+      vec3 outlinedColor = mix(material.color1, inCol, border).rgb;
+      vec3 baseColor = mix(inCol.rgb, outlinedColor, material.floatPack1.a);
       alpha = (1.0f - alpha) * material.floatPack2.r + alpha * (1.0f - material.floatPack2.r);
-      fragColor = vec4(baseColor, alpha * fCol.a);
+      fragColor = vec4(baseColor, alpha * inCol.a);
    }
 
 }

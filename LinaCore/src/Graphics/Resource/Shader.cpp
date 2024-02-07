@@ -124,7 +124,7 @@ namespace Lina
 		{
 			LinaGX::Format format = LinaGX::Format::B8G8R8A8_SRGB;
 
-			if (variant.passType == ShaderVariantPassType::RenderTarget)
+			if (variant.passType == GfxShaderVariantType::RenderTarget)
 				format = LinaGX::Format::R32G32B32A32_SFLOAT;
 
 			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
@@ -193,7 +193,7 @@ namespace Lina
 		stream >> gpuHandle >> blendDisable >> depthDisable >> passTypeInt >> cullModeInt >> frontFaceInt;
 		StringSerialization::LoadFromStream(stream, passName);
 		StringSerialization::LoadFromStream(stream, name);
-		passType  = static_cast<ShaderVariantPassType>(passTypeInt);
+		passType  = static_cast<GfxShaderVariantType>(passTypeInt);
 		cullMode  = static_cast<LinaGX::CullMode>(cullModeInt);
 		frontFace = static_cast<LinaGX::FrontFace>(frontFaceInt);
 	}

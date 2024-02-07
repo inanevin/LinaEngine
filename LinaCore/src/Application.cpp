@@ -27,16 +27,14 @@ SOFTWARE.
 */
 
 #include "Core/Application.hpp"
-#include "Core/ApplicationListener.hpp"
+#include "Core/ApplicationDelegate.hpp"
 #include "Core/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Profiling/MemoryTracer.hpp"
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/System/Plugin.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Interfaces/IGUIDrawer.hpp"
-#include "Core/Graphics/SurfaceRenderer.hpp"
+#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
@@ -76,7 +74,6 @@ namespace Lina
 			m_engine.PreInitialize(initInfo);
 			resourceManager.LoadResources(resourceManager.GetPriorityResources());
 			resourceManager.WaitForAll();
-			m_engine.DispatchEvent(EVS_PreInitComplete, {});
 		}
 
 		// Main window
@@ -93,7 +90,6 @@ namespace Lina
 			auto& resourceManager = m_engine.GetResourceManager();
 			resourceManager.LoadResources(resourceManager.GetCoreResources());
 			resourceManager.WaitForAll();
-			m_engine.DispatchEvent(EVS_InitComplete, {});
 		}
 	}
 

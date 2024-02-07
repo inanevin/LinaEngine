@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
-#include "Core/SystemInfo.hpp"
 
 namespace Lina
 {
@@ -69,15 +68,10 @@ namespace Lina
 		m_textureRequests.push_back(req);
 	}
 
-	void ResourceUploadQueue::FlushAll()
+	bool ResourceUploadQueue::FlushAll(SemaphoreData& outSemaphore)
 	{
 		if (m_textureRequests.empty())
-		{
-			m_hasTransferForThisFrame = false;
-			return;
-		}
-
-		m_hasTransferForThisFrame = true;
+			return false;
 
 		for (auto& req : m_textureRequests)
 		{
@@ -109,5 +103,9 @@ namespace Lina
 			req.onComplete();
 
 		m_textureRequests.clear();
+
+		outSemaphore.value	   = m_copySemaphoreValue;
+		outSemaphore.semaphore = m_copySemaphore;
+		return true;
 	}
 } // namespace Lina

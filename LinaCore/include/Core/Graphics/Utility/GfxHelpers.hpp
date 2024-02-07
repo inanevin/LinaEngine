@@ -28,16 +28,22 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Lina_HPP
-#define Lina_HPP
-
-#include "Common/Common.hpp"
-#include "Core/Application.hpp"
-#include "Core/ApplicationDelegate.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina
 {
-	extern SystemInitializationInfo Lina_GetInitInfo();
-}
+	class GfxHelpers
+	{
+	public:
+		static LinaGX::DescriptorSetDesc GetSetDescPersistentGlobal();
+		static LinaGX::DescriptorSetDesc GetSetDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
+		static LinaGX::DescriptorSetDesc GetSetDescriptionDynamicGUI();
 
-#endif
+		static LinaGX::TextureBarrier GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain);
+		static LinaGX::TextureBarrier GetTextureBarrierColor2Present(uint32 texture, bool isSwapchain);
+
+		static LinaGX::PipelineLayoutDesc GetPLDescPersistentGlobal();
+		static LinaGX::PipelineLayoutDesc GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
+	};
+} // namespace Lina

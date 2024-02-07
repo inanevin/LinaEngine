@@ -26,21 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Application.hpp"
 #include "Common/Log/Log.hpp"
 #include "Common/Profiling/Profiler.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/Math/Math.hpp"
 #include "Common/Platform/PlatformTime.hpp"
+
+#include "Core/Application.hpp"
+#include "Core/SystemInfo.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/SurfaceRenderer.hpp"
+#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Common/Math/Math.hpp"
-
-#define DEFAULT_RATE 1.0f / 60.0f
-#include "LinaGX/Core/InputMappings.hpp"
+#include "Core/ApplicationDelegate.hpp"
 
 namespace Lina
 {
@@ -112,11 +111,12 @@ namespace Lina
 		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
 
 		// Update app.
-		m_gfxManager.Tick(0.0f);
+		m_gfxManager.Tick();
 		m_audioManager.Tick();
+		m_app->GetAppDelegate()->Tick(delta);
 
 		renderJob.get();
-		m_gfxManager.Sync();
+		m_gfxManager.RenderSync();
 
 		audioJob.get();
 	}

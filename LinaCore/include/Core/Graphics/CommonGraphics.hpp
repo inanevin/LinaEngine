@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CommonGraphics_HPP
-#define CommonGraphics_HPP
-
 namespace Lina
 {
 
@@ -49,12 +46,19 @@ namespace Lina
 #define MAX_BOUND_TEXTURES			 512
 #define MAX_BOUND_SAMPLERS			 128
 
-	enum class ShaderVariantPassType
+	enum class GfxShaderVariantType
 	{
 		RenderTarget,
 		Swapchain,
 	};
 
+    
+    enum RenderPassDescriptorType
+    {
+        Basic =  0,
+        Max,
+    };
+
+
 } // namespace Lina
 
-#endif

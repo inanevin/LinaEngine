@@ -28,18 +28,18 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/ApplicationListener.hpp"
+#include "Core/ApplicationDelegate.hpp"
 
 namespace Lina
 {
-	class GameAppListener : public ApplicationListener
+	class GameAppListener : public ApplicationDelegate
 	{
 	public:
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 
 		virtual Bitmask32 GetSystemEventMask()
 		{
-			return EVS_InitComplete | EVS_PreInitComplete;
+			return 0;
 		}
 	};
 

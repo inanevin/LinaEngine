@@ -26,18 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef Lina_HPP
-#define Lina_HPP
-
-#include "Common/Common.hpp"
-#include "Core/Application.hpp"
-#include "Core/ApplicationDelegate.hpp"
+#include "Core/Graphics/MeshManager.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/Mesh.hpp"
+#include "Common/System/System.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Data/Vertex.hpp"
 
 namespace Lina
 {
-	extern SystemInitializationInfo Lina_GetInitInfo();
-}
+	MeshManager::MeshManager(GfxManager* gfxManager) : m_gfxManager(gfxManager)
+	{
+	}
 
-#endif
+	void MeshManager::Initialize()
+	{
+	}
+
+	void MeshManager::Shutdown()
+	{
+	}
+
+} // namespace Lina

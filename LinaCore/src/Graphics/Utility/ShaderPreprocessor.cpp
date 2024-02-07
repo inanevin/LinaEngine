@@ -58,7 +58,7 @@ namespace Lina
 		bool			   isParsingVariant = false;
 		ShaderVariant	   variantData;
 
-		const String passIdentifier			= "#lina_pass";
+		const String targetIdentifier		= "#lina_target";
 		const String blendIdentifier		= "#lina_blend";
 		const String depthIdentifier		= "#lina_depth";
 		const String cullIdentifier			= "#lina_cull";
@@ -110,7 +110,7 @@ namespace Lina
 					continue;
 				}
 
-				size_t passBlock  = lineSqueezed.find(passIdentifier.c_str());
+				size_t passBlock  = lineSqueezed.find(targetIdentifier.c_str());
 				size_t blendBlock = lineSqueezed.find(blendIdentifier.c_str());
 				size_t depthBlock = lineSqueezed.find(depthIdentifier.c_str());
 				size_t cullBlock  = lineSqueezed.find(cullIdentifier.c_str());
@@ -118,12 +118,12 @@ namespace Lina
 
 				if (passBlock != std::string::npos)
 				{
-					variantData.passName = lineSqueezed.substr(passIdentifier.size() + 1, lineSqueezed.size() - passIdentifier.size() - 1).c_str();
+					variantData.passName = lineSqueezed.substr(targetIdentifier.size() + 1, lineSqueezed.size() - targetIdentifier.size() - 1).c_str();
 
 					if (variantData.passName.compare("rendertarget") == 0)
-						variantData.passType = ShaderVariantPassType::RenderTarget;
+						variantData.passType = GfxShaderVariantType::RenderTarget;
 					else if (variantData.passName.compare("swapchain") == 0)
-						variantData.passType = ShaderVariantPassType::Swapchain;
+						variantData.passType = GfxShaderVariantType::Swapchain;
 				}
 
 				if (blendBlock != std::string::npos)
@@ -167,7 +167,7 @@ namespace Lina
 			ShaderVariant variant = {
 				.name	  = "Default",
 				.passName = "rendertarget",
-				.passType = ShaderVariantPassType::RenderTarget,
+				.passType = GfxShaderVariantType::RenderTarget,
 			};
 			outVariants["Default"_hs] = variant;
 		}

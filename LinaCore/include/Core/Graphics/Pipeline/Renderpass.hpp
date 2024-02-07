@@ -28,45 +28,49 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef TextureSampler_HPP
-#define TextureSampler_HPP
-
-#include "Core/Resources/Resource.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Buffer.hpp"
 
 namespace Lina
 {
-	class Renderer;
-
-	class TextureSampler : public Resource
+	class Renderpass
 	{
 	public:
-		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>()){};
-		virtual ~TextureSampler();
-
-		inline uint32 GetGPUHandle() const
+		struct PerFrameData
 		{
-			return m_gpuHandle;
+			Buffer viewDataBuffer = {};
+			uint16 descriptorSet  = 0;
+		};
+
+		void Create(LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType);
+		void Destroy();
+		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors);
+		void End(LinaGX::CommandStream* stream);
+
+		void SetColorAttachment(uint32 index, const LinaGX::RenderPassColorAttachment& att);
+
+		inline void DepthStencilAttachment(const LinaGX::RenderPassDepthStencilAttachment& att)
+		{
+			m_depthStencil = att;
 		}
 
-		inline uint32 GetBindlessIndex() const
+		inline Buffer& GetViewDataBuffer(uint32 frameIndex)
 		{
-			return m_bindlessIndex;
+			return m_pfd[frameIndex].viewDataBuffer;
+		}
+
+		inline uint16 GetDescriptorSet(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].descriptorSet;
 		}
 
 	private:
-		friend class GfxManager;
-
-	protected:
-		virtual void BatchLoaded() override;
-		virtual void SaveToStream(OStream& stream) override;
-		virtual void LoadFromStream(IStream& stream) override;
-
-	private:
-		uint32				m_bindlessIndex = 0;
-		uint32				m_gpuHandle		= 0;
-		LinaGX::SamplerDesc m_samplerDesc	= {};
+		LinaGX::RenderPassDepthStencilAttachment  m_depthStencil;
+		Vector<LinaGX::RenderPassColorAttachment> m_colorAttachments = {};
+		LinaGX::Instance*						  m_lgx				 = nullptr;
+		PerFrameData							  m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina
-
-#endif
