@@ -39,7 +39,6 @@ namespace Lina
 		out << pointSize;
 		out << isSDF;
 		out << static_cast<int32>(glyphRanges.size());
-		;
 
 		for (const auto& rangePair : glyphRanges)
 		{
@@ -101,7 +100,7 @@ namespace Lina
 		VectorSerialization::LoadFromStream_PT(stream, m_file);
 	}
 
-	void Font::SaveToStream(OStream& stream)
+	void Font::SaveToStream(OStream& stream) const
 	{
 		m_meta.SaveToStream(stream);
 		VectorSerialization::SaveToStream_PT(stream, m_file);

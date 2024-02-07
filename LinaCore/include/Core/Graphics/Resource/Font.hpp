@@ -51,11 +51,7 @@ namespace Lina
 
 	class Font : public Resource
 	{
-
 	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font();
-
 		struct Metadata
 		{
 			uint32						 pointSize = 16;
@@ -66,6 +62,10 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
+	public:
+		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
+		virtual ~Font();
+
 		inline LinaVG::LinaVGFont* GetLinaVGFont()
 		{
 			return m_lvgFont;
@@ -75,7 +75,7 @@ namespace Lina
 		virtual void BatchLoaded() override;
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
 		virtual void SetCustomMeta(IStream& stream) override;
 
 	private:

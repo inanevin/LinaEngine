@@ -29,20 +29,31 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
+#include "Core/Graphics/Utility/GfxHelpers.hpp"
+
 #include "Common/System/System.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Common/FileSystem//FileSystem.hpp"
-#include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 #include "Common/Serialization/HashMapSerialization.hpp"
-#include "Core/Graphics/Utility/GfxHelpers.hpp"
 
 namespace Lina
 {
+	void Shader::Metadata::SaveToStream(OStream& out) const
+	{
+		HashMapSerialization::SaveToStream_OBJ(out, variants);
+	}
+
+	void Shader::Metadata::LoadFromStream(IStream& in)
+	{
+		HashMapSerialization::LoadFromStream_OBJ(in, variants);
+	}
+
 	Shader::~Shader()
 	{
 		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		for (const auto& [sid, var] : m_variants)
+		for (const auto& [sid, var] : m_meta.variants)
 			gfxMan->GetLGX()->DestroyShader(var.gpuHandle);
 	}
 
@@ -57,7 +68,7 @@ namespace Lina
 
 		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		const bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_variants);
+		const bool success = ShaderPreprocessor::Preprocess(txt, outStages);
 		if (!success)
 			return;
 
@@ -70,11 +81,14 @@ namespace Lina
 		}
 
 		gfxMan->GetLGX()->CompileShader(data, m_outCompiledBlobs, m_layout);
+
+		if (m_meta.variants.empty())
+			m_meta.variants["Default"_hs] = {};
 	}
 
-	void Shader::SaveToStream(OStream& stream)
+	void Shader::SaveToStream(OStream& stream) const
 	{
-		HashMapSerialization::SaveToStream_OBJ(stream, m_variants);
+		m_meta.SaveToStream(stream);
 
 		const uint32 size = static_cast<uint32>(m_outCompiledBlobs.size());
 		stream << size;
@@ -92,7 +106,7 @@ namespace Lina
 
 	void Shader::LoadFromStream(IStream& stream)
 	{
-		HashMapSerialization::LoadFromStream_OBJ(stream, m_variants);
+		m_meta.LoadFromStream(stream);
 
 		uint32 size = 0;
 		stream >> size;
@@ -121,7 +135,7 @@ namespace Lina
 	{
 		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		for (auto& [sid, variant] : m_variants)
+		for (auto& [sid, variant] : m_meta.variants)
 		{
 			LinaGX::Format format = LinaGX::Format::B8G8R8A8_SRGB;
 

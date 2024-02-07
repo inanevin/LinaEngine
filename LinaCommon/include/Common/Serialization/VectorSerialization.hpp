@@ -39,7 +39,7 @@ namespace Lina
 	class VectorSerialization
 	{
 	public:
-		template <typename T> static inline void SaveToStream_PT(OStream& stream, Vector<T>& vec)
+		template <typename T> static inline void SaveToStream_PT(OStream& stream, const Vector<T>& vec)
 		{
 			const uint32 size = static_cast<uint32>(vec.size());
 			stream << size;
@@ -48,7 +48,7 @@ namespace Lina
 				stream << vec[i];
 		}
 
-		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, Vector<T>& vec)
+		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, const Vector<T>& vec)
 		{
 			const uint32 size = static_cast<uint32>(vec.size());
 			stream << size;

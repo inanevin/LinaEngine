@@ -48,7 +48,7 @@ namespace Lina
 		return "";
 	}
 
-	void ResourceIdentifier::SaveToStream(OStream& stream)
+	void ResourceIdentifier::SaveToStream(OStream& stream) const
 	{
 		StringSerialization::SaveToStream(stream, path);
 		stream << sid;

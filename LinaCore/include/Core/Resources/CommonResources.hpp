@@ -63,7 +63,7 @@ namespace Lina
 		String	 path		   = "";
 		bool	 useCustomMeta = false;
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 

@@ -87,7 +87,7 @@ namespace Lina
 		stream.Destroy();
 	}
 
-	void Material::SaveToStream(OStream& stream)
+	void Material::SaveToStream(OStream& stream) const
 	{
 		stream << m_shader << m_totalDataSize;
 

@@ -65,7 +65,7 @@ namespace Lina
 		m_world = nullptr;
 	}
 
-	void Level::SaveToStream(OStream& stream)
+	void Level::SaveToStream(OStream& stream) const
 	{
 		if (m_world)
 		{
@@ -95,7 +95,7 @@ namespace Lina
 			stream.WriteEndianSafe(m_runtimeUserStream.GetDataRaw(), m_runtimeUserStream.GetCurrentSize());
 
 		// Refresh after saving
-		m_runtimeUserStream.Destroy();
+		// m_runtimeUserStream.Destroy();
 	}
 
 	void Level::LoadFromStream(IStream& stream)

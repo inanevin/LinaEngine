@@ -41,8 +41,9 @@ namespace Lina
 		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Model>()){};
 		virtual ~Model();
 
+	protected:
 		virtual void LoadFromFile(const char* path) override;
-		virtual void SaveToStream(OStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 	};
 

@@ -205,7 +205,7 @@ namespace Lina
 		}
 	}
 
-	void Texture::SaveToStream(OStream& stream)
+	void Texture::SaveToStream(OStream& stream) const
 	{
 		m_meta.SaveToStream(stream);
 

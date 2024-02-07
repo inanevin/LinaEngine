@@ -47,7 +47,7 @@ namespace Lina
 		LinaGX::CullMode	  cullMode	   = LinaGX::CullMode::Back;
 		LinaGX::FrontFace	  frontFace	   = LinaGX::FrontFace::CCW;
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 

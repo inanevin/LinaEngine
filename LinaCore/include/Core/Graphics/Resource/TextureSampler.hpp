@@ -59,7 +59,7 @@ namespace Lina
 
 	protected:
 		virtual void BatchLoaded() override;
-		virtual void SaveToStream(OStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 
 	private:

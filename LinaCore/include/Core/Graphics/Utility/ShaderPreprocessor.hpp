@@ -41,7 +41,7 @@ namespace Lina
 	class ShaderPreprocessor
 	{
 	public:
-		static bool Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, HashMap<StringID, ShaderVariant>& outVariants);
+		static bool Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages);
 	};
 } // namespace Lina
 

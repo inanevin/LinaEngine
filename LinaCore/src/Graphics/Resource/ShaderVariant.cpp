@@ -31,7 +31,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ShaderVariant::SaveToStream(OStream& stream)
+	void ShaderVariant::SaveToStream(OStream& stream) const
 	{
 		const uint8 targetTypeInt = static_cast<uint8>(targetType);
 		const uint8 cullModeInt	  = static_cast<uint8>(cullMode);

@@ -38,7 +38,7 @@ namespace Lina
 	class SetSerialization
 	{
 	public:
-		template <typename T> static inline void WriteSet_PT(OStream& stream, T& set)
+		template <typename T> static inline void WriteSet_PT(OStream& stream, const T& set)
 		{
 			const uint32 size = static_cast<uint32>(set.size());
 			stream << size;
@@ -61,7 +61,7 @@ namespace Lina
 			}
 		}
 
-		template <typename T> static inline void WriteSet_OBJ(OStream& stream, T& set)
+		template <typename T> static inline void WriteSet_OBJ(OStream& stream, const T& set)
 		{
 			const uint32 size = static_cast<uint32>(set.size());
 			stream << size;
@@ -84,7 +84,7 @@ namespace Lina
 			}
 		}
 
-		template <typename T> static inline void SaveToStream_PT(OStream& stream, Set<T>& set)
+		template <typename T> static inline void SaveToStream_PT(OStream& stream, const Set<T>& set)
 		{
 			WriteSet_PT(stream, set);
 		}
@@ -93,7 +93,7 @@ namespace Lina
 			ReadSet_PT<Set<T>, T>(stream, set);
 		}
 
-		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, Set<T>& set)
+		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, const Set<T>& set)
 		{
 			WriteSet_OBJ(stream, set);
 		}
@@ -102,7 +102,7 @@ namespace Lina
 			ReadSet_OBj<Set<T>, T>(stream, set);
 		}
 
-		template <typename T> static inline void SaveToStream_PT(OStream& stream, HashSet<T>& set)
+		template <typename T> static inline void SaveToStream_PT(OStream& stream, const HashSet<T>& set)
 		{
 			WriteSet_PT(stream, set);
 		}
@@ -111,7 +111,7 @@ namespace Lina
 			ReadSet_PT<HashSet<T>, T>(stream, set);
 		}
 
-		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, HashSet<T>& set)
+		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, const HashSet<T>& set)
 		{
 			WriteSet_OBJ(stream, set);
 		}

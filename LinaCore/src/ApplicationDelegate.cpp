@@ -174,6 +174,29 @@ namespace Lina
 			return true;
 		}
 
+		if (sid == "Resources/Core/Shaders/Test.linashader"_hs)
+		{
+			Shader::Metadata meta;
+
+			meta.variants["Default"_hs] = ShaderVariant{
+				.targetType	  = ShaderWriteTargetType::RenderTarget,
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+				.depthDisable = true,
+				.blendDisable = true,
+			};
+
+			meta.variants["Final"_hs] = ShaderVariant{
+				.targetType	  = ShaderWriteTargetType::Swapchain,
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+				.depthDisable = true,
+				.blendDisable = true,
+			};
+
+			meta.SaveToStream(stream);
+		}
+
 		return false;
 	}
 

@@ -65,6 +65,7 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
+	public:
 		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
 		virtual ~Texture();
 
@@ -99,7 +100,7 @@ namespace Lina
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
 		virtual void SetCustomMeta(IStream& stream) override;
 
 	private:

@@ -39,7 +39,7 @@ namespace Lina
 	{
 	}
 
-	void Model::SaveToStream(OStream& stream)
+	void Model::SaveToStream(OStream& stream) const
 	{
 	}
 	void Model::LoadFromStream(IStream& stream)

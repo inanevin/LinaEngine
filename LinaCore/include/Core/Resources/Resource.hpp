@@ -77,7 +77,7 @@ namespace Lina
 		virtual void BatchLoaded(){};
 		virtual void LoadFromFile(const char* path){};
 		virtual void LoadFromStream(IStream& stream){};
-		virtual void SaveToStream(OStream& stream){};
+		virtual void SaveToStream(OStream& stream) const {};
 		virtual void SetCustomMeta(IStream& stream){};
 
 		inline void SetPath(const String& path)

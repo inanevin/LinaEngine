@@ -50,22 +50,14 @@ namespace Lina
 		return source.substr(startPos, endPos - startPos);
 	}
 
-	void ParseFullShader(const String& text, HashMap<StringID, ShaderVariant>& outVariants, HashMap<LinaGX::ShaderStage, String>& outStages)
+	void ParseFullShader(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages)
 	{
 		std::istringstream f(text.c_str());
-		std::string		   line				= "";
-		bool			   isCmt			= false;
-		bool			   isParsingVariant = false;
-		ShaderVariant	   variantData;
+		std::string		   line	 = "";
+		bool			   isCmt = false;
 
-		const String renderpassIdentifier	= "#lina_renderpass";
-		const String targetIdentifier		= "#lina_target";
-		const String blendIdentifier		= "#lina_blend";
-		const String depthIdentifier		= "#lina_depth";
-		const String cullIdentifier			= "#lina_cull";
-		const String frontIdentifier		= "#lina_front";
-		const String endIdentifier			= "#lina_end";
-		const String variantBeginIdentifier = "#lina_define_variant";
+		const String renderPassIdentifier = "#lina_renderpass";
+		const String endIdentifier		  = "#lina_end";
 
 		while (std::getline(f, line))
 		{
@@ -90,95 +82,12 @@ namespace Lina
 				continue;
 			}
 
-			// size_t renderpassBlock = lineSqueezed.find(renderpassIdentifier.c_str());
-			//
-			// if (renderpassBlock != String::npos)
-			// {
-			// 	variantData.renderPassName = lineSqueezed.substr(renderpassIdentifier.size() + 1, lineSqueezed.size() - renderpassIdentifier.size() - 1).c_str();
-			//
-			// 	if (variantData.renderPassName.compare("basic") == 0)
-			// 		variantData.renderPassType = RenderPassDescriptorType::Basic;
-			// }
-
-			if (line.find(variantBeginIdentifier.c_str()) != std::string::npos)
+			const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
+			if (line.find(renderPassIdentifier.c_str()) != std::string::npos)
 			{
-				isParsingVariant = true;
-				variantData		 = {};
-
-				const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
-				variantData.name		  = lineSqueezed.substr(variantBeginIdentifier.size() + 1, lineSqueezed.size() - variantBeginIdentifier.size() - 1).c_str();
+				const String renderPass = lineSqueezed.substr(renderPassIdentifier.size() + 1, lineSqueezed.size() - renderPassIdentifier.size() - 1).c_str();
 				continue;
 			}
-
-			if (isParsingVariant)
-			{
-				const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
-
-				if (line.find(endIdentifier.c_str()) != std::string::npos)
-				{
-					outVariants[TO_SID(variantData.name)] = variantData;
-					isParsingVariant					  = false;
-					continue;
-				}
-
-				size_t targetBlock = lineSqueezed.find(targetIdentifier.c_str());
-				size_t blendBlock  = lineSqueezed.find(blendIdentifier.c_str());
-				size_t depthBlock  = lineSqueezed.find(depthIdentifier.c_str());
-				size_t cullBlock   = lineSqueezed.find(cullIdentifier.c_str());
-				size_t frontBlock  = lineSqueezed.find(frontIdentifier.c_str());
-
-				if (targetBlock != String::npos)
-				{
-					const String target = lineSqueezed.substr(targetIdentifier.size() + 1, lineSqueezed.size() - targetIdentifier.size() - 1).c_str();
-
-					if (target.compare("rendertarget") == 0)
-						variantData.targetType = ShaderWriteTargetType::RenderTarget;
-					else if (target.compare("swapchain") == 0)
-						variantData.targetType = ShaderWriteTargetType::Swapchain;
-				}
-
-				if (blendBlock != String::npos)
-				{
-					const String blend = lineSqueezed.substr(blendIdentifier.size() + 1, lineSqueezed.size() - blendIdentifier.size() - 1).c_str();
-
-					if (blend.compare("disable") == 0)
-						variantData.blendDisable = true;
-				}
-
-				if (depthBlock != String::npos)
-				{
-					const String depth = lineSqueezed.substr(depthIdentifier.size() + 1, lineSqueezed.size() - depthIdentifier.size() - 1).c_str();
-
-					if (depth.compare("disable") == 0)
-						variantData.depthDisable = true;
-				}
-
-				if (cullBlock != String::npos)
-				{
-					const String cull = lineSqueezed.substr(cullIdentifier.size() + 1, lineSqueezed.size() - cullIdentifier.size() - 1).c_str();
-
-					if (cull.compare("none") == 0)
-						variantData.cullMode = LinaGX::CullMode::None;
-					else if (cull.compare("front") == 0)
-						variantData.cullMode = LinaGX::CullMode::Front;
-				}
-
-				if (frontBlock != String::npos)
-				{
-					const String front = lineSqueezed.substr(frontIdentifier.size() + 1, lineSqueezed.size() - frontIdentifier.size() - 1).c_str();
-
-					if (front.compare("cw") == 0)
-						variantData.frontFace = LinaGX::FrontFace::CW;
-				}
-			}
-		}
-
-		if (outVariants.empty())
-		{
-			ShaderVariant variant = {
-				.name = "Default",
-			};
-			outVariants["Default"_hs] = variant;
 		}
 
 		HashMap<LinaGX::ShaderStage, String> blockIdentifiers;
@@ -211,7 +120,7 @@ namespace Lina
 		}
 	}
 
-	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, HashMap<StringID, ShaderVariant>& outVariants)
+	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages)
 	{
 		if (text.find("#version") != String::npos)
 		{
@@ -219,7 +128,7 @@ namespace Lina
 			return false;
 		}
 
-		ParseFullShader(text, outVariants, outStages);
+		ParseFullShader(text, outStages);
 
 		return true;
 	}

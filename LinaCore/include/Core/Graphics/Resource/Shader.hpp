@@ -32,9 +32,10 @@ SOFTWARE.
 #define Shader_HPP
 
 #include "Core/Resources/Resource.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Streams.hpp"
+#include "Common/Data/HashMap.hpp"
 #include "ShaderVariant.hpp"
 
 namespace Lina
@@ -42,33 +43,42 @@ namespace Lina
 	class Shader : public Resource
 	{
 	public:
+		struct Metadata
+		{
+			HashMap<StringID, ShaderVariant> variants;
+
+			void SaveToStream(OStream& out) const;
+			void LoadFromStream(IStream& in);
+		};
+
+	public:
 		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
 		virtual ~Shader();
 
 		inline uint32 GetGPUHandle() const
 		{
-			return m_variants.begin()->second.gpuHandle;
+			return m_meta.variants.begin()->second.gpuHandle;
 		}
 
 		inline uint32 GetGPUHandle(StringID variant) const
 		{
-			return m_variants.at(variant).gpuHandle;
+			return m_meta.variants.at(variant).gpuHandle;
 		}
 
 		inline uint32 GetGPUHandle(ShaderWriteTargetType passType) const
 		{
-			for (const auto& [sid, var] : m_variants)
+			for (const auto& [sid, var] : m_meta.variants)
 			{
 				if (var.targetType == passType)
 					return var.gpuHandle;
 			}
 
-			return m_variants.begin()->second.gpuHandle;
+			return m_meta.variants.begin()->second.gpuHandle;
 		}
 
 	protected:
 		virtual void LoadFromFile(const char* path) override;
-		virtual void SaveToStream(OStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
 		virtual void Flush() override;
@@ -77,7 +87,7 @@ namespace Lina
 	private:
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
 		LinaGX::ShaderLayout							  m_layout = {};
-		HashMap<StringID, ShaderVariant>				  m_variants;
+		Metadata										  m_meta   = {};
 	};
 
 } // namespace Lina

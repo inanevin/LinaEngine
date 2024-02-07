@@ -39,24 +39,24 @@ namespace Lina
 	class HashMapSerialization
 	{
 	public:
-		template <typename T> static inline void WriteMap_PT(OStream& stream, T& map)
+		template <typename T> static inline void WriteMap_PT(OStream& stream, const T& map)
 		{
 			const uint32 size = static_cast<uint32>(map.size());
 			stream << size;
 
-			for (auto& [key, val] : map)
+			for (const auto& [key, val] : map)
 			{
 				stream << key;
 				stream << val;
 			}
 		}
 
-		template <typename T> static inline void WriteMap_OBJ(OStream& stream, T& map)
+		template <typename T> static inline void WriteMap_OBJ(OStream& stream, const T& map)
 		{
 			const uint32 size = static_cast<uint32>(map.size());
 			stream << size;
 
-			for (auto& [key, val] : map)
+			for (const auto& [key, val] : map)
 			{
 				stream << key;
 				val.SaveToStream(stream);
@@ -96,7 +96,7 @@ namespace Lina
 		}
 
 		/*********** HASH MAP *************/
-		template <typename T, typename K> static inline void SaveToStream_PT(OStream& stream, HashMap<T, K>& map)
+		template <typename T, typename K> static inline void SaveToStream_PT(OStream& stream, const HashMap<T, K>& map)
 		{
 			WriteMap_PT<HashMap<T, K>>(stream, map);
 		}
@@ -106,7 +106,7 @@ namespace Lina
 			ReadMap_PT<HashMap<T, K>, T, K>(stream, map);
 		}
 
-		template <typename T, typename K> static inline void SaveToStream_OBJ(OStream& stream, HashMap<T, K>& map)
+		template <typename T, typename K> static inline void SaveToStream_OBJ(OStream& stream, const HashMap<T, K>& map)
 		{
 			WriteMap_OBJ<HashMap<T, K>>(stream, map);
 		}
@@ -117,7 +117,7 @@ namespace Lina
 		}
 
 		/*********** PARALLEL MUTEX *************/
-		template <typename T, typename K> static inline void SaveToStream_PT(OStream& stream, ParallelHashMapMutex<T, K>& map)
+		template <typename T, typename K> static inline void SaveToStream_PT(OStream& stream, const ParallelHashMapMutex<T, K>& map)
 		{
 			WriteMap_PT<ParallelHashMapMutex<T, K>>(stream, map);
 		}
@@ -126,7 +126,7 @@ namespace Lina
 			ReadMap_PT<ParallelHashMapMutex<T, K>, T, K>(stream, map);
 		}
 
-		template <typename T, typename K> static inline void SaveToStream_OBJ(OStream& stream, ParallelHashMapMutex<T, K>& map)
+		template <typename T, typename K> static inline void SaveToStream_OBJ(OStream& stream, const ParallelHashMapMutex<T, K>& map)
 		{
 			WriteMap_OBJ<ParallelHashMapMutex<T, K>>(stream, map);
 		}
@@ -136,7 +136,7 @@ namespace Lina
 		}
 
 		/*********** PARALLEL *************/
-		template <typename T, typename K> static inline void SaveToStream_PT(OStream& stream, ParallelHashMap<T, K>& map)
+		template <typename T, typename K> static inline void SaveToStream_PT(OStream& stream, const ParallelHashMap<T, K>& map)
 		{
 			WriteMap_PT<ParallelHashMap<T, K>>(stream, map);
 		}
@@ -145,7 +145,7 @@ namespace Lina
 			ReadMap_PT<ParallelHashMap<T, K>, T, K>(stream, map);
 		}
 
-		template <typename T, typename K> static inline void SaveToStream_OBJ(OStream& stream, ParallelHashMap<T, K>& map)
+		template <typename T, typename K> static inline void SaveToStream_OBJ(OStream& stream, const ParallelHashMap<T, K>& map)
 		{
 			WriteMap_OBJ<ParallelHashMap<T, K>>(stream, map);
 		}

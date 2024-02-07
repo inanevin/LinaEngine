@@ -40,7 +40,7 @@ namespace Lina
 	class QueueSerialization
 	{
 	public:
-		template <typename T> static inline void SaveToStream_PT(OStream& stream, Queue<T>& q)
+		template <typename T> static inline void SaveToStream_PT(OStream& stream, const Queue<T>& q)
 		{
 			const uint32 size = static_cast<uint32>(q.size());
 			stream << size;
@@ -55,7 +55,7 @@ namespace Lina
 			}
 		}
 
-		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, Queue<T>& q)
+		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, const Queue<T>& q)
 		{
 			const uint32 size = static_cast<uint32>(q.size());
 			stream << size;
@@ -100,7 +100,7 @@ namespace Lina
 			}
 		}
 
-		template <typename T, typename Container, typename Compare> static inline void SaveToStream_PT(OStream& stream, PriorityQueue<T, Container, Compare>& q)
+		template <typename T, typename Container, typename Compare> static inline void SaveToStream_PT(OStream& stream, const PriorityQueue<T, Container, Compare>& q)
 		{
 			const uint32 size = static_cast<uint32>(q.size());
 			stream << size;
@@ -115,7 +115,7 @@ namespace Lina
 			}
 		}
 
-		template <typename T, typename Container, typename Compare> static inline void SaveToStream_OBJ(OStream& stream, PriorityQueue<T, Container, Compare>& q)
+		template <typename T, typename Container, typename Compare> static inline void SaveToStream_OBJ(OStream& stream, const PriorityQueue<T, Container, Compare>& q)
 		{
 			const uint32 size = static_cast<uint32>(q.size());
 			stream << size;

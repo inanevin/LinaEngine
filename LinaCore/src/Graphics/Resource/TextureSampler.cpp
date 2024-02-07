@@ -39,7 +39,7 @@ namespace Lina
 		gfxMan->GetLGX()->DestroySampler(m_gpuHandle);
 	}
 
-	void TextureSampler::SaveToStream(OStream& stream)
+	void TextureSampler::SaveToStream(OStream& stream) const
 	{
 		const uint8 minFilter	= static_cast<uint8>(m_samplerDesc.minFilter);
 		const uint8 magFilter	= static_cast<uint8>(m_samplerDesc.magFilter);
