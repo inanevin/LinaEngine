@@ -45,5 +45,7 @@ namespace Lina
 
 		static LinaGX::PipelineLayoutDesc GetPLDescPersistentGlobal();
 		static LinaGX::PipelineLayoutDesc GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
+
+		static LinaGX::DescriptorBinding GetBindingFromShaderBinding(const LinaGX::ShaderDescriptorSetBinding& b);
 	};
 } // namespace Lina

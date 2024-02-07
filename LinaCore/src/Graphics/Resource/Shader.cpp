@@ -42,11 +42,16 @@ namespace Lina
 	void Shader::Metadata::SaveToStream(OStream& out) const
 	{
 		HashMapSerialization::SaveToStream_OBJ(out, variants);
+		out << static_cast<uint8>(renderPassDescriptorType);
 	}
 
 	void Shader::Metadata::LoadFromStream(IStream& in)
 	{
 		HashMapSerialization::LoadFromStream_OBJ(in, variants);
+
+		uint8 rpType = 0;
+		in >> rpType;
+		renderPassDescriptorType = static_cast<RenderPassDescriptorType>(rpType);
 	}
 
 	Shader::~Shader()
@@ -55,6 +60,12 @@ namespace Lina
 
 		for (const auto& [sid, var] : m_meta.variants)
 			gfxMan->GetLGX()->DestroyShader(var.gpuHandle);
+	}
+
+	void Shader::Bind(LinaGX::CommandStream* stream, uint32 gpuHandle)
+	{
+		LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
+		bind->shader				  = gpuHandle;
 	}
 
 	void Shader::LoadFromFile(const char* path)
@@ -68,7 +79,7 @@ namespace Lina
 
 		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		const bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_renderPassType);
+		const bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_meta.renderPassDescriptorType);
 		if (!success)
 			return;
 
@@ -89,7 +100,6 @@ namespace Lina
 	void Shader::SaveToStream(OStream& stream) const
 	{
 		m_meta.SaveToStream(stream);
-		stream << static_cast<uint8>(m_renderPassType);
 
 		const uint32 size = static_cast<uint32>(m_outCompiledBlobs.size());
 		stream << size;
@@ -108,10 +118,6 @@ namespace Lina
 	void Shader::LoadFromStream(IStream& stream)
 	{
 		m_meta.LoadFromStream(stream);
-
-		uint8 rpType = 0;
-		stream >> rpType;
-		m_renderPassType = static_cast<RenderPassDescriptorType>(rpType);
 
 		uint32 size = 0;
 		stream >> size;
@@ -173,7 +179,24 @@ namespace Lina
 				.depthCompare				  = LinaGX::CompareOp::Less,
 			};
 
-			// variant.pipelineLayout = gfxMan->GetLGX()->CreatePipelineLayout(GfxHelpers)
+			/*
+			   Create a descriptor set description from the reflection info, this will be used to create descritor sets for the materials using this shader.
+				Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.
+			 Materials will use this layout when binding descriptor sets for this shader.
+			 */
+
+			LinaGX::PipelineLayoutDesc plDesc = {.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GfxHelpers::GetSetDescPersistentRenderPass(m_meta.renderPassDescriptorType)}};
+			if (m_layout.descriptorSetLayouts.size() > 2)
+			{
+				const auto& setLayout = m_layout.descriptorSetLayouts[2];
+
+				m_materialSetDesc = {};
+				for (const auto& b : setLayout.bindings)
+					m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
+
+				plDesc.descriptorSetDescriptions.push_back(m_materialSetDesc);
+			}
+			m_pipelineLayout = gfxMan->GetLGX()->CreatePipelineLayout(plDesc);
 
 			variant.gpuHandle = gfxMan->GetLGX()->CreateShader({
 				.stages					 = m_outCompiledBlobs,
@@ -185,7 +208,7 @@ namespace Lina
 				.frontFace				 = variant.frontFace,
 				.topology				 = LinaGX::Topology::TriangleList,
 				.useCustomPipelineLayout = true,
-				.customPipelineLayout	 = variant.pipelineLayout,
+				.customPipelineLayout	 = m_pipelineLayout,
 				.debugName				 = m_path.c_str(),
 			});
 		}

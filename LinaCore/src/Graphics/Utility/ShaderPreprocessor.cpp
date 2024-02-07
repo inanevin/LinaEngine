@@ -49,50 +49,34 @@ namespace Lina
 		return source.substr(startPos, endPos - startPos);
 	}
 
-	void ParseFullShader(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, RenderPassDescriptorType& outRenderPass)
+	void ParseFullShader(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, const RenderPassDescriptorType& rpType)
 	{
 		std::istringstream f(text.c_str());
 		std::string		   line	 = "";
 		bool			   isCmt = false;
 
-		const String renderPassIdentifier = "#lina_renderpass";
-		const String endIdentifier		  = "#lina_end";
-		String		 renderPassText		  = "basic";
-
-		while (std::getline(f, line))
-		{
-			if (!line.empty() && *line.rbegin() == '\r')
-				line.erase(line.end() - 1);
-
-			const size_t cmtPos = line.find("//");
-			if (cmtPos != std::string::npos && cmtPos == 0)
-				continue;
-
-			if (line.find("/*") != std::string::npos)
-			{
-				isCmt = true;
-				continue;
-			}
-
-			if (isCmt)
-			{
-				if (line.find("*/") != std::string::npos)
-					isCmt = false;
-
-				continue;
-			}
-
-			const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
-			if (line.find(renderPassIdentifier.c_str()) != std::string::npos)
-			{
-				renderPassText = lineSqueezed.substr(renderPassIdentifier.size() + 1, lineSqueezed.size() - renderPassIdentifier.size() - 1).c_str();
-
-				if (renderPassText.compare("basic") == 0)
-					outRenderPass = RenderPassDescriptorType::Basic;
-
-				continue;
-			}
-		}
+		// const String endIdentifier		  = "#lina_end";
+		// while (std::getline(f, line))
+		// {
+		// 	if (!line.empty() && *line.rbegin() == '\r')
+		// 		line.erase(line.end() - 1);
+		// 	const size_t cmtPos = line.find("//");
+		// 	if (cmtPos != std::string::npos && cmtPos == 0)
+		// 		continue;
+		// 	if (line.find("/*") != std::string::npos)
+		// 	{
+		// 		isCmt = true;
+		// 		continue;
+		// 	}
+		// 	if (isCmt)
+		// 	{
+		// 		if (line.find("*/") != std::string::npos)
+		// 			isCmt = false;
+		// 		continue;
+		// 	}
+		// 	// const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
+		//
+		// }
 
 		HashMap<LinaGX::ShaderStage, String> blockIdentifiers;
 		blockIdentifiers[LinaGX::ShaderStage::Fragment] = "#lina_fs";
@@ -107,7 +91,10 @@ namespace Lina
 			return include;
 		};
 
-		const String renderPassPath	   = String("Resources/Core/Shaders/Common/RenderPass_") + renderPassText + ".linashader";
+		String rpText = "basic";
+		// Check RPType
+
+		const String renderPassPath	   = String("Resources/Core/Shaders/Common/RenderPass_") + rpText + ".linashader";
 		const String globalDataInclude = getInclude("Resources/Core/Shaders/Common/GlobalData.linashader");
 		const String renderPassInclude = getInclude(renderPassPath.c_str());
 
@@ -130,7 +117,7 @@ namespace Lina
 		}
 	}
 
-	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, RenderPassDescriptorType& outRenderPass)
+	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, const RenderPassDescriptorType& rpType)
 	{
 		if (text.find("#version") != String::npos)
 		{
@@ -138,7 +125,7 @@ namespace Lina
 			return false;
 		}
 
-		ParseFullShader(text, outStages, outRenderPass);
+		ParseFullShader(text, outStages, rpType);
 
 		return true;
 	}

@@ -73,7 +73,7 @@ namespace Lina
 
 		// RP
 		m_renderpass.SetColorAttachment(0, {.texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
-		m_renderpass.Create(m_lgx, RenderPassDescriptorType::Basic);
+		m_renderpass.Create(m_gfxManager, m_lgx, RenderPassDescriptorType::Basic);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -182,14 +182,6 @@ namespace Lina
 			.height = m_size.y,
 		};
 
-		// Descriptors
-		LinaGX::CMDBindDescriptorSets* bind = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		bind->descriptorSetHandles			= currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_gfxManager->GetDescriptorSetPersistentGlobal(frameIndex), m_renderpass.GetDescriptorSet(frameIndex));
-		bind->firstSet						= 0;
-		bind->setCount						= 2;
-		bind->layoutSource					= LinaGX::DescriptorSetsLayoutSource::CustomLayout;
-		bind->customLayout					= m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::Basic);
-
 		// Barrier to Color Attachment
 		LinaGX::CMDBarrier* barrierToColor	= currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
 		barrierToColor->srcStageFlags		= LinaGX::PSF_TopOfPipe;
@@ -197,6 +189,10 @@ namespace Lina
 		barrierToColor->textureBarrierCount = 1;
 		barrierToColor->textureBarriers		= currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier));
 		barrierToColor->textureBarriers[0]	= GfxHelpers::GetTextureBarrierPresent2Color(static_cast<uint32>(m_swapchain), true);
+
+		// Descriptors
+
+		m_renderpass.BindDescriptors(currentFrame.gfxStream, frameIndex);
 
 		// Begin render pass
 		m_renderpass.Begin(currentFrame.gfxStream, viewport, scissors);

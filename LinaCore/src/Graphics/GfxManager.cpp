@@ -225,9 +225,9 @@ namespace Lina
 
 				data.pipelineLayoutPersistentGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
 
-				for (int32 i = 0; i < RenderPassDescriptorType::Max; i++)
+				for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
 				{
-					data.pipelineLayoutPersistentRenderpass[i] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(i)));
+					data.pipelineLayoutPersistentRenderpass[i] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
 				}
 			}
 		}
@@ -256,6 +256,9 @@ namespace Lina
 			m_lgx->DestroyDescriptorSet(data.descriptorSetPersistentGlobal);
 			m_lgx->DestroyResource(data.globalDataResource);
 			m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentGlobal);
+
+			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
+				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
 		}
 
 		// Other gfx resources

@@ -46,6 +46,7 @@ namespace Lina
 		struct Metadata
 		{
 			HashMap<StringID, ShaderVariant> variants;
+			RenderPassDescriptorType		 renderPassDescriptorType = RenderPassDescriptorType::Basic;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -54,6 +55,8 @@ namespace Lina
 	public:
 		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
 		virtual ~Shader();
+
+		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -76,6 +79,16 @@ namespace Lina
 			return m_meta.variants.begin()->second.gpuHandle;
 		}
 
+		inline uint16 GetPipelineLayout() const
+		{
+			return m_pipelineLayout;
+		}
+
+		inline const LinaGX::DescriptorSetDesc& GetMaterialSetDesc() const
+		{
+			return m_materialSetDesc;
+		}
+
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
@@ -86,9 +99,10 @@ namespace Lina
 	private:
 	private:
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
-		LinaGX::ShaderLayout							  m_layout		   = {};
-		Metadata										  m_meta		   = {};
-		RenderPassDescriptorType						  m_renderPassType = RenderPassDescriptorType::Basic;
+		LinaGX::ShaderLayout							  m_layout			= {};
+		LinaGX::DescriptorSetDesc						  m_materialSetDesc = {};
+		Metadata										  m_meta			= {};
+		uint16											  m_pipelineLayout;
 	};
 
 } // namespace Lina

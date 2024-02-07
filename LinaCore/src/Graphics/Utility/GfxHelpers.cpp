@@ -109,4 +109,16 @@ namespace Lina
 	{
 		return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderpassType)}, .debugName = "Persistent Renderpass Layout"};
 	}
+
+	LinaGX::DescriptorBinding GfxHelpers::GetBindingFromShaderBinding(const LinaGX::ShaderDescriptorSetBinding& b)
+	{
+		return {
+			.descriptorCount  = b.descriptorCount,
+			.type			  = b.type,
+			.unbounded		  = b.descriptorCount == 0,
+			.useDynamicOffset = false,
+			.isWritable		  = b.isWritable,
+			.stages			  = b.stages,
+		};
+	}
 } // namespace Lina

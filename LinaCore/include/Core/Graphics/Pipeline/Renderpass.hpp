@@ -36,6 +36,8 @@ SOFTWARE.
 
 namespace Lina
 {
+	class GfxManager;
+
 	class Renderpass
 	{
 	public:
@@ -45,8 +47,9 @@ namespace Lina
 			uint16 descriptorSet  = 0;
 		};
 
-		void Create(LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType);
+		void Create(GfxManager* gfxMan, LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType);
 		void Destroy();
+		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, bool bindGlobalSet = true);
 		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors);
 		void End(LinaGX::CommandStream* stream);
 
@@ -68,9 +71,11 @@ namespace Lina
 		}
 
 	private:
+		GfxManager*								  m_gfxManager = nullptr;
 		LinaGX::RenderPassDepthStencilAttachment  m_depthStencil;
 		Vector<LinaGX::RenderPassColorAttachment> m_colorAttachments = {};
 		LinaGX::Instance*						  m_lgx				 = nullptr;
 		PerFrameData							  m_pfd[FRAMES_IN_FLIGHT];
+		RenderPassDescriptorType				  m_type = RenderPassDescriptorType::Basic;
 	};
 } // namespace Lina
