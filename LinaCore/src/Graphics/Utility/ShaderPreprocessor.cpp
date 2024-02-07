@@ -58,7 +58,7 @@ namespace Lina
 		bool			   isParsingVariant = false;
 		ShaderVariant	   variantData;
 
-        const String renderpassIdentifier   = "#lina_renderpass";
+		const String renderpassIdentifier	= "#lina_renderpass";
 		const String targetIdentifier		= "#lina_target";
 		const String blendIdentifier		= "#lina_blend";
 		const String depthIdentifier		= "#lina_depth";
@@ -89,16 +89,16 @@ namespace Lina
 
 				continue;
 			}
-            
-            size_t renderpassBlock = lineSqueezed.find(renderpassIdentifier.c_str());
 
-            if(renderpassBlock != String::npos)
-            {
-                variantData.renderPassName = lineSqueezed.substr(renderpassIdentifier.size() + 1, lineSqueezed.size() - renderpassIdentifier.size() - 1).c_str();
-                
-                if(variantData.renderPassName.compare("basic") == 0)
-                    variantData.renderPassType = RenderPassDescriptorType::Basic;
-            }
+			size_t renderpassBlock = lineSqueezed.find(renderpassIdentifier.c_str());
+
+			if (renderpassBlock != String::npos)
+			{
+				variantData.renderPassName = lineSqueezed.substr(renderpassIdentifier.size() + 1, lineSqueezed.size() - renderpassIdentifier.size() - 1).c_str();
+
+				if (variantData.renderPassName.compare("basic") == 0)
+					variantData.renderPassType = RenderPassDescriptorType::Basic;
+			}
 
 			if (line.find(variantBeginIdentifier.c_str()) != std::string::npos)
 			{
@@ -121,18 +121,17 @@ namespace Lina
 					continue;
 				}
 
-				size_t targetBlock  = lineSqueezed.find(targetIdentifier.c_str());
-				size_t blendBlock = lineSqueezed.find(blendIdentifier.c_str());
-				size_t depthBlock = lineSqueezed.find(depthIdentifier.c_str());
-				size_t cullBlock  = lineSqueezed.find(cullIdentifier.c_str());
-				size_t frontBlock = lineSqueezed.find(frontIdentifier.c_str());
+				size_t targetBlock = lineSqueezed.find(targetIdentifier.c_str());
+				size_t blendBlock  = lineSqueezed.find(blendIdentifier.c_str());
+				size_t depthBlock  = lineSqueezed.find(depthIdentifier.c_str());
+				size_t cullBlock   = lineSqueezed.find(cullIdentifier.c_str());
+				size_t frontBlock  = lineSqueezed.find(frontIdentifier.c_str());
 
-            
 				if (targetBlock != String::npos)
 				{
 					const String target = lineSqueezed.substr(targetIdentifier.size() + 1, lineSqueezed.size() - targetIdentifier.size() - 1).c_str();
 
-					if (target .compare("rendertarget") == 0)
+					if (target.compare("rendertarget") == 0)
 						variantData.targetType = ShaderWriteTargetType::RenderTarget;
 					else if (target.compare("swapchain") == 0)
 						variantData.targetType = ShaderWriteTargetType::Swapchain;
@@ -172,13 +171,12 @@ namespace Lina
 						variantData.frontFace = LinaGX::FrontFace::CW;
 				}
 			}
-           
 		}
 
 		if (outVariants.empty())
 		{
 			ShaderVariant variant = {
-				.name	  = "Default",
+				.name = "Default",
 			};
 			outVariants["Default"_hs] = variant;
 		}
@@ -189,16 +187,14 @@ namespace Lina
 		blockIdentifiers[LinaGX::ShaderStage::Compute]	= "#lina_cs";
 		blockIdentifiers[LinaGX::ShaderStage::Geometry] = "#lina_gs";
 
-		String		 globalDataInclude	   = FileSystem::ReadFileContentsAsString("Resources/Core/Shaders/Common/GlobalData.linashader");
-		const size_t commentsEnd		   = globalDataInclude.find("*/") + 2;
-		globalDataInclude				   = globalDataInclude.substr(commentsEnd, globalDataInclude.size() - commentsEnd);
-        
-        
-        const String renderPassPath = "Resources/Core/Shaders/Common/RenderPass_" + ""
-        String renderPassFile = FileSystem::ReadFileContentsAsString("Reso")
-        
-		const String versionDirective	   = "#version 460 \n";
-		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
+		String		 globalDataInclude = FileSystem::ReadFileContentsAsString("Resources/Core/Shaders/Common/GlobalData.linashader");
+		const size_t commentsEnd	   = globalDataInclude.find("*/") + 2;
+		globalDataInclude			   = globalDataInclude.substr(commentsEnd, globalDataInclude.size() - commentsEnd);
+
+		const String renderPassPath = "Resources/Core/Shaders/Common/RenderPass_" + "" String renderPassFile = FileSystem::ReadFileContentsAsString("Reso")
+
+										  const String versionDirective		 = "#version 460 \n";
+		const String								   dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
 
 		for (const auto& [stage, ident] : blockIdentifiers)
 		{

@@ -107,18 +107,18 @@ namespace Lina
 					else
 					{
 						// Some resources have preliminary/initial metadata.
-                        if(ident.useCustomMeta)
-                        {
-                            OStream metaStream;
-                            if(m_system->GetApp()->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream))
-                            {
-                                IStream in;
-                                in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-                                res->SetCustomMeta(in);
-                                in.Destroy();
-                            }
-                        }
-						
+						if (ident.useCustomMeta)
+						{
+							OStream metaStream;
+							if (m_system->GetApp()->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream))
+							{
+								IStream in;
+								in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+								res->SetCustomMeta(in);
+								in.Destroy();
+							}
+						}
+
 						res->m_resourceManager = this;
 						res->LoadFromFile(ident.path.c_str());
 						res->Upload();

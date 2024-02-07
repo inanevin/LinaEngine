@@ -34,22 +34,22 @@ SOFTWARE.
 
 namespace Lina
 {
-    void Texture::Metadata::SaveToStream(OStream &out)
-    {
-        out << static_cast<uint8>(format) << static_cast<uint8>(mipmapMode) << static_cast<uint8>(mipFilter) << static_cast<uint8>(channelMask);
-        out << channelCount << samplerSID << isLinear << generateMipmaps;
-    }
+	void Texture::Metadata::SaveToStream(OStream& out)
+	{
+		out << static_cast<uint8>(format) << static_cast<uint8>(mipmapMode) << static_cast<uint8>(mipFilter) << static_cast<uint8>(channelMask);
+		out << channelCount << samplerSID << isLinear << generateMipmaps;
+	}
 
-    void Texture::Metadata::LoadFromStream(IStream &in)
-    {
-        uint8 formatInt = 0, mipmapModeInt = 0, mipFilterInt = 0, channelMaskInt = 0;
-        in >> formatInt >> mipmapModeInt >> mipFilterInt >> channelMaskInt;
-        format = static_cast<LinaGX::Format>(formatInt);
-        mipmapMode = static_cast<LinaGX::MipmapMode>(mipmapModeInt);
-        mipFilter = static_cast<LinaGX::MipmapFilter>(mipFilterInt);
-        channelMaskInt = static_cast<LinaGX::ImageChannelMask>(channelMaskInt);
-        in >> channelCount >> samplerSID >> isLinear >> generateMipmaps;
-    }
+	void Texture::Metadata::LoadFromStream(IStream& in)
+	{
+		uint8 formatInt = 0, mipmapModeInt = 0, mipFilterInt = 0, channelMaskInt = 0;
+		in >> formatInt >> mipmapModeInt >> mipFilterInt >> channelMaskInt;
+		format		   = static_cast<LinaGX::Format>(formatInt);
+		mipmapMode	   = static_cast<LinaGX::MipmapMode>(mipmapModeInt);
+		mipFilter	   = static_cast<LinaGX::MipmapFilter>(mipFilterInt);
+		channelMaskInt = static_cast<LinaGX::ImageChannelMask>(channelMaskInt);
+		in >> channelCount >> samplerSID >> isLinear >> generateMipmaps;
+	}
 
 	Texture::~Texture()
 	{
@@ -63,7 +63,7 @@ namespace Lina
 	uint32 Texture::GetSamplerSID() const
 	{
 		if (m_sampler == 0)
-            return m_meta.samplerSID;
+			return m_meta.samplerSID;
 		return m_sampler;
 	}
 
@@ -177,7 +177,7 @@ namespace Lina
 
 	void Texture::LoadFromStream(IStream& stream)
 	{
-        m_meta.LoadFromStream(stream);
+		m_meta.LoadFromStream(stream);
 
 		uint32 allLevels = 0;
 		stream >> allLevels;
@@ -201,30 +201,29 @@ namespace Lina
 		}
 	}
 
-    void Texture::SaveToStream(OStream& stream)
-    {
-        m_meta.SaveToStream(stream);
-        
-        const uint32 bytesPerPixel = static_cast<uint32>(m_meta.channelMask) + 1;
-        const uint32 allLevels       = static_cast<uint32>(m_allLevels.size());
-        
-        stream << allLevels;
-        
-        for (const auto& buffer : m_allLevels)
-        {
-            const uint32 pixelSize = buffer.width * buffer.height * bytesPerPixel;
-            stream << buffer.width << buffer.height << pixelSize;
-            
-            if (pixelSize != 0)
-                stream.WriteEndianSafe(buffer.pixels, pixelSize);
-        }
-    }
+	void Texture::SaveToStream(OStream& stream)
+	{
+		m_meta.SaveToStream(stream);
 
+		const uint32 bytesPerPixel = static_cast<uint32>(m_meta.channelMask) + 1;
+		const uint32 allLevels	   = static_cast<uint32>(m_allLevels.size());
 
-    void Texture::SetCustomMeta(IStream &stream)
-    {
-        m_meta.LoadFromStream(stream);
-    }
+		stream << allLevels;
+
+		for (const auto& buffer : m_allLevels)
+		{
+			const uint32 pixelSize = buffer.width * buffer.height * bytesPerPixel;
+			stream << buffer.width << buffer.height << pixelSize;
+
+			if (pixelSize != 0)
+				stream.WriteEndianSafe(buffer.pixels, pixelSize);
+		}
+	}
+
+	void Texture::SetCustomMeta(IStream& stream)
+	{
+		m_meta.LoadFromStream(stream);
+	}
 
 	void Texture::BatchLoaded()
 	{

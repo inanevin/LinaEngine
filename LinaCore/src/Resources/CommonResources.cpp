@@ -41,8 +41,8 @@ namespace Lina
 			return "Resources/Packages/res_pack_01.linapackage";
 		case PackageType::Package2:
 			return "Resources/Packages/res_pack_02.linapackage";
-            default:
-                return "";
+		default:
+			return "";
 		}
 
 		return "";
@@ -53,7 +53,7 @@ namespace Lina
 		StringSerialization::SaveToStream(stream, path);
 		stream << sid;
 		stream << tid;
-        stream << useCustomMeta;
+		stream << useCustomMeta;
 	}
 
 	void ResourceIdentifier::LoadFromStream(IStream& stream)
@@ -61,6 +61,6 @@ namespace Lina
 		StringSerialization::LoadFromStream(stream, path);
 		stream >> sid;
 		stream >> tid;
-        stream >> useCustomMeta;
+		stream >> useCustomMeta;
 	}
 } // namespace Lina
