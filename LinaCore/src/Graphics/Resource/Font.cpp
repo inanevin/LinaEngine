@@ -34,11 +34,12 @@ SOFTWARE.
 
 namespace Lina
 {
-	void Font::Metadata::SaveToStream(OStream& out)
+	void Font::Metadata::SaveToStream(OStream& out) const
 	{
 		out << pointSize;
 		out << isSDF;
 		out << static_cast<int32>(glyphRanges.size());
+		;
 
 		for (const auto& rangePair : glyphRanges)
 		{
@@ -85,14 +86,12 @@ namespace Lina
 		if (customRangeVec.empty())
 			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.pointSize);
 		else
-			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.pointSize, customRangeVec.data(), customRanges);
+			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.pointSize, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
 	}
 
 	void Font::LoadFromFile(const char* path)
 	{
-		// Popuplate if not existing.
-		m_metadata.GetBool(FONT_META_ISSDF, false);
-		m_metadata.GetInt(FONT_META_SIZE, 12);
+		// Populate if not existing.
 		FileSystem::ReadFileContentsToVector(path, m_file);
 	}
 
@@ -110,7 +109,7 @@ namespace Lina
 
 	void Font::SetCustomMeta(IStream& stream)
 	{
-		m_meta.LoadFromStream(in);
+		m_meta.LoadFromStream(stream);
 	}
 
 } // namespace Lina

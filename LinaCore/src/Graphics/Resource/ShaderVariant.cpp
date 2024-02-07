@@ -27,28 +27,27 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/ShaderVariant.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
 	void ShaderVariant::SaveToStream(OStream& stream)
 	{
-		const uint8 targetTypeInt	  = static_cast<uint8>(targetType);
-		const uint8 cullModeInt		  = static_cast<uint8>(cullMode);
-		const uint8 frontFaceInt	  = static_cast<uint8>(frontFace);
-		const uint8 renderPassTypeInt = static_cast<uint8>(renderPassType);
-		stream << gpuHandle << blendDisable << depthDisable << targetTypeInt << cullModeInt << frontFaceInt << renderPassTypeInt;
+		const uint8 targetTypeInt = static_cast<uint8>(targetType);
+		const uint8 cullModeInt	  = static_cast<uint8>(cullMode);
+		const uint8 frontFaceInt  = static_cast<uint8>(frontFace);
+		stream << gpuHandle << blendDisable << depthDisable << targetTypeInt << cullModeInt << frontFaceInt;
 		StringSerialization::SaveToStream(stream, name);
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
-		uint8 targetTypeInt = 0, cullModeInt = 0, frontFaceInt = 0, renderPassTypeInt = 0;
-		stream >> gpuHandle >> blendDisable >> depthDisable >> targetTypeInt >> cullModeInt >> frontFaceInt >> renderPassTypeInt;
+		uint8 targetTypeInt = 0, cullModeInt = 0, frontFaceInt = 0;
+		stream >> gpuHandle >> blendDisable >> depthDisable >> targetTypeInt >> cullModeInt >> frontFaceInt;
 		StringSerialization::LoadFromStream(stream, name);
-		targetType	   = static_cast<ShaderWriteTargetType>(targetTypeInt);
-		cullMode	   = static_cast<LinaGX::CullMode>(cullModeInt);
-		frontFace	   = static_cast<LinaGX::FrontFace>(frontFaceInt);
-		renderPassType = static_cast<RenderPassDescriptorType>(renderPassTypeInt);
+		targetType = static_cast<ShaderWriteTargetType>(targetTypeInt);
+		cullMode   = static_cast<LinaGX::CullMode>(cullModeInt);
+		frontFace  = static_cast<LinaGX::FrontFace>(frontFaceInt);
 	}
 
 } // namespace Lina

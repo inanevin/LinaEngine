@@ -73,7 +73,7 @@ namespace Lina
 
 		// RP
 		m_renderpass.SetColorAttachment(0, {.texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
-		m_renderpass.Create(m_lgx);
+		m_renderpass.Create(m_lgx, RenderPassDescriptorType::Basic);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{

@@ -34,21 +34,25 @@ SOFTWARE.
 
 namespace Lina
 {
-	void Texture::Metadata::SaveToStream(OStream& out)
+	void Texture::Metadata::SaveToStream(OStream& out) const
 	{
-		out << static_cast<uint8>(format) << static_cast<uint8>(mipmapMode) << static_cast<uint8>(mipFilter) << static_cast<uint8>(channelMask);
-		out << channelCount << samplerSID << isLinear << generateMipmaps;
+		const uint8 formatInt	   = static_cast<uint8>(format);
+		const uint8 mipmapModeInt  = static_cast<uint8>(mipmapMode);
+		const uint8 mipFilterInt   = static_cast<uint8>(mipFilter);
+		const uint8 channelMaskInt = static_cast<uint8>(channelMask);
+		out << formatInt << mipmapModeInt << mipFilterInt << channelMaskInt;
+		out << samplerSID << isLinear << generateMipmaps;
 	}
 
 	void Texture::Metadata::LoadFromStream(IStream& in)
 	{
 		uint8 formatInt = 0, mipmapModeInt = 0, mipFilterInt = 0, channelMaskInt = 0;
 		in >> formatInt >> mipmapModeInt >> mipFilterInt >> channelMaskInt;
-		format		   = static_cast<LinaGX::Format>(formatInt);
-		mipmapMode	   = static_cast<LinaGX::MipmapMode>(mipmapModeInt);
-		mipFilter	   = static_cast<LinaGX::MipmapFilter>(mipFilterInt);
-		channelMaskInt = static_cast<LinaGX::ImageChannelMask>(channelMaskInt);
-		in >> channelCount >> samplerSID >> isLinear >> generateMipmaps;
+		format		= static_cast<LinaGX::Format>(formatInt);
+		mipmapMode	= static_cast<LinaGX::MipmapMode>(mipmapModeInt);
+		mipFilter	= static_cast<LinaGX::MipmapFilter>(mipFilterInt);
+		channelMask = static_cast<LinaGX::ImageChannelMask>(channelMaskInt);
+		in >> samplerSID >> isLinear >> generateMipmaps;
 	}
 
 	Texture::~Texture()
@@ -98,7 +102,7 @@ namespace Lina
 			.bytesPerPixel = bytesPerPixel,
 		};
 
-		m_channelMask = static_cast<LinaGX::ImageChannelMask>(bytesPerPixel);
+		m_meta.channelMask = static_cast<LinaGX::ImageChannelMask>(bytesPerPixel - 1);
 
 		const size_t sz = width * height * bytesPerPixel;
 		level0.pixels	= new uint8[sz];
@@ -195,7 +199,7 @@ namespace Lina
 				stream.ReadEndianSafe(buffer.pixels, pixelSize);
 			}
 
-			buffer.bytesPerPixel = static_cast<uint32>(m_channelMask);
+			buffer.bytesPerPixel = static_cast<uint32>(m_meta.channelMask) + 1;
 
 			m_allLevels.push_back(buffer);
 		}

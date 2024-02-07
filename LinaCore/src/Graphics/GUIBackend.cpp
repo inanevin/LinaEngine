@@ -93,14 +93,14 @@ namespace Lina
 
 	void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf, int threadIndex)
 	{
-		auto& req							  = AddDrawRequest(buf, threadIndex);
-		auto  txt							  = m_resourceManager->GetResource<Texture>(buf->m_textureHandle);
-		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(txt->GetSamplerSID());
-		req.materialData.floatPack1			  = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-		req.materialData.floatPack2			  = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, 0.0f);
-		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
-		req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
-		req.materialData.color1				  = buf->m_tint;
+		auto& req					= AddDrawRequest(buf, threadIndex);
+		auto  txt					= m_resourceManager->GetResource<Texture>(buf->m_textureHandle);
+		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(txt->GetSamplerSID());
+		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
+		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, 0.0f);
+		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
+		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
+		req.materialData.color1 = buf->m_tint;
 	}
 
 	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int threadIndex)
@@ -110,23 +110,23 @@ namespace Lina
 
 	void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int threadIndex)
 	{
-		auto& req							  = AddDrawRequest(buf, threadIndex);
-		auto  txt							  = m_fontTextures[buf->m_textureHandle].texture;
-		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
-		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
-		req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
+		auto& req	  = AddDrawRequest(buf, threadIndex);
+		auto  txt	  = m_fontTextures[buf->m_textureHandle].texture;
+		auto  sampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
+		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
+		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 	}
 
 	void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int threadIndex)
 	{
-		auto& req							  = AddDrawRequest(buf, threadIndex);
-		auto  txt							  = m_fontTextures[buf->m_textureHandle].texture;
-		auto  sampler						  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
-		req.materialData.color1				  = buf->m_outlineColor;
-		req.materialData.floatPack1			  = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f ? 1.0f : 0.0f);
-		req.materialData.floatPack2			  = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
-		req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
-		req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
+		auto& req					= AddDrawRequest(buf, threadIndex);
+		auto  txt					= m_fontTextures[buf->m_textureHandle].texture;
+		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
+		req.materialData.color1		= buf->m_outlineColor;
+		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f ? 1.0f : 0.0f);
+		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
+		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
+		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 	}
 
 	void GUIBackend::Render(int threadIndex)

@@ -66,7 +66,7 @@ namespace Lina
 		return list;
 	}
 
-	void ApplicationDelegate::FillResourceCustomMeta(StringID sid, OStream& stream)
+	bool ApplicationDelegate::FillResourceCustomMeta(StringID sid, OStream& stream)
 	{
 		if (sid == "Resources/Core/Fonts/NunitoSans_1x.ttf"_hs)
 		{

@@ -39,21 +39,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	struct ShaderVariant
-	{
-		uint32					 gpuHandle		= 0;
-		String					 name			= "";
-		bool					 blendDisable	= false;
-		bool					 depthDisable	= false;
-		ShaderWriteTargetType	 targetType		= ShaderWriteTargetType::RenderTarget;
-		RenderPassDescriptorType renderPassType = RenderPassDescriptorType::Basic;
-		LinaGX::CullMode		 cullMode		= LinaGX::CullMode::Back;
-		LinaGX::FrontFace		 frontFace		= LinaGX::FrontFace::CCW;
-
-		void SaveToStream(OStream& stream);
-		void LoadFromStream(IStream& stream);
-	};
-
 	class Shader : public Resource
 	{
 	public:

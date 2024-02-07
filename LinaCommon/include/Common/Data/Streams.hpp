@@ -232,6 +232,11 @@ namespace Lina
 		return stream;
 	}
 
+	template <typename T> OStream& operator<<(OStream& stream, T&& val)
+	{
+		StreamHelper<T>::WriteToStream(stream, val);
+		return stream;
+	}
 } // namespace Lina
 
 #endif

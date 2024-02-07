@@ -90,15 +90,15 @@ namespace Lina
 				continue;
 			}
 
-			size_t renderpassBlock = lineSqueezed.find(renderpassIdentifier.c_str());
-
-			if (renderpassBlock != String::npos)
-			{
-				variantData.renderPassName = lineSqueezed.substr(renderpassIdentifier.size() + 1, lineSqueezed.size() - renderpassIdentifier.size() - 1).c_str();
-
-				if (variantData.renderPassName.compare("basic") == 0)
-					variantData.renderPassType = RenderPassDescriptorType::Basic;
-			}
+			// size_t renderpassBlock = lineSqueezed.find(renderpassIdentifier.c_str());
+			//
+			// if (renderpassBlock != String::npos)
+			// {
+			// 	variantData.renderPassName = lineSqueezed.substr(renderpassIdentifier.size() + 1, lineSqueezed.size() - renderpassIdentifier.size() - 1).c_str();
+			//
+			// 	if (variantData.renderPassName.compare("basic") == 0)
+			// 		variantData.renderPassType = RenderPassDescriptorType::Basic;
+			// }
 
 			if (line.find(variantBeginIdentifier.c_str()) != std::string::npos)
 			{
@@ -191,10 +191,10 @@ namespace Lina
 		const size_t commentsEnd	   = globalDataInclude.find("*/") + 2;
 		globalDataInclude			   = globalDataInclude.substr(commentsEnd, globalDataInclude.size() - commentsEnd);
 
-		const String renderPassPath = "Resources/Core/Shaders/Common/RenderPass_" + "" String renderPassFile = FileSystem::ReadFileContentsAsString("Reso")
+		// const String renderPassPath = "Resources/Core/Shaders/Common/RenderPass_" + "" String renderPassFile = FileSystem::ReadFileContentsAsString("Reso")
 
-										  const String versionDirective		 = "#version 460 \n";
-		const String								   dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
+		const String versionDirective	   = "#version 460 \n";
+		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
 
 		for (const auto& [stage, ident] : blockIdentifiers)
 		{

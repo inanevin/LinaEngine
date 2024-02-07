@@ -227,7 +227,7 @@ namespace Lina
 
 				for (int32 i = 0; i < RenderPassDescriptorType::Max; i++)
 				{
-					data.pipelineLayoutPersistentRenderpass[i] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(i));
+					data.pipelineLayoutPersistentRenderpass[i] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(i)));
 				}
 			}
 		}
