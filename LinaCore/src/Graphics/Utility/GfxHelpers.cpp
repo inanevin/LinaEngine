@@ -30,85 +30,83 @@ SOFTWARE.
 
 namespace Lina
 {
-    LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentGlobal()
-    {
-        LinaGX::DescriptorBinding binding0 = {
-            .descriptorCount = 1,
-            .type             = LinaGX::DescriptorType::UBO,
-            .stages             = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-        };
-        
-        return {.bindings = {binding0}};
-    }
+	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentGlobal()
+	{
+		LinaGX::DescriptorBinding binding0 = {
+			.descriptorCount = 1,
+			.type			 = LinaGX::DescriptorType::UBO,
+			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
 
+		return {.bindings = {binding0}};
+	}
 
-    LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassDescriptorType type)
-    {
-        if(type == RenderPassDescriptorType::Basic)
-        {
-            LinaGX::DescriptorBinding binding0 = {
-                .type               = LinaGX::DescriptorType::UBO,
-                .stages             = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-            };
-            
-            return {.bindings = {binding0}};
-        }
-        
-        LINA_ASSERT(false, "");
-        return {};
-    }
+	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassDescriptorType type)
+	{
+		if (type == RenderPassDescriptorType::Basic)
+		{
+			LinaGX::DescriptorBinding binding0 = {
+				.type	= LinaGX::DescriptorType::UBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
 
-    LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescriptionDynamicGUI()
-    {
-       
-        LinaGX::DescriptorBinding binding0 = {
-            .type                = LinaGX::DescriptorType::SSBO,
-            .stages             = {LinaGX::ShaderStage::Fragment},
-        };
-        
-        LinaGX::DescriptorBinding binding1 = {
-            .type                = LinaGX::DescriptorType::SeparateSampler,
-            .stages              = {LinaGX::ShaderStage::Fragment},
-        };
-        
-        LinaGX::DescriptorBinding binding2 = {
-            .type                = LinaGX::DescriptorType::SeparateImage,
-            .stages              = {LinaGX::ShaderStage::Fragment},
-        };
-        
-        return {.bindings = {binding0, binding1, binding2}};
-    }
+			return {.bindings = {binding0}};
+		}
 
+		LINA_ASSERT(false, "");
+		return {};
+	}
 
-    LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierColor2Present(uint32 texture, bool isSwapchain)
-    {
-        return {
-            .texture = texture,
-            .isSwapchain = isSwapchain,
-            .toState = LinaGX::TextureBarrierState::Present,
-            .srcAccessFlags = LinaGX::AF_ColorAttachmentWrite,
-            .dstAccessFlags = 0,
-        };
-    }
+	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescriptionDynamicGUI()
+	{
 
-    LinaGX::TextureBarrier  GfxHelpers::GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain)
-    {
-        return {
-            .texture = texture,
-            .isSwapchain = isSwapchain,
-            .toState = LinaGX::TextureBarrierState::ColorAttachment,
-            .srcAccessFlags =LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
-            .dstAccessFlags =LinaGX::AF_ColorAttachmentRead,
-        };
-    }
+		LinaGX::DescriptorBinding binding0 = {
+			.type	= LinaGX::DescriptorType::SSBO,
+			.stages = {LinaGX::ShaderStage::Fragment},
+		};
 
-    LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentGlobal()
-    {
-        return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal()}, .debugName = "Persistent Global Layout"};
-    }
+		LinaGX::DescriptorBinding binding1 = {
+			.type	= LinaGX::DescriptorType::SeparateSampler,
+			.stages = {LinaGX::ShaderStage::Fragment},
+		};
 
-    LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType)
-    {
-        return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderpassType)}, .debugName = "Persistent Renderpass Layout"};
-    }
+		LinaGX::DescriptorBinding binding2 = {
+			.type	= LinaGX::DescriptorType::SeparateImage,
+			.stages = {LinaGX::ShaderStage::Fragment},
+		};
+
+		return {.bindings = {binding0, binding1, binding2}};
+	}
+
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierColor2Present(uint32 texture, bool isSwapchain)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= isSwapchain,
+			.toState		= LinaGX::TextureBarrierState::Present,
+			.srcAccessFlags = LinaGX::AF_ColorAttachmentWrite,
+			.dstAccessFlags = 0,
+		};
+	}
+
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= isSwapchain,
+			.toState		= LinaGX::TextureBarrierState::ColorAttachment,
+			.srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
+			.dstAccessFlags = LinaGX::AF_ColorAttachmentRead,
+		};
+	}
+
+	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentGlobal()
+	{
+		return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal()}, .debugName = "Persistent Global Layout"};
+	}
+
+	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType)
+	{
+		return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderpassType)}, .debugName = "Persistent Renderpass Layout"};
+	}
 } // namespace Lina

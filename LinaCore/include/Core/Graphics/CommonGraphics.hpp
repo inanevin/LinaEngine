@@ -52,13 +52,10 @@ namespace Lina
 		Swapchain,
 	};
 
-    
-    enum RenderPassDescriptorType
-    {
-        Basic =  0,
-        Max,
-    };
-
+	enum RenderPassDescriptorType
+	{
+		Basic = 0,
+		Max,
+	};
 
 } // namespace Lina
-
