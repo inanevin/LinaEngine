@@ -62,7 +62,7 @@ namespace Lina
 		res->SaveToStream(stream);
 		Serialization::SaveToFile(res->GetPath().c_str(), stream);
 
-		const String metacachePath = GetMetacachePath(res->GetPath(), res->GetSID());
+		const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), res->GetPath(), res->GetSID());
 
 		if (FileSystem::FileOrPathExists(metacachePath))
 			FileSystem::DeleteFileInPath(metacachePath);
@@ -88,15 +88,17 @@ namespace Lina
 
 		if (m_mode == ResourceManagerMode::File)
 		{
-			if (!FileSystem::FileOrPathExists("Resources/Editor/Metacache"))
-				FileSystem::CreateFolderInPath("Resources/Editor/Metacache");
+			const String baseMetacachePath = m_system->GetApp()->GetAppDelegate()->GetBaseMetacachePath();
+
+			if (!FileSystem::FileOrPathExists(baseMetacachePath))
+				FileSystem::CreateFolderInPath(baseMetacachePath);
 
 			for (auto& ident : identifiers)
 			{
 				loadTask->tf.emplace([ident, this, loadTask]() {
 					auto&		 cache		   = m_caches.at(ident.tid);
 					Resource*	 res		   = cache->CreateResource(ident.sid, ident.path, this);
-					const String metacachePath = GetMetacachePath(ident.path, ident.sid);
+					const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), ident.path, ident.sid);
 					if (FileSystem::FileOrPathExists(metacachePath))
 					{
 						IStream input = Serialization::LoadFromFile(metacachePath.c_str());
@@ -295,10 +297,11 @@ namespace Lina
 		return resources;
 	}
 
-	String ResourceManager::GetMetacachePath(const String& resourcePath, StringID sid)
+	String ResourceManager::GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid)
 	{
 		const String filename  = FileSystem::RemoveExtensionFromPath(FileSystem::GetFilenameAndExtensionFromPath(resourcePath));
-		const String finalName = "Resources/Editor/Metacache/" + filename + "_" + TO_STRING(sid) + ".linametadata";
+		const String basePath  = appDelegate->GetBaseMetacachePath();
+		const String finalName = basePath + filename + "_" + TO_STRING(sid) + ".linametadata";
 		return finalName;
 	}
 

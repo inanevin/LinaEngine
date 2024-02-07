@@ -35,6 +35,9 @@ namespace Lina
 {
 	bool Serialization::SaveToFile(const char* path, OStream& stream)
 	{
+		if (FileSystem::FileOrPathExists(path))
+			FileSystem::DeleteFileInPath(path);
+
 		std::ofstream wf(path, std::ios::out | std::ios::binary);
 
 		if (!wf)
@@ -42,9 +45,6 @@ namespace Lina
 			LINA_ERR("[Serialization] -> Could not open file for writing! {0}", path);
 			return false;
 		}
-
-		if (FileSystem::FileOrPathExists(path))
-			FileSystem::DeleteFileInPath(path);
 
 		OStream compressed = Compressor::Compress(stream);
 		compressed.WriteToOFStream(wf);

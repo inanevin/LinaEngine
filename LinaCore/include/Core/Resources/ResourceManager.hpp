@@ -63,7 +63,7 @@ namespace Lina
 		Vector<Resource*> GetAllResources(bool includeUserManagedResources);
 		PackageType		  GetPackageType(TypeID tid);
 		void			  ResaveResource(Resource* res);
-		static String	  GetMetacachePath(const String& resourcePath, StringID sid);
+		static String	  GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid);
 
 		inline void SetPriorityResources(const Vector<ResourceIdentifier>& priorityResources)
 		{

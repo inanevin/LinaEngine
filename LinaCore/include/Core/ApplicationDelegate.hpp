@@ -61,5 +61,11 @@ namespace Lina
 		virtual bool					   FillResourceCustomMeta(StringID sid, OStream& stream);
 		virtual Vector<ResourceIdentifier> GetPriorityResources();
 		virtual Vector<ResourceIdentifier> GetCoreResources();
+
+		// Testing for now.
+		virtual String GetBaseMetacachePath() const
+		{
+			return "Resources/Editor/Metacache/";
+		}
 	};
 } // namespace Lina
