@@ -33,17 +33,28 @@ SOFTWARE.
 
 #include "Core/Resources/Resource.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+}
 
 namespace Lina
 {
 	class MaterialPropertyBase;
 	class Shader;
+	class GfxManager;
 
 	class Material : public Resource
 	{
 	public:
-		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Material>()){};
+		struct BindingData
+		{
+			Vector<Buffer> buffers;
+		};
+
+		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Material();
 
 		/// <summary>
@@ -118,9 +129,14 @@ namespace Lina
 		virtual void BatchLoaded() override;
 
 	private:
-		uint32 m_shader		   = 0;
-		uint8* m_data		   = nullptr;
-		size_t m_totalDataSize = 0;
+		LinaGX::Instance*	m_lgx				   = nullptr;
+		GfxManager*			m_gfxManager		   = nullptr;
+		StringID			m_shader			   = 0;
+		uint8*				m_data				   = nullptr;
+		size_t				m_totalDataSize		   = 0;
+		uint16				m_descriptorSet		   = 0;
+		bool				m_descriptorSetCreated = false;
+		Vector<BindingData> m_bindingData;
 	};
 
 } // namespace Lina

@@ -89,6 +89,11 @@ namespace Lina
 			return m_materialSetDesc;
 		}
 
+		inline const LinaGX::ShaderDescriptorSetLayout GetMaterialSetInfo() const
+		{
+			return m_materialSetInfo;
+		}
+
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
@@ -101,6 +106,7 @@ namespace Lina
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
 		LinaGX::ShaderLayout							  m_layout			= {};
 		LinaGX::DescriptorSetDesc						  m_materialSetDesc = {};
+		LinaGX::ShaderDescriptorSetLayout				  m_materialSetInfo = {};
 		Metadata										  m_meta			= {};
 		uint16											  m_pipelineLayout;
 	};

@@ -146,6 +146,26 @@ namespace Lina
 	{
 		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
+		/*
+		   Create a descriptor set description from the reflection info, this will be used to create descritor sets for the materials using this shader.
+			Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.
+		 Materials will use this layout when binding descriptor sets for this shader.
+		 */
+		LinaGX::PipelineLayoutDesc plDesc = {.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GfxHelpers::GetSetDescPersistentRenderPass(m_meta.renderPassDescriptorType)}};
+		if (m_layout.descriptorSetLayouts.size() > 2)
+		{
+			const auto& setLayout = m_layout.descriptorSetLayouts[2];
+
+			m_materialSetInfo = m_layout.descriptorSetLayouts[2];
+			m_materialSetDesc = {};
+			for (const auto& b : setLayout.bindings)
+				m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
+
+			plDesc.descriptorSetDescriptions.push_back(m_materialSetDesc);
+		}
+		m_pipelineLayout = gfxMan->GetLGX()->CreatePipelineLayout(plDesc);
+
+		// Create variants
 		for (auto& [sid, variant] : m_meta.variants)
 		{
 			LinaGX::Format format = LinaGX::Format::B8G8R8A8_SRGB;
@@ -178,25 +198,6 @@ namespace Lina
 				.depthTest					  = !variant.depthDisable,
 				.depthCompare				  = LinaGX::CompareOp::Less,
 			};
-
-			/*
-			   Create a descriptor set description from the reflection info, this will be used to create descritor sets for the materials using this shader.
-				Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.
-			 Materials will use this layout when binding descriptor sets for this shader.
-			 */
-
-			LinaGX::PipelineLayoutDesc plDesc = {.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GfxHelpers::GetSetDescPersistentRenderPass(m_meta.renderPassDescriptorType)}};
-			if (m_layout.descriptorSetLayouts.size() > 2)
-			{
-				const auto& setLayout = m_layout.descriptorSetLayouts[2];
-
-				m_materialSetDesc = {};
-				for (const auto& b : setLayout.bindings)
-					m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
-
-				plDesc.descriptorSetDescriptions.push_back(m_materialSetDesc);
-			}
-			m_pipelineLayout = gfxMan->GetLGX()->CreatePipelineLayout(plDesc);
 
 			variant.gpuHandle = gfxMan->GetLGX()->CreateShader({
 				.stages					 = m_outCompiledBlobs,
