@@ -31,7 +31,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	String ExtractBlock(const String& source, const String& startDelimiter, const String& endDelimiter)
 	{
 		size_t startPos = source.find(startDelimiter);
@@ -50,7 +49,7 @@ namespace Lina
 		return source.substr(startPos, endPos - startPos);
 	}
 
-	void ParseFullShader(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages)
+	void ParseFullShader(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, RenderPassDescriptorType& outRenderPass)
 	{
 		std::istringstream f(text.c_str());
 		std::string		   line	 = "";
@@ -58,6 +57,7 @@ namespace Lina
 
 		const String renderPassIdentifier = "#lina_renderpass";
 		const String endIdentifier		  = "#lina_end";
+		String		 renderPassText		  = "basic";
 
 		while (std::getline(f, line))
 		{
@@ -85,7 +85,11 @@ namespace Lina
 			const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
 			if (line.find(renderPassIdentifier.c_str()) != std::string::npos)
 			{
-				const String renderPass = lineSqueezed.substr(renderPassIdentifier.size() + 1, lineSqueezed.size() - renderPassIdentifier.size() - 1).c_str();
+				renderPassText = lineSqueezed.substr(renderPassIdentifier.size() + 1, lineSqueezed.size() - renderPassIdentifier.size() - 1).c_str();
+
+				if (renderPassText.compare("basic") == 0)
+					outRenderPass = RenderPassDescriptorType::Basic;
+
 				continue;
 			}
 		}
@@ -96,11 +100,16 @@ namespace Lina
 		blockIdentifiers[LinaGX::ShaderStage::Compute]	= "#lina_cs";
 		blockIdentifiers[LinaGX::ShaderStage::Geometry] = "#lina_gs";
 
-		String		 globalDataInclude = FileSystem::ReadFileContentsAsString("Resources/Core/Shaders/Common/GlobalData.linashader");
-		const size_t commentsEnd	   = globalDataInclude.find("*/") + 2;
-		globalDataInclude			   = globalDataInclude.substr(commentsEnd, globalDataInclude.size() - commentsEnd);
+		auto getInclude = [](const char* path) -> String {
+			String		 include	 = FileSystem::ReadFileContentsAsString(path);
+			const size_t commentsEnd = include.find("*/") + 2;
+			include					 = include.substr(commentsEnd, include.size() - commentsEnd);
+			return include;
+		};
 
-		// const String renderPassPath = "Resources/Core/Shaders/Common/RenderPass_" + "" String renderPassFile = FileSystem::ReadFileContentsAsString("Reso")
+		const String renderPassPath	   = String("Resources/Core/Shaders/Common/RenderPass_") + renderPassText + ".linashader";
+		const String globalDataInclude = getInclude("Resources/Core/Shaders/Common/GlobalData.linashader");
+		const String renderPassInclude = getInclude(renderPassPath.c_str());
 
 		const String versionDirective	   = "#version 460 \n";
 		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
@@ -115,12 +124,13 @@ namespace Lina
 				block.insert(0, versionDirective);
 				block.insert(versionDirective.size(), dynamicIndexDirective);
 				block.insert(versionDirective.size() + dynamicIndexDirective.size(), globalDataInclude);
+				block.insert(versionDirective.size() + dynamicIndexDirective.size() + globalDataInclude.size(), renderPassInclude);
 				outStages[stage] = block;
 			}
 		}
 	}
 
-	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages)
+	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, RenderPassDescriptorType& outRenderPass)
 	{
 		if (text.find("#version") != String::npos)
 		{
@@ -128,7 +138,7 @@ namespace Lina
 			return false;
 		}
 
-		ParseFullShader(text, outStages);
+		ParseFullShader(text, outStages, outRenderPass);
 
 		return true;
 	}

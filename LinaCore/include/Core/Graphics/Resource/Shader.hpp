@@ -86,8 +86,9 @@ namespace Lina
 	private:
 	private:
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
-		LinaGX::ShaderLayout							  m_layout = {};
-		Metadata										  m_meta   = {};
+		LinaGX::ShaderLayout							  m_layout		   = {};
+		Metadata										  m_meta		   = {};
+		RenderPassDescriptorType						  m_renderPassType = RenderPassDescriptorType::Basic;
 	};
 
 } // namespace Lina

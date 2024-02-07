@@ -58,220 +58,293 @@ namespace Lina
 		}
 	}
 
-	// void SaveSRVTexture2D(OStream& stream, const LinaGX::ShaderSRVTexture2D& txt)
-	// {
-	// 	stream << txt.set << txt.binding << txt.elementSize;
-	// 	StringSerialization::SaveToStream(stream, txt.name.c_str());
-	// 	SaveStages(stream, txt.stages);
-	// }
-	//
-	// void LoadSRVTextre2D(IStream& stream, LinaGX::ShaderSRVTexture2D& txt)
-	// {
-	// 	stream >> txt.set >> txt.binding >> txt.elementSize;
-	// 	String str = "";
-	// 	StringSerialization::LoadFromStream(stream, str);
-	// 	txt.name = str.c_str();
-	// 	LoadStages(stream, txt.stages);
-	// }
-	//
-	// void SaveUBOMember(OStream& stream, const LinaGX::ShaderUBOMember& member)
-	// {
-	// 	const uint8 type = static_cast<uint8>(member.type);
-	// 	stream << type << member.size << member.offset << member.elementSize << member.arrayStride << member.matrixStride;
-	// 	StringSerialization::SaveToStream(stream, member.name.c_str());
-	// }
-	//
-	// void LoadUBOMember(IStream& stream, LinaGX::ShaderUBOMember& member)
-	// {
-	// 	String str	= "";
-	// 	uint8  type = 0;
-	// 	stream >> type >> member.size >> member.offset >> member.elementSize >> member.arrayStride >> member.matrixStride;
-	// 	StringSerialization::LoadFromStream(stream, str);
-	// 	member.name = str.c_str();
-	// 	member.type = static_cast<LinaGX::ShaderMemberType>(type);
-	// }
+	void SaveMembers(OStream& stream, const LINAGX_VEC<LinaGX::ShaderStructMember>& members)
+	{
+		stream << static_cast<int32>(members.size());
+
+		for (const auto& member : members)
+		{
+			stream << static_cast<uint8>(member.type);
+			stream << static_cast<int32>(member.size);
+			stream << static_cast<int32>(member.offset);
+			stream << static_cast<int32>(member.alignment);
+			StringSerialization::SaveToStream(stream, member.name.c_str());
+			stream << member.elementSize;
+			stream << static_cast<int32>(member.arrayStride);
+			stream << static_cast<int32>(member.matrixStride);
+		}
+	}
+
+	void LoadMembers(IStream& stream, LINAGX_VEC<LinaGX::ShaderStructMember>& members)
+	{
+		int32 sz = 0;
+		stream >> sz;
+		members.clear();
+		members.resize(sz);
+
+		for (int32 i = 0; i < sz; i++)
+		{
+			auto& member  = members[i];
+			uint8 typeInt = 0;
+			int32 mSize = 0, offset = 0, alignment = 0, arrayStride = 0, matrixStride = 0;
+
+			String mName = "";
+			stream >> typeInt;
+			stream >> mSize;
+			stream >> offset;
+			stream >> alignment;
+			StringSerialization::LoadFromStream(stream, mName);
+			stream >> member.elementSize;
+			stream >> arrayStride;
+			stream >> matrixStride;
+			member.name = LINAGX_STRING(mName.c_str());
+
+			member.type			= static_cast<LinaGX::ShaderMemberType>(typeInt);
+			member.size			= static_cast<size_t>(mSize);
+			member.offset		= static_cast<size_t>(offset);
+			member.alignment	= static_cast<size_t>(alignment);
+			member.arrayStride	= static_cast<size_t>(arrayStride);
+			member.matrixStride = static_cast<size_t>(matrixStride);
+		}
+	}
+
+	void SaveConstantBlock(OStream& stream, const LinaGX::ShaderConstantBlock& block)
+	{
+		stream << static_cast<uint32>(block.size);
+		stream << block.set;
+		stream << block.binding;
+		SaveMembers(stream, block.members);
+		SaveStages(stream, block.stages);
+		StringSerialization::SaveToStream(stream, block.name.c_str());
+
+		stream << static_cast<int32>(block.isActive.size());
+
+		for (const auto& [stg, act] : block.isActive)
+		{
+			stream << static_cast<uint8>(stg);
+			stream << act;
+		}
+	}
+
+	void LoadConstantBlock(IStream& stream, LinaGX::ShaderConstantBlock& block)
+	{
+		uint32 bSize = 0;
+		stream >> bSize;
+		block.size = static_cast<size_t>(bSize);
+		stream >> block.set;
+		stream >> block.binding;
+		LoadMembers(stream, block.members);
+		LoadStages(stream, block.stages);
+
+		String name = "";
+		StringSerialization::LoadFromStream(stream, name);
+		block.name = name.c_str();
+
+		int32 sz = 0;
+		stream >> sz;
+
+		for (int32 i = 0; i < sz; i++)
+		{
+			uint8 stg = 0;
+			stream >> stg;
+			stream >> block.isActive[static_cast<LinaGX::ShaderStage>(stg)];
+		}
+	}
+
+	void SaveDescriptorSetBinding(OStream& stream, const LinaGX::ShaderDescriptorSetBinding& binding)
+	{
+		stream << static_cast<uint8>(binding.type);
+		StringSerialization::SaveToStream(stream, binding.name.c_str());
+
+		SaveStages(stream, binding.stages);
+		SaveMembers(stream, binding.structMembers);
+
+		stream << static_cast<int32>(binding.isActive.size());
+
+		for (const auto& [stg, act] : binding.isActive)
+		{
+			stream << static_cast<uint8>(stg);
+			stream << act;
+		}
+
+		stream << static_cast<int32>(binding.mslBufferID.size());
+
+		for (const auto& [stg, id] : binding.mslBufferID)
+		{
+			stream << static_cast<uint8>(stg);
+			stream << id;
+		}
+
+		stream << binding.spvID;
+		stream << binding.descriptorCount;
+		stream << static_cast<uint32>(binding.size);
+		stream << binding.isWritable;
+		stream << binding.isArrayType;
+	}
+
+	void LoadDescriptorSetBinding(IStream& stream, LinaGX::ShaderDescriptorSetBinding& binding)
+	{
+		String bName		  = "";
+		uint8  bindingTypeInt = 0;
+		stream >> bindingTypeInt;
+		binding.type = static_cast<LinaGX::DescriptorType>(bindingTypeInt);
+		StringSerialization::LoadFromStream(stream, bName);
+		binding.name = bName.c_str();
+
+		LoadStages(stream, binding.stages);
+		LoadMembers(stream, binding.structMembers);
+
+		int32 isActiveSz = 0;
+		stream >> isActiveSz;
+
+		for (int32 i = 0; i < isActiveSz; i++)
+		{
+			uint8 stg = 0;
+			stream >> stg;
+			stream >> binding.isActive[static_cast<LinaGX::ShaderStage>(stg)];
+		}
+
+		int32 mslBufferSz = 0;
+		stream >> mslBufferSz;
+
+		for (int32 i = 0; i < mslBufferSz; i++)
+		{
+			uint8 stg = 0;
+			stream >> stg;
+			stream >> binding.mslBufferID[static_cast<LinaGX::ShaderStage>(stg)];
+		}
+
+		uint32 bindingSz = 0;
+		stream >> binding.spvID;
+		stream >> binding.descriptorCount;
+		stream >> bindingSz;
+		stream >> binding.isWritable;
+		stream >> binding.isArrayType;
+		binding.size = static_cast<size_t>(bindingSz);
+	}
 
 	void SaveLinaGXShaderLayout(OStream& stream, const LinaGX::ShaderLayout& layout)
 	{
-		// const uint32 szVertexInputs			 = static_cast<uint32>(layout.vertexInputs.size());
-		// const uint32 szUbos					 = static_cast<uint32>(layout.ubos.size());
-		// const uint32 szSsbos				 = static_cast<uint32>(layout.ssbos.size());
-		// const uint32 szCombinedImageSamplers = static_cast<uint32>(layout.combinedImageSamplers.size());
-		// const uint32 seperateImages			 = static_cast<uint32>(layout.separateImages.size());
-		// const uint32 szSamplers				 = static_cast<uint32>(layout.samplers.size());
-		// const uint32 szSetsAndBindings		 = static_cast<uint32>(layout.setsAndBindings.size());
-		// stream << szVertexInputs << szUbos << szSsbos << szCombinedImageSamplers << seperateImages << szSamplers << szSetsAndBindings;
-		// stream << layout.totalDescriptors << layout.hasGLDrawID << layout.drawIDBinding;
-		//
-		// for (const auto& vi : layout.vertexInputs)
-		// {
-		// 	const uint8 fmt = static_cast<uint8>(vi.format);
-		// 	StringSerialization::SaveToStream(stream, vi.name.c_str());
-		// 	stream << vi.location << vi.elements << vi.size << fmt << vi.offset;
-		// }
-		//
-		// for (const auto& ubo : layout.ubos)
-		// {
-		// 	stream << ubo.set << ubo.binding << ubo.size << ubo.elementSize;
-		// 	StringSerialization::SaveToStream(stream, ubo.name.c_str());
-		//
-		// 	SaveStages(stream, ubo.stages);
-		//
-		// 	const uint32 membersSz = static_cast<uint32>(ubo.members.size());
-		// 	stream << membersSz;
-		//
-		// 	for (const auto& member : ubo.members)
-		// 		SaveUBOMember(stream, member);
-		// }
-		//
-		// for (const auto& ssbo : layout.ssbos)
-		// {
-		// 	stream << ssbo.set << ssbo.binding << ssbo.isReadOnly;
-		// 	StringSerialization::SaveToStream(stream, ssbo.name.c_str());
-		// 	SaveStages(stream, ssbo.stages);
-		// }
-		//
-		// for (const auto& combinedImg : layout.combinedImageSamplers)
-		// 	SaveSRVTexture2D(stream, combinedImg);
-		//
-		// for (const auto& combinedImg : layout.separateImages)
-		// 	SaveSRVTexture2D(stream, combinedImg);
-		//
-		// for (const auto& samp : layout.samplers)
-		// {
-		// 	stream << samp.set << samp.binding << samp.elementSize;
-		// 	StringSerialization::SaveToStream(stream, samp.name.c_str());
-		// 	SaveStages(stream, samp.stages);
-		// }
-		//
-		// for (const auto& [set, bindingVec] : layout.setsAndBindings)
-		// {
-		// 	const uint32 sz = static_cast<uint32>(bindingVec.size());
-		// 	stream << set << sz;
-		// 	for (auto b : bindingVec)
-		// 		stream << b;
-		// }
-		//
-		// const uint32 membersSz = static_cast<uint32>(layout.constantBlock.members.size());
-		// stream << layout.constantBlock.size << layout.constantBlock.set << layout.constantBlock.binding << membersSz;
-		//
-		// for (const auto& mem : layout.constantBlock.members)
-		// 	SaveUBOMember(stream, mem);
-		//
-		// StringSerialization::SaveToStream(stream, layout.constantBlock.name.c_str());
-		// SaveStages(stream, layout.constantBlock.stages);
+		stream << static_cast<int32>(layout.vertexInputs.size());
+		stream << static_cast<int32>(layout.descriptorSetLayouts.size());
+		stream << static_cast<int32>(layout.constants.size());
+		stream << static_cast<int32>(layout.constantsMSLBuffers.size());
+		stream << static_cast<int32>(layout.entryPoints.size());
+		stream << static_cast<int32>(layout.mslMaxBufferIDs.size());
+
+		for (const auto& vi : layout.vertexInputs)
+		{
+			StringSerialization::SaveToStream(stream, vi.name.c_str());
+			stream << vi.location << vi.elements << static_cast<uint32>(vi.size) << static_cast<uint8>(vi.format) << static_cast<uint32>(vi.offset);
+		}
+
+		for (const auto& dsl : layout.descriptorSetLayouts)
+		{
+			stream << static_cast<int32>(dsl.bindings.size());
+
+			for (const auto& b : dsl.bindings)
+				SaveDescriptorSetBinding(stream, b);
+		}
+
+		for (const auto& c : layout.constants)
+			SaveConstantBlock(stream, c);
+
+		for (const auto& [stg, buf] : layout.constantsMSLBuffers)
+		{
+			stream << static_cast<uint8>(stg);
+			stream << buf;
+		}
+
+		for (const auto& [stg, ep] : layout.entryPoints)
+		{
+			stream << static_cast<uint8>(stg);
+			StringSerialization::SaveToStream(stream, ep.c_str());
+		}
+
+		for (const auto& [stg, id] : layout.mslMaxBufferIDs)
+		{
+			stream << static_cast<uint8>(stg);
+			stream << id;
+		}
+
+		stream << layout.constantsSet;
+		stream << layout.constantsBinding;
+		stream << layout.totalDescriptors;
+		stream << layout.hasGLDrawID;
+		stream << layout.drawIDBinding;
 	}
 
 	void LoadLinaGXShaderLayout(IStream& stream, LinaGX::ShaderLayout& layout)
 	{
-		// uint32 szVertexInputs		   = 0;
-		// uint32 szUbos				   = 0;
-		// uint32 szSsbos				   = 0;
-		// uint32 szCombinedImageSamplers = 0;
-		// uint32 szSeperateImages		   = 0;
-		// uint32 szSamplers			   = 0;
-		// uint32 szSetsAndBindings	   = 0;
-		// stream >> szVertexInputs >> szUbos >> szSsbos >> szCombinedImageSamplers >> szSeperateImages >> szSamplers >> szSetsAndBindings;
-		// stream >> layout.totalDescriptors >> layout.hasGLDrawID >> layout.drawIDBinding;
-		//
-		// for (uint32 i = 0; i < szVertexInputs; i++)
-		// {
-		// 	LinaGX::ShaderStageInput vi;
-		// 	uint8					 fmt = 0;
-		// 	String					 str = "";
-		// 	StringSerialization::LoadFromStream(stream, str);
-		// 	vi.name = str.c_str();
-		// 	stream >> vi.location >> vi.elements >> vi.size >> fmt >> vi.offset;
-		// 	vi.format = static_cast<LinaGX::Format>(fmt);
-		// 	layout.vertexInputs.push_back(vi);
-		// }
-		//
-		// for (uint32 i = 0; i < szUbos; i++)
-		// {
-		// 	LinaGX::ShaderUBO ubo;
-		// 	stream >> ubo.set >> ubo.binding >> ubo.size >> ubo.elementSize;
-		// 	String str = "";
-		// 	StringSerialization::LoadFromStream(stream, str);
-		// 	ubo.name = str.c_str();
-		//
-		// 	LoadStages(stream, ubo.stages);
-		//
-		// 	uint32 membersSz = 0;
-		// 	stream >> membersSz;
-		//
-		// 	ubo.members.resize(membersSz);
-		//
-		// 	for (uint32 k = 0; k < membersSz; k++)
-		// 	{
-		// 		LinaGX::ShaderUBOMember member;
-		// 		LoadUBOMember(stream, member);
-		// 		ubo.members[k] = member;
-		// 	}
-		// 	layout.ubos.push_back(ubo);
-		// }
-		//
-		// for (uint32 i = 0; i < szSsbos; i++)
-		// {
-		// 	LinaGX::ShaderSSBO ssbo;
-		// 	stream >> ssbo.set >> ssbo.binding >> ssbo.isReadOnly;
-		// 	String str = "";
-		// 	StringSerialization::LoadFromStream(stream, str);
-		// 	LoadStages(stream, ssbo.stages);
-		// 	ssbo.name = str.c_str();
-		// 	layout.ssbos.push_back(ssbo);
-		// }
-		//
-		// for (uint32 i = 0; i < szCombinedImageSamplers; i++)
-		// {
-		// 	LinaGX::ShaderSRVTexture2D txt;
-		// 	LoadSRVTextre2D(stream, txt);
-		// 	layout.combinedImageSamplers.push_back(txt);
-		// }
-		//
-		// for (uint32 i = 0; i < szSeperateImages; i++)
-		// {
-		// 	LinaGX::ShaderSRVTexture2D txt;
-		// 	LoadSRVTextre2D(stream, txt);
-		// 	layout.separateImages.push_back(txt);
-		// }
-		//
-		// for (uint32 i = 0; i < szSamplers; i++)
-		// {
-		// 	LinaGX::ShaderSampler samp;
-		// 	stream >> samp.set >> samp.binding >> samp.elementSize;
-		// 	String str = "";
-		// 	StringSerialization::LoadFromStream(stream, str);
-		// 	samp.name = str.c_str();
-		// 	LoadStages(stream, samp.stages);
-		// 	layout.samplers.push_back(samp);
-		// }
-		//
-		// for (uint32 i = 0; i < szSetsAndBindings; i++)
-		// {
-		// 	uint32 sz  = 0;
-		// 	uint32 set = 0;
-		// 	stream >> set >> sz;
-		// 	LINAGX_VEC<uint32> bindings;
-		// 	bindings.resize(sz);
-		//
-		// 	for (uint32 k = 0; k < sz; k++)
-		// 		stream >> bindings[k];
-		//
-		// 	layout.setsAndBindings[set] = bindings;
-		// }
-		//
-		// uint32 membersSz = 0;
-		// stream >> layout.constantBlock.size >> layout.constantBlock.set >> layout.constantBlock.binding >> membersSz;
-		//
-		// for (uint32 i = 0; i < membersSz; i++)
-		// {
-		// 	LinaGX::ShaderUBOMember member;
-		// 	LoadUBOMember(stream, member);
-		// 	layout.constantBlock.members.push_back(member);
-		// }
-		// String str = "";
-		// StringSerialization::LoadFromStream(stream, str);
-		// layout.constantBlock.name = str.c_str();
-		// LoadStages(stream, layout.constantBlock.stages);
+		int32 viSz = 0, dslSz = 0, cSz = 0, cmslSz = 0, epSz = 0, maxBufSz = 0;
+		stream >> viSz >> dslSz >> cSz >> cmslSz >> epSz;
+		layout.vertexInputs.clear();
+		layout.descriptorSetLayouts.clear();
+		layout.constants.clear();
+		layout.constantsMSLBuffers.clear();
+		layout.entryPoints.clear();
+		layout.vertexInputs.resize(viSz);
+		layout.descriptorSetLayouts.resize(dslSz);
+		layout.constants.resize(cSz);
+
+		for (int32 i = 0; i < viSz; i++)
+		{
+			auto& vi = layout.vertexInputs[i];
+
+			String name = "";
+			StringSerialization::LoadFromStream(stream, name);
+			vi.name = name.c_str();
+
+			uint8  fmt = 0;
+			uint32 sz = 0, offset = 0;
+			stream >> vi.location >> vi.elements >> sz >> fmt >> offset;
+			vi.size	  = static_cast<size_t>(sz);
+			vi.offset = static_cast<size_t>(offset);
+			vi.format = static_cast<LinaGX::Format>(fmt);
+		}
+
+		for (int32 i = 0; i < dslSz; i++)
+		{
+			auto& dsl = layout.descriptorSetLayouts[i];
+			int32 sz  = 0;
+			stream >> sz;
+
+			dsl.bindings.resize(sz);
+
+			for (int32 j = 0; j < sz; j++)
+				LoadDescriptorSetBinding(stream, dsl.bindings[j]);
+		}
+
+		for (int32 i = 0; i < cSz; i++)
+			LoadConstantBlock(stream, layout.constants[i]);
+
+		for (int32 i = 0; i < cmslSz; i++)
+		{
+			uint8 stg = 0;
+			stream >> stg;
+			stream >> layout.constantsMSLBuffers[static_cast<LinaGX::ShaderStage>(stg)];
+		}
+
+		for (int32 i = 0; i < epSz; i++)
+		{
+			uint8 stg = 0;
+			stream >> stg;
+			String ep = "";
+			StringSerialization::LoadFromStream(stream, ep);
+			layout.entryPoints[static_cast<LinaGX::ShaderStage>(stg)] = ep.c_str();
+		}
+
+		for (int32 i = 0; i < maxBufSz; i++)
+		{
+			uint8 stg = 0;
+			stream >> stg;
+			stream >> layout.mslMaxBufferIDs[static_cast<LinaGX::ShaderStage>(stg)];
+		}
+
+		stream >> layout.constantsSet;
+		stream >> layout.constantsBinding;
+		stream >> layout.totalDescriptors;
+		stream >> layout.hasGLDrawID;
+		stream >> layout.drawIDBinding;
 	}
 } // namespace Lina

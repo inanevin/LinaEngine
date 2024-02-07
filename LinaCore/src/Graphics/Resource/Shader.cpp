@@ -68,7 +68,7 @@ namespace Lina
 
 		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		const bool success = ShaderPreprocessor::Preprocess(txt, outStages);
+		const bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_renderPassType);
 		if (!success)
 			return;
 
@@ -89,6 +89,7 @@ namespace Lina
 	void Shader::SaveToStream(OStream& stream) const
 	{
 		m_meta.SaveToStream(stream);
+		stream << static_cast<uint8>(m_renderPassType);
 
 		const uint32 size = static_cast<uint32>(m_outCompiledBlobs.size());
 		stream << size;
@@ -107,6 +108,10 @@ namespace Lina
 	void Shader::LoadFromStream(IStream& stream)
 	{
 		m_meta.LoadFromStream(stream);
+
+		uint8 rpType = 0;
+		stream >> rpType;
+		m_renderPassType = static_cast<RenderPassDescriptorType>(rpType);
 
 		uint32 size = 0;
 		stream >> size;
