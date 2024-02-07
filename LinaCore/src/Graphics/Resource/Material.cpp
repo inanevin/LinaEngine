@@ -98,7 +98,7 @@ namespace Lina
 				matBindingData.buffers.resize(b.descriptorCount);
 				for (int32 i = 0; i < b.descriptorCount; i++)
 				{
-					matBindingData.buffers[i].Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, info.bindings[bindingIndex].size, "Material Buffer", true);
+					matBindingData.buffers[i].Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, static_cast<uint32>(info.bindings[bindingIndex].size), "Material Buffer", true);
 					update.buffers.push_back(matBindingData.buffers[i].GetGPUResource());
 				}
 				m_lgx->DescriptorUpdateBuffer(update);
