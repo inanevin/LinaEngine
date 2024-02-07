@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/FileSystem//FileSystem.hpp"
 #include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 #include "Common/Serialization/HashMapSerialization.hpp"
+#include "Core/Graphics/Utility/GfxHelpers.hpp"
 
 namespace Lina
 {
@@ -124,7 +125,7 @@ namespace Lina
 		{
 			LinaGX::Format format = LinaGX::Format::B8G8R8A8_SRGB;
 
-			if (variant.passType == GfxShaderVariantType::RenderTarget)
+			if (variant.targetType == ShaderWriteTargetType::RenderTarget)
 				format = LinaGX::Format::R32G32B32A32_SFLOAT;
 
 			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
@@ -153,18 +154,21 @@ namespace Lina
 				.depthCompare				  = LinaGX::CompareOp::Less,
 			};
 
-			LinaGX::ShaderDesc desc = LinaGX::ShaderDesc{
-				.stages			  = m_outCompiledBlobs,
-				.colorAttachments = colorAttachments,
-				.depthStencilDesc = depthStencilAtt,
-				.layout			  = m_layout,
-				.polygonMode	  = LinaGX::PolygonMode::Fill,
-				.cullMode		  = variant.cullMode,
-				.frontFace		  = variant.frontFace,
-				.topology		  = LinaGX::Topology::TriangleList,
-				.debugName		  = m_path.c_str(),
-			};
-			variant.gpuHandle = gfxMan->GetLGX()->CreateShader(desc);
+			// variant.pipelineLayout = gfxMan->GetLGX()->CreatePipelineLayout(GfxHelpers)
+
+			variant.gpuHandle = gfxMan->GetLGX()->CreateShader({
+				.stages					 = m_outCompiledBlobs,
+				.colorAttachments		 = colorAttachments,
+				.depthStencilDesc		 = depthStencilAtt,
+				.layout					 = m_layout,
+				.polygonMode			 = LinaGX::PolygonMode::Fill,
+				.cullMode				 = variant.cullMode,
+				.frontFace				 = variant.frontFace,
+				.topology				 = LinaGX::Topology::TriangleList,
+				.useCustomPipelineLayout = true,
+				.customPipelineLayout	 = variant.pipelineLayout,
+				.debugName				 = m_path.c_str(),
+			});
 		}
 
 		for (auto& [stage, blob] : m_outCompiledBlobs)
@@ -179,23 +183,23 @@ namespace Lina
 
 	void ShaderVariant::SaveToStream(OStream& stream)
 	{
-		const uint8 passTypeInt	 = static_cast<uint8>(passType);
-		const uint8 cullModeInt	 = static_cast<uint8>(cullMode);
-		const uint8 frontFaceInt = static_cast<uint8>(frontFace);
-		stream << gpuHandle << blendDisable << depthDisable << passTypeInt << cullModeInt << frontFaceInt;
-		StringSerialization::SaveToStream(stream, passName);
+		const uint8 targetTypeInt	  = static_cast<uint8>(targetType);
+		const uint8 cullModeInt		  = static_cast<uint8>(cullMode);
+		const uint8 frontFaceInt	  = static_cast<uint8>(frontFace);
+		const uint8 renderPassTypeInt = static_cast<uint8>(renderPassType);
+		stream << gpuHandle << blendDisable << depthDisable << targetTypeInt << cullModeInt << frontFaceInt << renderPassTypeInt;
 		StringSerialization::SaveToStream(stream, name);
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
-		uint8 passTypeInt = 0, cullModeInt = 0, frontFaceInt = 0;
-		stream >> gpuHandle >> blendDisable >> depthDisable >> passTypeInt >> cullModeInt >> frontFaceInt;
-		StringSerialization::LoadFromStream(stream, passName);
+		uint8 targetTypeInt = 0, cullModeInt = 0, frontFaceInt = 0, renderPassTypeInt = 0;
+		stream >> gpuHandle >> blendDisable >> depthDisable >> targetTypeInt >> cullModeInt >> frontFaceInt >> renderPassTypeInt;
 		StringSerialization::LoadFromStream(stream, name);
-		passType  = static_cast<GfxShaderVariantType>(passTypeInt);
-		cullMode  = static_cast<LinaGX::CullMode>(cullModeInt);
-		frontFace = static_cast<LinaGX::FrontFace>(frontFaceInt);
+		targetType	   = static_cast<ShaderWriteTargetType>(targetTypeInt);
+		cullMode	   = static_cast<LinaGX::CullMode>(cullModeInt);
+		frontFace	   = static_cast<LinaGX::FrontFace>(frontFaceInt);
+		renderPassType = static_cast<RenderPassDescriptorType>(renderPassTypeInt);
 	}
 
 } // namespace Lina

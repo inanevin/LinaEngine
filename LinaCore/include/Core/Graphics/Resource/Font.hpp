@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Core/Resources/Data/ResourceMetadata.hpp"
 #include "Common/Data/Mutex.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace LinaVG
 {
@@ -50,9 +51,20 @@ namespace Lina
 
 	class Font : public Resource
 	{
+
 	public:
 		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
 		virtual ~Font();
+
+		struct Metadata
+		{
+			uint32						 pointSize = 16;
+			bool						 isSDF	   = false;
+			Vector<Pair<uint32, uint32>> glyphRanges;
+
+			void SaveToStream(OStream& out) const;
+			void LoadFromStream(IStream& in);
+		};
 
 		inline LinaVG::LinaVGFont* GetLinaVGFont()
 		{
@@ -64,10 +76,13 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) override;
+		virtual void SetCustomMeta(IStream& stream) override;
 
 	private:
 		LinaVG::LinaVGFont* m_lvgFont = nullptr;
 		Vector<char>		m_file;
+
+		Metadata m_meta = {};
 	};
 } // namespace Lina
 

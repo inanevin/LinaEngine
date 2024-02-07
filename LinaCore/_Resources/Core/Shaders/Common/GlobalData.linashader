@@ -33,20 +33,3 @@ layout(set = 0, binding = 0) uniform GlobalData
 	float elapsedTime;
 	vec2 screenSize;
 } LINA_GLOBAL;
-
-struct LinaTexture2D
-{
-	uint textureIndex;
-	uint samplerIndex;
-};
-
-
-layout(set = 1, binding = 0) uniform ViewData
-{
-	mat4 view;
-	mat4 proj;
-	mat4 viewProj;
-	vec4 cameraPosition;
-	vec2 cameraNearFar;
-} LINA_VIEW;
-

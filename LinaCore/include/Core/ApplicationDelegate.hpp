@@ -57,10 +57,9 @@ namespace Lina
 		virtual void RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex){};
 
 		// Resources
-		virtual void									 RegisterResourceTypes(ResourceManager& rm);
-		virtual Vector<ResourceIdentifier>				 GetPriorityResources();
-		virtual Vector<Pair<StringID, ResourceMetadata>> GetPriorityResourcesMetadata();
-		virtual Vector<ResourceIdentifier>				 GetCoreResources();
-		virtual Vector<Pair<StringID, ResourceMetadata>> GetCoreResourcesMetadata();
+		virtual void					   RegisterResourceTypes(ResourceManager& rm);
+		virtual bool					   FillResourceCustomMeta(StringID sid, OStream& stream);
+		virtual Vector<ResourceIdentifier> GetPriorityResources();
+		virtual Vector<ResourceIdentifier> GetCoreResources();
 	};
 } // namespace Lina

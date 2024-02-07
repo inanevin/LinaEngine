@@ -27,6 +27,8 @@ SOFTWARE.
 */
 
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Application.hpp"
+#include "Core/ApplicationDelegate.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -104,24 +106,19 @@ namespace Lina
 					}
 					else
 					{
-
-						// If we are loading a core resource.
-						// We might have it's custom metadata registered, set it before loading the resource.
-						if (IsPriorityResource(ident.sid))
-						{
-							auto it = linatl::find_if(m_priorityResourcesDefaultMetadata.begin(), m_priorityResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
-
-							if (it != m_priorityResourcesDefaultMetadata.end())
-								res->SetMetadata(it->second);
-						}
-						else if (IsCoreResource(ident.sid))
-						{
-							auto it = linatl::find_if(m_coreResourcesDefaultMetadata.begin(), m_coreResourcesDefaultMetadata.end(), [ident](auto& pair) { return pair.first == ident.sid; });
-
-							if (it != m_coreResourcesDefaultMetadata.end())
-								res->SetMetadata(it->second);
-						}
-
+						// Some resources have preliminary/initial metadata.
+                        if(ident.useCustomMeta)
+                        {
+                            OStream metaStream;
+                            if(m_system->GetApp()->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream))
+                            {
+                                IStream in;
+                                in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+                                res->SetCustomMeta(in);
+                                in.Destroy();
+                            }
+                        }
+						
 						res->m_resourceManager = this;
 						res->LoadFromFile(ident.path.c_str());
 						res->Upload();

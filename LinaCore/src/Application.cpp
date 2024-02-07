@@ -64,9 +64,7 @@ namespace Lina
 			resourceManager.SetMode(initInfo.resourceManagerMode);
 			m_appListener->RegisterResourceTypes(resourceManager);
 			resourceManager.SetPriorityResources(m_appListener->GetPriorityResources());
-			resourceManager.SetPriorityResourcesMetadata(m_appListener->GetPriorityResourcesMetadata());
 			resourceManager.SetCoreResources(m_appListener->GetCoreResources());
-			resourceManager.SetCoreResourcesMetadata(m_appListener->GetCoreResourcesMetadata());
 		}
 
 		// Pre-initialization

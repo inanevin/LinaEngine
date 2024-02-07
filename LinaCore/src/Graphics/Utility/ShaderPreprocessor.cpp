@@ -58,6 +58,7 @@ namespace Lina
 		bool			   isParsingVariant = false;
 		ShaderVariant	   variantData;
 
+        const String renderpassIdentifier   = "#lina_renderpass";
 		const String targetIdentifier		= "#lina_target";
 		const String blendIdentifier		= "#lina_blend";
 		const String depthIdentifier		= "#lina_depth";
@@ -88,6 +89,16 @@ namespace Lina
 
 				continue;
 			}
+            
+            size_t renderpassBlock = lineSqueezed.find(renderpassIdentifier.c_str());
+
+            if(renderpassBlock != String::npos)
+            {
+                variantData.renderPassName = lineSqueezed.substr(renderpassIdentifier.size() + 1, lineSqueezed.size() - renderpassIdentifier.size() - 1).c_str();
+                
+                if(variantData.renderPassName.compare("basic") == 0)
+                    variantData.renderPassType = RenderPassDescriptorType::Basic;
+            }
 
 			if (line.find(variantBeginIdentifier.c_str()) != std::string::npos)
 			{
@@ -110,41 +121,42 @@ namespace Lina
 					continue;
 				}
 
-				size_t passBlock  = lineSqueezed.find(targetIdentifier.c_str());
+				size_t targetBlock  = lineSqueezed.find(targetIdentifier.c_str());
 				size_t blendBlock = lineSqueezed.find(blendIdentifier.c_str());
 				size_t depthBlock = lineSqueezed.find(depthIdentifier.c_str());
 				size_t cullBlock  = lineSqueezed.find(cullIdentifier.c_str());
 				size_t frontBlock = lineSqueezed.find(frontIdentifier.c_str());
 
-				if (passBlock != std::string::npos)
+            
+				if (targetBlock != String::npos)
 				{
-					variantData.passName = lineSqueezed.substr(targetIdentifier.size() + 1, lineSqueezed.size() - targetIdentifier.size() - 1).c_str();
+					const String target = lineSqueezed.substr(targetIdentifier.size() + 1, lineSqueezed.size() - targetIdentifier.size() - 1).c_str();
 
-					if (variantData.passName.compare("rendertarget") == 0)
-						variantData.passType = GfxShaderVariantType::RenderTarget;
-					else if (variantData.passName.compare("swapchain") == 0)
-						variantData.passType = GfxShaderVariantType::Swapchain;
+					if (target .compare("rendertarget") == 0)
+						variantData.targetType = ShaderWriteTargetType::RenderTarget;
+					else if (target.compare("swapchain") == 0)
+						variantData.targetType = ShaderWriteTargetType::Swapchain;
 				}
 
-				if (blendBlock != std::string::npos)
+				if (blendBlock != String::npos)
 				{
-					String blend = lineSqueezed.substr(blendIdentifier.size() + 1, lineSqueezed.size() - blendIdentifier.size() - 1).c_str();
+					const String blend = lineSqueezed.substr(blendIdentifier.size() + 1, lineSqueezed.size() - blendIdentifier.size() - 1).c_str();
 
 					if (blend.compare("disable") == 0)
 						variantData.blendDisable = true;
 				}
 
-				if (depthBlock != std::string::npos)
+				if (depthBlock != String::npos)
 				{
-					String depth = lineSqueezed.substr(depthIdentifier.size() + 1, lineSqueezed.size() - depthIdentifier.size() - 1).c_str();
+					const String depth = lineSqueezed.substr(depthIdentifier.size() + 1, lineSqueezed.size() - depthIdentifier.size() - 1).c_str();
 
 					if (depth.compare("disable") == 0)
 						variantData.depthDisable = true;
 				}
 
-				if (cullBlock != std::string::npos)
+				if (cullBlock != String::npos)
 				{
-					String cull = lineSqueezed.substr(cullIdentifier.size() + 1, lineSqueezed.size() - cullIdentifier.size() - 1).c_str();
+					const String cull = lineSqueezed.substr(cullIdentifier.size() + 1, lineSqueezed.size() - cullIdentifier.size() - 1).c_str();
 
 					if (cull.compare("none") == 0)
 						variantData.cullMode = LinaGX::CullMode::None;
@@ -152,22 +164,21 @@ namespace Lina
 						variantData.cullMode = LinaGX::CullMode::Front;
 				}
 
-				if (frontBlock != std::string::npos)
+				if (frontBlock != String::npos)
 				{
-					String front = lineSqueezed.substr(frontIdentifier.size() + 1, lineSqueezed.size() - frontIdentifier.size() - 1).c_str();
+					const String front = lineSqueezed.substr(frontIdentifier.size() + 1, lineSqueezed.size() - frontIdentifier.size() - 1).c_str();
 
 					if (front.compare("cw") == 0)
 						variantData.frontFace = LinaGX::FrontFace::CW;
 				}
 			}
+           
 		}
 
 		if (outVariants.empty())
 		{
 			ShaderVariant variant = {
 				.name	  = "Default",
-				.passName = "rendertarget",
-				.passType = GfxShaderVariantType::RenderTarget,
 			};
 			outVariants["Default"_hs] = variant;
 		}
@@ -181,6 +192,11 @@ namespace Lina
 		String		 globalDataInclude	   = FileSystem::ReadFileContentsAsString("Resources/Core/Shaders/Common/GlobalData.linashader");
 		const size_t commentsEnd		   = globalDataInclude.find("*/") + 2;
 		globalDataInclude				   = globalDataInclude.substr(commentsEnd, globalDataInclude.size() - commentsEnd);
+        
+        
+        const String renderPassPath = "Resources/Core/Shaders/Common/RenderPass_" + ""
+        String renderPassFile = FileSystem::ReadFileContentsAsString("Reso")
+        
 		const String versionDirective	   = "#version 460 \n";
 		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
 

@@ -46,7 +46,7 @@ namespace Lina
 #define MAX_BOUND_TEXTURES			 512
 #define MAX_BOUND_SAMPLERS			 128
 
-	enum class GfxShaderVariantType
+	enum class ShaderWriteTargetType
 	{
 		RenderTarget,
 		Swapchain,

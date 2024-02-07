@@ -35,19 +35,20 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Data/Streams.hpp"
+#include "ShaderVariant.hpp"
 
 namespace Lina
 {
 	struct ShaderVariant
 	{
-		uint32				 gpuHandle	  = 0;
-		String				 name		  = "";
-		String				 passName	  = "";
-		bool				 blendDisable = false;
-		bool				 depthDisable = false;
-		GfxShaderVariantType passType	  = GfxShaderVariantType::RenderTarget;
-		LinaGX::CullMode	 cullMode	  = LinaGX::CullMode::Back;
-		LinaGX::FrontFace	 frontFace	  = LinaGX::FrontFace::CCW;
+		uint32					 gpuHandle		= 0;
+		String					 name			= "";
+		bool					 blendDisable	= false;
+		bool					 depthDisable	= false;
+		ShaderWriteTargetType	 targetType		= ShaderWriteTargetType::RenderTarget;
+		RenderPassDescriptorType renderPassType = RenderPassDescriptorType::Basic;
+		LinaGX::CullMode		 cullMode		= LinaGX::CullMode::Back;
+		LinaGX::FrontFace		 frontFace		= LinaGX::FrontFace::CCW;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
@@ -69,11 +70,11 @@ namespace Lina
 			return m_variants.at(variant).gpuHandle;
 		}
 
-		inline uint32 GetGPUHandle(GfxShaderVariantType passType) const
+		inline uint32 GetGPUHandle(ShaderWriteTargetType passType) const
 		{
 			for (const auto& [sid, var] : m_variants)
 			{
-				if (var.passType == passType)
+				if (var.targetType == passType)
 					return var.gpuHandle;
 			}
 

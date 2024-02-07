@@ -296,14 +296,13 @@ namespace Lina
 		auto& drawData = m_drawData[threadIndex];
 
 		drawData.drawRequests.push_back(DrawRequest());
-		DrawRequest& req		 = drawData.drawRequests.back();
-		req.indexCount			 = static_cast<uint32>(buf->m_indexBuffer.m_size);
-		req.vertexOffset		 = buffers.vertexCounter;
-		req.firstIndex			 = buffers.indexCounter;
-		req.clip.pos			 = Vector2ui(buf->clipPosX, buf->clipPosY);
-		req.clip.size			 = Vector2ui(buf->clipSizeX, buf->clipSizeY);
-		req.constants.bufferType = static_cast<uint32>(buf->m_drawBufferType);
-		req.constants.materialID = static_cast<uint32>(drawData.drawRequests.size() - 1);
+		DrawRequest& req	  = drawData.drawRequests.back();
+		req.indexCount		  = static_cast<uint32>(buf->m_indexBuffer.m_size);
+		req.vertexOffset	  = buffers.vertexCounter;
+		req.firstIndex		  = buffers.indexCounter;
+		req.clip.pos		  = Vector2ui(buf->clipPosX, buf->clipPosY);
+		req.clip.size		  = Vector2ui(buf->clipSizeX, buf->clipSizeY);
+		req.materialData.type = static_cast<uint32>(buf->m_drawBufferType);
 
 		buffers.vertexBuffer->BufferData(buffers.vertexCounter * sizeof(LinaVG::Vertex), buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
 		buffers.indexBuffer->BufferData(buffers.indexCounter * sizeof(LinaVG::Index), buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));

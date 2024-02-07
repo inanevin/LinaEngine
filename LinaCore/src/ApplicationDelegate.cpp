@@ -43,74 +43,6 @@ namespace Lina
 		return list;
 	}
 
-	Vector<Pair<StringID, ResourceMetadata>> ApplicationDelegate::GetPriorityResourcesMetadata()
-	{
-		Vector<Pair<StringID, ResourceMetadata>> list;
-		ResourceMetadata						 metadata;
-
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 12);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_1x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 14);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_2x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 16);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_3x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 20);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_4x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 12);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		////-------------
-		metadata.SetInt(FONT_META_SIZE, 14);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 16);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 18);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs, metadata));
-		metadata.ClearAll();
-
-		return list;
-	}
-
 	Vector<ResourceIdentifier> ApplicationDelegate::GetCoreResources()
 	{
 		Vector<ResourceIdentifier> list;
@@ -134,79 +66,115 @@ namespace Lina
 		return list;
 	}
 
-	Vector<Pair<StringID, ResourceMetadata>> ApplicationDelegate::GetCoreResourcesMetadata()
+	void ApplicationDelegate::FillResourceCustomMeta(StringID sid, OStream& stream)
 	{
-		Vector<Pair<StringID, ResourceMetadata>> list;
-		ResourceMetadata						 metadata;
+		if (sid == "Resources/Core/Fonts/NunitoSans_1x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize	 = 12,
+				.isSDF		 = false,
+				.glyphRanges = {linatl::make_pair(160, 360)},
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetSID(TEXTURE_META_SAMPLER_SID, DEFAULT_GUI_SAMPLER_SID);
-		list.push_back(linatl::make_pair("Resources/Core/Textures/StubLinaLogo.png"_hs, metadata));
-		list.push_back(linatl::make_pair("Resources/Core/Textures/StubLinaLogoWhite.png"_hs, metadata));
-		list.push_back(linatl::make_pair("Resources/Core/Textures/StubLinaLogoText.png"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/NunitoSans_2x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize	 = 14,
+				.isSDF		 = false,
+				.glyphRanges = {linatl::make_pair(160, 360)},
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 13);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_1x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/NunitoSans_3x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize	 = 16,
+				.isSDF		 = false,
+				.glyphRanges = {linatl::make_pair(160, 360)},
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		////-------------
-		metadata.SetInt(FONT_META_SIZE, 15);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_2x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/NunitoSans_4x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize	 = 20,
+				.isSDF		 = false,
+				.glyphRanges = {linatl::make_pair(160, 360)},
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 18);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_3x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize = 12,
+				.isSDF	   = false,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetInt(FONT_META_SIZE, 22);
-		metadata.SetBool(FONT_META_ISSDF, false);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/WorkSans-Regular_4x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize = 14,
+				.isSDF	   = false,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 12);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_1x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize = 16,
+				.isSDF	   = false,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 14);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_2x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize = 18,
+				.isSDF	   = false,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 16);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_3x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		if (sid == "Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.pointSize = 18,
+				.isSDF	   = false,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
 
-		//-------------
-		metadata.SetBool(FONT_META_ISSDF, false);
-		metadata.SetInt(FONT_META_SIZE, 20);
-		metadata.SetInt(FONT_META_CUSTOM_GLPYHS, 2);
-		metadata.SetInt("Range_0"_hs, 160);
-		metadata.SetInt("Range_1"_hs, 380);
-		list.push_back(linatl::make_pair("Resources/Core/Fonts/NunitoSans_Bold_4x.ttf"_hs, metadata));
-		metadata.ClearAll();
+		// NOTE: 160, 380 is the glyph range for nunito sans
 
-		return list;
+		if (sid == "Resources/Core/Textures/StubLinaLogo.png"_hs || "Resources/Core/Textures/StubLinaLogoWhite.png"_hs || "Resources/Core/Textures/StubLinaLogoText.png"_hs)
+		{
+			Texture::Metadata meta = {
+				.samplerSID = DEFAULT_GUI_SAMPLER_SID,
+			};
+
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		return false;
 	}
 
 } // namespace Lina

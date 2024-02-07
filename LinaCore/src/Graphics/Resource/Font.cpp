@@ -34,6 +34,39 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Font::Metadata::SaveToStream(OStream& out)
+	{
+		out << pointSize;
+		out << isSDF;
+		out << static_cast<int32>(glyphRanges.size());
+
+		for (const auto& rangePair : glyphRanges)
+		{
+			out << rangePair.first;
+			out << rangePair.second;
+		}
+	}
+
+	void Font::Metadata::LoadFromStream(IStream& in)
+	{
+		in >> pointSize;
+		in >> isSDF;
+
+		int32 glyphRangeSize = 0;
+
+		in >> glyphRangeSize;
+
+		if (glyphRangeSize != 0)
+		{
+			glyphRanges.resize(static_cast<size_t>(glyphRangeSize));
+			for (int32 i = 0; i < glyphRangeSize; i++)
+			{
+				in >> glyphRanges[i].first;
+				in >> glyphRanges[i].second;
+			}
+		}
+	}
+
 	Font::~Font()
 	{
 		if (m_lvgFont)
@@ -42,24 +75,17 @@ namespace Lina
 
 	void Font::BatchLoaded()
 	{
-		const bool					  isSdf		   = m_metadata.GetBool(FONT_META_ISSDF, false);
-		const int					  size		   = m_metadata.GetInt(FONT_META_SIZE);
-		const int					  customRanges = m_metadata.GetInt(FONT_META_CUSTOM_GLPYHS, 0);
 		Vector<LinaVG::GlyphEncoding> customRangeVec;
-		for (int i = 0; i < customRanges; i += 2)
+		for (const auto& rng : m_meta.glyphRanges)
 		{
-			const String   range0	 = "Range_" + TO_STRING(i);
-			const String   range1	 = "Range_" + TO_STRING(i + 1);
-			const StringID range0Sid = TO_SID(range0);
-			const StringID range1Sid = TO_SID(range1);
-			customRangeVec.push_back(m_metadata.GetInt(range0Sid));
-			customRangeVec.push_back(m_metadata.GetInt(range1Sid));
+			customRangeVec.push_back(rng.first);
+			customRangeVec.push_back(rng.second);
 		}
 
 		if (customRangeVec.empty())
-			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size);
+			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.pointSize);
 		else
-			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), isSdf, size, customRangeVec.data(), customRanges);
+			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.pointSize, customRangeVec.data(), customRanges);
 	}
 
 	void Font::LoadFromFile(const char* path)
@@ -72,14 +98,19 @@ namespace Lina
 
 	void Font::LoadFromStream(IStream& stream)
 	{
-		m_metadata.LoadFromStream(stream);
+		m_meta.LoadFromStream(stream);
 		VectorSerialization::LoadFromStream_PT(stream, m_file);
 	}
 
 	void Font::SaveToStream(OStream& stream)
 	{
-		m_metadata.SaveToStream(stream);
+		m_meta.SaveToStream(stream);
 		VectorSerialization::SaveToStream_PT(stream, m_file);
+	}
+
+	void Font::SetCustomMeta(IStream& stream)
+	{
+		m_meta.LoadFromStream(in);
 	}
 
 } // namespace Lina

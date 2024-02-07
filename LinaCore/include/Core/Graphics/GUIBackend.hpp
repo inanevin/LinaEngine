@@ -70,7 +70,7 @@ namespace Lina
 			LinaGX::CommandStream* copyStream	   = nullptr;
 			SemaphoreData*		   copySemaphore   = nullptr;
 			uint16				   descriptorSet2  = 0;
-			GfxShaderVariantType   variantPassType = GfxShaderVariantType::RenderTarget;
+			ShaderWriteTargetType  variantPassType = ShaderWriteTargetType::RenderTarget;
 		};
 
 		struct Buffers
@@ -90,7 +90,6 @@ namespace Lina
 			uint32		   indexCount	= 0;
 			Rectui		   clip			= {};
 			GPUMaterialGUI materialData;
-			GPUConstantGUI constants;
 		};
 
 		struct DrawData

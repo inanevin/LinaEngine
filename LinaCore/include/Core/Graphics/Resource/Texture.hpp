@@ -37,16 +37,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
-#define TEXTURE_META_FORMAT		   "Format"_hs
-#define TEXTURE_META_GENMIPS	   "GenerateMipmaps"_hs
-#define TEXTURE_META_MIPFILTER	   "MipmapFilter"_hs
-#define TEXTURE_META_MIPMODE	   "MipmapMode"_hs
-#define TEXTURE_META_ISLINEAR	   "IsLinear"_hs
-#define TEXTURE_META_CHANNEL_COUNT "ChannelCount"_hs
-#define TEXTURE_META_SAMPLER_SID   "SamplerSID"_hs
-
 	class Texture;
+
 	struct TextureSheetItem
 	{
 		Texture*  texture = nullptr;
@@ -58,6 +50,20 @@ namespace Lina
 	class Texture : public Resource
 	{
 	public:
+		struct Metadata
+		{
+			LinaGX::Format			 format			 = LinaGX::Format::R8G8B8A8_SRGB;
+			LinaGX::MipmapMode		 mipmapMode		 = LinaGX::MipmapMode::Linear;
+			LinaGX::MipmapFilter	 mipFilter		 = LinaGX::MipmapFilter::Mitchell;
+			LinaGX::ImageChannelMask channelMask	 = LinaGX::ImageChannelMask::RGBA;
+			StringID				 samplerSID		 = DEFAULT_SAMPLER_SID;
+			bool					 isLinear		 = false;
+			bool					 generateMipmaps = true;
+
+			void SaveToStream(OStream& out) const;
+			void LoadFromStream(IStream& in);
+		};
+
 		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
 		virtual ~Texture();
 
@@ -91,16 +97,17 @@ namespace Lina
 
 	protected:
 		virtual void LoadFromFile(const char* path) override;
-		virtual void SaveToStream(OStream& stream) override;
 		virtual void LoadFromStream(IStream& stream) override;
+		virtual void SaveToStream(OStream& stream) override;
+		virtual void SetCustomMeta(IStream& stream) override;
 
 	private:
 		uint32						  m_bindlessIndex = 0;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
-		LinaGX::ImageChannelMask	  m_channelMask		 = LinaGX::ImageChannelMask::RGBA;
 		uint32						  m_gpuHandle		 = 0;
 		StringID					  m_sampler			 = 0;
 		bool						  m_loadedFromStream = false;
+		Metadata					  m_meta			 = {};
 	};
 } // namespace Lina
 

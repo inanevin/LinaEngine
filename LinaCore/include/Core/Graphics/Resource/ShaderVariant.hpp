@@ -28,55 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CommonResources_HPP
-#define CommonResources_HPP
-
-#include "Common/StringID.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/Streams.hpp"
 #include "Common/Data/String.hpp"
-#include "Common/Common.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina
 {
-	enum class PackageType
+	struct ShaderVariant
 	{
-		Default,
-		Package1,
-		Package2,
-		PackageLevels,
-	};
+		uint32 gpuHandle	  = 0;
+		uint16 pipelineLayout = 0;
 
-	extern String GGetPackagePath(PackageType pt);
-
-	struct ResourceIdentifier
-	{
-		ResourceIdentifier() = default;
-		ResourceIdentifier(const String& path, TypeID tid, StringID sid, bool useCustomMeta = false)
-		{
-			this->path			= path;
-			this->sid			= sid;
-			this->tid			= tid;
-			this->useCustomMeta = useCustomMeta;
-		}
-
-		TypeID	 tid		   = 0;
-		StringID sid		   = 0;
-		String	 path		   = "";
-		bool	 useCustomMeta = false;
+		String				  name		   = "";
+		bool				  blendDisable = false;
+		bool				  depthDisable = false;
+		ShaderWriteTargetType targetType   = ShaderWriteTargetType::RenderTarget;
+		LinaGX::CullMode	  cullMode	   = LinaGX::CullMode::Back;
+		LinaGX::FrontFace	  frontFace	   = LinaGX::FrontFace::CCW;
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
 	};
 
-	struct ResourceLoadTask
-	{
-		Taskflow				   tf;
-		Vector<ResourceIdentifier> identifiers;
-		Atomic<bool>			   isCompleted = false;
-		int32					   id		   = 0;
-		uint64					   startTime   = 0;
-		uint64					   endTime	   = 0;
-	};
-
 } // namespace Lina
-
-#endif

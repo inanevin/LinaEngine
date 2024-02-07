@@ -70,19 +70,9 @@ namespace Lina
 			m_priorityResources = priorityResources;
 		}
 
-		inline void SetPriorityResourcesMetadata(const Vector<Pair<StringID, ResourceMetadata>>& meta)
-		{
-			m_priorityResourcesDefaultMetadata = meta;
-		}
-
 		inline void SetCoreResources(const Vector<ResourceIdentifier>& priorityResources)
 		{
 			m_coreResources = priorityResources;
-		}
-
-		inline void SetCoreResourcesMetadata(const Vector<Pair<StringID, ResourceMetadata>>& meta)
-		{
-			m_coreResourcesDefaultMetadata = meta;
 		}
 
 		inline void SetMode(ResourceManagerMode mode)
@@ -131,16 +121,14 @@ namespace Lina
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 
 	private:
-		int32									 m_loadTaskCounter = 0;
-		HashMap<uint32, ResourceLoadTask*>		 m_loadTasks;
-		JobExecutor								 m_executor;
-		ResourceManagerMode						 m_mode = ResourceManagerMode::File;
-		HashMap<TypeID, ResourceCacheBase*>		 m_caches;
-		Vector<ResourceIdentifier>				 m_priorityResources;
-		Vector<ResourceIdentifier>				 m_coreResources;
-		Vector<Pair<StringID, ResourceMetadata>> m_priorityResourcesDefaultMetadata;
-		Vector<Pair<StringID, ResourceMetadata>> m_coreResourcesDefaultMetadata;
-		Vector<ResourceIdentifier>				 m_waitingResources;
+		int32								m_loadTaskCounter = 0;
+		HashMap<uint32, ResourceLoadTask*>	m_loadTasks;
+		JobExecutor							m_executor;
+		ResourceManagerMode					m_mode = ResourceManagerMode::File;
+		HashMap<TypeID, ResourceCacheBase*> m_caches;
+		Vector<ResourceIdentifier>			m_priorityResources;
+		Vector<ResourceIdentifier>			m_coreResources;
+		Vector<ResourceIdentifier>			m_waitingResources;
 	};
 
 } // namespace Lina

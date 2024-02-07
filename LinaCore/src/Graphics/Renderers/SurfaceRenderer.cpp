@@ -208,7 +208,7 @@ namespace Lina
 			.copyStream		 = currentFrame.copyStream,
 			.copySemaphore	 = &currentFrame.copySemaphore,
 			.descriptorSet2	 = 0,
-			.variantPassType = GfxShaderVariantType::Swapchain,
+			.variantPassType = ShaderWriteTargetType::Swapchain,
 		};
 		GUIBackend::Buffers guiBuffers = {
 			.vertexBuffer	= &currentFrame.guiVertexBuffer,

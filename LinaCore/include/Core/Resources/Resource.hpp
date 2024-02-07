@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Common/StringID.hpp"
 #include "Common/Data/String.hpp"
-#include "Core/Resources/Data/ResourceMetadata.hpp"
 
 namespace Lina
 {
@@ -62,11 +61,6 @@ namespace Lina
 			return m_tid;
 		}
 
-		inline ResourceMetadata& GetMetadata()
-		{
-			return m_metadata;
-		}
-
 		inline bool IsUserManaged() const
 		{
 			return m_userManaged;
@@ -84,11 +78,7 @@ namespace Lina
 		virtual void LoadFromFile(const char* path){};
 		virtual void LoadFromStream(IStream& stream){};
 		virtual void SaveToStream(OStream& stream){};
-
-		inline void SetMetadata(const ResourceMetadata& md)
-		{
-			m_metadata = md;
-		}
+		virtual void SetCustomMeta(IStream& stream){};
 
 		inline void SetPath(const String& path)
 		{
@@ -108,7 +98,6 @@ namespace Lina
 	protected:
 		bool			 m_userManaged	   = false;
 		ResourceManager* m_resourceManager = nullptr;
-		ResourceMetadata m_metadata		   = ResourceMetadata();
 		String			 m_path			   = "";
 		TypeID			 m_tid			   = 0;
 		StringID		 m_sid			   = 0;

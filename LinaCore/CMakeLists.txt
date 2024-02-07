@@ -41,6 +41,7 @@ src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Data/Vertex.cpp
 src/Graphics/Resource/Shader.cpp
+src/Graphics/Resource/ShaderVariant.cpp
 src/Graphics/Resource/Mesh.cpp
 src/Graphics/Resource/Model.cpp
 src/Graphics/Resource/Texture.cpp
@@ -124,6 +125,7 @@ include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Data/RenderData.hpp
 include/Core/Graphics/Data/Vertex.hpp
 include/Core/Graphics/Resource/Shader.hpp
+include/Core/Graphics/Resource/ShaderVariant.hpp
 include/Core/Graphics/Resource/Mesh.hpp
 include/Core/Graphics/Resource/Model.hpp
 include/Core/Graphics/Resource/Texture.hpp

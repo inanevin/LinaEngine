@@ -26,57 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef CommonResources_HPP
-#define CommonResources_HPP
-
-#include "Common/StringID.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Common.hpp"
+#include "Core/Graphics/Resource/ShaderVariant.hpp"
 
 namespace Lina
 {
-	enum class PackageType
+	void ShaderVariant::SaveToStream(OStream& stream)
 	{
-		Default,
-		Package1,
-		Package2,
-		PackageLevels,
-	};
+		const uint8 targetTypeInt	 = static_cast<uint8>(targetType);
+		const uint8 cullModeInt	 = static_cast<uint8>(cullMode);
+        const uint8 frontFaceInt = static_cast<uint8>(frontFace);
+		const uint8 renderPassTypeInt = static_cast<uint8>(renderPassType);
+		stream << gpuHandle << blendDisable << depthDisable << targetTypeInt << cullModeInt << frontFaceInt << renderPassTypeInt;
+		StringSerialization::SaveToStream(stream, name);
+	}
 
-	extern String GGetPackagePath(PackageType pt);
-
-	struct ResourceIdentifier
+	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
-		ResourceIdentifier() = default;
-		ResourceIdentifier(const String& path, TypeID tid, StringID sid, bool useCustomMeta = false)
-		{
-			this->path			= path;
-			this->sid			= sid;
-			this->tid			= tid;
-			this->useCustomMeta = useCustomMeta;
-		}
-
-		TypeID	 tid		   = 0;
-		StringID sid		   = 0;
-		String	 path		   = "";
-		bool	 useCustomMeta = false;
-
-		void SaveToStream(OStream& stream);
-		void LoadFromStream(IStream& stream);
-	};
-
-	struct ResourceLoadTask
-	{
-		Taskflow				   tf;
-		Vector<ResourceIdentifier> identifiers;
-		Atomic<bool>			   isCompleted = false;
-		int32					   id		   = 0;
-		uint64					   startTime   = 0;
-		uint64					   endTime	   = 0;
-	};
+		uint8 targetTypeInt = 0, cullModeInt = 0, frontFaceInt = 0, renderPassTypeInt = 0;
+		stream >> gpuHandle >> blendDisable >> depthDisable >> targetTypeInt >> cullModeInt >> frontFaceInt >> renderPassTypeInt;
+		StringSerialization::LoadFromStream(stream, name);
+		targetType  = static_cast<ShaderWriteTargetType>(targetTypeInt);
+		cullMode  = static_cast<LinaGX::CullMode>(cullModeInt);
+		frontFace = static_cast<LinaGX::FrontFace>(frontFaceInt);
+        renderPassType = static_cast<RenderPassDescriptorType>(renderPassTypeInt);
+	}
 
 } // namespace Lina
-
-#endif

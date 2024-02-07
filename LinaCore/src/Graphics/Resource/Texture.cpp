@@ -34,6 +34,23 @@ SOFTWARE.
 
 namespace Lina
 {
+    void Texture::Metadata::SaveToStream(OStream &out)
+    {
+        out << static_cast<uint8>(format) << static_cast<uint8>(mipmapMode) << static_cast<uint8>(mipFilter) << static_cast<uint8>(channelMask);
+        out << channelCount << samplerSID << isLinear << generateMipmaps;
+    }
+
+    void Texture::Metadata::LoadFromStream(IStream &in)
+    {
+        uint8 formatInt = 0, mipmapModeInt = 0, mipFilterInt = 0, channelMaskInt = 0;
+        in >> formatInt >> mipmapModeInt >> mipFilterInt >> channelMaskInt;
+        format = static_cast<LinaGX::Format>(formatInt);
+        mipmapMode = static_cast<LinaGX::MipmapMode>(mipmapModeInt);
+        mipFilter = static_cast<LinaGX::MipmapFilter>(mipFilterInt);
+        channelMaskInt = static_cast<LinaGX::ImageChannelMask>(channelMaskInt);
+        in >> channelCount >> samplerSID >> isLinear >> generateMipmaps;
+    }
+
 	Texture::~Texture()
 	{
 		for (const auto& b : m_allLevels)
@@ -46,7 +63,7 @@ namespace Lina
 	uint32 Texture::GetSamplerSID() const
 	{
 		if (m_sampler == 0)
-			return DEFAULT_SAMPLER_SID;
+            return m_meta.samplerSID;
 		return m_sampler;
 	}
 
@@ -142,55 +159,25 @@ namespace Lina
 
 	void Texture::LoadFromFile(const char* path)
 	{
-		const bool				   generateMipmaps = m_metadata.GetBool(TEXTURE_META_GENMIPS, true);
-		const LinaGX::MipmapFilter mipFilter	   = static_cast<LinaGX::MipmapFilter>(m_metadata.GetUInt8(TEXTURE_META_MIPFILTER, static_cast<uint8>(LinaGX::MipmapFilter::Mitchell)));
-		const bool				   isLinear		   = m_metadata.GetBool(TEXTURE_META_ISLINEAR, false);
-		m_channelMask							   = static_cast<LinaGX::ImageChannelMask>(m_metadata.GetUInt8(TEXTURE_META_CHANNEL_COUNT, 4));
-
-		m_metadata.GetUInt8(TEXTURE_META_FORMAT, static_cast<uint8>(LinaGX::Format::R8G8B8A8_SRGB));
-		m_metadata.GetUInt8(TEXTURE_META_MIPMODE, static_cast<uint8>(LinaGX::MipmapMode::Linear));
-		m_metadata.GetSID(TEXTURE_META_SAMPLER_SID, DEFAULT_SAMPLER_SID);
-
-		const uint32 bytesPerPixel = static_cast<uint32>(m_channelMask);
-
 		LinaGX::TextureBuffer outBuffer = {};
-		LinaGX::LoadImageFromFile(path, outBuffer);
+		LinaGX::LoadImageFromFile(path, outBuffer, m_meta.channelMask);
 		LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
 
 		m_allLevels.push_back(outBuffer);
 
-		if (generateMipmaps)
+		if (m_meta.generateMipmaps)
 		{
 			LINAGX_VEC<LinaGX::TextureBuffer> mipData;
-			LinaGX::GenerateMipmaps(outBuffer, mipData, mipFilter, LinaGX::ImageChannelMask::RGBA, isLinear);
+			LinaGX::GenerateMipmaps(outBuffer, mipData, m_meta.mipFilter, m_meta.channelMask, m_meta.isLinear);
 
 			for (const auto& mp : mipData)
 				m_allLevels.push_back(mp);
 		}
 	}
 
-	void Texture::SaveToStream(OStream& stream)
-	{
-		m_metadata.SaveToStream(stream);
-		const uint32 bytesPerPixel = static_cast<uint32>(m_channelMask);
-		const uint32 allLevels	   = static_cast<uint32>(m_allLevels.size());
-
-		stream << allLevels;
-
-		for (const auto& buffer : m_allLevels)
-		{
-			const uint32 pixelSize = buffer.width * buffer.height * bytesPerPixel;
-			stream << buffer.width << buffer.height << pixelSize;
-
-			if (pixelSize != 0)
-				stream.WriteEndianSafe(buffer.pixels, pixelSize);
-		}
-	}
-
 	void Texture::LoadFromStream(IStream& stream)
 	{
-		m_metadata.LoadFromStream(stream);
-		m_channelMask = static_cast<LinaGX::ImageChannelMask>(m_metadata.GetUInt8(TEXTURE_META_CHANNEL_COUNT, 4));
+        m_meta.LoadFromStream(stream);
 
 		uint32 allLevels = 0;
 		stream >> allLevels;
@@ -214,13 +201,37 @@ namespace Lina
 		}
 	}
 
+    void Texture::SaveToStream(OStream& stream)
+    {
+        m_meta.SaveToStream(stream);
+        
+        const uint32 bytesPerPixel = static_cast<uint32>(m_meta.channelMask) + 1;
+        const uint32 allLevels       = static_cast<uint32>(m_allLevels.size());
+        
+        stream << allLevels;
+        
+        for (const auto& buffer : m_allLevels)
+        {
+            const uint32 pixelSize = buffer.width * buffer.height * bytesPerPixel;
+            stream << buffer.width << buffer.height << pixelSize;
+            
+            if (pixelSize != 0)
+                stream.WriteEndianSafe(buffer.pixels, pixelSize);
+        }
+    }
+
+
+    void Texture::SetCustomMeta(IStream &stream)
+    {
+        m_meta.LoadFromStream(stream);
+    }
+
 	void Texture::BatchLoaded()
 	{
-		auto format		= static_cast<LinaGX::Format>(m_metadata.GetUInt8(TEXTURE_META_FORMAT));
 		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		LinaGX::TextureDesc desc = LinaGX::TextureDesc{
-			.format	   = format,
+			.format	   = m_meta.format,
 			.flags	   = LinaGX::TextureFlags::TF_Sampled | LinaGX::TextureFlags::TF_CopyDest,
 			.width	   = m_allLevels[0].width,
 			.height	   = m_allLevels[0].height,
