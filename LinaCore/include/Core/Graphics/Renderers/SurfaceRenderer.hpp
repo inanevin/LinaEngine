@@ -56,12 +56,7 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* gfxStream		 = nullptr;
-			LinaGX::CommandStream* copyStream		 = nullptr;
-			SemaphoreData		   copySemaphore	 = {};
-			Buffer				   guiVertexBuffer	 = {};
-			Buffer				   guiIndexBuffer	 = {};
-			Buffer				   guiMaterialBuffer = {};
+			LinaGX::CommandStream* gfxStream = nullptr;
 		};
 
 	public:
@@ -89,7 +84,7 @@ namespace Lina
 
 		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
 		{
-			return m_pfd[frameIndex].copySemaphore;
+			return m_guiRenderer.GetCopySemaphoreData(frameIndex);
 		}
 
 	protected:
@@ -102,7 +97,7 @@ namespace Lina
 		uint8				 m_swapchain   = 0;
 		bool				 m_isVisible   = false;
 		ApplicationDelegate* m_appListener = nullptr;
-		RenderPass			 m_renderpass  = {};
+		RenderPass			 m_renderPass  = {};
 		GUIRenderer			 m_guiRenderer;
 	};
 

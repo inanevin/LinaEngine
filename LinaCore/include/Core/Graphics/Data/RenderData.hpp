@@ -71,12 +71,6 @@ namespace Lina
 		uint32 padding[2];
 	};
 
-	struct SemaphoreData
-	{
-		uint16 semaphore;
-		uint64 value;
-	};
-
 	struct GPUMaterialGUI
 	{
 		Vector4 color1;

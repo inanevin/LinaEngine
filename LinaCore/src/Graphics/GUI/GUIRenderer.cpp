@@ -27,9 +27,53 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
+#include "Core/Graphics/GUI/GUIBackend.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
+
+#define MAX_COPY_COMMANDS 50
+
+#define MAX_GUI_VERTICES  5000
+#define MAX_GUI_INDICES	  5000
+#define MAX_GUI_MATERIALS 100
+
+	void GUIRenderer::Create(GfxManager* gfxManager)
+	{
+		m_gfxManager = gfxManager;
+		m_lgx		 = m_gfxManager->GetLGX();
+		m_guiBackend = m_gfxManager->GetGUIBackend();
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data					 = m_pfd[i];
+			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "GUIRenderer: Copy Stream"});
+			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
+			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer Vtx");
+			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer Indx");
+			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "GUIRenderer Materials", true);
+		}
+	}
+
+	void GUIRenderer::Destroy()
+	{
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data = m_pfd[i];
+			m_lgx->DestroyCommandStream(data.copyStream);
+			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
+			data.guiVertexBuffer.Destroy();
+			data.guiIndexBuffer.Destroy();
+			data.guiMaterialBuffer.Destroy();
+		}
+	}
+
+	void GUIRenderer::Render(LinaGX::CommandStream* stream, uint32 frameIndex, uint32 threadIndex)
+	{
+		const auto& drawRequests = m_guiBackend->GetDrawData(threadIndex).drawRequests;
+	}
 	/*
 
 	void GUIBackend::Render(int threadIndex)

@@ -43,12 +43,7 @@ SOFTWARE.
 
 namespace Lina
 {
-#define MAX_GFX_COMMANDS  250
-#define MAX_COPY_COMMANDS 50
-
-#define MAX_GUI_VERTICES  5000
-#define MAX_GUI_INDICES	  5000
-#define MAX_GUI_MATERIALS 100
+#define MAX_GFX_COMMANDS 250
 
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
 	{
@@ -73,34 +68,27 @@ namespace Lina
 		   });
 
 		// RP
-		m_renderpass.SetColorAttachment(0, {.texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
-		m_renderpass.Create(m_gfxManager, m_lgx, RenderPassDescriptorType::Basic);
+		m_renderPass.SetColorAttachment(0, {.texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
+		m_renderPass.Create(m_gfxManager, m_lgx, RenderPassDescriptorType::Basic);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& data					 = m_pfd[i];
-			data.gfxStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
-			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "SurfaceRenderer: Copy Stream"});
-			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
-			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
-			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Index Buffer");
-			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "Surface Renderer GUI Material Buffer", true);
+			auto& data	   = m_pfd[i];
+			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
 		}
+
+		m_guiRenderer.Create(m_gfxManager);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
-		m_renderpass.Destroy();
+		m_guiRenderer.Destroy();
+		m_renderPass.Destroy();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
 			m_lgx->DestroyCommandStream(data.gfxStream);
-			m_lgx->DestroyCommandStream(data.copyStream);
-			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
-			data.guiVertexBuffer.Destroy();
-			data.guiIndexBuffer.Destroy();
-			data.guiMaterialBuffer.Destroy();
 		}
 
 		m_lgx->DestroySwapchain(m_swapchain);
@@ -159,38 +147,21 @@ namespace Lina
 		barrierToColor->textureBarriers[0]	= GfxHelpers::GetTextureBarrierPresent2Color(static_cast<uint32>(m_swapchain), true);
 
 		// Descriptors
-
-		m_renderpass.BindDescriptors(currentFrame.gfxStream, frameIndex);
+		m_renderPass.BindDescriptors(currentFrame.gfxStream, frameIndex);
 
 		// Begin render pass
-		m_renderpass.Begin(currentFrame.gfxStream, viewport, scissors);
+		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors);
 
-		// Prepare GUI backend.
-		// GUIBackend::RenderData guiRenderData = {
-		// 	.size			 = m_size,
-		// 	.gfxStream		 = currentFrame.gfxStream,
-		// 	.copyStream		 = currentFrame.copyStream,
-		// 	.copySemaphore	 = &currentFrame.copySemaphore,
-		// 	.descriptorSet	 = currentFrame.guiDescriptorSet,
-		// 	.variantPassType = ShaderWriteTargetType::Swapchain,
-		// };
-		// GUIBackend::Buffers guiBuffers = {
-		// 	.vertexBuffer	= &currentFrame.guiVertexBuffer,
-		// 	.indexBuffer	= &currentFrame.guiIndexBuffer,
-		// 	.materialBuffer = &currentFrame.guiMaterialBuffer,
-		// };
-		// m_guiBackend->Prepare(threadIndex, guiBuffers, guiRenderData);
-		//
-		// // Render application overlay, app can draw anything using the current stream (no submissions allowed)
-		// // Including GUI commands.
-		// m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
-		//
-		// // Flush & render GUI commands if app drawed any.
-		// LinaVG::Render(threadIndex);
-		// m_guiBackend->Render(threadIndex);
+		// Render application overlay, app can draw anything using the current stream (no submissions allowed)
+		// Including GUI commands.
+		m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
+
+		// Flush & render GUI commands if app drawed any.
+		LinaVG::Render(threadIndex);
+		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, threadIndex);
 
 		// End render pass
-		m_renderpass.End(currentFrame.gfxStream);
+		m_renderPass.End(currentFrame.gfxStream);
 
 		// Barrier to Present
 		LinaGX::CMDBarrier* barrierToPresent  = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();

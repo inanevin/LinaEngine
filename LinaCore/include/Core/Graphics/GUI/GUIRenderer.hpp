@@ -28,13 +28,51 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+	class CommandStream;
+} // namespace LinaGX
+
 namespace Lina
 {
+	class GfxManager;
+	class GUIBackend;
+
 	class GUIRenderer
 	{
+
+	private:
+		struct PerFrameData
+		{
+			LinaGX::CommandStream* copyStream		 = nullptr;
+			SemaphoreData		   copySemaphore	 = {};
+			Buffer				   guiVertexBuffer	 = {};
+			Buffer				   guiIndexBuffer	 = {};
+			Buffer				   guiMaterialBuffer = {};
+		};
+
 	public:
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
+
+		void Create(GfxManager* gfxManager);
+		void Render(LinaGX::CommandStream* stream, uint32 frameIndex, uint32 threadIndex);
+		void Destroy();
+
+		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
+		{
+			return m_pfd[frameIndex].copySemaphore;
+		}
+
+	private:
+		GUIBackend*		  m_guiBackend = nullptr;
+		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
+		GfxManager*		  m_gfxManager = nullptr;
+		LinaGX::Instance* m_lgx		   = nullptr;
 	};
 
 } // namespace Lina

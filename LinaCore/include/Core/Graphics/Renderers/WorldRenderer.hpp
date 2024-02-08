@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace LinaGX
 {

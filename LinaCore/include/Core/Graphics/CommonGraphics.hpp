@@ -28,6 +28,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "Common/SizeDefinitions.hpp"
+
 namespace Lina
 {
 
@@ -57,6 +59,12 @@ namespace Lina
 	{
 		Basic = 0,
 		Max,
+	};
+
+	struct SemaphoreData
+	{
+		uint16 semaphore;
+		uint64 value;
 	};
 
 } // namespace Lina

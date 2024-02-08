@@ -105,6 +105,11 @@ namespace Lina
 		virtual void				  RestoreAPIState() override{};
 		virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
+		inline const DrawData& GetDrawData(int threadIndex) const
+		{
+			return m_drawData[threadIndex];
+		};
+
 	private:
 		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf, int threadIndex);
 		Matrix4		 GetProjectionFromSize(const Vector2ui& size);
