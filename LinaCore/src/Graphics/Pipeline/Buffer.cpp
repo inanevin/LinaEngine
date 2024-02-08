@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/Streams.hpp"
+
 namespace Lina
 {
 	uint64 Buffer::s_usedCPUVisibleGPUMemory = 0;
@@ -37,8 +39,9 @@ namespace Lina
 		m_size		  = size;
 		m_lgx		  = lgx;
 		m_stagingOnly = stagingOnly;
+		m_hintFlags	  = hintFlags;
 
-		if (!m_stagingOnly && LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory > m_size)
+		if (LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory > m_size)
 		{
 			s_usedCPUVisibleGPUMemory += static_cast<uint64>(m_size);
 			m_isCPUVisibleGPUResource = true;
@@ -52,6 +55,7 @@ namespace Lina
 
 			m_gpu = m_lgx->CreateResource(desc);
 			m_lgx->MapResource(m_gpu, m_mapped);
+			m_residesInGPU = true;
 		}
 		else
 		{
@@ -66,8 +70,9 @@ namespace Lina
 
 			if (!m_stagingOnly)
 			{
-				desc.heapType = LinaGX::ResourceHeap::GPUOnly;
-				m_gpu		  = m_lgx->CreateResource(desc);
+				desc.heapType  = LinaGX::ResourceHeap::GPUOnly;
+				m_gpu		   = m_lgx->CreateResource(desc);
+				m_residesInGPU = false;
 			}
 
 			m_lgx->MapResource(m_staging, m_mapped);
@@ -108,6 +113,23 @@ namespace Lina
 			if (!m_stagingOnly)
 				m_lgx->DestroyResource(m_gpu);
 		}
+	}
+
+	void Buffer::SaveToStream(OStream& stream) const
+	{
+		stream << m_size;
+		stream << m_hintFlags;
+		stream << m_stagingOnly;
+		stream.WriteRaw(m_mapped, m_size);
+	}
+
+	void Buffer::LoadFromStream(LinaGX::Instance* lgx, IStream& stream)
+	{
+		stream >> m_size;
+		stream >> m_hintFlags;
+		stream >> m_stagingOnly;
+		Create(lgx, m_hintFlags, m_size, "", m_stagingOnly);
+		stream.ReadIntoRaw((void*)m_mapped, m_size);
 	}
 
 } // namespace Lina

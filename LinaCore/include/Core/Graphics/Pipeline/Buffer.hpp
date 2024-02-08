@@ -38,6 +38,9 @@ namespace LinaGX
 
 namespace Lina
 {
+	class OStream;
+	class IStream;
+
 	class Buffer
 	{
 	public:
@@ -48,10 +51,12 @@ namespace Lina
 		void BufferData(size_t padding, void* data, size_t size);
 		bool Copy(LinaGX::CommandStream* stream);
 		void Destroy();
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
 
 		inline uint32 GetGPUResource() const
 		{
-			return m_gpu;
+			return m_residesInGPU ? m_gpu : m_staging;
 		}
 
 	private:
@@ -63,6 +68,8 @@ namespace Lina
 		uint32			  m_gpu						= 0;
 		uint32			  m_size					= 0;
 		uint8*			  m_mapped					= nullptr;
+		uint32			  m_hintFlags				= 0;
 		bool			  m_isCPUVisibleGPUResource = false;
+		bool			  m_residesInGPU			= false;
 	};
 } // namespace Lina

@@ -38,6 +38,45 @@ SOFTWARE.
 namespace Lina
 {
 
+	void Material::BindingData::SaveToStream(OStream& stream) const
+	{
+		stream << static_cast<int32>(buffers.size());
+		stream << static_cast<int32>(textures.size());
+		stream << static_cast<int32>(samplers.size());
+
+		for (const auto& buf : buffers)
+		{
+			buf.SaveToStream(stream);
+		}
+
+		for (const auto& txt : textures)
+			stream << txt;
+
+		for (const auto& smp : samplers)
+			stream << smp;
+	}
+
+	void Material::BindingData::LoadFromStream(LinaGX::Instance* lgx, IStream& stream)
+	{
+		int32 buffersSz = 0, texturesSz = 0, samplersSz = 0;
+		stream >> buffersSz >> texturesSz >> samplersSz;
+
+		buffers.resize(buffersSz);
+		textures.resize(texturesSz);
+		samplers.resize(samplersSz);
+
+		for (int32 i = 0; i < buffersSz; i++)
+		{
+			buffers[i].LoadFromStream(lgx, stream);
+		}
+
+		for (int32 i = 0; i < texturesSz; i++)
+			stream >> textures[i];
+
+		for (int32 i = 0; i < samplersSz; i++)
+			stream >> samplers[i];
+	}
+
 	Material::Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Material>())
 	{
 		m_gfxManager = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
@@ -46,32 +85,15 @@ namespace Lina
 
 	Material::~Material()
 	{
-		if (m_data != nullptr)
-			delete[] m_data;
+		DestroyBindingData();
 	}
 
 	void Material::SetShader(StringID sid)
 	{
-		m_shader = sid;
-
-		if (m_data != nullptr)
-			delete[] m_data;
-
-		Shader* shader = m_resourceManager->GetResource<Shader>(m_shader);
-		LINA_ASSERT(shader != nullptr, "Shader is null!");
-
-		if (m_descriptorSetCreated)
-		{
-			m_descriptorSetCreated = false;
-			m_lgx->DestroyDescriptorSet(m_descriptorSet);
-		}
-
-		const LinaGX::DescriptorSetDesc			desc = shader->GetMaterialSetDesc();
-		const LinaGX::ShaderDescriptorSetLayout info = shader->GetMaterialSetInfo();
-
-		m_descriptorSet = m_lgx->CreateDescriptorSet(desc);
-
-		LinaGX::DescriptorType type;
+		m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
+		m_shaderSID = sid;
+		LINA_ASSERT(m_shader != nullptr, "Shader is null!");
+		DestroyBindingData();
 
 		/*
 			For every binding we have in our descriptor set layout, we will create resources or at least reserve it.
@@ -81,9 +103,12 @@ namespace Lina
 			For shaders and samplers, we don't create anything as they are expected to exist.
 			But we update the descriptor set with default textures and samplers, until they are set externally.
 		 */
+		const LinaGX::DescriptorSetDesc			desc = m_shader->GetMaterialSetDesc();
+		const LinaGX::ShaderDescriptorSetLayout info = m_shader->GetMaterialSetInfo();
+		m_bindingData.resize(desc.bindings.size());
+		m_descriptorSet = m_lgx->CreateDescriptorSet(desc);
 
 		uint32 bindingIndex = 0;
-		m_bindingData.resize(desc.bindings.size());
 		for (const auto& b : desc.bindings)
 		{
 			auto& matBindingData = m_bindingData[bindingIndex];
@@ -111,7 +136,7 @@ namespace Lina
 				};
 
 				matBindingData.buffers.resize(1);
-				matBindingData.buffers[0].Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, static_cast<uint32>(info.bindings[bindingIndex].size), "Material SSBO", false);
+				matBindingData.buffers[0].Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, static_cast<uint32>(info.bindings[bindingIndex].size), "Material SSBO", true);
 				update.buffers.push_back(matBindingData.buffers[0].GetGPUResource());
 				m_lgx->DescriptorUpdateBuffer(update);
 			}
@@ -122,8 +147,13 @@ namespace Lina
 					.binding   = bindingIndex,
 				};
 
+				matBindingData.textures.resize(b.descriptorCount);
+
 				for (int32 i = 0; i < b.descriptorCount; i++)
+				{
+					matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
 					update.textures.push_back(DEFAULT_TEXTURE_SID);
+				}
 
 				m_lgx->DescriptorUpdateImage(update);
 			}
@@ -134,8 +164,13 @@ namespace Lina
 					.binding   = bindingIndex,
 				};
 
+				matBindingData.samplers.resize(b.descriptorCount);
+
 				for (int32 i = 0; i < b.descriptorCount; i++)
+				{
+					matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
 					update.samplers.push_back(DEFAULT_SAMPLER_SID);
+				}
 
 				m_lgx->DescriptorUpdateImage(update);
 			}
@@ -146,8 +181,13 @@ namespace Lina
 					.binding   = bindingIndex,
 				};
 
+				matBindingData.textures.resize(b.descriptorCount);
+				matBindingData.samplers.resize(b.descriptorCount);
+
 				for (int32 i = 0; i < b.descriptorCount; i++)
 				{
+					matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
+					matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
 					update.textures.push_back(DEFAULT_TEXTURE_SID);
 					update.samplers.push_back(DEFAULT_SAMPLER_SID);
 				}
@@ -157,26 +197,6 @@ namespace Lina
 
 			bindingIndex++;
 		}
-
-		if (shader)
-		{
-			// m_uboDefinition = shader->GetMaterialUBO();
-			//
-			// m_totalDataSize = 0;
-			// for (const auto& mem : m_uboDefinition.members)
-			// 	m_totalDataSize += mem.alignment;
-			//
-			// if (m_totalDataSize == 0)
-			// 	return;
-			//
-			// m_data = new uint8[m_totalDataSize];
-		}
-	}
-
-	void Material::GetDataBlob(uint8* ptr, size_t size)
-	{
-		ptr = new uint8[m_totalDataSize];
-		MEMCPY(ptr, m_data, m_totalDataSize);
 	}
 
 	void Material::LoadFromFile(const char* path)
@@ -191,26 +211,43 @@ namespace Lina
 
 	void Material::SaveToStream(OStream& stream) const
 	{
-		stream << m_shader << m_totalDataSize;
+		stream << m_shaderSID;
+		stream << static_cast<int32>(m_bindingData.size());
 
-		if (m_totalDataSize != 0)
-			stream.WriteEndianSafe(m_data, m_totalDataSize);
+		for (const auto& b : m_bindingData)
+			b.SaveToStream(stream);
 	}
 
 	void Material::LoadFromStream(IStream& stream)
 	{
-		stream >> m_shader >> m_totalDataSize;
+		int32 bindingSz = 0;
+		stream >> m_shaderSID >> bindingSz;
 
-		if (m_totalDataSize != 0)
-		{
-			m_data = new uint8[m_totalDataSize];
-			stream.ReadEndianSafe(m_data, m_totalDataSize);
-		}
+		m_bindingData.resize(bindingSz);
+
+		for (int32 i = 0; i < bindingSz; i++)
+			m_bindingData[i].LoadFromStream(m_lgx, stream);
 	}
 
 	void Material::BatchLoaded()
 	{
-		SetShader(m_shader);
+		SetShader(m_shaderSID);
+	}
+
+	void Material::DestroyBindingData()
+	{
+		if (!m_bindingData.empty())
+		{
+			m_lgx->DestroyDescriptorSet(m_descriptorSet);
+
+			for (auto& b : m_bindingData)
+			{
+				for (auto& buf : b.buffers)
+					buf.Destroy();
+			}
+
+			m_bindingData.clear();
+		}
 	}
 
 } // namespace Lina
