@@ -31,32 +31,32 @@ SOFTWARE.
 
 namespace Lina
 {
-	void DescriptorSet::Create(LinaGX::Instance *lgx, const LinaGX::DescriptorSetDesc &desc)
-    {
-        m_lgx = lgx;
-        m_handle = lgx->CreateDescriptorSet(desc);
-        m_allocationCount = desc.allocationCount;
-        
-        for(uint32 i = 0; i < desc.allocationCount; i++)
-            m_freeAllocations.push(i);
-    }
+	void DescriptorSet::Create(LinaGX::Instance* lgx, const LinaGX::DescriptorSetDesc& desc)
+	{
+		m_lgx			  = lgx;
+		m_handle		  = lgx->CreateDescriptorSet(desc);
+		m_allocationCount = desc.allocationCount;
 
-    void DescriptorSet::Destroy()
-    {
-        m_lgx->DestroyDescriptorSet(m_handle);
-    }
+		for (uint32 i = 0; i < desc.allocationCount; i++)
+			m_freeAllocations.push(i);
+	}
 
-    void DescriptorSet::Allocate(uint32 &outIndex)
-    {
-        LINA_ASSERT(!m_freeAllocations.empty(), "");
-        
-        outIndex = m_freeAllocations.front();
-        m_freeAllocations.pop();
-    }
+	void DescriptorSet::Destroy()
+	{
+		m_lgx->DestroyDescriptorSet(m_handle);
+	}
 
-    void DescriptorSet::Free(uint32 index)
-    {
-        m_freeAllocations.push(index);
-    }
+	void DescriptorSet::Allocate(uint32& outIndex)
+	{
+		LINA_ASSERT(!m_freeAllocations.empty(), "");
+
+		outIndex = m_freeAllocations.front();
+		m_freeAllocations.pop();
+	}
+
+	void DescriptorSet::Free(uint32 index)
+	{
+		m_freeAllocations.push(index);
+	}
 
 } // namespace Lina
