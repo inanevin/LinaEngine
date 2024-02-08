@@ -48,7 +48,7 @@ namespace Lina
 		~Buffer() = default;
 
 		void Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName = "GPUBuffer", bool stagingOnly = false);
-		void BufferData(size_t padding, void* data, size_t size);
+		void BufferData(size_t padding, uint8* data, size_t size);
 		bool Copy(LinaGX::CommandStream* stream);
 		void Destroy();
 		void SaveToStream(OStream& stream) const;
@@ -57,6 +57,11 @@ namespace Lina
 		inline uint32 GetGPUResource() const
 		{
 			return m_residesInGPU ? m_gpu : m_staging;
+		}
+
+		inline uint8* GetMapped()
+		{
+			return m_mapped;
 		}
 
 	private:

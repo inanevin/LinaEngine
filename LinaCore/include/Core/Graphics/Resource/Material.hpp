@@ -34,11 +34,13 @@ SOFTWARE.
 #include "Core/Resources/Resource.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace LinaGX
 {
 	class Instance;
-}
+	class CommandStream;
+} // namespace LinaGX
 
 namespace Lina
 {
@@ -49,9 +51,14 @@ namespace Lina
 	class Material : public Resource
 	{
 	public:
+		struct BindingBuffers
+		{
+			Vector<Buffer> buffers;
+		};
+
 		struct BindingData
 		{
-			Vector<Buffer>	 buffers;
+			BindingBuffers	 bufferData[FRAMES_IN_FLIGHT];
 			Vector<StringID> textures;
 			Vector<StringID> samplers;
 
@@ -63,6 +70,11 @@ namespace Lina
 		virtual ~Material();
 
 		void SetShader(StringID sid);
+		void Bind(LinaGX::CommandStream* stream, uint32 frameIndex);
+		void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize);
+		void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, StringID sid);
+		void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID sid);
+		void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID texture, StringID sampler);
 
 	protected:
 		virtual void LoadFromFile(const char* path) override;
@@ -71,15 +83,15 @@ namespace Lina
 		virtual void BatchLoaded() override;
 
 	private:
+		void UpdateBinding(uint32 bindingIndex);
 		void DestroyBindingData();
 
 	private:
-		LinaGX::Instance*	m_lgx				   = nullptr;
-		GfxManager*			m_gfxManager		   = nullptr;
-		Shader*				m_shader			   = nullptr;
-		StringID			m_shaderSID			   = 0;
-		uint16				m_descriptorSet		   = 0;
-		bool				m_descriptorSetCreated = false;
+		LinaGX::Instance*	m_lgx		 = nullptr;
+		GfxManager*			m_gfxManager = nullptr;
+		Shader*				m_shader	 = nullptr;
+		StringID			m_shaderSID	 = 0;
+		uint16				m_descriptorSets[FRAMES_IN_FLIGHT];
 		Vector<BindingData> m_bindingData;
 	};
 

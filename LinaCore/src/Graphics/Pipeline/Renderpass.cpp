@@ -46,7 +46,7 @@ namespace Lina
 			data.descriptorSet = lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentRenderPass(m_type));
 
 			data.viewDataBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), "RP Scene Data", true);
-			data.viewDataBuffer.BufferData(0, &dummyViewData, sizeof(GPUDataView));
+			data.viewDataBuffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = data.descriptorSet,
 				.binding   = 0,

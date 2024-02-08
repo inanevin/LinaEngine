@@ -79,7 +79,7 @@ namespace Lina
 		}
 	}
 
-	void Buffer::BufferData(size_t padding, void* data, size_t size)
+	void Buffer::BufferData(size_t padding, uint8* data, size_t size)
 	{
 		LINA_ASSERT(padding + size <= m_size, "Buffer overflow!");
 		MEMCPY(m_mapped + padding, data, size);

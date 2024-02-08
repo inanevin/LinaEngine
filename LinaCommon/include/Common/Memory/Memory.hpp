@@ -37,6 +37,7 @@ SOFTWARE.
 namespace Lina
 {
 #define MEMCPY(...) memcpy(__VA_ARGS__)
+#define MEMSET(...) memset(__VA_ARGS__)
 #define MALLOC(...) malloc(__VA_ARGS__)
 #define FREE(...)	free(__VA_ARGS__)
 

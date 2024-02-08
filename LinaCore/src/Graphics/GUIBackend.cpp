@@ -151,7 +151,7 @@ namespace Lina
 			materials[i] = req.materialData;
 			i++;
 		}
-		buffers.materialBuffer->BufferData(0, materials.data(), materials.size() * sizeof(GPUMaterialGUI));
+		buffers.materialBuffer->BufferData(0, (uint8*)materials.data(), materials.size() * sizeof(GPUMaterialGUI));
 
 		// Check need for copy operation
 		if (buffers.materialBuffer->Copy(renderData.copyStream) || buffers.indexBuffer->Copy(renderData.copyStream) || buffers.vertexBuffer->Copy(renderData.copyStream))
@@ -304,8 +304,8 @@ namespace Lina
 		req.clip.size		  = Vector2ui(buf->clipSizeX, buf->clipSizeY);
 		req.materialData.type = static_cast<uint32>(buf->m_drawBufferType);
 
-		buffers.vertexBuffer->BufferData(buffers.vertexCounter * sizeof(LinaVG::Vertex), buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
-		buffers.indexBuffer->BufferData(buffers.indexCounter * sizeof(LinaVG::Index), buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
+		buffers.vertexBuffer->BufferData(buffers.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
+		buffers.indexBuffer->BufferData(buffers.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
 		buffers.indexCounter += req.indexCount;
 		buffers.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 		return req;

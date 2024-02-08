@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Common/Serialization/Serialization.hpp"
@@ -40,14 +42,16 @@ namespace Lina
 
 	void Material::BindingData::SaveToStream(OStream& stream) const
 	{
-		stream << static_cast<int32>(buffers.size());
+		stream << static_cast<int32>(bufferData[0].buffers.size());
+
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			for (const auto& buf : bufferData[i].buffers)
+				buf.SaveToStream(stream);
+		}
+
 		stream << static_cast<int32>(textures.size());
 		stream << static_cast<int32>(samplers.size());
-
-		for (const auto& buf : buffers)
-		{
-			buf.SaveToStream(stream);
-		}
 
 		for (const auto& txt : textures)
 			stream << txt;
@@ -61,14 +65,16 @@ namespace Lina
 		int32 buffersSz = 0, texturesSz = 0, samplersSz = 0;
 		stream >> buffersSz >> texturesSz >> samplersSz;
 
-		buffers.resize(buffersSz);
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			bufferData[i].buffers.resize(buffersSz);
+
+			for (int32 j = 0; j < buffersSz; j++)
+				bufferData[i].buffers[j].LoadFromStream(lgx, stream);
+		}
+
 		textures.resize(texturesSz);
 		samplers.resize(samplersSz);
-
-		for (int32 i = 0; i < buffersSz; i++)
-		{
-			buffers[i].LoadFromStream(lgx, stream);
-		}
 
 		for (int32 i = 0; i < texturesSz; i++)
 			stream >> textures[i];
@@ -96,107 +102,98 @@ namespace Lina
 		DestroyBindingData();
 
 		/*
-			For every binding we have in our descriptor set layout, we will create resources or at least reserve it.
-			For UBOs, we create buffers for each descriptor in the set. (info fetched from shader layout info)
-			For SSBO, we create 1 buffer.
-			Buffers' sizes are again fetched from shader layout info.
-			For shaders and samplers, we don't create anything as they are expected to exist.
-			But we update the descriptor set with default textures and samplers, until they are set externally.
+
+		 1. Create descriptor set from shader description.
+		 2. For every binding in shader, create either a buffer, texture or sampler for that binding and assign defaults.
+		 3. UpdateBinding() for each binding -> update the newly created sets to point to those buffers & textures.
 		 */
+
 		const LinaGX::DescriptorSetDesc			desc = m_shader->GetMaterialSetDesc();
 		const LinaGX::ShaderDescriptorSetLayout info = m_shader->GetMaterialSetInfo();
 		m_bindingData.resize(desc.bindings.size());
-		m_descriptorSet = m_lgx->CreateDescriptorSet(desc);
 
-		uint32 bindingIndex = 0;
-		for (const auto& b : desc.bindings)
+		for (int32 f = 0; f < FRAMES_IN_FLIGHT; f++)
 		{
-			auto& matBindingData = m_bindingData[bindingIndex];
+			m_descriptorSets[f] = m_lgx->CreateDescriptorSet(desc);
 
-			if (b.type == LinaGX::DescriptorType::UBO)
+			uint32 bindingIndex = 0;
+			for (const auto& b : desc.bindings)
 			{
-				LinaGX::DescriptorUpdateBufferDesc update = {
-					.setHandle = m_descriptorSet,
-					.binding   = bindingIndex,
-				};
-
-				matBindingData.buffers.resize(b.descriptorCount);
-				for (int32 i = 0; i < b.descriptorCount; i++)
+				auto& matBindingData = m_bindingData[bindingIndex];
+				if (b.type == LinaGX::DescriptorType::UBO || b.type == LinaGX::DescriptorType::SSBO)
 				{
-					matBindingData.buffers[i].Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, static_cast<uint32>(info.bindings[bindingIndex].size), "Material UBO", true);
-					update.buffers.push_back(matBindingData.buffers[i].GetGPUResource());
+					const int32	 count	  = b.type == LinaGX::DescriptorType::UBO ? b.descriptorCount : 1;
+					const uint32 bufferSz = static_cast<uint32>(info.bindings[bindingIndex].size);
+					matBindingData.bufferData[f].buffers.resize(count);
+
+					for (int32 i = 0; i < count; i++)
+					{
+						auto& buf = matBindingData.bufferData[f].buffers[i];
+						buf.Create(m_lgx, b.type == LinaGX::DescriptorType::UBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", true);
+						MEMSET(buf.GetMapped(), 0, bufferSz);
+					}
 				}
-				m_lgx->DescriptorUpdateBuffer(update);
-			}
-			else if (b.type == LinaGX::DescriptorType::SSBO)
-			{
-				LinaGX::DescriptorUpdateBufferDesc update = {
-					.setHandle = m_descriptorSet,
-					.binding   = bindingIndex,
-				};
-
-				matBindingData.buffers.resize(1);
-				matBindingData.buffers[0].Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, static_cast<uint32>(info.bindings[bindingIndex].size), "Material SSBO", true);
-				update.buffers.push_back(matBindingData.buffers[0].GetGPUResource());
-				m_lgx->DescriptorUpdateBuffer(update);
-			}
-			else if (b.type == LinaGX::DescriptorType::SeparateImage)
-			{
-				LinaGX::DescriptorUpdateImageDesc update = {
-					.setHandle = m_descriptorSet,
-					.binding   = bindingIndex,
-				};
-
-				matBindingData.textures.resize(b.descriptorCount);
-
-				for (int32 i = 0; i < b.descriptorCount; i++)
+				else if (b.type == LinaGX::DescriptorType::SeparateImage || b.type == LinaGX::DescriptorType::CombinedImageSampler)
 				{
-					matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
-					update.textures.push_back(DEFAULT_TEXTURE_SID);
+					matBindingData.textures.resize(b.descriptorCount);
+					for (int32 i = 0; i < b.descriptorCount; i++)
+						matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
 				}
-
-				m_lgx->DescriptorUpdateImage(update);
-			}
-			else if (b.type == LinaGX::DescriptorType::SeparateSampler)
-			{
-				LinaGX::DescriptorUpdateImageDesc update = {
-					.setHandle = m_descriptorSet,
-					.binding   = bindingIndex,
-				};
-
-				matBindingData.samplers.resize(b.descriptorCount);
-
-				for (int32 i = 0; i < b.descriptorCount; i++)
+				else if (b.type == LinaGX::DescriptorType::SeparateSampler || b.type == LinaGX::DescriptorType::CombinedImageSampler)
 				{
-					matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
-					update.samplers.push_back(DEFAULT_SAMPLER_SID);
+					matBindingData.samplers.resize(b.descriptorCount);
+					for (int32 i = 0; i < b.descriptorCount; i++)
+						matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
 				}
-
-				m_lgx->DescriptorUpdateImage(update);
+				bindingIndex++;
 			}
-			else if (b.type == LinaGX::DescriptorType::CombinedImageSampler)
-			{
-				LinaGX::DescriptorUpdateImageDesc update = {
-					.setHandle = m_descriptorSet,
-					.binding   = bindingIndex,
-				};
-
-				matBindingData.textures.resize(b.descriptorCount);
-				matBindingData.samplers.resize(b.descriptorCount);
-
-				for (int32 i = 0; i < b.descriptorCount; i++)
-				{
-					matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
-					matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
-					update.textures.push_back(DEFAULT_TEXTURE_SID);
-					update.samplers.push_back(DEFAULT_SAMPLER_SID);
-				}
-
-				m_lgx->DescriptorUpdateImage(update);
-			}
-
-			bindingIndex++;
 		}
+
+		const int32 sz = static_cast<int32>(m_bindingData.size());
+		for (int32 i = 0; i < sz; i++)
+			UpdateBinding(i);
+	}
+
+	void Material::Bind(LinaGX::CommandStream* stream, uint32 frameIndex)
+	{
+		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
+		bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_descriptorSets[frameIndex]);
+		bind->firstSet						= 2;
+		bind->setCount						= 1;
+	}
+
+	void Material::SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize)
+	{
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& buf = m_bindingData[bindingIndex].bufferData[i].buffers[descriptorIndex];
+			buf.BufferData(padding, data, dataSize);
+		}
+	}
+
+	void Material::SetTexture(uint32 bindingIndex, uint32 descriptorIndex, StringID sid)
+	{
+		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		auto& bData						= m_bindingData[bindingIndex];
+		bData.textures[descriptorIndex] = sid;
+		UpdateBinding(bindingIndex);
+	}
+
+	void Material::SetSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID sid)
+	{
+		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		auto& bData						= m_bindingData[bindingIndex];
+		bData.samplers[descriptorIndex] = sid;
+		UpdateBinding(bindingIndex);
+	}
+
+	void Material::SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID texture, StringID sampler)
+	{
+		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		auto& bData						= m_bindingData[bindingIndex];
+		bData.textures[descriptorIndex] = texture;
+		bData.samplers[descriptorIndex] = sampler;
+		UpdateBinding(bindingIndex);
 	}
 
 	void Material::LoadFromFile(const char* path)
@@ -222,7 +219,6 @@ namespace Lina
 	{
 		int32 bindingSz = 0;
 		stream >> m_shaderSID >> bindingSz;
-
 		m_bindingData.resize(bindingSz);
 
 		for (int32 i = 0; i < bindingSz; i++)
@@ -231,19 +227,61 @@ namespace Lina
 
 	void Material::BatchLoaded()
 	{
-		SetShader(m_shaderSID);
+		const int32 sz = static_cast<int32>(m_bindingData.size());
+		for (int32 i = 0; i < sz; i++)
+			UpdateBinding(i);
+	}
+
+	void Material::UpdateBinding(uint32 bindingIndex)
+	{
+		auto*		rm		= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		const auto& binding = m_bindingData[bindingIndex];
+
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			if (!binding.bufferData[i].buffers.empty())
+			{
+				LinaGX::DescriptorUpdateBufferDesc update = {
+					.setHandle = m_descriptorSets[i],
+					.binding   = bindingIndex,
+				};
+
+				for (const auto& buf : binding.bufferData[i].buffers)
+					update.buffers.push_back(buf.GetGPUResource());
+
+				m_lgx->DescriptorUpdateBuffer(update);
+			}
+			else
+			{
+				LinaGX::DescriptorUpdateImageDesc update = {
+					.setHandle = m_descriptorSets[i],
+					.binding   = bindingIndex,
+				};
+
+				for (const auto& txt : binding.textures)
+					update.textures.push_back(rm->GetResource<Texture>(txt)->GetGPUHandle());
+
+				for (const auto& smp : binding.samplers)
+					update.samplers.push_back(rm->GetResource<TextureSampler>(smp)->GetGPUHandle());
+
+				m_lgx->DescriptorUpdateImage(update);
+			}
+		}
 	}
 
 	void Material::DestroyBindingData()
 	{
 		if (!m_bindingData.empty())
 		{
-			m_lgx->DestroyDescriptorSet(m_descriptorSet);
-
-			for (auto& b : m_bindingData)
+			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 			{
-				for (auto& buf : b.buffers)
-					buf.Destroy();
+				m_lgx->DestroyDescriptorSet(m_descriptorSets[i]);
+
+				for (auto& b : m_bindingData)
+				{
+					for (auto& buf : b.bufferData[i].buffers)
+						buf.Destroy();
+				}
 			}
 
 			m_bindingData.clear();
