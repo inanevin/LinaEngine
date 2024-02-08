@@ -152,13 +152,13 @@ namespace Lina
 		// Begin render pass
 		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors);
 
-		// Render application overlay, app can draw anything using the current stream (no submissions allowed)
-		// Including GUI commands.
-		m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
-
-		// Flush & render GUI commands if app drawed any.
-		LinaVG::Render(threadIndex);
-		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, threadIndex);
+		// // Render application overlay, app can draw anything using the current stream (no submissions allowed)
+		// // Including GUI commands.
+		// m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
+		//
+		// // Flush & render GUI commands if app drawed any.
+		// LinaVG::Render(threadIndex);
+		// m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, threadIndex);
 
 		// End render pass
 		m_renderPass.End(currentFrame.gfxStream);

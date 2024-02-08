@@ -41,11 +41,14 @@ namespace Lina
 {
 	class GfxManager;
 	class GUIBackend;
+	class Material;
 
 	class GUIRenderer
 	{
 
 	private:
+		static constexpr int32 MAX_GUI_MATERIALS = 50;
+
 		struct PerFrameData
 		{
 			LinaGX::CommandStream* copyStream		 = nullptr;
@@ -53,6 +56,7 @@ namespace Lina
 			Buffer				   guiVertexBuffer	 = {};
 			Buffer				   guiIndexBuffer	 = {};
 			Buffer				   guiMaterialBuffer = {};
+			Material*			   materials		 = nullptr;
 		};
 
 	public:

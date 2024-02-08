@@ -191,12 +191,12 @@ namespace Lina
 
 		// Default materials
 		{
-			Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
-			Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
-			defaultLitMaterial->SetShader("Resources/Core/Shaders/LitStandard.linashader"_hs);
-			defaultUnlitMaterial->SetShader("Resources/Core/Shaders/UnlitStandard.linashader"_hs);
-			m_defaultMaterials.push_back(defaultLitMaterial);
-			m_defaultMaterials.push_back(defaultUnlitMaterial);
+			// Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
+			// Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
+			// defaultLitMaterial->SetShader("Resources/Core/Shaders/LitStandard.linashader"_hs);
+			// defaultUnlitMaterial->SetShader("Resources/Core/Shaders/UnlitStandard.linashader"_hs);
+			// m_defaultMaterials.push_back(defaultLitMaterial);
+			// m_defaultMaterials.push_back(defaultUnlitMaterial);
 		}
 
 		// pfd

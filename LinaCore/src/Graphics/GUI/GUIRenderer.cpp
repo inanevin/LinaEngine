@@ -30,15 +30,14 @@ SOFTWARE.
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/System/System.hpp"
 
 namespace Lina
 {
 
 #define MAX_COPY_COMMANDS 50
-
 #define MAX_GUI_VERTICES  5000
 #define MAX_GUI_INDICES	  5000
-#define MAX_GUI_MATERIALS 100
 
 	void GUIRenderer::Create(GfxManager* gfxManager)
 	{
@@ -54,6 +53,7 @@ namespace Lina
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer Vtx");
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer Indx");
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "GUIRenderer Materials", true);
+			data.materials = new (malloc(sizeof(Material) * MAX_GUI_MATERIALS)) Material(gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, "GUIRenderer Material", 0);
 		}
 	}
 
@@ -67,6 +67,11 @@ namespace Lina
 			data.guiVertexBuffer.Destroy();
 			data.guiIndexBuffer.Destroy();
 			data.guiMaterialBuffer.Destroy();
+
+			for (int32 i = 0; i < MAX_GUI_MATERIALS; i++)
+				(data.materials + i)->~Material();
+
+			free(data.materials);
 		}
 	}
 
