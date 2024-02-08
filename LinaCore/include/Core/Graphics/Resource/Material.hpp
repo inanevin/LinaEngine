@@ -85,6 +85,11 @@ namespace Lina
 		void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID sid);
 		void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID texture, StringID sampler);
 
+		inline Buffer& GetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex)
+		{
+			return m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
+		}
+
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;

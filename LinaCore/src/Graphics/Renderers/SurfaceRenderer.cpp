@@ -27,10 +27,10 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
-#include "Core/Graphics/GUIBackend.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/SystemInfo.hpp"
@@ -54,7 +54,8 @@ namespace Lina
 	{
 		m_lgx		  = m_gfxManager->GetLGX();
 		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
-		m_guiBackend  = m_gfxManager->GetGUIBackend();
+
+		auto* rm = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		// Swapchain
 		const auto monitorSize = window->GetMonitorSize();
@@ -84,39 +85,6 @@ namespace Lina
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "Surface Renderer GUI Vertex Buffer");
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "Surface Renderer GUI Index Buffer");
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "Surface Renderer GUI Material Buffer", true);
-
-			//     }
-			//
-			//     // Set 2 - Material Data
-			//     {
-			//         // Material data
-			//         LinaGX::DescriptorBinding set2Binding = {
-			//             .binding         = 0,
-			//             .descriptorCount = 1,
-			//             .type             = LinaGX::DescriptorType::SSBO,
-			//             .stages             = {LinaGX::ShaderStage::Fragment},
-			//         };
-			//
-			//         LinaGX::DescriptorSetDesc set2Desc = {
-			//             .bindings       = &set2Binding,
-			//             .bindingsCount = 1,
-			//         };
-			//
-			//         data.guiDescriptorSet2 = m_lgx->CreateDescriptorSet(set2Desc);
-			//
-			//         uint32 res = data.guiMaterialBuffer.GetGPUResource();
-			//
-			//         LinaGX::DescriptorUpdateBufferDesc update = {
-			//             .setHandle         = data.guiDescriptorSet2,
-			//             .binding         = 0,
-			//             .descriptorCount = 1,
-			//             .resources         = &res,
-			//             .descriptorType     = LinaGX::DescriptorType::SSBO,
-			//         };
-			//
-			//         m_lgx->DescriptorUpdateBuffer(update);
-			//     }
-			// }
 		}
 	}
 
@@ -198,28 +166,28 @@ namespace Lina
 		m_renderpass.Begin(currentFrame.gfxStream, viewport, scissors);
 
 		// Prepare GUI backend.
-		GUIBackend::RenderData guiRenderData = {
-			.size			 = m_size,
-			.gfxStream		 = currentFrame.gfxStream,
-			.copyStream		 = currentFrame.copyStream,
-			.copySemaphore	 = &currentFrame.copySemaphore,
-			.descriptorSet2	 = 0,
-			.variantPassType = ShaderWriteTargetType::Swapchain,
-		};
-		GUIBackend::Buffers guiBuffers = {
-			.vertexBuffer	= &currentFrame.guiVertexBuffer,
-			.indexBuffer	= &currentFrame.guiIndexBuffer,
-			.materialBuffer = &currentFrame.guiMaterialBuffer,
-		};
-		m_guiBackend->Prepare(threadIndex, guiBuffers, guiRenderData);
-
-		// Render application overlay, app can draw anything using the current stream (no submissions allowed)
-		// Including GUI commands.
-		m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
-
-		// Flush & render GUI commands if app drawed any.
-		LinaVG::Render(threadIndex);
-		m_guiBackend->Render(threadIndex);
+		// GUIBackend::RenderData guiRenderData = {
+		// 	.size			 = m_size,
+		// 	.gfxStream		 = currentFrame.gfxStream,
+		// 	.copyStream		 = currentFrame.copyStream,
+		// 	.copySemaphore	 = &currentFrame.copySemaphore,
+		// 	.descriptorSet	 = currentFrame.guiDescriptorSet,
+		// 	.variantPassType = ShaderWriteTargetType::Swapchain,
+		// };
+		// GUIBackend::Buffers guiBuffers = {
+		// 	.vertexBuffer	= &currentFrame.guiVertexBuffer,
+		// 	.indexBuffer	= &currentFrame.guiIndexBuffer,
+		// 	.materialBuffer = &currentFrame.guiMaterialBuffer,
+		// };
+		// m_guiBackend->Prepare(threadIndex, guiBuffers, guiRenderData);
+		//
+		// // Render application overlay, app can draw anything using the current stream (no submissions allowed)
+		// // Including GUI commands.
+		// m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
+		//
+		// // Flush & render GUI commands if app drawed any.
+		// LinaVG::Render(threadIndex);
+		// m_guiBackend->Render(threadIndex);
 
 		// End render pass
 		m_renderpass.End(currentFrame.gfxStream);

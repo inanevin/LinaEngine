@@ -255,6 +255,7 @@ namespace Lina
 				auto& matBindingData = m_bindingData[bindingIndex];
 				if (b.type == LinaGX::DescriptorType::UBO || b.type == LinaGX::DescriptorType::SSBO)
 				{
+					const bool	 isUBO	  = b.type == LinaGX::DescriptorType::UBO;
 					const int32	 count	  = b.type == LinaGX::DescriptorType::UBO ? b.descriptorCount : 1;
 					const uint32 bufferSz = static_cast<uint32>(info.bindings[bindingIndex].size);
 					matBindingData.bufferData[f].buffers.resize(count);
@@ -262,7 +263,7 @@ namespace Lina
 					for (int32 i = 0; i < count; i++)
 					{
 						auto& buf = matBindingData.bufferData[f].buffers[i];
-						buf.Create(m_lgx, b.type == LinaGX::DescriptorType::UBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", true);
+						buf.Create(m_lgx, isUBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", isUBO);
 						MEMSET(buf.GetMapped(), 0, bufferSz);
 					}
 				}

@@ -35,9 +35,9 @@ SOFTWARE.
 #include "Common/Math/Vector.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
-#include "Core/Graphics/GUIBackend.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/Graphics/GUI/GUIRenderer.hpp"
 
 namespace LinaGX
 {
@@ -93,7 +93,6 @@ namespace Lina
 		}
 
 	protected:
-		GUIBackend*			 m_guiBackend = nullptr;
 		StringID			 m_sid		  = 0;
 		GfxManager*			 m_gfxManager = nullptr;
 		Vector2ui			 m_size		  = Vector2ui::Zero;
@@ -104,6 +103,7 @@ namespace Lina
 		bool				 m_isVisible   = false;
 		ApplicationDelegate* m_appListener = nullptr;
 		RenderPass			 m_renderpass  = {};
+		GUIRenderer			 m_guiRenderer;
 	};
 
 } // namespace Lina

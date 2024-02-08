@@ -41,7 +41,7 @@ SOFTWARE.
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
-#include "Core/Graphics/GUIBackend.hpp"
+#include "Core/Graphics/GUI/GUIBackend.hpp"
 
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/SystemInfo.hpp"

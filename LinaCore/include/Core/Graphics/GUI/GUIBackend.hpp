@@ -28,28 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef GUIBackend_HPP
-#define GUIBackend_HPP
-
 #include "Common/Data/Vector.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/Data/HashMap.hpp"
-#include "Common/Event/Event.hpp"
 #include "Common/Math/Rect.hpp"
+#include "Common/Data/Vector.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
-#include "memoryallocators/PoolAllocator.h"
-
-#define MAX_MATERIALS 50
-#define MAX_THREADS
-
-namespace LinaGX
-{
-	class Window;
-	class CommandStream;
-	class Instance;
-} // namespace LinaGX
 
 namespace LinaVG
 {
@@ -62,21 +45,10 @@ namespace Lina
 	class ResourceManager;
 	class Texture;
 	class Buffer;
-	class Shader;
 
 	class GUIBackend : public LinaVG::Backend::BaseBackend
 	{
 	public:
-		struct RenderData
-		{
-			Vector2ui			   size			   = Vector2ui::Zero;
-			LinaGX::CommandStream* gfxStream	   = nullptr;
-			LinaGX::CommandStream* copyStream	   = nullptr;
-			SemaphoreData*		   copySemaphore   = nullptr;
-			uint16				   descriptorSet2  = 0;
-			ShaderWriteTargetType  variantPassType = ShaderWriteTargetType::RenderTarget;
-		};
-
 		struct Buffers
 		{
 			Buffer* vertexBuffer   = nullptr;
@@ -98,8 +70,6 @@ namespace Lina
 
 		struct DrawData
 		{
-			DrawData(){};
-
 			Vector<DrawRequest> drawRequests;
 		};
 
@@ -115,11 +85,11 @@ namespace Lina
 		GUIBackend(GfxManager* man);
 		~GUIBackend() = default;
 
-		// Inherited via BaseBackend
 		virtual bool Initialize() override
 		{
 			return true;
 		}
+
 		virtual void				  Terminate() override;
 		virtual void				  StartFrame(int threadCount) override;
 		virtual void				  DrawGradient(LinaVG::GradientDrawBuffer* buf, int thread) override;
@@ -135,26 +105,15 @@ namespace Lina
 		virtual void				  RestoreAPIState() override{};
 		virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
-		void			 Prepare(int threadIndex, const Buffers& bufferData, const RenderData& renderData);
-		Vector<Texture*> GetFontTextures();
-		void			 Render(int threadIndex);
-
 	private:
 		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf, int threadIndex);
 		Matrix4		 GetProjectionFromSize(const Vector2ui& size);
 
 	private:
-		StringID		   m_boundFontTexture = 0;
-		GfxManager*		   m_gfxManager		  = nullptr;
-		ResourceManager*   m_resourceManager  = nullptr;
-		Vector<Buffers>	   m_buffers;
-		Vector<RenderData> m_renderData;
-		Vector<DrawData>   m_drawData;
-
-		LinaGX::Instance*	m_lgx	 = nullptr;
-		Shader*				m_shader = nullptr;
+		StringID			m_boundFontTexture = 0;
+		ResourceManager*	m_resourceManager  = nullptr;
+		Vector<Buffers>		m_buffers;
+		Vector<DrawData>	m_drawData;
 		Vector<FontTexture> m_fontTextures;
 	};
 } // namespace Lina
-
-#endif

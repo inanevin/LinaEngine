@@ -32,7 +32,8 @@ src/CommonCore.cpp
 src/EngineInterface.cpp
 
 # Graphics
-src/Graphics/GUIBackend.cpp
+src/Graphics/GUI/GUIBackend.cpp
+src/Graphics/GUI/GUIRenderer.cpp
 src/Graphics/GfxManager.cpp
 src/Graphics/ResourceUploadQueue.cpp
 src/Graphics/MeshManager.cpp
@@ -115,7 +116,8 @@ include/Core/Resources/ResourcesReflection.hpp
 include/Core/Resources/Data/ResourceMetadata.hpp
 
 # Graphics
-include/Core/Graphics/GUIBackend.hpp
+include/Core/Graphics/GUI/GUIBackend.hpp
+include/Core/Graphics/GUI/GUIRenderer.hpp
 include/Core/Graphics/GfxManager.hpp
 include/Core/Graphics/CameraSystem.hpp
 include/Core/Graphics/CommonGraphics.hpp

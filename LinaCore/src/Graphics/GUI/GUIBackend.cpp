@@ -26,24 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/GUIBackend.hpp"
+#include "Core/Graphics/GUI/GUIBackend.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
-#include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Resources/CommonResources.hpp"
 #include "Common/System/System.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
 
 namespace Lina
 {
 	GUIBackend::GUIBackend(GfxManager* man)
 	{
-		m_gfxManager	  = man;
-		m_resourceManager = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_resourceManager = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
 	void GUIBackend::Terminate()
@@ -61,7 +56,6 @@ namespace Lina
 	{
 		const int32 currentSz = static_cast<int32>(m_drawData.size());
 		m_buffers.resize(threadCount);
-		m_renderData.resize(threadCount);
 		m_drawData.resize(threadCount);
 	}
 
@@ -131,121 +125,6 @@ namespace Lina
 		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 	}
 
-	void GUIBackend::Render(int threadIndex)
-	{
-		// Lazy-get shader
-		if (m_shader == nullptr)
-			m_shader = m_resourceManager->GetResource<Shader>("Resources/Core/Shaders/GUIStandard.linashader"_hs);
-
-		if (m_lgx == nullptr)
-			m_lgx = m_gfxManager->GetLGX();
-
-		auto& renderData = m_renderData[threadIndex];
-		auto& buffers	 = m_buffers[threadIndex];
-		auto& drawData	 = m_drawData[threadIndex];
-
-		// Update material data.
-		Vector<GPUMaterialGUI> materials;
-		materials.resize(drawData.drawRequests.size());
-		uint32 i = 0;
-		for (const auto& req : drawData.drawRequests)
-		{
-			materials[i] = req.materialData;
-			i++;
-		}
-		buffers.materialBuffer->BufferData(0, (uint8*)materials.data(), materials.size() * sizeof(GPUMaterialGUI));
-
-		// Check need for copy operation
-		if (buffers.materialBuffer->Copy(renderData.copyStream) || buffers.indexBuffer->Copy(renderData.copyStream) || buffers.vertexBuffer->Copy(renderData.copyStream))
-		{
-			uint64 val = renderData.copySemaphore->value;
-			renderData.copySemaphore->value++;
-
-			LinaGX::SubmitDesc desc = {
-				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-				.streams		  = &renderData.copyStream,
-				.streamCount	  = 1,
-				.useSignal		  = true,
-				.signalCount	  = 1,
-				.signalSemaphores = &(renderData.copySemaphore->semaphore),
-				.signalValues	  = &val,
-				.isMultithreaded  = true,
-			};
-
-			m_lgx->CloseCommandStreams(&renderData.copyStream, 1);
-			m_lgx->SubmitCommandStreams(desc);
-		}
-
-		// Pipeline
-		LinaGX::CMDBindPipeline* pipeline = renderData.gfxStream->AddCommand<LinaGX::CMDBindPipeline>();
-		pipeline->shader				  = m_shader->GetGPUHandle(renderData.variantPassType);
-
-		// Buffers
-		LinaGX::CMDBindVertexBuffers* vtx = renderData.gfxStream->AddCommand<LinaGX::CMDBindVertexBuffers>();
-		vtx->offset						  = 0;
-		vtx->slot						  = 0;
-		vtx->vertexSize					  = sizeof(LinaVG::Vertex);
-		vtx->resource					  = buffers.vertexBuffer->GetGPUResource();
-
-		LinaGX::CMDBindIndexBuffers* index = renderData.gfxStream->AddCommand<LinaGX::CMDBindIndexBuffers>();
-		index->indexType				   = LinaGX::IndexType::Uint16;
-		index->offset					   = 0;
-		index->resource					   = buffers.indexBuffer->GetGPUResource();
-
-		// Descriptors
-		LinaGX::CMDBindDescriptorSets* bind = renderData.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		bind->descriptorSetHandles			= renderData.gfxStream->EmplaceAuxMemory<uint16>(renderData.descriptorSet2);
-		bind->firstSet						= 2;
-		bind->setCount						= 1;
-		bind->isCompute						= false;
-
-		// Draw
-		Rectui scissorsRect = Rectui(0, 0, renderData.size.x, renderData.size.y);
-		for (const auto& req : drawData.drawRequests)
-		{
-			Rectui currentRect = Rectui(0, 0, renderData.size.x, renderData.size.y);
-
-			if (req.clip.size.x != 0 || req.clip.size.y != 0)
-			{
-				currentRect.pos	 = req.clip.pos;
-				currentRect.size = req.clip.size;
-			}
-
-			if (!currentRect.Equals(scissorsRect))
-			{
-				scissorsRect					 = currentRect;
-				LinaGX::CMDSetScissors* scissors = renderData.gfxStream->AddCommand<LinaGX::CMDSetScissors>();
-				scissors->x						 = scissorsRect.pos.x;
-				scissors->y						 = scissorsRect.pos.y;
-				scissors->width					 = scissorsRect.size.x;
-				scissors->height				 = scissorsRect.size.y;
-			}
-
-			// Draw command.
-			LinaGX::CMDDrawIndexedInstanced* draw = renderData.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-			draw->indexCountPerInstance			  = req.indexCount;
-			draw->instanceCount					  = 1;
-			draw->startInstanceLocation			  = 0;
-			draw->startIndexLocation			  = req.firstIndex;
-			draw->baseVertexLocation			  = req.vertexOffset;
-		}
-	}
-
-	Vector<Texture*> GUIBackend::GetFontTextures()
-	{
-		Vector<Texture*> vec;
-		vec.resize(m_fontTextures.size());
-
-		uint32 i = 0;
-		for (const auto& ft : m_fontTextures)
-		{
-			vec[i] = ft.texture;
-			i++;
-		}
-
-		return vec;
-	}
-
 	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
 	{
 		auto&  ft		   = m_fontTextures[m_boundFontTexture];
@@ -284,12 +163,6 @@ namespace Lina
 		m_fontTextures.push_back(fontTexture);
 		m_boundFontTexture = static_cast<LinaVG::BackendHandle>(m_fontTextures.size() - 1);
 		return m_boundFontTexture;
-	}
-
-	void GUIBackend::Prepare(int threadIndex, const Buffers& bufferData, const RenderData& renderData)
-	{
-		m_renderData[threadIndex] = renderData;
-		m_buffers[threadIndex]	  = bufferData;
 	}
 
 	GUIBackend::DrawRequest& GUIBackend::AddDrawRequest(LinaVG::DrawBuffer* buf, int threadIndex)
