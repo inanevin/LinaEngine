@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Utility/ShaderPreprocessor.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/Graphics/Pipeline/DescriptorSet.hpp"
 
 #include "Common/System/System.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
@@ -54,18 +55,63 @@ namespace Lina
 		renderPassDescriptorType = static_cast<RenderPassDescriptorType>(rpType);
 	}
 
+	Shader::Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Shader>())
+	{
+		m_gfxManager = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_lgx		 = m_gfxManager->GetLGX();
+	};
+
 	Shader::~Shader()
 	{
-		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
 		for (const auto& [sid, var] : m_meta.variants)
-			gfxMan->GetLGX()->DestroyShader(var.gpuHandle);
+			m_lgx->DestroyShader(var.gpuHandle);
+
+		for (const auto& d : m_descriptorSets)
+		{
+			d->Destroy();
+			delete d;
+		}
 	}
 
 	void Shader::Bind(LinaGX::CommandStream* stream, uint32 gpuHandle)
 	{
 		LinaGX::CMDBindPipeline* bind = stream->AddCommand<LinaGX::CMDBindPipeline>();
 		bind->shader				  = gpuHandle;
+	}
+
+	void Shader::AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex)
+	{
+		/*
+		 Return any set that has available allocations.
+		 Consumer will use the set pointer and returned allocation index to free up the allocation.
+		 */
+		for (auto* set : m_descriptorSets)
+		{
+			if (set->IsAvailable())
+			{
+				outSet = set;
+				set->Allocate(outIndex);
+				return;
+			}
+		}
+
+		// Grow if needed.
+		DescriptorSet* set = new DescriptorSet();
+		set->Create(m_lgx, m_materialSetDesc);
+		m_descriptorSets.push_back(set);
+	}
+
+	void Shader::FreeDescriptorSet(DescriptorSet* set, uint32 index)
+	{
+		set->Free(index);
+
+		// Shrink if not used anymore.
+		if (set->IsEmpty())
+		{
+			linatl::remove_if(m_descriptorSets.begin(), m_descriptorSets.end(), [set](DescriptorSet* s) -> bool { return s == set; });
+			set->Destroy();
+			delete set;
+		}
 	}
 
 	void Shader::LoadFromFile(const char* path)
@@ -91,7 +137,7 @@ namespace Lina
 			data[stg]			 = compData;
 		}
 
-		gfxMan->GetLGX()->CompileShader(data, m_outCompiledBlobs, m_layout);
+		m_lgx->CompileShader(data, m_outCompiledBlobs, m_layout);
 
 		if (m_meta.variants.empty())
 			m_meta.variants["Default"_hs] = {};
@@ -144,8 +190,6 @@ namespace Lina
 
 	void Shader::BatchLoaded()
 	{
-		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
 		/*
 		   Create a descriptor set description from the reflection info, this will be used to create descritor sets for the materials using this shader.
 			Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.
@@ -161,9 +205,13 @@ namespace Lina
 			for (const auto& b : setLayout.bindings)
 				m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
 
+			m_materialSetDesc.allocationCount = m_meta.descriptorSetAllocationCount;
 			plDesc.descriptorSetDescriptions.push_back(m_materialSetDesc);
 		}
-		m_pipelineLayout = gfxMan->GetLGX()->CreatePipelineLayout(plDesc);
+		m_pipelineLayout = m_lgx->CreatePipelineLayout(plDesc);
+
+		m_descriptorSets.push_back(new DescriptorSet());
+		m_descriptorSets[0]->Create(m_lgx, m_materialSetDesc);
 
 		// Create variants
 		for (auto& [sid, variant] : m_meta.variants)
@@ -199,7 +247,7 @@ namespace Lina
 				.depthCompare				  = LinaGX::CompareOp::Less,
 			};
 
-			variant.gpuHandle = gfxMan->GetLGX()->CreateShader({
+			variant.gpuHandle = m_lgx->CreateShader({
 				.stages					 = m_outCompiledBlobs,
 				.colorAttachments		 = colorAttachments,
 				.depthStencilDesc		 = depthStencilAtt,

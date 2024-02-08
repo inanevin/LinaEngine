@@ -37,7 +37,7 @@ SOFTWARE.
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/GUIBackend.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
-#include "Core/Graphics/Pipeline/Renderpass.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
 namespace LinaGX
 {
@@ -103,7 +103,7 @@ namespace Lina
 		uint8				 m_swapchain   = 0;
 		bool				 m_isVisible   = false;
 		ApplicationDelegate* m_appListener = nullptr;
-		Renderpass			 m_renderpass  = {};
+		RenderPass			 m_renderpass  = {};
 	};
 
 } // namespace Lina

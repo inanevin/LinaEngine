@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
+#include "Core/Graphics/Pipeline/DescriptorSet.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Common/Serialization/Serialization.hpp"
@@ -91,6 +92,7 @@ namespace Lina
 
 	Material::~Material()
 	{
+		DestroyDescriptorSets();
 		DestroyBindingData();
 	}
 
@@ -98,68 +100,26 @@ namespace Lina
 	{
 		m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
 		m_shaderSID = sid;
-		LINA_ASSERT(m_shader != nullptr, "Shader is null!");
-		DestroyBindingData();
 
-		/*
-
-		 1. Create descriptor set from shader description.
-		 2. For every binding in shader, create either a buffer, texture or sampler for that binding and assign defaults.
-		 3. UpdateBinding() for each binding -> update the newly created sets to point to those buffers & textures.
-		 */
-
-		const LinaGX::DescriptorSetDesc			desc = m_shader->GetMaterialSetDesc();
-		const LinaGX::ShaderDescriptorSetLayout info = m_shader->GetMaterialSetInfo();
-		m_bindingData.resize(desc.bindings.size());
-
-		for (int32 f = 0; f < FRAMES_IN_FLIGHT; f++)
+		if (m_shader == nullptr)
 		{
-			m_descriptorSets[f] = m_lgx->CreateDescriptorSet(desc);
-
-			uint32 bindingIndex = 0;
-			for (const auto& b : desc.bindings)
-			{
-				auto& matBindingData = m_bindingData[bindingIndex];
-				if (b.type == LinaGX::DescriptorType::UBO || b.type == LinaGX::DescriptorType::SSBO)
-				{
-					const int32	 count	  = b.type == LinaGX::DescriptorType::UBO ? b.descriptorCount : 1;
-					const uint32 bufferSz = static_cast<uint32>(info.bindings[bindingIndex].size);
-					matBindingData.bufferData[f].buffers.resize(count);
-
-					for (int32 i = 0; i < count; i++)
-					{
-						auto& buf = matBindingData.bufferData[f].buffers[i];
-						buf.Create(m_lgx, b.type == LinaGX::DescriptorType::UBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", true);
-						MEMSET(buf.GetMapped(), 0, bufferSz);
-					}
-				}
-				else if (b.type == LinaGX::DescriptorType::SeparateImage || b.type == LinaGX::DescriptorType::CombinedImageSampler)
-				{
-					matBindingData.textures.resize(b.descriptorCount);
-					for (int32 i = 0; i < b.descriptorCount; i++)
-						matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
-				}
-				else if (b.type == LinaGX::DescriptorType::SeparateSampler || b.type == LinaGX::DescriptorType::CombinedImageSampler)
-				{
-					matBindingData.samplers.resize(b.descriptorCount);
-					for (int32 i = 0; i < b.descriptorCount; i++)
-						matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
-				}
-				bindingIndex++;
-			}
+			m_shaderSID = DEFAULT_SHADER_SID;
+			m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
 		}
 
-		const int32 sz = static_cast<int32>(m_bindingData.size());
-		for (int32 i = 0; i < sz; i++)
-			UpdateBinding(i);
+		DestroyDescriptorSets();
+		DestroyBindingData();
+		CreateDescriptorSets();
+		CreateBindingData();
 	}
 
 	void Material::Bind(LinaGX::CommandStream* stream, uint32 frameIndex)
 	{
 		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_descriptorSets[frameIndex]);
+		bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_descriptorSetContainer[frameIndex].set->GetGPUHandle());
 		bind->firstSet						= 2;
 		bind->setCount						= 1;
+		bind->allocationIndices				= stream->EmplaceAuxMemory<uint32>(m_descriptorSetContainer[frameIndex].allocIndex);
 	}
 
 	void Material::SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize)
@@ -227,9 +187,118 @@ namespace Lina
 
 	void Material::BatchLoaded()
 	{
+		/*
+		 If we are loaded, it means we have our shaderSID and m_bindings data loaded from somewhere.
+		 If our shader is still valid (might be deleted), create descriptor sets using it & update bindings.
+		 If it's not valid, set our shader to be default, create descriptor sets and re-create the bindings.
+		 */
+
+		auto* rm			= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		auto* defaultShader = rm->GetResource<Shader>(DEFAULT_SHADER_SID);
+
+		m_shader = rm->GetResource<Shader>(m_shaderSID);
+
+		if (m_shader != nullptr)
+		{
+			CreateDescriptorSets();
+
+			const int32 sz = static_cast<int32>(m_bindingData.size());
+			for (int32 i = 0; i < sz; i++)
+				UpdateBinding(i);
+		}
+		else
+		{
+			m_shaderSID = DEFAULT_SHADER_SID;
+			m_shader	= rm->GetResource<Shader>(DEFAULT_SHADER_SID);
+
+			CreateDescriptorSets();
+			CreateBindingData();
+		}
+	}
+
+	void Material::CreateDescriptorSets()
+	{
+		DestroyDescriptorSets();
+		for (int32 f = 0; f < FRAMES_IN_FLIGHT; f++)
+			m_shader->AllocateDescriptorSet(m_descriptorSetContainer[f].set, m_descriptorSetContainer[f].allocIndex);
+	}
+
+	void Material::DestroyDescriptorSets()
+	{
+		if (m_descriptorSetContainer[0].set == nullptr)
+			return;
+
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+			m_shader->FreeDescriptorSet(m_descriptorSetContainer[i].set, m_descriptorSetContainer[i].allocIndex);
+	}
+
+	void Material::CreateBindingData()
+	{
+		DestroyBindingData();
+
+		/*
+
+		 1. Create descriptor set from shader description.
+		 2. For every binding in shader, create either a buffer, texture or sampler for that binding and assign defaults.
+		 3. UpdateBinding() for each binding -> update the newly created sets to point to those buffers & textures.
+		 */
+
+		const LinaGX::DescriptorSetDesc			desc = m_shader->GetMaterialSetDesc();
+		const LinaGX::ShaderDescriptorSetLayout info = m_shader->GetMaterialSetInfo();
+		m_bindingData.resize(desc.bindings.size());
+
+		for (int32 f = 0; f < FRAMES_IN_FLIGHT; f++)
+		{
+			uint32 bindingIndex = 0;
+			for (const auto& b : desc.bindings)
+			{
+				auto& matBindingData = m_bindingData[bindingIndex];
+				if (b.type == LinaGX::DescriptorType::UBO || b.type == LinaGX::DescriptorType::SSBO)
+				{
+					const int32	 count	  = b.type == LinaGX::DescriptorType::UBO ? b.descriptorCount : 1;
+					const uint32 bufferSz = static_cast<uint32>(info.bindings[bindingIndex].size);
+					matBindingData.bufferData[f].buffers.resize(count);
+
+					for (int32 i = 0; i < count; i++)
+					{
+						auto& buf = matBindingData.bufferData[f].buffers[i];
+						buf.Create(m_lgx, b.type == LinaGX::DescriptorType::UBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", true);
+						MEMSET(buf.GetMapped(), 0, bufferSz);
+					}
+				}
+				else if (b.type == LinaGX::DescriptorType::SeparateImage || b.type == LinaGX::DescriptorType::CombinedImageSampler)
+				{
+					matBindingData.textures.resize(b.descriptorCount);
+					for (int32 i = 0; i < b.descriptorCount; i++)
+						matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
+				}
+				else if (b.type == LinaGX::DescriptorType::SeparateSampler || b.type == LinaGX::DescriptorType::CombinedImageSampler)
+				{
+					matBindingData.samplers.resize(b.descriptorCount);
+					for (int32 i = 0; i < b.descriptorCount; i++)
+						matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
+				}
+				bindingIndex++;
+			}
+		}
+
 		const int32 sz = static_cast<int32>(m_bindingData.size());
 		for (int32 i = 0; i < sz; i++)
 			UpdateBinding(i);
+	}
+
+	void Material::DestroyBindingData()
+	{
+		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			for (auto& b : m_bindingData)
+			{
+				for (auto& buf : b.bufferData[i].buffers)
+					buf.Destroy();
+			}
+		}
+
+		m_bindingData.clear();
 	}
 
 	void Material::UpdateBinding(uint32 bindingIndex)
@@ -242,8 +311,9 @@ namespace Lina
 			if (!binding.bufferData[i].buffers.empty())
 			{
 				LinaGX::DescriptorUpdateBufferDesc update = {
-					.setHandle = m_descriptorSets[i],
-					.binding   = bindingIndex,
+					.setHandle			= m_descriptorSetContainer[i].set->GetGPUHandle(),
+					.binding			= bindingIndex,
+					.setAllocationIndex = m_descriptorSetContainer[i].allocIndex,
 				};
 
 				for (const auto& buf : binding.bufferData[i].buffers)
@@ -253,9 +323,11 @@ namespace Lina
 			}
 			else
 			{
+
 				LinaGX::DescriptorUpdateImageDesc update = {
-					.setHandle = m_descriptorSets[i],
-					.binding   = bindingIndex,
+					.setHandle			= m_descriptorSetContainer[i].set->GetGPUHandle(),
+					.binding			= bindingIndex,
+					.setAllocationIndex = m_descriptorSetContainer[i].allocIndex,
 				};
 
 				for (const auto& txt : binding.textures)
@@ -266,25 +338,6 @@ namespace Lina
 
 				m_lgx->DescriptorUpdateImage(update);
 			}
-		}
-	}
-
-	void Material::DestroyBindingData()
-	{
-		if (!m_bindingData.empty())
-		{
-			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				m_lgx->DestroyDescriptorSet(m_descriptorSets[i]);
-
-				for (auto& b : m_bindingData)
-				{
-					for (auto& buf : b.bufferData[i].buffers)
-						buf.Destroy();
-				}
-			}
-
-			m_bindingData.clear();
 		}
 	}
 

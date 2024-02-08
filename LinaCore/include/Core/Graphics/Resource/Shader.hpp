@@ -36,27 +36,39 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Data/HashMap.hpp"
+#include "Common/Data/Queue.hpp"
 #include "ShaderVariant.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+}
 
 namespace Lina
 {
+	class DescriptorSet;
+	class GfxManager;
+
 	class Shader : public Resource
 	{
 	public:
 		struct Metadata
 		{
 			HashMap<StringID, ShaderVariant> variants;
-			RenderPassDescriptorType		 renderPassDescriptorType = RenderPassDescriptorType::Basic;
+			RenderPassDescriptorType		 renderPassDescriptorType	  = RenderPassDescriptorType::Basic;
+			uint32							 descriptorSetAllocationCount = 1;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
 		};
 
 	public:
-		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Shader>()){};
+		Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
 		virtual ~Shader();
 
 		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
+		void AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex);
+		void FreeDescriptorSet(DescriptorSet* set, uint32 index);
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -102,13 +114,15 @@ namespace Lina
 		virtual void Flush() override;
 
 	private:
-	private:
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
 		LinaGX::ShaderLayout							  m_layout			= {};
 		LinaGX::DescriptorSetDesc						  m_materialSetDesc = {};
 		LinaGX::ShaderDescriptorSetLayout				  m_materialSetInfo = {};
 		Metadata										  m_meta			= {};
 		uint16											  m_pipelineLayout;
+		Vector<DescriptorSet*>							  m_descriptorSets;
+		GfxManager*										  m_gfxManager = nullptr;
+		LinaGX::Instance*								  m_lgx		   = nullptr;
 	};
 
 } // namespace Lina

@@ -47,9 +47,18 @@ namespace Lina
 	class MaterialPropertyBase;
 	class Shader;
 	class GfxManager;
+	class DescriptorSet;
 
 	class Material : public Resource
 	{
+
+	private:
+		struct DescriptorAllocation
+		{
+			DescriptorSet* set		  = nullptr;
+			uint32		   allocIndex = 0;
+		};
+
 	public:
 		struct BindingBuffers
 		{
@@ -83,16 +92,19 @@ namespace Lina
 		virtual void BatchLoaded() override;
 
 	private:
-		void UpdateBinding(uint32 bindingIndex);
+		void CreateDescriptorSets();
+		void DestroyDescriptorSets();
+		void CreateBindingData();
 		void DestroyBindingData();
+		void UpdateBinding(uint32 bindingIndex);
 
 	private:
-		LinaGX::Instance*	m_lgx		 = nullptr;
-		GfxManager*			m_gfxManager = nullptr;
-		Shader*				m_shader	 = nullptr;
-		StringID			m_shaderSID	 = 0;
-		uint16				m_descriptorSets[FRAMES_IN_FLIGHT];
-		Vector<BindingData> m_bindingData;
+		LinaGX::Instance*	 m_lgx		  = nullptr;
+		GfxManager*			 m_gfxManager = nullptr;
+		Shader*				 m_shader	  = nullptr;
+		StringID			 m_shaderSID  = 0;
+		DescriptorAllocation m_descriptorSetContainer[FRAMES_IN_FLIGHT];
+		Vector<BindingData>	 m_bindingData;
 	};
 
 } // namespace Lina

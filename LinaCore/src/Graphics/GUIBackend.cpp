@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Resources/CommonResources.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 
 namespace Lina
 {
@@ -58,6 +59,7 @@ namespace Lina
 
 	void GUIBackend::StartFrame(int threadCount)
 	{
+		const int32 currentSz = static_cast<int32>(m_drawData.size());
 		m_buffers.resize(threadCount);
 		m_renderData.resize(threadCount);
 		m_drawData.resize(threadCount);

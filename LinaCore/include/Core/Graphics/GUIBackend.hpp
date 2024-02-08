@@ -38,6 +38,11 @@ SOFTWARE.
 #include "Common/Math/Rect.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "memoryallocators/PoolAllocator.h"
+
+#define MAX_MATERIALS 50
+#define MAX_THREADS
 
 namespace LinaGX
 {
@@ -61,7 +66,6 @@ namespace Lina
 
 	class GUIBackend : public LinaVG::Backend::BaseBackend
 	{
-
 	public:
 		struct RenderData
 		{
@@ -94,6 +98,8 @@ namespace Lina
 
 		struct DrawData
 		{
+			DrawData(){};
+
 			Vector<DrawRequest> drawRequests;
 		};
 

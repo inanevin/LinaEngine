@@ -195,6 +195,17 @@ namespace Lina
 			};
 
 			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_GUI)
+		{
+			Shader::Metadata meta;
+
+			// variants.
+
+			meta.descriptorSetAllocationCount = 50;
+			meta.SaveToStream(stream);
 		}
 
 		return false;

@@ -26,13 +26,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/Pipeline/Renderpass.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 
 namespace Lina
 {
-	void Renderpass::Create(GfxManager* gfxMan, LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType)
+	void RenderPass::Create(GfxManager* gfxMan, LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType)
 	{
 		m_lgx		 = lgx;
 		m_gfxManager = gfxMan;
@@ -55,7 +55,7 @@ namespace Lina
 		}
 	}
 
-	void Renderpass::Destroy()
+	void RenderPass::Destroy()
 	{
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -65,7 +65,7 @@ namespace Lina
 		}
 	}
 
-	void Renderpass::SetColorAttachment(uint32 index, const LinaGX::RenderPassColorAttachment& att)
+	void RenderPass::SetColorAttachment(uint32 index, const LinaGX::RenderPassColorAttachment& att)
 	{
 		LINA_ASSERT(index < static_cast<uint32>(m_colorAttachments.size() + 1), "");
 
@@ -75,7 +75,7 @@ namespace Lina
 			m_colorAttachments.push_back(att);
 	}
 
-	void Renderpass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, bool bindGlobalSet)
+	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, bool bindGlobalSet)
 	{
 		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
 
@@ -96,7 +96,7 @@ namespace Lina
 		bind->customLayout = m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, m_type);
 	}
 
-	void Renderpass::Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors)
+	void RenderPass::Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors)
 	{
 		LinaGX::CMDBeginRenderPass* rp = stream->AddCommand<LinaGX::CMDBeginRenderPass>();
 		rp->colorAttachmentCount	   = static_cast<uint32>(m_colorAttachments.size());
@@ -106,7 +106,7 @@ namespace Lina
 		rp->scissors				   = scissors;
 	}
 
-	void Renderpass::End(LinaGX::CommandStream* stream)
+	void RenderPass::End(LinaGX::CommandStream* stream)
 	{
 		LinaGX::CMDEndRenderPass* end = stream->AddCommand<LinaGX::CMDEndRenderPass>();
 	}

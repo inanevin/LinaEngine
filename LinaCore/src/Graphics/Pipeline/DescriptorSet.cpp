@@ -26,37 +26,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/Graphics/Pipeline/DescriptorSet.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
+	void DescriptorSet::Create(LinaGX::Instance *lgx, const LinaGX::DescriptorSetDesc &desc)
+    {
+        m_lgx = lgx;
+        m_handle = lgx->CreateDescriptorSet(desc);
+        m_allocationCount = desc.allocationCount;
+        
+        for(uint32 i = 0; i < desc.allocationCount; i++)
+            m_freeAllocations.push(i);
+    }
 
-#define LINA_MAIN_SWAPCHAIN			 "LinaMainSwapchain"_hs
-#define DEFAULT_SHADER_SID			 "Resource/Core/Shaders/UnlitStandard.linashader"_hs
-#define DEFAULT_SHADER_GUI			 "Resource/Core/Shaders/GUIStandard.linashader"_hs
-#define DEFAULT_SAMPLER_SID			 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
-#define DEFAULT_GUI_SAMPLER_SID		 "Resource/Core/Samplers/DefaultGUISampler.linasampler"_hs
-#define DEFAULT_GUI_TEXT_SAMPLER_SID "Resource/Core/Samplers/DefaultGUITextSampler.linasampler"_hs
-#define DEFAULT_TEXTURE_SID			 "Resources/Core/Textures/StubLinaLogo.png"_hs
-#define DEFAULT_LIT_MATERIAL		 "Resources/Core/Materials/DefaultLit.linamaterial"_hs
-#define DEFAULT_UNLIT_MATERIAL		 "Resources/Core/Materials/DefaultUnlit.linamaterial"_hs
-#define DEFAULT_CLEAR_CLR			 Color(0.3f, 0.3f, 0.5f, 1.0f)
-#define IDEAL_RT					 16667
-#define FRAMES_IN_FLIGHT			 2
-#define BACK_BUFFER_COUNT			 3
-#define MAX_BOUND_TEXTURES			 512
-#define MAX_BOUND_SAMPLERS			 128
+    void DescriptorSet::Destroy()
+    {
+        m_lgx->DestroyDescriptorSet(m_handle);
+    }
 
-	enum class ShaderWriteTargetType
-	{
-		RenderTarget,
-		Swapchain,
-	};
+    void DescriptorSet::Allocate(uint32 &outIndex)
+    {
+        LINA_ASSERT(!m_freeAllocations.empty(), "");
+        
+        outIndex = m_freeAllocations.front();
+        m_freeAllocations.pop();
+    }
 
-	enum RenderPassDescriptorType
-	{
-		Basic = 0,
-		Max,
-	};
+    void DescriptorSet::Free(uint32 index)
+    {
+        m_freeAllocations.push(index);
+    }
 
 } // namespace Lina

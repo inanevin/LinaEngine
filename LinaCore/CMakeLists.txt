@@ -51,7 +51,8 @@ src/Graphics/Resource/Font.cpp
 src/Graphics/Renderers/SurfaceRenderer.cpp
 src/Graphics/Renderers/WorldRenderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
-src/Graphics/Pipeline/Renderpass.cpp
+src/Graphics/Pipeline/RenderPass.cpp
+src/Graphics/Pipeline/DescriptorSet.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -135,7 +136,8 @@ include/Core/Graphics/Resource/Font.hpp
 include/Core/Graphics/Renderers/SurfaceRenderer.hpp
 include/Core/Graphics/Renderers/WorldRenderer.hpp
 include/Core/Graphics/Pipeline/Buffer.hpp
-include/Core/Graphics/Pipeline/Renderpass.hpp
+include/Core/Graphics/Pipeline/RenderPass.hpp
+include/Core/Graphics/Pipeline/DescriptorSet.hpp
 
 # World
 include/Core/World/Entity.hpp

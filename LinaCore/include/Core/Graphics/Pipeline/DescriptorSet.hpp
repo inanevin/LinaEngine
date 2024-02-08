@@ -28,35 +28,48 @@ SOFTWARE.
 
 #pragma once
 
+#include "Common/SizeDefinitions.hpp"
+#include "Common/Data/Queue.hpp"
+
+namespace LinaGX
+{
+	struct DescriptorSetDesc;
+	class Instance;
+} // namespace LinaGX
+
 namespace Lina
 {
+	class GfxManager;
 
-#define LINA_MAIN_SWAPCHAIN			 "LinaMainSwapchain"_hs
-#define DEFAULT_SHADER_SID			 "Resource/Core/Shaders/UnlitStandard.linashader"_hs
-#define DEFAULT_SHADER_GUI			 "Resource/Core/Shaders/GUIStandard.linashader"_hs
-#define DEFAULT_SAMPLER_SID			 "Resource/Core/Samplers/DefaultSampler.linasampler"_hs
-#define DEFAULT_GUI_SAMPLER_SID		 "Resource/Core/Samplers/DefaultGUISampler.linasampler"_hs
-#define DEFAULT_GUI_TEXT_SAMPLER_SID "Resource/Core/Samplers/DefaultGUITextSampler.linasampler"_hs
-#define DEFAULT_TEXTURE_SID			 "Resources/Core/Textures/StubLinaLogo.png"_hs
-#define DEFAULT_LIT_MATERIAL		 "Resources/Core/Materials/DefaultLit.linamaterial"_hs
-#define DEFAULT_UNLIT_MATERIAL		 "Resources/Core/Materials/DefaultUnlit.linamaterial"_hs
-#define DEFAULT_CLEAR_CLR			 Color(0.3f, 0.3f, 0.5f, 1.0f)
-#define IDEAL_RT					 16667
-#define FRAMES_IN_FLIGHT			 2
-#define BACK_BUFFER_COUNT			 3
-#define MAX_BOUND_TEXTURES			 512
-#define MAX_BOUND_SAMPLERS			 128
-
-	enum class ShaderWriteTargetType
+	class DescriptorSet
 	{
-		RenderTarget,
-		Swapchain,
-	};
+	public:
+		DescriptorSet()	 = default;
+		~DescriptorSet() = default;
 
-	enum RenderPassDescriptorType
-	{
-		Basic = 0,
-		Max,
+		void Create(LinaGX::Instance* lgx, const LinaGX::DescriptorSetDesc& desc);
+		void Destroy();
+		void Allocate(uint32& outIndex);
+		void Free(uint32 index);
+
+		inline bool IsEmpty() const
+		{
+			return m_freeAllocations.size() == m_allocationCount;
+		}
+		inline bool IsAvailable() const
+		{
+			return !m_freeAllocations.empty();
+		};
+		inline uint16 GetGPUHandle() const
+		{
+			return m_handle;
+		}
+
+	private:
+		LinaGX::Instance* m_lgx				= nullptr;
+		uint16			  m_handle			= 0;
+		uint32			  m_allocationCount = 0;
+		Queue<uint32>	  m_freeAllocations;
 	};
 
 } // namespace Lina

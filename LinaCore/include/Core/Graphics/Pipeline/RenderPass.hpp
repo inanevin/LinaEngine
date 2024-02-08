@@ -38,7 +38,7 @@ namespace Lina
 {
 	class GfxManager;
 
-	class Renderpass
+	class RenderPass
 	{
 	public:
 		struct PerFrameData
