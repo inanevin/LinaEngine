@@ -26,22 +26,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_renderpass : basic
-
-#lina_define_variant : default
-#lina_variant_target : rendertarget
-#lina_variant_cull : none
-#lina_variant_ront : cw
-#lina_variant_depth : disable
-#lina_end
-
-#lina_define_variant : final
-#lina_variant_target : swapchain
-#lina_variant_cull : none
-#lina_variant_front : cw
-#lina_variant_depth : disable
-#lina_end
-
 #lina_vs
 
 layout (location = 0) in vec2 pos;
@@ -55,7 +39,7 @@ void main()
 {
    outCol = col;
    outUV = uv;
-   gl_Position = LINA_PROJ * vec4(pos.x, pos.y, 0.0f, 1.0);
+   gl_Position = LINA_VIEW.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
 #lina_end
@@ -74,7 +58,6 @@ layout(set = 2, binding = 0) uniform MaterialData
    vec4 color2;
    vec4 floatPack1;
    vec4 floatPack2;
-   uint bufferType;
 } material;
 
 layout (set = 2, binding = 1) uniform mediump sampler guiSampler;
@@ -89,11 +72,11 @@ layout (set = 2, binding = 2) uniform mediump texture2D guiTexture;
 void main()
 {
    fragColor = inCol;
-   
-   if(material.bufferType == 1)
+   highp int bufferType = int(material.floatPack2.a);
+   if(bufferType == 1)
    {
       // floatPack1 = uvMultiply, uvShift
-      // floatPack2 = radialInfluence, isAABuffer, radialSize, 0
+      // floatPack2 = radialInfluence, isAABuffer, radialSize, bufferType
 
       // Linear gradient
       float t1 = inUV.x * material.floatPack1.r + inUV.y * material.floatPack1.g;
@@ -107,27 +90,27 @@ void main()
       float alpha = inCol.a * material.floatPack2.g + col.a * (1.0f - material.floatPack2.g);
       fragColor = vec4(col.rgb, alpha); 
    }
-   else if(material.bufferType == 2)
+   else if(bufferType == 2)
    {
       // Textured
       // floatPack1 = uvMultiply, uvShift
-      // floatPack2 = isAABuffer, 0,0,0
+      // floatPack2 = isAABuffer, 0,0,bufferType
       
       vec4 col = texture(sampler2D(guiTexture, guiSampler), inUV * material.floatPack1.rg + material.floatPack1.ba);
       float alpha = inCol.a * material.floatPack2.r + col.a * (1.0f - material.floatPack2.r);
       fragColor = vec4(col.rgb, alpha) * material.color1; 
    }
-   else if(material.bufferType == 3)
+   else if(bufferType == 3)
    {
       // Simple Text
-      // floatPack1 = 0,0,0,0
+      // floatPack1 = 0,0,0,bufferType
       fragColor = vec4(inCol.rgb, texture(sampler2D(guiTexture, guiSampler), inUV).r * inCol.a);
    }
-   else if(material.bufferType == 4)
+   else if(bufferType == 4)
    {
       // SDF text
       // floatPack1 = thickness, softness, outlineThickness, hasOutline
-      // floatPack2 = flipAlpha, 0, 0, 0
+      // floatPack2 = flipAlpha, 0, 0, bufferType
 
       float d = texture(sampler2D(guiTexture, guiSampler), inUV).r;
       float alpha = smoothstep(material.floatPack1.r - material.floatPack1.g, material.floatPack1.r + material.floatPack1.g, d);

@@ -68,22 +68,22 @@ namespace Lina
 		if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
 		{
 			req.materialData.floatPack1 = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
-			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, 0.0f);
+			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
 		}
 		else if (buf->m_color.gradientType == LinaVG::GradientType::Vertical)
 		{
 			req.materialData.floatPack1 = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
-			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, 0.0f);
+			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
 		}
 		else if (buf->m_color.gradientType == LinaVG::GradientType::Radial)
 		{
 			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
-			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, 0.0f);
+			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
 		}
 		else if (buf->m_color.gradientType == LinaVG::GradientType::RadialCorner)
 		{
 			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
-			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, 0.0f);
+			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
 		}
 	}
 
@@ -93,7 +93,7 @@ namespace Lina
 		auto  txt					= m_resourceManager->GetResource<Texture>(buf->m_textureHandle);
 		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(txt->GetSamplerSID());
 		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, 0.0f);
+		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
 		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
 		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 		req.materialData.color1 = buf->m_tint;
@@ -106,9 +106,11 @@ namespace Lina
 
 	void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int threadIndex)
 	{
-		auto& req	  = AddDrawRequest(buf, threadIndex);
-		auto  txt	  = m_fontTextures[buf->m_textureHandle].texture;
-		auto  sampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
+		auto& req					  = AddDrawRequest(buf, threadIndex);
+		auto  txt					  = m_fontTextures[buf->m_textureHandle].texture;
+		auto  sampler				  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
+		req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
+
 		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
 		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 	}
@@ -120,7 +122,7 @@ namespace Lina
 		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
 		req.materialData.color1		= buf->m_outlineColor;
 		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f ? 1.0f : 0.0f);
-		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, 0.0f);
+		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
 		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
 		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
 	}
@@ -171,13 +173,12 @@ namespace Lina
 		auto& drawData = m_drawData[threadIndex];
 
 		drawData.drawRequests.push_back(DrawRequest());
-		DrawRequest& req	  = drawData.drawRequests.back();
-		req.indexCount		  = static_cast<uint32>(buf->m_indexBuffer.m_size);
-		req.vertexOffset	  = buffers.vertexCounter;
-		req.firstIndex		  = buffers.indexCounter;
-		req.clip.pos		  = Vector2ui(buf->clipPosX, buf->clipPosY);
-		req.clip.size		  = Vector2ui(buf->clipSizeX, buf->clipSizeY);
-		req.materialData.type = static_cast<uint32>(buf->m_drawBufferType);
+		DrawRequest& req = drawData.drawRequests.back();
+		req.indexCount	 = static_cast<uint32>(buf->m_indexBuffer.m_size);
+		req.vertexOffset = buffers.vertexCounter;
+		req.firstIndex	 = buffers.indexCounter;
+		req.clip.pos	 = Vector2ui(buf->clipPosX, buf->clipPosY);
+		req.clip.size	 = Vector2ui(buf->clipSizeX, buf->clipSizeY);
 
 		buffers.vertexBuffer->BufferData(buffers.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
 		buffers.indexBuffer->BufferData(buffers.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));

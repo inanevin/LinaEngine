@@ -135,24 +135,6 @@ namespace Lina
 		LinaGX::Config.gpuLimits	   = {};
 
 		m_lgx->Initialize();
-	}
-
-	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
-	{
-		m_resourceUploadQueue.Initialize();
-		m_meshManager.Initialize();
-		m_currentVsync = initInfo.vsyncStyle;
-
-		// LinaGX
-		{
-			m_lgx->GetInput().SetCallbackKey([&](uint32 key, int32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
-				Event ev;
-				ev.iParams[0] = key;
-				ev.iParams[1] = static_cast<uint32>(action);
-				ev.pParams[0] = window;
-				m_system->DispatchEvent(EVS_OnKey, ev);
-			});
-		}
 
 		// Default samplers
 		{
@@ -197,6 +179,24 @@ namespace Lina
 			// defaultUnlitMaterial->SetShader("Resources/Core/Shaders/UnlitStandard.linashader"_hs);
 			// m_defaultMaterials.push_back(defaultLitMaterial);
 			// m_defaultMaterials.push_back(defaultUnlitMaterial);
+		}
+	}
+
+	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
+	{
+		m_resourceUploadQueue.Initialize();
+		m_meshManager.Initialize();
+		m_currentVsync = initInfo.vsyncStyle;
+
+		// LinaGX
+		{
+			m_lgx->GetInput().SetCallbackKey([&](uint32 key, int32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
+				Event ev;
+				ev.iParams[0] = key;
+				ev.iParams[1] = static_cast<uint32>(action);
+				ev.pParams[0] = window;
+				m_system->DispatchEvent(EVS_OnKey, ev);
+			});
 		}
 
 		// pfd

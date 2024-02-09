@@ -57,10 +57,10 @@ namespace Lina
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "GUIRenderer Materials", true);
 			data.materials.resize(MAX_GUI_MATERIALS);
 
-			for (int32 i = 0; i < MAX_GUI_MATERIALS; i++)
+			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
 			{
-				data.materials[i] = rm->CreateUserResource<Material>("GUIRenderer", 0);
-				data.materials[i]->SetShader(DEFAULT_SHADER_GUI);
+				data.materials[j] = rm->CreateUserResource<Material>("GUIRenderer", 0);
+				data.materials[j]->SetShader(DEFAULT_SHADER_GUI);
 			}
 		}
 	}
@@ -78,8 +78,8 @@ namespace Lina
 			data.guiIndexBuffer.Destroy();
 			data.guiMaterialBuffer.Destroy();
 
-			for (int32 i = 0; i < MAX_GUI_MATERIALS; i++)
-				rm->DestroyUserResource<Material>(data.materials[i]);
+			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
+				rm->DestroyUserResource<Material>(data.materials[j]);
 
 			data.materials.clear();
 		}

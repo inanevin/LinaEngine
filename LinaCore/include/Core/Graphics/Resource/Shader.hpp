@@ -109,6 +109,10 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
 		virtual void Flush() override;
+		virtual void SetCustomMeta(IStream& stream) override
+		{
+			m_meta.LoadFromStream(stream);
+		}
 
 	private:
 		FRIEND_RESOURCE_CACHE();

@@ -106,9 +106,4 @@ namespace Lina
 		VectorSerialization::SaveToStream_PT(stream, m_file);
 	}
 
-	void Font::SetCustomMeta(IStream& stream)
-	{
-		m_meta.LoadFromStream(stream);
-	}
-
 } // namespace Lina

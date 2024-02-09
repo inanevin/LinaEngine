@@ -77,7 +77,6 @@ namespace Lina
 		Vector4 color2;
 		Vector4 floatPack1;
 		Vector4 floatPack2;
-		uint32	type;
 	};
 
 } // namespace Lina

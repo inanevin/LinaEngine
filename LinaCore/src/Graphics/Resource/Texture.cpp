@@ -224,11 +224,6 @@ namespace Lina
 		}
 	}
 
-	void Texture::SetCustomMeta(IStream& stream)
-	{
-		m_meta.LoadFromStream(stream);
-	}
-
 	void Texture::BatchLoaded()
 	{
 		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);

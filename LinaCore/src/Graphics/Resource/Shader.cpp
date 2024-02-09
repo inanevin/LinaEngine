@@ -44,6 +44,7 @@ namespace Lina
 	{
 		HashMapSerialization::SaveToStream_OBJ(out, variants);
 		out << static_cast<uint8>(renderPassDescriptorType);
+        out << descriptorSetAllocationCount;
 	}
 
 	void Shader::Metadata::LoadFromStream(IStream& in)
@@ -53,6 +54,7 @@ namespace Lina
 		uint8 rpType = 0;
 		in >> rpType;
 		renderPassDescriptorType = static_cast<RenderPassDescriptorType>(rpType);
+        in >> descriptorSetAllocationCount;
 	}
 
 	Shader::Shader(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Shader>())
@@ -101,6 +103,8 @@ namespace Lina
 		DescriptorSet* set = new DescriptorSet();
 		set->Create(m_lgx, m_materialSetDesc);
 		m_descriptorSets.push_back(set);
+        outSet = set;
+        set->Allocate(outIndex);
 	}
 
 	void Shader::FreeDescriptorSet(DescriptorSet* set, uint32 index)
@@ -110,9 +114,11 @@ namespace Lina
 		// Shrink if not used anymore.
 		if (set->IsEmpty())
 		{
-			linatl::remove_if(m_descriptorSets.begin(), m_descriptorSets.end(), [set](DescriptorSet* s) -> bool { return s == set; });
-			set->Destroy();
-			delete set;
+			auto it = linatl::find_if(m_descriptorSets.begin(), m_descriptorSets.end(), [set](DescriptorSet* s) -> bool { return s == set; });
+            LINA_ASSERT(it != m_descriptorSets.end(), "");
+            set->Destroy();
+            delete set;
+            m_descriptorSets.erase(it);
 		}
 	}
 

@@ -78,7 +78,10 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) const override;
-		virtual void SetCustomMeta(IStream& stream) override;
+		virtual void SetCustomMeta(IStream& stream) override
+		{
+			m_meta.LoadFromStream(stream);
+		}
 
 	private:
 		LinaVG::LinaVGFont* m_lvgFont = nullptr;

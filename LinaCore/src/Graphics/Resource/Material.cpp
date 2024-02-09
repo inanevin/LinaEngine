@@ -98,8 +98,8 @@ namespace Lina
 
 	void Material::SetShader(StringID sid)
 	{
-		m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
 		m_shaderSID = sid;
+		m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
 
 		if (m_shader == nullptr)
 		{
@@ -107,8 +107,6 @@ namespace Lina
 			m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
 		}
 
-		DestroyDescriptorSets();
-		DestroyBindingData();
 		CreateDescriptorSets();
 		CreateBindingData();
 	}
@@ -271,7 +269,7 @@ namespace Lina
 				{
 					matBindingData.textures.resize(b.descriptorCount);
 					for (int32 i = 0; i < b.descriptorCount; i++)
-						matBindingData.textures[i] = DEFAULT_TEXTURE_SID;
+						matBindingData.textures[i] = DEFAULT_TEXTURE_EMPTY_BLACK;
 				}
 				else if (b.type == LinaGX::DescriptorType::SeparateSampler || b.type == LinaGX::DescriptorType::CombinedImageSampler)
 				{
