@@ -44,6 +44,7 @@ namespace Lina
 	class GfxManager;
 	class ResourceManager;
 	class Texture;
+	class TextureSampler;
 	class Buffer;
 
 	class GUIBackend : public LinaVG::Backend::BaseBackend
@@ -51,11 +52,10 @@ namespace Lina
 	public:
 		struct Buffers
 		{
-			Buffer* vertexBuffer   = nullptr;
-			Buffer* indexBuffer	   = nullptr;
-			Buffer* materialBuffer = nullptr;
-			uint32	indexCounter   = 0;
-			uint32	vertexCounter  = 0;
+			Buffer* vertexBuffer  = nullptr;
+			Buffer* indexBuffer	  = nullptr;
+			uint32	indexCounter  = 0;
+			uint32	vertexCounter = 0;
 		};
 
 	private:
@@ -66,6 +66,9 @@ namespace Lina
 			uint32		   indexCount	= 0;
 			Rectui		   clip			= {};
 			GPUMaterialGUI materialData;
+			bool		   hasTextureBind = false;
+			uint32		   textureHandle  = 0;
+			uint32		   samplerHandle  = 0;
 		};
 
 		struct DrawData
@@ -92,9 +95,9 @@ namespace Lina
 
 		virtual void				  Terminate() override;
 		virtual void				  StartFrame(int threadCount) override;
+		virtual void				  DrawDefault(LinaVG::DrawBuffer* buf, int thread) override;
 		virtual void				  DrawGradient(LinaVG::GradientDrawBuffer* buf, int thread) override;
 		virtual void				  DrawTextured(LinaVG::TextureDrawBuffer* buf, int thread) override;
-		virtual void				  DrawDefault(LinaVG::DrawBuffer* buf, int thread) override;
 		virtual void				  DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int thread) override;
 		virtual void				  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int thread) override;
 		virtual void				  EndFrame() override{};
@@ -105,6 +108,8 @@ namespace Lina
 		virtual void				  RestoreAPIState() override{};
 		virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
 
+		void Prepare(int threadIndex, Buffer* indexBuffer, Buffer* vertexBuffer);
+
 		inline const DrawData& GetDrawData(int threadIndex) const
 		{
 			return m_drawData[threadIndex];
@@ -112,7 +117,6 @@ namespace Lina
 
 	private:
 		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf, int threadIndex);
-		Matrix4		 GetProjectionFromSize(const Vector2ui& size);
 
 	private:
 		StringID			m_boundFontTexture = 0;
@@ -120,5 +124,7 @@ namespace Lina
 		Vector<Buffers>		m_buffers;
 		Vector<DrawData>	m_drawData;
 		Vector<FontTexture> m_fontTextures;
+		TextureSampler*		m_guiSampler  = nullptr;
+		TextureSampler*		m_textSampler = nullptr;
 	};
 } // namespace Lina

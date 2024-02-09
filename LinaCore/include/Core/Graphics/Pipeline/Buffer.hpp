@@ -34,6 +34,7 @@ namespace LinaGX
 {
 	class Instance;
 	class CommandStream;
+	enum class IndexType;
 } // namespace LinaGX
 
 namespace Lina
@@ -49,19 +50,17 @@ namespace Lina
 
 		void Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName = "GPUBuffer", bool stagingOnly = false);
 		void BufferData(size_t padding, uint8* data, size_t size);
+		void MemsetMapped(int32 v);
 		bool Copy(LinaGX::CommandStream* stream);
 		void Destroy();
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
+		void BindVertex(LinaGX::CommandStream* stream, uint32 size);
+		void BindIndex(LinaGX::CommandStream* stream, LinaGX::IndexType indexType);
 
 		inline uint32 GetGPUResource() const
 		{
 			return m_residesInGPU ? m_gpu : m_staging;
-		}
-
-		inline uint8* GetMapped()
-		{
-			return m_mapped;
 		}
 
 	private:
@@ -76,5 +75,6 @@ namespace Lina
 		uint32			  m_hintFlags				= 0;
 		bool			  m_isCPUVisibleGPUResource = false;
 		bool			  m_residesInGPU			= false;
+		bool			  m_bufferChanged			= false;
 	};
 } // namespace Lina

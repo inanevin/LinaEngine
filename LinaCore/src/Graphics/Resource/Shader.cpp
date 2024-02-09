@@ -224,10 +224,10 @@ namespace Lina
 		// Create variants
 		for (auto& [sid, variant] : m_meta.variants)
 		{
-			LinaGX::Format format = LinaGX::Format::B8G8R8A8_SRGB;
+			LinaGX::Format format = DEFAULT_SWAPCHAIN_FORMAT;
 
 			if (variant.targetType == ShaderWriteTargetType::RenderTarget)
-				format = LinaGX::Format::R32G32B32A32_SFLOAT;
+				format = DEFAULT_RT_FORMAT;
 
 			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
 				.blendEnabled		 = !variant.blendDisable,

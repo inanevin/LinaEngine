@@ -43,8 +43,8 @@ namespace Lina
 	public:
 		struct PerFrameData
 		{
-			Buffer viewDataBuffer = {};
-			uint16 descriptorSet  = 0;
+			uint16		   descriptorSet = 0;
+			Vector<Buffer> buffers		 = {};
 		};
 
 		void Create(GfxManager* gfxMan, LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType);
@@ -60,14 +60,14 @@ namespace Lina
 			m_depthStencil = att;
 		}
 
-		inline Buffer& GetViewDataBuffer(uint32 frameIndex)
-		{
-			return m_pfd[frameIndex].viewDataBuffer;
-		}
-
 		inline uint16 GetDescriptorSet(uint32 frameIndex)
 		{
 			return m_pfd[frameIndex].descriptorSet;
+		}
+
+		inline Buffer& GetBuffer(uint32 frameIndex, uint32 bufferIndex)
+		{
+			return m_pfd[frameIndex].buffers[bufferIndex];
 		}
 
 	private:

@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Core/ApplicationDelegate.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
@@ -56,7 +55,7 @@ namespace Lina
 		const auto monitorSize = window->GetMonitorSize();
 		const auto windowSize  = window->GetSize();
 		m_swapchain			   = m_lgx->CreateSwapchain({
-					   .format		 = LinaGX::Format::B8G8R8A8_SRGB,
+					   .format		 = DEFAULT_SWAPCHAIN_FORMAT,
 					   .x			 = 0,
 					   .y			 = 0,
 					   .width		 = windowSize.x,
@@ -77,7 +76,7 @@ namespace Lina
 			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
 		}
 
-		m_guiRenderer.Create(m_gfxManager);
+		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
@@ -147,18 +146,18 @@ namespace Lina
 		barrierToColor->textureBarriers[0]	= GfxHelpers::GetTextureBarrierPresent2Color(static_cast<uint32>(m_swapchain), true);
 
 		// Descriptors
+		GPUDataView dataView = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
+		m_renderPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&dataView, sizeof(GPUDataView));
 		m_renderPass.BindDescriptors(currentFrame.gfxStream, frameIndex);
 
 		// Begin render pass
 		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors);
 
-		// // Render application overlay, app can draw anything using the current stream (no submissions allowed)
-		// // Including GUI commands.
-		// m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
-		//
-		// // Flush & render GUI commands if app drawed any.
-		// LinaVG::Render(threadIndex);
-		// m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, threadIndex);
+		// Prepare gui renderer & ask app to draw surface contents.
+		// Flush & render all contents that might've been drawn by the app.
+		m_guiRenderer.Prepare(frameIndex, threadIndex);
+		m_appListener->RenderSurfaceOverlay(currentFrame.gfxStream, m_window, threadIndex);
+		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, threadIndex, m_window->GetSize());
 
 		// End render pass
 		m_renderPass.End(currentFrame.gfxStream);

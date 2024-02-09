@@ -45,13 +45,20 @@ namespace Lina
 			auto& data		   = m_pfd[i];
 			data.descriptorSet = lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentRenderPass(m_type));
 
-			data.viewDataBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), "RP Scene Data", true);
-			data.viewDataBuffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 0,
-				.buffers   = {data.viewDataBuffer.GetGPUResource()},
-			});
+            if(descriptorType == RenderPassDescriptorType::Basic)
+            {
+               data.buffers.push_back({});
+              auto& buffer = data.buffers.back();
+              buffer.Create(lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), "RP ViewData Buffer", true);
+              
+            buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
+              m_lgx->DescriptorUpdateBuffer({
+                  .setHandle = data.descriptorSet,
+                  .binding   = 0,
+                  .buffers   = {buffer.GetGPUResource()},
+              });
+            }
+			
 		}
 	}
 
@@ -60,7 +67,10 @@ namespace Lina
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-			data.viewDataBuffer.Destroy();
+            
+            for(auto& b : data.buffers)
+                b.Destroy();
+            
 			m_lgx->DestroyDescriptorSet(data.descriptorSet);
 		}
 	}

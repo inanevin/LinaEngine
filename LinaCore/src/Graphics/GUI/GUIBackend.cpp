@@ -54,9 +54,37 @@ namespace Lina
 
 	void GUIBackend::StartFrame(int threadCount)
 	{
+		// We lazy.
+		if (m_guiSampler == nullptr)
+			m_guiSampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_SAMPLER_SID);
+
+		if (m_textSampler == nullptr)
+			m_textSampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
+
 		const int32 currentSz = static_cast<int32>(m_drawData.size());
 		m_buffers.resize(threadCount);
 		m_drawData.resize(threadCount);
+
+		for (auto& dd : m_drawData)
+		{
+			dd.drawRequests = {};
+		}
+
+		for (Buffers& b : m_buffers)
+			b = {};
+	}
+
+	void GUIBackend::Prepare(int threadIndex, Buffer* indexBuffer, Buffer* vertexBuffer)
+	{
+		Buffers& data	  = m_buffers[threadIndex];
+		data.indexBuffer  = indexBuffer;
+		data.vertexBuffer = indexBuffer;
+	}
+
+	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int threadIndex)
+	{
+		auto& req		   = AddDrawRequest(buf, threadIndex);
+		req.hasTextureBind = false;
 	}
 
 	void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf, int threadIndex)
@@ -64,6 +92,7 @@ namespace Lina
 		auto& req				= AddDrawRequest(buf, threadIndex);
 		req.materialData.color1 = buf->m_color.start;
 		req.materialData.color2 = buf->m_color.end;
+		req.hasTextureBind		= false;
 
 		if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
 		{
@@ -90,18 +119,12 @@ namespace Lina
 	void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf, int threadIndex)
 	{
 		auto& req					= AddDrawRequest(buf, threadIndex);
-		auto  txt					= m_resourceManager->GetResource<Texture>(buf->m_textureHandle);
-		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(txt->GetSamplerSID());
+		req.hasTextureBind			= true;
+		req.textureHandle			= buf->m_textureHandle;
+		req.samplerHandle			= m_guiSampler->GetGPUHandle();
 		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
 		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
-		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
-		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
-		req.materialData.color1 = buf->m_tint;
-	}
-
-	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int threadIndex)
-	{
-		auto& req = AddDrawRequest(buf, threadIndex);
+		req.materialData.color1		= buf->m_tint;
 	}
 
 	void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int threadIndex)
@@ -110,9 +133,9 @@ namespace Lina
 		auto  txt					  = m_fontTextures[buf->m_textureHandle].texture;
 		auto  sampler				  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
 		req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
-
-		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
-		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
+		req.hasTextureBind			  = true;
+		req.textureHandle			  = txt->GetGPUHandle();
+		req.samplerHandle			  = m_textSampler->GetGPUHandle();
 	}
 
 	void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int threadIndex)
@@ -123,8 +146,9 @@ namespace Lina
 		req.materialData.color1		= buf->m_outlineColor;
 		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f ? 1.0f : 0.0f);
 		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
-		// req.materialData.diffuse.textureIndex = txt->GetBindlessIndex();
-		// req.materialData.diffuse.samplerIndex = sampler->GetBindlessIndex();
+		req.hasTextureBind			= true;
+		req.textureHandle			= txt->GetGPUHandle();
+		req.samplerHandle			= m_textSampler->GetGPUHandle();
 	}
 
 	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
@@ -186,19 +210,4 @@ namespace Lina
 		buffers.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 		return req;
 	}
-
-	Matrix4 GUIBackend::GetProjectionFromSize(const Vector2ui& size)
-	{
-		float		L	 = static_cast<float>(0.0f);
-		float		R	 = static_cast<float>(size.x);
-		float		B	 = static_cast<float>(size.y);
-		float		T	 = static_cast<float>(0.0);
-		const float zoom = 1.0f;
-		L *= zoom;
-		R *= zoom;
-		T *= zoom;
-		B *= zoom;
-		return Matrix4::Orthographic(L, R, B, T, 0.0f, 1.0f);
-	}
-
 } // namespace Lina

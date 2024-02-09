@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Math/Matrix.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina
@@ -47,5 +48,7 @@ namespace Lina
 		static LinaGX::PipelineLayoutDesc GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
 
 		static LinaGX::DescriptorBinding GetBindingFromShaderBinding(const LinaGX::ShaderDescriptorSetBinding& b);
+
+		static Matrix4 GetProjectionFromSize(const Vector2ui& size);
 	};
 } // namespace Lina

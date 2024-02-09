@@ -121,4 +121,18 @@ namespace Lina
 			.stages			  = b.stages,
 		};
 	}
+
+	Matrix4 GfxHelpers::GetProjectionFromSize(const Vector2ui& size)
+	{
+		float		L	 = static_cast<float>(0.0f);
+		float		R	 = static_cast<float>(size.x);
+		float		B	 = static_cast<float>(size.y);
+		float		T	 = static_cast<float>(0.0);
+		const float zoom = 1.0f;
+		L *= zoom;
+		R *= zoom;
+		T *= zoom;
+		B *= zoom;
+		return Matrix4::Orthographic(L, R, B, T, 0.0f, 1.0f);
+	}
 } // namespace Lina

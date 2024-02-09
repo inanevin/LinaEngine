@@ -42,6 +42,7 @@ namespace Lina
 	class GfxManager;
 	class GUIBackend;
 	class Material;
+	class Shader;
 
 	class GUIRenderer
 	{
@@ -51,20 +52,20 @@ namespace Lina
 
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* copyStream		 = nullptr;
-			SemaphoreData		   copySemaphore	 = {};
-			Buffer				   guiVertexBuffer	 = {};
-			Buffer				   guiIndexBuffer	 = {};
-			Buffer				   guiMaterialBuffer = {};
-			Vector<Material*>	   materials		 = {};
+			LinaGX::CommandStream* copyStream	   = nullptr;
+			SemaphoreData		   copySemaphore   = {};
+			Buffer				   guiVertexBuffer = {};
+			Buffer				   guiIndexBuffer  = {};
+			Vector<Material*>	   materials	   = {};
 		};
 
 	public:
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
 
-		void Create(GfxManager* gfxManager);
-		void Render(LinaGX::CommandStream* stream, uint32 frameIndex, uint32 threadIndex);
+		void Create(GfxManager* gfxManager, ShaderWriteTargetType writeTargetType);
+		void Prepare(uint32 frameIndex, uint32 threadIndex);
+		void Render(LinaGX::CommandStream* stream, uint32 frameIndex, uint32 threadIndex, const Vector2ui& size);
 		void Destroy();
 
 		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
@@ -73,7 +74,9 @@ namespace Lina
 		}
 
 	private:
-		GUIBackend*		  m_guiBackend = nullptr;
+		Shader*			  m_shader				= nullptr;
+		uint32			  m_shaderVariantHandle = 0;
+		GUIBackend*		  m_guiBackend			= nullptr;
 		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
 		GfxManager*		  m_gfxManager = nullptr;
 		LinaGX::Instance* m_lgx		   = nullptr;

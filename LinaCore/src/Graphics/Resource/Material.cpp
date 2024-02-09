@@ -111,13 +111,19 @@ namespace Lina
 		CreateBindingData();
 	}
 
-	void Material::Bind(LinaGX::CommandStream* stream, uint32 frameIndex)
+	void Material::Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle)
 	{
 		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
 		bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_descriptorSetContainer[frameIndex].set->GetGPUHandle());
 		bind->firstSet						= 2;
 		bind->setCount						= 1;
 		bind->allocationIndices				= stream->EmplaceAuxMemory<uint32>(m_descriptorSetContainer[frameIndex].allocIndex);
+		bind->layoutSource					= layoutSource;
+
+		if (layoutSource == LinaGX::DescriptorSetsLayoutSource::CustomLayout)
+			bind->customLayout = m_shader->GetPipelineLayout();
+		else if (layoutSource == LinaGX::DescriptorSetsLayoutSource::CustomShader)
+			bind->customLayoutShader = customShaderHandle;
 	}
 
 	void Material::SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize)
@@ -129,28 +135,28 @@ namespace Lina
 		}
 	}
 
-	void Material::SetTexture(uint32 bindingIndex, uint32 descriptorIndex, StringID sid)
+	void Material::SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle)
 	{
 		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		auto& bData						= m_bindingData[bindingIndex];
-		bData.textures[descriptorIndex] = sid;
+		bData.textures[descriptorIndex] = gpuHandle;
 		UpdateBinding(bindingIndex);
 	}
 
-	void Material::SetSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID sid)
+	void Material::SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle)
 	{
 		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		auto& bData						= m_bindingData[bindingIndex];
-		bData.samplers[descriptorIndex] = sid;
+		bData.samplers[descriptorIndex] = gpuHandle;
 		UpdateBinding(bindingIndex);
 	}
 
-	void Material::SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID texture, StringID sampler)
+	void Material::SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle)
 	{
 		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		auto& bData						= m_bindingData[bindingIndex];
-		bData.textures[descriptorIndex] = texture;
-		bData.samplers[descriptorIndex] = sampler;
+		bData.textures[descriptorIndex] = textureGPUHandle;
+		bData.samplers[descriptorIndex] = samplerGPUHandle;
 		UpdateBinding(bindingIndex);
 	}
 
@@ -245,6 +251,9 @@ namespace Lina
 		const LinaGX::ShaderDescriptorSetLayout info = m_shader->GetMaterialSetInfo();
 		m_bindingData.resize(desc.bindings.size());
 
+		const uint32 defaultTextureGPUHandle = m_resourceManager->GetResource<Texture>(DEFAULT_TEXTURE_EMPTY_BLACK)->GetGPUHandle();
+		const uint32 defaultSamplerGPUHandle = m_resourceManager->GetResource<TextureSampler>(DEFAULT_SAMPLER_SID)->GetGPUHandle();
+
 		for (int32 f = 0; f < FRAMES_IN_FLIGHT; f++)
 		{
 			uint32 bindingIndex = 0;
@@ -261,21 +270,21 @@ namespace Lina
 					for (int32 i = 0; i < count; i++)
 					{
 						auto& buf = matBindingData.bufferData[f].buffers[i];
-						buf.Create(m_lgx, isUBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", isUBO);
-						MEMSET(buf.GetMapped(), 0, bufferSz);
+						buf.Create(m_lgx, isUBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", true);
+						buf.MemsetMapped(0);
 					}
 				}
 				else if (b.type == LinaGX::DescriptorType::SeparateImage || b.type == LinaGX::DescriptorType::CombinedImageSampler)
 				{
 					matBindingData.textures.resize(b.descriptorCount);
 					for (int32 i = 0; i < b.descriptorCount; i++)
-						matBindingData.textures[i] = DEFAULT_TEXTURE_EMPTY_BLACK;
+						matBindingData.textures[i] = defaultTextureGPUHandle;
 				}
 				else if (b.type == LinaGX::DescriptorType::SeparateSampler || b.type == LinaGX::DescriptorType::CombinedImageSampler)
 				{
 					matBindingData.samplers.resize(b.descriptorCount);
 					for (int32 i = 0; i < b.descriptorCount; i++)
-						matBindingData.samplers[i] = DEFAULT_SAMPLER_SID;
+						matBindingData.samplers[i] = defaultSamplerGPUHandle;
 				}
 				bindingIndex++;
 			}
@@ -330,10 +339,10 @@ namespace Lina
 				};
 
 				for (const auto& txt : binding.textures)
-					update.textures.push_back(rm->GetResource<Texture>(txt)->GetGPUHandle());
+					update.textures.push_back(txt);
 
 				for (const auto& smp : binding.samplers)
-					update.samplers.push_back(rm->GetResource<TextureSampler>(smp)->GetGPUHandle());
+					update.samplers.push_back(smp);
 
 				m_lgx->DescriptorUpdateImage(update);
 			}

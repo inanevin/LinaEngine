@@ -83,6 +83,13 @@ namespace Lina
 	{
 		LINA_ASSERT(padding + size <= m_size, "Buffer overflow!");
 		MEMCPY(m_mapped + padding, data, size);
+		m_bufferChanged = true;
+	}
+
+	void Buffer::MemsetMapped(int32 v)
+	{
+		MEMSET(m_mapped, v, m_size);
+		m_bufferChanged = true;
 	}
 
 	bool Buffer::Copy(LinaGX::CommandStream* stream)
@@ -91,9 +98,13 @@ namespace Lina
 		if (m_isCPUVisibleGPUResource || m_stagingOnly)
 			return false;
 
+		if (!m_bufferChanged)
+			return false;
+
 		LinaGX::CMDCopyResource* copy = stream->AddCommand<LinaGX::CMDCopyResource>();
 		copy->destination			  = m_gpu;
 		copy->source				  = m_staging;
+		m_bufferChanged				  = false;
 
 		return true;
 	}
@@ -130,6 +141,23 @@ namespace Lina
 		stream >> m_stagingOnly;
 		Create(lgx, m_hintFlags, m_size, "", m_stagingOnly);
 		stream.ReadIntoRaw((void*)m_mapped, m_size);
+	}
+
+	void Buffer::BindVertex(LinaGX::CommandStream* stream, uint32 size)
+	{
+		LinaGX::CMDBindVertexBuffers* vtx = stream->AddCommand<LinaGX::CMDBindVertexBuffers>();
+		vtx->offset						  = 0;
+		vtx->slot						  = 0;
+		vtx->vertexSize					  = size;
+		vtx->resource					  = GetGPUResource();
+	}
+
+	void Buffer::BindIndex(LinaGX::CommandStream* stream, LinaGX::IndexType indexType)
+	{
+		LinaGX::CMDBindIndexBuffers* index = stream->AddCommand<LinaGX::CMDBindIndexBuffers>();
+		index->indexType				   = indexType;
+		index->offset					   = 0;
+		index->resource					   = GetGPUResource();
 	}
 
 } // namespace Lina

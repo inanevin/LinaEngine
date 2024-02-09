@@ -77,11 +77,11 @@ namespace Lina
 		};
 
 		void SetShader(StringID sid);
-		void Bind(LinaGX::CommandStream* stream, uint32 frameIndex);
+		void Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle = 0);
 		void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize);
-		void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, StringID sid);
-		void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID sid);
-		void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, StringID texture, StringID sampler);
+		void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
+		void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
+		void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle);
 
 		inline Buffer& GetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex)
 		{
