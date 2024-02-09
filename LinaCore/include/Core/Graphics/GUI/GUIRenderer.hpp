@@ -56,7 +56,7 @@ namespace Lina
 			Buffer				   guiVertexBuffer	 = {};
 			Buffer				   guiIndexBuffer	 = {};
 			Buffer				   guiMaterialBuffer = {};
-			Material*			   materials		 = nullptr;
+			Vector<Material*>	   materials		 = {};
 		};
 
 	public:

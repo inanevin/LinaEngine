@@ -84,7 +84,7 @@ namespace Lina
 			stream >> samplers[i];
 	}
 
-	Material::Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Material>())
+	Material::Material(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Material>())
 	{
 		m_gfxManager = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_lgx		 = m_gfxManager->GetLGX();

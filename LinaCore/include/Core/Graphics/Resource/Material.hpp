@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Common/ClassMacros.hpp"
 
 namespace LinaGX
 {
@@ -48,6 +49,7 @@ namespace Lina
 	class Shader;
 	class GfxManager;
 	class DescriptorSet;
+
 
 	class Material : public Resource
 	{
@@ -75,9 +77,7 @@ namespace Lina
 			void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
 		};
 
-		Material(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid);
-		virtual ~Material();
-
+		
 		void SetShader(StringID sid);
 		void Bind(LinaGX::CommandStream* stream, uint32 frameIndex);
 		void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize);
@@ -89,6 +89,12 @@ namespace Lina
 		{
 			return m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
 		}
+        
+    private:
+        
+        FRIEND_RESOURCE_CACHE();
+        Material(ResourceManager* rm, const String& path, StringID sid);
+        virtual ~Material();
 
 	protected:
 		virtual void LoadFromFile(const char* path) override;
@@ -111,6 +117,8 @@ namespace Lina
 		DescriptorAllocation m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		Vector<BindingData>	 m_bindingData;
 	};
+
+    DEFINE_CLASS_STORAGE_TYPE(Material);
 
 } // namespace Lina
 

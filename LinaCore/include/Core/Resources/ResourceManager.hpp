@@ -114,8 +114,24 @@ namespace Lina
 			return resources;
 		}
 
-		void AddUserManaged(Resource* res);
-		void RemoveUserManaged(Resource* res);
+		template <typename T> T* CreateUserResource(const String& path, StringID sid)
+		{
+			const TypeID tid = GetTypeID<T>();
+			Resource*	 res = m_caches.at(tid)->CreateResource(sid, path, this, ResourceOwner::UserCode);
+			return static_cast<T*>(res);
+		}
+
+		template <typename T> void DestroyUserResource(T* resource)
+		{
+			if (resource->m_owner == ResourceOwner::ResourceManager)
+			{
+				LINA_ERR("Can not destroy resource-manager owned resources explicitly!");
+				return;
+			}
+
+			const TypeID tid = GetTypeID<T>();
+			m_caches.at(tid)->DestroyUserResource(static_cast<Resource*>(resource));
+		}
 
 	private:
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);

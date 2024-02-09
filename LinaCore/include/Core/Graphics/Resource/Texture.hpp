@@ -66,9 +66,6 @@ namespace Lina
 		};
 
 	public:
-		Texture(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Texture>()){};
-		virtual ~Texture();
-
 		virtual void			 BatchLoaded() override;
 		uint32					 GetSamplerSID() const;
 		void					 SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format);
@@ -95,7 +92,9 @@ namespace Lina
 		}
 
 	private:
-		friend class GfxManager;
+		FRIEND_RESOURCE_CACHE();
+		Texture(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Texture>()){};
+		virtual ~Texture();
 
 	protected:
 		virtual void LoadFromFile(const char* path) override;

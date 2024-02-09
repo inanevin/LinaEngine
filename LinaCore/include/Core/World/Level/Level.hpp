@@ -46,9 +46,6 @@ namespace Lina
 	class Level : public Resource
 	{
 	public:
-		Level(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Level>()){};
-		virtual ~Level();
-
 		void Install();
 		void Uninstall();
 
@@ -81,6 +78,11 @@ namespace Lina
 		{
 			return m_runtimeUserStream;
 		}
+
+	private:
+		FRIEND_RESOURCE_CACHE();
+		Level(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Level>()){};
+		virtual ~Level();
 
 	private:
 		virtual void SaveToStream(OStream& stream) const override;

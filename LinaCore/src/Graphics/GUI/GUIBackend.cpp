@@ -45,7 +45,7 @@ namespace Lina
 	{
 		for (const auto& ft : m_fontTextures)
 		{
-			delete ft.texture;
+			m_resourceManager->DestroyUserResource<Texture>(ft.texture);
 			delete[] ft.pixels;
 		}
 
@@ -153,7 +153,7 @@ namespace Lina
 	{
 		const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontTextures.size());
 		FontTexture	 fontTexture = {
-			 .texture = new Texture(m_resourceManager, true, name, TO_SID(name)),
+			 .texture = m_resourceManager->CreateUserResource<Texture>(name, TO_SID(name)),
 			 .width	  = width,
 			 .height  = height,
 		 };

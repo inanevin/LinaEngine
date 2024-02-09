@@ -77,6 +77,12 @@ namespace Lina
 		uint64					   endTime	   = 0;
 	};
 
+	enum class ResourceOwner
+	{
+		ResourceManager,
+		UserCode,
+	};
+
 } // namespace Lina
 
 #endif

@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/System/System.hpp"
 
@@ -44,6 +45,7 @@ namespace Lina
 		m_gfxManager = gfxManager;
 		m_lgx		 = m_gfxManager->GetLGX();
 		m_guiBackend = m_gfxManager->GetGUIBackend();
+		auto* rm	 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -53,12 +55,20 @@ namespace Lina
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer Vtx");
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer Indx");
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "GUIRenderer Materials", true);
-			data.materials = new (malloc(sizeof(Material) * MAX_GUI_MATERIALS)) Material(gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), true, "GUIRenderer Material", 0);
+			data.materials.resize(MAX_GUI_MATERIALS);
+
+			for (int32 i = 0; i < MAX_GUI_MATERIALS; i++)
+			{
+				data.materials[i] = rm->CreateUserResource<Material>("GUIRenderer", 0);
+				data.materials[i]->SetShader(DEFAULT_SHADER_GUI);
+			}
 		}
 	}
 
 	void GUIRenderer::Destroy()
 	{
+		auto* rm = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
@@ -69,9 +79,9 @@ namespace Lina
 			data.guiMaterialBuffer.Destroy();
 
 			for (int32 i = 0; i < MAX_GUI_MATERIALS; i++)
-				(data.materials + i)->~Material();
+				rm->DestroyUserResource<Material>(data.materials[i]);
 
-			free(data.materials);
+			data.materials.clear();
 		}
 	}
 

@@ -30,6 +30,8 @@ SOFTWARE.
 
 #include "Common/StringID.hpp"
 #include "Common/Data/String.hpp"
+#include "Core/Resources/CommonResources.hpp"
+#include "Common/ClassMacros.hpp"
 
 namespace Lina
 {
@@ -43,8 +45,8 @@ namespace Lina
 	class Resource
 	{
 	public:
-		Resource(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid, TypeID tid);
-		virtual ~Resource();
+		Resource(ResourceManager* rm, const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm){};
+		virtual ~Resource() = default;
 
 		inline const String& GetPath() const
 		{
@@ -61,14 +63,13 @@ namespace Lina
 			return m_tid;
 		}
 
-		inline bool IsUserManaged() const
+		inline bool IsOwnedByUser() const
 		{
-			return m_userManaged;
+			return m_owner == ResourceOwner::UserCode;
 		}
 
 	protected:
 		friend class ResourceManager;
-		friend class Editor::Editor;
 
 		template <typename U> friend class ResourceCache;
 
@@ -96,10 +97,10 @@ namespace Lina
 		}
 
 	protected:
-		bool			 m_userManaged	   = false;
 		ResourceManager* m_resourceManager = nullptr;
 		String			 m_path			   = "";
 		TypeID			 m_tid			   = 0;
 		StringID		 m_sid			   = 0;
+		ResourceOwner	 m_owner		   = ResourceOwner::ResourceManager;
 	};
 } // namespace Lina

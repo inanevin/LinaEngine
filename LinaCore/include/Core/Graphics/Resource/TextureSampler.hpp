@@ -33,6 +33,7 @@ SOFTWARE.
 
 #include "Core/Resources/Resource.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/ClassMacros.hpp"
 
 namespace Lina
 {
@@ -41,9 +42,6 @@ namespace Lina
 	class TextureSampler : public Resource
 	{
 	public:
-		TextureSampler(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<TextureSampler>()){};
-		virtual ~TextureSampler();
-
 		inline uint32 GetGPUHandle() const
 		{
 			return m_gpuHandle;
@@ -55,7 +53,11 @@ namespace Lina
 		}
 
 	private:
+		FRIEND_RESOURCE_CACHE();
 		friend class GfxManager;
+
+		TextureSampler(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<TextureSampler>()){};
+		virtual ~TextureSampler();
 
 	protected:
 		virtual void BatchLoaded() override;

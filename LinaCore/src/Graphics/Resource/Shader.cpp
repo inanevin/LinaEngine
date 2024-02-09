@@ -55,7 +55,7 @@ namespace Lina
 		renderPassDescriptorType = static_cast<RenderPassDescriptorType>(rpType);
 	}
 
-	Shader::Shader(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Shader>())
+	Shader::Shader(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Shader>())
 	{
 		m_gfxManager = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_lgx		 = m_gfxManager->GetLGX();
@@ -63,6 +63,8 @@ namespace Lina
 
 	Shader::~Shader()
 	{
+		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
+
 		for (const auto& [sid, var] : m_meta.variants)
 			m_lgx->DestroyShader(var.gpuHandle);
 

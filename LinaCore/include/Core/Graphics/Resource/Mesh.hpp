@@ -35,6 +35,8 @@ namespace Lina
 {
 	class Mesh
 	{
+	public:
+	private:
 	};
 
 } // namespace Lina

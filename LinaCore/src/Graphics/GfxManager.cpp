@@ -166,9 +166,9 @@ namespace Lina
 			samplerData.minLod				= 0.0f;
 			samplerData.maxLod				= 30.0f; // upper limit
 
-			TextureSampler* defaultSampler		  = new TextureSampler(m_resourceManager, true, "Resources/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
-			TextureSampler* defaultGUISampler	  = new TextureSampler(m_resourceManager, true, "Resources/Core/Samplers/DefaultGUISampler.linasampler", DEFAULT_GUI_SAMPLER_SID);
-			TextureSampler* defaultGUITextSampler = new TextureSampler(m_resourceManager, true, "Resources/Core/Samplers/DefaultGUITextSampler.linasampler", DEFAULT_GUI_TEXT_SAMPLER_SID);
+			TextureSampler* defaultSampler		  = m_resourceManager->CreateUserResource<TextureSampler>("Resources/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
+			TextureSampler* defaultGUISampler	  = m_resourceManager->CreateUserResource<TextureSampler>("Resources/Core/Samplers/DefaultGUISampler.linasampler", DEFAULT_GUI_SAMPLER_SID);
+			TextureSampler* defaultGUITextSampler = m_resourceManager->CreateUserResource<TextureSampler>("Resources/Core/Samplers/DefaultGUITextSampler.linasampler", DEFAULT_GUI_TEXT_SAMPLER_SID);
 			defaultSampler->m_samplerDesc		  = samplerData;
 
 			samplerData.mipLodBias			 = -1.0f;
@@ -227,7 +227,7 @@ namespace Lina
 
 				for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
 				{
-					data.pipelineLayoutPersistentRenderpass[i] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
+					data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
 				}
 			}
 		}
@@ -241,10 +241,10 @@ namespace Lina
 		LinaVG::Terminate();
 
 		for (auto m : m_defaultMaterials)
-			delete m;
+			m_resourceManager->DestroyUserResource<Material>(m);
 
 		for (auto s : m_defaultSamplers)
-			delete s;
+			m_resourceManager->DestroyUserResource<TextureSampler>(s);
 	}
 
 	void GfxManager::Shutdown()

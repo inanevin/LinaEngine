@@ -277,7 +277,7 @@ namespace Lina
 	void LoadLinaGXShaderLayout(IStream& stream, LinaGX::ShaderLayout& layout)
 	{
 		int32 viSz = 0, dslSz = 0, cSz = 0, cmslSz = 0, epSz = 0, maxBufSz = 0;
-		stream >> viSz >> dslSz >> cSz >> cmslSz >> epSz;
+		stream >> viSz >> dslSz >> cSz >> cmslSz >> epSz >> maxBufSz;
 		layout.vertexInputs.clear();
 		layout.descriptorSetLayouts.clear();
 		layout.constants.clear();

@@ -97,7 +97,7 @@ namespace Lina
 			{
 				loadTask->tf.emplace([ident, this, loadTask]() {
 					auto&		 cache		   = m_caches.at(ident.tid);
-					Resource*	 res		   = cache->CreateResource(ident.sid, ident.path, this);
+					Resource*	 res		   = cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
 					const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), ident.path, ident.sid);
 					if (FileSystem::FileOrPathExists(metacachePath))
 					{
@@ -164,7 +164,7 @@ namespace Lina
 				auto loadFunc = [this](IStream stream, ResourceIdentifier ident, ResourceLoadTask* loadTask) {
 					IStream	  load	= stream;
 					auto&	  cache = m_caches.at(ident.tid);
-					Resource* res	= cache->CreateResource(ident.sid, ident.path, this);
+					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
 					res->LoadFromStream(load);
 					res->Upload();
 					res->Flush();
@@ -305,11 +305,6 @@ namespace Lina
 		return finalName;
 	}
 
-	void ResourceManager::AddUserManaged(Resource* res)
-	{
-		m_caches.at(res->GetTID())->AddUserManaged(res);
-	}
-
 	void ResourceManager::DispatchLoadTaskEvent(ResourceLoadTask* task)
 	{
 		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
@@ -323,10 +318,4 @@ namespace Lina
 		ev.pParams[0] = task;
 		m_system->DispatchEvent(EVS_ResourceLoadTaskCompleted, ev);
 	}
-
-	void ResourceManager::RemoveUserManaged(Resource* res)
-	{
-		m_caches.at(res->GetTID())->RemoveUserManaged(res);
-	}
-
 } // namespace Lina

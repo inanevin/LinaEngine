@@ -92,6 +92,7 @@ set(HEADERS
 
 	#CORE
 	include/Common/Common.hpp
+	include/Common/ClassMacros.hpp
 	include/Common/SizeDefinitions.hpp
 	include/Common/StringID.hpp
 	include/Common/ObjectWrapper.hpp

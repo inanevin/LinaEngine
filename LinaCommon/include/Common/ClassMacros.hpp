@@ -26,9 +26,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Resources/Resource.hpp"
+#pragma once
 
 namespace Lina
 {
+#define DEFINE_CLASS_STORAGE_TYPE(CLASS) typedef std::aligned_storage<sizeof(CLASS), std::alignment_of<CLASS>::value>::type CLASS##_STORAGE_TYPE;
+#define FRIEND_RESOURCE_CACHE()			 template <typename U> friend class ResourceCache;
 
 } // namespace Lina

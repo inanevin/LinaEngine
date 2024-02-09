@@ -38,7 +38,9 @@ namespace Lina
 	class Model : public Resource
 	{
 	public:
-		Model(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Model>()){};
+	private:
+		FRIEND_RESOURCE_CACHE();
+		Model(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Model>()){};
 		virtual ~Model();
 
 	protected:

@@ -73,7 +73,7 @@ namespace Lina
 
 	void Texture::SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format)
 	{
-		if (!m_userManaged)
+		if (m_owner != ResourceOwner::UserCode)
 		{
 			LINA_ERR("Custom pixels can only be set on user managed textures!");
 			return;

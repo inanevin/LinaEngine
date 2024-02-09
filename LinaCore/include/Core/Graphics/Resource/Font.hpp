@@ -63,13 +63,15 @@ namespace Lina
 		};
 
 	public:
-		Font(ResourceManager* rm, bool isUserManaged, const String& path, StringID sid) : Resource(rm, isUserManaged, path, sid, GetTypeID<Font>()){};
-		virtual ~Font();
-
 		inline LinaVG::LinaVGFont* GetLinaVGFont()
 		{
 			return m_lvgFont;
 		}
+
+	private:
+		FRIEND_RESOURCE_CACHE();
+		Font(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Font>()){};
+		virtual ~Font();
 
 	protected:
 		virtual void BatchLoaded() override;
