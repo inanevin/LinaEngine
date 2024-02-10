@@ -26,40 +26,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Lina.hpp"
-#include "FlarePackerAppDelegate.hpp"
-#include "Common/GUI/Widgets/Layout/FreeRoam.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
+#pragma once
+
+#include "Common/Math/Vector.hpp"
 
 namespace Lina
 {
-
-	SystemInitializationInfo Lina_GetInitInfo()
+	class Widget
 	{
-		return SystemInitializationInfo{
-			.appName			 = "Flare Packer",
-			.windowWidth		 = 800,
-			.windowHeight		 = 600,
-			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
-			.appListener		 = new Lina::FlarePackerAppDelegate(),
-			.resourceManagerMode = Lina::ResourceManagerMode::File,
+	public:
+		Widget()		  = default;
+		virtual ~Widget() = default;
+
+		virtual Widget* Render(int32 threadIndex)
+		{
+			return nullptr;
 		};
-	}
 
-	void FlarePackerAppDelegate::OnSystemEvent(SystemEvent eventType, const Event& ev)
-	{
-	}
-
-	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
-	{
-		FreeRoam::Allocate(threadIndex)->SetSize(2, 2)->SetPos(2, 2);
-
-		// Widget* fr = WidgetAlloc<FreeRoam>(threadIndex, FreeRoam{
-		//     .size  = window->GetSize(),
-		//     .child = nullptr,
-		// });
-		//
-		// fr->Render(threadIndex);
-	}
+	protected:
+		Vector2i m_position = Vector2i::Zero;
+		Vector2i m_size		= Vector2i::Zero;
+	};
 
 } // namespace Lina

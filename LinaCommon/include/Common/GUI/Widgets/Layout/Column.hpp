@@ -26,40 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Lina.hpp"
-#include "FlarePackerAppDelegate.hpp"
-#include "Common/GUI/Widgets/Layout/FreeRoam.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
+#pragma once
+
+#include "Common/GUI/Widgets/Widget.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
-
-	SystemInitializationInfo Lina_GetInitInfo()
+	class Column : public Widget
 	{
-		return SystemInitializationInfo{
-			.appName			 = "Flare Packer",
-			.windowWidth		 = 800,
-			.windowHeight		 = 600,
-			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
-			.appListener		 = new Lina::FlarePackerAppDelegate(),
-			.resourceManagerMode = Lina::ResourceManagerMode::File,
-		};
-	}
+	public:
+		Column()		  = default;
+		virtual ~Column() = default;
 
-	void FlarePackerAppDelegate::OnSystemEvent(SystemEvent eventType, const Event& ev)
-	{
-	}
+		virtual Widget* Render(int32 threadIndex) override;
 
-	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
-	{
-		FreeRoam::Allocate(threadIndex)->SetSize(2, 2)->SetPos(2, 2);
-
-		// Widget* fr = WidgetAlloc<FreeRoam>(threadIndex, FreeRoam{
-		//     .size  = window->GetSize(),
-		//     .child = nullptr,
-		// });
-		//
-		// fr->Render(threadIndex);
-	}
-
+		Vector<Widget>* children = {};
+	};
 } // namespace Lina

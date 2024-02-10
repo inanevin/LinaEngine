@@ -26,40 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Lina.hpp"
-#include "FlarePackerAppDelegate.hpp"
-#include "Common/GUI/Widgets/Layout/FreeRoam.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
+#pragma once
 
 namespace Lina
 {
-
-	SystemInitializationInfo Lina_GetInitInfo()
+	class WidgetAllocator
 	{
-		return SystemInitializationInfo{
-			.appName			 = "Flare Packer",
-			.windowWidth		 = 800,
-			.windowHeight		 = 600,
-			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
-			.appListener		 = new Lina::FlarePackerAppDelegate(),
-			.resourceManagerMode = Lina::ResourceManagerMode::File,
-		};
-	}
+	public:
+		static WidgetAllocator& Get()
+		{
+			static WidgetAllocator allocator;
+			return allocator;
+		}
 
-	void FlarePackerAppDelegate::OnSystemEvent(SystemEvent eventType, const Event& ev)
+		template <typename T> T* Allocate(int32 threadIndex, const T& copy)
+		{
+			return new T();
+		}
+
+	private:
+		WidgetAllocator()  = default;
+		~WidgetAllocator() = default;
+
+	private:
+	};
+
+	template <typename T> T* WidgetAlloc(int32 threadIndex, const T& copy)
 	{
-	}
-
-	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
-	{
-		FreeRoam::Allocate(threadIndex)->SetSize(2, 2)->SetPos(2, 2);
-
-		// Widget* fr = WidgetAlloc<FreeRoam>(threadIndex, FreeRoam{
-		//     .size  = window->GetSize(),
-		//     .child = nullptr,
-		// });
-		//
-		// fr->Render(threadIndex);
+		return WidgetAllocator::Get().Allocate<T>(threadIndex, copy);
 	}
 
 } // namespace Lina

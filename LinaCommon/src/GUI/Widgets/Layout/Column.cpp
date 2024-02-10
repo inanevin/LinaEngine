@@ -26,40 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Lina.hpp"
-#include "FlarePackerAppDelegate.hpp"
-#include "Common/GUI/Widgets/Layout/FreeRoam.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
+#include "Common/GUI/Widgets/Layout/Column.hpp"
 
 namespace Lina
 {
-
-	SystemInitializationInfo Lina_GetInitInfo()
+	Widget* Column::Render(int32 threadIndex)
 	{
-		return SystemInitializationInfo{
-			.appName			 = "Flare Packer",
-			.windowWidth		 = 800,
-			.windowHeight		 = 600,
-			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
-			.appListener		 = new Lina::FlarePackerAppDelegate(),
-			.resourceManagerMode = Lina::ResourceManagerMode::File,
-		};
+		return nullptr;
 	}
-
-	void FlarePackerAppDelegate::OnSystemEvent(SystemEvent eventType, const Event& ev)
-	{
-	}
-
-	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
-	{
-		FreeRoam::Allocate(threadIndex)->SetSize(2, 2)->SetPos(2, 2);
-
-		// Widget* fr = WidgetAlloc<FreeRoam>(threadIndex, FreeRoam{
-		//     .size  = window->GetSize(),
-		//     .child = nullptr,
-		// });
-		//
-		// fr->Render(threadIndex);
-	}
-
 } // namespace Lina

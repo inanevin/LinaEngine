@@ -82,6 +82,13 @@ set (SOURCES
 	# Platform
 	src/Platform/LinaGXIncl.cpp
 
+	# GUI
+	src/GUI/WidgetAllocator.cpp
+	src/GUI/Widgets/Widget.cpp
+	src/GUI/Widgets/Layout/Row.cpp
+	src/GUI/Widgets/Layout/Column.cpp
+	src/GUI/Widgets/Layout/FreeRoam.cpp
+
 )
 
 
@@ -189,6 +196,13 @@ set(HEADERS
 	include/Common/Platform/LinaVGIncl.hpp
     include/Common/Platform/PlatformTime.hpp
 	include/Common/Platform/PlatformInclude.hpp
+
+	# GUI
+	include/Common/GUI/WidgetAllocator.hpp
+	include/Common/GUI/Widgets/Widget.hpp
+	include/Common/GUI/Widgets/Layout/Row.hpp
+	include/Common/GUI/Widgets/Layout/Column.hpp
+	include/Common/GUI/Widgets/Layout/FreeRoam.hpp
 )
 
 if(WIN32)
