@@ -72,8 +72,10 @@ namespace Lina
 			{
 				desc.heapType  = LinaGX::ResourceHeap::GPUOnly;
 				m_gpu		   = m_lgx->CreateResource(desc);
-				m_residesInGPU = false;
+				m_residesInGPU = true;
 			}
+			else
+				m_residesInGPU = false;
 
 			m_lgx->MapResource(m_staging, m_mapped);
 		}
@@ -143,12 +145,12 @@ namespace Lina
 		stream.ReadIntoRaw((void*)m_mapped, m_size);
 	}
 
-	void Buffer::BindVertex(LinaGX::CommandStream* stream, uint32 size)
+	void Buffer::BindVertex(LinaGX::CommandStream* stream, uint32 vertexSize)
 	{
 		LinaGX::CMDBindVertexBuffers* vtx = stream->AddCommand<LinaGX::CMDBindVertexBuffers>();
 		vtx->offset						  = 0;
 		vtx->slot						  = 0;
-		vtx->vertexSize					  = size;
+		vtx->vertexSize					  = vertexSize;
 		vtx->resource					  = GetGPUResource();
 	}
 

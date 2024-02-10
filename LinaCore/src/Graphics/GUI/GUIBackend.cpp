@@ -78,7 +78,7 @@ namespace Lina
 	{
 		Buffers& data	  = m_buffers[threadIndex];
 		data.indexBuffer  = indexBuffer;
-		data.vertexBuffer = indexBuffer;
+		data.vertexBuffer = vertexBuffer;
 	}
 
 	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int threadIndex)
@@ -206,6 +206,7 @@ namespace Lina
 
 		buffers.vertexBuffer->BufferData(buffers.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
 		buffers.indexBuffer->BufferData(buffers.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
+
 		buffers.indexCounter += req.indexCount;
 		buffers.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
 		return req;

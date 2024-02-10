@@ -126,13 +126,10 @@ namespace Lina
 			bind->customLayoutShader = customShaderHandle;
 	}
 
-	void Material::SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize)
+	void Material::SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex, size_t padding, uint8* data, size_t dataSize)
 	{
-		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& buf = m_bindingData[bindingIndex].bufferData[i].buffers[descriptorIndex];
-			buf.BufferData(padding, data, dataSize);
-		}
+		auto& buf = m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
+		buf.BufferData(padding, data, dataSize);
 	}
 
 	void Material::SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle)
@@ -270,7 +267,7 @@ namespace Lina
 					for (int32 i = 0; i < count; i++)
 					{
 						auto& buf = matBindingData.bufferData[f].buffers[i];
-						buf.Create(m_lgx, isUBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, "Material Buffer", true);
+						buf.Create(m_lgx, isUBO ? LinaGX::ResourceTypeHint::TH_ConstantBuffer : LinaGX::ResourceTypeHint::TH_StorageBuffer, bufferSz, m_path, true);
 						buf.MemsetMapped(0);
 					}
 				}

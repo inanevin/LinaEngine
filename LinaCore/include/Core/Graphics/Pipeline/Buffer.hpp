@@ -55,7 +55,7 @@ namespace Lina
 		void Destroy();
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
-		void BindVertex(LinaGX::CommandStream* stream, uint32 size);
+		void BindVertex(LinaGX::CommandStream* stream, uint32 vertexSize);
 		void BindIndex(LinaGX::CommandStream* stream, LinaGX::IndexType indexType);
 
 		inline uint32 GetGPUResource() const

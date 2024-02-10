@@ -164,7 +164,7 @@ namespace Lina
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
 				.depthDisable = true,
-				.blendDisable = true,
+				.blendDisable = false,
 			};
 
 			meta.variants["Swapchain"_hs] = ShaderVariant{
@@ -172,7 +172,7 @@ namespace Lina
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
 				.depthDisable = true,
-				.blendDisable = true,
+				.blendDisable = false,
 			};
 
 			meta.descriptorSetAllocationCount = 50;

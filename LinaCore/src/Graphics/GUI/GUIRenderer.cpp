@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
 {
@@ -56,13 +57,13 @@ namespace Lina
 			auto& data					 = m_pfd[i];
 			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "GUIRenderer: Copy Stream"});
 			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
-			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer Vtx");
-			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer Indx");
+			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer VertexBuffer");
+			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer IndexBuffer");
 			data.materials.resize(MAX_GUI_MATERIALS);
 
 			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
 			{
-				data.materials[j] = rm->CreateUserResource<Material>("GUIRenderer", 0);
+				data.materials[j] = rm->CreateUserResource<Material>("GUIRendererMaterial", 0);
 				data.materials[j]->SetShader(DEFAULT_SHADER_GUI);
 			}
 		}
@@ -94,9 +95,6 @@ namespace Lina
 
 	void GUIRenderer::Render(LinaGX::CommandStream* stream, uint32 frameIndex, uint32 threadIndex, const Vector2ui& size)
 	{
-		LinaVG::StyleOptions style;
-		LinaVG::DrawRect(threadIndex, LinaVG::Vec2(0, 0), LinaVG::Vec2(200, 200), style);
-
 		// Will flush buffers and fill draw requests.
 		LinaVG::Render(threadIndex);
 
@@ -107,7 +105,15 @@ namespace Lina
 		m_shader->Bind(stream, m_shaderVariantHandle);
 
 		// Buffer setup.
-		if (pfd.guiIndexBuffer.Copy(pfd.copyStream) || pfd.guiVertexBuffer.Copy(pfd.copyStream))
+		bool copyExists = false;
+
+		if (pfd.guiIndexBuffer.Copy(pfd.copyStream))
+			copyExists = true;
+
+		if (pfd.guiVertexBuffer.Copy(pfd.copyStream))
+			copyExists = true;
+
+		if (copyExists)
 		{
 			uint64 val = pfd.copySemaphore.value;
 			pfd.copySemaphore.value++;
@@ -129,7 +135,6 @@ namespace Lina
 		// Buffer bind.
 		pfd.guiVertexBuffer.BindVertex(stream, static_cast<uint32>(sizeof(LinaVG::Vertex)));
 		pfd.guiIndexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
-
 		LINA_ASSERT(drawRequests.size() < MAX_GUI_MATERIALS, "Requests exceed materials size!");
 
 		Rectui scissorsRect = Rectui(0, 0, size.x, size.y);
@@ -157,7 +162,7 @@ namespace Lina
 			Material* mat = pfd.materials[reqIndex];
 
 			// Set material data.
-			mat->SetBuffer(0, 0, 0, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
+			mat->SetBuffer(0, 0, frameIndex, 0, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
 			if (req.hasTextureBind)
 			{
 				mat->SetSampler(1, 0, req.samplerHandle);
@@ -178,35 +183,5 @@ namespace Lina
 			reqIndex++;
 		}
 	}
-	/*
-
-	void GUIBackend::Render(int threadIndex)
-	{
-		// Lazy-get shader
-		if (m_shader == nullptr)
-			m_shader = m_resourceManager->GetResource<Shader>("Resources/Core/Shaders/GUIStandard.linashader"_hs);
-
-		if (m_lgx == nullptr)
-			m_lgx = m_gfxManager->GetLGX();
-
-		auto& renderData = m_renderData[threadIndex];
-		auto& buffers	 = m_buffers[threadIndex];
-		auto& drawData	 = m_drawData[threadIndex];
-
-		// Update material data.
-		Vector<GPUMaterialGUI> materials;
-		materials.resize(drawData.drawRequests.size());
-		uint32 i = 0;
-		for (const auto& req : drawData.drawRequests)
-		{
-			materials[i] = req.materialData;
-			i++;
-		}
-
-		buffers.materialBuffer->BufferData(0, (uint8*)materials.data(), materials.size() * sizeof(GPUMaterialGUI));
-
-	}
-
-	 */
 
 } // namespace Lina
