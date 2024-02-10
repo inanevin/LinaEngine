@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/PlatformProcess.hpp"
-#include "Platform/PlatformInclude.hpp"
-#include "Platform/PlatformTime.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
+#include "Common/Platform/PlatformInclude.hpp"
+#include "Common/Platform/PlatformTime.hpp"
 #include "Core/SystemInfo.hpp"
-#include "Log/Log.hpp"
-#include "System/IPlugin.hpp"
-#include "FileSystem/FileSystem.hpp"
-#include "Lina.hpp"
+#include "Common/Log/Log.hpp"
+#include "Common/System/Plugin.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Core/Lina.hpp"
 #include <shobjidl.h> // For IFileDialog and related interfaces
 
 #ifdef LINA_COMPILER_MSVC
@@ -76,12 +76,21 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	Lina::Application*			   app		= new Lina::Application();
 	app->Initialize(initInfo);
 
-	// while (!app->GetExitRequested())
-	// {
-	// 	app->PreTick();
-	// 	app->Poll();
-	// 	app->Tick();
-	// }
+	while (!app->GetExitRequested())
+	{
+		app->PreTick();
+
+		MSG msg	   = {0};
+		msg.wParam = 0;
+		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		app->Poll();
+		app->Tick();
+	}
 
 	app->Shutdown();
 	delete app;
@@ -95,19 +104,19 @@ namespace Lina
 	// typedef IPlugin*(__cdecl* CreatePluginFunc)(IEngineInterface* engInterface, const String& name);
 	// typedef void(__cdecl* DestroyPluginFunc)(IPlugin*);
 
-	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, ISystemEventDispatcher* dispatcher)
+	void PlatformProcess::LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher)
 	{
 		// HINSTANCE hinstLib;
 		// BOOL	  fFreeResult = FALSE;
 		// hinstLib			  = LoadLibrary(TEXT(name));
-		// 
+		//
 		// // If the handle is valid, try to get the function address.
 		// if (hinstLib != NULL)
 		// {
 		// 	CreatePluginFunc createPluginAddr = (CreatePluginFunc)GetProcAddress(hinstLib, "CreatePlugin");
-		// 
+		//
 		// 	// If the function address is valid, call the function.
-		// 
+		//
 		// 	if (NULL != createPluginAddr)
 		// 	{
 		// 		IPlugin* plugin = (createPluginAddr)(engInterface, name);
@@ -130,7 +139,7 @@ namespace Lina
 	{
 		// HINSTANCE hinstLib = NULL;
 		// IPlugin*  plugin   = nullptr;
-		// 
+		//
 		// for (auto& [plg, ptr] : s_pluginHandles)
 		// {
 		// 	if (plg->GetName().compare(name) == 0)
@@ -142,18 +151,18 @@ namespace Lina
 		// 		break;
 		// 	}
 		// }
-		// 
+		//
 		// if (hinstLib == NULL)
 		// {
 		// 	LINA_ERR("[Platform Process] -> Could not find the plugin to unload! {0}", name);
 		// 	return;
 		// }
-		// 
+		//
 		// DestroyPluginFunc destroyPluginAddr = (DestroyPluginFunc)GetProcAddress(hinstLib, "DestroyPlugin");
-		// 
+		//
 		// if (destroyPluginAddr != NULL)
 		// 	destroyPluginAddr(plugin);
-		// 
+		//
 		// // Free the DLL module.
 		// BOOL fFreeResult = FreeLibrary(hinstLib);
 	}
@@ -197,7 +206,7 @@ namespace Lina
 				if (pGlobal)
 				{
 					WString wstr = WString(pGlobal);
-					outStr = UtilStr::WideStringToString(wstr);
+					outStr		 = UtilStr::WideStringToString(wstr);
 					GlobalUnlock(hGlobal);
 					success = true;
 				}

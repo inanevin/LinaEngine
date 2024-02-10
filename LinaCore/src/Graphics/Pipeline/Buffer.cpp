@@ -113,18 +113,16 @@ namespace Lina
 
 	void Buffer::Destroy()
 	{
-		if (m_isCPUVisibleGPUResource && !m_stagingOnly)
+		if (m_residesInGPU)
 		{
 			m_lgx->UnmapResource(m_gpu);
 			m_lgx->DestroyResource(m_gpu);
 		}
-		else
+
+		if (!m_isCPUVisibleGPUResource)
 		{
 			m_lgx->UnmapResource(m_staging);
 			m_lgx->DestroyResource(m_staging);
-
-			if (!m_stagingOnly)
-				m_lgx->DestroyResource(m_gpu);
 		}
 	}
 

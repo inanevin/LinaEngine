@@ -160,19 +160,20 @@ namespace Lina
 			Shader::Metadata meta;
 
 			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable = false,
+				.depthDisable = true,
 				.targetType	  = ShaderWriteTargetType::RenderTarget,
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
-				.depthDisable = true,
-				.blendDisable = false,
+
 			};
 
 			meta.variants["Swapchain"_hs] = ShaderVariant{
+				.blendDisable = false,
+				.depthDisable = true,
 				.targetType	  = ShaderWriteTargetType::Swapchain,
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
-				.depthDisable = true,
-				.blendDisable = false,
 			};
 
 			meta.descriptorSetAllocationCount = 50;

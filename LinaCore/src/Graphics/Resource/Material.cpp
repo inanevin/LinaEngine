@@ -317,8 +317,8 @@ namespace Lina
 			{
 				LinaGX::DescriptorUpdateBufferDesc update = {
 					.setHandle			= m_descriptorSetContainer[i].set->GetGPUHandle(),
-					.binding			= bindingIndex,
 					.setAllocationIndex = m_descriptorSetContainer[i].allocIndex,
+					.binding			= bindingIndex,
 				};
 
 				for (const auto& buf : binding.bufferData[i].buffers)
@@ -331,8 +331,8 @@ namespace Lina
 
 				LinaGX::DescriptorUpdateImageDesc update = {
 					.setHandle			= m_descriptorSetContainer[i].set->GetGPUHandle(),
-					.binding			= bindingIndex,
 					.setAllocationIndex = m_descriptorSetContainer[i].allocIndex,
+					.binding			= bindingIndex,
 				};
 
 				for (const auto& txt : binding.textures)

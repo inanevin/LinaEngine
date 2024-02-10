@@ -26,8 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Platform/PlatformTime.hpp"
-#include "Platform/PlatformInclude.hpp"
+#include "Common/Platform/PlatformTime.hpp"
+#include "Common/Platform/PlatformInclude.hpp"
 #include <timeapi.h>
 
 namespace Lina
