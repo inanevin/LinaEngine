@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Common/GUI/Widgets/Layout/Column.hpp"
 #include "Common/GUI/WidgetAllocator.hpp"
 
-
 namespace Lina
 {
 
@@ -52,17 +51,15 @@ namespace Lina
 	{
 	}
 
-
 	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
 	{
-        FreeRoam* root = WidgetAllocator::Get().Allocate<FreeRoam>(threadIndex);
-        root->SetSize(window->GetSize());
-        
-        Column* col = root->AllocateChild<Column>();
-        
-        
-        root->CalculateDesiredSize();
-        root->Draw();
-    }
+		FreeRoam* root = WidgetAllocator::Get().Allocate<FreeRoam>(threadIndex);
+		root->SetSize(window->GetSize());
+
+		Column* col = root->AllocateChild<Column>();
+
+		root->CalculateDesiredSize();
+		root->Draw();
+	}
 
 } // namespace Lina
