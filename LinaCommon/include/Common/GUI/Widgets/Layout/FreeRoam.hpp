@@ -38,24 +38,33 @@ namespace Lina
 		FreeRoam()			= default;
 		virtual ~FreeRoam() = default;
 
-		static FreeRoam* Allocate(int32 threadIndex)
+		static FreeRoam& Allocate(int32 threadIndex)
 		{
-			FreeRoam fr;
-			return fr;
+			FreeRoam* fr = new FreeRoam();
+			return *fr;
 		}
 
-		FreeRoam* SetPos(const Vector2i& pos)
+		virtual Widget* Render(int32 threadIndex);
+
+		FreeRoam& Position(const Vector2i& pos)
 		{
 			m_position = pos;
-			return this;
+			return *this;
 		}
 
-		FreeRoam* SetSize(const Vector2i& size)
+		FreeRoam& Size(const Vector2i& size)
 		{
 			m_size = size;
-			return this;
+			return *this;
 		}
-		virtual Widget* Render(int32 threadIndex);
+
+		FreeRoam& operator+(int value)
+		{
+			// Perform some operation with 'value'
+
+			// Return the current instance
+			return *this;
+		}
 
 		Widget* child = nullptr;
 	};
