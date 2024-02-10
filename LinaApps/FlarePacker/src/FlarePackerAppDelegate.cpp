@@ -52,7 +52,7 @@ namespace Lina
 
 	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
 	{
-		FreeRoam::Allocate(threadIndex)->SetSize(2, 2)->SetPos(2, 2);
+		FreeRoam::Allocate(threadIndex)->SetSize(2, 2)->SetPos(2, 2)->SetPos(2, 2)->SetSize(2, 2)->SetPos(2, 2);
 
 		// Widget* fr = WidgetAlloc<FreeRoam>(threadIndex, FreeRoam{
 		//     .size  = window->GetSize(),
