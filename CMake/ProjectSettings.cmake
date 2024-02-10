@@ -44,7 +44,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC "$<$<CONFIG:DEBUG>:LINA_DEBUG>
 set_target_properties(
     ${PROJECT_NAME}
       PROPERTIES 
-        CXX_STANDARD 20 
+        CXX_STANDARD 23 
         CXX_STANDARD_REQUIRED YES 
         CXX_EXTENSIONS NO
 )

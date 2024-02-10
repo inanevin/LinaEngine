@@ -31,17 +31,42 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	class FreeRoam
+	class Widget
 	{
 	public:
-		Vector2i m_position = Vector2i::Zero;
-		Vector2i m_size		= Vector2i::Zero;
+		void Render(){};
+
+		Vector2i position = Vector2i::Zero;
+		Vector2i size	  = Vector2i::Zero;
 	};
 
-	template <typename T> void WidgetAlloc()
+	Widget* emptyWidget;
+
+	class FreeRoam : public Widget
 	{
-		return T();
+	public:
+		Widget* child = emptyWidget;
+
+		void Render(){
+
+		};
+
+		void operator[](const FreeRoam& copy)
+		{
+		}
+	};
+
+	class FileMenu : public Widget
+	{
+	};
+
+	class Column : public Widget
+	{
+	};
+
+	template <typename T> Widget* WidgetAlloc(T t)
+	{
+		return new T();
 	}
 
 	SystemInitializationInfo Lina_GetInitInfo()
@@ -62,9 +87,14 @@ namespace Lina
 
 	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
 	{
-		WidgetAlloc<FreeRoam>()[
+		Widget* fr = WidgetAlloc<FreeRoam>({
+			.size  = window->GetSize(),
+			.child = WidgetAlloc<Column>({
 
-		];
+			}),
+		});
+
+		fr->Render();
 	}
 
 } // namespace Lina
