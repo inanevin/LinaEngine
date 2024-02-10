@@ -32,6 +32,7 @@ SOFTWARE.
 #define DataStructuresDataCommon_HPP
 #include <EASTL/utility.h>
 #include <EASTL/sort.h>
+
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/String.hpp"
 

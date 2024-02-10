@@ -38,5 +38,84 @@ namespace Lina
 
 	void Column::Draw()
 	{
+		const Vector2 startPosition = m_position + Vector2(m_margins.left, m_margins.top);
+		const Vector2 endPosition	= m_position + m_size - Vector2(m_margins.right, m_margins.bottom);
+		const Vector2 totalSize		= endPosition - startPosition;
+
+		// Fall back to default.
+		if (m_mainAlignment != MainAlignment::Free && m_children.size() < 2)
+			m_mainAlignment = MainAlignment::Free;
+
+		if (m_mainAlignment == MainAlignment::EvenlyDistribute)
+		{
+			float totalChildHeight = 0;
+			linatl::for_each(m_children.begin(), m_children.end(), [&](Widget* c) -> void { totalChildHeight += c->GetSize().y; });
+
+			const float individualSpacing = (totalSize.y - totalChildHeight) / (static_cast<float>(m_children.size()) + 1);
+			float		finalY			  = startPosition.y + individualSpacing;
+			for (auto* c : m_children)
+			{
+				Vector2 pos = Vector2(startPosition.x, finalY);
+				if (m_crossAlignment == CrossAlignment::Center)
+					pos.x = startPosition.x + totalSize.x * 0.5f - c->GetSize().x * 0.5f;
+				else if (m_crossAlignment == CrossAlignment::End)
+					pos.x = endPosition.x - c->GetSize().x;
+
+				c->SetPosition(pos);
+				finalY += c->GetSize().y + individualSpacing;
+			}
+		}
+		else if (m_mainAlignment == MainAlignment::SpaceBetween)
+		{
+			Widget* cBgn = m_children[0];
+			Widget* cEnd = m_children.back();
+			cBgn->SetPosition(startPosition);
+			cEnd->SetPosition(Vector2i(startPosition.x, endPosition.y - cEnd->GetSize().y));
+
+			const int32 childsBetween = static_cast<int32>(m_children.size()) - 2;
+
+			if (childsBetween > 0)
+			{
+				const float totalHeight		 = totalSize.y - cBgn->GetSize().y - cEnd->GetSize().y - m_padding * 2;
+				int32		totalChildHeight = 0;
+				for (auto it = m_children.begin() + 1; it < m_children.end() - 1; ++it)
+					totalChildHeight += (*it)->GetSize().y;
+
+				const float individualSpacing = (totalHeight - totalChildHeight) / (childsBetween + 1);
+				float		finalY			  = startPosition.y + cBgn->GetSize().y + m_padding + individualSpacing;
+
+				for (auto it = m_children.begin() + 1; it < m_children.end() - 1; ++it)
+				{
+					Widget* c = (*it);
+
+					Vector2 pos = Vector2(startPosition.x, finalY);
+					if (m_crossAlignment == CrossAlignment::Center)
+						pos.x = startPosition.x + totalSize.x * 0.5f - c->GetSize().x * 0.5f;
+					else if (m_crossAlignment == CrossAlignment::End)
+						pos.x = endPosition.x - c->GetSize().x;
+
+					c->SetPosition(pos);
+					finalY += c->GetSize().y + individualSpacing;
+				}
+			}
+		}
+		else
+		{
+			float finalY = startPosition.y;
+
+			for (auto* c : m_children)
+			{
+				Vector2 pos = Vector2(startPosition.x, finalY);
+				if (m_crossAlignment == CrossAlignment::Center)
+					pos.x = startPosition.x + totalSize.x * 0.5f - c->GetSize().x * 0.5f;
+				else if (m_crossAlignment == CrossAlignment::End)
+					pos.x = endPosition.x - c->GetSize().x;
+
+				c->SetPosition(pos);
+				finalY += c->GetSize().y + m_padding;
+			}
+		}
+
+		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* c) -> void { c->Draw(); });
 	}
 } // namespace Lina

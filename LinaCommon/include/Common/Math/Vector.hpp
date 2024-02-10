@@ -151,7 +151,7 @@ namespace Lina
 			return LinaGX::LGXVector2{x, y};
 		}
 
-		LinaVG::Vec2 AsLVG2() const
+		LinaVG::Vec2 AsLVG() const
 		{
 			return LinaVG::Vec2(x, y);
 		}

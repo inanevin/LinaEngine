@@ -29,7 +29,9 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Math/Vector.hpp"
+#include "Common/Math/Rect.hpp"
 #include "Common/GUI/WidgetAllocator.hpp"
+#include "Common/GUI/CommonGUI.hpp"
 
 namespace Lina
 {
@@ -42,12 +44,12 @@ namespace Lina
 		virtual void CalculateDesiredSize(){};
 		virtual void Draw(){};
 
-		inline void SetPosition(const Vector2i& pos)
+		inline void SetPosition(const Vector2& pos)
 		{
 			m_position = pos;
 		}
 
-		inline void SetSize(const Vector2i& size)
+		inline void SetSize(const Vector2& size)
 		{
 			m_size = size;
 		}
@@ -61,16 +63,31 @@ namespace Lina
 			return t;
 		};
 
+		inline const Vector2& GetSize() const
+		{
+			return m_size;
+		}
+
+		inline const Vector2& GetPosition() const
+		{
+			return m_position;
+		}
+
+		inline Rect GetRect()
+		{
+			return Rect(m_position, m_size);
+		}
+
 	protected:
 		virtual void OnChildAllocated(Widget* child) = 0;
 
 	protected:
 		friend class WidgetAllocator;
 
-		Vector2i m_position	   = Vector2i::Zero;
-		Vector2i m_size		   = Vector2i::Zero;
-		int32	 m_threadIndex = 0;
-		Widget*	 m_parent	   = nullptr;
+		Vector2 m_position	  = Vector2::Zero;
+		Vector2 m_size		  = Vector2::Zero;
+		int32	m_threadIndex = 0;
+		Widget* m_parent	  = nullptr;
 	};
 
 } // namespace Lina

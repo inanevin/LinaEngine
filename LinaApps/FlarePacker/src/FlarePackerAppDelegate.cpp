@@ -30,7 +30,9 @@ SOFTWARE.
 #include "FlarePackerAppDelegate.hpp"
 #include "Common/GUI/Widgets/Layout/FreeRoam.hpp"
 #include "Common/GUI/Widgets/Layout/Column.hpp"
+#include "Common/GUI/Widgets/Layout/Row.hpp"
 #include "Common/GUI/WidgetAllocator.hpp"
+#include "Common/GUI/Widgets/Container/Box.hpp"
 
 namespace Lina
 {
@@ -39,8 +41,8 @@ namespace Lina
 	{
 		return SystemInitializationInfo{
 			.appName			 = "Flare Packer",
-			.windowWidth		 = 800,
-			.windowHeight		 = 600,
+			.windowWidth		 = 1440,
+			.windowHeight		 = 1440,
 			.windowStyle		 = LinaGX::WindowStyle::WindowedApplication,
 			.appListener		 = new Lina::FlarePackerAppDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,
@@ -56,7 +58,23 @@ namespace Lina
 		FreeRoam* root = WidgetAllocator::Get().Allocate<FreeRoam>(threadIndex);
 		root->SetSize(window->GetSize());
 
-		Column* col = root->AllocateChild<Column>();
+		Row* col = root->AllocateChild<Row>();
+		col->SetPadding(125);
+		col->SetMargins(MARGINS_EQ(10));
+		col->SetMainAlignment(MainAlignment::Free);
+		col->SetCrossAlignment(CrossAlignment::Start);
+
+		Box* box1 = col->AllocateChild<Box>();
+		box1->SetSize(Vector2i(40, 40));
+
+		Box* box2 = col->AllocateChild<Box>();
+		box2->SetSize(Vector2i(40, 20));
+
+		Box* box3 = col->AllocateChild<Box>();
+		box3->SetSize(Vector2i(40, 10));
+
+		Box* box4 = col->AllocateChild<Box>();
+		box4->SetSize(Vector2i(40, 40));
 
 		root->CalculateDesiredSize();
 		root->Draw();

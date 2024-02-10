@@ -88,6 +88,7 @@ set (SOURCES
 	src/GUI/Widgets/Layout/Row.cpp
 	src/GUI/Widgets/Layout/Column.cpp
 	src/GUI/Widgets/Layout/FreeRoam.cpp
+	src/GUI/Widgets/Container/Box.cpp
 
 )
 
@@ -198,11 +199,13 @@ set(HEADERS
 	include/Common/Platform/PlatformInclude.hpp
 
 	# GUI
+	include/Common/GUI/CommonGUI.hpp
 	include/Common/GUI/WidgetAllocator.hpp
 	include/Common/GUI/Widgets/Widget.hpp
 	include/Common/GUI/Widgets/Layout/Row.hpp
 	include/Common/GUI/Widgets/Layout/Column.hpp
 	include/Common/GUI/Widgets/Layout/FreeRoam.hpp
+	include/Common/GUI/Widgets/Container/Box.hpp
 )
 
 if(WIN32)
