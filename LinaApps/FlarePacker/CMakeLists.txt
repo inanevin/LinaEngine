@@ -13,18 +13,18 @@
 # and limitations under the License.
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 3.8)
-project(LaunchGame)
+project(FlarePacker)
 
 #--------------------------------------------------------------------
 # Set sources
 #--------------------------------------------------------------------
 
 set(SOURCES 
-include/LaunchGame.hpp
+include/FlarePackerAppDelegate.hpp
 )
 
 set(HEADERS
-src/LaunchGame.cpp
+src/FlarePackerAppDelegate.cpp
 )
 
 #--------------------------------------------------------------------
@@ -38,7 +38,7 @@ else()
 	add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 endif()
 
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine/Launch/)
+set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine/Apps/)
 
 
 #--------------------------------------------------------------------
@@ -62,5 +62,6 @@ PUBLIC Lina::Core
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
+
 include(${CMAKE_SOURCE_DIR}/CMake/CommonFunctions.cmake)
 group_sources(HEADERS SOURCES)

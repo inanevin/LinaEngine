@@ -28,43 +28,20 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
-#include "Core/Resources/Data/ResourceMetadata.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Data/CommonData.hpp"
-#include "Common/Event/SystemEventListener.hpp"
-
-namespace LinaGX
-{
-	class Window;
-	class CommandStream;
-} // namespace LinaGX
+#include "Core/ApplicationDelegate.hpp"
 
 namespace Lina
 {
-	class ResourceManager;
-	struct SemaphoreData;
-
-	class ApplicationDelegate : public SystemEventListener
+	class FlarePackerAppDelegate : public ApplicationDelegate
 	{
 	public:
-		ApplicationDelegate()		   = default;
-		virtual ~ApplicationDelegate() = default;
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+		virtual void RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex) override;
 
-		// Loop
-		virtual void Tick(float delta){};
-		virtual void RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex){};
-
-		// Resources
-		virtual void					   RegisterResourceTypes(ResourceManager& rm);
-		virtual bool					   FillResourceCustomMeta(StringID sid, OStream& stream);
-		virtual Vector<ResourceIdentifier> GetPriorityResources();
-		virtual Vector<ResourceIdentifier> GetCoreResources();
-
-		// Testing for now.
-		virtual String GetBaseMetacachePath() const
+		virtual Bitmask32 GetSystemEventMask() override
 		{
-			return "Resources/Editor/Metacache/";
+			return 0;
 		}
 	};
+
 } // namespace Lina

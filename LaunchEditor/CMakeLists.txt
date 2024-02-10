@@ -42,8 +42,8 @@ set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine/Launch/)
 #--------------------------------------------------------------------
 # Config & Options & Compile Definitions
 #--------------------------------------------------------------------
-include(../CMake/ProjectSettings.cmake)
-include(../CMake/ExecutableSettings.cmake)
+include(${CMAKE_SOURCE_DIR}/CMake/ProjectSettings.cmake)
+include(${CMAKE_SOURCE_DIR}/CMake/ExecutableSettings.cmake)
 
 #--------------------------------------------------------------------
 # Set include directories
@@ -60,5 +60,5 @@ PUBLIC Lina::Core
 #--------------------------------------------------------------------
 # Folder structuring in visual studio
 #--------------------------------------------------------------------
-include(../CMake/CommonFunctions.cmake)
+include(${CMAKE_SOURCE_DIR}/CMake/CommonFunctions.cmake)
 group_sources(HEADERS SOURCES)

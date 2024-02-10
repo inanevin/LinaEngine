@@ -26,45 +26,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/Resources/CommonResources.hpp"
-#include "Core/Resources/Data/ResourceMetadata.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Data/CommonData.hpp"
-#include "Common/Event/SystemEventListener.hpp"
-
-namespace LinaGX
-{
-	class Window;
-	class CommandStream;
-} // namespace LinaGX
+#include "Core/Lina.hpp"
+#include "FlarePackerAppDelegate.hpp"
 
 namespace Lina
 {
-	class ResourceManager;
-	struct SemaphoreData;
 
-	class ApplicationDelegate : public SystemEventListener
+	class FreeRoam
 	{
 	public:
-		ApplicationDelegate()		   = default;
-		virtual ~ApplicationDelegate() = default;
-
-		// Loop
-		virtual void Tick(float delta){};
-		virtual void RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex){};
-
-		// Resources
-		virtual void					   RegisterResourceTypes(ResourceManager& rm);
-		virtual bool					   FillResourceCustomMeta(StringID sid, OStream& stream);
-		virtual Vector<ResourceIdentifier> GetPriorityResources();
-		virtual Vector<ResourceIdentifier> GetCoreResources();
-
-		// Testing for now.
-		virtual String GetBaseMetacachePath() const
-		{
-			return "Resources/Editor/Metacache/";
-		}
+		Vector2i m_position = Vector2i::Zero;
+		Vector2i m_size		= Vector2i::Zero;
 	};
+
+	template <typename T> void WidgetAlloc()
+	{
+		return T();
+	}
+
+	SystemInitializationInfo Lina_GetInitInfo()
+	{
+		return SystemInitializationInfo{
+			.appName			 = "Flare Packer",
+			.windowWidth		 = 800,
+			.windowHeight		 = 600,
+			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
+			.appListener		 = new Lina::FlarePackerAppDelegate(),
+			.resourceManagerMode = Lina::ResourceManagerMode::File,
+		};
+	}
+
+	void FlarePackerAppDelegate::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+	}
+
+	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
+	{
+		WidgetAlloc<FreeRoam>()[
+
+		];
+	}
+
 } // namespace Lina

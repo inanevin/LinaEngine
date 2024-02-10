@@ -42,6 +42,7 @@ add_subdirectory(LinaCommon)
 add_subdirectory(LinaCore)
 add_subdirectory(LaunchGame)
 add_subdirectory(LaunchEditor)
+add_subdirectory(LinaApps/FlarePacker)
 add_subdirectory(${LINA_GAME_PLUGIN_NAME})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
