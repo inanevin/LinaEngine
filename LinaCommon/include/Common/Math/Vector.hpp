@@ -86,6 +86,11 @@ namespace Lina
 		{
 			return LinaGX::LGXVector2i{x, y};
 		}
+        
+        LinaVG::Vec2 AsLVG() const
+        {
+            return LinaVG::Vec2(x, y);
+        }
 
 		static Vector2i Zero;
 		static Vector2i One;

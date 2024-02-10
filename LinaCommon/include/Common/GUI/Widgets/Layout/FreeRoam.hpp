@@ -32,40 +32,24 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	class FreeRoam : public Widget
 	{
 	public:
 		FreeRoam()			= default;
 		virtual ~FreeRoam() = default;
 
-		static FreeRoam& Allocate(int32 threadIndex)
+		virtual void CalculateDesiredSize() override;
+		virtual void Draw() override;
+
+	protected:
+		virtual void OnChildAllocated(Widget* child) override
 		{
-			FreeRoam* fr = new FreeRoam();
-			return *fr;
+			LINA_ASSERT(m_child == nullptr, "");
+			m_child = child;
 		}
 
-		virtual Widget* Render(int32 threadIndex);
-
-		FreeRoam& Position(const Vector2i& pos)
-		{
-			m_position = pos;
-			return *this;
-		}
-
-		FreeRoam& Size(const Vector2i& size)
-		{
-			m_size = size;
-			return *this;
-		}
-
-		FreeRoam& operator+(int value)
-		{
-			// Perform some operation with 'value'
-
-			// Return the current instance
-			return *this;
-		}
-
-		Widget* child = nullptr;
+	protected:
+		Widget* m_child = nullptr;
 	};
 } // namespace Lina

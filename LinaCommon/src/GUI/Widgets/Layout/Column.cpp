@@ -27,11 +27,16 @@ SOFTWARE.
 */
 
 #include "Common/GUI/Widgets/Layout/Column.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
-	Widget* Column::Render(int32 threadIndex)
+	void Column::CalculateDesiredSize()
 	{
-		return nullptr;
+		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* c) -> void { c->CalculateDesiredSize(); });
+	}
+
+	void Column::Draw()
+	{
 	}
 } // namespace Lina

@@ -39,8 +39,16 @@ namespace Lina
 		Column()		  = default;
 		virtual ~Column() = default;
 
-		virtual Widget* Render(int32 threadIndex) override;
+		virtual void CalculateDesiredSize() override;
+		virtual void Draw() override;
 
-		Vector<Widget>* children = {};
+	protected:
+		virtual void OnChildAllocated(Widget* child) override
+		{
+			m_children.push_back(child);
+		}
+
+	protected:
+		Vector<Widget*> m_children = {};
 	};
 } // namespace Lina

@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/GUI/Widgets/Widget.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
@@ -37,5 +38,14 @@ namespace Lina
 	public:
 		Row()		   = default;
 		virtual ~Row() = default;
+
+	protected:
+		virtual void OnChildAllocated(Widget* child) override
+		{
+			m_children.push_back(child);
+		}
+
+	protected:
+		Vector<Widget*> m_children = {};
 	};
 } // namespace Lina

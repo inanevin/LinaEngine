@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/GUI/WidgetAllocator.hpp"
 
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
@@ -239,6 +240,7 @@ namespace Lina
 		// to remove user managed resources.
 
 		LinaVG::Terminate();
+		WidgetAllocator::Get().Terminate();
 
 		for (auto m : m_defaultMaterials)
 			m_resourceManager->DestroyUserResource<Material>(m);
@@ -351,6 +353,7 @@ namespace Lina
 		}
 
 		// Start LinaVG for surface renderers.
+		WidgetAllocator::Get().StartFrame(static_cast<int>(validSurfaceRenderers.size()));
 		LinaVG::StartFrame(static_cast<int>(validSurfaceRenderers.size()));
 
 		// Record surface renderers.
@@ -369,6 +372,7 @@ namespace Lina
 
 		// Clean up all surface renderer related buffers in LinaVG.
 		LinaVG::EndFrame();
+		WidgetAllocator::Get().EndFrame();
 
 		// Waits for surface renderer submission.
 		Vector<uint16> waitSemaphores;

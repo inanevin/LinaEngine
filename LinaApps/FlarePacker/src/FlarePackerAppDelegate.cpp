@@ -29,7 +29,9 @@ SOFTWARE.
 #include "Core/Lina.hpp"
 #include "FlarePackerAppDelegate.hpp"
 #include "Common/GUI/Widgets/Layout/FreeRoam.hpp"
+#include "Common/GUI/Widgets/Layout/Column.hpp"
 #include "Common/GUI/WidgetAllocator.hpp"
+
 
 namespace Lina
 {
@@ -40,7 +42,7 @@ namespace Lina
 			.appName			 = "Flare Packer",
 			.windowWidth		 = 800,
 			.windowHeight		 = 600,
-			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
+			.windowStyle		 = LinaGX::WindowStyle::WindowedApplication,
 			.appListener		 = new Lina::FlarePackerAppDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,
 		};
@@ -50,18 +52,17 @@ namespace Lina
 	{
 	}
 
+
 	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
 	{
-		// FreeRoam::Allocate(threadIndex)->SetSize(2, 2)->SetPos(2, 2)->SetPos(2, 2)->SetSize(2, 2)->SetPos(2, 2);
-
-		FreeRoam::Allocate(threadIndex).Position(window->GetPosition()).Size(window->GetSize()) + 5;
-
-		// Widget* fr = WidgetAlloc<FreeRoam>(threadIndex, FreeRoam{
-		//     .size  = window->GetSize(),
-		//     .child = nullptr,
-		// });
-		//
-		// fr->Render(threadIndex);
-	}
+        FreeRoam* root = WidgetAllocator::Get().Allocate<FreeRoam>(threadIndex);
+        root->SetSize(window->GetSize());
+        
+        Column* col = root->AllocateChild<Column>();
+        
+        
+        root->CalculateDesiredSize();
+        root->Draw();
+    }
 
 } // namespace Lina

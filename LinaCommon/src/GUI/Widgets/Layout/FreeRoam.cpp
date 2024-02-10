@@ -30,10 +30,15 @@ SOFTWARE.
 
 namespace Lina
 {
-	Widget* FreeRoam::Render(int32 threadIndex)
+	void FreeRoam::CalculateDesiredSize()
 	{
-		// child->position = position;
-		// child->size = size;
-		// return child->Render(threadIndex);
+		m_child->CalculateDesiredSize();
+	}
+
+	void FreeRoam::Draw()
+	{
+		m_child->SetPosition(m_position);
+		m_child->SetSize(m_size);
+		m_child->Draw();
 	}
 } // namespace Lina

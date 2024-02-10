@@ -28,8 +28,13 @@ SOFTWARE.
 
 #pragma once
 
+#include "Common/Data/Vector.hpp"
+#include <memoryallocators/LinearAllocator.h>
+
 namespace Lina
 {
+	class Widget;
+
 	class WidgetAllocator
 	{
 	public:
@@ -39,21 +44,27 @@ namespace Lina
 			return allocator;
 		}
 
-		template <typename T> T* Allocate(int32 threadIndex, const T& copy)
+		template <typename T> T* Allocate(int32 threadIndex)
 		{
-			return new T();
+			T* t			 = new (m_allocators[threadIndex]->Allocate(sizeof(T))) T();
+			t->m_threadIndex = threadIndex;
+			return t;
 		}
 
 	private:
+		friend class GfxManager;
+
 		WidgetAllocator()  = default;
 		~WidgetAllocator() = default;
 
-	private:
-	};
+		static constexpr size_t LINEAR_ALLOC_SIZE = 1024;
 
-	template <typename T> T* WidgetAlloc(int32 threadIndex, const T& copy)
-	{
-		return WidgetAllocator::Get().Allocate<T>(threadIndex, copy);
-	}
+		void Terminate();
+		void StartFrame(int32 threadCount);
+		void EndFrame();
+
+	private:
+		Vector<LinearAllocator*> m_allocators;
+	};
 
 } // namespace Lina

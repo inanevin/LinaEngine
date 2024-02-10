@@ -27,8 +27,45 @@ SOFTWARE.
 */
 
 #include "Common/GUI/WidgetAllocator.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
 
+	void WidgetAllocator::StartFrame(int32 threadCount)
+	{
+		const int32 currentSz = static_cast<int32>(m_allocators.size());
+
+		if (currentSz > threadCount)
+		{
+			for (int32 i = threadCount; i < currentSz; i++)
+			{
+				delete m_allocators[i];
+			}
+
+			m_allocators.resize(threadCount);
+		}
+		else if (threadCount > currentSz)
+		{
+			m_allocators.resize(threadCount);
+
+			for (int32 i = currentSz; i < threadCount; i++)
+			{
+				LinearAllocator* alloc = new LinearAllocator(LINEAR_ALLOC_SIZE);
+				alloc->Init();
+				m_allocators[i] = alloc;
+			}
+		}
+	}
+
+	void WidgetAllocator::EndFrame()
+	{
+		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](LinearAllocator* alloc) -> void { alloc->Reset(); });
+	}
+
+	void WidgetAllocator::Terminate()
+	{
+		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](LinearAllocator* alloc) -> void { delete alloc; });
+		m_allocators.clear();
+	}
 } // namespace Lina
