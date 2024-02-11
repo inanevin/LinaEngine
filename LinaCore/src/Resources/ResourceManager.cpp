@@ -122,6 +122,7 @@ namespace Lina
 						}
 
 						res->m_resourceManager = this;
+                        res->m_tag = ident.tag;
 						res->LoadFromFile(ident.path.c_str());
 						res->Upload();
 
@@ -165,6 +166,7 @@ namespace Lina
 					IStream	  load	= stream;
 					auto&	  cache = m_caches.at(ident.tid);
 					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
+                    res->m_tag = ident.tag;
 					res->LoadFromStream(load);
 					res->Upload();
 					res->Flush();
@@ -272,18 +274,6 @@ namespace Lina
 		Vector<ResourceIdentifier> idents = identifiers;
 		batchEv.pParams[0]				  = &idents;
 		m_system->DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
-	}
-
-	bool ResourceManager::IsPriorityResource(StringID sid)
-	{
-		auto it = linatl::find_if(m_priorityResources.begin(), m_priorityResources.end(), [sid](const ResourceIdentifier& ident) { return ident.sid == sid; });
-		return it != m_priorityResources.end();
-	}
-
-	bool ResourceManager::IsCoreResource(StringID sid)
-	{
-		auto it = linatl::find_if(m_coreResources.begin(), m_coreResources.end(), [sid](const ResourceIdentifier& ident) { return ident.sid == sid; });
-		return it != m_coreResources.end();
 	}
 
 	Vector<Resource*> ResourceManager::GetAllResources(bool includeUserManagedResources)

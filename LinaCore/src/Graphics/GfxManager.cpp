@@ -452,4 +452,9 @@ namespace Lina
 		}
 	}
 
+	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)
+	{
+		m_lgx->GetWindowManager().GetWindow(sid);
+	}
+
 } // namespace Lina

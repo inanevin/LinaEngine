@@ -189,7 +189,7 @@ namespace Lina
 		std::ifstream file(filePath.c_str(), std::ios::binary);
 		if (!file)
 		{
-			LINA_ERR("[Font] -> Could not open font for writing to package! {0}", filePath.c_str());
+			LINA_ERR("[Font] -> Could not open file! {0}", filePath.c_str());
 			return;
 		}
 

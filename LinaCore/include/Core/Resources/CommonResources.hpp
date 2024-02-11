@@ -45,23 +45,32 @@ namespace Lina
 		PackageLevels,
 	};
 
+	enum class ResourceTag
+	{
+		Core,
+		Priority,
+		Default
+	};
+
 	extern String GGetPackagePath(PackageType pt);
 
 	struct ResourceIdentifier
 	{
 		ResourceIdentifier() = default;
-		ResourceIdentifier(const String& path, TypeID tid, StringID sid, bool useCustomMeta = false)
+		ResourceIdentifier(const String& path, TypeID tid, StringID sid, bool useCustomMeta = false, ResourceTag tag = ResourceTag::Default)
 		{
 			this->path			= path;
 			this->sid			= sid;
 			this->tid			= tid;
 			this->useCustomMeta = useCustomMeta;
+			this->tag			= tag;
 		}
 
-		TypeID	 tid		   = 0;
-		StringID sid		   = 0;
-		String	 path		   = "";
-		bool	 useCustomMeta = false;
+		TypeID		tid			  = 0;
+		StringID	sid			  = 0;
+		String		path		  = "";
+		bool		useCustomMeta = false;
+		ResourceTag tag			  = ResourceTag::Default;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);

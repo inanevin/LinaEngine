@@ -113,7 +113,7 @@ namespace Lina
 		// Update app.
 		m_gfxManager.Tick();
 		m_audioManager.Tick();
-		m_app->GetAppDelegate()->Tick(delta);
+		m_app->GetAppDelegate()->OnTick(delta);
 
 		renderJob.get();
 		m_gfxManager.RenderSync();

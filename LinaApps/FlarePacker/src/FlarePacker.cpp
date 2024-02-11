@@ -26,34 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
+#include "FlarePacker.hpp"
+#include "Core/Application.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 #include "Common/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
+    void FlarePacker::PreInitialize(Application* app)
+    {
+        m_application = app;
+    }
 
-	class Text : public Widget
-	{
-	public:
-		struct TextContents
-		{
-			String				text = "Stub";
-			LinaVG::LinaVGFont* font = nullptr;
-		};
+    void FlarePacker::Initialize()
+    {
+        m_isInitialized = true;
+        m_topSection.Initialize(m_application);
+    }
 
-		virtual void SizePass() override;
-		virtual void Draw() override;
-
-		TextContents contents = {};
-
-	private:
-		void CalcTextOptions();
+    void FlarePacker::Draw(LinaGX::Window *window, int32 threadIndex)
+    {
+        if(!m_isInitialized)
+            return;
         
-	private:
-        LinaVG::TextOptions m_textOptions = {};
-		LinaVG::SDFTextOptions m_sdfOptions = {};
-	};
+        Widget* topSection = m_topSection.Draw(window, threadIndex);
+        
+        topSection->SizePass();
+        topSection->Draw();
+        
+    }
 } // namespace Lina

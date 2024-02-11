@@ -28,32 +28,30 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/SizeDefinitions.hpp"
+#include "GUI/TopSection.hpp"
+
+namespace LinaGX
+{
+	class Window;
+}
 
 namespace Lina
 {
 
-	class Text : public Widget
+	class Application;
+
+	class FlarePacker
 	{
 	public:
-		struct TextContents
-		{
-			String				text = "Stub";
-			LinaVG::LinaVGFont* font = nullptr;
-		};
-
-		virtual void SizePass() override;
-		virtual void Draw() override;
-
-		TextContents contents = {};
+		void PreInitialize(Application* app);
+		void Initialize();
+		void Draw(LinaGX::Window* window, int32 threadIndex);
 
 	private:
-		void CalcTextOptions();
-        
-	private:
-        LinaVG::TextOptions m_textOptions = {};
-		LinaVG::SDFTextOptions m_sdfOptions = {};
+		Application* m_application	 = nullptr;
+		bool		 m_isInitialized = false;
+		TopSection	 m_topSection;
 	};
+
 } // namespace Lina

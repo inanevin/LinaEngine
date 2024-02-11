@@ -71,7 +71,7 @@ namespace Lina
 		for (auto& res : allResources)
 		{
 			// Never touch core resources, they are loaded once & alive until program termination.
-			if (rm->IsPriorityResource(res->GetSID()) || rm->IsCoreResource(res->GetSID()) || res->IsOwnedByUser())
+			if (res->IsPriorityResource() || res->IsCoreResource() || res->IsOwnedByUser())
 				continue;
 
 			auto it = linatl::find_if(levelResourcesToLoad.begin(), levelResourcesToLoad.end(), [&](const ResourceIdentifier& id) { return id.sid == res->GetSID(); });

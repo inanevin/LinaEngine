@@ -29,19 +29,21 @@ SOFTWARE.
 #pragma once
 
 #include "Core/ApplicationDelegate.hpp"
+#include "FlarePacker.hpp"
 
 namespace Lina
 {
 	class FlarePackerAppDelegate : public ApplicationDelegate
 	{
 	public:
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-		virtual void RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex) override;
+		virtual void OnPreInitialize() override;
+		virtual void OnInitialize() override;
+		virtual void OnRenderSurface(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex) override;
+		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
+		virtual void RegisterAppResources(ResourceManager& rm) override;
 
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return 0;
-		}
+	private:
+		FlarePacker m_flarePacker;
 	};
 
 } // namespace Lina

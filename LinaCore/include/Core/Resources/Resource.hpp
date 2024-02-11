@@ -67,6 +67,16 @@ namespace Lina
 		{
 			return m_owner == ResourceOwner::UserCode;
 		}
+        
+        inline bool IsPriorityResource() const
+        {
+            return m_tag == ResourceTag::Priority;
+        }
+        
+        inline bool IsCoreResource() const
+        {
+            return m_tag == ResourceTag::Core;
+        }
 
 	protected:
 		friend class ResourceManager;
@@ -102,5 +112,6 @@ namespace Lina
 		TypeID			 m_tid			   = 0;
 		StringID		 m_sid			   = 0;
 		ResourceOwner	 m_owner		   = ResourceOwner::ResourceManager;
+        ResourceTag m_tag = ResourceTag::Default;
 	};
 } // namespace Lina

@@ -33,16 +33,24 @@ namespace Lina
 	void Text::SizePass()
 	{
 		CalcTextOptions();
-		transformation.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_textOptions);
+
+		if (contents.font->m_isSDF)
+			transformation.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_sdfOptions);
+		else
+			transformation.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_textOptions);
 	}
 
 	void Text::Draw()
 	{
-		LinaVG::DrawTextNormal(m_threadIndex, contents.text.c_str(), (transformation.pos + Vector2(0, transformation.size.y)).AsLVG(), m_textOptions);
+		if (contents.font->m_isSDF)
+			LinaVG::DrawTextSDF(m_threadIndex, contents.text.c_str(), (transformation.pos + Vector2(0, transformation.size.y)).AsLVG(), m_sdfOptions);
+		else
+			LinaVG::DrawTextNormal(m_threadIndex, contents.text.c_str(), (transformation.pos + Vector2(0, transformation.size.y)).AsLVG(), m_textOptions);
 	}
 
 	void Text::CalcTextOptions()
 	{
 		m_textOptions.font = contents.font;
+		m_sdfOptions.font  = contents.font;
 	}
 } // namespace Lina

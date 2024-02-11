@@ -28,32 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
-
 namespace Lina
 {
 
-	class Text : public Widget
-	{
-	public:
-		struct TextContents
-		{
-			String				text = "Stub";
-			LinaVG::LinaVGFont* font = nullptr;
-		};
+#define FLP_ICON_LINA_LOGO "\u0041"
 
-		virtual void SizePass() override;
-		virtual void Draw() override;
-
-		TextContents contents = {};
-
-	private:
-		void CalcTextOptions();
-        
-	private:
-        LinaVG::TextOptions m_textOptions = {};
-		LinaVG::SDFTextOptions m_sdfOptions = {};
-	};
 } // namespace Lina

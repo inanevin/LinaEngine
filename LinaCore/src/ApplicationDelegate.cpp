@@ -19,36 +19,26 @@ namespace Lina
 		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1);
 	}
 
-	Vector<ResourceIdentifier> ApplicationDelegate::GetPriorityResources()
+	void ApplicationDelegate::RegisterAppResources(ResourceManager& rm)
 	{
 		Vector<ResourceIdentifier> list;
 
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSansRegular.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/RubikSansRegular.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0, true));
-		// list.push_back(ResourceIdentifier("Resources/Core/Shaders/UnlitStandard.linashader", GetTypeID<Shader>(), 0));
-		// list.push_back(ResourceIdentifier("Resources/Core/Shaders/ScreenQuads/SQTexture.linashader", GetTypeID<Shader>(), 0));
+		/* Priority Resources */
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSansRegular.ttf", GetTypeID<Font>(), 0, true, ResourceTag::Priority));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/RubikSansRegular.ttf", GetTypeID<Font>(), 0, true, ResourceTag::Priority));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0, false, ResourceTag::Priority));
+		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0, true, ResourceTag::Priority));
 
-		for (auto& ident : list)
-			ident.sid = TO_SID(ident.path);
+		/* Core Resources */
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogo.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoWhite.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoText.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
 
-		return list;
-	}
+		for (auto& r : list)
+			r.sid = TO_SID(r.path);
 
-	Vector<ResourceIdentifier> ApplicationDelegate::GetCoreResources()
-	{
-		Vector<ResourceIdentifier> list;
-
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogo.png", GetTypeID<Texture>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoWhite.png", GetTypeID<Texture>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoText.png", GetTypeID<Texture>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0));
-
-		for (auto& ident : list)
-			ident.sid = TO_SID(ident.path);
-
-		return list;
+		rm.RegisterAppResources(list);
 	}
 
 	bool ApplicationDelegate::FillResourceCustomMeta(StringID sid, OStream& stream)

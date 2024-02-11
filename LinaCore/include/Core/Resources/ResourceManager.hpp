@@ -58,21 +58,14 @@ namespace Lina
 		void			  WaitForAll();
 		bool			  IsLoadTaskComplete(uint32 id);
 		void			  UnloadResources(const Vector<ResourceIdentifier> identifiers);
-		bool			  IsPriorityResource(StringID sid);
-		bool			  IsCoreResource(StringID sid);
 		Vector<Resource*> GetAllResources(bool includeUserManagedResources);
 		PackageType		  GetPackageType(TypeID tid);
 		void			  ResaveResource(Resource* res);
 		static String	  GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid);
 
-		inline void SetPriorityResources(const Vector<ResourceIdentifier>& priorityResources)
+		void RegisterAppResources(const Vector<ResourceIdentifier>& resources)
 		{
-			m_priorityResources = priorityResources;
-		}
-
-		inline void SetCoreResources(const Vector<ResourceIdentifier>& priorityResources)
-		{
-			m_coreResources = priorityResources;
+			m_appResources.insert(m_appResources.end(), resources.begin(), resources.end());
 		}
 
 		inline void SetMode(ResourceManagerMode mode)
@@ -80,14 +73,26 @@ namespace Lina
 			m_mode = mode;
 		}
 
-		inline Vector<ResourceIdentifier>& GetPriorityResources()
+		inline Vector<ResourceIdentifier> GetPriorityResources()
 		{
-			return m_priorityResources;
+			Vector<ResourceIdentifier> res;
+			res.reserve(m_appResources.size());
+			linatl::for_each(m_appResources.begin(), m_appResources.end(), [&](const ResourceIdentifier& id) {
+				if (id.tag == ResourceTag::Priority)
+					res.push_back(id);
+			});
+			return res;
 		}
 
-		inline Vector<ResourceIdentifier>& GetCoreResources()
+		inline Vector<ResourceIdentifier> GetCoreResources()
 		{
-			return m_coreResources;
+			Vector<ResourceIdentifier> res;
+			res.reserve(m_appResources.size());
+			linatl::for_each(m_appResources.begin(), m_appResources.end(), [&](const ResourceIdentifier& id) {
+				if (id.tag == ResourceTag::Core)
+					res.push_back(id);
+			});
+			return res;
 		}
 
 		template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt)
@@ -142,8 +147,7 @@ namespace Lina
 		JobExecutor							m_executor;
 		ResourceManagerMode					m_mode = ResourceManagerMode::File;
 		HashMap<TypeID, ResourceCacheBase*> m_caches;
-		Vector<ResourceIdentifier>			m_priorityResources;
-		Vector<ResourceIdentifier>			m_coreResources;
+		Vector<ResourceIdentifier>			m_appResources;
 		Vector<ResourceIdentifier>			m_waitingResources;
 	};
 

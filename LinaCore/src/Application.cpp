@@ -65,8 +65,7 @@ namespace Lina
 			auto& resourceManager = m_engine.GetResourceManager();
 			resourceManager.SetMode(initInfo.resourceManagerMode);
 			m_appDelegate->RegisterResourceTypes(resourceManager);
-			resourceManager.SetPriorityResources(m_appDelegate->GetPriorityResources());
-			resourceManager.SetCoreResources(m_appDelegate->GetCoreResources());
+			m_appDelegate->RegisterAppResources(resourceManager);
 		}
 
 		// Pre-initialization
@@ -74,6 +73,7 @@ namespace Lina
 			m_engine.PreInitialize(initInfo);
 			resourceManager.LoadResources(resourceManager.GetPriorityResources());
 			resourceManager.WaitForAll();
+			m_appDelegate->OnPreInitialize();
 		}
 
 		// Main window
@@ -90,6 +90,7 @@ namespace Lina
 			auto& resourceManager = m_engine.GetResourceManager();
 			resourceManager.LoadResources(resourceManager.GetCoreResources());
 			resourceManager.WaitForAll();
+			m_appDelegate->OnInitialize();
 		}
 	}
 

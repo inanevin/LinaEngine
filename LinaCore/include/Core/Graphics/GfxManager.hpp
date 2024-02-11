@@ -81,6 +81,7 @@ namespace Lina
 		void			Render();
 		void			DestroyApplicationWindow(StringID sid);
 		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
+		LinaGX::Window* GetApplicationWindow(StringID sid);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{

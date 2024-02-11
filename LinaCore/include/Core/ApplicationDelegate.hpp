@@ -53,14 +53,15 @@ namespace Lina
 		virtual ~ApplicationDelegate() = default;
 
 		// Loop
-		virtual void Tick(float delta){};
-		virtual void RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex){};
+		virtual void OnPreInitialize(){};
+		virtual void OnInitialize(){};
+		virtual void OnTick(float delta){};
+		virtual void OnRenderSurface(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex){};
 
 		// Resources
-		virtual void					   RegisterResourceTypes(ResourceManager& rm);
-		virtual bool					   FillResourceCustomMeta(StringID sid, OStream& stream);
-		virtual Vector<ResourceIdentifier> GetPriorityResources();
-		virtual Vector<ResourceIdentifier> GetCoreResources();
+		virtual void RegisterResourceTypes(ResourceManager& rm);
+		virtual void RegisterAppResources(ResourceManager& rm);
+		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream);
 
 		// Testing for now.
 		virtual String GetBaseMetacachePath() const
