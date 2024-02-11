@@ -40,25 +40,27 @@ namespace Lina
 		for (auto* c : children)
 		{
 			c->SizePass();
-			totalChildWidth += c->transformation.size.x;
-			maxChildHeight = Math::Max(maxChildHeight, c->transformation.size.y);
+			totalChildWidth += c->base.size.x;
+			maxChildHeight = Math::Max(maxChildHeight, c->base.size.y);
 		}
 
 		if (contents.widthFit == Fit::FromChildren)
-			transformation.size.x = totalChildWidth + (static_cast<int32>(children.size()) - 1) * contents.padding + contents.margins.left + contents.margins.right;
+			base.size.x = totalChildWidth + (static_cast<int32>(children.size()) - 1) * contents.padding + contents.margins.left + contents.margins.right;
 		else if (contents.widthFit == Fit::FromParent)
-			transformation.size.x = m_parent->transformation.size.x;
+			base.size.x = m_parent->base.size.x;
 
 		if (contents.heightFit == Fit::FromChildren)
-			transformation.size.y = maxChildHeight + contents.margins.top + contents.margins.bottom;
+			base.size.y = maxChildHeight + contents.margins.top + contents.margins.bottom;
 		else if (contents.heightFit == Fit::FromParent)
-			transformation.size.y = m_parent->transformation.size.y;
+			base.size.y = m_parent->base.size.y;
 	}
 
 	void Row::Draw()
 	{
-		const Vector2 startPosition = transformation.pos + Vector2(contents.margins.left, contents.margins.top);
-		const Vector2 endPosition	= transformation.pos + transformation.size - Vector2(contents.margins.right, contents.margins.bottom);
+		Widget::DebugDraw();
+
+		const Vector2 startPosition = base.pos + Vector2(contents.margins.left, contents.margins.top);
+		const Vector2 endPosition	= base.pos + base.size - Vector2(contents.margins.right, contents.margins.bottom);
 		const Vector2 totalSize		= endPosition - startPosition;
 
 		// Fall back to default.
@@ -68,7 +70,7 @@ namespace Lina
 		if (contents.mainAlignment == MainAlignment::EvenlyDistribute)
 		{
 			float totalChildWidth = 0;
-			linatl::for_each(children.begin(), children.end(), [&](Widget* c) -> void { totalChildWidth += c->transformation.size.x; });
+			linatl::for_each(children.begin(), children.end(), [&](Widget* c) -> void { totalChildWidth += c->base.size.x; });
 
 			const float individualSpacing = (totalSize.x - totalChildWidth) / (static_cast<float>(children.size()) + 1);
 			float		finalX			  = startPosition.x + individualSpacing;
@@ -76,32 +78,32 @@ namespace Lina
 			{
 				Vector2 pos = Vector2(finalX, startPosition.y);
 				if (contents.crossAlignment == CrossAlignment::Center)
-					pos.y = startPosition.y + totalSize.y * 0.5f - c->transformation.size.y * 0.5f;
+					pos.y = startPosition.y + totalSize.y * 0.5f - c->base.size.y * 0.5f;
 				else if (contents.crossAlignment == CrossAlignment::End)
-					pos.y = endPosition.y - c->transformation.size.y;
+					pos.y = endPosition.y - c->base.size.y;
 
-				c->transformation.pos = pos;
-				finalX += c->transformation.size.x + individualSpacing;
+				c->base.pos = pos;
+				finalX += c->base.size.x + individualSpacing;
 			}
 		}
 		else if (contents.mainAlignment == MainAlignment::SpaceBetween)
 		{
-			Widget* cBgn			 = children[0];
-			Widget* cEnd			 = children.back();
-			cBgn->transformation.pos = startPosition;
-			cEnd->transformation.pos = Vector2i(endPosition.x - cEnd->transformation.size.x, startPosition.y);
+			Widget* cBgn   = children[0];
+			Widget* cEnd   = children.back();
+			cBgn->base.pos = startPosition;
+			cEnd->base.pos = Vector2i(endPosition.x - cEnd->base.size.x, startPosition.y);
 
 			const int32 childsBetween = static_cast<int32>(children.size()) - 2;
 
 			if (childsBetween > 0)
 			{
-				const float totalWidth		= totalSize.x - cBgn->transformation.size.x - cEnd->transformation.size.x - contents.padding * 2;
+				const float totalWidth		= totalSize.x - cBgn->base.size.x - cEnd->base.size.x - contents.padding * 2;
 				int32		totalChildWidth = 0;
 				for (auto it = children.begin() + 1; it < children.end() - 1; ++it)
-					totalChildWidth += (*it)->transformation.size.x;
+					totalChildWidth += (*it)->base.size.x;
 
 				const float individualSpacing = (totalWidth - totalChildWidth) / (childsBetween + 1);
-				float		finalX			  = startPosition.x + cBgn->transformation.size.x + contents.padding + individualSpacing;
+				float		finalX			  = startPosition.x + cBgn->base.size.x + contents.padding + individualSpacing;
 
 				for (auto it = children.begin() + 1; it < children.end() - 1; ++it)
 				{
@@ -109,12 +111,12 @@ namespace Lina
 
 					Vector2 pos = Vector2(finalX, startPosition.y);
 					if (contents.crossAlignment == CrossAlignment::Center)
-						pos.y = startPosition.y + totalSize.y * 0.5f - c->transformation.size.y * 0.5f;
+						pos.y = startPosition.y + totalSize.y * 0.5f - c->base.size.y * 0.5f;
 					else if (contents.crossAlignment == CrossAlignment::End)
-						pos.y = endPosition.y - c->transformation.size.y;
+						pos.y = endPosition.y - c->base.size.y;
 
-					c->transformation.pos = pos;
-					finalX += c->transformation.size.x + individualSpacing;
+					c->base.pos = pos;
+					finalX += c->base.size.x + individualSpacing;
 				}
 			}
 		}
@@ -126,12 +128,12 @@ namespace Lina
 			{
 				Vector2 pos = Vector2(finalX, startPosition.y);
 				if (contents.crossAlignment == CrossAlignment::Center)
-					pos.y = startPosition.y + totalSize.y * 0.5f - c->transformation.size.y * 0.5f;
+					pos.y = startPosition.y + totalSize.y * 0.5f - c->base.size.y * 0.5f;
 				else if (contents.crossAlignment == CrossAlignment::End)
-					pos.y = endPosition.y - c->transformation.size.y;
+					pos.y = endPosition.y - c->base.size.y;
 
-				c->transformation.pos = pos;
-				finalX += c->transformation.size.x + contents.padding;
+				c->base.pos = pos;
+				finalX += c->base.size.x + contents.padding;
 			}
 		}
 

@@ -35,22 +35,30 @@ namespace Lina
 		CalcTextOptions();
 
 		if (contents.font->m_isSDF)
-			transformation.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_sdfOptions);
+			base.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_sdfOptions);
 		else
-			transformation.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_textOptions);
+			base.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_textOptions);
 	}
 
 	void Text::Draw()
 	{
+		base.pos.x += 10;
+
+		LinaVG::StyleOptions opts;
+		opts.color = LinaVG::Vec4(0.8f, 0, 0, 1);
+		LinaVG::DrawRect(m_threadIndex, (Vector2(base.pos.x, base.pos.y)).AsLVG(), (base.pos + Vector2(1, 1)).AsLVG(), opts, 0.0f, 2);
+
 		if (contents.font->m_isSDF)
-			LinaVG::DrawTextSDF(m_threadIndex, contents.text.c_str(), (transformation.pos + Vector2(0, transformation.size.y)).AsLVG(), m_sdfOptions);
+			LinaVG::DrawTextSDF(m_threadIndex, contents.text.c_str(), (base.pos + Vector2(0, base.size.y)).AsLVG(), m_sdfOptions);
 		else
-			LinaVG::DrawTextNormal(m_threadIndex, contents.text.c_str(), (transformation.pos + Vector2(0, transformation.size.y)).AsLVG(), m_textOptions);
+			LinaVG::DrawTextNormal(m_threadIndex, contents.text.c_str(), (base.pos + Vector2(0, base.size.y)).AsLVG(), m_textOptions);
 	}
 
 	void Text::CalcTextOptions()
 	{
-		m_textOptions.font = contents.font;
-		m_sdfOptions.font  = contents.font;
+		m_textOptions.font		  = contents.font;
+		m_sdfOptions.font		  = contents.font;
+		m_sdfOptions.sdfThickness = 0.5f;
+		m_sdfOptions.sdfSoftness  = 0.25f / static_cast<float>(contents.font->m_size);
 	}
 } // namespace Lina

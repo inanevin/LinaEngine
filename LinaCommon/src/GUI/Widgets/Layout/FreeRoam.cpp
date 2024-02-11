@@ -33,13 +33,13 @@ namespace Lina
 	void FreeRoam::SizePass()
 	{
 		children[0]->SizePass();
-		transformation.size = children[0]->transformation.size;
+		base.size = children[0]->base.size;
 	}
 
 	void FreeRoam::Draw()
 	{
-		auto* child			  = children[0];
-		child->transformation = transformation;
+		auto* child = children[0];
+		child->base = base;
 		child->Draw();
 	}
 } // namespace Lina

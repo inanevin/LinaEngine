@@ -52,7 +52,7 @@ namespace Lina
 
 		Widget* topSection = m_topSection.Draw(window, threadIndex);
 
-		topSection->SizePass();
-		topSection->Draw();
+		// topSection->SizePass();
+		// topSection->Draw();
 	}
 } // namespace Lina

@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "FlarePackerAppDelegate.hpp"
+#include "FlarePackerCommon.hpp"
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -51,7 +52,7 @@ namespace Lina
 		ApplicationDelegate::RegisterAppResources(rm);
 
 		Vector<ResourceIdentifier> resources;
-		resources.push_back(ResourceIdentifier("Resources/FlarePacker/Fonts/FlarePackerIcons.ttf", GetTypeID<Font>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier(FLP_ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);
@@ -64,7 +65,7 @@ namespace Lina
 		if (ApplicationDelegate::FillResourceCustomMeta(sid, stream))
 			return true;
 
-		if (sid == "Resources/FlarePacker/Fonts/FlarePackerIcons.ttf"_hs)
+		if (sid == FLP_ICON_FONT_SID)
 		{
 			Font::Metadata customMeta = {
 				.points = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.15f}, {.size = 16, .dpiLimit = 1.35f}, {.size = 20, .dpiLimit = 10.0f}},

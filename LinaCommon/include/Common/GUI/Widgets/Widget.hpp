@@ -40,7 +40,7 @@ namespace LinaGX
 
 namespace Lina
 {
-	struct WidgetTransformation
+	struct WidgetProperties
 	{
 		Vector2 pos	 = Vector2::Zero;
 		Vector2 size = Vector2::Zero;
@@ -54,6 +54,7 @@ namespace Lina
 
 		virtual void SizePass(){};
 		virtual void Draw(){};
+		virtual void DebugDraw();
 
 		template <typename T> T* Allocate()
 		{
@@ -62,8 +63,8 @@ namespace Lina
 			return t;
 		};
 
-		WidgetTransformation transformation = {};
-		Vector<Widget*>		 children		= {};
+		WidgetProperties base	  = {};
+		Vector<Widget*>	 children = {};
 
 		inline LinaGX::Window* GetWindow()
 		{

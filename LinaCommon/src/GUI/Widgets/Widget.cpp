@@ -32,5 +32,11 @@ SOFTWARE.
 
 namespace Lina
 {
-
+	void Widget::DebugDraw()
+	{
+		LinaVG::StyleOptions style;
+		style.color	   = LinaVG::Vec4(0.8f, 0.0f, 0.0f, 1.0f);
+		style.isFilled = false;
+		LinaVG::DrawRect(m_threadIndex, base.pos.AsLVG(), (base.pos + base.size).AsLVG(), style);
+	}
 } // namespace Lina
