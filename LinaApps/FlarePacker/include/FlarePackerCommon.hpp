@@ -33,7 +33,7 @@ namespace Lina
 
 #define FLP_ICON_LINA_LOGO "\u0041"
 
-#define FLP_ICON_FONT_PATH "Resources/Core/Fonts/NunitoSansRegularSDF.ttf"
-#define FLP_ICON_FONT_SID  "Resources/Core/Fonts/NunitoSansRegularSDF.ttf"_hs
+#define FLP_ICON_FONT_PATH "Resources/FlarePacker/Fonts/FlarePackerIcons.ttf"
+#define FLP_ICON_FONT_SID  "Resources/FlarePacker/Fonts/FlarePackerIcons.ttf"_hs
 
 } // namespace Lina

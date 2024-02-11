@@ -34,6 +34,8 @@ namespace Lina
 {
 	void Widget::DebugDraw()
 	{
+		return;
+
 		LinaVG::StyleOptions style;
 		style.color	   = LinaVG::Vec4(0.8f, 0.0f, 0.0f, 1.0f);
 		style.isFilled = false;

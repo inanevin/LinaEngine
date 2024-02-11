@@ -83,36 +83,37 @@ namespace Lina
 
 	Widget* TopSection::Draw(LinaGX::Window* window, int32 threadIndex)
 	{
-		auto drawRect = [](const Vector2& textPos, const Vector2& textSize) {
-			LinaVG::StyleOptions style;
-			style.color = LinaVG::Vec4(0, 0.5f, 0.0f, 1.0f);
-
-			LinaVG::DrawRect(0, Vector2(textPos.x, textPos.y - textSize.y).AsLVG(), Vector2(textPos.x + textSize.x, textPos.y).AsLVG(), style);
-		};
-
-		float				 baselineY = 200.0f;
-		LinaVG::StyleOptions lineOpts;
-		lineOpts.color = LinaVG::Vec4(1, 0, 0, 1);
-		LinaVG::DrawLine(0, Vector2(0, baselineY).AsLVG(), Vector2(window->GetSize().x, baselineY).AsLVG(), lineOpts);
-
-		LinaVG::TextOptions textOpts;
-		textOpts.font = m_defaultFont->GetLinaVGFont(window->GetDPIScale());
-
-		Vector2 textPos	 = Vector2(60, baselineY);
-		Vector2 textSize = LinaVG::CalculateTextSize(0, "A", textOpts);
-		LinaVG::DrawTextNormal(0, "D", textPos.AsLVG(), textOpts);
-		drawRect(textPos, textSize);
-
-		LinaVG::SDFTextOptions sdf;
-		sdf.font		= m_iconFont->GetLinaVGFont(window->GetDPIScale());
-		sdf.sdfSoftness = 0.3f / static_cast<float>(sdf.font->m_size);
-
-		Vector2 sdfPos	= Vector2(125, baselineY);
-		Vector2 sdfSize = LinaVG::CalculateTextSize(0, "A", sdf);
-		LinaVG::DrawTextSDF(0, "D", sdfPos.AsLVG(), sdf);
-		drawRect(sdfPos, sdfSize);
-
-		return nullptr;
+		// auto drawRect = [](const Vector2& textPos, const Vector2& textSize) {
+		// 	LinaVG::StyleOptions style;
+		// 	style.color = LinaVG::Vec4(0, 0.5f, 0.0f, 1.0f);
+		//
+		// };
+		//
+		// float				 baselineY = 200.0f;
+		// LinaVG::StyleOptions lineOpts;
+		// lineOpts.color = LinaVG::Vec4(1, 0, 0, 1);
+		//
+		// LinaVG::TextOptions textOpts;
+		// textOpts.font = m_defaultFont->GetLinaVGFont(window->GetDPIScale());
+		//
+		// Vector2 textSize = LinaVG::CalculateTextSize(0, "Flare Packer", textOpts);
+		// Vector2 textPos     = Vector2(30, baselineY + textSize.y * 0.5f);
+		//
+		// LinaVG::DrawTextNormal(0, "Flare Packer", textPos.AsLVG(), textOpts);
+		// drawRect(textPos, textSize);
+		//
+		//
+		// LinaVG::SDFTextOptions sdf;
+		// sdf.font		= m_iconFont->GetLinaVGFont(window->GetDPIScale());
+		// sdf.sdfSoftness = 0.2f / static_cast<float>(sdf.font->m_size);
+		//
+		// Vector2 sdfSize = LinaVG::CalculateTextSize(0, "A", sdf);
+		// Vector2 sdfPos    = Vector2(15, baselineY + sdfSize.y * 0.5f);
+		//
+		// LinaVG::DrawTextSDF(0, "A", sdfPos.AsLVG(), sdf);
+		// drawRect(sdfPos, sdfSize);
+		//
+		// return nullptr;
 		Row* titleBar  = WidgetAllocator::Get().Allocate<Row>(threadIndex, window);
 		titleBar->base = {
 			.pos  = Vector2::Zero,

@@ -42,12 +42,6 @@ namespace Lina
 
 	void Text::Draw()
 	{
-		base.pos.x += 10;
-
-		LinaVG::StyleOptions opts;
-		opts.color = LinaVG::Vec4(0.8f, 0, 0, 1);
-		LinaVG::DrawRect(m_threadIndex, (Vector2(base.pos.x, base.pos.y)).AsLVG(), (base.pos + Vector2(1, 1)).AsLVG(), opts, 0.0f, 2);
-
 		if (contents.font->m_isSDF)
 			LinaVG::DrawTextSDF(m_threadIndex, contents.text.c_str(), (base.pos + Vector2(0, base.size.y)).AsLVG(), m_sdfOptions);
 		else
