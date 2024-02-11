@@ -33,7 +33,6 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 
-
 #include "Common/GUI/Theme.hpp"
 #include "Common/GUI/WidgetAllocator.hpp"
 #include "Common/GUI/Widgets/Layout/Row.hpp"
@@ -42,61 +41,61 @@ SOFTWARE.
 namespace Lina
 {
 
-    void TopSection::Initialize(Application *app)
-    {
-        auto* rm = app->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-        m_iconFont =rm->GetResource<Font>("Resources/FlarePacker/Fonts/FlarePackerIcons.ttf"_hs);
-        m_defaultFont = rm->GetResource<Font>(Theme::GetDefaultFontSID());
-    }
+	void TopSection::Initialize(Application* app)
+	{
+		auto* rm	  = app->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_iconFont	  = rm->GetResource<Font>("Resources/FlarePacker/Fonts/FlarePackerIcons.ttf"_hs);
+		m_defaultFont = rm->GetResource<Font>(Theme::GetDefaultFontSID());
+	}
 
-    Widget* TopSection::BuildTitleRow(Widget* parent)
-    {
-        Row* titleRow = parent->Allocate<Row>();
+	Widget* TopSection::BuildTitleRow(Widget* parent)
+	{
+		Row* titleRow = parent->Allocate<Row>();
 
-        // Title text.
-        Text* title        = titleRow->Allocate<Text>();
-        title->contents = {
-            .text = "Flare Packer",
-            .font = m_defaultFont->GetLinaVGFont(parent->GetWindow()->GetDPIScale()),
-        };
+		// Title text.
+		Text* title		= titleRow->Allocate<Text>();
+		title->contents = {
+			.text = "Flare Packer",
+			.font = m_defaultFont->GetLinaVGFont(parent->GetWindow()->GetDPIScale()),
+		};
 
-        // Title icon
-        Text* icon       = titleRow->Allocate<Text>();
-        icon->contents = {
-            .text = FLP_ICON_LINA_LOGO,
-            .font = m_iconFont->GetLinaVGFont(parent->GetWindow()->GetDPIScale()),
-        };
+		// Title icon
+		Text* icon	   = titleRow->Allocate<Text>();
+		icon->contents = {
+			.text = FLP_ICON_LINA_LOGO,
+			.font = m_iconFont->GetLinaVGFont(parent->GetWindow()->GetDPIScale()),
+		};
 
-        const float indent = Theme::GetIndent(parent->GetWindow());
+		const float indent = Theme::GetIndent(parent->GetWindow());
 
-        // Sub-title row
-        titleRow->contents = {
-            .mainAlignment    = MainAlignment::Free,
-            .crossAlignment = CrossAlignment::Center,
-            .margins        = {.left = indent, .top = indent, .bottom = indent},
-            .padding        = Theme::GetIndent(parent->GetWindow()),
-            .widthFit        = Fit::FromChildren,
-            .heightFit        = Fit::FromChildren,
-        };
-        titleRow->children = {title};
-        return titleRow;
-    }
-    
-    Widget* TopSection::Draw(LinaGX::Window *window, int32 threadIndex)
-    {
-        Row* titleBar             = WidgetAllocator::Get().Allocate<Row>(threadIndex, window);
-        titleBar->transformation = {
-            .pos  = Vector2::Zero,
-            .size = Vector2(static_cast<float>(window->GetSize().x), 0.0f),
-        };
+		// Sub-title row
+		titleRow->contents = {
+			.mainAlignment	= MainAlignment::Free,
+			.crossAlignment = CrossAlignment::Center,
+			.margins		= {.left = indent, .top = indent, .bottom = indent},
+			.padding		= Theme::GetIndent(parent->GetWindow()),
+			.widthFit		= Fit::FromChildren,
+			.heightFit		= Fit::FromChildren,
+		};
+		titleRow->children = {title};
+		return titleRow;
+	}
 
-        titleBar->contents = {
-            .mainAlignment    = MainAlignment::SpaceBetween,
-            .crossAlignment = CrossAlignment::Center,
-            .widthFit        = Fit::Default,
-            .heightFit        = Fit::FromChildren,
-        };
-        titleBar->children = {BuildTitleRow(titleBar)};
-        return titleBar;
-    }
+	Widget* TopSection::Draw(LinaGX::Window* window, int32 threadIndex)
+	{
+		Row* titleBar			 = WidgetAllocator::Get().Allocate<Row>(threadIndex, window);
+		titleBar->transformation = {
+			.pos  = Vector2::Zero,
+			.size = Vector2(static_cast<float>(window->GetSize().x), 0.0f),
+		};
+
+		titleBar->contents = {
+			.mainAlignment	= MainAlignment::SpaceBetween,
+			.crossAlignment = CrossAlignment::Center,
+			.widthFit		= Fit::Default,
+			.heightFit		= Fit::FromChildren,
+		};
+		titleBar->children = {BuildTitleRow(titleBar)};
+		return titleBar;
+	}
 } // namespace Lina

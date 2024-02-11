@@ -122,7 +122,7 @@ namespace Lina
 						}
 
 						res->m_resourceManager = this;
-                        res->m_tag = ident.tag;
+						res->m_tag			   = ident.tag;
 						res->LoadFromFile(ident.path.c_str());
 						res->Upload();
 
@@ -166,7 +166,7 @@ namespace Lina
 					IStream	  load	= stream;
 					auto&	  cache = m_caches.at(ident.tid);
 					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
-                    res->m_tag = ident.tag;
+					res->m_tag		= ident.tag;
 					res->LoadFromStream(load);
 					res->Upload();
 					res->Flush();

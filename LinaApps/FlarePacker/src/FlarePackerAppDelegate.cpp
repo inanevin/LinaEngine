@@ -47,49 +47,49 @@ namespace Lina
 	}
 
 	void FlarePackerAppDelegate::RegisterAppResources(ResourceManager& rm)
-    {
-        ApplicationDelegate::RegisterAppResources(rm);
-        
-        Vector<ResourceIdentifier> resources;
-        resources.push_back(ResourceIdentifier("Resources/FlarePacker/Fonts/FlarePackerIcons.ttf", GetTypeID<Font>(), 0, true, ResourceTag::Core));
-        
-        for(auto& r : resources)
-            r.sid = TO_SID(r.path);
-        
-        rm.RegisterAppResources(resources);
-    }
+	{
+		ApplicationDelegate::RegisterAppResources(rm);
 
-    bool FlarePackerAppDelegate::FillResourceCustomMeta(StringID sid, OStream &stream)
-    {
-        if(ApplicationDelegate::FillResourceCustomMeta(sid, stream))
-            return true;
-        
-        if(sid == "Resources/FlarePacker/Fonts/FlarePackerIcons.ttf"_hs)
-        {
-            Font::Metadata customMeta = {
-                .points         = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.15f}, {.size = 16, .dpiLimit = 1.35f}, {.size = 20, .dpiLimit = 10.0f}},
-                .isSDF         = true,
-            };
-            customMeta.SaveToStream(stream);
-            return true;
-        }
-        
-        return false;
-    }
-    
-    void FlarePackerAppDelegate::OnPreInitialize()
-    {
-        m_flarePacker.PreInitialize(m_app);
-    }
+		Vector<ResourceIdentifier> resources;
+		resources.push_back(ResourceIdentifier("Resources/FlarePacker/Fonts/FlarePackerIcons.ttf", GetTypeID<Font>(), 0, true, ResourceTag::Core));
 
-    void FlarePackerAppDelegate::OnInitialize()
-    {
-        m_flarePacker.Initialize();
-    }
+		for (auto& r : resources)
+			r.sid = TO_SID(r.path);
+
+		rm.RegisterAppResources(resources);
+	}
+
+	bool FlarePackerAppDelegate::FillResourceCustomMeta(StringID sid, OStream& stream)
+	{
+		if (ApplicationDelegate::FillResourceCustomMeta(sid, stream))
+			return true;
+
+		if (sid == "Resources/FlarePacker/Fonts/FlarePackerIcons.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.15f}, {.size = 16, .dpiLimit = 1.35f}, {.size = 20, .dpiLimit = 10.0f}},
+				.isSDF	= true,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+
+		return false;
+	}
+
+	void FlarePackerAppDelegate::OnPreInitialize()
+	{
+		m_flarePacker.PreInitialize(m_app);
+	}
+
+	void FlarePackerAppDelegate::OnInitialize()
+	{
+		m_flarePacker.Initialize();
+	}
 
 	void FlarePackerAppDelegate::OnRenderSurface(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
 	{
-        m_flarePacker.Draw(window, threadIndex);
+		m_flarePacker.Draw(window, threadIndex);
 	}
 
 } // namespace Lina

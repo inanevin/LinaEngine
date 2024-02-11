@@ -51,9 +51,9 @@ namespace Lina
 
 	private:
 		void CalcTextOptions();
-        
+
 	private:
-        LinaVG::TextOptions m_textOptions = {};
-		LinaVG::SDFTextOptions m_sdfOptions = {};
+		LinaVG::TextOptions	   m_textOptions = {};
+		LinaVG::SDFTextOptions m_sdfOptions	 = {};
 	};
 } // namespace Lina

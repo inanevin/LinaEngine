@@ -34,26 +34,25 @@ SOFTWARE.
 
 namespace Lina
 {
-    void FlarePacker::PreInitialize(Application* app)
-    {
-        m_application = app;
-    }
+	void FlarePacker::PreInitialize(Application* app)
+	{
+		m_application = app;
+	}
 
-    void FlarePacker::Initialize()
-    {
-        m_isInitialized = true;
-        m_topSection.Initialize(m_application);
-    }
+	void FlarePacker::Initialize()
+	{
+		m_isInitialized = true;
+		m_topSection.Initialize(m_application);
+	}
 
-    void FlarePacker::Draw(LinaGX::Window *window, int32 threadIndex)
-    {
-        if(!m_isInitialized)
-            return;
-        
-        Widget* topSection = m_topSection.Draw(window, threadIndex);
-        
-        topSection->SizePass();
-        topSection->Draw();
-        
-    }
+	void FlarePacker::Draw(LinaGX::Window* window, int32 threadIndex)
+	{
+		if (!m_isInitialized)
+			return;
+
+		Widget* topSection = m_topSection.Draw(window, threadIndex);
+
+		topSection->SizePass();
+		topSection->Draw();
+	}
 } // namespace Lina
