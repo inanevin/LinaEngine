@@ -32,24 +32,13 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	class FreeRoam : public Widget
 	{
 	public:
 		FreeRoam()			= default;
 		virtual ~FreeRoam() = default;
 
-		virtual void CalculateDesiredSize() override;
+		virtual void SizePass() override;
 		virtual void Draw() override;
-
-	protected:
-		virtual void OnChildAllocated(Widget* child) override
-		{
-			LINA_ASSERT(m_child == nullptr, "");
-			m_child = child;
-		}
-
-	protected:
-		Widget* m_child = nullptr;
 	};
 } // namespace Lina

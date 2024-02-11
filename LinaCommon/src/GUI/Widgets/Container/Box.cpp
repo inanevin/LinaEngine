@@ -31,9 +31,14 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Box::SizePass()
+	{
+		// return m_size;
+	}
+
 	void Box::Draw()
 	{
-		LinaVG::StyleOptions style;
-		LinaVG::DrawRect(m_threadIndex, m_position.AsLVG(), (m_position + m_size).AsLVG(), style);
+		// LinaVG::StyleOptions style;
+		// LinaVG::DrawRect(m_threadIndex, m_position.AsLVG(), (m_position + m_size).AsLVG(), style);
 	}
 } // namespace Lina

@@ -31,6 +31,11 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include <memoryallocators/LinearAllocator.h>
 
+namespace LinaGX
+{
+	class Window;
+}
+
 namespace Lina
 {
 	class Widget;
@@ -44,10 +49,11 @@ namespace Lina
 			return allocator;
 		}
 
-		template <typename T> T* Allocate(int32 threadIndex)
+		template <typename T> T* Allocate(int32 threadIndex, LinaGX::Window* window)
 		{
 			T* t			 = new (m_allocators[threadIndex]->Allocate(sizeof(T))) T();
 			t->m_threadIndex = threadIndex;
+			t->m_window		 = window;
 			return t;
 		}
 

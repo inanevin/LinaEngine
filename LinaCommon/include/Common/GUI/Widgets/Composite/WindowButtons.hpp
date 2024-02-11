@@ -28,49 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Math/Vector.hpp"
-#include "Common/Math/Rect.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
-#include "Common/GUI/CommonGUI.hpp"
-
-namespace LinaGX
-{
-	class Window;
-}
+#include "Common/GUI/Widgets/Widget.hpp"
+#include "Common/Data/Functional.hpp"
 
 namespace Lina
 {
-	struct WidgetTransformation
-	{
-		Vector2 pos	 = Vector2::Zero;
-		Vector2 size = Vector2::Zero;
-	};
-
-	class Widget
+	class WindowButtons : public Widget
 	{
 	public:
-		Widget(){};
-		virtual ~Widget() = default;
-
-		virtual void SizePass(){};
-		virtual void Draw(){};
-
-		template <typename T> T* Allocate()
+		struct WindowButtonsContent
 		{
-			T* t		= WidgetAllocator::Get().Allocate<T>(m_threadIndex, m_window);
-			t->m_parent = this;
-			return t;
+			Delegate<void()> onClickedMinimize;
+			Delegate<void()> onClickedMaximize;
+			Delegate<void()> onClickedExit;
 		};
 
-		WidgetTransformation transformation = {};
-		Vector<Widget*>		 children		= {};
-
-	protected:
-		friend class WidgetAllocator;
-
-		int32			m_threadIndex = 0;
-		Widget*			m_parent	  = nullptr;
-		LinaGX::Window* m_window	  = nullptr;
+		WindowButtonsContent contents = {};
 	};
-
 } // namespace Lina

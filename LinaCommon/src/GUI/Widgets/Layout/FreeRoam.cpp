@@ -30,15 +30,16 @@ SOFTWARE.
 
 namespace Lina
 {
-	void FreeRoam::CalculateDesiredSize()
+	void FreeRoam::SizePass()
 	{
-		m_child->CalculateDesiredSize();
+		// m_children[0]->CalculateDesiredSize();
+		// return m_size;
 	}
 
 	void FreeRoam::Draw()
 	{
-		m_child->SetPosition(m_position);
-		m_child->SetSize(m_size);
-		m_child->Draw();
+		// m_children[0]->SetPosition(m_position);
+		// m_children[0]->SetSize(m_size);
+		// m_children[0]->Draw();
 	}
 } // namespace Lina

@@ -28,10 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Math/Vector.hpp"
-#include "Common/Math/Rect.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
-#include "Common/GUI/CommonGUI.hpp"
+#include "Common/SizeDefinitions.hpp"
+#include "Common/Math/Color.hpp"
 
 namespace LinaGX
 {
@@ -40,37 +38,28 @@ namespace LinaGX
 
 namespace Lina
 {
-	struct WidgetTransformation
+	struct ThemeDef
 	{
-		Vector2 pos	 = Vector2::Zero;
-		Vector2 size = Vector2::Zero;
+		Color background0 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color background1 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color background2 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+		Color foreground0 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color foreground1 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color foreground2 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+		Color accentPrimary	  = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color accentSecondary = Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+		float baseIndent = 8.0f;
 	};
 
-	class Widget
+	class Theme
 	{
 	public:
-		Widget(){};
-		virtual ~Widget() = default;
+		static float GetIndent(LinaGX::Window* window);
 
-		virtual void SizePass(){};
-		virtual void Draw(){};
-
-		template <typename T> T* Allocate()
-		{
-			T* t		= WidgetAllocator::Get().Allocate<T>(m_threadIndex, m_window);
-			t->m_parent = this;
-			return t;
-		};
-
-		WidgetTransformation transformation = {};
-		Vector<Widget*>		 children		= {};
-
-	protected:
-		friend class WidgetAllocator;
-
-		int32			m_threadIndex = 0;
-		Widget*			m_parent	  = nullptr;
-		LinaGX::Window* m_window	  = nullptr;
+	private:
+		static ThemeDef s_themeDef;
 	};
-
 } // namespace Lina

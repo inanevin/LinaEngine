@@ -33,46 +33,21 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	class Row : public Widget
 	{
 	public:
-		Row()		   = default;
-		virtual ~Row() = default;
+		struct RowContents
+		{
+			MainAlignment  mainAlignment  = MainAlignment::Free;
+			CrossAlignment crossAlignment = CrossAlignment::Start;
+			Margins		   margins		  = {};
+			float		   padding		  = 0.0f;
+		};
 
-		virtual void CalculateDesiredSize() override;
+		virtual void SizePass() override;
 		virtual void Draw() override;
 
-		inline void SetMainAlignment(MainAlignment alignment)
-		{
-			m_mainAlignment = alignment;
-		}
-
-		inline void SetCrossAlignment(CrossAlignment alignment)
-		{
-			m_crossAlignment = alignment;
-		}
-
-		inline void SetMargins(const Margins& margins)
-		{
-			m_margins = margins;
-		}
-
-		inline void SetPadding(float pad)
-		{
-			m_padding = pad;
-		}
-
-	protected:
-		virtual void OnChildAllocated(Widget* child) override
-		{
-			m_children.push_back(child);
-		}
-
-	protected:
-		Vector<Widget*> m_children		 = {};
-		MainAlignment	m_mainAlignment	 = MainAlignment::Free;
-		CrossAlignment	m_crossAlignment = CrossAlignment::Start;
-		Margins			m_margins		 = {};
-		float			m_padding		 = 0;
+		RowContents contents = {};
 	};
 } // namespace Lina

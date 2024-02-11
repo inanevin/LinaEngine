@@ -26,51 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Common/Math/Vector.hpp"
-#include "Common/Math/Rect.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
-#include "Common/GUI/CommonGUI.hpp"
-
-namespace LinaGX
-{
-	class Window;
-}
+#include "Common/GUI/Widgets/Container/Background.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
-	struct WidgetTransformation
+	void Background::SizePass()
 	{
-		Vector2 pos	 = Vector2::Zero;
-		Vector2 size = Vector2::Zero;
-	};
+		return Vector2::Zero;
+	}
 
-	class Widget
+	void Background::Draw()
 	{
-	public:
-		Widget(){};
-		virtual ~Widget() = default;
-
-		virtual void SizePass(){};
-		virtual void Draw(){};
-
-		template <typename T> T* Allocate()
-		{
-			T* t		= WidgetAllocator::Get().Allocate<T>(m_threadIndex, m_window);
-			t->m_parent = this;
-			return t;
-		};
-
-		WidgetTransformation transformation = {};
-		Vector<Widget*>		 children		= {};
-
-	protected:
-		friend class WidgetAllocator;
-
-		int32			m_threadIndex = 0;
-		Widget*			m_parent	  = nullptr;
-		LinaGX::Window* m_window	  = nullptr;
-	};
-
+		// LinaVG::StyleOptions style;
+		// style.color = LinaVG::Vec4(0.6f, 0.0f, 0.0f, 1.0f);
+		// LinaVG::DrawRect(m_threadIndex, m_position.AsLVG(), (m_position + m_size).AsLVG(), style);
+	}
 } // namespace Lina

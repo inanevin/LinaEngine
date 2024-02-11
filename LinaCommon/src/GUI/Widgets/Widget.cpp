@@ -27,6 +27,8 @@ SOFTWARE.
 */
 
 #include "Common/GUI/Widgets/Widget.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {

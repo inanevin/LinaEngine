@@ -35,14 +35,7 @@ namespace Lina
 	class Box : public Widget
 	{
 	public:
-		Box()		   = default;
-		virtual ~Box() = default;
-
+		virtual void SizePass() override;
 		virtual void Draw() override;
-
-	protected:
-		virtual void OnChildAllocated(Widget* child) override
-		{
-		}
 	};
 } // namespace Lina

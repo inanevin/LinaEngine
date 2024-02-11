@@ -88,17 +88,15 @@ src/Components/RenderableComponent.cpp
 set(HEADERS
 
 include/Core/Lina.hpp
-
-# Audio
-include/Core/Audio/AudioManager.hpp
-
-# Core
 include/Core/Application.hpp
 include/Core/ApplicationDelegate.hpp
 include/Core/Engine.hpp
 include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
 include/Core/EngineInterface.hpp
+
+# Audio
+include/Core/Audio/AudioManager.hpp
 
 # Platform
 include/Core/Platform/PlatformProcess.hpp

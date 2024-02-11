@@ -40,7 +40,7 @@ namespace Lina
 		Column()		  = default;
 		virtual ~Column() = default;
 
-		virtual void CalculateDesiredSize() override;
+		virtual void SizePass() override;
 		virtual void Draw() override;
 
 		inline void SetMainAlignment(MainAlignment alignment)
@@ -64,16 +64,10 @@ namespace Lina
 		}
 
 	protected:
-		virtual void OnChildAllocated(Widget* child) override
-		{
-			m_children.push_back(child);
-		}
-
 	protected:
-		Vector<Widget*> m_children		 = {};
-		MainAlignment	m_mainAlignment	 = MainAlignment::Free;
-		CrossAlignment	m_crossAlignment = CrossAlignment::Start;
-		Margins			m_margins		 = {};
-		float			m_padding		 = 0;
+		MainAlignment  m_mainAlignment	= MainAlignment::Free;
+		CrossAlignment m_crossAlignment = CrossAlignment::Start;
+		Margins		   m_margins		= {};
+		float		   m_padding		= 0;
 	};
 } // namespace Lina

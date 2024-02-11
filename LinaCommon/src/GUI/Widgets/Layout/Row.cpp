@@ -28,16 +28,27 @@ SOFTWARE.
 
 #include "Common/GUI/Widgets/Layout/Row.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
-	void Row::CalculateDesiredSize()
+	void Row::SizePass()
 	{
-		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* c) -> void { c->CalculateDesiredSize(); });
+		/*
+		m_size = {};
+		for(auto* c : m_children)
+		{
+			const Vector2 cSize =  c->CalculateDesiredSize();
+			m_size.x += cSize.x;
+			m_size.y = Math::Max(m_size.y, cSize.y);
+		}
+		return m_size;
+		 */
 	}
 
 	void Row::Draw()
 	{
+		/*
 		const Vector2 startPosition = m_position + Vector2(m_margins.left, m_margins.top);
 		const Vector2 endPosition	= m_position + m_size - Vector2(m_margins.right, m_margins.bottom);
 		const Vector2 totalSize		= endPosition - startPosition;
@@ -116,6 +127,8 @@ namespace Lina
 			}
 		}
 
+		DrawBackground();
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* c) -> void { c->Draw(); });
+		 */
 	}
 } // namespace Lina
