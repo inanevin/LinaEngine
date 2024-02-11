@@ -68,14 +68,19 @@ namespace Lina
 
 		inline void SetListener(ApplicationDelegate* listener)
 		{
-			m_appListener = listener;
+			m_appDelegate = listener;
 		}
 
 		inline ApplicationDelegate* GetAppDelegate()
 		{
-			return m_appListener;
+			return m_appDelegate;
 		}
 
+        inline System* GetSystem()
+        {
+            return &m_engine;
+        }
+        
 	protected:
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);
@@ -84,7 +89,7 @@ namespace Lina
 		void UnloadPlugins();
 
 	protected:
-		ApplicationDelegate* m_appListener = nullptr;
+		ApplicationDelegate* m_appDelegate = nullptr;
 		Engine				 m_engine;
 		bool				 m_exitRequested = false;
 		bool				 m_isIdleMode	 = false;

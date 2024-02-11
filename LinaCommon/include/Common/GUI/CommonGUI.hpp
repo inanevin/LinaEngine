@@ -54,6 +54,13 @@ namespace Lina
 		End
 	};
 
+	enum class Fit
+	{
+		Default,
+		FromParent,
+		FromChildren,
+	};
+
 #define MARGINS_EQ(X)                                                                                                                                                                                                                                              \
 	Margins                                                                                                                                                                                                                                                       \
 	{                                                                                                                                                                                                                                                              \

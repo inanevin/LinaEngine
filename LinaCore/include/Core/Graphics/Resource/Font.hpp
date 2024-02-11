@@ -52,21 +52,23 @@ namespace Lina
 	class Font : public Resource
 	{
 	public:
+		struct FontPoint
+		{
+			uint32 size		= 12;
+			float  dpiLimit = 10.0f;
+		};
+
 		struct Metadata
 		{
-			uint32						 pointSize = 16;
-			bool						 isSDF	   = false;
+			Vector<FontPoint>			 points = {FontPoint()};
 			Vector<Pair<uint32, uint32>> glyphRanges;
+			bool						 isSDF = false;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
 		};
 
-	public:
-		inline LinaVG::LinaVGFont* GetLinaVGFont()
-		{
-			return m_lvgFont;
-		}
+		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
 
 	private:
 		FRIEND_RESOURCE_CACHE();
@@ -84,10 +86,9 @@ namespace Lina
 		}
 
 	private:
-		LinaVG::LinaVGFont* m_lvgFont = nullptr;
-		Vector<char>		m_file;
-
-		Metadata m_meta = {};
+		Vector<LinaVG::LinaVGFont*> m_lvgFonts = {};
+		Vector<char>				m_file;
+		Metadata					m_meta = {};
 	};
 } // namespace Lina
 

@@ -42,6 +42,7 @@ namespace LinaGX
 
 namespace Lina
 {
+	class Application;
 	class ResourceManager;
 	struct SemaphoreData;
 
@@ -66,5 +67,10 @@ namespace Lina
 		{
 			return "Resources/Editor/Metacache/";
 		}
+
+	protected:
+		friend class Application;
+
+		Application* m_app = nullptr;
 	};
 } // namespace Lina

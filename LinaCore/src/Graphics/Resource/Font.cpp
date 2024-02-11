@@ -36,7 +36,10 @@ namespace Lina
 {
 	void Font::Metadata::SaveToStream(OStream& out) const
 	{
-		out << pointSize;
+		out << static_cast<int32>(points.size());
+		for (auto p : points)
+			out << p.size << p.dpiLimit;
+
 		out << isSDF;
 		out << static_cast<int32>(glyphRanges.size());
 
@@ -49,7 +52,12 @@ namespace Lina
 
 	void Font::Metadata::LoadFromStream(IStream& in)
 	{
-		in >> pointSize;
+		int32 pointSizeSz = 0;
+		in >> pointSizeSz;
+		points.resize(pointSizeSz);
+		for (int32 i = 0; i < pointSizeSz; i++)
+			in >> points[i].size >> points[i].dpiLimit;
+
 		in >> isSDF;
 
 		int32 glyphRangeSize = 0;
@@ -69,8 +77,9 @@ namespace Lina
 
 	Font::~Font()
 	{
-		if (m_lvgFont)
-			delete m_lvgFont;
+		for (auto* font : m_lvgFonts)
+			delete font;
+		m_lvgFonts.clear();
 	}
 
 	void Font::BatchLoaded()
@@ -82,10 +91,15 @@ namespace Lina
 			customRangeVec.push_back(rng.second);
 		}
 
-		if (customRangeVec.empty())
-			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.pointSize);
-		else
-			m_lvgFont = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.pointSize, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
+		const int32 sz = static_cast<int32>(m_meta.points.size());
+		m_lvgFonts.resize(sz);
+		for (int32 i = 0; i < sz; i++)
+		{
+			if (customRangeVec.empty())
+				m_lvgFonts[i] = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
+			else
+				m_lvgFonts[i] = LinaVG::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
+		}
 	}
 
 	void Font::LoadFromFile(const char* path)
@@ -104,6 +118,20 @@ namespace Lina
 	{
 		m_meta.SaveToStream(stream);
 		VectorSerialization::SaveToStream_PT(stream, m_file);
+	}
+
+	LinaVG::LinaVGFont* Font::GetLinaVGFont(float dpiScale)
+	{
+		const int32 sz = static_cast<int32>(m_meta.points.size());
+		for (int32 i = 0; i < sz; i++)
+		{
+			if (dpiScale > m_meta.points[i].dpiLimit)
+				continue;
+
+			return m_lvgFonts[i];
+		}
+
+		return m_lvgFonts.back();
 	}
 
 } // namespace Lina

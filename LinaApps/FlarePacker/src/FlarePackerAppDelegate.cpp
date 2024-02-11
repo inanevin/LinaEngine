@@ -37,6 +37,11 @@ SOFTWARE.
 #include "Common/GUI/Widgets/Text/Text.hpp"
 #include "Common/GUI/Widgets/Text/Icon.hpp"
 #include "Common/GUI/Widgets/Composite/WindowButtons.hpp"
+#include "Common/GUI/Theme.hpp"
+
+#include "Core/Application.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
 {
@@ -47,7 +52,7 @@ namespace Lina
 			.appName			 = "Flare Packer",
 			.windowWidth		 = 800,
 			.windowHeight		 = 600,
-			.windowStyle		 = LinaGX::WindowStyle::WindowedApplication,
+			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
 			.appListener		 = new Lina::FlarePackerAppDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,
 		};
@@ -82,49 +87,37 @@ namespace Lina
 		 */
 	}
 
-	Widget* GetTitleRow(Widget* titleBar)
+	Widget* GetTitleRow(Widget* parent, LinaVG::LinaVGFont* font)
 	{
-		Row* row = titleBar->Allocate<Row>();
+		Row* titleRow = parent->Allocate<Row>();
 
 		// Title text.
-		Text* title		= row->Allocate<Text>();
+		Text* title		= titleRow->Allocate<Text>();
 		title->contents = {
 			.text = "Flare Packer",
-			.font = nullptr,
+			.font = font,
 		};
 
 		// Title icon
-		Text* icon	   = row->Allocate<Text>();
+		Text* icon	   = titleRow->Allocate<Text>();
 		icon->contents = {
 			.text = "IC0",
 			.font = nullptr,
 		};
 
+		const float indent = Theme::GetIndent(parent->GetWindow());
+
 		// Sub-title row
-		Row* titleRow	   = row->Allocate<Row>();
 		titleRow->contents = {
 			.mainAlignment	= MainAlignment::Free,
 			.crossAlignment = CrossAlignment::Center,
+			.margins		= {.left = indent, .top = indent, .bottom = indent},
+			.padding		= Theme::GetIndent(parent->GetWindow()),
+			.widthFit		= Fit::FromChildren,
+			.heightFit		= Fit::FromChildren,
 		};
-		titleRow->children = {title, icon};
-
-		// Window buttons
-		WindowButtons* wb = row->Allocate<WindowButtons>();
-		wb->contents	  = {
-				 .onClickedMinimize = []() {},
-				 .onClickedMaximize = []() {},
-				 .onClickedExit		= []() {},
-		 };
-
-		// Main row
-		row->contents = {
-			.mainAlignment	= MainAlignment::SpaceBetween,
-			.crossAlignment = CrossAlignment::Center,
-		};
-
-		row->children = {titleRow, wb};
-
-		return row;
+		titleRow->children = {title};
+		return titleRow;
 	}
 
 	void FlarePackerAppDelegate::RenderSurfaceOverlay(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
@@ -133,14 +126,21 @@ namespace Lina
 		const float titleBarHeight	= monitorHeight * 0.02f;
 		const float bottomBarHeight = monitorHeight * 0.2f;
 
-		FreeRoam* titleBar = WidgetAllocator::Get().Allocate<FreeRoam>(threadIndex, window);
+		LinaVG::LinaVGFont* font = m_app->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetResource<Font>(Theme::GetDefaultFontSID())->GetLinaVGFont(window->GetDPIScale());
 
+		Row* titleBar			 = WidgetAllocator::Get().Allocate<Row>(threadIndex, window);
 		titleBar->transformation = {
 			.pos  = Vector2::Zero,
-			.size = Vector2(window->GetSize().x, titleBarHeight),
+			.size = Vector2(static_cast<float>(window->GetSize().x), 0.0f),
 		};
 
-		titleBar->children = {GetTitleRow(titleBar)};
+		titleBar->contents = {
+			.mainAlignment	= MainAlignment::SpaceBetween,
+			.crossAlignment = CrossAlignment::Center,
+			.widthFit		= Fit::Default,
+			.heightFit		= Fit::FromChildren,
+		};
+		titleBar->children = {GetTitleRow(titleBar, font)};
 
 		titleBar->SizePass();
 		titleBar->Draw();

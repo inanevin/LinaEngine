@@ -240,7 +240,6 @@ namespace Lina
 		// to remove user managed resources.
 
 		LinaVG::Terminate();
-		WidgetAllocator::Get().Terminate();
 
 		for (auto m : m_defaultMaterials)
 			m_resourceManager->DestroyUserResource<Material>(m);

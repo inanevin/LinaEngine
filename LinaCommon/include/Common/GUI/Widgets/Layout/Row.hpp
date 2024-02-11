@@ -41,6 +41,8 @@ namespace Lina
 		{
 			MainAlignment  mainAlignment  = MainAlignment::Free;
 			CrossAlignment crossAlignment = CrossAlignment::Start;
+			Fit			   widthFit		  = Fit::Default;
+			Fit			   heightFit	  = Fit::Default;
 			Margins		   margins		  = {};
 			float		   padding		  = 0.0f;
 		};

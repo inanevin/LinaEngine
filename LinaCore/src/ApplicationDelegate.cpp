@@ -23,14 +23,8 @@ namespace Lina
 	{
 		Vector<ResourceIdentifier> list;
 
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_1x.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_2x.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_3x.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSans_4x.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_1x.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_2x.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_3x.ttf", GetTypeID<Font>(), 0, true));
-		list.push_back(ResourceIdentifier("Resources/Core/Fonts/Rubik-Regular_4x.ttf", GetTypeID<Font>(), 0, true));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/NunitoSansRegular.ttf", GetTypeID<Font>(), 0, true));
+		list.push_back(ResourceIdentifier("Resources/Core/Fonts/RubikSansRegular.ttf", GetTypeID<Font>(), 0, true));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0, true));
 		// list.push_back(ResourceIdentifier("Resources/Core/Shaders/UnlitStandard.linashader", GetTypeID<Shader>(), 0));
@@ -60,10 +54,10 @@ namespace Lina
 	bool ApplicationDelegate::FillResourceCustomMeta(StringID sid, OStream& stream)
 	{
 
-		if (sid == "Resources/Core/Fonts/NunitoSans_1x.ttf"_hs)
+		if (sid == "Resources/Core/Fonts/NunitoSansRegular.ttf"_hs)
 		{
 			Font::Metadata customMeta = {
-				.pointSize	 = 12,
+				.points		 = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.15f}, {.size = 16, .dpiLimit = 1.35f}, {.size = 20, .dpiLimit = 10.0f}},
 				.isSDF		 = false,
 				.glyphRanges = {linatl::make_pair(160, 360)},
 			};
@@ -71,78 +65,16 @@ namespace Lina
 			return true;
 		}
 
-		if (sid == "Resources/Core/Fonts/NunitoSans_2x.ttf"_hs)
+		if (sid == "Resources/Core/Fonts/RubikSanRegular.ttf"_hs)
 		{
 			Font::Metadata customMeta = {
-				.pointSize	 = 14,
-				.isSDF		 = false,
-				.glyphRanges = {linatl::make_pair(160, 360)},
+				.points = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.15f}, {.size = 16, .dpiLimit = 1.35f}, {.size = 18, .dpiLimit = 10.0f}},
+				.isSDF	= false,
 			};
 			customMeta.SaveToStream(stream);
 			return true;
 		}
 
-		if (sid == "Resources/Core/Fonts/NunitoSans_3x.ttf"_hs)
-		{
-			Font::Metadata customMeta = {
-				.pointSize	 = 16,
-				.isSDF		 = false,
-				.glyphRanges = {linatl::make_pair(160, 360)},
-			};
-			customMeta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == "Resources/Core/Fonts/NunitoSans_4x.ttf"_hs)
-		{
-			Font::Metadata customMeta = {
-				.pointSize	 = 20,
-				.isSDF		 = false,
-				.glyphRanges = {linatl::make_pair(160, 360)},
-			};
-			customMeta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == "Resources/Core/Fonts/Rubik-Regular_1x.ttf"_hs)
-		{
-			Font::Metadata customMeta = {
-				.pointSize = 12,
-				.isSDF	   = false,
-			};
-			customMeta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == "Resources/Core/Fonts/Rubik-Regular_2x.ttf"_hs)
-		{
-			Font::Metadata customMeta = {
-				.pointSize = 14,
-				.isSDF	   = false,
-			};
-			customMeta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == "Resources/Core/Fonts/Rubik-Regular_3x.ttf"_hs)
-		{
-			Font::Metadata customMeta = {
-				.pointSize = 16,
-				.isSDF	   = false,
-			};
-			customMeta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == "Resources/Core/Fonts/Rubik-Regular_4x.ttf"_hs)
-		{
-			Font::Metadata customMeta = {
-				.pointSize = 18,
-				.isSDF	   = false,
-			};
-			customMeta.SaveToStream(stream);
-			return true;
-		}
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
 		if (sid == "Resources/Core/Textures/StubLinaLogo.png"_hs || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs || sid == "Resources/Core/Textures/StubLinaLogoText.png"_hs)

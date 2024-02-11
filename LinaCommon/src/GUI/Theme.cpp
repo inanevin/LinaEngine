@@ -37,4 +37,5 @@ namespace Lina
 	{
 		return s_themeDef.baseIndent * window->GetDPIScale();
 	}
+
 } // namespace Lina

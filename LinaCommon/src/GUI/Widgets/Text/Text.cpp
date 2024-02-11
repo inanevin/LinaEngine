@@ -30,5 +30,19 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Text::SizePass()
+	{
+		CalcTextOptions();
+		transformation.size = LinaVG::CalculateTextSize(m_threadIndex, contents.text.c_str(), m_textOptions);
+	}
 
+	void Text::Draw()
+	{
+		LinaVG::DrawTextNormal(m_threadIndex, contents.text.c_str(), (transformation.pos + Vector2(0, transformation.size.y)).AsLVG(), m_textOptions);
+	}
+
+	void Text::CalcTextOptions()
+	{
+		m_textOptions.font = contents.font;
+	}
 } // namespace Lina

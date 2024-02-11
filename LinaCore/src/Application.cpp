@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Common/GUI/WidgetAllocator.hpp"
 
 namespace Lina
 {
@@ -44,8 +45,9 @@ namespace Lina
 	{
 
 		auto& resourceManager = m_engine.GetResourceManager();
-		m_appListener		  = initInfo.appListener;
-		LINA_ASSERT(m_appListener != nullptr, "Application listener can not be empty!");
+		m_appDelegate		  = initInfo.appListener;
+		m_appDelegate->m_app  = this;
+		LINA_ASSERT(m_appDelegate != nullptr, "Application listener can not be empty!");
 
 		// Setup
 		{
@@ -62,9 +64,9 @@ namespace Lina
 		{
 			auto& resourceManager = m_engine.GetResourceManager();
 			resourceManager.SetMode(initInfo.resourceManagerMode);
-			m_appListener->RegisterResourceTypes(resourceManager);
-			resourceManager.SetPriorityResources(m_appListener->GetPriorityResources());
-			resourceManager.SetCoreResources(m_appListener->GetCoreResources());
+			m_appDelegate->RegisterResourceTypes(resourceManager);
+			resourceManager.SetPriorityResources(m_appDelegate->GetPriorityResources());
+			resourceManager.SetCoreResources(m_appDelegate->GetCoreResources());
 		}
 
 		// Pre-initialization
@@ -134,8 +136,10 @@ namespace Lina
 		m_engine.GetGfxManager().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_engine.Shutdown();
 
+		WidgetAllocator::Get().Terminate();
+
 		PROFILER_SHUTDOWN();
-		delete m_appListener;
+		delete m_appDelegate;
 	}
 
 	void Application::SetFrameCap(int64 microseconds)

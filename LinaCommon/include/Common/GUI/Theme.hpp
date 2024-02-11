@@ -30,6 +30,12 @@ SOFTWARE.
 
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Math/Color.hpp"
+#include "Common/StringID.hpp"
+
+namespace LinaVG
+{
+	class LinaVGFont;
+}
 
 namespace LinaGX
 {
@@ -52,12 +58,24 @@ namespace Lina
 		Color accentSecondary = Color(0.0f, 0.0f, 0.0f, 1.0f);
 
 		float baseIndent = 8.0f;
+
+		StringID defaultFont	 = "Resources/Core/Fonts/NunitoSansRegular.ttf"_hs;
+		StringID alternativeFont = "Resources/Core/Fonts/RubikSansRegular.ttf"_hs;
 	};
 
 	class Theme
 	{
 	public:
 		static float GetIndent(LinaGX::Window* window);
+
+		static StringID GetDefaultFontSID()
+		{
+			return s_themeDef.defaultFont;
+		}
+		static StringID GetAlternativeFontSID()
+		{
+			return s_themeDef.alternativeFont;
+		}
 
 	private:
 		static ThemeDef s_themeDef;

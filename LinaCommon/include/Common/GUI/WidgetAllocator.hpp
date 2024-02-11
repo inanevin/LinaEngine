@@ -59,6 +59,7 @@ namespace Lina
 
 	private:
 		friend class GfxManager;
+		friend class Application;
 
 		WidgetAllocator()  = default;
 		~WidgetAllocator() = default;
