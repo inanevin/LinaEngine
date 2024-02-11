@@ -51,7 +51,9 @@ namespace Lina
 	void Text::CalcTextOptions()
 	{
 		m_textOptions.font		  = contents.font;
+		m_textOptions.color		  = contents.color.AsLVG4();
 		m_sdfOptions.font		  = contents.font;
+		m_sdfOptions.color		  = contents.color.AsLVG4();
 		m_sdfOptions.sdfThickness = 0.5f;
 		m_sdfOptions.sdfSoftness  = 0.25f / static_cast<float>(contents.font->m_size);
 	}

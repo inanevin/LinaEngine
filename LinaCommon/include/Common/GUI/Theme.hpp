@@ -46,16 +46,16 @@ namespace Lina
 {
 	struct ThemeDef
 	{
-		Color background0 = Color(0.0f, 0.0f, 0.0f, 1.0f);
-		Color background1 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color background0 = Color(0.01f, 0.007f, 0.01f, 1.0f);
+		Color background1 = Color(0.01f, 0.009f, 0.012f, 1.0f);
 		Color background2 = Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-		Color foreground0 = Color(0.0f, 0.0f, 0.0f, 1.0f);
-		Color foreground1 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
+		Color foreground1 = Color(0.019f, 0.018f, 0.022f, 1.0f);
 		Color foreground2 = Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-		Color accentPrimary	  = Color(0.0f, 0.0f, 0.0f, 1.0f);
-		Color accentSecondary = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color accentPrimary	  = Color(0.047f, 0.007f, 0.015f, 1.0f);
+		Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
 
 		float baseIndent = 8.0f;
 
@@ -75,6 +75,36 @@ namespace Lina
 		static StringID GetAlternativeFontSID()
 		{
 			return s_themeDef.alternativeFont;
+		}
+
+		static Color GetColorBackground0()
+		{
+			return s_themeDef.background0;
+		}
+
+		static Color GetColorBackground1()
+		{
+			return s_themeDef.background1;
+		}
+
+		static Color GetColorBackground2()
+		{
+			return s_themeDef.background2;
+		}
+
+		static Color GetColorForeground0()
+		{
+			return s_themeDef.foreground0;
+		}
+
+		static Color GetColorForeground1()
+		{
+			return s_themeDef.foreground1;
+		}
+
+		static Color GetColorForeground2()
+		{
+			return s_themeDef.foreground2;
 		}
 
 	private:

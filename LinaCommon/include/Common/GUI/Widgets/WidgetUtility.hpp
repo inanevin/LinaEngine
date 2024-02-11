@@ -28,9 +28,14 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/GUI/Widgets/Widget.hpp"
+#include "Common/GUI/CommonGUI.hpp"
 
 namespace Lina
 {
+	class WidgetUtility
+	{
+	public:
+		static void DrawRectBackground(int32 threadIndex, const RectBackground& options, const WidgetProperties& props, bool positionIsCenter = false);
+	};
 
 } // namespace Lina

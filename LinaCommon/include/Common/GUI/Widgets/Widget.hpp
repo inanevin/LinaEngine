@@ -40,12 +40,6 @@ namespace LinaGX
 
 namespace Lina
 {
-	struct WidgetProperties
-	{
-		Vector2 pos	 = Vector2::Zero;
-		Vector2 size = Vector2::Zero;
-	};
-
 	class Widget
 	{
 	public:

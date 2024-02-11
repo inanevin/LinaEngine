@@ -26,9 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Common/GUI/Widgets/Text/Icon.hpp"
+#pragma once
+
+#include "Common/GUI/Widgets/Widget.hpp"
 
 namespace Lina
 {
+	class Stack : public Widget
+	{
+	public:
+		struct StackContents
+		{
+			CrossAlignment horizontalAlignment = CrossAlignment::Start;
+			CrossAlignment verticalAlignment   = CrossAlignment::Start;
+			Fit			   widthFit			   = Fit::Default;
+			Fit			   heightFit		   = Fit::Default;
+			TBLR		   margins			   = {};
+			float		   padding			   = 0.0f;
+		};
 
+		virtual void SizePass() override;
+		virtual void Draw() override;
+
+		StackContents contents = {};
+	};
 } // namespace Lina

@@ -53,7 +53,7 @@ namespace Lina
 			m_crossAlignment = alignment;
 		}
 
-		inline void SetMargins(const Margins& margins)
+		inline void SetMargins(const TBLR& margins)
 		{
 			m_margins = margins;
 		}
@@ -67,7 +67,7 @@ namespace Lina
 	protected:
 		MainAlignment  m_mainAlignment	= MainAlignment::Free;
 		CrossAlignment m_crossAlignment = CrossAlignment::Start;
-		Margins		   m_margins		= {};
+		TBLR		   m_margins		= {};
 		float		   m_padding		= 0;
 	};
 } // namespace Lina

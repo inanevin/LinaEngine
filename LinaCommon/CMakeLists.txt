@@ -86,14 +86,14 @@ set (SOURCES
 	src/GUI/WidgetAllocator.cpp
 	src/GUI/Theme.cpp
 	src/GUI/Widgets/Widget.cpp
+	src/GUI/Widgets/WidgetUtility.cpp
 	src/GUI/Widgets/Layout/Row.cpp
 	src/GUI/Widgets/Layout/Column.cpp
-	src/GUI/Widgets/Layout/FreeRoam.cpp
+	src/GUI/Widgets/Layout/Stack.cpp
 	src/GUI/Widgets/Container/Box.cpp
 	src/GUI/Widgets/Container/Background.cpp
 	src/GUI/Widgets/Button/Button.cpp
 	src/GUI/Widgets/Text/Text.cpp
-	src/GUI/Widgets/Text/Icon.cpp
 	src/GUI/Widgets/Composite/WindowButtons.cpp
 
 )
@@ -209,14 +209,14 @@ set(HEADERS
 	include/Common/GUI/Theme.hpp
 	include/Common/GUI/WidgetAllocator.hpp
 	include/Common/GUI/Widgets/Widget.hpp
+	include/Common/GUI/Widgets/WidgetUtility.hpp
 	include/Common/GUI/Widgets/Layout/Row.hpp
 	include/Common/GUI/Widgets/Layout/Column.hpp
-	include/Common/GUI/Widgets/Layout/FreeRoam.hpp
+	include/Common/GUI/Widgets/Layout/Stack.hpp
 	include/Common/GUI/Widgets/Container/Box.hpp
 	include/Common/GUI/Widgets/Container/Background.hpp
 	include/Common/GUI/Widgets/Button/Button.hpp
 	include/Common/GUI/Widgets/Text/Text.hpp
-	include/Common/GUI/Widgets/Text/Icon.hpp
 	include/Common/GUI/Widgets/Composite/WindowButtons.hpp
 )
 

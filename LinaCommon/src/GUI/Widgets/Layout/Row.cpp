@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Common/GUI/Widgets/Layout/Row.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/GUI/Widgets/WidgetUtility.hpp"
 
 namespace Lina
 {
@@ -58,6 +59,7 @@ namespace Lina
 	void Row::Draw()
 	{
 		Widget::DebugDraw();
+		WidgetUtility::DrawRectBackground(m_threadIndex, contents.background, base);
 
 		const Vector2 startPosition = base.pos + Vector2(contents.margins.left, contents.margins.top);
 		const Vector2 endPosition	= base.pos + base.size - Vector2(contents.margins.right, contents.margins.bottom);

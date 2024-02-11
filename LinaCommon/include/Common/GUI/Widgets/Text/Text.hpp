@@ -40,8 +40,9 @@ namespace Lina
 	public:
 		struct TextContents
 		{
-			String				text = "Stub";
-			LinaVG::LinaVGFont* font = nullptr;
+			String				text  = "Stub";
+			LinaVG::LinaVGFont* font  = nullptr;
+			Color				color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 		};
 
 		virtual void SizePass() override;

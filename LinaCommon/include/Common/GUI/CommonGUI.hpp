@@ -29,15 +29,30 @@ SOFTWARE.
 #pragma once
 
 #include "Common/SizeDefinitions.hpp"
+#include "Common/Math/Color.hpp"
 
 namespace Lina
 {
-	struct Margins
+	struct TBLR
 	{
 		float top	 = 0;
 		float bottom = 0;
 		float left	 = 0;
 		float right	 = 0;
+	};
+
+	struct RectBackground
+	{
+		Color startColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		Color endColor	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		float rounding	 = 0.0f;
+	};
+
+	struct WidgetProperties
+	{
+		Vector2 pos		  = Vector2::Zero;
+		Vector2 size	  = Vector2::Zero;
+		int32	drawOrder = 0;
 	};
 
 	enum class MainAlignment

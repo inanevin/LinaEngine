@@ -43,8 +43,9 @@ namespace Lina
 			CrossAlignment crossAlignment = CrossAlignment::Start;
 			Fit			   widthFit		  = Fit::Default;
 			Fit			   heightFit	  = Fit::Default;
-			Margins		   margins		  = {};
+			TBLR		   margins		  = {};
 			float		   padding		  = 0.0f;
+			RectBackground background	  = {};
 		};
 
 		virtual void SizePass() override;

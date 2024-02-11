@@ -64,7 +64,7 @@ namespace Lina
 		WidgetAllocator()  = default;
 		~WidgetAllocator() = default;
 
-		static constexpr size_t LINEAR_ALLOC_SIZE = 1024;
+		static constexpr size_t LINEAR_ALLOC_SIZE = 1024 * 1024;
 
 		void Terminate();
 		void StartFrame(int32 threadCount);
