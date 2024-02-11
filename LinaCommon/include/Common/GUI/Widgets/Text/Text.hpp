@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
-
 namespace Lina
 {
 
@@ -44,19 +43,16 @@ namespace Lina
 			String				text = "Stub";
 			LinaVG::LinaVGFont* font = nullptr;
 		};
-        
-        virtual void SizePass() override;
-        virtual void Draw() override;
+
+		virtual void SizePass() override;
+		virtual void Draw() override;
 
 		TextContents contents = {};
-        
-    private:
-        
-        void CalcTextOptions();
-        
-    private:
-        
-        LinaVG::TextOptions m_textOptions = {};
-        
+
+	private:
+		void CalcTextOptions();
+
+	private:
+		LinaVG::TextOptions m_textOptions = {};
 	};
 } // namespace Lina

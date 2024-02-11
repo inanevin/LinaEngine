@@ -64,8 +64,11 @@ namespace Lina
 
 		WidgetTransformation transformation = {};
 		Vector<Widget*>		 children		= {};
-        
-        inline LinaGX::Window* GetWindow() { return m_window; }
+
+		inline LinaGX::Window* GetWindow()
+		{
+			return m_window;
+		}
 
 	protected:
 		friend class WidgetAllocator;

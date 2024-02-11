@@ -76,11 +76,11 @@ namespace Lina
 			return m_appDelegate;
 		}
 
-        inline System* GetSystem()
-        {
-            return &m_engine;
-        }
-        
+		inline System* GetSystem()
+		{
+			return &m_engine;
+		}
+
 	protected:
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);

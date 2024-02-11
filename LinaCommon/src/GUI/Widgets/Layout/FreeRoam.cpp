@@ -32,14 +32,14 @@ namespace Lina
 {
 	void FreeRoam::SizePass()
 	{
-        children[0]->SizePass();
-        transformation.size = children[0]->transformation.size;
+		children[0]->SizePass();
+		transformation.size = children[0]->transformation.size;
 	}
 
 	void FreeRoam::Draw()
 	{
-        auto* child = children[0];
-        child->transformation = transformation;
-        child->Draw();
+		auto* child			  = children[0];
+		child->transformation = transformation;
+		child->Draw();
 	}
 } // namespace Lina
