@@ -33,24 +33,24 @@ SOFTWARE.
 
 namespace Lina
 {
-    void WidgetManager::Initialize(LinaGX::Window* window)
-    {
-        m_window = window;
-        m_rootWidget = Allocate<Widget>();
-    }
+	void WidgetManager::Initialize(LinaGX::Window* window)
+	{
+		m_window	 = window;
+		m_rootWidget = Allocate<Widget>();
+	}
 
-    void WidgetManager::Draw(int32 threadIndex)
-    {
-        m_rootWidget->SetPos(Vector2::Zero);
-        m_rootWidget->SetSize(Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)));
-        m_rootWidget->Draw(threadIndex);
-    }
+	void WidgetManager::Draw(int32 threadIndex)
+	{
+		m_rootWidget->SetPos(Vector2::Zero);
+		m_rootWidget->SetSize(Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)));
+		m_rootWidget->Draw(threadIndex);
+	}
 
-    void WidgetManager::Deallocate(Widget *widget)
-    {
-        const TypeID tid = widget->m_tid;
-        m_allocators[tid]->Free(widget);
-    }
+	void WidgetManager::Deallocate(Widget* widget)
+	{
+		const TypeID tid = widget->m_tid;
+		m_allocators[tid]->Free(widget);
+	}
 
 	void WidgetManager::Shutdown()
 	{

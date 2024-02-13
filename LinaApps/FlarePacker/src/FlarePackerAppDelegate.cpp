@@ -88,5 +88,4 @@ namespace Lina
 		m_flarePacker.Initialize();
 	}
 
-
 } // namespace Lina
