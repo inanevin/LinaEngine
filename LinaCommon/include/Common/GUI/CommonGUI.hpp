@@ -48,18 +48,12 @@ namespace Lina
 		float rounding	 = 0.0f;
 	};
 
-	struct WidgetProperties
-	{
-		Vector2 pos		  = Vector2::Zero;
-		Vector2 size	  = Vector2::Zero;
-		int32	drawOrder = 0;
-	};
-
 	enum class MainAlignment
 	{
 		Free,
 		EvenlyDistribute,
-		SpaceBetween
+		SpaceBetween,
+		ChildAlignment,
 	};
 
 	enum class CrossAlignment
@@ -71,7 +65,7 @@ namespace Lina
 
 	enum class Fit
 	{
-		Default,
+		Fixed,
 		FromParent,
 		FromChildren,
 	};

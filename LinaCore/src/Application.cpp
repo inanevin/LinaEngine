@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
 
 namespace Lina
 {
@@ -136,8 +135,6 @@ namespace Lina
 		m_engine.PreShutdown();
 		m_engine.GetGfxManager().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_engine.Shutdown();
-
-		WidgetAllocator::Get().Terminate();
 
 		PROFILER_SHUTDOWN();
 		delete m_appDelegate;

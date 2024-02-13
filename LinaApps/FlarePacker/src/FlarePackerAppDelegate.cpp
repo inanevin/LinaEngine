@@ -88,9 +88,5 @@ namespace Lina
 		m_flarePacker.Initialize();
 	}
 
-	void FlarePackerAppDelegate::OnRenderSurface(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex)
-	{
-		m_flarePacker.Draw(window, threadIndex);
-	}
 
 } // namespace Lina

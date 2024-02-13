@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Common/GUI/Widgets/Widget.hpp"
 
 namespace Lina
@@ -43,16 +44,9 @@ namespace Lina
 	{
 		m_isInitialized = true;
 		m_topSection.Initialize(m_application);
+
+		auto* gfxManager	  = m_application->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto& widgetAllocator = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 	}
 
-	void FlarePacker::Draw(LinaGX::Window* window, int32 threadIndex)
-	{
-		if (!m_isInitialized)
-			return;
-
-		Widget* topSection = m_topSection.Draw(window, threadIndex);
-
-		topSection->SizePass();
-		topSection->Draw();
-	}
 } // namespace Lina

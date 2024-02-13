@@ -32,10 +32,12 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Box : public Widget
-	{
-	public:
-		virtual void SizePass() override;
-		virtual void Draw() override;
-	};
+	/*
+		class Box : public Widget
+		{
+		public:
+			virtual void SizePass() override;
+			virtual void Draw() override;
+		};
+	 */
 } // namespace Lina

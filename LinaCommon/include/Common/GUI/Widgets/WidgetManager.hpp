@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/Vector.hpp"
-#include <memoryallocators/LinearAllocator.h>
+#include "Common/Data/HashMap.hpp"
+#include <memoryallocators/PoolAllocator.h>
 
 namespace LinaGX
 {
@@ -40,38 +40,46 @@ namespace Lina
 {
 	class Widget;
 
-	class WidgetAllocator
+	class WidgetManager
 	{
 	public:
-		static WidgetAllocator& Get()
+		WidgetManager()	 = default;
+		~WidgetManager() = default;
+
+		void Initialize(LinaGX::Window* window);
+		void Draw(int32 threadIndex);
+		void Shutdown();
+
+		inline Widget* GetRoot()
 		{
-			static WidgetAllocator allocator;
-			return allocator;
+			return m_rootWidget;
 		}
 
-		template <typename T> T* Allocate(int32 threadIndex, LinaGX::Window* window)
+	private:
+		friend class Widget;
+
+		template <typename T> T* Allocate()
 		{
-			T* t			 = new (m_allocators[threadIndex]->Allocate(sizeof(T))) T();
-			t->m_threadIndex = threadIndex;
-			t->m_window		 = window;
+			const TypeID tid = GetTypeID<T>();
+
+			PoolAllocator*& alloc = m_allocators[tid];
+
+			if (alloc == nullptr)
+				alloc = new PoolAllocator(sizeof(T) * CHUNK_COUNT, sizeof(T));
+
+			T* t		   = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
+			t->m_window	   = m_window;
+			t->m_allocator = this;
 			return t;
 		}
 
-	private:
-		friend class GfxManager;
-		friend class Application;
-
-		WidgetAllocator()  = default;
-		~WidgetAllocator() = default;
-
-		static constexpr size_t LINEAR_ALLOC_SIZE = 1024 * 1024;
-
-		void Terminate();
-		void StartFrame(int32 threadCount);
-		void EndFrame();
+		void Deallocate(Widget* widget);
 
 	private:
-		Vector<LinearAllocator*> m_allocators;
+		static constexpr size_t			CHUNK_COUNT = 150;
+		HashMap<TypeID, PoolAllocator*> m_allocators;
+		LinaGX::Window*					m_window	 = nullptr;
+		Widget*							m_rootWidget = nullptr;
 	};
 
 } // namespace Lina

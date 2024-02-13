@@ -33,16 +33,21 @@ SOFTWARE.
 
 namespace Lina
 {
-	class WindowButtons : public Widget
-	{
-	public:
-		struct WindowButtonsContent
+	/*
+		class WindowButtons : public Widget
 		{
-			Delegate<void()> onClickedMinimize;
-			Delegate<void()> onClickedMaximize;
-			Delegate<void()> onClickedExit;
-		};
+		public:
+			struct WindowButtonsContent
+			{
+				Delegate<void()> onClickedMinimize;
+				Delegate<void()> onClickedMaximize;
+				Delegate<void()> onClickedExit;
+			};
 
-		WindowButtonsContent contents = {};
-	};
+			virtual void SizePass() override;
+			virtual void Draw() override;
+
+			WindowButtonsContent contents = {};
+		};
+	 */
 } // namespace Lina

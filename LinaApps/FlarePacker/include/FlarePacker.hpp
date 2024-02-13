@@ -46,7 +46,6 @@ namespace Lina
 	public:
 		void PreInitialize(Application* app);
 		void Initialize();
-		void Draw(LinaGX::Window* window, int32 threadIndex);
 
 	private:
 		Application* m_application	 = nullptr;

@@ -29,16 +29,18 @@ SOFTWARE.
 #include "Common/GUI/Widgets/Widget.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
 	void Widget::DebugDraw()
 	{
-		return;
+	}
 
-		LinaVG::StyleOptions style;
-		style.color	   = LinaVG::Vec4(0.8f, 0.0f, 0.0f, 1.0f);
-		style.isFilled = false;
-		LinaVG::DrawRect(m_threadIndex, base.pos.AsLVG(), (base.pos + base.size).AsLVG(), style);
+	void Widget::RemoveChild(Widget* w)
+	{
+		auto it = linatl::find_if(m_children.begin(), m_children.end(), [w](Widget* child) -> bool { return w == child; });
+		m_children.erase(it);
+		m_allocator->Deallocate(w);
 	}
 } // namespace Lina

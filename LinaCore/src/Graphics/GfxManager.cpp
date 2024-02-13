@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
+#include "Common/GUI/Widgets/WidgetManager.hpp"
 
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
@@ -352,7 +352,6 @@ namespace Lina
 		}
 
 		// Start LinaVG for surface renderers.
-		WidgetAllocator::Get().StartFrame(static_cast<int>(validSurfaceRenderers.size()));
 		LinaVG::StartFrame(static_cast<int>(validSurfaceRenderers.size()));
 
 		// Record surface renderers.
@@ -371,7 +370,6 @@ namespace Lina
 
 		// Clean up all surface renderer related buffers in LinaVG.
 		LinaVG::EndFrame();
-		WidgetAllocator::Get().EndFrame();
 
 		// Waits for surface renderer submission.
 		Vector<uint16> waitSemaphores;
@@ -425,6 +423,22 @@ namespace Lina
 			m_system->DispatchEvent(SystemEvent::EVS_WindowResized, ev);
 		});
 
+		window->SetCallbackKey([this](uint32 key, int32 scancode, LinaGX::InputAction action, Window* window) {
+			Event ev;
+			ev.iParams[0] = key;
+			ev.iParams[1] = scancode;
+			ev.iParams[2] = static_cast<uint32>(action);
+			ev.pParams[0] = window;
+			m_system->DispatchEvent(SystemEvent::EVS_OnKey, ev);
+		});
+
+		window->SetCallbackMouse([this](uint32 button, LinaGX::InputAction action) {
+			Event ev;
+			ev.iParams[0] = button;
+			ev.iParams[1] = static_cast<uint32>(action);
+			m_system->DispatchEvent(SystemEvent::EVS_OnMouse, ev);
+		});
+
 		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, size);
 		m_surfaceRenderers.push_back(renderer);
 
@@ -455,6 +469,12 @@ namespace Lina
 	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)
 	{
 		m_lgx->GetWindowManager().GetWindow(sid);
+	}
+
+	SurfaceRenderer* GfxManager::GetSurfaceRenderer(StringID sid)
+	{
+		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) -> bool { return renderer->GetSID() == sid; });
+		return *it;
 	}
 
 } // namespace Lina

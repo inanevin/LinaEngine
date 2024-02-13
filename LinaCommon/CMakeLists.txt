@@ -83,9 +83,9 @@ set (SOURCES
 	src/Platform/LinaGXIncl.cpp
 
 	# GUI
-	src/GUI/WidgetAllocator.cpp
 	src/GUI/Theme.cpp
 	src/GUI/Widgets/Widget.cpp
+	src/GUI/Widgets/WidgetManager.cpp
 	src/GUI/Widgets/WidgetUtility.cpp
 	src/GUI/Widgets/Layout/Row.cpp
 	src/GUI/Widgets/Layout/Column.cpp
@@ -207,7 +207,7 @@ set(HEADERS
 	# GUI
 	include/Common/GUI/CommonGUI.hpp
 	include/Common/GUI/Theme.hpp
-	include/Common/GUI/WidgetAllocator.hpp
+	include/Common/GUI/Widgets/WidgetManager.hpp
 	include/Common/GUI/Widgets/Widget.hpp
 	include/Common/GUI/Widgets/WidgetUtility.hpp
 	include/Common/GUI/Widgets/Layout/Row.hpp

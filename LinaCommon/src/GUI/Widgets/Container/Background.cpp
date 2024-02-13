@@ -31,15 +31,17 @@ SOFTWARE.
 
 namespace Lina
 {
-	void Background::SizePass()
-	{
-		return Vector2::Zero;
-	}
+	/*
+		void Background::SizePass()
+		{
+			return Vector2::Zero;
+		}
 
-	void Background::Draw()
-	{
-		// LinaVG::StyleOptions style;
-		// style.color = LinaVG::Vec4(0.6f, 0.0f, 0.0f, 1.0f);
-		// LinaVG::DrawRect(m_threadIndex, m_position.AsLVG(), (m_position + m_size).AsLVG(), style);
-	}
+		void Background::Draw()
+		{
+			// LinaVG::StyleOptions style;
+			// style.color = LinaVG::Vec4(0.6f, 0.0f, 0.0f, 1.0f);
+			// LinaVG::DrawRect(m_threadIndex, m_position.AsLVG(), (m_position + m_size).AsLVG(), style);
+		}
+	 */
 } // namespace Lina

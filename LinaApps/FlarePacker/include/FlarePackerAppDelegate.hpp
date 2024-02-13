@@ -38,7 +38,6 @@ namespace Lina
 	public:
 		virtual void OnPreInitialize() override;
 		virtual void OnInitialize() override;
-		virtual void OnRenderSurface(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex) override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
 		virtual void RegisterAppResources(ResourceManager& rm) override;
 

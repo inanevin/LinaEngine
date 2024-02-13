@@ -44,11 +44,6 @@ namespace Lina
 	public:
 		void Initialize(Application* app);
 
-		Widget* Draw(LinaGX::Window* window, int32 threadIndex);
-
-	private:
-		Widget* BuildTitleRow(Widget* parent);
-
 	private:
 		Font* m_defaultFont = nullptr;
 		Font* m_iconFont	= nullptr;

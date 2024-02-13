@@ -27,8 +27,31 @@ SOFTWARE.
 */
 
 #include "Common/GUI/Widgets/Composite/WindowButtons.hpp"
+#include "Common/GUI/Widgets/Layout/Row.hpp"
 
 namespace Lina
 {
+	/*
+		void WindowButtons::SizePass()
+		{
 
+		}
+
+		void WindowButtons::Draw()
+		{
+			Row* row = m_parent->Allocate<Row>();
+
+			row->base = {
+
+			};
+
+			row->contents = {
+				.mainAlignment  = MainAlignment::Free,
+				.crossAlignment = CrossAlignment::Center,
+				.widthFit       = Fit::FromChildren,
+				.heightFit      = Fit::FromChildren,
+			};
+
+		}
+	 */
 } // namespace Lina

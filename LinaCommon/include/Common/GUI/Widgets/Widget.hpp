@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Rect.hpp"
-#include "Common/GUI/WidgetAllocator.hpp"
+#include "Common/GUI/Widgets/WidgetManager.hpp"
 #include "Common/GUI/CommonGUI.hpp"
 
 namespace LinaGX
@@ -40,37 +40,66 @@ namespace LinaGX
 
 namespace Lina
 {
+
 	class Widget
 	{
 	public:
 		Widget(){};
 		virtual ~Widget() = default;
 
-		virtual void SizePass(){};
-		virtual void Draw(){};
-		virtual void DebugDraw();
-
-		template <typename T> T* Allocate()
+		template <typename T> T* AddChild()
 		{
-			T* t		= WidgetAllocator::Get().Allocate<T>(m_threadIndex, m_window);
+			T* t		= m_allocator->Allocate<T>();
 			t->m_parent = this;
+			t->m_window = m_window;
 			return t;
 		};
+		void RemoveChild(Widget* w);
 
-		WidgetProperties base	  = {};
-		Vector<Widget*>	 children = {};
+		inline void SetPos(const Vector2& pos)
+		{
+			m_rect.pos = pos;
+		}
+
+		inline void SetSize(const Vector2& size)
+		{
+			m_rect.size = size;
+		}
+
+		inline const Rect& GetRect() const
+		{
+			return m_rect;
+		}
+
+		inline const Vector2& GetPos() const
+		{
+			return m_rect.pos;
+		}
+
+		inline const Vector2& GetSize() const
+		{
+			return m_rect.size;
+		}
 
 		inline LinaGX::Window* GetWindow()
 		{
 			return m_window;
 		}
 
-	protected:
-		friend class WidgetAllocator;
+	private:
+		friend class WidgetManager;
 
-		int32			m_threadIndex = 0;
-		Widget*			m_parent	  = nullptr;
-		LinaGX::Window* m_window	  = nullptr;
+		virtual void Draw(int32 threadIndex){};
+		virtual void DebugDraw();
+
+	protected:
+		TypeID			m_tid		= 0;
+		WidgetManager*	m_allocator = nullptr;
+		Widget*			m_parent	= nullptr;
+		LinaGX::Window* m_window	= nullptr;
+
+		Rect			m_rect = {};
+		Vector<Widget*> m_children;
 	};
 
 } // namespace Lina

@@ -32,22 +32,24 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Stack : public Widget
-	{
-	public:
-		struct StackContents
+	/*
+		class Stack : public Widget
 		{
-			CrossAlignment horizontalAlignment = CrossAlignment::Start;
-			CrossAlignment verticalAlignment   = CrossAlignment::Start;
-			Fit			   widthFit			   = Fit::Default;
-			Fit			   heightFit		   = Fit::Default;
-			TBLR		   margins			   = {};
-			float		   padding			   = 0.0f;
+		public:
+			struct StackContents
+			{
+				CrossAlignment horizontalAlignment = CrossAlignment::Start;
+				CrossAlignment verticalAlignment   = CrossAlignment::Start;
+				Fit			   widthFit			   = Fit::Fixed;
+				Fit			   heightFit		   = Fit::Fixed;
+				TBLR		   margins			   = {};
+				float		   padding			   = 0.0f;
+			};
+
+			virtual void SizePass() override;
+			virtual void Draw() override;
+
+			StackContents contents = {};
 		};
-
-		virtual void SizePass() override;
-		virtual void Draw() override;
-
-		StackContents contents = {};
-	};
+	 */
 } // namespace Lina

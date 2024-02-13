@@ -56,7 +56,6 @@ namespace Lina
 		virtual void OnPreInitialize(){};
 		virtual void OnInitialize(){};
 		virtual void OnTick(float delta){};
-		virtual void OnRenderSurface(LinaGX::CommandStream* cmdStream, LinaGX::Window* window, int32 threadIndex){};
 
 		// Resources
 		virtual void RegisterResourceTypes(ResourceManager& rm);

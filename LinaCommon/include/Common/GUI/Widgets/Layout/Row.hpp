@@ -33,24 +33,25 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	class Row : public Widget
-	{
-	public:
-		struct RowContents
+	/*
+		class Row : public Widget
 		{
-			MainAlignment  mainAlignment  = MainAlignment::Free;
-			CrossAlignment crossAlignment = CrossAlignment::Start;
-			Fit			   widthFit		  = Fit::Default;
-			Fit			   heightFit	  = Fit::Default;
-			TBLR		   margins		  = {};
-			float		   padding		  = 0.0f;
-			RectBackground background	  = {};
+		public:
+			struct RowContents
+			{
+				MainAlignment  mainAlignment  = MainAlignment::Free;
+				CrossAlignment crossAlignment = CrossAlignment::Start;
+				Fit			   widthFit		  = Fit::Fixed;
+				Fit			   heightFit	  = Fit::Fixed;
+				TBLR		   margins		  = {};
+				float		   padding		  = 0.0f;
+				RectBackground background	  = {};
+			};
+
+			virtual void SizePass() override;
+			virtual void Draw() override;
+
+			RowContents contents = {};
 		};
-
-		virtual void SizePass() override;
-		virtual void Draw() override;
-
-		RowContents contents = {};
-	};
+	 */
 } // namespace Lina

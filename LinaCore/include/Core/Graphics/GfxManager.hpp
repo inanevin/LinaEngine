@@ -73,15 +73,16 @@ namespace Lina
 		virtual void Shutdown() override;
 		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 
-		void			WaitForSwapchains();
-		void			Join();
-		void			Poll();
-		void			Tick();
-		void			RenderSync();
-		void			Render();
-		void			DestroyApplicationWindow(StringID sid);
-		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
-		LinaGX::Window* GetApplicationWindow(StringID sid);
+		void			 WaitForSwapchains();
+		void			 Join();
+		void			 Poll();
+		void			 Tick();
+		void			 RenderSync();
+		void			 Render();
+		void			 DestroyApplicationWindow(StringID sid);
+		LinaGX::Window*	 CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
+		LinaGX::Window*	 GetApplicationWindow(StringID sid);
+		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{

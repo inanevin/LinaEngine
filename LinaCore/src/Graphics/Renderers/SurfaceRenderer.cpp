@@ -77,10 +77,12 @@ namespace Lina
 		}
 
 		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain);
+		m_widgetManager.Initialize(window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
+		m_widgetManager.Shutdown();
 		m_guiRenderer.Destroy();
 		m_renderPass.Destroy();
 
@@ -156,7 +158,7 @@ namespace Lina
 		// Prepare gui renderer & ask app to draw surface contents.
 		// Flush & render all contents that might've been drawn by the app.
 		m_guiRenderer.Prepare(frameIndex, threadIndex);
-		m_appListener->OnRenderSurface(currentFrame.gfxStream, m_window, threadIndex);
+		m_widgetManager.Draw(threadIndex);
 		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, threadIndex, m_window->GetSize());
 
 		// End render pass

@@ -34,27 +34,28 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	class Text : public Widget
-	{
-	public:
-		struct TextContents
+	/*
+		class Text : public Widget
 		{
-			String				text  = "Stub";
-			LinaVG::LinaVGFont* font  = nullptr;
-			Color				color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+		public:
+			struct TextContents
+			{
+				String				text  = "Stub";
+				LinaVG::LinaVGFont* font  = nullptr;
+				Color				color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+			};
+
+			virtual void SizePass() override;
+			virtual void Draw() override;
+
+			TextContents contents = {};
+
+		private:
+			void CalcTextOptions();
+
+		private:
+			LinaVG::TextOptions	   m_textOptions = {};
+			LinaVG::SDFTextOptions m_sdfOptions	 = {};
 		};
-
-		virtual void SizePass() override;
-		virtual void Draw() override;
-
-		TextContents contents = {};
-
-	private:
-		void CalcTextOptions();
-
-	private:
-		LinaVG::TextOptions	   m_textOptions = {};
-		LinaVG::SDFTextOptions m_sdfOptions	 = {};
-	};
+	 */
 } // namespace Lina

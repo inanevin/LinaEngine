@@ -35,7 +35,7 @@ namespace Lina
 	class WidgetUtility
 	{
 	public:
-		static void DrawRectBackground(int32 threadIndex, const RectBackground& options, const WidgetProperties& props, bool positionIsCenter = false);
+		// static void DrawRectBackground(int32 threadIndex, const RectBackground& options, const WidgetProperties& props, bool positionIsCenter = false);
 	};
 
 } // namespace Lina

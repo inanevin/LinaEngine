@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
+#include "Common/GUI/Widgets/WidgetManager.hpp"
 
 namespace LinaGX
 {
@@ -87,6 +88,11 @@ namespace Lina
 			return m_guiRenderer.GetCopySemaphoreData(frameIndex);
 		}
 
+		inline WidgetManager& GetWidgetManager()
+		{
+			return m_widgetManager;
+		}
+
 	protected:
 		StringID			 m_sid		  = 0;
 		GfxManager*			 m_gfxManager = nullptr;
@@ -99,6 +105,7 @@ namespace Lina
 		ApplicationDelegate* m_appListener = nullptr;
 		RenderPass			 m_renderPass  = {};
 		GUIRenderer			 m_guiRenderer;
+		WidgetManager		 m_widgetManager;
 	};
 
 } // namespace Lina

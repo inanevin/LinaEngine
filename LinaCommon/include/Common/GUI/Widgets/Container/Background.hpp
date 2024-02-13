@@ -32,13 +32,15 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Background : public Widget
-	{
-	public:
-		Background()		  = default;
-		virtual ~Background() = default;
+	/*
+		class Background : public Widget
+		{
+		public:
+			Background()		  = default;
+			virtual ~Background() = default;
 
-		virtual void SizePass() override;
-		virtual void Draw() override;
-	};
+			virtual void SizePass() override;
+			virtual void Draw() override;
+		};
+	 */
 } // namespace Lina

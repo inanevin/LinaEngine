@@ -34,40 +34,42 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Column : public Widget
-	{
-	public:
-		Column()		  = default;
-		virtual ~Column() = default;
-
-		virtual void SizePass() override;
-		virtual void Draw() override;
-
-		inline void SetMainAlignment(MainAlignment alignment)
+	/*
+		class Column : public Widget
 		{
-			m_mainAlignment = alignment;
-		}
+		public:
+			Column()		  = default;
+			virtual ~Column() = default;
 
-		inline void SetCrossAlignment(CrossAlignment alignment)
-		{
-			m_crossAlignment = alignment;
-		}
+			virtual void SizePass() override;
+			virtual void Draw() override;
 
-		inline void SetMargins(const TBLR& margins)
-		{
-			m_margins = margins;
-		}
+			inline void SetMainAlignment(MainAlignment alignment)
+			{
+				m_mainAlignment = alignment;
+			}
 
-		inline void SetPadding(float pad)
-		{
-			m_padding = pad;
-		}
+			inline void SetCrossAlignment(CrossAlignment alignment)
+			{
+				m_crossAlignment = alignment;
+			}
 
-	protected:
-	protected:
-		MainAlignment  m_mainAlignment	= MainAlignment::Free;
-		CrossAlignment m_crossAlignment = CrossAlignment::Start;
-		TBLR		   m_margins		= {};
-		float		   m_padding		= 0;
-	};
+			inline void SetMargins(const TBLR& margins)
+			{
+				m_margins = margins;
+			}
+
+			inline void SetPadding(float pad)
+			{
+				m_padding = pad;
+			}
+
+		protected:
+		protected:
+			MainAlignment  m_mainAlignment	= MainAlignment::Free;
+			CrossAlignment m_crossAlignment = CrossAlignment::Start;
+			TBLR		   m_margins		= {};
+			float		   m_padding		= 0;
+		};
+	 */
 } // namespace Lina

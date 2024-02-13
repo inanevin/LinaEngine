@@ -26,46 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Common/GUI/WidgetAllocator.hpp"
+#include "Common/GUI/Widgets/WidgetManager.hpp"
+#include "Common/GUI/Widgets/Widget.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
+    void WidgetManager::Initialize(LinaGX::Window* window)
+    {
+        m_window = window;
+        m_rootWidget = Allocate<Widget>();
+    }
 
-	void WidgetAllocator::StartFrame(int32 threadCount)
+    void WidgetManager::Draw(int32 threadIndex)
+    {
+        m_rootWidget->SetPos(Vector2::Zero);
+        m_rootWidget->SetSize(Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)));
+        m_rootWidget->Draw(threadIndex);
+    }
+
+    void WidgetManager::Deallocate(Widget *widget)
+    {
+        const TypeID tid = widget->m_tid;
+        m_allocators[tid]->Free(widget);
+    }
+
+	void WidgetManager::Shutdown()
 	{
-		const int32 currentSz = static_cast<int32>(m_allocators.size());
-
-		if (currentSz > threadCount)
-		{
-			for (int32 i = threadCount; i < currentSz; i++)
-			{
-				delete m_allocators[i];
-			}
-
-			m_allocators.resize(threadCount);
-		}
-		else if (threadCount > currentSz)
-		{
-			m_allocators.resize(threadCount);
-
-			for (int32 i = currentSz; i < threadCount; i++)
-			{
-				LinearAllocator* alloc = new LinearAllocator(LINEAR_ALLOC_SIZE);
-				alloc->Init();
-				m_allocators[i] = alloc;
-			}
-		}
-	}
-
-	void WidgetAllocator::EndFrame()
-	{
-		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](LinearAllocator* alloc) -> void { alloc->Reset(); });
-	}
-
-	void WidgetAllocator::Terminate()
-	{
-		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](LinearAllocator* alloc) -> void { delete alloc; });
+		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](auto& pair) -> void { delete pair.second; });
 		m_allocators.clear();
 	}
 } // namespace Lina

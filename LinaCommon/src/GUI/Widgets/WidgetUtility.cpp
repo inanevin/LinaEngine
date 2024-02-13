@@ -31,18 +31,18 @@ SOFTWARE.
 
 namespace Lina
 {
-	void WidgetUtility::DrawRectBackground(int32 threadIndex, const RectBackground& options, const WidgetProperties& props, bool positionIsCenter)
-	{
-		if (options.startColor.w < 0.05f && options.endColor.w < 0.05f)
-			return;
-
-		LinaVG::StyleOptions opts;
-		opts.color.start = options.startColor.AsLVG4();
-		opts.color.end	 = options.endColor.AsLVG4();
-		opts.rounding	 = options.rounding;
-
-		const LinaVG::Vec2 start = positionIsCenter ? (props.pos - props.size * 0.5f).AsLVG() : (props.pos).AsLVG();
-		const LinaVG::Vec2 end	 = positionIsCenter ? (props.pos + props.size * 0.5f).AsLVG() : (props.pos + props.size).AsLVG();
-		LinaVG::DrawRect(threadIndex, start, end, opts, 0.0f, props.drawOrder);
-	}
+	// void WidgetUtility::DrawRectBackground(int32 threadIndex, const RectBackground& options, const WidgetProperties& props, bool positionIsCenter)
+	// {
+	// 	if (options.startColor.w < 0.05f && options.endColor.w < 0.05f)
+	// 		return;
+	//
+	// 	LinaVG::StyleOptions opts;
+	// 	opts.color.start = options.startColor.AsLVG4();
+	// 	opts.color.end	 = options.endColor.AsLVG4();
+	// 	opts.rounding	 = options.rounding;
+	//
+	// 	const LinaVG::Vec2 start = positionIsCenter ? (props.pos - props.size * 0.5f).AsLVG() : (props.pos).AsLVG();
+	// 	const LinaVG::Vec2 end	 = positionIsCenter ? (props.pos + props.size * 0.5f).AsLVG() : (props.pos + props.size).AsLVG();
+	// 	LinaVG::DrawRect(threadIndex, start, end, opts, 0.0f, props.drawOrder);
+	// }
 } // namespace Lina
