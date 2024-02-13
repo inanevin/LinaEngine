@@ -423,22 +423,6 @@ namespace Lina
 			m_system->DispatchEvent(SystemEvent::EVS_WindowResized, ev);
 		});
 
-		window->SetCallbackKey([this](uint32 key, int32 scancode, LinaGX::InputAction action, Window* window) {
-			Event ev;
-			ev.iParams[0] = key;
-			ev.iParams[1] = scancode;
-			ev.iParams[2] = static_cast<uint32>(action);
-			ev.pParams[0] = window;
-			m_system->DispatchEvent(SystemEvent::EVS_OnKey, ev);
-		});
-
-		window->SetCallbackMouse([this](uint32 button, LinaGX::InputAction action) {
-			Event ev;
-			ev.iParams[0] = button;
-			ev.iParams[1] = static_cast<uint32>(action);
-			m_system->DispatchEvent(SystemEvent::EVS_OnMouse, ev);
-		});
-
 		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, size);
 		m_surfaceRenderers.push_back(renderer);
 
@@ -468,7 +452,7 @@ namespace Lina
 
 	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)
 	{
-		m_lgx->GetWindowManager().GetWindow(sid);
+		return m_lgx->GetWindowManager().GetWindow(sid);
 	}
 
 	SurfaceRenderer* GfxManager::GetSurfaceRenderer(StringID sid)

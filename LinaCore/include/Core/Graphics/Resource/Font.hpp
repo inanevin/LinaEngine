@@ -61,8 +61,8 @@ namespace Lina
 		struct Metadata
 		{
 			Vector<FontPoint>			 points = {FontPoint()};
+			bool						 isSDF	= false;
 			Vector<Pair<uint32, uint32>> glyphRanges;
-			bool						 isSDF = false;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);

@@ -65,7 +65,10 @@ namespace Lina
 			PoolAllocator*& alloc = m_allocators[tid];
 
 			if (alloc == nullptr)
+			{
 				alloc = new PoolAllocator(sizeof(T) * CHUNK_COUNT, sizeof(T));
+				alloc->Init();
+			}
 
 			T* t		   = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
 			t->m_window	   = m_window;
