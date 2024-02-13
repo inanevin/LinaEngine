@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/HashMap.hpp"
+#include "Common/Event/SystemEventListener.hpp"
 #include <memoryallocators/PoolAllocator.h>
 
 namespace LinaGX
@@ -39,16 +40,23 @@ namespace LinaGX
 namespace Lina
 {
 	class Widget;
+	class System;
 
-	class WidgetManager
+	class WidgetManager : public SystemEventListener
 	{
 	public:
 		WidgetManager()	 = default;
 		~WidgetManager() = default;
 
-		void Initialize(LinaGX::Window* window);
-		void Draw(int32 threadIndex);
-		void Shutdown();
+		void		 Initialize(System* system, LinaGX::Window* window);
+		void		 Draw(int32 threadIndex);
+		void		 Shutdown();
+		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
+
+		virtual Bitmask32 GetSystemEventMask() override
+		{
+			return EVS_OnKey | EVS_OnMouse | EVS_OnMouseWheel | EVS_OnMouseMove;
+		}
 
 		inline Widget* GetRoot()
 		{
@@ -83,6 +91,7 @@ namespace Lina
 		HashMap<TypeID, PoolAllocator*> m_allocators;
 		LinaGX::Window*					m_window	 = nullptr;
 		Widget*							m_rootWidget = nullptr;
+		System*							m_system	 = nullptr;
 	};
 
 } // namespace Lina

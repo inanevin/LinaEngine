@@ -136,8 +136,8 @@ namespace Lina
 					ResourceIdentifier copy = ident;
 					data.pParams[0]			= &copy.path;
 					data.pParams[1]			= static_cast<void*>(loadTask);
-					data.iParams[0]			= ident.sid;
-					data.iParams[1]			= ident.tid;
+					data.uintParams[0]		= ident.sid;
+					data.uintParams[1]		= ident.tid;
 					m_system->DispatchEvent(EVS_ResourceLoaded, data);
 
 					res->Flush();
@@ -172,10 +172,10 @@ namespace Lina
 					res->Flush();
 
 					Event data;
-					data.pParams[0] = &ident.path;
-					data.pParams[1] = static_cast<void*>(loadTask);
-					data.iParams[0] = ident.sid;
-					data.iParams[1] = ident.tid;
+					data.pParams[0]	   = &ident.path;
+					data.pParams[1]	   = static_cast<void*>(loadTask);
+					data.uintParams[0] = ident.sid;
+					data.uintParams[1] = ident.tid;
 					m_system->DispatchEvent(EVS_ResourceLoaded, data);
 					stream.Destroy();
 				};
@@ -265,8 +265,8 @@ namespace Lina
 			Event			   data;
 			ResourceIdentifier copy = ident;
 			data.pParams[0]			= &copy.path;
-			data.iParams[0]			= ident.sid;
-			data.iParams[1]			= ident.tid;
+			data.uintParams[0]		= ident.sid;
+			data.uintParams[1]		= ident.tid;
 			m_system->DispatchEvent(EVS_ResourceUnloaded, data);
 		}
 

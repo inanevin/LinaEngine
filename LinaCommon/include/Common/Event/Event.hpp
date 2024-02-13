@@ -39,7 +39,7 @@ namespace Lina
 	{
 		void*  pParams[2];
 		float  fParams[4];
-		uint32 iParams[4];
+		uint32 uintParams[4];
 	};
 
 	enum SystemEvent
@@ -55,7 +55,8 @@ namespace Lina
 		EVS_OnKey					  = 1 << 8,
 		EVS_OnMouse					  = 1 << 9,
 		EVS_OnMouseWheel			  = 1 << 10,
-		EVS_PreLevelUninstall		  = 1 << 11,
+		EVS_OnMouseMove				  = 1 << 11,
+		EVS_PreLevelUninstall		  = 1 << 12,
 	};
 
 	enum GameEvent

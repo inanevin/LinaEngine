@@ -77,7 +77,7 @@ namespace Lina
 		}
 
 		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain);
-		m_widgetManager.Initialize(window);
+		m_widgetManager.Initialize(m_gfxManager->GetSystem(), window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()

@@ -29,14 +29,17 @@ SOFTWARE.
 #include "Common/GUI/Widgets/WidgetManager.hpp"
 #include "Common/GUI/Widgets/Widget.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	void WidgetManager::Initialize(LinaGX::Window* window)
+	void WidgetManager::Initialize(System* system, LinaGX::Window* window)
 	{
 		m_window	 = window;
 		m_rootWidget = Allocate<Widget>();
+		m_system	 = system;
+		m_system->AddListener(this);
 	}
 
 	void WidgetManager::Draw(int32 threadIndex)
@@ -54,7 +57,28 @@ namespace Lina
 
 	void WidgetManager::Shutdown()
 	{
+		m_system->RemoveListener(this);
 		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](auto& pair) -> void { delete pair.second; });
 		m_allocators.clear();
+	}
+
+	void WidgetManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	{
+		// I only care about window events and my window's
+		if (ev.pParams[0] != m_window)
+			return;
+
+		if (eventType == SystemEvent::EVS_OnKey)
+		{
+		}
+		else if (eventType == SystemEvent::EVS_OnMouse)
+		{
+		}
+		else if (eventType == SystemEvent::EVS_OnMouseWheel)
+		{
+		}
+		else if (eventType == SystemEvent::EVS_OnMouseMove)
+		{
+		}
 	}
 } // namespace Lina

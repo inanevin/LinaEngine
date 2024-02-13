@@ -136,8 +136,8 @@ namespace Lina
 
 	void EntityWorld::DestroyEntityData(Entity* e)
 	{
-		Event ev	  = Event();
-		ev.iParams[0] = e->GetID();
+		Event ev		 = Event();
+		ev.uintParams[0] = e->GetID();
 
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
