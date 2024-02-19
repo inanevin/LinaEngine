@@ -62,7 +62,7 @@ namespace Lina
 		FromChildren,
 	};
 
-	enum class Direction
+	enum class WidgetDirection
 	{
 		Horizontal,
 		Vertical,

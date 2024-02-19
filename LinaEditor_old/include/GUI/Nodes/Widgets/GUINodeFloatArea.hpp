@@ -28,37 +28,61 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
+#ifndef GUINodeFloatArea_HPP
+#define GUINodeFloatArea_HPP
 
-namespace Lina
+#include "GUI/Nodes/Widgets/GUINodeNumberArea.hpp"
+
+namespace Lina::Editor
 {
-	class DirectionalLayout : public Widget
+	class GUINodeFloatArea : public GUINodeNumberArea
 	{
 	public:
-		DirectionalLayout()			 = default;
-		virtual ~DirectionalLayout() = default;
+		GUINodeFloatArea(GUIDrawerBase* drawer, int drawOrder);
+		virtual ~GUINodeFloatArea(){};
 
-		struct Properties
+		virtual void Draw(int threadID) override;
+		virtual void OnTitleChanged(const String& str) override;
+
+		inline void SetOwnValue(float val)
 		{
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-		};
-
-		virtual void Tick(float delta) override;
-
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
+			m_ownValue = val;
+			SetPtr(&m_ownValue);
 		}
 
-		inline Properties& GetProps()
+		inline void SetPtr(float* ptr)
 		{
-			return m_props;
+			m_ptr = ptr;
+		}
+
+		inline void SetMinMax(float min, float max)
+		{
+			m_minValue = min;
+			m_maxValue = max;
+		}
+
+	protected:
+		virtual void  UpdateTitle(int decimals) override;
+		virtual void  IncrementValue(const Vector2i& delta) override;
+		virtual void  OnStartedIncrementing() override;
+		virtual void  SetValueFromPerc(float perc) override;
+		virtual float GetSliderPerc() override;
+
+		virtual String GetDefaultValueStr() override
+		{
+			return "0.0";
 		}
 
 	private:
-		Properties m_props = {};
+		int	   m_maxDecimals		 = 5;
+		int	   m_lastDecimals		 = 0;
+		float* m_ptr				 = nullptr;
+		float  m_ownValue			 = 0.0f;
+		float  m_valOnIncrementStart = 0.0f;
+		float  m_minValue			 = -99999.0f;
+		float  m_maxValue			 = 99999.0f;
 	};
 
-} // namespace Lina
+} // namespace Lina::Editor
+
+#endif

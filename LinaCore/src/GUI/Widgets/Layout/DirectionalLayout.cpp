@@ -42,7 +42,11 @@ namespace Lina
 		for (auto* c : m_children)
 		{
 			c->SetPos(Vector2(x, y));
-			x += c->GetSize().x + m_props.padding;
+
+			if (m_props.direction == WidgetDirection::Horizontal)
+				x += c->GetSize().x + m_props.padding;
+			else
+				y += c->GetSize().y + m_props.padding;
 		}
 
 		Widget::Tick(delta);

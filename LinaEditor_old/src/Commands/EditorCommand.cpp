@@ -26,39 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Commands/EditorCommand.hpp"
+#include "Commands/EditorCommandManager.hpp"
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class DirectionalLayout : public Widget
-	{
-	public:
-		DirectionalLayout()			 = default;
-		virtual ~DirectionalLayout() = default;
 
-		struct Properties
-		{
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-		};
-
-		virtual void Tick(float delta) override;
-
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
-		}
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-	private:
-		Properties m_props = {};
-	};
-
-} // namespace Lina
+} // namespace Lina::Editor

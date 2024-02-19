@@ -26,39 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "GUI/Drawers/GUIDrawerMainWindow.hpp"
+#include "Graphics/Core/SurfaceRenderer.hpp"
+#include "Platform/LinaVGIncl.hpp"
+#include "GUI/Nodes/Custom/GUINodeTopPanel.hpp"
+#include "GUI/Nodes/Custom/GUINodeTitleSection.hpp"
+#include "GUI/Nodes/Docking/GUINodeDockArea.hpp"
+#include "Core/Theme.hpp"
+#include "Profiling/Profiler.hpp"
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class DirectionalLayout : public Widget
+	GUIDrawerMainWindow::GUIDrawerMainWindow(Editor* editor, LinaGX::Window* window) : GUIDrawerBase(editor, window)
 	{
-	public:
-		DirectionalLayout()			 = default;
-		virtual ~DirectionalLayout() = default;
+		m_editor   = editor;
+		m_topPanel = new GUINodeTopPanel(this, 0);
+		m_root->AddChildren(m_topPanel);
+	}
 
-		struct Properties
-		{
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-		};
+	void GUIDrawerMainWindow::DrawGUI(int threadID)
+	{
+		const Vector2 swapchainSize = m_window->GetSize();
+		const Vector2 monitorSize	= m_window->GetSize();
+		const Rect	  topRect		= Rect(Vector2(0, 0), Vector2(swapchainSize.x, 90.0f * m_window->GetDPIScale()));
+		m_topPanel->SetRect(topRect);
+		m_topPanel->Draw(threadID);
 
-		virtual void Tick(float delta) override;
-
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
-		}
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-	private:
-		Properties m_props = {};
-	};
-
-} // namespace Lina
+		const Rect dockRect = Rect(Vector2(0, topRect.size.y), Vector2(topRect.size.x, swapchainSize.y - topRect.size.y));
+		GUIDrawerBase::DrawDockAreas(threadID, dockRect);
+	}
+} // namespace Lina::Editor

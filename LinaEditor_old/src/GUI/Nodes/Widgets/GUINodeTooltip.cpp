@@ -26,39 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "GUI/Nodes/Widgets/GUINodeTooltip.hpp"
+#include "GUI/Utility/GUIUtility.hpp"
+#include "Platform/LinaVGIncl.hpp"
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class DirectionalLayout : public Widget
+	GUINodeTooltip::GUINodeTooltip(GUIDrawerBase* drawer) : GUINode(drawer, FRONTER_DRAW_ORDER)
 	{
-	public:
-		DirectionalLayout()			 = default;
-		virtual ~DirectionalLayout() = default;
+	}
+	void GUINodeTooltip::Draw(int threadID)
+	{
+		if (!GetIsVisible())
+			return;
 
-		struct Properties
-		{
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-		};
+		const float padding		  = Theme::GetProperty(ThemeProperty::GeneralItemPadding, m_window->GetDPIScale());
+		const float textWrapWidth = 200.0f;
 
-		virtual void Tick(float delta) override;
+		LinaVG::TextOptions opts;
+		opts.font = Theme::GetFont(FontType::AltEditor, m_window->GetDPIScale());
+		// opts.wrapWidth = textWrapWidth;
 
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
-		}
+		const Vector2 textSize = LinaVG::CalculateTextSize(m_title.c_str(), opts);
+		m_rect.size			   = textSize + Vector2(padding * 2, padding * 2);
 
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
+		GUIUtility::DrawPopupBackground(threadID, m_rect, 1.0f * m_window->GetDPIScale(), m_drawOrder);
 
-	private:
-		Properties m_props = {};
-	};
-
-} // namespace Lina
+		const Vector2 textStart = m_rect.pos + Vector2(padding, padding + textSize.y);
+		LinaVG::DrawTextNormal(threadID, m_title.c_str(), textStart.AsLVG2(), opts, 0.0f, m_drawOrder);
+	}
+} // namespace Lina::Editor

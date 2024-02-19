@@ -28,37 +28,17 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
+#include "Core/ApplicationDelegate.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	class DirectionalLayout : public Widget
+	class EditorApplicationDelegate : public ApplicationDelegate
 	{
 	public:
-		DirectionalLayout()			 = default;
-		virtual ~DirectionalLayout() = default;
-
-		struct Properties
-		{
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-		};
-
-		virtual void Tick(float delta) override;
-
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
-		}
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-	private:
-		Properties m_props = {};
+		virtual void OnPreInitialize() override;
+		virtual void OnInitialize() override;
+		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
+		virtual void RegisterAppResources(ResourceManager& rm) override;
 	};
 
-} // namespace Lina
+} // namespace Lina::Editor

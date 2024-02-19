@@ -28,37 +28,37 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
+#ifndef GUINodeScrollArea_HPP
+#define GUINodeScrollArea_HPP
 
-namespace Lina
+#include "GUI/Nodes/GUINode.hpp"
+#include "Core/EditorCommon.hpp"
+
+namespace Lina::Editor
 {
-	class DirectionalLayout : public Widget
+	class GUINodeScrollArea : public GUINode
 	{
 	public:
-		DirectionalLayout()			 = default;
-		virtual ~DirectionalLayout() = default;
+		GUINodeScrollArea(GUIDrawerBase* drawer, int drawOrder) : GUINode(drawer, drawOrder){};
+		virtual ~GUINodeScrollArea() = default;
 
-		struct Properties
+		virtual void  ShowScrollIfRequired();
+		virtual void  OnChildExceededSize(float amt){};
+		virtual void  AddScrollValue(float amt);
+		virtual float GetChildSize();
+		virtual float GetMySize();
+		virtual void  DetermineScroll(float mySize, float targetSize);
+
+		inline void SetDirection(Direction dir)
 		{
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-		};
-
-		virtual void Tick(float delta) override;
-
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
+			m_direction = dir;
 		}
 
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-	private:
-		Properties m_props = {};
+	protected:
+		Direction m_direction		 = Direction::Horizontal;
+		float	  m_scrollValue		 = 0.0f;
+		bool	  m_shouldShowScroll = false;
 	};
+} // namespace Lina::Editor
 
-} // namespace Lina
+#endif

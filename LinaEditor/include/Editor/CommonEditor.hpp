@@ -28,37 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class DirectionalLayout : public Widget
-	{
-	public:
-		DirectionalLayout()			 = default;
-		virtual ~DirectionalLayout() = default;
 
-		struct Properties
-		{
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-		};
+#define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
+#define ICON_FONT_SID  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 
-		virtual void Tick(float delta) override;
+#define ICON_LINA_LOGO "\u0041"
 
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
-		}
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-	private:
-		Properties m_props = {};
-	};
-
-} // namespace Lina
+} // namespace Lina::Editor
