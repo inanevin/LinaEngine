@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/EditorApplicationDelegate.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Widgets/Testbed.hpp"
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -88,10 +89,10 @@ namespace Lina::Editor
 
 	void EditorApplicationDelegate::OnInitialize()
 	{
-		auto* gfxManager	  = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto& widgetAllocator = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-		// FlarePackerWidget* wi			   = widgetAllocator.GetRoot()->Allocate<FlarePackerWidget>();
-		// widgetAllocator.GetRoot()->AddChild(wi);
+		auto*	 gfxManager		 = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto&	 widgetAllocator = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+		Testbed* tb				 = widgetAllocator.GetRoot()->Allocate<Testbed>();
+		widgetAllocator.GetRoot()->AddChild(tb);
 	}
 
 } // namespace Lina::Editor
