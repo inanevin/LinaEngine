@@ -28,23 +28,28 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
-	{
-	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+	/*
+		class Stack : public Widget
+		{
+		public:
+			struct StackContents
+			{
+				CrossAlignment horizontalAlignment = CrossAlignment::Start;
+				CrossAlignment verticalAlignment   = CrossAlignment::Start;
+				Fit			   widthFit			   = Fit::Fixed;
+				Fit			   heightFit		   = Fit::Fixed;
+				TBLR		   margins			   = {};
+				float		   padding			   = 0.0f;
+			};
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
-	};
+			virtual void SizePass() override;
+			virtual void Draw() override;
+
+			StackContents contents = {};
+		};
+	 */
 } // namespace Lina
-
-#endif

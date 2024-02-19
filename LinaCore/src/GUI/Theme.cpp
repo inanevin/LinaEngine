@@ -26,25 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/Theme.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
-	{
-	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
-
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
-	};
+	ThemeDef Theme::s_themeDef = {};
 } // namespace Lina
-
-#endif

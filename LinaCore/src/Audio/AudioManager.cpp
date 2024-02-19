@@ -39,7 +39,7 @@ namespace Lina
 		LINA_TRACE("[Audio Manager] -> Shutdown.");
 	}
 
-	void AudioManager::Tick()
+	void AudioManager::Tick(float delta)
 	{
 	}
 } // namespace Lina

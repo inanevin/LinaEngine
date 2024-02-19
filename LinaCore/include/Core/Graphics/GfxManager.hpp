@@ -76,7 +76,7 @@ namespace Lina
 		void			 WaitForSwapchains();
 		void			 Join();
 		void			 Poll();
-		void			 Tick();
+		void			 Tick(float delta);
 		void			 RenderSync();
 		void			 Render();
 		void			 DestroyApplicationWindow(StringID sid);

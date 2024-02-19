@@ -28,23 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
+#include "Common/SizeDefinitions.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 
-#include "Common/System/Subsystem.hpp"
+namespace LinaGX
+{
+	class Window;
+}
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	class DirectionalLayout;
+
+	class FlarePackerWidget : public Widget
 	{
 	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
+	private:
+		DirectionalLayout* m_titleRow = nullptr;
 	};
-} // namespace Lina
 
-#endif
+} // namespace Lina

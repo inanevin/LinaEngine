@@ -28,23 +28,37 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	class DirectionalLayout : public Widget
 	{
 	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+		DirectionalLayout()			 = default;
+		virtual ~DirectionalLayout() = default;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
+		struct Properties
+		{
+			float	  padding	= 0.0f;
+			Direction direction = Direction::Horizontal;
+		};
+
+		virtual void Tick(float delta) override;
+
+		inline void SetProps(const Properties& props)
+		{
+			m_props = props;
+		}
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
+
+	private:
+		Properties m_props = {};
 	};
-} // namespace Lina
 
-#endif
+} // namespace Lina

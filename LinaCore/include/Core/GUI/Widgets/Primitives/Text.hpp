@@ -28,23 +28,44 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	class Font;
+
+	class Text : public Widget
 	{
 	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+		Text()			= default;
+		virtual ~Text() = default;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
+		struct Properties
+		{
+			String text	 = "";
+			Font*  font	 = nullptr;
+			Color  color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+		};
+
+		virtual void Draw(int32 threadIndex) override;
+
+		inline void SetProps(const Properties& props)
+		{
+			m_props = props;
+			GenerateTextOptions();
+		}
+
+	private:
+		void GenerateTextOptions();
+
+	private:
+		Properties			   m_props				= {};
+		LinaVG::TextOptions	   m_textOptions		= {};
+		LinaVG::SDFTextOptions m_sdfOptions			= {};
+		float				   m_calculatedDPIScale = 0.0f;
+		LinaVG::LinaVGFont*	   m_lvgFont			= nullptr;
 	};
-} // namespace Lina
 
-#endif
+} // namespace Lina

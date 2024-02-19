@@ -28,23 +28,50 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
+#include "Common/SizeDefinitions.hpp"
+#include "Common/Math/Color.hpp"
+#include "Common/StringID.hpp"
 
-#include "Common/System/Subsystem.hpp"
+namespace LinaVG
+{
+	class LinaVGFont;
+}
+
+namespace LinaGX
+{
+	class Window;
+}
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	struct ThemeDef
+	{
+		Color background0 = Color(0.01f, 0.007f, 0.01f, 1.0f);
+		Color background1 = Color(0.01f, 0.009f, 0.012f, 1.0f);
+		Color background2 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+		Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
+		Color foreground1 = Color(0.019f, 0.018f, 0.022f, 1.0f);
+		Color foreground2 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+		Color accentPrimary	  = Color(0.047f, 0.007f, 0.015f, 1.0f);
+		Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
+
+		float baseIndent = 8.0f;
+
+		StringID defaultFont	 = "Resources/Core/Fonts/NunitoSansRegular.ttf"_hs;
+		StringID alternativeFont = "Resources/Core/Fonts/RubikSansRegular.ttf"_hs;
+	};
+
+	class Theme
 	{
 	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+		static const ThemeDef& GetDef()
+		{
+			return s_themeDef;
+		}
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
+	private:
+		static ThemeDef s_themeDef;
 	};
 } // namespace Lina
-
-#endif

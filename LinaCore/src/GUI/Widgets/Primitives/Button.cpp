@@ -26,25 +26,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	void Button::Construct()
 	{
-	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+		m_text = Allocate<Text>();
+		AddChild(m_text);
+	}
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
-	};
+	void Button::Tick(float delta)
+	{
+		if (m_props.widthFit == Fit::FromChildren)
+			m_rect.size.x = m_text->GetSize().x + m_props.margins.left + m_props.margins.right;
+
+		if (m_props.heightFit == Fit::FromChildren)
+			m_rect.size.y = m_text->GetSize().y + m_props.margins.top + m_props.margins.bottom;
+
+		const Vector2& textSize = m_text->GetSize();
+		m_text->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f - textSize.y * 0.5f));
+	}
+
+	void Button::Draw(int32 threadIndex)
+	{
+		WidgetUtility::DrawRectBackground(threadIndex, m_props.background, m_rect, m_drawOrder);
+		m_text->Draw(threadIndex);
+	}
+
+	void Button::SetProps(const Properties& props)
+	{
+		m_text->SetProps({.text = props.text, .font = props.font});
+		m_props = props;
+	}
 } // namespace Lina
-
-#endif

@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
+#include "FlarePackerWidget.hpp"
 
 namespace Lina
 {
@@ -80,12 +82,14 @@ namespace Lina
 
 	void FlarePackerAppDelegate::OnPreInitialize()
 	{
-		m_flarePacker.PreInitialize(m_app);
 	}
 
 	void FlarePackerAppDelegate::OnInitialize()
 	{
-		m_flarePacker.Initialize();
+		auto*			   gfxManager	   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto&			   widgetAllocator = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+		FlarePackerWidget* wi			   = widgetAllocator.GetRoot()->Allocate<FlarePackerWidget>();
+		widgetAllocator.GetRoot()->AddChild(wi);
 	}
 
 } // namespace Lina

@@ -38,7 +38,7 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
-#include "Common/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace LinaGX
 {
@@ -64,7 +64,7 @@ namespace Lina
 		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize);
 		virtual ~SurfaceRenderer();
 
-		void				   Tick();
+		void				   Tick(float delta);
 		void				   OnResize(void* windowPtr, const Vector2ui& newSize);
 		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
 

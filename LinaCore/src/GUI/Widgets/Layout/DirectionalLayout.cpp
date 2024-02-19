@@ -26,25 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Math/Math.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	void DirectionalLayout::Tick(float delta)
 	{
-	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+		float x = m_rect.pos.x;
+		float y = m_rect.pos.y;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
-	};
+		for (auto* c : m_children)
+		{
+			c->SetPos(Vector2(x, y));
+			x += c->GetSize().x + m_props.padding;
+		}
+
+		Widget::Tick(delta);
+	}
 } // namespace Lina
-
-#endif

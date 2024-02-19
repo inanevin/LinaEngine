@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
@@ -137,10 +137,10 @@ namespace Lina
 
 		m_lgx->Initialize();
 
-		m_lgx->GetInput().SetCallbackKey([this](uint32 keyCode, uint32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
+		m_lgx->GetInput().SetCallbackKey([this](uint32 keyCode, int32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
 			Event ev;
 			ev.uintParams[0] = keyCode;
-			ev.uintParams[1] = scanCode;
+			ev.uintParams[1] = static_cast<uint32>(scanCode);
 			ev.uintParams[2] = static_cast<uint32>(action);
 			ev.pParams[0]	 = window;
 			m_system->DispatchEvent(SystemEvent::EVS_OnKey, ev);
@@ -319,7 +319,7 @@ namespace Lina
 		m_lgx->TickWindowSystem();
 	}
 
-	void GfxManager::Tick()
+	void GfxManager::Tick(float delta)
 	{
 		PROFILER_FUNCTION();
 
@@ -334,7 +334,7 @@ namespace Lina
 		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUDataEngineGlobals));
 
 		for (const auto& sr : m_surfaceRenderers)
-			sr->Tick();
+			sr->Tick(delta);
 	}
 
 	void GfxManager::RenderSync()

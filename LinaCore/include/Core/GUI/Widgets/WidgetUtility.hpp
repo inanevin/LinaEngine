@@ -28,23 +28,16 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/CommonGUI.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	class Rect;
+
+	class WidgetUtility
 	{
 	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
-
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
+		static void DrawRectBackground(int32 threadIndex, const RectBackground& options, const Rect& rect, int32 drawOrder, bool positionIsCenter = false);
 	};
-} // namespace Lina
 
-#endif
+} // namespace Lina

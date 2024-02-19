@@ -26,25 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Math/Rect.hpp"
 
 namespace Lina
 {
-	class AudioManager final : public Subsystem
+	void WidgetUtility::DrawRectBackground(int32 threadIndex, const RectBackground& options, const Rect& rect, int32 drawOrder, bool positionIsCenter)
 	{
-	public:
-		AudioManager(System* sys) : Subsystem(sys, SubsystemType::AudioManager){};
-		~AudioManager() = default;
+		if (!options.enabled)
+			return;
 
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-		virtual void Tick(float delta);
-	};
+		LinaVG::StyleOptions opts;
+		opts.color.start		 = options.startColor.AsLVG4();
+		opts.color.end			 = options.endColor.AsLVG4();
+		opts.rounding			 = options.rounding;
+		const LinaVG::Vec2 start = positionIsCenter ? (rect.pos - rect.size * 0.5f).AsLVG() : (rect.pos).AsLVG();
+		const LinaVG::Vec2 end	 = positionIsCenter ? (rect.pos + rect.size * 0.5f).AsLVG() : (rect.pos + rect.size).AsLVG();
+		LinaVG::DrawRect(threadIndex, start, end, opts, 0.0f, drawOrder);
+	}
 } // namespace Lina
-
-#endif

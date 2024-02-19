@@ -22,14 +22,12 @@ project(FlarePacker)
 set(SOURCES 
 include/FlarePackerAppDelegate.hpp
 include/FlarePackerCommon.hpp
-include/FlarePacker.hpp
-include/GUI/TopSection.hpp
+include/FlarePackerWidget.hpp
 )
 
 set(HEADERS
 src/FlarePackerAppDelegate.cpp
-src/FlarePacker.cpp
-src/GUI/TopSection.cpp
+src/FlarePackerWidget.cpp
 )
 
 #--------------------------------------------------------------------

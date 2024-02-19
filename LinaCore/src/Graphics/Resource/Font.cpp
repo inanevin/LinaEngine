@@ -125,8 +125,8 @@ namespace Lina
 		const int32 sz = static_cast<int32>(m_meta.points.size());
 		for (int32 i = 0; i < sz; i++)
 		{
-			if (dpiScale > m_meta.points[i].dpiLimit)
-				continue;
+			// if (dpiScale > m_meta.points[i].dpiLimit)
+			// continue;
 
 			return m_lvgFonts[i];
 		}

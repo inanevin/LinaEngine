@@ -107,12 +107,12 @@ namespace Lina
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
 		// Kick off audio & render threads
-		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(); });
+		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
 
 		// Update app.
-		m_gfxManager.Tick();
-		m_audioManager.Tick();
+		m_gfxManager.Tick(delta);
+		m_audioManager.Tick(delta);
 		m_app->GetAppDelegate()->OnTick(delta);
 
 		renderJob.get();

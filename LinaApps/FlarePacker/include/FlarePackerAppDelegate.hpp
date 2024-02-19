@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Core/ApplicationDelegate.hpp"
-#include "FlarePacker.hpp"
 
 namespace Lina
 {
@@ -40,9 +39,6 @@ namespace Lina
 		virtual void OnInitialize() override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
 		virtual void RegisterAppResources(ResourceManager& rm) override;
-
-	private:
-		FlarePacker m_flarePacker;
 	};
 
 } // namespace Lina

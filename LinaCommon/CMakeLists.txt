@@ -82,19 +82,6 @@ set (SOURCES
 	# Platform
 	src/Platform/LinaGXIncl.cpp
 
-	# GUI
-	src/GUI/Theme.cpp
-	src/GUI/Widgets/Widget.cpp
-	src/GUI/Widgets/WidgetManager.cpp
-	src/GUI/Widgets/WidgetUtility.cpp
-	src/GUI/Widgets/Layout/Row.cpp
-	src/GUI/Widgets/Layout/Column.cpp
-	src/GUI/Widgets/Layout/Stack.cpp
-	src/GUI/Widgets/Container/Box.cpp
-	src/GUI/Widgets/Container/Background.cpp
-	src/GUI/Widgets/Button/Button.cpp
-	src/GUI/Widgets/Text/Text.cpp
-	src/GUI/Widgets/Composite/WindowButtons.cpp
 
 )
 
@@ -204,20 +191,6 @@ set(HEADERS
     include/Common/Platform/PlatformTime.hpp
 	include/Common/Platform/PlatformInclude.hpp
 
-	# GUI
-	include/Common/GUI/CommonGUI.hpp
-	include/Common/GUI/Theme.hpp
-	include/Common/GUI/Widgets/WidgetManager.hpp
-	include/Common/GUI/Widgets/Widget.hpp
-	include/Common/GUI/Widgets/WidgetUtility.hpp
-	include/Common/GUI/Widgets/Layout/Row.hpp
-	include/Common/GUI/Widgets/Layout/Column.hpp
-	include/Common/GUI/Widgets/Layout/Stack.hpp
-	include/Common/GUI/Widgets/Container/Box.hpp
-	include/Common/GUI/Widgets/Container/Background.hpp
-	include/Common/GUI/Widgets/Button/Button.hpp
-	include/Common/GUI/Widgets/Text/Text.hpp
-	include/Common/GUI/Widgets/Composite/WindowButtons.hpp
 )
 
 if(WIN32)
