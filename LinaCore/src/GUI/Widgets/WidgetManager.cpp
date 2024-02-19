@@ -93,6 +93,9 @@ namespace Lina
 		if (!gainedFocus)
 		{
 			ClearHovered(m_rootWidget);
+
+			if (m_deepestHovered != nullptr)
+				m_deepestHovered->m_isHovered = m_deepestHovered->m_isPressed = false;
 		}
 	}
 
@@ -103,11 +106,14 @@ namespace Lina
 	void WidgetManager::OnWindowHoverEnd()
 	{
 		ClearHovered(m_rootWidget);
+
+		if (m_deepestHovered != nullptr)
+			m_deepestHovered->m_isHovered = m_deepestHovered->m_isPressed = false;
 	}
 
 	void WidgetManager::ClearHovered(Widget* w)
 	{
-		w->m_isHovered = false;
+		w->m_isHovered = w->m_isPressed = false;
 		for (auto* c : w->m_children)
 			ClearHovered(c);
 	}
@@ -118,6 +124,8 @@ namespace Lina
 
 		if (w->m_isHovered)
 		{
+			m_deepestHovered = w;
+
 			for (auto* c : w->m_children)
 				FindHovered(pos, c);
 		}
