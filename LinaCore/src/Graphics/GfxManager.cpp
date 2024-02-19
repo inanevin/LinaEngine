@@ -90,7 +90,6 @@ namespace Lina
 	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_system->AddListener(this);
 
 		// Setup LinaVG
 		m_guiBackend						  = new GUIBackend(this);
@@ -136,37 +135,6 @@ namespace Lina
 		LinaGX::Config.gpuLimits	   = {};
 
 		m_lgx->Initialize();
-
-		m_lgx->GetInput().SetCallbackKey([this](uint32 keyCode, int32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
-			Event ev;
-			ev.uintParams[0] = keyCode;
-			ev.uintParams[1] = static_cast<uint32>(scanCode);
-			ev.uintParams[2] = static_cast<uint32>(action);
-			ev.pParams[0]	 = window;
-			m_system->DispatchEvent(SystemEvent::EVS_OnKey, ev);
-		});
-
-		m_lgx->GetInput().SetCallbackMouse([this](uint32 button, LinaGX::InputAction action, LinaGX::Window* window) {
-			Event ev;
-			ev.uintParams[0] = button;
-			ev.uintParams[1] = static_cast<uint32>(action);
-			ev.pParams[0]	 = window;
-			m_system->DispatchEvent(SystemEvent::EVS_OnMouse, ev);
-		});
-
-		m_lgx->GetInput().SetCallbackMouseWheel([this](int32 delta, LinaGX::Window* window) {
-			Event ev;
-			ev.fParams[0] = static_cast<float>(delta);
-			m_system->DispatchEvent(SystemEvent::EVS_OnMouseWheel, ev);
-		});
-
-		m_lgx->GetInput().SetCallbackMouseMove([this](const LinaGX::LGXVector2ui& pos, LinaGX::Window* window) {
-			Event ev;
-			ev.uintParams[0] = pos.x;
-			ev.uintParams[1] = pos.y;
-			ev.pParams[0]	 = window;
-			m_system->DispatchEvent(SystemEvent::EVS_OnMouseMove, ev);
-		});
 
 		// Default samplers
 		{
@@ -219,17 +187,6 @@ namespace Lina
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 		m_currentVsync = initInfo.vsyncStyle;
-
-		// LinaGX
-		{
-			m_lgx->GetInput().SetCallbackKey([&](uint32 key, int32 scanCode, LinaGX::InputAction action, LinaGX::Window* window) {
-				Event ev;
-				ev.uintParams[0] = key;
-				ev.uintParams[1] = static_cast<uint32>(action);
-				ev.pParams[0]	 = window;
-				m_system->DispatchEvent(EVS_OnKey, ev);
-			});
-		}
 
 		// pfd
 		{
@@ -302,7 +259,6 @@ namespace Lina
 
 		// Final
 		delete m_lgx;
-		m_system->RemoveListener(this);
 	}
 
 	void GfxManager::WaitForSwapchains()
@@ -446,13 +402,6 @@ namespace Lina
 	{
 		m_lgx->Join();
 		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
-		window->SetCallbackSizeChanged([this, sid](const LinaGX::LGXVector2ui& newSize) {
-			Event ev;
-			ev.pParams[0]	 = m_lgx->GetWindowManager().GetWindow(sid);
-			ev.uintParams[0] = newSize.x;
-			ev.uintParams[1] = newSize.y;
-			m_system->DispatchEvent(SystemEvent::EVS_WindowResized, ev);
-		});
 
 		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, size);
 		m_surfaceRenderers.push_back(renderer);
@@ -469,16 +418,6 @@ namespace Lina
 		m_surfaceRenderers.erase(it);
 
 		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
-	}
-
-	void GfxManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
-	{
-		if (eventType & EVS_WindowResized)
-		{
-			Join();
-			for (auto sr : m_surfaceRenderers)
-				sr->OnResize(ev.pParams[0], Vector2ui(ev.uintParams[0], ev.uintParams[1]));
-		}
 	}
 
 	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)

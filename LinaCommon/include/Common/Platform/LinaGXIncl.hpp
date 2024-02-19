@@ -38,7 +38,6 @@ namespace Lina
 {
 	extern void SaveLinaGXShaderLayout(OStream& stream, const LinaGX::ShaderLayout& layout);
 	extern void LoadLinaGXShaderLayout(IStream& stream, LinaGX::ShaderLayout& layout);
-
 #define DEFAULT_SWAPCHAIN_FORMAT LinaGX::Format::B8G8R8A8_SRGB
 #define DEFAULT_RT_FORMAT		 LinaGX::Format::R8G8B8A8_SRGB
 #define DEFAULT_RT_FORMAT_HDR	 LinaGX::Format::R16G16B16A16_SFLOAT

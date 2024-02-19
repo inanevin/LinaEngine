@@ -38,7 +38,7 @@ namespace Lina
 	{
 		m_window = window;
 		m_system = system;
-		m_system->AddListener(this);
+		m_window->AddListener(this);
 		m_rootWidget = Allocate<Widget>();
 	}
 
@@ -64,36 +64,38 @@ namespace Lina
 	{
 		m_rootWidget->Destroy();
 		m_rootWidget = nullptr;
+		m_window->RemoveListener(this);
 
-		m_system->RemoveListener(this);
 		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](auto& pair) -> void { delete pair.second; });
 		m_allocators.clear();
 	}
 
-	void WidgetManager::OnSystemEvent(SystemEvent eventType, const Event& ev)
+	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		// I only care about window events and my window's
-		if (ev.pParams[0] != m_window)
-			return;
-
-		if (eventType == SystemEvent::EVS_OnKey)
-		{
-			const uint32			  keycode  = ev.uintParams[0];
-			const int32				  scanCode = static_cast<int32>(ev.uintParams[1]);
-			const LinaGX::InputAction action   = static_cast<LinaGX::InputAction>(ev.uintParams[2]);
-		}
-		else if (eventType == SystemEvent::EVS_OnMouse)
-		{
-			const uint32			  button = ev.uintParams[0];
-			const LinaGX::InputAction action = static_cast<LinaGX::InputAction>(ev.uintParams[1]);
-		}
-		else if (eventType == SystemEvent::EVS_OnMouseWheel)
-		{
-			const float delta = ev.fParams[0];
-		}
-		else if (eventType == SystemEvent::EVS_OnMouseMove)
-		{
-			const Vector2ui pos = Vector2ui(ev.uintParams[0], ev.uintParams[1]);
-		}
 	}
+
+	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
+	{
+	}
+
+	void WidgetManager::OnWindowMouseWheel(int32 delta)
+	{
+	}
+
+	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2ui&)
+	{
+	}
+
+	void WidgetManager::OnWindowFocus(bool gainedFocus)
+	{
+	}
+
+	void WidgetManager::OnWindowHoverBegin()
+	{
+	}
+
+	void WidgetManager::OnWindowHoverEnd()
+	{
+	}
+
 } // namespace Lina

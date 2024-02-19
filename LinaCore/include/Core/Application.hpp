@@ -44,7 +44,7 @@ namespace Lina
 	class CoreResourcesRegistry;
 	class ApplicationDelegate;
 
-	class Application
+	class Application : public LinaGX::WindowListener
 	{
 	public:
 		Application() : m_engine(this){};
@@ -80,6 +80,9 @@ namespace Lina
 		{
 			return &m_engine;
 		}
+
+	protected:
+		virtual void OnWindowClose();
 
 	protected:
 		void SetFrameCap(int64 microseconds);

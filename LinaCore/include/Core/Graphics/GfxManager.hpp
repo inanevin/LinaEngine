@@ -35,7 +35,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "Common/StringID.hpp"
 #include "Common/Data/Vector.hpp"
 #include "MeshManager.hpp"
-#include "Common/Event/SystemEventListener.hpp"
 #include "CommonGraphics.hpp"
 #include "ResourceUploadQueue.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -48,7 +47,7 @@ namespace Lina
 	class ResourceManager;
 	class GUIBackend;
 
-	class GfxManager : public Subsystem, public SystemEventListener
+	class GfxManager : public Subsystem
 	{
 
 	private:
@@ -69,7 +68,6 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
 
 		void			 WaitForSwapchains();
 		void			 Join();
@@ -95,11 +93,6 @@ namespace Lina
 		uint16 GetPipelineLayoutPersistentRenderPass(uint32 frameIndex, RenderPassDescriptorType renderPassType) const
 		{
 			return m_pfd[frameIndex].pipelineLayoutPersistentRenderpass[renderPassType];
-		}
-
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return EVS_WindowResized;
 		}
 
 		inline const MeshManager& GetMeshManager()

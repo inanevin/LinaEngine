@@ -30,7 +30,9 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Common/System/System.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Theme.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 
@@ -67,15 +69,45 @@ namespace Lina::Editor
 			text->SetPos(Vector2(30, 10));
 			AddChild(text);
 		}
+
+		// Button
+		{
+			RectBackground buttonBg = {
+				.enabled	= true,
+				.startColor = Theme::GetDef().background2,
+				.endColor	= Theme::GetDef().background2,
+			};
+
+			Button* button = Allocate<Button>();
+			button->SetProps({
+				.widthFit	= Fit::Fixed,
+				.heightFit	= Fit::Fixed,
+				.margins	= {},
+				.font		= defaultFont,
+				.text		= "Button",
+				.background = buttonBg,
+			});
+			button->SetSize(Vector2(60, 30));
+			button->SetPos(Vector2(10, 30));
+			AddChild(button);
+		}
 	}
 
 	void Testbed::Tick(float delta)
 	{
+		m_rect = m_parent->GetRect();
 		Widget::Tick(delta);
 	}
 
 	void Testbed::Draw(int32 threadIndex)
 	{
+		RectBackground bgSettings = {
+			.enabled	= true,
+			.startColor = Theme::GetDef().background1,
+			.endColor	= Theme::GetDef().background1,
+		};
+
+		WidgetUtility::DrawRectBackground(threadIndex, bgSettings, m_rect, m_drawOrder);
 		Widget::Draw(threadIndex);
 	}
 

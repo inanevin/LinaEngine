@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/HashMap.hpp"
-#include "Common/Event/SystemEventListener.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 #include <memoryallocators/PoolAllocator.h>
 
 namespace LinaGX
@@ -42,27 +42,30 @@ namespace Lina
 	class Widget;
 	class System;
 
-	class WidgetManager : public SystemEventListener
+	class WidgetManager : public LinaGX::WindowListener
 	{
 	public:
-		WidgetManager()	 = default;
-		~WidgetManager() = default;
+		WidgetManager()			 = default;
+		virtual ~WidgetManager() = default;
 
-		void		 Initialize(System* system, LinaGX::Window* window);
-		void		 Draw(int32 threadIndex);
-		void		 Tick(float delta, const Vector2ui& size);
-		void		 Shutdown();
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return EVS_OnKey | EVS_OnMouse | EVS_OnMouseWheel | EVS_OnMouseMove;
-		}
+		void Initialize(System* system, LinaGX::Window* window);
+		void Draw(int32 threadIndex);
+		void Tick(float delta, const Vector2ui& size);
+		void Shutdown();
 
 		inline Widget* GetRoot()
 		{
 			return m_rootWidget;
 		}
+
+	protected:
+		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
+		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
+		virtual void OnWindowMouseWheel(int32 delta) override;
+		virtual void OnWindowMouseMove(const LinaGX::LGXVector2ui&) override;
+		virtual void OnWindowFocus(bool gainedFocus) override;
+		virtual void OnWindowHoverBegin() override;
+		virtual void OnWindowHoverEnd() override;
 
 	private:
 		friend class Widget;
@@ -92,9 +95,10 @@ namespace Lina
 	private:
 		static constexpr size_t			CHUNK_COUNT = 150;
 		HashMap<TypeID, PoolAllocator*> m_allocators;
-		LinaGX::Window*					m_window	 = nullptr;
-		Widget*							m_rootWidget = nullptr;
-		System*							m_system	 = nullptr;
+		LinaGX::Window*					m_window		= nullptr;
+		Widget*							m_rootWidget	= nullptr;
+		System*							m_system		= nullptr;
+		Widget*							m_hoveredWidget = nullptr;
 	};
 
 } // namespace Lina

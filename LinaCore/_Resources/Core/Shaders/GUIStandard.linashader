@@ -120,7 +120,6 @@ void main()
       alpha = (1.0f - alpha) * material.floatPack2.r + alpha * (1.0f - material.floatPack2.r);
       fragColor = vec4(baseColor, alpha * inCol.a);
    }
-
 }
 
 #lina_end

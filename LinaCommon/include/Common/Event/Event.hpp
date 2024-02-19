@@ -50,13 +50,8 @@ namespace Lina
 		EVS_ResourceBatchUnloaded	  = 1 << 3,
 		EVS_LevelInstalled			  = 1 << 4,
 		EVS_LevelUninstalled		  = 1 << 5,
-		EVS_WindowResized			  = 1 << 6,
-		EVS_VsyncModeChanged		  = 1 << 7,
-		EVS_OnKey					  = 1 << 8,
-		EVS_OnMouse					  = 1 << 9,
-		EVS_OnMouseWheel			  = 1 << 10,
-		EVS_OnMouseMove				  = 1 << 11,
-		EVS_PreLevelUninstall		  = 1 << 12,
+		EVS_VsyncModeChanged		  = 1 << 6,
+		EVS_PreLevelUninstall		  = 1 << 7,
 	};
 
 	enum GameEvent

@@ -40,12 +40,14 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			Fit			   widthFit	  = Fit::Fixed;
-			Fit			   heightFit  = Fit::Fixed;
-			TBLR		   margins	  = {};
-			Font*		   font		  = nullptr;
-			String		   text		  = "";
-			RectBackground background = {};
+			Fit			   widthFit			 = Fit::Fixed;
+			Fit			   heightFit		 = Fit::Fixed;
+			TBLR		   margins			 = {};
+			Font*		   font				 = nullptr;
+			String		   text				 = "";
+			RectBackground background		 = {};
+			RectBackground hoveredBackground = {};
+			RectBackground pressedBackground = {};
 		};
 
 		Button() : Widget(1){};

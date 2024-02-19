@@ -79,7 +79,7 @@ namespace Lina
 		{
 			auto window = m_engine.GetGfxManager().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
 			window->CenterPositionToCurrentMonitor();
-			window->SetCallbackClose([&]() { m_exitRequested = true; });
+			window->AddListener(this);
 			window->SetVisible(true);
 		}
 
@@ -133,6 +133,7 @@ namespace Lina
 	void Application::Shutdown()
 	{
 		m_engine.PreShutdown();
+		m_engine.GetGfxManager().GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->RemoveListener(this);
 		m_engine.GetGfxManager().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_engine.Shutdown();
 
@@ -147,6 +148,11 @@ namespace Lina
 	void Application::SetFixedTimestep(int64 microseconds)
 	{
 		SystemInfo::SetFixedTimestep(microseconds);
+	}
+
+	void Application::OnWindowClose()
+	{
+		m_exitRequested = true;
 	}
 
 } // namespace Lina
