@@ -37,8 +37,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Renderer;
-
 	class TextureSampler : public Resource
 	{
 	public:

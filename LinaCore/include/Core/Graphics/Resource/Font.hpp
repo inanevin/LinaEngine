@@ -45,10 +45,6 @@ namespace LinaVG
 
 namespace Lina
 {
-#define FONT_META_SIZE			"Size"_hs
-#define FONT_META_ISSDF			"IsSDF"_hs
-#define FONT_META_CUSTOM_GLPYHS "CustomGlyphRanges"_hs
-
 	class Font : public Resource
 	{
 	public:

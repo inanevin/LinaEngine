@@ -44,7 +44,6 @@ namespace Lina
 {
 	class Texture;
 	class GfxManager;
-	class LGXWrapper;
 	struct SemaphoreData;
 
 	struct TextureUploadRequest
@@ -78,7 +77,6 @@ namespace Lina
 	private:
 		Mutex						 m_mtx;
 		Vector<TextureUploadRequest> m_textureRequests;
-		LGXWrapper*					 m_lgxWrapper		  = nullptr;
 		GfxManager*					 m_gfxManager		  = nullptr;
 		LinaGX::CommandStream*		 m_copyStream		  = nullptr;
 		uint16						 m_copySemaphore	  = 0;

@@ -45,10 +45,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 namespace Lina
 {
 	class SurfaceRenderer;
-	class Renderer;
 	class ResourceManager;
 	class GUIBackend;
-	class LGXWrapper;
 
 	class GfxManager : public Subsystem, public SystemEventListener
 	{
@@ -137,7 +135,6 @@ namespace Lina
 		ResourceManager*		 m_resourceManager = nullptr;
 		Vector<TextureSampler*>	 m_defaultSamplers;
 		Vector<Material*>		 m_defaultMaterials;
-		LGXWrapper*				 m_lgxWrapper	= nullptr;
 		LinaGX::Instance*		 m_lgx			= nullptr;
 		LinaGX::VSyncStyle		 m_currentVsync = {};
 		ApplicationDelegate*	 m_appDelegate	= nullptr;

@@ -45,7 +45,6 @@ namespace LinaGX
 
 namespace Lina
 {
-	class MaterialPropertyBase;
 	class Shader;
 	class GfxManager;
 	class DescriptorSet;
