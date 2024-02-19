@@ -142,6 +142,8 @@ namespace Lina
 		Rect			m_rect		= {};
 		Vector<Widget*> m_children;
 		int32			m_maxChilds = 0;
+		bool			m_isHovered = false;
+		bool			m_isPressed = false;
 	};
 
 } // namespace Lina

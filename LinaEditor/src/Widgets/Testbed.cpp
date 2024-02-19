@@ -72,20 +72,27 @@ namespace Lina::Editor
 
 		// Button
 		{
-			RectBackground buttonBg = {
+			RectBackground bg = {
 				.enabled	= true,
 				.startColor = Theme::GetDef().background2,
 				.endColor	= Theme::GetDef().background2,
 			};
 
+			RectBackground bgHovered = {
+				.enabled	= true,
+				.startColor = Theme::GetDef().background3,
+				.endColor	= Theme::GetDef().background3,
+			};
+
 			Button* button = Allocate<Button>();
 			button->SetProps({
-				.widthFit	= Fit::Fixed,
-				.heightFit	= Fit::Fixed,
-				.margins	= {},
-				.font		= defaultFont,
-				.text		= "Button",
-				.background = buttonBg,
+				.widthFit		   = Fit::Fixed,
+				.heightFit		   = Fit::Fixed,
+				.margins		   = {},
+				.font			   = defaultFont,
+				.text			   = "Button",
+				.background		   = bg,
+				.backgroundHovered = bgHovered,
 			});
 			button->SetSize(Vector2(60, 30));
 			button->SetPos(Vector2(10, 30));

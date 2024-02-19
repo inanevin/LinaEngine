@@ -53,7 +53,13 @@ namespace Lina
 
 	void Button::Draw(int32 threadIndex)
 	{
-		WidgetUtility::DrawRectBackground(threadIndex, m_props.background, m_rect, m_drawOrder);
+		if (m_isPressed)
+			WidgetUtility::DrawRectBackground(threadIndex, m_props.backgroundPressed, m_rect, m_drawOrder);
+		else if (m_isHovered)
+			WidgetUtility::DrawRectBackground(threadIndex, m_props.backgroundHovered, m_rect, m_drawOrder);
+		else
+			WidgetUtility::DrawRectBackground(threadIndex, m_props.background, m_rect, m_drawOrder);
+
 		m_text->Draw(threadIndex);
 	}
 

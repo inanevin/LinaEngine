@@ -75,7 +75,6 @@ namespace Lina
 
 	bool Widget::OnMouseWheel(float delta)
 	{
-
 		for (auto* c : m_children)
 		{
 			if (c->OnMouseWheel(delta))

@@ -82,12 +82,18 @@ namespace Lina
 	{
 	}
 
-	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2ui&)
+	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2ui& pos)
 	{
+		FindHovered(pos, m_rootWidget);
+		LINA_TRACE("{0} {1}", pos.x, pos.y);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
 	{
+		if (!gainedFocus)
+		{
+			ClearHovered(m_rootWidget);
+		}
 	}
 
 	void WidgetManager::OnWindowHoverBegin()
@@ -96,6 +102,25 @@ namespace Lina
 
 	void WidgetManager::OnWindowHoverEnd()
 	{
+		ClearHovered(m_rootWidget);
+	}
+
+	void WidgetManager::ClearHovered(Widget* w)
+	{
+		w->m_isHovered = false;
+		for (auto* c : w->m_children)
+			ClearHovered(c);
+	}
+
+	void WidgetManager::FindHovered(const Vector2ui& pos, Widget* w)
+	{
+		w->m_isHovered = w->m_rect.IsPointInside(pos);
+
+		if (w->m_isHovered)
+		{
+			for (auto* c : w->m_children)
+				FindHovered(pos, c);
+		}
 	}
 
 } // namespace Lina

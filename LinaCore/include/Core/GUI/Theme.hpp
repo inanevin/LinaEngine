@@ -50,6 +50,7 @@ namespace Lina
 		Color background0 = Color(0.00802f, 0.00802f, 0.01096f, 1.0f);
 		Color background1 = Color(0.00972f, 0.00913f, 0.01229f, 1.0f);
 		Color background2 = Color(0.01681f, 0.01681f, 0.02122f, 1.0f);
+		Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
 
 		Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
 		Color foreground1 = Color(0.019f, 0.018f, 0.022f, 1.0f);

@@ -46,8 +46,8 @@ namespace Lina
 			Font*		   font				 = nullptr;
 			String		   text				 = "";
 			RectBackground background		 = {};
-			RectBackground hoveredBackground = {};
-			RectBackground pressedBackground = {};
+			RectBackground backgroundHovered = {};
+			RectBackground backgroundPressed = {};
 		};
 
 		Button() : Widget(1){};
