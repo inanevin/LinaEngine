@@ -73,11 +73,11 @@ namespace Lina
 		m_allocator->Deallocate(this);
 	}
 
-	bool Widget::OnMouseWheel(float delta)
+	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
 		for (auto* c : m_children)
 		{
-			if (c->OnMouseWheel(delta))
+			if (c->OnKey(keycode, scancode, action))
 				return true;
 		}
 
@@ -95,13 +95,14 @@ namespace Lina
 		return false;
 	}
 
-	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
+	bool Widget::OnMouseWheel(float delta)
 	{
 		for (auto* c : m_children)
 		{
-			if (c->OnKey(keycode, scancode, action))
+			if (c->OnMouseWheel(delta))
 				return true;
 		}
+
 		return false;
 	}
 

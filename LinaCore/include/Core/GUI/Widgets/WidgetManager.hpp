@@ -68,8 +68,9 @@ namespace Lina
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		void ClearHovered(Widget* w);
-		void FindHovered(const Vector2ui& pos, Widget* w);
+		void FindHoveredRecursive(const Vector2ui& pos, Widget* w);
+		void ClearHoveredRecursive(Widget* w);
+		void ClearHoverStatus(Widget* w);
 
 	private:
 		friend class Widget;

@@ -56,6 +56,7 @@ namespace Lina
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual void OnMouse(uint32 button, LinaGX::InputAction act);
 
 		void SetProps(const Properties& props);
 

@@ -51,7 +51,6 @@ namespace Lina
 
 namespace Lina::Editor
 {
-
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)
 	{
 		ApplicationDelegate::RegisterAppResources(rm);
