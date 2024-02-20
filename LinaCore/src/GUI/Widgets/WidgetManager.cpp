@@ -88,13 +88,15 @@ namespace Lina
 		m_rootWidget->OnMouseWheel(static_cast<float>(delta));
 	}
 
-	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2ui& pos)
+	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
 	{
 		Widget* previousHovered = m_deepestHovered;
 		FindHoveredRecursive(pos, m_rootWidget);
 
 		if (m_deepestHovered != previousHovered)
 			ClearHoverStatus(previousHovered);
+
+		LINA_TRACE("MP {0}", pos.y);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
@@ -116,7 +118,7 @@ namespace Lina
 		ClearHoverStatus(m_deepestHovered);
 	}
 
-	void WidgetManager::FindHoveredRecursive(const Vector2ui& pos, Widget* w)
+	void WidgetManager::FindHoveredRecursive(const Vector2& pos, Widget* w)
 	{
 		w->m_isHovered = w->m_rect.IsPointInside(pos);
 

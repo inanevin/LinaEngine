@@ -98,6 +98,35 @@ namespace Lina::Editor
 			button->SetPos(Vector2(1, 579));
 			AddChild(button);
 		}
+
+		// Button
+		{
+			RectBackground bg = {
+				.enabled	= true,
+				.startColor = Theme::GetDef().background2,
+				.endColor	= Theme::GetDef().background2,
+			};
+
+			RectBackground bgHovered = {
+				.enabled	= true,
+				.startColor = Theme::GetDef().background3,
+				.endColor	= Theme::GetDef().background3,
+			};
+
+			Button* button = Allocate<Button>();
+			button->SetProps({
+				.widthFit		   = Fit::Fixed,
+				.heightFit		   = Fit::Fixed,
+				.margins		   = {},
+				.font			   = defaultFont,
+				.text			   = "Button",
+				.background		   = bg,
+				.backgroundHovered = bgHovered,
+			});
+			button->SetSize(Vector2(60, 20));
+			button->SetPos(Vector2(1, 1));
+			AddChild(button);
+		}
 	}
 
 	void Testbed::Tick(float delta)

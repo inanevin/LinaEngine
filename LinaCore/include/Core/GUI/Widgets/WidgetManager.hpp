@@ -62,13 +62,13 @@ namespace Lina
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouseWheel(int32 delta) override;
-		virtual void OnWindowMouseMove(const LinaGX::LGXVector2ui&) override;
+		virtual void OnWindowMouseMove(const LinaGX::LGXVector2&) override;
 		virtual void OnWindowFocus(bool gainedFocus) override;
 		virtual void OnWindowHoverBegin() override;
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		void FindHoveredRecursive(const Vector2ui& pos, Widget* w);
+		void FindHoveredRecursive(const Vector2& pos, Widget* w);
 		void ClearHoveredRecursive(Widget* w);
 		void ClearHoverStatus(Widget* w);
 
