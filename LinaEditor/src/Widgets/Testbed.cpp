@@ -54,7 +54,7 @@ namespace Lina::Editor
 				.font  = iconFont,
 				.color = Color(1.0f, 1.0f, 1.0f, 1.0f),
 			});
-			text->SetPos(Vector2(10, 30));
+			text->SetPos(Vector2(10, 10));
 			AddChild(text);
 		}
 
@@ -95,7 +95,7 @@ namespace Lina::Editor
 				.backgroundHovered = bgHovered,
 			});
 			button->SetSize(Vector2(60, 20));
-			button->SetPos(Vector2(30, 30));
+			button->SetPos(Vector2(10, 30));
 			AddChild(button);
 		}
 	}

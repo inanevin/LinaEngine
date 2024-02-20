@@ -49,7 +49,7 @@ namespace Lina
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 		m_rootWidget->Tick(delta);
 
-		LINA_TRACE("MP {0} {1}", m_window->GetMousePosition().x, m_window->GetMousePosition().y);
+		// LINA_TRACE("MP {0} {1}", m_window->GetMousePosition().x, m_window->GetMousePosition().y);
 	}
 
 	void WidgetManager::Draw(int32 threadIndex)
