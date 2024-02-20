@@ -15,7 +15,7 @@ set_target_properties(
 )
 
 set_target_properties(${PROJECT_NAME}  PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/_Resources/Info.plist
 )
 
 set_source_files_properties(${PROJECT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")

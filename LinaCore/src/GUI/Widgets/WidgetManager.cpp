@@ -95,8 +95,6 @@ namespace Lina
 
 		if (m_deepestHovered != previousHovered)
 			ClearHoverStatus(previousHovered);
-
-		LINA_TRACE("MP {0}", pos.y);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
