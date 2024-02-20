@@ -39,7 +39,7 @@ src/Widgets/Testbed.cpp
 if(WIN32)
 	add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS})
 else()
-	add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS})
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine)

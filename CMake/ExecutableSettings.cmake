@@ -12,6 +12,12 @@ set_target_properties(
     XCODE_SCHEME_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/
 )
 
+set_target_properties(${PROJECT_NAME}  PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist
+)
+
+set_source_files_properties(${PROJECT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}.icns)
 
 endif()
 
@@ -29,3 +35,7 @@ add_custom_command(
 TARGET ${PROJECT_NAME}
 POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/_Resources" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/Resources/")
+
+if(APPLE)
+
+endif()

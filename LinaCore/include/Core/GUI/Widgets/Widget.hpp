@@ -52,11 +52,13 @@ namespace Lina
 		void AddChild(Widget* w);
 		void RemoveChild(Widget* w);
 		void Destroy();
+
 		bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
 		bool OnMouse(uint32 button, LinaGX::InputAction action);
 		bool OnMouseWheel(float delta);
 
 		virtual void Construct(){};
+		virtual void OnClicked(uint32 button){};
 
 		template <typename T> T* Allocate()
 		{
@@ -141,9 +143,10 @@ namespace Lina
 		System*			m_system	= nullptr;
 		Rect			m_rect		= {};
 		Vector<Widget*> m_children;
-		int32			m_maxChilds = 0;
-		bool			m_isHovered = false;
-		bool			m_isPressed = false;
+		int32			m_maxChilds	 = 0;
+		bool			m_isHovered	 = false;
+		bool			m_isPressed	 = false;
+		int32			m_pressState = 0;
 	};
 
 } // namespace Lina

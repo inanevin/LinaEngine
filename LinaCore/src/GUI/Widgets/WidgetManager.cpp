@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina
 {
@@ -47,6 +48,8 @@ namespace Lina
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 		m_rootWidget->Tick(delta);
+
+		LINA_TRACE("MP {0} {1}", m_window->GetMousePosition().x, m_window->GetMousePosition().y);
 	}
 
 	void WidgetManager::Draw(int32 threadIndex)
@@ -72,27 +75,34 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
+		m_rootWidget->OnKey(keycode, scancode, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
+		m_rootWidget->OnMouse(button, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouseWheel(int32 delta)
 	{
+		m_rootWidget->OnMouseWheel(static_cast<float>(delta));
 	}
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2ui& pos)
 	{
-		FindHovered(pos, m_rootWidget);
-		LINA_TRACE("{0} {1}", pos.x, pos.y);
+		Widget* previousHovered = m_deepestHovered;
+		FindHoveredRecursive(pos, m_rootWidget);
+
+		if (m_deepestHovered != previousHovered)
+			ClearHoverStatus(previousHovered);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
 	{
 		if (!gainedFocus)
 		{
-			ClearHovered(m_rootWidget);
+			ClearHoveredRecursive(m_rootWidget);
+			ClearHoverStatus(m_deepestHovered);
 		}
 	}
 
@@ -102,25 +112,36 @@ namespace Lina
 
 	void WidgetManager::OnWindowHoverEnd()
 	{
-		ClearHovered(m_rootWidget);
+		ClearHoveredRecursive(m_rootWidget);
+		ClearHoverStatus(m_deepestHovered);
 	}
 
-	void WidgetManager::ClearHovered(Widget* w)
-	{
-		w->m_isHovered = false;
-		for (auto* c : w->m_children)
-			ClearHovered(c);
-	}
-
-	void WidgetManager::FindHovered(const Vector2ui& pos, Widget* w)
+	void WidgetManager::FindHoveredRecursive(const Vector2ui& pos, Widget* w)
 	{
 		w->m_isHovered = w->m_rect.IsPointInside(pos);
 
 		if (w->m_isHovered)
 		{
+			m_deepestHovered = w;
+
 			for (auto* c : w->m_children)
-				FindHovered(pos, c);
+				FindHoveredRecursive(pos, c);
 		}
+	}
+
+	void WidgetManager::ClearHoveredRecursive(Widget* w)
+	{
+		ClearHoverStatus(w);
+		for (auto* c : w->m_children)
+			ClearHoveredRecursive(c);
+	}
+
+	void WidgetManager::ClearHoverStatus(Widget* w)
+	{
+		if (w == nullptr)
+			return;
+
+		w->m_isHovered = false;
 	}
 
 } // namespace Lina

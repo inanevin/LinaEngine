@@ -42,6 +42,8 @@ SOFTWARE.
 #endif
 
 #include <dlfcn.h>
+#include <libgen.h>
+#include <mach-o/dyld.h>
 
 #ifdef LINA_COMPILER_MSVC
 #pragma warning(push)
@@ -88,14 +90,31 @@ CVReturn DisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* in
 
 @end
 
+namespace
+{
+	void InitializeMacOSPlatform()
+	{
+		NSString*	bundlePath	= [[NSBundle mainBundle] bundlePath];
+		NSString*	parentDir	= [bundlePath stringByDeletingLastPathComponent];
+		const char* cStringPath = [parentDir fileSystemRepresentation];
+
+		if (chdir(cStringPath) != 0)
+		{
+			// Handle error
+			NSLog(@"Failed to change working directory to: %@", parentDir);
+		}
+	}
+} // namespace
+
 int main(int argc, char* argv[])
 {
-
 	NSApplication* app		   = [NSApplication sharedApplication];
 	AppDelegate*   appDelegate = [[AppDelegate alloc] init];
 	[app setDelegate:appDelegate];
 	[app finishLaunching];
 	[app activateIgnoringOtherApps:YES];
+
+	InitializeMacOSPlatform();
 
 	Lina::Application* linaApp = new Lina::Application();
 	linaApp->Initialize(Lina::Lina_GetInitInfo());

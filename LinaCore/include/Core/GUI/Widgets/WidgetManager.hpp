@@ -68,8 +68,9 @@ namespace Lina
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		void ClearHovered(Widget* w);
-		void FindHovered(const Vector2ui& pos, Widget* w);
+		void FindHoveredRecursive(const Vector2ui& pos, Widget* w);
+		void ClearHoveredRecursive(Widget* w);
+		void ClearHoverStatus(Widget* w);
 
 	private:
 		friend class Widget;
@@ -99,9 +100,10 @@ namespace Lina
 	private:
 		static constexpr size_t			CHUNK_COUNT = 150;
 		HashMap<TypeID, PoolAllocator*> m_allocators;
-		LinaGX::Window*					m_window	 = nullptr;
-		Widget*							m_rootWidget = nullptr;
-		System*							m_system	 = nullptr;
+		LinaGX::Window*					m_window		 = nullptr;
+		Widget*							m_rootWidget	 = nullptr;
+		System*							m_system		 = nullptr;
+		Widget*							m_deepestHovered = nullptr;
 	};
 
 } // namespace Lina

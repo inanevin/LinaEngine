@@ -30,17 +30,21 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
 	void Button::Construct()
 	{
 		m_text = Allocate<Text>();
-		AddChild(m_text);
+		// AddChild(m_text);
 	}
 
 	void Button::Tick(float delta)
 	{
+		if (!m_isHovered)
+			m_isPressed = false;
+
 		if (m_props.widthFit == Fit::FromChildren)
 			m_rect.size.x = m_text->GetSize().x + m_props.margins.left + m_props.margins.right;
 
@@ -49,6 +53,8 @@ namespace Lina
 
 		const Vector2& textSize = m_text->GetSize();
 		m_text->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f - textSize.y * 0.5f));
+
+		LINA_TRACE("RECT POS {0} {1} RECT END {2} {3}", m_rect.pos.x, m_rect.pos.y, m_rect.pos.x + m_rect.size.x, m_rect.pos.y + m_rect.size.y);
 	}
 
 	void Button::Draw(int32 threadIndex)
@@ -60,12 +66,28 @@ namespace Lina
 		else
 			WidgetUtility::DrawRectBackground(threadIndex, m_props.background, m_rect, m_drawOrder);
 
-		m_text->Draw(threadIndex);
+		// m_text->Draw(threadIndex);
 	}
 
 	void Button::SetProps(const Properties& props)
 	{
 		m_text->SetProps({.text = props.text, .font = props.font});
 		m_props = props;
+	}
+
+	void Button::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button != LINAGX_MOUSE_0 || !m_isHovered)
+			return;
+
+		if (act == LinaGX::InputAction::Pressed)
+			m_isPressed = true;
+
+		if (act == LinaGX::InputAction::Released)
+		{
+			m_isPressed = false;
+
+			// Clicked
+		}
 	}
 } // namespace Lina
