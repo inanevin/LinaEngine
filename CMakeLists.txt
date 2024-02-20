@@ -41,7 +41,6 @@ include(Dependencies/Dependencies.cmake)
 add_subdirectory(LinaCommon)
 add_subdirectory(LinaCore)
 add_subdirectory(LinaEditor)
-add_subdirectory(LaunchGame)
 add_subdirectory(${LINA_GAME_PLUGIN_NAME})
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

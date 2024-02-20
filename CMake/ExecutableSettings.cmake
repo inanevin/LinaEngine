@@ -1,6 +1,8 @@
 
 if(MSVC)
   set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>/)
+target_sources(${PROJECT_NAME} PRIVATE _Resources/Resources.rc)
+
 endif()
 
 if(APPLE)
@@ -17,7 +19,6 @@ set_target_properties(${PROJECT_NAME}  PROPERTIES
 )
 
 set_source_files_properties(${PROJECT_NAME}.icns PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-target_sources(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}.icns)
 
 endif()
 
