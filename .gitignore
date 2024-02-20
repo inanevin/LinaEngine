@@ -75,7 +75,6 @@ artifacts/
 *.svclog
 *.scc
 *.resx
-*.ico
 *.sln
 *.vcxproj
 *.vcxproj.user
