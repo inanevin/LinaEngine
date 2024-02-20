@@ -2,12 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleIconFile</key>
+	<string>${PROJECT_NAME}.icns</string>
 	<key>NSDownloadsFolderUsageDescription</key>
 	<string></string>
 	<key>NSDocumentsFolderUsageDescription</key>
-	<string>Lina Editor requires access to your documents folder to open and save user settings.</string>
+	<string>${PROJECT_NAME} requires access to your documents folder to open and save user settings.</string>
 	<key>NSDesktopFolderUsageDescription</key>
-	<string>Lina Editor requires access to your desktop folder to open and save files.</string>
+	<string>${PROJECT_NAME} requires access to your desktop folder to open and save files.</string>
 	<key>CFBundleDisplayName</key>
 	<string></string>
 	<key>LSApplicationCategoryType</key>
@@ -15,15 +17,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>LinaEditor</string>
-	<key>CFBundleIconFile</key>
-	<string>icon</string>
+	<string>${PROJECT_NAME}</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.inanevin.LinaEngine.LinaEditor</string>
+	<string>com.inanevin.LinaEngine.${PROJECT_NAME}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>LinaEditor</string>
+	<string>${PROJECT_NAME}</string>
 	<key>CFBundlePackageType</key>
 	<string></string>
 	<key>CFBundleShortVersionString</key>
@@ -35,7 +35,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>${MACOSX_DEPLOYMENT_TARGET}</string>
 	<key>NSMainNibFile</key>
-	<string>HelloWorld</string>
+	<string>${PROJECT_NAME}</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 </dict>
