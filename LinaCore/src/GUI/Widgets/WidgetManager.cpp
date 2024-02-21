@@ -61,7 +61,7 @@ namespace Lina
 	{
 		m_rootWidget->Draw(threadIndex);
 
-		DebugDraw(threadIndex, m_rootWidget, m_rootWidget == m_deepestHovered);
+		// DebugDraw(threadIndex, m_rootWidget, m_rootWidget == m_deepestHovered);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -97,15 +97,10 @@ namespace Lina
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
 	{
-		FindHoveredRecursive(pos, m_rootWidget);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
 	{
-		if (!gainedFocus)
-		{
-			ClearHoveredRecursive(m_rootWidget);
-		}
 	}
 
 	void WidgetManager::OnWindowHoverBegin()
@@ -114,34 +109,14 @@ namespace Lina
 
 	void WidgetManager::OnWindowHoverEnd()
 	{
-		ClearHoveredRecursive(m_rootWidget);
 	}
 
 	void WidgetManager::FindHoveredRecursive(const Vector2& pos, Widget* w)
 	{
-		if (w->GetAlignPoint() == AlignPoint::TopLeft)
-			w->m_isHovered = w->m_rect.IsPointInside(pos);
-		else
-		{
-			const Rect leftAlignedRect = Rect(Vector2(w->GetPos() - w->GetSize() * 0.5f), w->GetSize());
-			w->m_isHovered			   = leftAlignedRect.IsPointInside(pos);
-		}
-		if (w->m_isHovered)
-		{
-			m_deepestHovered = w;
-
-			for (auto* c : w->m_children)
-				FindHoveredRecursive(pos, c);
-		}
-		else
-			ClearHoveredRecursive(w);
 	}
 
 	void WidgetManager::ClearHoveredRecursive(Widget* w)
 	{
-		ClearHoverStatus(w);
-		for (auto* c : w->m_children)
-			ClearHoveredRecursive(c);
 	}
 
 	void WidgetManager::ClearHoverStatus(Widget* w)

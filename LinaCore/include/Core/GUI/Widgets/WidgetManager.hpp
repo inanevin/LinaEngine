@@ -91,7 +91,7 @@ namespace Lina
 
 			T* t				 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
 			t->m_window			 = m_window;
-			t->m_allocator		 = this;
+			t->m_manager		 = this;
 			t->m_system			 = m_system;
 			t->m_resourceManager = m_resourceManager;
 			t->Construct();
@@ -99,6 +99,22 @@ namespace Lina
 		}
 
 		void Deallocate(Widget* widget);
+
+		inline void GrabControls(Widget* widget)
+		{
+			m_controlsOwner = widget;
+		}
+
+		inline void ReleaseControls(Widget* widget)
+		{
+			if (m_controlsOwner == widget)
+				m_controlsOwner = nullptr;
+		}
+
+		inline bool CanGrabControls(Widget const* w) const
+		{
+			return m_controlsOwner == nullptr || w == m_controlsOwner;
+		}
 
 	private:
 		static constexpr size_t			CHUNK_COUNT = 150;
@@ -108,6 +124,7 @@ namespace Lina
 		System*							m_system		  = nullptr;
 		Widget*							m_deepestHovered  = nullptr;
 		ResourceManager*				m_resourceManager = nullptr;
+		Widget*							m_controlsOwner	  = nullptr;
 	};
 
 } // namespace Lina

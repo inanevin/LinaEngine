@@ -62,8 +62,9 @@ namespace Lina
 			float			outlineThickness	= 0.0f;
 			float			minValue			= 0.0f;
 			float			maxValue			= 0.0f;
-			float			currentValue		= 0.0f;
-			float			step				= 0.1f;
+			float*			currentValue		= nullptr;
+			float			step				= 0.0f;
+			float			indent				= 0.0f;
 		};
 
 		virtual void Construct() override;
@@ -82,14 +83,20 @@ namespace Lina
 		}
 
 	private:
-		Vector2 GetEndPos();
-		void	GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent);
+		void GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent);
 
 	private:
-		Properties m_props	= {};
-		Icon*	   m_handle = nullptr;
-		Vector2	   m_start	= Vector2::Zero;
-		Vector2	   m_end	= Vector2::Zero;
+		Properties m_props		= {};
+		Icon*	   m_handle		= nullptr;
+		Vector2	   m_start		= Vector2::Zero;
+		Vector2	   m_end		= Vector2::Zero;
+		Vector2	   m_pressStart = Vector2::Zero;
+
+		Vector2 m_bgStart = Vector2::Zero;
+		Vector2 m_bgEnd	  = Vector2::Zero;
+
+		Vector2 m_fillStart = Vector2::Zero;
+		Vector2 m_fillEnd	= Vector2::Zero;
 	};
 
 } // namespace Lina

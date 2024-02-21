@@ -41,8 +41,7 @@ namespace Lina
 
 	void Button::Tick(float delta)
 	{
-		if (!m_isHovered)
-			m_isPressed = false;
+		Widget::SetIsHovered();
 
 		if (m_props.widthFit == Fit::FromChildren)
 			m_rect.size.x = m_text->GetSize().x + m_props.margins.left + m_props.margins.right;
@@ -84,13 +83,23 @@ namespace Lina
 		}
 
 		if (act == LinaGX::InputAction::Pressed)
+		{
 			m_isPressed = true;
+			Widget::GrabControls();
+		}
 
 		if (act == LinaGX::InputAction::Released)
 		{
+			if (m_isPressed)
+				Widget::ReleaseControls();
+
+			if (m_isHovered && m_isPressed)
+			{
+				if (m_props.onClicked)
+					m_props.onClicked();
+			}
+
 			m_isPressed = false;
-			if (m_props.onClicked)
-				m_props.onClicked();
 		}
 
 		return true;

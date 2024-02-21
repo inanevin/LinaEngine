@@ -58,13 +58,12 @@ namespace Lina
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
 		virtual bool OnMouseWheel(float delta);
-
 		virtual void Construct(){};
 		virtual void OnClicked(uint32 button){};
 
 		template <typename T> T* Allocate()
 		{
-			T* t = m_allocator->Allocate<T>();
+			T* t = m_manager->Allocate<T>();
 			return t;
 		}
 
@@ -154,9 +153,26 @@ namespace Lina
 		Widget(int32 maxChilds = -1, AlignPoint alignPoint = AlignPoint::TopLeft) : m_maxChilds(maxChilds), m_alignPoint(alignPoint){};
 		virtual ~Widget() = default;
 
+		void GrabControls()
+		{
+			m_manager->GrabControls(this);
+		}
+
+		void ReleaseControls()
+		{
+			m_manager->ReleaseControls(this);
+		}
+
+		inline bool GetGrabControls() const
+		{
+			return m_manager->CanGrabControls(this);
+		}
+
+		void SetIsHovered();
+
 	protected:
 		TypeID			 m_tid		 = 0;
-		WidgetManager*	 m_allocator = nullptr;
+		WidgetManager*	 m_manager	 = nullptr;
 		Widget*			 m_parent	 = nullptr;
 		LinaGX::Window*	 m_window	 = nullptr;
 		int32			 m_drawOrder = 0;

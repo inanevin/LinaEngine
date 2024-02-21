@@ -42,6 +42,9 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
+	float slider1Value = 2.0f;
+	float slider2Value = 8.0f;
+
 	void Testbed::Construct()
 	{
 		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -102,8 +105,8 @@ namespace Lina::Editor
 			auto& props		   = slider->GetProps();
 			props.minValue	   = 0.0f;
 			props.maxValue	   = 10.0f;
-			props.step		   = 0.1f;
-			props.currentValue = 8.0f;
+			props.step		   = 2.5f;
+			props.currentValue = &slider1Value;
 			slider->SetSize(Vector2(140, Theme::GetDef().baseSliderThickness));
 			slider->SetPos(Vector2(10, 120));
 			slider->GetHandle()->GetProps().icon	   = ICON_CIRCLE;
@@ -122,8 +125,8 @@ namespace Lina::Editor
 			auto& props								   = slider->GetProps();
 			props.minValue							   = 0.0f;
 			props.maxValue							   = 10.0f;
-			props.step								   = 0.1f;
-			props.currentValue						   = 2.0f;
+			props.step								   = 0.3f;
+			props.currentValue						   = &slider2Value;
 			props.direction							   = WidgetDirection::Vertical;
 			slider->GetHandle()->GetProps().icon	   = ICON_CIRCLE;
 			slider->GetHandle()->GetProps().offsetPerc = ICONOFFSET_CIRCLE;

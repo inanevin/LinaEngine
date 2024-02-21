@@ -99,6 +99,7 @@ namespace Lina::Editor
 		props.crossAxisPercentage = Theme::GetDef().baseSliderPerc;
 		props.direction			  = WidgetDirection::Horizontal;
 		props.outlineThickness	  = Theme::GetDef().baseOutlineThickness;
+		props.indent			  = Theme::GetDef().baseIndent;
 		SetDefaults(widget->GetHandle());
 	}
 

@@ -475,6 +475,11 @@ namespace Lina
 			return Abs(val1 - val2) < errorMargin;
 		}
 
+		template <typename T> static bool IsZero(const T& val)
+		{
+			return Abs(val - (T)0) <= (T)0.00001f;
+		}
+
 		static float Decimal(float val, int decimals)
 		{
 			if (decimals == 0)

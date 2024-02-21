@@ -44,7 +44,7 @@ namespace Lina
 		w->m_drawOrder = m_drawOrder;
 		w->m_parent	   = this;
 		w->m_window	   = m_window;
-		w->m_allocator = m_allocator;
+		w->m_manager   = m_manager;
 		m_children.push_back(w);
 	}
 
@@ -67,7 +67,7 @@ namespace Lina
 	void Widget::Destroy()
 	{
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Destroy(); });
-		m_allocator->Deallocate(this);
+		m_manager->Deallocate(this);
 	}
 
 	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
@@ -101,6 +101,19 @@ namespace Lina
 		}
 
 		return false;
+	}
+
+	void Widget::SetIsHovered()
+	{
+		const Vector2& pos = m_window->GetMousePosition();
+
+		if (GetAlignPoint() == AlignPoint::TopLeft)
+			m_isHovered = m_rect.IsPointInside(pos);
+		else
+		{
+			const Rect leftAlignedRect = Rect(Vector2(m_rect.pos - m_rect.size * 0.5f), m_rect.size);
+			m_isHovered				   = leftAlignedRect.IsPointInside(pos);
+		}
 	}
 
 } // namespace Lina
