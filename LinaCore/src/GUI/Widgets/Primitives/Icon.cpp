@@ -37,9 +37,8 @@ namespace Lina
 	void Icon::Draw(int32 threadIndex)
 	{
 		const float dpiScale = m_window->GetDPIScale();
-
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
-			CalculateTextSize();
+			CalculateIconSize();
 
 		m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.color.AsLVG4();
 		m_sdfOptions.sdfThickness						  = m_props.sdfThickness;
@@ -53,7 +52,7 @@ namespace Lina
 		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(-m_rect.size.x * 0.5f, m_rect.size.y * 0.5f) + offset).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 	}
 
-	void Icon::CalculateTextSize()
+	void Icon::CalculateIconSize()
 	{
 		auto*		font	   = m_resourceManager->GetResource<Font>(m_props.font);
 		const float dpiScale   = m_window->GetDPIScale();

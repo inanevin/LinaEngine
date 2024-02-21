@@ -6,6 +6,7 @@
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/CommonCore.hpp"
 
 namespace Lina
 {
@@ -26,6 +27,7 @@ namespace Lina
 		/* Priority Resources */
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0, false, ResourceTag::Priority));
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0, true, ResourceTag::Priority));
+		list.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
 
 		/* Core Resources */
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogo.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
@@ -41,6 +43,17 @@ namespace Lina
 
 	bool ApplicationDelegate::FillResourceCustomMeta(StringID sid, OStream& stream)
 	{
+		if (sid == DEFAULT_FONT_SID)
+		{
+			Font::Metadata customMeta = {
+				.points		 = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+				.isSDF		 = false,
+				.glyphRanges = {linatl::make_pair(160, 360)},
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+		// NOTE: 160, 380 is the glyph range for nunito sans
 
 		if (sid == "Resources/Core/Textures/StubLinaLogo.png"_hs || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs || sid == "Resources/Core/Textures/StubLinaLogoText.png"_hs)
 		{

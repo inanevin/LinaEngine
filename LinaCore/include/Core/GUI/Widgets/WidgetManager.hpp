@@ -53,6 +53,7 @@ namespace Lina
 		void Draw(int32 threadIndex);
 		void Tick(float delta, const Vector2ui& size);
 		void Shutdown();
+		void DebugDraw(int32 threadIndex, Widget* w, bool drawName);
 
 		inline Widget* GetRoot()
 		{

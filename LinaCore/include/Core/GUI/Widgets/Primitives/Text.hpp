@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/GUI/Theme.hpp"
 #include "Common/Data/String.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
@@ -48,8 +47,8 @@ namespace Lina
 		struct Properties
 		{
 			String	 text	   = "";
-			StringID font	   = Theme::GetDef().defaultFont;
-			Color	 color	   = Theme::GetDef().foreground0;
+			StringID font	   = 0;
+			Color	 color	   = Color::White;
 			float	 textScale = 1.0f;
 			bool	 isDynamic = false;
 		};
@@ -57,12 +56,6 @@ namespace Lina
 		virtual void Draw(int32 threadIndex) override;
 
 		void CalculateTextSize();
-
-		inline void SetProps(const Properties& props)
-		{
-			m_props = props;
-			CalculateTextSize();
-		}
 
 		inline Properties& GetProps()
 		{

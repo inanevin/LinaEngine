@@ -133,13 +133,26 @@ namespace Lina
 			return m_alignPoint;
 		}
 
+		inline bool GetIsHovered() const
+		{
+			return m_isHovered;
+		}
+
+		inline void SetDebugName(const String& dbgName)
+		{
+			m_debugName = dbgName;
+		}
+
+		inline const String& GetDebugName() const
+		{
+			return m_debugName;
+		}
+
 	protected:
 		friend class WidgetManager;
 
 		Widget(int32 maxChilds = -1, AlignPoint alignPoint = AlignPoint::TopLeft) : m_maxChilds(maxChilds), m_alignPoint(alignPoint){};
 		virtual ~Widget() = default;
-
-		virtual void DebugDraw();
 
 	protected:
 		TypeID			 m_tid		 = 0;
@@ -155,6 +168,7 @@ namespace Lina
 		bool			 m_isPressed	   = false;
 		ResourceManager* m_resourceManager = nullptr;
 		AlignPoint		 m_alignPoint	   = AlignPoint::TopLeft;
+		String			 m_debugName	   = "Widget";
 	};
 
 } // namespace Lina

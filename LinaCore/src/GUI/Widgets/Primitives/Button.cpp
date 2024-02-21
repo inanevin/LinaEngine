@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
@@ -75,12 +74,6 @@ namespace Lina
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
 
 		m_text->Draw(threadIndex);
-	}
-
-	void Button::SetProps(const Properties& props)
-	{
-		m_text->SetProps({.text = props.text, .font = props.font});
-		m_props = props;
 	}
 
 	bool Button::OnMouse(uint32 button, LinaGX::InputAction act)

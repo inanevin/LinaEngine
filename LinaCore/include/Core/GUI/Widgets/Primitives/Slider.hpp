@@ -29,51 +29,67 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Functional.hpp"
+#include "Common/Data/String.hpp"
+
+namespace LinaVG
+{
+	struct StyleOptions;
+}
 
 namespace Lina
 {
-	class Font;
-	class Text;
+	class Icon;
 
-	class Button : public Widget
+	class Slider : public Widget
 	{
 	public:
+		Slider() : Widget(1)
+		{
+		}
+		virtual ~Slider() = default;
+
 		struct Properties
 		{
-			Delegate<void()> onClicked;
-			Fit				 widthFit		   = Fit::Fixed;
-			Fit				 heightFit		   = Fit::Fixed;
-			TBLR			 margins		   = {};
-			Color			 colorDefaultStart = Color::White;
-			Color			 colorDefaultEnd   = Color::White;
-			Color			 colorHovered	   = Color::White;
-			Color			 colorPressed	   = Color::White;
-			float			 rounding		   = 0.0f;
-			float			 outlineThickness  = 0.0f;
-			Color			 colorOutline	   = Color::White;
+			WidgetDirection direction			= WidgetDirection::Horizontal;
+			Color			colorBackground		= Color::White;
+			Color			colorFillMin		= Color::White;
+			Color			colorFillMax		= Color::White;
+			Color			colorHandle			= Color::White;
+			Color			colorHandleHovered	= Color::White;
+			Color			colorOutline		= Color::White;
+			float			rounding			= 0.0f;
+			float			crossAxisPercentage = 1.0f;
+			float			outlineThickness	= 0.0f;
+			float			minValue			= 0.0f;
+			float			maxValue			= 0.0f;
+			float			currentValue		= 0.0f;
+			float			step				= 0.1f;
 		};
-
-		Button() : Widget(1){};
-		virtual ~Button() = default;
 
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnMouse(uint32 mouse, LinaGX::InputAction action) override;
 
-		inline Properties& GetProps()
+		Properties& GetProps()
 		{
 			return m_props;
 		}
 
-		inline Text* GetText()
+		inline Icon* GetHandle()
 		{
-			return m_text;
+			return m_handle;
 		}
 
 	private:
-		Text*	   m_text  = nullptr;
-		Properties m_props = {};
+		Vector2 GetEndPos();
+		void	GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent);
+
+	private:
+		Properties m_props	= {};
+		Icon*	   m_handle = nullptr;
+		Vector2	   m_start	= Vector2::Zero;
+		Vector2	   m_end	= Vector2::Zero;
 	};
+
 } // namespace Lina

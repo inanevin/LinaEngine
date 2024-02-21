@@ -22,12 +22,14 @@ project(LinaEditor)
 set(SOURCES 
 include/Editor/EditorApplicationDelegate.hpp
 include/Editor/CommonEditor.hpp
+include/Editor/Theme.hpp
 include/Editor/Widgets/Testbed.hpp
 )
 
 set(HEADERS
 src/EditorApplicationDelegate.cpp
 src/CommonEditor.cpp
+src/Theme.cpp
 src/Widgets/Testbed.cpp
 )
 

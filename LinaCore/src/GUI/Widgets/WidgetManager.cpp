@@ -33,6 +33,11 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "LinaGX/Core/InputMappings.hpp"
 
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/CommonCore.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+
 namespace Lina
 {
 	void WidgetManager::Initialize(System* system, LinaGX::Window* window)
@@ -40,7 +45,8 @@ namespace Lina
 		m_window = window;
 		m_system = system;
 		m_window->AddListener(this);
-		m_rootWidget	  = Allocate<Widget>();
+		m_rootWidget = Allocate<Widget>();
+		m_rootWidget->SetDebugName("Root");
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
@@ -54,6 +60,8 @@ namespace Lina
 	void WidgetManager::Draw(int32 threadIndex)
 	{
 		m_rootWidget->Draw(threadIndex);
+
+		DebugDraw(threadIndex, m_rootWidget, m_rootWidget == m_deepestHovered);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -111,8 +119,13 @@ namespace Lina
 
 	void WidgetManager::FindHoveredRecursive(const Vector2& pos, Widget* w)
 	{
-		w->m_isHovered = w->m_rect.IsPointInside(pos);
-
+		if (w->GetAlignPoint() == AlignPoint::TopLeft)
+			w->m_isHovered = w->m_rect.IsPointInside(pos);
+		else
+		{
+			const Rect leftAlignedRect = Rect(Vector2(w->GetPos() - w->GetSize() * 0.5f), w->GetSize());
+			w->m_isHovered			   = leftAlignedRect.IsPointInside(pos);
+		}
 		if (w->m_isHovered)
 		{
 			m_deepestHovered = w;
@@ -137,6 +150,40 @@ namespace Lina
 			return;
 
 		w->m_isHovered = false;
+	}
+
+	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w, bool drawName)
+	{
+		LinaVG::StyleOptions opts;
+		opts.isFilled = false;
+
+		const Rect rect = w->GetRect();
+
+		if (w->GetAlignPoint() == AlignPoint::TopLeft)
+		{
+			LinaVG::DrawRect(threadIndex, rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000.0f);
+
+			if (drawName)
+			{
+				LinaVG::TextOptions opts;
+				opts.font = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
+				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (rect.pos + rect.size + Vector2(10, 10)).AsLVG(), opts);
+			}
+		}
+		else
+		{
+			LinaVG::DrawRect(threadIndex, (rect.pos - rect.size * 0.5f).AsLVG(), (rect.pos + rect.size * 0.5f).AsLVG(), opts, 0.0f, 1000.0f);
+
+			if (drawName)
+			{
+				LinaVG::TextOptions opts;
+				opts.font = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
+				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (rect.pos + rect.size * 0.5f + Vector2(10, 10)).AsLVG(), opts);
+			}
+		}
+
+		for (auto* c : w->m_children)
+			DebugDraw(threadIndex, c, c == m_deepestHovered);
 	}
 
 } // namespace Lina

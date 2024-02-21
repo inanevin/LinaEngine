@@ -33,9 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	void Widget::DebugDraw()
-	{
-	}
 
 	void Widget::AddChild(Widget* w)
 	{

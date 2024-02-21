@@ -44,36 +44,50 @@ namespace LinaGX
 
 namespace Lina
 {
-	struct ThemeDef
-	{
-		// Darkest
-		Color background0 = Color(0.00802f, 0.00802f, 0.01096f, 1.0f);
-		Color background1 = Color(0.00972f, 0.00913f, 0.01229f, 1.0f);
-		Color background2 = Color(0.01681f, 0.01681f, 0.02122f, 1.0f);
-		Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
-		Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);
-		Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
+	class Button;
+	class Text;
+	class Icon;
+	class Checkbox;
+	class Slider;
+} // namespace Lina
 
-		Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
-		Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
-
-		Color silent = Color(0.035f, 0.035f, 0.035f, 1.0f);
-
-		// Color accentPrimary	  = Color(0.047f, 0.007f, 0.015f, 1.0f);
-		Color accentPrimary	  = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
-		Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
-
-		float baseIndent		   = 8.0f;
-		float baseRounding		   = 0.25f;
-		float baseOutlineThickness = 1.0f;
-
-		StringID defaultFont	 = 0;
-		StringID alternativeFont = 0;
-	};
-
+namespace Lina::Editor
+{
 	class Theme
 	{
 	public:
+		struct ThemeDef
+		{
+			// Darkest
+			Color background0 = Color(0.00802f, 0.00802f, 0.01096f, 1.0f);
+			Color background1 = Color(0.00972f, 0.00913f, 0.01229f, 1.0f);
+			Color background2 = Color(0.01681f, 0.01681f, 0.02122f, 1.0f);
+			Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
+			Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);
+			Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
+
+			Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
+			Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
+
+			Color silent = Color(0.035f, 0.035f, 0.035f, 1.0f);
+
+			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f);
+			Color accentPrimary0 = Color(0.16513f, 0.00972f, 0.02122f, 1.0f);
+			Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
+			Color accentPrimary2 = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
+
+			Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
+
+			float baseIndent		   = 8.0f;
+			float baseSliderThickness  = 16.0f;
+			float baseSliderPerc	   = 0.25f;
+			float baseRounding		   = 0.25f;
+			float baseOutlineThickness = 1.0f;
+
+			StringID defaultFont	 = 0;
+			StringID alternativeFont = 0;
+		};
+
 		static const ThemeDef& GetDef()
 		{
 			return s_themeDef;
@@ -84,7 +98,13 @@ namespace Lina
 			s_themeDef = def;
 		}
 
+		static void SetDefaults(Button* widget);
+		static void SetDefaults(Icon* widget);
+		static void SetDefaults(Text* widget);
+		static void SetDefaults(Checkbox* widget);
+		static void SetDefaults(Slider* widget);
+
 	private:
 		static ThemeDef s_themeDef;
 	};
-} // namespace Lina
+} // namespace Lina::Editor

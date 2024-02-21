@@ -42,7 +42,6 @@ namespace Lina
 		m_icon							= Allocate<Icon>();
 		m_icon->GetProps().isDynamic	= true;
 		m_icon->GetProps().sdfThickness = 0.6f;
-		m_icon->CalculateTextSize();
 
 		AddChild(m_icon);
 	}
@@ -75,18 +74,6 @@ namespace Lina
 		style.color						   = m_props.colorBackground.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
 		m_icon->Draw(threadIndex);
-	}
-
-	void Checkbox::SetProps(const Properties& props)
-	{
-		m_icon->GetProps().textScale  = props.iconScale;
-		m_icon->GetProps().icon		  = props.checkIcon;
-		m_icon->GetProps().font		  = props.font;
-		m_icon->GetProps().color.w	  = m_props.isChecked ? 1.0f : 0.0f;
-		m_icon->GetProps().offsetPerc = props.iconOffsetPerc;
-		m_icon->CalculateTextSize();
-
-		m_props = props;
 	}
 
 	bool Checkbox::OnMouse(uint32 button, LinaGX::InputAction act)

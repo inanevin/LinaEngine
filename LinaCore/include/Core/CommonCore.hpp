@@ -28,12 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CommonCore_HPP
-#define CommonCore_HPP
+#include "Common/StringID.hpp"
 
 namespace Lina
 {
-	
-} // namespace Lina
 
-#endif
+#define DEFAULT_FONT_PATH "Resources/Core/Fonts/NunitoSansRegular.ttf"
+#define DEFAULT_FONT_SID  "Resources/Core/Fonts/NunitoSansRegular.ttf"_hs
+
+} // namespace Lina

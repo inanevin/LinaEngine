@@ -28,12 +28,13 @@ SOFTWARE.
 
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Theme.hpp"
 #include "Common/System/System.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
-#include "Core/GUI/Theme.hpp"
+#include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -47,56 +48,93 @@ namespace Lina::Editor
 
 		// Icon
 		{
-			Icon* text = Allocate<Icon>();
-			text->SetProps({
-				.icon		  = ICON_LINA_LOGO,
-				.font		  = ICON_FONT_SID,
-				.textScale	  = 0.5f,
-				.sdfThickness = 0.5f,
-				.sdfSoftness  = 0.05f,
-			});
-
-			text->SetPos(Vector2(12.5, 15));
-			AddChild(text);
+			Icon* icon = Allocate<Icon>();
+			Theme::SetDefaults(icon);
+			icon->GetProps().icon = ICON_LINA_LOGO;
+			icon->CalculateIconSize();
+			icon->SetPos(Vector2(12.5, 15));
+			icon->SetDebugName("LinaIcon");
+			AddChild(icon);
 		}
 
 		// Testbed Text
 		{
 			Text* text = Allocate<Text>();
-			text->SetProps({
-				.text = "Testbed",
-			});
+			Theme::SetDefaults(text);
+			text->GetProps().text = "Testbed";
+			text->CalculateTextSize();
 			text->SetPos(Vector2(50, 15));
+			text->SetDebugName("Title Text");
 			AddChild(text);
 		}
 
 		// Button
 		{
-
 			Button* button = Allocate<Button>();
-			button->SetProps({
-				.widthFit  = Fit::Fixed,
-				.heightFit = Fit::Fixed,
-				.margins   = {},
-				.text	   = "Button",
-			});
+			Theme::SetDefaults(button);
+			button->GetText()->GetProps().text = "Button";
+			button->GetText()->CalculateTextSize();
 			button->SetSize(Vector2(100, 30));
 			button->SetPos(Vector2(10, 40));
+			button->SetDebugName("Button");
 			AddChild(button);
 		}
 
 		// Checkbox
 		{
 			Checkbox* check = Allocate<Checkbox>();
-			check->SetProps({
-				.margins		= TBLR::Eq(Theme::GetDef().baseIndent / 2),
-				.font			= ICON_FONT_SID,
-				.checkIcon		= ICON_CHECK,
-				.iconOffsetPerc = ICONOFFSET_CHECK,
-				.iconScale		= 0.35f,
-			});
+			Theme::SetDefaults(check);
+			auto& iconProps		 = check->GetIcon()->GetProps();
+			iconProps.offsetPerc = ICONOFFSET_CHECK;
+			iconProps.icon		 = ICON_CHECK;
+			iconProps.textScale	 = 0.35f;
+			check->GetIcon()->SetDebugName("Checkmark");
+			check->GetIcon()->CalculateIconSize();
 			check->SetPos(Vector2(10, 80));
+			check->SetDebugName("Checkbox");
 			AddChild(check);
+		}
+
+		// Slider
+		{
+			Slider* slider = Allocate<Slider>();
+			Theme::SetDefaults(slider);
+			auto& props		   = slider->GetProps();
+			props.minValue	   = 0.0f;
+			props.maxValue	   = 10.0f;
+			props.step		   = 0.1f;
+			props.currentValue = 8.0f;
+			slider->SetSize(Vector2(140, Theme::GetDef().baseSliderThickness));
+			slider->SetPos(Vector2(10, 120));
+			slider->GetHandle()->GetProps().icon	   = ICON_CIRCLE;
+			slider->GetHandle()->GetProps().offsetPerc = ICONOFFSET_CIRCLE;
+			slider->GetHandle()->GetProps().textScale  = 0.5f;
+			slider->GetHandle()->CalculateIconSize();
+			slider->GetHandle()->SetDebugName("SliderHorizontalHandle");
+			slider->SetDebugName("SliderHorizontal");
+			AddChild(slider);
+		}
+
+		// Slider Vertical
+		{
+			Slider* slider = Allocate<Slider>();
+			Theme::SetDefaults(slider);
+			auto& props								   = slider->GetProps();
+			props.minValue							   = 0.0f;
+			props.maxValue							   = 10.0f;
+			props.step								   = 0.1f;
+			props.currentValue						   = 2.0f;
+			props.direction							   = WidgetDirection::Vertical;
+			slider->GetHandle()->GetProps().icon	   = ICON_CIRCLE;
+			slider->GetHandle()->GetProps().offsetPerc = ICONOFFSET_CIRCLE;
+			slider->GetHandle()->GetProps().textScale  = 0.5f;
+			slider->GetHandle()->CalculateIconSize();
+			slider->GetHandle()->SetDebugName("SliderVerticalHandle");
+			slider->SetDebugName("SliderVertical");
+
+			slider->SetSize(Vector2(Theme::GetDef().baseSliderThickness, 140));
+			slider->SetPos(Vector2(10, 140));
+			AddChild(slider);
 		}
 	}
 

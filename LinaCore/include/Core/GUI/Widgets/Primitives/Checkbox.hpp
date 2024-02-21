@@ -29,12 +29,10 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/GUI/Theme.hpp"
 #include "Common/Data/Functional.hpp"
 
 namespace Lina
 {
-	class Font;
 	class Icon;
 
 	class Checkbox : public Widget
@@ -43,17 +41,14 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			TBLR			 margins			 = {};
-			StringID		 font				 = Theme::GetDef().defaultFont;
-			String			 checkIcon			 = "";
-			float			 iconScale			 = 1.0f;
-			Vector2			 iconOffsetPerc		 = Vector2();
-			Color			 colorBackground	 = Theme::GetDef().background0;
-			float			 rounding			 = Theme::GetDef().baseRounding;
-			float			 outlineThickness	 = Theme::GetDef().baseOutlineThickness;
-			Color			 colorOutline		 = Theme::GetDef().silent;
-			Color			 colorOutlineChecked = Theme::GetDef().accentPrimary;
-			bool			 isChecked			 = false;
+			TBLR			 margins = {};
+
+			Color colorBackground	  = Color::White;
+			float rounding			  = 0.0f;
+			float outlineThickness	  = 0.0f;
+			Color colorOutline		  = Color::White;
+			Color colorOutlineChecked = Color::White;
+			bool  isChecked			  = false;
 		};
 
 		Checkbox() : Widget(1){};
@@ -64,11 +59,14 @@ namespace Lina
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
-		void SetProps(const Properties& props);
-
-		inline const Properties& GetProps() const
+		inline Properties& GetProps()
 		{
 			return m_props;
+		}
+
+		inline Icon* GetIcon()
+		{
+			return m_icon;
 		}
 
 	private:
