@@ -35,7 +35,7 @@ SOFTWARE.
 namespace Lina
 {
 	class Font;
-	class Text;
+	class Icon;
 
 	class Checkbox : public Widget
 	{
@@ -46,6 +46,8 @@ namespace Lina
 			TBLR			 margins			 = {};
 			StringID		 font				 = Theme::GetDef().defaultFont;
 			String			 checkIcon			 = "";
+			float			 iconScale			 = 1.0f;
+			Vector2			 iconOffsetPerc		 = Vector2();
 			Color			 colorBackground	 = Theme::GetDef().background0;
 			float			 rounding			 = Theme::GetDef().baseRounding;
 			float			 outlineThickness	 = Theme::GetDef().baseOutlineThickness;
@@ -64,8 +66,13 @@ namespace Lina
 
 		void SetProps(const Properties& props);
 
+		inline const Properties& GetProps() const
+		{
+			return m_props;
+		}
+
 	private:
-		Text*	   m_text			  = nullptr;
+		Icon*	   m_icon			  = nullptr;
 		Properties m_props			  = {};
 		Color	   m_usedOutlineColor = Color();
 	};

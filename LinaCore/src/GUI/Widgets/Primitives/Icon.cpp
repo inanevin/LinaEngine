@@ -26,33 +26,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Math/Math.hpp"
 
 namespace Lina
 {
-	void Text::Draw(int32 threadIndex)
+
+	void Icon::Draw(int32 threadIndex)
 	{
 		const float dpiScale = m_window->GetDPIScale();
 
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
 
-		m_textOptions.color.start = m_textOptions.color.end = m_props.color.AsLVG4();
-		m_textOptions.textScale								= m_props.textScale;
-		LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(-m_rect.size.x * 0.5f, m_rect.size.y * 0.5f)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+		m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.color.AsLVG4();
+		m_sdfOptions.sdfThickness						  = m_props.sdfThickness;
+		m_sdfOptions.sdfSoftness						  = m_props.sdfSoftness;
+		m_sdfOptions.sdfOutlineColor					  = m_props.sdfOutlineColor.AsLVG4();
+		m_sdfOptions.sdfOutlineThickness				  = m_props.sdfOutlineThickness;
+		m_sdfOptions.sdfOutlineSoftness					  = m_props.sdfOutlineSoftness;
+		m_sdfOptions.textScale							  = m_props.textScale;
+
+		Vector2 offset = Vector2(m_rect.size.x * m_props.offsetPerc.x, m_rect.size.y * m_props.offsetPerc.y);
+		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(-m_rect.size.x * 0.5f, m_rect.size.y * 0.5f) + offset).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 	}
 
-	void Text::CalculateTextSize()
+	void Icon::CalculateTextSize()
 	{
-		auto*		font		= m_resourceManager->GetResource<Font>(m_props.font);
-		const float dpiScale	= m_window->GetDPIScale();
-		m_lvgFont				= font->GetLinaVGFont(dpiScale);
-		m_calculatedDPIScale	= dpiScale;
-		m_textOptions.font		= m_lvgFont;
-		m_textOptions.textScale = m_props.textScale;
-		m_rect.size				= LinaVG::CalculateTextSize(m_props.text.c_str(), m_textOptions);
+		auto*		font	   = m_resourceManager->GetResource<Font>(m_props.font);
+		const float dpiScale   = m_window->GetDPIScale();
+		m_lvgFont			   = font->GetLinaVGFont(dpiScale);
+		m_calculatedDPIScale   = dpiScale;
+		m_sdfOptions.font	   = m_lvgFont;
+		m_sdfOptions.textScale = m_props.textScale;
+		m_rect.size			   = static_cast<float>(m_lvgFont->m_size * m_props.textScale);
 	}
 } // namespace Lina

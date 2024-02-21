@@ -128,10 +128,15 @@ namespace Lina
 			m_drawOrder = order;
 		}
 
+		inline AlignPoint GetAlignPoint() const
+		{
+			return m_alignPoint;
+		}
+
 	protected:
 		friend class WidgetManager;
 
-		Widget(int32 maxChilds = -1) : m_maxChilds(maxChilds){};
+		Widget(int32 maxChilds = -1, AlignPoint alignPoint = AlignPoint::TopLeft) : m_maxChilds(maxChilds), m_alignPoint(alignPoint){};
 		virtual ~Widget() = default;
 
 		virtual void DebugDraw();
@@ -149,6 +154,7 @@ namespace Lina
 		bool			 m_isHovered	   = false;
 		bool			 m_isPressed	   = false;
 		ResourceManager* m_resourceManager = nullptr;
+		AlignPoint		 m_alignPoint	   = AlignPoint::TopLeft;
 	};
 
 } // namespace Lina

@@ -40,29 +40,20 @@ namespace Lina
 	class Text : public Widget
 	{
 	public:
-		Text()			= default;
+		Text() : Widget(0, AlignPoint::Center)
+		{
+		}
 		virtual ~Text() = default;
 
 		struct Properties
 		{
-			String	 text		= "";
-			StringID font		= Theme::GetDef().defaultFont;
-			Color	 color		= Theme::GetDef().foreground0;
-			Vector2	 offsetPerc = Vector2();
-
-			float textScale	   = 1.0f;
-			bool  isDynamic	   = false;
-			bool  usesFontSize = false;
-
-			Color sdfOutlineColor	  = Theme::GetDef().background0;
-			float sdfThickness		  = 0.5f;
-			float sdfSoftness		  = 0.0f;
-			float sdfOutlineThickness = 0.0f;
-			float sdfOutlineSoftness  = 0.0f;
+			String	 text	   = "";
+			StringID font	   = Theme::GetDef().defaultFont;
+			Color	 color	   = Theme::GetDef().foreground0;
+			float	 textScale = 1.0f;
+			bool	 isDynamic = false;
 		};
 
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
-		virtual bool OnMouseWheel(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
 		void CalculateTextSize();
@@ -79,12 +70,10 @@ namespace Lina
 		}
 
 	private:
-	private:
-		Properties			   m_props				= {};
-		LinaVG::TextOptions	   m_textOptions		= {};
-		LinaVG::SDFTextOptions m_sdfOptions			= {};
-		float				   m_calculatedDPIScale = 0.0f;
-		LinaVG::LinaVGFont*	   m_lvgFont			= nullptr;
+		Properties			m_props				 = {};
+		LinaVG::TextOptions m_textOptions		 = {};
+		float				m_calculatedDPIScale = 0.0f;
+		LinaVG::LinaVGFont* m_lvgFont			 = nullptr;
 	};
 
 } // namespace Lina

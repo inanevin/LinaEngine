@@ -98,8 +98,7 @@ namespace Lina::Editor
 		if (sid == ICON_FONT_SID)
 		{
 			Font::Metadata customMeta = {
-				//.points         = {{.size = 24, .dpiLimit = 1.1f}, {.size = 18, .dpiLimit = 1.8f}, {.size = 32, .dpiLimit = 10.0f}},
-				.points = {{.size = 64, .dpiLimit = 1.1f}},
+				.points = {{.size = 32, .dpiLimit = 10.0f}},
 				.isSDF	= true,
 			};
 			customMeta.SaveToStream(stream);

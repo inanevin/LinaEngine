@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Common/System/System.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Core/GUI/Theme.hpp"
@@ -44,51 +45,57 @@ namespace Lina::Editor
 	{
 		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		// // Icon
-		// {
-		// 	Text* text = Allocate<Text>();
-		// 	text->SetProps({
-		// 		.text  = ICON_LINA_LOGO,
-		// 		.font  = ICON_FONT_SID,
-		// 	});
-		// 	text->SetPos(Vector2(10, 10));
-		// 	AddChild(text);
-		// }
-		//
-		// // Testbed Text
-		// {
-		// 	Text* text = Allocate<Text>();
-		// 	text->SetProps({
-		// 		.text  = "Testbed",
-		// 	});
-		// 	text->SetPos(Vector2(30, 10));
-		// 	AddChild(text);
-		// }
-		//
-		// // Button
-		// {
-		//
-		// 	Button* button = Allocate<Button>();
-		// 	button->SetProps({
-		// 		.widthFit		   = Fit::Fixed,
-		// 		.heightFit		   = Fit::Fixed,
-		// 		.margins		   = {},
-		// 		.text			   = "Button",
-		// 	});
-		// 	button->SetSize(Vector2(100, 30));
-		// 	button->SetPos(Vector2(10, 30));
-		// 	AddChild(button);
-		// }
+		// Icon
+		{
+			Icon* text = Allocate<Icon>();
+			text->SetProps({
+				.icon		  = ICON_LINA_LOGO,
+				.font		  = ICON_FONT_SID,
+				.textScale	  = 0.5f,
+				.sdfThickness = 0.5f,
+				.sdfSoftness  = 0.05f,
+			});
+
+			text->SetPos(Vector2(12.5, 15));
+			AddChild(text);
+		}
+
+		// Testbed Text
+		{
+			Text* text = Allocate<Text>();
+			text->SetProps({
+				.text = "Testbed",
+			});
+			text->SetPos(Vector2(50, 15));
+			AddChild(text);
+		}
+
+		// Button
+		{
+
+			Button* button = Allocate<Button>();
+			button->SetProps({
+				.widthFit  = Fit::Fixed,
+				.heightFit = Fit::Fixed,
+				.margins   = {},
+				.text	   = "Button",
+			});
+			button->SetSize(Vector2(100, 30));
+			button->SetPos(Vector2(10, 40));
+			AddChild(button);
+		}
 
 		// Checkbox
 		{
 			Checkbox* check = Allocate<Checkbox>();
 			check->SetProps({
-				.margins   = TBLR::Eq(Theme::GetDef().baseIndent),
-				.font	   = ICON_FONT_SID,
-				.checkIcon = ICON_CHECK,
+				.margins		= TBLR::Eq(Theme::GetDef().baseIndent / 2),
+				.font			= ICON_FONT_SID,
+				.checkIcon		= ICON_CHECK,
+				.iconOffsetPerc = ICONOFFSET_CHECK,
+				.iconScale		= 0.35f,
 			});
-			check->SetPos(Vector2(10, 70));
+			check->SetPos(Vector2(10, 80));
 			AddChild(check);
 		}
 	}

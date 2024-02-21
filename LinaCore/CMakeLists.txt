@@ -88,6 +88,7 @@ src/GUI/Widgets/WidgetUtility.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
 src/GUI/Widgets/Layout/Stack.cpp
 src/GUI/Widgets/Primitives/Text.cpp
+src/GUI/Widgets/Primitives/Icon.cpp
 src/GUI/Widgets/Primitives/Button.cpp
 src/GUI/Widgets/Primitives/Checkbox.cpp
 
@@ -176,6 +177,7 @@ include/Core/GUI/Widgets/WidgetUtility.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
 include/Core/GUI/Widgets/Layout/Stack.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp
+include/Core/GUI/Widgets/Primitives/Icon.hpp
 include/Core/GUI/Widgets/Primitives/Button.hpp
 include/Core/GUI/Widgets/Primitives/Checkbox.hpp
 

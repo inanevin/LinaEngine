@@ -61,6 +61,12 @@ namespace Lina
 		End
 	};
 
+	enum class AlignPoint
+	{
+		TopLeft,
+		Center
+	};
+
 	enum class Fit
 	{
 		Fixed,

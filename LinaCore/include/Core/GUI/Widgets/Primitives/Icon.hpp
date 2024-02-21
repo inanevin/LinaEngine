@@ -26,33 +26,61 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
-#include "Core/Resources/ResourceManager.hpp"
-#include "Common/Math/Math.hpp"
+#pragma once
+
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/GUI/Theme.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
-	void Text::Draw(int32 threadIndex)
-	{
-		const float dpiScale = m_window->GetDPIScale();
+	class Font;
 
-		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
+	class Icon : public Widget
+	{
+	public:
+		Icon() : Widget(0, AlignPoint::Center)
+		{
+		}
+		virtual ~Icon() = default;
+
+		struct Properties
+		{
+			String	 icon		= "";
+			StringID font		= Theme::GetDef().defaultFont;
+			Color	 color		= Theme::GetDef().foreground0;
+			Vector2	 offsetPerc = Vector2();
+			float	 textScale	= 1.0f;
+			bool	 isDynamic	= false;
+
+			Color sdfOutlineColor	  = Theme::GetDef().background0;
+			float sdfThickness		  = 0.5f;
+			float sdfSoftness		  = 0.0f;
+			float sdfOutlineThickness = 0.0f;
+			float sdfOutlineSoftness  = 0.0f;
+		};
+
+		virtual void Draw(int32 threadIndex) override;
+
+		void CalculateTextSize();
+
+		inline void SetProps(const Properties& props)
+		{
+			m_props = props;
 			CalculateTextSize();
+		}
 
-		m_textOptions.color.start = m_textOptions.color.end = m_props.color.AsLVG4();
-		m_textOptions.textScale								= m_props.textScale;
-		LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(-m_rect.size.x * 0.5f, m_rect.size.y * 0.5f)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
-	}
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
-	void Text::CalculateTextSize()
-	{
-		auto*		font		= m_resourceManager->GetResource<Font>(m_props.font);
-		const float dpiScale	= m_window->GetDPIScale();
-		m_lvgFont				= font->GetLinaVGFont(dpiScale);
-		m_calculatedDPIScale	= dpiScale;
-		m_textOptions.font		= m_lvgFont;
-		m_textOptions.textScale = m_props.textScale;
-		m_rect.size				= LinaVG::CalculateTextSize(m_props.text.c_str(), m_textOptions);
-	}
+	private:
+		Properties			   m_props				= {};
+		LinaVG::SDFTextOptions m_sdfOptions			= {};
+		float				   m_calculatedDPIScale = 0.0f;
+		LinaVG::LinaVGFont*	   m_lvgFont			= nullptr;
+	};
+
 } // namespace Lina

@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -39,11 +39,12 @@ namespace Lina
 
 	void Checkbox::Construct()
 	{
-		m_text							= Allocate<Text>();
-		m_text->GetProps().isDynamic	= true;
-		m_text->GetProps().usesFontSize = true;
-		m_text->CalculateTextSize();
-		AddChild(m_text);
+		m_icon							= Allocate<Icon>();
+		m_icon->GetProps().isDynamic	= true;
+		m_icon->GetProps().sdfThickness = 0.6f;
+		m_icon->CalculateTextSize();
+
+		AddChild(m_icon);
 	}
 
 	void Checkbox::Tick(float delta)
@@ -51,17 +52,17 @@ namespace Lina
 		if (!m_isHovered)
 			m_isPressed = false;
 
-		m_rect.size.x = m_text->GetSize().x + m_props.margins.left + m_props.margins.right;
-		m_rect.size.y = m_text->GetSize().y + m_props.margins.top + m_props.margins.bottom;
+		m_rect.size.x = m_icon->GetSize().x + m_props.margins.left + m_props.margins.right;
+		m_rect.size.y = m_icon->GetSize().y + m_props.margins.top + m_props.margins.bottom;
 
 		// Text size
-		const Vector2& textSize = m_text->GetSize();
-		m_text->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f - textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f - textSize.y * 0.5f));
+		const Vector2& textSize = m_icon->GetSize();
+		m_icon->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
 
 		// Alpha & color
-		const float alpha		   = Math::Lerp(m_text->GetProps().color.w, m_props.isChecked ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
+		const float alpha		   = Math::Lerp(m_icon->GetProps().color.w, m_props.isChecked ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
 		m_usedOutlineColor		   = Math::Lerp(m_props.colorOutline, m_props.colorOutlineChecked, alpha);
-		m_text->GetProps().color.w = alpha;
+		m_icon->GetProps().color.w = alpha;
 	}
 
 	void Checkbox::Draw(int32 threadIndex)
@@ -73,17 +74,17 @@ namespace Lina
 		style.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
 		style.color						   = m_props.colorBackground.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
-		m_text->Draw(threadIndex);
+		m_icon->Draw(threadIndex);
 	}
 
 	void Checkbox::SetProps(const Properties& props)
 	{
-		const Color textColor = Color(m_usedOutlineColor.x, m_usedOutlineColor.y, m_usedOutlineColor.z, m_props.isChecked ? 1.0f : 0.0f);
-
-		m_text->GetProps().text	 = props.checkIcon;
-		m_text->GetProps().font	 = props.font;
-		m_text->GetProps().color = textColor;
-		m_text->CalculateTextSize();
+		m_icon->GetProps().textScale  = props.iconScale;
+		m_icon->GetProps().icon		  = props.checkIcon;
+		m_icon->GetProps().font		  = props.font;
+		m_icon->GetProps().color.w	  = m_props.isChecked ? 1.0f : 0.0f;
+		m_icon->GetProps().offsetPerc = props.iconOffsetPerc;
+		m_icon->CalculateTextSize();
 
 		m_props = props;
 	}

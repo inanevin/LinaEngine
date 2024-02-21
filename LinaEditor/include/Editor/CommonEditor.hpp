@@ -36,7 +36,8 @@ namespace Lina::Editor
 #define ICON_FONT_PATH	  "Resources/Editor/Fonts/EditorIcons.ttf"
 #define ICON_FONT_SID	  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 
-#define ICON_LINA_LOGO "\u0041"
-#define ICON_CHECK	   "\u0042"
+#define ICON_LINA_LOGO	 "\u0041"
+#define ICON_CHECK		 "\u0042"
+#define ICONOFFSET_CHECK Vector2(0.1f, 0.0f)
 
 } // namespace Lina::Editor
