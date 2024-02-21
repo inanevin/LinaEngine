@@ -41,6 +41,7 @@ namespace Lina
 {
 	class Widget;
 	class System;
+	class ResourceManager;
 
 	class WidgetManager : public LinaGX::WindowListener
 	{
@@ -87,10 +88,11 @@ namespace Lina
 				alloc->Init();
 			}
 
-			T* t		   = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
-			t->m_window	   = m_window;
-			t->m_allocator = this;
-			t->m_system	   = m_system;
+			T* t				 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
+			t->m_window			 = m_window;
+			t->m_allocator		 = this;
+			t->m_system			 = m_system;
+			t->m_resourceManager = m_resourceManager;
 			t->Construct();
 			return t;
 		}
@@ -100,10 +102,11 @@ namespace Lina
 	private:
 		static constexpr size_t			CHUNK_COUNT = 150;
 		HashMap<TypeID, PoolAllocator*> m_allocators;
-		LinaGX::Window*					m_window		 = nullptr;
-		Widget*							m_rootWidget	 = nullptr;
-		System*							m_system		 = nullptr;
-		Widget*							m_deepestHovered = nullptr;
+		LinaGX::Window*					m_window		  = nullptr;
+		Widget*							m_rootWidget	  = nullptr;
+		System*							m_system		  = nullptr;
+		Widget*							m_deepestHovered  = nullptr;
+		ResourceManager*				m_resourceManager = nullptr;
 	};
 
 } // namespace Lina

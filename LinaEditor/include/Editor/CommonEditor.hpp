@@ -31,9 +31,12 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-#define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
-#define ICON_FONT_SID  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
+#define DEFAULT_FONT_PATH "Resources/Editor/Fonts/NunitoSansRegular.ttf"
+#define DEFAULT_FONT_SID  "Resources/Editor/Fonts/NunitoSansRegular.ttf"_hs
+#define ICON_FONT_PATH	  "Resources/Editor/Fonts/EditorIcons.ttf"
+#define ICON_FONT_SID	  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 
 #define ICON_LINA_LOGO "\u0041"
+#define ICON_CHECK	   "\u0042"
 
 } // namespace Lina::Editor

@@ -71,7 +71,7 @@ namespace Lina
 		return m_sampler;
 	}
 
-	void Texture::SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format)
+	void Texture::SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format, bool generateMipMaps)
 	{
 		if (m_owner != ResourceOwner::UserCode)
 		{
@@ -110,6 +110,14 @@ namespace Lina
 
 		m_allLevels.push_back(level0);
 
+		if (generateMipMaps)
+		{
+			LINAGX_VEC<LinaGX::TextureBuffer> mipData;
+			LinaGX::GenerateMipmaps(m_allLevels[0], mipData, m_meta.mipFilter, m_meta.channelMask, m_meta.isLinear);
+			for (const auto& mp : mipData)
+				m_allLevels.push_back(mp);
+		}
+
 		LinaGX::TextureDesc desc = LinaGX::TextureDesc{
 			.format	   = format,
 			.flags	   = LinaGX::TextureFlags::TF_Sampled | LinaGX::TextureFlags::TF_CopyDest,
@@ -121,8 +129,11 @@ namespace Lina
 		m_gpuHandle = gfxManager->GetLGX()->CreateTexture(desc);
 
 		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
-			delete[] m_allLevels[0].pixels;
-			m_allLevels[0].pixels = nullptr;
+			for (auto& l : m_allLevels)
+			{
+				delete[] l.pixels;
+				l.pixels = nullptr;
+			}
 		});
 	}
 

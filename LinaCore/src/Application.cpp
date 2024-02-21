@@ -57,6 +57,7 @@ namespace Lina
 			// SetFrameCap(16667);
 			PROFILER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
+            m_appDelegate->OnPlatformSetup();
 		}
 
 		// Resource registry

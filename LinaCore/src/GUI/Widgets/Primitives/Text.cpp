@@ -28,38 +28,94 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Common/Math/Math.hpp"
 
+#include <LinaGX/Core/InputMappings.hpp>
 namespace Lina
 {
+	float sdfThickness		  = 0.5f;
+	float sdfSoftness		  = 0.0f;
+	float sdfoutlinethickness = 0.0f;
+
+	bool Text::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
+	{
+		if (act == LinaGX::InputAction::Released)
+			return;
+
+		if (keycode == LINAGX_KEY_W)
+			sdfSoftness += 0.04f;
+
+		if (keycode == LINAGX_KEY_S)
+			sdfSoftness -= 0.04f;
+
+		if (keycode == LINAGX_KEY_A)
+			sdfoutlinethickness += 0.04f;
+
+		if (keycode == LINAGX_KEY_D)
+			sdfoutlinethickness -= 0.04f;
+
+		sdfSoftness			= Math::Clamp(sdfSoftness, 0.0f, 1.0f);
+		sdfoutlinethickness = Math::Clamp(sdfoutlinethickness, 0.0f, 1.0f);
+		return false;
+	}
+
+	bool Text::OnMouseWheel(float delta)
+	{
+		sdfThickness += delta * 0.01f;
+		sdfThickness = Math::Clamp(sdfThickness, 0.0f, 1.0f);
+		LINA_TRACE("SDF THICKNESS {0}", sdfThickness);
+	}
 	void Text::Draw(int32 threadIndex)
 	{
 		const float dpiScale = m_window->GetDPIScale();
+
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
-			GenerateTextOptions();
+			CalculateTextSize();
+
+		LinaVG::StyleOptions opts;
+		opts.color = LinaVG::Vec4(0, 0.5f, 0, 1);
+		LinaVG::DrawRect(0, (m_rect.pos + Vector2(0, 0)).AsLVG(), (m_rect.pos + Vector2(m_rect.size.x, m_rect.size.y)).AsLVG(), opts);
 
 		if (m_lvgFont->m_isSDF)
-			LinaVG::DrawTextSDF(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder);
+		{
+			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.color.AsLVG4();
+			m_sdfOptions.sdfThickness						  = m_props.sdfThickness;
+			m_sdfOptions.sdfSoftness						  = m_props.sdfSoftness;
+			m_sdfOptions.sdfOutlineColor					  = m_props.sdfOutlineColor.AsLVG4();
+			m_sdfOptions.sdfOutlineThickness				  = m_props.sdfOutlineThickness;
+			m_sdfOptions.sdfOutlineSoftness					  = m_props.sdfOutlineSoftness;
+			m_sdfOptions.textScale							  = m_props.textScale;
+			LinaVG::DrawTextSDF(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(m_props.offsetPerc.x * m_rect.size.x, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+		}
 		else
-			LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder);
+		{
+			m_textOptions.color.start = m_textOptions.color.end = m_props.color.AsLVG4();
+			m_textOptions.textScale								= m_props.textScale;
+			LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(m_props.offsetPerc.x * m_rect.size.x, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+		}
 	}
 
-	void Text::GenerateTextOptions()
+	void Text::CalculateTextSize()
 	{
+		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
 		const float dpiScale = m_window->GetDPIScale();
-		m_lvgFont			 = m_props.font->GetLinaVGFont(dpiScale);
+		m_lvgFont			 = font->GetLinaVGFont(dpiScale);
 		m_calculatedDPIScale = dpiScale;
 
-		m_textOptions.font		  = m_lvgFont;
-		m_textOptions.color		  = m_props.color.AsLVG4();
-		m_sdfOptions.font		  = m_lvgFont;
-		m_sdfOptions.color		  = m_props.color.AsLVG4();
-		m_sdfOptions.sdfThickness = 0.5f;
-		m_sdfOptions.sdfSoftness  = 0.25f / static_cast<float>(m_lvgFont->m_size);
+		m_textOptions.font		= m_lvgFont;
+		m_textOptions.textScale = m_props.textScale;
+		m_sdfOptions.font		= m_lvgFont;
+		m_sdfOptions.textScale	= m_props.textScale;
 
-		if (m_lvgFont->m_isSDF)
-			m_rect.size = LinaVG::CalculateTextSize(m_props.text.c_str(), m_sdfOptions);
+		if (m_props.usesFontSize)
+			m_rect.size = static_cast<float>(m_lvgFont->m_size * m_props.textScale);
 		else
-			m_rect.size = LinaVG::CalculateTextSize(m_props.text.c_str(), m_textOptions);
+		{
+			if (m_lvgFont->m_isSDF)
+				m_rect.size = LinaVG::CalculateTextSize(m_props.text.c_str(), m_sdfOptions);
+			else
+				m_rect.size = LinaVG::CalculateTextSize(m_props.text.c_str(), m_textOptions);
+		}
 	}
 } // namespace Lina

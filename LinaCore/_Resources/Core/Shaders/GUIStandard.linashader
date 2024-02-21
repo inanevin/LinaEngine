@@ -109,16 +109,21 @@ void main()
    else if(bufferType == 4)
    {
       // SDF text
-      // floatPack1 = thickness, softness, outlineThickness, hasOutline
+      // floatPack1 = thickness, softness, outlineThickness, outlineSoftness
       // floatPack2 = flipAlpha, 0, 0, bufferType
 
-      float d = texture(sampler2D(guiTexture, guiSampler), inUV).r;
-      float alpha = smoothstep(material.floatPack1.r - material.floatPack1.g, material.floatPack1.r + material.floatPack1.g, d);
-      float border = smoothstep(material.floatPack1.r + material.floatPack1.b - material.floatPack1.g, material.floatPack1.r + material.floatPack1.b + material.floatPack1.g, d);
-      vec3 outlinedColor = mix(material.color1, inCol, border).rgb;
-      vec3 baseColor = mix(inCol.rgb, outlinedColor, material.floatPack1.a);
-      alpha = (1.0f - alpha) * material.floatPack2.r + alpha * (1.0f - material.floatPack2.r);
-      fragColor = vec4(baseColor, alpha * inCol.a);
+      float thickness = material.floatPack1.r;
+      float softness = material.floatPack1.g;
+      float outlineThickness = material.floatPack1.b;
+      float outlineSoftness = material.floatPack1.a;
+
+      float a = texture(sampler2D(guiTexture, guiSampler), inUV).r;
+      float outline = smoothstep(outlineThickness - outlineSoftness, outlineThickness + outlineSoftness, a);
+      a = smoothstep(1.0 - thickness - softness, 1.0 - thickness + softness, a);
+
+      vec3 albedo = mix(material.color1.rgb, inCol.rgb, outline);
+      a = (1.0f - a) * material.floatPack2.r + a * (1.0f - material.floatPack2.r);
+      fragColor = vec4(albedo, a * inCol.a);
    }
 }
 

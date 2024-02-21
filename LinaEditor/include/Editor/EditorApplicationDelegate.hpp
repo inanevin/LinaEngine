@@ -35,6 +35,7 @@ namespace Lina::Editor
 	class EditorApplicationDelegate : public ApplicationDelegate
 	{
 	public:
+		virtual void OnPlatformSetup() override;
 		virtual void OnPreInitialize() override;
 		virtual void OnInitialize() override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;

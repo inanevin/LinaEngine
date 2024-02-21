@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
+#include "Core/GUI/Theme.hpp"
 
 namespace Lina
 {
@@ -51,11 +52,23 @@ namespace Lina
 
 namespace Lina::Editor
 {
+	void EditorApplicationDelegate::OnPlatformSetup()
+	{
+		ThemeDef theme		  = {};
+		theme.defaultFont	  = DEFAULT_FONT_SID;
+		theme.alternativeFont = DEFAULT_FONT_SID;
+		Theme::SetDef(theme);
+	}
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)
 	{
 		ApplicationDelegate::RegisterAppResources(rm);
 
 		Vector<ResourceIdentifier> resources;
+
+		// Priority
+		resources.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
+
+		// Core
 		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
 
 		for (auto& r : resources)
@@ -69,10 +82,24 @@ namespace Lina::Editor
 		if (ApplicationDelegate::FillResourceCustomMeta(sid, stream))
 			return true;
 
+		if (sid == DEFAULT_FONT_SID)
+		{
+			Font::Metadata customMeta = {
+				.points		 = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+				.isSDF		 = false,
+				.glyphRanges = {linatl::make_pair(160, 360)},
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+
+		// NOTE: 160, 380 is the glyph range for nunito sans
+
 		if (sid == ICON_FONT_SID)
 		{
 			Font::Metadata customMeta = {
-				.points = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.15f}, {.size = 16, .dpiLimit = 1.35f}, {.size = 20, .dpiLimit = 10.0f}},
+				//.points         = {{.size = 24, .dpiLimit = 1.1f}, {.size = 18, .dpiLimit = 1.8f}, {.size = 32, .dpiLimit = 10.0f}},
+				.points = {{.size = 64, .dpiLimit = 1.1f}},
 				.isSDF	= true,
 			};
 			customMeta.SaveToStream(stream);

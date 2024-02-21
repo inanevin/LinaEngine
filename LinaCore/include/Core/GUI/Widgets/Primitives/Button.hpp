@@ -29,6 +29,8 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/GUI/Theme.hpp"
+#include "Common/Data/Functional.hpp"
 
 namespace Lina
 {
@@ -40,14 +42,19 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			Fit			   widthFit			 = Fit::Fixed;
-			Fit			   heightFit		 = Fit::Fixed;
-			TBLR		   margins			 = {};
-			Font*		   font				 = nullptr;
-			String		   text				 = "";
-			RectBackground background		 = {};
-			RectBackground backgroundHovered = {};
-			RectBackground backgroundPressed = {};
+			Delegate<void()> onClicked;
+			Fit				 widthFit		   = Fit::Fixed;
+			Fit				 heightFit		   = Fit::Fixed;
+			TBLR			 margins		   = {};
+			StringID		 font			   = Theme::GetDef().defaultFont;
+			String			 text			   = "";
+			Color			 colorDefaultStart = Theme::GetDef().background2;
+			Color			 colorDefaultEnd   = Theme::GetDef().background3;
+			Color			 colorHovered	   = Theme::GetDef().background4;
+			Color			 colorPressed	   = Theme::GetDef().background0;
+			float			 rounding		   = Theme::GetDef().baseRounding;
+			float			 outlineThickness  = Theme::GetDef().baseOutlineThickness;
+			Color			 colorOutline	   = Theme::GetDef().silent;
 		};
 
 		Button() : Widget(1){};
@@ -56,7 +63,7 @@ namespace Lina
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnMouse(uint32 button, LinaGX::InputAction act);
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		void SetProps(const Properties& props);
 

@@ -28,49 +28,45 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/SizeDefinitions.hpp"
-#include "Common/Math/Color.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/GUI/Theme.hpp"
+#include "Common/Data/Functional.hpp"
 
 namespace Lina
 {
-	struct TBLR
-	{
-		float top	 = 0;
-		float bottom = 0;
-		float left	 = 0;
-		float right	 = 0;
-        
-              static TBLR Eq(float m)
-        {
-            return {.top = m, .bottom = m, .left = m, .right = m};
-        }
-	};
+	class Font;
+	class Text;
 
-	struct RectBackground
+	class Checkbox : public Widget
 	{
-		bool  enabled	 = false;
-		Color startColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		Color endColor	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		float rounding	 = 0.0f;
-	};
+	public:
+		struct Properties
+		{
+			Delegate<void()> onClicked;
+			TBLR			 margins			 = {};
+			StringID		 font				 = Theme::GetDef().defaultFont;
+			String			 checkIcon			 = "";
+			Color			 colorBackground	 = Theme::GetDef().background0;
+			float			 rounding			 = Theme::GetDef().baseRounding;
+			float			 outlineThickness	 = Theme::GetDef().baseOutlineThickness;
+			Color			 colorOutline		 = Theme::GetDef().silent;
+			Color			 colorOutlineChecked = Theme::GetDef().accentPrimary;
+			bool			 isChecked			 = false;
+		};
 
-	enum class CrossAlignment
-	{
-		Start,
-		Center,
-		End
-	};
+		Checkbox() : Widget(1){};
+		virtual ~Checkbox() = default;
 
-	enum class Fit
-	{
-		Fixed,
-		FromChildren,
-	};
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
-	enum class WidgetDirection
-	{
-		Horizontal,
-		Vertical,
-	};
+		void SetProps(const Properties& props);
 
+	private:
+		Text*	   m_text			  = nullptr;
+		Properties m_props			  = {};
+		Color	   m_usedOutlineColor = Color();
+	};
 } // namespace Lina

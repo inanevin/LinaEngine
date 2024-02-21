@@ -40,7 +40,8 @@ namespace Lina
 		m_window = window;
 		m_system = system;
 		m_window->AddListener(this);
-		m_rootWidget = Allocate<Widget>();
+		m_rootWidget	  = Allocate<Widget>();
+		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
@@ -48,8 +49,6 @@ namespace Lina
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 		m_rootWidget->Tick(delta);
-
-		// LINA_TRACE("MP {0} {1}", m_window->GetMousePosition().x, m_window->GetMousePosition().y);
 	}
 
 	void WidgetManager::Draw(int32 threadIndex)
@@ -90,11 +89,7 @@ namespace Lina
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
 	{
-		Widget* previousHovered = m_deepestHovered;
 		FindHoveredRecursive(pos, m_rootWidget);
-
-		if (m_deepestHovered != previousHovered)
-			ClearHoverStatus(previousHovered);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
@@ -102,7 +97,6 @@ namespace Lina
 		if (!gainedFocus)
 		{
 			ClearHoveredRecursive(m_rootWidget);
-			ClearHoverStatus(m_deepestHovered);
 		}
 	}
 
@@ -113,7 +107,6 @@ namespace Lina
 	void WidgetManager::OnWindowHoverEnd()
 	{
 		ClearHoveredRecursive(m_rootWidget);
-		ClearHoverStatus(m_deepestHovered);
 	}
 
 	void WidgetManager::FindHoveredRecursive(const Vector2& pos, Widget* w)
@@ -127,6 +120,8 @@ namespace Lina
 			for (auto* c : w->m_children)
 				FindHoveredRecursive(pos, c);
 		}
+		else
+			ClearHoveredRecursive(w);
 	}
 
 	void WidgetManager::ClearHoveredRecursive(Widget* w)

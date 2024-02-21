@@ -43,6 +43,8 @@ namespace LinaGX
 namespace Lina
 {
 	class System;
+	class ResourceManager;
+
 	class Widget
 	{
 	public:
@@ -53,9 +55,9 @@ namespace Lina
 		void RemoveChild(Widget* w);
 		void Destroy();
 
-		bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
-		bool OnMouse(uint32 button, LinaGX::InputAction action);
-		bool OnMouseWheel(float delta);
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
+		virtual bool OnMouseWheel(float delta);
 
 		virtual void Construct(){};
 		virtual void OnClicked(uint32 button){};
@@ -135,18 +137,18 @@ namespace Lina
 		virtual void DebugDraw();
 
 	protected:
-		TypeID			m_tid		= 0;
-		WidgetManager*	m_allocator = nullptr;
-		Widget*			m_parent	= nullptr;
-		LinaGX::Window* m_window	= nullptr;
-		int32			m_drawOrder = 0;
-		System*			m_system	= nullptr;
-		Rect			m_rect		= {};
-		Vector<Widget*> m_children;
-		int32			m_maxChilds	 = 0;
-		bool			m_isHovered	 = false;
-		bool			m_isPressed	 = false;
-		int32			m_pressState = 0;
+		TypeID			 m_tid		 = 0;
+		WidgetManager*	 m_allocator = nullptr;
+		Widget*			 m_parent	 = nullptr;
+		LinaGX::Window*	 m_window	 = nullptr;
+		int32			 m_drawOrder = 0;
+		System*			 m_system	 = nullptr;
+		Rect			 m_rect		 = {};
+		Vector<Widget*>	 m_children;
+		int32			 m_maxChilds	   = 0;
+		bool			 m_isHovered	   = false;
+		bool			 m_isPressed	   = false;
+		ResourceManager* m_resourceManager = nullptr;
 	};
 
 } // namespace Lina

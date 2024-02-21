@@ -144,7 +144,7 @@ namespace Lina
 		auto  txt					= m_fontTextures[buf->m_textureHandle].texture;
 		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
 		req.materialData.color1		= buf->m_outlineColor;
-		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineThickness != 0.0f ? 1.0f : 0.0f);
+		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineSoftness);
 		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
 		req.hasTextureBind			= true;
 		req.textureHandle			= txt->GetGPUHandle();
@@ -167,7 +167,7 @@ namespace Lina
 	void GUIBackend::BufferEnded()
 	{
 		auto& ft = m_fontTextures[m_boundFontTexture];
-		ft.texture->SetCustomData(ft.pixels, ft.width, ft.height, 1, LinaGX::Format::R8_UNORM);
+		ft.texture->SetCustomData(ft.pixels, ft.width, ft.height, 1, LinaGX::Format::R8_UNORM, true);
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)

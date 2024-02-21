@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -41,62 +42,54 @@ namespace Lina::Editor
 
 	void Testbed::Construct()
 	{
+		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		auto* resMan	  = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		auto* iconFont	  = resMan->GetResource<Font>(ICON_FONT_SID);
-		auto* defaultFont = resMan->GetResource<Font>(Theme::GetDef().defaultFont);
+		// // Icon
+		// {
+		// 	Text* text = Allocate<Text>();
+		// 	text->SetProps({
+		// 		.text  = ICON_LINA_LOGO,
+		// 		.font  = ICON_FONT_SID,
+		// 	});
+		// 	text->SetPos(Vector2(10, 10));
+		// 	AddChild(text);
+		// }
+		//
+		// // Testbed Text
+		// {
+		// 	Text* text = Allocate<Text>();
+		// 	text->SetProps({
+		// 		.text  = "Testbed",
+		// 	});
+		// 	text->SetPos(Vector2(30, 10));
+		// 	AddChild(text);
+		// }
+		//
+		// // Button
+		// {
+		//
+		// 	Button* button = Allocate<Button>();
+		// 	button->SetProps({
+		// 		.widthFit		   = Fit::Fixed,
+		// 		.heightFit		   = Fit::Fixed,
+		// 		.margins		   = {},
+		// 		.text			   = "Button",
+		// 	});
+		// 	button->SetSize(Vector2(100, 30));
+		// 	button->SetPos(Vector2(10, 30));
+		// 	AddChild(button);
+		// }
 
-		// Icon
+		// Checkbox
 		{
-			Text* text = Allocate<Text>();
-			text->SetProps({
-				.text  = "A",
-				.font  = iconFont,
-				.color = Color(1.0f, 1.0f, 1.0f, 1.0f),
+			Checkbox* check = Allocate<Checkbox>();
+			check->SetProps({
+				.margins   = TBLR::Eq(Theme::GetDef().baseIndent),
+				.font	   = ICON_FONT_SID,
+				.checkIcon = ICON_CHECK,
 			});
-			text->SetPos(Vector2(10, 10));
-			AddChild(text);
-		}
-
-		// Testbed Text
-		{
-			Text* text = Allocate<Text>();
-			text->SetProps({
-				.text  = "Testbed",
-				.font  = defaultFont,
-				.color = Color(1.0f, 1.0f, 1.0f, 1.0f),
-			});
-			text->SetPos(Vector2(30, 10));
-			AddChild(text);
-		}
-
-		// Button
-		{
-			RectBackground bg = {
-				.enabled	= true,
-				.startColor = Theme::GetDef().background2,
-				.endColor	= Theme::GetDef().background2,
-			};
-
-			RectBackground bgHovered = {
-				.enabled	= true,
-				.startColor = Theme::GetDef().background3,
-				.endColor	= Theme::GetDef().background3,
-			};
-
-			Button* button = Allocate<Button>();
-			button->SetProps({
-				.widthFit		   = Fit::Fixed,
-				.heightFit		   = Fit::Fixed,
-				.margins		   = {},
-				.font			   = defaultFont,
-				.text			   = "Button",
-				.background		   = bg,
-				.backgroundHovered = bgHovered,
-			});
-			button->SetSize(Vector2(60, 20));
-			button->SetPos(Vector2(10, 30));
-			AddChild(button);
+			check->SetPos(Vector2(10, 70));
+			AddChild(check);
 		}
 	}
 

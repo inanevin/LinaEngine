@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/GUI/Theme.hpp"
 #include "Common/Data/String.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
@@ -44,22 +45,40 @@ namespace Lina
 
 		struct Properties
 		{
-			String text	 = "";
-			Font*  font	 = nullptr;
-			Color  color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+			String	 text		= "";
+			StringID font		= Theme::GetDef().defaultFont;
+			Color	 color		= Theme::GetDef().foreground0;
+			Vector2	 offsetPerc = Vector2();
+
+			float textScale	   = 1.0f;
+			bool  isDynamic	   = false;
+			bool  usesFontSize = false;
+
+			Color sdfOutlineColor	  = Theme::GetDef().background0;
+			float sdfThickness		  = 0.5f;
+			float sdfSoftness		  = 0.0f;
+			float sdfOutlineThickness = 0.0f;
+			float sdfOutlineSoftness  = 0.0f;
 		};
 
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
+		virtual bool OnMouseWheel(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+
+		void CalculateTextSize();
 
 		inline void SetProps(const Properties& props)
 		{
 			m_props = props;
-			GenerateTextOptions();
+			CalculateTextSize();
+		}
+
+		inline Properties& GetProps()
+		{
+			return m_props;
 		}
 
 	private:
-		void GenerateTextOptions();
-
 	private:
 		Properties			   m_props				= {};
 		LinaVG::TextOptions	   m_textOptions		= {};

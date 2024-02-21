@@ -51,18 +51,24 @@ namespace Lina
 		Color background1 = Color(0.00972f, 0.00913f, 0.01229f, 1.0f);
 		Color background2 = Color(0.01681f, 0.01681f, 0.02122f, 1.0f);
 		Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
+		Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);
+		Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
 
 		Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
-		Color foreground1 = Color(0.019f, 0.018f, 0.022f, 1.0f);
-		Color foreground2 = Color(0.0f, 0.0f, 0.0f, 1.0f);
+		Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
 
-		Color accentPrimary	  = Color(0.047f, 0.007f, 0.015f, 1.0f);
+		Color silent = Color(0.035f, 0.035f, 0.035f, 1.0f);
+
+		// Color accentPrimary	  = Color(0.047f, 0.007f, 0.015f, 1.0f);
+		Color accentPrimary	  = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
 		Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
 
-		float baseIndent = 8.0f;
+		float baseIndent		   = 8.0f;
+		float baseRounding		   = 0.25f;
+		float baseOutlineThickness = 1.0f;
 
-		StringID defaultFont	 = "Resources/Core/Fonts/NunitoSansRegular.ttf"_hs;
-		StringID alternativeFont = "Resources/Core/Fonts/RubikSansRegular.ttf"_hs;
+		StringID defaultFont	 = 0;
+		StringID alternativeFont = 0;
 	};
 
 	class Theme
@@ -71,6 +77,11 @@ namespace Lina
 		static const ThemeDef& GetDef()
 		{
 			return s_themeDef;
+		}
+
+		static void SetDef(const ThemeDef& def)
+		{
+			s_themeDef = def;
 		}
 
 	private:
