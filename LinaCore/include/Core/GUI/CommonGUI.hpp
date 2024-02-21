@@ -39,11 +39,11 @@ namespace Lina
 		float bottom = 0;
 		float left	 = 0;
 		float right	 = 0;
-        
-              static TBLR Eq(float m)
-        {
-            return {.top = m, .bottom = m, .left = m, .right = m};
-        }
+
+		static TBLR Eq(float m)
+		{
+			return {.top = m, .bottom = m, .left = m, .right = m};
+		}
 	};
 
 	struct RectBackground
