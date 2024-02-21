@@ -48,7 +48,7 @@ namespace Lina
 
 	void Checkbox::Tick(float delta)
 	{
-        Widget::SetIsHovered();
+		Widget::SetIsHovered();
 
 		if (!m_isHovered)
 			m_isPressed = false;
