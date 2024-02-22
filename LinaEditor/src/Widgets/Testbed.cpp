@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
-#include "Core/GUI/Widgets/Primitives/NumberField.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -47,6 +46,7 @@ namespace Lina::Editor
 	float slider1Value	   = 2.0f;
 	float slider2Value	   = 8.0f;
 	float numberFieldValue = 4.0f;
+    String textFieldValue = "Test";
 
 	bool checkboxValue = false;
 
@@ -166,36 +166,33 @@ namespace Lina::Editor
 
 		// Input Field Number
 		{
-			InputField* field = Allocate<InputField>();
-			Theme::SetDefaults(field);
-
-			field->GetProps().isNumberField		  = true;
-			field->GetProps().disableNumberSlider = true;
-			field->GetProps().clampNumber		  = true;
-			field->GetProps().numberStep		  = 0.5f;
-			field->GetProps().numberValue		  = &numberFieldValue;
-			field->GetText()->GetProps().text	  = "Testing";
-			field->GetText()->CalculateTextSize();
-			field->SetSize(Vector2(100, 0));
-			field->SetPos(Vector2(10, 340));
-			field->SetDebugName("InputFieldNumber");
-			AddChild(field);
+			// InputField* field = Allocate<InputField>();
+			// Theme::SetDefaults(field);
+//
+			// field->GetProps().isNumberField		  = true;
+			// field->GetProps().disableNumberSlider = true;
+			// field->GetProps().clampNumber		  = true;
+			// field->GetProps().numberStep		  = 0.5f;
+			// field->GetProps().numberValue		  = &numberFieldValue;
+			// field->GetText()->GetProps().text	  = "Testing";
+			// field->GetText()->CalculateTextSize();
+			// field->SetSize(Vector2(100, 0));
+			// field->SetPos(Vector2(10, 340));
+			// field->SetDebugName("InputFieldNumber");
+			// AddChild(field);
 		}
 
 		// Input Field Text
 		{
-			// InputField* field = Allocate<InputField>();
-			// Theme::SetDefaults(field);
-			//
-			// field->GetProps().isNumberField	  = false;
-			// field->GetProps().numberStep	  = 0.5f;
-			// field->GetProps().numberValue	  = &numberFieldValue;
-			// field->GetText()->GetProps().text = "Testing";
-			// field->GetText()->CalculateTextSize();
-			// field->SetSize(Vector2(100, 0));
-			// field->SetPos(Vector2(10, 380));
-			// field->SetDebugName("InputFieldText");
-			// AddChild(field);
+			 InputField* field = Allocate<InputField>();
+			 Theme::SetDefaults(field);
+			
+			 field->GetProps().isNumberField	  = false;
+			 field->GetText()->CalculateTextSize();
+			 field->SetSize(Vector2(100, 0));
+			 field->SetPos(Vector2(10, 380));
+			 field->SetDebugName("InputFieldText");
+			 AddChild(field);
 		}
 	}
 

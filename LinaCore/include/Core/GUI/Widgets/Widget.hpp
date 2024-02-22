@@ -55,6 +55,7 @@ namespace Lina
 	public:
 		virtual void Tick(float delta);
 		virtual void Draw(int32 threadIndex);
+        virtual void RenderSync();
 
 		void AddChild(Widget* w);
 		void RemoveChild(Widget* w);

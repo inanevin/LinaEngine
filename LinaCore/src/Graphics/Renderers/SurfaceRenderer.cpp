@@ -123,6 +123,11 @@ namespace Lina
 			m_widgetManager.Tick(delta, m_window->GetSize());
 	}
 
+	void SurfaceRenderer::RenderSync()
+	{
+		m_widgetManager.RenderSync();
+	}
+
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex, int32 threadIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];

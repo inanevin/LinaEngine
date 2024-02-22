@@ -289,13 +289,28 @@ namespace Lina
 		   };
 		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUDataEngineGlobals));
 
-		for (const auto& sr : m_surfaceRenderers)
-			sr->Tick(delta);
+		if (m_surfaceRenderers.size() == 1)
+			m_surfaceRenderers[0]->Tick(delta);
+		else
+		{
+			Taskflow tf;
+			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [delta](SurfaceRenderer* sf) { sf->Tick(delta); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 	}
 
 	void GfxManager::RenderSync()
 	{
 		PROFILER_FUNCTION();
+
+		if (m_surfaceRenderers.size() == 1)
+			m_surfaceRenderers[0]->RenderSync();
+		else
+		{
+			Taskflow tf;
+			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [](SurfaceRenderer* sf) { sf->RenderSync(); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 	}
 
 	void GfxManager::Render()

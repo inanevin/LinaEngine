@@ -66,6 +66,7 @@ namespace Lina
 
 		void				   Tick(float delta);
 		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
+		void				   RenderSync();
 
 		inline bool IsVisible()
 		{

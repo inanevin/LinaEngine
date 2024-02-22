@@ -125,9 +125,6 @@ namespace Lina
 				m_caretCtr = 0.0f;
 			m_caretAlpha = (Math::Sin(m_caretCtr) + 1.0f) / 2.0f;
 		}
-
-		// Tick text
-		m_text->Tick(delta);
 	}
 
 	void InputField::Draw(int32 threadIndex)
@@ -201,6 +198,17 @@ namespace Lina
 
 		m_text->Draw(threadIndex);
 		m_manager->UnsetClip(threadIndex);
+	}
+
+	void InputField::RenderSync()
+	{
+		// if(!m_isEditing)
+		// {
+		//     if(m_props.isNumberField)
+		//         m_text->GetProps().text = UtilStr::FloatToString(*m_props.numberValue, m_props.numberPrecision);
+		//     else
+		//         m_text->GetProps().text = *m_props.stringValue;
+		// }
 	}
 
 	void InputField::SelectAll()

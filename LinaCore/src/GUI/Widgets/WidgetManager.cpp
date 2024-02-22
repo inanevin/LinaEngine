@@ -57,6 +57,10 @@ namespace Lina
 		m_rootWidget->Tick(delta);
 	}
 
+    void WidgetManager::RenderSync()
+    {
+        m_rootWidget->RenderSync();
+    }
 	void WidgetManager::Draw(int32 threadIndex)
 	{
 		m_rootWidget->Draw(threadIndex);
