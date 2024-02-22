@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 	linaApp->Initialize(Lina::Lina_GetInitInfo());
 	while (!linaApp->GetExitRequested())
 	{
-        linaApp->PreTick();
+		linaApp->PreTick();
 
 		@autoreleasepool
 		{

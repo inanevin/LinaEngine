@@ -43,10 +43,10 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	float slider1Value	   = 2.0f;
-	float slider2Value	   = 8.0f;
-	float numberFieldValue = 4.0f;
-    String textFieldValue = "Test";
+	float  slider1Value		= 2.0f;
+	float  slider2Value		= 8.0f;
+	float  numberFieldValue = 4.0f;
+	String textFieldValue	= "Test";
 
 	bool checkboxValue = false;
 
@@ -168,7 +168,7 @@ namespace Lina::Editor
 		{
 			// InputField* field = Allocate<InputField>();
 			// Theme::SetDefaults(field);
-//
+			//
 			// field->GetProps().isNumberField		  = true;
 			// field->GetProps().disableNumberSlider = true;
 			// field->GetProps().clampNumber		  = true;
@@ -184,15 +184,15 @@ namespace Lina::Editor
 
 		// Input Field Text
 		{
-			 InputField* field = Allocate<InputField>();
-			 Theme::SetDefaults(field);
-			
-			 field->GetProps().isNumberField	  = false;
-			 field->GetText()->CalculateTextSize();
-			 field->SetSize(Vector2(100, 0));
-			 field->SetPos(Vector2(10, 380));
-			 field->SetDebugName("InputFieldText");
-			 AddChild(field);
+			InputField* field = Allocate<InputField>();
+			Theme::SetDefaults(field);
+
+			field->GetProps().isNumberField = false;
+			field->GetText()->CalculateTextSize();
+			field->SetSize(Vector2(100, 0));
+			field->SetPos(Vector2(10, 380));
+			field->SetDebugName("InputFieldText");
+			AddChild(field);
 		}
 	}
 
