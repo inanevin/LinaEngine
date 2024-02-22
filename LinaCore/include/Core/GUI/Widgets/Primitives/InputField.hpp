@@ -46,16 +46,17 @@ namespace Lina
 
 		struct Properties
 		{
-			Color colorBackground	   = Color::White;
-			Color colorOutline		   = Color::White;
-			Color colorOutlineControls = Color::White;
-			Color colorHighlight	   = Color::White;
-			Color colorCaret		   = Color::White;
-			Color colorNumberFillStart = Color::White;
-			Color colorNumberFillEnd   = Color::White;
-			float rounding			   = 0.0f;
-			float outlineThickness	   = 0.0f;
-			float indent			   = 0.0f;
+			Delegate<void(const String&)> onEdited;
+			Color						  colorBackground	   = Color::White;
+			Color						  colorOutline		   = Color::White;
+			Color						  colorOutlineControls = Color::White;
+			Color						  colorHighlight	   = Color::White;
+			Color						  colorCaret		   = Color::White;
+			Color						  colorNumberFillStart = Color::White;
+			Color						  colorNumberFillEnd   = Color::White;
+			float						  rounding			   = 0.0f;
+			float						  outlineThickness	   = 0.0f;
+			float						  indent			   = 0.0f;
 
 			bool   isNumberField	   = false;
 			bool   disableNumberSlider = false;
@@ -97,19 +98,18 @@ namespace Lina
 		void	ClampCaretInsert();
 
 	private:
-		Properties m_props	   = {};
-		Text*	   m_text	   = nullptr;
-		bool	   m_isEditing = false;
-
-		uint32 m_caretInsertPos	   = 0;
-		uint32 m_highlightStartPos = 0;
-
-		float	m_caretAlpha		   = 1.0f;
-		float	m_caretCtr			   = 0.0f;
-		Vector2 m_textStartMid		   = Vector2::Zero;
-		Vector2 m_textEndMid		   = Vector2::Zero;
-		float	m_averageCharacterStep = 0.0f;
-		float	m_textOffset		   = 0.0f;
+		Properties m_props				  = {};
+		Text*	   m_text				  = nullptr;
+		Vector2	   m_textStartMid		  = Vector2::Zero;
+		Vector2	   m_textEndMid			  = Vector2::Zero;
+		uint32	   m_caretInsertPos		  = 0;
+		uint32	   m_highlightStartPos	  = 0;
+		float	   m_caretAlpha			  = 1.0f;
+		float	   m_caretCtr			  = 0.0f;
+		float	   m_averageCharacterStep = 0.0f;
+		float	   m_textOffset			  = 0.0f;
+		bool	   m_middlePressed		  = false;
+		bool	   m_isEditing			  = false;
 	};
 
 } // namespace Lina

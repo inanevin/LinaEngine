@@ -76,7 +76,7 @@ namespace Lina
 		}
 
 		// Number field slider movement.
-		if (m_isPressed)
+		if (m_middlePressed)
 		{
 			if (!m_isEditing && m_props.isNumberField)
 			{
@@ -96,16 +96,10 @@ namespace Lina
 				if (m_props.clampNumber)
 					*m_props.numberValue = Math::Clamp(*m_props.numberValue, m_props.numberMin, m_props.numberMax);
 			}
-			m_caretInsertPos = GetCaretPosFromMouse();
 		}
 
-		// Assign text to number value.
-		if (m_props.isNumberField && !m_isEditing)
-		{
-			const float value		= *m_props.numberValue;
-			m_text->GetProps().text = UtilStr::FloatToString(value, m_props.numberPrecision);
-			m_text->CalculateTextSize();
-		}
+		if (m_isPressed)
+			m_caretInsertPos = GetCaretPosFromMouse();
 
 		// My size and text size/pos.
 		m_rect.size.y				= m_text->GetLVGFont()->m_size + m_props.indent * 2.0f;
@@ -202,13 +196,13 @@ namespace Lina
 
 	void InputField::RenderSync()
 	{
-		// if(!m_isEditing)
-		// {
-		//     if(m_props.isNumberField)
-		//         m_text->GetProps().text = UtilStr::FloatToString(*m_props.numberValue, m_props.numberPrecision);
-		//     else
-		//         m_text->GetProps().text = *m_props.stringValue;
-		// }
+		// Assign text to number value.
+		if (m_props.isNumberField && !m_isEditing)
+		{
+			const float value		= *m_props.numberValue;
+			m_text->GetProps().text = UtilStr::FloatToString(value, m_props.numberPrecision);
+			m_text->CalculateTextSize();
+		}
 	}
 
 	void InputField::SelectAll()
@@ -309,7 +303,7 @@ namespace Lina
 			uint16	mask	   = 0;
 			wchar_t wcharacter = L' ';
 			m_lgxWindow->GetInput()->GetCharacterInfoFromKeycode(keycode, wcharacter, mask);
-			uint16 characterMask = LinaGX::CharacterMask::Number | LinaGX::CharacterMask::Separator;
+			uint16 characterMask = LinaGX::CharacterMask::Number | LinaGX::CharacterMask::Separator | LinaGX::CharacterMask::Sign;
 			if (!m_props.isNumberField)
 				characterMask |= LinaGX::CharacterMask::Letter | LinaGX::CharacterMask::Symbol | LinaGX::CharacterMask::Whitespace;
 			if (Bitmask<uint16>(mask).IsSet(characterMask))
@@ -346,6 +340,24 @@ namespace Lina
 
 	void InputField::OnWindowMouse(uint32 button, LinaGX::InputAction action)
 	{
+		if (m_props.isNumberField && !m_props.disableNumberSlider)
+		{
+			if (button == LINAGX_MOUSE_MIDDLE)
+			{
+				if (m_isHovered && action == LinaGX::InputAction::Pressed)
+				{
+					m_middlePressed = true;
+					return;
+				}
+
+				if (action == LinaGX::InputAction::Released)
+				{
+					m_middlePressed = false;
+					return;
+				}
+			}
+		}
+
 		if (button != LINAGX_MOUSE_0)
 			return;
 
@@ -353,16 +365,7 @@ namespace Lina
 		// Start editing if number slider.
 		if (m_isHovered && action == LinaGX::InputAction::Repeated)
 		{
-			if (m_isEditing)
-				SelectAll();
-			else if (m_props.isNumberField && !m_props.disableNumberSlider)
-			{
-				m_caretInsertPos	= GetCaretPosFromMouse();
-				m_highlightStartPos = m_caretInsertPos;
-				m_manager->GrabControls(this);
-				m_isEditing = true;
-			}
-
+			SelectAll();
 			return;
 		}
 
@@ -372,12 +375,9 @@ namespace Lina
 			{
 				m_caretInsertPos	= GetCaretPosFromMouse();
 				m_highlightStartPos = m_caretInsertPos;
-
-				m_isPressed = true;
+				m_isPressed			= true;
 				m_manager->GrabControls(this);
-
-				if (!m_props.isNumberField || m_props.disableNumberSlider)
-					m_isEditing = true;
+				m_isEditing = true;
 			}
 			else
 			{
@@ -406,6 +406,8 @@ namespace Lina
 	{
 		m_text->GetProps().text.insert(static_cast<size_t>(pos), str);
 		m_text->CalculateTextSize();
+		if (m_props.onEdited)
+			m_props.onEdited(m_text->GetProps().text);
 
 		if (m_props.isNumberField)
 		{
@@ -439,6 +441,9 @@ namespace Lina
 			m_text->CalculateTextSize();
 			m_caretInsertPos = m_highlightStartPos = min;
 		}
+
+		if (m_props.onEdited)
+			m_props.onEdited(m_text->GetProps().text);
 
 		if (m_text->GetProps().text.empty())
 			m_textOffset = 0.0f;
