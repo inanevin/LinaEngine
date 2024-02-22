@@ -28,20 +28,17 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Primitives/NumberField.hpp"
 
-
 namespace Lina
 {
 
-    void NumberField::Tick(float delta)
-    {
-        InputField::Tick(delta);
-    }
-
+	void NumberField::Tick(float delta)
+	{
+		InputField::Tick(delta);
+	}
 
 	void NumberField::Draw(int32 threadIndex)
 	{
-        InputField::Draw(threadIndex);
+		InputField::Draw(threadIndex);
 	}
 
-   
 } // namespace Lina

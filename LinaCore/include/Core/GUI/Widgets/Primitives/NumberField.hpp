@@ -32,25 +32,19 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Text;
+	class Text;
 
 	class NumberField : public InputField
 	{
 	public:
-        NumberField() = default;
+		NumberField()		   = default;
 		virtual ~NumberField() = default;
 
-	
-        virtual void Tick(float delta) override;
+		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-        
-        
-    private:
-        
-       
-        
+
 	private:
-		
+	private:
 	};
 
 } // namespace Lina

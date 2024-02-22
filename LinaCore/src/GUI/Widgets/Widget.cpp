@@ -43,7 +43,7 @@ namespace Lina
 
 		w->m_drawOrder = m_drawOrder;
 		w->m_parent	   = this;
-		w->m_lgxWindow	   = m_lgxWindow;
+		w->m_lgxWindow = m_lgxWindow;
 		w->m_manager   = m_manager;
 		m_children.push_back(w);
 	}
@@ -66,11 +66,11 @@ namespace Lina
 
 	void Widget::Destroy()
 	{
-        Destruct();
+		Destruct();
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Destroy(); });
 		m_manager->Deallocate(this);
 	}
-	
+
 	void Widget::SetIsHovered()
 	{
 		const Vector2& pos = m_lgxWindow->GetMousePosition();

@@ -49,7 +49,7 @@ namespace Lina
 	class Icon;
 	class Checkbox;
 	class Slider;
-    class InputField;
+	class InputField;
 
 } // namespace Lina
 
@@ -105,7 +105,7 @@ namespace Lina::Editor
 		static void SetDefaults(Text* widget);
 		static void SetDefaults(Checkbox* widget);
 		static void SetDefaults(Slider* widget);
-        static void SetDefaults(InputField* widget);
+		static void SetDefaults(InputField* widget);
 
 	private:
 		static ThemeDef s_themeDef;

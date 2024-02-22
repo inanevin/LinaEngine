@@ -32,13 +32,12 @@ SOFTWARE.
 
 namespace Lina
 {
-    class Rect;
+	class Rect;
 
 	class WidgetUtility
 	{
 	public:
 		static void DrawRectBackground(int32 threadIndex, const RectBackground& options, const Rect& rect, int32 drawOrder, bool positionIsCenter = false);
-
 	};
 
 } // namespace Lina

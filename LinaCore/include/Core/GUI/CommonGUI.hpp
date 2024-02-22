@@ -55,11 +55,11 @@ namespace Lina
 		float rounding	 = 0.0f;
 	};
 
-    struct ClipData
-    {
-        Rect rect    = Rect();
-        TBLR margins = {};
-    };
+	struct ClipData
+	{
+		Rect rect	 = Rect();
+		TBLR margins = {};
+	};
 
 	enum class CrossAlignment
 	{

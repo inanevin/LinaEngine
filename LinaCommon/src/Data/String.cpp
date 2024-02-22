@@ -54,12 +54,12 @@ namespace Lina
 		return converted.c_str();
 	}
 
-    String UtilStr::WCharToString(wchar_t wch)
-    {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-        std::string utf8char = conv.to_bytes(wch);
-        return utf8char.c_str();
-    }
+	String UtilStr::WCharToString(wchar_t wch)
+	{
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+		std::string										 utf8char = conv.to_bytes(wch);
+		return utf8char.c_str();
+	}
 
 	WString UtilStr::StringToWString(const String& string)
 	{
@@ -69,46 +69,46 @@ namespace Lina
 		return converted.c_str();
 	}
 
-    char* UtilStr::WCharToChar(const wchar_t* wch)
-    {
-        // Count required buffer size (plus one for null-terminator).
-        size_t size   = (wcslen(wch) + 1) * sizeof(wchar_t);
-        char*  buffer = new char[size];
-        
-    #ifdef __STDC_LIB_EXT1__
-        // wcstombs_s is only guaranteed to be available if __STDC_LIB_EXT1__ is defined
-        size_t convertedSize;
-        std::wcstombs_s(&convertedSize, buffer, size, input, size);
-    #else
-    #pragma warning(disable : 4996)
-        std::wcstombs(buffer, wch, size);
-    #endif
-        return buffer;
-    }
-    
-    const wchar_t* UtilStr::CharToWChar(const char* ch)
-    {
-    #ifdef LINA_PLATFORM_WINDOWS
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
-        std::wstring                                     wideStr = converter.from_bytes(ch);
-        
-        wchar_t* wideStrCopy = new wchar_t[wideStr.size() + 1];
-        wcscpy_s(wideStrCopy, wideStr.size() + 1, wideStr.c_str());
-        
-        return wideStrCopy;
-    #endif
-        
-    #ifdef LINA_PLATFORM_APPLE
-        // Convert the input char string to a wchar_t string on Apple platform
-        size_t length = strlen(ch);
-        wchar_t* wideStrCopy = new wchar_t[length + 1];
-        
-        mbstowcs(wideStrCopy, ch, length);
-        wideStrCopy[length] = L'\0'; // Null-terminate the wide string
-        
-        return wideStrCopy;
-    #endif
-    }
+	char* UtilStr::WCharToChar(const wchar_t* wch)
+	{
+		// Count required buffer size (plus one for null-terminator).
+		size_t size	  = (wcslen(wch) + 1) * sizeof(wchar_t);
+		char*  buffer = new char[size];
+
+#ifdef __STDC_LIB_EXT1__
+		// wcstombs_s is only guaranteed to be available if __STDC_LIB_EXT1__ is defined
+		size_t convertedSize;
+		std::wcstombs_s(&convertedSize, buffer, size, input, size);
+#else
+#pragma warning(disable : 4996)
+		std::wcstombs(buffer, wch, size);
+#endif
+		return buffer;
+	}
+
+	const wchar_t* UtilStr::CharToWChar(const char* ch)
+	{
+#ifdef LINA_PLATFORM_WINDOWS
+		std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+		std::wstring									 wideStr = converter.from_bytes(ch);
+
+		wchar_t* wideStrCopy = new wchar_t[wideStr.size() + 1];
+		wcscpy_s(wideStrCopy, wideStr.size() + 1, wideStr.c_str());
+
+		return wideStrCopy;
+#endif
+
+#ifdef LINA_PLATFORM_APPLE
+		// Convert the input char string to a wchar_t string on Apple platform
+		size_t	 length		 = strlen(ch);
+		wchar_t* wideStrCopy = new wchar_t[length + 1];
+
+		mbstowcs(wideStrCopy, ch, length);
+		wideStrCopy[length] = L'\0'; // Null-terminate the wide string
+
+		return wideStrCopy;
+#endif
+	}
 
 	String UtilStr::EncodeUTF8(wchar_t ch)
 	{
