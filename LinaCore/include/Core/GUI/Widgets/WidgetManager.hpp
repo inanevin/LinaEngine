@@ -41,7 +41,7 @@ namespace LinaGX
 namespace Lina
 {
 	class Widget;
-    class Popup;
+	class Popup;
 	class System;
 	class ResourceManager;
 
@@ -59,9 +59,9 @@ namespace Lina
 		void DebugDraw(int32 threadIndex, Widget* w);
 		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
 		void UnsetClip(int32 threadIndex);
-        
-        Popup* AddPopup();
-        void RemovePopup(Popup* popup);
+
+		Popup* AddPopup();
+		void   RemovePopup(Popup* popup);
 
 		inline Widget* GetRoot()
 		{
@@ -123,7 +123,7 @@ namespace Lina
 			t->m_manager		 = this;
 			t->m_system			 = m_system;
 			t->m_resourceManager = m_resourceManager;
-            t->m_tid = tid;
+			t->m_tid			 = tid;
 			t->Construct();
 			return t;
 		}

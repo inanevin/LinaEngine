@@ -34,62 +34,59 @@ SOFTWARE.
 namespace Lina
 {
 
-    void PopupItem::Construct()
-    {
-        m_text = Allocate<Text>();
-        m_text->GetProps().isDynamic = true;
-        AddChild(m_text);
-        m_lgxWindow->AddListener(this);
-    }
+	void PopupItem::Construct()
+	{
+		m_text						 = Allocate<Text>();
+		m_text->GetProps().isDynamic = true;
+		AddChild(m_text);
+		m_lgxWindow->AddListener(this);
+	}
 
-    void PopupItem::Destruct()
-    {
-        m_lgxWindow->RemoveListener(this);
-    }
+	void PopupItem::Destruct()
+	{
+		m_lgxWindow->RemoveListener(this);
+	}
 
-    void PopupItem::Tick(float delta)
-    {
-        Widget::SetIsHovered();
-        
-        const Vector2 textSize = m_text->GetSize();
-        m_rect.size.y = m_text->GetLVGFont()->m_size + m_props.verticalIndent * 2;
-        m_rect.size.x = textSize.x + m_props.horizontalIndent * 2;
-        
-        m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
-    }
+	void PopupItem::Tick(float delta)
+	{
+		Widget::SetIsHovered();
+
+		const Vector2 textSize = m_text->GetSize();
+		m_rect.size.y		   = m_text->GetLVGFont()->m_size + m_props.verticalIndent * 2;
+		m_rect.size.x		   = textSize.x + m_props.horizontalIndent * 2;
+
+		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
+	}
 
 	void PopupItem::Draw(int32 threadIndex)
 	{
-        const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
-        if(m_props.isSelected || m_isHovered)
-        {
-            // Bg
-            LinaVG::StyleOptions opts;
-            opts.color   = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackgroundSelected.AsLVG4();
-            LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
-        }
-        
-        
-        // Text & clip over icon.
-        m_manager->SetClip(threadIndex, m_rect, {});
-        m_text->Draw(threadIndex);
-        m_manager->UnsetClip(threadIndex);
+		if (m_props.isSelected || m_isHovered)
+		{
+			// Bg
+			LinaVG::StyleOptions opts;
+			opts.color = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackgroundSelected.AsLVG4();
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+		}
+
+		// Text & clip over icon.
+		m_manager->SetClip(threadIndex, m_rect, {});
+		m_text->Draw(threadIndex);
+		m_manager->UnsetClip(threadIndex);
 	}
 
-    void PopupItem::OnWindowMouse(uint32 button, LinaGX::InputAction action)
-    {
-        if(button != LINAGX_MOUSE_0)
-            return;
-        
-        if(action == LinaGX::InputAction::Pressed)
-        {
-            if(m_isHovered)
-            {
-                
-            }
-        }
-      
-    }
+	void PopupItem::OnWindowMouse(uint32 button, LinaGX::InputAction action)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return;
+
+		if (action == LinaGX::InputAction::Pressed)
+		{
+			if (m_isHovered)
+			{
+			}
+		}
+	}
 
 } // namespace Lina

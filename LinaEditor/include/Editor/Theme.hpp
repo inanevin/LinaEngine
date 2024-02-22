@@ -49,10 +49,10 @@ namespace Lina
 	class Icon;
 	class Checkbox;
 	class Slider;
-    class InputField;
-    class Dropdown;
-class PopupItem;
-    class Popup;
+	class InputField;
+	class Dropdown;
+	class PopupItem;
+	class Popup;
 
 } // namespace Lina
 
@@ -79,13 +79,13 @@ namespace Lina::Editor
 			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f);
 			Color accentPrimary0 = Color(0.16513f, 0.00972f, 0.02122f, 1.0f);
 			Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
-            Color accentPrimary2 = Color(0.34499f, 0.06519f, 0.1058f, 1.0f);
+			Color accentPrimary2 = Color(0.34499f, 0.06519f, 0.1058f, 1.0f);
 			Color accentPrimary3 = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
 
 			Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
 
-            float baseIndent           = 8.0f;
-			float baseVerticalIndent= 6.0f;
+			float baseIndent		   = 8.0f;
+			float baseVerticalIndent   = 6.0f;
 			float baseSliderThickness  = 4.0f;
 			float baseSliderPerc	   = 1.0f;
 			float baseRounding		   = 0.25f;
@@ -110,9 +110,9 @@ namespace Lina::Editor
 		static void SetDefaults(Text* widget);
 		static void SetDefaults(Checkbox* widget);
 		static void SetDefaults(Slider* widget);
-        static void SetDefaults(InputField* widget);
-        static void SetDefaults(Dropdown* widget);
-        static void SetDefaults(PopupItem* widget);
+		static void SetDefaults(InputField* widget);
+		static void SetDefaults(Dropdown* widget);
+		static void SetDefaults(PopupItem* widget);
 		static void SetDefaults(Popup* widget);
 
 	private:
