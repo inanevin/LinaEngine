@@ -92,7 +92,6 @@ src/GUI/Widgets/Primitives/Slider.cpp
 src/GUI/Widgets/Primitives/Button.cpp
 src/GUI/Widgets/Primitives/Checkbox.cpp
 src/GUI/Widgets/Primitives/InputField.cpp
-src/GUI/Widgets/Primitives/NumberField.cpp
 
 )
 
@@ -183,7 +182,6 @@ include/Core/GUI/Widgets/Primitives/Slider.hpp
 include/Core/GUI/Widgets/Primitives/Button.hpp
 include/Core/GUI/Widgets/Primitives/Checkbox.hpp
 include/Core/GUI/Widgets/Primitives/InputField.hpp
-include/Core/GUI/Widgets/Primitives/NumberField.hpp
 
 )
 
