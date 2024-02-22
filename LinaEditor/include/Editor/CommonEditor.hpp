@@ -34,10 +34,12 @@ namespace Lina::Editor
 #define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
 #define ICON_FONT_SID  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 
-#define ICON_LINA_LOGO	  "\u0041"
-#define ICON_CHECK		  "\u0042"
-#define ICON_CIRCLE		  "\u0043"
-#define ICONOFFSET_CHECK  Vector2(0.1f, 0.0f)
-#define ICONOFFSET_CIRCLE Vector2(0.1f, 0.0f)
+#define ICON_LINA_LOGO		  "\u0041"
+#define ICON_CHECK			  "\u0042"
+#define ICON_CIRCLE			  "\u0043"
+#define ICON_ARROW_DOWN		  "\u0044"
+#define ICONOFFSET_CHECK	  Vector2(0.1f, 0.0f)
+#define ICONOFFSET_CIRCLE	  Vector2(0.1f, 0.0f)
+#define ICONOFFSET_ARROW_DOWN Vector2(0.25f, 0.1f)
 
 } // namespace Lina::Editor

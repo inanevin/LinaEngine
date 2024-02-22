@@ -29,49 +29,36 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Functional.hpp"
 
 namespace Lina
 {
-	class Icon;
-
-	class Checkbox : public Widget, public LinaGX::WindowListener
-	{
-	public:
-		struct Properties
-		{
-			float horizontalIndent	   = 0.0f;
-			float verticalIndent	   = 0.0f;
-			Color colorBackground	   = Color::White;
-			float rounding			   = 0.0f;
-			float outlineThickness	   = 0.0f;
-			Color colorOutline		   = Color::White;
-			Color colorOutlineControls = Color::White;
-			Color colorIcon			   = Color::White;
-			bool* value				   = nullptr;
-		};
-
-		Checkbox() : Widget(1){};
-		virtual ~Checkbox() = default;
-
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction act) override;
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-		inline Icon* GetIcon()
-		{
-			return m_icon;
-		}
-
-	private:
-		Icon*	   m_icon  = nullptr;
-		Properties m_props = {};
-	};
+	class Popup : public Widget
+    {
+    public:
+        Popup() = default;
+        virtual ~Popup() = default;
+        
+        struct Properties
+        {
+            Fit widthFit = Fit::Fixed;
+            Color colorBackgroundStart = Color::White;
+            Color colorBackgroundEnd = Color::White;
+            Color colorOutline = Color::White;
+            float outlineThickness = 0.0f;
+            float rounding = 0.0f;
+        };
+        
+        virtual void Tick(float delta) override;
+        virtual void Draw(int32 threadIndex) override;
+        
+        
+        inline Properties& GetProps()
+        {
+            return m_props;
+        }
+        
+    private:
+        
+        Properties m_props = {};
+    };
 } // namespace Lina

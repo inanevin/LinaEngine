@@ -56,8 +56,8 @@ namespace Lina
 	{
 		Widget::SetIsHovered();
 
-		m_rect.size.x = m_icon->GetSize().x + m_props.margins.left + m_props.margins.right;
-		m_rect.size.y = m_icon->GetSize().y + m_props.margins.top + m_props.margins.bottom;
+		m_rect.size.x = m_icon->GetSize().x + m_props.horizontalIndent * 2;
+		m_rect.size.y = m_icon->GetSize().y + m_props.verticalIndent * 2;
 
 		// Text size
 		const Vector2& textSize = m_icon->GetSize();
@@ -74,11 +74,10 @@ namespace Lina
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		LinaVG::StyleOptions style;
-		style.rounding					   = m_props.rounding;
-		style.outlineOptions.thickness	   = m_props.outlineThickness;
-		style.outlineOptions.color		   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		style.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
-		style.color						   = m_props.colorBackground.AsLVG4();
+		style.rounding				   = m_props.rounding;
+		style.outlineOptions.thickness = m_props.outlineThickness;
+		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
+		style.color					   = m_props.colorBackground.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
 		m_icon->Draw(threadIndex);
 	}

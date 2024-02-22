@@ -56,7 +56,8 @@ namespace Lina
 			Color						  colorNumberFillEnd   = Color::White;
 			float						  rounding			   = 0.0f;
 			float						  outlineThickness	   = 0.0f;
-			float						  indent			   = 0.0f;
+			float						  horizontalIndent	   = 0.0f;
+			float						  verticalIndent	   = 0.0f;
 
 			bool   isNumberField	   = false;
 			bool   disableNumberSlider = false;

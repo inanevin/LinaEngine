@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
@@ -57,6 +58,20 @@ namespace Lina
 		m_rootWidget->Tick(delta);
 	}
 
+	Popup* WidgetManager::AddPopup()
+	{
+		Popup* popup = m_rootWidget->Allocate<Popup>();
+		popup->SetDrawOrder(POPUP_DRAW_ORDER);
+		m_rootWidget->AddChild(popup);
+		return popup;
+	}
+
+	void WidgetManager::RemovePopup(Popup* popup)
+	{
+		m_rootWidget->RemoveChild(popup);
+		popup->Destroy();
+	}
+
 	void WidgetManager::RenderSync()
 	{
 		m_rootWidget->RenderSync();
@@ -77,6 +92,7 @@ namespace Lina
 	void WidgetManager::Shutdown()
 	{
 		m_rootWidget->Destroy();
+		Deallocate(m_rootWidget);
 		m_rootWidget = nullptr;
 		m_window->RemoveListener(this);
 

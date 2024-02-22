@@ -29,36 +29,43 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Functional.hpp"
+#include "Common/Data/String.hpp"
 
 namespace Lina
 {
 	class Icon;
+	class Text;
+	class Popup;
 
-	class Checkbox : public Widget, public LinaGX::WindowListener
+	class Dropdown : public Widget, public LinaGX::WindowListener
 	{
 	public:
+		Dropdown() : Widget(2)
+		{
+		}
+		virtual ~Dropdown() = default;
+
 		struct Properties
 		{
-			float horizontalIndent	   = 0.0f;
-			float verticalIndent	   = 0.0f;
-			Color colorBackground	   = Color::White;
-			float rounding			   = 0.0f;
-			float outlineThickness	   = 0.0f;
-			Color colorOutline		   = Color::White;
-			Color colorOutlineControls = Color::White;
-			Color colorIcon			   = Color::White;
-			bool* value				   = nullptr;
+			Delegate<void(Popup* popup)> onPopupCreated;
+			Color						 colorBackground			= Color::White;
+			Color						 colorHovered				= Color::White;
+			Color						 colorOutline				= Color::White;
+			Color						 colorOutlineControls		= Color::White;
+			Color						 colorIconBackgroundStart	= Color::White;
+			Color						 colorIconBackgroundEnd		= Color::White;
+			Color						 colorIconBackgroundHovered = Color::White;
+			float						 rounding					= 0.0f;
+			float						 outlineThickness			= 0.0f;
+			float						 horizontalIndent			= 0.0f;
+			float						 verticalIndent				= 0.0f;
 		};
-
-		Checkbox() : Widget(1){};
-		virtual ~Checkbox() = default;
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()
 		{
@@ -70,8 +77,17 @@ namespace Lina
 			return m_icon;
 		}
 
+		inline Text* GetText()
+		{
+			return m_text;
+		}
+
 	private:
-		Icon*	   m_icon  = nullptr;
-		Properties m_props = {};
+		Properties m_props		 = {};
+		Icon*	   m_icon		 = nullptr;
+		Text*	   m_text		 = nullptr;
+		Vector2	   m_iconBgStart = Vector2::Zero;
+		Popup*	   m_popup		 = nullptr;
 	};
+
 } // namespace Lina

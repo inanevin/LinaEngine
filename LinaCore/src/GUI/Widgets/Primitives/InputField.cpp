@@ -102,9 +102,9 @@ namespace Lina
 			m_caretInsertPos = GetCaretPosFromMouse();
 
 		// My size and text size/pos.
-		m_rect.size.y				= m_text->GetLVGFont()->m_size + m_props.indent * 2.0f;
+		m_rect.size.y				= m_text->GetLVGFont()->m_size + m_props.verticalIndent * 2;
 		const Vector2& textSize		= m_text->GetSize();
-		const Vector2  middle		= Vector2(m_rect.pos.x + m_props.indent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
+		const Vector2  middle		= Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
 		m_textStartMid				= middle - Vector2(textSize.x * 0.5f, 0.0f);
 		m_textEndMid				= middle + Vector2(textSize.x * 0.5f, 0.0f);
 		const size_t characterCount = m_text->GetProps().text.size();
@@ -150,7 +150,7 @@ namespace Lina
 							 m_drawOrder);
 		}
 
-		m_manager->SetClip(threadIndex, m_rect, {.left = m_props.indent, .right = m_props.indent});
+		m_manager->SetClip(threadIndex, m_rect, {.left = m_props.horizontalIndent, .right = m_props.horizontalIndent});
 
 		if (m_isEditing)
 		{
@@ -159,16 +159,16 @@ namespace Lina
 			m_props.colorCaret.w		   = m_caretAlpha;
 			caret.color					   = m_props.colorCaret.AsLVG4();
 			const Vector2 caretMiddle	   = GetPosFromCaretIndex(m_caretInsertPos);
-			const Vector2 caretTopLeft	   = Vector2(caretMiddle.x - m_props.indent * 0.1f, GetCaretStartY());
-			const Vector2 caretBottomRight = Vector2(caretMiddle.x + m_props.indent * 0.1f, GetCaretEndY());
+			const Vector2 caretTopLeft	   = Vector2(caretMiddle.x - m_props.horizontalIndent * 0.1f, GetCaretStartY());
+			const Vector2 caretBottomRight = Vector2(caretMiddle.x + m_props.horizontalIndent * 0.1f, GetCaretEndY());
 			LinaVG::DrawRect(threadIndex, caretTopLeft.AsLVG(), caretBottomRight.AsLVG(), caret, 0, m_drawOrder);
 
-			if (caretBottomRight.x > (m_rect.pos.x + m_rect.size.x - m_props.indent))
+			if (caretBottomRight.x > (m_rect.pos.x + m_rect.size.x - m_props.horizontalIndent))
 			{
-				const float diff = caretBottomRight.x - (m_rect.pos.x + m_rect.size.x - m_props.indent);
+				const float diff = caretBottomRight.x - (m_rect.pos.x + m_rect.size.x - m_props.horizontalIndent);
 				m_textOffset += m_averageCharacterStep;
 			}
-			if (caretTopLeft.x < (m_rect.pos.x + m_props.indent))
+			if (caretTopLeft.x < (m_rect.pos.x + m_props.horizontalIndent))
 			{
 				m_textOffset -= m_averageCharacterStep;
 				if (m_textOffset < 0.0f)

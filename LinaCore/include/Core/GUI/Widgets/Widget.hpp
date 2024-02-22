@@ -152,6 +152,16 @@ namespace Lina
 			return m_debugName;
 		}
 
+		inline void SetChildID(uint32 idx)
+		{
+			m_childID = idx;
+		}
+
+		inline const Vector<Widget*>& GetChildren() const
+		{
+			return m_children;
+		}
+
 	protected:
 		friend class WidgetManager;
 
@@ -173,6 +183,7 @@ namespace Lina
 		ResourceManager* m_resourceManager = nullptr;
 		AlignPoint		 m_alignPoint	   = AlignPoint::TopLeft;
 		String			 m_debugName	   = "Widget";
+		uint32			 m_childID		   = 0;
 	};
 
 } // namespace Lina

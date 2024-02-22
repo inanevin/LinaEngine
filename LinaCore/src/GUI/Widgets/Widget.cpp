@@ -71,9 +71,14 @@ namespace Lina
 
 	void Widget::Destroy()
 	{
-		Destruct();
-		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Destroy(); });
-		m_manager->Deallocate(this);
+        Destruct();
+
+        linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void {
+            child->Destroy();
+            m_manager->Deallocate(child);
+        });
+        
+        m_children.clear();
 	}
 
 	void Widget::SetIsHovered()

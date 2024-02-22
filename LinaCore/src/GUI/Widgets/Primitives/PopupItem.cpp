@@ -1,0 +1,95 @@
+/*
+This file is a part of: Lina Engine
+https://github.com/inanevin/LinaEngine
+
+Author: Inan Evin
+http://www.inanevin.com
+
+Copyright (c) [2018-] [Inan Evin]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+
+#include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Common/Math/Math.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
+
+namespace Lina
+{
+
+    void PopupItem::Construct()
+    {
+        m_text = Allocate<Text>();
+        m_text->GetProps().isDynamic = true;
+        AddChild(m_text);
+        m_lgxWindow->AddListener(this);
+    }
+
+    void PopupItem::Destruct()
+    {
+        m_lgxWindow->RemoveListener(this);
+    }
+
+    void PopupItem::Tick(float delta)
+    {
+        Widget::SetIsHovered();
+        
+        const Vector2 textSize = m_text->GetSize();
+        m_rect.size.y = m_text->GetLVGFont()->m_size + m_props.verticalIndent * 2;
+        m_rect.size.x = textSize.x + m_props.horizontalIndent * 2;
+        
+        m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
+    }
+
+	void PopupItem::Draw(int32 threadIndex)
+	{
+        const bool hasControls = m_manager->GetControlsOwner() == this;
+
+        if(m_props.isSelected || m_isHovered)
+        {
+            // Bg
+            LinaVG::StyleOptions opts;
+            opts.color   = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackgroundSelected.AsLVG4();
+            LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+        }
+        
+        
+        // Text & clip over icon.
+        m_manager->SetClip(threadIndex, m_rect, {});
+        m_text->Draw(threadIndex);
+        m_manager->UnsetClip(threadIndex);
+	}
+
+    void PopupItem::OnWindowMouse(uint32 button, LinaGX::InputAction action)
+    {
+        if(button != LINAGX_MOUSE_0)
+            return;
+        
+        if(action == LinaGX::InputAction::Pressed)
+        {
+            if(m_isHovered)
+            {
+                
+            }
+        }
+      
+    }
+
+} // namespace Lina

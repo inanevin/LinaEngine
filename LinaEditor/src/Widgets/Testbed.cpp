@@ -36,6 +36,9 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -194,6 +197,58 @@ namespace Lina::Editor
 			field->SetPos(Vector2(10, 380));
 			field->SetDebugName("InputFieldText");
 			AddChild(field);
+		}
+
+		// Dropdown
+		{
+			Dropdown* dd = Allocate<Dropdown>();
+			Theme::SetDefaults(dd);
+
+			dd->GetProps().onPopupCreated = [dd](Popup* p) {
+				Theme::SetDefaults(p);
+
+				// Item
+				{
+					PopupItem* item = p->Allocate<PopupItem>();
+					Theme::SetDefaults(item);
+					item->SetSize(Vector2(dd->GetRect().size.x, 0));
+					item->GetText()->GetProps().text = "This hm";
+					item->GetText()->CalculateTextSize();
+					p->AddChild(item);
+				}
+
+				// Item2
+				{
+					PopupItem* item = p->Allocate<PopupItem>();
+					Theme::SetDefaults(item);
+					item->SetSize(Vector2(dd->GetRect().size.x, 0));
+					item->GetText()->GetProps().text = "This is";
+					item->GetText()->CalculateTextSize();
+					item->GetProps().isSelected = true;
+					p->AddChild(item);
+				}
+
+				// Item3
+				{
+					PopupItem* item = p->Allocate<PopupItem>();
+					Theme::SetDefaults(item);
+					item->SetSize(Vector2(dd->GetRect().size.x, 0));
+					item->GetText()->GetProps().text = "Item3";
+					item->GetText()->CalculateTextSize();
+					p->AddChild(item);
+				}
+			};
+			dd->GetText()->GetProps().text = "Dropdown";
+			dd->GetText()->CalculateTextSize();
+
+			dd->GetIcon()->GetProps().font		 = ICON_FONT_SID;
+			dd->GetIcon()->GetProps().icon		 = ICON_ARROW_DOWN;
+			dd->GetIcon()->GetProps().offsetPerc = ICONOFFSET_ARROW_DOWN;
+			dd->GetIcon()->CalculateIconSize();
+
+			dd->SetSize(Vector2(100, 0));
+			dd->SetPos(Vector2(10, 420));
+			AddChild(dd);
 		}
 	}
 

@@ -29,49 +29,47 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Functional.hpp"
+#include "Common/Data/String.hpp"
 
 namespace Lina
 {
-	class Icon;
+	class Text;
 
-	class Checkbox : public Widget, public LinaGX::WindowListener
+	class PopupItem : public Widget, public LinaGX::WindowListener
 	{
 	public:
+		PopupItem() : Widget(1){};
+		virtual ~PopupItem() = default;
+
 		struct Properties
 		{
-			float horizontalIndent	   = 0.0f;
-			float verticalIndent	   = 0.0f;
-			Color colorBackground	   = Color::White;
-			float rounding			   = 0.0f;
-			float outlineThickness	   = 0.0f;
-			Color colorOutline		   = Color::White;
-			Color colorOutlineControls = Color::White;
-			Color colorIcon			   = Color::White;
-			bool* value				   = nullptr;
+			Color colorBackgroundSelected = Color::White;
+			Color colorHovered			  = Color::White;
+			float rounding				  = 0.0f;
+			float horizontalIndent		  = 0.0f;
+			float verticalIndent		  = 0.0f;
+			bool  isSelected			  = false;
 		};
-
-		Checkbox() : Widget(1){};
-		virtual ~Checkbox() = default;
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
-		inline Icon* GetIcon()
+		inline Text* GetText()
 		{
-			return m_icon;
+			return m_text;
 		}
 
 	private:
-		Icon*	   m_icon  = nullptr;
 		Properties m_props = {};
+		Text*	   m_text  = nullptr;
 	};
+
 } // namespace Lina

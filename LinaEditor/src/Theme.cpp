@@ -37,6 +37,9 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
 
 namespace Lina::Editor
 {
@@ -79,7 +82,8 @@ namespace Lina::Editor
 	void Theme::SetDefaults(Checkbox* widget)
 	{
 		auto& props				   = widget->GetProps();
-		props.margins			   = TBLR::Eq(Theme::GetDef().baseIndent / 2);
+		props.horizontalIndent	   = Theme::GetDef().baseIndent * 0.5f;
+		props.verticalIndent	   = Theme::GetDef().baseIndent * 0.5f;
 		props.colorBackground	   = Theme::GetDef().background0;
 		props.rounding			   = Theme::GetDef().baseRounding;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
@@ -118,8 +122,49 @@ namespace Lina::Editor
 		props.colorNumberFillEnd   = Theme::GetDef().accentPrimary0;
 		props.rounding			   = Theme::GetDef().baseRounding;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
-		props.indent			   = Theme::GetDef().baseIndent;
+		props.horizontalIndent	   = Theme::GetDef().baseIndent;
+		props.verticalIndent	   = Theme::GetDef().baseVerticalIndent;
 		SetDefaults(widget->GetText());
+	}
+
+	void Theme::SetDefaults(Dropdown* widget)
+	{
+		auto& props						 = widget->GetProps();
+		props.colorBackground			 = Theme::GetDef().background0;
+		props.colorHovered				 = Theme::GetDef().background2;
+		props.colorOutline				 = Theme::GetDef().silent;
+		props.colorOutlineControls		 = Theme::GetDef().accentPrimary1;
+		props.colorIconBackgroundStart	 = Theme::GetDef().accentPrimary0;
+		props.colorIconBackgroundEnd	 = Theme::GetDef().accentPrimary1;
+		props.colorIconBackgroundHovered = Theme::GetDef().accentPrimary2;
+		props.rounding					 = Theme::GetDef().baseRounding;
+		props.outlineThickness			 = Theme::GetDef().baseOutlineThickness;
+		props.horizontalIndent			 = Theme::GetDef().baseIndent;
+		props.verticalIndent			 = Theme::GetDef().baseVerticalIndent;
+		SetDefaults(widget->GetIcon());
+		SetDefaults(widget->GetText());
+	}
+
+	void Theme::SetDefaults(PopupItem* widget)
+	{
+		auto& props = widget->GetProps();
+		// props.colorBackground       = Theme::GetDef().background2;
+		props.colorBackgroundSelected = Theme::GetDef().background0;
+		props.colorHovered			  = Theme::GetDef().background3;
+		props.horizontalIndent		  = Theme::GetDef().baseIndent;
+		props.verticalIndent		  = Theme::GetDef().baseVerticalIndent;
+		props.rounding				  = Theme::GetDef().baseIndent;
+		SetDefaults(widget->GetText());
+	}
+
+	void Theme::SetDefaults(Popup* widget)
+	{
+		auto& props				   = widget->GetProps();
+		props.colorBackgroundStart = Theme::GetDef().background0;
+		props.colorBackgroundEnd   = Theme::GetDef().background1;
+		props.colorOutline		   = Theme::GetDef().silent;
+		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+		props.rounding			   = Theme::GetDef().baseRounding;
 	}
 
 } // namespace Lina::Editor

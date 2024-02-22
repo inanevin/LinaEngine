@@ -86,4 +86,6 @@ namespace Lina
 		Vertical,
 	};
 
+#define POPUP_DRAW_ORDER 1000
+
 } // namespace Lina
