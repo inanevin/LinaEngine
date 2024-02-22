@@ -148,38 +148,38 @@ namespace Lina::Editor
 
 		// Input Field Number slider
 		{
-			 InputField* field = Allocate<InputField>();
-			 Theme::SetDefaults(field);
-			
-			 field->GetProps().isNumberField		  = true;
-			 field->GetProps().disableNumberSlider = false;
-			 field->GetProps().clampNumber		  = true;
-			 field->GetProps().numberStep		  = 0.5f;
-			 field->GetProps().numberValue		  = &numberFieldValue;
-			 field->GetText()->GetProps().text	  = "Testing";
-			 field->GetText()->CalculateTextSize();
-			 field->SetSize(Vector2(100, 0));
-			 field->SetPos(Vector2(10, 300));
-			 field->SetDebugName("InputFieldNumberSlider");
-			 AddChild(field);
+			InputField* field = Allocate<InputField>();
+			Theme::SetDefaults(field);
+
+			field->GetProps().isNumberField		  = true;
+			field->GetProps().disableNumberSlider = false;
+			field->GetProps().clampNumber		  = true;
+			field->GetProps().numberStep		  = 0.5f;
+			field->GetProps().numberValue		  = &numberFieldValue;
+			field->GetText()->GetProps().text	  = "Testing";
+			field->GetText()->CalculateTextSize();
+			field->SetSize(Vector2(100, 0));
+			field->SetPos(Vector2(10, 300));
+			field->SetDebugName("InputFieldNumberSlider");
+			AddChild(field);
 		}
 
 		// Input Field Number
 		{
-			 InputField* field = Allocate<InputField>();
-			 Theme::SetDefaults(field);
-			
-			 field->GetProps().isNumberField		  = true;
-			 field->GetProps().disableNumberSlider = true;
-			 field->GetProps().clampNumber		  = true;
-			 field->GetProps().numberStep		  = 0.5f;
-			 field->GetProps().numberValue		  = &numberFieldValue;
-			 field->GetText()->GetProps().text	  = "Testing";
-			 field->GetText()->CalculateTextSize();
-			 field->SetSize(Vector2(100, 0));
-			 field->SetPos(Vector2(10, 340));
-			 field->SetDebugName("InputFieldNumber");
-			 AddChild(field);
+			InputField* field = Allocate<InputField>();
+			Theme::SetDefaults(field);
+
+			field->GetProps().isNumberField		  = true;
+			field->GetProps().disableNumberSlider = true;
+			field->GetProps().clampNumber		  = true;
+			field->GetProps().numberStep		  = 0.5f;
+			field->GetProps().numberValue		  = &numberFieldValue;
+			field->GetText()->GetProps().text	  = "Testing";
+			field->GetText()->CalculateTextSize();
+			field->SetSize(Vector2(100, 0));
+			field->SetPos(Vector2(10, 340));
+			field->SetDebugName("InputFieldNumber");
+			AddChild(field);
 		}
 
 		// Input Field Text
@@ -187,9 +187,9 @@ namespace Lina::Editor
 			InputField* field = Allocate<InputField>();
 			Theme::SetDefaults(field);
 
-			field->GetProps().isNumberField = false;
-            field->GetText()->GetProps().text      = "Testing";
-            field->GetText()->CalculateTextSize();
+			field->GetProps().isNumberField	  = false;
+			field->GetText()->GetProps().text = "Testing";
+			field->GetText()->CalculateTextSize();
 			field->SetSize(Vector2(100, 0));
 			field->SetPos(Vector2(10, 380));
 			field->SetDebugName("InputFieldText");
