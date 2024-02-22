@@ -40,7 +40,7 @@ namespace Lina
 {
 	class Icon;
 
-	class Slider : public Widget
+	class Slider : public Widget, public LinaGX::WindowListener
 	{
 	public:
 		Slider() : Widget(1)
@@ -50,27 +50,28 @@ namespace Lina
 
 		struct Properties
 		{
-			WidgetDirection direction			= WidgetDirection::Horizontal;
-			Color			colorBackground		= Color::White;
-			Color			colorFillMin		= Color::White;
-			Color			colorFillMax		= Color::White;
-			Color			colorHandle			= Color::White;
-			Color			colorHandleHovered	= Color::White;
-			Color			colorOutline		= Color::White;
-			float			rounding			= 0.0f;
-			float			crossAxisPercentage = 1.0f;
-			float			outlineThickness	= 0.0f;
-			float			minValue			= 0.0f;
-			float			maxValue			= 0.0f;
-			float*			currentValue		= nullptr;
-			float			step				= 0.0f;
-			float			indent				= 0.0f;
+			WidgetDirection direction			 = WidgetDirection::Horizontal;
+			Color			colorBackground		 = Color::White;
+			Color			colorFillMin		 = Color::White;
+			Color			colorFillMax		 = Color::White;
+			Color			colorHandle			 = Color::White;
+			Color			colorHandleHovered	 = Color::White;
+			Color			colorOutline		 = Color::White;
+			Color			colorOutlineControls = Color::White;
+			float			rounding			 = 0.0f;
+			float			crossAxisPercentage	 = 1.0f;
+			float			outlineThickness	 = 0.0f;
+			float			minValue			 = 0.0f;
+			float			maxValue			 = 0.0f;
+			float*			currentValue		 = nullptr;
+			float			step				 = 0.0f;
 		};
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 mouse, LinaGX::InputAction action) override;
+		virtual void OnWindowMouse(uint32 mouse, LinaGX::InputAction action) override;
 
 		Properties& GetProps()
 		{

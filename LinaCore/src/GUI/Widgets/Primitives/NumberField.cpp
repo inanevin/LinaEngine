@@ -26,64 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/GUI/Widgets/Primitives/NumberField.hpp"
 
-#include "Common/SizeDefinitions.hpp"
-#include "Common/Math/Color.hpp"
-#include "Common/Math/Rect.hpp"
 
 namespace Lina
 {
-	struct TBLR
-	{
-		float top	 = 0;
-		float bottom = 0;
-		float left	 = 0;
-		float right	 = 0;
 
-		static TBLR Eq(float m)
-		{
-			return {.top = m, .bottom = m, .left = m, .right = m};
-		}
-	};
-
-	struct RectBackground
-	{
-		bool  enabled	 = false;
-		Color startColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		Color endColor	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		float rounding	 = 0.0f;
-	};
-
-    struct ClipData
+    void NumberField::Tick(float delta)
     {
-        Rect rect    = Rect();
-        TBLR margins = {};
-    };
+        InputField::Tick(delta);
+    }
 
-	enum class CrossAlignment
+
+	void NumberField::Draw(int32 threadIndex)
 	{
-		Start,
-		Center,
-		End
-	};
+        InputField::Draw(threadIndex);
+	}
 
-	enum class AlignPoint
-	{
-		TopLeft,
-		Center
-	};
-
-	enum class Fit
-	{
-		Fixed,
-		FromChildren,
-	};
-
-	enum class WidgetDirection
-	{
-		Horizontal,
-		Vertical,
-	};
-
+   
 } // namespace Lina

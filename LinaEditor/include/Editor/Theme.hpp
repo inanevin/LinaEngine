@@ -49,6 +49,8 @@ namespace Lina
 	class Icon;
 	class Checkbox;
 	class Slider;
+    class InputField;
+
 } // namespace Lina
 
 namespace Lina::Editor
@@ -79,8 +81,8 @@ namespace Lina::Editor
 			Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
 
 			float baseIndent		   = 8.0f;
-			float baseSliderThickness  = 16.0f;
-			float baseSliderPerc	   = 0.25f;
+			float baseSliderThickness  = 4.0f;
+			float baseSliderPerc	   = 1.0f;
 			float baseRounding		   = 0.25f;
 			float baseOutlineThickness = 1.0f;
 
@@ -103,6 +105,7 @@ namespace Lina::Editor
 		static void SetDefaults(Text* widget);
 		static void SetDefaults(Checkbox* widget);
 		static void SetDefaults(Slider* widget);
+        static void SetDefaults(InputField* widget);
 
 	private:
 		static ThemeDef s_themeDef;

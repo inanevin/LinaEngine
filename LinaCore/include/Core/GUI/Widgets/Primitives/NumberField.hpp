@@ -28,62 +28,29 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/SizeDefinitions.hpp"
-#include "Common/Math/Color.hpp"
-#include "Common/Math/Rect.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
 
 namespace Lina
 {
-	struct TBLR
+    class Text;
+
+	class NumberField : public InputField
 	{
-		float top	 = 0;
-		float bottom = 0;
-		float left	 = 0;
-		float right	 = 0;
+	public:
+        NumberField() = default;
+		virtual ~NumberField() = default;
 
-		static TBLR Eq(float m)
-		{
-			return {.top = m, .bottom = m, .left = m, .right = m};
-		}
-	};
-
-	struct RectBackground
-	{
-		bool  enabled	 = false;
-		Color startColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		Color endColor	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		float rounding	 = 0.0f;
-	};
-
-    struct ClipData
-    {
-        Rect rect    = Rect();
-        TBLR margins = {};
-    };
-
-	enum class CrossAlignment
-	{
-		Start,
-		Center,
-		End
-	};
-
-	enum class AlignPoint
-	{
-		TopLeft,
-		Center
-	};
-
-	enum class Fit
-	{
-		Fixed,
-		FromChildren,
-	};
-
-	enum class WidgetDirection
-	{
-		Horizontal,
-		Vertical,
+	
+        virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+        
+        
+    private:
+        
+       
+        
+	private:
+		
 	};
 
 } // namespace Lina

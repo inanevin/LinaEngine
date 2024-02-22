@@ -37,6 +37,12 @@ namespace Lina
 	{
 		m_text = Allocate<Text>();
 		AddChild(m_text);
+		m_lgxWindow->AddListener(this);
+	}
+
+	void Button::Destruct()
+	{
+		m_lgxWindow->RemoveListener(this);
 	}
 
 	void Button::Tick(float delta)
@@ -54,10 +60,12 @@ namespace Lina
 
 	void Button::Draw(int32 threadIndex)
 	{
+		const bool hasControls = m_manager->GetControlsOwner() == this;
+
 		LinaVG::StyleOptions style;
 		style.rounding				   = m_props.rounding;
 		style.outlineOptions.thickness = m_props.outlineThickness;
-		style.outlineOptions.color	   = m_props.colorOutline.AsLVG4();
+		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 
 		if (m_isPressed)
 			style.color = m_props.colorPressed.AsLVG4();
@@ -75,33 +83,34 @@ namespace Lina
 		m_text->Draw(threadIndex);
 	}
 
-	bool Button::OnMouse(uint32 button, LinaGX::InputAction act)
+	void Button::OnWindowMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (button != LINAGX_MOUSE_0 || !m_isHovered)
-		{
-			return Widget::OnMouse(button, act);
-		}
+		if (button != LINAGX_MOUSE_0)
+			return;
 
-		if (act == LinaGX::InputAction::Pressed)
+		if (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated)
 		{
-			m_isPressed = true;
-			Widget::GrabControls();
+			if (m_isHovered)
+			{
+				m_isPressed = true;
+				m_manager->GrabControls(this);
+			}
 		}
 
 		if (act == LinaGX::InputAction::Released)
 		{
 			if (m_isPressed)
-				Widget::ReleaseControls();
-
-			if (m_isHovered && m_isPressed)
 			{
-				if (m_props.onClicked)
-					m_props.onClicked();
+				if (m_isHovered)
+				{
+					if (m_props.onClicked)
+						m_props.onClicked();
+
+					m_manager->ReleaseControls(this);
+				}
+
+				m_isPressed = false;
 			}
-
-			m_isPressed = false;
 		}
-
-		return true;
 	}
 } // namespace Lina

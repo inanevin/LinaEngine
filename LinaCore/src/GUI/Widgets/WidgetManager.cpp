@@ -61,7 +61,7 @@ namespace Lina
 	{
 		m_rootWidget->Draw(threadIndex);
 
-		// DebugDraw(threadIndex, m_rootWidget, m_rootWidget == m_deepestHovered);
+		// DebugDraw(threadIndex, m_rootWidget);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -82,17 +82,17 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		m_rootWidget->OnKey(keycode, scancode, inputAction);
+		// m_rootWidget->OnKey(keycode, scancode, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
-		m_rootWidget->OnMouse(button, inputAction);
+		// m_rootWidget->OnMouse(button, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouseWheel(int32 delta)
 	{
-		m_rootWidget->OnMouseWheel(static_cast<float>(delta));
+		// m_rootWidget->OnMouseWheel(static_cast<float>(delta));
 	}
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
@@ -127,38 +127,75 @@ namespace Lina
 		w->m_isHovered = false;
 	}
 
-	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w, bool drawName)
+	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
 		LinaVG::StyleOptions opts;
 		opts.isFilled = false;
 
-		const Rect rect = w->GetRect();
+		const Rect	   rect = w->GetRect();
+		const Vector2& mp	= m_window->GetMousePosition();
 
 		if (w->GetAlignPoint() == AlignPoint::TopLeft)
 		{
 			LinaVG::DrawRect(threadIndex, rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000.0f);
 
-			if (drawName)
+			if (w->m_isHovered)
 			{
 				LinaVG::TextOptions opts;
 				opts.font = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
-				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (rect.pos + rect.size + Vector2(10, 10)).AsLVG(), opts);
+				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(10, 10)).AsLVG(), opts);
 			}
 		}
 		else
 		{
 			LinaVG::DrawRect(threadIndex, (rect.pos - rect.size * 0.5f).AsLVG(), (rect.pos + rect.size * 0.5f).AsLVG(), opts, 0.0f, 1000.0f);
 
-			if (drawName)
+			if (w->m_isHovered)
 			{
 				LinaVG::TextOptions opts;
 				opts.font = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
-				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (rect.pos + rect.size * 0.5f + Vector2(10, 10)).AsLVG(), opts);
+				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(10, 10)).AsLVG(), opts);
 			}
 		}
 
 		for (auto* c : w->m_children)
-			DebugDraw(threadIndex, c, c == m_deepestHovered);
+			DebugDraw(threadIndex, c);
+	}
+
+	void WidgetManager::SetClip(int32 threadIndex, const Rect& r, const TBLR& margins)
+	{
+		const ClipData cd = {
+			.rect	 = r,
+			.margins = margins,
+		};
+
+		m_clipStack.push_back(cd);
+
+		LinaVG::SetClipPosX(static_cast<uint32>(r.pos.x + margins.left), threadIndex);
+		LinaVG::SetClipPosY(static_cast<uint32>(r.pos.y + margins.top), threadIndex);
+		LinaVG::SetClipSizeX(static_cast<uint32>(r.size.x - (margins.left + margins.right)), threadIndex);
+		LinaVG::SetClipSizeY(static_cast<uint32>(r.size.y - (margins.top + margins.bottom)), threadIndex);
+	}
+
+	void WidgetManager::UnsetClip(int32 threadIndex)
+	{
+		m_clipStack.pop_back();
+
+		if (m_clipStack.empty())
+		{
+			LinaVG::SetClipPosX(0, threadIndex);
+			LinaVG::SetClipPosY(0, threadIndex);
+			LinaVG::SetClipSizeX(0, threadIndex);
+			LinaVG::SetClipSizeY(0, threadIndex);
+		}
+		else
+		{
+			const ClipData& cd = m_clipStack[m_clipStack.size() - 1];
+			LinaVG::SetClipPosX(static_cast<uint32>(cd.rect.pos.x + cd.margins.left), threadIndex);
+			LinaVG::SetClipPosY(static_cast<uint32>(cd.rect.pos.y + cd.margins.top), threadIndex);
+			LinaVG::SetClipSizeX(static_cast<uint32>(cd.rect.size.x - (cd.margins.left + cd.margins.right)), threadIndex);
+			LinaVG::SetClipSizeY(static_cast<uint32>(cd.rect.size.y - (cd.margins.top + cd.margins.bottom)), threadIndex);
+		}
 	}
 
 } // namespace Lina

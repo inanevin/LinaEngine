@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
 
 namespace Lina::Editor
 {
@@ -43,16 +44,17 @@ namespace Lina::Editor
 
 	void Theme::SetDefaults(Button* widget)
 	{
-		auto& props				= widget->GetProps();
-		props.widthFit			= Fit::Fixed;
-		props.heightFit			= Fit::Fixed;
-		props.colorDefaultStart = Theme::GetDef().background2;
-		props.colorDefaultEnd	= Theme::GetDef().background3;
-		props.colorHovered		= Theme::GetDef().background4;
-		props.colorPressed		= Theme::GetDef().background0;
-		props.rounding			= Theme::GetDef().baseRounding;
-		props.outlineThickness	= Theme::GetDef().baseOutlineThickness;
-		props.colorOutline		= Theme::GetDef().silent;
+		auto& props				   = widget->GetProps();
+		props.widthFit			   = Fit::Fixed;
+		props.heightFit			   = Fit::Fixed;
+		props.colorDefaultStart	   = Theme::GetDef().background2;
+		props.colorDefaultEnd	   = Theme::GetDef().background3;
+		props.colorHovered		   = Theme::GetDef().background4;
+		props.colorPressed		   = Theme::GetDef().background0;
+		props.rounding			   = Theme::GetDef().baseRounding;
+		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+		props.colorOutline		   = Theme::GetDef().silent;
+		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
 		SetDefaults(widget->GetText());
 	}
 
@@ -76,31 +78,48 @@ namespace Lina::Editor
 
 	void Theme::SetDefaults(Checkbox* widget)
 	{
-		auto& props				  = widget->GetProps();
-		props.margins			  = TBLR::Eq(Theme::GetDef().baseIndent / 2);
-		props.colorBackground	  = Theme::GetDef().background0;
-		props.rounding			  = Theme::GetDef().baseRounding;
-		props.outlineThickness	  = Theme::GetDef().baseOutlineThickness;
-		props.colorOutline		  = Theme::GetDef().silent;
-		props.colorOutlineChecked = Theme::GetDef().accentPrimary0;
+		auto& props				   = widget->GetProps();
+		props.margins			   = TBLR::Eq(Theme::GetDef().baseIndent / 2);
+		props.colorBackground	   = Theme::GetDef().background0;
+		props.rounding			   = Theme::GetDef().baseRounding;
+		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+		props.colorOutline		   = Theme::GetDef().silent;
+		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
+		props.colorIcon			   = Theme::GetDef().accentPrimary1;
 		SetDefaults(widget->GetIcon());
 	}
 
 	void Theme::SetDefaults(Slider* widget)
 	{
-		auto& props				  = widget->GetProps();
-		props.colorBackground	  = Theme::GetDef().background0;
-		props.colorFillMin		  = Theme::GetDef().accentPrimary1;
-		props.colorFillMax		  = Theme::GetDef().accentPrimary0;
-		props.colorHandle		  = Theme::GetDef().accentPrimary0;
-		props.colorHandleHovered  = Theme::GetDef().accentPrimary2;
-		props.colorOutline		  = Theme::GetDef().silent;
-		props.rounding			  = Theme::GetDef().baseRounding * 2;
-		props.crossAxisPercentage = Theme::GetDef().baseSliderPerc;
-		props.direction			  = WidgetDirection::Horizontal;
-		props.outlineThickness	  = Theme::GetDef().baseOutlineThickness;
-		props.indent			  = Theme::GetDef().baseIndent;
+		auto& props				   = widget->GetProps();
+		props.colorBackground	   = Theme::GetDef().background0;
+		props.colorFillMin		   = Theme::GetDef().accentPrimary1;
+		props.colorFillMax		   = Theme::GetDef().accentPrimary0;
+		props.colorHandle		   = Theme::GetDef().accentPrimary0;
+		props.colorHandleHovered   = Theme::GetDef().accentPrimary2;
+		props.colorOutline		   = Theme::GetDef().silent;
+		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
+		props.rounding			   = Theme::GetDef().baseRounding * 2;
+		props.crossAxisPercentage  = Theme::GetDef().baseSliderPerc;
+		props.direction			   = WidgetDirection::Horizontal;
+		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
 		SetDefaults(widget->GetHandle());
+	}
+
+	void Theme::SetDefaults(InputField* widget)
+	{
+		auto& props				   = widget->GetProps();
+		props.colorBackground	   = Theme::GetDef().background0;
+		props.colorOutline		   = Theme::GetDef().silent;
+		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
+		props.colorHighlight	   = Theme::GetDef().accentPrimary1;
+		props.colorCaret		   = Theme::GetDef().foreground0;
+		props.colorNumberFillStart = Theme::GetDef().accentPrimary1;
+		props.colorNumberFillEnd   = Theme::GetDef().accentPrimary0;
+		props.rounding			   = Theme::GetDef().baseRounding;
+		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+		props.indent			   = Theme::GetDef().baseIndent;
+		SetDefaults(widget->GetText());
 	}
 
 } // namespace Lina::Editor

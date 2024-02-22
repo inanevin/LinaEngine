@@ -36,31 +36,33 @@ namespace Lina
 	class Font;
 	class Text;
 
-	class Button : public Widget
+	class Button : public Widget, public LinaGX::WindowListener
 	{
 	public:
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			Fit				 widthFit		   = Fit::Fixed;
-			Fit				 heightFit		   = Fit::Fixed;
-			TBLR			 margins		   = {};
-			Color			 colorDefaultStart = Color::White;
-			Color			 colorDefaultEnd   = Color::White;
-			Color			 colorHovered	   = Color::White;
-			Color			 colorPressed	   = Color::White;
-			float			 rounding		   = 0.0f;
-			float			 outlineThickness  = 0.0f;
-			Color			 colorOutline	   = Color::White;
+			Fit				 widthFit			  = Fit::Fixed;
+			Fit				 heightFit			  = Fit::Fixed;
+			TBLR			 margins			  = {};
+			Color			 colorDefaultStart	  = Color::White;
+			Color			 colorDefaultEnd	  = Color::White;
+			Color			 colorHovered		  = Color::White;
+			Color			 colorPressed		  = Color::White;
+			float			 rounding			  = 0.0f;
+			float			 outlineThickness	  = 0.0f;
+			Color			 colorOutline		  = Color::White;
+			Color			 colorOutlineControls = Color::White;
 		};
 
 		Button() : Widget(1){};
 		virtual ~Button() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction act) override;
 
 		inline Properties& GetProps()
 		{

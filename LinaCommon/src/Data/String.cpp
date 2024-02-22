@@ -54,6 +54,13 @@ namespace Lina
 		return converted.c_str();
 	}
 
+    String UtilStr::WCharToString(wchar_t wch)
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+        std::string utf8char = conv.to_bytes(wch);
+        return utf8char.c_str();
+    }
+
 	WString UtilStr::StringToWString(const String& string)
 	{
 		std::string												  str = string.c_str();
@@ -61,6 +68,47 @@ namespace Lina
 		auto													  converted = converter.from_bytes(str);
 		return converted.c_str();
 	}
+
+    char* UtilStr::WCharToChar(const wchar_t* wch)
+    {
+        // Count required buffer size (plus one for null-terminator).
+        size_t size   = (wcslen(wch) + 1) * sizeof(wchar_t);
+        char*  buffer = new char[size];
+        
+    #ifdef __STDC_LIB_EXT1__
+        // wcstombs_s is only guaranteed to be available if __STDC_LIB_EXT1__ is defined
+        size_t convertedSize;
+        std::wcstombs_s(&convertedSize, buffer, size, input, size);
+    #else
+    #pragma warning(disable : 4996)
+        std::wcstombs(buffer, wch, size);
+    #endif
+        return buffer;
+    }
+    
+    const wchar_t* UtilStr::CharToWChar(const char* ch)
+    {
+    #ifdef LINA_PLATFORM_WINDOWS
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> converter;
+        std::wstring                                     wideStr = converter.from_bytes(ch);
+        
+        wchar_t* wideStrCopy = new wchar_t[wideStr.size() + 1];
+        wcscpy_s(wideStrCopy, wideStr.size() + 1, wideStr.c_str());
+        
+        return wideStrCopy;
+    #endif
+        
+    #ifdef LINA_PLATFORM_APPLE
+        // Convert the input char string to a wchar_t string on Apple platform
+        size_t length = strlen(ch);
+        wchar_t* wideStrCopy = new wchar_t[length + 1];
+        
+        mbstowcs(wideStrCopy, ch, length);
+        wideStrCopy[length] = L'\0'; // Null-terminate the wide string
+        
+        return wideStrCopy;
+    #endif
+    }
 
 	String UtilStr::EncodeUTF8(wchar_t ch)
 	{
@@ -90,19 +138,19 @@ namespace Lina
 		return utf8str;
 	}
 
-	float UtilStr::StringToFloat(const String& str, int& decimals)
+	float UtilStr::StringToFloat(const String& str, uint32& outDecimals)
 	{
 		try
 		{
 			std::size_t pos = str.find('.');
 			if (pos != std::string::npos)
-				decimals = static_cast<int>(str.length() - pos - 1);
+				outDecimals = static_cast<uint32>(str.length() - pos - 1);
 
 			return std::stof(str.c_str());
 		}
 		catch (const std::exception& e)
 		{
-			LINA_ERR("Exception: StringToFloat() string: {0} - decimals: {1}", str, decimals);
+			LINA_ERR("Exception: StringToFloat() string: {0} - decimals: {1}", str, outDecimals);
 			return 0.0f;
 		}
 	}
@@ -165,7 +213,7 @@ namespace Lina
 		return copy;
 	}
 
-	String UtilStr::FloatToString(float val, int decimals)
+	String UtilStr::FloatToString(float val, uint32 decimals)
 	{
 		std::ostringstream out;
 		out << std::fixed << std::setprecision(decimals) << val;

@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/Data/HashMap.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/GUI/CommonGUI.hpp"
 #include <memoryallocators/PoolAllocator.h>
 
 namespace LinaGX
@@ -53,11 +54,34 @@ namespace Lina
 		void Draw(int32 threadIndex);
 		void Tick(float delta, const Vector2ui& size);
 		void Shutdown();
-		void DebugDraw(int32 threadIndex, Widget* w, bool drawName);
+		void DebugDraw(int32 threadIndex, Widget* w);
+		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
+		void UnsetClip(int32 threadIndex);
 
 		inline Widget* GetRoot()
 		{
 			return m_rootWidget;
+		}
+
+		inline void GrabControls(Widget* widget)
+		{
+			m_controlsOwner = widget;
+		}
+
+		inline void ReleaseControls(Widget* widget)
+		{
+			if (m_controlsOwner == widget)
+				m_controlsOwner = nullptr;
+		}
+
+		inline bool CanGrabControls(Widget const* w) const
+		{
+			return m_controlsOwner == nullptr || w == m_controlsOwner;
+		}
+
+		inline Widget* GetControlsOwner() const
+		{
+			return m_controlsOwner;
 		}
 
 	protected:
@@ -90,7 +114,7 @@ namespace Lina
 			}
 
 			T* t				 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
-			t->m_window			 = m_window;
+			t->m_lgxWindow		 = m_window;
 			t->m_manager		 = this;
 			t->m_system			 = m_system;
 			t->m_resourceManager = m_resourceManager;
@@ -99,22 +123,6 @@ namespace Lina
 		}
 
 		void Deallocate(Widget* widget);
-
-		inline void GrabControls(Widget* widget)
-		{
-			m_controlsOwner = widget;
-		}
-
-		inline void ReleaseControls(Widget* widget)
-		{
-			if (m_controlsOwner == widget)
-				m_controlsOwner = nullptr;
-		}
-
-		inline bool CanGrabControls(Widget const* w) const
-		{
-			return m_controlsOwner == nullptr || w == m_controlsOwner;
-		}
 
 	private:
 		static constexpr size_t			CHUNK_COUNT = 150;
@@ -125,6 +133,7 @@ namespace Lina
 		Widget*							m_deepestHovered  = nullptr;
 		ResourceManager*				m_resourceManager = nullptr;
 		Widget*							m_controlsOwner	  = nullptr;
+		Vector<ClipData>				m_clipStack;
 	};
 
 } // namespace Lina

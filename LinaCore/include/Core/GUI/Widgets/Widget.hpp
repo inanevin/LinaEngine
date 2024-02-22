@@ -40,6 +40,11 @@ namespace LinaGX
 
 } // namespace LinaGX
 
+namespace LinaVG
+{
+	struct StyleOptions;
+}
+
 namespace Lina
 {
 	class System;
@@ -54,11 +59,10 @@ namespace Lina
 		void AddChild(Widget* w);
 		void RemoveChild(Widget* w);
 		void Destroy();
+		void SetIsHovered();
 
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
-		virtual bool OnMouseWheel(float delta);
 		virtual void Construct(){};
+		virtual void Destruct(){};
 		virtual void OnClicked(uint32 button){};
 
 		template <typename T> T* Allocate()
@@ -114,7 +118,7 @@ namespace Lina
 
 		inline LinaGX::Window* GetWindow()
 		{
-			return m_window;
+			return m_lgxWindow;
 		}
 
 		inline int32 GetDrawOrder() const
@@ -153,28 +157,11 @@ namespace Lina
 		Widget(int32 maxChilds = -1, AlignPoint alignPoint = AlignPoint::TopLeft) : m_maxChilds(maxChilds), m_alignPoint(alignPoint){};
 		virtual ~Widget() = default;
 
-		void GrabControls()
-		{
-			m_manager->GrabControls(this);
-		}
-
-		void ReleaseControls()
-		{
-			m_manager->ReleaseControls(this);
-		}
-
-		inline bool GetGrabControls() const
-		{
-			return m_manager->CanGrabControls(this);
-		}
-
-		void SetIsHovered();
-
 	protected:
 		TypeID			 m_tid		 = 0;
 		WidgetManager*	 m_manager	 = nullptr;
 		Widget*			 m_parent	 = nullptr;
-		LinaGX::Window*	 m_window	 = nullptr;
+		LinaGX::Window*	 m_lgxWindow = nullptr;
 		int32			 m_drawOrder = 0;
 		System*			 m_system	 = nullptr;
 		Rect			 m_rect		 = {};

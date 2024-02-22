@@ -62,6 +62,10 @@ namespace Lina
 			return m_props;
 		}
 
+        inline LinaVG::LinaVGFont* GetLVGFont()
+        {
+            return m_lvgFont;
+        }
 	private:
 		Properties			m_props				 = {};
 		LinaVG::TextOptions m_textOptions		 = {};

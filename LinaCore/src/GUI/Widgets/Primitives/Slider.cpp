@@ -42,11 +42,18 @@ namespace Lina
 		m_handle->GetProps().sdfOutlineThickness = 0.6f;
 		m_handle->GetProps().sdfOutlineColor	 = Color::Black;
 		AddChild(m_handle);
+		m_lgxWindow->AddListener(this);
+	}
+
+	void Slider::Destruct()
+	{
+		m_lgxWindow->RemoveListener(this);
 	}
 
 	void Slider::Tick(float delta)
 	{
 		Widget::SetIsHovered();
+		m_handle->SetIsHovered();
 
 		const float fillPercent = Math::Remap(*m_props.currentValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		GetStartEnd(m_bgStart, m_bgEnd, 1.0f);
@@ -89,17 +96,19 @@ namespace Lina
 
 	void Slider::Draw(int32 threadIndex)
 	{
+		const bool hasControls = m_manager->GetControlsOwner() == this;
+
 		LinaVG::StyleOptions bg;
 		bg.color					= m_props.colorBackground.AsLVG4();
 		bg.rounding					= m_props.rounding;
 		bg.outlineOptions.thickness = m_props.outlineThickness;
-		bg.outlineOptions.color		= m_props.colorOutline.AsLVG4();
+		bg.outlineOptions.color		= hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_bgStart.AsLVG(), m_bgEnd.AsLVG(), bg, 0.0f, m_drawOrder);
 
 		const float			 fillPercent = Math::Remap(*m_props.currentValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		LinaVG::StyleOptions fill;
-		fill.color.start		= m_props.colorFillMin.AsLVG4();
-		fill.color.end			= Math::Lerp(m_props.colorFillMin, m_props.colorFillMax, fillPercent).AsLVG4();
+		fill.color.start		= m_props.direction == WidgetDirection::Horizontal ? m_props.colorFillMin.AsLVG4() : m_props.colorFillMax.AsLVG4();
+		fill.color.end			= m_props.direction == WidgetDirection::Horizontal ? m_props.colorFillMax.AsLVG4() : m_props.colorFillMin.AsLVG4();
 		fill.color.gradientType = m_props.direction == WidgetDirection::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		LinaVG::DrawRect(threadIndex, m_fillStart.AsLVG(), m_fillEnd.AsLVG(), fill, 0.0f, m_drawOrder);
 
@@ -108,33 +117,29 @@ namespace Lina
 
 	void Slider::GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent)
 	{
+		const Vector2 topLeft	  = m_rect.pos;
+		const Vector2 bottomRight = m_rect.pos + m_rect.size;
 
 		if (m_props.direction == WidgetDirection::Horizontal)
 		{
-			const Vector2 topLeft	  = m_rect.pos + Vector2(m_props.indent, 0);
-			const Vector2 bottomRight = m_rect.pos + m_rect.size - Vector2(m_props.indent, 0);
-			const float	  thickness	  = m_rect.size.y * m_props.crossAxisPercentage;
-			const float	  middleY	  = (topLeft.y + bottomRight.y) / 2.0f;
-			outStart				  = Vector2(topLeft.x, middleY - thickness * 0.5f);
-			outEnd					  = Vector2(Math::Lerp(topLeft.x, bottomRight.x, fillPercent), middleY + thickness * 0.5f);
+			const float thickness = m_rect.size.y * m_props.crossAxisPercentage;
+			const float middleY	  = (topLeft.y + bottomRight.y) / 2.0f;
+			outStart			  = Vector2(topLeft.x, middleY - thickness * 0.5f);
+			outEnd				  = Vector2(Math::Lerp(topLeft.x, bottomRight.x, fillPercent), middleY + thickness * 0.5f);
 		}
 		else if (m_props.direction == WidgetDirection::Vertical)
 		{
-			const Vector2 topLeft	  = m_rect.pos + Vector2(0.0f, m_props.indent);
-			const Vector2 bottomRight = m_rect.pos + m_rect.size - Vector2(0.0f, m_props.indent);
-			const float	  thickness	  = m_rect.size.x * m_props.crossAxisPercentage;
-			const float	  middleX	  = (topLeft.x + bottomRight.x) / 2.0f;
-			outStart				  = Vector2(middleX - thickness * 0.5f, Math::Lerp(bottomRight.y, topLeft.y, fillPercent));
-			outEnd					  = Vector2(middleX + thickness * 0.5f, bottomRight.y);
+			const float thickness = m_rect.size.x * m_props.crossAxisPercentage;
+			const float middleX	  = (topLeft.x + bottomRight.x) / 2.0f;
+			outStart			  = Vector2(middleX - thickness * 0.5f, Math::Lerp(bottomRight.y, topLeft.y, fillPercent));
+			outEnd				  = Vector2(middleX + thickness * 0.5f, bottomRight.y);
 		}
 	}
 
-	bool Slider::OnMouse(uint32 button, LinaGX::InputAction act)
+	void Slider::OnWindowMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (button != LINAGX_MOUSE_0)
-		{
-			return Widget::OnMouse(button, act);
-		}
+			return;
 
 		if (act == LinaGX::InputAction::Pressed)
 		{
@@ -142,18 +147,16 @@ namespace Lina
 			{
 				m_isPressed	 = true;
 				m_pressStart = m_window->GetMousePosition();
-				Widget::GrabControls();
-				return true;
+				m_manager->GrabControls(this);
 			}
+			else
+				m_manager->ReleaseControls(this);
 		}
 
-		if (m_isPressed && act == LinaGX::InputAction::Released)
+		if (act == LinaGX::InputAction::Released)
 		{
-			m_isPressed = false;
-			Widget::ReleaseControls();
-			return true;
+			if (m_isPressed)
+				m_isPressed = false;
 		}
-
-		return false;
 	}
 } // namespace Lina

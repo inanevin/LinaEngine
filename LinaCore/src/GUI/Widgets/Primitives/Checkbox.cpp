@@ -35,23 +35,26 @@ SOFTWARE.
 
 namespace Lina
 {
-#define CHECKBOX_SPEED 36
+#define CHECKBOX_SPEED 24
 
 	void Checkbox::Construct()
 	{
 		m_icon							= Allocate<Icon>();
 		m_icon->GetProps().isDynamic	= true;
 		m_icon->GetProps().sdfThickness = 0.6f;
-
 		AddChild(m_icon);
+
+		m_lgxWindow->AddListener(this);
+	}
+
+	void Checkbox::Destruct()
+	{
+		m_lgxWindow->RemoveListener(this);
 	}
 
 	void Checkbox::Tick(float delta)
 	{
 		Widget::SetIsHovered();
-
-		if (!m_isHovered)
-			m_isPressed = false;
 
 		m_rect.size.x = m_icon->GetSize().x + m_props.margins.left + m_props.margins.right;
 		m_rect.size.y = m_icon->GetSize().y + m_props.margins.top + m_props.margins.bottom;
@@ -61,41 +64,50 @@ namespace Lina
 		m_icon->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
 
 		// Alpha & color
-		const float alpha		   = Math::Lerp(m_icon->GetProps().color.w, m_props.isChecked ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
-		m_usedOutlineColor		   = Math::Lerp(m_props.colorOutline, m_props.colorOutlineChecked, alpha);
+		const float alpha		   = Math::Lerp(m_icon->GetProps().color.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
+		m_icon->GetProps().color   = m_props.colorIcon;
 		m_icon->GetProps().color.w = alpha;
 	}
 
 	void Checkbox::Draw(int32 threadIndex)
 	{
+		const bool hasControls = m_manager->GetControlsOwner() == this;
+
 		LinaVG::StyleOptions style;
 		style.rounding					   = m_props.rounding;
 		style.outlineOptions.thickness	   = m_props.outlineThickness;
-		style.outlineOptions.color		   = m_usedOutlineColor.AsLVG4();
+		style.outlineOptions.color		   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		style.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
 		style.color						   = m_props.colorBackground.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
 		m_icon->Draw(threadIndex);
 	}
 
-	bool Checkbox::OnMouse(uint32 button, LinaGX::InputAction act)
+	void Checkbox::OnWindowMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (button != LINAGX_MOUSE_0 || !m_isHovered)
-		{
-			return Widget::OnMouse(button, act);
-		}
+		if (button != LINAGX_MOUSE_0)
+			return;
 
 		if (act == LinaGX::InputAction::Pressed)
-			m_isPressed = true;
+		{
+			if (m_isHovered)
+			{
+				m_isPressed = true;
+				m_manager->GrabControls(this);
+			}
+			else
+				m_manager->ReleaseControls(this);
+		}
 
 		if (act == LinaGX::InputAction::Released)
 		{
-			m_isPressed		  = false;
-			m_props.isChecked = !m_props.isChecked;
-			if (m_props.onClicked)
-				m_props.onClicked();
-		}
+			if (m_isPressed)
+			{
+				m_isPressed = false;
 
-		return true;
+				if (m_isHovered)
+					*m_props.value = !*m_props.value;
+			}
+		}
 	}
 } // namespace Lina

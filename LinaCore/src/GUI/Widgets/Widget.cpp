@@ -43,7 +43,7 @@ namespace Lina
 
 		w->m_drawOrder = m_drawOrder;
 		w->m_parent	   = this;
-		w->m_window	   = m_window;
+		w->m_lgxWindow	   = m_lgxWindow;
 		w->m_manager   = m_manager;
 		m_children.push_back(w);
 	}
@@ -66,46 +66,14 @@ namespace Lina
 
 	void Widget::Destroy()
 	{
+        Destruct();
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Destroy(); });
 		m_manager->Deallocate(this);
 	}
-
-	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
-	{
-		for (auto* c : m_children)
-		{
-			if (c->OnKey(keycode, scancode, action))
-				return true;
-		}
-
-		return false;
-	}
-
-	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)
-	{
-		for (auto* c : m_children)
-		{
-			if (c->OnMouse(button, action))
-				return true;
-		}
-
-		return false;
-	}
-
-	bool Widget::OnMouseWheel(float delta)
-	{
-		for (auto* c : m_children)
-		{
-			if (c->OnMouseWheel(delta))
-				return true;
-		}
-
-		return false;
-	}
-
+	
 	void Widget::SetIsHovered()
 	{
-		const Vector2& pos = m_window->GetMousePosition();
+		const Vector2& pos = m_lgxWindow->GetMousePosition();
 
 		if (GetAlignPoint() == AlignPoint::TopLeft)
 			m_isHovered = m_rect.IsPointInside(pos);

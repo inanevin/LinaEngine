@@ -32,6 +32,7 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	void WidgetUtility::DrawRectBackground(int32 threadIndex, const RectBackground& options, const Rect& rect, int32 drawOrder, bool positionIsCenter)
 	{
 		if (!options.enabled)
@@ -45,4 +46,5 @@ namespace Lina
 		const LinaVG::Vec2 end	 = positionIsCenter ? (rect.pos + rect.size * 0.5f).AsLVG() : (rect.pos + rect.size).AsLVG();
 		LinaVG::DrawRect(threadIndex, start, end, opts, 0.0f, drawOrder);
 	}
+
 } // namespace Lina

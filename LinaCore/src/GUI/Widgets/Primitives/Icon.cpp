@@ -36,7 +36,7 @@ namespace Lina
 
 	void Icon::Draw(int32 threadIndex)
 	{
-		const float dpiScale = m_window->GetDPIScale();
+		const float dpiScale = m_lgxWindow->GetDPIScale();
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateIconSize();
 
@@ -55,7 +55,7 @@ namespace Lina
 	void Icon::CalculateIconSize()
 	{
 		auto*		font	   = m_resourceManager->GetResource<Font>(m_props.font);
-		const float dpiScale   = m_window->GetDPIScale();
+		const float dpiScale   = m_lgxWindow->GetDPIScale();
 		m_lvgFont			   = font->GetLinaVGFont(dpiScale);
 		m_calculatedDPIScale   = dpiScale;
 		m_sdfOptions.font	   = m_lvgFont;

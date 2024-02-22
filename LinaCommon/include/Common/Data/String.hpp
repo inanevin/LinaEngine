@@ -49,15 +49,18 @@ namespace Lina
 	class UtilStr
 	{
 	public:
-		static String  WideStringToString(const WString& wstring);
-		static WString StringToWString(const String& string);
-		static String  EncodeUTF8(wchar_t wch);
-		static String  RemoveAllDotsExceptFirst(const String& str);
-		static String  FixStringNumber(const String& str);
-		static String  FloatToString(float val, int decimals);
-		static float   StringToFloat(const String& str, int& decimals);
-		static int	   StringToInt(const String& str);
-		static String  GetUntilFirstOf(const String& str);
+		static String		  WideStringToString(const WString& wstring);
+		static WString		  StringToWString(const String& string);
+		static String		  WCharToString(wchar_t wch);
+		static String		  EncodeUTF8(wchar_t wch);
+		static String		  RemoveAllDotsExceptFirst(const String& str);
+		static String		  FixStringNumber(const String& str);
+		static String		  FloatToString(float val, uint32 decimals);
+		static float		  StringToFloat(const String& str, uint32& outDecimals);
+		static int			  StringToInt(const String& str);
+		static String		  GetUntilFirstOf(const String& str);
+		static char*		  WCharToChar(const wchar_t* wch);
+		static const wchar_t* CharToWChar(const char* ch);
 
 		/// <summary>
 		/// Returns a list of strings that fall in between each of the split string.
