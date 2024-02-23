@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -56,6 +57,8 @@ namespace Lina::Editor
 	String dummyDropdownItems[3] = {"Item1", "Item2TesteroBruvvv", "Item3"};
 	int32  selectedDropdownItem	 = 0;
 	Color  testColor			 = Color::Red;
+	float  colorSliderValue		 = 0.0f;
+	float  colorSlider2Value	 = 0.0f;
 
 	void Testbed::Construct()
 	{
@@ -199,7 +202,7 @@ namespace Lina::Editor
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = true;
 			field->GetProps().clampNumber		  = true;
-			field->GetProps().numberStep		  = 0.5f;
+			field->GetProps().numberStep		  = 0.1f;
 			field->GetProps().numberValue		  = &numberFieldValue;
 			field->GetText()->GetProps().text	  = "Testing";
 			field->GetText()->CalculateTextSize();
@@ -286,6 +289,33 @@ namespace Lina::Editor
 			field->SetPos(Vector2(x, y));
 			field->SetSize(Vector2(itemWidth, itemHeight));
 			AddChild(field);
+		}
+
+		y += itemHeight * 1.5f;
+
+		// Color slider
+		{
+			ColorSlider* cs = Allocate<ColorSlider>();
+			Theme::SetDefaults(cs);
+			cs->GetProps().value	  = &colorSliderValue;
+			cs->GetProps().colorBegin = Color::White;
+			cs->GetProps().colorEnd	  = Color::Red;
+			cs->SetPos(Vector2(x, y));
+			cs->SetSize(Vector2(itemWidth, itemHeight));
+			AddChild(cs);
+		}
+
+		y += itemHeight * 1.5f;
+
+		// Color slider
+		{
+			ColorSlider* cs = Allocate<ColorSlider>();
+			Theme::SetDefaults(cs);
+			cs->GetProps().isHueShift = true;
+			cs->GetProps().value	  = &colorSlider2Value;
+			cs->SetPos(Vector2(x, y));
+			cs->SetSize(Vector2(itemWidth, itemHeight));
+			AddChild(cs);
 		}
 
 		y += itemHeight * 1.5f;

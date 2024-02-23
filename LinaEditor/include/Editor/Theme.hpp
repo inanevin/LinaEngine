@@ -54,6 +54,7 @@ namespace Lina
 	class PopupItem;
 	class Popup;
 	class ColorField;
+	class ColorSlider;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -91,7 +92,7 @@ namespace Lina::Editor
 			float baseIndentInner	   = 8.0f;
 			float baseSliderPerc	   = 0.25f;
 			float baseRounding		   = 0.25f;
-			float baseOutlineThickness = 1.0f;
+			float baseOutlineThickness = 2.0f;
 
 			float popupAnimTime = 0.1f;
 
@@ -119,6 +120,7 @@ namespace Lina::Editor
 		static void SetDefaults(PopupItem* widget);
 		static void SetDefaults(Popup* widget);
 		static void SetDefaults(ColorField* widget);
+		static void SetDefaults(ColorSlider* widget);
 
 		static float GetBaseItemHeight(float dpiScale);
 

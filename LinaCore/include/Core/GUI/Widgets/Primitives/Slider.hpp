@@ -40,7 +40,7 @@ namespace Lina
 {
 	class Icon;
 
-	class Slider : public Widget, public LinaGX::WindowListener
+	class Slider : public Widget
 	{
 	public:
 		Slider() : Widget(1)
@@ -69,10 +69,9 @@ namespace Lina
 		};
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 mouse, LinaGX::InputAction action) override;
+		virtual bool OnMouse(uint32 mouse, LinaGX::InputAction action) override;
 
 		Properties& GetProps()
 		{

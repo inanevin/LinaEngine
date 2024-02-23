@@ -34,7 +34,7 @@ SOFTWARE.
 namespace Lina
 {
 
-	class ColorField : public Widget, public LinaGX::WindowListener
+	class ColorField : public Widget
 	{
 	public:
 		ColorField() : Widget(0)
@@ -53,11 +53,9 @@ namespace Lina
 			float			 outlineThickness	  = 0.0f;
 		};
 
-		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction action) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()
 		{

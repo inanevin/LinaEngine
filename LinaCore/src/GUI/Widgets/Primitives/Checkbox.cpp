@@ -43,13 +43,6 @@ namespace Lina
 		m_icon->GetProps().isDynamic	= true;
 		m_icon->GetProps().sdfThickness = 0.6f;
 		AddChild(m_icon);
-
-		m_lgxWindow->AddListener(this);
-	}
-
-	void Checkbox::Destruct()
-	{
-		m_lgxWindow->RemoveListener(this);
 	}
 
 	void Checkbox::Tick(float delta)
@@ -79,32 +72,28 @@ namespace Lina
 		m_icon->Draw(threadIndex);
 	}
 
-	void Checkbox::OnWindowMouse(uint32 button, LinaGX::InputAction act)
+	bool Checkbox::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (button != LINAGX_MOUSE_0)
-			return;
+			return false;
 
-		if (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated)
+		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
+		{
+			m_isPressed = true;
+			m_manager->GrabControls(this);
+			return true;
+		}
+
+		if (m_isPressed && act == LinaGX::InputAction::Released)
 		{
 			if (m_isHovered)
-			{
-				m_isPressed = true;
-				m_manager->GrabControls(this);
-			}
-			else
-				m_manager->ReleaseControls(this);
+				*m_props.value = !*m_props.value;
+
+			m_isPressed = false;
+			return true;
 		}
 
-		if (act == LinaGX::InputAction::Released)
-		{
-			if (m_isPressed)
-			{
-				m_isPressed = false;
-
-				if (m_isHovered)
-					*m_props.value = !*m_props.value;
-			}
-		}
+		return false;
 	}
 
 } // namespace Lina

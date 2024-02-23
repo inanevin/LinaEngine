@@ -69,6 +69,27 @@ namespace Lina
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->RenderSync(); });
 	}
 
+	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)
+	{
+		for (auto* c : m_children)
+		{
+			if (c->OnMouse(button, action))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
+	{
+		for (auto* c : m_children)
+		{
+			if (c->OnKey(keycode, scancode, action))
+				return true;
+		}
+
+		return false;
+	}
 	void Widget::Destroy()
 	{
 		Destruct();

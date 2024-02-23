@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 
 namespace Lina::Editor
@@ -172,6 +173,17 @@ namespace Lina::Editor
 		props.rounding			   = Theme::GetDef().baseRounding;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
 		props.hoverHighlightPerc   = 0.1f;
+	}
+
+	void Theme::SetDefaults(ColorSlider* widget)
+	{
+		auto& props				   = widget->GetProps();
+		props.colorLine			   = Theme::GetDef().foreground0;
+		props.colorLineOutline	   = Theme::GetDef().background0;
+		props.colorOutline		   = Theme::GetDef().outlineColorBase;
+		props.colorOutlineControls = Theme::GetDef().outlineColorControls;
+		props.rounding			   = Theme::GetDef().baseRounding;
+		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
 	}
 
 	float Theme::GetBaseItemHeight(float dpiScale)

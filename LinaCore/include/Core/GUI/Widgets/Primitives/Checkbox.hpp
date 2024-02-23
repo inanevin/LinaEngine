@@ -35,7 +35,7 @@ namespace Lina
 {
 	class Icon;
 
-	class Checkbox : public Widget, public LinaGX::WindowListener
+	class Checkbox : public Widget
 	{
 	public:
 		struct Properties
@@ -53,10 +53,9 @@ namespace Lina
 		virtual ~Checkbox() = default;
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		inline Properties& GetProps()
 		{

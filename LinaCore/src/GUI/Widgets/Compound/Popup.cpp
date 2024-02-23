@@ -29,6 +29,9 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+
+#include <LinaGX/Core/InputMappings.hpp>
+
 namespace Lina
 {
 	void Popup::Tick(float delta)
@@ -83,4 +86,5 @@ namespace Lina
 		}
 		m_manager->UnsetClip(threadIndex);
 	}
+
 } // namespace Lina

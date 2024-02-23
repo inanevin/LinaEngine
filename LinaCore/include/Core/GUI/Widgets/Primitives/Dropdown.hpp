@@ -37,7 +37,7 @@ namespace Lina
 	class Text;
 	class Popup;
 
-	class Dropdown : public Widget, public LinaGX::WindowListener
+	class Dropdown : public Widget
 	{
 	public:
 		Dropdown() : Widget(2)
@@ -61,10 +61,9 @@ namespace Lina
 		};
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction action) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
 		void ClosePopup();
 

@@ -38,12 +38,6 @@ namespace Lina
 		m_text						 = Allocate<Text>();
 		m_text->GetProps().isDynamic = true;
 		AddChild(m_text);
-		m_lgxWindow->AddListener(this);
-	}
-
-	void PopupItem::Destruct()
-	{
-		m_lgxWindow->RemoveListener(this);
 	}
 
 	void PopupItem::Tick(float delta)
@@ -73,39 +67,40 @@ namespace Lina
 		m_text->Draw(threadIndex);
 	}
 
-	void PopupItem::OnWindowMouse(uint32 button, LinaGX::InputAction action)
+	bool PopupItem::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
-			return;
+            return false;
 
 		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
 		{
 			if (m_isHovered)
 			{
 				m_isPressed = true;
+                return true;
 			}
-			else
-			{
-				if (!m_parent->GetIsHovered())
-				{
-					if (m_props.onClickedOutside)
-						m_props.onClickedOutside();
-				}
-			}
+            
+            if (!m_parent->GetIsHovered())
+            {
+                if (m_props.onClickedOutside)
+                    m_props.onClickedOutside();
+                
+                return true;
+            }
 		}
 
-		if (action == LinaGX::InputAction::Released)
+		if (m_isPressed && (action == LinaGX::InputAction::Released))
 		{
-			if (m_isPressed)
-			{
-				if (m_isHovered)
-				{
-					if (m_props.onClicked)
-						m_props.onClicked();
-				}
-				m_isPressed = false;
-			}
+            if (m_isHovered)
+            {
+                if (m_props.onClicked)
+                    m_props.onClicked();
+            }
+            m_isPressed = false;
+            return true;
 		}
+        
+        return false;
 	}
 
 } // namespace Lina

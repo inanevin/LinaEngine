@@ -33,28 +33,29 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Text;
-
-	class PopupItem : public Widget
+	class ColorSlider : public Widget
 	{
 	public:
-		PopupItem() : Widget(1){};
-		virtual ~PopupItem() = default;
+		ColorSlider() : Widget(0)
+		{
+		}
+		virtual ~ColorSlider() = default;
 
 		struct Properties
 		{
-			Delegate<void()> onClicked;
-			Delegate<void()> onClickedOutside;
-			Color			 colorBackgroundSelected = Color::White;
-			Color			 colorHovered			 = Color::White;
-			float			 rounding				 = 0.0f;
-			float			 horizontalIndent		 = 0.0f;
-			bool			 isSelected				 = false;
-			bool			 closeOwnerOnClick		 = false;
-			bool			 useAltText				 = false;
+			WidgetDirection direction			 = WidgetDirection::Horizontal;
+			Color			colorBegin			 = Color::White;
+			Color			colorEnd			 = Color::White;
+			Color			colorOutline		 = Color::White;
+			Color			colorOutlineControls = Color::White;
+			Color			colorLine			 = Color::White;
+			Color			colorLineOutline	 = Color::White;
+			bool			isHueShift			 = false;
+			float*			value				 = nullptr;
+			float			rounding			 = 0.0f;
+			float			outlineThickness	 = 0.0f;
 		};
 
-		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
@@ -64,20 +65,8 @@ namespace Lina
 			return m_props;
 		}
 
-		inline Text* GetText()
-		{
-			return m_text;
-		}
-
-		inline Text* GetAltText()
-		{
-			return m_altText;
-		}
-
 	private:
-		Properties m_props	 = {};
-		Text*	   m_text	 = nullptr;
-		Text*	   m_altText = nullptr;
+		Properties m_props = {};
 	};
 
 } // namespace Lina

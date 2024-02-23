@@ -37,12 +37,6 @@ namespace Lina
 	{
 		m_text = Allocate<Text>();
 		AddChild(m_text);
-		m_lgxWindow->AddListener(this);
-	}
-
-	void Button::Destruct()
-	{
-		m_lgxWindow->RemoveListener(this);
 	}
 
 	void Button::Tick(float delta)
@@ -83,35 +77,30 @@ namespace Lina
 		m_text->Draw(threadIndex);
 	}
 
-	void Button::OnWindowMouse(uint32 button, LinaGX::InputAction act)
+	bool Button::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (button != LINAGX_MOUSE_0)
-			return;
+			return false;
 
-		if (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated)
+		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
+		{
+			m_isPressed = true;
+			m_manager->GrabControls(this);
+			return true;
+		}
+
+		if (m_isPressed && act == LinaGX::InputAction::Released)
 		{
 			if (m_isHovered)
 			{
-				m_isPressed = true;
-				m_manager->GrabControls(this);
+				if (m_props.onClicked)
+					m_props.onClicked();
 			}
+			m_isPressed = false;
+			return true;
 		}
 
-		if (act == LinaGX::InputAction::Released)
-		{
-			if (m_isPressed)
-			{
-				if (m_isHovered)
-				{
-					if (m_props.onClicked)
-						m_props.onClicked();
-
-					m_manager->ReleaseControls(this);
-				}
-
-				m_isPressed = false;
-			}
-		}
+		return false;
 	}
 
 } // namespace Lina

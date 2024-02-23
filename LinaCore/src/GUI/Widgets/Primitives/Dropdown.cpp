@@ -41,18 +41,10 @@ namespace Lina
 	{
 		m_text						 = Allocate<Text>();
 		m_text->GetProps().isDynamic = true;
-
 		m_icon						 = Allocate<Icon>();
 		m_icon->GetProps().isDynamic = true;
-
 		AddChild(m_text);
 		AddChild(m_icon);
-		m_lgxWindow->AddListener(this);
-	}
-
-	void Dropdown::Destruct()
-	{
-		m_lgxWindow->RemoveListener(this);
 	}
 
 	void Dropdown::Tick(float delta)
@@ -102,32 +94,28 @@ namespace Lina
 		m_manager->UnsetClip(threadIndex);
 	}
 
-	void Dropdown::OnWindowMouse(uint32 button, LinaGX::InputAction action)
+	bool Dropdown::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
-			return;
+			return false;
 
-		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
+		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
 		{
-			if (m_isHovered)
+			if (!m_popup)
 			{
-				m_manager->GrabControls(this);
+				m_popup						 = Allocate<Popup>();
+				m_popup->GetProps().minWidth = m_rect.size.x;
+				m_manager->AddToForeground(m_popup);
+				m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
+				if (m_props.onPopupCreated)
+					m_props.onPopupCreated(m_popup);
+			}
 
-				if (!m_popup)
-				{
-					m_popup						 = Allocate<Popup>();
-					m_popup->GetProps().minWidth = m_rect.size.x;
-					m_manager->AddToForeground(m_popup);
-					m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
-					if (m_props.onPopupCreated)
-						m_props.onPopupCreated(m_popup);
-				}
-			}
-			else
-			{
-				m_manager->ReleaseControls(this);
-			}
+			m_manager->GrabControls(this);
+			return true;
 		}
+
+		return false;
 	}
 
 	void Dropdown::ClosePopup()

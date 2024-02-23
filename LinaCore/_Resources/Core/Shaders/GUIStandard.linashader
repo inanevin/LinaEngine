@@ -125,6 +125,16 @@ void main()
       a = (1.0f - a) * material.floatPack2.r + a * (1.0f - material.floatPack2.r);
       fragColor = vec4(albedo, a * inCol.a);
    }
+   else if(bufferType == 5)
+   {
+      float hue = inUV.x;
+      
+      float r = abs(hue * 6.0 - 3.0) - 1.0;
+      float g = 2.0 - abs(hue * 6.0 - 2.0);
+      float b = 2.0 - abs(hue * 6.0 - 4.0);
+      vec3 color = clamp(vec3(r,g,b), 0.0, 1.0);
+      fragColor = vec4(color, 1.0);
+   }
 }
 
 #lina_end

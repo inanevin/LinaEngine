@@ -26,36 +26,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Primitives/ColorField.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
-
-	void ColorField::Tick(float delta)
+	void ColorSlider::Tick(float delta)
 	{
 		Widget::SetIsHovered();
+
+		if (m_isPressed)
+		{
+			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
+			float		  targetValue = 0.0f;
+
+			if (m_props.direction == WidgetDirection::Horizontal)
+				*m_props.value = Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
+			else if (m_props.direction == WidgetDirection::Vertical)
+				*m_props.value = Math::Remap(mouse.y, m_rect.pos.y + m_rect.size.y, m_rect.pos.y, 0.0f, 1.0f);
+
+			*m_props.value = Math::Clamp(*m_props.value, 0.0f, 1.0f);
+		}
 	}
 
-	void ColorField::Draw(int32 threadIndex)
+	void ColorSlider::Draw(int32 threadIndex)
 	{
-		const bool hasControls = m_manager->GetControlsOwner() == this;
-
-		const Color targetColor = *m_props.colorValue;
-		const Color hovered		= targetColor + targetColor * m_props.hoverHighlightPerc;
-
-		// Bg
+		const bool			 hasControls = m_manager->GetControlsOwner() == this;
 		LinaVG::StyleOptions opts;
 		opts.rounding				  = m_props.rounding;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = m_isHovered ? hovered.AsLVG4() : targetColor.AsLVG4();
+
+		if (m_props.isHueShift)
+		{
+			opts.textureHandle = GUI_TEXTURE_HUE;
+		}
+		else
+		{
+			opts.color.start		= m_props.colorBegin.AsLVG4();
+			opts.color.end			= m_props.colorEnd.AsLVG4();
+			opts.color.gradientType = m_props.direction == WidgetDirection::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
+		}
+
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+
+		const float lineThickness = Math::FloorToFloat(m_props.direction == WidgetDirection::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
+		const float lineX		  = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), 0.0f, 1.0f));
+
+		LinaVG::StyleOptions line;
+		line.color					  = m_props.colorLine.AsLVG4();
+		line.outlineOptions.thickness = m_props.outlineThickness;
+		line.outlineOptions.color	  = m_props.colorLineOutline.AsLVG4();
+		LinaVG::DrawRect(threadIndex, Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, m_drawOrder + 1);
 	}
 
-	bool ColorField::OnMouse(uint32 button, LinaGX::InputAction action)
+	bool ColorSlider::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
 			return false;
@@ -69,12 +97,6 @@ namespace Lina
 
 		if (m_isPressed && action == LinaGX::InputAction::Released)
 		{
-			if (m_isHovered)
-			{
-				if (m_props.onClicked)
-					m_props.onClicked();
-			}
-
 			m_isPressed = false;
 			return true;
 		}

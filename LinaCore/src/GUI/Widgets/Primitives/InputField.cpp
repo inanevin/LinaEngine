@@ -45,18 +45,17 @@ namespace Lina
 		m_text						 = Allocate<Text>();
 		m_text->GetProps().isDynamic = true;
 		AddChild(m_text);
-		m_lgxWindow->AddListener(this);
-	}
-
-	void InputField::Destruct()
-	{
-		m_lgxWindow->RemoveListener(this);
 	}
 
 	void InputField::Tick(float delta)
 	{
 		const bool prevHovered = m_isHovered;
 		Widget::SetIsHovered();
+
+		const bool hasControls = m_manager->GetControlsOwner() == this;
+
+		if (!hasControls)
+			m_isEditing = false;
 
 		// Cursor status.
 		if (m_isHovered)
@@ -80,7 +79,7 @@ namespace Lina
 		{
 			if (!m_isEditing && m_props.isNumberField)
 			{
-				const Vector2 mouse		= m_window->GetMousePosition();
+				const Vector2 mouse		= m_lgxWindow->GetMousePosition();
 				const float	  perc		= Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
 				float		  targetVal = Math::Remap(perc, 0.0f, 1.0f, m_props.numberMin, m_props.numberMax);
 
@@ -232,10 +231,10 @@ namespace Lina
 		return index;
 	}
 
-	void InputField::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
+	bool InputField::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
 		if (!m_isEditing)
-			return;
+			return false;
 
 		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
 		{
@@ -245,14 +244,14 @@ namespace Lina
 			if (keycode == LINAGX_KEY_RETURN)
 			{
 				EndEditing();
-				return;
+				return true;
 			}
 
 			// Erase
 			if (keycode == LINAGX_KEY_BACKSPACE)
 			{
 				RemoveCurrent();
-				return;
+				return true;
 			}
 
 			// Copy & paste
@@ -262,7 +261,7 @@ namespace Lina
 				if (keycode == LINAGX_KEY_A)
 				{
 					SelectAll();
-					return;
+					return true;
 				}
 
 				// Copy / Cut
@@ -278,6 +277,8 @@ namespace Lina
 						if (keycode == LINAGX_KEY_X)
 							RemoveCurrent();
 					}
+
+					return true;
 				}
 
 				// Paste
@@ -292,9 +293,8 @@ namespace Lina
 					m_caretInsertPos += static_cast<size_t>(str.size());
 					ClampCaretInsert();
 					m_highlightStartPos = m_caretInsertPos;
+					return true;
 				}
-
-				return;
 			}
 
 			// Apply characters
@@ -316,13 +316,13 @@ namespace Lina
 				// If we decide to do so, we need to increment caret position by unicode sz.
 				// And when erasing, we should erase by sz.
 				if (sz != 1)
-					return;
+					return true;
 
 				Insert(m_caretInsertPos, insert);
 				m_caretInsertPos++;
 				ClampCaretInsert();
 				m_highlightStartPos = m_caretInsertPos;
-				return;
+				return true;
 			}
 
 			// Move caret.
@@ -333,61 +333,57 @@ namespace Lina
 			ClampCaretInsert();
 			if (!highlight)
 				m_highlightStartPos = m_caretInsertPos;
+
+			return true;
 		}
+
+		return false;
 	}
 
-	void InputField::OnWindowMouse(uint32 button, LinaGX::InputAction action)
+	bool InputField::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
-		if (m_props.isNumberField)
+		// Catch middle press
+		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Pressed && m_isHovered)
 		{
-			if (button == LINAGX_MOUSE_MIDDLE)
-			{
-				if (m_isHovered && action == LinaGX::InputAction::Pressed)
-				{
-					m_middlePressed = true;
-					return;
-				}
+			m_middlePressed = true;
+			return true;
+		}
 
-				if (action == LinaGX::InputAction::Released)
-				{
-					m_middlePressed = false;
-					return;
-				}
-			}
+		// Catch middle release
+		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Released && m_middlePressed)
+		{
+			m_middlePressed = false;
+			return true;
 		}
 
 		if (button != LINAGX_MOUSE_0)
-			return;
+			return false;
 
 		// Double clicks -> select all if editing.
 		// Start editing if number slider.
 		if (m_isHovered && action == LinaGX::InputAction::Repeated)
 		{
 			SelectAll();
-			return;
+			return true;
 		}
 
-		if (action == LinaGX::InputAction::Pressed)
+		if (action == LinaGX::InputAction::Pressed && m_isHovered)
 		{
-			if (m_isHovered)
-			{
-				m_caretInsertPos	= GetCaretPosFromMouse();
-				m_highlightStartPos = m_caretInsertPos;
-				m_isPressed			= true;
-				m_manager->GrabControls(this);
-				m_isEditing = true;
-			}
-			else
-			{
-				m_isEditing = false;
-				m_manager->ReleaseControls(this);
-			}
+			m_caretInsertPos	= GetCaretPosFromMouse();
+			m_highlightStartPos = m_caretInsertPos;
+			m_isPressed			= true;
+			m_manager->GrabControls(this);
+			m_isEditing = true;
+			return true;
 		}
 
-		if (action == LinaGX::InputAction::Released)
+		if (action == LinaGX::InputAction::Released && m_isPressed)
 		{
 			m_isPressed = false;
+			return true;
 		}
+
+		return false;
 	}
 
 	float InputField::GetCaretStartY()

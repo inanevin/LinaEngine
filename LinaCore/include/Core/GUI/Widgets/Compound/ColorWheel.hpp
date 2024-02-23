@@ -32,34 +32,17 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Popup : public Widget
+	class ColorWheel : public Widget
 	{
 	public:
-		Popup()			 = default;
-		virtual ~Popup() = default;
+		ColorWheel()		  = default;
+		virtual ~ColorWheel() = default;
 
 		struct Properties
 		{
-			Fit	  widthFit			   = Fit::Fixed;
-			Color colorBackgroundStart = Color::White;
-			Color colorBackgroundEnd   = Color::White;
-			Color colorOutline		   = Color::White;
-			float outlineThickness	   = 0.0f;
-			float rounding			   = 0.0f;
-			float minWidth			   = 0.0f;
-			float animTime			   = 0.0f;
 		};
 
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
 	private:
-		Properties m_props		  = {};
-		float	   m_animationCtr = 0.0f;
+		Properties m_props = {};
 	};
 } // namespace Lina

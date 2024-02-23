@@ -94,6 +94,7 @@ src/GUI/Widgets/Primitives/Checkbox.cpp
 src/GUI/Widgets/Primitives/InputField.cpp
 src/GUI/Widgets/Primitives/Dropdown.cpp
 src/GUI/Widgets/Primitives/ColorField.cpp
+src/GUI/Widgets/Primitives/ColorSlider.cpp
 src/GUI/Widgets/Primitives/PopupItem.cpp
 src/GUI/Widgets/Compound/Popup.cpp
 src/GUI/Widgets/Compound/ColorWheel.cpp
@@ -188,6 +189,7 @@ include/Core/GUI/Widgets/Primitives/Checkbox.hpp
 include/Core/GUI/Widgets/Primitives/InputField.hpp
 include/Core/GUI/Widgets/Primitives/Dropdown.hpp
 include/Core/GUI/Widgets/Primitives/ColorField.hpp
+include/Core/GUI/Widgets/Primitives/ColorSlider.hpp
 include/Core/GUI/Widgets/Primitives/PopupItem.hpp
 include/Core/GUI/Widgets/Compound/Popup.hpp
 include/Core/GUI/Widgets/Compound/ColorWheel.hpp

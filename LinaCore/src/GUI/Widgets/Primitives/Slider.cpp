@@ -42,12 +42,6 @@ namespace Lina
 		m_handle->GetProps().sdfOutlineThickness = 0.6f;
 		m_handle->GetProps().sdfOutlineColor	 = Color::Black;
 		AddChild(m_handle);
-		m_lgxWindow->AddListener(this);
-	}
-
-	void Slider::Destruct()
-	{
-		m_lgxWindow->RemoveListener(this);
 	}
 
 	void Slider::Tick(float delta)
@@ -61,7 +55,7 @@ namespace Lina
 
 		if (m_isPressed)
 		{
-			const Vector2 mouse		  = m_window->GetMousePosition();
+			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;
 
 			if (m_props.direction == WidgetDirection::Horizontal)
@@ -136,27 +130,25 @@ namespace Lina
 		}
 	}
 
-	void Slider::OnWindowMouse(uint32 button, LinaGX::InputAction act)
+	bool Slider::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (button != LINAGX_MOUSE_0)
-			return;
+			return false;
 
-		if (act == LinaGX::InputAction::Pressed)
+		if (act == LinaGX::InputAction::Pressed && (m_handle->GetIsHovered() || m_isHovered))
 		{
-			if (m_handle->GetIsHovered() || m_isHovered)
-			{
-				m_isPressed	 = true;
-				m_pressStart = m_window->GetMousePosition();
-				m_manager->GrabControls(this);
-			}
-			else
-				m_manager->ReleaseControls(this);
+			m_isPressed	 = true;
+			m_pressStart = m_lgxWindow->GetMousePosition();
+			m_manager->GrabControls(this);
+			return true;
 		}
 
-		if (act == LinaGX::InputAction::Released)
+		if (act == LinaGX::InputAction::Released && m_isPressed)
 		{
-			if (m_isPressed)
-				m_isPressed = false;
+			m_isPressed = false;
+			return true;
 		}
+
+		return false;
 	}
 } // namespace Lina

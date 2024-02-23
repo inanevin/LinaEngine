@@ -36,7 +36,7 @@ namespace Lina
 	class Font;
 	class Text;
 
-	class Button : public Widget, public LinaGX::WindowListener
+	class Button : public Widget
 	{
 	public:
 		struct Properties
@@ -59,10 +59,9 @@ namespace Lina
 		virtual ~Button() = default;
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		inline Properties& GetProps()
 		{

@@ -36,7 +36,7 @@ namespace Lina
 {
 	class Text;
 
-	class InputField : public Widget, public LinaGX::WindowListener
+	class InputField : public Widget
 	{
 	public:
 		InputField() : Widget(1)
@@ -69,12 +69,11 @@ namespace Lina
 		};
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual void RenderSync() override;
-		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction action) override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()
 		{

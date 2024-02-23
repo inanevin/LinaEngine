@@ -118,12 +118,23 @@ namespace Lina
 
 	void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf, int threadIndex)
 	{
-		auto& req					= AddDrawRequest(buf, threadIndex);
-		req.hasTextureBind			= true;
-		req.textureHandle			= buf->m_textureHandle;
-		req.samplerHandle			= m_guiSampler->GetGPUHandle();
+		auto& req			 = AddDrawRequest(buf, threadIndex);
+		float drawBufferType = static_cast<float>(buf->m_drawBufferType);
+
+		if (buf->m_textureHandle == GUI_TEXTURE_HUE)
+		{
+			req.hasTextureBind = false;
+			drawBufferType	   = 5.0f; // special case :)
+		}
+		else
+		{
+			req.hasTextureBind = true;
+			req.textureHandle  = buf->m_textureHandle;
+			req.samplerHandle  = m_guiSampler->GetGPUHandle();
+		}
+
 		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
+		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, drawBufferType);
 		req.materialData.color1		= buf->m_tint;
 	}
 
