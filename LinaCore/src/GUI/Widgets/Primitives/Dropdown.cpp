@@ -113,15 +113,15 @@ namespace Lina
 			{
 				m_manager->GrabControls(this);
 
-                if(!m_popup)
-                {
-                    m_popup = Allocate<Popup>();
-                    m_popup->GetProps().minWidth = m_rect.size.x;
-                    m_manager->AddToForeground(m_popup);
-                    m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
-                    if (m_props.onPopupCreated)
-                        m_props.onPopupCreated(m_popup);
-                }
+				if (!m_popup)
+				{
+					m_popup						 = Allocate<Popup>();
+					m_popup->GetProps().minWidth = m_rect.size.x;
+					m_manager->AddToForeground(m_popup);
+					m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
+					if (m_props.onPopupCreated)
+						m_props.onPopupCreated(m_popup);
+				}
 			}
 			else
 			{
@@ -130,14 +130,14 @@ namespace Lina
 		}
 	}
 
-    void Dropdown::ClosePopup()
-    {
-        if (m_popup)
-        {
-            m_manager->RemoveFromForeground(m_popup);
-            m_popup->Destroy();
-            m_popup = nullptr;
-        }
-    }
+	void Dropdown::ClosePopup()
+	{
+		if (m_popup)
+		{
+			m_manager->RemoveFromForeground(m_popup);
+			m_popup->Destroy();
+			m_popup = nullptr;
+		}
+	}
 
 } // namespace Lina
