@@ -59,6 +59,7 @@ namespace Lina::Editor
 	Color  testColor			 = Color::Red;
 	float  colorSliderValue		 = 0.0f;
 	float  colorSlider2Value	 = 0.0f;
+	float  colorSlider3Value	 = 0.0f;
 
 	void Testbed::Construct()
 	{
@@ -319,6 +320,21 @@ namespace Lina::Editor
 		}
 
 		y += itemHeight * 1.5f;
+
+		// Color slider
+		{
+			ColorSlider* cs = Allocate<ColorSlider>();
+			Theme::SetDefaults(cs);
+			cs->GetProps().value	  = &colorSlider3Value;
+			cs->GetProps().colorBegin = Color::Green;
+			cs->GetProps().colorEnd	  = Color::Blue;
+			cs->GetProps().direction  = WidgetDirection::Vertical;
+			cs->SetPos(Vector2(x, y));
+			cs->SetSize(Vector2(itemHeight, itemWidth));
+			AddChild(cs);
+		}
+
+		y += itemHeight + itemWidth;
 	}
 
 	void Testbed::Tick(float delta)

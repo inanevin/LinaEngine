@@ -74,13 +74,22 @@ namespace Lina
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
 
 		const float lineThickness = Math::FloorToFloat(m_props.direction == WidgetDirection::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
-		const float lineX		  = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), 0.0f, 1.0f));
 
 		LinaVG::StyleOptions line;
 		line.color					  = m_props.colorLine.AsLVG4();
 		line.outlineOptions.thickness = m_props.outlineThickness;
 		line.outlineOptions.color	  = m_props.colorLineOutline.AsLVG4();
-		LinaVG::DrawRect(threadIndex, Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, m_drawOrder + 1);
+
+		if (m_props.direction == WidgetDirection::Horizontal)
+		{
+			const float lineX = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), 0.0f, 1.0f));
+			LinaVG::DrawRect(threadIndex, Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, m_drawOrder + 1);
+		}
+		else if (m_props.direction == WidgetDirection::Vertical)
+		{
+			const float lineY = Math::FloorToFloat(m_rect.pos.y + m_rect.size.y * (1.0f - Math::Clamp((*m_props.value), 0.0f, 1.0f)));
+			LinaVG::DrawRect(threadIndex, Vector2(m_rect.pos.x, lineY - lineThickness).AsLVG(), Vector2(m_rect.pos.x + m_rect.size.x, lineY + lineThickness).AsLVG(), line, 0.0f, m_drawOrder + 1);
+		}
 	}
 
 	bool ColorSlider::OnMouse(uint32 button, LinaGX::InputAction action)
