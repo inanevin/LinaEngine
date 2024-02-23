@@ -108,25 +108,25 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-        if(m_foregroundRoot->OnKey(keycode, scancode, inputAction))
-            return;
-        
+		if (m_foregroundRoot->OnKey(keycode, scancode, inputAction))
+			return;
+
 		m_rootWidget->OnKey(keycode, scancode, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
-        if(m_foregroundRoot->OnMouse(button, inputAction))
-            return;
-        
-        // Left click presses to anywhere outside the control owner
-        // releases controls from that owner.
-        if(button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr)
-        {
-            if(!m_controlsOwner->GetIsHovered())
-                ReleaseControls(m_controlsOwner);
-        }
-        
+		if (m_foregroundRoot->OnMouse(button, inputAction))
+			return;
+
+		// Left click presses to anywhere outside the control owner
+		// releases controls from that owner.
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr)
+		{
+			if (!m_controlsOwner->GetIsHovered())
+				ReleaseControls(m_controlsOwner);
+		}
+
 		m_rootWidget->OnMouse(button, inputAction);
 	}
 

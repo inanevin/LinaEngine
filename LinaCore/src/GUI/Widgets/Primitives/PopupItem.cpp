@@ -70,37 +70,37 @@ namespace Lina
 	bool PopupItem::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
-            return false;
+			return false;
 
 		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
 		{
 			if (m_isHovered)
 			{
 				m_isPressed = true;
-                return true;
+				return true;
 			}
-            
-            if (!m_parent->GetIsHovered())
-            {
-                if (m_props.onClickedOutside)
-                    m_props.onClickedOutside();
-                
-                return true;
-            }
+
+			if (!m_parent->GetIsHovered())
+			{
+				if (m_props.onClickedOutside)
+					m_props.onClickedOutside();
+
+				return true;
+			}
 		}
 
 		if (m_isPressed && (action == LinaGX::InputAction::Released))
 		{
-            if (m_isHovered)
-            {
-                if (m_props.onClicked)
-                    m_props.onClicked();
-            }
-            m_isPressed = false;
-            return true;
+			if (m_isHovered)
+			{
+				if (m_props.onClicked)
+					m_props.onClicked();
+			}
+			m_isPressed = false;
+			return true;
 		}
-        
-        return false;
+
+		return false;
 	}
 
 } // namespace Lina
