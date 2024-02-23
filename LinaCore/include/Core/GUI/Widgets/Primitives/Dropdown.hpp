@@ -58,7 +58,6 @@ namespace Lina
 			float						 rounding					= 0.0f;
 			float						 outlineThickness			= 0.0f;
 			float						 horizontalIndent			= 0.0f;
-			float						 verticalIndent				= 0.0f;
 		};
 
 		virtual void Construct() override;
@@ -66,6 +65,8 @@ namespace Lina
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction action) override;
+
+		void ClosePopup();
 
 		inline Properties& GetProps()
 		{

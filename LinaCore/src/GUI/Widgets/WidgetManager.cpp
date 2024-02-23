@@ -48,28 +48,30 @@ namespace Lina
 		m_window->AddListener(this);
 		m_rootWidget = Allocate<Widget>();
 		m_rootWidget->SetDebugName("Root");
+
+		m_foregroundRoot = Allocate<Widget>();
+		m_foregroundRoot->SetDebugName("PopupRoot");
+
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
 	{
+		m_foregroundRoot->Tick(delta);
+
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 		m_rootWidget->Tick(delta);
 	}
 
-	Popup* WidgetManager::AddPopup()
+	void WidgetManager::AddToForeground(Widget* w)
 	{
-		Popup* popup = m_rootWidget->Allocate<Popup>();
-		popup->SetDrawOrder(POPUP_DRAW_ORDER);
-		m_rootWidget->AddChild(popup);
-		return popup;
+		m_foregroundRoot->AddChild(w);
 	}
 
-	void WidgetManager::RemovePopup(Popup* popup)
+	void WidgetManager::RemoveFromForeground(Widget* w)
 	{
-		m_rootWidget->RemoveChild(popup);
-		popup->Destroy();
+		m_foregroundRoot->RemoveChild(w);
 	}
 
 	void WidgetManager::RenderSync()
@@ -80,6 +82,10 @@ namespace Lina
 	{
 		m_rootWidget->Draw(threadIndex);
 
+		for (auto* c : m_foregroundRoot->GetChildren())
+			c->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+
+		m_foregroundRoot->Draw(threadIndex);
 		// DebugDraw(threadIndex, m_rootWidget);
 	}
 

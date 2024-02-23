@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 
@@ -56,8 +57,8 @@ namespace Lina::Editor
 		props.colorPressed		   = Theme::GetDef().background0;
 		props.rounding			   = Theme::GetDef().baseRounding;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
-		props.colorOutline		   = Theme::GetDef().silent;
-		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
+		props.colorOutline		   = Theme::GetDef().outlineColorBase;
+		props.colorOutlineControls = Theme::GetDef().outlineColorControls;
 		SetDefaults(widget->GetText());
 	}
 
@@ -82,13 +83,11 @@ namespace Lina::Editor
 	void Theme::SetDefaults(Checkbox* widget)
 	{
 		auto& props				   = widget->GetProps();
-		props.horizontalIndent	   = Theme::GetDef().baseIndent * 0.5f;
-		props.verticalIndent	   = Theme::GetDef().baseIndent * 0.5f;
 		props.colorBackground	   = Theme::GetDef().background0;
 		props.rounding			   = Theme::GetDef().baseRounding;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
-		props.colorOutline		   = Theme::GetDef().silent;
-		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
+		props.colorOutline		   = Theme::GetDef().outlineColorBase;
+		props.colorOutlineControls = Theme::GetDef().outlineColorControls;
 		props.colorIcon			   = Theme::GetDef().accentPrimary1;
 		SetDefaults(widget->GetIcon());
 	}
@@ -101,12 +100,13 @@ namespace Lina::Editor
 		props.colorFillMax		   = Theme::GetDef().accentPrimary0;
 		props.colorHandle		   = Theme::GetDef().accentPrimary0;
 		props.colorHandleHovered   = Theme::GetDef().accentPrimary2;
-		props.colorOutline		   = Theme::GetDef().silent;
-		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
+		props.colorOutline		   = Theme::GetDef().outlineColorBase;
+		props.colorOutlineControls = Theme::GetDef().outlineColorControls;
 		props.rounding			   = Theme::GetDef().baseRounding * 2;
 		props.crossAxisPercentage  = Theme::GetDef().baseSliderPerc;
 		props.direction			   = WidgetDirection::Horizontal;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+		props.verticalExpandPerc   = 0.5f;
 		SetDefaults(widget->GetHandle());
 	}
 
@@ -114,16 +114,15 @@ namespace Lina::Editor
 	{
 		auto& props				   = widget->GetProps();
 		props.colorBackground	   = Theme::GetDef().background0;
-		props.colorOutline		   = Theme::GetDef().silent;
-		props.colorOutlineControls = Theme::GetDef().accentPrimary1;
+		props.colorOutline		   = Theme::GetDef().outlineColorBase;
+		props.colorOutlineControls = Theme::GetDef().outlineColorControls;
 		props.colorHighlight	   = Theme::GetDef().accentPrimary1;
 		props.colorCaret		   = Theme::GetDef().foreground0;
 		props.colorNumberFillStart = Theme::GetDef().accentPrimary1;
 		props.colorNumberFillEnd   = Theme::GetDef().accentPrimary0;
 		props.rounding			   = Theme::GetDef().baseRounding;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
-		props.horizontalIndent	   = Theme::GetDef().baseIndent;
-		props.verticalIndent	   = Theme::GetDef().baseVerticalIndent;
+		props.horizontalIndent	   = Theme::GetDef().baseIndentInner;
 		SetDefaults(widget->GetText());
 	}
 
@@ -132,28 +131,25 @@ namespace Lina::Editor
 		auto& props						 = widget->GetProps();
 		props.colorBackground			 = Theme::GetDef().background0;
 		props.colorHovered				 = Theme::GetDef().background2;
-		props.colorOutline				 = Theme::GetDef().silent;
-		props.colorOutlineControls		 = Theme::GetDef().accentPrimary1;
+		props.colorOutline				 = Theme::GetDef().outlineColorBase;
+		props.colorOutlineControls		 = Theme::GetDef().outlineColorControls;
 		props.colorIconBackgroundStart	 = Theme::GetDef().accentPrimary0;
 		props.colorIconBackgroundEnd	 = Theme::GetDef().accentPrimary1;
 		props.colorIconBackgroundHovered = Theme::GetDef().accentPrimary2;
 		props.rounding					 = Theme::GetDef().baseRounding;
 		props.outlineThickness			 = Theme::GetDef().baseOutlineThickness;
-		props.horizontalIndent			 = Theme::GetDef().baseIndent;
-		props.verticalIndent			 = Theme::GetDef().baseVerticalIndent;
+		props.horizontalIndent			 = Theme::GetDef().baseIndentInner;
 		SetDefaults(widget->GetIcon());
 		SetDefaults(widget->GetText());
 	}
 
 	void Theme::SetDefaults(PopupItem* widget)
 	{
-		auto& props = widget->GetProps();
-		// props.colorBackground       = Theme::GetDef().background2;
-		props.colorBackgroundSelected = Theme::GetDef().background0;
-		props.colorHovered			  = Theme::GetDef().background3;
-		props.horizontalIndent		  = Theme::GetDef().baseIndent;
-		props.verticalIndent		  = Theme::GetDef().baseVerticalIndent;
-		props.rounding				  = Theme::GetDef().baseIndent;
+		auto& props					  = widget->GetProps();
+		props.colorBackgroundSelected = Theme::GetDef().background3;
+		props.colorHovered			  = Theme::GetDef().accentPrimary0;
+		props.horizontalIndent		  = Theme::GetDef().baseIndentInner;
+		props.rounding				  = Theme::GetDef().baseRounding;
 		SetDefaults(widget->GetText());
 	}
 
@@ -162,9 +158,25 @@ namespace Lina::Editor
 		auto& props				   = widget->GetProps();
 		props.colorBackgroundStart = Theme::GetDef().background0;
 		props.colorBackgroundEnd   = Theme::GetDef().background1;
-		props.colorOutline		   = Theme::GetDef().silent;
+		props.colorOutline		   = Theme::GetDef().outlineColorBase;
 		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
 		props.rounding			   = Theme::GetDef().baseRounding;
+		props.animTime			   = Theme::GetDef().popupAnimTime;
+	}
+
+	void Theme::SetDefaults(ColorField* widget)
+	{
+		auto& props				   = widget->GetProps();
+		props.colorOutline		   = Theme::GetDef().outlineColorBase;
+		props.colorOutlineControls = Theme::GetDef().outlineColorControls;
+		props.rounding			   = Theme::GetDef().baseRounding;
+		props.outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+		props.hoverHighlightPerc   = 0.1f;
+	}
+
+	float Theme::GetBaseItemHeight(float dpiScale)
+	{
+		return 24.0f * dpiScale;
 	}
 
 } // namespace Lina::Editor

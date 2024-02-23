@@ -83,6 +83,19 @@ namespace Lina
 
 	void Widget::SetIsHovered()
 	{
+		auto*		foregroundRoot	= m_manager->GetForegroundRoot();
+		const auto& foregroundItems = foregroundRoot->GetChildren();
+
+		// If any foreground item is hovered, any item with lower draw order don't get to be hovered.
+		for (auto* c : foregroundItems)
+		{
+			if (c->GetDrawOrder() > m_drawOrder && c->GetIsHovered())
+			{
+				m_isHovered = false;
+				return;
+			}
+		}
+
 		const Vector2& pos = m_lgxWindow->GetMousePosition();
 
 		if (GetAlignPoint() == AlignPoint::TopLeft)

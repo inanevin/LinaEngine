@@ -56,6 +56,7 @@ namespace Lina
 		static String		  RemoveAllDotsExceptFirst(const String& str);
 		static String		  FixStringNumber(const String& str);
 		static String		  FloatToString(float val, uint32 decimals);
+		static String		  ReplaceAll(const String& str, const String& toReplace, const String& replacement);
 		static float		  StringToFloat(const String& str, uint32& outDecimals);
 		static int			  StringToInt(const String& str);
 		static String		  GetUntilFirstOf(const String& str);

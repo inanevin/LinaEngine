@@ -138,15 +138,30 @@ namespace Lina
 		return utf8str;
 	}
 
+	String UtilStr::ReplaceAll(const String& str, const String& toReplace, const String& replacement)
+	{
+		if (toReplace.empty())
+			return str;
+
+		String fin		= str;
+		size_t startPos = 0;
+		while ((startPos = fin.find(toReplace, startPos)) != std::string::npos)
+		{
+			fin.replace(startPos, toReplace.length(), replacement);
+			startPos += replacement.length();
+		}
+		return fin;
+	}
 	float UtilStr::StringToFloat(const String& str, uint32& outDecimals)
 	{
 		try
 		{
-			std::size_t pos = str.find('.');
+			const String fin = UtilStr::ReplaceAll(str, ",", ".");
+			std::size_t	 pos = fin.find('.');
 			if (pos != std::string::npos)
-				outDecimals = static_cast<uint32>(str.length() - pos - 1);
+				outDecimals = static_cast<uint32>(fin.length() - pos - 1);
 
-			return std::stof(str.c_str());
+			return std::stof(fin.c_str());
 		}
 		catch (const std::exception& e)
 		{

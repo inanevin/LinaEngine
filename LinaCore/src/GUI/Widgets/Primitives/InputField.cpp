@@ -101,8 +101,6 @@ namespace Lina
 		if (m_isPressed)
 			m_caretInsertPos = GetCaretPosFromMouse();
 
-		// My size and text size/pos.
-		m_rect.size.y				= m_text->GetLVGFont()->m_size + m_props.verticalIndent * 2;
 		const Vector2& textSize		= m_text->GetSize();
 		const Vector2  middle		= Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
 		m_textStartMid				= middle - Vector2(textSize.x * 0.5f, 0.0f);
@@ -340,7 +338,7 @@ namespace Lina
 
 	void InputField::OnWindowMouse(uint32 button, LinaGX::InputAction action)
 	{
-		if (m_props.isNumberField && !m_props.disableNumberSlider)
+		if (m_props.isNumberField)
 		{
 			if (button == LINAGX_MOUSE_MIDDLE)
 			{

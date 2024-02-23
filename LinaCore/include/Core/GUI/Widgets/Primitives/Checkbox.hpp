@@ -40,8 +40,6 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			float horizontalIndent	   = 0.0f;
-			float verticalIndent	   = 0.0f;
 			Color colorBackground	   = Color::White;
 			float rounding			   = 0.0f;
 			float outlineThickness	   = 0.0f;

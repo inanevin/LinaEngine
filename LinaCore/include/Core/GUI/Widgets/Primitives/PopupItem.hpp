@@ -43,12 +43,15 @@ namespace Lina
 
 		struct Properties
 		{
-			Color colorBackgroundSelected = Color::White;
-			Color colorHovered			  = Color::White;
-			float rounding				  = 0.0f;
-			float horizontalIndent		  = 0.0f;
-			float verticalIndent		  = 0.0f;
-			bool  isSelected			  = false;
+			Delegate<void()> onClicked;
+			Delegate<void()> onClickedOutside;
+			Color			 colorBackgroundSelected = Color::White;
+			Color			 colorHovered			 = Color::White;
+			float			 rounding				 = 0.0f;
+			float			 horizontalIndent		 = 0.0f;
+			bool			 isSelected				 = false;
+			bool			 closeOwnerOnClick		 = false;
+			bool			 useAltText				 = false;
 		};
 
 		virtual void Construct() override;
@@ -67,9 +70,15 @@ namespace Lina
 			return m_text;
 		}
 
+		inline Text* GetAltText()
+		{
+			return m_altText;
+		}
+
 	private:
-		Properties m_props = {};
-		Text*	   m_text  = nullptr;
+		Properties m_props	 = {};
+		Text*	   m_text	 = nullptr;
+		Text*	   m_altText = nullptr;
 	};
 
 } // namespace Lina

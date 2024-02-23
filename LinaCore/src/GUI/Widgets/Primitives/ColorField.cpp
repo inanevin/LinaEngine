@@ -26,65 +26,51 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
-#define CHECKBOX_SPEED 24
 
-	void Checkbox::Construct()
+	void ColorField::Construct()
 	{
-		m_icon							= Allocate<Icon>();
-		m_icon->GetProps().isDynamic	= true;
-		m_icon->GetProps().sdfThickness = 0.6f;
-		AddChild(m_icon);
-
 		m_lgxWindow->AddListener(this);
 	}
 
-	void Checkbox::Destruct()
+	void ColorField::Destruct()
 	{
 		m_lgxWindow->RemoveListener(this);
 	}
 
-	void Checkbox::Tick(float delta)
+	void ColorField::Tick(float delta)
 	{
 		Widget::SetIsHovered();
-
-		// Text size
-		const Vector2& textSize = m_icon->GetSize();
-		m_icon->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
-
-		// Alpha & color
-		const float alpha		   = Math::Lerp(m_icon->GetProps().color.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
-		m_icon->GetProps().color   = m_props.colorIcon;
-		m_icon->GetProps().color.w = alpha;
 	}
 
-	void Checkbox::Draw(int32 threadIndex)
+	void ColorField::Draw(int32 threadIndex)
 	{
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
-		LinaVG::StyleOptions style;
-		style.rounding				   = m_props.rounding;
-		style.outlineOptions.thickness = m_props.outlineThickness;
-		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		style.color					   = m_props.colorBackground.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
-		m_icon->Draw(threadIndex);
+		const Color targetColor = *m_props.colorValue;
+		const Color hovered		= targetColor + targetColor * m_props.hoverHighlightPerc;
+
+		// Bg
+		LinaVG::StyleOptions opts;
+		opts.rounding				  = m_props.rounding;
+		opts.outlineOptions.thickness = m_props.outlineThickness;
+		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
+		opts.color					  = m_isHovered ? hovered.AsLVG4() : targetColor.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 
-	void Checkbox::OnWindowMouse(uint32 button, LinaGX::InputAction act)
+	void ColorField::OnWindowMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
 			return;
 
-		if (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated)
+		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
 		{
 			if (m_isHovered)
 			{
@@ -95,14 +81,17 @@ namespace Lina
 				m_manager->ReleaseControls(this);
 		}
 
-		if (act == LinaGX::InputAction::Released)
+		if (action == LinaGX::InputAction::Released)
 		{
 			if (m_isPressed)
 			{
 				m_isPressed = false;
 
 				if (m_isHovered)
-					*m_props.value = !*m_props.value;
+				{
+					if (m_props.onClicked)
+						m_props.onClicked();
+				}
 			}
 		}
 	}

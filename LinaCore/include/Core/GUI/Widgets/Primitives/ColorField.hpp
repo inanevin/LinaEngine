@@ -28,64 +28,44 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/SizeDefinitions.hpp"
-#include "Common/Math/Color.hpp"
-#include "Common/Math/Rect.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Data/String.hpp"
 
 namespace Lina
 {
-	struct TBLR
-	{
-		float top	 = 0;
-		float bottom = 0;
-		float left	 = 0;
-		float right	 = 0;
 
-		static TBLR Eq(float m)
+	class ColorField : public Widget, public LinaGX::WindowListener
+	{
+	public:
+		ColorField() : Widget(0)
 		{
-			return {.top = m, .bottom = m, .left = m, .right = m};
 		}
-	};
+		virtual ~ColorField() = default;
 
-	struct RectBackground
-	{
-		bool  enabled	 = false;
-		Color startColor = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		Color endColor	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		float rounding	 = 0.0f;
-	};
+		struct Properties
+		{
+			Delegate<void()> onClicked;
+			Color*			 colorValue			  = nullptr;
+			Color			 colorOutline		  = Color::White;
+			Color			 colorOutlineControls = Color::White;
+			float			 hoverHighlightPerc	  = 0.0f;
+			float			 rounding			  = 0.0f;
+			float			 outlineThickness	  = 0.0f;
+		};
 
-	struct ClipData
-	{
-		Rect rect	 = Rect();
-		TBLR margins = {};
-	};
+		virtual void Construct() override;
+		virtual void Destruct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction action) override;
 
-	enum class CrossAlignment
-	{
-		Start,
-		Center,
-		End
-	};
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
-	enum class AlignPoint
-	{
-		TopLeft,
-		Center
+	private:
+		Properties m_props = {};
 	};
-
-	enum class Fit
-	{
-		Fixed,
-		FromChildren,
-	};
-
-	enum class WidgetDirection
-	{
-		Horizontal,
-		Vertical,
-	};
-
-#define FOREGROUND_DRAW_ORDER 1000
 
 } // namespace Lina

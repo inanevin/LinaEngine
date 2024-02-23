@@ -53,7 +53,7 @@ namespace Lina
 	class Dropdown;
 	class PopupItem;
 	class Popup;
-
+	class ColorField;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -84,12 +84,16 @@ namespace Lina::Editor
 
 			Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
 
-			float baseIndent		   = 8.0f;
-			float baseVerticalIndent   = 6.0f;
-			float baseSliderThickness  = 4.0f;
-			float baseSliderPerc	   = 1.0f;
+			Color outlineColorBase	   = silent;
+			Color outlineColorControls = accentPrimary0;
+
+			float baseIndent		   = 12.0f;
+			float baseIndentInner	   = 8.0f;
+			float baseSliderPerc	   = 0.25f;
 			float baseRounding		   = 0.25f;
 			float baseOutlineThickness = 1.0f;
+
+			float popupAnimTime = 0.1f;
 
 			StringID defaultFont	 = 0;
 			StringID alternativeFont = 0;
@@ -114,6 +118,9 @@ namespace Lina::Editor
 		static void SetDefaults(Dropdown* widget);
 		static void SetDefaults(PopupItem* widget);
 		static void SetDefaults(Popup* widget);
+		static void SetDefaults(ColorField* widget);
+
+		static float GetBaseItemHeight(float dpiScale);
 
 	private:
 		static ThemeDef s_themeDef;

@@ -60,8 +60,8 @@ namespace Lina
 		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
 		void UnsetClip(int32 threadIndex);
 
-		Popup* AddPopup();
-		void   RemovePopup(Popup* popup);
+		void AddToForeground(Widget* widget);
+		void RemoveFromForeground(Widget* widget);
 
 		inline Widget* GetRoot()
 		{
@@ -87,6 +87,11 @@ namespace Lina
 		inline Widget* GetControlsOwner() const
 		{
 			return m_controlsOwner;
+		}
+
+		inline Widget* GetForegroundRoot()
+		{
+			return m_foregroundRoot;
 		}
 
 	protected:
@@ -135,6 +140,7 @@ namespace Lina
 		HashMap<TypeID, PoolAllocator*> m_allocators;
 		LinaGX::Window*					m_window		  = nullptr;
 		Widget*							m_rootWidget	  = nullptr;
+		Widget*							m_foregroundRoot  = nullptr;
 		System*							m_system		  = nullptr;
 		Widget*							m_deepestHovered  = nullptr;
 		ResourceManager*				m_resourceManager = nullptr;

@@ -61,7 +61,6 @@ namespace Lina
 
 		const Vector2 iconSize = m_icon->GetSize();
 		const Vector2 textSize = m_text->GetSize();
-		m_rect.size.y		   = m_text->GetLVGFont()->m_size + m_props.verticalIndent * 2;
 		m_iconBgStart		   = (m_rect.pos + m_rect.size) - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
 
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
@@ -108,27 +107,37 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return;
 
-		if (action == LinaGX::InputAction::Pressed)
+		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
 		{
 			if (m_isHovered)
 			{
 				m_manager->GrabControls(this);
 
-				m_popup = m_manager->AddPopup();
-				m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
-
-				if (m_props.onPopupCreated)
-					m_props.onPopupCreated(m_popup);
+                if(!m_popup)
+                {
+                    m_popup = Allocate<Popup>();
+                    m_popup->GetProps().minWidth = m_rect.size.x;
+                    m_manager->AddToForeground(m_popup);
+                    m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
+                    if (m_props.onPopupCreated)
+                        m_props.onPopupCreated(m_popup);
+                }
 			}
 			else
 			{
-				if (m_popup)
-					m_manager->RemovePopup(m_popup);
-
-				m_popup = nullptr;
 				m_manager->ReleaseControls(this);
 			}
 		}
 	}
+
+    void Dropdown::ClosePopup()
+    {
+        if (m_popup)
+        {
+            m_manager->RemoveFromForeground(m_popup);
+            m_popup->Destroy();
+            m_popup = nullptr;
+        }
+    }
 
 } // namespace Lina

@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void PopupItem::Construct()
 	{
 		m_text						 = Allocate<Text>();
@@ -52,7 +51,6 @@ namespace Lina
 		Widget::SetIsHovered();
 
 		const Vector2 textSize = m_text->GetSize();
-		m_rect.size.y		   = m_text->GetLVGFont()->m_size + m_props.verticalIndent * 2;
 		m_rect.size.x		   = textSize.x + m_props.horizontalIndent * 2;
 
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
@@ -71,9 +69,8 @@ namespace Lina
 		}
 
 		// Text & clip over icon.
-		m_manager->SetClip(threadIndex, m_rect, {});
+		m_text->SetDrawOrder(m_drawOrder);
 		m_text->Draw(threadIndex);
-		m_manager->UnsetClip(threadIndex);
 	}
 
 	void PopupItem::OnWindowMouse(uint32 button, LinaGX::InputAction action)
@@ -81,10 +78,32 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return;
 
-		if (action == LinaGX::InputAction::Pressed)
+		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
 		{
 			if (m_isHovered)
 			{
+				m_isPressed = true;
+			}
+			else
+			{
+				if (!m_parent->GetIsHovered())
+				{
+					if (m_props.onClickedOutside)
+						m_props.onClickedOutside();
+				}
+			}
+		}
+
+		if (action == LinaGX::InputAction::Released)
+		{
+			if (m_isPressed)
+			{
+				if (m_isHovered)
+				{
+					if (m_props.onClicked)
+						m_props.onClicked();
+				}
+				m_isPressed = false;
 			}
 		}
 	}

@@ -58,6 +58,7 @@ namespace Lina
 			Color			colorHandleHovered	 = Color::White;
 			Color			colorOutline		 = Color::White;
 			Color			colorOutlineControls = Color::White;
+			float			verticalExpandPerc	 = 1.0f;
 			float			rounding			 = 0.0f;
 			float			crossAxisPercentage	 = 1.0f;
 			float			outlineThickness	 = 0.0f;

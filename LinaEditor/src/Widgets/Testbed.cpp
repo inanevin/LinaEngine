@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -51,92 +52,111 @@ namespace Lina::Editor
 	float  numberFieldValue = 4.0f;
 	String textFieldValue	= "Test";
 
-	bool checkboxValue = false;
+	bool   checkboxValue		 = false;
+	String dummyDropdownItems[3] = {"Item1", "Item2TesteroBruvvv", "Item3"};
+	int32  selectedDropdownItem	 = 0;
+	Color  testColor			 = Color::Red;
 
 	void Testbed::Construct()
 	{
 		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		// Icon
+		const float itemHeight = Theme::GetBaseItemHeight(1.0f);
+		const float itemWidth  = 100.0f;
+		float		y		   = itemHeight;
+		float		x		   = Theme::GetDef().baseIndent;
+
+		// Icon && title
 		{
 			Icon* icon = Allocate<Icon>();
 			Theme::SetDefaults(icon);
 			icon->GetProps().icon = ICON_LINA_LOGO;
 			icon->CalculateIconSize();
-			icon->SetPos(Vector2(12.5, 15));
+			icon->SetPos(Vector2(x + icon->GetSize().x * 0.5f, y));
 			icon->SetDebugName("LinaIcon");
 			AddChild(icon);
-		}
 
-		// Testbed Text
-		{
 			Text* text = Allocate<Text>();
 			Theme::SetDefaults(text);
 			text->GetProps().text = "Testbed";
 			text->CalculateTextSize();
-			text->SetPos(Vector2(50, 15));
+			text->SetPos(Vector2(x + icon->GetSize().x * 0.5f + Theme::GetDef().baseIndent + text->GetSize().x * 0.5f, y));
 			text->SetDebugName("Title Text");
 			AddChild(text);
 		}
+
+		y += itemHeight * 1.5f;
 
 		// Button
 		{
 			Button* button = Allocate<Button>();
 			Theme::SetDefaults(button);
 			button->GetText()->GetProps().text = "Button";
-			button->GetText()->CalculateTextSize();
-			button->SetSize(Vector2(100, 30));
-			button->SetPos(Vector2(10, 40));
+			button->SetSize(Vector2(itemWidth, itemHeight));
+			button->SetPos(Vector2(x, y));
 			button->SetDebugName("Button");
 			AddChild(button);
 		}
+
+		y += itemHeight * 1.5f;
 
 		// Checkbox
 		{
 			Checkbox* check = Allocate<Checkbox>();
 			Theme::SetDefaults(check);
-			check->GetProps().value = &checkboxValue;
-			auto& iconProps			= check->GetIcon()->GetProps();
-			iconProps.offsetPerc	= ICONOFFSET_CHECK;
-			iconProps.icon			= ICON_CHECK;
-			iconProps.textScale		= 0.35f;
-			check->GetIcon()->SetDebugName("Checkmark");
+			check->GetProps().value					= &checkboxValue;
+			check->GetIcon()->GetProps().offsetPerc = ICONOFFSET_CHECK;
+			check->GetIcon()->GetProps().icon		= ICON_CHECK;
+			check->GetIcon()->GetProps().textScale	= 0.5f;
 			check->GetIcon()->CalculateIconSize();
-			check->SetPos(Vector2(10, 80));
+			check->GetIcon()->SetDebugName("Checkmark");
+			check->SetPos(Vector2(x, y));
+			check->SetSize(Vector2(itemWidth, itemHeight));
 			check->SetDebugName("Checkbox");
 			AddChild(check);
 		}
+
+		y += itemHeight * 1.5f;
 
 		// Slider
 		{
 			Slider* slider = Allocate<Slider>();
 			Theme::SetDefaults(slider);
-			auto& props		   = slider->GetProps();
-			props.minValue	   = 0.0f;
-			props.maxValue	   = 10.0f;
-			props.step		   = 0.0f;
-			props.currentValue = &slider1Value;
-			slider->SetSize(Vector2(140, Theme::GetDef().baseSliderThickness));
-			slider->SetPos(Vector2(10, 110));
+
+			// Slider props.
+			slider->GetProps().minValue		= 0.0f;
+			slider->GetProps().maxValue		= 10.0f;
+			slider->GetProps().step			= 0.0f;
+			slider->GetProps().currentValue = &slider1Value;
+
+			// Slider handle props.
 			slider->GetHandle()->GetProps().icon	   = ICON_CIRCLE;
 			slider->GetHandle()->GetProps().offsetPerc = ICONOFFSET_CIRCLE;
 			slider->GetHandle()->GetProps().textScale  = 0.5f;
 			slider->GetHandle()->CalculateIconSize();
+
+			slider->SetSize(Vector2(itemWidth, itemHeight));
+			slider->SetPos(Vector2(x, y));
 			slider->GetHandle()->SetDebugName("SliderHorizontalHandle");
 			slider->SetDebugName("SliderHorizontal");
 			AddChild(slider);
 		}
 
+		y += itemHeight * 1.5f;
+
 		// Slider Vertical
 		{
 			Slider* slider = Allocate<Slider>();
 			Theme::SetDefaults(slider);
-			auto& props								   = slider->GetProps();
-			props.minValue							   = 0.0f;
-			props.maxValue							   = 10.0f;
-			props.step								   = 0.0f;
-			props.currentValue						   = &slider2Value;
-			props.direction							   = WidgetDirection::Vertical;
+
+			// Slider props.
+			slider->GetProps().minValue		= 0.0f;
+			slider->GetProps().maxValue		= 10.0f;
+			slider->GetProps().step			= 0.0f;
+			slider->GetProps().currentValue = &slider2Value;
+			slider->GetProps().direction	= WidgetDirection::Vertical;
+
+			// Slider handle props.
 			slider->GetHandle()->GetProps().icon	   = ICON_CIRCLE;
 			slider->GetHandle()->GetProps().offsetPerc = ICONOFFSET_CIRCLE;
 			slider->GetHandle()->GetProps().textScale  = 0.5f;
@@ -144,10 +164,12 @@ namespace Lina::Editor
 			slider->GetHandle()->SetDebugName("SliderVerticalHandle");
 			slider->SetDebugName("SliderVertical");
 
-			slider->SetSize(Vector2(Theme::GetDef().baseSliderThickness, 140));
-			slider->SetPos(Vector2(10, 130));
+			slider->SetSize(Vector2(itemHeight, itemWidth));
+			slider->SetPos(Vector2(x, y));
 			AddChild(slider);
 		}
+
+		y += itemHeight + itemWidth;
 
 		// Input Field Number slider
 		{
@@ -161,11 +183,13 @@ namespace Lina::Editor
 			field->GetProps().numberValue		  = &numberFieldValue;
 			field->GetText()->GetProps().text	  = "Testing";
 			field->GetText()->CalculateTextSize();
-			field->SetSize(Vector2(100, 0));
-			field->SetPos(Vector2(10, 300));
+			field->SetSize(Vector2(itemWidth, itemHeight));
+			field->SetPos(Vector2(x, y));
 			field->SetDebugName("InputFieldNumberSlider");
 			AddChild(field);
 		}
+
+		y += itemHeight * 1.5f;
 
 		// Input Field Number
 		{
@@ -179,11 +203,13 @@ namespace Lina::Editor
 			field->GetProps().numberValue		  = &numberFieldValue;
 			field->GetText()->GetProps().text	  = "Testing";
 			field->GetText()->CalculateTextSize();
-			field->SetSize(Vector2(100, 0));
-			field->SetPos(Vector2(10, 340));
+			field->SetSize(Vector2(itemWidth, itemHeight));
+			field->SetPos(Vector2(x, y));
 			field->SetDebugName("InputFieldNumber");
 			AddChild(field);
 		}
+
+		y += itemHeight * 1.5f;
 
 		// Input Field Text
 		{
@@ -193,52 +219,49 @@ namespace Lina::Editor
 			field->GetProps().isNumberField	  = false;
 			field->GetText()->GetProps().text = "Testing";
 			field->GetText()->CalculateTextSize();
-			field->SetSize(Vector2(100, 0));
-			field->SetPos(Vector2(10, 380));
+			field->SetSize(Vector2(itemWidth, itemHeight));
+			field->SetPos(Vector2(x, y));
 			field->SetDebugName("InputFieldText");
 			AddChild(field);
 		}
+
+		y += itemHeight * 1.5f;
 
 		// Dropdown
 		{
 			Dropdown* dd = Allocate<Dropdown>();
 			Theme::SetDefaults(dd);
 
-			dd->GetProps().onPopupCreated = [dd](Popup* p) {
+			dd->GetProps().onPopupCreated = [dd, itemHeight](Popup* p) {
 				Theme::SetDefaults(p);
 
-				// Item
+				for (int32 i = 0; i < 3; i++)
 				{
-					PopupItem* item = p->Allocate<PopupItem>();
-					Theme::SetDefaults(item);
-					item->SetSize(Vector2(dd->GetRect().size.x, 0));
-					item->GetText()->GetProps().text = "This hm";
-					item->GetText()->CalculateTextSize();
-					p->AddChild(item);
-				}
+					// Item
+					{
+						PopupItem* item = p->Allocate<PopupItem>();
+						Theme::SetDefaults(item);
 
-				// Item2
-				{
-					PopupItem* item = p->Allocate<PopupItem>();
-					Theme::SetDefaults(item);
-					item->SetSize(Vector2(dd->GetRect().size.x, 0));
-					item->GetText()->GetProps().text = "This is";
-					item->GetText()->CalculateTextSize();
-					item->GetProps().isSelected = true;
-					p->AddChild(item);
-				}
+						item->SetSize(Vector2(0, itemHeight));
+						item->GetProps().onClicked = [i, dd]() {
+							dd->ClosePopup();
+							selectedDropdownItem		   = i;
+							dd->GetText()->GetProps().text = dummyDropdownItems[i];
+							dd->GetText()->CalculateTextSize();
+						};
 
-				// Item3
-				{
-					PopupItem* item = p->Allocate<PopupItem>();
-					Theme::SetDefaults(item);
-					item->SetSize(Vector2(dd->GetRect().size.x, 0));
-					item->GetText()->GetProps().text = "Item3";
-					item->GetText()->CalculateTextSize();
-					p->AddChild(item);
+						item->GetProps().onClickedOutside = [dd]() { dd->ClosePopup(); };
+
+						item->GetText()->GetProps().text = dummyDropdownItems[i];
+						item->GetText()->CalculateTextSize();
+						item->GetProps().isSelected = i == selectedDropdownItem;
+
+						p->AddChild(item);
+					}
 				}
 			};
-			dd->GetText()->GetProps().text = "Dropdown";
+
+			dd->GetText()->GetProps().text = dummyDropdownItems[selectedDropdownItem];
 			dd->GetText()->CalculateTextSize();
 
 			dd->GetIcon()->GetProps().font		 = ICON_FONT_SID;
@@ -246,10 +269,26 @@ namespace Lina::Editor
 			dd->GetIcon()->GetProps().offsetPerc = ICONOFFSET_ARROW_DOWN;
 			dd->GetIcon()->CalculateIconSize();
 
-			dd->SetSize(Vector2(100, 0));
-			dd->SetPos(Vector2(10, 420));
+			dd->SetSize(Vector2(itemWidth, itemHeight));
+			dd->SetPos(Vector2(x, y));
 			AddChild(dd);
 		}
+
+		y += itemHeight * 1.5f;
+
+		// Color field
+		{
+			testColor		  = Color::Yellow;
+			ColorField* field = Allocate<ColorField>();
+			Theme::SetDefaults(field);
+			field->GetProps().colorValue = &testColor;
+
+			field->SetPos(Vector2(x, y));
+			field->SetSize(Vector2(itemWidth, itemHeight));
+			AddChild(field);
+		}
+
+		y += itemHeight * 1.5f;
 	}
 
 	void Testbed::Tick(float delta)
