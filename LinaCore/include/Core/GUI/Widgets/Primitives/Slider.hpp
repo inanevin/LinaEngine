@@ -51,17 +51,16 @@ namespace Lina
 		struct Properties
 		{
 			WidgetDirection direction			 = WidgetDirection::Horizontal;
-			Color			colorBackground		 = Color::White;
-			Color			colorFillMin		 = Color::White;
-			Color			colorFillMax		 = Color::White;
-			Color			colorHandle			 = Color::White;
-			Color			colorHandleHovered	 = Color::White;
-			Color			colorOutline		 = Color::White;
-			Color			colorOutlineControls = Color::White;
-			float			verticalExpandPerc	 = 1.0f;
-			float			rounding			 = 0.0f;
-			float			crossAxisPercentage	 = 1.0f;
-			float			outlineThickness	 = 0.0f;
+			Color			colorBackground		 = Theme::GetDef().background0;
+			Color			colorFillMin		 = Theme::GetDef().accentPrimary1;
+			Color			colorFillMax		 = Theme::GetDef().accentPrimary0;
+			Color			colorHandle			 = Theme::GetDef().accentPrimary0;
+			Color			colorHandleHovered	 = Theme::GetDef().accentPrimary2;
+			Color			colorOutline		 = Theme::GetDef().outlineColorBase;
+			Color			colorOutlineControls = Theme::GetDef().outlineColorControls;
+			float			rounding			 = Theme::GetDef().baseRounding * 2;
+			float			crossAxisPercentage	 = Theme::GetDef().baseSliderPerc;
+			float			outlineThickness	 = Theme::GetDef().baseOutlineThickness;
 			float			minValue			 = 0.0f;
 			float			maxValue			 = 0.0f;
 			float*			currentValue		 = nullptr;

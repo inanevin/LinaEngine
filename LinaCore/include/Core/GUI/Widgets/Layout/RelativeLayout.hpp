@@ -29,49 +29,31 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
-	class Font;
 
-	class Text : public Widget
+	class RelativeLayout : public Widget
 	{
 	public:
-		Text() : Widget(0, AlignPoint::Center)
-		{
-		}
-		virtual ~Text() = default;
-
 		struct Properties
 		{
-			String	 text	   = "";
-			StringID font	   = Theme::GetDef().defaultFont;
-			Color	 color	   = Theme::GetDef().foreground0;
-			float	 textScale = 1.0f;
-			bool	 isDynamic = false;
+			Vector<float>	ratios;
+			WidgetDirection direction = WidgetDirection::Horizontal;
 		};
 
-		virtual void Draw(int32 threadIndex) override;
+		RelativeLayout()		  = default;
+		virtual ~RelativeLayout() = default;
 
-		void CalculateTextSize();
+		virtual void Tick(float delta) override;
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
-		inline LinaVG::LinaVGFont* GetLVGFont()
-		{
-			return m_lvgFont;
-		}
-
 	private:
-		Properties			m_props				 = {};
-		LinaVG::TextOptions m_textOptions		 = {};
-		float				m_calculatedDPIScale = 0.0f;
-		LinaVG::LinaVGFont* m_lvgFont			 = nullptr;
+		Properties m_props = {};
 	};
-
 } // namespace Lina

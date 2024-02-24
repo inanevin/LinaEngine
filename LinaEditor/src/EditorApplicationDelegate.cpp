@@ -33,6 +33,8 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
+#include "Core/GUI/Theme.hpp"
+#include "Core/CommonCore.hpp"
 
 namespace Lina
 {
@@ -53,6 +55,9 @@ namespace Lina::Editor
 {
 	void EditorApplicationDelegate::OnPlatformSetup()
 	{
+        Theme::GetDef().iconFont = ICON_FONT_SID;
+        Theme::GetDef().defaultFont = DEFAULT_FONT_SID;
+        Theme::GetDef().alternativeFont = DEFAULT_FONT_SID;
 	}
 
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)

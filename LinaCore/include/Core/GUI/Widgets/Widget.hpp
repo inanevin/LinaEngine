@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Math/Rect.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/CommonGUI.hpp"
+#include "Core/GUI/Theme.hpp"
 
 namespace LinaGX
 {

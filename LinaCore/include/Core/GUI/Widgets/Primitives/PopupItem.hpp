@@ -45,10 +45,10 @@ namespace Lina
 		{
 			Delegate<void()> onClicked;
 			Delegate<void()> onClickedOutside;
-			Color			 colorBackgroundSelected = Color::White;
-			Color			 colorHovered			 = Color::White;
-			float			 rounding				 = 0.0f;
-			float			 horizontalIndent		 = 0.0f;
+			Color			 colorBackgroundSelected = Theme::GetDef().background3;
+			Color			 colorHovered			 = Theme::GetDef().accentPrimary0;
+			float			 rounding				 = Theme::GetDef().baseRounding;
+			float			 horizontalIndent		 = Theme::GetDef().baseIndentInner;
 			bool			 isSelected				 = false;
 			bool			 closeOwnerOnClick		 = false;
 			bool			 useAltText				 = false;

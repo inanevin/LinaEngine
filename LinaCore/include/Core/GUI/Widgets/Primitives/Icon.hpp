@@ -47,15 +47,15 @@ namespace Lina
 		struct Properties
 		{
 			String	 icon		= "";
-			StringID font		= 0;
-			Color	 color		= Color::White;
+			StringID font		= Theme::GetDef().iconFont;
+			Color	 color		= Theme::GetDef().foreground0;
 			Vector2	 offsetPerc = Vector2();
-			float	 textScale	= 1.0f;
+			float	 textScale	= 0.5f;
 			bool	 isDynamic	= false;
 
 			Color sdfOutlineColor	  = Color::White;
 			float sdfThickness		  = 0.5f;
-			float sdfSoftness		  = 0.0f;
+			float sdfSoftness		  = 0.05f;
 			float sdfOutlineThickness = 0.0f;
 			float sdfOutlineSoftness  = 0.0f;
 		};

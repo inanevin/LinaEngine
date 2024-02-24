@@ -41,13 +41,13 @@ namespace Lina
 		struct Properties
 		{
 			Fit	  widthFit			   = Fit::Fixed;
-			Color colorBackgroundStart = Color::White;
-			Color colorBackgroundEnd   = Color::White;
-			Color colorOutline		   = Color::White;
-			float outlineThickness	   = 0.0f;
-			float rounding			   = 0.0f;
+			Color colorBackgroundStart = Theme::GetDef().background0;
+			Color colorBackgroundEnd   = Theme::GetDef().background1;
+			Color colorOutline		   = Theme::GetDef().outlineColorBase;
+			float outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+			float rounding			   = Theme::GetDef().baseRounding;
 			float minWidth			   = 0.0f;
-			float animTime			   = 0.0f;
+			float animTime			   = Theme::GetDef().popupAnimTime;
 		};
 
 		virtual void Tick(float delta) override;

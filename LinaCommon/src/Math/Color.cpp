@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Common/Math/Color.hpp"
 #include "Common/Data/Streams.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
@@ -53,5 +54,53 @@ namespace Lina
 	void Color::LoadFromStream(IStream& stream)
 	{
 		stream >> x >> y >> z >> w;
+	}
+
+	Color Color::HSToRGB()
+	{
+		const float hue		   = x;
+		const float saturation = y;
+		const float angle	   = hue * 6.0f;
+		const float r		   = Math::Clamp(Math::Abs(angle - 3.0f) - 1.0f, 0.0f, 1.0f);
+		const float g		   = Math::Clamp(2.0f - Math::Abs(angle - 2.0f), 0.0f, 1.0f);
+		const float b		   = Math::Clamp(2.0f - Math::Abs(angle - 4.0f), 0.0f, 1.0f);
+		return Math::Lerp(Color::White, Color(r, g, b, 1.0f), saturation);
+	}
+
+	Color Color::RGBToHSV()
+	{
+		Color		K = Color(0.0f, -1.0f / 3.0f, 2.0f / 3.0f, -1.0f);
+		Color		p = Math::Lerp(Color(z, y, K.w, K.z), Color(y, z, K.x, K.y), Math::Step(z, y));
+		Color		q = Math::Lerp(Color(p.x, p.y, p.w, x), Color(x, p.y, p.z, p.x), Math::Step(p.x, x));
+		const float d = q.x - Math::Min(q.w, q.y);
+		const float e = 1.0e-10;
+		return Color(Math::Abs(q.z + (q.w - q.y) / (6.0f * d + e)), d / (q.x + e), q.x, z);
+	}
+
+	Color Color::HSVToRGB()
+	{
+		const float h = x;
+		const float s = y;
+		const float v = z;
+		const int	i = int(h * 6.0);
+		const float f = h * 6.0 - float(i);
+		const float p = v * (1.0 - s);
+		const float q = v * (1.0 - f * s);
+		const float t = v * (1.0 - (1.0 - f) * s);
+		switch (i % 6)
+		{
+		case 0:
+			return Color(v, t, p, w);
+		case 1:
+			return Color(q, v, p, w);
+		case 2:
+			return Color(p, v, t, w);
+		case 3:
+			return Color(p, q, v, w);
+		case 4:
+			return Color(t, p, v, w);
+		case 5:
+			return Color(v, p, q, w);
+		}
 	}
 } // namespace Lina

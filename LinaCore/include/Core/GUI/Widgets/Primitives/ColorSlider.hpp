@@ -46,14 +46,14 @@ namespace Lina
 			WidgetDirection direction			 = WidgetDirection::Horizontal;
 			Color			colorBegin			 = Color::White;
 			Color			colorEnd			 = Color::White;
-			Color			colorOutline		 = Color::White;
-			Color			colorOutlineControls = Color::White;
-			Color			colorLine			 = Color::White;
-			Color			colorLineOutline	 = Color::White;
+			Color			colorOutline		 = Theme::GetDef().outlineColorBase;
+			Color			colorOutlineControls = Theme::GetDef().outlineColorControls;
+			Color			colorLine			 = Theme::GetDef().foreground0;
+			Color			colorLineOutline	 = Theme::GetDef().background0;
 			bool			isHueShift			 = false;
 			float*			value				 = nullptr;
-			float			rounding			 = 0.0f;
-			float			outlineThickness	 = 0.0f;
+			float			rounding			 = Theme::GetDef().baseRounding;
+			float			outlineThickness	 = Theme::GetDef().baseOutlineThickness;
 		};
 
 		virtual void Tick(float delta) override;

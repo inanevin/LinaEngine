@@ -39,20 +39,21 @@ namespace Lina
 	class Button : public Widget
 	{
 	public:
+        
 		struct Properties
 		{
 			Delegate<void()> onClicked;
 			Fit				 widthFit			  = Fit::Fixed;
 			Fit				 heightFit			  = Fit::Fixed;
 			TBLR			 margins			  = {};
-			Color			 colorDefaultStart	  = Color::White;
-			Color			 colorDefaultEnd	  = Color::White;
-			Color			 colorHovered		  = Color::White;
-			Color			 colorPressed		  = Color::White;
-			float			 rounding			  = 0.0f;
-			float			 outlineThickness	  = 0.0f;
-			Color			 colorOutline		  = Color::White;
-			Color			 colorOutlineControls = Color::White;
+            Color			 colorDefaultStart	  = Theme::GetDef().background2;
+            Color			 colorDefaultEnd	  = Theme::GetDef().background3;
+            Color			 colorHovered		  = Theme::GetDef().background4;
+            Color			 colorPressed		  = Theme::GetDef().background0;
+            float			 rounding			  = Theme::GetDef().baseRounding;
+            float			 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
+            Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
+            Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
 		};
 
 		Button() : Widget(1){};

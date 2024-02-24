@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/CommonEditor.hpp"
-#include "Editor/Theme.hpp"
+#include "Core/GUI/Theme.hpp"
 #include "Common/System/System.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
+#include "Core/GUI/Widgets/Compound/ColorWheel.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -72,16 +73,14 @@ namespace Lina::Editor
 
 		// Icon && title
 		{
-			Icon* icon = Allocate<Icon>();
-			Theme::SetDefaults(icon);
+			Icon* icon			  = Allocate<Icon>();
 			icon->GetProps().icon = ICON_LINA_LOGO;
 			icon->CalculateIconSize();
 			icon->SetPos(Vector2(x + icon->GetSize().x * 0.5f, y));
 			icon->SetDebugName("LinaIcon");
 			AddChild(icon);
 
-			Text* text = Allocate<Text>();
-			Theme::SetDefaults(text);
+			Text* text			  = Allocate<Text>();
 			text->GetProps().text = "Testbed";
 			text->CalculateTextSize();
 			text->SetPos(Vector2(x + icon->GetSize().x * 0.5f + Theme::GetDef().baseIndent + text->GetSize().x * 0.5f, y));
@@ -93,8 +92,7 @@ namespace Lina::Editor
 
 		// Button
 		{
-			Button* button = Allocate<Button>();
-			Theme::SetDefaults(button);
+			Button* button					   = Allocate<Button>();
 			button->GetText()->GetProps().text = "Button";
 			button->SetSize(Vector2(itemWidth, itemHeight));
 			button->SetPos(Vector2(x, y));
@@ -106,8 +104,7 @@ namespace Lina::Editor
 
 		// Checkbox
 		{
-			Checkbox* check = Allocate<Checkbox>();
-			Theme::SetDefaults(check);
+			Checkbox* check							= Allocate<Checkbox>();
 			check->GetProps().value					= &checkboxValue;
 			check->GetIcon()->GetProps().offsetPerc = ICONOFFSET_CHECK;
 			check->GetIcon()->GetProps().icon		= ICON_CHECK;
@@ -125,7 +122,6 @@ namespace Lina::Editor
 		// Slider
 		{
 			Slider* slider = Allocate<Slider>();
-			Theme::SetDefaults(slider);
 
 			// Slider props.
 			slider->GetProps().minValue		= 0.0f;
@@ -151,7 +147,6 @@ namespace Lina::Editor
 		// Slider Vertical
 		{
 			Slider* slider = Allocate<Slider>();
-			Theme::SetDefaults(slider);
 
 			// Slider props.
 			slider->GetProps().minValue		= 0.0f;
@@ -178,7 +173,6 @@ namespace Lina::Editor
 		// Input Field Number slider
 		{
 			InputField* field = Allocate<InputField>();
-			Theme::SetDefaults(field);
 
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = false;
@@ -198,7 +192,6 @@ namespace Lina::Editor
 		// Input Field Number
 		{
 			InputField* field = Allocate<InputField>();
-			Theme::SetDefaults(field);
 
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = true;
@@ -218,7 +211,6 @@ namespace Lina::Editor
 		// Input Field Text
 		{
 			InputField* field = Allocate<InputField>();
-			Theme::SetDefaults(field);
 
 			field->GetProps().isNumberField	  = false;
 			field->GetText()->GetProps().text = "Testing";
@@ -234,17 +226,13 @@ namespace Lina::Editor
 		// Dropdown
 		{
 			Dropdown* dd = Allocate<Dropdown>();
-			Theme::SetDefaults(dd);
 
 			dd->GetProps().onPopupCreated = [dd, itemHeight](Popup* p) {
-				Theme::SetDefaults(p);
-
 				for (int32 i = 0; i < 3; i++)
 				{
 					// Item
 					{
 						PopupItem* item = p->Allocate<PopupItem>();
-						Theme::SetDefaults(item);
 
 						item->SetSize(Vector2(0, itemHeight));
 						item->GetProps().onClicked = [i, dd]() {
@@ -275,6 +263,8 @@ namespace Lina::Editor
 
 			dd->SetSize(Vector2(itemWidth, itemHeight));
 			dd->SetPos(Vector2(x, y));
+			dd->SetDebugName("Dropdown");
+
 			AddChild(dd);
 		}
 
@@ -282,13 +272,14 @@ namespace Lina::Editor
 
 		// Color field
 		{
-			testColor		  = Color::Yellow;
-			ColorField* field = Allocate<ColorField>();
-			Theme::SetDefaults(field);
+			testColor					 = Color::Yellow;
+			ColorField* field			 = Allocate<ColorField>();
 			field->GetProps().colorValue = &testColor;
 
 			field->SetPos(Vector2(x, y));
 			field->SetSize(Vector2(itemWidth, itemHeight));
+			field->SetDebugName("ColorField");
+
 			AddChild(field);
 		}
 
@@ -296,13 +287,14 @@ namespace Lina::Editor
 
 		// Color slider
 		{
-			ColorSlider* cs = Allocate<ColorSlider>();
-			Theme::SetDefaults(cs);
+			ColorSlider* cs			  = Allocate<ColorSlider>();
 			cs->GetProps().value	  = &colorSliderValue;
 			cs->GetProps().colorBegin = Color::White;
 			cs->GetProps().colorEnd	  = Color::Red;
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemWidth, itemHeight));
+			cs->SetDebugName("Color Slider");
+
 			AddChild(cs);
 		}
 
@@ -310,12 +302,12 @@ namespace Lina::Editor
 
 		// Color slider
 		{
-			ColorSlider* cs = Allocate<ColorSlider>();
-			Theme::SetDefaults(cs);
+			ColorSlider* cs			  = Allocate<ColorSlider>();
 			cs->GetProps().isHueShift = true;
 			cs->GetProps().value	  = &colorSlider2Value;
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemWidth, itemHeight));
+			cs->SetDebugName("Color Slider");
 			AddChild(cs);
 		}
 
@@ -323,18 +315,32 @@ namespace Lina::Editor
 
 		// Color slider
 		{
-			ColorSlider* cs = Allocate<ColorSlider>();
-			Theme::SetDefaults(cs);
+			ColorSlider* cs			  = Allocate<ColorSlider>();
 			cs->GetProps().value	  = &colorSlider3Value;
 			cs->GetProps().colorBegin = Color::Green;
 			cs->GetProps().colorEnd	  = Color::Blue;
 			cs->GetProps().direction  = WidgetDirection::Vertical;
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemHeight, itemWidth));
+			cs->SetDebugName("Color Slider");
 			AddChild(cs);
 		}
 
 		y += itemHeight + itemWidth;
+
+		x = 150;
+		y = itemHeight;
+
+		// Color wheel
+		{
+			ColorWheel* wh = Allocate<ColorWheel>();
+			wh->SetPos(Vector2(x, y));
+			wh->SetSize(Vector2(500, 500));
+			wh->SetDebugName("ColorWheel");
+			AddChild(wh);
+		}
+
+		y += itemHeight + 200;
 	}
 
 	void Testbed::Tick(float delta)

@@ -126,6 +126,11 @@ namespace Lina
 			req.hasTextureBind = false;
 			drawBufferType	   = 5.0f; // special case :)
 		}
+		else if (buf->m_textureHandle == GUI_TEXTURE_COLORWHEEL)
+		{
+			req.hasTextureBind = false;
+			drawBufferType	   = 6.0f; // special case :)
+		}
 		else
 		{
 			req.hasTextureBind = true;

@@ -47,16 +47,17 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(const String&)> onEdited;
-			Color						  colorBackground	   = Color::White;
-			Color						  colorOutline		   = Color::White;
-			Color						  colorOutlineControls = Color::White;
-			Color						  colorHighlight	   = Color::White;
-			Color						  colorCaret		   = Color::White;
-			Color						  colorNumberFillStart = Color::White;
-			Color						  colorNumberFillEnd   = Color::White;
-			float						  rounding			   = 0.0f;
-			float						  outlineThickness	   = 0.0f;
-			float						  horizontalIndent	   = 0.0f;
+			Color						  colorBackground	   = Theme::GetDef().background0;
+			Color						  colorOutline		   = Theme::GetDef().outlineColorBase;
+			Color						  colorOutlineControls = Theme::GetDef().outlineColorControls;
+			Color						  colorHighlight	   = Theme::GetDef().accentPrimary1;
+			Color						  colorCaret		   = Theme::GetDef().foreground0;
+			Color						  colorNumberFillStart = Theme::GetDef().accentPrimary1;
+			Color						  colorNumberFillEnd   = Theme::GetDef().accentPrimary0;
+			float						  rounding			   = Theme::GetDef().baseRounding;
+			;
+			float outlineThickness = Theme::GetDef().baseOutlineThickness;
+			float horizontalIndent = Theme::GetDef().baseIndentInner;
 
 			bool   isNumberField	   = false;
 			bool   disableNumberSlider = false;

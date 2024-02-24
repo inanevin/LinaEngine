@@ -48,16 +48,16 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(Popup* popup)> onPopupCreated;
-			Color						 colorBackground			= Color::White;
-			Color						 colorHovered				= Color::White;
-			Color						 colorOutline				= Color::White;
-			Color						 colorOutlineControls		= Color::White;
-			Color						 colorIconBackgroundStart	= Color::White;
-			Color						 colorIconBackgroundEnd		= Color::White;
-			Color						 colorIconBackgroundHovered = Color::White;
-			float						 rounding					= 0.0f;
-			float						 outlineThickness			= 0.0f;
-			float						 horizontalIndent			= 0.0f;
+			Color						 colorBackground			= Theme::GetDef().background0;
+			Color						 colorHovered				= Theme::GetDef().background2;
+			Color						 colorOutline				= Theme::GetDef().outlineColorBase;
+			Color						 colorOutlineControls		= Theme::GetDef().outlineColorControls;
+			Color						 colorIconBackgroundStart	= Theme::GetDef().accentPrimary0;
+			Color						 colorIconBackgroundEnd		= Theme::GetDef().accentPrimary1;
+			Color						 colorIconBackgroundHovered = Theme::GetDef().accentPrimary2;
+			float						 rounding					= Theme::GetDef().baseRounding;
+			float						 outlineThickness			= Theme::GetDef().baseOutlineThickness;
+			float						 horizontalIndent			= Theme::GetDef().baseIndentInner;
 		};
 
 		virtual void Construct() override;

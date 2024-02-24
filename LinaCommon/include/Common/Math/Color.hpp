@@ -68,6 +68,10 @@ namespace Lina
 			return Color(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
 		}
 
+		Color HSToRGB();
+		Color RGBToHSV();
+		Color HSVToRGB();
+
 	public:
 		static Color Red;
 		static Color Green;

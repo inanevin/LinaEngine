@@ -26,52 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/GUI/Theme.hpp"
 
 namespace Lina
 {
-	class Font;
+	Theme::ThemeDef Theme::s_themeDef = {};
 
-	class Text : public Widget
+	float Theme::GetBaseItemHeight(float dpiScale)
 	{
-	public:
-		Text() : Widget(0, AlignPoint::Center)
-		{
-		}
-		virtual ~Text() = default;
-
-		struct Properties
-		{
-			String	 text	   = "";
-			StringID font	   = Theme::GetDef().defaultFont;
-			Color	 color	   = Theme::GetDef().foreground0;
-			float	 textScale = 1.0f;
-			bool	 isDynamic = false;
-		};
-
-		virtual void Draw(int32 threadIndex) override;
-
-		void CalculateTextSize();
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-		inline LinaVG::LinaVGFont* GetLVGFont()
-		{
-			return m_lvgFont;
-		}
-
-	private:
-		Properties			m_props				 = {};
-		LinaVG::TextOptions m_textOptions		 = {};
-		float				m_calculatedDPIScale = 0.0f;
-		LinaVG::LinaVGFont* m_lvgFont			 = nullptr;
-	};
+		return 24.0f * dpiScale;
+	}
 
 } // namespace Lina

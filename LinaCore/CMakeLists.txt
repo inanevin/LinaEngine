@@ -81,10 +81,12 @@ src/Physics/PhysicsWorld.cpp
 src/Components/RenderableComponent.cpp
 
 # GUI
+src/GUI/Theme.cpp
 src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetManager.cpp
 src/GUI/Widgets/WidgetUtility.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
+src/GUI/Widgets/Layout/RelativeLayout.cpp
 src/GUI/Widgets/Layout/Stack.cpp
 src/GUI/Widgets/Primitives/Text.cpp
 src/GUI/Widgets/Primitives/Icon.cpp
@@ -176,10 +178,12 @@ include/Core/Components/RenderableComponent.hpp
 
 # GUI
 include/Core/GUI/CommonGUI.hpp
+include/Core/GUI/Theme.hpp
 include/Core/GUI/Widgets/WidgetManager.hpp
 include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
+include/Core/GUI/Widgets/Layout/RelativeLayout.hpp
 include/Core/GUI/Widgets/Layout/Stack.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp
 include/Core/GUI/Widgets/Primitives/Icon.hpp

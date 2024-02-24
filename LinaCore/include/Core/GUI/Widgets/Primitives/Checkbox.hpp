@@ -40,12 +40,12 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			Color colorBackground	   = Color::White;
-			float rounding			   = 0.0f;
-			float outlineThickness	   = 0.0f;
-			Color colorOutline		   = Color::White;
-			Color colorOutlineControls = Color::White;
-			Color colorIcon			   = Color::White;
+			Color colorBackground	   = Theme::GetDef().background0;
+			Color colorOutline		   = Theme::GetDef().outlineColorBase;
+			Color colorOutlineControls = Theme::GetDef().outlineColorControls;
+			Color colorIcon			   = Theme::GetDef().accentPrimary1;
+			float rounding			   = Theme::GetDef().baseRounding;
+			float outlineThickness	   = Theme::GetDef().baseOutlineThickness;
 			bool* value				   = nullptr;
 		};
 

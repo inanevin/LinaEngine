@@ -44,21 +44,6 @@ namespace LinaGX
 
 namespace Lina
 {
-	class Button;
-	class Text;
-	class Icon;
-	class Checkbox;
-	class Slider;
-	class InputField;
-	class Dropdown;
-	class PopupItem;
-	class Popup;
-	class ColorField;
-	class ColorSlider;
-} // namespace Lina
-
-namespace Lina::Editor
-{
 	class Theme
 	{
 	public:
@@ -98,9 +83,10 @@ namespace Lina::Editor
 
 			StringID defaultFont	 = 0;
 			StringID alternativeFont = 0;
+			StringID iconFont		 = 0;
 		};
 
-		static const ThemeDef& GetDef()
+		static ThemeDef& GetDef()
 		{
 			return s_themeDef;
 		}
@@ -110,21 +96,9 @@ namespace Lina::Editor
 			s_themeDef = def;
 		}
 
-		static void SetDefaults(Button* widget);
-		static void SetDefaults(Icon* widget);
-		static void SetDefaults(Text* widget);
-		static void SetDefaults(Checkbox* widget);
-		static void SetDefaults(Slider* widget);
-		static void SetDefaults(InputField* widget);
-		static void SetDefaults(Dropdown* widget);
-		static void SetDefaults(PopupItem* widget);
-		static void SetDefaults(Popup* widget);
-		static void SetDefaults(ColorField* widget);
-		static void SetDefaults(ColorSlider* widget);
-
 		static float GetBaseItemHeight(float dpiScale);
 
 	private:
 		static ThemeDef s_themeDef;
 	};
-} // namespace Lina::Editor
+} // namespace Lina

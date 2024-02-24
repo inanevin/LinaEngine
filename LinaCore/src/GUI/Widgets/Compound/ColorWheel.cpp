@@ -27,10 +27,47 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Compound/ColorWheel.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
+	void ColorWheel::Construct()
+	{
+		m_saturationSlider						 = Allocate<ColorSlider>();
+		m_saturationSlider->GetProps().direction = WidgetDirection::Vertical;
+		m_saturationSlider->GetProps().value	 = &m_saturation;
+		m_valueSlider							 = Allocate<ColorSlider>();
+		m_valueSlider->GetProps().direction		 = WidgetDirection::Vertical;
+		m_valueSlider->GetProps().value			 = &m_value;
+		AddChild(m_saturationSlider);
+		AddChild(m_valueSlider);
+	}
 
+	void ColorWheel::Tick(float delta)
+	{
+		// Calc rects.
+		m_topRect.pos		  = Vector2(m_rect.pos.x, m_rect.pos.y);
+		m_topRect.size		  = Vector2(m_rect.size.x, m_rect.size.y * TOP_RECT_RATIO);
+		m_botRect.pos		  = Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y * TOP_RECT_RATIO);
+		m_botRect.size		  = Vector2(m_rect.size.x, m_rect.size.y * (1.0f - TOP_RECT_RATIO));
+		m_colorWheelRect.pos  = Vector2(m_rect.pos.x, m_rect.pos.y);
+		m_colorWheelRect.size = Vector2(m_rect.size.y * TOP_RECT_RATIO, m_rect.size.y * TOP_RECT_RATIO);
+		m_svRect.pos		  = Vector2(m_rect.pos.x + m_colorWheelRect.size.x, m_rect.pos.y);
+		m_svRect.size		  = Vector2(m_rect.size.x - m_colorWheelRect.size.x, m_colorWheelRect.size.y);
+
+		// Place saturation & value sliders
+	}
+
+	void ColorWheel::Draw(int32 threadIndex)
+	{
+		// Color wheel.
+		LinaVG::StyleOptions wheelStyle;
+		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;
+		LinaVG::DrawCircle(threadIndex, m_colorWheelRect.GetCenter().AsLVG(), m_colorWheelRect.size.x * 0.4f, wheelStyle, 64, 0.0f, 0.0f, 360.0f, m_drawOrder);
+
+		// Saturation & value sliders.
+	}
 } // namespace Lina

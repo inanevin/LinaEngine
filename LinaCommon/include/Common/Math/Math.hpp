@@ -480,6 +480,11 @@ namespace Lina
 			return Abs(val - (T)0) <= (T)0.00001f;
 		}
 
+		template <typename T> static T Step(T edge, T x)
+		{
+			return x < edge ? 0.0f : 1.0f;
+		}
+
 		static float Decimal(float val, int decimals)
 		{
 			if (decimals == 0)
