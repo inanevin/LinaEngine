@@ -26,34 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
-#include "Core/Resources/ResourceManager.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
-	void Text::Draw(int32 threadIndex)
+	void ColorWheel::Draw(int32 threadIndex)
 	{
-		const float dpiScale = m_lgxWindow->GetDPIScale();
-
-		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
-			CalculateTextSize();
-
-		m_textOptions.color.start = m_textOptions.color.end = m_props.color.AsLVG4();
-		m_textOptions.textScale								= m_props.textScale;
-		m_textOptions.alignment								= m_props.alignment;
-		LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
-	}
-
-	void Text::CalculateTextSize()
-	{
-		auto*		font		= m_resourceManager->GetResource<Font>(m_props.font);
-		const float dpiScale	= m_lgxWindow->GetDPIScale();
-		m_lvgFont				= font->GetLinaVGFont(dpiScale);
-		m_calculatedDPIScale	= dpiScale;
-		m_textOptions.font		= m_lvgFont;
-		m_textOptions.textScale = m_props.textScale;
-		m_rect.size				= LinaVG::CalculateTextSize(m_props.text.c_str(), m_textOptions);
+		Widget::SetIsHovered();
+		LinaVG::StyleOptions wheelStyle;
+		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), wheelStyle, 0.0f, m_drawOrder);
 	}
 } // namespace Lina

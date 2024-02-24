@@ -36,17 +36,88 @@ namespace Lina
 {
 	void DirectionalLayout::Tick(float delta)
 	{
-		float x = m_rect.pos.x;
-		float y = m_rect.pos.y;
+		Widget::SetIsHovered();
 
+		const Vector2 start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
+		const Vector2 end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
+		const Vector2 size	 = end - start;
+		const Vector2 center = (start + end) * 0.5f;
+
+		float x = start.x;
+		float y = start.y;
+
+		Widget* expandWidget = nullptr;
+
+		size_t idx = 0;
 		for (auto* c : m_children)
 		{
-			c->SetPos(Vector2(x, y));
+			const bool lastItem = idx == m_children.size() - 1;
 
 			if (m_props.direction == WidgetDirection::Horizontal)
-				x += c->GetSize().x + m_props.padding;
+			{
+				if (m_props.controlCrossAxisSize && !c->GetFlags().IsSet(WF_OWNS_SIZE))
+					c->SetSizeY(size.y);
+
+				c->SetPos(Vector2(x, center.y - c->GetSize().y * 0.5f));
+
+				if (c->GetFlags().IsSet(WF_EXPAND))
+				{
+					expandWidget = c;
+					c->SetSizeX(0.0f);
+				}
+			}
 			else
-				y += c->GetSize().y + m_props.padding;
+			{
+				if (m_props.controlCrossAxisSize && !c->GetFlags().IsSet(WF_OWNS_SIZE))
+					c->SetSizeX(size.x);
+
+				c->SetPos(Vector2(center.x - c->GetSize().x * 0.5f, y));
+
+				if (c->GetFlags().IsSet(WF_EXPAND))
+				{
+					expandWidget = c;
+					c->SetSizeY(0.0f);
+				}
+			}
+
+			if (m_props.direction == WidgetDirection::Horizontal)
+				x += c->GetSize().x + (lastItem ? 0.0f : m_props.padding);
+			else
+				y += c->GetSize().y + (lastItem ? 0.0f : m_props.padding);
+
+			idx++;
+		}
+
+		if (expandWidget != nullptr)
+		{
+			const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (start.x + size.x - x) : (start.y + size.y - y);
+
+			bool expandFound = false;
+
+			for (auto* c : m_children)
+			{
+				if (c == expandWidget)
+				{
+					if (!c->GetFlags().IsSet(WF_OWNS_SIZE))
+					{
+						if (m_props.direction == WidgetDirection::Horizontal)
+							c->SetSizeX(remainingSize);
+						else
+							c->SetSizeY(remainingSize);
+					}
+
+					expandFound = true;
+					continue;
+				}
+
+				if (expandFound)
+				{
+					if (m_props.direction == WidgetDirection::Horizontal)
+						c->SetPosX(c->GetPos().x + remainingSize);
+					else
+						c->SetPosY(c->GetPos().y + remainingSize);
+				}
+			}
 		}
 
 		Widget::Tick(delta);

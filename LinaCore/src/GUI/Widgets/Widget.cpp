@@ -118,14 +118,7 @@ namespace Lina
 		}
 
 		const Vector2& pos = m_lgxWindow->GetMousePosition();
-
-		if (GetAlignPoint() == AlignPoint::TopLeft)
-			m_isHovered = m_rect.IsPointInside(pos);
-		else
-		{
-			const Rect leftAlignedRect = Rect(Vector2(m_rect.pos - m_rect.size * 0.5f), m_rect.size);
-			m_isHovered				   = leftAlignedRect.IsPointInside(pos);
-		}
+		m_isHovered		   = m_rect.IsPointInside(pos);
 	}
 
 } // namespace Lina

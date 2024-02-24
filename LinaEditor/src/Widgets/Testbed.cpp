@@ -40,7 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
-#include "Core/GUI/Widgets/Compound/ColorWheel.hpp"
+#include "Core/GUI/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -333,13 +333,12 @@ namespace Lina::Editor
 
 		// Color wheel
 		{
-			ColorWheel* wh = Allocate<ColorWheel>();
+			ColorWheelCompound* wh = Allocate<ColorWheelCompound>();
 			wh->SetPos(Vector2(x, y));
-			wh->SetSize(Vector2(500, 500));
-			wh->SetDebugName("ColorWheel");
+			wh->SetSize(Vector2(600, 800));
+			wh->SetDebugName("ColorWheelCompound");
 			AddChild(wh);
 		}
-
 		y += itemHeight + 200;
 	}
 

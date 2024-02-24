@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
+#include "Common/Data/Bitmask.hpp"
 
 namespace LinaGX
 {
@@ -75,6 +76,11 @@ namespace Lina
 			return t;
 		}
 
+		template <typename... Args> void AddChild(Args&&... args)
+		{
+			(AddChild(std::forward<Widget*>(args)), ...);
+		}
+
 		inline void SetPos(const Vector2& pos)
 		{
 			m_rect.pos = pos;
@@ -115,9 +121,44 @@ namespace Lina
 			return m_rect.pos;
 		}
 
+		inline float GetPosX() const
+		{
+			return m_rect.pos.x;
+		}
+
+		inline float GetPosY() const
+		{
+			return m_rect.pos.y;
+		}
+
+		inline float GetSizeX() const
+		{
+			return m_rect.size.x;
+		}
+
+		inline float GetSizeY() const
+		{
+			return m_rect.size.y;
+		}
+
+		inline float GetHalfSizeX() const
+		{
+			return m_rect.size.x * 0.5f;
+		}
+
+		inline float GetHalfSizeY() const
+		{
+			return m_rect.size.y * 0.5f;
+		}
+
 		inline const Vector2& GetSize() const
 		{
 			return m_rect.size;
+		}
+
+		inline const Vector2 GetHalfSize() const
+		{
+			return m_rect.size * 0.5f;
 		}
 
 		inline LinaGX::Window* GetWindow()
@@ -133,11 +174,6 @@ namespace Lina
 		inline void SetDrawOrder(int32 order)
 		{
 			m_drawOrder = order;
-		}
-
-		inline AlignPoint GetAlignPoint() const
-		{
-			return m_alignPoint;
 		}
 
 		inline bool GetIsHovered() const
@@ -165,10 +201,15 @@ namespace Lina
 			return m_children;
 		}
 
+		inline Bitmask32& GetFlags()
+		{
+			return m_flags;
+		}
+
 	protected:
 		friend class WidgetManager;
 
-		Widget(int32 maxChilds = -1, AlignPoint alignPoint = AlignPoint::TopLeft) : m_maxChilds(maxChilds), m_alignPoint(alignPoint){};
+		Widget(int32 maxChilds = -1, Bitmask32 flags = 0) : m_maxChilds(maxChilds), m_flags(flags){};
 		virtual ~Widget() = default;
 
 	protected:
@@ -184,9 +225,9 @@ namespace Lina
 		bool			 m_isHovered	   = false;
 		bool			 m_isPressed	   = false;
 		ResourceManager* m_resourceManager = nullptr;
-		AlignPoint		 m_alignPoint	   = AlignPoint::TopLeft;
 		String			 m_debugName	   = "Widget";
 		uint32			 m_childID		   = 0;
+		Bitmask32		 m_flags		   = 0;
 	};
 
 } // namespace Lina

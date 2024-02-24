@@ -81,7 +81,7 @@ vec3 hueSaturationToRGB(float hue, float saturation) {
 }
 
 const float wheelRadius = 0.5;
-const float edgeSmoothness = 0.01;
+const float edgeSmoothness = 0.005;
 
 void main()
 {

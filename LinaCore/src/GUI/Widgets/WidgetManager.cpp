@@ -57,6 +57,8 @@ namespace Lina
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
 	{
+		m_debugDrawYOffset = 0.0f;
+
 		m_foregroundRoot->Tick(delta);
 
 		m_rootWidget->SetPos(Vector2::Zero);
@@ -169,37 +171,31 @@ namespace Lina
 
 	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
-		LinaVG::StyleOptions opts;
-		opts.isFilled = false;
-
-		const Rect	   rect = w->GetRect();
-		const Vector2& mp	= m_window->GetMousePosition();
-
-		if (w->GetAlignPoint() == AlignPoint::TopLeft)
-		{
-			LinaVG::DrawRect(threadIndex, rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000.0f);
-
-			if (w->m_isHovered)
-			{
-				LinaVG::TextOptions opts;
-				opts.font = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
-				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(10, 10)).AsLVG(), opts);
-			}
-		}
-		else
-		{
-			LinaVG::DrawRect(threadIndex, (rect.pos - rect.size * 0.5f).AsLVG(), (rect.pos + rect.size * 0.5f).AsLVG(), opts, 0.0f, 1000.0f);
-
-			if (w->m_isHovered)
-			{
-				LinaVG::TextOptions opts;
-				opts.font = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
-				LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(10, 10)).AsLVG(), opts);
-			}
-		}
+		const bool drawRects = !(m_window->GetInput()->GetMouseButton(LINAGX_MOUSE_1));
 
 		for (auto* c : w->m_children)
 			DebugDraw(threadIndex, c);
+
+		LinaVG::StyleOptions opts;
+		opts.isFilled = false;
+
+		const Rect			rect	= w->GetRect();
+		const Vector2&		mp		= m_window->GetMousePosition();
+		auto*				lvgFont = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
+		LinaVG::TextOptions textOpts;
+		textOpts.font = lvgFont;
+
+		if (drawRects)
+			LinaVG::DrawRect(threadIndex, rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000.0f);
+
+		if (w->m_isHovered)
+		{
+			const Vector2 sz = LinaVG::CalculateTextSize(w->GetDebugName().c_str(), textOpts);
+			LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, FOREGROUND_DRAW_ORDER);
+			const String rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().x, 1) + ")";
+			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + 15 + sz.x, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, FOREGROUND_DRAW_ORDER);
+			m_debugDrawYOffset += lvgFont->m_size * 1.5f;
+		}
 	}
 
 	void WidgetManager::SetClip(int32 threadIndex, const Rect& r, const TBLR& margins)

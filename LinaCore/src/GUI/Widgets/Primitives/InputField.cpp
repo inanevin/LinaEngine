@@ -106,7 +106,7 @@ namespace Lina
 		m_textEndMid				= middle + Vector2(textSize.x * 0.5f, 0.0f);
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
-		m_text->SetPos(middle);
+		m_text->SetPos(middle - m_text->GetHalfSize());
 
 		// Caret alpha
 		if (m_isEditing)

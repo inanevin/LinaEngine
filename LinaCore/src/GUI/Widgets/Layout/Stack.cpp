@@ -31,53 +31,21 @@ SOFTWARE.
 
 namespace Lina
 {
-	/*
-		void Stack::SizePass()
+	void Stack::Tick(float delta)
+	{
+		Widget::SetIsHovered();
+
+		for (auto* c : m_children)
 		{
-			float totalChildWidth = 0.0f;
-			float maxChildHeight  = 0.0f;
-
-			for (auto* c : children)
+			if (m_props.controlChildSize)
 			{
-				c->SizePass();
-				totalChildWidth += c->base.size.x;
-				maxChildHeight = Math::Max(maxChildHeight, c->base.size.y);
+				c->SetSize(Vector2(m_rect.size.x - m_props.margins.left - m_props.margins.right, m_rect.size.y - m_props.margins.top - m_props.margins.bottom));
+				c->SetPos(Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top));
 			}
+			else
+				c->SetPos(Vector2(m_rect.GetCenter().x - c->GetSize().x * 0.5f, m_rect.GetCenter().y - c->GetSize().y * 0.5f));
 
-			if (contents.widthFit == Fit::FromChildren)
-				base.size.x = totalChildWidth + (static_cast<int32>(children.size()) - 1) * contents.padding + contents.margins.left + contents.margins.right;
-			else if (contents.widthFit == Fit::FromParent)
-				base.size.x = m_parent->base.size.x;
-
-			if (contents.heightFit == Fit::FromChildren)
-				base.size.y = maxChildHeight + contents.margins.top + contents.margins.bottom;
-			else if (contents.heightFit == Fit::FromParent)
-				base.size.y = m_parent->base.size.y;
+			c->Tick(delta);
 		}
-
-		void Stack::Draw()
-		{
-			const Vector2 startPosition = base.pos + Vector2(contents.margins.left, contents.margins.top);
-			const Vector2 endPosition	= base.pos + base.size - Vector2(contents.margins.right, contents.margins.bottom);
-			const Vector2 totalSize		= endPosition - startPosition;
-
-			for (auto* c : children)
-			{
-				float x = startPosition.x;
-				float y = startPosition.y;
-
-				if (contents.horizontalAlignment == CrossAlignment::Center)
-					x = startPosition.y + base.size.x * 0.5f - c->base.size.x * 0.5f;
-				else if (contents.horizontalAlignment == CrossAlignment::End)
-					x = endPosition.x - c->base.size.x;
-
-				if (contents.verticalAlignment == CrossAlignment::Center)
-					y = startPosition.y + base.size.y * 0.5f - c->base.size.y * 0.5f;
-				else if (contents.verticalAlignment == CrossAlignment::End)
-					y = endPosition.y - c->base.size.y;
-
-				c->Draw();
-			}
-		}
-	 */
+	}
 } // namespace Lina

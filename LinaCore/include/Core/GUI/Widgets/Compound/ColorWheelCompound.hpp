@@ -29,50 +29,60 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
-	class Font;
 
-	class Text : public Widget
+	class ColorSlider;
+	class DirectionalLayout;
+	class Stack;
+	class ColorWheel;
+	class InputField;
+	class Text;
+
+	class ColorWheelCompound : public Widget
 	{
 	public:
-		Text() : Widget(0, WF_OWNS_SIZE)
-		{
-		}
-		virtual ~Text() = default;
+		ColorWheelCompound()		  = default;
+		virtual ~ColorWheelCompound() = default;
+
+		static constexpr float TOP_RECT_RATIO = 0.6f;
+		static constexpr float WHEEL_SIZE	  = 350.0f;
 
 		struct Properties
 		{
-			String				  text		= "";
-			StringID			  font		= Theme::GetDef().defaultFont;
-			Color				  color		= Theme::GetDef().foreground0;
-			LinaVG::TextAlignment alignment = LinaVG::TextAlignment::Left;
-			float				  textScale = 1.0f;
-			bool				  isDynamic = false;
 		};
 
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
-		void CalculateTextSize();
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-		inline LinaVG::LinaVGFont* GetLVGFont()
-		{
-			return m_lvgFont;
-		}
+	private:
+		void SetSaturationValueLayout(DirectionalLayout*& layout, Text*& text, InputField*& field, ColorSlider*& slider, const String& label, float* val);
 
 	private:
-		Properties			m_props				 = {};
-		LinaVG::TextOptions m_textOptions		 = {};
-		float				m_calculatedDPIScale = 0.0f;
-		LinaVG::LinaVGFont* m_lvgFont			 = nullptr;
-	};
+		Properties	 m_props			= {};
+		Rect		 m_topRect			= Rect();
+		Rect		 m_botRect			= Rect();
+		Rect		 m_colorWheelRect	= Rect();
+		Rect		 m_svRect			= Rect();
+		ColorSlider* m_sliderSaturation = nullptr;
+		ColorSlider* m_sliderValue		= nullptr;
 
+		float m_saturation = 0.0f;
+		float m_value	   = 0.0f;
+
+		DirectionalLayout* m_topHorizontalLayout = nullptr;
+		Stack*			   m_wheelStack			 = nullptr;
+
+		ColorWheel*		   m_wheel			  = nullptr;
+		DirectionalLayout* m_layoutSaturation = nullptr;
+		DirectionalLayout* m_layoutValue	  = nullptr;
+		InputField*		   m_fieldSaturation  = nullptr;
+		InputField*		   m_fieldValue		  = nullptr;
+		Text*			   m_labelSaturation  = nullptr;
+		Text*			   m_labelValue		  = nullptr;
+		DirectionalLayout* m_topRow			  = nullptr;
+		DirectionalLayout* m_topSlidersRow	  = nullptr;
+	};
 } // namespace Lina

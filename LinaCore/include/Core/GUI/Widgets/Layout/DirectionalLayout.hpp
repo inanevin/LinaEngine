@@ -41,7 +41,9 @@ namespace Lina
 
 		struct Properties
 		{
-			float			padding	  = 0.0f;
+            TBLR margins = {};
+            float padding = 0.0f;
+            bool controlCrossAxisSize = false;
 			WidgetDirection direction = WidgetDirection::Horizontal;
 		};
 

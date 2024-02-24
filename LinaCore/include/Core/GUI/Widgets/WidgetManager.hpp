@@ -146,6 +146,7 @@ namespace Lina
 		ResourceManager*				m_resourceManager = nullptr;
 		Widget*							m_controlsOwner	  = nullptr;
 		Vector<ClipData>				m_clipStack;
+        float m_debugDrawYOffset = 0.0f;
 	};
 
 } // namespace Lina

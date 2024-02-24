@@ -33,33 +33,19 @@ SOFTWARE.
 namespace Lina
 {
 
-	class ColorSlider;
-
 	class ColorWheel : public Widget
 	{
 	public:
 		ColorWheel()		  = default;
 		virtual ~ColorWheel() = default;
 
-		static constexpr float TOP_RECT_RATIO = 0.6f;
-
 		struct Properties
 		{
 		};
 
-		virtual void Construct() override;
-		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
 	private:
-		Properties	 m_props			= {};
-		Rect		 m_topRect			= Rect();
-		Rect		 m_botRect			= Rect();
-		Rect		 m_colorWheelRect	= Rect();
-		Rect		 m_svRect			= Rect();
-		ColorSlider* m_saturationSlider = nullptr;
-		ColorSlider* m_valueSlider		= nullptr;
-		float		 m_saturation		= 0.0f;
-		float		 m_value			= 0.0f;
+		Properties m_props = {};
 	};
 } // namespace Lina

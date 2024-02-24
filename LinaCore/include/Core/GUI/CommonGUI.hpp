@@ -68,12 +68,6 @@ namespace Lina
 		End
 	};
 
-	enum class AlignPoint
-	{
-		TopLeft,
-		Center
-	};
-
 	enum class Fit
 	{
 		Fixed,
@@ -84,6 +78,13 @@ namespace Lina
 	{
 		Horizontal,
 		Vertical,
+	};
+
+	enum WidgetFlags
+	{
+		WF_NONE		 = 1 << 0,
+		WF_EXPAND	 = 1 << 1,
+		WF_OWNS_SIZE = 1 << 2,
 	};
 
 #define FOREGROUND_DRAW_ORDER 1000

@@ -49,7 +49,7 @@ namespace Lina
 		if (m_props.heightFit == Fit::FromChildren)
 			m_rect.size.y = m_text->GetSize().y + m_props.margins.top + m_props.margins.bottom;
 
-		m_text->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
+		m_text->SetPos(m_rect.GetCenter() - m_text->GetHalfSize());
 	}
 
 	void Button::Draw(int32 threadIndex)

@@ -43,11 +43,8 @@ namespace Lina
 	void PopupItem::Tick(float delta)
 	{
 		Widget::SetIsHovered();
-
-		const Vector2 textSize = m_text->GetSize();
-		m_rect.size.x		   = textSize.x + m_props.horizontalIndent * 2;
-
-		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
+		m_rect.size.x = m_text->GetSizeX() + m_props.horizontalIndent * 2;
+		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.GetCenter().y - m_text->GetHalfSizeY()));
 	}
 
 	void PopupItem::Draw(int32 threadIndex)

@@ -55,8 +55,8 @@ namespace Lina
 		const Vector2 textSize = m_text->GetSize();
 		m_iconBgStart		   = (m_rect.pos + m_rect.size) - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
 
-		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
-		m_icon->SetPos((m_iconBgStart + m_rect.pos + m_rect.size) * 0.5f);
+		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.pos.y + m_rect.size.y * 0.5f - m_text->GetHalfSizeY()));
+		m_icon->SetPos((m_iconBgStart + m_rect.pos + m_rect.size) * 0.5f - m_icon->GetHalfSize());
 	}
 
 	void Dropdown::Draw(int32 threadIndex)
