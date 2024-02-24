@@ -41,10 +41,10 @@ namespace Lina
 
 		struct Properties
 		{
-            TBLR margins = {};
-            float padding = 0.0f;
-            bool controlCrossAxisSize = false;
-			WidgetDirection direction = WidgetDirection::Horizontal;
+			TBLR			margins				 = {};
+			float			padding				 = 0.0f;
+			bool			controlCrossAxisSize = false;
+			WidgetDirection direction			 = WidgetDirection::Horizontal;
 		};
 
 		virtual void Tick(float delta) override;
