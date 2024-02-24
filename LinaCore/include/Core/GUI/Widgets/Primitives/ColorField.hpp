@@ -46,14 +46,13 @@ namespace Lina
 		{
 			Delegate<void()> onClicked;
 			Color*			 colorValue			  = nullptr;
-            Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
-            Color			 colorOutlineControls =Theme::GetDef().outlineColorControls;
-            float			 hoverHighlightPerc	  =  0.1f;
-            float			 rounding			  = Theme::GetDef().baseRounding;
-            float			 outlineThickness	  =  Theme::GetDef().baseOutlineThickness;
+			Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
+			Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
+			float			 hoverHighlightPerc	  = 0.1f;
+			float			 rounding			  = Theme::GetDef().baseRounding;
+			float			 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
 		};
 
-        
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;

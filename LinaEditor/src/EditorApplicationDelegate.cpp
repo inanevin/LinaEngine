@@ -55,9 +55,9 @@ namespace Lina::Editor
 {
 	void EditorApplicationDelegate::OnPlatformSetup()
 	{
-        Theme::GetDef().iconFont = ICON_FONT_SID;
-        Theme::GetDef().defaultFont = DEFAULT_FONT_SID;
-        Theme::GetDef().alternativeFont = DEFAULT_FONT_SID;
+		Theme::GetDef().iconFont		= ICON_FONT_SID;
+		Theme::GetDef().defaultFont		= DEFAULT_FONT_SID;
+		Theme::GetDef().alternativeFont = DEFAULT_FONT_SID;
 	}
 
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)
