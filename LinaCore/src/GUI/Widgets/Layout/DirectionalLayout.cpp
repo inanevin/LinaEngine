@@ -38,6 +38,63 @@ namespace Lina
 	{
 		Widget::SetIsHovered();
 
+		if (m_props.mode == Mode::Default)
+			BehaviourDefault(delta);
+		else if (m_props.mode == Mode::EquallyDistribute)
+			BehaviourEquallyDistribute(delta);
+	}
+
+	void DirectionalLayout::BehaviourEquallyDistribute(float delta)
+	{
+		if (m_children.empty())
+			return;
+
+		const Vector2 start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
+		const Vector2 end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
+		const Vector2 size	 = end - start;
+		const Vector2 center = (start + end) * 0.5f;
+
+		float totalSizeMainAxis = 0.0f;
+
+		for (auto* c : m_children)
+		{
+			c->Tick(delta);
+
+			if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
+				c->SetSizeY(size.y);
+
+			const Vector2& sz = c->GetSize();
+
+			if (m_props.direction == WidgetDirection::Horizontal)
+				totalSizeMainAxis += sz.x;
+			else
+				totalSizeMainAxis += sz.y;
+		}
+
+		const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (size.x - totalSizeMainAxis) : (size.y - totalSizeMainAxis);
+		const float pad			  = remainingSize / static_cast<float>(m_children.size() + 1);
+
+		float x = start.x;
+		float y = start.y;
+
+		if (m_props.direction == WidgetDirection::Horizontal)
+			x += pad;
+		else
+			y += pad;
+
+		for (auto* c : m_children)
+		{
+			c->SetPos(Vector2(x, y));
+
+			if (m_props.direction == WidgetDirection::Horizontal)
+				x += pad + c->GetSize().x;
+			else
+				y += pad + c->GetSize().y;
+		}
+	}
+
+	void DirectionalLayout::BehaviourDefault(float delta)
+	{
 		const Vector2 start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
 		const Vector2 end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
 		const Vector2 size	 = end - start;
@@ -51,39 +108,48 @@ namespace Lina
 		size_t idx = 0;
 		for (auto* c : m_children)
 		{
-			const bool lastItem = idx == m_children.size() - 1;
+			const bool lastItem		 = idx == m_children.size() - 1;
+			float	   incrementSize = 0.0f;
 
 			if (m_props.direction == WidgetDirection::Horizontal)
 			{
-				if (m_props.controlCrossAxisSize && !c->GetFlags().IsSet(WF_OWNS_SIZE))
+				if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
 					c->SetSizeY(size.y);
 
 				c->SetPos(Vector2(x, center.y - c->GetSize().y * 0.5f));
 
-				if (c->GetFlags().IsSet(WF_EXPAND))
+				if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
 				{
 					expandWidget = c;
-					c->SetSizeX(0.0f);
+
+					if (!c->GetFlags().IsSet(WF_OWNS_SIZE))
+						c->SetSizeX(0.0f);
 				}
+				else
+					incrementSize = c->GetSize().x;
 			}
 			else
 			{
-				if (m_props.controlCrossAxisSize && !c->GetFlags().IsSet(WF_OWNS_SIZE))
+				if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
 					c->SetSizeX(size.x);
 
 				c->SetPos(Vector2(center.x - c->GetSize().x * 0.5f, y));
 
-				if (c->GetFlags().IsSet(WF_EXPAND))
+				if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
 				{
 					expandWidget = c;
-					c->SetSizeY(0.0f);
+
+					if (!c->GetFlags().IsSet(WF_OWNS_SIZE))
+						c->SetSizeY(0.0f);
 				}
+				else
+					incrementSize = c->GetSize().y;
 			}
 
 			if (m_props.direction == WidgetDirection::Horizontal)
-				x += c->GetSize().x + (lastItem ? 0.0f : m_props.padding);
+				x += incrementSize + (lastItem ? 0.0f : m_props.padding);
 			else
-				y += c->GetSize().y + (lastItem ? 0.0f : m_props.padding);
+				y += incrementSize + (lastItem ? 0.0f : m_props.padding);
 
 			idx++;
 		}
@@ -104,6 +170,13 @@ namespace Lina
 							c->SetSizeX(remainingSize);
 						else
 							c->SetSizeY(remainingSize);
+					}
+					else
+					{
+						if (m_props.direction == WidgetDirection::Horizontal)
+							c->SetPosX(c->GetPosX() + remainingSize * 0.5f);
+						else
+							c->SetPosY(c->GetPosY() + remainingSize * 0.5f);
 					}
 
 					expandFound = true;

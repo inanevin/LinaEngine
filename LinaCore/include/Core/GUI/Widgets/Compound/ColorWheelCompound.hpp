@@ -46,8 +46,7 @@ namespace Lina
 		ColorWheelCompound()		  = default;
 		virtual ~ColorWheelCompound() = default;
 
-		static constexpr float TOP_RECT_RATIO = 0.6f;
-		static constexpr float WHEEL_SIZE	  = 350.0f;
+		static constexpr float WHEEL_STACK_PERC = 0.6f;
 
 		struct Properties
 		{
@@ -61,28 +60,23 @@ namespace Lina
 		void SetSaturationValueLayout(DirectionalLayout*& layout, Text*& text, InputField*& field, ColorSlider*& slider, const String& label, float* val);
 
 	private:
-		Properties	 m_props			= {};
-		Rect		 m_topRect			= Rect();
-		Rect		 m_botRect			= Rect();
-		Rect		 m_colorWheelRect	= Rect();
-		Rect		 m_svRect			= Rect();
-		ColorSlider* m_sliderSaturation = nullptr;
-		ColorSlider* m_sliderValue		= nullptr;
+		Properties m_props = {};
+
+		DirectionalLayout* m_topRow			  = nullptr;
+		Stack*			   m_wheelStack		  = nullptr;
+		ColorWheel*		   m_wheel			  = nullptr;
+		DirectionalLayout* m_topSlidersRow	  = nullptr;
+		DirectionalLayout* m_layoutSaturation = nullptr;
+		ColorSlider*	   m_sliderSaturation = nullptr;
+		InputField*		   m_fieldSaturation  = nullptr;
+		Text*			   m_labelSaturation  = nullptr;
+		DirectionalLayout* m_layoutValue	  = nullptr;
+		ColorSlider*	   m_sliderValue	  = nullptr;
+		InputField*		   m_fieldValue		  = nullptr;
+		Text*			   m_labelValue		  = nullptr;
+		DirectionalLayout* m_bottomRow		  = nullptr;
 
 		float m_saturation = 0.0f;
 		float m_value	   = 0.0f;
-
-		DirectionalLayout* m_topHorizontalLayout = nullptr;
-		Stack*			   m_wheelStack			 = nullptr;
-
-		ColorWheel*		   m_wheel			  = nullptr;
-		DirectionalLayout* m_layoutSaturation = nullptr;
-		DirectionalLayout* m_layoutValue	  = nullptr;
-		InputField*		   m_fieldSaturation  = nullptr;
-		InputField*		   m_fieldValue		  = nullptr;
-		Text*			   m_labelSaturation  = nullptr;
-		Text*			   m_labelValue		  = nullptr;
-		DirectionalLayout* m_topRow			  = nullptr;
-		DirectionalLayout* m_topSlidersRow	  = nullptr;
 	};
 } // namespace Lina

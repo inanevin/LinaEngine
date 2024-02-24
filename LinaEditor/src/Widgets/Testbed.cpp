@@ -335,7 +335,7 @@ namespace Lina::Editor
 		{
 			ColorWheelCompound* wh = Allocate<ColorWheelCompound>();
 			wh->SetPos(Vector2(x, y));
-			wh->SetSize(Vector2(600, 800));
+			wh->SetSize(Vector2(500, 800));
 			wh->SetDebugName("ColorWheelCompound");
 			AddChild(wh);
 		}

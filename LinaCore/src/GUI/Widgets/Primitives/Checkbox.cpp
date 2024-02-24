@@ -51,7 +51,7 @@ namespace Lina
 
 		// Text size
 		const Vector2& textSize = m_icon->GetSize();
-		m_icon->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * 0.5f, m_rect.pos.y + m_rect.size.y * 0.5f));
+		m_icon->SetPos(m_rect.GetCenter() - m_icon->GetHalfSize());
 
 		// Alpha & color
 		const float alpha		   = Math::Lerp(m_icon->GetProps().color.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);

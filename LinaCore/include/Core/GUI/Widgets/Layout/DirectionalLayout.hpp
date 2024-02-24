@@ -39,12 +39,18 @@ namespace Lina
 		DirectionalLayout()			 = default;
 		virtual ~DirectionalLayout() = default;
 
+		enum class Mode
+		{
+			Default,
+			EquallyDistribute
+		};
+
 		struct Properties
 		{
-			TBLR			margins				 = {};
-			float			padding				 = 0.0f;
-			bool			controlCrossAxisSize = false;
-			WidgetDirection direction			 = WidgetDirection::Horizontal;
+			TBLR			margins	  = {};
+			float			padding	  = 0.0f;
+			WidgetDirection direction = WidgetDirection::Horizontal;
+			Mode			mode	  = Mode::Default;
 		};
 
 		virtual void Tick(float delta) override;
@@ -58,6 +64,10 @@ namespace Lina
 		{
 			return m_props;
 		}
+
+	private:
+		void BehaviourDefault(float delta);
+		void BehaviourEquallyDistribute(float delta);
 
 	private:
 		Properties m_props = {};

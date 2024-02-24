@@ -81,7 +81,8 @@ namespace Lina
 			*m_props.currentValue = Math::Clamp(*m_props.currentValue, m_props.minValue, m_props.maxValue);
 		}
 
-		const Vector2 handlePos = m_props.direction == WidgetDirection::Horizontal ? Vector2(m_fillEnd.x, (m_fillEnd.y + m_fillStart.y) * 0.5f) : Vector2((m_fillStart.x + m_fillEnd.x) * 0.5f, m_fillStart.y);
+		const Vector2 handlePos = m_props.direction == WidgetDirection::Horizontal ? Vector2(m_fillEnd.x - m_handle->GetHalfSizeX(), (m_fillEnd.y + m_fillStart.y) * 0.5f - m_handle->GetHalfSizeY())
+																				   : Vector2((m_fillStart.x + m_fillEnd.x) * 0.5f - m_handle->GetHalfSizeX(), m_fillStart.y - m_handle->GetHalfSizeY());
 		m_handle->SetPos(handlePos);
 
 		const bool hoverColor	   = (m_handle->GetIsHovered()) && !m_isPressed;

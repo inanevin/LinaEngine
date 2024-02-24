@@ -82,9 +82,10 @@ namespace Lina
 
 	enum WidgetFlags
 	{
-		WF_NONE		 = 1 << 0,
-		WF_EXPAND	 = 1 << 1,
-		WF_OWNS_SIZE = 1 << 2,
+		WF_NONE				 = 1 << 0,
+		WF_EXPAND_MAIN_AXIS	 = 1 << 1,
+		WF_EXPAND_CROSS_AXIS = 1 << 2,
+		WF_OWNS_SIZE		 = 1 << 3,
 	};
 
 #define FOREGROUND_DRAW_ORDER 1000
