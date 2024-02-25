@@ -40,6 +40,10 @@ namespace Lina
 	class InputField;
 	class Text;
 	class Dropdown;
+} // namespace Lina
+
+namespace Lina::Editor
+{
 
 	class ColorWheelCompound : public Widget
 	{
@@ -81,8 +85,8 @@ namespace Lina
 		};
 
 	private:
-		SaturationValueComponent ConstructHSVComponent(const String& label, bool isHue);
-		ColorComponent			 ConstructColorComponent(const String& label);
+		SaturationValueComponent ConstructHSVComponent(const String& label, bool isHue, float* val);
+		ColorComponent			 ConstructColorComponent(const String& label, float* val);
 		void					 Recalculate(bool sourceRGB);
 
 	private:
@@ -105,4 +109,4 @@ namespace Lina
 		Color		 m_editedColor	   = Color::White;
 		Color		 m_hsv			   = Color(0, 0, 0, 0);
 	};
-} // namespace Lina
+} // namespace Lina::Editor

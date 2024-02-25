@@ -177,7 +177,7 @@ void main()
           alpha = (wheelRadius - d) / edgeSmoothness;
       }
 
-      fragColor = vec4(hueSaturationToRGB(hue, saturation), alpha);
+      fragColor = vec4(hueSaturationToRGB(hue, saturation) * inCol.rgb, alpha);
    }
 }
 

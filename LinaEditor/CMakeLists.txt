@@ -22,13 +22,17 @@ project(LinaEditor)
 set(SOURCES 
 include/Editor/EditorApplicationDelegate.hpp
 include/Editor/CommonEditor.hpp
+include/Editor/EditorLocale.hpp
 include/Editor/Widgets/Testbed.hpp
+include/Editor/Widgets/Compound/ColorWheelCompound.hpp
 )
 
 set(HEADERS
 src/EditorApplicationDelegate.cpp
 src/CommonEditor.cpp
+src/EditorLocale.cpp
 src/Widgets/Testbed.cpp
+src/Widgets/Compound/ColorWheelCompound.cpp
 )
 
 #--------------------------------------------------------------------

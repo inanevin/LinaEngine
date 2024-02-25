@@ -92,6 +92,9 @@ namespace Lina
 
 			if (m_props.clampNumber)
 				*m_props.value = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+
+			if (m_props.onValueChanged)
+				m_props.onValueChanged(*m_props.value);
 		}
 
 		if (m_isPressed)
@@ -194,11 +197,12 @@ namespace Lina
 		if (m_props.isNumberField && !m_isEditing && m_props.value)
 		{
 			const float value = *m_props.value;
-			if (!Math::Equals(value, m_lastStoredValue, 0.0001f))
+			if (!Math::Equals(value, m_lastStoredValue, 0.0001f) || !m_syncedAtLeastOnce)
 			{
 				m_text->GetProps().text = UtilStr::FloatToString(value, m_props.valuePrecision);
 				m_text->CalculateTextSize();
-				m_lastStoredValue = value;
+				m_lastStoredValue	= value;
+				m_syncedAtLeastOnce = true;
 			}
 		}
 	}

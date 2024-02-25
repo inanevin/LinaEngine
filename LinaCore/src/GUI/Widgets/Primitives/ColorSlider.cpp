@@ -58,6 +58,9 @@ namespace Lina
 				*m_props.value = targetValue;
 
 			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+
+			if (m_props.onValueChanged)
+				m_props.onValueChanged(*m_props.value);
 		}
 	}
 
@@ -80,7 +83,20 @@ namespace Lina
 			opts.color.gradientType = m_props.direction == WidgetDirection::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		}
 
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+		int32 drawOrder = m_drawOrder;
+
+		if (m_props.drawCheckeredBackground)
+		{
+			LinaVG::StyleOptions checkered;
+			checkered.color			  = Color::White.AsLVG4();
+			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED;
+			checkered.textureUVTiling = Vector2(2.0f, 0.1f).AsLVG();
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), checkered, 0.0f, drawOrder);
+			drawOrder++;
+		}
+
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, drawOrder);
+		drawOrder++;
 
 		if (m_props.value == nullptr)
 			return;
@@ -95,12 +111,12 @@ namespace Lina
 		if (m_props.direction == WidgetDirection::Horizontal)
 		{
 			const float lineX = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue) / m_props.maxValue);
-			LinaVG::DrawRect(threadIndex, Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, m_drawOrder + 1);
+			LinaVG::DrawRect(threadIndex, Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, drawOrder);
 		}
 		else if (m_props.direction == WidgetDirection::Vertical)
 		{
 			const float lineY = Math::FloorToFloat(m_rect.pos.y + m_rect.size.y * (m_props.maxValue - Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue)) / m_props.maxValue);
-			LinaVG::DrawRect(threadIndex, Vector2(m_rect.pos.x, lineY - lineThickness).AsLVG(), Vector2(m_rect.pos.x + m_rect.size.x, lineY + lineThickness).AsLVG(), line, 0.0f, m_drawOrder + 1);
+			LinaVG::DrawRect(threadIndex, Vector2(m_rect.pos.x, lineY - lineThickness).AsLVG(), Vector2(m_rect.pos.x + m_rect.size.x, lineY + lineThickness).AsLVG(), line, 0.0f, drawOrder);
 		}
 	}
 

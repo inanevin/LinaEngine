@@ -26,40 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Editor/EditorLocale.hpp"
 
-#include "Core/GUI/Widgets/Widget.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class Icon;
-	class ColorWheel : public Widget
-	{
-	public:
-		ColorWheel()		  = default;
-		virtual ~ColorWheel() = default;
+	HashMap<LocaleStr, String> Locale::s_englishMap = {
 
-		struct Properties
-		{
-			float*						 hue		   = nullptr;
-			float*						 saturation	   = nullptr;
-			float						 darknessAlpha = 1.0f;
-			Delegate<void(float, float)> onValueChanged;
-		};
-
-		virtual void Construct() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-	private:
-		Properties m_props		= {};
-		Icon*	   m_icon		= nullptr;
-		Vector2	   m_pointerPos = Vector2::Zero;
 	};
-} // namespace Lina
+
+	const String& Locale::GetStr(LocaleStr str)
+	{
+		return s_englishMap[str];
+	}
+} // namespace Lina::Editor

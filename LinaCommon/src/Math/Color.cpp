@@ -103,6 +103,7 @@ namespace Lina
 
 		// Value calculation
 		hsv.z = maxVal;
+		hsv.w = w;
 
 		return hsv;
 	}
@@ -155,6 +156,7 @@ namespace Lina
 		rgb.x = R1 + m;
 		rgb.y = G1 + m;
 		rgb.z = B1 + m;
+		rgb.w = w;
 
 		return rgb;
 	}

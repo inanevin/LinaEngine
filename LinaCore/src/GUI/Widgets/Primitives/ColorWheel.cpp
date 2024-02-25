@@ -37,9 +37,14 @@ namespace Lina
 {
 	void ColorWheel::Construct()
 	{
-		m_icon						  = Allocate<Icon>();
-		m_icon->GetProps().icon		  = Theme::GetDef().iconColorWheelPointer;
-		m_icon->GetProps().offsetPerc = Theme::GetDef().iconColorWheelPointerOffset;
+		m_icon								   = Allocate<Icon>();
+		m_icon->GetProps().icon				   = Theme::GetDef().iconColorWheelPointer;
+		m_icon->GetProps().offsetPerc		   = Theme::GetDef().iconColorWheelPointerOffset;
+		m_icon->GetProps().sdfOutlineColor	   = Theme::GetDef().background0;
+		m_icon->GetProps().sdfThickness		   = 0.6f;
+		m_icon->GetProps().sdfSoftness		   = 0.5f;
+		m_icon->GetProps().sdfOutlineThickness = 0.525f;
+		m_icon->GetProps().sdfOutlineSoftness  = 0.2f;
 		AddChild(m_icon);
 	}
 
@@ -61,11 +66,25 @@ namespace Lina
 			{
 				angle += 2 * MATH_PI; // Ensure the angle is positive
 			}
-			m_hs.x = RAD2DEG(angle);
-			m_hs.y = saturation;
+
+			if (m_props.hue)
+				*m_props.hue = RAD_2_DEG(angle);
+
+			if (m_props.saturation)
+				*m_props.saturation = saturation;
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(m_hs);
+				m_props.onValueChanged(m_props.hue ? *m_props.hue : 0.0f, m_props.saturation ? *m_props.saturation : 0.0f);
+		}
+		else
+		{
+			if (m_props.hue && m_props.saturation)
+			{
+				const float hueRadians = DEG2RAD(*m_props.hue);
+				const float x		   = Math::Cos(hueRadians) * *m_props.saturation;
+				const float y		   = Math::Sin(hueRadians) * *m_props.saturation;
+				m_pointerPos		   = Vector2(x, y);
+			}
 		}
 
 		m_icon->SetPos(m_rect.GetCenter() + (m_pointerPos * m_rect.size.x * 0.5f) - m_icon->GetHalfSize());
@@ -76,21 +95,10 @@ namespace Lina
 	{
 		Widget::SetIsHovered();
 		LinaVG::StyleOptions wheelStyle;
+		wheelStyle.color		 = Math::Lerp(Color::Black, Color::White, Math::Max(m_props.darknessAlpha, 0.1f)).AsLVG4();
 		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), wheelStyle, 0.0f, m_drawOrder);
 		m_icon->Draw(threadIndex);
-	}
-
-	void ColorWheel::SetHueSaturation(const Vector2& hs)
-	{
-		if (m_isPressed)
-			return;
-
-		m_hs				   = hs;
-		const float hueRadians = DEG2RAD(m_hs.x);
-		const float x		   = Math::Cos(hueRadians) * m_hs.y;
-		const float y		   = Math::Sin(hueRadians) * m_hs.y;
-		m_pointerPos		   = Vector2(x, y);
 	}
 
 	bool ColorWheel::OnMouse(uint32 button, LinaGX::InputAction act)

@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Testbed.hpp"
+#include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/System/System.hpp"
@@ -40,7 +41,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
-#include "Core/GUI/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -76,7 +76,6 @@ namespace Lina::Editor
 			AddChild(text);
 		}
 
-		return;
 		y += itemHeight * 1.5f;
 
 		// Button
@@ -109,10 +108,12 @@ namespace Lina::Editor
 
 		// Slider
 		{
-			Slider* slider				= Allocate<Slider>("SliderHorizontal");
+			static float value			= 0.0f;
+			Slider*		 slider			= Allocate<Slider>("SliderHorizontal");
 			slider->GetProps().minValue = 0.0f;
 			slider->GetProps().maxValue = 10.0f;
 			slider->GetProps().step		= 0.0f;
+			slider->GetProps().value	= &value;
 			slider->Initialize();
 			slider->SetSize(Vector2(itemWidth, itemHeight));
 			slider->SetPos(Vector2(x, y));
@@ -123,12 +124,12 @@ namespace Lina::Editor
 
 		// Slider Vertical
 		{
-			Slider* slider = Allocate<Slider>("SliderVertical");
-
-			// Slider props.
+			static float value			 = 0.0f;
+			Slider*		 slider			 = Allocate<Slider>("SliderVertical");
 			slider->GetProps().minValue	 = 0.0f;
 			slider->GetProps().maxValue	 = 10.0f;
 			slider->GetProps().step		 = 0.0f;
+			slider->GetProps().value	 = &value;
 			slider->GetProps().direction = WidgetDirection::Vertical;
 			slider->Initialize();
 			slider->SetSize(Vector2(itemHeight, itemWidth));
@@ -140,12 +141,13 @@ namespace Lina::Editor
 
 		// Input Field Number slider
 		{
-			InputField* field = Allocate<InputField>("InputFieldNumberSlider");
-
+			static float value					  = 0.0f;
+			InputField*	 field					  = Allocate<InputField>("InputFieldNumberSlider");
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = false;
 			field->GetProps().clampNumber		  = true;
 			field->GetProps().valueStep			  = 0.5f;
+			field->GetProps().value				  = &value;
 			field->GetText()->GetProps().text	  = "Testing";
 			field->Initialize();
 			field->SetSize(Vector2(itemWidth, itemHeight));
@@ -157,12 +159,13 @@ namespace Lina::Editor
 
 		// Input Field Number
 		{
-			InputField* field = Allocate<InputField>("InputFieldNumber");
-
+			static float value					  = 0.0f;
+			InputField*	 field					  = Allocate<InputField>("InputFieldNumber");
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = true;
 			field->GetProps().clampNumber		  = true;
 			field->GetProps().valueStep			  = 0.1f;
+			field->GetProps().value				  = &value;
 			field->GetText()->GetProps().text	  = "Testing";
 			field->Initialize();
 			field->SetSize(Vector2(itemWidth, itemHeight));
@@ -174,8 +177,7 @@ namespace Lina::Editor
 
 		// Input Field Text
 		{
-			InputField* field = Allocate<InputField>("InputFieldText");
-
+			InputField* field				  = Allocate<InputField>("InputFieldText");
 			field->GetProps().isNumberField	  = false;
 			field->GetText()->GetProps().text = "Testing";
 			field->Initialize();
@@ -207,7 +209,9 @@ namespace Lina::Editor
 
 		// Color field
 		{
-			ColorField* field = Allocate<ColorField>("ColorField");
+			static Color color		= Color::White;
+			ColorField*	 field		= Allocate<ColorField>("ColorField");
+			field->GetProps().value = &color;
 			field->Initialize();
 			field->SetPos(Vector2(x, y));
 			field->SetSize(Vector2(itemWidth, itemHeight));
@@ -218,7 +222,11 @@ namespace Lina::Editor
 
 		// Color slider
 		{
+			static float value		  = 0.0f;
 			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
+			cs->GetProps().value	  = &value;
+			cs->GetProps().minValue	  = 0.0f;
+			cs->GetProps().maxValue	  = 1.0f;
 			cs->GetProps().colorBegin = Color::White;
 			cs->GetProps().colorEnd	  = Color::Red;
 			cs->Initialize();
@@ -232,8 +240,12 @@ namespace Lina::Editor
 
 		// Color slider
 		{
+			static float value		  = 0.0f;
 			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().isHueShift = true;
+			cs->GetProps().value	  = &value;
+			cs->GetProps().minValue	  = 0.0f;
+			cs->GetProps().maxValue	  = 1.0f;
 			cs->Initialize();
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemWidth, itemHeight));
@@ -244,10 +256,15 @@ namespace Lina::Editor
 
 		// Color slider
 		{
+			static float value		  = 0.0f;
 			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().colorBegin = Color::Green;
 			cs->GetProps().colorEnd	  = Color::Blue;
 			cs->GetProps().direction  = WidgetDirection::Vertical;
+			cs->GetProps().isHueShift = true;
+			cs->GetProps().minValue	  = 0.0f;
+			cs->GetProps().maxValue	  = 1.0f;
+			cs->GetProps().value	  = &value;
 			cs->Initialize();
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemHeight, itemWidth));

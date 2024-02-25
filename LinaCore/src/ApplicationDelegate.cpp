@@ -32,8 +32,8 @@ namespace Lina
 		/* Core Resources */
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogo.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoWhite.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoText.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/Checkered.png", GetTypeID<Texture>(), 0, false, ResourceTag::Priority));
 
 		for (auto& r : list)
 			r.sid = TO_SID(r.path);
@@ -55,7 +55,7 @@ namespace Lina
 		}
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
-		if (sid == "Resources/Core/Textures/StubLinaLogo.png"_hs || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs || sid == "Resources/Core/Textures/StubLinaLogoText.png"_hs)
+		if (sid == DEFAULT_TEXTURE_CHECKERED && sid == DEFAULT_TEXTURE_LINALOGO || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs)
 		{
 			Texture::Metadata meta = {
 				.samplerSID = DEFAULT_GUI_SAMPLER_SID,

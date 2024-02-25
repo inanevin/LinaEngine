@@ -112,6 +112,7 @@ namespace Lina
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
 		float	   m_lastStoredValue	  = 0.0f;
+		bool	   m_syncedAtLeastOnce	  = false;
 	};
 
 } // namespace Lina

@@ -39,6 +39,7 @@ namespace Lina
 	{
 		m_handle								 = Allocate<Icon>("Handle");
 		m_handle->GetProps().isDynamic			 = true;
+		m_handle->GetProps().sdfThickness		 = 0.6f;
 		m_handle->GetProps().sdfOutlineThickness = 0.6f;
 		m_handle->GetProps().sdfOutlineColor	 = Color::Black;
 		m_handle->GetProps().icon				 = Theme::GetDef().iconSliderHandle;
@@ -52,14 +53,11 @@ namespace Lina
 		Widget::SetIsHovered();
 		m_handle->SetIsHovered();
 
-		if (m_props.value == nullptr)
-			return;
-
-		const float fillPercent = Math::Remap(*m_props.value, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
+		const float fillPercent = Math::Remap(m_props.value ? *m_props.value : m_props.minValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		GetStartEnd(m_bgStart, m_bgEnd, 1.0f);
 		GetStartEnd(m_fillStart, m_fillEnd, fillPercent);
 
-		if (m_isPressed)
+		if (m_isPressed && m_props.value)
 		{
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;

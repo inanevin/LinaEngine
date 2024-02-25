@@ -27,39 +27,23 @@ SOFTWARE.
 */
 
 #pragma once
+#include "Common/Data/String.hpp"
+#include "Common/Data/Map.hpp"
 
-#include "Core/GUI/Widgets/Widget.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class Icon;
-	class ColorWheel : public Widget
+
+	enum class LocaleStr
+	{
+	};
+
+	class Locale
 	{
 	public:
-		ColorWheel()		  = default;
-		virtual ~ColorWheel() = default;
-
-		struct Properties
-		{
-			float*						 hue		   = nullptr;
-			float*						 saturation	   = nullptr;
-			float						 darknessAlpha = 1.0f;
-			Delegate<void(float, float)> onValueChanged;
-		};
-
-		virtual void Construct() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
+		static const String& GetStr(LocaleStr str);
 
 	private:
-		Properties m_props		= {};
-		Icon*	   m_icon		= nullptr;
-		Vector2	   m_pointerPos = Vector2::Zero;
+		static HashMap<LocaleStr, String> s_englishMap;
 	};
-} // namespace Lina
+
+} // namespace Lina::Editor

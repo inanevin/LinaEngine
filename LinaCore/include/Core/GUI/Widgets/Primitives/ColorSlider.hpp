@@ -43,20 +43,22 @@ namespace Lina
 
 		struct Properties
 		{
-			WidgetDirection direction			 = WidgetDirection::Horizontal;
-			Color			colorBegin			 = Color::White;
-			Color			colorEnd			 = Color::White;
-			Color			colorOutline		 = Theme::GetDef().outlineColorBase;
-			Color			colorOutlineControls = Theme::GetDef().outlineColorControls;
-			Color			colorLine			 = Theme::GetDef().foreground0;
-			Color			colorLineOutline	 = Theme::GetDef().background0;
-			bool			isHueShift			 = false;
-			float*			value				 = nullptr;
-			float			rounding			 = Theme::GetDef().baseRounding;
-			float			outlineThickness	 = Theme::GetDef().baseOutlineThickness;
-			float			minValue			 = 0.0f;
-			float			maxValue			 = 0.0f;
-			float			step				 = 0.0f;
+			Delegate<void(float)> onValueChanged;
+			WidgetDirection		  direction				  = WidgetDirection::Horizontal;
+			Color				  colorBegin			  = Color::White;
+			Color				  colorEnd				  = Color::White;
+			Color				  colorOutline			  = Theme::GetDef().outlineColorBase;
+			Color				  colorOutlineControls	  = Theme::GetDef().outlineColorControls;
+			Color				  colorLine				  = Theme::GetDef().foreground0;
+			Color				  colorLineOutline		  = Theme::GetDef().background0;
+			bool				  isHueShift			  = false;
+			bool				  drawCheckeredBackground = false;
+			float*				  value					  = nullptr;
+			float				  rounding				  = Theme::GetDef().baseRounding;
+			float				  outlineThickness		  = Theme::GetDef().baseOutlineThickness;
+			float				  minValue				  = 0.0f;
+			float				  maxValue				  = 0.0f;
+			float				  step					  = 0.0f;
 		};
 
 		virtual void Tick(float delta) override;
