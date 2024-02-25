@@ -37,7 +37,6 @@ namespace Lina
 #define GUI_TEXTURE_HUE_VERTICAL   UINT32_MAX - 2
 #define GUI_TEXTURE_COLORWHEEL	   UINT32_MAX - 3
 
-
 #define LINA_MAIN_SWAPCHAIN			 "LinaMainSwapchain"_hs
 #define DEFAULT_SHADER_SID			 "Resources/Core/Shaders/UnlitStandard.linashader"_hs
 #define DEFAULT_SHADER_GUI			 "Resources/Core/Shaders/GUIStandard.linashader"_hs
@@ -45,7 +44,7 @@ namespace Lina
 #define DEFAULT_GUI_SAMPLER_SID		 "Resources/Core/Samplers/DefaultGUISampler.linasampler"_hs
 #define DEFAULT_GUI_TEXT_SAMPLER_SID "Resources/Core/Samplers/DefaultGUITextSampler.linasampler"_hs
 #define DEFAULT_TEXTURE_LINALOGO	 "Resources/Core/Textures/StubLinaLogo.png"_hs
-#define DEFAULT_TEXTURE_EMPTY_BLACK  "Resources/Core/Textures/StubBlack.png"_hs
+#define DEFAULT_TEXTURE_EMPTY_BLACK	 "Resources/Core/Textures/StubBlack.png"_hs
 #define DEFAULT_TEXTURE_CHECKERED	 "Resources/Core/Textures/Checkered.png"_hs
 #define DEFAULT_LIT_MATERIAL		 "Resources/Core/Materials/DefaultLit.linamaterial"_hs
 #define DEFAULT_UNLIT_MATERIAL		 "Resources/Core/Materials/DefaultUnlit.linamaterial"_hs

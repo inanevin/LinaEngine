@@ -139,7 +139,7 @@ namespace Lina
 		else
 		{
 			req.hasTextureBind = true;
-            req.textureHandle  = m_resourceManager->GetResource<Texture>(buf->m_textureHandle)->GetGPUHandle();
+			req.textureHandle  = m_resourceManager->GetResource<Texture>(buf->m_textureHandle)->GetGPUHandle();
 			req.samplerHandle  = m_guiSampler->GetGPUHandle();
 		}
 
