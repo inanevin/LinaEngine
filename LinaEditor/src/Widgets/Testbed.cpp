@@ -65,25 +65,25 @@ namespace Lina::Editor
 		{
 			Icon* icon			  = Allocate<Icon>("Lina Icon");
 			icon->GetProps().icon = ICON_LINA_LOGO;
-            icon->Initialize();
+			icon->Initialize();
 			icon->SetPos(Vector2(x + icon->GetSize().x * 0.5f, y));
 			AddChild(icon);
 
 			Text* text			  = Allocate<Text>("Title Text");
 			text->GetProps().text = "Testbed";
-            text->Initialize();
+			text->Initialize();
 			text->SetPos(Vector2(x + icon->GetSize().x * 0.5f + Theme::GetDef().baseIndent + text->GetSize().x * 0.5f, y));
 			AddChild(text);
 		}
 
-        return;
+		return;
 		y += itemHeight * 1.5f;
 
 		// Button
 		{
 			Button* button					   = Allocate<Button>("Button");
 			button->GetText()->GetProps().text = "Button";
-            button->Initialize();
+			button->Initialize();
 			button->SetSize(Vector2(itemWidth, itemHeight));
 			button->SetPos(Vector2(x, y));
 			AddChild(button);
@@ -93,13 +93,13 @@ namespace Lina::Editor
 
 		// Checkbox
 		{
-            static bool value = false;
-			Checkbox* check							= Allocate<Checkbox>("Checkbox");
-            check->GetProps().value = &value;
+			static bool value						= false;
+			Checkbox*	check						= Allocate<Checkbox>("Checkbox");
+			check->GetProps().value					= &value;
 			check->GetIcon()->GetProps().offsetPerc = ICONOFFSET_CHECK;
 			check->GetIcon()->GetProps().icon		= ICON_CHECK;
 			check->GetIcon()->GetProps().textScale	= 0.5f;
-            check->Initialize();
+			check->Initialize();
 			check->SetPos(Vector2(x, y));
 			check->SetSize(Vector2(itemWidth, itemHeight));
 			AddChild(check);
@@ -109,11 +109,11 @@ namespace Lina::Editor
 
 		// Slider
 		{
-			Slider* slider = Allocate<Slider>("SliderHorizontal");
-			slider->GetProps().minValue		= 0.0f;
-			slider->GetProps().maxValue		= 10.0f;
-			slider->GetProps().step			= 0.0f;
-            slider->Initialize();
+			Slider* slider				= Allocate<Slider>("SliderHorizontal");
+			slider->GetProps().minValue = 0.0f;
+			slider->GetProps().maxValue = 10.0f;
+			slider->GetProps().step		= 0.0f;
+			slider->Initialize();
 			slider->SetSize(Vector2(itemWidth, itemHeight));
 			slider->SetPos(Vector2(x, y));
 			AddChild(slider);
@@ -126,11 +126,11 @@ namespace Lina::Editor
 			Slider* slider = Allocate<Slider>("SliderVertical");
 
 			// Slider props.
-			slider->GetProps().minValue		= 0.0f;
-			slider->GetProps().maxValue		= 10.0f;
-			slider->GetProps().step			= 0.0f;
-			slider->GetProps().direction	= WidgetDirection::Vertical;
-            slider->Initialize();
+			slider->GetProps().minValue	 = 0.0f;
+			slider->GetProps().maxValue	 = 10.0f;
+			slider->GetProps().step		 = 0.0f;
+			slider->GetProps().direction = WidgetDirection::Vertical;
+			slider->Initialize();
 			slider->SetSize(Vector2(itemHeight, itemWidth));
 			slider->SetPos(Vector2(x, y));
 			AddChild(slider);
@@ -145,9 +145,9 @@ namespace Lina::Editor
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = false;
 			field->GetProps().clampNumber		  = true;
-			field->GetProps().valueStep		  = 0.5f;
+			field->GetProps().valueStep			  = 0.5f;
 			field->GetText()->GetProps().text	  = "Testing";
-            field->Initialize();
+			field->Initialize();
 			field->SetSize(Vector2(itemWidth, itemHeight));
 			field->SetPos(Vector2(x, y));
 			AddChild(field);
@@ -162,9 +162,9 @@ namespace Lina::Editor
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = true;
 			field->GetProps().clampNumber		  = true;
-			field->GetProps().valueStep		  = 0.1f;
+			field->GetProps().valueStep			  = 0.1f;
 			field->GetText()->GetProps().text	  = "Testing";
-            field->Initialize();
+			field->Initialize();
 			field->SetSize(Vector2(itemWidth, itemHeight));
 			field->SetPos(Vector2(x, y));
 			AddChild(field);
@@ -178,7 +178,7 @@ namespace Lina::Editor
 
 			field->GetProps().isNumberField	  = false;
 			field->GetText()->GetProps().text = "Testing";
-            field->Initialize();
+			field->Initialize();
 			field->SetSize(Vector2(itemWidth, itemHeight));
 			field->SetPos(Vector2(x, y));
 			AddChild(field);
@@ -191,12 +191,12 @@ namespace Lina::Editor
 			Dropdown* dd = Allocate<Dropdown>("Dropdown");
 
 			dd->GetText()->GetProps().text = "None";
-            dd->GetProps().onAddItems = [](Vector<String>& outItems, int32& outSelectedItem) {
-                outSelectedItem = -1;
-                for(int32 i = 0; i < 3; i++)
-                    outItems.push_back(dummyDropdownItems[i]);
-            };
-            dd->Initialize();
+			dd->GetProps().onAddItems	   = [](Vector<String>& outItems, int32& outSelectedItem) {
+				 outSelectedItem = -1;
+				 for (int32 i = 0; i < 3; i++)
+					 outItems.push_back(dummyDropdownItems[i]);
+			};
+			dd->Initialize();
 			dd->SetSize(Vector2(itemWidth, itemHeight));
 			dd->SetPos(Vector2(x, y));
 
@@ -207,8 +207,8 @@ namespace Lina::Editor
 
 		// Color field
 		{
-			ColorField* field			 = Allocate<ColorField>("ColorField");
-            field->Initialize();
+			ColorField* field = Allocate<ColorField>("ColorField");
+			field->Initialize();
 			field->SetPos(Vector2(x, y));
 			field->SetSize(Vector2(itemWidth, itemHeight));
 			AddChild(field);
@@ -221,7 +221,7 @@ namespace Lina::Editor
 			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().colorBegin = Color::White;
 			cs->GetProps().colorEnd	  = Color::Red;
-            cs->Initialize();
+			cs->Initialize();
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemWidth, itemHeight));
 
@@ -234,7 +234,7 @@ namespace Lina::Editor
 		{
 			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().isHueShift = true;
-            cs->Initialize();
+			cs->Initialize();
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemWidth, itemHeight));
 			AddChild(cs);
@@ -248,7 +248,7 @@ namespace Lina::Editor
 			cs->GetProps().colorBegin = Color::Green;
 			cs->GetProps().colorEnd	  = Color::Blue;
 			cs->GetProps().direction  = WidgetDirection::Vertical;
-            cs->Initialize();
+			cs->Initialize();
 			cs->SetPos(Vector2(x, y));
 			cs->SetSize(Vector2(itemHeight, itemWidth));
 			AddChild(cs);
@@ -262,9 +262,9 @@ namespace Lina::Editor
 		// Color wheel
 		{
 			ColorWheelCompound* wh = Allocate<ColorWheelCompound>("ColorWheelCompound");
-            wh->Initialize();
-            wh->SetTargetColor(Color(0.7f, 0.2f, 0.2f, 1.0f));
-            wh->SetPos(Vector2(x, y));
+			wh->Initialize();
+			wh->SetTargetColor(Color(0.7f, 0.2f, 0.2f, 1.0f));
+			wh->SetPos(Vector2(x, y));
 			wh->SetSize(Vector2(600, 800));
 			AddChild(wh);
 		}

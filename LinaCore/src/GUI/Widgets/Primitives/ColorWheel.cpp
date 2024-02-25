@@ -35,41 +35,42 @@ SOFTWARE.
 
 namespace Lina
 {
-    void ColorWheel::Construct()
-    {
-        m_icon = Allocate<Icon>();
-        m_icon->GetProps().icon = Theme::GetDef().iconColorWheelPointer;
-        m_icon->GetProps().offsetPerc = Theme::GetDef().iconColorWheelPointerOffset;
-        AddChild(m_icon);
-    }
+	void ColorWheel::Construct()
+	{
+		m_icon						  = Allocate<Icon>();
+		m_icon->GetProps().icon		  = Theme::GetDef().iconColorWheelPointer;
+		m_icon->GetProps().offsetPerc = Theme::GetDef().iconColorWheelPointerOffset;
+		AddChild(m_icon);
+	}
 
-    void ColorWheel::Tick(float delta)
-    {
-        if(m_isPressed)
-        {
-            const float wheelRadius = m_rect.size.x * 0.5f;
-            const Vector2& mouse = m_lgxWindow->GetMousePosition();
-            const Vector2 relative = mouse - m_rect.GetCenter();
-            const float x = Math::Clamp(Math::Remap(relative.x, -m_rect.size.x * 0.5f, m_rect.size.x * 0.5f, -1.0f, 1.0f), -1.0f, 1.0f);
-            const float y = Math::Clamp(Math::Remap(relative.y, -m_rect.size.y * 0.5f, m_rect.size.y * 0.5f, -1.0f, 1.0f), -1.0f, 1.0f);
-            m_pointerPos = Vector2(x, y);
-            m_pointerPos = m_pointerPos.ClampMagnitude(1.0f);
-            
-            const float saturation = m_pointerPos.Magnitude();
-            float angle = Math::Atan2(m_pointerPos.y, m_pointerPos.x);
-            if (angle < 0) {
-                angle += 2 * MATH_PI; // Ensure the angle is positive
-            }
-            m_hs.x = RAD2DEG(angle);
-            m_hs.y = saturation;
-            
-            if(m_props.onValueChanged)
-                m_props.onValueChanged(m_hs);
-        }
-        
-        m_icon->SetPos(m_rect.GetCenter() + (m_pointerPos * m_rect.size.x * 0.5f) - m_icon->GetHalfSize());
-        m_icon->Tick(delta);
-    }
+	void ColorWheel::Tick(float delta)
+	{
+		if (m_isPressed)
+		{
+			const float	   wheelRadius = m_rect.size.x * 0.5f;
+			const Vector2& mouse	   = m_lgxWindow->GetMousePosition();
+			const Vector2  relative	   = mouse - m_rect.GetCenter();
+			const float	   x		   = Math::Clamp(Math::Remap(relative.x, -m_rect.size.x * 0.5f, m_rect.size.x * 0.5f, -1.0f, 1.0f), -1.0f, 1.0f);
+			const float	   y		   = Math::Clamp(Math::Remap(relative.y, -m_rect.size.y * 0.5f, m_rect.size.y * 0.5f, -1.0f, 1.0f), -1.0f, 1.0f);
+			m_pointerPos			   = Vector2(x, y);
+			m_pointerPos			   = m_pointerPos.ClampMagnitude(1.0f);
+
+			const float saturation = m_pointerPos.Magnitude();
+			float		angle	   = Math::Atan2(m_pointerPos.y, m_pointerPos.x);
+			if (angle < 0)
+			{
+				angle += 2 * MATH_PI; // Ensure the angle is positive
+			}
+			m_hs.x = RAD2DEG(angle);
+			m_hs.y = saturation;
+
+			if (m_props.onValueChanged)
+				m_props.onValueChanged(m_hs);
+		}
+
+		m_icon->SetPos(m_rect.GetCenter() + (m_pointerPos * m_rect.size.x * 0.5f) - m_icon->GetHalfSize());
+		m_icon->Tick(delta);
+	}
 
 	void ColorWheel::Draw(int32 threadIndex)
 	{
@@ -77,40 +78,39 @@ namespace Lina
 		LinaVG::StyleOptions wheelStyle;
 		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), wheelStyle, 0.0f, m_drawOrder);
-        m_icon->Draw(threadIndex);
-      
+		m_icon->Draw(threadIndex);
 	}
 
-    void ColorWheel::SetHueSaturation(const Vector2 &hs)
-    {
-        if(m_isPressed)
-            return;
-        
-        m_hs = hs;
-        const float hueRadians = DEG2RAD(m_hs.x);
-        const float x = Math::Cos(hueRadians) * m_hs.y;
-        const float y = Math::Sin(hueRadians) * m_hs.y;
-        m_pointerPos = Vector2(x, y);
-    }
+	void ColorWheel::SetHueSaturation(const Vector2& hs)
+	{
+		if (m_isPressed)
+			return;
 
-    bool ColorWheel::OnMouse(uint32 button, LinaGX::InputAction act)
-    {
-        if(button != LINAGX_MOUSE_0)
-            return;
-        
-        if(m_isHovered && act == LinaGX::InputAction::Pressed)
-        {
-            m_manager->GrabControls(this);
-            m_isPressed = true;
-            return true;
-        }
-        
-        if(m_isPressed && act == LinaGX::InputAction::Released)
-        {
-            m_isPressed = false;
-            return true;
-        }
-        
-        return false;
-    }
+		m_hs				   = hs;
+		const float hueRadians = DEG2RAD(m_hs.x);
+		const float x		   = Math::Cos(hueRadians) * m_hs.y;
+		const float y		   = Math::Sin(hueRadians) * m_hs.y;
+		m_pointerPos		   = Vector2(x, y);
+	}
+
+	bool ColorWheel::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return;
+
+		if (m_isHovered && act == LinaGX::InputAction::Pressed)
+		{
+			m_manager->GrabControls(this);
+			m_isPressed = true;
+			return true;
+		}
+
+		if (m_isPressed && act == LinaGX::InputAction::Released)
+		{
+			m_isPressed = false;
+			return true;
+		}
+
+		return false;
+	}
 } // namespace Lina

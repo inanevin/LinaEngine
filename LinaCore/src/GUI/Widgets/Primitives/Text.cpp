@@ -33,10 +33,10 @@ SOFTWARE.
 
 namespace Lina
 {
-    void Text::Initialize()
-    {
-        CalculateTextSize();
-    }
+	void Text::Initialize()
+	{
+		CalculateTextSize();
+	}
 
 	void Text::Draw(int32 threadIndex)
 	{

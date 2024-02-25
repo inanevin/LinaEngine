@@ -42,59 +42,58 @@ namespace Lina
 			BehaviourDefault(delta);
 		else if (m_props.mode == Mode::EquallyDistribute)
 			BehaviourEquallyDistribute(delta);
-        else if(m_props.mode == Mode::SpaceBetween)
-        {
-            if(m_children.size() != 2)
-                BehaviourDefault(delta);
-            else
-                BehaviourSpaceBetween(delta);
-        }
+		else if (m_props.mode == Mode::SpaceBetween)
+		{
+			if (m_children.size() != 2)
+				BehaviourDefault(delta);
+			else
+				BehaviourSpaceBetween(delta);
+		}
 	}
 
-    void DirectionalLayout::BehaviourSpaceBetween(float delta)
-    {
-        const Vector2 start     = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
-        const Vector2 end     = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
-        const Vector2 size     = end - start;
-        
-        auto* c1 = m_children[0];
-        auto* c2 = m_children[1];
-        
-        if(m_props.direction == WidgetDirection::Horizontal)
-        {
-            c1->SetPos(Vector2(start.x, start.y));
-            c2->SetPos(Vector2(end.x - c1->GetSizeX(), start.y));
-            
-            if (c1->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c1->GetFlags().IsSet(WF_OWNS_SIZE))
-                c1->SetSizeY(size.y);
-            
-            if (c2->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c2->GetFlags().IsSet(WF_OWNS_SIZE))
-                c2->SetSizeY(size.y);
-        }
-        else
-        {
-            c1->SetPos(Vector2(start.x, start.y));
-            c2->SetPos(Vector2(start.x, end.y - c1->GetSizeY()));
-            
-            if(c1->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS && c1->GetFlags().IsSet(WF_OWNS_SIZE)))
-                c1->SetSizeX(size.x);
-            
-            if(c2->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS && c2->GetFlags().IsSet(WF_OWNS_SIZE)))
-                c2->SetSizeX(size.x);
-        }
-        
-        c1->Tick(delta);
-        c2->Tick(delta);
-            
-    }
+	void DirectionalLayout::BehaviourSpaceBetween(float delta)
+	{
+		const Vector2 start = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
+		const Vector2 end	= Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
+		const Vector2 size	= end - start;
+
+		auto* c1 = m_children[0];
+		auto* c2 = m_children[1];
+
+		if (m_props.direction == WidgetDirection::Horizontal)
+		{
+			c1->SetPos(Vector2(start.x, start.y));
+			c2->SetPos(Vector2(end.x - c1->GetSizeX(), start.y));
+
+			if (c1->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c1->GetFlags().IsSet(WF_OWNS_SIZE))
+				c1->SetSizeY(size.y);
+
+			if (c2->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c2->GetFlags().IsSet(WF_OWNS_SIZE))
+				c2->SetSizeY(size.y);
+		}
+		else
+		{
+			c1->SetPos(Vector2(start.x, start.y));
+			c2->SetPos(Vector2(start.x, end.y - c1->GetSizeY()));
+
+			if (c1->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS && c1->GetFlags().IsSet(WF_OWNS_SIZE)))
+				c1->SetSizeX(size.x);
+
+			if (c2->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS && c2->GetFlags().IsSet(WF_OWNS_SIZE)))
+				c2->SetSizeX(size.x);
+		}
+
+		c1->Tick(delta);
+		c2->Tick(delta);
+	}
 	void DirectionalLayout::BehaviourEquallyDistribute(float delta)
 	{
 		if (m_children.empty())
 			return;
 
-		const Vector2 start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
-		const Vector2 end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
-		const Vector2 size	 = end - start;
+		const Vector2 start = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
+		const Vector2 end	= Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
+		const Vector2 size	= end - start;
 
 		float totalSizeMainAxis = 0.0f;
 
@@ -158,13 +157,12 @@ namespace Lina
 				if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
 					c->SetSizeY(size.y);
 
-                if(c->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
-                    c->SetPos(Vector2(x, y));
-                else if(c->GetFlags().IsSet(WF_ALIGN_POSITIVE))
-                    c->SetPos(Vector2(x, end.y - c->GetSizeY()));
-                else
-                    c->SetPos(Vector2(x, center.y - c->GetSize().y * 0.5f));
-
+				if (c->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
+					c->SetPos(Vector2(x, y));
+				else if (c->GetFlags().IsSet(WF_ALIGN_POSITIVE))
+					c->SetPos(Vector2(x, end.y - c->GetSizeY()));
+				else
+					c->SetPos(Vector2(x, center.y - c->GetSize().y * 0.5f));
 
 				if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
 				{
@@ -181,12 +179,12 @@ namespace Lina
 				if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
 					c->SetSizeX(size.x);
 
-                if(c->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
-                    c->SetPos(Vector2(x, y));
-                else if(c->GetFlags().IsSet(WF_ALIGN_POSITIVE))
-                    c->SetPos(Vector2(end.x - c->GetSizeX(), y));
-                else
-                    c->SetPos(Vector2(center.x - c->GetSize().x * 0.5f, y));
+				if (c->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
+					c->SetPos(Vector2(x, y));
+				else if (c->GetFlags().IsSet(WF_ALIGN_POSITIVE))
+					c->SetPos(Vector2(end.x - c->GetSizeX(), y));
+				else
+					c->SetPos(Vector2(center.x - c->GetSize().x * 0.5f, y));
 
 				if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
 				{
