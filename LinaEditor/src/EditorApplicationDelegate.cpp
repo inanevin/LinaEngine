@@ -55,9 +55,15 @@ namespace Lina::Editor
 {
 	void EditorApplicationDelegate::OnPlatformSetup()
 	{
-		Theme::GetDef().iconFont		= ICON_FONT_SID;
-		Theme::GetDef().defaultFont		= DEFAULT_FONT_SID;
-		Theme::GetDef().alternativeFont = DEFAULT_FONT_SID;
+		Theme::GetDef().iconFont					= ICON_FONT_SID;
+		Theme::GetDef().defaultFont					= DEFAULT_FONT_SID;
+		Theme::GetDef().alternativeFont				= DEFAULT_FONT_SID;
+		Theme::GetDef().iconDropdown				= ICON_ARROW_DOWN;
+		Theme::GetDef().iconSliderHandle			= ICON_CIRCLE_FILLED;
+		Theme::GetDef().iconColorWheelPointer		= ICON_CIRCLE;
+		Theme::GetDef().iconDropdownOffset			= ICONOFFSET_ARROW_DOWN;
+		Theme::GetDef().iconSliderHandleOffset		= ICONOFFSET_CIRCLE_FILLED;
+		Theme::GetDef().iconColorWheelPointerOffset = ICONOFFSET_CIRCLE;
 	}
 
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)

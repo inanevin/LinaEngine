@@ -39,7 +39,7 @@ namespace Lina
 
 	void Checkbox::Construct()
 	{
-		m_icon							= Allocate<Icon>();
+		m_icon							= Allocate<Icon>("CheckboxIcon");
 		m_icon->GetProps().isDynamic	= true;
 		m_icon->GetProps().sdfThickness = 0.6f;
 		AddChild(m_icon);
@@ -52,6 +52,9 @@ namespace Lina
 		// Text size
 		const Vector2& textSize = m_icon->GetSize();
 		m_icon->SetPos(m_rect.GetCenter() - m_icon->GetHalfSize());
+
+		if (m_props.value == nullptr)
+			return;
 
 		// Alpha & color
 		const float alpha		   = Math::Lerp(m_icon->GetProps().color.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
@@ -86,7 +89,7 @@ namespace Lina
 
 		if (m_isPressed && act == LinaGX::InputAction::Released)
 		{
-			if (m_isHovered)
+			if (m_isHovered && m_props.value)
 				*m_props.value = !*m_props.value;
 
 			m_isPressed = false;

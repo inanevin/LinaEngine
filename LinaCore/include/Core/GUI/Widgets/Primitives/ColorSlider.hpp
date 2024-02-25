@@ -54,6 +54,9 @@ namespace Lina
 			float*			value				 = nullptr;
 			float			rounding			 = Theme::GetDef().baseRounding;
 			float			outlineThickness	 = Theme::GetDef().baseOutlineThickness;
+			float			minValue			 = 0.0f;
+			float			maxValue			 = 0.0f;
+			float			step				 = 0.0f;
 		};
 
 		virtual void Tick(float delta) override;

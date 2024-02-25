@@ -34,7 +34,8 @@ namespace Lina
 
 	float Theme::GetBaseItemHeight(float dpiScale)
 	{
-		return 24.0f * dpiScale;
+		return 24.0f * 1.0f;
+		// return 24.0f * dpiScale;
 	}
 
 } // namespace Lina

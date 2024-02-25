@@ -69,38 +69,93 @@ namespace Lina
 
 	Color Color::RGBToHSV()
 	{
-		Color		K = Color(0.0f, -1.0f / 3.0f, 2.0f / 3.0f, -1.0f);
-		Color		p = Math::Lerp(Color(z, y, K.w, K.z), Color(y, z, K.x, K.y), Math::Step(z, y));
-		Color		q = Math::Lerp(Color(p.x, p.y, p.w, x), Color(x, p.y, p.z, p.x), Math::Step(p.x, x));
-		const float d = q.x - Math::Min(q.w, q.y);
-		const float e = 1.0e-10;
-		return Color(Math::Abs(q.z + (q.w - q.y) / (6.0f * d + e)), d / (q.x + e), q.x, z);
+		Color hsv;
+
+		float minVal = Math::Min(x, Math::Min(y, z));
+		float maxVal = Math::Max(x, Math::Max(y, z));
+		float delta	 = maxVal - minVal;
+
+		// Hue calculation
+		if (delta == 0)
+		{
+			hsv.x = 0;
+		}
+		else if (maxVal == x)
+		{
+			hsv.x = 60 * Math::Fmod(((y - z) / delta), 6);
+		}
+		else if (maxVal == y)
+		{
+			hsv.x = 60 * (((z - x) / delta) + 2);
+		}
+		else if (maxVal == z)
+		{
+			hsv.x = 60 * (((x - y) / delta) + 4);
+		}
+
+		if (hsv.x < 0)
+		{
+			hsv.x += 360;
+		}
+
+		// Saturation calculation
+		hsv.y = (maxVal == 0) ? 0 : (delta / maxVal);
+
+		// Value calculation
+		hsv.z = maxVal;
+
+		return hsv;
 	}
 
 	Color Color::HSVToRGB()
 	{
-		const float h = x;
-		const float s = y;
-		const float v = z;
-		const int	i = int(h * 6.0);
-		const float f = h * 6.0 - float(i);
-		const float p = v * (1.0 - s);
-		const float q = v * (1.0 - f * s);
-		const float t = v * (1.0 - (1.0 - f) * s);
-		switch (i % 6)
+		Color rgb;
+		float C = z * y;
+		float X = C * (1 - Math::Abs(Math::Fmod(x / 60.0, 2) - 1.0f));
+		float m = z - C;
+		float R1, G1, B1;
+
+		if (x >= 0 && x < 60)
 		{
-		case 0:
-			return Color(v, t, p, w);
-		case 1:
-			return Color(q, v, p, w);
-		case 2:
-			return Color(p, v, t, w);
-		case 3:
-			return Color(p, q, v, w);
-		case 4:
-			return Color(t, p, v, w);
-		case 5:
-			return Color(v, p, q, w);
+			R1 = C;
+			G1 = X;
+			B1 = 0;
 		}
+		else if (x >= 60 && x < 120)
+		{
+			R1 = X;
+			G1 = C;
+			B1 = 0;
+		}
+		else if (x >= 120 && x < 180)
+		{
+			R1 = 0;
+			G1 = C;
+			B1 = X;
+		}
+		else if (x >= 180 && x < 240)
+		{
+			R1 = 0;
+			G1 = X;
+			B1 = C;
+		}
+		else if (x >= 240 && x < 300)
+		{
+			R1 = X;
+			G1 = 0;
+			B1 = C;
+		}
+		else
+		{
+			R1 = C;
+			G1 = 0;
+			B1 = X;
+		}
+
+		rgb.x = R1 + m;
+		rgb.y = G1 + m;
+		rgb.z = B1 + m;
+
+		return rgb;
 	}
 } // namespace Lina

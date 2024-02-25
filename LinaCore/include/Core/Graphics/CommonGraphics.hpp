@@ -33,8 +33,9 @@ SOFTWARE.
 namespace Lina
 {
 
-#define GUI_TEXTURE_HUE		   UINT32_MAX - 1
-#define GUI_TEXTURE_COLORWHEEL UINT32_MAX - 2
+#define GUI_TEXTURE_HUE_HORIZONTAL UINT32_MAX - 1
+#define GUI_TEXTURE_HUE_VERTICAL   UINT32_MAX - 2
+#define GUI_TEXTURE_COLORWHEEL	   UINT32_MAX - 3
 
 #define LINA_MAIN_SWAPCHAIN			 "LinaMainSwapchain"_hs
 #define DEFAULT_SHADER_SID			 "Resources/Core/Shaders/UnlitStandard.linashader"_hs

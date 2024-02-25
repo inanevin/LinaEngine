@@ -54,6 +54,7 @@ namespace Lina
 			bool				  isDynamic = false;
 		};
 
+		virtual void Initialize() override;
 		virtual void Draw(int32 threadIndex) override;
 
 		void CalculateTextSize();

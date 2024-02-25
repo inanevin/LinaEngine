@@ -160,6 +160,7 @@ namespace Lina
 		static Vector2 One;
 
 		Vector2 Clamp(const Vector2& min, const Vector2& max) const;
+		Vector2 ClampMagnitude(float mag) const;
 		Vector2 Abs() const;
 		Vector2 MinLength(const Vector2& other) const;
 		Vector2 MaxLength(const Vector2& other) const;

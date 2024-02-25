@@ -82,6 +82,7 @@ src/Components/RenderableComponent.cpp
 
 # GUI
 src/GUI/Theme.cpp
+src/GUI/CommonGUI.cpp
 src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetManager.cpp
 src/GUI/Widgets/WidgetUtility.cpp

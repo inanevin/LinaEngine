@@ -33,6 +33,11 @@ SOFTWARE.
 
 namespace Lina
 {
+    void Text::Initialize()
+    {
+        CalculateTextSize();
+    }
+
 	void Text::Draw(int32 threadIndex)
 	{
 		const float dpiScale = m_lgxWindow->GetDPIScale();

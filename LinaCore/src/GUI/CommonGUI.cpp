@@ -26,34 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Layout/Stack.hpp"
-#include "Common/Math/Math.hpp"
+#include "Core/GUI/CommonGUI.hpp"
 
 namespace Lina
 {
-	void Stack::Tick(float delta)
-	{
-		Widget::SetIsHovered();
+	HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES = {
+        {ColorDisplay::RGB, "RGB (0-1)"},
+        {ColorDisplay::RGB255, "RGB (0-255)"},
+        {ColorDisplay::HSV, "HSV"},
+    };
 
-		for (auto* c : m_children)
-		{
-			if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
-			{
-				c->SetSizeX(m_rect.size.x - m_props.margins.left - m_props.margins.right);
-				c->SetPosX(m_rect.pos.x + m_props.margins.left);
-			}
-			else
-				c->SetPosX(m_rect.GetCenter().x - c->GetHalfSizeX());
 
-			if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS))
-			{
-				c->SetSizeY(m_rect.size.y - m_props.margins.top - m_props.margins.bottom);
-				c->SetPosY(m_rect.pos.y + m_props.margins.top);
-			}
-			else
-				c->SetPosY(m_rect.GetCenter().y - c->GetHalfSizeY());
-
-			c->Tick(delta);
-		}
-	}
 } // namespace Lina

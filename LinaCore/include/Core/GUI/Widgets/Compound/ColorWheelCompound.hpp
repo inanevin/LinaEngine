@@ -39,6 +39,7 @@ namespace Lina
 	class ColorWheel;
 	class InputField;
 	class Text;
+	class Dropdown;
 
 	class ColorWheelCompound : public Widget
 	{
@@ -53,30 +54,55 @@ namespace Lina
 		};
 
 		virtual void Construct() override;
+		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		void		 SetTargetColor(const Color& col);
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
 	private:
-		void SetSaturationValueLayout(DirectionalLayout*& layout, Text*& text, InputField*& field, ColorSlider*& slider, const String& label, float* val);
+		struct ColorComponent
+		{
+			DirectionalLayout* row	  = nullptr;
+			InputField*		   field  = nullptr;
+			ColorSlider*	   slider = nullptr;
+		};
+
+		struct SaturationValueComponent
+		{
+			DirectionalLayout* layout = nullptr;
+			ColorSlider*	   slider = nullptr;
+			InputField*		   field  = nullptr;
+			Text*			   text	  = nullptr;
+		};
 
 	private:
-		Properties m_props = {};
+		SaturationValueComponent ConstructHSVComponent(const String& label, bool isHue);
+		ColorComponent			 ConstructColorComponent(const String& label);
+		void					 Recalculate(bool sourceRGB);
 
-		DirectionalLayout* m_topRow			  = nullptr;
-		Stack*			   m_wheelStack		  = nullptr;
-		ColorWheel*		   m_wheel			  = nullptr;
-		DirectionalLayout* m_topSlidersRow	  = nullptr;
-		DirectionalLayout* m_layoutSaturation = nullptr;
-		ColorSlider*	   m_sliderSaturation = nullptr;
-		InputField*		   m_fieldSaturation  = nullptr;
-		Text*			   m_labelSaturation  = nullptr;
-		DirectionalLayout* m_layoutValue	  = nullptr;
-		ColorSlider*	   m_sliderValue	  = nullptr;
-		InputField*		   m_fieldValue		  = nullptr;
-		Text*			   m_labelValue		  = nullptr;
-		DirectionalLayout* m_bottomRow		  = nullptr;
+	private:
+		Properties				 m_props			   = {};
+		DirectionalLayout*		 m_topRow			   = nullptr;
+		Stack*					 m_wheelStack		   = nullptr;
+		ColorWheel*				 m_wheel			   = nullptr;
+		DirectionalLayout*		 m_topSlidersRow	   = nullptr;
+		DirectionalLayout*		 m_bottomRow		   = nullptr;
+		SaturationValueComponent m_hueComponent		   = {};
+		SaturationValueComponent m_saturationComponent = {};
+		SaturationValueComponent m_valueComponent	   = {};
+		ColorComponent			 m_colorComp1		   = {};
+		ColorComponent			 m_colorComp2		   = {};
+		ColorComponent			 m_colorComp3		   = {};
+		ColorComponent			 m_colorComp4		   = {};
+		Dropdown*				 m_displayDropdown	   = nullptr;
 
-		float m_saturation = 0.0f;
-		float m_value	   = 0.0f;
+		ColorDisplay m_selectedDisplay = ColorDisplay::RGB;
+		Color		 m_editedColor	   = Color::White;
+		Color		 m_hsv			   = Color(0, 0, 0, 0);
 	};
 } // namespace Lina

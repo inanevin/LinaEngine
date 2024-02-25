@@ -47,6 +47,8 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(const String&)> onEdited;
+			Delegate<void(const String&)> onEditEnd;
+			Delegate<void(float)>		  onValueChanged;
 			Color						  colorBackground	   = Theme::GetDef().background0;
 			Color						  colorOutline		   = Theme::GetDef().outlineColorBase;
 			Color						  colorOutlineControls = Theme::GetDef().outlineColorControls;
@@ -55,18 +57,17 @@ namespace Lina
 			Color						  colorNumberFillStart = Theme::GetDef().accentPrimary1;
 			Color						  colorNumberFillEnd   = Theme::GetDef().accentPrimary0;
 			float						  rounding			   = Theme::GetDef().baseRounding;
-			;
-			float outlineThickness = Theme::GetDef().baseOutlineThickness;
-			float horizontalIndent = Theme::GetDef().baseIndentInner;
+			float						  outlineThickness	   = Theme::GetDef().baseOutlineThickness;
+			float						  horizontalIndent	   = Theme::GetDef().baseIndentInner;
 
 			bool   isNumberField	   = false;
 			bool   disableNumberSlider = false;
 			bool   clampNumber		   = false;
-			float* numberValue		   = nullptr;
-			float  numberMin		   = 0.0f;
-			float  numberMax		   = 10.0f;
-			float  numberStep		   = 0.0f;
-			uint32 numberPrecision	   = 3;
+			float* value			   = nullptr;
+			float  valueMin			   = 0.0f;
+			float  valueMax			   = 10.0f;
+			float  valueStep		   = 0.0f;
+			uint32 valuePrecision	   = 3;
 		};
 
 		virtual void Construct() override;
@@ -110,6 +111,7 @@ namespace Lina
 		float	   m_textOffset			  = 0.0f;
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
+		float	   m_lastStoredValue	  = 0.0f;
 	};
 
 } // namespace Lina

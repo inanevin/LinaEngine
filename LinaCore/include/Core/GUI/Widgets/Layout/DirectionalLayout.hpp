@@ -42,7 +42,8 @@ namespace Lina
 		enum class Mode
 		{
 			Default,
-			EquallyDistribute
+			EquallyDistribute,
+			SpaceBetween,
 		};
 
 		struct Properties
@@ -68,6 +69,7 @@ namespace Lina
 	private:
 		void BehaviourDefault(float delta);
 		void BehaviourEquallyDistribute(float delta);
+		void BehaviourSpaceBetween(float delta);
 
 	private:
 		Properties m_props = {};

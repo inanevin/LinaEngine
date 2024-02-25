@@ -42,7 +42,7 @@ namespace Lina
 
 	void InputField::Construct()
 	{
-		m_text						 = Allocate<Text>();
+		m_text						 = Allocate<Text>("InputFieldText");
 		m_text->GetProps().isDynamic = true;
 		AddChild(m_text);
 	}
@@ -75,26 +75,23 @@ namespace Lina
 		}
 
 		// Number field slider movement.
-		if (m_middlePressed)
+		if (m_middlePressed && !m_isEditing && m_props.isNumberField && m_props.value)
 		{
-			if (!m_isEditing && m_props.isNumberField)
+			const Vector2 mouse		= m_lgxWindow->GetMousePosition();
+			const float	  perc		= Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
+			float		  targetVal = Math::Remap(perc, 0.0f, 1.0f, m_props.valueMin, m_props.valueMax);
+
+			if (!Math::IsZero(m_props.valueStep))
 			{
-				const Vector2 mouse		= m_lgxWindow->GetMousePosition();
-				const float	  perc		= Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
-				float		  targetVal = Math::Remap(perc, 0.0f, 1.0f, m_props.numberMin, m_props.numberMax);
-
-				if (!Math::IsZero(m_props.numberStep))
-				{
-					const float prev	 = *m_props.numberValue;
-					const float diff	 = targetVal - prev;
-					*m_props.numberValue = prev + m_props.numberStep * Math::FloorToFloat(diff / m_props.numberStep);
-				}
-				else
-					*m_props.numberValue = targetVal;
-
-				if (m_props.clampNumber)
-					*m_props.numberValue = Math::Clamp(*m_props.numberValue, m_props.numberMin, m_props.numberMax);
+				const float prev = *m_props.value;
+				const float diff = targetVal - prev;
+				*m_props.value	 = prev + m_props.valueStep * Math::FloorToFloat(diff / m_props.valueStep);
 			}
+			else
+				*m_props.value = targetVal;
+
+			if (m_props.clampNumber)
+				*m_props.value = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
 		}
 
 		if (m_isPressed)
@@ -131,20 +128,20 @@ namespace Lina
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
 
 		// Number field slider background.
-		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing)
+		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.value)
 		{
-			const float			 perc = Math::Remap(*m_props.numberValue, m_props.numberMin, m_props.numberMax, 0.0f, 1.0f);
+			const float			 perc = Math::Remap(*m_props.value, m_props.valueMin, m_props.valueMax, 0.0f, 1.0f);
 			LinaVG::StyleOptions fill;
 			fill.color.start		= m_props.colorNumberFillStart.AsLVG4();
 			fill.color.end			= m_props.colorNumberFillEnd.AsLVG4();
 			fill.color.gradientType = LinaVG::GradientType::Horizontal;
 			fill.rounding			= m_props.rounding;
-			LinaVG::DrawRect(threadIndex,
-							 (m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(),
-							 (m_rect.pos + Vector2(m_rect.size.x * perc, m_rect.size.y) - Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(),
-							 fill,
-							 0.0f,
-							 m_drawOrder);
+
+			const Vector2 start = m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness);
+			const Vector2 end	= m_rect.pos + m_rect.size - Vector2(m_props.outlineThickness, m_props.outlineThickness);
+			const Vector2 sz	= end - start;
+
+			LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);
 		}
 
 		m_manager->SetClip(threadIndex, m_rect, {.left = m_props.horizontalIndent, .right = m_props.horizontalIndent});
@@ -194,11 +191,15 @@ namespace Lina
 	void InputField::RenderSync()
 	{
 		// Assign text to number value.
-		if (m_props.isNumberField && !m_isEditing)
+		if (m_props.isNumberField && !m_isEditing && m_props.value)
 		{
-			const float value		= *m_props.numberValue;
-			m_text->GetProps().text = UtilStr::FloatToString(value, m_props.numberPrecision);
-			m_text->CalculateTextSize();
+			const float value = *m_props.value;
+			if (!Math::Equals(value, m_lastStoredValue, 0.0001f))
+			{
+				m_text->GetProps().text = UtilStr::FloatToString(value, m_props.valuePrecision);
+				m_text->CalculateTextSize();
+				m_lastStoredValue = value;
+			}
 		}
 	}
 
@@ -213,6 +214,10 @@ namespace Lina
 		m_highlightStartPos = 0;
 		m_caretInsertPos	= 0;
 		m_isEditing			= false;
+		m_textOffset		= 0.0f;
+
+		if (m_props.onEditEnd)
+			m_props.onEditEnd(m_text->GetProps().text);
 	}
 
 	Vector2 InputField::GetPosFromCaretIndex(uint32 index)
@@ -403,14 +408,17 @@ namespace Lina
 		if (m_props.onEdited)
 			m_props.onEdited(m_text->GetProps().text);
 
-		if (m_props.isNumberField)
+		if (m_props.isNumberField && m_props.value)
 		{
 			const String& str		   = m_text->GetProps().text;
 			uint32		  outPrecision = 0;
-			*m_props.numberValue	   = UtilStr::StringToFloat(str, outPrecision);
 
+			*m_props.value = UtilStr::StringToFloat(str, outPrecision);
 			if (m_props.clampNumber)
-				*m_props.numberValue = Math::Clamp(*m_props.numberValue, m_props.numberMin, m_props.numberMax);
+				*m_props.value = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+
+			if (m_props.onValueChanged)
+				m_props.onValueChanged(*m_props.value);
 		}
 	}
 
@@ -442,14 +450,17 @@ namespace Lina
 		if (m_text->GetProps().text.empty())
 			m_textOffset = 0.0f;
 
-		if (m_props.isNumberField)
+		if (m_props.isNumberField && m_props.value)
 		{
 			const String& str		   = m_text->GetProps().text;
 			uint32		  outPrecision = 0;
-			*m_props.numberValue	   = UtilStr::StringToFloat(str, outPrecision);
 
+			*m_props.value = UtilStr::StringToFloat(str, outPrecision);
 			if (m_props.clampNumber)
-				*m_props.numberValue = Math::Clamp(*m_props.numberValue, m_props.numberMin, m_props.numberMax);
+				*m_props.value = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+
+			if (m_props.onValueChanged)
+				m_props.onValueChanged(*m_props.value);
 		}
 	}
 

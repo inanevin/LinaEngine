@@ -47,17 +47,18 @@ namespace Lina
 
 		struct Properties
 		{
-			Delegate<void(Popup* popup)> onPopupCreated;
-			Color						 colorBackground			= Theme::GetDef().background0;
-			Color						 colorHovered				= Theme::GetDef().background2;
-			Color						 colorOutline				= Theme::GetDef().outlineColorBase;
-			Color						 colorOutlineControls		= Theme::GetDef().outlineColorControls;
-			Color						 colorIconBackgroundStart	= Theme::GetDef().accentPrimary0;
-			Color						 colorIconBackgroundEnd		= Theme::GetDef().accentPrimary1;
-			Color						 colorIconBackgroundHovered = Theme::GetDef().accentPrimary2;
-			float						 rounding					= Theme::GetDef().baseRounding;
-			float						 outlineThickness			= Theme::GetDef().baseOutlineThickness;
-			float						 horizontalIndent			= Theme::GetDef().baseIndentInner;
+			Delegate<void(int32)>											 onSelected;
+			Delegate<void(Vector<String>& outItems, int32& outSelectedItem)> onAddItems;
+			Color															 colorBackground			= Theme::GetDef().background0;
+			Color															 colorHovered				= Theme::GetDef().background2;
+			Color															 colorOutline				= Theme::GetDef().outlineColorBase;
+			Color															 colorOutlineControls		= Theme::GetDef().outlineColorControls;
+			Color															 colorIconBackgroundStart	= Theme::GetDef().accentPrimary0;
+			Color															 colorIconBackgroundEnd		= Theme::GetDef().accentPrimary1;
+			Color															 colorIconBackgroundHovered = Theme::GetDef().accentPrimary2;
+			float															 rounding					= Theme::GetDef().baseRounding;
+			float															 outlineThickness			= Theme::GetDef().baseOutlineThickness;
+			float															 horizontalIndent			= Theme::GetDef().baseIndentInner;
 		};
 
 		virtual void Construct() override;

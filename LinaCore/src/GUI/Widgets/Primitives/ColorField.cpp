@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void ColorField::Tick(float delta)
 	{
 		Widget::SetIsHovered();
@@ -43,15 +42,16 @@ namespace Lina
 	{
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
-		const Color targetColor = *m_props.colorValue;
-		const Color hovered		= targetColor + targetColor * m_props.hoverHighlightPerc;
+		if (m_props.value == nullptr)
+			return;
 
-		// Bg
+		const Color			 target	 = *m_props.value;
+		const Color			 hovered = target + target * m_props.hoverHighlightPerc;
 		LinaVG::StyleOptions opts;
 		opts.rounding				  = m_props.rounding;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = m_isHovered ? hovered.AsLVG4() : targetColor.AsLVG4();
+		opts.color					  = m_isHovered ? hovered.AsLVG4() : target.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 

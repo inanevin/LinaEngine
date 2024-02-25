@@ -157,6 +157,10 @@ namespace Lina
 		{
 			return atan2f(val, val2);
 		}
+		static float Atan2(float val, float val2)
+		{
+			return atan2(val, val2);
+		}
 		static float Pow(float val, float power)
 		{
 			return powf(val, power);

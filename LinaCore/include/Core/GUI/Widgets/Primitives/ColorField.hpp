@@ -45,7 +45,7 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			Color*			 colorValue			  = nullptr;
+			Color*			 value				  = nullptr;
 			Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
 			Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
 			float			 hoverHighlightPerc	  = 0.1f;

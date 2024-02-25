@@ -312,6 +312,13 @@ namespace Lina
 		return Vector2(Math::Clamp(this->x, min.x, max.x), Math::Clamp(this->y, min.y, max.y));
 	}
 
+	Vector2 Vector2::ClampMagnitude(float mag) const
+	{
+		if (Magnitude() > mag)
+			return Normalized() * mag;
+		return *this;
+	}
+
 	Vector2 Vector2::Abs() const
 	{
 		return Vector2(glm::abs(x), glm::abs(y));

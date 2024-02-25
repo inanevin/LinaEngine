@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Math/Color.hpp"
 #include "Common/Math/Rect.hpp"
+#include "Common/Data/Map.hpp"
 
 namespace Lina
 {
@@ -86,7 +87,19 @@ namespace Lina
 		WF_EXPAND_MAIN_AXIS	 = 1 << 1,
 		WF_EXPAND_CROSS_AXIS = 1 << 2,
 		WF_OWNS_SIZE		 = 1 << 3,
+		WF_ALIGN_NEGATIVE	 = 1 << 4,
+		WF_ALIGN_POSITIVE	 = 1 << 5,
 	};
+
+	enum class ColorDisplay
+	{
+		RGB = 0,
+		RGB255,
+		HSV,
+		MAX,
+	};
+
+	extern HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES;
 
 #define FOREGROUND_DRAW_ORDER 1000
 

@@ -63,7 +63,7 @@ namespace Lina
 			float			outlineThickness	 = Theme::GetDef().baseOutlineThickness;
 			float			minValue			 = 0.0f;
 			float			maxValue			 = 0.0f;
-			float*			currentValue		 = nullptr;
+			float*			value				 = nullptr;
 			float			step				 = 0.0f;
 		};
 

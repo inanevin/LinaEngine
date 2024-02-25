@@ -33,9 +33,10 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	void Button::Construct()
 	{
-		m_text = Allocate<Text>();
+		m_text = Allocate<Text>("ButtonText");
 		AddChild(m_text);
 	}
 

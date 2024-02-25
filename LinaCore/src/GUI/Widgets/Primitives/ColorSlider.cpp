@@ -38,17 +38,26 @@ namespace Lina
 	{
 		Widget::SetIsHovered();
 
-		if (m_isPressed)
+		if (m_isPressed && m_props.value)
 		{
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;
 
 			if (m_props.direction == WidgetDirection::Horizontal)
-				*m_props.value = Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
+				targetValue = Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, m_props.minValue, m_props.maxValue);
 			else if (m_props.direction == WidgetDirection::Vertical)
-				*m_props.value = Math::Remap(mouse.y, m_rect.pos.y + m_rect.size.y, m_rect.pos.y, 0.0f, 1.0f);
+				targetValue = Math::Remap(mouse.y, m_rect.pos.y + m_rect.size.y, m_rect.pos.y, m_props.minValue, m_props.maxValue);
 
-			*m_props.value = Math::Clamp(*m_props.value, 0.0f, 1.0f);
+			if (!Math::IsZero(m_props.step))
+			{
+				const float prev = *m_props.value;
+				const float diff = targetValue - prev;
+				*m_props.value	 = prev + m_props.step * Math::FloorToFloat(diff / m_props.step);
+			}
+			else
+				*m_props.value = targetValue;
+
+			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
 		}
 	}
 
@@ -62,7 +71,7 @@ namespace Lina
 
 		if (m_props.isHueShift)
 		{
-			opts.textureHandle = GUI_TEXTURE_HUE;
+			opts.textureHandle = m_props.direction == WidgetDirection::Horizontal ? GUI_TEXTURE_HUE_HORIZONTAL : GUI_TEXTURE_HUE_VERTICAL;
 		}
 		else
 		{
@@ -73,6 +82,9 @@ namespace Lina
 
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
 
+		if (m_props.value == nullptr)
+			return;
+
 		const float lineThickness = Math::FloorToFloat(m_props.direction == WidgetDirection::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
 
 		LinaVG::StyleOptions line;
@@ -82,12 +94,12 @@ namespace Lina
 
 		if (m_props.direction == WidgetDirection::Horizontal)
 		{
-			const float lineX = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), 0.0f, 1.0f));
+			const float lineX = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue) / m_props.maxValue);
 			LinaVG::DrawRect(threadIndex, Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, m_drawOrder + 1);
 		}
 		else if (m_props.direction == WidgetDirection::Vertical)
 		{
-			const float lineY = Math::FloorToFloat(m_rect.pos.y + m_rect.size.y * (1.0f - Math::Clamp((*m_props.value), 0.0f, 1.0f)));
+			const float lineY = Math::FloorToFloat(m_rect.pos.y + m_rect.size.y * (m_props.maxValue - Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue)) / m_props.maxValue);
 			LinaVG::DrawRect(threadIndex, Vector2(m_rect.pos.x, lineY - lineThickness).AsLVG(), Vector2(m_rect.pos.x + m_rect.size.x, lineY + lineThickness).AsLVG(), line, 0.0f, m_drawOrder + 1);
 		}
 	}

@@ -40,8 +40,7 @@ namespace Lina
 
 		struct Properties
 		{
-			TBLR margins		  = {};
-			bool controlChildSize = false;
+			TBLR margins = {};
 		};
 
 		virtual void Tick(float delta) override;

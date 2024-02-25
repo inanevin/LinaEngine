@@ -37,10 +37,13 @@ namespace Lina
 {
 	void Slider::Construct()
 	{
-		m_handle								 = Allocate<Icon>();
+		m_handle								 = Allocate<Icon>("Handle");
 		m_handle->GetProps().isDynamic			 = true;
 		m_handle->GetProps().sdfOutlineThickness = 0.6f;
 		m_handle->GetProps().sdfOutlineColor	 = Color::Black;
+		m_handle->GetProps().icon				 = Theme::GetDef().iconSliderHandle;
+		m_handle->GetProps().offsetPerc			 = Theme::GetDef().iconSliderHandleOffset;
+		m_handle->GetProps().textScale			 = 0.5f;
 		AddChild(m_handle);
 	}
 
@@ -49,7 +52,10 @@ namespace Lina
 		Widget::SetIsHovered();
 		m_handle->SetIsHovered();
 
-		const float fillPercent = Math::Remap(*m_props.currentValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
+		if (m_props.value == nullptr)
+			return;
+
+		const float fillPercent = Math::Remap(*m_props.value, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		GetStartEnd(m_bgStart, m_bgEnd, 1.0f);
 		GetStartEnd(m_fillStart, m_fillEnd, fillPercent);
 
@@ -71,14 +77,14 @@ namespace Lina
 
 			if (!Math::IsZero(m_props.step))
 			{
-				const float prev	  = *m_props.currentValue;
-				const float diff	  = targetValue - prev;
-				*m_props.currentValue = prev + m_props.step * Math::FloorToFloat(diff / m_props.step);
+				const float prev = *m_props.value;
+				const float diff = targetValue - prev;
+				*m_props.value	 = prev + m_props.step * Math::FloorToFloat(diff / m_props.step);
 			}
 			else
-				*m_props.currentValue = targetValue;
+				*m_props.value = targetValue;
 
-			*m_props.currentValue = Math::Clamp(*m_props.currentValue, m_props.minValue, m_props.maxValue);
+			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
 		}
 
 		const Vector2 handlePos = m_props.direction == WidgetDirection::Horizontal ? Vector2(m_fillEnd.x - m_handle->GetHalfSizeX(), (m_fillEnd.y + m_fillStart.y) * 0.5f - m_handle->GetHalfSizeY())
@@ -100,7 +106,10 @@ namespace Lina
 		bg.outlineOptions.color		= hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_bgStart.AsLVG(), m_bgEnd.AsLVG(), bg, 0.0f, m_drawOrder);
 
-		const float			 fillPercent = Math::Remap(*m_props.currentValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
+		if (m_props.value == nullptr)
+			return;
+
+		const float			 fillPercent = Math::Remap(*m_props.value, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		LinaVG::StyleOptions fill;
 		fill.color.start		= m_props.direction == WidgetDirection::Horizontal ? m_props.colorFillMin.AsLVG4() : m_props.colorFillMax.AsLVG4();
 		fill.color.end			= m_props.direction == WidgetDirection::Horizontal ? m_props.colorFillMax.AsLVG4() : m_props.colorFillMin.AsLVG4();

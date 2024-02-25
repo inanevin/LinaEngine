@@ -60,6 +60,7 @@ namespace Lina
 			float sdfOutlineSoftness  = 0.0f;
 		};
 
+		virtual void Initialize() override;
 		virtual void Draw(int32 threadIndex) override;
 
 		void CalculateIconSize();

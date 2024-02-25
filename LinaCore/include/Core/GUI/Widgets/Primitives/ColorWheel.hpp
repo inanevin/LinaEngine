@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina
 {
-
+	class Icon;
 	class ColorWheel : public Widget
 	{
 	public:
@@ -41,11 +41,24 @@ namespace Lina
 
 		struct Properties
 		{
+			Delegate<void(const Vector2&)> onValueChanged;
 		};
 
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		void		 SetHueSaturation(const Vector2& hs);
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
 	private:
-		Properties m_props = {};
+		Properties m_props		= {};
+		Icon*	   m_icon		= nullptr;
+		Vector2	   m_hs			= Vector2();
+		Vector2	   m_pointerPos = Vector2::Zero;
 	};
 } // namespace Lina

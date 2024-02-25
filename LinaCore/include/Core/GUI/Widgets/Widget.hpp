@@ -66,13 +66,14 @@ namespace Lina
 
 		virtual void Construct(){};
 		virtual void Destruct(){};
-		virtual void OnClicked(uint32 button){};
+		virtual void Initialize();
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
 
-		template <typename T> T* Allocate()
+		template <typename T> T* Allocate(const String& dbgName = "Widget")
 		{
 			T* t = m_manager->Allocate<T>();
+			t->SetDebugName(dbgName);
 			return t;
 		}
 

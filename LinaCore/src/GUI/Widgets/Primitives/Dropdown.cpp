@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/GUI/Theme.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
@@ -39,10 +40,13 @@ namespace Lina
 
 	void Dropdown::Construct()
 	{
-		m_text						 = Allocate<Text>();
-		m_text->GetProps().isDynamic = true;
-		m_icon						 = Allocate<Icon>();
-		m_icon->GetProps().isDynamic = true;
+		m_text						  = Allocate<Text>("Title");
+		m_text->GetProps().isDynamic  = true;
+		m_icon						  = Allocate<Icon>("Arrow");
+		m_icon->GetProps().isDynamic  = true;
+		m_icon->GetProps().icon		  = Theme::GetDef().iconDropdown;
+		m_icon->GetProps().offsetPerc = Theme::GetDef().iconDropdownOffset;
+		m_icon->CalculateIconSize();
 		AddChild(m_text);
 		AddChild(m_icon);
 	}
@@ -103,12 +107,38 @@ namespace Lina
 		{
 			if (!m_popup)
 			{
-				m_popup						 = Allocate<Popup>();
+				m_popup						 = Allocate<Popup>("DropdownPopup");
 				m_popup->GetProps().minWidth = m_rect.size.x;
 				m_manager->AddToForeground(m_popup);
 				m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
-				if (m_props.onPopupCreated)
-					m_props.onPopupCreated(m_popup);
+
+				Vector<String> items;
+				int32		   selectedItem = -1;
+				if (m_props.onAddItems)
+					m_props.onAddItems(items, selectedItem);
+
+				const int32 sz = static_cast<int32>(items.size());
+
+				for (int32 i = 0; i < sz; i++)
+				{
+					const auto& it = items[i];
+
+					PopupItem* item = Allocate<PopupItem>("DropdownItem");
+					item->SetSize(Vector2(0, Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale())));
+					item->GetProps().onClicked = [i, it, this]() {
+						m_text->GetProps().text = it;
+						m_text->CalculateTextSize();
+						if (m_props.onSelected)
+							m_props.onSelected(i);
+						ClosePopup();
+					};
+
+					item->GetProps().onClickedOutside = [this]() { ClosePopup(); };
+					item->GetProps().isSelected		  = i == selectedItem;
+					item->GetText()->GetProps().text  = it;
+					item->Initialize();
+					m_popup->AddChild(item);
+				}
 			}
 
 			m_manager->GrabControls(this);

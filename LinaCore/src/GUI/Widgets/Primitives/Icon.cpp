@@ -33,6 +33,10 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Icon::Initialize()
+	{
+		CalculateIconSize();
+	}
 
 	void Icon::Draw(int32 threadIndex)
 	{

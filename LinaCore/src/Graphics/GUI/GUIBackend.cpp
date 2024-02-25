@@ -121,15 +121,20 @@ namespace Lina
 		auto& req			 = AddDrawRequest(buf, threadIndex);
 		float drawBufferType = static_cast<float>(buf->m_drawBufferType);
 
-		if (buf->m_textureHandle == GUI_TEXTURE_HUE)
+		if (buf->m_textureHandle == GUI_TEXTURE_HUE_HORIZONTAL)
 		{
 			req.hasTextureBind = false;
 			drawBufferType	   = 5.0f; // special case :)
 		}
-		else if (buf->m_textureHandle == GUI_TEXTURE_COLORWHEEL)
+		else if (buf->m_textureHandle == GUI_TEXTURE_HUE_VERTICAL)
 		{
 			req.hasTextureBind = false;
 			drawBufferType	   = 6.0f; // special case :)
+		}
+		else if (buf->m_textureHandle == GUI_TEXTURE_COLORWHEEL)
+		{
+			req.hasTextureBind = false;
+			drawBufferType	   = 7.0f; // special case :)
 		}
 		else
 		{

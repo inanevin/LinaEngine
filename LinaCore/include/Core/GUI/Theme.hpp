@@ -84,6 +84,13 @@ namespace Lina
 			StringID defaultFont	 = 0;
 			StringID alternativeFont = 0;
 			StringID iconFont		 = 0;
+
+			String	iconDropdown				= "";
+			String	iconSliderHandle			= "";
+			String	iconColorWheelPointer		= "";
+			Vector2 iconDropdownOffset			= Vector2::Zero;
+			Vector2 iconSliderHandleOffset		= Vector2::Zero;
+			Vector2 iconColorWheelPointerOffset = Vector2::Zero;
 		};
 
 		static ThemeDef& GetDef()

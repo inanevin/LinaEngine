@@ -41,7 +41,7 @@ namespace Lina
 
 #define MAX_COPY_COMMANDS 50
 #define MAX_GUI_VERTICES  10000
-#define MAX_GUI_INDICES	  8000
+#define MAX_GUI_INDICES	  24000
 
 	void GUIRenderer::Create(GfxManager* gfxManager, ShaderWriteTargetType writeTargetType)
 	{

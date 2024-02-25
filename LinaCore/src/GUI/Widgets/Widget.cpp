@@ -54,6 +54,11 @@ namespace Lina
 		m_children.erase(it);
 	}
 
+	void Widget::Initialize()
+	{
+		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Initialize(); });
+	}
+
 	void Widget::Tick(float delta)
 	{
 		linatl::for_each(m_children.begin(), m_children.end(), [delta](Widget* child) -> void { child->Tick(delta); });

@@ -88,7 +88,7 @@ namespace Lina
 			c->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 
 		m_foregroundRoot->Draw(threadIndex);
-		DebugDraw(threadIndex, m_rootWidget);
+		// DebugDraw(threadIndex, m_rootWidget);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -177,7 +177,8 @@ namespace Lina
 			DebugDraw(threadIndex, c);
 
 		LinaVG::StyleOptions opts;
-		opts.isFilled = false;
+		opts.isFilled  = false;
+		opts.thickness = 2.0f;
 
 		const Rect			rect	= w->GetRect();
 		const Vector2&		mp		= m_window->GetMousePosition();
