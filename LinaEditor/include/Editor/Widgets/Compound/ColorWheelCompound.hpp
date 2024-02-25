@@ -40,6 +40,7 @@ namespace Lina
 	class InputField;
 	class Text;
 	class Dropdown;
+	class ColorField;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -105,8 +106,11 @@ namespace Lina::Editor
 		ColorComponent			 m_colorComp4		   = {};
 		Dropdown*				 m_displayDropdown	   = nullptr;
 
-		ColorDisplay m_selectedDisplay = ColorDisplay::RGB;
-		Color		 m_editedColor	   = Color::White;
-		Color		 m_hsv			   = Color(0, 0, 0, 0);
+		DirectionalLayout* m_dropdownAndColorsRow = nullptr;
+		DirectionalLayout* m_colorsLayout		  = nullptr;
+		ColorDisplay	   m_selectedDisplay	  = ColorDisplay::RGB;
+		Color			   m_editedColor		  = Color::White;
+		Color			   m_oldColor			  = Color::White;
+		Color			   m_hsv				  = Color(0, 0, 0, 0);
 	};
 } // namespace Lina::Editor

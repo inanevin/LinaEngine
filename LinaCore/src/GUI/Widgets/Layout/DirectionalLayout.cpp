@@ -37,11 +37,17 @@ namespace Lina
 	void DirectionalLayout::Tick(float delta)
 	{
 		Widget::SetIsHovered();
+		m_start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
+		m_end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
+		m_sz	 = m_end - m_start;
+		m_center = (m_start + m_end) * 0.5f;
 
 		if (m_props.mode == Mode::Default)
 			BehaviourDefault(delta);
-		else if (m_props.mode == Mode::EquallyDistribute)
-			BehaviourEquallyDistribute(delta);
+		else if (m_props.mode == Mode::EqualPositions)
+			BehaviourEqualPositions(delta);
+		else if (m_props.mode == Mode::EqualSizes)
+			BehaviourEqualSizes(delta);
 		else if (m_props.mode == Mode::SpaceBetween)
 		{
 			if (m_children.size() != 2)
@@ -51,49 +57,66 @@ namespace Lina
 		}
 	}
 
+	void DirectionalLayout::BehaviourEqualSizes(float delta)
+	{
+		if (m_children.empty())
+			return;
+
+		const float totalAvailableSize = (m_props.direction == WidgetDirection::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * m_props.padding);
+		const float perItemSize		   = totalAvailableSize / static_cast<float>(m_children.size());
+
+		float pos = m_props.direction == WidgetDirection::Horizontal ? m_start.x : m_start.y;
+		for (auto* c : m_children)
+		{
+			if (m_props.direction == WidgetDirection::Horizontal)
+			{
+				c->SetSizeX(perItemSize);
+				c->SetPosX(pos);
+			}
+			else
+			{
+				c->SetSizeY(perItemSize);
+				c->SetPosY(pos);
+			}
+
+			ExpandWidgetInCrossAxis(c);
+			AlignWidgetInCrossAxis(c);
+
+			pos += perItemSize + m_props.padding;
+			c->Tick(delta);
+		}
+	}
+
 	void DirectionalLayout::BehaviourSpaceBetween(float delta)
 	{
-		const Vector2 start = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
-		const Vector2 end	= Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
-		const Vector2 size	= end - start;
 
 		auto* c1 = m_children[0];
 		auto* c2 = m_children[1];
 
 		if (m_props.direction == WidgetDirection::Horizontal)
 		{
-			c1->SetPos(Vector2(start.x, start.y));
-			c2->SetPos(Vector2(end.x - c1->GetSizeX(), start.y));
-
-			if (c1->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c1->GetFlags().IsSet(WF_OWNS_SIZE))
-				c1->SetSizeY(size.y);
-
-			if (c2->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c2->GetFlags().IsSet(WF_OWNS_SIZE))
-				c2->SetSizeY(size.y);
+			c1->SetPosX(m_start.x);
+			c2->SetPosX(m_end.x - c1->GetSizeX());
 		}
 		else
 		{
-			c1->SetPos(Vector2(start.x, start.y));
-			c2->SetPos(Vector2(start.x, end.y - c1->GetSizeY()));
-
-			if (c1->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS && c1->GetFlags().IsSet(WF_OWNS_SIZE)))
-				c1->SetSizeX(size.x);
-
-			if (c2->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS && c2->GetFlags().IsSet(WF_OWNS_SIZE)))
-				c2->SetSizeX(size.x);
+			c1->SetPosY(m_start.y);
+			c2->SetPosY(m_end.y - c1->GetSizeY());
 		}
+
+		ExpandWidgetInCrossAxis(c1);
+		ExpandWidgetInCrossAxis(c2);
+		AlignWidgetInCrossAxis(c1);
+		AlignWidgetInCrossAxis(c2);
 
 		c1->Tick(delta);
 		c2->Tick(delta);
 	}
-	void DirectionalLayout::BehaviourEquallyDistribute(float delta)
+
+	void DirectionalLayout::BehaviourEqualPositions(float delta)
 	{
 		if (m_children.empty())
 			return;
-
-		const Vector2 start = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
-		const Vector2 end	= Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
-		const Vector2 size	= end - start;
 
 		float totalSizeMainAxis = 0.0f;
 
@@ -102,7 +125,7 @@ namespace Lina
 			c->Tick(delta);
 
 			if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
-				c->SetSizeY(size.y);
+				c->SetSizeY(m_sz.y);
 
 			const Vector2& sz = c->GetSize();
 
@@ -112,11 +135,11 @@ namespace Lina
 				totalSizeMainAxis += sz.y;
 		}
 
-		const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (size.x - totalSizeMainAxis) : (size.y - totalSizeMainAxis);
+		const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (m_sz.x - totalSizeMainAxis) : (m_sz.y - totalSizeMainAxis);
 		const float pad			  = remainingSize / static_cast<float>(m_children.size() + 1);
 
-		float x = start.x;
-		float y = start.y;
+		float x = m_start.x;
+		float y = m_start.y;
 
 		if (m_props.direction == WidgetDirection::Horizontal)
 			x += pad;
@@ -125,24 +148,63 @@ namespace Lina
 
 		for (auto* c : m_children)
 		{
-			c->SetPos(Vector2(x, y));
-
 			if (m_props.direction == WidgetDirection::Horizontal)
+			{
+				c->SetPosX(x);
+				AlignWidgetInCrossAxis(c);
+				ExpandWidgetInCrossAxis(c);
 				x += pad + c->GetSize().x;
+			}
 			else
+			{
+				c->SetPosY(x);
+				AlignWidgetInCrossAxis(c);
+				ExpandWidgetInCrossAxis(c);
 				y += pad + c->GetSize().y;
+			}
+		}
+	}
+
+	void DirectionalLayout::AlignWidgetInCrossAxis(Widget* w)
+	{
+		if (m_props.direction == WidgetDirection::Horizontal)
+		{
+			if (w->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
+				w->SetPosY(m_start.y);
+			else if (w->GetFlags().IsSet(WF_ALIGN_POSITIVE))
+				w->SetPosY(m_end.y - w->GetSizeY());
+			else
+				w->SetPosY(m_center.y - w->GetHalfSizeY());
+		}
+		else if (m_props.direction == WidgetDirection::Vertical)
+		{
+			if (w->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
+				w->SetPosX(m_start.x);
+			else if (w->GetFlags().IsSet(WF_ALIGN_POSITIVE))
+				w->SetPosX(m_end.x - w->GetSizeX());
+			else
+				w->SetPosX(m_center.x - w->GetHalfSizeX());
+		}
+	}
+
+	void DirectionalLayout::ExpandWidgetInCrossAxis(Widget* w)
+	{
+		if (m_props.direction == WidgetDirection::Horizontal)
+		{
+			if (w->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !w->GetFlags().IsSet(WF_OWNS_SIZE))
+				w->SetSizeY(m_sz.y);
+		}
+		else if (m_props.direction == WidgetDirection::Vertical)
+		{
+			if (w->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !w->GetFlags().IsSet(WF_OWNS_SIZE))
+				w->SetSizeX(m_sz.x);
 		}
 	}
 
 	void DirectionalLayout::BehaviourDefault(float delta)
 	{
-		const Vector2 start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
-		const Vector2 end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
-		const Vector2 size	 = end - start;
-		const Vector2 center = (start + end) * 0.5f;
-
-		float x = start.x;
-		float y = start.y;
+		float x = m_start.x;
+		float y = m_start.y;
 
 		Widget* expandWidget = nullptr;
 
@@ -154,15 +216,9 @@ namespace Lina
 
 			if (m_props.direction == WidgetDirection::Horizontal)
 			{
-				if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
-					c->SetSizeY(size.y);
-
-				if (c->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
-					c->SetPos(Vector2(x, y));
-				else if (c->GetFlags().IsSet(WF_ALIGN_POSITIVE))
-					c->SetPos(Vector2(x, end.y - c->GetSizeY()));
-				else
-					c->SetPos(Vector2(x, center.y - c->GetSize().y * 0.5f));
+				c->SetPosX(x);
+				ExpandWidgetInCrossAxis(c);
+				AlignWidgetInCrossAxis(c);
 
 				if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
 				{
@@ -176,15 +232,9 @@ namespace Lina
 			}
 			else
 			{
-				if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
-					c->SetSizeX(size.x);
-
-				if (c->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
-					c->SetPos(Vector2(x, y));
-				else if (c->GetFlags().IsSet(WF_ALIGN_POSITIVE))
-					c->SetPos(Vector2(end.x - c->GetSizeX(), y));
-				else
-					c->SetPos(Vector2(center.x - c->GetSize().x * 0.5f, y));
+				c->SetPosY(y);
+				ExpandWidgetInCrossAxis(c);
+				AlignWidgetInCrossAxis(c);
 
 				if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
 				{
@@ -207,7 +257,7 @@ namespace Lina
 
 		if (expandWidget != nullptr)
 		{
-			const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (start.x + size.x - x) : (start.y + size.y - y);
+			const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (m_start.x + m_sz.x - x) : (m_start.y + m_sz.y - y);
 
 			bool expandFound = false;
 

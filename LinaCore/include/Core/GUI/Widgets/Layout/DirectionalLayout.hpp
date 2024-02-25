@@ -42,7 +42,8 @@ namespace Lina
 		enum class Mode
 		{
 			Default,
-			EquallyDistribute,
+			EqualPositions,
+			EqualSizes,
 			SpaceBetween,
 		};
 
@@ -68,11 +69,19 @@ namespace Lina
 
 	private:
 		void BehaviourDefault(float delta);
-		void BehaviourEquallyDistribute(float delta);
+		void BehaviourEqualPositions(float delta);
+		void BehaviourEqualSizes(float delta);
 		void BehaviourSpaceBetween(float delta);
 
+		void ExpandWidgetInCrossAxis(Widget* w);
+		void AlignWidgetInCrossAxis(Widget* w);
+
 	private:
-		Properties m_props = {};
+		Properties m_props	= {};
+		Vector2	   m_start	= Vector2::Zero;
+		Vector2	   m_end	= Vector2::Zero;
+		Vector2	   m_sz		= Vector2::Zero;
+		Vector2	   m_center = Vector2::Zero;
 	};
 
 } // namespace Lina

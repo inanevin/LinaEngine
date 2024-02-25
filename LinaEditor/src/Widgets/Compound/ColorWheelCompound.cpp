@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/Stack.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
@@ -143,7 +144,7 @@ namespace Lina::Editor
 		m_topSlidersRow						  = Allocate<DirectionalLayout>("TopSlidersRow");
 		m_topSlidersRow->GetProps().direction = WidgetDirection::Horizontal;
 		m_topSlidersRow->GetProps().margins	  = TBLR::Eq(Theme::GetDef().baseIndent * 2.0f);
-		m_topSlidersRow->GetProps().mode	  = DirectionalLayout::Mode::EquallyDistribute;
+		m_topSlidersRow->GetProps().mode	  = DirectionalLayout::Mode::EqualPositions;
 		m_topSlidersRow->GetFlags().Set(WF_EXPAND_MAIN_AXIS | WF_EXPAND_CROSS_AXIS);
 		m_topSlidersRow->AddChild(m_hueComponent.layout, m_saturationComponent.layout, m_valueComponent.layout);
 
@@ -177,9 +178,33 @@ namespace Lina::Editor
 		};
 		m_displayDropdown->GetText()->GetProps().text = COLOR_DISPLAY_VALUES[m_selectedDisplay];
 		m_displayDropdown->Initialize();
-		// m_displayDropdown->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		m_displayDropdown->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 
-		m_bottomRow->AddChild(m_displayDropdown, m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
+		ColorField* oldColor	   = Allocate<ColorField>("OldColor");
+		oldColor->GetProps().value = &m_oldColor;
+		oldColor->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		oldColor->GetProps().rounding		  = 0.0f;
+		oldColor->GetProps().outlineThickness = 0.0f;
+
+		ColorField* newColor	   = Allocate<ColorField>("NewColor");
+		newColor->GetProps().value = &m_editedColor;
+		newColor->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		newColor->GetProps().rounding		  = 0.0f;
+		newColor->GetProps().outlineThickness = 0.0f;
+
+		m_colorsLayout						 = Allocate<DirectionalLayout>("ColorsRow");
+		m_colorsLayout->GetProps().direction = WidgetDirection::Horizontal;
+		m_colorsLayout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
+		m_colorsLayout->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		m_colorsLayout->AddChild(oldColor, newColor);
+
+		m_dropdownAndColorsRow						 = Allocate<DirectionalLayout>("DropdownAndColorsRow");
+		m_dropdownAndColorsRow->GetProps().direction = WidgetDirection::Horizontal;
+		m_dropdownAndColorsRow->GetProps().mode		 = DirectionalLayout::Mode::SpaceBetween;
+		m_dropdownAndColorsRow->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		m_dropdownAndColorsRow->AddChild(m_displayDropdown, m_colorsLayout);
+
+		m_bottomRow->AddChild(m_dropdownAndColorsRow, m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
 		AddChild(m_bottomRow);
 	}
 
@@ -213,7 +238,9 @@ namespace Lina::Editor
 		m_topRow->Tick(delta);
 
 		m_displayDropdown->SetSizeX(baseItemHeight * 6);
-		m_displayDropdown->SetSizeY(baseItemHeight);
+		m_colorsLayout->SetSizeX(baseItemHeight * 6);
+		m_dropdownAndColorsRow->SetSizeY(baseItemHeight);
+
 		m_colorComp1.row->SetSizeY(baseItemHeight);
 		m_colorComp2.row->SetSizeY(baseItemHeight);
 		m_colorComp3.row->SetSizeY(baseItemHeight);
