@@ -243,7 +243,15 @@ namespace Lina
 	bool InputField::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
 		if (!m_isEditing)
+		{
+			if (m_manager->GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
+			{
+				m_isEditing = true;
+				SelectAll();
+				return true;
+			}
 			return false;
+		}
 
 		if (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated)
 		{

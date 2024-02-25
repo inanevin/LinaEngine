@@ -168,47 +168,37 @@ namespace Lina
 		if (act == LinaGX::InputAction::Released)
 			return false;
 
+		auto stepValue = [&](float direction) {
+			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
+			*m_props.value += step * direction;
+			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+		};
+
 		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_LEFT)
 		{
-			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
-			*m_props.value -= step;
-			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+			stepValue(-1.0f);
 			return true;
 		}
 
 		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_RIGHT)
 		{
-			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
-			*m_props.value += step;
-			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+			stepValue(1.0f);
 			return true;
 		}
 
 		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_UP)
 		{
-			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
-			*m_props.value += step;
-			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+			stepValue(1.0f);
 			return true;
 		}
 
 		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_DOWN)
 		{
-			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
-			*m_props.value -= step;
-			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+			stepValue(-1.0f);
 			return true;
 		}
 
 		return false;
 	}
 
-	bool Slider::Select()
-	{
-		if (m_manager->GetControlsOwner() == this)
-			return false;
-
-		m_manager->GrabControls(this);
-		return true;
-	}
 } // namespace Lina

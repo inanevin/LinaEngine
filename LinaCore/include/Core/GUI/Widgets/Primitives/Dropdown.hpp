@@ -40,7 +40,7 @@ namespace Lina
 	class Dropdown : public Widget
 	{
 	public:
-		Dropdown() : Widget(2)
+		Dropdown() : Widget(2, WF_SELECTABLE)
 		{
 		}
 		virtual ~Dropdown() = default;
@@ -64,8 +64,10 @@ namespace Lina
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+        virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 
+        void CreatePopup();
 		void ClosePopup();
 
 		inline Properties& GetProps()

@@ -49,7 +49,7 @@ namespace Lina
 			bool* value				   = nullptr;
 		};
 
-		Checkbox() : Widget(1){};
+		Checkbox() : Widget(1, WF_SELECTABLE){};
 		virtual ~Checkbox() = default;
 
 		virtual void Construct() override;
@@ -57,7 +57,6 @@ namespace Lina
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
-		virtual bool Select() override;
 
 		inline Properties& GetProps()
 		{

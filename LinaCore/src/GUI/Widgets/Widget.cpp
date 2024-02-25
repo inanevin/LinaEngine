@@ -41,15 +41,33 @@ namespace Lina
 			LINA_ASSERT(static_cast<int32>(m_children.size()) < m_maxChilds, "");
 		}
 
-		w->m_drawOrder = m_drawOrder;
-		w->m_parent	   = this;
-		w->m_lgxWindow = m_lgxWindow;
-		w->m_manager   = m_manager;
+		w->m_drawOrder	 = m_drawOrder;
+		w->m_parent		 = this;
+		w->m_lgxWindow	 = m_lgxWindow;
+		w->m_manager	 = m_manager;
+		const size_t cur = m_children.size();
+
+		Widget* last = m_children.empty() ? nullptr : m_children[m_children.size() - 1];
+		if (last != nullptr)
+		{
+			last->m_next = w;
+			w->m_prev	 = last;
+		}
+
 		m_children.push_back(w);
 	}
 
 	void Widget::RemoveChild(Widget* w)
 	{
+		if (w->m_prev != nullptr)
+		{
+			w->m_prev->m_next = w->m_next;
+		}
+		if (w->m_next != nullptr)
+		{
+			w->m_next->m_prev = w->m_prev;
+		}
+
 		auto it = linatl::find_if(m_children.begin(), m_children.end(), [w](Widget* child) -> bool { return w == child; });
 		m_children.erase(it);
 	}
@@ -72,36 +90,6 @@ namespace Lina
 	void Widget::RenderSync()
 	{
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->RenderSync(); });
-	}
-
-	bool Widget::SelectNext()
-	{
-		for (auto* c : m_children)
-		{
-			if (c->SelectNext())
-				return true;
-		}
-
-		return Select();
-	}
-
-	bool Widget::SelectPrev()
-	{
-		if (m_parent == nullptr)
-			return false;
-
-		const auto& c	  = m_parent->GetChildren();
-		const int32 index = UtilVector::IndexOf(c, this);
-
-		if (Select())
-			return true;
-
-		if (index != 0)
-		{
-			return c[index - 1]->SelectPrev();
-		}
-
-		return false;
 	}
 
 	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)

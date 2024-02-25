@@ -141,4 +141,48 @@ namespace Lina
 		return false;
 	}
 
+	bool ColorSlider::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
+	{
+		if (m_manager->GetControlsOwner() != this)
+			return false;
+
+		if (act == LinaGX::InputAction::Released)
+			return false;
+
+		auto stepValue = [&](float direction) {
+			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
+			*m_props.value += step * direction;
+			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+
+			if (m_props.onValueChanged)
+				m_props.onValueChanged(*m_props.value);
+		};
+
+		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_LEFT)
+		{
+			stepValue(-1.0f);
+			return true;
+		}
+
+		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_RIGHT)
+		{
+			stepValue(1.0f);
+			return true;
+		}
+
+		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_UP)
+		{
+			stepValue(1.0f);
+			return true;
+		}
+
+		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_DOWN)
+		{
+			stepValue(-1.0f);
+			return true;
+		}
+
+		return false;
+	}
+
 } // namespace Lina

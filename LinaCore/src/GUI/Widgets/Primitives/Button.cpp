@@ -129,13 +129,4 @@ namespace Lina
 		return false;
 	}
 
-	bool Button::Select()
-	{
-		if (m_manager->GetControlsOwner() == this)
-			return false;
-
-		m_manager->GrabControls(this);
-		return true;
-	}
-
 } // namespace Lina

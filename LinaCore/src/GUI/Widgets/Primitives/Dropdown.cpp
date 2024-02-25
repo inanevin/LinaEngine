@@ -98,6 +98,35 @@ namespace Lina
 		m_manager->UnsetClip(threadIndex);
 	}
 
+	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
+	{
+		if (m_manager->GetControlsOwner() != this)
+			return false;
+
+		if (keycode != LINAGX_KEY_RETURN && keycode != LINAGX_KEY_ESCAPE)
+			return false;
+
+		if (action == LinaGX::InputAction::Released)
+			return false;
+
+		if (keycode == LINAGX_KEY_RETURN)
+		{
+			if (m_popup)
+				ClosePopup();
+			else
+				CreatePopup();
+			return true;
+		}
+
+		if (keycode == LINAGX_KEY_ESCAPE)
+		{
+			ClosePopup();
+			return true;
+		}
+
+		return false;
+	}
+
 	bool Dropdown::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
@@ -105,42 +134,7 @@ namespace Lina
 
 		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
 		{
-			if (!m_popup)
-			{
-				m_popup						 = Allocate<Popup>("DropdownPopup");
-				m_popup->GetProps().minWidth = m_rect.size.x;
-				m_manager->AddToForeground(m_popup);
-				m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
-
-				Vector<String> items;
-				int32		   selectedItem = -1;
-				if (m_props.onAddItems)
-					m_props.onAddItems(items, selectedItem);
-
-				const int32 sz = static_cast<int32>(items.size());
-
-				for (int32 i = 0; i < sz; i++)
-				{
-					const auto& it = items[i];
-
-					PopupItem* item = Allocate<PopupItem>("DropdownItem");
-					item->SetSize(Vector2(0, Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale())));
-					item->GetProps().onClicked = [i, it, this]() {
-						m_text->GetProps().text = it;
-						m_text->CalculateTextSize();
-						if (m_props.onSelected)
-							m_props.onSelected(i);
-						ClosePopup();
-					};
-
-					item->GetProps().onClickedOutside = [this]() { ClosePopup(); };
-					item->GetProps().isSelected		  = i == selectedItem;
-					item->GetText()->GetProps().text  = it;
-					item->Initialize();
-					m_popup->AddChild(item);
-				}
-			}
-
+			CreatePopup();
 			m_manager->GrabControls(this);
 			return true;
 		}
@@ -148,14 +142,52 @@ namespace Lina
 		return false;
 	}
 
-	void Dropdown::ClosePopup()
+	void Dropdown::CreatePopup()
 	{
 		if (m_popup)
+			return;
+
+		m_popup						 = Allocate<Popup>("DropdownPopup");
+		m_popup->GetProps().minWidth = m_rect.size.x;
+		m_manager->AddToForeground(m_popup);
+		m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
+
+		Vector<String> items;
+		int32		   selectedItem = -1;
+		if (m_props.onAddItems)
+			m_props.onAddItems(items, selectedItem);
+
+		const int32 sz = static_cast<int32>(items.size());
+
+		for (int32 i = 0; i < sz; i++)
 		{
-			m_manager->RemoveFromForeground(m_popup);
-			m_popup->Destroy();
-			m_popup = nullptr;
+			const auto& it = items[i];
+
+			PopupItem* item = Allocate<PopupItem>("DropdownItem");
+			item->SetSize(Vector2(0, Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale())));
+			item->GetProps().onClicked = [i, it, this]() {
+				m_text->GetProps().text = it;
+				m_text->CalculateTextSize();
+				if (m_props.onSelected)
+					m_props.onSelected(i);
+				ClosePopup();
+			};
+
+			item->GetProps().onClickedOutside = [this]() { ClosePopup(); };
+			item->GetProps().isSelected		  = i == selectedItem;
+			item->GetText()->GetProps().text  = it;
+			item->Initialize();
+			m_popup->AddChild(item);
 		}
+	}
+	void Dropdown::ClosePopup()
+	{
+		if (!m_popup)
+			return;
+
+		m_manager->RemoveFromForeground(m_popup);
+		m_popup->Destroy();
+		m_popup = nullptr;
 	}
 
 } // namespace Lina

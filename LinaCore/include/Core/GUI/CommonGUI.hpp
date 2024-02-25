@@ -89,6 +89,7 @@ namespace Lina
 		WF_OWNS_SIZE		 = 1 << 3,
 		WF_ALIGN_NEGATIVE	 = 1 << 4,
 		WF_ALIGN_POSITIVE	 = 1 << 5,
+		WF_SELECTABLE		 = 1 << 6,
 	};
 
 	enum class ColorDisplay

@@ -43,7 +43,7 @@ namespace Lina
 	class Slider : public Widget
 	{
 	public:
-		Slider() : Widget(1)
+		Slider() : Widget(1, WF_SELECTABLE)
 		{
 		}
 		virtual ~Slider() = default;
@@ -72,7 +72,6 @@ namespace Lina
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 mouse, LinaGX::InputAction action) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
-		virtual bool Select() override;
 
 		Properties& GetProps()
 		{

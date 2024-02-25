@@ -55,7 +55,7 @@ namespace Lina
 			Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
 		};
 
-		Button() : Widget(1){};
+		Button() : Widget(1, WF_SELECTABLE){};
 		virtual ~Button() = default;
 
 		virtual void Construct() override;
@@ -63,7 +63,6 @@ namespace Lina
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual bool Select() override;
 
 		inline Properties& GetProps()
 		{

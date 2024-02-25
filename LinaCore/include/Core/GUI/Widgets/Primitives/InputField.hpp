@@ -39,7 +39,7 @@ namespace Lina
 	class InputField : public Widget
 	{
 	public:
-		InputField() : Widget(1)
+		InputField() : Widget(1, WF_SELECTABLE)
 		{
 		}
 		virtual ~InputField() = default;

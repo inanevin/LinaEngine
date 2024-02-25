@@ -36,7 +36,7 @@ namespace Lina
 	class ColorSlider : public Widget
 	{
 	public:
-		ColorSlider() : Widget(0)
+		ColorSlider() : Widget(0, WF_SELECTABLE)
 		{
 		}
 		virtual ~ColorSlider() = default;
@@ -64,6 +64,7 @@ namespace Lina
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()
 		{

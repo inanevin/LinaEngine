@@ -108,6 +108,9 @@ namespace Lina
 		void ClearHoveredRecursive(Widget* w);
 		void ClearHoverStatus(Widget* w);
 
+		Widget* FindNextSelectable(Widget* start);
+		Widget* FindPreviousSelectable(Widget* start);
+
 	private:
 		friend class Widget;
 
