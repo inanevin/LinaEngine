@@ -280,7 +280,7 @@ namespace Lina::Editor
 		{
 			ColorWheelCompound* wh = Allocate<ColorWheelCompound>("ColorWheelCompound");
 			wh->Initialize();
-			wh->SetTargetColor(Color(0.7f, 0.2f, 0.2f, 1.0f));
+			wh->SetTargetColor(Color(0.12f, 0.07f, 0.03f, 1.0f));
 			wh->SetPos(Vector2(x, y));
 			wh->SetSize(Vector2(600, 800));
 			AddChild(wh);

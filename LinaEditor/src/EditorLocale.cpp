@@ -31,7 +31,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	HashMap<LocaleStr, String> Locale::s_englishMap = {
-
+		{LocaleStr::Hex, "Hex"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

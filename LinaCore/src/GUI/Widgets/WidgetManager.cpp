@@ -88,7 +88,7 @@ namespace Lina
 			c->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 
 		m_foregroundRoot->Draw(threadIndex);
-		DebugDraw(threadIndex, m_rootWidget);
+		// DebugDraw(threadIndex, m_rootWidget);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -197,6 +197,9 @@ namespace Lina
 			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + 15 + sz.x, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, FOREGROUND_DRAW_ORDER);
 			m_debugDrawYOffset += lvgFont->m_size * 1.5f;
 		}
+
+		if (drawRects)
+			w->DebugDraw(threadIndex, FOREGROUND_DRAW_ORDER);
 	}
 
 	void WidgetManager::SetClip(int32 threadIndex, const Rect& r, const TBLR& margins)

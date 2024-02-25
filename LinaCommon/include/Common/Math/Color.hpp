@@ -68,9 +68,30 @@ namespace Lina
 			return Color(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
 		}
 
-		Color HSToRGB();
-		Color RGBToHSV();
-		Color HSVToRGB();
+		Color operator/(float v) const
+		{
+			return Color(x / v, y / v, z / v, w / v);
+		}
+
+		Color operator/=(float v) const
+		{
+			return Color(x / v, y / v, z / v, w / v);
+		}
+
+		Color operator*=(float v) const
+		{
+			return Color(x * v, y * v, z * v, w * v);
+		}
+
+		Color  HS2SRGB() const;
+		Color  SRGB2HSV() const;
+		Color  HSV2SRGB() const;
+		Color  SRGB2Linear() const;
+		Color  Linear2SRGB() const;
+		String GetHex();
+		void   FromHex(const String& hex);
+
+		void Round();
 
 	public:
 		static Color Red;

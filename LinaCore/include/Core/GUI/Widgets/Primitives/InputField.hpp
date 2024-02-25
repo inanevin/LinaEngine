@@ -67,7 +67,7 @@ namespace Lina
 			float  valueMin			   = 0.0f;
 			float  valueMax			   = 10.0f;
 			float  valueStep		   = 0.0f;
-			uint32 valuePrecision	   = 3;
+			uint32 decimals			   = 3;
 		};
 
 		virtual void Construct() override;

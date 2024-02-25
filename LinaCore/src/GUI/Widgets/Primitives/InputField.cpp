@@ -199,7 +199,7 @@ namespace Lina
 			const float value = *m_props.value;
 			if (!Math::Equals(value, m_lastStoredValue, 0.0001f) || !m_syncedAtLeastOnce)
 			{
-				m_text->GetProps().text = UtilStr::FloatToString(value, m_props.valuePrecision);
+				m_text->GetProps().text = UtilStr::FloatToString(value, m_props.decimals);
 				m_text->CalculateTextSize();
 				m_lastStoredValue	= value;
 				m_syncedAtLeastOnce = true;

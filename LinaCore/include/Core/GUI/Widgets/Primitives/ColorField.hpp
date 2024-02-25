@@ -45,12 +45,14 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			Color*			 value				  = nullptr;
-			Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
-			float			 hoverHighlightPerc	  = 0.1f;
-			float			 rounding			  = Theme::GetDef().baseRounding;
-			float			 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
+			Color*			 value					 = nullptr;
+			bool			 drawCheckeredBackground = false;
+			bool			 convertToLinear		 = false;
+			Color			 colorOutline			 = Theme::GetDef().outlineColorBase;
+			Color			 colorOutlineControls	 = Theme::GetDef().outlineColorControls;
+			float			 hoverHighlightPerc		 = 0.1f;
+			float			 rounding				 = Theme::GetDef().baseRounding;
+			float			 outlineThickness		 = Theme::GetDef().baseOutlineThickness;
 		};
 
 		virtual void Tick(float delta) override;

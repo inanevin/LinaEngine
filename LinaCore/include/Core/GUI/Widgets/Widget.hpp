@@ -69,6 +69,7 @@ namespace Lina
 		virtual void Initialize();
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
+		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
 
 		template <typename T> T* Allocate(const String& dbgName = "Widget")
 		{

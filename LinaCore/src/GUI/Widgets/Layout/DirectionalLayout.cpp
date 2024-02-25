@@ -30,12 +30,44 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
 	void DirectionalLayout::Tick(float delta)
 	{
+		// Fetch size from children if empty.
+		if (m_props.direction == WidgetDirection::Horizontal && Math::Equals(m_rect.size.x, 0.0f, 0.1f))
+		{
+			float maxY = 0.0f;
+			for (auto* c : m_children)
+			{
+				m_rect.size.x += c->GetSizeX() + m_props.padding;
+				maxY = Math::Max(c->GetSizeY(), maxY);
+			}
+
+			m_rect.size.x -= m_props.padding;
+			m_rect.size.x += m_props.margins.left + m_props.margins.right;
+
+			if (Math::Equals(m_rect.size.y, 0.0f, 0.1f))
+				m_rect.size.y = maxY + m_props.margins.top + m_props.margins.bottom;
+		}
+		else if (m_props.direction == WidgetDirection::Vertical && Math::Equals(m_rect.size.y, 0.0f, 0.1f))
+		{
+			float maxX = 0.0f;
+			for (auto* c : m_children)
+			{
+				m_rect.size.y += c->GetSizeY() + m_props.padding;
+				maxX = Math::Max(c->GetSizeX(), maxX);
+			}
+
+			m_rect.size.y -= m_props.padding;
+			m_rect.size.y += m_props.margins.top + m_props.margins.bottom;
+
+			if (Math::Equals(m_rect.size.x, 0.0f, 0.1f))
+				m_rect.size.x = maxX + m_props.margins.left + m_props.margins.right;
+		}
+
 		Widget::SetIsHovered();
 		m_start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
 		m_end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
@@ -48,13 +80,8 @@ namespace Lina
 			BehaviourEqualPositions(delta);
 		else if (m_props.mode == Mode::EqualSizes)
 			BehaviourEqualSizes(delta);
-		else if (m_props.mode == Mode::SpaceBetween)
-		{
-			if (m_children.size() != 2)
-				BehaviourDefault(delta);
-			else
-				BehaviourSpaceBetween(delta);
-		}
+		else if (m_props.mode == Mode::CustomAlignment)
+			BehaviourCustomAlignment(delta);
 	}
 
 	void DirectionalLayout::BehaviourEqualSizes(float delta)
@@ -87,30 +114,28 @@ namespace Lina
 		}
 	}
 
-	void DirectionalLayout::BehaviourSpaceBetween(float delta)
+	void DirectionalLayout::BehaviourCustomAlignment(float delta)
 	{
-
-		auto* c1 = m_children[0];
-		auto* c2 = m_children[1];
-
-		if (m_props.direction == WidgetDirection::Horizontal)
+		int32 i = 0;
+		for (auto* c : m_children)
 		{
-			c1->SetPosX(m_start.x);
-			c2->SetPosX(m_end.x - c1->GetSizeX());
-		}
-		else
-		{
-			c1->SetPosY(m_start.y);
-			c2->SetPosY(m_end.y - c1->GetSizeY());
-		}
 
-		ExpandWidgetInCrossAxis(c1);
-		ExpandWidgetInCrossAxis(c2);
-		AlignWidgetInCrossAxis(c1);
-		AlignWidgetInCrossAxis(c2);
+			if (m_props.direction == WidgetDirection::Horizontal)
+			{
+				float target = Math::Clamp(m_start.x + m_sz.x * m_props.customAlignments[i] - c->GetHalfSizeX(), m_start.x, m_end.x - c->GetSizeX());
+				c->SetPosX(target);
+			}
+			else if (m_props.direction == WidgetDirection::Vertical)
+			{
+				float target = Math::Clamp(m_start.y + m_sz.y * m_props.customAlignments[i] - c->GetHalfSizeY(), m_start.y, m_end.y - c->GetSizeY());
+				c->SetPosY(target);
+			}
 
-		c1->Tick(delta);
-		c2->Tick(delta);
+			ExpandWidgetInCrossAxis(c);
+			AlignWidgetInCrossAxis(c);
+			c->Tick(delta);
+			i++;
+		}
 	}
 
 	void DirectionalLayout::BehaviourEqualPositions(float delta)
@@ -122,8 +147,6 @@ namespace Lina
 
 		for (auto* c : m_children)
 		{
-			c->Tick(delta);
-
 			if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
 				c->SetSizeY(m_sz.y);
 
@@ -133,6 +156,8 @@ namespace Lina
 				totalSizeMainAxis += sz.x;
 			else
 				totalSizeMainAxis += sz.y;
+
+			c->Tick(delta);
 		}
 
 		const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (m_sz.x - totalSizeMainAxis) : (m_sz.y - totalSizeMainAxis);
@@ -295,5 +320,54 @@ namespace Lina
 		}
 
 		Widget::Tick(delta);
+	}
+
+	void DirectionalLayout::Draw(int32 threadIndex)
+	{
+		Widget::Draw(threadIndex);
+
+		LinaVG::StyleOptions border;
+		border.color = m_props.colorBorder.AsLVG4();
+
+		if (!Math::Equals(m_props.borderThickness.left, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos;
+			const Vector2 end	= start + Vector2(0, m_rect.size.y);
+			border.thickness	= m_props.borderThickness.left;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+
+		if (!Math::Equals(m_props.borderThickness.right, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos + Vector2(m_rect.size.x, 0.0f);
+			const Vector2 end	= start + Vector2(0, m_rect.size.y);
+			border.thickness	= m_props.borderThickness.right;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+
+		if (!Math::Equals(m_props.borderThickness.top, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos;
+			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
+			border.thickness	= m_props.borderThickness.top;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+
+		if (!Math::Equals(m_props.borderThickness.bottom, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos + Vector2(0.0f, m_rect.size.y);
+			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
+			border.thickness	= m_props.borderThickness.bottom;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+	}
+	void DirectionalLayout::DebugDraw(int32 threadIndex, int32 drawOrder)
+	{
+		LinaVG::StyleOptions opts;
+		opts.color	   = Color::Red.AsLVG4();
+		opts.isFilled  = false;
+		opts.thickness = 2.0f;
+		LinaVG::DrawRect(threadIndex, m_start.AsLVG(), m_end.AsLVG(), opts, 0.0f, drawOrder);
+		Widget::DebugDraw(threadIndex, drawOrder);
 	}
 } // namespace Lina

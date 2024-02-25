@@ -44,18 +44,23 @@ namespace Lina
 			Default,
 			EqualPositions,
 			EqualSizes,
-			SpaceBetween,
+			CustomAlignment,
 		};
 
 		struct Properties
 		{
-			TBLR			margins	  = {};
-			float			padding	  = 0.0f;
-			WidgetDirection direction = WidgetDirection::Horizontal;
-			Mode			mode	  = Mode::Default;
+			Vector<float>	customAlignments = {};
+			TBLR			margins			 = {};
+			TBLR			borderThickness;
+			WidgetDirection direction	= WidgetDirection::Horizontal;
+			Mode			mode		= Mode::Default;
+			float			padding		= 0.0f;
+			Color			colorBorder = Theme::GetDef().background2;
 		};
 
 		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;
 
 		inline void SetProps(const Properties& props)
 		{
@@ -71,7 +76,7 @@ namespace Lina
 		void BehaviourDefault(float delta);
 		void BehaviourEqualPositions(float delta);
 		void BehaviourEqualSizes(float delta);
-		void BehaviourSpaceBetween(float delta);
+		void BehaviourCustomAlignment(float delta);
 
 		void ExpandWidgetInCrossAxis(Widget* w);
 		void AlignWidgetInCrossAxis(Widget* w);

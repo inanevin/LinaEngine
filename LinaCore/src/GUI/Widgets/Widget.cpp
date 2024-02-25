@@ -95,6 +95,11 @@ namespace Lina
 
 		return false;
 	}
+
+	void Widget::DebugDraw(int32 threadIndex, int32 drawOrder)
+	{
+		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex, drawOrder](Widget* child) -> void { child->DebugDraw(threadIndex, drawOrder); });
+	}
 	void Widget::Destroy()
 	{
 		Destruct();

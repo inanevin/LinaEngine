@@ -56,6 +56,7 @@ namespace Lina::Editor
 
 		struct Properties
 		{
+			Delegate<void(const Color& linearColor)> onValueChanged;
 		};
 
 		virtual void Construct() override;
@@ -67,6 +68,11 @@ namespace Lina::Editor
 		inline Properties& GetProps()
 		{
 			return m_props;
+		}
+
+		inline const Color& GetColor() const
+		{
+			return m_editedColor;
 		}
 
 	private:
@@ -89,28 +95,32 @@ namespace Lina::Editor
 		SaturationValueComponent ConstructHSVComponent(const String& label, bool isHue, float* val);
 		ColorComponent			 ConstructColorComponent(const String& label, float* val);
 		void					 Recalculate(bool sourceRGB);
+		void					 SwitchColorDisplay(ColorDisplay display);
 
 	private:
-		Properties				 m_props			   = {};
-		DirectionalLayout*		 m_topRow			   = nullptr;
-		Stack*					 m_wheelStack		   = nullptr;
-		ColorWheel*				 m_wheel			   = nullptr;
-		DirectionalLayout*		 m_topSlidersRow	   = nullptr;
-		DirectionalLayout*		 m_bottomRow		   = nullptr;
-		SaturationValueComponent m_hueComponent		   = {};
-		SaturationValueComponent m_saturationComponent = {};
-		SaturationValueComponent m_valueComponent	   = {};
-		ColorComponent			 m_colorComp1		   = {};
-		ColorComponent			 m_colorComp2		   = {};
-		ColorComponent			 m_colorComp3		   = {};
-		ColorComponent			 m_colorComp4		   = {};
-		Dropdown*				 m_displayDropdown	   = nullptr;
-
-		DirectionalLayout* m_dropdownAndColorsRow = nullptr;
-		DirectionalLayout* m_colorsLayout		  = nullptr;
-		ColorDisplay	   m_selectedDisplay	  = ColorDisplay::RGB;
-		Color			   m_editedColor		  = Color::White;
-		Color			   m_oldColor			  = Color::White;
-		Color			   m_hsv				  = Color(0, 0, 0, 0);
+		Properties				 m_props				= {};
+		DirectionalLayout*		 m_topRow				= nullptr;
+		Stack*					 m_wheelStack			= nullptr;
+		ColorWheel*				 m_wheel				= nullptr;
+		DirectionalLayout*		 m_topSlidersRow		= nullptr;
+		DirectionalLayout*		 m_bottomRow			= nullptr;
+		SaturationValueComponent m_hueComponent			= {};
+		SaturationValueComponent m_saturationComponent	= {};
+		SaturationValueComponent m_valueComponent		= {};
+		ColorComponent			 m_colorComp1			= {};
+		ColorComponent			 m_colorComp2			= {};
+		ColorComponent			 m_colorComp3			= {};
+		ColorComponent			 m_colorComp4			= {};
+		Dropdown*				 m_displayDropdown		= nullptr;
+		InputField*				 m_hexField				= nullptr;
+		DirectionalLayout*		 m_dropdownAndColorsRow = nullptr;
+		DirectionalLayout*		 m_colorsLayout			= nullptr;
+		ColorField*				 m_newColorField		= nullptr;
+		ColorField*				 m_oldColorField		= nullptr;
+		ColorDisplay			 m_selectedDisplay		= ColorDisplay::RGB;
+		Color					 m_editedColor			= Color::White;
+		Color					 m_editedColor255		= Color::White;
+		Color					 m_oldColor				= Color::White;
+		Color					 m_hsv					= Color(0, 0, 0, 0);
 	};
 } // namespace Lina::Editor

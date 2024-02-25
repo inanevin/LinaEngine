@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -45,14 +46,27 @@ namespace Lina
 		if (m_props.value == nullptr)
 			return;
 
-		const Color			 target	 = *m_props.value;
-		const Color			 hovered = target + target * m_props.hoverHighlightPerc;
+		const Color target = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+		// const Color			 hovered = target + target * m_props.hoverHighlightPerc;
+
+		int32 drawOrder = m_drawOrder;
+
+		if (m_props.drawCheckeredBackground)
+		{
+			LinaVG::StyleOptions checkered;
+			checkered.color			  = Color::White.AsLVG4();
+			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED;
+			checkered.textureUVTiling = Vector2(m_rect.size.x / 256.0f, m_rect.size.y / 256.0f).AsLVG();
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), checkered, 0.0f, drawOrder);
+			drawOrder++;
+		}
+
 		LinaVG::StyleOptions opts;
 		opts.rounding				  = m_props.rounding;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = m_isHovered ? hovered.AsLVG4() : target.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+		opts.color					  = target.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, drawOrder);
 	}
 
 	bool ColorField::OnMouse(uint32 button, LinaGX::InputAction action)

@@ -33,7 +33,6 @@ namespace Lina
 	HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES = {
 		{ColorDisplay::RGB, "RGB (0-1)"},
 		{ColorDisplay::RGB255, "RGB (0-255)"},
-		{ColorDisplay::HSV, "HSV"},
 	};
 
 } // namespace Lina

@@ -95,7 +95,6 @@ namespace Lina
 	{
 		RGB = 0,
 		RGB255,
-		HSV,
 		MAX,
 	};
 

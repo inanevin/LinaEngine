@@ -56,7 +56,7 @@ namespace Lina
 		stream >> x >> y >> z >> w;
 	}
 
-	Color Color::HSToRGB()
+	Color Color::HS2SRGB() const
 	{
 		const float hue		   = x;
 		const float saturation = y;
@@ -67,7 +67,7 @@ namespace Lina
 		return Math::Lerp(Color::White, Color(r, g, b, 1.0f), saturation);
 	}
 
-	Color Color::RGBToHSV()
+	Color Color::SRGB2HSV() const
 	{
 		Color hsv;
 
@@ -108,7 +108,7 @@ namespace Lina
 		return hsv;
 	}
 
-	Color Color::HSVToRGB()
+	Color Color::HSV2SRGB() const
 	{
 		Color rgb;
 		float C = z * y;
@@ -159,5 +159,69 @@ namespace Lina
 		rgb.w = w;
 
 		return rgb;
+	}
+
+	Color Color::SRGB2Linear() const
+	{
+		auto convert = [](float value) {
+			if (value <= 0.04045f)
+			{
+				return value / 12.92f;
+			}
+			else
+			{
+				return Math::Pow((value + 0.055f) / 1.055f, 2.4f);
+			}
+		};
+
+		return Color(convert(x), convert(y), convert(z), convert(w));
+	}
+
+	Color Color::Linear2SRGB() const
+	{
+		auto convert = [](float value) {
+			if (value <= 0.0031308f)
+			{
+				return value * 12.92f;
+			}
+			else
+			{
+				return 1.055f * Math::Pow(value, 1.0f / 2.4f) - 0.055f;
+			}
+		};
+
+		return Color(convert(x), convert(y), convert(z), convert(w));
+	}
+
+	void Color::Round()
+	{
+		x = Math::RoundToFloat(x);
+		y = Math::RoundToFloat(y);
+		z = Math::RoundToFloat(z);
+		w = Math::RoundToFloat(w);
+	}
+
+	void Color::FromHex(const String& hex)
+	{
+
+		if (hex.size() != 7)
+			return;
+
+		if (hex[0] != '#')
+			return;
+
+		uint32 r, g, b;
+		std::sscanf(hex.c_str(), "#%02x%02x%02x", &r, &g, &b);
+		*this = Color{static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, 1.0f};
+	}
+
+	String Color::GetHex()
+	{
+		const int32		  r = static_cast<int32>(x * 255);
+		const int32		  g = static_cast<int32>(y * 255);
+		const int32		  b = static_cast<int32>(z * 255);
+		std::stringstream ss;
+		ss << "#" << std::hex << std::setfill('0') << std::setw(2) << r << std::setw(2) << g << std::setw(2) << b;
+		return ss.str().c_str();
 	}
 } // namespace Lina

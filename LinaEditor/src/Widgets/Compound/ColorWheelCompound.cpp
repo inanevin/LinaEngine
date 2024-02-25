@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
+#include "Editor/EditorLocale.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
@@ -141,17 +142,19 @@ namespace Lina::Editor
 		m_valueComponent	  = ConstructHSVComponent("V", false, &m_hsv.z);
 
 		// Slider row
-		m_topSlidersRow						  = Allocate<DirectionalLayout>("TopSlidersRow");
-		m_topSlidersRow->GetProps().direction = WidgetDirection::Horizontal;
-		m_topSlidersRow->GetProps().margins	  = TBLR::Eq(Theme::GetDef().baseIndent * 2.0f);
-		m_topSlidersRow->GetProps().mode	  = DirectionalLayout::Mode::EqualPositions;
+		m_topSlidersRow									 = Allocate<DirectionalLayout>("TopSlidersRow");
+		m_topSlidersRow->GetProps().direction			 = WidgetDirection::Horizontal;
+		m_topSlidersRow->GetProps().margins				 = TBLR::Eq(Theme::GetDef().baseIndent * 2.0f);
+		m_topSlidersRow->GetProps().mode				 = DirectionalLayout::Mode::CustomAlignment;
+		m_topSlidersRow->GetProps().customAlignments	 = {0.0f, 0.5f, 1.0f};
+		m_topSlidersRow->GetProps().borderThickness.left = Theme::GetDef().baseOutlineThickness;
 		m_topSlidersRow->GetFlags().Set(WF_EXPAND_MAIN_AXIS | WF_EXPAND_CROSS_AXIS);
 		m_topSlidersRow->AddChild(m_hueComponent.layout, m_saturationComponent.layout, m_valueComponent.layout);
 
 		// Top row
-		m_topRow					   = Allocate<DirectionalLayout>("TopRow");
-		m_topRow->GetProps().direction = WidgetDirection::Horizontal;
-		m_topRow->SetDebugName("TopRow");
+		m_topRow									= Allocate<DirectionalLayout>("TopRow");
+		m_topRow->GetProps().direction				= WidgetDirection::Horizontal;
+		m_topRow->GetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness;
 		m_topRow->AddChild(m_wheelStack, m_topSlidersRow);
 		AddChild(m_topRow);
 
@@ -169,42 +172,55 @@ namespace Lina::Editor
 
 		// Display dropdown
 		m_displayDropdown						 = Allocate<Dropdown>("ColorDisplayDropdown");
-		m_displayDropdown->GetProps().onSelected = [this](int32 item) { m_selectedDisplay = static_cast<ColorDisplay>(item); };
+		m_displayDropdown->GetProps().onSelected = [this](int32 item) { SwitchColorDisplay(static_cast<ColorDisplay>(item)); };
 		m_displayDropdown->GetFlags().Set(WF_ALIGN_NEGATIVE);
 		m_displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, int32& outSelected) {
 			for (int32 i = 0; i < static_cast<int32>(ColorDisplay::MAX); i++)
 				outItems.push_back(COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(i)]);
 			outSelected = static_cast<int32>(m_selectedDisplay);
 		};
+
 		m_displayDropdown->GetText()->GetProps().text = COLOR_DISPLAY_VALUES[m_selectedDisplay];
 		m_displayDropdown->Initialize();
 		m_displayDropdown->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 
-		ColorField* oldColor	   = Allocate<ColorField>("OldColor");
-		oldColor->GetProps().value = &m_oldColor;
-		oldColor->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
-		oldColor->GetProps().rounding		  = 0.0f;
-		oldColor->GetProps().outlineThickness = 0.0f;
+		m_oldColorField					  = Allocate<ColorField>("OldColor");
+		m_oldColorField->GetProps().value = &m_oldColor;
+		m_oldColorField->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		m_oldColorField->GetProps().rounding		 = 0.0f;
+		m_oldColorField->GetProps().outlineThickness = 0.0f;
 
-		ColorField* newColor	   = Allocate<ColorField>("NewColor");
-		newColor->GetProps().value = &m_editedColor;
-		newColor->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
-		newColor->GetProps().rounding		  = 0.0f;
-		newColor->GetProps().outlineThickness = 0.0f;
+		m_newColorField					  = Allocate<ColorField>("NewColor");
+		m_newColorField->GetProps().value = &m_editedColor;
+		m_newColorField->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		m_newColorField->GetProps().rounding				= 0.0f;
+		m_newColorField->GetProps().outlineThickness		= 0.0f;
+		m_newColorField->GetProps().drawCheckeredBackground = true;
+		m_newColorField->GetProps().convertToLinear			= true;
 
 		m_colorsLayout						 = Allocate<DirectionalLayout>("ColorsRow");
 		m_colorsLayout->GetProps().direction = WidgetDirection::Horizontal;
 		m_colorsLayout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
 		m_colorsLayout->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
-		m_colorsLayout->AddChild(oldColor, newColor);
+		m_colorsLayout->AddChild(m_oldColorField, m_newColorField);
 
-		m_dropdownAndColorsRow						 = Allocate<DirectionalLayout>("DropdownAndColorsRow");
-		m_dropdownAndColorsRow->GetProps().direction = WidgetDirection::Horizontal;
-		m_dropdownAndColorsRow->GetProps().mode		 = DirectionalLayout::Mode::SpaceBetween;
+		m_hexField = Allocate<InputField>();
+		m_hexField->GetFlags().Set(WF_ALIGN_NEGATIVE);
+		m_hexField->GetProps().onEditEnd = [this](const String& str) {
+			m_editedColor.FromHex(str);
+			m_editedColor255 = m_editedColor * 255.0f;
+			m_editedColor255.Round();
+			Recalculate(true);
+		};
+
+		m_dropdownAndColorsRow								= Allocate<DirectionalLayout>("DropdownAndColorsRow");
+		m_dropdownAndColorsRow->GetProps().direction		= WidgetDirection::Horizontal;
+		m_dropdownAndColorsRow->GetProps().customAlignments = {0.0f, 1.0f};
+		m_dropdownAndColorsRow->GetProps().mode				= DirectionalLayout::Mode::CustomAlignment;
 		m_dropdownAndColorsRow->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 		m_dropdownAndColorsRow->AddChild(m_displayDropdown, m_colorsLayout);
 
-		m_bottomRow->AddChild(m_dropdownAndColorsRow, m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
+		m_bottomRow->AddChild(m_hexField, m_dropdownAndColorsRow, m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
 		AddChild(m_bottomRow);
 	}
 
@@ -237,6 +253,9 @@ namespace Lina::Editor
 		m_topRow->SetSize(Vector2(m_rect.size.x, m_wheelStack->GetSize().x));
 		m_topRow->Tick(delta);
 
+		m_hexField->SetSizeX(baseItemHeight * 6);
+		m_hexField->SetSizeY(baseItemHeight);
+
 		m_displayDropdown->SetSizeX(baseItemHeight * 6);
 		m_colorsLayout->SetSizeX(baseItemHeight * 6);
 		m_dropdownAndColorsRow->SetSizeY(baseItemHeight);
@@ -264,37 +283,111 @@ namespace Lina::Editor
 
 	void ColorWheelCompound::SetTargetColor(const Color& col)
 	{
-		m_editedColor = col;
+		m_editedColor = col.Linear2SRGB();
 		Recalculate(true);
+	}
+
+	void ColorWheelCompound::SwitchColorDisplay(ColorDisplay display)
+	{
+		m_selectedDisplay = display;
+
+		if (m_selectedDisplay == ColorDisplay::RGB255)
+		{
+			m_editedColor255 = m_editedColor * 255.0f;
+			m_editedColor255.Round();
+
+			m_colorComp1.slider->GetProps().maxValue = 255.0f;
+			m_colorComp2.slider->GetProps().maxValue = 255.0f;
+			m_colorComp3.slider->GetProps().maxValue = 255.0f;
+			m_colorComp4.slider->GetProps().maxValue = 255.0f;
+			m_colorComp1.slider->GetProps().value	 = &m_editedColor255.x;
+			m_colorComp2.slider->GetProps().value	 = &m_editedColor255.y;
+			m_colorComp3.slider->GetProps().value	 = &m_editedColor255.z;
+			m_colorComp4.slider->GetProps().value	 = &m_editedColor255.w;
+
+			m_colorComp1.field->GetProps().valueMax = 255.0f;
+			m_colorComp2.field->GetProps().valueMax = 255.0f;
+			m_colorComp3.field->GetProps().valueMax = 255.0f;
+			m_colorComp4.field->GetProps().valueMax = 255.0f;
+
+			m_colorComp1.field->GetProps().value	= &m_editedColor255.x;
+			m_colorComp2.field->GetProps().value	= &m_editedColor255.y;
+			m_colorComp3.field->GetProps().value	= &m_editedColor255.z;
+			m_colorComp4.field->GetProps().value	= &m_editedColor255.w;
+			m_colorComp1.field->GetProps().decimals = 0;
+			m_colorComp2.field->GetProps().decimals = 0;
+			m_colorComp3.field->GetProps().decimals = 0;
+			m_colorComp4.field->GetProps().decimals = 0;
+		}
+		else
+		{
+			m_editedColor = m_editedColor255 / 255.0f;
+
+			m_colorComp1.slider->GetProps().maxValue = 1.0f;
+			m_colorComp2.slider->GetProps().maxValue = 1.0f;
+			m_colorComp3.slider->GetProps().maxValue = 1.0f;
+			m_colorComp4.slider->GetProps().maxValue = 1.0f;
+			m_colorComp1.slider->GetProps().value	 = &m_editedColor.x;
+			m_colorComp2.slider->GetProps().value	 = &m_editedColor.y;
+			m_colorComp3.slider->GetProps().value	 = &m_editedColor.z;
+			m_colorComp4.slider->GetProps().value	 = &m_editedColor.w;
+
+			m_colorComp1.field->GetProps().valueMax = 1.0f;
+			m_colorComp2.field->GetProps().valueMax = 1.0f;
+			m_colorComp3.field->GetProps().valueMax = 1.0f;
+			m_colorComp4.field->GetProps().valueMax = 1.0f;
+			m_colorComp1.field->GetProps().value	= &m_editedColor.x;
+			m_colorComp2.field->GetProps().value	= &m_editedColor.y;
+			m_colorComp3.field->GetProps().value	= &m_editedColor.z;
+			m_colorComp4.field->GetProps().value	= &m_editedColor.w;
+			m_colorComp1.field->GetProps().decimals = 3;
+			m_colorComp2.field->GetProps().decimals = 3;
+			m_colorComp3.field->GetProps().decimals = 3;
+			m_colorComp4.field->GetProps().decimals = 3;
+		}
 	}
 
 	void ColorWheelCompound::Recalculate(bool sourceRGB)
 	{
-		if (sourceRGB)
-			m_hsv = m_editedColor.RGBToHSV();
+		if (m_selectedDisplay == ColorDisplay::RGB255)
+			m_editedColor = m_editedColor255 / 255.0f;
 		else
 		{
-			m_editedColor = m_hsv.HSVToRGB();
+			m_editedColor255 = m_editedColor * 255.0f;
+			m_editedColor255.Round();
 		}
 
+		if (sourceRGB)
+			m_hsv = m_editedColor.SRGB2HSV();
+		else
 		{
-			const Color begin									= Color(m_hsv.x, 1.0f, 1.0f).HSVToRGB();
-			m_valueComponent.slider->GetProps().colorBegin		= begin;
-			m_saturationComponent.slider->GetProps().colorBegin = begin;
+			m_editedColor	 = m_hsv.HSV2SRGB();
+			m_editedColor255 = m_editedColor * 255.0f;
+			m_editedColor255.Round();
 		}
+
+		const Color begin									= Color(m_hsv.x, 1.0f, 1.0f).HSV2SRGB();
+		m_valueComponent.slider->GetProps().colorBegin		= begin.SRGB2Linear();
+		m_saturationComponent.slider->GetProps().colorBegin = begin.SRGB2Linear();
 
 		m_valueComponent.slider->GetProps().colorEnd	  = Color::Black;
 		m_saturationComponent.slider->GetProps().colorEnd = Color::White;
 
-		m_colorComp1.slider->GetProps().colorBegin = Color(0.0f, m_editedColor.y, m_editedColor.z, 1.0f);
-		m_colorComp1.slider->GetProps().colorEnd   = Color(1.0f, m_editedColor.y, m_editedColor.z, 1.0f);
-		m_colorComp2.slider->GetProps().colorBegin = Color(m_editedColor.x, 0.0f, m_editedColor.z, 1.0f);
-		m_colorComp2.slider->GetProps().colorEnd   = Color(m_editedColor.x, 1.0f, m_editedColor.z, 1.0f);
-		m_colorComp3.slider->GetProps().colorBegin = Color(m_editedColor.x, m_editedColor.y, 0.0f, 1.0f);
-		m_colorComp3.slider->GetProps().colorEnd   = Color(m_editedColor.x, m_editedColor.y, 1.0f, 1.0f);
-		m_colorComp4.slider->GetProps().colorBegin = Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 0.0f);
-		m_colorComp4.slider->GetProps().colorEnd   = Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 1.0f);
+		m_colorComp1.slider->GetProps().colorBegin = Color(0.0f, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp1.slider->GetProps().colorEnd   = Color(1.0f, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp2.slider->GetProps().colorBegin = Color(m_editedColor.x, 0.0f, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp2.slider->GetProps().colorEnd   = Color(m_editedColor.x, 1.0f, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp3.slider->GetProps().colorBegin = Color(m_editedColor.x, m_editedColor.y, 0.0f, 1.0f).SRGB2Linear();
+		m_colorComp3.slider->GetProps().colorEnd   = Color(m_editedColor.x, m_editedColor.y, 1.0f, 1.0f).SRGB2Linear();
+		m_colorComp4.slider->GetProps().colorBegin = Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 0.0f).SRGB2Linear();
+		m_colorComp4.slider->GetProps().colorEnd   = Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
 		m_wheel->GetProps().darknessAlpha		   = m_hsv.z;
+
+		if (m_props.onValueChanged)
+			m_props.onValueChanged(m_editedColor.SRGB2Linear());
+
+		m_hexField->GetText()->GetProps().text = m_editedColor.GetHex();
+		m_hexField->GetText()->CalculateTextSize();
 	}
 
 } // namespace Lina::Editor
