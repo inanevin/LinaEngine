@@ -74,6 +74,36 @@ namespace Lina
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->RenderSync(); });
 	}
 
+	bool Widget::SelectNext()
+	{
+		for (auto* c : m_children)
+		{
+			if (c->SelectNext())
+				return true;
+		}
+
+		return Select();
+	}
+
+	bool Widget::SelectPrev()
+	{
+		if (m_parent == nullptr)
+			return false;
+
+		const auto& c	  = m_parent->GetChildren();
+		const int32 index = UtilVector::IndexOf(c, this);
+
+		if (Select())
+			return true;
+
+		if (index != 0)
+		{
+			return c[index - 1]->SelectPrev();
+		}
+
+		return false;
+	}
+
 	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		for (auto* c : m_children)

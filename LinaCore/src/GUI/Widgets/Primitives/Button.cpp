@@ -104,4 +104,38 @@ namespace Lina
 		return false;
 	}
 
+	bool Button::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
+	{
+		if (m_manager->GetControlsOwner() != this)
+			return false;
+
+		if (keycode != LINAGX_KEY_RETURN)
+			return false;
+
+		if (act == LinaGX::InputAction::Pressed)
+		{
+			m_isPressed = true;
+			return true;
+		}
+
+		if (act == LinaGX::InputAction::Released)
+		{
+			m_isPressed = false;
+			if (m_props.onClicked)
+				m_props.onClicked();
+			return true;
+		}
+
+		return false;
+	}
+
+	bool Button::Select()
+	{
+		if (m_manager->GetControlsOwner() == this)
+			return false;
+
+		m_manager->GrabControls(this);
+		return true;
+	}
+
 } // namespace Lina

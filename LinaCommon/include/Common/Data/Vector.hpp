@@ -37,7 +37,7 @@ namespace Lina
 {
 	template <typename T> using Vector = eastl::vector<T>;
 
-	namespace Internal
+	namespace UtilVector
 	{
 		template <typename T> inline int32 IndexOf(const Lina::Vector<T>& vec, const T& value)
 		{
@@ -72,7 +72,7 @@ namespace Lina
 				vec.erase(itSrc + 1);
 		}
 
-	} // namespace Internal
+	} // namespace UtilVector
 
 } // namespace Lina
 

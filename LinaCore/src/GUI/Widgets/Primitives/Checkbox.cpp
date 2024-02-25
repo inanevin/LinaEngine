@@ -99,4 +99,32 @@ namespace Lina
 		return false;
 	}
 
+	bool Checkbox::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
+	{
+		if (m_manager->GetControlsOwner() != this)
+			return false;
+
+		if (keycode != LINAGX_KEY_RETURN)
+			return false;
+
+		if (act == LinaGX::InputAction::Pressed)
+		{
+			m_isPressed = true;
+			if (m_props.value)
+				*m_props.value = !*m_props.value;
+			return true;
+		}
+
+		return false;
+	}
+
+	bool Checkbox::Select()
+	{
+		if (m_manager->GetControlsOwner() == this)
+			return false;
+
+		m_manager->GrabControls(this);
+		return true;
+	}
+
 } // namespace Lina

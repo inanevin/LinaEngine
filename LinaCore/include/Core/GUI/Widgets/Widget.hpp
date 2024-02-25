@@ -70,6 +70,12 @@ namespace Lina
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
+		virtual bool SelectPrev();
+		virtual bool SelectNext();
+		virtual bool Select()
+		{
+			return false;
+		};
 
 		template <typename T> T* Allocate(const String& dbgName = "Widget")
 		{
@@ -206,6 +212,11 @@ namespace Lina
 		inline Bitmask32& GetFlags()
 		{
 			return m_flags;
+		}
+
+		inline Widget* GetParent()
+		{
+			return m_parent;
 		}
 
 	protected:

@@ -110,6 +110,19 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
+		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released)
+		{
+
+			if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+			{
+				if (m_controlsOwner)
+					m_controlsOwner->SelectPrev();
+			}
+			else
+				m_rootWidget->SelectNext();
+
+			return;
+		}
 		if (m_foregroundRoot->OnKey(keycode, scancode, inputAction))
 			return;
 
