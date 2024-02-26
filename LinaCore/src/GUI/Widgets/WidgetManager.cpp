@@ -60,7 +60,6 @@ namespace Lina
 		m_debugDrawYOffset = 0.0f;
 
 		m_foregroundRoot->Tick(delta);
-
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 		m_rootWidget->Tick(delta);
@@ -196,9 +195,9 @@ namespace Lina
 					GrabControls(next);
 				}
 			}
-
 			return;
 		}
+
 		if (m_foregroundRoot->OnKey(keycode, scancode, inputAction))
 			return;
 

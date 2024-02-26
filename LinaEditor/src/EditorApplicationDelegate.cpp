@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/EditorApplicationDelegate.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Widgets/Testbed.hpp"
+#include "Editor/Widgets/DockTestbed.hpp"
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -105,11 +106,14 @@ namespace Lina::Editor
 
 	void EditorApplicationDelegate::OnInitialize()
 	{
-		auto*	 gfxManager		 = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto&	 widgetAllocator = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-		Testbed* tb				 = widgetAllocator.GetRoot()->Allocate<Testbed>();
-		tb->SetDebugName("Testbed");
-		widgetAllocator.GetRoot()->AddChild(tb);
+		auto* gfxManager	  = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto& widgetAllocator = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+
+		DockTestbed* db = widgetAllocator.GetRoot()->Allocate<DockTestbed>("DockTestbed");
+		widgetAllocator.GetRoot()->AddChild(db);
+
+		// Testbed* tb				 = widgetAllocator.GetRoot()->Allocate<Testbed>("Testbed");
+		// widgetAllocator.GetRoot()->AddChild(tb);
 	}
 
 } // namespace Lina::Editor

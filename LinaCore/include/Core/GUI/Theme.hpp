@@ -62,9 +62,11 @@ namespace Lina
 
 			Color silent = Color(0.035f, 0.035f, 0.035f, 1.0f);
 
+			// Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
+
 			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f);
 			Color accentPrimary0 = Color(0.16513f, 0.00972f, 0.02122f, 1.0f);
-			Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
+			Color accentPrimary1 = Color(0.14126f, 0.03071f, 0.0382f, 1.0f);
 			Color accentPrimary2 = Color(0.34499f, 0.06519f, 0.1058f, 1.0f);
 			Color accentPrimary3 = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
 

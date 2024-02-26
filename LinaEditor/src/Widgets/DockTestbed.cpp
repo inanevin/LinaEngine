@@ -26,47 +26,28 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Editor/Widgets/DockTestbed.hpp"
+#include "Editor/Widgets/Docking/DockContainer.hpp"
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
 
-	class ColorField : public Widget
+	void DockTestbed::Construct()
 	{
-	public:
-		ColorField() : Widget(0)
-		{
-		}
-		virtual ~ColorField() = default;
+		DockContainer* cont = Allocate<DockContainer>();
+		cont->Initialize();
+		AddChild(cont);
+	}
 
-		struct Properties
-		{
-			Delegate<void()> onClicked;
-			Color*			 value					 = nullptr;
-			bool			 drawCheckeredBackground = false;
-			bool			 convertToLinear		 = false;
-			Color			 colorBackground		 = Theme::GetDef().background0;
-			Color			 colorOutline			 = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls	 = Theme::GetDef().outlineColorControls;
-			float			 hoverHighlightPerc		 = 0.1f;
-			float			 rounding				 = Theme::GetDef().baseRounding;
-			float			 outlineThickness		 = Theme::GetDef().baseOutlineThickness;
-		};
+	void DockTestbed::Tick(float delta)
+	{
+		SetSize(m_parent->GetSize());
+		Widget::Tick(delta);
+	}
 
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+	void DockTestbed::Draw(int32 threadIndex)
+	{
+		Widget::Draw(threadIndex);
+	}
 
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
-
-	private:
-		Properties m_props = {};
-	};
-
-} // namespace Lina
+} // namespace Lina::Editor

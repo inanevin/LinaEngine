@@ -24,7 +24,12 @@ include/Editor/EditorApplicationDelegate.hpp
 include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Widgets/Testbed.hpp
+include/Editor/Widgets/DockTestbed.hpp
 include/Editor/Widgets/Compound/ColorWheelCompound.hpp
+include/Editor/Widgets/Docking/DockArea.hpp
+include/Editor/Widgets/Docking/DockContainer.hpp
+include/Editor/Widgets/Docking/DockPreview.hpp
+include/Editor/Widgets/Panel/Panel.hpp
 )
 
 set(HEADERS
@@ -32,7 +37,12 @@ src/EditorApplicationDelegate.cpp
 src/CommonEditor.cpp
 src/EditorLocale.cpp
 src/Widgets/Testbed.cpp
+src/Widgets/DockTestbed.cpp
 src/Widgets/Compound/ColorWheelCompound.cpp
+src/Widgets/Docking/DockContainer.cpp
+src/Widgets/Docking/DockArea.cpp
+src/Widgets/Docking/DockPreview.cpp
+src/Widgets/Panel/Panel.cpp
 )
 
 #--------------------------------------------------------------------

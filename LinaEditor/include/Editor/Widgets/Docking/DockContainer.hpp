@@ -29,36 +29,30 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
+	class DockArea;
+	class DockPreview;
 
-	class ColorField : public Widget
+	class DockContainer : public Widget
 	{
 	public:
-		ColorField() : Widget(0)
-		{
-		}
-		virtual ~ColorField() = default;
+		DockContainer()			 = default;
+		virtual ~DockContainer() = default;
+
+		static constexpr float DEFAULT_DOCK_PERC = 0.15f;
 
 		struct Properties
 		{
-			Delegate<void()> onClicked;
-			Color*			 value					 = nullptr;
-			bool			 drawCheckeredBackground = false;
-			bool			 convertToLinear		 = false;
-			Color			 colorBackground		 = Theme::GetDef().background0;
-			Color			 colorOutline			 = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls	 = Theme::GetDef().outlineColorControls;
-			float			 hoverHighlightPerc		 = 0.1f;
-			float			 rounding				 = Theme::GetDef().baseRounding;
-			float			 outlineThickness		 = Theme::GetDef().baseOutlineThickness;
+			Color colorBackground = Theme::GetDef().background0;
 		};
 
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+		DockArea*	 AddDockArea(DockDirection direction);
+		void		 ShowPreview();
+		void		 HidePreview();
 
 		inline Properties& GetProps()
 		{
@@ -66,7 +60,8 @@ namespace Lina
 		}
 
 	private:
-		Properties m_props = {};
+		Properties	 m_props   = {};
+		DockPreview* m_preview = nullptr;
 	};
 
-} // namespace Lina
+} // namespace Lina::Editor

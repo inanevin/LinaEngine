@@ -46,9 +46,6 @@ namespace Lina
 		if (m_props.value == nullptr)
 			return;
 
-		const Color target = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
-		// const Color			 hovered = target + target * m_props.hoverHighlightPerc;
-
 		int32 drawOrder = m_drawOrder;
 
 		if (m_props.drawCheckeredBackground)
@@ -57,7 +54,7 @@ namespace Lina
 			checkered.color			  = Color::White.AsLVG4();
 			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED;
 			checkered.textureUVTiling = Vector2(m_rect.size.x / 256.0f, m_rect.size.y / 256.0f).AsLVG();
-			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), checkered, 0.0f, drawOrder);
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), checkered, 0.0f, drawOrder);
 			drawOrder++;
 		}
 
@@ -65,8 +62,14 @@ namespace Lina
 		opts.rounding				  = m_props.rounding;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = target.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, drawOrder);
+		opts.color					  = m_props.colorBackground.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, drawOrder);
+
+		const Color target = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+		// const Color             hovered = target + target * m_props.hoverHighlightPerc;
+		opts	   = {};
+		opts.color = target.AsLVG4();
+		LinaVG::DrawRect(threadIndex, (m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), (m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), opts, 0.0f, drawOrder);
 	}
 
 	bool ColorField::OnMouse(uint32 button, LinaGX::InputAction action)

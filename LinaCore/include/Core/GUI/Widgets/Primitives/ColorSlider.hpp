@@ -45,6 +45,7 @@ namespace Lina
 		{
 			Delegate<void(float)> onValueChanged;
 			WidgetDirection		  direction				  = WidgetDirection::Horizontal;
+			Color				  colorBackground		  = Theme::GetDef().background0;
 			Color				  colorBegin			  = Color::White;
 			Color				  colorEnd				  = Color::White;
 			Color				  colorOutline			  = Theme::GetDef().outlineColorBase;

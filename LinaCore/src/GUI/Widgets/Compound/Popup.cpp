@@ -74,7 +74,7 @@ namespace Lina
 		opts.color.gradientType		  = LinaVG::GradientType::Vertical;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = m_props.colorOutline.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		m_manager->SetClip(threadIndex, m_rect, {});
 		uint32 idx = 0;

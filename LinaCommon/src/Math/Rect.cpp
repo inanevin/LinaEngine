@@ -111,6 +111,11 @@ namespace Lina
 		return Vector2(pos.x + size.x * 0.5f, pos.y + size.y * 0.5f);
 	}
 
+	Vector2 Rect::GetEnd() const
+	{
+		return pos + size;
+	}
+
 	Recti Recti::Shrink(float percentage) const
 	{
 		Recti	  r	   = *this;

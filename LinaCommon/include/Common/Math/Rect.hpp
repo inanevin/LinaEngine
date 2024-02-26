@@ -57,6 +57,7 @@ namespace Lina
 		bool	IsPointInside(const Vector2& p) const;
 		bool	IsInBorder(const Vector2& p, float borderThickness, int& border) const;
 		Vector2 GetCenter() const;
+		Vector2 GetEnd() const;
 
 		Vector2 pos	 = Vector2(0, 0);
 		Vector2 size = Vector2(0, 0);

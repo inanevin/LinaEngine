@@ -97,7 +97,7 @@ namespace Lina
 		LinaVG::StyleOptions wheelStyle;
 		wheelStyle.color		 = Math::Lerp(Color::Black, Color::White, Math::Max(m_props.darknessAlpha, 0.1f)).AsLVG4();
 		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), wheelStyle, 0.0f, m_drawOrder);
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), wheelStyle, 0.0f, m_drawOrder);
 		m_icon->Draw(threadIndex);
 	}
 

@@ -57,10 +57,10 @@ namespace Lina
 
 		const Vector2 iconSize = m_icon->GetSize();
 		const Vector2 textSize = m_text->GetSize();
-		m_iconBgStart		   = (m_rect.pos + m_rect.size) - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
+		m_iconBgStart		   = m_rect.GetEnd() - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
 
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.pos.y + m_rect.size.y * 0.5f - m_text->GetHalfSizeY()));
-		m_icon->SetPos((m_iconBgStart + m_rect.pos + m_rect.size) * 0.5f - m_icon->GetHalfSize());
+		m_icon->SetPos((m_iconBgStart + m_rect.GetEnd()) * 0.5f - m_icon->GetHalfSize());
 	}
 
 	void Dropdown::Draw(int32 threadIndex)
@@ -75,7 +75,7 @@ namespace Lina
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		opts.color					  = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackground.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		// Icon bg
 		LinaVG::StyleOptions iconBg;
@@ -87,7 +87,7 @@ namespace Lina
 			iconBg.color = m_props.colorIconBackgroundHovered.AsLVG4();
 
 		iconBg.color.gradientType = LinaVG::GradientType::Vertical;
-		LinaVG::DrawRect(threadIndex, m_iconBgStart.AsLVG(), (m_rect.pos + m_rect.size - Vector2::One).AsLVG(), iconBg, 0.0f, m_drawOrder);
+		LinaVG::DrawRect(threadIndex, m_iconBgStart.AsLVG(), (m_rect.GetEnd() - Vector2::One).AsLVG(), iconBg, 0.0f, m_drawOrder);
 
 		// Icon
 		m_icon->Draw(threadIndex);

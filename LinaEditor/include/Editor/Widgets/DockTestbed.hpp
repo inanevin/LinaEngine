@@ -30,43 +30,23 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
+    class DockArea;
 
-	class ColorField : public Widget
+	class DockTestbed : public Widget
 	{
 	public:
-		ColorField() : Widget(0)
-		{
-		}
-		virtual ~ColorField() = default;
+		DockTestbed()		   = default;
+		virtual ~DockTestbed() = default;
 
-		struct Properties
-		{
-			Delegate<void()> onClicked;
-			Color*			 value					 = nullptr;
-			bool			 drawCheckeredBackground = false;
-			bool			 convertToLinear		 = false;
-			Color			 colorBackground		 = Theme::GetDef().background0;
-			Color			 colorOutline			 = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls	 = Theme::GetDef().outlineColorControls;
-			float			 hoverHighlightPerc		 = 0.1f;
-			float			 rounding				 = Theme::GetDef().baseRounding;
-			float			 outlineThickness		 = Theme::GetDef().baseOutlineThickness;
-		};
-
+		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
 
 	private:
-		Properties m_props = {};
 	};
 
-} // namespace Lina
+} // namespace Lina::Editor

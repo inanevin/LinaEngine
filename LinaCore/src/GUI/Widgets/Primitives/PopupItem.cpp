@@ -56,7 +56,7 @@ namespace Lina
 			// Bg
 			LinaVG::StyleOptions opts;
 			opts.color = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackgroundSelected.AsLVG4();
-			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), opts, 0.0f, m_drawOrder);
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 		}
 
 		// Text & clip over icon.

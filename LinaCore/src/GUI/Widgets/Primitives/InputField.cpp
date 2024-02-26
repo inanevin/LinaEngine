@@ -128,7 +128,7 @@ namespace Lina
 		style.rounding				   = m_props.rounding;
 		style.outlineOptions.thickness = m_props.outlineThickness;
 		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), (m_rect.pos + m_rect.size).AsLVG(), style, 0.0f, m_drawOrder);
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
 
 		// Number field slider background.
 		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.value)
@@ -141,7 +141,7 @@ namespace Lina
 			fill.rounding			= m_props.rounding;
 
 			const Vector2 start = m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness);
-			const Vector2 end	= m_rect.pos + m_rect.size - Vector2(m_props.outlineThickness, m_props.outlineThickness);
+			const Vector2 end	= m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness);
 			const Vector2 sz	= end - start;
 
 			LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);

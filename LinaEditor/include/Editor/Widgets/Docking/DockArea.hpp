@@ -29,44 +29,27 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
+	class DockContainer;
 
-	class ColorField : public Widget
+	class DockArea : public Widget
 	{
 	public:
-		ColorField() : Widget(0)
-		{
-		}
-		virtual ~ColorField() = default;
+		DockArea()			= default;
+		virtual ~DockArea() = default;
 
-		struct Properties
-		{
-			Delegate<void()> onClicked;
-			Color*			 value					 = nullptr;
-			bool			 drawCheckeredBackground = false;
-			bool			 convertToLinear		 = false;
-			Color			 colorBackground		 = Theme::GetDef().background0;
-			Color			 colorOutline			 = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls	 = Theme::GetDef().outlineColorControls;
-			float			 hoverHighlightPerc		 = 0.1f;
-			float			 rounding				 = Theme::GetDef().baseRounding;
-			float			 outlineThickness		 = Theme::GetDef().baseOutlineThickness;
-		};
-
+		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
 
 	private:
-		Properties m_props = {};
+		friend class DockContainer;
+
+		DockContainer* m_parentContainer = nullptr;
+		Vector2		   m_posAlign		 = Vector2::Zero;
+		Vector2		   m_sizeAlign		 = Vector2::Zero;
 	};
 
-} // namespace Lina
+} // namespace Lina::Editor

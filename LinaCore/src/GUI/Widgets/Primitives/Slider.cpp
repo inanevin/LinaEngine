@@ -120,7 +120,7 @@ namespace Lina
 	void Slider::GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent)
 	{
 		const Vector2 topLeft	  = m_rect.pos;
-		const Vector2 bottomRight = m_rect.pos + m_rect.size;
+		const Vector2 bottomRight = m_rect.GetEnd();
 
 		if (m_props.direction == WidgetDirection::Horizontal)
 		{
