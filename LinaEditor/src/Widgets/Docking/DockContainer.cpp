@@ -34,62 +34,61 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-    void DockContainer::Tick(float delta)
-    {
-        Widget::SetIsHovered();
-        SetSize(m_parent->GetSize());
-        Widget::Tick(delta);
-    }
-    
-    void DockContainer::Draw(int32 threadIndex)
-    {
-        LinaVG::StyleOptions background;
-        background.color = m_props.colorBackground.AsLVG4();
-        LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
-        Widget::Draw(threadIndex);
-    }
+	void DockContainer::Tick(float delta)
+	{
+		Widget::SetIsHovered();
+		SetSize(m_parent->GetSize());
+		Widget::Tick(delta);
+	}
 
-    void DockContainer::ShowPreview()
-{
-        LINA_ASSERT(m_preview == nullptr, "");
-        m_preview = Allocate<DockPreview>("DockContainerPreview");
-            
-    }
+	void DockContainer::Draw(int32 threadIndex)
+	{
+		LinaVG::StyleOptions background;
+		background.color = m_props.colorBackground.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
+		Widget::Draw(threadIndex);
+	}
 
-    void DockContainer::HidePreview()
-    {
-        LINA_ASSERT(m_preview != nullptr, "");
-        m_preview->Destroy();
-        m_manager->Deallocate(m_preview);
-    }
+	void DockContainer::ShowPreview()
+	{
+		LINA_ASSERT(m_preview == nullptr, "");
+		m_preview = Allocate<DockPreview>("DockContainerPreview");
+	}
 
-    DockArea* DockContainer::AddDockArea(DockDirection direction)
-    {
-        LINA_ASSERT(direction != DockDirection::Center, "");
-        DockArea* area = Allocate<DockArea>();
-        area->m_parentContainer = this;
-        AddChild(area);
-        
-        // Setup areas percentages according to direction...
-        if(direction == DockDirection::Left)
-        {
-            area->m_posAlign = Vector2::Zero;
-            area->m_sizeAlign = Vector2(DEFAULT_DOCK_PERC, 1.0f);
-        }
-        else if(direction == DockDirection::Right)
-        {
-            area->m_posAlign = Vector2(1.0f - DEFAULT_DOCK_PERC, 0.0f);
-            area->m_sizeAlign = Vector2(DEFAULT_DOCK_PERC, 1.0f);
-        }
-        else if(direction == DockDirection::Top)
-        {
-            area->m_posAlign = Vector2::Zero;
-            area->m_sizeAlign = Vector2(1.0f, DEFAULT_DOCK_PERC);
-        }
-        else if(direction == DockDirection::Bottom)
-        {
-            area->m_posAlign = Vector2(0.0f, 1.0f - DEFAULT_DOCK_PERC);
-            area->m_sizeAlign = Vector2(1.0f, DEFAULT_DOCK_PERC);
-        }
-    }
-}
+	void DockContainer::HidePreview()
+	{
+		LINA_ASSERT(m_preview != nullptr, "");
+		m_preview->Destroy();
+		m_manager->Deallocate(m_preview);
+	}
+
+	DockArea* DockContainer::AddDockArea(DockDirection direction)
+	{
+		LINA_ASSERT(direction != DockDirection::Center, "");
+		DockArea* area			= Allocate<DockArea>();
+		area->m_parentContainer = this;
+		AddChild(area);
+
+		// Setup areas percentages according to direction...
+		if (direction == DockDirection::Left)
+		{
+			area->m_posAlign  = Vector2::Zero;
+			area->m_sizeAlign = Vector2(DEFAULT_DOCK_PERC, 1.0f);
+		}
+		else if (direction == DockDirection::Right)
+		{
+			area->m_posAlign  = Vector2(1.0f - DEFAULT_DOCK_PERC, 0.0f);
+			area->m_sizeAlign = Vector2(DEFAULT_DOCK_PERC, 1.0f);
+		}
+		else if (direction == DockDirection::Top)
+		{
+			area->m_posAlign  = Vector2::Zero;
+			area->m_sizeAlign = Vector2(1.0f, DEFAULT_DOCK_PERC);
+		}
+		else if (direction == DockDirection::Bottom)
+		{
+			area->m_posAlign  = Vector2(0.0f, 1.0f - DEFAULT_DOCK_PERC);
+			area->m_sizeAlign = Vector2(1.0f, DEFAULT_DOCK_PERC);
+		}
+	}
+} // namespace Lina::Editor

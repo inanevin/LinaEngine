@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    class DockArea;
+	class DockArea;
 
 	class DockTestbed : public Widget
 	{

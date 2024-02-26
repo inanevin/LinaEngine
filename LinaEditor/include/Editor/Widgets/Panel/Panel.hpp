@@ -32,17 +32,17 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    class Panel : public Widget
-    {
-    public:
-        Panel()           = default;
-        virtual ~Panel() = default;
+	class Panel : public Widget
+	{
+	public:
+		Panel()			 = default;
+		virtual ~Panel() = default;
 
-        virtual void Construct() override;
-        virtual void Tick(float delta) override;
-        virtual void Draw(int32 threadIndex) override;
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
 
-    private:
-    };
+	private:
+	};
 
 } // namespace Lina::Editor
