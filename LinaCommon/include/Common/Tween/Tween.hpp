@@ -28,30 +28,66 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/SizeDefinitions.hpp"
-#include "Common/Data/Bitmask.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/Data/Functional.hpp"
+#include <memoryallocators/PoolAllocator.h>
 
 namespace Lina
 {
-	enum class ResourceManagerMode
+	enum class TweenType
 	{
-		File,
-		Package
+		Linear,
+		EaseIn,
+		EaseOut,
+		EaseInOut,
+		Cubic,
+		Sinusoidal,
+		Exponential,
+		Bounce
 	};
 
-	class ApplicationDelegate;
-
-	struct SystemInitializationInfo
+	class Tween
 	{
-		const char*			 appName			 = "";
-		int					 windowWidth		 = 0;
-		int					 windowHeight		 = 0;
-		LinaGX::WindowStyle	 windowStyle		 = LinaGX::WindowStyle::WindowedApplication;
-		LinaGX::VSyncStyle	 vsyncStyle			 = {};
-		bool				 allowTearing		 = false;
-		ApplicationDelegate* appListener		 = nullptr;
-		ResourceManagerMode	 resourceManagerMode = ResourceManagerMode::File;
-	};
+	public:
+		inline Tween* SetOnCompleted(Delegate<void()>&& onCompleted)
+		{
+			m_onCompleted = onCompleted;
+			return this;
+		}
 
+		inline Tween* SetDelay(float delay)
+		{
+			m_delay = delay;
+			return this;
+		}
+
+		inline Tween* AddPending(Tween* other)
+		{
+			m_pendingTweens.push_back(other);
+			other->m_waitingOn = this;
+			return this;
+		}
+
+	private:
+		friend class TweenManager;
+		Tween(float* value, float start, float end, TweenType type) : m_value(value), m_start(start), m_end(end), m_type(type){};
+		~Tween() = default;
+		bool Tick(float delta);
+		void Complete();
+		void PerformTween();
+
+	private:
+		TweenType		 m_type = TweenType::Linear;
+		Delegate<void()> m_onCompleted;
+		float*			 m_value	   = nullptr;
+		float			 m_start	   = 0.0f;
+		float			 m_end		   = 0.0f;
+		float			 m_delay	   = 0.0f;
+		float			 m_duration	   = 0.0f;
+		float			 m_currentTime = 0.0f;
+
+		PoolAllocator* m_allocator = nullptr;
+		Tween*		   m_waitingOn = nullptr;
+		Vector<Tween*> m_pendingTweens;
+	};
 } // namespace Lina

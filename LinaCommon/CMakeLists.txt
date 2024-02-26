@@ -82,7 +82,9 @@ set (SOURCES
 	# Platform
 	src/Platform/LinaGXIncl.cpp
 
-
+	# Tween
+	src/Tween/Tween.cpp
+	src/Tween/TweenManager.cpp
 )
 
 
@@ -190,6 +192,10 @@ set(HEADERS
 	include/Common/Platform/LinaVGIncl.hpp
     include/Common/Platform/PlatformTime.hpp
 	include/Common/Platform/PlatformInclude.hpp
+
+	# Tween
+	include/Common/Tween/Tween.hpp
+	include/Common/Tween/TweenManager.hpp
 
 )
 

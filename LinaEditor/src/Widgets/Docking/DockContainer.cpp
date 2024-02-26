@@ -52,14 +52,13 @@ namespace Lina::Editor
 	void DockContainer::ShowPreview()
 	{
 		LINA_ASSERT(m_preview == nullptr, "");
-		m_preview = Allocate<DockPreview>("DockContainerPreview");
+		// m_preview = Allocate<DockPreview>("DockContainerPreview");
 	}
 
 	void DockContainer::HidePreview()
 	{
 		LINA_ASSERT(m_preview != nullptr, "");
-		m_preview->Destroy();
-		m_manager->Deallocate(m_preview);
+		// Deallocate(m_preview);
 	}
 
 	DockArea* DockContainer::AddDockArea(DockDirection direction)

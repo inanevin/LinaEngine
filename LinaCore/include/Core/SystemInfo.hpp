@@ -32,6 +32,7 @@ SOFTWARE.
 #define SystemInfo_HPP
 
 #include "Common/Common.hpp"
+#include <thread>
 
 namespace Lina
 {
@@ -170,6 +171,16 @@ namespace Lina
 			return s_appStartCycles;
 		}
 
+		static inline size_t GetCurrentThreadID()
+		{
+			return std::hash<std::thread::id>{}(std::this_thread::get_id());
+		}
+
+		static inline bool IsMainThread()
+		{
+			return GetCurrentThreadID() == s_mainThreadID;
+		}
+
 	private:
 		friend class Application;
 		friend class Engine;
@@ -228,6 +239,11 @@ namespace Lina
 			s_interpolationAlpha = alpha;
 		}
 
+		static inline void SetMainThreadID(size_t id)
+		{
+			s_mainThreadID = id;
+		}
+
 	private:
 		static double s_appTime;
 		static double s_deltaTime;
@@ -242,6 +258,7 @@ namespace Lina
 		static int64  s_appStartCycles;
 		static uint64 s_frames;
 		static uint32 s_measuredFPS;
+		static size_t s_mainThreadID;
 	};
 } // namespace Lina
 

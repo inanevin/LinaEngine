@@ -28,28 +28,41 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
+#include "Tween.hpp"
+#include "Common/Data/List.hpp"
+#include "Common/Data/Vector.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
-	class DockContainer;
-
-	class DockArea : public Widget
+	class Engine;
+	class TweenManager
 	{
 	public:
-		DockArea()			= default;
-		virtual ~DockArea() = default;
+		static TweenManager* Get()
+		{
+			return s_instance;
+		}
 
-		// virtual void Construct() override;
-		// virtual void Tick(float delta) override;
-		// virtual void Draw(int32 threadIndex) override;
+		Tween* AddTween(float* value, float start, float end, TweenType type);
 
 	private:
-		friend class DockContainer;
+		friend class Engine;
 
-		DockContainer* m_parentContainer = nullptr;
-		Vector2		   m_posAlign		 = Vector2::Zero;
-		Vector2		   m_sizeAlign		 = Vector2::Zero;
+		TweenManager() = default;
+		~TweenManager();
+
+		static constexpr size_t POOL_COUNT = 100;
+
+		void Tick(float delta);
+
+		/*
+
+		 TweenManager::Get().AddTween(&value, 0.0f, 360.0f, TweenType::TweenType, [](){});
+		 */
+
+	private:
+		static TweenManager*   s_instance;
+		List<Tween*>		   m_tweens;
+		Vector<PoolAllocator*> m_allocators;
 	};
-
-} // namespace Lina::Editor
+} // namespace Lina

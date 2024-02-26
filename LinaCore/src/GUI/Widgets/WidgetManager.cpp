@@ -92,13 +92,16 @@ namespace Lina
 
 	void WidgetManager::Deallocate(Widget* widget)
 	{
+		for (auto* c : widget->m_children)
+			Deallocate(c);
+
 		const TypeID tid = widget->m_tid;
+		widget->Destruct();
 		m_allocators[tid]->Free(widget);
 	}
 
 	void WidgetManager::Shutdown()
 	{
-		m_rootWidget->Destroy();
 		Deallocate(m_rootWidget);
 		m_rootWidget = nullptr;
 		m_window->RemoveListener(this);

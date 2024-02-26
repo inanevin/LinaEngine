@@ -52,6 +52,7 @@ namespace Lina
 		{
 			PlatformTime::Initialize();
 			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+			SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
 			SetFixedTimestep(10000);
 			SetFixedTimestep(true);
 			SetFrameCap(16667);

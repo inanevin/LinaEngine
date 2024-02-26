@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Allocator.h"
 #include "StackLinkedList.h"
 

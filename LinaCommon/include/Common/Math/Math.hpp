@@ -501,6 +501,66 @@ namespace Lina
 			return std::floor(val * multiplier) / multiplier;
 		}
 
+		template <typename T> static T Linear(T start, T end, float alpha)
+		{
+			return Lerp(start, end, alpha);
+		};
+
+		template <typename T> static T EaseIn(T start, T end, float alpha)
+		{
+			return Lerp(start, end, alpha * alpha);
+		};
+
+		template <typename T> static T EaseOut(T start, T end, float alpha)
+		{
+			return Lerp(start, end, 1.0f - (1.0f - alpha) * (1.0f - alpha));
+		};
+
+		template <typename T> static T EaseInOut(T start, T end, float alpha)
+		{
+			if (alpha < 0.5f)
+				return Lerp(start, end, 2.0f * alpha * alpha);
+			return Lerp(start, end, 1.0f - Pow(-2.0f * alpha + 2.0f, 2.0f) / 2.0f);
+		};
+
+		template <typename T> static T Cubic(T start, T end, float alpha)
+		{
+			return Lerp(start, end, alpha * alpha * alpha);
+		};
+
+		template <typename T> static T Sinusodial(T start, T end, float alpha)
+		{
+			return Lerp(start, end, -Cos(alpha * M_PI) / 2.0f + 0.5f);
+		};
+
+		template <typename T> static T Exponential(T start, T end, float alpha)
+		{
+			return Lerp(start, end, Equals(alpha, 0.0f, 0.001f) ? 0.0f : Pow(2.0f, 10.0f * alpha - 10.0f));
+		};
+
+		template <typename T> static T Bounce(T start, T end, float alpha)
+		{
+			if (alpha < (1.0f / 2.75f))
+			{
+				return Lerp(start, end, 7.5625f * alpha * alpha);
+			}
+			else if (alpha < (2.0f / 2.75f))
+			{
+				alpha -= (1.5f / 2.75f);
+				return Lerp(start, end, 7.5625f * alpha * alpha + 0.75f);
+			}
+			else if (alpha < (2.5f / 2.75f))
+			{
+				alpha -= (2.25f / 2.75f);
+				return Lerp(start, end, 7.5625f * alpha * alpha + 0.9375f);
+			}
+			else
+			{
+				alpha -= (2.625f / 2.75f);
+				return Lerp(start, end, 7.5625f * alpha * alpha + 0.984375f);
+			}
+		};
+
 		// TODO: Min and max of array
 	};
 } // namespace Lina

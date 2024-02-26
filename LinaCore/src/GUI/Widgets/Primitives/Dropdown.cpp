@@ -186,7 +186,7 @@ namespace Lina
 			return;
 
 		m_manager->RemoveFromForeground(m_popup);
-		m_popup->Destroy();
+		Deallocate(m_popup);
 		m_popup = nullptr;
 	}
 
