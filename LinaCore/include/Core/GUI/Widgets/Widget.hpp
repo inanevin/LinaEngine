@@ -64,7 +64,7 @@ namespace Lina
 		void SetIsHovered();
 
 		virtual void Construct(){};
-        virtual void Destruct() {};
+		virtual void Destruct(){};
 		virtual void Initialize();
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
@@ -76,11 +76,11 @@ namespace Lina
 			t->SetDebugName(dbgName);
 			return t;
 		}
-        
-        void Deallocate(Widget* w)
-        {
-            m_manager->Deallocate(w);
-        }
+
+		void Deallocate(Widget* w)
+		{
+			m_manager->Deallocate(w);
+		}
 
 		template <typename... Args> void AddChild(Args&&... args)
 		{
