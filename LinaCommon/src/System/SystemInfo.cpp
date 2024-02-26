@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Data/Array.hpp"
 #include "Common/Data/CommonData.hpp"

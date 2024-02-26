@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/World/Component.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 
 namespace Lina
 {

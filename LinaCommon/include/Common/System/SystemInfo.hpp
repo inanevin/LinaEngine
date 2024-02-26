@@ -42,6 +42,8 @@ namespace Lina
 	class SystemInfo
 	{
 	public:
+		static constexpr float IDEAL_DT_F = 0.016667f;
+
 		/// <summary>
 		/// Total elapsed seconds since application start.
 		/// </summary>

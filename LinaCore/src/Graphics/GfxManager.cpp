@@ -45,7 +45,7 @@ SOFTWARE.
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
 

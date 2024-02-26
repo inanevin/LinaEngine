@@ -30,19 +30,44 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 
+namespace Lina
+{
+	class Icon;
+	class Tween;
+} // namespace Lina
+
 namespace Lina::Editor
 {
 	class DockPreview : public Widget
 	{
+
+	private:
+		struct DockRect
+		{
+			float	size	  = 0.0f;
+			bool	isHovered = false;
+			float	expand	  = 0.0f;
+			Vector2 position  = Vector2::Zero;
+			Vector2 extraPos  = Vector2::Zero;
+			Vector2 direction = Vector2::Zero;
+			Icon*	icon	  = nullptr;
+		};
+
 	public:
 		DockPreview()		   = default;
 		virtual ~DockPreview() = default;
 
+		static constexpr float ANIM_TIME		= 0.15f;
+		static constexpr float BOUNCE_ANIM_TIME = 0.75f;
+		static constexpr float SMALL_RECT_SZ	= 42.0f;
+
 		struct Properties
 		{
+			bool isCentral = false;
 		};
 
 		virtual void Construct() override;
+		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
@@ -52,7 +77,13 @@ namespace Lina::Editor
 		}
 
 	private:
+		void DrawDockRect(int32 threadIndex, const DockRect& dr);
+
+	private:
 		Properties m_props = {};
+		DockRect   m_dockRects[5];
+		float	   m_animationAlpha = 0.0f;
+		float	   m_smallRectSize	= 0.0f;
 	};
 
 } // namespace Lina::Editor

@@ -34,10 +34,25 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
+	bool aq2 = false;
+
 	void DockContainer::Tick(float delta)
 	{
+		if (!aq2)
+		{
+			aq2 = true;
+			ShowPreview();
+		}
 		Widget::SetIsHovered();
 		SetSize(m_parent->GetSize());
+
+		if (m_preview)
+		{
+			m_preview->SetSize(m_rect.size);
+			m_preview->SetPos(m_rect.pos);
+			m_preview->Tick(delta);
+		}
+
 		Widget::Tick(delta);
 	}
 
@@ -47,18 +62,23 @@ namespace Lina::Editor
 		background.color = m_props.colorBackground.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
 		Widget::Draw(threadIndex);
+
+		if (m_preview)
+			m_preview->Draw(threadIndex);
 	}
 
 	void DockContainer::ShowPreview()
 	{
 		LINA_ASSERT(m_preview == nullptr, "");
-		// m_preview = Allocate<DockPreview>("DockContainerPreview");
+		m_preview						= Allocate<DockPreview>("DockContainerPreview");
+		m_preview->GetProps().isCentral = true;
+		m_preview->Initialize();
 	}
 
 	void DockContainer::HidePreview()
 	{
 		LINA_ASSERT(m_preview != nullptr, "");
-		// Deallocate(m_preview);
+		Deallocate(m_preview);
 	}
 
 	DockArea* DockContainer::AddDockArea(DockDirection direction)

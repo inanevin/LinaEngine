@@ -27,7 +27,6 @@ src/Audio/AudioManager.cpp
 src/Application.cpp
 src/ApplicationDelegate.cpp
 src/Engine.cpp
-src/SystemInfo.cpp
 src/CommonCore.cpp
 src/EngineInterface.cpp
 
@@ -112,7 +111,6 @@ include/Core/Lina.hpp
 include/Core/Application.hpp
 include/Core/ApplicationDelegate.hpp
 include/Core/Engine.hpp
-include/Core/SystemInfo.hpp
 include/Core/CommonCore.hpp
 include/Core/EngineInterface.hpp
 

@@ -43,7 +43,7 @@ namespace Lina
 			return s_instance;
 		}
 
-		Tween* AddTween(float* value, float start, float end, TweenType type);
+		Tween* AddTween(float* value, float start, float end, float duration, TweenType type);
 
 	private:
 		friend class Engine;

@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Common/Tween/TweenManager.hpp"
 
 #include "Core/Application.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/Graphics/Resource/Model.hpp"

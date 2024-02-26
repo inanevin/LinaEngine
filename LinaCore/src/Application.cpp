@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Profiling/MemoryTracer.hpp"
 #include "Common/Platform/PlatformTime.hpp"

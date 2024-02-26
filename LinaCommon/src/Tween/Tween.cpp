@@ -33,23 +33,44 @@ namespace Lina
 {
 	bool Tween::Tick(float delta)
 	{
+		if (m_stopped)
+			return true;
+
 		if (m_waitingOn != nullptr)
 			return false;
 
-		if (m_currentTime < m_delay)
+		if (!m_passedDelay)
 		{
-			m_currentTime += delta;
-			return false;
+			if (m_currentTime < m_delay)
+			{
+				m_currentTime += delta;
+				return false;
+			}
+
+			m_passedDelay = true;
+			m_currentTime = 0.0f;
 		}
 
 		if (m_currentTime > m_duration)
 		{
+			if (m_restartCount == -1 || m_restarts < m_restartCount)
+			{
+				m_currentTime = 0.0f;
+				m_passedDelay = false;
+				// m_delay = 0.0f;
+				m_restarts++;
+				return false;
+			}
+
+			if (m_isPersistent)
+				return false;
+
 			Complete();
 			return true;
 		}
 
 		PerformTween();
-		m_currentTime += delta;
+		m_currentTime += delta * m_timeScale;
 
 		return false;
 	}

@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Common/Tween/TweenManager.hpp"
+#include "Common/System/SystemInfo.hpp"
 
 namespace Lina
 {
@@ -38,8 +39,10 @@ namespace Lina
 			delete alloc;
 	}
 
-	Tween* TweenManager::AddTween(float* value, float start, float end, TweenType type)
+	Tween* TweenManager::AddTween(float* value, float start, float end, float duration, TweenType type)
 	{
+		LINA_ASSERT(SystemInfo::IsMainThread(), "");
+
 		Tween* tw = nullptr;
 
 		for (auto* alloc : m_allocators)
@@ -48,7 +51,7 @@ namespace Lina
 
 			if (ptr != nullptr)
 			{
-				tw				= new (ptr) Tween(value, start, end, type);
+				tw				= new (ptr) Tween(value, start, end, duration, type);
 				tw->m_allocator = alloc;
 			}
 		}
@@ -63,9 +66,10 @@ namespace Lina
 			// Create
 			void* ptr = alloc->Allocate(sizeof(Tween), std::alignment_of<Tween>());
 			LINA_ASSERT(ptr != nullptr, "");
-			tw				= new (ptr) Tween(value, start, end, type);
+			tw				= new (ptr) Tween(value, start, end, duration, type);
 			tw->m_allocator = alloc;
 		}
+		m_tweens.push_back(tw);
 		return tw;
 	}
 

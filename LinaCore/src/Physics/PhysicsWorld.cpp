@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/Physics/PhysicsWorld.hpp"
 #include "Common/System/System.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/World/EntityWorld.hpp"
 
 namespace Lina

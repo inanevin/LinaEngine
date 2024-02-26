@@ -78,6 +78,7 @@ set (SOURCES
 	src/System/Plugin.cpp
 	src/System/System.cpp
 	src/System/Subsystem.cpp
+	src/System/SystemInfo.cpp
 
 	# Platform
 	src/Platform/LinaGXIncl.cpp
@@ -186,6 +187,7 @@ set(HEADERS
 	include/Common/System/Plugin.hpp
 	include/Common/System/System.hpp
 	include/Common/System/Subsystem.hpp
+	include/Common/System/SystemInfo.hpp
 
 	# Platform
 	include/Common/Platform/LinaGXIncl.hpp

@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Data/Vertex.hpp"
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
