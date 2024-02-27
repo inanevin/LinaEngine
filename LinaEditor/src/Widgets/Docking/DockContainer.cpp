@@ -30,19 +30,14 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockPreview.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Math/Math.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
-
-	bool aq2 = false;
-
 	void DockContainer::Tick(float delta)
 	{
-		if (!aq2)
-		{
-			aq2 = true;
-			ShowPreview();
-		}
 		Widget::SetIsHovered();
 		SetSize(m_parent->GetSize());
 
@@ -70,23 +65,74 @@ namespace Lina::Editor
 	void DockContainer::ShowPreview()
 	{
 		LINA_ASSERT(m_preview == nullptr, "");
+
 		m_preview						= Allocate<DockPreview>("DockContainerPreview");
 		m_preview->GetProps().isCentral = true;
 		m_preview->Initialize();
+
+		Vector<DockArea*> leftAreas	  = FindAreasPosAlign(0.0f, WidgetDirection::Horizontal, false);
+		Vector<DockArea*> rightAreas  = FindAreasPosAlign(1.0f, WidgetDirection::Horizontal, true);
+		Vector<DockArea*> topAreas	  = FindAreasPosAlign(0.0f, WidgetDirection::Vertical, false);
+		Vector<DockArea*> bottomAreas = FindAreasPosAlign(1.0f, WidgetDirection::Vertical, true);
+
+		for (auto* area : leftAreas)
+		{
+			if (area->m_sizeAlign.x < DEFAULT_DOCK_PERC)
+			{
+
+				break;
+			}
+		}
 	}
 
 	void DockContainer::HidePreview()
 	{
 		LINA_ASSERT(m_preview != nullptr, "");
 		Deallocate(m_preview);
+		m_preview = nullptr;
 	}
 
+	bool DockContainer::OnMouse(uint32 button, LinaGX::InputAction action)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (action == LinaGX::InputAction::Pressed)
+		{
+			ShowPreview();
+			return true;
+		}
+		else
+		{
+			bool		  isHovered		   = false;
+			DockDirection hoveredDirection = DockDirection::Center;
+			m_preview->GetHoveredDirection(hoveredDirection, isHovered);
+
+			if (isHovered)
+			{
+				AddDockArea(hoveredDirection);
+			}
+
+			HidePreview();
+			return true;
+		}
+	}
+
+	Vector<DockArea*> DockContainer::AreaSortHorizontal()
+	{
+		Vector<DockArea*> areas = m_dockAreas;
+		linatl::sort(areas.begin(), areas.end(), [](DockArea* area, DockArea* other) -> bool { return area->m_posAlign.x < other->m_posAlign.x; });
+		return areas;
+	}
+
+	Vector<DockArea*> DockContainer::AreaSortVertical()
+	{
+	}
 	DockArea* DockContainer::AddDockArea(DockDirection direction)
 	{
 		LINA_ASSERT(direction != DockDirection::Center, "");
 		DockArea* area			= Allocate<DockArea>();
 		area->m_parentContainer = this;
-		AddChild(area);
 
 		// Setup areas percentages according to direction...
 		if (direction == DockDirection::Left)
@@ -109,5 +155,29 @@ namespace Lina::Editor
 			area->m_posAlign  = Vector2(0.0f, 1.0f - DEFAULT_DOCK_PERC);
 			area->m_sizeAlign = Vector2(1.0f, DEFAULT_DOCK_PERC);
 		}
+
+		AddChild(area);
+		m_dockAreas.push_back(area);
+	}
+
+	Vector<DockArea*> DockContainer::FindAreasPosAlign(float align, WidgetDirection direction, bool lookForEnd)
+	{
+		Vector<DockArea*> areas;
+		areas.reserve(m_dockAreas.size() / 2);
+		for (auto* area : m_dockAreas)
+		{
+			if (direction == WidgetDirection::Horizontal)
+			{
+				if (Math::Equals(lookForEnd ? (area->m_posAlign.x + area->m_sizeAlign.x) : area->m_posAlign.x, align, 0.0001f))
+					areas.push_back(area);
+			}
+			else
+			{
+				if (Math::Equals(lookForEnd ? (area->m_posAlign.y + area->m_sizeAlign.y) : area->m_posAlign.x, align, 0.0001f))
+					areas.push_back(area);
+			}
+		}
+
+		return areas;
 	}
 } // namespace Lina::Editor

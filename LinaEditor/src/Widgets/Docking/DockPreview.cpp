@@ -74,6 +74,7 @@ namespace Lina::Editor
 			}
 		};
 	} // namespace
+
 	void DockPreview::Construct()
 	{
 		auto createIcon = [&](const String& ic) -> Icon* {
@@ -91,11 +92,8 @@ namespace Lina::Editor
 		m_dockRects[3].icon = createIcon(ICON_ARROW_RECT_DOWN);
 		m_dockRects[4].icon = createIcon(ICON_ARROW_RECT_LEFT);
 
-		m_dockRects[0].direction = Vector2::Zero;
-		m_dockRects[1].direction = Vector2(0.0f, 1.0f);
-		m_dockRects[2].direction = Vector2(1.0f, 0.0f);
-		m_dockRects[3].direction = Vector2(0.0f, -1.0f);
-		m_dockRects[4].direction = Vector2(-1.0f, 0.0f);
+		for (int32 i = 0; i < 5; i++)
+			m_dockRects[i].direction = DockDirectionToVector(static_cast<DockDirection>(i));
 	}
 
 	void DockPreview::Initialize()
@@ -160,7 +158,6 @@ namespace Lina::Editor
 		// opts.color.end = Theme::GetDef().accentPrimary2.AsLVG4();
 		//  if(dr.isHovered)
 		//      opts.color = Theme::GetDef().accentPrimary2.AsLVG4();
-
 		opts.color.start.w = opts.color.end.w = 0.25f;
 
 		LinaVG::DrawRect(threadIndex, start.AsLVG(), end.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
@@ -181,10 +178,24 @@ namespace Lina::Editor
 			Color				 end   = Theme::GetDef().accentPrimary0;
 			end.w					   = 0.0f;
 			SetGradientFromDirection(previewRect, start, end, dr.direction);
-			// previewRect.color = Theme::GetDef().accentPrimary0.AsLVG4();
-			// previewRect.color.start.w = opts.color.end.w = 0.25f;
 
 			LinaVG::DrawRect(threadIndex, (center - halfSize).AsLVG(), (center + halfSize).AsLVG(), previewRect, 0.0f, FOREGROUND_DRAW_ORDER);
 		}
+	}
+
+	void DockPreview::GetHoveredDirection(DockDirection& outDirection, bool& outIsHovered)
+	{
+		int32 i = 0;
+		for (const auto& dr : m_dockRects)
+		{
+			if (dr.isHovered)
+			{
+				outDirection = static_cast<DockDirection>(i);
+				outIsHovered = true;
+				return;
+			}
+			i++;
+		}
+		outIsHovered = false;
 	}
 } // namespace Lina::Editor

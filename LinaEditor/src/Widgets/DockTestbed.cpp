@@ -34,7 +34,7 @@ namespace Lina::Editor
 
 	void DockTestbed::Construct()
 	{
-		DockContainer* cont = Allocate<DockContainer>();
+		DockContainer* cont = Allocate<DockContainer>("DockContainer");
 		cont->Initialize();
 		AddChild(cont);
 	}

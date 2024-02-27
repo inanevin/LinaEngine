@@ -27,8 +27,46 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Docking/DockArea.hpp"
+#include "Editor/Widgets/Docking/DockPreview.hpp"
 
 namespace Lina::Editor
 {
+	void DockArea::Construct()
+	{
+	}
 
-}
+	void DockArea::Tick(float delta)
+	{
+		Widget::SetIsHovered();
+
+		SetPos(m_parent->GetSize() * m_posAlign);
+		SetSize(m_parent->GetSize() * m_sizeAlign);
+
+		if (m_preview)
+		{
+			m_preview->SetSize(m_rect.size);
+			m_preview->SetPos(m_rect.pos);
+			m_preview->Tick(delta);
+		}
+	}
+
+	void DockArea::Draw(int32 threadIndex)
+	{
+		if (m_preview)
+			m_preview->Draw(threadIndex);
+	}
+
+	void DockArea::ShowPreview()
+	{
+		LINA_ASSERT(m_preview == nullptr, "");
+		m_preview						= Allocate<DockPreview>("DockContainerPreview");
+		m_preview->GetProps().isCentral = false;
+		m_preview->Initialize();
+	}
+
+	void DockArea::HidePreview()
+	{
+		LINA_ASSERT(m_preview != nullptr, "");
+		Deallocate(m_preview);
+	}
+} // namespace Lina::Editor

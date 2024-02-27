@@ -33,6 +33,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	class DockContainer;
+	class DockPreview;
 
 	class DockArea : public Widget
 	{
@@ -40,13 +41,15 @@ namespace Lina::Editor
 		DockArea()			= default;
 		virtual ~DockArea() = default;
 
-		// virtual void Construct() override;
-		// virtual void Tick(float delta) override;
-		// virtual void Draw(int32 threadIndex) override;
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+		void		 ShowPreview();
+		void		 HidePreview();
 
 	private:
 		friend class DockContainer;
-
+		DockPreview*   m_preview		 = nullptr;
 		DockContainer* m_parentContainer = nullptr;
 		Vector2		   m_posAlign		 = Vector2::Zero;
 		Vector2		   m_sizeAlign		 = Vector2::Zero;

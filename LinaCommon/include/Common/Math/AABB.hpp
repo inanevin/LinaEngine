@@ -40,7 +40,6 @@ namespace Lina
 	class Plane;
 	class AABB
 	{
-
 	public:
 		AABB() = default;
 		AABB(Vector3 min, Vector3 max)

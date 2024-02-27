@@ -43,8 +43,8 @@ namespace Lina
 	{
 		return SystemInitializationInfo{
 			.appName			 = "Lina Editor",
-			.windowWidth		 = 1024,
-			.windowHeight		 = 1024,
+			.windowWidth		 = 800,
+			.windowHeight		 = 800,
 			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
 			.appListener		 = new Lina::Editor::EditorApplicationDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,

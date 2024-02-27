@@ -81,15 +81,6 @@ namespace Lina
 		Vertical,
 	};
 
-	enum class DockDirection
-	{
-		Left,
-		Top,
-		Bottom,
-		Right,
-		Center
-	};
-
 	enum WidgetFlags
 	{
 		WF_NONE				 = 1 << 0,

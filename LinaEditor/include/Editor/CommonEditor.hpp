@@ -59,4 +59,16 @@ namespace Lina::Editor
 
 #define DOCK_DEFAULT_PERCENTAGE 0.1f
 
+	enum class DockDirection
+	{
+		Left = 0,
+		Top,
+		Bottom,
+		Right,
+		Center,
+	};
+
+	extern DockDirection DockDirectionFromVector(const Vector2& dir);
+	extern Vector2		 DockDirectionToVector(const DockDirection& dir);
+
 } // namespace Lina::Editor

@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/CommonEditor.hpp"
 
 namespace Lina
 {
@@ -57,19 +58,19 @@ namespace Lina::Editor
 		DockPreview()		   = default;
 		virtual ~DockPreview() = default;
 
-		static constexpr float ANIM_TIME		= 0.15f;
-		static constexpr float BOUNCE_ANIM_TIME = 0.75f;
-		static constexpr float SMALL_RECT_SZ	= 42.0f;
-
 		struct Properties
 		{
 			bool isCentral = false;
 		};
+		static constexpr float ANIM_TIME		= 0.15f;
+		static constexpr float BOUNCE_ANIM_TIME = 0.75f;
+		static constexpr float SMALL_RECT_SZ	= 42.0f;
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		void		 GetHoveredDirection(DockDirection& outDirection, bool& outIsHovered);
 
 		inline Properties& GetProps()
 		{

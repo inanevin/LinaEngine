@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/CommonEditor.hpp"
 
 namespace Lina::Editor
 {
@@ -50,6 +51,7 @@ namespace Lina::Editor
 
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 		DockArea*	 AddDockArea(DockDirection direction);
 		void		 ShowPreview();
 		void		 HidePreview();
@@ -60,8 +62,15 @@ namespace Lina::Editor
 		}
 
 	private:
-		Properties	 m_props   = {};
-		DockPreview* m_preview = nullptr;
+		Vector<DockArea*> AreaSortHorizontal();
+		Vector<DockArea*> AreaSortVertical();
+
+		Vector<DockArea*> FindAreasPosAlign(float align, WidgetDirection direction, bool lookForEnd);
+
+	private:
+		Properties		  m_props	= {};
+		DockPreview*	  m_preview = nullptr;
+		Vector<DockArea*> m_dockAreas;
 	};
 
 } // namespace Lina::Editor
