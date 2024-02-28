@@ -32,22 +32,10 @@ SOFTWARE.
 #include "Common/Math/Color.hpp"
 #include "Common/Math/Rect.hpp"
 #include "Common/Data/Map.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina
 {
-	struct TBLR
-	{
-		float top	 = 0;
-		float bottom = 0;
-		float left	 = 0;
-		float right	 = 0;
-
-		static TBLR Eq(float m)
-		{
-			return {.top = m, .bottom = m, .left = m, .right = m};
-		}
-	};
-
 	struct RectBackground
 	{
 		bool  enabled	 = false;
@@ -73,12 +61,6 @@ namespace Lina
 	{
 		Fixed,
 		FromChildren,
-	};
-
-	enum class WidgetDirection
-	{
-		Horizontal,
-		Vertical,
 	};
 
 	enum WidgetFlags

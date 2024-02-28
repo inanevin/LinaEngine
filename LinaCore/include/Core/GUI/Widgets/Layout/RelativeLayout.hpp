@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina
 {
@@ -39,8 +40,8 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			Vector<float>	ratios;
-			WidgetDirection direction = WidgetDirection::Horizontal;
+			Vector<float>		 ratios;
+			DirectionOrientation direction = DirectionOrientation::Horizontal;
 		};
 
 		RelativeLayout()		  = default;

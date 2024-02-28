@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
+#include "Common/Common.hpp"
 
 namespace LinaVG
 {
@@ -50,21 +51,21 @@ namespace Lina
 
 		struct Properties
 		{
-			WidgetDirection direction			 = WidgetDirection::Horizontal;
-			Color			colorBackground		 = Theme::GetDef().background0;
-			Color			colorFillMin		 = Theme::GetDef().accentPrimary1;
-			Color			colorFillMax		 = Theme::GetDef().accentPrimary0;
-			Color			colorHandle			 = Theme::GetDef().accentPrimary0;
-			Color			colorHandleHovered	 = Theme::GetDef().accentPrimary2;
-			Color			colorOutline		 = Theme::GetDef().outlineColorBase;
-			Color			colorOutlineControls = Theme::GetDef().outlineColorControls;
-			float			rounding			 = Theme::GetDef().baseRounding * 2;
-			float			crossAxisPercentage	 = Theme::GetDef().baseSliderPerc;
-			float			outlineThickness	 = Theme::GetDef().baseOutlineThickness;
-			float			minValue			 = 0.0f;
-			float			maxValue			 = 0.0f;
-			float*			value				 = nullptr;
-			float			step				 = 0.0f;
+			DirectionOrientation direction			  = DirectionOrientation::Horizontal;
+			Color				 colorBackground	  = Theme::GetDef().background0;
+			Color				 colorFillMin		  = Theme::GetDef().accentPrimary1;
+			Color				 colorFillMax		  = Theme::GetDef().accentPrimary0;
+			Color				 colorHandle		  = Theme::GetDef().accentPrimary0;
+			Color				 colorHandleHovered	  = Theme::GetDef().accentPrimary2;
+			Color				 colorOutline		  = Theme::GetDef().outlineColorBase;
+			Color				 colorOutlineControls = Theme::GetDef().outlineColorControls;
+			float				 rounding			  = Theme::GetDef().baseRounding * 2;
+			float				 crossAxisPercentage  = Theme::GetDef().baseSliderPerc;
+			float				 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
+			float				 minValue			  = 0.0f;
+			float				 maxValue			  = 0.0f;
+			float*				 value				  = nullptr;
+			float				 step				  = 0.0f;
 		};
 
 		virtual void Construct() override;

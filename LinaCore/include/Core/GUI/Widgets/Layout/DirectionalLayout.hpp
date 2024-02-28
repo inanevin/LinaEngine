@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina
 {
@@ -49,13 +50,13 @@ namespace Lina
 
 		struct Properties
 		{
-			Vector<float>	customAlignments = {};
-			TBLR			margins			 = {};
-			TBLR			borderThickness;
-			WidgetDirection direction	= WidgetDirection::Horizontal;
-			Mode			mode		= Mode::Default;
-			float			padding		= 0.0f;
-			Color			colorBorder = Theme::GetDef().background2;
+			Vector<float>		 customAlignments = {};
+			TBLR				 margins		  = {};
+			TBLR				 borderThickness;
+			DirectionOrientation direction	 = DirectionOrientation::Horizontal;
+			Mode				 mode		 = Mode::Default;
+			float				 padding	 = 0.0f;
+			Color				 colorBorder = Theme::GetDef().background2;
 		};
 
 		virtual void Tick(float delta) override;

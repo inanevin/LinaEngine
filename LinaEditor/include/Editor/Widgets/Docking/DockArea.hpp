@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/CommonEditor.hpp"
 
 namespace Lina::Editor
 {
@@ -41,18 +42,26 @@ namespace Lina::Editor
 		DockArea()			= default;
 		virtual ~DockArea() = default;
 
+		static constexpr float MIN_SIZE_PERC = 0.05f;
+
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		void		 ShowPreview();
-		void		 HidePreview();
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+
+		void	  ShowPreview();
+		void	  HidePreview();
+		DockArea* AddDockArea(Direction direction);
+
+		inline void SetAlignRect(const Rect& r)
+		{
+			m_alignRect = r;
+		}
 
 	private:
 		friend class DockContainer;
-		DockPreview*   m_preview		 = nullptr;
-		DockContainer* m_parentContainer = nullptr;
-		Vector2		   m_posAlign		 = Vector2::Zero;
-		Vector2		   m_sizeAlign		 = Vector2::Zero;
+		DockPreview* m_preview	 = nullptr;
+		Rect		 m_alignRect = Rect();
 	};
 
 } // namespace Lina::Editor

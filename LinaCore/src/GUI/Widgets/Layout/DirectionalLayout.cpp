@@ -37,7 +37,7 @@ namespace Lina
 	void DirectionalLayout::Tick(float delta)
 	{
 		// Fetch size from children if empty.
-		if (m_props.direction == WidgetDirection::Horizontal && Math::Equals(m_rect.size.x, 0.0f, 0.1f))
+		if (m_props.direction == DirectionOrientation::Horizontal && Math::Equals(m_rect.size.x, 0.0f, 0.1f))
 		{
 			float maxY = 0.0f;
 			for (auto* c : m_children)
@@ -52,7 +52,7 @@ namespace Lina
 			if (Math::Equals(m_rect.size.y, 0.0f, 0.1f))
 				m_rect.size.y = maxY + m_props.margins.top + m_props.margins.bottom;
 		}
-		else if (m_props.direction == WidgetDirection::Vertical && Math::Equals(m_rect.size.y, 0.0f, 0.1f))
+		else if (m_props.direction == DirectionOrientation::Vertical && Math::Equals(m_rect.size.y, 0.0f, 0.1f))
 		{
 			float maxX = 0.0f;
 			for (auto* c : m_children)
@@ -89,13 +89,13 @@ namespace Lina
 		if (m_children.empty())
 			return;
 
-		const float totalAvailableSize = (m_props.direction == WidgetDirection::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * m_props.padding);
+		const float totalAvailableSize = (m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * m_props.padding);
 		const float perItemSize		   = totalAvailableSize / static_cast<float>(m_children.size());
 
-		float pos = m_props.direction == WidgetDirection::Horizontal ? m_start.x : m_start.y;
+		float pos = m_props.direction == DirectionOrientation::Horizontal ? m_start.x : m_start.y;
 		for (auto* c : m_children)
 		{
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
 				c->SetSizeX(perItemSize);
 				c->SetPosX(pos);
@@ -120,12 +120,12 @@ namespace Lina
 		for (auto* c : m_children)
 		{
 
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
 				float target = Math::Clamp(m_start.x + m_sz.x * m_props.customAlignments[i] - c->GetHalfSizeX(), m_start.x, m_end.x - c->GetSizeX());
 				c->SetPosX(target);
 			}
-			else if (m_props.direction == WidgetDirection::Vertical)
+			else if (m_props.direction == DirectionOrientation::Vertical)
 			{
 				float target = Math::Clamp(m_start.y + m_sz.y * m_props.customAlignments[i] - c->GetHalfSizeY(), m_start.y, m_end.y - c->GetSizeY());
 				c->SetPosY(target);
@@ -152,7 +152,7 @@ namespace Lina
 
 			const Vector2& sz = c->GetSize();
 
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 				totalSizeMainAxis += sz.x;
 			else
 				totalSizeMainAxis += sz.y;
@@ -160,20 +160,20 @@ namespace Lina
 			c->Tick(delta);
 		}
 
-		const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (m_sz.x - totalSizeMainAxis) : (m_sz.y - totalSizeMainAxis);
+		const float remainingSize = m_props.direction == DirectionOrientation::Horizontal ? (m_sz.x - totalSizeMainAxis) : (m_sz.y - totalSizeMainAxis);
 		const float pad			  = remainingSize / static_cast<float>(m_children.size() + 1);
 
 		float x = m_start.x;
 		float y = m_start.y;
 
-		if (m_props.direction == WidgetDirection::Horizontal)
+		if (m_props.direction == DirectionOrientation::Horizontal)
 			x += pad;
 		else
 			y += pad;
 
 		for (auto* c : m_children)
 		{
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
 				c->SetPosX(x);
 				AlignWidgetInCrossAxis(c);
@@ -192,7 +192,7 @@ namespace Lina
 
 	void DirectionalLayout::AlignWidgetInCrossAxis(Widget* w)
 	{
-		if (m_props.direction == WidgetDirection::Horizontal)
+		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
 			if (w->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
 				w->SetPosY(m_start.y);
@@ -201,7 +201,7 @@ namespace Lina
 			else
 				w->SetPosY(m_center.y - w->GetHalfSizeY());
 		}
-		else if (m_props.direction == WidgetDirection::Vertical)
+		else if (m_props.direction == DirectionOrientation::Vertical)
 		{
 			if (w->GetFlags().IsSet(WF_ALIGN_NEGATIVE))
 				w->SetPosX(m_start.x);
@@ -214,12 +214,12 @@ namespace Lina
 
 	void DirectionalLayout::ExpandWidgetInCrossAxis(Widget* w)
 	{
-		if (m_props.direction == WidgetDirection::Horizontal)
+		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
 			if (w->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !w->GetFlags().IsSet(WF_OWNS_SIZE))
 				w->SetSizeY(m_sz.y);
 		}
-		else if (m_props.direction == WidgetDirection::Vertical)
+		else if (m_props.direction == DirectionOrientation::Vertical)
 		{
 			if (w->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !w->GetFlags().IsSet(WF_OWNS_SIZE))
 				w->SetSizeX(m_sz.x);
@@ -239,7 +239,7 @@ namespace Lina
 			const bool lastItem		 = idx == m_children.size() - 1;
 			float	   incrementSize = 0.0f;
 
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
 				c->SetPosX(x);
 				ExpandWidgetInCrossAxis(c);
@@ -272,7 +272,7 @@ namespace Lina
 					incrementSize = c->GetSize().y;
 			}
 
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 				x += incrementSize + (lastItem ? 0.0f : m_props.padding);
 			else
 				y += incrementSize + (lastItem ? 0.0f : m_props.padding);
@@ -282,7 +282,7 @@ namespace Lina
 
 		if (expandWidget != nullptr)
 		{
-			const float remainingSize = m_props.direction == WidgetDirection::Horizontal ? (m_start.x + m_sz.x - x) : (m_start.y + m_sz.y - y);
+			const float remainingSize = m_props.direction == DirectionOrientation::Horizontal ? (m_start.x + m_sz.x - x) : (m_start.y + m_sz.y - y);
 
 			bool expandFound = false;
 
@@ -292,14 +292,14 @@ namespace Lina
 				{
 					if (!c->GetFlags().IsSet(WF_OWNS_SIZE))
 					{
-						if (m_props.direction == WidgetDirection::Horizontal)
+						if (m_props.direction == DirectionOrientation::Horizontal)
 							c->SetSizeX(remainingSize);
 						else
 							c->SetSizeY(remainingSize);
 					}
 					else
 					{
-						if (m_props.direction == WidgetDirection::Horizontal)
+						if (m_props.direction == DirectionOrientation::Horizontal)
 							c->SetPosX(c->GetPosX() + remainingSize * 0.5f);
 						else
 							c->SetPosY(c->GetPosY() + remainingSize * 0.5f);
@@ -311,7 +311,7 @@ namespace Lina
 
 				if (expandFound)
 				{
-					if (m_props.direction == WidgetDirection::Horizontal)
+					if (m_props.direction == DirectionOrientation::Horizontal)
 						c->SetPosX(c->GetPos().x + remainingSize);
 					else
 						c->SetPosY(c->GetPos().y + remainingSize);

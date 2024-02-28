@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockContainer.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockPreview.hpp"
+#include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
@@ -36,6 +37,21 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
+	void DockContainer::Initialize()
+	{
+		// Dummy dock area
+		DockArea* area		   = Allocate<DockArea>("DockArea");
+		area->m_alignRect.size = Vector2::One;
+		m_dockAreas.push_back(area);
+		AddChild(area);
+
+		CreateDockBorder(Rect(Vector2::Zero, Vector2(0.0f, 1.0f)), DirectionOrientation::Vertical);
+		CreateDockBorder(Rect(Vector2(1.0f, 0.0f), Vector2(0.0f, 1.0f)), DirectionOrientation::Vertical);
+		CreateDockBorder(Rect(Vector2::Zero, Vector2(1.0f, 0.0f)), DirectionOrientation::Horizontal);
+		CreateDockBorder(Rect(Vector2(0.0f, 1.0f), Vector2(1.0f, 0.0f)), DirectionOrientation::Horizontal);
+	}
+
 	void DockContainer::Tick(float delta)
 	{
 		Widget::SetIsHovered();
@@ -69,20 +85,6 @@ namespace Lina::Editor
 		m_preview						= Allocate<DockPreview>("DockContainerPreview");
 		m_preview->GetProps().isCentral = true;
 		m_preview->Initialize();
-
-		Vector<DockArea*> leftAreas	  = FindAreasPosAlign(0.0f, WidgetDirection::Horizontal, false);
-		Vector<DockArea*> rightAreas  = FindAreasPosAlign(1.0f, WidgetDirection::Horizontal, true);
-		Vector<DockArea*> topAreas	  = FindAreasPosAlign(0.0f, WidgetDirection::Vertical, false);
-		Vector<DockArea*> bottomAreas = FindAreasPosAlign(1.0f, WidgetDirection::Vertical, true);
-
-		for (auto* area : leftAreas)
-		{
-			if (area->m_sizeAlign.x < DEFAULT_DOCK_PERC)
-			{
-
-				break;
-			}
-		}
 	}
 
 	void DockContainer::HidePreview()
@@ -104,8 +106,8 @@ namespace Lina::Editor
 		}
 		else
 		{
-			bool		  isHovered		   = false;
-			DockDirection hoveredDirection = DockDirection::Center;
+			bool	  isHovered		   = false;
+			Direction hoveredDirection = Direction::Center;
 			m_preview->GetHoveredDirection(hoveredDirection, isHovered);
 
 			if (isHovered)
@@ -118,66 +120,126 @@ namespace Lina::Editor
 		}
 	}
 
-	Vector<DockArea*> DockContainer::AreaSortHorizontal()
+	void DockContainer::AreaSortHorizontal(Vector<DockArea*>& outAreas)
 	{
-		Vector<DockArea*> areas = m_dockAreas;
-		linatl::sort(areas.begin(), areas.end(), [](DockArea* area, DockArea* other) -> bool { return area->m_posAlign.x < other->m_posAlign.x; });
-		return areas;
+		outAreas = m_dockAreas;
+		linatl::sort(outAreas.begin(), outAreas.end(), [](DockArea* area, DockArea* other) -> bool { return area->m_alignRect.pos.x < other->m_alignRect.pos.x; });
 	}
 
-	Vector<DockArea*> DockContainer::AreaSortVertical()
+	void DockContainer::AreaSortVertical(Vector<DockArea*>& outAreas)
 	{
+		outAreas = m_dockAreas;
+		linatl::sort(outAreas.begin(), outAreas.end(), [](DockArea* area, DockArea* other) -> bool { return area->m_alignRect.pos.y < other->m_alignRect.pos.y; });
 	}
-	DockArea* DockContainer::AddDockArea(DockDirection direction)
+
+	DockArea* DockContainer::AddDockArea(Direction direction)
 	{
-		LINA_ASSERT(direction != DockDirection::Center, "");
-		DockArea* area			= Allocate<DockArea>();
-		area->m_parentContainer = this;
+		LINA_ASSERT(direction != Direction::Center, "");
+		DockArea* area = Allocate<DockArea>("DockArea");
 
 		// Setup areas percentages according to direction...
-		if (direction == DockDirection::Left)
+		if (direction == Direction::Left)
 		{
-			area->m_posAlign  = Vector2::Zero;
-			area->m_sizeAlign = Vector2(DEFAULT_DOCK_PERC, 1.0f);
+			area->m_alignRect.pos  = Vector2::Zero;
+			area->m_alignRect.size = Vector2(DEFAULT_DOCK_PERC, 1.0f);
+
+			// First vertical border.
+			linatl::find_if(m_verticalBorders.begin(), m_verticalBorders.end(), [](DockBorder* b) -> bool {
+				if (b->m_alignRect.pos.x >= 0.0f)
+				{
+					b->PushBy(DEFAULT_DOCK_PERC);
+					return true;
+				}
+			});
+
+			// Insert new border to left.
+			CreateDockBorder(Rect(Vector2::Zero, Vector2(0.0f, 1.0f)), DirectionOrientation::Vertical);
 		}
-		else if (direction == DockDirection::Right)
+		else if (direction == Direction::Right)
 		{
-			area->m_posAlign  = Vector2(1.0f - DEFAULT_DOCK_PERC, 0.0f);
-			area->m_sizeAlign = Vector2(DEFAULT_DOCK_PERC, 1.0f);
+			// Last vertical border.
+			linatl::find_if(m_verticalBorders.rbegin(), m_verticalBorders.rend(), [](DockBorder* b) -> bool {
+				if (b->m_alignRect.pos.x <= 1.0f)
+				{
+					b->PullBy(DEFAULT_DOCK_PERC);
+					return true;
+				}
+			});
+
+			area->m_alignRect.pos  = Vector2(1.0f - DEFAULT_DOCK_PERC, 0.0f);
+			area->m_alignRect.size = Vector2(DEFAULT_DOCK_PERC, 1.0f);
 		}
-		else if (direction == DockDirection::Top)
+		else if (direction == Direction::Top)
 		{
-			area->m_posAlign  = Vector2::Zero;
-			area->m_sizeAlign = Vector2(1.0f, DEFAULT_DOCK_PERC);
+			// First horizontal border.
+			linatl::find_if(m_horizontalBorders.begin(), m_horizontalBorders.end(), [](DockBorder* b) -> bool {
+				if (b->m_alignRect.pos.y >= 0.0f)
+				{
+					b->PushBy(DEFAULT_DOCK_PERC);
+					return true;
+				}
+			});
+
+			area->m_alignRect.pos  = Vector2::Zero;
+			area->m_alignRect.size = Vector2(1.0f, DEFAULT_DOCK_PERC);
 		}
-		else if (direction == DockDirection::Bottom)
+		else if (direction == Direction::Bottom)
 		{
-			area->m_posAlign  = Vector2(0.0f, 1.0f - DEFAULT_DOCK_PERC);
-			area->m_sizeAlign = Vector2(1.0f, DEFAULT_DOCK_PERC);
+			// Last horizontal border.
+			linatl::find_if(m_horizontalBorders.rbegin(), m_horizontalBorders.rend(), [](DockBorder* b) -> bool {
+				if (b->m_alignRect.pos.y <= 1.0f)
+				{
+					b->PushBy(-DEFAULT_DOCK_PERC);
+					return true;
+				}
+			});
+
+			area->m_alignRect.pos  = Vector2(0.0f, 1.0f - DEFAULT_DOCK_PERC);
+			area->m_alignRect.size = Vector2(1.0f, DEFAULT_DOCK_PERC);
 		}
 
-		AddChild(area);
 		m_dockAreas.push_back(area);
+		AddChild(area);
 	}
 
-	Vector<DockArea*> DockContainer::FindAreasPosAlign(float align, WidgetDirection direction, bool lookForEnd)
+	void DockContainer::FindAreasPosAlign(Vector<DockArea*>& outAreas, float align, DirectionOrientation direction, bool lookForEnd)
 	{
-		Vector<DockArea*> areas;
-		areas.reserve(m_dockAreas.size() / 2);
 		for (auto* area : m_dockAreas)
 		{
-			if (direction == WidgetDirection::Horizontal)
+			if (direction == DirectionOrientation::Horizontal)
 			{
-				if (Math::Equals(lookForEnd ? (area->m_posAlign.x + area->m_sizeAlign.x) : area->m_posAlign.x, align, 0.0001f))
-					areas.push_back(area);
+				if (Math::Equals(lookForEnd ? (area->m_alignRect.pos.x + area->m_alignRect.size.x) : area->m_alignRect.pos.x, align, 0.0001f))
+					outAreas.push_back(area);
 			}
 			else
 			{
-				if (Math::Equals(lookForEnd ? (area->m_posAlign.y + area->m_sizeAlign.y) : area->m_posAlign.x, align, 0.0001f))
-					areas.push_back(area);
+				if (Math::Equals(lookForEnd ? (area->m_alignRect.pos.y + area->m_alignRect.size.y) : area->m_alignRect.pos.y, align, 0.0001f))
+					outAreas.push_back(area);
 			}
 		}
+	}
 
-		return areas;
+	DockBorder* DockContainer::CreateDockBorder(const Rect& alignRect, DirectionOrientation orientation)
+	{
+		DockBorder* border		  = Allocate<DockBorder>("DockBorder");
+		border->m_parentContainer = this;
+		border->m_alignRect		  = alignRect;
+		border->m_orientation	  = orientation;
+
+		// Always keep sorted.
+		if (orientation == DirectionOrientation::Horizontal)
+		{
+			m_horizontalBorders.push_back(border);
+			linatl::sort(m_horizontalBorders.begin(), m_horizontalBorders.end(), [](DockBorder* b1, DockBorder* b2) -> bool { return b1->m_alignRect.pos.x < b2->m_alignRect.pos.x; });
+		}
+		else if (orientation == DirectionOrientation::Vertical)
+		{
+			m_verticalBorders.push_back(border);
+			linatl::sort(m_verticalBorders.begin(), m_verticalBorders.end(), [](DockBorder* b1, DockBorder* b2) -> bool { return b1->m_alignRect.pos.x < b2->m_alignRect.pos.x; });
+		}
+
+		AddChild(border);
+
+		return border;
 	}
 } // namespace Lina::Editor

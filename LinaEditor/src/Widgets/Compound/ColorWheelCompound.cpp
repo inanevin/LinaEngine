@@ -97,7 +97,7 @@ namespace Lina::Editor
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
 
 		ColorSlider* slider			 = Allocate<ColorSlider>("HSVSlider");
-		slider->GetProps().direction = WidgetDirection::Vertical;
+		slider->GetProps().direction = DirectionOrientation::Vertical;
 		slider->GetFlags().Set(WF_EXPAND_MAIN_AXIS);
 		slider->GetProps().minValue		  = 0.0f;
 		slider->GetProps().maxValue		  = isHue ? 360.0f : 1.0f;
@@ -108,7 +108,7 @@ namespace Lina::Editor
 
 		// Layout
 		DirectionalLayout* layout	 = Allocate<DirectionalLayout>("SaturationValueLayout");
-		layout->GetProps().direction = WidgetDirection::Vertical;
+		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->GetProps().padding	 = Theme::GetDef().baseIndent;
 		layout->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 		layout->AddChild(slider, field, text);
@@ -143,7 +143,7 @@ namespace Lina::Editor
 
 		// Slider row
 		m_topSlidersRow									 = Allocate<DirectionalLayout>("TopSlidersRow");
-		m_topSlidersRow->GetProps().direction			 = WidgetDirection::Horizontal;
+		m_topSlidersRow->GetProps().direction			 = DirectionOrientation::Horizontal;
 		m_topSlidersRow->GetProps().margins				 = TBLR::Eq(Theme::GetDef().baseIndent * 2.0f);
 		m_topSlidersRow->GetProps().mode				 = DirectionalLayout::Mode::CustomAlignment;
 		m_topSlidersRow->GetProps().customAlignments	 = {0.0f, 0.5f, 1.0f};
@@ -153,14 +153,14 @@ namespace Lina::Editor
 
 		// Top row
 		m_topRow									= Allocate<DirectionalLayout>("TopRow");
-		m_topRow->GetProps().direction				= WidgetDirection::Horizontal;
+		m_topRow->GetProps().direction				= DirectionOrientation::Horizontal;
 		m_topRow->GetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness;
 		m_topRow->AddChild(m_wheelStack, m_topSlidersRow);
 		AddChild(m_topRow);
 
 		// Bottom row
 		m_bottomRow						  = Allocate<DirectionalLayout>("BottomRow");
-		m_bottomRow->GetProps().direction = WidgetDirection::Vertical;
+		m_bottomRow->GetProps().direction = DirectionOrientation::Vertical;
 		m_bottomRow->GetProps().margins	  = TBLR::Eq(Theme::GetDef().baseIndent * 2.0f);
 		m_bottomRow->GetProps().padding	  = Theme::GetDef().baseIndent;
 
@@ -199,7 +199,7 @@ namespace Lina::Editor
 		m_newColorField->GetProps().convertToLinear			= true;
 
 		m_colorsLayout						 = Allocate<DirectionalLayout>("ColorsRow");
-		m_colorsLayout->GetProps().direction = WidgetDirection::Horizontal;
+		m_colorsLayout->GetProps().direction = DirectionOrientation::Horizontal;
 		m_colorsLayout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
 		m_colorsLayout->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 		m_colorsLayout->AddChild(m_oldColorField, m_newColorField);
@@ -214,7 +214,7 @@ namespace Lina::Editor
 		};
 
 		m_dropdownAndColorsRow								= Allocate<DirectionalLayout>("DropdownAndColorsRow");
-		m_dropdownAndColorsRow->GetProps().direction		= WidgetDirection::Horizontal;
+		m_dropdownAndColorsRow->GetProps().direction		= DirectionOrientation::Horizontal;
 		m_dropdownAndColorsRow->GetProps().customAlignments = {0.0f, 1.0f};
 		m_dropdownAndColorsRow->GetProps().mode				= DirectionalLayout::Mode::CustomAlignment;
 		m_dropdownAndColorsRow->GetFlags().Set(WF_EXPAND_CROSS_AXIS);

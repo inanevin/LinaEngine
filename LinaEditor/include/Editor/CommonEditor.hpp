@@ -43,13 +43,14 @@ namespace Lina::Editor
 #define ICON_ARROW_UP	   "\u0047"
 #define ICON_ARROW_DOWN	   "\u0048"
 
-#define ICON_ARROW_RECT_UP		 "\u0049"
-#define ICON_ARROW_RECT_DOWN	 "\u0050"
+#define ICON_ARROW_RECT_DOWN	 "\u0049"
+#define ICON_ARROW_RECT_UP		 "\u0050"
 #define ICON_ARROW_RECT_RIGHT	 "\u0051"
 #define ICON_ARROW_RECT_LEFT	 "\u0052"
 #define ICON_RECT_FILLED		 "\u0053"
 #define ICON_ROUND_SQUARE		 "\u0054"
 #define ICON_ROUND_SQUARE_FILLED "\u0055"
+#define ICON_NOT_ALLOWED		 "\u0056"
 
 #define ICONOFFSET_CHECK		 Vector2(0.1f, 0.0f)
 #define ICONOFFSET_CIRCLE_FILLED Vector2(0.1f, 0.0f)
@@ -57,18 +58,7 @@ namespace Lina::Editor
 #define ICONOFFSET_ARROW_DOWN	 Vector2(0.25f, 0.1f)
 #define ICONOFFSET_ARROW_RECTS	 Vector2(0.08f, 0.0f)
 
-#define DOCK_DEFAULT_PERCENTAGE 0.1f
-
-	enum class DockDirection
-	{
-		Left = 0,
-		Top,
-		Bottom,
-		Right,
-		Center,
-	};
-
-	extern DockDirection DockDirectionFromVector(const Vector2& dir);
-	extern Vector2		 DockDirectionToVector(const DockDirection& dir);
+#define DOCK_DEFAULT_PERCENTAGE 0.4f
+#define DOCKED_MIN_SIZE			300.0f
 
 } // namespace Lina::Editor

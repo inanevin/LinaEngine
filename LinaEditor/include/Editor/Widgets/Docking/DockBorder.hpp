@@ -26,24 +26,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/DockTestbed.hpp"
-#include "Editor/Widgets/Docking/DockArea.hpp"
+#pragma once
+
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/CommonEditor.hpp"
 
 namespace Lina::Editor
 {
+	class DockContainer;
+	class DockArea;
 
-	void DockTestbed::Construct()
+	class DockBorder : public Widget
 	{
-		DockArea* area = Allocate<DockArea>("DockArea");
-		area->Initialize();
-		area->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
-		AddChild(area);
-	}
+	public:
+		DockBorder()		  = default;
+		virtual ~DockBorder() = default;
 
-	void DockTestbed::Tick(float delta)
-	{
-		SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
-		Widget::Tick(delta);
-	}
+		static constexpr float CROSS_AXIS_PERC = 0.02f;
+
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;
+		void		 PushBy(float amt);
+		void		 PullBy(float amt);
+
+	private:
+		bool CanResizeArea(DockArea* area, float amt);
+		void GetClippingAreas(Vector<DockArea*>& outAreas, bool isPush);
+
+	private:
+		friend class DockContainer;
+		friend class DockArea;
+		DockContainer*		 m_parentContainer = nullptr;
+		Rect				 m_alignRect	   = Rect();
+		DirectionOrientation m_orientation	   = DirectionOrientation::Horizontal;
+	};
 
 } // namespace Lina::Editor

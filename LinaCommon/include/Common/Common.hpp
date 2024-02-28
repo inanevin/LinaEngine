@@ -54,4 +54,36 @@ namespace Lina
 		ResourceManagerMode	 resourceManagerMode = ResourceManagerMode::File;
 	};
 
+	enum class Direction
+	{
+		Top = 0,
+		Bottom,
+		Left,
+		Right,
+		Center
+	};
+
+	enum class DirectionOrientation
+	{
+		Horizontal,
+		Vertical
+	};
+
+	struct TBLR
+	{
+		float top	 = 0;
+		float bottom = 0;
+		float left	 = 0;
+		float right	 = 0;
+
+		static TBLR Eq(float m)
+		{
+			return {.top = m, .bottom = m, .left = m, .right = m};
+		}
+	};
+
+	extern Direction DirectionOpposite(const Direction& dir);
+	extern Direction DirectionFromVector(const Vector2& dir);
+	extern Vector2	 DirectionToVector(const Direction& dir);
+
 } // namespace Lina

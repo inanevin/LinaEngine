@@ -86,14 +86,14 @@ namespace Lina::Editor
 			return icon;
 		};
 
-		m_dockRects[0].icon = createIcon(ICON_RECT_FILLED);
-		m_dockRects[1].icon = createIcon(ICON_ARROW_RECT_UP);
-		m_dockRects[2].icon = createIcon(ICON_ARROW_RECT_RIGHT);
-		m_dockRects[3].icon = createIcon(ICON_ARROW_RECT_DOWN);
-		m_dockRects[4].icon = createIcon(ICON_ARROW_RECT_LEFT);
+		m_dockRects[0].icon = createIcon(ICON_ARROW_RECT_UP);
+		m_dockRects[1].icon = createIcon(ICON_ARROW_RECT_DOWN);
+		m_dockRects[2].icon = createIcon(ICON_ARROW_RECT_LEFT);
+		m_dockRects[3].icon = createIcon(ICON_ARROW_RECT_RIGHT);
+		m_dockRects[4].icon = createIcon(ICON_RECT_FILLED);
 
 		for (int32 i = 0; i < 5; i++)
-			m_dockRects[i].direction = DockDirectionToVector(static_cast<DockDirection>(i));
+			m_dockRects[i].direction = DirectionToVector(static_cast<Direction>(i));
 	}
 
 	void DockPreview::Initialize()
@@ -113,7 +113,7 @@ namespace Lina::Editor
 
 			const Rect rt		  = Rect(dr.position - Vector2(dr.size, dr.size) * 0.5f, Vector2(dr.size, dr.size));
 			const bool wasHovered = dr.isHovered;
-			dr.isHovered		  = rt.IsPointInside(mp);
+			dr.isHovered		  = !dr.isDisabled && rt.IsPointInside(mp);
 
 			if (dr.isHovered)
 			{
@@ -154,16 +154,20 @@ namespace Lina::Editor
 		LinaVG::StyleOptions opts;
 		opts.rounding = Theme::GetDef().baseRounding;
 		opts.color	  = dr.isHovered ? Theme::GetDef().accentPrimary2.AsLVG4() : Theme::GetDef().accentPrimary0.AsLVG4();
-		// opts.color.start = Theme::GetDef().accentPrimary0.AsLVG4();
-		// opts.color.end = Theme::GetDef().accentPrimary2.AsLVG4();
-		//  if(dr.isHovered)
-		//      opts.color = Theme::GetDef().accentPrimary2.AsLVG4();
+
+		if (dr.isDisabled)
+			opts.color = Theme::GetDef().silent.AsLVG4();
+
 		opts.color.start.w = opts.color.end.w = 0.25f;
 
+		// Icon bg
 		LinaVG::DrawRect(threadIndex, start.AsLVG(), end.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
+
+		// Icon
 		dr.icon->Draw(threadIndex);
 
-		if (dr.isHovered)
+		// Actual placement preview
+		if (dr.isHovered && !dr.isDisabled)
 		{
 			const float previewRectSize = (m_rect.size * dr.direction * DOCK_DEFAULT_PERCENTAGE).Magnitude();
 			Vector2		halfSize		= Vector2::Zero;
@@ -183,19 +187,27 @@ namespace Lina::Editor
 		}
 	}
 
-	void DockPreview::GetHoveredDirection(DockDirection& outDirection, bool& outIsHovered)
+	void DockPreview::GetHoveredDirection(Direction& outDirection, bool& outIsHovered)
 	{
 		int32 i = 0;
 		for (const auto& dr : m_dockRects)
 		{
-			if (dr.isHovered)
+			if (dr.isHovered && !dr.isDisabled)
 			{
-				outDirection = static_cast<DockDirection>(i);
+				outDirection = static_cast<Direction>(i);
 				outIsHovered = true;
 				return;
 			}
 			i++;
 		}
 		outIsHovered = false;
+	}
+
+	void DockPreview::DisableDirection(const Direction& dir)
+	{
+		auto& dr				 = m_dockRects[static_cast<int32>(dir)];
+		dr.isDisabled			 = true;
+		dr.icon->GetProps().icon = ICON_NOT_ALLOWED;
+		dr.icon->CalculateIconSize();
 	}
 } // namespace Lina::Editor

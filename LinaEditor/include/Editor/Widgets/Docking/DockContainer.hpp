@@ -30,11 +30,13 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina::Editor
 {
 	class DockArea;
 	class DockPreview;
+	class DockBorder;
 
 	class DockContainer : public Widget
 	{
@@ -49,28 +51,46 @@ namespace Lina::Editor
 			Color colorBackground = Theme::GetDef().background0;
 		};
 
+		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-		DockArea*	 AddDockArea(DockDirection direction);
+		DockArea*	 AddDockArea(Direction direction);
 		void		 ShowPreview();
 		void		 HidePreview();
+		void		 AreaSortHorizontal(Vector<DockArea*>& outAreas);
+		void		 AreaSortVertical(Vector<DockArea*>& outAreas);
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
-	private:
-		Vector<DockArea*> AreaSortHorizontal();
-		Vector<DockArea*> AreaSortVertical();
+		inline const Vector<DockArea*>& GetDockAreas() const
+		{
+			return m_dockAreas;
+		}
 
-		Vector<DockArea*> FindAreasPosAlign(float align, WidgetDirection direction, bool lookForEnd);
+		inline const Vector<DockBorder*>& GetSortedVerticalBorders() const
+		{
+			return m_verticalBorders;
+		}
+
+		inline const Vector<DockBorder*>& GetSortedHorizontalBorders() const
+		{
+			return m_horizontalBorders;
+		}
 
 	private:
-		Properties		  m_props	= {};
-		DockPreview*	  m_preview = nullptr;
-		Vector<DockArea*> m_dockAreas;
+		DockBorder* CreateDockBorder(const Rect& alignRect, DirectionOrientation orientation);
+		void		FindAreasPosAlign(Vector<DockArea*>& outAreas, float align, DirectionOrientation direction, bool lookForEnd);
+
+	private:
+		Properties			m_props	  = {};
+		DockPreview*		m_preview = nullptr;
+		Vector<DockArea*>	m_dockAreas;
+		Vector<DockBorder*> m_horizontalBorders;
+		Vector<DockBorder*> m_verticalBorders;
 	};
 
 } // namespace Lina::Editor

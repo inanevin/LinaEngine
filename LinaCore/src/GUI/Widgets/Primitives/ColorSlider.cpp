@@ -43,9 +43,9 @@ namespace Lina
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;
 
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 				targetValue = Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, m_props.minValue, m_props.maxValue);
-			else if (m_props.direction == WidgetDirection::Vertical)
+			else if (m_props.direction == DirectionOrientation::Vertical)
 				targetValue = Math::Remap(mouse.y, m_rect.pos.y + m_rect.size.y, m_rect.pos.y, m_props.minValue, m_props.maxValue);
 
 			if (!Math::IsZero(m_props.step))
@@ -90,12 +90,12 @@ namespace Lina
 
 		LinaVG::StyleOptions colorOpts;
 		if (m_props.isHueShift)
-			colorOpts.textureHandle = m_props.direction == WidgetDirection::Horizontal ? GUI_TEXTURE_HUE_HORIZONTAL : GUI_TEXTURE_HUE_VERTICAL;
+			colorOpts.textureHandle = m_props.direction == DirectionOrientation::Horizontal ? GUI_TEXTURE_HUE_HORIZONTAL : GUI_TEXTURE_HUE_VERTICAL;
 		else
 		{
 			colorOpts.color.start		 = m_props.colorBegin.AsLVG4();
 			colorOpts.color.end			 = m_props.colorEnd.AsLVG4();
-			colorOpts.color.gradientType = m_props.direction == WidgetDirection::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
+			colorOpts.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		}
 		LinaVG::DrawRect(threadIndex, (m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), colorOpts, 0.0f, drawOrder);
 		drawOrder++;
@@ -103,19 +103,19 @@ namespace Lina
 		if (m_props.value == nullptr)
 			return;
 
-		const float lineThickness = Math::FloorToFloat(m_props.direction == WidgetDirection::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
+		const float lineThickness = Math::FloorToFloat(m_props.direction == DirectionOrientation::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
 
 		LinaVG::StyleOptions line;
 		line.color					  = m_props.colorLine.AsLVG4();
 		line.outlineOptions.thickness = m_props.outlineThickness;
 		line.outlineOptions.color	  = m_props.colorLineOutline.AsLVG4();
 
-		if (m_props.direction == WidgetDirection::Horizontal)
+		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
 			const float lineX = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue) / m_props.maxValue);
 			LinaVG::DrawRect(threadIndex, Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, drawOrder);
 		}
-		else if (m_props.direction == WidgetDirection::Vertical)
+		else if (m_props.direction == DirectionOrientation::Vertical)
 		{
 			const float lineY = Math::FloorToFloat(m_rect.pos.y + m_rect.size.y * (m_props.maxValue - Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue)) / m_props.maxValue);
 			LinaVG::DrawRect(threadIndex, Vector2(m_rect.pos.x, lineY - lineThickness).AsLVG(), Vector2(m_rect.pos.x + m_rect.size.x, lineY + lineThickness).AsLVG(), line, 0.0f, drawOrder);
@@ -160,25 +160,25 @@ namespace Lina
 				m_props.onValueChanged(*m_props.value);
 		};
 
-		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_LEFT)
+		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)
 		{
 			stepValue(-1.0f);
 			return true;
 		}
 
-		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_RIGHT)
+		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_RIGHT)
 		{
 			stepValue(1.0f);
 			return true;
 		}
 
-		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_UP)
+		if (m_props.direction == DirectionOrientation::Vertical && keycode == LINAGX_KEY_UP)
 		{
 			stepValue(1.0f);
 			return true;
 		}
 
-		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_DOWN)
+		if (m_props.direction == DirectionOrientation::Vertical && keycode == LINAGX_KEY_DOWN)
 		{
 			stepValue(-1.0f);
 			return true;

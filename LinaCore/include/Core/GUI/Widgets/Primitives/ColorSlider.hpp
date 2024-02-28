@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina
 {
@@ -44,7 +45,7 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(float)> onValueChanged;
-			WidgetDirection		  direction				  = WidgetDirection::Horizontal;
+			DirectionOrientation  direction				  = DirectionOrientation::Horizontal;
 			Color				  colorBackground		  = Theme::GetDef().background0;
 			Color				  colorBegin			  = Color::White;
 			Color				  colorEnd				  = Color::White;

@@ -87,7 +87,7 @@ namespace Lina
 			c->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 
 		m_foregroundRoot->Draw(threadIndex);
-		// DebugDraw(threadIndex, m_rootWidget);
+		DebugDraw(threadIndex, m_rootWidget);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)

@@ -59,6 +59,27 @@ namespace Lina
 		return p.x > pos.x && p.x < pos.x + size.x && p.y > pos.y && p.y < pos.y + size.y;
 	}
 
+	bool Rect::IsClippingHorizontal(const Rect& other) const
+	{
+		if (pos.x + size.x <= other.pos.x || other.pos.x + other.size.x <= pos.x)
+			return false;
+
+		return true;
+	}
+
+	bool Rect::IsClippingVertical(const Rect& other) const
+	{
+		if (pos.y + size.y <= other.pos.y || other.pos.y + other.size.y <= pos.y)
+			return false;
+
+		return true;
+	}
+
+	bool Rect::IsClipping(const Rect& other) const
+	{
+		return IsClippingHorizontal(other) && IsClippingVertical(other);
+	}
+
 	bool Rect::IsInBorder(const Vector2& p, float borderThickness, int& borderPosition) const
 	{
 		if (p.x >= pos.x - borderThickness && p.x <= pos.x + borderThickness && p.y >= pos.y - borderThickness && p.y <= pos.y + borderThickness)

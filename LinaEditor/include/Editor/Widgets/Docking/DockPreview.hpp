@@ -45,13 +45,14 @@ namespace Lina::Editor
 	private:
 		struct DockRect
 		{
-			float	size	  = 0.0f;
-			bool	isHovered = false;
-			float	expand	  = 0.0f;
-			Vector2 position  = Vector2::Zero;
-			Vector2 extraPos  = Vector2::Zero;
-			Vector2 direction = Vector2::Zero;
-			Icon*	icon	  = nullptr;
+			float	size	   = 0.0f;
+			bool	isHovered  = false;
+			float	expand	   = 0.0f;
+			Vector2 position   = Vector2::Zero;
+			Vector2 extraPos   = Vector2::Zero;
+			Vector2 direction  = Vector2::Zero;
+			Icon*	icon	   = nullptr;
+			bool	isDisabled = false;
 		};
 
 	public:
@@ -70,7 +71,8 @@ namespace Lina::Editor
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		void		 GetHoveredDirection(DockDirection& outDirection, bool& outIsHovered);
+		void		 GetHoveredDirection(Direction& outDirection, bool& outIsHovered);
+		void		 DisableDirection(const Direction& dir);
 
 		inline Properties& GetProps()
 		{

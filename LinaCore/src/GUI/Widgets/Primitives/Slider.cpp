@@ -62,12 +62,12 @@ namespace Lina
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;
 
-			if (m_props.direction == WidgetDirection::Horizontal)
+			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
 				const float perc = Math::Remap(mouse.x, m_bgStart.x, m_bgEnd.x, 0.0f, 1.0f);
 				targetValue		 = Math::Lerp(m_props.minValue, m_props.maxValue, perc);
 			}
-			else if (m_props.direction == WidgetDirection::Vertical)
+			else if (m_props.direction == DirectionOrientation::Vertical)
 			{
 				const float perc = Math::Remap(mouse.y, m_bgEnd.y, m_bgStart.y, 0.0f, 1.0f);
 				targetValue		 = Math::Lerp(m_props.minValue, m_props.maxValue, perc);
@@ -85,8 +85,8 @@ namespace Lina
 			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
 		}
 
-		const Vector2 handlePos = m_props.direction == WidgetDirection::Horizontal ? Vector2(m_fillEnd.x - m_handle->GetHalfSizeX(), (m_fillEnd.y + m_fillStart.y) * 0.5f - m_handle->GetHalfSizeY())
-																				   : Vector2((m_fillStart.x + m_fillEnd.x) * 0.5f - m_handle->GetHalfSizeX(), m_fillStart.y - m_handle->GetHalfSizeY());
+		const Vector2 handlePos = m_props.direction == DirectionOrientation::Horizontal ? Vector2(m_fillEnd.x - m_handle->GetHalfSizeX(), (m_fillEnd.y + m_fillStart.y) * 0.5f - m_handle->GetHalfSizeY())
+																						: Vector2((m_fillStart.x + m_fillEnd.x) * 0.5f - m_handle->GetHalfSizeX(), m_fillStart.y - m_handle->GetHalfSizeY());
 		m_handle->SetPos(handlePos);
 
 		const bool hoverColor	   = (m_handle->GetIsHovered()) && !m_isPressed;
@@ -109,9 +109,9 @@ namespace Lina
 
 		const float			 fillPercent = Math::Remap(*m_props.value, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		LinaVG::StyleOptions fill;
-		fill.color.start		= m_props.direction == WidgetDirection::Horizontal ? m_props.colorFillMin.AsLVG4() : m_props.colorFillMax.AsLVG4();
-		fill.color.end			= m_props.direction == WidgetDirection::Horizontal ? m_props.colorFillMax.AsLVG4() : m_props.colorFillMin.AsLVG4();
-		fill.color.gradientType = m_props.direction == WidgetDirection::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
+		fill.color.start		= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMin.AsLVG4() : m_props.colorFillMax.AsLVG4();
+		fill.color.end			= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMax.AsLVG4() : m_props.colorFillMin.AsLVG4();
+		fill.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		LinaVG::DrawRect(threadIndex, m_fillStart.AsLVG(), m_fillEnd.AsLVG(), fill, 0.0f, m_drawOrder);
 
 		m_handle->Draw(threadIndex);
@@ -122,14 +122,14 @@ namespace Lina
 		const Vector2 topLeft	  = m_rect.pos;
 		const Vector2 bottomRight = m_rect.GetEnd();
 
-		if (m_props.direction == WidgetDirection::Horizontal)
+		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
 			const float thickness = m_rect.size.y * m_props.crossAxisPercentage;
 			const float middleY	  = (topLeft.y + bottomRight.y) / 2.0f;
 			outStart			  = Vector2(topLeft.x, middleY - thickness * 0.5f);
 			outEnd				  = Vector2(Math::Lerp(topLeft.x, bottomRight.x, fillPercent), middleY + thickness * 0.5f);
 		}
-		else if (m_props.direction == WidgetDirection::Vertical)
+		else if (m_props.direction == DirectionOrientation::Vertical)
 		{
 			const float thickness = m_rect.size.x * m_props.crossAxisPercentage;
 			const float middleX	  = (topLeft.x + bottomRight.x) / 2.0f;
@@ -174,25 +174,25 @@ namespace Lina
 			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
 		};
 
-		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_LEFT)
+		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)
 		{
 			stepValue(-1.0f);
 			return true;
 		}
 
-		if (m_props.direction == WidgetDirection::Horizontal && keycode == LINAGX_KEY_RIGHT)
+		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_RIGHT)
 		{
 			stepValue(1.0f);
 			return true;
 		}
 
-		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_UP)
+		if (m_props.direction == DirectionOrientation::Vertical && keycode == LINAGX_KEY_UP)
 		{
 			stepValue(1.0f);
 			return true;
 		}
 
-		if (m_props.direction == WidgetDirection::Vertical && keycode == LINAGX_KEY_DOWN)
+		if (m_props.direction == DirectionOrientation::Vertical && keycode == LINAGX_KEY_DOWN)
 		{
 			stepValue(-1.0f);
 			return true;

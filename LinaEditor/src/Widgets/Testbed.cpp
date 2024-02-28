@@ -130,7 +130,7 @@ namespace Lina::Editor
 			slider->GetProps().maxValue	 = 10.0f;
 			slider->GetProps().step		 = 0.0f;
 			slider->GetProps().value	 = &value;
-			slider->GetProps().direction = WidgetDirection::Vertical;
+			slider->GetProps().direction = DirectionOrientation::Vertical;
 			slider->Initialize();
 			slider->SetSize(Vector2(itemHeight, itemWidth));
 			slider->SetPos(Vector2(x, y));
@@ -260,7 +260,7 @@ namespace Lina::Editor
 			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().colorBegin = Color::Green;
 			cs->GetProps().colorEnd	  = Color::Blue;
-			cs->GetProps().direction  = WidgetDirection::Vertical;
+			cs->GetProps().direction  = DirectionOrientation::Vertical;
 			cs->GetProps().isHueShift = true;
 			cs->GetProps().minValue	  = 0.0f;
 			cs->GetProps().maxValue	  = 1.0f;
