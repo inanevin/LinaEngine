@@ -45,15 +45,15 @@ namespace Lina
 		Rect(const Rect& r) : pos(r.pos), size(r.size){};
 		Rect(const Recti& r);
 		Rect(float x, float y, float w, float h) : pos(x, y), size(w, h){};
-		Rect Shrink(float percentage) const;
+		Rect	Shrink(float percentage) const;
 		Rect	ShrinkByAmount(float amt) const;
 		Vector2 GetCenter() const;
 		Vector2 GetEnd() const;
-        bool IsClippingHorizontal(const Rect& other) const;
-        bool IsClippingVertical(const Rect& other) const;
-        bool IsClipping(const Rect& other) const;
-        bool    IsPointInside(const Vector2& p) const;
-        bool    IsInBorder(const Vector2& p, float borderThickness, int& border) const;
+		bool	IsClippingHorizontal(const Rect& other) const;
+		bool	IsClippingVertical(const Rect& other) const;
+		bool	IsClipping(const Rect& other) const;
+		bool	IsPointInside(const Vector2& p) const;
+		bool	IsInBorder(const Vector2& p, float borderThickness, int& border) const;
 
 		Vector2 pos	 = Vector2(0, 0);
 		Vector2 size = Vector2(0, 0);
