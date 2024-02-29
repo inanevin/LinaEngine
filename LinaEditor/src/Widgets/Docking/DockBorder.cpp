@@ -27,112 +27,220 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Docking/DockBorder.hpp"
-#include "Editor/Widgets/Docking/DockContainer.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
-	void DockBorder::Construct()
+#define BORDER_COLOR Theme::GetDef().background0
+
+	void DockBorder::PreTick(float delta)
 	{
+
+		Widget::SetIsHovered();
+
+		if (m_isHovered)
+		{
+			if (m_orientation == DirectionOrientation::Horizontal)
+				m_lgxWindow->SetCursorType(LinaGX::CursorType::SizeVertical);
+			else
+				m_lgxWindow->SetCursorType(LinaGX::CursorType::SizeHorizontal);
+		}
+
+		if (m_isPressed)
+		{
+			const Vector2& mousePosition = m_lgxWindow->GetMousePosition();
+			const Vector2  perc			 = mousePosition / m_parent->GetSize();
+
+			if (m_orientation == DirectionOrientation::Horizontal)
+			{
+				const float deltaPerc = perc.y - m_alignRect.pos.y;
+				const float percAmt	  = Math::Abs(deltaPerc);
+
+				if (deltaPerc > 0.0f)
+				{
+					if (CheckIfCanShrinkWidgets(m_positiveDockWidgets, percAmt, false))
+					{
+						for (auto* a : m_positiveDockWidgets)
+						{
+							a->m_alignRect.pos.y += percAmt;
+							a->m_alignRect.size.y -= percAmt;
+						}
+						for (auto* a : m_negativeDockWidgets)
+							a->m_alignRect.size.y += percAmt;
+						m_alignRect.pos.y = perc.y;
+					}
+				}
+				else
+				{
+					if (CheckIfCanShrinkWidgets(m_negativeDockWidgets, percAmt, false))
+					{
+						for (auto* a : m_negativeDockWidgets)
+							a->m_alignRect.size.y -= percAmt;
+
+						for (auto* a : m_positiveDockWidgets)
+						{
+							a->m_alignRect.pos.y -= percAmt;
+							a->m_alignRect.size.y += percAmt;
+						}
+						m_alignRect.pos.y = perc.y;
+					}
+				}
+			}
+			else
+			{
+				const float deltaPerc = perc.x - m_alignRect.pos.x;
+				const float percAmt	  = Math::Abs(deltaPerc);
+
+				if (deltaPerc > 0.0f)
+				{
+					if (CheckIfCanShrinkWidgets(m_positiveDockWidgets, percAmt, true))
+					{
+						for (auto* a : m_positiveDockWidgets)
+						{
+							a->m_alignRect.pos.x += percAmt;
+							a->m_alignRect.size.x -= percAmt;
+						}
+						for (auto* a : m_negativeDockWidgets)
+							a->m_alignRect.size.x += percAmt;
+						m_alignRect.pos.x = perc.x;
+					}
+				}
+				else
+				{
+					if (CheckIfCanShrinkWidgets(m_negativeDockWidgets, percAmt, true))
+					{
+						for (auto* a : m_negativeDockWidgets)
+							a->m_alignRect.size.x -= percAmt;
+
+						for (auto* a : m_positiveDockWidgets)
+						{
+							a->m_alignRect.pos.x -= percAmt;
+							a->m_alignRect.size.x += percAmt;
+						}
+						m_alignRect.pos.x = perc.x;
+					}
+				}
+			}
+		}
+
+		if (m_orientation == DirectionOrientation::Horizontal)
+		{
+			m_rect.pos	= m_parent->GetSize() * m_alignRect.pos - Vector2(0.0f, BORDER_THICKNESS / 2.0f);
+			m_rect.size = m_parent->GetSize() * m_alignRect.size + Vector2(0.0, BORDER_THICKNESS);
+		}
+		else
+		{
+			m_rect.pos	= m_parent->GetSize() * m_alignRect.pos - Vector2(BORDER_THICKNESS / 2.0f, 0.0f);
+			m_rect.size = m_parent->GetSize() * m_alignRect.size + Vector2(BORDER_THICKNESS, 0.0f);
+		}
 	}
 
-	void DockBorder::Tick(float delta)
+	bool DockBorder::CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX)
 	{
+		for (auto* w : widgets)
+		{
+			if (isX)
+			{
+				if (m_parent->GetSizeX() * (w->m_alignRect.size.x - absAmount) < DOCKED_MIN_SIZE)
+					return false;
+			}
+			else
+			{
+				if (m_parent->GetSizeY() * (w->m_alignRect.size.y - absAmount) < DOCKED_MIN_SIZE)
+					return false;
+			}
+		}
+		return true;
 	}
 
 	void DockBorder::Draw(int32 threadIndex)
 	{
-	}
-
-	void DockBorder::DebugDraw(int32 threadIndex, int32 drawOrder)
-	{
 		LinaVG::StyleOptions opts;
-		opts.color	   = Color::Red.AsLVG4();
-		opts.isFilled  = false;
-		opts.thickness = 2.0f;
+		opts.color = BORDER_COLOR.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 
-		const Vector2 absPos  = m_alignRect.pos * m_parentContainer->GetSize();
-		const Vector2 absSize = m_alignRect.size * m_parentContainer->GetSize();
-		const Vector2 end	  = absPos + absSize;
-		LinaVG::DrawLine(threadIndex, absPos.AsLVG(), end.AsLVG(), opts, LinaVG::LineCapDirection::None, 0.0f, drawOrder + 1);
+		/* Debug Draw Bounds Test Rectangles
+
+		opts.color = Color::Red.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_boundsTestRectPositive.pos.AsLVG(), m_boundsTestRectPositive.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		opts.color = Color::Blue.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_boundsTestRectNegative.pos.AsLVG(), m_boundsTestRectNegative.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+
+		*/
 	}
 
-	bool DockBorder::CanResizeArea(DockArea* area, float amt)
+	bool DockBorder::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
+		if (m_isHovered && button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		{
+			CalculateBoundsTestRects();
+			FindAdjacentDockWidgets();
+			m_isPressed = true;
+			return true;
+		}
+
+		if (m_isPressed && button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Released)
+		{
+			m_isPressed = false;
+			return true;
+		}
+
 		return false;
-		// // Push right pull left
-		// if(m_orientation == DirectionOrientation::Vertical)
-		//     return area->m_alignRect.size.x - amt > DockArea::MIN_SIZE_PERC;
-		// else
-		//     return area->m_alignRect.size.y - amt > DockArea::MIN_SIZE_PERC;
 	}
 
-	void DockBorder::GetClippingAreas(Vector<DockArea*>& outAreas, bool isPush)
+	void DockBorder::CalculateBoundsTestRects()
 	{
-		// outAreas.clear();
-		// const Vector2 absPos = m_alignRect.pos * m_parentContainer->GetSize();
-		// const Vector2 absSize = m_alignRect.size * m_parentContainer->GetSize();
-		// const Vector2 pushDirection = Vector2(1.0f - m_alignRect.size.x, 1.0f - m_alignRect.size.y).Normalized() * (isPush ? 2.0f : -2.0f);
-		// const Vector2 testSize = m_alignRect.size.Normalized() * absSize + Vector2(1.0f - m_alignRect.size.x, 1.0f - m_alignRect.size.y).Normalized();
-		// const Vector2 testPos = absPos + pushDirection;
-		// const Rect testRect = Rect(testPos, testSize);
-		// const Vector<DockArea*>& areas = m_parentContainer->GetDockAreas();
-		//
-		// for(auto* area : areas)
-		// {
-		//     if(area->GetRect().IsClipping(testRect))
-		//         outAreas.push_back(area);
-		// }
+		if (m_orientation == DirectionOrientation::Horizontal)
+		{
+			m_boundsTestRectPositive.pos  = m_rect.pos + Vector2(BORDER_THICKNESS, BORDER_THICKNESS * 2.0f);
+			m_boundsTestRectNegative.pos  = m_rect.pos + Vector2(BORDER_THICKNESS, -BORDER_THICKNESS * 2.0f);
+			m_boundsTestRectPositive.size = m_rect.size - Vector2(BORDER_THICKNESS * 2.0f, 0.0f);
+			m_boundsTestRectNegative.size = m_boundsTestRectPositive.size;
+		}
+		else
+		{
+			m_boundsTestRectPositive.pos  = m_rect.pos + Vector2(BORDER_THICKNESS * 2.0f, BORDER_THICKNESS);
+			m_boundsTestRectNegative.pos  = m_rect.pos + Vector2(-BORDER_THICKNESS * 2.0f, BORDER_THICKNESS);
+			m_boundsTestRectPositive.size = m_rect.size - Vector2(0.0f, BORDER_THICKNESS * 2.0f);
+			m_boundsTestRectNegative.size = m_boundsTestRectPositive.size;
+		}
 	}
 
-	void DockBorder::PullBy(float amt)
+	void DockBorder::FindAdjacentDockWidgets()
 	{
+		Vector<DockWidget*> widgets;
+		GetDockWidgets(widgets);
+		m_positiveDockWidgets.clear();
+		m_negativeDockWidgets.clear();
+		m_positiveDockWidgets.reserve(widgets.size());
+		m_negativeDockWidgets.reserve(widgets.size());
+
+		for (auto* w : widgets)
+		{
+			if (w->GetRect().IsClipping(m_boundsTestRectPositive))
+				m_positiveDockWidgets.push_back(w);
+
+			if (w->GetRect().IsClipping(m_boundsTestRectNegative))
+				m_negativeDockWidgets.push_back(w);
+		}
 	}
 
-	void DockBorder::PushBy(float amt)
+	void DockBorder::GetDockWidgets(Vector<DockWidget*>& outWidgets)
 	{
-		// Vector<DockArea*> clippingAreas;
-		// GetClippingAreas(clippingAreas, true);
-		//
-		// if(m_orientation == DirectionOrientation::Vertical)
-		// {
-		//     const Vector<DockBorder*>& verticalBorders = m_parentContainer->GetSortedVerticalBorders();
-		//     auto me = linatl::find(verticalBorders.begin(), verticalBorders.end(), this);
+		Vector<Widget*> children  = m_parent->GetChildren();
+		const TypeID	tidArea	  = GetTypeID<DockArea>();
+		const TypeID	tidBorder = GetTypeID<DockBorder>();
 
-		//     for(auto* area : clippingAreas)
-		//     {
-		//         area->m_alignRect.pos.x += amt;
-		//         area->m_alignRect.size.x -= amt;
-		//     }
-		//
-		//     // Push meself
-		//     m_alignRect.pos.x += amt;
-		// }
-		// else
-		// {
-		//     const Vector<DockBorder*>& horizontalBorders = m_parentContainer->GetSortedVerticalBorders();
-		//     auto me = linatl::find(horizontalBorders.begin(), horizontalBorders.end(), this);
-
-		//     for(auto* area : clippingAreas)
-		//     {
-		//         area->m_alignRect.pos.y += amt;
-
-		//         if(CanResizeArea(area, amt))
-		//             area->m_alignRect.size.y -= amt;
-		//         else
-		//             area->FindBorder(Direction::Bottom)->PushBy(amt);
-		//     }
-		//
-		//     // Push meself
-		//     m_alignRect.pos.y += amt;
-		// }
+		for (auto* c : children)
+		{
+			if (c == this)
+				continue;
+			if (c->GetTID() == tidArea || c->GetTID() == tidBorder)
+				outWidgets.push_back(static_cast<DockWidget*>(c));
+		}
 	}
-
-	void PullBy(float amt)
-	{
-	}
-
 } // namespace Lina::Editor

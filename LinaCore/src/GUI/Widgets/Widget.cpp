@@ -77,6 +77,11 @@ namespace Lina
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Initialize(); });
 	}
 
+	void Widget::PreTick(float delta)
+	{
+		linatl::for_each(m_children.begin(), m_children.end(), [delta](Widget* child) -> void { child->PreTick(delta); });
+	}
+
 	void Widget::Tick(float delta)
 	{
 		linatl::for_each(m_children.begin(), m_children.end(), [delta](Widget* child) -> void { child->Tick(delta); });
@@ -89,6 +94,7 @@ namespace Lina
 
 	void Widget::RenderSync()
 	{
+		m_renderRect = m_rect;
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->RenderSync(); });
 	}
 

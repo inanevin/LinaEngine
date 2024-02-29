@@ -55,6 +55,7 @@ namespace Lina
 	class Widget
 	{
 	public:
+		virtual void PreTick(float delta);
 		virtual void Tick(float delta);
 		virtual void Draw(int32 threadIndex);
 		virtual void RenderSync();
@@ -217,6 +218,11 @@ namespace Lina
 			return m_parent;
 		}
 
+		inline TypeID GetTID() const
+		{
+			return m_tid;
+		}
+
 	protected:
 		friend class WidgetManager;
 
@@ -241,6 +247,7 @@ namespace Lina
 		Bitmask32		 m_flags		   = 0;
 		Widget*			 m_next			   = nullptr;
 		Widget*			 m_prev			   = nullptr;
+		Rect			 m_renderRect	   = {};
 	};
 
 } // namespace Lina

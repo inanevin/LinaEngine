@@ -49,7 +49,6 @@ namespace Lina
 
 	void InputField::Tick(float delta)
 	{
-		const bool prevHovered = m_isHovered;
 		Widget::SetIsHovered();
 
 		const bool hasControls = m_manager->GetControlsOwner() == this;
@@ -67,11 +66,6 @@ namespace Lina
 			}
 			else
 				m_lgxWindow->SetCursorType(LinaGX::CursorType::Caret);
-		}
-		else
-		{
-			if (prevHovered)
-				m_lgxWindow->SetCursorType(LinaGX::CursorType::Default);
 		}
 
 		// Number field slider movement.
@@ -205,6 +199,8 @@ namespace Lina
 				m_syncedAtLeastOnce = true;
 			}
 		}
+
+		Widget::RenderSync();
 	}
 
 	void InputField::SelectAll()

@@ -28,18 +28,12 @@ SOFTWARE.
 
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockPreview.hpp"
-#include "Editor/Widgets/Docking/DockContainer.hpp"
 #include "Editor/Widgets/Docking/DockBorder.hpp"
-#include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
-	void DockArea::Construct()
-	{
-	}
-
 	void DockArea::Tick(float delta)
 	{
 		Widget::SetIsHovered();
@@ -58,7 +52,7 @@ namespace Lina::Editor
 	void DockArea::Draw(int32 threadIndex)
 	{
 		LinaVG::StyleOptions background;
-		background.color = Theme::GetDef().background0.AsLVG4();
+		background.color = Theme::GetDef().background1.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
 		Widget::Draw(threadIndex);
 
@@ -72,8 +66,6 @@ namespace Lina::Editor
 		m_preview						= Allocate<DockPreview>("DockContainerPreview");
 		m_preview->GetProps().isCentral = true;
 		m_preview->Initialize();
-
-		const float someConst = 0.3f;
 
 		const float horizontalSize = m_rect.size.x * DOCK_DEFAULT_PERCENTAGE;
 		const float verticalSize   = m_rect.size.y * DOCK_DEFAULT_PERCENTAGE;
@@ -99,27 +91,34 @@ namespace Lina::Editor
 
 	bool DockArea::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
-		if (button != LINAGX_MOUSE_0)
-			return false;
-
-		if (m_isHovered && action == LinaGX::InputAction::Pressed)
+		if (button == LINAGX_MOUSE_1)
 		{
-			ShowPreview();
-			return true;
-		}
-		else
-		{
-			if (m_preview)
+			if (m_isHovered && action == LinaGX::InputAction::Pressed)
 			{
-				bool	  isPreviewHovered = false;
-				Direction hoveredDirection = Direction::Center;
-				m_preview->GetHoveredDirection(hoveredDirection, isPreviewHovered);
-				if (isPreviewHovered)
-					AddDockArea(hoveredDirection);
-				HidePreview();
+				ShowPreview();
 				return true;
 			}
+			else
+			{
+				if (m_preview)
+				{
+					bool	  isPreviewHovered = false;
+					Direction hoveredDirection = Direction::Center;
+					m_preview->GetHoveredDirection(hoveredDirection, isPreviewHovered);
+					if (isPreviewHovered)
+					{
+						DockArea*	 area = AddDockArea(hoveredDirection);
+						static int	 ctr  = 0;
+						const String str  = "DockArea" + TO_STRING(ctr++);
+						area->SetDebugName(str);
+					}
+					HidePreview();
+					return true;
+				}
+			}
 		}
+
+		return false;
 	}
 
 	DockArea* DockArea::AddDockArea(Direction direction)
@@ -142,6 +141,12 @@ namespace Lina::Editor
 			area->m_alignRect.size = Vector2(parentPerc, m_alignRect.size.y);
 			m_alignRect.pos.x += parentPerc;
 			m_alignRect.size.x -= parentPerc;
+
+			DockBorder* border		 = Allocate<DockBorder>("DockBorder");
+			border->m_alignRect.pos	 = m_alignRect.pos;
+			border->m_alignRect.size = Vector2(0.0f, m_alignRect.size.y);
+			border->m_orientation	 = DirectionOrientation::Vertical;
+			m_parent->AddChild(border);
 		}
 		else if (direction == Direction::Right)
 		{
@@ -150,6 +155,12 @@ namespace Lina::Editor
 			area->m_alignRect.pos	   = Vector2(m_alignRect.pos.x + m_alignRect.size.x - parentPerc, m_alignRect.pos.y);
 			area->m_alignRect.size	   = Vector2(parentPerc, m_alignRect.size.y);
 			m_alignRect.size.x -= parentPerc;
+
+			DockBorder* border		 = Allocate<DockBorder>("DockBorder");
+			border->m_alignRect.pos	 = Vector2(m_alignRect.pos.x + m_alignRect.size.x, m_alignRect.pos.y);
+			border->m_alignRect.size = Vector2(0.0f, m_alignRect.size.y);
+			border->m_orientation	 = DirectionOrientation::Vertical;
+			m_parent->AddChild(border);
 		}
 		else if (direction == Direction::Top)
 		{
@@ -159,6 +170,12 @@ namespace Lina::Editor
 			area->m_alignRect.size	 = Vector2(m_alignRect.size.x, parentPerc);
 			m_alignRect.pos.y += parentPerc;
 			m_alignRect.size.y -= parentPerc;
+
+			DockBorder* border		 = Allocate<DockBorder>("DockBorder");
+			border->m_alignRect.pos	 = m_alignRect.pos;
+			border->m_alignRect.size = Vector2(m_alignRect.size.x, 0.0f);
+			border->m_orientation	 = DirectionOrientation::Horizontal;
+			m_parent->AddChild(border);
 		}
 		else if (direction == Direction::Bottom)
 		{
@@ -167,9 +184,16 @@ namespace Lina::Editor
 			area->m_alignRect.pos	 = Vector2(m_alignRect.pos.x, m_alignRect.pos.y + m_alignRect.size.y - parentPerc);
 			area->m_alignRect.size	 = Vector2(m_alignRect.size.x, parentPerc);
 			m_alignRect.size.y -= parentPerc;
+
+			DockBorder* border		 = Allocate<DockBorder>("DockBorder");
+			border->m_alignRect.pos	 = Vector2(m_alignRect.pos.x, m_alignRect.pos.y + m_alignRect.size.y);
+			border->m_alignRect.size = Vector2(m_alignRect.size.x, 0.0f);
+			border->m_orientation	 = DirectionOrientation::Horizontal;
+			m_parent->AddChild(border);
 		}
 
 		m_parent->AddChild(area);
+		return area;
 	}
 
 } // namespace Lina::Editor

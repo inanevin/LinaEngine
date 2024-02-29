@@ -26,42 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "DockWidget.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Editor/Widgets/Docking/DockWidget.hpp"
 
 namespace Lina::Editor
 {
-	class DockArea;
-
-	class DockBorder : public DockWidget
-	{
-	public:
-		DockBorder()		  = default;
-		virtual ~DockBorder() = default;
-
-		static constexpr float BORDER_THICKNESS = 8.0f;
-
-		virtual void PreTick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-
-	private:
-		void CalculateBoundsTestRects();
-		void FindAdjacentDockWidgets();
-		void GetDockWidgets(Vector<DockWidget*>& outWidgets);
-		bool CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX);
-
-	private:
-		friend class DockArea;
-		DockArea*			 m_negative				  = nullptr;
-		DockArea*			 m_positive				  = nullptr;
-		DirectionOrientation m_orientation			  = DirectionOrientation::Horizontal;
-		Rect				 m_boundsTestRectPositive = Rect();
-		Rect				 m_boundsTestRectNegative = Rect();
-		Vector<DockWidget*>	 m_positiveDockWidgets;
-		Vector<DockWidget*>	 m_negativeDockWidgets;
-	};
 
 } // namespace Lina::Editor

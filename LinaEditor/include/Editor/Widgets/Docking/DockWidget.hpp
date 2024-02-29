@@ -28,40 +28,25 @@ SOFTWARE.
 
 #pragma once
 
-#include "DockWidget.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina::Editor
 {
-	class DockArea;
-
-	class DockBorder : public DockWidget
+	class DockWidget : public Widget
 	{
 	public:
-		DockBorder()		  = default;
-		virtual ~DockBorder() = default;
+		
+        DockWidget()            = default;
+        virtual ~DockWidget() = default;
 
-		static constexpr float BORDER_THICKNESS = 8.0f;
+        inline void SetAlignRect(const Rect& r)
+        {
+            m_alignRect = r;
+        }
 
-		virtual void PreTick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-
-	private:
-		void CalculateBoundsTestRects();
-		void FindAdjacentDockWidgets();
-		void GetDockWidgets(Vector<DockWidget*>& outWidgets);
-		bool CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX);
-
-	private:
-		friend class DockArea;
-		DockArea*			 m_negative				  = nullptr;
-		DockArea*			 m_positive				  = nullptr;
-		DirectionOrientation m_orientation			  = DirectionOrientation::Horizontal;
-		Rect				 m_boundsTestRectPositive = Rect();
-		Rect				 m_boundsTestRectNegative = Rect();
-		Vector<DockWidget*>	 m_positiveDockWidgets;
-		Vector<DockWidget*>	 m_negativeDockWidgets;
+        Rect m_alignRect = Rect();
 	};
 
 } // namespace Lina::Editor

@@ -71,7 +71,7 @@ namespace Lina
 		style.outlineOptions.thickness = m_props.outlineThickness;
 		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		style.color					   = m_props.colorBackground.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
+		LinaVG::DrawRect(threadIndex, m_renderRect.pos.AsLVG(), m_renderRect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
 		m_icon->Draw(threadIndex);
 	}
 
