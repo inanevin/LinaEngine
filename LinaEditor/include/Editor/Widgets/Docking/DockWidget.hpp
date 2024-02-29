@@ -37,16 +37,15 @@ namespace Lina::Editor
 	class DockWidget : public Widget
 	{
 	public:
-		
-        DockWidget()            = default;
-        virtual ~DockWidget() = default;
+		DockWidget()		  = default;
+		virtual ~DockWidget() = default;
 
-        inline void SetAlignRect(const Rect& r)
-        {
-            m_alignRect = r;
-        }
+		inline void SetAlignRect(const Rect& r)
+		{
+			m_alignRect = r;
+		}
 
-        Rect m_alignRect = Rect();
+		Rect m_alignRect = Rect();
 	};
 
 } // namespace Lina::Editor

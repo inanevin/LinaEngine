@@ -74,7 +74,7 @@ namespace Lina
 
 			Color outlineColorBase	   = silent;
 			Color outlineColorControls = accentPrimary0;
-            
+
 			float baseIndent		   = 12.0f;
 			float baseIndentInner	   = 8.0f;
 			float baseSliderPerc	   = 0.25f;

@@ -57,13 +57,13 @@ namespace Lina
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
 	{
-        m_window->SetCursorType(LinaGX::CursorType::Default);
+		m_window->SetCursorType(LinaGX::CursorType::Default);
 		m_debugDrawYOffset = 0.0f;
-        m_foregroundRoot->PreTick(delta);
+		m_foregroundRoot->PreTick(delta);
 		m_foregroundRoot->Tick(delta);
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
-        m_rootWidget->PreTick(delta);
+		m_rootWidget->PreTick(delta);
 		m_rootWidget->Tick(delta);
 	}
 

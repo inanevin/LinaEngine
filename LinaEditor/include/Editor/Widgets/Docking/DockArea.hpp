@@ -50,9 +50,7 @@ namespace Lina::Editor
 		DockArea* AddDockArea(Direction direction);
 
 	private:
-        
-		DockPreview* m_preview	 = nullptr;
-		
+		DockPreview* m_preview = nullptr;
 	};
 
 } // namespace Lina::Editor
