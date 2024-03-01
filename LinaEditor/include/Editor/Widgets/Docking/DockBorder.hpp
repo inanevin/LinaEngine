@@ -41,27 +41,21 @@ namespace Lina::Editor
 		DockBorder()		  = default;
 		virtual ~DockBorder() = default;
 
-		static constexpr float BORDER_THICKNESS = 8.0f;
+		static constexpr float BORDER_THICKNESS = 4.0f;
 
-		virtual void PreTick(float delta) override;
+		virtual void PreTick() override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
-		void CalculateBoundsTestRects();
-		void FindAdjacentDockWidgets();
-		void GetDockWidgets(Vector<DockWidget*>& outWidgets);
 		bool CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX);
+		bool CheckIfAreaOnSide(DockArea* area, Direction dir);
 
 	private:
 		friend class DockArea;
-		DockArea*			 m_negative				  = nullptr;
-		DockArea*			 m_positive				  = nullptr;
-		DirectionOrientation m_orientation			  = DirectionOrientation::Horizontal;
-		Rect				 m_boundsTestRectPositive = Rect();
-		Rect				 m_boundsTestRectNegative = Rect();
-		Vector<DockWidget*>	 m_positiveDockWidgets;
-		Vector<DockWidget*>	 m_negativeDockWidgets;
+		DockArea*			 m_negative	   = nullptr;
+		DockArea*			 m_positive	   = nullptr;
+		DirectionOrientation m_orientation = DirectionOrientation::Horizontal;
 	};
 
 } // namespace Lina::Editor

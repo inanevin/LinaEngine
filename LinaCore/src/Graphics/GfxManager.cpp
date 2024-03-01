@@ -275,6 +275,14 @@ namespace Lina
 		m_lgx->TickWindowSystem();
 	}
 
+	void GfxManager::PreTick()
+	{
+		WaitForSwapchains();
+
+		for (auto* s : m_surfaceRenderers)
+			s->PreTick();
+	}
+
 	void GfxManager::Tick(float delta)
 	{
 		PROFILER_FUNCTION();
@@ -295,20 +303,6 @@ namespace Lina
 		{
 			Taskflow tf;
 			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [delta](SurfaceRenderer* sf) { sf->Tick(delta); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
-		}
-	}
-
-	void GfxManager::RenderSync()
-	{
-		PROFILER_FUNCTION();
-
-		if (m_surfaceRenderers.size() == 1)
-			m_surfaceRenderers[0]->RenderSync();
-		else
-		{
-			Taskflow tf;
-			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [](SurfaceRenderer* sf) { sf->RenderSync(); });
 			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
 	}

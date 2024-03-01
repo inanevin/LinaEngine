@@ -73,7 +73,7 @@ namespace Lina
 			style.color.gradientType = LinaVG::GradientType::Vertical;
 		}
 
-		LinaVG::DrawRect(threadIndex, m_renderRect.pos.AsLVG(), m_renderRect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
 
 		m_text->Draw(threadIndex);
 	}

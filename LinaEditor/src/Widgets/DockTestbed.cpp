@@ -37,6 +37,10 @@ namespace Lina::Editor
 		DockArea* area = Allocate<DockArea>("DockArea");
 		area->Initialize();
 		area->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
+
+		Widget* dummy = Allocate<Widget>("DummyContent");
+		area->AddChild(dummy);
+
 		AddChild(area);
 	}
 

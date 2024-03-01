@@ -55,14 +55,13 @@ namespace Lina
 	class Widget
 	{
 	public:
-		virtual void PreTick(float delta);
+		virtual void PreTick();
 		virtual void Tick(float delta);
 		virtual void Draw(int32 threadIndex);
-		virtual void RenderSync();
 
-		void AddChild(Widget* w);
-		void RemoveChild(Widget* w);
-		void SetIsHovered();
+		virtual void AddChild(Widget* w);
+		virtual void RemoveChild(Widget* w);
+		void		 SetIsHovered();
 
 		virtual void Construct(){};
 		virtual void Destruct(){};
@@ -223,6 +222,16 @@ namespace Lina
 			return m_tid;
 		}
 
+		inline const String& GetDisplayName() const
+		{
+			return m_displayName;
+		}
+
+		inline void SetDisplayName(const String& name)
+		{
+			m_displayName = name;
+		}
+
 	protected:
 		friend class WidgetManager;
 
@@ -247,7 +256,7 @@ namespace Lina
 		Bitmask32		 m_flags		   = 0;
 		Widget*			 m_next			   = nullptr;
 		Widget*			 m_prev			   = nullptr;
-		Rect			 m_renderRect	   = {};
+		String			 m_displayName	   = "Widget";
 	};
 
 } // namespace Lina

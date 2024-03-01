@@ -55,15 +55,19 @@ namespace Lina
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
+	void WidgetManager::PreTick()
+	{
+		m_foregroundRoot->PreTick();
+		m_rootWidget->PreTick();
+	}
+
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
 	{
 		m_window->SetCursorType(LinaGX::CursorType::Default);
 		m_debugDrawYOffset = 0.0f;
-		m_foregroundRoot->PreTick(delta);
 		m_foregroundRoot->Tick(delta);
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
-		m_rootWidget->PreTick(delta);
 		m_rootWidget->Tick(delta);
 	}
 
@@ -77,10 +81,6 @@ namespace Lina
 		m_foregroundRoot->RemoveChild(w);
 	}
 
-	void WidgetManager::RenderSync()
-	{
-		m_rootWidget->RenderSync();
-	}
 	void WidgetManager::Draw(int32 threadIndex)
 	{
 		m_rootWidget->Draw(threadIndex);
@@ -89,7 +89,7 @@ namespace Lina
 			c->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 
 		m_foregroundRoot->Draw(threadIndex);
-		// DebugDraw(threadIndex, m_rootWidget);
+		DebugDraw(threadIndex, m_rootWidget);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -264,7 +264,7 @@ namespace Lina
 
 	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
-		const bool drawRects = !(m_window->GetInput()->GetMouseButton(LINAGX_MOUSE_1));
+		const bool drawRects = (m_window->GetInput()->GetMouseButton(LINAGX_MOUSE_1));
 
 		for (auto* c : w->m_children)
 			DebugDraw(threadIndex, c);

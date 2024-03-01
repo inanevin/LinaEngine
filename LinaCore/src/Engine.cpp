@@ -91,8 +91,7 @@ namespace Lina
 	void Engine::PreTick()
 	{
 		PROFILER_FUNCTION();
-
-		m_gfxManager.WaitForSwapchains();
+		m_gfxManager.PreTick();
 		CalculateTime();
 	}
 
@@ -112,9 +111,8 @@ namespace Lina
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
-		// Kick off audio & render threads
-		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(delta); });
-		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
+		// Kick off audio
+		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 
 		// Update app.
 		TweenManager::Get()->Tick(delta);
@@ -122,8 +120,8 @@ namespace Lina
 		m_audioManager.Tick(delta);
 		m_app->GetAppDelegate()->OnTick(delta);
 
-		renderJob.get();
-		m_gfxManager.RenderSync();
+		// Render
+		m_gfxManager.Render();
 
 		audioJob.get();
 	}

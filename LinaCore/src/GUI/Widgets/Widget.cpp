@@ -77,9 +77,9 @@ namespace Lina
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Initialize(); });
 	}
 
-	void Widget::PreTick(float delta)
+	void Widget::PreTick()
 	{
-		linatl::for_each(m_children.begin(), m_children.end(), [delta](Widget* child) -> void { child->PreTick(delta); });
+		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->PreTick(); });
 	}
 
 	void Widget::Tick(float delta)
@@ -90,12 +90,6 @@ namespace Lina
 	void Widget::Draw(int32 threadIndex)
 	{
 		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex](Widget* child) -> void { child->Draw(threadIndex); });
-	}
-
-	void Widget::RenderSync()
-	{
-		m_renderRect = m_rect;
-		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->RenderSync(); });
 	}
 
 	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)

@@ -28,40 +28,65 @@ SOFTWARE.
 
 #pragma once
 
-#include "DockWidget.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Common/Common.hpp"
+
+namespace Lina
+{
+	class Text;
+	class Icon;
+}; // namespace Lina
 
 namespace Lina::Editor
 {
-	class DockPreview;
+
 	class TabRow;
 
-	class DockArea : public DockWidget
+	class Tab : public Widget
 	{
 	public:
-		DockArea()			= default;
-		virtual ~DockArea() = default;
+		Tab() : Widget(2){};
+		virtual ~Tab() = default;
+
+		static constexpr float SELECTION_RECT_WIDTH = 2.0f;
+
+		struct Properties
+		{
+			Widget* tiedWidget = nullptr;
+			bool	isSelected = false;
+		};
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void AddChild(Widget* w) override;
-		virtual void RemoveChild(Widget* w) override;
+		virtual void Initialize() override;
+		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
-		void	  ShowPreview();
-		void	  HidePreview();
-		DockArea* AddDockArea(Direction direction);
-		void	  RemoveArea();
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
+
+		inline Text* GetText() const
+		{
+			return m_text;
+		}
+
+		inline Icon* GetIcon() const
+		{
+			return m_icon;
+		}
 
 	private:
-		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);
+		friend class TabRow;
 
-	private:
-		TabRow*		 m_tabRow			= nullptr;
-		DockPreview* m_preview			= nullptr;
-		Widget*		 m_selectedChildren = nullptr;
+		Rect	   m_selectionRect = {};
+		Text*	   m_text		   = nullptr;
+		Icon*	   m_icon		   = nullptr;
+		Properties m_props		   = {};
+		TabRow*	   m_ownerRow	   = nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -26,42 +26,64 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "DockWidget.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Editor/Widgets/Compound/TabRow.hpp"
+#include "Editor/Widgets/Compound/Tab.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
-	class DockPreview;
-	class TabRow;
-
-	class DockArea : public DockWidget
+	void TabRow::Tick(float delta)
 	{
-	public:
-		DockArea()			= default;
-		virtual ~DockArea() = default;
+		Widget::SetIsHovered();
 
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void AddChild(Widget* w) override;
-		virtual void RemoveChild(Widget* w) override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+		float x = m_rect.pos.x;
+		for (auto* c : m_children)
+		{
+			c->SetPosX(x);
+			x += c->GetSizeX();
+			c->Tick(delta);
+		}
+	}
 
-		void	  ShowPreview();
-		void	  HidePreview();
-		DockArea* AddDockArea(Direction direction);
-		void	  RemoveArea();
+	void TabRow::Draw(int32 threadIndex)
+	{
+		LinaVG::StyleOptions background;
+		background.color = Theme::GetDef().background0.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
+		Widget::Draw(threadIndex);
+	}
 
-	private:
-		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);
+	void TabRow::AddTab(Widget* tiedWidget)
+	{
+		Tab* tab				   = Allocate<Tab>("Tab");
+		tab->m_ownerRow			   = this;
+		tab->GetProps().tiedWidget = tiedWidget;
+		tab->Initialize();
+		AddChild(tab);
+	}
 
-	private:
-		TabRow*		 m_tabRow			= nullptr;
-		DockPreview* m_preview			= nullptr;
-		Widget*		 m_selectedChildren = nullptr;
-	};
+	void TabRow::RemoveTab(Widget* tiedWidget)
+	{
+		Widget* toRemove = nullptr;
+		for (auto* t : m_children)
+		{
+			if (static_cast<Tab*>(t)->GetProps().tiedWidget == tiedWidget)
+			{
+				toRemove = t;
+				break;
+			}
+		}
+
+		RemoveChild(toRemove);
+	}
+
+	void TabRow::SetSelected(Widget* tiedWidget)
+	{
+		for (auto* c : m_children)
+		{
+			Tab* t					 = static_cast<Tab*>(c);
+			t->GetProps().isSelected = t->GetProps().tiedWidget == tiedWidget;
+		}
+	}
 
 } // namespace Lina::Editor

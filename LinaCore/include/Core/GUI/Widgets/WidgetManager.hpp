@@ -53,8 +53,8 @@ namespace Lina
 
 		void Initialize(System* system, LinaGX::Window* window);
 		void Draw(int32 threadIndex);
+		void PreTick();
 		void Tick(float delta, const Vector2ui& size);
-		void RenderSync();
 		void Shutdown();
 		void DebugDraw(int32 threadIndex, Widget* w);
 		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);

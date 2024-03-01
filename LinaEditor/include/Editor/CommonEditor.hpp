@@ -56,6 +56,7 @@ namespace Lina::Editor
 #define ICONOFFSET_CIRCLE_FILLED Vector2(0.1f, 0.0f)
 #define ICONOFFSET_CIRCLE		 Vector2(0.0f, 0.0f)
 #define ICONOFFSET_ARROW_DOWN	 Vector2(0.25f, 0.1f)
+#define ICONOFFSET_ARROW_UP		 Vector2(0.25f, 0.1f)
 #define ICONOFFSET_ARROW_RECTS	 Vector2(0.08f, 0.0f)
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f

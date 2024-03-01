@@ -73,7 +73,6 @@ namespace Lina
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual void RenderSync() override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
@@ -112,7 +111,6 @@ namespace Lina
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
 		float	   m_lastStoredValue	  = 0.0f;
-		bool	   m_syncedAtLeastOnce	  = false;
 	};
 
 } // namespace Lina

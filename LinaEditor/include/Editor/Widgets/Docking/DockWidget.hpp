@@ -40,12 +40,22 @@ namespace Lina::Editor
 		DockWidget()		  = default;
 		virtual ~DockWidget() = default;
 
+		void FindAdjacentWidgets();
+		void GetDockWidgets(Vector<DockWidget*>& outWidgets, const Vector<TypeID>& tids);
+
 		inline void SetAlignRect(const Rect& r)
 		{
 			m_alignRect = r;
 		}
 
-		Rect m_alignRect = Rect();
+		inline const Vector<DockWidget*>& GetAdjacentWidgets(int32 dir)
+		{
+			return m_adjacentWidgets[dir];
+		}
+
+		Rect				m_alignRect = Rect();
+		Rect				m_boundsTestRects[4];
+		Vector<DockWidget*> m_adjacentWidgets[4];
 	};
 
 } // namespace Lina::Editor

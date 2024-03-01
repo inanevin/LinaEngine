@@ -114,6 +114,11 @@ namespace Lina
 		m_size = newSize;
 	}
 
+	void SurfaceRenderer::PreTick()
+	{
+		m_widgetManager.PreTick();
+	}
+
 	void SurfaceRenderer::Tick(float delta)
 	{
 		auto ws		= m_window->GetSize();
@@ -121,11 +126,6 @@ namespace Lina
 
 		if (m_isVisible)
 			m_widgetManager.Tick(delta, m_window->GetSize());
-	}
-
-	void SurfaceRenderer::RenderSync()
-	{
-		m_widgetManager.RenderSync();
 	}
 
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex, int32 threadIndex)

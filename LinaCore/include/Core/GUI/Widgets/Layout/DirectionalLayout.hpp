@@ -53,10 +53,12 @@ namespace Lina
 			Vector<float>		 customAlignments = {};
 			TBLR				 margins		  = {};
 			TBLR				 borderThickness;
-			DirectionOrientation direction	 = DirectionOrientation::Horizontal;
-			Mode				 mode		 = Mode::Default;
-			float				 padding	 = 0.0f;
-			Color				 colorBorder = Theme::GetDef().background2;
+			DirectionOrientation direction		 = DirectionOrientation::Horizontal;
+			Mode				 mode			 = Mode::Default;
+			float				 padding		 = 0.0f;
+			Color				 colorBorder	 = Theme::GetDef().background2;
+			Color				 colorBackground = Theme::GetDef().background0;
+			bool				 drawBackground	 = false;
 		};
 
 		virtual void Tick(float delta) override;

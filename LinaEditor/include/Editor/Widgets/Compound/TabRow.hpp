@@ -28,40 +28,30 @@ SOFTWARE.
 
 #pragma once
 
-#include "DockWidget.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Common/Common.hpp"
 
 namespace Lina::Editor
 {
-	class DockPreview;
-	class TabRow;
-
-	class DockArea : public DockWidget
+	class TabRow : public Widget
 	{
 	public:
-		DockArea()			= default;
-		virtual ~DockArea() = default;
+		TabRow()		  = default;
+		virtual ~TabRow() = default;
 
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void AddChild(Widget* w) override;
-		virtual void RemoveChild(Widget* w) override;
+		static constexpr float TAB_HEIGHT_PERC = 0.015f;
+
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
-		void	  ShowPreview();
-		void	  HidePreview();
-		DockArea* AddDockArea(Direction direction);
-		void	  RemoveArea();
+		void AddTab(Widget* tiedWidget);
+		void RemoveTab(Widget* tiedWidget);
 
-	private:
-		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);
+		void SetSelected(Widget* tiedWidget);
 
 	private:
-		TabRow*		 m_tabRow			= nullptr;
-		DockPreview* m_preview			= nullptr;
-		Widget*		 m_selectedChildren = nullptr;
+		bool m_isSelected = false;
 	};
 
 } // namespace Lina::Editor

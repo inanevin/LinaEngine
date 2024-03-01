@@ -64,9 +64,9 @@ namespace Lina
 		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize);
 		virtual ~SurfaceRenderer();
 
+		void				   PreTick();
 		void				   Tick(float delta);
 		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
-		void				   RenderSync();
 
 		inline bool IsVisible()
 		{

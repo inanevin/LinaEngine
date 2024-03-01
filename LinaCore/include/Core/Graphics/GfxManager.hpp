@@ -72,8 +72,8 @@ namespace Lina
 		void			 WaitForSwapchains();
 		void			 Join();
 		void			 Poll();
+		void			 PreTick();
 		void			 Tick(float delta);
-		void			 RenderSync();
 		void			 Render();
 		void			 DestroyApplicationWindow(StringID sid);
 		LinaGX::Window*	 CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
