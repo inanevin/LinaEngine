@@ -32,61 +32,61 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void DockWidget::FindAdjacentWidgets()
-    {
-        const float padding = 8.0f;
-        const float thickness = 2.0f;
-        
-        auto& top = m_boundsTestRects[0];
-        top.pos = Vector2(m_rect.pos.x + padding, m_rect.pos.y - thickness - padding);
-        top.size = Vector2(m_rect.size.x - padding * 2.0f, thickness);
-        
-        auto& bot = m_boundsTestRects[1];
-        bot.pos = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y + padding);
-        bot.size = Vector2(m_rect.size.x - padding * 2.0f, thickness);
-        
-        auto& left = m_boundsTestRects[2];
-        left.pos = Vector2(m_rect.pos.x - thickness - padding, m_rect.pos.y + padding);
-        left.size = Vector2(thickness, m_rect.size.y - padding * 2.0f);
-        
-        auto& right = m_boundsTestRects[3];
-        right.pos = Vector2(m_rect.pos.x + m_rect.size.x + padding, m_rect.pos.y + padding);
-        right.size = Vector2(thickness, m_rect.size.y - padding * 2.0f);
-        
-        Vector<DockWidget*> widgets;
-        DockWidget::GetDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
-        
-        for(int32 i = 0; i < 4; i++)
-        {
-            m_adjacentWidgets[i].clear();
-            for(auto* w : widgets)
-            {
-                if(w->GetRect().IsClipping(m_boundsTestRects[i]))
-                    m_adjacentWidgets[i].push_back(w);
-            }
-        }
-    }
-    
-    void DockWidget::GetDockWidgets(Vector<DockWidget *> &outWidgets, const Vector<TypeID> &tids)
-    {
-        Vector<Widget*> children  = m_parent->GetChildren();
-        const TypeID    tidArea   = GetTypeID<DockArea>();
-        const TypeID    tidBorder = GetTypeID<DockBorder>();
+	void DockWidget::FindAdjacentWidgets()
+	{
+		const float padding	  = 8.0f;
+		const float thickness = 2.0f;
 
-        for (auto* c : children)
-        {
-            if (c == this)
-                continue;
-            
-            for(auto t : tids)
-            {
-                if(c->GetTID() == t)
-                {
-                    outWidgets.push_back(static_cast<DockWidget*>(c));
-                    break;
-                }
-            }
-        }
-    }
+		auto& top = m_boundsTestRects[0];
+		top.pos	  = Vector2(m_rect.pos.x + padding, m_rect.pos.y - thickness - padding);
+		top.size  = Vector2(m_rect.size.x - padding * 2.0f, thickness);
+
+		auto& bot = m_boundsTestRects[1];
+		bot.pos	  = Vector2(m_rect.pos.x + padding, m_rect.pos.y + m_rect.size.y + padding);
+		bot.size  = Vector2(m_rect.size.x - padding * 2.0f, thickness);
+
+		auto& left = m_boundsTestRects[2];
+		left.pos   = Vector2(m_rect.pos.x - thickness - padding, m_rect.pos.y + padding);
+		left.size  = Vector2(thickness, m_rect.size.y - padding * 2.0f);
+
+		auto& right = m_boundsTestRects[3];
+		right.pos	= Vector2(m_rect.pos.x + m_rect.size.x + padding, m_rect.pos.y + padding);
+		right.size	= Vector2(thickness, m_rect.size.y - padding * 2.0f);
+
+		Vector<DockWidget*> widgets;
+		DockWidget::GetDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
+
+		for (int32 i = 0; i < 4; i++)
+		{
+			m_adjacentWidgets[i].clear();
+			for (auto* w : widgets)
+			{
+				if (w->GetRect().IsClipping(m_boundsTestRects[i]))
+					m_adjacentWidgets[i].push_back(w);
+			}
+		}
+	}
+
+	void DockWidget::GetDockWidgets(Vector<DockWidget*>& outWidgets, const Vector<TypeID>& tids)
+	{
+		Vector<Widget*> children  = m_parent->GetChildren();
+		const TypeID	tidArea	  = GetTypeID<DockArea>();
+		const TypeID	tidBorder = GetTypeID<DockBorder>();
+
+		for (auto* c : children)
+		{
+			if (c == this)
+				continue;
+
+			for (auto t : tids)
+			{
+				if (c->GetTID() == t)
+				{
+					outWidgets.push_back(static_cast<DockWidget*>(c));
+					break;
+				}
+			}
+		}
+	}
 
 } // namespace Lina::Editor
