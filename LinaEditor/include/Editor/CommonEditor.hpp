@@ -34,15 +34,14 @@ namespace Lina::Editor
 #define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
 #define ICON_FONT_SID  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 
-#define ICON_LINA_LOGO	   "\u0041"
-#define ICON_CHECK		   "\u0042"
-#define ICON_CIRCLE_FILLED "\u0043"
-#define ICON_CIRCLE		   "\u0044"
-#define ICON_ARROW_LEFT	   "\u0045"
-#define ICON_ARROW_RIGHT   "\u0046"
-#define ICON_ARROW_UP	   "\u0047"
-#define ICON_ARROW_DOWN	   "\u0048"
-
+#define ICON_LINA_LOGO			 "\u0041"
+#define ICON_CHECK				 "\u0042"
+#define ICON_CIRCLE_FILLED		 "\u0043"
+#define ICON_CIRCLE				 "\u0044"
+#define ICON_ARROW_LEFT			 "\u0045"
+#define ICON_ARROW_RIGHT		 "\u0046"
+#define ICON_ARROW_UP			 "\u0047"
+#define ICON_ARROW_DOWN			 "\u0048"
 #define ICON_ARROW_RECT_DOWN	 "\u0049"
 #define ICON_ARROW_RECT_UP		 "\u0050"
 #define ICON_ARROW_RECT_RIGHT	 "\u0051"
@@ -51,13 +50,7 @@ namespace Lina::Editor
 #define ICON_ROUND_SQUARE		 "\u0054"
 #define ICON_ROUND_SQUARE_FILLED "\u0055"
 #define ICON_NOT_ALLOWED		 "\u0056"
-
-#define ICONOFFSET_CHECK		 Vector2(0.1f, 0.0f)
-#define ICONOFFSET_CIRCLE_FILLED Vector2(0.1f, 0.0f)
-#define ICONOFFSET_CIRCLE		 Vector2(0.0f, 0.0f)
-#define ICONOFFSET_ARROW_DOWN	 Vector2(0.25f, 0.1f)
-#define ICONOFFSET_ARROW_UP		 Vector2(0.25f, 0.1f)
-#define ICONOFFSET_ARROW_RECTS	 Vector2(0.08f, 0.0f)
+#define ICON_XMARK				 "\u0057"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

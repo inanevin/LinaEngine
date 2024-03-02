@@ -92,12 +92,11 @@ namespace Lina::Editor
 
 		// Checkbox
 		{
-			static bool value						= false;
-			Checkbox*	check						= Allocate<Checkbox>("Checkbox");
-			check->GetProps().value					= &value;
-			check->GetIcon()->GetProps().offsetPerc = ICONOFFSET_CHECK;
-			check->GetIcon()->GetProps().icon		= ICON_CHECK;
-			check->GetIcon()->GetProps().textScale	= 0.5f;
+			static bool value					   = false;
+			Checkbox*	check					   = Allocate<Checkbox>("Checkbox");
+			check->GetProps().value				   = &value;
+			check->GetIcon()->GetProps().icon	   = ICON_CHECK;
+			check->GetIcon()->GetProps().textScale = 0.5f;
 			check->Initialize();
 			check->SetPos(Vector2(x, y));
 			check->SetSize(Vector2(itemWidth, itemHeight));

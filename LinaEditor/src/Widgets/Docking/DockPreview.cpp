@@ -78,10 +78,9 @@ namespace Lina::Editor
 	void DockPreview::Construct()
 	{
 		auto createIcon = [&](const String& ic) -> Icon* {
-			Icon* icon					= Allocate<Icon>();
-			icon->GetProps().icon		= ic;
-			icon->GetProps().textScale	= 0.7f;
-			icon->GetProps().offsetPerc = ICONOFFSET_ARROW_RECTS;
+			Icon* icon				   = Allocate<Icon>();
+			icon->GetProps().icon	   = ic;
+			icon->GetProps().textScale = 0.7f;
 			AddChild(icon);
 			return icon;
 		};

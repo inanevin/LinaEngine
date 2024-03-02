@@ -58,12 +58,11 @@ namespace Lina
 
 	void Icon::CalculateIconSize()
 	{
-		auto*		font	   = m_resourceManager->GetResource<Font>(m_props.font);
-		const float dpiScale   = m_lgxWindow->GetDPIScale();
-		m_lvgFont			   = font->GetLinaVGFont(dpiScale);
-		m_calculatedDPIScale   = dpiScale;
-		m_sdfOptions.font	   = m_lvgFont;
-		m_sdfOptions.textScale = m_props.textScale;
-		m_rect.size			   = static_cast<float>(m_lvgFont->m_size * m_props.textScale);
+		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
+		const float dpiScale = m_lgxWindow->GetDPIScale();
+		m_lvgFont			 = font->GetLinaVGFont(dpiScale);
+		m_calculatedDPIScale = dpiScale;
+		m_sdfOptions.font	 = m_lvgFont;
+		m_rect.size			 = static_cast<float>(Math::RoundToIntEven(m_lvgFont->m_size * m_props.textScale));
 	}
 } // namespace Lina

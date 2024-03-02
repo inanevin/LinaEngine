@@ -33,17 +33,20 @@ namespace Lina
 {
 	bool Tween::Tick(float delta)
 	{
-		if (m_stopped)
+		if (m_killed)
 			return true;
 
 		if (m_waitingOn != nullptr)
+			return false;
+
+		if (Math::Equals(m_timeScale, 0.0f, 0.001f))
 			return false;
 
 		if (!m_passedDelay)
 		{
 			if (m_currentTime < m_delay)
 			{
-				m_currentTime += delta;
+				m_currentTime += delta * m_timeScale;
 				return false;
 			}
 
@@ -53,6 +56,7 @@ namespace Lina
 
 		if (m_currentTime > m_duration)
 		{
+			*m_value = m_end;
 			if (m_restartCount == -1 || m_restarts < m_restartCount)
 			{
 				m_currentTime = 0.0f;
@@ -111,6 +115,9 @@ namespace Lina
 			*m_value = Math::Bounce(m_start, m_end, t);
 			break;
 		}
+
+		if (m_onUpdate)
+			m_onUpdate();
 	}
 
 	void Tween::Complete()

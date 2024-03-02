@@ -55,6 +55,12 @@ namespace Lina
 			return this;
 		}
 
+		inline Tween* SetOnUpdate(Delegate<void()>&& onUpdate)
+		{
+			m_onUpdate = onUpdate;
+			return this;
+		}
+
 		inline Tween* SetDelay(float delay)
 		{
 			m_delay = delay;
@@ -80,15 +86,15 @@ namespace Lina
 			return this;
 		}
 
-		inline Tween* Stop()
+		inline Tween* Kill()
 		{
-			m_stopped = false;
+			m_killed = false;
 			return this;
 		}
 
-		inline Tween* ResetTime()
+		inline Tween* SetTime(float time)
 		{
-			m_currentTime = 0.0f;
+			m_currentTime = time;
 			return this;
 		}
 
@@ -96,6 +102,16 @@ namespace Lina
 		{
 			m_isPersistent = isPersistent;
 			return this;
+		}
+
+		inline void SetStart(float start)
+		{
+			m_start = start;
+		}
+
+		inline void SetEnd(float end)
+		{
+			m_end = end;
 		}
 
 	private:
@@ -109,6 +125,7 @@ namespace Lina
 	private:
 		TweenType		 m_type = TweenType::Linear;
 		Delegate<void()> m_onCompleted;
+		Delegate<void()> m_onUpdate;
 		float*			 m_value		= nullptr;
 		float			 m_start		= 0.0f;
 		float			 m_end			= 0.0f;
@@ -121,7 +138,7 @@ namespace Lina
 		PoolAllocator* m_allocator	  = nullptr;
 		Tween*		   m_waitingOn	  = nullptr;
 		bool		   m_passedDelay  = false;
-		bool		   m_stopped	  = false;
+		bool		   m_killed		  = false;
 		bool		   m_isPersistent = false;
 		float		   m_timeScale	  = 1.0f;
 		Vector<Tween*> m_pendingTweens;

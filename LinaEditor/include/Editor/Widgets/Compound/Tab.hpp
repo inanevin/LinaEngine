@@ -36,6 +36,7 @@ namespace Lina
 {
 	class Text;
 	class Icon;
+	class Tween;
 }; // namespace Lina
 
 namespace Lina::Editor
@@ -50,6 +51,7 @@ namespace Lina::Editor
 		virtual ~Tab() = default;
 
 		static constexpr float SELECTION_RECT_WIDTH = 2.0f;
+		static constexpr float CLOSEBG_ANIM_TIME	= 0.1f;
 
 		struct Properties
 		{
@@ -58,6 +60,7 @@ namespace Lina::Editor
 		};
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Initialize() override;
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
@@ -82,11 +85,15 @@ namespace Lina::Editor
 	private:
 		friend class TabRow;
 
-		Rect	   m_selectionRect = {};
-		Text*	   m_text		   = nullptr;
-		Icon*	   m_icon		   = nullptr;
-		Properties m_props		   = {};
-		TabRow*	   m_ownerRow	   = nullptr;
+		bool	   m_closeRectHovered	= false;
+		bool	   m_closeRectPressed	= false;
+		Rect	   m_selectionRect		= {};
+		Text*	   m_text				= nullptr;
+		Icon*	   m_icon				= nullptr;
+		Properties m_props				= {};
+		TabRow*	   m_ownerRow			= nullptr;
+		Tween*	   m_closeRectAnim		= nullptr;
+		float	   m_closeRectAnimValue = 0.0f;
 	};
 
 } // namespace Lina::Editor

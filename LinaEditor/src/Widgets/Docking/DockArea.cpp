@@ -176,7 +176,7 @@ namespace Lina::Editor
 			}
 		}
 
-		return false;
+		return Widget::OnMouse(button, action);
 	}
 
 	DockArea* DockArea::AddDockArea(Direction direction)

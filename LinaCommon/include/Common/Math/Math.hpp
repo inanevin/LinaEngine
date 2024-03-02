@@ -86,6 +86,12 @@ namespace Lina
 			return CeilToInt(val - 0.5f);
 		}
 
+		static int32 RoundToIntEven(float val)
+		{
+			const int res = CeilToInt(val - 0.5f);
+			return res % 2 == 0 ? res : res - 1;
+		}
+
 		static float RoundToFloat(float val)
 		{
 			return CeilToFloat(val - 0.5f);
