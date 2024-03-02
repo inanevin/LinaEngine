@@ -51,13 +51,17 @@ namespace Lina::Editor
 		virtual ~Tab() = default;
 
 		static constexpr float SELECTION_RECT_WIDTH = 2.0f;
-		static constexpr float CLOSEBG_ANIM_TIME	= 0.1f;
+		static constexpr float CLOSEBG_ANIM_TIME	= 0.15f;
+		static constexpr float CLOSERECT_SIZEX_PERC = 0.2f;
+		static constexpr float INTERP_SPEED			= 14.0f;
 
 		struct Properties
 		{
-			Widget* tiedWidget	 = nullptr;
-			bool	isSelected	 = false;
-			bool	disableClose = false;
+			Widget* tiedWidget		= nullptr;
+			bool	isSelected		= false;
+			bool	disableClose	= false;
+			bool	disableMovement = false;
+			float	desiredX		= 0.0f;
 		};
 
 		virtual void Construct() override;
@@ -99,6 +103,8 @@ namespace Lina::Editor
 		bool	   m_wasSelected			= false;
 		bool	   m_closeRectHovered		= false;
 		bool	   m_closeRectPressed		= false;
+		Vector2	   m_offsetAtPress			= Vector2::Zero;
+		uint32	   m_indexInParent			= 0;
 	};
 
 } // namespace Lina::Editor

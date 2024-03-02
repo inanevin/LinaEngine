@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/TabRow.hpp"
 #include "Editor/Widgets/Compound/Tab.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina::Editor
 {
@@ -37,12 +38,25 @@ namespace Lina::Editor
 		Widget::SetIsHovered();
 
 		float x = m_rect.pos.x;
-		for (auto* c : m_children)
+
+		m_anyPressed = false;
+
+		for (auto* t : m_tabs)
 		{
-			c->SetPosX(x);
-			x += c->GetSizeX();
-			c->Tick(delta);
+			if (t->GetPosX() < GetPosX())
+				t->SetPosX(GetPosX());
+
+			t->GetProps().desiredX = x;
+			x += t->GetSizeX();
+
+			if (t->GetIsPressed())
+				m_anyPressed = true;
 		}
+
+		Widget::Tick(delta);
+
+		if (m_anyPressed)
+			linatl::sort(m_tabs.begin(), m_tabs.end(), [](Tab* t, Tab* t2) -> bool { return t->GetRect().pos.x < t2->GetRect().pos.x; });
 	}
 
 	void TabRow::Draw(int32 threadIndex)
@@ -50,7 +64,10 @@ namespace Lina::Editor
 		LinaVG::StyleOptions background;
 		background.color = Theme::GetDef().background0.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
+
+		// m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
+		// m_manager->UnsetClip(threadIndex);
 	}
 
 	void TabRow::AddTab(Widget* tiedWidget)
@@ -60,22 +77,39 @@ namespace Lina::Editor
 		tab->GetProps().tiedWidget = tiedWidget;
 		tab->Initialize();
 		AddChild(tab);
+		m_tabs.push_back(tab);
+
+		float x = m_rect.pos.x;
+		for (auto* t : m_tabs)
+		{
+			t->SetPosX(x);
+			x += t->GetSizeX();
+		}
+
 		CheckCanClose();
 	}
 
 	void TabRow::RemoveTab(Widget* tiedWidget)
 	{
-		Widget* toRemove = nullptr;
-		for (auto* t : m_children)
+		Tab* toRemove = nullptr;
+		for (auto* tab : m_tabs)
 		{
-			if (static_cast<Tab*>(t)->GetProps().tiedWidget == tiedWidget)
+			if (tab->GetProps().tiedWidget == tiedWidget)
 			{
-				toRemove = t;
+				if (tab->GetProps().isSelected)
+				{
+					const int32 index = UtilVector::IndexOf(m_tabs, tab);
+					if (index != 0)
+						SetSelected(m_tabs[index - 1]->GetProps().tiedWidget);
+				}
+				toRemove = tab;
 				break;
 			}
 		}
 
 		RemoveChild(toRemove);
+		m_tabs.erase(linatl::find_if(m_tabs.begin(), m_tabs.end(), [toRemove](Tab* t) -> bool { return t == toRemove; }));
+		Deallocate(toRemove);
 		CheckCanClose();
 	}
 
@@ -90,7 +124,14 @@ namespace Lina::Editor
 
 	void TabRow::Close(Widget* tiedWidget)
 	{
-		m_parent->RemoveChild(tiedWidget);
+		if (m_props.onTabClosed)
+			m_props.onTabClosed(tiedWidget);
+	}
+
+	void TabRow::DockOut(Widget* tiedWidget)
+	{
+		if (m_props.onTabDockedOut)
+			m_props.onTabDockedOut(tiedWidget);
 	}
 
 	void TabRow::CheckCanClose()

@@ -232,6 +232,11 @@ namespace Lina
 			m_displayName = name;
 		}
 
+		inline bool GetIsPressed() const
+		{
+			return m_isPressed;
+		}
+
 	protected:
 		friend class WidgetManager;
 

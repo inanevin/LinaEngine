@@ -37,7 +37,17 @@ namespace Lina::Editor
 {
 	void DockArea::Construct()
 	{
-		m_tabRow = Allocate<TabRow>("TabRow");
+		m_tabRow						 = Allocate<TabRow>("TabRow");
+		m_tabRow->GetProps().onTabClosed = [this](Widget* w) {
+			RemoveChild(w);
+			Deallocate(w);
+		};
+
+		m_tabRow->GetProps().onTabDockedOut = [this](Widget* w) {
+			RemoveChild(w);
+			Deallocate(w);
+		};
+
 		AddChild(m_tabRow);
 	}
 

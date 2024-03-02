@@ -34,6 +34,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	class Tab;
 
 	class TabRow : public Widget
 	{
@@ -43,8 +44,10 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			bool cantCloseSingleTab = false;
-			bool cantCloseAnyTab	= false;
+			bool							   cantCloseSingleTab = false;
+			bool							   cantCloseAnyTab	  = false;
+			Delegate<void(Widget* tiedWidget)> onTabClosed;
+			Delegate<void(Widget* tiedWidget)> onTabDockedOut;
 		};
 
 		static constexpr float TAB_HEIGHT_PERC = 0.0125f;
@@ -56,18 +59,26 @@ namespace Lina::Editor
 		void RemoveTab(Widget* tiedWidget);
 		void SetSelected(Widget* tiedWidget);
 		void Close(Widget* tiedWidget);
+		void DockOut(Widget* tiedWidget);
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
+		inline bool GetAnyPressed()
+		{
+			return m_anyPressed;
+		}
+
 	private:
 		void CheckCanClose();
 
 	private:
-		bool	   m_isSelected = false;
-		Properties m_props		= {};
+		bool		 m_isSelected = false;
+		bool		 m_anyPressed = false;
+		Properties	 m_props	  = {};
+		Vector<Tab*> m_tabs;
 	};
 
 } // namespace Lina::Editor
