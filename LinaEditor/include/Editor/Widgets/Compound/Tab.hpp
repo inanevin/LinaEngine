@@ -55,8 +55,9 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Widget* tiedWidget = nullptr;
-			bool	isSelected = false;
+			Widget* tiedWidget	 = nullptr;
+			bool	isSelected	 = false;
+			bool	disableClose = false;
 		};
 
 		virtual void Construct() override;
@@ -85,15 +86,19 @@ namespace Lina::Editor
 	private:
 		friend class TabRow;
 
-		bool	   m_closeRectHovered	= false;
-		bool	   m_closeRectPressed	= false;
-		Rect	   m_selectionRect		= {};
-		Text*	   m_text				= nullptr;
-		Icon*	   m_icon				= nullptr;
-		Properties m_props				= {};
-		TabRow*	   m_ownerRow			= nullptr;
-		Tween*	   m_closeRectAnim		= nullptr;
-		float	   m_closeRectAnimValue = 0.0f;
+		Text*	   m_text					= nullptr;
+		Icon*	   m_icon					= nullptr;
+		Properties m_props					= {};
+		TabRow*	   m_ownerRow				= nullptr;
+		Tween*	   m_closeRectAnim			= nullptr;
+		Tween*	   m_selectionRectAnim		= nullptr;
+		Rect	   m_selectionRect			= {};
+		Rect	   m_closeRect				= {};
+		float	   m_closeRectAnimValue		= 0.0f;
+		float	   m_selectionRectAnimValue = 0.0f;
+		bool	   m_wasSelected			= false;
+		bool	   m_closeRectHovered		= false;
+		bool	   m_closeRectPressed		= false;
 	};
 
 } // namespace Lina::Editor

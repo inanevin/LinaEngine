@@ -64,6 +64,11 @@ namespace Lina::Editor
 
 		if (w != m_tabRow)
 			m_tabRow->RemoveTab(w);
+
+		if (m_children.size() == 1)
+		{
+			RemoveArea();
+		}
 	}
 
 	void DockArea::Tick(float delta)
@@ -76,7 +81,7 @@ namespace Lina::Editor
 		if (m_selectedChildren == nullptr && m_children.size() == 2)
 			m_selectedChildren = m_children[1];
 
-		const float tabHeight = static_cast<float>(m_lgxWindow->GetMonitorSize().y) * TabRow::TAB_HEIGHT_PERC;
+		const float tabHeight = static_cast<float>(m_lgxWindow->GetMonitorSize().y) * TabRow::TAB_HEIGHT_PERC * m_lgxWindow->GetDPIScale();
 
 		m_tabRow->SetPos(m_rect.pos);
 		m_tabRow->SetSize(Vector2(m_rect.size.x, tabHeight));
@@ -183,6 +188,8 @@ namespace Lina::Editor
 	{
 		if (direction == Direction::Center)
 		{
+			Widget* dummy = Allocate<Widget>("DummyContent2");
+			AddChild(dummy);
 			// Steal the contents of the dock area and return this.
 			return this;
 		}

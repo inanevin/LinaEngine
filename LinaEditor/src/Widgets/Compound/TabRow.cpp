@@ -60,6 +60,7 @@ namespace Lina::Editor
 		tab->GetProps().tiedWidget = tiedWidget;
 		tab->Initialize();
 		AddChild(tab);
+		CheckCanClose();
 	}
 
 	void TabRow::RemoveTab(Widget* tiedWidget)
@@ -75,6 +76,7 @@ namespace Lina::Editor
 		}
 
 		RemoveChild(toRemove);
+		CheckCanClose();
 	}
 
 	void TabRow::SetSelected(Widget* tiedWidget)
@@ -83,6 +85,28 @@ namespace Lina::Editor
 		{
 			Tab* t					 = static_cast<Tab*>(c);
 			t->GetProps().isSelected = t->GetProps().tiedWidget == tiedWidget;
+		}
+	}
+
+	void TabRow::Close(Widget* tiedWidget)
+	{
+		m_parent->RemoveChild(tiedWidget);
+	}
+
+	void TabRow::CheckCanClose()
+	{
+		if (m_props.cantCloseAnyTab)
+		{
+			for (auto* t : m_children)
+				static_cast<Tab*>(t)->GetProps().disableClose = true;
+			return;
+		}
+
+		if (m_props.cantCloseSingleTab)
+		{
+			const bool alone = m_children.size() == 1;
+			for (auto* t : m_children)
+				static_cast<Tab*>(t)->GetProps().disableClose = alone;
 		}
 	}
 

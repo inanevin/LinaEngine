@@ -34,24 +34,40 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
 	class TabRow : public Widget
 	{
 	public:
 		TabRow()		  = default;
 		virtual ~TabRow() = default;
 
-		static constexpr float TAB_HEIGHT_PERC = 0.015f;
+		struct Properties
+		{
+			bool cantCloseSingleTab = false;
+			bool cantCloseAnyTab	= false;
+		};
+
+		static constexpr float TAB_HEIGHT_PERC = 0.0125f;
 
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
 		void AddTab(Widget* tiedWidget);
 		void RemoveTab(Widget* tiedWidget);
-
 		void SetSelected(Widget* tiedWidget);
+		void Close(Widget* tiedWidget);
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
 	private:
-		bool m_isSelected = false;
+		void CheckCanClose();
+
+	private:
+		bool	   m_isSelected = false;
+		Properties m_props		= {};
 	};
 
 } // namespace Lina::Editor
