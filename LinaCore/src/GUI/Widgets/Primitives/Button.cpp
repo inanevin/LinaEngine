@@ -44,7 +44,7 @@ namespace Lina
 	{
 		Widget::SetIsHovered();
 		m_text->SetPos(m_rect.GetCenter() - m_text->GetHalfSize());
-        m_text->Tick(delta);
+		m_text->Tick(delta);
 	}
 
 	void Button::Draw(int32 threadIndex)

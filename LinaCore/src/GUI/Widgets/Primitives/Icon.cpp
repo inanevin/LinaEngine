@@ -44,14 +44,14 @@ namespace Lina
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateIconSize();
 
-        m_sdfOptions.color.start =  m_props.color.AsLVG4();
-		m_sdfOptions.color.end =  m_props.colorEnd.AsLVG4();
-		m_sdfOptions.sdfThickness						  = m_props.sdfThickness;
-		m_sdfOptions.sdfSoftness						  = m_props.sdfSoftness;
-		m_sdfOptions.sdfOutlineColor					  = m_props.sdfOutlineColor.AsLVG4();
-		m_sdfOptions.sdfOutlineThickness				  = m_props.sdfOutlineThickness;
-		m_sdfOptions.sdfOutlineSoftness					  = m_props.sdfOutlineSoftness;
-		m_sdfOptions.textScale							  = m_props.textScale;
+		m_sdfOptions.color.start		 = m_props.color.AsLVG4();
+		m_sdfOptions.color.end			 = m_props.colorEnd.AsLVG4();
+		m_sdfOptions.sdfThickness		 = m_props.sdfThickness;
+		m_sdfOptions.sdfSoftness		 = m_props.sdfSoftness;
+		m_sdfOptions.sdfOutlineColor	 = m_props.sdfOutlineColor.AsLVG4();
+		m_sdfOptions.sdfOutlineThickness = m_props.sdfOutlineThickness;
+		m_sdfOptions.sdfOutlineSoftness	 = m_props.sdfOutlineSoftness;
+		m_sdfOptions.textScale			 = m_props.textScale;
 
 		Vector2 offset = Vector2(m_rect.size.x * m_props.offsetPerc.x, m_rect.size.y * m_props.offsetPerc.y);
 		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y) + offset).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, true);

@@ -35,14 +35,13 @@ namespace Lina::Editor
 
 	void DockTestbed::Construct()
 	{
-        
-        
+
 		DockArea* area = Allocate<DockArea>("DockArea");
 		area->Initialize();
 		area->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
 
-        Testbed* tb                 = Allocate<Testbed>("Testbed");
-        area->AddChild(tb);
+		Testbed* tb = Allocate<Testbed>("Testbed");
+		area->AddChild(tb);
 
 		AddChild(area);
 	}
@@ -50,7 +49,7 @@ namespace Lina::Editor
 	void DockTestbed::Tick(float delta)
 	{
 		SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
-        Widget::SetIsHovered();
+		Widget::SetIsHovered();
 		Widget::Tick(delta);
 	}
 

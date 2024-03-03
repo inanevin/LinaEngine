@@ -33,33 +33,32 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void SplashScreen::Construct()
-{   
-        m_icon = Allocate<Icon>();
-        m_icon->GetProps().textScale = 8.0f;
-        m_icon->GetProps().sdfThickness = 0.5f;
-        m_icon->GetProps().sdfSoftness = 0.015f;
-        m_icon->GetProps().icon = ICON_LINA_LOGO;
-        AddChild(m_icon);
-    }
+	void SplashScreen::Construct()
+	{
+		m_icon							= Allocate<Icon>();
+		m_icon->GetProps().textScale	= 8.0f;
+		m_icon->GetProps().sdfThickness = 0.5f;
+		m_icon->GetProps().sdfSoftness	= 0.015f;
+		m_icon->GetProps().icon			= ICON_LINA_LOGO;
+		AddChild(m_icon);
+	}
 	void SplashScreen::Tick(float delta)
 	{
-        SetPos(Vector2::Zero);
-        SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
-        
-        m_icon->SetPos(m_rect.GetCenter() - m_icon->GetHalfSize());
+		SetPos(Vector2::Zero);
+		SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
+
+		m_icon->SetPos(m_rect.GetCenter() - m_icon->GetHalfSize());
 	}
 
 	void SplashScreen::Draw(int32 threadIndex)
 	{
-        LinaVG::StyleOptions opts;
-        opts.color = Theme::GetDef().background0.AsLVG4();
-        LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-        
-        m_icon->GetProps().color = Theme::GetDef().accentPrimary0.AsLVG4();
-        m_icon->GetProps().colorEnd = Theme::GetDef().accentPrimary1.AsLVG4();
-        m_icon->Draw(threadIndex);
-	}
+		LinaVG::StyleOptions opts;
+		opts.color = Theme::GetDef().background0.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
+		m_icon->GetProps().color	= Theme::GetDef().accentPrimary0.AsLVG4();
+		m_icon->GetProps().colorEnd = Theme::GetDef().accentPrimary1.AsLVG4();
+		m_icon->Draw(threadIndex);
+	}
 
 } // namespace Lina::Editor

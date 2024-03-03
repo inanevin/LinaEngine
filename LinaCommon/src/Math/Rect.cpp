@@ -80,10 +80,10 @@ namespace Lina
 		return IsClippingHorizontal(other) && IsClippingVertical(other);
 	}
 
-    bool Rect::IsRectInside(const Rect &other) const
-    {
-        return other.pos.x > pos.x && other.GetEnd().x < GetEnd().x && other.pos.y > pos.y && other.GetEnd().y < GetEnd().y;
-    }
+	bool Rect::IsRectInside(const Rect& other) const
+	{
+		return other.pos.x > pos.x && other.GetEnd().x < GetEnd().x && other.pos.y > pos.y && other.GetEnd().y < GetEnd().y;
+	}
 
 	bool Rect::IsInBorder(const Vector2& p, float borderThickness, int& borderPosition) const
 	{

@@ -52,7 +52,7 @@ namespace Lina
 			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), checkered, 0.0f, drawOrder);
 			drawOrder++;
 		}
-        
+
 		LinaVG::StyleOptions opts;
 		opts.rounding				  = m_props.rounding;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
@@ -60,9 +60,9 @@ namespace Lina
 		opts.color					  = m_props.colorBackground.AsLVG4();
 
 		const Color target = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
-		opts	   = {};
-		opts.color = target.AsLVG4();
-        LinaVG::DrawRect(threadIndex, (m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), (m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), opts, 0.0f, drawOrder);
+		opts			   = {};
+		opts.color		   = target.AsLVG4();
+		LinaVG::DrawRect(threadIndex, (m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), (m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), opts, 0.0f, drawOrder);
 	}
 
 	bool ColorField::OnMouse(uint32 button, LinaGX::InputAction action)
