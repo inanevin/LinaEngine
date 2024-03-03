@@ -536,7 +536,7 @@ namespace Lina
 
 		template <typename T> static T Sinusodial(T start, T end, float alpha)
 		{
-			return Lerp(start, end, -Cos(alpha * M_PI) / 2.0f + 0.5f);
+			return Lerp(start, end, -Cos(alpha * MATH_PI) / 2.0f + 0.5f);
 		};
 
 		template <typename T> static T Exponential(T start, T end, float alpha)

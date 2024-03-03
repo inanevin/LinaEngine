@@ -31,7 +31,8 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
-
+#include "Editor/Widgets/Testbed.hpp"
+#include "Editor/Widgets/DockTestbed.hpp"
 namespace Lina::Editor
 {
 	void Editor::OnPreInitialize(Application* app)
@@ -39,6 +40,9 @@ namespace Lina::Editor
 		m_app				= app;
 		auto* gfxManager	= m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		auto& widgetManager = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+
+		// Testbed* tb = widgetManager.GetRoot()->Allocate<Testbed>();
+		// widgetManager.GetRoot()->AddChild(tb);
 
 		m_splashScreen = widgetManager.GetRoot()->Allocate<SplashScreen>();
 		widgetManager.GetRoot()->AddChild(m_splashScreen);

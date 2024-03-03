@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Common/Platform/PlatformInclude.hpp"
 #include "Common/Platform/PlatformTime.hpp"
-#include "Core/SystemInfo.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Common/Log/Log.hpp"
 #include "Common/System/Plugin.hpp"
 #include "Common/FileSystem/FileSystem.hpp"

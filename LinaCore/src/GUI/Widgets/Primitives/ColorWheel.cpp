@@ -104,7 +104,7 @@ namespace Lina
 	bool ColorWheel::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (button != LINAGX_MOUSE_0)
-			return;
+			return false;
 
 		if (m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
