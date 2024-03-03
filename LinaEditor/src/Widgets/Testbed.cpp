@@ -289,7 +289,6 @@ namespace Lina::Editor
 
 	void Testbed::Tick(float delta)
 	{
-		m_rect = m_parent->GetRect();
 		Widget::Tick(delta);
 	}
 

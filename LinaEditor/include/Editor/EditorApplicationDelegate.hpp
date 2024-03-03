@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/ApplicationDelegate.hpp"
+#include "Editor.hpp"
 
 namespace Lina::Editor
 {
@@ -40,6 +41,9 @@ namespace Lina::Editor
 		virtual void OnInitialize() override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
 		virtual void RegisterAppResources(ResourceManager& rm) override;
+
+	private:
+		Editor m_editor;
 	};
 
 } // namespace Lina::Editor

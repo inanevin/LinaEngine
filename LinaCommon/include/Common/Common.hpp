@@ -45,8 +45,8 @@ namespace Lina
 	struct SystemInitializationInfo
 	{
 		const char*			 appName			 = "";
-		int					 windowWidth		 = 0;
-		int					 windowHeight		 = 0;
+		uint32				 windowWidth		 = 0;
+		uint32				 windowHeight		 = 0;
 		LinaGX::WindowStyle	 windowStyle		 = LinaGX::WindowStyle::WindowedApplication;
 		LinaGX::VSyncStyle	 vsyncStyle			 = {};
 		bool				 allowTearing		 = false;

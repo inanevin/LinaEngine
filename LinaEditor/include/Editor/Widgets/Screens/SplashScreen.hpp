@@ -28,76 +28,27 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Application_HPP
-#define Application_HPP
-
-#include "Core/Engine.hpp"
-
-namespace LinaGX
-{
-	class Window;
-}
+#include "Core/GUI/Widgets/Widget.hpp"
 
 namespace Lina
 {
-	struct SystemInitializationInfo;
-	class CoreResourcesRegistry;
-	class ApplicationDelegate;
+	class Icon;
+};
 
-	class Application : public LinaGX::WindowListener
+namespace Lina::Editor
+{
+	class SplashScreen : public Widget
 	{
 	public:
-		Application() : m_engine(this){};
-		~Application(){};
+		SplashScreen()			= default;
+		virtual ~SplashScreen() = default;
 
-		void Initialize(const SystemInitializationInfo& initInfo);
-		void PreTick();
-		void Poll();
-		void Tick();
-		void Shutdown();
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
 
-		inline void Quit()
-		{
-			m_exitRequested = true;
-		}
-
-		inline bool GetExitRequested()
-		{
-			return m_exitRequested;
-		}
-
-		inline void SetListener(ApplicationDelegate* listener)
-		{
-			m_appDelegate = listener;
-		}
-
-		inline ApplicationDelegate* GetAppDelegate()
-		{
-			return m_appDelegate;
-		}
-
-		inline System* GetSystem()
-		{
-			return &m_engine;
-		}
-
-	protected:
-		virtual void OnWindowClose();
-
-	protected:
-		void SetFrameCap(int64 microseconds);
-		void SetFixedTimestep(int64 microseconds);
-
-		void LoadPlugins();
-		void UnloadPlugins();
-
-	protected:
-		ApplicationDelegate* m_appDelegate = nullptr;
-		Engine				 m_engine;
-		bool				 m_exitRequested	 = false;
-		bool				 m_isIdleMode		 = false;
-		int32				 m_coreResourcesTask = 0;
+	private:
+		Icon* m_icon = nullptr;
 	};
-} // namespace Lina
 
-#endif
+} // namespace Lina::Editor

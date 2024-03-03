@@ -80,18 +80,24 @@ vec3 hueSaturationToRGB(float hue, float saturation) {
     return mix(vec3(1.0), rgb, saturation); // Mix the RGB color with white based on saturation
 }
 
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 const float wheelRadius = 0.5;
 const float edgeSmoothness = 0.005;
 
 void main()
 {
    fragColor = inCol;
+
    highp int bufferType = int(material.floatPack2.a);
    if(bufferType == 1)
    {
       // floatPack1 = uvMultiply, uvShift
       // floatPack2 = radialInfluence, isAABuffer, radialSize, bufferType
-
+  
       // Linear gradient
       float t1 = inUV.x * material.floatPack1.r + inUV.y * material.floatPack1.g;
 

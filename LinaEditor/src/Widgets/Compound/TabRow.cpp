@@ -65,9 +65,9 @@ namespace Lina::Editor
 		background.color = Theme::GetDef().background0.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
 
-		// m_manager->SetClip(threadIndex, m_rect, {});
+		m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
-		// m_manager->UnsetClip(threadIndex);
+		m_manager->UnsetClip(threadIndex);
 	}
 
 	void TabRow::AddTab(Widget* tiedWidget)

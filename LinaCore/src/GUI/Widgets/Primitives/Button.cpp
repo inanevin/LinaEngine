@@ -43,14 +43,8 @@ namespace Lina
 	void Button::Tick(float delta)
 	{
 		Widget::SetIsHovered();
-
-		if (m_props.widthFit == Fit::FromChildren)
-			m_rect.size.x = m_text->GetSize().x + m_props.margins.left + m_props.margins.right;
-
-		if (m_props.heightFit == Fit::FromChildren)
-			m_rect.size.y = m_text->GetSize().y + m_props.margins.top + m_props.margins.bottom;
-
 		m_text->SetPos(m_rect.GetCenter() - m_text->GetHalfSize());
+        m_text->Tick(delta);
 	}
 
 	void Button::Draw(int32 threadIndex)

@@ -53,8 +53,10 @@ namespace Lina
 
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
-		if (!hasControls)
-			m_isEditing = false;
+		if (!hasControls && m_isEditing)
+		{
+			EndEditing();
+		}
 
 		// Cursor status.
 		if (m_isHovered)
@@ -153,7 +155,11 @@ namespace Lina
 			LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);
 		}
 
-		m_manager->SetClip(threadIndex, m_rect, {.left = m_props.horizontalIndent, .right = m_props.horizontalIndent});
+		Rect*	   existing = m_manager->GetClipStackTop();
+		const bool omitClip = existing && !existing->IsRectInside(m_rect);
+
+		if (!omitClip)
+			m_manager->SetClip(threadIndex, m_rect, {.left = m_props.horizontalIndent, .right = m_props.horizontalIndent});
 
 		if (m_isEditing)
 		{
@@ -194,7 +200,9 @@ namespace Lina
 		}
 
 		m_text->Draw(threadIndex);
-		m_manager->UnsetClip(threadIndex);
+
+		if (!omitClip)
+			m_manager->UnsetClip(threadIndex);
 	}
 
 	void InputField::SelectAll()

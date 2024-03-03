@@ -42,9 +42,6 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			Fit				 widthFit			  = Fit::Fixed;
-			Fit				 heightFit			  = Fit::Fixed;
-			TBLR			 margins			  = {};
 			Color			 colorDefaultStart	  = Theme::GetDef().background2;
 			Color			 colorDefaultEnd	  = Theme::GetDef().background3;
 			Color			 colorHovered		  = Theme::GetDef().background4;

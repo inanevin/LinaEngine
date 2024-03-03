@@ -28,23 +28,24 @@ SOFTWARE.
 
 #include "Editor/EditorApplicationDelegate.hpp"
 #include "Editor/CommonEditor.hpp"
-#include "Editor/Widgets/Testbed.hpp"
-#include "Editor/Widgets/DockTestbed.hpp"
 #include "Core/Application.hpp"
-#include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Core/CommonCore.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
 {
 	SystemInitializationInfo Lina_GetInitInfo()
 	{
+		LinaGX::MonitorInfo monitor = LinaGX::Window::GetPrimaryMonitorInfo();
+
+		const uint32 w = monitor.size.x / 4;
+		const uint32 h = static_cast<uint32>(static_cast<float>(w) * (static_cast<float>(monitor.size.y) / static_cast<float>(monitor.size.x)));
+
 		return SystemInitializationInfo{
 			.appName			 = "Lina Editor",
-			.windowWidth		 = 1920,
-			.windowHeight		 = 1080,
+			.windowWidth		 = w,
+			.windowHeight		 = h,
 			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
 			.appListener		 = new Lina::Editor::EditorApplicationDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,
@@ -71,7 +72,7 @@ namespace Lina::Editor
 		Vector<ResourceIdentifier> resources;
 
 		// Core
-		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);
@@ -99,18 +100,12 @@ namespace Lina::Editor
 
 	void EditorApplicationDelegate::OnPreInitialize()
 	{
+		m_editor.OnPreInitialize(m_app);
 	}
 
 	void EditorApplicationDelegate::OnInitialize()
 	{
-		auto* gfxManager	  = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto& widgetAllocator = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-
-		DockTestbed* db = widgetAllocator.GetRoot()->Allocate<DockTestbed>("DockTestbed");
-		widgetAllocator.GetRoot()->AddChild(db);
-
-		// Testbed* tb				 = widgetAllocator.GetRoot()->Allocate<Testbed>("Testbed");
-		// widgetAllocator.GetRoot()->AddChild(tb);
+		m_editor.OnInitialize();
 	}
 
 } // namespace Lina::Editor

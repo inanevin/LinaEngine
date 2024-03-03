@@ -94,6 +94,14 @@ namespace Lina
 			return m_foregroundRoot;
 		}
 
+		inline Rect* GetClipStackTop()
+		{
+			if (m_clipStack.empty())
+				return nullptr;
+			else
+				return &m_clipStack[m_clipStack.size() - 1].rect;
+		}
+
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;

@@ -92,7 +92,8 @@ namespace Lina::Editor
 		field->GetProps().valueMin		= 0.0f;
 		field->GetProps().valueMax		= isHue ? 360.0f : 1.0f;
 		field->GetProps().valueStep		= isHue ? 1.0f : 0.01f;
-		field->GetProps().value			= val;
+        field->GetProps().value            = val;
+        field->GetProps().decimals = isHue ? 0 : 3;
 		field->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
 
@@ -188,7 +189,8 @@ namespace Lina::Editor
 		m_oldColorField->GetProps().value = &m_oldColor;
 		m_oldColorField->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 		m_oldColorField->GetProps().rounding		 = 0.0f;
-		m_oldColorField->GetProps().outlineThickness = 0.0f;
+        m_oldColorField->GetProps().outlineThickness = 0.0f;
+        m_oldColorField->GetProps().drawCheckeredBackground = true;
 
 		m_newColorField					  = Allocate<ColorField>("NewColor");
 		m_newColorField->GetProps().value = &m_editedColor;

@@ -28,76 +28,24 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Application_HPP
-#define Application_HPP
-
-#include "Core/Engine.hpp"
-
-namespace LinaGX
-{
-	class Window;
-}
-
 namespace Lina
 {
-	struct SystemInitializationInfo;
-	class CoreResourcesRegistry;
-	class ApplicationDelegate;
+	class Application;
+}
 
-	class Application : public LinaGX::WindowListener
+namespace Lina::Editor
+{
+	class SplashScreen;
+
+	class Editor
 	{
 	public:
-		Application() : m_engine(this){};
-		~Application(){};
+		void OnPreInitialize(Application* app);
+		void OnInitialize();
 
-		void Initialize(const SystemInitializationInfo& initInfo);
-		void PreTick();
-		void Poll();
-		void Tick();
-		void Shutdown();
-
-		inline void Quit()
-		{
-			m_exitRequested = true;
-		}
-
-		inline bool GetExitRequested()
-		{
-			return m_exitRequested;
-		}
-
-		inline void SetListener(ApplicationDelegate* listener)
-		{
-			m_appDelegate = listener;
-		}
-
-		inline ApplicationDelegate* GetAppDelegate()
-		{
-			return m_appDelegate;
-		}
-
-		inline System* GetSystem()
-		{
-			return &m_engine;
-		}
-
-	protected:
-		virtual void OnWindowClose();
-
-	protected:
-		void SetFrameCap(int64 microseconds);
-		void SetFixedTimestep(int64 microseconds);
-
-		void LoadPlugins();
-		void UnloadPlugins();
-
-	protected:
-		ApplicationDelegate* m_appDelegate = nullptr;
-		Engine				 m_engine;
-		bool				 m_exitRequested	 = false;
-		bool				 m_isIdleMode		 = false;
-		int32				 m_coreResourcesTask = 0;
+	private:
+		SplashScreen* m_splashScreen = nullptr;
+		Application*  m_app			 = nullptr;
 	};
-} // namespace Lina
 
-#endif
+} // namespace Lina::Editor

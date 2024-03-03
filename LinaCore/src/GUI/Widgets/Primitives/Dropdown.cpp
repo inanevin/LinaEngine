@@ -54,11 +54,7 @@ namespace Lina
 	void Dropdown::Tick(float delta)
 	{
 		Widget::SetIsHovered();
-
-		const Vector2 iconSize = m_icon->GetSize();
-		const Vector2 textSize = m_text->GetSize();
-		m_iconBgStart		   = m_rect.GetEnd() - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
-
+		m_iconBgStart = m_rect.GetEnd() - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.pos.y + m_rect.size.y * 0.5f - m_text->GetHalfSizeY()));
 		m_icon->SetPos((m_iconBgStart + m_rect.GetEnd()) * 0.5f - m_icon->GetHalfSize());
 	}
@@ -93,9 +89,16 @@ namespace Lina
 		m_icon->Draw(threadIndex);
 
 		// Text & clip over icon.
-		m_manager->SetClip(threadIndex, m_rect, {.right = m_props.horizontalIndent + iconSize.x});
+		Rect*	   existing = m_manager->GetClipStackTop();
+		const bool omitClip = existing && !existing->IsRectInside(m_rect);
+
+		if (!omitClip)
+			m_manager->SetClip(threadIndex, m_rect, {.right = m_props.horizontalIndent + iconSize.x});
+
 		m_text->Draw(threadIndex);
-		m_manager->UnsetClip(threadIndex);
+
+		if (!omitClip)
+			m_manager->UnsetClip(threadIndex);
 	}
 
 	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
@@ -149,8 +152,8 @@ namespace Lina
 
 		m_popup						 = Allocate<Popup>("DropdownPopup");
 		m_popup->GetProps().minWidth = m_rect.size.x;
-		m_manager->AddToForeground(m_popup);
 		m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
+		m_manager->AddToForeground(m_popup);
 
 		Vector<String> items;
 		int32		   selectedItem = -1;

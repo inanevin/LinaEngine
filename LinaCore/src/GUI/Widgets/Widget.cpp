@@ -136,6 +136,9 @@ namespace Lina
 
 		const Vector2& pos = m_lgxWindow->GetMousePosition();
 		m_isHovered		   = m_rect.IsPointInside(pos);
+        
+        if(m_parent && m_parent != m_manager->GetRoot() && m_parent != m_manager->GetForegroundRoot() && !m_parent->GetIsHovered())
+            m_isHovered = false;
 	}
 
 } // namespace Lina

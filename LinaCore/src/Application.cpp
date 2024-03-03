@@ -74,7 +74,6 @@ namespace Lina
 			m_engine.PreInitialize(initInfo);
 			resourceManager.LoadResources(resourceManager.GetPriorityResources());
 			resourceManager.WaitForAll();
-			m_appDelegate->OnPreInitialize();
 		}
 
 		// Main window
@@ -87,11 +86,10 @@ namespace Lina
 
 		// Initialization
 		{
+			m_appDelegate->OnPreInitialize();
 			m_engine.Initialize(initInfo);
 			auto& resourceManager = m_engine.GetResourceManager();
-			resourceManager.LoadResources(resourceManager.GetCoreResources());
-			resourceManager.WaitForAll();
-			m_appDelegate->OnInitialize();
+			m_coreResourcesTask	  = m_engine.GetResourceManager().LoadResources(resourceManager.GetCoreResources());
 		}
 	}
 
@@ -109,6 +107,15 @@ namespace Lina
 	{
 		PROFILER_FRAME_START();
 		PROFILER_FUNCTION();
+
+		// First launch, notify delegate of core resources loading.
+		if (m_coreResourcesTask != -1 && m_engine.GetResourceManager().IsLoadTaskComplete(m_coreResourcesTask))
+		{
+			m_engine.GetResourceManager().WaitForAll();
+			m_coreResourcesTask = -1;
+			m_appDelegate->OnInitialize();
+		}
+
 		m_engine.PreTick();
 	}
 

@@ -26,46 +26,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Editor/Editor.hpp"
+#include "Core/Application.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
+#include "Editor/Widgets/Screens/SplashScreen.hpp"
 
-#ifndef Event_HPP
-#define Event_HPP
-
-#include "Common/SizeDefinitions.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	struct Event
+	void Editor::OnPreInitialize(Application* app)
 	{
-		void*  pParams[2];
-		float  fParams[4];
-		uint32 uintParams[4];
-	};
+		m_app				= app;
+		auto* gfxManager	= m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto& widgetManager = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
-	enum SystemEvent
+		m_splashScreen = widgetManager.GetRoot()->Allocate<SplashScreen>();
+		widgetManager.GetRoot()->AddChild(m_splashScreen);
+	}
+
+	void Editor::OnInitialize()
 	{
-		EVS_ResourceLoaded			  = 1 << 0,
-		EVS_ResourceLoadTaskCompleted = 1 << 1,
-		EVS_ResourceUnloaded		  = 1 << 2,
-		EVS_ResourceBatchUnloaded	  = 1 << 3,
-		EVS_LevelInstalled			  = 1 << 4,
-		EVS_LevelUninstalled		  = 1 << 5,
-	};
-
-	enum GameEvent
-	{
-		EVG_Start			   = 1 << 0,
-		EVG_PostStart		   = 1 << 1,
-		EVG_Tick			   = 1 << 2,
-		EVG_PostTick		   = 1 << 3,
-		EVG_Simulate		   = 1 << 4,
-		EVG_PostSimulate	   = 1 << 5,
-		EVG_ComponentCreated   = 1 << 6,
-		EVG_ComponentDestroyed = 1 << 7,
-		EVG_EntityCreated	   = 1 << 8,
-		EVG_EntityDestroyed	   = 1 << 9,
-		EVG_End				   = 1 << 10,
-	};
-} // namespace Lina
-
-#endif
+		// Widget* root = m_splashScreen->GetParent();
+		// root->RemoveChild(m_splashScreen);
+		// root->Deallocate(m_splashScreen);
+		// m_splashScreen = nullptr;
+	}
+} // namespace Lina::Editor

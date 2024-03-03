@@ -49,6 +49,7 @@ namespace Lina
 			String	 icon		= "";
 			StringID font		= Theme::GetDef().iconFont;
 			Color	 color		= Theme::GetDef().foreground0;
+			Color	 colorEnd	= Theme::GetDef().foreground0;
 			Vector2	 offsetPerc = Vector2();
 			float	 textScale	= 0.5f;
 			bool	 isDynamic	= false;

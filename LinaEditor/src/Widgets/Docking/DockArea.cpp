@@ -120,8 +120,12 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
 		m_tabRow->Draw(threadIndex);
 
+		m_manager->SetClip(threadIndex, m_rect, {});
+
 		if (m_selectedChildren)
 			m_selectedChildren->Draw(threadIndex);
+
+		m_manager->UnsetClip(threadIndex);
 
 		if (m_preview)
 			m_preview->Draw(threadIndex);
@@ -158,12 +162,6 @@ namespace Lina::Editor
 
 	bool DockArea::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
-		if (button == LINAGX_MOUSE_MIDDLE && m_isHovered && action == LinaGX::InputAction::Pressed)
-		{
-			RemoveArea();
-			return true;
-		}
-
 		if (button == LINAGX_MOUSE_1)
 		{
 			if (m_isHovered && action == LinaGX::InputAction::Pressed)

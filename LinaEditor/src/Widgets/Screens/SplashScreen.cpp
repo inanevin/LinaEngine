@@ -26,32 +26,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/DockTestbed.hpp"
-#include "Editor/Widgets/Docking/DockArea.hpp"
-#include "Editor/Widgets/Testbed.hpp"
+#include "Editor/Widgets/Screens/SplashScreen.hpp"
+#include "Editor/CommonEditor.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
-
-	void DockTestbed::Construct()
+    void SplashScreen::Construct()
+{   
+        m_icon = Allocate<Icon>();
+        m_icon->GetProps().textScale = 8.0f;
+        m_icon->GetProps().sdfThickness = 0.5f;
+        m_icon->GetProps().sdfSoftness = 0.015f;
+        m_icon->GetProps().icon = ICON_LINA_LOGO;
+        AddChild(m_icon);
+    }
+	void SplashScreen::Tick(float delta)
 	{
+        SetPos(Vector2::Zero);
+        SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
         
-        
-		DockArea* area = Allocate<DockArea>("DockArea");
-		area->Initialize();
-		area->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
-
-        Testbed* tb                 = Allocate<Testbed>("Testbed");
-        area->AddChild(tb);
-
-		AddChild(area);
+        m_icon->SetPos(m_rect.GetCenter() - m_icon->GetHalfSize());
 	}
 
-	void DockTestbed::Tick(float delta)
+	void SplashScreen::Draw(int32 threadIndex)
 	{
-		SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
-        Widget::SetIsHovered();
-		Widget::Tick(delta);
+        LinaVG::StyleOptions opts;
+        opts.color = Theme::GetDef().background0.AsLVG4();
+        LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+        
+        m_icon->GetProps().color = Theme::GetDef().accentPrimary0.AsLVG4();
+        m_icon->GetProps().colorEnd = Theme::GetDef().accentPrimary1.AsLVG4();
+        m_icon->Draw(threadIndex);
 	}
+
 
 } // namespace Lina::Editor

@@ -108,7 +108,6 @@ namespace Lina
 			Event data;
 			data.pParams[0] = static_cast<void*>(m_currentLevel);
 
-			m_system->DispatchEvent(EVS_PreLevelUninstall, data);
 			m_currentLevel->Uninstall();
 
 			ResourceManager* rm = (ResourceManager*)m_system->CastSubsystem(SubsystemType::ResourceManager);
