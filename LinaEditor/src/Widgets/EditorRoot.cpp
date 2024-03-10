@@ -71,8 +71,8 @@ namespace Lina::Editor
 
 		SetPos(Vector2::Zero);
 		SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
-        
-		m_topRect.pos	= Vector2::Zero;
+
+		m_topRect.pos  = Vector2::Zero;
 		m_topRect.size = Vector2(GetSizeX(), defaultHeight);
 
 		m_windowButtons->SetPosX(m_rect.GetEnd().x - windowButtonWidth * 3.0f);
@@ -89,14 +89,13 @@ namespace Lina::Editor
 		m_fm->SetSizeX(GetSizeX());
 		m_fm->SetSizeY(defaultHeight);
 		m_fm->Tick(delta);
-        
-        // Drag rect.
-        m_dragRect = Rect(Vector2(m_fm->GetPosX() + m_fm->GetSizeX(), 0.0f), Vector2(GetSizeX() - windowButtonWidth * 3.0f, defaultHeight));
-        LinaGX::LGXRectui lgxRect = {};
-        lgxRect.pos = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};
-        lgxRect.size = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
-        m_lgxWindow->SetDragRect(lgxRect);
 
+		// Drag rect.
+		m_dragRect				  = Rect(Vector2(m_fm->GetPosX() + m_fm->GetSizeX(), 0.0f), Vector2(GetSizeX() - windowButtonWidth * 3.0f, defaultHeight));
+		LinaGX::LGXRectui lgxRect = {};
+		lgxRect.pos				  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};
+		lgxRect.size			  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
+		m_lgxWindow->SetDragRect(lgxRect);
 	}
 
 	void EditorRoot::Draw(int32 threadIndex)
@@ -110,17 +109,17 @@ namespace Lina::Editor
 		m_windowButtons->Draw(threadIndex);
 	}
 
-    bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)
-    {
-        if(button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated && m_dragRect.IsPointInside(m_lgxWindow->GetMousePosition()))
-        {
-            if(m_lgxWindow->GetIsMaximized())
-                m_lgxWindow->Restore();
-            else
-                m_lgxWindow->Maximize();
-            return true;
-        }
-        
-        return Widget::OnMouse(button, act);
-    }
+	bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated && m_dragRect.IsPointInside(m_lgxWindow->GetMousePosition()))
+		{
+			if (m_lgxWindow->GetIsMaximized())
+				m_lgxWindow->Restore();
+			else
+				m_lgxWindow->Maximize();
+			return true;
+		}
+
+		return Widget::OnMouse(button, act);
+	}
 } // namespace Lina::Editor
