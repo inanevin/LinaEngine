@@ -26,35 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Meta/EditorSettings.hpp"
+#include "Core/Meta/ProjectSettings.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
-	class ProjectSettings;
-	class Application;
-} // namespace Lina
-
-namespace Lina::Editor
-{
-	class SplashScreen;
-	class ProjectSelector;
-
-	class Editor
+	void ProjectSettings::LoadFromStream(IStream& in)
 	{
-	public:
-		void OnPreInitialize(Application* app);
-		void OnInitialize();
+		uint32 version = 0;
+		in >> version;
+		StringSerialization::LoadFromStream(in, m_projectName);
+	}
 
-		void OpenProject(const String& basePath, const String& projectName);
-		void CloseCurrentProject();
-
-	private:
-		Application*	 m_app			   = nullptr;
-		EditorSettings	 m_settings		   = {};
-		ProjectSettings* m_currentProject  = nullptr;
-		ProjectSelector* m_projectSelector = nullptr;
-	};
-
-} // namespace Lina::Editor
+	void ProjectSettings::SaveToStream(OStream& out)
+	{
+		out << VERSION;
+		StringSerialization::SaveToStream(out, m_projectName);
+	}
+} // namespace Lina

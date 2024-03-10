@@ -31,6 +31,12 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Common/Platform/PlatformInclude.hpp"
 
+#ifdef LINA_PLATFORM_APPLE
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
+
 namespace Lina
 {
 	bool FileSystem::DeleteFileInPath(const String& path)
@@ -219,6 +225,24 @@ namespace Lina
 			}
 		}
 		return result.c_str();
+	}
+
+	String FileSystem::GetUserDataFolder()
+	{
+#ifdef LINA_PLATFORM_WINDOWS
+		char path[MAX_PATH];
+		if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, path)))
+		{
+			String pp = String(path);
+			return pp + "/LinaEngine/";
+		}
+		return std::string();
+#elif defined LINA_PLATFORM_APPLE
+		struct passwd* pw	= getpwuid(getuid());
+		String		   path = String(pw->pw_dir);
+		return path + "/Library/Application Support/LinaEngine/";
+#endif
+		return "";
 	}
 
 	bool FileSystem::FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem)

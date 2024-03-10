@@ -28,33 +28,29 @@ SOFTWARE.
 
 #pragma once
 
-#include "Meta/EditorSettings.hpp"
+#include "Common/Data/String.hpp"
 
 namespace Lina
 {
-	class ProjectSettings;
-	class Application;
-} // namespace Lina
+	class OStream;
+	class IStream;
 
-namespace Lina::Editor
-{
-	class SplashScreen;
-	class ProjectSelector;
-
-	class Editor
+	class Serializable
 	{
 	public:
-		void OnPreInitialize(Application* app);
-		void OnInitialize();
+		void SaveToFile();
+		void LoadFromFile();
 
-		void OpenProject(const String& basePath, const String& projectName);
-		void CloseCurrentProject();
+		virtual void SaveToStream(OStream& out)	 = 0;
+		virtual void LoadFromStream(IStream& in) = 0;
 
-	private:
-		Application*	 m_app			   = nullptr;
-		EditorSettings	 m_settings		   = {};
-		ProjectSettings* m_currentProject  = nullptr;
-		ProjectSelector* m_projectSelector = nullptr;
+		inline void SetPath(const String& path)
+		{
+			m_serializedPath = path;
+		}
+
+	protected:
+		String m_serializedPath = "";
 	};
 
-} // namespace Lina::Editor
+} // namespace Lina

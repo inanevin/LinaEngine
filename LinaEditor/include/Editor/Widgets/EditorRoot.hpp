@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 
 namespace Lina
 {
@@ -40,7 +41,7 @@ namespace Lina::Editor
 {
 	class WindowButtons;
 
-	class EditorRoot : public Widget
+	class EditorRoot : public Widget, public FileMenuListener
 	{
 	public:
 		EditorRoot()		  = default;
@@ -50,6 +51,7 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void OnPopupCreated(Popup* popup, StringID sid) override;
 
 	private:
 		Rect m_topRect = {};

@@ -28,33 +28,43 @@ SOFTWARE.
 
 #pragma once
 
-#include "Meta/EditorSettings.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Data/Vector.hpp"
 
 namespace Lina
 {
-	class ProjectSettings;
-	class Application;
-} // namespace Lina
+	class Button;
+}
 
 namespace Lina::Editor
 {
-	class SplashScreen;
-	class ProjectSelector;
-
-	class Editor
+	class VerticalIconTabs : public Widget
 	{
 	public:
-		void OnPreInitialize(Application* app);
-		void OnInitialize();
+		VerticalIconTabs()			= default;
+		virtual ~VerticalIconTabs() = default;
 
-		void OpenProject(const String& basePath, const String& projectName);
-		void CloseCurrentProject();
+		struct Properties
+		{
+			Delegate<void(int32 selected)> onSelectionChanged;
+			Vector<String>				   icons;
+			int32						   selected = -1;
+		};
+
+		virtual void Initialize() override;
+		virtual void Tick(float delta) override;
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
 	private:
-		Application*	 m_app			   = nullptr;
-		EditorSettings	 m_settings		   = {};
-		ProjectSettings* m_currentProject  = nullptr;
-		ProjectSelector* m_projectSelector = nullptr;
+		void SetButtonColors(Button* btn, bool isSelected);
+
+	private:
+		Properties		m_props = {};
+		Vector<Button*> m_buttons;
 	};
 
 } // namespace Lina::Editor

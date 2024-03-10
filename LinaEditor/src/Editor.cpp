@@ -28,10 +28,14 @@ SOFTWARE.
 
 #include "Editor/Editor.hpp"
 #include "Core/Application.hpp"
+#include "Core/Meta/ProjectSettings.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Serialization/Serialization.hpp"
+#include "Editor/Widgets/Popups/ProjectSelector.hpp"
 
 namespace Lina::Editor
 {
@@ -45,6 +49,21 @@ namespace Lina::Editor
 		SplashScreen* splash		= widgetManager.GetRoot()->Allocate<SplashScreen>();
 		splash->Initialize();
 		widgetManager.GetRoot()->AddChild(splash);
+
+		// Load editor settings.
+		const String userDataFolder = FileSystem::GetUserDataFolder();
+		const String settingsPath	= userDataFolder + "EditorSettings.linameta";
+		m_settings.SetPath(settingsPath);
+		if (!FileSystem::FileOrPathExists(userDataFolder))
+			FileSystem::CreateFolderInPath(userDataFolder);
+
+		if (FileSystem::FileOrPathExists(settingsPath))
+		{
+			m_settings.LoadFromFile();
+			OpenProject(m_settings.GetLastProjectPathBase(), m_settings.GetLastProjectName());
+		}
+		else
+			m_settings.SaveToFile();
 	}
 
 	void Editor::OnInitialize()
@@ -67,5 +86,26 @@ namespace Lina::Editor
 		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");
 		editorRoot->Initialize();
 		root->AddChild(editorRoot);
+
+		if (m_currentProject == nullptr)
+		{
+			m_projectSelector = root->Allocate<ProjectSelector>("ProjectSelector");
+			m_projectSelector->Initialize();
+			widgetManager.AddToForeground(m_projectSelector);
+			widgetManager.SetForegroundDim(0.5f);
+		}
+	}
+
+	void Editor::OpenProject(const String& basePath, const String& projectName)
+	{
+		const String projectFile = basePath + projectName + ".linaproject";
+		if (!FileSystem::FileOrPathExists(projectFile))
+			return;
+
+		LINA_ASSERT(m_currentProject == nullptr, "");
+
+		m_currentProject = new ProjectSettings();
+		m_currentProject->SetPath(projectFile);
+		m_currentProject->LoadFromFile();
 	}
 } // namespace Lina::Editor

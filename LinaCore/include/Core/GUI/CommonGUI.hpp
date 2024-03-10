@@ -83,6 +83,7 @@ namespace Lina
 
 	extern HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES;
 
-#define FOREGROUND_DRAW_ORDER 1000
+#define FOREGROUND_DRAW_ORDER 100
+#define DEBUG_DRAW_ORDER	  200
 
 } // namespace Lina

@@ -56,6 +56,7 @@ namespace Lina
 		static void			  ReadFileContentsToVector(const String& filePath, Vector<char>& vec);
 		static String		  GetRunningDirectory();
 		static String		  RemoveWhitespaces(const String& str);
+		static String		  GetUserDataFolder();
 
 		// File and folder
 		static bool	  FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem);

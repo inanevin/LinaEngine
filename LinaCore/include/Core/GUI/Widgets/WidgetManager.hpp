@@ -102,6 +102,11 @@ namespace Lina
 				return &m_clipStack[m_clipStack.size() - 1].rect;
 		}
 
+		inline void SetForegroundDim(float dim = 0.0f)
+		{
+			m_foregroundDim = dim;
+		}
+
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
@@ -112,10 +117,6 @@ namespace Lina
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		void FindHoveredRecursive(const Vector2& pos, Widget* w);
-		void ClearHoveredRecursive(Widget* w);
-		void ClearHoverStatus(Widget* w);
-
 		Widget* FindNextSelectable(Widget* start);
 		Widget* FindPreviousSelectable(Widget* start);
 
@@ -158,6 +159,7 @@ namespace Lina
 		Widget*							m_controlsOwner	  = nullptr;
 		Vector<ClipData>				m_clipStack;
 		float							m_debugDrawYOffset = 0.0f;
+		float							m_foregroundDim	   = 0.0f;
 	};
 
 } // namespace Lina

@@ -50,7 +50,7 @@ namespace Lina
 		m_rootWidget->SetDebugName("Root");
 
 		m_foregroundRoot = Allocate<Widget>();
-		m_foregroundRoot->SetDebugName("PopupRoot");
+		m_foregroundRoot->SetDebugName("ForegroundRoot");
 
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
@@ -65,7 +65,15 @@ namespace Lina
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
 	{
 		m_debugDrawYOffset = 0.0f;
+
+		for (auto* c : m_foregroundRoot->GetChildren())
+			c->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		m_foregroundRoot->SetPos(Vector2::Zero);
+		m_foregroundRoot->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
+		m_foregroundRoot->SetIsHovered();
 		m_foregroundRoot->Tick(delta);
+
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 		m_rootWidget->Tick(delta);
@@ -85,11 +93,18 @@ namespace Lina
 	{
 		m_rootWidget->Draw(threadIndex);
 
-		for (auto* c : m_foregroundRoot->GetChildren())
-			c->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		if (!m_foregroundRoot->GetChildren().empty())
+		{
+			LinaVG::StyleOptions opts;
+			opts.color = LinaVG::Vec4(0.0f, 0.0f, 0.0f, m_foregroundDim);
+			LinaVG::DrawRect(threadIndex, Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER - 1);
+			m_foregroundRoot->Draw(threadIndex);
+		}
 
-		m_foregroundRoot->Draw(threadIndex);
-		DebugDraw(threadIndex, m_rootWidget);
+		if (!m_foregroundRoot->GetChildren().empty())
+			DebugDraw(threadIndex, m_foregroundRoot);
+		else
+			DebugDraw(threadIndex, m_rootWidget);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -105,7 +120,10 @@ namespace Lina
 	void WidgetManager::Shutdown()
 	{
 		Deallocate(m_rootWidget);
-		m_rootWidget = nullptr;
+		Deallocate(m_foregroundRoot);
+		m_rootWidget	 = nullptr;
+		m_foregroundRoot = nullptr;
+
 		m_window->RemoveListener(this);
 
 		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](auto& pair) -> void { delete pair.second; });
@@ -211,6 +229,7 @@ namespace Lina
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
+
 		if (m_foregroundRoot->OnMouse(button, inputAction))
 			return;
 
@@ -246,22 +265,6 @@ namespace Lina
 	{
 	}
 
-	void WidgetManager::FindHoveredRecursive(const Vector2& pos, Widget* w)
-	{
-	}
-
-	void WidgetManager::ClearHoveredRecursive(Widget* w)
-	{
-	}
-
-	void WidgetManager::ClearHoverStatus(Widget* w)
-	{
-		if (w == nullptr)
-			return;
-
-		w->m_isHovered = false;
-	}
-
 	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
 		const bool drawRects = (m_window->GetInput()->GetMouseButton(LINAGX_MOUSE_1));
@@ -285,14 +288,14 @@ namespace Lina
 		if (w->m_isHovered)
 		{
 			const Vector2 sz = LinaVG::CalculateTextSize(w->GetDebugName().c_str(), textOpts);
-			LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, FOREGROUND_DRAW_ORDER);
+			LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 			const String rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
-			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + 15 + sz.x, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, FOREGROUND_DRAW_ORDER);
+			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + 15 + sz.x, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 			m_debugDrawYOffset += lvgFont->m_size * 1.5f;
 		}
 
 		if (drawRects)
-			w->DebugDraw(threadIndex, FOREGROUND_DRAW_ORDER);
+			w->DebugDraw(threadIndex, DEBUG_DRAW_ORDER);
 	}
 
 	void WidgetManager::SetClip(int32 threadIndex, const Rect& r, const TBLR& margins)

@@ -28,33 +28,20 @@ SOFTWARE.
 
 #pragma once
 
-#include "Meta/EditorSettings.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Serialization/Serializable.hpp"
 
 namespace Lina
 {
-	class ProjectSettings;
-	class Application;
-} // namespace Lina
-
-namespace Lina::Editor
-{
-	class SplashScreen;
-	class ProjectSelector;
-
-	class Editor
+	class ProjectSettings : public Serializable
 	{
 	public:
-		void OnPreInitialize(Application* app);
-		void OnInitialize();
-
-		void OpenProject(const String& basePath, const String& projectName);
-		void CloseCurrentProject();
+		static constexpr uint32 VERSION = 0;
+		virtual void			SaveToStream(OStream& out) override;
+		virtual void			LoadFromStream(IStream& in) override;
 
 	private:
-		Application*	 m_app			   = nullptr;
-		EditorSettings	 m_settings		   = {};
-		ProjectSettings* m_currentProject  = nullptr;
-		ProjectSelector* m_projectSelector = nullptr;
+		String m_projectName = "";
 	};
 
-} // namespace Lina::Editor
+} // namespace Lina

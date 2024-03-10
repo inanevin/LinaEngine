@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Widgets/Compound/WindowButtons.hpp"
 #include "Editor/CommonEditor.hpp"
-#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Editor/EditorLocale.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -54,6 +53,7 @@ namespace Lina::Editor
 		m_fm->GetProps().buttonProps.colorPressed	   = Theme::GetDef().background2;
 		m_fm->GetProps().buttonProps.colorHovered	   = Theme::GetDef().background3;
 		m_fm->GetProps().buttons					   = {Locale::GetStr(LocaleStr::File), Locale::GetStr(LocaleStr::Edit), Locale::GetStr(LocaleStr::View), Locale::GetStr(LocaleStr::Panels), Locale::GetStr(LocaleStr::About)};
+		m_fm->SetListener(this);
 		AddChild(m_fm);
 
 		// Window buttons
@@ -121,5 +121,9 @@ namespace Lina::Editor
 		}
 
 		return Widget::OnMouse(button, act);
+	}
+
+	void EditorRoot::OnPopupCreated(Popup* popup, StringID sid)
+	{
 	}
 } // namespace Lina::Editor

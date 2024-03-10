@@ -28,33 +28,26 @@ SOFTWARE.
 
 #pragma once
 
-#include "Meta/EditorSettings.hpp"
-
-namespace Lina
-{
-	class ProjectSettings;
-	class Application;
-} // namespace Lina
+#include "Core/GUI/Widgets/Widget.hpp"
 
 namespace Lina::Editor
 {
-	class SplashScreen;
-	class ProjectSelector;
+	class VerticalIconTabs;
 
-	class Editor
+	class ProjectSelector : public Widget
 	{
 	public:
-		void OnPreInitialize(Application* app);
-		void OnInitialize();
+		ProjectSelector()		   = default;
+		virtual ~ProjectSelector() = default;
 
-		void OpenProject(const String& basePath, const String& projectName);
-		void CloseCurrentProject();
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
-		Application*	 m_app			   = nullptr;
-		EditorSettings	 m_settings		   = {};
-		ProjectSettings* m_currentProject  = nullptr;
-		ProjectSelector* m_projectSelector = nullptr;
+		VerticalIconTabs* m_iconTabs	= nullptr;
+		Vector2			  m_monitorSize = Vector2::Zero;
 	};
 
 } // namespace Lina::Editor

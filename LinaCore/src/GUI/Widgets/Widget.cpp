@@ -123,15 +123,10 @@ namespace Lina
 	{
 		auto*		foregroundRoot	= m_manager->GetForegroundRoot();
 		const auto& foregroundItems = foregroundRoot->GetChildren();
-
-		// If any foreground item is hovered, any item with lower draw order don't get to be hovered.
-		for (auto* c : foregroundItems)
+		if (!foregroundItems.empty() && m_drawOrder < FOREGROUND_DRAW_ORDER)
 		{
-			if (c->GetDrawOrder() > m_drawOrder && c->GetIsHovered())
-			{
-				m_isHovered = false;
-				return;
-			}
+			m_isHovered = false;
+			return;
 		}
 
 		const Vector2& pos = m_lgxWindow->GetMousePosition();

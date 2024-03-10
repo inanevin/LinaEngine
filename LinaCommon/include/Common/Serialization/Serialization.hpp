@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Serialization_HPP
-#define Serialization_HPP
-
 namespace Lina
 {
 	class OStream;
@@ -44,5 +41,3 @@ namespace Lina
 	};
 
 } // namespace Lina
-
-#endif

@@ -19,11 +19,15 @@ project(LinaEditor)
 # Set sources
 #--------------------------------------------------------------------
 
-set(SOURCES 
+set(HEADERS
+
+# Core
 include/Editor/EditorApplicationDelegate.hpp
 include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
+
+# Widgets
 include/Editor/Widgets/Testbed.hpp
 include/Editor/Widgets/DockTestbed.hpp
 include/Editor/Widgets/EditorRoot.hpp
@@ -31,19 +35,27 @@ include/Editor/Widgets/Compound/ColorWheelCompound.hpp
 include/Editor/Widgets/Compound/Tab.hpp
 include/Editor/Widgets/Compound/TabRow.hpp
 include/Editor/Widgets/Compound/WindowButtons.hpp
+include/Editor/Widgets/Compound/VerticalIconTabs.hpp
 include/Editor/Widgets/Docking/DockArea.hpp
 include/Editor/Widgets/Docking/DockBorder.hpp
 include/Editor/Widgets/Docking/DockWidget.hpp
 include/Editor/Widgets/Docking/DockPreview.hpp
 include/Editor/Widgets/Screens/SplashScreen.hpp
+include/Editor/Widgets/Popups/ProjectSelector.hpp
 include/Editor/Widgets/Panel/Panel.hpp
+
+# Meta
+include/Editor/Meta/EditorSettings.hpp
 )
 
-set(HEADERS
+set(SOURCES
+# Core
 src/EditorApplicationDelegate.cpp
 src/CommonEditor.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
+
+# Widgets
 src/Widgets/Testbed.cpp
 src/Widgets/DockTestbed.cpp
 src/Widgets/EditorRoot.cpp
@@ -51,12 +63,17 @@ src/Widgets/Compound/ColorWheelCompound.cpp
 src/Widgets/Compound/TabRow.cpp
 src/Widgets/Compound/WindowButtons.cpp
 src/Widgets/Compound/Tab.cpp
+src/Widgets/Compound/VerticalIconTabs.cpp
 src/Widgets/Docking/DockWidget.cpp
 src/Widgets/Docking/DockBorder.cpp
 src/Widgets/Docking/DockArea.cpp
 src/Widgets/Docking/DockPreview.cpp
 src/Widgets/Screens/SplashScreen.cpp
+src/Widgets/Popups/ProjectSelector.cpp
 src/Widgets/Panel/Panel.cpp
+
+# Meta
+src/Meta/EditorSettings.cpp
 )
 
 #--------------------------------------------------------------------
