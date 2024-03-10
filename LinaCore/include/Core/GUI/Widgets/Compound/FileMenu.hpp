@@ -55,7 +55,6 @@ namespace Lina
 
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
 
 		inline Properties& GetProps()
 		{

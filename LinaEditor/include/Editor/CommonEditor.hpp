@@ -52,6 +52,7 @@ namespace Lina::Editor
 #define ICON_XMARK				 "\u0057"
 #define ICON_MINIMIZE			 "\u0058"
 #define ICON_MAXIMIZE			 "\u0059"
+#define ICON_RESTORE			 "\u0060"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

@@ -331,11 +331,6 @@ namespace Lina
 		{
 		}
 
-		// Frame init
-		m_lgx->StartFrame();
-
-		// WORLD RENDER
-
 		// Determine eligible surface renderers.
 		Vector<uint8>			 swapchains;
 		Vector<SurfaceRenderer*> validSurfaceRenderers;
@@ -350,6 +345,14 @@ namespace Lina
 			}
 			m_lgx->SetSwapchainActive(sr->GetSwapchain(), sr->IsVisible());
 		}
+
+		// WORLD RENDERERS
+
+		if (validSurfaceRenderers.empty())
+			return;
+
+		// Frame init
+		m_lgx->StartFrame();
 
 		// Start LinaVG for surface renderers.
 		LinaVG::StartFrame(static_cast<int>(validSurfaceRenderers.size()));

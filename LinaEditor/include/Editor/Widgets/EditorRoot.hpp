@@ -49,14 +49,16 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
-		Rect m_fileMenuRect = {};
+		Rect m_topRect = {};
 
 		Rect		   m_botRect	   = {};
 		FileMenu*	   m_fm			   = nullptr;
 		Icon*		   m_linaLogo	   = nullptr;
 		WindowButtons* m_windowButtons = nullptr;
+		Rect		   m_dragRect	   = {};
 	};
 
 } // namespace Lina::Editor

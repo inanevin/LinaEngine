@@ -61,7 +61,7 @@ namespace Lina::Editor
 		// Resize window to work dims.
 		auto* window = gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
-		window->SetSize(window->GetMonitorWorkSize());
+		window->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Insert editor root.
 		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");

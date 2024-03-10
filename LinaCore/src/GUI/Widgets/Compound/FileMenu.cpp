@@ -63,6 +63,8 @@ namespace Lina
 		const float padding = Theme::GetDef().baseIndentInner;
 
 		float x = m_rect.pos.x;
+		float w = 0.0f;
+
 		for (Button* btn : m_buttons)
 		{
 			btn->SetSizeX(padding * 2 + btn->GetText()->GetSizeX());
@@ -71,11 +73,9 @@ namespace Lina
 			btn->SetPosY(m_rect.pos.y);
 			btn->Tick(delta);
 			x += btn->GetSizeX();
+			w += btn->GetSizeX();
 		}
-	}
 
-	void FileMenu::Draw(int32 threadIndex)
-	{
-		Widget::Draw(threadIndex);
+		SetSizeX(w);
 	}
 } // namespace Lina

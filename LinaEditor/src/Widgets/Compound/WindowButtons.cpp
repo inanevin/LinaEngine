@@ -55,7 +55,7 @@ namespace Lina::Editor
 		min->GetProps().onClicked = [this]() { m_lgxWindow->Minimize(); };
 
 		max->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
-		max->GetText()->GetProps().text		 = ICON_MAXIMIZE;
+		max->GetText()->GetProps().text		 = m_lgxWindow->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
 		max->GetText()->GetProps().textScale = 0.5f;
 		max->GetProps().colorDefaultStart	 = Theme::GetDef().black;
 		max->GetProps().colorDefaultEnd		 = Theme::GetDef().black;
@@ -63,7 +63,15 @@ namespace Lina::Editor
 		max->GetProps().colorPressed		 = Theme::GetDef().background0;
 		max->GetProps().rounding			 = 0.0f;
 		max->GetProps().outlineThickness	 = 0.0f;
-		max->GetProps().onClicked			 = [this]() { m_lgxWindow->Maximize(); };
+		max->GetProps().onClicked			 = [this, max]() {
+			   if (m_lgxWindow->GetIsMaximized())
+				   m_lgxWindow->Restore();
+			   else
+				   m_lgxWindow->Maximize();
+
+			   max->GetText()->GetProps().text = m_lgxWindow->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
+			   max->GetText()->CalculateTextSize();
+		};
 
 		close->GetText()->GetProps().font	   = Theme::GetDef().iconFont;
 		close->GetText()->GetProps().text	   = ICON_XMARK;
