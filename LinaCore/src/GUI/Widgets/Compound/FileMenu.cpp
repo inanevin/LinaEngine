@@ -26,54 +26,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
 
 namespace Lina
 {
-	class Font;
-
-	class Text : public Widget
+	void FileMenu::Initialize()
 	{
-	public:
-		Text() : Widget(0, WF_OWNS_SIZE)
+		for (const auto& str : m_props.buttons)
 		{
+			Button*		   btn = Allocate<Button>("FileMenuButton");
+			const StringID sid = TO_SID(str);
+
+			btn->GetProps()			  = m_props.buttonProps;
+			btn->GetProps().onClicked = [sid, this, btn]() {
+				Popup* popup = Allocate<Popup>();
+				popup->SetPosX(btn->GetPosX());
+				popup->SetPosY(btn->GetRect().GetEnd().y);
+				m_manager->AddToForeground(popup);
+				if (m_listener)
+					m_listener->OnPopupCreated(popup, sid);
+			};
+
+			btn->GetText()->GetProps().text = str;
+			btn->Initialize();
+			AddChild(btn);
+			m_buttons.push_back(btn);
 		}
-		virtual ~Text() = default;
+	}
 
-		struct Properties
+	void FileMenu::Tick(float delta)
+	{
+		Widget::SetIsHovered();
+
+		const float padding = Theme::GetDef().baseIndentInner;
+
+		float x = m_rect.pos.x;
+		for (Button* btn : m_buttons)
 		{
-			String				  text		= "";
-			StringID			  font		= Theme::GetDef().defaultFont;
-			Color				  color		= Theme::GetDef().foreground0;
-			LinaVG::TextAlignment alignment = LinaVG::TextAlignment::Left;
-			float				  textScale = 1.0f;
-			bool				  isDynamic = false;
-		};
-
-		virtual void Initialize() override;
-		virtual void Draw(int32 threadIndex) override;
-
-		void CalculateTextSize();
-
-		inline Properties& GetProps()
-		{
-			return m_props;
+			btn->SetSizeX(padding * 2 + btn->GetText()->GetSizeX());
+			btn->SetSizeY(m_rect.size.y);
+			btn->SetPosX(x);
+			btn->SetPosY(m_rect.pos.y);
+			btn->Tick(delta);
+			x += btn->GetSizeX();
 		}
+	}
 
-		inline LinaVG::LinaVGFont* GetLVGFont()
-		{
-			return m_lvgFont;
-		}
-
-	private:
-		Properties			m_props				 = {};
-		float				m_calculatedDPIScale = 0.0f;
-		LinaVG::LinaVGFont* m_lvgFont			 = nullptr;
-		bool				m_isSDF				 = false;
-	};
-
+	void FileMenu::Draw(int32 threadIndex)
+	{
+		Widget::Draw(threadIndex);
+	}
 } // namespace Lina

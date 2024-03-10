@@ -69,7 +69,8 @@ layout (set = 2, binding = 2) uniform mediump texture2D guiTexture;
 // BufferType 3: Text
 // BufferType 4: SDF Text
 // BufferType 5: Horizontal hue
-// BufferType 6: Circular wheel hue
+// BufferType 6: Vertical hue
+// BufferType 7: Circular wheel hue
 
 vec3 hueSaturationToRGB(float hue, float saturation) {
     float angle = hue * 6.0;
@@ -185,6 +186,7 @@ void main()
 
       fragColor = vec4(hueSaturationToRGB(hue, saturation) * inCol.rgb, alpha);
    }
+
 }
 
 #lina_end

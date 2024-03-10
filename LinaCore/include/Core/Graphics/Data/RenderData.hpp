@@ -49,9 +49,8 @@ namespace Lina
 
 	struct GPUDataEngineGlobals
 	{
-		Vector2 mousePosition = Vector2::Zero;
-		float	deltaTime	  = 0.0f;
-		float	elapsedTime	  = 0.0f;
+		Vector4 mouseScreen;
+		Vector4 deltaElapsed;
 	};
 
 	struct GPUDataView

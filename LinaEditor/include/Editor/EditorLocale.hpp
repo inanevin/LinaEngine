@@ -36,6 +36,11 @@ namespace Lina::Editor
 	enum class LocaleStr
 	{
 		Hex,
+		File,
+		Edit,
+		View,
+		Panels,
+		About,
 	};
 
 	class Locale

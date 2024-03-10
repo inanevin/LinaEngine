@@ -32,6 +32,11 @@ namespace Lina::Editor
 {
 	HashMap<LocaleStr, String> Locale::s_englishMap = {
 		{LocaleStr::Hex, "Hex"},
+		{LocaleStr::File, "File"},
+		{LocaleStr::Edit, "Edit"},
+		{LocaleStr::View, "View"},
+		{LocaleStr::Panels, "Panels"},
+		{LocaleStr::About, "About"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

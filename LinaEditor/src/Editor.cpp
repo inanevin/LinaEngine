@@ -31,28 +31,41 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
-#include "Editor/Widgets/Testbed.hpp"
-#include "Editor/Widgets/DockTestbed.hpp"
+#include "Editor/Widgets/EditorRoot.hpp"
+
 namespace Lina::Editor
 {
 	void Editor::OnPreInitialize(Application* app)
 	{
-		m_app				= app;
-		auto* gfxManager	= m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto& widgetManager = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+		m_app = app;
 
-		// Testbed* tb = widgetManager.GetRoot()->Allocate<Testbed>();
-		// widgetManager.GetRoot()->AddChild(tb);
-
-		m_splashScreen = widgetManager.GetRoot()->Allocate<SplashScreen>();
-		widgetManager.GetRoot()->AddChild(m_splashScreen);
+		// Push splash
+		auto*		  gfxManager	= m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto&		  widgetManager = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+		SplashScreen* splash		= widgetManager.GetRoot()->Allocate<SplashScreen>();
+		splash->Initialize();
+		widgetManager.GetRoot()->AddChild(splash);
 	}
 
 	void Editor::OnInitialize()
 	{
-		// Widget* root = m_splashScreen->GetParent();
-		// root->RemoveChild(m_splashScreen);
-		// root->Deallocate(m_splashScreen);
-		// m_splashScreen = nullptr;
+		auto* gfxManager	= m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		auto& widgetManager = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+
+		// Remove splash
+		Widget* root   = widgetManager.GetRoot();
+		Widget* splash = root->GetChildren().at(0);
+		root->RemoveChild(splash);
+		root->Deallocate(splash);
+
+		// Resize window to work dims.
+		auto* window = gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
+		window->SetSize(window->GetMonitorWorkSize());
+
+		// Insert editor root.
+		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");
+		editorRoot->Initialize();
+		root->AddChild(editorRoot);
 	}
 } // namespace Lina::Editor

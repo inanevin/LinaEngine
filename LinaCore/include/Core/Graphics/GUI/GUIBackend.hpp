@@ -95,11 +95,11 @@ namespace Lina
 
 		virtual void				  Terminate() override;
 		virtual void				  StartFrame(int threadCount) override;
-		virtual void				  DrawDefault(LinaVG::DrawBuffer* buf, int thread) override;
-		virtual void				  DrawGradient(LinaVG::GradientDrawBuffer* buf, int thread) override;
-		virtual void				  DrawTextured(LinaVG::TextureDrawBuffer* buf, int thread) override;
-		virtual void				  DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int thread) override;
-		virtual void				  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int thread) override;
+		virtual void				  DrawDefault(LinaVG::DrawBuffer* buf, int threadIndex) override;
+		virtual void				  DrawGradient(LinaVG::GradientDrawBuffer* buf, int threadIndex) override;
+		virtual void				  DrawTextured(LinaVG::TextureDrawBuffer* buf, int threadIndex) override;
+		virtual void				  DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int threadIndex) override;
+		virtual void				  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int threadIndex) override;
 		virtual void				  EndFrame() override{};
 		virtual void				  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data) override;
 		virtual void				  BufferEnded() override;

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Theme.hpp"
 #include "Core/CommonCore.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 
 namespace Lina
 {
@@ -44,8 +45,8 @@ namespace Lina
 
 		return SystemInitializationInfo{
 			.appName			 = "Lina Editor",
-			.windowWidth		 = 1000,
-			.windowHeight		 = 1000,
+			.windowWidth		 = w,
+			.windowHeight		 = h,
 			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
 			.appListener		 = new Lina::Editor::EditorApplicationDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,
@@ -71,8 +72,9 @@ namespace Lina::Editor
 
 		Vector<ResourceIdentifier> resources;
 
-		// Core
+		// Priority
 		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, true, ResourceTag::Priority));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);

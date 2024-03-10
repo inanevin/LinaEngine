@@ -100,6 +100,7 @@ src/GUI/Widgets/Primitives/ColorSlider.cpp
 src/GUI/Widgets/Primitives/PopupItem.cpp
 src/GUI/Widgets/Primitives/ColorWheel.cpp
 src/GUI/Widgets/Compound/Popup.cpp
+src/GUI/Widgets/Compound/FileMenu.cpp
 )
 
 #--------------------------------------------------------------------
@@ -196,6 +197,7 @@ include/Core/GUI/Widgets/Primitives/ColorSlider.hpp
 include/Core/GUI/Widgets/Primitives/ColorWheel.hpp
 include/Core/GUI/Widgets/Primitives/PopupItem.hpp
 include/Core/GUI/Widgets/Compound/Popup.hpp
+include/Core/GUI/Widgets/Compound/FileMenu.hpp
 
 )
 

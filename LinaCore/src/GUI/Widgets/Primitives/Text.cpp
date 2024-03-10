@@ -45,20 +45,48 @@ namespace Lina
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
 
-		m_textOptions.color.start = m_textOptions.color.end = m_props.color.AsLVG4();
-		m_textOptions.textScale								= m_props.textScale;
-		m_textOptions.alignment								= m_props.alignment;
-		LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_textOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+		if (m_isSDF)
+		{
+			LinaVG::SDFTextOptions opts;
+			opts.font		 = m_lvgFont;
+			opts.textScale	 = m_props.textScale;
+			opts.alignment	 = m_props.alignment;
+			opts.color.start = opts.color.end = m_props.color.AsLVG4();
+			LinaVG::DrawTextSDF(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
+		}
+		else
+		{
+			LinaVG::TextOptions opts;
+			opts.font		 = m_lvgFont;
+			opts.textScale	 = m_props.textScale;
+			opts.alignment	 = m_props.alignment;
+			opts.color.start = opts.color.end = m_props.color.AsLVG4();
+			LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
+		}
 	}
 
 	void Text::CalculateTextSize()
 	{
-		auto*		font		= m_resourceManager->GetResource<Font>(m_props.font);
-		const float dpiScale	= m_lgxWindow->GetDPIScale();
-		m_lvgFont				= font->GetLinaVGFont(dpiScale);
-		m_calculatedDPIScale	= dpiScale;
-		m_textOptions.font		= m_lvgFont;
-		m_textOptions.textScale = m_props.textScale;
-		m_rect.size				= LinaVG::CalculateTextSize(m_props.text.c_str(), m_textOptions);
+		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
+		const float dpiScale = m_lgxWindow->GetDPIScale();
+		m_lvgFont			 = font->GetLinaVGFont(dpiScale);
+		m_calculatedDPIScale = dpiScale;
+
+		m_isSDF = m_lvgFont->m_isSDF;
+
+		if (m_isSDF)
+		{
+			LinaVG::SDFTextOptions opts;
+			opts.font	   = m_lvgFont;
+			opts.textScale = m_props.textScale;
+			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
+		}
+		else
+		{
+			LinaVG::TextOptions opts;
+			opts.font	   = m_lvgFont;
+			opts.textScale = m_props.textScale;
+			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
+		}
 	}
 } // namespace Lina

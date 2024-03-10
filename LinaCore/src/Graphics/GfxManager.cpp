@@ -287,14 +287,18 @@ namespace Lina
 	{
 		PROFILER_FUNCTION();
 
-		const uint32		 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
-		auto&				 currentFrame	   = m_pfd[currentFrameIndex];
-		const auto&			 mp				   = m_lgx->GetInput().GetMousePositionAbs();
-		GPUDataEngineGlobals globalData		   = {
-				   .mousePosition = Vector2(static_cast<float>(mp.x), static_cast<float>(mp.y)),
-				   .deltaTime	  = SystemInfo::GetDeltaTimeF(),
-				   .elapsedTime	  = SystemInfo::GetAppTimeF(),
-		   };
+		if (m_mainWindow == nullptr)
+			m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+
+		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
+		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
+		const auto&	 mp				   = m_lgx->GetInput().GetMousePositionAbs();
+		const auto&	 windowSize		   = m_mainWindow->GetSize();
+
+		GPUDataEngineGlobals globalData = {};
+		globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
+		globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
+
 		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUDataEngineGlobals));
 
 		if (m_surfaceRenderers.size() == 1)

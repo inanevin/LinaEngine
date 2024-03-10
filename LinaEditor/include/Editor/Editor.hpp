@@ -44,8 +44,7 @@ namespace Lina::Editor
 		void OnInitialize();
 
 	private:
-		SplashScreen* m_splashScreen = nullptr;
-		Application*  m_app			 = nullptr;
+		Application* m_app = nullptr;
 	};
 
 } // namespace Lina::Editor

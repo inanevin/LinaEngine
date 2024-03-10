@@ -50,6 +50,7 @@ namespace Lina
 		struct ThemeDef
 		{
 			// Darkest
+			Color black		  = Color(0.00202f, 0.00202f, 0.00396f, 1.0f);
 			Color background0 = Color(0.00702f, 0.00702f, 0.00896f, 1.0f);
 			Color background1 = Color(0.00972f, 0.00913f, 0.01229f, 1.0f);
 			Color background2 = Color(0.01681f, 0.01681f, 0.02122f, 1.0f);

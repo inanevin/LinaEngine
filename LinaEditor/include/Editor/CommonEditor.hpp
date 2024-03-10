@@ -30,7 +30,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
 #define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
 #define ICON_FONT_SID  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 
@@ -51,6 +50,8 @@ namespace Lina::Editor
 #define ICON_ROUND_SQUARE_FILLED "\u0055"
 #define ICON_NOT_ALLOWED		 "\u0056"
 #define ICON_XMARK				 "\u0057"
+#define ICON_MINIMIZE			 "\u0058"
+#define ICON_MAXIMIZE			 "\u0059"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

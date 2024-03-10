@@ -29,51 +29,34 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Event/SystemEventListener.hpp"
 
 namespace Lina
 {
 	class Icon;
-	class Texture;
-	class Text;
-	class DirectionalLayout;
-}; // namespace Lina
+	class FileMenu;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class SplashScreen : public Widget, public SystemEventListener
+	class WindowButtons;
+
+	class EditorRoot : public Widget
 	{
 	public:
-		SplashScreen()			= default;
-		virtual ~SplashScreen() = default;
-
-		static constexpr float BAR_INTERP_SPEED = 12.0f;
+		EditorRoot()		  = default;
+		virtual ~EditorRoot() = default;
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return EVS_ResourceLoaded;
-		}
-
-		virtual void OnSystemEvent(SystemEvent event, const Event& data) override;
-
 	private:
-		Texture* m_splashImage		   = nullptr;
-		Text*	 m_versionText		   = nullptr;
-		Text*	 m_infoText1		   = nullptr;
-		Text*	 m_infoText2		   = nullptr;
-		Text*	 m_loadingInfo		   = nullptr;
-		Vector2	 m_logoTextureSize	   = Vector2::Zero;
-		Vector2	 m_logoCenter		   = Vector2::Zero;
-		Vector2	 m_logoDrawSize		   = Vector2::Zero;
-		uint32	 m_totalResourceSize   = 0;
-		uint32	 m_loadedResourceCount = 0;
-		float	 m_progress			   = 0.0f;
-		float	 m_loadingBarHeight	   = 0.0f;
+		Rect m_fileMenuRect = {};
+
+		Rect		   m_botRect	   = {};
+		FileMenu*	   m_fm			   = nullptr;
+		Icon*		   m_linaLogo	   = nullptr;
+		WindowButtons* m_windowButtons = nullptr;
 	};
 
 } // namespace Lina::Editor

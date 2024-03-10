@@ -131,6 +131,7 @@ namespace Lina
 		LinaGX::Instance*		 m_lgx			= nullptr;
 		LinaGX::VSyncStyle		 m_currentVsync = {};
 		ApplicationDelegate*	 m_appDelegate	= nullptr;
+		LinaGX::Window*			 m_mainWindow	= nullptr;
 
 		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};

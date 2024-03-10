@@ -28,8 +28,11 @@ SOFTWARE.
 
 layout(set = 0, binding = 0) uniform GlobalData
 {
-	vec2 mousePosition;
-	float deltaTime;
-	float elapsedTime;
-	vec2 screenSize;
+	vec4 mouseScreen;
+	vec4 deltaElapsed;
 } LINA_GLOBAL;
+
+#define LINA_MOUSE_POS LINA_GLOBAL.mouseScreen.xy
+#define LINA_SCREEN_RES LINA_GLOBAL.mouseScreen.zw
+#define LINA_DT LINA_GLOBAL.deltaElapsed.x
+#define LINA_ET LINA_GLOBAL.deltaElapsed.y

@@ -266,4 +266,14 @@ namespace Lina
 			m_allLevels.clear();
 		});
 	}
+
+	Vector2ui Texture::GetSize()
+	{
+		return Vector2ui(m_allLevels[0].width, m_allLevels[0].height);
+	}
+
+	Vector2 Texture::GetSizeF()
+	{
+		return Vector2(static_cast<float>(m_allLevels[0].width), static_cast<float>(m_allLevels[0].height));
+	}
 } // namespace Lina
