@@ -33,11 +33,11 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void IconTabs::Construct()
-    {
-        m_layout = Allocate<DirectionalLayout>("DirectionalLayout");
-        AddChild(m_layout);
-    }
+	void IconTabs::Construct()
+	{
+		m_layout = Allocate<DirectionalLayout>("DirectionalLayout");
+		AddChild(m_layout);
+	}
 
 	void IconTabs::Initialize()
 	{
@@ -60,11 +60,11 @@ namespace Lina::Editor
 			};
 
 			btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
-            btn->GetText()->GetProps().textScale = m_props.iconScale;
+			btn->GetText()->GetProps().textScale = m_props.iconScale;
 			btn->GetText()->GetProps().text		 = ic;
 			btn->GetProps().outlineThickness	 = 0.0f;
 			btn->GetProps().rounding			 = 0.0f;
-            btn->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+			btn->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 
 			btn->Initialize();
 			m_layout->AddChild(btn);
@@ -75,10 +75,10 @@ namespace Lina::Editor
 	void IconTabs::Tick(float delta)
 	{
 		Widget::SetIsHovered();
-        m_layout->SetDrawOrder(m_drawOrder);
-        m_layout->SetPos(GetPos());
-        m_layout->SetSize(GetSize());
-        m_layout->Tick(delta);
+		m_layout->SetDrawOrder(m_drawOrder);
+		m_layout->SetPos(GetPos());
+		m_layout->SetSize(GetSize());
+		m_layout->Tick(delta);
 	}
 
 	void IconTabs::SetButtonColors(Button* btn, bool isSelected)

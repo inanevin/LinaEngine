@@ -72,7 +72,7 @@ namespace Lina
 		WF_ALIGN_NEGATIVE	 = 1 << 4,
 		WF_ALIGN_POSITIVE	 = 1 << 5,
 		WF_SELECTABLE		 = 1 << 6,
-        WF_CUSTOM_POS_ALIGN = 1 << 7,
+		WF_CUSTOM_POS_ALIGN	 = 1 << 7,
 	};
 
 	enum class ColorDisplay
