@@ -34,23 +34,26 @@ SOFTWARE.
 namespace Lina
 {
 	class Button;
-}
+	class DirectionalLayout;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class VerticalIconTabs : public Widget
+	class IconTabs : public Widget
 	{
 	public:
-		VerticalIconTabs()			= default;
-		virtual ~VerticalIconTabs() = default;
+		IconTabs()			= default;
+		virtual ~IconTabs() = default;
 
 		struct Properties
 		{
 			Delegate<void(int32 selected)> onSelectionChanged;
 			Vector<String>				   icons;
-			int32						   selected = -1;
+			int32						   selected	 = -1;
+			float						   iconScale = 0.5f;
 		};
 
+		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 
@@ -59,12 +62,17 @@ namespace Lina::Editor
 			return m_props;
 		}
 
+		inline DirectionalLayout* GetLayout()
+		{
+			return m_layout;
+		}
+
 	private:
 		void SetButtonColors(Button* btn, bool isSelected);
 
 	private:
-		Properties		m_props = {};
-		Vector<Button*> m_buttons;
+		DirectionalLayout* m_layout = nullptr;
+		Properties		   m_props	= {};
 	};
 
 } // namespace Lina::Editor

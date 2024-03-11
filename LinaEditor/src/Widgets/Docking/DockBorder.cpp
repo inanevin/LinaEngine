@@ -37,17 +37,17 @@ namespace Lina::Editor
 {
 #define BORDER_COLOR Theme::GetDef().background0
 
+	LinaGX::CursorType DockBorder::GetCursorOverride()
+	{
+		if (m_isHovered)
+			return m_orientation == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeVertical : LinaGX::CursorType::SizeHorizontal;
+
+		return LinaGX::CursorType::Default;
+	}
+
 	void DockBorder::PreTick()
 	{
 		Widget::SetIsHovered();
-
-		if (m_isHovered)
-		{
-			if (m_orientation == DirectionOrientation::Horizontal)
-				m_lgxWindow->SetCursorType(LinaGX::CursorType::SizeVertical);
-			else
-				m_lgxWindow->SetCursorType(LinaGX::CursorType::SizeHorizontal);
-		}
 
 		if (m_isPressed)
 		{

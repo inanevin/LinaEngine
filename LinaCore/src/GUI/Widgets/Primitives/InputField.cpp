@@ -40,6 +40,23 @@ namespace Lina
 
 #define CARET_ALPHA_SPEED 8.0f
 
+	LinaGX::CursorType InputField::GetCursorOverride()
+	{
+		// Cursor status.
+		if (m_isHovered)
+		{
+			if (m_props.isNumberField && !m_props.disableNumberSlider)
+			{
+				if (m_isEditing)
+					return LinaGX::CursorType::Caret;
+			}
+			else
+				return LinaGX::CursorType::Caret;
+		}
+
+		return LinaGX::CursorType::Default;
+	}
+
 	void InputField::Construct()
 	{
 		m_text						 = Allocate<Text>("InputFieldText");
@@ -56,18 +73,6 @@ namespace Lina
 		if (!hasControls && m_isEditing)
 		{
 			EndEditing();
-		}
-
-		// Cursor status.
-		if (m_isHovered)
-		{
-			if (m_props.isNumberField && !m_props.disableNumberSlider)
-			{
-				if (m_isEditing)
-					m_lgxWindow->SetCursorType(LinaGX::CursorType::Caret);
-			}
-			else
-				m_lgxWindow->SetCursorType(LinaGX::CursorType::Caret);
 		}
 
 		// Number field slider movement.

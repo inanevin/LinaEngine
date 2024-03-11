@@ -26,13 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/Compound/VerticalIconTabs.hpp"
+#include "Editor/Widgets/Compound/IconTabs.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina::Editor
 {
-	void VerticalIconTabs::Initialize()
+    void IconTabs::Construct()
+    {
+        m_layout = Allocate<DirectionalLayout>("DirectionalLayout");
+        AddChild(m_layout);
+    }
+
+	void IconTabs::Initialize()
 	{
 		int32 idx = 0;
 
@@ -43,9 +50,9 @@ namespace Lina::Editor
 			btn->GetProps().onClicked = [this, idx]() {
 				// Set colors.
 				if (m_props.selected != -1)
-					SetButtonColors(m_buttons[m_props.selected], false);
+					SetButtonColors(static_cast<Button*>(m_layout->GetChildren()[m_props.selected]), false);
 				m_props.selected = idx;
-				SetButtonColors(m_buttons[m_props.selected], true);
+				SetButtonColors(static_cast<Button*>(m_layout->GetChildren()[m_props.selected]), true);
 
 				// Cb
 				if (m_props.onSelectionChanged)
@@ -53,38 +60,28 @@ namespace Lina::Editor
 			};
 
 			btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
-			btn->GetText()->GetProps().textScale = 0.5f;
+            btn->GetText()->GetProps().textScale = m_props.iconScale;
 			btn->GetText()->GetProps().text		 = ic;
 			btn->GetProps().outlineThickness	 = 0.0f;
 			btn->GetProps().rounding			 = 0.0f;
+            btn->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
 
 			btn->Initialize();
-			m_buttons.push_back(btn);
-			AddChild(btn);
+			m_layout->AddChild(btn);
 			idx++;
 		}
 	}
 
-	void VerticalIconTabs::Tick(float delta)
+	void IconTabs::Tick(float delta)
 	{
 		Widget::SetIsHovered();
-
-		const float width  = m_rect.size.x;
-		const float height = m_rect.size.y / static_cast<float>(m_buttons.size());
-
-		float y = m_rect.pos.y;
-
-		for (auto* c : m_buttons)
-		{
-			c->SetDrawOrder(m_drawOrder);
-			c->SetSize(Vector2(width, height));
-			c->SetPos(Vector2(m_rect.pos.x, y));
-			c->Tick(delta);
-			y += c->GetSizeY();
-		}
+        m_layout->SetDrawOrder(m_drawOrder);
+        m_layout->SetPos(GetPos());
+        m_layout->SetSize(GetSize());
+        m_layout->Tick(delta);
 	}
 
-	void VerticalIconTabs::SetButtonColors(Button* btn, bool isSelected)
+	void IconTabs::SetButtonColors(Button* btn, bool isSelected)
 	{
 		btn->GetProps().colorDefaultStart = isSelected ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background1;
 		btn->GetProps().colorDefaultEnd	  = isSelected ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background1;

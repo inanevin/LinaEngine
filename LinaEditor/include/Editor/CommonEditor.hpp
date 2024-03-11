@@ -53,6 +53,10 @@ namespace Lina::Editor
 #define ICON_MINIMIZE			 "\u0058"
 #define ICON_MAXIMIZE			 "\u0059"
 #define ICON_RESTORE			 "\u0060"
+#define ICON_FOLDER_CLOSED		 "\u0061"
+#define ICON_FOLDER				 "\u0062"
+#define ICON_FOLDER_OPEN		 "\u0063"
+#define ICON_FOLDER_PLUS		 "\u0064"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

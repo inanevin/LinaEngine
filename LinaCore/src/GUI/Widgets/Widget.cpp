@@ -121,6 +121,7 @@ namespace Lina
 
 	void Widget::SetIsHovered()
 	{
+
 		auto*		foregroundRoot	= m_manager->GetForegroundRoot();
 		const auto& foregroundItems = foregroundRoot->GetChildren();
 		if (!foregroundItems.empty() && m_drawOrder < FOREGROUND_DRAW_ORDER)

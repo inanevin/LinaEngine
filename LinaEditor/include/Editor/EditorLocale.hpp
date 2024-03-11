@@ -41,6 +41,11 @@ namespace Lina::Editor
 		View,
 		Panels,
 		About,
+		Create,
+		Open,
+		Cancel,
+		Name,
+		Location,
 	};
 
 	class Locale

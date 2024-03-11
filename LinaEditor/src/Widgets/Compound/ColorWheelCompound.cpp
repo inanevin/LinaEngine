@@ -146,10 +146,14 @@ namespace Lina::Editor
 		m_topSlidersRow									 = Allocate<DirectionalLayout>("TopSlidersRow");
 		m_topSlidersRow->GetProps().direction			 = DirectionOrientation::Horizontal;
 		m_topSlidersRow->GetProps().margins				 = TBLR::Eq(Theme::GetDef().baseIndent * 2.0f);
-		m_topSlidersRow->GetProps().mode				 = DirectionalLayout::Mode::CustomAlignment;
-		m_topSlidersRow->GetProps().customAlignments	 = {0.0f, 0.5f, 1.0f};
 		m_topSlidersRow->GetProps().borderThickness.left = Theme::GetDef().baseOutlineThickness;
 		m_topSlidersRow->GetFlags().Set(WF_EXPAND_MAIN_AXIS | WF_EXPAND_CROSS_AXIS);
+		m_hueComponent.layout->GetFlags().Set(WF_CUSTOM_POS_ALIGN);
+		m_hueComponent.layout->SetUserDataFloat(0.0f);
+		m_saturationComponent.layout->GetFlags().Set(WF_CUSTOM_POS_ALIGN);
+		m_saturationComponent.layout->SetUserDataFloat(0.5f);
+		m_valueComponent.layout->GetFlags().Set(WF_CUSTOM_POS_ALIGN);
+		m_valueComponent.layout->SetUserDataFloat(1.0f);
 		m_topSlidersRow->AddChild(m_hueComponent.layout, m_saturationComponent.layout, m_valueComponent.layout);
 
 		// Top row
@@ -215,11 +219,13 @@ namespace Lina::Editor
 			Recalculate(true);
 		};
 
-		m_dropdownAndColorsRow								= Allocate<DirectionalLayout>("DropdownAndColorsRow");
-		m_dropdownAndColorsRow->GetProps().direction		= DirectionOrientation::Horizontal;
-		m_dropdownAndColorsRow->GetProps().customAlignments = {0.0f, 1.0f};
-		m_dropdownAndColorsRow->GetProps().mode				= DirectionalLayout::Mode::CustomAlignment;
+		m_dropdownAndColorsRow						 = Allocate<DirectionalLayout>("DropdownAndColorsRow");
+		m_dropdownAndColorsRow->GetProps().direction = DirectionOrientation::Horizontal;
 		m_dropdownAndColorsRow->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		m_displayDropdown->GetFlags().Set(WF_CUSTOM_POS_ALIGN);
+		m_displayDropdown->SetUserDataFloat(0.0f);
+		m_colorsLayout->GetFlags().Set(WF_CUSTOM_POS_ALIGN);
+		m_colorsLayout->SetUserDataFloat(1.0f);
 		m_dropdownAndColorsRow->AddChild(m_displayDropdown, m_colorsLayout);
 
 		m_bottomRow->AddChild(m_hexField, m_dropdownAndColorsRow, m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);

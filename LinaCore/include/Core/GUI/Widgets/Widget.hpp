@@ -63,12 +63,16 @@ namespace Lina
 		virtual void RemoveChild(Widget* w);
 		void		 SetIsHovered();
 
-		virtual void Construct(){};
-		virtual void Destruct(){};
-		virtual void Initialize();
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
-		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
+		virtual void			   Construct(){};
+		virtual void			   Destruct(){};
+		virtual void			   Initialize();
+		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction action);
+		virtual bool			   OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
+		virtual void			   DebugDraw(int32 threadIndex, int32 drawOrder);
+		virtual LinaGX::CursorType GetCursorOverride()
+		{
+			return LinaGX::CursorType::Default;
+		}
 
 		template <typename T> T* Allocate(const String& dbgName = "Widget")
 		{
@@ -237,6 +241,16 @@ namespace Lina
 			return m_isPressed;
 		}
 
+		inline float GetUserDataFloat() const
+		{
+			return m_userDataFloat;
+		}
+
+		inline void SetUserDataFloat(float f)
+		{
+			m_userDataFloat = f;
+		}
+
 	protected:
 		friend class WidgetManager;
 
@@ -262,6 +276,7 @@ namespace Lina
 		Widget*			 m_next			   = nullptr;
 		Widget*			 m_prev			   = nullptr;
 		String			 m_displayName	   = "Widget";
+		float			 m_userDataFloat   = 0.0f;
 	};
 
 } // namespace Lina

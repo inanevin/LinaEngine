@@ -37,6 +37,11 @@ namespace Lina::Editor
 		{LocaleStr::View, "View"},
 		{LocaleStr::Panels, "Panels"},
 		{LocaleStr::About, "About"},
+		{LocaleStr::Create, "Create"},
+		{LocaleStr::Open, "Open"},
+		{LocaleStr::Cancel, "Cancel"},
+		{LocaleStr::Name, "Name"},
+		{LocaleStr::Location, "Location"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

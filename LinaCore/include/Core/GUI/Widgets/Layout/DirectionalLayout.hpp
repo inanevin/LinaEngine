@@ -45,13 +45,11 @@ namespace Lina
 			Default,
 			EqualPositions,
 			EqualSizes,
-			CustomAlignment,
 		};
 
 		struct Properties
 		{
-			Vector<float>		 customAlignments = {};
-			TBLR				 margins		  = {};
+			TBLR				 margins = {};
 			TBLR				 borderThickness;
 			DirectionOrientation direction		 = DirectionOrientation::Horizontal;
 			Mode				 mode			 = Mode::Default;
@@ -79,10 +77,10 @@ namespace Lina
 		void BehaviourDefault(float delta);
 		void BehaviourEqualPositions(float delta);
 		void BehaviourEqualSizes(float delta);
-		void BehaviourCustomAlignment(float delta);
 
 		void ExpandWidgetInCrossAxis(Widget* w);
 		void AlignWidgetInCrossAxis(Widget* w);
+		void CheckCustomAlignment(Widget* w);
 
 	private:
 		Properties m_props	= {};

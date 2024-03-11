@@ -27,18 +27,58 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
-#include "Editor/Widgets/Compound/VerticalIconTabs.hpp"
+#include "Editor/Widgets/Compound/IconTabs.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/EditorLocale.hpp"
 
 namespace Lina::Editor
 {
 	void ProjectSelector::Construct()
 	{
-		m_iconTabs						= Allocate<VerticalIconTabs>("VerticalIconTabs");
-		m_iconTabs->GetProps().icons	= {ICON_CHECK, ICON_CHECK};
-		m_iconTabs->GetProps().selected = 0;
+		m_iconTabs												  = Allocate<IconTabs>("VerticalIconTabs");
+		m_iconTabs->GetProps().icons							  = {ICON_FOLDER_PLUS, ICON_FOLDER_OPEN};
+		m_iconTabs->GetProps().iconScale						  = 1.0f;
+		m_iconTabs->GetProps().selected							  = 0;
+		m_iconTabs->GetLayout()->GetProps().mode				  = DirectionalLayout::Mode::EqualSizes;
+		m_iconTabs->GetLayout()->GetProps().direction			  = DirectionOrientation::Vertical;
+		m_iconTabs->GetLayout()->GetProps().borderThickness.right = Theme::GetDef().baseOutlineThickness;
+		m_iconTabs->GetLayout()->GetProps().colorBorder			  = Theme::GetDef().background0;
 		AddChild(m_iconTabs);
+
+		// DirectionalLayout* inputFieldAndButton = Allocate<DirectionalLayout>("InputFieldAndButton");
+		//
+		// Inputfield* locationField = Allocate<InputField>("LocationField");
+		// locationField->GetFlags().Set(WF_EXPAND_MAIN_AXIS);
+		// locationField->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		//
+		// Button* locationButton = Allocate<Button>("LocationButton");
+		// locationButton->GetText()->GetProps().font = Theme::GetDef().iconFont;
+		// locationButton->GetText()->GetProps().text = ICON_FOLDER_OPEN;
+		// locationButton->GetText()->GetProps().textScale = 0.5f;
+		// locationButton->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		// inputFieldAndButton->AddChild(locationField, locationButton);
+		//
+		// m_rowLocation = Allocate<DirectionalLayout>("RowLocation");
+		// m_rowLocation->AddChild(inputFieldAndButton);
+		// AddChild(m_rowLocation);
+
+		m_contentLayout						  = Allocate<DirectionalLayout>("ContentLayout");
+		m_contentLayout->GetProps().direction = DirectionOrientation::Vertical;
+		AddChild(m_contentLayout);
+
+		// sm_btnCreate = Allocate<Button>("BtnCreate");
+		// sm_btnCreate->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Create);
+		// s
+		// sm_btnCancel = Allocate<Button>("BtnCancel");
+		// sm_btnCancel->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Cancel);
+		// s
+		// sm_btnOpen = Allocate<Button>("BtnOpen");
+		// sm_btnOpen->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Open);
 
 		m_monitorSize = Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y));
 	}
@@ -49,11 +89,20 @@ namespace Lina::Editor
 		SetPos(Vector2(static_cast<float>(m_lgxWindow->GetSize().x) * 0.5f - GetHalfSizeX(), static_cast<float>(m_lgxWindow->GetSize().y) * 0.5f - GetHalfSizeY()));
 		Widget::SetIsHovered();
 
-		m_iconTabs->SetDrawOrder(m_drawOrder + 1);
+		const float tabsSize   = GetSizeX() * 0.1f;
+		const float indent	   = Theme::GetDef().baseIndent;
+		const float itemHeight = Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale());
+
+		m_iconTabs->SetDrawOrder(m_drawOrder);
 		m_iconTabs->SetPos(m_rect.pos);
-		m_iconTabs->SetSizeX(GetSizeX() * 0.1f);
+		m_iconTabs->SetSizeX(tabsSize);
 		m_iconTabs->SetSizeY(GetSizeY());
-		m_iconTabs->Tick(delta);
+
+		m_contentLayout->SetDrawOrder(m_drawOrder);
+		m_contentLayout->SetPos(Vector2(GetPosX() + tabsSize + indent, GetPosY() + indent));
+		m_contentLayout->SetSize(Vector2(GetSizeX() - tabsSize - indent * 2.0f, GetSizeY() - indent * 2.0f));
+
+		Widget::Tick(delta);
 	}
 
 	void ProjectSelector::Draw(int32 threadIndex)
@@ -62,11 +111,12 @@ namespace Lina::Editor
 		opts.color = Theme::GetDef().background1.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		m_iconTabs->Draw(threadIndex);
+		Widget::Draw(threadIndex);
 	}
 
 	bool ProjectSelector::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
+		Widget::OnMouse(button, act);
 		return true;
 	}
 } // namespace Lina::Editor

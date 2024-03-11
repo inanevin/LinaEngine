@@ -43,9 +43,10 @@ namespace Lina::Editor
 
 		static constexpr float BORDER_THICKNESS = 4.0f;
 
-		virtual void PreTick() override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void			   PreTick() override;
+		virtual void			   Draw(int32 threadIndex) override;
+		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual LinaGX::CursorType GetCursorOverride() override;
 
 	private:
 		bool CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX);

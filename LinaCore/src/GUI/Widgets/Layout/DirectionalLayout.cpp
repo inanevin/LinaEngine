@@ -36,6 +36,9 @@ namespace Lina
 {
 	void DirectionalLayout::Tick(float delta)
 	{
+		for (auto* c : m_children)
+			c->SetDrawOrder(m_drawOrder);
+
 		// Fetch size from children if empty.
 		if (m_props.direction == DirectionOrientation::Horizontal && Math::Equals(m_rect.size.x, 0.0f, 0.1f))
 		{
@@ -80,8 +83,6 @@ namespace Lina
 			BehaviourEqualPositions(delta);
 		else if (m_props.mode == Mode::EqualSizes)
 			BehaviourEqualSizes(delta);
-		else if (m_props.mode == Mode::CustomAlignment)
-			BehaviourCustomAlignment(delta);
 	}
 
 	void DirectionalLayout::BehaviourEqualSizes(float delta)
@@ -106,6 +107,7 @@ namespace Lina
 				c->SetPosY(pos);
 			}
 
+			CheckCustomAlignment(c);
 			ExpandWidgetInCrossAxis(c);
 			AlignWidgetInCrossAxis(c);
 
@@ -114,27 +116,22 @@ namespace Lina
 		}
 	}
 
-	void DirectionalLayout::BehaviourCustomAlignment(float delta)
+	void DirectionalLayout::CheckCustomAlignment(Widget* w)
 	{
-		int32 i = 0;
-		for (auto* c : m_children)
+		if (!w->GetFlags().IsSet(WF_CUSTOM_POS_ALIGN))
+			return;
+
+		const float alignment = w->GetUserDataFloat();
+
+		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
-
-			if (m_props.direction == DirectionOrientation::Horizontal)
-			{
-				float target = Math::Clamp(m_start.x + m_sz.x * m_props.customAlignments[i] - c->GetHalfSizeX(), m_start.x, m_end.x - c->GetSizeX());
-				c->SetPosX(target);
-			}
-			else if (m_props.direction == DirectionOrientation::Vertical)
-			{
-				float target = Math::Clamp(m_start.y + m_sz.y * m_props.customAlignments[i] - c->GetHalfSizeY(), m_start.y, m_end.y - c->GetSizeY());
-				c->SetPosY(target);
-			}
-
-			ExpandWidgetInCrossAxis(c);
-			AlignWidgetInCrossAxis(c);
-			c->Tick(delta);
-			i++;
+			float target = Math::Clamp(m_start.x + m_sz.x * alignment - w->GetHalfSizeX(), m_start.x, m_end.x - w->GetSizeX());
+			w->SetPosX(target);
+		}
+		else if (m_props.direction == DirectionOrientation::Vertical)
+		{
+			float target = Math::Clamp(m_start.y + m_sz.y * alignment - w->GetHalfSizeY(), m_start.y, m_end.y - w->GetSizeY());
+			w->SetPosY(target);
 		}
 	}
 
@@ -187,6 +184,8 @@ namespace Lina
 				ExpandWidgetInCrossAxis(c);
 				y += pad + c->GetSize().y;
 			}
+
+			CheckCustomAlignment(c);
 		}
 	}
 
@@ -271,6 +270,8 @@ namespace Lina
 				else
 					incrementSize = c->GetSize().y;
 			}
+
+			CheckCustomAlignment(c);
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
 				x += incrementSize + (lastItem ? 0.0f : m_props.padding);

@@ -41,6 +41,30 @@ SOFTWARE.
 
 namespace Lina
 {
+
+	namespace
+	{
+		LinaGX::CursorType FindCursorType(Widget* w)
+		{
+			const LinaGX::CursorType cursorType = w->GetCursorOverride();
+			if (cursorType != LinaGX::CursorType::Default)
+			{
+				return cursorType;
+			}
+
+			const Vector<Widget*> children = w->GetChildren();
+			for (Widget* c : children)
+			{
+				LinaGX::CursorType childCursorType = FindCursorType(c);
+				if (childCursorType != LinaGX::CursorType::Default)
+				{
+					return childCursorType;
+				}
+			}
+			return LinaGX::CursorType::Default;
+		}
+	} // namespace
+
 	void WidgetManager::Initialize(System* system, LinaGX::Window* window)
 	{
 		m_window = window;
@@ -57,7 +81,11 @@ namespace Lina
 
 	void WidgetManager::PreTick()
 	{
-		m_window->SetCursorType(LinaGX::CursorType::Default);
+		if (m_foregroundRoot->GetChildren().empty())
+			m_window->SetCursorType(FindCursorType(m_rootWidget));
+		else
+			m_window->SetCursorType(FindCursorType(m_foregroundRoot));
+
 		m_foregroundRoot->PreTick();
 		m_rootWidget->PreTick();
 	}

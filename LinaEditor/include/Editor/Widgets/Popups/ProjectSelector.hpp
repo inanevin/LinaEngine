@@ -30,9 +30,15 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 
+namespace Lina
+{
+	class Button;
+	class DirectionalLayout;
+} // namespace Lina
+
 namespace Lina::Editor
 {
-	class VerticalIconTabs;
+	class IconTabs;
 
 	class ProjectSelector : public Widget
 	{
@@ -46,8 +52,13 @@ namespace Lina::Editor
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
-		VerticalIconTabs* m_iconTabs	= nullptr;
-		Vector2			  m_monitorSize = Vector2::Zero;
+		IconTabs*		   m_iconTabs	   = nullptr;
+		Vector2			   m_monitorSize   = Vector2::Zero;
+		Button*			   m_btnCreate	   = nullptr;
+		Button*			   m_btnCancel	   = nullptr;
+		Button*			   m_btnOpen	   = nullptr;
+		DirectionalLayout* m_rowLocation   = nullptr;
+		DirectionalLayout* m_contentLayout = nullptr;
 	};
 
 } // namespace Lina::Editor
