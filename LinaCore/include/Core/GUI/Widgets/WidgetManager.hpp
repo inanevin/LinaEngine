@@ -117,8 +117,12 @@ namespace Lina
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		Widget* FindNextSelectable(Widget* start);
-		Widget* FindPreviousSelectable(Widget* start);
+		Widget*			   FindNextSelectable(Widget* start);
+		Widget*			   FindPreviousSelectable(Widget* start);
+		LinaGX::CursorType FindCursorType(Widget* start);
+		void			   PreTickWidget(Widget* w);
+		void			   TickWidget(Widget* w, float delta);
+		void			   DrawWidget(Widget* w, int32 threadIndex);
 
 	private:
 		friend class Widget;
