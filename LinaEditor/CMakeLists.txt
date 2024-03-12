@@ -80,11 +80,19 @@ src/Meta/EditorSettings.cpp
 # Create executable project
 #--------------------------------------------------------------------
 
+if(WIN32)
+set(ICON ${PROJECT_SOURCE_DIR}/_Resources/${PROJECT_NAME}.rc)
+endif()
+
+if(APPLE)
+set(ICON ${PROJECT_SOURCE_DIR}/_Resources/${PROJECT_NAME}.icns)
+endif()
+
 # WIN32 Console Subsystem
 if(WIN32)
-	add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS})
+	add_executable(${PROJECT_NAME} WIN32 ${SOURCES} ${HEADERS} ${ICON})
 else()
-	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS})
+	add_executable(${PROJECT_NAME} MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${ICON})
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER LinaEngine)
