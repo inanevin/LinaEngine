@@ -186,8 +186,7 @@ namespace Lina
 		std::ifstream ifs(filePath.c_str());
 		auto		  a = std::istreambuf_iterator<char>(ifs);
 		auto		  b = (std::istreambuf_iterator<char>());
-		std::string	  content(a, b);
-		return content.c_str();
+		return std::string(a, b);
 	}
 
 	void FileSystem::ReadFileContentsToVector(const String& filePath, Vector<char>& vec)
@@ -211,7 +210,7 @@ namespace Lina
 
 	String FileSystem::GetRunningDirectory()
 	{
-		return std::filesystem::current_path().string().c_str();
+		return std::filesystem::current_path().string();
 	}
 
 	String FileSystem::RemoveWhitespaces(const String& str)
@@ -224,7 +223,7 @@ namespace Lina
 				result.push_back(c);
 			}
 		}
-		return result.c_str();
+		return result;
 	}
 
 	String FileSystem::GetUserDataFolder()

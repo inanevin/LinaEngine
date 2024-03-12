@@ -50,23 +50,20 @@ namespace Lina
 	{
 		std::wstring											  wstr = wstring.c_str();
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-		auto													  converted = converter.to_bytes(wstr);
-		return converted.c_str();
+		return converter.to_bytes(wstr);
 	}
 
 	String UtilStr::WCharToString(wchar_t wch)
 	{
 		std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-		std::string										 utf8char = conv.to_bytes(wch);
-		return utf8char.c_str();
+		return conv.to_bytes(wch);
 	}
 
 	WString UtilStr::StringToWString(const String& string)
 	{
 		std::string												  str = string.c_str();
 		std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-		auto													  converted = converter.from_bytes(str);
-		return converted.c_str();
+		return converter.from_bytes(str);
 	}
 
 	char* UtilStr::WCharToChar(const wchar_t* wch)
@@ -161,7 +158,7 @@ namespace Lina
 			if (pos != std::string::npos)
 				outDecimals = static_cast<uint32>(fin.length() - pos - 1);
 
-			return std::stof(fin.c_str());
+			return std::stof(fin);
 		}
 		catch (const std::exception& e)
 		{
@@ -174,7 +171,7 @@ namespace Lina
 	{
 		try
 		{
-			return std::stoi(str.c_str());
+			return std::stoi(str);
 		}
 		catch (const std::exception& e)
 		{
@@ -232,8 +229,7 @@ namespace Lina
 	{
 		std::ostringstream out;
 		out << std::fixed << std::setprecision(decimals) << val;
-		const String str = out.str().c_str();
-		return str;
+		return out.str();
 	}
 
 	String UtilStr::GetUntilFirstOf(const String& str)
