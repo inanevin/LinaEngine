@@ -32,7 +32,6 @@ set(CMAKE_SUPPRESS_REGENERATION true)
 set(LINA_ITERATOR_DEBUG_LEVEL 0)
 set(TARGET_ARCHITECTURE "x64")
 
-
 #--------------------------------------------------------------------
 # Sub directories
 #--------------------------------------------------------------------

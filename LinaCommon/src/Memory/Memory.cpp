@@ -28,20 +28,6 @@ SOFTWARE.
 
 #include "Common/Memory/Memory.hpp"
 
-// EASTL OPERATOR NEW[] REQUIREMENTS
-
-void* __cdecl operator new[](size_t size, size_t, size_t, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
-{
-	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
-	return ptr;
-}
-
-void* __cdecl operator new[](size_t size, const char* name, int flags, unsigned int debugFlags, const char* file, int line)
-{
-	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
-	return ptr;
-}
-
 void* operator new(std::size_t size)
 {
 	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);

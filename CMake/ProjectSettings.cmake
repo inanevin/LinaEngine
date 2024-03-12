@@ -17,6 +17,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_VERSION_MAJOR=2)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_VERSION_MINOR=0)
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_VERSION_PATCH=0)
 
+
 #--------------------------------------------------------------------
 # Platform
 #--------------------------------------------------------------------

@@ -52,6 +52,7 @@ namespace Lina
 
 	double SystemInfo::CalculateRunningAverageDT(int64 deltaMicroseconds)
 	{
+
 		// Keep a history of the deltas for the last 11 m_frames
 		// Throw away the outliers, two highest and two lowest values
 		// Calculate the mean of remaining 7 values
@@ -62,7 +63,7 @@ namespace Lina
 		dtHistory[historyIndex]				 = deltaMicroseconds;
 		historyIndex						 = (historyIndex + 1) % 11;
 
-		linatl::quick_sort(dtHistory.begin(), dtHistory.end());
+		linatl::sort(dtHistory.begin(), dtHistory.end());
 
 		int64 mean = 0;
 		for (uint32 i = 2; i < 9; i++)

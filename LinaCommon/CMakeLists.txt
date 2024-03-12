@@ -278,14 +278,12 @@ target_link_libraries(${PROJECT_NAME}
 PUBLIC memory-allocators
 PUBLIC lz4
 PUBLIC fmt
-PUBLIC EASTL
 PUBLIC glm_static
 )
 
 message("LinaCommon -> memory-allocators has been linked.")
 message("LinaCommon -> lz4 has been linked.")
 message("LinaCommon -> fmt has been linked.")
-message("LinaCommon -> EASTL has been linked.")
 message("LinaCommon -> glm has been linked.")
 
 # timeBeginPeriod for adjusting timer precision requires Winmm.lib
