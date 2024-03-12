@@ -28,14 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresList_HPP
-#define DataStructuresList_HPP
-
-#include <EASTL/list.h>
+#include <list>
 
 namespace Lina
 {
-	template <typename T> using List = eastl::list<T>;
+	template <typename T> using List = std::list<T>;
 } // namespace Lina
-
-#endif

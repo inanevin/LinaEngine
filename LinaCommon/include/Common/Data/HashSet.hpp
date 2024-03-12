@@ -28,13 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresHashSet_HPP
-#define DataStructuresHashSet_HPP
-#include <EASTL/hash_set.h>
+#include <parallel_hashmap/phmap.h>
 
 namespace Lina
 {
-	template <typename T, typename Hash = eastl::hash<T>, typename Predicate = eastl::equal_to<T>> using HashSet = eastl::hash_set<T, Hash, Predicate>;
+	template <typename T, typename Hash = eastl::hash<T>, typename Predicate = eastl::equal_to<T>> using HashSet = phmap::flat_hash_set<T, Hash, Predicate>;
 } // namespace Lina
-
-#endif

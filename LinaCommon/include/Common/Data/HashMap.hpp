@@ -28,15 +28,13 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresHashMap_HPP
-#define DataStructuresHashMap_HPP
-
 #include "Common/Data/Mutex.hpp"
 #include "MallocAllocator.hpp"
 #include "parallel_hashmap/phmap.h"
 
 namespace Lina
 {
+
 	template <typename T, typename U> using HashMap					   = phmap::flat_hash_map<T, U>;
 	template <typename T, typename U> using ParallelHashMap			   = phmap::parallel_flat_hash_map<T, U>;
 	template <typename T, typename U> using ParallelHashMapMutex	   = phmap::parallel_flat_hash_map<T, U, phmap::priv::hash_default_hash<T>, phmap::priv::hash_default_eq<T>, phmap::priv::Allocator<T>, 4, Mutex>;
@@ -57,5 +55,3 @@ namespace Lina
 	} // namespace Internal
 
 } // namespace Lina
-
-#endif

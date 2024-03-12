@@ -27,15 +27,9 @@ SOFTWARE.
 */
 
 #pragma once
-
-#ifndef DataStructuresArray_HPP
-#define DataStructuresArray_HPP
-
-#include <EASTL/array.h>
+#include <array>
 
 namespace Lina
 {
-	template <typename T, size_t nodeCount> using Array = eastl::array<T, nodeCount>;
+	template <typename T, size_t nodeCount> using Array = std::array<T, nodeCount>;
 } // namespace Lina
-
-#endif

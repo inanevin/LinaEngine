@@ -28,13 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresDeque_HPP
-#define DataStructuresDeque_HPP
-#include <EASTL/deque.h>
+#include <deque>
 
 namespace Lina
 {
-	template <typename T> using Deque = eastl::deque<T>;
+	template <typename T> using Deque = std::deque<T>;
 } // namespace Lina
-
-#endif

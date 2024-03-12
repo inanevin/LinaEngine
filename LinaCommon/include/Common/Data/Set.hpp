@@ -28,13 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresSet_HPP
-#define DataStructuresSet_HPP
-#include <EASTL/set.h>
+#include <set>
 
 namespace Lina
 {
-	template <typename T> using Set = eastl::set<T>;
+	template <typename T> using Set = std::set<T>;
 } // namespace Lina
-
-#endif
