@@ -33,34 +33,33 @@ SOFTWARE.
 
 namespace Lina
 {
-    typedef std::string  String;
-    typedef std::wstring WString;
+	typedef std::string	 String;
+	typedef std::wstring WString;
 
 #define TO_STRING(...) std::to_string(__VA_ARGS__)
 
-    class UtilStr
-    {
-    public:
-        static String          WideStringToString(const WString& wstring);
-        static WString          StringToWString(const String& string);
-        static String          WCharToString(wchar_t wch);
-        static String          EncodeUTF8(wchar_t wch);
-        static String          RemoveAllDotsExceptFirst(const String& str);
-        static String          FixStringNumber(const String& str);
-        static String          FloatToString(float val, uint32 decimals);
-        static String          ReplaceAll(const String& str, const String& toReplace, const String& replacement);
-        static float          StringToFloat(const String& str, uint32& outDecimals);
-        static int              StringToInt(const String& str);
-        static String          GetUntilFirstOf(const String& str);
-        static char*          WCharToChar(const wchar_t* wch);
-        static const wchar_t* CharToWChar(const char* ch);
+	class UtilStr
+	{
+	public:
+		static String		  WideStringToString(const WString& wstring);
+		static WString		  StringToWString(const String& string);
+		static String		  WCharToString(wchar_t wch);
+		static String		  EncodeUTF8(wchar_t wch);
+		static String		  RemoveAllDotsExceptFirst(const String& str);
+		static String		  FixStringNumber(const String& str);
+		static String		  FloatToString(float val, uint32 decimals);
+		static String		  ReplaceAll(const String& str, const String& toReplace, const String& replacement);
+		static float		  StringToFloat(const String& str, uint32& outDecimals);
+		static int			  StringToInt(const String& str);
+		static String		  GetUntilFirstOf(const String& str);
+		static char*		  WCharToChar(const wchar_t* wch);
+		static const wchar_t* CharToWChar(const char* ch);
 
-        /// <summary>
-        /// Returns a list of strings that fall in between each of the split string.
-        /// e.g. given a filesystem path will return a list of all directories in the path and the last file if there is one
-        /// </summary>
-        static Vector<String> SplitBy(const String& str, const String& splitStr);
-    };
+		/// <summary>
+		/// Returns a list of strings that fall in between each of the split string.
+		/// e.g. given a filesystem path will return a list of all directories in the path and the last file if there is one
+		/// </summary>
+		static Vector<String> SplitBy(const String& str, const String& splitStr);
+	};
 
 } // namespace Lina
-
