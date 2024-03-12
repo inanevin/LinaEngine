@@ -53,7 +53,6 @@ namespace Lina
 
 	void Dropdown::Tick(float delta)
 	{
-		Widget::SetIsHovered();
 		m_iconBgStart = m_rect.GetEnd() - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.pos.y + m_rect.size.y * 0.5f - m_text->GetHalfSizeY()));
 		m_icon->SetPos((m_iconBgStart + m_rect.GetEnd()) * 0.5f - m_icon->GetHalfSize());

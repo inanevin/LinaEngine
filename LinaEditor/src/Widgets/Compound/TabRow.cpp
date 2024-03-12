@@ -35,8 +35,6 @@ namespace Lina::Editor
 {
 	void TabRow::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		float x = m_rect.pos.x;
 
 		m_anyPressed = false;
@@ -52,8 +50,6 @@ namespace Lina::Editor
 			if (t->GetIsPressed())
 				m_anyPressed = true;
 		}
-
-		Widget::Tick(delta);
 
 		if (m_anyPressed)
 			linatl::sort(m_tabs.begin(), m_tabs.end(), [](Tab* t, Tab* t2) -> bool { return t->GetRect().pos.x < t2->GetRect().pos.x; });

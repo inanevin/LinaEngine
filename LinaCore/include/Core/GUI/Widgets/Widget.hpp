@@ -55,8 +55,8 @@ namespace Lina
 	class Widget
 	{
 	public:
-		virtual void PreTick();
-		virtual void Tick(float delta);
+		virtual void PreTick(){};
+		virtual void Tick(float delta){};
 		virtual void Draw(int32 threadIndex);
 
 		virtual void AddChild(Widget* w);

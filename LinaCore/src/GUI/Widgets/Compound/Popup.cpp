@@ -36,15 +36,12 @@ namespace Lina
 {
 	void Popup::Tick(float delta)
 	{
-		SetIsHovered();
-
 		float maxChildWidth = 0.0f;
 		float totalHeight	= 0.0f;
 
 		for (auto* c : m_children)
 		{
 			c->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + totalHeight));
-			c->Tick(delta);
 			maxChildWidth = Math::Max(maxChildWidth, c->GetSize().x);
 			totalHeight += c->GetSize().y;
 		}
@@ -81,7 +78,6 @@ namespace Lina
 		for (auto* c : m_children)
 		{
 			c->SetChildID(idx);
-			c->SetDrawOrder(m_drawOrder);
 			c->Draw(threadIndex);
 		}
 		m_manager->UnsetClip(threadIndex);

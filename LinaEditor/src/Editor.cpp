@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Common/Serialization/Serialization.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
 #include "Editor/Widgets/Testbed.hpp"
+#include "Editor/Widgets/DockTestbed.hpp"
 
 namespace Lina::Editor
 {
@@ -83,10 +84,10 @@ namespace Lina::Editor
 		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
 		window->AddSizeRequest(window->GetMonitorWorkSize());
 
-		Testbed* tb = root->Allocate<Testbed>("Testbed");
-		root->AddChild(tb);
-
-		return;
+		// Testbed* tb = root->Allocate<Testbed>("Testbed");
+		// DockTestbed* tb = root->Allocate<DockTestbed>("DockTestbed");
+		// root->AddChild(tb);
+		// return;
 
 		// Insert editor root.
 		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");

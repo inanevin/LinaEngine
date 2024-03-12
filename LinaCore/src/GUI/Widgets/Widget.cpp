@@ -77,16 +77,6 @@ namespace Lina
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->Initialize(); });
 	}
 
-	void Widget::PreTick()
-	{
-		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void { child->PreTick(); });
-	}
-
-	void Widget::Tick(float delta)
-	{
-		linatl::for_each(m_children.begin(), m_children.end(), [delta](Widget* child) -> void { child->Tick(delta); });
-	}
-
 	void Widget::Draw(int32 threadIndex)
 	{
 		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex](Widget* child) -> void { child->Draw(threadIndex); });

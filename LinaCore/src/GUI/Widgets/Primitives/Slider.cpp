@@ -50,9 +50,6 @@ namespace Lina
 
 	void Slider::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-		m_handle->SetIsHovered();
-
 		const float fillPercent = Math::Remap(m_props.value ? *m_props.value : m_props.minValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		GetStartEnd(m_bgStart, m_bgEnd, 1.0f);
 		GetStartEnd(m_fillStart, m_fillEnd, fillPercent);

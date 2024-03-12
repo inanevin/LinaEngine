@@ -36,9 +36,6 @@ namespace Lina
 {
 	void DirectionalLayout::Tick(float delta)
 	{
-		for (auto* c : m_children)
-			c->SetDrawOrder(m_drawOrder);
-
 		// Fetch size from children if empty.
 		if (m_props.direction == DirectionOrientation::Horizontal && Math::Equals(m_rect.size.x, 0.0f, 0.1f))
 		{
@@ -71,7 +68,6 @@ namespace Lina
 				m_rect.size.x = maxX + m_props.margins.left + m_props.margins.right;
 		}
 
-		Widget::SetIsHovered();
 		m_start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
 		m_end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
 		m_sz	 = m_end - m_start;
@@ -112,7 +108,6 @@ namespace Lina
 			AlignWidgetInCrossAxis(c);
 
 			pos += perItemSize + m_props.padding;
-			c->Tick(delta);
 		}
 	}
 
@@ -153,8 +148,6 @@ namespace Lina
 				totalSizeMainAxis += sz.x;
 			else
 				totalSizeMainAxis += sz.y;
-
-			c->Tick(delta);
 		}
 
 		const float remainingSize = m_props.direction == DirectionOrientation::Horizontal ? (m_sz.x - totalSizeMainAxis) : (m_sz.y - totalSizeMainAxis);
@@ -319,8 +312,6 @@ namespace Lina
 				}
 			}
 		}
-
-		Widget::Tick(delta);
 	}
 
 	void DirectionalLayout::Draw(int32 threadIndex)
@@ -376,6 +367,5 @@ namespace Lina
 		opts.isFilled  = false;
 		opts.thickness = 2.0f;
 		LinaVG::DrawRect(threadIndex, m_start.AsLVG(), m_end.AsLVG(), opts, 0.0f, drawOrder);
-		Widget::DebugDraw(threadIndex, drawOrder);
 	}
 } // namespace Lina

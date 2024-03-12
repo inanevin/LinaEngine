@@ -47,8 +47,6 @@ namespace Lina::Editor
 
 	void DockBorder::PreTick()
 	{
-		Widget::SetIsHovered();
-
 		if (m_isPressed)
 		{
 			const Vector2& mousePosition = m_lgxWindow->GetMousePosition();

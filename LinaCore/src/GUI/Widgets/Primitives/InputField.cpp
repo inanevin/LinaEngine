@@ -66,8 +66,6 @@ namespace Lina
 
 	void InputField::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (!hasControls && m_isEditing)

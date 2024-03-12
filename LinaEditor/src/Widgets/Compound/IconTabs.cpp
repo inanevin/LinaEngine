@@ -74,11 +74,8 @@ namespace Lina::Editor
 
 	void IconTabs::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-		m_layout->SetDrawOrder(m_drawOrder);
 		m_layout->SetPos(GetPos());
 		m_layout->SetSize(GetSize());
-		m_layout->Tick(delta);
 	}
 
 	void IconTabs::SetButtonColors(Button* btn, bool isSelected)

@@ -58,8 +58,6 @@ namespace Lina
 
 	void FileMenu::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		const float padding = Theme::GetDef().baseIndentInner;
 
 		float x = m_rect.pos.x;
@@ -71,7 +69,6 @@ namespace Lina
 			btn->SetSizeY(m_rect.size.y);
 			btn->SetPosX(x);
 			btn->SetPosY(m_rect.pos.y);
-			btn->Tick(delta);
 			x += btn->GetSizeX();
 			w += btn->GetSizeX();
 		}

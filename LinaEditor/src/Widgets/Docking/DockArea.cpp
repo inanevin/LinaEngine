@@ -83,7 +83,6 @@ namespace Lina::Editor
 
 	void DockArea::Tick(float delta)
 	{
-		Widget::SetIsHovered();
 		SetPos(m_parent->GetSize() * m_alignRect.pos);
 		SetSize(m_parent->GetSize() * m_alignRect.size);
 
@@ -95,14 +94,12 @@ namespace Lina::Editor
 
 		m_tabRow->SetPos(m_rect.pos);
 		m_tabRow->SetSize(Vector2(m_rect.size.x, tabHeight));
-		m_tabRow->Tick(delta);
 
 		if (m_selectedChildren != nullptr)
 		{
 			m_selectedChildren->SetIsHovered();
 			m_selectedChildren->SetPos(m_rect.pos + Vector2(0.0f, tabHeight));
 			m_selectedChildren->SetSize(Vector2(m_rect.size.x, m_rect.size.y - tabHeight));
-			m_selectedChildren->Tick(delta);
 		}
 
 		if (m_preview)

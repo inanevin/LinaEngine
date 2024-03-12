@@ -47,8 +47,6 @@ namespace Lina
 
 	void Checkbox::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		// Text size
 		const Vector2& textSize = m_icon->GetSize();
 		m_icon->SetPos(m_rect.GetCenter() - m_icon->GetHalfSize());

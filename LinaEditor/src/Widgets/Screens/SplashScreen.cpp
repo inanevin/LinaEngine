@@ -93,11 +93,6 @@ namespace Lina::Editor
 
 		m_loadingInfo->SetPosX(m_rect.GetEnd().x - padding - m_loadingInfo->GetSizeX());
 		m_loadingInfo->SetPosY(m_rect.GetEnd().y - m_loadingBarHeight * 2.0f - m_loadingInfo->GetHalfSizeY());
-
-		m_versionText->Tick(delta);
-		m_infoText1->Tick(delta);
-		m_infoText2->Tick(delta);
-		m_loadingInfo->Tick(delta);
 	}
 
 	void SplashScreen::Draw(int32 threadIndex)

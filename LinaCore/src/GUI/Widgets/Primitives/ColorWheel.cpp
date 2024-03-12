@@ -88,7 +88,6 @@ namespace Lina
 		}
 
 		m_icon->SetPos(m_rect.GetCenter() + (m_pointerPos * m_rect.size.x * 0.5f) - m_icon->GetHalfSize());
-		m_icon->Tick(delta);
 	}
 
 	void ColorWheel::Draw(int32 threadIndex)

@@ -33,8 +33,6 @@ namespace Lina
 {
 	void Stack::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		for (auto* c : m_children)
 		{
 			if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
@@ -52,8 +50,6 @@ namespace Lina
 			}
 			else
 				c->SetPosY(m_rect.GetCenter().y - c->GetHalfSizeY());
-
-			c->Tick(delta);
 		}
 	}
 } // namespace Lina

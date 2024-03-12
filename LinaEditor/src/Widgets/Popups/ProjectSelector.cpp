@@ -50,25 +50,26 @@ namespace Lina::Editor
 		m_iconTabs->GetLayout()->GetProps().colorBorder			  = Theme::GetDef().background0;
 		AddChild(m_iconTabs);
 
-		// DirectionalLayout* inputFieldAndButton = Allocate<DirectionalLayout>("InputFieldAndButton");
-		//
-		// Inputfield* locationField = Allocate<InputField>("LocationField");
-		// locationField->GetFlags().Set(WF_EXPAND_MAIN_AXIS);
-		// locationField->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
-		//
-		// Button* locationButton = Allocate<Button>("LocationButton");
-		// locationButton->GetText()->GetProps().font = Theme::GetDef().iconFont;
-		// locationButton->GetText()->GetProps().text = ICON_FOLDER_OPEN;
-		// locationButton->GetText()->GetProps().textScale = 0.5f;
-		// locationButton->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
-		// inputFieldAndButton->AddChild(locationField, locationButton);
-		//
-		// m_rowLocation = Allocate<DirectionalLayout>("RowLocation");
-		// m_rowLocation->AddChild(inputFieldAndButton);
-		// AddChild(m_rowLocation);
+		DirectionalLayout* inputFieldAndButton = Allocate<DirectionalLayout>("InputFieldAndButton");
+
+		m_inpLocation = Allocate<InputField>("LocationField");
+		m_inpLocation->GetFlags().Set(WF_EXPAND_MAIN_AXIS);
+		m_inpLocation->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+
+		m_btnLocation								   = Allocate<Button>("LocationButton");
+		m_btnLocation->GetText()->GetProps().font	   = Theme::GetDef().iconFont;
+		m_btnLocation->GetText()->GetProps().text	   = ICON_FOLDER_OPEN;
+		m_btnLocation->GetText()->GetProps().textScale = 0.5f;
+		m_btnLocation->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+		inputFieldAndButton->AddChild(m_inpLocation, m_btnLocation);
+
+		m_rowLocation = Allocate<DirectionalLayout>("RowLocation");
+		// m_rowLocation->AddChild(m_inpLocation);
+		AddChild(m_rowLocation);
 
 		m_contentLayout						  = Allocate<DirectionalLayout>("ContentLayout");
 		m_contentLayout->GetProps().direction = DirectionOrientation::Vertical;
+		m_contentLayout->AddChild(m_rowLocation);
 		AddChild(m_contentLayout);
 
 		// sm_btnCreate = Allocate<Button>("BtnCreate");
@@ -87,22 +88,22 @@ namespace Lina::Editor
 	{
 		SetSize(Vector2(m_monitorSize.x * 0.15f, m_monitorSize.x * 0.05f));
 		SetPos(Vector2(static_cast<float>(m_lgxWindow->GetSize().x) * 0.5f - GetHalfSizeX(), static_cast<float>(m_lgxWindow->GetSize().y) * 0.5f - GetHalfSizeY()));
-		Widget::SetIsHovered();
 
 		const float tabsSize   = GetSizeX() * 0.1f;
 		const float indent	   = Theme::GetDef().baseIndent;
 		const float itemHeight = Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale());
 
-		m_iconTabs->SetDrawOrder(m_drawOrder);
 		m_iconTabs->SetPos(m_rect.pos);
 		m_iconTabs->SetSizeX(tabsSize);
 		m_iconTabs->SetSizeY(GetSizeY());
 
-		m_contentLayout->SetDrawOrder(m_drawOrder);
 		m_contentLayout->SetPos(Vector2(GetPosX() + tabsSize + indent, GetPosY() + indent));
 		m_contentLayout->SetSize(Vector2(GetSizeX() - tabsSize - indent * 2.0f, GetSizeY() - indent * 2.0f));
 
-		Widget::Tick(delta);
+		m_rowLocation->SetSize(Vector2(m_contentLayout->GetSizeX(), itemHeight));
+
+		m_inpLocation->SetSizeX(50);
+		m_btnLocation->SetSizeX(itemHeight);
 	}
 
 	void ProjectSelector::Draw(int32 threadIndex)

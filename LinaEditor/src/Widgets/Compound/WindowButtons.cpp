@@ -94,8 +94,6 @@ namespace Lina::Editor
 
 	void WindowButtons::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		const float childWidth = GetSizeX() / 3.0f;
 
 		float x = m_rect.pos.x;
@@ -105,7 +103,6 @@ namespace Lina::Editor
 			c->SetSizeX(childWidth);
 			c->SetSizeY(GetSizeY());
 			c->SetPos(Vector2(x, m_rect.pos.y));
-			c->Tick(delta);
 			x += childWidth;
 		}
 	}

@@ -241,7 +241,6 @@ namespace Lina::Editor
 	void ColorWheelCompound::Tick(float delta)
 	{
 		const float baseItemHeight = Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale());
-		Widget::SetIsHovered();
 
 		m_wheelStack->SetSizeX(m_rect.size.x * WHEEL_STACK_PERC);
 
@@ -259,7 +258,6 @@ namespace Lina::Editor
 
 		m_topRow->SetPos(m_rect.pos);
 		m_topRow->SetSize(Vector2(m_rect.size.x, m_wheelStack->GetSize().x));
-		m_topRow->Tick(delta);
 
 		m_hexField->SetSizeX(baseItemHeight * 6);
 		m_hexField->SetSizeY(baseItemHeight);
@@ -280,7 +278,6 @@ namespace Lina::Editor
 
 		m_bottomRow->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_topRow->GetSizeY()));
 		m_bottomRow->SetSize(Vector2(m_rect.size.x, m_rect.size.y - m_topRow->GetSizeY()));
-		m_bottomRow->Tick(delta);
 	}
 
 	void ColorWheelCompound::Draw(int32 threadIndex)

@@ -42,11 +42,7 @@ namespace Lina
 
 	void Button::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
-		m_text->SetDrawOrder(m_drawOrder);
 		m_text->SetPos(m_rect.GetCenter() - m_text->GetHalfSize());
-		m_text->Tick(delta);
 	}
 
 	void Button::Draw(int32 threadIndex)

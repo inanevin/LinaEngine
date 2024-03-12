@@ -42,7 +42,6 @@ namespace Lina
 
 	void PopupItem::Tick(float delta)
 	{
-		Widget::SetIsHovered();
 		m_rect.size.x = m_text->GetSizeX() + m_props.horizontalIndent * 2;
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.GetCenter().y - m_text->GetHalfSizeY()));
 	}
@@ -60,7 +59,6 @@ namespace Lina
 		}
 
 		// Text & clip over icon.
-		m_text->SetDrawOrder(m_drawOrder);
 		m_text->Draw(threadIndex);
 	}
 

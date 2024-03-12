@@ -63,8 +63,6 @@ namespace Lina::Editor
 
 	void EditorRoot::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		const float defaultHeight	  = Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale());
 		const float indent			  = Theme::GetDef().baseIndent;
 		const float windowButtonWidth = defaultHeight * 2.0f;
@@ -78,17 +76,14 @@ namespace Lina::Editor
 		m_windowButtons->SetPosX(m_rect.GetEnd().x - windowButtonWidth * 3.0f);
 		m_windowButtons->SetPosY(m_rect.pos.y);
 		m_windowButtons->SetSize(Vector2(windowButtonWidth * 3.0f, defaultHeight));
-		m_windowButtons->Tick(delta);
 
 		m_linaLogo->SetPosX(indent);
 		m_linaLogo->SetPosY(m_topRect.GetCenter().y - m_linaLogo->GetHalfSizeY());
-		m_linaLogo->Tick(delta);
 
 		m_fm->SetPosX(indent * 2.0f + m_linaLogo->GetSizeX());
 		m_fm->SetPosY(0.0f);
 		m_fm->SetSizeX(GetSizeX());
 		m_fm->SetSizeY(defaultHeight);
-		m_fm->Tick(delta);
 
 		// Drag rect.
 		m_dragRect				  = Rect(Vector2(m_fm->GetPosX() + m_fm->GetSizeX(), 0.0f), Vector2(GetSizeX() - windowButtonWidth * 3.0f, defaultHeight));

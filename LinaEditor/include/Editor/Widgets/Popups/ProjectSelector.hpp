@@ -32,6 +32,7 @@ SOFTWARE.
 
 namespace Lina
 {
+class InputField;
 	class Button;
 	class DirectionalLayout;
 } // namespace Lina
@@ -59,6 +60,9 @@ namespace Lina::Editor
 		Button*			   m_btnOpen	   = nullptr;
 		DirectionalLayout* m_rowLocation   = nullptr;
 		DirectionalLayout* m_contentLayout = nullptr;
+        
+        Button* m_btnLocation = nullptr;
+        InputField* m_inpLocation = nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -36,8 +36,6 @@ namespace Lina
 {
 	void ColorSlider::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		if (m_isPressed && m_props.value)
 		{
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();

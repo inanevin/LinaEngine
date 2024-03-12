@@ -133,7 +133,7 @@ namespace Lina::Editor
 			dr.position = Math::Lerp(m_rect.GetCenter(), targetPos, m_animationAlpha);
 			dr.size		= Math::Lerp(0.0f, m_smallRectSize + (dr.isHovered ? dr.expand * dr.size * 0.15f : 0.0f), m_animationAlpha);
 			dr.icon->SetPos(m_dockRects[i].position + dr.extraPos - m_dockRects[i].icon->GetHalfSize());
-			dr.icon->SetDrawOrder(FOREGROUND_DRAW_ORDER + 1);
+			// sdr.icon->SetDrawOrder(FOREGROUND_DRAW_ORDER + 1);
 		}
 	}
 
