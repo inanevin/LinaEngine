@@ -28,14 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresVector_HPP
-#define DataStructuresVector_HPP
-
-#include <EASTL/vector.h>
+#include <vector>
 
 namespace Lina
 {
-	template <typename T> using Vector = eastl::vector<T>;
+	template <typename T> using Vector = std::vector<T>;
 
 	namespace UtilVector
 	{
@@ -54,16 +51,16 @@ namespace Lina
 
 		template <typename T> inline void PlaceAfter(Lina::Vector<T>& vec, T& src, T& target)
 		{
-			auto itSrc	  = eastl::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });
-			auto itTarget = eastl::find_if(vec.begin(), vec.end(), [target](const T& child) { return child == target; });
+			auto itSrc	  = std::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });
+			auto itTarget = std::find_if(vec.begin(), vec.end(), [target](const T& child) { return child == target; });
 			vec.erase(itSrc);
 			vec.insert(itTarget + 1, *itSrc);
 		}
 
 		template <typename T> inline void PlaceBefore(Lina::Vector<T>& vec, const T& src, const T& target)
 		{
-			auto itSrc	  = eastl::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });
-			auto itTarget = eastl::find_if(vec.begin(), vec.end(), [target](const T& child) { return child == target; });
+			auto itSrc	  = std::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });
+			auto itTarget = std::find_if(vec.begin(), vec.end(), [target](const T& child) { return child == target; });
 
 			vec.insert(itTarget, *itSrc);
 			if (itSrc < itTarget)
@@ -75,5 +72,3 @@ namespace Lina
 	} // namespace UtilVector
 
 } // namespace Lina
-
-#endif

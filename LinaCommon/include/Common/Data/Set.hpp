@@ -28,9 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#include <set>
+#include <parallel_hashmap/phmap.h>
 
 namespace Lina
 {
-	template <typename T> using Set = std::set<T>;
+	template <typename T> using Set = phmap::btree_set<T>;
 } // namespace Lina

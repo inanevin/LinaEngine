@@ -28,19 +28,14 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresDataCommon_HPP
-#define DataStructuresDataCommon_HPP
-#include <EASTL/utility.h>
-#include <EASTL/sort.h>
-
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/String.hpp"
 
 namespace Lina
 {
-	template <typename T, typename U> using Pair = eastl::pair<T, U>;
+	template <typename T, typename U> using Pair = std::pair<T, U>;
 
-	namespace linatl = eastl;
+	namespace linatl = std;
 
 	typedef std::exception Exception;
 
@@ -91,5 +86,3 @@ namespace Lina
 #endif
 
 } // namespace Lina
-
-#endif
