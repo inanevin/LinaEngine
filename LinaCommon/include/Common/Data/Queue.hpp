@@ -28,10 +28,10 @@ SOFTWARE.
 
 #pragma once
 
-#include <EASTL/queue.h>
+#include <queue>
+#include <deque>
 
 namespace Lina
 {
-	template <typename T, typename Container = eastl::deque<T, EASTLAllocatorType, DEQUE_DEFAULT_SUBARRAY_SIZE(T)>> using Queue = eastl::queue<T, Container>;
-
+	template <typename T, typename Container = std::deque<T>> using Queue = std::queue<T, Container>;
 } // namespace Lina

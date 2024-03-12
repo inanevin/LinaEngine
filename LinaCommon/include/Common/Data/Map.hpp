@@ -28,13 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresMap_HPP
-#define DataStructuresMap_HPP
-#include <EASTL/map.h>
+#include <map>
 
 namespace Lina
 {
-	template <typename T, typename U, typename Compare = eastl::less<T>> using Map = eastl::map<T, U, Compare>;
+	template <typename T, typename U, typename Compare = std::less<T>> using Map = std::map<T, U, Compare>;
 } // namespace Lina
-
-#endif

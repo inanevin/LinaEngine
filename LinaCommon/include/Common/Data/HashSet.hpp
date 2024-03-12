@@ -32,5 +32,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	template <typename T, typename Hash = eastl::hash<T>, typename Predicate = eastl::equal_to<T>> using HashSet = phmap::flat_hash_set<T, Hash, Predicate>;
+	template <typename T, typename Hash = std::hash<T>, typename Predicate = std::equal_to<T>> using HashSet = phmap::flat_hash_set<T, Hash, Predicate>;
 } // namespace Lina
