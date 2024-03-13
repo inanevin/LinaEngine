@@ -58,11 +58,8 @@ namespace Lina::Editor
 		Button*			   m_btnCreate	   = nullptr;
 		Button*			   m_btnCancel	   = nullptr;
 		Button*			   m_btnOpen	   = nullptr;
-		DirectionalLayout* m_rowLocation   = nullptr;
+		DirectionalLayout* m_rowProjName   = nullptr;
 		DirectionalLayout* m_contentLayout = nullptr;
-
-		Button*		m_btnLocation = nullptr;
-		InputField* m_inpLocation = nullptr;
 	};
 
 } // namespace Lina::Editor

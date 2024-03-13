@@ -49,7 +49,6 @@ namespace Lina
 
 		struct Properties
 		{
-			TBLR				 margins = {};
 			TBLR				 borderThickness;
 			DirectionOrientation direction		 = DirectionOrientation::Horizontal;
 			Mode				 mode			 = Mode::Default;
@@ -80,7 +79,6 @@ namespace Lina
 
 		void CheckCustomAlignment(Widget* w);
 		void CheckMainAxisExpand(Widget* w);
-		void ExpandWidgetInCrossAxis(Widget* w);
 		void AlignWidgetInCrossAxis(Widget* w);
 
 	private:

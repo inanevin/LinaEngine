@@ -84,10 +84,10 @@ namespace Lina::Editor
 		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
 		window->AddSizeRequest(window->GetMonitorWorkSize());
 
-		Testbed* tb = root->Allocate<Testbed>("Testbed");
+		// Testbed* tb = root->Allocate<Testbed>("Testbed");
 		// DockTestbed* tb = root->Allocate<DockTestbed>("DockTestbed");
-		root->AddChild(tb);
-		return;
+		// root->AddChild(tb);
+		// return;
 
 		// Insert editor root.
 		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");

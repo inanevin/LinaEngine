@@ -35,21 +35,8 @@ namespace Lina
 	{
 		for (auto* c : m_children)
 		{
-			if (c->GetFlags().IsSet(WF_EXPAND_MAIN_AXIS))
-			{
-				c->SetSizeX(m_rect.size.x - m_props.margins.left - m_props.margins.right);
-				c->SetPosX(m_rect.pos.x + m_props.margins.left);
-			}
-			else
-				c->SetPosX(m_rect.GetCenter().x - c->GetHalfSizeX());
-
-			if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS))
-			{
-				c->SetSizeY(m_rect.size.y - m_props.margins.top - m_props.margins.bottom);
-				c->SetPosY(m_rect.pos.y + m_props.margins.top);
-			}
-			else
-				c->SetPosY(m_rect.GetCenter().y - c->GetHalfSizeY());
+			c->SetPosX(m_rect.GetCenter().x - c->GetHalfSizeX());
+			c->SetPosY(m_rect.GetCenter().y - c->GetHalfSizeY());
 		}
 	}
 } // namespace Lina

@@ -52,6 +52,32 @@ namespace Lina
 	class System;
 	class ResourceManager;
 
+#define V2_GET_MUTATE(NAME, VAR)                                                                                                                                                                                                                                   \
+	inline void Set##NAME(const Vector2& sz)                                                                                                                                                                                                                       \
+	{                                                                                                                                                                                                                                                              \
+		VAR = sz;                                                                                                                                                                                                                                                  \
+	}                                                                                                                                                                                                                                                              \
+	inline void Set##NAME##X(float x)                                                                                                                                                                                                                              \
+	{                                                                                                                                                                                                                                                              \
+		VAR.x = x;                                                                                                                                                                                                                                                 \
+	}                                                                                                                                                                                                                                                              \
+	inline void Set##NAME##Y(float y)                                                                                                                                                                                                                              \
+	{                                                                                                                                                                                                                                                              \
+		VAR.y = y;                                                                                                                                                                                                                                                 \
+	}                                                                                                                                                                                                                                                              \
+	inline const Vector2& Get##NAME() const                                                                                                                                                                                                                        \
+	{                                                                                                                                                                                                                                                              \
+		return VAR;                                                                                                                                                                                                                                                \
+	}                                                                                                                                                                                                                                                              \
+	inline float Get##NAME##X() const                                                                                                                                                                                                                              \
+	{                                                                                                                                                                                                                                                              \
+		return VAR.x;                                                                                                                                                                                                                                              \
+	}                                                                                                                                                                                                                                                              \
+	inline float Get##NAME##Y() const                                                                                                                                                                                                                              \
+	{                                                                                                                                                                                                                                                              \
+		return VAR.y;                                                                                                                                                                                                                                              \
+	}
+
 	class Widget
 	{
 	public:
@@ -91,64 +117,9 @@ namespace Lina
 			(AddChild(std::forward<Widget*>(args)), ...);
 		}
 
-		inline void SetPos(const Vector2& pos)
-		{
-			m_rect.pos = pos;
-		}
-
-		inline void SetPosX(float x)
-		{
-			m_rect.pos.x = x;
-		}
-
-		inline void SetPosY(float y)
-		{
-			m_rect.pos.y = y;
-		}
-
-		inline void SetSize(const Vector2& size)
-		{
-			m_rect.size = size;
-		}
-
-		inline void SetSizeX(float x)
-		{
-			m_rect.size.x = x;
-		}
-
-		inline void SetSizeY(float y)
-		{
-			m_rect.size.y = y;
-		}
-
-		inline const Rect& GetRect() const
+		inline const Rect& GetRect()
 		{
 			return m_rect;
-		}
-
-		inline const Vector2& GetPos() const
-		{
-			return m_rect.pos;
-		}
-
-		inline float GetPosX() const
-		{
-			return m_rect.pos.x;
-		}
-
-		inline float GetPosY() const
-		{
-			return m_rect.pos.y;
-		}
-
-		inline float GetSizeX() const
-		{
-			return m_rect.size.x;
-		}
-
-		inline float GetSizeY() const
-		{
-			return m_rect.size.y;
 		}
 
 		inline float GetHalfSizeX() const
@@ -159,11 +130,6 @@ namespace Lina
 		inline float GetHalfSizeY() const
 		{
 			return m_rect.size.y * 0.5f;
-		}
-
-		inline const Vector2& GetSize() const
-		{
-			return m_rect.size;
 		}
 
 		inline const Vector2 GetHalfSize() const
@@ -241,15 +207,21 @@ namespace Lina
 			return m_isPressed;
 		}
 
-		inline float GetUserDataFloat() const
+		inline float GetCustomAlignment() const
 		{
-			return m_userDataFloat;
+			return m_customAlignment;
 		}
 
-		inline void SetUserDataFloat(float f)
+		inline void SetPosAlignment(float f)
 		{
-			m_userDataFloat = f;
+			m_customAlignment = f;
 		}
+
+		V2_GET_MUTATE(ChildMargins, m_childMargins);
+		V2_GET_MUTATE(FixedSize, m_fixedSize);
+		V2_GET_MUTATE(AlignedSize, m_alignedSize);
+		V2_GET_MUTATE(Pos, m_rect.pos);
+		V2_GET_MUTATE(Size, m_rect.size);
 
 	protected:
 		friend class WidgetManager;
@@ -276,7 +248,10 @@ namespace Lina
 		Widget*			 m_next			   = nullptr;
 		Widget*			 m_prev			   = nullptr;
 		String			 m_displayName	   = "Widget";
-		float			 m_userDataFloat   = 0.0f;
+		float			 m_customAlignment = 0.0f;
+		Vector2			 m_alignedSize	   = Vector2::Zero;
+		Vector2			 m_childMargins	   = Vector2::Zero;
+		Vector2			 m_fixedSize	   = Vector2::Zero;
 	};
 
 } // namespace Lina

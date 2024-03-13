@@ -47,10 +47,10 @@ namespace Lina
 			}
 
 			m_rect.size.x -= m_props.padding;
-			m_rect.size.x += m_props.margins.left + m_props.margins.right;
+			m_rect.size.x += m_childMargins.x;
 
 			if (Math::Equals(m_rect.size.y, 0.0f, 0.1f))
-				m_rect.size.y = maxY + m_props.margins.top + m_props.margins.bottom;
+				m_rect.size.y = maxY + m_childMargins.y;
 		}
 		else if (m_props.direction == DirectionOrientation::Vertical && Math::Equals(m_rect.size.y, 0.0f, 0.1f))
 		{
@@ -62,14 +62,14 @@ namespace Lina
 			}
 
 			m_rect.size.y -= m_props.padding;
-			m_rect.size.y += m_props.margins.top + m_props.margins.bottom;
+			m_rect.size.y += m_childMargins.y;
 
 			if (Math::Equals(m_rect.size.x, 0.0f, 0.1f))
-				m_rect.size.x = maxX + m_props.margins.left + m_props.margins.right;
+				m_rect.size.x = maxX + m_childMargins.x;
 		}
 
-		m_start	 = Vector2(m_rect.pos.x + m_props.margins.left, m_rect.pos.y + m_props.margins.top);
-		m_end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_props.margins.right, m_rect.pos.y + m_rect.size.y - m_props.margins.bottom);
+		m_start	 = Vector2(m_rect.pos.x + m_childMargins.x * 0.5f, m_rect.pos.y + m_childMargins.y * 0.5f);
+		m_end	 = Vector2(m_rect.pos.x + m_rect.size.x - m_childMargins.x * 0.5f, m_rect.pos.y + m_rect.size.y - m_childMargins.y * 0.5f);
 		m_sz	 = m_end - m_start;
 		m_center = (m_start + m_end) * 0.5f;
 
@@ -104,7 +104,6 @@ namespace Lina
 			}
 
 			CheckCustomAlignment(c);
-			ExpandWidgetInCrossAxis(c);
 			AlignWidgetInCrossAxis(c);
 
 			pos += perItemSize + m_props.padding;
@@ -120,9 +119,6 @@ namespace Lina
 
 		for (auto* c : m_children)
 		{
-			if (c->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !c->GetFlags().IsSet(WF_OWNS_SIZE))
-				c->SetSizeY(m_sz.y);
-
 			const Vector2& sz = c->GetSize();
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
@@ -157,7 +153,6 @@ namespace Lina
 
 			CheckCustomAlignment(c);
 			CheckMainAxisExpand(c);
-			ExpandWidgetInCrossAxis(c);
 			AlignWidgetInCrossAxis(c);
 		}
 	}
@@ -178,7 +173,6 @@ namespace Lina
 
 			CheckCustomAlignment(c);
 			CheckMainAxisExpand(c);
-			ExpandWidgetInCrossAxis(c);
 			AlignWidgetInCrossAxis(c);
 
 			const float incrementSize = m_props.direction == DirectionOrientation::Horizontal ? c->GetSizeX() : c->GetSizeY();
@@ -250,19 +244,37 @@ namespace Lina
 
 	void DirectionalLayout::CheckCustomAlignment(Widget* w)
 	{
-		if (!w->GetFlags().IsSet(WF_CUSTOM_POS_ALIGN))
+		const bool alignStart  = w->GetFlags().IsSet(WF_POS_ALIGN_START);
+		const bool alignCenter = w->GetFlags().IsSet(WF_POS_ALIGN_CENTER);
+		const bool alignEnd	   = w->GetFlags().IsSet(WF_POS_ALIGN_END);
+
+		if (!alignStart && !alignCenter && !alignEnd)
 			return;
 
-		const float alignment = w->GetUserDataFloat();
+		const float alignment = w->GetCustomAlignment();
 
 		if (m_props.direction == DirectionOrientation::Horizontal)
 		{
-			float target = Math::Clamp(m_start.x + m_sz.x * alignment - w->GetHalfSizeX(), m_start.x, m_end.x - w->GetSizeX());
+			float target = m_start.x + m_sz.x * alignment;
+
+			if (alignCenter)
+				target -= w->GetHalfSizeX();
+			else if (alignEnd)
+				target -= w->GetSizeX();
+
+			target = Math::Clamp(target, m_start.x, m_end.x - w->GetSizeX());
 			w->SetPosX(target);
 		}
 		else if (m_props.direction == DirectionOrientation::Vertical)
 		{
-			float target = Math::Clamp(m_start.y + m_sz.y * alignment - w->GetHalfSizeY(), m_start.y, m_end.y - w->GetSizeY());
+			float target = m_start.y + m_sz.y * alignment;
+
+			if (alignCenter)
+				target -= w->GetHalfSizeY();
+			else if (alignEnd)
+				target -= w->GetSizeY();
+			target = Math::Clamp(target, m_start.y, m_end.y - w->GetSizeY());
+
 			w->SetPosY(target);
 		}
 	}
@@ -286,20 +298,6 @@ namespace Lina
 				w->SetPosX(m_end.x - w->GetSizeX());
 			else
 				w->SetPosX(m_center.x - w->GetHalfSizeX());
-		}
-	}
-
-	void DirectionalLayout::ExpandWidgetInCrossAxis(Widget* w)
-	{
-		if (m_props.direction == DirectionOrientation::Horizontal)
-		{
-			if (w->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !w->GetFlags().IsSet(WF_OWNS_SIZE))
-				w->SetSizeY(m_sz.y);
-		}
-		else if (m_props.direction == DirectionOrientation::Vertical)
-		{
-			if (w->GetFlags().IsSet(WF_EXPAND_CROSS_AXIS) && !w->GetFlags().IsSet(WF_OWNS_SIZE))
-				w->SetSizeX(m_sz.x);
 		}
 	}
 
@@ -337,6 +335,10 @@ namespace Lina
 		const float totalAvailableAfterPadding = totalAvailableSpace - (m_props.padding * (totalExpandingAfterMe + totalNonExpandingAfterMe));
 		const float targetSize				   = totalAvailableAfterPadding / (totalExpandingAfterMe + 1.0f);
 
+		if (w->GetDebugName().compare("LocationField") == 0)
+		{
+			int a = 5;
+		}
 		if (m_props.direction == DirectionOrientation::Horizontal)
 			w->SetSizeX(targetSize);
 		else

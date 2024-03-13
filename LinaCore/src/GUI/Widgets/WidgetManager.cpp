@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/CommonCore.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
@@ -362,6 +363,7 @@ namespace Lina
 	{
 		if (w->GetParent())
 			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
+
 		w->SetIsHovered();
 		w->PreTick();
 		for (auto* c : w->GetChildren())
@@ -370,6 +372,19 @@ namespace Lina
 
 	void WidgetManager::TickWidget(Widget* w, float delta)
 	{
+		const Vector2 alignedSize = w->GetAlignedSize();
+		if (w->GetFlags().IsSet(WF_SIZE_ALIGN_X))
+			w->SetSizeX((w->GetParent()->GetSizeX() - w->GetParent()->GetChildMargins().x) * alignedSize.x);
+
+		if (w->GetFlags().IsSet(WF_SIZE_ALIGN_Y))
+			w->SetSizeY((w->GetParent()->GetSizeY() - w->GetParent()->GetChildMargins().y) * alignedSize.y);
+
+		if (w->GetFlags().IsSet(WF_SIZE_X_DPIREL))
+			w->SetSizeX(w->GetFixedSizeX() * m_window->GetDPIScale());
+
+		if (w->GetFlags().IsSet(WF_SIZE_Y_DPIREL))
+			w->SetSizeY(w->GetFixedSizeY() * m_window->GetDPIScale());
+
 		w->Tick(delta);
 		for (auto* c : w->GetChildren())
 			TickWidget(c, delta);

@@ -64,7 +64,8 @@ namespace Lina::Editor
 			btn->GetText()->GetProps().text		 = ic;
 			btn->GetProps().outlineThickness	 = 0.0f;
 			btn->GetProps().rounding			 = 0.0f;
-			btn->GetFlags().Set(WF_EXPAND_CROSS_AXIS);
+			btn->GetFlags().Set(WF_SIZE_ALIGN_X);
+			btn->SetAlignedSizeX(1.0f);
 
 			btn->Initialize();
 			m_layout->AddChild(btn);
