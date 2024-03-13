@@ -65,7 +65,6 @@ namespace Lina::Editor
 
 		m_rowLocation = Allocate<DirectionalLayout>("RowLocation");
 		// m_rowLocation->AddChild(m_inpLocation);
-		AddChild(m_rowLocation);
 
 		m_contentLayout						  = Allocate<DirectionalLayout>("ContentLayout");
 		m_contentLayout->GetProps().direction = DirectionOrientation::Vertical;

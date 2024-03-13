@@ -230,10 +230,6 @@ namespace Lina
 			const String rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
 			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + 15 + sz.x, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
-			if (w->GetDebugName().compare("RowLocation") == 0)
-			{
-				LINA_TRACE("hmm {0} {1}", (void*)w, m_debugDrawYOffset);
-			}
 			m_debugDrawYOffset += lvgFont->m_size * 1.5f;
 		}
 

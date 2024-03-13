@@ -78,9 +78,10 @@ namespace Lina
 		void BehaviourEqualPositions(float delta);
 		void BehaviourEqualSizes(float delta);
 
+		void CheckCustomAlignment(Widget* w);
+		void CheckMainAxisExpand(Widget* w);
 		void ExpandWidgetInCrossAxis(Widget* w);
 		void AlignWidgetInCrossAxis(Widget* w);
-		void CheckCustomAlignment(Widget* w);
 
 	private:
 		Properties m_props	= {};
