@@ -40,7 +40,6 @@ namespace Lina
 
 		struct Properties
 		{
-			
 		};
 
 		virtual void Tick(float delta) override;
