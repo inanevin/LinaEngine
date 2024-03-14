@@ -42,6 +42,9 @@ namespace Lina::Editor
 		{LocaleStr::Cancel, "Cancel"},
 		{LocaleStr::Name, "Name"},
 		{LocaleStr::Location, "Location"},
+		{LocaleStr::ProjectSelect, "Project Selection"},
+		{LocaleStr::CreateNewProject, "Create New Project"},
+		{LocaleStr::OpenExistingProject, "Open Existing Project"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

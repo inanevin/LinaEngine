@@ -48,9 +48,13 @@ namespace Lina::Editor
 		struct Properties
 		{
 			Delegate<void(int32 selected)> onSelectionChanged;
+			DirectionOrientation		   direction;
 			Vector<String>				   icons;
-			int32						   selected	 = -1;
-			float						   iconScale = 0.5f;
+			Vector<String>				   tooltips;
+			int32						   selected		  = -1;
+			float						   iconScale	  = 0.5f;
+			float						   topRounding	  = 0.0f;
+			float						   bottomRounding = 0.0f;
 		};
 
 		virtual void Construct() override;

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Data/HashMap.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/GUI/CommonGUI.hpp"
+#include "Core/GUI/Theme.hpp"
 #include <memoryallocators/PoolAllocator.h>
 
 namespace LinaGX
@@ -44,6 +45,7 @@ namespace Lina
 	class Popup;
 	class System;
 	class ResourceManager;
+	class Font;
 
 	class WidgetManager : public LinaGX::WindowListener
 	{
@@ -107,6 +109,11 @@ namespace Lina
 			m_foregroundDim = dim;
 		}
 
+		inline Font* GetDefaultFont()
+		{
+			return m_defaultFont;
+		}
+
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
@@ -122,7 +129,7 @@ namespace Lina
 		LinaGX::CursorType FindCursorType(Widget* start);
 		void			   PreTickWidget(Widget* w);
 		void			   TickWidget(Widget* w, float delta);
-		void			   DrawWidget(Widget* w, int32 threadIndex);
+		void			   ExpandWidget(Widget* w, bool isHorizontal);
 
 	private:
 		friend class Widget;
@@ -135,7 +142,7 @@ namespace Lina
 
 			if (alloc == nullptr)
 			{
-				alloc = new PoolAllocator(sizeof(T) * CHUNK_COUNT, sizeof(T));
+				alloc = new PoolAllocator(sizeof(T) * Theme::GetWidgetChunkCount(tid), sizeof(T));
 				alloc->Init();
 			}
 
@@ -152,7 +159,6 @@ namespace Lina
 		void Deallocate(Widget* widget);
 
 	private:
-		static constexpr size_t			CHUNK_COUNT = 150;
 		HashMap<TypeID, PoolAllocator*> m_allocators;
 		LinaGX::Window*					m_window		  = nullptr;
 		Widget*							m_rootWidget	  = nullptr;
@@ -164,6 +170,7 @@ namespace Lina
 		Vector<ClipData>				m_clipStack;
 		float							m_debugDrawYOffset = 0.0f;
 		float							m_foregroundDim	   = 0.0f;
+		Font*							m_defaultFont	   = nullptr;
 	};
 
 } // namespace Lina

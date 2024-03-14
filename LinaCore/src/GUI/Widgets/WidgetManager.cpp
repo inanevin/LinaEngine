@@ -29,16 +29,15 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
-#include "Common/Data/CommonData.hpp"
-#include "Common/System/System.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
-#include "LinaGX/Core/InputMappings.hpp"
-
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/CommonCore.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
+#include "LinaGX/Core/InputMappings.hpp"
 
 namespace Lina
 {
@@ -55,31 +54,49 @@ namespace Lina
 		m_foregroundRoot->SetDebugName("ForegroundRoot");
 
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_defaultFont	  = m_resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
 	}
 
 	void WidgetManager::PreTick()
 	{
-		if (m_foregroundRoot->GetChildren().empty())
-			m_window->SetCursorType(FindCursorType(m_rootWidget));
-		else
-			m_window->SetCursorType(FindCursorType(m_foregroundRoot));
-
-		m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
-		PreTickWidget(m_foregroundRoot);
-		PreTickWidget(m_rootWidget);
 	}
+
+	int ctr = 0;
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
 	{
-		m_debugDrawYOffset = 0.0f;
+		auto aq = [&]() {
+			// Custom pre-tick :)
+			if (m_foregroundRoot->GetChildren().empty())
+				m_window->SetCursorType(FindCursorType(m_rootWidget));
+			else
+				m_window->SetCursorType(FindCursorType(m_foregroundRoot));
 
-		m_foregroundRoot->SetPos(Vector2::Zero);
-		m_foregroundRoot->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
-		m_rootWidget->SetPos(Vector2::Zero);
-		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
+			m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+			PreTickWidget(m_foregroundRoot);
+			PreTickWidget(m_rootWidget);
 
-		TickWidget(m_foregroundRoot, delta);
-		TickWidget(m_rootWidget, delta);
+			// actual tick.
+			m_debugDrawYOffset = 0.0f;
+			m_foregroundRoot->SetPos(Vector2::Zero);
+			m_foregroundRoot->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
+			m_rootWidget->SetPos(Vector2::Zero);
+			m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
+
+			TickWidget(m_foregroundRoot, delta);
+			TickWidget(m_rootWidget, delta);
+		};
+
+		//  if(isFirst)
+		//  {
+		//      aq();
+		//      aq();
+		//      aq();
+		//      aq();
+		//      isFirst = false;
+		//  }
+
+		aq();
 	}
 
 	void WidgetManager::AddToForeground(Widget* w)
@@ -94,6 +111,7 @@ namespace Lina
 
 	void WidgetManager::Draw(int32 threadIndex)
 	{
+
 		m_rootWidget->Draw(threadIndex);
 
 		if (!m_foregroundRoot->GetChildren().empty())
@@ -117,7 +135,9 @@ namespace Lina
 
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();
-		m_allocators[tid]->Free(widget);
+
+		PoolAllocator* alloc = m_allocators.at(tid);
+		alloc->Free(widget);
 	}
 
 	void WidgetManager::Shutdown()
@@ -167,10 +187,6 @@ namespace Lina
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
-
-		if (m_foregroundRoot->OnMouse(button, inputAction))
-			return;
-
 		// Left click presses to anywhere outside the control owner
 		// releases controls from that owner.
 		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr)
@@ -179,7 +195,10 @@ namespace Lina
 				ReleaseControls(m_controlsOwner);
 		}
 
-		m_rootWidget->OnMouse(button, inputAction);
+		if (m_foregroundRoot->OnMouse(button, inputAction))
+			return
+
+				m_rootWidget->OnMouse(button, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouseWheel(int32 delta)
@@ -361,7 +380,7 @@ namespace Lina
 
 	void WidgetManager::PreTickWidget(Widget* w)
 	{
-		if (w->GetParent())
+		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
 			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
 
 		w->SetIsHovered();
@@ -370,31 +389,126 @@ namespace Lina
 			PreTickWidget(c);
 	}
 
+	namespace
+	{
+		float CalculateAlignedPosX(Widget* w)
+		{
+			const Vector2			 alignedPos = w->GetAlignedPos();
+			const PosAlignmentSource src		= w->GetPosAlignmentSourceX();
+			const Vector2			 start		= w->GetParent()->GetStartFromMargins();
+			const Vector2			 end		= w->GetParent()->GetEndFromMargins();
+			const Vector2			 sz			= end - start;
+			if (src == PosAlignmentSource::Center)
+				return start.x + sz.x * alignedPos.x - w->GetHalfSizeX();
+			else if (src == PosAlignmentSource::End)
+				return start.x + sz.x * alignedPos.x - w->GetSizeX();
+
+			return start.x + sz.x * alignedPos.x;
+		}
+
+		float CalculateAlignedPosY(Widget* w)
+		{
+			const Vector2			 alignedPos = w->GetAlignedPos();
+			const PosAlignmentSource src		= w->GetPosAlignmentSourceY();
+			const Vector2			 start		= w->GetParent()->GetStartFromMargins();
+			const Vector2			 end		= w->GetParent()->GetEndFromMargins();
+			const Vector2			 sz			= end - start;
+			if (src == PosAlignmentSource::Center)
+				return start.y + sz.y * alignedPos.y - w->GetHalfSizeY();
+			else if (src == PosAlignmentSource::End)
+				return start.y + sz.y * alignedPos.y - w->GetSizeY();
+
+			return start.y + sz.y * alignedPos.y;
+		}
+	} // namespace
+
+	void WidgetManager::ExpandWidget(Widget* w, bool isHorizontal)
+	{
+		float		totalSizeOfNonExpanding	 = 0.0f;
+		float		totalExpandingAfterMe	 = 0.0f;
+		float		totalNonExpandingAfterMe = 0.0f;
+		const auto& children				 = w->GetParent()->GetChildren();
+
+		bool found = false;
+		for (auto* c : children)
+		{
+			if (w == c)
+			{
+				found = true;
+				continue;
+			}
+
+			if (found)
+			{
+				const bool isExpanding = isHorizontal ? (c->GetFlags().IsSet(WF_SIZE_ALIGN_X) && Math::Equals(c->GetAlignedSizeX(), 0.0f, 0.0001f)) : (c->GetFlags().IsSet(WF_SIZE_ALIGN_Y) && Math::Equals(c->GetAlignedSizeY(), 0.0f, 0.0001f));
+				if (isExpanding)
+					totalExpandingAfterMe += 1.0f;
+				else
+				{
+					totalSizeOfNonExpanding += isHorizontal ? c->GetSizeX() : c->GetSizeY();
+					totalNonExpandingAfterMe += 1.0f;
+				}
+			}
+		}
+
+		const Vector2 start = w->GetParent()->GetStartFromMargins();
+		const Vector2 end	= w->GetParent()->GetEndFromMargins();
+
+		float widgetPos = 0.0f;
+
+		if (w->GetFlags().IsSet(WF_POS_ALIGN_X) && isHorizontal)
+			widgetPos = CalculateAlignedPosX(w);
+		else if (w->GetFlags().IsSet(WF_POS_ALIGN_Y) && !isHorizontal)
+			widgetPos = CalculateAlignedPosY(w);
+		else
+			widgetPos = isHorizontal ? w->GetPosX() : w->GetPosY();
+
+		const float totalAvailableSpace		   = (isHorizontal ? (end.x - widgetPos) : (end.y - widgetPos)) - totalSizeOfNonExpanding;
+		const float totalAvailableAfterPadding = totalAvailableSpace - (Theme::GetDef().basePadding * (totalExpandingAfterMe + totalNonExpandingAfterMe));
+		const float targetSize				   = totalAvailableAfterPadding / (totalExpandingAfterMe + 1.0f);
+
+		if (isHorizontal)
+			w->SetSizeX(targetSize);
+		else
+			w->SetSizeY(targetSize);
+	}
+
 	void WidgetManager::TickWidget(Widget* w, float delta)
 	{
 		const Vector2 alignedSize = w->GetAlignedSize();
-		if (w->GetFlags().IsSet(WF_SIZE_ALIGN_X))
-			w->SetSizeX((w->GetParent()->GetSizeX() - w->GetParent()->GetChildMargins().x) * alignedSize.x);
 
-		if (w->GetFlags().IsSet(WF_SIZE_ALIGN_Y))
-			w->SetSizeY((w->GetParent()->GetSizeY() - w->GetParent()->GetChildMargins().y) * alignedSize.y);
+		if (w->GetFlags().IsSet(WF_SIZE_ALIGN_X) && w->GetParent())
+		{
+			if (Math::Equals(alignedSize.x, 0.0f, 0.0001f))
+				ExpandWidget(w, true);
+			else
+				w->SetSizeX((w->GetParent()->GetSizeX() - (w->GetParent()->GetChildMargins().left + w->GetParent()->GetChildMargins().right)) * alignedSize.x);
+		}
 
-		if (w->GetFlags().IsSet(WF_SIZE_X_DPIREL))
+		if (w->GetFlags().IsSet(WF_SIZE_ALIGN_Y) && w->GetParent())
+		{
+			if (Math::Equals(alignedSize.y, 0.0f, 0.0001f))
+				ExpandWidget(w, false);
+			else
+				w->SetSizeY((w->GetParent()->GetSizeY() - (w->GetParent()->GetChildMargins().top + w->GetParent()->GetChildMargins().bottom)) * alignedSize.y);
+		}
+
+		if (w->GetFlags().IsSet(WF_USE_FIXED_SIZE_X))
 			w->SetSizeX(w->GetFixedSizeX() * m_window->GetDPIScale());
 
-		if (w->GetFlags().IsSet(WF_SIZE_Y_DPIREL))
+		if (w->GetFlags().IsSet(WF_USE_FIXED_SIZE_Y))
 			w->SetSizeY(w->GetFixedSizeY() * m_window->GetDPIScale());
 
+		if (w->GetFlags().IsSet(WF_POS_ALIGN_X) && w->GetParent())
+			w->SetPosX(CalculateAlignedPosX(w));
+
+		if (w->GetFlags().IsSet(WF_POS_ALIGN_Y) && w->GetParent())
+			w->SetPosY(CalculateAlignedPosY(w));
+
 		w->Tick(delta);
+
 		for (auto* c : w->GetChildren())
 			TickWidget(c, delta);
-	}
-
-	void WidgetManager::DrawWidget(Widget* w, int32 threadIndex)
-	{
-		w->Draw(threadIndex);
-		for (auto* c : w->GetChildren())
-			DrawWidget(c, threadIndex);
 	}
 
 } // namespace Lina

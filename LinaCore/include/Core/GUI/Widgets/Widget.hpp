@@ -82,12 +82,18 @@ namespace Lina
 	{
 	public:
 		virtual void PreTick(){};
+		virtual void CalculateSizes(float delta){};
 		virtual void Tick(float delta){};
+
 		virtual void Draw(int32 threadIndex);
 
 		virtual void AddChild(Widget* w);
 		virtual void RemoveChild(Widget* w);
 		void		 SetIsHovered();
+		void		 DrawBorders(int32 threadIndex);
+		void		 DrawTooltip(int32 threadIndex);
+		Vector2		 GetStartFromMargins();
+		Vector2		 GetEndFromMargins();
 
 		virtual void			   Construct(){};
 		virtual void			   Destruct(){};
@@ -207,21 +213,61 @@ namespace Lina
 			return m_isPressed;
 		}
 
-		inline float GetCustomAlignment() const
+		inline TBLR& GetBorderThickness()
 		{
-			return m_customAlignment;
+			return m_borderThickness;
 		}
 
-		inline void SetPosAlignment(float f)
+		inline void SetBorderColor(const Color& c)
 		{
-			m_customAlignment = f;
+			m_colorBorders = c;
 		}
 
-		V2_GET_MUTATE(ChildMargins, m_childMargins);
+		inline Color& GetBorderColor()
+		{
+			return m_colorBorders;
+		}
+
+		inline const String& GetTooltip() const
+		{
+			return m_tooltip;
+		}
+
+		inline void SetTooltip(const String& str)
+		{
+			m_tooltip = str;
+		}
+
+		inline void SetPosAlignmentSourceX(PosAlignmentSource src)
+		{
+			m_posAlignSourceX = src;
+		}
+
+		inline void SetPosAlignmentSourceY(PosAlignmentSource src)
+		{
+			m_posAlignSourceY = src;
+		}
+
+		inline PosAlignmentSource GetPosAlignmentSourceX()
+		{
+			return m_posAlignSourceX;
+		}
+
+		inline PosAlignmentSource GetPosAlignmentSourceY()
+		{
+			return m_posAlignSourceY;
+		}
+
+		inline TBLR& GetChildMargins()
+		{
+			return m_childMargins;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_GET_MUTATE(Pos, m_rect.pos);
 		V2_GET_MUTATE(Size, m_rect.size);
+		V2_GET_MUTATE(AlignedPos, m_alignedPos);
 
 	protected:
 		friend class WidgetManager;
@@ -230,28 +276,33 @@ namespace Lina
 		virtual ~Widget() = default;
 
 	protected:
-		TypeID			 m_tid		 = 0;
-		WidgetManager*	 m_manager	 = nullptr;
-		Widget*			 m_parent	 = nullptr;
-		LinaGX::Window*	 m_lgxWindow = nullptr;
-		int32			 m_drawOrder = 0;
-		System*			 m_system	 = nullptr;
-		Rect			 m_rect		 = {};
-		Vector<Widget*>	 m_children;
-		int32			 m_maxChilds	   = 0;
-		bool			 m_isHovered	   = false;
-		bool			 m_isPressed	   = false;
-		ResourceManager* m_resourceManager = nullptr;
-		String			 m_debugName	   = "Widget";
-		uint32			 m_childID		   = 0;
-		Bitmask32		 m_flags		   = 0;
-		Widget*			 m_next			   = nullptr;
-		Widget*			 m_prev			   = nullptr;
-		String			 m_displayName	   = "Widget";
-		float			 m_customAlignment = 0.0f;
-		Vector2			 m_alignedSize	   = Vector2::Zero;
-		Vector2			 m_childMargins	   = Vector2::Zero;
-		Vector2			 m_fixedSize	   = Vector2::Zero;
+		TypeID			   m_tid	   = 0;
+		WidgetManager*	   m_manager   = nullptr;
+		Widget*			   m_parent	   = nullptr;
+		LinaGX::Window*	   m_lgxWindow = nullptr;
+		int32			   m_drawOrder = 0;
+		System*			   m_system	   = nullptr;
+		Rect			   m_rect	   = {};
+		Vector<Widget*>	   m_children;
+		int32			   m_maxChilds		 = 0;
+		bool			   m_isHovered		 = false;
+		bool			   m_isPressed		 = false;
+		ResourceManager*   m_resourceManager = nullptr;
+		String			   m_debugName		 = "Widget";
+		uint32			   m_childID		 = 0;
+		Bitmask32		   m_flags			 = 0;
+		Widget*			   m_next			 = nullptr;
+		Widget*			   m_prev			 = nullptr;
+		String			   m_displayName	 = "Widget";
+		Vector2			   m_alignedSize	 = Vector2::Zero;
+		Vector2			   m_alignedPos		 = Vector2::Zero;
+		TBLR			   m_childMargins	 = {};
+		Vector2			   m_fixedSize		 = Vector2::Zero;
+		Color			   m_colorBorders	 = Theme::GetDef().background2;
+		TBLR			   m_borderThickness = {};
+		String			   m_tooltip		 = "";
+		PosAlignmentSource m_posAlignSourceX = PosAlignmentSource::Start;
+		PosAlignmentSource m_posAlignSourceY = PosAlignmentSource::Start;
 	};
 
 } // namespace Lina

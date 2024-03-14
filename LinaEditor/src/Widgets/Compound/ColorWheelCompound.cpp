@@ -142,8 +142,8 @@ namespace Lina::Editor
 		m_wheel->GetProps().saturation	   = &m_hsv.y;
 		m_wheel->GetProps().onValueChanged = [this](float, float) { Recalculate(false); };
 
-		m_wheelStack = Allocate<Stack>("Wheel Stack");
-		m_wheelStack->SetChildMargins(Vector2(Theme::GetDef().baseIndent, Theme::GetDef().baseIndent) * 2.0f);
+		m_wheelStack					= Allocate<Stack>("Wheel Stack");
+		m_wheelStack->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
 		m_wheelStack->GetFlags().Set(WF_SIZE_ALIGN_Y);
 		m_wheelStack->SetAlignedSizeY(1.0f);
 		m_wheelStack->AddChild(m_wheel);
@@ -154,32 +154,32 @@ namespace Lina::Editor
 		m_valueComponent	  = ConstructHSVComponent("V", false, &m_hsv.z);
 
 		// Slider row
-		m_topSlidersRow									 = Allocate<DirectionalLayout>("TopSlidersRow");
-		m_topSlidersRow->GetProps().direction			 = DirectionOrientation::Horizontal;
-		m_topSlidersRow->GetProps().borderThickness.left = Theme::GetDef().baseOutlineThickness;
+		m_topSlidersRow							   = Allocate<DirectionalLayout>("TopSlidersRow");
+		m_topSlidersRow->GetProps().direction	   = DirectionOrientation::Horizontal;
+		m_topSlidersRow->GetBorderThickness().left = Theme::GetDef().baseOutlineThickness;
 		m_topSlidersRow->GetFlags().Set(WF_EXPAND_MAIN_AXIS | WF_SIZE_ALIGN_Y);
 		m_topSlidersRow->SetAlignedSizeY(1.0f);
-		m_topSlidersRow->SetChildMargins(Vector2(Theme::GetDef().baseIndent, Theme::GetDef().baseIndent) * 2.0f);
+		m_topSlidersRow->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
 		m_hueComponent.layout->GetFlags().Set(WF_POS_ALIGN_START);
-		m_hueComponent.layout->SetPosAlignment(0.0f);
+		// m_hueComponent.layout->SetPosAlignment(0.0f);
 		m_saturationComponent.layout->GetFlags().Set(WF_POS_ALIGN_CENTER);
-		m_saturationComponent.layout->SetPosAlignment(0.5f);
+		// m_saturationComponent.layout->SetPosAlignment(0.5f);
 		m_valueComponent.layout->GetFlags().Set(WF_POS_ALIGN_END);
-		m_valueComponent.layout->SetPosAlignment(1.0f);
+		//	m_valueComponent.layout->SetPosAlignment(1.0f);
 		m_topSlidersRow->AddChild(m_hueComponent.layout, m_saturationComponent.layout, m_valueComponent.layout);
 
 		// Top row
-		m_topRow									= Allocate<DirectionalLayout>("TopRow");
-		m_topRow->GetProps().direction				= DirectionOrientation::Horizontal;
-		m_topRow->GetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness;
+		m_topRow							  = Allocate<DirectionalLayout>("TopRow");
+		m_topRow->GetProps().direction		  = DirectionOrientation::Horizontal;
+		m_topRow->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
 		m_topRow->AddChild(m_wheelStack, m_topSlidersRow);
 		AddChild(m_topRow);
 
 		// Bottom row
 		m_bottomRow						  = Allocate<DirectionalLayout>("BottomRow");
 		m_bottomRow->GetProps().direction = DirectionOrientation::Vertical;
-		m_bottomRow->SetChildMargins(Vector2::One * Theme::GetDef().baseIndent * 2.0f);
-		m_bottomRow->GetProps().padding = Theme::GetDef().baseIndent;
+		m_bottomRow->GetChildMargins()	  = TBLR::Eq(Theme::GetDef().baseIndent);
+		m_bottomRow->GetProps().padding	  = Theme::GetDef().baseIndent;
 
 		m_colorComp1											= ConstructColorComponent("R", &m_editedColor.x);
 		m_colorComp2											= ConstructColorComponent("G", &m_editedColor.y);
@@ -190,7 +190,7 @@ namespace Lina::Editor
 		// Display dropdown
 		m_displayDropdown						 = Allocate<Dropdown>("ColorDisplayDropdown");
 		m_displayDropdown->GetProps().onSelected = [this](int32 item) { SwitchColorDisplay(static_cast<ColorDisplay>(item)); };
-		m_displayDropdown->GetFlags().Set(WF_ALIGN_NEGATIVE);
+		m_displayDropdown->GetFlags().Set(WF_CROSSALIGN_NEGATIVE);
 		m_displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, int32& outSelected) {
 			for (int32 i = 0; i < static_cast<int32>(ColorDisplay::MAX); i++)
 				outItems.push_back(COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(i)]);
@@ -227,7 +227,7 @@ namespace Lina::Editor
 		m_colorsLayout->AddChild(m_oldColorField, m_newColorField);
 
 		m_hexField = Allocate<InputField>();
-		m_hexField->GetFlags().Set(WF_ALIGN_NEGATIVE);
+		m_hexField->GetFlags().Set(WF_CROSSALIGN_NEGATIVE);
 		m_hexField->GetProps().onEditEnd = [this](const String& str) {
 			m_editedColor.FromHex(str);
 			m_editedColor255 = m_editedColor * 255.0f;
@@ -240,10 +240,10 @@ namespace Lina::Editor
 		m_dropdownAndColorsRow->GetFlags().Set(WF_SIZE_ALIGN_X);
 		m_dropdownAndColorsRow->SetAlignedSizeX(1.0f);
 		m_displayDropdown->GetFlags().Set(WF_POS_ALIGN_START | WF_SIZE_ALIGN_Y);
-		m_displayDropdown->SetPosAlignment(0.0f);
+		// m_displayDropdown->SetPosAlignment(0.0f);
 		m_displayDropdown->SetAlignedSizeY(1.0f);
 		m_colorsLayout->GetFlags().Set(WF_POS_ALIGN_END);
-		m_colorsLayout->SetPosAlignment(1.0f);
+		// m_colorsLayout->SetPosAlignment(1.0f);
 		m_dropdownAndColorsRow->AddChild(m_displayDropdown, m_colorsLayout);
 
 		m_bottomRow->AddChild(m_hexField, m_dropdownAndColorsRow, m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);

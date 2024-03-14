@@ -30,6 +30,9 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
 {
@@ -104,6 +107,71 @@ namespace Lina
 		return false;
 	}
 
+	void Widget::DrawBorders(int32 threadIndex)
+	{
+		LinaVG::StyleOptions border;
+		border.color = m_colorBorders.AsLVG4();
+
+		if (!Math::Equals(m_borderThickness.left, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos;
+			const Vector2 end	= start + Vector2(0, m_rect.size.y);
+			border.thickness	= m_borderThickness.left;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+
+		if (!Math::Equals(m_borderThickness.right, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos + Vector2(m_rect.size.x, 0.0f);
+			const Vector2 end	= start + Vector2(0, m_rect.size.y);
+			border.thickness	= m_borderThickness.right;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+
+		if (!Math::Equals(m_borderThickness.top, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos;
+			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
+			border.thickness	= m_borderThickness.top;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+
+		if (!Math::Equals(m_borderThickness.bottom, 0.0f, 0.5f))
+		{
+			const Vector2 start = m_rect.pos + Vector2(0.0f, m_rect.size.y);
+			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
+			border.thickness	= m_borderThickness.bottom;
+			LinaVG::DrawLine(threadIndex, start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
+		}
+	}
+
+	void Widget::DrawTooltip(int32 threadIndex)
+	{
+		if (!m_isHovered)
+			return;
+
+		const String& tooltip = GetTooltip();
+
+		if (tooltip.empty())
+			return;
+
+		LinaVG::TextOptions textOpts;
+		textOpts.font		   = m_manager->GetDefaultFont()->GetLinaVGFont(m_lgxWindow->GetDPIScale());
+		const Vector2 textSize = LinaVG::CalculateTextSize(tooltip.c_str(), textOpts);
+
+		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
+
+		const Rect tooltipRect = Rect(mp + Vector2(10, 10), textSize + Vector2(Theme::GetDef().baseIndent * 2.0f, Theme::GetDef().baseIndent));
+
+		LinaVG::StyleOptions bg;
+		bg.color					= Theme::GetDef().background1.AsLVG4();
+		bg.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness;
+		bg.outlineOptions.color		= Theme::GetDef().outlineColorBase.AsLVG4();
+		LinaVG::DrawRect(threadIndex, tooltipRect.pos.AsLVG(), tooltipRect.GetEnd().AsLVG(), bg, 0.0f, TOOLTIP_DRAW_ORDER);
+
+		LinaVG::DrawTextNormal(threadIndex, tooltip.c_str(), Vector2(tooltipRect.pos.x + Theme::GetDef().baseIndent, tooltipRect.GetCenter().y + textSize.y * 0.5f).AsLVG(), textOpts, 0.0f, TOOLTIP_DRAW_ORDER);
+	}
+
 	void Widget::DebugDraw(int32 threadIndex, int32 drawOrder)
 	{
 		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex, drawOrder](Widget* child) -> void { child->DebugDraw(threadIndex, drawOrder); });
@@ -125,6 +193,16 @@ namespace Lina
 
 		if (m_parent && m_parent != m_manager->GetRoot() && m_parent != m_manager->GetForegroundRoot() && !m_parent->GetIsHovered())
 			m_isHovered = false;
+	}
+
+	Vector2 Widget::GetStartFromMargins()
+	{
+		return m_rect.pos + Vector2(m_childMargins.left, m_childMargins.top);
+	}
+
+	Vector2 Widget::GetEndFromMargins()
+	{
+		return m_rect.GetEnd() - Vector2(m_childMargins.right, m_childMargins.bottom);
 	}
 
 } // namespace Lina

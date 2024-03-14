@@ -49,11 +49,9 @@ namespace Lina
 
 		struct Properties
 		{
-			TBLR				 borderThickness;
 			DirectionOrientation direction		 = DirectionOrientation::Horizontal;
 			Mode				 mode			 = Mode::Default;
 			float				 padding		 = 0.0f;
-			Color				 colorBorder	 = Theme::GetDef().background2;
 			Color				 colorBackground = Theme::GetDef().background0;
 			bool				 drawBackground	 = false;
 		};
@@ -76,10 +74,6 @@ namespace Lina
 		void BehaviourDefault(float delta);
 		void BehaviourEqualPositions(float delta);
 		void BehaviourEqualSizes(float delta);
-
-		void CheckCustomAlignment(Widget* w);
-		void CheckMainAxisExpand(Widget* w);
-		void AlignWidgetInCrossAxis(Widget* w);
 
 	private:
 		Properties m_props	= {};

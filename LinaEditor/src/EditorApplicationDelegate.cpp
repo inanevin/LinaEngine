@@ -33,6 +33,34 @@ SOFTWARE.
 #include "Core/CommonCore.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/GUI/CommonGUI.hpp"
+
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/Checkbox.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorField.hpp"
+#include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Slider.hpp"
+#include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Layout/Stack.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
+
+#include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
+#include "Editor/Widgets/Compound/IconTabs.hpp"
+#include "Editor/Widgets/Compound/Tab.hpp"
+#include "Editor/Widgets/Compound/TabRow.hpp"
+#include "Editor/Widgets/Compound/WindowButtons.hpp"
+#include "Editor/Widgets/Docking/DockArea.hpp"
+#include "Editor/Widgets/Docking/DockBorder.hpp"
+#include "Editor/Widgets/Docking/DockPreview.hpp"
+#include "Editor/Widgets/Docking/DockWidget.hpp"
+#include "Editor/Widgets/Screens/SplashScreen.hpp"
+#include "Editor/Widgets/Popups/ProjectSelector.hpp"
 
 namespace Lina
 {
@@ -64,6 +92,32 @@ namespace Lina::Editor
 		Theme::GetDef().iconDropdown		  = ICON_ARROW_DOWN;
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
+
+		Theme::SetWidgetChunkCount(GetTypeID<Button>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<Checkbox>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<ColorField>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<ColorWheel>(), 3);
+		Theme::SetWidgetChunkCount(GetTypeID<Dropdown>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<InputField>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<Icon>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<Text>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<Slider>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<PopupItem>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<DirectionalLayout>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<Stack>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<FileMenu>(), 5);
+		Theme::SetWidgetChunkCount(GetTypeID<Popup>(), 50);
+		Theme::SetWidgetChunkCount(GetTypeID<ColorWheelCompound>(), 1);
+		Theme::SetWidgetChunkCount(GetTypeID<IconTabs>(), 50);
+		Theme::SetWidgetChunkCount(GetTypeID<Tab>(), 50);
+		Theme::SetWidgetChunkCount(GetTypeID<TabRow>(), 25);
+		Theme::SetWidgetChunkCount(GetTypeID<WindowButtons>(), 15);
+		Theme::SetWidgetChunkCount(GetTypeID<DockArea>(), 25);
+		Theme::SetWidgetChunkCount(GetTypeID<DockBorder>(), 25);
+		Theme::SetWidgetChunkCount(GetTypeID<DockPreview>(), 25);
+		Theme::SetWidgetChunkCount(GetTypeID<DockWidget>(), 25);
+		Theme::SetWidgetChunkCount(GetTypeID<SplashScreen>(), 1);
+		Theme::SetWidgetChunkCount(GetTypeID<ProjectSelector>(), 1);
 	}
 
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)

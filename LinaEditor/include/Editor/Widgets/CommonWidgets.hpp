@@ -26,31 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Theme.hpp"
+#pragma once
+
+#include "Common/Data/String.hpp"
+#include "Common/Math/Color.hpp"
 
 namespace Lina
 {
-	Theme::ThemeDef			Theme::s_themeDef	 = {};
-	HashMap<TypeID, size_t> Theme::s_chunkCounts = {};
-
-	float Theme::GetBaseItemHeight(float dpiScale)
-	{
-		return 24.0f * 1.0f;
-		// return 24.0f * dpiScale;
-	}
-
-	void Theme::SetWidgetChunkCount(TypeID tid, size_t count)
-	{
-		s_chunkCounts[tid] = count;
-	}
-
-	size_t Theme::GetWidgetChunkCount(TypeID tid)
-	{
-		size_t cc = s_chunkCounts[tid];
-
-		if (cc == 0)
-			s_chunkCounts[tid] = 150; // default;
-
-		return s_chunkCounts[tid];
-	}
+	class DirectionalLayout;
+	class Widget;
 } // namespace Lina
+
+namespace Lina::Editor
+{
+	class CommonWidgets
+	{
+	public:
+		static DirectionalLayout* BuildWindowBar(const String& title, bool hasWindowButtons, Widget* allocator);
+
+		static void DrawGradLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
+		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
+	};
+} // namespace Lina::Editor

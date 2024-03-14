@@ -35,13 +35,17 @@ namespace Lina::Editor
 {
 	void IconTabs::Construct()
 	{
-		m_layout = Allocate<DirectionalLayout>("DirectionalLayout");
+		m_layout = Allocate<DirectionalLayout>("IconTabsLayout");
 		AddChild(m_layout);
 	}
 
 	void IconTabs::Initialize()
 	{
+		m_layout->GetProps().direction = m_props.direction;
+
 		int32 idx = 0;
+
+		LINA_ASSERT(m_layout->GetChildren().empty(), "");
 
 		for (const auto& ic : m_props.icons)
 		{
@@ -59,11 +63,44 @@ namespace Lina::Editor
 					m_props.onSelectionChanged(idx);
 			};
 
+			if (!m_props.tooltips.empty())
+				btn->SetTooltip(m_props.tooltips[idx]);
+
 			btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
 			btn->GetText()->GetProps().textScale = m_props.iconScale;
 			btn->GetText()->GetProps().text		 = ic;
 			btn->GetProps().outlineThickness	 = 0.0f;
-			btn->GetProps().rounding			 = 0.0f;
+
+			if (m_props.direction == DirectionOrientation::Horizontal)
+			{
+				btn->GetFlags().Set(WF_POS_ALIGN_Y);
+				btn->SetAlignedPosY(0.0f);
+			}
+			else
+			{
+				btn->GetFlags().Set(WF_POS_ALIGN_X);
+				btn->SetAlignedPosX(0.0f);
+			}
+
+			if (idx < static_cast<int32>(m_props.icons.size() - 1))
+			{
+				btn->SetBorderColor(Theme::GetDef().black);
+				btn->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness * 2;
+			}
+
+			if (idx == 0)
+			{
+				btn->GetProps().rounding  = m_props.topRounding;
+				btn->GetProps().onlyRound = {0, 1};
+			}
+			else if (idx == static_cast<int32>(m_props.icons.size()) - 1)
+			{
+				btn->GetProps().rounding  = m_props.bottomRounding;
+				btn->GetProps().onlyRound = {2, 3};
+			}
+			else
+				btn->GetProps().rounding = 0.0f;
+
 			btn->GetFlags().Set(WF_SIZE_ALIGN_X);
 			btn->SetAlignedSizeX(1.0f);
 

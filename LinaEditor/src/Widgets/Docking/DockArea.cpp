@@ -83,6 +83,9 @@ namespace Lina::Editor
 
 	void DockArea::Tick(float delta)
 	{
+		if (m_parent == nullptr)
+			return;
+
 		SetPos(m_parent->GetSize() * m_alignRect.pos);
 		SetSize(m_parent->GetSize() * m_alignRect.size);
 

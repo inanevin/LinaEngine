@@ -28,6 +28,7 @@ include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
 
 # Widgets
+include/Editor/Widgets/CommonWidgets.hpp
 include/Editor/Widgets/Testbed.hpp
 include/Editor/Widgets/DockTestbed.hpp
 include/Editor/Widgets/EditorRoot.hpp
@@ -56,6 +57,7 @@ src/EditorLocale.cpp
 src/Editor.cpp
 
 # Widgets
+src/Widgets/CommonWidgets.cpp
 src/Widgets/Testbed.cpp
 src/Widgets/DockTestbed.cpp
 src/Widgets/EditorRoot.cpp

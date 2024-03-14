@@ -33,6 +33,11 @@ public:
         return m_start_ptr;
     }
 
+    inline size_t GetChunkSize()
+    {
+        return m_chunkSize;
+    }
+    
 private:
     PoolAllocator(PoolAllocator& poolAllocator);
 };

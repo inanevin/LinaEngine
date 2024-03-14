@@ -39,6 +39,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
+	class DockArea;
 	class WindowButtons;
 
 	class EditorRoot : public Widget, public FileMenuListener
@@ -61,6 +62,7 @@ namespace Lina::Editor
 		Icon*		   m_linaLogo	   = nullptr;
 		WindowButtons* m_windowButtons = nullptr;
 		Rect		   m_dragRect	   = {};
+		DockArea*	   m_dummyDock	   = nullptr;
 	};
 
 } // namespace Lina::Editor

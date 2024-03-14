@@ -82,6 +82,7 @@ namespace Lina
 			float baseRounding		   = 0.25f;
 			float baseOutlineThickness = 2.0f;
 			float baseItemHeight	   = 24.0f;
+			float basePadding		   = baseIndent;
 
 			float popupAnimTime = 0.1f;
 
@@ -109,7 +110,11 @@ namespace Lina
 
 		static float GetBaseItemHeight(float dpiScale);
 
+		static size_t GetWidgetChunkCount(TypeID tid);
+		static void	  SetWidgetChunkCount(TypeID tid, size_t count);
+
 	private:
-		static ThemeDef s_themeDef;
+		static HashMap<TypeID, size_t> s_chunkCounts;
+		static ThemeDef				   s_themeDef;
 	};
 } // namespace Lina

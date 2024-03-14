@@ -81,8 +81,8 @@ namespace Lina::Editor
 
 		// Resize window to work dims.
 		auto* window = gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
-		window->AddSizeRequest(window->GetMonitorWorkSize());
+		// window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
+		// window->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Testbed* tb = root->Allocate<Testbed>("Testbed");
 		// DockTestbed* tb = root->Allocate<DockTestbed>("DockTestbed");

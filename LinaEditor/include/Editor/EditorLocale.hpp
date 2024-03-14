@@ -46,6 +46,9 @@ namespace Lina::Editor
 		Cancel,
 		Name,
 		Location,
+		ProjectSelect,
+		CreateNewProject,
+		OpenExistingProject,
 	};
 
 	class Locale

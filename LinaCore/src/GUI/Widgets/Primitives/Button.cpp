@@ -37,12 +37,11 @@ namespace Lina
 	void Button::Construct()
 	{
 		m_text = Allocate<Text>("ButtonText");
+		m_text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_text->SetAlignedPos(Vector2(0.5f, 0.5f));
+		m_text->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		AddChild(m_text);
-	}
-
-	void Button::Tick(float delta)
-	{
-		m_text->SetPos(m_rect.GetCenter() - m_text->GetHalfSize());
 	}
 
 	void Button::Draw(int32 threadIndex)
@@ -54,6 +53,11 @@ namespace Lina
 		style.outlineOptions.thickness = m_props.outlineThickness;
 		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 
+		if (!m_props.onlyRound.empty())
+		{
+			for (int32 corner : m_props.onlyRound)
+				style.onlyRoundTheseCorners.push_back(corner);
+		}
 		if (m_isPressed)
 			style.color = m_props.colorPressed.AsLVG4();
 		else if (m_isHovered)
@@ -68,6 +72,9 @@ namespace Lina
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
 
 		m_text->Draw(threadIndex);
+
+		Widget::DrawBorders(threadIndex);
+		Widget::DrawTooltip(threadIndex);
 	}
 
 	bool Button::OnMouse(uint32 button, LinaGX::InputAction act)

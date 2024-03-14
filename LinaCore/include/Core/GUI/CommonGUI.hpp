@@ -65,19 +65,29 @@ namespace Lina
 
 	enum WidgetFlags
 	{
-		WF_NONE				= 1 << 0,
-		WF_EXPAND_MAIN_AXIS = 1 << 1,
-		WF_OWNS_SIZE		= 1 << 2,
-		WF_ALIGN_NEGATIVE	= 1 << 3,
-		WF_ALIGN_POSITIVE	= 1 << 4,
-		WF_SELECTABLE		= 1 << 5,
-		WF_POS_ALIGN_START	= 1 << 6,
-		WF_POS_ALIGN_CENTER = 1 << 7,
-		WF_POS_ALIGN_END	= 1 << 8,
-		WF_SIZE_ALIGN_X		= 1 << 9,
-		WF_SIZE_ALIGN_Y		= 1 << 10,
-		WF_SIZE_X_DPIREL	= 1 << 11,
-		WF_SIZE_Y_DPIREL	= 1 << 12,
+		WF_NONE				   = 1 << 0,
+		WF_EXPAND_MAIN_AXIS	   = 1 << 1,
+		WF_OWNS_SIZE		   = 1 << 2,
+		WF_CROSSALIGN_NEGATIVE = 1 << 3,
+		WF_CROSSALIGN_POSITIVE = 1 << 4,
+		WF_SELECTABLE		   = 1 << 5,
+		WF_POS_ALIGN_START	   = 1 << 6,
+		WF_POS_ALIGN_CENTER	   = 1 << 7,
+		WF_POS_ALIGN_END	   = 1 << 8,
+		WF_SIZE_ALIGN_X		   = 1 << 9,
+		WF_SIZE_ALIGN_Y		   = 1 << 10,
+		WF_USE_FIXED_SIZE_X	   = 1 << 11,
+		WF_USE_FIXED_SIZE_Y	   = 1 << 12,
+		WF_CONTROLS_DRAW_ORDER = 1 << 13,
+		WF_POS_ALIGN_X		   = 1 << 14,
+		WF_POS_ALIGN_Y		   = 1 << 15,
+	};
+
+	enum class PosAlignmentSource
+	{
+		Start,
+		Center,
+		End
 	};
 
 	enum class ColorDisplay
@@ -90,7 +100,7 @@ namespace Lina
 	extern HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES;
 
 #define FOREGROUND_DRAW_ORDER 100
-#define DEBUG_DRAW_ORDER	  200
-#define ALIGNED_SIZE_SAME	  2.0f
+#define TOOLTIP_DRAW_ORDER	  200
+#define DEBUG_DRAW_ORDER	  300
 
 } // namespace Lina
