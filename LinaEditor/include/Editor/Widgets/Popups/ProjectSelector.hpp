@@ -47,37 +47,37 @@ namespace Lina::Editor
 		ProjectSelector()		   = default;
 		virtual ~ProjectSelector() = default;
 
-        struct Properties
-        {
-            int32 selectedTab = 0;
-        };
-        virtual void Construct() override;
+		struct Properties
+		{
+			int32 selectedTab = 0;
+		};
+		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-        
-        inline Properties& GetProps()
-        {
-            return m_props;
-        }
-    private:
-        
-        DirectionalLayout* BuildLocationSelectRow();
-        DirectionalLayout* BuildProjectNameRow();
-        DirectionalLayout* BuildButtonsRow();
-        DirectionalLayout* BuildContentCreateNew();
-        DirectionalLayout* BuildContentOpen();
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
 	private:
-        Properties m_props = {};
+		DirectionalLayout* BuildLocationSelectRow();
+		DirectionalLayout* BuildProjectNameRow();
+		DirectionalLayout* BuildButtonsRow();
+		DirectionalLayout* BuildContentCreateNew();
+		DirectionalLayout* BuildContentOpen();
+
+	private:
+		Properties		   m_props		   = {};
 		IconTabs*		   m_iconTabs	   = nullptr;
 		Vector2			   m_monitorSize   = Vector2::Zero;
 		Button*			   m_btnCreate	   = nullptr;
 		Button*			   m_btnCancel	   = nullptr;
 		Button*			   m_btnOpen	   = nullptr;
 		DirectionalLayout* m_contentLayout = nullptr;
-        DirectionalLayout* m_titleLayout = nullptr;
-    };
+		DirectionalLayout* m_titleLayout   = nullptr;
+	};
 
 } // namespace Lina::Editor
