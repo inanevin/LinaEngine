@@ -34,6 +34,9 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Popup::CalculateSize(float delta)
+	{
+	}
 	void Popup::Tick(float delta)
 	{
 		float maxChildWidth = 0.0f;

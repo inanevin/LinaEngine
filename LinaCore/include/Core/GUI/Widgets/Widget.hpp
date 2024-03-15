@@ -82,7 +82,7 @@ namespace Lina
 	{
 	public:
 		virtual void PreTick(){};
-		virtual void CalculateSizes(float delta){};
+		virtual void CalculateSize(float delta){};
 		virtual void Tick(float delta){};
 
 		virtual void Draw(int32 threadIndex);
@@ -263,6 +263,16 @@ namespace Lina
 			return m_childMargins;
 		}
 
+		inline float GetChildPadding() const
+		{
+			return m_childPadding;
+		}
+
+		inline void SetChildPadding(float padding)
+		{
+			m_childPadding = padding;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_GET_MUTATE(Pos, m_rect.pos);
@@ -303,6 +313,7 @@ namespace Lina
 		String			   m_tooltip		 = "";
 		PosAlignmentSource m_posAlignSourceX = PosAlignmentSource::Start;
 		PosAlignmentSource m_posAlignSourceY = PosAlignmentSource::Start;
+		float			   m_childPadding	 = 0.0f;
 	};
 
 } // namespace Lina

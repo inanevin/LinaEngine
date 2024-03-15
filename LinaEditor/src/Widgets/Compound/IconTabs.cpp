@@ -29,45 +29,34 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/IconTabs.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina::Editor
 {
-	void IconTabs::Construct()
-	{
-		m_layout = Allocate<DirectionalLayout>("IconTabsLayout");
-		AddChild(m_layout);
-	}
-
 	void IconTabs::Initialize()
 	{
-		m_layout->GetProps().direction = m_props.direction;
-
 		int32 idx = 0;
 
-		LINA_ASSERT(m_layout->GetChildren().empty(), "");
-
-		for (const auto& ic : m_props.icons)
+		for (const auto& ic : m_tabProps.icons)
 		{
 			Button* btn = Allocate<Button>("IconButton");
-			SetButtonColors(btn, idx == m_props.selected);
+			SetButtonColors(btn, idx == m_tabProps.selected);
 			btn->GetProps().onClicked = [this, idx]() {
 				// Set colors.
-				if (m_props.selected != -1)
-					SetButtonColors(static_cast<Button*>(m_layout->GetChildren()[m_props.selected]), false);
-				m_props.selected = idx;
-				SetButtonColors(static_cast<Button*>(m_layout->GetChildren()[m_props.selected]), true);
+				if (m_tabProps.selected != -1)
+					SetButtonColors(static_cast<Button*>(m_children[m_tabProps.selected]), false);
+				m_tabProps.selected = idx;
+				SetButtonColors(static_cast<Button*>(m_children[m_tabProps.selected]), true);
 
 				// Cb
-				if (m_props.onSelectionChanged)
-					m_props.onSelectionChanged(idx);
+				if (m_tabProps.onSelectionChanged)
+					m_tabProps.onSelectionChanged(idx);
 			};
 
-			if (!m_props.tooltips.empty())
-				btn->SetTooltip(m_props.tooltips[idx]);
+			if (!m_tabProps.tooltips.empty())
+				btn->SetTooltip(m_tabProps.tooltips[idx]);
 
 			btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
-			btn->GetText()->GetProps().textScale = m_props.iconScale;
+			btn->GetText()->GetProps().textScale = m_tabProps.iconScale;
 			btn->GetText()->GetProps().text		 = ic;
 			btn->GetProps().outlineThickness	 = 0.0f;
 
@@ -82,7 +71,7 @@ namespace Lina::Editor
 				btn->SetAlignedPosX(0.0f);
 			}
 
-			if (idx < static_cast<int32>(m_props.icons.size() - 1))
+			if (idx < static_cast<int32>(m_tabProps.icons.size() - 1))
 			{
 				btn->SetBorderColor(Theme::GetDef().black);
 				btn->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness * 2;
@@ -90,12 +79,12 @@ namespace Lina::Editor
 
 			if (idx == 0)
 			{
-				btn->GetProps().rounding  = m_props.topRounding;
+				btn->GetProps().rounding  = m_tabProps.topRounding;
 				btn->GetProps().onlyRound = {0, 1};
 			}
-			else if (idx == static_cast<int32>(m_props.icons.size()) - 1)
+			else if (idx == static_cast<int32>(m_tabProps.icons.size()) - 1)
 			{
-				btn->GetProps().rounding  = m_props.bottomRounding;
+				btn->GetProps().rounding  = m_tabProps.bottomRounding;
 				btn->GetProps().onlyRound = {2, 3};
 			}
 			else
@@ -105,15 +94,9 @@ namespace Lina::Editor
 			btn->SetAlignedSizeX(1.0f);
 
 			btn->Initialize();
-			m_layout->AddChild(btn);
+			AddChild(btn);
 			idx++;
 		}
-	}
-
-	void IconTabs::Tick(float delta)
-	{
-		m_layout->SetPos(GetPos());
-		m_layout->SetSize(GetSize());
 	}
 
 	void IconTabs::SetButtonColors(Button* btn, bool isSelected)

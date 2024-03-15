@@ -204,8 +204,8 @@ namespace Lina
 			 .width	  = width,
 			 .height  = height,
 		 };
-
 		fontTexture.pixels = new uint8[width * height];
+		memset(fontTexture.pixels, 0, width * height);
 
 		m_fontTextures.push_back(fontTexture);
 		m_boundFontTexture = static_cast<LinaVG::BackendHandle>(m_fontTextures.size() - 1);

@@ -30,25 +30,24 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina
 {
 	class Button;
-	class DirectionalLayout;
 } // namespace Lina
 
 namespace Lina::Editor
 {
-	class IconTabs : public Widget
+	class IconTabs : public DirectionalLayout
 	{
 	public:
 		IconTabs()			= default;
 		virtual ~IconTabs() = default;
 
-		struct Properties
+		struct TabProperties
 		{
 			Delegate<void(int32 selected)> onSelectionChanged;
-			DirectionOrientation		   direction;
 			Vector<String>				   icons;
 			Vector<String>				   tooltips;
 			int32						   selected		  = -1;
@@ -57,26 +56,18 @@ namespace Lina::Editor
 			float						   bottomRounding = 0.0f;
 		};
 
-		virtual void Construct() override;
 		virtual void Initialize() override;
-		virtual void Tick(float delta) override;
 
-		inline Properties& GetProps()
+		inline TabProperties& GetTabProps()
 		{
-			return m_props;
-		}
-
-		inline DirectionalLayout* GetLayout()
-		{
-			return m_layout;
+			return m_tabProps;
 		}
 
 	private:
 		void SetButtonColors(Button* btn, bool isSelected);
 
 	private:
-		DirectionalLayout* m_layout = nullptr;
-		Properties		   m_props	= {};
+		TabProperties m_tabProps = {};
 	};
 
 } // namespace Lina::Editor

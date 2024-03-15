@@ -129,7 +129,8 @@ namespace Lina
 		LinaGX::CursorType FindCursorType(Widget* start);
 		void			   PreTickWidget(Widget* w);
 		void			   TickWidget(Widget* w, float delta);
-		void			   ExpandWidget(Widget* w, bool isHorizontal);
+
+		void SizePassWidget(Widget* w, float delta);
 
 	private:
 		friend class Widget;

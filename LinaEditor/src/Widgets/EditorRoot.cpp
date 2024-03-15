@@ -61,10 +61,10 @@ namespace Lina::Editor
 		m_windowButtons = Allocate<WindowButtons>("WindowButtons");
 		AddChild(m_windowButtons);
 
-		m_dummyDock = Allocate<DockArea>("DockArea");
-		m_dummyDock->Initialize();
-		m_dummyDock->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
-		AddChild(m_dummyDock);
+		// m_dummyDock = Allocate<DockArea>("DockArea");
+		// m_dummyDock->Initialize();
+		// m_dummyDock->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
+		// AddChild(m_dummyDock);
 	}
 
 	void EditorRoot::Tick(float delta)
@@ -98,8 +98,8 @@ namespace Lina::Editor
 		lgxRect.size			  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
 		m_lgxWindow->SetDragRect(lgxRect);
 
-		m_dummyDock->SetPos(Vector2(0.0f, defaultHeight));
-		m_dummyDock->SetSize(Vector2(GetSizeX(), GetSizeY() - defaultHeight));
+		// m_dummyDock->SetPos(Vector2(0.0f, defaultHeight));
+		// m_dummyDock->SetSize(Vector2(GetSizeX(), GetSizeY() - defaultHeight));
 	}
 
 	void EditorRoot::Draw(int32 threadIndex)

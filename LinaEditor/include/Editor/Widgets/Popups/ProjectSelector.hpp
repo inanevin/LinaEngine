@@ -52,7 +52,8 @@ namespace Lina::Editor
 			int32 selectedTab = 0;
 		};
 		virtual void Construct() override;
-		virtual void Initialize() override;
+        virtual void CalculateSize(float delta) override;
+        virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
@@ -71,13 +72,9 @@ namespace Lina::Editor
 
 	private:
 		Properties		   m_props		   = {};
-		IconTabs*		   m_iconTabs	   = nullptr;
 		Vector2			   m_monitorSize   = Vector2::Zero;
-		Button*			   m_btnCreate	   = nullptr;
-		Button*			   m_btnCancel	   = nullptr;
-		Button*			   m_btnOpen	   = nullptr;
-		DirectionalLayout* m_contentLayout = nullptr;
-		DirectionalLayout* m_titleLayout   = nullptr;
+		DirectionalLayout* m_content = nullptr;
+        DirectionalLayout* m_title = nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -53,90 +53,75 @@ namespace Lina::Editor
 		base->GetProps().direction = DirectionOrientation::Vertical;
 		AddChild(base);
 
-		DirectionalLayout* title = CommonWidgets::BuildWindowBar(Locale::GetStr(LocaleStr::ProjectSelect), false, this);
-		title->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		title->SetAlignedPos(Vector2::Zero);
-		title->SetAlignedSizeX(1.0f);
-		title->SetFixedSizeY(itemHeight);
-		title->GetProps().drawBackground   = true;
-		title->GetProps().colorBackground  = Theme::GetDef().background0;
-		title->GetChildMargins()		   = {.left = Theme::GetDef().baseIndent};
-		title->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
-		title->SetBorderColor(Theme::GetDef().black);
-		base->AddChild(title);
+		m_title = CommonWidgets::BuildWindowBar(Locale::GetStr(LocaleStr::ProjectSelect), false, this);
+		m_title->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
+		m_title->SetAlignedPos(Vector2::Zero);
+		m_title->SetAlignedSizeX(1.0f);
+		m_title->SetFixedSizeY(itemHeight);
+		m_title->GetProps().drawBackground	 = true;
+		m_title->GetProps().colorBackground	 = Theme::GetDef().background0;
+		m_title->GetChildMargins()			 = {.left = Theme::GetDef().baseIndent};
+		m_title->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
+		m_title->SetBorderColor(Theme::GetDef().black);
+		base->AddChild(m_title);
 
-		DirectionalLayout* bottom = Allocate<DirectionalLayout>("TESTERO");
+		DirectionalLayout* bottom = Allocate<DirectionalLayout>("Bottom");
 		bottom->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		bottom->SetAlignedPosX(0.0f);
 		bottom->SetAlignedSizeX(1.0f);
 		bottom->SetAlignedSizeY(0.0f);
 		base->AddChild(bottom);
 
-		IconTabs* iconTabs								  = Allocate<IconTabs>("IconTabs");
-		iconTabs->GetProps().icons						  = {ICON_FOLDER_PLUS, ICON_FOLDER_OPEN};
-		iconTabs->GetProps().tooltips					  = {Locale::GetStr(LocaleStr::CreateNewProject), Locale::GetStr(LocaleStr::OpenExistingProject)};
-		iconTabs->GetProps().iconScale					  = 0.75f;
-		iconTabs->GetProps().selected					  = 0;
-		iconTabs->GetProps().direction					  = DirectionOrientation::Vertical;
-		iconTabs->GetLayout()->GetProps().mode			  = DirectionalLayout::Mode::EqualSizes;
-		iconTabs->GetLayout()->GetBorderThickness().right = Theme::GetDef().baseOutlineThickness;
-		iconTabs->GetLayout()->SetBorderColor(Theme::GetDef().black);
+		IconTabs* iconTabs					 = Allocate<IconTabs>("IconTabs");
+		iconTabs->GetTabProps().icons		 = {ICON_FOLDER_PLUS, ICON_FOLDER_OPEN};
+		iconTabs->GetTabProps().tooltips	 = {Locale::GetStr(LocaleStr::CreateNewProject), Locale::GetStr(LocaleStr::OpenExistingProject)};
+		iconTabs->GetTabProps().iconScale	 = 0.75f;
+		iconTabs->GetTabProps().selected	 = 0;
+		iconTabs->GetProps().direction		 = DirectionOrientation::Vertical;
+		iconTabs->GetProps().mode			 = DirectionalLayout::Mode::EqualSizes;
+		iconTabs->GetBorderThickness().right = Theme::GetDef().baseOutlineThickness;
+		iconTabs->SetBorderColor(Theme::GetDef().black);
 		iconTabs->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
 		iconTabs->SetAlignedSizeY(1.0f);
 		iconTabs->SetFixedSizeX(itemHeight * 2.0f);
 		iconTabs->SetAlignedPosY(0.0f);
-		iconTabs->GetProps().onSelectionChanged = [](int32 selection) {
-			// m_props.selectedTab = selection;
-			// RemoveChild(m_contentLayout);
-			// Deallocate(m_contentLayout);
-			// m_contentLayout = BuildContentCreateNew();
-			// m_contentLayout->Initialize();
-			// AddChild(m_contentLayout);
+		iconTabs->GetTabProps().onSelectionChanged = [&](int32 selection) {
+			m_props.selectedTab = selection;
+			Widget* parent		= m_content->GetParent();
+			parent->RemoveChild(m_content);
+			Deallocate(m_content);
+			m_content = m_props.selectedTab == 0 ? BuildContentCreateNew() : BuildContentOpen();
+			parent->AddChild(m_content);
+			m_content->Initialize();
 		};
 		bottom->AddChild(iconTabs);
 
-		DirectionalLayout* content = m_props.selectedTab == 0 ? BuildContentCreateNew() : BuildContentOpen();
-		bottom->AddChild(content);
+		m_content = m_props.selectedTab == 0 ? BuildContentCreateNew() : BuildContentOpen();
+		bottom->AddChild(m_content);
 	}
 
-	void ProjectSelector::Initialize()
+	void ProjectSelector::CalculateSize(float delta)
 	{
-		Widget::Initialize();
-		//  m_contentLayout = m_props.selectedTab == 0 ? BuildContentCreateNew() : BuildContentOpen();
-		//  m_iconTabs->GetProps().selected = m_props.selectedTab;
-		//  AddChild(m_contentLayout);
-		//  Widget::Initialize();
+		const float itemHeight = Theme::GetDef().baseItemHeight;
+		const float xSz		   = Math::Clamp(m_monitorSize.x * 0.3f, 200.0f, 600.0f);
+		const float ySz		   = itemHeight * 6.0f;
+		SetSize(Vector2(xSz, ySz));
+	}
+
+	void ProjectSelector::PreTick()
+	{
+		m_title->SetDrawOrder(m_drawOrder + 1);
 	}
 
 	void ProjectSelector::Tick(float delta)
 	{
-		// const float indent       = Theme::GetDef().baseIndent;
-		const float itemHeight = Theme::GetDef().baseItemHeight;
-		// const float tabsSize   = itemHeight * 2.0f;
-
-		const float xSz = Math::Clamp(m_monitorSize.x * 0.3f, 200.0f, 600.0f);
-		const float ySz = itemHeight * 6.0f;
-
-		SetSize(Vector2(xSz, ySz));
 		SetPos(Vector2(static_cast<float>(m_lgxWindow->GetSize().x) * 0.5f - GetHalfSizeX(), static_cast<float>(m_lgxWindow->GetSize().y) * 0.5f - GetHalfSizeY()));
-		//
-		// m_titleLayout->SetDrawOrder(m_drawOrder + 1);
-		// m_titleLayout->SetPos(GetPos());
-		// m_titleLayout->SetSize(Vector2(GetSizeX(), itemHeight));
-		//
-		// m_iconTabs->SetPos(Vector2(GetPosX(), GetPosY() + itemHeight));
-		// m_iconTabs->SetSizeX(tabsSize);
-		// m_iconTabs->SetSizeY(GetSizeY() - itemHeight);
-
-		//  m_contentLayout->SetPos(Vector2(GetPosX() + tabsSize + indent, GetPosY() + itemHeight));
-		//  m_contentLayout->SetSize(Vector2(GetSizeX() - tabsSize - indent * 2.0f, GetSizeY() - itemHeight));
 	}
 
 	void ProjectSelector::Draw(int32 threadIndex)
 	{
 		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background1.AsLVG4();
-		// opts.rounding = Theme::GetDef().baseRounding;
+		opts.color					  = Theme::GetDef().background1.AsLVG4();
 		opts.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness;
 		opts.outlineOptions.color	  = Theme::GetDef().black.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
@@ -160,7 +145,7 @@ namespace Lina::Editor
 		InputField* input = Allocate<InputField>();
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		input->SetAlignedSize(Vector2(0.0f, 1.0f));
-		input->SetAlignedPos(Vector2(0.3f, 0.0f));
+		input->SetAlignedPos(Vector2(0.0f, 0.0f));
 
 		Button* btn							 = Allocate<Button>();
 		btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
@@ -172,14 +157,19 @@ namespace Lina::Editor
 		btn->SetAlignedPosY(0.0f);
 		btn->SetPosAlignmentSourceX(PosAlignmentSource::End);
 
-		// btnLocation->SetPosAlignment(1.0f);
-		DirectionalLayout* row = Allocate<DirectionalLayout>();
+		DirectionalLayout* rightRow = Allocate<DirectionalLayout>("RightSide");
+		rightRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		rightRow->SetAlignedSize(Vector2(0.8f, 1.0f));
+		rightRow->SetAlignedPos(Vector2(0.2f, 0.0f));
+		rightRow->SetChildPadding(Theme::GetDef().baseIndent);
+		rightRow->AddChild(input, btn);
+
+		DirectionalLayout* row = Allocate<DirectionalLayout>("LocationSelectRow");
 		row->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		row->SetAlignedSizeX(1.0f);
 		row->SetAlignedPosX(0.0f);
 		row->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		row->GetProps().padding = Theme::GetDef().baseIndent;
-		row->AddChild(label, input, btn);
+		row->AddChild(label, rightRow);
 
 		return row;
 	}
@@ -196,15 +186,22 @@ namespace Lina::Editor
 		InputField* input = Allocate<InputField>();
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		input->SetAlignedSize(Vector2(0.0f, 1.0f));
-		input->SetAlignedPos(Vector2(0.3f, 0.0f));
+		input->SetAlignedPos(Vector2(0.0f, 0.0f));
 
-		DirectionalLayout* row = Allocate<DirectionalLayout>();
+		DirectionalLayout* rightRow = Allocate<DirectionalLayout>("RightSide");
+		rightRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		rightRow->SetAlignedSize(Vector2(0.8f, 1.0f));
+		rightRow->SetAlignedPos(Vector2(0.2f, 0.0f));
+		rightRow->SetChildPadding(Theme::GetDef().baseIndent);
+		rightRow->AddChild(input);
+
+		// btnLocation->SetPosAlignment(1.0f);
+		DirectionalLayout* row = Allocate<DirectionalLayout>("ProjectNameRow");
 		row->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		row->SetAlignedSizeX(1.0f);
 		row->SetAlignedPosX(0.0f);
 		row->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		row->GetProps().padding = Theme::GetDef().baseIndent;
-		row->AddChild(label, input);
+		row->AddChild(label, rightRow);
 
 		// rowProjName->AddChild(labelProjectName, inpProjName);
 
@@ -233,7 +230,7 @@ namespace Lina::Editor
 		row->SetAlignedSizeX(1.0f);
 		row->SetAlignedPosX(0.0f);
 		row->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		row->GetProps().padding = Theme::GetDef().baseIndent;
+		row->SetChildPadding(Theme::GetDef().baseIndent);
 		row->AddChild(buttonCreate, buttonCancel);
 
 		return row;
@@ -249,32 +246,19 @@ namespace Lina::Editor
 		contentLayout->SetAlignedPosY(0.0f);
 		contentLayout->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 		contentLayout->AddChild(BuildLocationSelectRow(), BuildProjectNameRow(), BuildButtonsRow());
-
 		return contentLayout;
 	}
 
 	DirectionalLayout* ProjectSelector::BuildContentOpen()
 	{
-		Button* buttonCreate					 = Allocate<Button>();
-		buttonCreate->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Create);
-		buttonCreate->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		buttonCreate->SetAlignedSizeY(1.0f);
-		Button* buttonCancel					 = Allocate<Button>();
-		buttonCancel->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Cancel);
-		buttonCancel->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		buttonCancel->SetAlignedSizeY(1.0f);
-		DirectionalLayout* rowButtons = Allocate<DirectionalLayout>();
-		rowButtons->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_CROSSALIGN_NEGATIVE);
-		rowButtons->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
-		rowButtons->SetAlignedSizeX(0.5f);
-		rowButtons->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		rowButtons->GetProps().padding = Theme::GetDef().baseIndent;
-		rowButtons->AddChild(buttonCreate, buttonCancel);
-
 		DirectionalLayout* contentLayout	= Allocate<DirectionalLayout>("ContentLayout");
 		contentLayout->GetProps().direction = DirectionOrientation::Vertical;
 		contentLayout->GetProps().mode		= DirectionalLayout::Mode::EqualPositions;
-		contentLayout->AddChild(BuildLocationSelectRow(), rowButtons);
+		contentLayout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		contentLayout->SetAlignedSize(Vector2(0.0f, 1.0f));
+		contentLayout->SetAlignedPosY(0.0f);
+		contentLayout->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		contentLayout->AddChild(BuildLocationSelectRow(), BuildButtonsRow());
 		return contentLayout;
 	}
 } // namespace Lina::Editor

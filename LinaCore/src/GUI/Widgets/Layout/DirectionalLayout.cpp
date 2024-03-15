@@ -42,11 +42,11 @@ namespace Lina
 			float maxY = 0.0f;
 			for (auto* c : m_children)
 			{
-				m_rect.size.x += c->GetSizeX() + m_props.padding;
+				m_rect.size.x += c->GetSizeX() + GetChildPadding();
 				maxY = Math::Max(c->GetSizeY(), maxY);
 			}
 
-			m_rect.size.x -= m_props.padding;
+			m_rect.size.x -= GetChildPadding();
 			m_rect.size.x += (m_childMargins.left + m_childMargins.right);
 
 			if (Math::Equals(m_rect.size.y, 0.0f, 0.1f))
@@ -57,11 +57,11 @@ namespace Lina
 			float maxX = 0.0f;
 			for (auto* c : m_children)
 			{
-				m_rect.size.y += c->GetSizeY() + m_props.padding;
+				m_rect.size.y += c->GetSizeY() + GetChildPadding();
 				maxX = Math::Max(c->GetSizeX(), maxX);
 			}
 
-			m_rect.size.y -= m_props.padding;
+			m_rect.size.y -= GetChildPadding();
 			m_rect.size.y += (m_childMargins.top + m_childMargins.bottom);
 
 			if (Math::Equals(m_rect.size.x, 0.0f, 0.1f))
@@ -86,7 +86,7 @@ namespace Lina
 		if (m_children.empty())
 			return;
 
-		const float totalAvailableSize = (m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * m_props.padding);
+		const float totalAvailableSize = (m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * GetChildPadding());
 		const float perItemSize		   = totalAvailableSize / static_cast<float>(m_children.size());
 
 		float pos = m_props.direction == DirectionOrientation::Horizontal ? m_start.x : m_start.y;
@@ -103,7 +103,7 @@ namespace Lina
 				c->SetPosY(pos);
 			}
 
-			pos += perItemSize + m_props.padding;
+			pos += perItemSize + GetChildPadding();
 		}
 	}
 
@@ -173,9 +173,9 @@ namespace Lina
 			const bool	lastItem	  = idx == m_children.size() - 1;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
-				x += incrementSize + (lastItem ? 0.0f : m_props.padding);
+				x += incrementSize + (lastItem ? 0.0f : GetChildPadding());
 			else
-				y += incrementSize + (lastItem ? 0.0f : m_props.padding);
+				y += incrementSize + (lastItem ? 0.0f : GetChildPadding());
 
 			idx++;
 		}

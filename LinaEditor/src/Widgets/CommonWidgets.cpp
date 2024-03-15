@@ -39,7 +39,7 @@ namespace Lina::Editor
 	DirectionalLayout* CommonWidgets::BuildWindowBar(const String& title, bool hasWindowButtons, Widget* allocator)
 	{
 		DirectionalLayout* layout  = allocator->Allocate<DirectionalLayout>();
-		layout->GetProps().padding = Theme::GetDef().baseIndent;
+        layout->SetChildPadding(Theme::GetDef().baseIndent);
 
 		Icon* icon			  = allocator->Allocate<Icon>();
 		icon->GetProps().icon = ICON_LINA_LOGO;
@@ -58,9 +58,10 @@ namespace Lina::Editor
 		if (hasWindowButtons)
 		{
 			WindowButtons* wb = allocator->Allocate<WindowButtons>();
-			wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_END);
+			wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 			wb->SetAlignedPosY(0.0f);
 			wb->SetAlignedSizeY(1.0f);
+            wb->SetPosAlignmentSourceX(PosAlignmentSource::End);
 			wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
 			layout->AddChild(wb);
 		}

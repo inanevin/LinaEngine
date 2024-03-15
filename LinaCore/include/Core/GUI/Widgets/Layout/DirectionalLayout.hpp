@@ -51,7 +51,6 @@ namespace Lina
 		{
 			DirectionOrientation direction		 = DirectionOrientation::Horizontal;
 			Mode				 mode			 = Mode::Default;
-			float				 padding		 = 0.0f;
 			Color				 colorBackground = Theme::GetDef().background0;
 			bool				 drawBackground	 = false;
 		};
@@ -75,12 +74,14 @@ namespace Lina
 		void BehaviourEqualPositions(float delta);
 		void BehaviourEqualSizes(float delta);
 
+	protected:
+		Properties m_props = {};
+
 	private:
-		Properties m_props	= {};
-		Vector2	   m_start	= Vector2::Zero;
-		Vector2	   m_end	= Vector2::Zero;
-		Vector2	   m_sz		= Vector2::Zero;
-		Vector2	   m_center = Vector2::Zero;
+		Vector2 m_start	 = Vector2::Zero;
+		Vector2 m_end	 = Vector2::Zero;
+		Vector2 m_sz	 = Vector2::Zero;
+		Vector2 m_center = Vector2::Zero;
 	};
 
 } // namespace Lina

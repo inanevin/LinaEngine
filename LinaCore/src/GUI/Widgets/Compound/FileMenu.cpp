@@ -56,23 +56,29 @@ namespace Lina
 		}
 	}
 
-	void FileMenu::Tick(float delta)
+	void FileMenu::CalculateSize(float delta)
 	{
 		const float padding = Theme::GetDef().baseIndentInner;
-
-		float x = m_rect.pos.x;
-		float w = 0.0f;
-
+		float		w		= 0.0f;
 		for (Button* btn : m_buttons)
 		{
 			btn->SetSizeX(padding * 2 + btn->GetText()->GetSizeX());
 			btn->SetSizeY(m_rect.size.y);
+			w += btn->GetSizeX();
+		}
+		SetSizeX(w);
+	}
+
+	void FileMenu::Tick(float delta)
+	{
+		const float padding = Theme::GetDef().baseIndentInner;
+		float		x		= m_rect.pos.x;
+
+		for (Button* btn : m_buttons)
+		{
 			btn->SetPosX(x);
 			btn->SetPosY(m_rect.pos.y);
 			x += btn->GetSizeX();
-			w += btn->GetSizeX();
 		}
-
-		SetSizeX(w);
 	}
 } // namespace Lina

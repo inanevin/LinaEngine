@@ -50,6 +50,7 @@ namespace Lina
 			float animTime			   = Theme::GetDef().popupAnimTime;
 		};
 
+		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 

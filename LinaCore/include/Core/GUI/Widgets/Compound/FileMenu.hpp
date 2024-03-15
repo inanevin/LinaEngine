@@ -54,6 +54,7 @@ namespace Lina
 		};
 
 		virtual void Initialize() override;
+		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 
 		inline Properties& GetProps()
