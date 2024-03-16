@@ -157,7 +157,8 @@ namespace Lina::Editor
 
 		// Text & icon
 		m_text->SetPos(Vector2(m_selectionRect.GetEnd().x + indent, m_rect.GetCenter().y - m_text->GetHalfSizeY()));
-		m_icon->GetProps().color = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().foreground0, m_closeRectAnimValue).AsLVG4();
+		m_icon->GetProps().colorStart = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().foreground0, m_closeRectAnimValue).AsLVG4();
+		m_icon->GetProps().colorEnd	  = m_icon->GetProps().colorStart;
 		m_icon->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * (1.0f - CLOSERECT_SIZEX_PERC * 0.5f) - m_icon->GetHalfSizeX(), m_rect.GetCenter().y - m_icon->GetHalfSizeY()));
 	}
 

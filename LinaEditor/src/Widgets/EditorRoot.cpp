@@ -39,9 +39,9 @@ namespace Lina::Editor
 	void EditorRoot::Construct()
 	{
 		// Logo
-		m_linaLogo					 = Allocate<Icon>("LinaLogo");
-		m_linaLogo->GetProps().icon	 = ICON_LINA_LOGO;
-		m_linaLogo->GetProps().color = Theme::GetDef().accentPrimary0;
+		m_linaLogo						  = Allocate<Icon>("LinaLogo");
+		m_linaLogo->GetProps().icon		  = ICON_LINA_LOGO;
+		m_linaLogo->GetProps().colorStart = m_linaLogo->GetProps().colorEnd = Theme::GetDef().accentPrimary0;
 		m_linaLogo->Initialize();
 		AddChild(m_linaLogo);
 

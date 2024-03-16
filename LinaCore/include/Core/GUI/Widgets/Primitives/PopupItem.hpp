@@ -45,7 +45,7 @@ namespace Lina
 		{
 			Delegate<void()> onClicked;
 			Delegate<void()> onClickedOutside;
-			Color			 colorBackgroundSelected = Theme::GetDef().background3;
+			Color			 colorBackgroundSelected = Theme::GetDef().background4;
 			Color			 colorHovered			 = Theme::GetDef().accentPrimary0;
 			float			 rounding				 = Theme::GetDef().baseRounding;
 			float			 horizontalIndent		 = Theme::GetDef().baseIndentInner;
@@ -55,6 +55,7 @@ namespace Lina
 		};
 
 		virtual void Construct() override;
+		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;

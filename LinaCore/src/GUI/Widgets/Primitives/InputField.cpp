@@ -61,6 +61,9 @@ namespace Lina
 	{
 		m_text						 = Allocate<Text>("InputFieldText");
 		m_text->GetProps().isDynamic = true;
+		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
+		m_text->SetAlignedPosY(0.5f);
+		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		AddChild(m_text);
 	}
 
@@ -105,7 +108,7 @@ namespace Lina
 		m_textEndMid				= middle + Vector2(textSize.x * 0.5f, 0.0f);
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
-		m_text->SetPos(middle - m_text->GetHalfSize());
+		m_text->SetPosX(middle.x - m_text->GetHalfSizeX());
 
 		// Caret alpha
 		if (m_isEditing)

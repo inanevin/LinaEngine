@@ -86,8 +86,9 @@ namespace Lina
 																						: Vector2((m_fillStart.x + m_fillEnd.x) * 0.5f - m_handle->GetHalfSizeX(), m_fillStart.y - m_handle->GetHalfSizeY());
 		m_handle->SetPos(handlePos);
 
-		const bool hoverColor	   = (m_handle->GetIsHovered()) && !m_isPressed;
-		m_handle->GetProps().color = hoverColor ? m_props.colorHandleHovered : Math::Lerp(m_props.colorFillMin, m_props.colorFillMax, fillPercent);
+		const bool hoverColor			= (m_handle->GetIsHovered()) && !m_isPressed;
+		m_handle->GetProps().colorStart = hoverColor ? m_props.colorHandleHovered : Math::Lerp(m_props.colorFillMin, m_props.colorFillMax, fillPercent);
+		m_handle->GetProps().colorEnd	= m_handle->GetProps().colorStart;
 	}
 
 	void Slider::Draw(int32 threadIndex)

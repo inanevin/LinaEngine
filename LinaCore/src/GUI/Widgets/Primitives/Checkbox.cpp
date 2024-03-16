@@ -42,22 +42,24 @@ namespace Lina
 		m_icon							= Allocate<Icon>("CheckboxIcon");
 		m_icon->GetProps().isDynamic	= true;
 		m_icon->GetProps().sdfThickness = 0.6f;
+		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_icon->SetAlignedPos(Vector2(0.5f, 0.5f));
 		AddChild(m_icon);
 	}
 
 	void Checkbox::Tick(float delta)
 	{
-		// Text size
-		const Vector2& textSize = m_icon->GetSize();
-		m_icon->SetPos(m_rect.GetCenter() - m_icon->GetHalfSize());
-
 		if (m_props.value == nullptr)
 			return;
 
 		// Alpha & color
-		const float alpha		   = Math::Lerp(m_icon->GetProps().color.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
-		m_icon->GetProps().color   = m_props.colorIcon;
-		m_icon->GetProps().color.w = alpha;
+		const float alpha				= Math::Lerp(m_icon->GetProps().colorStart.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
+		m_icon->GetProps().colorStart	= m_props.colorIcon;
+		m_icon->GetProps().colorEnd		= m_props.colorIcon;
+		m_icon->GetProps().colorStart.w = alpha;
+		m_icon->GetProps().colorEnd.w	= alpha;
 	}
 
 	void Checkbox::Draw(int32 threadIndex)

@@ -166,7 +166,9 @@ namespace Lina
 			const auto& it = items[i];
 
 			PopupItem* item = Allocate<PopupItem>("DropdownItem");
-			item->SetSize(Vector2(0, Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale())));
+			item->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
+			item->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+
 			item->GetProps().onClicked = [i, it, this]() {
 				m_text->GetProps().text = it;
 				m_text->CalculateTextSize();

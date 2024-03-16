@@ -40,9 +40,13 @@ namespace Lina
 		AddChild(m_text);
 	}
 
+	void PopupItem::CalculateSize(float delta)
+	{
+		SetSizeX(m_text->GetSizeX() + m_props.horizontalIndent * 2);
+	}
+
 	void PopupItem::Tick(float delta)
 	{
-		m_rect.size.x = m_text->GetSizeX() + m_props.horizontalIndent * 2;
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.GetCenter().y - m_text->GetHalfSizeY()));
 	}
 
@@ -55,10 +59,9 @@ namespace Lina
 			// Bg
 			LinaVG::StyleOptions opts;
 			opts.color = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackgroundSelected.AsLVG4();
-			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), Vector2(m_parent->GetRect().GetEnd().x, m_rect.GetEnd().y).AsLVG(), opts, 0.0f, m_drawOrder);
 		}
 
-		// Text & clip over icon.
 		m_text->Draw(threadIndex);
 	}
 

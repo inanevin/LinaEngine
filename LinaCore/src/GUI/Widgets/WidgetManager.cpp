@@ -448,6 +448,12 @@ namespace Lina
 					isExpandingY = true;
 			}
 
+			if (c->GetFlags().IsSet(WF_SIZE_X_COPY_Y))
+				c->SetSizeX(c->GetSizeY());
+
+			if (c->GetFlags().IsSet(WF_SIZE_Y_COPY_X))
+				c->SetSizeY(c->GetSizeX());
+
 			if (!isExpandingX)
 				totalNonExpandingSize.x += c->GetSizeX();
 

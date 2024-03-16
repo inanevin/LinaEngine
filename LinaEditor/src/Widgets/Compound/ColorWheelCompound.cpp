@@ -46,8 +46,13 @@ namespace Lina::Editor
 {
 	ColorWheelCompound::ColorComponent ColorWheelCompound::ConstructColorComponent(const String& label, float* val)
 	{
+		const float baseItemHeight = Theme::GetDef().baseItemHeight;
+
 		Text* text			  = Allocate<Text>("ColorComponentText");
 		text->GetProps().text = label;
+		text->GetFlags().Set(WF_POS_ALIGN_Y);
+		text->SetAlignedPosY(0.5f);
+		text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 
 		InputField* field				= Allocate<InputField>("ColorComponentInputField");
 		field->GetProps().isNumberField = true;
@@ -56,8 +61,10 @@ namespace Lina::Editor
 		field->GetProps().valueStep		= 0.01f;
 		field->GetProps().value			= val;
 		field->GetProps().clampNumber	= true;
-		field->GetFlags().Set(WF_SIZE_ALIGN_Y);
+		field->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
 		field->SetAlignedSizeY(1.0f);
+		field->SetFixedSizeX(baseItemHeight * 2.0f);
+		field->SetAlignedPosY(0.0f);
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
 
 		ColorSlider* slider			= Allocate<ColorSlider>("ColorComponentColorSlider");
@@ -65,14 +72,17 @@ namespace Lina::Editor
 		slider->GetProps().maxValue = 1.0f;
 		slider->GetProps().value	= val;
 		slider->GetProps().step		= 0.0f;
-		slider->GetFlags().Set(WF_EXPAND_MAIN_AXIS | WF_SIZE_ALIGN_Y);
-		slider->SetAlignedSize(1.0f);
+		slider->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y);
+		slider->SetAlignedSize(Vector2(0.0f, 1.0f));
+		slider->SetAlignedPosY(0.0f);
 		slider->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
 
 		DirectionalLayout* layout = Allocate<DirectionalLayout>("ColorComponentRow");
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
-		layout->GetFlags().Set(WF_SIZE_ALIGN_X);
+		layout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		layout->SetAlignedSizeX(1.0f);
+		layout->SetAlignedPosX(0.0f);
+		layout->SetFixedSizeY(baseItemHeight);
 		layout->AddChild(text, field, slider);
 
 		ColorWheelCompound::ColorComponent comp = {
@@ -88,6 +98,9 @@ namespace Lina::Editor
 	{
 		Text* text			  = Allocate<Text>("SaturationValueLabel");
 		text->GetProps().text = label;
+		text->GetFlags().Set(WF_POS_ALIGN_X);
+		text->SetAlignedPosX(0.5f);
+		text->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 
 		InputField* field				= Allocate<InputField>("SaturationValueField");
 		field->GetProps().isNumberField = true;
@@ -97,14 +110,19 @@ namespace Lina::Editor
 		field->GetProps().valueStep		= isHue ? 1.0f : 0.01f;
 		field->GetProps().value			= val;
 		field->GetProps().decimals		= isHue ? 0 : 3;
-		field->GetFlags().Set(WF_SIZE_ALIGN_X);
+		field->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		field->SetAlignedSizeX(1.0f);
+		field->SetAlignedPosX(0.0f);
+		field->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
 
 		ColorSlider* slider			 = Allocate<ColorSlider>("HSVSlider");
 		slider->GetProps().direction = DirectionOrientation::Vertical;
-		slider->GetFlags().Set(WF_EXPAND_MAIN_AXIS | WF_SIZE_ALIGN_X);
+		slider->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		slider->SetAlignedSizeX(0.5f);
+		slider->SetAlignedPosX(0.5f);
+		slider->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		slider->SetAlignedSizeY(0.0f);
 		slider->GetProps().minValue		  = 0.0f;
 		slider->GetProps().maxValue		  = isHue ? 360.0f : 1.0f;
 		slider->GetProps().value		  = val;
@@ -116,7 +134,9 @@ namespace Lina::Editor
 		DirectionalLayout* layout	 = Allocate<DirectionalLayout>("SaturationValueLayout");
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
-		layout->GetFlags().Set(WF_SIZE_ALIGN_Y);
+		layout->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
+		layout->SetFixedSizeX(Theme::GetDef().baseItemHeight * 2.0f);
+		layout->SetAlignedPosY(0.0f);
 		layout->SetAlignedSizeY(1.0f);
 		layout->AddChild(slider, field, text);
 
@@ -134,114 +154,146 @@ namespace Lina::Editor
 	{
 		const float baseItemHeight = Theme::GetDef().baseItemHeight;
 
-		// Wheel stack.
-		m_wheel = Allocate<ColorWheel>("ColorWheel");
-		m_wheel->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		m_wheel->SetAlignedSize(Vector2::One);
-		m_wheel->GetProps().hue			   = &m_hsv.x;
-		m_wheel->GetProps().saturation	   = &m_hsv.y;
-		m_wheel->GetProps().onValueChanged = [this](float, float) { Recalculate(false); };
-
-		m_wheelStack					= Allocate<Stack>("Wheel Stack");
-		m_wheelStack->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-		m_wheelStack->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		m_wheelStack->SetAlignedSizeY(1.0f);
-		m_wheelStack->AddChild(m_wheel);
-
-		// Sliders
-		m_hueComponent		  = ConstructHSVComponent("H", true, &m_hsv.x);
-		m_saturationComponent = ConstructHSVComponent("S", false, &m_hsv.y);
-		m_valueComponent	  = ConstructHSVComponent("V", false, &m_hsv.z);
-
-		// Slider row
-		m_topSlidersRow							   = Allocate<DirectionalLayout>("TopSlidersRow");
-		m_topSlidersRow->GetProps().direction	   = DirectionOrientation::Horizontal;
-		m_topSlidersRow->GetBorderThickness().left = Theme::GetDef().baseOutlineThickness;
-		m_topSlidersRow->GetFlags().Set(WF_EXPAND_MAIN_AXIS | WF_SIZE_ALIGN_Y);
-		m_topSlidersRow->SetAlignedSizeY(1.0f);
-		m_topSlidersRow->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-		// m_hueComponent.layout->SetPosAlignment(0.0f);
-		// m_saturationComponent.layout->SetPosAlignment(0.5f);
-		//	m_valueComponent.layout->SetPosAlignment(1.0f);
-		m_topSlidersRow->AddChild(m_hueComponent.layout, m_saturationComponent.layout, m_valueComponent.layout);
-
 		// Top row
 		m_topRow							  = Allocate<DirectionalLayout>("TopRow");
 		m_topRow->GetProps().direction		  = DirectionOrientation::Horizontal;
-		m_topRow->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
-		m_topRow->AddChild(m_wheelStack, m_topSlidersRow);
+		m_topRow->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness * 2.0f;
+		m_topRow->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_topRow->SetAlignedPos(Vector2::Zero);
 		AddChild(m_topRow);
 
-		// Bottom row
-		m_bottomRow						  = Allocate<DirectionalLayout>("BottomRow");
-		m_bottomRow->GetProps().direction = DirectionOrientation::Vertical;
-		m_bottomRow->GetChildMargins()	  = TBLR::Eq(Theme::GetDef().baseIndent);
-		m_bottomRow->SetChildPadding(Theme::GetDef().baseIndent);
+		Widget* topRowLeftSide = Allocate<Widget>("TopRowLeftSide");
+		topRowLeftSide->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
+		topRowLeftSide->SetAlignedPosY(0.0f);
+		topRowLeftSide->SetAlignedSizeY(1.0f);
+		topRowLeftSide->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
+		m_topRow->AddChild(topRowLeftSide);
 
-		m_colorComp1											= ConstructColorComponent("R", &m_editedColor.x);
-		m_colorComp2											= ConstructColorComponent("G", &m_editedColor.y);
-		m_colorComp3											= ConstructColorComponent("B", &m_editedColor.z);
-		m_colorComp4											= ConstructColorComponent("A", &m_editedColor.w);
-		m_colorComp4.slider->GetProps().drawCheckeredBackground = true;
+		// Wheel.
+		m_wheel = Allocate<ColorWheel>("Wheel");
+		m_wheel->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_wheel->SetAlignedSize(Vector2::One);
+		m_wheel->SetAlignedPos(Vector2::Zero);
+		m_wheel->GetProps().hue			   = &m_hsv.x;
+		m_wheel->GetProps().saturation	   = &m_hsv.y;
+		m_wheel->GetProps().onValueChanged = [this](float, float) { Recalculate(false); };
+		topRowLeftSide->AddChild(m_wheel);
 
-		// Display dropdown
-		m_displayDropdown						 = Allocate<Dropdown>("ColorDisplayDropdown");
-		m_displayDropdown->GetProps().onSelected = [this](int32 item) { SwitchColorDisplay(static_cast<ColorDisplay>(item)); };
-		m_displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, int32& outSelected) {
-			for (int32 i = 0; i < static_cast<int32>(ColorDisplay::MAX); i++)
-				outItems.push_back(COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(i)]);
-			outSelected = static_cast<int32>(m_selectedDisplay);
-		};
+		// HSV
+		DirectionalLayout* hsvRow		  = Allocate<DirectionalLayout>("HSVRow");
+		hsvRow->GetBorderThickness().left = Theme::GetDef().baseOutlineThickness;
+		hsvRow->GetChildMargins()		  = TBLR::Eq(Theme::GetDef().baseIndent);
+		hsvRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		hsvRow->SetAlignedSize(Vector2(0.0f, 1.0f));
+		hsvRow->SetAlignedPosY(0.0f);
+		m_topRow->AddChild(hsvRow);
 
-		m_displayDropdown->GetText()->GetProps().text = COLOR_DISPLAY_VALUES[m_selectedDisplay];
-		m_displayDropdown->Initialize();
-		m_displayDropdown->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		m_displayDropdown->SetAlignedSizeY(1.0f);
+		// Hue
+		m_hueComponent = ConstructHSVComponent("H", true, &m_hsv.x);
+		m_hueComponent.layout->GetFlags().Set(WF_POS_ALIGN_X);
+		m_hueComponent.layout->SetAlignedPosX(0.0f);
+		m_hueComponent.layout->SetPosAlignmentSourceX(PosAlignmentSource::Start);
+		hsvRow->AddChild(m_hueComponent.layout);
 
-		m_oldColorField					  = Allocate<ColorField>("OldColor");
-		m_oldColorField->GetProps().value = &m_oldColor;
-		m_oldColorField->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		m_oldColorField->SetAlignedSizeY(1.0f);
-		m_oldColorField->GetProps().rounding				= 0.0f;
-		m_oldColorField->GetProps().outlineThickness		= 0.0f;
-		m_oldColorField->GetProps().drawCheckeredBackground = true;
+		// Sat
+		m_saturationComponent = ConstructHSVComponent("S", false, &m_hsv.y);
+		m_saturationComponent.layout->GetFlags().Set(WF_POS_ALIGN_X);
+		m_saturationComponent.layout->SetAlignedPosX(0.5f);
+		m_saturationComponent.layout->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		hsvRow->AddChild(m_saturationComponent.layout);
 
-		m_newColorField					  = Allocate<ColorField>("NewColor");
-		m_newColorField->GetProps().value = &m_editedColor;
-		m_newColorField->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		m_newColorField->SetAlignedSizeY(1.0f);
-		m_newColorField->GetProps().rounding				= 0.0f;
-		m_newColorField->GetProps().outlineThickness		= 0.0f;
-		m_newColorField->GetProps().drawCheckeredBackground = true;
-		m_newColorField->GetProps().convertToLinear			= true;
+		// Val
+		m_valueComponent = ConstructHSVComponent("V", false, &m_hsv.z);
+		m_valueComponent.layout->GetFlags().Set(WF_POS_ALIGN_X);
+		m_valueComponent.layout->SetAlignedPosX(1.0f);
+		m_valueComponent.layout->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		hsvRow->AddChild(m_valueComponent.layout);
 
-		m_colorsLayout						 = Allocate<DirectionalLayout>("ColorsRow");
-		m_colorsLayout->GetProps().direction = DirectionOrientation::Horizontal;
-		m_colorsLayout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
-		m_colorsLayout->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		m_colorsLayout->SetAlignedSizeY(1.0f);
-		m_colorsLayout->AddChild(m_oldColorField, m_newColorField);
+		// Bottom Col
+		m_bottomColumn						 = Allocate<DirectionalLayout>("BottomRow");
+		m_bottomColumn->GetProps().direction = DirectionOrientation::Vertical;
+		m_bottomColumn->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndent);
+		m_bottomColumn->SetChildPadding(Theme::GetDef().baseIndent);
+		AddChild(m_bottomColumn);
 
-		m_hexField						 = Allocate<InputField>();
+		// Hex and old/new color fields
+		DirectionalLayout* hexAndColorsRow = Allocate<DirectionalLayout>("HexAndColorsRow");
+		hexAndColorsRow->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+		hexAndColorsRow->SetAlignedPosX(0.0f);
+		hexAndColorsRow->SetFixedSizeY(baseItemHeight);
+		hexAndColorsRow->SetAlignedSizeX(1.0f);
+		m_bottomColumn->AddChild(hexAndColorsRow);
+
+		// Hex
+		m_hexField						 = Allocate<InputField>("HexField");
 		m_hexField->GetProps().onEditEnd = [this](const String& str) {
 			m_editedColor.FromHex(str);
 			m_editedColor255 = m_editedColor * 255.0f;
 			m_editedColor255.Round();
 			Recalculate(true);
 		};
+		m_hexField->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		m_hexField->SetFixedSizeX(baseItemHeight * 6);
+		m_hexField->SetAlignedSizeY(1.0f);
+		m_hexField->SetAlignedPosY(0.0f);
+		hexAndColorsRow->AddChild(m_hexField);
 
-		m_dropdownAndColorsRow						 = Allocate<DirectionalLayout>("DropdownAndColorsRow");
-		m_dropdownAndColorsRow->GetProps().direction = DirectionOrientation::Horizontal;
-		m_dropdownAndColorsRow->GetFlags().Set(WF_SIZE_ALIGN_X);
-		m_dropdownAndColorsRow->SetAlignedSizeX(1.0f);
-		m_displayDropdown->GetFlags().Set(WF_SIZE_ALIGN_Y);
-		// m_displayDropdown->SetPosAlignment(0.0f);
-		m_displayDropdown->SetAlignedSizeY(1.0f);
-		// m_colorsLayout->SetPosAlignment(1.0f);
-		m_dropdownAndColorsRow->AddChild(m_displayDropdown, m_colorsLayout);
+		// Right side
+		DirectionalLayout* oldAndNewColors = Allocate<DirectionalLayout>("OldAndNewColors");
+		oldAndNewColors->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		oldAndNewColors->SetAlignedSizeY(1.0f);
+		oldAndNewColors->SetFixedSizeX(baseItemHeight * 6.0f);
+		oldAndNewColors->SetAlignedPos(Vector2(1.0f, 0.0f));
+		oldAndNewColors->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		oldAndNewColors->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
+		hexAndColorsRow->AddChild(oldAndNewColors);
 
-		m_bottomRow->AddChild(m_hexField, m_dropdownAndColorsRow, m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
-		AddChild(m_bottomRow);
+		// Old color
+		m_oldColorField					  = Allocate<ColorField>("OldColor");
+		m_oldColorField->GetProps().value = &m_oldColor;
+		m_oldColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		m_oldColorField->SetAlignedPosY(0.0f);
+		m_oldColorField->SetAlignedSizeY(1.0f);
+		m_oldColorField->GetProps().rounding				= 0.0f;
+		m_oldColorField->GetProps().outlineThickness		= 0.0f;
+		m_oldColorField->GetProps().drawCheckeredBackground = true;
+		oldAndNewColors->AddChild(m_oldColorField);
+
+		// New color
+		m_newColorField					  = Allocate<ColorField>("NewColor");
+		m_newColorField->GetProps().value = &m_editedColor;
+		m_newColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		m_newColorField->SetAlignedPosY(0.0f);
+		m_newColorField->SetAlignedSizeY(1.0f);
+		m_newColorField->GetProps().rounding				= 0.0f;
+		m_newColorField->GetProps().outlineThickness		= 0.0f;
+		m_newColorField->GetProps().drawCheckeredBackground = true;
+		m_newColorField->GetProps().convertToLinear			= true;
+		oldAndNewColors->AddChild(m_newColorField);
+
+		// Display dropdown
+		Dropdown* displayDropdown			   = Allocate<Dropdown>("ColorDisplayDropdown");
+		displayDropdown->GetProps().onSelected = [this](int32 item) { SwitchColorDisplay(static_cast<ColorDisplay>(item)); };
+		displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, int32& outSelected) {
+			for (int32 i = 0; i < static_cast<int32>(ColorDisplay::MAX); i++)
+				outItems.push_back(COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(i)]);
+			outSelected = static_cast<int32>(m_selectedDisplay);
+		};
+
+		displayDropdown->GetText()->GetProps().text = COLOR_DISPLAY_VALUES[m_selectedDisplay];
+		displayDropdown->Initialize();
+		displayDropdown->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X);
+		displayDropdown->SetFixedSize(Vector2(baseItemHeight * 6.0f, baseItemHeight));
+		displayDropdown->SetAlignedPosX(0.0f);
+		m_bottomColumn->AddChild(displayDropdown);
+
+		// Color display
+		m_colorComp1											= ConstructColorComponent("R", &m_editedColor.x);
+		m_colorComp2											= ConstructColorComponent("G", &m_editedColor.y);
+		m_colorComp3											= ConstructColorComponent("B", &m_editedColor.z);
+		m_colorComp4											= ConstructColorComponent("A", &m_editedColor.w);
+		m_colorComp4.slider->GetProps().drawCheckeredBackground = true;
+		m_bottomColumn->AddChild(m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
 	}
 
 	void ColorWheelCompound::Initialize()
@@ -250,47 +302,18 @@ namespace Lina::Editor
 		Recalculate(true);
 	}
 
-	void ColorWheelCompound::Tick(float delta)
+	void ColorWheelCompound::CalculateSize(float delta)
 	{
-		const float baseItemHeight = Theme::GetBaseItemHeight(m_lgxWindow->GetDPIScale());
+		const float baseItemHeight = Theme::GetDef().baseItemHeight;
 		const float topRowHeight   = m_rect.size.x * WHEEL_STACK_PERC;
-		m_wheelStack->SetSizeX(topRowHeight);
-
-		m_hueComponent.layout->SetSizeX(baseItemHeight * 2);
-		m_hueComponent.field->SetSizeY(baseItemHeight);
-		m_saturationComponent.layout->SetSizeX(baseItemHeight * 2);
-		m_saturationComponent.field->SetSizeY(baseItemHeight);
-		m_valueComponent.layout->SetSizeX(baseItemHeight * 2);
-		m_valueComponent.field->SetSizeY(baseItemHeight);
-
-		m_topRow->SetPos(m_rect.pos);
 		m_topRow->SetSize(Vector2(m_rect.size.x, topRowHeight));
-
-		m_hexField->SetSizeX(baseItemHeight * 6);
-		m_hexField->SetSizeY(baseItemHeight);
-
-		m_displayDropdown->SetSizeX(baseItemHeight * 6);
-		m_colorsLayout->SetSizeX(baseItemHeight * 6);
-		m_dropdownAndColorsRow->SetSizeY(baseItemHeight);
-
-		m_colorComp1.row->SetSizeY(baseItemHeight);
-		m_colorComp2.row->SetSizeY(baseItemHeight);
-		m_colorComp3.row->SetSizeY(baseItemHeight);
-		m_colorComp4.row->SetSizeY(baseItemHeight);
-
-		m_colorComp1.field->SetSizeX(baseItemHeight * 2);
-		m_colorComp2.field->SetSizeX(baseItemHeight * 2);
-		m_colorComp3.field->SetSizeX(baseItemHeight * 2);
-		m_colorComp4.field->SetSizeX(baseItemHeight * 2);
-
-		m_bottomRow->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_topRow->GetSizeY()));
-		m_bottomRow->SetSize(Vector2(m_rect.size.x, m_rect.size.y - m_topRow->GetSizeY()));
+		m_bottomColumn->SetSize(Vector2(m_rect.size.x, m_rect.size.y - m_topRow->GetSizeY()));
 	}
 
-	void ColorWheelCompound::Draw(int32 threadIndex)
+	void ColorWheelCompound::Tick(float delta)
 	{
-		m_topRow->Draw(threadIndex);
-		m_bottomRow->Draw(threadIndex);
+		const float baseItemHeight = Theme::GetDef().baseItemHeight;
+		m_bottomColumn->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_topRow->GetSizeY()));
 	}
 
 	void ColorWheelCompound::SetTargetColor(const Color& col)

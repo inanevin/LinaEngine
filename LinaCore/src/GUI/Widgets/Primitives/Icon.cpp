@@ -44,7 +44,7 @@ namespace Lina
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateIconSize();
 
-		m_sdfOptions.color.start		 = m_props.color.AsLVG4();
+		m_sdfOptions.color.start		 = m_props.colorStart.AsLVG4();
 		m_sdfOptions.color.end			 = m_props.colorEnd.AsLVG4();
 		m_sdfOptions.sdfThickness		 = m_props.sdfThickness;
 		m_sdfOptions.sdfSoftness		 = m_props.sdfSoftness;
