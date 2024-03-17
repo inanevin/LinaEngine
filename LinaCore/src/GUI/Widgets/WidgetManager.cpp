@@ -472,6 +472,9 @@ namespace Lina
 			if (c->GetFlags().IsSet(WF_SIZE_Y_COPY_X))
 				c->SetSizeY(c->GetSizeX());
 
+			c->SetSizeX(Math::FloorToFloatEven(c->GetSizeX()));
+			c->SetSizeY(Math::FloorToFloatEven(c->GetSizeY()));
+
 			if (!isExpandingX)
 				totalNonExpandingSize.x += c->GetSizeX();
 
@@ -480,6 +483,54 @@ namespace Lina
 
 			if (isExpandingX || isExpandingY)
 				expandingChildren.push_back(c);
+		}
+
+		if (w->GetFlags().IsSet(WF_SIZE_X_TOTAL_CHILDREN))
+		{
+			float total = 0.0f;
+			int32 idx	= 0;
+			for (auto* c : w->GetChildren())
+			{
+				if (idx != 0)
+					total += w->GetChildPadding();
+
+				total += c->GetSizeX();
+				idx++;
+			}
+
+			w->SetSizeX(total + w->GetChildMargins().left + w->GetChildMargins().right);
+		}
+
+		if (w->GetFlags().IsSet(WF_SIZE_Y_TOTAL_CHILDREN))
+		{
+			float total = 0.0f;
+			int32 idx	= 0;
+			for (auto* c : w->GetChildren())
+			{
+				if (idx != 0)
+					total += w->GetChildPadding();
+
+				total += c->GetSizeY();
+				idx++;
+			}
+
+			w->SetSizeY(total + w->GetChildMargins().top + w->GetChildMargins().bottom);
+		}
+
+		if (w->GetFlags().IsSet(WF_SIZE_X_MAX_CHILDREN))
+		{
+			float max = 0.0f;
+			for (auto* c : w->GetChildren())
+				max = Math::Max(max, c->GetSizeX());
+			w->SetSizeX(max + w->GetChildMargins().left + w->GetChildMargins().right);
+		}
+
+		if (w->GetFlags().IsSet(WF_SIZE_Y_MAX_CHILDREN))
+		{
+			float max = 0.0f;
+			for (auto* c : w->GetChildren())
+				max = Math::Max(max, c->GetSizeY());
+			w->SetSizeY(max + w->GetChildMargins().top + w->GetChildMargins().bottom);
 		}
 
 		if (!expandingChildren.empty())
@@ -495,12 +546,15 @@ namespace Lina
 			for (auto* c : expandingChildren)
 			{
 				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_X) && Math::Equals(c->GetAlignedSizeX(), 0.0f, 0.0001f))
-					c->SetSizeX(targetSize.x);
+					c->SetSizeX(Math::FloorToFloatEven(targetSize.x));
 
 				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_Y) && Math::Equals(c->GetAlignedSizeY(), 0.0f, 0.0001f))
-					c->SetSizeY(targetSize.y);
+					c->SetSizeY(Math::FloorToFloatEven(targetSize.y));
 			}
 		}
+
+		w->SetSizeX(Math::FloorToFloatEven(w->GetSizeX()));
+		w->SetSizeY(Math::FloorToFloatEven(w->GetSizeY()));
 
 		for (auto* c : w->GetChildren())
 			SizePassWidget(c, delta);

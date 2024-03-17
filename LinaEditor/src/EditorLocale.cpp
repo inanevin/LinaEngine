@@ -31,6 +31,8 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	HashMap<LocaleStr, String> Locale::s_englishMap = {
+		{LocaleStr::Yes, "Yes"},
+		{LocaleStr::No, "No"},
 		{LocaleStr::Hex, "Hex"},
 		{LocaleStr::File, "File"},
 		{LocaleStr::Edit, "Edit"},
@@ -54,6 +56,8 @@ namespace Lina::Editor
 		{LocaleStr::NameIsNotValid, "Not a valid name!"},
 		{LocaleStr::Empty, "Empty"},
 		{LocaleStr::ExitEditor, "Exit Editor"},
+		{LocaleStr::UnfinishedWorkTitle, "Before you continue"},
+		{LocaleStr::UnfinishedWorkDesc, "Your project contains unfinished work. Would you like to save your changes before you continue?"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

@@ -35,6 +35,8 @@ namespace Lina::Editor
 
 	enum class LocaleStr
 	{
+		Yes,
+		No,
 		Hex,
 		File,
 		Edit,
@@ -58,6 +60,8 @@ namespace Lina::Editor
 		NameIsNotValid,
 		Empty,
 		ExitEditor,
+		UnfinishedWorkTitle,
+		UnfinishedWorkDesc,
 	};
 
 	class Locale

@@ -65,18 +65,22 @@ namespace Lina
 
 	enum WidgetFlags
 	{
-		WF_NONE				   = 1 << 0,
-		WF_OWNS_SIZE		   = 1 << 1,
-		WF_CONTROLS_DRAW_ORDER = 1 << 2,
-		WF_SELECTABLE		   = 1 << 3,
-		WF_SIZE_ALIGN_X		   = 1 << 4,
-		WF_SIZE_ALIGN_Y		   = 1 << 5,
-		WF_USE_FIXED_SIZE_X	   = 1 << 6,
-		WF_USE_FIXED_SIZE_Y	   = 1 << 7,
-		WF_POS_ALIGN_X		   = 1 << 8,
-		WF_POS_ALIGN_Y		   = 1 << 9,
-		WF_SIZE_X_COPY_Y	   = 1 << 10,
-		WF_SIZE_Y_COPY_X	   = 1 << 11,
+		WF_NONE					 = 1 << 0,
+		WF_OWNS_SIZE			 = 1 << 1,
+		WF_CONTROLS_DRAW_ORDER	 = 1 << 2,
+		WF_SELECTABLE			 = 1 << 3,
+		WF_SIZE_ALIGN_X			 = 1 << 4,
+		WF_SIZE_ALIGN_Y			 = 1 << 5,
+		WF_USE_FIXED_SIZE_X		 = 1 << 6,
+		WF_USE_FIXED_SIZE_Y		 = 1 << 7,
+		WF_POS_ALIGN_X			 = 1 << 8,
+		WF_POS_ALIGN_Y			 = 1 << 9,
+		WF_SIZE_X_COPY_Y		 = 1 << 10,
+		WF_SIZE_Y_COPY_X		 = 1 << 11,
+		WF_SIZE_X_TOTAL_CHILDREN = 1 << 12,
+		WF_SIZE_Y_TOTAL_CHILDREN = 1 << 13,
+		WF_SIZE_X_MAX_CHILDREN	 = 1 << 14,
+		WF_SIZE_Y_MAX_CHILDREN	 = 1 << 15,
 	};
 
 	enum class PosAlignmentSource

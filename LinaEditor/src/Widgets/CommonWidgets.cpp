@@ -32,19 +32,22 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Editor/Widgets/Compound/WindowButtons.hpp"
 #include "Editor/Widgets/Popups/InfoTooltip.hpp"
+#include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/EditorLocale.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina::Editor
 {
 	DirectionalLayout* CommonWidgets::BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* allocator)
 	{
-		DirectionalLayout* layout = allocator->Allocate<DirectionalLayout>();
+		DirectionalLayout* layout = allocator->Allocate<DirectionalLayout>("WindowBar");
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 
 		if (hasIcon)
 		{
-			Icon* icon			  = allocator->Allocate<Icon>();
+			Icon* icon			  = allocator->Allocate<Icon>("WindowBarIcon");
 			icon->GetProps().icon = ICON_LINA_LOGO;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
@@ -52,7 +55,7 @@ namespace Lina::Editor
 			layout->AddChild(icon);
 		}
 
-		Text* text			  = allocator->Allocate<Text>();
+		Text* text			  = allocator->Allocate<Text>("WindowBarTitle");
 		text->GetProps().text = title;
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);
@@ -61,7 +64,7 @@ namespace Lina::Editor
 
 		if (hasWindowButtons)
 		{
-			WindowButtons* wb = allocator->Allocate<WindowButtons>();
+			WindowButtons* wb = allocator->Allocate<WindowButtons>("WindowBarButtons");
 			wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 			wb->SetAlignedPosY(0.0f);
 			wb->SetAlignedSizeY(1.0f);
@@ -103,14 +106,16 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadIndex, Vector2((end.x + start.x) * 0.5f, start.y).AsLVG(), Vector2(end.x, end.y).AsLVG(), style2, 0.0f, drawOrder);
 	}
 
-	void CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source)
+	InfoTooltip* CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source)
 	{
 		InfoTooltip* inf			 = source->Allocate<InfoTooltip>("InfoTooltip");
 		inf->GetTooltipProps().text	 = str;
 		inf->GetTooltipProps().level = level;
 		inf->GetTooltipProps().time	 = time;
+		inf->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
+		inf->SetDrawOrder(FOREGROUND_HIGHP_DRAW_ORDER);
+		inf->SetFixedSize(Theme::GetDef().baseItemHeight);
 		inf->Initialize();
-		inf->CalculateSize(0.016f);
 		source->GetWidgetManager()->AddToForeground(inf);
 
 		LinaGX::Window* window	   = source->GetWindow();
@@ -145,18 +150,36 @@ namespace Lina::Editor
 		// Last resort bottom
 		inf->SetPos(Vector2(source->GetPosX(), source->GetRect().GetEnd().y));
 		inf->GetTooltipProps().direction = Direction::Bottom;
+
+		return inf;
 	}
 
-	void CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos)
+	InfoTooltip* CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos)
 	{
 		InfoTooltip* inf				 = manager->GetForegroundRoot()->Allocate<InfoTooltip>("InfoTooltip");
 		inf->GetTooltipProps().text		 = str;
 		inf->GetTooltipProps().level	 = level;
 		inf->GetTooltipProps().time		 = time;
 		inf->GetTooltipProps().direction = Direction::Center;
-		inf->Initialize();
-		inf->CalculateSize(0.016f);
 		inf->SetPos(targetPos);
 		manager->AddToForeground(inf);
+
+		return inf;
+	}
+
+	float CommonWidgets::GetPopupWidth(LinaGX::Window* window)
+	{
+		const float itemHeight = Theme::GetDef().baseItemHeight;
+		return Math::Clamp(window->GetMonitorSize().x * 0.3f, 200.0f, 600.0f);
+	}
+
+	GenericPopup* CommonWidgets::ThrowGenericPopup(const String& title, const String& text, Widget* source)
+	{
+		GenericPopup* pp		  = source->Allocate<GenericPopup>("GenericPopup");
+		pp->GetPopupProps().text  = text;
+		pp->GetPopupProps().title = title;
+		pp->Initialize();
+		source->GetWidgetManager()->AddToForeground(pp);
+		return pp;
 	}
 } // namespace Lina::Editor

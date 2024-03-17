@@ -32,50 +32,44 @@ SOFTWARE.
 
 namespace Lina
 {
-	class Tween;
-	class Icon;
-	class Text;
-} // namespace Lina
+	class DirectionalLayout;
+}
+
 namespace Lina::Editor
 {
-	class InfoTooltip : public DirectionalLayout
+	class GenericPopup : public DirectionalLayout
 	{
 	public:
-		struct TooltipProperties
+		struct ButtonProps
 		{
-			String	  text		= "";
-			LogLevel  level		= LogLevel::Info;
-			Direction direction = Direction::Right;
-			float	  time		= 5.0f;
+			String			 text = "";
+			Delegate<void()> onClicked;
+			bool			 closesPopup = true;
 		};
 
-		InfoTooltip()		   = default;
-		virtual ~InfoTooltip() = default;
+		struct PopupProperties
+		{
+			String				title = "";
+			String				text  = "";
+			Vector<ButtonProps> buttons;
+		};
+
+		GenericPopup()			= default;
+		virtual ~GenericPopup() = default;
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
 
-		inline TooltipProperties& GetTooltipProps()
+		void AddButton(const ButtonProps& buttonProps);
+
+		inline PopupProperties& GetPopupProps()
 		{
-			return m_tooltipProps;
+			return m_popupProps;
 		}
 
 	private:
-		static constexpr float TWEEN_TIME = 0.1f;
-
-		Color GetColorFromLevel();
-
-	private:
-		TooltipProperties m_tooltipProps  = {};
-		Icon*			  m_icon		  = nullptr;
-		Text*			  m_text		  = nullptr;
-		float			  m_tweenValue	  = 0.0f;
-		bool			  m_firstTick	  = true;
-		Vector2			  m_startPosition = Vector2::Zero;
-		float			  m_counter		  = 0.0f;
-		Tween*			  m_tween		  = nullptr;
+		PopupProperties	   m_popupProps = {};
+		DirectionalLayout* m_buttonsRow = nullptr;
 	};
 
 } // namespace Lina::Editor

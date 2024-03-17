@@ -76,6 +76,12 @@ namespace Lina
 			return floorf(val);
 		}
 
+		static float FloorToFloatEven(float val)
+		{
+			const float v = floorf(val);
+			return (int)v % 2 == 0 ? v : v - 1.0f;
+		}
+
 		static double FloorToDouble(double val)
 		{
 			return floor(val);

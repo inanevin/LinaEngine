@@ -39,19 +39,19 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void InfoTooltip::Initialize()
+	void InfoTooltip::Construct()
 	{
-		GetFlags().Set(WF_CONTROLS_DRAW_ORDER | WF_USE_FIXED_SIZE_Y);
-		m_drawOrder = FOREGROUND_HIGHP_DRAW_ORDER;
-		SetFixedSizeY(Theme::GetDef().baseItemHeight);
-
 		GetProps().drawBackground	= true;
 		GetProps().colorBackground	= Theme::GetDef().background0;
 		GetProps().rounding			= Theme::GetDef().baseRounding;
 		GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN);
 		SetChildPadding(Theme::GetDef().baseIndent);
 		GetChildMargins() = {.top = Theme::GetDef().baseIndent * 0.5f, .bottom = Theme::GetDef().baseIndent * 0.5f, .left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+	}
 
+	void InfoTooltip::Initialize()
+	{
 		// Icon
 		m_icon = Allocate<Icon>("InfoIcon");
 		m_icon->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -76,7 +76,6 @@ namespace Lina::Editor
 			m_icon->GetProps().icon		  = ICON_INFO;
 			m_icon->GetProps().colorStart = m_icon->GetProps().colorEnd = Theme::GetDef().foreground0;
 		}
-		m_icon->Initialize();
 		AddChild(m_icon);
 
 		// Text
@@ -86,11 +85,12 @@ namespace Lina::Editor
 		m_text->SetAlignedPosY(0.5f);
 		m_text->GetProps().text	 = m_tooltipProps.text;
 		m_text->GetProps().color = Theme::GetDef().foreground0;
-		m_text->Initialize();
 		AddChild(m_text);
 
 		if (m_tooltipProps.direction != Direction::Center)
 			m_tween = TweenManager::Get()->AddTween(&m_tweenValue, 0.0f, 1.0f, TWEEN_TIME, TweenType::EaseOut);
+
+		DirectionalLayout::Initialize();
 	}
 
 	void InfoTooltip::Tick(float delta)

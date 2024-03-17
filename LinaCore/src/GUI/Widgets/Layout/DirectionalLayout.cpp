@@ -34,42 +34,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	void DirectionalLayout::CalculateSize(float delta)
-	{
-		// Fetch size from children if empty.
-		if (m_props.direction == DirectionOrientation::Horizontal && Math::Equals(m_rect.size.x, 0.0f, 0.1f))
-		{
-			float maxY = 0.0f;
-			for (auto* c : m_children)
-			{
-				m_rect.size.x += c->GetSizeX() + GetChildPadding();
-				maxY = Math::Max(c->GetSizeY(), maxY);
-			}
-
-			m_rect.size.x -= GetChildPadding();
-			m_rect.size.x += (m_childMargins.left + m_childMargins.right);
-
-			if (Math::Equals(m_rect.size.y, 0.0f, 0.1f))
-				m_rect.size.y = maxY + (m_childMargins.top + m_childMargins.bottom);
-		}
-		else if (m_props.direction == DirectionOrientation::Vertical && Math::Equals(m_rect.size.y, 0.0f, 0.1f))
-		{
-			float maxX = 0.0f;
-			for (auto* c : m_children)
-			{
-				m_rect.size.y += c->GetSizeY() + GetChildPadding();
-				maxX = Math::Max(c->GetSizeX(), maxX);
-			}
-
-			m_rect.size.y -= GetChildPadding();
-			m_rect.size.y += (m_childMargins.top + m_childMargins.bottom);
-
-			if (Math::Equals(m_rect.size.x, 0.0f, 0.1f))
-				m_rect.size.x = maxX + (m_childMargins.left + m_childMargins.right);
-		}
-	}
-
 	void DirectionalLayout::Tick(float delta)
 	{
 		m_start	 = GetStartFromMargins();

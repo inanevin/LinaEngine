@@ -101,7 +101,7 @@ namespace Lina::Editor
 	void ProjectSelector::CalculateSize(float delta)
 	{
 		const float itemHeight = Theme::GetDef().baseItemHeight;
-		const float xSz		   = Math::Clamp(m_monitorSize.x * 0.3f, 200.0f, 600.0f);
+		const float xSz		   = CommonWidgets::GetPopupWidth(m_lgxWindow);
 		const float ySz		   = itemHeight * 6.0f;
 		SetSize(Vector2(xSz, ySz));
 	}

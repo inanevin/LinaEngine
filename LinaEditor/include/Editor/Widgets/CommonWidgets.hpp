@@ -38,8 +38,15 @@ namespace Lina
 	class WidgetManager;
 } // namespace Lina
 
+namespace LinaGX
+{
+	class Window;
+}
 namespace Lina::Editor
 {
+	class GenericPopup;
+	class InfoTooltip;
+
 	class CommonWidgets
 	{
 	public:
@@ -48,7 +55,11 @@ namespace Lina::Editor
 		static void DrawGradLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
 		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
 
-		static void ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
-		static void ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
+		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
+		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
+
+		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
+
+		static float GetPopupWidth(LinaGX::Window* window);
 	};
 } // namespace Lina::Editor

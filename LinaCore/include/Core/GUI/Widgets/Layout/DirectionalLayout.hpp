@@ -59,7 +59,6 @@ namespace Lina
 			Vector<int32>		 onlyRoundTheseCorners = {};
 		};
 
-		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;

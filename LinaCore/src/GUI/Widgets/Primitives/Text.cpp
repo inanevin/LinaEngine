@@ -51,15 +51,18 @@ namespace Lina
 			opts.font		 = m_lvgFont;
 			opts.textScale	 = m_props.textScale;
 			opts.alignment	 = m_props.alignment;
+			opts.wrapWidth	 = m_props.maxWidth;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
 			LinaVG::DrawTextSDF(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 		else
 		{
 			LinaVG::TextOptions opts;
-			opts.font		 = m_lvgFont;
-			opts.textScale	 = m_props.textScale;
-			opts.alignment	 = m_props.alignment;
+			opts.font			= m_lvgFont;
+			opts.textScale		= m_props.textScale;
+			opts.alignment		= m_props.alignment;
+			opts.wrapWidth		= m_props.maxWidth;
+			opts.newLineSpacing = 0.0f;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
 			LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
@@ -79,6 +82,7 @@ namespace Lina
 			LinaVG::SDFTextOptions opts;
 			opts.font	   = m_lvgFont;
 			opts.textScale = m_props.textScale;
+			opts.wrapWidth = m_props.maxWidth;
 			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
 		}
 		else
@@ -86,6 +90,7 @@ namespace Lina
 			LinaVG::TextOptions opts;
 			opts.font	   = m_lvgFont;
 			opts.textScale = m_props.textScale;
+			opts.wrapWidth = m_props.maxWidth;
 			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
 		}
 	}

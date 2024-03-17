@@ -36,8 +36,11 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
+#include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/Widgets/DockTestbed.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/EditorLocale.hpp"
 
 namespace Lina::Editor
 {
@@ -95,6 +98,11 @@ namespace Lina::Editor
 		editorRoot->Initialize();
 		root->AddChild(editorRoot);
 
+		GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), root);
+		popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = []() {}});
+		popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = []() {}});
+
+		return;
 		if (m_currentProject == nullptr)
 			OpenPopupProjectSelector();
 	}
@@ -114,6 +122,7 @@ namespace Lina::Editor
 
 		projectSelector->GetProps().onProjectCreated = [this](const String& location, const String& name) {
 			CleanCurrentProject();
+
 			// LINA_ASSERT(m_currentProject == nullptr, "");
 			// m_currentProject = new ProjectData();
 			// m_currentProject->SetPath(location + name + ".linaproject");

@@ -52,6 +52,7 @@ namespace Lina
 			Color				  colorDisabled = Theme::GetDef().silent1;
 			LinaVG::TextAlignment alignment		= LinaVG::TextAlignment::Left;
 			float				  textScale		= 1.0f;
+			float				  maxWidth		= 0.0f;
 			bool				  isDynamic		= false;
 		};
 
