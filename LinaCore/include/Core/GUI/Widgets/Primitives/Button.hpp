@@ -43,7 +43,7 @@ namespace Lina
 		{
 			Delegate<void()> onClicked;
 			Vector<int32>	 onlyRound			  = {};
-            Color colorDisabled = Theme::GetDef().silent0;
+			Color			 colorDisabled		  = Theme::GetDef().silent0;
 			Color			 colorDefaultStart	  = Theme::GetDef().background2;
 			Color			 colorDefaultEnd	  = Theme::GetDef().background3;
 			Color			 colorHovered		  = Theme::GetDef().background4;

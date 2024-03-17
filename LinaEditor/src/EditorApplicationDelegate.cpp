@@ -64,7 +64,6 @@ SOFTWARE.
 
 #include "Editor/Editor.hpp"
 
-
 namespace Lina
 {
 	SystemInitializationInfo Lina_GetInitInfo()
@@ -121,9 +120,9 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<DockWidget>(), 25);
 		Theme::SetWidgetChunkCount(GetTypeID<SplashScreen>(), 1);
 		Theme::SetWidgetChunkCount(GetTypeID<ProjectSelector>(), 1);
-        
-        m_app = app;
-        m_editor = new Editor(m_app->GetSystem());
+
+		m_app	 = app;
+		m_editor = new Editor(m_app->GetSystem());
 	}
 
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)
