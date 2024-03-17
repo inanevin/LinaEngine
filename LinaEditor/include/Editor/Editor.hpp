@@ -29,32 +29,46 @@ SOFTWARE.
 #pragma once
 
 #include "Meta/EditorSettings.hpp"
+#include "Common/System/Subsystem.hpp"
 
 namespace Lina
 {
 	class ProjectSettings;
 	class Application;
+	class GfxManager;
+	class WidgetManager;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class SplashScreen;
 	class ProjectSelector;
+	class InfoBar;
 
-	class Editor
+	class Editor : public Subsystem
 	{
 	public:
-		void OnPreInitialize(Application* app);
-		void OnInitialize();
+		Editor(System* sys) : Subsystem(sys, SubsystemType::Editor){};
+		virtual ~Editor() = default;
+
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void CoreResourcesLoaded() override;
+		virtual void Shutdown() override;
 
 		void OpenProject(const String& basePath, const String& projectName);
 		void CloseCurrentProject();
+		void AddInfoBar(const String& text, LogLevel level, float time = 3.0f);
+		void RemoveInfo();
+		void DestroyInfoBar();
 
 	private:
-		Application*	 m_app			   = nullptr;
-		EditorSettings	 m_settings		   = {};
-		ProjectSettings* m_currentProject  = nullptr;
-		ProjectSelector* m_projectSelector = nullptr;
+		GfxManager*		 m_gfxManager			= nullptr;
+		WidgetManager*	 m_primaryWidgetManager = nullptr;
+		EditorSettings	 m_settings				= {};
+		ProjectSettings* m_currentProject		= nullptr;
+		ProjectSelector* m_projectSelector		= nullptr;
+		InfoBar*		 m_infoBar				= nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -47,10 +47,6 @@ namespace Lina::Editor
 		ProjectSelector()		   = default;
 		virtual ~ProjectSelector() = default;
 
-		struct Properties
-		{
-			int32 selectedTab = 0;
-		};
 		virtual void Construct() override;
 		virtual void CalculateSize(float delta) override;
 		virtual void PreTick() override;
@@ -58,23 +54,24 @@ namespace Lina::Editor
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
-		inline Properties& GetProps()
-		{
-			return m_props;
-		}
+		void SetCancellable(bool isCancellable);
+		void SetTab(int32 selected);
 
 	private:
-		DirectionalLayout* BuildLocationSelectRow();
+		DirectionalLayout* BuildLocationSelectRow(const String& dialogTitle, bool selectFile);
 		DirectionalLayout* BuildProjectNameRow();
-		DirectionalLayout* BuildButtonsRow();
+		DirectionalLayout* BuildButtonsRow(bool isCreate);
 		DirectionalLayout* BuildContentCreateNew();
 		DirectionalLayout* BuildContentOpen();
 
 	private:
-		Properties		   m_props		 = {};
-		Vector2			   m_monitorSize = Vector2::Zero;
-		DirectionalLayout* m_content	 = nullptr;
-		DirectionalLayout* m_title		 = nullptr;
+		Vector2			   m_monitorSize   = Vector2::Zero;
+		DirectionalLayout* m_content	   = nullptr;
+		DirectionalLayout* m_title		   = nullptr;
+		Button*			   m_buttonCancel  = nullptr;
+		int32			   m_selected	   = 0;
+		String			   m_locationPath  = "";
+		bool			   m_isCancellable = true;
 	};
 
 } // namespace Lina::Editor

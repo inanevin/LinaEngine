@@ -51,7 +51,7 @@ namespace Lina
 			opts.font		 = m_lvgFont;
 			opts.textScale	 = m_props.textScale;
 			opts.alignment	 = m_props.alignment;
-			opts.color.start = opts.color.end = m_props.color.AsLVG4();
+			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
 			LinaVG::DrawTextSDF(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 		else
@@ -60,7 +60,7 @@ namespace Lina
 			opts.font		 = m_lvgFont;
 			opts.textScale	 = m_props.textScale;
 			opts.alignment	 = m_props.alignment;
-			opts.color.start = opts.color.end = m_props.color.AsLVG4();
+			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
 			LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 	}

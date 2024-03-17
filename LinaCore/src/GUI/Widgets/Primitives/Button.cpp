@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void Button::Construct()
 	{
 		m_text = Allocate<Text>("ButtonText");
@@ -67,6 +66,12 @@ namespace Lina
 			style.color.start		 = m_props.colorDefaultStart.AsLVG4();
 			style.color.end			 = m_props.colorDefaultEnd.AsLVG4();
 			style.color.gradientType = LinaVG::GradientType::Vertical;
+		}
+
+		if (GetIsDisabled())
+		{
+			style.color.start = style.color.end = m_props.colorDisabled.AsLVG4();
+			style.outlineOptions.color			= m_props.colorDisabled.AsLVG4();
 		}
 
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);

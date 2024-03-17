@@ -43,7 +43,6 @@ namespace Lina
 		m_handle->GetProps().sdfOutlineThickness = 0.6f;
 		m_handle->GetProps().sdfOutlineColor	 = Color::Black;
 		m_handle->GetProps().icon				 = Theme::GetDef().iconSliderHandle;
-		m_handle->GetProps().offsetPerc			 = Theme::GetDef().iconSliderHandleOffset;
 		m_handle->GetProps().textScale			 = 0.5f;
 		AddChild(m_handle);
 	}

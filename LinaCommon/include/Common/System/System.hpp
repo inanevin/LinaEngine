@@ -53,6 +53,7 @@ namespace Lina
 		Subsystem*	 CastSubsystem(SubsystemType type);
 		virtual void PreInitialize(const SystemInitializationInfo& initInfo) = 0;
 		virtual void Initialize(const SystemInitializationInfo& initInfo)	 = 0;
+		virtual void CoreResourcesLoaded()									 = 0;
 		virtual void PreShutdown()											 = 0;
 		virtual void Shutdown()												 = 0;
 		virtual void PreTick()												 = 0;

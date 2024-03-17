@@ -39,7 +39,6 @@ namespace Lina
 	{
 		m_icon								   = Allocate<Icon>();
 		m_icon->GetProps().icon				   = Theme::GetDef().iconColorWheelPointer;
-		m_icon->GetProps().offsetPerc		   = Theme::GetDef().iconColorWheelPointerOffset;
 		m_icon->GetProps().sdfOutlineColor	   = Theme::GetDef().background0;
 		m_icon->GetProps().sdfThickness		   = 0.6f;
 		m_icon->GetProps().sdfSoftness		   = 0.5f;

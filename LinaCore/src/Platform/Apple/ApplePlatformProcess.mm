@@ -213,18 +213,35 @@ namespace Lina
 		}
 	}
 
-	String PlatformProcess::OpenDialog(const char* extensionDescription, const char* extension)
+	String PlatformProcess::OpenDialog(const PlatformProcess::DialogProperties& props)
 	{
 		@autoreleasepool
 		{
 			NSOpenPanel* panel = [NSOpenPanel openPanel];
 
+			NSString* nsTitle		  = [NSString stringWithUTF8String:props.title.c_str()];
+			NSString* nsPrimaryButton = [NSString stringWithUTF8String:props.primaryButton.c_str()];
+
+			[panel setPrompt:nsPrimaryButton];
+			[panel setMessage:nsTitle];
+
+			if (props.mode == DialogMode::SelectDirectory)
+			{
+				[panel setCanChooseFiles:NO];
+				[panel setCanChooseDirectories:YES];
+			}
+			else if (props.mode == DialogMode::SelectFile)
+			{
+				[panel setCanChooseFiles:YES];
+				[panel setCanChooseDirectories:NO];
+
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
-			UTType* type = [UTType typeWithFilenameExtension:@(extension)];
-			[panel setAllowedContentTypes:@[ type ]];
+				UTType* type = [UTType typeWithFilenameExtension:@(props.extensions.c_str())];
+				[panel setAllowedContentTypes:@[ type ]];
 #else
-			[panel setAllowedFileTypes:@[ @(extension) ]];
+				[panel setAllowedFileTypes:@[ @(props.extensions.c_str()) ]];
 #endif
+			}
 
 			if ([panel runModal] == NSModalResponseOK)
 			{
@@ -238,17 +255,17 @@ namespace Lina
 		}
 	}
 
-	String PlatformProcess::SaveDialog(const char* extensionDescription, const char* extension)
+	String PlatformProcess::SaveDialog(const PlatformProcess::DialogProperties& props)
 	{
 		@autoreleasepool
 		{
 			NSSavePanel* panel = [NSSavePanel savePanel];
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
-			UTType* type = [UTType typeWithFilenameExtension:@(extension)];
+			UTType* type = [UTType typeWithFilenameExtension:@(props.extensions.c_str())];
 			[panel setAllowedContentTypes:@[ type ]];
 #else
-			[panel setAllowedFileTypes:@[ @(extension) ]];
+			[panel setAllowedFileTypes:@[ @(props.extensions.c_str()) ]];
 #endif
 			if ([panel runModal] == NSModalResponseOK)
 			{

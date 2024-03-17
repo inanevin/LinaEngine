@@ -61,7 +61,8 @@ namespace Lina
 			Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
 			Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
 
-			Color silent = Color(0.035f, 0.035f, 0.035f, 1.0f);
+			Color silent0 = Color(0.015f, 0.015f, 0.015f, 1.0f);
+			Color silent1 = Color(0.035f, 0.035f, 0.035f, 1.0f);
 
 			// Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
 
@@ -73,7 +74,7 @@ namespace Lina
 
 			Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
 
-			Color outlineColorBase	   = silent;
+			Color outlineColorBase	   = silent1;
 			Color outlineColorControls = accentPrimary0;
 
 			float baseIndent		   = 12.0f;
@@ -90,12 +91,9 @@ namespace Lina
 			StringID alternativeFont = 0;
 			StringID iconFont		 = 0;
 
-			String	iconDropdown				= "";
-			String	iconSliderHandle			= "";
-			String	iconColorWheelPointer		= "";
-			Vector2 iconDropdownOffset			= Vector2::Zero;
-			Vector2 iconSliderHandleOffset		= Vector2::Zero;
-			Vector2 iconColorWheelPointerOffset = Vector2::Zero;
+			String iconDropdown			 = "";
+			String iconSliderHandle		 = "";
+			String iconColorWheelPointer = "";
 		};
 
 		static ThemeDef& GetDef()

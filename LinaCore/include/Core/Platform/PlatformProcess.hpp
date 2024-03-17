@@ -38,11 +38,26 @@ namespace Lina
 	class PlatformProcess
 	{
 	public:
+		enum class DialogMode
+		{
+			SelectDirectory,
+			SelectFile,
+		};
+
+		struct DialogProperties
+		{
+			String	   title				= "";
+			String	   primaryButton		= "";
+			String	   extensions			= "";
+			String	   extensionDescription = "";
+			DialogMode mode					= DialogMode::SelectDirectory;
+		};
+
 		static void	  LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher);
 		static void	  UnloadPlugin(void* handle);
 		static void	  CopyToClipboard(const char* str);
 		static bool	  TryGetStringFromClipboard(String& outStr);
-		static String OpenDialog(const char* extensionDescription, const char* extension);
-		static String SaveDialog(const char* extensionDescription, const char* extension);
+		static String OpenDialog(const DialogProperties& properties);
+		static String SaveDialog(const DialogProperties& properties);
 	};
 } // namespace Lina

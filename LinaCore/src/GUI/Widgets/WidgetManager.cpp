@@ -305,7 +305,7 @@ namespace Lina
 				}
 			}
 
-			if (current && current->GetFlags().IsSet(WF_SELECTABLE))
+			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
 			{
 				return current;
 			}
@@ -336,7 +336,7 @@ namespace Lina
 				current = current->m_parent;
 			}
 
-			if (current && current->GetFlags().IsSet(WF_SELECTABLE))
+			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
 			{
 				return current;
 			}

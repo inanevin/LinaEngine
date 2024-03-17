@@ -94,6 +94,7 @@ namespace Lina
 		void		 DrawTooltip(int32 threadIndex);
 		Vector2		 GetStartFromMargins();
 		Vector2		 GetEndFromMargins();
+		void		 SetIsDisabled(bool isDisabled);
 
 		virtual void			   Construct(){};
 		virtual void			   Destruct(){};
@@ -273,6 +274,11 @@ namespace Lina
 			m_childPadding = padding;
 		}
 
+		inline bool GetIsDisabled() const
+		{
+			return m_isDisabled;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_GET_MUTATE(Pos, m_rect.pos);
@@ -314,6 +320,7 @@ namespace Lina
 		PosAlignmentSource m_posAlignSourceX = PosAlignmentSource::Start;
 		PosAlignmentSource m_posAlignSourceY = PosAlignmentSource::Start;
 		float			   m_childPadding	 = 0.0f;
+		bool			   m_isDisabled		 = false;
 	};
 
 } // namespace Lina

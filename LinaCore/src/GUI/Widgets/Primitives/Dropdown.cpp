@@ -40,12 +40,11 @@ namespace Lina
 
 	void Dropdown::Construct()
 	{
-		m_text						  = Allocate<Text>("Title");
-		m_text->GetProps().isDynamic  = true;
-		m_icon						  = Allocate<Icon>("Arrow");
-		m_icon->GetProps().isDynamic  = true;
-		m_icon->GetProps().icon		  = Theme::GetDef().iconDropdown;
-		m_icon->GetProps().offsetPerc = Theme::GetDef().iconDropdownOffset;
+		m_text						 = Allocate<Text>("Title");
+		m_text->GetProps().isDynamic = true;
+		m_icon						 = Allocate<Icon>("Arrow");
+		m_icon->GetProps().isDynamic = true;
+		m_icon->GetProps().icon		 = Theme::GetDef().iconDropdown;
 		m_icon->CalculateIconSize();
 		AddChild(m_text);
 		AddChild(m_icon);

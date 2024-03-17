@@ -63,6 +63,13 @@ namespace Lina
 			sys->Initialize(initInfo);
 	}
 
+	void Engine::CoreResourcesLoaded()
+	{
+		LINA_TRACE("[Engine] -> Core resources loaded.");
+		for (auto [type, sys] : m_subsystems)
+			sys->CoreResourcesLoaded();
+	}
+
 	void Engine::PreShutdown()
 	{
 		LINA_TRACE("[Engine] -> PreShutdown.");

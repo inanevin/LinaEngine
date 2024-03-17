@@ -37,6 +37,10 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/System/System.hpp"
+#include "Editor/Editor.hpp"
 
 namespace Lina::Editor
 {
@@ -53,7 +57,7 @@ namespace Lina::Editor
 		base->GetProps().direction = DirectionOrientation::Vertical;
 		AddChild(base);
 
-		m_title = CommonWidgets::BuildWindowBar(Locale::GetStr(LocaleStr::ProjectSelect), false, this);
+		m_title = CommonWidgets::BuildWindowBar(Locale::GetStr(LocaleStr::ProjectSelect), false, false, this);
 		m_title->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
 		m_title->SetAlignedPos(Vector2::Zero);
 		m_title->SetAlignedSizeX(1.0f);
@@ -85,18 +89,10 @@ namespace Lina::Editor
 		iconTabs->SetAlignedSizeY(1.0f);
 		iconTabs->SetFixedSizeX(itemHeight * 2.0f);
 		iconTabs->SetAlignedPosY(0.0f);
-		iconTabs->GetTabProps().onSelectionChanged = [&](int32 selection) {
-			m_props.selectedTab = selection;
-			Widget* parent		= m_content->GetParent();
-			parent->RemoveChild(m_content);
-			Deallocate(m_content);
-			m_content = m_props.selectedTab == 0 ? BuildContentCreateNew() : BuildContentOpen();
-			parent->AddChild(m_content);
-			m_content->Initialize();
-		};
+		iconTabs->GetTabProps().onSelectionChanged = [this](int32 selection) { SetTab(selection); };
 		bottom->AddChild(iconTabs);
 
-		m_content = m_props.selectedTab == 0 ? BuildContentCreateNew() : BuildContentOpen();
+		SetTab(m_selected);
 		bottom->AddChild(m_content);
 	}
 
@@ -125,7 +121,15 @@ namespace Lina::Editor
 		opts.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness;
 		opts.outlineOptions.color	  = Theme::GetDef().black.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+
+		Rect clipRect = m_rect;
+		if (clipRect.size.x < 0.1f)
+			clipRect.size.x = 0.1f;
+		if (clipRect.size.y < 0.1f)
+			clipRect.size.y = 0.1f;
+		m_manager->SetClip(threadIndex, clipRect, {});
 		Widget::Draw(threadIndex);
+		m_manager->UnsetClip(threadIndex);
 	}
 
 	bool ProjectSelector::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -134,7 +138,7 @@ namespace Lina::Editor
 		return true;
 	}
 
-	DirectionalLayout* ProjectSelector::BuildLocationSelectRow()
+	DirectionalLayout* ProjectSelector::BuildLocationSelectRow(const String& dialogTitle, bool selectFile)
 	{
 		Text* label			   = Allocate<Text>();
 		label->GetProps().text = Locale::GetStr(LocaleStr::Location);
@@ -146,6 +150,7 @@ namespace Lina::Editor
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		input->SetAlignedSize(Vector2(0.0f, 1.0f));
 		input->SetAlignedPos(Vector2(0.0f, 0.0f));
+		input->GetProps().onEditEnd = [this](const String& str) { m_locationPath = str; };
 
 		Button* btn							 = Allocate<Button>();
 		btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
@@ -156,6 +161,23 @@ namespace Lina::Editor
 		btn->SetAlignedPosX(1.0f);
 		btn->SetAlignedPosY(0.0f);
 		btn->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		btn->GetProps().onClicked = [&dialogTitle, input, this, selectFile]() {
+			const String location = PlatformProcess::OpenDialog({
+				.title		   = dialogTitle,
+				.primaryButton = Locale::GetStr(LocaleStr::Select),
+				.extensions	   = "linaproject",
+				.mode		   = selectFile ? PlatformProcess::DialogMode::SelectFile : PlatformProcess::DialogMode::SelectDirectory,
+			});
+
+			m_locationPath = location;
+			m_lgxWindow->BringToFront();
+			if (!location.empty())
+			{
+				input->GetText()->GetProps().text = location;
+				input->GetText()->CalculateTextSize();
+			}
+		};
+		btn->SetTooltip(Locale::GetStr(LocaleStr::SelectDirectory));
 
 		DirectionalLayout* rightRow = Allocate<DirectionalLayout>("RightSide");
 		rightRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -208,22 +230,29 @@ namespace Lina::Editor
 		return row;
 	}
 
-	DirectionalLayout* ProjectSelector::BuildButtonsRow()
+	DirectionalLayout* ProjectSelector::BuildButtonsRow(bool isCreate)
 	{
 		// Button row.
 		Button* buttonCreate					 = Allocate<Button>();
-		buttonCreate->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Open);
+		buttonCreate->GetText()->GetProps().text = Locale::GetStr(isCreate ? LocaleStr::Create : LocaleStr::Open);
 		buttonCreate->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 		buttonCreate->SetAlignedSizeY(1.0f);
 		buttonCreate->SetAlignedPosY(0.0f);
 		buttonCreate->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4.0f);
+		buttonCreate->GetProps().onClicked = [&]() {
+			if (!FileSystem::FileOrPathExists(m_locationPath))
+			{
+				m_system->CastSubsystem<Editor>(SubsystemType::Editor)->AddInfoBar(Locale::GetStr(LocaleStr::InfoBar_LocationDoesntExists), LogLevel::Error);
+			}
+		};
 
-		Button* buttonCancel					 = Allocate<Button>();
-		buttonCancel->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Cancel);
-		buttonCancel->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
-		buttonCancel->SetAlignedSizeY(1.0f);
-		buttonCancel->SetAlignedPosY(0.0f);
-		buttonCancel->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4.0f);
+		m_buttonCancel							   = Allocate<Button>();
+		m_buttonCancel->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Cancel);
+		m_buttonCancel->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
+		m_buttonCancel->SetAlignedSizeY(1.0f);
+		m_buttonCancel->SetAlignedPosY(0.0f);
+		m_buttonCancel->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4.0f);
+		m_buttonCancel->SetIsDisabled(!m_isCancellable);
 
 		DirectionalLayout* row = Allocate<DirectionalLayout>();
 		row->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
@@ -231,7 +260,7 @@ namespace Lina::Editor
 		row->SetAlignedPosX(0.0f);
 		row->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		row->SetChildPadding(Theme::GetDef().baseIndent);
-		row->AddChild(buttonCreate, buttonCancel);
+		row->AddChild(buttonCreate, m_buttonCancel);
 
 		return row;
 	}
@@ -245,7 +274,7 @@ namespace Lina::Editor
 		contentLayout->SetAlignedSize(Vector2(0.0f, 1.0f));
 		contentLayout->SetAlignedPosY(0.0f);
 		contentLayout->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		contentLayout->AddChild(BuildLocationSelectRow(), BuildProjectNameRow(), BuildButtonsRow());
+		contentLayout->AddChild(BuildLocationSelectRow(Locale::GetStr(LocaleStr::SelectDirectoryToCreateProject), false), BuildProjectNameRow(), BuildButtonsRow(true));
 		return contentLayout;
 	}
 
@@ -258,7 +287,34 @@ namespace Lina::Editor
 		contentLayout->SetAlignedSize(Vector2(0.0f, 1.0f));
 		contentLayout->SetAlignedPosY(0.0f);
 		contentLayout->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		contentLayout->AddChild(BuildLocationSelectRow(), BuildButtonsRow());
+		contentLayout->AddChild(BuildLocationSelectRow(Locale::GetStr(LocaleStr::SelectProjectFile), true), BuildButtonsRow(false));
 		return contentLayout;
+	}
+
+	void ProjectSelector::SetCancellable(bool isCancellable)
+	{
+		m_isCancellable = isCancellable;
+		m_buttonCancel->SetIsDisabled(!isCancellable);
+	}
+
+	void ProjectSelector::SetTab(int32 selected)
+	{
+		m_selected = selected;
+
+		Widget* parent = nullptr;
+		if (m_content)
+		{
+			parent = m_content->GetParent();
+			parent->RemoveChild(m_content);
+			Deallocate(m_content);
+			m_content = nullptr;
+		}
+
+		m_content = m_selected == 0 ? BuildContentCreateNew() : BuildContentOpen();
+
+		if (parent)
+			parent->AddChild(m_content);
+
+		m_content->Initialize();
 	}
 } // namespace Lina::Editor

@@ -36,24 +36,27 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	DirectionalLayout* CommonWidgets::BuildWindowBar(const String& title, bool hasWindowButtons, Widget* allocator)
+	DirectionalLayout* CommonWidgets::BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* allocator)
 	{
 		DirectionalLayout* layout = allocator->Allocate<DirectionalLayout>();
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 
-		Icon* icon			  = allocator->Allocate<Icon>();
-		icon->GetProps().icon = ICON_LINA_LOGO;
-		icon->GetFlags().Set(WF_POS_ALIGN_Y);
-		icon->SetAlignedPosY(0.5f);
-		icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		if (hasIcon)
+		{
+			Icon* icon			  = allocator->Allocate<Icon>();
+			icon->GetProps().icon = ICON_LINA_LOGO;
+			icon->GetFlags().Set(WF_POS_ALIGN_Y);
+			icon->SetAlignedPosY(0.5f);
+			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			layout->AddChild(icon);
+		}
 
 		Text* text			  = allocator->Allocate<Text>();
 		text->GetProps().text = title;
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);
 		text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-
-		layout->AddChild(icon, text);
+		layout->AddChild(text);
 
 		if (hasWindowButtons)
 		{

@@ -155,7 +155,7 @@ namespace Lina::Editor
 		opts.color	  = dr.isHovered ? Theme::GetDef().accentPrimary2.AsLVG4() : Theme::GetDef().accentPrimary0.AsLVG4();
 
 		if (dr.isDisabled)
-			opts.color = Theme::GetDef().silent.AsLVG4();
+			opts.color = Theme::GetDef().silent0.AsLVG4();
 
 		opts.color.start.w = opts.color.end.w = 0.25f;
 

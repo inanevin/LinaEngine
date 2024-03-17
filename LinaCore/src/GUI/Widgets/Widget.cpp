@@ -179,6 +179,11 @@ namespace Lina
 
 	void Widget::SetIsHovered()
 	{
+		if (m_isDisabled)
+		{
+			m_isHovered = false;
+			return;
+		}
 
 		auto*		foregroundRoot	= m_manager->GetForegroundRoot();
 		const auto& foregroundItems = foregroundRoot->GetChildren();
@@ -205,4 +210,11 @@ namespace Lina
 		return m_rect.GetEnd() - Vector2(m_childMargins.right, m_childMargins.bottom);
 	}
 
+	void Widget::SetIsDisabled(bool isDisabled)
+	{
+		m_isDisabled = isDisabled;
+
+		for (auto* c : m_children)
+			c->SetIsDisabled(isDisabled);
+	}
 } // namespace Lina

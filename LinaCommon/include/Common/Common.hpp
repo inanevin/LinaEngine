@@ -50,7 +50,7 @@ namespace Lina
 		LinaGX::WindowStyle	 windowStyle		 = LinaGX::WindowStyle::WindowedApplication;
 		LinaGX::VSyncStyle	 vsyncStyle			 = {};
 		bool				 allowTearing		 = false;
-		ApplicationDelegate* appListener		 = nullptr;
+		ApplicationDelegate* appDelegate		 = nullptr;
 		ResourceManagerMode	 resourceManagerMode = ResourceManagerMode::File;
 	};
 

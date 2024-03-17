@@ -62,6 +62,9 @@ SOFTWARE.
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
 
+#include "Editor/Editor.hpp"
+
+
 namespace Lina
 {
 	SystemInitializationInfo Lina_GetInitInfo()
@@ -76,7 +79,7 @@ namespace Lina
 			.windowWidth		 = w,
 			.windowHeight		 = h,
 			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
-			.appListener		 = new Lina::Editor::EditorApplicationDelegate(),
+			.appDelegate		 = new Lina::Editor::EditorApplicationDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,
 		};
 	}
@@ -84,7 +87,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
-	void EditorApplicationDelegate::OnPlatformSetup()
+	void EditorApplicationDelegate::SetupPlatform(Application* app)
 	{
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;
 		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
@@ -118,6 +121,9 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<DockWidget>(), 25);
 		Theme::SetWidgetChunkCount(GetTypeID<SplashScreen>(), 1);
 		Theme::SetWidgetChunkCount(GetTypeID<ProjectSelector>(), 1);
+        
+        m_app = app;
+        m_editor = new Editor(m_app->GetSystem());
 	}
 
 	void EditorApplicationDelegate::RegisterAppResources(ResourceManager& rm)
@@ -152,16 +158,6 @@ namespace Lina::Editor
 		}
 
 		return false;
-	}
-
-	void EditorApplicationDelegate::OnPreInitialize()
-	{
-		m_editor.OnPreInitialize(m_app);
-	}
-
-	void EditorApplicationDelegate::OnInitialize()
-	{
-		m_editor.OnInitialize();
 	}
 
 } // namespace Lina::Editor

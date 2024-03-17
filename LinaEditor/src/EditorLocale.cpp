@@ -42,9 +42,14 @@ namespace Lina::Editor
 		{LocaleStr::Cancel, "Cancel"},
 		{LocaleStr::Name, "Name"},
 		{LocaleStr::Location, "Location"},
+		{LocaleStr::Select, "Select"},
 		{LocaleStr::ProjectSelect, "Project Selection"},
-		{LocaleStr::CreateNewProject, "Create New Project"},
-		{LocaleStr::OpenExistingProject, "Open Existing Project"},
+		{LocaleStr::CreateNewProject, "Create new project"},
+		{LocaleStr::OpenExistingProject, "Open existing project"},
+		{LocaleStr::SelectDirectory, "Select directory"},
+		{LocaleStr::SelectDirectoryToCreateProject, "Select directory for a new Lina project"},
+		{LocaleStr::SelectProjectFile, "Select project to open"},
+		{LocaleStr::InfoBar_LocationDoesntExists, "Location directory does not exist!"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

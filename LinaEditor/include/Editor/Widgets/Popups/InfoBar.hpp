@@ -27,42 +27,39 @@ SOFTWARE.
 */
 
 #pragma once
-#include "Common/Data/String.hpp"
-#include "Common/Data/Map.hpp"
 
+#include "Core/GUI/Widgets/Widget.hpp"
+
+namespace Lina
+{
+	class Text;
+}
 namespace Lina::Editor
 {
-
-	enum class LocaleStr
-	{
-		Hex,
-		File,
-		Edit,
-		View,
-		Panels,
-		About,
-		Create,
-		Open,
-		Cancel,
-		Name,
-		Location,
-		Select,
-		ProjectSelect,
-		CreateNewProject,
-		OpenExistingProject,
-		SelectDirectory,
-		SelectDirectoryToCreateProject,
-		SelectProjectFile,
-		InfoBar_LocationDoesntExists,
-	};
-
-	class Locale
+	class InfoBar : public Widget
 	{
 	public:
-		static const String& GetStr(LocaleStr str);
+		InfoBar()		   = default;
+		virtual ~InfoBar() = default;
+
+		virtual void Construct() override;
+		virtual void CalculateSize(float delta) override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+
+		void AddInfo(const String& str, LogLevel level, float time);
+		void RemoveInfo();
 
 	private:
-		static HashMap<LocaleStr, String> s_englishMap;
+		static constexpr float TWEEN_TIME = 0.25f;
+
+	private:
+		float  m_tweenValue	 = 0.0f;
+		String m_currentText = "";
+		Text*  m_text		 = nullptr;
+		float  m_maxTime	 = 3.0f;
+		float  m_counter	 = 0.0f;
+		bool   m_destroying	 = false;
 	};
 
 } // namespace Lina::Editor

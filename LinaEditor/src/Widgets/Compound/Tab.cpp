@@ -188,7 +188,7 @@ namespace Lina::Editor
 			selectionRect.color.gradientType = LinaVG::GradientType::Vertical;
 		}
 		else
-			selectionRect.color = Theme::GetDef().silent.AsLVG4();
+			selectionRect.color = Theme::GetDef().silent0.AsLVG4();
 
 		LinaVG::DrawRect(threadIndex, m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
 

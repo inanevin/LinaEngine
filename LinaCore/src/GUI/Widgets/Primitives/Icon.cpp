@@ -53,8 +53,7 @@ namespace Lina
 		m_sdfOptions.sdfOutlineSoftness	 = m_props.sdfOutlineSoftness;
 		m_sdfOptions.textScale			 = m_props.textScale;
 
-		Vector2 offset = Vector2(m_rect.size.x * m_props.offsetPerc.x, m_rect.size.y * m_props.offsetPerc.y);
-		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y) + offset).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, true);
+		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, true);
 	}
 
 	void Icon::CalculateIconSize()

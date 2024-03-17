@@ -44,7 +44,7 @@ namespace Lina
 	{
 
 		auto& resourceManager = m_engine.GetResourceManager();
-		m_appDelegate		  = initInfo.appListener;
+		m_appDelegate		  = initInfo.appDelegate;
 		m_appDelegate->m_app  = this;
 		LINA_ASSERT(m_appDelegate != nullptr, "Application listener can not be empty!");
 
@@ -58,7 +58,7 @@ namespace Lina
 			SetFrameCap(16667);
 			PROFILER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
-			m_appDelegate->OnPlatformSetup();
+			m_appDelegate->SetupPlatform(this);
 		}
 
 		// Resource registry
@@ -72,6 +72,7 @@ namespace Lina
 		// Pre-initialization
 		{
 			m_engine.PreInitialize(initInfo);
+			m_appDelegate->PreInitialize();
 			resourceManager.LoadResources(resourceManager.GetPriorityResources());
 			resourceManager.WaitForAll();
 		}
@@ -86,8 +87,8 @@ namespace Lina
 
 		// Initialization
 		{
-			m_appDelegate->OnPreInitialize();
 			m_engine.Initialize(initInfo);
+			m_appDelegate->Initialize();
 			auto& resourceManager = m_engine.GetResourceManager();
 			m_coreResourcesTask	  = m_engine.GetResourceManager().LoadResources(resourceManager.GetCoreResources());
 		}
@@ -113,7 +114,8 @@ namespace Lina
 		{
 			m_engine.GetResourceManager().WaitForAll();
 			m_coreResourcesTask = -1;
-			m_appDelegate->OnInitialize();
+			m_engine.CoreResourcesLoaded();
+			m_appDelegate->CoreResourcesLoaded();
 		}
 
 		m_engine.PreTick();

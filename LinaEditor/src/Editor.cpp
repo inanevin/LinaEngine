@@ -36,21 +36,26 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
+#include "Editor/Widgets/Popups/InfoBar.hpp"
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/Widgets/DockTestbed.hpp"
 
 namespace Lina::Editor
 {
-	void Editor::OnPreInitialize(Application* app)
+	void Editor::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
-		m_app = app;
+	}
+
+	void Editor::Initialize(const SystemInitializationInfo& initInfo)
+	{
+		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
 		// Push splash
-		auto*		  gfxManager	= m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto&		  widgetManager = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-		SplashScreen* splash		= widgetManager.GetRoot()->Allocate<SplashScreen>();
+		Widget*		  root	 = m_primaryWidgetManager->GetRoot();
+		SplashScreen* splash = root->Allocate<SplashScreen>();
 		splash->Initialize();
-		widgetManager.GetRoot()->AddChild(splash);
+		root->AddChild(splash);
 
 		// Load editor settings.
 		const String userDataFolder = FileSystem::GetUserDataFolder();
@@ -68,26 +73,18 @@ namespace Lina::Editor
 			m_settings.SaveToFile();
 	}
 
-	void Editor::OnInitialize()
+	void Editor::CoreResourcesLoaded()
 	{
-		auto* gfxManager	= m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto& widgetManager = gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-
 		// Remove splash
-		Widget* root   = widgetManager.GetRoot();
+		Widget* root   = m_primaryWidgetManager->GetRoot();
 		Widget* splash = root->GetChildren().at(0);
 		root->RemoveChild(splash);
 		root->Deallocate(splash);
 
 		// Resize window to work dims.
-		auto* window = gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
-		window->AddSizeRequest(window->GetMonitorWorkSize());
-
-		Testbed* tb = root->Allocate<Testbed>("Testbed");
-		// DockTestbed* tb = root->Allocate<DockTestbed>("DockTestbed");
-		root->AddChild(tb);
-		return;
+		auto* window = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		// window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
+		// window->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Insert editor root.
 		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");
@@ -97,10 +94,16 @@ namespace Lina::Editor
 		if (m_currentProject == nullptr)
 		{
 			m_projectSelector = root->Allocate<ProjectSelector>("ProjectSelector");
+			m_projectSelector->SetCancellable(false);
+			m_projectSelector->SetTab(0);
 			m_projectSelector->Initialize();
-			widgetManager.AddToForeground(m_projectSelector);
-			widgetManager.SetForegroundDim(0.5f);
+			m_primaryWidgetManager->AddToForeground(m_projectSelector);
+			m_primaryWidgetManager->SetForegroundDim(0.5f);
 		}
+	}
+
+	void Editor::Shutdown()
+	{
 	}
 
 	void Editor::OpenProject(const String& basePath, const String& projectName)
@@ -114,5 +117,35 @@ namespace Lina::Editor
 		m_currentProject = new ProjectSettings();
 		m_currentProject->SetPath(projectFile);
 		m_currentProject->LoadFromFile();
+	}
+
+	void Editor::AddInfoBar(const String& text, LogLevel level, float time)
+	{
+		Widget* root = m_primaryWidgetManager->GetRoot();
+		if (m_infoBar == nullptr)
+		{
+			m_infoBar = root->Allocate<InfoBar>("InfoBar");
+			m_infoBar->Initialize();
+			m_primaryWidgetManager->AddToForeground(m_infoBar);
+		}
+
+		m_infoBar->AddInfo(text, level, time);
+	}
+
+	void Editor::RemoveInfo()
+	{
+		if (m_infoBar == nullptr)
+			return;
+		m_infoBar->RemoveInfo();
+	}
+
+	void Editor::DestroyInfoBar()
+	{
+		if (m_infoBar == nullptr)
+			return;
+		Widget* root = m_primaryWidgetManager->GetRoot();
+		m_primaryWidgetManager->RemoveFromForeground(m_infoBar);
+		root->Deallocate(m_infoBar);
+		m_infoBar = nullptr;
 	}
 } // namespace Lina::Editor
