@@ -278,11 +278,11 @@ namespace Lina
 		{
 			return m_isDisabled;
 		}
-        
-        inline WidgetManager* GetWidgetManager() const
-        {
-            return m_manager;
-        }
+
+		inline WidgetManager* GetWidgetManager() const
+		{
+			return m_manager;
+		}
 
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);

@@ -224,8 +224,8 @@ namespace Lina
 
 			[panel setPrompt:nsPrimaryButton];
 			[panel setMessage:nsTitle];
-            [panel setCanCreateDirectories:YES];
-            
+			[panel setCanCreateDirectories:YES];
+
 			if (props.mode == DialogMode::SelectDirectory)
 			{
 				[panel setCanChooseFiles:NO];
