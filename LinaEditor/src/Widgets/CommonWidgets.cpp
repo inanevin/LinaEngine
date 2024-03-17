@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Editor/Widgets/Compound/WindowButtons.hpp"
+#include "Editor/Widgets/Popups/InfoTooltip.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
@@ -102,4 +103,61 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadIndex, Vector2((end.x + start.x) * 0.5f, start.y).AsLVG(), Vector2(end.x, end.y).AsLVG(), style2, 0.0f, drawOrder);
 	}
 
+    void CommonWidgets::ThrowInfoTooltip(const String &str, LogLevel level, float time, Widget *source)
+    {
+        InfoTooltip* inf = source->Allocate<InfoTooltip>("InfoTooltip");
+        inf->GetTooltipProps().text = str;
+        inf->GetTooltipProps().level = level;
+        inf->GetTooltipProps().time = time;
+        inf->Initialize();
+        inf->CalculateSize(0.016f);
+        source->GetWidgetManager()->AddToForeground(inf);
+        
+        LinaGX::Window* window = source->GetWindow();
+        const Vector2 windowSize = Vector2(static_cast<float>(window->GetSize().x), static_cast<float>(window->GetSize().y));
+        
+        const Vector2 sz = inf->GetSize();
+        
+        // Try right
+        inf->SetPos(Vector2(source->GetRect().GetEnd().x, source->GetPosY()));
+        if(inf->GetRect().GetEnd().x < windowSize.x)
+        {
+            inf->GetTooltipProps().direction = Direction::Right;
+            return;
+        }
+        
+        // Left
+        inf->SetPos(Vector2(source->GetPos().x - inf->GetSizeX(), source->GetPosY()));
+        if(inf->GetRect().pos.x > 0.0f)
+        {
+            inf->GetTooltipProps().direction = Direction::Left;
+            return;
+        }
+        
+        // Top
+        inf->SetPos(source->GetPos() - Vector2(0.0f, inf->GetSizeY()));
+        if(inf->GetPosY() > 0.0f)
+        {
+            inf->GetTooltipProps().direction = Direction::Top;
+            return;
+        }
+        
+        // Last resort bottom
+        inf->SetPos(Vector2(source->GetPosX(), source->GetRect().GetEnd().y));
+        inf->GetTooltipProps().direction = Direction::Bottom;
+        
+    }
+
+    void CommonWidgets::ThrowInfoTooltip(const String &str, LogLevel level, float time, WidgetManager *manager, const Vector2 &targetPos)
+    {
+        InfoTooltip* inf = manager->GetForegroundRoot()->Allocate<InfoTooltip>("InfoTooltip");
+        inf->GetTooltipProps().text = str;
+        inf->GetTooltipProps().level = level;
+        inf->GetTooltipProps().time = time;
+        inf->GetTooltipProps().direction = Direction::Center;
+        inf->Initialize();
+        inf->CalculateSize(0.016f);
+        inf->SetPos(targetPos);
+        manager->AddToForeground(inf);
+    }
 } // namespace Lina::Editor

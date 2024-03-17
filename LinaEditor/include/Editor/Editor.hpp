@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	class ProjectSettings;
+	class ProjectData;
 	class Application;
 	class GfxManager;
 	class WidgetManager;
@@ -42,8 +42,6 @@ namespace Lina
 namespace Lina::Editor
 {
 	class SplashScreen;
-	class ProjectSelector;
-	class InfoBar;
 
 	class Editor : public Subsystem
 	{
@@ -56,19 +54,20 @@ namespace Lina::Editor
 		virtual void CoreResourcesLoaded() override;
 		virtual void Shutdown() override;
 
-		void OpenProject(const String& basePath, const String& projectName);
+		void OpenPopupProjectSelector();
+
+		void OpenProject(const String& projectFile);
 		void CloseCurrentProject();
-		void AddInfoBar(const String& text, LogLevel level, float time = 3.0f);
-		void RemoveInfo();
-		void DestroyInfoBar();
+		void RequestExit();
 
 	private:
-		GfxManager*		 m_gfxManager			= nullptr;
-		WidgetManager*	 m_primaryWidgetManager = nullptr;
-		EditorSettings	 m_settings				= {};
-		ProjectSettings* m_currentProject		= nullptr;
-		ProjectSelector* m_projectSelector		= nullptr;
-		InfoBar*		 m_infoBar				= nullptr;
+		void CleanCurrentProject();
+
+	private:
+		GfxManager*	   m_gfxManager			  = nullptr;
+		WidgetManager* m_primaryWidgetManager = nullptr;
+		EditorSettings m_settings			  = {};
+		ProjectData*   m_currentProject		  = nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -53,7 +53,11 @@ namespace Lina::Editor
 		SelectDirectory,
 		SelectDirectoryToCreateProject,
 		SelectProjectFile,
-		InfoBar_LocationDoesntExists,
+		DirectoryNotFound,
+		FileNotFound,
+		NameIsNotValid,
+		Empty,
+		ExitEditor,
 	};
 
 	class Locale

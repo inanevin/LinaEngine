@@ -30,6 +30,9 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
+#define ALT_FONT_PATH  "Resources/Editor/Fonts/RobotoRegular.ttf"
+#define ALT_FONT_SID   "Resources/Editor/Fonts/RobotoRegular.ttf"_hs
 #define ICON_FONT_PATH "Resources/Editor/Fonts/EditorIcons.ttf"
 #define ICON_FONT_SID  "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 
@@ -57,6 +60,9 @@ namespace Lina::Editor
 #define ICON_FOLDER				 "\u0062"
 #define ICON_FOLDER_OPEN		 "\u0063"
 #define ICON_FOLDER_PLUS		 "\u0064"
+#define ICON_INFO				 "\u0065"
+#define ICON_ERROR				 "\u0066"
+#define ICON_WARN				 "\u0067"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

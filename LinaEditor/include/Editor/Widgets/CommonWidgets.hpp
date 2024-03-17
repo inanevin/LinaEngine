@@ -35,6 +35,7 @@ namespace Lina
 {
 	class DirectionalLayout;
 	class Widget;
+	class WidgetManager;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -46,5 +47,8 @@ namespace Lina::Editor
 
 		static void DrawGradLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
 		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
+
+		static void ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
+		static void ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
 	};
 } // namespace Lina::Editor

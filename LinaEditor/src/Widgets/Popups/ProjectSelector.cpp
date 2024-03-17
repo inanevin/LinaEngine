@@ -31,16 +31,18 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/Widgets/Popups/InfoTooltip.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/Application.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/Platform/PlatformProcess.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/System/System.hpp"
-#include "Editor/Editor.hpp"
 
 namespace Lina::Editor
 {
@@ -193,6 +195,8 @@ namespace Lina::Editor
 		row->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		row->AddChild(label, rightRow);
 
+		m_currentLocationButton = btn;
+
 		return row;
 	}
 
@@ -209,6 +213,7 @@ namespace Lina::Editor
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		input->SetAlignedSize(Vector2(0.0f, 1.0f));
 		input->SetAlignedPos(Vector2(0.0f, 0.0f));
+		input->GetProps().onEditEnd = [this](const String& str) { m_projectName = str; };
 
 		DirectionalLayout* rightRow = Allocate<DirectionalLayout>("RightSide");
 		rightRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -225,7 +230,7 @@ namespace Lina::Editor
 		row->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		row->AddChild(label, rightRow);
 
-		// rowProjName->AddChild(labelProjectName, inpProjName);
+		m_currentProjectNameWidget = input;
 
 		return row;
 	}
@@ -239,20 +244,46 @@ namespace Lina::Editor
 		buttonCreate->SetAlignedSizeY(1.0f);
 		buttonCreate->SetAlignedPosY(0.0f);
 		buttonCreate->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4.0f);
-		buttonCreate->GetProps().onClicked = [&]() {
+		buttonCreate->GetProps().onClicked = [this, isCreate]() {
 			if (!FileSystem::FileOrPathExists(m_locationPath))
 			{
-				m_system->CastSubsystem<Editor>(SubsystemType::Editor)->AddInfoBar(Locale::GetStr(LocaleStr::InfoBar_LocationDoesntExists), LogLevel::Error);
+				CommonWidgets::ThrowInfoTooltip(isCreate ? Locale::GetStr(LocaleStr::DirectoryNotFound) : Locale::GetStr(LocaleStr::FileNotFound), LogLevel::Error, 3.0f, m_currentLocationButton);
+				return;
 			}
+
+			if (isCreate)
+			{
+				if (m_projectName.empty())
+				{
+					CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::NameIsNotValid), LogLevel::Error, 3.0f, m_currentProjectNameWidget);
+					return;
+				}
+
+				if (m_props.onProjectCreated)
+					m_props.onProjectCreated(m_locationPath, m_projectName);
+			}
+			else
+			{
+				if (m_props.onProjectOpened)
+					m_props.onProjectOpened(m_locationPath);
+			}
+
+			m_manager->AddToKillList(this);
 		};
 
 		m_buttonCancel							   = Allocate<Button>();
-		m_buttonCancel->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Cancel);
+		m_buttonCancel->GetText()->GetProps().text = Locale::GetStr(m_isCancellable ? LocaleStr::Cancel : LocaleStr::ExitEditor);
 		m_buttonCancel->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 		m_buttonCancel->SetAlignedSizeY(1.0f);
 		m_buttonCancel->SetAlignedPosY(0.0f);
 		m_buttonCancel->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4.0f);
-		m_buttonCancel->SetIsDisabled(!m_isCancellable);
+
+		m_buttonCancel->GetProps().onClicked = [this]() {
+			m_manager->AddToKillList(this);
+
+			if (!m_isCancellable)
+				m_system->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
+		};
 
 		DirectionalLayout* row = Allocate<DirectionalLayout>();
 		row->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);

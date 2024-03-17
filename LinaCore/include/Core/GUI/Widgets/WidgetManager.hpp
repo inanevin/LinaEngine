@@ -61,6 +61,7 @@ namespace Lina
 		void DebugDraw(int32 threadIndex, Widget* w);
 		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
 		void UnsetClip(int32 threadIndex);
+		void AddToKillList(Widget* w);
 
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
@@ -172,6 +173,7 @@ namespace Lina
 		float							m_debugDrawYOffset = 0.0f;
 		float							m_foregroundDim	   = 0.0f;
 		Font*							m_defaultFont	   = nullptr;
+		Vector<Widget*>					m_killList		   = {};
 	};
 
 } // namespace Lina

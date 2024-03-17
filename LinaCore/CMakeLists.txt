@@ -103,7 +103,7 @@ src/GUI/Widgets/Compound/Popup.cpp
 src/GUI/Widgets/Compound/FileMenu.cpp
 
 # Meta
-src/Meta/ProjectSettings.cpp
+src/Meta/ProjectData.cpp
 
 )
 
@@ -204,7 +204,7 @@ include/Core/GUI/Widgets/Compound/Popup.hpp
 include/Core/GUI/Widgets/Compound/FileMenu.hpp
 
 # Meta
-include/Core/Meta/ProjectSettings.hpp
+include/Core/Meta/ProjectData.hpp
 
 )
 

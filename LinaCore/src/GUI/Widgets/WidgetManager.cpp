@@ -59,6 +59,13 @@ namespace Lina
 
 	void WidgetManager::PreTick()
 	{
+        for(auto* w : m_killList)
+        {
+            w->GetParent()->RemoveChild(w);
+            Deallocate(w);
+        }
+        
+        m_killList.clear();
 	}
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
@@ -280,6 +287,11 @@ namespace Lina
 		}
 	}
 
+    void WidgetManager::AddToKillList(Widget *w)
+    {
+        m_killList.push_back(w);
+    }
+
 	Widget* WidgetManager::FindNextSelectable(Widget* start)
 	{
 		if (!start)
@@ -368,7 +380,14 @@ namespace Lina
 	void WidgetManager::PreTickWidget(Widget* w)
 	{
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
-			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
+        {
+            if(w->GetDebugName() == "InfoTooltip")
+            {
+                int a =5;
+            }
+            w->SetDrawOrder(w->GetParent()->GetDrawOrder());
+
+        }
 
 		w->SetIsHovered();
 		w->PreTick();

@@ -49,7 +49,11 @@ namespace Lina::Editor
 		{LocaleStr::SelectDirectory, "Select directory"},
 		{LocaleStr::SelectDirectoryToCreateProject, "Select directory for a new Lina project"},
 		{LocaleStr::SelectProjectFile, "Select project to open"},
-		{LocaleStr::InfoBar_LocationDoesntExists, "Location directory does not exist!"},
+		{LocaleStr::DirectoryNotFound, "Directory not found!"},
+		{LocaleStr::FileNotFound, "File not found!"},
+		{LocaleStr::NameIsNotValid, "Not a valid name!"},
+		{LocaleStr::Empty, "Empty"},
+		{LocaleStr::ExitEditor, "Exit Editor"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

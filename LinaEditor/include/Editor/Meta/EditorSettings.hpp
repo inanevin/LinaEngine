@@ -40,19 +40,13 @@ namespace Lina::Editor
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
 
-		inline const String& GetLastProjectPathBase() const
+		inline const String& GetLastProjectPath() const
 		{
-			return m_lastProjectBasePath;
-		}
-
-		inline const String& GetLastProjectName() const
-		{
-			return m_lastProjectName;
+			return m_lastProjectPath;
 		}
 
 	private:
-		String m_lastProjectBasePath = "";
-		String m_lastProjectName	 = "";
+		String m_lastProjectPath = "";
 	};
 
 } // namespace Lina::Editor

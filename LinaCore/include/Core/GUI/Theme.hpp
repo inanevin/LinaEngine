@@ -60,19 +60,18 @@ namespace Lina
 
 			Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
 			Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
-
-			Color silent0 = Color(0.015f, 0.015f, 0.015f, 1.0f);
-			Color silent1 = Color(0.035f, 0.035f, 0.035f, 1.0f);
-
+			Color silent0	  = Color(0.015f, 0.015f, 0.015f, 1.0f);
+			Color silent1	  = Color(0.035f, 0.035f, 0.035f, 1.0f);
 			// Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
-
 			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f);
-			Color accentPrimary0 = Color(0.16513f, 0.00972f, 0.02122f, 1.0f);
-			Color accentPrimary1 = Color(0.14126f, 0.03071f, 0.0382f, 1.0f);
-			Color accentPrimary2 = Color(0.34499f, 0.06519f, 0.1058f, 1.0f);
-			Color accentPrimary3 = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
-
+			Color accentPrimary0  = Color(0.16513f, 0.00972f, 0.02122f, 1.0f);
+			Color accentPrimary1  = Color(0.14126f, 0.03071f, 0.0382f, 1.0f);
+			Color accentPrimary2  = Color(0.34499f, 0.06519f, 0.1058f, 1.0f);
+			Color accentPrimary3  = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
 			Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);
+
+			Color accentError = Color(0.24513f, 0.00972f, 0.02122f, 1.0f);
+			Color accentWarn  = Color(0.16513f, 0.16513f, 0.02122f, 1.0f);
 
 			Color outlineColorBase	   = silent1;
 			Color outlineColorControls = accentPrimary0;
@@ -83,13 +82,10 @@ namespace Lina
 			float baseRounding		   = 0.25f;
 			float baseOutlineThickness = 2.0f;
 			float baseItemHeight	   = 24.0f;
-			float basePadding		   = baseIndent;
+			float popupAnimTime		   = 0.1f;
 
-			float popupAnimTime = 0.1f;
-
-			StringID defaultFont	 = 0;
-			StringID alternativeFont = 0;
-			StringID iconFont		 = 0;
+			StringID defaultFont = 0;
+			StringID iconFont	 = 0;
 
 			String iconDropdown			 = "";
 			String iconSliderHandle		 = "";

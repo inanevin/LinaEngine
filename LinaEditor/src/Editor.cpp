@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Editor.hpp"
 #include "Core/Application.hpp"
-#include "Core/Meta/ProjectSettings.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
-#include "Editor/Widgets/Popups/InfoBar.hpp"
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/Widgets/DockTestbed.hpp"
 
@@ -67,7 +66,12 @@ namespace Lina::Editor
 		if (FileSystem::FileOrPathExists(settingsPath))
 		{
 			m_settings.LoadFromFile();
-			OpenProject(m_settings.GetLastProjectPathBase(), m_settings.GetLastProjectName());
+
+			if (FileSystem::FileOrPathExists(m_settings.GetLastProjectPath()))
+			{
+				CleanCurrentProject();
+				OpenProject(m_settings.GetLastProjectPath());
+			}
 		}
 		else
 			m_settings.SaveToFile();
@@ -83,8 +87,8 @@ namespace Lina::Editor
 
 		// Resize window to work dims.
 		auto* window = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		// window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
-		// window->AddSizeRequest(window->GetMonitorWorkSize());
+		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
+		window->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Insert editor root.
 		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");
@@ -92,60 +96,54 @@ namespace Lina::Editor
 		root->AddChild(editorRoot);
 
 		if (m_currentProject == nullptr)
-		{
-			m_projectSelector = root->Allocate<ProjectSelector>("ProjectSelector");
-			m_projectSelector->SetCancellable(false);
-			m_projectSelector->SetTab(0);
-			m_projectSelector->Initialize();
-			m_primaryWidgetManager->AddToForeground(m_projectSelector);
-			m_primaryWidgetManager->SetForegroundDim(0.5f);
-		}
+			OpenPopupProjectSelector();
 	}
 
 	void Editor::Shutdown()
 	{
 	}
 
-	void Editor::OpenProject(const String& basePath, const String& projectName)
+	void Editor::OpenPopupProjectSelector()
 	{
-		const String projectFile = basePath + projectName + ".linaproject";
-		if (!FileSystem::FileOrPathExists(projectFile))
+		ProjectSelector* projectSelector = m_primaryWidgetManager->GetRoot()->Allocate<ProjectSelector>("ProjectSelector");
+		projectSelector->SetCancellable(false);
+		projectSelector->SetTab(0);
+		projectSelector->Initialize();
+
+		projectSelector->GetProps().onProjectOpened = [this](const String& location) { OpenProject(location); };
+
+		projectSelector->GetProps().onProjectCreated = [this](const String& location, const String& name) {
+			CleanCurrentProject();
+			// LINA_ASSERT(m_currentProject == nullptr, "");
+			// m_currentProject = new ProjectData();
+			// m_currentProject->SetPath(location + name + ".linaproject");
+			// m_currentProject->SaveToFile();
+		};
+
+		m_primaryWidgetManager->AddToForeground(projectSelector);
+		m_primaryWidgetManager->SetForegroundDim(0.5f);
+	}
+
+	void Editor::CleanCurrentProject()
+	{
+		if (m_currentProject == nullptr)
 			return;
 
-		LINA_ASSERT(m_currentProject == nullptr, "");
+		delete m_currentProject;
+		m_currentProject = nullptr;
+	}
 
-		m_currentProject = new ProjectSettings();
+	void Editor::OpenProject(const String& projectFile)
+	{
+		LINA_ASSERT(m_currentProject == nullptr, "");
+		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
 		m_currentProject->LoadFromFile();
 	}
 
-	void Editor::AddInfoBar(const String& text, LogLevel level, float time)
+	void Editor::RequestExit()
 	{
-		Widget* root = m_primaryWidgetManager->GetRoot();
-		if (m_infoBar == nullptr)
-		{
-			m_infoBar = root->Allocate<InfoBar>("InfoBar");
-			m_infoBar->Initialize();
-			m_primaryWidgetManager->AddToForeground(m_infoBar);
-		}
-
-		m_infoBar->AddInfo(text, level, time);
+		CleanCurrentProject();
 	}
 
-	void Editor::RemoveInfo()
-	{
-		if (m_infoBar == nullptr)
-			return;
-		m_infoBar->RemoveInfo();
-	}
-
-	void Editor::DestroyInfoBar()
-	{
-		if (m_infoBar == nullptr)
-			return;
-		Widget* root = m_primaryWidgetManager->GetRoot();
-		m_primaryWidgetManager->RemoveFromForeground(m_infoBar);
-		root->Deallocate(m_infoBar);
-		m_infoBar = nullptr;
-	}
 } // namespace Lina::Editor

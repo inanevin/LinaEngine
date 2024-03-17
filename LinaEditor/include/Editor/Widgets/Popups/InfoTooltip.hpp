@@ -26,22 +26,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Meta/ProjectSettings.hpp"
-#include "Common/Data/Streams.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+#pragma once
+
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina
 {
-	void ProjectSettings::LoadFromStream(IStream& in)
-	{
-		uint32 version = 0;
-		in >> version;
-		StringSerialization::LoadFromStream(in, m_projectName);
-	}
-
-	void ProjectSettings::SaveToStream(OStream& out)
-	{
-		out << VERSION;
-		StringSerialization::SaveToStream(out, m_projectName);
-	}
+	class Tween;
+	class Icon;
+	class Text;
 } // namespace Lina
+namespace Lina::Editor
+{
+	class InfoTooltip : public DirectionalLayout
+	{
+	public:
+		struct TooltipProperties
+		{
+			String	  text		= "";
+			LogLevel  level		= LogLevel::Info;
+			Direction direction = Direction::Right;
+			float	  time		= 5.0f;
+		};
+
+		InfoTooltip()		   = default;
+		virtual ~InfoTooltip() = default;
+
+		virtual void Initialize() override;
+		virtual void Tick(float delta) override;
+		virtual void Draw(int32 threadIndex) override;
+
+		inline TooltipProperties& GetTooltipProps()
+		{
+			return m_tooltipProps;
+		}
+
+	private:
+		static constexpr float TWEEN_TIME = 0.1f;
+
+		Color GetColorFromLevel();
+
+	private:
+		TooltipProperties m_tooltipProps  = {};
+		Icon*			  m_icon		  = nullptr;
+		Text*			  m_text		  = nullptr;
+		float			  m_tweenValue	  = 0.0f;
+		bool			  m_firstTick	  = true;
+		Vector2			  m_startPosition = Vector2::Zero;
+		float			  m_counter		  = 0.0f;
+		Tween*			  m_tween		  = nullptr;
+	};
+
+} // namespace Lina::Editor

@@ -43,7 +43,7 @@ include/Editor/Widgets/Docking/DockWidget.hpp
 include/Editor/Widgets/Docking/DockPreview.hpp
 include/Editor/Widgets/Screens/SplashScreen.hpp
 include/Editor/Widgets/Popups/ProjectSelector.hpp
-include/Editor/Widgets/Popups/InfoBar.hpp
+include/Editor/Widgets/Popups/InfoTooltip.hpp
 include/Editor/Widgets/Panel/Panel.hpp
 
 # Meta
@@ -73,7 +73,7 @@ src/Widgets/Docking/DockArea.cpp
 src/Widgets/Docking/DockPreview.cpp
 src/Widgets/Screens/SplashScreen.cpp
 src/Widgets/Popups/ProjectSelector.cpp
-src/Widgets/Popups/InfoBar.cpp
+src/Widgets/Popups/InfoTooltip.cpp
 src/Widgets/Panel/Panel.cpp
 
 # Meta

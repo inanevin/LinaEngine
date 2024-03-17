@@ -26,40 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/Meta/ProjectData.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
-	class Text;
-}
-namespace Lina::Editor
-{
-	class InfoBar : public Widget
+	void ProjectData::LoadFromStream(IStream& in)
 	{
-	public:
-		InfoBar()		   = default;
-		virtual ~InfoBar() = default;
+		uint32 version = 0;
+		in >> version;
+		StringSerialization::LoadFromStream(in, m_projectName);
+	}
 
-		virtual void Construct() override;
-		virtual void CalculateSize(float delta) override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-
-		void AddInfo(const String& str, LogLevel level, float time);
-		void RemoveInfo();
-
-	private:
-		static constexpr float TWEEN_TIME = 0.25f;
-
-	private:
-		float  m_tweenValue	 = 0.0f;
-		String m_currentText = "";
-		Text*  m_text		 = nullptr;
-		float  m_maxTime	 = 3.0f;
-		float  m_counter	 = 0.0f;
-		bool   m_destroying	 = false;
-	};
-
-} // namespace Lina::Editor
+	void ProjectData::SaveToStream(OStream& out)
+	{
+		out << VERSION;
+		StringSerialization::SaveToStream(out, m_projectName);
+	}
+} // namespace Lina

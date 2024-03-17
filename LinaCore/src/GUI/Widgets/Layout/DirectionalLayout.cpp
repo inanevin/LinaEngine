@@ -34,7 +34,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	void DirectionalLayout::Tick(float delta)
+
+	void DirectionalLayout::CalculateSize(float delta)
 	{
 		// Fetch size from children if empty.
 		if (m_props.direction == DirectionOrientation::Horizontal && Math::Equals(m_rect.size.x, 0.0f, 0.1f))
@@ -67,7 +68,10 @@ namespace Lina
 			if (Math::Equals(m_rect.size.x, 0.0f, 0.1f))
 				m_rect.size.x = maxX + (m_childMargins.left + m_childMargins.right);
 		}
+	}
 
+	void DirectionalLayout::Tick(float delta)
+	{
 		m_start	 = GetStartFromMargins();
 		m_end	 = GetEndFromMargins();
 		m_sz	 = m_end - m_start;
@@ -186,7 +190,14 @@ namespace Lina
 		if (m_props.drawBackground)
 		{
 			LinaVG::StyleOptions bg;
-			bg.color = m_props.colorBackground.AsLVG4();
+			bg.color					= m_props.colorBackground.AsLVG4();
+			bg.rounding					= m_props.rounding;
+			bg.outlineOptions.thickness = m_props.outlineThickness;
+			bg.outlineOptions.color		= m_props.colorOutline.AsLVG4();
+
+			for (int32 corner : m_props.onlyRoundTheseCorners)
+				bg.onlyRoundTheseCorners.push_back(corner);
+
 			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), bg, 0.0f, m_drawOrder);
 		}
 

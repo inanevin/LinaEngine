@@ -44,7 +44,6 @@ namespace Lina
 			LINA_ASSERT(static_cast<int32>(m_children.size()) < m_maxChilds, "");
 		}
 
-		w->m_drawOrder	 = m_drawOrder;
 		w->m_parent		 = this;
 		w->m_lgxWindow	 = m_lgxWindow;
 		w->m_manager	 = m_manager;

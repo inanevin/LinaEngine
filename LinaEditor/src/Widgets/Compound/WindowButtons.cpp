@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Compound/WindowButtons.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
@@ -84,7 +85,9 @@ namespace Lina::Editor
 		close->GetProps().outlineThickness	   = 0.0f;
 		close->GetProps().onClicked			   = [this]() {
 			   if (m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN)
-				   m_system->GetApp()->Quit();
+			   {
+				   m_system->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
+			   }
 			   else
 				   m_lgxWindow->Close();
 		};

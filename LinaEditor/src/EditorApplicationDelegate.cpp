@@ -90,7 +90,6 @@ namespace Lina::Editor
 	{
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;
 		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
-		Theme::GetDef().alternativeFont		  = DEFAULT_FONT_SID;
 		Theme::GetDef().iconDropdown		  = ICON_ARROW_DOWN;
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
@@ -135,6 +134,9 @@ namespace Lina::Editor
 		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, true, ResourceTag::Priority));
 
+		// Core
+		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
+
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);
 
@@ -151,6 +153,16 @@ namespace Lina::Editor
 			Font::Metadata customMeta = {
 				.points = {{.size = 32, .dpiLimit = 10.0f}},
 				.isSDF	= true,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == ALT_FONT_SID)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 16, .dpiLimit = 1.1f}},
+				.isSDF	= false,
 			};
 			customMeta.SaveToStream(stream);
 			return true;

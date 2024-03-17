@@ -36,14 +36,12 @@ namespace Lina::Editor
 	{
 		uint32 version = 0;
 		in >> version;
-		StringSerialization::LoadFromStream(in, m_lastProjectBasePath);
-		StringSerialization::LoadFromStream(in, m_lastProjectName);
+		StringSerialization::LoadFromStream(in, m_lastProjectPath);
 	}
 
 	void EditorSettings::SaveToStream(OStream& out)
 	{
 		out << VERSION;
-		StringSerialization::SaveToStream(out, m_lastProjectBasePath);
-		StringSerialization::SaveToStream(out, m_lastProjectName);
+		StringSerialization::SaveToStream(out, m_lastProjectPath);
 	}
 } // namespace Lina::Editor

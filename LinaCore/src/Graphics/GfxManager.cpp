@@ -156,8 +156,9 @@ namespace Lina
 			samplerData.mipLodBias			 = -1.0f;
 			defaultGUISampler->m_samplerDesc = samplerData;
 
-			samplerData.minFilter				 = LinaGX::Filter::Linear;
-			samplerData.magFilter				 = LinaGX::Filter::Linear;
+			samplerData.minFilter				 = LinaGX::Filter::Anisotropic;
+			samplerData.magFilter				 = LinaGX::Filter::Anisotropic;
+			samplerData.mode					 = LinaGX::SamplerAddressMode::ClampToEdge;
 			samplerData.mipLodBias				 = 0.0f;
 			defaultGUITextSampler->m_samplerDesc = samplerData;
 

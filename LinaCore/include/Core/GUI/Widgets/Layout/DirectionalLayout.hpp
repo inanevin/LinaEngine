@@ -49,12 +49,17 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction		 = DirectionOrientation::Horizontal;
-			Mode				 mode			 = Mode::Default;
-			Color				 colorBackground = Theme::GetDef().background0;
-			bool				 drawBackground	 = false;
+			DirectionOrientation direction			   = DirectionOrientation::Horizontal;
+			Mode				 mode				   = Mode::Default;
+			Color				 colorBackground	   = Theme::GetDef().background0;
+			Color				 colorOutline		   = Theme::GetDef().outlineColorBase;
+			bool				 drawBackground		   = false;
+			float				 rounding			   = 0.0f;
+			float				 outlineThickness	   = 0.0f;
+			Vector<int32>		 onlyRoundTheseCorners = {};
 		};
 
+		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;

@@ -33,12 +33,22 @@ SOFTWARE.
 
 namespace Lina
 {
-	class ProjectSettings : public Serializable
+	class ProjectData : public Serializable
 	{
 	public:
 		static constexpr uint32 VERSION = 0;
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
+
+		inline void SetProjectName(const String& name)
+		{
+			m_projectName = name;
+		}
+
+		inline const String& GetProjectName() const
+		{
+			return m_projectName;
+		}
 
 	private:
 		String m_projectName = "";

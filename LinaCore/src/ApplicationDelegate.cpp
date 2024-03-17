@@ -46,7 +46,7 @@ namespace Lina
 		if (sid == DEFAULT_FONT_SID)
 		{
 			Font::Metadata customMeta = {
-				.points		 = {{.size = 12, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+				.points		 = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
 				.isSDF		 = false,
 				.glyphRanges = {linatl::make_pair(160, 360)},
 			};
@@ -55,7 +55,7 @@ namespace Lina
 		}
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
-		if (sid == DEFAULT_TEXTURE_CHECKERED && sid == DEFAULT_TEXTURE_LINALOGO || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs)
+		if (sid == DEFAULT_TEXTURE_CHECKERED || sid == DEFAULT_TEXTURE_LINALOGO || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs)
 		{
 			Texture::Metadata meta = {
 				.samplerSID = DEFAULT_GUI_SAMPLER_SID,
