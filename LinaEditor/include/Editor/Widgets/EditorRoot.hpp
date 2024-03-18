@@ -28,8 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina
 {
@@ -40,9 +40,8 @@ namespace Lina
 namespace Lina::Editor
 {
 	class DockArea;
-	class WindowButtons;
 
-	class EditorRoot : public Widget, public FileMenuListener
+	class EditorRoot : public DirectionalLayout, public FileMenuListener
 	{
 	public:
 		EditorRoot()		  = default;
@@ -55,14 +54,10 @@ namespace Lina::Editor
 		virtual void OnPopupCreated(Popup* popup, StringID sid) override;
 
 	private:
-		Rect m_topRect = {};
-
-		Rect		   m_botRect	   = {};
-		FileMenu*	   m_fm			   = nullptr;
-		Icon*		   m_linaLogo	   = nullptr;
-		WindowButtons* m_windowButtons = nullptr;
-		Rect		   m_dragRect	   = {};
-		DockArea*	   m_dummyDock	   = nullptr;
+		FileMenu* m_fm			  = nullptr;
+		Rect	  m_dragRect	  = {};
+		Widget*	  m_fileMenu	  = nullptr;
+		Widget*	  m_windowButtons = nullptr;
 	};
 
 } // namespace Lina::Editor

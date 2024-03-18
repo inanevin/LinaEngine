@@ -32,14 +32,26 @@ SOFTWARE.
 
 namespace Lina
 {
+	void FileMenu::Construct()
+	{
+		GetProps().direction = DirectionOrientation::Horizontal;
+		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN);
+		DirectionalLayout::Construct();
+	}
+
 	void FileMenu::Initialize()
 	{
-		for (const auto& str : m_props.buttons)
+		for (const auto& str : m_fileMenuProps.buttons)
 		{
-			Button*		   btn = Allocate<Button>("FileMenuButton");
+			Button* btn = Allocate<Button>("FileMenuButton");
+			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_MAX_CHILDREN);
+			btn->SetAlignedPosY(0.0f);
+			btn->SetAlignedSizeY(1.0f);
+			btn->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+
 			const StringID sid = TO_SID(str);
 
-			btn->GetProps()			  = m_props.buttonProps;
+			btn->GetProps()			  = m_fileMenuProps.buttonProps;
 			btn->GetProps().onClicked = [sid, this, btn]() {
 				Popup* popup = Allocate<Popup>();
 				popup->SetPosX(btn->GetPosX());
@@ -50,35 +62,10 @@ namespace Lina
 			};
 
 			btn->GetText()->GetProps().text = str;
-			btn->Initialize();
 			AddChild(btn);
-			m_buttons.push_back(btn);
 		}
+
+		DirectionalLayout::Initialize();
 	}
 
-	void FileMenu::CalculateSize(float delta)
-	{
-		const float padding = Theme::GetDef().baseIndentInner;
-		float		w		= 0.0f;
-		for (Button* btn : m_buttons)
-		{
-			btn->SetSizeX(padding * 2 + btn->GetText()->GetSizeX());
-			btn->SetSizeY(m_rect.size.y);
-			w += btn->GetSizeX();
-		}
-		SetSizeX(w);
-	}
-
-	void FileMenu::Tick(float delta)
-	{
-		const float padding = Theme::GetDef().baseIndentInner;
-		float		x		= m_rect.pos.x;
-
-		for (Button* btn : m_buttons)
-		{
-			btn->SetPosX(x);
-			btn->SetPosY(m_rect.pos.y);
-			x += btn->GetSizeX();
-		}
-	}
 } // namespace Lina

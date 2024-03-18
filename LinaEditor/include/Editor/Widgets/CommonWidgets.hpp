@@ -50,7 +50,8 @@ namespace Lina::Editor
 	class CommonWidgets
 	{
 	public:
-		static DirectionalLayout* BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* allocator);
+		static DirectionalLayout* BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* source);
+		static DirectionalLayout* BuildWindowButtons(Widget* source);
 
 		static void DrawGradLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
 		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);

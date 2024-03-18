@@ -48,6 +48,8 @@ namespace Lina::Editor
 			Deallocate(w);
 		};
 
+		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+
 		AddChild(m_tabRow);
 	}
 
@@ -86,8 +88,8 @@ namespace Lina::Editor
 		if (m_parent == nullptr)
 			return;
 
-		SetPos(m_parent->GetSize() * m_alignRect.pos);
-		SetSize(m_parent->GetSize() * m_alignRect.size);
+		// SetPos(m_parent->GetPos() + m_parent->GetSize() * m_alignRect.pos);
+		// SetSize(m_parent->GetSize() * m_alignRect.size);
 
 		// Omit tab row.
 		if (m_selectedChildren == nullptr && m_children.size() == 2)

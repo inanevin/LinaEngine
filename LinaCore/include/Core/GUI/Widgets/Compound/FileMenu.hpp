@@ -28,7 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/String.hpp"
@@ -44,22 +44,21 @@ namespace Lina
 		virtual void OnPopupCreated(Popup* popup, StringID sid){};
 	};
 
-	class FileMenu : public Widget
+	class FileMenu : public DirectionalLayout
 	{
 	public:
-		struct Properties
+		struct FileMenuProperties
 		{
 			Vector<String>	   buttons;
 			Button::Properties buttonProps;
 		};
 
+        virtual void Construct() override;
 		virtual void Initialize() override;
-		virtual void CalculateSize(float delta) override;
-		virtual void Tick(float delta) override;
 
-		inline Properties& GetProps()
+		inline FileMenuProperties& GetFileMenuProps()
 		{
-			return m_props;
+			return m_fileMenuProps;
 		}
 
 		inline void SetListener(FileMenuListener* list)
@@ -68,8 +67,8 @@ namespace Lina
 		}
 
 	private:
-		Vector<Button*>	  m_buttons	 = {};
-		Properties		  m_props	 = {};
+		// Vector<Button*>	  m_buttons	 = {};
+		FileMenuProperties		  m_fileMenuProps	 = {};
 		FileMenuListener* m_listener = nullptr;
 	};
 

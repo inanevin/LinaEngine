@@ -284,6 +284,11 @@ namespace Lina
 			return m_manager;
 		}
 
+		inline System* GetSystem() const
+		{
+			return m_system;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_GET_MUTATE(Pos, m_rect.pos);

@@ -27,27 +27,30 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Editor/Widgets/Compound/WindowButtons.hpp"
 #include "Editor/Widgets/Popups/InfoTooltip.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Editor.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/System/System.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina::Editor
 {
-	DirectionalLayout* CommonWidgets::BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* allocator)
+	DirectionalLayout* CommonWidgets::BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* source)
 	{
-		DirectionalLayout* layout = allocator->Allocate<DirectionalLayout>("WindowBar");
+		DirectionalLayout* layout = source->Allocate<DirectionalLayout>("WindowBar");
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 
 		if (hasIcon)
 		{
-			Icon* icon			  = allocator->Allocate<Icon>("WindowBarIcon");
+			Icon* icon			  = source->Allocate<Icon>("WindowBarIcon");
 			icon->GetProps().icon = ICON_LINA_LOGO;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
@@ -55,7 +58,7 @@ namespace Lina::Editor
 			layout->AddChild(icon);
 		}
 
-		Text* text			  = allocator->Allocate<Text>("WindowBarTitle");
+		Text* text			  = source->Allocate<Text>("WindowBarTitle");
 		text->GetProps().text = title;
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);
@@ -64,7 +67,7 @@ namespace Lina::Editor
 
 		if (hasWindowButtons)
 		{
-			WindowButtons* wb = allocator->Allocate<WindowButtons>("WindowBarButtons");
+			DirectionalLayout* wb = CommonWidgets::BuildWindowButtons(source);
 			wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 			wb->SetAlignedPosY(0.0f);
 			wb->SetAlignedSizeY(1.0f);
@@ -72,6 +75,76 @@ namespace Lina::Editor
 			wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
 			layout->AddChild(wb);
 		}
+
+		return layout;
+	}
+
+	DirectionalLayout* CommonWidgets::BuildWindowButtons(Widget* source)
+	{
+		DirectionalLayout* layout	 = source->Allocate<DirectionalLayout>("WindowButtons");
+		layout->GetProps().direction = DirectionOrientation::Horizontal;
+		layout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
+
+		Button* min							 = source->Allocate<Button>("Minimize");
+		min->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
+		min->GetText()->GetProps().text		 = ICON_MINIMIZE;
+		min->GetText()->GetProps().textScale = 0.5f;
+		min->GetProps().colorDefaultStart	 = Theme::GetDef().black;
+		min->GetProps().colorDefaultEnd		 = Theme::GetDef().black;
+		min->GetProps().colorHovered		 = Theme::GetDef().background4;
+		min->GetProps().colorPressed		 = Theme::GetDef().background0;
+		min->GetProps().rounding			 = 0.0f;
+		min->GetProps().outlineThickness	 = 0.0f;
+		min->GetProps().onClicked			 = [source]() { source->GetWindow()->Minimize(); };
+		min->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		min->SetAlignedPosY(0.0f);
+		min->SetAlignedSizeY(1.0f);
+		layout->AddChild(min);
+
+		Button* max							 = source->Allocate<Button>();
+		max->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
+		max->GetText()->GetProps().text		 = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
+		max->GetText()->GetProps().textScale = 0.5f;
+		max->GetProps().colorDefaultStart	 = Theme::GetDef().black;
+		max->GetProps().colorDefaultEnd		 = Theme::GetDef().black;
+		max->GetProps().colorHovered		 = Theme::GetDef().background4;
+		max->GetProps().colorPressed		 = Theme::GetDef().background0;
+		max->GetProps().rounding			 = 0.0f;
+		max->GetProps().outlineThickness	 = 0.0f;
+		max->GetProps().onClicked			 = [source, max]() {
+			   if (source->GetWindow()->GetIsMaximized())
+				   source->GetWindow()->Restore();
+			   else
+				   source->GetWindow()->Maximize();
+
+			   max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
+			   max->GetText()->CalculateTextSize();
+		};
+		max->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		max->SetAlignedPosY(0.0f);
+		max->SetAlignedSizeY(1.0f);
+		layout->AddChild(max);
+
+		Button* close						   = source->Allocate<Button>();
+		close->GetText()->GetProps().font	   = Theme::GetDef().iconFont;
+		close->GetText()->GetProps().text	   = ICON_XMARK;
+		close->GetText()->GetProps().textScale = 0.5f;
+		close->GetProps().colorDefaultStart	   = Theme::GetDef().accentPrimary0;
+		close->GetProps().colorDefaultEnd	   = Theme::GetDef().accentPrimary0;
+		close->GetProps().colorHovered		   = Theme::GetDef().accentPrimary2;
+		close->GetProps().colorPressed		   = Theme::GetDef().accentPrimary1;
+		close->GetProps().rounding			   = 0.0f;
+		close->GetProps().outlineThickness	   = 0.0f;
+		close->GetProps().onClicked			   = [source]() {
+			   if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
+				   source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
+			   else
+				   source->GetWindow()->Close();
+		};
+		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		close->SetAlignedPosY(0.0f);
+		close->SetAlignedSizeY(1.0f);
+		layout->AddChild(close);
 
 		return layout;
 	}
@@ -163,7 +236,6 @@ namespace Lina::Editor
 		inf->GetTooltipProps().direction = Direction::Center;
 		inf->SetPos(targetPos);
 		manager->AddToForeground(inf);
-
 		return inf;
 	}
 

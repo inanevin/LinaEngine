@@ -152,7 +152,8 @@ namespace Lina::Editor
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		input->SetAlignedSize(Vector2(0.0f, 1.0f));
 		input->SetAlignedPos(Vector2(0.0f, 0.0f));
-		input->GetProps().onEditEnd = [this](const String& str) { m_projectPath = str; };
+		input->GetProps().onEditEnd		  = [this](const String& str) { m_projectPath = str; };
+		input->GetText()->GetProps().text = m_projectPath;
 
 		Button* btn							 = Allocate<Button>();
 		btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;

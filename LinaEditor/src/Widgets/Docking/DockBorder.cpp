@@ -132,12 +132,12 @@ namespace Lina::Editor
 
 		if (m_orientation == DirectionOrientation::Horizontal)
 		{
-			m_rect.pos	= m_parent->GetSize() * m_alignRect.pos - Vector2(0.0f, BORDER_THICKNESS / 2.0f);
+			m_rect.pos	= m_parent->GetPos() + m_parent->GetSize() * m_alignRect.pos - Vector2(0.0f, BORDER_THICKNESS / 2.0f);
 			m_rect.size = m_parent->GetSize() * m_alignRect.size + Vector2(0.0, BORDER_THICKNESS);
 		}
 		else
 		{
-			m_rect.pos	= m_parent->GetSize() * m_alignRect.pos - Vector2(BORDER_THICKNESS / 2.0f, 0.0f);
+			m_rect.pos	= m_parent->GetPos() + m_parent->GetSize() * m_alignRect.pos - Vector2(BORDER_THICKNESS / 2.0f, 0.0f);
 			m_rect.size = m_parent->GetSize() * m_alignRect.size + Vector2(BORDER_THICKNESS, 0.0f);
 		}
 	}

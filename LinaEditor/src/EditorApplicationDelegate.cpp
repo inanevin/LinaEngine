@@ -54,7 +54,6 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/IconTabs.hpp"
 #include "Editor/Widgets/Compound/Tab.hpp"
 #include "Editor/Widgets/Compound/TabRow.hpp"
-#include "Editor/Widgets/Compound/WindowButtons.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Docking/DockPreview.hpp"
@@ -112,7 +111,6 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<IconTabs>(), 50);
 		Theme::SetWidgetChunkCount(GetTypeID<Tab>(), 50);
 		Theme::SetWidgetChunkCount(GetTypeID<TabRow>(), 25);
-		Theme::SetWidgetChunkCount(GetTypeID<WindowButtons>(), 15);
 		Theme::SetWidgetChunkCount(GetTypeID<DockArea>(), 25);
 		Theme::SetWidgetChunkCount(GetTypeID<DockBorder>(), 25);
 		Theme::SetWidgetChunkCount(GetTypeID<DockPreview>(), 25);
