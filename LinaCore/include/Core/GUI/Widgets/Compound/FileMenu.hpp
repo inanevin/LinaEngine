@@ -53,7 +53,7 @@ namespace Lina
 			Button::Properties buttonProps;
 		};
 
-        virtual void Construct() override;
+		virtual void Construct() override;
 		virtual void Initialize() override;
 
 		inline FileMenuProperties& GetFileMenuProps()
@@ -68,8 +68,8 @@ namespace Lina
 
 	private:
 		// Vector<Button*>	  m_buttons	 = {};
-		FileMenuProperties		  m_fileMenuProps	 = {};
-		FileMenuListener* m_listener = nullptr;
+		FileMenuProperties m_fileMenuProps = {};
+		FileMenuListener*  m_listener	   = nullptr;
 	};
 
 } // namespace Lina
