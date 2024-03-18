@@ -37,6 +37,10 @@ SOFTWARE.
 #include <pwd.h>
 #endif
 
+#ifdef LINA_PLATFORM_WINDOWS
+#include <shlobj.h>
+#endif
+
 namespace Lina
 {
 	bool FileSystem::DeleteFileInPath(const String& path)
@@ -244,6 +248,13 @@ namespace Lina
 		return "";
 	}
 
+	String FileSystem::FixPath(const String& str)
+	{
+		String result = UtilStr::ReplaceAll(str, "\\", "/");
+		result		  = UtilStr::ReplaceAll(result, "\\\\", "/");
+		// result = UtilStr::ReplaceAll(result, "\\", "/");
+		return result;
+	}
 	bool FileSystem::FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem)
 	{
 		bool contains = false;

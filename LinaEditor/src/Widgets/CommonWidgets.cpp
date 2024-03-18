@@ -128,7 +128,7 @@ namespace Lina::Editor
 		if (inf->GetRect().GetEnd().x < windowSize.x)
 		{
 			inf->GetTooltipProps().direction = Direction::Right;
-			return;
+			return inf;
 		}
 
 		// Left
@@ -136,7 +136,7 @@ namespace Lina::Editor
 		if (inf->GetRect().pos.x > 0.0f)
 		{
 			inf->GetTooltipProps().direction = Direction::Left;
-			return;
+			return inf;
 		}
 
 		// Top
@@ -144,7 +144,7 @@ namespace Lina::Editor
 		if (inf->GetPosY() > 0.0f)
 		{
 			inf->GetTooltipProps().direction = Direction::Top;
-			return;
+			return inf;
 		}
 
 		// Last resort bottom

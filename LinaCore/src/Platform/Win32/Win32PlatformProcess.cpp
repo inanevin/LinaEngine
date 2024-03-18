@@ -217,7 +217,7 @@ namespace Lina
 		return success;
 	}
 
-	String PlatformProcess::OpenDialog(const char* extensionDescription, const char* extension)
+	String PlatformProcess::OpenDialog(const PlatformProcess::DialogProperties& props)
 	{
 		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
@@ -226,8 +226,8 @@ namespace Lina
 		HRESULT			 hr		= CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOpenDialog));
 		String			 retVal = "";
 
-		const wchar_t* extensionDescriptionW = FileSystem::CharToWChar(extensionDescription);
-		const wchar_t* extensionW			 = FileSystem::CharToWChar(extension);
+		const wchar_t* extensionDescriptionW = FileSystem::CharToWChar(props.extensionDescription.c_str());
+		const wchar_t* extensionW			 = FileSystem::CharToWChar(props.extensions.c_str());
 
 		if (SUCCEEDED(hr))
 		{
@@ -280,15 +280,15 @@ namespace Lina
 		return retVal;
 	}
 
-	String PlatformProcess::SaveDialog(const char* extensionDescription, const char* extension)
+	String PlatformProcess::SaveDialog(const PlatformProcess::DialogProperties& props)
 	{
 		HRESULT res = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
 
 		// Create the File Save Dialog object
 		IFileSaveDialog* pFileSaveDialog;
 		HRESULT			 hr					   = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileSaveDialog));
-		const wchar_t*	 extensionDescriptionW = FileSystem::CharToWChar(extensionDescription);
-		const wchar_t*	 extensionW			   = FileSystem::CharToWChar(extension);
+		const wchar_t*	 extensionDescriptionW = FileSystem::CharToWChar(props.extensionDescription.c_str());
+		const wchar_t*	 extensionW			   = FileSystem::CharToWChar(props.extensions.c_str());
 
 		String retVal = "";
 		if (SUCCEEDED(hr))

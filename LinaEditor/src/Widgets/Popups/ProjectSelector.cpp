@@ -179,10 +179,13 @@ namespace Lina::Editor
 				location = PlatformProcess::OpenDialog({
 					.title		   = dialogTitle,
 					.primaryButton = Locale::GetStr(LocaleStr::Open),
-					.extensions	   = "linaproject",
+					.extensions	   = "*.linaproject",
 					.mode		   = PlatformProcess::DialogMode::SelectFile,
 				});
 			}
+
+			location = FileSystem::FixPath(location);
+
 			m_projectPath = location;
 			m_lgxWindow->BringToFront();
 			if (!location.empty())
