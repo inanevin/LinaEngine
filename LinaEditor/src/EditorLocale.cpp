@@ -31,6 +31,8 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	HashMap<LocaleStr, String> Locale::s_englishMap = {
+		{LocaleStr::Save, "Save"},
+		{LocaleStr::Load, "Load"},
 		{LocaleStr::Yes, "Yes"},
 		{LocaleStr::No, "No"},
 		{LocaleStr::Hex, "Hex"},
@@ -49,7 +51,7 @@ namespace Lina::Editor
 		{LocaleStr::CreateNewProject, "Create new project"},
 		{LocaleStr::OpenExistingProject, "Open existing project"},
 		{LocaleStr::SelectDirectory, "Select directory"},
-		{LocaleStr::SelectDirectoryToCreateProject, "Select directory for a new Lina project"},
+		{LocaleStr::CreateANewProject, "Create a new Lina project"},
 		{LocaleStr::SelectProjectFile, "Select project to open"},
 		{LocaleStr::DirectoryNotFound, "Directory not found!"},
 		{LocaleStr::FileNotFound, "File not found!"},

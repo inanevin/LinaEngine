@@ -262,6 +262,13 @@ namespace Lina
 		{
 			NSSavePanel* panel = [NSSavePanel savePanel];
 
+			NSString* nsTitle		  = [NSString stringWithUTF8String:props.title.c_str()];
+			NSString* nsPrimaryButton = [NSString stringWithUTF8String:props.primaryButton.c_str()];
+
+			[panel setPrompt:nsPrimaryButton];
+			[panel setMessage:nsTitle];
+			[panel setCanCreateDirectories:YES];
+
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
 			UTType* type = [UTType typeWithFilenameExtension:@(props.extensions.c_str())];
 			[panel setAllowedContentTypes:@[ type ]];

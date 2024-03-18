@@ -35,6 +35,8 @@ namespace Lina::Editor
 
 	enum class LocaleStr
 	{
+		Save,
+		Load,
 		Yes,
 		No,
 		Hex,
@@ -53,7 +55,7 @@ namespace Lina::Editor
 		CreateNewProject,
 		OpenExistingProject,
 		SelectDirectory,
-		SelectDirectoryToCreateProject,
+		CreateANewProject,
 		SelectProjectFile,
 		DirectoryNotFound,
 		FileNotFound,

@@ -140,7 +140,7 @@ namespace Lina::Editor
 		return true;
 	}
 
-	DirectionalLayout* ProjectSelector::BuildLocationSelectRow(const String& dialogTitle, bool selectFile)
+	DirectionalLayout* ProjectSelector::BuildLocationSelectRow(const String& dialogTitle, bool isSave)
 	{
 		Text* label			   = Allocate<Text>();
 		label->GetProps().text = Locale::GetStr(LocaleStr::Location);
@@ -152,7 +152,7 @@ namespace Lina::Editor
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		input->SetAlignedSize(Vector2(0.0f, 1.0f));
 		input->SetAlignedPos(Vector2(0.0f, 0.0f));
-		input->GetProps().onEditEnd = [this](const String& str) { m_locationPath = str; };
+		input->GetProps().onEditEnd = [this](const String& str) { m_projectPath = str; };
 
 		Button* btn							 = Allocate<Button>();
 		btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
@@ -163,15 +163,27 @@ namespace Lina::Editor
 		btn->SetAlignedPosX(1.0f);
 		btn->SetAlignedPosY(0.0f);
 		btn->SetPosAlignmentSourceX(PosAlignmentSource::End);
-		btn->GetProps().onClicked = [&dialogTitle, input, this, selectFile]() {
-			const String location = PlatformProcess::OpenDialog({
-				.title		   = dialogTitle,
-				.primaryButton = Locale::GetStr(LocaleStr::Select),
-				.extensions	   = "linaproject",
-				.mode		   = selectFile ? PlatformProcess::DialogMode::SelectFile : PlatformProcess::DialogMode::SelectDirectory,
-			});
+		btn->GetProps().onClicked = [&dialogTitle, input, this, isSave]() {
+			String location = "";
 
-			m_locationPath = location;
+			if (isSave)
+			{
+				location = PlatformProcess::SaveDialog({
+					.title		   = dialogTitle,
+					.primaryButton = Locale::GetStr(LocaleStr::Save),
+					.extensions	   = "linaproject",
+				});
+			}
+			else
+			{
+				location = PlatformProcess::OpenDialog({
+					.title		   = dialogTitle,
+					.primaryButton = Locale::GetStr(LocaleStr::Open),
+					.extensions	   = "linaproject",
+					.mode		   = PlatformProcess::DialogMode::SelectFile,
+				});
+			}
+			m_projectPath = location;
 			m_lgxWindow->BringToFront();
 			if (!location.empty())
 			{
@@ -200,41 +212,6 @@ namespace Lina::Editor
 		return row;
 	}
 
-	DirectionalLayout* ProjectSelector::BuildProjectNameRow()
-	{
-		// Project name selection.
-		Text* label			   = Allocate<Text>();
-		label->GetProps().text = Locale::GetStr(LocaleStr::Name);
-		label->GetFlags().Set(WF_POS_ALIGN_Y);
-		label->SetAlignedPosY(0.5f);
-		label->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-
-		InputField* input = Allocate<InputField>();
-		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
-		input->SetAlignedSize(Vector2(0.0f, 1.0f));
-		input->SetAlignedPos(Vector2(0.0f, 0.0f));
-		input->GetProps().onEditEnd = [this](const String& str) { m_projectName = str; };
-
-		DirectionalLayout* rightRow = Allocate<DirectionalLayout>("RightSide");
-		rightRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-		rightRow->SetAlignedSize(Vector2(0.8f, 1.0f));
-		rightRow->SetAlignedPos(Vector2(0.2f, 0.0f));
-		rightRow->SetChildPadding(Theme::GetDef().baseIndent);
-		rightRow->AddChild(input);
-
-		// btnLocation->SetPosAlignment(1.0f);
-		DirectionalLayout* row = Allocate<DirectionalLayout>("ProjectNameRow");
-		row->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
-		row->SetAlignedSizeX(1.0f);
-		row->SetAlignedPosX(0.0f);
-		row->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		row->AddChild(label, rightRow);
-
-		m_currentProjectNameWidget = input;
-
-		return row;
-	}
-
 	DirectionalLayout* ProjectSelector::BuildButtonsRow(bool isCreate)
 	{
 		// Button row.
@@ -245,7 +222,11 @@ namespace Lina::Editor
 		buttonCreate->SetAlignedPosY(0.0f);
 		buttonCreate->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4.0f);
 		buttonCreate->GetProps().onClicked = [this, isCreate]() {
-			if (!FileSystem::FileOrPathExists(m_locationPath))
+			// Make sure proper.
+			const String fixedLoc = FileSystem::RemoveExtensionFromPath(m_projectPath) + ".linaproject";
+			const String base	  = FileSystem::GetFilePath(fixedLoc);
+
+			if (!FileSystem::FileOrPathExists(base) || (!isCreate && !FileSystem::FileOrPathExists(fixedLoc)))
 			{
 				CommonWidgets::ThrowInfoTooltip(isCreate ? Locale::GetStr(LocaleStr::DirectoryNotFound) : Locale::GetStr(LocaleStr::FileNotFound), LogLevel::Error, 3.0f, m_currentLocationButton);
 				return;
@@ -253,19 +234,13 @@ namespace Lina::Editor
 
 			if (isCreate)
 			{
-				if (m_projectName.empty())
-				{
-					CommonWidgets::ThrowInfoTooltip(Locale::GetStr(LocaleStr::NameIsNotValid), LogLevel::Error, 3.0f, m_currentProjectNameWidget);
-					return;
-				}
-
 				if (m_props.onProjectCreated)
-					m_props.onProjectCreated(m_locationPath, m_projectName);
+					m_props.onProjectCreated(fixedLoc);
 			}
 			else
 			{
 				if (m_props.onProjectOpened)
-					m_props.onProjectOpened(m_locationPath);
+					m_props.onProjectOpened(fixedLoc);
 			}
 
 			m_manager->AddToKillList(this);
@@ -305,7 +280,7 @@ namespace Lina::Editor
 		contentLayout->SetAlignedSize(Vector2(0.0f, 1.0f));
 		contentLayout->SetAlignedPosY(0.0f);
 		contentLayout->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		contentLayout->AddChild(BuildLocationSelectRow(Locale::GetStr(LocaleStr::SelectDirectoryToCreateProject), false), BuildProjectNameRow(), BuildButtonsRow(true));
+		contentLayout->AddChild(BuildLocationSelectRow(Locale::GetStr(LocaleStr::CreateANewProject), true), BuildButtonsRow(true));
 		return contentLayout;
 	}
 
@@ -318,7 +293,7 @@ namespace Lina::Editor
 		contentLayout->SetAlignedSize(Vector2(0.0f, 1.0f));
 		contentLayout->SetAlignedPosY(0.0f);
 		contentLayout->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		contentLayout->AddChild(BuildLocationSelectRow(Locale::GetStr(LocaleStr::SelectProjectFile), true), BuildButtonsRow(false));
+		contentLayout->AddChild(BuildLocationSelectRow(Locale::GetStr(LocaleStr::SelectProjectFile), false), BuildButtonsRow(false));
 		return contentLayout;
 	}
 

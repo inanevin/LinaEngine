@@ -98,7 +98,14 @@ namespace Lina::Editor
 		const float padding				= Theme::GetDef().baseIndent;
 		Button*		btn					= Allocate<Button>("Button");
 		btn->GetText()->GetProps().text = buttonProps.text;
-		btn->GetProps().onClicked		= buttonProps.onClicked;
+		btn->GetProps().onClicked		= [buttonProps, this]() {
+			  if (buttonProps.onClicked)
+				  buttonProps.onClicked();
+
+			  if (buttonProps.closesPopup)
+				  m_manager->AddToKillList(this);
+		};
+
 		btn->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_POS_ALIGN_Y);
 		btn->SetAlignedSizeY(1.0f);
 		btn->SetAlignedPosY(0.0f);

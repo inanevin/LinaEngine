@@ -101,8 +101,8 @@ namespace Lina
 	private:
 		Properties m_props				  = {};
 		Text*	   m_text				  = nullptr;
-		Vector2	   m_textStartMid		  = Vector2::Zero;
-		Vector2	   m_textEndMid			  = Vector2::Zero;
+		Vector2	   m_textStart			  = Vector2::Zero;
+		Vector2	   m_textEnd			  = Vector2::Zero;
 		uint32	   m_caretInsertPos		  = 0;
 		uint32	   m_highlightStartPos	  = 0;
 		float	   m_caretAlpha			  = 1.0f;

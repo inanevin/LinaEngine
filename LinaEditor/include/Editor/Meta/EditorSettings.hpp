@@ -45,6 +45,11 @@ namespace Lina::Editor
 			return m_lastProjectPath;
 		}
 
+		inline void SetLastProjectPath(const String& path)
+		{
+			m_lastProjectPath = path;
+		}
+
 	private:
 		String m_lastProjectPath = "";
 	};

@@ -104,8 +104,8 @@ namespace Lina
 
 		const Vector2& textSize		= m_text->GetSize();
 		const Vector2  middle		= Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
-		m_textStartMid				= middle - Vector2(textSize.x * 0.5f, 0.0f);
-		m_textEndMid				= middle + Vector2(textSize.x * 0.5f, 0.0f);
+		m_textStart					= middle - Vector2(textSize.x * 0.5f, 0.0f);
+		m_textEnd					= middle + Vector2(textSize.x * 0.5f, 0.0f);
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
 		m_text->SetPosX(middle.x - m_text->GetHalfSizeX());
@@ -230,18 +230,47 @@ namespace Lina
 
 	Vector2 InputField::GetPosFromCaretIndex(uint32 index)
 	{
-		return Vector2(m_textStartMid.x + index * m_averageCharacterStep, m_rect.pos.y + m_rect.size.y * 0.5f);
+		const float y = m_rect.pos.y + m_rect.size.y * 0.5f;
+
+		if (index == 0)
+			return Vector2(m_textStart.x, y);
+
+		const String		substr = index == static_cast<uint32>(m_text->GetProps().text.size()) ? m_text->GetProps().text : m_text->GetProps().text.substr(0, index);
+		LinaVG::TextOptions opts;
+		opts.font		   = m_text->GetLVGFont();
+		opts.textScale	   = m_text->GetProps().textScale;
+		const Vector2 size = LinaVG::CalculateTextSize(substr.c_str(), opts);
+		return Vector2(m_textStart.x + size.x, y);
 	}
 
 	uint32 InputField::GetCaretPosFromMouse()
 	{
 		const Vector2& mp  = m_lgxWindow->GetMousePosition();
-		const float	   x   = mp.x - m_textStartMid.x;
+		const float	   x   = mp.x - m_textStart.x;
 		float		   off = Math::FloorToFloat(x / m_averageCharacterStep);
 		if (off < 0.0f)
 			off = 0.0f;
-		const uint32 index = Math::Clamp((uint32)off, (uint32)0, static_cast<uint32>(m_text->GetProps().text.size()));
-		return index;
+
+		const uint32 max		  = static_cast<uint32>(m_text->GetProps().text.size());
+		const uint32 averageIndex = Math::Clamp((uint32)off, (uint32)0, max);
+
+		const uint32 start = Math::Clamp(averageIndex - 5, (uint32)0, max);
+		const uint32 end   = Math::Clamp(averageIndex + 5, (uint32)0, max);
+
+		for (uint32 i = start; i < end; i++)
+		{
+			const String substr = m_text->GetProps().text.substr(0, i);
+
+			LinaVG::TextOptions textOptions;
+			textOptions.font	  = m_text->GetLVGFont();
+			textOptions.textScale = m_text->GetProps().textScale;
+			const Vector2 size	  = LinaVG::CalculateTextSize(substr.c_str(), textOptions);
+
+			if (size.x > x - m_averageCharacterStep * 0.5f)
+				return i;
+		}
+
+		return averageIndex;
 	}
 
 	bool InputField::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)

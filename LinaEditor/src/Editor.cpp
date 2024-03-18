@@ -44,6 +44,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
 	void Editor::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 	}
@@ -59,7 +60,7 @@ namespace Lina::Editor
 		splash->Initialize();
 		root->AddChild(splash);
 
-		// Load editor settings.
+		// Load editor settings or create and save empty if non-existing.
 		const String userDataFolder = FileSystem::GetUserDataFolder();
 		const String settingsPath	= userDataFolder + "EditorSettings.linameta";
 		m_settings.SetPath(settingsPath);
@@ -67,15 +68,7 @@ namespace Lina::Editor
 			FileSystem::CreateFolderInPath(userDataFolder);
 
 		if (FileSystem::FileOrPathExists(settingsPath))
-		{
 			m_settings.LoadFromFile();
-
-			if (FileSystem::FileOrPathExists(m_settings.GetLastProjectPath()))
-			{
-				CleanCurrentProject();
-				OpenProject(m_settings.GetLastProjectPath());
-			}
-		}
 		else
 			m_settings.SaveToFile();
 	}
@@ -98,42 +91,83 @@ namespace Lina::Editor
 		editorRoot->Initialize();
 		root->AddChild(editorRoot);
 
-		GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), root);
-		popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = []() {}});
-		popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = []() {}});
-
-		return;
-		if (m_currentProject == nullptr)
-			OpenPopupProjectSelector();
+		// We either load the last project, or load project selector in forced-mode.
+		if (FileSystem::FileOrPathExists(m_settings.GetLastProjectPath()))
+			OpenProject(m_settings.GetLastProjectPath());
+		else
+			OpenPopupProjectSelector(false);
 	}
 
 	void Editor::Shutdown()
 	{
 	}
 
-	void Editor::OpenPopupProjectSelector()
+	void Editor::OpenPopupProjectSelector(bool canCancel)
 	{
 		ProjectSelector* projectSelector = m_primaryWidgetManager->GetRoot()->Allocate<ProjectSelector>("ProjectSelector");
-		projectSelector->SetCancellable(false);
+		projectSelector->SetCancellable(canCancel);
 		projectSelector->SetTab(0);
 		projectSelector->Initialize();
 
-		projectSelector->GetProps().onProjectOpened = [this](const String& location) { OpenProject(location); };
+		// When we select a project to open -> ask if we want to save current one if its dirty.
+		projectSelector->GetProps().onProjectOpened = [this](const String& location) {
+			if (m_isProjectDirty)
+			{
+				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
 
-		projectSelector->GetProps().onProjectCreated = [this](const String& location, const String& name) {
-			CleanCurrentProject();
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [&]() {
+									  SaveProjectChanges();
+									  RemoveCurrentProject();
+									  OpenProject(location);
+								  }});
 
-			// LINA_ASSERT(m_currentProject == nullptr, "");
-			// m_currentProject = new ProjectData();
-			// m_currentProject->SetPath(location + name + ".linaproject");
-			// m_currentProject->SaveToFile();
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [&]() {
+									  RemoveCurrentProject();
+									  OpenProject(location);
+								  }});
+			}
+			else
+				OpenProject(location);
+		};
+
+		projectSelector->GetProps().onProjectCreated = [&](const String& path) {
+			RemoveCurrentProject();
+
+			if (m_isProjectDirty)
+			{
+				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
+
+				// Save first then create & open.
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [&]() {
+									  SaveProjectChanges();
+									  CreateEmptyProjectAndOpen(path);
+								  }});
+
+				// Create & open without saving
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [&]() { CreateEmptyProjectAndOpen(path); }});
+			}
+			else
+				CreateEmptyProjectAndOpen(path);
 		};
 
 		m_primaryWidgetManager->AddToForeground(projectSelector);
 		m_primaryWidgetManager->SetForegroundDim(0.5f);
 	}
 
-	void Editor::CleanCurrentProject()
+	void Editor::SaveProjectChanges()
+	{
+		m_isProjectDirty = false;
+	}
+
+	void Editor::CreateEmptyProjectAndOpen(const String& path)
+	{
+		ProjectData dummy;
+		dummy.SetPath(path);
+		dummy.SaveToFile();
+		OpenProject(path);
+	}
+
+	void Editor::RemoveCurrentProject()
 	{
 		if (m_currentProject == nullptr)
 			return;
@@ -148,11 +182,14 @@ namespace Lina::Editor
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
 		m_currentProject->LoadFromFile();
+
+		m_settings.SetLastProjectPath(projectFile);
+		m_settings.SaveToFile();
 	}
 
 	void Editor::RequestExit()
 	{
-		CleanCurrentProject();
+		RemoveCurrentProject();
 	}
 
 } // namespace Lina::Editor

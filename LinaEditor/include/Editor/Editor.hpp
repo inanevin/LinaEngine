@@ -54,20 +54,28 @@ namespace Lina::Editor
 		virtual void CoreResourcesLoaded() override;
 		virtual void Shutdown() override;
 
-		void OpenPopupProjectSelector();
+		void OpenPopupProjectSelector(bool canCancel);
 
 		void OpenProject(const String& projectFile);
+		void SaveProjectChanges();
 		void CloseCurrentProject();
 		void RequestExit();
 
+		inline void SetProjectDirty(bool isDirty)
+		{
+			m_isProjectDirty = isDirty;
+		}
+
 	private:
-		void CleanCurrentProject();
+		void RemoveCurrentProject();
+		void CreateEmptyProjectAndOpen(const String& path);
 
 	private:
 		GfxManager*	   m_gfxManager			  = nullptr;
 		WidgetManager* m_primaryWidgetManager = nullptr;
 		EditorSettings m_settings			  = {};
 		ProjectData*   m_currentProject		  = nullptr;
+		bool		   m_isProjectDirty		  = false;
 	};
 
 } // namespace Lina::Editor

@@ -49,8 +49,8 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Delegate<void(const String& location, const String& projectName)> onProjectCreated;
-			Delegate<void(const String& location)>							  onProjectOpened;
+			Delegate<void(const String& path)> onProjectCreated;
+			Delegate<void(const String& path)> onProjectOpened;
 		};
 
 		virtual void Construct() override;
@@ -69,24 +69,21 @@ namespace Lina::Editor
 		}
 
 	private:
-		DirectionalLayout* BuildLocationSelectRow(const String& dialogTitle, bool selectFile);
-		DirectionalLayout* BuildProjectNameRow();
+		DirectionalLayout* BuildLocationSelectRow(const String& dialogTitle, bool isSave);
 		DirectionalLayout* BuildButtonsRow(bool isCreate);
 		DirectionalLayout* BuildContentCreateNew();
 		DirectionalLayout* BuildContentOpen();
 
 	private:
-		Vector2			   m_monitorSize			  = Vector2::Zero;
-		DirectionalLayout* m_content				  = nullptr;
-		DirectionalLayout* m_title					  = nullptr;
-		Button*			   m_buttonCancel			  = nullptr;
-		int32			   m_selected				  = 0;
-		String			   m_locationPath			  = "";
-		String			   m_projectName			  = "";
-		bool			   m_isCancellable			  = true;
-		Widget*			   m_currentLocationButton	  = nullptr;
-		Widget*			   m_currentProjectNameWidget = nullptr;
-		Properties		   m_props					  = {};
+		Vector2			   m_monitorSize		   = Vector2::Zero;
+		DirectionalLayout* m_content			   = nullptr;
+		DirectionalLayout* m_title				   = nullptr;
+		Button*			   m_buttonCancel		   = nullptr;
+		int32			   m_selected			   = 0;
+		String			   m_projectPath		   = "";
+		bool			   m_isCancellable		   = true;
+		Widget*			   m_currentLocationButton = nullptr;
+		Properties		   m_props				   = {};
 	};
 
 } // namespace Lina::Editor
