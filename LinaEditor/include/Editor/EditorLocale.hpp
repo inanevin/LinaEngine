@@ -64,6 +64,7 @@ namespace Lina::Editor
 		ExitEditor,
 		UnfinishedWorkTitle,
 		UnfinishedWorkDesc,
+		LinaProjectFile,
 	};
 
 	class Locale

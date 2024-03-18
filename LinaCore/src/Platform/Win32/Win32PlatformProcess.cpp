@@ -226,17 +226,44 @@ namespace Lina
 		HRESULT			 hr		= CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileOpenDialog));
 		String			 retVal = "";
 
-		const wchar_t* extensionDescriptionW = FileSystem::CharToWChar(props.extensionDescription.c_str());
-		const wchar_t* extensionW			 = FileSystem::CharToWChar(props.extensions.c_str());
+		String fileExtensions = "";
+
+		for (size_t i = 0; i < props.extensions.size(); i++)
+		{
+			fileExtensions += "*." + props.extensions[i];
+
+			if (i != props.extensions.size() - 1)
+				fileExtensions += ";";
+		}
+		const wchar_t* extensionDescriptionW = FileSystem::CharToWChar(props.extensionsDescription.c_str());
+		const wchar_t* extensionW			 = FileSystem::CharToWChar(fileExtensions.c_str());
+		const wchar_t* title				 = UtilStr::CharToWChar(props.title.c_str());
+		const wchar_t* button				 = UtilStr::CharToWChar(props.primaryButton.c_str());
 
 		if (SUCCEEDED(hr))
 		{
 			// Set the dialog's options
 			DWORD dwOptions;
 			hr = pFileOpenDialog->GetOptions(&dwOptions);
+
+			if (props.mode == PlatformProcess::DialogMode::SelectDirectory)
+				dwOptions |= FOS_PICKFOLDERS;
+
 			if (SUCCEEDED(hr))
 			{
 				hr = pFileOpenDialog->SetOptions(dwOptions);
+			}
+
+			// Set the dialog's title
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileOpenDialog->SetTitle(title);
+			}
+
+			// Set the primary button text
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileOpenDialog->SetOkButtonLabel(button);
 			}
 
 			// Set the file type filter
@@ -275,6 +302,8 @@ namespace Lina
 
 		delete[] extensionDescriptionW;
 		delete[] extensionW;
+		delete[] title;
+		delete[] button;
 
 		CoUninitialize();
 		return retVal;
@@ -286,9 +315,22 @@ namespace Lina
 
 		// Create the File Save Dialog object
 		IFileSaveDialog* pFileSaveDialog;
-		HRESULT			 hr					   = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileSaveDialog));
-		const wchar_t*	 extensionDescriptionW = FileSystem::CharToWChar(props.extensionDescription.c_str());
-		const wchar_t*	 extensionW			   = FileSystem::CharToWChar(props.extensions.c_str());
+		HRESULT			 hr = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_ALL, IID_PPV_ARGS(&pFileSaveDialog));
+
+		String fileExtensions = "";
+
+		for (size_t i = 0; i < props.extensions.size(); i++)
+		{
+			fileExtensions += "*." + props.extensions[i];
+
+			if (i != props.extensions.size() - 1)
+				fileExtensions += ";";
+		}
+
+		const wchar_t* extensionDescriptionW = FileSystem::CharToWChar(props.extensionsDescription.c_str());
+		const wchar_t* extensionW			 = FileSystem::CharToWChar(fileExtensions.c_str());
+		const wchar_t* title				 = UtilStr::CharToWChar(props.title.c_str());
+		const wchar_t* button				 = UtilStr::CharToWChar(props.primaryButton.c_str());
 
 		String retVal = "";
 		if (SUCCEEDED(hr))
@@ -300,6 +342,18 @@ namespace Lina
 			if (SUCCEEDED(hr))
 			{
 				hr = pFileSaveDialog->SetOptions(dwOptions);
+			}
+
+			// Set the dialog's title
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileSaveDialog->SetTitle(title);
+			}
+
+			// Set the primary button text
+			if (SUCCEEDED(hr))
+			{
+				hr = pFileSaveDialog->SetOkButtonLabel(button);
 			}
 
 			COMDLG_FILTERSPEC fileTypes[] = {
@@ -342,6 +396,8 @@ namespace Lina
 
 		delete[] extensionDescriptionW;
 		delete[] extensionW;
+		delete[] title;
+		delete[] button;
 
 		CoUninitialize();
 		return retVal;

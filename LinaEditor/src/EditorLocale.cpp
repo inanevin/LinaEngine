@@ -60,6 +60,7 @@ namespace Lina::Editor
 		{LocaleStr::ExitEditor, "Exit Editor"},
 		{LocaleStr::UnfinishedWorkTitle, "Before you continue"},
 		{LocaleStr::UnfinishedWorkDesc, "Your project contains unfinished work. Would you like to save your changes before you continue?"},
+		{LocaleStr::LinaProjectFile, "Lina Project File"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

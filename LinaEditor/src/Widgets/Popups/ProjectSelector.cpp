@@ -169,18 +169,20 @@ namespace Lina::Editor
 			if (isSave)
 			{
 				location = PlatformProcess::SaveDialog({
-					.title		   = dialogTitle,
-					.primaryButton = Locale::GetStr(LocaleStr::Save),
-					.extensions	   = "linaproject",
+					.title				   = dialogTitle,
+					.primaryButton		   = Locale::GetStr(LocaleStr::Save),
+					.extensionsDescription = Locale::GetStr(LocaleStr::LinaProjectFile),
+					.extensions			   = {"linaproject"},
 				});
 			}
 			else
 			{
 				location = PlatformProcess::OpenDialog({
-					.title		   = dialogTitle,
-					.primaryButton = Locale::GetStr(LocaleStr::Open),
-					.extensions	   = "*.linaproject",
-					.mode		   = PlatformProcess::DialogMode::SelectFile,
+					.title				   = dialogTitle,
+					.primaryButton		   = Locale::GetStr(LocaleStr::Open),
+					.extensionsDescription = Locale::GetStr(LocaleStr::LinaProjectFile),
+					.extensions			   = {"linaproject"},
+					.mode				   = PlatformProcess::DialogMode::SelectFile,
 				});
 			}
 

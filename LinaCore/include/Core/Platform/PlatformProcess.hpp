@@ -46,11 +46,11 @@ namespace Lina
 
 		struct DialogProperties
 		{
-			String	   title				= "";
-			String	   primaryButton		= "";
-			String	   extensions			= "";
-			String	   extensionDescription = "";
-			DialogMode mode					= DialogMode::SelectDirectory;
+			String		   title				 = "";
+			String		   primaryButton		 = "";
+			String		   extensionsDescription = "";
+			Vector<String> extensions; // no dots
+			DialogMode	   mode = DialogMode::SelectDirectory;
 		};
 
 		static void	  LoadPlugin(const char* name, EngineInterface* engInterface, SystemEventDispatcher* dispatcher);
