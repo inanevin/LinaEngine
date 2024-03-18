@@ -222,6 +222,13 @@ namespace Lina
 			NSString* nsTitle		  = [NSString stringWithUTF8String:props.title.c_str()];
 			NSString* nsPrimaryButton = [NSString stringWithUTF8String:props.primaryButton.c_str()];
 
+			NSMutableArray* fileTypes = [NSMutableArray array];
+			for (const String& ext : props.extensions)
+			{
+				NSString* extension = [NSString stringWithUTF8String:ext.c_str()];
+				[fileTypes addObject:extension];
+			}
+
 			[panel setPrompt:nsPrimaryButton];
 			[panel setMessage:nsTitle];
 			[panel setCanCreateDirectories:YES];
@@ -237,10 +244,15 @@ namespace Lina
 				[panel setCanChooseDirectories:NO];
 
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
-				UTType* type = [UTType typeWithFilenameExtension:@(props.extensions.c_str())];
-				[panel setAllowedContentTypes:@[ type ]];
+				NSMutableArray<UTType*>* types = [[NSMutableArray alloc] init];
+				for (NSString* extension in fileTypes)
+				{
+					UTType* type = [UTType typeWithFilenameExtension:extension];
+					[types addObject:type];
+				}
+				[panel setAllowedContentTypes:types];
 #else
-				[panel setAllowedFileTypes:@[ @(props.extensions.c_str()) ]];
+				[panel setAllowedFileTypes:fileTypes];
 #endif
 			}
 
@@ -265,15 +277,29 @@ namespace Lina
 			NSString* nsTitle		  = [NSString stringWithUTF8String:props.title.c_str()];
 			NSString* nsPrimaryButton = [NSString stringWithUTF8String:props.primaryButton.c_str()];
 
+			NSMutableArray* fileTypes = [NSMutableArray array];
+			for (const String& ext : props.extensions)
+			{
+				NSString* extension = [NSString stringWithUTF8String:ext.c_str()];
+				[fileTypes addObject:extension];
+			}
+
 			[panel setPrompt:nsPrimaryButton];
 			[panel setMessage:nsTitle];
 			[panel setCanCreateDirectories:YES];
 
+			String extensions = "linaproject";
+
 #if __MAC_OS_X_VERSION_MAX_ALLOWED >= 110000 // macOS 11.0 or later
-			UTType* type = [UTType typeWithFilenameExtension:@(props.extensions.c_str())];
-			[panel setAllowedContentTypes:@[ type ]];
+			NSMutableArray<UTType*>* types = [[NSMutableArray alloc] init];
+			for (NSString* extension in fileTypes)
+			{
+				UTType* type = [UTType typeWithFilenameExtension:extension];
+				[types addObject:type];
+			}
+			[panel setAllowedContentTypes:types];
 #else
-			[panel setAllowedFileTypes:@[ @(props.extensions.c_str()) ]];
+			[panel setAllowedFileTypes:fileTypes];
 #endif
 			if ([panel runModal] == NSModalResponseOK)
 			{
