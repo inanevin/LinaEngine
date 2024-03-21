@@ -151,10 +151,11 @@ namespace Lina
 
 	void DirectionalLayout::Draw(int32 threadIndex)
 	{
-		if (m_props.drawBackground)
+		if (m_props.backgroundStyle == BackgroundStyle::Default)
 		{
 			LinaVG::StyleOptions bg;
-			bg.color					= m_props.colorBackground.AsLVG4();
+			bg.color.start				= m_props.colorBackgroundStart.AsLVG4();
+			bg.color.end				= m_props.colorBackgroundEnd.AsLVG4();
 			bg.rounding					= m_props.rounding;
 			bg.outlineOptions.thickness = m_props.outlineThickness;
 			bg.outlineOptions.color		= m_props.colorOutline.AsLVG4();
@@ -163,6 +164,19 @@ namespace Lina
 				bg.onlyRoundTheseCorners.push_back(corner);
 
 			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), bg, 0.0f, m_drawOrder);
+		}
+		else if (m_props.backgroundStyle == BackgroundStyle::CentralGradient)
+		{
+			LinaVG::StyleOptions style;
+			style.color.start = m_props.colorBackgroundStart.AsLVG4();
+			style.color.end	  = m_props.colorBackgroundEnd.AsLVG4();
+
+			LinaVG::StyleOptions style2;
+			style2.color.start = m_props.colorBackgroundEnd.AsLVG4();
+			style2.color.end   = m_props.colorBackgroundStart.AsLVG4();
+
+			LinaVG::DrawRect(threadIndex, GetPos().AsLVG(), Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, m_rect.GetEnd().y).AsLVG(), style, 0.0f, m_drawOrder);
+			LinaVG::DrawRect(threadIndex, Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
 		}
 
 		Widget::Draw(threadIndex);

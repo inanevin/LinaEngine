@@ -48,9 +48,8 @@ namespace Lina::Editor
 			bool							   cantCloseAnyTab	  = false;
 			Delegate<void(Widget* tiedWidget)> onTabClosed;
 			Delegate<void(Widget* tiedWidget)> onTabDockedOut;
+			Delegate<void(Widget* tiedWidget)> onSelectionChanged;
 		};
-
-		static constexpr float TAB_HEIGHT_PERC = 0.0125f;
 
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;

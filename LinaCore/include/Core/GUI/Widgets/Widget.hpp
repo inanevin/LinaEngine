@@ -78,6 +78,16 @@ namespace Lina
 		return VAR.y;                                                                                                                                                                                                                                              \
 	}
 
+#define V2_INCREMENTERS(NAME, VAR)                                                                                                                                                                                                                                 \
+	inline void Add##NAME##X(float x)                                                                                                                                                                                                                              \
+	{                                                                                                                                                                                                                                                              \
+		VAR.x += x;                                                                                                                                                                                                                                                \
+	}                                                                                                                                                                                                                                                              \
+	inline void Add##NAME##Y(float y)                                                                                                                                                                                                                              \
+	{                                                                                                                                                                                                                                                              \
+		VAR.y += y;                                                                                                                                                                                                                                                \
+	}
+
 	class Widget
 	{
 	public:
@@ -95,6 +105,9 @@ namespace Lina
 		Vector2		 GetStartFromMargins();
 		Vector2		 GetEndFromMargins();
 		void		 SetIsDisabled(bool isDisabled);
+
+		Vector2 GetWindowSize();
+		Vector2 GetMonitorSize();
 
 		virtual void			   Construct(){};
 		virtual void			   Destruct(){};
@@ -291,9 +304,11 @@ namespace Lina
 
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
+		V2_INCREMENTERS(AlignedSize, m_alignedSize);
 		V2_GET_MUTATE(Pos, m_rect.pos);
 		V2_GET_MUTATE(Size, m_rect.size);
 		V2_GET_MUTATE(AlignedPos, m_alignedPos);
+		V2_INCREMENTERS(AlignedPos, m_alignedPos);
 
 	protected:
 		friend class WidgetManager;

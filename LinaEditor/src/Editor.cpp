@@ -87,9 +87,9 @@ namespace Lina::Editor
 		window->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Insert editor root.
-		EditorRoot* editorRoot = root->Allocate<EditorRoot>("EditorRoot");
-		editorRoot->Initialize();
-		root->AddChild(editorRoot);
+		m_editorRoot = root->Allocate<EditorRoot>("EditorRoot");
+		m_editorRoot->Initialize();
+		root->AddChild(m_editorRoot);
 
 		// We either load the last project, or load project selector in forced-mode.
 		if (FileSystem::FileOrPathExists(m_settings.GetLastProjectPath()))
@@ -163,6 +163,7 @@ namespace Lina::Editor
 	{
 		ProjectData dummy;
 		dummy.SetPath(path);
+		dummy.SetProjectName(FileSystem::GetFilenameOnlyFromPath(path));
 		dummy.SaveToFile();
 		OpenProject(path);
 	}
@@ -182,6 +183,7 @@ namespace Lina::Editor
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
 		m_currentProject->LoadFromFile();
+		m_editorRoot->SetProjectName(m_currentProject->GetProjectName());
 
 		m_settings.SetLastProjectPath(projectFile);
 		m_settings.SaveToFile();

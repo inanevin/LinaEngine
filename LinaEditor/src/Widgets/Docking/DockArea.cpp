@@ -30,27 +30,48 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockPreview.hpp"
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Compound/TabRow.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Data/CommonData.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
 	void DockArea::Construct()
 	{
-		m_tabRow						 = Allocate<TabRow>("TabRow");
-		m_tabRow->GetProps().onTabClosed = [this](Widget* w) {
-			RemoveChild(w);
-			Deallocate(w);
+		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_SKIP_FLOORING);
+
+		m_layout					   = Allocate<DirectionalLayout>("BaseLayout");
+		m_layout->GetProps().direction = DirectionOrientation::Vertical;
+		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_layout->SetAlignedPos(Vector2::Zero);
+		m_layout->SetAlignedSize(Vector2::One);
+
+		m_tabRow = Allocate<TabRow>("TabRow");
+		m_tabRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_tabRow->SetAlignedPos(Vector2::Zero);
+		m_tabRow->SetAlignedSizeX(1.0f);
+
+		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
+		m_tabRow->GetProps().onTabClosed = [this](Widget* w) { RemovePanel(w); };
+
+		m_tabRow->GetProps().onTabDockedOut = [this](Widget* w) { RemovePanel(w); };
+
+		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) {
+			if (m_selectedPanel)
+			{
+				m_layout->RemoveChild(m_selectedPanel);
+				m_selectedPanel->SetIsDisabled(true);
+			}
+
+			m_selectedPanel = w;
+			m_layout->AddChild(m_selectedPanel);
+			m_selectedPanel->SetIsDisabled(false);
 		};
 
-		m_tabRow->GetProps().onTabDockedOut = [this](Widget* w) {
-			RemoveChild(w);
-			Deallocate(w);
-		};
-
-		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-
-		AddChild(m_tabRow);
+		AddChild(m_layout);
+		m_layout->AddChild(m_tabRow);
 	}
 
 	void DockArea::Destruct()
@@ -59,27 +80,44 @@ namespace Lina::Editor
 			HidePreview();
 	}
 
-	void DockArea::AddChild(Widget* w)
+	void DockArea::AddAsPanel(Widget* w)
 	{
-		Widget::AddChild(w);
+		w->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
+		w->SetAlignedPosX(0.0f);
+		w->SetAlignedSize(Vector2(1.0f, 0.0f));
 
-		if (w != m_tabRow)
+		m_tabRow->AddTab(w);
+		m_tabRow->SetSelected(w);
+		m_layout->AddChild(w);
+		m_panels.push_back(w);
+
+		if (m_selectedPanel)
 		{
-			m_tabRow->AddTab(w);
-			m_tabRow->SetSelected(w);
+			m_layout->RemoveChild(m_selectedPanel);
+			m_selectedPanel->SetIsDisabled(true);
 		}
+
+		m_selectedPanel = w;
+		m_selectedPanel->SetIsDisabled(false);
 	}
 
-	void DockArea::RemoveChild(Widget* w)
+	void DockArea::RemovePanel(Widget* w)
 	{
-		Widget::RemoveChild(w);
+		const int32 index = UtilVector::IndexOf(m_panels, w);
+		auto		it	  = linatl::find_if(m_panels.begin(), m_panels.end(), [w](Widget* panel) -> bool { return panel == w; });
+		m_panels.erase(it);
+		m_tabRow->RemoveTab(w);
 
-		if (w != m_tabRow)
-			m_tabRow->RemoveTab(w);
-
-		if (m_children.size() == 1)
+		if (m_selectedPanel == w)
 		{
-			RemoveArea();
+			m_selectedPanel = nullptr;
+
+			if (index != -1)
+			{
+				m_selectedPanel = m_panels[index];
+				m_selectedPanel->SetIsDisabled(false);
+				m_tabRow->SetSelected(m_selectedPanel);
+			}
 		}
 	}
 
@@ -88,24 +126,24 @@ namespace Lina::Editor
 		if (m_parent == nullptr)
 			return;
 
-		// SetPos(m_parent->GetPos() + m_parent->GetSize() * m_alignRect.pos);
-		// SetSize(m_parent->GetSize() * m_alignRect.size);
+		// SetPos(m_parent->GetPos() + m_parent->GetSize() * m_alignedPos);
+		// SetSize(m_parent->GetSize() * m_alignedSize);
 
 		// Omit tab row.
-		if (m_selectedChildren == nullptr && m_children.size() == 2)
-			m_selectedChildren = m_children[1];
+		// if (m_selectedChildren == nullptr && m_children.size() == 2)
+		// 	m_selectedChildren = m_children[1];
 
-		const float tabHeight = static_cast<float>(m_lgxWindow->GetMonitorSize().y) * TabRow::TAB_HEIGHT_PERC * m_lgxWindow->GetDPIScale();
-
-		m_tabRow->SetPos(m_rect.pos);
-		m_tabRow->SetSize(Vector2(m_rect.size.x, tabHeight));
-
-		if (m_selectedChildren != nullptr)
-		{
-			m_selectedChildren->SetIsHovered();
-			m_selectedChildren->SetPos(m_rect.pos + Vector2(0.0f, tabHeight));
-			m_selectedChildren->SetSize(Vector2(m_rect.size.x, m_rect.size.y - tabHeight));
-		}
+		// const float tabHeight = static_cast<float>(m_lgxWindow->GetMonitorSize().y) * TabRow::TAB_HEIGHT_PERC * m_lgxWindow->GetDPIScale();
+		//
+		// // m_tabRow->SetPos(m_rect.pos);
+		// // m_tabRow->SetSize(Vector2(m_rect.size.x, tabHeight));
+		//
+		// if (m_selectedChildren != nullptr)
+		// {
+		// 	m_selectedChildren->SetIsHovered();
+		// 	m_selectedChildren->SetPos(m_rect.pos + Vector2(0.0f, tabHeight));
+		// 	m_selectedChildren->SetSize(Vector2(m_rect.size.x, m_rect.size.y - tabHeight));
+		// }
 
 		if (m_preview)
 		{
@@ -117,15 +155,17 @@ namespace Lina::Editor
 
 	void DockArea::Draw(int32 threadIndex)
 	{
-		LinaVG::StyleOptions background;
-		background.color = Theme::GetDef().background1.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
-		m_tabRow->Draw(threadIndex);
+		// LinaVG::StyleOptions background;
+		// background.color = Theme::GetDef().background1.AsLVG4();
+		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
+		// m_tabRow->Draw(threadIndex);
+
+		m_layout->Draw(threadIndex);
 
 		m_manager->SetClip(threadIndex, m_rect, {});
 
-		if (m_selectedChildren)
-			m_selectedChildren->Draw(threadIndex);
+		if (m_selectedPanel)
+			m_selectedPanel->Draw(threadIndex);
 
 		m_manager->UnsetClip(threadIndex);
 
@@ -198,16 +238,21 @@ namespace Lina::Editor
 	{
 		if (direction == Direction::Center)
 		{
-			Widget* dummy = Allocate<Widget>("DummyContent2");
-			AddChild(dummy);
+			static int	 ctr = 0;
+			const String dn	 = "DummyContent" + TO_STRING(ctr);
+			ctr++;
+			Panel* dummy = Allocate<Panel>(dn);
+			AddAsPanel(dummy);
 			// Steal the contents of the dock area and return this.
 			return this;
 		}
 
 		DockArea* area = Allocate<DockArea>("DockArea");
 
-		static int	 borderCtr	= 0;
-		const String borderName = "DockBorder" + TO_STRING(borderCtr++);
+		static int	 borderCtr		 = 0;
+		const String borderName		 = "DockBorder" + TO_STRING(borderCtr++);
+		const float	 borderSizePercX = Theme::GetDef().baseBorderThickness / m_parent->GetRect().size.x;
+		const float	 borderSizePercY = Theme::GetDef().baseBorderThickness / m_parent->GetRect().size.y;
 
 		// Setup areas percentages according to direction...
 		if (direction == Direction::Left)
@@ -215,63 +260,73 @@ namespace Lina::Editor
 			const float horizontalSize = m_rect.size.x * DOCK_DEFAULT_PERCENTAGE;
 			const float parentPerc	   = horizontalSize / m_parent->GetRect().size.x;
 
-			area->m_alignRect.pos  = m_alignRect.pos;
-			area->m_alignRect.size = Vector2(parentPerc, m_alignRect.size.y);
-			m_alignRect.pos.x += parentPerc;
-			m_alignRect.size.x -= parentPerc;
+			area->m_alignedPos	= m_alignedPos;
+			area->m_alignedSize = Vector2(parentPerc, m_alignedSize.y);
+			m_alignedPos.x += parentPerc;
+			m_alignedSize.x -= parentPerc;
 
-			DockBorder* border		 = Allocate<DockBorder>(borderName);
-			border->m_alignRect.pos	 = m_alignRect.pos;
-			border->m_alignRect.size = Vector2(0.0f, m_alignRect.size.y);
-			border->m_orientation	 = DirectionOrientation::Vertical;
+			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			border->m_alignedPos  = m_alignedPos;
+			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
+			border->m_orientation = DirectionOrientation::Vertical;
+			border->Initialize();
 			m_parent->AddChild(border);
+
+			m_alignedPos.x += borderSizePercX;
+			m_alignedSize.x -= borderSizePercX;
 		}
 		else if (direction == Direction::Right)
 		{
 			const float horizontalSize = m_rect.size.x * DOCK_DEFAULT_PERCENTAGE;
 			const float parentPerc	   = horizontalSize / m_parent->GetRect().size.x;
-			area->m_alignRect.pos	   = Vector2(m_alignRect.pos.x + m_alignRect.size.x - parentPerc, m_alignRect.pos.y);
-			area->m_alignRect.size	   = Vector2(parentPerc, m_alignRect.size.y);
-			m_alignRect.size.x -= parentPerc;
+			area->m_alignedPos		   = Vector2(m_alignedPos.x + m_alignedSize.x - parentPerc + borderSizePercX, m_alignedPos.y);
+			area->m_alignedSize		   = Vector2(parentPerc - borderSizePercX, m_alignedSize.y);
+			m_alignedSize.x -= parentPerc;
 
-			DockBorder* border		 = Allocate<DockBorder>(borderName);
-			border->m_alignRect.pos	 = Vector2(m_alignRect.pos.x + m_alignRect.size.x, m_alignRect.pos.y);
-			border->m_alignRect.size = Vector2(0.0f, m_alignRect.size.y);
-			border->m_orientation	 = DirectionOrientation::Vertical;
+			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			border->m_alignedPos  = Vector2(m_alignedPos.x + m_alignedSize.x, m_alignedPos.y);
+			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
+			border->m_orientation = DirectionOrientation::Vertical;
+			border->Initialize();
 			m_parent->AddChild(border);
 		}
 		else if (direction == Direction::Top)
 		{
 			const float verticalSize = m_rect.size.y * DOCK_DEFAULT_PERCENTAGE;
 			const float parentPerc	 = verticalSize / m_parent->GetRect().size.y;
-			area->m_alignRect.pos	 = m_alignRect.pos;
-			area->m_alignRect.size	 = Vector2(m_alignRect.size.x, parentPerc);
-			m_alignRect.pos.y += parentPerc;
-			m_alignRect.size.y -= parentPerc;
+			area->m_alignedPos		 = m_alignedPos;
+			area->m_alignedSize		 = Vector2(m_alignedSize.x, parentPerc);
+			m_alignedPos.y += parentPerc;
+			m_alignedSize.y -= parentPerc;
 
-			DockBorder* border		 = Allocate<DockBorder>(borderName);
-			border->m_alignRect.pos	 = m_alignRect.pos;
-			border->m_alignRect.size = Vector2(m_alignRect.size.x, 0.0f);
-			border->m_orientation	 = DirectionOrientation::Horizontal;
+			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			border->m_alignedPos  = m_alignedPos;
+			border->m_alignedSize = Vector2(m_alignedSize.x, 0.0f);
+			border->m_orientation = DirectionOrientation::Horizontal;
+			border->Initialize();
 			m_parent->AddChild(border);
+
+			m_alignedPos.y += borderSizePercY;
+			m_alignedSize.y -= borderSizePercY;
 		}
 		else if (direction == Direction::Bottom)
 		{
 			const float verticalSize = m_rect.size.y * DOCK_DEFAULT_PERCENTAGE;
 			const float parentPerc	 = verticalSize / m_parent->GetRect().size.y;
-			area->m_alignRect.pos	 = Vector2(m_alignRect.pos.x, m_alignRect.pos.y + m_alignRect.size.y - parentPerc);
-			area->m_alignRect.size	 = Vector2(m_alignRect.size.x, parentPerc);
-			m_alignRect.size.y -= parentPerc;
+			area->m_alignedPos		 = Vector2(m_alignedPos.x, m_alignedPos.y + m_alignedSize.y - parentPerc + borderSizePercY);
+			area->m_alignedSize		 = Vector2(m_alignedSize.x, parentPerc - borderSizePercY);
+			m_alignedSize.y -= parentPerc;
 
-			DockBorder* border		 = Allocate<DockBorder>(borderName);
-			border->m_alignRect.pos	 = Vector2(m_alignRect.pos.x, m_alignRect.pos.y + m_alignRect.size.y);
-			border->m_alignRect.size = Vector2(m_alignRect.size.x, 0.0f);
-			border->m_orientation	 = DirectionOrientation::Horizontal;
+			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			border->m_alignedPos  = Vector2(m_alignedPos.x, m_alignedPos.y + m_alignedSize.y);
+			border->m_alignedSize = Vector2(m_alignedSize.x, 0.0f);
+			border->m_orientation = DirectionOrientation::Horizontal;
+			border->Initialize();
 			m_parent->AddChild(border);
 		}
 
-		Widget* dummy = Allocate<Widget>("DummyContent");
-		area->AddChild(dummy);
+		Panel* dummy = Allocate<Panel>("DummyContent");
+		area->AddAsPanel(dummy);
 		m_parent->AddChild(area);
 		return area;
 	}
@@ -359,21 +414,21 @@ namespace Lina::Editor
 		{
 			if (directionOfAreas == Direction::Left)
 			{
-				w->m_alignRect.size.x += m_alignRect.size.x;
+				w->AddAlignedSizeX(GetAlignedSizeX());
 			}
 			else if (directionOfAreas == Direction::Right)
 			{
-				w->m_alignRect.size.x += m_alignRect.size.x;
-				w->m_alignRect.pos.x = m_alignRect.pos.x;
+				w->AddAlignedSizeX(GetAlignedSizeX());
+				w->SetAlignedPosX(GetAlignedPosX());
 			}
 			else if (directionOfAreas == Direction::Bottom)
 			{
-				w->m_alignRect.size.y += m_alignRect.size.y;
-				w->m_alignRect.pos.y = m_alignRect.pos.y;
+				w->AddAlignedSizeY(GetAlignedSizeY());
+				w->SetAlignedPosY(GetAlignedPosY());
 			}
 			else if (directionOfAreas == Direction::Top)
 			{
-				w->m_alignRect.size.y += m_alignRect.size.y;
+				w->AddAlignedSizeY(GetAlignedSizeY());
 			}
 		}
 	}

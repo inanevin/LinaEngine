@@ -61,6 +61,7 @@ namespace Lina::Editor
 		{LocaleStr::UnfinishedWorkTitle, "Before you continue"},
 		{LocaleStr::UnfinishedWorkDesc, "Your project contains unfinished work. Would you like to save your changes before you continue?"},
 		{LocaleStr::LinaProjectFile, "Lina Project File"},
+		{LocaleStr::NoProject, "No Project"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

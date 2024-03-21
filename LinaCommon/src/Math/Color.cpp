@@ -215,13 +215,18 @@ namespace Lina
 		*this = Color{static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, 1.0f};
 	}
 
-	String Color::GetHex()
+	String Color::GetHex() const
 	{
 		const int32		  r = static_cast<int32>(x * 255);
 		const int32		  g = static_cast<int32>(y * 255);
 		const int32		  b = static_cast<int32>(z * 255);
 		std::stringstream ss;
 		ss << "#" << std::hex << std::setfill('0') << std::setw(2) << r << std::setw(2) << g << std::setw(2) << b;
-		return ss.str().c_str();
+		return ss.str();
+	}
+
+	Vector4 Color::ToVector() const
+	{
+		return Vector4(x, y, z, w);
 	}
 } // namespace Lina

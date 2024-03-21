@@ -472,8 +472,11 @@ namespace Lina
 			if (c->GetFlags().IsSet(WF_SIZE_Y_COPY_X))
 				c->SetSizeY(c->GetSizeX());
 
-			c->SetSizeX(Math::FloorToFloatEven(c->GetSizeX()));
-			c->SetSizeY(Math::FloorToFloatEven(c->GetSizeY()));
+			if (!c->GetFlags().IsSet(WF_SKIP_FLOORING))
+			{
+				c->SetSizeX(Math::FloorToFloatEven(c->GetSizeX()));
+				c->SetSizeY(Math::FloorToFloatEven(c->GetSizeY()));
+			}
 
 			if (!isExpandingX)
 				totalNonExpandingSize.x += c->GetSizeX();
@@ -545,16 +548,31 @@ namespace Lina
 
 			for (auto* c : expandingChildren)
 			{
+				const bool skipFlooring = c->GetFlags().IsSet(WF_SKIP_FLOORING);
+
 				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_X) && Math::Equals(c->GetAlignedSizeX(), 0.0f, 0.0001f))
-					c->SetSizeX(Math::FloorToFloatEven(targetSize.x));
+				{
+					if (skipFlooring)
+						c->SetSizeX(targetSize.x);
+					else
+						c->SetSizeX(Math::FloorToFloatEven(targetSize.x));
+				}
 
 				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_Y) && Math::Equals(c->GetAlignedSizeY(), 0.0f, 0.0001f))
-					c->SetSizeY(Math::FloorToFloatEven(targetSize.y));
+				{
+					if (skipFlooring)
+						c->SetSizeY(targetSize.y);
+					else
+						c->SetSizeY(Math::FloorToFloatEven(targetSize.y));
+				}
 			}
 		}
 
-		w->SetSizeX(Math::FloorToFloatEven(w->GetSizeX()));
-		w->SetSizeY(Math::FloorToFloatEven(w->GetSizeY()));
+		if (!w->GetFlags().IsSet(WF_SKIP_FLOORING))
+		{
+			w->SetSizeX(Math::FloorToFloatEven(w->GetSizeX()));
+			w->SetSizeY(Math::FloorToFloatEven(w->GetSizeY()));
+		}
 
 		for (auto* c : w->GetChildren())
 			SizePassWidget(c, delta);
@@ -569,6 +587,12 @@ namespace Lina
 			w->SetPosY(CalculateAlignedPosY(w));
 
 		w->Tick(delta);
+
+		if (!w->GetFlags().IsSet(WF_SKIP_FLOORING))
+		{
+			w->SetPosX(Math::FloorToFloatEven(w->GetPosX()));
+			w->SetPosY(Math::FloorToFloatEven(w->GetPosY()));
+		}
 
 		for (auto* c : w->GetChildren())
 			TickWidget(c, delta);

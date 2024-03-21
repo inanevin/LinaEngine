@@ -355,9 +355,9 @@ namespace Lina
 		return glm::proj(glm::vec2(*this), glm::vec2(normal));
 	}
 
-	Vector2 Vector2::Rotate(const Vector2& axis, float angle) const
+	Vector2 Vector2::Rotate(float degrees) const
 	{
-		return glm::rotate(glm::vec2(axis), angle);
+		return glm::rotate(*this, MATH_DEG_TO_RAD_CONV * degrees);
 	}
 
 	Vector2 Vector2::Reflect(const Vector2& normal) const

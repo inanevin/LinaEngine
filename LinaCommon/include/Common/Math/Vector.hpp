@@ -168,7 +168,7 @@ namespace Lina
 		Vector2 Max(const Vector2& other) const;
 		Vector2 Normalized() const;
 		Vector2 Project(const Vector2& normal) const;
-		Vector2 Rotate(const Vector2& axis, float angle) const;
+		Vector2 Rotate(float degrees) const;
 		Vector2 Reflect(const Vector2& normal) const;
 		Vector2 Refract(const Vector2& normal, float indexOfRefraction) const;
 		bool	Equals(const Vector2& other, float epsilon) const;

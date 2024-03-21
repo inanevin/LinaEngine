@@ -57,9 +57,9 @@ namespace Lina::Editor
 
 	void TabRow::Draw(int32 threadIndex)
 	{
-		LinaVG::StyleOptions background;
-		background.color = Theme::GetDef().background0.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
+		// LinaVG::StyleOptions background;
+		// background.color = Theme::GetDef().background0.AsLVG4();
+		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
 
 		m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
@@ -69,6 +69,9 @@ namespace Lina::Editor
 	void TabRow::AddTab(Widget* tiedWidget)
 	{
 		Tab* tab				   = Allocate<Tab>("Tab");
+        tab->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
+        tab->SetAlignedPosY(0.0f);
+        tab->SetAlignedSizeY(1.0f);
 		tab->m_ownerRow			   = this;
 		tab->GetProps().tiedWidget = tiedWidget;
 		tab->Initialize();
@@ -116,6 +119,9 @@ namespace Lina::Editor
 			Tab* t					 = static_cast<Tab*>(c);
 			t->GetProps().isSelected = t->GetProps().tiedWidget == tiedWidget;
 		}
+        
+        if(m_props.onSelectionChanged)
+            m_props.onSelectionChanged(tiedWidget);
 	}
 
 	void TabRow::Close(Widget* tiedWidget)

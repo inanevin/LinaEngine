@@ -35,8 +35,22 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-#define BORDER_COLOR Theme::GetDef().background0
 
+	void DockBorder::Initialize()
+	{
+		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
+
+		if (m_orientation == DirectionOrientation::Horizontal)
+		{
+			GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X);
+			SetFixedSizeY(Theme::GetDef().baseBorderThickness);
+		}
+		else
+		{
+			GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+			SetFixedSizeX(Theme::GetDef().baseBorderThickness);
+		}
+	}
 	LinaGX::CursorType DockBorder::GetCursorOverride()
 	{
 		if (m_isHovered)
@@ -47,15 +61,24 @@ namespace Lina::Editor
 
 	void DockBorder::PreTick()
 	{
+		Widget::PreTick();
+
 		if (m_isPressed)
 		{
-			const Vector2& mousePosition = m_lgxWindow->GetMousePosition();
-			const Vector2  perc			 = mousePosition / m_parent->GetSize();
+			const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();
+			const Vector2  perc			   = mousePosition / m_parent->GetSize();
+			const float	   borderSizePercX = Theme::GetDef().baseBorderThickness / m_parent->GetSizeX();
+			const float	   borderSizePercY = Theme::GetDef().baseBorderThickness / m_parent->GetSizeY();
 
 			if (m_orientation == DirectionOrientation::Horizontal)
 			{
-				const float deltaPerc = perc.y - m_alignRect.pos.y;
-				const float percAmt	  = Math::Abs(deltaPerc);
+				const float desiredYPos = mousePosition.y - m_pressDiff;
+				const float deltaYPos	= desiredYPos - GetPosY();
+				const float deltaPerc	= deltaYPos / m_parent->GetSizeY();
+				// const float deltaPerc = perc.y - m_alignedPos.y;
+				const float percAmt = Math::Abs(deltaPerc);
+
+				LINA_TRACE("DESIRED Y {0} DESIRED ALIGN Y {1}", desiredYPos, ((desiredYPos - m_parent->GetPosY()) / m_parent->GetSizeY()));
 
 				Vector<DockWidget*>* negativeDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Top)];
 				Vector<DockWidget*>* positiveDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Bottom)];
@@ -66,12 +89,14 @@ namespace Lina::Editor
 					{
 						for (auto* a : *positiveDockWidgets)
 						{
-							a->m_alignRect.pos.y += percAmt;
-							a->m_alignRect.size.y -= percAmt;
+							a->AddAlignedPosY(percAmt);
+							a->AddAlignedSizeY(-percAmt);
 						}
 						for (auto* a : *negativeDockWidgets)
-							a->m_alignRect.size.y += percAmt;
-						m_alignRect.pos.y = perc.y;
+							a->AddAlignedSizeY(percAmt);
+
+						// m_alignedPos.y = perc.y;
+						m_alignedPos.y = (desiredYPos - m_parent->GetPosY()) / m_parent->GetSizeY();
 					}
 				}
 				else
@@ -79,21 +104,29 @@ namespace Lina::Editor
 					if (CheckIfCanShrinkWidgets(*negativeDockWidgets, percAmt, false))
 					{
 						for (auto* a : *negativeDockWidgets)
-							a->m_alignRect.size.y -= percAmt;
+							a->AddAlignedSizeY(-percAmt);
 
 						for (auto* a : *positiveDockWidgets)
 						{
-							a->m_alignRect.pos.y -= percAmt;
-							a->m_alignRect.size.y += percAmt;
+							a->AddAlignedPosY(-percAmt);
+							a->AddAlignedSizeY(percAmt);
 						}
-						m_alignRect.pos.y = perc.y;
+
+						// m_alignedPos.y = perc.y;
+						m_alignedPos.y = (desiredYPos - m_parent->GetPosY()) / m_parent->GetSizeY();
 					}
 				}
 			}
 			else
 			{
-				const float deltaPerc = perc.x - m_alignRect.pos.x;
-				const float percAmt	  = Math::Abs(deltaPerc);
+				const float desiredXPos = mousePosition.x - m_pressDiff;
+				const float deltaXPos	= desiredXPos - GetPosX();
+				const float deltaPerc	= deltaXPos / m_parent->GetSizeX();
+				// const float deltaPerc = perc.x - m_alignedPos.x;
+				const float percAmt = Math::Abs(deltaPerc);
+
+				if (Math::Equals(percAmt, 0.0f, 0.0001f))
+					return;
 
 				Vector<DockWidget*>* negativeDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Left)];
 				Vector<DockWidget*>* positiveDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Right)];
@@ -104,12 +137,13 @@ namespace Lina::Editor
 					{
 						for (auto* a : *positiveDockWidgets)
 						{
-							a->m_alignRect.pos.x += percAmt;
-							a->m_alignRect.size.x -= percAmt;
+							a->AddAlignedPosX(percAmt);
+							a->AddAlignedSizeX(-percAmt);
 						}
 						for (auto* a : *negativeDockWidgets)
-							a->m_alignRect.size.x += percAmt;
-						m_alignRect.pos.x = perc.x;
+							a->AddAlignedSizeX(percAmt);
+
+						m_alignedPos.x = (desiredXPos - m_parent->GetPosX()) / m_parent->GetSizeX();
 					}
 				}
 				else
@@ -117,35 +151,24 @@ namespace Lina::Editor
 					if (CheckIfCanShrinkWidgets(*negativeDockWidgets, percAmt, true))
 					{
 						for (auto* a : *negativeDockWidgets)
-							a->m_alignRect.size.x -= percAmt;
+							a->AddAlignedSizeX(-percAmt);
 
 						for (auto* a : *positiveDockWidgets)
 						{
-							a->m_alignRect.pos.x -= percAmt;
-							a->m_alignRect.size.x += percAmt;
+							a->AddAlignedPosX(-percAmt);
+							a->AddAlignedSizeX(percAmt);
 						}
-						m_alignRect.pos.x = perc.x;
+						m_alignedPos.x = (desiredXPos - m_parent->GetPosX()) / m_parent->GetSizeX();
 					}
 				}
 			}
-		}
-
-		if (m_orientation == DirectionOrientation::Horizontal)
-		{
-			m_rect.pos	= m_parent->GetPos() + m_parent->GetSize() * m_alignRect.pos - Vector2(0.0f, BORDER_THICKNESS / 2.0f);
-			m_rect.size = m_parent->GetSize() * m_alignRect.size + Vector2(0.0, BORDER_THICKNESS);
-		}
-		else
-		{
-			m_rect.pos	= m_parent->GetPos() + m_parent->GetSize() * m_alignRect.pos - Vector2(BORDER_THICKNESS / 2.0f, 0.0f);
-			m_rect.size = m_parent->GetSize() * m_alignRect.size + Vector2(BORDER_THICKNESS, 0.0f);
 		}
 	}
 
 	void DockBorder::Draw(int32 threadIndex)
 	{
 		LinaVG::StyleOptions opts;
-		opts.color = BORDER_COLOR.AsLVG4();
+		opts.color = Theme::GetDef().background0.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 
 		/* Debug Draw Bounds Test Rectangles
@@ -160,8 +183,10 @@ namespace Lina::Editor
 	{
 		if (m_isHovered && button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
 		{
+			m_pressDiff = m_orientation == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().y - GetPosY()) : (m_lgxWindow->GetMousePosition().x - GetPosX());
 			FindAdjacentWidgets();
 			m_isPressed = true;
+			LINA_TRACE("POS Y ON PRESS {0} ALIGNED POS Y ON PRESS {1}", GetPosY(), GetAlignedPosY());
 			return true;
 		}
 
@@ -201,12 +226,12 @@ namespace Lina::Editor
 		{
 			if (isX)
 			{
-				if (m_parent->GetSizeX() * (w->m_alignRect.size.x - absAmount) < DOCKED_MIN_SIZE)
+				if (m_parent->GetSizeX() * (w->GetAlignedSizeX() - absAmount) < DOCKED_MIN_SIZE)
 					return false;
 			}
 			else
 			{
-				if (m_parent->GetSizeY() * (w->m_alignRect.size.y - absAmount) < DOCKED_MIN_SIZE)
+				if (m_parent->GetSizeY() * (w->GetAlignedSizeY() - absAmount) < DOCKED_MIN_SIZE)
 					return false;
 			}
 		}

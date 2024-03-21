@@ -134,6 +134,7 @@ namespace Lina::Editor
 
 		// Core
 		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);

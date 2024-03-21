@@ -47,13 +47,21 @@ namespace Lina
 			EqualSizes,
 		};
 
+		enum class BackgroundStyle
+		{
+			None,
+			Default,
+			CentralGradient
+		};
+
 		struct Properties
 		{
 			DirectionOrientation direction			   = DirectionOrientation::Horizontal;
 			Mode				 mode				   = Mode::Default;
-			Color				 colorBackground	   = Theme::GetDef().background0;
+			Color				 colorBackgroundStart  = Theme::GetDef().background0;
+			Color				 colorBackgroundEnd	   = Theme::GetDef().background0;
 			Color				 colorOutline		   = Theme::GetDef().outlineColorBase;
-			bool				 drawBackground		   = false;
+			BackgroundStyle		 backgroundStyle	   = BackgroundStyle::None;
 			float				 rounding			   = 0.0f;
 			float				 outlineThickness	   = 0.0f;
 			Vector<int32>		 onlyRoundTheseCorners = {};

@@ -51,9 +51,9 @@ namespace Lina
 		{
 			// Darkest
 			Color black		  = Color(0.00202f, 0.00202f, 0.00396f, 1.0f);
-			Color background0 = Color(0.00702f, 0.00702f, 0.00896f, 1.0f);
-			Color background1 = Color(0.00972f, 0.00913f, 0.01229f, 1.0f);
-			Color background2 = Color(0.01681f, 0.01681f, 0.02122f, 1.0f);
+			Color background0 = Color(20.0f, 20.0f, 20.0f, 255.0f, true, true);
+			Color background1 = Color(23.0f, 23.0f, 23.0f, 255.0f, true, true);
+			Color background2 = Color(41.0f, 43.0f, 55.0f, 255.0f, true, true);
 			Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
 			Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);
 			Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
@@ -62,9 +62,10 @@ namespace Lina
 			Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
 			Color silent0	  = Color(0.015f, 0.015f, 0.015f, 1.0f);
 			Color silent1	  = Color(0.035f, 0.035f, 0.035f, 1.0f);
-			// Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f);
-			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f);
-			Color accentPrimary0  = Color(0.16513f, 0.00972f, 0.02122f, 1.0f);
+			// Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f); // alternative red
+			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f); // alternative red
+			// Color accentPrimary0  = Color(0.16513f, 0.00972f, 0.02122f, 1.0f); // used proper red
+			Color accentPrimary0  = Color(91.0f, 0.0f, 72.0f, 255.0f, true, true);
 			Color accentPrimary1  = Color(0.14126f, 0.03071f, 0.0382f, 1.0f);
 			Color accentPrimary2  = Color(0.34499f, 0.06519f, 0.1058f, 1.0f);
 			Color accentPrimary3  = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
@@ -83,6 +84,7 @@ namespace Lina
 			float baseOutlineThickness = 2.0f;
 			float baseItemHeight	   = 24.0f;
 			float popupAnimTime		   = 0.1f;
+			float baseBorderThickness  = 4.0f;
 
 			StringID defaultFont = 0;
 			StringID iconFont	 = 0;

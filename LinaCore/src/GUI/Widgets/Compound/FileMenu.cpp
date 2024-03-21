@@ -49,9 +49,15 @@ namespace Lina
 			btn->SetAlignedSizeY(1.0f);
 			btn->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 
+			btn->GetProps().outlineThickness  = 0.0f;
+			btn->GetProps().rounding		  = 0.0f;
+			btn->GetProps().colorDefaultStart = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			btn->GetProps().colorDefaultEnd	  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			btn->GetProps().colorPressed	  = Theme::GetDef().background2;
+			btn->GetProps().colorHovered	  = Theme::GetDef().background3;
+
 			const StringID sid = TO_SID(str);
 
-			btn->GetProps()			  = m_fileMenuProps.buttonProps;
 			btn->GetProps().onClicked = [sid, this, btn]() {
 				Popup* popup = Allocate<Popup>();
 				popup->SetPosX(btn->GetPosX());

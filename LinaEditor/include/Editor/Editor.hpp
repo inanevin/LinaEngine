@@ -42,6 +42,7 @@ namespace Lina
 namespace Lina::Editor
 {
 	class SplashScreen;
+	class EditorRoot;
 
 	class Editor : public Subsystem
 	{
@@ -66,6 +67,11 @@ namespace Lina::Editor
 			m_isProjectDirty = isDirty;
 		}
 
+		inline ProjectData* GetProjectData() const
+		{
+			return m_currentProject;
+		}
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
@@ -76,6 +82,7 @@ namespace Lina::Editor
 		EditorSettings m_settings			  = {};
 		ProjectData*   m_currentProject		  = nullptr;
 		bool		   m_isProjectDirty		  = false;
+		EditorRoot*	   m_editorRoot			  = nullptr;
 	};
 
 } // namespace Lina::Editor

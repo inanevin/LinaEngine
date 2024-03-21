@@ -41,8 +41,7 @@ namespace Lina::Editor
 		DockBorder()		  = default;
 		virtual ~DockBorder() = default;
 
-		static constexpr float BORDER_THICKNESS = 4.0f;
-
+		virtual void			   Initialize() override;
 		virtual void			   PreTick() override;
 		virtual void			   Draw(int32 threadIndex) override;
 		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
@@ -57,6 +56,7 @@ namespace Lina::Editor
 		DockArea*			 m_negative	   = nullptr;
 		DockArea*			 m_positive	   = nullptr;
 		DirectionOrientation m_orientation = DirectionOrientation::Horizontal;
+		float				 m_pressDiff   = 0.0f;
 	};
 
 } // namespace Lina::Editor

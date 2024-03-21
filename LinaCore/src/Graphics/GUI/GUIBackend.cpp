@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
+#include "Common/Math/Color.hpp"
 
 namespace Lina
 {

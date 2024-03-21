@@ -50,7 +50,7 @@ namespace Lina::Editor
 	{
 		const float itemHeight = Theme::GetDef().baseItemHeight;
 
-		m_monitorSize = Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y));
+		m_monitorSize = GetMonitorSize();
 
 		DirectionalLayout* base = Allocate<DirectionalLayout>("Base");
 		base->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -64,10 +64,11 @@ namespace Lina::Editor
 		m_title->SetAlignedPos(Vector2::Zero);
 		m_title->SetAlignedSizeX(1.0f);
 		m_title->SetFixedSizeY(itemHeight);
-		m_title->GetProps().drawBackground	 = true;
-		m_title->GetProps().colorBackground	 = Theme::GetDef().background0;
-		m_title->GetChildMargins()			 = {.left = Theme::GetDef().baseIndent};
-		m_title->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
+		m_title->GetProps().backgroundStyle		 = DirectionalLayout::BackgroundStyle::Default;
+		m_title->GetProps().colorBackgroundStart = Theme::GetDef().background0;
+		m_title->GetProps().colorBackgroundEnd	 = Theme::GetDef().background0;
+		m_title->GetChildMargins()				 = {.left = Theme::GetDef().baseIndent};
+		m_title->GetBorderThickness().bottom	 = Theme::GetDef().baseOutlineThickness;
 		m_title->SetBorderColor(Theme::GetDef().black);
 		base->AddChild(m_title);
 
@@ -113,7 +114,7 @@ namespace Lina::Editor
 
 	void ProjectSelector::Tick(float delta)
 	{
-		SetPos(Vector2(static_cast<float>(m_lgxWindow->GetSize().x) * 0.5f - GetHalfSizeX(), static_cast<float>(m_lgxWindow->GetSize().y) * 0.5f - GetHalfSizeY()));
+		SetPos(Vector2(GetWindowSize().x * 0.5f - GetHalfSizeX(), GetWindowSize().y * 0.5f - GetHalfSizeY()));
 	}
 
 	void ProjectSelector::Draw(int32 threadIndex)

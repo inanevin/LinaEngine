@@ -27,3 +27,14 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+
+namespace Lina::Editor
+{
+	void Panel::Draw(int32 threadIndex)
+	{
+		LinaVG::StyleOptions opts;
+		opts.color = Theme::GetDef().background1.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+	}
+} // namespace Lina::Editor

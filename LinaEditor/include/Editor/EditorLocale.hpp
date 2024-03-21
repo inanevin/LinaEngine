@@ -65,6 +65,7 @@ namespace Lina::Editor
 		UnfinishedWorkTitle,
 		UnfinishedWorkDesc,
 		LinaProjectFile,
+		NoProject,
 	};
 
 	class Locale

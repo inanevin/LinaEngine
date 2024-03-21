@@ -31,57 +31,88 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/Editor.hpp"
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+#include "Common/System/System.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
 	void EditorRoot::Construct()
 	{
-		GetProps().direction = DirectionOrientation::Vertical;
+		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+
+		m_titleImage		 = m_resourceManager->GetResource<Texture>("Resources/Editor/Textures/LinaLogoTitleHorizontal.png"_hs);
+		const String tooltip = "Lina Engine v." + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " - b: " + TO_STRING(LINA_BUILD);
+		SetTooltip(tooltip);
+
+		GetProps().direction			= DirectionOrientation::Vertical;
+		GetProps().backgroundStyle		= BackgroundStyle::Default;
+		GetProps().colorBackgroundStart = Theme::GetDef().background0.AsLVG4();
+		GetProps().colorBackgroundEnd	= Theme::GetDef().background0.AsLVG4();
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		SetAlignedPos(Vector2::Zero);
 		SetAlignedSize(Vector2::One);
 
 		DirectionalLayout* titleBar = Allocate<DirectionalLayout>("TitleBar");
+
 		titleBar->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		titleBar->GetProps().direction = DirectionOrientation::Vertical;
 		titleBar->SetAlignedPosX(0.0f);
 		titleBar->SetAlignedSizeX(1.0f);
-		titleBar->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		titleBar->GetChildMargins().left	 = Theme::GetDef().baseIndent;
-		titleBar->GetProps().drawBackground	 = true;
-		titleBar->GetProps().colorBackground = Theme::GetDef().background1;
-		titleBar->SetChildPadding(Theme::GetDef().baseIndent);
+		titleBar->SetFixedSizeY(Theme::GetDef().baseItemHeight * 3.0f);
+		titleBar->GetProps().backgroundStyle	  = BackgroundStyle::CentralGradient;
+		titleBar->GetProps().colorBackgroundStart = Theme::GetDef().background0;
+		titleBar->GetProps().colorBackgroundEnd	  = Theme::GetDef().accentPrimary0;
 		AddChild(titleBar);
 
-		Widget* editorArea = Allocate<Widget>("Editor Area");
-		editorArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		editorArea->SetAlignedPosX(0.0f);
-		editorArea->SetAlignedSize(Vector2(1.0f, 0.0f));
-		AddChild(editorArea);
+		DirectionalLayout* layout1 = Allocate<DirectionalLayout>("Layout1");
+		layout1->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
+		layout1->SetAlignedSizeX(1.0f);
+		layout1->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout1->SetAlignedPosX(0.0f);
+		titleBar->AddChild(layout1);
 
-		Icon* linaLogo					= Allocate<Icon>("LinaLogo");
-		linaLogo->GetProps().icon		= ICON_LINA_LOGO;
-		linaLogo->GetProps().colorStart = linaLogo->GetProps().colorEnd = Theme::GetDef().accentPrimary0;
-		linaLogo->GetFlags().Set(WF_POS_ALIGN_Y);
-		linaLogo->SetAlignedPosY(0.5f);
-		linaLogo->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		titleBar->AddChild(linaLogo);
+		DirectionalLayout* layout2 = Allocate<DirectionalLayout>("Layout2");
+		layout2->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
+		layout2->SetAlignedSizeX(1.0f);
+		layout2->SetAlignedSizeY(0.0f);
+		layout2->SetAlignedPosX(0.0f);
+		titleBar->AddChild(layout2);
+
+		DirectionalLayout* projectName = Allocate<DirectionalLayout>("Project Name");
+		projectName->GetFlags().Set(WF_SIZE_X_MAX_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		projectName->SetAlignedPos(Vector2(1.0f, 0.5f));
+		projectName->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		projectName->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		projectName->GetChildMargins()				 = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		projectName->GetProps().backgroundStyle		 = BackgroundStyle::Default;
+		projectName->GetProps().colorBackgroundStart = Theme::GetDef().background0;
+		projectName->GetProps().colorBackgroundEnd	 = Theme::GetDef().background3;
+		projectName->GetProps().outlineThickness	 = Theme::GetDef().baseOutlineThickness;
+		projectName->GetProps().colorOutline		 = Theme::GetDef().black;
+		projectName->GetProps().rounding			 = Theme::GetDef().baseRounding;
+		layout2->AddChild(projectName);
+
+		Text* projectNameText = Allocate<Text>("ProjectNameText");
+		projectNameText->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		projectNameText->SetAlignedPos(Vector2(0.5f, 0.5f));
+		projectNameText->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		projectNameText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
+		projectName->AddChild(projectNameText);
 
 		FileMenu* fm = Allocate<FileMenu>("FileMenu");
 		fm->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		fm->SetAlignedPosY(0.0f);
 		fm->SetAlignedSizeY(1.0f);
-
-		fm->GetFileMenuProps().buttonProps.outlineThickness	 = 0.0f;
-		fm->GetFileMenuProps().buttonProps.rounding			 = 0.0f;
-		fm->GetFileMenuProps().buttonProps.colorDefaultStart = Theme::GetDef().background1;
-		fm->GetFileMenuProps().buttonProps.colorDefaultEnd	 = Theme::GetDef().background1;
-		fm->GetFileMenuProps().buttonProps.colorPressed		 = Theme::GetDef().background2;
-		fm->GetFileMenuProps().buttonProps.colorHovered		 = Theme::GetDef().background3;
-		fm->GetFileMenuProps().buttons						 = {Locale::GetStr(LocaleStr::File), Locale::GetStr(LocaleStr::Edit), Locale::GetStr(LocaleStr::View), Locale::GetStr(LocaleStr::Panels), Locale::GetStr(LocaleStr::About)};
+		fm->GetFileMenuProps().buttons = {Locale::GetStr(LocaleStr::File), Locale::GetStr(LocaleStr::Edit), Locale::GetStr(LocaleStr::View), Locale::GetStr(LocaleStr::Panels), Locale::GetStr(LocaleStr::About)};
 		fm->SetListener(this);
-		titleBar->AddChild(fm);
+		layout1->AddChild(fm);
 
 		DirectionalLayout* wb = CommonWidgets::BuildWindowButtons(this);
 		wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X);
@@ -89,17 +120,25 @@ namespace Lina::Editor
 		wb->SetAlignedPos(Vector2(1.0f, 0.0f));
 		wb->SetAlignedSizeY(1.0f);
 		wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
-		titleBar->AddChild(wb);
+		layout1->AddChild(wb);
+
+		Widget* editorArea = Allocate<Widget>("Editor Area");
+		editorArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		editorArea->SetAlignedPosX(0.0f);
+		editorArea->SetAlignedSize(Vector2(1.0f, 0.0f));
+		AddChild(editorArea);
 
 		DockArea* dummyDock = Allocate<DockArea>("DummyDock");
-		dummyDock->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
-		dummyDock->AddChild(Allocate<Widget>("Widget"));
+		dummyDock->SetAlignedPos(Vector2::Zero);
+		dummyDock->SetAlignedSize(Vector2::One);
+		dummyDock->AddAsPanel(Allocate<Panel>("Widget"));
 		editorArea->AddChild(dummyDock);
 
 		DirectionalLayout::Construct();
 
-		m_fileMenu		= fm;
-		m_windowButtons = wb;
+		m_fileMenu		  = fm;
+		m_windowButtons	  = wb;
+		m_projectNameText = projectNameText;
 	}
 
 	void EditorRoot::Tick(float delta)
@@ -111,48 +150,40 @@ namespace Lina::Editor
 		lgxRect.pos				  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};
 		lgxRect.size			  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
 		m_lgxWindow->SetDragRect(lgxRect);
-
-		return;
-		//
-		// const float defaultHeight	  = Theme::GetDef().baseItemHeight;
-		// const float indent			  = Theme::GetDef().baseIndent;
-		// const float windowButtonWidth = defaultHeight * 2.0f;
-		//
-		// SetPos(Vector2::Zero);
-		// SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
-		//
-		// m_topRect.pos  = Vector2::Zero;
-		// m_topRect.size = Vector2(GetSizeX(), defaultHeight);
-		//
-		//
-		// m_linaLogo->SetPosX(indent);
-		// m_linaLogo->SetPosY(m_topRect.GetCenter().y - m_linaLogo->GetHalfSizeY());
-		//
-		// m_fm->SetPosX(indent * 2.0f + m_linaLogo->GetSizeX());
-		// m_fm->SetPosY(0.0f);
-		// m_fm->SetSizeX(GetSizeX());
-		// m_fm->SetSizeY(defaultHeight);
-		//
-		// // Drag rect.
-		//
-		//
-		//
-		//
-		//
-
-		// m_dummyDock->SetPos(Vector2(0.0f, defaultHeight));
-		// m_dummyDock->SetSize(Vector2(GetSizeX(), GetSizeY() - defaultHeight));
 	}
 
 	void EditorRoot::Draw(int32 threadIndex)
 	{
 		DirectionalLayout::Draw(threadIndex);
-		return;
+
+		const Vector2 monitor = GetMonitorSize();
+		const Vector2 size	  = Vector2(monitor.x * 0.15f, Theme::GetDef().baseItemHeight * 2.25f);
+		const Vector2 center  = Vector2(GetRect().GetCenter().x, size.y * 0.5f);
 
 		LinaVG::StyleOptions opts;
-		// opts.color = Theme::GetDef().background1.AsLVG4();
-		// LinaVG::DrawRect(threadIndex, m_topRect.pos.AsLVG(), m_topRect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-		// Widget::Draw(threadIndex);
+		opts.color					  = Theme::GetDef().background0.AsLVG4();
+		opts.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness * 2.0f;
+		opts.outlineOptions.color	  = Theme::GetDef().black.AsLVG4();
+
+		Vector<LinaVG::Vec2> points;
+		points.push_back({center.x - size.x * 0.5f, center.y - size.y * 0.5f});
+		points.push_back({center.x + size.x * 0.5f, center.y - size.y * 0.5f});
+		points.push_back({center.x + size.x * 0.5f - size.x * 0.025f, center.y + size.y * 0.5f});
+		points.push_back({center.x - size.x * 0.5f + size.x * 0.025f, center.y + size.y * 0.5f});
+
+		LinaVG::DrawConvex(threadIndex, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder + 1);
+
+		const float	  imageY	= size.y * 0.5f;
+		const float	  imageX	= imageY * (m_titleImage->GetSizeF().x / m_titleImage->GetSizeF().y);
+		const Vector2 imageSize = Vector2(imageX, imageY);
+		LinaVG::DrawImage(threadIndex, m_titleImage->GetSID(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
+
+		const Rect	  imgRect = Rect(Vector2(center - imageSize * 0.5f), Vector2(center + imageSize * 0.5f));
+		const Vector2 mp	  = Vector2(static_cast<float>(m_lgxWindow->GetMousePosition().x), static_cast<float>(m_lgxWindow->GetMousePosition().y));
+		if (imgRect.IsPointInside(mp))
+			Widget::DrawTooltip(threadIndex);
+
+		CommonWidgets::DrawDropShadow(threadIndex, points[3], points[2], m_drawOrder + 1, Theme::GetDef().black, 12);
 	}
 
 	bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -167,6 +198,12 @@ namespace Lina::Editor
 		}
 
 		return Widget::OnMouse(button, act);
+	}
+
+	void EditorRoot::SetProjectName(const String& name)
+	{
+		m_projectNameText->GetProps().text = name;
+		m_projectNameText->Initialize();
 	}
 
 	void EditorRoot::OnPopupCreated(Popup* popup, StringID sid)

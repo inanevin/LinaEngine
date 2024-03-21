@@ -35,10 +35,8 @@ namespace Lina::Editor
 
 	void DockTestbed::Construct()
 	{
-
 		DockArea* area = Allocate<DockArea>("DockArea");
 		area->Initialize();
-		area->SetAlignRect(Rect(Vector2::Zero, Vector2::One));
 
 		// Testbed* tb = Allocate<Testbed>("Testbed");
 		Widget* tb = Allocate<Widget>("Testbed");

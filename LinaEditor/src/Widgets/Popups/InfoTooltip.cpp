@@ -41,10 +41,11 @@ namespace Lina::Editor
 {
 	void InfoTooltip::Construct()
 	{
-		GetProps().drawBackground	= true;
-		GetProps().colorBackground	= Theme::GetDef().background0;
-		GetProps().rounding			= Theme::GetDef().baseRounding;
-		GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+		GetProps().backgroundStyle		= BackgroundStyle::Default;
+		GetProps().colorBackgroundStart = Theme::GetDef().background0;
+		GetProps().colorBackgroundEnd	= Theme::GetDef().background0;
+		GetProps().rounding				= Theme::GetDef().baseRounding;
+		GetProps().outlineThickness		= Theme::GetDef().baseOutlineThickness;
 		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN);
 		SetChildPadding(Theme::GetDef().baseIndent);
 		GetChildMargins() = {.top = Theme::GetDef().baseIndent * 0.5f, .bottom = Theme::GetDef().baseIndent * 0.5f, .left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};

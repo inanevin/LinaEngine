@@ -56,7 +56,7 @@ namespace Lina::Editor
 
 	void Tab::Initialize()
 	{
-		m_text->GetProps().text		 = m_props.tiedWidget->GetDisplayName();
+		m_text->GetProps().text		 = m_props.tiedWidget->GetDebugName();
 		m_icon->GetProps().icon		 = ICON_XMARK;
 		m_icon->GetProps().textScale = 0.4f;
 		m_text->Initialize();
@@ -71,20 +71,23 @@ namespace Lina::Editor
 
 	void Tab::PreTick()
 	{
+		if (m_isPressed)
+		{
+			const Vector2& mp	  = m_lgxWindow->GetMousePosition();
+			const float	   margin = Theme::GetDef().baseIndent * 4.0f;
+			if (mp.y < m_rect.pos.y - margin || mp.y > m_rect.GetEnd().y + margin)
+				m_ownerRow->DockOut(m_props.tiedWidget);
+		}
+	}
+
+	void Tab::CalculateSize(float delta)
+	{
 		const float indent = Theme::GetDef().baseIndentInner;
 
 		if (m_props.disableClose)
 			SetSizeX(indent + SELECTION_RECT_WIDTH + indent + m_text->GetSizeX() + indent);
 		else
 			SetSizeX(indent + SELECTION_RECT_WIDTH + indent + m_text->GetSizeX() + indent + m_icon->GetSizeX() + indent);
-
-		if (m_isPressed)
-		{
-			const Vector2& mp	  = m_lgxWindow->GetMousePosition();
-			const float	   margin = Theme::GetDef().baseIndent * 2.0f;
-			if (mp.y < m_rect.pos.y - margin || mp.y > m_rect.GetEnd().y + margin)
-				m_ownerRow->DockOut(m_props.tiedWidget);
-		}
 	}
 
 	void Tab::Tick(float delta)
@@ -92,10 +95,6 @@ namespace Lina::Editor
 		// Hover
 		if (m_ownerRow->GetAnyPressed() && !m_isPressed)
 			m_isHovered = false;
-
-		// Size & pos
-		SetPosY(m_parent->GetPosY());
-		SetSizeY(m_parent->GetSizeY());
 
 		// Press movement
 		const Vector2& mp = m_lgxWindow->GetMousePosition();
@@ -170,8 +169,9 @@ namespace Lina::Editor
 		LinaVG::StyleOptions background;
 		if (m_props.isSelected)
 		{
-			background.color.start = Theme::GetDef().background3.AsLVG4();
-			background.color.end   = Theme::GetDef().background4.AsLVG4();
+			// background.color.start = Theme::GetDef().background3.AsLVG4();
+			// background.color.end   = Theme::GetDef().background4.AsLVG4();
+			background.color = Theme::GetDef().background2.AsLVG4();
 		}
 		else
 			background.color = m_isHovered ? Theme::GetDef().background2.AsLVG4() : Theme::GetDef().background0.AsLVG4();

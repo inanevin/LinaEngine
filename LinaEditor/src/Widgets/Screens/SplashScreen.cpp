@@ -70,7 +70,7 @@ namespace Lina::Editor
 	void SplashScreen::Tick(float delta)
 	{
 		SetPos(Vector2::Zero);
-		SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
+		SetSize(GetWindowSize());
 
 		const float target = static_cast<float>(m_loadedResourceCount) / static_cast<float>(m_totalResourceSize);
 		m_progress		   = Math::Lerp(m_progress, target, delta * BAR_INTERP_SPEED);

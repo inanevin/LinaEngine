@@ -38,8 +38,6 @@ namespace Lina::Editor
 		Panel()			 = default;
 		virtual ~Panel() = default;
 
-		virtual void Construct() override;
-		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
 	private:

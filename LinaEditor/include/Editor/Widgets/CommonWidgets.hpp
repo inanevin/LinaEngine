@@ -53,13 +53,14 @@ namespace Lina::Editor
 		static DirectionalLayout* BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* source);
 		static DirectionalLayout* BuildWindowButtons(Widget* source);
 
-		static void DrawGradLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
-		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor = Color::White);
-
+		static void			DrawAlphaLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
+		static void			DrawAlphaLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
+		static void			DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& centerColor, const Color& edgeColor);
 		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
 		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
 
 		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
+		static void			 DrawDropShadow(int32 threadIndex, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius);
 
 		static float GetPopupWidth(LinaGX::Window* window);
 	};

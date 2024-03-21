@@ -50,7 +50,6 @@ namespace Lina
 		struct FileMenuProperties
 		{
 			Vector<String>	   buttons;
-			Button::Properties buttonProps;
 		};
 
 		virtual void Construct() override;

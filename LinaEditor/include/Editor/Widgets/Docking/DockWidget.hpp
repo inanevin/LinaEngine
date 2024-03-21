@@ -37,23 +37,17 @@ namespace Lina::Editor
 	class DockWidget : public Widget
 	{
 	public:
-		DockWidget()		  = default;
+		DockWidget(int32 maxChildren = -1) : Widget(maxChildren){};
 		virtual ~DockWidget() = default;
 
 		void FindAdjacentWidgets();
 		void GetDockWidgets(Vector<DockWidget*>& outWidgets, const Vector<TypeID>& tids);
-
-		inline void SetAlignRect(const Rect& r)
-		{
-			m_alignRect = r;
-		}
 
 		inline const Vector<DockWidget*>& GetAdjacentWidgets(int32 dir)
 		{
 			return m_adjacentWidgets[dir];
 		}
 
-		Rect				m_alignRect = Rect();
 		Rect				m_boundsTestRects[4];
 		Vector<DockWidget*> m_adjacentWidgets[4];
 	};

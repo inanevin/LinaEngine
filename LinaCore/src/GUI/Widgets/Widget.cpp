@@ -216,4 +216,14 @@ namespace Lina
 		for (auto* c : m_children)
 			c->SetIsDisabled(isDisabled);
 	}
+
+	Vector2 Widget::GetMonitorSize()
+	{
+		return Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y));
+	}
+
+	Vector2 Widget::GetWindowSize()
+	{
+		return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
+	}
 } // namespace Lina

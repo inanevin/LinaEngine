@@ -31,6 +31,11 @@ SOFTWARE.
 #include "DockWidget.hpp"
 #include "Editor/CommonEditor.hpp"
 
+namespace Lina
+{
+	class DirectionalLayout;
+}
+
 namespace Lina::Editor
 {
 	class DockPreview;
@@ -39,16 +44,17 @@ namespace Lina::Editor
 	class DockArea : public DockWidget
 	{
 	public:
-		DockArea()			= default;
+		DockArea() : DockWidget(1){};
 		virtual ~DockArea() = default;
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
-		virtual void AddChild(Widget* w) override;
-		virtual void RemoveChild(Widget* w) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+
+		void AddAsPanel(Widget* w);
+		void RemovePanel(Widget* w);
 
 		void	  ShowPreview();
 		void	  HidePreview();
@@ -59,9 +65,11 @@ namespace Lina::Editor
 		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);
 
 	private:
-		TabRow*		 m_tabRow			= nullptr;
-		DockPreview* m_preview			= nullptr;
-		Widget*		 m_selectedChildren = nullptr;
+		TabRow*			   m_tabRow	 = nullptr;
+		DockPreview*	   m_preview = nullptr;
+		DirectionalLayout* m_layout	 = nullptr;
+		Vector<Widget*>	   m_panels;
+		Widget*			   m_selectedPanel = nullptr;
 	};
 
 } // namespace Lina::Editor

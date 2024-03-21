@@ -37,11 +37,12 @@ namespace Lina::Editor
 	void GenericPopup::Construct()
 	{
 		DirectionalLayout::Construct();
-		GetProps().direction		= DirectionOrientation::Vertical;
-		GetProps().drawBackground	= true;
-		GetProps().colorBackground	= Theme::GetDef().background1;
-		GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-		GetProps().colorOutline		= Theme::GetDef().outlineColorBase;
+		GetProps().direction			= DirectionOrientation::Vertical;
+		GetProps().backgroundStyle		= BackgroundStyle::Default;
+		GetProps().colorBackgroundStart = Theme::GetDef().background1;
+		GetProps().colorBackgroundEnd	= Theme::GetDef().background1;
+		GetProps().outlineThickness		= Theme::GetDef().baseOutlineThickness;
+		GetProps().colorOutline			= Theme::GetDef().outlineColorBase;
 
 		GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
 		SetAlignedPos(Vector2(0.5f, 0.5f));
@@ -59,10 +60,11 @@ namespace Lina::Editor
 		titleBar->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		titleBar->SetAlignedSizeX(1.0f);
 		titleBar->SetFixedSize(Theme::GetDef().baseItemHeight);
-		titleBar->GetProps().drawBackground	  = true;
-		titleBar->GetProps().colorBackground  = Theme::GetDef().background0;
-		titleBar->GetChildMargins()			  = {.left = Theme::GetDef().baseIndent};
-		titleBar->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
+		titleBar->GetProps().backgroundStyle	  = BackgroundStyle::Default;
+		titleBar->GetProps().colorBackgroundStart = Theme::GetDef().background0;
+		titleBar->GetProps().colorBackgroundEnd	  = Theme::GetDef().background0;
+		titleBar->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent};
+		titleBar->GetBorderThickness().bottom	  = Theme::GetDef().baseOutlineThickness;
 		titleBar->SetBorderColor(Theme::GetDef().black);
 		AddChild(titleBar);
 

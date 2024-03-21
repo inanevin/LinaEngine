@@ -34,11 +34,17 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Vector4;
+
 	class Color
 	{
 
 	public:
-		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false) : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av){};
+		Color(float rv = 1.0f, float gv = 1.0f, float bv = 1.0f, float av = 1.0f, bool is255 = false, bool convertToLinear = false) : x(is255 ? rv / 255.0f : rv), y(is255 ? gv / 255.0f : gv), z(is255 ? bv / 255.0f : bv), w(is255 ? av / 255.0f : av)
+		{
+			if (convertToLinear)
+				*this = SRGB2Linear();
+		};
 		Color(const LinaVG::Vec4& v) : x(v.x), y(v.y), z(v.z), w(v.w){};
 
 		LinaVG::Vec4 AsLVG4() const
@@ -83,13 +89,14 @@ namespace Lina
 			return Color(x * v, y * v, z * v, w * v);
 		}
 
-		Color  HS2SRGB() const;
-		Color  SRGB2HSV() const;
-		Color  HSV2SRGB() const;
-		Color  SRGB2Linear() const;
-		Color  Linear2SRGB() const;
-		String GetHex();
-		void   FromHex(const String& hex);
+		Color	HS2SRGB() const;
+		Color	SRGB2HSV() const;
+		Color	HSV2SRGB() const;
+		Color	SRGB2Linear() const;
+		Color	Linear2SRGB() const;
+		Vector4 ToVector() const;
+		String	GetHex() const;
+		void	FromHex(const String& hex);
 
 		void Round();
 
