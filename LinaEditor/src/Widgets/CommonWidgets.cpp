@@ -179,21 +179,21 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadIndex, Vector2((end.x + start.x) * 0.5f, start.y).AsLVG(), Vector2(end.x, end.y).AsLVG(), style2, 0.0f, drawOrder);
 	}
 
-    void CommonWidgets::DrawGradLineCentral(int32 threadIndex, const Vector2 &start, const Vector2 &end, int32 drawOrder, const Color &centerColor, const Color &edgeColor)
-    {
-        Color weak = edgeColor, strong = centerColor;
+	void CommonWidgets::DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& centerColor, const Color& edgeColor)
+	{
+		Color weak = edgeColor, strong = centerColor;
 
-        LinaVG::StyleOptions style;
-        style.color.start = weak.AsLVG4();
-        style.color.end      = strong.AsLVG4();
+		LinaVG::StyleOptions style;
+		style.color.start = weak.AsLVG4();
+		style.color.end	  = strong.AsLVG4();
 
-        LinaVG::StyleOptions style2;
-        style2.color.start = strong.AsLVG4();
-        style2.color.end   = weak.AsLVG4();
+		LinaVG::StyleOptions style2;
+		style2.color.start = strong.AsLVG4();
+		style2.color.end   = weak.AsLVG4();
 
-        LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2((end.x + start.x) * 0.5f, end.y).AsLVG(), style, 0.0f, drawOrder);
-        LinaVG::DrawRect(threadIndex, Vector2((end.x + start.x) * 0.5f, start.y).AsLVG(), Vector2(end.x, end.y).AsLVG(), style2, 0.0f, drawOrder);
-    }
+		LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2((end.x + start.x) * 0.5f, end.y).AsLVG(), style, 0.0f, drawOrder);
+		LinaVG::DrawRect(threadIndex, Vector2((end.x + start.x) * 0.5f, start.y).AsLVG(), Vector2(end.x, end.y).AsLVG(), style2, 0.0f, drawOrder);
+	}
 
 	InfoTooltip* CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source)
 	{
@@ -271,23 +271,23 @@ namespace Lina::Editor
 		return pp;
 	}
 
-    void CommonWidgets::DrawDropShadow(int32 threadIndex, const Vector2 &p1, const Vector2 &p2, int32 drawOrder, const Color &baseColor, int32 radius)
-    {
-        const Color endColor = Color(baseColor.x, baseColor.y, baseColor.z, 0.0f);
-        
-        Vector2 startPos = p1;
-        Vector2 endPos = p2;
-        
-        const Vector2 lineDir = (endPos - startPos).Normalized().Rotate(90.0f);
-        
-        for(int32 i = 0; i < radius; i++)
-        {
-            const Color color = Math::Lerp(baseColor, endColor, static_cast<float>(i) / static_cast<float>(radius));
-            LinaVG::StyleOptions style;
-            style.color = color.AsLVG4();
-            LinaVG::DrawLine(threadIndex, startPos.AsLVG(), endPos.AsLVG(), style, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
-            startPos += lineDir;
-            endPos += lineDir;
-        }
-    }
+	void CommonWidgets::DrawDropShadow(int32 threadIndex, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius)
+	{
+		const Color endColor = Color(baseColor.x, baseColor.y, baseColor.z, 0.0f);
+
+		Vector2 startPos = p1;
+		Vector2 endPos	 = p2;
+
+		const Vector2 lineDir = (endPos - startPos).Normalized().Rotate(90.0f);
+
+		for (int32 i = 0; i < radius; i++)
+		{
+			const Color			 color = Math::Lerp(baseColor, endColor, static_cast<float>(i) / static_cast<float>(radius));
+			LinaVG::StyleOptions style;
+			style.color = color.AsLVG4();
+			LinaVG::DrawLine(threadIndex, startPos.AsLVG(), endPos.AsLVG(), style, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
+			startPos += lineDir;
+			endPos += lineDir;
+		}
+	}
 } // namespace Lina::Editor

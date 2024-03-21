@@ -49,7 +49,7 @@ namespace Lina
 	public:
 		struct FileMenuProperties
 		{
-			Vector<String>	   buttons;
+			Vector<String> buttons;
 		};
 
 		virtual void Construct() override;
