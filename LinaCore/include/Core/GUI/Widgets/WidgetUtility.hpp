@@ -38,6 +38,10 @@ namespace Lina
 	{
 	public:
 		static void DrawRectBackground(int32 threadIndex, const RectBackground& options, const Rect& rect, int32 drawOrder, bool positionIsCenter = false);
+		static void DrawAlphaLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
+		static void DrawAlphaLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
+		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& centerColor, const Color& edgeColor);
+		static void DrawDropShadow(int32 threadIndex, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius);
 	};
 
 } // namespace Lina

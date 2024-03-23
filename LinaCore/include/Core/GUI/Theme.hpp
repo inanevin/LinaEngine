@@ -53,7 +53,7 @@ namespace Lina
 			Color black		  = Color(0.00202f, 0.00202f, 0.00396f, 1.0f);
 			Color background0 = Color(20.0f, 20.0f, 20.0f, 255.0f, true, true);
 			Color background1 = Color(23.0f, 23.0f, 23.0f, 255.0f, true, true);
-			Color background2 = Color(41.0f, 43.0f, 55.0f, 255.0f, true, true);
+			Color background2 = Color(33.0f, 33.0f, 33.0f, 255.0f, true, true);
 			Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
 			Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);
 			Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
@@ -62,6 +62,7 @@ namespace Lina
 			Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
 			Color silent0	  = Color(0.015f, 0.015f, 0.015f, 1.0f);
 			Color silent1	  = Color(0.035f, 0.035f, 0.035f, 1.0f);
+			Color silent2	  = Color(0.065f, 0.065f, 0.065f, 1.0f);
 			// Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f); // alternative red
 			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f); // alternative red
 			// Color accentPrimary0  = Color(0.16513f, 0.00972f, 0.02122f, 1.0f); // used proper red

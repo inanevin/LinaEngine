@@ -62,6 +62,21 @@ namespace Lina::Editor
 		{LocaleStr::UnfinishedWorkDesc, "Your project contains unfinished work. Would you like to save your changes before you continue?"},
 		{LocaleStr::LinaProjectFile, "Lina Project File"},
 		{LocaleStr::NoProject, "No Project"},
+		{LocaleStr::NewProject, "New Project"},
+		{LocaleStr::LoadProject, "Load Project"},
+		{LocaleStr::SaveProject, "Save Project"},
+		{LocaleStr::SaveProjectAs, "Save Project As"},
+		{LocaleStr::NewWorld, "New World"},
+		{LocaleStr::LoadWorld, "Load World"},
+		{LocaleStr::SaveWorld, "Save World"},
+		{LocaleStr::SaveWorldAs, "Save World As"},
+		{LocaleStr::Exit, "Exit"},
+		{LocaleStr::Github, "Github"},
+		{LocaleStr::Website, "Website"},
+		{LocaleStr::BuildInfo, "Website"},
+		{LocaleStr::Entities, "Entities"},
+		{LocaleStr::Resources, "Resources"},
+		{LocaleStr::World, "World"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

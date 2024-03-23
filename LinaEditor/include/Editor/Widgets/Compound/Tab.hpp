@@ -51,8 +51,7 @@ namespace Lina::Editor
 		virtual ~Tab() = default;
 
 		static constexpr float SELECTION_RECT_WIDTH = 2.0f;
-		static constexpr float CLOSEBG_ANIM_TIME	= 0.15f;
-		static constexpr float CLOSERECT_SIZEX_PERC = 0.2f;
+		static constexpr float SELECTION_ANIM_TIME	= 0.15f;
 		static constexpr float INTERP_SPEED			= 14.0f;
 
 		struct Properties
@@ -72,6 +71,7 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+        void DisableClosing(bool disabled);
 
 		inline Properties& GetProps()
 		{
@@ -95,15 +95,11 @@ namespace Lina::Editor
 		Icon*	   m_icon					= nullptr;
 		Properties m_props					= {};
 		TabRow*	   m_ownerRow				= nullptr;
-		Tween*	   m_closeRectAnim			= nullptr;
 		Tween*	   m_selectionRectAnim		= nullptr;
 		Rect	   m_selectionRect			= {};
 		Rect	   m_closeRect				= {};
-		float	   m_closeRectAnimValue		= 0.0f;
 		float	   m_selectionRectAnimValue = 0.0f;
 		bool	   m_wasSelected			= false;
-		bool	   m_closeRectHovered		= false;
-		bool	   m_closeRectPressed		= false;
 		Vector2	   m_offsetAtPress			= Vector2::Zero;
 		uint32	   m_indexInParent			= 0;
 	};

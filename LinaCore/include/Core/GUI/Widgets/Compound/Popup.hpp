@@ -40,16 +40,16 @@ namespace Lina
 
 		struct Properties
 		{
-			Fit	  widthFit			   = Fit::Fixed;
-			Color colorBackgroundStart = Theme::GetDef().background0;
-			Color colorBackgroundEnd   = Theme::GetDef().background1;
-			Color colorOutline		   = Theme::GetDef().outlineColorBase;
-			float outlineThickness	   = Theme::GetDef().baseOutlineThickness;
-			float rounding			   = Theme::GetDef().baseRounding;
-			float minWidth			   = 0.0f;
-			float animTime			   = Theme::GetDef().popupAnimTime;
+			Delegate<void()> onDestructed;
+			Color			 colorBackgroundStart = Theme::GetDef().background0;
+			Color			 colorBackgroundEnd	  = Theme::GetDef().background2;
+			Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
+			float			 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
+			float			 rounding			  = Theme::GetDef().baseRounding;
+			float			 animTime			  = Theme::GetDef().popupAnimTime;
 		};
 
+		virtual void Destruct() override;
 		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;

@@ -26,70 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-#include "Common/Data/String.hpp"
-#include "Common/Data/Map.hpp"
+#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
-namespace Lina::Editor
+namespace Lina
 {
-
-	enum class LocaleStr
+	void ShapeRect::Draw(int32 threadIndex)
 	{
-		Save,
-		Load,
-		Yes,
-		No,
-		Hex,
-		File,
-		Edit,
-		View,
-		Panels,
-		About,
-		Create,
-		Open,
-		Cancel,
-		Name,
-		Location,
-		Select,
-		ProjectSelect,
-		CreateNewProject,
-		OpenExistingProject,
-		SelectDirectory,
-		CreateANewProject,
-		SelectProjectFile,
-		DirectoryNotFound,
-		FileNotFound,
-		NameIsNotValid,
-		Empty,
-		ExitEditor,
-		UnfinishedWorkTitle,
-		UnfinishedWorkDesc,
-		LinaProjectFile,
-		NoProject,
-		NewProject,
-		LoadProject,
-		SaveProject,
-		SaveProjectAs,
-		NewWorld,
-		LoadWorld,
-		SaveWorld,
-		SaveWorldAs,
-		Exit,
-		Github,
-		Website,
-		BuildInfo,
-		Entities,
-		Resources,
-		World,
-	};
-
-	class Locale
-	{
-	public:
-		static const String& GetStr(LocaleStr str);
-
-	private:
-		static HashMap<LocaleStr, String> s_englishMap;
-	};
-
-} // namespace Lina::Editor
+		LinaVG::StyleOptions opts;
+		opts.color.start = m_props.colorStart.AsLVG4();
+		opts.color.end	 = m_props.colorEnd.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+	}
+} // namespace Lina

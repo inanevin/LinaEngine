@@ -59,7 +59,9 @@ namespace Lina
 			const StringID sid = TO_SID(str);
 
 			btn->GetProps().onClicked = [sid, this, btn]() {
-				Popup* popup = Allocate<Popup>();
+				Popup* popup = Allocate<Popup>("FileMenuPopup");
+				popup->GetFlags().Set(WF_USE_FIXED_SIZE_X);
+				popup->GetChildMargins() = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
 				popup->SetPosX(btn->GetPosX());
 				popup->SetPosY(btn->GetRect().GetEnd().y);
 				m_manager->AddToForeground(popup);

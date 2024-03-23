@@ -67,9 +67,6 @@ namespace Lina
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 
-		void CreatePopup();
-		void ClosePopup();
-
 		inline Properties& GetProps()
 		{
 			return m_props;
@@ -84,6 +81,10 @@ namespace Lina
 		{
 			return m_text;
 		}
+
+	private:
+		void CreatePopup();
+		void ClosePopup();
 
 	private:
 		Properties m_props		 = {};

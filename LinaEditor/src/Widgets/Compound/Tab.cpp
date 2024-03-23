@@ -30,42 +30,57 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/TabRow.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Common/Tween/TweenManager.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
-
 	void Tab::Construct()
 	{
-		m_text = Allocate<Text>();
-		m_icon = Allocate<Icon>();
-
-		AddChild(m_text);
-		AddChild(m_icon);
-
-		m_closeRectAnim = TweenManager::Get()->AddTween(&m_closeRectAnimValue, 0.0f, 1.0f, CLOSEBG_ANIM_TIME, TweenType::EaseIn);
-		m_closeRectAnim->SetPersistent(true);
-		m_closeRectAnim->SetTimeScale(0.0f);
-
-		m_selectionRectAnim = TweenManager::Get()->AddTween(&m_selectionRectAnimValue, 0.0f, 1.0f, CLOSEBG_ANIM_TIME, TweenType::EaseIn);
+		m_selectionRectAnim = TweenManager::Get()->AddTween(&m_selectionRectAnimValue, 0.0f, 1.0f, SELECTION_ANIM_TIME, TweenType::EaseIn);
 		m_selectionRectAnim->SetPersistent(true);
 		m_selectionRectAnim->SetTimeScale(0.0f);
+
+		DirectionalLayout* layout = Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedSize(Vector2(1.0f, 1.0f));
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->GetChildMargins() = {.left = Theme::GetDef().baseIndent * 2.0f, .right = Theme::GetDef().baseIndent};
+		AddChild(layout);
+
+		m_text = Allocate<Text>("Title");
+		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
+		m_text->SetAlignedPosY(0.5f);
+		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		layout->AddChild(m_text);
+
+		m_icon = Allocate<Icon>("Icon");
+		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
+		m_icon->SetAlignedPos(Vector2(1.0f, 0.5f));
+		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_icon->GetProps().icon			  = ICON_XMARK;
+		m_icon->GetProps().textScale	  = 0.5f;
+		m_icon->GetProps().colorStart.w	  = 0.5f;
+		m_icon->GetProps().colorEnd.w	  = 0.5f;
+		m_icon->GetProps().colorHovered	  = Theme::GetDef().foreground0;
+		m_icon->GetProps().colorPressed	  = Theme::GetDef().foreground0;
+		m_icon->GetProps().colorPressed.w = 0.25f;
+		m_icon->GetProps().colorDisabled  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		m_icon->GetProps().onClicked	  = [this]() { m_ownerRow->Close(m_props.tiedWidget); };
+		layout->AddChild(m_icon);
 	}
 
 	void Tab::Initialize()
 	{
-		m_text->GetProps().text		 = m_props.tiedWidget->GetDebugName();
-		m_icon->GetProps().icon		 = ICON_XMARK;
-		m_icon->GetProps().textScale = 0.4f;
-		m_text->Initialize();
-		m_icon->Initialize();
+		m_text->GetProps().text = m_props.tiedWidget->GetDebugName();
+		Widget::Initialize();
 	}
 
 	void Tab::Destruct()
 	{
-		m_closeRectAnim->Kill();
 		m_selectionRectAnim->Kill();
 	}
 
@@ -82,12 +97,9 @@ namespace Lina::Editor
 
 	void Tab::CalculateSize(float delta)
 	{
-		const float indent = Theme::GetDef().baseIndentInner;
-
-		if (m_props.disableClose)
-			SetSizeX(indent + SELECTION_RECT_WIDTH + indent + m_text->GetSizeX() + indent);
-		else
-			SetSizeX(indent + SELECTION_RECT_WIDTH + indent + m_text->GetSizeX() + indent + m_icon->GetSizeX() + indent);
+		const float indent	 = Theme::GetDef().baseIndent;
+		const float iconSize = m_icon->GetIsDisabled() ? 0.0f : m_icon->GetSizeX();
+		SetSizeX(SELECTION_RECT_WIDTH + m_text->GetSizeX() + iconSize + indent * 4.0f);
 	}
 
 	void Tab::Tick(float delta)
@@ -102,28 +114,6 @@ namespace Lina::Editor
 			m_rect.pos.x = mp.x - m_offsetAtPress.x;
 		else
 			m_rect.pos.x = Math::Lerp(GetPosX(), m_props.desiredX, delta * INTERP_SPEED);
-
-		// Close rect detection
-		const Rect closeRect		   = Rect(Vector2(m_rect.pos.x + m_rect.size.x * (1.0f - CLOSERECT_SIZEX_PERC), m_rect.pos.y), Vector2(m_rect.size.x * CLOSERECT_SIZEX_PERC, m_rect.size.y));
-		const bool wasCloseRectHovered = m_closeRectHovered;
-		m_closeRectHovered			   = closeRect.IsPointInside(mp) && (!m_ownerRow->GetAnyPressed() || m_isPressed);
-
-		// Tweens
-		if (!wasCloseRectHovered && m_closeRectHovered)
-		{
-			m_closeRectAnim->SetStart(0.0f);
-			m_closeRectAnim->SetEnd(1.0f);
-			m_closeRectAnim->SetTime(0.0f);
-			m_closeRectAnim->SetTimeScale(1.0f);
-		}
-
-		if (!m_closeRectHovered && wasCloseRectHovered)
-		{
-			m_closeRectAnim->SetStart(1.0f);
-			m_closeRectAnim->SetEnd(0.0f);
-			m_closeRectAnim->SetTime(0.0f);
-			m_closeRectAnim->SetTimeScale(1.0f);
-		}
 
 		if (!m_wasSelected && m_props.isSelected)
 		{
@@ -149,16 +139,6 @@ namespace Lina::Editor
 		m_selectionRect.pos				 = Vector2(selectionRectStart.x, Math::Remap(m_selectionRectAnimValue, 0.0f, 1.0f, selectionRectEnd.y, selectionRectStart.y));
 		m_selectionRect.size.x			 = 2.0f;
 		m_selectionRect.size.y			 = selectionRectEnd.y - m_selectionRect.pos.y;
-
-		// Calculate close rect
-		m_closeRect.pos	 = Vector2(Math::Remap(m_closeRectAnimValue, 0.0f, 1.0f, m_rect.GetEnd().x, m_rect.pos.x + m_rect.size.x * (1.0f - CLOSERECT_SIZEX_PERC)), m_rect.pos.y);
-		m_closeRect.size = Vector2(Math::Remap(m_closeRectAnimValue, 0.0f, 1.0f, 0.0f, m_rect.size.x * CLOSERECT_SIZEX_PERC), m_rect.size.y);
-
-		// Text & icon
-		m_text->SetPos(Vector2(m_selectionRect.GetEnd().x + indent, m_rect.GetCenter().y - m_text->GetHalfSizeY()));
-		m_icon->GetProps().colorStart = Math::Lerp(Theme::GetDef().foreground1, Theme::GetDef().foreground0, m_closeRectAnimValue).AsLVG4();
-		m_icon->GetProps().colorEnd	  = m_icon->GetProps().colorStart;
-		m_icon->SetPos(Vector2(m_rect.pos.x + m_rect.size.x * (1.0f - CLOSERECT_SIZEX_PERC * 0.5f) - m_icon->GetHalfSizeX(), m_rect.GetCenter().y - m_icon->GetHalfSizeY()));
 	}
 
 	void Tab::Draw(int32 threadIndex)
@@ -192,25 +172,9 @@ namespace Lina::Editor
 
 		LinaVG::DrawRect(threadIndex, m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
 
-		// Draw close rectangle
-		if (!m_props.disableClose)
-		{
-			LinaVG::StyleOptions closeBg;
-
-			if (m_closeRectPressed)
-				closeBg.color = Theme::GetDef().accentPrimary1.AsLVG4();
-			else
-				closeBg.color = m_closeRectHovered ? Theme::GetDef().accentPrimary0.AsLVG4() : Theme::GetDef().background5.AsLVG4();
-
-			const float closeBgX = Math::Remap(m_closeRectAnimValue, 0.0f, 1.0f, m_rect.GetEnd().x, m_rect.pos.x + m_rect.size.x * 0.8f);
-			LinaVG::DrawRect(threadIndex, m_closeRect.pos.AsLVG(), m_closeRect.GetEnd().AsLVG(), closeBg, 0.0f, drawOrder);
-
-			m_icon->SetDrawOrder(drawOrder);
-			m_icon->Draw(threadIndex);
-		}
-
-		// Text
+		m_icon->SetDrawOrder(drawOrder);
 		m_text->SetDrawOrder(drawOrder);
+		m_icon->Draw(threadIndex);
 		m_text->Draw(threadIndex);
 	}
 
@@ -225,23 +189,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (!m_props.disableClose && m_closeRectHovered && action == LinaGX::InputAction::Pressed)
-		{
-			m_closeRectPressed = true;
-			return true;
-		}
-
-		if (!m_props.disableClose && m_closeRectPressed && action == LinaGX::InputAction::Released)
-		{
-			m_closeRectPressed = false;
-
-			if (m_closeRectHovered)
-				m_ownerRow->Close(m_props.tiedWidget);
-
-			return true;
-		}
-
-		if (m_isHovered && action == LinaGX::InputAction::Pressed)
+		if (m_isHovered && action == LinaGX::InputAction::Pressed && !m_icon->GetIsHovered())
 		{
 			m_ownerRow->SetSelected(m_props.tiedWidget);
 
@@ -254,6 +202,11 @@ namespace Lina::Editor
 			return true;
 		}
 
-		return false;
+		return Widget::OnMouse(button, action);
+	}
+
+	void Tab::DisableClosing(bool disabled)
+	{
+		m_icon->SetIsDisabled(disabled);
 	}
 } // namespace Lina::Editor

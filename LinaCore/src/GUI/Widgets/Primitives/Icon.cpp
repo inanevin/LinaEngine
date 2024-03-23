@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Math/Math.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -53,6 +54,15 @@ namespace Lina
 		m_sdfOptions.sdfOutlineSoftness	 = m_props.sdfOutlineSoftness;
 		m_sdfOptions.textScale			 = m_props.textScale;
 
+		if (m_isHovered)
+			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorHovered.AsLVG4();
+
+		if (m_isPressed)
+			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorPressed.AsLVG4();
+
+		if (GetIsDisabled())
+			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorDisabled.AsLVG4();
+
 		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, true);
 	}
 
@@ -65,4 +75,37 @@ namespace Lina
 		m_sdfOptions.font	 = m_lvgFont;
 		m_rect.size			 = static_cast<float>(Math::RoundToIntEven(m_lvgFont->m_size * m_props.textScale));
 	}
+
+	bool Icon::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered)
+		{
+			m_isPressed = true;
+			return true;
+		}
+
+		if (act == LinaGX::InputAction::Released)
+		{
+			if (m_isPressed && m_isHovered)
+			{
+				if (m_props.onClicked)
+					m_props.onClicked();
+
+				m_isPressed = false;
+				return true;
+			}
+
+			if (m_isPressed)
+			{
+				m_isPressed = false;
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 } // namespace Lina

@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
@@ -149,50 +150,72 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	void CommonWidgets::DrawAlphaLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor)
+	DirectionalLayout* CommonWidgets::BuildPopupItemDefault(const String& title, Widget* source, bool disabled, bool hasHeadingIcon, const String& headingIcon)
 	{
-		Color weak = baseColor, strong = baseColor;
-		strong.w = 1.0f;
-		weak.w	 = 0.0f;
+		DirectionalLayout* item = source->Allocate<DirectionalLayout>("PopupItemLayout");
+		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
+		item->SetAlignedPosX(0.0f);
+		item->SetAlignedSizeX(1.0f);
+		item->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		item->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		item->GetProps().useHoverColor		  = true;
+		item->GetProps().receiveInput		  = true;
+		item->GetProps().backgroundStyle	  = DirectionalLayout::BackgroundStyle::Default;
+		item->GetProps().colorHovered		  = Theme::GetDef().accentPrimary0;
+		item->GetProps().colorBackgroundStart = item->GetProps().colorBackgroundEnd = Color(0, 0, 0, 0);
+		item->SetChildPadding(Theme::GetDef().baseIndent);
 
-		LinaVG::StyleOptions style;
-		style.color.start = strong.AsLVG4();
-		style.color.end	  = weak.AsLVG4();
-		LinaVG::DrawRect(threadIndex, start.AsLVG(), end.AsLVG(), style, 0.0f, drawOrder);
+		if (hasHeadingIcon)
+		{
+			if (headingIcon.empty())
+			{
+				Widget* empty = source->Allocate<Widget>("Empty");
+				empty->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
+				empty->SetAlignedPosY(0.0f);
+				empty->SetAlignedSizeY(1.0f);
+				empty->SetFixedSizeX(Theme::GetDef().baseItemHeight);
+				item->AddChild(empty);
+			}
+			else
+			{
+				Icon* icon = source->Allocate<Icon>("Icon");
+				icon->GetFlags().Set(WF_POS_ALIGN_Y);
+				icon->SetAlignedPosY(0.5f);
+				icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+				item->AddChild(icon);
+			}
+		}
+
+		Text* txt = source->Allocate<Text>("Text");
+		txt->GetFlags().Set(WF_POS_ALIGN_Y);
+		txt->SetAlignedPosY(0.5f);
+		txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		txt->GetProps().text		  = title;
+		txt->GetProps().colorDisabled = Theme::GetDef().silent2;
+		item->AddChild(txt);
+		item->Initialize();
+		item->SetIsDisabled(disabled);
+
+		return item;
 	}
 
-	void CommonWidgets::DrawAlphaLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor)
+	DirectionalLayout* CommonWidgets::BuildPopupItemDivider(Widget* source)
 	{
-		Color weak = baseColor, strong = baseColor;
-		strong.w = 1.0f;
-		weak.w	 = 0.0f;
+		DirectionalLayout* item = source->Allocate<DirectionalLayout>("Divider");
+		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
+		item->SetAlignedPosX(0.0f);
+		item->SetAlignedSizeX(1.0f);
+		item->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5);
 
-		LinaVG::StyleOptions style;
-		style.color.start = weak.AsLVG4();
-		style.color.end	  = strong.AsLVG4();
+		ShapeRect* rect = source->Allocate<ShapeRect>("Shape");
+		rect->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		rect->SetAlignedSize(Vector2(1.0f, 0.25f));
+		rect->SetAlignedPosY(0.5f);
+		rect->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		rect->GetProps().colorStart = rect->GetProps().colorEnd = Theme::GetDef().outlineColorBase;
+		item->AddChild(rect);
 
-		LinaVG::StyleOptions style2;
-		style2.color.start = strong.AsLVG4();
-		style2.color.end   = weak.AsLVG4();
-
-		LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2((end.x + start.x) * 0.5f, end.y).AsLVG(), style, 0.0f, drawOrder);
-		LinaVG::DrawRect(threadIndex, Vector2((end.x + start.x) * 0.5f, start.y).AsLVG(), Vector2(end.x, end.y).AsLVG(), style2, 0.0f, drawOrder);
-	}
-
-	void CommonWidgets::DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& centerColor, const Color& edgeColor)
-	{
-		Color weak = edgeColor, strong = centerColor;
-
-		LinaVG::StyleOptions style;
-		style.color.start = weak.AsLVG4();
-		style.color.end	  = strong.AsLVG4();
-
-		LinaVG::StyleOptions style2;
-		style2.color.start = strong.AsLVG4();
-		style2.color.end   = weak.AsLVG4();
-
-		LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2((end.x + start.x) * 0.5f, end.y).AsLVG(), style, 0.0f, drawOrder);
-		LinaVG::DrawRect(threadIndex, Vector2((end.x + start.x) * 0.5f, start.y).AsLVG(), Vector2(end.x, end.y).AsLVG(), style2, 0.0f, drawOrder);
+		return item;
 	}
 
 	InfoTooltip* CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source)
@@ -271,23 +294,4 @@ namespace Lina::Editor
 		return pp;
 	}
 
-	void CommonWidgets::DrawDropShadow(int32 threadIndex, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius)
-	{
-		const Color endColor = Color(baseColor.x, baseColor.y, baseColor.z, 0.0f);
-
-		Vector2 startPos = p1;
-		Vector2 endPos	 = p2;
-
-		const Vector2 lineDir = (endPos - startPos).Normalized().Rotate(90.0f);
-
-		for (int32 i = 0; i < radius; i++)
-		{
-			const Color			 color = Math::Lerp(baseColor, endColor, static_cast<float>(i) / static_cast<float>(radius));
-			LinaVG::StyleOptions style;
-			style.color = color.AsLVG4();
-			LinaVG::DrawLine(threadIndex, startPos.AsLVG(), endPos.AsLVG(), style, LinaVG::LineCapDirection::None, 0.0f, drawOrder);
-			startPos += lineDir;
-			endPos += lineDir;
-		}
-	}
 } // namespace Lina::Editor

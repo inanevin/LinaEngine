@@ -53,6 +53,10 @@ namespace Lina
 			opts.alignment	 = m_props.alignment;
 			opts.wrapWidth	 = m_props.maxWidth;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
+
+			if (GetIsDisabled())
+				opts.color = m_props.colorDisabled.AsLVG4();
+
 			LinaVG::DrawTextSDF(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 		else
@@ -64,6 +68,10 @@ namespace Lina
 			opts.wrapWidth		= m_props.maxWidth;
 			opts.newLineSpacing = 0.0f;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
+
+			if (GetIsDisabled())
+				opts.color = m_props.colorDisabled.AsLVG4();
+
 			LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 	}

@@ -34,9 +34,13 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/System/System.hpp"
+#include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -74,6 +78,7 @@ namespace Lina::Editor
 		layout1->SetAlignedSizeX(1.0f);
 		layout1->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		layout1->SetAlignedPosX(0.0f);
+		layout1->GetChildMargins().left = Theme::GetDef().baseIndent;
 		titleBar->AddChild(layout1);
 
 		DirectionalLayout* layout2 = Allocate<DirectionalLayout>("Layout2");
@@ -183,7 +188,7 @@ namespace Lina::Editor
 		if (imgRect.IsPointInside(mp))
 			Widget::DrawTooltip(threadIndex);
 
-		CommonWidgets::DrawDropShadow(threadIndex, points[3], points[2], m_drawOrder + 1, Theme::GetDef().black, 12);
+		WidgetUtility::DrawDropShadow(threadIndex, points[3], points[2], m_drawOrder + 1, Theme::GetDef().black, 12);
 	}
 
 	bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -208,5 +213,42 @@ namespace Lina::Editor
 
 	void EditorRoot::OnPopupCreated(Popup* popup, StringID sid)
 	{
+		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::File)))
+		{
+			const bool projectExists = editor->GetProjectData() != nullptr;
+
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::NewProject), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::LoadProject), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveProject), this, !projectExists || !editor->GetIsProjectDirty()));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveProjectAs), this, !projectExists));
+			popup->AddChild(CommonWidgets::BuildPopupItemDivider(this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::NewWorld), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::LoadWorld), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveWorld), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveWorldAs), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDivider(this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Exit), this));
+			popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8.0f);
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Panels)))
+		{
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Entities), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Resources), this));
+			popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8.0f);
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::About)))
+		{
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Website), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Github), this));
+			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::BuildInfo), this));
+			popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8.0f);
+			return;
+		}
 	}
 } // namespace Lina::Editor

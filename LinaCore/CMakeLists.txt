@@ -90,6 +90,7 @@ src/GUI/Widgets/Layout/RelativeLayout.cpp
 src/GUI/Widgets/Layout/Stack.cpp
 src/GUI/Widgets/Primitives/Text.cpp
 src/GUI/Widgets/Primitives/Icon.cpp
+src/GUI/Widgets/Primitives/ShapeRect.cpp
 src/GUI/Widgets/Primitives/Slider.cpp
 src/GUI/Widgets/Primitives/Button.cpp
 src/GUI/Widgets/Primitives/Checkbox.cpp
@@ -191,6 +192,7 @@ include/Core/GUI/Widgets/Layout/RelativeLayout.hpp
 include/Core/GUI/Widgets/Layout/Stack.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp
 include/Core/GUI/Widgets/Primitives/Icon.hpp
+include/Core/GUI/Widgets/Primitives/ShapeRect.hpp
 include/Core/GUI/Widgets/Primitives/Slider.hpp
 include/Core/GUI/Widgets/Primitives/Button.hpp
 include/Core/GUI/Widgets/Primitives/Checkbox.hpp

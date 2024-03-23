@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Theme.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -148,9 +149,11 @@ namespace Lina
 		if (m_popup)
 			return;
 
-		m_popup						 = Allocate<Popup>("DropdownPopup");
-		m_popup->GetProps().minWidth = m_rect.size.x;
+		m_popup = Allocate<Popup>("DropdownPopup");
+		m_popup->GetFlags().Set(WF_USE_FIXED_SIZE_X);
+		m_popup->GetChildMargins() = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
 		m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
+		m_popup->GetProps().onDestructed = [this]() { m_popup = nullptr; };
 		m_manager->AddToForeground(m_popup);
 
 		Vector<String> items;
@@ -160,13 +163,23 @@ namespace Lina
 
 		const int32 sz = static_cast<int32>(items.size());
 
+		float maxChildSize = 0.0f;
+
 		for (int32 i = 0; i < sz; i++)
 		{
 			const auto& it = items[i];
 
-			PopupItem* item = Allocate<PopupItem>("DropdownItem");
-			item->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
+			DirectionalLayout* item = Allocate<DirectionalLayout>("Layout");
+			item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+			item->SetAlignedPosX(0.0f);
+			item->SetAlignedSizeX(1.0f);
 			item->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			item->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndentInner};
+			item->GetProps().useHoverColor		= true;
+			item->GetProps().receiveInput		= true;
+			item->GetProps().backgroundStyle	= DirectionalLayout::BackgroundStyle::Default;
+			item->GetProps().colorHovered		= Theme::GetDef().accentPrimary0;
+			item->GetProps().colorBackgroundEnd = item->GetProps().colorBackgroundStart = (i == selectedItem ? Theme::GetDef().background3 : Color(0, 0, 0, 0));
 
 			item->GetProps().onClicked = [i, it, this]() {
 				m_text->GetProps().text = it;
@@ -176,12 +189,19 @@ namespace Lina
 				ClosePopup();
 			};
 
-			item->GetProps().onClickedOutside = [this]() { ClosePopup(); };
-			item->GetProps().isSelected		  = i == selectedItem;
-			item->GetText()->GetProps().text  = it;
+			Text* txt = Allocate<Text>("Text");
+			txt->GetFlags().Set(WF_POS_ALIGN_Y);
+			txt->SetAlignedPosY(0.5f);
+			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			txt->GetProps().text = it;
+			item->AddChild(txt);
 			item->Initialize();
+			maxChildSize = Math::Max(maxChildSize, txt->GetSizeX() + item->GetChildMargins().left + item->GetChildMargins().right);
+
 			m_popup->AddChild(item);
 		}
+
+		m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
 	}
 	void Dropdown::ClosePopup()
 	{
@@ -190,7 +210,6 @@ namespace Lina
 
 		m_manager->RemoveFromForeground(m_popup);
 		Deallocate(m_popup);
-		m_popup = nullptr;
 	}
 
 } // namespace Lina

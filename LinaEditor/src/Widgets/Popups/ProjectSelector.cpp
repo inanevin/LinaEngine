@@ -48,6 +48,7 @@ namespace Lina::Editor
 {
 	void ProjectSelector::Construct()
 	{
+		GetFlags().Set(WF_FOREGROUND_BLOCKER);
 		const float itemHeight = Theme::GetDef().baseItemHeight;
 
 		m_monitorSize = GetMonitorSize();

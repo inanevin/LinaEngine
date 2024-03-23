@@ -27,69 +27,38 @@ SOFTWARE.
 */
 
 #pragma once
-#include "Common/Data/String.hpp"
-#include "Common/Data/Map.hpp"
 
-namespace Lina::Editor
+#include "Core/GUI/Widgets/Widget.hpp"
+
+namespace Lina
 {
+	class Font;
 
-	enum class LocaleStr
-	{
-		Save,
-		Load,
-		Yes,
-		No,
-		Hex,
-		File,
-		Edit,
-		View,
-		Panels,
-		About,
-		Create,
-		Open,
-		Cancel,
-		Name,
-		Location,
-		Select,
-		ProjectSelect,
-		CreateNewProject,
-		OpenExistingProject,
-		SelectDirectory,
-		CreateANewProject,
-		SelectProjectFile,
-		DirectoryNotFound,
-		FileNotFound,
-		NameIsNotValid,
-		Empty,
-		ExitEditor,
-		UnfinishedWorkTitle,
-		UnfinishedWorkDesc,
-		LinaProjectFile,
-		NoProject,
-		NewProject,
-		LoadProject,
-		SaveProject,
-		SaveProjectAs,
-		NewWorld,
-		LoadWorld,
-		SaveWorld,
-		SaveWorldAs,
-		Exit,
-		Github,
-		Website,
-		BuildInfo,
-		Entities,
-		Resources,
-		World,
-	};
-
-	class Locale
+	class ShapeRect : public Widget
 	{
 	public:
-		static const String& GetStr(LocaleStr str);
+		ShapeRect() : Widget(0)
+		{
+		}
+		virtual ~ShapeRect() = default;
+
+		struct Properties
+		{
+			Color colorStart = Theme::GetDef().background0;
+			Color colorEnd	 = Theme::GetDef().background0;
+		};
+
+		virtual void Draw(int32 threadIndex) override;
+
+		void CalculateShapeRectSize();
+
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
 
 	private:
-		static HashMap<LocaleStr, String> s_englishMap;
+		Properties m_props = {};
 	};
 
-} // namespace Lina::Editor
+} // namespace Lina

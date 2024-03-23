@@ -61,15 +61,22 @@ namespace Lina
 			Color				 colorBackgroundStart  = Theme::GetDef().background0;
 			Color				 colorBackgroundEnd	   = Theme::GetDef().background0;
 			Color				 colorOutline		   = Theme::GetDef().outlineColorBase;
+			Color				 colorHovered		   = Theme::GetDef().background0;
 			BackgroundStyle		 backgroundStyle	   = BackgroundStyle::None;
+			bool				 useHoverColor		   = false;
+			bool				 receiveInput		   = false;
 			float				 rounding			   = 0.0f;
 			float				 outlineThickness	   = 0.0f;
 			Vector<int32>		 onlyRoundTheseCorners = {};
+			Delegate<void()>	 onClicked;
+			Delegate<void()>	 onDestructed;
 		};
 
+		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		inline void SetProps(const Properties& props)
 		{

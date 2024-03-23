@@ -34,34 +34,34 @@ SOFTWARE.
 
 namespace Lina
 {
+
+	void Popup::Destruct()
+	{
+		if (m_props.onDestructed)
+			m_props.onDestructed();
+	}
+
 	void Popup::CalculateSize(float delta)
 	{
 	}
+
 	void Popup::Tick(float delta)
 	{
-		float maxChildWidth = 0.0f;
-		float totalHeight	= 0.0f;
+		float totalHeight = GetChildMargins().top;
 
 		for (auto* c : m_children)
 		{
-			c->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + totalHeight));
-			maxChildWidth = Math::Max(maxChildWidth, c->GetSize().x);
+			c->SetPosY(m_rect.pos.y + totalHeight);
 			totalHeight += c->GetSize().y;
 		}
 
-		maxChildWidth = Math::Max(maxChildWidth, m_props.minWidth);
-
-		for (auto* c : m_children)
-			c->SetSizeX(maxChildWidth);
-
-		m_rect.size.x = maxChildWidth;
-		m_rect.size.y = totalHeight;
+		SetSizeY(totalHeight + GetChildMargins().bottom);
 
 		if (m_animationCtr < m_props.animTime)
 		{
 			m_animationCtr += delta;
 			const float animAlpha = Math::Remap(m_animationCtr, 0.0f, m_props.animTime, 0.0f, 1.0f);
-			m_rect.size.y		  = Math::Lerp(0.0f, totalHeight, animAlpha);
+			m_rect.size.y		  = Math::Lerp(0.0f, totalHeight + GetChildMargins().bottom, animAlpha);
 		}
 	}
 

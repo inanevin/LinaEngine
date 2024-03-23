@@ -46,12 +46,16 @@ namespace Lina
 
 		struct Properties
 		{
-			String	 icon		= "";
-			StringID font		= Theme::GetDef().iconFont;
-			Color	 colorStart = Theme::GetDef().foreground0;
-			Color	 colorEnd	= Theme::GetDef().foreground0;
-			float	 textScale	= 0.5f;
-			bool	 isDynamic	= false;
+			Delegate<void()> onClicked;
+			String			 icon		   = "";
+			StringID		 font		   = Theme::GetDef().iconFont;
+			Color			 colorStart	   = Theme::GetDef().foreground0;
+			Color			 colorEnd	   = Theme::GetDef().foreground0;
+			Color			 colorHovered  = Theme::GetDef().foreground0;
+			Color			 colorPressed  = Theme::GetDef().foreground0;
+			Color			 colorDisabled = Theme::GetDef().foreground0;
+			float			 textScale	   = 0.5f;
+			bool			 isDynamic	   = false;
 
 			Color sdfOutlineColor	  = Color::White;
 			float sdfThickness		  = 0.5f;
@@ -62,6 +66,7 @@ namespace Lina
 
 		virtual void Initialize() override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		void CalculateIconSize();
 

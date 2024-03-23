@@ -189,6 +189,38 @@ namespace Lina
 				ReleaseControls(m_controlsOwner);
 		}
 
+		// If we have some items in the foreground
+		// check if any was clicked, if not, then remove the non-blocker ones
+		// this is used for removing popups mostly.
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && !m_foregroundRoot->GetChildren().empty())
+		{
+			bool anyForegroundHovered = false;
+			for (auto* c : m_foregroundRoot->GetChildren())
+			{
+				if (c->GetIsHovered())
+				{
+					anyForegroundHovered = true;
+					break;
+				}
+			}
+
+			if (!anyForegroundHovered)
+			{
+				Vector<Widget*> removeList;
+				for (auto* c : m_foregroundRoot->GetChildren())
+				{
+					if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER))
+						removeList.push_back(c);
+				}
+
+				for (auto* w : removeList)
+				{
+					RemoveFromForeground(w);
+					Deallocate(w);
+				}
+			}
+		}
+
 		if (m_foregroundRoot->OnMouse(button, inputAction))
 			return;
 
@@ -380,13 +412,7 @@ namespace Lina
 	void WidgetManager::PreTickWidget(Widget* w)
 	{
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
-		{
-			if (w->GetDebugName() == "InfoTooltip")
-			{
-				int a = 5;
-			}
 			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
-		}
 
 		w->SetIsHovered();
 		w->PreTick();

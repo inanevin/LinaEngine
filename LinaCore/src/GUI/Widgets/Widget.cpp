@@ -88,7 +88,7 @@ namespace Lina
 	{
 		for (auto* c : m_children)
 		{
-			if (c->OnMouse(button, action))
+			if (!c->GetIsDisabled() && c->OnMouse(button, action))
 				return true;
 		}
 

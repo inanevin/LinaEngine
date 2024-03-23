@@ -36,6 +36,7 @@ namespace Lina::Editor
 {
 	void GenericPopup::Construct()
 	{
+
 		DirectionalLayout::Construct();
 		GetProps().direction			= DirectionOrientation::Vertical;
 		GetProps().backgroundStyle		= BackgroundStyle::Default;
@@ -44,7 +45,7 @@ namespace Lina::Editor
 		GetProps().outlineThickness		= Theme::GetDef().baseOutlineThickness;
 		GetProps().colorOutline			= Theme::GetDef().outlineColorBase;
 
-		GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN);
+		GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_FOREGROUND_BLOCKER);
 		SetAlignedPos(Vector2(0.5f, 0.5f));
 		SetPosAlignmentSourceX(PosAlignmentSource::Center);
 		SetPosAlignmentSourceY(PosAlignmentSource::Center);

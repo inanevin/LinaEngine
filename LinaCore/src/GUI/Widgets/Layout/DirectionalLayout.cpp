@@ -31,9 +31,16 @@ SOFTWARE.
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
+	void DirectionalLayout::Destruct()
+	{
+		if (m_props.onDestructed)
+			m_props.onDestructed();
+	}
+
 	void DirectionalLayout::Tick(float delta)
 	{
 		m_start	 = GetStartFromMargins();
@@ -160,6 +167,9 @@ namespace Lina
 			bg.outlineOptions.thickness = m_props.outlineThickness;
 			bg.outlineOptions.color		= m_props.colorOutline.AsLVG4();
 
+			if (m_props.useHoverColor && m_isHovered)
+				bg.color.start = bg.color.end = m_props.colorHovered.AsLVG4();
+
 			for (int32 corner : m_props.onlyRoundTheseCorners)
 				bg.onlyRoundTheseCorners.push_back(corner);
 
@@ -191,4 +201,41 @@ namespace Lina
 		LinaVG::DrawRect(threadIndex, m_start.AsLVG(), m_end.AsLVG(), opts, 0.0f, drawOrder);
 	}
 
+	bool DirectionalLayout::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (GetIsDisabled())
+			return false;
+
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (!m_props.receiveInput)
+			return Widget::OnMouse(button, act);
+
+		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered)
+		{
+			m_isPressed = true;
+			return true;
+		}
+
+		if (act == LinaGX::InputAction::Released)
+		{
+			if (m_isPressed && m_isHovered)
+			{
+				if (m_props.onClicked)
+					m_props.onClicked();
+
+				m_isPressed = false;
+				return true;
+			}
+
+			if (m_isPressed)
+			{
+				m_isPressed = false;
+				return true;
+			}
+		}
+
+		return Widget::OnMouse(button, act);
+	}
 } // namespace Lina

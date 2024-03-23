@@ -37,6 +37,7 @@ namespace Lina
 	class Application;
 	class GfxManager;
 	class WidgetManager;
+	class EntityWorld;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -62,14 +63,34 @@ namespace Lina::Editor
 		void CloseCurrentProject();
 		void RequestExit();
 
-		inline void SetProjectDirty(bool isDirty)
+		inline void SetIsProjectDirty(bool isDirty)
 		{
 			m_isProjectDirty = isDirty;
+		}
+
+		inline void SetIsWorldDirty(bool isDirty)
+		{
+			m_isWorldDirty = isDirty;
+		}
+
+		inline bool GetIsProjectDirty() const
+		{
+			return m_isProjectDirty;
+		}
+
+		inline bool GetIsWorldDirty() const
+		{
+			return m_isWorldDirty;
 		}
 
 		inline ProjectData* GetProjectData() const
 		{
 			return m_currentProject;
+		}
+
+		inline EntityWorld* GetCurrentWorld() const
+		{
+			return m_currentWorld;
 		}
 
 	private:
@@ -81,6 +102,8 @@ namespace Lina::Editor
 		WidgetManager* m_primaryWidgetManager = nullptr;
 		EditorSettings m_settings			  = {};
 		ProjectData*   m_currentProject		  = nullptr;
+		EntityWorld*   m_currentWorld		  = nullptr;
+		bool		   m_isWorldDirty		  = false;
 		bool		   m_isProjectDirty		  = false;
 		EditorRoot*	   m_editorRoot			  = nullptr;
 	};

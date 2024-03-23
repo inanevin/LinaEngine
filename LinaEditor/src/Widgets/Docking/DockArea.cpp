@@ -52,11 +52,10 @@ namespace Lina::Editor
 		m_tabRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_tabRow->SetAlignedPos(Vector2::Zero);
 		m_tabRow->SetAlignedSizeX(1.0f);
-
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
-		m_tabRow->GetProps().onTabClosed = [this](Widget* w) { RemovePanel(w); };
-
-		m_tabRow->GetProps().onTabDockedOut = [this](Widget* w) { RemovePanel(w); };
+		m_tabRow->GetProps().cantCloseSingleTab = true;
+		m_tabRow->GetProps().onTabClosed		= [this](Widget* w) { RemovePanel(w); };
+		m_tabRow->GetProps().onTabDockedOut		= [this](Widget* w) { RemovePanel(w); };
 
 		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) {
 			if (m_selectedPanel)
@@ -125,9 +124,6 @@ namespace Lina::Editor
 	{
 		if (m_parent == nullptr)
 			return;
-
-		// SetPos(m_parent->GetPos() + m_parent->GetSize() * m_alignedPos);
-		// SetSize(m_parent->GetSize() * m_alignedSize);
 
 		// Omit tab row.
 		// if (m_selectedChildren == nullptr && m_children.size() == 2)

@@ -57,10 +57,6 @@ namespace Lina::Editor
 
 	void TabRow::Draw(int32 threadIndex)
 	{
-		// LinaVG::StyleOptions background;
-		// background.color = Theme::GetDef().background0.AsLVG4();
-		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
-
 		m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
 		m_manager->UnsetClip(threadIndex);
@@ -141,7 +137,7 @@ namespace Lina::Editor
 		if (m_props.cantCloseAnyTab)
 		{
 			for (auto* t : m_children)
-				static_cast<Tab*>(t)->GetProps().disableClose = true;
+				static_cast<Tab*>(t)->DisableClosing(true);
 			return;
 		}
 
@@ -149,7 +145,7 @@ namespace Lina::Editor
 		{
 			const bool alone = m_children.size() == 1;
 			for (auto* t : m_children)
-				static_cast<Tab*>(t)->GetProps().disableClose = alone;
+				static_cast<Tab*>(t)->DisableClosing(alone);
 		}
 	}
 
