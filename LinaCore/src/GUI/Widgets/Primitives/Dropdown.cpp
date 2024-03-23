@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Theme.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -149,9 +150,7 @@ namespace Lina
 		if (m_popup)
 			return;
 
-		m_popup = Allocate<Popup>("DropdownPopup");
-		m_popup->GetFlags().Set(WF_USE_FIXED_SIZE_X);
-		m_popup->GetChildMargins() = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
+        m_popup = WidgetUtility::BuildLayoutForPopups(this);
 		m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
 		m_popup->GetProps().onDestructed = [this]() { m_popup = nullptr; };
 		m_manager->AddToForeground(m_popup);
@@ -195,13 +194,12 @@ namespace Lina
 			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			txt->GetProps().text = it;
 			item->AddChild(txt);
-			item->Initialize();
 			maxChildSize = Math::Max(maxChildSize, txt->GetSizeX() + item->GetChildMargins().left + item->GetChildMargins().right);
-
 			m_popup->AddChild(item);
 		}
 
-		m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
+        m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
+        m_popup->Initialize();
 	}
 	void Dropdown::ClosePopup()
 	{

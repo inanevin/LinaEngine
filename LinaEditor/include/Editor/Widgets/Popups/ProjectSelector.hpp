@@ -84,6 +84,7 @@ namespace Lina::Editor
 		bool			   m_isCancellable		   = true;
 		Widget*			   m_currentLocationButton = nullptr;
 		Properties		   m_props				   = {};
+        IconTabs* m_iconTabs = nullptr;
 	};
 
 } // namespace Lina::Editor

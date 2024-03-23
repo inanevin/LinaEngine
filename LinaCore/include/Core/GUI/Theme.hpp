@@ -88,6 +88,7 @@ namespace Lina
 			float baseBorderThickness  = 4.0f;
 
 			StringID defaultFont = 0;
+			StringID altFont	 = 0;
 			StringID iconFont	 = 0;
 
 			String iconDropdown			 = "";

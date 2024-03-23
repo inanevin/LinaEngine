@@ -41,7 +41,55 @@ namespace Lina
 	class FileMenuListener
 	{
 	public:
-		virtual void OnPopupCreated(Popup* popup, StringID sid){};
+		virtual bool IsItemDisabled(StringID sid)
+		{
+			return false;
+		}
+		virtual void OnItemClicked(StringID sid){};
+	};
+
+	struct FileMenuSubItemData
+	{
+		String text		   = "";
+		String headerIcon  = "";
+		String altText	   = "";
+		bool   hasDropdown = false;
+		bool   isDivider   = false;
+		bool   closesPopup = true;
+	};
+
+	class FileMenu;
+
+	class FileMenuItem : public DirectionalLayout
+	{
+
+	public:
+		FileMenuItem()			= default;
+		virtual ~FileMenuItem() = default;
+
+		virtual void Initialize() override;
+
+		inline void SetItemData(const FileMenuSubItemData& itemData)
+		{
+			m_itemData = itemData;
+		}
+		inline void SetDropdownIcon(const String& ddIcon)
+		{
+			m_dropdownIcon = ddIcon;
+		}
+
+	private:
+		friend class FileMenu;
+
+		FileMenu*			m_ownerMenu	   = nullptr;
+		FileMenuSubItemData m_itemData	   = {};
+		String				m_dropdownIcon = "";
+	};
+
+	struct FileMenuItemData
+	{
+		String						baseTitle = "";
+		Vector<FileMenuSubItemData> subItems;
 	};
 
 	class FileMenu : public DirectionalLayout
@@ -49,11 +97,13 @@ namespace Lina
 	public:
 		struct FileMenuProperties
 		{
-			Vector<String> buttons;
+			String					 dropdownIcon = "";
+			Vector<FileMenuItemData> items;
 		};
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
+		virtual void PreTick() override;
 
 		inline FileMenuProperties& GetFileMenuProps()
 		{
@@ -65,10 +115,23 @@ namespace Lina
 			m_listener = list;
 		}
 
+		inline FileMenuListener* GetListener() const
+		{
+			return m_listener;
+		}
+
+	private:
+		void   OnClickedButton(int32 index);
+		void   CloseOpenPopups();
+		Popup* CreatePopup(const Vector2& pos);
+
 	private:
 		// Vector<Button*>	  m_buttons	 = {};
 		FileMenuProperties m_fileMenuProps = {};
 		FileMenuListener*  m_listener	   = nullptr;
+		Vector<Widget*>	   m_openPopups;
+		Button*			   m_popupOwner = nullptr;
+		Vector<Button*>	   m_buttons	= {};
 	};
 
 } // namespace Lina

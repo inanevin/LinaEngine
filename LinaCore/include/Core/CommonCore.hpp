@@ -33,7 +33,7 @@ SOFTWARE.
 namespace Lina
 {
 
-#define DEFAULT_FONT_PATH "Resources/Core/Fonts/RobotoRegular.ttf"
-#define DEFAULT_FONT_SID  "Resources/Core/Fonts/RobotoRegular.ttf"_hs
+#define DEFAULT_FONT_PATH "Resources/Core/Fonts/Roboto-Regular.ttf"
+#define DEFAULT_FONT_SID  "Resources/Core/Fonts/Roboto-Regular.ttf"_hs
 
 } // namespace Lina

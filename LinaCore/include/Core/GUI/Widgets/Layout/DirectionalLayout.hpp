@@ -65,14 +65,20 @@ namespace Lina
 			BackgroundStyle		 backgroundStyle	   = BackgroundStyle::None;
 			bool				 useHoverColor		   = false;
 			bool				 receiveInput		   = false;
+			bool				 dropShadowBackground  = false;
+			bool				 backgroundAnimation   = false;
+			bool				 clipChildren		   = false;
 			float				 rounding			   = 0.0f;
 			float				 outlineThickness	   = 0.0f;
 			Vector<int32>		 onlyRoundTheseCorners = {};
 			Delegate<void()>	 onClicked;
 			Delegate<void()>	 onDestructed;
+			Delegate<void()>	 onHoverBegin;
+			Delegate<void()>	 onHoverEnd;
 		};
 
 		virtual void Destruct() override;
+		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;
@@ -89,6 +95,8 @@ namespace Lina
 		}
 
 	private:
+		static constexpr float ANIM_TIME = 0.1f;
+
 		void BehaviourDefault(float delta);
 		void BehaviourEqualPositions(float delta);
 		void BehaviourEqualSizes(float delta);
@@ -97,10 +105,12 @@ namespace Lina
 		Properties m_props = {};
 
 	private:
-		Vector2 m_start	 = Vector2::Zero;
-		Vector2 m_end	 = Vector2::Zero;
-		Vector2 m_sz	 = Vector2::Zero;
-		Vector2 m_center = Vector2::Zero;
+		Vector2 m_start			  = Vector2::Zero;
+		Vector2 m_end			  = Vector2::Zero;
+		Vector2 m_sz			  = Vector2::Zero;
+		Vector2 m_center		  = Vector2::Zero;
+		bool	m_lastHoverStatus = false;
+		float	m_animValue		  = 0.0f;
 	};
 
 } // namespace Lina

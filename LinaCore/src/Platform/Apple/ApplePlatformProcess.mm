@@ -313,6 +313,12 @@ namespace Lina
 		}
 	}
 
+    void PlatformProcess::OpenURL(const String &url)
+    {
+        const String command = "open " + url;
+        system(command.c_str());
+    }
+
 } // namespace Lina
 
 #ifdef LINA_COMPILER_MSVC

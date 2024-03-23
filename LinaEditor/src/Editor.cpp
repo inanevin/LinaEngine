@@ -83,8 +83,8 @@ namespace Lina::Editor
 
 		// Resize window to work dims.
 		auto* window = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
-		window->AddSizeRequest(window->GetMonitorWorkSize());
+		// window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
+		// window->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Testbed* tb = root->Allocate<Testbed>();
 		// root->AddChild(tb);
@@ -106,11 +106,11 @@ namespace Lina::Editor
 	{
 	}
 
-	void Editor::OpenPopupProjectSelector(bool canCancel)
+	void Editor::OpenPopupProjectSelector(bool canCancel, bool openCreateFirst)
 	{
 		ProjectSelector* projectSelector = m_primaryWidgetManager->GetRoot()->Allocate<ProjectSelector>("ProjectSelector");
 		projectSelector->SetCancellable(canCancel);
-		projectSelector->SetTab(0);
+		projectSelector->SetTab(openCreateFirst ? 0 : 1);
 		projectSelector->Initialize();
 
 		// When we select a project to open -> ask if we want to save current one if its dirty.
@@ -131,7 +131,10 @@ namespace Lina::Editor
 								  }});
 			}
 			else
+			{
+				RemoveCurrentProject();
 				OpenProject(location);
+			}
 		};
 
 		projectSelector->GetProps().onProjectCreated = [&](const String& path) {
@@ -161,6 +164,7 @@ namespace Lina::Editor
 	void Editor::SaveProjectChanges()
 	{
 		m_isProjectDirty = false;
+		m_currentProject->SaveToFile();
 	}
 
 	void Editor::CreateEmptyProjectAndOpen(const String& path)
@@ -196,6 +200,7 @@ namespace Lina::Editor
 	void Editor::RequestExit()
 	{
 		RemoveCurrentProject();
+		m_system->GetApp()->Quit();
 	}
 
 } // namespace Lina::Editor

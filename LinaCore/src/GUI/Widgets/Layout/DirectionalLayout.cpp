@@ -29,8 +29,9 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Tween/TweenManager.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
@@ -41,8 +42,34 @@ namespace Lina
 			m_props.onDestructed();
 	}
 
+    void DirectionalLayout::Initialize()
+    {
+        Widget::Initialize();
+        
+        if(m_props.backgroundAnimation)
+        {
+            TweenManager::Get()->AddTween(&m_animValue, 0.0f, 1.0f, ANIM_TIME, TweenType::Sinusoidal);
+        }
+    }
+
 	void DirectionalLayout::Tick(float delta)
 	{
+        if(m_props.backgroundAnimation)
+            SetSizeY(Math::Lerp(0.0f, GetSizeY(), m_animValue));
+        
+        if(GetIsHovered() && !m_lastHoverStatus)
+        {
+            if(m_props.onHoverBegin)
+                m_props.onHoverBegin();
+        }
+        else if(!GetIsHovered() && m_lastHoverStatus)
+        {
+            if(m_props.onHoverEnd)
+                m_props.onHoverEnd();
+        }
+        
+        m_lastHoverStatus = GetIsHovered();
+        
 		m_start	 = GetStartFromMargins();
 		m_end	 = GetEndFromMargins();
 		m_sz	 = m_end - m_start;
@@ -158,6 +185,13 @@ namespace Lina
 
 	void DirectionalLayout::Draw(int32 threadIndex)
 	{
+        if(m_props.dropShadowBackground)
+        {
+            Color ds = Theme::GetDef().black;
+            ds.w = 0.5f;
+            WidgetUtility::DrawDropShadowRect(threadIndex, m_rect, m_drawOrder, ds, 6);
+        }
+        
 		if (m_props.backgroundStyle == BackgroundStyle::Default)
 		{
 			LinaVG::StyleOptions bg;
@@ -189,7 +223,11 @@ namespace Lina
 			LinaVG::DrawRect(threadIndex, Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
 		}
 
+        if(m_props.clipChildren)
+            m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
+        if(m_props.clipChildren)
+            m_manager->UnsetClip(threadIndex);
 		Widget::DrawBorders(threadIndex);
 	}
 	void DirectionalLayout::DebugDraw(int32 threadIndex, int32 drawOrder)

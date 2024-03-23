@@ -71,7 +71,7 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-        void DisableClosing(bool disabled);
+		void		 DisableClosing(bool disabled);
 
 		inline Properties& GetProps()
 		{

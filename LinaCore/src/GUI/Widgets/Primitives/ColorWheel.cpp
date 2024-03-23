@@ -91,7 +91,6 @@ namespace Lina
 
 	void ColorWheel::Draw(int32 threadIndex)
 	{
-		Widget::SetIsHovered();
 		LinaVG::StyleOptions wheelStyle;
 		wheelStyle.color		 = Math::Lerp(Color::Black, Color::White, Math::Max(m_props.darknessAlpha, 0.1f)).AsLVG4();
 		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;

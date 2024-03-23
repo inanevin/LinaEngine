@@ -56,7 +56,7 @@ namespace Lina::Editor
 		virtual void CoreResourcesLoaded() override;
 		virtual void Shutdown() override;
 
-		void OpenPopupProjectSelector(bool canCancel);
+		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
 
 		void OpenProject(const String& projectFile);
 		void SaveProjectChanges();

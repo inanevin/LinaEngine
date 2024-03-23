@@ -37,8 +37,10 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -111,11 +113,105 @@ namespace Lina::Editor
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
 		projectName->AddChild(projectNameText);
 
+		// String text = "";
+		// String headerIcon = "";
+		// String altText = "";
+		// bool hasDropdown = false;
+
 		FileMenu* fm = Allocate<FileMenu>("FileMenu");
 		fm->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		fm->SetAlignedPosY(0.0f);
 		fm->SetAlignedSizeY(1.0f);
-		fm->GetFileMenuProps().buttons = {Locale::GetStr(LocaleStr::File), Locale::GetStr(LocaleStr::Edit), Locale::GetStr(LocaleStr::View), Locale::GetStr(LocaleStr::Panels), Locale::GetStr(LocaleStr::About)};
+		fm->GetFileMenuProps().dropdownIcon = ICON_ARROW_RIGHT;
+
+		/*
+
+		 {
+			 .text = Locale::GetStr(LocaleStr::NewProject),
+		 },
+		 {
+			 .text = Locale::GetStr(LocaleStr::LoadProject),
+		 },
+		 {
+			 .text = Locale::GetStr(LocaleStr::SaveProject),
+		 },
+		 {
+			 .isDivider = true,
+		 },
+		 {
+			 .text = Locale::GetStr(LocaleStr::NewWorld),
+		 },
+		 {
+			 .text = Locale::GetStr(LocaleStr::LoadWorld),
+		 },
+		 {
+			 .text = Locale::GetStr(LocaleStr::SaveWorld),
+		 },
+		 {
+			 .text = Locale::GetStr(LocaleStr::SaveWorldAs),
+		 },
+		 {
+			 .isDivider = true,
+		 },
+		 {
+			 .text = Locale::GetStr(LocaleStr::Exit),
+		 },
+
+		 */
+		fm->GetFileMenuProps().items = {
+			FileMenuItemData{
+				.baseTitle = Locale::GetStr(LocaleStr::File),
+				.subItems =
+					{
+						{
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::NewProject)},
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::LoadProject)},
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::SaveProject)},
+							FileMenuSubItemData{.isDivider = true},
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::NewWorld)},
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::LoadWorld)},
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::SaveWorld)},
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::SaveWorldAs)},
+							FileMenuSubItemData{.isDivider = true},
+							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Exit)},
+						},
+					},
+			},
+			FileMenuItemData{
+				.baseTitle = Locale::GetStr(LocaleStr::Edit),
+				.subItems =
+					{
+
+					},
+			},
+			FileMenuItemData{
+				.baseTitle = Locale::GetStr(LocaleStr::View),
+				.subItems =
+					{
+
+					},
+			},
+			FileMenuItemData{
+				.baseTitle = Locale::GetStr(LocaleStr::Panels),
+				.subItems =
+					{
+						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Entities)},
+						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::World)},
+						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Resources)},
+						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Performance)},
+					},
+			},
+			FileMenuItemData{
+				.baseTitle = Locale::GetStr(LocaleStr::About),
+				.subItems =
+					{
+						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Website)},
+						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Github)},
+						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::More)},
+					},
+			},
+		};
+
 		fm->SetListener(this);
 		layout1->AddChild(fm);
 
@@ -211,44 +307,102 @@ namespace Lina::Editor
 		m_projectNameText->Initialize();
 	}
 
-	void EditorRoot::OnPopupCreated(Popup* popup, StringID sid)
+	void EditorRoot::OnItemClicked(StringID sid)
 	{
 		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
 
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::File)))
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewProject)))
 		{
-			const bool projectExists = editor->GetProjectData() != nullptr;
-
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::NewProject), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::LoadProject), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveProject), this, !projectExists || !editor->GetIsProjectDirty()));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveProjectAs), this, !projectExists));
-			popup->AddChild(CommonWidgets::BuildPopupItemDivider(this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::NewWorld), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::LoadWorld), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveWorld), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::SaveWorldAs), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDivider(this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Exit), this));
-			popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8.0f);
+			editor->OpenPopupProjectSelector(true, true);
 			return;
 		}
 
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Panels)))
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadProject)))
 		{
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Entities), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Resources), this));
-			popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8.0f);
+			editor->OpenPopupProjectSelector(true, false);
 			return;
 		}
 
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::About)))
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 		{
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Website), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::Github), this));
-			popup->AddChild(CommonWidgets::BuildPopupItemDefault(Locale::GetStr(LocaleStr::BuildInfo), this));
-			popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8.0f);
+			editor->SaveProjectChanges();
 			return;
 		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewWorld)))
+		{
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadWorld)))
+		{
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)))
+		{
+
+			return;
+		}
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
+		{
+
+			return;
+		}
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Exit)))
+		{
+			editor->RequestExit();
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Resources)))
+		{
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entities)))
+		{
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
+		{
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Performance)))
+		{
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Website)))
+		{
+			PlatformProcess::OpenURL("https://inanevin.com");
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Github)))
+		{
+			PlatformProcess::OpenURL("https://github.com/inanevin");
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::More)))
+		{
+			return;
+		}
+	}
+
+	bool EditorRoot::IsItemDisabled(StringID sid)
+	{
+		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
+			return editor->GetProjectData() == nullptr;
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)) || sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
+			return editor->GetCurrentWorld() == nullptr;
+
+		return false;
 	}
 } // namespace Lina::Editor

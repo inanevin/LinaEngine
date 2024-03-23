@@ -69,7 +69,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	InitializeWinPlatform();
 
 	Lina::SystemInitializationInfo initInfo = Lina::Lina_GetInitInfo();
-	Lina::Application* app = new Lina::Application();
+	Lina::Application*			   app		= new Lina::Application();
 	app->Initialize(initInfo);
 
 	while (!app->GetExitRequested())
@@ -315,6 +315,11 @@ namespace Lina
 
 		CoUninitialize();
 		return retVal;
+	}
+
+	void PlatformProcess::OpenURL(const String& url)
+	{
+		ShellExecute(0, "open", url, 0, 0, SW_SHOWNORMAL);
 	}
 
 } // namespace Lina

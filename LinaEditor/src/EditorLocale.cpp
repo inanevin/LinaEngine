@@ -65,7 +65,6 @@ namespace Lina::Editor
 		{LocaleStr::NewProject, "New Project"},
 		{LocaleStr::LoadProject, "Load Project"},
 		{LocaleStr::SaveProject, "Save Project"},
-		{LocaleStr::SaveProjectAs, "Save Project As"},
 		{LocaleStr::NewWorld, "New World"},
 		{LocaleStr::LoadWorld, "Load World"},
 		{LocaleStr::SaveWorld, "Save World"},
@@ -73,10 +72,11 @@ namespace Lina::Editor
 		{LocaleStr::Exit, "Exit"},
 		{LocaleStr::Github, "Github"},
 		{LocaleStr::Website, "Website"},
-		{LocaleStr::BuildInfo, "Website"},
+		{LocaleStr::More, "More"},
 		{LocaleStr::Entities, "Entities"},
 		{LocaleStr::Resources, "Resources"},
 		{LocaleStr::World, "World"},
+		{LocaleStr::Performance, "World"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

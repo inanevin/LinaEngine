@@ -59,5 +59,6 @@ namespace Lina
 		static bool	  TryGetStringFromClipboard(String& outStr);
 		static String OpenDialog(const DialogProperties& properties);
 		static String SaveDialog(const DialogProperties& properties);
+        static void OpenURL(const String& url);
 	};
 } // namespace Lina

@@ -50,7 +50,6 @@ namespace Lina
 		};
 
 		virtual void Destruct() override;
-		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 

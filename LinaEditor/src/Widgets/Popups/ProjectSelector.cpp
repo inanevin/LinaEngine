@@ -95,6 +95,7 @@ namespace Lina::Editor
 		iconTabs->SetAlignedPosY(0.0f);
 		iconTabs->GetTabProps().onSelectionChanged = [this](int32 selection) { SetTab(selection); };
 		bottom->AddChild(iconTabs);
+		m_iconTabs = iconTabs;
 
 		SetTab(m_selected);
 		bottom->AddChild(m_content);
@@ -328,6 +329,8 @@ namespace Lina::Editor
 
 		if (parent)
 			parent->AddChild(m_content);
+
+		m_iconTabs->GetTabProps().selected = selected;
 
 		m_content->Initialize();
 	}

@@ -42,6 +42,8 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
+			Delegate<void()> onHoverBegin;
+			Delegate<void()> onHoverEnd;
 			Vector<int32>	 onlyRound			  = {};
 			Color			 colorDisabled		  = Theme::GetDef().silent0;
 			Color			 colorDefaultStart	  = Theme::GetDef().background2;
@@ -58,6 +60,7 @@ namespace Lina
 		virtual ~Button() = default;
 
 		virtual void Construct() override;
+		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
@@ -73,7 +76,8 @@ namespace Lina
 		}
 
 	private:
-		Text*	   m_text  = nullptr;
-		Properties m_props = {};
+		Text*	   m_text			 = nullptr;
+		Properties m_props			 = {};
+		bool	   m_lastHoverStatus = false;
 	};
 } // namespace Lina

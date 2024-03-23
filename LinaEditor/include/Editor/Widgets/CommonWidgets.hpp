@@ -53,7 +53,7 @@ namespace Lina::Editor
 		static DirectionalLayout* BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* source);
 		static DirectionalLayout* BuildWindowButtons(Widget* source);
 
-		static DirectionalLayout* BuildPopupItemDefault(const String& title, Widget* source, bool disabled = false, bool hasHeadingIcon = false, const String& headingIcon = "");
+        static DirectionalLayout* BuildPopupItemDefault(const String& title, Widget* source, bool disabled = false, bool hasHeadingIcon = false, const String& headingIcon = "", bool hasDropdown = false, const String& altText = "");
 		static DirectionalLayout* BuildPopupItemDivider(Widget* source);
 
 		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);

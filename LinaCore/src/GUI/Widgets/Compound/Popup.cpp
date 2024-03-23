@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
@@ -39,10 +40,6 @@ namespace Lina
 	{
 		if (m_props.onDestructed)
 			m_props.onDestructed();
-	}
-
-	void Popup::CalculateSize(float delta)
-	{
 	}
 
 	void Popup::Tick(float delta)
@@ -68,13 +65,15 @@ namespace Lina
 	void Popup::Draw(int32 threadIndex)
 	{
 		LinaVG::StyleOptions opts;
-		// opts.rounding = m_props.rounding;
 		opts.color.start			  = m_props.colorBackgroundStart.AsLVG4();
 		opts.color.end				  = m_props.colorBackgroundEnd.AsLVG4();
 		opts.color.gradientType		  = LinaVG::GradientType::Vertical;
-		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = m_props.colorOutline.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+        
+        Color ds = Theme::GetDef().black;
+        ds.w = 0.5f;
+        WidgetUtility::DrawDropShadowRect(threadIndex, m_rect, m_drawOrder, ds, 6);
+        LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		m_manager->SetClip(threadIndex, m_rect, {});
 		uint32 idx = 0;

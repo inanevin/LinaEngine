@@ -69,7 +69,6 @@ namespace Lina::Editor
 		NewProject,
 		LoadProject,
 		SaveProject,
-		SaveProjectAs,
 		NewWorld,
 		LoadWorld,
 		SaveWorld,
@@ -77,10 +76,11 @@ namespace Lina::Editor
 		Exit,
 		Github,
 		Website,
-		BuildInfo,
-		Entities,
+        More,
+        Entities,
 		Resources,
 		World,
+        Performance,
 	};
 
 	class Locale

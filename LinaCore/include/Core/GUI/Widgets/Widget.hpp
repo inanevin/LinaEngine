@@ -94,7 +94,6 @@ namespace Lina
 		virtual void PreTick(){};
 		virtual void CalculateSize(float delta){};
 		virtual void Tick(float delta){};
-
 		virtual void Draw(int32 threadIndex);
 
 		virtual void AddChild(Widget* w);

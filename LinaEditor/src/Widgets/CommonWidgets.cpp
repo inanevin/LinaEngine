@@ -150,7 +150,7 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	DirectionalLayout* CommonWidgets::BuildPopupItemDefault(const String& title, Widget* source, bool disabled, bool hasHeadingIcon, const String& headingIcon)
+	DirectionalLayout* CommonWidgets::BuildPopupItemDefault(const String& title, Widget* source, bool disabled, bool hasHeadingIcon, const String& headingIcon, bool hasDropdown, const String& altText)
 	{
 		DirectionalLayout* item = source->Allocate<DirectionalLayout>("PopupItemLayout");
 		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
@@ -193,11 +193,37 @@ namespace Lina::Editor
 		txt->GetProps().text		  = title;
 		txt->GetProps().colorDisabled = Theme::GetDef().silent2;
 		item->AddChild(txt);
-		item->Initialize();
-		item->SetIsDisabled(disabled);
+
+        
+        if(hasDropdown)
+        {
+            Icon* dd = source->Allocate<Icon>("DD");
+            dd->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+            dd->SetAlignedPos(Vector2(1.0f, 0.5f));
+            dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
+            dd->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+            dd->GetProps().icon = ICON_ARROW_RIGHT;
+            item->AddChild(dd);
+        }
+        if(!altText.empty())
+        {
+            Text* txt = source->Allocate<Text>("Text");
+            txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+            txt->SetAlignedPos(Vector2(1.0f, 0.5f));
+            txt->SetPosAlignmentSourceX(PosAlignmentSource::End);
+            txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+            txt->GetProps().text          = altText;
+            txt->GetProps().font = ALT_FONT_BOLD_SID;
+            txt->GetProps().color = Theme::GetDef().silent2;
+            item->AddChild(txt);
+        }
+        
+        item->Initialize();
+        item->SetIsDisabled(disabled);
 
 		return item;
 	}
+
 
 	DirectionalLayout* CommonWidgets::BuildPopupItemDivider(Widget* source)
 	{
@@ -205,7 +231,7 @@ namespace Lina::Editor
 		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
 		item->SetAlignedPosX(0.0f);
 		item->SetAlignedSizeX(1.0f);
-		item->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5);
+		item->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
 
 		ShapeRect* rect = source->Allocate<ShapeRect>("Shape");
 		rect->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);

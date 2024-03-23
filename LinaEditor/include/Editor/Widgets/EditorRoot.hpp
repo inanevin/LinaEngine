@@ -53,13 +53,13 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual void OnPopupCreated(Popup* popup, StringID sid) override;
+        virtual void OnItemClicked(StringID sid) override;
+		virtual bool IsItemDisabled(StringID sid) override;
 		void		 SetProjectName(const String& name);
 
 	private:
-		FileMenu* m_fm				= nullptr;
 		Rect	  m_dragRect		= {};
-		Widget*	  m_fileMenu		= nullptr;
+		FileMenu*	  m_fileMenu		= nullptr;
 		Widget*	  m_windowButtons	= nullptr;
 		Texture*  m_titleImage		= nullptr;
 		Text*	  m_projectNameText = nullptr;

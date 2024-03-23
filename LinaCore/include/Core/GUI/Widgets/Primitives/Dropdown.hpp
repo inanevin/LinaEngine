@@ -35,7 +35,7 @@ namespace Lina
 {
 	class Icon;
 	class Text;
-	class Popup;
+	class DirectionalLayout;
 
 	class Dropdown : public Widget
 	{
@@ -87,11 +87,11 @@ namespace Lina
 		void ClosePopup();
 
 	private:
-		Properties m_props		 = {};
-		Icon*	   m_icon		 = nullptr;
-		Text*	   m_text		 = nullptr;
-		Vector2	   m_iconBgStart = Vector2::Zero;
-		Popup*	   m_popup		 = nullptr;
+		Properties		   m_props		 = {};
+		Icon*			   m_icon		 = nullptr;
+		Text*			   m_text		 = nullptr;
+		Vector2			   m_iconBgStart = Vector2::Zero;
+		DirectionalLayout* m_popup		 = nullptr;
 	};
 
 } // namespace Lina

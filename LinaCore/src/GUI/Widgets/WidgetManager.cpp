@@ -116,6 +116,7 @@ namespace Lina
 			m_foregroundRoot->Draw(threadIndex);
 		}
 
+        return;
 		if (!m_foregroundRoot->GetChildren().empty())
 			DebugDraw(threadIndex, m_foregroundRoot);
 		else
