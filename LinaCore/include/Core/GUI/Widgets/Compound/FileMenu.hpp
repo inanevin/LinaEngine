@@ -38,6 +38,7 @@ namespace Lina
 	class Popup;
 	class Button;
 	class FileMenu;
+	class Text;
 
 	class FileMenuItem : public DirectionalLayout
 	{
@@ -59,6 +60,16 @@ namespace Lina
 		virtual void Initialize() override;
 		virtual void PreTick() override;
 
+		inline Text* GetText() const
+		{
+			return m_text;
+		}
+
+		inline Text* GetAltText() const
+		{
+			return m_altText;
+		}
+
 		Data& GetItemData()
 		{
 			return m_itemData;
@@ -70,6 +81,8 @@ namespace Lina
 		FileMenu*		   m_ownerMenu = nullptr;
 		Data			   m_itemData  = {};
 		DirectionalLayout* m_subPopup  = nullptr;
+		Text*			   m_text	   = nullptr;
+		Text*			   m_altText   = nullptr;
 	};
 
 	class FileMenuListener
@@ -91,9 +104,10 @@ namespace Lina
 			Vector<String> buttons;
 		};
 
-		virtual void Construct() override;
-		virtual void Initialize() override;
-		virtual void PreTick() override;
+		virtual void	   Construct() override;
+		virtual void	   Initialize() override;
+		virtual void	   PreTick() override;
+		DirectionalLayout* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
 
 		inline FileMenuProperties& GetFileMenuProps()
 		{
@@ -111,16 +125,11 @@ namespace Lina
 		}
 
 	private:
-		void			   CloseOpenPopups();
-		DirectionalLayout* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
-
-	private:
-		// Vector<Button*>	  m_buttons	 = {};
+		Button*			   m_subPopupOwner = nullptr;
 		FileMenuProperties m_fileMenuProps = {};
 		FileMenuListener*  m_listener	   = nullptr;
-		Vector<Widget*>	   m_openPopups;
-		Button*			   m_popupOwner = nullptr;
-		Vector<Button*>	   m_buttons	= {};
+		Vector<Button*>	   m_buttons	   = {};
+		DirectionalLayout* m_subPopup	   = nullptr;
 	};
 
 } // namespace Lina

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
@@ -56,27 +57,7 @@ namespace Lina
 		txt->GetProps().text		  = m_itemData.text;
 		txt->GetProps().colorDisabled = Theme::GetDef().silent2;
 		AddChild(txt);
-
-		// if (hasHeadingIcon)
-		// {
-		//     if (headingIcon.empty())
-		//     {
-		//         Widget* empty = source->Allocate<Widget>("Empty");
-		//         empty->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
-		//         empty->SetAlignedPosY(0.0f);
-		//         empty->SetAlignedSizeY(1.0f);
-		//         empty->SetFixedSizeX(Theme::GetDef().baseItemHeight);
-		//         item->AddChild(empty);
-		//     }
-		//     else
-		//     {
-		//         Icon* icon = source->Allocate<Icon>("Icon");
-		//         icon->GetFlags().Set(WF_POS_ALIGN_Y);
-		//         icon->SetAlignedPosY(0.5f);
-		//         icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		//         item->AddChild(icon);
-		//     }
-		// }
+		m_text = txt;
 
 		if (m_itemData.hasDropdown)
 		{
@@ -91,15 +72,16 @@ namespace Lina
 
 		if (!m_itemData.altText.empty())
 		{
-			Text* txt = Allocate<Text>("Text");
-			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			txt->SetAlignedPos(Vector2(1.0f, 0.5f));
-			txt->SetPosAlignmentSourceX(PosAlignmentSource::End);
-			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			txt->GetProps().text  = m_itemData.altText;
-			txt->GetProps().font  = Theme::GetDef().altFont;
-			txt->GetProps().color = Theme::GetDef().silent2;
-			AddChild(txt);
+			Text* altTxt = Allocate<Text>("Text");
+			altTxt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			altTxt->SetAlignedPos(Vector2(1.0f, 0.5f));
+			altTxt->SetPosAlignmentSourceX(PosAlignmentSource::End);
+			altTxt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			altTxt->GetProps().text	 = m_itemData.altText;
+			altTxt->GetProps().font	 = Theme::GetDef().altFont;
+			altTxt->GetProps().color = Theme::GetDef().silent2;
+			AddChild(altTxt);
+			m_altText = altTxt;
 		}
 
 		Widget::Initialize();
@@ -107,11 +89,32 @@ namespace Lina
 
 	void FileMenuItem::PreTick()
 	{
+		DirectionalLayout::PreTick();
+
 		if (m_itemData.hasDropdown && m_isHovered && m_subPopup == nullptr)
 		{
 			Vector<Data> data;
 			m_ownerMenu->GetListener()->OnGetItemData(TO_SID(m_itemData.text), data);
 			m_subPopup = m_ownerMenu->CreatePopup(Vector2(m_rect.GetEnd().x, GetPosY()), data);
+
+			m_subPopup->GetProps().onDestructed = [this]() { m_subPopup = nullptr; };
+		}
+
+		if (m_subPopup != nullptr && !m_isHovered)
+		{
+			for (auto* sibling : m_parent->GetChildren())
+			{
+				if (sibling == this)
+					continue;
+
+				if (sibling->GetIsHovered())
+				{
+					m_manager->RemoveFromForeground(m_subPopup);
+					Deallocate(m_subPopup);
+					m_subPopup = nullptr;
+					break;
+				}
+			}
 		}
 	}
 
@@ -126,16 +129,26 @@ namespace Lina
 	{
 		DirectionalLayout::PreTick();
 
-		return;
 		int32 idx = 0;
 		for (auto* b : m_buttons)
 		{
-			b->GetProps().colorDefaultStart = b->GetProps().colorDefaultEnd = b == m_popupOwner ? Theme::GetDef().background3 : Color(0, 0, 0, 0);
+			b->GetProps().colorDefaultStart = b->GetProps().colorDefaultEnd = b == m_subPopupOwner ? Theme::GetDef().background3 : Color(0, 0, 0, 0);
 
-			if (!m_openPopups.empty() && b != m_popupOwner && b->GetRect().IsPointInside(m_lgxWindow->GetMousePosition()))
+			if (m_subPopup != nullptr && b != m_subPopupOwner && b->GetRect().IsPointInside(m_lgxWindow->GetMousePosition()))
 			{
-				CloseOpenPopups();
-				m_popupOwner = b;
+				m_manager->RemoveFromForeground(m_subPopup);
+				Deallocate(m_subPopup);
+				m_subPopup		= nullptr;
+				m_subPopupOwner = nullptr;
+
+				Vector<FileMenuItem::Data> itemData;
+				m_listener->OnGetItemData(TO_SID(b->GetText()->GetProps().text), itemData);
+				m_subPopup							= CreatePopup(Vector2(b->GetPosX(), b->GetRect().GetEnd().y), itemData);
+				m_subPopup->GetProps().onDestructed = [this]() {
+					m_subPopup		= nullptr;
+					m_subPopupOwner = nullptr;
+				};
+				m_subPopupOwner = b;
 			}
 
 			idx++;
@@ -163,7 +176,12 @@ namespace Lina
 			btn->GetProps().onClicked = [this, btn, str]() {
 				Vector<FileMenuItem::Data> itemData;
 				m_listener->OnGetItemData(TO_SID(str), itemData);
-				CreatePopup(Vector2(btn->GetPosX(), btn->GetRect().GetEnd().y), itemData);
+				m_subPopup							= CreatePopup(Vector2(btn->GetPosX(), btn->GetRect().GetEnd().y), itemData);
+				m_subPopup->GetProps().onDestructed = [this]() {
+					m_subPopup		= nullptr;
+					m_subPopupOwner = nullptr;
+				};
+				m_subPopupOwner = btn;
 			};
 
 			btn->GetText()->GetProps().text = str;
@@ -175,26 +193,13 @@ namespace Lina
 		DirectionalLayout::Initialize();
 	}
 
-	void FileMenu::CloseOpenPopups()
-	{
-		for (auto* w : m_openPopups)
-		{
-			m_manager->RemoveFromForeground(w);
-			Deallocate(w);
-		}
-		m_openPopups.clear();
-	}
-
 	DirectionalLayout* FileMenu::CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData)
 	{
 		DirectionalLayout* popup = WidgetUtility::BuildLayoutForPopups(this);
 		popup->SetPos(pos);
-		popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8);
+
 		m_manager->AddToForeground(popup);
 		m_manager->SetForegroundDim(0.0f);
-		popup->GetProps().onDestructed = [this]() {
-
-		};
 
 		for (const auto& subItem : subItemData)
 		{
@@ -237,6 +242,28 @@ namespace Lina
 		}
 
 		popup->Initialize();
+
+		float maxTextSize = 0.0f;
+
+		for (const auto& c : popup->GetChildren())
+		{
+			auto* fmi	  = static_cast<FileMenuItem*>(c);
+			auto* text	  = fmi->GetText();
+			auto* altText = fmi->GetAltText();
+
+			float size = 0.0f;
+
+			if (text)
+				size += text->GetSizeX();
+
+			if (altText)
+				size += altText->GetSizeX() + fmi->GetChildPadding();
+
+			maxTextSize = Math::Max(maxTextSize, size);
+		}
+
+		popup->SetFixedSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetChildMargins().left + popup->GetChildMargins().right) * 1.25f));
+
 		return popup;
 	}
 

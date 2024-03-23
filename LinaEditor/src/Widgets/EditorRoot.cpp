@@ -337,18 +337,41 @@ namespace Lina::Editor
 		{
 			outData = {
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewProject)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LoadProject), .altText = "CTRL + K"},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveProject), .hasDropdown = true, .dropdownIcon = ICON_ARROW_RIGHT},
+				FileMenuItem::Data{
+					.text = Locale::GetStr(LocaleStr::LoadProject),
+				},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewWorld)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LoadWorld)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorld)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorldAs)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorld), .altText = "CTRL + S"},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorldAs), .altText = "CTRL + SHIFT + S"},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Exit)},
 			};
 			return;
 		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Panels)))
+		{
+			outData = {
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Entities)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Resources)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Performance)},
+			};
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::About)))
+		{
+			outData = {
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Website)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Github)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::More)},
+			};
+			return;
+		}
+
 		/*
 		fm->GetFileMenuProps().buttons = {
 			FileMenuButtonData{
@@ -395,9 +418,7 @@ namespace Lina::Editor
 				.baseTitle = Locale::GetStr(LocaleStr::About),
 				.subItems =
 					{
-						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Website)},
-						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Github)},
-						FileMenuItemData{.text = Locale::GetStr(LocaleStr::More)},
+
 					},
 			},
 		};*/
