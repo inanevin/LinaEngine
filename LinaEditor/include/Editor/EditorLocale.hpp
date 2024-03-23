@@ -76,11 +76,11 @@ namespace Lina::Editor
 		Exit,
 		Github,
 		Website,
-        More,
-        Entities,
+		More,
+		Entities,
 		Resources,
 		World,
-        Performance,
+		Performance,
 	};
 
 	class Locale

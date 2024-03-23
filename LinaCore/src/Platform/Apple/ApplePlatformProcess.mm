@@ -313,11 +313,11 @@ namespace Lina
 		}
 	}
 
-    void PlatformProcess::OpenURL(const String &url)
-    {
-        const String command = "open " + url;
-        system(command.c_str());
-    }
+	void PlatformProcess::OpenURL(const String& url)
+	{
+		const String command = "open " + url;
+		system(command.c_str());
+	}
 
 } // namespace Lina
 

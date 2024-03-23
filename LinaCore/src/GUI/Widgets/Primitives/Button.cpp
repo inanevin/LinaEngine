@@ -43,21 +43,21 @@ namespace Lina
 		AddChild(m_text);
 	}
 
-    void Button::Tick(float delta)
-    {
-        Widget::Tick(delta);
-        
-        if(GetIsHovered() && !m_lastHoverStatus)
-        {
-            if(m_props.onHoverBegin)
-                m_props.onHoverBegin();
-        }
-        else if(!GetIsHovered() && m_lastHoverStatus)
-        {
-            if(m_props.onHoverEnd)
-                m_props.onHoverEnd();
-        }
-    }
+	void Button::Tick(float delta)
+	{
+		Widget::Tick(delta);
+
+		if (GetIsHovered() && !m_lastHoverStatus)
+		{
+			if (m_props.onHoverBegin)
+				m_props.onHoverBegin();
+		}
+		else if (!GetIsHovered() && m_lastHoverStatus)
+		{
+			if (m_props.onHoverEnd)
+				m_props.onHoverEnd();
+		}
+	}
 
 	void Button::Draw(int32 threadIndex)
 	{

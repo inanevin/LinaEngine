@@ -194,36 +194,34 @@ namespace Lina::Editor
 		txt->GetProps().colorDisabled = Theme::GetDef().silent2;
 		item->AddChild(txt);
 
-        
-        if(hasDropdown)
-        {
-            Icon* dd = source->Allocate<Icon>("DD");
-            dd->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-            dd->SetAlignedPos(Vector2(1.0f, 0.5f));
-            dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
-            dd->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            dd->GetProps().icon = ICON_ARROW_RIGHT;
-            item->AddChild(dd);
-        }
-        if(!altText.empty())
-        {
-            Text* txt = source->Allocate<Text>("Text");
-            txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-            txt->SetAlignedPos(Vector2(1.0f, 0.5f));
-            txt->SetPosAlignmentSourceX(PosAlignmentSource::End);
-            txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            txt->GetProps().text          = altText;
-            txt->GetProps().font = ALT_FONT_BOLD_SID;
-            txt->GetProps().color = Theme::GetDef().silent2;
-            item->AddChild(txt);
-        }
-        
-        item->Initialize();
-        item->SetIsDisabled(disabled);
+		if (hasDropdown)
+		{
+			Icon* dd = source->Allocate<Icon>("DD");
+			dd->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			dd->SetAlignedPos(Vector2(1.0f, 0.5f));
+			dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
+			dd->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			dd->GetProps().icon = ICON_ARROW_RIGHT;
+			item->AddChild(dd);
+		}
+		if (!altText.empty())
+		{
+			Text* txt = source->Allocate<Text>("Text");
+			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			txt->SetAlignedPos(Vector2(1.0f, 0.5f));
+			txt->SetPosAlignmentSourceX(PosAlignmentSource::End);
+			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			txt->GetProps().text  = altText;
+			txt->GetProps().font  = ALT_FONT_BOLD_SID;
+			txt->GetProps().color = Theme::GetDef().silent2;
+			item->AddChild(txt);
+		}
+
+		item->Initialize();
+		item->SetIsDisabled(disabled);
 
 		return item;
 	}
-
 
 	DirectionalLayout* CommonWidgets::BuildPopupItemDivider(Widget* source)
 	{

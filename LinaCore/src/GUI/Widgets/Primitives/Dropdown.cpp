@@ -150,7 +150,7 @@ namespace Lina
 		if (m_popup)
 			return;
 
-        m_popup = WidgetUtility::BuildLayoutForPopups(this);
+		m_popup = WidgetUtility::BuildLayoutForPopups(this);
 		m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
 		m_popup->GetProps().onDestructed = [this]() { m_popup = nullptr; };
 		m_manager->AddToForeground(m_popup);
@@ -198,8 +198,8 @@ namespace Lina
 			m_popup->AddChild(item);
 		}
 
-        m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
-        m_popup->Initialize();
+		m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
+		m_popup->Initialize();
 	}
 	void Dropdown::ClosePopup()
 	{

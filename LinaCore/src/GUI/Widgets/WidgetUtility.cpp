@@ -115,35 +115,35 @@ namespace Lina
 		}
 	}
 
-    void WidgetUtility::DrawDropShadowRect(int32 threadIndex, const Rect &rect, int32 drawOrder, const Color &baseColor, int32 radius)
-    {
-        Rect usedRect = rect;
-        
-        const Color endColor = Color(baseColor.x, baseColor.y, baseColor.z, 0.0f);
+	void WidgetUtility::DrawDropShadowRect(int32 threadIndex, const Rect& rect, int32 drawOrder, const Color& baseColor, int32 radius)
+	{
+		Rect usedRect = rect;
 
-        for(int32 i = 0; i < radius; i++)
-        {
-            const Color             color = Math::Lerp(baseColor, endColor, static_cast<float>(i) / static_cast<float>(radius));
-            LinaVG::StyleOptions style;
-            style.color = color.AsLVG4();
-            LinaVG::DrawRect(threadIndex, usedRect.pos.AsLVG(), usedRect.GetEnd().AsLVG(), style, 0.0f, drawOrder);
-            
-            usedRect.size += Vector2::One * 2.0f;
-            usedRect.pos -= Vector2::One * 1.0f;
-        }
-    }
+		const Color endColor = Color(baseColor.x, baseColor.y, baseColor.z, 0.0f);
 
-    DirectionalLayout* WidgetUtility::BuildLayoutForPopups(Widget* source)
-    {
-        DirectionalLayout* popup = source->Allocate<DirectionalLayout>("PopupLayout");
-        popup->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_SIZE_Y_TOTAL_CHILDREN);
-        popup->GetChildMargins() = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
-        popup->GetProps().backgroundStyle = DirectionalLayout::BackgroundStyle::Default;
-        popup->GetProps().direction = DirectionOrientation::Vertical;
-        popup->GetProps().dropShadowBackground = true;
-        popup->GetProps().backgroundAnimation = true;
-        popup->GetProps().clipChildren = true;
-        return popup;
-    }
+		for (int32 i = 0; i < radius; i++)
+		{
+			const Color			 color = Math::Lerp(baseColor, endColor, static_cast<float>(i) / static_cast<float>(radius));
+			LinaVG::StyleOptions style;
+			style.color = color.AsLVG4();
+			LinaVG::DrawRect(threadIndex, usedRect.pos.AsLVG(), usedRect.GetEnd().AsLVG(), style, 0.0f, drawOrder);
+
+			usedRect.size += Vector2::One * 2.0f;
+			usedRect.pos -= Vector2::One * 1.0f;
+		}
+	}
+
+	DirectionalLayout* WidgetUtility::BuildLayoutForPopups(Widget* source)
+	{
+		DirectionalLayout* popup = source->Allocate<DirectionalLayout>("PopupLayout");
+		popup->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		popup->GetChildMargins()			   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
+		popup->GetProps().backgroundStyle	   = DirectionalLayout::BackgroundStyle::Default;
+		popup->GetProps().direction			   = DirectionOrientation::Vertical;
+		popup->GetProps().dropShadowBackground = true;
+		popup->GetProps().backgroundAnimation  = true;
+		popup->GetProps().clipChildren		   = true;
+		return popup;
+	}
 
 } // namespace Lina

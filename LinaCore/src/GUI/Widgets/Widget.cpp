@@ -76,7 +76,11 @@ namespace Lina
 
 	void Widget::Initialize()
 	{
-        linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void { child->Initialize();  if(GetIsDisabled()) child->SetIsDisabled(true); });
+		linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void {
+			child->Initialize();
+			if (GetIsDisabled())
+				child->SetIsDisabled(true);
+		});
 	}
 
 	void Widget::Draw(int32 threadIndex)

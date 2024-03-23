@@ -33,8 +33,8 @@ SOFTWARE.
 namespace Lina
 {
 	class Rect;
-class Widget;
-class DirectionalLayout;
+	class Widget;
+	class DirectionalLayout;
 
 	class WidgetUtility
 	{
@@ -43,10 +43,10 @@ class DirectionalLayout;
 		static void DrawAlphaLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
 		static void DrawAlphaLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
 		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& centerColor, const Color& edgeColor);
-        static void DrawDropShadow(int32 threadIndex, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius);
+		static void DrawDropShadow(int32 threadIndex, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius);
 		static void DrawDropShadowRect(int32 threadIndex, const Rect& rect, int32 drawOrder, const Color& baseColor, int32 radius);
-        
-        static DirectionalLayout* BuildLayoutForPopups(Widget* source);
+
+		static DirectionalLayout* BuildLayoutForPopups(Widget* source);
 	};
 
 } // namespace Lina

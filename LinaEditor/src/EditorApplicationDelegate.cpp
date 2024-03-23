@@ -88,8 +88,8 @@ namespace Lina::Editor
 	void EditorApplicationDelegate::SetupPlatform(Application* app)
 	{
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;
-        Theme::GetDef().defaultFont              = DEFAULT_FONT_SID;
-        Theme::GetDef().altFont			  = ALT_FONT_BOLD_SID;
+		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
+		Theme::GetDef().altFont				  = ALT_FONT_BOLD_SID;
 		Theme::GetDef().iconDropdown		  = ICON_ARROW_DOWN;
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
@@ -134,7 +134,7 @@ namespace Lina::Editor
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, true, ResourceTag::Priority));
 
 		// Core
-        resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
 		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
 
@@ -162,7 +162,7 @@ namespace Lina::Editor
 		if (sid == ALT_FONT_SID || sid == ALT_FONT_BOLD_SID)
 		{
 			Font::Metadata customMeta = {
-                .points         = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+				.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
 				.isSDF	= false,
 			};
 			customMeta.SaveToStream(stream);
