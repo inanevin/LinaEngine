@@ -79,6 +79,7 @@ namespace Lina
 
 		virtual void Destruct() override;
 		virtual void Initialize() override;
+		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;

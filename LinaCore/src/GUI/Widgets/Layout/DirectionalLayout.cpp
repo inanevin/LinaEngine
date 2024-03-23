@@ -52,10 +52,9 @@ namespace Lina
 		}
 	}
 
-	void DirectionalLayout::Tick(float delta)
+	void DirectionalLayout::PreTick()
 	{
-		if (m_props.backgroundAnimation)
-			SetSizeY(Math::Lerp(0.0f, GetSizeY(), m_animValue));
+		Widget::PreTick();
 
 		if (GetIsHovered() && !m_lastHoverStatus)
 		{
@@ -67,6 +66,12 @@ namespace Lina
 			if (m_props.onHoverEnd)
 				m_props.onHoverEnd();
 		}
+	}
+
+	void DirectionalLayout::Tick(float delta)
+	{
+		if (m_props.backgroundAnimation)
+			SetSizeY(Math::Lerp(0.0f, GetSizeY(), m_animValue));
 
 		m_lastHoverStatus = GetIsHovered();
 

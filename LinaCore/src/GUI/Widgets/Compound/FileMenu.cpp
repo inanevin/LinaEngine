@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void FileMenuItem::Initialize()
 	{
 		if (m_itemData.isDivider)
@@ -86,7 +85,7 @@ namespace Lina
 			dd->SetAlignedPos(Vector2(1.0f, 0.5f));
 			dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
 			dd->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			dd->GetProps().icon = m_dropdownIcon;
+			dd->GetProps().icon = m_itemData.dropdownIcon;
 			AddChild(dd);
 		}
 
@@ -105,6 +104,17 @@ namespace Lina
 
 		Widget::Initialize();
 	}
+
+	void FileMenuItem::PreTick()
+	{
+		if (m_itemData.hasDropdown && m_isHovered && m_subPopup == nullptr)
+		{
+			Vector<Data> data;
+			m_ownerMenu->GetListener()->OnGetItemData(TO_SID(m_itemData.text), data);
+			m_subPopup = m_ownerMenu->CreatePopup(Vector2(m_rect.GetEnd().x, GetPosY()), data);
+		}
+	}
+
 	void FileMenu::Construct()
 	{
 		GetProps().direction = DirectionOrientation::Horizontal;
@@ -116,6 +126,7 @@ namespace Lina
 	{
 		DirectionalLayout::PreTick();
 
+		return;
 		int32 idx = 0;
 		for (auto* b : m_buttons)
 		{
@@ -125,7 +136,6 @@ namespace Lina
 			{
 				CloseOpenPopups();
 				m_popupOwner = b;
-				OnClickedButton(idx);
 			}
 
 			idx++;
@@ -135,7 +145,7 @@ namespace Lina
 	void FileMenu::Initialize()
 	{
 		int32 idx = 0;
-		for (const auto& item : m_fileMenuProps.items)
+		for (const auto& str : m_fileMenuProps.buttons)
 		{
 			Button* btn = Allocate<Button>("FMButton");
 			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_MAX_CHILDREN);
@@ -150,28 +160,19 @@ namespace Lina
 			btn->GetProps().colorPressed	  = Theme::GetDef().background2;
 			btn->GetProps().colorHovered	  = Theme::GetDef().background3;
 
-			btn->GetProps().onClicked = [this, idx]() { OnClickedButton(idx); };
+			btn->GetProps().onClicked = [this, btn, str]() {
+				Vector<FileMenuItem::Data> itemData;
+				m_listener->OnGetItemData(TO_SID(str), itemData);
+				CreatePopup(Vector2(btn->GetPosX(), btn->GetRect().GetEnd().y), itemData);
+			};
 
-			btn->GetText()->GetProps().text = item.baseTitle;
+			btn->GetText()->GetProps().text = str;
 			m_buttons.push_back(btn);
 			AddChild(btn);
 			idx++;
 		}
 
 		DirectionalLayout::Initialize();
-	}
-
-	Popup* FileMenu::CreatePopup(const Vector2& pos)
-	{
-		Popup* popup = Allocate<Popup>("FMPopup");
-		popup->GetFlags().Set(WF_USE_FIXED_SIZE_X);
-		popup->GetChildMargins() = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
-		popup->SetPosX(pos.x);
-		popup->SetPosY(pos.y);
-		m_manager->AddToForeground(popup);
-		m_manager->SetForegroundDim(0.0f);
-
-		return popup;
 	}
 
 	void FileMenu::CloseOpenPopups()
@@ -184,26 +185,22 @@ namespace Lina
 		m_openPopups.clear();
 	}
 
-	void FileMenu::OnClickedButton(int32 index)
+	DirectionalLayout* FileMenu::CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData)
 	{
-		m_popupOwner = static_cast<Button*>(m_children[index]);
-
 		DirectionalLayout* popup = WidgetUtility::BuildLayoutForPopups(this);
-		popup->SetPos(Vector2(m_popupOwner->GetPosX(), m_popupOwner->GetRect().GetEnd().y));
-		popup->GetProps().onDestructed = [this]() {
-			m_popupOwner = nullptr;
-			m_openPopups.clear();
-		};
-		m_openPopups.push_back(popup);
+		popup->SetPos(pos);
+		popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8);
 		m_manager->AddToForeground(popup);
 		m_manager->SetForegroundDim(0.0f);
+		popup->GetProps().onDestructed = [this]() {
 
-		const auto& subs = m_fileMenuProps.items[index].subItems;
+		};
 
-		for (const auto& subItem : subs)
+		for (const auto& subItem : subItemData)
 		{
-			FileMenuItem* it = Allocate<FileMenuItem>("FMItem");
-			it->m_ownerMenu	 = this;
+			FileMenuItem* it  = Allocate<FileMenuItem>("FMItem");
+			it->m_ownerMenu	  = this;
+			it->GetItemData() = subItem;
 
 			if (!subItem.isDivider)
 			{
@@ -222,26 +219,25 @@ namespace Lina
 			it->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 			it->SetAlignedSizeX(1.0f);
 			it->SetAlignedPosX(0.0f);
-			it->SetItemData(subItem);
-			it->SetDropdownIcon(m_fileMenuProps.dropdownIcon);
 
-			it->GetProps().onClicked = [&subItem, popup, this]() {
-				m_listener->OnItemClicked(TO_SID(subItem.text));
+			const StringID sid = TO_SID(subItem.text);
 
-				if (subItem.closesPopup && !subItem.hasDropdown)
+			it->GetProps().onClicked = [sid, popup, this]() {
+				if (m_listener->OnItemClicked(sid))
 				{
 					m_manager->RemoveFromForeground(popup);
 					Deallocate(popup);
 				}
 			};
 
-			if (m_listener->IsItemDisabled(TO_SID(subItem.text)))
+			if (m_listener->IsItemDisabled(sid))
 				it->SetIsDisabled(true);
 
 			popup->AddChild(it);
 		}
-		popup->SetFixedSizeX(Theme::GetDef().baseItemHeight * 8);
+
 		popup->Initialize();
+		return popup;
 	}
 
 } // namespace Lina

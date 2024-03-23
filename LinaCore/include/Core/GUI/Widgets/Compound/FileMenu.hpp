@@ -37,27 +37,6 @@ namespace Lina
 {
 	class Popup;
 	class Button;
-
-	class FileMenuListener
-	{
-	public:
-		virtual bool IsItemDisabled(StringID sid)
-		{
-			return false;
-		}
-		virtual void OnItemClicked(StringID sid){};
-	};
-
-	struct FileMenuSubItemData
-	{
-		String text		   = "";
-		String headerIcon  = "";
-		String altText	   = "";
-		bool   hasDropdown = false;
-		bool   isDivider   = false;
-		bool   closesPopup = true;
-	};
-
 	class FileMenu;
 
 	class FileMenuItem : public DirectionalLayout
@@ -67,29 +46,41 @@ namespace Lina
 		FileMenuItem()			= default;
 		virtual ~FileMenuItem() = default;
 
-		virtual void Initialize() override;
+		struct Data
+		{
+			String text			= "";
+			String headerIcon	= "";
+			String altText		= "";
+			String dropdownIcon = "";
+			bool   hasDropdown	= false;
+			bool   isDivider	= false;
+		};
 
-		inline void SetItemData(const FileMenuSubItemData& itemData)
+		virtual void Initialize() override;
+		virtual void PreTick() override;
+
+		Data& GetItemData()
 		{
-			m_itemData = itemData;
-		}
-		inline void SetDropdownIcon(const String& ddIcon)
-		{
-			m_dropdownIcon = ddIcon;
+			return m_itemData;
 		}
 
 	private:
 		friend class FileMenu;
 
-		FileMenu*			m_ownerMenu	   = nullptr;
-		FileMenuSubItemData m_itemData	   = {};
-		String				m_dropdownIcon = "";
+		FileMenu*		   m_ownerMenu = nullptr;
+		Data			   m_itemData  = {};
+		DirectionalLayout* m_subPopup  = nullptr;
 	};
 
-	struct FileMenuItemData
+	class FileMenuListener
 	{
-		String						baseTitle = "";
-		Vector<FileMenuSubItemData> subItems;
+	public:
+		virtual bool IsItemDisabled(StringID sid)
+		{
+			return false;
+		}
+		virtual bool OnItemClicked(StringID sid){};
+		virtual void OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData){};
 	};
 
 	class FileMenu : public DirectionalLayout
@@ -97,8 +88,7 @@ namespace Lina
 	public:
 		struct FileMenuProperties
 		{
-			String					 dropdownIcon = "";
-			Vector<FileMenuItemData> items;
+			Vector<String> buttons;
 		};
 
 		virtual void Construct() override;
@@ -121,9 +111,8 @@ namespace Lina
 		}
 
 	private:
-		void   OnClickedButton(int32 index);
-		void   CloseOpenPopups();
-		Popup* CreatePopup(const Vector2& pos);
+		void			   CloseOpenPopups();
+		DirectionalLayout* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
 
 	private:
 		// Vector<Button*>	  m_buttons	 = {};

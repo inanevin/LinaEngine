@@ -113,103 +113,17 @@ namespace Lina::Editor
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
 		projectName->AddChild(projectNameText);
 
-		// String text = "";
-		// String headerIcon = "";
-		// String altText = "";
-		// bool hasDropdown = false;
-
 		FileMenu* fm = Allocate<FileMenu>("FileMenu");
 		fm->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		fm->SetAlignedPosY(0.0f);
 		fm->SetAlignedSizeY(1.0f);
-		fm->GetFileMenuProps().dropdownIcon = ICON_ARROW_RIGHT;
 
-		/*
-
-		 {
-			 .text = Locale::GetStr(LocaleStr::NewProject),
-		 },
-		 {
-			 .text = Locale::GetStr(LocaleStr::LoadProject),
-		 },
-		 {
-			 .text = Locale::GetStr(LocaleStr::SaveProject),
-		 },
-		 {
-			 .isDivider = true,
-		 },
-		 {
-			 .text = Locale::GetStr(LocaleStr::NewWorld),
-		 },
-		 {
-			 .text = Locale::GetStr(LocaleStr::LoadWorld),
-		 },
-		 {
-			 .text = Locale::GetStr(LocaleStr::SaveWorld),
-		 },
-		 {
-			 .text = Locale::GetStr(LocaleStr::SaveWorldAs),
-		 },
-		 {
-			 .isDivider = true,
-		 },
-		 {
-			 .text = Locale::GetStr(LocaleStr::Exit),
-		 },
-
-		 */
-		fm->GetFileMenuProps().items = {
-			FileMenuItemData{
-				.baseTitle = Locale::GetStr(LocaleStr::File),
-				.subItems =
-					{
-						{
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::NewProject)},
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::LoadProject)},
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::SaveProject)},
-							FileMenuSubItemData{.isDivider = true},
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::NewWorld)},
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::LoadWorld)},
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::SaveWorld)},
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::SaveWorldAs)},
-							FileMenuSubItemData{.isDivider = true},
-							FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Exit)},
-						},
-					},
-			},
-			FileMenuItemData{
-				.baseTitle = Locale::GetStr(LocaleStr::Edit),
-				.subItems =
-					{
-
-					},
-			},
-			FileMenuItemData{
-				.baseTitle = Locale::GetStr(LocaleStr::View),
-				.subItems =
-					{
-
-					},
-			},
-			FileMenuItemData{
-				.baseTitle = Locale::GetStr(LocaleStr::Panels),
-				.subItems =
-					{
-						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Entities)},
-						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::World)},
-						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Resources)},
-						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Performance)},
-					},
-			},
-			FileMenuItemData{
-				.baseTitle = Locale::GetStr(LocaleStr::About),
-				.subItems =
-					{
-						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Website)},
-						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::Github)},
-						FileMenuSubItemData{.text = Locale::GetStr(LocaleStr::More)},
-					},
-			},
+		fm->GetFileMenuProps().buttons = {
+			Locale::GetStr(LocaleStr::File),
+			Locale::GetStr(LocaleStr::Edit),
+			Locale::GetStr(LocaleStr::View),
+			Locale::GetStr(LocaleStr::Panels),
+			Locale::GetStr(LocaleStr::About),
 		};
 
 		fm->SetListener(this);
@@ -307,90 +221,92 @@ namespace Lina::Editor
 		m_projectNameText->Initialize();
 	}
 
-	void EditorRoot::OnItemClicked(StringID sid)
+	bool EditorRoot::OnItemClicked(StringID sid)
 	{
 		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewProject)))
 		{
 			editor->OpenPopupProjectSelector(true, true);
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadProject)))
 		{
 			editor->OpenPopupProjectSelector(true, false);
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 		{
 			editor->SaveProjectChanges();
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewWorld)))
 		{
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadWorld)))
 		{
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)))
 		{
 
-			return;
+			return true;
 		}
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
 		{
 
-			return;
+			return true;
 		}
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Exit)))
 		{
 			editor->RequestExit();
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Resources)))
 		{
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entities)))
 		{
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
 		{
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Performance)))
 		{
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Website)))
 		{
 			PlatformProcess::OpenURL("https://inanevin.com");
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Github)))
 		{
 			PlatformProcess::OpenURL("https://github.com/inanevin");
-			return;
+			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::More)))
 		{
-			return;
+			return true;
 		}
+
+		return false;
 	}
 
 	bool EditorRoot::IsItemDisabled(StringID sid)
@@ -404,5 +320,86 @@ namespace Lina::Editor
 			return editor->GetCurrentWorld() == nullptr;
 
 		return false;
+	}
+
+	void EditorRoot::OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData)
+	{
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
+		{
+			outData = {
+				FileMenuItem::Data{.text = "This is my test"},
+				FileMenuItem::Data{.text = "This is my test too", .altText = "CTRL + K"},
+			};
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::File)))
+		{
+			outData = {
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewProject)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LoadProject), .altText = "CTRL + K"},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveProject), .hasDropdown = true, .dropdownIcon = ICON_ARROW_RIGHT},
+				FileMenuItem::Data{.isDivider = true},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewWorld)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LoadWorld)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorld)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorldAs)},
+				FileMenuItem::Data{.isDivider = true},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Exit)},
+			};
+			return;
+		}
+		/*
+		fm->GetFileMenuProps().buttons = {
+			FileMenuButtonData{
+				.baseTitle = Locale::GetStr(LocaleStr::File),
+				.subItems =
+					{
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::NewProject)},
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::LoadProject), .altText = "CTRL + K"},
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::SaveProject), .hasDropdown = true, .subPopup = "SaveProjectExtension"_hs},
+							FileMenuItemData{.isDivider = true},
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::NewWorld)},
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::LoadWorld)},
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::SaveWorld)},
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::SaveWorldAs)},
+							FileMenuItemData{.isDivider = true},
+							FileMenuItemData{.text = Locale::GetStr(LocaleStr::Exit)},
+					},
+			},
+			FileMenuButtonData{
+				.baseTitle = Locale::GetStr(LocaleStr::Edit),
+				.subItems =
+					{
+
+					},
+			},
+			FileMenuButtonData{
+				.baseTitle = Locale::GetStr(LocaleStr::View),
+				.subItems =
+					{
+
+					},
+			},
+			FileMenuButtonData{
+				.baseTitle = Locale::GetStr(LocaleStr::Panels),
+				.subItems =
+					{
+						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Entities)},
+						FileMenuItemData{.text = Locale::GetStr(LocaleStr::World)},
+						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Resources)},
+						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Performance)},
+					},
+			},
+			FileMenuButtonData{
+				.baseTitle = Locale::GetStr(LocaleStr::About),
+				.subItems =
+					{
+						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Website)},
+						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Github)},
+						FileMenuItemData{.text = Locale::GetStr(LocaleStr::More)},
+					},
+			},
+		};*/
 	}
 } // namespace Lina::Editor
