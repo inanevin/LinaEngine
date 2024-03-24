@@ -62,7 +62,7 @@ namespace Lina
 			m_mask &= ~m;
 		}
 
-		inline T GetValue()
+		inline T GetValue() const
 		{
 			return m_mask;
 		}

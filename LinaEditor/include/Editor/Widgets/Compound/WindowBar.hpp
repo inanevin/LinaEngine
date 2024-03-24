@@ -28,38 +28,39 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/String.hpp"
-#include "Common/Math/Color.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
-namespace Lina
-{
-	class DirectionalLayout;
-	class Widget;
-	class WidgetManager;
-} // namespace Lina
-
-namespace LinaGX
-{
-	class Window;
-}
 namespace Lina::Editor
 {
-	class GenericPopup;
-	class InfoTooltip;
-
-	class CommonWidgets
+	class WindowBar : public DirectionalLayout
 	{
 	public:
-		static DirectionalLayout* BuildWindowButtons(Widget* source);
+		WindowBar()			 = default;
+		virtual ~WindowBar() = default;
 
-		static DirectionalLayout* BuildPopupItemDefault(const String& title, Widget* source, bool disabled = false, bool hasHeadingIcon = false, const String& headingIcon = "", bool hasDropdown = false, const String& altText = "");
-		static DirectionalLayout* BuildPopupItemDivider(Widget* source);
+		struct BarProperties
+		{
+			bool   hasIcon			= false;
+			bool   hasWindowButtons = false;
+			bool   controlsDragRect = false;
+			String title			= "";
+		};
 
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
+		virtual void Construct() override;
+		virtual void Initialize() override;
+		virtual void PreTick() override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
-		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
+		inline BarProperties& GetBarProps()
+		{
+			return m_barProps;
+		}
 
-		static float GetPopupWidth(LinaGX::Window* window);
+	private:
+	private:
+		Rect			   m_dragRect	   = {};
+		BarProperties	   m_barProps	   = {};
+		DirectionalLayout* m_windowButtons = nullptr;
 	};
+
 } // namespace Lina::Editor

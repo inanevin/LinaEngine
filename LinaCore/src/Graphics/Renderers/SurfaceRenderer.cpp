@@ -117,13 +117,13 @@ namespace Lina
 	void SurfaceRenderer::PreTick()
 	{
 		m_widgetManager.PreTick();
+
+		auto ws		= m_window->GetSize();
+		m_isVisible = m_window->GetIsVisible() && ws.x != 0 && ws.y != 0 && !m_window->GetIsMinimized();
 	}
 
 	void SurfaceRenderer::Tick(float delta)
 	{
-		auto ws		= m_window->GetSize();
-		m_isVisible = m_window->GetIsVisible() && ws.x != 0 && ws.y && !m_window->GetIsMinimized();
-
 		if (m_isVisible)
 			m_widgetManager.Tick(delta, m_window->GetSize());
 	}

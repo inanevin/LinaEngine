@@ -29,6 +29,8 @@ SOFTWARE.
 #pragma once
 
 #include "Meta/EditorSettings.hpp"
+#include "Editor/Meta/EditorLayout.hpp"
+#include "Editor/CommonEditor.hpp"
 #include "Common/System/Subsystem.hpp"
 
 namespace Lina
@@ -38,7 +40,13 @@ namespace Lina
 	class GfxManager;
 	class WidgetManager;
 	class EntityWorld;
+	class Widget;
 } // namespace Lina
+
+namespace LinaGX
+{
+	class Window;
+}
 
 namespace Lina::Editor
 {
@@ -56,11 +64,17 @@ namespace Lina::Editor
 		virtual void CoreResourcesLoaded() override;
 		virtual void Shutdown() override;
 
+		// Project
 		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
-
 		void OpenProject(const String& projectFile);
 		void SaveProjectChanges();
 		void CloseCurrentProject();
+
+		// Panel
+		void OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
+		void CloseWindow(StringID sid);
+
+		// Misc
 		void RequestExit();
 
 		inline void SetIsProjectDirty(bool isDirty)
@@ -93,19 +107,26 @@ namespace Lina::Editor
 			return m_currentWorld;
 		}
 
+		inline EditorRoot* GetEditorRoot() const
+		{
+			return m_editorRoot;
+		}
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
 
 	private:
-		GfxManager*	   m_gfxManager			  = nullptr;
-		WidgetManager* m_primaryWidgetManager = nullptr;
-		EditorSettings m_settings			  = {};
-		ProjectData*   m_currentProject		  = nullptr;
-		EntityWorld*   m_currentWorld		  = nullptr;
-		bool		   m_isWorldDirty		  = false;
-		bool		   m_isProjectDirty		  = false;
-		EditorRoot*	   m_editorRoot			  = nullptr;
+		GfxManager*				m_gfxManager		   = nullptr;
+		WidgetManager*			m_primaryWidgetManager = nullptr;
+		EditorSettings			m_settings			   = {};
+		EditorLayout			m_layout			   = {};
+		ProjectData*			m_currentProject	   = nullptr;
+		EntityWorld*			m_currentWorld		   = nullptr;
+		bool					m_isWorldDirty		   = false;
+		bool					m_isProjectDirty	   = false;
+		EditorRoot*				m_editorRoot		   = nullptr;
+		Vector<LinaGX::Window*> m_windows			   = {};
 	};
 
 } // namespace Lina::Editor

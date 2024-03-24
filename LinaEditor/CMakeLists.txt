@@ -36,6 +36,7 @@ include/Editor/Widgets/Compound/ColorWheelCompound.hpp
 include/Editor/Widgets/Compound/Tab.hpp
 include/Editor/Widgets/Compound/TabRow.hpp
 include/Editor/Widgets/Compound/IconTabs.hpp
+include/Editor/Widgets/Compound/WindowBar.hpp
 include/Editor/Widgets/Docking/DockArea.hpp
 include/Editor/Widgets/Docking/DockBorder.hpp
 include/Editor/Widgets/Docking/DockWidget.hpp
@@ -45,9 +46,15 @@ include/Editor/Widgets/Popups/ProjectSelector.hpp
 include/Editor/Widgets/Popups/InfoTooltip.hpp
 include/Editor/Widgets/Popups/GenericPopup.hpp
 include/Editor/Widgets/Panel/Panel.hpp
+include/Editor/Widgets/Panel/PanelResources.hpp
+include/Editor/Widgets/Panel/PanelWorld.hpp
+include/Editor/Widgets/Panel/PanelPerformance.hpp
+include/Editor/Widgets/Panel/PanelEntities.hpp
+include/Editor/Widgets/Panel/PanelFactory.hpp
 
 # Meta
 include/Editor/Meta/EditorSettings.hpp
+include/Editor/Meta/EditorLayout.hpp
 )
 
 set(SOURCES
@@ -66,6 +73,7 @@ src/Widgets/Compound/ColorWheelCompound.cpp
 src/Widgets/Compound/TabRow.cpp
 src/Widgets/Compound/Tab.cpp
 src/Widgets/Compound/IconTabs.cpp
+src/Widgets/Compound/WindowBar.cpp
 src/Widgets/Docking/DockWidget.cpp
 src/Widgets/Docking/DockBorder.cpp
 src/Widgets/Docking/DockArea.cpp
@@ -75,9 +83,15 @@ src/Widgets/Popups/ProjectSelector.cpp
 src/Widgets/Popups/InfoTooltip.cpp
 src/Widgets/Popups/GenericPopup.cpp
 src/Widgets/Panel/Panel.cpp
+src/Widgets/Panel/PanelResources.cpp
+src/Widgets/Panel/PanelPerformance.cpp
+src/Widgets/Panel/PanelWorld.cpp
+src/Widgets/Panel/PanelEntities.cpp
+src/Widgets/Panel/PanelFactory.cpp
 
 # Meta
 src/Meta/EditorSettings.cpp
+src/Meta/EditorLayout.cpp
 )
 
 #--------------------------------------------------------------------

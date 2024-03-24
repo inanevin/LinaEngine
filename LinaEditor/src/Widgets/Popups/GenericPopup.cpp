@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
@@ -57,14 +58,15 @@ namespace Lina::Editor
 	{
 		const float padding = Theme::GetDef().baseIndent;
 
-		DirectionalLayout* titleBar = CommonWidgets::BuildWindowBar(m_popupProps.title, false, false, this);
+		WindowBar* titleBar				= Allocate<WindowBar>("WindowBar");
+		titleBar->GetBarProps().title	= m_popupProps.title;
+		titleBar->GetBarProps().hasIcon = true;
 		titleBar->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		titleBar->SetAlignedSizeX(1.0f);
 		titleBar->SetFixedSize(Theme::GetDef().baseItemHeight);
 		titleBar->GetProps().backgroundStyle	  = BackgroundStyle::Default;
 		titleBar->GetProps().colorBackgroundStart = Theme::GetDef().background0;
 		titleBar->GetProps().colorBackgroundEnd	  = Theme::GetDef().background0;
-		titleBar->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent};
 		titleBar->GetBorderThickness().bottom	  = Theme::GetDef().baseOutlineThickness;
 		titleBar->SetBorderColor(Theme::GetDef().black);
 		AddChild(titleBar);

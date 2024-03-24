@@ -69,4 +69,12 @@ namespace Lina::Editor
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f
 
+	enum class PanelType
+	{
+		Entities,
+		Resources,
+		Performance,
+		World
+	};
+
 } // namespace Lina::Editor

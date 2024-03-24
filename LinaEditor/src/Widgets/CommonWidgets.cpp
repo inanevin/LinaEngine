@@ -44,41 +44,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	DirectionalLayout* CommonWidgets::BuildWindowBar(const String& title, bool hasWindowButtons, bool hasIcon, Widget* source)
-	{
-		DirectionalLayout* layout = source->Allocate<DirectionalLayout>("WindowBar");
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
-
-		if (hasIcon)
-		{
-			Icon* icon			  = source->Allocate<Icon>("WindowBarIcon");
-			icon->GetProps().icon = ICON_LINA_LOGO;
-			icon->GetFlags().Set(WF_POS_ALIGN_Y);
-			icon->SetAlignedPosY(0.5f);
-			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			layout->AddChild(icon);
-		}
-
-		Text* text			  = source->Allocate<Text>("WindowBarTitle");
-		text->GetProps().text = title;
-		text->GetFlags().Set(WF_POS_ALIGN_Y);
-		text->SetAlignedPosY(0.5f);
-		text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		layout->AddChild(text);
-
-		if (hasWindowButtons)
-		{
-			DirectionalLayout* wb = CommonWidgets::BuildWindowButtons(source);
-			wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
-			wb->SetAlignedPosY(0.0f);
-			wb->SetAlignedSizeY(1.0f);
-			wb->SetPosAlignmentSourceX(PosAlignmentSource::End);
-			wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
-			layout->AddChild(wb);
-		}
-
-		return layout;
-	}
 
 	DirectionalLayout* CommonWidgets::BuildWindowButtons(Widget* source)
 	{
@@ -140,7 +105,7 @@ namespace Lina::Editor
 			   if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
 				   source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
 			   else
-				   source->GetWindow()->Close();
+				   source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
 		};
 		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		close->SetAlignedPosY(0.0f);

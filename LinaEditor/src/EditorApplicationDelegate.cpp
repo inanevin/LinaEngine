@@ -54,12 +54,14 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/IconTabs.hpp"
 #include "Editor/Widgets/Compound/Tab.hpp"
 #include "Editor/Widgets/Compound/TabRow.hpp"
+#include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Docking/DockPreview.hpp"
 #include "Editor/Widgets/Docking/DockWidget.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
+#include "Editor/Widgets/Popups/GenericPopup.hpp"
 
 #include "Editor/Editor.hpp"
 
@@ -118,6 +120,8 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<DockWidget>(), 25);
 		Theme::SetWidgetChunkCount(GetTypeID<SplashScreen>(), 1);
 		Theme::SetWidgetChunkCount(GetTypeID<ProjectSelector>(), 1);
+		Theme::SetWidgetChunkCount(GetTypeID<WindowBar>(), 20);
+		Theme::SetWidgetChunkCount(GetTypeID<GenericPopup>(), 10);
 
 		m_app	 = app;
 		m_editor = new Editor(m_app->GetSystem());

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/Popups/InfoTooltip.hpp"
+#include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -60,7 +61,8 @@ namespace Lina::Editor
 		base->GetProps().direction = DirectionOrientation::Vertical;
 		AddChild(base);
 
-		m_title = CommonWidgets::BuildWindowBar(Locale::GetStr(LocaleStr::ProjectSelect), false, false, this);
+		m_title						 = Allocate<WindowBar>("WindowBar");
+		m_title->GetBarProps().title = Locale::GetStr(LocaleStr::ProjectSelect);
 		m_title->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
 		m_title->SetAlignedPos(Vector2::Zero);
 		m_title->SetAlignedSizeX(1.0f);
@@ -68,7 +70,6 @@ namespace Lina::Editor
 		m_title->GetProps().backgroundStyle		 = DirectionalLayout::BackgroundStyle::Default;
 		m_title->GetProps().colorBackgroundStart = Theme::GetDef().background0;
 		m_title->GetProps().colorBackgroundEnd	 = Theme::GetDef().background0;
-		m_title->GetChildMargins()				 = {.left = Theme::GetDef().baseIndent};
 		m_title->GetBorderThickness().bottom	 = Theme::GetDef().baseOutlineThickness;
 		m_title->SetBorderColor(Theme::GetDef().black);
 		base->AddChild(m_title);

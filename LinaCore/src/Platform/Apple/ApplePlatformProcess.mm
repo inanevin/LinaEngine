@@ -131,7 +131,7 @@ int main(int argc, char* argv[])
 				if (ev)
 				{
 					// handle events here
-					[NSApp sendEvent:ev];
+					[NSApp sendEvent:ev]; // HERE ON MOUSE EVENT I CREATE THE WINDOW
 				}
 			} while (ev);
 		}

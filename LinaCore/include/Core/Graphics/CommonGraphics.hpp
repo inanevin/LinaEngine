@@ -37,7 +37,7 @@ namespace Lina
 #define GUI_TEXTURE_HUE_VERTICAL   UINT32_MAX - 2
 #define GUI_TEXTURE_COLORWHEEL	   UINT32_MAX - 3
 
-#define LINA_MAIN_SWAPCHAIN			 "LinaMainSwapchain"_hs
+#define LINA_MAIN_SWAPCHAIN			 UINT32_MAX - 1
 #define DEFAULT_SHADER_SID			 "Resources/Core/Shaders/UnlitStandard.linashader"_hs
 #define DEFAULT_SHADER_GUI			 "Resources/Core/Shaders/GUIStandard.linashader"_hs
 #define DEFAULT_SAMPLER_SID			 "Resources/Core/Samplers/DefaultSampler.linasampler"_hs

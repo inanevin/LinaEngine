@@ -58,12 +58,19 @@ namespace Lina::Editor
 		virtual bool IsItemDisabled(StringID sid) override;
 		void		 SetProjectName(const String& name);
 
+		inline Widget* GetPanelArea() const
+		{
+			return m_panelArea;
+		}
+
 	private:
-		Rect	  m_dragRect		= {};
-		FileMenu* m_fileMenu		= nullptr;
-		Widget*	  m_windowButtons	= nullptr;
-		Texture*  m_titleImage		= nullptr;
-		Text*	  m_projectNameText = nullptr;
+		Rect			   m_dragRect		 = {};
+		FileMenu*		   m_fileMenu		 = nullptr;
+		Widget*			   m_windowButtons	 = nullptr;
+		Texture*		   m_titleImage		 = nullptr;
+		Text*			   m_projectNameText = nullptr;
+		Widget*			   m_panelArea		 = nullptr;
+		DirectionalLayout* m_titleBar		 = nullptr;
 	};
 
 } // namespace Lina::Editor

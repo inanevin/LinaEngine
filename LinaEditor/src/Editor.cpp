@@ -32,7 +32,9 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
+#include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
+#include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
@@ -51,8 +53,12 @@ namespace Lina::Editor
 
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		m_settings.Initialize(this);
+		m_layout.Initialize(this);
+
 		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+		m_windows.push_back(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
 
 		// Push splash
 		Widget*		  root	 = m_primaryWidgetManager->GetRoot();
@@ -63,7 +69,9 @@ namespace Lina::Editor
 		// Load editor settings or create and save empty if non-existing.
 		const String userDataFolder = FileSystem::GetUserDataFolder();
 		const String settingsPath	= userDataFolder + "EditorSettings.linameta";
+		const String layoutPath		= userDataFolder + "EditorLayout.linameta";
 		m_settings.SetPath(settingsPath);
+		m_layout.SetPath(layoutPath);
 		if (!FileSystem::FileOrPathExists(userDataFolder))
 			FileSystem::CreateFolderInPath(userDataFolder);
 
@@ -71,6 +79,11 @@ namespace Lina::Editor
 			m_settings.LoadFromFile();
 		else
 			m_settings.SaveToFile();
+
+		if (FileSystem::FileOrPathExists(layoutPath))
+			m_layout.LoadFromFile();
+		else
+			m_layout.SaveToFile();
 	}
 
 	void Editor::CoreResourcesLoaded()
@@ -165,6 +178,7 @@ namespace Lina::Editor
 	{
 		m_isProjectDirty = false;
 		m_currentProject->SaveToFile();
+		m_settings.SaveToFile();
 	}
 
 	void Editor::CreateEmptyProjectAndOpen(const String& path)
@@ -199,8 +213,74 @@ namespace Lina::Editor
 
 	void Editor::RequestExit()
 	{
+		for (auto* w : m_windows)
+			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
+
+		m_settings.SaveToFile();
 		RemoveCurrentProject();
 		m_system->GetApp()->Quit();
+	}
+
+	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
+	{
+		// Go thru windows and try to find panel.
+
+		// Create a window & insert panel.
+
+		Vector2 pos = Vector2::Zero;
+
+		if (requestingWidget)
+			pos = requestingWidget->GetWindow()->GetPosition();
+		else
+			pos = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetPosition();
+
+		LinaGX::Window* window = m_gfxManager->CreateApplicationWindow(static_cast<StringID>(type), "Lina Editor", pos, Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessApplication, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+		m_windows.push_back(window);
+
+		Widget* newWindowRoot = m_gfxManager->GetSurfaceRenderer(static_cast<StringID>(type))->GetWidgetManager().GetRoot();
+
+		DirectionalLayout* layout = newWindowRoot->Allocate<DirectionalLayout>("BaseLayout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->GetProps().direction = DirectionOrientation::Vertical;
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		newWindowRoot->AddChild(layout);
+
+		WindowBar* wb						= newWindowRoot->Allocate<WindowBar>("WindowBar");
+		wb->GetBarProps().title				= "Lina Engine";
+		wb->GetBarProps().hasIcon			= true;
+		wb->GetBarProps().hasWindowButtons	= true;
+		wb->GetBarProps().controlsDragRect	= true;
+		wb->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
+		wb->GetProps().colorBackgroundStart = Theme::GetDef().accentPrimary0;
+		wb->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		wb->SetAlignedPosX(0.0f);
+		wb->SetAlignedSizeX(1.0f);
+		wb->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->AddChild(wb);
+		layout->Initialize();
+
+		return;
+
+		Widget* panelArea = newWindowRoot->Allocate<Widget>("PanelArea");
+		panelArea->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
+		panelArea->SetAlignedPosX(0.0f);
+		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
+		layout->AddChild(panelArea);
+
+		DockArea* dockArea = newWindowRoot->Allocate<DockArea>();
+		dockArea->SetAlignedPos(Vector2::Zero);
+		dockArea->SetAlignedSize(Vector2::One);
+		panelArea->AddChild(dockArea);
+	}
+
+	void Editor::CloseWindow(StringID sid)
+	{
+		auto it = linatl::find_if(m_windows.begin(), m_windows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });
+
+		if (it != m_windows.end())
+			m_windows.erase(it);
+		m_gfxManager->DestroyApplicationWindow(sid);
 	}
 
 } // namespace Lina::Editor

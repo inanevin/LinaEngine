@@ -38,6 +38,7 @@ SOFTWARE.
 namespace LinaGX
 {
 	class Window;
+
 	enum class InputAction;
 
 } // namespace LinaGX
@@ -51,6 +52,8 @@ namespace Lina
 {
 	class System;
 	class ResourceManager;
+	class IStream;
+	class Ostream;
 
 #define V2_GET_MUTATE(NAME, VAR)                                                                                                                                                                                                                                   \
 	inline void Set##NAME(const Vector2& sz)                                                                                                                                                                                                                       \
@@ -98,6 +101,8 @@ namespace Lina
 
 		virtual void AddChild(Widget* w);
 		virtual void RemoveChild(Widget* w);
+		virtual void SaveToStream(OStream& out) const;
+		virtual void LoadFromStream(IStream& in);
 		void		 SetIsHovered();
 		void		 DrawBorders(int32 threadIndex);
 		void		 DrawTooltip(int32 threadIndex);
@@ -209,16 +214,6 @@ namespace Lina
 		inline TypeID GetTID() const
 		{
 			return m_tid;
-		}
-
-		inline const String& GetDisplayName() const
-		{
-			return m_displayName;
-		}
-
-		inline void SetDisplayName(const String& name)
-		{
-			m_displayName = name;
 		}
 
 		inline bool GetIsPressed() const
@@ -333,7 +328,6 @@ namespace Lina
 		Bitmask32		   m_flags			 = 0;
 		Widget*			   m_next			 = nullptr;
 		Widget*			   m_prev			 = nullptr;
-		String			   m_displayName	 = "Widget";
 		Vector2			   m_alignedSize	 = Vector2::Zero;
 		Vector2			   m_alignedPos		 = Vector2::Zero;
 		TBLR			   m_childMargins	 = {};

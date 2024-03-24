@@ -40,6 +40,7 @@ namespace Lina
 namespace Lina::Editor
 {
 	class IconTabs;
+	class WindowBar;
 
 	class ProjectSelector : public Widget
 	{
@@ -77,7 +78,7 @@ namespace Lina::Editor
 	private:
 		Vector2			   m_monitorSize		   = Vector2::Zero;
 		DirectionalLayout* m_content			   = nullptr;
-		DirectionalLayout* m_title				   = nullptr;
+		WindowBar*		   m_title				   = nullptr;
 		Button*			   m_buttonCancel		   = nullptr;
 		int32			   m_selected			   = 0;
 		String			   m_projectPath		   = "";

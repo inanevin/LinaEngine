@@ -27,8 +27,12 @@ SOFTWARE.
 */
 
 #include "Editor/Meta/EditorSettings.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/Widgets/EditorRoot.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
+#include "Editor/Widgets/Docking/DockArea.hpp"
+#include "Editor/Widgets/Docking/DockBorder.hpp"
 
 namespace Lina::Editor
 {
@@ -37,11 +41,13 @@ namespace Lina::Editor
 		uint32 version = 0;
 		in >> version;
 		StringSerialization::LoadFromStream(in, m_lastProjectPath);
+       
 	}
 
 	void EditorSettings::SaveToStream(OStream& out)
 	{
 		out << VERSION;
 		StringSerialization::SaveToStream(out, m_lastProjectPath);
+       
 	}
 } // namespace Lina::Editor

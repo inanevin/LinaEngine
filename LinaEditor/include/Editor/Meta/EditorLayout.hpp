@@ -29,37 +29,26 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/String.hpp"
-#include "Common/Math/Color.hpp"
+#include "Common/Serialization/Serializable.hpp"
 
-namespace Lina
-{
-	class DirectionalLayout;
-	class Widget;
-	class WidgetManager;
-} // namespace Lina
-
-namespace LinaGX
-{
-	class Window;
-}
 namespace Lina::Editor
 {
-	class GenericPopup;
-	class InfoTooltip;
+	class Editor;
 
-	class CommonWidgets
+	class EditorLayout : public Serializable
 	{
 	public:
-		static DirectionalLayout* BuildWindowButtons(Widget* source);
+		static constexpr uint32 VERSION = 0;
+		virtual void			SaveToStream(OStream& out) override;
+		virtual void			LoadFromStream(IStream& in) override;
 
-		static DirectionalLayout* BuildPopupItemDefault(const String& title, Widget* source, bool disabled = false, bool hasHeadingIcon = false, const String& headingIcon = "", bool hasDropdown = false, const String& altText = "");
-		static DirectionalLayout* BuildPopupItemDivider(Widget* source);
+		void Initialize(Editor* editor)
+		{
+			m_editor = editor;
+		}
 
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
-
-		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
-
-		static float GetPopupWidth(LinaGX::Window* window);
+	private:
+		Editor* m_editor = nullptr;
 	};
+
 } // namespace Lina::Editor

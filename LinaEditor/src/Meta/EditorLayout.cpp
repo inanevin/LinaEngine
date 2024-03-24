@@ -26,40 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Editor/Meta/EditorLayout.hpp"
 
-#include "Common/Data/String.hpp"
-#include "Common/Math/Color.hpp"
-
-namespace Lina
-{
-	class DirectionalLayout;
-	class Widget;
-	class WidgetManager;
-} // namespace Lina
-
-namespace LinaGX
-{
-	class Window;
-}
 namespace Lina::Editor
 {
-	class GenericPopup;
-	class InfoTooltip;
-
-	class CommonWidgets
+	void EditorLayout::LoadFromStream(IStream& in)
 	{
-	public:
-		static DirectionalLayout* BuildWindowButtons(Widget* source);
+		uint32 version = 0;
+		in >> version;
+	}
 
-		static DirectionalLayout* BuildPopupItemDefault(const String& title, Widget* source, bool disabled = false, bool hasHeadingIcon = false, const String& headingIcon = "", bool hasDropdown = false, const String& altText = "");
-		static DirectionalLayout* BuildPopupItemDivider(Widget* source);
-
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
-
-		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
-
-		static float GetPopupWidth(LinaGX::Window* window);
-	};
+	void EditorLayout::SaveToStream(OStream& out)
+	{
+		out << VERSION;
+	}
 } // namespace Lina::Editor

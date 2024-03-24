@@ -137,27 +137,26 @@ namespace Lina::Editor
 		wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
 		layout1->AddChild(wb);
 
-		Widget* editorArea = Allocate<Widget>("Editor Area");
-		editorArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		editorArea->SetAlignedPosX(0.0f);
-		editorArea->SetAlignedSize(Vector2(1.0f, 0.0f));
-		AddChild(editorArea);
+		Widget* panelArea = Allocate<Widget>("Editor Area");
+		panelArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		panelArea->SetAlignedPosX(0.0f);
+		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
+		AddChild(panelArea);
 
-		DockArea* dummyDock = Allocate<DockArea>("DummyDock");
-		dummyDock->SetAlignedPos(Vector2::Zero);
-		dummyDock->SetAlignedSize(Vector2::One);
-		dummyDock->AddAsPanel(Allocate<Panel>("Widget"));
-		editorArea->AddChild(dummyDock);
+		m_panelArea = panelArea;
 
 		DirectionalLayout::Construct();
 
 		m_fileMenu		  = fm;
 		m_windowButtons	  = wb;
 		m_projectNameText = projectNameText;
+		m_titleBar		  = titleBar;
 	}
 
 	void EditorRoot::Tick(float delta)
 	{
+		m_titleBar->GetProps().colorBackgroundEnd = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+
 		DirectionalLayout::Tick(delta);
 
 		m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()));
@@ -193,7 +192,7 @@ namespace Lina::Editor
 		const Vector2 imageSize = Vector2(imageX, imageY);
 		LinaVG::DrawImage(threadIndex, m_titleImage->GetSID(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
 
-		const Rect	  imgRect = Rect(Vector2(center - imageSize * 0.5f), Vector2(center + imageSize * 0.5f));
+		const Rect	  imgRect = Rect(Vector2(center - imageSize * 0.5f), imageSize);
 		const Vector2 mp	  = Vector2(static_cast<float>(m_lgxWindow->GetMousePosition().x), static_cast<float>(m_lgxWindow->GetMousePosition().y));
 		if (imgRect.IsPointInside(mp))
 			Widget::DrawTooltip(threadIndex);
@@ -271,6 +270,7 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Resources)))
 		{
+			editor->OpenPanel(PanelType::Resources, 0, this);
 			return true;
 		}
 
@@ -340,6 +340,7 @@ namespace Lina::Editor
 				FileMenuItem::Data{
 					.text = Locale::GetStr(LocaleStr::LoadProject),
 				},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveProject)},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewWorld)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LoadWorld)},
@@ -371,56 +372,5 @@ namespace Lina::Editor
 			};
 			return;
 		}
-
-		/*
-		fm->GetFileMenuProps().buttons = {
-			FileMenuButtonData{
-				.baseTitle = Locale::GetStr(LocaleStr::File),
-				.subItems =
-					{
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::NewProject)},
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::LoadProject), .altText = "CTRL + K"},
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::SaveProject), .hasDropdown = true, .subPopup = "SaveProjectExtension"_hs},
-							FileMenuItemData{.isDivider = true},
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::NewWorld)},
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::LoadWorld)},
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::SaveWorld)},
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::SaveWorldAs)},
-							FileMenuItemData{.isDivider = true},
-							FileMenuItemData{.text = Locale::GetStr(LocaleStr::Exit)},
-					},
-			},
-			FileMenuButtonData{
-				.baseTitle = Locale::GetStr(LocaleStr::Edit),
-				.subItems =
-					{
-
-					},
-			},
-			FileMenuButtonData{
-				.baseTitle = Locale::GetStr(LocaleStr::View),
-				.subItems =
-					{
-
-					},
-			},
-			FileMenuButtonData{
-				.baseTitle = Locale::GetStr(LocaleStr::Panels),
-				.subItems =
-					{
-						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Entities)},
-						FileMenuItemData{.text = Locale::GetStr(LocaleStr::World)},
-						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Resources)},
-						FileMenuItemData{.text = Locale::GetStr(LocaleStr::Performance)},
-					},
-			},
-			FileMenuButtonData{
-				.baseTitle = Locale::GetStr(LocaleStr::About),
-				.subItems =
-					{
-
-					},
-			},
-		};*/
 	}
 } // namespace Lina::Editor
