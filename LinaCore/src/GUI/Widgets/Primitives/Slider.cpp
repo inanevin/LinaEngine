@@ -37,13 +37,19 @@ namespace Lina
 {
 	void Slider::Construct()
 	{
-		m_handle								 = m_manager->Allocate<Icon>("Handle");
-		m_handle->GetProps().isDynamic			 = true;
-		m_handle->GetProps().sdfThickness		 = 0.6f;
-		m_handle->GetProps().sdfOutlineThickness = 0.6f;
-		m_handle->GetProps().sdfOutlineColor	 = Color::Black;
-		m_handle->GetProps().icon				 = Theme::GetDef().iconSliderHandle;
-		m_handle->GetProps().textScale			 = 0.5f;
+		m_handle									= m_manager->Allocate<Icon>("Handle");
+		m_handle->GetProps().isDynamic				= true;
+		m_handle->GetProps().enableHoverPressColors = true;
+		m_handle->GetProps().colorHovered			= Theme::GetDef().accentPrimary2;
+		m_handle->GetProps().colorStart				= Theme::GetDef().accentPrimary0;
+		m_handle->GetProps().colorEnd				= Theme::GetDef().accentPrimary0;
+		m_handle->GetProps().colorPressed			= Theme::GetDef().accentPrimary0;
+		m_handle->GetProps().sdfThickness			= 0.65f;
+		// m_handle->GetProps().sdfOutlineThickness = 0.6f;
+		// m_handle->GetProps().sdfOutlineColor	 = Color::Black;
+		m_handle->GetProps().icon	   = Theme::GetDef().iconSliderHandle;
+		m_handle->GetProps().textScale = 0.5f;
+		m_handle->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
 		AddChild(m_handle);
 	}
 
@@ -84,10 +90,6 @@ namespace Lina
 		const Vector2 handlePos = m_props.direction == DirectionOrientation::Horizontal ? Vector2(m_fillEnd.x - m_handle->GetHalfSizeX(), (m_fillEnd.y + m_fillStart.y) * 0.5f - m_handle->GetHalfSizeY())
 																						: Vector2((m_fillStart.x + m_fillEnd.x) * 0.5f - m_handle->GetHalfSizeX(), m_fillStart.y - m_handle->GetHalfSizeY());
 		m_handle->SetPos(handlePos);
-
-		const bool hoverColor			= (m_handle->GetIsHovered()) && !m_isPressed;
-		m_handle->GetProps().colorStart = hoverColor ? m_props.colorHandleHovered : Math::Lerp(m_props.colorFillMin, m_props.colorFillMax, fillPercent);
-		m_handle->GetProps().colorEnd	= m_handle->GetProps().colorStart;
 	}
 
 	void Slider::Draw(int32 threadIndex)
@@ -111,6 +113,7 @@ namespace Lina
 		fill.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		LinaVG::DrawRect(threadIndex, m_fillStart.AsLVG(), m_fillEnd.AsLVG(), fill, 0.0f, m_drawOrder);
 
+		m_handle->SetDrawOrder(m_drawOrder + 1);
 		m_handle->Draw(threadIndex);
 	}
 

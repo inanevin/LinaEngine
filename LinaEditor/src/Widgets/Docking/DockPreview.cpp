@@ -103,8 +103,10 @@ namespace Lina::Editor
 
 	void DockPreview::Tick(float delta)
 	{
-		m_smallRectSize	  = SMALL_RECT_SZ * m_lgxWindow->GetDPIScale();
-		const Vector2& mp = m_lgxWindow->GetMousePosition();
+		m_smallRectSize			 = SMALL_RECT_SZ * m_lgxWindow->GetDPIScale();
+		const Vector2& absMP	 = m_lgxWindow->GetInput()->GetMousePositionAbs();
+		const Vector2  windowPos = GetWindowPos();
+		const Vector2  mp		 = absMP - windowPos;
 
 		for (int32 i = 0; i < 5; i++)
 		{

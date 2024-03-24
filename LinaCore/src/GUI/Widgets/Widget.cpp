@@ -256,6 +256,11 @@ namespace Lina
 		return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
 	}
 
+	Vector2 Widget::GetWindowPos()
+	{
+		return Vector2(static_cast<float>(m_lgxWindow->GetPosition().x), static_cast<float>(m_lgxWindow->GetPosition().y));
+	}
+
 	Rect Widget::GetTemporaryAlignedRect()
 	{
 		// When we haven't calculated our original rect from alignment just yet, but we still need to know the results immediately.

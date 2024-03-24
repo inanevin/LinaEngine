@@ -113,6 +113,7 @@ namespace Lina
 
 		Vector2 GetWindowSize();
 		Vector2 GetMonitorSize();
+		Vector2 GetWindowPos();
 
 		virtual void			   Construct(){};
 		virtual void			   Destruct(){};

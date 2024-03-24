@@ -38,6 +38,8 @@ namespace Lina::Editor
 		PanelEntities()			 = default;
 		virtual ~PanelEntities() = default;
 
+		virtual void Draw(int32 threadIndex) override;
+
 	private:
 	};
 

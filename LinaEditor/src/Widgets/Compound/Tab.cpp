@@ -61,15 +61,16 @@ namespace Lina::Editor
 		m_icon->SetAlignedPos(Vector2(1.0f, 0.5f));
 		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::End);
 		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		m_icon->GetProps().icon			  = ICON_XMARK;
-		m_icon->GetProps().textScale	  = 0.5f;
-		m_icon->GetProps().colorStart.w	  = 0.5f;
-		m_icon->GetProps().colorEnd.w	  = 0.5f;
-		m_icon->GetProps().colorHovered	  = Theme::GetDef().foreground0;
-		m_icon->GetProps().colorPressed	  = Theme::GetDef().foreground0;
-		m_icon->GetProps().colorPressed.w = 0.25f;
-		m_icon->GetProps().colorDisabled  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		m_icon->GetProps().onClicked	  = [this]() { m_ownerRow->Close(m_props.tiedWidget); };
+		m_icon->GetProps().icon					  = ICON_XMARK;
+		m_icon->GetProps().enableHoverPressColors = true;
+		m_icon->GetProps().textScale			  = 0.5f;
+		m_icon->GetProps().colorStart.w			  = 0.5f;
+		m_icon->GetProps().colorEnd.w			  = 0.5f;
+		m_icon->GetProps().colorHovered			  = Theme::GetDef().foreground0;
+		m_icon->GetProps().colorPressed			  = Theme::GetDef().foreground0;
+		m_icon->GetProps().colorPressed.w		  = 0.25f;
+		m_icon->GetProps().colorDisabled		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		m_icon->GetProps().onClicked			  = [this]() { m_ownerRow->Close(m_props.tiedWidget); };
 		layout->AddChild(m_icon);
 	}
 

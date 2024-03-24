@@ -27,8 +27,16 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelEntities.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
 
+	void PanelEntities::Draw(int32 threadIndex)
+	{
+		LinaVG::StyleOptions opts;
+		opts.color		   = Color::Blue.AsLVG4();
+		opts.color.start.w = opts.color.end.w = 0.1f;
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+	}
 } // namespace Lina::Editor

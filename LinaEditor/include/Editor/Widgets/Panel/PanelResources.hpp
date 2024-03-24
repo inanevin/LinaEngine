@@ -38,6 +38,8 @@ namespace Lina::Editor
 		PanelResources()		  = default;
 		virtual ~PanelResources() = default;
 
+		virtual void Draw(int32 threadIndex) override;
+
 	private:
 	};
 

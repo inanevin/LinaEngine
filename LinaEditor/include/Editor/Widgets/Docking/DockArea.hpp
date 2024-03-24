@@ -51,9 +51,9 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Destruct() override;
+		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
@@ -63,7 +63,7 @@ namespace Lina::Editor
 
 		void	  ShowPreview();
 		void	  HidePreview();
-		DockArea* AddDockArea(Direction direction);
+		DockArea* AddDockArea(Direction direction, Panel* panel);
 		void	  RemoveArea();
 
 	private:

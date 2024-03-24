@@ -52,6 +52,7 @@ namespace Lina::Editor
 {
 	class SplashScreen;
 	class EditorRoot;
+	class DockArea;
 
 	class EditorPayloadListener
 	{
@@ -78,6 +79,7 @@ namespace Lina::Editor
 			Widget*		payload = nullptr;
 			PayloadType type	= PayloadType::DockedPanel;
 			bool		active	= false;
+			Vector2ui	size	= Vector2ui::Zero;
 		};
 
 		Editor(System* sys) : Subsystem(sys, SubsystemType::Editor){};
@@ -97,11 +99,12 @@ namespace Lina::Editor
 		void CloseCurrentProject();
 
 		// Payload && Panel & Windows
-		void AddPayloadListener(EditorPayloadListener* listener);
-		void RemovePayloadListener(EditorPayloadListener* listener);
-		void OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
-		void CreatePayload(Widget* payload, PayloadType type);
-		void CloseWindow(StringID sid);
+		void	  AddPayloadListener(EditorPayloadListener* listener);
+		void	  RemovePayloadListener(EditorPayloadListener* listener);
+		void	  OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
+		DockArea* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
+		void	  CreatePayload(Widget* payload, PayloadType type);
+		void	  CloseWindow(StringID sid);
 
 		// Misc
 		void RequestExit();
@@ -161,6 +164,7 @@ namespace Lina::Editor
 		LinaGX::Window*				   m_payloadWindow = nullptr;
 		LinaGX::Window*				   m_mainWindow	   = nullptr;
 		Vector<EditorPayloadListener*> m_payloadListeners;
+		StringID					   m_subWindowCounter = 0;
 	};
 
 } // namespace Lina::Editor

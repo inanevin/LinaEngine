@@ -68,10 +68,7 @@ namespace Lina
 		}
 
 		m_killList.clear();
-	}
 
-	void WidgetManager::Tick(float delta, const Vector2ui& size)
-	{
 		if (m_foregroundRoot->GetChildren().empty())
 			m_window->SetCursorType(FindCursorType(m_rootWidget));
 		else
@@ -80,7 +77,10 @@ namespace Lina
 		m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 		PreTickWidget(m_foregroundRoot);
 		PreTickWidget(m_rootWidget);
+	}
 
+	void WidgetManager::Tick(float delta, const Vector2ui& size)
+	{
 		// actual tick.
 		m_debugDrawYOffset = 0.0f;
 		m_foregroundRoot->SetPos(Vector2::Zero);
@@ -88,6 +88,10 @@ namespace Lina
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 
+		if (m_rootWidget->GetWindow()->GetSID() == UINT32_MAX - 2)
+		{
+			LINA_TRACE("TICKING PAYLOAD BRUV {0} {1}", m_rootWidget->GetChildren()[0]->GetSize().x, m_rootWidget->GetChildren()[0]->GetAlignedPos().y);
+		}
 		SizePassWidget(m_foregroundRoot, delta);
 		TickWidget(m_foregroundRoot, delta);
 
@@ -276,9 +280,12 @@ namespace Lina
 			const Vector2 sz = LinaVG::CalculateTextSize(w->GetDebugName().c_str(), textOpts);
 			LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
-			const String rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
-			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + 15 + sz.x, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			const String  rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
+			const Vector2 sz2	  = LinaVG::CalculateTextSize(rectStr.c_str(), textOpts);
+			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + sz.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
+			const String drawOrder = "DO: " + TO_STRING(w->GetDrawOrder());
+			LinaVG::DrawTextNormal(threadIndex, drawOrder.c_str(), (mp + Vector2(15 + sz.x + 15 + sz2.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 			m_debugDrawYOffset += lvgFont->m_size * 1.5f;
 		}
 

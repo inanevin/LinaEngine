@@ -102,7 +102,7 @@ namespace Lina
 		LinaVG::Config.textCachingEnabled	  = true;
 		LinaVG::Config.textCachingSDFEnabled  = true;
 		LinaVG::Config.textCacheReserve		  = 10000;
-		LinaVG::Config.maxFontAtlasSize		  = 2048;
+		LinaVG::Config.maxFontAtlasSize		  = 512;
 		LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
 		LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 		LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);

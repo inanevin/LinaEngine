@@ -47,15 +47,16 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			String			 icon		   = "";
-			StringID		 font		   = Theme::GetDef().iconFont;
-			Color			 colorStart	   = Theme::GetDef().foreground0;
-			Color			 colorEnd	   = Theme::GetDef().foreground0;
-			Color			 colorHovered  = Theme::GetDef().foreground0;
-			Color			 colorPressed  = Theme::GetDef().foreground0;
-			Color			 colorDisabled = Theme::GetDef().foreground0;
-			float			 textScale	   = 0.5f;
-			bool			 isDynamic	   = false;
+			String			 icon					= "";
+			StringID		 font					= Theme::GetDef().iconFont;
+			Color			 colorStart				= Theme::GetDef().foreground0;
+			Color			 colorEnd				= Theme::GetDef().foreground0;
+			Color			 colorHovered			= Theme::GetDef().foreground0;
+			Color			 colorPressed			= Theme::GetDef().foreground0;
+			Color			 colorDisabled			= Theme::GetDef().foreground0;
+			float			 textScale				= 0.5f;
+			bool			 isDynamic				= false;
+			bool			 enableHoverPressColors = false;
 
 			Color sdfOutlineColor	  = Color::White;
 			float sdfThickness		  = 0.5f;

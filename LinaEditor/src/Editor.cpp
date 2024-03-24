@@ -38,14 +38,15 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
-#include "Common/FileSystem/FileSystem.hpp"
-#include "Common/Serialization/Serialization.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/Widgets/DockTestbed.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/Serialization/Serialization.hpp"
+#include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -118,7 +119,12 @@ namespace Lina::Editor
 			{
 				m_payloadWindow->SetVisible(true);
 				m_payloadWindow->SetAlpha(0.5f);
-				m_payloadWindow->SetSize({static_cast<uint32>(m_payloadRequest.payload->GetSize().x), static_cast<uint32>(m_payloadRequest.payload->GetSize().y)});
+				m_payloadWindow->SetSize(m_payloadRequest.size.AsLGX2UI());
+
+				m_payloadRequest.payload->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+				m_payloadRequest.payload->SetAlignedPos(Vector2::Zero);
+				m_payloadRequest.payload->SetAlignedSize(Vector2::One);
+
 				Widget* payloadRoot = m_gfxManager->GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
 				payloadRoot->AddChild(m_payloadRequest.payload);
 
@@ -132,7 +138,6 @@ namespace Lina::Editor
 			if (!m_gfxManager->GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
 			{
 				m_payloadWindow->SetVisible(false);
-				m_payloadRequest.active = false;
 
 				bool received = false;
 				for (auto* l : m_payloadListeners)
@@ -149,8 +154,22 @@ namespace Lina::Editor
 
 				if (!received)
 				{
-					m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
+					if (m_payloadRequest.type == PayloadType::DockedPanel)
+					{
+						Panel* panel = static_cast<Panel*>(m_payloadRequest.payload);
+						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
+						panel->SetAlignedPosX(0.0f);
+						panel->SetAlignedSize(Vector2(1.0f, 0.0f));
+						panel->SetAlignedPos(Vector2::Zero);
+						DockArea* area = PrepareNewWindowToDock(m_subWindowCounter++, mp, panel->GetSize(), panel->GetDebugName());
+						area->AddPanel(panel);
+					}
+					else
+						m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
 				}
+
+				m_payloadRequest = {};
 			}
 		}
 	}
@@ -164,14 +183,13 @@ namespace Lina::Editor
 		root->GetWidgetManager()->Deallocate(splash);
 
 		// Resize window to work dims.
-		// m_mainWindow->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
-		// m_mainWindow->AddSizeRequest(window->GetMonitorWorkSize());
+		// m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
+		// m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
 
-		// Testbed* tb = root->Allocate<Testbed>();
-		DockTestbed* tb = root->GetWidgetManager()->Allocate<DockTestbed>();
-		root->AddChild(tb);
-		tb->Initialize();
-		return;
+		// Testbed* tb = root->GetWidgetManager()->Allocate<Testbed>();
+		//// DockTestbed* tb = root->GetWidgetManager()->Allocate<DockTestbed>();
+		// root->AddChild(tb);
+		// tb->Initialize();
 
 		// Insert editor root.
 		m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
@@ -320,12 +338,19 @@ namespace Lina::Editor
 		else
 			pos = m_mainWindow->GetPosition();
 
-		LinaGX::Window* window = m_gfxManager->CreateApplicationWindow(static_cast<StringID>(type), "Lina Editor", pos, Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
+		DockArea* dock	= PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "");
+		Panel*	  panel = PanelFactory::CreatePanel(dock, type, subData);
+		dock->GetWindow()->SetTitle(panel->GetDebugName());
+		dock->AddPanel(panel);
+	}
+
+	DockArea* Editor::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
+	{
+		const Vector2	usedSize = size.Clamp(m_editorRoot->GetMonitorSize() * 0.1f, m_editorRoot->GetMonitorSize());
+		LinaGX::Window* window	 = m_gfxManager->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
 		m_subWindows.push_back(window);
-
-		Widget* newWindowRoot = m_gfxManager->GetSurfaceRenderer(static_cast<StringID>(type))->GetWidgetManager().GetRoot();
-
-		DirectionalLayout* layout = newWindowRoot->GetWidgetManager()->Allocate<DirectionalLayout>("BaseLayout");
+		Widget*			   newWindowRoot = m_gfxManager->GetSurfaceRenderer(sid)->GetWidgetManager().GetRoot();
+		DirectionalLayout* layout		 = newWindowRoot->GetWidgetManager()->Allocate<DirectionalLayout>("BaseLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->SetAlignedPos(Vector2::Zero);
@@ -357,10 +382,8 @@ namespace Lina::Editor
 		dockArea->SetAlignedSize(Vector2::One);
 		panelArea->AddChild(dockArea);
 
-		Panel* panel = PanelFactory::CreatePanel(dockArea, type, subData);
-		dockArea->AddPanel(panel);
+		return dockArea;
 	}
-
 	void Editor::CloseWindow(StringID sid)
 	{
 		m_windowCloseRequests.push_back(sid);
@@ -371,6 +394,7 @@ namespace Lina::Editor
 		m_payloadRequest.active	 = true;
 		m_payloadRequest.payload = payload;
 		m_payloadRequest.type	 = type;
+		m_payloadRequest.size	 = payload->GetWindow()->GetSize();
 	}
 
 } // namespace Lina::Editor

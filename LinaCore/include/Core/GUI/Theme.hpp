@@ -66,8 +66,9 @@ namespace Lina
 			// Color accentPrimary1 = Color(0.30499f, 0.04519f, 0.08438f, 1.0f); // alternative red
 			// Color accentPrimary0      = Color(0.047f, 0.007f, 0.015f, 1.0f); // alternative red
 			// Color accentPrimary0  = Color(0.16513f, 0.00972f, 0.02122f, 1.0f); // used proper red
-			Color accentPrimary0  = Color(91.0f, 0.0f, 72.0f, 255.0f, true, true);
-			Color accentPrimary1  = Color(0.14126f, 0.03071f, 0.0382f, 1.0f);
+			Color accentPrimary0 = Color(91.0f, 0.0f, 72.0f, 255.0f, true, true);
+			// Color accentPrimary1  = Color(0.14126f, 0.03071f, 0.0382f, 1.0f); // primary 1 on red color
+			Color accentPrimary1  = Color(151.0f, 0.0f, 119.0f, 255.0f, true, true);
 			Color accentPrimary2  = Color(0.34499f, 0.06519f, 0.1058f, 1.0f);
 			Color accentPrimary3  = Color(0.38499f, 0.08519f, 0.1258f, 1.0f);
 			Color accentSecondary = Color(0.332f, 0.051f, 0.089f, 1.0f);

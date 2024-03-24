@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Data/CommonData.hpp"
@@ -138,18 +139,25 @@ namespace Lina::Editor
 		}
 	}
 
+	void DockArea::PreTick()
+	{
+		if (m_payloadActive)
+		{
+			if (m_preview == nullptr)
+				ShowPreview();
+		}
+		else
+		{
+			if (m_preview != nullptr)
+				HidePreview();
+		}
+	}
+
 	void DockArea::Tick(float delta)
 	{
 		if (m_parent == nullptr)
 			return;
 
-		if (m_payloadActive)
-		{
-			if (m_preview == nullptr)
-			{
-				ShowPreview();
-			}
-		}
 		// Omit tab row.
 		// if (m_selectedChildren == nullptr && m_children.size() == 2)
 		// 	m_selectedChildren = m_children[1];
@@ -186,7 +194,11 @@ namespace Lina::Editor
 		m_manager->SetClip(threadIndex, m_rect, {});
 
 		if (m_selectedPanel)
+		{
+			const Color ds = Color(Theme::GetDef().black.x, Theme::GetDef().black.y, Theme::GetDef().black.z, 0.5f);
+			WidgetUtility::DrawDropShadow(threadIndex, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder + 1, ds, 6);
 			m_selectedPanel->Draw(threadIndex);
+		}
 
 		m_manager->UnsetClip(threadIndex);
 
@@ -223,40 +235,6 @@ namespace Lina::Editor
 		m_preview = nullptr;
 	}
 
-	bool DockArea::OnMouse(uint32 button, LinaGX::InputAction action)
-	{
-		// return Widget::OnMouse(button, action);
-
-		if (button == LINAGX_MOUSE_1)
-		{
-			if (m_isHovered && action == LinaGX::InputAction::Pressed)
-			{
-				ShowPreview();
-				return true;
-			}
-			else
-			{
-				if (m_preview)
-				{
-					bool	  isPreviewHovered = false;
-					Direction hoveredDirection = Direction::Center;
-					m_preview->GetHoveredDirection(hoveredDirection, isPreviewHovered);
-					if (isPreviewHovered)
-					{
-						DockArea*	 area = AddDockArea(hoveredDirection);
-						static int	 ctr  = 0;
-						const String str  = "DockArea" + TO_STRING(ctr++);
-						area->SetDebugName(str);
-					}
-					HidePreview();
-					return true;
-				}
-			}
-		}
-
-		return Widget::OnMouse(button, action);
-	}
-
 	void DockArea::OnPayloadStarted(PayloadType type, Widget* payload)
 	{
 		if (type == PayloadType::DockedPanel)
@@ -270,20 +248,29 @@ namespace Lina::Editor
 
 	bool DockArea::OnPayloadDropped(PayloadType type, Widget* payload)
 	{
+		if (type == PayloadType::DockedPanel && m_preview)
+		{
+			Direction hoveredDir = Direction::Center;
+			bool	  isHovered	 = false;
+			m_preview->GetHoveredDirection(hoveredDir, isHovered);
 
+			if (isHovered)
+			{
+				// Detach & attach
+				payload->GetFlags().Remove(WF_POS_ALIGN_Y);
+				payload->GetParent()->RemoveChild(payload);
+				AddDockArea(hoveredDir, static_cast<Panel*>(payload));
+				return true;
+			}
+		}
 		return false;
 	}
 
-	DockArea* DockArea::AddDockArea(Direction direction)
+	DockArea* DockArea::AddDockArea(Direction direction, Panel* panel)
 	{
 		if (direction == Direction::Center)
 		{
-			static int	 ctr = 0;
-			const String dn	 = "DummyContent" + TO_STRING(ctr);
-			ctr++;
-			Panel* dummy = m_manager->Allocate<Panel>(dn);
-			AddPanel(dummy);
-			// Steal the contents of the dock area and return this.
+			AddPanel(panel);
 			return this;
 		}
 
@@ -364,8 +351,7 @@ namespace Lina::Editor
 			m_parent->AddChild(border);
 		}
 
-		Panel* dummy = m_manager->Allocate<Panel>("DummyContent");
-		area->AddPanel(dummy);
+		area->AddPanel(panel);
 		m_parent->AddChild(area);
 		FixAreaChildMargins();
 		return area;
