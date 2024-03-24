@@ -47,7 +47,7 @@ namespace Lina::Editor
 
 		if (m_barProps.hasIcon)
 		{
-			Icon* icon			  = Allocate<Icon>("WindowBarIcon");
+			Icon* icon			  = m_manager->Allocate<Icon>("WindowBarIcon");
 			icon->GetProps().icon = ICON_LINA_LOGO;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
@@ -55,7 +55,7 @@ namespace Lina::Editor
 			AddChild(icon);
 		}
 
-		Text* text			  = Allocate<Text>("WindowBarTitle");
+		Text* text			  = m_manager->Allocate<Text>("WindowBarTitle");
 		text->GetProps().text = m_barProps.title;
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);

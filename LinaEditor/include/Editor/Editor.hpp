@@ -53,15 +53,33 @@ namespace Lina::Editor
 	class SplashScreen;
 	class EditorRoot;
 
+    class EditorPayloadListener
+    {
+    public:
+        
+        virtual void OnPayloadEnabled(PayloadType type, Widget* payload) { return false; }
+        virtual bool OnPayloadDropped(PayloadType type, Widget* payload) { return false; }
+    };
+
 	class Editor : public Subsystem
 	{
 	public:
+        
+        struct PayloadRequest
+        {
+            Widget* payload = nullptr;
+            PayloadType type = PayloadType::DockedPanel;
+            bool active = false;
+        };
+        
 		Editor(System* sys) : Subsystem(sys, SubsystemType::Editor){};
 		virtual ~Editor() = default;
 
 		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+        virtual void PreTick() override;
 		virtual void CoreResourcesLoaded() override;
+        virtual void PreShutdown() override;
 		virtual void Shutdown() override;
 
 		// Project
@@ -70,10 +88,14 @@ namespace Lina::Editor
 		void SaveProjectChanges();
 		void CloseCurrentProject();
 
-		// Panel
+		// Payload && Panel & Windows
+        void AddPayloadListener(EditorPayloadListener* listener);
+        void RemovePayloadListener(EditorPayloadListener* listener);
 		void OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
+        void CreatePayload(Widget* payload, PayloadType type);
 		void CloseWindow(StringID sid);
-
+        
+        
 		// Misc
 		void RequestExit();
 
@@ -126,7 +148,12 @@ namespace Lina::Editor
 		bool					m_isWorldDirty		   = false;
 		bool					m_isProjectDirty	   = false;
 		EditorRoot*				m_editorRoot		   = nullptr;
-		Vector<LinaGX::Window*> m_windows			   = {};
+		Vector<LinaGX::Window*> m_subWindows			   = {};
+        Vector<StringID> m_windowCloseRequests;
+        PayloadRequest m_payloadRequest;
+        LinaGX::Window* m_payloadWindow = nullptr;
+        LinaGX::Window* m_mainWindow = nullptr;
+        Vector<EditorPayloadListener*> m_payloadListeners;
 	};
 
 } // namespace Lina::Editor

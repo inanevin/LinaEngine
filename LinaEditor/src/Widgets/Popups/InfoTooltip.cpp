@@ -54,7 +54,7 @@ namespace Lina::Editor
 	void InfoTooltip::Initialize()
 	{
 		// Icon
-		m_icon = Allocate<Icon>("InfoIcon");
+		m_icon = m_manager->Allocate<Icon>("InfoIcon");
 		m_icon->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		m_icon->SetAlignedPosY(0.5f);
@@ -80,7 +80,7 @@ namespace Lina::Editor
 		AddChild(m_icon);
 
 		// Text
-		m_text = Allocate<Text>("InfoText");
+		m_text = m_manager->Allocate<Text>("InfoText");
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		m_text->SetAlignedPosY(0.5f);

@@ -43,19 +43,19 @@ namespace Lina::Editor
 		m_resourceManager->GetSystem()->AddListener(this);
 		m_totalResourceSize = static_cast<uint32>(m_resourceManager->GetCoreResources().size());
 
-		m_versionText				   = Allocate<Text>();
+		m_versionText				   = m_manager->Allocate<Text>();
 		m_versionText->GetProps().text = "v." + TO_STRING(LINA_VERSION_MAJOR) + "." + TO_STRING(LINA_VERSION_MINOR) + "." + TO_STRING(LINA_VERSION_PATCH);
 		AddChild(m_versionText);
 
-		m_infoText1					 = Allocate<Text>();
+		m_infoText1					 = m_manager->Allocate<Text>();
 		m_infoText1->GetProps().text = "Inan Evin [2018-] (c)";
 		AddChild(m_infoText1);
 
-		m_infoText2					 = Allocate<Text>();
+		m_infoText2					 = m_manager->Allocate<Text>();
 		m_infoText2->GetProps().text = "https://github.com/inanevin/LinaEngine";
 		AddChild(m_infoText2);
 
-		m_loadingInfo = Allocate<Text>();
+		m_loadingInfo = m_manager->Allocate<Text>();
 		AddChild(m_loadingInfo);
 
 		m_splashImage	  = m_resourceManager->GetResource<Texture>("Resources/Editor/Textures/LinaLogoTitle.png"_hs);

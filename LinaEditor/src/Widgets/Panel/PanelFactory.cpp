@@ -35,18 +35,18 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	Panel* PanelFactory::CreatePanel(PanelType type, StringID subData)
+	Panel* PanelFactory::CreatePanel(Widget* source, PanelType type, StringID subData)
 	{
 		switch (type)
 		{
 		case PanelType::Performance:
-			return new PanelPerformance();
+			return source->GetWidgetManager()->Allocate<PanelPerformance>("Performance");
 		case PanelType::Resources:
-			return new PanelResources();
+			return source->GetWidgetManager()->Allocate<PanelPerformance>("Resources");
 		case PanelType::World:
-			return new PanelWorld();
+			return source->GetWidgetManager()->Allocate<PanelPerformance>("World");
 		case PanelType::Entities:
-			return new PanelEntities();
+			return source->GetWidgetManager()->Allocate<PanelEntities>("Entities");
 		default:
 			return nullptr;
 		}

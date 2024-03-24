@@ -58,7 +58,7 @@ namespace Lina::Editor
 	{
 		const float padding = Theme::GetDef().baseIndent;
 
-		WindowBar* titleBar				= Allocate<WindowBar>("WindowBar");
+		WindowBar* titleBar				= m_manager->Allocate<WindowBar>("WindowBar");
 		titleBar->GetBarProps().title	= m_popupProps.title;
 		titleBar->GetBarProps().hasIcon = true;
 		titleBar->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
@@ -71,12 +71,12 @@ namespace Lina::Editor
 		titleBar->SetBorderColor(Theme::GetDef().black);
 		AddChild(titleBar);
 
-		Text* text = Allocate<Text>("Description");
+		Text* text = m_manager->Allocate<Text>("Description");
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->GetProps().text	  = m_popupProps.text;
 		text->GetProps().maxWidth = GetFixedSizeX() - padding * 2.0f;
 
-		DirectionalLayout* textWrapper = Allocate<DirectionalLayout>("Text Wrapper");
+		DirectionalLayout* textWrapper = m_manager->Allocate<DirectionalLayout>("Text Wrapper");
 		textWrapper->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
 		textWrapper->SetAlignedSizeX(1.0f);
 		textWrapper->SetAlignedPosX(0.0f);
@@ -84,7 +84,7 @@ namespace Lina::Editor
 		textWrapper->AddChild(text);
 		AddChild(textWrapper);
 
-		m_buttonsRow = Allocate<DirectionalLayout>("Buttons Row");
+		m_buttonsRow = m_manager->Allocate<DirectionalLayout>("Buttons Row");
 		m_buttonsRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		m_buttonsRow->SetAlignedPosX(0.0f);
 		m_buttonsRow->SetAlignedSizeX(1.0f);
@@ -92,7 +92,7 @@ namespace Lina::Editor
 		m_buttonsRow->GetProps().mode = DirectionalLayout::Mode::EqualPositions;
 		AddChild(m_buttonsRow);
 
-		Widget* spacer = Allocate<Widget>("Spacer");
+		Widget* spacer = m_manager->Allocate<Widget>("Spacer");
 		AddChild(spacer);
 
 		DirectionalLayout::Initialize();
@@ -101,7 +101,7 @@ namespace Lina::Editor
 	void GenericPopup::AddButton(const ButtonProps& buttonProps)
 	{
 		const float padding				= Theme::GetDef().baseIndent;
-		Button*		btn					= Allocate<Button>("Button");
+		Button*		btn					= m_manager->Allocate<Button>("Button");
 		btn->GetText()->GetProps().text = buttonProps.text;
 		btn->GetProps().onClicked		= [buttonProps, this]() {
 			  if (buttonProps.onClicked)

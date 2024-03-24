@@ -47,11 +47,11 @@ namespace Lina::Editor
 
 	DirectionalLayout* CommonWidgets::BuildWindowButtons(Widget* source)
 	{
-		DirectionalLayout* layout	 = source->Allocate<DirectionalLayout>("WindowButtons");
+		DirectionalLayout* layout	 = source->GetWidgetManager()->Allocate<DirectionalLayout>("WindowButtons");
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
 
-		Button* min							 = source->Allocate<Button>("Minimize");
+		Button* min							 = source->GetWidgetManager()->Allocate<Button>("Minimize");
 		min->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
 		min->GetText()->GetProps().text		 = ICON_MINIMIZE;
 		min->GetText()->GetProps().textScale = 0.5f;
@@ -67,7 +67,7 @@ namespace Lina::Editor
 		min->SetAlignedSizeY(1.0f);
 		layout->AddChild(min);
 
-		Button* max							 = source->Allocate<Button>();
+		Button* max							 = source->GetWidgetManager()->Allocate<Button>();
 		max->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
 		max->GetText()->GetProps().text		 = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
 		max->GetText()->GetProps().textScale = 0.5f;
@@ -91,7 +91,7 @@ namespace Lina::Editor
 		max->SetAlignedSizeY(1.0f);
 		layout->AddChild(max);
 
-		Button* close						   = source->Allocate<Button>();
+		Button* close						   = source->GetWidgetManager()->Allocate<Button>();
 		close->GetText()->GetProps().font	   = Theme::GetDef().iconFont;
 		close->GetText()->GetProps().text	   = ICON_XMARK;
 		close->GetText()->GetProps().textScale = 0.5f;
@@ -117,7 +117,7 @@ namespace Lina::Editor
 
 	DirectionalLayout* CommonWidgets::BuildPopupItemDefault(const String& title, Widget* source, bool disabled, bool hasHeadingIcon, const String& headingIcon, bool hasDropdown, const String& altText)
 	{
-		DirectionalLayout* item = source->Allocate<DirectionalLayout>("PopupItemLayout");
+		DirectionalLayout* item = source->GetWidgetManager()->Allocate<DirectionalLayout>("PopupItemLayout");
 		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
 		item->SetAlignedPosX(0.0f);
 		item->SetAlignedSizeX(1.0f);
@@ -134,7 +134,7 @@ namespace Lina::Editor
 		{
 			if (headingIcon.empty())
 			{
-				Widget* empty = source->Allocate<Widget>("Empty");
+				Widget* empty = source->GetWidgetManager()->Allocate<Widget>("Empty");
 				empty->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
 				empty->SetAlignedPosY(0.0f);
 				empty->SetAlignedSizeY(1.0f);
@@ -143,7 +143,7 @@ namespace Lina::Editor
 			}
 			else
 			{
-				Icon* icon = source->Allocate<Icon>("Icon");
+				Icon* icon = source->GetWidgetManager()->Allocate<Icon>("Icon");
 				icon->GetFlags().Set(WF_POS_ALIGN_Y);
 				icon->SetAlignedPosY(0.5f);
 				icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
@@ -151,7 +151,7 @@ namespace Lina::Editor
 			}
 		}
 
-		Text* txt = source->Allocate<Text>("Text");
+		Text* txt = source->GetWidgetManager()->Allocate<Text>("Text");
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
 		txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
@@ -161,7 +161,7 @@ namespace Lina::Editor
 
 		if (hasDropdown)
 		{
-			Icon* dd = source->Allocate<Icon>("DD");
+			Icon* dd = source->GetWidgetManager()->Allocate<Icon>("DD");
 			dd->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			dd->SetAlignedPos(Vector2(1.0f, 0.5f));
 			dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
@@ -171,7 +171,7 @@ namespace Lina::Editor
 		}
 		if (!altText.empty())
 		{
-			Text* txt = source->Allocate<Text>("Text");
+			Text* txt = source->GetWidgetManager()->Allocate<Text>("Text");
 			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			txt->SetAlignedPos(Vector2(1.0f, 0.5f));
 			txt->SetPosAlignmentSourceX(PosAlignmentSource::End);
@@ -190,13 +190,13 @@ namespace Lina::Editor
 
 	DirectionalLayout* CommonWidgets::BuildPopupItemDivider(Widget* source)
 	{
-		DirectionalLayout* item = source->Allocate<DirectionalLayout>("Divider");
+		DirectionalLayout* item = source->GetWidgetManager()->Allocate<DirectionalLayout>("Divider");
 		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
 		item->SetAlignedPosX(0.0f);
 		item->SetAlignedSizeX(1.0f);
 		item->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
 
-		ShapeRect* rect = source->Allocate<ShapeRect>("Shape");
+		ShapeRect* rect = source->GetWidgetManager()->Allocate<ShapeRect>("Shape");
 		rect->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		rect->SetAlignedSize(Vector2(1.0f, 0.25f));
 		rect->SetAlignedPosY(0.5f);
@@ -209,7 +209,7 @@ namespace Lina::Editor
 
 	InfoTooltip* CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source)
 	{
-		InfoTooltip* inf			 = source->Allocate<InfoTooltip>("InfoTooltip");
+		InfoTooltip* inf			 = source->GetWidgetManager()->Allocate<InfoTooltip>("InfoTooltip");
 		inf->GetTooltipProps().text	 = str;
 		inf->GetTooltipProps().level = level;
 		inf->GetTooltipProps().time	 = time;
@@ -257,7 +257,7 @@ namespace Lina::Editor
 
 	InfoTooltip* CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos)
 	{
-		InfoTooltip* inf				 = manager->GetForegroundRoot()->Allocate<InfoTooltip>("InfoTooltip");
+		InfoTooltip* inf				 = manager->Allocate<InfoTooltip>("InfoTooltip");
 		inf->GetTooltipProps().text		 = str;
 		inf->GetTooltipProps().level	 = level;
 		inf->GetTooltipProps().time		 = time;
@@ -275,7 +275,7 @@ namespace Lina::Editor
 
 	GenericPopup* CommonWidgets::ThrowGenericPopup(const String& title, const String& text, Widget* source)
 	{
-		GenericPopup* pp		  = source->Allocate<GenericPopup>("GenericPopup");
+		GenericPopup* pp		  = source->GetWidgetManager()->Allocate<GenericPopup>("GenericPopup");
 		pp->GetPopupProps().text  = text;
 		pp->GetPopupProps().title = title;
 		pp->Initialize();

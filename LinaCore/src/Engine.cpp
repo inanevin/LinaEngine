@@ -92,13 +92,25 @@ namespace Lina
 		m_resourceManager.Shutdown();
 		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
+
+		for (auto [type, sys] : m_subsystems)
+		{
+			if (sys == &m_resourceManager || sys == &m_gfxManager || sys == &m_audioManager)
+				continue;
+
+			sys->Shutdown();
+		}
+
 		RemoveListener(this);
 	}
 
 	void Engine::PreTick()
 	{
 		PROFILER_FUNCTION();
-		m_gfxManager.PreTick();
+
+		for (auto [type, sys] : m_subsystems)
+			sys->PreTick();
+
 		CalculateTime();
 	}
 

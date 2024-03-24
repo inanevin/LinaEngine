@@ -38,7 +38,7 @@ namespace Lina::Editor
 
 		for (const auto& ic : m_tabProps.icons)
 		{
-			Button* btn = Allocate<Button>("IconButton");
+			Button* btn = m_manager->Allocate<Button>("IconButton");
 			SetButtonColors(btn, idx == m_tabProps.selected);
 			btn->GetProps().onClicked = [this, idx]() {
 				// Set colors.

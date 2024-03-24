@@ -124,18 +124,6 @@ namespace Lina
 			return LinaGX::CursorType::Default;
 		}
 
-		template <typename T> T* Allocate(const String& dbgName = "Widget")
-		{
-			T* t = m_manager->Allocate<T>();
-			t->SetDebugName(dbgName);
-			return t;
-		}
-
-		void Deallocate(Widget* w)
-		{
-			m_manager->Deallocate(w);
-		}
-
 		template <typename... Args> void AddChild(Args&&... args)
 		{
 			(AddChild(std::forward<Widget*>(args)), ...);

@@ -54,14 +54,14 @@ namespace Lina::Editor
 
 		m_monitorSize = GetMonitorSize();
 
-		DirectionalLayout* base = Allocate<DirectionalLayout>("Base");
+		DirectionalLayout* base = m_manager->Allocate<DirectionalLayout>("Base");
 		base->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		base->SetAlignedSize(Vector2::One);
 		base->SetAlignedPos(Vector2::Zero);
 		base->GetProps().direction = DirectionOrientation::Vertical;
 		AddChild(base);
 
-		m_title						 = Allocate<WindowBar>("WindowBar");
+		m_title						 = m_manager->Allocate<WindowBar>("WindowBar");
 		m_title->GetBarProps().title = Locale::GetStr(LocaleStr::ProjectSelect);
 		m_title->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_CONTROLS_DRAW_ORDER);
 		m_title->SetAlignedPos(Vector2::Zero);
@@ -74,14 +74,14 @@ namespace Lina::Editor
 		m_title->SetBorderColor(Theme::GetDef().black);
 		base->AddChild(m_title);
 
-		DirectionalLayout* bottom = Allocate<DirectionalLayout>("Bottom");
+		DirectionalLayout* bottom = m_manager->Allocate<DirectionalLayout>("Bottom");
 		bottom->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		bottom->SetAlignedPosX(0.0f);
 		bottom->SetAlignedSizeX(1.0f);
 		bottom->SetAlignedSizeY(0.0f);
 		base->AddChild(bottom);
 
-		IconTabs* iconTabs					 = Allocate<IconTabs>("IconTabs");
+		IconTabs* iconTabs					 = m_manager->Allocate<IconTabs>("IconTabs");
 		iconTabs->GetTabProps().icons		 = {ICON_FOLDER_PLUS, ICON_FOLDER_OPEN};
 		iconTabs->GetTabProps().tooltips	 = {Locale::GetStr(LocaleStr::CreateNewProject), Locale::GetStr(LocaleStr::OpenExistingProject)};
 		iconTabs->GetTabProps().iconScale	 = 0.75f;
@@ -146,20 +146,20 @@ namespace Lina::Editor
 
 	DirectionalLayout* ProjectSelector::BuildLocationSelectRow(const String& dialogTitle, bool isSave)
 	{
-		Text* label			   = Allocate<Text>();
+		Text* label			   = m_manager->Allocate<Text>();
 		label->GetProps().text = Locale::GetStr(LocaleStr::Location);
 		label->GetFlags().Set(WF_POS_ALIGN_Y);
 		label->SetAlignedPosY(0.5f);
 		label->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 
-		InputField* input = Allocate<InputField>();
+		InputField* input = m_manager->Allocate<InputField>();
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		input->SetAlignedSize(Vector2(0.0f, 1.0f));
 		input->SetAlignedPos(Vector2(0.0f, 0.0f));
 		input->GetProps().onEditEnd		  = [this](const String& str) { m_projectPath = str; };
 		input->GetText()->GetProps().text = m_projectPath;
 
-		Button* btn							 = Allocate<Button>();
+		Button* btn							 = m_manager->Allocate<Button>();
 		btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
 		btn->GetText()->GetProps().text		 = ICON_FOLDER_OPEN;
 		btn->GetText()->GetProps().textScale = 0.5f;
@@ -203,14 +203,14 @@ namespace Lina::Editor
 		};
 		btn->SetTooltip(Locale::GetStr(LocaleStr::SelectDirectory));
 
-		DirectionalLayout* rightRow = Allocate<DirectionalLayout>("RightSide");
+		DirectionalLayout* rightRow = m_manager->Allocate<DirectionalLayout>("RightSide");
 		rightRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		rightRow->SetAlignedSize(Vector2(0.8f, 1.0f));
 		rightRow->SetAlignedPos(Vector2(0.2f, 0.0f));
 		rightRow->SetChildPadding(Theme::GetDef().baseIndent);
 		rightRow->AddChild(input, btn);
 
-		DirectionalLayout* row = Allocate<DirectionalLayout>("LocationSelectRow");
+		DirectionalLayout* row = m_manager->Allocate<DirectionalLayout>("LocationSelectRow");
 		row->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		row->SetAlignedSizeX(1.0f);
 		row->SetAlignedPosX(0.0f);
@@ -225,7 +225,7 @@ namespace Lina::Editor
 	DirectionalLayout* ProjectSelector::BuildButtonsRow(bool isCreate)
 	{
 		// Button row.
-		Button* buttonCreate					 = Allocate<Button>();
+		Button* buttonCreate					 = m_manager->Allocate<Button>();
 		buttonCreate->GetText()->GetProps().text = Locale::GetStr(isCreate ? LocaleStr::Create : LocaleStr::Open);
 		buttonCreate->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 		buttonCreate->SetAlignedSizeY(1.0f);
@@ -256,7 +256,7 @@ namespace Lina::Editor
 			m_manager->AddToKillList(this);
 		};
 
-		m_buttonCancel							   = Allocate<Button>();
+		m_buttonCancel							   = m_manager->Allocate<Button>();
 		m_buttonCancel->GetText()->GetProps().text = Locale::GetStr(m_isCancellable ? LocaleStr::Cancel : LocaleStr::ExitEditor);
 		m_buttonCancel->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 		m_buttonCancel->SetAlignedSizeY(1.0f);
@@ -270,7 +270,7 @@ namespace Lina::Editor
 				m_system->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
 		};
 
-		DirectionalLayout* row = Allocate<DirectionalLayout>();
+		DirectionalLayout* row = m_manager->Allocate<DirectionalLayout>();
 		row->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		row->SetAlignedSizeX(1.0f);
 		row->SetAlignedPosX(0.0f);
@@ -283,7 +283,7 @@ namespace Lina::Editor
 
 	DirectionalLayout* ProjectSelector::BuildContentCreateNew()
 	{
-		DirectionalLayout* contentLayout	= Allocate<DirectionalLayout>("ContentLayout");
+		DirectionalLayout* contentLayout	= m_manager->Allocate<DirectionalLayout>("ContentLayout");
 		contentLayout->GetProps().direction = DirectionOrientation::Vertical;
 		contentLayout->GetProps().mode		= DirectionalLayout::Mode::EqualPositions;
 		contentLayout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
@@ -296,7 +296,7 @@ namespace Lina::Editor
 
 	DirectionalLayout* ProjectSelector::BuildContentOpen()
 	{
-		DirectionalLayout* contentLayout	= Allocate<DirectionalLayout>("ContentLayout");
+		DirectionalLayout* contentLayout	= m_manager->Allocate<DirectionalLayout>("ContentLayout");
 		contentLayout->GetProps().direction = DirectionOrientation::Vertical;
 		contentLayout->GetProps().mode		= DirectionalLayout::Mode::EqualPositions;
 		contentLayout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
@@ -322,7 +322,7 @@ namespace Lina::Editor
 		{
 			parent = m_content->GetParent();
 			parent->RemoveChild(m_content);
-			Deallocate(m_content);
+            m_manager->Deallocate(m_content);
 			m_content = nullptr;
 		}
 

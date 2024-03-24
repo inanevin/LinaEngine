@@ -46,6 +46,7 @@ namespace Lina
 	class System;
 	class ResourceManager;
 	class Font;
+	class GfxManager;
 
 	class WidgetManager : public LinaGX::WindowListener
 	{
@@ -62,9 +63,25 @@ namespace Lina
 		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
 		void UnsetClip(int32 threadIndex);
 		void AddToKillList(Widget* w);
-
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
+
+		template <typename T> T* Allocate(const String& debugName = "Widget")
+		{
+			const TypeID   tid	 = GetTypeID<T>();
+			PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
+			T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
+			t->SetDebugName(debugName);
+			t->m_lgxWindow		 = m_window;
+			t->m_manager		 = this;
+			t->m_system			 = m_system;
+			t->m_resourceManager = m_resourceManager;
+			t->m_tid			 = tid;
+			t->Construct();
+			return t;
+		}
+
+		void Deallocate(Widget* widget);
 
 		inline Widget* GetRoot()
 		{
@@ -131,49 +148,26 @@ namespace Lina
 		void			   PreTickWidget(Widget* w);
 		void			   TickWidget(Widget* w, float delta);
 
-		void SizePassWidget(Widget* w, float delta);
+		void		   SizePassWidget(Widget* w, float delta);
+		PoolAllocator* GetGUIAllocator(TypeID tid, size_t typeSize);
 
 	private:
 		friend class Widget;
 
-		template <typename T> T* Allocate()
-		{
-			const TypeID tid = GetTypeID<T>();
-
-			PoolAllocator*& alloc = m_allocators[tid];
-
-			if (alloc == nullptr)
-			{
-				alloc = new PoolAllocator(sizeof(T) * Theme::GetWidgetChunkCount(tid), sizeof(T));
-				alloc->Init();
-			}
-
-			T* t				 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
-			t->m_lgxWindow		 = m_window;
-			t->m_manager		 = this;
-			t->m_system			 = m_system;
-			t->m_resourceManager = m_resourceManager;
-			t->m_tid			 = tid;
-			t->Construct();
-			return t;
-		}
-
-		void Deallocate(Widget* widget);
-
 	private:
-		HashMap<TypeID, PoolAllocator*> m_allocators;
-		LinaGX::Window*					m_window		  = nullptr;
-		Widget*							m_rootWidget	  = nullptr;
-		Widget*							m_foregroundRoot  = nullptr;
-		System*							m_system		  = nullptr;
-		Widget*							m_deepestHovered  = nullptr;
-		ResourceManager*				m_resourceManager = nullptr;
-		Widget*							m_controlsOwner	  = nullptr;
-		Vector<ClipData>				m_clipStack;
-		float							m_debugDrawYOffset = 0.0f;
-		float							m_foregroundDim	   = 0.0f;
-		Font*							m_defaultFont	   = nullptr;
-		Vector<Widget*>					m_killList		   = {};
+		LinaGX::Window*	 m_window		   = nullptr;
+		Widget*			 m_rootWidget	   = nullptr;
+		Widget*			 m_foregroundRoot  = nullptr;
+		System*			 m_system		   = nullptr;
+		Widget*			 m_deepestHovered  = nullptr;
+		ResourceManager* m_resourceManager = nullptr;
+		Widget*			 m_controlsOwner   = nullptr;
+		Vector<ClipData> m_clipStack;
+		float			 m_debugDrawYOffset = 0.0f;
+		float			 m_foregroundDim	= 0.0f;
+		Font*			 m_defaultFont		= nullptr;
+		Vector<Widget*>	 m_killList			= {};
+		GfxManager*		 m_gfxManager		= nullptr;
 	};
 
 } // namespace Lina

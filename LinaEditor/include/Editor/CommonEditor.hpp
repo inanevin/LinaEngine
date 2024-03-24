@@ -68,6 +68,7 @@ namespace Lina::Editor
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f
+#define PAYLOAD_WINDOW_SID		UINT32_MAX - 2
 
 	enum class PanelType
 	{
@@ -75,6 +76,11 @@ namespace Lina::Editor
 		Resources,
 		Performance,
 		World
+	};
+
+	enum class PayloadType
+	{
+		DockedPanel,
 	};
 
 } // namespace Lina::Editor

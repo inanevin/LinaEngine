@@ -55,6 +55,7 @@ namespace Lina
 	public:
 		virtual void PreInitialize(const SystemInitializationInfo& initInfo){};
 		virtual void Initialize(const SystemInitializationInfo& initInfo) = 0;
+		virtual void PreTick(){};
 		virtual void CoreResourcesLoaded(){};
 		virtual void PreShutdown(){};
 		virtual void Shutdown() = 0;

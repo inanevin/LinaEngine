@@ -37,7 +37,7 @@ namespace Lina
 {
 	void Slider::Construct()
 	{
-		m_handle								 = Allocate<Icon>("Handle");
+		m_handle								 = m_manager->Allocate<Icon>("Handle");
 		m_handle->GetProps().isDynamic			 = true;
 		m_handle->GetProps().sdfThickness		 = 0.6f;
 		m_handle->GetProps().sdfOutlineThickness = 0.6f;

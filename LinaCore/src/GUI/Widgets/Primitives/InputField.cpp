@@ -59,7 +59,7 @@ namespace Lina
 
 	void InputField::Construct()
 	{
-		m_text						 = Allocate<Text>("InputFieldText");
+		m_text						 = m_manager->Allocate<Text>("InputFieldText");
 		m_text->GetProps().isDynamic = true;
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_text->SetAlignedPosY(0.5f);

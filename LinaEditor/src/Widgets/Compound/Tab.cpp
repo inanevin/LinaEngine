@@ -43,20 +43,20 @@ namespace Lina::Editor
 		m_selectionRectAnim->SetPersistent(true);
 		m_selectionRectAnim->SetTimeScale(0.0f);
 
-		DirectionalLayout* layout = Allocate<DirectionalLayout>("Layout");
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedSize(Vector2(1.0f, 1.0f));
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->GetChildMargins() = {.left = Theme::GetDef().baseIndent * 2.0f, .right = Theme::GetDef().baseIndent};
 		AddChild(layout);
 
-		m_text = Allocate<Text>("Title");
+		m_text = m_manager->Allocate<Text>("Title");
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		layout->AddChild(m_text);
 
-		m_icon = Allocate<Icon>("Icon");
+		m_icon = m_manager->Allocate<Icon>("Icon");
 		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
 		m_icon->SetAlignedPos(Vector2(1.0f, 0.5f));
 		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::End);
@@ -86,7 +86,7 @@ namespace Lina::Editor
 
 	void Tab::PreTick()
 	{
-		if (m_isPressed)
+		if (m_isPressed && !m_icon->GetIsDisabled())
 		{
 			const Vector2& mp	  = m_lgxWindow->GetMousePosition();
 			const float	   margin = Theme::GetDef().baseIndent * 4.0f;

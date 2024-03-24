@@ -56,14 +56,12 @@ namespace Lina::Editor
 		SetTooltip(tooltip);
 
 		GetProps().direction			= DirectionOrientation::Vertical;
-		GetProps().backgroundStyle		= BackgroundStyle::Default;
-		GetProps().colorBackgroundStart = Theme::GetDef().background0.AsLVG4();
-		GetProps().colorBackgroundEnd	= Theme::GetDef().background0.AsLVG4();
+		
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		SetAlignedPos(Vector2::Zero);
 		SetAlignedSize(Vector2::One);
 
-		DirectionalLayout* titleBar = Allocate<DirectionalLayout>("TitleBar");
+		DirectionalLayout* titleBar = m_manager->Allocate<DirectionalLayout>("TitleBar");
 
 		titleBar->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		titleBar->GetProps().direction = DirectionOrientation::Vertical;
@@ -75,7 +73,7 @@ namespace Lina::Editor
 		titleBar->GetProps().colorBackgroundEnd	  = Theme::GetDef().accentPrimary0;
 		AddChild(titleBar);
 
-		DirectionalLayout* layout1 = Allocate<DirectionalLayout>("Layout1");
+		DirectionalLayout* layout1 = m_manager->Allocate<DirectionalLayout>("Layout1");
 		layout1->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		layout1->SetAlignedSizeX(1.0f);
 		layout1->SetFixedSizeY(Theme::GetDef().baseItemHeight);
@@ -83,14 +81,14 @@ namespace Lina::Editor
 		layout1->GetChildMargins().left = Theme::GetDef().baseIndent;
 		titleBar->AddChild(layout1);
 
-		DirectionalLayout* layout2 = Allocate<DirectionalLayout>("Layout2");
+		DirectionalLayout* layout2 = m_manager->Allocate<DirectionalLayout>("Layout2");
 		layout2->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
 		layout2->SetAlignedSizeX(1.0f);
 		layout2->SetAlignedSizeY(0.0f);
 		layout2->SetAlignedPosX(0.0f);
 		titleBar->AddChild(layout2);
 
-		DirectionalLayout* projectName = Allocate<DirectionalLayout>("Project Name");
+		DirectionalLayout* projectName = m_manager->Allocate<DirectionalLayout>("Project Name");
 		projectName->GetFlags().Set(WF_SIZE_X_MAX_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		projectName->SetAlignedPos(Vector2(1.0f, 0.5f));
 		projectName->SetPosAlignmentSourceX(PosAlignmentSource::End);
@@ -105,7 +103,7 @@ namespace Lina::Editor
 		projectName->GetProps().rounding			 = Theme::GetDef().baseRounding;
 		layout2->AddChild(projectName);
 
-		Text* projectNameText = Allocate<Text>("ProjectNameText");
+		Text* projectNameText = m_manager->Allocate<Text>("ProjectNameText");
 		projectNameText->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		projectNameText->SetAlignedPos(Vector2(0.5f, 0.5f));
 		projectNameText->SetPosAlignmentSourceX(PosAlignmentSource::Center);
@@ -113,7 +111,7 @@ namespace Lina::Editor
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
 		projectName->AddChild(projectNameText);
 
-		FileMenu* fm = Allocate<FileMenu>("FileMenu");
+		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
 		fm->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		fm->SetAlignedPosY(0.0f);
 		fm->SetAlignedSizeY(1.0f);
@@ -137,7 +135,7 @@ namespace Lina::Editor
 		wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
 		layout1->AddChild(wb);
 
-		Widget* panelArea = Allocate<Widget>("Editor Area");
+		Widget* panelArea = m_manager->Allocate<Widget>("Editor Area");
 		panelArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelArea->SetAlignedPosX(0.0f);
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));

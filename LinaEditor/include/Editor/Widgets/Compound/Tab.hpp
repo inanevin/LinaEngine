@@ -58,7 +58,6 @@ namespace Lina::Editor
 		{
 			Widget* tiedWidget		= nullptr;
 			bool	isSelected		= false;
-			bool	disableClose	= false;
 			bool	disableMovement = false;
 			float	desiredX		= 0.0f;
 		};

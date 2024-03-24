@@ -63,13 +63,13 @@ namespace Lina::Editor
 
 		// Icon && title
 		{
-			Icon* icon			  = Allocate<Icon>("Lina Icon");
+			Icon* icon			  = m_manager->Allocate<Icon>("Lina Icon");
 			icon->GetProps().icon = ICON_LINA_LOGO;
 			icon->Initialize();
 			icon->SetPos(Vector2(x + icon->GetSize().x * 0.5f, y));
 			AddChild(icon);
 
-			Text* text			  = Allocate<Text>("Title Text");
+			Text* text			  = m_manager->Allocate<Text>("Title Text");
 			text->GetProps().text = "Testbed";
 			text->Initialize();
 			text->SetPos(Vector2(x + icon->GetSize().x * 0.5f + Theme::GetDef().baseIndent + text->GetSize().x * 0.5f, y));
@@ -80,7 +80,7 @@ namespace Lina::Editor
 
 		// Button
 		{
-			Button* button					   = Allocate<Button>("Button");
+			Button* button					   = m_manager->Allocate<Button>("Button");
 			button->GetText()->GetProps().text = "Button";
 			button->Initialize();
 			button->SetSize(Vector2(itemWidth, itemHeight));
@@ -93,7 +93,7 @@ namespace Lina::Editor
 		// Checkbox
 		{
 			static bool value					   = false;
-			Checkbox*	check					   = Allocate<Checkbox>("Checkbox");
+			Checkbox*	check					   = m_manager->Allocate<Checkbox>("Checkbox");
 			check->GetProps().value				   = &value;
 			check->GetIcon()->GetProps().icon	   = ICON_CHECK;
 			check->GetIcon()->GetProps().textScale = 0.5f;
@@ -108,7 +108,7 @@ namespace Lina::Editor
 		// Slider
 		{
 			static float value			= 0.0f;
-			Slider*		 slider			= Allocate<Slider>("SliderHorizontal");
+			Slider*		 slider			= m_manager->Allocate<Slider>("SliderHorizontal");
 			slider->GetProps().minValue = 0.0f;
 			slider->GetProps().maxValue = 10.0f;
 			slider->GetProps().step		= 0.0f;
@@ -124,7 +124,7 @@ namespace Lina::Editor
 		// Slider Vertical
 		{
 			static float value			 = 0.0f;
-			Slider*		 slider			 = Allocate<Slider>("SliderVertical");
+			Slider*		 slider			 = m_manager->Allocate<Slider>("SliderVertical");
 			slider->GetProps().minValue	 = 0.0f;
 			slider->GetProps().maxValue	 = 10.0f;
 			slider->GetProps().step		 = 0.0f;
@@ -141,7 +141,7 @@ namespace Lina::Editor
 		// Input Field Number slider
 		{
 			static float value					  = 0.0f;
-			InputField*	 field					  = Allocate<InputField>("InputFieldNumberSlider");
+			InputField*	 field					  = m_manager->Allocate<InputField>("InputFieldNumberSlider");
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = false;
 			field->GetProps().clampNumber		  = true;
@@ -159,7 +159,7 @@ namespace Lina::Editor
 		// Input Field Number
 		{
 			static float value					  = 0.0f;
-			InputField*	 field					  = Allocate<InputField>("InputFieldNumber");
+			InputField*	 field					  = m_manager->Allocate<InputField>("InputFieldNumber");
 			field->GetProps().isNumberField		  = true;
 			field->GetProps().disableNumberSlider = true;
 			field->GetProps().clampNumber		  = true;
@@ -176,7 +176,7 @@ namespace Lina::Editor
 
 		// Input Field Text
 		{
-			InputField* field				  = Allocate<InputField>("InputFieldText");
+			InputField* field				  = m_manager->Allocate<InputField>("InputFieldText");
 			field->GetProps().isNumberField	  = false;
 			field->GetText()->GetProps().text = "Testing";
 			field->Initialize();
@@ -189,7 +189,7 @@ namespace Lina::Editor
 
 		// Dropdown
 		{
-			Dropdown* dd = Allocate<Dropdown>("Dropdown");
+			Dropdown* dd = m_manager->Allocate<Dropdown>("Dropdown");
 
 			dd->GetText()->GetProps().text = "None";
 			dd->GetProps().onAddItems	   = [](Vector<String>& outItems, int32& outSelectedItem) {
@@ -212,7 +212,7 @@ namespace Lina::Editor
 		// Color field
 		{
 			static Color color		= Color::White;
-			ColorField*	 field		= Allocate<ColorField>("ColorField");
+			ColorField*	 field		= m_manager->Allocate<ColorField>("ColorField");
 			field->GetProps().value = &color;
 			field->Initialize();
 			field->SetPos(Vector2(x, y));
@@ -225,7 +225,7 @@ namespace Lina::Editor
 		// Color slider
 		{
 			static float value		  = 0.0f;
-			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
+			ColorSlider* cs			  = m_manager->Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().value	  = &value;
 			cs->GetProps().minValue	  = 0.0f;
 			cs->GetProps().maxValue	  = 1.0f;
@@ -243,7 +243,7 @@ namespace Lina::Editor
 		// Color slider
 		{
 			static float value		  = 0.0f;
-			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
+			ColorSlider* cs			  = m_manager->Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().isHueShift = true;
 			cs->GetProps().value	  = &value;
 			cs->GetProps().minValue	  = 0.0f;
@@ -259,7 +259,7 @@ namespace Lina::Editor
 		// Color slider
 		{
 			static float value		  = 0.0f;
-			ColorSlider* cs			  = Allocate<ColorSlider>("ColorSlider");
+			ColorSlider* cs			  = m_manager->Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().colorBegin = Color::Green;
 			cs->GetProps().colorEnd	  = Color::Blue;
 			cs->GetProps().direction  = DirectionOrientation::Vertical;
@@ -280,7 +280,7 @@ namespace Lina::Editor
 
 		// Color wheel
 		{
-			ColorWheelCompound* wh = Allocate<ColorWheelCompound>("ColorWheelCompound");
+			ColorWheelCompound* wh = m_manager->Allocate<ColorWheelCompound>("ColorWheelCompound");
 			wh->Initialize();
 			wh->SetTargetColor(Color(0.12f, 0.07f, 0.03f, 1.0f));
 			wh->SetPos(Vector2(x, y));

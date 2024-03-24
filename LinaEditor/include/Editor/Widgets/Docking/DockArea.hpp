@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "DockWidget.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Editor.hpp"
 
 namespace Lina
 {
@@ -41,7 +42,7 @@ namespace Lina::Editor
 	class DockPreview;
 	class TabRow;
 
-	class DockArea : public DockWidget
+	class DockArea : public DockWidget, public EditorPayloadListener
 	{
 	public:
 		DockArea() : DockWidget(1){};
@@ -52,6 +53,8 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+		virtual void OnPayloadEnabled(PayloadType type, Widget* payload) override;
+		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
 
 		void AddAsPanel(Widget* w);
 		void RemovePanel(Widget* w);
@@ -70,6 +73,7 @@ namespace Lina::Editor
 		DirectionalLayout* m_layout	 = nullptr;
 		Vector<Widget*>	   m_panels;
 		Widget*			   m_selectedPanel = nullptr;
+		bool			   m_payloadActive = false;
 	};
 
 } // namespace Lina::Editor

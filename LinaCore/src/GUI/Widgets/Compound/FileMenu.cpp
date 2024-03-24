@@ -40,7 +40,7 @@ namespace Lina
 	{
 		if (m_itemData.isDivider)
 		{
-			ShapeRect* rect = Allocate<ShapeRect>("Shape");
+			ShapeRect* rect = m_manager->Allocate<ShapeRect>("Shape");
 			rect->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 			rect->SetAlignedSize(Vector2(1.0f, 0.25f));
 			rect->SetAlignedPosY(0.5f);
@@ -50,7 +50,7 @@ namespace Lina
 			return;
 		}
 
-		Text* txt = Allocate<Text>("Text");
+		Text* txt = m_manager->Allocate<Text>("Text");
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
 		txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
@@ -61,7 +61,7 @@ namespace Lina
 
 		if (m_itemData.hasDropdown)
 		{
-			Icon* dd = Allocate<Icon>("DD");
+			Icon* dd = m_manager->Allocate<Icon>("DD");
 			dd->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			dd->SetAlignedPos(Vector2(1.0f, 0.5f));
 			dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
@@ -72,7 +72,7 @@ namespace Lina
 
 		if (!m_itemData.altText.empty())
 		{
-			Text* altTxt = Allocate<Text>("Text");
+			Text* altTxt = m_manager->Allocate<Text>("Text");
 			altTxt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			altTxt->SetAlignedPos(Vector2(1.0f, 0.5f));
 			altTxt->SetPosAlignmentSourceX(PosAlignmentSource::End);
@@ -110,7 +110,7 @@ namespace Lina
 				if (sibling->GetIsHovered())
 				{
 					m_manager->RemoveFromForeground(m_subPopup);
-					Deallocate(m_subPopup);
+					m_manager->Deallocate(m_subPopup);
 					m_subPopup = nullptr;
 					break;
 				}
@@ -137,7 +137,7 @@ namespace Lina
 			if (m_subPopup != nullptr && b != m_subPopupOwner && b->GetRect().IsPointInside(m_lgxWindow->GetMousePosition()))
 			{
 				m_manager->RemoveFromForeground(m_subPopup);
-				Deallocate(m_subPopup);
+				m_manager->Deallocate(m_subPopup);
 				m_subPopup		= nullptr;
 				m_subPopupOwner = nullptr;
 
@@ -160,7 +160,7 @@ namespace Lina
 		int32 idx = 0;
 		for (const auto& str : m_fileMenuProps.buttons)
 		{
-			Button* btn = Allocate<Button>("FMButton");
+			Button* btn = m_manager->Allocate<Button>("FMButton");
 			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_MAX_CHILDREN);
 			btn->SetAlignedPosY(0.0f);
 			btn->SetAlignedSizeY(1.0f);
@@ -203,7 +203,7 @@ namespace Lina
 
 		for (const auto& subItem : subItemData)
 		{
-			FileMenuItem* it  = Allocate<FileMenuItem>("FMItem");
+			FileMenuItem* it  = m_manager->Allocate<FileMenuItem>("FMItem");
 			it->m_ownerMenu	  = this;
 			it->GetItemData() = subItem;
 
@@ -231,7 +231,7 @@ namespace Lina
 				if (m_listener->OnItemClicked(sid))
 				{
 					m_manager->RemoveFromForeground(popup);
-					Deallocate(popup);
+					m_manager->Deallocate(popup);
 				}
 			};
 

@@ -33,8 +33,11 @@ SOFTWARE.
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
-#include "Editor/Widgets/EditorRoot.hpp"
+#include "Editor/Widgets/Docking/DockArea.hpp"
+#include "Editor/Widgets/Panel/PanelFactory.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
+#include "Editor/Widgets/EditorRoot.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
@@ -43,6 +46,7 @@ SOFTWARE.
 #include "Editor/Widgets/DockTestbed.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/EditorLocale.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
@@ -58,11 +62,16 @@ namespace Lina::Editor
 
 		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-		m_windows.push_back(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+        
+        m_mainWindow = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
+        m_payloadWindow = m_gfxManager->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0,0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
+        m_payloadWindow->SetVisible(false);
+        
+        m_subWindows.push_back(m_payloadWindow);
 
 		// Push splash
 		Widget*		  root	 = m_primaryWidgetManager->GetRoot();
-		SplashScreen* splash = root->Allocate<SplashScreen>();
+		SplashScreen* splash = root->GetWidgetManager()->Allocate<SplashScreen>();
 		splash->Initialize();
 		root->AddChild(splash);
 
@@ -86,25 +95,81 @@ namespace Lina::Editor
 			m_layout.SaveToFile();
 	}
 
+    void Editor::PreTick()
+    {
+        if(!m_windowCloseRequests.empty())
+        {
+            for(auto sid : m_windowCloseRequests)
+            {
+                auto it = linatl::find_if(m_subWindows.begin(), m_subWindows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });
+
+                if (it != m_subWindows.end())
+                    m_subWindows.erase(it);
+                m_gfxManager->DestroyApplicationWindow(sid);
+            }
+            
+            m_windowCloseRequests.clear();
+        }
+        
+        if(m_payloadRequest.active)
+        {
+            if(!m_payloadWindow->GetIsVisible())
+            {
+                m_payloadWindow->SetVisible(true);
+                m_payloadWindow->SetAlpha(0.5f);
+                m_payloadWindow->SetSize({static_cast<uint32>(m_payloadRequest.payload->GetSize().x), static_cast<uint32>(m_payloadRequest.payload->GetSize().y)});
+                Widget* payloadRoot = m_gfxManager->GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
+                payloadRoot->AddChild(m_payloadRequest.payload);
+                
+                for(auto* l : m_payloadListeners)
+                    l->OnPayloadEnabled(m_payloadRequest.type, m_payloadRequest.payload);
+            }
+            
+            const auto& mp = m_gfxManager->GetLGX()->GetInput().GetMousePositionAbs();
+            m_payloadWindow->SetPosition({static_cast<int32>(mp.x), static_cast<int32>(mp.y)});
+            
+            if(!m_gfxManager->GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
+            {
+                m_payloadWindow->SetVisible(false);
+                m_payloadRequest.active = false;
+                
+                bool received = false;
+                for(auto* l : m_payloadListeners)
+                {
+                    if(l->OnPayloadDropped(m_payloadRequest.type, m_payloadRequest.payload))
+                    {
+                        received = true;
+                        break;
+                    }
+                }
+                
+                if(!received)
+                {
+                    // deallocate payload.
+                    m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
+                }
+            }
+        }
+    }
+
 	void Editor::CoreResourcesLoaded()
 	{
 		// Remove splash
 		Widget* root   = m_primaryWidgetManager->GetRoot();
 		Widget* splash = root->GetChildren().at(0);
 		root->RemoveChild(splash);
-		root->Deallocate(splash);
+		root->GetWidgetManager()->Deallocate(splash);
 
 		// Resize window to work dims.
-		auto* window = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		// window->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
-		// window->AddSizeRequest(window->GetMonitorWorkSize());
+		// m_mainWindow->SetPosition(window->GetMonitorInfoFromWindow().workTopLeft);
+		// m_mainWindow->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Testbed* tb = root->Allocate<Testbed>();
 		// root->AddChild(tb);
 		// return;
 
 		// Insert editor root.
-		m_editorRoot = root->Allocate<EditorRoot>("EditorRoot");
+		m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
 		m_editorRoot->Initialize();
 		root->AddChild(m_editorRoot);
 
@@ -115,13 +180,25 @@ namespace Lina::Editor
 			OpenPopupProjectSelector(false);
 	}
 
+    void Editor::PreShutdown()
+    {
+        for (auto* w : m_subWindows)
+            m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
+        
+        m_subWindows.clear();
+        
+        m_settings.SaveToFile();
+        RemoveCurrentProject();
+    }
+
 	void Editor::Shutdown()
 	{
+       
 	}
 
 	void Editor::OpenPopupProjectSelector(bool canCancel, bool openCreateFirst)
 	{
-		ProjectSelector* projectSelector = m_primaryWidgetManager->GetRoot()->Allocate<ProjectSelector>("ProjectSelector");
+		ProjectSelector* projectSelector = m_primaryWidgetManager->Allocate<ProjectSelector>("ProjectSelector");
 		projectSelector->SetCancellable(canCancel);
 		projectSelector->SetTab(openCreateFirst ? 0 : 1);
 		projectSelector->Initialize();
@@ -213,13 +290,18 @@ namespace Lina::Editor
 
 	void Editor::RequestExit()
 	{
-		for (auto* w : m_windows)
-			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
-
-		m_settings.SaveToFile();
-		RemoveCurrentProject();
 		m_system->GetApp()->Quit();
 	}
+
+    void Editor::AddPayloadListener(EditorPayloadListener *listener)
+    {
+        m_payloadListeners.push_back(listener);
+    }
+
+    void Editor::RemovePayloadListener(EditorPayloadListener *listener)
+    {
+        m_payloadListeners.erase(linatl::find(m_payloadListeners.begin(), m_payloadListeners.end(), listener));
+    }
 
 	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
 	{
@@ -232,21 +314,21 @@ namespace Lina::Editor
 		if (requestingWidget)
 			pos = requestingWidget->GetWindow()->GetPosition();
 		else
-			pos = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetPosition();
+			pos = m_mainWindow->GetPosition();
 
-		LinaGX::Window* window = m_gfxManager->CreateApplicationWindow(static_cast<StringID>(type), "Lina Editor", pos, Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessApplication, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
-		m_windows.push_back(window);
+		LinaGX::Window* window = m_gfxManager->CreateApplicationWindow(static_cast<StringID>(type), "Lina Editor", pos, Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
+		m_subWindows.push_back(window);
 
 		Widget* newWindowRoot = m_gfxManager->GetSurfaceRenderer(static_cast<StringID>(type))->GetWidgetManager().GetRoot();
 
-		DirectionalLayout* layout = newWindowRoot->Allocate<DirectionalLayout>("BaseLayout");
+		DirectionalLayout* layout = newWindowRoot->GetWidgetManager()->Allocate<DirectionalLayout>("BaseLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSize(Vector2::One);
 		newWindowRoot->AddChild(layout);
 
-		WindowBar* wb						= newWindowRoot->Allocate<WindowBar>("WindowBar");
+		WindowBar* wb						= newWindowRoot->GetWidgetManager()->Allocate<WindowBar>("WindowBar");
 		wb->GetBarProps().title				= "Lina Engine";
 		wb->GetBarProps().hasIcon			= true;
 		wb->GetBarProps().hasWindowButtons	= true;
@@ -260,27 +342,32 @@ namespace Lina::Editor
 		layout->AddChild(wb);
 		layout->Initialize();
 
-		return;
 
-		Widget* panelArea = newWindowRoot->Allocate<Widget>("PanelArea");
+		Widget* panelArea = newWindowRoot->GetWidgetManager()->Allocate<Widget>("PanelArea");
 		panelArea->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelArea->SetAlignedPosX(0.0f);
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
 		layout->AddChild(panelArea);
 
-		DockArea* dockArea = newWindowRoot->Allocate<DockArea>();
+		DockArea* dockArea = newWindowRoot->GetWidgetManager()->Allocate<DockArea>("DockArea");
 		dockArea->SetAlignedPos(Vector2::Zero);
 		dockArea->SetAlignedSize(Vector2::One);
 		panelArea->AddChild(dockArea);
+        
+        Panel* panel = PanelFactory::CreatePanel(dockArea, type, subData);
+        dockArea->AddAsPanel(panel);
 	}
 
 	void Editor::CloseWindow(StringID sid)
 	{
-		auto it = linatl::find_if(m_windows.begin(), m_windows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });
-
-		if (it != m_windows.end())
-			m_windows.erase(it);
-		m_gfxManager->DestroyApplicationWindow(sid);
+        m_windowCloseRequests.push_back(sid);
 	}
+
+    void Editor::CreatePayload(Widget* payload, PayloadType type)
+    {
+        m_payloadRequest.active = true;
+        m_payloadRequest.payload = payload;
+        m_payloadRequest.type = type;
+    }
 
 } // namespace Lina::Editor

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Core/CommonCore.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/System/System.hpp"
@@ -44,8 +45,9 @@ namespace Lina
 
 	void WidgetManager::Initialize(System* system, LinaGX::Window* window)
 	{
-		m_window = window;
-		m_system = system;
+		m_window	 = window;
+		m_system	 = system;
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_window->AddListener(this);
 		m_rootWidget = Allocate<Widget>();
 		m_rootWidget->SetDebugName("Root");
@@ -130,8 +132,12 @@ namespace Lina
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();
 
-		PoolAllocator* alloc = m_allocators.at(tid);
-		alloc->Free(widget);
+		GetGUIAllocator(tid, 0)->Free(widget);
+	}
+
+	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize)
+	{
+		return m_gfxManager->GetGUIAllocator(tid, typeSize);
 	}
 
 	void WidgetManager::Shutdown()
@@ -142,9 +148,6 @@ namespace Lina
 		m_foregroundRoot = nullptr;
 
 		m_window->RemoveListener(this);
-
-		linatl::for_each(m_allocators.begin(), m_allocators.end(), [](auto& pair) -> void { delete pair.second; });
-		m_allocators.clear();
 	}
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)

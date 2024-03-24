@@ -41,6 +41,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 
+class PoolAllocator;
+
 namespace Lina
 {
 	class SurfaceRenderer;
@@ -68,17 +70,18 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
+		virtual void PreTick() override;
 
 		void			 WaitForSwapchains();
 		void			 Join();
 		void			 Poll();
-		void			 PreTick();
 		void			 Tick(float delta);
 		void			 Render();
 		void			 DestroyApplicationWindow(StringID sid);
 		LinaGX::Window*	 CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
 		LinaGX::Window*	 GetApplicationWindow(StringID sid);
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
+		PoolAllocator*	 GetGUIAllocator(TypeID tid, size_t typeSize);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{
@@ -121,17 +124,19 @@ namespace Lina
 		}
 
 	private:
-		ResourceUploadQueue		 m_resourceUploadQueue;
-		MeshManager				 m_meshManager;
-		Vector<SurfaceRenderer*> m_surfaceRenderers;
-		GUIBackend*				 m_guiBackend	   = nullptr;
-		ResourceManager*		 m_resourceManager = nullptr;
-		Vector<TextureSampler*>	 m_defaultSamplers;
-		Vector<Material*>		 m_defaultMaterials;
-		LinaGX::Instance*		 m_lgx			= nullptr;
-		LinaGX::VSyncStyle		 m_currentVsync = {};
-		ApplicationDelegate*	 m_appDelegate	= nullptr;
-		LinaGX::Window*			 m_mainWindow	= nullptr;
+		ResourceUploadQueue				m_resourceUploadQueue;
+		MeshManager						m_meshManager;
+		Vector<SurfaceRenderer*>		m_surfaceRenderers;
+		GUIBackend*						m_guiBackend	  = nullptr;
+		ResourceManager*				m_resourceManager = nullptr;
+		Vector<TextureSampler*>			m_defaultSamplers;
+		Vector<Material*>				m_defaultMaterials;
+		LinaGX::Instance*				m_lgx		   = nullptr;
+		LinaGX::VSyncStyle				m_currentVsync = {};
+		ApplicationDelegate*			m_appDelegate  = nullptr;
+		LinaGX::Window*					m_mainWindow   = nullptr;
+		HashMap<TypeID, PoolAllocator*> m_guiAllocators;
+		Mutex							m_guiAllocMutx;
 
 		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};

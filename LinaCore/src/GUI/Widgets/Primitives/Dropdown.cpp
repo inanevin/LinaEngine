@@ -42,9 +42,9 @@ namespace Lina
 
 	void Dropdown::Construct()
 	{
-		m_text						 = Allocate<Text>("Title");
+		m_text						 = m_manager->Allocate<Text>("Title");
 		m_text->GetProps().isDynamic = true;
-		m_icon						 = Allocate<Icon>("Arrow");
+		m_icon						 = m_manager->Allocate<Icon>("Arrow");
 		m_icon->GetProps().isDynamic = true;
 		m_icon->GetProps().icon		 = Theme::GetDef().iconDropdown;
 		m_icon->CalculateIconSize();
@@ -168,7 +168,7 @@ namespace Lina
 		{
 			const auto& it = items[i];
 
-			DirectionalLayout* item = Allocate<DirectionalLayout>("Layout");
+			DirectionalLayout* item = m_manager->Allocate<DirectionalLayout>("Layout");
 			item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
 			item->SetAlignedPosX(0.0f);
 			item->SetAlignedSizeX(1.0f);
@@ -188,7 +188,7 @@ namespace Lina
 				ClosePopup();
 			};
 
-			Text* txt = Allocate<Text>("Text");
+			Text* txt = m_manager->Allocate<Text>("Text");
 			txt->GetFlags().Set(WF_POS_ALIGN_Y);
 			txt->SetAlignedPosY(0.5f);
 			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
@@ -207,7 +207,7 @@ namespace Lina
 			return;
 
 		m_manager->RemoveFromForeground(m_popup);
-		Deallocate(m_popup);
+		m_manager->Deallocate(m_popup);
 	}
 
 } // namespace Lina

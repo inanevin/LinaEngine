@@ -35,7 +35,7 @@ namespace Lina
 {
 	void Button::Construct()
 	{
-		m_text = Allocate<Text>("ButtonText");
+		m_text = m_manager->Allocate<Text>("ButtonText");
 		m_text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_text->SetAlignedPos(Vector2(0.5f, 0.5f));
 		m_text->SetPosAlignmentSourceX(PosAlignmentSource::Center);

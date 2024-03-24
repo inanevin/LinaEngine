@@ -31,31 +31,44 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Compound/TabRow.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/System/System.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
 	void DockArea::Construct()
 	{
+		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_SKIP_FLOORING);
 
-		m_layout					   = Allocate<DirectionalLayout>("BaseLayout");
+		m_layout					   = m_manager->Allocate<DirectionalLayout>("DockAreaBaseLayout");
 		m_layout->GetProps().direction = DirectionOrientation::Vertical;
 		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_layout->SetAlignedPos(Vector2::Zero);
 		m_layout->SetAlignedSize(Vector2::One);
 
-		m_tabRow = Allocate<TabRow>("TabRow");
+		m_tabRow = m_manager->Allocate<TabRow>("DockAreaTabRow");
 		m_tabRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_tabRow->SetAlignedPos(Vector2::Zero);
 		m_tabRow->SetAlignedSizeX(1.0f);
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
-		m_tabRow->GetProps().cantCloseSingleTab = true;
-		m_tabRow->GetProps().onTabClosed		= [this](Widget* w) { RemovePanel(w); };
-		m_tabRow->GetProps().onTabDockedOut		= [this](Widget* w) { RemovePanel(w); };
+		m_tabRow->GetProps().cantCloseSingleTab = m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN;
+		m_tabRow->GetProps().onTabClosed		= [this, editor](Widget* w) { editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID())); };
+		m_tabRow->GetProps().onTabDockedOut		= [this, editor](Widget* w) {
+			RemovePanel(w);
+
+			// If only child
+			if (m_parent->GetChildren().size() == 1)
+				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+
+			editor->CreatePayload(w, PayloadType::DockedPanel);
+		};
 
 		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) {
 			if (m_selectedPanel)
@@ -71,10 +84,14 @@ namespace Lina::Editor
 
 		AddChild(m_layout);
 		m_layout->AddChild(m_tabRow);
+
+		m_system->CastSubsystem<Editor>(SubsystemType::Editor)->AddPayloadListener(this);
 	}
 
 	void DockArea::Destruct()
 	{
+		m_system->CastSubsystem<Editor>(SubsystemType::Editor)->RemovePayloadListener(this);
+
 		if (m_preview)
 			HidePreview();
 	}
@@ -125,6 +142,9 @@ namespace Lina::Editor
 		if (m_parent == nullptr)
 			return;
 
+		if (m_payloadActive)
+		{
+		}
 		// Omit tab row.
 		// if (m_selectedChildren == nullptr && m_children.size() == 2)
 		// 	m_selectedChildren = m_children[1];
@@ -172,7 +192,7 @@ namespace Lina::Editor
 	void DockArea::ShowPreview()
 	{
 		LINA_ASSERT(m_preview == nullptr, "");
-		m_preview						= Allocate<DockPreview>("DockContainerPreview");
+		m_preview						= m_manager->Allocate<DockPreview>("DockContainerPreview");
 		m_preview->GetProps().isCentral = true;
 		m_preview->Initialize();
 
@@ -194,12 +214,14 @@ namespace Lina::Editor
 	void DockArea::HidePreview()
 	{
 		LINA_ASSERT(m_preview != nullptr, "");
-		Deallocate(m_preview);
+		m_manager->Deallocate(m_preview);
 		m_preview = nullptr;
 	}
 
 	bool DockArea::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
+		return Widget::OnMouse(button, action);
+
 		if (button == LINAGX_MOUSE_1)
 		{
 			if (m_isHovered && action == LinaGX::InputAction::Pressed)
@@ -230,6 +252,17 @@ namespace Lina::Editor
 		return Widget::OnMouse(button, action);
 	}
 
+	void DockArea::OnPayloadEnabled(PayloadType type, Widget* payload)
+	{
+		if (type == PayloadType::DockedPanel)
+			m_payloadActive = true;
+	}
+
+	bool DockArea::OnPayloadDropped(PayloadType type, Widget* payload)
+	{
+		return false;
+	}
+
 	DockArea* DockArea::AddDockArea(Direction direction)
 	{
 		if (direction == Direction::Center)
@@ -237,13 +270,13 @@ namespace Lina::Editor
 			static int	 ctr = 0;
 			const String dn	 = "DummyContent" + TO_STRING(ctr);
 			ctr++;
-			Panel* dummy = Allocate<Panel>(dn);
+			Panel* dummy = m_manager->Allocate<Panel>(dn);
 			AddAsPanel(dummy);
 			// Steal the contents of the dock area and return this.
 			return this;
 		}
 
-		DockArea* area = Allocate<DockArea>("DockArea");
+		DockArea* area = m_manager->Allocate<DockArea>("DockArea");
 
 		static int	 borderCtr		 = 0;
 		const String borderName		 = "DockBorder" + TO_STRING(borderCtr++);
@@ -261,7 +294,7 @@ namespace Lina::Editor
 			m_alignedPos.x += parentPerc;
 			m_alignedSize.x -= parentPerc;
 
-			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = m_alignedPos;
 			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
 			border->m_orientation = DirectionOrientation::Vertical;
@@ -279,7 +312,7 @@ namespace Lina::Editor
 			area->m_alignedSize		   = Vector2(parentPerc - borderSizePercX, m_alignedSize.y);
 			m_alignedSize.x -= parentPerc;
 
-			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = Vector2(m_alignedPos.x + m_alignedSize.x, m_alignedPos.y);
 			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
 			border->m_orientation = DirectionOrientation::Vertical;
@@ -295,7 +328,7 @@ namespace Lina::Editor
 			m_alignedPos.y += parentPerc;
 			m_alignedSize.y -= parentPerc;
 
-			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = m_alignedPos;
 			border->m_alignedSize = Vector2(m_alignedSize.x, 0.0f);
 			border->m_orientation = DirectionOrientation::Horizontal;
@@ -313,7 +346,7 @@ namespace Lina::Editor
 			area->m_alignedSize		 = Vector2(m_alignedSize.x, parentPerc - borderSizePercY);
 			m_alignedSize.y -= parentPerc;
 
-			DockBorder* border	  = Allocate<DockBorder>(borderName);
+			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = Vector2(m_alignedPos.x, m_alignedPos.y + m_alignedSize.y);
 			border->m_alignedSize = Vector2(m_alignedSize.x, 0.0f);
 			border->m_orientation = DirectionOrientation::Horizontal;
@@ -321,7 +354,7 @@ namespace Lina::Editor
 			m_parent->AddChild(border);
 		}
 
-		Panel* dummy = Allocate<Panel>("DummyContent");
+		Panel* dummy = m_manager->Allocate<Panel>("DummyContent");
 		area->AddAsPanel(dummy);
 		m_parent->AddChild(area);
 		return area;
@@ -388,7 +421,7 @@ namespace Lina::Editor
 					if (border->CheckIfAreaOnSide(this, oppositeDirection))
 					{
 						m_parent->RemoveChild(border);
-						Deallocate(border);
+						m_manager->Deallocate(border);
 						break;
 					}
 				}
@@ -397,7 +430,7 @@ namespace Lina::Editor
 				ExpandWidgetsToMyPlace(widgetsToExpand, dir);
 
 				m_parent->RemoveChild(this);
-				Deallocate(this);
+				m_manager->AddToKillList(this);
 
 				break;
 			}

@@ -57,6 +57,10 @@ namespace Lina::Editor
 
 	void TabRow::Draw(int32 threadIndex)
 	{
+		LinaVG::StyleOptions opts;
+		opts.color = Theme::GetDef().background0.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+
 		m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
 		m_manager->UnsetClip(threadIndex);
@@ -64,7 +68,7 @@ namespace Lina::Editor
 
 	void TabRow::AddTab(Widget* tiedWidget)
 	{
-		Tab* tab = Allocate<Tab>("Tab");
+		Tab* tab = m_manager->Allocate<Tab>("Tab");
 		tab->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
 		tab->SetAlignedPosY(0.0f);
 		tab->SetAlignedSizeY(1.0f);
@@ -104,7 +108,7 @@ namespace Lina::Editor
 
 		RemoveChild(toRemove);
 		m_tabs.erase(linatl::find_if(m_tabs.begin(), m_tabs.end(), [toRemove](Tab* t) -> bool { return t == toRemove; }));
-		Deallocate(toRemove);
+		m_manager->Deallocate(toRemove);
 		CheckCanClose();
 	}
 

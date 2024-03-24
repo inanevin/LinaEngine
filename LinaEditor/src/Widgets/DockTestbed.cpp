@@ -35,11 +35,11 @@ namespace Lina::Editor
 
 	void DockTestbed::Construct()
 	{
-		DockArea* area = Allocate<DockArea>("DockArea");
+		DockArea* area = m_manager->Allocate<DockArea>("DockArea");
 		area->Initialize();
 
-		// Testbed* tb = Allocate<Testbed>("Testbed");
-		Widget* tb = Allocate<Widget>("Testbed");
+		// Testbed* tb = m_manager->Allocate<Testbed>("Testbed");
+		Widget* tb = m_manager->Allocate<Widget>("Testbed");
 		area->AddChild(tb);
 
 		AddChild(area);

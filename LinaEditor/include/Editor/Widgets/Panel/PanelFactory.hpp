@@ -30,6 +30,10 @@ SOFTWARE.
 
 #include "Editor/CommonEditor.hpp"
 
+namespace Lina
+{
+	class Widget;
+}
 namespace Lina::Editor
 {
 	class Panel;
@@ -37,7 +41,7 @@ namespace Lina::Editor
 	class PanelFactory
 	{
 	public:
-		static Panel* CreatePanel(PanelType type, StringID subData);
+		static Panel* CreatePanel(Widget* source, PanelType type, StringID subData);
 
 	private:
 	};

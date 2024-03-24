@@ -48,13 +48,13 @@ namespace Lina::Editor
 	{
 		const float baseItemHeight = Theme::GetDef().baseItemHeight;
 
-		Text* text			  = Allocate<Text>("ColorComponentText");
+		Text* text			  = m_manager->Allocate<Text>("ColorComponentText");
 		text->GetProps().text = label;
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);
 		text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 
-		InputField* field				= Allocate<InputField>("ColorComponentInputField");
+		InputField* field				= m_manager->Allocate<InputField>("ColorComponentInputField");
 		field->GetProps().isNumberField = true;
 		field->GetProps().valueMin		= 0.0f;
 		field->GetProps().valueMax		= 1.0f;
@@ -67,7 +67,7 @@ namespace Lina::Editor
 		field->SetAlignedPosY(0.0f);
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
 
-		ColorSlider* slider			= Allocate<ColorSlider>("ColorComponentColorSlider");
+		ColorSlider* slider			= m_manager->Allocate<ColorSlider>("ColorComponentColorSlider");
 		slider->GetProps().minValue = 0.0f;
 		slider->GetProps().maxValue = 1.0f;
 		slider->GetProps().value	= val;
@@ -77,7 +77,7 @@ namespace Lina::Editor
 		slider->SetAlignedPosY(0.0f);
 		slider->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
 
-		DirectionalLayout* layout = Allocate<DirectionalLayout>("ColorComponentRow");
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("ColorComponentRow");
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 		layout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		layout->SetAlignedSizeX(1.0f);
@@ -96,13 +96,13 @@ namespace Lina::Editor
 
 	ColorWheelCompound::SaturationValueComponent ColorWheelCompound::ConstructHSVComponent(const String& label, bool isHue, float* val)
 	{
-		Text* text			  = Allocate<Text>("SaturationValueLabel");
+		Text* text			  = m_manager->Allocate<Text>("SaturationValueLabel");
 		text->GetProps().text = label;
 		text->GetFlags().Set(WF_POS_ALIGN_X);
 		text->SetAlignedPosX(0.5f);
 		text->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 
-		InputField* field				= Allocate<InputField>("SaturationValueField");
+		InputField* field				= m_manager->Allocate<InputField>("SaturationValueField");
 		field->GetProps().isNumberField = true;
 		field->GetProps().clampNumber	= true;
 		field->GetProps().valueMin		= 0.0f;
@@ -116,7 +116,7 @@ namespace Lina::Editor
 		field->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
 
-		ColorSlider* slider			 = Allocate<ColorSlider>("HSVSlider");
+		ColorSlider* slider			 = m_manager->Allocate<ColorSlider>("HSVSlider");
 		slider->GetProps().direction = DirectionOrientation::Vertical;
 		slider->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		slider->SetAlignedSizeX(0.5f);
@@ -131,7 +131,7 @@ namespace Lina::Editor
 		slider->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
 
 		// Layout
-		DirectionalLayout* layout	 = Allocate<DirectionalLayout>("SaturationValueLayout");
+		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("SaturationValueLayout");
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 		layout->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
@@ -155,14 +155,14 @@ namespace Lina::Editor
 		const float baseItemHeight = Theme::GetDef().baseItemHeight;
 
 		// Top row
-		m_topRow							  = Allocate<DirectionalLayout>("TopRow");
+		m_topRow							  = m_manager->Allocate<DirectionalLayout>("TopRow");
 		m_topRow->GetProps().direction		  = DirectionOrientation::Horizontal;
 		m_topRow->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness * 2.0f;
 		m_topRow->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_topRow->SetAlignedPos(Vector2::Zero);
 		AddChild(m_topRow);
 
-		Widget* topRowLeftSide = Allocate<Widget>("TopRowLeftSide");
+		Widget* topRowLeftSide = m_manager->Allocate<Widget>("TopRowLeftSide");
 		topRowLeftSide->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 		topRowLeftSide->SetAlignedPosY(0.0f);
 		topRowLeftSide->SetAlignedSizeY(1.0f);
@@ -170,7 +170,7 @@ namespace Lina::Editor
 		m_topRow->AddChild(topRowLeftSide);
 
 		// Wheel.
-		m_wheel = Allocate<ColorWheel>("Wheel");
+		m_wheel = m_manager->Allocate<ColorWheel>("Wheel");
 		m_wheel->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_wheel->SetAlignedSize(Vector2::One);
 		m_wheel->SetAlignedPos(Vector2::Zero);
@@ -180,7 +180,7 @@ namespace Lina::Editor
 		topRowLeftSide->AddChild(m_wheel);
 
 		// HSV
-		DirectionalLayout* hsvRow		  = Allocate<DirectionalLayout>("HSVRow");
+		DirectionalLayout* hsvRow		  = m_manager->Allocate<DirectionalLayout>("HSVRow");
 		hsvRow->GetBorderThickness().left = Theme::GetDef().baseOutlineThickness;
 		hsvRow->GetChildMargins()		  = TBLR::Eq(Theme::GetDef().baseIndent);
 		hsvRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
@@ -210,14 +210,14 @@ namespace Lina::Editor
 		hsvRow->AddChild(m_valueComponent.layout);
 
 		// Bottom Col
-		m_bottomColumn						 = Allocate<DirectionalLayout>("BottomRow");
+		m_bottomColumn						 = m_manager->Allocate<DirectionalLayout>("BottomRow");
 		m_bottomColumn->GetProps().direction = DirectionOrientation::Vertical;
 		m_bottomColumn->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndent);
 		m_bottomColumn->SetChildPadding(Theme::GetDef().baseIndent);
 		AddChild(m_bottomColumn);
 
 		// Hex and old/new color fields
-		DirectionalLayout* hexAndColorsRow = Allocate<DirectionalLayout>("HexAndColorsRow");
+		DirectionalLayout* hexAndColorsRow = m_manager->Allocate<DirectionalLayout>("HexAndColorsRow");
 		hexAndColorsRow->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
 		hexAndColorsRow->SetAlignedPosX(0.0f);
 		hexAndColorsRow->SetFixedSizeY(baseItemHeight);
@@ -225,7 +225,7 @@ namespace Lina::Editor
 		m_bottomColumn->AddChild(hexAndColorsRow);
 
 		// Hex
-		m_hexField						 = Allocate<InputField>("HexField");
+		m_hexField						 = m_manager->Allocate<InputField>("HexField");
 		m_hexField->GetProps().onEditEnd = [this](const String& str) {
 			m_editedColor.FromHex(str);
 			m_editedColor255 = m_editedColor * 255.0f;
@@ -239,7 +239,7 @@ namespace Lina::Editor
 		hexAndColorsRow->AddChild(m_hexField);
 
 		// Right side
-		DirectionalLayout* oldAndNewColors = Allocate<DirectionalLayout>("OldAndNewColors");
+		DirectionalLayout* oldAndNewColors = m_manager->Allocate<DirectionalLayout>("OldAndNewColors");
 		oldAndNewColors->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		oldAndNewColors->SetAlignedSizeY(1.0f);
 		oldAndNewColors->SetFixedSizeX(baseItemHeight * 6.0f);
@@ -249,7 +249,7 @@ namespace Lina::Editor
 		hexAndColorsRow->AddChild(oldAndNewColors);
 
 		// Old color
-		m_oldColorField					  = Allocate<ColorField>("OldColor");
+		m_oldColorField					  = m_manager->Allocate<ColorField>("OldColor");
 		m_oldColorField->GetProps().value = &m_oldColor;
 		m_oldColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		m_oldColorField->SetAlignedPosY(0.0f);
@@ -260,7 +260,7 @@ namespace Lina::Editor
 		oldAndNewColors->AddChild(m_oldColorField);
 
 		// New color
-		m_newColorField					  = Allocate<ColorField>("NewColor");
+		m_newColorField					  = m_manager->Allocate<ColorField>("NewColor");
 		m_newColorField->GetProps().value = &m_editedColor;
 		m_newColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		m_newColorField->SetAlignedPosY(0.0f);
@@ -272,7 +272,7 @@ namespace Lina::Editor
 		oldAndNewColors->AddChild(m_newColorField);
 
 		// Display dropdown
-		Dropdown* displayDropdown			   = Allocate<Dropdown>("ColorDisplayDropdown");
+		Dropdown* displayDropdown			   = m_manager->Allocate<Dropdown>("ColorDisplayDropdown");
 		displayDropdown->GetProps().onSelected = [this](int32 item) { SwitchColorDisplay(static_cast<ColorDisplay>(item)); };
 		displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, int32& outSelected) {
 			for (int32 i = 0; i < static_cast<int32>(ColorDisplay::MAX); i++)

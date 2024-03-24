@@ -35,7 +35,7 @@ namespace Lina
 {
 	void PopupItem::Construct()
 	{
-		m_text						 = Allocate<Text>("PopupText");
+		m_text						 = m_manager->Allocate<Text>("PopupText");
 		m_text->GetProps().isDynamic = true;
 		AddChild(m_text);
 	}
