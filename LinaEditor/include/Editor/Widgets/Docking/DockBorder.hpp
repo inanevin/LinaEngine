@@ -50,6 +50,7 @@ namespace Lina::Editor
 	private:
 		bool CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX);
 		bool CheckIfAreaOnSide(DockArea* area, Direction dir);
+		void FixChildMargins();
 
 	private:
 		friend class DockArea;

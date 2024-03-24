@@ -299,33 +299,32 @@ namespace Lina::Editor
 		{
 			const float horizontalSize = m_rect.size.x * DOCK_DEFAULT_PERCENTAGE;
 			const float parentPerc	   = horizontalSize / m_parent->GetRect().size.x;
-
-			area->m_alignedPos	= m_alignedPos;
-			area->m_alignedSize = Vector2(parentPerc, m_alignedSize.y);
+			area->m_alignedPos		   = m_alignedPos;
+			area->m_alignedSize		   = Vector2(parentPerc, m_alignedSize.y);
 			m_alignedPos.x += parentPerc;
 			m_alignedSize.x -= parentPerc;
 
 			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = m_alignedPos;
-			border->m_alignedSize = Vector2(borderSizePercX, m_alignedSize.y);
+			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
 			border->m_orientation = DirectionOrientation::Vertical;
 			border->Initialize();
 			m_parent->AddChild(border);
 
-			m_alignedPos.x += borderSizePercX;
-			m_alignedSize.x -= borderSizePercX;
+			// m_alignedPos.x += borderSizePercX;
+			// m_alignedSize.x -= borderSizePercX;
 		}
 		else if (direction == Direction::Right)
 		{
 			const float horizontalSize = m_rect.size.x * DOCK_DEFAULT_PERCENTAGE;
 			const float parentPerc	   = horizontalSize / m_parent->GetRect().size.x;
-			area->m_alignedPos		   = Vector2(m_alignedPos.x + m_alignedSize.x - parentPerc + borderSizePercX, m_alignedPos.y);
-			area->m_alignedSize		   = Vector2(parentPerc - borderSizePercX, m_alignedSize.y);
+			area->m_alignedPos		   = Vector2(m_alignedPos.x + m_alignedSize.x - parentPerc, m_alignedPos.y);
+			area->m_alignedSize		   = Vector2(parentPerc, m_alignedSize.y);
 			m_alignedSize.x -= parentPerc;
 
 			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = Vector2(m_alignedPos.x + m_alignedSize.x, m_alignedPos.y);
-			border->m_alignedSize = Vector2(borderSizePercX, m_alignedSize.y);
+			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
 			border->m_orientation = DirectionOrientation::Vertical;
 			border->Initialize();
 			m_parent->AddChild(border);
@@ -346,15 +345,15 @@ namespace Lina::Editor
 			border->Initialize();
 			m_parent->AddChild(border);
 
-			m_alignedPos.y += borderSizePercY;
-			m_alignedSize.y -= borderSizePercY;
+			// m_alignedPos.y += borderSizePercY;
+			// m_alignedSize.y -= borderSizePercY;
 		}
 		else if (direction == Direction::Bottom)
 		{
 			const float verticalSize = m_rect.size.y * DOCK_DEFAULT_PERCENTAGE;
 			const float parentPerc	 = verticalSize / m_parent->GetRect().size.y;
-			area->m_alignedPos		 = Vector2(m_alignedPos.x, m_alignedPos.y + m_alignedSize.y - parentPerc + borderSizePercY);
-			area->m_alignedSize		 = Vector2(m_alignedSize.x, parentPerc - borderSizePercY);
+			area->m_alignedPos		 = Vector2(m_alignedPos.x, m_alignedPos.y + m_alignedSize.y - parentPerc);
+			area->m_alignedSize		 = Vector2(m_alignedSize.x, parentPerc);
 			m_alignedSize.y -= parentPerc;
 
 			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
@@ -368,6 +367,7 @@ namespace Lina::Editor
 		Panel* dummy = m_manager->Allocate<Panel>("DummyContent");
 		area->AddPanel(dummy);
 		m_parent->AddChild(area);
+		FixAreaChildMargins();
 		return area;
 	}
 
@@ -446,6 +446,8 @@ namespace Lina::Editor
 				break;
 			}
 		}
+
+		FixAreaChildMargins();
 	}
 
 	void DockArea::ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas)
@@ -471,6 +473,23 @@ namespace Lina::Editor
 				w->AddAlignedSizeY(GetAlignedSizeY());
 			}
 		}
+	}
+
+	void DockArea::FixAreaChildMargins()
+	{
+
+		// Reset first
+		GetChildMargins() = {};
+		Vector<DockWidget*> areas;
+		DockWidget::GetDockWidgets(areas, {GetTypeID<DockArea>()});
+		for (auto* a : areas)
+			a->GetChildMargins() = {};
+
+		// Let borders handle.
+		Vector<DockWidget*> borders;
+		DockWidget::GetDockWidgets(borders, {GetTypeID<DockBorder>()});
+		for (auto* w : borders)
+			static_cast<DockBorder*>(w)->FixChildMargins();
 	}
 
 } // namespace Lina::Editor

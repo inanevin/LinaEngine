@@ -68,6 +68,7 @@ namespace Lina::Editor
 
 	private:
 		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);
+		void FixAreaChildMargins();
 
 	private:
 		TabRow*			   m_tabRow	 = nullptr;

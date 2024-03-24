@@ -255,4 +255,14 @@ namespace Lina
 	{
 		return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
 	}
+
+	Rect Widget::GetTemporaryAlignedRect()
+	{
+		// When we haven't calculated our original rect from alignment just yet, but we still need to know the results immediately.
+		const float posx  = GetParent()->GetPosX() + GetParent()->GetSizeX() * GetAlignedPosX();
+		const float posy  = GetParent()->GetPosY() + GetParent()->GetSizeY() * GetAlignedPosY();
+		const float sizex = GetFlags().IsSet(WF_USE_FIXED_SIZE_X) ? GetFixedSizeX() : GetParent()->GetSizeX() * GetAlignedSizeX();
+		const float sizey = GetFlags().IsSet(WF_USE_FIXED_SIZE_Y) ? GetFixedSizeY() : GetParent()->GetSizeY() * GetAlignedSizeY();
+		return Rect(Vector2(posx, posy), Vector2(sizex, sizey));
+	}
 } // namespace Lina

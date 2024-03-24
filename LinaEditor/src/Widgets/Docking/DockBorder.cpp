@@ -42,13 +42,13 @@ namespace Lina::Editor
 
 		if (m_orientation == DirectionOrientation::Horizontal)
 		{
-			GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
-			// SetFixedSizeY(Theme::GetDef().baseBorderThickness);
+			GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X);
+			SetFixedSizeY(Theme::GetDef().baseBorderThickness);
 		}
 		else
 		{
-			GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
-			// SetFixedSizeX(Theme::GetDef().baseBorderThickness);
+			GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
+			SetFixedSizeX(Theme::GetDef().baseBorderThickness);
 		}
 	}
 	LinaGX::CursorType DockBorder::GetCursorOverride()
@@ -167,15 +167,17 @@ namespace Lina::Editor
 
 	void DockBorder::Draw(int32 threadIndex)
 	{
-		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().accentWarn.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		// LinaVG::StyleOptions opts;
+		// opts.color = Theme::GetDef().accentWarn.AsLVG4();
+		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 
-		/* Debug Draw Bounds Test Rectangles
-		opts.color = Color::Red.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_boundsTestRectPositive.pos.AsLVG(), m_boundsTestRectPositive.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		// Debug Draw Bounds Test Rectangles
+		/* opts.color = Color::Red.AsLVG4();
+		LinaVG::DrawRect(threadIndex, m_boundsTestRects[0].pos.AsLVG(), m_boundsTestRects[0].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		LinaVG::DrawRect(threadIndex, m_boundsTestRects[1].pos.AsLVG(), m_boundsTestRects[1].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 		opts.color = Color::Blue.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_boundsTestRectNegative.pos.AsLVG(), m_boundsTestRectNegative.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		LinaVG::DrawRect(threadIndex, m_boundsTestRects[2].pos.AsLVG(), m_boundsTestRects[2].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		LinaVG::DrawRect(threadIndex, m_boundsTestRects[3].pos.AsLVG(), m_boundsTestRects[3].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 		*/
 	}
 
@@ -237,4 +239,23 @@ namespace Lina::Editor
 		return true;
 	}
 
+	void DockBorder::FixChildMargins()
+	{
+		FindAdjacentWidgets();
+
+		if (m_orientation == DirectionOrientation::Horizontal)
+		{
+			const auto& widgets = m_adjacentWidgets[static_cast<int32>(Direction::Bottom)];
+
+			for (auto* w : widgets)
+				w->GetChildMargins().top = GetFixedSizeY();
+		}
+		else if (m_orientation == DirectionOrientation::Vertical)
+		{
+			const auto& widgets = m_adjacentWidgets[static_cast<int32>(Direction::Right)];
+
+			for (auto* w : widgets)
+				w->GetChildMargins().left = GetFixedSizeX();
+		}
+	}
 } // namespace Lina::Editor

@@ -109,6 +109,7 @@ namespace Lina
 		Vector2		 GetStartFromMargins();
 		Vector2		 GetEndFromMargins();
 		void		 SetIsDisabled(bool isDisabled);
+		Rect		 GetTemporaryAlignedRect();
 
 		Vector2 GetWindowSize();
 		Vector2 GetMonitorSize();
