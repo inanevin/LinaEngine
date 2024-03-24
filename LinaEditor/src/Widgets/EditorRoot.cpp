@@ -55,8 +55,8 @@ namespace Lina::Editor
 		const String tooltip = "Lina Engine v." + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " - b: " + TO_STRING(LINA_BUILD);
 		SetTooltip(tooltip);
 
-		GetProps().direction			= DirectionOrientation::Vertical;
-		
+		GetProps().direction = DirectionOrientation::Vertical;
+
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		SetAlignedPos(Vector2::Zero);
 		SetAlignedSize(Vector2::One);

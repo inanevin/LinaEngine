@@ -62,12 +62,12 @@ namespace Lina::Editor
 
 		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
-        
-        m_mainWindow = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-        m_payloadWindow = m_gfxManager->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0,0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
-        m_payloadWindow->SetVisible(false);
-        
-        m_subWindows.push_back(m_payloadWindow);
+
+		m_mainWindow	= m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		m_payloadWindow = m_gfxManager->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
+		m_payloadWindow->SetVisible(false);
+
+		m_subWindows.push_back(m_payloadWindow);
 
 		// Push splash
 		Widget*		  root	 = m_primaryWidgetManager->GetRoot();
@@ -95,62 +95,62 @@ namespace Lina::Editor
 			m_layout.SaveToFile();
 	}
 
-    void Editor::PreTick()
-    {
-        if(!m_windowCloseRequests.empty())
-        {
-            for(auto sid : m_windowCloseRequests)
-            {
-                auto it = linatl::find_if(m_subWindows.begin(), m_subWindows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });
+	void Editor::PreTick()
+	{
+		if (!m_windowCloseRequests.empty())
+		{
+			for (auto sid : m_windowCloseRequests)
+			{
+				auto it = linatl::find_if(m_subWindows.begin(), m_subWindows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });
 
-                if (it != m_subWindows.end())
-                    m_subWindows.erase(it);
-                m_gfxManager->DestroyApplicationWindow(sid);
-            }
-            
-            m_windowCloseRequests.clear();
-        }
-        
-        if(m_payloadRequest.active)
-        {
-            if(!m_payloadWindow->GetIsVisible())
-            {
-                m_payloadWindow->SetVisible(true);
-                m_payloadWindow->SetAlpha(0.5f);
-                m_payloadWindow->SetSize({static_cast<uint32>(m_payloadRequest.payload->GetSize().x), static_cast<uint32>(m_payloadRequest.payload->GetSize().y)});
-                Widget* payloadRoot = m_gfxManager->GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
-                payloadRoot->AddChild(m_payloadRequest.payload);
-                
-                for(auto* l : m_payloadListeners)
-                    l->OnPayloadEnabled(m_payloadRequest.type, m_payloadRequest.payload);
-            }
-            
-            const auto& mp = m_gfxManager->GetLGX()->GetInput().GetMousePositionAbs();
-            m_payloadWindow->SetPosition({static_cast<int32>(mp.x), static_cast<int32>(mp.y)});
-            
-            if(!m_gfxManager->GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
-            {
-                m_payloadWindow->SetVisible(false);
-                m_payloadRequest.active = false;
-                
-                bool received = false;
-                for(auto* l : m_payloadListeners)
-                {
-                    if(l->OnPayloadDropped(m_payloadRequest.type, m_payloadRequest.payload))
-                    {
-                        received = true;
-                        break;
-                    }
-                }
-                
-                if(!received)
-                {
-                    // deallocate payload.
-                    m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
-                }
-            }
-        }
-    }
+				if (it != m_subWindows.end())
+					m_subWindows.erase(it);
+				m_gfxManager->DestroyApplicationWindow(sid);
+			}
+
+			m_windowCloseRequests.clear();
+		}
+
+		if (m_payloadRequest.active)
+		{
+			if (!m_payloadWindow->GetIsVisible())
+			{
+				m_payloadWindow->SetVisible(true);
+				m_payloadWindow->SetAlpha(0.5f);
+				m_payloadWindow->SetSize({static_cast<uint32>(m_payloadRequest.payload->GetSize().x), static_cast<uint32>(m_payloadRequest.payload->GetSize().y)});
+				Widget* payloadRoot = m_gfxManager->GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
+				payloadRoot->AddChild(m_payloadRequest.payload);
+
+				for (auto* l : m_payloadListeners)
+					l->OnPayloadEnabled(m_payloadRequest.type, m_payloadRequest.payload);
+			}
+
+			const auto& mp = m_gfxManager->GetLGX()->GetInput().GetMousePositionAbs();
+			m_payloadWindow->SetPosition({static_cast<int32>(mp.x), static_cast<int32>(mp.y)});
+
+			if (!m_gfxManager->GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
+			{
+				m_payloadWindow->SetVisible(false);
+				m_payloadRequest.active = false;
+
+				bool received = false;
+				for (auto* l : m_payloadListeners)
+				{
+					if (l->OnPayloadDropped(m_payloadRequest.type, m_payloadRequest.payload))
+					{
+						received = true;
+						break;
+					}
+				}
+
+				if (!received)
+				{
+					// deallocate payload.
+					m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
+				}
+			}
+		}
+	}
 
 	void Editor::CoreResourcesLoaded()
 	{
@@ -180,20 +180,19 @@ namespace Lina::Editor
 			OpenPopupProjectSelector(false);
 	}
 
-    void Editor::PreShutdown()
-    {
-        for (auto* w : m_subWindows)
-            m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
-        
-        m_subWindows.clear();
-        
-        m_settings.SaveToFile();
-        RemoveCurrentProject();
-    }
+	void Editor::PreShutdown()
+	{
+		for (auto* w : m_subWindows)
+			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
+
+		m_subWindows.clear();
+
+		m_settings.SaveToFile();
+		RemoveCurrentProject();
+	}
 
 	void Editor::Shutdown()
 	{
-       
 	}
 
 	void Editor::OpenPopupProjectSelector(bool canCancel, bool openCreateFirst)
@@ -293,15 +292,15 @@ namespace Lina::Editor
 		m_system->GetApp()->Quit();
 	}
 
-    void Editor::AddPayloadListener(EditorPayloadListener *listener)
-    {
-        m_payloadListeners.push_back(listener);
-    }
+	void Editor::AddPayloadListener(EditorPayloadListener* listener)
+	{
+		m_payloadListeners.push_back(listener);
+	}
 
-    void Editor::RemovePayloadListener(EditorPayloadListener *listener)
-    {
-        m_payloadListeners.erase(linatl::find(m_payloadListeners.begin(), m_payloadListeners.end(), listener));
-    }
+	void Editor::RemovePayloadListener(EditorPayloadListener* listener)
+	{
+		m_payloadListeners.erase(linatl::find(m_payloadListeners.begin(), m_payloadListeners.end(), listener));
+	}
 
 	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
 	{
@@ -342,7 +341,6 @@ namespace Lina::Editor
 		layout->AddChild(wb);
 		layout->Initialize();
 
-
 		Widget* panelArea = newWindowRoot->GetWidgetManager()->Allocate<Widget>("PanelArea");
 		panelArea->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelArea->SetAlignedPosX(0.0f);
@@ -353,21 +351,21 @@ namespace Lina::Editor
 		dockArea->SetAlignedPos(Vector2::Zero);
 		dockArea->SetAlignedSize(Vector2::One);
 		panelArea->AddChild(dockArea);
-        
-        Panel* panel = PanelFactory::CreatePanel(dockArea, type, subData);
-        dockArea->AddAsPanel(panel);
+
+		Panel* panel = PanelFactory::CreatePanel(dockArea, type, subData);
+		dockArea->AddAsPanel(panel);
 	}
 
 	void Editor::CloseWindow(StringID sid)
 	{
-        m_windowCloseRequests.push_back(sid);
+		m_windowCloseRequests.push_back(sid);
 	}
 
-    void Editor::CreatePayload(Widget* payload, PayloadType type)
-    {
-        m_payloadRequest.active = true;
-        m_payloadRequest.payload = payload;
-        m_payloadRequest.type = type;
-    }
+	void Editor::CreatePayload(Widget* payload, PayloadType type)
+	{
+		m_payloadRequest.active	 = true;
+		m_payloadRequest.payload = payload;
+		m_payloadRequest.type	 = type;
+	}
 
 } // namespace Lina::Editor

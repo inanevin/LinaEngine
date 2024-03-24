@@ -322,7 +322,7 @@ namespace Lina::Editor
 		{
 			parent = m_content->GetParent();
 			parent->RemoveChild(m_content);
-            m_manager->Deallocate(m_content);
+			m_manager->Deallocate(m_content);
 			m_content = nullptr;
 		}
 

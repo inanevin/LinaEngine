@@ -263,10 +263,10 @@ namespace Lina
 
 		// Final
 		delete m_lgx;
-        
-        // GUI allocators
-        linatl::for_each(m_guiAllocators.begin(), m_guiAllocators.end(), [](auto& pair) -> void { delete pair.second; });
-        m_guiAllocators.clear();
+
+		// GUI allocators
+		linatl::for_each(m_guiAllocators.begin(), m_guiAllocators.end(), [](auto& pair) -> void { delete pair.second; });
+		m_guiAllocators.clear();
 	}
 
 	void GfxManager::WaitForSwapchains()
@@ -455,16 +455,16 @@ namespace Lina
 		return *it;
 	}
 
-    PoolAllocator* GfxManager::GetGUIAllocator(TypeID tid, size_t typeSize)
-    {
-        LOCK_GUARD(m_guiAllocMutx);
-        
-        PoolAllocator*& alloc = m_guiAllocators[tid];
-        if (alloc == nullptr)
-        {
-            alloc = new PoolAllocator(typeSize * Theme::GetWidgetChunkCount(tid), typeSize);
-            alloc->Init();
-        }
-    }
+	PoolAllocator* GfxManager::GetGUIAllocator(TypeID tid, size_t typeSize)
+	{
+		LOCK_GUARD(m_guiAllocMutx);
+
+		PoolAllocator*& alloc = m_guiAllocators[tid];
+		if (alloc == nullptr)
+		{
+			alloc = new PoolAllocator(typeSize * Theme::GetWidgetChunkCount(tid), typeSize);
+			alloc->Init();
+		}
+	}
 
 } // namespace Lina
