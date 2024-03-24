@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Data/Bitmask.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Math/Color.hpp"
 
 namespace Lina
 {
@@ -52,6 +53,7 @@ namespace Lina
 		bool				 allowTearing		 = false;
 		ApplicationDelegate* appDelegate		 = nullptr;
 		ResourceManagerMode	 resourceManagerMode = ResourceManagerMode::File;
+		Color				 clearColor			 = Color::Black;
 	};
 
 	enum class Direction

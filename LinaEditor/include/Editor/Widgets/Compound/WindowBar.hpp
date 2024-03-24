@@ -49,6 +49,7 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void PreTick() override;
+		virtual void Tick(float delta) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		inline BarProperties& GetBarProps()
@@ -57,6 +58,8 @@ namespace Lina::Editor
 		}
 
 	private:
+		static constexpr float COLOR_SPEED = 15.0f;
+
 	private:
 		Rect			   m_dragRect	   = {};
 		BarProperties	   m_barProps	   = {};

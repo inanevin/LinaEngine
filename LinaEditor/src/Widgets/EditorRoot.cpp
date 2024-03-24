@@ -153,7 +153,8 @@ namespace Lina::Editor
 
 	void EditorRoot::Tick(float delta)
 	{
-		m_titleBar->GetProps().colorBackgroundEnd = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+		const Color targetColor					  = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+		m_titleBar->GetProps().colorBackgroundEnd = Math::Lerp(m_titleBar->GetProps().colorBackgroundEnd, targetColor, delta * COLOR_SPEED);
 
 		DirectionalLayout::Tick(delta);
 
@@ -274,6 +275,7 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entities)))
 		{
+			editor->OpenPanel(PanelType::Entities, 0, this);
 			return true;
 		}
 

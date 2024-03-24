@@ -28,9 +28,10 @@ SOFTWARE.
 
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Editor/Widgets/CommonWidgets.hpp"
+#include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -77,9 +78,7 @@ namespace Lina::Editor
 
 	void WindowBar::PreTick()
 	{
-		Widget::PreTick();
-
-		GetProps().colorBackgroundStart = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+		DirectionalLayout::PreTick();
 
 		if (m_barProps.controlsDragRect)
 		{
@@ -93,6 +92,14 @@ namespace Lina::Editor
 			lgxRect.size = {static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
 			m_lgxWindow->SetDragRect(lgxRect);
 		}
+	}
+
+	void WindowBar::Tick(float delta)
+	{
+		DirectionalLayout::Tick(delta);
+
+		const Color targetColor			= m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+		GetProps().colorBackgroundStart = Math::Lerp(GetProps().colorBackgroundStart, targetColor, delta * COLOR_SPEED);
 	}
 
 	bool WindowBar::OnMouse(uint32 button, LinaGX::InputAction act)

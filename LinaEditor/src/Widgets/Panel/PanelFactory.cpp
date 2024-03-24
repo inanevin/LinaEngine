@@ -42,9 +42,9 @@ namespace Lina::Editor
 		case PanelType::Performance:
 			return source->GetWidgetManager()->Allocate<PanelPerformance>("Performance");
 		case PanelType::Resources:
-			return source->GetWidgetManager()->Allocate<PanelPerformance>("Resources");
+			return source->GetWidgetManager()->Allocate<PanelResources>("Resources");
 		case PanelType::World:
-			return source->GetWidgetManager()->Allocate<PanelPerformance>("World");
+			return source->GetWidgetManager()->Allocate<PanelWorld>("World");
 		case PanelType::Entities:
 			return source->GetWidgetManager()->Allocate<PanelEntities>("Entities");
 		default:

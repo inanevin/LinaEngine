@@ -42,13 +42,13 @@ namespace Lina::Editor
 
 		if (m_orientation == DirectionOrientation::Horizontal)
 		{
-			GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X);
-			SetFixedSizeY(Theme::GetDef().baseBorderThickness);
+			GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
+			// SetFixedSizeY(Theme::GetDef().baseBorderThickness);
 		}
 		else
 		{
-			GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
-			SetFixedSizeX(Theme::GetDef().baseBorderThickness);
+			GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
+			// SetFixedSizeX(Theme::GetDef().baseBorderThickness);
 		}
 	}
 	LinaGX::CursorType DockBorder::GetCursorOverride()
@@ -168,7 +168,7 @@ namespace Lina::Editor
 	void DockBorder::Draw(int32 threadIndex)
 	{
 		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background0.AsLVG4();
+		opts.color = Theme::GetDef().accentWarn.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 
 		/* Debug Draw Bounds Test Rectangles
@@ -186,7 +186,6 @@ namespace Lina::Editor
 			m_pressDiff = m_orientation == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().y - GetPosY()) : (m_lgxWindow->GetMousePosition().x - GetPosX());
 			FindAdjacentWidgets();
 			m_isPressed = true;
-			LINA_TRACE("POS Y ON PRESS {0} ALIGNED POS Y ON PRESS {1}", GetPosY(), GetAlignedPosY());
 			return true;
 		}
 

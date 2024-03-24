@@ -58,10 +58,15 @@ namespace Lina::Editor
 		m_tabRow->SetAlignedPos(Vector2::Zero);
 		m_tabRow->SetAlignedSizeX(1.0f);
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
-		m_tabRow->GetProps().cantCloseSingleTab = m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN;
-		m_tabRow->GetProps().onTabClosed		= [this, editor](Widget* w) { editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID())); };
-		m_tabRow->GetProps().onTabDockedOut		= [this, editor](Widget* w) {
-			RemovePanel(w);
+		// m_tabRow->GetProps().cantCloseSingleTab = m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN;
+		m_tabRow->GetProps().onTabClosed = [this, editor](Widget* w) {
+			if (m_parent->GetChildren().size() == 1 && m_lgxWindow->GetSID() != LINA_MAIN_SWAPCHAIN)
+				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+			else
+				RemoveArea();
+		};
+		m_tabRow->GetProps().onTabDockedOut = [this, editor](Widget* w) {
+			RemovePanel(static_cast<Panel*>(w));
 
 			// If only child
 			if (m_parent->GetChildren().size() == 1)
@@ -73,12 +78,10 @@ namespace Lina::Editor
 		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) {
 			if (m_selectedPanel)
 			{
-				m_layout->RemoveChild(m_selectedPanel);
 				m_selectedPanel->SetIsDisabled(true);
 			}
 
 			m_selectedPanel = w;
-			m_layout->AddChild(m_selectedPanel);
 			m_selectedPanel->SetIsDisabled(false);
 		};
 
@@ -96,7 +99,7 @@ namespace Lina::Editor
 			HidePreview();
 	}
 
-	void DockArea::AddAsPanel(Widget* w)
+	void DockArea::AddPanel(Panel* w)
 	{
 		w->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
 		w->SetAlignedPosX(0.0f);
@@ -108,27 +111,25 @@ namespace Lina::Editor
 		m_panels.push_back(w);
 
 		if (m_selectedPanel)
-		{
-			m_layout->RemoveChild(m_selectedPanel);
 			m_selectedPanel->SetIsDisabled(true);
-		}
 
 		m_selectedPanel = w;
 		m_selectedPanel->SetIsDisabled(false);
 	}
 
-	void DockArea::RemovePanel(Widget* w)
+	void DockArea::RemovePanel(Panel* w)
 	{
 		const int32 index = UtilVector::IndexOf(m_panels, w);
-		auto		it	  = linatl::find_if(m_panels.begin(), m_panels.end(), [w](Widget* panel) -> bool { return panel == w; });
+		auto		it	  = linatl::find_if(m_panels.begin(), m_panels.end(), [w](Panel* panel) -> bool { return panel == w; });
 		m_panels.erase(it);
 		m_tabRow->RemoveTab(w);
+		m_layout->RemoveChild(w);
 
 		if (m_selectedPanel == w)
 		{
 			m_selectedPanel = nullptr;
 
-			if (index != -1)
+			if (index > 0)
 			{
 				m_selectedPanel = m_panels[index];
 				m_selectedPanel->SetIsDisabled(false);
@@ -144,6 +145,10 @@ namespace Lina::Editor
 
 		if (m_payloadActive)
 		{
+			if (m_preview == nullptr)
+			{
+				ShowPreview();
+			}
 		}
 		// Omit tab row.
 		// if (m_selectedChildren == nullptr && m_children.size() == 2)
@@ -220,7 +225,7 @@ namespace Lina::Editor
 
 	bool DockArea::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
-		return Widget::OnMouse(button, action);
+		// return Widget::OnMouse(button, action);
 
 		if (button == LINAGX_MOUSE_1)
 		{
@@ -252,14 +257,20 @@ namespace Lina::Editor
 		return Widget::OnMouse(button, action);
 	}
 
-	void DockArea::OnPayloadEnabled(PayloadType type, Widget* payload)
+	void DockArea::OnPayloadStarted(PayloadType type, Widget* payload)
 	{
 		if (type == PayloadType::DockedPanel)
 			m_payloadActive = true;
 	}
 
+	void DockArea::OnPayloadEnded(PayloadType type, Widget* payload)
+	{
+		m_payloadActive = false;
+	}
+
 	bool DockArea::OnPayloadDropped(PayloadType type, Widget* payload)
 	{
+
 		return false;
 	}
 
@@ -271,7 +282,7 @@ namespace Lina::Editor
 			const String dn	 = "DummyContent" + TO_STRING(ctr);
 			ctr++;
 			Panel* dummy = m_manager->Allocate<Panel>(dn);
-			AddAsPanel(dummy);
+			AddPanel(dummy);
 			// Steal the contents of the dock area and return this.
 			return this;
 		}
@@ -296,7 +307,7 @@ namespace Lina::Editor
 
 			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = m_alignedPos;
-			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
+			border->m_alignedSize = Vector2(borderSizePercX, m_alignedSize.y);
 			border->m_orientation = DirectionOrientation::Vertical;
 			border->Initialize();
 			m_parent->AddChild(border);
@@ -314,7 +325,7 @@ namespace Lina::Editor
 
 			DockBorder* border	  = m_manager->Allocate<DockBorder>(borderName);
 			border->m_alignedPos  = Vector2(m_alignedPos.x + m_alignedSize.x, m_alignedPos.y);
-			border->m_alignedSize = Vector2(0.0f, m_alignedSize.y);
+			border->m_alignedSize = Vector2(borderSizePercX, m_alignedSize.y);
 			border->m_orientation = DirectionOrientation::Vertical;
 			border->Initialize();
 			m_parent->AddChild(border);
@@ -355,7 +366,7 @@ namespace Lina::Editor
 		}
 
 		Panel* dummy = m_manager->Allocate<Panel>("DummyContent");
-		area->AddAsPanel(dummy);
+		area->AddPanel(dummy);
 		m_parent->AddChild(area);
 		return area;
 	}
@@ -430,7 +441,7 @@ namespace Lina::Editor
 				ExpandWidgetsToMyPlace(widgetsToExpand, dir);
 
 				m_parent->RemoveChild(this);
-				m_manager->AddToKillList(this);
+				m_manager->Deallocate(this);
 
 				break;
 			}

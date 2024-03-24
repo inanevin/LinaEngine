@@ -29,25 +29,31 @@ SOFTWARE.
 #include "Editor/Widgets/DockTestbed.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Testbed.hpp"
+#include "Editor/Widgets/Panel/PanelFactory.hpp"
 
 namespace Lina::Editor
 {
 
 	void DockTestbed::Construct()
 	{
+		SetDebugName("DockTestBed");
+		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		SetAlignedPos(Vector2::Zero);
+		SetAlignedSize(Vector2::One);
+
+		// Testbed* tb = Allocate<Testbed>("Testbed");
+		// Widget* tb = m_manager->Allocate<Widget>("Testbed");
+		// area->AddChild(tb);
+
 		DockArea* area = m_manager->Allocate<DockArea>("DockArea");
-		area->Initialize();
-
-		// Testbed* tb = m_manager->Allocate<Testbed>("Testbed");
-		Widget* tb = m_manager->Allocate<Widget>("Testbed");
-		area->AddChild(tb);
-
+		area->SetAlignedPos(Vector2::Zero);
+		area->SetAlignedSize(Vector2::One);
+		area->AddPanel(PanelFactory::CreatePanel(area, PanelType::Resources, 0));
 		AddChild(area);
 	}
 
 	void DockTestbed::Tick(float delta)
 	{
-		SetSize(Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)));
+		Widget::Tick(delta);
 	}
-
 } // namespace Lina::Editor

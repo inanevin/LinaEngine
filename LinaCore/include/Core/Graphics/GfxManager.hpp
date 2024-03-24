@@ -137,8 +137,8 @@ namespace Lina
 		LinaGX::Window*					m_mainWindow   = nullptr;
 		HashMap<TypeID, PoolAllocator*> m_guiAllocators;
 		Mutex							m_guiAllocMutx;
-
-		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
+		Color							m_clearColor = Color::Black;
+		PerFrameData					m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina
 #endif

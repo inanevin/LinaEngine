@@ -97,6 +97,7 @@ namespace Lina::Editor
 
 	void Editor::PreTick()
 	{
+
 		if (!m_windowCloseRequests.empty())
 		{
 			for (auto sid : m_windowCloseRequests)
@@ -122,7 +123,7 @@ namespace Lina::Editor
 				payloadRoot->AddChild(m_payloadRequest.payload);
 
 				for (auto* l : m_payloadListeners)
-					l->OnPayloadEnabled(m_payloadRequest.type, m_payloadRequest.payload);
+					l->OnPayloadStarted(m_payloadRequest.type, m_payloadRequest.payload);
 			}
 
 			const auto& mp = m_gfxManager->GetLGX()->GetInput().GetMousePositionAbs();
@@ -143,9 +144,11 @@ namespace Lina::Editor
 					}
 				}
 
+				for (auto* l : m_payloadListeners)
+					l->OnPayloadEnded(m_payloadRequest.type, m_payloadRequest.payload);
+
 				if (!received)
 				{
-					// deallocate payload.
 					m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
 				}
 			}
@@ -165,8 +168,10 @@ namespace Lina::Editor
 		// m_mainWindow->AddSizeRequest(window->GetMonitorWorkSize());
 
 		// Testbed* tb = root->Allocate<Testbed>();
-		// root->AddChild(tb);
-		// return;
+		DockTestbed* tb = root->GetWidgetManager()->Allocate<DockTestbed>();
+		root->AddChild(tb);
+		tb->Initialize();
+		return;
 
 		// Insert editor root.
 		m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
@@ -353,7 +358,7 @@ namespace Lina::Editor
 		panelArea->AddChild(dockArea);
 
 		Panel* panel = PanelFactory::CreatePanel(dockArea, type, subData);
-		dockArea->AddAsPanel(panel);
+		dockArea->AddPanel(panel);
 	}
 
 	void Editor::CloseWindow(StringID sid)

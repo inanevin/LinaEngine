@@ -72,7 +72,11 @@ namespace Lina
 		}
 
 		auto it = linatl::find_if(m_children.begin(), m_children.end(), [w](Widget* child) -> bool { return w == child; });
+
+		LINA_ASSERT(it != m_children.end(), "");
 		m_children.erase(it);
+
+		w->m_next = w->m_prev = nullptr;
 	}
 
 	void Widget::SaveToStream(OStream& out) const

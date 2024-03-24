@@ -81,6 +81,7 @@ namespace Lina
 			.windowStyle		 = LinaGX::WindowStyle::BorderlessApplication,
 			.appDelegate		 = new Lina::Editor::EditorApplicationDelegate(),
 			.resourceManagerMode = Lina::ResourceManagerMode::File,
+			.clearColor			 = Theme::GetDef().background0,
 		};
 	}
 } // namespace Lina

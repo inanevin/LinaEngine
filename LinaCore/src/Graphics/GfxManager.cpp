@@ -114,6 +114,7 @@ namespace Lina
 		// Setup LinaGX
 		m_lgx		  = new LinaGX::Instance();
 		m_appDelegate = m_system->GetApp()->GetAppDelegate();
+		m_clearColor  = initInfo.clearColor;
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing = initInfo.allowTearing,
@@ -427,7 +428,7 @@ namespace Lina
 		m_lgx->Join();
 		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
 
-		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, size);
+		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, size, m_clearColor);
 		m_surfaceRenderers.push_back(renderer);
 
 		return window;
@@ -457,7 +458,7 @@ namespace Lina
 
 	PoolAllocator* GfxManager::GetGUIAllocator(TypeID tid, size_t typeSize)
 	{
-		LOCK_GUARD(m_guiAllocMutx);
+		LINA_ASSERT(SystemInfo::IsMainThread(), "");
 
 		PoolAllocator*& alloc = m_guiAllocators[tid];
 		if (alloc == nullptr)
@@ -465,6 +466,8 @@ namespace Lina
 			alloc = new PoolAllocator(typeSize * Theme::GetWidgetChunkCount(tid), typeSize);
 			alloc->Init();
 		}
+
+		return alloc;
 	}
 
 } // namespace Lina

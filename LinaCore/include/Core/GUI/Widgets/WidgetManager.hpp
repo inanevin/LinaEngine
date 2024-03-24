@@ -66,9 +66,11 @@ namespace Lina
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
 
+        
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{
 			const TypeID   tid	 = GetTypeID<T>();
+            
 			PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
 			T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
 			t->SetDebugName(debugName);
@@ -76,7 +78,7 @@ namespace Lina
 			t->m_manager		 = this;
 			t->m_system			 = m_system;
 			t->m_resourceManager = m_resourceManager;
-			t->m_tid			 = tid;
+            t->m_tid = tid;
 			t->Construct();
 			return t;
 		}

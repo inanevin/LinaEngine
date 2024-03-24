@@ -44,7 +44,7 @@ namespace Lina
 {
 #define MAX_GFX_COMMANDS 250
 
-	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
+	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize, const Color& clearColor) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
 	{
 		m_lgx		  = m_gfxManager->GetLGX();
 		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
@@ -68,7 +68,7 @@ namespace Lina
 		   });
 
 		// RP
-		m_renderPass.SetColorAttachment(0, {.texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
+		m_renderPass.SetColorAttachment(0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
 		m_renderPass.Create(m_gfxManager, m_lgx, RenderPassDescriptorType::Basic);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)

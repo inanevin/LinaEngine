@@ -64,6 +64,8 @@ namespace Lina::Editor
 		}
 
 	private:
+		static constexpr float COLOR_SPEED = 15.0f;
+
 		Rect			   m_dragRect		 = {};
 		FileMenu*		   m_fileMenu		 = nullptr;
 		Widget*			   m_windowButtons	 = nullptr;

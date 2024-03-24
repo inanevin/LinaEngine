@@ -61,7 +61,7 @@ namespace Lina
 		};
 
 	public:
-		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize);
+		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize, const Color& clearColor);
 		virtual ~SurfaceRenderer();
 
 		void				   PreTick();

@@ -56,7 +56,11 @@ namespace Lina::Editor
 	class EditorPayloadListener
 	{
 	public:
-		virtual void OnPayloadEnabled(PayloadType type, Widget* payload)
+		virtual void OnPayloadStarted(PayloadType type, Widget* payload)
+		{
+			return false;
+		}
+		virtual void OnPayloadEnded(PayloadType type, Widget* payload)
 		{
 			return false;
 		}

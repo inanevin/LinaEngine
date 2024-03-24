@@ -41,6 +41,7 @@ namespace Lina::Editor
 {
 	class DockPreview;
 	class TabRow;
+	class Panel;
 
 	class DockArea : public DockWidget, public EditorPayloadListener
 	{
@@ -53,11 +54,12 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-		virtual void OnPayloadEnabled(PayloadType type, Widget* payload) override;
+		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
 
-		void AddAsPanel(Widget* w);
-		void RemovePanel(Widget* w);
+		void AddPanel(Panel* w);
+		void RemovePanel(Panel* w);
 
 		void	  ShowPreview();
 		void	  HidePreview();
@@ -71,7 +73,7 @@ namespace Lina::Editor
 		TabRow*			   m_tabRow	 = nullptr;
 		DockPreview*	   m_preview = nullptr;
 		DirectionalLayout* m_layout	 = nullptr;
-		Vector<Widget*>	   m_panels;
+		Vector<Panel*>	   m_panels;
 		Widget*			   m_selectedPanel = nullptr;
 		bool			   m_payloadActive = false;
 	};
