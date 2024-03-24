@@ -32,13 +32,13 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    class PanelWorld : public Panel
-    {
-    public:
-        PanelWorld()             = default;
-        virtual ~PanelWorld() = default;
+	class PanelWorld : public Panel
+	{
+	public:
+		PanelWorld()		  = default;
+		virtual ~PanelWorld() = default;
 
-    private:
-    };
+	private:
+	};
 
 } // namespace Lina::Editor

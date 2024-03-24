@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    class Editor;
+	class Editor;
 
 	class EditorSettings : public Serializable
 	{
@@ -42,7 +42,10 @@ namespace Lina::Editor
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
 
-        void Initialize(Editor* editor) { m_editor = editor; }
+		void Initialize(Editor* editor)
+		{
+			m_editor = editor;
+		}
 
 		inline const String& GetLastProjectPath() const
 		{
@@ -55,8 +58,8 @@ namespace Lina::Editor
 		}
 
 	private:
-		String m_lastProjectPath = "";
-        Editor* m_editor = nullptr;
+		String	m_lastProjectPath = "";
+		Editor* m_editor		  = nullptr;
 	};
 
 } // namespace Lina::Editor
