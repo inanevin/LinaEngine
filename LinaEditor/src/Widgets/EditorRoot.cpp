@@ -281,11 +281,13 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
 		{
+			editor->OpenPanel(PanelType::World, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Performance)))
 		{
+			editor->OpenPanel(PanelType::Performance, 0, this);
 			return true;
 		}
 

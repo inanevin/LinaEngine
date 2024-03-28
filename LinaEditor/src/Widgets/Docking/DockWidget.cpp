@@ -58,7 +58,7 @@ namespace Lina::Editor
 		right.size	= Vector2(thickness, size.y - padding * 2.0f);
 
 		Vector<DockWidget*> widgets;
-		DockWidget::GetDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
+		DockWidget::GetOtherDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
 
 		for (int32 i = 0; i < 4; i++)
 		{
@@ -71,7 +71,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void DockWidget::GetDockWidgets(Vector<DockWidget*>& outWidgets, const Vector<TypeID>& tids)
+	void DockWidget::GetOtherDockWidgets(Vector<DockWidget*>& outWidgets, const Vector<TypeID>& tids)
 	{
 		Vector<Widget*> children  = m_parent->GetChildren();
 		const TypeID	tidArea	  = GetTypeID<DockArea>();

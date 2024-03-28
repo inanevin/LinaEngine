@@ -29,18 +29,33 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/CommonEditor.hpp"
 
 namespace Lina::Editor
 {
 	class Panel : public Widget
 	{
 	public:
-		Panel()			 = default;
+        Panel() = delete;
+        Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData) {};
 		virtual ~Panel() = default;
 
 		virtual void Draw(int32 threadIndex) override;
 
+        inline PanelType GetType() const
+        {
+            return m_panelType;
+        }
+        
+        inline StringID GetSubData() const
+        {
+            return m_subData;
+        }
+        
 	private:
+        
+        PanelType m_panelType = PanelType::Resources;
+        StringID m_subData = 0;
 	};
 
 } // namespace Lina::Editor

@@ -61,14 +61,23 @@ namespace Lina::Editor
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
 		// m_tabRow->GetProps().cantCloseSingleTab = m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN;
 		m_tabRow->GetProps().onTabClosed = [this, editor](Widget* w) {
-			if (m_parent->GetChildren().size() == 1 && m_lgxWindow->GetSID() != LINA_MAIN_SWAPCHAIN)
-				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
-			else
-				RemoveArea();
+			RemovePanel(static_cast<Panel*>(w));
+			m_manager->Deallocate(w);
+
+			if (m_panels.empty())
+			{
+				if (m_parent->GetChildren().size() == 1)
+					editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+				else
+					RemoveArea();
+			}
 		};
 		m_tabRow->GetProps().onTabDockedOut = [this, editor](Widget* w) {
 			RemovePanel(static_cast<Panel*>(w));
 
+			if (m_panels.empty())
+			{
+			}
 			// If only child
 			if (m_parent->GetChildren().size() == 1)
 				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
@@ -76,15 +85,7 @@ namespace Lina::Editor
 			editor->CreatePayload(w, PayloadType::DockedPanel);
 		};
 
-		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) {
-			if (m_selectedPanel)
-			{
-				m_selectedPanel->SetIsDisabled(true);
-			}
-
-			m_selectedPanel = w;
-			m_selectedPanel->SetIsDisabled(false);
-		};
+		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) { SetSelected(w); };
 
 		AddChild(m_layout);
 		m_layout->AddChild(m_tabRow);
@@ -108,34 +109,38 @@ namespace Lina::Editor
 
 		m_tabRow->AddTab(w);
 		m_tabRow->SetSelected(w);
-		m_layout->AddChild(w);
 		m_panels.push_back(w);
 
 		if (m_selectedPanel)
-			m_selectedPanel->SetIsDisabled(true);
+			m_layout->RemoveChild(m_selectedPanel);
 
 		m_selectedPanel = w;
-		m_selectedPanel->SetIsDisabled(false);
+		m_layout->AddChild(m_selectedPanel);
 	}
 
 	void DockArea::RemovePanel(Panel* w)
 	{
-		const int32 index = UtilVector::IndexOf(m_panels, w);
 		auto		it	  = linatl::find_if(m_panels.begin(), m_panels.end(), [w](Panel* panel) -> bool { return panel == w; });
+		const int32 index = UtilVector::IndexOf(m_panels, w);
 		m_panels.erase(it);
 		m_tabRow->RemoveTab(w);
-		m_layout->RemoveChild(w);
 
-		if (m_selectedPanel == w)
+		if (w == m_selectedPanel)
 		{
-			m_selectedPanel = nullptr;
+			m_layout->RemoveChild(m_selectedPanel);
 
-			if (index > 0)
+			LINA_ASSERT(index > -1, "");
+
+			const int32 newIndex = (index - 1) > -1 ? (index - 1) : 0;
+
+			if (static_cast<int32>(m_panels.size()) > newIndex)
 			{
-				m_selectedPanel = m_panels[index];
-				m_selectedPanel->SetIsDisabled(false);
+				m_selectedPanel = m_panels[newIndex];
 				m_tabRow->SetSelected(m_selectedPanel);
+				m_layout->AddChild(m_selectedPanel);
 			}
+			else
+				m_selectedPanel = nullptr;
 		}
 	}
 
@@ -372,7 +377,7 @@ namespace Lina::Editor
 
 		// Fill adjacency information for all.
 		Vector<DockWidget*> widgets;
-		DockWidget::GetDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
+		DockWidget::GetOtherDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
 		for (auto* w : widgets)
 			w->FindAdjacentWidgets();
 
@@ -410,7 +415,7 @@ namespace Lina::Editor
 			{
 				// Handle border.
 				Vector<DockWidget*> borders;
-				DockWidget::GetDockWidgets(borders, {GetTypeID<DockBorder>()});
+				DockWidget::GetOtherDockWidgets(borders, {GetTypeID<DockBorder>()});
 				for (auto* w : borders)
 				{
 					DockBorder* border = static_cast<DockBorder*>(w);
@@ -467,15 +472,23 @@ namespace Lina::Editor
 		// Reset first
 		GetChildMargins() = {};
 		Vector<DockWidget*> areas;
-		DockWidget::GetDockWidgets(areas, {GetTypeID<DockArea>()});
+		DockWidget::GetOtherDockWidgets(areas, {GetTypeID<DockArea>()});
 		for (auto* a : areas)
 			a->GetChildMargins() = {};
 
 		// Let borders handle.
 		Vector<DockWidget*> borders;
-		DockWidget::GetDockWidgets(borders, {GetTypeID<DockBorder>()});
+		DockWidget::GetOtherDockWidgets(borders, {GetTypeID<DockBorder>()});
 		for (auto* w : borders)
 			static_cast<DockBorder*>(w)->FixChildMargins();
 	}
 
+	void DockArea::SetSelected(Widget* w)
+	{
+		m_tabRow->SetSelected(w);
+		if (m_selectedPanel)
+			m_layout->RemoveChild(m_selectedPanel);
+		m_selectedPanel = w;
+		m_layout->AddChild(m_selectedPanel);
+	}
 } // namespace Lina::Editor

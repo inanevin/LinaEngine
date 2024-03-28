@@ -54,16 +54,15 @@ namespace Lina
 		m_sdfOptions.sdfOutlineSoftness	 = m_props.sdfOutlineSoftness;
 		m_sdfOptions.textScale			 = m_props.textScale;
 
-        if(m_props.enableHoverPressColors)
-        {
-            if (m_isHovered)
-                m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorHovered.AsLVG4();
+		if (m_props.enableHoverPressColors)
+		{
+			if (m_isHovered)
+				m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorHovered.AsLVG4();
 
-            if (m_isPressed)
-                m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorPressed.AsLVG4();
+			if (m_isPressed)
+				m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorPressed.AsLVG4();
+		}
 
-        }
-		
 		if (GetIsDisabled())
 			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorDisabled.AsLVG4();
 

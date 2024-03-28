@@ -65,6 +65,12 @@ namespace Lina::Editor
 		void	  HidePreview();
 		DockArea* AddDockArea(Direction direction, Panel* panel);
 		void	  RemoveArea();
+		void	  SetSelected(Widget* w);
+
+		const Vector<Panel*>& GetPanels() const
+		{
+			return m_panels;
+		}
 
 	private:
 		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);

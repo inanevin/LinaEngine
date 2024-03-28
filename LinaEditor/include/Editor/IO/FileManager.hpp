@@ -28,19 +28,19 @@ SOFTWARE.
 
 #pragma once
 
-#include "Editor/Widgets/Panel/Panel.hpp"
-
 namespace Lina::Editor
 {
-	class PanelWorld : public Panel
+
+	class Editor;
+
+	class FileManager
 	{
 	public:
-		PanelWorld() : Panel(PanelType::World, 0){};
-		virtual ~PanelWorld() = default;
-
-		virtual void Draw(int32 threadIndex) override;
+		FileManager() = delete;
+		FileManager(Editor* editor) : m_editor(editor){};
 
 	private:
+		Editor* m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

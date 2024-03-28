@@ -27,6 +27,9 @@ include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
 
+# IO
+include/Editor/IO/FileManager.hpp
+
 # Widgets
 include/Editor/Widgets/CommonWidgets.hpp
 include/Editor/Widgets/Testbed.hpp
@@ -63,6 +66,9 @@ src/EditorApplicationDelegate.cpp
 src/CommonEditor.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
+
+# IO
+src/IO/FileManager.cpp
 
 # Widgets
 src/Widgets/CommonWidgets.cpp

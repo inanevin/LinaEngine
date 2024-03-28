@@ -192,7 +192,8 @@ namespace Lina::Editor
 
 		if (m_isHovered && action == LinaGX::InputAction::Pressed && !m_icon->GetIsHovered())
 		{
-			m_ownerRow->SetSelected(m_props.tiedWidget);
+			if (!m_props.isSelected)
+				m_ownerRow->SelectionChanged(m_props.tiedWidget);
 
 			if (!m_props.disableMovement)
 			{

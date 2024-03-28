@@ -26,21 +26,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/IO/FileManager.hpp"
 
 namespace Lina::Editor
 {
-	class PanelWorld : public Panel
-	{
-	public:
-		PanelWorld() : Panel(PanelType::World, 0){};
-		virtual ~PanelWorld() = default;
-
-		virtual void Draw(int32 threadIndex) override;
-
-	private:
-	};
-
 } // namespace Lina::Editor

@@ -154,8 +154,11 @@ namespace Lina::Editor
 
 				if (!received)
 				{
+					m_payloadRequest.payload->GetParent()->RemoveChild(m_payloadRequest.payload);
+
 					if (m_payloadRequest.type == PayloadType::DockedPanel)
 					{
+						LINA_TRACE("INAN PAYLOAD NOT ACCEPTED, FORMING OWN WINDOW");
 						Panel* panel = static_cast<Panel*>(m_payloadRequest.payload);
 						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
@@ -328,9 +331,40 @@ namespace Lina::Editor
 	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
 	{
 		// Go thru windows and try to find panel.
+		auto findPanel = [type](const Vector<DockArea*>& areas) -> bool {
+			for (auto* area : areas)
+			{
+				const auto& panels = area->GetPanels();
 
-		// Create a window & insert panel.
+				for (auto* panel : panels)
+				{
+					if (panel->GetType() == type)
+					{
+						panel->GetWindow()->BringToFront();
+						area->SetSelected(panel);
+						return true;
+					}
+				}
+			}
+			return false;
+		};
 
+		// Check main
+		Vector<DockArea*> primaryAreas;
+		Widget::GetWidgetsOfType<DockArea>(primaryAreas, m_primaryWidgetManager->GetRoot());
+		if (findPanel(primaryAreas))
+			return;
+
+		// Check subs
+		for (auto* w : m_subWindows)
+		{
+			Vector<DockArea*> areas;
+			Widget::GetWidgetsOfType<DockArea>(areas, m_gfxManager->GetSurfaceRenderer(static_cast<StringID>(w->GetSID()))->GetWidgetManager().GetRoot());
+			if (findPanel(areas))
+				return;
+		}
+
+		// Not found, create a window & insert panel.
 		Vector2 pos = Vector2::Zero;
 
 		if (requestingWidget)

@@ -286,6 +286,19 @@ namespace Lina
 			return m_system;
 		}
 
+        template <typename T> static void GetWidgetsOfType(Vector<T*>& outWidgets, Widget* root)
+        {
+            auto tid = GetTypeID<T>();
+            
+            for(auto* c : root->GetChildren())
+            {
+                if(c->GetTID() == tid)
+                    outWidgets.push_back(static_cast<T*>(c));
+                
+                GetWidgetsOfType<T>(outWidgets, c);
+            }
+        }
+        
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);

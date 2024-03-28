@@ -119,7 +119,10 @@ namespace Lina::Editor
 			Tab* t					 = static_cast<Tab*>(c);
 			t->GetProps().isSelected = t->GetProps().tiedWidget == tiedWidget;
 		}
+	}
 
+	void TabRow::SelectionChanged(Widget* tiedWidget)
+	{
 		if (m_props.onSelectionChanged)
 			m_props.onSelectionChanged(tiedWidget);
 	}

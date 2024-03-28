@@ -35,7 +35,7 @@ namespace Lina::Editor
 	class PanelPerformance : public Panel
 	{
 	public:
-		PanelPerformance()			= default;
+		PanelPerformance() : Panel(PanelType::Performance, 0){};
 		virtual ~PanelPerformance() = default;
 
 	private:

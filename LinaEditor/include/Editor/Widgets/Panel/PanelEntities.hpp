@@ -35,7 +35,7 @@ namespace Lina::Editor
 	class PanelEntities : public Panel
 	{
 	public:
-		PanelEntities()			 = default;
+		PanelEntities() : Panel(PanelType::Entities, 0){};
 		virtual ~PanelEntities() = default;
 
 		virtual void Draw(int32 threadIndex) override;

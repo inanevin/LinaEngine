@@ -57,8 +57,6 @@ namespace Lina::Editor
 		void AddTab(Widget* tiedWidget);
 		void RemoveTab(Widget* tiedWidget);
 		void SetSelected(Widget* tiedWidget);
-		void Close(Widget* tiedWidget);
-		void DockOut(Widget* tiedWidget);
 
 		inline Properties& GetProps()
 		{
@@ -71,6 +69,12 @@ namespace Lina::Editor
 		}
 
 	private:
+		friend class Tab;
+
+		void SelectionChanged(Widget* tiedWidget);
+		void Close(Widget* tiedWidget);
+		void DockOut(Widget* tiedWidget);
+
 		void CheckCanClose();
 
 	private:

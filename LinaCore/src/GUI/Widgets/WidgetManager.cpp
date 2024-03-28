@@ -259,6 +259,9 @@ namespace Lina
 	{
 		const bool drawRects = (m_window->GetInput()->GetMouseButton(LINAGX_MOUSE_1));
 
+        if(!drawRects)
+            return;
+        
 		for (auto* c : w->m_children)
 			DebugDraw(threadIndex, c);
 

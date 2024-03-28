@@ -41,7 +41,7 @@ namespace Lina::Editor
 		virtual ~DockWidget() = default;
 
 		void FindAdjacentWidgets();
-		void GetDockWidgets(Vector<DockWidget*>& outWidgets, const Vector<TypeID>& tids);
+		void GetOtherDockWidgets(Vector<DockWidget*>& outWidgets, const Vector<TypeID>& tids);
 
 		inline const Vector<DockWidget*>& GetAdjacentWidgets(int32 dir)
 		{
