@@ -92,7 +92,10 @@ namespace Lina
 		{
 			return false;
 		}
-		virtual bool OnItemClicked(StringID sid){};
+		virtual bool OnItemClicked(StringID sid)
+		{
+			return false;
+		};
 		virtual void OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData){};
 	};
 

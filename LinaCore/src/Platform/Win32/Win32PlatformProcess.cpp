@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Lina.hpp"
 #include <shobjidl.h> // For IFileDialog and related interfaces
+#include <shellapi.h> // OpenURL
 
 #ifdef LINA_COMPILER_MSVC
 #pragma warning(push)
@@ -401,6 +402,11 @@ namespace Lina
 
 		CoUninitialize();
 		return retVal;
+	}
+
+	void PlatformProcess::OpenURL(const String& url)
+	{
+		ShellExecute(0, "open", url.c_str(), 0, 0, SW_SHOWNORMAL);
 	}
 
 } // namespace Lina

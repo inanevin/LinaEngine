@@ -177,4 +177,9 @@ namespace Lina::Editor
 		return false;
 	}
 
+	void EditorApplicationDelegate::Shutdown()
+	{
+		delete m_editor;
+		m_editor = nullptr;
+	}
 } // namespace Lina::Editor

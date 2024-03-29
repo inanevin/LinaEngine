@@ -96,7 +96,7 @@ namespace Lina
 		}
 
 	private:
-		static constexpr float ANIM_TIME = 0.1f;
+		static constexpr float ANIM_TIME = 0.12f;
 
 		void BehaviourDefault(float delta);
 		void BehaviourEqualPositions(float delta);

@@ -59,11 +59,11 @@ namespace Lina::Editor
 	public:
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload)
 		{
-			return false;
+			return;
 		}
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload)
 		{
-			return false;
+			return;
 		}
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload)
 		{
@@ -83,14 +83,12 @@ namespace Lina::Editor
 		};
 
 		Editor(System* sys) : Subsystem(sys, SubsystemType::Editor){};
-		virtual ~Editor() = default;
+		virtual ~Editor();
 
-		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void PreTick() override;
 		virtual void CoreResourcesLoaded() override;
-		virtual void PreShutdown() override;
-		virtual void Shutdown() override;
+		virtual void Shutdown() override{};
 
 		// Project
 		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);

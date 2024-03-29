@@ -59,13 +59,13 @@ namespace Lina
 			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer VertexBuffer");
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer IndexBuffer");
-			data.materials.resize(MAX_GUI_MATERIALS);
+		}
 
-			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
-			{
-				data.materials[j] = rm->CreateUserResource<Material>("GUIRendererMaterial", 0);
-				data.materials[j]->SetShader(DEFAULT_SHADER_GUI);
-			}
+		m_materials.resize(MAX_GUI_MATERIALS);
+		for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
+		{
+			m_materials[j] = rm->CreateUserResource<Material>("GUIRendererMaterial", 0);
+			m_materials[j]->SetShader(DEFAULT_SHADER_GUI);
 		}
 	}
 
@@ -80,12 +80,11 @@ namespace Lina
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
 			data.guiVertexBuffer.Destroy();
 			data.guiIndexBuffer.Destroy();
-
-			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
-				rm->DestroyUserResource<Material>(data.materials[j]);
-
-			data.materials.clear();
 		}
+
+		for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
+			rm->DestroyUserResource<Material>(m_materials[j]);
+		m_materials.clear();
 	}
 
 	void GUIRenderer::Prepare(uint32 frameIndex, uint32 threadIndex)
@@ -143,7 +142,7 @@ namespace Lina
 		{
 			Rectui currentRect = Rectui(0, 0, size.x, size.y);
 
-			if (req.clip.size.x != 0 || req.clip.size.y != 0)
+			if (req.clip.size.x != 0 && req.clip.size.y != 0)
 			{
 				currentRect.pos	 = req.clip.pos;
 				currentRect.size = req.clip.size;
@@ -159,14 +158,14 @@ namespace Lina
 				scissors->height				 = scissorsRect.size.y;
 			}
 
-			Material* mat = pfd.materials[reqIndex];
+			Material* mat = m_materials[reqIndex];
 
 			// Set material data.
-			mat->SetBuffer(0, 0, frameIndex, 0, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
+			mat->SetBuffer(0, 0, 0, (uint8*)&req.materialData, sizeof(GPUMaterialGUI), true);
 			if (req.hasTextureBind)
 			{
-				mat->SetSampler(1, 0, req.samplerHandle);
-				mat->SetTexture(2, 0, req.textureHandle);
+				mat->SetSampler(1, 0, req.samplerHandle, true);
+				mat->SetTexture(2, 0, req.textureHandle, true);
 			}
 
 			// Bind.

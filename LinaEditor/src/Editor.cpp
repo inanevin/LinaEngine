@@ -51,9 +51,15 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
-	void Editor::PreInitialize(const SystemInitializationInfo& initInfo)
+	Editor::~Editor()
 	{
+		for (auto* w : m_subWindows)
+			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
+
+		m_subWindows.clear();
+
+		m_settings.SaveToFile();
+		RemoveCurrentProject();
 	}
 
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
@@ -204,21 +210,6 @@ namespace Lina::Editor
 			OpenProject(m_settings.GetLastProjectPath());
 		else
 			OpenPopupProjectSelector(false);
-	}
-
-	void Editor::PreShutdown()
-	{
-		for (auto* w : m_subWindows)
-			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
-
-		m_subWindows.clear();
-
-		m_settings.SaveToFile();
-		RemoveCurrentProject();
-	}
-
-	void Editor::Shutdown()
-	{
 	}
 
 	void Editor::OpenPopupProjectSelector(bool canCancel, bool openCreateFirst)
@@ -372,7 +363,7 @@ namespace Lina::Editor
 		else
 			pos = m_mainWindow->GetPosition();
 
-		DockArea* dock	= PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "");
+		DockArea* dock	= PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "Lina Editor");
 		Panel*	  panel = PanelFactory::CreatePanel(dock, type, subData);
 		dock->GetWindow()->SetTitle(panel->GetDebugName());
 		dock->AddPanel(panel);

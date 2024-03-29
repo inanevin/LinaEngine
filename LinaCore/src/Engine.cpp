@@ -50,8 +50,8 @@ namespace Lina
 
 		AddListener(this);
 
-		for (auto [type, sys] : m_subsystems)
-			sys->PreInitialize(initInfo);
+		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
+			pair.second->PreInitialize(initInfo);
 	}
 
 	void Engine::Initialize(const SystemInitializationInfo& initInfo)
@@ -59,15 +59,15 @@ namespace Lina
 		LINA_TRACE("[Engine] -> Initialization.");
 		m_initInfo = initInfo;
 
-		for (auto [type, sys] : m_subsystems)
-			sys->Initialize(initInfo);
+		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
+			pair.second->Initialize(initInfo);
 	}
 
 	void Engine::CoreResourcesLoaded()
 	{
 		LINA_TRACE("[Engine] -> Core resources loaded.");
-		for (auto [type, sys] : m_subsystems)
-			sys->CoreResourcesLoaded();
+		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
+			pair.second->CoreResourcesLoaded();
 	}
 
 	void Engine::PreShutdown()
@@ -76,8 +76,8 @@ namespace Lina
 		m_resourceManager.WaitForAll();
 		m_gfxManager.Join();
 
-		for (auto [type, sys] : m_subsystems)
-			sys->PreShutdown();
+		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
+			pair.second->PreShutdown();
 	}
 
 	void Engine::Shutdown()
@@ -93,12 +93,12 @@ namespace Lina
 		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
 
-		for (auto [type, sys] : m_subsystems)
+		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
 		{
-			if (sys == &m_resourceManager || sys == &m_gfxManager || sys == &m_audioManager)
+			if (pair.second == &m_resourceManager || pair.second == &m_gfxManager || pair.second == &m_audioManager)
 				continue;
 
-			sys->Shutdown();
+			pair.second->Shutdown();
 		}
 
 		RemoveListener(this);
@@ -108,8 +108,8 @@ namespace Lina
 	{
 		PROFILER_FUNCTION();
 
-		for (auto [type, sys] : m_subsystems)
-			sys->PreTick();
+		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
+			pair.second->PreTick();
 
 		CalculateTime();
 	}
@@ -129,15 +129,16 @@ namespace Lina
 		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
+		const float deltaF = static_cast<float>(delta);
 
 		// Kick off audio
-		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
 
 		// Update app.
-		TweenManager::Get()->Tick(delta);
-		m_gfxManager.Tick(delta);
-		m_audioManager.Tick(delta);
-		m_app->GetAppDelegate()->OnTick(delta);
+		TweenManager::Get()->Tick(deltaF);
+		m_gfxManager.Tick(deltaF);
+		m_audioManager.Tick(deltaF);
+		m_app->GetAppDelegate()->OnTick(deltaF);
 
 		// Render
 		m_gfxManager.Render();

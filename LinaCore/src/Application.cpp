@@ -143,6 +143,7 @@ namespace Lina
 
 	void Application::Shutdown()
 	{
+		m_appDelegate->Shutdown();
 		m_engine.PreShutdown();
 		m_engine.GetGfxManager().GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->RemoveListener(this);
 		m_engine.GetGfxManager().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);

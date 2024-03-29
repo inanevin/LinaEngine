@@ -136,7 +136,10 @@ namespace Lina
 		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
 		LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
-		LinaGX::Config.gpuLimits	   = {};
+		LinaGX::Config.gpuLimits	   = {
+				  .bufferLimit		 = 2250,
+				  .maxDescriptorSets = 4096,
+		  };
 
 		m_lgx->Initialize();
 
@@ -468,6 +471,11 @@ namespace Lina
 		}
 
 		return alloc;
+	}
+
+	uint32 GfxManager::GetCurrentFrameIndex()
+	{
+		return m_lgx->GetCurrentFrameIndex();
 	}
 
 } // namespace Lina

@@ -229,8 +229,13 @@ namespace Lina
 		}
 
 		if (m_props.clipChildren)
+		{
 			m_manager->SetClip(threadIndex, m_rect, {});
-		Widget::Draw(threadIndex);
+			if (m_rect.size.x > 1.0f && m_rect.size.y > 1.0f)
+				Widget::Draw(threadIndex);
+		}
+		else
+			Widget::Draw(threadIndex);
 		if (m_props.clipChildren)
 			m_manager->UnsetClip(threadIndex);
 		Widget::DrawBorders(threadIndex);

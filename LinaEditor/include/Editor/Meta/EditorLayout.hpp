@@ -38,6 +38,9 @@ namespace Lina::Editor
 	class EditorLayout : public Serializable
 	{
 	public:
+		EditorLayout()			= default;
+		virtual ~EditorLayout() = default;
+
 		static constexpr uint32 VERSION = 0;
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;

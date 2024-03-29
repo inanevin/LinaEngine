@@ -82,6 +82,7 @@ namespace Lina
 		LinaGX::Window*	 GetApplicationWindow(StringID sid);
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 		PoolAllocator*	 GetGUIAllocator(TypeID tid, size_t typeSize);
+		uint32			 GetCurrentFrameIndex();
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{

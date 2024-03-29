@@ -130,12 +130,13 @@ namespace Lina
 
 	void WidgetManager::Deallocate(Widget* widget)
 	{
+
 		for (auto* c : widget->m_children)
 			Deallocate(c);
 
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();
-
+		widget->~Widget();
 		GetGUIAllocator(tid, 0)->Free(widget);
 	}
 

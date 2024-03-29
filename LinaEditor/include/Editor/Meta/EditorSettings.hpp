@@ -42,6 +42,9 @@ namespace Lina::Editor
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
 
+		EditorSettings()		  = default;
+		virtual ~EditorSettings() = default;
+
 		void Initialize(Editor* editor)
 		{
 			m_editor = editor;

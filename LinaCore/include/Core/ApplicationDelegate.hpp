@@ -56,6 +56,7 @@ namespace Lina
 		virtual void SetupPlatform(Application* app){};
 		virtual void PreInitialize(){};
 		virtual void Initialize(){};
+		virtual void Shutdown(){};
 		virtual void CoreResourcesLoaded(){};
 		virtual void OnTick(float delta){};
 
