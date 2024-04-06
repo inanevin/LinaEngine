@@ -58,6 +58,7 @@ include/Editor/Widgets/Panel/PanelFactory.hpp
 # Meta
 include/Editor/Meta/EditorSettings.hpp
 include/Editor/Meta/EditorLayout.hpp
+include/Editor/Meta/ProjectData.hpp
 )
 
 set(SOURCES
@@ -98,6 +99,7 @@ src/Widgets/Panel/PanelFactory.cpp
 # Meta
 src/Meta/EditorSettings.cpp
 src/Meta/EditorLayout.cpp
+src/Meta/ProjectData.cpp
 )
 
 #--------------------------------------------------------------------

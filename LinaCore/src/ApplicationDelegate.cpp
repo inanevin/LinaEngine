@@ -46,7 +46,7 @@ namespace Lina
 		if (sid == DEFAULT_FONT_SID)
 		{
 			Font::Metadata customMeta = {
-				.points		 = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+				.points		 = {{.size = 14, .dpiLimit = 10.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
 				.isSDF		 = false,
 				.glyphRanges = {linatl::make_pair(160, 360)},
 			};

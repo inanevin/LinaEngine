@@ -59,7 +59,7 @@ namespace Lina::Editor
 		m_tabRow->SetAlignedPos(Vector2::Zero);
 		m_tabRow->SetAlignedSizeX(1.0f);
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
-		// m_tabRow->GetProps().cantCloseSingleTab = m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN;
+
 		m_tabRow->GetProps().onTabClosed = [this, editor](Widget* w) {
 			RemovePanel(static_cast<Panel*>(w));
 			m_manager->Deallocate(w);
@@ -75,12 +75,11 @@ namespace Lina::Editor
 		m_tabRow->GetProps().onTabDockedOut = [this, editor](Widget* w) {
 			RemovePanel(static_cast<Panel*>(w));
 
-			if (m_panels.empty())
-			{
-			}
 			// If only child
-			if (m_parent->GetChildren().size() == 1)
+			if (m_panels.empty() && m_parent->GetChildren().size() == 1)
 				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+			else if (m_panels.empty())
+				RemoveArea();
 
 			editor->CreatePayload(w, PayloadType::DockedPanel);
 		};
@@ -162,6 +161,17 @@ namespace Lina::Editor
 	{
 		if (m_parent == nullptr)
 			return;
+
+		if (m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN && m_panels.size() == 1 && m_parent->GetChildren().size() == 1)
+		{
+			if (m_tabRow->GetCanCloseTabs())
+				m_tabRow->SetCanCloseTabs(false);
+		}
+		else
+		{
+			if (!m_tabRow->GetCanCloseTabs())
+				m_tabRow->SetCanCloseTabs(true);
+		}
 
 		// Omit tab row.
 		// if (m_selectedChildren == nullptr && m_children.size() == 2)

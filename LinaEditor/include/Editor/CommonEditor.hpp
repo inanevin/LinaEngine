@@ -75,7 +75,7 @@ namespace Lina::Editor
 		Entities,
 		Resources,
 		Performance,
-		World
+		World,
 	};
 
 	enum class PayloadType

@@ -56,7 +56,7 @@ namespace Lina::Editor
 	{
 		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		const float itemHeight = Theme::GetBaseItemHeight(1.0f);
+		const float itemHeight = Theme::GetDef().baseItemHeight;
 		const float itemWidth  = 100.0f;
 		float		y		   = itemHeight;
 		float		x		   = Theme::GetDef().baseIndent;

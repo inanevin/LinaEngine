@@ -47,6 +47,16 @@ namespace Lina::Editor
 		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual LinaGX::CursorType GetCursorOverride() override;
 
+		inline DirectionOrientation GetDirectionOrientation() const
+		{
+			return m_orientation;
+		}
+
+		inline void SetDirectionOrientation(DirectionOrientation orientation)
+		{
+			m_orientation = orientation;
+		}
+
 	private:
 		bool CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX);
 		bool CheckIfAreaOnSide(DockArea* area, Direction dir);

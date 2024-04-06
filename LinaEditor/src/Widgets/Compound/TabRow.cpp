@@ -85,7 +85,7 @@ namespace Lina::Editor
 			x += t->GetSizeX();
 		}
 
-		CheckCanClose();
+		tab->DisableClosing(!m_canCloseTabs);
 	}
 
 	void TabRow::RemoveTab(Widget* tiedWidget)
@@ -109,7 +109,6 @@ namespace Lina::Editor
 		RemoveChild(toRemove);
 		m_tabs.erase(linatl::find_if(m_tabs.begin(), m_tabs.end(), [toRemove](Tab* t) -> bool { return t == toRemove; }));
 		m_manager->Deallocate(toRemove);
-		CheckCanClose();
 	}
 
 	void TabRow::SetSelected(Widget* tiedWidget)
@@ -139,21 +138,12 @@ namespace Lina::Editor
 			m_props.onTabDockedOut(tiedWidget);
 	}
 
-	void TabRow::CheckCanClose()
+	void TabRow::SetCanCloseTabs(bool canClose)
 	{
-		if (m_props.cantCloseAnyTab)
-		{
-			for (auto* t : m_children)
-				static_cast<Tab*>(t)->DisableClosing(true);
-			return;
-		}
+		m_canCloseTabs = canClose;
 
-		if (m_props.cantCloseSingleTab)
-		{
-			const bool alone = m_children.size() == 1;
-			for (auto* t : m_children)
-				static_cast<Tab*>(t)->DisableClosing(alone);
-		}
+		for (auto* t : m_children)
+			static_cast<Tab*>(t)->DisableClosing(!canClose);
 	}
 
 } // namespace Lina::Editor

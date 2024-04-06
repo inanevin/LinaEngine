@@ -76,7 +76,7 @@ namespace Lina::Editor
 		{LocaleStr::Entities, "Entities"},
 		{LocaleStr::Resources, "Resources"},
 		{LocaleStr::World, "World"},
-		{LocaleStr::Performance, "World"},
+		{LocaleStr::Performance, "Performance"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

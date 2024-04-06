@@ -29,13 +29,11 @@ SOFTWARE.
 #pragma once
 
 #include "Meta/EditorSettings.hpp"
-#include "Editor/Meta/EditorLayout.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Common/System/Subsystem.hpp"
 
 namespace Lina
 {
-	class ProjectData;
 	class Application;
 	class GfxManager;
 	class WidgetManager;
@@ -53,6 +51,7 @@ namespace Lina::Editor
 	class SplashScreen;
 	class EditorRoot;
 	class DockArea;
+	class ProjectData;
 
 	class EditorPayloadListener
 	{
@@ -99,12 +98,13 @@ namespace Lina::Editor
 		void CloseCurrentProject();
 
 		// Payload && Panel & Windows
-		void	  AddPayloadListener(EditorPayloadListener* listener);
-		void	  RemovePayloadListener(EditorPayloadListener* listener);
-		void	  OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
-		DockArea* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
-		void	  CreatePayload(Widget* payload, PayloadType type);
-		void	  CloseWindow(StringID sid);
+		void	AddPayloadListener(EditorPayloadListener* listener);
+		void	RemovePayloadListener(EditorPayloadListener* listener);
+		void	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
+		Widget* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
+		void	CreatePayload(Widget* payload, PayloadType type);
+		void	CloseWindow(StringID sid);
+		void	SaveSettings();
 
 		// Misc
 		void RequestExit();
@@ -144,6 +144,11 @@ namespace Lina::Editor
 			return m_editorRoot;
 		}
 
+		inline const Vector<LinaGX::Window*>& GetSubWindows() const
+		{
+			return m_subWindows;
+		}
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
@@ -152,7 +157,6 @@ namespace Lina::Editor
 		GfxManager*					   m_gfxManager			  = nullptr;
 		WidgetManager*				   m_primaryWidgetManager = nullptr;
 		EditorSettings				   m_settings			  = {};
-		EditorLayout				   m_layout				  = {};
 		ProjectData*				   m_currentProject		  = nullptr;
 		EntityWorld*				   m_currentWorld		  = nullptr;
 		bool						   m_isWorldDirty		  = false;

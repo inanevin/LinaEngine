@@ -103,8 +103,6 @@ src/GUI/Widgets/Primitives/ColorWheel.cpp
 src/GUI/Widgets/Compound/Popup.cpp
 src/GUI/Widgets/Compound/FileMenu.cpp
 
-# Meta
-src/Meta/ProjectData.cpp
 
 )
 
@@ -204,9 +202,6 @@ include/Core/GUI/Widgets/Primitives/ColorWheel.hpp
 include/Core/GUI/Widgets/Primitives/PopupItem.hpp
 include/Core/GUI/Widgets/Compound/Popup.hpp
 include/Core/GUI/Widgets/Compound/FileMenu.hpp
-
-# Meta
-include/Core/Meta/ProjectData.hpp
 
 )
 

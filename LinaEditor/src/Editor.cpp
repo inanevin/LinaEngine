@@ -28,9 +28,9 @@ SOFTWARE.
 
 #include "Editor/Editor.hpp"
 #include "Core/Application.hpp"
-#include "Core/Meta/ProjectData.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
+#include "Editor/Meta/ProjectData.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
@@ -58,9 +58,6 @@ namespace Lina::Editor
 
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		m_settings.Initialize(this);
-		m_layout.Initialize(this);
-
 		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
@@ -79,9 +76,7 @@ namespace Lina::Editor
 		// Load editor settings or create and save empty if non-existing.
 		const String userDataFolder = FileSystem::GetUserDataFolder();
 		const String settingsPath	= userDataFolder + "EditorSettings.linameta";
-		const String layoutPath		= userDataFolder + "EditorLayout.linameta";
 		m_settings.SetPath(settingsPath);
-		m_layout.SetPath(layoutPath);
 		if (!FileSystem::FileOrPathExists(userDataFolder))
 			FileSystem::CreateFolderInPath(userDataFolder);
 
@@ -89,11 +84,6 @@ namespace Lina::Editor
 			m_settings.LoadFromFile();
 		else
 			m_settings.SaveToFile();
-
-		if (FileSystem::FileOrPathExists(layoutPath))
-			m_layout.LoadFromFile();
-		else
-			m_layout.SaveToFile();
 	}
 
 	void Editor::PreTick()
@@ -165,8 +155,14 @@ namespace Lina::Editor
 						panel->SetAlignedPosX(0.0f);
 						panel->SetAlignedSize(Vector2(1.0f, 0.0f));
 						panel->SetAlignedPos(Vector2::Zero);
-						DockArea* area = PrepareNewWindowToDock(m_subWindowCounter++, mp, panel->GetSize(), panel->GetDebugName());
-						area->AddPanel(panel);
+						Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, mp, panel->GetSize(), panel->GetDebugName());
+
+						DockArea* dockArea = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
+						dockArea->SetAlignedPos(Vector2::Zero);
+						dockArea->SetAlignedSize(Vector2::One);
+						panelArea->AddChild(dockArea);
+
+						dockArea->AddPanel(panel);
 					}
 					else
 						m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
@@ -186,8 +182,8 @@ namespace Lina::Editor
 		root->GetWidgetManager()->Deallocate(splash);
 
 		// Resize window to work dims.
-		// m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
-		// m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
+		m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
+		m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
 
 		// Testbed* tb = root->GetWidgetManager()->Allocate<Testbed>();
 		//// DockTestbed* tb = root->GetWidgetManager()->Allocate<DockTestbed>();
@@ -204,6 +200,8 @@ namespace Lina::Editor
 			OpenProject(m_settings.GetLastProjectPath());
 		else
 			OpenPopupProjectSelector(false);
+
+		m_settings.GetLayout().ApplyStoredLayout(this);
 	}
 
 	void Editor::PreShutdown()
@@ -278,9 +276,9 @@ namespace Lina::Editor
 
 	void Editor::SaveProjectChanges()
 	{
+		SaveSettings();
 		m_isProjectDirty = false;
 		m_currentProject->SaveToFile();
-		m_settings.SaveToFile();
 	}
 
 	void Editor::CreateEmptyProjectAndOpen(const String& path)
@@ -315,7 +313,15 @@ namespace Lina::Editor
 
 	void Editor::RequestExit()
 	{
+		SaveSettings();
+
 		m_system->GetApp()->Quit();
+	}
+
+	void Editor::SaveSettings()
+	{
+		m_settings.GetLayout().StoreLayout(this);
+		m_settings.SaveToFile();
 	}
 
 	void Editor::AddPayloadListener(EditorPayloadListener* listener)
@@ -372,13 +378,19 @@ namespace Lina::Editor
 		else
 			pos = m_mainWindow->GetPosition();
 
-		DockArea* dock	= PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "");
-		Panel*	  panel = PanelFactory::CreatePanel(dock, type, subData);
+		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "");
+
+		DockArea* dock = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
+		dock->SetAlignedPos(Vector2::Zero);
+		dock->SetAlignedSize(Vector2::One);
+		panelArea->AddChild(dock);
+
+		Panel* panel = PanelFactory::CreatePanel(dock, type, subData);
 		dock->GetWindow()->SetTitle(panel->GetDebugName());
 		dock->AddPanel(panel);
 	}
 
-	DockArea* Editor::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
+	Widget* Editor::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
 	{
 		const Vector2	usedSize = size.Clamp(m_editorRoot->GetMonitorSize() * 0.1f, m_editorRoot->GetMonitorSize());
 		LinaGX::Window* window	 = m_gfxManager->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
@@ -411,13 +423,9 @@ namespace Lina::Editor
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
 		layout->AddChild(panelArea);
 
-		DockArea* dockArea = newWindowRoot->GetWidgetManager()->Allocate<DockArea>("DockArea");
-		dockArea->SetAlignedPos(Vector2::Zero);
-		dockArea->SetAlignedSize(Vector2::One);
-		panelArea->AddChild(dockArea);
-
-		return dockArea;
+		return panelArea;
 	}
+
 	void Editor::CloseWindow(StringID sid)
 	{
 		m_windowCloseRequests.push_back(sid);

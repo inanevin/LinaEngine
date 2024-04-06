@@ -26,32 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Editor/Meta/ProjectData.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
-#include "Common/Data/String.hpp"
-#include "Common/Serialization/Serializable.hpp"
-
-namespace Lina
+namespace Lina::Editor
 {
-	class ProjectData : public Serializable
+	void ProjectData::LoadFromStream(IStream& in)
 	{
-	public:
-		static constexpr uint32 VERSION = 0;
-		virtual void			SaveToStream(OStream& out) override;
-		virtual void			LoadFromStream(IStream& in) override;
+		uint32 version = 0;
+		in >> version;
+		StringSerialization::LoadFromStream(in, m_projectName);
+	}
 
-		inline void SetProjectName(const String& name)
-		{
-			m_projectName = name;
-		}
-
-		inline const String& GetProjectName() const
-		{
-			return m_projectName;
-		}
-
-	private:
-		String m_projectName = "";
-	};
-
-} // namespace Lina
+	void ProjectData::SaveToStream(OStream& out)
+	{
+		out << VERSION;
+		StringSerialization::SaveToStream(out, m_projectName);
+	}
+} // namespace Lina::Editor
