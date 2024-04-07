@@ -26,55 +26,58 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/GUI/Widgets/Layout/LayoutBorder.hpp"
 
-#include "Common/Data/String.hpp"
-#include "Common/Memory/MemoryAllocatorPool.hpp"
-
-namespace Lina::Editor
+namespace Lina
 {
 
-	class Editor;
-
-	struct DirectoryItem
+	void LayoutBorder::Initialize()
 	{
-		uint64				   empty	   = 0;
-		bool				   isDirectory = false;
-		String				   path		   = "";
-		TypeID				   tid		   = 0;
-		String				   extension   = "";
-		Vector<DirectoryItem*> children	   = {};
-	};
+		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
 
-	class FileManager
+		if (m_props.orientation == DirectionOrientation::Horizontal)
+		{
+			GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X);
+			SetFixedSizeY(Theme::GetDef().baseBorderThickness);
+		}
+		else
+		{
+			GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
+			SetFixedSizeX(Theme::GetDef().baseBorderThickness);
+		}
+	}
+
+	void LayoutBorder::PreTick()
 	{
-	public:
-		FileManager() : m_allocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(DirectoryItem) * 100, sizeof(DirectoryItem)){};
+	}
 
-		void Initialize(Editor* editor);
-		void Shutdown();
-		void RefreshResources();
-		void ClearResources();
+	void LayoutBorder::Draw(int32 threadIndex)
+	{
+	}
 
-		inline void SetProjectDirectory(const String& dir)
+	bool LayoutBorder::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+	}
+
+	LinaGX::CursorType LayoutBorder::GetCursorOverride()
+	{
+	}
+
+	void LayoutBorder::AssignSides(Widget* negative, Widget* positive)
+	{
+		m_negative = negative;
+		m_positive = positive;
+
+		if (m_props.orientation == DirectionOrientation::Horizontal)
 		{
-			m_projectDirectory = dir;
+			m_negative->GetChildMargins() = {};
+			m_positive->GetChildMargins() = {.left = GetFixedSizeX()};
 		}
-
-		inline DirectoryItem* GetRoot() const
+		else
 		{
-			return m_root;
+			m_negative->GetChildMargins() = {};
+			m_positive->GetChildMargins() = {.top = GetFixedSizeY()};
 		}
+	}
 
-	private:
-		void ScanItem(DirectoryItem* item);
-		void DeallocItem(DirectoryItem* item);
-
-	private:
-		String				m_projectDirectory = "";
-		Editor*				m_editor		   = nullptr;
-		MemoryAllocatorPool m_allocatorPool;
-		DirectoryItem*		m_root = nullptr;
-	};
-
-} // namespace Lina::Editor
+} // namespace Lina

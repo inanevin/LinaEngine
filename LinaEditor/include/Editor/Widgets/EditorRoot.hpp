@@ -36,12 +36,14 @@ namespace Lina
 	class Icon;
 	class FileMenu;
 	class Text;
+	class Icon;
 	class Texture;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class DockArea;
+	class Editor;
 
 	class EditorRoot : public DirectionalLayout, public FileMenuListener
 	{
@@ -73,6 +75,8 @@ namespace Lina::Editor
 		Text*			   m_projectNameText = nullptr;
 		Widget*			   m_panelArea		 = nullptr;
 		DirectionalLayout* m_titleBar		 = nullptr;
+		Editor*			   m_editor			 = nullptr;
+		Icon*			   m_saveIcon		 = nullptr;
 	};
 
 } // namespace Lina::Editor

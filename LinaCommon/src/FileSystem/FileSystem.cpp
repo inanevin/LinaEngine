@@ -84,9 +84,9 @@ namespace Lina
 		return true;
 	}
 
-	Vector<String> FileSystem::GetFilesInDirectory(const String& path, String extensionFilter)
+	void FileSystem::GetFilesInDirectory(const String& path, Vector<String>& outData, String extensionFilter)
 	{
-		Vector<String> paths;
+		outData.clear();
 		for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
 		{
 			if (!entry.is_directory())
@@ -95,7 +95,7 @@ namespace Lina
 				{
 					String path = entry.path().string().c_str();
 					linatl::replace(path.begin(), path.end(), '\\', '/');
-					paths.push_back(path);
+					outData.push_back(path);
 				}
 				else
 				{
@@ -103,24 +103,26 @@ namespace Lina
 					if (GetFileExtension(fullpath).compare(extensionFilter))
 					{
 						linatl::replace(fullpath.begin(), fullpath.end(), '\\', '/');
-						paths.push_back(fullpath);
+						outData.push_back(fullpath);
 					}
 				}
 			}
 		}
-		return paths;
 	}
 
-	Vector<String> FileSystem::GetFilesAndFoldersInDirectory(const String& path)
+	void FileSystem::GetFilesAndFoldersInDirectory(const String& path, Vector<String>& outData)
 	{
-		Vector<String> paths;
+		outData.clear();
 		for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
 		{
-			paths.push_back(entry.path().string().c_str());
+			outData.push_back(entry.path().string().c_str());
 		}
-		return paths;
 	}
 
+	bool FileSystem::IsDirectory(const String& path)
+	{
+		return std::filesystem::is_directory(path);
+	}
 	bool FileSystem::ChangeDirectoryName(const String& oldPath, const String& newPath)
 	{
 

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Common/System/Subsystem.hpp"
+#include "IO/FileManager.hpp"
 
 namespace Lina
 {
@@ -97,31 +98,24 @@ namespace Lina::Editor
 		void SaveProjectChanges();
 		void CloseCurrentProject();
 
-		// Payload && Panel & Windows
-		void	AddPayloadListener(EditorPayloadListener* listener);
-		void	RemovePayloadListener(EditorPayloadListener* listener);
+		// Payload
+		void AddPayloadListener(EditorPayloadListener* listener);
+		void RemovePayloadListener(EditorPayloadListener* listener);
+		void CreatePayload(Widget* payload, PayloadType type);
+
+		// Panel and windows
 		void	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
 		Widget* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
-		void	CreatePayload(Widget* payload, PayloadType type);
 		void	CloseWindow(StringID sid);
-		void	SaveSettings();
+		void	CloseAllSubwindows();
 
 		// Misc
+		void SaveSettings();
 		void RequestExit();
-
-		inline void SetIsProjectDirty(bool isDirty)
-		{
-			m_isProjectDirty = isDirty;
-		}
 
 		inline void SetIsWorldDirty(bool isDirty)
 		{
 			m_isWorldDirty = isDirty;
-		}
-
-		inline bool GetIsProjectDirty() const
-		{
-			return m_isProjectDirty;
 		}
 
 		inline bool GetIsWorldDirty() const
@@ -149,6 +143,16 @@ namespace Lina::Editor
 			return m_subWindows;
 		}
 
+		inline EditorSettings& GetSettings()
+		{
+			return m_settings;
+		}
+
+		inline const FileManager& GetFileManager() const
+		{
+			return m_fileManager;
+		}
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
@@ -160,7 +164,6 @@ namespace Lina::Editor
 		ProjectData*				   m_currentProject		  = nullptr;
 		EntityWorld*				   m_currentWorld		  = nullptr;
 		bool						   m_isWorldDirty		  = false;
-		bool						   m_isProjectDirty		  = false;
 		EditorRoot*					   m_editorRoot			  = nullptr;
 		Vector<LinaGX::Window*>		   m_subWindows			  = {};
 		Vector<StringID>			   m_windowCloseRequests;
@@ -169,6 +172,7 @@ namespace Lina::Editor
 		LinaGX::Window*				   m_mainWindow	   = nullptr;
 		Vector<EditorPayloadListener*> m_payloadListeners;
 		StringID					   m_subWindowCounter = 0;
+		FileManager					   m_fileManager;
 	};
 
 } // namespace Lina::Editor

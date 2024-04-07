@@ -27,7 +27,94 @@ SOFTWARE.
 */
 
 #include "Editor/IO/FileManager.hpp"
+#include "Editor/Editor.hpp"
+#include "Common/System/System.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
+#include "Common/FileSystem/FileWatcher.hpp"
 
 namespace Lina::Editor
 {
+
+	void FileManager::Initialize(Editor* editor)
+	{
+		m_editor = editor;
+	}
+
+	void FileManager::Shutdown()
+	{
+	}
+
+	void FileManager::ClearResources()
+	{
+		if (m_root != nullptr)
+			DeallocItem(m_root);
+		m_root = nullptr;
+	}
+
+	void FileManager::DeallocItem(DirectoryItem* item)
+	{
+		for (auto* i : item->children)
+			DeallocItem(i);
+
+		item->children.clear();
+		m_allocatorPool.Free(item);
+	}
+
+	void FileManager::ScanItem(DirectoryItem* item)
+	{
+		LINA_ASSERT(item->children.empty(), "");
+		Vector<String> dirs = {};
+		FileSystem::GetFilesAndFoldersInDirectory(item->path, dirs);
+
+		for (const auto& str : dirs)
+		{
+			const bool isDirectory = FileSystem::IsDirectory(str);
+			String	   extension   = "";
+			TypeID	   tid		   = 0;
+
+			if (!isDirectory)
+			{
+				extension = FileSystem::GetFileExtension(str);
+
+				const auto& resourceCaches = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetCaches();
+
+				for (const auto& [typeID, cache] : resourceCaches)
+				{
+					if (cache->DoesSupportExtension(extension))
+					{
+						tid = typeID;
+						break;
+					}
+				}
+
+				if (tid == 0)
+					continue;
+			}
+
+			DirectoryItem* subItem = static_cast<DirectoryItem*>(m_allocatorPool.Allocate(sizeof(DirectoryItem)));
+			subItem->extension	   = extension;
+			subItem->tid		   = tid;
+			subItem->path		   = str;
+			subItem->isDirectory   = isDirectory;
+			item->children.push_back(subItem);
+
+			if (subItem->isDirectory)
+				ScanItem(subItem);
+		}
+	}
+
+	void FileManager::RefreshResources()
+	{
+		ClearResources();
+
+		const String resDir = m_projectDirectory + "Resources/";
+		if (!FileSystem::FileOrPathExists(resDir))
+			return;
+
+		m_root				= static_cast<DirectoryItem*>(m_allocatorPool.Allocate(sizeof(DirectoryItem)));
+		m_root->path		= resDir;
+		m_root->isDirectory = true;
+		ScanItem(m_root);
+	}
 } // namespace Lina::Editor

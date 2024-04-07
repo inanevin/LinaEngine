@@ -32,15 +32,20 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+    class Editor;
+
 	class PanelResources : public Panel
 	{
 	public:
 		PanelResources() : Panel(PanelType::Resources, 0){};
 		virtual ~PanelResources() = default;
 
+        virtual void Construct() override;
 		virtual void Draw(int32 threadIndex) override;
 
 	private:
+        
+        Editor* m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

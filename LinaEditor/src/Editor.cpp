@@ -58,6 +58,8 @@ namespace Lina::Editor
 
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		m_fileManager.Initialize(this);
+
 		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
@@ -206,6 +208,8 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_fileManager.Shutdown();
+
 		for (auto* w : m_subWindows)
 			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
 
@@ -228,7 +232,7 @@ namespace Lina::Editor
 
 		// When we select a project to open -> ask if we want to save current one if its dirty.
 		projectSelector->GetProps().onProjectOpened = [this](const String& location) {
-			if (m_isProjectDirty)
+			if (m_currentProject && m_currentProject->GetIsDirty())
 			{
 				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
 
@@ -253,7 +257,7 @@ namespace Lina::Editor
 		projectSelector->GetProps().onProjectCreated = [&](const String& path) {
 			RemoveCurrentProject();
 
-			if (m_isProjectDirty)
+			if (m_currentProject && m_currentProject->GetIsDirty())
 			{
 				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
 
@@ -277,7 +281,7 @@ namespace Lina::Editor
 	void Editor::SaveProjectChanges()
 	{
 		SaveSettings();
-		m_isProjectDirty = false;
+		m_currentProject->SetDirty(false);
 		m_currentProject->SaveToFile();
 	}
 
@@ -309,6 +313,8 @@ namespace Lina::Editor
 
 		m_settings.SetLastProjectPath(projectFile);
 		m_settings.SaveToFile();
+		m_fileManager.SetProjectDirectory(FileSystem::GetFilePath(projectFile));
+		m_fileManager.RefreshResources();
 	}
 
 	void Editor::RequestExit()
@@ -332,6 +338,14 @@ namespace Lina::Editor
 	void Editor::RemovePayloadListener(EditorPayloadListener* listener)
 	{
 		m_payloadListeners.erase(linatl::find(m_payloadListeners.begin(), m_payloadListeners.end(), listener));
+	}
+
+	void Editor::CreatePayload(Widget* payload, PayloadType type)
+	{
+		m_payloadRequest.active	 = true;
+		m_payloadRequest.payload = payload;
+		m_payloadRequest.type	 = type;
+		m_payloadRequest.size	 = payload->GetWindow()->GetSize();
 	}
 
 	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
@@ -426,17 +440,15 @@ namespace Lina::Editor
 		return panelArea;
 	}
 
+	void Editor::CloseAllSubwindows()
+	{
+		for (auto* w : m_subWindows)
+			CloseWindow(static_cast<StringID>(w->GetSID()));
+	}
+
 	void Editor::CloseWindow(StringID sid)
 	{
 		m_windowCloseRequests.push_back(sid);
-	}
-
-	void Editor::CreatePayload(Widget* payload, PayloadType type)
-	{
-		m_payloadRequest.active	 = true;
-		m_payloadRequest.payload = payload;
-		m_payloadRequest.type	 = type;
-		m_payloadRequest.size	 = payload->GetWindow()->GetSize();
 	}
 
 } // namespace Lina::Editor

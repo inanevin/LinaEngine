@@ -99,8 +99,9 @@ namespace Lina
 		virtual void Tick(float delta){};
 		virtual void Draw(int32 threadIndex);
 
-		virtual void AddChild(Widget* w);
-		virtual void RemoveChild(Widget* w);
+		void		 AddChild(Widget* w);
+		void		 RemoveChild(Widget* w);
+		void		 RemoveAllChildren();
 		virtual void SaveToStream(OStream& out) const;
 		virtual void LoadFromStream(IStream& in);
 		void		 SetIsHovered();

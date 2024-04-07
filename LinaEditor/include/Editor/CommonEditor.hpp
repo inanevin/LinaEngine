@@ -65,6 +65,7 @@ namespace Lina::Editor
 #define ICON_INFO				 "\u0065"
 #define ICON_ERROR				 "\u0066"
 #define ICON_WARN				 "\u0067"
+#define ICON_SAVE				 "\u0068"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f

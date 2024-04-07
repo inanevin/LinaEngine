@@ -28,53 +28,37 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/String.hpp"
-#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
-
-	class Editor;
-
-	struct DirectoryItem
-	{
-		uint64				   empty	   = 0;
-		bool				   isDirectory = false;
-		String				   path		   = "";
-		TypeID				   tid		   = 0;
-		String				   extension   = "";
-		Vector<DirectoryItem*> children	   = {};
-	};
-
-	class FileManager
+	class LayoutBorder : public Widget
 	{
 	public:
-		FileManager() : m_allocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(DirectoryItem) * 100, sizeof(DirectoryItem)){};
+		LayoutBorder() : Widget(0){};
+		virtual ~LayoutBorder() = default;
 
-		void Initialize(Editor* editor);
-		void Shutdown();
-		void RefreshResources();
-		void ClearResources();
-
-		inline void SetProjectDirectory(const String& dir)
+		struct Properties
 		{
-			m_projectDirectory = dir;
-		}
+			DirectionOrientation orientation;
+		};
 
-		inline DirectoryItem* GetRoot() const
+		virtual void			   Initialize() override;
+		virtual void			   PreTick() override;
+		virtual void			   Draw(int32 threadIndex) override;
+		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual LinaGX::CursorType GetCursorOverride() override;
+		void					   AssignSides(Widget* negative, Widget* positive);
+
+		inline Properties& GetProps()
 		{
-			return m_root;
+			return m_props;
 		}
 
 	private:
-		void ScanItem(DirectoryItem* item);
-		void DeallocItem(DirectoryItem* item);
-
-	private:
-		String				m_projectDirectory = "";
-		Editor*				m_editor		   = nullptr;
-		MemoryAllocatorPool m_allocatorPool;
-		DirectoryItem*		m_root = nullptr;
+		Properties m_props	  = {};
+		Widget*	   m_negative = nullptr;
+		Widget*	   m_positive = nullptr;
 	};
 
-} // namespace Lina::Editor
+} // namespace Lina

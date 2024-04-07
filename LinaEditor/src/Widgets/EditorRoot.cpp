@@ -29,10 +29,12 @@ SOFTWARE.
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Meta/ProjectData.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Editor.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
@@ -49,7 +51,7 @@ namespace Lina::Editor
 {
 	void EditorRoot::Construct()
 	{
-		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+		m_editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
 
 		m_titleImage		 = m_resourceManager->GetResource<Texture>("Resources/Editor/Textures/LinaLogoTitleHorizontal.png"_hs);
 		const String tooltip = "Lina Engine v." + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " - b: " + TO_STRING(LINA_BUILD);
@@ -89,12 +91,13 @@ namespace Lina::Editor
 		titleBar->AddChild(layout2);
 
 		DirectionalLayout* projectName = m_manager->Allocate<DirectionalLayout>("Project Name");
-		projectName->GetFlags().Set(WF_SIZE_X_MAX_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		projectName->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		projectName->SetAlignedPos(Vector2(1.0f, 0.5f));
 		projectName->SetPosAlignmentSourceX(PosAlignmentSource::End);
 		projectName->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		projectName->GetChildMargins()				 = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		projectName->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		projectName->SetChildPadding(Theme::GetDef().baseIndent);
 		projectName->GetProps().backgroundStyle		 = BackgroundStyle::Default;
 		projectName->GetProps().colorBackgroundStart = Theme::GetDef().background0;
 		projectName->GetProps().colorBackgroundEnd	 = Theme::GetDef().background3;
@@ -103,9 +106,18 @@ namespace Lina::Editor
 		projectName->GetProps().rounding			 = Theme::GetDef().baseRounding;
 		layout2->AddChild(projectName);
 
+		Icon* saveIcon			  = m_manager->Allocate<Icon>("SaveIcon");
+		saveIcon->GetProps().icon = ICON_SAVE;
+		saveIcon->GetFlags().Set(WF_POS_ALIGN_Y);
+		saveIcon->SetAlignedPosY(0.5f);
+		saveIcon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		saveIcon->GetProps().colorStart = saveIcon->GetProps().colorEnd = Theme::GetDef().accentWarn;
+		saveIcon->GetProps().colorDisabled								= Theme::GetDef().silent0;
+		projectName->AddChild(saveIcon);
+
 		Text* projectNameText = m_manager->Allocate<Text>("ProjectNameText");
-		projectNameText->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-		projectNameText->SetAlignedPos(Vector2(0.5f, 0.5f));
+		projectNameText->GetFlags().Set(WF_POS_ALIGN_Y);
+		projectNameText->SetAlignedPosY(0.5f);
 		projectNameText->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 		projectNameText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
@@ -142,6 +154,7 @@ namespace Lina::Editor
 		AddChild(panelArea);
 
 		m_panelArea = panelArea;
+		m_saveIcon	= saveIcon;
 
 		DirectionalLayout::Construct();
 
@@ -153,6 +166,16 @@ namespace Lina::Editor
 
 	void EditorRoot::Tick(float delta)
 	{
+		auto* projectData = m_editor->GetProjectData();
+
+		if (projectData)
+		{
+			if (m_saveIcon->GetIsDisabled() && projectData->GetIsDirty())
+				m_saveIcon->SetIsDisabled(false);
+			else if (!m_saveIcon->GetIsDisabled() && !projectData->GetIsDirty())
+				m_saveIcon->SetIsDisabled(true);
+		}
+
 		const Color targetColor					  = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
 		m_titleBar->GetProps().colorBackgroundEnd = Math::Lerp(m_titleBar->GetProps().colorBackgroundEnd, targetColor, delta * COLOR_SPEED);
 
@@ -225,19 +248,19 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewProject)))
 		{
-			editor->OpenPopupProjectSelector(true, true);
+			m_editor->OpenPopupProjectSelector(true, true);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadProject)))
 		{
-			editor->OpenPopupProjectSelector(true, false);
+			m_editor->OpenPopupProjectSelector(true, false);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 		{
-			editor->SaveProjectChanges();
+			m_editor->SaveProjectChanges();
 			return true;
 		}
 
@@ -263,31 +286,45 @@ namespace Lina::Editor
 		}
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Exit)))
 		{
-			editor->RequestExit();
+			m_editor->RequestExit();
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Resources)))
 		{
-			editor->OpenPanel(PanelType::Resources, 0, this);
+			m_editor->OpenPanel(PanelType::Resources, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entities)))
 		{
-			editor->OpenPanel(PanelType::Entities, 0, this);
+			m_editor->OpenPanel(PanelType::Entities, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
 		{
-			editor->OpenPanel(PanelType::World, 0, this);
+			m_editor->OpenPanel(PanelType::World, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Performance)))
 		{
-			editor->OpenPanel(PanelType::Performance, 0, this);
+			m_editor->OpenPanel(PanelType::Performance, 0, this);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::ResetLayout)))
+		{
+			Vector<Widget*> copy = m_panelArea->GetChildren();
+			m_panelArea->RemoveAllChildren();
+
+			for (auto* w : copy)
+				m_manager->Deallocate(w);
+
+			m_editor->CloseAllSubwindows();
+			m_editor->GetSettings().GetLayout().StoreDefaultLayout();
+			m_editor->GetSettings().GetLayout().ApplyStoredLayout(editor);
 			return true;
 		}
 
@@ -313,13 +350,11 @@ namespace Lina::Editor
 
 	bool EditorRoot::IsItemDisabled(StringID sid)
 	{
-		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
-
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
-			return editor->GetProjectData() == nullptr;
+			return m_editor->GetProjectData() == nullptr;
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)) || sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
-			return editor->GetCurrentWorld() == nullptr;
+			return m_editor->GetCurrentWorld() == nullptr;
 
 		return false;
 	}
@@ -361,6 +396,8 @@ namespace Lina::Editor
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Resources)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Performance)},
+				FileMenuItem::Data{.isDivider = true},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::ResetLayout)},
 			};
 			return;
 		}

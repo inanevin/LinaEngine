@@ -27,15 +27,38 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelResources.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/IO/FileManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/System/System.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina::Editor
 {
+	void PanelResources::Construct()
+	{
+		m_editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+
+		Widget* base = m_manager->Allocate<Widget>("Base");
+		base->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		base->SetAlignedPos(Vector2::Zero);
+		base->SetAlignedSize(Vector2::One);
+		AddChild(base);
+
+		Widget* browser = m_manager->Allocate<Widget>("Browser");
+		browser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		browser->SetAlignedPos(Vector2::Zero);
+		browser->SetAlignedSize(Vector2(0.25f, 1.0f));
+		base->AddChild(browser);
+
+		Widget* contents = m_manager->Allocate<Widget>("Contents");
+		contents->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		contents->SetAlignedPos(Vector2(0.25f, 0.0f));
+		contents->SetAlignedSize(Vector2(0.75f, 1.0f));
+		base->AddChild(contents);
+	}
+
 	void PanelResources::Draw(int32 threadIndex)
 	{
-		LinaVG::StyleOptions opts;
-		opts.color		   = Color::Yellow.AsLVG4();
-		opts.color.start.w = opts.color.end.w = 0.1f;
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 } // namespace Lina::Editor

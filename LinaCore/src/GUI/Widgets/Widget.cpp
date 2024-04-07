@@ -79,6 +79,14 @@ namespace Lina
 		w->m_next = w->m_prev = nullptr;
 	}
 
+	void Widget::RemoveAllChildren()
+	{
+		for (auto* w : m_children)
+			w->m_next = w->m_prev = nullptr;
+
+		m_children.clear();
+	}
+
 	void Widget::SaveToStream(OStream& out) const
 	{
 		out << m_tid;

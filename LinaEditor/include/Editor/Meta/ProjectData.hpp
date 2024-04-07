@@ -36,6 +36,11 @@ namespace Lina::Editor
 	class ProjectData : public Serializable
 	{
 	public:
+		struct Runtime
+		{
+			bool isDirty = false;
+		};
+
 		static constexpr uint32 VERSION = 0;
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
@@ -50,8 +55,19 @@ namespace Lina::Editor
 			return m_projectName;
 		}
 
+		inline void SetDirty(bool isDirty)
+		{
+			m_runtime.isDirty = isDirty;
+		}
+
+		inline bool GetIsDirty() const
+		{
+			return m_runtime.isDirty;
+		}
+
 	private:
-		String m_projectName = "";
+		Runtime m_runtime	  = {};
+		String	m_projectName = "";
 	};
 
 } // namespace Lina::Editor

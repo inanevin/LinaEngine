@@ -28,53 +28,28 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/String.hpp"
-#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/Data/Vector.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
 
-	class Editor;
-
-	struct DirectoryItem
-	{
-		uint64				   empty	   = 0;
-		bool				   isDirectory = false;
-		String				   path		   = "";
-		TypeID				   tid		   = 0;
-		String				   extension   = "";
-		Vector<DirectoryItem*> children	   = {};
-	};
-
-	class FileManager
+	class FileWatcherListener
 	{
 	public:
-		FileManager() : m_allocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(DirectoryItem) * 100, sizeof(DirectoryItem)){};
-
-		void Initialize(Editor* editor);
-		void Shutdown();
-		void RefreshResources();
-		void ClearResources();
-
-		inline void SetProjectDirectory(const String& dir)
-		{
-			m_projectDirectory = dir;
-		}
-
-		inline DirectoryItem* GetRoot() const
-		{
-			return m_root;
-		}
-
-	private:
-		void ScanItem(DirectoryItem* item);
-		void DeallocItem(DirectoryItem* item);
-
-	private:
-		String				m_projectDirectory = "";
-		Editor*				m_editor		   = nullptr;
-		MemoryAllocatorPool m_allocatorPool;
-		DirectoryItem*		m_root = nullptr;
+		virtual void OnItemAdded(bool isFile, const String& fullPath){};
+		virtual void OnItemRemoved(bool isFile, const String& fullPath){};
+		virtual void OnItemRenamed(bool isFile, const String& oldFullPath, const String& newFullPath){};
+		virtual void OnItemModified(bool isFile, const String& fullPath){};
 	};
 
-} // namespace Lina::Editor
+	class FileWatcher
+	{
+	public:
+		void SetWatch(const String& directory);
+		void AddListener(FileWatcherListener* listener);
+		void RemoveListener(FileWatcherListener* listener);
+
+	private:
+		Vector<FileWatcherListener*> m_listeners;
+	};
+} // namespace Lina
