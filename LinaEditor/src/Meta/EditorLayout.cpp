@@ -77,7 +77,7 @@ namespace Lina::Editor
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2(0.0f, 0.75f),
 			.alignedSize = Vector2(1.0f, 0.25f),
-            .panels		 = {{.panelType = PanelType::Resources, .extraData = {.data0 = 0.25f}}},
+			.panels		 = {{.panelType = PanelType::Resources, .extraData = {.data0 = 0.25f}}},
 		});
 
 		// Border: Entities | World
@@ -145,16 +145,16 @@ namespace Lina::Editor
 					{
 						Panel* panel = PanelFactory::CreatePanel(panelArea, panelData.panelType, panelData.subData);
 						area->AddPanel(panel);
-                        panel->SetExtraLayoutData(panelData.extraData);
+						panel->SetExtraLayoutData(panelData.extraData);
 					}
 				}
 			}
-            
-            for(size_t i = 0; i < windowData.dockWidgets.size(); i++)
-            {
-                if(windowData.dockWidgets[i].isBorder)
-                    static_cast<DockBorder*>(panelArea->GetChildren()[i])->FixChildMargins();
-            }
+
+			for (size_t i = 0; i < windowData.dockWidgets.size(); i++)
+			{
+				if (windowData.dockWidgets[i].isBorder)
+					static_cast<DockBorder*>(panelArea->GetChildren()[i])->FixChildMargins();
+			}
 		}
 	}
 
@@ -194,7 +194,7 @@ namespace Lina::Editor
 						PanelData pd = {};
 						pd.panelType = panel->GetType();
 						pd.subData	 = panel->GetSubData();
-                        pd.extraData = panel->GetExtraLayoutData();
+						pd.extraData = panel->GetExtraLayoutData();
 						dwd.panels.push_back(pd);
 					}
 

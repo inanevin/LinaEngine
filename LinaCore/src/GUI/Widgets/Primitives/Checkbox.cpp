@@ -64,9 +64,9 @@ namespace Lina
 
 	void Checkbox::Draw(int32 threadIndex)
 	{
-        if(!GetIsVisible())
-            return;
-        
+		if (!GetIsVisible())
+			return;
+
 		const bool hasControls = GetControlsOwner() == this;
 
 		LinaVG::StyleOptions style;

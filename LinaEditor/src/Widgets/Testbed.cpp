@@ -59,52 +59,50 @@ namespace Lina::Editor
 
 		const float itemHeight = Theme::GetDef().baseItemHeight;
 		const float itemWidth  = 100.0f;
-        
-        DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-        layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        layout->SetAlignedPos(Vector2::Zero);
-        layout->SetAlignedSize(Vector2::One);
-        layout->GetProps().direction = DirectionOrientation::Vertical;
-        layout->GetProps().clipChildren = true;
-        layout->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-        layout->SetChildPadding(Theme::GetDef().baseIndent);
-        AddChild(layout);
-        
-        auto setFlags = [&](Widget* w, bool isVertical = false){
-            w->GetFlags().Set(WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
-            w->SetAlignedPosX(0.0f);
-            w->SetFixedSizeX(itemWidth);
-            w->SetFixedSizeY(itemHeight);
-            
-            if(isVertical)
-            {
-                w->SetFixedSizeY(itemWidth);
-                w->SetFixedSizeX(itemHeight);
-            }
-        };
-        
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetProps().direction	= DirectionOrientation::Vertical;
+		layout->GetProps().clipChildren = true;
+		layout->GetChildMargins()		= TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		AddChild(layout);
+
+		auto setFlags = [&](Widget* w, bool isVertical = false) {
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
+			w->SetAlignedPosX(0.0f);
+			w->SetFixedSizeX(itemWidth);
+			w->SetFixedSizeY(itemHeight);
+
+			if (isVertical)
+			{
+				w->SetFixedSizeY(itemWidth);
+				w->SetFixedSizeX(itemHeight);
+			}
+		};
+
 		// Icon && title
 		{
 			Icon* icon			  = m_manager->Allocate<Icon>("Lina Icon");
 			icon->GetProps().icon = ICON_LINA_LOGO;
-            setFlags(icon);
+			setFlags(icon);
 			layout->AddChild(icon);
 
 			Text* text			  = m_manager->Allocate<Text>("Title Text");
 			text->GetProps().text = "Testbed";
-            setFlags(text);
-            layout->AddChild(text);
+			setFlags(text);
+			layout->AddChild(text);
 		}
-
 
 		// Button
 		{
 			Button* button					   = m_manager->Allocate<Button>("Button");
 			button->GetText()->GetProps().text = "Button";
-            setFlags(button);
-            layout->AddChild(button);
+			setFlags(button);
+			layout->AddChild(button);
 		}
-
 
 		// Checkbox
 		{
@@ -113,10 +111,9 @@ namespace Lina::Editor
 			check->GetProps().value				   = &value;
 			check->GetIcon()->GetProps().icon	   = ICON_CHECK;
 			check->GetIcon()->GetProps().textScale = 0.5f;
-            setFlags(check);
-            layout->AddChild(check);
+			setFlags(check);
+			layout->AddChild(check);
 		}
-
 
 		// Slider
 		{
@@ -126,10 +123,9 @@ namespace Lina::Editor
 			slider->GetProps().maxValue = 10.0f;
 			slider->GetProps().step		= 0.0f;
 			slider->GetProps().value	= &value;
-            setFlags(slider);
-            layout->AddChild(slider);
+			setFlags(slider);
+			layout->AddChild(slider);
 		}
-
 
 		// Slider Vertical
 		{
@@ -140,10 +136,9 @@ namespace Lina::Editor
 			slider->GetProps().step		 = 0.0f;
 			slider->GetProps().value	 = &value;
 			slider->GetProps().direction = DirectionOrientation::Vertical;
-            setFlags(slider);
-            layout->AddChild(slider);
+			setFlags(slider);
+			layout->AddChild(slider);
 		}
-
 
 		// Input Field Number slider
 		{
@@ -155,10 +150,9 @@ namespace Lina::Editor
 			field->GetProps().valueStep			  = 0.5f;
 			field->GetProps().value				  = &value;
 			field->GetText()->GetProps().text	  = "Testing";
-            setFlags(field);
-            layout->AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
 
 		// Input Field Number
 		{
@@ -170,20 +164,18 @@ namespace Lina::Editor
 			field->GetProps().valueStep			  = 0.1f;
 			field->GetProps().value				  = &value;
 			field->GetText()->GetProps().text	  = "Testing";
-            setFlags(field);
-            layout->AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
 
 		// Input Field Text
 		{
 			InputField* field				  = m_manager->Allocate<InputField>("InputFieldText");
 			field->GetProps().isNumberField	  = false;
 			field->GetText()->GetProps().text = "Testing";
-            setFlags(field);
-            layout->AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
 
 		// Dropdown
 		{
@@ -198,22 +190,18 @@ namespace Lina::Editor
 
 			dd->GetProps().onSelected = [](int32 selected) { selectedDropdownItem = selected; };
 
-
-            setFlags(dd);
-            layout->AddChild(dd);
+			setFlags(dd);
+			layout->AddChild(dd);
 		}
-
 
 		// Color field
 		{
 			static Color color		= Color::White;
 			ColorField*	 field		= m_manager->Allocate<ColorField>("ColorField");
 			field->GetProps().value = &color;
-            setFlags(field);
-            layout->AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
-        
 
 		// Color slider
 		{
@@ -224,10 +212,9 @@ namespace Lina::Editor
 			cs->GetProps().maxValue	  = 1.0f;
 			cs->GetProps().colorBegin = Color::White;
 			cs->GetProps().colorEnd	  = Color::Red;
-            setFlags(cs);
-            layout->AddChild(cs);
+			setFlags(cs);
+			layout->AddChild(cs);
 		}
-
 
 		// Color slider
 		{
@@ -237,12 +224,12 @@ namespace Lina::Editor
 			cs->GetProps().value	  = &value;
 			cs->GetProps().minValue	  = 0.0f;
 			cs->GetProps().maxValue	  = 1.0f;
-            setFlags(cs);
-            layout->AddChild(cs);
+			setFlags(cs);
+			layout->AddChild(cs);
 		}
 
-        return;
-        
+		return;
+
 		// Color slider
 		{
 			static float value		  = 0.0f;
@@ -254,18 +241,16 @@ namespace Lina::Editor
 			cs->GetProps().minValue	  = 0.0f;
 			cs->GetProps().maxValue	  = 1.0f;
 			cs->GetProps().value	  = &value;
-            setFlags(cs);
-            layout->AddChild(cs);
+			setFlags(cs);
+			layout->AddChild(cs);
 		}
-
-
 
 		// Color wheel
 		{
 			ColorWheelCompound* wh = m_manager->Allocate<ColorWheelCompound>("ColorWheelCompound");
 			wh->SetTargetColor(Color(0.12f, 0.07f, 0.03f, 1.0f));
 			wh->SetSize(Vector2(600, 800));
-            layout->AddChild(wh);
+			layout->AddChild(wh);
 		}
 	}
 

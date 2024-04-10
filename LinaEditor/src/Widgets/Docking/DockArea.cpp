@@ -199,14 +199,14 @@ namespace Lina::Editor
 
 	void DockArea::Draw(int32 threadIndex)
 	{
-		
-        m_tabRow->Draw(threadIndex);
-       
-        const Color ds = Color(Theme::GetDef().black.x, Theme::GetDef().black.y, Theme::GetDef().black.z, 0.5f);
-        WidgetUtility::DrawDropShadow(threadIndex, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder, ds, 6);
+
+		m_tabRow->Draw(threadIndex);
+
+		const Color ds = Color(Theme::GetDef().black.x, Theme::GetDef().black.y, Theme::GetDef().black.z, 0.5f);
+		WidgetUtility::DrawDropShadow(threadIndex, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder, ds, 6);
 
 		if (m_selectedPanel)
-            m_selectedPanel->Draw(threadIndex);
+			m_selectedPanel->Draw(threadIndex);
 
 		if (m_preview)
 			m_preview->Draw(threadIndex);

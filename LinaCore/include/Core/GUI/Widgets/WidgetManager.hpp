@@ -65,7 +65,6 @@ namespace Lina
 		void AddToKillList(Widget* w);
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
-       
 
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{
@@ -123,7 +122,6 @@ namespace Lina
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		
 		LinaGX::CursorType FindCursorType(Widget* start);
 		void			   PreTickWidget(Widget* w);
 		void			   TickWidget(Widget* w, float delta);

@@ -61,9 +61,9 @@ namespace Lina
 
 	void Dropdown::Draw(int32 threadIndex)
 	{
-        if(!GetIsVisible())
-            return;
-        
+		if (!GetIsVisible())
+			return;
+
 		const bool	  hasControls = GetControlsOwner() == this;
 		const Vector2 iconSize	  = m_icon->GetSize();
 		const Vector2 iconPos	  = m_icon->GetPos();
