@@ -86,6 +86,7 @@ namespace Lina
 	{
 		auto& req		   = AddDrawRequest(buf, threadIndex);
 		req.hasTextureBind = false;
+		req.requestType	   = 0;
 	}
 
 	void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf, int threadIndex)
@@ -94,6 +95,7 @@ namespace Lina
 		req.materialData.color1 = buf->m_color.start;
 		req.materialData.color2 = buf->m_color.end;
 		req.hasTextureBind		= false;
+		req.requestType			= 1;
 
 		if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
 		{
@@ -121,6 +123,7 @@ namespace Lina
 	{
 		auto& req			 = AddDrawRequest(buf, threadIndex);
 		float drawBufferType = static_cast<float>(buf->m_drawBufferType);
+		req.requestType		 = 2;
 
 		if (buf->m_textureHandle == GUI_TEXTURE_HUE_HORIZONTAL)
 		{
@@ -158,6 +161,7 @@ namespace Lina
 		req.hasTextureBind			  = true;
 		req.textureHandle			  = txt->GetGPUHandle();
 		req.samplerHandle			  = m_textSampler->GetGPUHandle();
+		req.requestType				  = 3;
 	}
 
 	void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int threadIndex)
@@ -171,6 +175,7 @@ namespace Lina
 		req.hasTextureBind			= true;
 		req.textureHandle			= txt->GetGPUHandle();
 		req.samplerHandle			= m_textSampler->GetGPUHandle();
+		req.requestType				= 4;
 	}
 
 	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)

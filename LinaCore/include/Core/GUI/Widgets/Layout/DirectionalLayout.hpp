@@ -37,7 +37,7 @@ namespace Lina
 	class DirectionalLayout : public Widget
 	{
 	public:
-		DirectionalLayout()			 = default;
+		DirectionalLayout(uint32 flags = 0) : Widget(-1, flags){};
 		virtual ~DirectionalLayout() = default;
 
 		enum class Mode

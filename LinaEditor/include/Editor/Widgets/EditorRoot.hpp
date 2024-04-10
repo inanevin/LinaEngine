@@ -77,6 +77,7 @@ namespace Lina::Editor
 		DirectionalLayout* m_titleBar		 = nullptr;
 		Editor*			   m_editor			 = nullptr;
 		Icon*			   m_saveIcon		 = nullptr;
+		Icon*			   m_linaIcon		 = nullptr;
 	};
 
 } // namespace Lina::Editor

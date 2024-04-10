@@ -100,7 +100,10 @@ namespace Lina::Editor
 	{
 		const float indent	 = Theme::GetDef().baseIndent;
 		const float iconSize = m_icon->GetIsDisabled() ? 0.0f : m_icon->GetSizeX();
-		SetSizeX(SELECTION_RECT_WIDTH + m_text->GetSizeX() + iconSize + indent * 4.0f);
+
+		float targetX = SELECTION_RECT_WIDTH + m_text->GetSizeX() + iconSize + indent * 4.0f;
+
+		SetSizeX(targetX);
 	}
 
 	void Tab::Tick(float delta)
@@ -144,6 +147,7 @@ namespace Lina::Editor
 
 	void Tab::Draw(int32 threadIndex)
 	{
+
 		const int32 drawOrder = m_isPressed ? m_drawOrder + 1 : m_drawOrder;
 
 		// Draw background.

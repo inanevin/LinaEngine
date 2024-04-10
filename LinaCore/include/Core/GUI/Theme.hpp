@@ -52,7 +52,7 @@ namespace Lina
 			// Darkest
 			Color black		  = Color(0.00202f, 0.00202f, 0.00396f, 1.0f);
 			Color background0 = Color(20.0f, 20.0f, 20.0f, 255.0f, true, true);
-			Color background1 = Color(23.0f, 23.0f, 23.0f, 255.0f, true, true);
+			Color background1 = Color(26.0f, 26.0f, 26.0f, 255.0f, true, true);
 			Color background2 = Color(33.0f, 33.0f, 33.0f, 255.0f, true, true);
 			Color background3 = Color(0.02181f, 0.02181f, 0.02822f, 1.0f);
 			Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);

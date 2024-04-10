@@ -156,30 +156,6 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released)
-		{
-			if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
-			{
-				if (m_controlsOwner)
-				{
-					Widget* previous = FindPreviousSelectable(m_controlsOwner);
-					if (previous)
-					{
-						GrabControls(previous);
-					}
-				}
-			}
-			else
-			{
-				Widget* next = FindNextSelectable(m_controlsOwner ? m_controlsOwner : m_rootWidget);
-				if (next)
-				{
-					GrabControls(next);
-				}
-			}
-			return;
-		}
-
 		if (m_foregroundRoot->OnKey(keycode, scancode, inputAction))
 			return;
 
@@ -188,13 +164,6 @@ namespace Lina
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
-		// Left click presses to anywhere outside the control owner
-		// releases controls from that owner.
-		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr)
-		{
-			if (!m_controlsOwner->GetIsHovered())
-				ReleaseControls(m_controlsOwner);
-		}
 
 		// If we have some items in the foreground
 		// check if any was clicked, if not, then remove the non-blocker ones
@@ -335,71 +304,6 @@ namespace Lina
 	void WidgetManager::AddToKillList(Widget* w)
 	{
 		m_killList.push_back(w);
-	}
-
-	Widget* WidgetManager::FindNextSelectable(Widget* start)
-	{
-		if (!start)
-			return nullptr;
-
-		Widget* current = start;
-		do
-		{
-			// Depth-first search for the next selectable widget
-			if (!current->m_children.empty())
-			{
-				current = current->m_children[0];
-			}
-			else
-			{
-				while (current != nullptr && current->m_next == nullptr)
-				{
-					current = current->m_parent;
-				}
-				if (current != nullptr)
-				{
-					current = current->m_next;
-				}
-			}
-
-			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
-			{
-				return current;
-			}
-		} while (current != nullptr && current != start);
-
-		return nullptr;
-	}
-
-	Widget* WidgetManager::FindPreviousSelectable(Widget* start)
-	{
-		if (!start)
-			return nullptr;
-
-		Widget* current = start;
-		do
-		{
-			// Reverse depth-first search for the previous selectable widget
-			if (current->m_prev)
-			{
-				current = current->m_prev;
-				while (!current->m_children.empty())
-				{
-					current = current->m_children.back();
-				}
-			}
-			else
-			{
-				current = current->m_parent;
-			}
-
-			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
-			{
-				return current;
-			}
-		} while (current != nullptr && current != start);
-
-		return nullptr;
 	}
 
 	LinaGX::CursorType WidgetManager::FindCursorType(Widget* w)

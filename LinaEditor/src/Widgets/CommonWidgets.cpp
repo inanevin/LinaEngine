@@ -51,66 +51,84 @@ namespace Lina::Editor
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
 
-		Button* min							 = source->GetWidgetManager()->Allocate<Button>("Minimize");
-		min->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
-		min->GetText()->GetProps().text		 = ICON_MINIMIZE;
-		min->GetText()->GetProps().textScale = 0.5f;
-		min->GetProps().colorDefaultStart	 = Theme::GetDef().background0;
-		min->GetProps().colorDefaultEnd		 = Theme::GetDef().background0;
-		min->GetProps().colorHovered		 = Theme::GetDef().background4;
-		min->GetProps().colorPressed		 = Theme::GetDef().background0;
-		min->GetProps().rounding			 = 0.0f;
-		min->GetProps().outlineThickness	 = 0.0f;
-		min->GetProps().onClicked			 = [source]() { source->GetWindow()->Minimize(); };
+		Button* min = source->GetWidgetManager()->Allocate<Button>("Minimize");
+		min->GetText()->SetVisible(false);
+		min->GetProps().colorDefaultStart = Theme::GetDef().background0;
+		min->GetProps().colorDefaultEnd	  = Theme::GetDef().background0;
+		min->GetProps().colorHovered	  = Theme::GetDef().background4;
+		min->GetProps().colorPressed	  = Theme::GetDef().background0;
+		min->GetProps().rounding		  = 0.0f;
+		min->GetProps().outlineThickness  = 0.0f;
+		min->GetProps().onClicked		  = [source]() { source->GetWindow()->Minimize(); };
 		min->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		min->SetAlignedPosY(0.0f);
 		min->SetAlignedSizeY(1.0f);
 		layout->AddChild(min);
 
-		Button* max							 = source->GetWidgetManager()->Allocate<Button>();
-		max->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
-		max->GetText()->GetProps().text		 = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
-		max->GetText()->GetProps().textScale = 0.5f;
-		max->GetProps().colorDefaultStart	 = Theme::GetDef().background0;
-		max->GetProps().colorDefaultEnd		 = Theme::GetDef().background0;
-		max->GetProps().colorHovered		 = Theme::GetDef().background4;
-		max->GetProps().colorPressed		 = Theme::GetDef().background0;
-		max->GetProps().rounding			 = 0.0f;
-		max->GetProps().outlineThickness	 = 0.0f;
-		max->GetProps().onClicked			 = [source, max]() {
-			   if (source->GetWindow()->GetIsMaximized())
-				   source->GetWindow()->Restore();
-			   else
-				   source->GetWindow()->Maximize();
+		Icon* iconMin			 = source->GetWidgetManager()->Allocate<Icon>("Icon");
+		iconMin->GetProps().icon = ICON_MINIMIZE;
+		iconMin->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		iconMin->SetAlignedPos(Vector2(0.5f, 0.5f));
+		iconMin->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		iconMin->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		min->AddChild(iconMin);
 
-			   max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
-			   max->GetText()->CalculateTextSize();
+		Button* max = source->GetWidgetManager()->Allocate<Button>();
+		max->GetText()->SetVisible(false);
+		max->GetProps().colorDefaultStart = Theme::GetDef().background0;
+		max->GetProps().colorDefaultEnd	  = Theme::GetDef().background0;
+		max->GetProps().colorHovered	  = Theme::GetDef().background4;
+		max->GetProps().colorPressed	  = Theme::GetDef().background0;
+		max->GetProps().rounding		  = 0.0f;
+		max->GetProps().outlineThickness  = 0.0f;
+		max->GetProps().onClicked		  = [source, max]() {
+			if (source->GetWindow()->GetIsMaximized())
+				source->GetWindow()->Restore();
+			else
+				source->GetWindow()->Maximize();
+
+			max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
+			max->GetText()->CalculateTextSize();
 		};
 		max->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		max->SetAlignedPosY(0.0f);
 		max->SetAlignedSizeY(1.0f);
 		layout->AddChild(max);
 
-		Button* close						   = source->GetWidgetManager()->Allocate<Button>();
-		close->GetText()->GetProps().font	   = Theme::GetDef().iconFont;
-		close->GetText()->GetProps().text	   = ICON_XMARK;
-		close->GetText()->GetProps().textScale = 0.5f;
-		close->GetProps().colorDefaultStart	   = Theme::GetDef().accentPrimary0;
-		close->GetProps().colorDefaultEnd	   = Theme::GetDef().accentPrimary0;
-		close->GetProps().colorHovered		   = Theme::GetDef().accentPrimary2;
-		close->GetProps().colorPressed		   = Theme::GetDef().accentPrimary1;
-		close->GetProps().rounding			   = 0.0f;
-		close->GetProps().outlineThickness	   = 0.0f;
-		close->GetProps().onClicked			   = [source]() {
-			   if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
-				   source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
-			   else
-				   source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
+		Icon* iconMax			 = source->GetWidgetManager()->Allocate<Icon>("Icon");
+		iconMax->GetProps().icon = ICON_MAXIMIZE;
+		iconMax->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		iconMax->SetAlignedPos(Vector2(0.5f, 0.5f));
+		iconMax->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		iconMax->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		max->AddChild(iconMax);
+
+		Button* close = source->GetWidgetManager()->Allocate<Button>();
+		close->GetText()->SetVisible(false);
+		close->GetProps().colorDefaultStart = Theme::GetDef().accentPrimary0;
+		close->GetProps().colorDefaultEnd	= Theme::GetDef().accentPrimary0;
+		close->GetProps().colorHovered		= Theme::GetDef().accentPrimary2;
+		close->GetProps().colorPressed		= Theme::GetDef().accentPrimary1;
+		close->GetProps().rounding			= 0.0f;
+		close->GetProps().outlineThickness	= 0.0f;
+		close->GetProps().onClicked			= [source]() {
+			if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
+				source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
+			else
+				source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
 		};
 		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		close->SetAlignedPosY(0.0f);
 		close->SetAlignedSizeY(1.0f);
 		layout->AddChild(close);
+
+		Icon* iconClose			   = source->GetWidgetManager()->Allocate<Icon>("Icon");
+		iconClose->GetProps().icon = ICON_XMARK;
+		iconClose->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		iconClose->SetAlignedPos(Vector2(0.5f, 0.5f));
+		iconClose->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		iconClose->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		close->AddChild(iconClose);
 
 		return layout;
 	}

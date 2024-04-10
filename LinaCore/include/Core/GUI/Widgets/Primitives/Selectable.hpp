@@ -28,46 +28,30 @@ SOFTWARE.
 
 #pragma once
 
-#include "DockWidget.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
-	class DockArea;
-
-	class DockBorder : public DockWidget
+	class Selectable : public Widget
 	{
 	public:
-		DockBorder()		  = default;
-		virtual ~DockBorder() = default;
+		Selectable() : Widget(1, WF_SELECTABLE){};
+		virtual ~Selectable() = default;
 
-		virtual void			   Initialize() override;
-		virtual void			   PreTick() override;
-		virtual void			   Draw(int32 threadIndex) override;
-		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual LinaGX::CursorType GetCursorOverride() override;
-		void					   FixChildMargins();
-
-		inline DirectionOrientation GetDirectionOrientation() const
+		struct Properties
 		{
-			return m_orientation;
-		}
+			Color			 colorStart			= Color(0.0f, 0.0f, 0.0f, 0.0f);
+			Color			 colorEnd			= Color(0.0f, 0.0f, 0.0f, 0.0f);
+			Color			 colorSelectedStart = Theme::GetDef().accentPrimary0;
+			Color			 colorSelectedEnd	= Theme::GetDef().accentPrimary1;
+			Delegate<void()> onClicked;
+		};
 
-		inline void SetDirectionOrientation(DirectionOrientation orientation)
-		{
-			m_orientation = orientation;
-		}
+		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
-		bool CheckIfAreaOnSide(DockArea* area, Direction dir);
-
-	private:
-		friend class DockArea;
-		DockArea*			 m_negative	   = nullptr;
-		DockArea*			 m_positive	   = nullptr;
-		DirectionOrientation m_orientation = DirectionOrientation::Horizontal;
-		float				 m_pressDiff   = 0.0f;
-		int32				 m_tick		   = 0;
+		Properties m_props = {};
 	};
 
-} // namespace Lina::Editor
+} // namespace Lina

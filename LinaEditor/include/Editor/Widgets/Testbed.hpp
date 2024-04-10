@@ -41,8 +41,6 @@ namespace Lina::Editor
 		virtual ~Testbed() = default;
 
 		virtual void Construct() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
 
 	private:
 	};

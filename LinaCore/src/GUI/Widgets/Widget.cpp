@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -71,6 +72,9 @@ namespace Lina
 			w->m_next->m_prev = w->m_prev;
 		}
 
+		w->m_controlsManager = nullptr;
+		w->m_controlsOwner	 = nullptr;
+
 		auto it = linatl::find_if(m_children.begin(), m_children.end(), [w](Widget* child) -> bool { return w == child; });
 
 		LINA_ASSERT(it != m_children.end(), "");
@@ -81,9 +85,6 @@ namespace Lina
 
 	void Widget::RemoveAllChildren()
 	{
-		for (auto* w : m_children)
-			w->m_next = w->m_prev = nullptr;
-
 		m_children.clear();
 	}
 
@@ -118,14 +119,30 @@ namespace Lina
 
 	void Widget::Draw(int32 threadIndex)
 	{
-		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex](Widget* child) -> void { child->Draw(threadIndex); });
+		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex](Widget* child) -> void {
+			if (child->GetIsVisible())
+				child->Draw(threadIndex);
+		});
 	}
 
 	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+		{
+			// Left click presses to anywhere outside the control owner
+			// releases controls from that owner.
+			if (button == LINAGX_MOUSE_0 && action == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr)
+			{
+				if (!m_controlsOwner->GetIsHovered())
+				{
+					ReleaseControls(m_controlsOwner);
+				}
+			}
+		}
+
 		for (auto* c : m_children)
 		{
-			if (!c->GetIsDisabled() && c->OnMouse(button, action))
+			if (!c->GetIsDisabled() && c->GetIsVisible() && c->OnMouse(button, action))
 				return true;
 		}
 
@@ -134,9 +151,22 @@ namespace Lina
 
 	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+		{
+			if (keycode == LINAGX_KEY_TAB && action != LinaGX::InputAction::Released)
+			{
+				if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+					MoveControlsToPrev();
+				else
+					MoveControlsToNext();
+
+				return;
+			}
+		}
+
 		for (auto* c : m_children)
 		{
-			if (c->OnKey(keycode, scancode, action))
+			if (!c->GetIsDisabled() && c->GetIsVisible() && c->OnKey(keycode, scancode, action))
 				return true;
 		}
 
@@ -278,4 +308,146 @@ namespace Lina
 		const float sizey = GetFlags().IsSet(WF_USE_FIXED_SIZE_Y) ? GetFixedSizeY() : GetParent()->GetSizeY() * GetAlignedSizeY();
 		return Rect(Vector2(posx, posy), Vector2(sizex, sizey));
 	}
+
+	Widget* Widget::VerifyControlsManager()
+	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+			m_controlsManager = this;
+
+		if (m_controlsManager == nullptr && m_parent)
+			m_controlsManager = m_parent->VerifyControlsManager();
+
+		return m_controlsManager;
+	}
+
+	void Widget::GrabControls(Widget* widget)
+	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+			m_controlsOwner = widget;
+		else
+		{
+			auto* manager = VerifyControlsManager();
+			if (manager)
+				manager->GrabControls(this);
+		}
+	}
+
+	void Widget::ReleaseControls(Widget* widget)
+	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+		{
+			if (m_controlsOwner == widget)
+				m_controlsOwner = nullptr;
+		}
+		else
+		{
+			auto* manager = VerifyControlsManager();
+			if (manager)
+				manager->ReleaseControls(this);
+		}
+	}
+
+	bool Widget::CanGrabControls(Widget* w)
+	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+			return m_controlsOwner == nullptr || w == m_controlsOwner;
+
+		auto* manager = VerifyControlsManager();
+		if (manager)
+			return manager->CanGrabControls(this);
+
+		return true;
+	}
+
+	Widget* Widget::GetControlsOwner()
+	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+			return m_controlsOwner;
+
+		auto* manager = VerifyControlsManager();
+		if (manager)
+			return manager->GetControlsOwner();
+
+		return nullptr;
+	}
+
+	Widget* Widget::FindNextSelectable(Widget* start)
+	{
+		if (!start)
+			return nullptr;
+
+		Widget* current = start;
+		do
+		{
+			// Depth-first search for the next selectable widget
+			if (!current->m_children.empty())
+				current = current->m_children[0];
+			else
+			{
+				while (current != nullptr && current->m_next == nullptr)
+					current = current->m_parent;
+
+				if (current != nullptr)
+					current = current->m_next;
+			}
+
+			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
+				return current;
+		} while (current != nullptr && current != start);
+
+		return nullptr;
+	}
+
+	Widget* Widget::FindPreviousSelectable(Widget* start)
+	{
+		if (!start)
+			return nullptr;
+
+		Widget* current = start;
+		do
+		{
+			// Reverse depth-first search for the previous selectable widget
+			if (current->m_prev)
+			{
+				current = current->m_prev;
+				while (!current->m_children.empty())
+					current = current->m_children.back();
+			}
+			else
+				current = current->m_parent;
+
+			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
+				return current;
+
+		} while (current != nullptr && current != start);
+
+		return nullptr;
+	}
+
+	void Widget::MoveControlsToPrev()
+	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+			return;
+
+		if (m_controlsOwner)
+		{
+			Widget* previous = FindPreviousSelectable(m_controlsOwner);
+			if (previous)
+			{
+				GrabControls(previous);
+			}
+		}
+	}
+
+	void Widget::MoveControlsToNext()
+	{
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+			return;
+		Widget* next = FindNextSelectable(m_controlsOwner ? m_controlsOwner : nullptr);
+		if (next)
+		{
+			GrabControls(next);
+		}
+	}
+
 } // namespace Lina

@@ -47,11 +47,14 @@ namespace Lina::Editor
 		{
 			PanelType panelType = PanelType::Resources;
 			StringID  subData	= 0;
+            PanelLayoutExtra extraData;
 
 			inline void SaveToStream(OStream& out) const
 			{
 				out << static_cast<uint8>(panelType);
 				out << subData;
+                out << extraData.data0;
+                out << extraData.data1;
 			}
 
 			inline void LoadFromStream(IStream& in)
@@ -59,6 +62,9 @@ namespace Lina::Editor
 				uint8 pt = 0;
 				in >> pt;
 				in >> subData;
+                in >> extraData.data0;
+                in >> extraData.data1;
+               
 				panelType = static_cast<PanelType>(pt);
 			}
 		};

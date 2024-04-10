@@ -47,6 +47,8 @@ namespace Lina
 		static void DrawDropShadowRect(int32 threadIndex, const Rect& rect, int32 drawOrder, const Color& baseColor, int32 radius);
 
 		static DirectionalLayout* BuildLayoutForPopups(Widget* source);
+
+		static bool CheckIfCanShrinkWidgets(const Vector<Widget*>& widgets, float absAmount, bool isX, float minSize);
 	};
 
 } // namespace Lina

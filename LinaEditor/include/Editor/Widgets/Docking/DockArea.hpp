@@ -74,7 +74,7 @@ namespace Lina::Editor
 		}
 
 	private:
-		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);
+		void ExpandWidgetsToMyPlace(const Vector<Widget*>& widgets, Direction directionOfAreas);
 
 	private:
 		TabRow*			   m_tabRow	 = nullptr;

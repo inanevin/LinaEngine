@@ -64,47 +64,61 @@ namespace Lina::Editor
 		SetAlignedSize(Vector2::One);
 
 		DirectionalLayout* titleBar = m_manager->Allocate<DirectionalLayout>("TitleBar");
-
-		titleBar->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		titleBar->GetProps().direction = DirectionOrientation::Vertical;
-		titleBar->SetAlignedPosX(0.0f);
+		titleBar->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		titleBar->GetProps().direction = DirectionOrientation::Horizontal;
 		titleBar->SetAlignedSizeX(1.0f);
-		titleBar->SetFixedSizeY(Theme::GetDef().baseItemHeight * 3.0f);
+		titleBar->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		titleBar->SetChildPadding(Theme::GetDef().baseIndent);
 		titleBar->GetProps().backgroundStyle	  = BackgroundStyle::CentralGradient;
 		titleBar->GetProps().colorBackgroundStart = Theme::GetDef().background0;
 		titleBar->GetProps().colorBackgroundEnd	  = Theme::GetDef().accentPrimary0;
+		titleBar->GetChildMargins().left		  = Theme::GetDef().baseIndent;
 		AddChild(titleBar);
 
-		DirectionalLayout* layout1 = m_manager->Allocate<DirectionalLayout>("Layout1");
-		layout1->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
-		layout1->SetAlignedSizeX(1.0f);
-		layout1->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout1->SetAlignedPosX(0.0f);
-		layout1->GetChildMargins().left = Theme::GetDef().baseIndent;
-		titleBar->AddChild(layout1);
+		Icon* lina			  = m_manager->Allocate<Icon>("Lina");
+		lina->GetProps().icon = ICON_LINA_LOGO;
+		lina->GetFlags().Set(WF_POS_ALIGN_Y);
+		lina->SetAlignedPosY(0.5f);
+		lina->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		lina->GetProps().colorStart = Theme::GetDef().accentPrimary0;
+		lina->GetProps().colorEnd	= Theme::GetDef().accentPrimary1;
+		titleBar->AddChild(lina);
 
-		DirectionalLayout* layout2 = m_manager->Allocate<DirectionalLayout>("Layout2");
-		layout2->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
-		layout2->SetAlignedSizeX(1.0f);
-		layout2->SetAlignedSizeY(0.0f);
-		layout2->SetAlignedPosX(0.0f);
-		titleBar->AddChild(layout2);
+		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
+		fm->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		fm->SetAlignedPosY(0.0f);
+		fm->SetAlignedSizeY(1.0f);
+
+		fm->GetFileMenuProps().buttons = {
+			Locale::GetStr(LocaleStr::File),
+			Locale::GetStr(LocaleStr::Edit),
+			Locale::GetStr(LocaleStr::View),
+			Locale::GetStr(LocaleStr::Panels),
+			Locale::GetStr(LocaleStr::About),
+		};
+
+		fm->SetListener(this);
+		titleBar->AddChild(fm);
+
+		Widget* filler = m_manager->Allocate<Widget>("Filler");
+		filler->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		filler->SetAlignedPosY(0.0f);
+		filler->SetAlignedSize(Vector2(0.0f, 1.0f));
+		titleBar->AddChild(filler);
 
 		DirectionalLayout* projectName = m_manager->Allocate<DirectionalLayout>("Project Name");
-		projectName->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-		projectName->SetAlignedPos(Vector2(1.0f, 0.5f));
-		projectName->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		projectName->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_Y);
+		projectName->SetAlignedPosY(0.5f);
 		projectName->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		projectName->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 		projectName->SetChildPadding(Theme::GetDef().baseIndent);
 		projectName->GetProps().backgroundStyle		 = BackgroundStyle::Default;
 		projectName->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		projectName->GetProps().colorBackgroundEnd	 = Theme::GetDef().background3;
-		projectName->GetProps().outlineThickness	 = Theme::GetDef().baseOutlineThickness;
-		projectName->GetProps().colorOutline		 = Theme::GetDef().black;
-		projectName->GetProps().rounding			 = Theme::GetDef().baseRounding;
-		layout2->AddChild(projectName);
+		projectName->GetProps().colorBackgroundEnd	 = Theme::GetDef().background0;
+		projectName->GetProps().outlineThickness	 = 0.0f;
+		projectName->GetProps().rounding			 = 0.0f;
+		titleBar->AddChild(projectName);
 
 		Icon* saveIcon			  = m_manager->Allocate<Icon>("SaveIcon");
 		saveIcon->GetProps().icon = ICON_SAVE;
@@ -123,45 +137,29 @@ namespace Lina::Editor
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
 		projectName->AddChild(projectNameText);
 
-		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
-		fm->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
-		fm->SetAlignedPosY(0.0f);
-		fm->SetAlignedSizeY(1.0f);
-
-		fm->GetFileMenuProps().buttons = {
-			Locale::GetStr(LocaleStr::File),
-			Locale::GetStr(LocaleStr::Edit),
-			Locale::GetStr(LocaleStr::View),
-			Locale::GetStr(LocaleStr::Panels),
-			Locale::GetStr(LocaleStr::About),
-		};
-
-		fm->SetListener(this);
-		layout1->AddChild(fm);
-
 		DirectionalLayout* wb = CommonWidgets::BuildWindowButtons(this);
 		wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X);
 		wb->SetPosAlignmentSourceX(PosAlignmentSource::End);
 		wb->SetAlignedPos(Vector2(1.0f, 0.0f));
 		wb->SetAlignedSizeY(1.0f);
 		wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
-		layout1->AddChild(wb);
+		titleBar->AddChild(wb);
 
-		Widget* panelArea = m_manager->Allocate<Widget>("Editor Area");
+		Widget* panelArea = m_manager->Allocate<Widget>("Panel Area");
 		panelArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelArea->SetAlignedPosX(0.0f);
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
 		AddChild(panelArea);
 
-		m_panelArea = panelArea;
-		m_saveIcon	= saveIcon;
-
 		DirectionalLayout::Construct();
 
+		m_panelArea		  = panelArea;
+		m_saveIcon		  = saveIcon;
 		m_fileMenu		  = fm;
 		m_windowButtons	  = wb;
 		m_projectNameText = projectNameText;
 		m_titleBar		  = titleBar;
+		m_linaIcon		  = lina;
 	}
 
 	void EditorRoot::Tick(float delta)
@@ -192,6 +190,12 @@ namespace Lina::Editor
 	{
 		DirectionalLayout::Draw(threadIndex);
 
+		if (m_linaIcon->GetIsHovered())
+		{
+			Widget::DrawTooltip(threadIndex);
+		}
+
+		return;
 		const Vector2 monitor = GetMonitorSize();
 		const Vector2 size	  = Vector2(monitor.x * 0.15f, Theme::GetDef().baseItemHeight * 2.25f);
 		const Vector2 center  = Vector2(GetRect().GetCenter().x, size.y * 0.5f);
@@ -220,6 +224,8 @@ namespace Lina::Editor
 			Widget::DrawTooltip(threadIndex);
 
 		WidgetUtility::DrawDropShadow(threadIndex, points[3], points[2], m_drawOrder + 1, Theme::GetDef().black, 12);
+
+		// WidgetUtility::DrawDropShadow(threadIndex, Vector2(m_titleBar->GetPosX(), m_titleBar->GetRect().GetEnd().y), m_titleBar->GetRect().GetEnd(), m_drawOrder + 1, Theme::GetDef().black, 12);
 	}
 
 	bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -316,11 +322,10 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::ResetLayout)))
 		{
-			Vector<Widget*> copy = m_panelArea->GetChildren();
-			m_panelArea->RemoveAllChildren();
-
-			for (auto* w : copy)
+			for (auto* w : m_panelArea->GetChildren())
 				m_manager->Deallocate(w);
+
+			m_panelArea->RemoveAllChildren();
 
 			m_editor->CloseAllSubwindows();
 			m_editor->GetSettings().GetLayout().StoreDefaultLayout();

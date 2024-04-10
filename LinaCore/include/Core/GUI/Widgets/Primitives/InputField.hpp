@@ -39,7 +39,7 @@ namespace Lina
 	class InputField : public Widget
 	{
 	public:
-		InputField() : Widget(1, WF_SELECTABLE)
+		InputField() : Widget(2, WF_SELECTABLE)
 		{
 		}
 		virtual ~InputField() = default;
@@ -56,9 +56,13 @@ namespace Lina
 			Color						  colorCaret		   = Theme::GetDef().foreground0;
 			Color						  colorNumberFillStart = Theme::GetDef().accentPrimary1;
 			Color						  colorNumberFillEnd   = Theme::GetDef().accentPrimary0;
+			Color						  colorPlaceHolder	   = Theme::GetDef().outlineColorBase;
+			Color						  colorTextDefault	   = Theme::GetDef().foreground0;
 			float						  rounding			   = Theme::GetDef().baseRounding;
 			float						  outlineThickness	   = Theme::GetDef().baseOutlineThickness;
 			float						  horizontalIndent	   = Theme::GetDef().baseIndentInner;
+			String						  placeHolderText	   = "";
+			bool						  usePlaceHolder	   = false;
 
 			bool   isNumberField	   = false;
 			bool   disableNumberSlider = false;
@@ -101,6 +105,7 @@ namespace Lina
 	private:
 		Properties m_props				  = {};
 		Text*	   m_text				  = nullptr;
+		Text*	   m_placeholderText	  = nullptr;
 		Vector2	   m_textStart			  = Vector2::Zero;
 		Vector2	   m_textEnd			  = Vector2::Zero;
 		uint32	   m_caretInsertPos		  = 0;

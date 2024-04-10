@@ -48,13 +48,13 @@ namespace Lina::Editor
 
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_SKIP_FLOORING);
 
-		m_layout					   = m_manager->Allocate<DirectionalLayout>("DockAreaBaseLayout");
+		m_layout					   = m_manager->Allocate<DirectionalLayout>("DockVerticalLayout");
 		m_layout->GetProps().direction = DirectionOrientation::Vertical;
 		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_layout->SetAlignedPos(Vector2::Zero);
 		m_layout->SetAlignedSize(Vector2::One);
 
-		m_tabRow = m_manager->Allocate<TabRow>("DockAreaTabRow");
+		m_tabRow = m_manager->Allocate<TabRow>("DockTabRow");
 		m_tabRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_tabRow->SetAlignedPos(Vector2::Zero);
 		m_tabRow->SetAlignedSizeX(1.0f);
@@ -199,23 +199,14 @@ namespace Lina::Editor
 
 	void DockArea::Draw(int32 threadIndex)
 	{
-		// LinaVG::StyleOptions background;
-		// background.color = Theme::GetDef().background1.AsLVG4();
-		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
-		// m_tabRow->Draw(threadIndex);
-
-		m_layout->Draw(threadIndex);
-
-		m_manager->SetClip(threadIndex, m_rect, {});
+		
+        m_tabRow->Draw(threadIndex);
+       
+        const Color ds = Color(Theme::GetDef().black.x, Theme::GetDef().black.y, Theme::GetDef().black.z, 0.5f);
+        WidgetUtility::DrawDropShadow(threadIndex, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder, ds, 6);
 
 		if (m_selectedPanel)
-		{
-			const Color ds = Color(Theme::GetDef().black.x, Theme::GetDef().black.y, Theme::GetDef().black.z, 0.5f);
-			WidgetUtility::DrawDropShadow(threadIndex, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder + 1, ds, 6);
-			m_selectedPanel->Draw(threadIndex);
-		}
-
-		m_manager->UnsetClip(threadIndex);
+            m_selectedPanel->Draw(threadIndex);
 
 		if (m_preview)
 			m_preview->Draw(threadIndex);
@@ -386,10 +377,10 @@ namespace Lina::Editor
 		FindAdjacentWidgets();
 
 		// Fill adjacency information for all.
-		Vector<DockWidget*> widgets;
+		Vector<Widget*> widgets;
 		DockWidget::GetOtherDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
 		for (auto* w : widgets)
-			w->FindAdjacentWidgets();
+			static_cast<DockWidget*>(w)->FindAdjacentWidgets();
 
 		// For all my neighbors, check if I am the only neighbor in the opposite direction.
 		for (int32 i = 0; i < 4; i++)
@@ -400,10 +391,10 @@ namespace Lina::Editor
 			bool found	  = false;
 			bool skipSide = false;
 
-			Vector<DockWidget*> widgetsToExpand;
+			Vector<Widget*> widgetsToExpand;
 			for (auto* w : m_adjacentWidgets[i])
 			{
-				const Vector<DockWidget*>& oppositeAreas = w->GetAdjacentWidgets(static_cast<int32>(oppositeDirection));
+				const Vector<Widget*>& oppositeAreas = static_cast<DockWidget*>(w)->GetAdjacentWidgets(static_cast<int32>(oppositeDirection));
 
 				if (oppositeAreas.size() == 1 && oppositeAreas[0] == this)
 				{
@@ -424,7 +415,7 @@ namespace Lina::Editor
 			if (found)
 			{
 				// Handle border.
-				Vector<DockWidget*> borders;
+				Vector<Widget*> borders;
 				DockWidget::GetOtherDockWidgets(borders, {GetTypeID<DockBorder>()});
 				for (auto* w : borders)
 				{
@@ -451,7 +442,7 @@ namespace Lina::Editor
 		FixAreaChildMargins();
 	}
 
-	void DockArea::ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas)
+	void DockArea::ExpandWidgetsToMyPlace(const Vector<Widget*>& widgets, Direction directionOfAreas)
 	{
 		for (auto* w : widgets)
 		{
@@ -481,13 +472,13 @@ namespace Lina::Editor
 
 		// Reset first
 		GetChildMargins() = {};
-		Vector<DockWidget*> areas;
+		Vector<Widget*> areas;
 		DockWidget::GetOtherDockWidgets(areas, {GetTypeID<DockArea>()});
 		for (auto* a : areas)
 			a->GetChildMargins() = {};
 
 		// Let borders handle.
-		Vector<DockWidget*> borders;
+		Vector<Widget*> borders;
 		DockWidget::GetOtherDockWidgets(borders, {GetTypeID<DockBorder>()});
 		for (auto* w : borders)
 			static_cast<DockBorder*>(w)->FixChildMargins();

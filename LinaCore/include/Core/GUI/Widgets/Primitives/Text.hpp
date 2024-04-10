@@ -54,6 +54,7 @@ namespace Lina
 			float				  textScale		= 1.0f;
 			float				  maxWidth		= 0.0f;
 			bool				  isDynamic		= false;
+			Vector4				  customClip	= Vector4::Zero;
 		};
 
 		virtual void Initialize() override;

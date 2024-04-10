@@ -29,55 +29,70 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Functional.hpp"
 
 namespace Lina
 {
-	class Font;
 	class Text;
+	class Icon;
+	class DirectionalLayout;
+} // namespace Lina
 
-	class Button : public Widget
+namespace Lina::Editor
+{
+	class FoldingSelectable : public Widget
 	{
 	public:
+		FoldingSelectable() : Widget(-1, WF_SELECTABLE){};
+		virtual ~FoldingSelectable() = default;
+
 		struct Properties
 		{
-			Delegate<void()> onClicked;
-			Delegate<void()> onHoverBegin;
-			Delegate<void()> onHoverEnd;
-			Vector<int32>	 onlyRound			  = {};
-			Color			 colorDisabled		  = Theme::GetDef().silent0;
-			Color			 colorDefaultStart	  = Theme::GetDef().background2;
-			Color			 colorDefaultEnd	  = Theme::GetDef().background3;
-			Color			 colorHovered		  = Theme::GetDef().background4;
-			Color			 colorPressed		  = Theme::GetDef().background0;
-			float			 rounding			  = Theme::GetDef().baseRounding;
-			float			 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
-			Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
+
+			Color				 colorSelectedEnd			= Theme::GetDef().accentPrimary0;
+			Color				 colorSelectedStart			= Theme::GetDef().accentPrimary1;
+			Color				 colorSelectedInactiveStart = Theme::GetDef().silent0;
+			Color				 colorSelectedInactiveEnd	= Theme::GetDef().silent1;
+			Delegate<void(bool)> onFoldChanged;
+			uint8				 level	= 0;
+			Widget*				 owner	= nullptr;
+			float				 height = Theme::GetDef().baseItemHeight;
 		};
 
-		Button() : Widget(-1, WF_SELECTABLE){};
-		virtual ~Button() = default;
-
 		virtual void Construct() override;
-		virtual void Tick(float delta) override;
+		virtual void Initialize() override;
+		virtual void CalculateSize(float dt) override;
+		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
+		void		 ChangeFold(bool folded);
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
-		inline Text* GetText()
+		inline DirectionalLayout* GetLayout() const
 		{
-			return m_text;
+			return m_layout;
+		}
+
+		inline bool GetIsFolded() const
+		{
+			return m_folded;
 		}
 
 	private:
-		Text*	   m_text			 = nullptr;
-		Properties m_props			 = {};
-		bool	   m_lastHoverStatus = false;
+		static constexpr float COLOR_SPEED = 15.0f;
+
+	private:
+		Properties m_props = {};
+
+		Color			   m_usedColorStart = Color(0, 0, 0, 0);
+		Color			   m_usedColorEnd	= Color(0, 0, 0, 0);
+		DirectionalLayout* m_layout			= nullptr;
+		bool			   m_selected		= false;
+		bool			   m_folded			= true;
 	};
-} // namespace Lina
+
+} // namespace Lina::Editor

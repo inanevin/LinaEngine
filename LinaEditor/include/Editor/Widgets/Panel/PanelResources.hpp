@@ -30,9 +30,17 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 
+namespace Lina
+{
+	class LayoutBorder;
+	class DirectionalLayout;
+} // namespace Lina
+
 namespace Lina::Editor
 {
-    class Editor;
+	class DirectoryItem;
+	class Editor;
+	class FoldingSelectable;
 
 	class PanelResources : public Panel
 	{
@@ -40,12 +48,21 @@ namespace Lina::Editor
 		PanelResources() : Panel(PanelType::Resources, 0){};
 		virtual ~PanelResources() = default;
 
-        virtual void Construct() override;
+		virtual void Construct() override;
 		virtual void Draw(int32 threadIndex) override;
 
+		virtual PanelLayoutExtra GetExtraLayoutData() override;
+		virtual void			 SetExtraLayoutData(const PanelLayoutExtra& data) override;
+
 	private:
-        
-        Editor* m_editor = nullptr;
+		void			   RefreshBrowserHierarchy();
+		FoldingSelectable* CreateSelectable(uint8 level, const String& text);
+		void			   AddSelectable(DirectoryItem* item, FoldingSelectable* parent, uint8& level);
+
+	private:
+		LayoutBorder*	   m_border		  = nullptr;
+		Editor*			   m_editor		  = nullptr;
+		DirectionalLayout* m_browserItems = nullptr;
 	};
 
 } // namespace Lina::Editor

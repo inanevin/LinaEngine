@@ -41,6 +41,9 @@ namespace Lina
 
 	void Icon::Draw(int32 threadIndex)
 	{
+		if (!GetIsVisible())
+			return;
+
 		const float dpiScale = m_lgxWindow->GetDPIScale();
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateIconSize();

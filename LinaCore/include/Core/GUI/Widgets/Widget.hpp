@@ -116,12 +116,21 @@ namespace Lina
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
 
-		virtual void			   Construct(){};
-		virtual void			   Destruct(){};
-		virtual void			   Initialize();
-		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction action);
-		virtual bool			   OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
-		virtual void			   DebugDraw(int32 threadIndex, int32 drawOrder);
+		virtual void Construct(){};
+		virtual void Destruct(){};
+		virtual void Initialize();
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
+		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
+
+		Widget* VerifyControlsManager();
+		void	GrabControls(Widget* widget);
+		void	ReleaseControls(Widget* widget);
+		bool	CanGrabControls(Widget* widget);
+		Widget* GetControlsOwner();
+		void	MoveControlsToNext();
+		void	MoveControlsToPrev();
+
 		virtual LinaGX::CursorType GetCursorOverride()
 		{
 			return LinaGX::CursorType::Default;
@@ -300,6 +309,16 @@ namespace Lina
 			}
 		}
 
+		inline void SetVisible(bool visible)
+		{
+			m_isVisible = visible;
+		}
+
+		inline bool GetIsVisible() const
+		{
+			return m_isVisible;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);
@@ -313,6 +332,9 @@ namespace Lina
 
 		Widget(int32 maxChilds = -1, Bitmask32 flags = 0) : m_maxChilds(maxChilds), m_flags(flags){};
 		virtual ~Widget() = default;
+
+		Widget* FindNextSelectable(Widget* start);
+		Widget* FindPreviousSelectable(Widget* start);
 
 	protected:
 		TypeID			   m_tid	   = 0;
@@ -343,6 +365,9 @@ namespace Lina
 		PosAlignmentSource m_posAlignSourceY = PosAlignmentSource::Start;
 		float			   m_childPadding	 = 0.0f;
 		bool			   m_isDisabled		 = false;
+		Widget*			   m_controlsOwner	 = nullptr;
+		Widget*			   m_controlsManager = nullptr;
+		bool			   m_isVisible		 = true;
 	};
 
 } // namespace Lina

@@ -57,10 +57,7 @@ namespace Lina::Editor
 
 	void TabRow::Draw(int32 threadIndex)
 	{
-		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background0.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-
+		return;
 		m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
 		m_manager->UnsetClip(threadIndex);

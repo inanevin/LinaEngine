@@ -82,6 +82,7 @@ namespace Lina::Editor
 		World,
 		Performance,
 		ResetLayout,
+		Search,
 	};
 
 	class Locale

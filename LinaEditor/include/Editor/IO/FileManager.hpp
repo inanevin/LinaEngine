@@ -38,7 +38,6 @@ namespace Lina::Editor
 
 	struct DirectoryItem
 	{
-		uint64				   empty	   = 0;
 		bool				   isDirectory = false;
 		String				   path		   = "";
 		TypeID				   tid		   = 0;

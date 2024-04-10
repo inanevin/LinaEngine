@@ -94,7 +94,10 @@ namespace Lina
 
 	void Slider::Draw(int32 threadIndex)
 	{
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		if (!GetIsVisible())
+			return;
+
+		const bool hasControls = GetControlsOwner() == this;
 
 		LinaVG::StyleOptions bg;
 		bg.color					= m_props.colorBackground.AsLVG4();
@@ -147,7 +150,7 @@ namespace Lina
 		{
 			m_isPressed	 = true;
 			m_pressStart = m_lgxWindow->GetMousePosition();
-			m_manager->GrabControls(this);
+			GrabControls(this);
 			return true;
 		}
 
@@ -162,7 +165,7 @@ namespace Lina
 
 	bool Slider::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
 	{
-		if (m_manager->GetControlsOwner() != this)
+		if (GetControlsOwner() != this)
 			return false;
 
 		if (act == LinaGX::InputAction::Released)

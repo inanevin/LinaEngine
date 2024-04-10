@@ -28,15 +28,26 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelEntities.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Editor/Widgets/Testbed.hpp"
 
 namespace Lina::Editor
 {
+	void PanelEntities::Construct()
+	{
+		Testbed* tb = m_manager->Allocate<Testbed>("Testbed");
+		tb->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		tb->SetAlignedPos(Vector2::Zero);
+		tb->SetAlignedSize(Vector2::One);
+		AddChild(tb);
+	}
 
 	void PanelEntities::Draw(int32 threadIndex)
 	{
 		LinaVG::StyleOptions opts;
-		opts.color		   = Color::Blue.AsLVG4();
-		opts.color.start.w = opts.color.end.w = 0.1f;
+		opts.color = Theme::GetDef().background1.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		return;
+
+		Widget::Draw(threadIndex);
 	}
 } // namespace Lina::Editor

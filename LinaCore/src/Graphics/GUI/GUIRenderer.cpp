@@ -139,8 +139,22 @@ namespace Lina
 
 		Rectui scissorsRect = Rectui(0, 0, size.x, size.y);
 		uint32 reqIndex		= 0;
+
+		uint32 defaultDraws = 0, gradientDraws = 0, texturedDraws = 0, textDraws = 0, sdfDraws = 0;
+
 		for (const auto& req : drawRequests)
 		{
+			if (req.requestType == 0)
+				defaultDraws++;
+			else if (req.requestType == 1)
+				gradientDraws++;
+			else if (req.requestType == 2)
+				texturedDraws++;
+			else if (req.requestType == 3)
+				textDraws++;
+			else
+				sdfDraws++;
+
 			Rectui currentRect = Rectui(0, 0, size.x, size.y);
 
 			if (req.clip.size.x != 0 || req.clip.size.y != 0)
@@ -182,6 +196,9 @@ namespace Lina
 
 			reqIndex++;
 		}
+
+		size_t totalDrawRequests = drawRequests.size();
+		LINA_TRACE("INAN Draw Requests: {0}, Default: {1}, Gradient: {2}, Textured: {3}, Text: {4}, SDF: {5}", drawRequests.size(), defaultDraws, gradientDraws, texturedDraws, textDraws, sdfDraws);
 	}
 
 } // namespace Lina

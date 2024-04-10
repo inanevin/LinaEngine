@@ -63,7 +63,7 @@ namespace Lina::Editor
 
 	void FileManager::ScanItem(DirectoryItem* item)
 	{
-		LINA_ASSERT(item->children.empty(), "");
+		LINA_ASSERT(item->children.size() == 0, "");
 		Vector<String> dirs = {};
 		FileSystem::GetFilesAndFoldersInDirectory(item->path, dirs);
 
@@ -92,7 +92,7 @@ namespace Lina::Editor
 					continue;
 			}
 
-			DirectoryItem* subItem = static_cast<DirectoryItem*>(m_allocatorPool.Allocate(sizeof(DirectoryItem)));
+			DirectoryItem* subItem = new (m_allocatorPool.Allocate(sizeof(DirectoryItem))) DirectoryItem();
 			subItem->extension	   = extension;
 			subItem->tid		   = tid;
 			subItem->path		   = str;
@@ -112,7 +112,7 @@ namespace Lina::Editor
 		if (!FileSystem::FileOrPathExists(resDir))
 			return;
 
-		m_root				= static_cast<DirectoryItem*>(m_allocatorPool.Allocate(sizeof(DirectoryItem)));
+		m_root				= new (m_allocatorPool.Allocate(sizeof(DirectoryItem))) DirectoryItem();
 		m_root->path		= resDir;
 		m_root->isDirectory = true;
 		ScanItem(m_root);

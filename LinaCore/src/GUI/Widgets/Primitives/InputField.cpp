@@ -64,12 +64,35 @@ namespace Lina
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+
+		m_placeholderText						= m_manager->Allocate<Text>("InputFieldPlaceholder");
+		m_placeholderText->GetProps().isDynamic = true;
+		m_placeholderText->GetFlags().Set(WF_POS_ALIGN_Y);
+		m_placeholderText->SetAlignedPosY(0.5f);
+		m_placeholderText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+
 		AddChild(m_text);
+		AddChild(m_placeholderText);
+
+		m_placeholderText->SetIsDisabled(true);
 	}
 
 	void InputField::Tick(float delta)
 	{
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+
+		if (m_placeholderText->GetIsDisabled() && m_text->GetProps().text.empty())
+		{
+			m_placeholderText->GetProps().text	= m_props.placeHolderText;
+			m_placeholderText->GetProps().color = m_props.colorPlaceHolder;
+			m_placeholderText->CalculateTextSize();
+			m_placeholderText->SetIsDisabled(false);
+		}
+		else if (!m_placeholderText->GetIsDisabled() && !m_text->GetProps().text.empty())
+		{
+			m_placeholderText->SetIsDisabled(true);
+		}
+
+		const bool hasControls = GetControlsOwner() == this;
 
 		if (!hasControls && m_isEditing)
 		{
@@ -109,6 +132,7 @@ namespace Lina
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
 		m_text->SetPosX(middle.x - m_text->GetHalfSizeX());
+		m_placeholderText->SetPosX(m_text->GetPosX());
 
 		// Caret alpha
 		if (m_isEditing)
@@ -134,7 +158,10 @@ namespace Lina
 
 	void InputField::Draw(int32 threadIndex)
 	{
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		if (!GetIsVisible())
+			return;
+
+		const bool hasControls = GetControlsOwner() == this;
 
 		// Background
 		LinaVG::StyleOptions style;
@@ -160,12 +187,6 @@ namespace Lina
 
 			LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);
 		}
-
-		Rect*	   existing = m_manager->GetClipStackTop();
-		const bool omitClip = existing && !existing->IsRectInside(m_rect);
-
-		if (!omitClip)
-			m_manager->SetClip(threadIndex, m_rect, {.left = m_props.horizontalIndent, .right = m_props.horizontalIndent});
 
 		if (m_isEditing)
 		{
@@ -205,10 +226,15 @@ namespace Lina
 			}
 		}
 
+		Rect*	   existing = m_manager->GetClipStackTop();
+		const bool omitClip = existing && !existing->IsRectInside(m_rect);
+
+		m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
+
 		m_text->Draw(threadIndex);
 
-		if (!omitClip)
-			m_manager->UnsetClip(threadIndex);
+		if (!m_placeholderText->GetIsDisabled())
+			m_placeholderText->Draw(threadIndex);
 	}
 
 	void InputField::SelectAll()
@@ -277,7 +303,7 @@ namespace Lina
 	{
 		if (!m_isEditing)
 		{
-			if (m_manager->GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
+			if (GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
 			{
 				m_isEditing = true;
 				SelectAll();
@@ -422,7 +448,7 @@ namespace Lina
 			m_caretInsertPos	= GetCaretPosFromMouse();
 			m_highlightStartPos = m_caretInsertPos;
 			m_isPressed			= true;
-			m_manager->GrabControls(this);
+			GrabControls(this);
 			m_isEditing = true;
 			return true;
 		}

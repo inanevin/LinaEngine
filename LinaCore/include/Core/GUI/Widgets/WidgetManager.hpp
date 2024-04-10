@@ -65,6 +65,7 @@ namespace Lina
 		void AddToKillList(Widget* w);
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
+       
 
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{
@@ -87,27 +88,6 @@ namespace Lina
 		inline Widget* GetRoot()
 		{
 			return m_rootWidget;
-		}
-
-		inline void GrabControls(Widget* widget)
-		{
-			m_controlsOwner = widget;
-		}
-
-		inline void ReleaseControls(Widget* widget)
-		{
-			if (m_controlsOwner == widget)
-				m_controlsOwner = nullptr;
-		}
-
-		inline bool CanGrabControls(Widget const* w) const
-		{
-			return m_controlsOwner == nullptr || w == m_controlsOwner;
-		}
-
-		inline Widget* GetControlsOwner() const
-		{
-			return m_controlsOwner;
 		}
 
 		inline Widget* GetForegroundRoot()
@@ -143,8 +123,7 @@ namespace Lina
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		Widget*			   FindNextSelectable(Widget* start);
-		Widget*			   FindPreviousSelectable(Widget* start);
+		
 		LinaGX::CursorType FindCursorType(Widget* start);
 		void			   PreTickWidget(Widget* w);
 		void			   TickWidget(Widget* w, float delta);
@@ -162,7 +141,6 @@ namespace Lina
 		System*			 m_system		   = nullptr;
 		Widget*			 m_deepestHovered  = nullptr;
 		ResourceManager* m_resourceManager = nullptr;
-		Widget*			 m_controlsOwner   = nullptr;
 		Vector<ClipData> m_clipStack;
 		float			 m_debugDrawYOffset = 0.0f;
 		float			 m_foregroundDim	= 0.0f;

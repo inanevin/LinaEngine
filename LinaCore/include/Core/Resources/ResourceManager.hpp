@@ -137,13 +137,12 @@ namespace Lina
 			const TypeID tid = GetTypeID<T>();
 			m_caches.at(tid)->DestroyUserResource(static_cast<Resource*>(resource));
 		}
-        
-        
-        inline const HashMap<TypeID, ResourceCacheBase*>& GetCaches() const
-        {
-            return m_caches;
-        }
-        
+
+		inline const HashMap<TypeID, ResourceCacheBase*>& GetCaches() const
+		{
+			return m_caches;
+		}
+
 	private:
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 

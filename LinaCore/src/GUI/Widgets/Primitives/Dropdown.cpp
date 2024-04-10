@@ -61,7 +61,10 @@ namespace Lina
 
 	void Dropdown::Draw(int32 threadIndex)
 	{
-		const bool	  hasControls = m_manager->GetControlsOwner() == this;
+        if(!GetIsVisible())
+            return;
+        
+		const bool	  hasControls = GetControlsOwner() == this;
 		const Vector2 iconSize	  = m_icon->GetSize();
 		const Vector2 iconPos	  = m_icon->GetPos();
 
@@ -103,7 +106,7 @@ namespace Lina
 
 	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
-		if (m_manager->GetControlsOwner() != this)
+		if (GetControlsOwner() != this)
 			return false;
 
 		if (keycode != LINAGX_KEY_RETURN && keycode != LINAGX_KEY_ESCAPE)
@@ -138,7 +141,7 @@ namespace Lina
 		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
 		{
 			CreatePopup();
-			m_manager->GrabControls(this);
+			GrabControls(this);
 			return true;
 		}
 

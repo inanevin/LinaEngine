@@ -40,7 +40,8 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation orientation;
+			DirectionOrientation orientation = DirectionOrientation::Horizontal;
+			float				 minSize	 = 0.0f;
 		};
 
 		virtual void			   Initialize() override;
@@ -55,10 +56,21 @@ namespace Lina
 			return m_props;
 		}
 
+		inline Widget* GetNegative()
+		{
+			return m_negative;
+		}
+
+		inline Widget* GetPositive()
+		{
+			return m_positive;
+		}
+
 	private:
-		Properties m_props	  = {};
-		Widget*	   m_negative = nullptr;
-		Widget*	   m_positive = nullptr;
+		Properties m_props	   = {};
+		Widget*	   m_negative  = nullptr;
+		Widget*	   m_positive  = nullptr;
+		float	   m_pressDiff = 0.0f;
 	};
 
 } // namespace Lina

@@ -40,6 +40,9 @@ namespace Lina
 
 	void Text::Draw(int32 threadIndex)
 	{
+		if (!GetIsVisible())
+			return;
+
 		const float dpiScale = m_lgxWindow->GetDPIScale();
 
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
@@ -53,6 +56,7 @@ namespace Lina
 			opts.alignment	 = m_props.alignment;
 			opts.wrapWidth	 = m_props.maxWidth;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
+			opts.cpuClipping				  = m_props.customClip.AsLVG4();
 
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
@@ -68,6 +72,7 @@ namespace Lina
 			opts.wrapWidth		= m_props.maxWidth;
 			opts.newLineSpacing = 0.0f;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
+			opts.cpuClipping				  = m_props.customClip.AsLVG4();
 
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();

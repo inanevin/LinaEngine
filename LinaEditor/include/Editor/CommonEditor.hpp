@@ -66,6 +66,10 @@ namespace Lina::Editor
 #define ICON_ERROR				 "\u0066"
 #define ICON_WARN				 "\u0067"
 #define ICON_SAVE				 "\u0068"
+#define ICON_CHEVRON_LEFT		 "\u0070"
+#define ICON_CHEVRON_RIGHT		 "\u0071"
+#define ICON_CHEVRON_UP			 "\u0072"
+#define ICON_CHEVRON_DOWN		 "\u0073"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f
@@ -82,6 +86,12 @@ namespace Lina::Editor
 	enum class PayloadType
 	{
 		DockedPanel,
+	};
+
+	struct PanelLayoutExtra
+	{
+		float data0 = 0.0f;
+		float data1 = 0.0f;
 	};
 
 } // namespace Lina::Editor

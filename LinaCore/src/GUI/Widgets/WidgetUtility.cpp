@@ -146,4 +146,22 @@ namespace Lina
 		return popup;
 	}
 
+	bool WidgetUtility::CheckIfCanShrinkWidgets(const Vector<Widget*>& widgets, float absAmount, bool isX, float minSize)
+	{
+		for (auto* w : widgets)
+		{
+			if (isX)
+			{
+				if (w->GetParent()->GetSizeX() * (w->GetAlignedSizeX() - absAmount) < minSize)
+					return false;
+			}
+			else
+			{
+				if (w->GetParent()->GetSizeY() * (w->GetAlignedSizeY() - absAmount) < minSize)
+					return false;
+			}
+		}
+		return true;
+	}
+
 } // namespace Lina

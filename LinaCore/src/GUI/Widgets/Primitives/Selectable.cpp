@@ -26,48 +26,60 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
-#include "DockWidget.hpp"
-#include "Editor/CommonEditor.hpp"
-
-namespace Lina::Editor
+namespace Lina
 {
-	class DockArea;
 
-	class DockBorder : public DockWidget
+	void Selectable::Draw(int32 threadIndex)
 	{
-	public:
-		DockBorder()		  = default;
-		virtual ~DockBorder() = default;
+		if (!GetIsVisible())
+			return;
 
-		virtual void			   Initialize() override;
-		virtual void			   PreTick() override;
-		virtual void			   Draw(int32 threadIndex) override;
-		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual LinaGX::CursorType GetCursorOverride() override;
-		void					   FixChildMargins();
+		const bool hasControls = GetControlsOwner() == this;
 
-		inline DirectionOrientation GetDirectionOrientation() const
+		LinaVG::StyleOptions opts;
+
+		if (hasControls)
 		{
-			return m_orientation;
+			opts.color.start = m_props.colorSelectedStart.AsLVG4();
+			opts.color.end	 = m_props.colorSelectedEnd.AsLVG4();
+		}
+		else
+		{
+			opts.color.start = m_props.colorStart.AsLVG4();
+			opts.color.end	 = m_props.colorEnd.AsLVG4();
 		}
 
-		inline void SetDirectionOrientation(DirectionOrientation orientation)
+		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+	}
+
+	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
-			m_orientation = orientation;
+			m_isPressed = true;
+			GrabControls(this);
+			return true;
 		}
 
-	private:
-		bool CheckIfAreaOnSide(DockArea* area, Direction dir);
+		if (m_isPressed && act == LinaGX::InputAction::Released)
+		{
+			if (m_isHovered)
+			{
+				if (m_props.onClicked)
+					m_props.onClicked();
+			}
+			m_isPressed = false;
+			return true;
+		}
 
-	private:
-		friend class DockArea;
-		DockArea*			 m_negative	   = nullptr;
-		DockArea*			 m_positive	   = nullptr;
-		DirectionOrientation m_orientation = DirectionOrientation::Horizontal;
-		float				 m_pressDiff   = 0.0f;
-		int32				 m_tick		   = 0;
-	};
+		return false;
+	}
 
-} // namespace Lina::Editor
+} // namespace Lina

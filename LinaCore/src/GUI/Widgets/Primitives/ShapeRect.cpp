@@ -37,6 +37,9 @@ namespace Lina
 {
 	void ShapeRect::Draw(int32 threadIndex)
 	{
+        if(!GetIsVisible())
+            return;
+        
 		LinaVG::StyleOptions opts;
 		opts.color.start = m_props.colorStart.AsLVG4();
 		opts.color.end	 = m_props.colorEnd.AsLVG4();
