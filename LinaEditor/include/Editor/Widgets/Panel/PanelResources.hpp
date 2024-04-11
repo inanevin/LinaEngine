@@ -33,9 +33,9 @@ SOFTWARE.
 namespace Lina
 {
 	class LayoutBorder;
-class Text;
+	class Text;
 	class DirectionalLayout;
-class GridLayout;
+	class GridLayout;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -58,19 +58,19 @@ namespace Lina::Editor
 
 	private:
 		void			   RefreshBrowserHierarchy();
-        void RefreshContents();
+		void			   RefreshContents();
 		FoldingSelectable* CreateSelectable(DirectoryItem* item, uint8 level);
 
 	private:
-		LayoutBorder*	   m_border		  = nullptr;
-		Editor*			   m_editor		  = nullptr;
-		DirectionalLayout* m_browserItems = nullptr;
-        DirectoryItem* m_currentSelectedDirectory = nullptr;
-        Text* m_path = nullptr;
-        Text* m_itemCount = nullptr;
-        Text* m_selectedItemCount = nullptr;
-        GridLayout* m_contentsGrid = nullptr;
-        uint32 m_currentItemSizeCategory = 0;
+		LayoutBorder*	   m_border					  = nullptr;
+		Editor*			   m_editor					  = nullptr;
+		DirectionalLayout* m_browserItems			  = nullptr;
+		DirectoryItem*	   m_currentSelectedDirectory = nullptr;
+		Text*			   m_path					  = nullptr;
+		Text*			   m_itemCount				  = nullptr;
+		Text*			   m_selectedItemCount		  = nullptr;
+		GridLayout*		   m_contentsGrid			  = nullptr;
+		uint32			   m_currentItemSizeCategory  = 0;
 	};
 
 } // namespace Lina::Editor

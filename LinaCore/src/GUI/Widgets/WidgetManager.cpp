@@ -130,14 +130,14 @@ namespace Lina
 
 	void WidgetManager::Deallocate(Widget* widget)
 	{
-        if(widget->GetControlsOwner() == widget)
-            widget->ReleaseControls(widget);
-        
-        if(m_lastControlsManager == widget)
-            m_lastControlsManager = nullptr;
-        
-        widget->m_customTooltip = nullptr;
-        
+		if (widget->GetControlsOwner() == widget)
+			widget->ReleaseControls(widget);
+
+		if (m_lastControlsManager == widget)
+			m_lastControlsManager = nullptr;
+
+		widget->m_customTooltip = nullptr;
+
 		for (auto* c : widget->m_children)
 			Deallocate(c);
 
@@ -381,7 +381,7 @@ namespace Lina
 	void WidgetManager::SizePassWidget(Widget* w, float delta)
 	{
 		w->CalculateSize(delta);
-        
+
 		Vector<Widget*> expandingChildren;
 		Vector2			totalNonExpandingSize = Vector2::Zero;
 

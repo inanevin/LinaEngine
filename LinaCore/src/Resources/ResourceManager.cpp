@@ -84,7 +84,7 @@ namespace Lina
 		loadTask->id					 = m_loadTaskCounter;
 		loadTask->identifiers			 = identifiers;
 		loadTask->startTime				 = PlatformTime::GetCPUCycles();
-        loadTask->onLoaded = onLoaded;
+		loadTask->onLoaded				 = onLoaded;
 		m_loadTasks[m_loadTaskCounter++] = loadTask;
 
 		if (m_mode == ResourceManagerMode::File)
@@ -212,9 +212,9 @@ namespace Lina
 		m_executor.Run(loadTask->tf, [loadTask]() {
 			loadTask->isCompleted.store(true);
 			loadTask->endTime = PlatformTime::GetCPUCycles();
-            
-            if(loadTask->onLoaded)
-                loadTask->onLoaded();
+
+			if (loadTask->onLoaded)
+				loadTask->onLoaded();
 		});
 
 		return loadTask->id;
