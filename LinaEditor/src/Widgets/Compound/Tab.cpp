@@ -48,18 +48,19 @@ namespace Lina::Editor
 		layout->SetAlignedSize(Vector2(1.0f, 1.0f));
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->GetChildMargins() = {.left = Theme::GetDef().baseIndent * 2.0f, .right = Theme::GetDef().baseIndent};
+		layout->SetChildPadding(Theme::GetDef().baseIndent);
 		AddChild(layout);
 
 		m_text = m_manager->Allocate<Text>("Title");
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_text->GetProps().isDynamic = true;
 		layout->AddChild(m_text);
 
 		m_icon = m_manager->Allocate<Icon>("Icon");
-		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
-		m_icon->SetAlignedPos(Vector2(1.0f, 0.5f));
-		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		m_icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
+		m_icon->SetAlignedPosY(0.5f);
 		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		m_icon->GetProps().icon					  = ICON_XMARK;
 		m_icon->GetProps().enableHoverPressColors = true;
@@ -100,10 +101,7 @@ namespace Lina::Editor
 	{
 		const float indent	 = Theme::GetDef().baseIndent;
 		const float iconSize = m_icon->GetIsDisabled() ? 0.0f : m_icon->GetSizeX();
-
-		float targetX = SELECTION_RECT_WIDTH + m_text->GetSizeX() + iconSize + indent * 4.0f;
-
-		SetSizeX(targetX);
+		SetSizeX(SELECTION_RECT_WIDTH + m_text->GetSizeX() + iconSize + indent * 4.0f);
 	}
 
 	void Tab::Tick(float delta)
@@ -115,9 +113,15 @@ namespace Lina::Editor
 		// Press movement
 		const Vector2& mp = m_lgxWindow->GetMousePosition();
 		if (m_isPressed)
-			m_rect.pos.x = mp.x - m_offsetAtPress.x;
+		{
+			float desiredX = mp.x - m_offsetAtPress.x;
+			desiredX	   = Math::Clamp(desiredX, m_ownerRow->GetPosX(), m_ownerRow->GetRect().GetEnd().x - GetSizeX());
+			m_rect.pos.x   = desiredX;
+		}
 		else
 			m_rect.pos.x = Math::Lerp(GetPosX(), m_props.desiredX, delta * INTERP_SPEED);
+
+		m_alpha = Math::Clamp(Math::Remap(m_rect.pos.x, m_ownerRow->GetRect().GetEnd().x - GetSizeX() * 2.5f, m_ownerRow->GetRect().GetEnd().x, 1.0f, 0.1f), 0.1f, 1.0f);
 
 		if (!m_wasSelected && m_props.isSelected)
 		{
@@ -147,7 +151,6 @@ namespace Lina::Editor
 
 	void Tab::Draw(int32 threadIndex)
 	{
-
 		const int32 drawOrder = m_isPressed ? m_drawOrder + 1 : m_drawOrder;
 
 		// Draw background.
@@ -160,6 +163,8 @@ namespace Lina::Editor
 		}
 		else
 			background.color = m_isHovered ? Theme::GetDef().background2.AsLVG4() : Theme::GetDef().background0.AsLVG4();
+
+		background.color.start.w = background.color.end.w = m_alpha;
 
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, drawOrder);
 
@@ -175,7 +180,10 @@ namespace Lina::Editor
 		else
 			selectionRect.color = Theme::GetDef().silent0.AsLVG4();
 
+		selectionRect.color.start.w = selectionRect.color.end.w = m_alpha;
 		LinaVG::DrawRect(threadIndex, m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
+
+		m_icon->GetProps().colorEnd.w = m_icon->GetProps().colorStart.w = m_text->GetProps().color.w = m_alpha;
 
 		m_icon->SetDrawOrder(drawOrder);
 		m_text->SetDrawOrder(drawOrder);

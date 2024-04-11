@@ -125,13 +125,19 @@ namespace Lina
 		if (m_isPressed)
 			m_caretInsertPos = GetCaretPosFromMouse();
 
-		const Vector2& textSize		= m_text->GetSize();
-		const Vector2  middle		= Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
-		m_textStart					= middle - Vector2(textSize.x * 0.5f, 0.0f);
-		m_textEnd					= middle + Vector2(textSize.x * 0.5f, 0.0f);
+		const Vector2& textSize = m_text->GetSize();
+		const Vector2  middle	= Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
+		m_textStart				= middle - Vector2(textSize.x * 0.5f, 0.0f);
+		m_textEnd				= middle + Vector2(textSize.x * 0.5f, 0.0f);
+
+		if (m_props.centerText)
+		{
+			m_textStart.x = m_rect.pos.x + GetHalfSizeX() - m_text->GetHalfSizeX();
+		}
+
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
-		m_text->SetPosX(middle.x - m_text->GetHalfSizeX());
+		m_text->SetPosX(m_textStart.x);
 		m_placeholderText->SetPosX(m_text->GetPosX());
 
 		// Caret alpha
@@ -234,7 +240,10 @@ namespace Lina
 		m_text->Draw(threadIndex);
 
 		if (!m_placeholderText->GetIsDisabled())
+		{
+			m_placeholderText->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
 			m_placeholderText->Draw(threadIndex);
+		}
 	}
 
 	void InputField::SelectAll()

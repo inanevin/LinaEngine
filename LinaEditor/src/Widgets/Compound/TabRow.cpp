@@ -57,10 +57,7 @@ namespace Lina::Editor
 
 	void TabRow::Draw(int32 threadIndex)
 	{
-		return;
-		m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
-		m_manager->UnsetClip(threadIndex);
 	}
 
 	void TabRow::AddTab(Widget* tiedWidget)

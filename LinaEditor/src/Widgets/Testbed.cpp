@@ -64,9 +64,8 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSize(Vector2::One);
-		layout->GetProps().direction	= DirectionOrientation::Vertical;
-		layout->GetProps().clipChildren = true;
-		layout->GetChildMargins()		= TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetProps().direction = DirectionOrientation::Vertical;
+		layout->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndent);
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 		AddChild(layout);
 
@@ -103,7 +102,6 @@ namespace Lina::Editor
 			setFlags(button);
 			layout->AddChild(button);
 		}
-
 		// Checkbox
 		{
 			static bool value					   = false;
@@ -136,7 +134,7 @@ namespace Lina::Editor
 			slider->GetProps().step		 = 0.0f;
 			slider->GetProps().value	 = &value;
 			slider->GetProps().direction = DirectionOrientation::Vertical;
-			setFlags(slider);
+			setFlags(slider, true);
 			layout->AddChild(slider);
 		}
 
@@ -218,6 +216,20 @@ namespace Lina::Editor
 
 		// Color slider
 		{
+			static float value					   = 0.0f;
+			ColorSlider* cs						   = m_manager->Allocate<ColorSlider>("ColorSlider");
+			cs->GetProps().drawCheckeredBackground = true;
+			cs->GetProps().value				   = &value;
+			cs->GetProps().minValue				   = 0.0f;
+			cs->GetProps().maxValue				   = 1.0f;
+			cs->GetProps().colorBegin			   = Color(0.5f, 0.5f, 0.5f, 0.0f);
+			cs->GetProps().colorEnd				   = Color::Red;
+			setFlags(cs);
+			layout->AddChild(cs);
+		}
+
+		// Color slider
+		{
 			static float value		  = 0.0f;
 			ColorSlider* cs			  = m_manager->Allocate<ColorSlider>("ColorSlider");
 			cs->GetProps().isHueShift = true;
@@ -227,7 +239,6 @@ namespace Lina::Editor
 			setFlags(cs);
 			layout->AddChild(cs);
 		}
-
 		return;
 
 		// Color slider

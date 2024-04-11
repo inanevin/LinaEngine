@@ -187,6 +187,21 @@ namespace Lina
 		return RemoveExtensionFromPath(GetFilenameAndExtensionFromPath(file));
 	}
 
+    String FileSystem::GetLastFolderFromPath(const String &path)
+    {
+
+       String fixedPath = FixPath(path);
+        const size_t lastSlash = fixedPath.find_last_of("/\\");
+                                                   
+       if(lastSlash == fixedPath.size() || lastSlash == fixedPath.size() - 1)
+           fixedPath = fixedPath.substr(0, lastSlash);
+                   
+        const size_t actualLast = fixedPath.find_last_of("/\\");
+        if(actualLast != String::npos)
+            fixedPath = fixedPath.substr(actualLast + 1, fixedPath.size());
+        return fixedPath;
+    }
+
 	String FileSystem::ReadFileContentsAsString(const String& filePath)
 	{
 		std::ifstream ifs(filePath.c_str());

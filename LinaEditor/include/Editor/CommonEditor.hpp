@@ -74,6 +74,7 @@ namespace Lina::Editor
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f
 #define PAYLOAD_WINDOW_SID		UINT32_MAX - 2
+#define RESOURCE_THUMBNAIL_SIZE 96
 
 	enum class PanelType
 	{

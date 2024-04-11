@@ -39,9 +39,7 @@ namespace Lina
 
 	void Checkbox::Construct()
 	{
-		m_icon							= m_manager->Allocate<Icon>("CheckboxIcon");
-		m_icon->GetProps().isDynamic	= true;
-		m_icon->GetProps().sdfThickness = 0.6f;
+		m_icon = m_manager->Allocate<Icon>("CheckboxIcon");
 		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);

@@ -124,6 +124,7 @@ namespace Lina
 		auto& req			 = AddDrawRequest(buf, threadIndex);
 		float drawBufferType = static_cast<float>(buf->m_drawBufferType);
 		req.requestType		 = 2;
+		float singleChannel	 = 0.0f;
 
 		if (buf->m_textureHandle == GUI_TEXTURE_HUE_HORIZONTAL)
 		{
@@ -145,10 +146,11 @@ namespace Lina
 			req.hasTextureBind = true;
 			req.textureHandle  = m_resourceManager->GetResource<Texture>(buf->m_textureHandle)->GetGPUHandle();
 			req.samplerHandle  = m_guiSampler->GetGPUHandle();
+			singleChannel	   = m_resourceManager->GetResource<Texture>(buf->m_textureHandle)->GetMeta().format == LinaGX::Format::R8_UNORM ? 1.0f : 0.0f;
 		}
 
 		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, drawBufferType);
+		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, 0.0f, drawBufferType);
 		req.materialData.color1		= buf->m_tint;
 	}
 
@@ -194,7 +196,7 @@ namespace Lina
 	void GUIBackend::BufferEnded()
 	{
 		auto& ft = m_fontTextures[m_boundFontTexture];
-		ft.texture->SetCustomData(ft.pixels, ft.width, ft.height, 1, LinaGX::Format::R8_UNORM, true);
+		ft.texture->SetCustomData(ft.pixels, ft.width, ft.height, 1, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM, true);
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)

@@ -72,6 +72,8 @@ namespace Lina
 			float  valueMax			   = 10.0f;
 			float  valueStep		   = 0.0f;
 			uint32 decimals			   = 3;
+
+			bool centerText = false;
 		};
 
 		virtual void			   Construct() override;

@@ -112,6 +112,16 @@ namespace Lina
 			return m_defaultFont;
 		}
 
+		inline void SetLastControlsManager(Widget* man)
+		{
+			m_lastControlsManager = man;
+		}
+
+		inline Widget* GetLastControlsManager() const
+		{
+			return m_lastControlsManager;
+		}
+
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
@@ -140,11 +150,12 @@ namespace Lina
 		Widget*			 m_deepestHovered  = nullptr;
 		ResourceManager* m_resourceManager = nullptr;
 		Vector<ClipData> m_clipStack;
-		float			 m_debugDrawYOffset = 0.0f;
-		float			 m_foregroundDim	= 0.0f;
-		Font*			 m_defaultFont		= nullptr;
-		Vector<Widget*>	 m_killList			= {};
-		GfxManager*		 m_gfxManager		= nullptr;
+		float			 m_debugDrawYOffset	   = 0.0f;
+		float			 m_foregroundDim	   = 0.0f;
+		Font*			 m_defaultFont		   = nullptr;
+		Vector<Widget*>	 m_killList			   = {};
+		GfxManager*		 m_gfxManager		   = nullptr;
+		Widget*			 m_lastControlsManager = nullptr;
 	};
 
 } // namespace Lina

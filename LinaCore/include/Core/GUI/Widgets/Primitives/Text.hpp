@@ -46,15 +46,17 @@ namespace Lina
 
 		struct Properties
 		{
-			String				  text			= "";
-			StringID			  font			= Theme::GetDef().defaultFont;
-			Color				  color			= Theme::GetDef().foreground0;
-			Color				  colorDisabled = Theme::GetDef().silent1;
-			LinaVG::TextAlignment alignment		= LinaVG::TextAlignment::Left;
-			float				  textScale		= 1.0f;
-			float				  maxWidth		= 0.0f;
-			bool				  isDynamic		= false;
-			Vector4				  customClip	= Vector4::Zero;
+			String				  text						= "";
+			StringID			  font						= Theme::GetDef().defaultFont;
+			Color				  color						= Theme::GetDef().foreground0;
+			Color				  colorDisabled				= Theme::GetDef().silent1;
+			LinaVG::TextAlignment alignment					= LinaVG::TextAlignment::Left;
+			float				  textScale					= 1.0f;
+			float				  maxWidth					= 0.0f;
+			bool				  isDynamic					= false;
+			Vector4				  customClip				= Vector4::Zero;
+			bool				  fetchCustomClipFromParent = false;
+			bool				  fetchCustomClipFromSelf	= false;
 		};
 
 		virtual void Initialize() override;

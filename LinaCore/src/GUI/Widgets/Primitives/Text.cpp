@@ -48,6 +48,18 @@ namespace Lina
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
 
+		if (m_props.fetchCustomClipFromParent && m_parent)
+		{
+			const Vector2 start = m_parent->GetStartFromMargins();
+			const Vector2 end	= m_parent->GetEndFromMargins();
+			m_props.customClip	= Vector4(start.x, start.y, end.x - start.x, end.y - start.y + 10.0f);
+		}
+
+		if (m_props.fetchCustomClipFromSelf)
+		{
+			m_props.customClip = Vector4(GetPosX() - GetSizeX() * 0.1f, GetPosY() - GetSizeY() * 0.5f, GetSizeX() * 1.2f, GetSizeY() * 2.0f);
+		}
+
 		if (m_isSDF)
 		{
 			LinaVG::SDFTextOptions opts;

@@ -101,6 +101,7 @@ namespace Lina::Editor
 		bool	   m_wasSelected			= false;
 		Vector2	   m_offsetAtPress			= Vector2::Zero;
 		uint32	   m_indexInParent			= 0;
+		float	   m_alpha					= 0.0f;
 	};
 
 } // namespace Lina::Editor

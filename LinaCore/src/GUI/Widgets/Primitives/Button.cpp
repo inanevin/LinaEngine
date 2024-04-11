@@ -94,9 +94,7 @@ namespace Lina
 		}
 
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
-
 		Widget::Draw(threadIndex);
-
 		Widget::DrawBorders(threadIndex);
 		Widget::DrawTooltip(threadIndex);
 	}

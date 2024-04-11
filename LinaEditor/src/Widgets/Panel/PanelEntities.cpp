@@ -46,8 +46,6 @@ namespace Lina::Editor
 		LinaVG::StyleOptions opts;
 		opts.color = Theme::GetDef().background1.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-		return;
-
 		Widget::Draw(threadIndex);
 	}
 } // namespace Lina::Editor

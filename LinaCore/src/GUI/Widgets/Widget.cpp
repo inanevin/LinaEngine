@@ -151,9 +151,9 @@ namespace Lina
 
 	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+		if (GetFlags().IsSet(WF_CONTROLS_MANAGER) && m_manager->GetLastControlsManager() == this)
 		{
-			if (keycode == LINAGX_KEY_TAB && action != LinaGX::InputAction::Released)
+			if (keycode == LINAGX_KEY_TAB && action != LinaGX::InputAction::Released && m_controlsOwner)
 			{
 				if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
 					MoveControlsToPrev();
@@ -214,7 +214,39 @@ namespace Lina
 	void Widget::DrawTooltip(int32 threadIndex)
 	{
 		if (!m_isHovered)
+		{
+			if (m_customTooltip != nullptr)
+			{
+				RemoveChild(m_customTooltip);
+				m_manager->Deallocate(m_customTooltip);
+				m_customTooltip = nullptr;
+			}
 			return;
+		}
+
+		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
+
+		if (m_buildCustomTooltip != nullptr)
+		{
+			if (m_customTooltip == nullptr)
+			{
+				m_customTooltip = m_buildCustomTooltip();
+
+				m_customTooltip->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
+				m_customTooltip->SetDrawOrder(TOOLTIP_DRAW_ORDER);
+
+				for (auto* c : m_customTooltip->GetChildren())
+				{
+					c->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
+					c->SetDrawOrder(TOOLTIP_DRAW_ORDER);
+				}
+				AddChild(m_customTooltip);
+			}
+
+			m_customTooltip->SetPos(mp + Vector2(10, 10));
+			// m_customTooltip->Draw(threadIndex);
+			return;
+		}
 
 		const String& tooltip = GetTooltip();
 
@@ -225,14 +257,12 @@ namespace Lina
 		textOpts.font		   = m_manager->GetDefaultFont()->GetLinaVGFont(m_lgxWindow->GetDPIScale());
 		const Vector2 textSize = LinaVG::CalculateTextSize(tooltip.c_str(), textOpts);
 
-		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
-
 		const Rect tooltipRect = Rect(mp + Vector2(10, 10), textSize + Vector2(Theme::GetDef().baseIndent * 2.0f, Theme::GetDef().baseIndent));
 
 		LinaVG::StyleOptions bg;
 		bg.color					= Theme::GetDef().background1.AsLVG4();
 		bg.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness;
-		bg.outlineOptions.color		= Theme::GetDef().outlineColorBase.AsLVG4();
+		bg.outlineOptions.color		= Theme::GetDef().black.AsLVG4();
 		LinaVG::DrawRect(threadIndex, tooltipRect.pos.AsLVG(), tooltipRect.GetEnd().AsLVG(), bg, 0.0f, TOOLTIP_DRAW_ORDER);
 
 		LinaVG::DrawTextNormal(threadIndex, tooltip.c_str(), Vector2(tooltipRect.pos.x + Theme::GetDef().baseIndent, tooltipRect.GetCenter().y + textSize.y * 0.5f).AsLVG(), textOpts, 0.0f, TOOLTIP_DRAW_ORDER);
@@ -309,13 +339,13 @@ namespace Lina
 		return Rect(Vector2(posx, posy), Vector2(sizex, sizey));
 	}
 
-	Widget* Widget::VerifyControlsManager()
+	Widget* Widget::FindGetControlsManager()
 	{
 		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
 			m_controlsManager = this;
 
 		if (m_controlsManager == nullptr && m_parent)
-			m_controlsManager = m_parent->VerifyControlsManager();
+			m_controlsManager = m_parent->FindGetControlsManager();
 
 		return m_controlsManager;
 	}
@@ -326,9 +356,12 @@ namespace Lina
 			m_controlsOwner = widget;
 		else
 		{
-			auto* manager = VerifyControlsManager();
+			auto* manager = FindGetControlsManager();
 			if (manager)
+			{
 				manager->GrabControls(this);
+				m_manager->SetLastControlsManager(manager);
+			}
 		}
 	}
 
@@ -341,7 +374,7 @@ namespace Lina
 		}
 		else
 		{
-			auto* manager = VerifyControlsManager();
+			auto* manager = FindGetControlsManager();
 			if (manager)
 				manager->ReleaseControls(this);
 		}
@@ -352,7 +385,7 @@ namespace Lina
 		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
 			return m_controlsOwner == nullptr || w == m_controlsOwner;
 
-		auto* manager = VerifyControlsManager();
+		auto* manager = FindGetControlsManager();
 		if (manager)
 			return manager->CanGrabControls(this);
 
@@ -364,7 +397,7 @@ namespace Lina
 		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
 			return m_controlsOwner;
 
-		auto* manager = VerifyControlsManager();
+		auto* manager = FindGetControlsManager();
 		if (manager)
 			return manager->GetControlsOwner();
 
@@ -393,7 +426,7 @@ namespace Lina
 
 			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
 				return current;
-		} while (current != nullptr && current != start);
+		} while (current != nullptr && current != start && !current->GetFlags().IsSet(WF_CONTROLS_MANAGER));
 
 		return nullptr;
 	}
@@ -419,14 +452,14 @@ namespace Lina
 			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
 				return current;
 
-		} while (current != nullptr && current != start);
+		} while (current != nullptr && current != start && !current->GetFlags().IsSet(WF_CONTROLS_MANAGER));
 
 		return nullptr;
 	}
 
 	void Widget::MoveControlsToPrev()
 	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+		if (!GetFlags().IsSet(WF_CONTROLS_MANAGER))
 			return;
 
 		if (m_controlsOwner)
@@ -441,13 +474,27 @@ namespace Lina
 
 	void Widget::MoveControlsToNext()
 	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
+		if (!GetFlags().IsSet(WF_CONTROLS_MANAGER))
 			return;
 		Widget* next = FindNextSelectable(m_controlsOwner ? m_controlsOwner : nullptr);
 		if (next)
 		{
 			GrabControls(next);
 		}
+	}
+
+	bool Widget::IsWidgetInHierarchy(Widget* widget)
+	{
+		if (UtilVector::Contains(m_children, widget))
+			return true;
+
+		for (auto* c : m_children)
+		{
+			if (c->IsWidgetInHierarchy(widget))
+				return true;
+		}
+
+		return false;
 	}
 
 } // namespace Lina

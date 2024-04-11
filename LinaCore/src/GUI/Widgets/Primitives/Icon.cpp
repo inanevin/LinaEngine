@@ -39,14 +39,25 @@ namespace Lina
 		CalculateIconSize();
 	}
 
+	void Icon::CalculateSize(float dt)
+	{
+		const float dpiScale = m_lgxWindow->GetDPIScale();
+		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
+			CalculateIconSize();
+
+		if (m_props.dynamicSizeToParent)
+		{
+			const float targetSize = Math::Min(m_parent->GetSizeX(), m_parent->GetSizeY()) * m_props.dynamicSizeScale;
+			const float scale	   = targetSize / static_cast<float>(m_lvgFont->m_size);
+			m_props.textScale	   = scale;
+			CalculateIconSize();
+		}
+	}
+
 	void Icon::Draw(int32 threadIndex)
 	{
 		if (!GetIsVisible())
 			return;
-
-		const float dpiScale = m_lgxWindow->GetDPIScale();
-		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
-			CalculateIconSize();
 
 		m_sdfOptions.color.start		 = m_props.colorStart.AsLVG4();
 		m_sdfOptions.color.end			 = m_props.colorEnd.AsLVG4();
@@ -56,6 +67,7 @@ namespace Lina
 		m_sdfOptions.sdfOutlineThickness = m_props.sdfOutlineThickness;
 		m_sdfOptions.sdfOutlineSoftness	 = m_props.sdfOutlineSoftness;
 		m_sdfOptions.textScale			 = m_props.textScale;
+		m_sdfOptions.cpuClipping		 = m_props.customClip.AsLVG4();
 
 		if (m_props.enableHoverPressColors)
 		{
@@ -69,7 +81,7 @@ namespace Lina
 		if (GetIsDisabled())
 			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorDisabled.AsLVG4();
 
-		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, true);
+		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 	}
 
 	void Icon::CalculateIconSize()

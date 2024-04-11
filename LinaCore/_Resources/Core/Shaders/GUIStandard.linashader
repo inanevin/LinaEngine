@@ -115,11 +115,14 @@ void main()
    {
       // Textured
       // floatPack1 = uvMultiply, uvShift
-      // floatPack2 = isAABuffer, 0,0,bufferType
+      // floatPack2 = isAABuffer, isSingleChannel,0,bufferType
       
       vec4 col = texture(sampler2D(guiTexture, guiSampler), inUV * material.floatPack1.rg + material.floatPack1.ba);
       float alpha = inCol.a * material.floatPack2.r + col.a * (1.0f - material.floatPack2.r);
       fragColor = vec4(col.rgb, alpha) * material.color1; 
+
+      if(int(material.floatPack2.g) == 1)
+         fragColor = vec4(col.r) * material.color1;
    }
    else if(bufferType == 3)
    {

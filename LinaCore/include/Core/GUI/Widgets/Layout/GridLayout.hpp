@@ -29,43 +29,22 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Common.hpp"
 
 namespace Lina
 {
-	class ColorSlider : public Widget
+	class GridLayout : public Widget
 	{
 	public:
-		ColorSlider() : Widget(0, WF_SELECTABLE)
-		{
-		}
-		virtual ~ColorSlider() = default;
+		GridLayout() : Widget(-1){};
+		virtual ~GridLayout() = default;
 
 		struct Properties
 		{
-			Delegate<void(float)> onValueChanged;
-			DirectionOrientation  direction				  = DirectionOrientation::Horizontal;
-			Color				  colorBegin			  = Color::White;
-			Color				  colorEnd				  = Color::White;
-			Color				  colorOutline			  = Theme::GetDef().outlineColorBase;
-			Color				  colorOutlineControls	  = Theme::GetDef().outlineColorControls;
-			Color				  colorLine				  = Theme::GetDef().foreground0;
-			Color				  colorLineOutline		  = Theme::GetDef().background0;
-			bool				  isHueShift			  = false;
-			bool				  drawCheckeredBackground = false;
-			float*				  value					  = nullptr;
-			float				  rounding				  = Theme::GetDef().baseRounding;
-			float				  outlineThickness		  = Theme::GetDef().baseOutlineThickness;
-			float				  minValue				  = 0.0f;
-			float				  maxValue				  = 0.0f;
-			float				  step					  = 0.0f;
+			float horizontalPadding = Theme::GetDef().baseIndentInner;
+			float verticalPadding	= Theme::GetDef().baseIndent;
 		};
 
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()
 		{

@@ -82,6 +82,7 @@ namespace Lina::Editor
 		lina->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		lina->GetProps().colorStart = Theme::GetDef().accentPrimary0;
 		lina->GetProps().colorEnd	= Theme::GetDef().accentPrimary1;
+		lina->GetProps().isDynamic	= false;
 		titleBar->AddChild(lina);
 
 		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");

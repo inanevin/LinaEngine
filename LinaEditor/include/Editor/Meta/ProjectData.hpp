@@ -29,21 +29,41 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/String.hpp"
+#include "Common/Data/CommonData.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/StringID.hpp"
 #include "Common/Serialization/Serializable.hpp"
+
+namespace Lina
+{
+	class Texture;
+}
 
 namespace Lina::Editor
 {
+	class Editor;
+
 	class ProjectData : public Serializable
 	{
 	public:
+		struct ThumbnailData
+		{
+			uint32		widthHeight = 0;
+			Span<uint8> buffer		= {};
+		};
+
 		struct Runtime
 		{
 			bool isDirty = false;
 		};
 
 		static constexpr uint32 VERSION = 0;
-		virtual void			SaveToStream(OStream& out) override;
-		virtual void			LoadFromStream(IStream& in) override;
+		void					Initialize(Editor* editor)
+		{
+			m_editor = editor;
+		}
+		virtual void SaveToStream(OStream& out) override;
+		virtual void LoadFromStream(IStream& in) override;
 
 		inline void SetProjectName(const String& name)
 		{
@@ -66,6 +86,7 @@ namespace Lina::Editor
 		}
 
 	private:
+		Editor* m_editor	  = nullptr;
 		Runtime m_runtime	  = {};
 		String	m_projectName = "";
 	};

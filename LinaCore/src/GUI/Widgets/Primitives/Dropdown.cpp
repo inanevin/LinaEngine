@@ -85,23 +85,12 @@ namespace Lina
 		if (m_isHovered)
 			iconBg.color = m_props.colorIconBackgroundHovered.AsLVG4();
 
-		iconBg.color.gradientType = LinaVG::GradientType::Vertical;
 		LinaVG::DrawRect(threadIndex, m_iconBgStart.AsLVG(), (m_rect.GetEnd() - Vector2::One).AsLVG(), iconBg, 0.0f, m_drawOrder);
 
 		// Icon
 		m_icon->Draw(threadIndex);
-
-		// Text & clip over icon.
-		Rect*	   existing = m_manager->GetClipStackTop();
-		const bool omitClip = existing && !existing->IsRectInside(m_rect);
-
-		if (!omitClip)
-			m_manager->SetClip(threadIndex, m_rect, {.right = m_props.horizontalIndent + iconSize.x});
-
+		m_text->GetProps().customClip = Vector4(GetPosX(), GetPosY(), GetSizeX() - GetSizeY(), GetSizeY());
 		m_text->Draw(threadIndex);
-
-		if (!omitClip)
-			m_manager->UnsetClip(threadIndex);
 	}
 
 	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
@@ -156,6 +145,7 @@ namespace Lina
 		m_popup = WidgetUtility::BuildLayoutForPopups(this);
 		m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
 		m_popup->GetProps().onDestructed = [this]() { m_popup = nullptr; };
+		m_manager->SetForegroundDim(0.0f);
 		m_manager->AddToForeground(m_popup);
 
 		Vector<String> items;

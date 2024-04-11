@@ -167,13 +167,11 @@ namespace Lina
 
 		if (m_props.orientation == DirectionOrientation::Horizontal)
 		{
-			if (m_positive->GetChildMargins().left < GetFixedSizeX())
-				m_positive->GetChildMargins() = {.left = GetFixedSizeX()};
+			m_positive->GetChildMargins().top += GetFixedSizeY();
 		}
 		else
 		{
-			if (m_positive->GetChildMargins().top < GetFixedSizeY())
-				m_positive->GetChildMargins() = {.top = GetFixedSizeY()};
+			m_positive->GetChildMargins().left += GetFixedSizeX();
 		}
 	}
 

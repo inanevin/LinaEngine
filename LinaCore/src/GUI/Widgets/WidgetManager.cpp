@@ -118,7 +118,7 @@ namespace Lina
 		{
 			LinaVG::StyleOptions opts;
 			opts.color = LinaVG::Vec4(0.0f, 0.0f, 0.0f, m_foregroundDim);
-			LinaVG::DrawRect(threadIndex, Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER - 1);
+			LinaVG::DrawRect(threadIndex, Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
 			m_foregroundRoot->Draw(threadIndex);
 		}
 
@@ -130,6 +130,14 @@ namespace Lina
 
 	void WidgetManager::Deallocate(Widget* widget)
 	{
+        if(widget->GetControlsOwner() == widget)
+            widget->ReleaseControls(widget);
+        
+        if(m_lastControlsManager == widget)
+            m_lastControlsManager = nullptr;
+        
+        widget->m_customTooltip = nullptr;
+        
 		for (auto* c : widget->m_children)
 			Deallocate(c);
 
@@ -373,7 +381,7 @@ namespace Lina
 	void WidgetManager::SizePassWidget(Widget* w, float delta)
 	{
 		w->CalculateSize(delta);
-
+        
 		Vector<Widget*> expandingChildren;
 		Vector2			totalNonExpandingSize = Vector2::Zero;
 

@@ -53,19 +53,23 @@ namespace Lina::Editor
 			Color				 colorSelectedInactiveStart = Theme::GetDef().silent0;
 			Color				 colorSelectedInactiveEnd	= Theme::GetDef().silent1;
 			Delegate<void(bool)> onFoldChanged;
-			uint8				 level	= 0;
-			Widget*				 owner	= nullptr;
-			float				 height = Theme::GetDef().baseItemHeight;
+			Delegate<void(bool)> onSelectedChanged;
+			uint8				 level	  = 0;
+			Widget*				 owner	  = nullptr;
+			float				 height	  = Theme::GetDef().baseItemHeight;
+			void*				 userData = nullptr;
 		};
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void CalculateSize(float dt) override;
+		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		void		 ChangeFold(bool folded);
+		void		 ChangeSelected(bool selected);
 
 		inline Properties& GetProps()
 		{
@@ -84,6 +88,7 @@ namespace Lina::Editor
 
 	private:
 		static constexpr float COLOR_SPEED = 15.0f;
+		static constexpr float SIZE_SPEED  = 15.0f;
 
 	private:
 		Properties m_props = {};

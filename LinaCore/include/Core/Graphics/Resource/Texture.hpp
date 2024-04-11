@@ -68,7 +68,7 @@ namespace Lina
 	public:
 		virtual void			 BatchLoaded() override;
 		uint32					 GetSamplerSID() const;
-		void					 SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format, bool generateMipMaps = false);
+		void					 SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
 		Vector<TextureSheetItem> GetSheetItems(uint32 columns, uint32 rows);
 		Vector2ui				 GetSize();
 		Vector2					 GetSizeF();
@@ -93,6 +93,11 @@ namespace Lina
 			return m_bindlessIndex;
 		}
 
+		inline const Metadata& GetMeta() const
+		{
+			return m_meta;
+		}
+
 	private:
 		FRIEND_RESOURCE_CACHE();
 		Texture(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Texture>()){};
@@ -107,13 +112,17 @@ namespace Lina
 			m_meta.LoadFromStream(stream);
 		}
 
+		void GenerateGPU();
+		void AddToUploadQueue();
+
 	private:
 		uint32						  m_bindlessIndex = 0;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
-		uint32						  m_gpuHandle		 = 0;
-		StringID					  m_sampler			 = 0;
-		bool						  m_loadedFromStream = false;
-		Metadata					  m_meta			 = {};
+		uint32						  m_gpuHandle		= 0;
+		StringID					  m_sampler			= 0;
+		bool						  m_useGlobalDelete = false;
+		Metadata					  m_meta			= {};
+		uint32						  m_bytesPerPixel	= 0;
 	};
 } // namespace Lina
 

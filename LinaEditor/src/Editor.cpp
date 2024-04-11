@@ -308,6 +308,7 @@ namespace Lina::Editor
 		LINA_ASSERT(m_currentProject == nullptr, "");
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
+		m_currentProject->Initialize(this);
 		m_currentProject->LoadFromFile();
 		m_editorRoot->SetProjectName(m_currentProject->GetProjectName());
 

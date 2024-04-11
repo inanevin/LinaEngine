@@ -26,24 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Meta/ProjectData.hpp"
-#include "Editor/Editor.hpp"
-#include "Common/Data/Streams.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+#include "Core/GUI/Widgets/Layout/GridLayout.hpp"
+#include "Common/Math/Math.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
-	void ProjectData::LoadFromStream(IStream& in)
+	void GridLayout::Tick(float delta)
 	{
-		uint32 version = 0;
-		in >> version;
-		StringSerialization::LoadFromStream(in, m_projectName);
-	}
+		const Vector2 start = GetStartFromMargins();
+		const Vector2 end	= GetEndFromMargins();
 
-	void ProjectData::SaveToStream(OStream& out)
-	{
-		out << VERSION;
-		StringSerialization::SaveToStream(out, m_projectName);
-	}
+		float x				= start.x;
+		float y				= start.y;
+		float maxItemHeight = 0.0f;
 
-} // namespace Lina::Editor
+		for (auto* c : m_children)
+		{
+			if (x + c->GetSizeX() > end.x)
+			{
+				x = start.x;
+				y += maxItemHeight + m_props.verticalPadding;
+				maxItemHeight = 0.0f;
+			}
+
+			c->SetPosX(x);
+			c->SetPosY(y);
+			maxItemHeight = Math::Max(maxItemHeight, c->GetSizeY());
+			x += c->GetSizeX() + m_props.horizontalPadding;
+		}
+	}
+} // namespace Lina

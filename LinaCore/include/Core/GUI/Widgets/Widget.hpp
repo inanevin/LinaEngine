@@ -123,13 +123,19 @@ namespace Lina
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
 
-		Widget* VerifyControlsManager();
+		Widget* FindGetControlsManager();
 		void	GrabControls(Widget* widget);
 		void	ReleaseControls(Widget* widget);
 		bool	CanGrabControls(Widget* widget);
 		Widget* GetControlsOwner();
 		void	MoveControlsToNext();
 		void	MoveControlsToPrev();
+		bool	IsWidgetInHierarchy(Widget* widget);
+
+		inline Widget* GetCustomTooltip()
+		{
+			return m_customTooltip;
+		}
 
 		virtual LinaGX::CursorType GetCursorOverride()
 		{
@@ -319,6 +325,11 @@ namespace Lina
 			return m_isVisible;
 		}
 
+		inline void SetBuildCustomTooltip(Delegate<Widget*()>&& tt)
+		{
+			m_buildCustomTooltip = tt;
+		}
+
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);
@@ -337,37 +348,39 @@ namespace Lina
 		Widget* FindPreviousSelectable(Widget* start);
 
 	protected:
-		TypeID			   m_tid	   = 0;
-		WidgetManager*	   m_manager   = nullptr;
-		Widget*			   m_parent	   = nullptr;
-		LinaGX::Window*	   m_lgxWindow = nullptr;
-		int32			   m_drawOrder = 0;
-		System*			   m_system	   = nullptr;
-		Rect			   m_rect	   = {};
-		Vector<Widget*>	   m_children;
-		int32			   m_maxChilds		 = 0;
-		bool			   m_isHovered		 = false;
-		bool			   m_isPressed		 = false;
-		ResourceManager*   m_resourceManager = nullptr;
-		String			   m_debugName		 = "Widget";
-		uint32			   m_childID		 = 0;
-		Bitmask32		   m_flags			 = 0;
-		Widget*			   m_next			 = nullptr;
-		Widget*			   m_prev			 = nullptr;
-		Vector2			   m_alignedSize	 = Vector2::Zero;
-		Vector2			   m_alignedPos		 = Vector2::Zero;
-		TBLR			   m_childMargins	 = {};
-		Vector2			   m_fixedSize		 = Vector2::Zero;
-		Color			   m_colorBorders	 = Theme::GetDef().background2;
-		TBLR			   m_borderThickness = {};
-		String			   m_tooltip		 = "";
-		PosAlignmentSource m_posAlignSourceX = PosAlignmentSource::Start;
-		PosAlignmentSource m_posAlignSourceY = PosAlignmentSource::Start;
-		float			   m_childPadding	 = 0.0f;
-		bool			   m_isDisabled		 = false;
-		Widget*			   m_controlsOwner	 = nullptr;
-		Widget*			   m_controlsManager = nullptr;
-		bool			   m_isVisible		 = true;
+		TypeID				m_tid		= 0;
+		WidgetManager*		m_manager	= nullptr;
+		Widget*				m_parent	= nullptr;
+		LinaGX::Window*		m_lgxWindow = nullptr;
+		int32				m_drawOrder = 0;
+		System*				m_system	= nullptr;
+		Rect				m_rect		= {};
+		Vector<Widget*>		m_children;
+		int32				m_maxChilds		  = 0;
+		bool				m_isHovered		  = false;
+		bool				m_isPressed		  = false;
+		ResourceManager*	m_resourceManager = nullptr;
+		String				m_debugName		  = "Widget";
+		uint32				m_childID		  = 0;
+		Bitmask32			m_flags			  = 0;
+		Widget*				m_next			  = nullptr;
+		Widget*				m_prev			  = nullptr;
+		Vector2				m_alignedSize	  = Vector2::Zero;
+		Vector2				m_alignedPos	  = Vector2::Zero;
+		TBLR				m_childMargins	  = {};
+		Vector2				m_fixedSize		  = Vector2::Zero;
+		Color				m_colorBorders	  = Theme::GetDef().background2;
+		TBLR				m_borderThickness = {};
+		String				m_tooltip		  = "";
+		PosAlignmentSource	m_posAlignSourceX = PosAlignmentSource::Start;
+		PosAlignmentSource	m_posAlignSourceY = PosAlignmentSource::Start;
+		float				m_childPadding	  = 0.0f;
+		bool				m_isDisabled	  = false;
+		Widget*				m_controlsOwner	  = nullptr;
+		Widget*				m_controlsManager = nullptr;
+		bool				m_isVisible		  = true;
+		Delegate<Widget*()> m_buildCustomTooltip;
+		Widget*				m_customTooltip = nullptr;
 	};
 
 } // namespace Lina

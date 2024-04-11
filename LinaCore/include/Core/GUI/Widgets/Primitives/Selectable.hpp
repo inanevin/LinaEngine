@@ -35,7 +35,7 @@ namespace Lina
 	class Selectable : public Widget
 	{
 	public:
-		Selectable() : Widget(1, WF_SELECTABLE){};
+		Selectable() : Widget(-1, WF_SELECTABLE){};
 		virtual ~Selectable() = default;
 
 		struct Properties
@@ -44,14 +44,26 @@ namespace Lina
 			Color			 colorEnd			= Color(0.0f, 0.0f, 0.0f, 0.0f);
 			Color			 colorSelectedStart = Theme::GetDef().accentPrimary0;
 			Color			 colorSelectedEnd	= Theme::GetDef().accentPrimary1;
-			Delegate<void()> onClicked;
+			Color			 colorOutline		= Theme::GetDef().outlineColorBase;
+			float			 rounding			= 0.0f;
+			float			 outlineThickness	= 0.0f;
+			Delegate<void()> onSelected;
 		};
 
+		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
+		inline Properties& GetProps()
+		{
+			return m_props;
+		}
+
 	private:
-		Properties m_props = {};
+		static constexpr float COLOR_SPEED = 22.0f;
+		Properties			   m_props	   = {};
+		Color				   m_usedStart = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		Color				   m_usedEnd   = Color(0.0f, 0.0f, 0.0f, 0.0f);
 	};
 
 } // namespace Lina

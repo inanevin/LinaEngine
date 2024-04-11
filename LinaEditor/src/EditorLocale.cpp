@@ -79,6 +79,8 @@ namespace Lina::Editor
 		{LocaleStr::Performance, "Performance"},
 		{LocaleStr::ResetLayout, "Reset Layout"},
 		{LocaleStr::Search, "Search"},
+		{LocaleStr::Items, "Items"},
+		{LocaleStr::Selected, "Selected"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)

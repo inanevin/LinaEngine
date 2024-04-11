@@ -28,10 +28,28 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
+
+	void Selectable::Tick(float dt)
+	{
+		const bool hasControls = GetControlsOwner() == this;
+		if (hasControls)
+		{
+			m_usedStart = Math::Lerp(m_usedStart, m_props.colorSelectedStart, dt * COLOR_SPEED);
+			m_usedEnd	= Math::Lerp(m_usedEnd, m_props.colorSelectedEnd, dt * COLOR_SPEED);
+		}
+		else
+		{
+			m_usedStart = Math::Lerp(m_usedStart, m_props.colorStart, dt * COLOR_SPEED);
+			m_usedEnd	= Math::Lerp(m_usedEnd, m_props.colorEnd, dt * COLOR_SPEED);
+		}
+
+		Widget::Tick(dt);
+	}
 
 	void Selectable::Draw(int32 threadIndex)
 	{
@@ -41,19 +59,18 @@ namespace Lina
 		const bool hasControls = GetControlsOwner() == this;
 
 		LinaVG::StyleOptions opts;
-
-		if (hasControls)
-		{
-			opts.color.start = m_props.colorSelectedStart.AsLVG4();
-			opts.color.end	 = m_props.colorSelectedEnd.AsLVG4();
-		}
-		else
-		{
-			opts.color.start = m_props.colorStart.AsLVG4();
-			opts.color.end	 = m_props.colorEnd.AsLVG4();
-		}
+		opts.color.start			  = m_usedStart.AsLVG4();
+		opts.color.end				  = m_usedEnd.AsLVG4();
+		opts.rounding				  = m_props.rounding;
+		opts.outlineOptions.thickness = m_props.outlineThickness;
+		opts.outlineOptions.color	  = m_props.colorOutline.AsLVG4();
+		opts.color.gradientType		  = LinaVG::GradientType::Vertical;
 
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+
+		Widget::Draw(threadIndex);
+
+		Widget::DrawTooltip(threadIndex);
 	}
 
 	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -64,17 +81,19 @@ namespace Lina
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed = true;
+			if (GetControlsOwner() != this)
+			{
+				if (m_props.onSelected)
+					m_props.onSelected();
+			}
+
 			GrabControls(this);
 			return true;
 		}
 
 		if (m_isPressed && act == LinaGX::InputAction::Released)
 		{
-			if (m_isHovered)
-			{
-				if (m_props.onClicked)
-					m_props.onClicked();
-			}
+
 			m_isPressed = false;
 			return true;
 		}

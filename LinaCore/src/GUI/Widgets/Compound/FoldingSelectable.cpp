@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/Compound/FoldingSelectable.hpp"
+#include "Core/GUI/Widgets/Compound/FoldingSelectable.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
@@ -42,7 +42,6 @@ namespace Lina::Editor
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetFlags().Set(WF_POS_ALIGN_Y);
 		layout->SetAlignedPosY(0.0f);
-		layout->GetProps().clipChildren = true;
 		AddChild(layout);
 		m_layout = layout;
 	}
@@ -65,10 +64,26 @@ namespace Lina::Editor
 			childrenTotalHeight += c->GetSizeY();
 		}
 
+		float targetY = 0.0f;
+
 		if (m_folded)
-			SetSizeY(m_props.height);
+			targetY = m_props.height;
 		else
-			SetSizeY(m_props.height + childrenTotalHeight);
+			targetY = m_props.height + childrenTotalHeight;
+
+		SetSizeY(Math::Lerp(GetSizeY(), targetY, SIZE_SPEED * dt));
+	}
+
+	void FoldingSelectable::PreTick()
+	{
+		// Requires main thread due to possible allocation/deallocation below
+		const bool hasControls = GetControlsOwner() == this;
+
+		if (hasControls && !m_selected)
+			ChangeSelected(true);
+
+		if (!hasControls && m_selected && FindGetControlsManager()->IsWidgetInHierarchy(GetControlsOwner()))
+			ChangeSelected(false);
 	}
 
 	void FoldingSelectable::Tick(float dt)
@@ -79,12 +94,6 @@ namespace Lina::Editor
 		SetIsHovered();
 
 		const bool hasControls = GetControlsOwner() == this;
-
-		if (hasControls && !m_selected)
-			m_selected = true;
-
-		if (!hasControls && m_selected && UtilVector::Contains(m_props.owner->GetChildren(), GetControlsOwner()))
-			m_selected = false;
 
 		if (!m_selected)
 		{
@@ -97,7 +106,7 @@ namespace Lina::Editor
 			m_usedColorEnd	 = Math::Lerp(m_usedColorEnd, hasControls ? m_props.colorSelectedEnd : m_props.colorSelectedInactiveEnd, dt * COLOR_SPEED);
 		}
 
-		m_layout->SetPosX(GetPosX() + GetChildMargins().left + static_cast<float>(m_props.level) * GetChildPadding());
+		m_layout->SetPosX(GetPosX());
 		m_layout->SetSizeX(GetPosX() + GetSizeX() - m_layout->GetPosX());
 		m_layout->SetSizeY(m_props.height);
 
@@ -109,7 +118,7 @@ namespace Lina::Editor
 
 			c->SetPosX(GetPosX());
 			c->SetPosY(childY);
-			c->GetChildMargins().left = GetChildMargins().left + GetChildPadding();
+			// c->GetChildMargins().left = GetChildMargins().left + GetChildPadding();
 			c->Tick(dt);
 			childY += c->GetSizeY();
 		}
@@ -117,6 +126,9 @@ namespace Lina::Editor
 
 	void FoldingSelectable::Draw(int32 threadIndex)
 	{
+		if (!GetIsVisible())
+			return;
+
 		const bool hasControls = GetControlsOwner() == this;
 
 		LinaVG::StyleOptions opts;
@@ -154,7 +166,7 @@ namespace Lina::Editor
 		if (m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
 			GrabControls(this);
-			m_selected = true;
+			ChangeSelected(true);
 			return true;
 		}
 
@@ -173,7 +185,7 @@ namespace Lina::Editor
 			return false;
 
 		if (GetControlsOwner() != this)
-			return false;
+			return Widget::OnKey(keycode, scancode, act);
 
 		if (keycode == LINAGX_KEY_RETURN)
 		{
@@ -195,15 +207,15 @@ namespace Lina::Editor
 
 		if (keycode == LINAGX_KEY_DOWN)
 		{
-			if (m_props.owner->GetChildren().back() != this)
-				VerifyControlsManager()->MoveControlsToNext();
+			if (!m_children.empty() || m_props.owner->GetChildren().back() != this)
+				FindGetControlsManager()->MoveControlsToNext();
 			return true;
 		}
 
 		if (keycode == LINAGX_KEY_UP)
 		{
-			if (m_props.owner->GetChildren()[0] != this)
-				VerifyControlsManager()->MoveControlsToPrev();
+			if (m_props.owner->GetChildren().front() != this)
+				FindGetControlsManager()->MoveControlsToPrev();
 			return true;
 		}
 
@@ -212,9 +224,9 @@ namespace Lina::Editor
 
 	void FoldingSelectable::ChangeFold(bool folded)
 	{
+		const bool actuallyChanged = m_folded != folded;
+
 		m_folded = folded;
-		if (m_props.onFoldChanged)
-			m_props.onFoldChanged(m_folded);
 
 		for (auto* c : m_children)
 		{
@@ -223,5 +235,19 @@ namespace Lina::Editor
 
 			c->SetIsDisabled(m_folded);
 		}
+
+		if (actuallyChanged && m_props.onFoldChanged)
+			m_props.onFoldChanged(m_folded);
+	}
+
+	void FoldingSelectable::ChangeSelected(bool selected)
+	{
+		if (selected == m_selected)
+			return;
+
+		m_selected = selected;
+
+		if (m_props.onSelectedChanged)
+			m_props.onSelectedChanged(m_selected);
 	}
 } // namespace Lina::Editor

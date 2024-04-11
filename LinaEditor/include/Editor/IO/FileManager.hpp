@@ -31,6 +31,10 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Common/Memory/MemoryAllocatorPool.hpp"
 
+namespace Lina
+{
+	class Texture;
+}
 namespace Lina::Editor
 {
 
@@ -38,11 +42,17 @@ namespace Lina::Editor
 
 	struct DirectoryItem
 	{
-		bool				   isDirectory = false;
-		String				   path		   = "";
-		TypeID				   tid		   = 0;
-		String				   extension   = "";
-		Vector<DirectoryItem*> children	   = {};
+		bool				   isDirectory	= false;
+		String				   absolutePath = "";
+		String				   relativePath = "";
+		String				   folderName	= "";
+		String				   fileName		= "";
+		StringID			   sid			= 0;
+		TypeID				   tid			= 0;
+		String				   extension	= "";
+		Vector<DirectoryItem*> children		= {};
+		Texture*			   thumbnail	= nullptr;
+		DirectoryItem*		   parent		= nullptr;
 	};
 
 	class FileManager
@@ -68,6 +78,14 @@ namespace Lina::Editor
 	private:
 		void ScanItem(DirectoryItem* item);
 		void DeallocItem(DirectoryItem* item);
+		void ClearDirectory(DirectoryItem* item);
+		void RefreshDirectory(DirectoryItem* item);
+		void UpdateItem(DirectoryItem* item, const String& newPath, bool regenerateThumbnail);
+		void GenerateThumbnailForItem(DirectoryItem* item);
+		void FillPathInformation(DirectoryItem* item, const String& fullAbsPath);
+
+		void GenerateThumbTexture(DirectoryItem* item);
+		void GenerateThumbFont(DirectoryItem* item);
 
 	private:
 		String				m_projectDirectory = "";
