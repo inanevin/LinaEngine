@@ -132,197 +132,197 @@ namespace Lina
 		{
 			return 0.0f;
 		}
-        
+
 		inline Widget* GetCustomTooltip()
 		{
 			return m_customTooltip;
 		}
-        
+
 		virtual LinaGX::CursorType GetCursorOverride()
 		{
 			return LinaGX::CursorType::Default;
 		}
-        
+
 		inline const Rect& GetRect()
 		{
 			return m_rect;
 		}
-        
+
 		inline float GetHalfSizeX() const
 		{
 			return m_rect.size.x * 0.5f;
 		}
-        
+
 		inline float GetHalfSizeY() const
 		{
 			return m_rect.size.y * 0.5f;
 		}
-        
+
 		inline const Vector2 GetHalfSize() const
 		{
 			return m_rect.size * 0.5f;
 		}
-        
+
 		inline LinaGX::Window* GetWindow()
 		{
 			return m_lgxWindow;
 		}
-        
+
 		inline int32 GetDrawOrder() const
 		{
 			return m_drawOrder;
 		}
-        
+
 		inline void SetDrawOrder(int32 order)
 		{
 			m_drawOrder = order;
 		}
-        
+
 		inline bool GetIsHovered() const
 		{
 			return m_isHovered;
 		}
-        
+
 		inline void SetDebugName(const String& dbgName)
 		{
 			m_debugName = dbgName;
 		}
-        
+
 		inline const String& GetDebugName() const
 		{
 			return m_debugName;
 		}
-        
+
 		inline void SetChildID(uint32 idx)
 		{
 			m_childID = idx;
 		}
-        
+
 		inline const Vector<Widget*>& GetChildren() const
 		{
 			return m_children;
 		}
-        
+
 		inline Bitmask32& GetFlags()
 		{
 			return m_flags;
 		}
-        
+
 		inline Widget* GetParent()
 		{
 			return m_parent;
 		}
-        
+
 		inline TypeID GetTID() const
 		{
 			return m_tid;
 		}
-        
+
 		inline bool GetIsPressed() const
 		{
 			return m_isPressed;
 		}
-        
+
 		inline TBLR& GetBorderThickness()
 		{
 			return m_borderThickness;
 		}
-        
+
 		inline void SetBorderColor(const Color& c)
 		{
 			m_colorBorders = c;
 		}
-        
+
 		inline Color& GetBorderColor()
 		{
 			return m_colorBorders;
 		}
-        
+
 		inline const String& GetTooltip() const
 		{
 			return m_tooltip;
 		}
-        
+
 		inline void SetTooltip(const String& str)
 		{
 			m_tooltip = str;
 		}
-        
+
 		inline void SetPosAlignmentSourceX(PosAlignmentSource src)
 		{
 			m_posAlignSourceX = src;
 		}
-        
+
 		inline void SetPosAlignmentSourceY(PosAlignmentSource src)
 		{
 			m_posAlignSourceY = src;
 		}
-        
+
 		inline PosAlignmentSource GetPosAlignmentSourceX()
 		{
 			return m_posAlignSourceX;
 		}
-        
+
 		inline PosAlignmentSource GetPosAlignmentSourceY()
 		{
 			return m_posAlignSourceY;
 		}
-        
+
 		inline TBLR& GetChildMargins()
 		{
 			return m_childMargins;
 		}
-        
+
 		inline float GetChildPadding() const
 		{
 			return m_childPadding;
 		}
-        
+
 		inline void SetChildPadding(float padding)
 		{
 			m_childPadding = padding;
 		}
-        
+
 		inline bool GetIsDisabled() const
 		{
 			return m_isDisabled;
 		}
-        
+
 		inline WidgetManager* GetWidgetManager() const
 		{
 			return m_manager;
 		}
-        
+
 		inline System* GetSystem() const
 		{
 			return m_system;
 		}
-        
+
 		inline void SetVisible(bool visible)
 		{
 			m_isVisible = visible;
 		}
-        
+
 		inline bool GetIsVisible() const
 		{
 			return m_isVisible;
 		}
-        
+
 		inline void SetCustomTooltipUserData(void* ud)
 		{
 			m_customTooltipUserData = ud;
 		}
-        
+
 		inline void SetBuildCustomTooltip(Delegate<Widget*(void*)>&& tt)
 		{
 			m_buildCustomTooltip = tt;
 		}
-        
+
 		inline void SetScrollerOffset(float f)
 		{
 			m_scrollerOffset = f;
 		}
-        
+
 		inline float GetScrollerOffset() const
 		{
 			return m_scrollerOffset;

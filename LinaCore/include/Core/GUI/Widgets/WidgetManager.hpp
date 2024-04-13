@@ -65,6 +65,45 @@ namespace Lina
 		void AddToKillList(Widget* w);
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
+		void Deallocate(Widget* widget);
+
+		inline Widget* GetRoot()
+		{
+			return m_rootWidget;
+		}
+
+		inline Widget* GetForegroundRoot()
+		{
+			return m_foregroundRoot;
+		}
+
+		inline Rect* GetClipStackTop()
+		{
+			if (m_clipStack.empty())
+				return nullptr;
+			else
+				return &m_clipStack[m_clipStack.size() - 1].rect;
+		}
+
+		inline void SetForegroundDim(float dim = 0.0f)
+		{
+			m_foregroundDim = dim;
+		}
+
+		inline Font* GetDefaultFont()
+		{
+			return m_defaultFont;
+		}
+
+		inline void SetLastControlsManager(Widget* man)
+		{
+			m_lastControlsManager = man;
+		}
+
+		inline Widget* GetLastControlsManager() const
+		{
+			return m_lastControlsManager;
+		}
 
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{
@@ -81,29 +120,6 @@ namespace Lina
 			t->Construct();
 			return t;
 		}
-
-		void Deallocate(Widget* widget);
-
-		inline Widget* GetRoot() { return m_rootWidget; }
-
-		inline Widget* GetForegroundRoot() { return m_foregroundRoot; }
-
-		inline Rect* GetClipStackTop()
-		{
-			if (m_clipStack.empty())
-				return nullptr;
-			else
-				return &m_clipStack[m_clipStack.size() - 1].rect;
-		}
-
-        
-		inline void SetForegroundDim(float dim = 0.0f) { m_foregroundDim = dim; }
-
-		inline Font* GetDefaultFont() { return m_defaultFont; }
-
-		inline void SetLastControlsManager(Widget* man) { m_lastControlsManager = man; }
-
-		inline Widget* GetLastControlsManager() const { return m_lastControlsManager; }
 
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
