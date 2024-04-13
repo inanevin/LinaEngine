@@ -67,7 +67,7 @@ namespace Lina
 	{
 		WF_OWNS_SIZE			 = 1 << 0,
 		WF_CONTROLS_DRAW_ORDER	 = 1 << 1,
-		WF_SELECTABLE			 = 1 << 2,
+		WF_CONTROLLABLE			 = 1 << 2,
 		WF_SIZE_ALIGN_X			 = 1 << 3,
 		WF_SIZE_ALIGN_Y			 = 1 << 4,
 		WF_USE_FIXED_SIZE_X		 = 1 << 5,
@@ -84,6 +84,7 @@ namespace Lina
 		WF_FOREGROUND_BLOCKER	 = 1 << 16,
 		WF_CONTROLS_MANAGER		 = 1 << 17,
 		WF_TICK_AFTER_CHILDREN	 = 1 << 18,
+		WF_INPUT_PASSTHRU		 = 1 << 19,
 	};
 
 	enum class PosAlignmentSource

@@ -37,7 +37,7 @@ namespace Lina
 	class ColorField : public Widget
 	{
 	public:
-		ColorField() : Widget(WF_SELECTABLE)
+		ColorField() : Widget(WF_CONTROLLABLE)
 		{
 		}
 		virtual ~ColorField() = default;

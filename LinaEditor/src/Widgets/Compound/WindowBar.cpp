@@ -113,7 +113,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		return Widget::OnMouse(button, act);
+		return false;
 	}
 
 } // namespace Lina::Editor

@@ -49,7 +49,7 @@ namespace Lina
 			bool* value				   = nullptr;
 		};
 
-		Checkbox() : Widget(WF_SELECTABLE){};
+		Checkbox() : Widget(WF_CONTROLLABLE){};
 		virtual ~Checkbox() = default;
 
 		virtual void Construct() override;

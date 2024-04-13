@@ -86,7 +86,7 @@ namespace Lina
 			return false;
 
 		if (GetControlsOwner() != this)
-			return Widget::OnKey(keycode, scancode, act);
+			return false;
 
 		if (m_props.moveNextArrowHorizontal)
 		{
@@ -126,7 +126,7 @@ namespace Lina
 			return false;
 
 		if (GetControlsOwner() == this)
-			return Widget::OnMouse(button, act);
+			return false;
 
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{

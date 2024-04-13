@@ -76,8 +76,8 @@ namespace Lina
 			m_window->SetCursorType(FindCursorType(m_foregroundRoot));
 
 		m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
-		PreTickWidget(m_foregroundRoot);
-		PreTickWidget(m_rootWidget);
+		PassPreTick(m_foregroundRoot);
+		PassPreTick(m_rootWidget);
 	}
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
@@ -93,11 +93,11 @@ namespace Lina
 		{
 			LINA_TRACE("TICKING PAYLOAD BRUV {0} {1}", m_rootWidget->GetChildren()[0]->GetSize().x, m_rootWidget->GetChildren()[0]->GetAlignedPos().y);
 		}
-		SizePassWidget(m_foregroundRoot, delta);
-		TickWidget(m_foregroundRoot, delta);
+		PassCalculateSize(m_foregroundRoot, delta);
+		PassTick(m_foregroundRoot, delta);
 
-		SizePassWidget(m_rootWidget, delta);
-		TickWidget(m_rootWidget, delta);
+		PassCalculateSize(m_rootWidget, delta);
+		PassTick(m_rootWidget, delta);
 	}
 
 	void WidgetManager::AddToForeground(Widget* w)
@@ -165,15 +165,14 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (m_foregroundRoot->OnKey(keycode, scancode, inputAction))
+		if (PassKey(m_foregroundRoot, keycode, scancode, inputAction))
 			return;
 
-		m_rootWidget->OnKey(keycode, scancode, inputAction);
+		PassKey(m_rootWidget, keycode, scancode, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
-
 		// If we have some items in the foreground
 		// check if any was clicked, if not, then remove the non-blocker ones
 		// this is used for removing popups mostly.
@@ -208,15 +207,17 @@ namespace Lina
 			}
 		}
 
-		if (m_foregroundRoot->OnMouse(button, inputAction))
+		if (PassMouse(m_foregroundRoot, button, inputAction))
 			return;
 
-		m_rootWidget->OnMouse(button, inputAction);
+		PassMouse(m_rootWidget, button, inputAction);
 	}
 
-	void WidgetManager::OnWindowMouseWheel(float delta)
+	void WidgetManager::OnWindowMouseWheel(float amt)
 	{
-		m_rootWidget->OnMouseWheel(delta);
+		if (PassMouseWheel(m_foregroundRoot, amt))
+			return true;
+		PassMouseWheel(m_rootWidget, amt);
 	}
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
@@ -337,17 +338,6 @@ namespace Lina
 		return LinaGX::CursorType::Default;
 	}
 
-	void WidgetManager::PreTickWidget(Widget* w)
-	{
-		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
-			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
-
-		w->SetIsHovered();
-		w->PreTick();
-		for (auto* c : w->GetChildren())
-			PreTickWidget(c);
-	}
-
 	namespace
 	{
 		float CalculateAlignedPosX(Widget* w)
@@ -381,7 +371,85 @@ namespace Lina
 		}
 	} // namespace
 
-	void WidgetManager::SizePassWidget(Widget* w, float delta)
+	bool WidgetManager::PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
+	{
+		if (widget->GetFlags().IsSet(WF_CONTROLS_MANAGER) && GetLastControlsManager() == widget)
+		{
+			if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && widget->m_controlsOwner != nullptr)
+			{
+				if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+					widget->MoveControlsToPrev();
+				else
+					widget->MoveControlsToNext();
+				return;
+			}
+		}
+
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+			return true;
+
+		for (auto* c : widget->GetChildren())
+		{
+			if (PassKey(c, keycode, scancode, inputAction))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool WidgetManager::PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction)
+	{
+		if (widget->GetFlags().IsSet(WF_CONTROLS_MANAGER))
+		{
+			// Left click presses to anywhere outside the control owner
+			// releases controls from that owner.
+			if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && widget->m_controlsOwner != nullptr)
+			{
+				if (!widget->m_controlsOwner->GetIsHovered())
+				{
+					widget->ReleaseControls(widget->m_controlsOwner);
+				}
+			}
+		}
+
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+			return true;
+
+		for (auto* c : widget->GetChildren())
+		{
+			if (PassMouse(c, button, inputAction))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool WidgetManager::PassMouseWheel(Widget* widget, float amt)
+	{
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+			return true;
+
+		for (auto* c : widget->GetChildren())
+		{
+			if (PassMouseWheel(c, amt))
+				return true;
+		}
+
+		return false;
+	}
+
+	void WidgetManager::PassPreTick(Widget* w)
+	{
+		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
+			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
+
+		w->SetIsHovered();
+		w->PreTick();
+		for (auto* c : w->GetChildren())
+			PassPreTick(c);
+	}
+
+	void WidgetManager::PassCalculateSize(Widget* w, float delta)
 	{
 		w->CalculateSize(delta);
 
@@ -529,10 +597,10 @@ namespace Lina
 		}
 
 		for (auto* c : w->GetChildren())
-			SizePassWidget(c, delta);
+			PassCalculateSize(c, delta);
 	}
 
-	void WidgetManager::TickWidget(Widget* w, float delta)
+	void WidgetManager::PassTick(Widget* w, float delta)
 	{
 		if (w->GetFlags().IsSet(WF_POS_ALIGN_X) && w->GetParent())
 			w->SetPosX(CalculateAlignedPosX(w));
@@ -550,7 +618,7 @@ namespace Lina
 		}
 
 		for (auto* c : w->GetChildren())
-			TickWidget(c, delta);
+			PassTick(c, delta);
 
 		if (w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
 			w->Tick(delta);

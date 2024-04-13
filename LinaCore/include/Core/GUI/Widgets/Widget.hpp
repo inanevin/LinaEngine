@@ -123,9 +123,9 @@ namespace Lina
 		virtual void Construct(){};
 		virtual void Destruct(){};
 		virtual void Initialize();
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action);
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action){};
 		virtual bool OnMouseWheel(float amt);
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action);
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action){};
 		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
 
 		Widget* FindGetControlsManager();

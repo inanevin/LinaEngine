@@ -37,7 +37,7 @@ namespace Lina
 	class ColorSlider : public Widget
 	{
 	public:
-		ColorSlider() : Widget(WF_SELECTABLE)
+		ColorSlider() : Widget(WF_CONTROLLABLE)
 		{
 		}
 		virtual ~ColorSlider() = default;

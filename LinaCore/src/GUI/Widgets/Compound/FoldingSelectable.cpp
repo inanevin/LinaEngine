@@ -190,7 +190,7 @@ namespace Lina::Editor
 			return false;
 
 		if (GetControlsOwner() != this)
-			return Widget::OnKey(keycode, scancode, act);
+			return false;
 
 		if (keycode == LINAGX_KEY_RETURN)
 		{

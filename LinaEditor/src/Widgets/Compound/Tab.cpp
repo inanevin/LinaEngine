@@ -216,7 +216,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		return Widget::OnMouse(button, action);
+        return false;
 	}
 
 	void Tab::DisableClosing(bool disabled)

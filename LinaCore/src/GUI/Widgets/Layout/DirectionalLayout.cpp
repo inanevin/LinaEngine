@@ -248,14 +248,11 @@ namespace Lina
 
 	bool DirectionalLayout::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (GetIsDisabled())
-			return false;
-
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
 		if (!m_props.receiveInput)
-			return Widget::OnMouse(button, act);
+			return false;
 
 		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered)
 		{
@@ -285,7 +282,7 @@ namespace Lina
 			}
 		}
 
-		return Widget::OnMouse(button, act);
+		return false;
 	}
 
 	float DirectionalLayout::CalculateChildrenSize()

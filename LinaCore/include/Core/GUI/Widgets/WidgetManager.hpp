@@ -65,6 +65,9 @@ namespace Lina
 		void AddToKillList(Widget* w);
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
+		bool PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
+		bool PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		bool PassMouseWheel(Widget* widget, float amt);
 
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{
@@ -125,7 +128,7 @@ namespace Lina
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
-		virtual void OnWindowMouseWheel(float delta) override;
+		virtual void OnWindowMouseWheel(float amt) override;
 		virtual void OnWindowMouseMove(const LinaGX::LGXVector2&) override;
 		virtual void OnWindowFocus(bool gainedFocus) override;
 		virtual void OnWindowHoverBegin() override;
@@ -133,10 +136,10 @@ namespace Lina
 
 	private:
 		LinaGX::CursorType FindCursorType(Widget* start);
-		void			   PreTickWidget(Widget* w);
-		void			   TickWidget(Widget* w, float delta);
+		void			   PassPreTick(Widget* w);
+		void			   PassTick(Widget* w, float delta);
 
-		void		   SizePassWidget(Widget* w, float delta);
+		void		   PassCalculateSize(Widget* w, float delta);
 		PoolAllocator* GetGUIAllocator(TypeID tid, size_t typeSize);
 
 	private:

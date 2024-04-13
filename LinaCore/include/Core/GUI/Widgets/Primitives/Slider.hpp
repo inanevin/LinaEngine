@@ -44,7 +44,7 @@ namespace Lina
 	class Slider : public Widget
 	{
 	public:
-		Slider() : Widget(WF_SELECTABLE){};
+		Slider() : Widget(WF_CONTROLLABLE){};
 		virtual ~Slider() = default;
 
 		struct Properties

@@ -120,59 +120,11 @@ namespace Lina
 		});
 	}
 
-	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)
-	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
-		{
-			// Left click presses to anywhere outside the control owner
-			// releases controls from that owner.
-			if (button == LINAGX_MOUSE_0 && action == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr)
-			{
-				if (!m_controlsOwner->GetIsHovered())
-				{
-					ReleaseControls(m_controlsOwner);
-				}
-			}
-		}
-
-		for (auto* c : m_children)
-		{
-			if (!c->GetIsDisabled() && c->GetIsVisible() && c->OnMouse(button, action))
-				return true;
-		}
-
-		return false;
-	}
-
 	bool Widget::OnMouseWheel(float amt)
 	{
 		for (auto* c : m_children)
 		{
 			if (!c->GetIsDisabled() && c->GetIsVisible() && c->OnMouseWheel(amt))
-				return true;
-		}
-
-		return false;
-	}
-
-	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
-	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER) && m_manager->GetLastControlsManager() == this)
-		{
-			if (keycode == LINAGX_KEY_TAB && action != LinaGX::InputAction::Released && m_controlsOwner)
-			{
-				if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
-					MoveControlsToPrev();
-				else
-					MoveControlsToNext();
-
-				return;
-			}
-		}
-
-		for (auto* c : m_children)
-		{
-			if (!c->GetIsDisabled() && c->GetIsVisible() && c->OnKey(keycode, scancode, action))
 				return true;
 		}
 
@@ -430,7 +382,7 @@ namespace Lina
 					current = current->m_next;
 			}
 
-			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled())
 				return current;
 		} while (current != nullptr && current != start && !current->GetFlags().IsSet(WF_CONTROLS_MANAGER));
 
@@ -455,7 +407,7 @@ namespace Lina
 			else
 				current = current->m_parent;
 
-			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled())
 				return current;
 
 		} while (current != nullptr && current != start && !current->GetFlags().IsSet(WF_CONTROLS_MANAGER));

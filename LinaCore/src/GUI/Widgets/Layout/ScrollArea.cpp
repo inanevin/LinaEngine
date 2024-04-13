@@ -135,10 +135,10 @@ namespace Lina
 	bool ScrollArea::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (!m_barVisible)
-			return Widget::OnMouse(button, act);
+			return false;
 
 		if (button != LINAGX_MOUSE_0)
-			return Widget::OnMouse(button, act);
+			return false;
 
 		const bool isHovered = m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
 
@@ -155,7 +155,7 @@ namespace Lina
 			return true;
 		}
 
-		return Widget::OnMouse(button, act);
+		return false;
 	}
 
 	bool ScrollArea::OnMouseWheel(float amt)

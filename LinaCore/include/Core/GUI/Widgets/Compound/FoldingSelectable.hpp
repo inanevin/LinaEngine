@@ -42,7 +42,7 @@ namespace Lina::Editor
 	class FoldingSelectable : public Widget
 	{
 	public:
-		FoldingSelectable() : Widget(WF_SELECTABLE){};
+		FoldingSelectable() : Widget(WF_CONTROLLABLE){};
 		virtual ~FoldingSelectable() = default;
 
 		struct Properties

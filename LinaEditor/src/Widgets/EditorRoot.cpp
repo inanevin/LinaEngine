@@ -240,7 +240,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-		return Widget::OnMouse(button, act);
+		return false;
 	}
 
 	void EditorRoot::SetProjectName(const String& name)
