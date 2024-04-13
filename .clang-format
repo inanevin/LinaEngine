@@ -16,5 +16,4 @@ ReflowComments: true
 SortIncludes: false
 Standard: Cpp11
 UseTab: Always
-AllowShortFunctionsOnASingleLine: true
 ...
