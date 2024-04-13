@@ -39,13 +39,14 @@ namespace Lina
 	class InputField : public Widget
 	{
 	public:
-		InputField() : Widget(2, WF_SELECTABLE)
+		InputField() : Widget(WF_SELECTABLE)
 		{
 		}
 		virtual ~InputField() = default;
 
 		struct Properties
 		{
+			Delegate<void(const String&)> onEditStarted;
 			Delegate<void(const String&)> onEdited;
 			Delegate<void(const String&)> onEditEnd;
 			Delegate<void(float)>		  onValueChanged;
@@ -74,14 +75,19 @@ namespace Lina
 			uint32 decimals			   = 3;
 
 			bool centerText = false;
+			bool wrapText	= false;
+			bool clipText	= true;
 		};
 
 		virtual void			   Construct() override;
+		virtual void			   CalculateSize(float delta) override;
 		virtual void			   Tick(float delta) override;
 		virtual void			   Draw(int32 threadIndex) override;
 		virtual bool			   OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction action) override;
 		virtual LinaGX::CursorType GetCursorOverride() override;
+		void					   SelectAll();
+		void					   StartEditing();
 
 		inline Properties& GetProps()
 		{
@@ -94,7 +100,6 @@ namespace Lina
 		}
 
 	private:
-		void	SelectAll();
 		void	EndEditing();
 		uint32	GetCaretPosFromMouse();
 		Vector2 GetPosFromCaretIndex(uint32 index);

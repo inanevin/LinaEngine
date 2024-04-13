@@ -47,7 +47,7 @@ namespace Lina::Editor
 	class Tab : public Widget
 	{
 	public:
-		Tab() : Widget(2){};
+        Tab() = default;
 		virtual ~Tab() = default;
 
 		static constexpr float SELECTION_RECT_WIDTH = 2.0f;

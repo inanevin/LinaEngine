@@ -46,7 +46,7 @@ namespace Lina::Editor
 	class DockArea : public DockWidget, public EditorPayloadListener
 	{
 	public:
-		DockArea() : DockWidget(1){};
+		DockArea() : DockWidget(){};
 		virtual ~DockArea() = default;
 
 		virtual void Construct() override;

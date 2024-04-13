@@ -38,7 +38,7 @@ namespace Lina
 	class PopupItem : public Widget
 	{
 	public:
-		PopupItem() : Widget(1){};
+		PopupItem()			 = default;
 		virtual ~PopupItem() = default;
 
 		struct Properties

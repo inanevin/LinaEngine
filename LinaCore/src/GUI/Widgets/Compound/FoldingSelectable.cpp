@@ -157,7 +157,12 @@ namespace Lina::Editor
 		for (auto* c : m_children)
 		{
 			if (c == m_layout)
-				c->OnMouse(button, act);
+			{
+				if (m_selected)
+					c->OnMouse(button, act);
+
+				continue;
+			}
 
 			if (!c->GetIsDisabled() && c->OnMouse(button, act))
 				return true;

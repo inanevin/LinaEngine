@@ -47,6 +47,8 @@ namespace Lina::Editor
 	class PanelResources : public Panel
 	{
 	public:
+		static constexpr float MAX_CONTENTS_SIZE = 4.0f;
+
 		PanelResources() : Panel(PanelType::Resources, 0){};
 		virtual ~PanelResources() = default;
 
@@ -60,17 +62,30 @@ namespace Lina::Editor
 		void			   RefreshBrowserHierarchy();
 		void			   RefreshContents();
 		FoldingSelectable* CreateSelectable(DirectoryItem* item, uint8 level);
+		void			   UpdateWidgetSizeFromContentsSize(Widget* w);
+		Widget*			   BuildThumbnailForItem(DirectoryItem* item);
+		Widget*			   BuildTooltipForItem(void* userData);
+		Widget*			   BuildTitleForItem(DirectoryItem* item);
+		Widget*			   BuildFolderIconForItem(DirectoryItem* item);
+		Widget*			   BuildTopContents();
+		Widget*			   BuildBottomContents();
+		Widget*			   BuildBrowser();
 
 	private:
-		LayoutBorder*	   m_border					  = nullptr;
-		Editor*			   m_editor					  = nullptr;
-		DirectionalLayout* m_browserItems			  = nullptr;
-		DirectoryItem*	   m_currentSelectedDirectory = nullptr;
-		Text*			   m_path					  = nullptr;
-		Text*			   m_itemCount				  = nullptr;
-		Text*			   m_selectedItemCount		  = nullptr;
-		GridLayout*		   m_contentsGrid			  = nullptr;
-		uint32			   m_currentItemSizeCategory  = 0;
+		static constexpr float MIN_CONTENTS_SIZE = 2.0f;
+
+		LayoutBorder*	   m_border			   = nullptr;
+		Editor*			   m_editor			   = nullptr;
+		DirectionalLayout* m_browserItems	   = nullptr;
+		Text*			   m_path			   = nullptr;
+		Text*			   m_itemCount		   = nullptr;
+		Text*			   m_selectedItemCount = nullptr;
+		GridLayout*		   m_contentsGrid	   = nullptr;
+
+		Vector<DirectoryItem*> m_currentBrowserSelection  = {};
+		Vector<DirectoryItem*> m_currentContentsSelection = {};
+		float				   m_contentsSize			  = MAX_CONTENTS_SIZE;
+		bool				   m_showListContents		  = false;
 	};
 
 } // namespace Lina::Editor

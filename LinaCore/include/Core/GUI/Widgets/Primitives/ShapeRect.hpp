@@ -38,9 +38,7 @@ namespace Lina
 	class ShapeRect : public Widget
 	{
 	public:
-		ShapeRect() : Widget(-1)
-		{
-		}
+		ShapeRect()			 = default;
 		virtual ~ShapeRect() = default;
 
 		struct Properties

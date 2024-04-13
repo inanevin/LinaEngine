@@ -73,8 +73,8 @@ namespace Lina::Editor
 
 		Text* text = m_manager->Allocate<Text>("Description");
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
-		text->GetProps().text	  = m_popupProps.text;
-		text->GetProps().maxWidth = GetFixedSizeX() - padding * 2.0f;
+		text->GetProps().text	   = m_popupProps.text;
+		text->GetProps().wrapWidth = GetFixedSizeX() - padding * 2.0f;
 
 		DirectionalLayout* textWrapper = m_manager->Allocate<DirectionalLayout>("Text Wrapper");
 		textWrapper->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);

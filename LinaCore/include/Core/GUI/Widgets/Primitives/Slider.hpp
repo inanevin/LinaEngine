@@ -44,9 +44,7 @@ namespace Lina
 	class Slider : public Widget
 	{
 	public:
-		Slider() : Widget(1, WF_SELECTABLE)
-		{
-		}
+		Slider() : Widget(WF_SELECTABLE){};
 		virtual ~Slider() = default;
 
 		struct Properties
@@ -66,9 +64,12 @@ namespace Lina
 			float				 maxValue			  = 0.0f;
 			float*				 value				  = nullptr;
 			float				 step				  = 0.0f;
+
+			Delegate<void(float val)> onValueChanged;
 		};
 
 		virtual void Construct() override;
+		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 mouse, LinaGX::InputAction action) override;

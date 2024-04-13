@@ -35,24 +35,28 @@ namespace Lina
 	class Selectable : public Widget
 	{
 	public:
-		Selectable() : Widget(-1, WF_SELECTABLE){};
+		Selectable() : Widget(WF_SELECTABLE){};
 		virtual ~Selectable() = default;
 
 		struct Properties
 		{
-			Color			 colorStart			= Color(0.0f, 0.0f, 0.0f, 0.0f);
-			Color			 colorEnd			= Color(0.0f, 0.0f, 0.0f, 0.0f);
-			Color			 colorSelectedStart = Theme::GetDef().accentPrimary0;
-			Color			 colorSelectedEnd	= Theme::GetDef().accentPrimary1;
-			Color			 colorOutline		= Theme::GetDef().outlineColorBase;
-			float			 rounding			= 0.0f;
-			float			 outlineThickness	= 0.0f;
-			Delegate<void()> onSelected;
+			Color				 colorStart				 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			Color				 colorEnd				 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			Color				 colorSelectedStart		 = Theme::GetDef().accentPrimary0;
+			Color				 colorSelectedEnd		 = Theme::GetDef().accentPrimary1;
+			Color				 colorOutline			 = Theme::GetDef().outlineColorBase;
+			float				 rounding				 = 0.0f;
+			float				 outlineThickness		 = 0.0f;
+			bool				 moveNextArrowHorizontal = true;
+			bool				 moveNextArrowVertical	 = false;
+			Delegate<void(bool)> onSelectionChanged;
 		};
 
+		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 
 		inline Properties& GetProps()
 		{
@@ -60,10 +64,11 @@ namespace Lina
 		}
 
 	private:
-		static constexpr float COLOR_SPEED = 22.0f;
-		Properties			   m_props	   = {};
-		Color				   m_usedStart = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		Color				   m_usedEnd   = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		static constexpr float COLOR_SPEED	 = 22.0f;
+		Properties			   m_props		 = {};
+		Color				   m_usedStart	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		Color				   m_usedEnd	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		bool				   m_wasSelected = false;
 	};
 
 } // namespace Lina

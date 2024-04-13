@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
+#include "Editor/Widgets/Panel/PanelResources.hpp"
 #include "Common/System/System.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
@@ -74,10 +75,14 @@ namespace Lina::Editor
 		});
 
 		// Resources
+		PanelLayoutExtra resExtra;
+		resExtra.f[0] = 0.25f;
+		resExtra.f[1] = PanelResources::MAX_CONTENTS_SIZE;
+
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2(0.0f, 0.75f),
 			.alignedSize = Vector2(1.0f, 0.25f),
-			.panels		 = {{.panelType = PanelType::Resources, .extraData = {.data0 = 0.25f}}},
+			.panels		 = {{.panelType = PanelType::Resources, .extraData = resExtra}},
 		});
 
 		// Border: Entities | World

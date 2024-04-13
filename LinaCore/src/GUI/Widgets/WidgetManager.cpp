@@ -53,6 +53,7 @@ namespace Lina
 		m_rootWidget->SetDebugName("Root");
 
 		m_foregroundRoot = Allocate<Widget>();
+		m_foregroundRoot->GetFlags().Set(WF_CONTROLS_MANAGER);
 		m_foregroundRoot->SetDebugName("ForegroundRoot");
 
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -202,6 +203,8 @@ namespace Lina
 					RemoveFromForeground(w);
 					Deallocate(w);
 				}
+
+				return;
 			}
 		}
 
@@ -211,9 +214,9 @@ namespace Lina
 		m_rootWidget->OnMouse(button, inputAction);
 	}
 
-	void WidgetManager::OnWindowMouseWheel(int32 delta)
+	void WidgetManager::OnWindowMouseWheel(float delta)
 	{
-		// m_rootWidget->OnMouseWheel(static_cast<float>(delta));
+		m_rootWidget->OnMouseWheel(delta);
 	}
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
@@ -537,7 +540,8 @@ namespace Lina
 		if (w->GetFlags().IsSet(WF_POS_ALIGN_Y) && w->GetParent())
 			w->SetPosY(CalculateAlignedPosY(w));
 
-		w->Tick(delta);
+		if (!w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
+			w->Tick(delta);
 
 		if (!w->GetFlags().IsSet(WF_SKIP_FLOORING))
 		{
@@ -547,6 +551,9 @@ namespace Lina
 
 		for (auto* c : w->GetChildren())
 			TickWidget(c, delta);
+
+		if (w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
+			w->Tick(delta);
 	}
 
 } // namespace Lina

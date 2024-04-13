@@ -37,7 +37,7 @@ namespace Lina
 	class DirectionalLayout : public Widget
 	{
 	public:
-		DirectionalLayout(uint32 flags = 0) : Widget(-1, flags){};
+		DirectionalLayout(uint32 flags = 0) : Widget(flags){};
 		virtual ~DirectionalLayout() = default;
 
 		enum class Mode
@@ -63,27 +63,29 @@ namespace Lina
 			Color				 colorOutline		   = Theme::GetDef().outlineColorBase;
 			Color				 colorHovered		   = Theme::GetDef().background0;
 			BackgroundStyle		 backgroundStyle	   = BackgroundStyle::None;
-			bool				 useHoverColor		   = false;
-			bool				 receiveInput		   = false;
-			bool				 dropShadowBackground  = false;
-			bool				 backgroundAnimation   = false;
-			bool				 clipChildren		   = false;
-			float				 rounding			   = 0.0f;
-			float				 outlineThickness	   = 0.0f;
 			Vector<int32>		 onlyRoundTheseCorners = {};
 			Delegate<void()>	 onClicked;
+			Delegate<void()>	 onPressed;
 			Delegate<void()>	 onDestructed;
 			Delegate<void()>	 onHoverBegin;
 			Delegate<void()>	 onHoverEnd;
+			bool				 useHoverColor		  = false;
+			bool				 receiveInput		  = false;
+			bool				 dropShadowBackground = false;
+			bool				 backgroundAnimation  = false;
+			bool				 clipChildren		  = false;
+			float				 rounding			  = 0.0f;
+			float				 outlineThickness	  = 0.0f;
 		};
 
-		virtual void Destruct() override;
-		virtual void Initialize() override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual void DebugDraw(int32 threadIndex, int32 drawOrder) override;
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual void  Destruct() override;
+		virtual void  Initialize() override;
+		virtual void  PreTick() override;
+		virtual void  Tick(float delta) override;
+		virtual void  Draw(int32 threadIndex) override;
+		virtual void  DebugDraw(int32 threadIndex, int32 drawOrder) override;
+		virtual bool  OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual float CalculateChildrenSize() override;
 
 		inline void SetProps(const Properties& props)
 		{
@@ -97,10 +99,9 @@ namespace Lina
 
 	private:
 		static constexpr float ANIM_TIME = 0.1f;
-
-		void BehaviourDefault(float delta);
-		void BehaviourEqualPositions(float delta);
-		void BehaviourEqualSizes(float delta);
+		void				   BehaviourDefault(float delta);
+		void				   BehaviourEqualPositions(float delta);
+		void				   BehaviourEqualSizes(float delta);
 
 	protected:
 		Properties m_props = {};

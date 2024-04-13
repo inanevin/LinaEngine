@@ -55,7 +55,7 @@ namespace Lina
 			SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
 			SetFixedTimestep(10000);
 			SetFixedTimestep(true);
-			// OSetFrameCap(16667);
+			SetFrameCap(16667);
 			PROFILER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
 			m_appDelegate->SetupPlatform(this);

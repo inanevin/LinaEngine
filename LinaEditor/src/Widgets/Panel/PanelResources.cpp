@@ -35,15 +35,19 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/Compound/FoldingSelectable.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/LayoutBorder.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -54,38 +58,8 @@ namespace Lina::Editor
 	{
 		m_editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
 
-		DirectionalLayout* browser	  = m_manager->Allocate<DirectionalLayout>("Browser");
-		browser->GetProps().direction = DirectionOrientation::Vertical;
-		browser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		browser->SetAlignedPos(Vector2::Zero);
-		browser->SetAlignedSize(Vector2(0.25f, 1.0f));
-		browser->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-		browser->SetChildPadding(Theme::GetDef().baseIndent);
-		browser->GetFlags().Set(WF_CONTROLS_MANAGER);
-		AddChild(browser);
-
-		InputField* searchField = m_manager->Allocate<InputField>("SearchField");
-		searchField->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		searchField->SetAlignedPosX(0.0f);
-		searchField->SetAlignedSizeX(1.0f);
-		searchField->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		searchField->GetProps().rounding		= 0.0f;
-		searchField->GetProps().usePlaceHolder	= true;
-		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search) + "...";
-		// searchField->GetProps().outlineThickness = 0.0f;
-		browser->AddChild(searchField);
-
-		DirectionalLayout* browserItems	   = m_manager->Allocate<DirectionalLayout>("BrowserItems");
-		browserItems->GetProps().direction = DirectionOrientation::Vertical;
-		browserItems->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
-		browserItems->SetAlignedSize(Vector2(1.0f, 0.0f));
-		browserItems->SetAlignedPosX(0.0f);
-		browserItems->GetProps().backgroundStyle  = DirectionalLayout::BackgroundStyle::Default;
-		browserItems->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-		browserItems->GetProps().outlineThickness = 0.0f;
-		browserItems->GetProps().rounding		  = 0.0f;
-		browserItems->GetProps().clipChildren	  = true;
-		browser->AddChild(browserItems);
+        Widget* browser = BuildBrowser();
+        AddChild(browser);
 
 		LayoutBorder* border = m_manager->Allocate<LayoutBorder>("Border");
 		border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
@@ -96,105 +70,44 @@ namespace Lina::Editor
 
 		DirectionalLayout* contents	   = m_manager->Allocate<DirectionalLayout>("Contents");
 		contents->GetProps().direction = DirectionOrientation::Vertical;
-		contents->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		contents->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROLS_MANAGER);
 		contents->SetAlignedPos(Vector2(0.25f, 0.0f));
 		contents->SetAlignedSize(Vector2(0.75f, 1.0f));
 		contents->GetChildMargins() = {.top = Theme::GetDef().baseIndent};
 		contents->GetFlags().Set(WF_CONTROLS_MANAGER);
 		AddChild(contents);
 
-		DirectionalLayout* topContents = m_manager->Allocate<DirectionalLayout>("TopContents");
-		topContents->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		topContents->SetAlignedPos(0.0f);
-		topContents->SetAlignedSizeX(1.0f);
-		topContents->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		topContents->SetChildPadding(Theme::GetDef().baseIndentInner);
-		topContents->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		contents->AddChild(topContents);
-
-		Icon* folder			= m_manager->Allocate<Icon>("PathIcon");
-		folder->GetProps().icon = ICON_FOLDER;
-		folder->GetFlags().Set(WF_POS_ALIGN_Y);
-		folder->SetAlignedPosY(0.5f);
-		folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		topContents->AddChild(folder);
-
-		Icon* chev				   = m_manager->Allocate<Icon>("Path>");
-		chev->GetProps().icon	   = ICON_CHEVRON_RIGHT;
-		chev->GetProps().textScale = 0.3f;
-		chev->GetFlags().Set(WF_POS_ALIGN_Y);
-		chev->SetAlignedPosY(0.5f);
-		chev->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		topContents->AddChild(chev);
-
-		Text* path = m_manager->Allocate<Text>("Path");
-		path->GetFlags().Set(WF_POS_ALIGN_Y);
-		path->SetAlignedPosY(0.5f);
-		path->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		path->GetProps().fetchCustomClipFromSelf = true;
-		path->GetProps().isDynamic				 = true;
-		topContents->AddChild(path);
-
+        contents->AddChild(BuildTopContents());
+                
+        Widget* filler =m_manager->Allocate<Widget>("Filler");
+        filler->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+        filler->SetAlignedPosX(0.0f);
+        filler->SetAlignedSizeX(1.0f);
+        filler->SetFixedSizeY(Theme::GetDef().baseItemHeight / 2);
+        contents->AddChild(filler);
+        
+        ScrollArea* scroller = m_manager->Allocate<ScrollArea>("ScrollArea");
+        scroller->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+        scroller->SetAlignedPosX(0.0f);
+        scroller->SetAlignedSize(Vector2(1.0f, 0.0f));
+        scroller->GetProps().direction = DirectionOrientation::Vertical;
+        scroller->GetProps().targetChildIndex = 0;
+        contents->AddChild(scroller);
+        
 		GridLayout* grid = m_manager->Allocate<GridLayout>("Grid");
-		grid->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		grid->SetAlignedPosX(0.0f);
-		grid->SetAlignedSize(Vector2(1.0f, 0.0f));
-		grid->GetChildMargins()			   = TBLR::Eq(Theme::GetDef().baseIndent);
-		grid->GetProps().horizontalPadding = Theme::GetDef().baseIndent;
-		grid->GetProps().verticalPadding   = Theme::GetDef().baseIndent;
-		contents->AddChild(grid);
+		grid->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		grid->SetAlignedPos(Vector2::Zero);
+		grid->SetAlignedSize(Vector2::One);
+        grid->GetProps().clipChildren = true;
+        grid->GetProps().background = GridLayout::BackgroundStyle::Default;
+        grid->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
+    
+		scroller->AddChild(grid);
 
-		DirectionalLayout* bottom = m_manager->Allocate<DirectionalLayout>("BotContents");
-		bottom->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		bottom->SetAlignedPos(0.0f);
-		bottom->SetAlignedSizeX(1.0f);
-		bottom->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		bottom->SetChildPadding(Theme::GetDef().baseIndentInner);
-		bottom->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
-		bottom->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		bottom->GetProps().colorBackgroundStart = bottom->GetProps().colorBackgroundEnd = Theme::GetDef().background3;
-		contents->AddChild(bottom);
-
-		Text* itemCount = m_manager->Allocate<Text>("ItemCount");
-		itemCount->GetFlags().Set(WF_POS_ALIGN_Y);
-		itemCount->SetAlignedPosY(0.5f);
-		itemCount->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		itemCount->GetProps().fetchCustomClipFromSelf = true;
-		itemCount->GetProps().isDynamic				  = true;
-		itemCount->GetProps().text					  = "0 " + Locale::GetStr(LocaleStr::Items);
-		bottom->AddChild(itemCount);
-
-		ShapeRect* divider = m_manager->Allocate<ShapeRect>("Divider");
-		divider->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
-		divider->SetAlignedPosY(0.0f);
-		divider->SetAlignedSizeY(1.0f);
-		divider->SetFixedSizeX(2.0f);
-		divider->GetProps().colorStart = divider->GetProps().colorEnd = Theme::GetDef().background1;
-		bottom->AddChild(divider);
-
-		Text* itemSelected = m_manager->Allocate<Text>("ItemSelected");
-		itemSelected->GetFlags().Set(WF_POS_ALIGN_Y);
-		itemSelected->SetAlignedPosY(0.5f);
-		itemSelected->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		itemSelected->GetProps().fetchCustomClipFromSelf = true;
-		itemSelected->GetProps().isDynamic				 = true;
-		itemSelected->GetProps().text					 = "0 " + Locale::GetStr(LocaleStr::Selected);
-		bottom->AddChild(itemSelected);
-
-		ShapeRect* divider2 = m_manager->Allocate<ShapeRect>("Divider");
-		divider2->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
-		divider2->SetAlignedPosY(0.0f);
-		divider2->SetAlignedSizeY(1.0f);
-		divider2->SetFixedSizeX(2.0f);
-		divider2->GetProps().colorStart = divider2->GetProps().colorEnd = Theme::GetDef().background1;
-		bottom->AddChild(divider2);
+        contents->AddChild(BuildBottomContents());
 
 		border->AssignSides(browser, contents);
 		m_border			= border;
-		m_browserItems		= browserItems;
-		m_path				= path;
-		m_itemCount			= itemCount;
-		m_selectedItemCount = itemSelected;
 		m_contentsGrid		= grid;
 
 		RefreshBrowserHierarchy();
@@ -210,15 +123,21 @@ namespace Lina::Editor
 
 	PanelLayoutExtra PanelResources::GetExtraLayoutData()
 	{
-		return {.data0 = m_border->GetAlignedPosX()};
+        PanelLayoutExtra extra = {};
+        extra.f[0] =m_border->GetAlignedPosX();
+        extra.f[1] = m_contentsSize;
+        return extra;
 	}
 
 	void PanelResources::SetExtraLayoutData(const PanelLayoutExtra& data)
 	{
-		m_border->SetAlignedPosX(data.data0);
-		m_border->GetNegative()->SetAlignedSizeX(data.data0);
-		m_border->GetPositive()->SetAlignedPosX(data.data0);
-		m_border->GetPositive()->SetAlignedSizeX(1.0f - data.data0);
+		m_border->SetAlignedPosX(data.f[0]);
+		m_border->GetNegative()->SetAlignedSizeX(data.f[0]);
+		m_border->GetPositive()->SetAlignedPosX(data.f[0]);
+		m_border->GetPositive()->SetAlignedSizeX(1.0f - data.f[0]);
+        m_contentsSize = data.f[1];
+        
+        m_showListContents = m_contentsSize < MIN_CONTENTS_SIZE + 0.5f;
 	}
 
 	void PanelResources::RefreshBrowserHierarchy()
@@ -237,110 +156,153 @@ namespace Lina::Editor
 	{
 		auto* rm = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		m_path->GetProps().text = m_currentSelectedDirectory->relativePath;
-		m_path->CalculateTextSize();
+        if(m_currentBrowserSelection.size() != 1)
+        {
+            return;
+        }
+        
+        auto* targetDirectory = m_currentBrowserSelection[0];
+        
+        if(m_showListContents)
+        {
+            m_contentsGrid->GetProps().horizontalPadding = Theme::GetDef().baseIndentInner / 4;
+            m_contentsGrid->SetChildPadding(Theme::GetDef().baseIndentInner / 4);
+        }
+        else
+        {
+            m_contentsGrid->GetProps().horizontalPadding = Theme::GetDef().baseIndent;
+            m_contentsGrid->SetChildPadding(Theme::GetDef().baseIndent);
+        }
+       
+        m_path->GetProps().text = targetDirectory->relativePath;
+        m_path->CalculateTextSize();
 
-		m_itemCount->GetProps().text = TO_STRING(m_currentSelectedDirectory->children.size()) + " " + Locale::GetStr(LocaleStr::Items);
-		m_itemCount->CalculateTextSize();
+        m_itemCount->GetProps().text = TO_STRING(targetDirectory->children.size()) + " " + Locale::GetStr(LocaleStr::Items);
+        m_itemCount->CalculateTextSize();
+                
 
-		linatl::sort(m_currentSelectedDirectory->children.begin(), m_currentSelectedDirectory->children.end(), [](DirectoryItem* it, DirectoryItem* it2) -> bool { return it->tid < it2->tid; });
+        for (auto* c : m_contentsGrid->GetChildren())
+            m_manager->Deallocate(c);
 
-		for (auto* c : m_contentsGrid->GetChildren())
-			m_manager->Deallocate(c);
-
-		m_contentsGrid->RemoveAllChildren();
-
-		for (auto* item : m_currentSelectedDirectory->children)
-		{
-			DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Item");
-			layout->GetProps().direction = DirectionOrientation::Vertical;
-			layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
-			layout->SetFixedSizeX(Theme::GetDef().baseItemHeight * 4);
-			layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-			layout->SetFixedSizeY(layout->GetFixedSizeX() + Theme::GetDef().baseItemHeight + Theme::GetDef().baseIndentInner);
-
-			Selectable* base = m_manager->Allocate<Selectable>("Base");
-			base->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
-			base->SetAlignedPosX(0.0f);
-			base->SetAlignedSizeX(1.0f);
-			base->SetFixedSizeY(layout->GetFixedSizeX());
-			base->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndentInner);
-			layout->AddChild(base);
-
-			if (base->GetProps().colorStart.x > 0.1f)
-			{
-			}
-
-			if (item->isDirectory)
-			{
-				Icon* folder			= m_manager->Allocate<Icon>("Folder");
-				folder->GetProps().icon = ICON_FOLDER;
-				folder->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-				folder->SetAlignedPos(Vector2::One * 0.5f);
-				folder->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-				folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-				folder->GetProps().dynamicSizeToParent = true;
-				folder->GetProps().dynamicSizeScale	   = 0.9f;
-				base->AddChild(folder);
-			}
-			else
-			{
-				base->SetBuildCustomTooltip([this, item]() -> Widget* {
-					const Vector2	   size	 = Vector2(RESOURCE_THUMBNAIL_SIZE * 1.2f, RESOURCE_THUMBNAIL_SIZE * 1.2f);
-					DirectionalLayout* bg	 = m_manager->Allocate<DirectionalLayout>();
-					bg->GetProps().direction = DirectionOrientation::Vertical;
-					bg->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
-					bg->GetChildMargins()			  = TBLR::Eq(Theme::GetDef().baseIndent);
-					bg->GetProps().backgroundStyle	  = DirectionalLayout::BackgroundStyle::Default;
-					bg->GetProps().colorBackgroundEnd = bg->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-					bg->GetProps().outlineThickness											= Theme::GetDef().baseOutlineThickness;
-					bg->GetProps().colorOutline												= Theme::GetDef().background0;
-					bg->SetFixedSize(size);
-					ShapeRect* img = m_manager->Allocate<ShapeRect>();
-					img->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-					img->SetAlignedPosX(0.0f);
-					img->SetAlignedSize(Vector2(1.0f, 1.0f));
-					img->GetProps().colorStart = img->GetProps().colorEnd = Color::White;
-					img->GetProps().imageTexture						  = item->thumbnail;
-					img->GetProps().fitImage							  = true;
-					bg->AddChild(img);
-					return bg;
-				});
-
-				base->GetProps().colorEnd = base->GetProps().colorStart = Theme::GetDef().background0;
-				base->GetProps().outlineThickness						= Theme::GetDef().baseOutlineThickness;
-				base->GetProps().rounding								= Theme::GetDef().baseRounding;
-				base->GetProps().colorOutline							= Theme::GetDef().black;
-
-				if ((item->tid == GetTypeID<Texture>() || item->tid == GetTypeID<Font>()) && item->thumbnail)
-				{
-					ShapeRect* img = m_manager->Allocate<ShapeRect>("Thumb");
-					img->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-					img->SetAlignedPos(Vector2::Zero);
-					img->SetAlignedSize(Vector2::One);
-					img->GetProps().imageTexture = item->thumbnail;
-					img->GetProps().fitImage	 = true;
-					img->GetProps().colorStart	 = Color(1, 1, 1, 1);
-					base->AddChild(img);
-				}
-				else if (item->tid == GetTypeID<Font>())
-				{
-				}
-			}
-
-			InputField* inpField = m_manager->Allocate<InputField>("TitleField");
-			inpField->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-			inpField->SetAlignedPosX(0.0f);
-			inpField->SetAlignedSizeX(1.0f);
-			inpField->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			inpField->GetText()->GetProps().text = item->isDirectory ? item->folderName : FileSystem::RemoveExtensionFromPath(item->fileName);
-			inpField->GetProps().rounding = inpField->GetProps().outlineThickness = 0.0f;
-			inpField->GetProps().centerText										  = true;
-			inpField->GetProps().colorBackground								  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			layout->AddChild(inpField);
-
-			layout->Initialize();
-			m_contentsGrid->AddChild(layout);
+        m_contentsGrid->RemoveAllChildren();
+        
+        if(targetDirectory->children.empty())
+        {
+            Text* nothingToSee = m_manager->Allocate<Text>("NothingToSee");
+            nothingToSee->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+            nothingToSee->SetAlignedPos(Vector2::One * 0.5f);
+            nothingToSee->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+            nothingToSee->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+            nothingToSee->GetProps().color = Theme::GetDef().foreground1;
+            nothingToSee->GetProps().text = Locale::GetStrUnicode(LocaleStr::NothingInDirectory);
+            nothingToSee->Initialize();
+            m_contentsGrid->AddChild(nothingToSee);
+            return;
+        }
+        
+		for (auto* item : targetDirectory->children)
+        {
+            Widget* thumbnail = BuildThumbnailForItem(item);
+            Widget* itemName = BuildTitleForItem(item);
+            Widget* folderIcon = BuildFolderIconForItem(item);
+            
+            if(m_showListContents)
+            {
+                Selectable* selectable = m_manager->Allocate<Selectable>("Item");
+                selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+                selectable->SetAlignedPosX(0.0f);
+                selectable->SetAlignedSizeX(1.0f);
+                selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+                selectable->GetProps().moveNextArrowVertical = true;
+                selectable->GetProps().moveNextArrowHorizontal = false;
+                selectable->GetProps().onSelectionChanged = [this, item](bool selected){
+                    if (selected)
+                        m_currentContentsSelection.push_back(item);
+                    else
+                    {
+                        auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it;});
+                        if(it != m_currentContentsSelection.end())
+                            m_currentContentsSelection.erase(it);
+                    }
+                    m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
+                    m_selectedItemCount->CalculateTextSize();
+                };
+                
+                DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+                layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+                layout->SetAlignedPos(Vector2::Zero);
+                layout->SetAlignedSize(Vector2::One);
+                layout->SetChildPadding(Theme::GetDef().baseIndentInner);
+                selectable->AddChild(layout);
+                
+                if(item->isDirectory)
+                {
+                    layout->AddChild(folderIcon);
+                }
+                else
+                {
+                    Widget* wrap = m_manager->Allocate<Widget>("Wrap");
+                    wrap->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_POS_ALIGN_Y);
+                    wrap->SetAlignedSizeY(0.9f);
+                    wrap->SetAlignedPosY(0.5f);
+                    wrap->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+                    wrap->AddChild(thumbnail);
+                    thumbnail->SetCustomTooltipUserData(item);
+                    thumbnail->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
+                    layout->AddChild(wrap);
+                }
+                
+                layout->AddChild(itemName);
+                
+                selectable->Initialize();
+                m_contentsGrid->AddChild(selectable);
+            }
+            else
+            {
+                DirectionalLayout* layout     = m_manager->Allocate<DirectionalLayout>("Item");
+                layout->GetProps().direction = DirectionOrientation::Vertical;
+                layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
+                UpdateWidgetSizeFromContentsSize(layout);
+                
+                Selectable* base = m_manager->Allocate<Selectable>("Base");
+                base->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
+                base->SetAlignedPosX(0.0f);
+                base->SetAlignedSizeX(1.0f);
+                base->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndentInner);
+                base->GetProps().onSelectionChanged = [item, this](bool selected) {
+                    if (selected)
+                        m_currentContentsSelection.push_back(item);
+                    else
+                    {
+                        auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it;});
+                        if(it != m_currentContentsSelection.end())
+                            m_currentContentsSelection.erase(it);
+                    }
+                    
+                    m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
+                    m_selectedItemCount->CalculateTextSize();
+                };
+                layout->AddChild(base);
+                
+                if (item->isDirectory)
+                {
+                    base->AddChild(folderIcon);
+                }
+                else
+                {
+                    base->SetCustomTooltipUserData(item);
+                    base->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
+                    base->GetProps().colorEnd = base->GetProps().colorStart = Theme::GetDef().background0;
+                    base->GetProps().outlineThickness                        = Theme::GetDef().baseOutlineThickness;
+                    base->GetProps().rounding                                = Theme::GetDef().baseRounding;
+                    base->GetProps().colorOutline                            = Theme::GetDef().black;
+                    base->AddChild(thumbnail);
+                }
+                
+                layout->AddChild(itemName);
+                layout->Initialize();
+                m_contentsGrid->AddChild(layout);
+            }
 		}
 	}
 
@@ -355,7 +317,8 @@ namespace Lina::Editor
 
 		DirectionalLayout* layout = folding->GetLayout();
 		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left = Theme::GetDef().baseIndent * (level + 1);
+        layout->GetChildMargins().left = Theme::GetDef().baseIndent * (level + 1);
+        layout->GetChildMargins().right = Theme::GetDef().baseIndent;
 
 		Icon* dropdown				   = m_manager->Allocate<Icon>("Dropdown");
 		dropdown->GetProps().icon	   = ICON_CHEVRON_RIGHT;
@@ -388,12 +351,13 @@ namespace Lina::Editor
 		folder->SetAlignedPosY(0.5f);
 		folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		layout->AddChild(folder);
-
-		Text* title = m_manager->Allocate<Text>("Title");
-		title->GetFlags().Set(WF_POS_ALIGN_Y);
+        
+        Text* title = WidgetUtility::BuildEditableText(this, true, [](){});
+        title->GetFlags().Set(WF_POS_ALIGN_Y);
 		title->SetAlignedPosY(0.5f);
 		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		title->GetProps().text = item->folderName;
+      
 		layout->AddChild(title);
 
 		folding->GetProps().onFoldChanged = [this, item, dropdown, folding](bool folded) {
@@ -428,15 +392,314 @@ namespace Lina::Editor
 
 		folding->GetProps().owner	 = m_browserItems;
 		folding->GetProps().userData = static_cast<void*>(item);
-
-		folding->GetProps().onSelectedChanged = [folding, this](bool selected) {
+		folding->GetProps().onSelectedChanged = [folding, title, this](bool selected) {
+            
+            DirectoryItem* item = static_cast<DirectoryItem*>(folding->GetProps().userData);
+            
 			if (selected)
-			{
-				m_currentSelectedDirectory = static_cast<DirectoryItem*>(folding->GetProps().userData);
-				RefreshContents();
-			}
+                m_currentBrowserSelection.push_back(item);
+            else
+            {
+                auto it = linatl::find_if(m_currentBrowserSelection.begin(), m_currentBrowserSelection.end(), [item](DirectoryItem* it) -> bool { return item == it;});
+                
+                if(it != m_currentBrowserSelection.end())
+                    m_currentBrowserSelection.erase(it);
+            }
+            RefreshContents();
 		};
 
 		return folding;
 	}
+
+    void PanelResources::UpdateWidgetSizeFromContentsSize(Widget *w)
+    {
+        w->SetChildPadding(Theme::GetDef().baseIndentInner);
+
+        if(m_showListContents)
+        {
+            w->SetAlignedSizeX(1.0f);
+            w->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+            return;
+        }
+        
+        const float x = Theme::GetDef().baseItemHeight * m_contentsSize;
+        w->SetFixedSizeX(x);
+        w->SetFixedSizeY(x + Theme::GetDef().baseItemHeight + Theme::GetDef().baseIndentInner);
+    }
+
+    Widget* PanelResources::BuildThumbnailForItem(DirectoryItem *item)
+    {
+        if ((item->tid == GetTypeID<Texture>() || item->tid == GetTypeID<Font>()) && item->thumbnail)
+        {
+            ShapeRect* img = m_manager->Allocate<ShapeRect>("Thumb");
+            img->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+            img->SetAlignedPos(Vector2::Zero);
+            img->SetAlignedSize(Vector2::One);
+            img->GetProps().imageTexture = item->thumbnail;
+            img->GetProps().fitImage     = true;
+            img->GetProps().colorStart     = Color(1, 1, 1, 1);
+            return img;
+        }
+      
+        return nullptr;
+    }
+
+    Widget* PanelResources::BuildTooltipForItem(void* userData)
+    {
+        DirectoryItem* item = static_cast<DirectoryItem*>(userData);
+        
+        const Vector2       size     = Vector2(RESOURCE_THUMBNAIL_SIZE * 1.5f, RESOURCE_THUMBNAIL_SIZE * 1.5f);
+        DirectionalLayout* bg     = m_manager->Allocate<DirectionalLayout>();
+        bg->GetProps().direction = DirectionOrientation::Vertical;
+        bg->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
+        bg->GetChildMargins()              = TBLR::Eq(Theme::GetDef().baseIndent);
+        bg->SetChildPadding(Theme::GetDef().baseIndent);
+        
+        bg->GetProps().backgroundStyle      = DirectionalLayout::BackgroundStyle::Default;
+        bg->GetProps().colorBackgroundEnd = bg->GetProps().colorBackgroundStart = Theme::GetDef().background0;
+        bg->GetProps().outlineThickness                                            = Theme::GetDef().baseOutlineThickness;
+        bg->GetProps().colorOutline                                                = Theme::GetDef().background0;
+        bg->SetFixedSize(size + bg->GetChildPadding());
+        ShapeRect* img = m_manager->Allocate<ShapeRect>();
+        img->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+        img->SetAlignedPosX(0.0f);
+        img->SetAlignedSize(Vector2(1.0f, 0.0f));
+        img->GetProps().colorStart = img->GetProps().colorEnd = Color::White;
+        img->GetProps().imageTexture                          = item->thumbnail;
+        img->GetProps().fitImage                              = true;
+        bg->AddChild(img);
+        
+        Text* txt = m_manager->Allocate<Text>();
+        txt->GetFlags().Set(WF_POS_ALIGN_X);
+        txt->SetAlignedPosX(0.5f);
+        txt->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+        txt->GetProps().text = FileSystem::RemoveExtensionFromPath(item->fileName);
+        bg->AddChild(txt);
+        
+        bg->Initialize();
+        return bg;
+    }
+
+    Widget* PanelResources::BuildTitleForItem(DirectoryItem *item)
+    {
+        Text* resName = WidgetUtility::BuildEditableText(this, m_showListContents, [](){});
+        
+        if(m_showListContents)
+        {
+            resName->GetFlags().Set(WF_POS_ALIGN_Y);
+            resName->SetAlignedPosY(0.5f);
+            resName->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        }
+        else{
+            resName->GetFlags().Set(WF_POS_ALIGN_X);
+            resName->SetAlignedPosX(0.5f);
+            resName->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+        }
+        resName->GetProps().text = item->isDirectory ? item->folderName : FileSystem::RemoveExtensionFromPath(item->fileName);
+        resName->GetProps().fetchWrapFromParent = true;
+        resName->GetProps().wordWrap = false;
+        
+        return resName;
+    }
+
+    Widget* PanelResources::BuildFolderIconForItem(DirectoryItem *item)
+    {
+        Icon* folder            = m_manager->Allocate<Icon>("Folder");
+        folder->GetProps().icon = ICON_FOLDER;
+        
+        if(m_showListContents)
+        {
+            folder->GetFlags().Set(WF_POS_ALIGN_Y);
+            folder->SetAlignedPosY(0.5f);
+            folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        }
+        else
+        {
+            folder->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+            folder->SetAlignedPos(Vector2::One * 0.5f);
+            folder->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+            folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        }
+     
+        folder->GetProps().dynamicSizeToParent = true;
+        folder->GetProps().dynamicSizeScale       = 0.9f;
+        
+        return folder;
+    }
+
+    Widget* PanelResources::BuildTopContents()
+    {
+        DirectionalLayout* topContents = m_manager->Allocate<DirectionalLayout>("TopContents");
+        topContents->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+        topContents->SetAlignedPos(0.0f);
+        topContents->SetAlignedSizeX(1.0f);
+        topContents->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+        topContents->SetChildPadding(Theme::GetDef().baseIndentInner);
+        topContents->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+
+        Icon* folder            = m_manager->Allocate<Icon>("PathIcon");
+        folder->GetProps().icon = ICON_FOLDER;
+        folder->GetFlags().Set(WF_POS_ALIGN_Y);
+        folder->SetAlignedPosY(0.5f);
+        folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        topContents->AddChild(folder);
+
+        Icon* chev                   = m_manager->Allocate<Icon>("Path>");
+        chev->GetProps().icon       = ICON_CHEVRON_RIGHT;
+        chev->GetProps().textScale = 0.3f;
+        chev->GetFlags().Set(WF_POS_ALIGN_Y);
+        chev->SetAlignedPosY(0.5f);
+        chev->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        topContents->AddChild(chev);
+
+        Text* path = m_manager->Allocate<Text>("Path");
+        path->GetFlags().Set(WF_POS_ALIGN_Y);
+        path->SetAlignedPosY(0.5f);
+        path->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        path->GetProps().fetchCustomClipFromSelf = true;
+        path->GetProps().isDynamic                 = true;
+        topContents->AddChild(path);
+        
+        InputField* searchFieldTop = m_manager->Allocate<InputField>("SearchFieldTop");
+        searchFieldTop->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y |WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
+        searchFieldTop->SetAlignedPos(Vector2(1.0f, 0.0f));
+        searchFieldTop->SetPosAlignmentSourceX(PosAlignmentSource::End);
+        searchFieldTop->SetAlignedSize(Vector2(0.5f, 1.0f));
+        searchFieldTop->GetProps().rounding        = 0.0f;
+        searchFieldTop->GetProps().usePlaceHolder    = true;
+        searchFieldTop->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search) + "...";
+        topContents->AddChild(searchFieldTop);
+        
+        m_path                = path;
+        return topContents;
+    }
+
+    Widget* PanelResources::BuildBottomContents()
+    {
+        DirectionalLayout* bottom = m_manager->Allocate<DirectionalLayout>("BotContents");
+        bottom->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+        bottom->SetAlignedPos(0.0f);
+        bottom->SetAlignedSizeX(1.0f);
+        bottom->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+        bottom->SetChildPadding(Theme::GetDef().baseIndentInner);
+        bottom->GetChildMargins()                = {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
+        bottom->GetProps().backgroundStyle        = DirectionalLayout::BackgroundStyle::Default;
+        bottom->GetProps().colorBackgroundStart = bottom->GetProps().colorBackgroundEnd = Theme::GetDef().background3;
+
+        Text* itemCount = m_manager->Allocate<Text>("ItemCount");
+        itemCount->GetFlags().Set(WF_POS_ALIGN_Y);
+        itemCount->SetAlignedPosY(0.5f);
+        itemCount->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        itemCount->GetProps().fetchCustomClipFromSelf = true;
+        itemCount->GetProps().isDynamic                  = true;
+        itemCount->GetProps().text                      = "0 " + Locale::GetStr(LocaleStr::Items);
+        bottom->AddChild(itemCount);
+
+        ShapeRect* divider = m_manager->Allocate<ShapeRect>("Divider");
+        divider->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+        divider->SetAlignedPosY(0.0f);
+        divider->SetAlignedSizeY(1.0f);
+        divider->SetFixedSizeX(2.0f);
+        divider->GetProps().colorStart = divider->GetProps().colorEnd = Theme::GetDef().background1;
+        bottom->AddChild(divider);
+
+        Text* itemSelected = m_manager->Allocate<Text>("ItemSelected");
+        itemSelected->GetFlags().Set(WF_POS_ALIGN_Y);
+        itemSelected->SetAlignedPosY(0.5f);
+        itemSelected->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+        itemSelected->GetProps().fetchCustomClipFromSelf = true;
+        itemSelected->GetProps().isDynamic                 = true;
+        itemSelected->GetProps().text                     = "0 " + Locale::GetStr(LocaleStr::Selected);
+        bottom->AddChild(itemSelected);
+
+        ShapeRect* divider2 = m_manager->Allocate<ShapeRect>("Divider");
+        divider2->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
+        divider2->SetAlignedPosY(0.0f);
+        divider2->SetAlignedSizeY(1.0f);
+        divider2->SetFixedSizeX(2.0f);
+        divider2->GetProps().colorStart = divider2->GetProps().colorEnd = Theme::GetDef().background1;
+        bottom->AddChild(divider2);
+        
+        Slider* sizeSlider = m_manager->Allocate<Slider>("SizeSlider");
+        sizeSlider->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+        sizeSlider->SetAlignedPosY(0.0f);
+        sizeSlider->SetAlignedPosX(1.0f);
+        sizeSlider->SetPosAlignmentSourceX(PosAlignmentSource::End);
+        sizeSlider->SetAlignedSize(Vector2(0.25f, 1.0f));
+        sizeSlider->GetProps().minValue = MIN_CONTENTS_SIZE;
+        sizeSlider->GetProps().maxValue = MAX_CONTENTS_SIZE;
+        sizeSlider->GetProps().value = &m_contentsSize;
+        sizeSlider->GetProps().onValueChanged = [this](float val) -> void {
+            
+            if(val < MIN_CONTENTS_SIZE + 0.25f && !m_showListContents)
+            {
+                m_showListContents = true;
+                RefreshContents();
+            }
+            else if(m_showListContents && val > MIN_CONTENTS_SIZE + 0.25f)
+            {
+                m_showListContents = false;
+                RefreshContents();
+            }
+            
+            if(!m_showListContents)
+            {
+                for(auto* c : m_contentsGrid->GetChildren())
+                    UpdateWidgetSizeFromContentsSize(c);
+            }
+        };
+        
+        bottom->AddChild(sizeSlider);
+        
+        m_itemCount            = itemCount;
+        m_selectedItemCount = itemSelected;
+
+        return bottom;
+    }
+
+    Widget* PanelResources::BuildBrowser()
+    {
+        DirectionalLayout* browser      = m_manager->Allocate<DirectionalLayout>("Browser");
+        browser->GetProps().direction = DirectionOrientation::Vertical;
+        browser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+        browser->SetAlignedPos(Vector2::Zero);
+        browser->SetAlignedSize(Vector2(0.25f, 1.0f));
+        browser->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
+        browser->SetChildPadding(Theme::GetDef().baseIndent);
+        browser->GetFlags().Set(WF_CONTROLS_MANAGER);
+
+        InputField* searchField = m_manager->Allocate<InputField>("SearchField");
+        searchField->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+        searchField->SetAlignedPosX(0.0f);
+        searchField->SetAlignedSizeX(1.0f);
+        searchField->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+        searchField->GetProps().rounding        = 0.0f;
+        searchField->GetProps().usePlaceHolder    = true;
+        searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search) + "...";
+        browser->AddChild(searchField);
+
+        ScrollArea* scroller = m_manager->Allocate<ScrollArea>("ScrollArea");
+        scroller->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+        scroller->SetAlignedPosX(0.0f);
+        scroller->SetAlignedSize(Vector2(1.0f, 0.0f));
+        scroller->GetProps().direction = DirectionOrientation::Vertical;
+        scroller->GetProps().targetChildIndex = 0;
+        browser->AddChild(scroller);
+        
+        DirectionalLayout* browserItems       = m_manager->Allocate<DirectionalLayout>("BrowserItems");
+        browserItems->GetProps().direction = DirectionOrientation::Vertical;
+        browserItems->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+        browserItems->SetAlignedSize(Vector2::One);
+        browserItems->SetAlignedPos(Vector2::Zero);
+        browserItems->GetProps().backgroundStyle  = DirectionalLayout::BackgroundStyle::Default;
+        browserItems->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+        browserItems->GetProps().outlineThickness = 0.0f;
+        browserItems->GetProps().rounding          = 0.0f;
+        browserItems->GetProps().clipChildren      = true;
+        scroller->AddChild(browserItems);
+        
+        m_browserItems        = browserItems;
+
+        return browser;
+    }
 } // namespace Lina::Editor

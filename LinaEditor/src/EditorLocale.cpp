@@ -81,10 +81,19 @@ namespace Lina::Editor
 		{LocaleStr::Search, "Search"},
 		{LocaleStr::Items, "Items"},
 		{LocaleStr::Selected, "Selected"},
+		{LocaleStr::NothingInDirectory, "Nothing to see here ¯\\(°_o)/¯"},
 	};
 
 	const String& Locale::GetStr(LocaleStr str)
 	{
 		return s_englishMap[str];
+	}
+
+	String Locale::GetStrUnicode(LocaleStr str)
+	{
+		std::u8string utf8str = u8"";
+		std::string	  convertedStr(reinterpret_cast<const char*>(utf8str.c_str()));
+		convertedStr += s_englishMap[str];
+		return convertedStr;
 	}
 } // namespace Lina::Editor

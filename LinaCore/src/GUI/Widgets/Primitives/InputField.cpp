@@ -42,6 +42,9 @@ namespace Lina
 
 	LinaGX::CursorType InputField::GetCursorOverride()
 	{
+		if (GetIsDisabled())
+			return LinaGX::CursorType::Default;
+
 		// Cursor status.
 		if (m_isHovered)
 		{
@@ -75,6 +78,15 @@ namespace Lina
 		AddChild(m_placeholderText);
 
 		m_placeholderText->SetIsDisabled(true);
+	}
+
+	void InputField::CalculateSize(float delta)
+	{
+		if (m_props.wrapText)
+		{
+			m_text->GetProps().wrapWidth = m_isEditing ? 0.0f : GetSizeX();
+			m_text->CalculateTextSize();
+		}
 	}
 
 	void InputField::Tick(float delta)
@@ -131,9 +143,7 @@ namespace Lina
 		m_textEnd				= middle + Vector2(textSize.x * 0.5f, 0.0f);
 
 		if (m_props.centerText)
-		{
 			m_textStart.x = m_rect.pos.x + GetHalfSizeX() - m_text->GetHalfSizeX();
-		}
 
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
@@ -201,8 +211,12 @@ namespace Lina
 			m_props.colorCaret.w		   = m_caretAlpha;
 			caret.color					   = m_props.colorCaret.AsLVG4();
 			const Vector2 caretMiddle	   = GetPosFromCaretIndex(m_caretInsertPos);
-			const Vector2 caretTopLeft	   = Vector2(caretMiddle.x - m_props.horizontalIndent * 0.1f, GetCaretStartY());
-			const Vector2 caretBottomRight = Vector2(caretMiddle.x + m_props.horizontalIndent * 0.1f, GetCaretEndY());
+			Vector2		  caretTopLeft	   = Vector2(caretMiddle.x - m_props.horizontalIndent * 0.1f, GetCaretStartY());
+			Vector2		  caretBottomRight = Vector2(caretMiddle.x + m_props.horizontalIndent * 0.1f, GetCaretEndY());
+
+			caretTopLeft.x	   = Math::Clamp(caretTopLeft.x, m_rect.pos.x, m_rect.GetEnd().x);
+			caretBottomRight.x = Math::Clamp(caretBottomRight.x, m_rect.pos.x, m_rect.GetEnd().x);
+
 			LinaVG::DrawRect(threadIndex, caretTopLeft.AsLVG(), caretBottomRight.AsLVG(), caret, 0, m_drawOrder);
 
 			if (caretBottomRight.x > (m_rect.pos.x + m_rect.size.x - m_props.horizontalIndent))
@@ -224,18 +238,19 @@ namespace Lina
 				const uint32		 maxPos			   = Math::Max(m_highlightStartPos, m_caretInsertPos);
 				const Vector2		 highlightStartMid = GetPosFromCaretIndex(minPos);
 				const Vector2		 highlightEndMid   = GetPosFromCaretIndex(maxPos);
-				const Vector2		 topLeft		   = Vector2(highlightStartMid.x, GetCaretStartY());
-				const Vector2		 bottomRight	   = Vector2(highlightEndMid.x, GetCaretEndY());
+				Vector2				 topLeft		   = Vector2(highlightStartMid.x, GetCaretStartY());
+				Vector2				 bottomRight	   = Vector2(highlightEndMid.x, GetCaretEndY());
 				LinaVG::StyleOptions highlight;
 				highlight.color = m_props.colorHighlight.AsLVG4();
+
+				topLeft.x	  = Math::Clamp(topLeft.x, m_rect.pos.x, m_rect.GetEnd().x);
+				bottomRight.x = Math::Clamp(bottomRight.x, m_rect.pos.x, m_rect.GetEnd().x);
 				LinaVG::DrawRect(threadIndex, topLeft.AsLVG(), bottomRight.AsLVG(), highlight, 0, m_drawOrder);
 			}
 		}
 
-		Rect*	   existing = m_manager->GetClipStackTop();
-		const bool omitClip = existing && !existing->IsRectInside(m_rect);
-
-		m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
+		if (m_props.clipText)
+			m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
 
 		m_text->Draw(threadIndex);
 
@@ -244,6 +259,14 @@ namespace Lina
 			m_placeholderText->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
 			m_placeholderText->Draw(threadIndex);
 		}
+	}
+
+	void InputField::StartEditing()
+	{
+		GrabControls(this);
+		m_isEditing = true;
+		if (m_props.onEditStarted)
+			m_props.onEditStarted(m_text->GetProps().text);
 	}
 
 	void InputField::SelectAll()
@@ -314,7 +337,7 @@ namespace Lina
 		{
 			if (GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
 			{
-				m_isEditing = true;
+				StartEditing();
 				SelectAll();
 				return true;
 			}
@@ -457,8 +480,7 @@ namespace Lina
 			m_caretInsertPos	= GetCaretPosFromMouse();
 			m_highlightStartPos = m_caretInsertPos;
 			m_isPressed			= true;
-			GrabControls(this);
-			m_isEditing = true;
+			StartEditing();
 			return true;
 		}
 

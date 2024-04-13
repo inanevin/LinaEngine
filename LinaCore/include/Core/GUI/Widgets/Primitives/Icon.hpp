@@ -39,7 +39,7 @@ namespace Lina
 	class Icon : public Widget
 	{
 	public:
-		Icon() : Widget(0, WF_OWNS_SIZE)
+		Icon() : Widget(WF_OWNS_SIZE)
 		{
 		}
 		virtual ~Icon() = default;

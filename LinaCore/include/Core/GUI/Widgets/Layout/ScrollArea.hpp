@@ -29,26 +29,32 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Common.hpp"
 
 namespace Lina
 {
-
-	class RelativeLayout : public Widget
+	class ScrollArea : public Widget
 	{
 	public:
+        ScrollArea() : Widget(WF_TICK_AFTER_CHILDREN) {};
+		virtual ~ScrollArea() = default;
+
 		struct Properties
 		{
-			Vector<float>		 ratios;
-			DirectionOrientation direction = DirectionOrientation::Horizontal;
+            DirectionOrientation direction = DirectionOrientation::Horizontal;
+            Color colorBackground = Theme::GetDef().background0;
+            Color colorBarStart = Theme::GetDef().accentPrimary1;
+            Color colorBarEnd = Theme::GetDef().accentPrimary0;
+            Color colorHovered = Theme::GetDef().accentPrimary2;
+            Color colorPressed = Theme::GetDef().accentPrimary1;
+            int32 targetChildIndex = -1;
+            float barRounding = Theme::GetDef().baseRounding * 2;
 		};
 
-		RelativeLayout()		  = default;
-		virtual ~RelativeLayout() = default;
-
 		virtual void Tick(float delta) override;
-
+        virtual void Draw(int32 threadIndex) override;
+        virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+        virtual bool OnMouseWheel(float amt) override;
+        
 		inline Properties& GetProps()
 		{
 			return m_props;
@@ -56,5 +62,17 @@ namespace Lina
 
 	private:
 		Properties m_props = {};
+        float m_scrollAmount = 0.0f;
+        float m_minScroll = 0.0f;
+        float m_maxScroll = 0.0f;
+        float m_sizeToChildSizeRatio = 0.0f;
+        float m_pressDelta = 0.0f;
+        float m_totalChildSize = 0.0f;
+        Widget* m_targetWidget = nullptr;
+        bool m_barVisible = false;
+        bool m_barHovered = false;
+        Rect m_barBGRect = {};
+        Rect m_barRect = {};
 	};
+
 } // namespace Lina

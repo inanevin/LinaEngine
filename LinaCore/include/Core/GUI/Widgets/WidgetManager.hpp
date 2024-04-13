@@ -125,7 +125,7 @@ namespace Lina
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
-		virtual void OnWindowMouseWheel(int32 delta) override;
+		virtual void OnWindowMouseWheel(float delta) override;
 		virtual void OnWindowMouseMove(const LinaGX::LGXVector2&) override;
 		virtual void OnWindowFocus(bool gainedFocus) override;
 		virtual void OnWindowHoverBegin() override;

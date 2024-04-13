@@ -80,6 +80,11 @@ namespace Lina
 		m_sz	 = m_end - m_start;
 		m_center = (m_start + m_end) * 0.5f;
 
+		if (m_props.direction == DirectionOrientation::Horizontal)
+			m_start.x -= m_scrollerOffset;
+		else
+			m_start.y -= m_scrollerOffset;
+
 		if (m_props.mode == Mode::Default)
 			BehaviourDefault(delta);
 		else if (m_props.mode == Mode::EqualPositions)
@@ -170,12 +175,6 @@ namespace Lina
 				c->SetPosX(x);
 			else
 				c->SetPosY(y);
-
-			if (c->GetDebugName() == "TESTERO")
-			{
-				int a = 5;
-			}
-
 			const float incrementSize = m_props.direction == DirectionOrientation::Horizontal ? c->GetSizeX() : c->GetSizeY();
 			const bool	lastItem	  = idx == m_children.size() - 1;
 
@@ -228,8 +227,11 @@ namespace Lina
 			LinaVG::DrawRect(threadIndex, Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
 		}
 
+		const Vector2 start = GetStartFromMargins();
+		const Vector2 end	= GetEndFromMargins();
+
 		if (m_props.clipChildren)
-			m_manager->SetClip(threadIndex, m_rect, {});
+			m_manager->SetClip(threadIndex, Rect(start, end - start), {});
 		Widget::Draw(threadIndex);
 		if (m_props.clipChildren)
 			m_manager->UnsetClip(threadIndex);
@@ -258,6 +260,10 @@ namespace Lina
 		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered)
 		{
 			m_isPressed = true;
+
+			if (m_props.onPressed)
+				m_props.onPressed();
+
 			return true;
 		}
 
@@ -280,5 +286,19 @@ namespace Lina
 		}
 
 		return Widget::OnMouse(button, act);
+	}
+
+	float DirectionalLayout::CalculateChildrenSize()
+	{
+		float sz = 0.0f;
+		for (auto* c : m_children)
+		{
+			if (m_props.direction == DirectionOrientation::Horizontal)
+				sz += c->GetSizeX() + GetChildPadding();
+			else
+				sz += c->GetSizeY() + GetChildPadding();
+		}
+
+		return sz - GetChildPadding();
 	}
 } // namespace Lina

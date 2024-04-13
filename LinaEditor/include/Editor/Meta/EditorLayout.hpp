@@ -53,8 +53,8 @@ namespace Lina::Editor
 			{
 				out << static_cast<uint8>(panelType);
 				out << subData;
-				out << extraData.data0;
-				out << extraData.data1;
+				for (uint32 i = 0; i < PanelLayoutExtra::F_SZ; i++)
+					out << extraData.f[i];
 			}
 
 			inline void LoadFromStream(IStream& in)
@@ -62,8 +62,8 @@ namespace Lina::Editor
 				uint8 pt = 0;
 				in >> pt;
 				in >> subData;
-				in >> extraData.data0;
-				in >> extraData.data1;
+				for (uint32 i = 0; i < PanelLayoutExtra::F_SZ; i++)
+					in >> extraData.f[i];
 
 				panelType = static_cast<PanelType>(pt);
 			}

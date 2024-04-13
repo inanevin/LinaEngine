@@ -35,7 +35,7 @@ namespace Lina
 	class LayoutBorder : public Widget
 	{
 	public:
-		LayoutBorder() : Widget(0){};
+		LayoutBorder()			= default;
 		virtual ~LayoutBorder() = default;
 
 		struct Properties

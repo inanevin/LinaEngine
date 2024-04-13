@@ -34,6 +34,16 @@ SOFTWARE.
 namespace Lina
 {
 
+	void Selectable::PreTick()
+	{
+		if (m_wasSelected && GetControlsOwner() != this)
+		{
+			m_wasSelected = false;
+			if (m_props.onSelectionChanged)
+				m_props.onSelectionChanged(false);
+		}
+	}
+
 	void Selectable::Tick(float dt)
 	{
 		const bool hasControls = GetControlsOwner() == this;
@@ -47,8 +57,6 @@ namespace Lina
 			m_usedStart = Math::Lerp(m_usedStart, m_props.colorStart, dt * COLOR_SPEED);
 			m_usedEnd	= Math::Lerp(m_usedEnd, m_props.colorEnd, dt * COLOR_SPEED);
 		}
-
-		Widget::Tick(dt);
 	}
 
 	void Selectable::Draw(int32 threadIndex)
@@ -73,18 +81,62 @@ namespace Lina
 		Widget::DrawTooltip(threadIndex);
 	}
 
+	bool Selectable::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
+	{
+		if (act != LinaGX::InputAction::Pressed)
+			return false;
+
+		if (GetControlsOwner() != this)
+			return Widget::OnKey(keycode, scancode, act);
+
+		if (m_props.moveNextArrowHorizontal)
+		{
+			if (keycode == LINAGX_KEY_RIGHT)
+			{
+				FindGetControlsManager()->MoveControlsToNext();
+				return true;
+			}
+
+			if (keycode == LINAGX_KEY_LEFT)
+			{
+				FindGetControlsManager()->MoveControlsToPrev();
+				return true;
+			}
+		}
+		else if (m_props.moveNextArrowVertical)
+		{
+			if (keycode == LINAGX_KEY_DOWN)
+			{
+				FindGetControlsManager()->MoveControlsToNext();
+				return true;
+			}
+
+			if (keycode == LINAGX_KEY_UP)
+			{
+				FindGetControlsManager()->MoveControlsToPrev();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (button != LINAGX_MOUSE_0)
 			return false;
+
+		if (GetControlsOwner() == this)
+			return Widget::OnMouse(button, act);
 
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed = true;
 			if (GetControlsOwner() != this)
 			{
-				if (m_props.onSelected)
-					m_props.onSelected();
+				m_wasSelected = true;
+				if (m_props.onSelectionChanged)
+					m_props.onSelectionChanged(true);
 			}
 
 			GrabControls(this);

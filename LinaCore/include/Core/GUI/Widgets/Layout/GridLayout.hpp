@@ -35,16 +35,31 @@ namespace Lina
 	class GridLayout : public Widget
 	{
 	public:
-		GridLayout() : Widget(-1){};
+		GridLayout()		  = default;
 		virtual ~GridLayout() = default;
+
+		enum class BackgroundStyle
+		{
+			None,
+			Default,
+		};
 
 		struct Properties
 		{
 			float horizontalPadding = Theme::GetDef().baseIndentInner;
 			float verticalPadding	= Theme::GetDef().baseIndent;
+			bool  clipChildren		= false;
+
+			BackgroundStyle background		= BackgroundStyle::None;
+			Color			colorBackground = Theme::GetDef().background0;
 		};
 
-		virtual void Tick(float delta) override;
+		virtual void  Tick(float delta) override;
+		virtual void  Draw(int32 threadIndex) override;
+		virtual float CalculateChildrenSize() override
+		{
+			return m_totalChildHeight;
+		}
 
 		inline Properties& GetProps()
 		{
@@ -52,7 +67,8 @@ namespace Lina
 		}
 
 	private:
-		Properties m_props = {};
+		Properties m_props			  = {};
+		float	   m_totalChildHeight = 0.0f;
 	};
 
 } // namespace Lina

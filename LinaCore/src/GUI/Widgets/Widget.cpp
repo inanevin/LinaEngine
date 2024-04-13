@@ -41,11 +41,6 @@ namespace Lina
 
 	void Widget::AddChild(Widget* w)
 	{
-		if (m_maxChilds != -1)
-		{
-			LINA_ASSERT(static_cast<int32>(m_children.size()) < m_maxChilds, "");
-		}
-
 		w->m_parent		 = this;
 		w->m_lgxWindow	 = m_lgxWindow;
 		w->m_manager	 = m_manager;
@@ -149,6 +144,17 @@ namespace Lina
 		return false;
 	}
 
+	bool Widget::OnMouseWheel(float amt)
+	{
+		for (auto* c : m_children)
+		{
+			if (!c->GetIsDisabled() && c->GetIsVisible() && c->OnMouseWheel(amt))
+				return true;
+		}
+
+		return false;
+	}
+
 	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
 		if (GetFlags().IsSet(WF_CONTROLS_MANAGER) && m_manager->GetLastControlsManager() == this)
@@ -230,7 +236,7 @@ namespace Lina
 		{
 			if (m_customTooltip == nullptr)
 			{
-				m_customTooltip = m_buildCustomTooltip();
+				m_customTooltip = m_buildCustomTooltip(m_customTooltipUserData);
 
 				m_customTooltip->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
 				m_customTooltip->SetDrawOrder(TOOLTIP_DRAW_ORDER);
@@ -465,7 +471,7 @@ namespace Lina
 		if (m_controlsOwner)
 		{
 			Widget* previous = FindPreviousSelectable(m_controlsOwner);
-			if (previous)
+			if (previous && previous->FindGetControlsManager() == this)
 			{
 				GrabControls(previous);
 			}
@@ -477,7 +483,7 @@ namespace Lina
 		if (!GetFlags().IsSet(WF_CONTROLS_MANAGER))
 			return;
 		Widget* next = FindNextSelectable(m_controlsOwner ? m_controlsOwner : nullptr);
-		if (next)
+		if (next && next->FindGetControlsManager() == this)
 		{
 			GrabControls(next);
 		}

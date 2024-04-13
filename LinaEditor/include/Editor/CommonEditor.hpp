@@ -91,8 +91,9 @@ namespace Lina::Editor
 
 	struct PanelLayoutExtra
 	{
-		float data0 = 0.0f;
-		float data1 = 0.0f;
+		static constexpr uint32 F_SZ = 8;
+
+		float f[F_SZ];
 	};
 
 } // namespace Lina::Editor

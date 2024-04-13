@@ -49,12 +49,8 @@ namespace Lina
 		AddChild(m_handle);
 	}
 
-	void Slider::Tick(float delta)
+	void Slider::PreTick()
 	{
-		const float fillPercent = Math::Remap(m_props.value ? *m_props.value : m_props.minValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
-		GetStartEnd(m_bgStart, m_bgEnd, 1.0f);
-		GetStartEnd(m_fillStart, m_fillEnd, fillPercent);
-
 		if (m_isPressed && m_props.value)
 		{
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
@@ -71,6 +67,8 @@ namespace Lina
 				targetValue		 = Math::Lerp(m_props.minValue, m_props.maxValue, perc);
 			}
 
+			const float prev = *m_props.value;
+
 			if (!Math::IsZero(m_props.step))
 			{
 				const float prev = *m_props.value;
@@ -81,7 +79,20 @@ namespace Lina
 				*m_props.value = targetValue;
 
 			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+
+			if (!Math::Equals(*m_props.value, prev, 0.001f))
+			{
+				if (m_props.onValueChanged)
+					m_props.onValueChanged(*m_props.value);
+			}
 		}
+	}
+
+	void Slider::Tick(float delta)
+	{
+		const float fillPercent = Math::Remap(m_props.value ? *m_props.value : m_props.minValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
+		GetStartEnd(m_bgStart, m_bgEnd, 1.0f);
+		GetStartEnd(m_fillStart, m_fillEnd, fillPercent);
 
 		const Vector2 handlePos = m_props.direction == DirectionOrientation::Horizontal ? Vector2(m_fillEnd.x - m_handle->GetHalfSizeX(), (m_fillEnd.y + m_fillStart.y) * 0.5f - m_handle->GetHalfSizeY())
 																						: Vector2((m_fillStart.x + m_fillEnd.x) * 0.5f - m_handle->GetHalfSizeX(), m_fillStart.y - m_handle->GetHalfSizeY());
@@ -170,6 +181,9 @@ namespace Lina
 			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
 			*m_props.value += step * direction;
 			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+
+			if (m_props.onValueChanged)
+				m_props.onValueChanged(*m_props.value);
 		};
 
 		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)

@@ -27,32 +27,62 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
 	void GridLayout::Tick(float delta)
 	{
-		const Vector2 start = GetStartFromMargins();
+		Vector2		  start = GetStartFromMargins();
 		const Vector2 end	= GetEndFromMargins();
 
-		float x				= start.x;
-		float y				= start.y;
-		float maxItemHeight = 0.0f;
+		float x				   = start.x;
+		float y				   = start.y - m_scrollerOffset;
+		float maxItemHeight	   = 0.0f;
+		float totalChildheight = 0.0f;
 
 		for (auto* c : m_children)
 		{
 			if (x + c->GetSizeX() > end.x)
 			{
 				x = start.x;
-				y += maxItemHeight + m_props.verticalPadding;
+				y += maxItemHeight + GetChildPadding();
 				maxItemHeight = 0.0f;
 			}
-
 			c->SetPosX(x);
 			c->SetPosY(y);
 			maxItemHeight = Math::Max(maxItemHeight, c->GetSizeY());
 			x += c->GetSizeX() + m_props.horizontalPadding;
 		}
+
+		if (m_children.empty())
+			return;
+
+		auto* last		   = m_children[m_children.size() - 1];
+		auto* first		   = m_children[0];
+		m_totalChildHeight = last->GetRect().GetEnd().y - first->GetPosY();
+	}
+
+	void GridLayout::Draw(int32 threadIndex)
+	{
+		if (m_props.background == BackgroundStyle::Default)
+		{
+			LinaVG::StyleOptions opts;
+			opts.color = m_props.colorBackground.AsLVG4();
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		}
+
+		const Vector2 start = GetStartFromMargins();
+		const Vector2 end	= GetEndFromMargins();
+
+		if (m_props.clipChildren)
+			m_manager->SetClip(threadIndex, Rect(start, end - start), {});
+
+		Widget::Draw(threadIndex);
+
+		if (m_props.clipChildren)
+			m_manager->UnsetClip(threadIndex);
 	}
 } // namespace Lina

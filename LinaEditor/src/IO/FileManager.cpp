@@ -121,6 +121,24 @@ namespace Lina::Editor
 			if (subItem->isDirectory)
 				ScanItem(subItem);
 		}
+
+		// Sort alphabetically
+
+		Vector<DirectoryItem*> folders = {}, files = {};
+		for (auto* c : item->children)
+		{
+			if (c->isDirectory)
+				folders.push_back(c);
+			else
+				files.push_back(c);
+		}
+		linatl::sort(folders.begin(), folders.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->folderName < b->folderName; });
+
+		linatl::sort(files.begin(), files.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->fileName < b->fileName; });
+
+		item->children.clear();
+		item->children.insert(item->children.end(), folders.begin(), folders.end());
+		item->children.insert(item->children.end(), files.begin(), files.end());
 	}
 
 	void FileManager::RefreshResources()

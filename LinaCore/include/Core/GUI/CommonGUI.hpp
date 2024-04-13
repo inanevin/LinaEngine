@@ -83,6 +83,7 @@ namespace Lina
 		WF_SKIP_FLOORING		 = 1 << 15,
 		WF_FOREGROUND_BLOCKER	 = 1 << 16,
 		WF_CONTROLS_MANAGER		 = 1 << 17,
+		WF_TICK_AFTER_CHILDREN	 = 1 << 18,
 	};
 
 	enum class PosAlignmentSource
@@ -105,5 +106,6 @@ namespace Lina
 #define FOREGROUND_HIGHP_DRAW_ORDER 150
 #define TOOLTIP_DRAW_ORDER			300
 #define DEBUG_DRAW_ORDER			400
+#define SCROLL_SPEED				24.0f
 
 } // namespace Lina

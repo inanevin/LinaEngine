@@ -37,7 +37,7 @@ namespace Lina::Editor
 	class DockWidget : public Widget
 	{
 	public:
-		DockWidget(int32 maxChildren = -1) : Widget(maxChildren){};
+		DockWidget()		  = default;
 		virtual ~DockWidget() = default;
 
 		void FindAdjacentWidgets();

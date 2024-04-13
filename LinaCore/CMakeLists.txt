@@ -86,8 +86,7 @@ src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetManager.cpp
 src/GUI/Widgets/WidgetUtility.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
-src/GUI/Widgets/Layout/RelativeLayout.cpp
-src/GUI/Widgets/Layout/Stack.cpp
+src/GUI/Widgets/Layout/ScrollArea.cpp
 src/GUI/Widgets/Layout/LayoutBorder.cpp
 src/GUI/Widgets/Layout/GridLayout.cpp
 src/GUI/Widgets/Primitives/Text.cpp
@@ -190,8 +189,7 @@ include/Core/GUI/Widgets/WidgetManager.hpp
 include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
-include/Core/GUI/Widgets/Layout/RelativeLayout.hpp
-include/Core/GUI/Widgets/Layout/Stack.hpp
+include/Core/GUI/Widgets/Layout/ScrollArea.hpp
 include/Core/GUI/Widgets/Layout/LayoutBorder.hpp
 include/Core/GUI/Widgets/Layout/GridLayout.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp

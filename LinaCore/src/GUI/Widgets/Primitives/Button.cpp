@@ -45,8 +45,6 @@ namespace Lina
 
 	void Button::Tick(float delta)
 	{
-		Widget::Tick(delta);
-
 		if (GetIsHovered() && !m_lastHoverStatus)
 		{
 			if (m_props.onHoverBegin)

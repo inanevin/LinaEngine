@@ -40,7 +40,7 @@ namespace Lina
 	class Dropdown : public Widget
 	{
 	public:
-		Dropdown() : Widget(2, WF_SELECTABLE)
+		Dropdown() : Widget(WF_SELECTABLE)
 		{
 		}
 		virtual ~Dropdown() = default;

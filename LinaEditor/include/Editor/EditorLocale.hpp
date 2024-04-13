@@ -85,12 +85,14 @@ namespace Lina::Editor
 		Search,
 		Items,
 		Selected,
+		NothingInDirectory,
 	};
 
 	class Locale
 	{
 	public:
 		static const String& GetStr(LocaleStr str);
+		static String		 GetStrUnicode(LocaleStr str);
 
 	private:
 		static HashMap<LocaleStr, String> s_englishMap;

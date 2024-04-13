@@ -49,6 +49,7 @@ namespace Lina
 				.points		 = {{.size = 14, .dpiLimit = 10.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
 				.isSDF		 = false,
 				.glyphRanges = {linatl::make_pair(160, 360)},
+
 			};
 			customMeta.SaveToStream(stream);
 			return true;
