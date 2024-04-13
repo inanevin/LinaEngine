@@ -54,8 +54,6 @@ namespace Lina
 
 	void DirectionalLayout::PreTick()
 	{
-		Widget::PreTick();
-
 		if (GetIsHovered() && !m_lastHoverStatus)
 		{
 			if (m_props.onHoverBegin)

@@ -89,10 +89,6 @@ namespace Lina
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 
-		if (m_rootWidget->GetWindow()->GetSID() == UINT32_MAX - 2)
-		{
-			LINA_TRACE("TICKING PAYLOAD BRUV {0} {1}", m_rootWidget->GetChildren()[0]->GetSize().x, m_rootWidget->GetChildren()[0]->GetAlignedPos().y);
-		}
 		PassCalculateSize(m_foregroundRoot, delta);
 		PassTick(m_foregroundRoot, delta);
 
@@ -100,19 +96,12 @@ namespace Lina
 		PassTick(m_rootWidget, delta);
 	}
 
-	void WidgetManager::AddToForeground(Widget* w)
-	{
-		m_foregroundRoot->AddChild(w);
-	}
+	void WidgetManager::AddToForeground(Widget* w) { m_foregroundRoot->AddChild(w); }
 
-	void WidgetManager::RemoveFromForeground(Widget* w)
-	{
-		m_foregroundRoot->RemoveChild(w);
-	}
+	void WidgetManager::RemoveFromForeground(Widget* w) { m_foregroundRoot->RemoveChild(w); }
 
 	void WidgetManager::Draw(int32 threadIndex)
 	{
-
 		m_rootWidget->Draw(threadIndex);
 
 		if (!m_foregroundRoot->GetChildren().empty())
@@ -148,10 +137,7 @@ namespace Lina
 		GetGUIAllocator(tid, 0)->Free(widget);
 	}
 
-	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize)
-	{
-		return m_gfxManager->GetGUIAllocator(tid, typeSize);
-	}
+	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize) { return m_gfxManager->GetGUIAllocator(tid, typeSize); }
 
 	void WidgetManager::Shutdown()
 	{
@@ -220,21 +206,13 @@ namespace Lina
 		PassMouseWheel(m_rootWidget, amt);
 	}
 
-	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
-	{
-	}
+	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos) {}
 
-	void WidgetManager::OnWindowFocus(bool gainedFocus)
-	{
-	}
+	void WidgetManager::OnWindowFocus(bool gainedFocus) {}
 
-	void WidgetManager::OnWindowHoverBegin()
-	{
-	}
+	void WidgetManager::OnWindowHoverBegin() {}
 
-	void WidgetManager::OnWindowHoverEnd()
-	{
-	}
+	void WidgetManager::OnWindowHoverEnd() {}
 
 	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
@@ -313,10 +291,7 @@ namespace Lina
 		}
 	}
 
-	void WidgetManager::AddToKillList(Widget* w)
-	{
-		m_killList.push_back(w);
-	}
+	void WidgetManager::AddToKillList(Widget* w) { m_killList.push_back(w); }
 
 	LinaGX::CursorType WidgetManager::FindCursorType(Widget* w)
 	{

@@ -56,78 +56,45 @@ namespace Lina
 	class Ostream;
 
 #define V2_GET_MUTATE(NAME, VAR)                                                                                                                                                                                                                                   \
-	inline void Set##NAME(const Vector2& sz)                                                                                                                                                                                                                       \
-	{                                                                                                                                                                                                                                                              \
-		VAR = sz;                                                                                                                                                                                                                                                  \
-	}                                                                                                                                                                                                                                                              \
-	inline void Set##NAME##X(float x)                                                                                                                                                                                                                              \
-	{                                                                                                                                                                                                                                                              \
-		VAR.x = x;                                                                                                                                                                                                                                                 \
-	}                                                                                                                                                                                                                                                              \
-	inline void Set##NAME##Y(float y)                                                                                                                                                                                                                              \
-	{                                                                                                                                                                                                                                                              \
-		VAR.y = y;                                                                                                                                                                                                                                                 \
-	}                                                                                                                                                                                                                                                              \
-	inline const Vector2& Get##NAME() const                                                                                                                                                                                                                        \
-	{                                                                                                                                                                                                                                                              \
-		return VAR;                                                                                                                                                                                                                                                \
-	}                                                                                                                                                                                                                                                              \
-	inline float Get##NAME##X() const                                                                                                                                                                                                                              \
-	{                                                                                                                                                                                                                                                              \
-		return VAR.x;                                                                                                                                                                                                                                              \
-	}                                                                                                                                                                                                                                                              \
-	inline float Get##NAME##Y() const                                                                                                                                                                                                                              \
-	{                                                                                                                                                                                                                                                              \
-		return VAR.y;                                                                                                                                                                                                                                              \
-	}
+	inline void			  Set##NAME(const Vector2& sz) { VAR = sz; }                                                                                                                                                                                               \
+	inline void			  Set##NAME##X(float x) { VAR.x = x; }                                                                                                                                                                                                     \
+	inline void			  Set##NAME##Y(float y) { VAR.y = y; }                                                                                                                                                                                                     \
+	inline const Vector2& Get##NAME() const { return VAR; }                                                                                                                                                                                                        \
+	inline float		  Get##NAME##X() const { return VAR.x; }                                                                                                                                                                                                   \
+	inline float		  Get##NAME##Y() const { return VAR.y; }
 
 #define V2_INCREMENTERS(NAME, VAR)                                                                                                                                                                                                                                 \
-	inline void Add##NAME##X(float x)                                                                                                                                                                                                                              \
-	{                                                                                                                                                                                                                                                              \
-		VAR.x += x;                                                                                                                                                                                                                                                \
-	}                                                                                                                                                                                                                                                              \
-	inline void Add##NAME##Y(float y)                                                                                                                                                                                                                              \
-	{                                                                                                                                                                                                                                                              \
-		VAR.y += y;                                                                                                                                                                                                                                                \
-	}
+	inline void Add##NAME##X(float x) { VAR.x += x; }                                                                                                                                                                                                              \
+	inline void Add##NAME##Y(float y) { VAR.y += y; }
 
 	class Widget
 	{
 	public:
+		virtual void Initialize();
+		virtual void Construct(){};
+		virtual void Destruct(){};
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action){};
+		virtual bool OnMouseWheel(float amt);
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action){};
+		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
 		virtual void PreTick(){};
 		virtual void CalculateSize(float delta){};
 		virtual void Tick(float delta){};
 		virtual void Draw(int32 threadIndex);
 
-		void		  AddChild(Widget* w);
-		void		  RemoveChild(Widget* w);
-		void		  RemoveAllChildren();
-		virtual void  SaveToStream(OStream& out) const;
-		virtual void  LoadFromStream(IStream& in);
-		void		  SetIsHovered();
-		void		  DrawBorders(int32 threadIndex);
-		void		  DrawTooltip(int32 threadIndex);
-		Vector2		  GetStartFromMargins();
-		Vector2		  GetEndFromMargins();
-		void		  SetIsDisabled(bool isDisabled);
-		Rect		  GetTemporaryAlignedRect();
-		virtual float CalculateChildrenSize()
-		{
-			return 0.0f;
-		}
-
+		void	AddChild(Widget* w);
+		void	RemoveChild(Widget* w);
+		void	RemoveAllChildren();
+		void	SetIsHovered();
+		void	SetIsDisabled(bool isDisabled);
+		void	DrawBorders(int32 threadIndex);
+		void	DrawTooltip(int32 threadIndex);
+		Vector2 GetStartFromMargins();
+		Vector2 GetEndFromMargins();
+		Rect	GetTemporaryAlignedRect();
 		Vector2 GetWindowSize();
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
-
-		virtual void Construct(){};
-		virtual void Destruct(){};
-		virtual void Initialize();
-		virtual bool OnMouse(uint32 button, LinaGX::InputAction action){};
-		virtual bool OnMouseWheel(float amt);
-		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action){};
-		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
-
 		Widget* FindGetControlsManager();
 		void	GrabControls(Widget* widget);
 		void	ReleaseControls(Widget* widget);
@@ -137,175 +104,75 @@ namespace Lina
 		void	MoveControlsToPrev();
 		bool	IsWidgetInHierarchy(Widget* widget);
 
-		inline Widget* GetCustomTooltip()
-		{
-			return m_customTooltip;
-		}
+		virtual float CalculateChildrenSize() { return 0.0f; }
 
-		virtual LinaGX::CursorType GetCursorOverride()
-		{
-			return LinaGX::CursorType::Default;
-		}
+		inline Widget* GetCustomTooltip() { return m_customTooltip; }
 
-		template <typename... Args> void AddChild(Args&&... args)
-		{
-			(AddChild(std::forward<Widget*>(args)), ...);
-		}
+		virtual LinaGX::CursorType GetCursorOverride() { return LinaGX::CursorType::Default; }
 
-		inline const Rect& GetRect()
-		{
-			return m_rect;
-		}
+		template <typename... Args> void AddChild(Args&&... args) { (AddChild(std::forward<Widget*>(args)), ...); }
 
-		inline float GetHalfSizeX() const
-		{
-			return m_rect.size.x * 0.5f;
-		}
+		inline const Rect& GetRect() { return m_rect; }
 
-		inline float GetHalfSizeY() const
-		{
-			return m_rect.size.y * 0.5f;
-		}
+		inline float GetHalfSizeX() const { return m_rect.size.x * 0.5f; }
 
-		inline const Vector2 GetHalfSize() const
-		{
-			return m_rect.size * 0.5f;
-		}
+		inline float GetHalfSizeY() const { return m_rect.size.y * 0.5f; }
 
-		inline LinaGX::Window* GetWindow()
-		{
-			return m_lgxWindow;
-		}
+		inline const Vector2 GetHalfSize() const { return m_rect.size * 0.5f; }
 
-		inline int32 GetDrawOrder() const
-		{
-			return m_drawOrder;
-		}
+		inline LinaGX::Window* GetWindow() { return m_lgxWindow; }
 
-		inline void SetDrawOrder(int32 order)
-		{
-			m_drawOrder = order;
-		}
+		inline int32 GetDrawOrder() const { return m_drawOrder; }
 
-		inline bool GetIsHovered() const
-		{
-			return m_isHovered;
-		}
+		inline void SetDrawOrder(int32 order) { m_drawOrder = order; }
 
-		inline void SetDebugName(const String& dbgName)
-		{
-			m_debugName = dbgName;
-		}
+		inline bool GetIsHovered() const { return m_isHovered; }
 
-		inline const String& GetDebugName() const
-		{
-			return m_debugName;
-		}
+		inline void SetDebugName(const String& dbgName) { m_debugName = dbgName; }
 
-		inline void SetChildID(uint32 idx)
-		{
-			m_childID = idx;
-		}
+		inline const String& GetDebugName() const { return m_debugName; }
 
-		inline const Vector<Widget*>& GetChildren() const
-		{
-			return m_children;
-		}
+		inline void SetChildID(uint32 idx) { m_childID = idx; }
 
-		inline Bitmask32& GetFlags()
-		{
-			return m_flags;
-		}
+		inline const Vector<Widget*>& GetChildren() const { return m_children; }
 
-		inline Widget* GetParent()
-		{
-			return m_parent;
-		}
+		inline Bitmask32& GetFlags() { return m_flags; }
 
-		inline TypeID GetTID() const
-		{
-			return m_tid;
-		}
+		inline Widget* GetParent() { return m_parent; }
 
-		inline bool GetIsPressed() const
-		{
-			return m_isPressed;
-		}
+		inline TypeID GetTID() const { return m_tid; }
 
-		inline TBLR& GetBorderThickness()
-		{
-			return m_borderThickness;
-		}
+		inline bool GetIsPressed() const { return m_isPressed; }
 
-		inline void SetBorderColor(const Color& c)
-		{
-			m_colorBorders = c;
-		}
+		inline TBLR& GetBorderThickness() { return m_borderThickness; }
 
-		inline Color& GetBorderColor()
-		{
-			return m_colorBorders;
-		}
+		inline void SetBorderColor(const Color& c) { m_colorBorders = c; }
 
-		inline const String& GetTooltip() const
-		{
-			return m_tooltip;
-		}
+		inline Color& GetBorderColor() { return m_colorBorders; }
 
-		inline void SetTooltip(const String& str)
-		{
-			m_tooltip = str;
-		}
+		inline const String& GetTooltip() const { return m_tooltip; }
 
-		inline void SetPosAlignmentSourceX(PosAlignmentSource src)
-		{
-			m_posAlignSourceX = src;
-		}
+		inline void SetTooltip(const String& str) { m_tooltip = str; }
 
-		inline void SetPosAlignmentSourceY(PosAlignmentSource src)
-		{
-			m_posAlignSourceY = src;
-		}
+		inline void SetPosAlignmentSourceX(PosAlignmentSource src) { m_posAlignSourceX = src; }
 
-		inline PosAlignmentSource GetPosAlignmentSourceX()
-		{
-			return m_posAlignSourceX;
-		}
+		inline void SetPosAlignmentSourceY(PosAlignmentSource src) { m_posAlignSourceY = src; }
 
-		inline PosAlignmentSource GetPosAlignmentSourceY()
-		{
-			return m_posAlignSourceY;
-		}
+		inline PosAlignmentSource GetPosAlignmentSourceX() { return m_posAlignSourceX; }
 
-		inline TBLR& GetChildMargins()
-		{
-			return m_childMargins;
-		}
+		inline PosAlignmentSource GetPosAlignmentSourceY() { return m_posAlignSourceY; }
 
-		inline float GetChildPadding() const
-		{
-			return m_childPadding;
-		}
+		inline TBLR& GetChildMargins() { return m_childMargins; }
 
-		inline void SetChildPadding(float padding)
-		{
-			m_childPadding = padding;
-		}
+		inline float GetChildPadding() const { return m_childPadding; }
 
-		inline bool GetIsDisabled() const
-		{
-			return m_isDisabled;
-		}
+		inline void SetChildPadding(float padding) { m_childPadding = padding; }
 
-		inline WidgetManager* GetWidgetManager() const
-		{
-			return m_manager;
-		}
+		inline bool GetIsDisabled() const { return m_isDisabled; }
 
-		inline System* GetSystem() const
-		{
-			return m_system;
-		}
+		inline WidgetManager* GetWidgetManager() const { return m_manager; }
+
+		inline System* GetSystem() const { return m_system; }
 
 		template <typename T> static void GetWidgetsOfType(Vector<T*>& outWidgets, Widget* root)
 		{
@@ -320,35 +187,17 @@ namespace Lina
 			}
 		}
 
-		inline void SetVisible(bool visible)
-		{
-			m_isVisible = visible;
-		}
+		inline void SetVisible(bool visible) { m_isVisible = visible; }
 
-		inline bool GetIsVisible() const
-		{
-			return m_isVisible;
-		}
+		inline bool GetIsVisible() const { return m_isVisible; }
 
-		inline void SetCustomTooltipUserData(void* ud)
-		{
-			m_customTooltipUserData = ud;
-		}
+		inline void SetCustomTooltipUserData(void* ud) { m_customTooltipUserData = ud; }
 
-		inline void SetBuildCustomTooltip(Delegate<Widget*(void*)>&& tt)
-		{
-			m_buildCustomTooltip = tt;
-		}
+		inline void SetBuildCustomTooltip(Delegate<Widget*(void*)>&& tt) { m_buildCustomTooltip = tt; }
 
-		inline void SetScrollerOffset(float f)
-		{
-			m_scrollerOffset = f;
-		}
+		inline void SetScrollerOffset(float f) { m_scrollerOffset = f; }
 
-		inline float GetScrollerOffset() const
-		{
-			return m_scrollerOffset;
-		}
+		inline float GetScrollerOffset() const { return m_scrollerOffset; }
 
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);

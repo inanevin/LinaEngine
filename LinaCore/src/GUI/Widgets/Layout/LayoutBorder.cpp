@@ -53,8 +53,6 @@ namespace Lina
 
 	void LayoutBorder::PreTick()
 	{
-		Widget::PreTick();
-
 		if (m_isPressed)
 		{
 			const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();

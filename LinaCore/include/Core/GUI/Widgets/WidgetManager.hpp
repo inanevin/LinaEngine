@@ -65,9 +65,6 @@ namespace Lina
 		void AddToKillList(Widget* w);
 		void AddToForeground(Widget* widget);
 		void RemoveFromForeground(Widget* widget);
-		bool PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
-		bool PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
-		bool PassMouseWheel(Widget* widget, float amt);
 
 		template <typename T> T* Allocate(const String& debugName = "Widget")
 		{
@@ -87,15 +84,9 @@ namespace Lina
 
 		void Deallocate(Widget* widget);
 
-		inline Widget* GetRoot()
-		{
-			return m_rootWidget;
-		}
+		inline Widget* GetRoot() { return m_rootWidget; }
 
-		inline Widget* GetForegroundRoot()
-		{
-			return m_foregroundRoot;
-		}
+		inline Widget* GetForegroundRoot() { return m_foregroundRoot; }
 
 		inline Rect* GetClipStackTop()
 		{
@@ -105,25 +96,13 @@ namespace Lina
 				return &m_clipStack[m_clipStack.size() - 1].rect;
 		}
 
-		inline void SetForegroundDim(float dim = 0.0f)
-		{
-			m_foregroundDim = dim;
-		}
+		inline void SetForegroundDim(float dim = 0.0f) { m_foregroundDim = dim; }
 
-		inline Font* GetDefaultFont()
-		{
-			return m_defaultFont;
-		}
+		inline Font* GetDefaultFont() { return m_defaultFont; }
 
-		inline void SetLastControlsManager(Widget* man)
-		{
-			m_lastControlsManager = man;
-		}
+		inline void SetLastControlsManager(Widget* man) { m_lastControlsManager = man; }
 
-		inline Widget* GetLastControlsManager() const
-		{
-			return m_lastControlsManager;
-		}
+		inline Widget* GetLastControlsManager() const { return m_lastControlsManager; }
 
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
@@ -136,10 +115,13 @@ namespace Lina
 
 	private:
 		LinaGX::CursorType FindCursorType(Widget* start);
-		void			   PassPreTick(Widget* w);
-		void			   PassTick(Widget* w, float delta);
 
+		bool		   PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		bool		   PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
+		bool		   PassMouseWheel(Widget* widget, float amt);
 		void		   PassCalculateSize(Widget* w, float delta);
+		void		   PassPreTick(Widget* w);
+		void		   PassTick(Widget* w, float delta);
 		PoolAllocator* GetGUIAllocator(TypeID tid, size_t typeSize);
 
 	private:

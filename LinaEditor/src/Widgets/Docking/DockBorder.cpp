@@ -62,9 +62,6 @@ namespace Lina::Editor
 
 	void DockBorder::PreTick()
 	{
-
-		Widget::PreTick();
-
 		// Hax :)
 		if (m_tick < 2)
 			m_tick++;

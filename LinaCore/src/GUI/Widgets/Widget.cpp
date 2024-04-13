@@ -78,30 +78,7 @@ namespace Lina
 		w->m_next = w->m_prev = nullptr;
 	}
 
-	void Widget::RemoveAllChildren()
-	{
-		m_children.clear();
-	}
-
-	void Widget::SaveToStream(OStream& out) const
-	{
-		out << m_tid;
-		out << m_flags.GetValue();
-		StringSerialization::SaveToStream(out, m_debugName);
-		out << m_alignedPos.x << m_alignedPos.y;
-		out << m_alignedSize.x << m_alignedSize.y;
-	}
-
-	void Widget::LoadFromStream(IStream& in)
-	{
-		uint32 mask = 0;
-		in >> m_tid;
-		in >> mask;
-		m_flags.Set(mask);
-		StringSerialization::LoadFromStream(in, m_debugName);
-		in >> m_alignedPos.x >> m_alignedPos.y;
-		in >> m_alignedSize.x >> m_alignedSize.y;
-	}
+	void Widget::RemoveAllChildren() { m_children.clear(); }
 
 	void Widget::Initialize()
 	{
@@ -254,15 +231,9 @@ namespace Lina
 			m_isHovered = false;
 	}
 
-	Vector2 Widget::GetStartFromMargins()
-	{
-		return m_rect.pos + Vector2(m_childMargins.left, m_childMargins.top);
-	}
+	Vector2 Widget::GetStartFromMargins() { return m_rect.pos + Vector2(m_childMargins.left, m_childMargins.top); }
 
-	Vector2 Widget::GetEndFromMargins()
-	{
-		return m_rect.GetEnd() - Vector2(m_childMargins.right, m_childMargins.bottom);
-	}
+	Vector2 Widget::GetEndFromMargins() { return m_rect.GetEnd() - Vector2(m_childMargins.right, m_childMargins.bottom); }
 
 	void Widget::SetIsDisabled(bool isDisabled)
 	{
@@ -272,20 +243,11 @@ namespace Lina
 			c->SetIsDisabled(isDisabled);
 	}
 
-	Vector2 Widget::GetMonitorSize()
-	{
-		return Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y));
-	}
+	Vector2 Widget::GetMonitorSize() { return Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y)); }
 
-	Vector2 Widget::GetWindowSize()
-	{
-		return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
-	}
+	Vector2 Widget::GetWindowSize() { return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)); }
 
-	Vector2 Widget::GetWindowPos()
-	{
-		return Vector2(static_cast<float>(m_lgxWindow->GetPosition().x), static_cast<float>(m_lgxWindow->GetPosition().y));
-	}
+	Vector2 Widget::GetWindowPos() { return Vector2(static_cast<float>(m_lgxWindow->GetPosition().x), static_cast<float>(m_lgxWindow->GetPosition().y)); }
 
 	Rect Widget::GetTemporaryAlignedRect()
 	{
