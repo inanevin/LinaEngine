@@ -73,7 +73,6 @@ namespace Lina
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = m_props.colorOutline.AsLVG4();
 		opts.color.gradientType		  = LinaVG::GradientType::Vertical;
-
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		Widget::Draw(threadIndex);
@@ -83,7 +82,7 @@ namespace Lina
 
 	bool Selectable::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
 	{
-		if (act != LinaGX::InputAction::Pressed)
+		if (act == LinaGX::InputAction::Released)
 			return false;
 
 		if (GetControlsOwner() != this)

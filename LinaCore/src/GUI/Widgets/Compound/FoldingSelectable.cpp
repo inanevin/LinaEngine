@@ -186,7 +186,7 @@ namespace Lina::Editor
 
 	bool FoldingSelectable::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
 	{
-		if (act != LinaGX::InputAction::Pressed)
+		if (act == LinaGX::InputAction::Released)
 			return false;
 
 		if (GetControlsOwner() != this)

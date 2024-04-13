@@ -161,6 +161,8 @@ namespace Lina::Editor
 			return;
 		}
 
+		m_currentContentsSelection.clear();
+
 		auto* targetDirectory = m_currentBrowserSelection[0];
 
 		if (m_showListContents)
@@ -583,7 +585,7 @@ namespace Lina::Editor
 		bottom->SetChildPadding(Theme::GetDef().baseIndentInner);
 		bottom->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
 		bottom->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		bottom->GetProps().colorBackgroundStart = bottom->GetProps().colorBackgroundEnd = Theme::GetDef().background3;
+		bottom->GetProps().colorBackgroundStart = bottom->GetProps().colorBackgroundEnd = Theme::GetDef().background1;
 
 		Text* itemCount = m_manager->Allocate<Text>("ItemCount");
 		itemCount->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -599,7 +601,7 @@ namespace Lina::Editor
 		divider->SetAlignedPosY(0.0f);
 		divider->SetAlignedSizeY(1.0f);
 		divider->SetFixedSizeX(2.0f);
-		divider->GetProps().colorStart = divider->GetProps().colorEnd = Theme::GetDef().background1;
+		divider->GetProps().colorStart = divider->GetProps().colorEnd = Theme::GetDef().background0;
 		bottom->AddChild(divider);
 
 		Text* itemSelected = m_manager->Allocate<Text>("ItemSelected");
@@ -616,7 +618,7 @@ namespace Lina::Editor
 		divider2->SetAlignedPosY(0.0f);
 		divider2->SetAlignedSizeY(1.0f);
 		divider2->SetFixedSizeX(2.0f);
-		divider2->GetProps().colorStart = divider2->GetProps().colorEnd = Theme::GetDef().background1;
+		divider2->GetProps().colorStart = divider2->GetProps().colorEnd = Theme::GetDef().background0;
 		bottom->AddChild(divider2);
 
 		Slider* sizeSlider = m_manager->Allocate<Slider>("SizeSlider");
