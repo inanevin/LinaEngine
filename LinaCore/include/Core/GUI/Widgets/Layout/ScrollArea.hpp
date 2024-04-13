@@ -35,44 +35,44 @@ namespace Lina
 	class ScrollArea : public Widget
 	{
 	public:
-        ScrollArea() : Widget(WF_TICK_AFTER_CHILDREN) {};
+		ScrollArea() : Widget(WF_TICK_AFTER_CHILDREN){};
 		virtual ~ScrollArea() = default;
 
 		struct Properties
 		{
-            DirectionOrientation direction = DirectionOrientation::Horizontal;
-            Color colorBackground = Theme::GetDef().background0;
-            Color colorBarStart = Theme::GetDef().accentPrimary1;
-            Color colorBarEnd = Theme::GetDef().accentPrimary0;
-            Color colorHovered = Theme::GetDef().accentPrimary2;
-            Color colorPressed = Theme::GetDef().accentPrimary1;
-            int32 targetChildIndex = -1;
-            float barRounding = Theme::GetDef().baseRounding * 2;
+			DirectionOrientation direction		  = DirectionOrientation::Horizontal;
+			Color				 colorBackground  = Theme::GetDef().background0;
+			Color				 colorBarStart	  = Theme::GetDef().accentPrimary1;
+			Color				 colorBarEnd	  = Theme::GetDef().accentPrimary0;
+			Color				 colorHovered	  = Theme::GetDef().accentPrimary2;
+			Color				 colorPressed	  = Theme::GetDef().accentPrimary1;
+			int32				 targetChildIndex = -1;
+			float				 barRounding	  = Theme::GetDef().baseRounding * 2;
 		};
 
 		virtual void Tick(float delta) override;
-        virtual void Draw(int32 threadIndex) override;
-        virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-        virtual bool OnMouseWheel(float amt) override;
-        
+		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual bool OnMouseWheel(float amt) override;
+
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
 	private:
-		Properties m_props = {};
-        float m_scrollAmount = 0.0f;
-        float m_minScroll = 0.0f;
-        float m_maxScroll = 0.0f;
-        float m_sizeToChildSizeRatio = 0.0f;
-        float m_pressDelta = 0.0f;
-        float m_totalChildSize = 0.0f;
-        Widget* m_targetWidget = nullptr;
-        bool m_barVisible = false;
-        bool m_barHovered = false;
-        Rect m_barBGRect = {};
-        Rect m_barRect = {};
+		Properties m_props				  = {};
+		float	   m_scrollAmount		  = 0.0f;
+		float	   m_minScroll			  = 0.0f;
+		float	   m_maxScroll			  = 0.0f;
+		float	   m_sizeToChildSizeRatio = 0.0f;
+		float	   m_pressDelta			  = 0.0f;
+		float	   m_totalChildSize		  = 0.0f;
+		Widget*	   m_targetWidget		  = nullptr;
+		bool	   m_barVisible			  = false;
+		bool	   m_barHovered			  = false;
+		Rect	   m_barBGRect			  = {};
+		Rect	   m_barRect			  = {};
 	};
 
 } // namespace Lina

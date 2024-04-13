@@ -124,8 +124,8 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<SplashScreen>(), 1);
 		Theme::SetWidgetChunkCount(GetTypeID<ProjectSelector>(), 1);
 		Theme::SetWidgetChunkCount(GetTypeID<WindowBar>(), 20);
-        Theme::SetWidgetChunkCount(GetTypeID<GenericPopup>(), 10);
-        Theme::SetWidgetChunkCount(GetTypeID<FoldingSelectable>(), 100);
+		Theme::SetWidgetChunkCount(GetTypeID<GenericPopup>(), 10);
+		Theme::SetWidgetChunkCount(GetTypeID<FoldingSelectable>(), 100);
 		Theme::SetWidgetChunkCount(GetTypeID<Selectable>(), 100);
 
 		m_app	 = app;
