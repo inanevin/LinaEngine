@@ -216,7 +216,7 @@ namespace Lina::Editor
 			return true;
 		}
 
-        return false;
+		return false;
 	}
 
 	void Tab::DisableClosing(bool disabled)
