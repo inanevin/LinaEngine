@@ -96,6 +96,7 @@ namespace Lina
 				return &m_clipStack[m_clipStack.size() - 1].rect;
 		}
 
+        
 		inline void SetForegroundDim(float dim = 0.0f) { m_foregroundDim = dim; }
 
 		inline Font* GetDefaultFont() { return m_defaultFont; }
