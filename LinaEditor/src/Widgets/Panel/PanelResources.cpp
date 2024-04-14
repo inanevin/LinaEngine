@@ -71,11 +71,10 @@ namespace Lina::Editor
 
 		DirectionalLayout* contents	   = m_manager->Allocate<DirectionalLayout>("Contents");
 		contents->GetProps().direction = DirectionOrientation::Vertical;
-		contents->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROLS_MANAGER);
+		contents->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		contents->SetAlignedPos(Vector2(0.25f, 0.0f));
 		contents->SetAlignedSize(Vector2(0.75f, 1.0f));
 		contents->GetChildMargins() = {.top = Theme::GetDef().baseIndent};
-		contents->GetFlags().Set(WF_CONTROLS_MANAGER);
 		AddChild(contents);
 
 		contents->AddChild(BuildTopContents());
@@ -91,8 +90,7 @@ namespace Lina::Editor
 		scroller->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		scroller->SetAlignedPosX(0.0f);
 		scroller->SetAlignedSize(Vector2(1.0f, 0.0f));
-		scroller->GetProps().direction		  = DirectionOrientation::Vertical;
-		scroller->GetProps().targetChildIndex = 0;
+		scroller->GetProps().direction = DirectionOrientation::Vertical;
 		contents->AddChild(scroller);
 
 		GridLayout* grid = m_manager->Allocate<GridLayout>("Grid");
@@ -108,8 +106,9 @@ namespace Lina::Editor
 		contents->AddChild(BuildBottomContents());
 
 		border->AssignSides(browser, contents);
-		m_border	   = border;
-		m_contentsGrid = grid;
+		m_border		 = border;
+		m_contentsGrid	 = grid;
+		m_contentsScroll = scroller;
 
 		RefreshBrowserHierarchy();
 	}
@@ -150,13 +149,11 @@ namespace Lina::Editor
 
 		uint8		   level = 0;
 		DirectoryItem* root	 = m_editor->GetFileManager().GetRoot();
-		m_browserItems->AddChild(CreateSelectable(root, 0));
+		m_browserItems->AddChild(BuildBrowserSelectable(root, 0));
 	}
 
 	void PanelResources::RefreshContents()
 	{
-		auto* rm = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-
 		if (m_currentBrowserSelection.size() != 1)
 		{
 			return;
@@ -169,7 +166,6 @@ namespace Lina::Editor
 		if (m_showListContents)
 		{
 			m_contentsGrid->GetProps().horizontalPadding = Theme::GetDef().baseIndentInner / 4;
-			m_contentsGrid->SetChildPadding(Theme::GetDef().baseIndentInner / 4);
 		}
 		else
 		{
@@ -204,219 +200,18 @@ namespace Lina::Editor
 
 		for (auto* item : targetDirectory->children)
 		{
-			Widget* thumbnail  = BuildThumbnailForItem(item);
-			Widget* itemName   = BuildTitleForItem(item);
-			Widget* folderIcon = BuildFolderIconForItem(item);
-
 			if (m_showListContents)
 			{
-				Selectable* selectable = m_manager->Allocate<Selectable>("Item");
-				selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-				selectable->SetAlignedPosX(0.0f);
-				selectable->SetAlignedSizeX(1.0f);
-				selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-				selectable->GetProps().moveNextArrowVertical   = true;
-				selectable->GetProps().moveNextArrowHorizontal = false;
-				selectable->GetProps().onSelectionChanged	   = [this, item](bool selected) {
-					 if (selected)
-						 m_currentContentsSelection.push_back(item);
-					 else
-					 {
-						 auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
-						 if (it != m_currentContentsSelection.end())
-							 m_currentContentsSelection.erase(it);
-					 }
-					 m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
-					 m_selectedItemCount->CalculateTextSize();
-				};
-
-				DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-				layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-				layout->SetAlignedPos(Vector2::Zero);
-				layout->SetAlignedSize(Vector2::One);
-				layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-				selectable->AddChild(layout);
-
-				if (item->isDirectory)
-				{
-					layout->AddChild(folderIcon);
-				}
-				else
-				{
-					Widget* wrap = m_manager->Allocate<Widget>("Wrap");
-					wrap->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_POS_ALIGN_Y);
-					wrap->SetAlignedSizeY(0.9f);
-					wrap->SetAlignedPosY(0.5f);
-					wrap->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-					wrap->AddChild(thumbnail);
-					thumbnail->SetCustomTooltipUserData(item);
-					thumbnail->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
-					layout->AddChild(wrap);
-				}
-
-				layout->AddChild(itemName);
-
-				selectable->Initialize();
-				m_contentsGrid->AddChild(selectable);
+				Widget* widget = BuildContentSelectableList(item);
+				widget->Initialize();
+				m_contentsGrid->AddChild(widget);
+				continue;
 			}
-			else
-			{
-				DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Item");
-				layout->GetProps().direction = DirectionOrientation::Vertical;
-				layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
-				UpdateWidgetSizeFromContentsSize(layout);
 
-				Selectable* base = m_manager->Allocate<Selectable>("Base");
-				base->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
-				base->SetAlignedPosX(0.0f);
-				base->SetAlignedSizeX(1.0f);
-				base->GetChildMargins()				= TBLR::Eq(Theme::GetDef().baseIndentInner);
-				base->GetProps().onSelectionChanged = [item, this](bool selected) {
-					if (selected)
-						m_currentContentsSelection.push_back(item);
-					else
-					{
-						auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
-						if (it != m_currentContentsSelection.end())
-							m_currentContentsSelection.erase(it);
-					}
-
-					m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
-					m_selectedItemCount->CalculateTextSize();
-				};
-				layout->AddChild(base);
-
-				if (item->isDirectory)
-				{
-					base->AddChild(folderIcon);
-				}
-				else
-				{
-					base->SetCustomTooltipUserData(item);
-					base->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
-					base->GetProps().colorEnd = base->GetProps().colorStart = Theme::GetDef().background0;
-					base->GetProps().outlineThickness						= Theme::GetDef().baseOutlineThickness;
-					base->GetProps().rounding								= Theme::GetDef().baseRounding;
-					base->GetProps().colorOutline							= Theme::GetDef().black;
-					base->AddChild(thumbnail);
-				}
-
-				layout->AddChild(itemName);
-				layout->Initialize();
-				m_contentsGrid->AddChild(layout);
-			}
+			Widget* widget = BuildContentSelectableBig(item);
+			widget->Initialize();
+			m_contentsGrid->AddChild(widget);
 		}
-	}
-
-	Widget* PanelResources::CreateSelectable(DirectoryItem* item, uint8 level)
-	{
-		bool containsFolderChild = false;
-		for (auto* c : item->children)
-		{
-			if (c->isDirectory)
-			{
-				containsFolderChild = true;
-				break;
-			}
-		}
-
-		FoldLayout* fold = m_manager->Allocate<FoldLayout>("Fold");
-		fold->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
-		fold->SetAlignedPosX(0.0f);
-		fold->SetAlignedSizeX(1.0f);
-		fold->SetChildPadding(Theme::GetDef().baseIndentInner / 2);
-
-		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
-		selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_INPUT_PASSTHRU);
-		selectable->SetAlignedPosX(0.0f);
-		selectable->SetAlignedSizeX(1.0f);
-		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		fold->AddChild(selectable);
-
-		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		layout->SetAlignedPos(Vector2::Zero);
-		layout->SetAlignedSizeX(1.0f);
-		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left = Theme::GetDef().baseIndent + Theme::GetDef().baseIndent * level;
-		selectable->AddChild(layout);
-
-		Icon* dropdown				   = m_manager->Allocate<Icon>("Dropdown");
-		dropdown->GetProps().icon	   = ICON_CHEVRON_RIGHT;
-		dropdown->GetProps().textScale = 0.3f;
-		dropdown->GetFlags().Set(WF_POS_ALIGN_Y);
-		dropdown->SetAlignedPosY(0.5f);
-		dropdown->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-
-		if (!containsFolderChild)
-			dropdown->SetVisible(false);
-
-		layout->AddChild(dropdown);
-
-		Icon* folder			= m_manager->Allocate<Icon>("Folder");
-		folder->GetProps().icon = ICON_FOLDER;
-		folder->GetFlags().Set(WF_POS_ALIGN_Y);
-		folder->SetAlignedPosY(0.5f);
-		folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		layout->AddChild(folder);
-
-		Text* title = WidgetUtility::BuildEditableText(this, true, []() {});
-		title->GetFlags().Set(WF_POS_ALIGN_Y);
-		title->SetAlignedPosY(0.5f);
-		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		title->GetProps().text = item->folderName;
-		layout->AddChild(title);
-
-		fold->GetProps().onFoldChanged = [dropdown, fold, item, level, this](bool folded) {
-			dropdown->GetProps().icon = folded ? ICON_CHEVRON_RIGHT : ICON_CHEVRON_DOWN;
-			dropdown->CalculateIconSize();
-
-			if (folded)
-			{
-				auto* first = fold->GetChildren().front();
-
-				for (auto* c : fold->GetChildren())
-				{
-					if (c == first)
-						continue;
-					m_manager->Deallocate(c);
-				}
-
-				fold->RemoveAllChildren();
-				fold->AddChild(first);
-			}
-			else
-			{
-				for (auto* c : item->children)
-				{
-					if (!c->isDirectory)
-						continue;
-					auto* childSelectable = CreateSelectable(c, level + 1);
-					fold->AddChild(childSelectable);
-					childSelectable->Initialize();
-				}
-			}
-		};
-
-		selectable->GetProps().onSelectionChanged = [item, this](bool selected) {
-			if (selected)
-				m_currentBrowserSelection.push_back(item);
-			else
-			{
-				auto it = linatl::find_if(m_currentBrowserSelection.begin(), m_currentBrowserSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
-
-				if (it != m_currentBrowserSelection.end())
-					m_currentBrowserSelection.erase(it);
-			}
-			RefreshContents();
-		};
-
-		selectable->GetProps().onInteracted = [fold]() { fold->ChangeFold(!fold->GetFold()); };
-
-		dropdown->GetProps().onClicked = [fold]() { fold->ChangeFold(!fold->GetFold()); };
-
-		return fold;
 	}
 
 	void PanelResources::UpdateWidgetSizeFromContentsSize(Widget* w)
@@ -511,7 +306,7 @@ namespace Lina::Editor
 		return resName;
 	}
 
-	Widget* PanelResources::BuildFolderIconForItem(DirectoryItem* item)
+	Widget* PanelResources::BuildFolderIconForItem(DirectoryItem* item, float dynSize)
 	{
 		Icon* folder			= m_manager->Allocate<Icon>("Folder");
 		folder->GetProps().icon = ICON_FOLDER;
@@ -531,7 +326,7 @@ namespace Lina::Editor
 		}
 
 		folder->GetProps().dynamicSizeToParent = true;
-		folder->GetProps().dynamicSizeScale	   = 0.9f;
+		folder->GetProps().dynamicSizeScale	   = dynSize;
 
 		return folder;
 	}
@@ -674,7 +469,6 @@ namespace Lina::Editor
 		browser->SetAlignedSize(Vector2(0.25f, 1.0f));
 		browser->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
 		browser->SetChildPadding(Theme::GetDef().baseIndent);
-		browser->GetFlags().Set(WF_CONTROLS_MANAGER);
 
 		InputField* searchField = m_manager->Allocate<InputField>("SearchField");
 		searchField->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
@@ -690,8 +484,7 @@ namespace Lina::Editor
 		scroller->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		scroller->SetAlignedPosX(0.0f);
 		scroller->SetAlignedSize(Vector2(1.0f, 0.0f));
-		scroller->GetProps().direction		  = DirectionOrientation::Vertical;
-		scroller->GetProps().targetChildIndex = 0;
+		scroller->GetProps().direction = DirectionOrientation::Vertical;
 		browser->AddChild(scroller);
 
 		DirectionalLayout* browserItems	   = m_manager->Allocate<DirectionalLayout>("BrowserItems");
@@ -706,8 +499,208 @@ namespace Lina::Editor
 		browserItems->GetProps().clipChildren	  = true;
 		scroller->AddChild(browserItems);
 
-		m_browserItems = browserItems;
+		m_browserItems	= browserItems;
+		m_browserScroll = scroller;
 
 		return browser;
+	}
+
+	Widget* PanelResources::BuildBrowserSelectable(DirectoryItem* item, uint8 level)
+	{
+		bool containsFolderChild = false;
+		for (auto* c : item->children)
+		{
+			if (c->isDirectory)
+			{
+				containsFolderChild = true;
+				break;
+			}
+		}
+
+		FoldLayout* fold = m_manager->Allocate<FoldLayout>("Fold");
+		fold->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+		fold->SetAlignedPosX(0.0f);
+		fold->SetAlignedSizeX(1.0f);
+		fold->SetDebugName(item->folderName);
+
+		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+		selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		selectable->SetAlignedPosX(0.0f);
+		selectable->SetAlignedSizeX(1.0f);
+		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		selectable->SetLocalControlsManager(m_browserItems);
+
+		fold->AddChild(selectable);
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSizeX(1.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
+		layout->GetChildMargins().left = Theme::GetDef().baseIndent + Theme::GetDef().baseIndent * level;
+		selectable->AddChild(layout);
+
+		Icon* dropdown				   = m_manager->Allocate<Icon>("Dropdown");
+		dropdown->GetProps().icon	   = ICON_CHEVRON_RIGHT;
+		dropdown->GetProps().textScale = 0.3f;
+		dropdown->GetFlags().Set(WF_POS_ALIGN_Y);
+		dropdown->SetAlignedPosY(0.5f);
+		dropdown->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+
+		if (!containsFolderChild)
+			dropdown->SetVisible(false);
+
+		layout->AddChild(dropdown);
+
+		Icon* folder			= m_manager->Allocate<Icon>("Folder");
+		folder->GetProps().icon = ICON_FOLDER;
+		folder->GetFlags().Set(WF_POS_ALIGN_Y);
+		folder->SetAlignedPosY(0.5f);
+		folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		layout->AddChild(folder);
+
+		Text* title = WidgetUtility::BuildEditableText(this, true, []() {});
+		title->GetFlags().Set(WF_POS_ALIGN_Y);
+		title->SetAlignedPosY(0.5f);
+		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		title->GetProps().text = item->folderName;
+		layout->AddChild(title);
+
+		fold->GetProps().onFoldChanged = [dropdown, fold, item, level, this](bool folded) {
+			dropdown->GetProps().icon = folded ? ICON_CHEVRON_RIGHT : ICON_CHEVRON_DOWN;
+			dropdown->CalculateIconSize();
+
+			if (folded)
+			{
+				auto* first = fold->GetChildren().front();
+
+				for (auto* c : fold->GetChildren())
+				{
+					if (c == first)
+						continue;
+					m_manager->Deallocate(c);
+				}
+
+				fold->RemoveAllChildren();
+				fold->AddChild(first);
+			}
+			else
+			{
+				for (auto* c : item->children)
+				{
+					if (!c->isDirectory)
+						continue;
+					auto* childSelectable = BuildBrowserSelectable(c, level + 1);
+					fold->AddChild(childSelectable);
+					childSelectable->Initialize();
+				}
+			}
+		};
+
+		selectable->SetOnGrabbedControls([item, this]() {
+			m_currentBrowserSelection.clear();
+			m_currentBrowserSelection.push_back(item);
+			RefreshContents();
+		});
+		selectable->GetProps().onInteracted = [fold]() { fold->ChangeFold(!fold->GetFold()); };
+		dropdown->GetProps().onClicked		= [fold]() { fold->ChangeFold(!fold->GetFold()); };
+
+		return fold;
+	}
+
+	Widget* PanelResources::BuildContentSelectableList(DirectoryItem* item)
+	{
+		Selectable* selectable = m_manager->Allocate<Selectable>("Item");
+		selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		selectable->SetAlignedPosX(0.0f);
+		selectable->SetAlignedSizeX(1.0f);
+		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		selectable->GetProps().onSelectionChanged = [this, item](bool selected) {
+			if (selected)
+				m_currentContentsSelection.push_back(item);
+			else
+			{
+				auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
+				if (it != m_currentContentsSelection.end())
+					m_currentContentsSelection.erase(it);
+			}
+			m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
+			m_selectedItemCount->CalculateTextSize();
+		};
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
+		selectable->AddChild(layout);
+
+		if (item->isDirectory)
+		{
+			layout->AddChild(BuildFolderIconForItem(item, 0.9f));
+		}
+		else
+		{
+			Widget* wrap = m_manager->Allocate<Widget>("Wrap");
+			wrap->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_POS_ALIGN_Y);
+			wrap->SetAlignedSizeY(0.9f);
+			wrap->SetAlignedPosY(0.5f);
+			wrap->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			layout->AddChild(wrap);
+
+			Widget* thumbnail = BuildThumbnailForItem(item);
+			thumbnail->SetCustomTooltipUserData(item);
+			thumbnail->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
+			wrap->AddChild(thumbnail);
+		}
+
+		layout->AddChild(BuildTitleForItem(item));
+	}
+
+	Widget* PanelResources::BuildContentSelectableBig(DirectoryItem* item)
+	{
+		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Item");
+		layout->GetProps().direction = DirectionOrientation::Vertical;
+		layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
+		UpdateWidgetSizeFromContentsSize(layout);
+
+		Selectable* base = m_manager->Allocate<Selectable>("Base");
+		base->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
+		base->SetAlignedPosX(0.0f);
+		base->SetAlignedSizeX(1.0f);
+		base->GetChildMargins()	  = TBLR::Eq(Theme::GetDef().baseIndentInner);
+		base->GetProps().rounding = Theme::GetDef().baseRounding;
+
+		base->GetProps().onSelectionChanged = [item, this](bool selected) {
+			if (selected)
+				m_currentContentsSelection.push_back(item);
+			else
+			{
+				auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
+				if (it != m_currentContentsSelection.end())
+					m_currentContentsSelection.erase(it);
+			}
+
+			m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
+			m_selectedItemCount->CalculateTextSize();
+		};
+		layout->AddChild(base);
+
+		if (item->isDirectory)
+		{
+			base->AddChild(BuildFolderIconForItem(item, 0.75f));
+		}
+		else
+		{
+			base->SetCustomTooltipUserData(item);
+			base->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
+			base->GetProps().colorEnd = base->GetProps().colorStart = Theme::GetDef().background0;
+			base->GetProps().outlineThickness						= Theme::GetDef().baseOutlineThickness;
+			base->GetProps().colorOutline							= Theme::GetDef().black;
+			base->AddChild(BuildThumbnailForItem(item));
+		}
+
+		layout->AddChild(BuildTitleForItem(item));
 	}
 } // namespace Lina::Editor

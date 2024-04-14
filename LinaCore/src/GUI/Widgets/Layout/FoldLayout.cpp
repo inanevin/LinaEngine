@@ -57,7 +57,7 @@ namespace Lina
 		else
 			targetY = childrenTotalHeight;
 
-		SetSizeY(Math::Lerp(GetSizeY(), targetY, FOLD_SPEED * delta));
+		SetSizeY(targetY);
 	}
 
 	void FoldLayout::Tick(float delta)

@@ -77,13 +77,13 @@ namespace Lina
 	void FoldingSelectable::PreTick()
 	{
 		// Requires main thread due to possible allocation/deallocation below
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (hasControls && !m_selected)
 			ChangeSelected(true);
 
-		if (!hasControls && m_selected && FindGetControlsManager()->IsWidgetInHierarchy(GetControlsOwner()))
-			ChangeSelected(false);
+		// if (!hasControls && m_selected && FindGetControlsManager()->IsWidgetInHierarchy(GetControlsOwner()))
+		// 	ChangeSelected(false);
 	}
 
 	void FoldingSelectable::Tick(float dt)
@@ -93,7 +93,7 @@ namespace Lina
 
 		SetIsHovered();
 
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (!m_selected)
 		{
@@ -129,7 +129,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		LinaVG::StyleOptions opts;
 		opts.color.start = m_usedColorStart.AsLVG4();
@@ -156,7 +156,7 @@ namespace Lina
 
 		if (m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
-			GrabControls(this);
+			m_manager->GrabControls(this);
 			ChangeSelected(true);
 			return true;
 		}
@@ -175,40 +175,40 @@ namespace Lina
 		if (act == LinaGX::InputAction::Released)
 			return false;
 
-		if (GetControlsOwner() != this)
+		if (m_manager->GetControlsOwner() != this)
 			return false;
 
-		if (keycode == LINAGX_KEY_RETURN)
-		{
-			ChangeFold(!m_folded);
-			return true;
-		}
+		// if (keycode == LINAGX_KEY_RETURN)
+		//{
+		//	ChangeFold(!m_folded);
+		//	return true;
+		// }
 
-		if (keycode == LINAGX_KEY_LEFT)
-		{
-			ChangeFold(true);
-			return true;
-		}
+		// if (keycode == LINAGX_KEY_LEFT)
+		//{
+		//	ChangeFold(true);
+		//	return true;
+		// }
 
-		if (keycode == LINAGX_KEY_RIGHT)
-		{
-			ChangeFold(false);
-			return true;
-		}
+		// if (keycode == LINAGX_KEY_RIGHT)
+		//{
+		//	ChangeFold(false);
+		//	return true;
+		// }
 
-		if (keycode == LINAGX_KEY_DOWN)
-		{
-			if (!m_children.empty() || m_props.owner->GetChildren().back() != this)
-				FindGetControlsManager()->MoveControlsToNext();
-			return true;
-		}
+		// if (keycode == LINAGX_KEY_DOWN)
+		//{
+		//	if (!m_children.empty() || m_props.owner->GetChildren().back() != this)
+		//		FindGetControlsManager()->MoveControlsToNext();
+		//	return true;
+		// }
 
-		if (keycode == LINAGX_KEY_UP)
-		{
-			if (m_props.owner->GetChildren().front() != this)
-				FindGetControlsManager()->MoveControlsToPrev();
-			return true;
-		}
+		// if (keycode == LINAGX_KEY_UP)
+		//{
+		//	if (m_props.owner->GetChildren().front() != this)
+		//		FindGetControlsManager()->MoveControlsToPrev();
+		//	return true;
+		// }
 
 		return false;
 	}

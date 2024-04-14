@@ -104,7 +104,7 @@ namespace Lina
 			m_placeholderText->SetIsDisabled(true);
 		}
 
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (!hasControls && m_isEditing)
 		{
@@ -177,7 +177,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		// Background
 		LinaVG::StyleOptions style;
@@ -263,7 +263,7 @@ namespace Lina
 
 	void InputField::StartEditing()
 	{
-		GrabControls(this);
+		m_manager->GrabControls(this);
 		m_isEditing = true;
 		if (m_props.onEditStarted)
 			m_props.onEditStarted(m_text->GetProps().text);
@@ -335,7 +335,7 @@ namespace Lina
 	{
 		if (!m_isEditing)
 		{
-			if (GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
+			if (m_manager->GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
 			{
 				StartEditing();
 				SelectAll();

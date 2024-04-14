@@ -53,6 +53,7 @@ namespace Lina
 			w->m_prev	 = last;
 		}
 
+		w->m_next = nullptr;
 		m_children.push_back(w);
 	}
 
@@ -280,138 +281,6 @@ namespace Lina
 		const float sizex = GetFlags().IsSet(WF_USE_FIXED_SIZE_X) ? GetFixedSizeX() : GetParent()->GetSizeX() * GetAlignedSizeX();
 		const float sizey = GetFlags().IsSet(WF_USE_FIXED_SIZE_Y) ? GetFixedSizeY() : GetParent()->GetSizeY() * GetAlignedSizeY();
 		return Rect(Vector2(posx, posy), Vector2(sizex, sizey));
-	}
-
-	Widget* Widget::FindGetControlsManager()
-	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
-			m_controlsManager = this;
-
-		if (m_controlsManager == nullptr && m_parent)
-			m_controlsManager = m_parent->FindGetControlsManager();
-
-		return m_controlsManager;
-	}
-
-	void Widget::GrabControls(Widget* widget)
-	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
-			m_controlsOwner = widget;
-		else
-		{
-			auto* manager = FindGetControlsManager();
-			if (manager)
-			{
-				manager->GrabControls(this);
-				m_manager->SetLastControlsManager(manager);
-			}
-		}
-	}
-
-	void Widget::ReleaseControls(Widget* widget)
-	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
-		{
-			if (m_controlsOwner == widget)
-				m_controlsOwner = nullptr;
-		}
-		else
-		{
-			auto* manager = FindGetControlsManager();
-			if (manager)
-				manager->ReleaseControls(this);
-		}
-	}
-
-	Widget* Widget::GetControlsOwner()
-	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
-			return m_controlsOwner;
-
-		auto* manager = FindGetControlsManager();
-		if (manager)
-			return manager->GetControlsOwner();
-
-		return nullptr;
-	}
-
-	Widget* Widget::FindNextSelectable(Widget* start)
-	{
-		if (!start)
-			return nullptr;
-
-		Widget* current = start;
-		do
-		{
-			// Depth-first search for the next selectable widget
-			if (!current->m_children.empty())
-				current = current->m_children[0];
-			else
-			{
-				while (current != nullptr && current->m_next == nullptr)
-					current = current->m_parent;
-
-				if (current != nullptr)
-					current = current->m_next;
-			}
-
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled())
-				return current;
-		} while (current != nullptr && current != start && !current->GetFlags().IsSet(WF_CONTROLS_MANAGER));
-
-		return nullptr;
-	}
-
-	Widget* Widget::FindPreviousSelectable(Widget* start)
-	{
-		if (!start)
-			return nullptr;
-
-		Widget* current = start;
-		do
-		{
-			// Reverse depth-first search for the previous selectable widget
-			if (current->m_prev)
-			{
-				current = current->m_prev;
-				while (!current->m_children.empty())
-					current = current->m_children.back();
-			}
-			else
-				current = current->m_parent;
-
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled())
-				return current;
-
-		} while (current != nullptr && current != start && !current->GetFlags().IsSet(WF_CONTROLS_MANAGER));
-
-		return nullptr;
-	}
-
-	void Widget::MoveControlsToPrev()
-	{
-		if (!GetFlags().IsSet(WF_CONTROLS_MANAGER))
-			return;
-
-		if (m_controlsOwner)
-		{
-			Widget* previous = FindPreviousSelectable(m_controlsOwner);
-			if (previous && previous->FindGetControlsManager() == this)
-			{
-				GrabControls(previous);
-			}
-		}
-	}
-
-	void Widget::MoveControlsToNext()
-	{
-		if (!GetFlags().IsSet(WF_CONTROLS_MANAGER))
-			return;
-		Widget* next = FindNextSelectable(m_controlsOwner ? m_controlsOwner : nullptr);
-		if (next && next->FindGetControlsManager() == this)
-		{
-			GrabControls(next);
-		}
 	}
 
 	bool Widget::IsWidgetInHierarchy(Widget* widget)

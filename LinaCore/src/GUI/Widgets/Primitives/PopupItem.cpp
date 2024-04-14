@@ -55,7 +55,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (m_props.isSelected || m_isHovered)
 		{

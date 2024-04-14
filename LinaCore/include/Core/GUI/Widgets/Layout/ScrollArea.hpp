@@ -40,20 +40,20 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction		  = DirectionOrientation::Horizontal;
-			Color				 colorBackground  = Theme::GetDef().background2;
-			Color				 colorBarStart	  = Theme::GetDef().accentPrimary1;
-			Color				 colorBarEnd	  = Theme::GetDef().accentPrimary0;
-			Color				 colorHovered	  = Theme::GetDef().accentPrimary2;
-			Color				 colorPressed	  = Theme::GetDef().accentPrimary1;
-			int32				 targetChildIndex = -1;
-			float				 barRounding	  = Theme::GetDef().baseRounding * 2;
+			DirectionOrientation direction		 = DirectionOrientation::Horizontal;
+			Color				 colorBackground = Theme::GetDef().background2;
+			Color				 colorBarStart	 = Theme::GetDef().accentPrimary1;
+			Color				 colorBarEnd	 = Theme::GetDef().accentPrimary0;
+			Color				 colorHovered	 = Theme::GetDef().accentPrimary2;
+			Color				 colorPressed	 = Theme::GetDef().accentPrimary1;
+			float				 barRounding	 = Theme::GetDef().baseRounding * 2;
 		};
 
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnMouseWheel(float amt) override;
+		void		 ScrollToChild(Widget* w);
 
 		inline Properties& GetProps()
 		{
@@ -61,6 +61,11 @@ namespace Lina
 		}
 
 	private:
+		void ClampScroll();
+
+	private:
+		static constexpr float SCROLL_SMOOTH = 15.0f;
+
 		Properties m_props				  = {};
 		float	   m_scrollAmount		  = 0.0f;
 		float	   m_minScroll			  = 0.0f;
@@ -73,6 +78,9 @@ namespace Lina
 		bool	   m_barHovered			  = false;
 		Rect	   m_barBGRect			  = {};
 		Rect	   m_barRect			  = {};
+		Vector2	   m_start				  = {};
+		Vector2	   m_end				  = {};
+		Vector2	   m_sz					  = {};
 	};
 
 } // namespace Lina

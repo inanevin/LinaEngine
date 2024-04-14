@@ -82,10 +82,9 @@ namespace Lina
 		WF_SIZE_Y_MAX_CHILDREN	 = 1 << 14,
 		WF_SKIP_FLOORING		 = 1 << 15,
 		WF_FOREGROUND_BLOCKER	 = 1 << 16,
-		WF_CONTROLS_MANAGER		 = 1 << 17,
-		WF_TICK_AFTER_CHILDREN	 = 1 << 18,
-		WF_INPUT_PASSTHRU		 = 1 << 19,
-		WF_SIZE_AFTER_CHILDREN	 = 1 << 20,
+		WF_TICK_AFTER_CHILDREN	 = 1 << 17,
+		WF_INPUT_PASSTHRU		 = 1 << 18,
+		WF_SIZE_AFTER_CHILDREN	 = 1 << 19,
 	};
 
 	enum class PosAlignmentSource

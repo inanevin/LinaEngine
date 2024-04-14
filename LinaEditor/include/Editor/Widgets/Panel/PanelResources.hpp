@@ -37,6 +37,7 @@ namespace Lina
 	class DirectionalLayout;
 	class GridLayout;
 	class Selectable;
+	class ScrollArea;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -61,15 +62,18 @@ namespace Lina::Editor
 	private:
 		void	RefreshBrowserHierarchy();
 		void	RefreshContents();
-		Widget* CreateSelectable(DirectoryItem* item, uint8 level);
 		void	UpdateWidgetSizeFromContentsSize(Widget* w);
 		Widget* BuildThumbnailForItem(DirectoryItem* item);
 		Widget* BuildTooltipForItem(void* userData);
 		Widget* BuildTitleForItem(DirectoryItem* item);
-		Widget* BuildFolderIconForItem(DirectoryItem* item);
+		Widget* BuildFolderIconForItem(DirectoryItem* item, float dynSize);
 		Widget* BuildTopContents();
 		Widget* BuildBottomContents();
 		Widget* BuildBrowser();
+
+		Widget* BuildBrowserSelectable(DirectoryItem* item, uint8 level);
+		Widget* BuildContentSelectableList(DirectoryItem* item);
+		Widget* BuildContentSelectableBig(DirectoryItem* item);
 
 	private:
 		static constexpr float MIN_CONTENTS_SIZE = 2.0f;
@@ -81,6 +85,8 @@ namespace Lina::Editor
 		Text*			   m_itemCount		   = nullptr;
 		Text*			   m_selectedItemCount = nullptr;
 		GridLayout*		   m_contentsGrid	   = nullptr;
+		ScrollArea*		   m_browserScroll	   = nullptr;
+		ScrollArea*		   m_contentsScroll	   = nullptr;
 
 		Vector<DirectoryItem*> m_currentBrowserSelection  = {};
 		Vector<DirectoryItem*> m_currentContentsSelection = {};

@@ -62,7 +62,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		LinaVG::StyleOptions style;
 		style.rounding				   = m_props.rounding;
@@ -105,7 +105,7 @@ namespace Lina
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed = true;
-			GrabControls(this);
+			m_manager->GrabControls(this);
 			return true;
 		}
 
@@ -125,7 +125,7 @@ namespace Lina
 
 	bool Button::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
 	{
-		if (GetControlsOwner() != this)
+		if (m_manager->GetControlsOwner() != this)
 			return false;
 
 		if (keycode != LINAGX_KEY_RETURN)

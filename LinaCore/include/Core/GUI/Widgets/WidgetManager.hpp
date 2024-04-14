@@ -47,6 +47,7 @@ namespace Lina
 	class ResourceManager;
 	class Font;
 	class GfxManager;
+	class ScrollArea;
 
 	class WidgetManager : public LinaGX::WindowListener
 	{
@@ -54,18 +55,25 @@ namespace Lina
 		WidgetManager()			 = default;
 		virtual ~WidgetManager() = default;
 
-		void Initialize(System* system, LinaGX::Window* window);
-		void Draw(int32 threadIndex);
-		void PreTick();
-		void Tick(float delta, const Vector2ui& size);
-		void Shutdown();
-		void DebugDraw(int32 threadIndex, Widget* w);
-		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
-		void UnsetClip(int32 threadIndex);
-		void AddToKillList(Widget* w);
-		void AddToForeground(Widget* widget);
-		void RemoveFromForeground(Widget* widget);
-		void Deallocate(Widget* widget);
+		void	Initialize(System* system, LinaGX::Window* window);
+		void	Draw(int32 threadIndex);
+		void	PreTick();
+		void	Tick(float delta, const Vector2ui& size);
+		void	Shutdown();
+		void	DebugDraw(int32 threadIndex, Widget* w);
+		void	SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
+		void	UnsetClip(int32 threadIndex);
+		void	AddToKillList(Widget* w);
+		void	AddToForeground(Widget* widget);
+		void	RemoveFromForeground(Widget* widget);
+		void	Deallocate(Widget* widget);
+		void	GrabControls(Widget* widget);
+		void	ReleaseControls(Widget* widget);
+		Widget* GetControlsOwner();
+		void	MoveControlsToNext();
+		void	MoveControlsToPrev();
+		Widget* FindNextSelectable(Widget* start);
+		Widget* FindPreviousSelectable(Widget* start);
 
 		inline Widget* GetRoot()
 		{
@@ -142,12 +150,14 @@ namespace Lina
 		void		   PassPreTick(Widget* w);
 		void		   PassTick(Widget* w, float delta);
 		PoolAllocator* GetGUIAllocator(TypeID tid, size_t typeSize);
+		ScrollArea*	   FindScrollAreaAbove(Widget* w);
 
 	private:
 		friend class Widget;
 
 	private:
 		LinaGX::Window*	 m_window		   = nullptr;
+		Widget*			 m_controlsOwner   = nullptr;
 		Widget*			 m_rootWidget	   = nullptr;
 		Widget*			 m_foregroundRoot  = nullptr;
 		System*			 m_system		   = nullptr;

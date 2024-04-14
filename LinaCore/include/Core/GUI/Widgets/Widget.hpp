@@ -120,13 +120,8 @@ namespace Lina
 		Vector2 GetWindowSize();
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
-		Widget* FindGetControlsManager();
-		void	GrabControls(Widget* widget);
-		void	ReleaseControls(Widget* widget);
-		Widget* GetControlsOwner();
-		void	MoveControlsToNext();
-		void	MoveControlsToPrev();
-		bool	IsWidgetInHierarchy(Widget* widget);
+
+		bool IsWidgetInHierarchy(Widget* widget);
 
 		virtual float CalculateChildrenSize()
 		{
@@ -328,6 +323,31 @@ namespace Lina
 			return m_scrollerOffset;
 		}
 
+		inline void SetLocalControlsManager(Widget* w)
+		{
+			m_localControlsManager = w;
+		}
+
+		inline Widget* GetLocalControlsManager() const
+		{
+			return m_localControlsManager;
+		}
+
+		inline void SetLocalControlsOwner(Widget* w)
+		{
+			m_localControlsOwner = w;
+		}
+
+		inline Widget* GetLocalControlsOwner() const
+		{
+			return m_localControlsOwner;
+		}
+
+		inline void SetOnGrabbedControls(Delegate<void()>&& onGrabbed)
+		{
+			m_onGrabbedControls = onGrabbed;
+		}
+
 		template <typename... Args> void AddChild(Args&&... args)
 		{
 			(AddChild(std::forward<Widget*>(args)), ...);
@@ -360,23 +380,23 @@ namespace Lina
 		Widget(Bitmask32 flags = 0) : m_flags(flags){};
 		virtual ~Widget() = default;
 
-		Widget* FindNextSelectable(Widget* start);
-		Widget* FindPreviousSelectable(Widget* start);
-
 	protected:
-		WidgetManager*			 m_manager		   = nullptr;
-		ResourceManager*		 m_resourceManager = nullptr;
-		LinaGX::Window*			 m_lgxWindow	   = nullptr;
-		System*					 m_system		   = nullptr;
-		Widget*					 m_parent		   = nullptr;
-		Widget*					 m_next			   = nullptr;
-		Widget*					 m_prev			   = nullptr;
-		Widget*					 m_controlsOwner   = nullptr;
-		Widget*					 m_controlsManager = nullptr;
-		Widget*					 m_customTooltip   = nullptr;
+		WidgetManager*			 m_manager				= nullptr;
+		ResourceManager*		 m_resourceManager		= nullptr;
+		LinaGX::Window*			 m_lgxWindow			= nullptr;
+		System*					 m_system				= nullptr;
+		Widget*					 m_parent				= nullptr;
+		Widget*					 m_next					= nullptr;
+		Widget*					 m_prev					= nullptr;
+		Widget*					 m_controlsOwner		= nullptr;
+		Widget*					 m_controlsManager		= nullptr;
+		Widget*					 m_customTooltip		= nullptr;
+		Widget*					 m_localControlsManager = nullptr;
+		Widget*					 m_localControlsOwner	= nullptr;
 		Delegate<Widget*(void*)> m_buildCustomTooltip;
 		Vector<Widget*>			 m_children;
 		Vector<Delegate<void()>> m_executeNextFrame;
+		Delegate<void()>		 m_onGrabbedControls;
 		Rect					 m_rect					 = {};
 		Vector2					 m_fixedSize			 = Vector2::Zero;
 		Vector2					 m_alignedPos			 = Vector2::Zero;

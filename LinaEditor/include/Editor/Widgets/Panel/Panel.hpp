@@ -37,7 +37,7 @@ namespace Lina::Editor
 	{
 	public:
 		Panel() = delete;
-		Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData), Widget(WF_CONTROLS_MANAGER){};
+		Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData), Widget(){};
 		virtual ~Panel() = default;
 
 		virtual void			 Draw(int32 threadIndex) override;

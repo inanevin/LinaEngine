@@ -37,7 +37,7 @@ namespace Lina
 
 	void Selectable::PreTick()
 	{
-		if (m_wasSelected && GetControlsOwner() != this)
+		if (m_wasSelected && m_manager->GetControlsOwner() != this)
 		{
 			m_wasSelected = false;
 			if (m_props.onSelectionChanged)
@@ -47,7 +47,7 @@ namespace Lina
 
 	void Selectable::Tick(float dt)
 	{
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 		if (hasControls)
 		{
 			m_usedStart = Math::Lerp(m_usedStart, m_props.colorSelectedStart, dt * COLOR_SPEED);
@@ -55,8 +55,16 @@ namespace Lina
 		}
 		else
 		{
-			m_usedStart = Math::Lerp(m_usedStart, m_props.colorStart, dt * COLOR_SPEED);
-			m_usedEnd	= Math::Lerp(m_usedEnd, m_props.colorEnd, dt * COLOR_SPEED);
+			if (m_localControlsManager && m_localControlsManager->GetLocalControlsOwner() == this)
+			{
+				m_usedStart = Math::Lerp(m_usedStart, m_props.colorLocalSelectedStart, dt * COLOR_SPEED);
+				m_usedEnd	= Math::Lerp(m_usedEnd, m_props.colorLocalSelectedEnd, dt * COLOR_SPEED);
+			}
+			else
+			{
+				m_usedStart = Math::Lerp(m_usedStart, m_props.colorStart, dt * COLOR_SPEED);
+				m_usedEnd	= Math::Lerp(m_usedEnd, m_props.colorEnd, dt * COLOR_SPEED);
+			}
 		}
 	}
 
@@ -65,7 +73,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = GetControlsOwner() == this;
+		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		LinaVG::StyleOptions opts;
 		opts.color.start			  = m_usedStart.AsLVG4();
@@ -86,7 +94,7 @@ namespace Lina
 		if (act == LinaGX::InputAction::Released)
 			return false;
 
-		if (GetControlsOwner() != this)
+		if (m_manager->GetControlsOwner() != this)
 			return false;
 
 		if (keycode == LINAGX_KEY_RETURN)
@@ -95,35 +103,6 @@ namespace Lina
 				m_props.onInteracted();
 
 			return true;
-		}
-
-		if (m_props.moveNextArrowHorizontal)
-		{
-			if (keycode == LINAGX_KEY_RIGHT)
-			{
-				FindGetControlsManager()->MoveControlsToNext();
-				return true;
-			}
-
-			if (keycode == LINAGX_KEY_LEFT)
-			{
-				FindGetControlsManager()->MoveControlsToPrev();
-				return true;
-			}
-		}
-		else if (m_props.moveNextArrowVertical)
-		{
-			if (keycode == LINAGX_KEY_DOWN)
-			{
-				FindGetControlsManager()->MoveControlsToNext();
-				return true;
-			}
-
-			if (keycode == LINAGX_KEY_UP)
-			{
-				FindGetControlsManager()->MoveControlsToPrev();
-				return true;
-			}
 		}
 
 		return false;
@@ -141,7 +120,7 @@ namespace Lina
 			return true;
 		}
 
-		if (GetControlsOwner() == this)
+		if (m_manager->GetControlsOwner() == this)
 			return false;
 
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
@@ -150,7 +129,7 @@ namespace Lina
 			if (m_props.onSelectionChanged)
 				m_props.onSelectionChanged(true);
 
-			GrabControls(this);
+			m_manager->GrabControls(this);
 
 			return true;
 		}

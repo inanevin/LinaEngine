@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -53,7 +54,6 @@ namespace Lina
 		m_rootWidget->SetDebugName("Root");
 
 		m_foregroundRoot = Allocate<Widget>();
-		m_foregroundRoot->GetFlags().Set(WF_CONTROLS_MANAGER);
 		m_foregroundRoot->SetDebugName("ForegroundRoot");
 
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -126,9 +126,16 @@ namespace Lina
 
 	void WidgetManager::Deallocate(Widget* widget)
 	{
+		// If the widget is the active controls owner of a manager
+		if (widget->GetLocalControlsManager() && widget->GetLocalControlsManager()->GetLocalControlsOwner() == widget)
+			widget->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
 
-		if (widget->GetControlsOwner() == widget)
-			widget->ReleaseControls(widget);
+		// If the widget is the manager of someone
+		if (widget->GetLocalControlsOwner())
+			widget->GetLocalControlsOwner()->SetLocalControlsManager(nullptr);
+
+		if (GetControlsOwner() == widget)
+			ReleaseControls(widget);
 
 		if (m_lastControlsManager == widget)
 			m_lastControlsManager = nullptr;
@@ -161,6 +168,15 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
+		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && m_controlsOwner != nullptr)
+		{
+			if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
+				MoveControlsToPrev();
+			else
+				MoveControlsToNext();
+			return;
+		}
+
 		if (PassKey(m_foregroundRoot, keycode, scancode, inputAction))
 			return;
 
@@ -201,6 +217,19 @@ namespace Lina
 
 				return;
 			}
+		}
+
+		// Left click presses to anywhere outside the control owner
+		// releases controls from that owner.
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr && !m_controlsOwner->GetIsHovered())
+		{
+			if (m_controlsOwner->GetLocalControlsManager())
+			{
+				if (m_controlsOwner->GetLocalControlsManager()->GetIsHovered())
+					m_controlsOwner->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
+			}
+
+			ReleaseControls(m_controlsOwner);
 		}
 
 		if (PassMouse(m_foregroundRoot, button, inputAction))
@@ -369,18 +398,6 @@ namespace Lina
 
 	bool WidgetManager::PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (widget->GetFlags().IsSet(WF_CONTROLS_MANAGER) && GetLastControlsManager() == widget)
-		{
-			if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && widget->m_controlsOwner != nullptr)
-			{
-				if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
-					widget->MoveControlsToPrev();
-				else
-					widget->MoveControlsToNext();
-				return;
-			}
-		}
-
 		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
 			return true;
 
@@ -395,19 +412,6 @@ namespace Lina
 
 	bool WidgetManager::PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction)
 	{
-		if (widget->GetFlags().IsSet(WF_CONTROLS_MANAGER))
-		{
-			// Left click presses to anywhere outside the control owner
-			// releases controls from that owner.
-			if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && widget->m_controlsOwner != nullptr)
-			{
-				if (!widget->m_controlsOwner->GetIsHovered())
-				{
-					widget->ReleaseControls(widget->m_controlsOwner);
-				}
-			}
-		}
-
 		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
 			return true;
 
@@ -627,6 +631,124 @@ namespace Lina
 
 		if (w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
 			w->Tick(delta);
+	}
+
+	ScrollArea* WidgetManager::FindScrollAreaAbove(Widget* w)
+	{
+		auto* parent = w->GetParent();
+		if (parent)
+		{
+
+			if (parent->GetTID() == GetTypeID<ScrollArea>())
+				return static_cast<ScrollArea*>(parent);
+
+			return FindScrollAreaAbove(parent);
+		}
+		return nullptr;
+	}
+
+	void WidgetManager::GrabControls(Widget* widget)
+	{
+		m_controlsOwner = widget;
+
+		if (widget->m_onGrabbedControls)
+			widget->m_onGrabbedControls();
+
+		auto* owningScroll = FindScrollAreaAbove(widget);
+
+		if (owningScroll)
+			owningScroll->ScrollToChild(widget);
+
+		if (widget->GetLocalControlsManager())
+			widget->GetLocalControlsManager()->SetLocalControlsOwner(widget);
+	}
+
+	void WidgetManager::ReleaseControls(Widget* widget)
+	{
+		if (m_controlsOwner == widget)
+			m_controlsOwner = nullptr;
+	}
+
+	Widget* WidgetManager::GetControlsOwner()
+	{
+		return m_controlsOwner;
+	}
+
+	Widget* WidgetManager::FindNextSelectable(Widget* start)
+	{
+		if (!start)
+			return nullptr;
+
+		Widget* current = start;
+		do
+		{
+			// Depth-first search for the next selectable widget
+			if (!current->m_children.empty())
+				current = current->m_children[0];
+			else
+			{
+				while (current != nullptr && current->m_next == nullptr)
+					current = current->m_parent;
+
+				if (current != nullptr)
+					current = current->m_next;
+			}
+
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible())
+				return current;
+		} while (current != nullptr && current != start);
+
+		return nullptr;
+	}
+
+	Widget* WidgetManager::FindPreviousSelectable(Widget* start)
+	{
+		if (!start)
+			return nullptr;
+
+		Widget* current = start;
+		do
+		{
+			// Reverse depth-first search for the previous selectable widget
+			if (current->m_prev)
+			{
+				current = current->m_prev;
+				while (!current->m_children.empty())
+					current = current->m_children.back();
+			}
+			else
+				current = current->m_parent;
+
+			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible())
+				return current;
+
+		} while (current != nullptr && current != start);
+
+		return nullptr;
+	}
+
+	void WidgetManager::MoveControlsToPrev()
+	{
+		if (!m_controlsOwner)
+			return;
+
+		Widget* previous = FindPreviousSelectable(m_controlsOwner);
+		if (previous)
+		{
+			GrabControls(previous);
+		}
+	}
+
+	void WidgetManager::MoveControlsToNext()
+	{
+		if (!m_controlsOwner)
+			return;
+
+		Widget* next = FindNextSelectable(m_controlsOwner);
+		if (next)
+		{
+			GrabControls(next);
+		}
 	}
 
 } // namespace Lina

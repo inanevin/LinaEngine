@@ -39,18 +39,9 @@ namespace Lina
 		if (m_children.empty())
 			return;
 
-		m_targetWidget = m_props.targetChildIndex == -1 ? this : m_children[m_props.targetChildIndex];
+		m_targetWidget = m_children.front();
 
-		const Vector2 start	   = m_targetWidget->GetStartFromMargins();
-		const Vector2 end	   = m_targetWidget->GetEndFromMargins();
-		const Vector2 sz	   = end - start;
-		const float	  usedSize = m_props.direction == DirectionOrientation::Horizontal ? sz.x : sz.y;
-		m_totalChildSize	   = m_targetWidget->CalculateChildrenSize();
-
-		m_sizeToChildSizeRatio = usedSize / m_totalChildSize;
-		m_barVisible		   = m_sizeToChildSizeRatio < 1.0f;
-		m_minScroll			   = 0.0f;
-		m_maxScroll			   = Math::Max(m_totalChildSize - usedSize, 0.0f);
+		ClampScroll();
 
 		if (m_isPressed)
 		{
@@ -68,8 +59,8 @@ namespace Lina
 			}
 		}
 
-		m_scrollAmount = Math::Clamp(m_scrollAmount, m_minScroll, m_maxScroll);
-		m_targetWidget->SetScrollerOffset(m_scrollAmount);
+		ClampScroll();
+		m_targetWidget->SetScrollerOffset(Math::Lerp(m_targetWidget->GetScrollerOffset(), m_scrollAmount, delta * SCROLL_SMOOTH));
 
 		// Calculate bar
 		const float scrollBackgroundSize = m_props.direction == DirectionOrientation::Horizontal ? m_targetWidget->GetSizeX() : m_targetWidget->GetSizeY();
@@ -100,6 +91,29 @@ namespace Lina
 		m_barBGRect	 = Rect(bgStart, bgEnd - bgStart);
 		m_barRect	 = Rect(barStart, barEnd - barStart);
 		m_barHovered = m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
+	}
+
+	void ScrollArea::ScrollToChild(Widget* w)
+	{
+		ClampScroll();
+
+		if (m_props.direction == DirectionOrientation::Horizontal)
+		{
+			const float startPos = w->GetPosX();
+			const float endPos	 = startPos + w->GetSizeX();
+			if (startPos < m_start.x)
+				m_scrollAmount -= m_start.x - startPos;
+			if (endPos > m_end.x)
+				m_scrollAmount += endPos - m_end.x;
+			return;
+		}
+
+		const float startPos = w->GetPosY();
+		const float endPos	 = startPos + w->GetSizeY();
+		if (startPos < m_start.y)
+			m_scrollAmount -= m_start.y - startPos;
+		if (endPos > m_end.y)
+			m_scrollAmount += endPos - m_end.y;
 	}
 
 	void ScrollArea::Draw(int32 threadIndex)
@@ -164,8 +178,25 @@ namespace Lina
 		if (Widget::OnMouseWheel(amt))
 			return true;
 
-		m_scrollAmount -= amt * 0.5f;
+		m_scrollAmount -= amt * 1.0f;
+		ClampScroll();
+		return true;
+	}
 
-		return false;
+	void ScrollArea::ClampScroll()
+	{
+		m_start				 = m_targetWidget->GetStartFromMargins();
+		m_end				 = m_targetWidget->GetEndFromMargins();
+		m_sz				 = m_end - m_start;
+		const float usedSize = m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y;
+
+		m_totalChildSize = m_targetWidget->CalculateChildrenSize();
+
+		m_sizeToChildSizeRatio = usedSize / m_totalChildSize;
+		m_barVisible		   = m_sizeToChildSizeRatio < 1.0f;
+		m_minScroll			   = 0.0f;
+		m_maxScroll			   = Math::Max(m_totalChildSize - usedSize, 0.0f);
+
+		m_scrollAmount = Math::Clamp(m_scrollAmount, m_minScroll, m_maxScroll);
 	}
 } // namespace Lina

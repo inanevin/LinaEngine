@@ -42,13 +42,13 @@ namespace Lina
 		{
 			Color				 colorStart				 = Color(0.0f, 0.0f, 0.0f, 0.0f);
 			Color				 colorEnd				 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			Color				 colorLocalSelectedStart = Theme::GetDef().silent0;
+			Color				 colorLocalSelectedEnd	 = Theme::GetDef().silent1;
 			Color				 colorSelectedStart		 = Theme::GetDef().accentPrimary0;
 			Color				 colorSelectedEnd		 = Theme::GetDef().accentPrimary1;
 			Color				 colorOutline			 = Theme::GetDef().outlineColorBase;
 			float				 rounding				 = 0.0f;
 			float				 outlineThickness		 = 0.0f;
-			bool				 moveNextArrowHorizontal = true;
-			bool				 moveNextArrowVertical	 = false;
 			Delegate<void(bool)> onSelectionChanged;
 			Delegate<void()>	 onInteracted;
 		};
