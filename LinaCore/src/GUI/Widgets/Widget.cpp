@@ -56,6 +56,11 @@ namespace Lina
 		m_children.push_back(w);
 	}
 
+	void Widget::ExecuteNextFrame(Delegate<void()>&& cb)
+	{
+		m_executeNextFrame.push_back(cb);
+	}
+
 	void Widget::RemoveChild(Widget* w)
 	{
 		if (w->m_prev != nullptr)
@@ -78,7 +83,10 @@ namespace Lina
 		w->m_next = w->m_prev = nullptr;
 	}
 
-	void Widget::RemoveAllChildren() { m_children.clear(); }
+	void Widget::RemoveAllChildren()
+	{
+		m_children.clear();
+	}
 
 	void Widget::Initialize()
 	{
@@ -231,9 +239,15 @@ namespace Lina
 			m_isHovered = false;
 	}
 
-	Vector2 Widget::GetStartFromMargins() { return m_rect.pos + Vector2(m_childMargins.left, m_childMargins.top); }
+	Vector2 Widget::GetStartFromMargins()
+	{
+		return m_rect.pos + Vector2(m_childMargins.left, m_childMargins.top);
+	}
 
-	Vector2 Widget::GetEndFromMargins() { return m_rect.GetEnd() - Vector2(m_childMargins.right, m_childMargins.bottom); }
+	Vector2 Widget::GetEndFromMargins()
+	{
+		return m_rect.GetEnd() - Vector2(m_childMargins.right, m_childMargins.bottom);
+	}
 
 	void Widget::SetIsDisabled(bool isDisabled)
 	{
@@ -243,11 +257,20 @@ namespace Lina
 			c->SetIsDisabled(isDisabled);
 	}
 
-	Vector2 Widget::GetMonitorSize() { return Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y)); }
+	Vector2 Widget::GetMonitorSize()
+	{
+		return Vector2(static_cast<float>(m_lgxWindow->GetMonitorSize().x), static_cast<float>(m_lgxWindow->GetMonitorSize().y));
+	}
 
-	Vector2 Widget::GetWindowSize() { return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y)); }
+	Vector2 Widget::GetWindowSize()
+	{
+		return Vector2(static_cast<float>(m_lgxWindow->GetSize().x), static_cast<float>(m_lgxWindow->GetSize().y));
+	}
 
-	Vector2 Widget::GetWindowPos() { return Vector2(static_cast<float>(m_lgxWindow->GetPosition().x), static_cast<float>(m_lgxWindow->GetPosition().y)); }
+	Vector2 Widget::GetWindowPos()
+	{
+		return Vector2(static_cast<float>(m_lgxWindow->GetPosition().x), static_cast<float>(m_lgxWindow->GetPosition().y));
+	}
 
 	Rect Widget::GetTemporaryAlignedRect()
 	{

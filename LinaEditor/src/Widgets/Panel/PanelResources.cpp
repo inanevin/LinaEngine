@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
+#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -307,8 +308,107 @@ namespace Lina::Editor
 		}
 	}
 
-	FoldingSelectable* PanelResources::CreateSelectable(DirectoryItem* item, uint8 level)
+	Widget* PanelResources::CreateSelectable(DirectoryItem* item, uint8 level)
 	{
+		bool containsFolderChild = false;
+		for (auto* c : item->children)
+		{
+			if (c->isDirectory)
+			{
+				containsFolderChild = true;
+				break;
+			}
+		}
+
+		{
+			FoldLayout* fold = m_manager->Allocate<FoldLayout>("Fold");
+			fold->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+			fold->SetAlignedPosX(0.0f);
+			fold->SetAlignedSizeX(1.0f);
+			fold->SetNestLevel(level);
+			fold->SetChildPadding(Theme::GetDef().baseIndentInner / 2);
+
+			Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+			selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_INPUT_PASSTHRU);
+			selectable->SetAlignedPosX(0.0f);
+			selectable->SetAlignedSizeX(1.0f);
+			selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			fold->AddChild(selectable);
+
+			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+			layout->SetAlignedPos(Vector2::Zero);
+			layout->SetAlignedSizeX(1.0f);
+			layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			layout->SetChildPadding(Theme::GetDef().baseIndentInner);
+			layout->GetChildMargins().left = Theme::GetDef().baseIndent + Theme::GetDef().baseIndent * level;
+			selectable->AddChild(layout);
+
+			Icon* dropdown				   = m_manager->Allocate<Icon>("Dropdown");
+			dropdown->GetProps().icon	   = ICON_CHEVRON_RIGHT;
+			dropdown->GetProps().textScale = 0.3f;
+			dropdown->GetFlags().Set(WF_POS_ALIGN_Y);
+			dropdown->SetAlignedPosY(0.5f);
+			dropdown->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+
+			if (!containsFolderChild)
+				dropdown->SetVisible(false);
+
+			layout->AddChild(dropdown);
+
+			Icon* folder			= m_manager->Allocate<Icon>("Folder");
+			folder->GetProps().icon = ICON_FOLDER;
+			folder->GetFlags().Set(WF_POS_ALIGN_Y);
+			folder->SetAlignedPosY(0.5f);
+			folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			layout->AddChild(folder);
+
+			Text* title = WidgetUtility::BuildEditableText(this, true, []() {});
+			title->GetFlags().Set(WF_POS_ALIGN_Y);
+			title->SetAlignedPosY(0.5f);
+			title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			title->GetProps().text = item->folderName;
+			layout->AddChild(title);
+
+			fold->GetProps().onFoldChanged = [dropdown, fold, item, this](bool folded) {
+				dropdown->GetProps().icon = folded ? ICON_CHEVRON_RIGHT : ICON_CHEVRON_DOWN;
+				dropdown->CalculateIconSize();
+
+				if (folded)
+				{
+					auto* first = fold->GetChildren().front();
+
+					for (auto* c : fold->GetChildren())
+					{
+						if (c == first)
+							continue;
+						m_manager->Deallocate(c);
+					}
+
+					fold->RemoveAllChildren();
+					fold->AddChild(first);
+				}
+				else
+				{
+					for (auto* c : item->children)
+					{
+						if (!c->isDirectory)
+							continue;
+						auto* childSelectable = CreateSelectable(c, fold->GetNestLevel() + 1);
+						fold->AddChild(childSelectable);
+						childSelectable->Initialize();
+					}
+				}
+			};
+
+			selectable->GetProps().onInteracted = [fold]() { fold->ChangeFold(!fold->GetFold()); };
+
+			dropdown->GetProps().onClicked = [fold]() { fold->ChangeFold(!fold->GetFold()); };
+
+			return fold;
+		}
+
+		return;
 		FoldingSelectable* folding = m_manager->Allocate<FoldingSelectable>("Folding");
 		folding->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
 		folding->SetAlignedPosX(0.0f);
@@ -333,19 +433,6 @@ namespace Lina::Editor
 		};
 		layout->AddChild(dropdown);
 
-		bool containsFolderChild = false;
-		for (auto* c : item->children)
-		{
-			if (c->isDirectory)
-			{
-				containsFolderChild = true;
-				break;
-			}
-		}
-
-		if (!containsFolderChild)
-			dropdown->SetVisible(false);
-
 		Icon* folder			= m_manager->Allocate<Icon>("Folder");
 		folder->GetProps().icon = ICON_FOLDER;
 		folder->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -358,7 +445,6 @@ namespace Lina::Editor
 		title->SetAlignedPosY(0.5f);
 		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		title->GetProps().text = item->folderName;
-
 		layout->AddChild(title);
 
 		folding->GetProps().onFoldChanged = [this, item, dropdown, folding](bool folded) {
@@ -408,7 +494,7 @@ namespace Lina::Editor
 			RefreshContents();
 		};
 
-		return folding;
+		return nullptr;
 	}
 
 	void PanelResources::UpdateWidgetSizeFromContentsSize(Widget* w)

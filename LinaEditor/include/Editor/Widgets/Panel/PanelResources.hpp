@@ -36,13 +36,13 @@ namespace Lina
 	class Text;
 	class DirectionalLayout;
 	class GridLayout;
+	class Selectable;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class DirectoryItem;
 	class Editor;
-	class FoldingSelectable;
 
 	class PanelResources : public Panel
 	{
@@ -59,17 +59,17 @@ namespace Lina::Editor
 		virtual void			 SetExtraLayoutData(const PanelLayoutExtra& data) override;
 
 	private:
-		void			   RefreshBrowserHierarchy();
-		void			   RefreshContents();
-		FoldingSelectable* CreateSelectable(DirectoryItem* item, uint8 level);
-		void			   UpdateWidgetSizeFromContentsSize(Widget* w);
-		Widget*			   BuildThumbnailForItem(DirectoryItem* item);
-		Widget*			   BuildTooltipForItem(void* userData);
-		Widget*			   BuildTitleForItem(DirectoryItem* item);
-		Widget*			   BuildFolderIconForItem(DirectoryItem* item);
-		Widget*			   BuildTopContents();
-		Widget*			   BuildBottomContents();
-		Widget*			   BuildBrowser();
+		void	RefreshBrowserHierarchy();
+		void	RefreshContents();
+		Widget* CreateSelectable(DirectoryItem* item, uint8 level);
+		void	UpdateWidgetSizeFromContentsSize(Widget* w);
+		Widget* BuildThumbnailForItem(DirectoryItem* item);
+		Widget* BuildTooltipForItem(void* userData);
+		Widget* BuildTitleForItem(DirectoryItem* item);
+		Widget* BuildFolderIconForItem(DirectoryItem* item);
+		Widget* BuildTopContents();
+		Widget* BuildBottomContents();
+		Widget* BuildBrowser();
 
 	private:
 		static constexpr float MIN_CONTENTS_SIZE = 2.0f;

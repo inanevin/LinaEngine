@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
-namespace Lina::Editor
+namespace Lina
 {
 
 	void FoldingSelectable::Construct()
@@ -154,20 +154,6 @@ namespace Lina::Editor
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
-		for (auto* c : m_children)
-		{
-			if (c == m_layout)
-			{
-				if (m_selected)
-					c->OnMouse(button, act);
-
-				continue;
-			}
-
-			if (!c->GetIsDisabled() && c->OnMouse(button, act))
-				return true;
-		}
-
 		if (m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
 			GrabControls(this);
@@ -255,4 +241,4 @@ namespace Lina::Editor
 		if (m_props.onSelectedChanged)
 			m_props.onSelectedChanged(m_selected);
 	}
-} // namespace Lina::Editor
+} // namespace Lina

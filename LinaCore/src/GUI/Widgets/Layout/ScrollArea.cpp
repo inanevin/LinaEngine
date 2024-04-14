@@ -36,8 +36,6 @@ namespace Lina
 {
 	void ScrollArea::Tick(float delta)
 	{
-		Widget::SetIsHovered();
-
 		if (m_children.empty())
 			return;
 

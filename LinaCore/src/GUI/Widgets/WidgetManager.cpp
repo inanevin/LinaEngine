@@ -96,9 +96,15 @@ namespace Lina
 		PassTick(m_rootWidget, delta);
 	}
 
-	void WidgetManager::AddToForeground(Widget* w) { m_foregroundRoot->AddChild(w); }
+	void WidgetManager::AddToForeground(Widget* w)
+	{
+		m_foregroundRoot->AddChild(w);
+	}
 
-	void WidgetManager::RemoveFromForeground(Widget* w) { m_foregroundRoot->RemoveChild(w); }
+	void WidgetManager::RemoveFromForeground(Widget* w)
+	{
+		m_foregroundRoot->RemoveChild(w);
+	}
 
 	void WidgetManager::Draw(int32 threadIndex)
 	{
@@ -120,6 +126,7 @@ namespace Lina
 
 	void WidgetManager::Deallocate(Widget* widget)
 	{
+
 		if (widget->GetControlsOwner() == widget)
 			widget->ReleaseControls(widget);
 
@@ -137,7 +144,10 @@ namespace Lina
 		GetGUIAllocator(tid, 0)->Free(widget);
 	}
 
-	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize) { return m_gfxManager->GetGUIAllocator(tid, typeSize); }
+	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize)
+	{
+		return m_gfxManager->GetGUIAllocator(tid, typeSize);
+	}
 
 	void WidgetManager::Shutdown()
 	{
@@ -206,13 +216,21 @@ namespace Lina
 		PassMouseWheel(m_rootWidget, amt);
 	}
 
-	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos) {}
+	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
+	{
+	}
 
-	void WidgetManager::OnWindowFocus(bool gainedFocus) {}
+	void WidgetManager::OnWindowFocus(bool gainedFocus)
+	{
+	}
 
-	void WidgetManager::OnWindowHoverBegin() {}
+	void WidgetManager::OnWindowHoverBegin()
+	{
+	}
 
-	void WidgetManager::OnWindowHoverEnd() {}
+	void WidgetManager::OnWindowHoverEnd()
+	{
+	}
 
 	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
@@ -291,7 +309,10 @@ namespace Lina
 		}
 	}
 
-	void WidgetManager::AddToKillList(Widget* w) { m_killList.push_back(w); }
+	void WidgetManager::AddToKillList(Widget* w)
+	{
+		m_killList.push_back(w);
+	}
 
 	LinaGX::CursorType WidgetManager::FindCursorType(Widget* w)
 	{
@@ -415,6 +436,11 @@ namespace Lina
 
 	void WidgetManager::PassPreTick(Widget* w)
 	{
+		for (auto cb : w->m_executeNextFrame)
+			cb();
+
+		w->m_executeNextFrame.clear();
+
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
 			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
 
@@ -426,7 +452,8 @@ namespace Lina
 
 	void WidgetManager::PassCalculateSize(Widget* w, float delta)
 	{
-		w->CalculateSize(delta);
+		if (!w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
+			w->CalculateSize(delta);
 
 		Vector<Widget*> expandingChildren;
 		Vector2			totalNonExpandingSize = Vector2::Zero;
@@ -484,6 +511,9 @@ namespace Lina
 			if (isExpandingX || isExpandingY)
 				expandingChildren.push_back(c);
 		}
+
+		if (w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
+			w->CalculateSize(delta);
 
 		if (w->GetFlags().IsSet(WF_SIZE_X_TOTAL_CHILDREN))
 		{

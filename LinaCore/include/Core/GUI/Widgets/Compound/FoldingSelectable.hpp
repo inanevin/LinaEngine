@@ -37,7 +37,7 @@ namespace Lina
 	class DirectionalLayout;
 } // namespace Lina
 
-namespace Lina::Editor
+namespace Lina
 {
 	class FoldingSelectable : public Widget
 	{
@@ -100,4 +100,4 @@ namespace Lina::Editor
 		bool			   m_folded			= true;
 	};
 
-} // namespace Lina::Editor
+} // namespace Lina

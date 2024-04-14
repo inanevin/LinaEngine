@@ -107,6 +107,7 @@ namespace Lina
 		virtual void Draw(int32 threadIndex);
 
 		void	AddChild(Widget* w);
+		void	ExecuteNextFrame(Delegate<void()>&& cb);
 		void	RemoveChild(Widget* w);
 		void	RemoveAllChildren();
 		void	SetIsHovered();
@@ -328,6 +329,16 @@ namespace Lina
 			return m_scrollerOffset;
 		}
 
+		inline void SetNestLevel(uint8 lvl)
+		{
+			m_nestLevel = lvl;
+		}
+
+		inline uint8 GetNestLevel() const
+		{
+			return m_nestLevel;
+		}
+
 		template <typename... Args> void AddChild(Args&&... args)
 		{
 			(AddChild(std::forward<Widget*>(args)), ...);
@@ -376,6 +387,7 @@ namespace Lina
 		Widget*					 m_customTooltip   = nullptr;
 		Delegate<Widget*(void*)> m_buildCustomTooltip;
 		Vector<Widget*>			 m_children;
+		Vector<Delegate<void()>> m_executeNextFrame;
 		Rect					 m_rect					 = {};
 		Vector2					 m_fixedSize			 = Vector2::Zero;
 		Vector2					 m_alignedPos			 = Vector2::Zero;
@@ -392,6 +404,7 @@ namespace Lina
 		PosAlignmentSource		 m_posAlignSourceX		 = PosAlignmentSource::Start;
 		PosAlignmentSource		 m_posAlignSourceY		 = PosAlignmentSource::Start;
 		ControlsStatus			 m_controlsStatus		 = ControlsStatus::None;
+		uint8					 m_nestLevel			 = 0;
 		bool					 m_isHovered			 = false;
 		bool					 m_isPressed			 = false;
 		bool					 m_isDisabled			 = false;

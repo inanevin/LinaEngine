@@ -111,6 +111,8 @@ namespace Lina
 
 			PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
 			T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
+
+			LINA_ASSERT(t != nullptr, "");
 			t->SetDebugName(debugName);
 			t->m_lgxWindow		 = m_window;
 			t->m_manager		 = this;

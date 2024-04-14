@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/Data/CommonData.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
@@ -88,6 +89,14 @@ namespace Lina
 		if (GetControlsOwner() != this)
 			return false;
 
+		if (keycode == LINAGX_KEY_RETURN)
+		{
+			if (m_props.onInteracted)
+				m_props.onInteracted();
+
+			return true;
+		}
+
 		if (m_props.moveNextArrowHorizontal)
 		{
 			if (keycode == LINAGX_KEY_RIGHT)
@@ -125,27 +134,24 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
+		if (m_isHovered && act == LinaGX::InputAction::Repeated)
+		{
+			if (m_props.onInteracted)
+				m_props.onInteracted();
+			return true;
+		}
+
 		if (GetControlsOwner() == this)
 			return false;
 
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
-			m_isPressed = true;
-			if (GetControlsOwner() != this)
-			{
-				m_wasSelected = true;
-				if (m_props.onSelectionChanged)
-					m_props.onSelectionChanged(true);
-			}
+			m_wasSelected = true;
+			if (m_props.onSelectionChanged)
+				m_props.onSelectionChanged(true);
 
 			GrabControls(this);
-			return true;
-		}
 
-		if (m_isPressed && act == LinaGX::InputAction::Released)
-		{
-
-			m_isPressed = false;
 			return true;
 		}
 

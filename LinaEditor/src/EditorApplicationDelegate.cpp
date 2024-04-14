@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
+#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Compound/FoldingSelectable.hpp"
@@ -127,6 +128,7 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<GenericPopup>(), 10);
 		Theme::SetWidgetChunkCount(GetTypeID<FoldingSelectable>(), 100);
 		Theme::SetWidgetChunkCount(GetTypeID<Selectable>(), 100);
+		Theme::SetWidgetChunkCount(GetTypeID<FoldLayout>(), 50);
 
 		m_app	 = app;
 		m_editor = new Editor(m_app->GetSystem());
