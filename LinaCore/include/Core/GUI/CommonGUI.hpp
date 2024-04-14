@@ -102,13 +102,6 @@ namespace Lina
 		MAX,
 	};
 
-	enum class ControlsStatus
-	{
-		None,
-		HasControls,
-		HasButInactive,
-	};
-
 	extern HashMap<ColorDisplay, String> COLOR_DISPLAY_VALUES;
 
 #define FOREGROUND_DRAW_ORDER		100

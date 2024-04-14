@@ -123,7 +123,6 @@ namespace Lina
 		Widget* FindGetControlsManager();
 		void	GrabControls(Widget* widget);
 		void	ReleaseControls(Widget* widget);
-		bool	CanGrabControls(Widget* widget);
 		Widget* GetControlsOwner();
 		void	MoveControlsToNext();
 		void	MoveControlsToPrev();
@@ -329,16 +328,6 @@ namespace Lina
 			return m_scrollerOffset;
 		}
 
-		inline void SetNestLevel(uint8 lvl)
-		{
-			m_nestLevel = lvl;
-		}
-
-		inline uint8 GetNestLevel() const
-		{
-			return m_nestLevel;
-		}
-
 		template <typename... Args> void AddChild(Args&&... args)
 		{
 			(AddChild(std::forward<Widget*>(args)), ...);
@@ -403,8 +392,6 @@ namespace Lina
 		TBLR					 m_borderThickness		 = {};
 		PosAlignmentSource		 m_posAlignSourceX		 = PosAlignmentSource::Start;
 		PosAlignmentSource		 m_posAlignSourceY		 = PosAlignmentSource::Start;
-		ControlsStatus			 m_controlsStatus		 = ControlsStatus::None;
-		uint8					 m_nestLevel			 = 0;
 		bool					 m_isHovered			 = false;
 		bool					 m_isPressed			 = false;
 		bool					 m_isDisabled			 = false;

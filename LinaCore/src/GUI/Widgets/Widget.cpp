@@ -323,18 +323,6 @@ namespace Lina
 		}
 	}
 
-	bool Widget::CanGrabControls(Widget* w)
-	{
-		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
-			return m_controlsOwner == nullptr || w == m_controlsOwner;
-
-		auto* manager = FindGetControlsManager();
-		if (manager)
-			return manager->CanGrabControls(this);
-
-		return true;
-	}
-
 	Widget* Widget::GetControlsOwner()
 	{
 		if (GetFlags().IsSet(WF_CONTROLS_MANAGER))
