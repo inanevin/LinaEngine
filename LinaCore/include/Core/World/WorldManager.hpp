@@ -28,22 +28,17 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LevelManager_HPP
-#define LevelManager_HPP
-
 #include "Common/System/Subsystem.hpp"
 
 namespace Lina
 {
-	class Level;
 	class GfxManager;
-	class WorldRenderer;
 
-	class LevelManager : public Subsystem
+	class WorldManager : public Subsystem
 	{
 	public:
-		LevelManager(System* sys) : Subsystem(sys, SubsystemType::LevelManager){};
-		virtual ~LevelManager() = default;
+		WorldManager(System* sys) : Subsystem(sys, SubsystemType::WorldManager){};
+		virtual ~WorldManager() = default;
 
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
@@ -55,17 +50,9 @@ namespace Lina
 		void Tick(float deltaTime);
 		void WaitForSimulation();
 
-		inline Level* GetCurrentLevel() const
-		{
-			return m_currentLevel;
-		}
-
 	private:
 		String		m_queuedLevel		= "";
 		bool		m_queuedLevelExists = false;
 		GfxManager* m_gfxManager		= nullptr;
-		Level*		m_currentLevel		= nullptr;
 	};
 } // namespace Lina
-
-#endif

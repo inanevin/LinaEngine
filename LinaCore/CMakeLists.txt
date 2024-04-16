@@ -68,8 +68,7 @@ src/Resources/Data/ResourceMetadata.cpp
 src/World/Entity.cpp
 src/World/Component.cpp
 src/World/ComponentCache.cpp
-src/World/Level/Level.cpp
-src/World/Level/LevelManager.cpp
+src/World/WorldManager.cpp
 src/World/EntityWorld.cpp
 
 
@@ -170,8 +169,7 @@ include/Core/Graphics/Pipeline/DescriptorSet.hpp
 include/Core/World/Entity.hpp
 include/Core/World/Component.hpp
 include/Core/World/ComponentCache.hpp
-include/Core/World/Level/Level.hpp
-include/Core/World/Level/LevelManager.hpp
+include/Core/World/WorldManager.hpp
 include/Core/World/EntityWorld.hpp
 include/Core/World/CommonWorld.hpp
 

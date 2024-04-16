@@ -108,7 +108,6 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
-		virtual void Flush() override;
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);

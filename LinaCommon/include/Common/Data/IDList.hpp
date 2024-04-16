@@ -63,6 +63,16 @@ namespace Lina
 			return m_items.end();
 		}
 
+		typename Vector<T>::const_iterator begin() const
+		{
+			return m_items.begin();
+		}
+
+		typename Vector<T>::const_iterator end() const
+		{
+			return m_items.end();
+		}
+
 		inline uint32 AddItem(T item)
 		{
 			uint32 id = 0;
@@ -135,7 +145,7 @@ namespace Lina
 			return m_items.data();
 		}
 
-		void SaveToStream(OStream& stream)
+		void SaveToStream(OStream& stream) const
 		{
 			const uint32 size = static_cast<uint32>(m_items.size());
 			stream << size;

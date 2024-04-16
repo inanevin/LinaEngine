@@ -6,6 +6,7 @@
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
 
 namespace Lina
@@ -17,7 +18,8 @@ namespace Lina
 		rm.RegisterResourceType<Texture>(100, {"png", "jpeg", "jpg"}, PackageType::Package1);
 		rm.RegisterResourceType<TextureSampler>(100, {"linasampler"}, PackageType::Package1);
 		rm.RegisterResourceType<Font>(10, {"ttf", "otf"}, PackageType::Package1);
-		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1);
+        rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1);
+		rm.RegisterResourceType<EntityWorld>(25, {"linaworld"}, PackageType::Package1);
 	}
 
 	void ApplicationDelegate::RegisterAppResources(ResourceManager& rm)

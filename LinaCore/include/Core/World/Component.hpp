@@ -58,8 +58,6 @@ namespace Lina
 			return m_entity;
 		}
 
-		bool enabled = true;
-
 	protected:
 		template <typename U> friend class ComponentCache;
 		Component()			 = default;

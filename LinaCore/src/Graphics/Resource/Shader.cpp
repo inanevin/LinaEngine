@@ -275,9 +275,4 @@ namespace Lina
 			delete[] blob.ptr;
 		}
 	}
-
-	void Shader::Flush()
-	{
-	}
-
 } // namespace Lina

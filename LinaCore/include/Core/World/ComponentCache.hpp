@@ -132,16 +132,14 @@ namespace Lina
 			}
 		}
 
-		inline Vector<T*> GetAllComponents()
+		inline Vector<T*> GetAllComponents(Vector<T*>& comps)
 		{
-			Vector<T*> vec;
+			comps.reserve(static_cast<size_t>(m_components.GetNextFreeID()));
 			for (auto c : m_components)
 			{
 				if (c != nullptr)
-					vec.push_back(c);
+					comps.push_back(c);
 			}
-
-			return vec;
 		}
 
 		virtual void OnEntityDestroyed(Entity* e) override
@@ -210,22 +208,10 @@ namespace Lina
 
 		void OnComponentCreated(T* comp)
 		{
-			Event			 data;
-			ObjectWrapper<T> objWrapper = ObjectWrapper<T>(comp);
-			data.pParams[0]				= static_cast<void*>(m_world);
-			data.pParams[1]				= static_cast<void*>(&objWrapper);
-			data.uintParams[0]			= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->AddListener(comp);
 		}
 
 		void OnComponentDestroyed(T* comp)
 		{
-			Event			 data;
-			ObjectWrapper<T> objWrapper = ObjectWrapper<T>(comp);
-			data.pParams[0]				= static_cast<void*>(m_world);
-			data.pParams[1]				= static_cast<void*>(&objWrapper);
-			data.uintParams[0]			= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->RemoveListener(comp);
 		}
 
 	private:

@@ -232,10 +232,6 @@ namespace Lina
 		}
 	}
 
-	void Texture::BatchLoaded()
-	{
-	}
-
 	Vector2ui Texture::GetSize()
 	{
 		return Vector2ui(m_allLevels[0].width, m_allLevels[0].height);

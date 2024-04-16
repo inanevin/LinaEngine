@@ -104,7 +104,6 @@ namespace Lina
 					{
 						IStream input = Serialization::LoadFromFile(metacachePath.c_str());
 						res->LoadFromStream(input);
-						res->Upload();
 						input.Destroy();
 					}
 					else
@@ -125,7 +124,6 @@ namespace Lina
 						res->m_resourceManager = this;
 						res->m_tag			   = ident.tag;
 						res->LoadFromFile(ident.path.c_str());
-						res->Upload();
 
 						OStream metastream;
 						res->SaveToStream(metastream);
@@ -140,8 +138,6 @@ namespace Lina
 					data.uintParams[0]		= ident.sid;
 					data.uintParams[1]		= ident.tid;
 					m_system->DispatchEvent(EVS_ResourceLoaded, data);
-
-					res->Flush();
 				});
 			}
 		}
@@ -169,8 +165,6 @@ namespace Lina
 					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
 					res->m_tag		= ident.tag;
 					res->LoadFromStream(load);
-					res->Upload();
-					res->Flush();
 
 					Event data;
 					data.pParams[0]	   = &ident.path;

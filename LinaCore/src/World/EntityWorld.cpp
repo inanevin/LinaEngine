@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/System/SystemInfo.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina
 {
@@ -41,7 +42,6 @@ namespace Lina
 
 	void EntityWorld::DestroyWorld()
 	{
-
 		for (auto* e : m_entities)
 		{
 			if (e != nullptr)
@@ -114,9 +114,6 @@ namespace Lina
 			return nullptr;
 		}
 
-		Event ev	  = Event();
-		ev.pParams[0] = e;
-
 		return e;
 	}
 
@@ -130,9 +127,6 @@ namespace Lina
 
 	void EntityWorld::DestroyEntityData(Entity* e)
 	{
-		Event ev		 = Event();
-		ev.uintParams[0] = e->GetID();
-
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
 
@@ -159,7 +153,7 @@ namespace Lina
 		m_physicsWorld.WaitForSimulation();
 	}
 
-	void EntityWorld::SaveToStream(OStream& stream)
+	void EntityWorld::SaveToStream(OStream& stream) const
 	{
 		m_entities.SaveToStream(stream);
 
@@ -185,6 +179,16 @@ namespace Lina
 
 		for (auto& [tid, cache] : m_componentCaches)
 			cache->SaveToStream(stream);
+	}
+
+	void EntityWorld::LoadFromFile(const char* path)
+	{
+		IStream stream = Serialization::LoadFromFile(path);
+
+		if (stream.GetDataRaw() != nullptr)
+			LoadFromStream(stream);
+
+		stream.Destroy();
 	}
 
 	void EntityWorld::LoadFromStream(IStream& stream)

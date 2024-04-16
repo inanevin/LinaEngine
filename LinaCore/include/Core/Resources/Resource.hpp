@@ -83,8 +83,6 @@ namespace Lina
 
 		template <typename U> friend class ResourceCache;
 
-		virtual void Flush(){};
-		virtual void Upload(){};
 		virtual void BatchLoaded(){};
 		virtual void LoadFromFile(const char* path){};
 		virtual void LoadFromStream(IStream& stream){};
