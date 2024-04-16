@@ -84,8 +84,8 @@ namespace Lina
 
 		m_gfxManager->GetLGX()->CloseCommandStreams(&m_copyStream, 1);
 
-        uint64 val = m_copySemaphoreValue;
-        
+		uint64 val = m_copySemaphoreValue;
+
 		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
 			.targetQueue	  = m_gfxManager->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
 			.streams		  = &m_copyStream,
@@ -96,8 +96,8 @@ namespace Lina
 			.signalValues	  = &val,
 			.isMultithreaded  = true,
 		};
-        
-        m_copySemaphoreValue++;
+
+		m_copySemaphoreValue++;
 
 		m_gfxManager->GetLGX()->SubmitCommandStreams(desc);
 

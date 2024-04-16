@@ -54,9 +54,9 @@ namespace Lina
 		void WaitForSimulation();
 
 	private:
-		String		m_queuedLevel		= "";
-		bool		m_queuedLevelExists = false;
-		GfxManager* m_gfxManager		= nullptr;
-        EntityWorld* m_loadedWorld = nullptr;
+		String		 m_queuedLevel		 = "";
+		bool		 m_queuedLevelExists = false;
+		GfxManager*	 m_gfxManager		 = nullptr;
+		EntityWorld* m_loadedWorld		 = nullptr;
 	};
 } // namespace Lina
