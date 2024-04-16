@@ -49,14 +49,14 @@ namespace Lina
 	class EntityWorld : public Resource, public GameEventDispatcher
 	{
 	public:
-		Entity* GetEntity(uint32 id);
-		Entity* GetEntity(const String& name);
-		Entity* GetEntityFromSID(StringID sid);
-		Entity* CreateEntity(const String& name);
-		void	DestroyEntity(Entity* e);
-        virtual void LoadFromFile(const char* path) override;
-		virtual void	SaveToStream(OStream& stream) const override;
-		virtual void	LoadFromStream(IStream& stream) override;
+		Entity*		 GetEntity(uint32 id);
+		Entity*		 GetEntity(const String& name);
+		Entity*		 GetEntityFromSID(StringID sid);
+		Entity*		 CreateEntity(const String& name);
+		void		 DestroyEntity(Entity* e);
+		virtual void LoadFromFile(const char* path) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
 
 		inline uint32 GetID()
 		{
@@ -88,8 +88,8 @@ namespace Lina
 		{
 			auto* cache = Cache<T>();
 
-            Vector<T*> ptrs;
-            cache->GetAllComponents(ptrs);
+			Vector<T*> ptrs;
+			cache->GetAllComponents(ptrs);
 
 			comps.reserve(ptrs.size());
 
@@ -133,25 +133,25 @@ namespace Lina
 				m_componentCaches[tid] = new ComponentCache<T>(this, this);
 
 			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
-            cache->m_entities = m_entities.GetRaw();
+			cache->m_entities		 = m_entities.GetRaw();
 			return cache;
 		}
 
 	private:
-        FRIEND_RESOURCE_CACHE();
-        
-        EntityWorld(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<EntityWorld>()),
-            m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
-              m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
-        {
-            m_id = s_worldCounter++;
-        };
+		FRIEND_RESOURCE_CACHE();
 
-        ~EntityWorld()
-        {
-            DestroyWorld();
-        }
-        
+		EntityWorld(ResourceManager* rm, const String& path, StringID sid)
+			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
+			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
+		{
+			m_id = s_worldCounter++;
+		};
+
+		~EntityWorld()
+		{
+			DestroyWorld();
+		}
+
 		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
