@@ -78,8 +78,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	while (!app->GetExitRequested())
 	{
-		app->PreTick();
-
 		MSG msg	   = {0};
 		msg.wParam = 0;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -87,8 +85,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
 		app->Poll();
+
+		app->PreTick();
 		app->Tick();
 	}
 

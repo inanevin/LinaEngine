@@ -75,11 +75,6 @@ namespace Lina
 		return *it;
 	}
 
-	Entity* EntityWorld::GetEntityFromID(uint32 id)
-	{
-		return m_entities.GetItem(id);
-	}
-
 	void EntityWorld::CopyFrom(EntityWorld& world)
 	{
 		DestroyWorld();
@@ -121,7 +116,6 @@ namespace Lina
 
 		Event ev	  = Event();
 		ev.pParams[0] = e;
-		DispatchEvent(EVG_EntityCreated, ev);
 
 		return e;
 	}
@@ -149,26 +143,15 @@ namespace Lina
 		m_entities.RemoveItem(id);
 		e->~Entity();
 		m_allocatorPool.Free(e);
-
-		DispatchEvent(EVG_EntityDestroyed, ev);
 	}
 
 	void EntityWorld::Simulate(float fixedDelta)
 	{
-		// dispatch events.
-		Event eventData;
-		eventData.fParams[0] = fixedDelta;
-		DispatchEvent(EVG_Simulate, eventData);
 		m_physicsWorld.Simulate();
-		DispatchEvent(EVG_PostSimulate, eventData);
 	}
 
 	void EntityWorld::Tick(float deltaTime)
 	{
-		Event data;
-		data.fParams[0] = deltaTime;
-		DispatchEvent(EVG_Tick, data);
-		DispatchEvent(EVG_PostTick, data);
 	}
 
 	void EntityWorld::WaitForSimulation()

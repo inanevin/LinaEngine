@@ -36,8 +36,6 @@ namespace Lina
 	{
 		if (m_world)
 		{
-			Event ev = Event();
-			m_world->DispatchEvent(EVG_End, ev);
 			delete m_world;
 		}
 
@@ -59,8 +57,6 @@ namespace Lina
 
 	void Level::Uninstall()
 	{
-		Event ev = Event();
-		m_world->DispatchEvent(EVG_End, ev);
 		delete m_world;
 		m_world = nullptr;
 	}

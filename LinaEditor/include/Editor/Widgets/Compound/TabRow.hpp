@@ -47,6 +47,9 @@ namespace Lina::Editor
 			Delegate<void(Widget* tiedWidget)> onTabClosed;
 			Delegate<void(Widget* tiedWidget)> onTabDockedOut;
 			Delegate<void(Widget* tiedWidget)> onSelectionChanged;
+
+			bool  drawBackground  = false;
+			Color colorBackground = Theme::GetDef().background0;
 		};
 
 		virtual void Tick(float delta) override;

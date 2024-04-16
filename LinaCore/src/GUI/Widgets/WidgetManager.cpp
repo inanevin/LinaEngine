@@ -247,6 +247,9 @@ namespace Lina
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
 	{
+		if (PassMousePos(m_foregroundRoot, pos))
+			return true;
+		PassMousePos(m_rootWidget, pos);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
@@ -438,6 +441,20 @@ namespace Lina
 		return false;
 	}
 
+	bool WidgetManager::PassMousePos(Widget* widget, const Vector2& pos)
+	{
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+			return true;
+
+		for (auto* c : widget->GetChildren())
+		{
+			if (PassMousePos(c, pos))
+				return true;
+		}
+
+		return false;
+	}
+
 	void WidgetManager::PassPreTick(Widget* w)
 	{
 		for (auto cb : w->m_executeNextFrame)
@@ -619,6 +636,9 @@ namespace Lina
 
 		if (!w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
 			w->Tick(delta);
+
+		if (w->m_tickHook)
+			w->m_tickHook(delta);
 
 		if (!w->GetFlags().IsSet(WF_SKIP_FLOORING))
 		{

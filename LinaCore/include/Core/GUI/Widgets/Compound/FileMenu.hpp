@@ -50,7 +50,6 @@ namespace Lina
 		struct Data
 		{
 			String text			= "";
-			String headerIcon	= "";
 			String altText		= "";
 			String dropdownIcon = "";
 			bool   hasDropdown	= false;

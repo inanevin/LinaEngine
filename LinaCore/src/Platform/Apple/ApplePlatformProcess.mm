@@ -123,7 +123,6 @@ int main(int argc, char* argv[])
 
 		@autoreleasepool
 		{
-			linaApp->PreTick();
 
 			NSEvent* ev;
 			do
@@ -135,8 +134,9 @@ int main(int argc, char* argv[])
 					[NSApp sendEvent:ev];
 				}
 			} while (ev);
-
 			linaApp->Poll();
+
+			linaApp->PreTick();
 			linaApp->Tick();
 		}
 	}

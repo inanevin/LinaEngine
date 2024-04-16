@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Theme.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -130,7 +131,6 @@ namespace Lina
 		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
 		{
 			CreatePopup();
-			m_manager->GrabControls(this);
 			return true;
 		}
 
@@ -160,35 +160,38 @@ namespace Lina
 		for (int32 i = 0; i < sz; i++)
 		{
 			const auto& it = items[i];
+            
+            Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+            selectable->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+            selectable->SetAlignedPosX(0.0f);
+            selectable->SetAlignedSizeX(1.0f);
+            selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+            selectable->GetProps().onInteracted = [it, i, this](){
+                m_text->GetProps().text = it;
+                m_text->CalculateTextSize();
+                if (m_props.onSelected)
+                    m_props.onSelected(i);
+                ClosePopup();
+            };
 
-			DirectionalLayout* item = m_manager->Allocate<DirectionalLayout>("Layout");
-			item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
-			item->SetAlignedPosX(0.0f);
-			item->SetAlignedSizeX(1.0f);
-			item->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			item->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndentInner};
-			item->GetProps().useHoverColor		= true;
-			item->GetProps().receiveInput		= true;
-			item->GetProps().backgroundStyle	= DirectionalLayout::BackgroundStyle::Default;
-			item->GetProps().colorHovered		= Theme::GetDef().accentPrimary0;
-			item->GetProps().colorBackgroundEnd = item->GetProps().colorBackgroundStart = (i == selectedItem ? Theme::GetDef().background3 : Color(0, 0, 0, 0));
-
-			item->GetProps().onClicked = [i, it, this]() {
-				m_text->GetProps().text = it;
-				m_text->CalculateTextSize();
-				if (m_props.onSelected)
-					m_props.onSelected(i);
-				ClosePopup();
-			};
-
+			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+            layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y|WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+            layout->SetAlignedPos(Vector2::Zero);
+            layout->SetAlignedSize(Vector2::One);
+			layout->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndentInner};
+            selectable->AddChild(layout);
+		
 			Text* txt = m_manager->Allocate<Text>("Text");
 			txt->GetFlags().Set(WF_POS_ALIGN_Y);
 			txt->SetAlignedPosY(0.5f);
 			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			txt->GetProps().text = it;
-			item->AddChild(txt);
-			maxChildSize = Math::Max(maxChildSize, txt->GetSizeX() + item->GetChildMargins().left + item->GetChildMargins().right);
-			m_popup->AddChild(item);
+			layout->AddChild(txt);
+			maxChildSize = Math::Max(maxChildSize, txt->GetSizeX() + layout->GetChildMargins().left + layout->GetChildMargins().right);
+			m_popup->AddChild(selectable);
+            
+            if(i == selectedItem)
+                m_manager->GrabControls(selectable);
 		}
 
 		m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
@@ -201,6 +204,7 @@ namespace Lina
 
 		m_manager->RemoveFromForeground(m_popup);
 		m_manager->Deallocate(m_popup);
+        m_manager->GrabControls(this);  
 	}
 
 } // namespace Lina

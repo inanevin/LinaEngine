@@ -74,7 +74,9 @@ namespace Lina::Editor
 		Widget* BuildBrowserSelectable(DirectoryItem* item, uint8 level);
 		Widget* BuildContentSelectableList(DirectoryItem* item);
 		Widget* BuildContentSelectableBig(DirectoryItem* item);
-
+        Widget* FindBrowserSelectable(DirectoryItem* item);
+        void OpenFile(DirectoryItem* item);
+        
 	private:
 		static constexpr float MIN_CONTENTS_SIZE = 2.0f;
 

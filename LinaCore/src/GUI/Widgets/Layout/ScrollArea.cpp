@@ -154,7 +154,7 @@ namespace Lina
 
 		const bool isHovered = m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
 
-		if (isHovered && !m_isPressed && act == LinaGX::InputAction::Pressed)
+		if (isHovered && !m_isPressed && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed	 = true;
 			m_pressDelta = m_props.direction == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().x - m_barRect.pos.x) : (m_lgxWindow->GetMousePosition().y - m_barRect.pos.y);

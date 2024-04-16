@@ -65,11 +65,11 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Initialize() override;
-		virtual void PreTick() override;
 		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
+		virtual bool OnMousePos(const Vector2& pos) override;
 		void		 DisableClosing(bool disabled);
 
 		inline Properties& GetProps()

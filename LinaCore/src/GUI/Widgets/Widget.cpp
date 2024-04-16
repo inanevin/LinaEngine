@@ -106,17 +106,6 @@ namespace Lina
 		});
 	}
 
-	bool Widget::OnMouseWheel(float amt)
-	{
-		for (auto* c : m_children)
-		{
-			if (!c->GetIsDisabled() && c->GetIsVisible() && c->OnMouseWheel(amt))
-				return true;
-		}
-
-		return false;
-	}
-
 	void Widget::DrawBorders(int32 threadIndex)
 	{
 		LinaVG::StyleOptions border;

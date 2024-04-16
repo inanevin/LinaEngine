@@ -86,6 +86,9 @@ namespace Lina::Editor
 		Items,
 		Selected,
 		NothingInDirectory,
+        Memory,
+        FrameTime,
+        DrawCalls,
 	};
 
 	class Locale
@@ -94,8 +97,11 @@ namespace Lina::Editor
 		static const String& GetStr(LocaleStr str);
 		static String		 GetStrUnicode(LocaleStr str);
 
+        static String GetRandomFact();
+        
 	private:
 		static HashMap<LocaleStr, String> s_englishMap;
+        static Vector<String> s_randomFacts;
 	};
 
 } // namespace Lina::Editor

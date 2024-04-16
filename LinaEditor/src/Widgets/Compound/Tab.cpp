@@ -86,17 +86,6 @@ namespace Lina::Editor
 		m_selectionRectAnim->Kill();
 	}
 
-	void Tab::PreTick()
-	{
-		if (m_isPressed && !m_icon->GetIsDisabled())
-		{
-			const Vector2& mp	  = m_lgxWindow->GetMousePosition();
-			const float	   margin = Theme::GetDef().baseIndent * 4.0f;
-			if (mp.y < m_rect.pos.y - margin || mp.y > m_rect.GetEnd().y + margin)
-				m_ownerRow->DockOut(m_props.tiedWidget);
-		}
-	}
-
 	void Tab::CalculateSize(float delta)
 	{
 		const float indent	 = Theme::GetDef().baseIndent;
@@ -219,8 +208,24 @@ namespace Lina::Editor
 		return false;
 	}
 
+	bool Tab::OnMousePos(const Vector2& pos)
+	{
+		if (m_isPressed && !m_icon->GetIsDisabled())
+		{
+			const Vector2& mp	  = pos;
+			const float	   margin = Theme::GetDef().baseIndent * 4.0f;
+			if (mp.y < m_rect.pos.y - margin || mp.y > m_rect.GetEnd().y + margin)
+				m_ownerRow->DockOut(m_props.tiedWidget);
+
+			return true;
+		}
+
+		return false;
+	}
+
 	void Tab::DisableClosing(bool disabled)
 	{
 		m_icon->SetIsDisabled(disabled);
 	}
+
 } // namespace Lina::Editor

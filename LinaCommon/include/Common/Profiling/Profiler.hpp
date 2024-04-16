@@ -66,11 +66,20 @@ namespace Lina
 		uint32		id			= 0;
 	};
 
+	struct DrawCall
+	{
+		const char* category = "";
+		StringID	sid		 = 0;
+		uint32		tris	 = 0;
+		uint32		meta	 = 0;
+	};
+
 	struct ProfilerFrame
 	{
-		uint64										  startCycles = 0;
-		uint64										  endCycles	  = 0;
-		ParallelHashMapMutex<StringID, Vector<Block>> threadBlocks;
+		uint64											 startCycles = 0;
+		uint64											 endCycles	 = 0;
+		ParallelHashMapMutex<StringID, Vector<Block>>	 threadBlocks;
+		ParallelHashMapMutex<StringID, Vector<DrawCall>> drawCalls;
 	};
 
 	struct DeviceCPUInfo
@@ -106,6 +115,20 @@ namespace Lina
 		void		   EndBlock(StringID threadName, uint32 id);
 		void		   DumpFrameAnalysis(const String& path);
 		void		   RegisterThread(const char* name, StringID sid);
+		void		   AddDrawCall(uint32 tris, const String& category, uint32 meta);
+
+		inline ProfilerFrame& GetFrame()
+		{
+			return m_frameQueue.back();
+		}
+
+		inline ProfilerFrame& GetPrevFrame()
+		{
+			if (m_frameQueue.size() == 1)
+				return m_frameQueue.back();
+
+			return *(m_frameQueue.rbegin() + 1);
+		}
 
 		inline void SetGPUInfo(const DeviceGPUInfo& info)
 		{
@@ -145,6 +168,8 @@ namespace Lina
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE) Lina::Profiler::Get()->FrameAnalysisFile = FILE
 #define PROFILER_REGISTER_THREAD(NAME)		  Lina::Profiler::Get()->RegisterThread(NAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 
+#define PROFILER_ADD_DRAWCALL(TRIS, CATEGORY, META) Lina::Profiler::Get()->AddDrawCall(TRIS, CATEGORY, META)
+
 } // namespace Lina
 
 #else
@@ -157,6 +182,7 @@ namespace Lina
 #define PROFILER_FUNCTION(...)
 #define PROFILER_SET_FRAMEANALYSIS_FILE(FILE)
 #define PROFILER_REGISTER_THREAD(NAME)
+#define PROFILER_ADD_DRAWCALL(TRIS, CATEGORY, META)
 
 #endif
 

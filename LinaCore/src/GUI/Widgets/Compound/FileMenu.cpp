@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Common/Math/Math.hpp"
 
 namespace Lina
@@ -132,7 +133,7 @@ namespace Lina
 		int32 idx = 0;
 		for (auto* b : m_buttons)
 		{
-			b->GetProps().colorDefaultStart = b->GetProps().colorDefaultEnd = b == m_subPopupOwner ? Theme::GetDef().background3 : Color(0, 0, 0, 0);
+			b->GetProps().colorDefaultStart = b->GetProps().colorDefaultEnd = b == m_subPopupOwner ? Theme::GetDef().accentPrimary2 : Color(0, 0, 0, 0);
 
 			if (m_subPopup != nullptr && b != m_subPopupOwner && b->GetRect().IsPointInside(m_lgxWindow->GetMousePosition()))
 			{
@@ -170,8 +171,8 @@ namespace Lina
 			btn->GetProps().rounding		  = 0.0f;
 			btn->GetProps().colorDefaultStart = Color(0.0f, 0.0f, 0.0f, 0.0f);
 			btn->GetProps().colorDefaultEnd	  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			btn->GetProps().colorPressed	  = Theme::GetDef().background2;
-			btn->GetProps().colorHovered	  = Theme::GetDef().background3;
+			btn->GetProps().colorPressed	  = Theme::GetDef().accentPrimary0;
+			btn->GetProps().colorHovered	  = Theme::GetDef().accentPrimary1;
 
 			btn->GetProps().onClicked = [this, btn, str]() {
 				Vector<FileMenuItem::Data> itemData;
@@ -212,7 +213,7 @@ namespace Lina
 				it->GetProps().useHoverColor   = true;
 				it->GetProps().receiveInput	   = true;
 				it->GetProps().backgroundStyle = DirectionalLayout::BackgroundStyle::Default;
-				it->GetProps().colorHovered	   = Theme::GetDef().accentPrimary0;
+				it->GetProps().colorHovered	   = Theme::GetDef().accentPrimary1;
 				it->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 				it->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 			}

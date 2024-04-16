@@ -201,9 +201,6 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-
-			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
-			LINA_TRACE("[DT]: {0}", SystemInfo::GetDeltaTime());
 		}
 	}
 

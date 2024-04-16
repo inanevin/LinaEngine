@@ -166,6 +166,7 @@ namespace Lina::Editor
 		if (m_showListContents)
 		{
 			m_contentsGrid->GetProps().horizontalPadding = Theme::GetDef().baseIndentInner / 4;
+			m_contentsGrid->SetChildPadding(0.0f);
 		}
 		else
 		{
@@ -529,6 +530,7 @@ namespace Lina::Editor
 		selectable->SetAlignedSizeX(1.0f);
 		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		selectable->SetLocalControlsManager(m_browserItems);
+		selectable->SetUserData(item);
 
 		fold->AddChild(selectable);
 
@@ -616,6 +618,7 @@ namespace Lina::Editor
 		selectable->SetAlignedPosX(0.0f);
 		selectable->SetAlignedSizeX(1.0f);
 		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		selectable->SetUserData(item);
 		selectable->GetProps().onSelectionChanged = [this, item](bool selected) {
 			if (selected)
 				m_currentContentsSelection.push_back(item);
@@ -627,6 +630,24 @@ namespace Lina::Editor
 			}
 			m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
 			m_selectedItemCount->CalculateTextSize();
+		};
+
+		selectable->GetProps().onInteracted = [item, this]() {
+			if (item->isDirectory)
+			{
+				Widget* parent = FindBrowserSelectable(item->parent);
+				static_cast<FoldLayout*>(parent->GetParent())->ChangeFold(false);
+
+				Widget* selectable = FindBrowserSelectable(item);
+
+				if (selectable)
+					m_manager->GrabControls(selectable);
+				return;
+			}
+			else
+			{
+				OpenFile(item);
+			}
 		};
 
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
@@ -656,6 +677,7 @@ namespace Lina::Editor
 		}
 
 		layout->AddChild(BuildTitleForItem(item));
+		return selectable;
 	}
 
 	Widget* PanelResources::BuildContentSelectableBig(DirectoryItem* item)
@@ -665,14 +687,32 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
 		UpdateWidgetSizeFromContentsSize(layout);
 
-		Selectable* base = m_manager->Allocate<Selectable>("Base");
-		base->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
-		base->SetAlignedPosX(0.0f);
-		base->SetAlignedSizeX(1.0f);
-		base->GetChildMargins()	  = TBLR::Eq(Theme::GetDef().baseIndentInner);
-		base->GetProps().rounding = Theme::GetDef().baseRounding;
+		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+		selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
+		selectable->SetAlignedPosX(0.0f);
+		selectable->SetAlignedSizeX(1.0f);
+		selectable->GetChildMargins()	= TBLR::Eq(Theme::GetDef().baseIndentInner);
+		selectable->GetProps().rounding = Theme::GetDef().baseRounding;
 
-		base->GetProps().onSelectionChanged = [item, this](bool selected) {
+		selectable->GetProps().onInteracted = [item, this]() {
+			if (item->isDirectory)
+			{
+				Widget* parent = FindBrowserSelectable(item->parent);
+				static_cast<FoldLayout*>(parent->GetParent())->ChangeFold(false);
+
+				Widget* selectable = FindBrowserSelectable(item);
+
+				if (selectable)
+					m_manager->GrabControls(selectable);
+				return;
+			}
+			else
+			{
+				OpenFile(item);
+			}
+		};
+
+		selectable->GetProps().onSelectionChanged = [item, this](bool selected) {
 			if (selected)
 				m_currentContentsSelection.push_back(item);
 			else
@@ -685,22 +725,41 @@ namespace Lina::Editor
 			m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
 			m_selectedItemCount->CalculateTextSize();
 		};
-		layout->AddChild(base);
+		layout->AddChild(selectable);
 
 		if (item->isDirectory)
 		{
-			base->AddChild(BuildFolderIconForItem(item, 0.75f));
+			selectable->AddChild(BuildFolderIconForItem(item, 0.75f));
 		}
 		else
 		{
-			base->SetCustomTooltipUserData(item);
-			base->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
-			base->GetProps().colorEnd = base->GetProps().colorStart = Theme::GetDef().background0;
-			base->GetProps().outlineThickness						= Theme::GetDef().baseOutlineThickness;
-			base->GetProps().colorOutline							= Theme::GetDef().black;
-			base->AddChild(BuildThumbnailForItem(item));
+			selectable->SetCustomTooltipUserData(item);
+			selectable->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
+			selectable->GetProps().colorEnd = selectable->GetProps().colorStart = Theme::GetDef().background0;
+			// base->GetProps().outlineThickness						= Theme::GetDef().baseOutlineThickness;
+			// base->GetProps().colorOutline							= Theme::GetDef().black;
+			selectable->AddChild(BuildThumbnailForItem(item));
 		}
 
 		layout->AddChild(BuildTitleForItem(item));
+		return layout;
+	}
+
+	Widget* PanelResources::FindBrowserSelectable(DirectoryItem* item)
+	{
+		Vector<Selectable*> selectables;
+		Widget::GetWidgetsOfType(selectables, m_browserItems);
+
+		for (auto* s : selectables)
+		{
+			if (s->GetUserData() == static_cast<void*>(item))
+				return s;
+		}
+
+		return nullptr;
+	}
+
+	void PanelResources::OpenFile(DirectoryItem* item)
+	{
 	}
 } // namespace Lina::Editor

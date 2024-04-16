@@ -215,7 +215,6 @@ namespace Lina
 			data.pParams[0]				= static_cast<void*>(m_world);
 			data.pParams[1]				= static_cast<void*>(&objWrapper);
 			data.uintParams[0]			= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->DispatchEvent(EVG_ComponentCreated, data);
 			m_eventDispatcher->AddListener(comp);
 		}
 
@@ -226,7 +225,6 @@ namespace Lina
 			data.pParams[0]				= static_cast<void*>(m_world);
 			data.pParams[1]				= static_cast<void*>(&objWrapper);
 			data.uintParams[0]			= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->DispatchEvent(EVG_ComponentDestroyed, data);
 			m_eventDispatcher->RemoveListener(comp);
 		}
 
