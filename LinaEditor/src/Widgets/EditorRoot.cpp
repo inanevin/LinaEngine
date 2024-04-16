@@ -43,6 +43,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
+#include "Core/World/WorldManager.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -249,7 +250,7 @@ namespace Lina::Editor
 		m_projectNameText->Initialize();
 	}
 
-	bool EditorRoot::OnItemClicked(StringID sid)
+	bool EditorRoot::OnFileMenuItemClicked(StringID sid, void* userData)
 	{
 		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
 
@@ -271,26 +272,6 @@ namespace Lina::Editor
 			return true;
 		}
 
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewWorld)))
-		{
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadWorld)))
-		{
-			return true;
-		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)))
-		{
-
-			return true;
-		}
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
-		{
-
-			return true;
-		}
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Exit)))
 		{
 			m_editor->RequestExit();
@@ -365,7 +346,7 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void EditorRoot::OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData)
+	void EditorRoot::OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 		{
@@ -384,11 +365,6 @@ namespace Lina::Editor
 					.text = Locale::GetStr(LocaleStr::LoadProject),
 				},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveProject)},
-				FileMenuItem::Data{.isDivider = true},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewWorld)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LoadWorld)},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorld), .altText = "CTRL + S"},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::SaveWorldAs), .altText = "CTRL + SHIFT + S"},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Exit)},
 			};

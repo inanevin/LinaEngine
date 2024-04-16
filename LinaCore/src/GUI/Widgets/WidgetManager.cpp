@@ -266,7 +266,7 @@ namespace Lina
 
 	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
-		const bool drawRects = (m_window->GetInput()->GetMouseButton(LINAGX_MOUSE_1));
+		const bool drawRects = (m_window->GetInput()->GetKey(LINAGX_KEY_SPACE));
 
 		if (!drawRects)
 			return;

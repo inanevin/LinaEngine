@@ -110,6 +110,13 @@ namespace Lina
 
 	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
+        if(m_isHovered && button == LINAGX_MOUSE_1 && act == LinaGX::InputAction::Pressed)
+        {
+            if(m_props.onRightClick)
+                m_props.onRightClick();
+            
+            return true;
+        }
 		if (button != LINAGX_MOUSE_0)
 			return false;
 

@@ -106,9 +106,6 @@ namespace Lina::Editor
 		btn->GetProps().onClicked		= [buttonProps, this]() {
 			  if (buttonProps.onClicked)
 				  buttonProps.onClicked();
-
-			  if (buttonProps.closesPopup)
-				  m_manager->AddToKillList(this);
 		};
 
 		btn->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_POS_ALIGN_Y);

@@ -236,15 +236,21 @@ namespace Lina::Editor
 			{
 				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
 
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [&]() {
+                m_primaryWidgetManager->AddToForeground(popup);
+                
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [location, popup, this]() {
 									  SaveProjectChanges();
 									  RemoveCurrentProject();
 									  OpenProject(location);
+                                      m_primaryWidgetManager->RemoveFromForeground(popup);
+                                      m_primaryWidgetManager->Deallocate(popup);
 								  }});
 
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [&]() {
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [location, popup, this]() {
 									  RemoveCurrentProject();
-									  OpenProject(location);
+                                      OpenProject(location);
+                                      m_primaryWidgetManager->RemoveFromForeground(popup);
+                                      m_primaryWidgetManager->Deallocate(popup);
 								  }});
 			}
 			else

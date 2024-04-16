@@ -297,7 +297,6 @@ namespace Lina::Editor
 		pp->GetPopupProps().text  = text;
 		pp->GetPopupProps().title = title;
 		pp->Initialize();
-		source->GetWidgetManager()->AddToForeground(pp);
 		return pp;
 	}
 

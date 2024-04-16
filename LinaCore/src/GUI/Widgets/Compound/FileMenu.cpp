@@ -95,9 +95,8 @@ namespace Lina
 		if (m_itemData.hasDropdown && m_isHovered && m_subPopup == nullptr)
 		{
 			Vector<Data> data;
-			m_ownerMenu->GetListener()->OnGetItemData(TO_SID(m_itemData.text), data);
-			m_subPopup = m_ownerMenu->CreatePopup(Vector2(m_rect.GetEnd().x, GetPosY()), data);
-
+			m_ownerMenu->GetListener()->OnGetFileMenuItems(TO_SID(m_itemData.text), data, m_itemData.userData);
+			m_subPopup							= m_ownerMenu->CreatePopup(Vector2(m_rect.GetEnd().x, GetPosY()), data);
 			m_subPopup->GetProps().onDestructed = [this]() { m_subPopup = nullptr; };
 		}
 
@@ -110,8 +109,7 @@ namespace Lina
 
 				if (sibling->GetIsHovered())
 				{
-					m_manager->RemoveFromForeground(m_subPopup);
-					m_manager->Deallocate(m_subPopup);
+					m_manager->AddToKillList(m_subPopup);
 					m_subPopup = nullptr;
 					break;
 				}
@@ -142,13 +140,7 @@ namespace Lina
 				m_subPopup		= nullptr;
 				m_subPopupOwner = nullptr;
 
-				Vector<FileMenuItem::Data> itemData;
-				m_listener->OnGetItemData(TO_SID(b->GetText()->GetProps().text), itemData);
-				m_subPopup							= CreatePopup(Vector2(b->GetPosX(), b->GetRect().GetEnd().y), itemData);
-				m_subPopup->GetProps().onDestructed = [this]() {
-					m_subPopup		= nullptr;
-					m_subPopupOwner = nullptr;
-				};
+				CreateItems(TO_SID(b->GetText()->GetProps().text), Vector2(b->GetPosX(), b->GetRect().GetEnd().y));
 				m_subPopupOwner = b;
 			}
 
@@ -175,13 +167,7 @@ namespace Lina
 			btn->GetProps().colorHovered	  = Theme::GetDef().accentPrimary1;
 
 			btn->GetProps().onClicked = [this, btn, str]() {
-				Vector<FileMenuItem::Data> itemData;
-				m_listener->OnGetItemData(TO_SID(str), itemData);
-				m_subPopup							= CreatePopup(Vector2(btn->GetPosX(), btn->GetRect().GetEnd().y), itemData);
-				m_subPopup->GetProps().onDestructed = [this]() {
-					m_subPopup		= nullptr;
-					m_subPopupOwner = nullptr;
-				};
+				CreateItems(TO_SID(str), Vector2(btn->GetPosX(), btn->GetRect().GetEnd().y));
 				m_subPopupOwner = btn;
 			};
 
@@ -194,6 +180,17 @@ namespace Lina
 		DirectionalLayout::Initialize();
 	}
 
+	void FileMenu::CreateItems(StringID sid, const Vector2& position, void* userData)
+	{
+		Vector<FileMenuItem::Data> itemData;
+		m_listener->OnGetFileMenuItems(sid, itemData, userData);
+		m_subPopup							= CreatePopup(position, itemData);
+		m_subPopup->GetProps().onDestructed = [this]() {
+			m_subPopup		= nullptr;
+			m_subPopupOwner = nullptr;
+		};
+	}
+
 	DirectionalLayout* FileMenu::CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData)
 	{
 		DirectionalLayout* popup = WidgetUtility::BuildLayoutForPopups(this);
@@ -201,6 +198,8 @@ namespace Lina
 
 		m_manager->AddToForeground(popup);
 		m_manager->SetForegroundDim(0.0f);
+
+		float totalHeight = popup->GetChildMargins().top + popup->GetChildMargins().bottom;
 
 		for (const auto& subItem : subItemData)
 		{
@@ -220,6 +219,8 @@ namespace Lina
 			else
 				it->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
 
+			totalHeight += it->GetFixedSizeY() + popup->GetChildPadding();
+
 			it->GetProps().colorBackgroundStart = it->GetProps().colorBackgroundEnd = Color(0, 0, 0, 0);
 			it->SetChildPadding(Theme::GetDef().baseIndent);
 			it->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
@@ -228,11 +229,18 @@ namespace Lina
 
 			const StringID sid = TO_SID(subItem.text);
 
-			it->GetProps().onClicked = [sid, popup, this]() {
-				if (m_listener->OnItemClicked(sid))
+			it->GetProps().onClicked = [sid, popup, subItem, this]() {
+				if (m_listener->OnFileMenuItemClicked(sid, subItem.userData))
 				{
 					m_manager->RemoveFromForeground(popup);
 					m_manager->Deallocate(popup);
+
+					if (m_subPopup)
+					{
+						m_manager->RemoveFromForeground(m_subPopup);
+						m_manager->Deallocate(m_subPopup);
+						m_subPopup = nullptr;
+					}
 				}
 			};
 
@@ -265,6 +273,10 @@ namespace Lina
 
 		popup->SetFixedSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetChildMargins().left + popup->GetChildMargins().right) * 1.25f));
 
+		const float windowHeight = static_cast<float>(m_lgxWindow->GetSize().y);
+
+		if (pos.y + totalHeight > windowHeight)
+			popup->SetPosY(windowHeight - totalHeight - 10);
 		return popup;
 	}
 

@@ -54,6 +54,7 @@ namespace Lina
 			String dropdownIcon = "";
 			bool   hasDropdown	= false;
 			bool   isDivider	= false;
+			void*  userData		= nullptr;
 		};
 
 		virtual void Initialize() override;
@@ -91,8 +92,8 @@ namespace Lina
 		{
 			return false;
 		}
-		virtual bool OnItemClicked(StringID sid){};
-		virtual void OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData){};
+		virtual bool OnFileMenuItemClicked(StringID sid, void* userData){};
+		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData){};
 	};
 
 	class FileMenu : public DirectionalLayout
@@ -107,6 +108,7 @@ namespace Lina
 		virtual void	   Initialize() override;
 		virtual void	   PreTick() override;
 		DirectionalLayout* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
+		void			   CreateItems(StringID sid, const Vector2& position, void* userData = nullptr);
 
 		inline FileMenuProperties& GetFileMenuProps()
 		{

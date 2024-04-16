@@ -61,7 +61,9 @@ namespace Lina
 			LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
 
 		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		gfxMan->GetLGX()->DestroyTextureMT(m_gpuHandle);
+
+		if (m_gpuHandleExists)
+			gfxMan->GetLGX()->DestroyTextureMT(m_gpuHandle);
 	}
 
 	uint32 Texture::GetSamplerSID() const
@@ -95,6 +97,8 @@ namespace Lina
 
 			m_allLevels.clear();
 		}
+
+		m_gpuHandleExists = false;
 
 		LinaGX::TextureBuffer level0 = {
 			.width		   = width,
@@ -255,7 +259,8 @@ namespace Lina
 			.debugName = m_path.c_str(),
 		};
 
-		m_gpuHandle = gfxManager->GetLGX()->CreateTextureMT(desc);
+		m_gpuHandle		  = gfxManager->GetLGX()->CreateTextureMT(desc);
+		m_gpuHandleExists = true;
 	}
 
 	void Texture::AddToUploadQueue()

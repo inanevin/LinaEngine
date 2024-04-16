@@ -95,7 +95,7 @@ namespace Lina
 
 		for (auto [type, sys] : m_subsystems)
 		{
-			if (sys == &m_resourceManager || sys == &m_gfxManager || sys == &m_audioManager)
+			if (sys == &m_resourceManager || sys == &m_gfxManager || sys == &m_audioManager)
 				continue;
 
 			sys->Shutdown();

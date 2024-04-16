@@ -46,12 +46,6 @@ namespace Lina::Editor
 	class ProjectData : public Serializable
 	{
 	public:
-		struct ThumbnailData
-		{
-			uint32		widthHeight = 0;
-			Span<uint8> buffer		= {};
-		};
-
 		struct Runtime
 		{
 			bool isDirty = false;

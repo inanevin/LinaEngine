@@ -53,6 +53,7 @@ namespace Lina::Editor
 		{LocaleStr::OpenExistingProject, "Open existing project"},
 		{LocaleStr::SelectDirectory, "Select directory"},
 		{LocaleStr::CreateANewProject, "Create a new Lina project"},
+		{LocaleStr::CreateANewWorld, "Create a new Lina World"},
 		{LocaleStr::SelectProjectFile, "Select project to open"},
 		{LocaleStr::DirectoryNotFound, "Directory not found!"},
 		{LocaleStr::FileNotFound, "File not found!"},
@@ -62,6 +63,7 @@ namespace Lina::Editor
 		{LocaleStr::UnfinishedWorkTitle, "Before you continue"},
 		{LocaleStr::UnfinishedWorkDesc, "Your project contains unfinished work. Would you like to save your changes before you continue?"},
 		{LocaleStr::LinaProjectFile, "Lina Project File"},
+		{LocaleStr::LinaWorldFile, "Lina World File"},
 		{LocaleStr::NoProject, "No Project"},
 		{LocaleStr::NewProject, "New Project"},
 		{LocaleStr::LoadProject, "Load Project"},
@@ -86,6 +88,7 @@ namespace Lina::Editor
 		{LocaleStr::Memory, "Memory"},
 		{LocaleStr::FrameTime, "Frame Time"},
 		{LocaleStr::DrawCalls, "Draw Calls"},
+		{LocaleStr::Folder, "Folder"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

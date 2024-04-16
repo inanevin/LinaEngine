@@ -51,6 +51,7 @@ namespace Lina
 			float				 outlineThickness		 = 0.0f;
 			Delegate<void(bool)> onSelectionChanged;
 			Delegate<void()>	 onInteracted;
+			Delegate<void()>	 onRightClick;
 		};
 
 		virtual void PreTick() override;

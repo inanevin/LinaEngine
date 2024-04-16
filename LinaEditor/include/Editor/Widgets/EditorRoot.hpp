@@ -55,8 +55,8 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual bool OnItemClicked(StringID sid) override;
-		virtual void OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData) override;
+		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
+		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 		virtual bool IsItemDisabled(StringID sid) override;
 		void		 SetProjectName(const String& name);
 

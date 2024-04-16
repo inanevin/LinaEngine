@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Serialization/Serialization.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 
 namespace Lina
@@ -42,6 +43,22 @@ namespace Lina
 
 	void WorldManager::Shutdown()
 	{
+	}
+
+	void WorldManager::CreateAndSaveNewWorld(const String& absolutePath)
+	{
+		EntityWorld world(nullptr, "", 0);
+		OStream		stream;
+		world.SaveToStream(stream);
+		Serialization::SaveToFile(absolutePath.c_str(), stream);
+		stream.Destroy();
+	}
+
+	void WorldManager::LoadWorld(const String& path)
+	{
+		auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), TO_SID(path));
+		rm->LoadResources({ident});
 	}
 
 	void WorldManager::InstallLevel(const char* level)

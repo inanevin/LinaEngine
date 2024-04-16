@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 
 namespace Lina
 {
@@ -45,7 +46,7 @@ namespace Lina::Editor
 	class DirectoryItem;
 	class Editor;
 
-	class PanelResources : public Panel
+	class PanelResources : public Panel, public FileMenuListener
 	{
 	public:
 		static constexpr float MAX_CONTENTS_SIZE = 4.0f;
@@ -58,6 +59,9 @@ namespace Lina::Editor
 
 		virtual PanelLayoutExtra GetExtraLayoutData() override;
 		virtual void			 SetExtraLayoutData(const PanelLayoutExtra& data) override;
+
+		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
+		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	private:
 		void	RefreshBrowserHierarchy();
@@ -89,6 +93,7 @@ namespace Lina::Editor
 		GridLayout*		   m_contentsGrid	   = nullptr;
 		ScrollArea*		   m_browserScroll	   = nullptr;
 		ScrollArea*		   m_contentsScroll	   = nullptr;
+		FileMenu*		   m_contextMenu	   = nullptr;
 
 		Vector<DirectoryItem*> m_currentBrowserSelection  = {};
 		Vector<DirectoryItem*> m_currentContentsSelection = {};

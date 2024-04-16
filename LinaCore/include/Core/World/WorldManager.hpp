@@ -33,6 +33,7 @@ SOFTWARE.
 namespace Lina
 {
 	class GfxManager;
+	class EntityWorld;
 
 	class WorldManager : public Subsystem
 	{
@@ -43,6 +44,8 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
+		void CreateAndSaveNewWorld(const String& absolutePath);
+		void LoadWorld(const String& path);
 		void InstallLevel(const char* level);
 		void UninstallLevel(bool immediate);
 		void QueueLevel(const char* level);

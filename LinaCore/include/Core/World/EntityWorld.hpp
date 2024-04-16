@@ -139,6 +139,7 @@ namespace Lina
 
 	private:
 		FRIEND_RESOURCE_CACHE();
+		friend class WorldManager;
 
 		EntityWorld(ResourceManager* rm, const String& path, StringID sid)
 			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),

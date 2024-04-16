@@ -55,7 +55,8 @@ namespace Lina::Editor
 		CreateNewProject,
 		OpenExistingProject,
 		SelectDirectory,
-		CreateANewProject,
+        CreateANewProject,
+		CreateANewWorld,
 		SelectProjectFile,
 		DirectoryNotFound,
 		FileNotFound,
@@ -65,6 +66,7 @@ namespace Lina::Editor
 		UnfinishedWorkTitle,
 		UnfinishedWorkDesc,
 		LinaProjectFile,
+        LinaWorldFile,
 		NoProject,
 		NewProject,
 		LoadProject,
@@ -89,6 +91,7 @@ namespace Lina::Editor
 		Memory,
 		FrameTime,
 		DrawCalls,
+        Folder,
 	};
 
 	class Locale

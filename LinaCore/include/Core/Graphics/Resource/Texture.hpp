@@ -122,6 +122,7 @@ namespace Lina
 		bool						  m_useGlobalDelete = false;
 		Metadata					  m_meta			= {};
 		uint32						  m_bytesPerPixel	= 0;
+		bool						  m_gpuHandleExists = false;
 	};
 } // namespace Lina
 

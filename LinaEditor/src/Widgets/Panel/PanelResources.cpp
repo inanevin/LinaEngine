@@ -52,12 +52,17 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/World/WorldManager.hpp"
 
 namespace Lina::Editor
 {
 	void PanelResources::Construct()
 	{
 		m_editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+
+		FileMenu* createMenu = m_manager->Allocate<FileMenu>("CreateMenu");
+		createMenu->SetListener(this);
+		AddChild(createMenu);
 
 		Widget* browser = BuildBrowser();
 		AddChild(browser);
@@ -109,6 +114,7 @@ namespace Lina::Editor
 		m_border		 = border;
 		m_contentsGrid	 = grid;
 		m_contentsScroll = scroller;
+		m_contextMenu	 = createMenu;
 
 		RefreshBrowserHierarchy();
 	}
@@ -524,13 +530,14 @@ namespace Lina::Editor
 		fold->SetAlignedSizeX(1.0f);
 		fold->SetDebugName(item->folderName);
 
-		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+		Selectable* selectable = m_manager->Allocate<Selectable>(item->folderName);
 		selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		selectable->SetAlignedPosX(0.0f);
 		selectable->SetAlignedSizeX(1.0f);
 		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		selectable->SetLocalControlsManager(m_browserItems);
 		selectable->SetUserData(item);
+		selectable->GetProps().onRightClick = [this, item]() { m_contextMenu->CreateItems("FolderContext"_hs, m_lgxWindow->GetMousePosition(), static_cast<void*>(item)); };
 
 		fold->AddChild(selectable);
 
@@ -671,9 +678,12 @@ namespace Lina::Editor
 			layout->AddChild(wrap);
 
 			Widget* thumbnail = BuildThumbnailForItem(item);
-			thumbnail->SetCustomTooltipUserData(item);
-			thumbnail->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
-			wrap->AddChild(thumbnail);
+			if (thumbnail)
+			{
+				thumbnail->SetCustomTooltipUserData(item);
+				thumbnail->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
+				wrap->AddChild(thumbnail);
+			}
 		}
 
 		layout->AddChild(BuildTitleForItem(item));
@@ -736,9 +746,11 @@ namespace Lina::Editor
 			selectable->SetCustomTooltipUserData(item);
 			selectable->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
 			selectable->GetProps().colorEnd = selectable->GetProps().colorStart = Theme::GetDef().background0;
-			// base->GetProps().outlineThickness						= Theme::GetDef().baseOutlineThickness;
-			// base->GetProps().colorOutline							= Theme::GetDef().black;
-			selectable->AddChild(BuildThumbnailForItem(item));
+
+			auto* thumbnail = BuildThumbnailForItem(item);
+
+			if (thumbnail)
+				selectable->AddChild(thumbnail);
 		}
 
 		layout->AddChild(BuildTitleForItem(item));
@@ -761,5 +773,40 @@ namespace Lina::Editor
 
 	void PanelResources::OpenFile(DirectoryItem* item)
 	{
+	}
+
+	bool PanelResources::OnFileMenuItemClicked(StringID sid, void* userData)
+	{
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewWorld)))
+		{
+			DirectoryItem* item = static_cast<DirectoryItem*>(userData);
+			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->CreateAndSaveNewWorld(item->absolutePath + "/NewWorld.linaworld");
+			return true;
+		}
+		return false;
+	}
+
+	void PanelResources::OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	{
+		if (sid == "FolderContext"_hs)
+		{
+			outData = {
+
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Create), .dropdownIcon = ICON_CHEVRON_RIGHT, .hasDropdown = true, .userData = userData},
+				// FileMenuItem::Data{.isDivider = true},
+			};
+
+			return;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Create)))
+		{
+			outData = {
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Folder), .userData = userData},
+				FileMenuItem::Data{.isDivider = true},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::NewWorld), .userData = userData},
+			};
+			return;
+		}
 	}
 } // namespace Lina::Editor
