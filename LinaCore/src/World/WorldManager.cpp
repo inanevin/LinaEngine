@@ -56,9 +56,12 @@ namespace Lina
 
 	void WorldManager::LoadWorld(const String& path)
 	{
-		auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), TO_SID(path));
+		auto*			   rm  = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		const auto		   sid = TO_SID(path);
+		ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), sid);
 		rm->LoadResources({ident});
+		rm->WaitForAll();
+		m_loadedWorld = rm->GetResource<EntityWorld>(sid);
 	}
 
 	void WorldManager::InstallLevel(const char* level)

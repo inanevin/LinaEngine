@@ -86,6 +86,9 @@ namespace Lina::Editor
 
 		void GenerateThumbTexture(DirectoryItem* item);
 		void GenerateThumbFont(DirectoryItem* item);
+		void GenerateThumbMaterial(DirectoryItem* item);
+		void GenerateThumbShader(DirectoryItem* item);
+		void GenerateThumbModel(DirectoryItem* item);
 
 	private:
 		String				m_projectDirectory = "";

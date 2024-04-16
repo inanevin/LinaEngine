@@ -45,6 +45,12 @@ namespace Lina
 	class CameraComponent;
 	class EntityWorld;
 
+	enum WorldFlags
+	{
+		WORLD_FLAGS_NONE  = 1 << 0,
+		WORLD_FLAGS_DIRTY = 1 << 1,
+	};
+
 	// Actual game state
 	class EntityWorld : public Resource, public GameEventDispatcher
 	{
@@ -57,6 +63,11 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+
+		inline Bitmask32 GetFlags()
+		{
+			return m_flags;
+		}
 
 		inline uint32 GetID()
 		{
@@ -141,7 +152,7 @@ namespace Lina
 		FRIEND_RESOURCE_CACHE();
 		friend class WorldManager;
 
-		EntityWorld(ResourceManager* rm, const String& path, StringID sid)
+		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0)
 			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
 			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
 		{
@@ -168,7 +179,8 @@ namespace Lina
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		IDList<Entity*>						 m_entities;
 		ObjectWrapper<CameraComponent>		 m_activeCamera;
-		uint32								 m_id = 0;
+		uint32								 m_id	 = 0;
+		Bitmask32							 m_flags = 0;
 	};
 
 } // namespace Lina

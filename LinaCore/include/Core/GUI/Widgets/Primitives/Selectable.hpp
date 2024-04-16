@@ -40,18 +40,18 @@ namespace Lina
 
 		struct Properties
 		{
-			Color				 colorStart				 = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			Color				 colorEnd				 = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			Color				 colorLocalSelectedStart = Theme::GetDef().silent0;
-			Color				 colorLocalSelectedEnd	 = Theme::GetDef().silent1;
-			Color				 colorSelectedStart		 = Theme::GetDef().accentPrimary0;
-			Color				 colorSelectedEnd		 = Theme::GetDef().accentPrimary1;
-			Color				 colorOutline			 = Theme::GetDef().outlineColorBase;
-			float				 rounding				 = 0.0f;
-			float				 outlineThickness		 = 0.0f;
-			Delegate<void(bool)> onSelectionChanged;
-			Delegate<void()>	 onInteracted;
-			Delegate<void()>	 onRightClick;
+			Color							  colorStart			  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			Color							  colorEnd				  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			Color							  colorLocalSelectedStart = Theme::GetDef().silent0;
+			Color							  colorLocalSelectedEnd	  = Theme::GetDef().silent1;
+			Color							  colorSelectedStart	  = Theme::GetDef().accentPrimary0;
+			Color							  colorSelectedEnd		  = Theme::GetDef().accentPrimary1;
+			Color							  colorOutline			  = Theme::GetDef().outlineColorBase;
+			float							  rounding				  = 0.0f;
+			float							  outlineThickness		  = 0.0f;
+			Delegate<void(Selectable*, bool)> onSelectionChanged;
+			Delegate<void(Selectable*)>		  onInteracted;
+			Delegate<void(Selectable*)>		  onRightClick;
 		};
 
 		virtual void PreTick() override;

@@ -59,10 +59,19 @@ namespace Lina
 		WorldRenderer(GfxManager* man);
 		~WorldRenderer();
 
+		void				   Tick(float delta);
+		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
+
+		inline const SemaphoreData& GetCopySemaphore(uint32 index) const
+		{
+			return m_pfd[index].copySemaphore;
+		}
+
 	private:
-		GfxManager*		  m_gfxManager = nullptr;
-		GUIBackend*		  m_guiBackend = nullptr;
-		LinaGX::Instance* m_lgx		   = nullptr;
+		GfxManager*		  m_gfxManager			  = nullptr;
+		GUIBackend*		  m_guiBackend			  = nullptr;
+		LinaGX::Instance* m_lgx					  = nullptr;
+		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT] = {};
 	};
 
 } // namespace Lina

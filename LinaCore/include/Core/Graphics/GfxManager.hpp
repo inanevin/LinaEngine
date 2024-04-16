@@ -46,6 +46,7 @@ class PoolAllocator;
 namespace Lina
 {
 	class SurfaceRenderer;
+	class WorldRenderer;
 	class ResourceManager;
 	class GUIBackend;
 
@@ -55,11 +56,12 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			uint16 pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16 pipelineLayoutPersistentGlobal = 0;
-			uint16 descriptorSetPersistentGlobal  = 0;
-			uint32 globalDataResource			  = 0;
-			uint8* globalDataMapped				  = nullptr;
+			uint16		  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16		  pipelineLayoutPersistentGlobal = 0;
+			uint16		  descriptorSetPersistentGlobal	 = 0;
+			uint32		  globalDataResource			 = 0;
+			uint8*		  globalDataMapped				 = nullptr;
+			SemaphoreData worldSignalSemaphore;
 		};
 
 	public:
@@ -126,6 +128,7 @@ namespace Lina
 	private:
 		ResourceUploadQueue				m_resourceUploadQueue;
 		MeshManager						m_meshManager;
+		Vector<WorldRenderer*>			m_worldRenderers;
 		Vector<SurfaceRenderer*>		m_surfaceRenderers;
 		GUIBackend*						m_guiBackend	  = nullptr;
 		ResourceManager*				m_resourceManager = nullptr;

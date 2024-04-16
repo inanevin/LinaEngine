@@ -31,10 +31,8 @@ SOFTWARE.
 
 namespace Lina
 {
-
 #define MAX_GFX_COMMANDS  250
 #define MAX_COPY_COMMANDS 50
-
 #define MAX_GUI_VERTICES  5000
 #define MAX_GUI_INDICES	  5000
 #define MAX_GUI_MATERIALS 100
@@ -55,5 +53,14 @@ namespace Lina
 		// 	data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "World Renderer GUI Index Buffer");
 		// 	data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI));
 		// }
+	}
+
+	void WorldRenderer::Tick(float delta)
+	{
+	}
+
+	LinaGX::CommandStream* WorldRenderer::Render(uint32 frameIndex, int32 threadIndex)
+	{
+		return nullptr;
 	}
 } // namespace Lina

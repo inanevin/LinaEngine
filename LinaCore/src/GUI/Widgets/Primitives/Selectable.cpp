@@ -41,7 +41,7 @@ namespace Lina
 		{
 			m_wasSelected = false;
 			if (m_props.onSelectionChanged)
-				m_props.onSelectionChanged(false);
+				m_props.onSelectionChanged(this, false);
 		}
 	}
 
@@ -100,7 +100,7 @@ namespace Lina
 		if (keycode == LINAGX_KEY_RETURN)
 		{
 			if (m_props.onInteracted)
-				m_props.onInteracted();
+				m_props.onInteracted(this);
 
 			return true;
 		}
@@ -113,7 +113,7 @@ namespace Lina
 		if (m_isHovered && button == LINAGX_MOUSE_1 && act == LinaGX::InputAction::Pressed)
 		{
 			if (m_props.onRightClick)
-				m_props.onRightClick();
+				m_props.onRightClick(this);
 
 			return true;
 		}
@@ -123,7 +123,7 @@ namespace Lina
 		if (m_isHovered && act == LinaGX::InputAction::Repeated)
 		{
 			if (m_props.onInteracted)
-				m_props.onInteracted();
+				m_props.onInteracted(this);
 			return true;
 		}
 
@@ -134,7 +134,7 @@ namespace Lina
 		{
 			m_wasSelected = true;
 			if (m_props.onSelectionChanged)
-				m_props.onSelectionChanged(true);
+				m_props.onSelectionChanged(this, true);
 
 			m_manager->GrabControls(this);
 

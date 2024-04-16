@@ -166,7 +166,7 @@ namespace Lina
 			selectable->SetAlignedPosX(0.0f);
 			selectable->SetAlignedSizeX(1.0f);
 			selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			selectable->GetProps().onInteracted = [it, i, this]() {
+			selectable->GetProps().onInteracted = [it, i, this](Selectable* s) {
 				m_text->GetProps().text = it;
 				m_text->CalculateTextSize();
 				if (m_props.onSelected)

@@ -81,6 +81,10 @@ namespace Lina::Editor
 		Widget* FindBrowserSelectable(DirectoryItem* item);
 		void	OpenFile(DirectoryItem* item);
 
+		void OnSelectableInteracted(Selectable* selectable);
+		void OnSelectionChanged(Selectable* selectable, bool selected);
+		void OnSelectableRightClick(Selectable* selectable);
+
 	private:
 		static constexpr float MIN_CONTENTS_SIZE = 2.0f;
 

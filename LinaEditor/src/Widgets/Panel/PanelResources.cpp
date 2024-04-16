@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/World/WorldManager.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor
 {
@@ -107,15 +108,13 @@ namespace Lina::Editor
 		grid->GetChildMargins()		  = TBLR::Eq(Theme::GetDef().baseIndent);
 
 		scroller->AddChild(grid);
-
 		contents->AddChild(BuildBottomContents());
-
 		border->AssignSides(browser, contents);
+
 		m_border		 = border;
 		m_contentsGrid	 = grid;
 		m_contentsScroll = scroller;
 		m_contextMenu	 = createMenu;
-
 		RefreshBrowserHierarchy();
 	}
 
@@ -141,8 +140,7 @@ namespace Lina::Editor
 		m_border->GetNegative()->SetAlignedSizeX(data.f[0]);
 		m_border->GetPositive()->SetAlignedPosX(data.f[0]);
 		m_border->GetPositive()->SetAlignedSizeX(1.0f - data.f[0]);
-		m_contentsSize = data.f[1];
-
+		m_contentsSize	   = data.f[1];
 		m_showListContents = m_contentsSize < MIN_CONTENTS_SIZE + 0.5f;
 	}
 
@@ -264,12 +262,12 @@ namespace Lina::Editor
 		bg->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
 		bg->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
 		bg->SetChildPadding(Theme::GetDef().baseIndent);
-
 		bg->GetProps().backgroundStyle	  = DirectionalLayout::BackgroundStyle::Default;
 		bg->GetProps().colorBackgroundEnd = bg->GetProps().colorBackgroundStart = Theme::GetDef().background0;
 		bg->GetProps().outlineThickness											= Theme::GetDef().baseOutlineThickness;
 		bg->GetProps().colorOutline												= Theme::GetDef().background0;
 		bg->SetFixedSize(size + bg->GetChildPadding());
+
 		ShapeRect* img = m_manager->Allocate<ShapeRect>();
 		img->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		img->SetAlignedPosX(0.0f);
@@ -537,7 +535,13 @@ namespace Lina::Editor
 		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		selectable->SetLocalControlsManager(m_browserItems);
 		selectable->SetUserData(item);
-		selectable->GetProps().onRightClick = [this, item]() { m_contextMenu->CreateItems("FolderContext"_hs, m_lgxWindow->GetMousePosition(), static_cast<void*>(item)); };
+		selectable->GetProps().onRightClick = BIND(&PanelResources::OnSelectableRightClick, this, std::placeholders::_1);
+		selectable->GetProps().onInteracted = [fold](Selectable*) { fold->ChangeFold(!fold->GetFold()); };
+		selectable->SetOnGrabbedControls([item, this]() {
+			m_currentBrowserSelection.clear();
+			m_currentBrowserSelection.push_back(item);
+			RefreshContents();
+		});
 
 		fold->AddChild(selectable);
 
@@ -556,11 +560,11 @@ namespace Lina::Editor
 		dropdown->GetFlags().Set(WF_POS_ALIGN_Y);
 		dropdown->SetAlignedPosY(0.5f);
 		dropdown->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		dropdown->GetProps().onClicked = [fold]() { fold->ChangeFold(!fold->GetFold()); };
+		layout->AddChild(dropdown);
 
 		if (!containsFolderChild)
 			dropdown->SetVisible(false);
-
-		layout->AddChild(dropdown);
 
 		Icon* folder			= m_manager->Allocate<Icon>("Folder");
 		folder->GetProps().icon = ICON_FOLDER;
@@ -607,14 +611,6 @@ namespace Lina::Editor
 			}
 		};
 
-		selectable->SetOnGrabbedControls([item, this]() {
-			m_currentBrowserSelection.clear();
-			m_currentBrowserSelection.push_back(item);
-			RefreshContents();
-		});
-		selectable->GetProps().onInteracted = [fold]() { fold->ChangeFold(!fold->GetFold()); };
-		dropdown->GetProps().onClicked		= [fold]() { fold->ChangeFold(!fold->GetFold()); };
-
 		return fold;
 	}
 
@@ -626,36 +622,8 @@ namespace Lina::Editor
 		selectable->SetAlignedSizeX(1.0f);
 		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		selectable->SetUserData(item);
-		selectable->GetProps().onSelectionChanged = [this, item](bool selected) {
-			if (selected)
-				m_currentContentsSelection.push_back(item);
-			else
-			{
-				auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
-				if (it != m_currentContentsSelection.end())
-					m_currentContentsSelection.erase(it);
-			}
-			m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
-			m_selectedItemCount->CalculateTextSize();
-		};
-
-		selectable->GetProps().onInteracted = [item, this]() {
-			if (item->isDirectory)
-			{
-				Widget* parent = FindBrowserSelectable(item->parent);
-				static_cast<FoldLayout*>(parent->GetParent())->ChangeFold(false);
-
-				Widget* selectable = FindBrowserSelectable(item);
-
-				if (selectable)
-					m_manager->GrabControls(selectable);
-				return;
-			}
-			else
-			{
-				OpenFile(item);
-			}
-		};
+		selectable->GetProps().onInteracted		  = BIND(&PanelResources::OnSelectableInteracted, this, std::placeholders::_1);
+		selectable->GetProps().onSelectionChanged = BIND(&PanelResources::OnSelectionChanged, this, std::placeholders::_1, std::placeholders::_2);
 
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -665,9 +633,7 @@ namespace Lina::Editor
 		selectable->AddChild(layout);
 
 		if (item->isDirectory)
-		{
 			layout->AddChild(BuildFolderIconForItem(item, 0.9f));
-		}
 		else
 		{
 			Widget* wrap = m_manager->Allocate<Widget>("Wrap");
@@ -701,54 +667,21 @@ namespace Lina::Editor
 		selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
 		selectable->SetAlignedPosX(0.0f);
 		selectable->SetAlignedSizeX(1.0f);
-		selectable->GetChildMargins()	= TBLR::Eq(Theme::GetDef().baseIndentInner);
-		selectable->GetProps().rounding = Theme::GetDef().baseRounding;
-
-		selectable->GetProps().onInteracted = [item, this]() {
-			if (item->isDirectory)
-			{
-				Widget* parent = FindBrowserSelectable(item->parent);
-				static_cast<FoldLayout*>(parent->GetParent())->ChangeFold(false);
-
-				Widget* selectable = FindBrowserSelectable(item);
-
-				if (selectable)
-					m_manager->GrabControls(selectable);
-				return;
-			}
-			else
-			{
-				OpenFile(item);
-			}
-		};
-
-		selectable->GetProps().onSelectionChanged = [item, this](bool selected) {
-			if (selected)
-				m_currentContentsSelection.push_back(item);
-			else
-			{
-				auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
-				if (it != m_currentContentsSelection.end())
-					m_currentContentsSelection.erase(it);
-			}
-
-			m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
-			m_selectedItemCount->CalculateTextSize();
-		};
+		selectable->SetUserData(item);
+		selectable->GetChildMargins()			  = TBLR::Eq(Theme::GetDef().baseIndentInner);
+		selectable->GetProps().rounding			  = Theme::GetDef().baseRounding;
+		selectable->GetProps().onInteracted		  = BIND(&PanelResources::OnSelectableInteracted, this, std::placeholders::_1);
+		selectable->GetProps().onSelectionChanged = BIND(&PanelResources::OnSelectionChanged, this, std::placeholders::_1, std::placeholders::_2);
 		layout->AddChild(selectable);
 
 		if (item->isDirectory)
-		{
 			selectable->AddChild(BuildFolderIconForItem(item, 0.75f));
-		}
 		else
 		{
 			selectable->SetCustomTooltipUserData(item);
 			selectable->SetBuildCustomTooltip(BIND(&PanelResources::BuildTooltipForItem, this, std::placeholders::_1));
 			selectable->GetProps().colorEnd = selectable->GetProps().colorStart = Theme::GetDef().background0;
-
-			auto* thumbnail = BuildThumbnailForItem(item);
-
+			auto* thumbnail														= BuildThumbnailForItem(item);
 			if (thumbnail)
 				selectable->AddChild(thumbnail);
 		}
@@ -773,6 +706,12 @@ namespace Lina::Editor
 
 	void PanelResources::OpenFile(DirectoryItem* item)
 	{
+		if (item->tid == GetTypeID<EntityWorld>())
+		{
+			auto* wm = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+			wm->LoadWorld(item->relativePath);
+			return;
+		}
 	}
 
 	bool PanelResources::OnFileMenuItemClicked(StringID sid, void* userData)
@@ -808,5 +747,49 @@ namespace Lina::Editor
 			};
 			return;
 		}
+	}
+
+	void PanelResources::OnSelectableInteracted(Selectable* selectable)
+	{
+		DirectoryItem* item = static_cast<DirectoryItem*>(selectable->GetUserData());
+
+		if (item->isDirectory)
+		{
+			Widget* parent = FindBrowserSelectable(item->parent);
+			static_cast<FoldLayout*>(parent->GetParent())->ChangeFold(false);
+
+			Widget* selectable = FindBrowserSelectable(item);
+
+			if (selectable)
+				m_manager->GrabControls(selectable);
+			return;
+		}
+		else
+		{
+			OpenFile(item);
+		}
+	}
+
+	void PanelResources::OnSelectionChanged(Selectable* selectable, bool selected)
+	{
+		DirectoryItem* item = static_cast<DirectoryItem*>(selectable->GetUserData());
+
+		if (selected)
+			m_currentContentsSelection.push_back(item);
+		else
+		{
+			auto it = linatl::find_if(m_currentContentsSelection.begin(), m_currentContentsSelection.end(), [item](DirectoryItem* it) -> bool { return item == it; });
+			if (it != m_currentContentsSelection.end())
+				m_currentContentsSelection.erase(it);
+		}
+
+		m_selectedItemCount->GetProps().text = TO_STRING(m_currentContentsSelection.size()) + " " + Locale::GetStr(LocaleStr::Selected);
+		m_selectedItemCount->CalculateTextSize();
+	}
+
+	void PanelResources::OnSelectableRightClick(Selectable* selectable)
+	{
+		DirectoryItem* item = static_cast<DirectoryItem*>(selectable->GetUserData());
+		m_contextMenu->CreateItems("FolderContext"_hs, m_lgxWindow->GetMousePosition(), static_cast<void*>(item));
 	}
 } // namespace Lina::Editor

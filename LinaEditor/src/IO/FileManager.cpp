@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor
 {
@@ -381,6 +382,52 @@ namespace Lina::Editor
 			FT_Done_Face(face);
 		});
 
+		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
+	}
+
+	void FileManager::GenerateThumbMaterial(DirectoryItem* item)
+	{
+		Taskflow tf;
+		tf.emplace([]() {
+			// EntityWorld world;
+			//
+			// Entity* camera = world.CreateEntity("Camera");
+			// CameraComponent* cam = world.AddComponent<CameraComponent>(camera);
+			// camera->SetPosition(Vector3());
+			// camera->SetRotation(Quaternion());
+			//
+			// auto* rm = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+			// ResourceIdentifier ident(item->relativePath, GetTypeID<Model>(), TO_SID(item->relativePath));
+			// rm->LoadResources({ident});
+			// rm->WaitForAll();
+			//
+			// auto* modelRes = rm->GetResource<Model>();
+			// Entity* sphere = world.CreateEntity("Sphere");
+			// ModelComponent* model = world.AddComponent<ModelComponent>(sphere);
+			// model->SetModel(modelRes);
+			//
+			// world.GetRenderer()->SetExternalTexture(texture);
+			// world.GetRenderer()->Render();
+			// gfxManager->Join();
+		});
+		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
+	}
+
+	void FileManager::GenerateThumbModel(DirectoryItem* item)
+	{
+		Taskflow tf;
+		tf.emplace([]() {
+
+		});
+		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
+	}
+
+	void FileManager::GenerateThumbShader(DirectoryItem* item)
+	{
+		Taskflow tf;
+		tf.emplace([]() {
+
+		});
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
 	}
 
