@@ -73,15 +73,15 @@ namespace Lina::Editor
 			}
 		};
 		m_tabRow->GetProps().onTabDockedOut = [this, editor](Widget* w) {
-            RemovePanel(static_cast<Panel*>(w));
+			RemovePanel(static_cast<Panel*>(w));
 
-            // If only child
-             if (m_panels.empty() && m_parent->GetChildren().size() == 1)
-                 editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
-             else if (m_panels.empty())
-                 RemoveArea();
+			// If only child
+			if (m_panels.empty() && m_parent->GetChildren().size() == 1)
+				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+			else if (m_panels.empty())
+				RemoveArea();
 
-            editor->CreatePayload(w, PayloadType::DockedPanel);
+			editor->CreatePayload(w, PayloadType::DockedPanel);
 		};
 
 		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) { SetSelected(w); };
@@ -267,7 +267,7 @@ namespace Lina::Editor
 				payload->GetFlags().Remove(WF_POS_ALIGN_Y);
 				payload->GetParent()->RemoveChild(payload);
 				AddDockArea(hoveredDir, static_cast<Panel*>(payload));
-                m_lgxWindow->BringToFront();
+				m_lgxWindow->BringToFront();
 				return true;
 			}
 		}

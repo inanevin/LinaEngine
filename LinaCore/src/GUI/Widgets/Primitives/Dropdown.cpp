@@ -160,27 +160,27 @@ namespace Lina
 		for (int32 i = 0; i < sz; i++)
 		{
 			const auto& it = items[i];
-            
-            Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
-            selectable->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
-            selectable->SetAlignedPosX(0.0f);
-            selectable->SetAlignedSizeX(1.0f);
-            selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-            selectable->GetProps().onInteracted = [it, i, this](){
-                m_text->GetProps().text = it;
-                m_text->CalculateTextSize();
-                if (m_props.onSelected)
-                    m_props.onSelected(i);
-                ClosePopup();
-            };
+
+			Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+			selectable->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+			selectable->SetAlignedPosX(0.0f);
+			selectable->SetAlignedSizeX(1.0f);
+			selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			selectable->GetProps().onInteracted = [it, i, this]() {
+				m_text->GetProps().text = it;
+				m_text->CalculateTextSize();
+				if (m_props.onSelected)
+					m_props.onSelected(i);
+				ClosePopup();
+			};
 
 			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-            layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y|WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-            layout->SetAlignedPos(Vector2::Zero);
-            layout->SetAlignedSize(Vector2::One);
-			layout->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndentInner};
-            selectable->AddChild(layout);
-		
+			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			layout->SetAlignedPos(Vector2::Zero);
+			layout->SetAlignedSize(Vector2::One);
+			layout->GetChildMargins() = {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndentInner};
+			selectable->AddChild(layout);
+
 			Text* txt = m_manager->Allocate<Text>("Text");
 			txt->GetFlags().Set(WF_POS_ALIGN_Y);
 			txt->SetAlignedPosY(0.5f);
@@ -189,9 +189,9 @@ namespace Lina
 			layout->AddChild(txt);
 			maxChildSize = Math::Max(maxChildSize, txt->GetSizeX() + layout->GetChildMargins().left + layout->GetChildMargins().right);
 			m_popup->AddChild(selectable);
-            
-            if(i == selectedItem)
-                m_manager->GrabControls(selectable);
+
+			if (i == selectedItem)
+				m_manager->GrabControls(selectable);
 		}
 
 		m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
@@ -204,7 +204,7 @@ namespace Lina
 
 		m_manager->RemoveFromForeground(m_popup);
 		m_manager->Deallocate(m_popup);
-        m_manager->GrabControls(this);  
+		m_manager->GrabControls(this);
 	}
 
 } // namespace Lina

@@ -183,8 +183,8 @@ namespace Lina
 			draw->baseVertexLocation			  = req.vertexOffset;
 
 			reqIndex++;
-            
-            PROFILER_ADD_DRAWCALL(req.indexCount / 3, "Editor", req.requestType);
+
+			PROFILER_ADD_DRAWCALL(req.indexCount / 3, "Editor", req.requestType);
 		}
 	}
 
