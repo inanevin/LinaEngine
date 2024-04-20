@@ -98,7 +98,6 @@ src/GUI/Widgets/Layout/ScrollArea.cpp
 src/GUI/Widgets/Layout/FoldLayout.cpp
 src/GUI/Widgets/Layout/LayoutBorder.cpp
 src/GUI/Widgets/Layout/GridLayout.cpp
-src/GUI/Widgets/Layout/SelectableListLayout.cpp
 src/GUI/Widgets/Primitives/Text.cpp
 src/GUI/Widgets/Primitives/Icon.cpp
 src/GUI/Widgets/Primitives/ShapeRect.cpp
@@ -114,7 +113,6 @@ src/GUI/Widgets/Primitives/ColorWheel.cpp
 src/GUI/Widgets/Primitives/Selectable.cpp
 src/GUI/Widgets/Compound/Popup.cpp
 src/GUI/Widgets/Compound/FileMenu.cpp
-src/GUI/Widgets/Compound/FoldingSelectable.cpp
 
 
 )
@@ -208,7 +206,6 @@ include/Core/GUI/Widgets/Layout/ScrollArea.hpp
 include/Core/GUI/Widgets/Layout/FoldLayout.hpp
 include/Core/GUI/Widgets/Layout/LayoutBorder.hpp
 include/Core/GUI/Widgets/Layout/GridLayout.hpp
-include/Core/GUI/Widgets/Layout/SelectableListLayout.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp
 include/Core/GUI/Widgets/Primitives/Icon.hpp
 include/Core/GUI/Widgets/Primitives/ShapeRect.hpp
@@ -224,7 +221,6 @@ include/Core/GUI/Widgets/Primitives/Selectable.hpp
 include/Core/GUI/Widgets/Primitives/PopupItem.hpp
 include/Core/GUI/Widgets/Compound/Popup.hpp
 include/Core/GUI/Widgets/Compound/FileMenu.hpp
-include/Core/GUI/Widgets/Compound/FoldingSelectable.hpp
 
 )
 

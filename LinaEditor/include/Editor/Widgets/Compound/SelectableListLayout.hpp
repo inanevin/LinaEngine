@@ -29,14 +29,21 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Editor/Editor.hpp"
 
 namespace Lina
+{
+	class Selectable;
+	class DirectionalLayout;
+	class FileMenu;
+} // namespace Lina
+
+namespace Lina::Editor
 {
 
 	struct SelectableListItem
 	{
 		String title		 = "";
-		uint8  level		 = 0;
 		void*  userData		 = nullptr;
 		bool   hasChildren	 = false;
 		bool   startUnfolded = false;
@@ -45,14 +52,12 @@ namespace Lina
 	class SelectableListLayoutListener
 	{
 	public:
-		virtual void SelectableListFillItems(Vector<SelectableListItem>& outItems){};
-		virtual void SelectableListFillSubItems(Vector<SelectableListItem>& outItems, void* parentUserData){};
-
-		virtual void SelectableListOnPayload(Widget* payload){};
-		virtual void SelectableListContextMenu(void* userData){};
+		virtual void OnSelectableListFillItems(Vector<SelectableListItem>& outItems){};
+		virtual void OnSelectableListFillSubItem(Vector<SelectableListItem>& outItems, void* parentUserData){};
+		virtual void OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemUserData){};
 	};
 
-	class SelectableListLayout : public Widget
+	class SelectableListLayout : public Widget, public EditorPayloadListener
 	{
 	public:
 		SelectableListLayout()			= default;
@@ -67,6 +72,10 @@ namespace Lina
 
 		virtual void Construct();
 		virtual void Initialize();
+		virtual void Tick(float delta);
+		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
+		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
 
 		void RefreshItems();
 
@@ -80,13 +89,22 @@ namespace Lina
 			return m_props;
 		}
 
+		inline FileMenu* GetFileMenu() const
+		{
+			return m_contextMenu;
+		}
+
 	private:
 		Widget* CreateItem(const SelectableListItem& item, uint8 level);
 
 	private:
-		Properties					  m_props	 = {};
-		SelectableListLayoutListener* m_listener = nullptr;
-		Widget*						  m_layout	 = nullptr;
+		Properties					  m_props		  = {};
+		SelectableListLayoutListener* m_listener	  = nullptr;
+		DirectionalLayout*			  m_layout		  = nullptr;
+		Editor*						  m_editor		  = nullptr;
+		bool						  m_payloadActive = false;
+		Vector<Selectable*>			  m_selectables	  = {};
+		FileMenu*					  m_contextMenu	  = nullptr;
 	};
 
-} // namespace Lina
+} // namespace Lina::Editor

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/GUI/Widgets/Layout/SelectableListLayout.hpp"
+#include "Editor/Widgets/Compound/SelectableListLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
@@ -36,13 +36,19 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/System/Subsystem.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
 	void SelectableListLayout::Construct()
 	{
+		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
+		fm->SetListener(this);
+		AddChild(fm);
+		m_contextMenu = fm;
 	}
 
 	void SelectableListLayout::Initialize()
@@ -76,19 +82,37 @@ namespace Lina
 			gridLayout->GetProps().colorBackground = Theme::GetDef().background0;
 			gridLayout->GetProps().colorOutline	   = Theme::GetDef().accentPrimary0;
 			scroll->AddChild(gridLayout);
-			m_layout = gridLayout;
+			// m_layout = gridLayout;
 		}
-
-		RefreshItems();
+		m_editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+		m_editor->AddPayloadListener(this);
 	}
 
+	void SelectableListLayout::Destruct()
+	{
+		m_editor->RemovePayloadListener(this);
+	}
+
+	void SelectableListLayout::Tick(float delta)
+	{
+
+		m_layout->GetProps().outlineThickness = m_payloadActive ? Theme::GetDef().baseOutlineThickness : 0.0f;
+
+		if (!m_payloadActive)
+			return;
+
+		for (auto* s : m_selectables)
+			s->GetProps().colorStart = s->GetProps().colorEnd = s->GetIsHovered() ? Theme::GetDef().accentPrimary0 : Color(0, 0, 0, 0);
+	}
 	void SelectableListLayout::RefreshItems()
 	{
 		if (!m_listener)
 			return;
 
+		m_selectables.clear();
+
 		Vector<SelectableListItem> items;
-		m_listener->SelectableListFillItems(items);
+		m_listener->OnSelectableListFillItems(items);
 
 		for (const auto& it : items)
 			m_layout->AddChild(CreateItem(it, 0));
@@ -109,19 +133,21 @@ namespace Lina
 		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		selectable->SetLocalControlsManager(m_layout);
 		selectable->GetProps().colorOutline = Theme::GetDef().accentPrimary0;
+		m_selectables.push_back(selectable);
 		fold->AddChild(selectable);
 
-		selectable->GetProps().onRightClick = [this, item](Selectable* s) { m_listener->SelectableListContextMenu(item.userData); };
+		selectable->GetProps().onRightClick = [this, item](Selectable* s) { m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition()); };
 
 		selectable->GetProps().onInteracted = [fold](Selectable*) { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
 
-		selectable->SetOnGrabbedControls([this]() {});
+		selectable->SetOnGrabbedControls([this]() {
+
+		});
 
 		selectable->GetProps().onDockedOut = [this, selectable, item, level]() {
 			DirectionalLayout* payload		= m_manager->Allocate<DirectionalLayout>();
 			payload->GetChildMargins().left = Theme::GetDef().baseIndent;
 			payload->SetUserData(item.userData);
-
 			Text* text = m_manager->Allocate<Text>();
 			text->GetFlags().Set(WF_POS_ALIGN_Y);
 			text->SetAlignedPosY(0.5f);
@@ -129,8 +155,7 @@ namespace Lina
 			text->GetProps().text = item.title;
 			payload->AddChild(text);
 			payload->Initialize();
-
-			m_listener->SelectableListOnPayload(payload);
+			m_editor->CreatePayload(payload, PayloadType::SelectableListItem, Vector2ui(text->GetSizeX() + Theme::GetDef().baseIndent * 2, Theme::GetDef().baseItemHeight));
 		};
 
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
@@ -180,7 +205,7 @@ namespace Lina
 			else
 			{
 				Vector<SelectableListItem> subItems;
-				m_listener->SelectableListFillSubItems(subItems, item.userData);
+				m_listener->OnSelectableListFillSubItem(subItems, item.userData);
 
 				for (const auto& subItem : subItems)
 				{
@@ -196,4 +221,41 @@ namespace Lina
 		return fold;
 	}
 
-} // namespace Lina
+	void SelectableListLayout::OnPayloadStarted(PayloadType type, Widget* payload)
+	{
+		if (type != PayloadType::SelectableListItem)
+			return;
+		m_payloadActive = true;
+	}
+
+	void SelectableListLayout::OnPayloadEnded(PayloadType type, Widget* payload)
+	{
+		if (type != PayloadType::SelectableListItem)
+			return;
+		m_payloadActive = false;
+
+		for (auto* s : m_selectables)
+			s->GetProps().colorStart = Color(0, 0, 0, 0);
+	}
+
+	bool SelectableListLayout::OnPayloadDropped(PayloadType type, Widget* payload)
+	{
+		if (type != PayloadType::SelectableListItem || !m_isHovered)
+			return false;
+
+		for (auto* s : m_selectables)
+		{
+			if (s->GetIsHovered())
+			{
+				m_listener->OnSelectableListPayloadDropped(payload->GetUserData(), s->GetUserData());
+				m_manager->AddToKillList(payload);
+				return true;
+			}
+		}
+
+		m_manager->AddToKillList(payload);
+		m_listener->OnSelectableListPayloadDropped(payload->GetUserData(), nullptr);
+		return true;
+	}
+
+} // namespace Lina::Editor

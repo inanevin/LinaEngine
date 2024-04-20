@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Editor/Widgets/Compound/SelectableListLayout.hpp"
 #include "Editor/Editor.hpp"
 
 namespace Lina
@@ -44,7 +45,7 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
-	class PanelEntities : public Panel, public EntityWorldListener, public FileMenuListener, public EditorPayloadListener
+	class PanelEntities : public Panel, public EntityWorldListener, public FileMenuListener, public SelectableListLayoutListener
 	{
 	public:
 		PanelEntities() : Panel(PanelType::Entities, 0){};
@@ -55,31 +56,25 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
+
+		virtual void OnSelectableListFillItems(Vector<SelectableListItem>& outItems) override;
+		virtual void OnSelectableListFillSubItem(Vector<SelectableListItem>& outItems, void* parentUserData) override;
+		virtual void OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemuserData) override;
 		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
 		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
-		virtual void			OnPayloadStarted(PayloadType type, Widget* payload) override;
-		virtual void			OnPayloadEnded(PayloadType type, Widget* payload) override;
-		virtual bool			OnPayloadDropped(PayloadType type, Widget* payload) override;
 		virtual LinaGX::Window* OnPayloadGetWindow() override
 		{
 			return m_lgxWindow;
 		}
 
-		void RefreshHierarchy();
-
 	private:
-		void	CreateContextMenu(Widget* w);
-		Widget* CreateEntitySelectable(Entity* e, uint8 level);
-
 	private:
-		Editor*				   m_editor				 = nullptr;
-		WorldManager*		   m_worldManager		 = nullptr;
-		EntityWorld*		   m_world				 = nullptr;
-		DirectionalLayout*	   m_entitiesLayout		 = nullptr;
-		bool				   m_entityPayloadActive = false;
-		Vector<Selectable*>	   m_entitySelectables;
+		Editor*				   m_editor		  = nullptr;
+		WorldManager*		   m_worldManager = nullptr;
+		EntityWorld*		   m_world		  = nullptr;
 		HashMap<Entity*, bool> m_foldStatus;
+		SelectableListLayout*  m_selectableList = nullptr;
 	};
 
 } // namespace Lina::Editor

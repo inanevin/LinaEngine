@@ -121,6 +121,17 @@ namespace Lina
 			}
 		}
 
+		void GetAllRootEntities(Vector<Entity*>& entities)
+		{
+			entities.reserve(m_entities.GetNextFreeID());
+
+			for (auto e : m_entities)
+			{
+				if (e != nullptr && e->GetParent() == nullptr)
+					entities.push_back(e);
+			}
+		}
+
 		template <typename T> void GetAllComponents(Vector<T*>& comps)
 		{
 			auto* cache = Cache<T>();
