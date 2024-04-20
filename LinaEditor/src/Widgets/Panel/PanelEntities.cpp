@@ -72,8 +72,8 @@ namespace Lina::Editor
 		selectableList->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		selectableList->SetAlignedPosX(0.0f);
 		selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
-		selectableList->GetProps().dropdownIconFolded	= ICON_CHEVRON_RIGHT;
-		selectableList->GetProps().dropdownIconUnfolded = ICON_CHEVRON_DOWN;
+		selectableList->GetProps().iconFolded	= ICON_CHEVRON_RIGHT;
+		selectableList->GetProps().iconUnfolded = ICON_CHEVRON_DOWN;
 		layout->AddChild(selectableList);
 
 		m_selectableList = selectableList;
@@ -107,12 +107,28 @@ namespace Lina::Editor
 		Widget::Draw(threadIndex);
 	}
 
-	void PanelEntities::OnSelectableListFillItems(Vector<SelectableListItem>& outItems)
+	void PanelEntities::OnSelectableListFillItems(Vector<SelectableListItem>& outItems, void* parentUserData)
 	{
-
 		if (!m_world)
 			return;
 
+		if (parentUserData != nullptr)
+		{
+			Entity*		e		 = static_cast<Entity*>(parentUserData);
+			const auto& children = e->GetChildren();
+			outItems.resize(children.size());
+			for (size_t i = 0; i < children.size(); i++)
+			{
+				Entity* child = children[i];
+				outItems[i]	  = {
+					  .title	   = child->GetName(),
+					  .userData	   = child,
+					  .hasChildren = !child->GetChildren().empty(),
+				  };
+			}
+
+			return;
+		}
 		Vector<Entity*> entities;
 		m_world->GetAllRootEntities(entities);
 
@@ -126,28 +142,6 @@ namespace Lina::Editor
 				.userData	 = e,
 				.hasChildren = !e->GetChildren().empty(),
 			};
-		}
-	}
-
-	void PanelEntities::OnSelectableListFillSubItem(Vector<SelectableListItem>& outItems, void* parentUserData)
-	{
-		if (!m_world)
-			return;
-
-		Entity* e = static_cast<Entity*>(parentUserData);
-
-		const auto& children = e->GetChildren();
-
-		outItems.resize(children.size());
-
-		for (size_t i = 0; i < children.size(); i++)
-		{
-			Entity* child = children[i];
-			outItems[i]	  = {
-				  .title	   = child->GetName(),
-				  .userData	   = child,
-				  .hasChildren = !child->GetChildren().empty(),
-			  };
 		}
 	}
 

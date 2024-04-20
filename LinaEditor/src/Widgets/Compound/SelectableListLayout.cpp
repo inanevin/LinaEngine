@@ -112,7 +112,7 @@ namespace Lina::Editor
 		m_selectables.clear();
 
 		Vector<SelectableListItem> items;
-		m_listener->OnSelectableListFillItems(items);
+		m_listener->OnSelectableListFillItems(items, nullptr);
 
 		for (const auto& it : items)
 			m_layout->AddChild(CreateItem(it, 0));
@@ -168,15 +168,32 @@ namespace Lina::Editor
 		layout->GetChildMargins().left = Theme::GetDef().baseIndent + Theme::GetDef().baseIndent * level;
 		selectable->AddChild(layout);
 
-		Icon* dropdown				   = m_manager->Allocate<Icon>("Dropdown");
-		dropdown->GetProps().icon	   = !fold->GetIsUnfolded() ? m_props.dropdownIconFolded : m_props.dropdownIconUnfolded;
-		dropdown->GetProps().textScale = 0.3f;
-		dropdown->GetFlags().Set(WF_POS_ALIGN_Y);
-		dropdown->SetAlignedPosY(0.5f);
-		dropdown->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		dropdown->GetProps().onClicked = [fold]() { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
-		dropdown->SetVisible(item.hasChildren);
-		layout->AddChild(dropdown);
+		Icon* dropdown = nullptr;
+
+		if (item.useDropdownIcon)
+		{
+			dropdown					   = m_manager->Allocate<Icon>("Dropdown");
+			dropdown->GetProps().icon	   = !fold->GetIsUnfolded() ? m_props.iconFolded : m_props.iconUnfolded;
+			dropdown->GetProps().textScale = 0.3f;
+			dropdown->GetFlags().Set(WF_POS_ALIGN_Y);
+			dropdown->SetAlignedPosY(0.5f);
+			dropdown->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			dropdown->GetProps().onClicked = [fold]() { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
+			dropdown->SetVisible(item.hasChildren);
+			layout->AddChild(dropdown);
+		}
+
+		if (item.useFolderIcon)
+		{
+			Icon* folder			= m_manager->Allocate<Icon>("Dropdown");
+			folder->GetProps().icon = m_props.iconFolder;
+			folder->GetFlags().Set(WF_POS_ALIGN_Y);
+			folder->SetAlignedPosY(0.5f);
+			folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			folder->GetProps().onClicked = [fold]() { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
+			folder->SetVisible(item.hasChildren);
+			layout->AddChild(folder);
+		}
 
 		Text* title = WidgetUtility::BuildEditableText(this, true, []() {});
 		title->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -186,8 +203,12 @@ namespace Lina::Editor
 		layout->AddChild(title);
 
 		fold->GetProps().onFoldChanged = [dropdown, fold, item, level, this](bool unfolded) {
-			dropdown->GetProps().icon = !unfolded ? m_props.dropdownIconFolded : m_props.dropdownIconUnfolded;
-			dropdown->CalculateIconSize();
+			if (dropdown)
+			{
+				dropdown->GetProps().icon = !unfolded ? m_props.iconFolded : m_props.iconUnfolded;
+				dropdown->CalculateIconSize();
+			}
+
 			m_foldStatus[item.userData] = unfolded;
 
 			if (!unfolded)
@@ -207,7 +228,7 @@ namespace Lina::Editor
 			else
 			{
 				Vector<SelectableListItem> subItems;
-				m_listener->OnSelectableListFillSubItem(subItems, item.userData);
+				m_listener->OnSelectableListFillItems(subItems, item.userData);
 
 				for (const auto& subItem : subItems)
 				{

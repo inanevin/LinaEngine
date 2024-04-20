@@ -44,16 +44,17 @@ namespace Lina::Editor
 
 	struct SelectableListItem
 	{
-		String title	   = "";
-		void*  userData	   = nullptr;
-		bool   hasChildren = false;
+		String title		   = "";
+		void*  userData		   = nullptr;
+		bool   hasChildren	   = false;
+		bool   useDropdownIcon = true;
+		bool   useFolderIcon   = false;
 	};
 
 	class SelectableListLayoutListener
 	{
 	public:
-		virtual void OnSelectableListFillItems(Vector<SelectableListItem>& outItems){};
-		virtual void OnSelectableListFillSubItem(Vector<SelectableListItem>& outItems, void* parentUserData){};
+		virtual void OnSelectableListFillItems(Vector<SelectableListItem>& outItems, void* parentUserData){};
 		virtual void OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemUserData){};
 	};
 
@@ -65,9 +66,10 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			bool   useGridAsLayout		= false;
-			String dropdownIconFolded	= "";
-			String dropdownIconUnfolded = "";
+			bool   useGridAsLayout = false;
+			String iconFolded	   = "";
+			String iconUnfolded	   = "";
+			String iconFolder	   = "";
 		};
 
 		virtual void Destruct() override;
