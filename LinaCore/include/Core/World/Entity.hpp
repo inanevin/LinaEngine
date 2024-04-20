@@ -109,12 +109,12 @@ namespace Lina
 
 		inline bool IsVisible()
 		{
-			return m_mask.IsSet(EntityMask::Visible);
+			return m_mask.IsSet(EntityFlags::EF_VISIBLE);
 		}
 
 		inline bool IsStatic()
 		{
-			return m_mask.IsSet(EntityMask::Static);
+			return m_mask.IsSet(EntityFlags::EF_STATIC);
 		}
 
 		const Vector3& GetLocalRotationAngles()
@@ -171,7 +171,7 @@ namespace Lina
 			return m_mask.IsSet(mask);
 		}
 
-		inline Bitmask16 GetEntityMask()
+		inline Bitmask16 GetEntityFlags()
 		{
 			return m_mask;
 		}

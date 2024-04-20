@@ -81,7 +81,7 @@ namespace Lina::Editor
 			else if (m_panels.empty())
 				RemoveArea();
 
-			editor->CreatePayload(w, PayloadType::DockedPanel);
+			editor->CreatePayload(w, PayloadType::DockedPanel, w->GetWindow()->GetSize());
 		};
 
 		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) { SetSelected(w); };

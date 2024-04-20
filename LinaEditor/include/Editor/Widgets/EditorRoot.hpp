@@ -38,6 +38,8 @@ namespace Lina
 	class Text;
 	class Icon;
 	class Texture;
+class WorldManager;
+class EntityWorld;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -73,11 +75,14 @@ namespace Lina::Editor
 		Widget*			   m_windowButtons	 = nullptr;
 		Texture*		   m_titleImage		 = nullptr;
 		Text*			   m_projectNameText = nullptr;
+        Text* m_worldNameText = nullptr;
 		Widget*			   m_panelArea		 = nullptr;
 		DirectionalLayout* m_titleBar		 = nullptr;
 		Editor*			   m_editor			 = nullptr;
 		Icon*			   m_saveIcon		 = nullptr;
 		Icon*			   m_linaIcon		 = nullptr;
+        WorldManager* m_worldManager = nullptr;
+        EntityWorld* m_currentWorld = nullptr;
 	};
 
 } // namespace Lina::Editor

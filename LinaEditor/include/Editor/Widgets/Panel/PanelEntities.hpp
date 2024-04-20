@@ -29,19 +29,57 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Editor/Editor.hpp"
+
+namespace Lina
+{
+	class WorldManager;
+	class Entity;
+	class Selectable;
+	class DirectionalLayout;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class PanelEntities : public Panel
+	class Editor;
+	class PanelEntities : public Panel, public EntityWorldListener, public FileMenuListener, public EditorPayloadListener
 	{
 	public:
 		PanelEntities() : Panel(PanelType::Entities, 0){};
 		virtual ~PanelEntities() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
+		virtual void PreTick() override;
+		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
+		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+
+		virtual void			OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void			OnPayloadEnded(PayloadType type, Widget* payload) override;
+		virtual bool			OnPayloadDropped(PayloadType type, Widget* payload) override;
+		virtual LinaGX::Window* OnPayloadGetWindow() override
+		{
+			return m_lgxWindow;
+		}
+
+		void RefreshHierarchy();
 
 	private:
+		void	CreateContextMenu(Widget* w);
+		Widget* CreateEntitySelectable(Entity* e, uint8 level);
+
+	private:
+		Editor*				   m_editor				 = nullptr;
+		WorldManager*		   m_worldManager		 = nullptr;
+		EntityWorld*		   m_world				 = nullptr;
+		DirectionalLayout*	   m_entitiesLayout		 = nullptr;
+		bool				   m_entityPayloadActive = false;
+		Vector<Selectable*>	   m_entitySelectables;
+		HashMap<Entity*, bool> m_foldStatus;
 	};
 
 } // namespace Lina::Editor

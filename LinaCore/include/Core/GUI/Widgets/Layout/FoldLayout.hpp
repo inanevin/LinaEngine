@@ -47,20 +47,20 @@ namespace Lina
 		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 
-		inline void ChangeFold(bool folded)
+		inline void SetIsUnfolded(bool unfolded)
 		{
-			if (folded == m_folded)
+			if (unfolded == m_unfolded)
 				return;
 
-			m_folded = folded;
+			m_unfolded = unfolded;
 
 			if (m_props.onFoldChanged)
-				m_props.onFoldChanged(m_folded);
+				m_props.onFoldChanged(m_unfolded);
 		}
 
-		inline bool GetFold() const
+		inline bool GetIsUnfolded() const
 		{
-			return m_folded;
+			return m_unfolded;
 		}
 
 		inline Properties& GetProps()
@@ -71,8 +71,8 @@ namespace Lina
 	private:
 		static constexpr float FOLD_SPEED = 12.0f;
 
-		Properties m_props	= {};
-		bool	   m_folded = true;
+		Properties m_props	  = {};
+		bool	   m_unfolded = false;
 	};
 
 } // namespace Lina

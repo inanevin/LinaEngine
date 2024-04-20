@@ -52,10 +52,10 @@ namespace Lina
 
 		float targetY = 0.0f;
 
-		if (m_folded)
-			targetY = m_children[0]->GetSizeY();
-		else
+		if (m_unfolded)
 			targetY = childrenTotalHeight;
+		else
+			targetY = m_children[0]->GetSizeY();
 
 		SetSizeY(targetY);
 	}
@@ -77,11 +77,12 @@ namespace Lina
 
 			if (idx != 0)
 			{
-				c->SetIsDisabled(m_folded);
-				c->SetVisible(!m_folded);
+				c->SetIsDisabled(!m_unfolded);
+				c->SetVisible(m_unfolded);
 			}
 
 			idx++;
 		}
 	}
+
 } // namespace Lina

@@ -64,6 +64,7 @@ namespace Lina
 	enum RenderPassDescriptorType
 	{
 		Basic = 0,
+		Main,
 		Max,
 	};
 

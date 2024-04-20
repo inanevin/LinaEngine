@@ -236,4 +236,13 @@ namespace Lina
 		}
 	}
 
+	void EntityWorld::AddListener(EntityWorldListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
+
+	void EntityWorld::RemoveListener(EntityWorldListener* listener)
+	{
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
+	}
 } // namespace Lina

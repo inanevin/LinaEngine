@@ -59,15 +59,18 @@ namespace Lina::Editor
 	public:
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload)
 		{
-			return false;
 		}
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload)
 		{
-			return false;
 		}
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload)
 		{
 			return false;
+		}
+
+		virtual LinaGX::Window* OnPayloadGetWindow()
+		{
+			return nullptr;
 		}
 	};
 
@@ -76,10 +79,11 @@ namespace Lina::Editor
 	public:
 		struct PayloadRequest
 		{
-			Widget*		payload = nullptr;
-			PayloadType type	= PayloadType::DockedPanel;
-			bool		active	= false;
-			Vector2ui	size	= Vector2ui::Zero;
+			Widget*			payload		 = nullptr;
+			LinaGX::Window* sourceWindow = nullptr;
+			PayloadType		type		 = PayloadType::DockedPanel;
+			bool			active		 = false;
+			Vector2ui		size		 = Vector2ui::Zero;
 		};
 
 		Editor(System* sys) : Subsystem(sys, SubsystemType::Editor){};
@@ -101,7 +105,7 @@ namespace Lina::Editor
 		// Payload
 		void AddPayloadListener(EditorPayloadListener* listener);
 		void RemovePayloadListener(EditorPayloadListener* listener);
-		void CreatePayload(Widget* payload, PayloadType type);
+		void CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size);
 
 		// Panel and windows
 		void	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);

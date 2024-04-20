@@ -52,13 +52,24 @@ namespace Lina::Editor
 			m_lastProjectPath = path;
 		}
 
+		inline const String& GetLastWorldAbsPath() const
+		{
+			return m_lastWorldAbsPath;
+		}
+
+		inline void SetLastWorldAbsPath(const String& path)
+		{
+			m_lastWorldAbsPath = path;
+		}
+
 		inline EditorLayout& GetLayout()
 		{
 			return m_layout;
 		}
 
 	private:
-		String		 m_lastProjectPath = "";
+		String		 m_lastProjectPath	= "";
+		String		 m_lastWorldAbsPath = "";
 		EditorLayout m_layout;
 	};
 

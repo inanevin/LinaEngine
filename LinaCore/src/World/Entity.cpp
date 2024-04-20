@@ -127,7 +127,7 @@ namespace Lina
 	}
 	void Entity::SetPosition(const Vector3& loc)
 	{
-		m_mask.Set(EntityMask::NeedsVisualUpdate);
+		m_mask.Set(EF_NEEDS_VIS_UPDATE);
 
 		m_transform.m_position = loc;
 		UpdateLocalPosition();
@@ -169,7 +169,7 @@ namespace Lina
 
 	void Entity::SetRotation(const Quaternion& rot, bool isThisPivot)
 	{
-		m_mask.Set(EntityMask::NeedsVisualUpdate);
+		m_mask.Set(EF_NEEDS_VIS_UPDATE);
 
 		m_transform.m_rotation		 = rot;
 		m_transform.m_rotationAngles = rot.GetEuler();
@@ -215,7 +215,7 @@ namespace Lina
 
 	void Entity::SetScale(const Vector3& scale, bool isThisPivot)
 	{
-		m_mask.Set(EntityMask::NeedsVisualUpdate);
+		m_mask.Set(EF_NEEDS_VIS_UPDATE);
 
 		m_transform.m_scale = scale;
 		UpdateLocalScale();
@@ -356,9 +356,9 @@ namespace Lina
 	void Entity::SetVisible(bool visible)
 	{
 		if (visible)
-			m_mask.Set(EntityMask::Visible);
+			m_mask.Set(EF_VISIBLE);
 		else
-			m_mask.Remove(EntityMask::Visible);
+			m_mask.Remove(EF_VISIBLE);
 
 		for (auto c : m_children)
 			c->SetVisible(visible);
@@ -367,9 +367,9 @@ namespace Lina
 	void Entity::SetStatic(bool isStatic)
 	{
 		if (isStatic)
-			m_mask.Set(EntityMask::Static);
+			m_mask.Set(EF_STATIC);
 		else
-			m_mask.Remove(EntityMask::Static);
+			m_mask.Remove(EF_STATIC);
 
 		for (auto c : m_children)
 			c->SetStatic(isStatic);

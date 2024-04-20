@@ -122,6 +122,7 @@ namespace Lina
 		void	AddChild(Widget* w);
 		void	ExecuteNextFrame(Delegate<void()>&& cb);
 		void	RemoveChild(Widget* w);
+		void	DeallocAllChildren();
 		void	RemoveAllChildren();
 		void	SetIsHovered();
 		void	SetIsDisabled(bool isDisabled);

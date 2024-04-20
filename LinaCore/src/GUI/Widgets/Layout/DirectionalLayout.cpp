@@ -190,7 +190,7 @@ namespace Lina
 		if (m_props.dropShadowBackground)
 		{
 			Color ds = Theme::GetDef().black;
-			ds.w	 = 0.5f;
+			ds.w	 = 0.25f;
 			WidgetUtility::DrawDropShadowRect(threadIndex, m_rect, m_drawOrder, ds, 6);
 		}
 
@@ -246,10 +246,18 @@ namespace Lina
 
 	bool DirectionalLayout::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (button != LINAGX_MOUSE_0)
+		if (!m_props.receiveInput)
 			return false;
 
-		if (!m_props.receiveInput)
+		if (button == LINAGX_MOUSE_1 && m_isHovered)
+		{
+			if (m_props.onRightClicked)
+				m_props.onRightClicked();
+
+			return true;
+		}
+
+		if (button != LINAGX_MOUSE_0)
 			return false;
 
 		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered)

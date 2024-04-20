@@ -37,24 +37,38 @@ SOFTWARE.
 #include "Common/ObjectWrapper.hpp"
 #include "Core/Physics/PhysicsWorld.hpp"
 #include "Common/Event/GameEventDispatcher.hpp"
+#include "Core/World/CommonWorld.hpp"
 
 namespace Lina
 {
 	class Entity;
 	class Component;
 	class CameraComponent;
+	class SkyComponent;
 	class EntityWorld;
 
-	enum WorldFlags
+	class EntityWorldListener
 	{
-		WORLD_FLAGS_NONE  = 1 << 0,
-		WORLD_FLAGS_DIRTY = 1 << 1,
+	public:
+		virtual void OnComponentAdded(Component* c){};
+		virtual void OnComponentRemoved(Component* c){};
 	};
-
 	// Actual game state
 	class EntityWorld : public Resource, public GameEventDispatcher
 	{
 	public:
+		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0)
+			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
+			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
+		{
+			m_id = s_worldCounter++;
+		};
+
+		~EntityWorld()
+		{
+			DestroyWorld();
+		}
+
 		Entity*		 GetEntity(uint32 id);
 		Entity*		 GetEntity(const String& name);
 		Entity*		 GetEntityFromSID(StringID sid);
@@ -63,6 +77,8 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		void		 AddListener(EntityWorldListener* listener);
+		void		 RemoveListener(EntityWorldListener* listener);
 
 		inline Bitmask32 GetFlags()
 		{
@@ -74,14 +90,24 @@ namespace Lina
 			return m_id;
 		}
 
-		inline void SetActiveCamera(ObjectWrapper<CameraComponent>& cam)
+		inline void SetActiveCamera(CameraComponent* cam)
 		{
 			m_activeCamera = cam;
 		}
 
-		inline ObjectWrapper<CameraComponent> GetActiveCamera()
+		inline CameraComponent* GetActiveCamera() const
 		{
 			return m_activeCamera;
+		}
+
+		inline void SetActiveSky(SkyComponent* sky)
+		{
+			m_activeSky = sky;
+		}
+
+		inline SkyComponent* GetActiveSky() const
+		{
+			return m_activeSky;
 		}
 
 		void GetAllEntities(Vector<Entity*>& entities)
@@ -95,44 +121,52 @@ namespace Lina
 			}
 		}
 
-		template <typename T> void GetAllComponents(Vector<ObjectWrapper<T>>& comps)
+		template <typename T> void GetAllComponents(Vector<T*>& comps)
 		{
 			auto* cache = Cache<T>();
-
-			Vector<T*> ptrs;
-			cache->GetAllComponents(ptrs);
-
-			comps.reserve(ptrs.size());
-
-			for (auto p : ptrs)
-				comps.push_back(ObjectWrapper<T>(p));
+			cache->GetAllComponents(comps);
 		}
 
-		template <typename T> ObjectWrapper<T> GetComponent(Entity* e)
+		template <typename T> T* GetComponent(Entity* e)
 		{
 			T* ptr = Cache<T>()->GetComponent(e);
-			return ObjectWrapper<T>(ptr);
+			return ptr;
 		}
 
-		template <typename T> ObjectWrapper<T> AddComponent(Entity* e, const T& t)
+		template <typename T> T* AddComponent(Entity* e, const T& t)
 		{
 			T* comp = Cache<T>()->AddComponent(e, t);
 			*comp	= t;
-			return ObjectWrapper<T>(comp);
+
+			for (auto* l : m_listeners)
+				l->OnComponentAdded(comp);
+
+			return comp;
 		}
 
-		template <typename T> ObjectWrapper<T> AddComponent(Entity* e)
+		template <typename T> T* AddComponent(Entity* e)
 		{
 			T* ptr = Cache<T>()->AddComponent(e);
-			return ObjectWrapper<T>(ptr);
+
+			for (auto* l : m_listeners)
+				l->OnComponentAdded(ptr);
+			return ptr;
 		}
 
 		template <typename T> void RemoveComponent(Entity* e)
 		{
-			Cache<T>()->DestroyComponent(e);
+			T* comp = Cache<T>()->GetComponent(e);
 
-			if (Cache<T>()->GetComponent(e) == m_activeCamera)
-				m_activeCamera.Reset();
+			for (auto* l : m_listeners)
+				l->OnComponentRemoved(comp);
+
+			if (comp == m_activeCamera)
+				m_activeCamera = nullptr;
+
+			if (comp == m_activeSky)
+				m_activeSky = nullptr;
+
+			Cache<T>()->DestroyComponent(e);
 		}
 
 	private:
@@ -152,18 +186,6 @@ namespace Lina
 		FRIEND_RESOURCE_CACHE();
 		friend class WorldManager;
 
-		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0)
-			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
-			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
-		{
-			m_id = s_worldCounter++;
-		};
-
-		~EntityWorld()
-		{
-			DestroyWorld();
-		}
-
 		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
@@ -178,9 +200,11 @@ namespace Lina
 		MemoryAllocatorPool					 m_allocatorPool;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		IDList<Entity*>						 m_entities;
-		ObjectWrapper<CameraComponent>		 m_activeCamera;
-		uint32								 m_id	 = 0;
-		Bitmask32							 m_flags = 0;
+		CameraComponent*					 m_activeCamera = nullptr;
+		SkyComponent*						 m_activeSky	= nullptr;
+		uint32								 m_id			= 0;
+		Bitmask32							 m_flags		= 0;
+		Vector<EntityWorldListener*>		 m_listeners;
 	};
 
 } // namespace Lina

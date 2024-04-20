@@ -84,6 +84,12 @@ namespace Lina
 		w->m_next = w->m_prev = nullptr;
 	}
 
+	void Widget::DeallocAllChildren()
+	{
+		for (auto* c : m_children)
+			m_manager->Deallocate(c);
+	}
+
 	void Widget::RemoveAllChildren()
 	{
 		m_children.clear();

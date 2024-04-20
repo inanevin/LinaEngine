@@ -31,12 +31,14 @@ SOFTWARE.
 #include "Editor/Meta/ProjectData.hpp"
 #include "Common/System/System.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/FileSystem/FileWatcher.hpp"
 #include "Common/System/System.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/World/EntityWorld.hpp"
@@ -201,6 +203,8 @@ namespace Lina::Editor
 			GenerateThumbTexture(item);
 		else if (item->tid == GetTypeID<Font>())
 			GenerateThumbFont(item);
+		else if (item->tid == GetTypeID<Model>())
+			GenerateThumbModel(item);
 	}
 
 	void FileManager::GenerateThumbTexture(DirectoryItem* item)
@@ -387,8 +391,9 @@ namespace Lina::Editor
 
 	void FileManager::GenerateThumbMaterial(DirectoryItem* item)
 	{
+
 		Taskflow tf;
-		tf.emplace([]() {
+		tf.emplace([this]() {
 			// EntityWorld world;
 			//
 			// Entity* camera = world.CreateEntity("Camera");
@@ -416,8 +421,11 @@ namespace Lina::Editor
 	void FileManager::GenerateThumbModel(DirectoryItem* item)
 	{
 		Taskflow tf;
-		tf.emplace([]() {
-
+		tf.emplace([this]() {
+			// EntityWorld* world = new EntityWorld();
+			// auto* gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+			// gfxManager->CreateWorldRenderer(world, Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
+			// LINA_TRACE("HADI BAKALIM");
 		});
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
 	}
@@ -444,5 +452,20 @@ namespace Lina::Editor
 			item->fileName = FileSystem::GetFilenameAndExtensionFromPath(item->absolutePath);
 
 		item->sid = TO_SID(item->relativePath);
+	}
+
+	DirectoryItem* FileManager::FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot)
+	{
+		if (searchRoot->relativePath.compare(relativePath) == 0)
+			return searchRoot;
+
+		for (auto* c : searchRoot->children)
+		{
+			DirectoryItem* item = FindItemFromRelativePath(relativePath, c);
+			if (item)
+				return item;
+		}
+
+		return nullptr;
 	}
 } // namespace Lina::Editor

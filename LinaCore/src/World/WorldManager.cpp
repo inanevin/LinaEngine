@@ -56,12 +56,20 @@ namespace Lina
 
 	void WorldManager::LoadWorld(const String& path)
 	{
+		LINA_ASSERT(m_loadedWorld == nullptr, "");
+
 		auto*			   rm  = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		const auto		   sid = TO_SID(path);
 		ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), sid);
 		rm->LoadResources({ident});
 		rm->WaitForAll();
 		m_loadedWorld = rm->GetResource<EntityWorld>(sid);
+
+		// TEST
+		m_loadedWorld->CreateEntity("Dummy Entity");
+		m_loadedWorld->CreateEntity("Dummy Entity 2");
+		Entity* e = m_loadedWorld->CreateEntity("Dummy Entity 3");
+		e->AddChild(m_loadedWorld->CreateEntity("Child"));
 	}
 
 	void WorldManager::InstallLevel(const char* level)
@@ -153,6 +161,11 @@ namespace Lina
 
 	void WorldManager::Tick(float deltaTime)
 	{
+		if (!m_loadedWorld)
+			return;
+
+		m_loadedWorld->Tick(deltaTime);
+
 		// if (m_currentLevel != nullptr)
 		// 	m_currentLevel->GetWorld()->Tick(deltaTime);
 

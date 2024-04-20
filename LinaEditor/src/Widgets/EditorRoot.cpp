@@ -44,8 +44,10 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Core/World/WorldManager.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -139,6 +141,14 @@ namespace Lina::Editor
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
 		projectName->AddChild(projectNameText);
 
+		Text* worldText = m_manager->Allocate<Text>("WorldText");
+		worldText->GetFlags().Set(WF_POS_ALIGN_Y);
+		worldText->SetAlignedPosY(0.5f);
+		worldText->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		worldText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		worldText->GetProps().text = Locale::GetStr(LocaleStr::NoWorld);
+		projectName->AddChild(worldText);
+
 		DirectionalLayout* wb = CommonWidgets::BuildWindowButtons(this);
 		wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X);
 		wb->SetPosAlignmentSourceX(PosAlignmentSource::End);
@@ -160,8 +170,11 @@ namespace Lina::Editor
 		m_fileMenu		  = fm;
 		m_windowButtons	  = wb;
 		m_projectNameText = projectNameText;
+		m_worldNameText	  = worldText;
 		m_titleBar		  = titleBar;
 		m_linaIcon		  = lina;
+
+		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 	}
 
 	void EditorRoot::Tick(float delta)
@@ -174,6 +187,15 @@ namespace Lina::Editor
 				m_saveIcon->SetIsDisabled(false);
 			else if (!m_saveIcon->GetIsDisabled() && !projectData->GetIsDirty())
 				m_saveIcon->SetIsDisabled(true);
+		}
+
+		auto* loadedWorld = m_worldManager->GetLoadedWorld();
+
+		if (loadedWorld != m_currentWorld)
+		{
+			m_currentWorld					 = loadedWorld;
+			m_worldNameText->GetProps().text = FileSystem::GetFilenameOnlyFromPath(m_currentWorld->GetPath());
+			m_worldNameText->CalculateTextSize();
 		}
 
 		const Color targetColor					  = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;

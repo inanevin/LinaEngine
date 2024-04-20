@@ -87,6 +87,7 @@ namespace Lina::Editor
 	enum class PayloadType
 	{
 		DockedPanel,
+        Entity,
 	};
 
 	struct PanelLayoutExtra

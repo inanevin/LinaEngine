@@ -58,6 +58,7 @@ namespace Lina::Editor
 		}
 		virtual void SaveToStream(OStream& out) override;
 		virtual void LoadFromStream(IStream& in) override;
+		void		 ToRelativePath(const String& absPath, String& outRelative);
 
 		inline void SetProjectName(const String& name)
 		{

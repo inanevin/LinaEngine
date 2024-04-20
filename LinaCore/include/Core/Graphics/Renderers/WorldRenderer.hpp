@@ -30,6 +30,8 @@ SOFTWARE.
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace LinaGX
 {
@@ -41,8 +43,11 @@ namespace Lina
 {
 	class GUIBackend;
 	class GfxManager;
+	class ModelNode;
+	class ModelComponent;
+	class Shader;
 
-	class WorldRenderer
+	class WorldRenderer : public EntityWorldListener
 	{
 	private:
 		struct PerFrameData
@@ -53,25 +58,48 @@ namespace Lina
 			Buffer				   guiVertexBuffer	 = {};
 			Buffer				   guiIndexBuffer	 = {};
 			Buffer				   guiMaterialBuffer = {};
+
+			uint32 colorTarget = 0;
+			uint32 depthTarget = 0;
 		};
 
 	public:
-		WorldRenderer(GfxManager* man);
+		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize);
 		~WorldRenderer();
 
 		void				   Tick(float delta);
 		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
+
+		virtual void OnComponentAdded(Component* c) override;
+		virtual void OnComponentRemoved(Component* c) override;
 
 		inline const SemaphoreData& GetCopySemaphore(uint32 index) const
 		{
 			return m_pfd[index].copySemaphore;
 		}
 
+		inline EntityWorld* GetWorld() const
+		{
+			return m_world;
+		}
+
 	private:
-		GfxManager*		  m_gfxManager			  = nullptr;
-		GUIBackend*		  m_guiBackend			  = nullptr;
-		LinaGX::Instance* m_lgx					  = nullptr;
-		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT] = {};
+		void FetchRenderables();
+		void DrawSky(LinaGX::CommandStream* stream);
+
+	private:
+		GfxManager*				m_gfxManager			= nullptr;
+		GUIBackend*				m_guiBackend			= nullptr;
+		LinaGX::Instance*		m_lgx					= nullptr;
+		PerFrameData			m_pfd[FRAMES_IN_FLIGHT] = {};
+		RenderPass				m_mainPass				= {};
+		Vector2ui				m_size					= Vector2ui::Zero;
+		EntityWorld*			m_world					= nullptr;
+		ModelNode*				m_skyCube				= nullptr;
+		Shader*					m_skyShader				= nullptr;
+		Vector<ModelComponent*> m_modelComponents;
+		GPUDataView				m_gpuDataView  = {};
+		GPUDataScene			m_gpuDataScene = {};
 	};
 
 } // namespace Lina

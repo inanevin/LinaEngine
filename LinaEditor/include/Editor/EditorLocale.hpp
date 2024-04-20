@@ -68,6 +68,7 @@ namespace Lina::Editor
 		LinaProjectFile,
 		LinaWorldFile,
 		NoProject,
+		NoWorld,
 		NewProject,
 		LoadProject,
 		SaveProject,

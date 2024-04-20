@@ -35,10 +35,15 @@ SOFTWARE.
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtx/transform.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Lina
 {
 	Matrix4::Matrix4(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset){};
+    Matrix4::Matrix4(const float* data)
+    {
+        glm::make_mat4<float>(data);
+    }
 
 	Matrix4 Matrix4::Identity()
 	{
@@ -125,9 +130,9 @@ namespace Lina
 		return Matrix4(a, b, c, d);
 	}
 
-	Matrix4 Matrix4::InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up)
+	Matrix4 Matrix4::InitLookAt(const Vector3& location, const Vector3& center, const Vector3& up)
 	{
-		return glm::lookAt(location, forward, up);
+		return glm::lookAt(location, center, up);
 	}
 
 	Matrix4 Matrix4::ApplyScale(const Vector3& scale)
@@ -234,7 +239,7 @@ namespace Lina
 		return Transformation(position, rotation, scale);
 	}
 
-	void Matrix4::SaveToStream(OStream& stream)
+	void Matrix4::SaveToStream(OStream& stream) const
 	{
 		for (int i = 0; i < 4; i++)
 		{
@@ -259,3 +264,6 @@ namespace Lina
 	}
 
 } // namespace Lina
+
+
+

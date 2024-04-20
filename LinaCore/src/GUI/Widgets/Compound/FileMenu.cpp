@@ -68,6 +68,7 @@ namespace Lina
 			dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
 			dd->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			dd->GetProps().icon = m_itemData.dropdownIcon;
+            dd->GetProps().textScale = 0.35f;
 			AddChild(dd);
 		}
 

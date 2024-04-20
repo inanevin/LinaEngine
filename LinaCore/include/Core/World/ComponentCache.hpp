@@ -85,7 +85,6 @@ namespace Lina
 				{
 					T* newComp = new (newCache->m_allocatorPool.Allocate(sizeof(T))) T();
 					*newComp   = *comp;
-					OnComponentCreated(newComp);
 					newCache->m_components.AddItem(newComp, i);
 				}
 				i++;
@@ -100,7 +99,6 @@ namespace Lina
 			T* comp			 = new (m_allocatorPool.Allocate(sizeof(T))) T();
 			comp->m_entityID = e->GetID();
 			comp->m_entity	 = e;
-			OnComponentCreated(comp);
 			m_components.AddItem(comp);
 			return comp;
 		}
@@ -122,7 +120,6 @@ namespace Lina
 			{
 				if (comp != nullptr && comp->m_entityID == e->GetID())
 				{
-					OnComponentDestroyed(comp);
 					comp->~T();
 					m_components.RemoveItem(index);
 					m_allocatorPool.Free(comp);
@@ -185,7 +182,6 @@ namespace Lina
 				stream >> comp->m_entityID;
 				comp->LoadFromStream(stream);
 				comp->m_entity = m_entities[comp->m_entityID];
-				OnComponentCreated(comp);
 				m_components.AddItem(comp, compID);
 			}
 		}
@@ -197,21 +193,12 @@ namespace Lina
 			{
 				if (comp != nullptr)
 				{
-					OnComponentDestroyed(comp);
 					comp->~T();
 					m_allocatorPool.Free(comp);
 				}
 			}
 
 			m_components.Clear();
-		}
-
-		void OnComponentCreated(T* comp)
-		{
-		}
-
-		void OnComponentDestroyed(T* comp)
-		{
 		}
 
 	private:

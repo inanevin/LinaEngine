@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/GUI/Widgets/Compound/FoldingSelectable.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
@@ -536,7 +535,7 @@ namespace Lina::Editor
 		selectable->SetLocalControlsManager(m_browserItems);
 		selectable->SetUserData(item);
 		selectable->GetProps().onRightClick = BIND(&PanelResources::OnSelectableRightClick, this, std::placeholders::_1);
-		selectable->GetProps().onInteracted = [fold](Selectable*) { fold->ChangeFold(!fold->GetFold()); };
+		selectable->GetProps().onInteracted = [fold](Selectable*) { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
 		selectable->SetOnGrabbedControls([item, this]() {
 			m_currentBrowserSelection.clear();
 			m_currentBrowserSelection.push_back(item);
@@ -560,7 +559,7 @@ namespace Lina::Editor
 		dropdown->GetFlags().Set(WF_POS_ALIGN_Y);
 		dropdown->SetAlignedPosY(0.5f);
 		dropdown->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		dropdown->GetProps().onClicked = [fold]() { fold->ChangeFold(!fold->GetFold()); };
+		dropdown->GetProps().onClicked = [fold]() { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
 		layout->AddChild(dropdown);
 
 		if (!containsFolderChild)
@@ -580,11 +579,11 @@ namespace Lina::Editor
 		title->GetProps().text = item->folderName;
 		layout->AddChild(title);
 
-		fold->GetProps().onFoldChanged = [dropdown, fold, item, level, this](bool folded) {
-			dropdown->GetProps().icon = folded ? ICON_CHEVRON_RIGHT : ICON_CHEVRON_DOWN;
+		fold->GetProps().onFoldChanged = [dropdown, fold, item, level, this](bool unfolded) {
+			dropdown->GetProps().icon = !unfolded ? ICON_CHEVRON_RIGHT : ICON_CHEVRON_DOWN;
 			dropdown->CalculateIconSize();
 
-			if (folded)
+			if (!unfolded)
 			{
 				auto* first = fold->GetChildren().front();
 
@@ -709,7 +708,7 @@ namespace Lina::Editor
 		if (item->tid == GetTypeID<EntityWorld>())
 		{
 			auto* wm = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-			wm->LoadWorld(item->relativePath);
+			wm->LoadWorld(item->absolutePath);
 			return;
 		}
 	}
@@ -756,7 +755,7 @@ namespace Lina::Editor
 		if (item->isDirectory)
 		{
 			Widget* parent = FindBrowserSelectable(item->parent);
-			static_cast<FoldLayout*>(parent->GetParent())->ChangeFold(false);
+			static_cast<FoldLayout*>(parent->GetParent())->SetIsUnfolded(true);
 
 			Widget* selectable = FindBrowserSelectable(item);
 

@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
 {
@@ -37,13 +38,19 @@ namespace Lina::Editor
 	{
 		uint32 version = 0;
 		in >> version;
-		StringSerialization::LoadFromStream(in, m_projectName);
+        StringSerialization::LoadFromStream(in, m_projectName);
 	}
 
 	void ProjectData::SaveToStream(OStream& out)
 	{
 		out << VERSION;
-		StringSerialization::SaveToStream(out, m_projectName);
+        StringSerialization::SaveToStream(out, m_projectName);
 	}
 
+    void ProjectData::ToRelativePath(const String &absPath, String &outRelative)
+    {
+        const String basePath = FileSystem::GetFilePath(m_serializedPath);
+        const size_t baseSz      = basePath.size();
+        outRelative = absPath.substr(baseSz, absPath.size());
+    }
 } // namespace Lina::Editor

@@ -227,7 +227,7 @@ namespace Lina
 			LinaGX::Format format = DEFAULT_SWAPCHAIN_FORMAT;
 
 			if (variant.targetType == ShaderWriteTargetType::RenderTarget)
-				format = DEFAULT_RT_FORMAT;
+				format = DEFAULT_RT_FORMAT_HDR;
 
 			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
 				.blendEnabled		 = !variant.blendDisable,

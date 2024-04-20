@@ -63,7 +63,7 @@ namespace Lina
 		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		if (m_gpuHandleExists)
-			gfxMan->GetLGX()->DestroyTextureMT(m_gpuHandle);
+			gfxMan->GetLGX()->DestroyTexture(m_gpuHandle);
 	}
 
 	uint32 Texture::GetSamplerSID() const
@@ -87,7 +87,7 @@ namespace Lina
 		if (!m_allLevels.empty())
 		{
 			gfxManager->GetLGX()->Join();
-			gfxManager->GetLGX()->DestroyTextureMT(m_gpuHandle);
+			gfxManager->GetLGX()->DestroyTexture(m_gpuHandle);
 
 			for (auto& b : m_allLevels)
 			{
@@ -259,7 +259,7 @@ namespace Lina
 			.debugName = m_path.c_str(),
 		};
 
-		m_gpuHandle		  = gfxManager->GetLGX()->CreateTextureMT(desc);
+		m_gpuHandle		  = gfxManager->GetLGX()->CreateTexture(desc);
 		m_gpuHandleExists = true;
 	}
 

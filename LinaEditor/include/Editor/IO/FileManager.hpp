@@ -60,10 +60,11 @@ namespace Lina::Editor
 	public:
 		FileManager() : m_allocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(DirectoryItem) * 100, sizeof(DirectoryItem)){};
 
-		void Initialize(Editor* editor);
-		void Shutdown();
-		void RefreshResources();
-		void ClearResources();
+		void		   Initialize(Editor* editor);
+		void		   Shutdown();
+		void		   RefreshResources();
+		void		   ClearResources();
+		DirectoryItem* FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot);
 
 		inline void SetProjectDirectory(const String& dir)
 		{

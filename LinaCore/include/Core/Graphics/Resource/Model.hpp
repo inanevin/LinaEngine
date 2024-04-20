@@ -28,16 +28,25 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Model_HPP
-#define Model_HPP
-
 #include "Core/Resources/Resource.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Core/Graphics/Data/ModelMaterial.hpp"
+
+namespace LinaGX
+{
+	struct ModelNode;
+}
 
 namespace Lina
 {
+	class ModelNode;
+	class MeshDefault;
+
 	class Model : public Resource
 	{
 	public:
+		ModelNode* GetFirstNodeWMesh();
+
 	private:
 		FRIEND_RESOURCE_CACHE();
 		Model(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Model>()){};
@@ -47,8 +56,15 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+
+	private:
+		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
+		void	   UploadNode(ModelNode* node);
+		ModelNode* GetNodeWithMesh(ModelNode* root);
+
+	private:
+		Vector<ModelNode*>	  m_rootNodes;
+		Vector<ModelMaterial> m_materials;
 	};
 
 } // namespace Lina
-
-#endif

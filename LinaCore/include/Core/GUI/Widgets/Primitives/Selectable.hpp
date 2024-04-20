@@ -52,6 +52,7 @@ namespace Lina
 			Delegate<void(Selectable*, bool)> onSelectionChanged;
 			Delegate<void(Selectable*)>		  onInteracted;
 			Delegate<void(Selectable*)>		  onRightClick;
+			Delegate<void()>				  onDockedOut;
 		};
 
 		virtual void PreTick() override;
@@ -72,6 +73,7 @@ namespace Lina
 		Color	   m_usedStart	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		Color	   m_usedEnd	 = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		bool	   m_wasSelected = false;
+		bool	   m_dockedOut	 = false;
 	};
 
 } // namespace Lina

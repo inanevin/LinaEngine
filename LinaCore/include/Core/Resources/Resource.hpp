@@ -112,4 +112,33 @@ namespace Lina
 		ResourceOwner	 m_owner		   = ResourceOwner::ResourceManager;
 		ResourceTag		 m_tag			   = ResourceTag::Default;
 	};
+
+	template <typename T> class ResourceReference
+	{
+	public:
+		virtual void SaveToStream(OStream& stream) const
+		{
+			stream << m_sid;
+		};
+
+		virtual void LoadFromStream(IStream& stream)
+		{
+			stream >> m_sid;
+		};
+
+		inline void Set(T* res)
+		{
+			m_raw = res;
+			m_sid = res->GetSID();
+		}
+
+		inline StringID GetSID() const
+		{
+			return m_sid;
+		}
+
+	private:
+		T*		 m_raw = nullptr;
+		StringID m_sid = 0;
+	};
 } // namespace Lina

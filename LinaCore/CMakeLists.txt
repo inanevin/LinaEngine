@@ -40,6 +40,9 @@ src/Graphics/CameraSystem.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Data/Vertex.cpp
+src/Graphics/Data/Mesh.cpp
+src/Graphics/Data/ModelNode.cpp
+src/Graphics/Data/ModelMaterial.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/ShaderVariant.cpp
 src/Graphics/Resource/Mesh.cpp
@@ -53,6 +56,12 @@ src/Graphics/Renderers/WorldRenderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
+
+src/Components/SkyComponent.cpp
+src/Components/CameraComponent.cpp
+src/Components/SimpleFlightMovement.cpp
+src/Components/RenderableComponent.cpp
+src/Components/ModelComponent.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -151,6 +160,9 @@ include/Core/Graphics/Utility/ShaderPreprocessor.hpp
 include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Data/RenderData.hpp
 include/Core/Graphics/Data/Vertex.hpp
+include/Core/Graphics/Data/Mesh.hpp
+include/Core/Graphics/Data/ModelNode.hpp
+include/Core/Graphics/Data/ModelMaterial.hpp
 include/Core/Graphics/Resource/Shader.hpp
 include/Core/Graphics/Resource/ShaderVariant.hpp
 include/Core/Graphics/Resource/Mesh.hpp
@@ -178,7 +190,10 @@ include/Core/Physics/PhysicsWorld.hpp
 
 # Components
 include/Core/Components/CameraComponent.hpp
+include/Core/Components/SimpleFlightMovement.hpp
 include/Core/Components/RenderableComponent.hpp
+include/Core/Components/SkyComponent.hpp
+include/Core/Components/ModelComponent.hpp
 
 
 # GUI

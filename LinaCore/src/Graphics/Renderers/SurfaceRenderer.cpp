@@ -67,16 +67,17 @@ namespace Lina
 					   .vsyncStyle	 = m_gfxManager->GetCurrentVsync(),
 		   });
 
-		// RP
-		m_renderPass.SetColorAttachment(0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
-		m_renderPass.Create(m_gfxManager, m_lgx, RenderPassDescriptorType::Basic);
-
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data	   = m_pfd[i];
 			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
+
+			m_renderPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
 		}
 
+		// RP
+
+		m_renderPass.Create(m_gfxManager, RenderPassDescriptorType::Basic);
 		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain);
 		m_widgetManager.Initialize(m_gfxManager->GetSystem(), window);
 	}
@@ -162,7 +163,7 @@ namespace Lina
 		m_renderPass.BindDescriptors(currentFrame.gfxStream, frameIndex);
 
 		// Begin render pass
-		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors);
+		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
 		// Prepare gui renderer & ask app to draw surface contents.
 		// Flush & render all contents that might've been drawn by the app.

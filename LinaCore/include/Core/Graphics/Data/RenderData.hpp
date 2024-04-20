@@ -63,6 +63,18 @@ namespace Lina
 		Vector2 screenSize;
 	};
 
+	struct GPUDataScene
+	{
+		Vector4 skyTop;
+		Vector4 skyHor;
+		Vector4 skyBot;
+	};
+
+	struct GPUDataObject
+	{
+		Matrix4 model;
+	};
+
 	struct GPUTexture2D
 	{
 		uint32 textureIndex;

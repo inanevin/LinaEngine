@@ -28,13 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef CameraComponent_HPP
-#define CameraComponent_HPP
-
-// Headers here.
 #include "Core/World/Component.hpp"
-#include "Core/Reflection/ClassReflection.hpp"
-#include "Common/Data/Streams.hpp"
 
 namespace Lina
 {
@@ -43,23 +37,19 @@ namespace Lina
 	class CameraComponent : public Component
 	{
 	public:
-		float fieldOfView = 110.0f;
-		float zNear		  = 0.01f;
-		float zFar		  = 1000.0f;
-
 		virtual TypeID GetComponentType() override
 		{
 			return GetTypeID<CameraComponent>();
 		}
 
-		virtual void SaveToStream(OStream& stream)
+		virtual void SaveToStream(OStream& stream) const override
 		{
-			stream << fieldOfView << zNear << zFar;
+			stream << m_fieldOfView << m_zNear << m_zFar;
 		};
 
-		virtual void LoadFromStream(IStream& stream)
+		virtual void LoadFromStream(IStream& stream) override
 		{
-			stream >> fieldOfView >> zNear >> zFar;
+			stream >> m_fieldOfView >> m_zNear >> m_zFar;
 		}
 
 		inline const Matrix4& GetProjection()
@@ -74,13 +64,18 @@ namespace Lina
 
 	private:
 		friend class CameraSystem;
+		LINA_REFLECTION_ACCESS(CameraComponent);
 
-		Matrix4 m_projection = Matrix4::Identity();
-		Matrix4 m_view		 = Matrix4::Identity();
+		Matrix4 m_projection  = Matrix4::Identity();
+		Matrix4 m_view		  = Matrix4::Identity();
+		float	m_fieldOfView = 110.0f;
+		float	m_zNear		  = 0.01f;
+		float	m_zFar		  = 1000.0f;
 	};
 
 	LINA_REFLECTCOMPONENT_BEGIN(CameraComponent, "Camera", "Graphics")
+	LINA_REFLECT_FIELD(CameraComponent, m_fieldOfView, "FOV", "FLOAT", "", "Field of View Angles", "");
+	LINA_REFLECT_FIELD(CameraComponent, m_zNear, "Near Plane", "FLOAT", "", "Near Plane", "");
+	LINA_REFLECT_FIELD(CameraComponent, m_zFar, "Far Plane", "FLOAT", "", "Far Plane", "");
 	LINA_REFLECTCOMPONENT_END(CameraComponent);
 } // namespace Lina
-
-#endif

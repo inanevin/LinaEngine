@@ -53,6 +53,11 @@ namespace Lina
 		void Tick(float deltaTime);
 		void WaitForSimulation();
 
+		inline EntityWorld* GetLoadedWorld() const
+		{
+			return m_loadedWorld;
+		}
+
 	private:
 		String		 m_queuedLevel		 = "";
 		bool		 m_queuedLevelExists = false;

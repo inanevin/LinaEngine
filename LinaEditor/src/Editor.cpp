@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
+#include "Core/World/EntityWorld.hpp"
 #include "Editor/Meta/ProjectData.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
@@ -136,6 +137,7 @@ namespace Lina::Editor
 				{
 					if (l->OnPayloadDropped(m_payloadRequest.type, m_payloadRequest.payload))
 					{
+						l->OnPayloadGetWindow()->BringToFront();
 						received = true;
 						break;
 					}
@@ -147,10 +149,10 @@ namespace Lina::Editor
 				if (!received)
 				{
 					m_payloadRequest.payload->GetParent()->RemoveChild(m_payloadRequest.payload);
+					m_payloadRequest.sourceWindow->BringToFront();
 
 					if (m_payloadRequest.type == PayloadType::DockedPanel)
 					{
-						LINA_TRACE("INAN PAYLOAD NOT ACCEPTED, FORMING OWN WINDOW");
 						Panel* panel = static_cast<Panel*>(m_payloadRequest.payload);
 						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
@@ -287,6 +289,7 @@ namespace Lina::Editor
 	void Editor::SaveProjectChanges()
 	{
 		SaveSettings();
+
 		m_currentProject->SetDirty(false);
 		m_currentProject->SaveToFile();
 	}
@@ -322,6 +325,10 @@ namespace Lina::Editor
 		m_settings.SaveToFile();
 		m_fileManager.SetProjectDirectory(FileSystem::GetFilePath(projectFile));
 		m_fileManager.RefreshResources();
+
+		const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
+		if (FileSystem::FileOrPathExists(lastWorldPath))
+			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->LoadWorld(lastWorldPath);
 	}
 
 	void Editor::RequestExit()
@@ -333,6 +340,10 @@ namespace Lina::Editor
 
 	void Editor::SaveSettings()
 	{
+		auto* loadedWorld = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetLoadedWorld();
+		if (loadedWorld)
+			m_settings.SetLastWorldAbsPath(loadedWorld->GetPath());
+
 		m_settings.GetLayout().StoreLayout(this);
 		m_settings.SaveToFile();
 	}
@@ -347,12 +358,13 @@ namespace Lina::Editor
 		m_payloadListeners.erase(linatl::find(m_payloadListeners.begin(), m_payloadListeners.end(), listener));
 	}
 
-	void Editor::CreatePayload(Widget* payload, PayloadType type)
+	void Editor::CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size)
 	{
-		m_payloadRequest.active	 = true;
-		m_payloadRequest.payload = payload;
-		m_payloadRequest.type	 = type;
-		m_payloadRequest.size	 = payload->GetWindow()->GetSize();
+		m_payloadRequest.active		  = true;
+		m_payloadRequest.payload	  = payload;
+		m_payloadRequest.type		  = type;
+		m_payloadRequest.size		  = size;
+		m_payloadRequest.sourceWindow = payload->GetWindow();
 	}
 
 	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)

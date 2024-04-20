@@ -30,10 +30,5 @@ SOFTWARE.
 
 namespace Lina
 {
-	void RenderableComponent::SaveToStream(OStream& stream)
-	{
-	}
-	void RenderableComponent::LoadFromStream(IStream& stream)
-	{
-	}
+
 } // namespace Lina
