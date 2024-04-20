@@ -107,15 +107,6 @@ namespace Lina::Editor
 		Widget::Draw(threadIndex);
 	}
 
-	bool PanelEntities::OnFileMenuItemClicked(StringID sid, void* userData)
-	{
-		return false;
-	}
-
-	void PanelEntities::OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
-	{
-	}
-
 	void PanelEntities::OnSelectableListFillItems(Vector<SelectableListItem>& outItems)
 	{
 
@@ -131,17 +122,15 @@ namespace Lina::Editor
 		{
 			Entity* e	= entities[i];
 			outItems[i] = {
-				.title		   = e->GetName(),
-				.userData	   = e,
-				.hasChildren   = !e->GetChildren().empty(),
-				.startUnfolded = m_foldStatus[e],
+				.title		 = e->GetName(),
+				.userData	 = e,
+				.hasChildren = !e->GetChildren().empty(),
 			};
 		}
 	}
 
 	void PanelEntities::OnSelectableListFillSubItem(Vector<SelectableListItem>& outItems, void* parentUserData)
 	{
-
 		if (!m_world)
 			return;
 
@@ -155,20 +144,36 @@ namespace Lina::Editor
 		{
 			Entity* child = children[i];
 			outItems[i]	  = {
-				  .title		 = child->GetName(),
-				  .userData		 = child,
-				  .hasChildren	 = !child->GetChildren().empty(),
-				  .startUnfolded = m_foldStatus[child],
+				  .title	   = child->GetName(),
+				  .userData	   = child,
+				  .hasChildren = !child->GetChildren().empty(),
 			  };
 		}
 	}
 
-	void PanelEntities::OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemuserData)
+	void PanelEntities::OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemUserData)
 	{
+		Entity* payloadEntity = static_cast<Entity*>(payloadUserData);
+
+		if (!droppedItemUserData)
+		{
+			if (payloadEntity->GetParent())
+			{
+				payloadEntity->RemoveFromParent();
+				m_selectableList->RefreshItems();
+			}
+
+			return;
+		}
+
+		Entity* droppedEntity = static_cast<Entity*>(droppedItemUserData);
+		droppedEntity->AddChild(payloadEntity);
+		m_selectableList->RefreshItems();
 	}
 
-	void PanelEntities::OnFileMenuItemClicked(StringID sid, void* userData)
+	bool PanelEntities::OnFileMenuItemClicked(StringID sid, void* userData)
 	{
+		return true;
 	}
 
 	void PanelEntities::OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)

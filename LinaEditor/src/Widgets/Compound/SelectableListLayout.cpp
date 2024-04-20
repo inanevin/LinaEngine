@@ -39,14 +39,13 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/System/Subsystem.hpp"
+#include "Common/System/System.hpp"
 
 namespace Lina::Editor
 {
 	void SelectableListLayout::Construct()
 	{
 		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
-		fm->SetListener(this);
 		AddChild(fm);
 		m_contextMenu = fm;
 	}
@@ -95,7 +94,6 @@ namespace Lina::Editor
 
 	void SelectableListLayout::Tick(float delta)
 	{
-
 		m_layout->GetProps().outlineThickness = m_payloadActive ? Theme::GetDef().baseOutlineThickness : 0.0f;
 
 		if (!m_payloadActive)
@@ -109,6 +107,8 @@ namespace Lina::Editor
 		if (!m_listener)
 			return;
 
+		m_layout->DeallocAllChildren();
+		m_layout->RemoveAllChildren();
 		m_selectables.clear();
 
 		Vector<SelectableListItem> items;
@@ -132,6 +132,7 @@ namespace Lina::Editor
 		selectable->SetAlignedSizeX(1.0f);
 		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		selectable->SetLocalControlsManager(m_layout);
+		selectable->SetUserData(item.userData);
 		selectable->GetProps().colorOutline = Theme::GetDef().accentPrimary0;
 		m_selectables.push_back(selectable);
 		fold->AddChild(selectable);
@@ -187,6 +188,7 @@ namespace Lina::Editor
 		fold->GetProps().onFoldChanged = [dropdown, fold, item, level, this](bool unfolded) {
 			dropdown->GetProps().icon = !unfolded ? m_props.dropdownIconFolded : m_props.dropdownIconUnfolded;
 			dropdown->CalculateIconSize();
+			m_foldStatus[item.userData] = unfolded;
 
 			if (!unfolded)
 			{
@@ -216,7 +218,7 @@ namespace Lina::Editor
 			}
 		};
 
-		fold->SetIsUnfolded(item.startUnfolded);
+		fold->SetIsUnfolded(m_foldStatus[item.userData]);
 		fold->Initialize();
 		return fold;
 	}
@@ -235,7 +237,7 @@ namespace Lina::Editor
 		m_payloadActive = false;
 
 		for (auto* s : m_selectables)
-			s->GetProps().colorStart = Color(0, 0, 0, 0);
+			s->GetProps().colorStart = s->GetProps().colorEnd = Color(0, 0, 0, 0);
 	}
 
 	bool SelectableListLayout::OnPayloadDropped(PayloadType type, Widget* payload)

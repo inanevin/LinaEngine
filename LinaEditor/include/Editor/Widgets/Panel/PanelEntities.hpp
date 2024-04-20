@@ -63,18 +63,12 @@ namespace Lina::Editor
 		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
 		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
-		virtual LinaGX::Window* OnPayloadGetWindow() override
-		{
-			return m_lgxWindow;
-		}
-
 	private:
 	private:
-		Editor*				   m_editor		  = nullptr;
-		WorldManager*		   m_worldManager = nullptr;
-		EntityWorld*		   m_world		  = nullptr;
-		HashMap<Entity*, bool> m_foldStatus;
-		SelectableListLayout*  m_selectableList = nullptr;
+		Editor*				  m_editor		   = nullptr;
+		WorldManager*		  m_worldManager   = nullptr;
+		EntityWorld*		  m_world		   = nullptr;
+		SelectableListLayout* m_selectableList = nullptr;
 	};
 
 } // namespace Lina::Editor

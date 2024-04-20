@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Data/HashMap.hpp"
 #include "Editor/Editor.hpp"
 
 namespace Lina
@@ -43,10 +44,9 @@ namespace Lina::Editor
 
 	struct SelectableListItem
 	{
-		String title		 = "";
-		void*  userData		 = nullptr;
-		bool   hasChildren	 = false;
-		bool   startUnfolded = false;
+		String title	   = "";
+		void*  userData	   = nullptr;
+		bool   hasChildren = false;
 	};
 
 	class SelectableListLayoutListener
@@ -70,12 +70,18 @@ namespace Lina::Editor
 			String dropdownIconUnfolded = "";
 		};
 
-		virtual void Construct();
-		virtual void Initialize();
-		virtual void Tick(float delta);
+		virtual void Destruct() override;
+		virtual void Construct() override;
+		virtual void Initialize() override;
+		virtual void Tick(float delta) override;
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
+
+		virtual LinaGX::Window* OnPayloadGetWindow() override
+		{
+			return m_lgxWindow;
+		}
 
 		void RefreshItems();
 
@@ -105,6 +111,7 @@ namespace Lina::Editor
 		bool						  m_payloadActive = false;
 		Vector<Selectable*>			  m_selectables	  = {};
 		FileMenu*					  m_contextMenu	  = nullptr;
+		HashMap<void*, bool>		  m_foldStatus;
 	};
 
 } // namespace Lina::Editor

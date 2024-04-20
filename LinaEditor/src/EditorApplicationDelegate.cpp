@@ -51,7 +51,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
-#include "Core/GUI/Widgets/Compound/FoldingSelectable.hpp"
 
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Widgets/Compound/IconTabs.hpp"
@@ -126,7 +125,6 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<ProjectSelector>(), 1);
 		Theme::SetWidgetChunkCount(GetTypeID<WindowBar>(), 20);
 		Theme::SetWidgetChunkCount(GetTypeID<GenericPopup>(), 10);
-		Theme::SetWidgetChunkCount(GetTypeID<FoldingSelectable>(), 100);
 		Theme::SetWidgetChunkCount(GetTypeID<Selectable>(), 100);
 		Theme::SetWidgetChunkCount(GetTypeID<FoldLayout>(), 50);
 
