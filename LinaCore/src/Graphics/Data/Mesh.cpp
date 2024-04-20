@@ -34,30 +34,27 @@ SOFTWARE.
 
 namespace Lina
 {
-    void MeshDefault::SaveToStream(OStream &stream) const 
-    {
-        StringSerialization::SaveToStream(stream, m_name);
-        VectorSerialization::SaveToStream_PT(stream, m_indices16);
-        VectorSerialization::SaveToStream_OBJ(stream, m_vertices);
-    }
+	void MeshDefault::SaveToStream(OStream& stream) const
+	{
+		StringSerialization::SaveToStream(stream, m_name);
+		VectorSerialization::SaveToStream_PT(stream, m_indices16);
+		VectorSerialization::SaveToStream_OBJ(stream, m_vertices);
+	}
 
-    void MeshDefault::LoadFromStream(IStream &stream) 
-    {
-        StringSerialization::LoadFromStream(stream, m_name);
-        VectorSerialization::LoadFromStream_PT(stream, m_indices16);
-        VectorSerialization::LoadFromStream_OBJ(stream, m_vertices);
-    }
+	void MeshDefault::LoadFromStream(IStream& stream)
+	{
+		StringSerialization::LoadFromStream(stream, m_name);
+		VectorSerialization::LoadFromStream_PT(stream, m_indices16);
+		VectorSerialization::LoadFromStream_OBJ(stream, m_vertices);
+	}
 
-    void MeshDefault::Draw(LinaGX::CommandStream* stream, uint32 instances)
-    {
-        LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-        draw->indexCountPerInstance              = static_cast<uint32>(m_indices16.size());
-        draw->instanceCount                      = instances;
-        draw->startInstanceLocation              = 0;
-        draw->startIndexLocation              = m_indexOffset;
-        draw->baseVertexLocation              = m_vertexOffset;
-    }
+	void MeshDefault::Draw(LinaGX::CommandStream* stream, uint32 instances)
+	{
+		LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+		draw->indexCountPerInstance			  = static_cast<uint32>(m_indices16.size());
+		draw->instanceCount					  = instances;
+		draw->startInstanceLocation			  = 0;
+		draw->startIndexLocation			  = m_indexOffset;
+		draw->baseVertexLocation			  = m_vertexOffset;
+	}
 } // namespace Lina
-
-
-

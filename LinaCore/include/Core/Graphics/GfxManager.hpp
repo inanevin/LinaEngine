@@ -49,7 +49,7 @@ namespace Lina
 	class WorldRenderer;
 	class ResourceManager;
 	class GUIBackend;
-class EntityWorld;
+	class EntityWorld;
 
 	class GfxManager : public Subsystem
 	{
@@ -85,9 +85,9 @@ class EntityWorld;
 		LinaGX::Window*	 GetApplicationWindow(StringID sid);
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 		PoolAllocator*	 GetGUIAllocator(TypeID tid, size_t typeSize);
-        WorldRenderer* CreateWorldRenderer(EntityWorld* world, const Vector2ui& size);
-        void DestroyWorldRenderer(WorldRenderer* renderer);
-        void DestroyWorldRenderer(EntityWorld* world);
+		WorldRenderer*	 CreateWorldRenderer(EntityWorld* world, const Vector2ui& size);
+		void			 DestroyWorldRenderer(WorldRenderer* renderer);
+		void			 DestroyWorldRenderer(EntityWorld* world);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{
@@ -146,7 +146,7 @@ class EntityWorld;
 		Mutex							m_guiAllocMutx;
 		Color							m_clearColor = Color::Black;
 		PerFrameData					m_pfd[FRAMES_IN_FLIGHT];
-        Mutex m_wrMtx;
+		Mutex							m_wrMtx;
 	};
 } // namespace Lina
 #endif

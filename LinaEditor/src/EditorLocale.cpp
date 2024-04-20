@@ -64,7 +64,7 @@ namespace Lina::Editor
 		{LocaleStr::UnfinishedWorkDesc, "Your project contains unfinished work. Would you like to save your changes before you continue?"},
 		{LocaleStr::LinaProjectFile, "Lina Project File"},
 		{LocaleStr::LinaWorldFile, "Lina World File"},
-        {LocaleStr::NoProject, "No Project"},
+		{LocaleStr::NoProject, "No Project"},
 		{LocaleStr::NoWorld, "No World"},
 		{LocaleStr::NewProject, "New Project"},
 		{LocaleStr::LoadProject, "Load Project"},

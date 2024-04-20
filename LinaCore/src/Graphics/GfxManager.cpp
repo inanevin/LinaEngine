@@ -133,13 +133,13 @@ namespace Lina
 		api = LinaGX::BackendAPI::Metal;
 #endif
 
-		LinaGX::Config.api			   = api;
-		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
-		LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
-		LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
-		LinaGX::Config.gpuLimits	   = {};
-        LinaGX::Config.mutexLockCreationDeletion = true;
-        
+		LinaGX::Config.api						 = api;
+		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.framesInFlight			 = FRAMES_IN_FLIGHT;
+		LinaGX::Config.backbufferCount			 = BACK_BUFFER_COUNT;
+		LinaGX::Config.gpuLimits				 = {};
+		LinaGX::Config.mutexLockCreationDeletion = true;
+
 		m_lgx->Initialize();
 
 		// Default samplers
@@ -554,29 +554,29 @@ namespace Lina
 		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
 	}
 
-    WorldRenderer* GfxManager::CreateWorldRenderer(EntityWorld* world, const Vector2ui &size)
-    {
-        LOCK_GUARD(m_wrMtx);
-        WorldRenderer* wr = new WorldRenderer(this, world, size);
-        m_worldRenderers.push_back(wr);
-        return wr;
-    }
+	WorldRenderer* GfxManager::CreateWorldRenderer(EntityWorld* world, const Vector2ui& size)
+	{
+		LOCK_GUARD(m_wrMtx);
+		WorldRenderer* wr = new WorldRenderer(this, world, size);
+		m_worldRenderers.push_back(wr);
+		return wr;
+	}
 
-    void GfxManager::DestroyWorldRenderer(WorldRenderer *renderer)
-    {
-        LOCK_GUARD(m_wrMtx);
-        m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [renderer](WorldRenderer* rnd) -> bool { return renderer == rnd;}));
-        delete renderer;
-    }
+	void GfxManager::DestroyWorldRenderer(WorldRenderer* renderer)
+	{
+		LOCK_GUARD(m_wrMtx);
+		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [renderer](WorldRenderer* rnd) -> bool { return renderer == rnd; }));
+		delete renderer;
+	}
 
-    void GfxManager::DestroyWorldRenderer(EntityWorld* world)
-    {
-       LOCK_GUARD(m_wrMtx);
-        auto it = linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [world](WorldRenderer* rnd) -> bool { return rnd->GetWorld() == world;});
-        WorldRenderer* renderer = *it;
-       m_worldRenderers.erase(it);
-       delete renderer;
-    }
+	void GfxManager::DestroyWorldRenderer(EntityWorld* world)
+	{
+		LOCK_GUARD(m_wrMtx);
+		auto		   it		= linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [world](WorldRenderer* rnd) -> bool { return rnd->GetWorld() == world; });
+		WorldRenderer* renderer = *it;
+		m_worldRenderers.erase(it);
+		delete renderer;
+	}
 
 	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)
 	{

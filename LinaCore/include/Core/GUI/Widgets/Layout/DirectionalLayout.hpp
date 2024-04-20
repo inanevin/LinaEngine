@@ -64,7 +64,7 @@ namespace Lina
 			Color				 colorHovered		   = Theme::GetDef().background0;
 			BackgroundStyle		 backgroundStyle	   = BackgroundStyle::None;
 			Vector<int32>		 onlyRoundTheseCorners = {};
-            Delegate<void()>     onClicked;
+			Delegate<void()>	 onClicked;
 			Delegate<void()>	 onRightClicked;
 			Delegate<void()>	 onPressed;
 			Delegate<void()>	 onDestructed;

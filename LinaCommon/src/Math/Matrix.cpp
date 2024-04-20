@@ -40,10 +40,10 @@ SOFTWARE.
 namespace Lina
 {
 	Matrix4::Matrix4(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset){};
-    Matrix4::Matrix4(const float* data)
-    {
-        glm::make_mat4<float>(data);
-    }
+	Matrix4::Matrix4(const float* data)
+	{
+		glm::make_mat4<float>(data);
+	}
 
 	Matrix4 Matrix4::Identity()
 	{
@@ -264,6 +264,3 @@ namespace Lina
 	}
 
 } // namespace Lina
-
-
-

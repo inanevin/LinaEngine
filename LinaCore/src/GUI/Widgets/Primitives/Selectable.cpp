@@ -43,17 +43,17 @@ namespace Lina
 			if (m_props.onSelectionChanged)
 				m_props.onSelectionChanged(this, false);
 		}
-        
-        if(m_isPressed && !m_isHovered && !m_dockedOut)
-        {
-            m_dockedOut = true;
-            
-            if(m_props.onDockedOut)
-                m_props.onDockedOut();
-        }
-        
-        if(!m_isPressed)
-            m_dockedOut = false;
+
+		if (m_isPressed && !m_isHovered && !m_dockedOut)
+		{
+			m_dockedOut = true;
+
+			if (m_props.onDockedOut)
+				m_props.onDockedOut();
+		}
+
+		if (!m_isPressed)
+			m_dockedOut = false;
 	}
 
 	void Selectable::Tick(float dt)
@@ -121,10 +121,10 @@ namespace Lina
 
 	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-        if(m_isHovered)
-        {
-            int a = 5;
-        }
+		if (m_isHovered)
+		{
+			int a = 5;
+		}
 		if (m_isHovered && button == LINAGX_MOUSE_1 && act == LinaGX::InputAction::Pressed)
 		{
 			if (m_props.onRightClick)
@@ -132,15 +132,15 @@ namespace Lina
 
 			return true;
 		}
-        
+
 		if (button != LINAGX_MOUSE_0)
 			return false;
-        
-        if(m_isPressed && act == LinaGX::InputAction::Released)
-        {
-            m_isPressed = false;
-            return true;
-        }
+
+		if (m_isPressed && act == LinaGX::InputAction::Released)
+		{
+			m_isPressed = false;
+			return true;
+		}
 
 		if (m_isHovered && act == LinaGX::InputAction::Repeated)
 		{
@@ -150,12 +150,12 @@ namespace Lina
 		}
 
 		if (m_manager->GetControlsOwner() == this)
-        {
-            if(m_isHovered && act == LinaGX::InputAction::Pressed)
-                m_isPressed = true;
-            
-            return false;
-        }
+		{
+			if (m_isHovered && act == LinaGX::InputAction::Pressed)
+				m_isPressed = true;
+
+			return false;
+		}
 
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
