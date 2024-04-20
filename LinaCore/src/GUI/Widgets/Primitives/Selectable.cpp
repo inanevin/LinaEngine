@@ -139,7 +139,7 @@ namespace Lina
 		if (m_isPressed && act == LinaGX::InputAction::Released)
 		{
 			m_isPressed = false;
-			return true;
+			return false; // leave to children
 		}
 
 		if (m_isHovered && act == LinaGX::InputAction::Repeated)
@@ -152,7 +152,10 @@ namespace Lina
 		if (m_manager->GetControlsOwner() == this)
 		{
 			if (m_isHovered && act == LinaGX::InputAction::Pressed)
+			{
 				m_isPressed = true;
+				return false; // leave to children
+			}
 
 			return false;
 		}

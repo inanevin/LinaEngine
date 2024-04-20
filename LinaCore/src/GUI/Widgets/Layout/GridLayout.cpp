@@ -70,7 +70,9 @@ namespace Lina
 		if (m_props.background == BackgroundStyle::Default)
 		{
 			LinaVG::StyleOptions opts;
-			opts.color = m_props.colorBackground.AsLVG4();
+			opts.color					  = m_props.colorBackground.AsLVG4();
+			opts.outlineOptions.thickness = m_props.outlineThickness;
+			opts.outlineOptions.color	  = m_props.colorOutline.AsLVG4();
 			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 		}
 

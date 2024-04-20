@@ -98,6 +98,7 @@ src/GUI/Widgets/Layout/ScrollArea.cpp
 src/GUI/Widgets/Layout/FoldLayout.cpp
 src/GUI/Widgets/Layout/LayoutBorder.cpp
 src/GUI/Widgets/Layout/GridLayout.cpp
+src/GUI/Widgets/Layout/SelectableListLayout.cpp
 src/GUI/Widgets/Primitives/Text.cpp
 src/GUI/Widgets/Primitives/Icon.cpp
 src/GUI/Widgets/Primitives/ShapeRect.cpp
@@ -207,6 +208,7 @@ include/Core/GUI/Widgets/Layout/ScrollArea.hpp
 include/Core/GUI/Widgets/Layout/FoldLayout.hpp
 include/Core/GUI/Widgets/Layout/LayoutBorder.hpp
 include/Core/GUI/Widgets/Layout/GridLayout.hpp
+include/Core/GUI/Widgets/Layout/SelectableListLayout.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp
 include/Core/GUI/Widgets/Primitives/Icon.hpp
 include/Core/GUI/Widgets/Primitives/ShapeRect.hpp

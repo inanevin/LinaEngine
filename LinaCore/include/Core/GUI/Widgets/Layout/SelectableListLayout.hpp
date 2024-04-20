@@ -32,35 +32,47 @@ SOFTWARE.
 
 namespace Lina
 {
-	class GridLayout : public Widget
+
+	struct SelectableListItem
+	{
+		String title		 = "";
+		uint8  level		 = 0;
+		void*  userData		 = nullptr;
+		bool   hasChildren	 = false;
+		bool   startUnfolded = false;
+	};
+
+	class SelectableListLayoutListener
 	{
 	public:
-		GridLayout()		  = default;
-		virtual ~GridLayout() = default;
+		virtual void SelectableListFillItems(Vector<SelectableListItem>& outItems){};
+		virtual void SelectableListFillSubItems(Vector<SelectableListItem>& outItems, void* parentUserData){};
 
-		enum class BackgroundStyle
-		{
-			None,
-			Default,
-		};
+		virtual void SelectableListOnPayload(Widget* payload){};
+		virtual void SelectableListContextMenu(void* userData){};
+	};
+
+	class SelectableListLayout : public Widget
+	{
+	public:
+		SelectableListLayout()			= default;
+		virtual ~SelectableListLayout() = default;
 
 		struct Properties
 		{
-			float horizontalPadding = Theme::GetDef().baseIndentInner;
-			float verticalPadding	= Theme::GetDef().baseIndent;
-			float outlineThickness	= 0.0f;
-			bool  clipChildren		= false;
-
-			BackgroundStyle background		= BackgroundStyle::None;
-			Color			colorBackground = Theme::GetDef().background0;
-			Color			colorOutline	= Theme::GetDef().outlineColorBase;
+			bool   useGridAsLayout		= false;
+			String dropdownIconFolded	= "";
+			String dropdownIconUnfolded = "";
 		};
 
-		virtual void  Tick(float delta) override;
-		virtual void  Draw(int32 threadIndex) override;
-		virtual float CalculateChildrenSize() override
+		virtual void Construct();
+		virtual void Initialize();
+
+		void RefreshItems();
+
+		inline void SetListener(SelectableListLayoutListener* listener)
 		{
-			return m_totalChildHeight;
+			m_listener = listener;
 		}
 
 		inline Properties& GetProps()
@@ -69,8 +81,12 @@ namespace Lina
 		}
 
 	private:
-		Properties m_props			  = {};
-		float	   m_totalChildHeight = 0.0f;
+		Widget* CreateItem(const SelectableListItem& item, uint8 level);
+
+	private:
+		Properties					  m_props	 = {};
+		SelectableListLayoutListener* m_listener = nullptr;
+		Widget*						  m_layout	 = nullptr;
 	};
 
 } // namespace Lina
