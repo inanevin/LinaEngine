@@ -46,9 +46,9 @@ namespace Lina
 
 		struct Properties
 		{
-			float verticalPadding	= Theme::GetDef().baseIndent;
-			float outlineThickness	= 0.0f;
-			bool  clipChildren		= false;
+			float verticalPadding  = Theme::GetDef().baseIndent;
+			float outlineThickness = 0.0f;
+			bool  clipChildren	   = false;
 
 			BackgroundStyle background		= BackgroundStyle::None;
 			Color			colorBackground = Theme::GetDef().background0;
