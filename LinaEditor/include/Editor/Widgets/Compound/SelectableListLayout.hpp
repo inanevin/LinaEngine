@@ -37,6 +37,8 @@ namespace Lina
 	class Selectable;
 	class DirectionalLayout;
 	class FileMenu;
+	class GridLayout;
+	class FoldLayout;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -44,18 +46,29 @@ namespace Lina::Editor
 
 	struct SelectableListItem
 	{
-		String title		   = "";
-		void*  userData		   = nullptr;
-		bool   hasChildren	   = false;
-		bool   useDropdownIcon = true;
-		bool   useFolderIcon   = false;
+		String	 title				  = "";
+		void*	 userData			  = nullptr;
+		bool	 hasChildren		  = false;
+		bool	 useDropdownIcon	  = true;
+		bool	 useFolderIcon		  = false;
+		bool	 useCustomInteraction = false;
+		Texture* customTexture		  = nullptr;
 	};
+
+	class SelectableListLayout;
 
 	class SelectableListLayoutListener
 	{
 	public:
-		virtual void OnSelectableListFillItems(Vector<SelectableListItem>& outItems, void* parentUserData){};
-		virtual void OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemUserData){};
+		virtual void		OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData){};
+		virtual void		OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemUserData){};
+		virtual void		OnSelectableListItemControl(SelectableListLayout* list, void* userData){};
+		virtual void		OnSelectableListItemInteracted(SelectableListLayout* list, void* userData){};
+		virtual Widget*		OnSelectableListBuildCustomTooltip(SelectableListLayout* list, void* userData){};
+		virtual PayloadType OnSelectableListGetPayloadType(SelectableListLayout* list)
+		{
+			return PayloadType::None;
+		}
 	};
 
 	class SelectableListLayout : public Widget, public EditorPayloadListener
@@ -66,10 +79,7 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			bool   useGridAsLayout = false;
-			String iconFolded	   = "";
-			String iconUnfolded	   = "";
-			String iconFolder	   = "";
+			bool useGridAsLayout = false;
 		};
 
 		virtual void Destruct() override;
@@ -79,6 +89,10 @@ namespace Lina::Editor
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		void		 ChangeFold(void* userData, bool isUnfolded);
+		void		 GrabControls(void* userData);
+		void		 SetGridLayoutItemSize(const Vector2& size);
 
 		virtual LinaGX::Window* OnPayloadGetWindow() override
 		{
@@ -104,15 +118,20 @@ namespace Lina::Editor
 
 	private:
 		Widget* CreateItem(const SelectableListItem& item, uint8 level);
+		Widget* CreateGridItem(const SelectableListItem& item, uint8 level);
+		void	SetSelectableCallbacks(const SelectableListItem& item, Selectable* selcetable, FoldLayout* fold);
 
 	private:
 		Properties					  m_props		  = {};
 		SelectableListLayoutListener* m_listener	  = nullptr;
-		DirectionalLayout*			  m_layout		  = nullptr;
+		Widget*						  m_layout		  = nullptr;
+		DirectionalLayout*			  m_dirLayout	  = nullptr;
+		GridLayout*					  m_gridLayout	  = nullptr;
 		Editor*						  m_editor		  = nullptr;
 		bool						  m_payloadActive = false;
 		Vector<Selectable*>			  m_selectables	  = {};
-		FileMenu*					  m_contextMenu	  = nullptr;
+		Vector<DirectionalLayout*>	  m_gridLayoutItems;
+		FileMenu*					  m_contextMenu = nullptr;
 		HashMap<void*, bool>		  m_foldStatus;
 	};
 

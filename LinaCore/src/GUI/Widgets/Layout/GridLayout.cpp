@@ -48,13 +48,13 @@ namespace Lina
 			if (x + c->GetSizeX() > end.x)
 			{
 				x = start.x;
-				y += maxItemHeight + GetChildPadding();
+				y += maxItemHeight + m_props.verticalPadding;
 				maxItemHeight = 0.0f;
 			}
 			c->SetPosX(x);
 			c->SetPosY(y);
 			maxItemHeight = Math::Max(maxItemHeight, c->GetSizeY());
-			x += c->GetSizeX() + m_props.horizontalPadding;
+			x += c->GetSizeX() + GetChildPadding();
 		}
 
 		if (m_children.empty())
@@ -70,9 +70,10 @@ namespace Lina
 		if (m_props.background == BackgroundStyle::Default)
 		{
 			LinaVG::StyleOptions opts;
-			opts.color					  = m_props.colorBackground.AsLVG4();
-			opts.outlineOptions.thickness = m_props.outlineThickness;
-			opts.outlineOptions.color	  = m_props.colorOutline.AsLVG4();
+			opts.color						  = m_props.colorBackground.AsLVG4();
+			opts.outlineOptions.thickness	  = m_props.outlineThickness;
+			opts.outlineOptions.color		  = m_props.colorOutline.AsLVG4();
+			opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
 			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 		}
 

@@ -86,8 +86,11 @@ namespace Lina::Editor
 
 	enum class PayloadType
 	{
+		None,
 		DockedPanel,
-		SelectableListItem,
+		EntitySelectable,
+		BrowserSelectable,
+		ContentsSelectable,
 	};
 
 	struct PanelLayoutExtra

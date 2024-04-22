@@ -57,8 +57,13 @@ namespace Lina::Editor
 		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
 
-		virtual void OnSelectableListFillItems(Vector<SelectableListItem>& outItems, void* parentUserData) override;
-		virtual void OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemuserData) override;
+		virtual void		OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData) override;
+		virtual void		OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemuserData) override;
+		virtual PayloadType OnSelectableListGetPayloadType(SelectableListLayout* list) override
+		{
+			return PayloadType::EntitySelectable;
+		};
+
 		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
 		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 

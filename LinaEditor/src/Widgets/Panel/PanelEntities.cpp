@@ -72,8 +72,6 @@ namespace Lina::Editor
 		selectableList->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		selectableList->SetAlignedPosX(0.0f);
 		selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
-		selectableList->GetProps().iconFolded	= ICON_CHEVRON_RIGHT;
-		selectableList->GetProps().iconUnfolded = ICON_CHEVRON_DOWN;
 		layout->AddChild(selectableList);
 
 		m_selectableList = selectableList;
@@ -107,7 +105,7 @@ namespace Lina::Editor
 		Widget::Draw(threadIndex);
 	}
 
-	void PanelEntities::OnSelectableListFillItems(Vector<SelectableListItem>& outItems, void* parentUserData)
+	void PanelEntities::OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData)
 	{
 		if (!m_world)
 			return;
@@ -145,7 +143,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void PanelEntities::OnSelectableListPayloadDropped(void* payloadUserData, void* droppedItemUserData)
+	void PanelEntities::OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemUserData)
 	{
 		Entity* payloadEntity = static_cast<Entity*>(payloadUserData);
 

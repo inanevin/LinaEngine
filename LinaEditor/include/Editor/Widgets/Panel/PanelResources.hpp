@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Editor/Widgets/Compound/SelectableListLayout.hpp"
 
 namespace Lina
 {
@@ -46,7 +47,7 @@ namespace Lina::Editor
 	class DirectoryItem;
 	class Editor;
 
-	class PanelResources : public Panel, public FileMenuListener
+	class PanelResources : public Panel, public FileMenuListener, public SelectableListLayoutListener
 	{
 	public:
 		static constexpr float MAX_CONTENTS_SIZE = 4.0f;
@@ -54,55 +55,45 @@ namespace Lina::Editor
 		PanelResources() : Panel(PanelType::Resources, 0){};
 		virtual ~PanelResources() = default;
 
+		virtual void Initialize() override;
 		virtual void Construct() override;
 		virtual void Draw(int32 threadIndex) override;
 
 		virtual PanelLayoutExtra GetExtraLayoutData() override;
 		virtual void			 SetExtraLayoutData(const PanelLayoutExtra& data) override;
 
-		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
-		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual void		OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData) override;
+		virtual void		OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemuserData) override;
+		virtual void		OnSelectableListItemControl(SelectableListLayout* list, void* userData) override;
+		virtual void		OnSelectableListItemInteracted(SelectableListLayout* list, void* userData) override;
+		virtual Widget*		OnSelectableListBuildCustomTooltip(SelectableListLayout* list, void* userData) override;
+		virtual PayloadType OnSelectableListGetPayloadType(SelectableListLayout* list) override;
+		virtual bool		OnFileMenuItemClicked(StringID sid, void* userData) override;
+		virtual void		OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	private:
-		void	RefreshBrowserHierarchy();
-		void	RefreshContents();
-		void	UpdateWidgetSizeFromContentsSize(Widget* w);
-		Widget* BuildThumbnailForItem(DirectoryItem* item);
-		Widget* BuildTooltipForItem(void* userData);
-		Widget* BuildTitleForItem(DirectoryItem* item);
-		Widget* BuildFolderIconForItem(DirectoryItem* item, float dynSize);
-		Widget* BuildTopContents();
-		Widget* BuildBottomContents();
-		Widget* BuildBrowser();
-
-		Widget* BuildBrowserSelectable(DirectoryItem* item, uint8 level);
-		Widget* BuildContentSelectableList(DirectoryItem* item);
-		Widget* BuildContentSelectableBig(DirectoryItem* item);
-		Widget* FindBrowserSelectable(DirectoryItem* item);
-		void	OpenFile(DirectoryItem* item);
-
-		void OnSelectableInteracted(Selectable* selectable);
-		void OnSelectionChanged(Selectable* selectable, bool selected);
-		void OnSelectableRightClick(Selectable* selectable);
+		Widget*				  BuildTopContents();
+		Widget*				  BuildBottomContents();
+		Widget*				  BuildContents();
+		Widget*				  BuildBrowser();
+		SelectableListLayout* BuildSelectableListLayout(bool isList);
+		void				  SetShowListContents(bool showList);
 
 	private:
 		static constexpr float MIN_CONTENTS_SIZE = 2.0f;
 
-		LayoutBorder*	   m_border			   = nullptr;
-		Editor*			   m_editor			   = nullptr;
-		DirectionalLayout* m_browserItems	   = nullptr;
-		Text*			   m_path			   = nullptr;
-		Text*			   m_itemCount		   = nullptr;
-		Text*			   m_selectedItemCount = nullptr;
-		GridLayout*		   m_contentsGrid	   = nullptr;
-		ScrollArea*		   m_browserScroll	   = nullptr;
-		ScrollArea*		   m_contentsScroll	   = nullptr;
-		FileMenu*		   m_contextMenu	   = nullptr;
-
-		Vector<DirectoryItem*> m_currentBrowserSelection  = {};
-		Vector<DirectoryItem*> m_currentContentsSelection = {};
-		float				   m_contentsSize			  = MAX_CONTENTS_SIZE;
-		bool				   m_showListContents		  = false;
+		LayoutBorder*		  m_border					 = nullptr;
+		Editor*				  m_editor					 = nullptr;
+		Text*				  m_path					 = nullptr;
+		Text*				  m_itemCount				 = nullptr;
+		Text*				  m_selectedItemCount		 = nullptr;
+		SelectableListLayout* m_browserSelectableList	 = nullptr;
+		SelectableListLayout* m_contentsSelectableList	 = nullptr;
+		DirectoryItem*		  m_currentBrowserSelection	 = nullptr;
+		DirectoryItem*		  m_currentContentsSelection = nullptr;
+		Widget*				  m_contentsListOwner		 = nullptr;
+		float				  m_contentsSize			 = MAX_CONTENTS_SIZE;
+		bool				  m_showListContents		 = false;
 	};
 
 } // namespace Lina::Editor

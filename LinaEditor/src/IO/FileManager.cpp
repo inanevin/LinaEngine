@@ -136,7 +136,6 @@ namespace Lina::Editor
 				files.push_back(c);
 		}
 		linatl::sort(folders.begin(), folders.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->folderName < b->folderName; });
-
 		linatl::sort(files.begin(), files.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->fileName < b->fileName; });
 
 		item->children.clear();
