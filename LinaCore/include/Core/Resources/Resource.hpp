@@ -113,32 +113,20 @@ namespace Lina
 		ResourceTag		 m_tag			   = ResourceTag::Default;
 	};
 
-	template <typename T> class ResourceReference
+	template <typename T> struct ResRef
 	{
-	public:
-		virtual void SaveToStream(OStream& stream) const
+		T*		 raw = nullptr;
+		StringID sid = 0;
+
+		void SaveToStream(OStream& stream) const
 		{
-			stream << m_sid;
+			stream << sid;
 		};
 
-		virtual void LoadFromStream(IStream& stream)
+		void LoadFromStream(IStream& stream)
 		{
-			stream >> m_sid;
+			stream >> sid;
 		};
-
-		inline void Set(T* res)
-		{
-			m_raw = res;
-			m_sid = res->GetSID();
-		}
-
-		inline StringID GetSID() const
-		{
-			return m_sid;
-		}
-
-	private:
-		T*		 m_raw = nullptr;
-		StringID m_sid = 0;
 	};
+
 } // namespace Lina

@@ -47,50 +47,50 @@ namespace Lina
 
 	void MeshManager::Initialize()
 	{
-		auto* lgx = m_gfxManager->GetLGX();
-		for (size_t i = 0; i < MESH_BUF_SIZE; i++)
-		{
-			auto& buf = m_meshBuffers[i];
-			buf.vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_VERTICES * sizeof(VertexDefault), "MeshManager Big VertexBuffer");
-			buf.indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_INDICES * sizeof(uint16), "MeshManager Big IndexBuffer");
-		}
+		// auto* lgx = m_gfxManager->GetLGX();
+		// for (size_t i = 0; i < MESH_BUF_SIZE; i++)
+		// {
+		// 	auto& buf = m_meshBuffers[i];
+		// 	buf.vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_VERTICES * sizeof(VertexDefault), "MeshManager Big VertexBuffer");
+		// 	buf.indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_INDICES * sizeof(uint16), "MeshManager Big IndexBuffer");
+		// }
 	}
 
 	void MeshManager::Shutdown()
 	{
-		for (size_t i = 0; i < MESH_BUF_SIZE; i++)
-		{
-			auto& buf = m_meshBuffers[i];
-			buf.vertexBuffer.Destroy();
-			buf.indexBuffer.Destroy();
-		}
+		// for (size_t i = 0; i < MESH_BUF_SIZE; i++)
+		// {
+		// 	auto& buf = m_meshBuffers[i];
+		// 	buf.vertexBuffer.Destroy();
+		// 	buf.indexBuffer.Destroy();
+		// }
 	}
 
 	void MeshManager::BindBuffers(LinaGX::CommandStream* stream, uint32 bufferIndex)
 	{
-		auto& buf = m_meshBuffers[bufferIndex];
-		buf.indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
-		buf.vertexBuffer.BindVertex(stream, sizeof(VertexDefault));
+		// auto& buf = m_meshBuffers[bufferIndex];
+		// buf.indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
+		// buf.vertexBuffer.BindVertex(stream, sizeof(VertexDefault));
 	}
 
 	void MeshManager::AddMesh(MeshDefault* mesh)
 	{
-		LOCK_GUARD(m_mtxMesh);
-		auto& buf = m_meshBuffers[0];
-
-		mesh->m_vertexOffset = static_cast<uint32>(buf.startVertex);
-		mesh->m_indexOffset	 = static_cast<uint32>(buf.startIndex);
-
-		const size_t vtxSize = sizeof(VertexDefault) * mesh->m_vertices.size();
-		buf.vertexBuffer.BufferData(buf.startVertex * sizeof(VertexDefault), (uint8*)(mesh->m_vertices.data()), vtxSize);
-		buf.startVertex += static_cast<uint32>(mesh->m_vertices.size());
-
-		const size_t indexSize = sizeof(uint16) * mesh->m_indices16.size();
-		buf.indexBuffer.BufferData(buf.startIndex * sizeof(uint16), (uint8*)(mesh->m_indices16.data()), indexSize);
-		buf.startIndex += static_cast<uint32>(mesh->m_indices16.size());
-
-		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&buf.vertexBuffer);
-		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&buf.indexBuffer);
+		// LOCK_GUARD(m_mtxMesh);
+		// auto& buf = m_meshBuffers[0];
+		//
+		// mesh->m_vertexOffset = static_cast<uint32>(buf.startVertex);
+		// mesh->m_indexOffset	 = static_cast<uint32>(buf.startIndex);
+		//
+		// const size_t vtxSize = sizeof(VertexDefault) * mesh->m_vertices.size();
+		// buf.vertexBuffer.BufferData(buf.startVertex * sizeof(VertexDefault), (uint8*)(mesh->m_vertices.data()), vtxSize);
+		// buf.startVertex += static_cast<uint32>(mesh->m_vertices.size());
+		//
+		// const size_t indexSize = sizeof(uint16) * mesh->m_indices16.size();
+		// buf.indexBuffer.BufferData(buf.startIndex * sizeof(uint16), (uint8*)(mesh->m_indices16.data()), indexSize);
+		// buf.startIndex += static_cast<uint32>(mesh->m_indices16.size());
+		//
+		// m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&buf.vertexBuffer);
+		// m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&buf.indexBuffer);
 	}
 
 } // namespace Lina

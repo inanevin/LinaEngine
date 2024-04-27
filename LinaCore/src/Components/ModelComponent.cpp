@@ -28,18 +28,59 @@ SOFTWARE.
 
 #include "Core/Components/ModelComponent.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Data/ModelNode.hpp"
 
 namespace Lina
 {
 	void ModelComponent::SaveToStream(OStream& stream) const
 	{
-		stream << m_model;
-		VectorSerialization::SaveToStream_PT(stream, m_materials);
+		m_model.SaveToStream(stream);
+		VectorSerialization::SaveToStream_OBJ(stream, m_materials);
 	}
 
 	void ModelComponent::LoadFromStream(IStream& stream)
 	{
-		stream >> m_model;
-		VectorSerialization::LoadFromStream_PT(stream, m_materials);
+		m_model.LoadFromStream(stream);
+		VectorSerialization::LoadFromStream_OBJ(stream, m_materials);
 	}
+
+	void ModelComponent::SetModel(StringID sid)
+	{
+		m_model.sid = sid;
+	}
+
+	void ModelComponent::SetMaterial(uint32 index, StringID sid)
+	{
+		if (m_materials.size() <= index)
+			m_materials.resize(index + 1);
+
+		m_materials[index].sid = sid;
+	}
+
+	void ModelComponent::FetchResources(ResourceManager* rm)
+	{
+		m_model.raw = rm->GetResource<Model>(m_model.sid);
+		for (auto& mat : m_materials)
+			mat.raw = rm->GetResource<Material>(mat.sid);
+
+		m_materialToMeshMap.clear();
+
+		for (auto* r : m_model.raw->GetRootNodes())
+			FillMeshes(r);
+	}
+
+	void ModelComponent::FillMeshes(ModelNode* node)
+	{
+		// for(auto* m : node->GetMeshes())
+		// {
+		//     Material* mat = m_materials[m->GetMaterialIndex()].raw;
+		//     m_materialToMeshMap.insert(linatl::make_pair(mat, m));
+		// }
+
+		// for(auto* c : node->GetChildren())
+		//     FillMeshes(c);
+	}
+
 } // namespace Lina

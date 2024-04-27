@@ -28,10 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#include <parallel_hashmap/phmap.h>
+#include <parallel_hashmap/btree.h>
 
 namespace Lina
 {
-	template <typename T, typename U, typename Compare = std::less<T>> using Map = phmap::btree_map<T, U, Compare>;
+    template <typename T, typename U, typename Compare = std::less<T>> using Map = phmap::btree_map<T, U, Compare>;
+	template <typename T, typename U, typename Compare = std::less<T>> using MultiMap = phmap::btree_multimap<T, U, Compare>;
+
 
 } // namespace Lina

@@ -88,12 +88,12 @@ namespace Lina
 	class FileMenuListener
 	{
 	public:
-		virtual bool IsItemDisabled(StringID sid)
+		virtual bool OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const
 		{
 			return false;
 		}
-		virtual bool OnFileMenuItemClicked(StringID sid, void* userData){};
-		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData){};
+		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData){};
+		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData){};
 	};
 
 	class FileMenu : public DirectionalLayout

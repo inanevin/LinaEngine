@@ -183,6 +183,8 @@ namespace Lina
 
 	void EntityWorld::LoadFromFile(const char* path)
 	{
+		DestroyWorld();
+
 		IStream stream = Serialization::LoadFromFile(path);
 
 		if (stream.GetDataRaw() != nullptr)
@@ -193,6 +195,8 @@ namespace Lina
 
 	void EntityWorld::LoadFromStream(IStream& stream)
 	{
+		DestroyWorld();
+
 		// Load id list.
 		m_entities.LoadFromStream(stream);
 

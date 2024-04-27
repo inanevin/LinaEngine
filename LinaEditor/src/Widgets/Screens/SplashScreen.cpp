@@ -104,7 +104,7 @@ namespace Lina::Editor
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		// Logo
-		LinaVG::DrawImage(threadIndex, "Resources/Editor/Textures/LinaLogoTitle.png"_hs, m_logoCenter.AsLVG(), m_logoDrawSize.AsLVG());
+		LinaVG::DrawImage(threadIndex, m_splashImage->GetGPUHandle(), m_logoCenter.AsLVG(), m_logoDrawSize.AsLVG());
 
 		const Rect progressBGRect = Rect(Vector2(m_rect.pos.x, m_rect.GetEnd().y - padding), Vector2(m_rect.size.x, padding));
 		const Rect progressRect	  = Rect(Vector2(m_rect.pos.x, m_rect.GetEnd().y - padding), Vector2(m_rect.size.x * m_progress, padding));

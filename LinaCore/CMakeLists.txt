@@ -40,12 +40,13 @@ src/Graphics/CameraSystem.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Data/Vertex.cpp
+src/Graphics/Data/RenderData.cpp
 src/Graphics/Data/Mesh.cpp
+src/Graphics/Data/Primitive.cpp
 src/Graphics/Data/ModelNode.cpp
 src/Graphics/Data/ModelMaterial.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/ShaderVariant.cpp
-src/Graphics/Resource/Mesh.cpp
 src/Graphics/Resource/Model.cpp
 src/Graphics/Resource/Texture.cpp
 src/Graphics/Resource/TextureSampler.cpp
@@ -160,6 +161,7 @@ include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Data/RenderData.hpp
 include/Core/Graphics/Data/Vertex.hpp
 include/Core/Graphics/Data/Mesh.hpp
+include/Core/Graphics/Data/Primitive.hpp
 include/Core/Graphics/Data/ModelNode.hpp
 include/Core/Graphics/Data/ModelMaterial.hpp
 include/Core/Graphics/Resource/Shader.hpp

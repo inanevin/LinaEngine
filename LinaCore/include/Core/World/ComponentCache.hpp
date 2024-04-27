@@ -129,7 +129,7 @@ namespace Lina
 			}
 		}
 
-		inline Vector<T*> GetAllComponents(Vector<T*>& comps)
+		inline void GetAllComponents(Vector<T*>& comps)
 		{
 			comps.reserve(static_cast<size_t>(m_components.GetNextFreeID()));
 			for (auto c : m_components)

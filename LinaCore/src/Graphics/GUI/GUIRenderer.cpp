@@ -50,7 +50,7 @@ namespace Lina
 		m_lgx				  = m_gfxManager->GetLGX();
 		m_guiBackend		  = m_gfxManager->GetGUIBackend();
 		auto* rm			  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_shader			  = rm->GetResource<Shader>(DEFAULT_SHADER_GUI);
+		m_shader			  = rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
 		m_shaderVariantHandle = m_shader->GetGPUHandle(writeTargetType);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -65,7 +65,7 @@ namespace Lina
 			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
 			{
 				data.materials[j] = rm->CreateUserResource<Material>("GUIRendererMaterial", 0);
-				data.materials[j]->SetShader(DEFAULT_SHADER_GUI);
+				data.materials[j]->SetShader(DEFAULT_SHADER_GUI_SID);
 			}
 		}
 	}

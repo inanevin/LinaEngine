@@ -29,39 +29,45 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/Vector.hpp"
-#include "Common/Math/Matrix.hpp"
-#include "Mesh.hpp"
+#include "Common/Data/String.hpp"
+#include "Vertex.hpp"
+
+namespace LinaGX
+{
+	class CommandStream;
+}
 
 namespace Lina
 {
-	class MeshDefault;
+	class ModelNode;
 
-	class ModelNode
+	class PrimitiveDefault
 	{
 	public:
-		inline MeshDefault* GetMesh() const
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
+
+		inline uint32 GetStartIndex() const
 		{
-			return m_mesh;
+			return m_startIndex;
 		}
 
-		inline const Vector<ModelNode*>& GetChildren() const
+		inline uint32 GetStartVertex() const
 		{
-			return m_children;
+			return m_startVertex;
+		}
+
+		inline uint32 GetMaterialIndex() const
+		{
+			return m_materialIndex;
 		}
 
 	private:
 		friend class Model;
 
-		virtual ~ModelNode();
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
-
-	private:
-		String			   m_name	  = "";
-		ModelNode*		   m_parent	  = nullptr;
-		Vector<ModelNode*> m_children = {};
-		MeshDefault*	   m_mesh	  = nullptr;
-		Matrix4			   m_localMatrix;
+		uint32 m_materialIndex = 0;
+		uint32 m_startIndex	   = 0;
+		uint32 m_startVertex   = 0;
 	};
 
 } // namespace Lina

@@ -328,7 +328,7 @@ namespace Lina::Editor
 
 		const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
 		if (FileSystem::FileOrPathExists(lastWorldPath))
-			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->LoadWorld(lastWorldPath);
+			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->InstallWorld(lastWorldPath);
 	}
 
 	void Editor::RequestExit()
@@ -340,7 +340,7 @@ namespace Lina::Editor
 
 	void Editor::SaveSettings()
 	{
-		auto* loadedWorld = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetLoadedWorld();
+		auto* loadedWorld = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetMainWorld();
 		if (loadedWorld)
 			m_settings.SetLastWorldAbsPath(loadedWorld->GetPath());
 

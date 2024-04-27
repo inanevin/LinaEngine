@@ -240,6 +240,8 @@ namespace Lina
 			m_transform.m_position = translation;
 		}
 
+		m_transform.UpdateMatrices();
+
 		for (auto child : m_children)
 		{
 			child->UpdateGlobalPosition();
@@ -269,6 +271,8 @@ namespace Lina
 			m_transform.m_scale = scale;
 		}
 
+		m_transform.UpdateMatrices();
+
 		for (auto child : m_children)
 		{
 			child->UpdateGlobalScale();
@@ -291,6 +295,8 @@ namespace Lina
 			m_transform.m_rotation		 = targetRot;
 			m_transform.m_rotationAngles = m_transform.m_rotation.GetEuler();
 		}
+
+		m_transform.UpdateMatrices();
 
 		for (auto child : m_children)
 		{

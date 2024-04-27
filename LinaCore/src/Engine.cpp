@@ -135,6 +135,7 @@ namespace Lina
 
 		// Update app.
 		TweenManager::Get()->Tick(delta);
+		m_worldManager.Tick(delta);
 		m_gfxManager.Tick(delta);
 		m_audioManager.Tick(delta);
 		m_app->GetAppDelegate()->OnTick(delta);

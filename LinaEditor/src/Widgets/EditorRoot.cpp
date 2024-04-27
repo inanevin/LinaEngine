@@ -189,7 +189,7 @@ namespace Lina::Editor
 				m_saveIcon->SetIsDisabled(true);
 		}
 
-		auto* loadedWorld = m_worldManager->GetLoadedWorld();
+		auto* loadedWorld = m_worldManager->GetMainWorld();
 
 		if (loadedWorld != m_currentWorld)
 		{
@@ -219,7 +219,7 @@ namespace Lina::Editor
 			Widget::DrawTooltip(threadIndex);
 		}
 
-		return;
+		/*
 		const Vector2 monitor = GetMonitorSize();
 		const Vector2 size	  = Vector2(monitor.x * 0.15f, Theme::GetDef().baseItemHeight * 2.25f);
 		const Vector2 center  = Vector2(GetRect().GetCenter().x, size.y * 0.5f);
@@ -240,7 +240,7 @@ namespace Lina::Editor
 		const float	  imageY	= size.y * 0.5f;
 		const float	  imageX	= imageY * (m_titleImage->GetSizeF().x / m_titleImage->GetSizeF().y);
 		const Vector2 imageSize = Vector2(imageX, imageY);
-		LinaVG::DrawImage(threadIndex, m_titleImage->GetSID(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
+		LinaVG::DrawImage(threadIndex, m_titleImage->GetGPUHandle(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
 
 		const Rect	  imgRect = Rect(Vector2(center - imageSize * 0.5f), imageSize);
 		const Vector2 mp	  = Vector2(static_cast<float>(m_lgxWindow->GetMousePosition().x), static_cast<float>(m_lgxWindow->GetMousePosition().y));
@@ -248,6 +248,7 @@ namespace Lina::Editor
 			Widget::DrawTooltip(threadIndex);
 
 		WidgetUtility::DrawDropShadow(threadIndex, points[3], points[2], m_drawOrder + 1, Theme::GetDef().black, 12);
+		 */
 
 		// WidgetUtility::DrawDropShadow(threadIndex, Vector2(m_titleBar->GetPosX(), m_titleBar->GetRect().GetEnd().y), m_titleBar->GetRect().GetEnd(), m_drawOrder + 1, Theme::GetDef().black, 12);
 	}
@@ -272,7 +273,7 @@ namespace Lina::Editor
 		m_projectNameText->Initialize();
 	}
 
-	bool EditorRoot::OnFileMenuItemClicked(StringID sid, void* userData)
+	bool EditorRoot::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
 		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
 
@@ -357,7 +358,7 @@ namespace Lina::Editor
 		return false;
 	}
 
-	bool EditorRoot::IsItemDisabled(StringID sid)
+	bool EditorRoot::OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 			return m_editor->GetProjectData() == nullptr;
@@ -368,7 +369,7 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void EditorRoot::OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	void EditorRoot::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 		{

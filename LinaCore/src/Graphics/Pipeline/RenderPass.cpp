@@ -92,7 +92,7 @@ namespace Lina
 		{
 			data.buffers.push_back({});
 			auto& buffer = data.buffers.back();
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "RP ObjectData Buffer", true);
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "RP ObjectData Buffer", false);
 		}
 	}
 
@@ -105,6 +105,7 @@ namespace Lina
 			for (auto& b : data.buffers)
 				b.Destroy();
 
+			data.buffers.clear();
 			m_lgx->DestroyDescriptorSet(data.descriptorSet);
 		}
 	}

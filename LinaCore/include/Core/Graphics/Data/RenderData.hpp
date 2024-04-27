@@ -28,15 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderData_HPP
-#define RenderData_HPP
-
 #include "Common/Data/Vector.hpp"
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Matrix.hpp"
+#include "Common/Data/Map.hpp"
 
 namespace Lina
 {
+	class Material;
+	class MeshDefault;
+
+	struct MaterialComparator
+	{
+		bool operator()(const Material* lhs, const Material* rhs) const;
+	};
+
+	typedef MultiMap<Material*, MeshDefault*, MaterialComparator> MaterialToMeshMap;
+
 	enum RenderableType
 	{
 		RenderableSprite	  = 1 << 0,
@@ -91,5 +99,3 @@ namespace Lina
 	};
 
 } // namespace Lina
-
-#endif

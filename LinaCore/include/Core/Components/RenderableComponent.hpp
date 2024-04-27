@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/World/Component.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {
@@ -37,6 +38,11 @@ namespace Lina
 	public:
 		RenderableComponent() : Component(CF_RENDERABLE){};
 		virtual ~RenderableComponent() = default;
+
+		void FillMaterialToMeshes(MaterialToMeshMap& map);
+
+	protected:
+		MaterialToMeshMap m_materialToMeshMap;
 	};
 
 } // namespace Lina

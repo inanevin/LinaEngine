@@ -65,13 +65,20 @@ namespace Lina
 		if (lgxNode->mesh != nullptr)
 		{
 			LinaGX::ModelMesh* lgxMesh = lgxNode->mesh;
+			MeshDefault*	   m	   = new MeshDefault();
+			node->m_mesh			   = m;
+			m->m_name				   = lgxMesh->name;
+			m->m_node				   = node;
+			m->m_primitives.resize(lgxMesh->primitives.size());
 
-			for (auto* lgxPrim : lgxMesh->primitives)
+			for (size_t i = 0; i < lgxMesh->primitives.size(); i++)
 			{
-				node->m_mesh				  = new MeshDefault();
-				node->m_mesh->m_name		  = lgxMesh->name;
-				node->m_mesh->m_node		  = node;
-				node->m_mesh->m_materialIndex = lgxPrim->material ? lgxPrim->material->index : -1;
+				auto* lgxPrim  = lgxMesh->primitives[i];
+				auto& meshPrim = m->m_primitives[i];
+
+				meshPrim.m_materialIndex = lgxPrim->material ? lgxPrim->material->index : -1;
+				meshPrim.m_startVertex	 = static_cast<uint32>(m->m_vertices.size());
+				meshPrim.m_startIndex	 = static_cast<uint32>(m->m_indices16.size());
 
 				for (uint32 i = 0; i < lgxPrim->vertexCount; i++)
 				{
@@ -79,14 +86,13 @@ namespace Lina
 					vtx.pos			  = lgxPrim->positions[i];
 					vtx.normal		  = lgxPrim->normals[i];
 					vtx.uv			  = lgxPrim->texCoords[i];
-					node->m_mesh->m_vertices.push_back(vtx);
+					m->m_vertices.push_back(vtx);
 				}
 
 				LINA_ASSERT(lgxPrim->indexType == LinaGX::IndexType::Uint16, "");
 				uint16* indices		= reinterpret_cast<uint16*>(lgxPrim->indices.data());
 				size_t	indicesSize = lgxPrim->indices.size() / 2;
-				node->m_mesh->m_indices16.resize(indicesSize);
-				MEMCPY(node->m_mesh->m_indices16.data(), indices, lgxPrim->indices.size());
+				m->m_indices16.insert(m->m_indices16.end(), indices, indices + indicesSize);
 			}
 		}
 
@@ -154,13 +160,14 @@ namespace Lina
 
 	void Model::UploadNode(ModelNode* node)
 	{
-		auto* gfxMan	  = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto& meshManager = gfxMan->GetMeshManager();
+		auto* gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		for (auto* node : m_rootNodes)
 		{
-			if (node->m_mesh != nullptr)
-				meshManager.AddMesh(node->m_mesh);
+			MeshDefault* mesh = node->GetMesh();
+
+			if (mesh)
+				mesh->Create(gfxMan);
 
 			for (auto* c : node->m_children)
 				UploadNode(c);
@@ -181,7 +188,7 @@ namespace Lina
 
 	ModelNode* Model::GetNodeWithMesh(ModelNode* root)
 	{
-		if (root->m_mesh)
+		if (root->GetMesh() != nullptr)
 			return root;
 
 		for (auto* c : root->m_children)

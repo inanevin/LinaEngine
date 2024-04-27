@@ -65,6 +65,7 @@ namespace Lina
 		static Transformation Interpolate(const Transformation& from, const Transformation& to, float t);
 
 		void SetMatrix(Matrix4& mat);
+		void UpdateMatrices();
 
 		Matrix4 ToMatrix() const
 		{
@@ -74,6 +75,16 @@ namespace Lina
 		Matrix4 ToLocalMatrix() const
 		{
 			return Matrix4::TransformMatrix(m_localPosition, m_localRotation, m_localScale);
+		}
+
+		const Matrix4& GetMatrix() const
+		{
+			return m_matrix;
+		}
+
+		const Matrix4& GetLocalMatrix() const
+		{
+			return m_localMatrix;
 		}
 
 		Vector3	   m_position = Vector3::Zero;
@@ -87,6 +98,9 @@ namespace Lina
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
+
+		Matrix4 m_matrix	  = Matrix4::Identity();
+		Matrix4 m_localMatrix = Matrix4::Identity();
 	};
 
 } // namespace Lina

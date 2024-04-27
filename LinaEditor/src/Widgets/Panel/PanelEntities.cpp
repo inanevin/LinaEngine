@@ -83,7 +83,7 @@ namespace Lina::Editor
 
 	void PanelEntities::PreTick()
 	{
-		auto* world = m_worldManager->GetLoadedWorld();
+		auto* world = m_worldManager->GetMainWorld();
 
 		if (world != m_world)
 		{
@@ -163,12 +163,12 @@ namespace Lina::Editor
 		m_selectableList->RefreshItems();
 	}
 
-	bool PanelEntities::OnFileMenuItemClicked(StringID sid, void* userData)
+	bool PanelEntities::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
 		return true;
 	}
 
-	void PanelEntities::OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	void PanelEntities::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
 	}
 } // namespace Lina::Editor

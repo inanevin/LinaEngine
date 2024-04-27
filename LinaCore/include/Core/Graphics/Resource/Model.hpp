@@ -47,6 +47,11 @@ namespace Lina
 	public:
 		ModelNode* GetFirstNodeWMesh();
 
+		inline const Vector<ModelNode*>& GetRootNodes() const
+		{
+			return m_rootNodes;
+		}
+
 	private:
 		FRIEND_RESOURCE_CACHE();
 		Model(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Model>()){};

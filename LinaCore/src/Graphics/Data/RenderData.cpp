@@ -26,9 +26,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/Resource/Mesh.hpp"
+#include "Core/Graphics/Data/Vertex.hpp"
+#include "Common/Data/Streams.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
 
 namespace Lina
 {
-
+	bool MaterialComparator::operator()(const Material* lhs, const Material* rhs) const
+	{
+		return lhs->GetShader()->GetSID() < rhs->GetShader()->GetSID();
+	}
 } // namespace Lina

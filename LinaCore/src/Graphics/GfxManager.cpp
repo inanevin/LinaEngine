@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Theme.hpp"
 
@@ -154,9 +155,9 @@ namespace Lina
 			samplerData.minLod				= 0.0f;
 			samplerData.maxLod				= 30.0f; // upper limit
 
-			TextureSampler* defaultSampler		  = m_resourceManager->CreateUserResource<TextureSampler>("Resources/Core/Samplers/DefaultSampler.linasampler", DEFAULT_SAMPLER_SID);
-			TextureSampler* defaultGUISampler	  = m_resourceManager->CreateUserResource<TextureSampler>("Resources/Core/Samplers/DefaultGUISampler.linasampler", DEFAULT_GUI_SAMPLER_SID);
-			TextureSampler* defaultGUITextSampler = m_resourceManager->CreateUserResource<TextureSampler>("Resources/Core/Samplers/DefaultGUITextSampler.linasampler", DEFAULT_GUI_TEXT_SAMPLER_SID);
+			TextureSampler* defaultSampler		  = m_resourceManager->CreateUserResource<TextureSampler>(DEFAULT_SAMPLER_PATH, DEFAULT_SAMPLER_SID);
+			TextureSampler* defaultGUISampler	  = m_resourceManager->CreateUserResource<TextureSampler>(DEFAULT_SAMPLER_GUI_PATH, DEFAULT_SAMPLER_GUI_SID);
+			TextureSampler* defaultGUITextSampler = m_resourceManager->CreateUserResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_PATH, DEFAULT_SAMPLER_TEXT_SID);
 			defaultSampler->m_samplerDesc		  = samplerData;
 
 			samplerData.mipLodBias			 = -1.0f;
@@ -179,9 +180,17 @@ namespace Lina
 			m_defaultSamplers.push_back(defaultGUISampler);
 			m_defaultSamplers.push_back(defaultGUITextSampler);
 		}
+	}
+
+	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
+	{
 
 		// Default materials
 		{
+			Material* defaultObjectMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
+			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
+			m_defaultMaterials.push_back(defaultObjectMaterial);
+
 			// Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
 			// Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
 			// defaultLitMaterial->SetShader("Resources/Core/Shaders/LitStandard.linashader"_hs);
@@ -189,10 +198,7 @@ namespace Lina
 			// m_defaultMaterials.push_back(defaultLitMaterial);
 			// m_defaultMaterials.push_back(defaultUnlitMaterial);
 		}
-	}
 
-	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
-	{
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 		m_currentVsync = initInfo.vsyncStyle;
@@ -537,6 +543,7 @@ namespace Lina
 		m_lgx->Join();
 		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
 
+		window->AddListener(this);
 		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, size, m_clearColor);
 		m_surfaceRenderers.push_back(renderer);
 
@@ -551,7 +558,26 @@ namespace Lina
 		delete *it;
 		m_surfaceRenderers.erase(it);
 
+		auto* window = m_lgx->GetWindowManager().GetWindow(sid);
+		window->RemoveListener(this);
 		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
+	}
+
+	void GfxManager::OnWindowSizeChanged(const LinaGX::LGXVector2ui& newSize)
+	{
+		Join();
+
+		for (auto* wr : m_worldRenderers)
+		{
+			if (wr->GetSize().x > newSize.x || wr->GetSize().y > newSize.y)
+			{
+				const Vector2ui size = wr->GetSize().Min(newSize);
+				wr->Resize(size);
+			}
+		}
+
+		for (auto* sr : m_surfaceRenderers)
+			sr->Resize(newSize);
 	}
 
 	WorldRenderer* GfxManager::CreateWorldRenderer(EntityWorld* world, const Vector2ui& size)
@@ -567,6 +593,12 @@ namespace Lina
 		LOCK_GUARD(m_wrMtx);
 		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [renderer](WorldRenderer* rnd) -> bool { return renderer == rnd; }));
 		delete renderer;
+	}
+
+	WorldRenderer* GfxManager::GetWorldRenderer(EntityWorld* world)
+	{
+		auto it = linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [world](WorldRenderer* rnd) -> bool { return rnd->GetWorld() == world; });
+		return *it;
 	}
 
 	void GfxManager::DestroyWorldRenderer(EntityWorld* world)

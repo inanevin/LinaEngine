@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Common/Data/Map.hpp"
 
 namespace LinaGX
 {
@@ -46,6 +47,8 @@ namespace Lina
 	class ModelNode;
 	class ModelComponent;
 	class Shader;
+	class Material;
+	class ResourceManager;
 
 	class WorldRenderer : public EntityWorldListener
 	{
@@ -69,6 +72,7 @@ namespace Lina
 
 		void				   Tick(float delta);
 		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
+		void				   Resize(const Vector2ui& newSize);
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
@@ -83,9 +87,22 @@ namespace Lina
 			return m_world;
 		}
 
+		inline const Vector2ui& GetSize() const
+		{
+			return m_size;
+		}
+
+		inline uint32 GetTexture(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].colorTarget;
+		}
+
 	private:
-		void FetchRenderables();
-		void DrawSky(LinaGX::CommandStream* stream);
+		void   FetchRenderables();
+		void   DrawSky(LinaGX::CommandStream* stream);
+		void   CreateSizeRelativeResources();
+		void   DestroySizeRelativeResources();
+		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
 		GfxManager*				m_gfxManager			= nullptr;
@@ -100,6 +117,8 @@ namespace Lina
 		Vector<ModelComponent*> m_modelComponents;
 		GPUDataView				m_gpuDataView  = {};
 		GPUDataScene			m_gpuDataScene = {};
+		Vector<GPUDataObject>	m_objects	   = {};
+		ResourceManager*		m_rm		   = nullptr;
 	};
 
 } // namespace Lina

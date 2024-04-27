@@ -48,7 +48,6 @@ namespace Lina
 	{
 		m_lgx		  = m_gfxManager->GetLGX();
 		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
-		m_window->AddListener(this);
 
 		auto* rm = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
@@ -84,7 +83,6 @@ namespace Lina
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
-		m_window->RemoveListener(this);
 		m_widgetManager.Shutdown();
 		m_guiRenderer.Destroy();
 		m_renderPass.Destroy();
@@ -98,10 +96,8 @@ namespace Lina
 		m_lgx->DestroySwapchain(m_swapchain);
 	}
 
-	void SurfaceRenderer::OnWindowSizeChanged(const LinaGX::LGXVector2ui& newSize)
+	void SurfaceRenderer::Resize(const LinaGX::LGXVector2ui& newSize)
 	{
-		m_gfxManager->Join();
-
 		const LinaGX::LGXVector2ui monitorSize = m_window->GetMonitorSize();
 
 		LinaGX::SwapchainRecreateDesc desc = {

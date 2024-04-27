@@ -92,21 +92,6 @@ namespace Lina
 			return m_sid;
 		}
 
-		Matrix4 ToMatrix() const
-		{
-			return m_transform.ToMatrix();
-		}
-
-		Matrix4 PrevToMatrix() const
-		{
-			return m_prevTransform.ToMatrix();
-		}
-
-		Matrix4 ToLocalMatrix() const
-		{
-			return m_transform.ToLocalMatrix();
-		}
-
 		inline bool IsVisible()
 		{
 			return m_mask.IsSet(EntityFlags::EF_VISIBLE);
@@ -150,12 +135,12 @@ namespace Lina
 			return m_transform.m_scale;
 		}
 
-		Transformation GetTransform()
+		const Transformation& GetTransform() const
 		{
 			return m_transform;
 		}
 
-		Transformation GetPrevTransform()
+		const Transformation& GetPrevTransform() const
 		{
 			return m_prevTransform;
 		}

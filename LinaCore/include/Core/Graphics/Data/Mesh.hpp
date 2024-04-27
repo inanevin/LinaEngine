@@ -30,38 +30,53 @@ SOFTWARE.
 
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/String.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Vertex.hpp"
+#include "Primitive.hpp"
 
 namespace LinaGX
 {
 	class CommandStream;
-
 }
 namespace Lina
 {
 	class ModelNode;
+	class GfxManager;
 
 	class MeshDefault
 	{
 	public:
+		~MeshDefault();
+
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 
+		void Create(GfxManager* gfxMan);
 		void Draw(LinaGX::CommandStream* stream, uint32 instances);
+
+		inline const Buffer& GetVertexBuffer() const
+		{
+			return m_vertexBuffer;
+		}
+
+		inline const Buffer& GetIndexBuffer() const
+		{
+			return m_indexBuffer;
+		}
 
 	private:
 		friend class Model;
 		friend class ModelNode;
 		friend class MeshManager;
 
-		ModelNode*			  m_node = nullptr;
-		Vector<VertexDefault> m_vertices;
-		Vector<uint16>		  m_indices16;
-		String				  m_name		  = "";
-		int32				  m_materialIndex = 0;
-
-		uint32 m_indexOffset  = 0;
-		uint32 m_vertexOffset = 0;
+		Vector<PrimitiveDefault> m_primitives;
+		Vector<VertexDefault>	 m_vertices;
+		Vector<uint16>			 m_indices16;
+		ModelNode*				 m_node = nullptr;
+		String					 m_name = "";
+		Buffer					 m_vertexBuffer;
+		Buffer					 m_indexBuffer;
+		GfxManager*				 m_gfxManager = nullptr;
 	};
 
 } // namespace Lina

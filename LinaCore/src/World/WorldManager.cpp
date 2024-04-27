@@ -33,6 +33,8 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/Components/ModelComponent.hpp"
 
 namespace Lina
 {
@@ -43,9 +45,13 @@ namespace Lina
 
 	void WorldManager::Shutdown()
 	{
+		for (auto* w : m_activeWorlds)
+			delete w;
+
+		m_activeWorlds.clear();
 	}
 
-	void WorldManager::CreateAndSaveNewWorld(const String& absolutePath)
+	void WorldManager::SaveEmptyWorld(const String& absolutePath)
 	{
 		EntityWorld world(nullptr, "", 0);
 		OStream		stream;
@@ -54,22 +60,60 @@ namespace Lina
 		stream.Destroy();
 	}
 
-	void WorldManager::LoadWorld(const String& path)
+	void WorldManager::ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize)
 	{
-		LINA_ASSERT(m_loadedWorld == nullptr, "");
+		if (newSize.x == 0 || newSize.y == 0)
+			return;
 
-		auto*			   rm  = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		WorldRenderer* renderer = world->GetRenderer();
+
+		if (renderer->GetSize() == newSize)
+			return;
+
+		m_gfxManager->Join();
+		renderer->Resize(newSize);
+	}
+
+	void WorldManager::InstallWorld(const String& path)
+	{
+		m_gfxManager->Join();
+		auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+
+		if (m_mainWorld)
+			UninstallMainWorld();
+
 		const auto		   sid = TO_SID(path);
 		ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), sid);
 		rm->LoadResources({ident});
 		rm->WaitForAll();
-		m_loadedWorld = rm->GetResource<EntityWorld>(sid);
 
-		// TEST
-		m_loadedWorld->CreateEntity("Dummy Entity");
-		m_loadedWorld->CreateEntity("Dummy Entity 2");
-		Entity* e = m_loadedWorld->CreateEntity("Dummy Entity 3");
-		e->AddChild(m_loadedWorld->CreateEntity("Child"));
+		m_mainWorld = rm->GetResource<EntityWorld>(sid);
+		m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
+		m_activeWorlds.push_back(m_mainWorld);
+
+		Entity*			test  = m_mainWorld->CreateEntity("Test Object");
+		ModelComponent* model = m_mainWorld->AddComponent<ModelComponent>(test);
+		model->SetModel("Resources/Core/Models/Cube.glb"_hs);
+		model->SetMaterial(0, DEFAULT_MATERIAL_OBJECT_SID);
+		model->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+		// loading the world resources, unloading the current worlds resources...
+	}
+
+	WorldRenderer* WorldManager::GetWorldRenderer(EntityWorld* world)
+	{
+		return world->GetRenderer();
+	}
+
+	void WorldManager::UninstallMainWorld()
+	{
+		m_activeWorlds.erase(linatl::find_if(m_activeWorlds.begin(), m_activeWorlds.end(), [this](EntityWorld* w) -> bool { return w == m_mainWorld; }));
+
+		auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_gfxManager->DestroyWorldRenderer(m_mainWorld->GetRenderer());
+
+		ResourceIdentifier ident(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
+		rm->UnloadResources({ident});
+		m_mainWorld = nullptr;
 	}
 
 	void WorldManager::InstallLevel(const char* level)
@@ -149,38 +193,16 @@ namespace Lina
 		//		uninstall();
 	}
 
-	void WorldManager::QueueLevel(const char* level)
+	void WorldManager::Tick(float delta)
 	{
-		// m_queuedLevel		= level;
-		// m_queuedLevelExists = true;
-	}
-
-	void WorldManager::Simulate(float fixedDelta)
-	{
-	}
-
-	void WorldManager::Tick(float deltaTime)
-	{
-		if (!m_loadedWorld)
-			return;
-
-		m_loadedWorld->Tick(deltaTime);
-
-		// if (m_currentLevel != nullptr)
-		// 	m_currentLevel->GetWorld()->Tick(deltaTime);
-
-		// if (m_currentLevel == nullptr && m_queuedLevelExists)
-		// {
-		// 	InstallLevel(m_queuedLevel.c_str());
-		// 	m_queuedLevelExists = false;
-		// 	m_queuedLevel.clear();
-		// }
-	}
-
-	void WorldManager::WaitForSimulation()
-	{
-		//	if (m_currentLevel != nullptr)
-		//		m_currentLevel->GetWorld()->WaitForSimulation();
+		if (m_activeWorlds.size() == 1)
+			m_activeWorlds[0]->Tick(delta);
+		else
+		{
+			Taskflow tf;
+			tf.for_each(m_activeWorlds.begin(), m_activeWorlds.end(), [delta](EntityWorld* world) { world->Tick(delta); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 	}
 
 } // namespace Lina

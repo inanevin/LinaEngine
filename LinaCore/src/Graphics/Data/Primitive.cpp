@@ -26,42 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Common/Data/Vector.hpp"
-#include "Common/Math/Matrix.hpp"
-#include "Mesh.hpp"
+#include "Core/Graphics/Data/Primitive.hpp"
+#include "Common/Data/Streams.hpp"
 
 namespace Lina
 {
-	class MeshDefault;
-
-	class ModelNode
+	void PrimitiveDefault::SaveToStream(OStream& stream) const
 	{
-	public:
-		inline MeshDefault* GetMesh() const
-		{
-			return m_mesh;
-		}
+        stream << m_materialIndex << m_startIndex << m_startVertex;
+	}
 
-		inline const Vector<ModelNode*>& GetChildren() const
-		{
-			return m_children;
-		}
-
-	private:
-		friend class Model;
-
-		virtual ~ModelNode();
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
-
-	private:
-		String			   m_name	  = "";
-		ModelNode*		   m_parent	  = nullptr;
-		Vector<ModelNode*> m_children = {};
-		MeshDefault*	   m_mesh	  = nullptr;
-		Matrix4			   m_localMatrix;
-	};
+	void PrimitiveDefault::LoadFromStream(IStream& stream)
+	{
+        stream >> m_materialIndex >> m_startIndex >> m_startVertex;
+	}
 
 } // namespace Lina

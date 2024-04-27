@@ -96,7 +96,7 @@ namespace Lina
 		if (m_itemData.hasDropdown && m_isHovered && m_subPopup == nullptr)
 		{
 			Vector<Data> data;
-			m_ownerMenu->GetListener()->OnGetFileMenuItems(TO_SID(m_itemData.text), data, m_itemData.userData);
+			m_ownerMenu->GetListener()->OnFileMenuGetItems(m_ownerMenu, TO_SID(m_itemData.text), data, m_itemData.userData);
 			m_subPopup							= m_ownerMenu->CreatePopup(Vector2(m_rect.GetEnd().x, GetPosY()), data);
 			m_subPopup->GetProps().onDestructed = [this]() { m_subPopup = nullptr; };
 		}
@@ -184,7 +184,7 @@ namespace Lina
 	void FileMenu::CreateItems(StringID sid, const Vector2& position, void* userData)
 	{
 		Vector<FileMenuItem::Data> itemData;
-		m_listener->OnGetFileMenuItems(sid, itemData, userData);
+		m_listener->OnFileMenuGetItems(this, sid, itemData, userData);
 		m_subPopup							= CreatePopup(position, itemData);
 		m_subPopup->GetProps().onDestructed = [this]() {
 			m_subPopup		= nullptr;
@@ -231,7 +231,7 @@ namespace Lina
 			const StringID sid = TO_SID(subItem.text);
 
 			it->GetProps().onClicked = [sid, popup, subItem, this]() {
-				if (m_listener->OnFileMenuItemClicked(sid, subItem.userData))
+				if (m_listener->OnFileMenuItemClicked(this, sid, subItem.userData))
 				{
 					m_manager->RemoveFromForeground(popup);
 					m_manager->Deallocate(popup);
@@ -245,7 +245,7 @@ namespace Lina
 				}
 			};
 
-			if (m_listener->IsItemDisabled(sid))
+			if (m_listener->OnFileMenuIsItemDisabled(this, sid))
 				it->SetIsDisabled(true);
 
 			popup->AddChild(it);

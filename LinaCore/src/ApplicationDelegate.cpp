@@ -28,15 +28,16 @@ namespace Lina
 
 		/* Priority Resources */
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0, false, ResourceTag::Priority));
-		list.push_back(ResourceIdentifier("Resources/Core/Shaders/GUIStandard.linashader", GetTypeID<Shader>(), 0, true, ResourceTag::Priority));
+		list.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>(), 0, true, ResourceTag::Priority));
 		list.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
+		list.push_back(ResourceIdentifier(DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>(), 0, true, ResourceTag::Priority));
 
 		/* Core Resources */
 		list.push_back(ResourceIdentifier("Resources/Core/Shaders/Sky/SimpleSky.linashader", GetTypeID<Shader>(), 0, true, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogo.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoWhite.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
 		// list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
 		// list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/SkyCube.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/Checkered.png", GetTypeID<Texture>(), 0, false, ResourceTag::Priority));
@@ -65,14 +66,14 @@ namespace Lina
 		if (sid == DEFAULT_TEXTURE_CHECKERED || sid == DEFAULT_TEXTURE_LINALOGO || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs)
 		{
 			Texture::Metadata meta = {
-				.samplerSID = DEFAULT_GUI_SAMPLER_SID,
+				.samplerSID = DEFAULT_SAMPLER_GUI_SID,
 			};
 
 			meta.SaveToStream(stream);
 			return true;
 		}
 
-		if (sid == DEFAULT_SHADER_GUI)
+		if (sid == DEFAULT_SHADER_GUI_SID)
 		{
 			Shader::Metadata meta;
 
@@ -94,6 +95,22 @@ namespace Lina
 
 			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Basic;
 			meta.descriptorSetAllocationCount = 50;
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_OBJECT_SID)
+		{
+			Shader::Metadata meta;
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable = true,
+				.depthDisable = false,
+				.targetType	  = ShaderWriteTargetType::RenderTarget,
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+			};
+			meta.descriptorSetAllocationCount = 50;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Main;
 			meta.SaveToStream(stream);
 			return true;
 		}

@@ -31,6 +31,17 @@ SOFTWARE.
 
 namespace Lina
 {
+	ModelNode::~ModelNode()
+	{
+		for (auto* c : m_children)
+			delete c;
+
+		m_children.clear();
+
+		if (m_mesh != nullptr)
+			delete m_mesh;
+	}
+
 	void ModelNode::SaveToStream(OStream& stream) const
 	{
 		StringSerialization::SaveToStream(stream, m_name);
@@ -41,10 +52,10 @@ namespace Lina
 		for (auto* c : m_children)
 			c->SaveToStream(stream);
 
-		const bool meshExist = m_mesh != nullptr;
-		stream << meshExist;
+		const bool meshExists = m_mesh != nullptr;
+		stream << meshExists;
 
-		if (meshExist)
+		if (meshExists)
 			m_mesh->SaveToStream(stream);
 	}
 

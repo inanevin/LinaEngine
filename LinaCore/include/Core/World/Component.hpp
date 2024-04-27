@@ -33,11 +33,14 @@ SOFTWARE.
 #include "Core/Reflection/ClassReflection.hpp"
 #include "Common/StringID.hpp"
 #include "Common/Data/Streams.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Core/Resources/Resource.hpp"
 
 namespace Lina
 {
 	class Entity;
 	class ReflectionClassUtility;
+    class ResourceManager;
 
 	class Component
 	{
@@ -48,6 +51,7 @@ namespace Lina
 		virtual void Begin(){};
 		virtual void End(){};
 		virtual void Tick(float delta){};
+        virtual void FetchResources(ResourceManager* rm) {};
 
 		virtual TypeID GetComponentType() = 0;
 

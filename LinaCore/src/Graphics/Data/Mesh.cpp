@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Data/Mesh.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
@@ -39,6 +40,7 @@ namespace Lina
 		StringSerialization::SaveToStream(stream, m_name);
 		VectorSerialization::SaveToStream_PT(stream, m_indices16);
 		VectorSerialization::SaveToStream_OBJ(stream, m_vertices);
+		VectorSerialization::SaveToStream_OBJ(stream, m_primitives);
 	}
 
 	void MeshDefault::LoadFromStream(IStream& stream)
@@ -46,15 +48,40 @@ namespace Lina
 		StringSerialization::LoadFromStream(stream, m_name);
 		VectorSerialization::LoadFromStream_PT(stream, m_indices16);
 		VectorSerialization::LoadFromStream_OBJ(stream, m_vertices);
+		VectorSerialization::LoadFromStream_OBJ(stream, m_primitives);
+	}
+
+	MeshDefault::~MeshDefault()
+	{
+		m_vertexBuffer.Destroy();
+		m_indexBuffer.Destroy();
+	}
+
+	void MeshDefault::Create(GfxManager* gfxMan)
+	{
+		m_gfxManager = gfxMan;
+		auto* lgx	 = gfxMan->GetLGX();
+		m_vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, static_cast<uint32>(sizeof(VertexDefault) * m_vertices.size()), m_name);
+		m_indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, static_cast<uint32>(sizeof(uint16) * m_indices16.size()), m_name);
+		m_vertexBuffer.BufferData(0, reinterpret_cast<uint8*>(m_vertices.data()), sizeof(VertexDefault) * m_vertices.size());
+		m_indexBuffer.BufferData(0, reinterpret_cast<uint8*>(m_indices16.data()), sizeof(uint16) * m_indices16.size());
+		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&m_vertexBuffer);
+		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&m_indexBuffer);
 	}
 
 	void MeshDefault::Draw(LinaGX::CommandStream* stream, uint32 instances)
 	{
-		LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-		draw->indexCountPerInstance			  = static_cast<uint32>(m_indices16.size());
-		draw->instanceCount					  = instances;
-		draw->startInstanceLocation			  = 0;
-		draw->startIndexLocation			  = m_indexOffset;
-		draw->baseVertexLocation			  = m_vertexOffset;
+		m_vertexBuffer.BindVertex(stream, sizeof(VertexDefault));
+		m_indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
+
+		for (const auto& prim : m_primitives)
+		{
+			LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+			draw->indexCountPerInstance			  = static_cast<uint32>(m_indices16.size());
+			draw->instanceCount					  = instances;
+			draw->startInstanceLocation			  = 0;
+			draw->startIndexLocation			  = prim.GetStartIndex();
+			draw->baseVertexLocation			  = prim.GetStartVertex();
+		}
 	}
 } // namespace Lina

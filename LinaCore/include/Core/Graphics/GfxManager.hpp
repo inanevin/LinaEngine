@@ -51,9 +51,8 @@ namespace Lina
 	class GUIBackend;
 	class EntityWorld;
 
-	class GfxManager : public Subsystem
+	class GfxManager : public Subsystem, public LinaGX::WindowListener
 	{
-
 	private:
 		struct PerFrameData
 		{
@@ -74,6 +73,7 @@ namespace Lina
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;
+		virtual void OnWindowSizeChanged(const LinaGX::LGXVector2ui& sz) override;
 
 		void			 WaitForSwapchains();
 		void			 Join();
@@ -87,6 +87,7 @@ namespace Lina
 		PoolAllocator*	 GetGUIAllocator(TypeID tid, size_t typeSize);
 		WorldRenderer*	 CreateWorldRenderer(EntityWorld* world, const Vector2ui& size);
 		void			 DestroyWorldRenderer(WorldRenderer* renderer);
+		WorldRenderer*	 GetWorldRenderer(EntityWorld* world);
 		void			 DestroyWorldRenderer(EntityWorld* world);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const

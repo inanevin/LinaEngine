@@ -46,6 +46,7 @@ namespace Lina
 	class CameraComponent;
 	class SkyComponent;
 	class EntityWorld;
+	class WorldRenderer;
 
 	class EntityWorldListener
 	{
@@ -57,24 +58,11 @@ namespace Lina
 	class EntityWorld : public Resource, public GameEventDispatcher
 	{
 	public:
-		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0)
-			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
-			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
-		{
-			m_id = s_worldCounter++;
-		};
-
-		~EntityWorld()
-		{
-			DestroyWorld();
-		}
-
 		Entity*		 GetEntity(uint32 id);
 		Entity*		 GetEntity(const String& name);
 		Entity*		 GetEntityFromSID(StringID sid);
 		Entity*		 CreateEntity(const String& name);
 		void		 DestroyEntity(Entity* e);
-		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 AddListener(EntityWorldListener* listener);
@@ -180,6 +168,9 @@ namespace Lina
 			Cache<T>()->DestroyComponent(e);
 		}
 
+	protected:
+		virtual void LoadFromFile(const char* path) override;
+
 	private:
 		template <typename T> ComponentCache<T>* Cache()
 		{
@@ -197,12 +188,36 @@ namespace Lina
 		FRIEND_RESOURCE_CACHE();
 		friend class WorldManager;
 
+		EntityWorld(const EntityWorld& other) = delete;
+
+		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0)
+			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
+			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "EntityPool", "World"_hs))
+		{
+			m_id = s_worldCounter++;
+		};
+
+		~EntityWorld()
+		{
+			DestroyWorld();
+		}
+
 		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
 		void Simulate(float fixedDelta);
 		void Tick(float deltaTime);
 		void WaitForSimulation();
+
+		inline void SetRenderer(WorldRenderer* rend)
+		{
+			m_renderer = rend;
+		}
+
+		inline WorldRenderer* GetRenderer() const
+		{
+			return m_renderer;
+		}
 
 	private:
 		static uint32 s_worldCounter;
@@ -216,6 +231,7 @@ namespace Lina
 		uint32								 m_id			= 0;
 		Bitmask32							 m_flags		= 0;
 		Vector<EntityWorldListener*>		 m_listeners;
+		WorldRenderer*						 m_renderer = nullptr;
 	};
 
 } // namespace Lina

@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/Components/RenderableComponent.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 
 namespace Lina
 {
@@ -39,25 +40,22 @@ namespace Lina
 	public:
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		virtual void FetchResources(ResourceManager* rm) override;
+
+		void SetModel(StringID sid);
+		void SetMaterial(uint32 index, StringID sid);
 
 		virtual TypeID GetComponentType() override
 		{
 			return GetTypeID<ModelComponent>();
 		}
 
-		inline void SetModel(StringID model)
-		{
-			m_model = model;
-		}
-
-		inline Vector<StringID>& GetMaterials()
-		{
-			return m_materials;
-		}
+	private:
+		void FillMeshes(ModelNode* node);
 
 	private:
-		StringID		 m_model	 = 0;
-		Vector<StringID> m_materials = {};
+		ResRef<Model>			 m_model;
+		Vector<ResRef<Material>> m_materials;
 	};
 
 	LINA_REFLECTCOMPONENT_BEGIN(ModelComponent, "ModelRenderer", "Graphics")

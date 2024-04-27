@@ -275,6 +275,7 @@ namespace Lina::Editor
 		selectableList->SetAlignedPosX(0.0f);
 		selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
 		selectableList->SetListener(this);
+		selectableList->GetFileMenu()->SetListener(this);
 		selectableList->GetProps().useGridAsLayout = !isList;
 		m_contentsSelectableList				   = selectableList;
 		return selectableList;
@@ -306,33 +307,38 @@ namespace Lina::Editor
 		selectableList->SetAlignedPosX(0.0f);
 		selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
 		selectableList->SetListener(this);
+		selectableList->GetFileMenu()->SetListener(this);
 		browser->AddChild(selectableList);
 
 		m_browserSelectableList = selectableList;
 		return browser;
 	}
 
-	bool PanelResources::OnFileMenuItemClicked(StringID sid, void* userData)
+	bool PanelResources::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewWorld)))
 		{
 			DirectoryItem* item = static_cast<DirectoryItem*>(userData);
-			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->CreateAndSaveNewWorld(item->absolutePath + "/NewWorld.linaworld");
+			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->SaveEmptyWorld(item->absolutePath + "/NewWorld.linaworld");
 			return true;
 		}
 		return false;
 	}
 
-	void PanelResources::OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	void PanelResources::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
-		if (sid == "FolderContext"_hs)
+		if (filemenu == m_contentsSelectableList->GetFileMenu())
+		{
+		}
+		else if (filemenu == m_browserSelectableList->GetFileMenu())
+		{
+		}
+
+		if (sid == 0)
 		{
 			outData = {
-
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Create), .dropdownIcon = ICON_CHEVRON_RIGHT, .hasDropdown = true, .userData = userData},
-				// FileMenuItem::Data{.isDivider = true},
 			};
-
 			return;
 		}
 
@@ -388,10 +394,7 @@ namespace Lina::Editor
 		else if (list == m_contentsSelectableList)
 		{
 			if (m_currentBrowserSelection == nullptr)
-			{
-				// nothing to see here?
 				return;
-			}
 
 			outItems.resize(m_currentBrowserSelection->children.size());
 
@@ -418,7 +421,7 @@ namespace Lina::Editor
 			m_currentBrowserSelection = userData == nullptr ? nullptr : static_cast<DirectoryItem*>(userData);
 			m_contentsSelectableList->RefreshItems();
 
-			m_path->GetProps().text = m_currentBrowserSelection->relativePath;
+			m_path->GetProps().text = userData == nullptr ? "" : m_currentBrowserSelection->relativePath;
 			m_path->CalculateTextSize();
 		}
 		else if (list == m_contentsSelectableList)
@@ -449,7 +452,7 @@ namespace Lina::Editor
 				if (item->tid == GetTypeID<EntityWorld>())
 				{
 					auto* wm = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-					wm->LoadWorld(item->absolutePath);
+					wm->InstallWorld(item->absolutePath);
 					return;
 				}
 			}

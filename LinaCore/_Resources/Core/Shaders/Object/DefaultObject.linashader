@@ -26,42 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#lina_vs
 
-#include "Common/Data/Vector.hpp"
-#include "Common/Math/Matrix.hpp"
-#include "Mesh.hpp"
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
 
-namespace Lina
+layout (location = 0) out vec3 outWorldPos;
+
+void main()
 {
-	class MeshDefault;
+    Object object = LINA_OBJECTS.data[LINA_OBJECT_ID];
+    outWorldPos = vec3(object.modelMatrix * vec4(inPos, 1.0));
+    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
+}
 
-	class ModelNode
-	{
-	public:
-		inline MeshDefault* GetMesh() const
-		{
-			return m_mesh;
-		}
+#lina_end
 
-		inline const Vector<ModelNode*>& GetChildren() const
-		{
-			return m_children;
-		}
+#lina_fs
 
-	private:
-		friend class Model;
+layout (location = 0) in vec3 inWorldPos;
+layout (location = 0) out vec4 outFragColor;
 
-		virtual ~ModelNode();
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
+layout(set = 2, binding = 0) uniform MaterialData
+{
+   vec4 color1;
+} material;
 
-	private:
-		String			   m_name	  = "";
-		ModelNode*		   m_parent	  = nullptr;
-		Vector<ModelNode*> m_children = {};
-		MeshDefault*	   m_mesh	  = nullptr;
-		Matrix4			   m_localMatrix;
-	};
+void main()
+{
+   outFragColor = vec4(1,0,1,1);
+}
 
-} // namespace Lina
+#lina_end

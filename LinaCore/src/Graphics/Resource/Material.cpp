@@ -103,7 +103,7 @@ namespace Lina
 
 		if (m_shader == nullptr)
 		{
-			m_shaderSID = DEFAULT_SHADER_SID;
+            m_shaderSID = DEFAULT_SHADER_OBJECT_SID;
 			m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
 		}
 
@@ -195,7 +195,7 @@ namespace Lina
 		 */
 
 		auto* rm			= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		auto* defaultShader = rm->GetResource<Shader>(DEFAULT_SHADER_SID);
+        auto* defaultShader = rm->GetResource<Shader>(DEFAULT_SHADER_OBJECT_SID);
 
 		m_shader = rm->GetResource<Shader>(m_shaderSID);
 
@@ -209,8 +209,8 @@ namespace Lina
 		}
 		else
 		{
-			m_shaderSID = DEFAULT_SHADER_SID;
-			m_shader	= rm->GetResource<Shader>(DEFAULT_SHADER_SID);
+            m_shaderSID = DEFAULT_SHADER_OBJECT_SID;
+			m_shader	= rm->GetResource<Shader>(DEFAULT_SHADER_OBJECT_SID);
 
 			CreateDescriptorSets();
 			CreateBindingData();

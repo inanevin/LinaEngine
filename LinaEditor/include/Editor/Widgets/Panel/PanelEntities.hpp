@@ -64,8 +64,8 @@ namespace Lina::Editor
 			return PayloadType::EntitySelectable;
 		};
 
-		virtual bool OnFileMenuItemClicked(StringID sid, void* userData) override;
-		virtual void OnGetFileMenuItems(StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
+		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	private:
 	private:

@@ -49,5 +49,12 @@ struct Object
 
 layout(std140, set = 1, binding = 2) readonly buffer ObjectData
 {
-    Object objects[];
-} objectData;
+    Object data[];
+} LINA_OBJECTS;
+
+layout( push_constant ) uniform constants
+{
+	int objectID;
+} Constants;
+
+#define LINA_OBJECT_ID Constants.objectID
