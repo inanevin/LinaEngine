@@ -40,7 +40,7 @@ namespace Lina
 {
 	class Entity;
 	class ReflectionClassUtility;
-    class ResourceManager;
+	class ResourceManager;
 
 	class Component
 	{
@@ -51,7 +51,7 @@ namespace Lina
 		virtual void Begin(){};
 		virtual void End(){};
 		virtual void Tick(float delta){};
-        virtual void FetchResources(ResourceManager* rm) {};
+		virtual void FetchResources(ResourceManager* rm){};
 
 		virtual TypeID GetComponentType() = 0;
 
