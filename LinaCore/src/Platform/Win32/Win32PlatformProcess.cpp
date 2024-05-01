@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Lina.hpp"
 #include <shobjidl.h> // For IFileDialog and related interfaces
-#include <shellapi.h> // OpenURL
 
 #ifdef LINA_COMPILER_MSVC
 #pragma warning(push)
@@ -79,8 +78,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	while (!app->GetExitRequested())
 	{
-		app->PreTick();
-
 		MSG msg	   = {0};
 		msg.wParam = 0;
 		while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
@@ -88,8 +85,9 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-
 		app->Poll();
+
+		app->PreTick();
 		app->Tick();
 	}
 
@@ -402,11 +400,6 @@ namespace Lina
 
 		CoUninitialize();
 		return retVal;
-	}
-
-	void PlatformProcess::OpenURL(const String& url)
-	{
-		ShellExecute(0, "open", url.c_str(), 0, 0, SW_SHOWNORMAL);
 	}
 
 } // namespace Lina

@@ -116,7 +116,7 @@ namespace Lina
 		static Color Brown;
 		static Color Gray;
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 

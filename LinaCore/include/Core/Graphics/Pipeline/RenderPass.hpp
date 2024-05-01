@@ -43,21 +43,23 @@ namespace Lina
 	public:
 		struct PerFrameData
 		{
-			uint16		   descriptorSet = 0;
-			Vector<Buffer> buffers		 = {};
+			uint16									  descriptorSet	   = 0;
+			Vector<Buffer>							  buffers		   = {};
+			Vector<LinaGX::RenderPassColorAttachment> colorAttachments = {};
+			LinaGX::RenderPassDepthStencilAttachment  depthStencil;
 		};
 
-		void Create(GfxManager* gfxMan, LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType);
+		void Create(GfxManager* gfxMan, RenderPassDescriptorType descriptorType);
 		void Destroy();
 		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, bool bindGlobalSet = true);
-		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors);
+		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex);
 		void End(LinaGX::CommandStream* stream);
 
-		void SetColorAttachment(uint32 index, const LinaGX::RenderPassColorAttachment& att);
+		void SetColorAttachment(uint32 frameIndex, uint32 index, const LinaGX::RenderPassColorAttachment& att);
 
-		inline void DepthStencilAttachment(const LinaGX::RenderPassDepthStencilAttachment& att)
+		inline void DepthStencilAttachment(uint32 frameIndex, const LinaGX::RenderPassDepthStencilAttachment& att)
 		{
-			m_depthStencil = att;
+			m_pfd[frameIndex].depthStencil = att;
 		}
 
 		inline uint16 GetDescriptorSet(uint32 frameIndex)
@@ -71,11 +73,13 @@ namespace Lina
 		}
 
 	private:
-		GfxManager*								  m_gfxManager = nullptr;
-		LinaGX::RenderPassDepthStencilAttachment  m_depthStencil;
-		Vector<LinaGX::RenderPassColorAttachment> m_colorAttachments = {};
-		LinaGX::Instance*						  m_lgx				 = nullptr;
-		PerFrameData							  m_pfd[FRAMES_IN_FLIGHT];
-		RenderPassDescriptorType				  m_type = RenderPassDescriptorType::Basic;
+		void AddRPBasic(PerFrameData& data);
+		void AddRPMain(PerFrameData& data);
+
+	private:
+		GfxManager*				 m_gfxManager = nullptr;
+		LinaGX::Instance*		 m_lgx		  = nullptr;
+		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
+		RenderPassDescriptorType m_type = RenderPassDescriptorType::Basic;
 	};
 } // namespace Lina

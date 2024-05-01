@@ -77,14 +77,19 @@ namespace Lina
 
 		void SetShader(StringID sid);
 		void Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle = 0);
-		void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, size_t padding, uint8* data, size_t dataSize, bool currentFrameOnly = false);
-		void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle, bool currentFrameOnly = false);
-		void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle, bool currentFrameOnly = false);
-		void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle, bool currentFrameOnly = false);
+		void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex, size_t padding, uint8* data, size_t dataSize);
+		void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
+		void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
+		void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle);
 
 		inline Buffer& GetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex)
 		{
 			return m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
+		}
+
+		inline Shader* GetShader() const
+		{
+			return m_shader;
 		}
 
 	private:
@@ -103,7 +108,7 @@ namespace Lina
 		void DestroyDescriptorSets();
 		void CreateBindingData();
 		void DestroyBindingData();
-		void UpdateBinding(uint32 bindingIndex, uint32 frameIndex);
+		void UpdateBinding(uint32 bindingIndex);
 
 	private:
 		LinaGX::Instance*	 m_lgx		  = nullptr;

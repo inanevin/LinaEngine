@@ -35,6 +35,7 @@ include/Editor/Widgets/CommonWidgets.hpp
 include/Editor/Widgets/Testbed.hpp
 include/Editor/Widgets/DockTestbed.hpp
 include/Editor/Widgets/EditorRoot.hpp
+include/Editor/Widgets/Compound/SelectableListLayout.hpp
 include/Editor/Widgets/Compound/ColorWheelCompound.hpp
 include/Editor/Widgets/Compound/Tab.hpp
 include/Editor/Widgets/Compound/TabRow.hpp
@@ -58,6 +59,7 @@ include/Editor/Widgets/Panel/PanelFactory.hpp
 # Meta
 include/Editor/Meta/EditorSettings.hpp
 include/Editor/Meta/EditorLayout.hpp
+include/Editor/Meta/ProjectData.hpp
 )
 
 set(SOURCES
@@ -76,6 +78,7 @@ src/Widgets/Testbed.cpp
 src/Widgets/DockTestbed.cpp
 src/Widgets/EditorRoot.cpp
 src/Widgets/Compound/ColorWheelCompound.cpp
+src/Widgets/Compound/SelectableListLayout.cpp
 src/Widgets/Compound/TabRow.cpp
 src/Widgets/Compound/Tab.cpp
 src/Widgets/Compound/IconTabs.cpp
@@ -98,6 +101,7 @@ src/Widgets/Panel/PanelFactory.cpp
 # Meta
 src/Meta/EditorSettings.cpp
 src/Meta/EditorLayout.cpp
+src/Meta/ProjectData.cpp
 )
 
 #--------------------------------------------------------------------

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
+#include "Common/Profiling/Profiler.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 
 namespace Lina
@@ -49,7 +50,7 @@ namespace Lina
 		m_lgx				  = m_gfxManager->GetLGX();
 		m_guiBackend		  = m_gfxManager->GetGUIBackend();
 		auto* rm			  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_shader			  = rm->GetResource<Shader>(DEFAULT_SHADER_GUI);
+		m_shader			  = rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
 		m_shaderVariantHandle = m_shader->GetGPUHandle(writeTargetType);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -59,13 +60,13 @@ namespace Lina
 			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer VertexBuffer");
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer IndexBuffer");
-		}
+			data.materials.resize(MAX_GUI_MATERIALS);
 
-		m_materials.resize(MAX_GUI_MATERIALS);
-		for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
-		{
-			m_materials[j] = rm->CreateUserResource<Material>("GUIRendererMaterial", 0);
-			m_materials[j]->SetShader(DEFAULT_SHADER_GUI);
+			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
+			{
+				data.materials[j] = rm->CreateUserResource<Material>("GUIRendererMaterial", 0);
+				data.materials[j]->SetShader(DEFAULT_SHADER_GUI_SID);
+			}
 		}
 	}
 
@@ -80,11 +81,12 @@ namespace Lina
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
 			data.guiVertexBuffer.Destroy();
 			data.guiIndexBuffer.Destroy();
-		}
 
-		for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
-			rm->DestroyUserResource<Material>(m_materials[j]);
-		m_materials.clear();
+			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
+				rm->DestroyUserResource<Material>(data.materials[j]);
+
+			data.materials.clear();
+		}
 	}
 
 	void GUIRenderer::Prepare(uint32 frameIndex, uint32 threadIndex)
@@ -138,11 +140,12 @@ namespace Lina
 
 		Rectui scissorsRect = Rectui(0, 0, size.x, size.y);
 		uint32 reqIndex		= 0;
+
 		for (const auto& req : drawRequests)
 		{
 			Rectui currentRect = Rectui(0, 0, size.x, size.y);
 
-			if (req.clip.size.x != 0 && req.clip.size.y != 0)
+			if (req.clip.size.x != 0 || req.clip.size.y != 0)
 			{
 				currentRect.pos	 = req.clip.pos;
 				currentRect.size = req.clip.size;
@@ -158,14 +161,14 @@ namespace Lina
 				scissors->height				 = scissorsRect.size.y;
 			}
 
-			Material* mat = m_materials[reqIndex];
+			Material* mat = pfd.materials[reqIndex];
 
 			// Set material data.
-			mat->SetBuffer(0, 0, 0, (uint8*)&req.materialData, sizeof(GPUMaterialGUI), true);
+			mat->SetBuffer(0, 0, frameIndex, 0, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
 			if (req.hasTextureBind)
 			{
-				mat->SetSampler(1, 0, req.samplerHandle, true);
-				mat->SetTexture(2, 0, req.textureHandle, true);
+				mat->SetSampler(1, 0, req.samplerHandle);
+				mat->SetTexture(2, 0, req.textureHandle);
 			}
 
 			// Bind.
@@ -180,6 +183,8 @@ namespace Lina
 			draw->baseVertexLocation			  = req.vertexOffset;
 
 			reqIndex++;
+
+			PROFILER_ADD_DRAWCALL(req.indexCount / 3, "Editor", req.requestType);
 		}
 	}
 

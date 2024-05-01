@@ -36,12 +36,16 @@ namespace Lina
 	class Icon;
 	class FileMenu;
 	class Text;
+	class Icon;
 	class Texture;
+	class WorldManager;
+	class EntityWorld;
 } // namespace Lina
 
 namespace Lina::Editor
 {
 	class DockArea;
+	class Editor;
 
 	class EditorRoot : public DirectionalLayout, public FileMenuListener
 	{
@@ -53,9 +57,9 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual bool OnItemClicked(StringID sid) override;
-		virtual void OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData) override;
-		virtual bool IsItemDisabled(StringID sid) override;
+		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
+		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual bool OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const override;
 		void		 SetProjectName(const String& name);
 
 		inline Widget* GetPanelArea() const
@@ -71,8 +75,14 @@ namespace Lina::Editor
 		Widget*			   m_windowButtons	 = nullptr;
 		Texture*		   m_titleImage		 = nullptr;
 		Text*			   m_projectNameText = nullptr;
+		Text*			   m_worldNameText	 = nullptr;
 		Widget*			   m_panelArea		 = nullptr;
 		DirectionalLayout* m_titleBar		 = nullptr;
+		Editor*			   m_editor			 = nullptr;
+		Icon*			   m_saveIcon		 = nullptr;
+		Icon*			   m_linaIcon		 = nullptr;
+		WorldManager*	   m_worldManager	 = nullptr;
+		EntityWorld*	   m_currentWorld	 = nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -33,24 +33,27 @@ SOFTWARE.
 namespace Lina
 {
 	class Font;
+	class Texture;
 
 	class ShapeRect : public Widget
 	{
 	public:
-		ShapeRect() : Widget(0)
-		{
-		}
+		ShapeRect()			 = default;
 		virtual ~ShapeRect() = default;
 
 		struct Properties
 		{
-			Color colorStart = Theme::GetDef().background0;
-			Color colorEnd	 = Theme::GetDef().background0;
+			Color colorStart   = Theme::GetDef().background0;
+			Color colorEnd	   = Theme::GetDef().background0;
+			Color colorOutline = Theme::GetDef().outlineColorBase;
+
+			float	 rounding		  = 0.0f;
+			float	 outlineThickness = 0.0f;
+			Texture* imageTexture	  = 0;
+			bool	 fitImage		  = false;
 		};
 
 		virtual void Draw(int32 threadIndex) override;
-
-		void CalculateShapeRectSize();
 
 		inline Properties& GetProps()
 		{
@@ -58,7 +61,8 @@ namespace Lina
 		}
 
 	private:
-		Properties m_props = {};
+		Properties m_props	   = {};
+		Color	   m_usedColor = Theme::GetDef().background0;
 	};
 
 } // namespace Lina

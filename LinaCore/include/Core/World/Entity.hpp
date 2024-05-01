@@ -92,70 +92,55 @@ namespace Lina
 			return m_sid;
 		}
 
-		Matrix4 ToMatrix() const
-		{
-			return m_transform.ToMatrix();
-		}
-
-		Matrix4 PrevToMatrix() const
-		{
-			return m_prevTransform.ToMatrix();
-		}
-
-		Matrix4 ToLocalMatrix() const
-		{
-			return m_transform.ToLocalMatrix();
-		}
-
 		inline bool IsVisible()
 		{
-			return m_mask.IsSet(EntityMask::Visible);
+			return m_mask.IsSet(EntityFlags::EF_VISIBLE);
 		}
 
 		inline bool IsStatic()
 		{
-			return m_mask.IsSet(EntityMask::Static);
+			return m_mask.IsSet(EntityFlags::EF_STATIC);
 		}
 
-		const Vector3& GetLocalRotationAngles()
+		inline const Vector3& GetLocalRotationAngles() const
 		{
-			return m_transform.m_localRotationAngles;
+			return m_transform.GetLocalRotationAngles();
 		}
-		const Vector3& GetLocalPosition()
+		inline const Vector3& GetLocalPosition() const
 		{
-			return m_transform.m_localPosition;
+			return m_transform.GetLocalPosition();
 		}
-		const Quaternion& GetLocalRotation()
+		inline const Quaternion& GetLocalRotation() const
 		{
-			return m_transform.m_localRotation;
+			return m_transform.GetLocalRotation();
 		}
-		const Vector3& GetLocalScale()
+		inline const Vector3& GetLocalScale() const
 		{
-			return m_transform.m_localScale;
+			return m_transform.GetLocalScale();
 		}
-		const Vector3& GetPosition()
+		inline const Vector3& GetPosition() const
 		{
-			return m_transform.m_position;
+			return m_transform.GetPosition();
 		}
-		const Quaternion& GetRotation()
+		inline const Quaternion& GetRotation() const
 		{
-			return m_transform.m_rotation;
+			return m_transform.GetRotation();
 		}
-		const Vector3& GetRotationAngles()
+		inline const Vector3& GetRotationAngles() const
 		{
-			return m_transform.m_rotationAngles;
+			return m_transform.GetRotationAngles();
 		}
-		const Vector3& GetScale()
+		inline const Vector3& GetScale() const
 		{
-			return m_transform.m_scale;
+			return m_transform.GetScale();
 		}
 
-		Transformation GetTransform()
+		inline const Transformation& GetTransform() const
 		{
 			return m_transform;
 		}
 
-		Transformation GetPrevTransform()
+		inline const Transformation& GetPrevTransform() const
 		{
 			return m_prevTransform;
 		}
@@ -171,7 +156,7 @@ namespace Lina
 			return m_mask.IsSet(mask);
 		}
 
-		inline Bitmask16 GetEntityMask()
+		inline Bitmask16 GetEntityFlags()
 		{
 			return m_mask;
 		}
@@ -204,6 +189,8 @@ namespace Lina
 
 	private:
 		friend class EntityWorld;
+		friend class WorldRenderer;
+
 		~Entity() = default;
 
 		EntityWorld*	m_world	   = nullptr;
@@ -216,7 +203,8 @@ namespace Lina
 		Transformation	m_transform;
 		Transformation	m_prevTransform;
 		Bitmask16		m_mask;
-		StringID		m_sid = 0;
+		StringID		m_sid		= 0;
+		uint32			m_ssboIndex = 0;
 	};
 
 } // namespace Lina

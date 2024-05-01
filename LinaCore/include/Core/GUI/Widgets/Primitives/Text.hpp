@@ -39,25 +39,31 @@ namespace Lina
 	class Text : public Widget
 	{
 	public:
-		Text() : Widget(0, WF_OWNS_SIZE)
-		{
-		}
+		Text() : Widget(WF_OWNS_SIZE){};
 		virtual ~Text() = default;
 
 		struct Properties
 		{
-			String				  text			= "";
-			StringID			  font			= Theme::GetDef().defaultFont;
-			Color				  color			= Theme::GetDef().foreground0;
-			Color				  colorDisabled = Theme::GetDef().silent1;
-			LinaVG::TextAlignment alignment		= LinaVG::TextAlignment::Left;
-			float				  textScale		= 1.0f;
-			float				  maxWidth		= 0.0f;
-			bool				  isDynamic		= false;
+			Delegate<void()>	  onClicked;
+			String				  text						= "";
+			StringID			  font						= Theme::GetDef().defaultFont;
+			Color				  color						= Theme::GetDef().foreground0;
+			Color				  colorDisabled				= Theme::GetDef().silent1;
+			LinaVG::TextAlignment alignment					= LinaVG::TextAlignment::Left;
+			Vector4				  customClip				= Vector4::Zero;
+			float				  textScale					= 1.0f;
+			float				  wrapWidth					= 0.0f;
+			bool				  isDynamic					= false;
+			bool				  fetchCustomClipFromParent = false;
+			bool				  fetchCustomClipFromSelf	= false;
+			bool				  fetchWrapFromParent		= false;
+			bool				  wordWrap					= true;
 		};
 
 		virtual void Initialize() override;
+		virtual void CalculateSize(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		void CalculateTextSize();
 

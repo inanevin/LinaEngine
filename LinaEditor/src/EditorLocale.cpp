@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Editor/EditorLocale.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina::Editor
 {
@@ -52,6 +53,7 @@ namespace Lina::Editor
 		{LocaleStr::OpenExistingProject, "Open existing project"},
 		{LocaleStr::SelectDirectory, "Select directory"},
 		{LocaleStr::CreateANewProject, "Create a new Lina project"},
+		{LocaleStr::CreateANewWorld, "Create a new Lina World"},
 		{LocaleStr::SelectProjectFile, "Select project to open"},
 		{LocaleStr::DirectoryNotFound, "Directory not found!"},
 		{LocaleStr::FileNotFound, "File not found!"},
@@ -61,7 +63,9 @@ namespace Lina::Editor
 		{LocaleStr::UnfinishedWorkTitle, "Before you continue"},
 		{LocaleStr::UnfinishedWorkDesc, "Your project contains unfinished work. Would you like to save your changes before you continue?"},
 		{LocaleStr::LinaProjectFile, "Lina Project File"},
+		{LocaleStr::LinaWorldFile, "Lina World File"},
 		{LocaleStr::NoProject, "No Project"},
+		{LocaleStr::NoWorld, "No World"},
 		{LocaleStr::NewProject, "New Project"},
 		{LocaleStr::LoadProject, "Load Project"},
 		{LocaleStr::SaveProject, "Save Project"},
@@ -76,11 +80,44 @@ namespace Lina::Editor
 		{LocaleStr::Entities, "Entities"},
 		{LocaleStr::Resources, "Resources"},
 		{LocaleStr::World, "World"},
-		{LocaleStr::Performance, "World"},
+		{LocaleStr::Performance, "Performance"},
+		{LocaleStr::ResetLayout, "Reset Layout"},
+		{LocaleStr::Search, "Search"},
+		{LocaleStr::Items, "Items"},
+		{LocaleStr::Selected, "Selected"},
+		{LocaleStr::NothingInDirectory, "Nothing to see here ¯\\(°_o)/¯"},
+		{LocaleStr::Memory, "Memory"},
+		{LocaleStr::FrameTime, "Frame Time"},
+		{LocaleStr::DrawCalls, "Draw Calls"},
+		{LocaleStr::Folder, "Folder"},
 	};
 
+	Vector<String> Locale::s_randomFacts = {
+		"Nothing to see here ¯\\(°_o)/¯",
+		"Pro tip: No, doing that system will take twice longer than you anticipated.",
+		"Don't search for LinaGX.",
+		"Don't search for LinaVG.",
+		"It took me more than 5 years to publish a proper Lina version, do you -really- need that extra feature?",
+		"If you notice a bug, please report it to the nearest Github issues kiosk.",
+		"I spent my time doing this fun little thing instead of writing useful code.",
+		"Pro tip: You are not your target audience.",
+	};
 	const String& Locale::GetStr(LocaleStr str)
 	{
 		return s_englishMap[str];
+	}
+
+	String Locale::GetStrUnicode(LocaleStr str)
+	{
+		std::u8string utf8str = u8"";
+		std::string	  convertedStr(reinterpret_cast<const char*>(utf8str.c_str()));
+		convertedStr += s_englishMap[str];
+		return convertedStr;
+	}
+
+	String Locale::GetRandomFact()
+	{
+		const int32 rnd = Math::Rand(0, static_cast<int32>(s_randomFacts.size() - 1));
+		return s_randomFacts[rnd];
 	}
 } // namespace Lina::Editor

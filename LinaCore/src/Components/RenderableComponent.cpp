@@ -27,13 +27,13 @@ SOFTWARE.
 */
 
 #include "Core/Components/RenderableComponent.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
-	void RenderableComponent::SaveToStream(OStream& stream)
+	void RenderableComponent::FillMaterialToMeshes(MaterialToMeshMap& map) const
 	{
-	}
-	void RenderableComponent::LoadFromStream(IStream& stream)
-	{
+		for (auto& [mat, mesh] : m_materialToMeshMap)
+			map.insert(linatl::make_pair(mat, mesh));
 	}
 } // namespace Lina

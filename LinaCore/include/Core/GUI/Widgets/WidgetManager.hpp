@@ -47,6 +47,7 @@ namespace Lina
 	class ResourceManager;
 	class Font;
 	class GfxManager;
+	class ScrollArea;
 
 	class WidgetManager : public LinaGX::WindowListener
 	{
@@ -54,60 +55,29 @@ namespace Lina
 		WidgetManager()			 = default;
 		virtual ~WidgetManager() = default;
 
-		void Initialize(System* system, LinaGX::Window* window);
-		void Draw(int32 threadIndex);
-		void PreTick();
-		void Tick(float delta, const Vector2ui& size);
-		void Shutdown();
-		void DebugDraw(int32 threadIndex, Widget* w);
-		void SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
-		void UnsetClip(int32 threadIndex);
-		void AddToKillList(Widget* w);
-		void AddToForeground(Widget* widget);
-		void RemoveFromForeground(Widget* widget);
-
-		template <typename T> T* Allocate(const String& debugName = "Widget")
-		{
-			const TypeID tid = GetTypeID<T>();
-
-			PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
-			T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
-			t->SetDebugName(debugName);
-			t->m_lgxWindow		 = m_window;
-			t->m_manager		 = this;
-			t->m_system			 = m_system;
-			t->m_resourceManager = m_resourceManager;
-			t->m_tid			 = tid;
-			t->Construct();
-			return t;
-		}
-
-		void Deallocate(Widget* widget);
+		void	Initialize(System* system, LinaGX::Window* window);
+		void	Draw(int32 threadIndex);
+		void	PreTick();
+		void	Tick(float delta, const Vector2ui& size);
+		void	Shutdown();
+		void	DebugDraw(int32 threadIndex, Widget* w);
+		void	SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
+		void	UnsetClip(int32 threadIndex);
+		void	AddToKillList(Widget* w);
+		void	AddToForeground(Widget* widget);
+		void	RemoveFromForeground(Widget* widget);
+		void	Deallocate(Widget* widget);
+		void	GrabControls(Widget* widget);
+		void	ReleaseControls(Widget* widget);
+		Widget* GetControlsOwner();
+		void	MoveControlsToNext();
+		void	MoveControlsToPrev();
+		Widget* FindNextSelectable(Widget* start);
+		Widget* FindPreviousSelectable(Widget* start);
 
 		inline Widget* GetRoot()
 		{
 			return m_rootWidget;
-		}
-
-		inline void GrabControls(Widget* widget)
-		{
-			m_controlsOwner = widget;
-		}
-
-		inline void ReleaseControls(Widget* widget)
-		{
-			if (m_controlsOwner == widget)
-				m_controlsOwner = nullptr;
-		}
-
-		inline bool CanGrabControls(Widget const* w) const
-		{
-			return m_controlsOwner == nullptr || w == m_controlsOwner;
-		}
-
-		inline Widget* GetControlsOwner() const
-		{
-			return m_controlsOwner;
 		}
 
 		inline Widget* GetForegroundRoot()
@@ -133,42 +103,74 @@ namespace Lina
 			return m_defaultFont;
 		}
 
+		inline void SetLastControlsManager(Widget* man)
+		{
+			m_lastControlsManager = man;
+		}
+
+		inline Widget* GetLastControlsManager() const
+		{
+			return m_lastControlsManager;
+		}
+
+		template <typename T> T* Allocate(const String& debugName = "Widget")
+		{
+			const TypeID tid = GetTypeID<T>();
+
+			PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
+			T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
+
+			LINA_ASSERT(t != nullptr, "");
+			t->SetDebugName(debugName);
+			t->m_lgxWindow		 = m_window;
+			t->m_manager		 = this;
+			t->m_system			 = m_system;
+			t->m_resourceManager = m_resourceManager;
+			t->m_tid			 = tid;
+			t->Construct();
+			return t;
+		}
+
 	protected:
 		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
-		virtual void OnWindowMouseWheel(int32 delta) override;
+		virtual void OnWindowMouseWheel(float amt) override;
 		virtual void OnWindowMouseMove(const LinaGX::LGXVector2&) override;
 		virtual void OnWindowFocus(bool gainedFocus) override;
 		virtual void OnWindowHoverBegin() override;
 		virtual void OnWindowHoverEnd() override;
 
 	private:
-		Widget*			   FindNextSelectable(Widget* start);
-		Widget*			   FindPreviousSelectable(Widget* start);
 		LinaGX::CursorType FindCursorType(Widget* start);
-		void			   PreTickWidget(Widget* w);
-		void			   TickWidget(Widget* w, float delta);
 
-		void		   SizePassWidget(Widget* w, float delta);
+		bool		   PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		bool		   PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
+		bool		   PassMouseWheel(Widget* widget, float amt);
+		bool		   PassMousePos(Widget* widget, const Vector2& pos);
+		void		   PassCalculateSize(Widget* w, float delta);
+		void		   PassPreTick(Widget* w);
+		void		   PassTick(Widget* w, float delta);
 		PoolAllocator* GetGUIAllocator(TypeID tid, size_t typeSize);
+		ScrollArea*	   FindScrollAreaAbove(Widget* w);
 
 	private:
 		friend class Widget;
 
 	private:
 		LinaGX::Window*	 m_window		   = nullptr;
+		Widget*			 m_controlsOwner   = nullptr;
 		Widget*			 m_rootWidget	   = nullptr;
 		Widget*			 m_foregroundRoot  = nullptr;
 		System*			 m_system		   = nullptr;
 		Widget*			 m_deepestHovered  = nullptr;
 		ResourceManager* m_resourceManager = nullptr;
-		Widget*			 m_controlsOwner   = nullptr;
 		Vector<ClipData> m_clipStack;
-		float			 m_debugDrawYOffset = 0.0f;
-		float			 m_foregroundDim	= 0.0f;
-		Font*			 m_defaultFont		= nullptr;
-		Vector<Widget*>	 m_killList			= {};
-		GfxManager*		 m_gfxManager		= nullptr;
+		float			 m_debugDrawYOffset	   = 0.0f;
+		float			 m_foregroundDim	   = 0.0f;
+		Font*			 m_defaultFont		   = nullptr;
+		Vector<Widget*>	 m_killList			   = {};
+		GfxManager*		 m_gfxManager		   = nullptr;
+		Widget*			 m_lastControlsManager = nullptr;
 	};
 
 } // namespace Lina

@@ -29,7 +29,12 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/String.hpp"
+#include "Common/Data/Vector.hpp"
+#include "Common/StringID.hpp"
 #include "Common/Serialization/Serializable.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
+#include "Editor/CommonEditor.hpp"
 
 namespace Lina::Editor
 {
@@ -38,20 +43,96 @@ namespace Lina::Editor
 	class EditorLayout : public Serializable
 	{
 	public:
-		EditorLayout()			= default;
-		virtual ~EditorLayout() = default;
+		struct PanelData
+		{
+			PanelType		 panelType = PanelType::Resources;
+			StringID		 subData   = 0;
+			PanelLayoutExtra extraData;
+
+			inline void SaveToStream(OStream& out) const
+			{
+				out << static_cast<uint8>(panelType);
+				out << subData;
+				for (uint32 i = 0; i < PanelLayoutExtra::F_SZ; i++)
+					out << extraData.f[i];
+			}
+
+			inline void LoadFromStream(IStream& in)
+			{
+				uint8 pt = 0;
+				in >> pt;
+				in >> subData;
+				for (uint32 i = 0; i < PanelLayoutExtra::F_SZ; i++)
+					in >> extraData.f[i];
+
+				panelType = static_cast<PanelType>(pt);
+			}
+		};
+
+		struct DockWidgetData
+		{
+			Vector2			  alignedPos   = Vector2::Zero;
+			Vector2			  alignedSize  = Vector2::Zero;
+			bool			  isBorder	   = false;
+			bool			  isHorizontal = false;
+			Vector<PanelData> panels;
+
+			inline void SaveToStream(OStream& out) const
+			{
+				alignedPos.SaveToStream(out);
+				alignedSize.SaveToStream(out);
+				out << isBorder;
+				out << isHorizontal;
+				VectorSerialization::SaveToStream_OBJ(out, panels);
+			}
+
+			inline void LoadFromStream(IStream& in)
+			{
+				alignedPos.LoadFromStream(in);
+				alignedSize.LoadFromStream(in);
+				in >> isBorder;
+				in >> isHorizontal;
+				VectorSerialization::LoadFromStream_OBJ(in, panels);
+			}
+		};
+
+		struct WindowLayout
+		{
+			StringID			   sid		= 0;
+			Vector2i			   position = Vector2i::Zero;
+			Vector2ui			   size		= Vector2ui::Zero;
+			String				   title	= "";
+			Vector<DockWidgetData> dockWidgets;
+
+			inline void SaveToStream(OStream& out) const
+			{
+				out << sid;
+				position.SaveToStream(out);
+				size.SaveToStream(out);
+				StringSerialization::SaveToStream(out, title);
+				VectorSerialization::SaveToStream_OBJ(out, dockWidgets);
+			}
+
+			inline void LoadFromStream(IStream& in)
+			{
+				in >> sid;
+				position.LoadFromStream(in);
+				size.LoadFromStream(in);
+				StringSerialization::LoadFromStream(in, title);
+				VectorSerialization::LoadFromStream_OBJ(in, dockWidgets);
+			}
+		};
 
 		static constexpr uint32 VERSION = 0;
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
 
-		void Initialize(Editor* editor)
-		{
-			m_editor = editor;
-		}
+		void ApplyStoredLayout(Editor* editor);
+		void StoreLayout(Editor* editor);
+		void StoreDefaultLayout();
 
 	private:
-		Editor* m_editor = nullptr;
+		Vector<WindowLayout> m_windows;
 	};
 
 } // namespace Lina::Editor

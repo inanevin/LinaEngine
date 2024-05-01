@@ -50,8 +50,8 @@ namespace Lina
 
 		AddListener(this);
 
-		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
-			pair.second->PreInitialize(initInfo);
+		for (auto [type, sys] : m_subsystems)
+			sys->PreInitialize(initInfo);
 	}
 
 	void Engine::Initialize(const SystemInitializationInfo& initInfo)
@@ -59,15 +59,15 @@ namespace Lina
 		LINA_TRACE("[Engine] -> Initialization.");
 		m_initInfo = initInfo;
 
-		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
-			pair.second->Initialize(initInfo);
+		for (auto [type, sys] : m_subsystems)
+			sys->Initialize(initInfo);
 	}
 
 	void Engine::CoreResourcesLoaded()
 	{
 		LINA_TRACE("[Engine] -> Core resources loaded.");
-		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
-			pair.second->CoreResourcesLoaded();
+		for (auto [type, sys] : m_subsystems)
+			sys->CoreResourcesLoaded();
 	}
 
 	void Engine::PreShutdown()
@@ -76,8 +76,8 @@ namespace Lina
 		m_resourceManager.WaitForAll();
 		m_gfxManager.Join();
 
-		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
-			pair.second->PreShutdown();
+		for (auto [type, sys] : m_subsystems)
+			sys->PreShutdown();
 	}
 
 	void Engine::Shutdown()
@@ -89,16 +89,17 @@ namespace Lina
 
 		// Order matters!
 		// Shutdown resource manager first, clean-up subsystems of active resources.
+		m_worldManager.Shutdown();
 		m_resourceManager.Shutdown();
 		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
 
-		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
+		for (auto [type, sys] : m_subsystems)
 		{
-			if (pair.second == &m_resourceManager || pair.second == &m_gfxManager || pair.second == &m_audioManager)
+			if (sys == &m_resourceManager || sys == &m_gfxManager || sys == &m_audioManager || sys == &m_worldManager)
 				continue;
 
-			pair.second->Shutdown();
+			sys->Shutdown();
 		}
 
 		RemoveListener(this);
@@ -108,8 +109,8 @@ namespace Lina
 	{
 		PROFILER_FUNCTION();
 
-		for (const std::pair<SubsystemType, Subsystem*>& pair : m_subsystems)
-			pair.second->PreTick();
+		for (auto [type, sys] : m_subsystems)
+			sys->PreTick();
 
 		CalculateTime();
 	}
@@ -129,16 +130,16 @@ namespace Lina
 		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
-		const float deltaF = static_cast<float>(delta);
 
 		// Kick off audio
-		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
+		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 
 		// Update app.
-		TweenManager::Get()->Tick(deltaF);
-		m_gfxManager.Tick(deltaF);
-		m_audioManager.Tick(deltaF);
-		m_app->GetAppDelegate()->OnTick(deltaF);
+		TweenManager::Get()->Tick(delta);
+		m_worldManager.Tick(delta);
+		m_gfxManager.Tick(delta);
+		m_audioManager.Tick(delta);
+		m_app->GetAppDelegate()->OnTick(delta);
 
 		// Render
 		m_gfxManager.Render();
@@ -202,9 +203,6 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-
-			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
-			LINA_TRACE("[DT]: {0}", SystemInfo::GetDeltaTime());
 		}
 	}
 

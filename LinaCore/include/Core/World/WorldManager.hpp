@@ -28,30 +28,42 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/String.hpp"
-#include "Common/Serialization/Serializable.hpp"
+#include "Common/System/Subsystem.hpp"
 
 namespace Lina
 {
-	class ProjectData : public Serializable
+	class GfxManager;
+	class EntityWorld;
+	class WorldRenderer;
+
+	class WorldManager : public Subsystem
 	{
 	public:
-		static constexpr uint32 VERSION = 0;
-		virtual void			SaveToStream(OStream& out) override;
-		virtual void			LoadFromStream(IStream& in) override;
+		WorldManager(System* sys) : Subsystem(sys, SubsystemType::WorldManager){};
+		virtual ~WorldManager() = default;
 
-		inline void SetProjectName(const String& name)
-		{
-			m_projectName = name;
-		}
+		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void Shutdown() override;
 
-		inline const String& GetProjectName() const
+		void		   InstallWorld(const String& path);
+		void		   ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize);
+		WorldRenderer* GetWorldRenderer(EntityWorld* world);
+		void		   SaveEmptyWorld(const String& absolutePath);
+		void		   InstallLevel(const char* level);
+		void		   UninstallLevel(bool immediate);
+		void		   Tick(float deltaTime);
+
+		inline EntityWorld* GetMainWorld() const
 		{
-			return m_projectName;
+			return m_mainWorld;
 		}
 
 	private:
-		String m_projectName = "";
-	};
+		void UninstallMainWorld();
 
+	private:
+		GfxManager*			 m_gfxManager	= nullptr;
+		EntityWorld*		 m_mainWorld	= nullptr;
+		Vector<EntityWorld*> m_activeWorlds = {};
+	};
 } // namespace Lina

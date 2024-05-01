@@ -49,6 +49,11 @@ namespace Lina
 			m_serializedPath = path;
 		}
 
+		inline const String& GetPath() const
+		{
+			return m_serializedPath;
+		}
+
 	protected:
 		String m_serializedPath = "";
 	};

@@ -54,7 +54,7 @@ namespace Lina
 		virtual void	  Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void	  Shutdown() override;
 		void			  Poll();
-		int32			  LoadResources(const Vector<ResourceIdentifier>& identifiers);
+		int32			  LoadResources(const Vector<ResourceIdentifier>& identifiers, Delegate<void()>&& onLoaded = nullptr);
 		void			  WaitForAll();
 		bool			  IsLoadTaskComplete(uint32 id);
 		void			  UnloadResources(const Vector<ResourceIdentifier> identifiers);
@@ -136,6 +136,11 @@ namespace Lina
 
 			const TypeID tid = GetTypeID<T>();
 			m_caches.at(tid)->DestroyUserResource(static_cast<Resource*>(resource));
+		}
+
+		inline const HashMap<TypeID, ResourceCacheBase*>& GetCaches() const
+		{
+			return m_caches;
 		}
 
 	private:

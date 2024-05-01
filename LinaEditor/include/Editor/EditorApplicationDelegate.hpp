@@ -40,7 +40,6 @@ namespace Lina::Editor
 		virtual void SetupPlatform(Application* app) override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
 		virtual void RegisterAppResources(ResourceManager& rm) override;
-		virtual void Shutdown() override;
 
 	private:
 		Editor* m_editor = nullptr;

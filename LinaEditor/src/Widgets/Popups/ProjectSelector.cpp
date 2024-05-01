@@ -98,7 +98,7 @@ namespace Lina::Editor
 		bottom->AddChild(iconTabs);
 		m_iconTabs = iconTabs;
 
-		SetTab(m_selected);
+		SetTab(0);
 		bottom->AddChild(m_content);
 	}
 
@@ -137,13 +137,6 @@ namespace Lina::Editor
 		Widget::Draw(threadIndex);
 		m_manager->UnsetClip(threadIndex);
 	}
-
-	bool ProjectSelector::OnMouse(uint32 button, LinaGX::InputAction act)
-	{
-		Widget::OnMouse(button, act);
-		return true;
-	}
-
 	DirectionalLayout* ProjectSelector::BuildLocationSelectRow(const String& dialogTitle, bool isSave)
 	{
 		Text* label			   = m_manager->Allocate<Text>();
@@ -315,6 +308,9 @@ namespace Lina::Editor
 
 	void ProjectSelector::SetTab(int32 selected)
 	{
+		if (selected == m_selected)
+			return;
+
 		m_selected = selected;
 
 		Widget* parent = nullptr;

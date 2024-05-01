@@ -28,30 +28,23 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Vertex_HPP
-#define Vertex_HPP
-
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Color.hpp"
 
 namespace Lina
 {
-	class Vertex
+	class VertexDefault
 	{
 	public:
-		Vertex()  = default;
-		~Vertex() = default;
+		VertexDefault()	 = default;
+		~VertexDefault() = default;
 
-		Vertex(const Vector3& p, const Vector3& n, const Color& c, const Vector2 txCoord) : pos(p), normal(n), color(c), uv(txCoord){};
 		Vector3 pos	   = Vector3::Zero;
 		Vector3 normal = Vector3::Zero;
-		Color	color  = Color::White;
 		Vector2 uv	   = Vector2::Zero;
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 
 } // namespace Lina
-
-#endif

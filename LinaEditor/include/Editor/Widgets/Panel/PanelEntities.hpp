@@ -29,18 +29,50 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Editor/Widgets/Compound/SelectableListLayout.hpp"
+#include "Editor/Editor.hpp"
+
+namespace Lina
+{
+	class WorldManager;
+	class Entity;
+	class Selectable;
+	class DirectionalLayout;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class PanelEntities : public Panel
+	class Editor;
+	class PanelEntities : public Panel, public EntityWorldListener, public FileMenuListener, public SelectableListLayoutListener
 	{
 	public:
 		PanelEntities() : Panel(PanelType::Entities, 0){};
 		virtual ~PanelEntities() = default;
 
+		virtual void Construct() override;
+		virtual void Destruct() override;
+		virtual void PreTick() override;
+		virtual void Tick(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
 
+		virtual void		OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData) override;
+		virtual void		OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemuserData) override;
+		virtual PayloadType OnSelectableListGetPayloadType(SelectableListLayout* list) override
+		{
+			return PayloadType::EntitySelectable;
+		};
+
+		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
+		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+
 	private:
+	private:
+		Editor*				  m_editor		   = nullptr;
+		WorldManager*		  m_worldManager   = nullptr;
+		EntityWorld*		  m_world		   = nullptr;
+		SelectableListLayout* m_selectableList = nullptr;
 	};
 
 } // namespace Lina::Editor

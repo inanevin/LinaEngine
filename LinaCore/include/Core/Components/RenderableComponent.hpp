@@ -28,37 +28,21 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderableComponent_HPP
-#define RenderableComponent_HPP
-
 #include "Core/World/Component.hpp"
-#include "Common/Data/Vector.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
-#include "Core/Reflection/ClassReflection.hpp"
 
 namespace Lina
 {
-	class AABB;
-	class ResourceManager;
-
 	class RenderableComponent : public Component
 	{
 	public:
-		RenderableComponent()		   = default;
+		RenderableComponent() : Component(CF_RENDERABLE){};
 		virtual ~RenderableComponent() = default;
 
-		virtual Bitmask16 GetComponentMask() override
-		{
-			return ComponentMask::Renderable;
-		}
+		void FillMaterialToMeshes(MaterialToMeshMap& map) const;
 
-		void				   SaveToStream(OStream& stream);
-		void				   LoadFromStream(IStream& stream);
-		virtual AABB&		   GetAABB(ResourceManager* rm)		  = 0;
-		virtual Bitmask16	   GetDrawPasses(ResourceManager* rm) = 0;
-		virtual RenderableType GetType()						  = 0;
+	protected:
+		MaterialToMeshMap m_materialToMeshMap;
 	};
 
 } // namespace Lina
-
-#endif

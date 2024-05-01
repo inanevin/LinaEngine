@@ -56,7 +56,7 @@ namespace Lina
 			Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
 		};
 
-		Button() : Widget(1, WF_SELECTABLE){};
+		Button() : Widget(WF_CONTROLLABLE){};
 		virtual ~Button() = default;
 
 		virtual void Construct() override;

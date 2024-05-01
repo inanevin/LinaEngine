@@ -120,10 +120,10 @@ int main(int argc, char* argv[])
 	linaApp->Initialize(Lina::Lina_GetInitInfo());
 	while (!linaApp->GetExitRequested())
 	{
-		linaApp->PreTick();
 
 		@autoreleasepool
 		{
+
 			NSEvent* ev;
 			do
 			{
@@ -131,13 +131,14 @@ int main(int argc, char* argv[])
 				if (ev)
 				{
 					// handle events here
-					[NSApp sendEvent:ev]; // HERE ON MOUSE EVENT I CREATE THE WINDOW
+					[NSApp sendEvent:ev];
 				}
 			} while (ev);
-		}
+			linaApp->Poll();
 
-		linaApp->Poll();
-		linaApp->Tick();
+			linaApp->PreTick();
+			linaApp->Tick();
+		}
 	}
 
 	linaApp->Shutdown();

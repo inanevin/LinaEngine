@@ -37,20 +37,27 @@ namespace Lina::Editor
 
 	Panel* PanelFactory::CreatePanel(Widget* source, PanelType type, StringID subData)
 	{
+		Panel* panel = nullptr;
+
 		switch (type)
 		{
 		case PanelType::Performance:
-			return source->GetWidgetManager()->Allocate<PanelPerformance>("Performance");
+			panel = source->GetWidgetManager()->Allocate<PanelPerformance>("Performance");
+			break;
 		case PanelType::Resources:
-			return source->GetWidgetManager()->Allocate<PanelResources>("Resources");
+			panel = source->GetWidgetManager()->Allocate<PanelResources>("Resources");
+			break;
 		case PanelType::World:
-			return source->GetWidgetManager()->Allocate<PanelWorld>("World");
+			panel = source->GetWidgetManager()->Allocate<PanelWorld>("World");
+			break;
 		case PanelType::Entities:
-			return source->GetWidgetManager()->Allocate<PanelEntities>("Entities");
+			panel = source->GetWidgetManager()->Allocate<PanelEntities>("Entities");
+			break;
 		default:
-			return nullptr;
+			break;
 		}
 
-		return nullptr;
+		panel->Initialize();
+		return panel;
 	}
 } // namespace Lina::Editor

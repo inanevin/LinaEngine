@@ -44,7 +44,6 @@ namespace Lina::Editor
 		{
 			String			 text = "";
 			Delegate<void()> onClicked;
-			bool			 closesPopup = true;
 		};
 
 		struct PopupProperties

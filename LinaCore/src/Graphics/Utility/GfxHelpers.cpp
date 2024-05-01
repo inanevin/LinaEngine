@@ -52,6 +52,35 @@ namespace Lina
 
 			return {.bindings = {binding0}};
 		}
+		else if (type == RenderPassDescriptorType::Main)
+		{
+			LinaGX::DescriptorBinding binding0 = {
+				.type	= LinaGX::DescriptorType::UBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding1 = {
+				.type	= LinaGX::DescriptorType::UBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding2 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding3 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding4 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {.bindings = {binding0, binding1, binding2, binding3, binding4}};
+		}
 
 		LINA_ASSERT(false, "");
 		return {};
@@ -89,28 +118,6 @@ namespace Lina
 		};
 	}
 
-	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierUndef2TransferDest(uint32 texture)
-	{
-		return {
-			.texture		= texture,
-			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::TransferDestination,
-			.srcAccessFlags = 0,
-			.dstAccessFlags = LinaGX::AF_TransferWrite,
-		};
-	}
-
-	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierTransferDest2Sampled(uint32 texture)
-	{
-		return {
-			.texture		= texture,
-			.isSwapchain	= false,
-			.toState		= LinaGX::TextureBarrierState::ShaderRead,
-			.srcAccessFlags = LinaGX::AF_TransferWrite,
-			.dstAccessFlags = LinaGX::AF_ShaderRead,
-		};
-	}
-
 	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain)
 	{
 		return {
@@ -119,6 +126,50 @@ namespace Lina
 			.toState		= LinaGX::TextureBarrierState::ColorAttachment,
 			.srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
 			.dstAccessFlags = LinaGX::AF_ColorAttachmentRead,
+		};
+	}
+
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierColorRead2Att(uint32 texture)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= false,
+			.toState		= LinaGX::TextureBarrierState::ColorAttachment,
+			.srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
+			.dstAccessFlags = LinaGX::AF_ColorAttachmentRead,
+		};
+	}
+
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierColorAtt2Read(uint32 texture)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= false,
+			.toState		= LinaGX::TextureBarrierState::ShaderRead,
+			.srcAccessFlags = LinaGX::AF_ColorAttachmentRead,
+			.dstAccessFlags = LinaGX::AF_ShaderRead,
+		};
+	}
+
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierDepthRead2Att(uint32 texture)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= false,
+			.toState		= LinaGX::TextureBarrierState::DepthStencilAttachment,
+			.srcAccessFlags = LinaGX::AF_MemoryRead | LinaGX::AF_MemoryWrite,
+			.dstAccessFlags = LinaGX::AF_DepthStencilAttachmentRead,
+		};
+	}
+
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierDepthAtt2Read(uint32 texture)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= false,
+			.toState		= LinaGX::TextureBarrierState::ShaderRead,
+			.srcAccessFlags = LinaGX::AF_DepthStencilAttachmentRead,
+			.dstAccessFlags = LinaGX::AF_ShaderRead,
 		};
 	}
 

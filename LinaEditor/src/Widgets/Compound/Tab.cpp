@@ -48,18 +48,19 @@ namespace Lina::Editor
 		layout->SetAlignedSize(Vector2(1.0f, 1.0f));
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->GetChildMargins() = {.left = Theme::GetDef().baseIndent * 2.0f, .right = Theme::GetDef().baseIndent};
+		layout->SetChildPadding(Theme::GetDef().baseIndent);
 		AddChild(layout);
 
 		m_text = m_manager->Allocate<Text>("Title");
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_text->GetProps().isDynamic = true;
 		layout->AddChild(m_text);
 
 		m_icon = m_manager->Allocate<Icon>("Icon");
-		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
-		m_icon->SetAlignedPos(Vector2(1.0f, 0.5f));
-		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		m_icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
+		m_icon->SetAlignedPosY(0.5f);
 		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		m_icon->GetProps().icon					  = ICON_XMARK;
 		m_icon->GetProps().enableHoverPressColors = true;
@@ -85,17 +86,6 @@ namespace Lina::Editor
 		m_selectionRectAnim->Kill();
 	}
 
-	void Tab::PreTick()
-	{
-		if (m_isPressed && !m_icon->GetIsDisabled())
-		{
-			const Vector2& mp	  = m_lgxWindow->GetMousePosition();
-			const float	   margin = Theme::GetDef().baseIndent * 4.0f;
-			if (mp.y < m_rect.pos.y - margin || mp.y > m_rect.GetEnd().y + margin)
-				m_ownerRow->DockOut(m_props.tiedWidget);
-		}
-	}
-
 	void Tab::CalculateSize(float delta)
 	{
 		const float indent	 = Theme::GetDef().baseIndent;
@@ -112,9 +102,15 @@ namespace Lina::Editor
 		// Press movement
 		const Vector2& mp = m_lgxWindow->GetMousePosition();
 		if (m_isPressed)
-			m_rect.pos.x = mp.x - m_offsetAtPress.x;
+		{
+			float desiredX = mp.x - m_offsetAtPress.x;
+			desiredX	   = Math::Clamp(desiredX, m_ownerRow->GetPosX(), m_ownerRow->GetRect().GetEnd().x - GetSizeX());
+			m_rect.pos.x   = desiredX;
+		}
 		else
 			m_rect.pos.x = Math::Lerp(GetPosX(), m_props.desiredX, delta * INTERP_SPEED);
+
+		m_alpha = Math::Clamp(Math::Remap(m_rect.pos.x, m_ownerRow->GetRect().GetEnd().x - GetSizeX() * 2.5f, m_ownerRow->GetRect().GetEnd().x, 1.0f, 0.1f), 0.1f, 1.0f);
 
 		if (!m_wasSelected && m_props.isSelected)
 		{
@@ -157,6 +153,8 @@ namespace Lina::Editor
 		else
 			background.color = m_isHovered ? Theme::GetDef().background2.AsLVG4() : Theme::GetDef().background0.AsLVG4();
 
+		background.color.start.w = background.color.end.w = m_alpha;
+
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, drawOrder);
 
 		// Draw selection indicator rect.
@@ -171,7 +169,10 @@ namespace Lina::Editor
 		else
 			selectionRect.color = Theme::GetDef().silent0.AsLVG4();
 
+		selectionRect.color.start.w = selectionRect.color.end.w = m_alpha;
 		LinaVG::DrawRect(threadIndex, m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
+
+		m_icon->GetProps().colorEnd.w = m_icon->GetProps().colorStart.w = m_text->GetProps().color.w = m_alpha;
 
 		m_icon->SetDrawOrder(drawOrder);
 		m_text->SetDrawOrder(drawOrder);
@@ -204,11 +205,27 @@ namespace Lina::Editor
 			return true;
 		}
 
-		return Widget::OnMouse(button, action);
+		return false;
+	}
+
+	bool Tab::OnMousePos(const Vector2& pos)
+	{
+		if (m_isPressed && !m_icon->GetIsDisabled())
+		{
+			const Vector2& mp	  = pos;
+			const float	   margin = Theme::GetDef().baseIndent * 4.0f;
+			if (mp.y < m_rect.pos.y - margin || mp.y > m_rect.GetEnd().y + margin)
+				m_ownerRow->DockOut(m_props.tiedWidget);
+
+			return true;
+		}
+
+		return false;
 	}
 
 	void Tab::DisableClosing(bool disabled)
 	{
 		m_icon->SetIsDisabled(disabled);
 	}
+
 } // namespace Lina::Editor

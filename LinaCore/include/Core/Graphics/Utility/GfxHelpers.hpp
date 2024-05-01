@@ -43,8 +43,12 @@ namespace Lina
 
 		static LinaGX::TextureBarrier GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain);
 		static LinaGX::TextureBarrier GetTextureBarrierColor2Present(uint32 texture, bool isSwapchain);
-		static LinaGX::TextureBarrier GetTextureBarrierUndef2TransferDest(uint32 texture);
-		static LinaGX::TextureBarrier GetTextureBarrierTransferDest2Sampled(uint32 texture);
+
+		static LinaGX::TextureBarrier GetTextureBarrierColorAtt2Read(uint32 texture);
+		static LinaGX::TextureBarrier GetTextureBarrierColorRead2Att(uint32 texture);
+
+		static LinaGX::TextureBarrier GetTextureBarrierDepthAtt2Read(uint32 texture);
+		static LinaGX::TextureBarrier GetTextureBarrierDepthRead2Att(uint32 texture);
 
 		static LinaGX::PipelineLayoutDesc GetPLDescPersistentGlobal();
 		static LinaGX::PipelineLayoutDesc GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType);

@@ -48,7 +48,7 @@ namespace Lina
 	{
 
 	private:
-		static constexpr int32 MAX_GUI_MATERIALS = 40;
+		static constexpr int32 MAX_GUI_MATERIALS = 50;
 
 		struct PerFrameData
 		{
@@ -56,6 +56,7 @@ namespace Lina
 			SemaphoreData		   copySemaphore   = {};
 			Buffer				   guiVertexBuffer = {};
 			Buffer				   guiIndexBuffer  = {};
+			Vector<Material*>	   materials	   = {};
 		};
 
 	public:
@@ -79,7 +80,6 @@ namespace Lina
 		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
 		GfxManager*		  m_gfxManager = nullptr;
 		LinaGX::Instance* m_lgx		   = nullptr;
-		Vector<Material*> m_materials  = {};
 	};
 
 } // namespace Lina

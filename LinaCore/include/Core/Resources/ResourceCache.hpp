@@ -64,6 +64,12 @@ namespace Lina
 			return m_packageType;
 		}
 
+		inline bool DoesSupportExtension(const String& ext)
+		{
+			auto it = linatl::find_if(m_extensions.begin(), m_extensions.end(), [&ext](const String& extension) -> bool { return ext.compare(extension) == 0; });
+			return it != m_extensions.end();
+		}
+
 	protected:
 		PackageType	   m_packageType = PackageType::Default;
 		Vector<String> m_extensions;

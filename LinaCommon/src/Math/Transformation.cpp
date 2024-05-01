@@ -41,6 +41,17 @@ namespace Lina
 		mat.Decompose(m_position, m_rotation, m_scale);
 	}
 
+	void Transformation::UpdateGlobalMatrix()
+	{
+		m_matrix	  = ToMatrix();
+		m_localMatrix = ToLocalMatrix();
+	}
+
+	void Transformation::UpdateLocalMatrix()
+	{
+		m_localMatrix = ToLocalMatrix();
+	}
+
 	void Transformation::SaveToStream(OStream& stream)
 	{
 		m_position.SaveToStream(stream);

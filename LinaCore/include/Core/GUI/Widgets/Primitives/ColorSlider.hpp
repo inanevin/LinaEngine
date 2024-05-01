@@ -37,7 +37,7 @@ namespace Lina
 	class ColorSlider : public Widget
 	{
 	public:
-		ColorSlider() : Widget(0, WF_SELECTABLE)
+		ColorSlider() : Widget(WF_CONTROLLABLE)
 		{
 		}
 		virtual ~ColorSlider() = default;
@@ -46,7 +46,6 @@ namespace Lina
 		{
 			Delegate<void(float)> onValueChanged;
 			DirectionOrientation  direction				  = DirectionOrientation::Horizontal;
-			Color				  colorBackground		  = Theme::GetDef().background0;
 			Color				  colorBegin			  = Color::White;
 			Color				  colorEnd				  = Color::White;
 			Color				  colorOutline			  = Theme::GetDef().outlineColorBase;

@@ -26,46 +26,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#ifndef LevelManager_HPP
-#define LevelManager_HPP
-
-#include "Common/System/Subsystem.hpp"
+#include "Core/Components/CameraComponent.hpp"
 
 namespace Lina
 {
-	class Level;
-	class GfxManager;
-	class WorldRenderer;
 
-	class LevelManager : public Subsystem
-	{
-	public:
-		LevelManager(System* sys) : Subsystem(sys, SubsystemType::LevelManager){};
-		virtual ~LevelManager() = default;
-
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Shutdown() override;
-
-		void InstallLevel(const char* level);
-		void UninstallLevel(bool immediate);
-		void QueueLevel(const char* level);
-		void Simulate(float fixedDelta);
-		void Tick(float deltaTime);
-		void WaitForSimulation();
-
-		inline Level* GetCurrentLevel() const
-		{
-			return m_currentLevel;
-		}
-
-	private:
-		String		m_queuedLevel		= "";
-		bool		m_queuedLevelExists = false;
-		GfxManager* m_gfxManager		= nullptr;
-		Level*		m_currentLevel		= nullptr;
-	};
 } // namespace Lina
-
-#endif

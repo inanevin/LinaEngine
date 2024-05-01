@@ -29,13 +29,12 @@ SOFTWARE.
 #pragma once
 
 #include "Meta/EditorSettings.hpp"
-#include "Editor/Meta/EditorLayout.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Common/System/Subsystem.hpp"
+#include "IO/FileManager.hpp"
 
 namespace Lina
 {
-	class ProjectData;
 	class Application;
 	class GfxManager;
 	class WidgetManager;
@@ -53,21 +52,25 @@ namespace Lina::Editor
 	class SplashScreen;
 	class EditorRoot;
 	class DockArea;
+	class ProjectData;
 
 	class EditorPayloadListener
 	{
 	public:
 		virtual void OnPayloadStarted(PayloadType type, Widget* payload)
 		{
-			return;
 		}
 		virtual void OnPayloadEnded(PayloadType type, Widget* payload)
 		{
-			return;
 		}
 		virtual bool OnPayloadDropped(PayloadType type, Widget* payload)
 		{
 			return false;
+		}
+
+		virtual LinaGX::Window* OnPayloadGetWindow()
+		{
+			return nullptr;
 		}
 	};
 
@@ -76,19 +79,22 @@ namespace Lina::Editor
 	public:
 		struct PayloadRequest
 		{
-			Widget*		payload = nullptr;
-			PayloadType type	= PayloadType::DockedPanel;
-			bool		active	= false;
-			Vector2ui	size	= Vector2ui::Zero;
+			Widget*			payload		 = nullptr;
+			LinaGX::Window* sourceWindow = nullptr;
+			PayloadType		type		 = PayloadType::DockedPanel;
+			bool			active		 = false;
+			Vector2ui		size		 = Vector2ui::Zero;
 		};
 
 		Editor(System* sys) : Subsystem(sys, SubsystemType::Editor){};
-		virtual ~Editor();
+		virtual ~Editor() = default;
 
+		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void PreTick() override;
 		virtual void CoreResourcesLoaded() override;
-		virtual void Shutdown() override{};
+		virtual void PreShutdown() override;
+		virtual void Shutdown() override;
 
 		// Project
 		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
@@ -96,30 +102,24 @@ namespace Lina::Editor
 		void SaveProjectChanges();
 		void CloseCurrentProject();
 
-		// Payload && Panel & Windows
-		void	  AddPayloadListener(EditorPayloadListener* listener);
-		void	  RemovePayloadListener(EditorPayloadListener* listener);
-		void	  OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
-		DockArea* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
-		void	  CreatePayload(Widget* payload, PayloadType type);
-		void	  CloseWindow(StringID sid);
+		// Payload
+		void AddPayloadListener(EditorPayloadListener* listener);
+		void RemovePayloadListener(EditorPayloadListener* listener);
+		void CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size);
+
+		// Panel and windows
+		void	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
+		Widget* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
+		void	CloseWindow(StringID sid);
+		void	CloseAllSubwindows();
 
 		// Misc
+		void SaveSettings();
 		void RequestExit();
-
-		inline void SetIsProjectDirty(bool isDirty)
-		{
-			m_isProjectDirty = isDirty;
-		}
 
 		inline void SetIsWorldDirty(bool isDirty)
 		{
 			m_isWorldDirty = isDirty;
-		}
-
-		inline bool GetIsProjectDirty() const
-		{
-			return m_isProjectDirty;
 		}
 
 		inline bool GetIsWorldDirty() const
@@ -142,6 +142,21 @@ namespace Lina::Editor
 			return m_editorRoot;
 		}
 
+		inline const Vector<LinaGX::Window*>& GetSubWindows() const
+		{
+			return m_subWindows;
+		}
+
+		inline EditorSettings& GetSettings()
+		{
+			return m_settings;
+		}
+
+		inline const FileManager& GetFileManager() const
+		{
+			return m_fileManager;
+		}
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
@@ -150,11 +165,9 @@ namespace Lina::Editor
 		GfxManager*					   m_gfxManager			  = nullptr;
 		WidgetManager*				   m_primaryWidgetManager = nullptr;
 		EditorSettings				   m_settings			  = {};
-		EditorLayout				   m_layout				  = {};
 		ProjectData*				   m_currentProject		  = nullptr;
 		EntityWorld*				   m_currentWorld		  = nullptr;
 		bool						   m_isWorldDirty		  = false;
-		bool						   m_isProjectDirty		  = false;
 		EditorRoot*					   m_editorRoot			  = nullptr;
 		Vector<LinaGX::Window*>		   m_subWindows			  = {};
 		Vector<StringID>			   m_windowCloseRequests;
@@ -163,6 +176,7 @@ namespace Lina::Editor
 		LinaGX::Window*				   m_mainWindow	   = nullptr;
 		Vector<EditorPayloadListener*> m_payloadListeners;
 		StringID					   m_subWindowCounter = 0;
+		FileManager					   m_fileManager;
 	};
 
 } // namespace Lina::Editor

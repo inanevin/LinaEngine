@@ -85,7 +85,6 @@ namespace Lina
 				{
 					T* newComp = new (newCache->m_allocatorPool.Allocate(sizeof(T))) T();
 					*newComp   = *comp;
-					OnComponentCreated(newComp);
 					newCache->m_components.AddItem(newComp, i);
 				}
 				i++;
@@ -100,7 +99,6 @@ namespace Lina
 			T* comp			 = new (m_allocatorPool.Allocate(sizeof(T))) T();
 			comp->m_entityID = e->GetID();
 			comp->m_entity	 = e;
-			OnComponentCreated(comp);
 			m_components.AddItem(comp);
 			return comp;
 		}
@@ -122,7 +120,6 @@ namespace Lina
 			{
 				if (comp != nullptr && comp->m_entityID == e->GetID())
 				{
-					OnComponentDestroyed(comp);
 					comp->~T();
 					m_components.RemoveItem(index);
 					m_allocatorPool.Free(comp);
@@ -132,16 +129,14 @@ namespace Lina
 			}
 		}
 
-		inline Vector<T*> GetAllComponents()
+		inline void GetAllComponents(Vector<T*>& comps)
 		{
-			Vector<T*> vec;
+			comps.reserve(static_cast<size_t>(m_components.GetNextFreeID()));
 			for (auto c : m_components)
 			{
 				if (c != nullptr)
-					vec.push_back(c);
+					comps.push_back(c);
 			}
-
-			return vec;
 		}
 
 		virtual void OnEntityDestroyed(Entity* e) override
@@ -187,7 +182,6 @@ namespace Lina
 				stream >> comp->m_entityID;
 				comp->LoadFromStream(stream);
 				comp->m_entity = m_entities[comp->m_entityID];
-				OnComponentCreated(comp);
 				m_components.AddItem(comp, compID);
 			}
 		}
@@ -199,35 +193,12 @@ namespace Lina
 			{
 				if (comp != nullptr)
 				{
-					OnComponentDestroyed(comp);
 					comp->~T();
 					m_allocatorPool.Free(comp);
 				}
 			}
 
 			m_components.Clear();
-		}
-
-		void OnComponentCreated(T* comp)
-		{
-			Event			 data;
-			ObjectWrapper<T> objWrapper = ObjectWrapper<T>(comp);
-			data.pParams[0]				= static_cast<void*>(m_world);
-			data.pParams[1]				= static_cast<void*>(&objWrapper);
-			data.uintParams[0]			= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->DispatchEvent(EVG_ComponentCreated, data);
-			m_eventDispatcher->AddListener(comp);
-		}
-
-		void OnComponentDestroyed(T* comp)
-		{
-			Event			 data;
-			ObjectWrapper<T> objWrapper = ObjectWrapper<T>(comp);
-			data.pParams[0]				= static_cast<void*>(m_world);
-			data.pParams[1]				= static_cast<void*>(&objWrapper);
-			data.uintParams[0]			= static_cast<uint32>(comp->GetComponentType());
-			m_eventDispatcher->DispatchEvent(EVG_ComponentDestroyed, data);
-			m_eventDispatcher->RemoveListener(comp);
 		}
 
 	private:

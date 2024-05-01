@@ -54,8 +54,6 @@ namespace Lina
 
 	void DirectionalLayout::PreTick()
 	{
-		Widget::PreTick();
-
 		if (GetIsHovered() && !m_lastHoverStatus)
 		{
 			if (m_props.onHoverBegin)
@@ -79,6 +77,11 @@ namespace Lina
 		m_end	 = GetEndFromMargins();
 		m_sz	 = m_end - m_start;
 		m_center = (m_start + m_end) * 0.5f;
+
+		if (m_props.direction == DirectionOrientation::Horizontal)
+			m_start.x -= m_scrollerOffset;
+		else
+			m_start.y -= m_scrollerOffset;
 
 		if (m_props.mode == Mode::Default)
 			BehaviourDefault(delta);
@@ -170,12 +173,6 @@ namespace Lina
 				c->SetPosX(x);
 			else
 				c->SetPosY(y);
-
-			if (c->GetDebugName() == "TESTERO")
-			{
-				int a = 5;
-			}
-
 			const float incrementSize = m_props.direction == DirectionOrientation::Horizontal ? c->GetSizeX() : c->GetSizeY();
 			const bool	lastItem	  = idx == m_children.size() - 1;
 
@@ -193,7 +190,7 @@ namespace Lina
 		if (m_props.dropShadowBackground)
 		{
 			Color ds = Theme::GetDef().black;
-			ds.w	 = 0.5f;
+			ds.w	 = 0.25f;
 			WidgetUtility::DrawDropShadowRect(threadIndex, m_rect, m_drawOrder, ds, 6);
 		}
 
@@ -228,14 +225,12 @@ namespace Lina
 			LinaVG::DrawRect(threadIndex, Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
 		}
 
+		const Vector2 start = GetStartFromMargins();
+		const Vector2 end	= GetEndFromMargins();
+
 		if (m_props.clipChildren)
-		{
-			m_manager->SetClip(threadIndex, m_rect, {});
-			if (m_rect.size.x > 1.0f && m_rect.size.y > 1.0f)
-				Widget::Draw(threadIndex);
-		}
-		else
-			Widget::Draw(threadIndex);
+			m_manager->SetClip(threadIndex, Rect(start, end - start), {});
+		Widget::Draw(threadIndex);
 		if (m_props.clipChildren)
 			m_manager->UnsetClip(threadIndex);
 		Widget::DrawBorders(threadIndex);
@@ -251,18 +246,27 @@ namespace Lina
 
 	bool DirectionalLayout::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (GetIsDisabled())
+		if (!m_props.receiveInput)
 			return false;
+
+		if (button == LINAGX_MOUSE_1 && m_isHovered)
+		{
+			if (m_props.onRightClicked)
+				m_props.onRightClicked();
+
+			return true;
+		}
 
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
-		if (!m_props.receiveInput)
-			return Widget::OnMouse(button, act);
-
 		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered)
 		{
 			m_isPressed = true;
+
+			if (m_props.onPressed)
+				m_props.onPressed();
+
 			return true;
 		}
 
@@ -284,6 +288,20 @@ namespace Lina
 			}
 		}
 
-		return Widget::OnMouse(button, act);
+		return false;
+	}
+
+	float DirectionalLayout::CalculateChildrenSize()
+	{
+		float sz = 0.0f;
+		for (auto* c : m_children)
+		{
+			if (m_props.direction == DirectionOrientation::Horizontal)
+				sz += c->GetSizeX() + GetChildPadding();
+			else
+				sz += c->GetSizeY() + GetChildPadding();
+		}
+
+		return sz - GetChildPadding();
 	}
 } // namespace Lina

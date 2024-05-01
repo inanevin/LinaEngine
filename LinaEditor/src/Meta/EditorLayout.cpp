@@ -27,6 +27,16 @@ SOFTWARE.
 */
 
 #include "Editor/Meta/EditorLayout.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/Widgets/EditorRoot.hpp"
+#include "Editor/Widgets/Docking/DockArea.hpp"
+#include "Editor/Widgets/Docking/DockBorder.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/Widgets/Panel/PanelFactory.hpp"
+#include "Editor/Widgets/Panel/PanelResources.hpp"
+#include "Common/System/System.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 
 namespace Lina::Editor
 {
@@ -34,10 +44,183 @@ namespace Lina::Editor
 	{
 		uint32 version = 0;
 		in >> version;
+		VectorSerialization::LoadFromStream_OBJ(in, m_windows);
 	}
 
 	void EditorLayout::SaveToStream(OStream& out)
 	{
 		out << VERSION;
+		VectorSerialization::SaveToStream_OBJ(out, m_windows);
+	}
+
+	void EditorLayout::StoreDefaultLayout()
+	{
+		m_windows.clear();
+
+		WindowLayout wl = {};
+		wl.sid			= LINA_MAIN_SWAPCHAIN;
+
+		// Entities
+		wl.dockWidgets.push_back({
+			.alignedPos	 = Vector2::Zero,
+			.alignedSize = Vector2(0.25f, 0.75f),
+			.panels		 = {{.panelType = PanelType::Entities}},
+		});
+
+		// World
+		wl.dockWidgets.push_back({
+			.alignedPos	 = Vector2(0.25f, 0.0f),
+			.alignedSize = Vector2(0.75f, 0.75f),
+			.panels		 = {{.panelType = PanelType::World}},
+		});
+
+		// Resources
+		PanelLayoutExtra resExtra;
+		resExtra.f[0] = 0.25f;
+		resExtra.f[1] = PanelResources::MAX_CONTENTS_SIZE;
+
+		wl.dockWidgets.push_back({
+			.alignedPos	 = Vector2(0.0f, 0.75f),
+			.alignedSize = Vector2(1.0f, 0.25f),
+			.panels		 = {{.panelType = PanelType::Resources, .extraData = resExtra}},
+		});
+
+		// Border: Entities | World
+		wl.dockWidgets.push_back({
+			.alignedPos	  = Vector2(0.25f, 0.0f),
+			.alignedSize  = Vector2(0.0f, 0.75f),
+			.isBorder	  = true,
+			.isHorizontal = false,
+		});
+
+		// Border: Upper | Resources
+		wl.dockWidgets.push_back({
+			.alignedPos	  = Vector2(0.0f, 0.75f),
+			.alignedSize  = Vector2(1.0f, 0.0f),
+			.isBorder	  = true,
+			.isHorizontal = true,
+		});
+
+		m_windows.push_back(wl);
+	}
+
+	void EditorLayout::ApplyStoredLayout(Editor* editor)
+	{
+		if (m_windows.empty())
+			StoreDefaultLayout();
+
+		GfxManager* gfxMan = editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		for (const auto& windowData : m_windows)
+		{
+			Widget* panelArea = nullptr;
+			if (windowData.sid == LINA_MAIN_SWAPCHAIN)
+			{
+				panelArea = editor->GetEditorRoot()->GetPanelArea();
+
+				if (windowData.size.x != 0 && windowData.size.y != 0)
+				{
+					gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->SetPosition(windowData.position.AsLGX2I());
+					gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->AddSizeRequest(windowData.size.AsLGX2UI());
+				}
+			}
+			else
+				panelArea = editor->PrepareNewWindowToDock(windowData.sid, windowData.position, windowData.size, windowData.title);
+
+			for (const auto& dockWidget : windowData.dockWidgets)
+			{
+				if (dockWidget.isBorder)
+				{
+					DockBorder* border = panelArea->GetWidgetManager()->Allocate<DockBorder>("Border");
+					border->SetAlignedPos(dockWidget.alignedPos);
+					border->SetAlignedSize(dockWidget.alignedSize);
+					border->SetDirectionOrientation(dockWidget.isHorizontal ? DirectionOrientation::Horizontal : DirectionOrientation::Vertical);
+					border->Initialize();
+					panelArea->AddChild(border);
+				}
+				else
+				{
+					DockArea* area = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
+					area->SetAlignedPos(dockWidget.alignedPos);
+					area->SetAlignedSize(dockWidget.alignedSize);
+					area->Initialize();
+					panelArea->AddChild(area);
+
+					for (const auto& panelData : dockWidget.panels)
+					{
+						Panel* panel = PanelFactory::CreatePanel(panelArea, panelData.panelType, panelData.subData);
+						area->AddPanel(panel);
+						panel->SetExtraLayoutData(panelData.extraData);
+					}
+				}
+			}
+
+			for (size_t i = 0; i < windowData.dockWidgets.size(); i++)
+			{
+				if (windowData.dockWidgets[i].isBorder)
+					static_cast<DockBorder*>(panelArea->GetChildren()[i])->FixChildMargins();
+			}
+		}
+	}
+
+	void EditorLayout::StoreLayout(Editor* editor)
+	{
+		m_windows.clear();
+
+		GfxManager* gfxMan = editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		Vector<LinaGX::Window*> windows = editor->GetSubWindows();
+		windows.push_back(gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+
+		for (auto* w : windows)
+		{
+			Widget* windowRoot = gfxMan->GetSurfaceRenderer(static_cast<StringID>(w->GetSID()))->GetWidgetManager().GetRoot();
+
+			Vector<DockArea*> dockAreas;
+			Widget::GetWidgetsOfType<DockArea>(dockAreas, windowRoot);
+
+			if (!dockAreas.empty())
+			{
+				WindowLayout wl = {};
+				wl.sid			= static_cast<StringID>(w->GetSID());
+				wl.position		= w->GetPosition();
+				wl.size			= w->GetSize();
+				wl.title		= w->GetTitle();
+
+				for (auto* area : dockAreas)
+				{
+					DockWidgetData dwd = {};
+					dwd.alignedPos	   = area->GetAlignedPos();
+					dwd.alignedSize	   = area->GetAlignedSize();
+					dwd.isBorder	   = false;
+
+					for (auto* panel : area->GetPanels())
+					{
+						PanelData pd = {};
+						pd.panelType = panel->GetType();
+						pd.subData	 = panel->GetSubData();
+						pd.extraData = panel->GetExtraLayoutData();
+						dwd.panels.push_back(pd);
+					}
+
+					wl.dockWidgets.push_back(dwd);
+				}
+
+				Vector<DockBorder*> borders;
+				Widget::GetWidgetsOfType<DockBorder>(borders, windowRoot);
+
+				for (auto* border : borders)
+				{
+					DockWidgetData dwd = {};
+					dwd.alignedPos	   = border->GetAlignedPos();
+					dwd.alignedSize	   = border->GetAlignedSize();
+					dwd.isBorder	   = true;
+					dwd.isHorizontal   = border->GetDirectionOrientation() == DirectionOrientation::Horizontal;
+					wl.dockWidgets.push_back(dwd);
+				}
+
+				m_windows.push_back(wl);
+			}
+		}
 	}
 } // namespace Lina::Editor
