@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Common/Math/Math.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -62,11 +61,7 @@ namespace Lina::Editor
 
 	void DockBorder::PreTick()
 	{
-		// Hax :)
-		if (m_tick < 2)
-			m_tick++;
-		else if (m_tick == 2)
-			FixChildMargins();
+		Widget::PreTick();
 
 		if (m_isPressed)
 		{
@@ -80,14 +75,17 @@ namespace Lina::Editor
 				const float desiredYPos = mousePosition.y - m_pressDiff;
 				const float deltaYPos	= desiredYPos - GetPosY();
 				const float deltaPerc	= deltaYPos / m_parent->GetSizeY();
-				const float percAmt		= Math::Abs(deltaPerc);
+				// const float deltaPerc = perc.y - m_alignedPos.y;
+				const float percAmt = Math::Abs(deltaPerc);
 
-				Vector<Widget*>* negativeDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Top)];
-				Vector<Widget*>* positiveDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Bottom)];
+				LINA_TRACE("DESIRED Y {0} DESIRED ALIGN Y {1}", desiredYPos, ((desiredYPos - m_parent->GetPosY()) / m_parent->GetSizeY()));
+
+				Vector<DockWidget*>* negativeDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Top)];
+				Vector<DockWidget*>* positiveDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Bottom)];
 
 				if (deltaPerc > 0.0f)
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets(*positiveDockWidgets, percAmt, false, DOCKED_MIN_SIZE))
+					if (CheckIfCanShrinkWidgets(*positiveDockWidgets, percAmt, false))
 					{
 						for (auto* a : *positiveDockWidgets)
 						{
@@ -103,7 +101,7 @@ namespace Lina::Editor
 				}
 				else
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets(*negativeDockWidgets, percAmt, false, DOCKED_MIN_SIZE))
+					if (CheckIfCanShrinkWidgets(*negativeDockWidgets, percAmt, false))
 					{
 						for (auto* a : *negativeDockWidgets)
 							a->AddAlignedSizeY(-percAmt);
@@ -130,12 +128,12 @@ namespace Lina::Editor
 				if (Math::Equals(percAmt, 0.0f, 0.0001f))
 					return;
 
-				Vector<Widget*>* negativeDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Left)];
-				Vector<Widget*>* positiveDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Right)];
+				Vector<DockWidget*>* negativeDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Left)];
+				Vector<DockWidget*>* positiveDockWidgets = &m_adjacentWidgets[static_cast<int32>(Direction::Right)];
 
 				if (deltaPerc > 0.0f)
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets(*positiveDockWidgets, percAmt, true, DOCKED_MIN_SIZE))
+					if (CheckIfCanShrinkWidgets(*positiveDockWidgets, percAmt, true))
 					{
 						for (auto* a : *positiveDockWidgets)
 						{
@@ -150,7 +148,7 @@ namespace Lina::Editor
 				}
 				else
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets(*negativeDockWidgets, percAmt, true, DOCKED_MIN_SIZE))
+					if (CheckIfCanShrinkWidgets(*negativeDockWidgets, percAmt, true))
 					{
 						for (auto* a : *negativeDockWidgets)
 							a->AddAlignedSizeX(-percAmt);
@@ -170,7 +168,7 @@ namespace Lina::Editor
 	void DockBorder::Draw(int32 threadIndex)
 	{
 		// LinaVG::StyleOptions opts;
-		// opts.color = Theme::GetDef().background0.AsLVG4();
+		// opts.color = Theme::GetDef().accentWarn.AsLVG4();
 		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 
 		// Debug Draw Bounds Test Rectangles
@@ -206,7 +204,7 @@ namespace Lina::Editor
 	{
 		FindAdjacentWidgets();
 
-		Vector<Widget*>& targetVec = m_adjacentWidgets[static_cast<int32>(dir)];
+		Vector<DockWidget*>& targetVec = m_adjacentWidgets[static_cast<int32>(dir)];
 
 		if (m_orientation == DirectionOrientation::Horizontal && dir != Direction::Top && dir != Direction::Bottom)
 			return false;
@@ -221,6 +219,24 @@ namespace Lina::Editor
 		}
 
 		return false;
+	}
+
+	bool DockBorder::CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX)
+	{
+		for (auto* w : widgets)
+		{
+			if (isX)
+			{
+				if (m_parent->GetSizeX() * (w->GetAlignedSizeX() - absAmount) < DOCKED_MIN_SIZE)
+					return false;
+			}
+			else
+			{
+				if (m_parent->GetSizeY() * (w->GetAlignedSizeY() - absAmount) < DOCKED_MIN_SIZE)
+					return false;
+			}
+		}
+		return true;
 	}
 
 	void DockBorder::FixChildMargins()

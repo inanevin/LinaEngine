@@ -36,9 +36,6 @@ namespace Lina
 {
 	void ColorField::Draw(int32 threadIndex)
 	{
-		if (!GetIsVisible())
-			return;
-
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (m_props.value == nullptr)

@@ -57,7 +57,6 @@ namespace Lina
 			HashMap<StringID, ShaderVariant> variants;
 			RenderPassDescriptorType		 renderPassDescriptorType	  = RenderPassDescriptorType::Basic;
 			uint32							 descriptorSetAllocationCount = 1;
-			bool							 drawIndirectEnabled		  = false;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
@@ -109,6 +108,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
+		virtual void Flush() override;
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);

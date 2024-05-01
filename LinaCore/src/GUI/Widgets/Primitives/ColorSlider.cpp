@@ -64,18 +64,16 @@ namespace Lina
 
 	void ColorSlider::Draw(int32 threadIndex)
 	{
-		if (!GetIsVisible())
-			return;
-
-		int32 drawOrder = (m_props.drawCheckeredBackground || m_props.isHueShift) ? m_drawOrder + 1 : m_drawOrder;
+		int32 drawOrder = m_drawOrder;
 
 		const bool			 hasControls = m_manager->GetControlsOwner() == this;
 		LinaVG::StyleOptions opts;
 		opts.rounding				  = m_props.rounding;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = Color(0.0f, 0.0f, 0.0f, 0.0f).AsLVG4();
+		opts.color					  = m_props.colorBackground.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, drawOrder);
+		drawOrder++;
 
 		const Vector2 bump = Vector2(m_props.outlineThickness, m_props.outlineThickness);
 		if (m_props.drawCheckeredBackground)
@@ -84,7 +82,8 @@ namespace Lina
 			checkered.color			  = Color::White.AsLVG4();
 			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED;
 			checkered.textureUVTiling = Vector2(m_rect.size.x / 256.0f, m_rect.size.y / 256.0f).AsLVG();
-			LinaVG::DrawRect(threadIndex, (m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), checkered, 0.0f, m_drawOrder);
+			LinaVG::DrawRect(threadIndex, (m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), checkered, 0.0f, drawOrder);
+			drawOrder++;
 		}
 
 		LinaVG::StyleOptions colorOpts;
@@ -96,7 +95,8 @@ namespace Lina
 			colorOpts.color.end			 = m_props.colorEnd.AsLVG4();
 			colorOpts.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		}
-		LinaVG::DrawRect(threadIndex, (m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), colorOpts, 0.0f, m_props.isHueShift ? m_drawOrder : drawOrder);
+		LinaVG::DrawRect(threadIndex, (m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), colorOpts, 0.0f, drawOrder);
+		drawOrder++;
 
 		if (m_props.value == nullptr)
 			return;

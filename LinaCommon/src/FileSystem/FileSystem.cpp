@@ -84,9 +84,9 @@ namespace Lina
 		return true;
 	}
 
-	void FileSystem::GetFilesInDirectory(const String& path, Vector<String>& outData, String extensionFilter)
+	Vector<String> FileSystem::GetFilesInDirectory(const String& path, String extensionFilter)
 	{
-		outData.clear();
+		Vector<String> paths;
 		for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
 		{
 			if (!entry.is_directory())
@@ -95,7 +95,7 @@ namespace Lina
 				{
 					String path = entry.path().string().c_str();
 					linatl::replace(path.begin(), path.end(), '\\', '/');
-					outData.push_back(path);
+					paths.push_back(path);
 				}
 				else
 				{
@@ -103,26 +103,24 @@ namespace Lina
 					if (GetFileExtension(fullpath).compare(extensionFilter))
 					{
 						linatl::replace(fullpath.begin(), fullpath.end(), '\\', '/');
-						outData.push_back(fullpath);
+						paths.push_back(fullpath);
 					}
 				}
 			}
 		}
+		return paths;
 	}
 
-	void FileSystem::GetFilesAndFoldersInDirectory(const String& path, Vector<String>& outData)
+	Vector<String> FileSystem::GetFilesAndFoldersInDirectory(const String& path)
 	{
-		outData.clear();
+		Vector<String> paths;
 		for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
 		{
-			outData.push_back(entry.path().string().c_str());
+			paths.push_back(entry.path().string().c_str());
 		}
+		return paths;
 	}
 
-	bool FileSystem::IsDirectory(const String& path)
-	{
-		return std::filesystem::is_directory(path);
-	}
 	bool FileSystem::ChangeDirectoryName(const String& oldPath, const String& newPath)
 	{
 
@@ -185,21 +183,6 @@ namespace Lina
 	String FileSystem::GetFilenameOnlyFromPath(const String& file)
 	{
 		return RemoveExtensionFromPath(GetFilenameAndExtensionFromPath(file));
-	}
-
-	String FileSystem::GetLastFolderFromPath(const String& path)
-	{
-
-		String		 fixedPath = FixPath(path);
-		const size_t lastSlash = fixedPath.find_last_of("/\\");
-
-		if (lastSlash == fixedPath.size() || lastSlash == fixedPath.size() - 1)
-			fixedPath = fixedPath.substr(0, lastSlash);
-
-		const size_t actualLast = fixedPath.find_last_of("/\\");
-		if (actualLast != String::npos)
-			fixedPath = fixedPath.substr(actualLast + 1, fixedPath.size());
-		return fixedPath;
 	}
 
 	String FileSystem::ReadFileContentsAsString(const String& filePath)

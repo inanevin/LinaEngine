@@ -75,14 +75,14 @@ namespace Lina
 		WidgetUtility::DrawDropShadowRect(threadIndex, m_rect, m_drawOrder, ds, 6);
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		//	m_manager->SetClip(threadIndex, m_rect, {});
+		m_manager->SetClip(threadIndex, m_rect, {});
 		uint32 idx = 0;
 		for (auto* c : m_children)
 		{
 			c->SetChildID(idx);
 			c->Draw(threadIndex);
 		}
-		//	m_manager->UnsetClip(threadIndex);
+		m_manager->UnsetClip(threadIndex);
 	}
 
 } // namespace Lina

@@ -28,10 +28,9 @@ SOFTWARE.
 
 #include "Editor/Editor.hpp"
 #include "Core/Application.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
-#include "Core/World/EntityWorld.hpp"
-#include "Editor/Meta/ProjectData.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
@@ -65,7 +64,8 @@ namespace Lina::Editor
 
 	void Editor::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		m_fileManager.Initialize(this);
+		m_settings.Initialize(this);
+		m_layout.Initialize(this);
 
 		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
@@ -85,7 +85,9 @@ namespace Lina::Editor
 		// Load editor settings or create and save empty if non-existing.
 		const String userDataFolder = FileSystem::GetUserDataFolder();
 		const String settingsPath	= userDataFolder + "EditorSettings.linameta";
+		const String layoutPath		= userDataFolder + "EditorLayout.linameta";
 		m_settings.SetPath(settingsPath);
+		m_layout.SetPath(layoutPath);
 		if (!FileSystem::FileOrPathExists(userDataFolder))
 			FileSystem::CreateFolderInPath(userDataFolder);
 
@@ -93,6 +95,11 @@ namespace Lina::Editor
 			m_settings.LoadFromFile();
 		else
 			m_settings.SaveToFile();
+
+		if (FileSystem::FileOrPathExists(layoutPath))
+			m_layout.LoadFromFile();
+		else
+			m_layout.SaveToFile();
 	}
 
 	void Editor::PreTick()
@@ -143,7 +150,6 @@ namespace Lina::Editor
 				{
 					if (l->OnPayloadDropped(m_payloadRequest.type, m_payloadRequest.payload))
 					{
-						l->OnPayloadGetWindow()->BringToFront();
 						received = true;
 						break;
 					}
@@ -155,24 +161,18 @@ namespace Lina::Editor
 				if (!received)
 				{
 					m_payloadRequest.payload->GetParent()->RemoveChild(m_payloadRequest.payload);
-					m_payloadRequest.sourceWindow->BringToFront();
 
 					if (m_payloadRequest.type == PayloadType::DockedPanel)
 					{
+						LINA_TRACE("INAN PAYLOAD NOT ACCEPTED, FORMING OWN WINDOW");
 						Panel* panel = static_cast<Panel*>(m_payloadRequest.payload);
 						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
 						panel->SetAlignedPosX(0.0f);
 						panel->SetAlignedSize(Vector2(1.0f, 0.0f));
 						panel->SetAlignedPos(Vector2::Zero);
-						Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, mp, panel->GetSize(), panel->GetDebugName());
-
-						DockArea* dockArea = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
-						dockArea->SetAlignedPos(Vector2::Zero);
-						dockArea->SetAlignedSize(Vector2::One);
-						panelArea->AddChild(dockArea);
-
-						dockArea->AddPanel(panel);
+						DockArea* area = PrepareNewWindowToDock(m_subWindowCounter++, mp, panel->GetSize(), panel->GetDebugName());
+						area->AddPanel(panel);
 					}
 					else
 						m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
@@ -192,8 +192,8 @@ namespace Lina::Editor
 		root->GetWidgetManager()->Deallocate(splash);
 
 		// Resize window to work dims.
-		m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
-		m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
+		// m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
+		// m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
 
 		// Testbed* tb = root->GetWidgetManager()->Allocate<Testbed>();
 		//// DockTestbed* tb = root->GetWidgetManager()->Allocate<DockTestbed>();
@@ -210,25 +210,6 @@ namespace Lina::Editor
 			OpenProject(m_settings.GetLastProjectPath());
 		else
 			OpenPopupProjectSelector(false);
-
-		m_settings.GetLayout().ApplyStoredLayout(this);
-	}
-
-	void Editor::PreShutdown()
-	{
-		m_fileManager.Shutdown();
-
-		for (auto* w : m_subWindows)
-			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
-
-		m_subWindows.clear();
-
-		m_settings.SaveToFile();
-		RemoveCurrentProject();
-	}
-
-	void Editor::Shutdown()
-	{
 	}
 
 	void Editor::OpenPopupProjectSelector(bool canCancel, bool openCreateFirst)
@@ -240,25 +221,19 @@ namespace Lina::Editor
 
 		// When we select a project to open -> ask if we want to save current one if its dirty.
 		projectSelector->GetProps().onProjectOpened = [this](const String& location) {
-			if (m_currentProject && m_currentProject->GetIsDirty())
+			if (m_isProjectDirty)
 			{
 				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
 
-				m_primaryWidgetManager->AddToForeground(popup);
-
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [location, popup, this]() {
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [&]() {
 									  SaveProjectChanges();
 									  RemoveCurrentProject();
 									  OpenProject(location);
-									  m_primaryWidgetManager->RemoveFromForeground(popup);
-									  m_primaryWidgetManager->Deallocate(popup);
 								  }});
 
-				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [location, popup, this]() {
+				popup->AddButton({.text = Locale::GetStr(LocaleStr::No), .onClicked = [&]() {
 									  RemoveCurrentProject();
 									  OpenProject(location);
-									  m_primaryWidgetManager->RemoveFromForeground(popup);
-									  m_primaryWidgetManager->Deallocate(popup);
 								  }});
 			}
 			else
@@ -271,7 +246,7 @@ namespace Lina::Editor
 		projectSelector->GetProps().onProjectCreated = [&](const String& path) {
 			RemoveCurrentProject();
 
-			if (m_currentProject && m_currentProject->GetIsDirty())
+			if (m_isProjectDirty)
 			{
 				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
 
@@ -294,10 +269,9 @@ namespace Lina::Editor
 
 	void Editor::SaveProjectChanges()
 	{
-		SaveSettings();
-
-		m_currentProject->SetDirty(false);
+		m_isProjectDirty = false;
 		m_currentProject->SaveToFile();
+		m_settings.SaveToFile();
 	}
 
 	void Editor::CreateEmptyProjectAndOpen(const String& path)
@@ -323,35 +297,16 @@ namespace Lina::Editor
 		LINA_ASSERT(m_currentProject == nullptr, "");
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
-		m_currentProject->Initialize(this);
 		m_currentProject->LoadFromFile();
 		m_editorRoot->SetProjectName(m_currentProject->GetProjectName());
 
 		m_settings.SetLastProjectPath(projectFile);
 		m_settings.SaveToFile();
-		m_fileManager.SetProjectDirectory(FileSystem::GetFilePath(projectFile));
-		m_fileManager.RefreshResources();
-
-		const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
-		if (FileSystem::FileOrPathExists(lastWorldPath))
-			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->InstallWorld(lastWorldPath);
 	}
 
 	void Editor::RequestExit()
 	{
-		SaveSettings();
-
 		m_system->GetApp()->Quit();
-	}
-
-	void Editor::SaveSettings()
-	{
-		auto* loadedWorld = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetMainWorld();
-		if (loadedWorld)
-			m_settings.SetLastWorldAbsPath(loadedWorld->GetPath());
-
-		m_settings.GetLayout().StoreLayout(this);
-		m_settings.SaveToFile();
 	}
 
 	void Editor::AddPayloadListener(EditorPayloadListener* listener)
@@ -362,15 +317,6 @@ namespace Lina::Editor
 	void Editor::RemovePayloadListener(EditorPayloadListener* listener)
 	{
 		m_payloadListeners.erase(linatl::find(m_payloadListeners.begin(), m_payloadListeners.end(), listener));
-	}
-
-	void Editor::CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size)
-	{
-		m_payloadRequest.active		  = true;
-		m_payloadRequest.payload	  = payload;
-		m_payloadRequest.type		  = type;
-		m_payloadRequest.size		  = size;
-		m_payloadRequest.sourceWindow = payload->GetWindow();
 	}
 
 	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
@@ -417,19 +363,13 @@ namespace Lina::Editor
 		else
 			pos = m_mainWindow->GetPosition();
 
-		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "");
-
-		DockArea* dock = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
-		dock->SetAlignedPos(Vector2::Zero);
-		dock->SetAlignedSize(Vector2::One);
-		panelArea->AddChild(dock);
-
-		Panel* panel = PanelFactory::CreatePanel(dock, type, subData);
+		DockArea* dock	= PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "Lina Editor");
+		Panel*	  panel = PanelFactory::CreatePanel(dock, type, subData);
 		dock->GetWindow()->SetTitle(panel->GetDebugName());
 		dock->AddPanel(panel);
 	}
 
-	Widget* Editor::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
+	DockArea* Editor::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
 	{
 		const Vector2	usedSize = size.Clamp(m_editorRoot->GetMonitorSize() * 0.1f, m_editorRoot->GetMonitorSize());
 		LinaGX::Window* window	 = m_gfxManager->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
@@ -462,18 +402,24 @@ namespace Lina::Editor
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
 		layout->AddChild(panelArea);
 
-		return panelArea;
-	}
+		DockArea* dockArea = newWindowRoot->GetWidgetManager()->Allocate<DockArea>("DockArea");
+		dockArea->SetAlignedPos(Vector2::Zero);
+		dockArea->SetAlignedSize(Vector2::One);
+		panelArea->AddChild(dockArea);
 
-	void Editor::CloseAllSubwindows()
-	{
-		for (auto* w : m_subWindows)
-			CloseWindow(static_cast<StringID>(w->GetSID()));
+		return dockArea;
 	}
-
 	void Editor::CloseWindow(StringID sid)
 	{
 		m_windowCloseRequests.push_back(sid);
+	}
+
+	void Editor::CreatePayload(Widget* payload, PayloadType type)
+	{
+		m_payloadRequest.active	 = true;
+		m_payloadRequest.payload = payload;
+		m_payloadRequest.type	 = type;
+		m_payloadRequest.size	 = payload->GetWindow()->GetSize();
 	}
 
 } // namespace Lina::Editor

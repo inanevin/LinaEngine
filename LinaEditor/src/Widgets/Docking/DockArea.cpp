@@ -48,18 +48,18 @@ namespace Lina::Editor
 
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_SKIP_FLOORING);
 
-		m_layout					   = m_manager->Allocate<DirectionalLayout>("DockVerticalLayout");
+		m_layout					   = m_manager->Allocate<DirectionalLayout>("DockAreaBaseLayout");
 		m_layout->GetProps().direction = DirectionOrientation::Vertical;
 		m_layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_layout->SetAlignedPos(Vector2::Zero);
 		m_layout->SetAlignedSize(Vector2::One);
 
-		m_tabRow = m_manager->Allocate<TabRow>("DockTabRow");
+		m_tabRow = m_manager->Allocate<TabRow>("DockAreaTabRow");
 		m_tabRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_tabRow->SetAlignedPos(Vector2::Zero);
 		m_tabRow->SetAlignedSizeX(1.0f);
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
-
+		// m_tabRow->GetProps().cantCloseSingleTab = m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN;
 		m_tabRow->GetProps().onTabClosed = [this, editor](Widget* w) {
 			RemovePanel(static_cast<Panel*>(w));
 			m_manager->Deallocate(w);
@@ -75,13 +75,14 @@ namespace Lina::Editor
 		m_tabRow->GetProps().onTabDockedOut = [this, editor](Widget* w) {
 			RemovePanel(static_cast<Panel*>(w));
 
+			if (m_panels.empty())
+			{
+			}
 			// If only child
-			if (m_panels.empty() && m_parent->GetChildren().size() == 1)
+			if (m_parent->GetChildren().size() == 1)
 				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
-			else if (m_panels.empty())
-				RemoveArea();
 
-			editor->CreatePayload(w, PayloadType::DockedPanel, w->GetWindow()->GetSize());
+			editor->CreatePayload(w, PayloadType::DockedPanel);
 		};
 
 		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) { SetSelected(w); };
@@ -162,17 +163,6 @@ namespace Lina::Editor
 		if (m_parent == nullptr)
 			return;
 
-		if (m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN && m_panels.size() == 1 && m_parent->GetChildren().size() == 1)
-		{
-			if (m_tabRow->GetCanCloseTabs())
-				m_tabRow->SetCanCloseTabs(false);
-		}
-		else
-		{
-			if (!m_tabRow->GetCanCloseTabs())
-				m_tabRow->SetCanCloseTabs(true);
-		}
-
 		// Omit tab row.
 		// if (m_selectedChildren == nullptr && m_children.size() == 2)
 		// 	m_selectedChildren = m_children[1];
@@ -199,15 +189,23 @@ namespace Lina::Editor
 
 	void DockArea::Draw(int32 threadIndex)
 	{
+		// LinaVG::StyleOptions background;
+		// background.color = Theme::GetDef().background1.AsLVG4();
+		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, m_drawOrder);
+		// m_tabRow->Draw(threadIndex);
 
-		m_tabRow->Draw(threadIndex);
+		m_layout->Draw(threadIndex);
+
+		m_manager->SetClip(threadIndex, m_rect, {});
 
 		if (m_selectedPanel)
 		{
 			const Color ds = Color(Theme::GetDef().black.x, Theme::GetDef().black.y, Theme::GetDef().black.z, 0.5f);
-			WidgetUtility::DrawDropShadow(threadIndex, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder, ds, 6);
+			WidgetUtility::DrawDropShadow(threadIndex, m_selectedPanel->GetRect().pos, Vector2(m_selectedPanel->GetRect().GetEnd().x, m_selectedPanel->GetPosY()), m_drawOrder + 1, ds, 6);
 			m_selectedPanel->Draw(threadIndex);
 		}
+
+		m_manager->UnsetClip(threadIndex);
 
 		if (m_preview)
 			m_preview->Draw(threadIndex);
@@ -267,7 +265,6 @@ namespace Lina::Editor
 				payload->GetFlags().Remove(WF_POS_ALIGN_Y);
 				payload->GetParent()->RemoveChild(payload);
 				AddDockArea(hoveredDir, static_cast<Panel*>(payload));
-				m_lgxWindow->BringToFront();
 				return true;
 			}
 		}
@@ -379,10 +376,10 @@ namespace Lina::Editor
 		FindAdjacentWidgets();
 
 		// Fill adjacency information for all.
-		Vector<Widget*> widgets;
+		Vector<DockWidget*> widgets;
 		DockWidget::GetOtherDockWidgets(widgets, {GetTypeID<DockArea>(), GetTypeID<DockBorder>()});
 		for (auto* w : widgets)
-			static_cast<DockWidget*>(w)->FindAdjacentWidgets();
+			w->FindAdjacentWidgets();
 
 		// For all my neighbors, check if I am the only neighbor in the opposite direction.
 		for (int32 i = 0; i < 4; i++)
@@ -393,10 +390,10 @@ namespace Lina::Editor
 			bool found	  = false;
 			bool skipSide = false;
 
-			Vector<Widget*> widgetsToExpand;
+			Vector<DockWidget*> widgetsToExpand;
 			for (auto* w : m_adjacentWidgets[i])
 			{
-				const Vector<Widget*>& oppositeAreas = static_cast<DockWidget*>(w)->GetAdjacentWidgets(static_cast<int32>(oppositeDirection));
+				const Vector<DockWidget*>& oppositeAreas = w->GetAdjacentWidgets(static_cast<int32>(oppositeDirection));
 
 				if (oppositeAreas.size() == 1 && oppositeAreas[0] == this)
 				{
@@ -417,7 +414,7 @@ namespace Lina::Editor
 			if (found)
 			{
 				// Handle border.
-				Vector<Widget*> borders;
+				Vector<DockWidget*> borders;
 				DockWidget::GetOtherDockWidgets(borders, {GetTypeID<DockBorder>()});
 				for (auto* w : borders)
 				{
@@ -444,7 +441,7 @@ namespace Lina::Editor
 		FixAreaChildMargins();
 	}
 
-	void DockArea::ExpandWidgetsToMyPlace(const Vector<Widget*>& widgets, Direction directionOfAreas)
+	void DockArea::ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas)
 	{
 		for (auto* w : widgets)
 		{
@@ -474,13 +471,13 @@ namespace Lina::Editor
 
 		// Reset first
 		GetChildMargins() = {};
-		Vector<Widget*> areas;
+		Vector<DockWidget*> areas;
 		DockWidget::GetOtherDockWidgets(areas, {GetTypeID<DockArea>()});
 		for (auto* a : areas)
 			a->GetChildMargins() = {};
 
 		// Let borders handle.
-		Vector<Widget*> borders;
+		Vector<DockWidget*> borders;
 		DockWidget::GetOtherDockWidgets(borders, {GetTypeID<DockBorder>()});
 		for (auto* w : borders)
 			static_cast<DockBorder*>(w)->FixChildMargins();

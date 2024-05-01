@@ -278,12 +278,6 @@ namespace Lina
 		{
 			return ::rand();
 		}
-
-		static int32 Rand(int32 min, int32 max)
-		{
-			return (int32)Lerp((float)min, (float)max, RandF());
-		}
-
 		static void SeedRand(int32 seed)
 		{
 			srand((uint32)seed);

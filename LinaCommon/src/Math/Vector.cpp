@@ -427,15 +427,6 @@ namespace Lina
 
 	//////////////////////////////////////////////
 
-	Vector2ui Vector2ui::Min(const Vector2ui& other) const
-	{
-		return Vector2ui(Math::Min(x, other.x), Math::Min(y, other.y));
-	}
-
-	Vector2ui Vector2ui::Max(const Vector2ui& other) const
-	{
-		return Vector2ui(Math::Max(x, other.x), Math::Max(y, other.y));
-	}
 	bool Vector2ui::Equals(const Vector2ui& other) const
 	{
 		return x == other.x && y == other.y;

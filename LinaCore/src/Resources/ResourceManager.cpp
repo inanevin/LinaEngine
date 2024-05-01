@@ -72,7 +72,7 @@ namespace Lina
 		stream.Destroy();
 	}
 
-	int32 ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers, Delegate<void()>&& onLoaded)
+	int32 ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers)
 	{
 		if (identifiers.empty())
 		{
@@ -84,7 +84,6 @@ namespace Lina
 		loadTask->id					 = m_loadTaskCounter;
 		loadTask->identifiers			 = identifiers;
 		loadTask->startTime				 = PlatformTime::GetCPUCycles();
-		loadTask->onLoaded				 = onLoaded;
 		m_loadTasks[m_loadTaskCounter++] = loadTask;
 
 		if (m_mode == ResourceManagerMode::File)
@@ -104,6 +103,7 @@ namespace Lina
 					{
 						IStream input = Serialization::LoadFromFile(metacachePath.c_str());
 						res->LoadFromStream(input);
+						res->Upload();
 						input.Destroy();
 					}
 					else
@@ -124,6 +124,7 @@ namespace Lina
 						res->m_resourceManager = this;
 						res->m_tag			   = ident.tag;
 						res->LoadFromFile(ident.path.c_str());
+						res->Upload();
 
 						OStream metastream;
 						res->SaveToStream(metastream);
@@ -138,6 +139,8 @@ namespace Lina
 					data.uintParams[0]		= ident.sid;
 					data.uintParams[1]		= ident.tid;
 					m_system->DispatchEvent(EVS_ResourceLoaded, data);
+
+					res->Flush();
 				});
 			}
 		}
@@ -165,6 +168,8 @@ namespace Lina
 					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
 					res->m_tag		= ident.tag;
 					res->LoadFromStream(load);
+					res->Upload();
+					res->Flush();
 
 					Event data;
 					data.pParams[0]	   = &ident.path;
@@ -206,9 +211,6 @@ namespace Lina
 		m_executor.Run(loadTask->tf, [loadTask]() {
 			loadTask->isCompleted.store(true);
 			loadTask->endTime = PlatformTime::GetCPUCycles();
-
-			if (loadTask->onLoaded)
-				loadTask->onLoaded();
 		});
 
 		return loadTask->id;

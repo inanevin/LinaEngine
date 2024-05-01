@@ -28,8 +28,6 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Rect.hpp"
 #include "Common/Math/Math.hpp"
@@ -139,71 +137,13 @@ namespace Lina
 	{
 		DirectionalLayout* popup = source->GetWidgetManager()->Allocate<DirectionalLayout>("PopupLayout");
 		popup->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_SIZE_Y_TOTAL_CHILDREN);
-		popup->GetChildMargins()		   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
-		popup->GetProps().backgroundStyle  = DirectionalLayout::BackgroundStyle::Default;
-		popup->GetProps().direction		   = DirectionOrientation::Vertical;
-		popup->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-		popup->GetProps().colorOutline	   = Theme::GetDef().silent0;
+		popup->GetChildMargins()			   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
+		popup->GetProps().backgroundStyle	   = DirectionalLayout::BackgroundStyle::Default;
+		popup->GetProps().direction			   = DirectionOrientation::Vertical;
+		popup->GetProps().dropShadowBackground = true;
+		popup->GetProps().backgroundAnimation  = true;
+		popup->GetProps().clipChildren		   = true;
 		return popup;
-	}
-
-	bool WidgetUtility::CheckIfCanShrinkWidgets(const Vector<Widget*>& widgets, float absAmount, bool isX, float minSize)
-	{
-		for (auto* w : widgets)
-		{
-			if (isX)
-			{
-				if (w->GetParent()->GetSizeX() * (w->GetAlignedSizeX() - absAmount) < minSize)
-					return false;
-			}
-			else
-			{
-				if (w->GetParent()->GetSizeY() * (w->GetAlignedSizeY() - absAmount) < minSize)
-					return false;
-			}
-		}
-		return true;
-	}
-
-	Text* WidgetUtility::BuildEditableText(Widget* source, bool horizontal, Delegate<void()>&& onTextChanged)
-	{
-		Text* txt = source->GetWidgetManager()->Allocate<Text>("EditableText");
-
-		txt->GetProps().onClicked = [onTextChanged, horizontal, source, txt]() {
-			InputField* inp = source->GetWidgetManager()->Allocate<InputField>();
-			inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
-			inp->GetText()->GetProps().text = txt->GetProps().text;
-			inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			inp->SetSizeX(txt->GetSizeX() * 2);
-			inp->Initialize();
-
-			if (horizontal)
-			{
-				inp->SetPosX(txt->GetPosX());
-				inp->SetPosY(txt->GetParent()->GetPosY());
-			}
-			else
-			{
-				inp->SetPosX(txt->GetParent()->GetRect().GetCenter().x - inp->GetHalfSizeX());
-				inp->SetPosY(txt->GetPosY());
-			}
-
-			inp->GetProps().onEditEnd = [onTextChanged, inp, txt, source](const String& str) {
-				txt->GetProps().text = str;
-				txt->CalculateTextSize();
-				source->GetWidgetManager()->RemoveFromForeground(inp);
-				source->GetWidgetManager()->Deallocate(inp);
-
-				if (onTextChanged)
-					onTextChanged();
-			};
-
-			source->GetWidgetManager()->AddToForeground(inp);
-			inp->StartEditing();
-			inp->SelectAll();
-		};
-
-		return txt;
 	}
 
 } // namespace Lina

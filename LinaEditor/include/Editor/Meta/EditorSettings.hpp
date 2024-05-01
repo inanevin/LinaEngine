@@ -30,10 +30,10 @@ SOFTWARE.
 
 #include "Common/Data/String.hpp"
 #include "Common/Serialization/Serializable.hpp"
-#include "EditorLayout.hpp"
 
 namespace Lina::Editor
 {
+	class Editor;
 
 	class EditorSettings : public Serializable
 	{
@@ -41,6 +41,14 @@ namespace Lina::Editor
 		static constexpr uint32 VERSION = 0;
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
+
+		EditorSettings()		  = default;
+		virtual ~EditorSettings() = default;
+
+		void Initialize(Editor* editor)
+		{
+			m_editor = editor;
+		}
 
 		inline const String& GetLastProjectPath() const
 		{
@@ -52,25 +60,9 @@ namespace Lina::Editor
 			m_lastProjectPath = path;
 		}
 
-		inline const String& GetLastWorldAbsPath() const
-		{
-			return m_lastWorldAbsPath;
-		}
-
-		inline void SetLastWorldAbsPath(const String& path)
-		{
-			m_lastWorldAbsPath = path;
-		}
-
-		inline EditorLayout& GetLayout()
-		{
-			return m_layout;
-		}
-
 	private:
-		String		 m_lastProjectPath	= "";
-		String		 m_lastWorldAbsPath = "";
-		EditorLayout m_layout;
+		String	m_lastProjectPath = "";
+		Editor* m_editor		  = nullptr;
 	};
 
 } // namespace Lina::Editor

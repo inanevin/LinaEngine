@@ -40,26 +40,24 @@ namespace Lina
 	{
 	public:
 		// Path
-		static bool	  DeleteFileInPath(const String& path);
-		static bool	  CreateFolderInPath(const String& path);
-		static bool	  DeleteDirectory(const String& path);
-		static void	  GetFilesInDirectory(const String& path, Vector<String>& outData, String extensionFilter = "");
-		static void	  GetFilesAndFoldersInDirectory(const String& path, Vector<String>& outData);
-		static bool	  IsDirectory(const String& path);
-		static bool	  ChangeDirectoryName(const String& oldPath, const String& newPath);
-		static bool	  FileOrPathExists(const String& path);
-		static String GetFilePath(const String& fileName);
-		static String RemoveExtensionFromPath(const String& filename);
-		static String GetFilenameAndExtensionFromPath(const String& filename);
-		static String GetFileExtension(const String& file);
-		static String GetFilenameOnlyFromPath(const String& file);
-		static String GetLastFolderFromPath(const String& path);
-		static String ReadFileContentsAsString(const String& filePath);
-		static void	  ReadFileContentsToVector(const String& filePath, Vector<char>& vec);
-		static String GetRunningDirectory();
-		static String RemoveWhitespaces(const String& str);
-		static String GetUserDataFolder();
-		static String FixPath(const String& str);
+		static bool			  DeleteFileInPath(const String& path);
+		static bool			  CreateFolderInPath(const String& path);
+		static bool			  DeleteDirectory(const String& path);
+		static Vector<String> GetFilesInDirectory(const String& path, String extensionFilter = "");
+		static Vector<String> GetFilesAndFoldersInDirectory(const String& path);
+		static bool			  ChangeDirectoryName(const String& oldPath, const String& newPath);
+		static bool			  FileOrPathExists(const String& path);
+		static String		  GetFilePath(const String& fileName);
+		static String		  RemoveExtensionFromPath(const String& filename);
+		static String		  GetFilenameAndExtensionFromPath(const String& filename);
+		static String		  GetFileExtension(const String& file);
+		static String		  GetFilenameOnlyFromPath(const String& file);
+		static String		  ReadFileContentsAsString(const String& filePath);
+		static void			  ReadFileContentsToVector(const String& filePath, Vector<char>& vec);
+		static String		  GetRunningDirectory();
+		static String		  RemoveWhitespaces(const String& str);
+		static String		  GetUserDataFolder();
+		static String		  FixPath(const String& str);
 
 		// File and folder
 		static bool	  FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem);

@@ -84,7 +84,6 @@ namespace Lina
 		int32					   id		   = 0;
 		uint64					   startTime   = 0;
 		uint64					   endTime	   = 0;
-		Delegate<void()>		   onLoaded;
 	};
 
 	enum class ResourceOwner

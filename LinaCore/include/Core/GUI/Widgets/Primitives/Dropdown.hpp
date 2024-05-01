@@ -40,7 +40,7 @@ namespace Lina
 	class Dropdown : public Widget
 	{
 	public:
-		Dropdown() : Widget(WF_CONTROLLABLE)
+		Dropdown() : Widget(2, WF_SELECTABLE)
 		{
 		}
 		virtual ~Dropdown() = default;
@@ -53,8 +53,8 @@ namespace Lina
 			Color															 colorHovered				= Theme::GetDef().background2;
 			Color															 colorOutline				= Theme::GetDef().outlineColorBase;
 			Color															 colorOutlineControls		= Theme::GetDef().outlineColorControls;
-			Color															 colorIconBackgroundStart	= Theme::GetDef().accentPrimary1;
-			Color															 colorIconBackgroundEnd		= Theme::GetDef().accentPrimary0;
+			Color															 colorIconBackgroundStart	= Theme::GetDef().accentPrimary0;
+			Color															 colorIconBackgroundEnd		= Theme::GetDef().accentPrimary1;
 			Color															 colorIconBackgroundHovered = Theme::GetDef().accentPrimary2;
 			float															 rounding					= Theme::GetDef().baseRounding;
 			float															 outlineThickness			= Theme::GetDef().baseOutlineThickness;

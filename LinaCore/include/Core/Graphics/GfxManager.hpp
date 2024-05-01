@@ -46,22 +46,20 @@ class PoolAllocator;
 namespace Lina
 {
 	class SurfaceRenderer;
-	class WorldRenderer;
 	class ResourceManager;
 	class GUIBackend;
-	class EntityWorld;
 
-	class GfxManager : public Subsystem, public LinaGX::WindowListener
+	class GfxManager : public Subsystem
 	{
+
 	private:
 		struct PerFrameData
 		{
-			uint16		  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16		  pipelineLayoutPersistentGlobal = 0;
-			uint16		  descriptorSetPersistentGlobal	 = 0;
-			uint32		  globalDataResource			 = 0;
-			uint8*		  globalDataMapped				 = nullptr;
-			SemaphoreData worldSignalSemaphore;
+			uint16 pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16 pipelineLayoutPersistentGlobal = 0;
+			uint16 descriptorSetPersistentGlobal  = 0;
+			uint32 globalDataResource			  = 0;
+			uint8* globalDataMapped				  = nullptr;
 		};
 
 	public:
@@ -73,7 +71,6 @@ namespace Lina
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;
-		virtual void OnWindowSizeChanged(const LinaGX::LGXVector2ui& sz) override;
 
 		void			 WaitForSwapchains();
 		void			 Join();
@@ -86,10 +83,6 @@ namespace Lina
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 		PoolAllocator*	 GetGUIAllocator(TypeID tid, size_t typeSize);
 		uint32			 GetCurrentFrameIndex();
-		WorldRenderer*	 CreateWorldRenderer(EntityWorld* world, const Vector2ui& size);
-		void			 DestroyWorldRenderer(WorldRenderer* renderer);
-		WorldRenderer*	 GetWorldRenderer(EntityWorld* world);
-		void			 DestroyWorldRenderer(EntityWorld* world);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{
@@ -106,7 +99,7 @@ namespace Lina
 			return m_pfd[frameIndex].pipelineLayoutPersistentRenderpass[renderPassType];
 		}
 
-		inline MeshManager& GetMeshManager()
+		inline const MeshManager& GetMeshManager()
 		{
 			return m_meshManager;
 		}
@@ -134,7 +127,6 @@ namespace Lina
 	private:
 		ResourceUploadQueue				m_resourceUploadQueue;
 		MeshManager						m_meshManager;
-		Vector<WorldRenderer*>			m_worldRenderers;
 		Vector<SurfaceRenderer*>		m_surfaceRenderers;
 		GUIBackend*						m_guiBackend	  = nullptr;
 		ResourceManager*				m_resourceManager = nullptr;
@@ -148,7 +140,6 @@ namespace Lina
 		Mutex							m_guiAllocMutx;
 		Color							m_clearColor = Color::Black;
 		PerFrameData					m_pfd[FRAMES_IN_FLIGHT];
-		Mutex							m_wrMtx;
 	};
 } // namespace Lina
 #endif

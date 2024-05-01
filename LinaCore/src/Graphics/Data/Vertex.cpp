@@ -31,17 +31,18 @@ SOFTWARE.
 
 namespace Lina
 {
-	void VertexDefault::SaveToStream(OStream& stream) const
+	void Vertex::SaveToStream(OStream& stream)
 	{
 		pos.SaveToStream(stream);
 		normal.SaveToStream(stream);
+		color.SaveToStream(stream);
 		uv.SaveToStream(stream);
 	}
-
-	void VertexDefault::LoadFromStream(IStream& stream)
+	void Vertex::LoadFromStream(IStream& stream)
 	{
 		pos.LoadFromStream(stream);
 		normal.LoadFromStream(stream);
+		color.LoadFromStream(stream);
 		uv.LoadFromStream(stream);
 	}
 } // namespace Lina

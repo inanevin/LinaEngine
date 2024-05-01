@@ -28,74 +28,19 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/Data/String.hpp"
-#include "Common/Memory/MemoryAllocatorPool.hpp"
-
-namespace Lina
-{
-	class Texture;
-}
 namespace Lina::Editor
 {
 
 	class Editor;
 
-	struct DirectoryItem
-	{
-		bool				   isDirectory	= false;
-		String				   absolutePath = "";
-		String				   relativePath = "";
-		String				   folderName	= "";
-		String				   fileName		= "";
-		StringID			   sid			= 0;
-		TypeID				   tid			= 0;
-		String				   extension	= "";
-		Vector<DirectoryItem*> children		= {};
-		Texture*			   thumbnail	= nullptr;
-		DirectoryItem*		   parent		= nullptr;
-	};
-
 	class FileManager
 	{
 	public:
-		FileManager() : m_allocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(DirectoryItem) * 100, sizeof(DirectoryItem)){};
-
-		void		   Initialize(Editor* editor);
-		void		   Shutdown();
-		void		   RefreshResources();
-		void		   ClearResources();
-		DirectoryItem* FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot);
-
-		inline void SetProjectDirectory(const String& dir)
-		{
-			m_projectDirectory = dir;
-		}
-
-		inline DirectoryItem* GetRoot() const
-		{
-			return m_root;
-		}
+		FileManager() = delete;
+		FileManager(Editor* editor) : m_editor(editor){};
 
 	private:
-		void ScanItem(DirectoryItem* item);
-		void DeallocItem(DirectoryItem* item);
-		void ClearDirectory(DirectoryItem* item);
-		void RefreshDirectory(DirectoryItem* item);
-		void UpdateItem(DirectoryItem* item, const String& newPath, bool regenerateThumbnail);
-		void GenerateThumbnailForItem(DirectoryItem* item);
-		void FillPathInformation(DirectoryItem* item, const String& fullAbsPath);
-
-		void GenerateThumbTexture(DirectoryItem* item);
-		void GenerateThumbFont(DirectoryItem* item);
-		void GenerateThumbMaterial(DirectoryItem* item);
-		void GenerateThumbShader(DirectoryItem* item);
-		void GenerateThumbModel(DirectoryItem* item);
-
-	private:
-		String				m_projectDirectory = "";
-		Editor*				m_editor		   = nullptr;
-		MemoryAllocatorPool m_allocatorPool;
-		DirectoryItem*		m_root = nullptr;
+		Editor* m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

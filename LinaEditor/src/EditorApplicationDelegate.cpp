@@ -45,10 +45,8 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
-#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
-#include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Layout/Stack.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
 
@@ -110,7 +108,7 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<Slider>(), 150);
 		Theme::SetWidgetChunkCount(GetTypeID<PopupItem>(), 150);
 		Theme::SetWidgetChunkCount(GetTypeID<DirectionalLayout>(), 150);
-		Theme::SetWidgetChunkCount(GetTypeID<ScrollArea>(), 150);
+		Theme::SetWidgetChunkCount(GetTypeID<Stack>(), 150);
 		Theme::SetWidgetChunkCount(GetTypeID<FileMenu>(), 5);
 		Theme::SetWidgetChunkCount(GetTypeID<Popup>(), 50);
 		Theme::SetWidgetChunkCount(GetTypeID<ColorWheelCompound>(), 1);
@@ -125,8 +123,6 @@ namespace Lina::Editor
 		Theme::SetWidgetChunkCount(GetTypeID<ProjectSelector>(), 1);
 		Theme::SetWidgetChunkCount(GetTypeID<WindowBar>(), 20);
 		Theme::SetWidgetChunkCount(GetTypeID<GenericPopup>(), 10);
-		Theme::SetWidgetChunkCount(GetTypeID<Selectable>(), 100);
-		Theme::SetWidgetChunkCount(GetTypeID<FoldLayout>(), 50);
 
 		m_app	 = app;
 		m_editor = new Editor(m_app->GetSystem());

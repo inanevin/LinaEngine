@@ -48,6 +48,7 @@ namespace Lina
 	{
 		m_lgx		  = m_gfxManager->GetLGX();
 		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
+		m_window->AddListener(this);
 
 		auto* rm = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
@@ -66,23 +67,23 @@ namespace Lina
 					   .vsyncStyle	 = m_gfxManager->GetCurrentVsync(),
 		   });
 
+		// RP
+		m_renderPass.SetColorAttachment(0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
+		m_renderPass.Create(m_gfxManager, m_lgx, RenderPassDescriptorType::Basic);
+
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data	   = m_pfd[i];
 			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
-
-			m_renderPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
 		}
 
-		// RP
-
-		m_renderPass.Create(m_gfxManager, RenderPassDescriptorType::Basic);
 		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain);
 		m_widgetManager.Initialize(m_gfxManager->GetSystem(), window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
+		m_window->RemoveListener(this);
 		m_widgetManager.Shutdown();
 		m_guiRenderer.Destroy();
 		m_renderPass.Destroy();
@@ -96,8 +97,10 @@ namespace Lina
 		m_lgx->DestroySwapchain(m_swapchain);
 	}
 
-	void SurfaceRenderer::Resize(const LinaGX::LGXVector2ui& newSize)
+	void SurfaceRenderer::OnWindowSizeChanged(const LinaGX::LGXVector2ui& newSize)
 	{
+		m_gfxManager->Join();
+
 		const LinaGX::LGXVector2ui monitorSize = m_window->GetMonitorSize();
 
 		LinaGX::SwapchainRecreateDesc desc = {
@@ -159,7 +162,7 @@ namespace Lina
 		m_renderPass.BindDescriptors(currentFrame.gfxStream, frameIndex);
 
 		// Begin render pass
-		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors);
 
 		// Prepare gui renderer & ask app to draw surface contents.
 		// Flush & render all contents that might've been drawn by the app.

@@ -150,21 +150,6 @@ namespace Lina
 		m_frameQueue.push_back(frame);
 	}
 
-	void Profiler::AddDrawCall(uint32 tris, const String& category, uint32 meta)
-	{
-		auto&	 frame = m_frameQueue.back();
-		StringID sid   = TO_SID(category);
-
-		DrawCall call = {};
-		call.category = category.c_str();
-		call.sid	  = sid;
-		call.tris	  = tris;
-		call.meta	  = meta;
-
-		frame.drawCalls.try_emplace_l(
-			sid, [&call](auto& pair) { pair.second.push_back(call); }, Vector<DrawCall>{call});
-	}
-
 	uint32 Profiler::StartBlock(const char* blockName, StringID thread)
 	{
 		const uint64 cycles = PlatformTime::GetCPUCycles();

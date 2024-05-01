@@ -36,36 +36,24 @@ namespace Lina
 #define GUI_TEXTURE_HUE_HORIZONTAL UINT32_MAX - 1
 #define GUI_TEXTURE_HUE_VERTICAL   UINT32_MAX - 2
 #define GUI_TEXTURE_COLORWHEEL	   UINT32_MAX - 3
-#define GUI_IS_SINGLE_CHANNEL	   2.0f
 
-#define DEFAULT_SHADER_GUI_PATH "Resources/Core/Shaders/GUI/GUI.linashader"
-#define DEFAULT_SHADER_GUI_SID	"Resources/Core/Shaders/GUI/GUI.linashader"_hs
-
-#define DEFAULT_SHADER_OBJECT_PATH "Resources/Core/Shaders/Object/DefaultObject.linashader"
-#define DEFAULT_SHADER_OBJECT_SID  "Resources/Core/Shaders/Object/DefaultObject.linashader"_hs
-
-#define DEFAULT_SAMPLER_PATH "Resources/Core/Samplers/DefaultSampler.linasampler"
-#define DEFAULT_SAMPLER_SID	 "Resources/Core/Samplers/DefaultSampler.linasampler"_hs
-
-#define DEFAULT_SAMPLER_GUI_PATH "Resources/Core/Samplers/DefaultGUISampler.linasampler"
-#define DEFAULT_SAMPLER_GUI_SID	 "Resources/Core/Samplers/DefaultGUISampler.linasampler"_hs
-
-#define DEFAULT_SAMPLER_TEXT_PATH "Resources/Core/Samplers/DefaultGUITextSampler.linasampler"
-#define DEFAULT_SAMPLER_TEXT_SID  "Resources/Core/Samplers/DefaultGUITextSampler.linasampler"_hs
-
-#define DEFAULT_MATERIAL_OBJECT_PATH "Resources/Core/Materials/DefaultObject.linamaterial"
-#define DEFAULT_MATERIAL_OBJECT_SID	 "Resources/Core/Materials/DefaultObject.linamaterial"_hs
-
-#define LINA_MAIN_SWAPCHAIN			UINT32_MAX - 1
-#define DEFAULT_TEXTURE_LINALOGO	"Resources/Core/Textures/StubLinaLogo.png"_hs
-#define DEFAULT_TEXTURE_EMPTY_BLACK "Resources/Core/Textures/StubBlack.png"_hs
-#define DEFAULT_TEXTURE_CHECKERED	"Resources/Core/Textures/Checkered.png"_hs
-#define DEFAULT_CLEAR_CLR			Color(0.3f, 0.3f, 0.5f, 1.0f)
-#define IDEAL_RT					16667
-#define FRAMES_IN_FLIGHT			2
-#define BACK_BUFFER_COUNT			3
-#define MAX_BOUND_TEXTURES			512
-#define MAX_BOUND_SAMPLERS			128
+#define LINA_MAIN_SWAPCHAIN			 UINT32_MAX - 1
+#define DEFAULT_SHADER_SID			 "Resources/Core/Shaders/UnlitStandard.linashader"_hs
+#define DEFAULT_SHADER_GUI			 "Resources/Core/Shaders/GUIStandard.linashader"_hs
+#define DEFAULT_SAMPLER_SID			 "Resources/Core/Samplers/DefaultSampler.linasampler"_hs
+#define DEFAULT_GUI_SAMPLER_SID		 "Resources/Core/Samplers/DefaultGUISampler.linasampler"_hs
+#define DEFAULT_GUI_TEXT_SAMPLER_SID "Resources/Core/Samplers/DefaultGUITextSampler.linasampler"_hs
+#define DEFAULT_TEXTURE_LINALOGO	 "Resources/Core/Textures/StubLinaLogo.png"_hs
+#define DEFAULT_TEXTURE_EMPTY_BLACK	 "Resources/Core/Textures/StubBlack.png"_hs
+#define DEFAULT_TEXTURE_CHECKERED	 "Resources/Core/Textures/Checkered.png"_hs
+#define DEFAULT_LIT_MATERIAL		 "Resources/Core/Materials/DefaultLit.linamaterial"_hs
+#define DEFAULT_UNLIT_MATERIAL		 "Resources/Core/Materials/DefaultUnlit.linamaterial"_hs
+#define DEFAULT_CLEAR_CLR			 Color(0.3f, 0.3f, 0.5f, 1.0f)
+#define IDEAL_RT					 16667
+#define FRAMES_IN_FLIGHT			 2
+#define BACK_BUFFER_COUNT			 3
+#define MAX_BOUND_TEXTURES			 512
+#define MAX_BOUND_SAMPLERS			 128
 
 	enum class ShaderWriteTargetType
 	{
@@ -76,7 +64,6 @@ namespace Lina
 	enum RenderPassDescriptorType
 	{
 		Basic = 0,
-		Main,
 		Max,
 	};
 

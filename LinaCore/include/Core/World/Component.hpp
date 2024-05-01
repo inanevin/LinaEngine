@@ -28,53 +28,48 @@ SOFTWARE.
 
 #pragma once
 
+#ifndef Component_HPP
+#define Component_HPP
+
 #include "Common/SizeDefinitions.hpp"
 #include "Core/World/CommonWorld.hpp"
-#include "Core/Reflection/ClassReflection.hpp"
+#include "Common/Event/GameEventListener.hpp"
 #include "Common/StringID.hpp"
-#include "Common/Data/Streams.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Core/Resources/Resource.hpp"
 
 namespace Lina
 {
 	class Entity;
 	class ReflectionClassUtility;
-	class ResourceManager;
 
-	class Component
+	class Component : public GameEventListener
 	{
 	public:
-		virtual void SaveToStream(OStream& stream) const {};
-		virtual void LoadFromStream(IStream& stream){};
-
-		virtual void Begin(){};
-		virtual void End(){};
-		virtual void Tick(float delta){};
-		virtual void FetchResources(ResourceManager* rm){};
-
+		void		   SaveToStream(OStream& stream){};
+		void		   LoadFromStream(IStream& stream){};
 		virtual TypeID GetComponentType() = 0;
+
+		virtual Bitmask16 GetComponentMask()
+		{
+			return 0;
+		}
 
 		inline Entity* GetEntity()
 		{
 			return m_entity;
 		}
 
-		inline Bitmask32& GetComponentFlags()
-		{
-			return m_flags;
-		}
+		bool enabled = true;
 
 	protected:
 		template <typename U> friend class ComponentCache;
-		Component(uint32 flags = 0) : m_flags(flags){};
+		Component()			 = default;
 		virtual ~Component() = default;
 
-		Entity*	  m_entity = nullptr;
-		Bitmask32 m_flags  = 0;
-
 	private:
-		uint32 m_entityID = 0;
+		Entity* m_entity   = nullptr;
+		uint32	m_entityID = 0;
 	};
 
 } // namespace Lina
+
+#endif

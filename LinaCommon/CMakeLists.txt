@@ -27,7 +27,6 @@ set (SOURCES
 	# FileSystem
 	src/FileSystem/FileSystem.cpp
 	src/FileSystem/FileData.cpp
-	src/FileSystem/FileWatcher.cpp
 
 	# Log
 	src/Log/Log.cpp
@@ -106,7 +105,6 @@ set(HEADERS
 	# FileSystem
 	include/Common/FileSystem/FileSystem.hpp
 	include/Common/FileSystem/FileData.hpp
-	include/Common/FileSystem/FileWatcher.hpp
 
 	# Job System
 	include/Common/JobSystem/JobSystem.hpp

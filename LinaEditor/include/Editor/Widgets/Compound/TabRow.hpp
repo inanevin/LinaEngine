@@ -44,12 +44,11 @@ namespace Lina::Editor
 
 		struct Properties
 		{
+			bool							   cantCloseSingleTab = false;
+			bool							   cantCloseAnyTab	  = false;
 			Delegate<void(Widget* tiedWidget)> onTabClosed;
 			Delegate<void(Widget* tiedWidget)> onTabDockedOut;
 			Delegate<void(Widget* tiedWidget)> onSelectionChanged;
-
-			bool  drawBackground  = false;
-			Color colorBackground = Theme::GetDef().background0;
 		};
 
 		virtual void Tick(float delta) override;
@@ -58,21 +57,15 @@ namespace Lina::Editor
 		void AddTab(Widget* tiedWidget);
 		void RemoveTab(Widget* tiedWidget);
 		void SetSelected(Widget* tiedWidget);
-		void SetCanCloseTabs(bool canCloseTabs);
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
-		inline bool GetAnyPressed() const
+		inline bool GetAnyPressed()
 		{
 			return m_anyPressed;
-		}
-
-		inline bool GetCanCloseTabs() const
-		{
-			return m_canCloseTabs;
 		}
 
 	private:
@@ -82,12 +75,13 @@ namespace Lina::Editor
 		void Close(Widget* tiedWidget);
 		void DockOut(Widget* tiedWidget);
 
+		void CheckCanClose();
+
 	private:
 		bool		 m_isSelected = false;
 		bool		 m_anyPressed = false;
 		Properties	 m_props	  = {};
 		Vector<Tab*> m_tabs;
-		bool		 m_canCloseTabs = true;
 	};
 
 } // namespace Lina::Editor

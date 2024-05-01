@@ -30,9 +30,6 @@ SOFTWARE.
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
-#include "Core/Graphics/Pipeline/RenderPass.hpp"
-#include "Core/World/EntityWorld.hpp"
-#include "Common/Data/Map.hpp"
 
 namespace LinaGX
 {
@@ -44,13 +41,8 @@ namespace Lina
 {
 	class GUIBackend;
 	class GfxManager;
-	class ModelNode;
-	class MeshComponent;
-	class Shader;
-	class Material;
-	class ResourceManager;
 
-	class WorldRenderer : public EntityWorldListener
+	class WorldRenderer
 	{
 	private:
 		struct PerFrameData
@@ -61,67 +53,16 @@ namespace Lina
 			Buffer				   guiVertexBuffer	 = {};
 			Buffer				   guiIndexBuffer	 = {};
 			Buffer				   guiMaterialBuffer = {};
-			Buffer				   objectBuffer		 = {};
-			Buffer				   sceneBuffer		 = {};
-			uint32				   colorTarget		 = 0;
-			uint32				   depthTarget		 = 0;
 		};
 
 	public:
-		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize);
+		WorldRenderer(GfxManager* man);
 		~WorldRenderer();
 
-		void				   Tick(float delta);
-		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
-		void				   Resize(const Vector2ui& newSize);
-
-		virtual void OnComponentAdded(Component* c) override;
-		virtual void OnComponentRemoved(Component* c) override;
-
-		inline const SemaphoreData& GetCopySemaphore(uint32 index) const
-		{
-			return m_pfd[index].copySemaphore;
-		}
-
-		inline EntityWorld* GetWorld() const
-		{
-			return m_world;
-		}
-
-		inline const Vector2ui& GetSize() const
-		{
-			return m_size;
-		}
-
-		inline uint32 GetTexture(uint32 frameIndex)
-		{
-			return m_pfd[frameIndex].colorTarget;
-		}
-
 	private:
-		void   UpdateBuffers(uint32 frameIndex);
-		void   FetchRenderables();
-		void   DrawSky(LinaGX::CommandStream* stream);
-		void   CreateSizeRelativeResources();
-		void   DestroySizeRelativeResources();
-		uint64 BumpAndSendTransfers(uint32 frameIndex);
-
-	private:
-		GfxManager*			   m_gfxManager			   = nullptr;
-		GUIBackend*			   m_guiBackend			   = nullptr;
-		LinaGX::Instance*	   m_lgx				   = nullptr;
-		PerFrameData		   m_pfd[FRAMES_IN_FLIGHT] = {};
-		RenderPass			   m_mainPass			   = {};
-		Vector2ui			   m_size				   = Vector2ui::Zero;
-		EntityWorld*		   m_world				   = nullptr;
-		ModelNode*			   m_skyCube			   = nullptr;
-		Shader*				   m_skyShader			   = nullptr;
-		Vector<MeshComponent*> m_meshComponents;
-		GPUDataView			   m_gpuDataView  = {};
-		GPUDataScene		   m_gpuDataScene = {};
-		Vector<GPUDataObject>  m_objects	  = {};
-		ResourceManager*	   m_rm			  = nullptr;
-		MaterialToMeshDataMap  m_drawDataMap;
+		GfxManager*		  m_gfxManager = nullptr;
+		GUIBackend*		  m_guiBackend = nullptr;
+		LinaGX::Instance* m_lgx		   = nullptr;
 	};
 
 } // namespace Lina

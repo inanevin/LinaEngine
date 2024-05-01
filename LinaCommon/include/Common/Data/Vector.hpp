@@ -69,17 +69,6 @@ namespace Lina
 				vec.erase(itSrc + 1);
 		}
 
-		template <typename T> inline bool Contains(const Lina::Vector<T>& vec, const T& data)
-		{
-			for (const auto& v : vec)
-			{
-				if (v == data)
-					return true;
-			}
-
-			return false;
-		}
-
 	} // namespace UtilVector
 
 } // namespace Lina

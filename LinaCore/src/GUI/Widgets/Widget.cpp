@@ -34,13 +34,17 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
-#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
 
 	void Widget::AddChild(Widget* w)
 	{
+		if (m_maxChilds != -1)
+		{
+			LINA_ASSERT(static_cast<int32>(m_children.size()) < m_maxChilds, "");
+		}
+
 		w->m_parent		 = this;
 		w->m_lgxWindow	 = m_lgxWindow;
 		w->m_manager	 = m_manager;
@@ -53,13 +57,7 @@ namespace Lina
 			w->m_prev	 = last;
 		}
 
-		w->m_next = nullptr;
 		m_children.push_back(w);
-	}
-
-	void Widget::ExecuteNextFrame(Delegate<void()>&& cb)
-	{
-		m_executeNextFrame.push_back(cb);
 	}
 
 	void Widget::RemoveChild(Widget* w)
@@ -73,9 +71,6 @@ namespace Lina
 			w->m_next->m_prev = w->m_prev;
 		}
 
-		w->m_controlsManager = nullptr;
-		w->m_controlsOwner	 = nullptr;
-
 		auto it = linatl::find_if(m_children.begin(), m_children.end(), [w](Widget* child) -> bool { return w == child; });
 
 		LINA_ASSERT(it != m_children.end(), "");
@@ -84,15 +79,24 @@ namespace Lina
 		w->m_next = w->m_prev = nullptr;
 	}
 
-	void Widget::DeallocAllChildren()
+	void Widget::SaveToStream(OStream& out) const
 	{
-		for (auto* c : m_children)
-			m_manager->Deallocate(c);
+		out << m_tid;
+		out << m_flags.GetValue();
+		StringSerialization::SaveToStream(out, m_debugName);
+		out << m_alignedPos.x << m_alignedPos.y;
+		out << m_alignedSize.x << m_alignedSize.y;
 	}
 
-	void Widget::RemoveAllChildren()
+	void Widget::LoadFromStream(IStream& in)
 	{
-		m_children.clear();
+		uint32 mask = 0;
+		in >> m_tid;
+		in >> mask;
+		m_flags.Set(mask);
+		StringSerialization::LoadFromStream(in, m_debugName);
+		in >> m_alignedPos.x >> m_alignedPos.y;
+		in >> m_alignedSize.x >> m_alignedSize.y;
 	}
 
 	void Widget::Initialize()
@@ -106,10 +110,29 @@ namespace Lina
 
 	void Widget::Draw(int32 threadIndex)
 	{
-		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex](Widget* child) -> void {
-			if (child->GetIsVisible())
-				child->Draw(threadIndex);
-		});
+		linatl::for_each(m_children.begin(), m_children.end(), [threadIndex](Widget* child) -> void { child->Draw(threadIndex); });
+	}
+
+	bool Widget::OnMouse(uint32 button, LinaGX::InputAction action)
+	{
+		for (auto* c : m_children)
+		{
+			if (!c->GetIsDisabled() && c->OnMouse(button, action))
+				return true;
+		}
+
+		return false;
+	}
+
+	bool Widget::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
+	{
+		for (auto* c : m_children)
+		{
+			if (c->OnKey(keycode, scancode, action))
+				return true;
+		}
+
+		return false;
 	}
 
 	void Widget::DrawBorders(int32 threadIndex)
@@ -153,39 +176,7 @@ namespace Lina
 	void Widget::DrawTooltip(int32 threadIndex)
 	{
 		if (!m_isHovered)
-		{
-			if (m_customTooltip != nullptr)
-			{
-				RemoveChild(m_customTooltip);
-				m_manager->Deallocate(m_customTooltip);
-				m_customTooltip = nullptr;
-			}
 			return;
-		}
-
-		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
-
-		if (m_buildCustomTooltip != nullptr)
-		{
-			if (m_customTooltip == nullptr)
-			{
-				m_customTooltip = m_buildCustomTooltip(m_customTooltipUserData);
-
-				m_customTooltip->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
-				m_customTooltip->SetDrawOrder(TOOLTIP_DRAW_ORDER);
-
-				for (auto* c : m_customTooltip->GetChildren())
-				{
-					c->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
-					c->SetDrawOrder(TOOLTIP_DRAW_ORDER);
-				}
-				AddChild(m_customTooltip);
-			}
-
-			m_customTooltip->SetPos(mp + Vector2(10, 10));
-			// m_customTooltip->Draw(threadIndex);
-			return;
-		}
 
 		const String& tooltip = GetTooltip();
 
@@ -196,12 +187,14 @@ namespace Lina
 		textOpts.font		   = m_manager->GetDefaultFont()->GetLinaVGFont(m_lgxWindow->GetDPIScale());
 		const Vector2 textSize = LinaVG::CalculateTextSize(tooltip.c_str(), textOpts);
 
+		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
+
 		const Rect tooltipRect = Rect(mp + Vector2(10, 10), textSize + Vector2(Theme::GetDef().baseIndent * 2.0f, Theme::GetDef().baseIndent));
 
 		LinaVG::StyleOptions bg;
 		bg.color					= Theme::GetDef().background1.AsLVG4();
 		bg.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness;
-		bg.outlineOptions.color		= Theme::GetDef().black.AsLVG4();
+		bg.outlineOptions.color		= Theme::GetDef().outlineColorBase.AsLVG4();
 		LinaVG::DrawRect(threadIndex, tooltipRect.pos.AsLVG(), tooltipRect.GetEnd().AsLVG(), bg, 0.0f, TOOLTIP_DRAW_ORDER);
 
 		LinaVG::DrawTextNormal(threadIndex, tooltip.c_str(), Vector2(tooltipRect.pos.x + Theme::GetDef().baseIndent, tooltipRect.GetCenter().y + textSize.y * 0.5f).AsLVG(), textOpts, 0.0f, TOOLTIP_DRAW_ORDER);
@@ -277,19 +270,4 @@ namespace Lina
 		const float sizey = GetFlags().IsSet(WF_USE_FIXED_SIZE_Y) ? GetFixedSizeY() : GetParent()->GetSizeY() * GetAlignedSizeY();
 		return Rect(Vector2(posx, posy), Vector2(sizex, sizey));
 	}
-
-	bool Widget::IsWidgetInHierarchy(Widget* widget)
-	{
-		if (UtilVector::Contains(m_children, widget))
-			return true;
-
-		for (auto* c : m_children)
-		{
-			if (c->IsWidgetInHierarchy(widget))
-				return true;
-		}
-
-		return false;
-	}
-
 } // namespace Lina

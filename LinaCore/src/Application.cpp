@@ -56,7 +56,7 @@ namespace Lina
 			SetFixedTimestep(10000);
 			SetFixedTimestep(true);
 			SetFrameCap(16667);
-			PROFILER_INIT;
+			PROFILER_INIT();
 			PROFILER_REGISTER_THREAD("Main");
 			m_appDelegate->SetupPlatform(this);
 		}
@@ -149,7 +149,7 @@ namespace Lina
 		m_engine.GetGfxManager().DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_engine.Shutdown();
 
-		PROFILER_SHUTDOWN;
+		PROFILER_SHUTDOWN();
 		delete m_appDelegate;
 	}
 

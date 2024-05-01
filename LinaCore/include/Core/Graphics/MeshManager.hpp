@@ -28,26 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Common/Data/Mutex.hpp"
+#ifndef GfxMeshManager_HPP
+#define GfxMeshManager_HPP
 
-namespace LinaGX
-{
-	class CommandStream;
-}
 namespace Lina
 {
 	class GfxManager;
-	class Model;
-	class MeshDefault;
-
-	struct MeshBuffer
-	{
-		Buffer vertexBuffer;
-		Buffer indexBuffer;
-		size_t startVertex = 0;
-		size_t startIndex  = 0;
-	};
 
 	class MeshManager
 	{
@@ -58,14 +44,9 @@ namespace Lina
 		void Initialize();
 		void Shutdown();
 
-		void BindBuffers(LinaGX::CommandStream* stream, uint32 bufferIndex);
-		void AddMesh(MeshDefault* mesh);
-
 	private:
-		static constexpr size_t MESH_BUF_SIZE = 1;
-
 		GfxManager* m_gfxManager = nullptr;
-		MeshBuffer	m_meshBuffers[MESH_BUF_SIZE];
-		Mutex		m_mtxMesh;
 	};
 } // namespace Lina
+
+#endif

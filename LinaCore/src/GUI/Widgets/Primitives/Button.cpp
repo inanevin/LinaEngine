@@ -45,6 +45,8 @@ namespace Lina
 
 	void Button::Tick(float delta)
 	{
+		Widget::Tick(delta);
+
 		if (GetIsHovered() && !m_lastHoverStatus)
 		{
 			if (m_props.onHoverBegin)
@@ -59,9 +61,6 @@ namespace Lina
 
 	void Button::Draw(int32 threadIndex)
 	{
-		if (!GetIsVisible())
-			return;
-
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		LinaVG::StyleOptions style;
@@ -92,7 +91,9 @@ namespace Lina
 		}
 
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
-		Widget::Draw(threadIndex);
+
+		m_text->Draw(threadIndex);
+
 		Widget::DrawBorders(threadIndex);
 		Widget::DrawTooltip(threadIndex);
 	}

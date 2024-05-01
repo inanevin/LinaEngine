@@ -26,48 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/Components/RenderableComponent.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
+#include "Core/GUI/Widgets/Layout/RelativeLayout.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
-	class MeshDefault;
-
-	class MeshComponent : public RenderableComponent
+	void RelativeLayout::Tick(float delta)
 	{
-	public:
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void FetchResources(ResourceManager* rm) override;
-
-		void SetMesh(StringID model, uint32 meshIndex);
-		void SetMaterial(StringID sid);
-
-		virtual TypeID GetComponentType() override
-		{
-			return GetTypeID<MeshComponent>();
-		}
-
-		inline Material* GetMaterialRaw() const
-		{
-			return m_material.raw;
-		}
-
-		inline MeshDefault* GetMeshRaw() const
-		{
-			return m_mesh;
-		}
-
-	private:
-		ResRef<Model>	 m_model;
-		ResRef<Material> m_material;
-		MeshDefault*	 m_mesh		 = nullptr;
-		uint32			 m_meshIndex = 0;
-	};
-
-	LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
-	LINA_REFLECTCOMPONENT_END(MeshComponent);
+	}
 } // namespace Lina

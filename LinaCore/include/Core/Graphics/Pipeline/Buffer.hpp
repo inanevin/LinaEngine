@@ -63,11 +63,6 @@ namespace Lina
 			return m_residesInGPU ? m_gpu : m_staging;
 		}
 
-		inline uint8* GetMapped() const
-		{
-			return m_mapped;
-		}
-
 	private:
 		static uint64 s_usedCPUVisibleGPUMemory;
 

@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
-#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -76,8 +75,8 @@ namespace Lina
 			m_window->SetCursorType(FindCursorType(m_foregroundRoot));
 
 		m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
-		PassPreTick(m_foregroundRoot);
-		PassPreTick(m_rootWidget);
+		PreTickWidget(m_foregroundRoot);
+		PreTickWidget(m_rootWidget);
 	}
 
 	void WidgetManager::Tick(float delta, const Vector2ui& size)
@@ -89,11 +88,15 @@ namespace Lina
 		m_rootWidget->SetPos(Vector2::Zero);
 		m_rootWidget->SetSize(Vector2(static_cast<float>(size.x), static_cast<float>(size.y)));
 
-		PassCalculateSize(m_foregroundRoot, delta);
-		PassTick(m_foregroundRoot, delta);
+		if (m_rootWidget->GetWindow()->GetSID() == UINT32_MAX - 2)
+		{
+			LINA_TRACE("TICKING PAYLOAD BRUV {0} {1}", m_rootWidget->GetChildren()[0]->GetSize().x, m_rootWidget->GetChildren()[0]->GetAlignedPos().y);
+		}
+		SizePassWidget(m_foregroundRoot, delta);
+		TickWidget(m_foregroundRoot, delta);
 
-		PassCalculateSize(m_rootWidget, delta);
-		PassTick(m_rootWidget, delta);
+		SizePassWidget(m_rootWidget, delta);
+		TickWidget(m_rootWidget, delta);
 	}
 
 	void WidgetManager::AddToForeground(Widget* w)
@@ -108,13 +111,14 @@ namespace Lina
 
 	void WidgetManager::Draw(int32 threadIndex)
 	{
+
 		m_rootWidget->Draw(threadIndex);
 
 		if (!m_foregroundRoot->GetChildren().empty())
 		{
 			LinaVG::StyleOptions opts;
 			opts.color = LinaVG::Vec4(0.0f, 0.0f, 0.0f, m_foregroundDim);
-			LinaVG::DrawRect(threadIndex, Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
+			LinaVG::DrawRect(threadIndex, Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER - 1);
 			m_foregroundRoot->Draw(threadIndex);
 		}
 
@@ -126,30 +130,14 @@ namespace Lina
 
 	void WidgetManager::Deallocate(Widget* widget)
 	{
-		// If the widget is the active controls owner of a manager
-		if (widget->GetLocalControlsManager() && widget->GetLocalControlsManager()->GetLocalControlsOwner() == widget)
-			widget->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
-
-		// If the widget is the manager of someone
-		if (widget->GetLocalControlsOwner())
-			widget->GetLocalControlsOwner()->SetLocalControlsManager(nullptr);
-
-		if (GetControlsOwner() == widget)
-			ReleaseControls(widget);
-
-		if (m_lastControlsManager == widget)
-			m_lastControlsManager = nullptr;
-
-		widget->m_customTooltip = nullptr;
 
 		for (auto* c : widget->m_children)
 			Deallocate(c);
 
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();
-
-		delete widget;
-		// GetGUIAllocator(tid, 0)->Free(widget);
+		widget->~Widget();
+		GetGUIAllocator(tid, 0)->Free(widget);
 	}
 
 	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize)
@@ -169,23 +157,46 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && m_controlsOwner != nullptr)
+		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released)
 		{
 			if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
-				MoveControlsToPrev();
+			{
+				if (m_controlsOwner)
+				{
+					Widget* previous = FindPreviousSelectable(m_controlsOwner);
+					if (previous)
+					{
+						GrabControls(previous);
+					}
+				}
+			}
 			else
-				MoveControlsToNext();
+			{
+				Widget* next = FindNextSelectable(m_controlsOwner ? m_controlsOwner : m_rootWidget);
+				if (next)
+				{
+					GrabControls(next);
+				}
+			}
 			return;
 		}
 
-		if (PassKey(m_foregroundRoot, keycode, scancode, inputAction))
+		if (m_foregroundRoot->OnKey(keycode, scancode, inputAction))
 			return;
 
-		PassKey(m_rootWidget, keycode, scancode, inputAction);
+		m_rootWidget->OnKey(keycode, scancode, inputAction);
 	}
 
 	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
 	{
+		// Left click presses to anywhere outside the control owner
+		// releases controls from that owner.
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr)
+		{
+			if (!m_controlsOwner->GetIsHovered())
+				ReleaseControls(m_controlsOwner);
+		}
+
 		// If we have some items in the foreground
 		// check if any was clicked, if not, then remove the non-blocker ones
 		// this is used for removing popups mostly.
@@ -215,42 +226,22 @@ namespace Lina
 					RemoveFromForeground(w);
 					Deallocate(w);
 				}
-
-				return;
 			}
 		}
 
-		// Left click presses to anywhere outside the control owner
-		// releases controls from that owner.
-		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr && !m_controlsOwner->GetIsHovered())
-		{
-			if (m_controlsOwner->GetLocalControlsManager())
-			{
-				if (m_controlsOwner->GetLocalControlsManager()->GetIsHovered())
-					m_controlsOwner->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
-			}
-
-			ReleaseControls(m_controlsOwner);
-		}
-
-		if (PassMouse(m_foregroundRoot, button, inputAction))
+		if (m_foregroundRoot->OnMouse(button, inputAction))
 			return;
 
-		PassMouse(m_rootWidget, button, inputAction);
+		m_rootWidget->OnMouse(button, inputAction);
 	}
 
-	void WidgetManager::OnWindowMouseWheel(float amt)
+	void WidgetManager::OnWindowMouseWheel(int32 delta)
 	{
-		if (PassMouseWheel(m_foregroundRoot, amt))
-			return true;
-		PassMouseWheel(m_rootWidget, amt);
+		// m_rootWidget->OnMouseWheel(static_cast<float>(delta));
 	}
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
 	{
-		if (PassMousePos(m_foregroundRoot, pos))
-			return true;
-		PassMousePos(m_rootWidget, pos);
 	}
 
 	void WidgetManager::OnWindowFocus(bool gainedFocus)
@@ -267,7 +258,7 @@ namespace Lina
 
 	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
 	{
-		const bool drawRects = (m_window->GetInput()->GetKey(LINAGX_KEY_SPACE));
+		const bool drawRects = (m_window->GetInput()->GetMouseButton(LINAGX_MOUSE_1));
 
 		if (!drawRects)
 			return;
@@ -347,6 +338,71 @@ namespace Lina
 		m_killList.push_back(w);
 	}
 
+	Widget* WidgetManager::FindNextSelectable(Widget* start)
+	{
+		if (!start)
+			return nullptr;
+
+		Widget* current = start;
+		do
+		{
+			// Depth-first search for the next selectable widget
+			if (!current->m_children.empty())
+			{
+				current = current->m_children[0];
+			}
+			else
+			{
+				while (current != nullptr && current->m_next == nullptr)
+				{
+					current = current->m_parent;
+				}
+				if (current != nullptr)
+				{
+					current = current->m_next;
+				}
+			}
+
+			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
+			{
+				return current;
+			}
+		} while (current != nullptr && current != start);
+
+		return nullptr;
+	}
+
+	Widget* WidgetManager::FindPreviousSelectable(Widget* start)
+	{
+		if (!start)
+			return nullptr;
+
+		Widget* current = start;
+		do
+		{
+			// Reverse depth-first search for the previous selectable widget
+			if (current->m_prev)
+			{
+				current = current->m_prev;
+				while (!current->m_children.empty())
+				{
+					current = current->m_children.back();
+				}
+			}
+			else
+			{
+				current = current->m_parent;
+			}
+
+			if (current && current->GetFlags().IsSet(WF_SELECTABLE) && !current->GetIsDisabled())
+			{
+				return current;
+			}
+		} while (current != nullptr && current != start);
+
+		return nullptr;
+	}
+
 	LinaGX::CursorType WidgetManager::FindCursorType(Widget* w)
 	{
 		const LinaGX::CursorType cursorType = w->GetCursorOverride();
@@ -365,6 +421,17 @@ namespace Lina
 			}
 		}
 		return LinaGX::CursorType::Default;
+	}
+
+	void WidgetManager::PreTickWidget(Widget* w)
+	{
+		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
+			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
+
+		w->SetIsHovered();
+		w->PreTick();
+		for (auto* c : w->GetChildren())
+			PreTickWidget(c);
 	}
 
 	namespace
@@ -400,82 +467,9 @@ namespace Lina
 		}
 	} // namespace
 
-	bool WidgetManager::PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
+	void WidgetManager::SizePassWidget(Widget* w, float delta)
 	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
-			return true;
-
-		for (auto* c : widget->GetChildren())
-		{
-			if (PassKey(c, keycode, scancode, inputAction))
-				return true;
-		}
-
-		return false;
-	}
-
-	bool WidgetManager::PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction)
-	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
-			return true;
-
-		for (auto* c : widget->GetChildren())
-		{
-			if (PassMouse(c, button, inputAction))
-				return true;
-		}
-
-		return false;
-	}
-
-	bool WidgetManager::PassMouseWheel(Widget* widget, float amt)
-	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
-			return true;
-
-		for (auto* c : widget->GetChildren())
-		{
-			if (PassMouseWheel(c, amt))
-				return true;
-		}
-
-		return false;
-	}
-
-	bool WidgetManager::PassMousePos(Widget* widget, const Vector2& pos)
-	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
-			return true;
-
-		for (auto* c : widget->GetChildren())
-		{
-			if (PassMousePos(c, pos))
-				return true;
-		}
-
-		return false;
-	}
-
-	void WidgetManager::PassPreTick(Widget* w)
-	{
-		for (auto cb : w->m_executeNextFrame)
-			cb();
-
-		w->m_executeNextFrame.clear();
-
-		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
-			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
-
-		w->SetIsHovered();
-		w->PreTick();
-		for (auto* c : w->GetChildren())
-			PassPreTick(c);
-	}
-
-	void WidgetManager::PassCalculateSize(Widget* w, float delta)
-	{
-		if (!w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
-			w->CalculateSize(delta);
+		w->CalculateSize(delta);
 
 		Vector<Widget*> expandingChildren;
 		Vector2			totalNonExpandingSize = Vector2::Zero;
@@ -533,9 +527,6 @@ namespace Lina
 			if (isExpandingX || isExpandingY)
 				expandingChildren.push_back(c);
 		}
-
-		if (w->GetFlags().IsSet(WF_SIZE_AFTER_CHILDREN))
-			w->CalculateSize(delta);
 
 		if (w->GetFlags().IsSet(WF_SIZE_X_TOTAL_CHILDREN))
 		{
@@ -624,10 +615,10 @@ namespace Lina
 		}
 
 		for (auto* c : w->GetChildren())
-			PassCalculateSize(c, delta);
+			SizePassWidget(c, delta);
 	}
 
-	void WidgetManager::PassTick(Widget* w, float delta)
+	void WidgetManager::TickWidget(Widget* w, float delta)
 	{
 		if (w->GetFlags().IsSet(WF_POS_ALIGN_X) && w->GetParent())
 			w->SetPosX(CalculateAlignedPosX(w));
@@ -635,11 +626,7 @@ namespace Lina
 		if (w->GetFlags().IsSet(WF_POS_ALIGN_Y) && w->GetParent())
 			w->SetPosY(CalculateAlignedPosY(w));
 
-		if (!w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
-			w->Tick(delta);
-
-		if (w->m_tickHook)
-			w->m_tickHook(delta);
+		w->Tick(delta);
 
 		if (!w->GetFlags().IsSet(WF_SKIP_FLOORING))
 		{
@@ -648,128 +635,7 @@ namespace Lina
 		}
 
 		for (auto* c : w->GetChildren())
-			PassTick(c, delta);
-
-		if (w->GetFlags().IsSet(WF_TICK_AFTER_CHILDREN))
-			w->Tick(delta);
-	}
-
-	ScrollArea* WidgetManager::FindScrollAreaAbove(Widget* w)
-	{
-		auto* parent = w->GetParent();
-		if (parent)
-		{
-
-			if (parent->GetTID() == GetTypeID<ScrollArea>())
-				return static_cast<ScrollArea*>(parent);
-
-			return FindScrollAreaAbove(parent);
-		}
-		return nullptr;
-	}
-
-	void WidgetManager::GrabControls(Widget* widget)
-	{
-		m_controlsOwner = widget;
-
-		if (widget->m_onGrabbedControls)
-			widget->m_onGrabbedControls();
-
-		auto* owningScroll = FindScrollAreaAbove(widget);
-
-		if (owningScroll)
-			owningScroll->ScrollToChild(widget);
-
-		if (widget->GetLocalControlsManager())
-			widget->GetLocalControlsManager()->SetLocalControlsOwner(widget);
-	}
-
-	void WidgetManager::ReleaseControls(Widget* widget)
-	{
-		if (m_controlsOwner == widget)
-			m_controlsOwner = nullptr;
-	}
-
-	Widget* WidgetManager::GetControlsOwner()
-	{
-		return m_controlsOwner;
-	}
-
-	Widget* WidgetManager::FindNextSelectable(Widget* start)
-	{
-		if (!start)
-			return nullptr;
-
-		Widget* current = start;
-		do
-		{
-			// Depth-first search for the next selectable widget
-			if (!current->m_children.empty())
-				current = current->m_children[0];
-			else
-			{
-				while (current != nullptr && current->m_next == nullptr)
-					current = current->m_parent;
-
-				if (current != nullptr)
-					current = current->m_next;
-			}
-
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible())
-				return current;
-		} while (current != nullptr && current != start);
-
-		return nullptr;
-	}
-
-	Widget* WidgetManager::FindPreviousSelectable(Widget* start)
-	{
-		if (!start)
-			return nullptr;
-
-		Widget* current = start;
-		do
-		{
-			// Reverse depth-first search for the previous selectable widget
-			if (current->m_prev)
-			{
-				current = current->m_prev;
-				while (!current->m_children.empty())
-					current = current->m_children.back();
-			}
-			else
-				current = current->m_parent;
-
-			if (current && current->GetFlags().IsSet(WF_CONTROLLABLE) && !current->GetIsDisabled() && current->GetIsVisible())
-				return current;
-
-		} while (current != nullptr && current != start);
-
-		return nullptr;
-	}
-
-	void WidgetManager::MoveControlsToPrev()
-	{
-		if (!m_controlsOwner)
-			return;
-
-		Widget* previous = FindPreviousSelectable(m_controlsOwner);
-		if (previous)
-		{
-			GrabControls(previous);
-		}
-	}
-
-	void WidgetManager::MoveControlsToNext()
-	{
-		if (!m_controlsOwner)
-			return;
-
-		Widget* next = FindNextSelectable(m_controlsOwner);
-		if (next)
-		{
-			GrabControls(next);
-		}
+			TickWidget(c, delta);
 	}
 
 } // namespace Lina

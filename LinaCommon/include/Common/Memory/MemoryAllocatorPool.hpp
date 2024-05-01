@@ -94,7 +94,6 @@ namespace Lina
 		size_t				m_initialUserData = 0;
 		uint32				m_allocatorSize	  = 0;
 		Allocator**			m_allocators	  = nullptr;
-		int32				m_freeCounter	  = 0;
 	};
 
 } // namespace Lina

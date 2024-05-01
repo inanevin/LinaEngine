@@ -61,9 +61,7 @@ namespace Lina
 			LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
 
 		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
-		if (m_gpuHandleExists)
-			gfxMan->GetLGX()->DestroyTexture(m_gpuHandle);
+		gfxMan->GetLGX()->DestroyTexture(m_gpuHandle);
 	}
 
 	uint32 Texture::GetSamplerSID() const
@@ -73,7 +71,7 @@ namespace Lina
 		return m_sampler;
 	}
 
-	void Texture::SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
+	void Texture::SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::Format format, bool generateMipMaps)
 	{
 		if (m_owner != ResourceOwner::UserCode)
 		{
@@ -98,16 +96,13 @@ namespace Lina
 			m_allLevels.clear();
 		}
 
-		m_gpuHandleExists = false;
-
 		LinaGX::TextureBuffer level0 = {
 			.width		   = width,
 			.height		   = height,
 			.bytesPerPixel = bytesPerPixel,
 		};
 
-		m_meta.channelMask = channelMask;
-		m_bytesPerPixel	   = bytesPerPixel;
+		m_meta.channelMask = static_cast<LinaGX::ImageChannelMask>(bytesPerPixel - 1);
 
 		const size_t sz = width * height * bytesPerPixel;
 		level0.pixels	= new uint8[sz];
@@ -123,10 +118,23 @@ namespace Lina
 				m_allLevels.push_back(mp);
 		}
 
-		m_useGlobalDelete = true;
-		m_meta.format	  = format;
-		GenerateGPU();
-		AddToUploadQueue();
+		LinaGX::TextureDesc desc = LinaGX::TextureDesc{
+			.format	   = format,
+			.flags	   = LinaGX::TextureFlags::TF_Sampled | LinaGX::TextureFlags::TF_CopyDest,
+			.width	   = m_allLevels[0].width,
+			.height	   = m_allLevels[0].height,
+			.mipLevels = static_cast<uint32>(m_allLevels.size()),
+			.debugName = m_path.c_str(),
+		};
+		m_gpuHandle = gfxManager->GetLGX()->CreateTexture(desc);
+
+		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
+			for (auto& l : m_allLevels)
+			{
+				delete[] l.pixels;
+				l.pixels = nullptr;
+			}
+		});
 	}
 
 	Vector<TextureSheetItem> Texture::GetSheetItems(uint32 columns, uint32 rows)
@@ -168,7 +176,6 @@ namespace Lina
 	{
 		LinaGX::TextureBuffer outBuffer = {};
 		LinaGX::LoadImageFromFile(path, outBuffer, m_meta.channelMask);
-		m_bytesPerPixel = outBuffer.bytesPerPixel;
 		LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
 
 		m_allLevels.push_back(outBuffer);
@@ -181,20 +188,15 @@ namespace Lina
 			for (const auto& mp : mipData)
 				m_allLevels.push_back(mp);
 		}
-
-		GenerateGPU();
-		AddToUploadQueue();
 	}
 
 	void Texture::LoadFromStream(IStream& stream)
 	{
 		m_meta.LoadFromStream(stream);
 
-		stream >> m_bytesPerPixel;
-
 		uint32 allLevels = 0;
 		stream >> allLevels;
-		m_useGlobalDelete = true;
+		m_loadedFromStream = true;
 
 		for (uint32 i = 0; i < allLevels; i++)
 		{
@@ -208,27 +210,24 @@ namespace Lina
 				stream.ReadEndianSafe(buffer.pixels, pixelSize);
 			}
 
-			buffer.bytesPerPixel = m_bytesPerPixel;
+			buffer.bytesPerPixel = static_cast<uint32>(m_meta.channelMask) + 1;
 
 			m_allLevels.push_back(buffer);
 		}
-
-		GenerateGPU();
-		AddToUploadQueue();
 	}
 
 	void Texture::SaveToStream(OStream& stream) const
 	{
 		m_meta.SaveToStream(stream);
 
-		stream << m_bytesPerPixel;
+		const uint32 bytesPerPixel = static_cast<uint32>(m_meta.channelMask) + 1;
+		const uint32 allLevels	   = static_cast<uint32>(m_allLevels.size());
 
-		const uint32 allLevels = static_cast<uint32>(m_allLevels.size());
 		stream << allLevels;
 
 		for (const auto& buffer : m_allLevels)
 		{
-			const uint32 pixelSize = buffer.width * buffer.height * m_bytesPerPixel;
+			const uint32 pixelSize = buffer.width * buffer.height * bytesPerPixel;
 			stream << buffer.width << buffer.height << pixelSize;
 
 			if (pixelSize != 0)
@@ -236,17 +235,7 @@ namespace Lina
 		}
 	}
 
-	Vector2ui Texture::GetSize()
-	{
-		return Vector2ui(m_allLevels[0].width, m_allLevels[0].height);
-	}
-
-	Vector2 Texture::GetSizeF()
-	{
-		return Vector2(static_cast<float>(m_allLevels[0].width), static_cast<float>(m_allLevels[0].height));
-	}
-
-	void Texture::GenerateGPU()
+	void Texture::BatchLoaded()
 	{
 		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
@@ -259,18 +248,12 @@ namespace Lina
 			.debugName = m_path.c_str(),
 		};
 
-		m_gpuHandle		  = gfxManager->GetLGX()->CreateTexture(desc);
-		m_gpuHandleExists = true;
-	}
-
-	void Texture::AddToUploadQueue()
-	{
-		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_gpuHandle = gfxManager->GetLGX()->CreateTexture(desc);
 
 		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
 			for (auto& buffer : m_allLevels)
 			{
-				if (m_useGlobalDelete)
+				if (m_loadedFromStream)
 				{
 					delete buffer.pixels;
 				}
@@ -282,5 +265,15 @@ namespace Lina
 
 			m_allLevels.clear();
 		});
+	}
+
+	Vector2ui Texture::GetSize()
+	{
+		return Vector2ui(m_allLevels[0].width, m_allLevels[0].height);
+	}
+
+	Vector2 Texture::GetSizeF()
+	{
+		return Vector2(static_cast<float>(m_allLevels[0].width), static_cast<float>(m_allLevels[0].height));
 	}
 } // namespace Lina

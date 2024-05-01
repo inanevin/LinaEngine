@@ -34,7 +34,6 @@ namespace Lina
 {
 	class Rect;
 	class Widget;
-	class Text;
 	class DirectionalLayout;
 
 	class WidgetUtility
@@ -48,9 +47,6 @@ namespace Lina
 		static void DrawDropShadowRect(int32 threadIndex, const Rect& rect, int32 drawOrder, const Color& baseColor, int32 radius);
 
 		static DirectionalLayout* BuildLayoutForPopups(Widget* source);
-		static Text*			  BuildEditableText(Widget* source, bool horizontal, Delegate<void()>&& onTextChanged);
-
-		static bool CheckIfCanShrinkWidgets(const Vector<Widget*>& widgets, float absAmount, bool isX, float minSize);
 	};
 
 } // namespace Lina

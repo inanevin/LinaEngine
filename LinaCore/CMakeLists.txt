@@ -40,13 +40,9 @@ src/Graphics/CameraSystem.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
 src/Graphics/Data/Vertex.cpp
-src/Graphics/Data/RenderData.cpp
-src/Graphics/Data/Mesh.cpp
-src/Graphics/Data/Primitive.cpp
-src/Graphics/Data/ModelNode.cpp
-src/Graphics/Data/ModelMaterial.cpp
 src/Graphics/Resource/Shader.cpp
 src/Graphics/Resource/ShaderVariant.cpp
+src/Graphics/Resource/Mesh.cpp
 src/Graphics/Resource/Model.cpp
 src/Graphics/Resource/Texture.cpp
 src/Graphics/Resource/TextureSampler.cpp
@@ -57,12 +53,6 @@ src/Graphics/Renderers/WorldRenderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
-
-src/Components/SkyComponent.cpp
-src/Components/CameraComponent.cpp
-src/Components/SimpleFlightMovement.cpp
-src/Components/RenderableComponent.cpp
-src/Components/MeshComponent.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -78,7 +68,8 @@ src/Resources/Data/ResourceMetadata.cpp
 src/World/Entity.cpp
 src/World/Component.cpp
 src/World/ComponentCache.cpp
-src/World/WorldManager.cpp
+src/World/Level/Level.cpp
+src/World/Level/LevelManager.cpp
 src/World/EntityWorld.cpp
 
 
@@ -95,10 +86,8 @@ src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetManager.cpp
 src/GUI/Widgets/WidgetUtility.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
-src/GUI/Widgets/Layout/ScrollArea.cpp
-src/GUI/Widgets/Layout/FoldLayout.cpp
-src/GUI/Widgets/Layout/LayoutBorder.cpp
-src/GUI/Widgets/Layout/GridLayout.cpp
+src/GUI/Widgets/Layout/RelativeLayout.cpp
+src/GUI/Widgets/Layout/Stack.cpp
 src/GUI/Widgets/Primitives/Text.cpp
 src/GUI/Widgets/Primitives/Icon.cpp
 src/GUI/Widgets/Primitives/ShapeRect.cpp
@@ -111,10 +100,11 @@ src/GUI/Widgets/Primitives/ColorField.cpp
 src/GUI/Widgets/Primitives/ColorSlider.cpp
 src/GUI/Widgets/Primitives/PopupItem.cpp
 src/GUI/Widgets/Primitives/ColorWheel.cpp
-src/GUI/Widgets/Primitives/Selectable.cpp
 src/GUI/Widgets/Compound/Popup.cpp
 src/GUI/Widgets/Compound/FileMenu.cpp
 
+# Meta
+src/Meta/ProjectData.cpp
 
 )
 
@@ -160,10 +150,6 @@ include/Core/Graphics/Utility/ShaderPreprocessor.hpp
 include/Core/Graphics/Utility/GfxHelpers.hpp
 include/Core/Graphics/Data/RenderData.hpp
 include/Core/Graphics/Data/Vertex.hpp
-include/Core/Graphics/Data/Mesh.hpp
-include/Core/Graphics/Data/Primitive.hpp
-include/Core/Graphics/Data/ModelNode.hpp
-include/Core/Graphics/Data/ModelMaterial.hpp
 include/Core/Graphics/Resource/Shader.hpp
 include/Core/Graphics/Resource/ShaderVariant.hpp
 include/Core/Graphics/Resource/Mesh.hpp
@@ -182,7 +168,8 @@ include/Core/Graphics/Pipeline/DescriptorSet.hpp
 include/Core/World/Entity.hpp
 include/Core/World/Component.hpp
 include/Core/World/ComponentCache.hpp
-include/Core/World/WorldManager.hpp
+include/Core/World/Level/Level.hpp
+include/Core/World/Level/LevelManager.hpp
 include/Core/World/EntityWorld.hpp
 include/Core/World/CommonWorld.hpp
 
@@ -191,10 +178,7 @@ include/Core/Physics/PhysicsWorld.hpp
 
 # Components
 include/Core/Components/CameraComponent.hpp
-include/Core/Components/SimpleFlightMovement.hpp
 include/Core/Components/RenderableComponent.hpp
-include/Core/Components/SkyComponent.hpp
-include/Core/Components/MeshComponent.hpp
 
 
 # GUI
@@ -204,10 +188,8 @@ include/Core/GUI/Widgets/WidgetManager.hpp
 include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
-include/Core/GUI/Widgets/Layout/ScrollArea.hpp
-include/Core/GUI/Widgets/Layout/FoldLayout.hpp
-include/Core/GUI/Widgets/Layout/LayoutBorder.hpp
-include/Core/GUI/Widgets/Layout/GridLayout.hpp
+include/Core/GUI/Widgets/Layout/RelativeLayout.hpp
+include/Core/GUI/Widgets/Layout/Stack.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp
 include/Core/GUI/Widgets/Primitives/Icon.hpp
 include/Core/GUI/Widgets/Primitives/ShapeRect.hpp
@@ -219,10 +201,12 @@ include/Core/GUI/Widgets/Primitives/Dropdown.hpp
 include/Core/GUI/Widgets/Primitives/ColorField.hpp
 include/Core/GUI/Widgets/Primitives/ColorSlider.hpp
 include/Core/GUI/Widgets/Primitives/ColorWheel.hpp
-include/Core/GUI/Widgets/Primitives/Selectable.hpp
 include/Core/GUI/Widgets/Primitives/PopupItem.hpp
 include/Core/GUI/Widgets/Compound/Popup.hpp
 include/Core/GUI/Widgets/Compound/FileMenu.hpp
+
+# Meta
+include/Core/Meta/ProjectData.hpp
 
 )
 

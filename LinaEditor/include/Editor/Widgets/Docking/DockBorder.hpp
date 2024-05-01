@@ -46,20 +46,11 @@ namespace Lina::Editor
 		virtual void			   Draw(int32 threadIndex) override;
 		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual LinaGX::CursorType GetCursorOverride() override;
-		void					   FixChildMargins();
-
-		inline DirectionOrientation GetDirectionOrientation() const
-		{
-			return m_orientation;
-		}
-
-		inline void SetDirectionOrientation(DirectionOrientation orientation)
-		{
-			m_orientation = orientation;
-		}
 
 	private:
+		bool CheckIfCanShrinkWidgets(const Vector<DockWidget*>& widgets, float absAmount, bool isX);
 		bool CheckIfAreaOnSide(DockArea* area, Direction dir);
+		void FixChildMargins();
 
 	private:
 		friend class DockArea;
@@ -67,7 +58,6 @@ namespace Lina::Editor
 		DockArea*			 m_positive	   = nullptr;
 		DirectionOrientation m_orientation = DirectionOrientation::Horizontal;
 		float				 m_pressDiff   = 0.0f;
-		int32				 m_tick		   = 0;
 	};
 
 } // namespace Lina::Editor

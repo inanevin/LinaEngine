@@ -47,7 +47,7 @@ namespace Lina::Editor
 	class Tab : public Widget
 	{
 	public:
-		Tab()		   = default;
+		Tab() : Widget(2){};
 		virtual ~Tab() = default;
 
 		static constexpr float SELECTION_RECT_WIDTH = 2.0f;
@@ -65,11 +65,11 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Initialize() override;
+		virtual void PreTick() override;
 		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
-		virtual bool OnMousePos(const Vector2& pos) override;
 		void		 DisableClosing(bool disabled);
 
 		inline Properties& GetProps()
@@ -101,7 +101,6 @@ namespace Lina::Editor
 		bool	   m_wasSelected			= false;
 		Vector2	   m_offsetAtPress			= Vector2::Zero;
 		uint32	   m_indexInParent			= 0;
-		float	   m_alpha					= 0.0f;
 	};
 
 } // namespace Lina::Editor

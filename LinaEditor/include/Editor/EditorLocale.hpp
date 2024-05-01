@@ -56,7 +56,6 @@ namespace Lina::Editor
 		OpenExistingProject,
 		SelectDirectory,
 		CreateANewProject,
-		CreateANewWorld,
 		SelectProjectFile,
 		DirectoryNotFound,
 		FileNotFound,
@@ -66,9 +65,7 @@ namespace Lina::Editor
 		UnfinishedWorkTitle,
 		UnfinishedWorkDesc,
 		LinaProjectFile,
-		LinaWorldFile,
 		NoProject,
-		NoWorld,
 		NewProject,
 		LoadProject,
 		SaveProject,
@@ -84,28 +81,15 @@ namespace Lina::Editor
 		Resources,
 		World,
 		Performance,
-		ResetLayout,
-		Search,
-		Items,
-		Selected,
-		NothingInDirectory,
-		Memory,
-		FrameTime,
-		DrawCalls,
-		Folder,
 	};
 
 	class Locale
 	{
 	public:
 		static const String& GetStr(LocaleStr str);
-		static String		 GetStrUnicode(LocaleStr str);
-
-		static String GetRandomFact();
 
 	private:
 		static HashMap<LocaleStr, String> s_englishMap;
-		static Vector<String>			  s_randomFacts;
 	};
 
 } // namespace Lina::Editor

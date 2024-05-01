@@ -59,6 +59,7 @@ namespace Lina::Editor
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		void SetCancellable(bool isCancellable);
 		void SetTab(int32 selected);
@@ -79,7 +80,7 @@ namespace Lina::Editor
 		DirectionalLayout* m_content			   = nullptr;
 		WindowBar*		   m_title				   = nullptr;
 		Button*			   m_buttonCancel		   = nullptr;
-		int32			   m_selected			   = -1;
+		int32			   m_selected			   = 0;
 		String			   m_projectPath		   = "";
 		bool			   m_isCancellable		   = true;
 		Widget*			   m_currentLocationButton = nullptr;

@@ -41,7 +41,7 @@ namespace Lina
 		GfxManager,
 		PhysicsWorld,
 		AudioManager,
-		WorldManager,
+		LevelManager,
 		ResourceManager,
 		Editor,
 		Count

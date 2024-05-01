@@ -42,9 +42,6 @@ namespace Lina
 
 	LinaGX::CursorType InputField::GetCursorOverride()
 	{
-		if (GetIsDisabled())
-			return LinaGX::CursorType::Default;
-
 		// Cursor status.
 		if (m_isHovered)
 		{
@@ -67,43 +64,11 @@ namespace Lina
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-
-		m_placeholderText						= m_manager->Allocate<Text>("InputFieldPlaceholder");
-		m_placeholderText->GetProps().isDynamic = true;
-		m_placeholderText->GetFlags().Set(WF_POS_ALIGN_Y);
-		m_placeholderText->SetAlignedPosY(0.5f);
-		m_placeholderText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-
 		AddChild(m_text);
-		AddChild(m_placeholderText);
-
-		m_placeholderText->SetIsDisabled(true);
-	}
-
-	void InputField::CalculateSize(float delta)
-	{
-		if (m_props.wrapText)
-		{
-			m_text->GetProps().wrapWidth = m_isEditing ? 0.0f : GetSizeX();
-			m_text->CalculateTextSize();
-		}
 	}
 
 	void InputField::Tick(float delta)
 	{
-
-		if (m_placeholderText->GetIsDisabled() && m_text->GetProps().text.empty())
-		{
-			m_placeholderText->GetProps().text	= m_props.placeHolderText;
-			m_placeholderText->GetProps().color = m_props.colorPlaceHolder;
-			m_placeholderText->CalculateTextSize();
-			m_placeholderText->SetIsDisabled(false);
-		}
-		else if (!m_placeholderText->GetIsDisabled() && !m_text->GetProps().text.empty())
-		{
-			m_placeholderText->SetIsDisabled(true);
-		}
-
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (!hasControls && m_isEditing)
@@ -137,18 +102,13 @@ namespace Lina
 		if (m_isPressed)
 			m_caretInsertPos = GetCaretPosFromMouse();
 
-		const Vector2& textSize = m_text->GetSize();
-		const Vector2  middle	= Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
-		m_textStart				= middle - Vector2(textSize.x * 0.5f, 0.0f);
-		m_textEnd				= middle + Vector2(textSize.x * 0.5f, 0.0f);
-
-		if (m_props.centerText)
-			m_textStart.x = m_rect.pos.x + GetHalfSizeX() - m_text->GetHalfSizeX();
-
+		const Vector2& textSize		= m_text->GetSize();
+		const Vector2  middle		= Vector2(m_rect.pos.x + m_props.horizontalIndent + textSize.x * 0.5f - m_textOffset, m_rect.pos.y + m_rect.size.y * 0.5f);
+		m_textStart					= middle - Vector2(textSize.x * 0.5f, 0.0f);
+		m_textEnd					= middle + Vector2(textSize.x * 0.5f, 0.0f);
 		const size_t characterCount = m_text->GetProps().text.size();
 		m_averageCharacterStep		= characterCount == 0 ? 0.0f : textSize.x / static_cast<float>(characterCount);
-		m_text->SetPosX(m_textStart.x);
-		m_placeholderText->SetPosX(m_text->GetPosX());
+		m_text->SetPosX(middle.x - m_text->GetHalfSizeX());
 
 		// Caret alpha
 		if (m_isEditing)
@@ -174,9 +134,6 @@ namespace Lina
 
 	void InputField::Draw(int32 threadIndex)
 	{
-		if (!GetIsVisible())
-			return;
-
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		// Background
@@ -204,6 +161,12 @@ namespace Lina
 			LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);
 		}
 
+		Rect*	   existing = m_manager->GetClipStackTop();
+		const bool omitClip = existing && !existing->IsRectInside(m_rect);
+
+		if (!omitClip)
+			m_manager->SetClip(threadIndex, m_rect, {.left = m_props.horizontalIndent, .right = m_props.horizontalIndent});
+
 		if (m_isEditing)
 		{
 			// Caret
@@ -211,12 +174,8 @@ namespace Lina
 			m_props.colorCaret.w		   = m_caretAlpha;
 			caret.color					   = m_props.colorCaret.AsLVG4();
 			const Vector2 caretMiddle	   = GetPosFromCaretIndex(m_caretInsertPos);
-			Vector2		  caretTopLeft	   = Vector2(caretMiddle.x - m_props.horizontalIndent * 0.1f, GetCaretStartY());
-			Vector2		  caretBottomRight = Vector2(caretMiddle.x + m_props.horizontalIndent * 0.1f, GetCaretEndY());
-
-			caretTopLeft.x	   = Math::Clamp(caretTopLeft.x, m_rect.pos.x, m_rect.GetEnd().x);
-			caretBottomRight.x = Math::Clamp(caretBottomRight.x, m_rect.pos.x, m_rect.GetEnd().x);
-
+			const Vector2 caretTopLeft	   = Vector2(caretMiddle.x - m_props.horizontalIndent * 0.1f, GetCaretStartY());
+			const Vector2 caretBottomRight = Vector2(caretMiddle.x + m_props.horizontalIndent * 0.1f, GetCaretEndY());
 			LinaVG::DrawRect(threadIndex, caretTopLeft.AsLVG(), caretBottomRight.AsLVG(), caret, 0, m_drawOrder);
 
 			if (caretBottomRight.x > (m_rect.pos.x + m_rect.size.x - m_props.horizontalIndent))
@@ -238,35 +197,18 @@ namespace Lina
 				const uint32		 maxPos			   = Math::Max(m_highlightStartPos, m_caretInsertPos);
 				const Vector2		 highlightStartMid = GetPosFromCaretIndex(minPos);
 				const Vector2		 highlightEndMid   = GetPosFromCaretIndex(maxPos);
-				Vector2				 topLeft		   = Vector2(highlightStartMid.x, GetCaretStartY());
-				Vector2				 bottomRight	   = Vector2(highlightEndMid.x, GetCaretEndY());
+				const Vector2		 topLeft		   = Vector2(highlightStartMid.x, GetCaretStartY());
+				const Vector2		 bottomRight	   = Vector2(highlightEndMid.x, GetCaretEndY());
 				LinaVG::StyleOptions highlight;
 				highlight.color = m_props.colorHighlight.AsLVG4();
-
-				topLeft.x	  = Math::Clamp(topLeft.x, m_rect.pos.x, m_rect.GetEnd().x);
-				bottomRight.x = Math::Clamp(bottomRight.x, m_rect.pos.x, m_rect.GetEnd().x);
 				LinaVG::DrawRect(threadIndex, topLeft.AsLVG(), bottomRight.AsLVG(), highlight, 0, m_drawOrder);
 			}
 		}
 
-		if (m_props.clipText)
-			m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
-
 		m_text->Draw(threadIndex);
 
-		if (!m_placeholderText->GetIsDisabled())
-		{
-			m_placeholderText->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
-			m_placeholderText->Draw(threadIndex);
-		}
-	}
-
-	void InputField::StartEditing()
-	{
-		m_manager->GrabControls(this);
-		m_isEditing = true;
-		if (m_props.onEditStarted)
-			m_props.onEditStarted(m_text->GetProps().text);
+		if (!omitClip)
+			m_manager->UnsetClip(threadIndex);
 	}
 
 	void InputField::SelectAll()
@@ -337,7 +279,7 @@ namespace Lina
 		{
 			if (m_manager->GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
 			{
-				StartEditing();
+				m_isEditing = true;
 				SelectAll();
 				return true;
 			}
@@ -480,7 +422,8 @@ namespace Lina
 			m_caretInsertPos	= GetCaretPosFromMouse();
 			m_highlightStartPos = m_caretInsertPos;
 			m_isPressed			= true;
-			StartEditing();
+			m_manager->GrabControls(this);
+			m_isEditing = true;
 			return true;
 		}
 

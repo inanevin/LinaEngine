@@ -26,47 +26,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/MeshComponent.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
-#include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Data/ModelNode.hpp"
+#include "Core/GUI/Widgets/Layout/Stack.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
-	void MeshComponent::SaveToStream(OStream& stream) const
+	void Stack::Tick(float delta)
 	{
-		m_model.SaveToStream(stream);
-		m_material.SaveToStream(stream);
-		stream << m_meshIndex;
+		for (auto* c : m_children)
+		{
+			c->SetPosX(m_rect.GetCenter().x - c->GetHalfSizeX());
+			c->SetPosY(m_rect.GetCenter().y - c->GetHalfSizeY());
+		}
 	}
-
-	void MeshComponent::LoadFromStream(IStream& stream)
-	{
-		m_model.LoadFromStream(stream);
-		m_material.LoadFromStream(stream);
-		stream >> m_meshIndex;
-	}
-
-	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
-	{
-		m_model.sid = sid;
-		m_meshIndex = meshIndex;
-	}
-
-	void MeshComponent::SetMaterial(StringID sid)
-	{
-		m_material.sid = sid;
-	}
-
-	void MeshComponent::FetchResources(ResourceManager* rm)
-	{
-		m_model.raw	   = rm->GetResource<Model>(m_model.sid);
-		m_material.raw = rm->GetResource<Material>(m_material.sid);
-		m_mesh		   = m_model.raw->GetMesh(m_meshIndex);
-
-		m_materialToMeshMap.clear();
-		m_materialToMeshMap.insert(linatl::make_pair(m_material.raw, m_mesh));
-	}
-
 } // namespace Lina

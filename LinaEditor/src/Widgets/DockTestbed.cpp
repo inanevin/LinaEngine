@@ -54,5 +54,6 @@ namespace Lina::Editor
 
 	void DockTestbed::Tick(float delta)
 	{
+		Widget::Tick(delta);
 	}
 } // namespace Lina::Editor

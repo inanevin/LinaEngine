@@ -40,24 +40,20 @@ namespace Lina
 #define ENTITY_NULL		 ((uint32_t)-1)
 #define ENTITY_POOL_SIZE 500
 
-	enum EntityFlags
+	enum EntityMask
 	{
-		EF_VISIBLE			= 1 << 0,
-		EF_STATIC			= 1 << 1,
-		EF_NEEDS_VIS_UPDATE = 1 << 2,
-		EF_TRANSIENT		= 1 << 3,
+		Visible			  = 1 << 0,
+		Static			  = 1 << 1,
+		NeedsVisualUpdate = 1 << 2,
+		Reserved3		  = 1 << 3,
+		Reserved4		  = 1 << 4,
+		Reserved5		  = 1 << 5,
+		Reserved6		  = 1 << 6,
 	};
 
-	enum ComponentFlags
+	enum ComponentMask
 	{
-		CF_NONE		  = 1 << 0,
-		CF_RENDERABLE = 1 << 1,
-	};
-
-	enum WorldFlags
-	{
-		WORLD_FLAGS_NONE  = 1 << 0,
-		WORLD_FLAGS_DIRTY = 1 << 1,
+		Renderable = 1 << 0,
 	};
 
 } // namespace Lina

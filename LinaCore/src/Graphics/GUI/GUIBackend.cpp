@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Math/Color.hpp"
-#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
@@ -58,10 +57,10 @@ namespace Lina
 	{
 		// We lazy.
 		if (m_guiSampler == nullptr)
-			m_guiSampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
+			m_guiSampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_SAMPLER_SID);
 
 		if (m_textSampler == nullptr)
-			m_textSampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
+			m_textSampler = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
 
 		const int32 currentSz = static_cast<int32>(m_drawData.size());
 		m_buffers.resize(threadCount);
@@ -87,7 +86,6 @@ namespace Lina
 	{
 		auto& req		   = AddDrawRequest(buf, threadIndex);
 		req.hasTextureBind = false;
-		req.requestType	   = 0;
 	}
 
 	void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf, int threadIndex)
@@ -96,7 +94,6 @@ namespace Lina
 		req.materialData.color1 = buf->m_color.start;
 		req.materialData.color2 = buf->m_color.end;
 		req.hasTextureBind		= false;
-		req.requestType			= 1;
 
 		if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
 		{
@@ -122,11 +119,8 @@ namespace Lina
 
 	void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf, int threadIndex)
 	{
-		auto& req				= AddDrawRequest(buf, threadIndex);
-		float drawBufferType	= static_cast<float>(buf->m_drawBufferType);
-		req.requestType			= 2;
-		req.materialData.color1 = buf->m_tint;
-		float singleChannel		= 0.0f;
+		auto& req			 = AddDrawRequest(buf, threadIndex);
+		float drawBufferType = static_cast<float>(buf->m_drawBufferType);
 
 		if (buf->m_textureHandle == GUI_TEXTURE_HUE_HORIZONTAL)
 		{
@@ -146,41 +140,37 @@ namespace Lina
 		else
 		{
 			req.hasTextureBind = true;
-			req.textureHandle  = buf->m_textureHandle;
+			req.textureHandle  = m_resourceManager->GetResource<Texture>(buf->m_textureHandle)->GetGPUHandle();
 			req.samplerHandle  = m_guiSampler->GetGPUHandle();
 		}
 
-		if (Math::Equals(req.materialData.color1.w, GUI_IS_SINGLE_CHANNEL, 0.01f))
-			singleChannel = 1.0f;
-
 		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, 0.0f, drawBufferType);
+		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, 0.0f, 0.0f, drawBufferType);
+		req.materialData.color1		= buf->m_tint;
 	}
 
 	void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int threadIndex)
 	{
 		auto& req					  = AddDrawRequest(buf, threadIndex);
 		auto  txt					  = m_fontTextures[buf->m_textureHandle].texture;
-		auto  sampler				  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
+		auto  sampler				  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
 		req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
 		req.hasTextureBind			  = true;
 		req.textureHandle			  = txt->GetGPUHandle();
 		req.samplerHandle			  = m_textSampler->GetGPUHandle();
-		req.requestType				  = 3;
 	}
 
 	void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int threadIndex)
 	{
 		auto& req					= AddDrawRequest(buf, threadIndex);
 		auto  txt					= m_fontTextures[buf->m_textureHandle].texture;
-		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
+		auto  sampler				= m_resourceManager->GetResource<TextureSampler>(DEFAULT_GUI_TEXT_SAMPLER_SID);
 		req.materialData.color1		= buf->m_outlineColor;
 		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineSoftness);
 		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
 		req.hasTextureBind			= true;
 		req.textureHandle			= txt->GetGPUHandle();
 		req.samplerHandle			= m_textSampler->GetGPUHandle();
-		req.requestType				= 4;
 	}
 
 	void GUIBackend::BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data)
@@ -199,7 +189,7 @@ namespace Lina
 	void GUIBackend::BufferEnded()
 	{
 		auto& ft = m_fontTextures[m_boundFontTexture];
-		ft.texture->SetCustomData(ft.pixels, ft.width, ft.height, 1, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM, true);
+		ft.texture->SetCustomData(ft.pixels, ft.width, ft.height, 1, LinaGX::Format::R8_UNORM, true);
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)

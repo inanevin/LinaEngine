@@ -37,15 +37,10 @@ namespace Lina::Editor
 	{
 	public:
 		Panel() = delete;
-		Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData), Widget(){};
+		Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData){};
 		virtual ~Panel() = default;
 
-		virtual void			 Draw(int32 threadIndex) override;
-		virtual PanelLayoutExtra GetExtraLayoutData()
-		{
-			return {};
-		};
-		virtual void SetExtraLayoutData(const PanelLayoutExtra& data){};
+		virtual void Draw(int32 threadIndex) override;
 
 		inline PanelType GetType() const
 		{

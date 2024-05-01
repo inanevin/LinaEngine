@@ -26,15 +26,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/Data/Vertex.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Common/Data/Streams.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
-#include "Core/Graphics/Resource/Shader.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
-	bool MaterialComparator::operator()(const Material* lhs, const Material* rhs) const
+	void ProjectData::LoadFromStream(IStream& in)
 	{
-		return lhs->GetShader()->GetSID() < rhs->GetShader()->GetSID();
+		uint32 version = 0;
+		in >> version;
+		StringSerialization::LoadFromStream(in, m_projectName);
+	}
+
+	void ProjectData::SaveToStream(OStream& out)
+	{
+		out << VERSION;
+		StringSerialization::SaveToStream(out, m_projectName);
 	}
 } // namespace Lina

@@ -41,7 +41,6 @@ namespace Lina
 {
 #define BYTES_TO_MB(x)		 x * 0.000001f
 #define FREELIST_HEADER_SIZE 16
-#define FREE_CTR_LIMIT		 100
 
 	MemoryAllocatorPool::MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData, const String& name, StringID category)
 	{
@@ -85,10 +84,8 @@ namespace Lina
 
 		CONDITIONAL_LOCK(m_threadSafe, m_mtx);
 
-		size_t headerSize = m_type != AllocatorType::Pool ? FREELIST_HEADER_SIZE : 0;
-
 		if (m_type == AllocatorType::FreeList)
-			sz = sz % headerSize == 0 ? sz : sz + (headerSize - sz % headerSize);
+			sz = sz % FREELIST_HEADER_SIZE == 0 ? sz : sz + (FREELIST_HEADER_SIZE - sz % FREELIST_HEADER_SIZE);
 
 		void* ptr = nullptr;
 
@@ -96,7 +93,7 @@ namespace Lina
 		{
 			Allocator* alloc = m_allocators[i];
 
-			if (alloc->GetTotalSize() > alloc->GetUsedSize() + sz + headerSize)
+			if (alloc->GetTotalSize() > alloc->GetUsedSize() + sz + FREELIST_HEADER_SIZE)
 			{
 				ptr = alloc->Allocate(sz, m_type == AllocatorType::FreeList ? 8 : 0);
 
@@ -110,9 +107,7 @@ namespace Lina
 			AddAllocator(sz);
 			Allocator* addedAlloc = m_allocators[m_allocatorSize - 1];
 			ptr					  = addedAlloc->Allocate(sz, m_type == AllocatorType::FreeList ? 8 : 0);
-			LINA_ASSERT(ptr != nullptr, "");
 		}
-
 		if (m_type == AllocatorType::FreeList)
 			MEMORY_TRACER_ONALLOC(ptr, sz + FREELIST_HEADER_SIZE);
 		else
@@ -144,38 +139,10 @@ namespace Lina
 				freed = true;
 				alloc->Free(ptr);
 				MEMORY_TRACER_ONFREE(ptr);
-				m_freeCounter++;
 			}
 		}
 
-		LINA_ASSERT(freed, "");
-
-		if (m_freeCounter > FREE_CTR_LIMIT)
-		{
-			m_freeCounter = 0;
-
-			// Free up unused allocators every now and then.
-			for (int32 i = 0; i < m_allocatorSize; i++)
-			{
-				Allocator* alloc = m_allocators[i];
-
-				if (alloc->GetUsedSize() == 0)
-				{
-					Allocator** newAllocators = (Allocator**)malloc(sizeof(Allocator*) * (m_allocatorSize - 1));
-
-					for (int32 j = 0, k = 0; j < m_allocatorSize; j++)
-					{
-						if (j != i)
-							newAllocators[k++] = m_allocators[j];
-					}
-
-					free(m_allocators);
-					m_allocators = newAllocators;
-					m_allocatorSize--;
-					break;
-				}
-			}
-		}
+		assert(freed);
 	}
 
 	void MemoryAllocatorPool::GetTotalSizeInformation(SizeInformation& totalSizeInformation)

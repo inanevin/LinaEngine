@@ -65,9 +65,7 @@ namespace Lina
 		static Vector2ui Zero;
 		static Vector2ui One;
 
-		Vector2ui Min(const Vector2ui& other) const;
-		Vector2ui Max(const Vector2ui& other) const;
-		bool	  Equals(const Vector2ui& other) const;
+		bool Equals(const Vector2ui& other) const;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);

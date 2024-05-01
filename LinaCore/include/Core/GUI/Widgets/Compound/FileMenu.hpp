@@ -50,11 +50,11 @@ namespace Lina
 		struct Data
 		{
 			String text			= "";
+			String headerIcon	= "";
 			String altText		= "";
 			String dropdownIcon = "";
 			bool   hasDropdown	= false;
 			bool   isDivider	= false;
-			void*  userData		= nullptr;
 		};
 
 		virtual void Initialize() override;
@@ -88,12 +88,15 @@ namespace Lina
 	class FileMenuListener
 	{
 	public:
-		virtual bool OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const
+		virtual bool IsItemDisabled(StringID sid)
 		{
 			return false;
 		}
-		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData){};
-		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData){};
+		virtual bool OnItemClicked(StringID sid)
+		{
+			return false;
+		};
+		virtual void OnGetItemData(StringID sid, Vector<FileMenuItem::Data>& outData){};
 	};
 
 	class FileMenu : public DirectionalLayout
@@ -108,7 +111,6 @@ namespace Lina
 		virtual void	   Initialize() override;
 		virtual void	   PreTick() override;
 		DirectionalLayout* CreatePopup(const Vector2& pos, const Vector<FileMenuItem::Data>& subItemData);
-		void			   CreateItems(StringID sid, const Vector2& position, void* userData = nullptr);
 
 		inline FileMenuProperties& GetFileMenuProps()
 		{

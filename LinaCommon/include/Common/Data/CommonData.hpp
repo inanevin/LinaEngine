@@ -30,12 +30,10 @@ SOFTWARE.
 
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/String.hpp"
-#include <span>
 
 namespace Lina
 {
 	template <typename T, typename U> using Pair = std::pair<T, U>;
-	template <typename T> using Span			 = std::span<T>;
 
 	namespace linatl = std;
 

@@ -61,7 +61,6 @@ namespace Lina
 	private:
 		struct DrawRequest
 		{
-			uint8		   requestType	= 0;
 			uint32		   firstIndex	= 0;
 			uint32		   vertexOffset = 0;
 			uint32		   indexCount	= 0;
