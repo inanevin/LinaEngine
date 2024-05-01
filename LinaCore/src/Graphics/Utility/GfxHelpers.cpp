@@ -89,6 +89,28 @@ namespace Lina
 		};
 	}
 
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierUndef2TransferDest(uint32 texture)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= false,
+			.toState		= LinaGX::TextureBarrierState::TransferDestination,
+			.srcAccessFlags = 0,
+			.dstAccessFlags = LinaGX::AF_TransferWrite,
+		};
+	}
+
+	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierTransferDest2Sampled(uint32 texture)
+	{
+		return {
+			.texture		= texture,
+			.isSwapchain	= false,
+			.toState		= LinaGX::TextureBarrierState::ShaderRead,
+			.srcAccessFlags = LinaGX::AF_TransferWrite,
+			.dstAccessFlags = LinaGX::AF_ShaderRead,
+		};
+	}
+
 	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain)
 	{
 		return {
