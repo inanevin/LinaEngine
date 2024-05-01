@@ -55,7 +55,7 @@ namespace Lina
 			SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
 			SetFixedTimestep(10000);
 			SetFixedTimestep(true);
-			SetFrameCap(16667);
+			// SetFrameCap(16667);
 			PROFILER_INIT;
 			PROFILER_REGISTER_THREAD("Main");
 			m_appDelegate->SetupPlatform(this);
@@ -149,6 +149,7 @@ namespace Lina
 		m_engine.Shutdown();
 
 		PROFILER_SHUTDOWN;
+		m_appDelegate->Shutdown();
 		delete m_appDelegate;
 	}
 

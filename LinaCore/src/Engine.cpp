@@ -41,6 +41,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/ApplicationDelegate.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -133,6 +134,9 @@ namespace Lina
 
 		// Kick off audio
 		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+
+		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_RETURN))
+			m_app->Quit();
 
 		// Update app.
 		TweenManager::Get()->Tick(delta);

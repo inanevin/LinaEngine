@@ -84,7 +84,7 @@ namespace Lina
 		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		// Means we are refreshing data.
-		if (!m_allLevels.empty())
+		if (!m_allLevels.empty() || m_gpuHandleExists)
 		{
 			gfxManager->GetLGX()->Join();
 			gfxManager->GetLGX()->DestroyTexture(m_gpuHandle);

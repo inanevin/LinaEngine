@@ -45,7 +45,7 @@ namespace Lina::Editor
 
 	void PanelWorld::Tick(float delta)
 	{
-
+		return;
 		m_world = m_wm->GetMainWorld();
 		if (!m_world)
 			return;
@@ -58,6 +58,8 @@ namespace Lina::Editor
 
 	void PanelWorld::Draw(int32 threadIndex)
 	{
+		return;
+
 		LinaVG::StyleOptions opts;
 		opts.color = Theme::GetDef().background1.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
@@ -65,7 +67,7 @@ namespace Lina::Editor
 		if (!m_world)
 			return;
 
-		LinaVG::DrawImage(threadIndex, m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
+		// LinaVG::DrawImage(threadIndex, m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
 	}
 
 } // namespace Lina::Editor

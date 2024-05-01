@@ -42,7 +42,7 @@ namespace Lina
 
 	void ResourceUploadQueue::Initialize()
 	{
-		m_copyStream	= m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
+		m_copyStream	= m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Graphics});
 		m_copySemaphore = m_gfxManager->GetLGX()->CreateUserSemaphore();
 	}
 
@@ -96,6 +96,8 @@ namespace Lina
 			cmd->destTexture							 = req.txt->GetGPUHandle();
 			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
 			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
+
+			LinaGX::CMDBarrier* barrier = m_copyStream->AddCommand<LinaGX::CMDBarrier>();
 		}
 
 		bool bufferNeedsTransfer = false;

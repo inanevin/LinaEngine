@@ -411,7 +411,7 @@ namespace Lina::Editor
 		else
 			pos = m_mainWindow->GetPosition();
 
-		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), "");
+		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), TO_STRING(m_subWindowCounter));
 
 		DockArea* dock = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
 		dock->SetAlignedPos(Vector2::Zero);

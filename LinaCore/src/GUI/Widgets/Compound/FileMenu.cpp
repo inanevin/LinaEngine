@@ -233,15 +233,16 @@ namespace Lina
 			it->GetProps().onClicked = [sid, popup, subItem, this]() {
 				if (m_listener->OnFileMenuItemClicked(this, sid, subItem.userData))
 				{
-					m_manager->RemoveFromForeground(popup);
-					m_manager->Deallocate(popup);
+					const bool same = m_subPopup == popup;
 
 					if (m_subPopup)
 					{
-						m_manager->RemoveFromForeground(m_subPopup);
-						m_manager->Deallocate(m_subPopup);
+						m_manager->AddToKillList(m_subPopup);
 						m_subPopup = nullptr;
 					}
+
+					if (!same)
+						m_manager->AddToKillList(popup);
 				}
 			};
 

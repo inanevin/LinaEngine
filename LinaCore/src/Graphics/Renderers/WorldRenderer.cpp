@@ -99,7 +99,7 @@ namespace Lina
 	{
 		LinaGX::TextureDesc rtDesc = {
 			.format	   = DEFAULT_RT_FORMAT_HDR,
-			.flags	   = LinaGX::TF_ColorAttachment,
+			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	   = m_size.x,
 			.height	   = m_size.y,
 			.debugName = "WorldRendererTexture",
@@ -325,7 +325,7 @@ namespace Lina
 		barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
 		barrierToAttachment->textureBarrierCount = 2;
 		barrierToAttachment->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.colorTarget);
+		barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.colorTarget);
 		barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.depthTarget);
 
 		m_mainPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
@@ -334,42 +334,42 @@ namespace Lina
 		Shader*	  lastBoundShader	= nullptr;
 		Material* lastBoundMaterial = nullptr;
 
-		uint32 indirectOffset = 0;
-		uint32 batchStart	  = 0;
-		for (auto& [material, meshDataVec] : m_drawDataMap)
-		{
-			auto* shader = material->GetShader();
-			if (shader != lastBoundShader)
-			{
-				shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
-				lastBoundShader = shader;
-			}
-
-			if (material != lastBoundMaterial)
-			{
-				material->Bind(currentFrame.gfxStream, frameIndex, LinaGX::DescriptorSetsLayoutSource::CustomLayout);
-				lastBoundMaterial = material;
-			}
-
-			LinaGX::CMDBindConstants* constants = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
-			constants->size						= sizeof(uint32);
-			constants->data						= currentFrame.gfxStream->EmplaceAuxMemory(batchStart);
-			constants->stages					= currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Vertex);
-			constants->stagesSize				= 1;
-
-			uint32 total = 0;
-
-			for (const auto& d : meshDataVec)
-				total += static_cast<uint32>(d.entityIndices.size());
-
-			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
-			draw->count							 = total;
-			draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, 1).GetGPUResource();
-			draw->indirectBufferOffset			 = indirectOffset;
-
-			indirectOffset += total * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
-			batchStart += total;
-		}
+		// uint32 indirectOffset = 0;
+		// uint32 batchStart	  = 0;
+		// for (auto& [material, meshDataVec] : m_drawDataMap)
+		// {
+		// 	auto* shader = material->GetShader();
+		// 	if (shader != lastBoundShader)
+		// 	{
+		// 		shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
+		// 		lastBoundShader = shader;
+		// 	}
+		//
+		// 	if (material != lastBoundMaterial)
+		// 	{
+		// 		material->Bind(currentFrame.gfxStream, frameIndex, LinaGX::DescriptorSetsLayoutSource::CustomLayout);
+		// 		lastBoundMaterial = material;
+		// 	}
+		//
+		// 	LinaGX::CMDBindConstants* constants = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
+		// 	constants->size						= sizeof(uint32);
+		// 	constants->data						= currentFrame.gfxStream->EmplaceAuxMemory(batchStart);
+		// 	constants->stages					= currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Vertex);
+		// 	constants->stagesSize				= 1;
+		//
+		// 	uint32 total = 0;
+		//
+		// 	for (const auto& d : meshDataVec)
+		// 		total += static_cast<uint32>(d.entityIndices.size());
+		//
+		// 	LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
+		// 	draw->count							 = total;
+		// 	draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, 1).GetGPUResource();
+		// 	draw->indirectBufferOffset			 = indirectOffset;
+		//
+		// 	indirectOffset += total * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
+		// 	batchStart += total;
+		// }
 
 		m_mainPass.End(currentFrame.gfxStream);
 
@@ -379,8 +379,8 @@ namespace Lina
 		barrierFromAttachment->dstStageFlags	   = LinaGX::PSF_FragmentShader;
 		barrierFromAttachment->textureBarrierCount = 2;
 		barrierFromAttachment->textureBarriers	   = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrierFromAttachment->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.colorTarget);
-		barrierFromAttachment->textureBarriers[1]  = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.depthTarget);
+		barrierFromAttachment->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.colorTarget);
+		barrierFromAttachment->textureBarriers[1]  = GfxHelpers::GetTextureBarrierDepthAtt2Read(currentFrame.depthTarget);
 
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
 		return currentFrame.gfxStream;

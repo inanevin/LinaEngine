@@ -53,11 +53,12 @@ namespace Lina
 		virtual ~ApplicationDelegate() = default;
 
 		// Loop
-		virtual void SetupPlatform(Application* app){};
+		virtual void SetupPlatform(Application* app);
 		virtual void PreInitialize(){};
 		virtual void Initialize(){};
 		virtual void CoreResourcesLoaded(){};
 		virtual void OnTick(float delta){};
+		virtual void Shutdown(){};
 
 		// Resources
 		virtual void RegisterResourceTypes(ResourceManager& rm);

@@ -181,4 +181,9 @@ namespace Lina::Editor
 		return false;
 	}
 
+	void EditorApplicationDelegate::Shutdown()
+	{
+		delete m_editor;
+	}
+
 } // namespace Lina::Editor

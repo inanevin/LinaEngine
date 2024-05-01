@@ -50,7 +50,7 @@ namespace Lina
 		{
 			if (w == m_mainWorld)
 			{
-				m_gfxManager->DestroyWorldRenderer(m_mainWorld);
+				// m_gfxManager->DestroyWorldRenderer(m_mainWorld);
 
 				auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 				ResourceIdentifier id(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
@@ -89,6 +89,7 @@ namespace Lina
 
 	void WorldManager::InstallWorld(const String& path)
 	{
+
 		m_gfxManager->Join();
 		auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
@@ -101,7 +102,7 @@ namespace Lina
 		rm->WaitForAll();
 
 		m_mainWorld = rm->GetResource<EntityWorld>(sid);
-		m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
+		// m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
 		m_activeWorlds.push_back(m_mainWorld);
 
 		const float lim = 15.0f;

@@ -118,8 +118,8 @@ namespace Lina
 			const TypeID tid = GetTypeID<T>();
 
 			PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
-			T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
-
+			// T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
+			T* t = new T();
 			LINA_ASSERT(t != nullptr, "");
 			t->SetDebugName(debugName);
 			t->m_lgxWindow		 = m_window;

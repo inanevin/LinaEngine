@@ -44,6 +44,7 @@ namespace Lina::Editor
 		virtual ~PanelPerformance() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Draw(int32 threadIndex) override;
 
 		virtual PanelLayoutExtra GetExtraLayoutData() override;

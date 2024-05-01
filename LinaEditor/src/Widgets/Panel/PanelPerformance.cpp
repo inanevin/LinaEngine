@@ -78,6 +78,15 @@ namespace Lina::Editor
 		SelectContent(0);
 	}
 
+	void PanelPerformance::Destruct()
+	{
+		for (auto* widget : m_tabContents)
+		{
+			if (widget == m_currentContent)
+				continue;
+			m_manager->Deallocate(widget);
+		}
+	}
 	PanelLayoutExtra PanelPerformance::GetExtraLayoutData()
 	{
 		PanelLayoutExtra extra = {};

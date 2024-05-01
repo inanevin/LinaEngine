@@ -76,7 +76,8 @@ namespace Lina::Editor
 		}
 
 		item->children.clear();
-		m_allocatorPool.Free(item);
+		delete item;
+		// m_allocatorPool.Free(item);
 	}
 
 	void FileManager::ScanItem(DirectoryItem* item)
@@ -110,11 +111,13 @@ namespace Lina::Editor
 					continue;
 			}
 
-			DirectoryItem* subItem = new (m_allocatorPool.Allocate(sizeof(DirectoryItem))) DirectoryItem();
-			subItem->extension	   = extension;
-			subItem->tid		   = tid;
-			subItem->isDirectory   = isDirectory;
-			subItem->parent		   = item;
+			// DirectoryItem* subItem = new (m_allocatorPool.Allocate(sizeof(DirectoryItem))) DirectoryItem();
+			DirectoryItem* subItem = new DirectoryItem();
+
+			subItem->extension	 = extension;
+			subItem->tid		 = tid;
+			subItem->isDirectory = isDirectory;
+			subItem->parent		 = item;
 			item->children.push_back(subItem);
 
 			FillPathInformation(subItem, str);
@@ -152,7 +155,8 @@ namespace Lina::Editor
 		if (!FileSystem::FileOrPathExists(resDir))
 			return;
 
-		m_root				= new (m_allocatorPool.Allocate(sizeof(DirectoryItem))) DirectoryItem();
+		// m_root				= new (m_allocatorPool.Allocate(sizeof(DirectoryItem))) DirectoryItem();
+		m_root				= new DirectoryItem();
 		m_root->isDirectory = true;
 		FillPathInformation(m_root, resDir);
 		ScanItem(m_root);

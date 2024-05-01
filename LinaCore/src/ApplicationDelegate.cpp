@@ -8,6 +8,7 @@
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
+#include "Core/GUI/Theme.hpp"
 
 namespace Lina
 {
@@ -20,6 +21,11 @@ namespace Lina
 		rm.RegisterResourceType<Font>(10, {"ttf", "otf"}, PackageType::Package1);
 		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1);
 		rm.RegisterResourceType<EntityWorld>(25, {"linaworld"}, PackageType::Package1);
+	}
+
+	void ApplicationDelegate::SetupPlatform(Application* app)
+	{
+		Theme::GetDef().defaultFont = DEFAULT_FONT_SID;
 	}
 
 	void ApplicationDelegate::RegisterAppResources(ResourceManager& rm)
