@@ -45,7 +45,7 @@ namespace Lina
 	class GUIBackend;
 	class GfxManager;
 	class ModelNode;
-	class ModelComponent;
+	class MeshComponent;
 	class Shader;
 	class Material;
 	class ResourceManager;
@@ -61,9 +61,10 @@ namespace Lina
 			Buffer				   guiVertexBuffer	 = {};
 			Buffer				   guiIndexBuffer	 = {};
 			Buffer				   guiMaterialBuffer = {};
-
-			uint32 colorTarget = 0;
-			uint32 depthTarget = 0;
+			Buffer				   objectBuffer		 = {};
+			Buffer				   sceneBuffer		 = {};
+			uint32				   colorTarget		 = 0;
+			uint32				   depthTarget		 = 0;
 		};
 
 	public:
@@ -98,6 +99,7 @@ namespace Lina
 		}
 
 	private:
+		void   UpdateBuffers(uint32 frameIndex);
 		void   FetchRenderables();
 		void   DrawSky(LinaGX::CommandStream* stream);
 		void   CreateSizeRelativeResources();
@@ -105,20 +107,21 @@ namespace Lina
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
-		GfxManager*				m_gfxManager			= nullptr;
-		GUIBackend*				m_guiBackend			= nullptr;
-		LinaGX::Instance*		m_lgx					= nullptr;
-		PerFrameData			m_pfd[FRAMES_IN_FLIGHT] = {};
-		RenderPass				m_mainPass				= {};
-		Vector2ui				m_size					= Vector2ui::Zero;
-		EntityWorld*			m_world					= nullptr;
-		ModelNode*				m_skyCube				= nullptr;
-		Shader*					m_skyShader				= nullptr;
-		Vector<ModelComponent*> m_modelComponents;
-		GPUDataView				m_gpuDataView  = {};
-		GPUDataScene			m_gpuDataScene = {};
-		Vector<GPUDataObject>	m_objects	   = {};
-		ResourceManager*		m_rm		   = nullptr;
+		GfxManager*			   m_gfxManager			   = nullptr;
+		GUIBackend*			   m_guiBackend			   = nullptr;
+		LinaGX::Instance*	   m_lgx				   = nullptr;
+		PerFrameData		   m_pfd[FRAMES_IN_FLIGHT] = {};
+		RenderPass			   m_mainPass			   = {};
+		Vector2ui			   m_size				   = Vector2ui::Zero;
+		EntityWorld*		   m_world				   = nullptr;
+		ModelNode*			   m_skyCube			   = nullptr;
+		Shader*				   m_skyShader			   = nullptr;
+		Vector<MeshComponent*> m_meshComponents;
+		GPUDataView			   m_gpuDataView  = {};
+		GPUDataScene		   m_gpuDataScene = {};
+		Vector<GPUDataObject>  m_objects	  = {};
+		ResourceManager*	   m_rm			  = nullptr;
+		MaterialToMeshDataMap  m_drawDataMap;
 	};
 
 } // namespace Lina

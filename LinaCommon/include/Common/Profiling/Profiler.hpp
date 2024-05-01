@@ -159,8 +159,8 @@ namespace Lina
 		DeviceGPUInfo				   m_gpuInfo;
 	};
 
-#define PROFILER_INIT						  Lina::Profiler::Initialize
-#define PROFILER_SHUTDOWN					  Lina::Profiler::Shutdown
+#define PROFILER_INIT						  Lina::Profiler::Initialize()
+#define PROFILER_SHUTDOWN					  Lina::Profiler::Shutdown()
 #define PROFILER_FRAME_START()				  Lina::Profiler::Get()->StartFrame()
 #define PROFILER_STARTBLOCK(BLOCKNAME)		  Lina::Profiler::Get()->StartBlock(BLOCKNAME, static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())))
 #define PROFILER_ENDBLOCK(X)				  Lina::Profiler::Get()->EndBlock(static_cast<StringID>(std::hash<std::thread::id>{}(std::this_thread::get_id())), X)

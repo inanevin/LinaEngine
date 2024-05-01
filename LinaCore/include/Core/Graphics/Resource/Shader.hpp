@@ -57,6 +57,7 @@ namespace Lina
 			HashMap<StringID, ShaderVariant> variants;
 			RenderPassDescriptorType		 renderPassDescriptorType	  = RenderPassDescriptorType::Basic;
 			uint32							 descriptorSetAllocationCount = 1;
+			bool							 drawIndirectEnabled		  = false;
 
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);

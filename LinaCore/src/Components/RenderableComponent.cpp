@@ -31,7 +31,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	void RenderableComponent::FillMaterialToMeshes(MaterialToMeshMap& map)
+	void RenderableComponent::FillMaterialToMeshes(MaterialToMeshMap& map) const
 	{
 		for (auto& [mat, mesh] : m_materialToMeshMap)
 			map.insert(linatl::make_pair(mat, mesh));

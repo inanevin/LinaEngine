@@ -148,7 +148,8 @@ namespace Lina
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();
 
-		GetGUIAllocator(tid, 0)->Free(widget);
+		delete widget;
+		// GetGUIAllocator(tid, 0)->Free(widget);
 	}
 
 	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize)

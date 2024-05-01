@@ -33,8 +33,6 @@ SOFTWARE.
 namespace Lina
 {
 
-#define MAX_OBJECTS 256
-
 	void RenderPass::Create(GfxManager* gfxMan, RenderPassDescriptorType descriptorType)
 	{
 		m_lgx		 = gfxMan->GetLGX();
@@ -73,26 +71,38 @@ namespace Lina
 		// View
 		AddRPBasic(data);
 
-		// Scene
+		// Scene data will be set by the user.
 		{
-			data.buffers.push_back({});
-			auto& buffer = data.buffers.back();
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataScene), "RP SceneData Buffer", true);
-			GPUDataScene dummySceneData = {};
-
-			buffer.BufferData(0, (uint8*)&dummySceneData, sizeof(GPUDataScene));
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 1,
-				.buffers   = {buffer.GetGPUResource()},
-			});
 		}
 
-		// Objects
+		// GPU objects buffer will be set by the user.
+		{
+		}
+
+		// Indirect buffer
 		{
 			data.buffers.push_back({});
 			auto& buffer = data.buffers.back();
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "RP ObjectData Buffer", false);
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, m_lgx->GetIndexedIndirectCommandSize() * 2500, "RP Indirect Buffer", false);
+			buffer.MemsetMapped(0);
+			// m_lgx->DescriptorUpdateBuffer({
+			//     .setHandle = data.descriptorSet,
+			//     .binding = 3,
+			//     .buffers = {buffer.GetGPUResource()},
+			// });
+		}
+
+		// Indirect constants
+		{
+			data.buffers.push_back({});
+			auto& buffer = data.buffers.back();
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUIndirectConstants0) * 2500, "RP Indirect Constants SSBO", false);
+			buffer.MemsetMapped(0);
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = data.descriptorSet,
+				.binding   = 3,
+				.buffers   = {buffer.GetGPUResource()},
+			});
 		}
 	}
 

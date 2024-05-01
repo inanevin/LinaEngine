@@ -97,16 +97,18 @@ namespace Lina
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		// Setup LinaVG
-		m_guiBackend						  = new GUIBackend(this);
-		LinaVG::Config.globalFramebufferScale = 1.0f;
-		LinaVG::Config.globalAAMultiplier	  = 1.0f;
-		LinaVG::Config.gcCollectInterval	  = 4000;
-		LinaVG::Config.textCachingEnabled	  = true;
-		LinaVG::Config.textCachingSDFEnabled  = true;
-		LinaVG::Config.textCacheReserve		  = 10000;
-		LinaVG::Config.maxFontAtlasSize		  = 512;
-		LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
-		LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
+		m_guiBackend									 = new GUIBackend(this);
+		LinaVG::Config.globalFramebufferScale			 = 1.0f;
+		LinaVG::Config.globalAAMultiplier				 = 1.0f;
+		LinaVG::Config.gcCollectInterval				 = 4000;
+		LinaVG::Config.textCachingEnabled				 = true;
+		LinaVG::Config.textCachingSDFEnabled			 = true;
+		LinaVG::Config.textCacheReserve					 = 10000;
+		LinaVG::Config.maxFontAtlasSize					 = 512;
+		LinaVG::Config.errorCallback					 = [](const std::string& err) { LINA_ERR(err.c_str()); };
+		LinaVG::Config.logCallback						 = [](const std::string& log) { LINA_TRACE(log.c_str()); };
+		LinaGX::Config.vulkanConfig.enableVulkanFeatures = LinaGX::VulkanFeatureFlags::VKF_Bindless | LinaGX::VulkanFeatureFlags::VKF_UpdateAfterBind | LinaGX::VulkanFeatureFlags::VKF_MultiDrawIndirect;
+
 		LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
 		LinaVG::Initialize();
 	}

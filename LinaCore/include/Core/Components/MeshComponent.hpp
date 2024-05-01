@@ -34,30 +34,40 @@ SOFTWARE.
 
 namespace Lina
 {
+	class MeshDefault;
 
-	class ModelComponent : public RenderableComponent
+	class MeshComponent : public RenderableComponent
 	{
 	public:
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void FetchResources(ResourceManager* rm) override;
 
-		void SetModel(StringID sid);
-		void SetMaterial(uint32 index, StringID sid);
+		void SetMesh(StringID model, uint32 meshIndex);
+		void SetMaterial(StringID sid);
 
 		virtual TypeID GetComponentType() override
 		{
-			return GetTypeID<ModelComponent>();
+			return GetTypeID<MeshComponent>();
+		}
+
+		inline Material* GetMaterialRaw() const
+		{
+			return m_material.raw;
+		}
+
+		inline MeshDefault* GetMeshRaw() const
+		{
+			return m_mesh;
 		}
 
 	private:
-		void FillMeshes(ModelNode* node);
-
-	private:
-		ResRef<Model>			 m_model;
-		Vector<ResRef<Material>> m_materials;
+		ResRef<Model>	 m_model;
+		ResRef<Material> m_material;
+		MeshDefault*	 m_mesh		 = nullptr;
+		uint32			 m_meshIndex = 0;
 	};
 
-	LINA_REFLECTCOMPONENT_BEGIN(ModelComponent, "ModelRenderer", "Graphics")
-	LINA_REFLECTCOMPONENT_END(ModelComponent);
+	LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
+	LINA_REFLECTCOMPONENT_END(MeshComponent);
 } // namespace Lina

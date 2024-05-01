@@ -53,27 +53,10 @@ namespace Lina
 
 	MeshDefault::~MeshDefault()
 	{
-		m_vertexBuffer.Destroy();
-		m_indexBuffer.Destroy();
-	}
-
-	void MeshDefault::Create(GfxManager* gfxMan)
-	{
-		m_gfxManager = gfxMan;
-		auto* lgx	 = gfxMan->GetLGX();
-		m_vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, static_cast<uint32>(sizeof(VertexDefault) * m_vertices.size()), m_name);
-		m_indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, static_cast<uint32>(sizeof(uint16) * m_indices16.size()), m_name);
-		m_vertexBuffer.BufferData(0, reinterpret_cast<uint8*>(m_vertices.data()), sizeof(VertexDefault) * m_vertices.size());
-		m_indexBuffer.BufferData(0, reinterpret_cast<uint8*>(m_indices16.data()), sizeof(uint16) * m_indices16.size());
-		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&m_vertexBuffer);
-		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&m_indexBuffer);
 	}
 
 	void MeshDefault::Draw(LinaGX::CommandStream* stream, uint32 instances)
 	{
-		m_vertexBuffer.BindVertex(stream, sizeof(VertexDefault));
-		m_indexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
-
 		for (const auto& prim : m_primitives)
 		{
 			LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();

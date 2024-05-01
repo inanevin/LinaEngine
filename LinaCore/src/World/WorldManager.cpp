@@ -34,7 +34,8 @@ SOFTWARE.
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Components/ModelComponent.hpp"
+#include "Core/Components/MeshComponent.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
@@ -91,11 +92,28 @@ namespace Lina
 		m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
 		m_activeWorlds.push_back(m_mainWorld);
 
-		Entity*			test  = m_mainWorld->CreateEntity("Test Object");
-		ModelComponent* model = m_mainWorld->AddComponent<ModelComponent>(test);
-		model->SetModel("Resources/Core/Models/Cube.glb"_hs);
-		model->SetMaterial(0, DEFAULT_MATERIAL_OBJECT_SID);
-		model->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+		const float lim = 15.0f;
+
+		for (uint32 i = 0; i < 1000; i++)
+		{
+			Entity*		   test = m_mainWorld->CreateEntity("Cube");
+			MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
+			mesh->SetMesh("Resources/Core/Models/Cube.glb"_hs, 0);
+			mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+			mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+			test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
+		}
+
+		for (uint32 i = 0; i < 1000; i++)
+		{
+			Entity*		   test = m_mainWorld->CreateEntity("Cube");
+			MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
+			mesh->SetMesh("Resources/Core/Models/Sphere.glb"_hs, 0);
+			mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+			mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+			test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
+		}
+
 		// loading the world resources, unloading the current worlds resources...
 	}
 

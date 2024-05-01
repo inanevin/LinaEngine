@@ -66,9 +66,10 @@ namespace Lina
 		{
 			LinaGX::ModelMesh* lgxMesh = lgxNode->mesh;
 			MeshDefault*	   m	   = new MeshDefault();
-			node->m_mesh			   = m;
-			m->m_name				   = lgxMesh->name;
-			m->m_node				   = node;
+			m_meshes.push_back(m);
+			node->m_mesh = m;
+			m->m_name	 = lgxMesh->name;
+			m->m_node	 = node;
 			m->m_primitives.resize(lgxMesh->primitives.size());
 
 			for (size_t i = 0; i < lgxMesh->primitives.size(); i++)
@@ -142,6 +143,9 @@ namespace Lina
 			ModelNode* node = new ModelNode();
 			node->LoadFromStream(stream);
 			m_rootNodes[i] = node;
+
+			if (node->m_mesh != nullptr)
+				m_meshes.push_back(node->m_mesh);
 		}
 
 		for (auto* n : m_rootNodes)
@@ -167,7 +171,7 @@ namespace Lina
 			MeshDefault* mesh = node->GetMesh();
 
 			if (mesh)
-				mesh->Create(gfxMan);
+				gfxMan->GetMeshManager().AddMesh(mesh);
 
 			for (auto* c : node->m_children)
 				UploadNode(c);

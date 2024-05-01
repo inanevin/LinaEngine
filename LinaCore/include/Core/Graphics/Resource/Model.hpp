@@ -52,6 +52,11 @@ namespace Lina
 			return m_rootNodes;
 		}
 
+		inline MeshDefault* GetMesh(uint32 index) const
+		{
+			return m_meshes.at(index);
+		}
+
 	private:
 		FRIEND_RESOURCE_CACHE();
 		Model(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Model>()){};
@@ -68,6 +73,7 @@ namespace Lina
 		ModelNode* GetNodeWithMesh(ModelNode* root);
 
 	private:
+		Vector<MeshDefault*>  m_meshes;
 		Vector<ModelNode*>	  m_rootNodes;
 		Vector<ModelMaterial> m_materials;
 	};

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/ModelComponent.hpp"
+#include "Core/Components/MeshComponent.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
@@ -34,53 +34,39 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ModelComponent::SaveToStream(OStream& stream) const
+	void MeshComponent::SaveToStream(OStream& stream) const
 	{
 		m_model.SaveToStream(stream);
-		VectorSerialization::SaveToStream_OBJ(stream, m_materials);
+		m_material.SaveToStream(stream);
+		stream << m_meshIndex;
 	}
 
-	void ModelComponent::LoadFromStream(IStream& stream)
+	void MeshComponent::LoadFromStream(IStream& stream)
 	{
 		m_model.LoadFromStream(stream);
-		VectorSerialization::LoadFromStream_OBJ(stream, m_materials);
+		m_material.LoadFromStream(stream);
+		stream >> m_meshIndex;
 	}
 
-	void ModelComponent::SetModel(StringID sid)
+	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
 	{
 		m_model.sid = sid;
+		m_meshIndex = meshIndex;
 	}
 
-	void ModelComponent::SetMaterial(uint32 index, StringID sid)
+	void MeshComponent::SetMaterial(StringID sid)
 	{
-		if (m_materials.size() <= index)
-			m_materials.resize(index + 1);
-
-		m_materials[index].sid = sid;
+		m_material.sid = sid;
 	}
 
-	void ModelComponent::FetchResources(ResourceManager* rm)
+	void MeshComponent::FetchResources(ResourceManager* rm)
 	{
-		m_model.raw = rm->GetResource<Model>(m_model.sid);
-		for (auto& mat : m_materials)
-			mat.raw = rm->GetResource<Material>(mat.sid);
+		m_model.raw	   = rm->GetResource<Model>(m_model.sid);
+		m_material.raw = rm->GetResource<Material>(m_material.sid);
+		m_mesh		   = m_model.raw->GetMesh(m_meshIndex);
 
 		m_materialToMeshMap.clear();
-
-		for (auto* r : m_model.raw->GetRootNodes())
-			FillMeshes(r);
-	}
-
-	void ModelComponent::FillMeshes(ModelNode* node)
-	{
-		// for(auto* m : node->GetMeshes())
-		// {
-		//     Material* mat = m_materials[m->GetMaterialIndex()].raw;
-		//     m_materialToMeshMap.insert(linatl::make_pair(mat, m));
-		// }
-
-		// for(auto* c : node->GetChildren())
-		//     FillMeshes(c);
+		m_materialToMeshMap.insert(linatl::make_pair(m_material.raw, m_mesh));
 	}
 
 } // namespace Lina

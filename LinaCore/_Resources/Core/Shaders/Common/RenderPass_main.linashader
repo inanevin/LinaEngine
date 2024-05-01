@@ -47,14 +47,18 @@ struct Object
     mat4 modelMatrix;
 };
 
-layout(std140, set = 1, binding = 2) readonly buffer ObjectData
+layout(std140, set = 1, binding = 2) readonly buffer ObjectBuffer
 {
     Object data[];
 } LINA_OBJECTS;
 
-layout( push_constant ) uniform constants
+struct IndirectArguments
 {
-	int objectID;
-} Constants;
+	uint entityID;
+};
 
-#define LINA_OBJECT_ID Constants.objectID
+layout(set = 1, binding = 3) readonly buffer IndirectArgumentsBuffer
+{
+    IndirectArguments data[];
+} LINA_INDIRECT_ARGUMENTS;
+

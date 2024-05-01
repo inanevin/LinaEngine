@@ -65,28 +65,118 @@ namespace Lina
 		static Transformation Interpolate(const Transformation& from, const Transformation& to, float t);
 
 		void SetMatrix(Matrix4& mat);
-		void UpdateMatrices();
+		void UpdateLocalMatrix();
+		void UpdateGlobalMatrix();
+		void SaveToStream(OStream& stream);
+		void LoadFromStream(IStream& stream);
 
-		Matrix4 ToMatrix() const
+		inline Matrix4 ToMatrix() const
 		{
 			return Matrix4::TransformMatrix(m_position, m_rotation, m_scale);
 		}
 
-		Matrix4 ToLocalMatrix() const
+		inline Matrix4 ToLocalMatrix() const
 		{
 			return Matrix4::TransformMatrix(m_localPosition, m_localRotation, m_localScale);
 		}
 
-		const Matrix4& GetMatrix() const
+		inline const Matrix4& GetMatrix() const
 		{
 			return m_matrix;
 		}
 
-		const Matrix4& GetLocalMatrix() const
+		inline const Matrix4& GetLocalMatrix() const
 		{
 			return m_localMatrix;
 		}
 
+		inline void SetPosition(const Vector3& v)
+		{
+			m_position = v;
+			UpdateGlobalMatrix();
+		}
+
+		inline void SetLocalPosition(const Vector3& v)
+		{
+			m_localPosition = v;
+			UpdateLocalMatrix();
+		}
+
+		inline void SetScale(const Vector3& v)
+		{
+			m_scale = v;
+			UpdateGlobalMatrix();
+		}
+
+		inline void SetLocalScale(const Vector3& v)
+		{
+			m_localScale = v;
+			UpdateLocalMatrix();
+		}
+
+		inline void SetRotation(const Quaternion& q)
+		{
+			m_rotation = q;
+			UpdateGlobalMatrix();
+		}
+
+		inline void SetLocalRotation(const Quaternion& q)
+		{
+			m_localRotation = q;
+			UpdateLocalMatrix();
+		}
+
+		inline void SetRotationAngles(const Vector3& v)
+		{
+			m_rotationAngles = v;
+		}
+
+		inline void SetLocalRotationAngles(const Vector3& v)
+		{
+			m_localRotationAngles = v;
+		}
+
+		inline const Vector3& GetPosition() const
+		{
+			return m_position;
+		}
+
+		inline const Vector3& GetLocalPosition() const
+		{
+			return m_localPosition;
+		}
+
+		inline const Vector3& GetScale() const
+		{
+			return m_scale;
+		}
+
+		inline const Vector3& GetLocalScale() const
+		{
+			return m_localScale;
+		}
+
+		inline const Quaternion& GetRotation() const
+		{
+			return m_rotation;
+		}
+
+		inline const Quaternion& GetLocalRotation() const
+		{
+			return m_localRotation;
+		}
+
+		inline const Vector3& GetRotationAngles() const
+		{
+			return m_rotationAngles;
+		}
+
+		inline const Vector3& GetLocalRotationAngles() const
+		{
+			return m_localRotationAngles;
+		}
+
+	private:
 		Vector3	   m_position = Vector3::Zero;
 		Quaternion m_rotation;
 		Vector3	   m_rotationAngles = Vector3::Zero;
@@ -95,12 +185,8 @@ namespace Lina
 		Quaternion m_localRotation;
 		Vector3	   m_localScale			 = Vector3::One;
 		Vector3	   m_localRotationAngles = Vector3::Zero;
-
-		void SaveToStream(OStream& stream);
-		void LoadFromStream(IStream& stream);
-
-		Matrix4 m_matrix	  = Matrix4::Identity();
-		Matrix4 m_localMatrix = Matrix4::Identity();
+		Matrix4	   m_matrix				 = Matrix4::Identity();
+		Matrix4	   m_localMatrix		 = Matrix4::Identity();
 	};
 
 } // namespace Lina

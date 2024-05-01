@@ -45,6 +45,7 @@ namespace Lina
 		HashMapSerialization::SaveToStream_OBJ(out, variants);
 		out << static_cast<uint8>(renderPassDescriptorType);
 		out << descriptorSetAllocationCount;
+		out << drawIndirectEnabled;
 	}
 
 	void Shader::Metadata::LoadFromStream(IStream& in)
@@ -55,6 +56,7 @@ namespace Lina
 		in >> rpType;
 		renderPassDescriptorType = static_cast<RenderPassDescriptorType>(rpType);
 		in >> descriptorSetAllocationCount;
+		in >> drawIndirectEnabled;
 	}
 
 	Shader::Shader(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Shader>())
@@ -215,7 +217,16 @@ namespace Lina
 
 			m_materialSetDesc.allocationCount = m_meta.descriptorSetAllocationCount;
 			plDesc.descriptorSetDescriptions.push_back(m_materialSetDesc);
+
+			for (const auto& c : m_layout.constants)
+			{
+				LinaGX::PipelineLayoutPushConstantRange pcr;
+				pcr.size   = static_cast<uint32>(c.size);
+				pcr.stages = c.stages;
+				plDesc.constantRanges.push_back(pcr);
+			}
 		}
+
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(plDesc);
 
 		m_descriptorSets.push_back(new DescriptorSet());
@@ -266,6 +277,7 @@ namespace Lina
 				.topology				 = LinaGX::Topology::TriangleList,
 				.useCustomPipelineLayout = true,
 				.customPipelineLayout	 = m_pipelineLayout,
+				.drawIndirectEnabled	 = m_meta.drawIndirectEnabled,
 				.debugName				 = m_path.c_str(),
 			});
 		}

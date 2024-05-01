@@ -51,17 +51,21 @@ namespace Lina
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 
-		void Create(GfxManager* gfxMan);
 		void Draw(LinaGX::CommandStream* stream, uint32 instances);
 
-		inline const Buffer& GetVertexBuffer() const
+		inline uint32 GetVertexOffset() const
 		{
-			return m_vertexBuffer;
+			return m_vertexOffset;
 		}
 
-		inline const Buffer& GetIndexBuffer() const
+		inline uint32 GetIndexOffset() const
 		{
-			return m_indexBuffer;
+			return m_indexOffset;
+		}
+
+		inline uint32 GetIndexCount() const
+		{
+			return static_cast<uint32>(m_indices16.size());
 		}
 
 	private:
@@ -72,11 +76,12 @@ namespace Lina
 		Vector<PrimitiveDefault> m_primitives;
 		Vector<VertexDefault>	 m_vertices;
 		Vector<uint16>			 m_indices16;
-		ModelNode*				 m_node = nullptr;
-		String					 m_name = "";
-		Buffer					 m_vertexBuffer;
-		Buffer					 m_indexBuffer;
-		GfxManager*				 m_gfxManager = nullptr;
+		ModelNode*				 m_node			= nullptr;
+		String					 m_name			= "";
+		uint32					 m_vertexOffset = 0;
+		uint32					 m_indexOffset	= 0;
+
+		GfxManager* m_gfxManager = nullptr;
 	};
 
 } // namespace Lina
