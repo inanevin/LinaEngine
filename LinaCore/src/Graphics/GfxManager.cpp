@@ -130,21 +130,22 @@ namespace Lina
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
 
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
 #endif
 
 		LinaGX::Config.api			   = api;
-		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Integrated;
 		LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
 		LinaGX::Config.gpuLimits	   = {
 				  .samplerLimit = 2048,
 				  .bufferLimit	= 2048,
 		  };
-		LinaGX::Config.mutexLockCreationDeletion = true;
+		LinaGX::Config.vulkanConfig.enableVulkanFeatures = LinaGX::VKF_MultiDrawIndirect;
+		LinaGX::Config.mutexLockCreationDeletion		 = true;
 
 		m_lgx->Initialize();
 

@@ -85,6 +85,7 @@ namespace Lina
 
 	void GUIBackend::DrawDefault(LinaVG::DrawBuffer* buf, int threadIndex)
 	{
+		return;
 		auto& req		   = AddDrawRequest(buf, threadIndex);
 		req.hasTextureBind = false;
 		req.requestType	   = 0;

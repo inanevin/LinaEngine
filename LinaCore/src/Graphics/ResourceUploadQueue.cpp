@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/Utility/GfxHelpers.hpp"
 
 namespace Lina
 {
@@ -42,7 +43,7 @@ namespace Lina
 
 	void ResourceUploadQueue::Initialize()
 	{
-		m_copyStream	= m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Graphics});
+		m_copyStream	= m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
 		m_copySemaphore = m_gfxManager->GetLGX()->CreateUserSemaphore();
 	}
 
@@ -89,6 +90,24 @@ namespace Lina
 		if (m_textureRequests.empty() && m_bufferRequests.empty())
 			return false;
 
+		// Transition to transfer destination
+		if (!m_textureRequests.empty())
+		{
+			LinaGX::CMDBarrier* barrier	 = m_copyStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->textureBarrierCount = static_cast<uint32>(m_textureRequests.size());
+			barrier->textureBarriers	 = m_copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
+			barrier->srcStageFlags		 = LinaGX::PipelineStageFlags::PSF_TopOfPipe;
+			barrier->dstStageFlags		 = LinaGX::PipelineStageFlags::PSF_Transfer;
+
+			size_t br = 0;
+			for (const auto& req : m_textureRequests)
+			{
+				auto& textureBarrier = barrier->textureBarriers[br];
+				textureBarrier		 = GfxHelpers::GetTextureBarrierUndef2TransferDest(req.txt->GetGPUHandle());
+				br++;
+			}
+		}
+
 		for (auto& req : m_textureRequests)
 		{
 			Vector<LinaGX::TextureBuffer>	  allBuffers = req.txt->GetAllLevels();
@@ -96,8 +115,24 @@ namespace Lina
 			cmd->destTexture							 = req.txt->GetGPUHandle();
 			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
 			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
+		}
 
-			LinaGX::CMDBarrier* barrier = m_copyStream->AddCommand<LinaGX::CMDBarrier>();
+		// Transition to sampled
+		if (!m_textureRequests.empty())
+		{
+			LinaGX::CMDBarrier* barrier	 = m_copyStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->textureBarrierCount = static_cast<uint32>(m_textureRequests.size());
+			barrier->textureBarriers	 = m_copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
+			barrier->srcStageFlags		 = LinaGX::PipelineStageFlags::PSF_Transfer;
+			barrier->dstStageFlags		 = LinaGX::PipelineStageFlags::PSF_FragmentShader;
+
+			size_t br = 0;
+			for (const auto& req : m_textureRequests)
+			{
+				auto& textureBarrier = barrier->textureBarriers[br];
+				textureBarrier		 = GfxHelpers::GetTextureBarrierTransferDest2Sampled(req.txt->GetGPUHandle());
+				br++;
+			}
 		}
 
 		bool bufferNeedsTransfer = false;

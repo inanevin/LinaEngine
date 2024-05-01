@@ -334,42 +334,42 @@ namespace Lina
 		Shader*	  lastBoundShader	= nullptr;
 		Material* lastBoundMaterial = nullptr;
 
-		// uint32 indirectOffset = 0;
-		// uint32 batchStart	  = 0;
-		// for (auto& [material, meshDataVec] : m_drawDataMap)
-		// {
-		// 	auto* shader = material->GetShader();
-		// 	if (shader != lastBoundShader)
-		// 	{
-		// 		shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
-		// 		lastBoundShader = shader;
-		// 	}
-		//
-		// 	if (material != lastBoundMaterial)
-		// 	{
-		// 		material->Bind(currentFrame.gfxStream, frameIndex, LinaGX::DescriptorSetsLayoutSource::CustomLayout);
-		// 		lastBoundMaterial = material;
-		// 	}
-		//
-		// 	LinaGX::CMDBindConstants* constants = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
-		// 	constants->size						= sizeof(uint32);
-		// 	constants->data						= currentFrame.gfxStream->EmplaceAuxMemory(batchStart);
-		// 	constants->stages					= currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Vertex);
-		// 	constants->stagesSize				= 1;
-		//
-		// 	uint32 total = 0;
-		//
-		// 	for (const auto& d : meshDataVec)
-		// 		total += static_cast<uint32>(d.entityIndices.size());
-		//
-		// 	LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
-		// 	draw->count							 = total;
-		// 	draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, 1).GetGPUResource();
-		// 	draw->indirectBufferOffset			 = indirectOffset;
-		//
-		// 	indirectOffset += total * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
-		// 	batchStart += total;
-		// }
+		uint32 indirectOffset = 0;
+		uint32 batchStart	  = 0;
+		for (auto& [material, meshDataVec] : m_drawDataMap)
+		{
+			auto* shader = material->GetShader();
+			if (shader != lastBoundShader)
+			{
+				shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
+				lastBoundShader = shader;
+			}
+
+			if (material != lastBoundMaterial)
+			{
+				material->Bind(currentFrame.gfxStream, frameIndex, LinaGX::DescriptorSetsLayoutSource::CustomLayout);
+				lastBoundMaterial = material;
+			}
+
+			LinaGX::CMDBindConstants* constants = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
+			constants->size						= sizeof(uint32);
+			constants->data						= currentFrame.gfxStream->EmplaceAuxMemory(batchStart);
+			constants->stages					= currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Vertex);
+			constants->stagesSize				= 1;
+
+			uint32 total = 0;
+
+			for (const auto& d : meshDataVec)
+				total += static_cast<uint32>(d.entityIndices.size());
+
+			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
+			draw->count							 = total;
+			draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, 1).GetGPUResource();
+			draw->indirectBufferOffset			 = indirectOffset;
+
+			indirectOffset += total * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
+			batchStart += total;
+		}
 
 		m_mainPass.End(currentFrame.gfxStream);
 
