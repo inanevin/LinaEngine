@@ -227,6 +227,8 @@ namespace Lina
 			}
 		}
 
+		plDesc.indirectDrawEnabled = m_meta.drawIndirectEnabled;
+
 		m_pipelineLayout = m_lgx->CreatePipelineLayout(plDesc);
 
 		m_descriptorSets.push_back(new DescriptorSet());
@@ -275,9 +277,9 @@ namespace Lina
 				.cullMode				 = variant.cullMode,
 				.frontFace				 = variant.frontFace,
 				.topology				 = LinaGX::Topology::TriangleList,
+				.drawIndirectEnabled	 = m_meta.drawIndirectEnabled,
 				.useCustomPipelineLayout = true,
 				.customPipelineLayout	 = m_pipelineLayout,
-				.drawIndirectEnabled	 = m_meta.drawIndirectEnabled,
 				.debugName				 = m_path.c_str(),
 			});
 		}

@@ -398,7 +398,7 @@ namespace Lina
 					String str = "";
 					PlatformProcess::TryGetStringFromClipboard(str);
 					Insert(m_caretInsertPos, str);
-					m_caretInsertPos += static_cast<size_t>(str.size());
+					m_caretInsertPos += static_cast<uint32>(str.size());
 					ClampCaretInsert();
 					m_highlightStartPos = m_caretInsertPos;
 					return true;
