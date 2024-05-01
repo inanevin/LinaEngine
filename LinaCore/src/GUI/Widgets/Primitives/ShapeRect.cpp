@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
@@ -35,11 +35,49 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	void ShapeRect::Draw(int32 threadIndex)
 	{
+		if (!GetIsVisible())
+			return;
+
 		LinaVG::StyleOptions opts;
-		opts.color.start = m_props.colorStart.AsLVG4();
-		opts.color.end	 = m_props.colorEnd.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		opts.color.start				= m_props.colorStart.AsLVG4();
+		opts.color.end					= m_props.colorEnd.AsLVG4();
+		opts.outlineOptions.color.start = opts.outlineOptions.color.end = m_props.colorOutline.AsLVG4();
+		opts.rounding													= m_props.rounding;
+		opts.outlineOptions.thickness									= m_props.outlineThickness;
+
+		if (m_props.imageTexture != nullptr)
+		{
+			const Vector2 start = GetStartFromMargins();
+			const Vector2 end	= GetEndFromMargins();
+			Vector2		  size	= end - start;
+
+			if (m_props.fitImage)
+			{
+				const Vector2 txtSize = m_props.imageTexture->GetSizeF();
+				const float	  max	  = Math::Max(txtSize.x, txtSize.y);
+				const float	  min	  = Math::Min(txtSize.x, txtSize.y);
+				const float	  aspect  = max / min;
+
+				if (txtSize.x > txtSize.y)
+					size.y = size.x / aspect;
+				else
+					size.x = size.y / aspect;
+			}
+
+			Color color = m_props.colorStart;
+
+			if (m_props.imageTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
+				color.w = GUI_IS_SINGLE_CHANNEL;
+
+			LinaVG::DrawImage(threadIndex, m_props.imageTexture->GetGPUHandle(), m_rect.GetCenter().AsLVG(), size.AsLVG(), color.AsLVG4(), 0.0f, m_drawOrder);
+		}
+		else
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+
+		Widget::Draw(threadIndex);
+		Widget::DrawTooltip(threadIndex);
 	}
 } // namespace Lina

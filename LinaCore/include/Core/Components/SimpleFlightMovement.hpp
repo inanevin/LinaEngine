@@ -28,29 +28,38 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/World/Component.hpp"
 
 namespace Lina
 {
-	class Stack : public Widget
+	class SimpleFlightMovement : public Component
 	{
 	public:
-		Stack() : Widget(1){};
-		virtual ~Stack() = default;
-
-		struct Properties
-		{
-		};
-
+		virtual void Begin() override;
+		virtual void End() override;
 		virtual void Tick(float delta) override;
 
-		inline Properties& GetProps()
+		virtual TypeID GetComponentType() override
 		{
-			return m_props;
+			return GetTypeID<SimpleFlightMovement>();
+		}
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			stream << m_movementSpeed << m_rotationSpeed;
+		};
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			stream >> m_movementSpeed >> m_rotationSpeed;
 		}
 
 	private:
-		Properties m_props = {};
+		LINA_REFLECTION_ACCESS(SimpleFlightMovement);
+		float m_movementSpeed = 26.0f;
+		float m_rotationSpeed = 12.0f;
 	};
 
+	LINA_REFLECTCOMPONENT_BEGIN(SimpleFlightMovement, "SimpleFlightMovement", "Transformation")
+	LINA_REFLECTCOMPONENT_END(SimpleFlightMovement);
 } // namespace Lina

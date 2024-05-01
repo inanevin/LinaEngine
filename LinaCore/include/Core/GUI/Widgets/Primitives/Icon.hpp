@@ -39,7 +39,7 @@ namespace Lina
 	class Icon : public Widget
 	{
 	public:
-		Icon() : Widget(0, WF_OWNS_SIZE)
+		Icon() : Widget(WF_OWNS_SIZE)
 		{
 		}
 		virtual ~Icon() = default;
@@ -55,17 +55,22 @@ namespace Lina
 			Color			 colorPressed			= Theme::GetDef().foreground0;
 			Color			 colorDisabled			= Theme::GetDef().foreground0;
 			float			 textScale				= 0.5f;
-			bool			 isDynamic				= false;
+			bool			 isDynamic				= true;
 			bool			 enableHoverPressColors = false;
 
 			Color sdfOutlineColor	  = Color::White;
 			float sdfThickness		  = 0.5f;
-			float sdfSoftness		  = 0.05f;
+			float sdfSoftness		  = 0.018f;
 			float sdfOutlineThickness = 0.0f;
 			float sdfOutlineSoftness  = 0.0f;
+
+			Vector4 customClip			= Vector4::Zero;
+			bool	dynamicSizeToParent = false;
+			float	dynamicSizeScale	= 1.0f;
 		};
 
 		virtual void Initialize() override;
+		virtual void CalculateSize(float dt) override;
 		virtual void Draw(int32 threadIndex) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 

@@ -46,20 +46,25 @@ namespace Lina::Editor
 	class DockArea : public DockWidget, public EditorPayloadListener
 	{
 	public:
-		DockArea() : DockWidget(1){};
+		DockArea() : DockWidget(){};
 		virtual ~DockArea() = default;
 
-		virtual void Construct() override;
-		virtual void Destruct() override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
-		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
-		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
-		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
+		virtual void			Construct() override;
+		virtual void			Destruct() override;
+		virtual void			PreTick() override;
+		virtual void			Tick(float delta) override;
+		virtual void			Draw(int32 threadIndex) override;
+		virtual void			OnPayloadStarted(PayloadType type, Widget* payload) override;
+		virtual void			OnPayloadEnded(PayloadType type, Widget* payload) override;
+		virtual bool			OnPayloadDropped(PayloadType type, Widget* payload) override;
+		virtual LinaGX::Window* OnPayloadGetWindow() override
+		{
+			return m_lgxWindow;
+		}
 
 		void AddPanel(Panel* w);
 		void RemovePanel(Panel* w);
+		void FixAreaChildMargins();
 
 		void	  ShowPreview();
 		void	  HidePreview();
@@ -73,8 +78,7 @@ namespace Lina::Editor
 		}
 
 	private:
-		void ExpandWidgetsToMyPlace(const Vector<DockWidget*>& widgets, Direction directionOfAreas);
-		void FixAreaChildMargins();
+		void ExpandWidgetsToMyPlace(const Vector<Widget*>& widgets, Direction directionOfAreas);
 
 	private:
 		TabRow*			   m_tabRow	 = nullptr;

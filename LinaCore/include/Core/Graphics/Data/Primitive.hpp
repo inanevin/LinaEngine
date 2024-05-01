@@ -26,9 +26,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/Resource/Mesh.hpp"
+#pragma once
+
+#include "Common/Data/Vector.hpp"
+#include "Common/Data/String.hpp"
+#include "Vertex.hpp"
+
+namespace LinaGX
+{
+	class CommandStream;
+}
 
 namespace Lina
 {
+	class ModelNode;
+
+	class PrimitiveDefault
+	{
+	public:
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
+
+		inline uint32 GetStartIndex() const
+		{
+			return m_startIndex;
+		}
+
+		inline uint32 GetStartVertex() const
+		{
+			return m_startVertex;
+		}
+
+		inline uint32 GetMaterialIndex() const
+		{
+			return m_materialIndex;
+		}
+
+	private:
+		friend class Model;
+
+		uint32 m_materialIndex = 0;
+		uint32 m_startIndex	   = 0;
+		uint32 m_startVertex   = 0;
+	};
 
 } // namespace Lina

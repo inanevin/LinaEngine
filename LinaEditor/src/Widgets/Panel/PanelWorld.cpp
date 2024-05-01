@@ -28,14 +28,40 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/System/System.hpp"
+#include "Common/Math/Math.hpp"
+#include "Core/World/WorldManager.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 
 namespace Lina::Editor
 {
+	void PanelWorld::Construct()
+	{
+		m_wm	 = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		m_gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+	}
+
+	void PanelWorld::Tick(float delta)
+	{
+		m_world = m_wm->GetMainWorld();
+		if (!m_world)
+			return;
+
+		m_worldRenderer = m_wm->GetWorldRenderer(m_world);
+
+		const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
+		m_wm->ResizeWorldTexture(m_world, size);
+	}
+
 	void PanelWorld::Draw(int32 threadIndex)
 	{
 		LinaVG::StyleOptions opts;
-		opts.color		   = Color::Green.AsLVG4();
-		opts.color.start.w = opts.color.end.w = 0.1f;
+		opts.color = Theme::GetDef().background1.AsLVG4();
 		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+
+		LinaVG::DrawImage(threadIndex, m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
 	}
+
 } // namespace Lina::Editor

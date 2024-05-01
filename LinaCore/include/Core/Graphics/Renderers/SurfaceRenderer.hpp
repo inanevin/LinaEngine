@@ -52,7 +52,7 @@ namespace Lina
 	class GfxManager;
 	class ApplicationDelegate;
 
-	class SurfaceRenderer : public LinaGX::WindowListener
+	class SurfaceRenderer
 	{
 	private:
 		struct PerFrameData
@@ -67,6 +67,7 @@ namespace Lina
 		void				   PreTick();
 		void				   Tick(float delta);
 		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
+		void				   Resize(const LinaGX::LGXVector2ui& newSize);
 
 		inline bool IsVisible()
 		{
@@ -94,8 +95,6 @@ namespace Lina
 		}
 
 	protected:
-		virtual void OnWindowSizeChanged(const LinaGX::LGXVector2ui& newSize) override;
-
 	protected:
 		StringID			 m_sid		  = 0;
 		GfxManager*			 m_gfxManager = nullptr;

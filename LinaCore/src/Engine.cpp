@@ -135,10 +135,11 @@ namespace Lina
 		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
 
 		// Update app.
-		TweenManager::Get()->Tick(deltaF);
-		m_gfxManager.Tick(deltaF);
-		m_audioManager.Tick(deltaF);
-		m_app->GetAppDelegate()->OnTick(deltaF);
+		TweenManager::Get()->Tick(delta);
+		m_worldManager.Tick(delta);
+		m_gfxManager.Tick(delta);
+		m_audioManager.Tick(delta);
+		m_app->GetAppDelegate()->OnTick(delta);
 
 		// Render
 		m_gfxManager.Render();
@@ -202,9 +203,6 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-
-			LINA_TRACE("[FPS] : {0}", SystemInfo::GetMeasuredFPS());
-			LINA_TRACE("[DT]: {0}", SystemInfo::GetDeltaTime());
 		}
 	}
 

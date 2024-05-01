@@ -54,17 +54,6 @@ namespace Lina
 
 	enum GameEvent
 	{
-		EVG_Start			   = 1 << 0,
-		EVG_PostStart		   = 1 << 1,
-		EVG_Tick			   = 1 << 2,
-		EVG_PostTick		   = 1 << 3,
-		EVG_Simulate		   = 1 << 4,
-		EVG_PostSimulate	   = 1 << 5,
-		EVG_ComponentCreated   = 1 << 6,
-		EVG_ComponentDestroyed = 1 << 7,
-		EVG_EntityCreated	   = 1 << 8,
-		EVG_EntityDestroyed	   = 1 << 9,
-		EVG_End				   = 1 << 10,
 	};
 } // namespace Lina
 

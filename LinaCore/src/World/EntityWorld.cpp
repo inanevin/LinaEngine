@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/System/SystemInfo.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina
 {
@@ -41,7 +42,6 @@ namespace Lina
 
 	void EntityWorld::DestroyWorld()
 	{
-
 		for (auto* e : m_entities)
 		{
 			if (e != nullptr)
@@ -73,11 +73,6 @@ namespace Lina
 	{
 		auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [sid](Entity* e) { return e != nullptr && e->GetSID() == sid; });
 		return *it;
-	}
-
-	Entity* EntityWorld::GetEntityFromID(uint32 id)
-	{
-		return m_entities.GetItem(id);
 	}
 
 	void EntityWorld::CopyFrom(EntityWorld& world)
@@ -119,10 +114,6 @@ namespace Lina
 			return nullptr;
 		}
 
-		Event ev	  = Event();
-		ev.pParams[0] = e;
-		DispatchEvent(EVG_EntityCreated, ev);
-
 		return e;
 	}
 
@@ -136,9 +127,6 @@ namespace Lina
 
 	void EntityWorld::DestroyEntityData(Entity* e)
 	{
-		Event ev		 = Event();
-		ev.uintParams[0] = e->GetID();
-
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
 
@@ -149,26 +137,15 @@ namespace Lina
 		m_entities.RemoveItem(id);
 		e->~Entity();
 		m_allocatorPool.Free(e);
-
-		DispatchEvent(EVG_EntityDestroyed, ev);
 	}
 
 	void EntityWorld::Simulate(float fixedDelta)
 	{
-		// dispatch events.
-		Event eventData;
-		eventData.fParams[0] = fixedDelta;
-		DispatchEvent(EVG_Simulate, eventData);
 		m_physicsWorld.Simulate();
-		DispatchEvent(EVG_PostSimulate, eventData);
 	}
 
 	void EntityWorld::Tick(float deltaTime)
 	{
-		Event data;
-		data.fParams[0] = deltaTime;
-		DispatchEvent(EVG_Tick, data);
-		DispatchEvent(EVG_PostTick, data);
 	}
 
 	void EntityWorld::WaitForSimulation()
@@ -176,7 +153,7 @@ namespace Lina
 		m_physicsWorld.WaitForSimulation();
 	}
 
-	void EntityWorld::SaveToStream(OStream& stream)
+	void EntityWorld::SaveToStream(OStream& stream) const
 	{
 		m_entities.SaveToStream(stream);
 
@@ -204,8 +181,22 @@ namespace Lina
 			cache->SaveToStream(stream);
 	}
 
+	void EntityWorld::LoadFromFile(const char* path)
+	{
+		DestroyWorld();
+
+		IStream stream = Serialization::LoadFromFile(path);
+
+		if (stream.GetDataRaw() != nullptr)
+			LoadFromStream(stream);
+
+		stream.Destroy();
+	}
+
 	void EntityWorld::LoadFromStream(IStream& stream)
 	{
+		DestroyWorld();
+
 		// Load id list.
 		m_entities.LoadFromStream(stream);
 
@@ -249,4 +240,13 @@ namespace Lina
 		}
 	}
 
+	void EntityWorld::AddListener(EntityWorldListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
+
+	void EntityWorld::RemoveListener(EntityWorldListener* listener)
+	{
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
+	}
 } // namespace Lina

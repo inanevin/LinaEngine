@@ -49,7 +49,7 @@ namespace Lina
 	public:
 		Matrix4(){};
 		Matrix4(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset);
-
+		Matrix4(const float* data);
 		Matrix4(glm::mat4 mat) : glm::mat4(mat){};
 
 		static Matrix4 Identity();
@@ -62,7 +62,7 @@ namespace Lina
 		static Matrix4 InitRotationFromVectors(const Vector3&, const Vector3&, const Vector3&);
 		static Matrix4 InitRotationFromDirection(const Vector3& forward, const Vector3& up);
 		static Matrix4 InitRotation(const Quaternion& q);
-		static Matrix4 InitLookAt(const Vector3& location, const Vector3& forward, const Vector3& up);
+		static Matrix4 InitLookAt(const Vector3& location, const Vector3& center, const Vector3& up);
 		float		   Determinant4x4() const;
 		Matrix4		   ToNormalMatrix() const;
 		Matrix4		   Transpose() const;
@@ -77,7 +77,7 @@ namespace Lina
 
 		Transformation ToTransform();
 
-		void SaveToStream(OStream& stream);
+		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);
 	};
 

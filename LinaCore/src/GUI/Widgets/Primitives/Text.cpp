@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Math/Math.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -38,12 +39,36 @@ namespace Lina
 		CalculateTextSize();
 	}
 
+	void Text::CalculateSize(float delta)
+	{
+		if (m_props.fetchWrapFromParent)
+		{
+			m_props.wrapWidth = m_parent->GetSizeX();
+			CalculateTextSize();
+		}
+	}
+
 	void Text::Draw(int32 threadIndex)
 	{
+		if (!GetIsVisible())
+			return;
+
 		const float dpiScale = m_lgxWindow->GetDPIScale();
 
 		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
+
+		if (m_props.fetchCustomClipFromParent && m_parent)
+		{
+			const Vector2 start = m_parent->GetStartFromMargins();
+			const Vector2 end	= m_parent->GetEndFromMargins();
+			m_props.customClip	= Vector4(start.x, start.y, end.x - start.x, end.y - start.y + 10.0f);
+		}
+
+		if (m_props.fetchCustomClipFromSelf)
+		{
+			m_props.customClip = Vector4(GetPosX() - GetSizeX() * 0.1f, GetPosY() - GetSizeY() * 0.5f, GetSizeX() * 1.2f, GetSizeY() * 2.0f);
+		}
 
 		if (m_isSDF)
 		{
@@ -51,8 +76,10 @@ namespace Lina
 			opts.font		 = m_lvgFont;
 			opts.textScale	 = m_props.textScale;
 			opts.alignment	 = m_props.alignment;
-			opts.wrapWidth	 = m_props.maxWidth;
+			opts.wrapWidth	 = m_props.wrapWidth;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
+			opts.cpuClipping				  = m_props.customClip.AsLVG4();
+			opts.wordWrap					  = m_props.wordWrap;
 
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
@@ -65,9 +92,11 @@ namespace Lina
 			opts.font			= m_lvgFont;
 			opts.textScale		= m_props.textScale;
 			opts.alignment		= m_props.alignment;
-			opts.wrapWidth		= m_props.maxWidth;
+			opts.wrapWidth		= m_props.wrapWidth;
 			opts.newLineSpacing = 0.0f;
 			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
+			opts.cpuClipping				  = m_props.customClip.AsLVG4();
+			opts.wordWrap					  = m_props.wordWrap;
 
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
@@ -85,12 +114,16 @@ namespace Lina
 
 		m_isSDF = m_lvgFont->m_isSDF;
 
+		if (m_props.fetchWrapFromParent)
+			m_props.wrapWidth = m_parent->GetSizeX();
+
 		if (m_isSDF)
 		{
 			LinaVG::SDFTextOptions opts;
 			opts.font	   = m_lvgFont;
 			opts.textScale = m_props.textScale;
-			opts.wrapWidth = m_props.maxWidth;
+			opts.wrapWidth = m_props.wrapWidth;
+			opts.wordWrap  = m_props.wordWrap;
 			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
 		}
 		else
@@ -98,8 +131,41 @@ namespace Lina
 			LinaVG::TextOptions opts;
 			opts.font	   = m_lvgFont;
 			opts.textScale = m_props.textScale;
-			opts.wrapWidth = m_props.maxWidth;
+			opts.wrapWidth = m_props.wrapWidth;
+			opts.wordWrap  = m_props.wordWrap;
 			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
 		}
+	}
+
+	bool Text::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (act == LinaGX::InputAction::Pressed && m_isHovered)
+		{
+			m_isPressed = true;
+			return true;
+		}
+
+		if (act == LinaGX::InputAction::Released)
+		{
+			if (m_isPressed && m_isHovered)
+			{
+				if (m_props.onClicked)
+					m_props.onClicked();
+
+				m_isPressed = false;
+				return true;
+			}
+
+			if (m_isPressed)
+			{
+				m_isPressed = false;
+				return true;
+			}
+		}
+
+		return false;
 	}
 } // namespace Lina

@@ -30,15 +30,38 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 
+namespace Lina
+{
+	class DirectionalLayout;
+}
 namespace Lina::Editor
 {
+	class TabRow;
 	class PanelPerformance : public Panel
 	{
 	public:
 		PanelPerformance() : Panel(PanelType::Performance, 0){};
 		virtual ~PanelPerformance() = default;
 
+		virtual void Construct() override;
+		virtual void Draw(int32 threadIndex) override;
+
+		virtual PanelLayoutExtra GetExtraLayoutData() override;
+		virtual void			 SetExtraLayoutData(const PanelLayoutExtra& data) override;
+
 	private:
+		void			   SelectContent(int32 index);
+		void			   SelectContent(Widget* w);
+		DirectionalLayout* BuildContentLayout(const String& name);
+		void			   BuildContentsCPU(DirectionalLayout* parent);
+		void			   BuildContentsGPU(DirectionalLayout* parent);
+		void			   BuildContentsMemory(DirectionalLayout* parent);
+
+	private:
+		Vector<Widget*>	   m_tabContents;
+		Widget*			   m_currentContent = nullptr;
+		DirectionalLayout* m_layout			= nullptr;
+		TabRow*			   m_tabRow			= nullptr;
 	};
 
 } // namespace Lina::Editor

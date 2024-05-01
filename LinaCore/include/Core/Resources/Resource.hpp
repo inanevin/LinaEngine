@@ -83,8 +83,6 @@ namespace Lina
 
 		template <typename U> friend class ResourceCache;
 
-		virtual void Flush(){};
-		virtual void Upload(){};
 		virtual void BatchLoaded(){};
 		virtual void LoadFromFile(const char* path){};
 		virtual void LoadFromStream(IStream& stream){};
@@ -114,4 +112,21 @@ namespace Lina
 		ResourceOwner	 m_owner		   = ResourceOwner::ResourceManager;
 		ResourceTag		 m_tag			   = ResourceTag::Default;
 	};
+
+	template <typename T> struct ResRef
+	{
+		T*		 raw = nullptr;
+		StringID sid = 0;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << sid;
+		};
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> sid;
+		};
+	};
+
 } // namespace Lina

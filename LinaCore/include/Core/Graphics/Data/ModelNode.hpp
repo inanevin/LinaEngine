@@ -28,33 +28,40 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/Vector.hpp"
-#include "Common/Common.hpp"
+#include "Common/Math/Matrix.hpp"
+#include "Mesh.hpp"
 
 namespace Lina
 {
+	class MeshDefault;
 
-	class RelativeLayout : public Widget
+	class ModelNode
 	{
 	public:
-		struct Properties
+		inline MeshDefault* GetMesh() const
 		{
-			Vector<float>		 ratios;
-			DirectionOrientation direction = DirectionOrientation::Horizontal;
-		};
+			return m_mesh;
+		}
 
-		RelativeLayout()		  = default;
-		virtual ~RelativeLayout() = default;
-
-		virtual void Tick(float delta) override;
-
-		inline Properties& GetProps()
+		inline const Vector<ModelNode*>& GetChildren() const
 		{
-			return m_props;
+			return m_children;
 		}
 
 	private:
-		Properties m_props = {};
+		friend class Model;
+
+		virtual ~ModelNode();
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
+
+	private:
+		String			   m_name	  = "";
+		ModelNode*		   m_parent	  = nullptr;
+		Vector<ModelNode*> m_children = {};
+		MeshDefault*	   m_mesh	  = nullptr;
+		Matrix4			   m_localMatrix;
 	};
+
 } // namespace Lina

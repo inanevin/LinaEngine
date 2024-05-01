@@ -28,15 +28,33 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef RenderData_HPP
-#define RenderData_HPP
-
 #include "Common/Data/Vector.hpp"
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Matrix.hpp"
+#include "Common/Data/Map.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
+	class Material;
+	class MeshDefault;
+	class MeshComponent;
+	class RenderableComponent;
+
+	struct MaterialComparator
+	{
+		bool operator()(const Material* lhs, const Material* rhs) const;
+	};
+
+	struct DrawDataMeshDefault
+	{
+		MeshDefault*   mesh = nullptr;
+		Vector<uint32> entityIndices;
+	};
+
+	typedef Map<Material*, MeshDefault*, MaterialComparator>				MaterialToMeshMap;
+	typedef Map<Material*, Vector<DrawDataMeshDefault>, MaterialComparator> MaterialToMeshDataMap;
+
 	enum RenderableType
 	{
 		RenderableSprite	  = 1 << 0,
@@ -63,6 +81,18 @@ namespace Lina
 		Vector2 screenSize;
 	};
 
+	struct GPUDataScene
+	{
+		Vector4 skyTop;
+		Vector4 skyHor;
+		Vector4 skyBot;
+	};
+
+	struct GPUDataObject
+	{
+		Matrix4 model;
+	};
+
 	struct GPUTexture2D
 	{
 		uint32 textureIndex;
@@ -78,6 +108,9 @@ namespace Lina
 		Vector4 floatPack2;
 	};
 
-} // namespace Lina
+	struct GPUIndirectConstants0
+	{
+		uint32 entityID;
+	};
 
-#endif
+} // namespace Lina

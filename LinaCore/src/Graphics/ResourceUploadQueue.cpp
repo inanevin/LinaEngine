@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Pipeline/Buffer.hpp"
 
 namespace Lina
 {
@@ -53,7 +54,7 @@ namespace Lina
 
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
 	{
-		LOCK_GUARD(m_mtx);
+		LOCK_GUARD(m_txtMtx);
 
 		// No duplicates allowed
 		for (const auto& req : m_textureRequests)
@@ -68,9 +69,24 @@ namespace Lina
 		m_textureRequests.push_back(req);
 	}
 
+	void ResourceUploadQueue::AddBufferRequest(Buffer* buf)
+	{
+		LOCK_GUARD(m_bufMtx);
+
+		for (const auto& req : m_bufferRequests)
+		{
+			if (req.buffer == buf)
+				return;
+		}
+
+		BufferRequest req = {};
+		req.buffer		  = buf;
+		m_bufferRequests.push_back(req);
+	}
+
 	bool ResourceUploadQueue::FlushAll(SemaphoreData& outSemaphore)
 	{
-		if (m_textureRequests.empty())
+		if (m_textureRequests.empty() && m_bufferRequests.empty())
 			return false;
 
 		for (auto& req : m_textureRequests)
@@ -82,9 +98,20 @@ namespace Lina
 			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
 		}
 
+		bool bufferNeedsTransfer = false;
+
+		for (auto& req : m_bufferRequests)
+		{
+			if (req.buffer->Copy(m_copyStream))
+				bufferNeedsTransfer = true;
+		}
+
+		if (!bufferNeedsTransfer && m_textureRequests.empty())
+			return false;
+
 		m_gfxManager->GetLGX()->CloseCommandStreams(&m_copyStream, 1);
 
-		m_copySemaphoreValue++;
+		uint64 val = m_copySemaphoreValue;
 
 		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
 			.targetQueue	  = m_gfxManager->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
@@ -93,9 +120,11 @@ namespace Lina
 			.useSignal		  = true,
 			.signalCount	  = 1,
 			.signalSemaphores = &m_copySemaphore,
-			.signalValues	  = &m_copySemaphoreValue,
+			.signalValues	  = &val,
 			.isMultithreaded  = true,
 		};
+
+		m_copySemaphoreValue++;
 
 		m_gfxManager->GetLGX()->SubmitCommandStreams(desc);
 
@@ -103,6 +132,7 @@ namespace Lina
 			req.onComplete();
 
 		m_textureRequests.clear();
+		m_bufferRequests.clear();
 
 		outSemaphore.value	   = m_copySemaphoreValue;
 		outSemaphore.semaphore = m_copySemaphore;

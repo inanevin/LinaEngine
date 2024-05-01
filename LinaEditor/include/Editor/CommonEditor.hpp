@@ -65,22 +65,39 @@ namespace Lina::Editor
 #define ICON_INFO				 "\u0065"
 #define ICON_ERROR				 "\u0066"
 #define ICON_WARN				 "\u0067"
+#define ICON_SAVE				 "\u0068"
+#define ICON_CHEVRON_LEFT		 "\u0070"
+#define ICON_CHEVRON_RIGHT		 "\u0071"
+#define ICON_CHEVRON_UP			 "\u0072"
+#define ICON_CHEVRON_DOWN		 "\u0073"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f
 #define PAYLOAD_WINDOW_SID		UINT32_MAX - 2
+#define RESOURCE_THUMBNAIL_SIZE 96
 
 	enum class PanelType
 	{
 		Entities,
 		Resources,
 		Performance,
-		World
+		World,
 	};
 
 	enum class PayloadType
 	{
+		None,
 		DockedPanel,
+		EntitySelectable,
+		BrowserSelectable,
+		ContentsSelectable,
+	};
+
+	struct PanelLayoutExtra
+	{
+		static constexpr uint32 F_SZ = 8;
+
+		float f[F_SZ];
 	};
 
 } // namespace Lina::Editor

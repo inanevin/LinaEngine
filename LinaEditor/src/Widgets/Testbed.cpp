@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/System/System.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
@@ -56,40 +57,51 @@ namespace Lina::Editor
 	{
 		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		const float itemHeight = Theme::GetBaseItemHeight(1.0f);
+		const float itemHeight = Theme::GetDef().baseItemHeight;
 		const float itemWidth  = 100.0f;
-		float		y		   = itemHeight;
-		float		x		   = Theme::GetDef().baseIndent;
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetProps().direction = DirectionOrientation::Vertical;
+		layout->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		AddChild(layout);
+
+		auto setFlags = [&](Widget* w, bool isVertical = false) {
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
+			w->SetAlignedPosX(0.0f);
+			w->SetFixedSizeX(itemWidth);
+			w->SetFixedSizeY(itemHeight);
+
+			if (isVertical)
+			{
+				w->SetFixedSizeY(itemWidth);
+				w->SetFixedSizeX(itemHeight);
+			}
+		};
 
 		// Icon && title
 		{
 			Icon* icon			  = m_manager->Allocate<Icon>("Lina Icon");
 			icon->GetProps().icon = ICON_LINA_LOGO;
-			icon->Initialize();
-			icon->SetPos(Vector2(x + icon->GetSize().x * 0.5f, y));
-			AddChild(icon);
+			setFlags(icon);
+			layout->AddChild(icon);
 
 			Text* text			  = m_manager->Allocate<Text>("Title Text");
 			text->GetProps().text = "Testbed";
-			text->Initialize();
-			text->SetPos(Vector2(x + icon->GetSize().x * 0.5f + Theme::GetDef().baseIndent + text->GetSize().x * 0.5f, y));
-			AddChild(text);
+			setFlags(text);
+			layout->AddChild(text);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Button
 		{
 			Button* button					   = m_manager->Allocate<Button>("Button");
 			button->GetText()->GetProps().text = "Button";
-			button->Initialize();
-			button->SetSize(Vector2(itemWidth, itemHeight));
-			button->SetPos(Vector2(x, y));
-			AddChild(button);
+			setFlags(button);
+			layout->AddChild(button);
 		}
-
-		y += itemHeight * 1.5f;
-
 		// Checkbox
 		{
 			static bool value					   = false;
@@ -97,13 +109,9 @@ namespace Lina::Editor
 			check->GetProps().value				   = &value;
 			check->GetIcon()->GetProps().icon	   = ICON_CHECK;
 			check->GetIcon()->GetProps().textScale = 0.5f;
-			check->Initialize();
-			check->SetPos(Vector2(x, y));
-			check->SetSize(Vector2(itemWidth, itemHeight));
-			AddChild(check);
+			setFlags(check);
+			layout->AddChild(check);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Slider
 		{
@@ -113,13 +121,9 @@ namespace Lina::Editor
 			slider->GetProps().maxValue = 10.0f;
 			slider->GetProps().step		= 0.0f;
 			slider->GetProps().value	= &value;
-			slider->Initialize();
-			slider->SetSize(Vector2(itemWidth, itemHeight));
-			slider->SetPos(Vector2(x, y));
-			AddChild(slider);
+			setFlags(slider);
+			layout->AddChild(slider);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Slider Vertical
 		{
@@ -130,13 +134,9 @@ namespace Lina::Editor
 			slider->GetProps().step		 = 0.0f;
 			slider->GetProps().value	 = &value;
 			slider->GetProps().direction = DirectionOrientation::Vertical;
-			slider->Initialize();
-			slider->SetSize(Vector2(itemHeight, itemWidth));
-			slider->SetPos(Vector2(x, y));
-			AddChild(slider);
+			setFlags(slider, true);
+			layout->AddChild(slider);
 		}
-
-		y += itemHeight + itemWidth;
 
 		// Input Field Number slider
 		{
@@ -148,13 +148,9 @@ namespace Lina::Editor
 			field->GetProps().valueStep			  = 0.5f;
 			field->GetProps().value				  = &value;
 			field->GetText()->GetProps().text	  = "Testing";
-			field->Initialize();
-			field->SetSize(Vector2(itemWidth, itemHeight));
-			field->SetPos(Vector2(x, y));
-			AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Input Field Number
 		{
@@ -166,26 +162,18 @@ namespace Lina::Editor
 			field->GetProps().valueStep			  = 0.1f;
 			field->GetProps().value				  = &value;
 			field->GetText()->GetProps().text	  = "Testing";
-			field->Initialize();
-			field->SetSize(Vector2(itemWidth, itemHeight));
-			field->SetPos(Vector2(x, y));
-			AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Input Field Text
 		{
 			InputField* field				  = m_manager->Allocate<InputField>("InputFieldText");
 			field->GetProps().isNumberField	  = false;
 			field->GetText()->GetProps().text = "Testing";
-			field->Initialize();
-			field->SetSize(Vector2(itemWidth, itemHeight));
-			field->SetPos(Vector2(x, y));
-			AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Dropdown
 		{
@@ -200,27 +188,18 @@ namespace Lina::Editor
 
 			dd->GetProps().onSelected = [](int32 selected) { selectedDropdownItem = selected; };
 
-			dd->Initialize();
-			dd->SetSize(Vector2(itemWidth, itemHeight));
-			dd->SetPos(Vector2(x, y));
-
-			AddChild(dd);
+			setFlags(dd);
+			layout->AddChild(dd);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Color field
 		{
 			static Color color		= Color::White;
 			ColorField*	 field		= m_manager->Allocate<ColorField>("ColorField");
 			field->GetProps().value = &color;
-			field->Initialize();
-			field->SetPos(Vector2(x, y));
-			field->SetSize(Vector2(itemWidth, itemHeight));
-			AddChild(field);
+			setFlags(field);
+			layout->AddChild(field);
 		}
-
-		y += itemHeight * 1.5f;
 
 		// Color slider
 		{
@@ -231,14 +210,23 @@ namespace Lina::Editor
 			cs->GetProps().maxValue	  = 1.0f;
 			cs->GetProps().colorBegin = Color::White;
 			cs->GetProps().colorEnd	  = Color::Red;
-			cs->Initialize();
-			cs->SetPos(Vector2(x, y));
-			cs->SetSize(Vector2(itemWidth, itemHeight));
-
-			AddChild(cs);
+			setFlags(cs);
+			layout->AddChild(cs);
 		}
 
-		y += itemHeight * 1.5f;
+		// Color slider
+		{
+			static float value					   = 0.0f;
+			ColorSlider* cs						   = m_manager->Allocate<ColorSlider>("ColorSlider");
+			cs->GetProps().drawCheckeredBackground = true;
+			cs->GetProps().value				   = &value;
+			cs->GetProps().minValue				   = 0.0f;
+			cs->GetProps().maxValue				   = 1.0f;
+			cs->GetProps().colorBegin			   = Color(0.5f, 0.5f, 0.5f, 0.0f);
+			cs->GetProps().colorEnd				   = Color::Red;
+			setFlags(cs);
+			layout->AddChild(cs);
+		}
 
 		// Color slider
 		{
@@ -248,13 +236,10 @@ namespace Lina::Editor
 			cs->GetProps().value	  = &value;
 			cs->GetProps().minValue	  = 0.0f;
 			cs->GetProps().maxValue	  = 1.0f;
-			cs->Initialize();
-			cs->SetPos(Vector2(x, y));
-			cs->SetSize(Vector2(itemWidth, itemHeight));
-			AddChild(cs);
+			setFlags(cs);
+			layout->AddChild(cs);
 		}
-
-		y += itemHeight * 1.5f;
+		return;
 
 		// Color slider
 		{
@@ -267,44 +252,17 @@ namespace Lina::Editor
 			cs->GetProps().minValue	  = 0.0f;
 			cs->GetProps().maxValue	  = 1.0f;
 			cs->GetProps().value	  = &value;
-			cs->Initialize();
-			cs->SetPos(Vector2(x, y));
-			cs->SetSize(Vector2(itemHeight, itemWidth));
-			AddChild(cs);
+			setFlags(cs);
+			layout->AddChild(cs);
 		}
-
-		y += itemHeight + itemWidth;
-
-		x = 150;
-		y = itemHeight;
 
 		// Color wheel
 		{
 			ColorWheelCompound* wh = m_manager->Allocate<ColorWheelCompound>("ColorWheelCompound");
-			wh->Initialize();
 			wh->SetTargetColor(Color(0.12f, 0.07f, 0.03f, 1.0f));
-			wh->SetPos(Vector2(x, y));
 			wh->SetSize(Vector2(600, 800));
-			AddChild(wh);
+			layout->AddChild(wh);
 		}
-		y += itemHeight + 200;
-	}
-
-	void Testbed::Tick(float delta)
-	{
-		m_rect = m_parent->GetRect();
-	}
-
-	void Testbed::Draw(int32 threadIndex)
-	{
-		RectBackground bgSettings = {
-			.enabled	= true,
-			.startColor = Theme::GetDef().background1,
-			.endColor	= Theme::GetDef().background1,
-		};
-
-		WidgetUtility::DrawRectBackground(threadIndex, bgSettings, m_rect, m_drawOrder);
-		Widget::Draw(threadIndex);
 	}
 
 } // namespace Lina::Editor

@@ -87,6 +87,11 @@ namespace Lina
 			return m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
 		}
 
+		inline Shader* GetShader() const
+		{
+			return m_shader;
+		}
+
 	private:
 		FRIEND_RESOURCE_CACHE();
 		Material(ResourceManager* rm, const String& path, StringID sid);

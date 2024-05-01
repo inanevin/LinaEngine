@@ -52,6 +52,9 @@ namespace Lina
 
 	void PopupItem::Draw(int32 threadIndex)
 	{
+		if (!GetIsVisible())
+			return;
+
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
 		if (m_props.isSelected || m_isHovered)

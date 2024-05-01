@@ -30,17 +30,32 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 
+namespace Lina
+{
+	class WorldManager;
+	class EntityWorld;
+	class WorldRenderer;
+	class GfxManager;
+} // namespace Lina
+
 namespace Lina::Editor
 {
+
 	class PanelWorld : public Panel
 	{
 	public:
 		PanelWorld() : Panel(PanelType::World, 0){};
 		virtual ~PanelWorld() = default;
 
+		virtual void Construct() override;
+		virtual void Tick(float delta) override;
 		virtual void Draw(int32 threadIndex) override;
 
 	private:
+		WorldManager*  m_wm			   = nullptr;
+		EntityWorld*   m_world		   = nullptr;
+		WorldRenderer* m_worldRenderer = nullptr;
+		GfxManager*	   m_gfxMan		   = nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -32,32 +32,77 @@ SOFTWARE.
 
 namespace Lina
 {
-	void RenderPass::Create(GfxManager* gfxMan, LinaGX::Instance* lgx, RenderPassDescriptorType descriptorType)
+
+	void RenderPass::Create(GfxManager* gfxMan, RenderPassDescriptorType descriptorType)
 	{
-		m_lgx		 = lgx;
+		m_lgx		 = gfxMan->GetLGX();
 		m_gfxManager = gfxMan;
 		m_type		 = descriptorType;
-
-		GPUDataView dummyViewData = {};
 
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
-			data.descriptorSet = lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentRenderPass(m_type));
+			data.descriptorSet = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentRenderPass(m_type));
 
 			if (descriptorType == RenderPassDescriptorType::Basic)
-			{
-				data.buffers.push_back({});
-				auto& buffer = data.buffers.back();
-				buffer.Create(lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), "RP ViewData Buffer", true);
+				AddRPBasic(data);
+			else if (descriptorType == RenderPassDescriptorType::Main)
+				AddRPMain(data);
+		}
+	}
 
-				buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
-				m_lgx->DescriptorUpdateBuffer({
-					.setHandle = data.descriptorSet,
-					.binding   = 0,
-					.buffers   = {buffer.GetGPUResource()},
-				});
-			}
+	void RenderPass::AddRPBasic(PerFrameData& data)
+	{
+		data.buffers.push_back({});
+		auto& buffer = data.buffers.back();
+		buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), "RP ViewData Buffer", true);
+		GPUDataView dummyViewData = {};
+
+		buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
+		m_lgx->DescriptorUpdateBuffer({
+			.setHandle = data.descriptorSet,
+			.binding   = 0,
+			.buffers   = {buffer.GetGPUResource()},
+		});
+	}
+
+	void RenderPass::AddRPMain(PerFrameData& data)
+	{
+		// View
+		AddRPBasic(data);
+
+		// Scene data will be set by the user.
+		{
+		}
+
+		// GPU objects buffer will be set by the user.
+		{
+		}
+
+		// Indirect buffer
+		{
+			data.buffers.push_back({});
+			auto& buffer = data.buffers.back();
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, m_lgx->GetIndexedIndirectCommandSize() * 2500, "RP Indirect Buffer", false);
+			buffer.MemsetMapped(0);
+			// m_lgx->DescriptorUpdateBuffer({
+			//     .setHandle = data.descriptorSet,
+			//     .binding = 3,
+			//     .buffers = {buffer.GetGPUResource()},
+			// });
+		}
+
+		// Indirect constants
+		{
+			data.buffers.push_back({});
+			auto& buffer = data.buffers.back();
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUIndirectConstants0) * 2500, "RP Indirect Constants SSBO", false);
+			buffer.MemsetMapped(0);
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = data.descriptorSet,
+				.binding   = 3,
+				.buffers   = {buffer.GetGPUResource()},
+			});
 		}
 	}
 
@@ -70,18 +115,21 @@ namespace Lina
 			for (auto& b : data.buffers)
 				b.Destroy();
 
+			data.buffers.clear();
 			m_lgx->DestroyDescriptorSet(data.descriptorSet);
 		}
 	}
 
-	void RenderPass::SetColorAttachment(uint32 index, const LinaGX::RenderPassColorAttachment& att)
+	void RenderPass::SetColorAttachment(uint32 frameIndex, uint32 index, const LinaGX::RenderPassColorAttachment& att)
 	{
-		LINA_ASSERT(index < static_cast<uint32>(m_colorAttachments.size() + 1), "");
+		auto& colorAttachments = m_pfd[frameIndex].colorAttachments;
 
-		if (index < static_cast<uint32>(m_colorAttachments.size()))
-			m_colorAttachments[index] = att;
+		LINA_ASSERT(index < static_cast<uint32>(colorAttachments.size() + 1), "");
+
+		if (index < static_cast<uint32>(colorAttachments.size()))
+			colorAttachments[index] = att;
 		else
-			m_colorAttachments.push_back(att);
+			colorAttachments.push_back(att);
 	}
 
 	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, bool bindGlobalSet)
@@ -105,12 +153,14 @@ namespace Lina
 		bind->customLayout = m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, m_type);
 	}
 
-	void RenderPass::Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors)
+	void RenderPass::Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex)
 	{
+		auto& colorAttachments = m_pfd[frameIndex].colorAttachments;
+
 		LinaGX::CMDBeginRenderPass* rp = stream->AddCommand<LinaGX::CMDBeginRenderPass>();
-		rp->colorAttachmentCount	   = static_cast<uint32>(m_colorAttachments.size());
-		rp->colorAttachments		   = stream->EmplaceAuxMemory<LinaGX::RenderPassColorAttachment>(m_colorAttachments.data(), m_colorAttachments.size() * sizeof(LinaGX::RenderPassColorAttachment));
-		rp->depthStencilAttachment	   = m_depthStencil;
+		rp->colorAttachmentCount	   = static_cast<uint32>(colorAttachments.size());
+		rp->colorAttachments		   = stream->EmplaceAuxMemory<LinaGX::RenderPassColorAttachment>(colorAttachments.data(), colorAttachments.size() * sizeof(LinaGX::RenderPassColorAttachment));
+		rp->depthStencilAttachment	   = m_pfd[frameIndex].depthStencil;
 		rp->viewport				   = vp;
 		rp->scissors				   = scissors;
 	}

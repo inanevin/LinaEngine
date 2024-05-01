@@ -45,11 +45,17 @@ namespace Lina
 	class Texture;
 	class GfxManager;
 	struct SemaphoreData;
+	class Buffer;
 
 	struct TextureUploadRequest
 	{
 		Texture*		 txt = nullptr;
 		Delegate<void()> onComplete;
+	};
+
+	struct BufferRequest
+	{
+		Buffer* buffer = nullptr;
 	};
 
 	class ResourceUploadQueue
@@ -61,6 +67,7 @@ namespace Lina
 		void Initialize();
 		void Shutdown();
 		void AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete);
+		void AddBufferRequest(Buffer* buf);
 
 		bool FlushAll(SemaphoreData& outSemaphore);
 
@@ -75,8 +82,10 @@ namespace Lina
 		}
 
 	private:
-		Mutex						 m_mtx;
+		Mutex						 m_txtMtx;
+		Mutex						 m_bufMtx;
 		Vector<TextureUploadRequest> m_textureRequests;
+		Vector<BufferRequest>		 m_bufferRequests;
 		GfxManager*					 m_gfxManager		  = nullptr;
 		LinaGX::CommandStream*		 m_copyStream		  = nullptr;
 		uint16						 m_copySemaphore	  = 0;

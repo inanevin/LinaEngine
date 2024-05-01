@@ -57,13 +57,14 @@ namespace Lina::Editor
 
 	void TabRow::Draw(int32 threadIndex)
 	{
-		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background0.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		if (m_props.drawBackground)
+		{
+			LinaVG::StyleOptions opts;
+			opts.color = m_props.colorBackground.AsLVG4();
+			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		}
 
-		m_manager->SetClip(threadIndex, m_rect, {});
 		Widget::Draw(threadIndex);
-		m_manager->UnsetClip(threadIndex);
 	}
 
 	void TabRow::AddTab(Widget* tiedWidget)
@@ -85,7 +86,7 @@ namespace Lina::Editor
 			x += t->GetSizeX();
 		}
 
-		CheckCanClose();
+		tab->DisableClosing(!m_canCloseTabs);
 	}
 
 	void TabRow::RemoveTab(Widget* tiedWidget)
@@ -109,7 +110,6 @@ namespace Lina::Editor
 		RemoveChild(toRemove);
 		m_tabs.erase(linatl::find_if(m_tabs.begin(), m_tabs.end(), [toRemove](Tab* t) -> bool { return t == toRemove; }));
 		m_manager->Deallocate(toRemove);
-		CheckCanClose();
 	}
 
 	void TabRow::SetSelected(Widget* tiedWidget)
@@ -139,21 +139,12 @@ namespace Lina::Editor
 			m_props.onTabDockedOut(tiedWidget);
 	}
 
-	void TabRow::CheckCanClose()
+	void TabRow::SetCanCloseTabs(bool canClose)
 	{
-		if (m_props.cantCloseAnyTab)
-		{
-			for (auto* t : m_children)
-				static_cast<Tab*>(t)->DisableClosing(true);
-			return;
-		}
+		m_canCloseTabs = canClose;
 
-		if (m_props.cantCloseSingleTab)
-		{
-			const bool alone = m_children.size() == 1;
-			for (auto* t : m_children)
-				static_cast<Tab*>(t)->DisableClosing(alone);
-		}
+		for (auto* t : m_children)
+			static_cast<Tab*>(t)->DisableClosing(!canClose);
 	}
 
 } // namespace Lina::Editor
