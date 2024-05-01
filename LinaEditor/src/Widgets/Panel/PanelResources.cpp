@@ -381,19 +381,18 @@ namespace Lina::Editor
 				return;
 			}
 
-			DirectoryItem*	   root = m_editor->GetFileManager().GetRoot();
-            if(root)
-            {
-                SelectableListItem item = {
-                    .title             = root->folderName,
-                    .userData         = root,
-                    .hasChildren     = !root->children.empty(),
-                    .useDropdownIcon = true,
-                    .useFolderIcon     = true,
-                };
-                outItems.push_back(item);
-            }
-			
+			DirectoryItem* root = m_editor->GetFileManager().GetRoot();
+			if (root)
+			{
+				SelectableListItem item = {
+					.title			 = root->folderName,
+					.userData		 = root,
+					.hasChildren	 = !root->children.empty(),
+					.useDropdownIcon = true,
+					.useFolderIcon	 = true,
+				};
+				outItems.push_back(item);
+			}
 		}
 		else if (list == m_contentsSelectableList)
 		{
