@@ -38,22 +38,21 @@ namespace Lina
 {
 	class Material;
 	class MeshDefault;
-    class MeshComponent;
-    class RenderableComponent;
+	class MeshComponent;
+	class RenderableComponent;
 
 	struct MaterialComparator
 	{
 		bool operator()(const Material* lhs, const Material* rhs) const;
 	};
 
-    struct DrawDataMeshDefault
-    {
-        MeshDefault* mesh = nullptr;
-        Vector<uint32> entityIndices;
-    };
+	struct DrawDataMeshDefault
+	{
+		MeshDefault*   mesh = nullptr;
+		Vector<uint32> entityIndices;
+	};
 
-
-    typedef Map<Material*, MeshDefault*, MaterialComparator> MaterialToMeshMap;
+	typedef Map<Material*, MeshDefault*, MaterialComparator>				MaterialToMeshMap;
 	typedef Map<Material*, Vector<DrawDataMeshDefault>, MaterialComparator> MaterialToMeshDataMap;
 
 	enum RenderableType
@@ -109,9 +108,9 @@ namespace Lina
 		Vector4 floatPack2;
 	};
 
-    struct GPUIndirectConstants0
-    {
-        uint32 entityID;
-    };
+	struct GPUIndirectConstants0
+	{
+		uint32 entityID;
+	};
 
 } // namespace Lina
