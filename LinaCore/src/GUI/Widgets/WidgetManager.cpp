@@ -241,14 +241,14 @@ namespace Lina
 	void WidgetManager::OnWindowMouseWheel(float amt)
 	{
 		if (PassMouseWheel(m_foregroundRoot, amt))
-			return true;
+			return;
 		PassMouseWheel(m_rootWidget, amt);
 	}
 
 	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
 	{
 		if (PassMousePos(m_foregroundRoot, pos))
-			return true;
+			return;
 		PassMousePos(m_rootWidget, pos);
 	}
 
@@ -285,7 +285,7 @@ namespace Lina
 		textOpts.font = lvgFont;
 
 		if (drawRects)
-			LinaVG::DrawRect(threadIndex, rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000.0f);
+			LinaVG::DrawRect(threadIndex, rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000);
 
 		if (w->m_isHovered)
 		{

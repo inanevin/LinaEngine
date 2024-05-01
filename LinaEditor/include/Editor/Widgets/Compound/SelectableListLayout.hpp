@@ -60,11 +60,14 @@ namespace Lina::Editor
 	class SelectableListLayoutListener
 	{
 	public:
-		virtual void		OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData){};
-		virtual void		OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemUserData){};
-		virtual void		OnSelectableListItemControl(SelectableListLayout* list, void* userData){};
-		virtual void		OnSelectableListItemInteracted(SelectableListLayout* list, void* userData){};
-		virtual Widget*		OnSelectableListBuildCustomTooltip(SelectableListLayout* list, void* userData){};
+		virtual void	OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData){};
+		virtual void	OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemUserData){};
+		virtual void	OnSelectableListItemControl(SelectableListLayout* list, void* userData){};
+		virtual void	OnSelectableListItemInteracted(SelectableListLayout* list, void* userData){};
+		virtual Widget* OnSelectableListBuildCustomTooltip(SelectableListLayout* list, void* userData)
+		{
+			return nullptr;
+		};
 		virtual PayloadType OnSelectableListGetPayloadType(SelectableListLayout* list)
 		{
 			return PayloadType::None;
