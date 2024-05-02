@@ -77,7 +77,9 @@ namespace Lina
 		const uint32 h = static_cast<uint32>(static_cast<float>(w) * (static_cast<float>(monitor.size.y) / static_cast<float>(monitor.size.x)));
 
 		LinaGX::VSyncStyle vsync;
-		vsync.dx12Vsync = LinaGX::DXVsync::None;
+		vsync.dx12Vsync	  = LinaGX::DXVsync::None;
+		vsync.vulkanVsync = LinaGX::VKVsync::None;
+
 		return SystemInitializationInfo{
 			.appName			 = "Lina Editor",
 			.windowWidth		 = w,

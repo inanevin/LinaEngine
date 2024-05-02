@@ -83,8 +83,8 @@ namespace Lina
 		virtual void  Initialize() override;
 		virtual void  PreTick() override;
 		virtual void  Tick(float delta) override;
-		virtual void  Draw(int32 threadIndex) override;
-		virtual void  DebugDraw(int32 threadIndex, int32 drawOrder) override;
+		virtual void  Draw() override;
+		virtual void  DebugDraw(int32 drawOrder) override;
 		virtual bool  OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual float CalculateChildrenSize() override;
 

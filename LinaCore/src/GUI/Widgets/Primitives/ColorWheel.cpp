@@ -89,7 +89,7 @@ namespace Lina
 		m_icon->SetPos(m_rect.GetCenter() + (m_pointerPos * m_rect.size.x * 0.5f) - m_icon->GetHalfSize());
 	}
 
-	void ColorWheel::Draw(int32 threadIndex)
+	void ColorWheel::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -97,8 +97,8 @@ namespace Lina
 		LinaVG::StyleOptions wheelStyle;
 		wheelStyle.color		 = Math::Lerp(Color::Black, Color::White, Math::Max(m_props.darknessAlpha, 0.1f)).AsLVG4();
 		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), wheelStyle, 0.0f, m_drawOrder);
-		m_icon->Draw(threadIndex);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), wheelStyle, 0.0f, m_drawOrder);
+		m_icon->Draw();
 	}
 
 	bool ColorWheel::OnMouse(uint32 button, LinaGX::InputAction act)

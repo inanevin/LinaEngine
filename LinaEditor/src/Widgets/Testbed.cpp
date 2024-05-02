@@ -55,6 +55,7 @@ namespace Lina::Editor
 
 	void Testbed::Construct()
 	{
+		return;
 		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		const float itemHeight = Theme::GetDef().baseItemHeight;
@@ -263,6 +264,13 @@ namespace Lina::Editor
 			wh->SetSize(Vector2(600, 800));
 			layout->AddChild(wh);
 		}
+	}
+
+	void Testbed::Draw()
+	{
+		LinaVG::StyleOptions opts;
+		opts.color = Vector4(1, 1, 1, 1).AsLVG4();
+		m_lvg->DrawRect(Vector2(10, 10).AsLVG(), Vector2(50, 50).AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 
 } // namespace Lina::Editor

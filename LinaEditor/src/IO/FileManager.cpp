@@ -318,7 +318,7 @@ namespace Lina::Editor
 
 		tf.emplace([item, loadGlyph, this]() {
 			FT_Face face;
-			if (FT_New_Face(LinaVG::Internal::g_textData.m_ftlib, item->absolutePath.c_str(), 0, &face))
+			if (FT_New_Face(LinaVG::Text::g_textData.m_ftlib, item->absolutePath.c_str(), 0, &face))
 			{
 				LINA_ERR("FileManager: Failed creating new font face for thumbnail!");
 				return;

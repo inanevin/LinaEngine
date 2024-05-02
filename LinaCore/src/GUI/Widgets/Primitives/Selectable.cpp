@@ -79,7 +79,7 @@ namespace Lina
 		}
 	}
 
-	void Selectable::Draw(int32 threadIndex)
+	void Selectable::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -93,11 +93,11 @@ namespace Lina
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = m_props.colorOutline.AsLVG4();
 		opts.color.gradientType		  = LinaVG::GradientType::Vertical;
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		Widget::Draw(threadIndex);
+		Widget::Draw();
 
-		Widget::DrawTooltip(threadIndex);
+		Widget::DrawTooltip();
 	}
 
 	bool Selectable::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)

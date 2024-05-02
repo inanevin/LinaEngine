@@ -58,7 +58,6 @@ namespace Lina
 	{
 		m_world		 = world;
 		m_gfxManager = man;
-		m_guiBackend = m_gfxManager->GetGUIBackend();
 		m_lgx		 = m_gfxManager->GetLGX();
 		m_world->AddListener(this);
 		m_size = viewSize;

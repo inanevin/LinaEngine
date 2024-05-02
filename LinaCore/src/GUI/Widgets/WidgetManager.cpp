@@ -44,8 +44,9 @@ SOFTWARE.
 namespace Lina
 {
 
-	void WidgetManager::Initialize(System* system, LinaGX::Window* window)
+	void WidgetManager::Initialize(System* system, LinaGX::Window* window, LinaVG::Drawer* drawer)
 	{
+		m_lvg		 = drawer;
 		m_window	 = window;
 		m_system	 = system;
 		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
@@ -106,22 +107,22 @@ namespace Lina
 		m_foregroundRoot->RemoveChild(w);
 	}
 
-	void WidgetManager::Draw(int32 threadIndex)
+	void WidgetManager::Draw()
 	{
-		m_rootWidget->Draw(threadIndex);
+		m_rootWidget->Draw();
 
 		if (!m_foregroundRoot->GetChildren().empty())
 		{
 			LinaVG::StyleOptions opts;
 			opts.color = LinaVG::Vec4(0.0f, 0.0f, 0.0f, m_foregroundDim);
-			LinaVG::DrawRect(threadIndex, Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
-			m_foregroundRoot->Draw(threadIndex);
+			m_lvg->DrawRect(Vector2::Zero.AsLVG(), Vector2(static_cast<float>(m_window->GetSize().x), static_cast<float>(m_window->GetSize().y)).AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
+			m_foregroundRoot->Draw();
 		}
 
 		if (!m_foregroundRoot->GetChildren().empty())
-			DebugDraw(threadIndex, m_foregroundRoot);
+			DebugDraw(m_foregroundRoot);
 		else
-			DebugDraw(threadIndex, m_rootWidget);
+			DebugDraw(m_rootWidget);
 	}
 
 	void WidgetManager::Deallocate(Widget* widget)
@@ -265,7 +266,7 @@ namespace Lina
 	{
 	}
 
-	void WidgetManager::DebugDraw(int32 threadIndex, Widget* w)
+	void WidgetManager::DebugDraw(Widget* w)
 	{
 		const bool drawRects = (m_window->GetInput()->GetKey(LINAGX_KEY_SPACE));
 
@@ -273,7 +274,7 @@ namespace Lina
 			return;
 
 		for (auto* c : w->m_children)
-			DebugDraw(threadIndex, c);
+			DebugDraw(c);
 
 		LinaVG::StyleOptions opts;
 		opts.isFilled  = false;
@@ -286,27 +287,27 @@ namespace Lina
 		textOpts.font = lvgFont;
 
 		if (drawRects)
-			LinaVG::DrawRect(threadIndex, rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000);
+			m_lvg->DrawRect(rect.pos.AsLVG(), (rect.pos + rect.size).AsLVG(), opts, 0.0f, 1000);
 
 		if (w->m_isHovered)
 		{
-			const Vector2 sz = LinaVG::CalculateTextSize(w->GetDebugName().c_str(), textOpts);
-			LinaVG::DrawTextNormal(threadIndex, w->GetDebugName().c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			const Vector2 sz = m_lvg->CalculateTextSize(w->GetDebugName().c_str(), textOpts);
+			m_lvg->DrawTextNormal(w->GetDebugName().c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
 			const String  rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
-			const Vector2 sz2	  = LinaVG::CalculateTextSize(rectStr.c_str(), textOpts);
-			LinaVG::DrawTextNormal(threadIndex, rectStr.c_str(), (mp + Vector2(15 + sz.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			const Vector2 sz2	  = m_lvg->CalculateTextSize(rectStr.c_str(), textOpts);
+			m_lvg->DrawTextNormal(rectStr.c_str(), (mp + Vector2(15 + sz.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
 			const String drawOrder = "DO: " + TO_STRING(w->GetDrawOrder());
-			LinaVG::DrawTextNormal(threadIndex, drawOrder.c_str(), (mp + Vector2(15 + sz.x + 15 + sz2.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			m_lvg->DrawTextNormal(drawOrder.c_str(), (mp + Vector2(15 + sz.x + 15 + sz2.x + 15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 			m_debugDrawYOffset += lvgFont->m_size * 1.5f;
 		}
 
 		if (drawRects)
-			w->DebugDraw(threadIndex, DEBUG_DRAW_ORDER);
+			w->DebugDraw(DEBUG_DRAW_ORDER);
 	}
 
-	void WidgetManager::SetClip(int32 threadIndex, const Rect& r, const TBLR& margins)
+	void WidgetManager::SetClip(const Rect& r, const TBLR& margins)
 	{
 		const ClipData cd = {
 			.rect	 = r,
@@ -315,30 +316,30 @@ namespace Lina
 
 		m_clipStack.push_back(cd);
 
-		LinaVG::SetClipPosX(static_cast<uint32>(r.pos.x + margins.left), threadIndex);
-		LinaVG::SetClipPosY(static_cast<uint32>(r.pos.y + margins.top), threadIndex);
-		LinaVG::SetClipSizeX(static_cast<uint32>(r.size.x - (margins.left + margins.right)), threadIndex);
-		LinaVG::SetClipSizeY(static_cast<uint32>(r.size.y - (margins.top + margins.bottom)), threadIndex);
+		m_lvg->SetClipPosX(static_cast<uint32>(r.pos.x + margins.left));
+		m_lvg->SetClipPosY(static_cast<uint32>(r.pos.y + margins.top));
+		m_lvg->SetClipSizeX(static_cast<uint32>(r.size.x - (margins.left + margins.right)));
+		m_lvg->SetClipSizeY(static_cast<uint32>(r.size.y - (margins.top + margins.bottom)));
 	}
 
-	void WidgetManager::UnsetClip(int32 threadIndex)
+	void WidgetManager::UnsetClip()
 	{
 		m_clipStack.pop_back();
 
 		if (m_clipStack.empty())
 		{
-			LinaVG::SetClipPosX(0, threadIndex);
-			LinaVG::SetClipPosY(0, threadIndex);
-			LinaVG::SetClipSizeX(0, threadIndex);
-			LinaVG::SetClipSizeY(0, threadIndex);
+			m_lvg->SetClipPosX(0);
+			m_lvg->SetClipPosY(0);
+			m_lvg->SetClipSizeX(0);
+			m_lvg->SetClipSizeY(0);
 		}
 		else
 		{
 			const ClipData& cd = m_clipStack[m_clipStack.size() - 1];
-			LinaVG::SetClipPosX(static_cast<uint32>(cd.rect.pos.x + cd.margins.left), threadIndex);
-			LinaVG::SetClipPosY(static_cast<uint32>(cd.rect.pos.y + cd.margins.top), threadIndex);
-			LinaVG::SetClipSizeX(static_cast<uint32>(cd.rect.size.x - (cd.margins.left + cd.margins.right)), threadIndex);
-			LinaVG::SetClipSizeY(static_cast<uint32>(cd.rect.size.y - (cd.margins.top + cd.margins.bottom)), threadIndex);
+			m_lvg->SetClipPosX(static_cast<uint32>(cd.rect.pos.x + cd.margins.left));
+			m_lvg->SetClipPosY(static_cast<uint32>(cd.rect.pos.y + cd.margins.top));
+			m_lvg->SetClipSizeX(static_cast<uint32>(cd.rect.size.x - (cd.margins.left + cd.margins.right)));
+			m_lvg->SetClipSizeY(static_cast<uint32>(cd.rect.size.y - (cd.margins.top + cd.margins.bottom)));
 		}
 	}
 

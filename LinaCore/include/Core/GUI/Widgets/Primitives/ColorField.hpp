@@ -56,7 +56,7 @@ namespace Lina
 			float			 outlineThickness		 = Theme::GetDef().baseOutlineThickness;
 		};
 
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()

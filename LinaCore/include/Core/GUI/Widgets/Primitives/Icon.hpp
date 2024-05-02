@@ -71,7 +71,7 @@ namespace Lina
 
 		virtual void Initialize() override;
 		virtual void CalculateSize(float dt) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 		void CalculateIconSize();

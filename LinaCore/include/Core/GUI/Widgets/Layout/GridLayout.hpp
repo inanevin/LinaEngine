@@ -56,7 +56,7 @@ namespace Lina
 		};
 
 		virtual void  Tick(float delta) override;
-		virtual void  Draw(int32 threadIndex) override;
+		virtual void  Draw() override;
 		virtual float CalculateChildrenSize() override
 		{
 			return m_totalChildHeight;

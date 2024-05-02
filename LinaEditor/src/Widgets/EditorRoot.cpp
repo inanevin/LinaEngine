@@ -210,13 +210,13 @@ namespace Lina::Editor
 		m_lgxWindow->SetDragRect(lgxRect);
 	}
 
-	void EditorRoot::Draw(int32 threadIndex)
+	void EditorRoot::Draw()
 	{
-		DirectionalLayout::Draw(threadIndex);
+		DirectionalLayout::Draw();
 
 		if (m_linaIcon->GetIsHovered())
 		{
-			Widget::DrawTooltip(threadIndex);
+			Widget::DrawTooltip();
 		}
 
 		/*
@@ -235,22 +235,22 @@ namespace Lina::Editor
 		points.push_back({center.x + size.x * 0.5f - size.x * 0.025f, center.y + size.y * 0.5f});
 		points.push_back({center.x - size.x * 0.5f + size.x * 0.025f, center.y + size.y * 0.5f});
 
-		LinaVG::DrawConvex(threadIndex, points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawConvex(points.data(), static_cast<int>(points.size()), opts, 0.0f, m_drawOrder + 1);
 
 		const float	  imageY	= size.y * 0.5f;
 		const float	  imageX	= imageY * (m_titleImage->GetSizeF().x / m_titleImage->GetSizeF().y);
 		const Vector2 imageSize = Vector2(imageX, imageY);
-		LinaVG::DrawImage(threadIndex, m_titleImage->GetGPUHandle(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
+		m_lvg->DrawImage(m_titleImage->GetGPUHandle(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
 
 		const Rect	  imgRect = Rect(Vector2(center - imageSize * 0.5f), imageSize);
 		const Vector2 mp	  = Vector2(static_cast<float>(m_lgxWindow->GetMousePosition().x), static_cast<float>(m_lgxWindow->GetMousePosition().y));
 		if (imgRect.IsPointInside(mp))
-			Widget::DrawTooltip(threadIndex);
+			Widget::DrawTooltip();
 
-		WidgetUtility::DrawDropShadow(threadIndex, points[3], points[2], m_drawOrder + 1, Theme::GetDef().black, 12);
+		WidgetUtility::DrawDropShadow(m_lvg,points[3], points[2], m_drawOrder + 1, Theme::GetDef().black, 12);
 		 */
 
-		// WidgetUtility::DrawDropShadow(threadIndex, Vector2(m_titleBar->GetPosX(), m_titleBar->GetRect().GetEnd().y), m_titleBar->GetRect().GetEnd(), m_drawOrder + 1, Theme::GetDef().black, 12);
+		// WidgetUtility::DrawDropShadow(m_lvg,Vector2(m_titleBar->GetPosX(), m_titleBar->GetRect().GetEnd().y), m_titleBar->GetRect().GetEnd(), m_drawOrder + 1, Theme::GetDef().black, 12);
 	}
 
 	bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)

@@ -55,7 +55,7 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 
 		virtual void		OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData) override;
 		virtual void		OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemuserData) override;

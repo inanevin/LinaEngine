@@ -46,7 +46,8 @@ namespace LinaGX
 namespace LinaVG
 {
 	struct StyleOptions;
-}
+	class Drawer;
+} // namespace LinaVG
 
 namespace Lina
 {
@@ -113,11 +114,11 @@ namespace Lina
 		{
 			return false;
 		};
-		virtual void DebugDraw(int32 threadIndex, int32 drawOrder);
+		virtual void DebugDraw(int32 drawOrder);
 		virtual void PreTick(){};
 		virtual void CalculateSize(float delta){};
 		virtual void Tick(float delta){};
-		virtual void Draw(int32 threadIndex);
+		virtual void Draw();
 
 		void	AddChild(Widget* w);
 		void	ExecuteNextFrame(Delegate<void()>&& cb);
@@ -126,8 +127,8 @@ namespace Lina
 		void	RemoveAllChildren();
 		void	SetIsHovered();
 		void	SetIsDisabled(bool isDisabled);
-		void	DrawBorders(int32 threadIndex);
-		void	DrawTooltip(int32 threadIndex);
+		void	DrawBorders();
+		void	DrawTooltip();
 		Vector2 GetStartFromMargins();
 		Vector2 GetEndFromMargins();
 		Rect	GetTemporaryAlignedRect();
@@ -415,6 +416,7 @@ namespace Lina
 		WidgetManager*				m_manager			   = nullptr;
 		ResourceManager*			m_resourceManager	   = nullptr;
 		LinaGX::Window*				m_lgxWindow			   = nullptr;
+		LinaVG::Drawer*				m_lvg				   = nullptr;
 		System*						m_system			   = nullptr;
 		Widget*						m_parent			   = nullptr;
 		Widget*						m_next				   = nullptr;

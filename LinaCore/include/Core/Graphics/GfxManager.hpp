@@ -35,6 +35,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "Common/StringID.hpp"
 #include "Common/Data/Vector.hpp"
 #include "MeshManager.hpp"
+#include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "CommonGraphics.hpp"
 #include "ResourceUploadQueue.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
@@ -110,11 +111,6 @@ namespace Lina
 			return m_meshManager;
 		}
 
-		inline GUIBackend* GetGUIBackend()
-		{
-			return m_guiBackend;
-		}
-
 		inline ResourceUploadQueue& GetResourceUploadQueue()
 		{
 			return m_resourceUploadQueue;
@@ -135,7 +131,7 @@ namespace Lina
 		MeshManager						m_meshManager;
 		Vector<WorldRenderer*>			m_worldRenderers;
 		Vector<SurfaceRenderer*>		m_surfaceRenderers;
-		GUIBackend*						m_guiBackend	  = nullptr;
+		GUIBackend						m_guiBackend;
 		ResourceManager*				m_resourceManager = nullptr;
 		Vector<TextureSampler*>			m_defaultSamplers;
 		Vector<Material*>				m_defaultMaterials;

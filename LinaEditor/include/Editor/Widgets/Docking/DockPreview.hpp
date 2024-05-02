@@ -70,7 +70,7 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 		void		 GetHoveredDirection(Direction& outDirection, bool& outIsHovered);
 		void		 DisableDirection(const Direction& dir);
 
@@ -80,7 +80,7 @@ namespace Lina::Editor
 		}
 
 	private:
-		void DrawDockRect(int32 threadIndex, const DockRect& dr);
+		void DrawDockRect(const DockRect& dr);
 
 	private:
 		Properties m_props = {};

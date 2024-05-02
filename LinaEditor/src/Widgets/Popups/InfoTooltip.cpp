@@ -129,10 +129,10 @@ namespace Lina::Editor
 			m_manager->AddToKillList(this);
 	}
 
-	void InfoTooltip::Draw(int32 threadIndex)
+	void InfoTooltip::Draw()
 	{
 		GetProps().colorOutline = GetColorFromLevel().AsLVG4();
-		DirectionalLayout::Draw(threadIndex);
+		DirectionalLayout::Draw();
 	}
 
 	Color InfoTooltip::GetColorFromLevel()

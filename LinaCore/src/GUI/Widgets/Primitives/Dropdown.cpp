@@ -60,7 +60,7 @@ namespace Lina
 		m_icon->SetPos((m_iconBgStart + m_rect.GetEnd()) * 0.5f - m_icon->GetHalfSize());
 	}
 
-	void Dropdown::Draw(int32 threadIndex)
+	void Dropdown::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -75,7 +75,7 @@ namespace Lina
 		opts.outlineOptions.thickness = m_props.outlineThickness;
 		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		opts.color					  = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackground.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		// Icon bg
 		LinaVG::StyleOptions iconBg;
@@ -86,12 +86,12 @@ namespace Lina
 		if (m_isHovered)
 			iconBg.color = m_props.colorIconBackgroundHovered.AsLVG4();
 
-		LinaVG::DrawRect(threadIndex, m_iconBgStart.AsLVG(), (m_rect.GetEnd() - Vector2::One).AsLVG(), iconBg, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_iconBgStart.AsLVG(), (m_rect.GetEnd() - Vector2::One).AsLVG(), iconBg, 0.0f, m_drawOrder);
 
 		// Icon
-		m_icon->Draw(threadIndex);
+		m_icon->Draw();
 		m_text->GetProps().customClip = Vector4(GetPosX(), GetPosY(), GetSizeX() - GetSizeY(), GetSizeY());
-		m_text->Draw(threadIndex);
+		m_text->Draw();
 	}
 
 	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)

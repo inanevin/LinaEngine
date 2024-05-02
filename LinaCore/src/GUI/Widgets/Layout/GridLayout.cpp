@@ -65,7 +65,7 @@ namespace Lina
 		m_totalChildHeight = last->GetRect().GetEnd().y - first->GetPosY();
 	}
 
-	void GridLayout::Draw(int32 threadIndex)
+	void GridLayout::Draw()
 	{
 		if (m_props.background == BackgroundStyle::Default)
 		{
@@ -74,18 +74,18 @@ namespace Lina
 			opts.outlineOptions.thickness	  = m_props.outlineThickness;
 			opts.outlineOptions.color		  = m_props.colorOutline.AsLVG4();
 			opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
-			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 		}
 
 		const Vector2 start = GetStartFromMargins();
 		const Vector2 end	= GetEndFromMargins();
 
 		if (m_props.clipChildren)
-			m_manager->SetClip(threadIndex, Rect(start, end - start), {});
+			m_manager->SetClip(Rect(start, end - start), {});
 
-		Widget::Draw(threadIndex);
+		Widget::Draw();
 
 		if (m_props.clipChildren)
-			m_manager->UnsetClip(threadIndex);
+			m_manager->UnsetClip();
 	}
 } // namespace Lina

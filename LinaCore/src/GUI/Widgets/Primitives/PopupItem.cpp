@@ -50,7 +50,7 @@ namespace Lina
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.GetCenter().y - m_text->GetHalfSizeY()));
 	}
 
-	void PopupItem::Draw(int32 threadIndex)
+	void PopupItem::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -62,10 +62,10 @@ namespace Lina
 			// Bg
 			LinaVG::StyleOptions opts;
 			opts.color = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackgroundSelected.AsLVG4();
-			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), Vector2(m_parent->GetRect().GetEnd().x, m_rect.GetEnd().y).AsLVG(), opts, 0.0f, m_drawOrder);
+			m_lvg->DrawRect(m_rect.pos.AsLVG(), Vector2(m_parent->GetRect().GetEnd().x, m_rect.GetEnd().y).AsLVG(), opts, 0.0f, m_drawOrder);
 		}
 
-		m_text->Draw(threadIndex);
+		m_text->Draw();
 	}
 
 	bool PopupItem::OnMouse(uint32 button, LinaGX::InputAction action)

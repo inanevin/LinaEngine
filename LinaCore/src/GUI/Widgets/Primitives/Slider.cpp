@@ -99,7 +99,7 @@ namespace Lina
 		m_handle->SetPos(handlePos);
 	}
 
-	void Slider::Draw(int32 threadIndex)
+	void Slider::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -111,7 +111,7 @@ namespace Lina
 		bg.rounding					= m_props.rounding;
 		bg.outlineOptions.thickness = m_props.outlineThickness;
 		bg.outlineOptions.color		= hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_bgStart.AsLVG(), m_bgEnd.AsLVG(), bg, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_bgStart.AsLVG(), m_bgEnd.AsLVG(), bg, 0.0f, m_drawOrder);
 
 		if (m_props.value == nullptr)
 			return;
@@ -121,9 +121,9 @@ namespace Lina
 		fill.color.start		= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMin.AsLVG4() : m_props.colorFillMax.AsLVG4();
 		fill.color.end			= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMax.AsLVG4() : m_props.colorFillMin.AsLVG4();
 		fill.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
-		LinaVG::DrawRect(threadIndex, m_fillStart.AsLVG(), m_fillEnd.AsLVG(), fill, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_fillStart.AsLVG(), m_fillEnd.AsLVG(), fill, 0.0f, m_drawOrder);
 
-		m_handle->Draw(threadIndex);
+		m_handle->Draw();
 	}
 
 	void Slider::GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent)

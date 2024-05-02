@@ -31,10 +31,10 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void Panel::Draw(int32 threadIndex)
+	void Panel::Draw()
 	{
 		LinaVG::StyleOptions opts;
 		opts.color = Theme::GetDef().background1.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 } // namespace Lina::Editor

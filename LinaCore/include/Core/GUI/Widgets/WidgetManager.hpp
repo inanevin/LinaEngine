@@ -39,6 +39,10 @@ namespace LinaGX
 	class Window;
 }
 
+namespace LinaVG
+{
+	class Drawer;
+}
 namespace Lina
 {
 	class Widget;
@@ -55,14 +59,14 @@ namespace Lina
 		WidgetManager()			 = default;
 		virtual ~WidgetManager() = default;
 
-		void	Initialize(System* system, LinaGX::Window* window);
-		void	Draw(int32 threadIndex);
+		void	Initialize(System* system, LinaGX::Window* window, LinaVG::Drawer* drawer);
+		void	Draw();
 		void	PreTick();
 		void	Tick(float delta, const Vector2ui& size);
 		void	Shutdown();
-		void	DebugDraw(int32 threadIndex, Widget* w);
-		void	SetClip(int32 threadIndex, const Rect& r, const TBLR& margin);
-		void	UnsetClip(int32 threadIndex);
+		void	DebugDraw(Widget* w);
+		void	SetClip(const Rect& r, const TBLR& margin);
+		void	UnsetClip();
 		void	AddToKillList(Widget* w);
 		void	AddToForeground(Widget* widget);
 		void	RemoveFromForeground(Widget* widget);
@@ -127,8 +131,14 @@ namespace Lina
 			t->m_system			 = m_system;
 			t->m_resourceManager = m_resourceManager;
 			t->m_tid			 = tid;
+			t->m_lvg			 = m_lvg;
 			t->Construct();
 			return t;
+		}
+
+		inline LinaVG::Drawer* GetLVG() const
+		{
+			return m_lvg;
 		}
 
 	protected:
@@ -158,6 +168,7 @@ namespace Lina
 
 	private:
 		LinaGX::Window*	 m_window		   = nullptr;
+		LinaVG::Drawer*	 m_lvg			   = nullptr;
 		Widget*			 m_controlsOwner   = nullptr;
 		Widget*			 m_rootWidget	   = nullptr;
 		Widget*			 m_foregroundRoot  = nullptr;

@@ -167,19 +167,19 @@ namespace Lina::Editor
 		}
 	}
 
-	void DockBorder::Draw(int32 threadIndex)
+	void DockBorder::Draw()
 	{
 		// LinaVG::StyleOptions opts;
 		// opts.color = Theme::GetDef().background0.AsLVG4();
-		// LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		// m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 
 		// Debug Draw Bounds Test Rectangles
 		/* opts.color = Color::Red.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_boundsTestRects[0].pos.AsLVG(), m_boundsTestRects[0].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
-		LinaVG::DrawRect(threadIndex, m_boundsTestRects[1].pos.AsLVG(), m_boundsTestRects[1].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawRect(m_boundsTestRects[0].pos.AsLVG(), m_boundsTestRects[0].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawRect(m_boundsTestRects[1].pos.AsLVG(), m_boundsTestRects[1].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 		opts.color = Color::Blue.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_boundsTestRects[2].pos.AsLVG(), m_boundsTestRects[2].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
-		LinaVG::DrawRect(threadIndex, m_boundsTestRects[3].pos.AsLVG(), m_boundsTestRects[3].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawRect(m_boundsTestRects[2].pos.AsLVG(), m_boundsTestRects[2].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawRect(m_boundsTestRects[3].pos.AsLVG(), m_boundsTestRects[3].GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
 		*/
 	}
 

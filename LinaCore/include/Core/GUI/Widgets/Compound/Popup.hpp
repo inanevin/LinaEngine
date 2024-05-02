@@ -51,7 +51,7 @@ namespace Lina
 
 		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 
 		inline Properties& GetProps()
 		{

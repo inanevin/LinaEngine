@@ -48,7 +48,7 @@ namespace Lina
 		}
 	}
 
-	void Text::Draw(int32 threadIndex)
+	void Text::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -84,7 +84,7 @@ namespace Lina
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
 
-			// LinaVG::DrawTextSDF(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
+			// m_lvg->DrawTextSDF(m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 		else
 		{
@@ -101,7 +101,7 @@ namespace Lina
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
 
-			// LinaVG::DrawTextNormal(threadIndex, m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
+			// m_lvg->DrawTextNormal(m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 	}
 
@@ -124,7 +124,7 @@ namespace Lina
 			opts.textScale = m_props.textScale;
 			opts.wrapWidth = m_props.wrapWidth;
 			opts.wordWrap  = m_props.wordWrap;
-			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
+			m_rect.size	   = m_lvg->CalculateTextSize(m_props.text.c_str(), opts);
 		}
 		else
 		{
@@ -133,7 +133,7 @@ namespace Lina
 			opts.textScale = m_props.textScale;
 			opts.wrapWidth = m_props.wrapWidth;
 			opts.wordWrap  = m_props.wordWrap;
-			m_rect.size	   = LinaVG::CalculateTextSize(m_props.text.c_str(), opts);
+			m_rect.size	   = m_lvg->CalculateTextSize(m_props.text.c_str(), opts);
 		}
 	}
 

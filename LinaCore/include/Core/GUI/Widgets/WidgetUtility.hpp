@@ -30,6 +30,11 @@ SOFTWARE.
 
 #include "Core/GUI/CommonGUI.hpp"
 
+namespace LinaVG
+{
+	class Drawer;
+}
+
 namespace Lina
 {
 	class Rect;
@@ -40,12 +45,12 @@ namespace Lina
 	class WidgetUtility
 	{
 	public:
-		static void DrawRectBackground(int32 threadIndex, const RectBackground& options, const Rect& rect, int32 drawOrder, bool positionIsCenter = false);
-		static void DrawAlphaLine(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
-		static void DrawAlphaLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
-		static void DrawGradLineCentral(int32 threadIndex, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& centerColor, const Color& edgeColor);
-		static void DrawDropShadow(int32 threadIndex, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius);
-		static void DrawDropShadowRect(int32 threadIndex, const Rect& rect, int32 drawOrder, const Color& baseColor, int32 radius);
+		static void DrawRectBackground(LinaVG::Drawer* lvg, const RectBackground& options, const Rect& rect, int32 drawOrder, bool positionIsCenter = false);
+		static void DrawAlphaLine(LinaVG::Drawer* lvg, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
+		static void DrawAlphaLineCentral(LinaVG::Drawer* lvg, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& baseColor);
+		static void DrawGradLineCentral(LinaVG::Drawer* lvg, const Vector2& start, const Vector2& end, int32 drawOrder, const Color& centerColor, const Color& edgeColor);
+		static void DrawDropShadow(LinaVG::Drawer* lvg, const Vector2& p1, const Vector2& p2, int32 drawOrder, const Color& baseColor, int32 radius);
+		static void DrawDropShadowRect(LinaVG::Drawer* lvg, const Rect& rect, int32 drawOrder, const Color& baseColor, int32 radius);
 
 		static DirectionalLayout* BuildLayoutForPopups(Widget* source);
 		static Text*			  BuildEditableText(Widget* source, bool horizontal, Delegate<void()>&& onTextChanged);

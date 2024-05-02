@@ -116,16 +116,16 @@ namespace Lina
 			m_scrollAmount += endPos - m_end.y;
 	}
 
-	void ScrollArea::Draw(int32 threadIndex)
+	void ScrollArea::Draw()
 	{
-		Widget::Draw(threadIndex);
+		Widget::Draw();
 
 		if (!m_barVisible)
 			return;
 
 		LinaVG::StyleOptions bgOpts;
 		bgOpts.color = m_props.colorBackground.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_barBGRect.pos.AsLVG(), m_barBGRect.GetEnd().AsLVG(), bgOpts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawRect(m_barBGRect.pos.AsLVG(), m_barBGRect.GetEnd().AsLVG(), bgOpts, 0.0f, m_drawOrder + 1);
 
 		LinaVG::StyleOptions barOpts;
 		barOpts.rounding = m_props.barRounding;
@@ -141,7 +141,7 @@ namespace Lina
 			barOpts.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		}
 
-		LinaVG::DrawRect(threadIndex, m_barRect.pos.AsLVG(), m_barRect.GetEnd().AsLVG(), barOpts, 0.0f, m_drawOrder + 1);
+		m_lvg->DrawRect(m_barRect.pos.AsLVG(), m_barRect.GetEnd().AsLVG(), barOpts, 0.0f, m_drawOrder + 1);
 	}
 
 	bool ScrollArea::OnMouse(uint32 button, LinaGX::InputAction act)

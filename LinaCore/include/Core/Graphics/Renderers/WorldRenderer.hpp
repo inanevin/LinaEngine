@@ -42,7 +42,6 @@ namespace LinaGX
 
 namespace Lina
 {
-	class GUIBackend;
 	class GfxManager;
 	class ModelNode;
 	class MeshComponent;
@@ -108,7 +107,6 @@ namespace Lina
 
 	private:
 		GfxManager*			   m_gfxManager			   = nullptr;
-		GUIBackend*			   m_guiBackend			   = nullptr;
 		LinaGX::Instance*	   m_lgx				   = nullptr;
 		PerFrameData		   m_pfd[FRAMES_IN_FLIGHT] = {};
 		RenderPass			   m_mainPass			   = {};

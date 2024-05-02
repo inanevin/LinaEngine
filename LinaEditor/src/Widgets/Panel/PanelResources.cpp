@@ -80,12 +80,12 @@ namespace Lina::Editor
 		Widget::Initialize();
 		m_browserSelectableList->RefreshItems();
 	}
-	void PanelResources::Draw(int32 threadIndex)
+	void PanelResources::Draw()
 	{
 		LinaVG::StyleOptions opts;
 		opts.color = Theme::GetDef().background1.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-		Widget::Draw(threadIndex);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		Widget::Draw();
 	}
 
 	PanelLayoutExtra PanelResources::GetExtraLayoutData()

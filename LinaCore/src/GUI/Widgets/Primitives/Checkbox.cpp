@@ -60,7 +60,7 @@ namespace Lina
 		m_icon->GetProps().colorEnd.w	= alpha;
 	}
 
-	void Checkbox::Draw(int32 threadIndex)
+	void Checkbox::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -72,8 +72,8 @@ namespace Lina
 		style.outlineOptions.thickness = m_props.outlineThickness;
 		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		style.color					   = m_props.colorBackground.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
-		m_icon->Draw(threadIndex);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
+		m_icon->Draw();
 	}
 
 	bool Checkbox::OnMouse(uint32 button, LinaGX::InputAction act)

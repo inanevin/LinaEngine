@@ -53,7 +53,7 @@ namespace Lina::Editor
 		virtual void			Destruct() override;
 		virtual void			PreTick() override;
 		virtual void			Tick(float delta) override;
-		virtual void			Draw(int32 threadIndex) override;
+		virtual void			Draw() override;
 		virtual void			OnPayloadStarted(PayloadType type, Widget* payload) override;
 		virtual void			OnPayloadEnded(PayloadType type, Widget* payload) override;
 		virtual bool			OnPayloadDropped(PayloadType type, Widget* payload) override;

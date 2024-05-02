@@ -50,7 +50,7 @@ namespace Lina
 		};
 
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnMouseWheel(float amt) override;
 		void		 ScrollToChild(Widget* w);

@@ -46,7 +46,7 @@ namespace Lina
 
 		virtual void			   Initialize() override;
 		virtual void			   PreTick() override;
-		virtual void			   Draw(int32 threadIndex) override;
+		virtual void			   Draw() override;
 		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual LinaGX::CursorType GetCursorOverride() override;
 		void					   AssignSides(Widget* negative, Widget* positive);

@@ -38,7 +38,6 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
-#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace LinaGX
 {
@@ -66,7 +65,7 @@ namespace Lina
 
 		void				   PreTick();
 		void				   Tick(float delta);
-		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
+		LinaGX::CommandStream* Render(uint32 frameIndex);
 		void				   Resize(const LinaGX::LGXVector2ui& newSize);
 
 		inline bool IsVisible()
@@ -89,9 +88,14 @@ namespace Lina
 			return m_guiRenderer.GetCopySemaphoreData(frameIndex);
 		}
 
+		inline Widget* GetGUIRoot()
+		{
+			return m_guiRenderer.GetGUIRoot();
+		}
+
 		inline WidgetManager& GetWidgetManager()
 		{
-			return m_widgetManager;
+			return m_guiRenderer.GetWidgetManager();
 		}
 
 	protected:
@@ -107,7 +111,6 @@ namespace Lina
 		ApplicationDelegate* m_appListener = nullptr;
 		RenderPass			 m_renderPass  = {};
 		GUIRenderer			 m_guiRenderer;
-		WidgetManager		 m_widgetManager;
 	};
 
 } // namespace Lina

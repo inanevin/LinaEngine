@@ -55,16 +55,16 @@ namespace Lina::Editor
 		m_wm->ResizeWorldTexture(m_world, size);
 	}
 
-	void PanelWorld::Draw(int32 threadIndex)
+	void PanelWorld::Draw()
 	{
 		LinaVG::StyleOptions opts;
 		opts.color = Theme::GetDef().background1.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		if (!m_world)
 			return;
 
-		LinaVG::DrawImage(threadIndex, m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
+		m_lvg->DrawImage(m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
 	}
 
 } // namespace Lina::Editor

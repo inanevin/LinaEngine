@@ -172,7 +172,7 @@ namespace Lina
 		}
 	}
 
-	void InputField::Draw(int32 threadIndex)
+	void InputField::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -185,7 +185,7 @@ namespace Lina
 		style.rounding				   = m_props.rounding;
 		style.outlineOptions.thickness = m_props.outlineThickness;
 		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
 
 		// Number field slider background.
 		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.value)
@@ -201,7 +201,7 @@ namespace Lina
 			const Vector2 end	= m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness);
 			const Vector2 sz	= end - start;
 
-			LinaVG::DrawRect(threadIndex, start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);
+			m_lvg->DrawRect(start.AsLVG(), Vector2(start.x + sz.x * perc, end.y).AsLVG(), fill, 0.0f, m_drawOrder);
 		}
 
 		if (m_isEditing)
@@ -217,7 +217,7 @@ namespace Lina
 			caretTopLeft.x	   = Math::Clamp(caretTopLeft.x, m_rect.pos.x, m_rect.GetEnd().x);
 			caretBottomRight.x = Math::Clamp(caretBottomRight.x, m_rect.pos.x, m_rect.GetEnd().x);
 
-			LinaVG::DrawRect(threadIndex, caretTopLeft.AsLVG(), caretBottomRight.AsLVG(), caret, 0, m_drawOrder);
+			m_lvg->DrawRect(caretTopLeft.AsLVG(), caretBottomRight.AsLVG(), caret, 0, m_drawOrder);
 
 			if (caretBottomRight.x > (m_rect.pos.x + m_rect.size.x - m_props.horizontalIndent))
 			{
@@ -245,19 +245,19 @@ namespace Lina
 
 				topLeft.x	  = Math::Clamp(topLeft.x, m_rect.pos.x, m_rect.GetEnd().x);
 				bottomRight.x = Math::Clamp(bottomRight.x, m_rect.pos.x, m_rect.GetEnd().x);
-				LinaVG::DrawRect(threadIndex, topLeft.AsLVG(), bottomRight.AsLVG(), highlight, 0, m_drawOrder);
+				m_lvg->DrawRect(topLeft.AsLVG(), bottomRight.AsLVG(), highlight, 0, m_drawOrder);
 			}
 		}
 
 		if (m_props.clipText)
 			m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
 
-		m_text->Draw(threadIndex);
+		m_text->Draw();
 
 		if (!m_placeholderText->GetIsDisabled())
 		{
 			m_placeholderText->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x, m_rect.size.y);
-			m_placeholderText->Draw(threadIndex);
+			m_placeholderText->Draw();
 		}
 	}
 
@@ -297,7 +297,7 @@ namespace Lina
 		LinaVG::TextOptions opts;
 		opts.font		   = m_text->GetLVGFont();
 		opts.textScale	   = m_text->GetProps().textScale;
-		const Vector2 size = LinaVG::CalculateTextSize(substr.c_str(), opts);
+		const Vector2 size = m_lvg->CalculateTextSize(substr.c_str(), opts);
 		return Vector2(m_textStart.x + size.x, y);
 	}
 
@@ -322,7 +322,7 @@ namespace Lina
 			LinaVG::TextOptions textOptions;
 			textOptions.font	  = m_text->GetLVGFont();
 			textOptions.textScale = m_text->GetProps().textScale;
-			const Vector2 size	  = LinaVG::CalculateTextSize(substr.c_str(), textOptions);
+			const Vector2 size	  = m_lvg->CalculateTextSize(substr.c_str(), textOptions);
 
 			if (size.x > x - m_averageCharacterStep * 0.5f)
 				return i;

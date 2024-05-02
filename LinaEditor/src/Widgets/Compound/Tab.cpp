@@ -138,7 +138,7 @@ namespace Lina::Editor
 		m_selectionRect.size.y			 = selectionRectEnd.y - m_selectionRect.pos.y;
 	}
 
-	void Tab::Draw(int32 threadIndex)
+	void Tab::Draw()
 	{
 		const int32 drawOrder = m_isPressed ? m_drawOrder + 1 : m_drawOrder;
 
@@ -155,7 +155,7 @@ namespace Lina::Editor
 
 		background.color.start.w = background.color.end.w = m_alpha;
 
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), background, 0.0f, drawOrder);
 
 		// Draw selection indicator rect.
 		LinaVG::StyleOptions selectionRect;
@@ -170,14 +170,14 @@ namespace Lina::Editor
 			selectionRect.color = Theme::GetDef().silent0.AsLVG4();
 
 		selectionRect.color.start.w = selectionRect.color.end.w = m_alpha;
-		LinaVG::DrawRect(threadIndex, m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
+		m_lvg->DrawRect(m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
 
 		m_icon->GetProps().colorEnd.w = m_icon->GetProps().colorStart.w = m_text->GetProps().color.w = m_alpha;
 
 		m_icon->SetDrawOrder(drawOrder);
 		m_text->SetDrawOrder(drawOrder);
-		m_icon->Draw(threadIndex);
-		m_text->Draw(threadIndex);
+		m_icon->Draw();
+		m_text->Draw();
 	}
 
 	bool Tab::OnMouse(uint32 button, LinaGX::InputAction action)

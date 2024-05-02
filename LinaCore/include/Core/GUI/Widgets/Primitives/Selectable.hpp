@@ -57,7 +57,7 @@ namespace Lina
 
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 

@@ -139,14 +139,14 @@ namespace Lina::Editor
 		}
 	}
 
-	void DockPreview::Draw(int32 threadIndex)
+	void DockPreview::Draw()
 	{
 		const int32 start = m_props.isCentral ? 0 : 1;
 		for (int32 i = start; i < 5; i++)
-			DrawDockRect(threadIndex, m_dockRects[i]);
+			DrawDockRect(m_dockRects[i]);
 	}
 
-	void DockPreview::DrawDockRect(int32 threadIndex, const DockRect& dr)
+	void DockPreview::DrawDockRect(const DockRect& dr)
 	{
 		const float	  sz	= dr.size * 0.5f;
 		const Vector2 start = (dr.position + dr.extraPos) - Vector2(sz, sz);
@@ -162,10 +162,10 @@ namespace Lina::Editor
 		opts.color.start.w = opts.color.end.w = 0.25f;
 
 		// Icon bg
-		LinaVG::DrawRect(threadIndex, start.AsLVG(), end.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
+		m_lvg->DrawRect(start.AsLVG(), end.AsLVG(), opts, 0.0f, FOREGROUND_DRAW_ORDER);
 
 		// Icon
-		dr.icon->Draw(threadIndex);
+		dr.icon->Draw();
 
 		// Actual placement preview
 		if (dr.isHovered && !dr.isDisabled)
@@ -184,7 +184,7 @@ namespace Lina::Editor
 			end.w					   = 0.0f;
 			SetGradientFromDirection(previewRect, start, end, dr.direction);
 
-			LinaVG::DrawRect(threadIndex, (center - halfSize).AsLVG(), (center + halfSize).AsLVG(), previewRect, 0.0f, FOREGROUND_DRAW_ORDER);
+			m_lvg->DrawRect((center - halfSize).AsLVG(), (center + halfSize).AsLVG(), previewRect, 0.0f, FOREGROUND_DRAW_ORDER);
 		}
 	}
 

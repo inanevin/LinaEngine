@@ -99,10 +99,10 @@ namespace Lina::Editor
 		SelectContent(static_cast<int32>(data.f[0]));
 	}
 
-	void PanelPerformance::Draw(int32 threadIndex)
+	void PanelPerformance::Draw()
 	{
-		Panel::Draw(threadIndex);
-		Widget::Draw(threadIndex);
+		Panel::Draw();
+		Widget::Draw();
 	}
 
 	void PanelPerformance::SelectContent(Widget* w)

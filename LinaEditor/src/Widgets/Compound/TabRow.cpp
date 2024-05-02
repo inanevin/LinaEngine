@@ -55,16 +55,16 @@ namespace Lina::Editor
 			linatl::sort(m_tabs.begin(), m_tabs.end(), [](Tab* t, Tab* t2) -> bool { return t->GetRect().pos.x < t2->GetRect().pos.x; });
 	}
 
-	void TabRow::Draw(int32 threadIndex)
+	void TabRow::Draw()
 	{
 		if (m_props.drawBackground)
 		{
 			LinaVG::StyleOptions opts;
 			opts.color = m_props.colorBackground.AsLVG4();
-			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 		}
 
-		Widget::Draw(threadIndex);
+		Widget::Draw();
 	}
 
 	void TabRow::AddTab(Widget* tiedWidget)

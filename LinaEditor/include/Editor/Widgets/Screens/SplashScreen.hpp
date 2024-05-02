@@ -52,7 +52,7 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 
 		virtual Bitmask32 GetSystemEventMask() override
 		{

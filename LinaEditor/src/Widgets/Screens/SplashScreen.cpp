@@ -95,33 +95,33 @@ namespace Lina::Editor
 		m_loadingInfo->SetPosY(m_rect.GetEnd().y - m_loadingBarHeight * 2.0f - m_loadingInfo->GetHalfSizeY());
 	}
 
-	void SplashScreen::Draw(int32 threadIndex)
+	void SplashScreen::Draw()
 	{
 		const float padding = m_loadingBarHeight;
 
 		LinaVG::StyleOptions opts;
 		opts.color = Theme::GetDef().background1.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		// Logo
-		LinaVG::DrawImage(threadIndex, m_splashImage->GetGPUHandle(), m_logoCenter.AsLVG(), m_logoDrawSize.AsLVG());
+		m_lvg->DrawImage(m_splashImage->GetGPUHandle(), m_logoCenter.AsLVG(), m_logoDrawSize.AsLVG());
 
 		const Rect progressBGRect = Rect(Vector2(m_rect.pos.x, m_rect.GetEnd().y - padding), Vector2(m_rect.size.x, padding));
 		const Rect progressRect	  = Rect(Vector2(m_rect.pos.x, m_rect.GetEnd().y - padding), Vector2(m_rect.size.x * m_progress, padding));
 
 		LinaVG::StyleOptions bg;
 		bg.color = Theme::GetDef().background0.AsLVG4();
-		LinaVG::DrawRect(threadIndex, progressBGRect.pos.AsLVG(), progressBGRect.GetEnd().AsLVG(), bg);
+		m_lvg->DrawRect(progressBGRect.pos.AsLVG(), progressBGRect.GetEnd().AsLVG(), bg);
 
 		LinaVG::StyleOptions progress;
 		progress.color.start = Theme::GetDef().accentPrimary1.AsLVG4();
 		progress.color.end	 = Theme::GetDef().accentPrimary0.AsLVG4();
-		LinaVG::DrawRect(threadIndex, progressRect.pos.AsLVG(), progressRect.GetEnd().AsLVG(), progress);
+		m_lvg->DrawRect(progressRect.pos.AsLVG(), progressRect.GetEnd().AsLVG(), progress);
 
-		m_versionText->Draw(threadIndex);
-		m_infoText1->Draw(threadIndex);
-		m_infoText2->Draw(threadIndex);
-		m_loadingInfo->Draw(threadIndex);
+		m_versionText->Draw();
+		m_infoText1->Draw();
+		m_infoText2->Draw();
+		m_loadingInfo->Draw();
 	}
 
 	void SplashScreen::OnSystemEvent(SystemEvent event, const Event& data)

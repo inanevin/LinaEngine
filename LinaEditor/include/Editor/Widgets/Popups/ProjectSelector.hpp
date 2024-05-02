@@ -58,7 +58,7 @@ namespace Lina::Editor
 		virtual void CalculateSize(float delta) override;
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 
 		void SetCancellable(bool isCancellable);
 		void SetTab(int32 selected);

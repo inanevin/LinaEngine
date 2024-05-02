@@ -97,34 +97,45 @@ namespace Lina
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		// Setup LinaVG
-		m_guiBackend									 = new GUIBackend(this);
-		LinaVG::Config.globalFramebufferScale			 = 1.0f;
-		LinaVG::Config.globalAAMultiplier				 = 1.0f;
-		LinaVG::Config.gcCollectInterval				 = 4000;
-		LinaVG::Config.textCachingEnabled				 = true;
-		LinaVG::Config.textCachingSDFEnabled			 = true;
-		LinaVG::Config.textCacheReserve					 = 10000;
-		LinaVG::Config.maxFontAtlasSize					 = 512;
-		LinaVG::Config.errorCallback					 = [](const std::string& err) { LINA_ERR(err.c_str()); };
-		LinaVG::Config.logCallback						 = [](const std::string& log) { LINA_TRACE(log.c_str()); };
-		LinaGX::Config.vulkanConfig.enableVulkanFeatures = LinaGX::VulkanFeatureFlags::VKF_Bindless | LinaGX::VulkanFeatureFlags::VKF_UpdateAfterBind | LinaGX::VulkanFeatureFlags::VKF_MultiDrawIndirect;
+		LinaVG::Config.globalFramebufferScale = 1.0f;
+		LinaVG::Config.globalAAMultiplier	  = 1.0f;
+		LinaVG::Config.gcCollectInterval	  = 4000;
+		LinaVG::Config.textCachingEnabled	  = true;
+		LinaVG::Config.textCachingSDFEnabled  = true;
+		LinaVG::Config.textCacheReserve		  = 10000;
+		LinaVG::Config.maxFontAtlasSize		  = 512;
+		LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
+		LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 
-		LinaVG::Backend::BaseBackend::SetBackend(m_guiBackend);
-		LinaVG::Initialize();
+		m_guiBackend.Initialize(this);
+
+		LinaVG::Text::GetCallbacks().fontTextureBind	   = std::bind(&GUIBackend::BindFontTexture, &m_guiBackend, std::placeholders::_1);
+		LinaVG::Text::GetCallbacks().fontTextureBufferData = std::bind(&GUIBackend::BufferFontTextureAtlas, &m_guiBackend, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
+		LinaVG::Text::GetCallbacks().fontTextureBufferEnd  = std::bind(&GUIBackend::BufferEnded, &m_guiBackend);
+		LinaVG::Text::GetCallbacks().fontTextureCreate	   = std::bind(&GUIBackend::CreateFontTexture, &m_guiBackend, std::placeholders::_1, std::placeholders::_2);
+		LinaVG::Text::Initialize();
 	}
 
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		// Setup LinaGX
-		m_lgx		  = new LinaGX::Instance();
-		m_appDelegate = m_system->GetApp()->GetAppDelegate();
-		m_clearColor  = initInfo.clearColor;
+		m_lgx		   = new LinaGX::Instance();
+		m_appDelegate  = m_system->GetApp()->GetAppDelegate();
+		m_clearColor   = initInfo.clearColor;
+		m_currentVsync = initInfo.vsyncStyle;
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing = initInfo.allowTearing,
 		};
 
-		LinaGX::Config.vulkanConfig = {};
+		LinaGX::Config.vulkanConfig = {
+			.enableVulkanFeatures = LinaGX::VulkanFeatureFlags::VKF_Bindless | LinaGX::VulkanFeatureFlags::VKF_UpdateAfterBind | LinaGX::VulkanFeatureFlags::VKF_MultiDrawIndirect,
+		};
+
+		LinaGX::Config.gpuLimits = {
+			.samplerLimit = 2048,
+			.bufferLimit  = 2048,
+		};
 
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
@@ -137,15 +148,11 @@ namespace Lina
 #endif
 
 		LinaGX::Config.api			   = api;
-		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Integrated;
+		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
 		LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
-		LinaGX::Config.gpuLimits	   = {
-				  .samplerLimit = 2048,
-				  .bufferLimit	= 2048,
-		  };
-		LinaGX::Config.vulkanConfig.enableVulkanFeatures = LinaGX::VKF_MultiDrawIndirect;
-		LinaGX::Config.mutexLockCreationDeletion		 = true;
+
+		LinaGX::Config.mutexLockCreationDeletion = true;
 
 		m_lgx->Initialize();
 
@@ -207,7 +214,6 @@ namespace Lina
 
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
-		m_currentVsync = initInfo.vsyncStyle;
 
 		// pfd
 		{
@@ -249,8 +255,8 @@ namespace Lina
 	{
 		// Preshutdown is before resource manager, make sure
 		// to remove user managed resources.
-
-		LinaVG::Terminate();
+		LinaVG::Text::Terminate();
+		m_guiBackend.Shutdown();
 
 		for (auto m : m_defaultMaterials)
 			m_resourceManager->DestroyUserResource<Material>(m);
@@ -472,25 +478,19 @@ namespace Lina
 			currentFrame.worldSignalSemaphore.value++;
 		}
 
-		// Start LinaVG for surface renderers.
-		LinaVG::StartFrame(static_cast<int>(validSurfaceRenderers.size()));
-
 		// Record surface renderers.
 		Vector<LinaGX::CommandStream*> surfaceRendererStreams(validSurfaceRenderers.size());
 		if (validSurfaceRenderers.size() == 1)
 		{
 			auto sf					  = validSurfaceRenderers[0];
-			surfaceRendererStreams[0] = sf->Render(currentFrameIndex, 0);
+			surfaceRendererStreams[0] = sf->Render(currentFrameIndex);
 		}
 		else
 		{
 			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { surfaceRendererStreams[i] = validSurfaceRenderers[i]->Render(currentFrameIndex, i); });
+			tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { surfaceRendererStreams[i] = validSurfaceRenderers[i]->Render(currentFrameIndex); });
 			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
-
-		// Clean up all surface renderer related buffers in LinaVG.
-		LinaVG::EndFrame();
 
 		// Waits for surface renderer submission.
 		Vector<uint16> surfaceWaitSemaphores;

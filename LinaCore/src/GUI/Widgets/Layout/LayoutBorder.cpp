@@ -122,11 +122,11 @@ namespace Lina
 		}
 	}
 
-	void LayoutBorder::Draw(int32 threadIndex)
+	void LayoutBorder::Draw()
 	{
 		LinaVG::StyleOptions opts;
 		opts.color = Theme::GetDef().background0.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 
 	bool LayoutBorder::OnMouse(uint32 button, LinaGX::InputAction act)

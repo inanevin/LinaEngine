@@ -36,7 +36,7 @@ SOFTWARE.
 namespace Lina
 {
 
-	void ShapeRect::Draw(int32 threadIndex)
+	void ShapeRect::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -72,12 +72,12 @@ namespace Lina
 			if (m_props.imageTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
 				color.w = GUI_IS_SINGLE_CHANNEL;
 
-			LinaVG::DrawImage(threadIndex, m_props.imageTexture->GetGPUHandle(), m_rect.GetCenter().AsLVG(), size.AsLVG(), color.AsLVG4(), 0.0f, m_drawOrder);
+			m_lvg->DrawImage(m_props.imageTexture->GetGPUHandle(), m_rect.GetCenter().AsLVG(), size.AsLVG(), color.AsLVG4(), 0.0f, m_drawOrder);
 		}
 		else
-			LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		Widget::Draw(threadIndex);
-		Widget::DrawTooltip(threadIndex);
+		Widget::Draw();
+		Widget::DrawTooltip();
 	}
 } // namespace Lina

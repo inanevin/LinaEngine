@@ -62,7 +62,7 @@ namespace Lina
 		}
 	}
 
-	void Popup::Draw(int32 threadIndex)
+	void Popup::Draw()
 	{
 		LinaVG::StyleOptions opts;
 		opts.color.start		  = m_props.colorBackgroundStart.AsLVG4();
@@ -72,15 +72,15 @@ namespace Lina
 
 		Color ds = Theme::GetDef().black;
 		ds.w	 = 0.5f;
-		WidgetUtility::DrawDropShadowRect(threadIndex, m_rect, m_drawOrder, ds, 6);
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		WidgetUtility::DrawDropShadowRect(m_lvg, m_rect, m_drawOrder, ds, 6);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		//	m_manager->SetClip(threadIndex, m_rect, {});
+		//	m_manager->SetClip(m_rect, {});
 		uint32 idx = 0;
 		for (auto* c : m_children)
 		{
 			c->SetChildID(idx);
-			c->Draw(threadIndex);
+			c->Draw();
 		}
 		//	m_manager->UnsetClip(threadIndex);
 	}

@@ -243,7 +243,6 @@ namespace Lina
 		 2. For every binding in shader, create either a buffer, texture or sampler for that binding and assign defaults.
 		 3. UpdateBinding() for each binding -> update the newly created sets to point to those buffers & textures.
 		 */
-
 		const LinaGX::DescriptorSetDesc			desc = m_shader->GetMaterialSetDesc();
 		const LinaGX::ShaderDescriptorSetLayout info = m_shader->GetMaterialSetInfo();
 		m_bindingData.resize(desc.bindings.size());

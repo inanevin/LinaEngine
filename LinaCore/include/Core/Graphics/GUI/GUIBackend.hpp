@@ -47,7 +47,7 @@ namespace Lina
 	class TextureSampler;
 	class Buffer;
 
-	class GUIBackend : public LinaVG::Backend::BaseBackend
+	class GUIBackend
 	{
 	public:
 		struct Buffers
@@ -86,46 +86,19 @@ namespace Lina
 		};
 
 	public:
-		GUIBackend(GfxManager* man);
+		GUIBackend()  = default;
 		~GUIBackend() = default;
 
-		virtual bool Initialize() override
-		{
-			return true;
-		}
-
-		virtual void				  Terminate() override;
-		virtual void				  StartFrame(int threadCount) override;
-		virtual void				  DrawDefault(LinaVG::DrawBuffer* buf, int threadIndex) override;
-		virtual void				  DrawGradient(LinaVG::GradientDrawBuffer* buf, int threadIndex) override;
-		virtual void				  DrawTextured(LinaVG::TextureDrawBuffer* buf, int threadIndex) override;
-		virtual void				  DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int threadIndex) override;
-		virtual void				  DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int threadIndex) override;
-		virtual void				  EndFrame() override{};
-		virtual void				  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data) override;
-		virtual void				  BufferEnded() override;
-		virtual void				  BindFontTexture(LinaVG::BackendHandle texture) override;
-		virtual void				  SaveAPIState() override{};
-		virtual void				  RestoreAPIState() override{};
-		virtual LinaVG::BackendHandle CreateFontTexture(int width, int height) override;
-
-		void Prepare(int threadIndex, Buffer* indexBuffer, Buffer* vertexBuffer);
-
-		inline const DrawData& GetDrawData(int threadIndex) const
-		{
-			return m_drawData[threadIndex];
-		};
-
-	private:
-		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf, int threadIndex);
+		void				  Initialize(GfxManager* gfxMan);
+		void				  Shutdown();
+		void				  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data);
+		void				  BufferEnded();
+		void				  BindFontTexture(LinaVG::BackendHandle texture);
+		LinaVG::BackendHandle CreateFontTexture(int width, int height);
 
 	private:
 		StringID			m_boundFontTexture = 0;
 		ResourceManager*	m_resourceManager  = nullptr;
-		Vector<Buffers>		m_buffers;
-		Vector<DrawData>	m_drawData;
 		Vector<FontTexture> m_fontTextures;
-		TextureSampler*		m_guiSampler  = nullptr;
-		TextureSampler*		m_textSampler = nullptr;
 	};
 } // namespace Lina

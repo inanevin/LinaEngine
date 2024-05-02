@@ -57,7 +57,7 @@ namespace Lina
 		}
 	}
 
-	void Button::Draw(int32 threadIndex)
+	void Button::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -91,10 +91,10 @@ namespace Lina
 			style.outlineOptions.color			= m_props.colorDisabled.AsLVG4();
 		}
 
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
-		Widget::Draw(threadIndex);
-		Widget::DrawBorders(threadIndex);
-		Widget::DrawTooltip(threadIndex);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
+		Widget::Draw();
+		Widget::DrawBorders();
+		Widget::DrawTooltip();
 	}
 
 	bool Button::OnMouse(uint32 button, LinaGX::InputAction act)

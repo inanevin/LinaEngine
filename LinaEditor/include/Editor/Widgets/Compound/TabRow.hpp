@@ -53,7 +53,7 @@ namespace Lina::Editor
 		};
 
 		virtual void Tick(float delta) override;
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 
 		void AddTab(Widget* tiedWidget);
 		void RemoveTab(Widget* tiedWidget);

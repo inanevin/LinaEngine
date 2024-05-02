@@ -77,13 +77,11 @@ namespace Lina
 		// RP
 
 		m_renderPass.Create(m_gfxManager, RenderPassDescriptorType::Basic);
-		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain);
-		m_widgetManager.Initialize(m_gfxManager->GetSystem(), window);
+		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain, window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
-		m_widgetManager.Shutdown();
 		m_guiRenderer.Destroy();
 		m_renderPass.Destroy();
 
@@ -113,7 +111,7 @@ namespace Lina
 
 	void SurfaceRenderer::PreTick()
 	{
-		m_widgetManager.PreTick();
+		m_guiRenderer.PreTick();
 
 		auto ws		= m_window->GetSize();
 		m_isVisible = m_window->GetIsVisible() && ws.x != 0 && ws.y != 0 && !m_window->GetIsMinimized();
@@ -122,10 +120,10 @@ namespace Lina
 	void SurfaceRenderer::Tick(float delta)
 	{
 		if (m_isVisible)
-			m_widgetManager.Tick(delta, m_window->GetSize());
+			m_guiRenderer.Tick(delta, m_window->GetSize());
 	}
 
-	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex, int32 threadIndex)
+	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 
@@ -161,11 +159,8 @@ namespace Lina
 		// Begin render pass
 		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
-		// Prepare gui renderer & ask app to draw surface contents.
-		// Flush & render all contents that might've been drawn by the app.
-		m_guiRenderer.Prepare(frameIndex, threadIndex);
-		m_widgetManager.Draw(threadIndex);
-		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, threadIndex, m_window->GetSize());
+		// Draw-Flush-Render gui commands.
+		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, m_window->GetSize());
 
 		// End render pass
 		m_renderPass.End(currentFrame.gfxStream);

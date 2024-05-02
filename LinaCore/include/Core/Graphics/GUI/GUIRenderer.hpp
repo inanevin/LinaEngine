@@ -30,17 +30,19 @@ SOFTWARE.
 
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
+#include <LinaVG/LinaVG.hpp>
 
 namespace LinaGX
 {
 	class Instance;
 	class CommandStream;
+	class Window;
 } // namespace LinaGX
 
 namespace Lina
 {
 	class GfxManager;
-	class GUIBackend;
 	class Material;
 	class Shader;
 
@@ -63,9 +65,15 @@ namespace Lina
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
 
-		void Create(GfxManager* gfxManager, ShaderWriteTargetType writeTargetType);
-		void Prepare(uint32 frameIndex, uint32 threadIndex);
-		void Render(LinaGX::CommandStream* stream, uint32 frameIndex, uint32 threadIndex, const Vector2ui& size);
+		void Create(GfxManager* gfxManager, ShaderWriteTargetType writeTargetType, LinaGX::Window* window);
+		void PreTick();
+		void Tick(float delta, const Vector2ui& size);
+		void DrawDefault(LinaVG::DrawBuffer* buf);
+		void DrawGradient(LinaVG::GradientDrawBuffer* buf);
+		void DrawTextured(LinaVG::TextureDrawBuffer* buf);
+		void DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf);
+		void DrawSDFText(LinaVG::SDFTextDrawBuffer* buf);
+		void Render(LinaGX::CommandStream* stream, uint32 frameIndex, const Vector2ui& size);
 		void Destroy();
 
 		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
@@ -73,13 +81,25 @@ namespace Lina
 			return m_pfd[frameIndex].copySemaphore;
 		}
 
+		inline Widget* GetGUIRoot()
+		{
+			return m_widgetManager.GetRoot();
+		}
+
+		inline WidgetManager& GetWidgetManager()
+		{
+			return m_widgetManager;
+		}
+
 	private:
 		Shader*			  m_shader				= nullptr;
 		uint32			  m_shaderVariantHandle = 0;
-		GUIBackend*		  m_guiBackend			= nullptr;
 		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
 		GfxManager*		  m_gfxManager = nullptr;
 		LinaGX::Instance* m_lgx		   = nullptr;
+		LinaGX::Window*	  m_window	   = nullptr;
+		LinaVG::Drawer	  m_lvg;
+		WidgetManager	  m_widgetManager;
 	};
 
 } // namespace Lina

@@ -53,7 +53,7 @@ namespace Lina
 			bool	 fitImage		  = false;
 		};
 
-		virtual void Draw(int32 threadIndex) override;
+		virtual void Draw() override;
 
 		inline Properties& GetProps()
 		{

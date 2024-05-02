@@ -54,7 +54,7 @@ namespace Lina
 		}
 	}
 
-	void Icon::Draw(int32 threadIndex)
+	void Icon::Draw()
 	{
 		if (!GetIsVisible())
 			return;
@@ -81,7 +81,7 @@ namespace Lina
 		if (GetIsDisabled())
 			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorDisabled.AsLVG4();
 
-		LinaVG::DrawTextSDF(threadIndex, m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+		m_lvg->DrawTextSDF(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
 	}
 
 	void Icon::CalculateIconSize()

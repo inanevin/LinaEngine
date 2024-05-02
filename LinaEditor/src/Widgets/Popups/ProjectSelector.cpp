@@ -120,22 +120,22 @@ namespace Lina::Editor
 		SetPos(Vector2(GetWindowSize().x * 0.5f - GetHalfSizeX(), GetWindowSize().y * 0.5f - GetHalfSizeY()));
 	}
 
-	void ProjectSelector::Draw(int32 threadIndex)
+	void ProjectSelector::Draw()
 	{
 		LinaVG::StyleOptions opts;
 		opts.color					  = Theme::GetDef().background1.AsLVG4();
 		opts.outlineOptions.thickness = Theme::GetDef().baseOutlineThickness;
 		opts.outlineOptions.color	  = Theme::GetDef().black.AsLVG4();
-		LinaVG::DrawRect(threadIndex, m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		Rect clipRect = m_rect;
 		if (clipRect.size.x < 0.1f)
 			clipRect.size.x = 0.1f;
 		if (clipRect.size.y < 0.1f)
 			clipRect.size.y = 0.1f;
-		m_manager->SetClip(threadIndex, clipRect, {});
-		Widget::Draw(threadIndex);
-		m_manager->UnsetClip(threadIndex);
+		m_manager->SetClip(clipRect, {});
+		Widget::Draw();
+		m_manager->UnsetClip();
 	}
 	DirectionalLayout* ProjectSelector::BuildLocationSelectRow(const String& dialogTitle, bool isSave)
 	{
