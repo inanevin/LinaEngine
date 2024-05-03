@@ -55,7 +55,7 @@ namespace Lina
 		struct Metadata
 		{
 			HashMap<StringID, ShaderVariant> variants;
-			RenderPassDescriptorType		 renderPassDescriptorType	  = RenderPassDescriptorType::Basic;
+			RenderPassDescriptorType		 renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
 			uint32							 descriptorSetAllocationCount = 1;
 			bool							 drawIndirectEnabled		  = false;
 

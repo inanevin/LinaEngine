@@ -55,7 +55,7 @@ namespace Lina
 
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
 	{
-		LOCK_GUARD(m_txtMtx);
+		ScopedSpinLock lock(m_spinLock);
 
 		// No duplicates allowed
 		for (const auto& req : m_textureRequests)
@@ -72,7 +72,7 @@ namespace Lina
 
 	void ResourceUploadQueue::AddBufferRequest(Buffer* buf)
 	{
-		LOCK_GUARD(m_bufMtx);
+		ScopedSpinLock lock(m_spinLock);
 
 		for (const auto& req : m_bufferRequests)
 		{
@@ -87,6 +87,8 @@ namespace Lina
 
 	bool ResourceUploadQueue::FlushAll(SemaphoreData& outSemaphore)
 	{
+		ScopedSpinLock lock(m_spinLock);
+
 		if (m_textureRequests.empty() && m_bufferRequests.empty())
 			return false;
 
@@ -118,22 +120,22 @@ namespace Lina
 		}
 
 		// Transition to sampled
-		if (!m_textureRequests.empty())
-		{
-			LinaGX::CMDBarrier* barrier	 = m_copyStream->AddCommand<LinaGX::CMDBarrier>();
-			barrier->textureBarrierCount = static_cast<uint32>(m_textureRequests.size());
-			barrier->textureBarriers	 = m_copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
-			barrier->srcStageFlags		 = LinaGX::PipelineStageFlags::PSF_Transfer;
-			barrier->dstStageFlags		 = LinaGX::PipelineStageFlags::PSF_FragmentShader;
-
-			size_t br = 0;
-			for (const auto& req : m_textureRequests)
-			{
-				auto& textureBarrier = barrier->textureBarriers[br];
-				textureBarrier		 = GfxHelpers::GetTextureBarrierTransferDest2Sampled(req.txt->GetGPUHandle());
-				br++;
-			}
-		}
+		//	if (!m_textureRequests.empty())
+		//	{
+		//		LinaGX::CMDBarrier* barrier	 = m_copyStream->AddCommand<LinaGX::CMDBarrier>();
+		//		barrier->textureBarrierCount = static_cast<uint32>(m_textureRequests.size());
+		//		barrier->textureBarriers	 = m_copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
+		//		barrier->srcStageFlags		 = LinaGX::PipelineStageFlags::PSF_Transfer;
+		//		barrier->dstStageFlags		 = LinaGX::PipelineStageFlags::PSF_FragmentShader;
+		//
+		//		size_t br = 0;
+		//		for (const auto& req : m_textureRequests)
+		//		{
+		//			auto& textureBarrier = barrier->textureBarriers[br];
+		//			textureBarrier		 = GfxHelpers::GetTextureBarrierTransferDest2Sampled(req.txt->GetGPUHandle());
+		//			br++;
+		//		}
+		//	}
 
 		bool bufferNeedsTransfer = false;
 

@@ -73,13 +73,13 @@ namespace Lina
 		}
 
 	private:
-		void AddRPBasic(PerFrameData& data);
+		void AddRPGUI(PerFrameData& data);
 		void AddRPMain(PerFrameData& data);
 
 	private:
 		GfxManager*				 m_gfxManager = nullptr;
 		LinaGX::Instance*		 m_lgx		  = nullptr;
 		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
-		RenderPassDescriptorType m_type = RenderPassDescriptorType::Basic;
+		RenderPassDescriptorType m_type = RenderPassDescriptorType::Gui;
 	};
 } // namespace Lina

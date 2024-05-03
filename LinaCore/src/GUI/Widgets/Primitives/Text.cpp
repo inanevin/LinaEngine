@@ -84,7 +84,7 @@ namespace Lina
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
 
-			// m_lvg->DrawTextSDF(m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
+			m_lvg->DrawTextSDF(m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 		else
 		{
@@ -101,7 +101,7 @@ namespace Lina
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
 
-			// m_lvg->DrawTextNormal(m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
+			m_lvg->DrawTextNormal(m_props.text.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), opts, 0.0f, m_drawOrder, m_props.isDynamic);
 		}
 	}
 

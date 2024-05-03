@@ -91,7 +91,7 @@ namespace Lina
 			return include;
 		};
 
-		String rpText = "basic";
+		String rpText = "gui";
 
 		if (rpType == RenderPassDescriptorType::Main)
 			rpText = "main";

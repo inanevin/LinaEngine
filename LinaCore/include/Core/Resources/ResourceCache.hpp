@@ -53,11 +53,11 @@ namespace Lina
 		ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource*		  CreateResource(StringID sid, const String& path, ResourceManager* rm, ResourceOwner ownerType) = 0;
-		virtual Resource*		  GetResource(StringID sid)																		 = 0;
-		virtual void			  DestroyResource(StringID sid)																	 = 0;
-		virtual void			  DestroyUserResource(Resource* res)															 = 0;
-		virtual Vector<Resource*> GetAllResources(bool includeUserManagedResources) const										 = 0;
+		virtual Resource* CreateResource(StringID sid, const String& path, ResourceManager* rm, ResourceOwner ownerType) = 0;
+		virtual Resource* GetResource(StringID sid)																		 = 0;
+		virtual void	  DestroyResource(StringID sid)																	 = 0;
+		virtual void	  DestroyUserResource(Resource* res)															 = 0;
+		virtual void	  GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources) const			 = 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -149,9 +149,8 @@ namespace Lina
 			return it->second;
 		}
 
-		Vector<Resource*> GetAllResources(bool includeUserManagedResources) const override
+		void GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources) const override
 		{
-			Vector<Resource*> resources;
 			resources.reserve(m_resources.size());
 
 			for (auto [sid, res] : m_resources)
@@ -162,13 +161,10 @@ namespace Lina
 				for (auto* res : m_userManagedResources)
 					resources.push_back(res);
 			}
-
-			return resources;
 		}
 
-		Vector<T*> GetAllResourcesRaw(bool includeUserManagedResources) const
+		void GetAllResourcesRaw(Vector<T*>& resources, bool includeUserManagedResources) const
 		{
-			Vector<T*> resources;
 			resources.reserve(m_resources.size());
 
 			for (auto [sid, res] : m_resources)
@@ -179,8 +175,6 @@ namespace Lina
 				for (auto* res : m_userManagedResources)
 					resources.push_back(res);
 			}
-
-			return resources;
 		}
 
 	private:

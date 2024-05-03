@@ -75,10 +75,25 @@ namespace Lina
 
 	enum RenderPassDescriptorType
 	{
-		Basic = 0,
+		Gui = 0,
 		Main,
 		Max,
 	};
+
+	constexpr const char* RPTypeToString(RenderPassDescriptorType type)
+	{
+		switch (type)
+		{
+		case Gui:
+			return "Gui";
+		case Main:
+			return "Main";
+		case Max:
+			return "Max";
+		default:
+			return "Unknown";
+		}
+	}
 
 	struct SemaphoreData
 	{

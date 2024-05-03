@@ -39,7 +39,6 @@ namespace Lina
 	public:
 		static LinaGX::DescriptorSetDesc GetSetDescPersistentGlobal();
 		static LinaGX::DescriptorSetDesc GetSetDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
-		static LinaGX::DescriptorSetDesc GetSetDescriptionDynamicGUI();
 
 		static LinaGX::TextureBarrier GetTextureBarrierPresent2Color(uint32 texture, bool isSwapchain);
 		static LinaGX::TextureBarrier GetTextureBarrierColor2Present(uint32 texture, bool isSwapchain);

@@ -125,7 +125,9 @@ namespace Lina
 		m_currentVsync = initInfo.vsyncStyle;
 
 		LinaGX::Config.dx12Config = {
-			.allowTearing = initInfo.allowTearing,
+			.allowTearing				 = initInfo.allowTearing,
+			.enableDebugLayers			 = false,
+			.serializeShaderDebugSymbols = true,
 		};
 
 		LinaGX::Config.vulkanConfig = {
@@ -141,7 +143,7 @@ namespace Lina
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
 
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::DX12;
+		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -336,30 +338,58 @@ namespace Lina
 
 		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUDataEngineGlobals));
 
-		bool mt = false;
+		int32		totalThreads	   = static_cast<int32>(m_worldRenderers.size() + m_surfaceRenderers.size());
+		const int32 worldRenderersSize = static_cast<int32>(m_worldRenderers.size());
+		Taskflow	tf;
+		tf.for_each_index(0, totalThreads, 1, [this, worldRenderersSize, delta](int i) {
+			if (i < worldRenderersSize)
+				m_worldRenderers[i]->Tick(delta);
+			else
+				m_surfaceRenderers[i - worldRenderersSize]->Tick(delta);
+		});
+		m_system->GetMainExecutor()->RunAndWait(tf);
+	}
 
-		if (m_worldRenderers.size() == 1)
-			m_worldRenderers[0]->Tick(delta);
-		else
+	void GfxManager::UpdateBindlessResources(PerFrameData& pfd)
+	{
+		if (!pfd.bindlessDirty.load())
+			return;
+
+		LinaGX::DescriptorUpdateImageDesc imgUpdate = {
+			.setHandle = pfd.descriptorSetPersistentGlobal,
+			.binding   = 1,
+		};
+
+		LinaGX::DescriptorUpdateImageDesc smpUpdate = {
+			.setHandle = pfd.descriptorSetPersistentGlobal,
+			.binding   = 2,
+		};
+
+		Vector<Texture*>		textures;
+		Vector<TextureSampler*> samplers;
+		m_resourceManager->GetAllResourcesRaw<Texture>(textures, true);
+		m_resourceManager->GetAllResourcesRaw<TextureSampler>(samplers, true);
+		imgUpdate.textures.resize(textures.size());
+		smpUpdate.samplers.resize(samplers.size());
+
+		for (size_t i = 0; i < textures.size(); i++)
 		{
-			Taskflow tf;
-			tf.for_each(m_worldRenderers.begin(), m_worldRenderers.end(), [delta](WorldRenderer* wr) { wr->Tick(delta); });
-			m_system->GetMainExecutor()->RunMove(tf);
-			mt = true;
+			Texture* txt		  = textures[i];
+			imgUpdate.textures[i] = txt->GetGPUHandle();
+			txt->m_bindlessIndex  = static_cast<uint32>(i);
 		}
 
-		if (m_surfaceRenderers.size() == 1)
-			m_surfaceRenderers[0]->Tick(delta);
-		else
+		for (size_t i = 0; i < samplers.size(); i++)
 		{
-			Taskflow tf;
-			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [delta](SurfaceRenderer* sf) { sf->Tick(delta); });
-			m_system->GetMainExecutor()->RunMove(tf);
-			mt = true;
+			TextureSampler* smp	  = samplers[i];
+			smpUpdate.samplers[i] = smp->GetGPUHandle();
+			smp->m_bindlessIndex  = static_cast<uint32>(i);
 		}
 
-		if (mt)
-			m_system->GetMainExecutor()->Wait();
+		m_lgx->DescriptorUpdateImage(imgUpdate);
+		m_lgx->DescriptorUpdateImage(smpUpdate);
+		pfd.bindlessDirty.store(false);
+		LINA_TRACE("UPDATING IMAGES {0} {1}", imgUpdate.textures.size(), smpUpdate.samplers.size());
 	}
 
 	void GfxManager::Render()
@@ -409,6 +439,8 @@ namespace Lina
 
 		// Frame init
 		m_lgx->StartFrame();
+
+		UpdateBindlessResources(currentFrame);
 
 		/*
 		 World submission waits for:

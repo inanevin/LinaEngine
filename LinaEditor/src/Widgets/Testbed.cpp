@@ -46,6 +46,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina::Editor
 {
@@ -53,9 +54,24 @@ namespace Lina::Editor
 	String dummyDropdownItems[3] = {"Item1", "Item2TesteroBruvvv", "Item3"};
 	int32  selectedDropdownItem	 = 0;
 
+	Vector<Vector2> positions;
+	Vector<Vector2> positionEnds;
+
+	const int totalSz = 1000;
+
 	void Testbed::Construct()
 	{
+		positions.resize(totalSz);
+		positionEnds.resize(totalSz);
+
+		for (uint32 i = 0; i < totalSz; i++)
+		{
+			positions[i]	= Vector2(Math::RandF(50, 3300), Math::RandF(50, 2000));
+			positionEnds[i] = positions[i] + Vector2(Math::RandF(50, 250), Math::RandF(50, 250));
+		}
+
 		return;
+
 		auto* resMan = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		const float itemHeight = Theme::GetDef().baseItemHeight;
@@ -270,7 +286,11 @@ namespace Lina::Editor
 	{
 		LinaVG::StyleOptions opts;
 		opts.color = Vector4(1, 1, 1, 1).AsLVG4();
-		m_lvg->DrawRect(Vector2(10, 10).AsLVG(), Vector2(50, 50).AsLVG(), opts, 0.0f, m_drawOrder);
+
+		for (uint32 i = 0; i < totalSz; i++)
+		{
+			m_lvg->DrawRect(positions[i].AsLVG(), positionEnds[i].AsLVG(), opts, 0.0f, 5);
+		}
 	}
 
 } // namespace Lina::Editor

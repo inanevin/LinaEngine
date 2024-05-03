@@ -49,6 +49,42 @@ namespace Lina
 #define LOCK(mtx)						 mtx.lock()
 #define UNLOCK(mtx)						 mtx.unlock()
 
+	class SpinLock
+	{
+	public:
+		inline void Lock()
+		{
+			while (m_flag.test_and_set(std::memory_order_acquire))
+			{
+				// busy-wait
+			}
+		}
+
+		inline void Unlock()
+		{
+			m_flag.clear(std::memory_order_release);
+		}
+
+	private:
+		std::atomic_flag m_flag = ATOMIC_FLAG_INIT;
+	};
+
+	class ScopedSpinLock
+	{
+	public:
+		ScopedSpinLock(SpinLock& lock) : m_lock(lock)
+		{
+			m_lock.Lock();
+		}
+		~ScopedSpinLock()
+		{
+			m_lock.Unlock();
+		}
+
+	private:
+		SpinLock& m_lock;
+	};
+
 } // namespace Lina
 
 #endif

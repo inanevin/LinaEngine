@@ -101,8 +101,9 @@ namespace Lina
 				.frontFace	  = LinaGX::FrontFace::CCW,
 			};
 
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Basic;
-			meta.descriptorSetAllocationCount = 50;
+			meta.drawIndirectEnabled		  = true;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
+			meta.descriptorSetAllocationCount = 1;
 			meta.SaveToStream(stream);
 			return true;
 		}

@@ -38,19 +38,37 @@ namespace Lina
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
 
-		return {.bindings = {binding0}};
+		LinaGX::DescriptorBinding binding1 = {
+			.descriptorCount = 100,
+			.type			 = LinaGX::DescriptorType::SeparateImage,
+			.unbounded		 = true,
+			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		LinaGX::DescriptorBinding binding2 = {
+			.descriptorCount = 100,
+			.type			 = LinaGX::DescriptorType::SeparateSampler,
+			.unbounded		 = true,
+			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		return {.bindings = {binding0, binding1, binding2}};
 	}
 
 	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassDescriptorType type)
 	{
-		if (type == RenderPassDescriptorType::Basic)
+		if (type == RenderPassDescriptorType::Gui)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			return {.bindings = {binding0}};
+			LinaGX::DescriptorBinding binding1 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+			return {.bindings = {binding0, binding1}};
 		}
 		else if (type == RenderPassDescriptorType::Main)
 		{
@@ -84,27 +102,6 @@ namespace Lina
 
 		LINA_ASSERT(false, "");
 		return {};
-	}
-
-	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescriptionDynamicGUI()
-	{
-
-		LinaGX::DescriptorBinding binding0 = {
-			.type	= LinaGX::DescriptorType::SSBO,
-			.stages = {LinaGX::ShaderStage::Fragment},
-		};
-
-		LinaGX::DescriptorBinding binding1 = {
-			.type	= LinaGX::DescriptorType::SeparateSampler,
-			.stages = {LinaGX::ShaderStage::Fragment},
-		};
-
-		LinaGX::DescriptorBinding binding2 = {
-			.type	= LinaGX::DescriptorType::SeparateImage,
-			.stages = {LinaGX::ShaderStage::Fragment},
-		};
-
-		return {.bindings = {binding0, binding1, binding2}};
 	}
 
 	LinaGX::TextureBarrier GfxHelpers::GetTextureBarrierColor2Present(uint32 texture, bool isSwapchain)

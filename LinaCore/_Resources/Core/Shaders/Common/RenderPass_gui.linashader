@@ -35,3 +35,15 @@ layout(set = 1, binding = 0) uniform ViewData
 	vec2 cameraNearFar;
 } LINA_VIEW;
 
+struct GUIMaterialData
+{
+	vec4 color1;
+	vec4 color2;
+	vec4 floatPack1;
+	vec4 floatPack2;
+};
+
+layout(set = 1, binding = 1) readonly buffer GUIMaterialBuffer
+{
+   GUIMaterialData data[];
+} guiMaterialBuffer;

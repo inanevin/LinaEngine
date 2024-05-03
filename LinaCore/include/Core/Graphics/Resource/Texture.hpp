@@ -115,6 +115,8 @@ namespace Lina
 		void AddToUploadQueue();
 
 	private:
+		friend class GfxManager;
+
 		uint32						  m_bindlessIndex = 0;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
 		uint32						  m_gpuHandle		= 0;

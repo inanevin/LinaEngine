@@ -68,6 +68,7 @@ namespace Lina
 		auto gfxMan				= m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_samplerDesc.debugName = m_path.c_str();
 		m_gpuHandle				= gfxMan->GetLGX()->CreateSampler(m_samplerDesc);
+		gfxMan->MarkBindlessDirty();
 	}
 
 } // namespace Lina

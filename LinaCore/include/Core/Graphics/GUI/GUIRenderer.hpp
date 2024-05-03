@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
 #include <LinaVG/LinaVG.hpp>
 
 namespace LinaGX
@@ -45,6 +46,9 @@ namespace Lina
 	class GfxManager;
 	class Material;
 	class Shader;
+	class RenderPass;
+	class TextureSampler;
+	class ResourceManager;
 
 	class GUIRenderer
 	{
@@ -54,18 +58,30 @@ namespace Lina
 
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* copyStream	   = nullptr;
-			SemaphoreData		   copySemaphore   = {};
-			Buffer				   guiVertexBuffer = {};
-			Buffer				   guiIndexBuffer  = {};
-			Vector<Material*>	   materials	   = {};
+			LinaGX::CommandStream* copyStream		 = nullptr;
+			SemaphoreData		   copySemaphore	 = {};
+			Buffer				   guiVertexBuffer	 = {};
+			Buffer				   guiIndexBuffer	 = {};
+			Buffer				   guiMaterialBuffer = {};
+			Buffer				   guiIndirectBuffer = {};
+			uint32				   vertexCounter	 = 0;
+			uint32				   indexCounter		 = 0;
+		};
+
+		struct DrawRequest
+		{
+			uint32		   firstIndex	= 0;
+			uint32		   vertexOffset = 0;
+			uint32		   indexCount	= 0;
+			Rectui		   clip			= {};
+			GPUMaterialGUI materialData;
 		};
 
 	public:
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
 
-		void Create(GfxManager* gfxManager, ShaderWriteTargetType writeTargetType, LinaGX::Window* window);
+		void Create(GfxManager* gfxManager, RenderPass* renderPass, ShaderWriteTargetType writeTargetType, LinaGX::Window* window);
 		void PreTick();
 		void Tick(float delta, const Vector2ui& size);
 		void DrawDefault(LinaVG::DrawBuffer* buf);
@@ -92,14 +108,21 @@ namespace Lina
 		}
 
 	private:
-		Shader*			  m_shader				= nullptr;
-		uint32			  m_shaderVariantHandle = 0;
-		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
-		GfxManager*		  m_gfxManager = nullptr;
-		LinaGX::Instance* m_lgx		   = nullptr;
-		LinaGX::Window*	  m_window	   = nullptr;
-		LinaVG::Drawer	  m_lvg;
-		WidgetManager	  m_widgetManager;
+		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf);
+
+	private:
+		Shader*				m_shader			  = nullptr;
+		uint32				m_shaderVariantHandle = 0;
+		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
+		GfxManager*			m_gfxManager = nullptr;
+		LinaGX::Instance*	m_lgx		 = nullptr;
+		LinaGX::Window*		m_window	 = nullptr;
+		LinaVG::Drawer		m_lvg;
+		WidgetManager		m_widgetManager;
+		Vector<DrawRequest> m_drawRequests;
+		TextureSampler*		m_defaultGUISampler = nullptr;
+		TextureSampler*		m_textGUISampler	= nullptr;
+		ResourceManager*	m_rm				= nullptr;
 	};
 
 } // namespace Lina

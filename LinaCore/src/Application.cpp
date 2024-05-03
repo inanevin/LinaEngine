@@ -42,7 +42,6 @@ namespace Lina
 
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
-
 		auto& resourceManager = m_engine.GetResourceManager();
 		m_appDelegate		  = initInfo.appDelegate;
 		m_appDelegate->m_app  = this;

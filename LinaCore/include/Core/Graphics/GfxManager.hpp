@@ -63,6 +63,7 @@ namespace Lina
 			uint32		  globalDataResource			 = 0;
 			uint8*		  globalDataMapped				 = nullptr;
 			SemaphoreData worldSignalSemaphore;
+			Atomic<bool>  bindlessDirty = true;
 		};
 
 	public:
@@ -125,6 +126,23 @@ namespace Lina
 		{
 			return m_lgx;
 		}
+
+		inline const GUIBackend& GetGUIBackend() const
+		{
+			return m_guiBackend;
+		}
+
+		inline void MarkBindlessDirty()
+		{
+			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+			{
+				auto& pfd = m_pfd[i];
+				pfd.bindlessDirty.store(true);
+			}
+		}
+
+	private:
+		void UpdateBindlessResources(PerFrameData& pfd);
 
 	private:
 		ResourceUploadQueue				m_resourceUploadQueue;

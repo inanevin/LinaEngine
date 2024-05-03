@@ -70,20 +70,19 @@ namespace Lina
 		{
 			auto& data	   = m_pfd[i];
 			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
-
-			m_renderPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
+			m_guiPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
 		}
 
 		// RP
 
-		m_renderPass.Create(m_gfxManager, RenderPassDescriptorType::Basic);
-		m_guiRenderer.Create(m_gfxManager, ShaderWriteTargetType::Swapchain, window);
+		m_guiPass.Create(m_gfxManager, RenderPassDescriptorType::Gui);
+		m_guiRenderer.Create(m_gfxManager, &m_guiPass, ShaderWriteTargetType::Swapchain, window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
 	{
 		m_guiRenderer.Destroy();
-		m_renderPass.Destroy();
+		m_guiPass.Destroy();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -153,17 +152,17 @@ namespace Lina
 
 		// Descriptors
 		GPUDataView dataView = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
-		m_renderPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&dataView, sizeof(GPUDataView));
-		m_renderPass.BindDescriptors(currentFrame.gfxStream, frameIndex);
+		m_guiPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&dataView, sizeof(GPUDataView));
+		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex);
 
 		// Begin render pass
-		m_renderPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
 		// Draw-Flush-Render gui commands.
-		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, m_window->GetSize());
+		// m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, m_window->GetSize());
 
 		// End render pass
-		m_renderPass.End(currentFrame.gfxStream);
+		m_guiPass.End(currentFrame.gfxStream);
 
 		// Barrier to Present
 		LinaGX::CMDBarrier* barrierToPresent  = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();

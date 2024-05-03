@@ -51,17 +51,17 @@ namespace Lina
 		ResourceManager(System* sys) : Subsystem(sys, SubsystemType::ResourceManager){};
 		~ResourceManager() = default;
 
-		virtual void	  Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void	  Shutdown() override;
-		void			  Poll();
-		int32			  LoadResources(const Vector<ResourceIdentifier>& identifiers, Delegate<void()>&& onLoaded = nullptr);
-		void			  WaitForAll();
-		bool			  IsLoadTaskComplete(uint32 id);
-		void			  UnloadResources(const Vector<ResourceIdentifier> identifiers);
-		Vector<Resource*> GetAllResources(bool includeUserManagedResources);
-		PackageType		  GetPackageType(TypeID tid);
-		void			  ResaveResource(Resource* res);
-		static String	  GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid);
+		virtual void  Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void  Shutdown() override;
+		void		  Poll();
+		int32		  LoadResources(const Vector<ResourceIdentifier>& identifiers, Delegate<void()>&& onLoaded = nullptr);
+		void		  WaitForAll();
+		bool		  IsLoadTaskComplete(uint32 id);
+		void		  UnloadResources(const Vector<ResourceIdentifier> identifiers);
+		void		  GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources);
+		PackageType	  GetPackageType(TypeID tid);
+		void		  ResaveResource(Resource* res);
+		static String GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid);
 
 		void RegisterAppResources(const Vector<ResourceIdentifier>& resources)
 		{
@@ -108,15 +108,11 @@ namespace Lina
 			return static_cast<T*>(m_caches.at(tid)->GetResource(sid));
 		}
 
-		template <typename T> Vector<T*> GetAllResourcesRaw(bool includeUserManagedResources) const
+		template <typename T> void GetAllResourcesRaw(Vector<T*>& resources, bool includeUserManagedResources) const
 		{
-			Vector<T*>	 resources;
-			const TypeID tid	= GetTypeID<T>();
-			auto		 cache	= static_cast<ResourceCache<T>*>(m_caches.at(tid));
-			Vector<T*>	 allRes = cache->GetAllResourcesRaw(includeUserManagedResources);
-			resources.insert(resources.end(), allRes.begin(), allRes.end());
-
-			return resources;
+			const TypeID tid   = GetTypeID<T>();
+			auto		 cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
+			cache->GetAllResourcesRaw(resources, includeUserManagedResources);
 		}
 
 		template <typename T> T* CreateUserResource(const String& path, StringID sid)

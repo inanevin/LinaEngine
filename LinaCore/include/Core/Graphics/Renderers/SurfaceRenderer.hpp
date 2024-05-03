@@ -99,7 +99,6 @@ namespace Lina
 		}
 
 	protected:
-	protected:
 		StringID			 m_sid		  = 0;
 		GfxManager*			 m_gfxManager = nullptr;
 		Vector2ui			 m_size		  = Vector2ui::Zero;
@@ -109,7 +108,7 @@ namespace Lina
 		uint8				 m_swapchain   = 0;
 		bool				 m_isVisible   = false;
 		ApplicationDelegate* m_appListener = nullptr;
-		RenderPass			 m_renderPass  = {};
+		RenderPass			 m_guiPass	   = {};
 		GUIRenderer			 m_guiRenderer;
 	};
 

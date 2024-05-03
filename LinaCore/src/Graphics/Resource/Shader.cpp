@@ -135,7 +135,7 @@ namespace Lina
 
 		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		const bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_meta.renderPassDescriptorType);
+		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_meta.renderPassDescriptorType);
 		if (!success)
 			return;
 
@@ -147,7 +147,12 @@ namespace Lina
 			data[stg]			 = compData;
 		}
 
-		m_lgx->CompileShader(data, m_outCompiledBlobs, m_layout);
+		success = m_lgx->CompileShader(data, m_outCompiledBlobs, m_layout);
+
+		if (!success)
+		{
+			LINA_ERR("Shader: Failed compiling shader! {0}", m_path);
+		}
 
 		if (m_meta.variants.empty())
 			m_meta.variants["Default"_hs] = {};

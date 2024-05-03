@@ -46,12 +46,13 @@ namespace Lina
 			s_usedCPUVisibleGPUMemory += static_cast<uint64>(m_size);
 			m_isCPUVisibleGPUResource = true;
 
-			LinaGX::ResourceDesc desc = {
-				.size		   = static_cast<uint64>(m_size),
-				.typeHintFlags = hintFlags,
-				.heapType	   = LinaGX::ResourceHeap::CPUVisibleGPUMemory,
-				.debugName	   = debugName.c_str(),
-			};
+			const String		 dbgName = debugName + " (CPUVisibleGPUMem)";
+			LinaGX::ResourceDesc desc	 = {
+				   .size		  = static_cast<uint64>(m_size),
+				   .typeHintFlags = hintFlags,
+				   .heapType	  = LinaGX::ResourceHeap::CPUVisibleGPUMemory,
+				   .debugName	  = dbgName.c_str(),
+			   };
 
 			m_gpu = m_lgx->CreateResource(desc);
 			m_lgx->MapResource(m_gpu, m_mapped);
@@ -59,11 +60,14 @@ namespace Lina
 		}
 		else
 		{
+			const String dbgNameStg = debugName + " (Staging)";
+			const String dbgNameGPU = debugName + " (GPU)";
+
 			LinaGX::ResourceDesc desc = {
 				.size		   = static_cast<uint64>(m_size),
 				.typeHintFlags = hintFlags,
 				.heapType	   = LinaGX::ResourceHeap::StagingHeap,
-				.debugName	   = debugName.c_str(),
+				.debugName	   = dbgNameStg.c_str(),
 			};
 
 			m_staging = m_lgx->CreateResource(desc);
@@ -71,6 +75,7 @@ namespace Lina
 			if (!m_stagingOnly)
 			{
 				desc.heapType  = LinaGX::ResourceHeap::GPUOnly;
+				desc.debugName = dbgNameGPU.c_str();
 				m_gpu		   = m_lgx->CreateResource(desc);
 				m_residesInGPU = true;
 			}

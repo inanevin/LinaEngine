@@ -240,7 +240,7 @@ namespace Lina::Editor
 		const float	  imageY	= size.y * 0.5f;
 		const float	  imageX	= imageY * (m_titleImage->GetSizeF().x / m_titleImage->GetSizeF().y);
 		const Vector2 imageSize = Vector2(imageX, imageY);
-		m_lvg->DrawImage(m_titleImage->GetGPUHandle(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
+		m_lvg->DrawImage(m_titleImage->GetBindlessIndex(), center.AsLVG(), imageSize.AsLVG(), Color::White.AsLVG4(), 0.0f, m_drawOrder + 1);
 
 		const Rect	  imgRect = Rect(Vector2(center - imageSize * 0.5f), imageSize);
 		const Vector2 mp	  = Vector2(static_cast<float>(m_lgxWindow->GetMousePosition().x), static_cast<float>(m_lgxWindow->GetMousePosition().y));

@@ -30,43 +30,52 @@ SOFTWARE.
 #include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
+#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
 
 #define MAX_COPY_COMMANDS 50
-#define MAX_GUI_VERTICES  10000
-#define MAX_GUI_INDICES	  24000
+#define MAX_GUI_VERTICES  20000
+#define MAX_GUI_INDICES	  48000
 
-	void GUIRenderer::Create(GfxManager* gfxManager, ShaderWriteTargetType writeTargetType, LinaGX::Window* window)
+	void GUIRenderer::Create(GfxManager* gfxManager, RenderPass* renderPass, ShaderWriteTargetType writeTargetType, LinaGX::Window* window)
 	{
 		m_gfxManager		  = gfxManager;
 		m_window			  = window;
 		m_lgx				  = m_gfxManager->GetLGX();
-		auto* rm			  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_shader			  = rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
+		m_rm				  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_shader			  = m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
 		m_shaderVariantHandle = m_shader->GetGPUHandle(writeTargetType);
+		m_defaultGUISampler	  = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
+		m_textGUISampler	  = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& data					 = m_pfd[i];
-			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "GUIRenderer: Copy Stream"});
+			auto&		 data			 = m_pfd[i];
+			const String istr			 = TO_STRING(i);
+			const String cmdStreamDbg	 = "GUIRenderer: CopyStream" + istr;
+			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, cmdStreamDbg.c_str()});
 			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
-			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer VertexBuffer");
-			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer IndexBuffer");
-			data.materials.resize(MAX_GUI_MATERIALS);
+			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer: VertexBuffer" + istr);
+			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer: IndexBuffer" + istr);
+			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "GUIRenderer: MaterialBuffer" + istr);
+			data.guiMaterialBuffer.MemsetMapped(0);
+			data.guiIndirectBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, MAX_GUI_MATERIALS * m_lgx->GetIndexedIndirectCommandSize(), "GUIRenderer IndirectBuffer" + istr);
 
-			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
-			{
-				data.materials[j] = rm->CreateUserResource<Material>("GUIRendererMaterial", 0);
-				data.materials[j]->SetShader(DEFAULT_SHADER_GUI_SID);
-			}
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = renderPass->GetDescriptorSet(i),
+				.binding   = 1,
+				.buffers   = {data.guiMaterialBuffer.GetGPUResource()},
+			});
 		}
 
 		m_lvg.GetCallbacks().drawDefault	= BIND(&GUIRenderer::DrawDefault, this, std::placeholders::_1);
@@ -90,29 +99,92 @@ namespace Lina
 
 	void GUIRenderer::DrawDefault(LinaVG::DrawBuffer* buf)
 	{
+		auto& req = AddDrawRequest(buf);
 	}
 
 	void GUIRenderer::DrawGradient(LinaVG::GradientDrawBuffer* buf)
 	{
+		auto& req				= AddDrawRequest(buf);
+		req.materialData.color1 = buf->m_color.start;
+		req.materialData.color2 = buf->m_color.end;
+
+		if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
+		{
+			req.materialData.floatPack1 = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
+		}
+		else if (buf->m_color.gradientType == LinaVG::GradientType::Vertical)
+		{
+			req.materialData.floatPack1 = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+			req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
+		}
+		else if (buf->m_color.gradientType == LinaVG::GradientType::Radial)
+		{
+			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
+			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
+		}
+		else if (buf->m_color.gradientType == LinaVG::GradientType::RadialCorner)
+		{
+			req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
+			req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
+		}
 	}
 
 	void GUIRenderer::DrawTextured(LinaVG::TextureDrawBuffer* buf)
 	{
+		auto& req				= AddDrawRequest(buf);
+		float drawBufferType	= static_cast<float>(buf->m_drawBufferType);
+		req.materialData.color1 = buf->m_tint;
+		float singleChannel		= 0.0f;
+
+		if (buf->m_textureHandle == GUI_TEXTURE_HUE_HORIZONTAL)
+		{
+			drawBufferType = 5.0f; // special case :)
+		}
+		else if (buf->m_textureHandle == GUI_TEXTURE_HUE_VERTICAL)
+		{
+			drawBufferType = 6.0f; // special case :)
+		}
+		else if (buf->m_textureHandle == GUI_TEXTURE_COLORWHEEL)
+		{
+			drawBufferType = 7.0f; // special case :)
+		}
+		else
+		{
+			req.materialData.color2.x = static_cast<float>(buf->m_textureHandle);
+			req.materialData.color2.y = static_cast<float>(m_defaultGUISampler->GetBindlessIndex());
+		}
+
+		if (Math::Equals(req.materialData.color1.w, GUI_IS_SINGLE_CHANNEL, 0.01f))
+			singleChannel = 1.0f;
+
+		req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
+		req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, 0.0f, drawBufferType);
 	}
 
 	void GUIRenderer::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
 	{
+		auto& req					  = AddDrawRequest(buf);
+		auto  txt					  = m_gfxManager->GetGUIBackend().GetFontTexture(buf->m_textureHandle).texture;
+		req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
+		req.materialData.color2.x	  = static_cast<float>(txt->GetBindlessIndex());
+		req.materialData.color2.y	  = static_cast<float>(m_textGUISampler->GetBindlessIndex());
 	}
 
 	void GUIRenderer::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
 	{
+		auto& req					= AddDrawRequest(buf);
+		auto  txt					= m_gfxManager->GetGUIBackend().GetFontTexture(buf->m_textureHandle).texture;
+		req.materialData.color1		= buf->m_outlineColor;
+		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineSoftness);
+		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
+		req.materialData.color2.x	= static_cast<float>(txt->GetBindlessIndex());
+		req.materialData.color2.y	= static_cast<float>(m_textGUISampler->GetBindlessIndex());
 	}
 
 	void GUIRenderer::Destroy()
 	{
 		m_widgetManager.Shutdown();
-
-		auto* rm = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -121,230 +193,89 @@ namespace Lina
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
 			data.guiVertexBuffer.Destroy();
 			data.guiIndexBuffer.Destroy();
-
-			for (int32 j = 0; j < MAX_GUI_MATERIALS; j++)
-				rm->DestroyUserResource<Material>(data.materials[j]);
-
-			data.materials.clear();
+			data.guiMaterialBuffer.Destroy();
+			data.guiIndirectBuffer.Destroy();
 		}
 	}
 
-	// void GUIBackend::DrawDefault(m_lvg->DrawBuffer* buf, int threadIndex)
-	// {
-	// 	return;
-	// 	auto& req		   = AddDrawRequest(buf, threadIndex);
-	// 	req.hasTextureBind = false;
-	// 	req.requestType	   = 0;
-	// }
-	//
-	// void GUIBackend::DrawGradient(LinaVG::GradientDrawBuffer* buf, int threadIndex)
-	// {
-	// 	auto& req				= AddDrawRequest(buf, threadIndex);
-	// 	req.materialData.color1 = buf->m_color.start;
-	// 	req.materialData.color2 = buf->m_color.end;
-	// 	req.hasTextureBind		= false;
-	// 	req.requestType			= 1;
-	//
-	// 	if (buf->m_color.gradientType == LinaVG::GradientType::Horizontal)
-	// 	{
-	// 		req.materialData.floatPack1 = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
-	// 		req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-	// 	}
-	// 	else if (buf->m_color.gradientType == LinaVG::GradientType::Vertical)
-	// 	{
-	// 		req.materialData.floatPack1 = Vector4(0.0f, 1.0f, 0.0f, 0.0f);
-	// 		req.materialData.floatPack2 = Vector4(0.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-	// 	}
-	// 	else if (buf->m_color.gradientType == LinaVG::GradientType::Radial)
-	// 	{
-	// 		req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
-	// 		req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-	// 	}
-	// 	else if (buf->m_color.gradientType == LinaVG::GradientType::RadialCorner)
-	// 	{
-	// 		req.materialData.floatPack1 = Vector4(0.0f, 0.0f, 0.5f, 0.5f);
-	// 		req.materialData.floatPack2 = Vector4(1.0f, buf->m_isAABuffer ? 1.0f : 0.0f, buf->m_color.radialSize, static_cast<float>(buf->m_drawBufferType));
-	// 	}
-	// }
-	//
-	// void GUIBackend::DrawTextured(LinaVG::TextureDrawBuffer* buf, int threadIndex)
-	// {
-	// 	auto& req				= AddDrawRequest(buf, threadIndex);
-	// 	float drawBufferType	= static_cast<float>(buf->m_drawBufferType);
-	// 	req.requestType			= 2;
-	// 	req.materialData.color1 = buf->m_tint;
-	// 	float singleChannel		= 0.0f;
-	//
-	// 	if (buf->m_textureHandle == GUI_TEXTURE_HUE_HORIZONTAL)
-	// 	{
-	// 		req.hasTextureBind = false;
-	// 		drawBufferType	   = 5.0f; // special case :)
-	// 	}
-	// 	else if (buf->m_textureHandle == GUI_TEXTURE_HUE_VERTICAL)
-	// 	{
-	// 		req.hasTextureBind = false;
-	// 		drawBufferType	   = 6.0f; // special case :)
-	// 	}
-	// 	else if (buf->m_textureHandle == GUI_TEXTURE_COLORWHEEL)
-	// 	{
-	// 		req.hasTextureBind = false;
-	// 		drawBufferType	   = 7.0f; // special case :)
-	// 	}
-	// 	else
-	// 	{
-	// 		req.hasTextureBind = true;
-	// 		req.textureHandle  = buf->m_textureHandle;
-	// 		req.samplerHandle  = m_guiSampler->GetGPUHandle();
-	// 	}
-	//
-	// 	if (Math::Equals(req.materialData.color1.w, GUI_IS_SINGLE_CHANNEL, 0.01f))
-	// 		singleChannel = 1.0f;
-	//
-	// 	req.materialData.floatPack1 = Vector4(buf->m_textureUVTiling.x, buf->m_textureUVTiling.y, buf->m_textureUVOffset.x, buf->m_textureUVOffset.y);
-	// 	req.materialData.floatPack2 = Vector4(buf->m_isAABuffer, singleChannel, 0.0f, drawBufferType);
-	// }
-	//
-	// void GUIBackend::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf, int threadIndex)
-	// {
-	// 	auto& req					  = AddDrawRequest(buf, threadIndex);
-	// 	auto  txt					  = m_fontTextures[buf->m_textureHandle].texture;
-	// 	auto  sampler				  = m_resourceManager->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
-	// 	req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
-	// 	req.hasTextureBind			  = true;
-	// 	req.textureHandle			  = txt->GetGPUHandle();
-	// 	req.samplerHandle			  = m_textSampler->GetGPUHandle();
-	// 	req.requestType				  = 3;
-	// }
-	//
-	// void GUIBackend::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf, int threadIndex)
-	// {
-	// 	auto& req					= AddDrawRequest(buf, threadIndex);
-	// 	auto  txt					= m_fontTextures[buf->m_textureHandle].texture;
-	// 	auto  sampler				= m_resourceManager->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
-	// 	req.materialData.color1		= buf->m_outlineColor;
-	// 	req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineSoftness);
-	// 	req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));
-	// 	req.hasTextureBind			= true;
-	// 	req.textureHandle			= txt->GetGPUHandle();
-	// 	req.samplerHandle			= m_textSampler->GetGPUHandle();
-	// 	req.requestType				= 4;
-	// }
-
-	/*
-		GUIBackend::DrawRequest& GUIBackend::AddDrawRequest(LinaVG::DrawBuffer* buf, int threadIndex)
-		{
-			auto& buffers  = m_buffers[threadIndex];
-			auto& drawData = m_drawData[threadIndex];
-
-			drawData.drawRequests.push_back(DrawRequest());
-			DrawRequest& req = drawData.drawRequests.back();
-			req.indexCount	 = static_cast<uint32>(buf->m_indexBuffer.m_size);
-			req.vertexOffset = buffers.vertexCounter;
-			req.firstIndex	 = buffers.indexCounter;
-			req.clip.pos	 = Vector2ui(buf->clipPosX, buf->clipPosY);
-			req.clip.size	 = Vector2ui(buf->clipSizeX, buf->clipSizeY);
-
-			buffers.vertexBuffer->BufferData(buffers.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
-			buffers.indexBuffer->BufferData(buffers.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
-
-			buffers.indexCounter += req.indexCount;
-			buffers.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
-			return req;
-		}
-	*/
+	GUIRenderer::DrawRequest& GUIRenderer::AddDrawRequest(LinaVG::DrawBuffer* buf)
+	{
+		const uint32 frame = m_gfxManager->GetLGX()->GetCurrentFrameIndex();
+		auto&		 pfd   = m_pfd[frame];
+		m_drawRequests.push_back({});
+		auto& req		 = m_drawRequests.back();
+		req.indexCount	 = static_cast<uint32>(buf->m_indexBuffer.m_size);
+		req.vertexOffset = pfd.vertexCounter;
+		req.firstIndex	 = pfd.indexCounter;
+		req.clip.pos	 = Vector2ui(buf->clipPosX, buf->clipPosY);
+		req.clip.size	 = Vector2ui(buf->clipSizeX, buf->clipSizeY);
+		pfd.guiVertexBuffer.BufferData(pfd.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
+		pfd.guiIndexBuffer.BufferData(pfd.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
+		pfd.indexCounter += req.indexCount;
+		pfd.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
+		return req;
+	}
 
 	void GUIRenderer::Render(LinaGX::CommandStream* stream, uint32 frameIndex, const Vector2ui& size)
 	{
-		// Will flush buffers and fill draw requests.
-		// LinaVG::Render(threadIndex);
+		auto& pfd = m_pfd[frameIndex];
 
-		// const auto& drawRequests = m_guiBackend->GetDrawData(threadIndex).drawRequests;
-		// auto&		pfd			 = m_pfd[frameIndex];
-		//
-		// // Shader.
-		// m_shader->Bind(stream, m_shaderVariantHandle);
-		//
-		// // Buffer setup.
-		// bool copyExists = false;
-		//
-		// if (pfd.guiIndexBuffer.Copy(pfd.copyStream))
-		// 	copyExists = true;
-		//
-		// if (pfd.guiVertexBuffer.Copy(pfd.copyStream))
-		// 	copyExists = true;
-		//
-		// if (copyExists)
-		// {
-		// 	uint64 val = pfd.copySemaphore.value;
-		// 	pfd.copySemaphore.value++;
-		//
-		// 	m_lgx->CloseCommandStreams(&pfd.copyStream, 1);
-		//
-		// 	m_lgx->SubmitCommandStreams({
-		// 		.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-		// 		.streams		  = &pfd.copyStream,
-		// 		.streamCount	  = 1,
-		// 		.useSignal		  = true,
-		// 		.signalCount	  = 1,
-		// 		.signalSemaphores = &(pfd.copySemaphore.semaphore),
-		// 		.signalValues	  = &val,
-		// 		.isMultithreaded  = true,
-		// 	});
-		// }
-		//
-		// // Buffer bind.
-		// pfd.guiVertexBuffer.BindVertex(stream, static_cast<uint32>(sizeof(LinaVG::Vertex)));
-		// pfd.guiIndexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
-		// LINA_ASSERT(drawRequests.size() < MAX_GUI_MATERIALS, "Requests exceed materials size!");
-		//
-		// Rectui scissorsRect = Rectui(0, 0, size.x, size.y);
-		// uint32 reqIndex		= 0;
-		//
-		// for (const auto& req : drawRequests)
-		// {
-		// 	Rectui currentRect = Rectui(0, 0, size.x, size.y);
-		//
-		// 	if (req.clip.size.x != 0 || req.clip.size.y != 0)
-		// 	{
-		// 		currentRect.pos	 = req.clip.pos;
-		// 		currentRect.size = req.clip.size;
-		// 	}
-		//
-		// 	if (!currentRect.Equals(scissorsRect))
-		// 	{
-		// 		scissorsRect					 = currentRect;
-		// 		LinaGX::CMDSetScissors* scissors = stream->AddCommand<LinaGX::CMDSetScissors>();
-		// 		scissors->x						 = scissorsRect.pos.x;
-		// 		scissors->y						 = scissorsRect.pos.y;
-		// 		scissors->width					 = scissorsRect.size.x;
-		// 		scissors->height				 = scissorsRect.size.y;
-		// 	}
-		//
-		// 	Material* mat = pfd.materials[reqIndex];
-		//
-		// 	// Set material data.
-		// 	mat->SetBuffer(0, 0, frameIndex, 0, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
-		// 	if (req.hasTextureBind)
-		// 	{
-		// 		mat->SetSampler(1, 0, req.samplerHandle);
-		// 		mat->SetTexture(2, 0, req.textureHandle);
-		// 	}
-		//
-		// 	// Bind.
-		// 	mat->Bind(stream, frameIndex, LinaGX::DescriptorSetsLayoutSource::CustomLayout);
-		//
-		// 	// Draw command.
-		// 	LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-		// 	draw->indexCountPerInstance			  = req.indexCount;
-		// 	draw->instanceCount					  = 1;
-		// 	draw->startInstanceLocation			  = 0;
-		// 	draw->startIndexLocation			  = req.firstIndex;
-		// 	draw->baseVertexLocation			  = req.vertexOffset;
-		//
-		// 	reqIndex++;
-		//
-		// 	PROFILER_ADD_DRAWCALL(req.indexCount / 3, "Editor", req.requestType);
-		// }
+		m_widgetManager.Draw();
+		m_lvg.FlushBuffers();
+		m_lvg.ResetFrame();
+		pfd.vertexCounter = pfd.indexCounter = 0;
+
+		if (m_drawRequests.empty())
+			return;
+
+		// Build draw commands
+		uint32 drawID		= 0;
+		uint32 totalIndices = 0;
+		for (const auto& req : m_drawRequests)
+		{
+			m_lgx->BufferIndexedIndirectCommandData(pfd.guiIndirectBuffer.GetMapped(), static_cast<size_t>(drawID) * m_lgx->GetIndexedIndirectCommandSize(), drawID, req.indexCount, 1, req.firstIndex, req.vertexOffset, 0);
+			drawID++;
+			totalIndices += req.indexCount;
+		}
+
+		m_drawRequests.clear();
+
+		// Buffer setup.
+		uint8 copyExists = 0;
+		copyExists |= pfd.guiIndexBuffer.Copy(pfd.copyStream);
+		copyExists |= pfd.guiVertexBuffer.Copy(pfd.copyStream);
+		copyExists |= pfd.guiMaterialBuffer.Copy(pfd.copyStream);
+		copyExists |= pfd.guiIndirectBuffer.Copy(pfd.copyStream);
+
+		if (copyExists != 0)
+		{
+			uint64 val = pfd.copySemaphore.value;
+			pfd.copySemaphore.value++;
+
+			m_lgx->CloseCommandStreams(&pfd.copyStream, 1);
+
+			m_lgx->SubmitCommandStreams({
+				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+				.streams		  = &pfd.copyStream,
+				.streamCount	  = 1,
+				.useSignal		  = true,
+				.signalCount	  = 1,
+				.signalSemaphores = &(pfd.copySemaphore.semaphore),
+				.signalValues	  = &val,
+				.isMultithreaded  = true,
+			});
+		}
+
+		m_shader->Bind(stream, m_shaderVariantHandle);
+
+		pfd.guiVertexBuffer.BindVertex(stream, static_cast<uint32>(sizeof(LinaVG::Vertex)));
+		pfd.guiIndexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
+
+		LinaGX::CMDDrawIndexedIndirect* draw = stream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
+		draw->count							 = drawID;
+		draw->indirectBuffer				 = pfd.guiIndirectBuffer.GetGPUResource();
+		draw->indirectBufferOffset			 = 0;
+		PROFILER_ADD_DRAWCALL(totalIndices / 3, "Editor GUI Indirect", drawID);
 	}
 
 } // namespace Lina

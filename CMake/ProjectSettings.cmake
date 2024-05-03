@@ -52,7 +52,7 @@ set_target_properties(
         CXX_STANDARD_REQUIRED YES 
         CXX_EXTENSIONS NO
 )
-target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1)
+target_compile_definitions(${PROJECT_NAME} PUBLIC _SILENCE_CXX20_CISO646_REMOVED_WARNING=1 _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
    
 # To be retrieved from git later.
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_BUILD=0)

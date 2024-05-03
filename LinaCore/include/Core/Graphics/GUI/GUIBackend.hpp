@@ -50,33 +50,7 @@ namespace Lina
 	class GUIBackend
 	{
 	public:
-		struct Buffers
-		{
-			Buffer* vertexBuffer  = nullptr;
-			Buffer* indexBuffer	  = nullptr;
-			uint32	indexCounter  = 0;
-			uint32	vertexCounter = 0;
-		};
-
 	private:
-		struct DrawRequest
-		{
-			uint8		   requestType	= 0;
-			uint32		   firstIndex	= 0;
-			uint32		   vertexOffset = 0;
-			uint32		   indexCount	= 0;
-			Rectui		   clip			= {};
-			GPUMaterialGUI materialData;
-			bool		   hasTextureBind = false;
-			uint32		   textureHandle  = 0;
-			uint32		   samplerHandle  = 0;
-		};
-
-		struct DrawData
-		{
-			Vector<DrawRequest> drawRequests;
-		};
-
 		struct FontTexture
 		{
 			Texture* texture = nullptr;
@@ -95,6 +69,11 @@ namespace Lina
 		void				  BufferEnded();
 		void				  BindFontTexture(LinaVG::BackendHandle texture);
 		LinaVG::BackendHandle CreateFontTexture(int width, int height);
+
+		inline const FontTexture& GetFontTexture(uint32 handle) const
+		{
+			return m_fontTextures.at(handle);
+		}
 
 	private:
 		StringID			m_boundFontTexture = 0;

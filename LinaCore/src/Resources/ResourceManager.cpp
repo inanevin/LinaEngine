@@ -274,15 +274,10 @@ namespace Lina
 		m_system->DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
 	}
 
-	Vector<Resource*> ResourceManager::GetAllResources(bool includeUserManagedResources)
+	void ResourceManager::GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources)
 	{
-		Vector<Resource*> resources;
 		for (auto [tid, cache] : m_caches)
-		{
-			auto cacheResources = cache->GetAllResources(includeUserManagedResources);
-			resources.insert(resources.end(), cacheResources.begin(), cacheResources.end());
-		}
-		return resources;
+			cache->GetAllResources(resources, includeUserManagedResources);
 	}
 
 	String ResourceManager::GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid)

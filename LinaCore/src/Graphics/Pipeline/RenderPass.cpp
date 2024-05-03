@@ -44,32 +44,54 @@ namespace Lina
 			auto& data		   = m_pfd[i];
 			data.descriptorSet = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentRenderPass(m_type));
 
-			if (descriptorType == RenderPassDescriptorType::Basic)
-				AddRPBasic(data);
+			if (descriptorType == RenderPassDescriptorType::Gui)
+				AddRPGUI(data);
 			else if (descriptorType == RenderPassDescriptorType::Main)
 				AddRPMain(data);
 		}
 	}
 
-	void RenderPass::AddRPBasic(PerFrameData& data)
+	void RenderPass::AddRPGUI(PerFrameData& data)
 	{
-		data.buffers.push_back({});
-		auto& buffer = data.buffers.back();
-		buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), "RP ViewData Buffer", true);
-		GPUDataView dummyViewData = {};
+		// View
+		{
+			data.buffers.push_back({});
+			auto&		 buffer	 = data.buffers.back();
+			const String dbgName = "RP: " + String(RPTypeToString(m_type)) + "ViewData";
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), dbgName, true);
+			GPUDataView dummyViewData = {};
 
-		buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
-		m_lgx->DescriptorUpdateBuffer({
-			.setHandle = data.descriptorSet,
-			.binding   = 0,
-			.buffers   = {buffer.GetGPUResource()},
-		});
+			buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = data.descriptorSet,
+				.binding   = 0,
+				.buffers   = {buffer.GetGPUResource()},
+			});
+		}
+
+		// Materials
+		{
+			// Should be set outside
+		}
 	}
 
 	void RenderPass::AddRPMain(PerFrameData& data)
 	{
 		// View
-		AddRPBasic(data);
+		{
+			data.buffers.push_back({});
+			auto&		 buffer	 = data.buffers.back();
+			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): ViewData";
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), dbgName, true);
+			GPUDataView dummyViewData = {};
+
+			buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = data.descriptorSet,
+				.binding   = 0,
+				.buffers   = {buffer.GetGPUResource()},
+			});
+		}
 
 		// Scene data will be set by the user.
 		{
@@ -82,8 +104,10 @@ namespace Lina
 		// Indirect buffer
 		{
 			data.buffers.push_back({});
-			auto& buffer = data.buffers.back();
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, m_lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250), "RP Indirect Buffer", false);
+			auto&		 buffer	 = data.buffers.back();
+			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): IndirectBuffer";
+
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, m_lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250), dbgName, false);
 			buffer.MemsetMapped(0);
 			// m_lgx->DescriptorUpdateBuffer({
 			//     .setHandle = data.descriptorSet,
@@ -95,8 +119,10 @@ namespace Lina
 		// Indirect constants
 		{
 			data.buffers.push_back({});
-			auto& buffer = data.buffers.back();
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUIndirectConstants0) * 2500, "RP Indirect Constants SSBO", false);
+			auto&		 buffer	 = data.buffers.back();
+			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): IndirectConstants";
+
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUIndirectConstants0) * 2500, dbgName, false);
 			buffer.MemsetMapped(0);
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = data.descriptorSet,

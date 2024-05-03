@@ -82,14 +82,13 @@ namespace Lina
 		}
 
 	private:
-		Mutex						 m_txtMtx;
-		Mutex						 m_bufMtx;
 		Vector<TextureUploadRequest> m_textureRequests;
 		Vector<BufferRequest>		 m_bufferRequests;
 		GfxManager*					 m_gfxManager		  = nullptr;
 		LinaGX::CommandStream*		 m_copyStream		  = nullptr;
 		uint16						 m_copySemaphore	  = 0;
 		uint64						 m_copySemaphoreValue = 0;
+		SpinLock					 m_spinLock;
 	};
 } // namespace Lina
 

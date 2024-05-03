@@ -135,20 +135,18 @@ namespace Lina
 		// Kick off audio
 		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(delta); });
 
-		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_RETURN))
-			m_app->Quit();
-
-		// Update app.
 		TweenManager::Get()->Tick(delta);
 		m_worldManager.Tick(delta);
 		m_gfxManager.Tick(delta);
-		m_audioManager.Tick(delta);
 		m_app->GetAppDelegate()->OnTick(delta);
 
 		// Render
 		m_gfxManager.Render();
 
 		audioJob.get();
+
+		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_RETURN))
+			m_app->Quit();
 	}
 
 	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)
@@ -207,7 +205,7 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-			LINA_TRACE("FPS : {0}", SystemInfo::GetMeasuredFPS());
+			LINA_TRACE("FPS : {0} Time: {1}", SystemInfo::GetMeasuredFPS(), SystemInfo::GetDeltaTimeF() * 1000.0f);
 		}
 	}
 
