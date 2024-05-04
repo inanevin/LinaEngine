@@ -35,12 +35,15 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/Application.hpp"
 
 namespace Lina
 {
-	void ResourceManager::Initialize(const SystemInitializationInfo& initInfo)
+	void ResourceManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		LINA_TRACE("[Resource Manager] -> Initialization.");
+		m_mode		   = initInfo.resourceManagerMode;
+		m_useMetaCache = initInfo.resourceManagerUseMetacache;
 	}
 
 	void ResourceManager::Shutdown()
@@ -87,20 +90,22 @@ namespace Lina
 		loadTask->onLoaded				 = onLoaded;
 		m_loadTasks[m_loadTaskCounter++] = loadTask;
 
+		auto* app = m_system->GetApp();
+
 		if (m_mode == ResourceManagerMode::File)
 		{
-			const String baseMetacachePath = m_system->GetApp()->GetAppDelegate()->GetBaseMetacachePath();
+			const String baseMetacachePath = app->GetAppDelegate()->GetBaseMetacachePath();
 
 			if (!FileSystem::FileOrPathExists(baseMetacachePath))
 				FileSystem::CreateFolderInPath(baseMetacachePath);
 
 			for (auto& ident : identifiers)
 			{
-				loadTask->tf.emplace([ident, this, loadTask]() {
+				loadTask->tf.emplace([app, ident, this, loadTask]() {
 					auto&		 cache		   = m_caches.at(ident.tid);
 					Resource*	 res		   = cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
 					const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), ident.path, ident.sid);
-					if (FileSystem::FileOrPathExists(metacachePath))
+					if (m_useMetaCache && FileSystem::FileOrPathExists(metacachePath))
 					{
 						IStream input = Serialization::LoadFromFile(metacachePath.c_str());
 						res->LoadFromStream(input);
@@ -111,14 +116,21 @@ namespace Lina
 						// Some resources have preliminary/initial metadata.
 						if (ident.useCustomMeta)
 						{
-							OStream metaStream;
-							if (m_system->GetApp()->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream))
+							OStream	   metaStream;
+							const bool filledByApp		= app->FillResourceCustomMeta(ident.sid, metaStream);
+							bool	   filledByDelegate = false;
+
+							if (!filledByApp)
+								filledByDelegate = app->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream);
+							if (filledByApp || filledByDelegate)
 							{
 								IStream in;
 								in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
 								res->SetCustomMeta(in);
 								in.Destroy();
 							}
+
+							metaStream.Destroy();
 						}
 
 						res->m_resourceManager = this;

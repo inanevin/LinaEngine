@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ColorSlider::Tick(float delta)
+	void ColorSlider::PreTick()
 	{
 		if (m_isPressed && m_props.value)
 		{

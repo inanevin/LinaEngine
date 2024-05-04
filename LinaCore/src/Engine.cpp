@@ -131,18 +131,15 @@ namespace Lina
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
-		// Audio and render jobs in parallel with main thread.
-
-		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
-		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
+		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
 
 		TweenManager::Get()->Tick(deltaF);
 		m_worldManager.Tick(deltaF);
 		m_gfxManager.Tick(deltaF);
 		m_app->GetAppDelegate()->Tick(deltaF);
+		m_gfxManager.Render();
 
 		audioJob.get();
-		renderJob.get();
 
 		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_RETURN))
 			m_app->Quit();

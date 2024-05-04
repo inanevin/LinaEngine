@@ -44,7 +44,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
-	class DirectoryItem;
+	struct DirectoryItem;
 	class Editor;
 
 	class PanelResources : public Panel, public FileMenuListener, public SelectableListLayoutListener

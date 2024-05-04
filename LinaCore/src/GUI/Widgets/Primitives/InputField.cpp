@@ -89,20 +89,8 @@ namespace Lina
 		}
 	}
 
-	void InputField::Tick(float delta)
+	void InputField::PreTick()
 	{
-
-		if (m_placeholderText->GetIsDisabled() && m_text->GetProps().text.empty())
-		{
-			m_placeholderText->GetProps().text	= m_props.placeHolderText;
-			m_placeholderText->GetProps().color = m_props.colorPlaceHolder;
-			m_placeholderText->CalculateTextSize();
-			m_placeholderText->SetIsDisabled(false);
-		}
-		else if (!m_placeholderText->GetIsDisabled() && !m_text->GetProps().text.empty())
-		{
-			m_placeholderText->SetIsDisabled(true);
-		}
 
 		const bool hasControls = m_manager->GetControlsOwner() == this;
 
@@ -132,6 +120,22 @@ namespace Lina
 
 			if (m_props.onValueChanged)
 				m_props.onValueChanged(*m_props.value);
+		}
+	}
+
+	void InputField::Tick(float delta)
+	{
+
+		if (m_placeholderText->GetIsDisabled() && m_text->GetProps().text.empty())
+		{
+			m_placeholderText->GetProps().text	= m_props.placeHolderText;
+			m_placeholderText->GetProps().color = m_props.colorPlaceHolder;
+			m_placeholderText->CalculateTextSize();
+			m_placeholderText->SetIsDisabled(false);
+		}
+		else if (!m_placeholderText->GetIsDisabled() && !m_text->GetProps().text.empty())
+		{
+			m_placeholderText->SetIsDisabled(true);
 		}
 
 		if (m_isPressed)

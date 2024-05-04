@@ -130,7 +130,6 @@ namespace Lina::Editor
 		Widget*						  m_layout		  = nullptr;
 		DirectionalLayout*			  m_dirLayout	  = nullptr;
 		GridLayout*					  m_gridLayout	  = nullptr;
-		Editor*						  m_editor		  = nullptr;
 		bool						  m_payloadActive = false;
 		Vector<Selectable*>			  m_selectables	  = {};
 		Vector<DirectionalLayout*>	  m_gridLayoutItems;

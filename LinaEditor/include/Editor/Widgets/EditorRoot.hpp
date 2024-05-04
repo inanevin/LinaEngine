@@ -54,6 +54,7 @@ namespace Lina::Editor
 		virtual ~EditorRoot() = default;
 
 		virtual void Construct() override;
+		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
@@ -78,7 +79,6 @@ namespace Lina::Editor
 		Text*			   m_worldNameText	 = nullptr;
 		Widget*			   m_panelArea		 = nullptr;
 		DirectionalLayout* m_titleBar		 = nullptr;
-		Editor*			   m_editor			 = nullptr;
 		Icon*			   m_saveIcon		 = nullptr;
 		Icon*			   m_linaIcon		 = nullptr;
 		WorldManager*	   m_worldManager	 = nullptr;

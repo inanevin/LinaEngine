@@ -53,10 +53,8 @@ namespace Lina
 		m_window->AddListener(this);
 		m_rootWidget = Allocate<Widget>();
 		m_rootWidget->SetDebugName("Root");
-
 		m_foregroundRoot = Allocate<Widget>();
 		m_foregroundRoot->SetDebugName("ForegroundRoot");
-
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_defaultFont	  = m_resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
 	}
@@ -71,10 +69,13 @@ namespace Lina
 
 		m_killList.clear();
 
-		if (m_foregroundRoot->GetChildren().empty())
-			m_window->SetCursorType(FindCursorType(m_rootWidget));
-		else
-			m_window->SetCursorType(FindCursorType(m_foregroundRoot));
+		if (m_window->HasFocus())
+		{
+			if (m_foregroundRoot->GetChildren().empty())
+				m_window->SetCursorType(FindCursorType(m_rootWidget));
+			else
+				m_window->SetCursorType(FindCursorType(m_foregroundRoot));
+		}
 
 		m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 		PassPreTick(m_foregroundRoot);
@@ -268,7 +269,7 @@ namespace Lina
 
 	void WidgetManager::DebugDraw(Widget* w)
 	{
-		const bool drawRects = (m_window->GetInput()->GetKey(LINAGX_KEY_SPACE));
+		const bool drawRects = (m_window->GetInput()->GetKey(LINAGX_KEY_K));
 
 		if (!drawRects)
 			return;
@@ -468,6 +469,7 @@ namespace Lina
 			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
 
 		w->SetIsHovered();
+		w->CheckCustomTooltip();
 		w->PreTick();
 		for (auto* c : w->GetChildren())
 			PassPreTick(c);

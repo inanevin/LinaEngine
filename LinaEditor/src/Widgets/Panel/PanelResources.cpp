@@ -58,7 +58,7 @@ namespace Lina::Editor
 {
 	void PanelResources::Construct()
 	{
-		m_editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+		m_editor = Editor::Get();
 
 		Widget* browser	 = BuildBrowser();
 		Widget* contents = BuildContents();

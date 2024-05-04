@@ -109,15 +109,15 @@ namespace Lina
 
 	void SurfaceRenderer::PreTick()
 	{
-		m_guiRenderer.PreTick();
-
 		auto ws		= m_window->GetSize();
 		m_isVisible = m_window->GetIsVisible() && ws.x != 0 && ws.y != 0 && !m_window->GetIsMinimized();
+		m_guiRenderer.PreTick();
 	}
 
 	void SurfaceRenderer::Tick(float delta)
 	{
-		// if (m_isVisible)
+		if (m_isVisible)
+			m_guiRenderer.Tick(delta, m_size);
 	}
 
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)

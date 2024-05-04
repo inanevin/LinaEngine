@@ -96,7 +96,6 @@ namespace Lina::Editor
 		// Application delegate
 		virtual void   Initialize() override;
 		virtual void   PreTick() override;
-		virtual void   Tick(float delta) override;
 		virtual void   CoreResourcesLoaded() override;
 		virtual void   PreShutdown() override;
 		virtual bool   FillResourceCustomMeta(StringID sid, OStream& stream) override;

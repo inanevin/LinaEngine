@@ -83,6 +83,7 @@ namespace Lina
 
 		void Create(GfxManager* gfxManager, RenderPass* renderPass, ShaderWriteTargetType writeTargetType, LinaGX::Window* window);
 		void PreTick();
+		void Tick(float delta, const Vector2ui& size);
 		void DrawDefault(LinaVG::DrawBuffer* buf);
 		void DrawGradient(LinaVG::GradientDrawBuffer* buf);
 		void DrawTextured(LinaVG::TextureDrawBuffer* buf);

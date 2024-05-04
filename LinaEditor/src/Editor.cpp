@@ -265,10 +265,6 @@ namespace Lina::Editor
 		}
 	}
 
-	void Editor::Tick(float delta)
-	{
-	}
-
 	void Editor::CoreResourcesLoaded()
 	{
 		// Remove splash

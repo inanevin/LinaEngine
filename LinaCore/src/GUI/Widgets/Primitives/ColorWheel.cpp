@@ -47,7 +47,7 @@ namespace Lina
 		AddChild(m_icon);
 	}
 
-	void ColorWheel::Tick(float delta)
+	void ColorWheel::PreTick()
 	{
 		if (m_isPressed)
 		{
@@ -85,7 +85,10 @@ namespace Lina
 				m_pointerPos		   = Vector2(x, y);
 			}
 		}
+	}
 
+	void ColorWheel::Tick(float delta)
+	{
 		m_icon->SetPos(m_rect.GetCenter() + (m_pointerPos * m_rect.size.x * 0.5f) - m_icon->GetHalfSize());
 	}
 

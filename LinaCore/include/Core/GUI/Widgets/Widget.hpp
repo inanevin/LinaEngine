@@ -411,6 +411,7 @@ namespace Lina
 		virtual ~Widget() = default;
 
 		void ChangedParent(Widget* w);
+		void CheckCustomTooltip();
 
 	protected:
 		WidgetManager*				m_manager			   = nullptr;

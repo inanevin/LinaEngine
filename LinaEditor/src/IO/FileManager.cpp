@@ -227,17 +227,17 @@ namespace Lina::Editor
 
 			if (image.pixels != nullptr)
 			{
-				const float max	   = Math::Max(image.width, image.height);
-				const float min	   = Math::Min(image.width, image.height);
+				const float max	   = static_cast<float>(Math::Max(image.width, image.height));
+				const float min	   = static_cast<float>(Math::Min(image.width, image.height));
 				const float aspect = max / min;
 
 				uint32 width  = RESOURCE_THUMBNAIL_SIZE;
 				uint32 height = RESOURCE_THUMBNAIL_SIZE;
 
 				if (image.width > image.height)
-					height = width / aspect;
+					height = static_cast<uint32>(static_cast<float>(width) / aspect);
 				else
-					width = height / aspect;
+					width = static_cast<uint32>(static_cast<float>(height) / aspect);
 
 				LinaGX::TextureBuffer resizedBuffer = {
 					.pixels		   = new uint8[width * height * image.bytesPerPixel],
@@ -324,7 +324,7 @@ namespace Lina::Editor
 				return;
 			}
 
-			FT_Error err = FT_Set_Pixel_Sizes(face, 0, RESOURCE_THUMBNAIL_SIZE * 0.5f);
+			FT_Error err = FT_Set_Pixel_Sizes(face, 0, RESOURCE_THUMBNAIL_SIZE / 2);
 
 			if (err)
 			{

@@ -163,38 +163,11 @@ namespace Lina
 
 	void Widget::DrawTooltip()
 	{
-		if (!m_isHovered)
-		{
-			if (m_customTooltip != nullptr)
-			{
-				RemoveChild(m_customTooltip);
-				m_manager->Deallocate(m_customTooltip);
-				m_customTooltip = nullptr;
-			}
-			return;
-		}
-
 		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
 
-		if (m_buildCustomTooltip != nullptr)
+		if (m_customTooltip)
 		{
-			if (m_customTooltip == nullptr)
-			{
-				m_customTooltip = m_buildCustomTooltip(m_customTooltipUserData);
-
-				m_customTooltip->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
-				m_customTooltip->SetDrawOrder(TOOLTIP_DRAW_ORDER);
-
-				for (auto* c : m_customTooltip->GetChildren())
-				{
-					c->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
-					c->SetDrawOrder(TOOLTIP_DRAW_ORDER);
-				}
-				AddChild(m_customTooltip);
-			}
-
 			m_customTooltip->SetPos(mp + Vector2(10, 10));
-			// m_customTooltip->Draw();
 			return;
 		}
 
@@ -244,6 +217,37 @@ namespace Lina
 
 		if (m_parent && m_parent != m_manager->GetRoot() && m_parent != m_manager->GetForegroundRoot() && !m_parent->GetIsHovered())
 			m_isHovered = false;
+	}
+
+	void Widget::CheckCustomTooltip()
+	{
+		if (!m_isHovered)
+		{
+			if (m_customTooltip != nullptr)
+			{
+				RemoveChild(m_customTooltip);
+				m_manager->Deallocate(m_customTooltip);
+				m_customTooltip = nullptr;
+			}
+		}
+
+		if (m_isHovered && m_buildCustomTooltip != nullptr)
+		{
+			if (m_customTooltip == nullptr)
+			{
+				m_customTooltip = m_buildCustomTooltip(m_customTooltipUserData);
+
+				m_customTooltip->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
+				m_customTooltip->SetDrawOrder(TOOLTIP_DRAW_ORDER);
+
+				for (auto* c : m_customTooltip->GetChildren())
+				{
+					c->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
+					c->SetDrawOrder(TOOLTIP_DRAW_ORDER);
+				}
+				AddChild(m_customTooltip);
+			}
+		}
 	}
 
 	Vector2 Widget::GetStartFromMargins()

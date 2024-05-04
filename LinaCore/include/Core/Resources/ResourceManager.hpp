@@ -51,7 +51,7 @@ namespace Lina
 		ResourceManager(System* sys) : Subsystem(sys, SubsystemType::ResourceManager){};
 		~ResourceManager() = default;
 
-		virtual void  Initialize(const SystemInitializationInfo& initInfo) override;
+		virtual void  PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void  Shutdown() override;
 		void		  Poll();
 		int32		  LoadResources(const Vector<ResourceIdentifier>& identifiers, Delegate<void()>&& onLoaded = nullptr);
@@ -143,6 +143,7 @@ namespace Lina
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 
 	private:
+		bool								m_useMetaCache	  = true;
 		int32								m_loadTaskCounter = 0;
 		HashMap<uint32, ResourceLoadTask*>	m_loadTasks;
 		JobExecutor							m_executor;

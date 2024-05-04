@@ -46,7 +46,7 @@ namespace Lina::Editor
 	void PanelEntities::Construct()
 	{
 		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-		m_editor	   = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
+		m_editor	   = Editor::Get();
 
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetProps().direction = DirectionOrientation::Vertical;

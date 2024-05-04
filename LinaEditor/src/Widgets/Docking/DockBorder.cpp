@@ -52,6 +52,7 @@ namespace Lina::Editor
 			SetFixedSizeX(Theme::GetDef().baseBorderThickness);
 		}
 	}
+
 	LinaGX::CursorType DockBorder::GetCursorOverride()
 	{
 		if (m_isHovered)

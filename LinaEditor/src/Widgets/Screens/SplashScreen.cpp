@@ -104,7 +104,7 @@ namespace Lina::Editor
 		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
 		// Logo
-		m_lvg->DrawImage(m_splashImage->GetBindlessIndex(), m_logoCenter.AsLVG(), m_logoDrawSize.AsLVG());
+		m_lvg->DrawImage(m_splashImage->GetBindlessIndex() + 1, m_logoCenter.AsLVG(), m_logoDrawSize.AsLVG());
 
 		const Rect progressBGRect = Rect(Vector2(m_rect.pos.x, m_rect.GetEnd().y - padding), Vector2(m_rect.size.x, padding));
 		const Rect progressRect	  = Rect(Vector2(m_rect.pos.x, m_rect.GetEnd().y - padding), Vector2(m_rect.size.x * m_progress, padding));
@@ -126,7 +126,7 @@ namespace Lina::Editor
 
 	void SplashScreen::OnSystemEvent(SystemEvent event, const Event& data)
 	{
-		if (event == SystemEvent::EVS_ResourceLoaded)
+		if (event & SystemEvent::EVS_ResourceLoaded)
 		{
 			String* str					   = static_cast<String*>(data.pParams[0]);
 			m_loadingInfo->GetProps().text = *str;

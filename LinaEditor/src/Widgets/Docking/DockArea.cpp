@@ -44,7 +44,6 @@ namespace Lina::Editor
 {
 	void DockArea::Construct()
 	{
-		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
 
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_SKIP_FLOORING);
 
@@ -60,28 +59,28 @@ namespace Lina::Editor
 		m_tabRow->SetAlignedSizeX(1.0f);
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
 
-		m_tabRow->GetProps().onTabClosed = [this, editor](Widget* w) {
+		m_tabRow->GetProps().onTabClosed = [this](Widget* w) {
 			RemovePanel(static_cast<Panel*>(w));
 			m_manager->Deallocate(w);
 
 			if (m_panels.empty())
 			{
 				if (m_parent->GetChildren().size() == 1)
-					editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+					Editor::Get()->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
 				else
 					RemoveArea();
 			}
 		};
-		m_tabRow->GetProps().onTabDockedOut = [this, editor](Widget* w) {
+		m_tabRow->GetProps().onTabDockedOut = [this](Widget* w) {
 			RemovePanel(static_cast<Panel*>(w));
 
 			// If only child
 			if (m_panels.empty() && m_parent->GetChildren().size() == 1)
-				editor->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+				Editor::Get()->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
 			else if (m_panels.empty())
 				RemoveArea();
 
-			editor->CreatePayload(w, PayloadType::DockedPanel, w->GetWindow()->GetSize());
+			Editor::Get()->CreatePayload(w, PayloadType::DockedPanel, w->GetWindow()->GetSize());
 		};
 
 		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) { SetSelected(w); };
@@ -89,12 +88,12 @@ namespace Lina::Editor
 		AddChild(m_layout);
 		m_layout->AddChild(m_tabRow);
 
-		m_system->CastSubsystem<Editor>(SubsystemType::Editor)->AddPayloadListener(this);
+		Editor::Get()->AddPayloadListener(this);
 	}
 
 	void DockArea::Destruct()
 	{
-		m_system->CastSubsystem<Editor>(SubsystemType::Editor)->RemovePayloadListener(this);
+		Editor::Get()->RemovePayloadListener(this);
 
 		if (m_preview)
 			HidePreview();
@@ -434,10 +433,9 @@ namespace Lina::Editor
 				// Handle expansion.
 				ExpandWidgetsToMyPlace(widgetsToExpand, dir);
 
-				m_parent->RemoveChild(this);
-				m_manager->Deallocate(this);
+				m_manager->AddToKillList(this);
 
-				break;
+				return;
 			}
 		}
 

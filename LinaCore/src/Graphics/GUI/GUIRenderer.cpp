@@ -93,6 +93,11 @@ namespace Lina
 		m_widgetManager.PreTick();
 	}
 
+	void GUIRenderer::Tick(float delta, const Vector2ui& size)
+	{
+		m_widgetManager.Tick(SystemInfo::GetDeltaTimeF(), size);
+	}
+
 	void GUIRenderer::DrawDefault(LinaVG::DrawBuffer* buf)
 	{
 		auto& req = AddDrawRequest(buf);
@@ -216,7 +221,6 @@ namespace Lina
 	{
 		auto& pfd = m_pfd[frameIndex];
 
-		m_widgetManager.Tick(SystemInfo::GetDeltaTimeF(), size);
 		m_widgetManager.Draw();
 		m_lvg.FlushBuffers();
 		m_lvg.ResetFrame();

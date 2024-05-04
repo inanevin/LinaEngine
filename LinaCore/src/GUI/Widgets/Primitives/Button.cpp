@@ -43,7 +43,7 @@ namespace Lina
 		AddChild(m_text);
 	}
 
-	void Button::Tick(float delta)
+	void Button::PreTick()
 	{
 		if (GetIsHovered() && !m_lastHoverStatus)
 		{

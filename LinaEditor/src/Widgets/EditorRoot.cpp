@@ -54,8 +54,6 @@ namespace Lina::Editor
 {
 	void EditorRoot::Construct()
 	{
-		m_editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
-
 		m_titleImage		 = m_resourceManager->GetResource<Texture>("Resources/Editor/Textures/LinaLogoTitleHorizontal.png"_hs);
 		const String tooltip = "Lina Engine v." + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " - b: " + TO_STRING(LINA_BUILD);
 		SetTooltip(tooltip);
@@ -177,9 +175,18 @@ namespace Lina::Editor
 		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 	}
 
+	void EditorRoot::PreTick()
+	{
+		m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()));
+		LinaGX::LGXRectui lgxRect = {};
+		lgxRect.pos				  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};
+		lgxRect.size			  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
+		m_lgxWindow->SetDragRect(lgxRect);
+	}
+
 	void EditorRoot::Tick(float delta)
 	{
-		auto* projectData = m_editor->GetProjectData();
+		auto* projectData = Editor::Get()->GetProjectData();
 
 		if (projectData)
 		{
@@ -202,12 +209,6 @@ namespace Lina::Editor
 		m_titleBar->GetProps().colorBackgroundEnd = Math::Lerp(m_titleBar->GetProps().colorBackgroundEnd, targetColor, delta * COLOR_SPEED);
 
 		DirectionalLayout::Tick(delta);
-
-		m_dragRect				  = Rect(Vector2(m_fileMenu->GetRect().GetEnd().x, 0.0f), Vector2(m_windowButtons->GetPos().x - m_fileMenu->GetRect().GetEnd().x, m_fileMenu->GetParent()->GetSizeY()));
-		LinaGX::LGXRectui lgxRect = {};
-		lgxRect.pos				  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.pos.x), static_cast<uint32>(m_dragRect.pos.y)};
-		lgxRect.size			  = LinaGX::LGXVector2ui{static_cast<uint32>(m_dragRect.size.x), static_cast<uint32>(m_dragRect.size.y)};
-		m_lgxWindow->SetDragRect(lgxRect);
 	}
 
 	void EditorRoot::Draw()
@@ -275,53 +276,51 @@ namespace Lina::Editor
 
 	bool EditorRoot::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 	{
-		Editor* editor = m_system->CastSubsystem<Editor>(SubsystemType::Editor);
-
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewProject)))
 		{
-			m_editor->OpenPopupProjectSelector(true, true);
+			Editor::Get()->OpenPopupProjectSelector(true, true);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadProject)))
 		{
-			m_editor->OpenPopupProjectSelector(true, false);
+			Editor::Get()->OpenPopupProjectSelector(true, false);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 		{
-			m_editor->SaveProjectChanges();
+			Editor::Get()->SaveProjectChanges();
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Exit)))
 		{
-			m_editor->RequestExit();
+			Editor::Get()->RequestExit();
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Resources)))
 		{
-			m_editor->OpenPanel(PanelType::Resources, 0, this);
+			Editor::Get()->OpenPanel(PanelType::Resources, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entities)))
 		{
-			m_editor->OpenPanel(PanelType::Entities, 0, this);
+			Editor::Get()->OpenPanel(PanelType::Entities, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
 		{
-			m_editor->OpenPanel(PanelType::World, 0, this);
+			Editor::Get()->OpenPanel(PanelType::World, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Performance)))
 		{
-			m_editor->OpenPanel(PanelType::Performance, 0, this);
+			Editor::Get()->OpenPanel(PanelType::Performance, 0, this);
 			return true;
 		}
 
@@ -332,9 +331,9 @@ namespace Lina::Editor
 
 			m_panelArea->RemoveAllChildren();
 
-			m_editor->CloseAllSubwindows();
-			m_editor->GetSettings().GetLayout().StoreDefaultLayout();
-			m_editor->GetSettings().GetLayout().ApplyStoredLayout(editor);
+			Editor::Get()->CloseAllSubwindows();
+			Editor::Get()->GetSettings().GetLayout().StoreDefaultLayout();
+			Editor::Get()->GetSettings().GetLayout().ApplyStoredLayout();
 			return true;
 		}
 
@@ -361,10 +360,10 @@ namespace Lina::Editor
 	bool EditorRoot::OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
-			return m_editor->GetProjectData() == nullptr;
+			return Editor::Get()->GetProjectData() == nullptr;
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)) || sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
-			return m_editor->GetCurrentWorld() == nullptr;
+			return Editor::Get()->GetCurrentWorld() == nullptr;
 
 		return false;
 	}

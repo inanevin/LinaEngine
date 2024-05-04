@@ -260,7 +260,7 @@ namespace Lina::Editor
 			m_manager->AddToKillList(this);
 
 			if (!m_isCancellable)
-				m_system->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
+				Editor::Get()->RequestExit();
 		};
 
 		DirectionalLayout* row = m_manager->Allocate<DirectionalLayout>();

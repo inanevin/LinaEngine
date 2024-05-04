@@ -94,7 +94,7 @@ namespace Lina::Editor
 		DirectionalLayout::Initialize();
 	}
 
-	void InfoTooltip::Tick(float delta)
+	void InfoTooltip::PreTick()
 	{
 		if (m_lgxWindow->GetInput()->GetMouseButtonDown(LINAGX_MOUSE_0))
 		{
@@ -105,6 +105,10 @@ namespace Lina::Editor
 
 			return;
 		}
+	}
+
+	void InfoTooltip::Tick(float delta)
+	{
 
 		if (m_tooltipProps.direction == Direction::Center)
 		{

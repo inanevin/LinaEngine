@@ -60,7 +60,7 @@ namespace Lina
 		virtual ~Button() = default;
 
 		virtual void Construct() override;
-		virtual void Tick(float delta) override;
+		virtual void PreTick() override;
 		virtual void Draw() override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
