@@ -73,7 +73,6 @@ namespace Lina
 			bool				 useHoverColor		  = false;
 			bool				 receiveInput		  = false;
 			bool				 dropShadowBackground = false;
-			bool				 backgroundAnimation  = false;
 			bool				 clipChildren		  = false;
 			float				 rounding			  = 0.0f;
 			float				 outlineThickness	  = 0.0f;

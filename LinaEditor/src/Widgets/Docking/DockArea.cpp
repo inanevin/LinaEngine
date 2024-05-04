@@ -59,44 +59,30 @@ namespace Lina::Editor
 		m_tabRow->SetAlignedSizeX(1.0f);
 		m_tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.25f);
 
-		m_tabRow->GetProps().onTabClosed = [this](Widget* w) {
-			RemovePanel(static_cast<Panel*>(w));
-			m_manager->Deallocate(w);
+		m_tabRow->GetProps().onTabClosed	= [this](void* userData) { m_panelKillList.push_back(linatl::make_pair(static_cast<Panel*>(userData), false)); };
+		m_tabRow->GetProps().onTabDockedOut = [this](void* userData) { m_panelKillList.push_back(linatl::make_pair(static_cast<Panel*>(userData), true)); };
 
-			if (m_panels.empty())
-			{
-				if (m_parent->GetChildren().size() == 1)
-					Editor::Get()->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
-				else
-					RemoveArea();
-			}
-		};
-		m_tabRow->GetProps().onTabDockedOut = [this](Widget* w) {
-			RemovePanel(static_cast<Panel*>(w));
-
-			// If only child
-			if (m_panels.empty() && m_parent->GetChildren().size() == 1)
-				Editor::Get()->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
-			else if (m_panels.empty())
-				RemoveArea();
-
-			Editor::Get()->CreatePayload(w, PayloadType::DockedPanel, w->GetWindow()->GetSize());
-		};
-
-		m_tabRow->GetProps().onSelectionChanged = [this](Widget* w) { SetSelected(w); };
+		m_tabRow->GetProps().onTabSelected = [this](void* userData) { SetSelected(static_cast<Widget*>(userData)); };
 
 		AddChild(m_layout);
 		m_layout->AddChild(m_tabRow);
 
+		m_preview = m_manager->Allocate<DockPreview>("DockContainerPreview");
+		m_preview->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_preview->SetAlignedPos(Vector2(0.5f, 0.5f));
+		m_preview->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		m_preview->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_preview->SetAlignedSize(Vector2::One);
+		m_preview->GetProps().isCentral = true;
+
+		m_preview->SetVisible(false);
+		AddChild(m_preview);
 		Editor::Get()->AddPayloadListener(this);
 	}
 
 	void DockArea::Destruct()
 	{
 		Editor::Get()->RemovePayloadListener(this);
-
-		if (m_preview)
-			HidePreview();
 	}
 
 	void DockArea::AddPanel(Panel* w)
@@ -105,7 +91,7 @@ namespace Lina::Editor
 		w->SetAlignedPosX(0.0f);
 		w->SetAlignedSize(Vector2(1.0f, 0.0f));
 
-		m_tabRow->AddTab(w);
+		m_tabRow->AddTab(w, w->GetDebugName());
 		m_tabRow->SetSelected(w);
 		m_panels.push_back(w);
 
@@ -121,7 +107,6 @@ namespace Lina::Editor
 		auto		it	  = linatl::find_if(m_panels.begin(), m_panels.end(), [w](Panel* panel) -> bool { return panel == w; });
 		const int32 index = UtilVector::IndexOf(m_panels, w);
 		m_panels.erase(it);
-		m_tabRow->RemoveTab(w);
 
 		if (w == m_selectedPanel)
 		{
@@ -144,16 +129,41 @@ namespace Lina::Editor
 
 	void DockArea::PreTick()
 	{
+		for (const Pair<Panel*, bool>& pair : m_panelKillList)
+		{
+			RemovePanel(pair.first);
+
+			if (m_panels.empty())
+			{
+				if (m_parent->GetChildren().size() == 1)
+					Editor::Get()->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+				else
+					RemoveArea();
+			}
+
+			if (pair.second)
+			{
+				Editor::Get()->CreatePayload(pair.first, PayloadType::DockedPanel, pair.first->GetWindow()->GetSize());
+			}
+			else
+				m_manager->Deallocate(pair.first);
+		}
+
+		m_panelKillList.clear();
+
 		if (m_payloadActive)
 		{
-			if (m_preview == nullptr)
-				ShowPreview();
+			const float horizontalSize = m_rect.size.x * DOCK_DEFAULT_PERCENTAGE;
+			const float verticalSize   = m_rect.size.y * DOCK_DEFAULT_PERCENTAGE;
+
+			m_preview->SetDirectionDisabled(Direction::Left, horizontalSize < DOCKED_MIN_SIZE);
+			m_preview->SetDirectionDisabled(Direction::Right, horizontalSize < DOCKED_MIN_SIZE);
+			m_preview->SetDirectionDisabled(Direction::Top, verticalSize < DOCKED_MIN_SIZE);
+			m_preview->SetDirectionDisabled(Direction::Bottom, verticalSize < DOCKED_MIN_SIZE);
+			m_preview->SetVisible(true);
 		}
 		else
-		{
-			if (m_preview != nullptr)
-				HidePreview();
-		}
+			m_preview->SetVisible(false);
 	}
 
 	void DockArea::Tick(float delta)
@@ -187,18 +197,10 @@ namespace Lina::Editor
 		// 	m_selectedChildren->SetPos(m_rect.pos + Vector2(0.0f, tabHeight));
 		// 	m_selectedChildren->SetSize(Vector2(m_rect.size.x, m_rect.size.y - tabHeight));
 		// }
-
-		if (m_preview)
-		{
-			m_preview->SetSize(m_rect.size);
-			m_preview->SetPos(m_rect.pos);
-			m_preview->Tick(delta);
-		}
 	}
 
 	void DockArea::Draw()
 	{
-
 		m_tabRow->Draw();
 
 		if (m_selectedPanel)
@@ -208,37 +210,8 @@ namespace Lina::Editor
 			m_selectedPanel->Draw();
 		}
 
-		if (m_preview)
+		if (m_preview->GetIsVisible())
 			m_preview->Draw();
-	}
-
-	void DockArea::ShowPreview()
-	{
-		LINA_ASSERT(m_preview == nullptr, "");
-		m_preview						= m_manager->Allocate<DockPreview>("DockContainerPreview");
-		m_preview->GetProps().isCentral = true;
-		m_preview->Initialize();
-
-		const float horizontalSize = m_rect.size.x * DOCK_DEFAULT_PERCENTAGE;
-		const float verticalSize   = m_rect.size.y * DOCK_DEFAULT_PERCENTAGE;
-		if (horizontalSize < DOCKED_MIN_SIZE)
-		{
-			m_preview->DisableDirection(Direction::Left);
-			m_preview->DisableDirection(Direction::Right);
-		}
-
-		if (verticalSize < DOCKED_MIN_SIZE)
-		{
-			m_preview->DisableDirection(Direction::Top);
-			m_preview->DisableDirection(Direction::Bottom);
-		}
-	}
-
-	void DockArea::HidePreview()
-	{
-		LINA_ASSERT(m_preview != nullptr, "");
-		m_manager->Deallocate(m_preview);
-		m_preview = nullptr;
 	}
 
 	void DockArea::OnPayloadStarted(PayloadType type, Widget* payload)
@@ -424,8 +397,7 @@ namespace Lina::Editor
 
 					if (border->CheckIfAreaOnSide(this, oppositeDirection))
 					{
-						m_parent->RemoveChild(border);
-						m_manager->Deallocate(border);
+						m_manager->AddToKillList(border);
 						break;
 					}
 				}
@@ -434,7 +406,6 @@ namespace Lina::Editor
 				ExpandWidgetsToMyPlace(widgetsToExpand, dir);
 
 				m_manager->AddToKillList(this);
-
 				return;
 			}
 		}

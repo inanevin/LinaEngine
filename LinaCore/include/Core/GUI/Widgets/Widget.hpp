@@ -403,6 +403,7 @@ namespace Lina
 		V2_GET_MUTATE(Size, m_rect.size);
 		V2_GET_MUTATE(AlignedPos, m_alignedPos);
 		V2_INCREMENTERS(AlignedPos, m_alignedPos);
+		LinaVG::Drawer* m_lvg = nullptr;
 
 	protected:
 		friend class WidgetManager;
@@ -417,7 +418,6 @@ namespace Lina
 		WidgetManager*				m_manager			   = nullptr;
 		ResourceManager*			m_resourceManager	   = nullptr;
 		LinaGX::Window*				m_lgxWindow			   = nullptr;
-		LinaVG::Drawer*				m_lvg				   = nullptr;
 		System*						m_system			   = nullptr;
 		Widget*						m_parent			   = nullptr;
 		Widget*						m_next				   = nullptr;

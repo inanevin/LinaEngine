@@ -33,12 +33,6 @@ namespace Lina
 {
 	bool Tween::Tick(float delta)
 	{
-		if (m_killed)
-			return true;
-
-		if (m_waitingOn != nullptr)
-			return false;
-
 		if (Math::Equals(m_timeScale, 0.0f, 0.001f))
 			return false;
 
@@ -56,7 +50,7 @@ namespace Lina
 
 		if (m_currentTime > m_duration)
 		{
-			*m_value = m_end;
+			m_value = m_end;
 			if (m_restartCount == -1 || m_restarts < m_restartCount)
 			{
 				m_currentTime = 0.0f;
@@ -65,9 +59,6 @@ namespace Lina
 				m_restarts++;
 				return false;
 			}
-
-			if (m_isPersistent)
-				return false;
 
 			Complete();
 			return true;
@@ -83,7 +74,7 @@ namespace Lina
 	{
 		if (m_currentTime > m_duration)
 		{
-			*m_value = m_end;
+			m_value = m_end;
 			return;
 		}
 
@@ -91,28 +82,28 @@ namespace Lina
 		switch (m_type)
 		{
 		case TweenType::Linear:
-			*m_value = Math::Linear(m_start, m_end, t);
+			m_value = Math::Linear(m_start, m_end, t);
 			break;
 		case TweenType::EaseIn:
-			*m_value = Math::EaseIn(m_start, m_end, t);
+			m_value = Math::EaseIn(m_start, m_end, t);
 			break;
 		case TweenType::EaseOut:
-			*m_value = Math::EaseOut(m_start, m_end, t);
+			m_value = Math::EaseOut(m_start, m_end, t);
 			break;
 		case TweenType::EaseInOut:
-			*m_value = Math::EaseInOut(m_start, m_end, t);
+			m_value = Math::EaseInOut(m_start, m_end, t);
 			break;
 		case TweenType::Cubic:
-			*m_value = Math::Cubic(m_start, m_end, t);
+			m_value = Math::Cubic(m_start, m_end, t);
 			break;
 		case TweenType::Sinusoidal:
-			*m_value = Math::Sinusodial(m_start, m_end, t);
+			m_value = Math::Sinusodial(m_start, m_end, t);
 			break;
 		case TweenType::Exponential:
-			*m_value = Math::Exponential(m_start, m_end, t);
+			m_value = Math::Exponential(m_start, m_end, t);
 			break;
 		case TweenType::Bounce:
-			*m_value = Math::Bounce(m_start, m_end, t);
+			m_value = Math::Bounce(m_start, m_end, t);
 			break;
 		}
 

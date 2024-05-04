@@ -106,6 +106,8 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) const override;
+		virtual void Upload() override;
+
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);
@@ -125,6 +127,7 @@ namespace Lina
 		Metadata					  m_meta			= {};
 		uint32						  m_bytesPerPixel	= 0;
 		bool						  m_gpuHandleExists = false;
+		Vector2ui					  m_size			= Vector2ui::Zero;
 	};
 } // namespace Lina
 

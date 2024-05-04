@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
@@ -72,11 +73,10 @@ namespace Lina::Editor
 		TooltipProperties m_tooltipProps  = {};
 		Icon*			  m_icon		  = nullptr;
 		Text*			  m_text		  = nullptr;
-		float			  m_tweenValue	  = 0.0f;
 		bool			  m_firstTick	  = true;
 		Vector2			  m_startPosition = Vector2::Zero;
 		float			  m_counter		  = 0.0f;
-		Tween*			  m_tween		  = nullptr;
+		Tween			  m_tween;
 	};
 
 } // namespace Lina::Editor

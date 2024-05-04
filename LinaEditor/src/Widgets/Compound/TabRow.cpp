@@ -33,6 +33,34 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	void TabRow::PreTick()
+	{
+		for (auto* tab : m_tabs)
+		{
+			if (tab->m_requestedClose)
+			{
+				void* ud = tab->GetUserData();
+				RemoveTab(ud);
+
+				if (m_props.onTabClosed)
+					m_props.onTabClosed(ud);
+
+				break;
+			}
+
+			if (tab->m_requestDockOut)
+			{
+				void* ud = tab->GetUserData();
+				RemoveTab(ud);
+
+				if (m_props.onTabDockedOut)
+					m_props.onTabDockedOut(ud);
+
+				break;
+			}
+		}
+	}
+
 	void TabRow::Tick(float delta)
 	{
 		float x = m_rect.pos.x;
@@ -67,14 +95,15 @@ namespace Lina::Editor
 		Widget::Draw();
 	}
 
-	void TabRow::AddTab(Widget* tiedWidget)
+	void TabRow::AddTab(void* userData, const String& title)
 	{
 		Tab* tab = m_manager->Allocate<Tab>("Tab");
 		tab->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
 		tab->SetAlignedPosY(0.0f);
 		tab->SetAlignedSizeY(1.0f);
-		tab->m_ownerRow			   = this;
-		tab->GetProps().tiedWidget = tiedWidget;
+		tab->m_ownerRow		  = this;
+		tab->GetProps().title = title;
+		tab->SetUserData(userData);
 		tab->Initialize();
 		AddChild(tab);
 		m_tabs.push_back(tab);
@@ -89,54 +118,45 @@ namespace Lina::Editor
 		tab->DisableClosing(!m_canCloseTabs);
 	}
 
-	void TabRow::RemoveTab(Widget* tiedWidget)
+	void TabRow::RemoveTab(void* userData)
 	{
 		Tab* toRemove = nullptr;
 		for (auto* tab : m_tabs)
 		{
-			if (tab->GetProps().tiedWidget == tiedWidget)
+			if (tab->GetUserData() == userData)
 			{
 				if (tab->GetProps().isSelected)
 				{
 					const int32 index = UtilVector::IndexOf(m_tabs, tab);
 					if (index != 0)
-						SetSelected(m_tabs[index - 1]->GetProps().tiedWidget);
+						SetSelected(m_tabs[index - 1]->GetUserData());
 				}
 				toRemove = tab;
 				break;
 			}
 		}
 
-		RemoveChild(toRemove);
 		m_tabs.erase(linatl::find_if(m_tabs.begin(), m_tabs.end(), [toRemove](Tab* t) -> bool { return t == toRemove; }));
-		m_manager->Deallocate(toRemove);
+		m_manager->AddToKillList(toRemove);
 	}
 
-	void TabRow::SetSelected(Widget* tiedWidget)
+	void TabRow::SetSelected(void* userData)
 	{
 		for (auto* c : m_children)
 		{
 			Tab* t					 = static_cast<Tab*>(c);
-			t->GetProps().isSelected = t->GetProps().tiedWidget == tiedWidget;
+			t->GetProps().isSelected = t->GetUserData() == userData;
 		}
 	}
 
-	void TabRow::SelectionChanged(Widget* tiedWidget)
+	void TabRow::SelectionChanged(Tab* tab)
 	{
-		if (m_props.onSelectionChanged)
-			m_props.onSelectionChanged(tiedWidget);
-	}
+		for (auto* t : m_tabs)
+			t->GetProps().isSelected = false;
+		tab->GetProps().isSelected = true;
 
-	void TabRow::Close(Widget* tiedWidget)
-	{
-		if (m_props.onTabClosed)
-			m_props.onTabClosed(tiedWidget);
-	}
-
-	void TabRow::DockOut(Widget* tiedWidget)
-	{
-		if (m_props.onTabDockedOut)
-			m_props.onTabDockedOut(tiedWidget);
+		if (m_props.onTabSelected)
+			m_props.onTabSelected(tab->GetUserData());
 	}
 
 	void TabRow::SetCanCloseTabs(bool canClose)

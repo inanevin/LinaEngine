@@ -171,6 +171,9 @@ namespace Lina
 		m_bytesPerPixel = outBuffer.bytesPerPixel;
 		LINA_ASSERT(outBuffer.pixels != nullptr, "Failed loading texture! {0}", path);
 
+		m_size.x = outBuffer.width;
+		m_size.y = outBuffer.height;
+
 		m_allLevels.push_back(outBuffer);
 
 		if (m_meta.generateMipmaps)
@@ -181,9 +184,6 @@ namespace Lina
 			for (const auto& mp : mipData)
 				m_allLevels.push_back(mp);
 		}
-
-		GenerateGPU();
-		AddToUploadQueue();
 	}
 
 	void Texture::LoadFromStream(IStream& stream)
@@ -202,6 +202,12 @@ namespace Lina
 			LinaGX::TextureBuffer buffer;
 			stream >> buffer.width >> buffer.height >> pixelSize;
 
+			if (i == 0)
+			{
+				m_size.x = buffer.width;
+				m_size.y = buffer.height;
+			}
+
 			if (pixelSize != 0)
 			{
 				buffer.pixels = new uint8[pixelSize];
@@ -212,15 +218,11 @@ namespace Lina
 
 			m_allLevels.push_back(buffer);
 		}
-
-		GenerateGPU();
-		AddToUploadQueue();
 	}
 
 	void Texture::SaveToStream(OStream& stream) const
 	{
 		m_meta.SaveToStream(stream);
-
 		stream << m_bytesPerPixel;
 
 		const uint32 allLevels = static_cast<uint32>(m_allLevels.size());
@@ -238,12 +240,18 @@ namespace Lina
 
 	Vector2ui Texture::GetSize()
 	{
-		return Vector2ui(m_allLevels[0].width, m_allLevels[0].height);
+		return m_size;
 	}
 
 	Vector2 Texture::GetSizeF()
 	{
-		return Vector2(static_cast<float>(m_allLevels[0].width), static_cast<float>(m_allLevels[0].height));
+		return Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+	}
+
+	void Texture::Upload()
+	{
+		GenerateGPU();
+		AddToUploadQueue();
 	}
 
 	void Texture::GenerateGPU()

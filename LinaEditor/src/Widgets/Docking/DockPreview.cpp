@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Editor/Widgets/Docking/DockPreview.hpp"
 #include "Editor/CommonEditor.hpp"
-#include "Common/Tween/TweenManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
@@ -85,11 +84,8 @@ namespace Lina::Editor
 			return icon;
 		};
 
-		m_dockRects[0].icon = createIcon(ICON_ARROW_RECT_UP);
-		m_dockRects[1].icon = createIcon(ICON_ARROW_RECT_DOWN);
-		m_dockRects[2].icon = createIcon(ICON_ARROW_RECT_LEFT);
-		m_dockRects[3].icon = createIcon(ICON_ARROW_RECT_RIGHT);
-		m_dockRects[4].icon = createIcon(ICON_RECT_FILLED);
+		for (uint32 i = 0; i < 5; i++)
+			m_dockRects[i].icon = createIcon(String(DIR_TO_ICON[i]));
 
 		for (int32 i = 0; i < 5; i++)
 			m_dockRects[i].direction = DirectionToVector(static_cast<Direction>(i));
@@ -98,11 +94,13 @@ namespace Lina::Editor
 	void DockPreview::Initialize()
 	{
 		Widget::Initialize();
-		TweenManager::Get()->AddTween(&m_animationAlpha, 0.0f, 1.0f, ANIM_TIME, TweenType::EaseOut);
+		m_dockPreviewTween = Tween(0.0f, 1.0f, ANIM_TIME, TweenType::EaseOut);
 	}
 
 	void DockPreview::Tick(float delta)
 	{
+		m_dockPreviewTween.Tick(delta);
+
 		m_smallRectSize			 = SMALL_RECT_SZ * m_lgxWindow->GetDPIScale();
 		const Vector2& absMP	 = m_lgxWindow->GetInput()->GetMousePositionAbs();
 		const Vector2  windowPos = GetWindowPos();
@@ -132,8 +130,8 @@ namespace Lina::Editor
 			if (!m_props.isCentral)
 				targetPos = m_rect.GetCenter() + (GetHalfSize() - Vector2(m_smallRectSize * 0.75f, m_smallRectSize * 0.75f)) * dr.direction;
 
-			dr.position = Math::Lerp(m_rect.GetCenter(), targetPos, m_animationAlpha);
-			dr.size		= Math::Lerp(0.0f, m_smallRectSize + (dr.isHovered ? dr.expand * dr.size * 0.15f : 0.0f), m_animationAlpha);
+			dr.position = Math::Lerp(m_rect.GetCenter(), targetPos, m_dockPreviewTween.GetValue());
+			dr.size		= Math::Lerp(0.0f, m_smallRectSize + (dr.isHovered ? dr.expand * dr.size * 0.15f : 0.0f), m_dockPreviewTween.GetValue());
 			dr.icon->SetPos(m_dockRects[i].position + dr.extraPos - m_dockRects[i].icon->GetHalfSize());
 			// sdr.icon->SetDrawOrder(FOREGROUND_DRAW_ORDER + 1);
 		}
@@ -204,11 +202,11 @@ namespace Lina::Editor
 		outIsHovered = false;
 	}
 
-	void DockPreview::DisableDirection(const Direction& dir)
+	void DockPreview::SetDirectionDisabled(const Direction& dir, bool disabled)
 	{
 		auto& dr				 = m_dockRects[static_cast<int32>(dir)];
-		dr.isDisabled			 = true;
-		dr.icon->GetProps().icon = ICON_NOT_ALLOWED;
+		dr.isDisabled			 = disabled;
+		dr.icon->GetProps().icon = disabled ? ICON_NOT_ALLOWED : DIR_TO_ICON[(uint32)dir];
 		dr.icon->CalculateIconSize();
 	}
 } // namespace Lina::Editor

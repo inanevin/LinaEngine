@@ -121,7 +121,7 @@ namespace Lina
 		{
 			const TypeID tid = GetTypeID<T>();
 
-			PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
+			// PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
 			// T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
 			T* t = new T();
 			LINA_ASSERT(t != nullptr, "");
@@ -142,13 +142,13 @@ namespace Lina
 		}
 
 	protected:
-		virtual void OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
-		virtual void OnWindowMouse(uint32 button, LinaGX::InputAction inputAction) override;
-		virtual void OnWindowMouseWheel(float amt) override;
-		virtual void OnWindowMouseMove(const LinaGX::LGXVector2&) override;
-		virtual void OnWindowFocus(bool gainedFocus) override;
-		virtual void OnWindowHoverBegin() override;
-		virtual void OnWindowHoverEnd() override;
+		virtual void OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
+		virtual void OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction) override;
+		virtual void OnWindowMouseWheel(LinaGX::Window* window, float amt) override;
+		virtual void OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2&) override;
+		virtual void OnWindowFocus(LinaGX::Window* window, bool gainedFocus) override;
+		virtual void OnWindowHoverBegin(LinaGX::Window* window) override;
+		virtual void OnWindowHoverEnd(LinaGX::Window* window) override;
 
 	private:
 		LinaGX::CursorType FindCursorType(Widget* start);

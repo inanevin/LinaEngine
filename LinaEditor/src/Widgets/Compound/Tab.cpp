@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Common/Tween/TweenManager.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -39,9 +38,7 @@ namespace Lina::Editor
 {
 	void Tab::Construct()
 	{
-		m_selectionRectAnim = TweenManager::Get()->AddTween(&m_selectionRectAnimValue, 0.0f, 1.0f, SELECTION_ANIM_TIME, TweenType::EaseIn);
-		m_selectionRectAnim->SetPersistent(true);
-		m_selectionRectAnim->SetTimeScale(0.0f);
+		m_selectionRectAnim = Tween(0.0f, 1.0f, SELECTION_ANIM_TIME, TweenType::EaseIn), m_selectionRectAnim.SetTimeScale(0.0f);
 
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -52,7 +49,7 @@ namespace Lina::Editor
 		AddChild(layout);
 
 		m_text = m_manager->Allocate<Text>("Title");
-		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
+		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER | WF_SKIP_FLOORING);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		m_text->GetProps().isDynamic = true;
@@ -71,19 +68,14 @@ namespace Lina::Editor
 		m_icon->GetProps().colorPressed			  = Theme::GetDef().foreground0;
 		m_icon->GetProps().colorPressed.w		  = 0.25f;
 		m_icon->GetProps().colorDisabled		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-		m_icon->GetProps().onClicked			  = [this]() { m_ownerRow->Close(m_props.tiedWidget); };
+		m_icon->GetProps().onClicked			  = [this]() { m_requestedClose = true; };
 		layout->AddChild(m_icon);
 	}
 
 	void Tab::Initialize()
 	{
-		m_text->GetProps().text = m_props.tiedWidget->GetDebugName();
+		m_text->GetProps().text = m_props.title;
 		Widget::Initialize();
-	}
-
-	void Tab::Destruct()
-	{
-		m_selectionRectAnim->Kill();
 	}
 
 	void Tab::CalculateSize(float delta)
@@ -95,6 +87,8 @@ namespace Lina::Editor
 
 	void Tab::Tick(float delta)
 	{
+		m_selectionRectAnim.Tick(delta);
+
 		// Hover
 		if (m_ownerRow->GetAnyPressed() && !m_isPressed)
 			m_isHovered = false;
@@ -113,19 +107,9 @@ namespace Lina::Editor
 		m_alpha = Math::Clamp(Math::Remap(m_rect.pos.x, m_ownerRow->GetRect().GetEnd().x - GetSizeX() * 2.5f, m_ownerRow->GetRect().GetEnd().x, 1.0f, 0.1f), 0.1f, 1.0f);
 
 		if (!m_wasSelected && m_props.isSelected)
-		{
-			m_selectionRectAnim->SetStart(0.0f);
-			m_selectionRectAnim->SetEnd(1.0f);
-			m_selectionRectAnim->SetTime(0.0f);
-			m_selectionRectAnim->SetTimeScale(1.0f);
-		}
+			m_selectionRectAnim = Tween(0.0f, 1.0f, SELECTION_ANIM_TIME, TweenType::EaseIn);
 		else if (m_wasSelected && !m_props.isSelected)
-		{
-			m_selectionRectAnim->SetStart(1.0f);
-			m_selectionRectAnim->SetEnd(0.0f);
-			m_selectionRectAnim->SetTime(0.0f);
-			m_selectionRectAnim->SetTimeScale(1.0f);
-		}
+			m_selectionRectAnim = Tween(1.0f, 0.0f, SELECTION_ANIM_TIME, TweenType::EaseIn);
 
 		m_wasSelected = m_props.isSelected;
 
@@ -133,7 +117,7 @@ namespace Lina::Editor
 		const float	  indent			 = Theme::GetDef().baseIndentInner;
 		const Vector2 selectionRectStart = Vector2(m_rect.pos.x + indent, m_rect.pos.y + indent * 0.5f);
 		const Vector2 selectionRectEnd	 = Vector2(m_selectionRect.pos.x + SELECTION_RECT_WIDTH, m_rect.GetEnd().y - indent * 0.5f);
-		m_selectionRect.pos				 = Vector2(selectionRectStart.x, Math::Remap(m_selectionRectAnimValue, 0.0f, 1.0f, selectionRectEnd.y, selectionRectStart.y));
+		m_selectionRect.pos				 = Vector2(selectionRectStart.x, Math::Remap(m_selectionRectAnim.GetValue(), 0.0f, 1.0f, selectionRectEnd.y, selectionRectStart.y));
 		m_selectionRect.size.x			 = 2.0f;
 		m_selectionRect.size.y			 = selectionRectEnd.y - m_selectionRect.pos.y;
 	}
@@ -194,7 +178,7 @@ namespace Lina::Editor
 		if (m_isHovered && action == LinaGX::InputAction::Pressed && !m_icon->GetIsHovered())
 		{
 			if (!m_props.isSelected)
-				m_ownerRow->SelectionChanged(m_props.tiedWidget);
+				m_ownerRow->SelectionChanged(this);
 
 			if (!m_props.disableMovement)
 			{
@@ -210,12 +194,12 @@ namespace Lina::Editor
 
 	bool Tab::OnMousePos(const Vector2& pos)
 	{
-		if (m_isPressed && !m_icon->GetIsDisabled())
+		if (!m_requestDockOut && m_isPressed && !m_icon->GetIsDisabled())
 		{
 			const Vector2& mp	  = pos;
 			const float	   margin = Theme::GetDef().baseIndent * 4.0f;
 			if (mp.y < m_rect.pos.y - margin || mp.y > m_rect.GetEnd().y + margin)
-				m_ownerRow->DockOut(m_props.tiedWidget);
+				m_requestDockOut = true;
 
 			return true;
 		}

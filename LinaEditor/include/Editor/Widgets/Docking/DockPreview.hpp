@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
@@ -72,7 +73,7 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 		void		 GetHoveredDirection(Direction& outDirection, bool& outIsHovered);
-		void		 DisableDirection(const Direction& dir);
+		void		 SetDirectionDisabled(const Direction& dir, bool disabled);
 
 		inline Properties& GetProps()
 		{
@@ -82,11 +83,13 @@ namespace Lina::Editor
 	private:
 		void DrawDockRect(const DockRect& dr);
 
+		static constexpr std::string_view DIR_TO_ICON[5] = {ICON_ARROW_RECT_UP, ICON_ARROW_RECT_DOWN, ICON_ARROW_RECT_LEFT, ICON_ARROW_RECT_RIGHT, ICON_RECT_FILLED};
+
 	private:
 		Properties m_props = {};
 		DockRect   m_dockRects[5];
-		float	   m_animationAlpha = 0.0f;
-		float	   m_smallRectSize	= 0.0f;
+		Tween	   m_dockPreviewTween;
+		float	   m_smallRectSize = 0.0f;
 	};
 
 } // namespace Lina::Editor

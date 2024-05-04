@@ -157,8 +157,6 @@ namespace Lina::Editor
 		m_payloadWindow = m_gfxManager->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
 		m_payloadWindow->SetVisible(false);
 
-		m_subWindows.push_back(m_payloadWindow);
-
 		// Push splash
 		Widget*		  root	 = m_primaryWidgetManager->GetRoot();
 		SplashScreen* splash = root->GetWidgetManager()->Allocate<SplashScreen>();
@@ -187,7 +185,12 @@ namespace Lina::Editor
 				auto it = linatl::find_if(m_subWindows.begin(), m_subWindows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });
 
 				if (it != m_subWindows.end())
+				{
+					if (m_payloadRequest.sourceWindow == *it)
+						m_payloadRequest.sourceWindow = nullptr;
+
 					m_subWindows.erase(it);
+				}
 				m_gfxManager->DestroyApplicationWindow(sid);
 			}
 
@@ -198,6 +201,8 @@ namespace Lina::Editor
 		{
 			if (!m_payloadWindow->GetIsVisible())
 			{
+				m_gfxManager->Join();
+
 				m_payloadWindow->SetVisible(true);
 				m_payloadWindow->SetAlpha(0.5f);
 				m_payloadWindow->SetSize(m_payloadRequest.size.AsLGX2UI());
@@ -218,6 +223,8 @@ namespace Lina::Editor
 
 			if (!m_gfxManager->GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
 			{
+				m_gfxManager->Join();
+
 				m_payloadWindow->SetVisible(false);
 
 				bool received = false;
@@ -237,7 +244,9 @@ namespace Lina::Editor
 				if (!received)
 				{
 					m_payloadRequest.payload->GetParent()->RemoveChild(m_payloadRequest.payload);
-					m_payloadRequest.sourceWindow->BringToFront();
+
+					if (m_payloadRequest.sourceWindow)
+						m_payloadRequest.sourceWindow->BringToFront();
 
 					if (m_payloadRequest.type == PayloadType::DockedPanel)
 					{
@@ -304,6 +313,7 @@ namespace Lina::Editor
 			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
 
 		m_subWindows.clear();
+		m_gfxManager->DestroyApplicationWindow(m_payloadWindow->GetSID());
 
 		m_settings.SaveToFile();
 		RemoveCurrentProject();

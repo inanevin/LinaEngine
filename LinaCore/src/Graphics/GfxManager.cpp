@@ -149,7 +149,7 @@ namespace Lina
 #endif
 
 		LinaGX::Config.api						 = api;
-		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Integrated;
 		LinaGX::Config.framesInFlight			 = FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount			 = BACK_BUFFER_COUNT;
 		LinaGX::Config.mutexLockCreationDeletion = true;
@@ -507,17 +507,21 @@ namespace Lina
 
 		// Record surface renderers.
 		Vector<LinaGX::CommandStream*> surfaceRendererStreams(validSurfaceRenderers.size());
-		if (validSurfaceRenderers.size() == 1)
-		{
-			auto sf					  = validSurfaceRenderers[0];
-			surfaceRendererStreams[0] = sf->Render(currentFrameIndex);
-		}
-		else
-		{
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { surfaceRendererStreams[i] = validSurfaceRenderers[i]->Render(currentFrameIndex); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
-		}
+		// if (validSurfaceRenderers.size() == 1)
+		//{
+		//	auto sf					  = validSurfaceRenderers[0];
+		//	surfaceRendererStreams[0] = sf->Render(currentFrameIndex);
+		// }
+		// else
+		//{
+		//	Taskflow tf;
+		//	tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { surfaceRendererStreams[i] = validSurfaceRenderers[i]->Render(currentFrameIndex); });
+		//	m_system->GetMainExecutor()->RunAndWait(tf);
+		// }
+
+		size_t aq = 0;
+		for (auto* r : validSurfaceRenderers)
+			surfaceRendererStreams[aq++] = r->Render(currentFrameIndex);
 
 		// Waits for surface renderer submission.
 		Vector<uint16> surfaceWaitSemaphores;
@@ -594,9 +598,11 @@ namespace Lina
 		auto* window = m_lgx->GetWindowManager().GetWindow(sid);
 		window->RemoveListener(this);
 		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
+
+		LINA_TRACE("DESTROYING WINDOW {0}", sid);
 	}
 
-	void GfxManager::OnWindowSizeChanged(const LinaGX::LGXVector2ui& newSize)
+	void GfxManager::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& newSize)
 	{
 		Join();
 
@@ -610,7 +616,13 @@ namespace Lina
 		}
 
 		for (auto* sr : m_surfaceRenderers)
-			sr->Resize(newSize);
+		{
+			if (sr->GetWindow() == window)
+			{
+				sr->Resize(newSize);
+				break;
+			}
+		}
 	}
 
 	WorldRenderer* GfxManager::CreateWorldRenderer(EntityWorld* world, const Vector2ui& size)

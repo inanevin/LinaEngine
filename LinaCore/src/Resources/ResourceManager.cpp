@@ -99,7 +99,7 @@ namespace Lina
 			if (!FileSystem::FileOrPathExists(baseMetacachePath))
 				FileSystem::CreateFolderInPath(baseMetacachePath);
 
-			for (auto& ident : identifiers)
+			for (const auto& ident : identifiers)
 			{
 				loadTask->tf.emplace([app, ident, this, loadTask]() {
 					auto&		 cache		   = m_caches.at(ident.tid);
@@ -141,6 +141,8 @@ namespace Lina
 						res->SaveToStream(metastream);
 						Serialization::SaveToFile(metacachePath.c_str(), metastream);
 						metastream.Destroy();
+
+						res->Upload();
 					}
 
 					Event			   data;
@@ -177,6 +179,7 @@ namespace Lina
 					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
 					res->m_tag		= ident.tag;
 					res->LoadFromStream(load);
+					res->Upload();
 
 					Event data;
 					data.pParams[0]	   = &ident.path;

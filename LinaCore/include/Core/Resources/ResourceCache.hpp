@@ -79,7 +79,7 @@ namespace Lina
 	{
 	public:
 		ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt)
-			: ResourceCacheBase(extensions, pt), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "ResourceCache", "Resources"_hs))
+			: ResourceCacheBase(extensions, pt), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "Resources"_hs))
 		{
 		}
 

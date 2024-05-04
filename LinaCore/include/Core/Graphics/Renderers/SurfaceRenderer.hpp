@@ -98,6 +98,11 @@ namespace Lina
 			return m_guiRenderer.GetWidgetManager();
 		}
 
+		LinaGX::Window* GetWindow() const
+		{
+			return m_window;
+		}
+
 	protected:
 		StringID			 m_sid		  = 0;
 		GfxManager*			 m_gfxManager = nullptr;

@@ -62,8 +62,7 @@ namespace Lina
 	{
 	public:
 		ComponentCache(EntityWorld* world, GameEventDispatcher* eventDispatcher)
-			: m_world(world), m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)),
-			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "Component Cache", "World"_hs))
+			: m_world(world), m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "World"_hs))
 		{
 			m_eventDispatcher = eventDispatcher;
 		}

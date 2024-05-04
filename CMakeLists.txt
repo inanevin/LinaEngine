@@ -20,6 +20,7 @@ project (Lina)
 set(CMAKE_CONFIGURATION_TYPES "Debug;Release;" CACHE STRING "" FORCE)
 set(LINA_GAME_PLUGIN_NAME "GamePlugin")
 set(LINA_APP_NAME "LaunchGame")
+option(LINA_ASAN_ENABLED OFF)
 
 #--------------------------------------------------------------------
 # Options & Definitions
@@ -29,8 +30,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
-set(LINA_ITERATOR_DEBUG_LEVEL 0)
+set(LINA_ITERATOR_DEBUG_LEVEL 2)
 set(TARGET_ARCHITECTURE "x64")
+
+if(LINA_ASAN_ENABLED)
+add_compile_options(/fsanitize=address)
+endif()
 
 #--------------------------------------------------------------------
 # Sub directories

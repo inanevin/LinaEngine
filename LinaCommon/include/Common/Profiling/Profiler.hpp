@@ -146,8 +146,11 @@ namespace Lina
 		static void Initialize();
 		static void Shutdown();
 
-		Profiler()	= default;
-		~Profiler() = default;
+		Profiler() = default;
+		~Profiler()
+		{
+			Destroy();
+		}
 
 	private:
 		static Profiler*			   s_instance;

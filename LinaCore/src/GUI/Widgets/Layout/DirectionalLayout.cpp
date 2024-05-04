@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/Tween/TweenManager.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -45,11 +44,6 @@ namespace Lina
 	void DirectionalLayout::Initialize()
 	{
 		Widget::Initialize();
-
-		if (m_props.backgroundAnimation)
-		{
-			TweenManager::Get()->AddTween(&m_animValue, 0.0f, 1.0f, ANIM_TIME, TweenType::Sinusoidal);
-		}
 	}
 
 	void DirectionalLayout::PreTick()
@@ -68,9 +62,6 @@ namespace Lina
 
 	void DirectionalLayout::Tick(float delta)
 	{
-		if (m_props.backgroundAnimation)
-			SetSizeY(Math::Lerp(0.0f, GetSizeY(), m_animValue));
-
 		m_lastHoverStatus = GetIsHovered();
 
 		m_start	 = GetStartFromMargins();

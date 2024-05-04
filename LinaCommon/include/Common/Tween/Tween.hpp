@@ -49,6 +49,15 @@ namespace Lina
 	class Tween
 	{
 	public:
+		Tween(float start = 0.0f, float end = 1.0f, float duration = 1.0f, TweenType type = TweenType::Linear) : m_value(m_start), m_start(start), m_end(end), m_duration(duration), m_type(type){};
+		~Tween() = default;
+		bool Tick(float delta);
+
+		inline float GetValue() const
+		{
+			return m_value;
+		}
+
 		inline Tween* SetOnCompleted(Delegate<void()>&& onCompleted)
 		{
 			m_onCompleted = onCompleted;
@@ -67,13 +76,6 @@ namespace Lina
 			return this;
 		}
 
-		inline Tween* AddPending(Tween* other)
-		{
-			m_pendingTweens.push_back(other);
-			other->m_waitingOn = this;
-			return this;
-		}
-
 		inline Tween* SetRestarts(int32 count)
 		{
 			m_restartCount = count;
@@ -86,21 +88,9 @@ namespace Lina
 			return this;
 		}
 
-		inline Tween* Kill()
-		{
-			m_killed = false;
-			return this;
-		}
-
 		inline Tween* SetTime(float time)
 		{
 			m_currentTime = time;
-			return this;
-		}
-
-		inline Tween* SetPersistent(bool isPersistent)
-		{
-			m_isPersistent = isPersistent;
 			return this;
 		}
 
@@ -115,10 +105,6 @@ namespace Lina
 		}
 
 	private:
-		friend class TweenManager;
-		Tween(float* value, float start, float end, float duration, TweenType type) : m_value(value), m_start(start), m_end(end), m_duration(duration), m_type(type){};
-		~Tween() = default;
-		bool Tick(float delta);
 		void Complete();
 		void PerformTween();
 
@@ -126,7 +112,7 @@ namespace Lina
 		TweenType		 m_type = TweenType::Linear;
 		Delegate<void()> m_onCompleted;
 		Delegate<void()> m_onUpdate;
-		float*			 m_value		= nullptr;
+		float			 m_value		= 0.0f;
 		float			 m_start		= 0.0f;
 		float			 m_end			= 0.0f;
 		float			 m_delay		= 0.0f;
@@ -135,12 +121,8 @@ namespace Lina
 		int32			 m_restarts		= 0;
 		int32			 m_restartCount = 0;
 
-		PoolAllocator* m_allocator	  = nullptr;
-		Tween*		   m_waitingOn	  = nullptr;
-		bool		   m_passedDelay  = false;
-		bool		   m_killed		  = false;
-		bool		   m_isPersistent = false;
-		float		   m_timeScale	  = 1.0f;
-		Vector<Tween*> m_pendingTweens;
+		PoolAllocator* m_allocator	 = nullptr;
+		bool		   m_passedDelay = false;
+		float		   m_timeScale	 = 1.0f;
 	};
 } // namespace Lina

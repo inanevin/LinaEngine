@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Common/Common.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
@@ -56,14 +57,13 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Widget* tiedWidget		= nullptr;
-			bool	isSelected		= false;
-			bool	disableMovement = false;
-			float	desiredX		= 0.0f;
+			bool   isSelected	   = false;
+			bool   disableMovement = false;
+			float  desiredX		   = 0.0f;
+			String title		   = "";
 		};
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Initialize() override;
 		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
@@ -90,18 +90,19 @@ namespace Lina::Editor
 	private:
 		friend class TabRow;
 
-		Text*	   m_text					= nullptr;
-		Icon*	   m_icon					= nullptr;
-		Properties m_props					= {};
-		TabRow*	   m_ownerRow				= nullptr;
-		Tween*	   m_selectionRectAnim		= nullptr;
-		Rect	   m_selectionRect			= {};
-		Rect	   m_closeRect				= {};
-		float	   m_selectionRectAnimValue = 0.0f;
-		bool	   m_wasSelected			= false;
-		Vector2	   m_offsetAtPress			= Vector2::Zero;
-		uint32	   m_indexInParent			= 0;
-		float	   m_alpha					= 0.0f;
+		Text*	   m_text	  = nullptr;
+		Icon*	   m_icon	  = nullptr;
+		Properties m_props	  = {};
+		TabRow*	   m_ownerRow = nullptr;
+		Tween	   m_selectionRectAnim;
+		Rect	   m_selectionRect	= {};
+		Rect	   m_closeRect		= {};
+		bool	   m_wasSelected	= false;
+		Vector2	   m_offsetAtPress	= Vector2::Zero;
+		uint32	   m_indexInParent	= 0;
+		float	   m_alpha			= 0.0f;
+		bool	   m_requestedClose = false;
+		bool	   m_requestDockOut = false;
 	};
 
 } // namespace Lina::Editor

@@ -28,46 +28,46 @@ SOFTWARE.
 
 #include "Common/Memory/Memory.hpp"
 
-void* operator new(std::size_t size)
-{
-	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
-	return ptr;
-}
-
-void* operator new[](size_t size)
-{
-	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
-	return ptr;
-}
-
-void operator delete[](void* ptr)
-{
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
-}
-
-void operator delete(void* ptr)
-{
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
-}
-
-void operator delete(void* ptr, size_t sz)
-{
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
-}
-void operator delete[](void* ptr, std::size_t sz)
-{
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
-}
-
-void operator delete(void* ptr, const std::nothrow_t& tag)
-{
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
-}
-
-void operator delete[](void* ptr, const std::nothrow_t& tag)
-{
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
-}
+// void* operator new(std::size_t size)
+// {
+// 	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
+// 	return ptr;
+// }
+//
+// void* operator new[](size_t size)
+// {
+// 	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
+// 	return ptr;
+// }
+//
+// void operator delete[](void* ptr)
+// {
+// 	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+// }
+//
+// void operator delete(void* ptr)
+// {
+// 	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+// }
+//
+// void operator delete(void* ptr, size_t sz)
+// {
+// 	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+// }
+// void operator delete[](void* ptr, std::size_t sz)
+// {
+// 	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+// }
+//
+// void operator delete(void* ptr, const std::nothrow_t& tag)
+// {
+// 	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+// }
+//
+// void operator delete[](void* ptr, const std::nothrow_t& tag)
+// {
+// 	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+// }
 
 namespace Lina
 {
@@ -85,7 +85,7 @@ namespace Lina
 		m_allocator.Free(ptr);
 	}
 
-	GlobalAllocationWrapper::GlobalAllocationWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::StandardMallocFree, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, "Global", 0))
+	GlobalAllocationWrapper::GlobalAllocationWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::StandardMallocFree, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, 0))
 	{
 	}
 

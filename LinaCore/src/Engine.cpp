@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/PlatformTime.hpp"
-#include "Common/Tween/TweenManager.hpp"
 
 #include "Core/Application.hpp"
 #include "Common/System/SystemInfo.hpp"
@@ -47,8 +46,6 @@ namespace Lina
 {
 	void Engine::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
-		TweenManager::s_instance = new TweenManager();
-
 		AddListener(this);
 
 		m_resourceManager.PreInitialize(initInfo);
@@ -86,9 +83,6 @@ namespace Lina
 	void Engine::Shutdown()
 	{
 		LINA_TRACE("[Engine] -> Shutdown.");
-
-		delete TweenManager::s_instance;
-		TweenManager::s_instance = nullptr;
 
 		// Order matters!
 		// Shutdown resource manager first, clean-up subsystems of active resources.
@@ -133,7 +127,6 @@ namespace Lina
 
 		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
 
-		TweenManager::Get()->Tick(deltaF);
 		m_worldManager.Tick(deltaF);
 		m_gfxManager.Tick(deltaF);
 		m_app->GetAppDelegate()->Tick(deltaF);

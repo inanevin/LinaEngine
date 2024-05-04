@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Common/Math/Math.hpp"
-#include "Common/Tween/TweenManager.hpp"
 #include "Common/System/System.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/CommonEditor.hpp"
@@ -88,9 +87,7 @@ namespace Lina::Editor
 		m_text->GetProps().color = Theme::GetDef().foreground0;
 		AddChild(m_text);
 
-		if (m_tooltipProps.direction != Direction::Center)
-			m_tween = TweenManager::Get()->AddTween(&m_tweenValue, 0.0f, 1.0f, TWEEN_TIME, TweenType::EaseOut);
-
+		m_tween = Tween(0.0f, 1.0f, TWEEN_TIME, TweenType::EaseOut);
 		DirectionalLayout::Initialize();
 	}
 
@@ -100,15 +97,15 @@ namespace Lina::Editor
 		{
 			m_manager->AddToKillList(this);
 
-			if (m_tween)
-				m_tween->Kill();
-
 			return;
 		}
 	}
 
 	void InfoTooltip::Tick(float delta)
 	{
+
+		if (m_tooltipProps.direction != Direction::Center)
+			m_tween.Tick(delta);
 
 		if (m_tooltipProps.direction == Direction::Center)
 		{
@@ -123,7 +120,7 @@ namespace Lina::Editor
 		}
 
 		const Vector2 desiredEnd = m_startPosition + DirectionToVector(m_tooltipProps.direction) * 10.0f;
-		SetPos(Math::Lerp(m_startPosition, desiredEnd, m_tweenValue));
+		SetPos(Math::Lerp(m_startPosition, desiredEnd, m_tween.GetValue()));
 
 		DirectionalLayout::Tick(delta);
 

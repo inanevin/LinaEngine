@@ -54,8 +54,7 @@ namespace Lina::Editor
 		tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		tabRow->SetCanCloseTabs(false);
 		tabRow->GetProps().drawBackground = true;
-
-		tabRow->GetProps().onSelectionChanged = [this](Widget* w) { SelectContent(w); };
+		tabRow->GetProps().onTabSelected  = [this](void* userData) { SelectContent(static_cast<Widget*>(userData)); };
 
 		layout->AddChild(tabRow);
 
@@ -67,9 +66,9 @@ namespace Lina::Editor
 
 		DirectionalLayout* mem = BuildContentLayout(Locale::GetStr(LocaleStr::Memory));
 
-		tabRow->AddTab(cpu);
-		tabRow->AddTab(gpu);
-		tabRow->AddTab(mem);
+		tabRow->AddTab(cpu, cpu->GetDebugName());
+		tabRow->AddTab(gpu, gpu->GetDebugName());
+		tabRow->AddTab(mem, mem->GetDebugName());
 		m_tabContents.push_back(cpu);
 		m_tabContents.push_back(gpu);
 		m_tabContents.push_back(mem);

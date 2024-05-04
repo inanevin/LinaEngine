@@ -42,6 +42,7 @@ namespace Lina
 	{
 		w->m_lgxWindow = w->m_parent->m_lgxWindow;
 		w->m_manager   = w->m_parent->m_manager;
+		w->m_lvg	   = w->m_parent->m_lvg;
 
 		for (auto* c : w->GetChildren())
 			ChangedParent(c);
@@ -53,7 +54,9 @@ namespace Lina
 		w->m_lgxWindow = m_lgxWindow;
 		w->m_manager   = m_manager;
 		w->m_lvg	   = m_manager->GetLVG();
-		ChangedParent(w);
+
+		for (auto* c : w->GetChildren())
+			ChangedParent(c);
 
 		const size_t cur = m_children.size();
 

@@ -72,7 +72,7 @@ namespace Lina
 	class MemoryAllocatorPool
 	{
 	public:
-		MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData = 0, const String& name = "", StringID category = 0);
+		MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData = 0, StringID category = 0);
 		~MemoryAllocatorPool();
 
 		void* Allocate(size_t sz);
@@ -84,8 +84,8 @@ namespace Lina
 		Allocator* CreateAllocator(AllocatorType type, size_t size, size_t userData = 0);
 
 	private:
-		StringID			m_category	 = 0;
-		String				m_name		 = "";
+		StringID m_category = 0;
+		// String				m_name		 = "";
 		bool				m_threadSafe = false;
 		Mutex				m_mtx;
 		AllocatorType		m_type			  = AllocatorType::FreeList;

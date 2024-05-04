@@ -75,7 +75,7 @@ namespace Lina
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;
-		virtual void OnWindowSizeChanged(const LinaGX::LGXVector2ui& sz) override;
+		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& sz) override;
 
 		void			 WaitForSwapchains();
 		void			 Join();

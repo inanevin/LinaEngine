@@ -90,11 +90,13 @@ namespace Lina
 
 	void GUIRenderer::PreTick()
 	{
+		PROFILER_FUNCTION();
 		m_widgetManager.PreTick();
 	}
 
 	void GUIRenderer::Tick(float delta, const Vector2ui& size)
 	{
+		PROFILER_FUNCTION();
 		m_widgetManager.Tick(SystemInfo::GetDeltaTimeF(), size);
 	}
 

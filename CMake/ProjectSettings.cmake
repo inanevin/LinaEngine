@@ -3,13 +3,14 @@
 
 if(MSVC)
    add_definitions("/MP")
+
 endif()
 
 if(APPLE)
    set_target_properties(${PROJECT_NAME} PROPERTIES
        MACOSX_BUNDLE TRUE
    )
-   
+
 endif()
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC LINA_APP_NAME="${LINA_APP_NAME}")

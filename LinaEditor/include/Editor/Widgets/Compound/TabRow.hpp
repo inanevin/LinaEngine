@@ -44,20 +44,21 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			Delegate<void(Widget* tiedWidget)> onTabClosed;
-			Delegate<void(Widget* tiedWidget)> onTabDockedOut;
-			Delegate<void(Widget* tiedWidget)> onSelectionChanged;
+			Delegate<void(void* userData)> onTabClosed;
+			Delegate<void(void* userData)> onTabDockedOut;
+			Delegate<void(void* userData)> onTabSelected;
 
 			bool  drawBackground  = false;
 			Color colorBackground = Theme::GetDef().background0;
 		};
 
+		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 
-		void AddTab(Widget* tiedWidget);
-		void RemoveTab(Widget* tiedWidget);
-		void SetSelected(Widget* tiedWidget);
+		void AddTab(void* userData, const String& title);
+		void RemoveTab(void* userData);
+		void SetSelected(void* userData);
 		void SetCanCloseTabs(bool canCloseTabs);
 
 		inline Properties& GetProps()
@@ -78,9 +79,7 @@ namespace Lina::Editor
 	private:
 		friend class Tab;
 
-		void SelectionChanged(Widget* tiedWidget);
-		void Close(Widget* tiedWidget);
-		void DockOut(Widget* tiedWidget);
+		void SelectionChanged(Tab* tab);
 
 	private:
 		bool		 m_isSelected = false;

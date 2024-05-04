@@ -43,20 +43,20 @@ namespace Lina
 #define FREELIST_HEADER_SIZE 16
 #define FREE_CTR_LIMIT		 100
 
-	MemoryAllocatorPool::MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData, const String& name, StringID category)
+	MemoryAllocatorPool::MemoryAllocatorPool(AllocatorType type, AllocatorGrowPolicy growPolicy, bool threadSafe, size_t size, size_t userData, StringID category)
 	{
 		m_type			  = type;
 		m_growPolicy	  = growPolicy;
 		m_initialSize	  = size;
 		m_initialUserData = userData;
 		m_threadSafe	  = threadSafe;
-		m_name			  = name;
-		m_category		  = category;
+		// m_name			  = name;
+		m_category = category;
 
-		MEMORY_TRACER_REGISTER_ALLOCATORPOOL(this);
-
-		if (type != AllocatorType::StandardMallocFree)
-			AddAllocator(size);
+		// MEMORY_TRACER_REGISTER_ALLOCATORPOOL(this);
+		//
+		// if (type != AllocatorType::StandardMallocFree)
+		//	AddAllocator(size);
 	}
 
 	MemoryAllocatorPool::~MemoryAllocatorPool()

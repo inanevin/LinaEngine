@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "LinaGX/Core/InputMappings.hpp"
+#include "Common/Profiling/Profiler.hpp"
 
 namespace Lina
 {
@@ -110,6 +111,7 @@ namespace Lina
 
 	void WidgetManager::Draw()
 	{
+		PROFILER_FUNCTION();
 		m_rootWidget->Draw();
 
 		if (!m_foregroundRoot->GetChildren().empty())
@@ -169,7 +171,7 @@ namespace Lina
 		m_window->RemoveListener(this);
 	}
 
-	void WidgetManager::OnWindowKey(uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
+	void WidgetManager::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
 		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && m_controlsOwner != nullptr)
 		{
@@ -186,7 +188,7 @@ namespace Lina
 		PassKey(m_rootWidget, keycode, scancode, inputAction);
 	}
 
-	void WidgetManager::OnWindowMouse(uint32 button, LinaGX::InputAction inputAction)
+	void WidgetManager::OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction)
 	{
 		// If we have some items in the foreground
 		// check if any was clicked, if not, then remove the non-blocker ones
@@ -241,29 +243,29 @@ namespace Lina
 		PassMouse(m_rootWidget, button, inputAction);
 	}
 
-	void WidgetManager::OnWindowMouseWheel(float amt)
+	void WidgetManager::OnWindowMouseWheel(LinaGX::Window* window, float amt)
 	{
 		if (PassMouseWheel(m_foregroundRoot, amt))
 			return;
 		PassMouseWheel(m_rootWidget, amt);
 	}
 
-	void WidgetManager::OnWindowMouseMove(const LinaGX::LGXVector2& pos)
+	void WidgetManager::OnWindowMouseMove(LinaGX::Window* window, const LinaGX::LGXVector2& pos)
 	{
 		if (PassMousePos(m_foregroundRoot, pos))
 			return;
 		PassMousePos(m_rootWidget, pos);
 	}
 
-	void WidgetManager::OnWindowFocus(bool gainedFocus)
+	void WidgetManager::OnWindowFocus(LinaGX::Window* window, bool gainedFocus)
 	{
 	}
 
-	void WidgetManager::OnWindowHoverBegin()
+	void WidgetManager::OnWindowHoverBegin(LinaGX::Window* window)
 	{
 	}
 
-	void WidgetManager::OnWindowHoverEnd()
+	void WidgetManager::OnWindowHoverEnd(LinaGX::Window* window)
 	{
 	}
 

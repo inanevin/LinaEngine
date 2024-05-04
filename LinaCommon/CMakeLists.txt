@@ -87,7 +87,6 @@ set (SOURCES
 
 	# Tween
 	src/Tween/Tween.cpp
-	src/Tween/TweenManager.cpp
 )
 
 
@@ -194,7 +193,6 @@ set(HEADERS
 
 	# Tween
 	include/Common/Tween/Tween.hpp
-	include/Common/Tween/TweenManager.hpp
 
 )
 

@@ -66,8 +66,6 @@ namespace Lina::Editor
 		void RemovePanel(Panel* w);
 		void FixAreaChildMargins();
 
-		void	  ShowPreview();
-		void	  HidePreview();
 		DockArea* AddDockArea(Direction direction, Panel* panel);
 		void	  RemoveArea();
 		void	  SetSelected(Widget* w);
@@ -81,12 +79,13 @@ namespace Lina::Editor
 		void ExpandWidgetsToMyPlace(const Vector<Widget*>& widgets, Direction directionOfAreas);
 
 	private:
-		TabRow*			   m_tabRow	 = nullptr;
-		DockPreview*	   m_preview = nullptr;
-		DirectionalLayout* m_layout	 = nullptr;
-		Vector<Panel*>	   m_panels;
-		Widget*			   m_selectedPanel = nullptr;
-		bool			   m_payloadActive = false;
+		TabRow*					   m_tabRow	 = nullptr;
+		DockPreview*			   m_preview = nullptr;
+		DirectionalLayout*		   m_layout	 = nullptr;
+		Vector<Panel*>			   m_panels;
+		Widget*					   m_selectedPanel = nullptr;
+		bool					   m_payloadActive = false;
+		Vector<Pair<Panel*, bool>> m_panelKillList;
 	};
 
 } // namespace Lina::Editor
