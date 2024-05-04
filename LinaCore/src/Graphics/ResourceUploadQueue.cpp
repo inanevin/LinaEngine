@@ -43,14 +43,25 @@ namespace Lina
 
 	void ResourceUploadQueue::Initialize()
 	{
-		m_copyStream	= m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
-		m_copySemaphore = m_gfxManager->GetLGX()->CreateUserSemaphore();
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data					 = m_pfd[i];
+			data.copyStream				 = m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
+			data.copySemaphore.semaphore = m_gfxManager->GetLGX()->CreateUserSemaphore();
+			data.copySemaphore.value	 = 0;
+		}
 	}
 
 	void ResourceUploadQueue::Shutdown()
 	{
-		m_gfxManager->GetLGX()->DestroyCommandStream(m_copyStream);
-		m_gfxManager->GetLGX()->DestroyUserSemaphore(m_copySemaphore);
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data = m_pfd[i];
+			m_gfxManager->GetLGX()->DestroyCommandStream(data.copyStream);
+			m_gfxManager->GetLGX()->DestroyUserSemaphore(data.copySemaphore.semaphore);
+		}
 	}
 
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
@@ -85,9 +96,10 @@ namespace Lina
 		m_bufferRequests.push_back(req);
 	}
 
-	bool ResourceUploadQueue::FlushAll(SemaphoreData& outSemaphore)
+	bool ResourceUploadQueue::FlushAll(uint32 frameIndex)
 	{
 		ScopedSpinLock lock(m_spinLock);
+		auto&		   pfd = m_pfd[frameIndex];
 
 		if (m_textureRequests.empty() && m_bufferRequests.empty())
 			return false;
@@ -95,9 +107,9 @@ namespace Lina
 		// Transition to transfer destination
 		if (!m_textureRequests.empty())
 		{
-			LinaGX::CMDBarrier* barrier	 = m_copyStream->AddCommand<LinaGX::CMDBarrier>();
+			LinaGX::CMDBarrier* barrier	 = pfd.copyStream->AddCommand<LinaGX::CMDBarrier>();
 			barrier->textureBarrierCount = static_cast<uint32>(m_textureRequests.size());
-			barrier->textureBarriers	 = m_copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
+			barrier->textureBarriers	 = pfd.copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
 			barrier->srcStageFlags		 = LinaGX::PipelineStageFlags::PSF_TopOfPipe;
 			barrier->dstStageFlags		 = LinaGX::PipelineStageFlags::PSF_Transfer;
 
@@ -113,10 +125,10 @@ namespace Lina
 		for (auto& req : m_textureRequests)
 		{
 			Vector<LinaGX::TextureBuffer>	  allBuffers = req.txt->GetAllLevels();
-			LinaGX::CMDCopyBufferToTexture2D* cmd		 = m_copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
+			LinaGX::CMDCopyBufferToTexture2D* cmd		 = pfd.copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
 			cmd->destTexture							 = req.txt->GetGPUHandle();
 			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
-			cmd->buffers								 = m_copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
+			cmd->buffers								 = pfd.copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
 		}
 
 		// Transition to sampled
@@ -141,29 +153,27 @@ namespace Lina
 
 		for (auto& req : m_bufferRequests)
 		{
-			if (req.buffer->Copy(m_copyStream))
+			if (req.buffer->Copy(pfd.copyStream))
 				bufferNeedsTransfer = true;
 		}
 
 		if (!bufferNeedsTransfer && m_textureRequests.empty())
 			return false;
 
-		m_gfxManager->GetLGX()->CloseCommandStreams(&m_copyStream, 1);
+		m_gfxManager->GetLGX()->CloseCommandStreams(&pfd.copyStream, 1);
 
-		uint64 val = m_copySemaphoreValue;
+		pfd.copySemaphore.value++;
 
 		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
 			.targetQueue	  = m_gfxManager->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-			.streams		  = &m_copyStream,
+			.streams		  = &pfd.copyStream,
 			.streamCount	  = 1,
 			.useSignal		  = true,
 			.signalCount	  = 1,
-			.signalSemaphores = &m_copySemaphore,
-			.signalValues	  = &val,
+			.signalSemaphores = &pfd.copySemaphore.semaphore,
+			.signalValues	  = &pfd.copySemaphore.value,
 			.isMultithreaded  = true,
 		};
-
-		m_copySemaphoreValue++;
 
 		m_gfxManager->GetLGX()->SubmitCommandStreams(desc);
 
@@ -173,8 +183,6 @@ namespace Lina
 		m_textureRequests.clear();
 		m_bufferRequests.clear();
 
-		outSemaphore.value	   = m_copySemaphoreValue;
-		outSemaphore.semaphore = m_copySemaphore;
 		return true;
 	}
 } // namespace Lina

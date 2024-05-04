@@ -142,18 +142,16 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-
-		LinaGX::BackendAPI api = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
 #endif
 
-		LinaGX::Config.api			   = api;
-		LinaGX::Config.gpu			   = LinaGX::PreferredGPUType::Discrete;
-		LinaGX::Config.framesInFlight  = FRAMES_IN_FLIGHT;
-		LinaGX::Config.backbufferCount = BACK_BUFFER_COUNT;
-
+		LinaGX::Config.api						 = api;
+		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.framesInFlight			 = FRAMES_IN_FLIGHT;
+		LinaGX::Config.backbufferCount			 = BACK_BUFFER_COUNT;
 		LinaGX::Config.mutexLockCreationDeletion = true;
 
 		m_lgx->Initialize();
@@ -338,16 +336,14 @@ namespace Lina
 
 		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUDataEngineGlobals));
 
-		int32		totalThreads	   = static_cast<int32>(m_worldRenderers.size() + m_surfaceRenderers.size());
-		const int32 worldRenderersSize = static_cast<int32>(m_worldRenderers.size());
-		Taskflow	tf;
-		tf.for_each_index(0, totalThreads, 1, [this, worldRenderersSize, delta](int i) {
-			if (i < worldRenderersSize)
-				m_worldRenderers[i]->Tick(delta);
-			else
-				m_surfaceRenderers[i - worldRenderersSize]->Tick(delta);
-		});
-		m_system->GetMainExecutor()->RunAndWait(tf);
+		if (m_surfaceRenderers.size() == 1)
+			m_surfaceRenderers[0]->Tick(delta);
+		else
+		{
+			Taskflow tf;
+			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [delta](SurfaceRenderer* sf) { sf->Tick(delta); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 	}
 
 	void GfxManager::UpdateBindlessResources(PerFrameData& pfd)
@@ -389,7 +385,6 @@ namespace Lina
 		m_lgx->DescriptorUpdateImage(imgUpdate);
 		m_lgx->DescriptorUpdateImage(smpUpdate);
 		pfd.bindlessDirty.store(false);
-		LINA_TRACE("UPDATING IMAGES {0} {1}", imgUpdate.textures.size(), smpUpdate.samplers.size());
 	}
 
 	void GfxManager::Render()
@@ -432,13 +427,13 @@ namespace Lina
 			storedWorldRendererSemaphoreValues.push_back(wr->GetCopySemaphore(currentFrameIndex).value);
 		}
 
-		// Transfer.
-		SemaphoreData transferSemaphoreData = {};
-		bool		  transferExists		= m_resourceUploadQueue.FlushAll(transferSemaphoreData);
-		bool		  worldsSubmitted		= false;
-
 		// Frame init
 		m_lgx->StartFrame();
+
+		// Transfer.
+		bool		  transferExists		= m_resourceUploadQueue.FlushAll(currentFrameIndex);
+		bool		  worldsSubmitted		= false;
+		SemaphoreData transferSemaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
 
 		UpdateBindlessResources(currentFrame);
 
@@ -473,7 +468,7 @@ namespace Lina
 
 			if (transferExists)
 			{
-				worldWaitValues.push_back(transferSemaphoreData.value - 1);
+				worldWaitValues.push_back(transferSemaphoreData.value);
 				worldWaitSemaphores.push_back(transferSemaphoreData.semaphore);
 			}
 
@@ -485,7 +480,7 @@ namespace Lina
 				if (worldCopySemaphore.value != storedWorldRendererSemaphoreValues[i])
 				{
 					worldWaitSemaphores.push_back(worldCopySemaphore.semaphore);
-					worldWaitValues.push_back(worldCopySemaphore.value - 1);
+					worldWaitValues.push_back(worldCopySemaphore.value);
 				}
 			}
 
@@ -531,7 +526,7 @@ namespace Lina
 		// We wait for all worlds to be completed first...
 		if (worldsSubmitted)
 		{
-			surfaceWaitValues.push_back(currentFrame.worldSignalSemaphore.value - 1);
+			surfaceWaitValues.push_back(currentFrame.worldSignalSemaphore.value);
 			surfaceWaitSemaphores.push_back(currentFrame.worldSignalSemaphore.semaphore);
 		}
 
@@ -544,14 +539,14 @@ namespace Lina
 
 			// Surface renderer's copy semaphore was modified, we need to wait for it's completion.
 			surfaceWaitSemaphores.push_back(sem.semaphore);
-			surfaceWaitValues.push_back(sem.value - 1); // We submit a value and increment always.
+			surfaceWaitValues.push_back(sem.value); // We submit a value and increment always.
 		}
 
 		// If no world renderers, transfers might have not been consumed, so make sure we wait for it.
 		if (transferExists && !worldsSubmitted)
 		{
 			surfaceWaitSemaphores.push_back(transferSemaphoreData.semaphore);
-			surfaceWaitValues.push_back(transferSemaphoreData.value - 1);
+			surfaceWaitValues.push_back(transferSemaphoreData.value);
 		}
 
 		// Submit surface contents.

@@ -51,8 +51,11 @@ namespace Lina
 
 		AddListener(this);
 
-		for (auto [type, sys] : m_subsystems)
-			sys->PreInitialize(initInfo);
+		m_resourceManager.PreInitialize(initInfo);
+		m_gfxManager.PreInitialize(initInfo);
+		m_audioManager.PreInitialize(initInfo);
+		m_worldManager.PreInitialize(initInfo);
+		m_app->GetAppDelegate()->PreInitialize();
 	}
 
 	void Engine::Initialize(const SystemInitializationInfo& initInfo)
@@ -60,15 +63,11 @@ namespace Lina
 		LINA_TRACE("[Engine] -> Initialization.");
 		m_initInfo = initInfo;
 
-		for (auto [type, sys] : m_subsystems)
-			sys->Initialize(initInfo);
-	}
-
-	void Engine::CoreResourcesLoaded()
-	{
-		LINA_TRACE("[Engine] -> Core resources loaded.");
-		for (auto [type, sys] : m_subsystems)
-			sys->CoreResourcesLoaded();
+		m_resourceManager.Initialize(initInfo);
+		m_gfxManager.Initialize(initInfo);
+		m_audioManager.Initialize(initInfo);
+		m_worldManager.Initialize(initInfo);
+		m_app->GetAppDelegate()->Initialize();
 	}
 
 	void Engine::PreShutdown()
@@ -77,8 +76,11 @@ namespace Lina
 		m_resourceManager.WaitForAll();
 		m_gfxManager.Join();
 
-		for (auto [type, sys] : m_subsystems)
-			sys->PreShutdown();
+		m_app->GetAppDelegate()->PreShutdown();
+		m_worldManager.PreShutdown();
+		m_resourceManager.PreShutdown();
+		m_gfxManager.PreShutdown();
+		m_audioManager.PreShutdown();
 	}
 
 	void Engine::Shutdown()
@@ -90,18 +92,11 @@ namespace Lina
 
 		// Order matters!
 		// Shutdown resource manager first, clean-up subsystems of active resources.
+		m_app->GetAppDelegate()->Shutdown();
 		m_worldManager.Shutdown();
 		m_resourceManager.Shutdown();
 		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
-
-		for (auto [type, sys] : m_subsystems)
-		{
-			if (sys == &m_resourceManager || sys == &m_gfxManager || sys == &m_audioManager || sys == &m_worldManager)
-				continue;
-
-			sys->Shutdown();
-		}
 
 		RemoveListener(this);
 	}
@@ -110,8 +105,11 @@ namespace Lina
 	{
 		PROFILER_FUNCTION();
 
-		for (auto [type, sys] : m_subsystems)
-			sys->PreTick();
+		m_resourceManager.PreTick();
+		m_audioManager.PreTick();
+		m_worldManager.PreTick();
+		m_gfxManager.PreTick();
+		m_app->GetAppDelegate()->PreTick();
 
 		CalculateTime();
 	}
@@ -128,22 +126,23 @@ namespace Lina
 		PROFILER_FUNCTION();
 
 		const double delta			 = SystemInfo::GetDeltaTime();
+		const float	 deltaF			 = SystemInfo::GetDeltaTimeF();
 		const int64	 fixedTimestep	 = SystemInfo::GetFixedTimestepMicroseonds();
 		const double fixedTimestepDb = static_cast<double>(fixedTimestep);
 		m_fixedTimestepAccumulator += SystemInfo::GetDeltaTimeMicroSeconds();
 
-		// Kick off audio
-		auto audioJob = m_executor.Async([&]() { m_audioManager.Tick(delta); });
+		// Audio and render jobs in parallel with main thread.
 
-		TweenManager::Get()->Tick(delta);
-		m_worldManager.Tick(delta);
-		m_gfxManager.Tick(delta);
-		m_app->GetAppDelegate()->OnTick(delta);
+		auto audioJob  = m_executor.Async([&]() { m_audioManager.Tick(deltaF); });
+		auto renderJob = m_executor.Async([&]() { m_gfxManager.Render(); });
 
-		// Render
-		m_gfxManager.Render();
+		TweenManager::Get()->Tick(deltaF);
+		m_worldManager.Tick(deltaF);
+		m_gfxManager.Tick(deltaF);
+		m_app->GetAppDelegate()->Tick(deltaF);
 
 		audioJob.get();
+		renderJob.get();
 
 		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_RETURN))
 			m_app->Quit();

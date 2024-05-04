@@ -104,11 +104,12 @@ namespace Lina::Editor
 		m_windows.push_back(wl);
 	}
 
-	void EditorLayout::ApplyStoredLayout(Editor* editor)
+	void EditorLayout::ApplyStoredLayout()
 	{
 		if (m_windows.empty())
 			StoreDefaultLayout();
 
+		Editor*		editor = Editor::Get();
 		GfxManager* gfxMan = editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		for (const auto& windowData : m_windows)
@@ -163,12 +164,13 @@ namespace Lina::Editor
 		}
 	}
 
-	void EditorLayout::StoreLayout(Editor* editor)
+	void EditorLayout::StoreLayout()
 	{
 		m_windows.clear();
 
-		GfxManager* gfxMan = editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		Editor* editor = Editor::Get();
 
+		GfxManager*				gfxMan	= editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		Vector<LinaGX::Window*> windows = editor->GetSubWindows();
 		windows.push_back(gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
 

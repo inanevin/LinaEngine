@@ -113,9 +113,9 @@ namespace Lina::Editor
 		close->GetProps().outlineThickness	= 0.0f;
 		close->GetProps().onClicked			= [source]() {
 			if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
-				source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->RequestExit();
+				Editor::Get()->RequestExit();
 			else
-				source->GetSystem()->CastSubsystem<Editor>(SubsystemType::Editor)->CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
+				Editor::Get()->CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
 		};
 		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		close->SetAlignedPosY(0.0f);

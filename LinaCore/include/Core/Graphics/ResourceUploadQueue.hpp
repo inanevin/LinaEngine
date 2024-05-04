@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/Data/Mutex.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/Functional.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
 
 namespace LinaGX
 {
@@ -44,7 +45,6 @@ namespace Lina
 {
 	class Texture;
 	class GfxManager;
-	struct SemaphoreData;
 	class Buffer;
 
 	struct TextureUploadRequest
@@ -64,31 +64,30 @@ namespace Lina
 		ResourceUploadQueue(GfxManager* gfxMan);
 		~ResourceUploadQueue() = default;
 
+		struct PerFrameData
+		{
+			SemaphoreData		   copySemaphore = {};
+			LinaGX::CommandStream* copyStream	 = nullptr;
+		};
+
 		void Initialize();
 		void Shutdown();
 		void AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete);
 		void AddBufferRequest(Buffer* buf);
 
-		bool FlushAll(SemaphoreData& outSemaphore);
+		bool FlushAll(uint32 frameIndex);
 
-		inline uint16 GetSemaphore() const
+		inline const SemaphoreData& GetSemaphoreData(uint32 frameIndex) const
 		{
-			return m_copySemaphore;
-		}
-
-		inline uint64 GetSemaphoreValue() const
-		{
-			return m_copySemaphoreValue;
+			return m_pfd[frameIndex].copySemaphore;
 		}
 
 	private:
 		Vector<TextureUploadRequest> m_textureRequests;
 		Vector<BufferRequest>		 m_bufferRequests;
-		GfxManager*					 m_gfxManager		  = nullptr;
-		LinaGX::CommandStream*		 m_copyStream		  = nullptr;
-		uint16						 m_copySemaphore	  = 0;
-		uint64						 m_copySemaphoreValue = 0;
+		GfxManager*					 m_gfxManager = nullptr;
 		SpinLock					 m_spinLock;
+		PerFrameData				 m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina
 

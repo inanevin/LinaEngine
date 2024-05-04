@@ -155,7 +155,7 @@ namespace Lina
 			m_freeCounter = 0;
 
 			// Free up unused allocators every now and then.
-			for (int32 i = 0; i < m_allocatorSize; i++)
+			for (uint32 i = 0; i < m_allocatorSize; i++)
 			{
 				Allocator* alloc = m_allocators[i];
 
@@ -163,7 +163,7 @@ namespace Lina
 				{
 					Allocator** newAllocators = (Allocator**)malloc(sizeof(Allocator*) * (m_allocatorSize - 1));
 
-					for (int32 j = 0, k = 0; j < m_allocatorSize; j++)
+					for (uint32 j = 0, k = 0; j < m_allocatorSize; j++)
 					{
 						if (j != i)
 							newAllocators[k++] = m_allocators[j];

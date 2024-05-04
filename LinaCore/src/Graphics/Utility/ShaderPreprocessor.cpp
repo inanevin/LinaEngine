@@ -91,10 +91,11 @@ namespace Lina
 			return include;
 		};
 
-		String rpText = "gui";
-
+		String rpText = "";
 		if (rpType == RenderPassDescriptorType::Main)
 			rpText = "main";
+		else if (rpType == RenderPassDescriptorType::Gui)
+			rpText = "gui";
 
 		const String renderPassPath	   = String("Resources/Core/Shaders/Common/RenderPass_") + rpText + ".linashader";
 		const String globalDataInclude = getInclude("Resources/Core/Shaders/Common/GlobalData.linashader");

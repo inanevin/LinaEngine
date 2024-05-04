@@ -81,10 +81,13 @@ namespace Lina
 			return &m_engine;
 		}
 
+		bool FillResourceCustomMeta(StringID sid, OStream& stream);
+
 	protected:
 		virtual void OnWindowClose();
 
 	protected:
+		void RegisterResourceData();
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);
 

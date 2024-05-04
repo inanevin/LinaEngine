@@ -74,7 +74,6 @@ namespace Lina
 		}
 
 		// RP
-
 		m_guiPass.Create(m_gfxManager, RenderPassDescriptorType::Gui);
 		m_guiRenderer.Create(m_gfxManager, &m_guiPass, ShaderWriteTargetType::Swapchain, window);
 	}
@@ -118,8 +117,7 @@ namespace Lina
 
 	void SurfaceRenderer::Tick(float delta)
 	{
-		if (m_isVisible)
-			m_guiRenderer.Tick(delta, m_window->GetSize());
+		// if (m_isVisible)
 	}
 
 	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)
@@ -159,7 +157,7 @@ namespace Lina
 		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
 		// Draw-Flush-Render gui commands.
-		// m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, m_window->GetSize());
+		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, m_window->GetSize());
 
 		// End render pass
 		m_guiPass.End(currentFrame.gfxStream);

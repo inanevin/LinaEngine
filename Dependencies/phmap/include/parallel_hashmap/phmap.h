@@ -4875,11 +4875,11 @@ public:
      #pragma warning(pop)  
 #endif
 
-
-#endif // phmap_h_guard_
-
 #ifdef LINA_COMPILER_MSVC
 #pragma warning(pop)
 #else
 #pragma GCC diagnostic pop
 #endif
+
+#endif // phmap_h_guard_
+

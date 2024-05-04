@@ -28,9 +28,9 @@ SOFTWARE.
 
 #pragma once
 
+#include "Core/ApplicationDelegate.hpp"
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
-#include "Common/System/Subsystem.hpp"
 #include "IO/FileManager.hpp"
 
 namespace Lina
@@ -74,7 +74,7 @@ namespace Lina::Editor
 		}
 	};
 
-	class Editor : public Subsystem
+	class Editor : public ApplicationDelegate
 	{
 	public:
 		struct PayloadRequest
@@ -86,15 +86,25 @@ namespace Lina::Editor
 			Vector2ui		size		 = Vector2ui::Zero;
 		};
 
-		Editor(System* sys) : Subsystem(sys, SubsystemType::Editor){};
+		Editor(){};
 		virtual ~Editor() = default;
+		static Editor* Get()
+		{
+			return s_editor;
+		}
 
-		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
-		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void PreTick() override;
-		virtual void CoreResourcesLoaded() override;
-		virtual void PreShutdown() override;
-		virtual void Shutdown() override;
+		// Application delegate
+		virtual void   Initialize() override;
+		virtual void   PreTick() override;
+		virtual void   Tick(float delta) override;
+		virtual void   CoreResourcesLoaded() override;
+		virtual void   PreShutdown() override;
+		virtual bool   FillResourceCustomMeta(StringID sid, OStream& stream) override;
+		virtual void   RegisterAppResources(ResourceManager& rm) override;
+		virtual String GetBaseMetacachePath() const override
+		{
+			return "Resources/Editor/Metacache/";
+		}
 
 		// Project
 		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
@@ -177,6 +187,7 @@ namespace Lina::Editor
 		Vector<EditorPayloadListener*> m_payloadListeners;
 		StringID					   m_subWindowCounter = 0;
 		FileManager					   m_fileManager;
+		static Editor*				   s_editor;
 	};
 
 } // namespace Lina::Editor

@@ -50,7 +50,7 @@ namespace Lina
 		{
 			if (w == m_mainWorld)
 			{
-				m_gfxManager->DestroyWorldRenderer(m_mainWorld);
+				// m_gfxManager->DestroyWorldRenderer(m_mainWorld);
 
 				auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 				ResourceIdentifier id(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());

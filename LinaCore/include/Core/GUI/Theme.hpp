@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Math/Color.hpp"
 #include "Common/StringID.hpp"
+#include "Core/CommonCore.hpp"
 
 namespace LinaVG
 {
@@ -88,8 +89,8 @@ namespace Lina
 			float popupAnimTime		   = 0.1f;
 			float baseBorderThickness  = 4.0f;
 
-			StringID defaultFont = 0;
-			StringID altFont	 = 0;
+			StringID defaultFont = DEFAULT_FONT_SID;
+			StringID altFont	 = DEFAULT_FONT_SID;
 			StringID iconFont	 = 0;
 
 			String iconDropdown			 = "";

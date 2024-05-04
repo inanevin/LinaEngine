@@ -273,7 +273,7 @@ namespace Lina
 				else if (b.type == LinaGX::DescriptorType::SeparateImage || b.type == LinaGX::DescriptorType::CombinedImageSampler)
 				{
 					matBindingData.textures.resize(b.descriptorCount);
-					for (int32 i = 0; i < b.descriptorCount; i++)
+					for (uint32 i = 0; i < b.descriptorCount; i++)
 						matBindingData.textures[i] = defaultTextureGPUHandle;
 				}
 				else if (b.type == LinaGX::DescriptorType::SeparateSampler || b.type == LinaGX::DescriptorType::CombinedImageSampler)

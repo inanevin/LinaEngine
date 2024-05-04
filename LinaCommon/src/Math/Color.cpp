@@ -112,7 +112,7 @@ namespace Lina
 	{
 		Color rgb;
 		float C = z * y;
-		float X = C * (1 - Math::Abs(Math::Fmod(x / 60.0, 2) - 1.0f));
+		float X = C * (1 - Math::Abs(Math::Fmod(x / 60.0f, 2.0f) - 1.0f));
 		float m = z - C;
 		float R1, G1, B1;
 
@@ -211,7 +211,12 @@ namespace Lina
 			return;
 
 		uint32 r, g, b;
-		std::sscanf(hex.c_str(), "#%02x%02x%02x", &r, &g, &b);
+
+#ifdef LINA_PLATFORM_WINDOWS
+		sscanf_s(hex.c_str(), "#%02x%02x%02x", &r, &g, &b);
+#else
+		const int ret = std::sscanf(hex.c_str(), "#%02x%02x%02x", &r, &g, &b);
+#endif
 		*this = Color{static_cast<float>(r) / 255.0f, static_cast<float>(g) / 255.0f, static_cast<float>(b) / 255.0f, 1.0f};
 	}
 

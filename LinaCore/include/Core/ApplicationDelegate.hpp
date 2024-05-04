@@ -44,6 +44,7 @@ namespace Lina
 {
 	class Application;
 	class ResourceManager;
+	class System;
 	struct SemaphoreData;
 
 	class ApplicationDelegate : public SystemEventListener
@@ -53,23 +54,28 @@ namespace Lina
 		virtual ~ApplicationDelegate() = default;
 
 		// Loop
-		virtual void SetupPlatform(Application* app);
+		virtual void SetupPlatform(Application* app){};
 		virtual void PreInitialize(){};
 		virtual void Initialize(){};
 		virtual void CoreResourcesLoaded(){};
-		virtual void OnTick(float delta){};
+		virtual void PreTick(){};
+		virtual void Tick(float delta){};
+		virtual void PreShutdown(){};
 		virtual void Shutdown(){};
 
 		// Resources
-		virtual void RegisterResourceTypes(ResourceManager& rm);
-		virtual void RegisterAppResources(ResourceManager& rm);
-		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream);
+		virtual void RegisterAppResources(ResourceManager& rm){};
+		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream)
+		{
+			return false;
+		};
 
-		// Testing for now.
 		virtual String GetBaseMetacachePath() const
 		{
-			return "Resources/Editor/Metacache/";
+			return "";
 		}
+
+		System* GetSystem();
 
 	protected:
 		friend class Application;

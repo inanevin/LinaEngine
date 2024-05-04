@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/System/SystemInfo.hpp"
 
 namespace Lina
 {
@@ -90,11 +91,6 @@ namespace Lina
 	void GUIRenderer::PreTick()
 	{
 		m_widgetManager.PreTick();
-	}
-
-	void GUIRenderer::Tick(float delta, const Vector2ui& size)
-	{
-		m_widgetManager.Tick(delta, size);
 	}
 
 	void GUIRenderer::DrawDefault(LinaVG::DrawBuffer* buf)
@@ -151,7 +147,7 @@ namespace Lina
 		}
 		else
 		{
-			req.materialData.color2.x = static_cast<float>(buf->m_textureHandle);
+			req.materialData.color2.x = static_cast<float>(buf->m_textureHandle - 1);
 			req.materialData.color2.y = static_cast<float>(m_defaultGUISampler->GetBindlessIndex());
 		}
 
@@ -220,6 +216,7 @@ namespace Lina
 	{
 		auto& pfd = m_pfd[frameIndex];
 
+		m_widgetManager.Tick(SystemInfo::GetDeltaTimeF(), size);
 		m_widgetManager.Draw();
 		m_lvg.FlushBuffers();
 		m_lvg.ResetFrame();
@@ -231,9 +228,12 @@ namespace Lina
 		// Build draw commands
 		uint32 drawID		= 0;
 		uint32 totalIndices = 0;
+
 		for (const auto& req : m_drawRequests)
 		{
 			m_lgx->BufferIndexedIndirectCommandData(pfd.guiIndirectBuffer.GetMapped(), static_cast<size_t>(drawID) * m_lgx->GetIndexedIndirectCommandSize(), drawID, req.indexCount, 1, req.firstIndex, req.vertexOffset, 0);
+			pfd.guiIndirectBuffer.MarkDirty();
+			pfd.guiMaterialBuffer.BufferData(static_cast<size_t>(drawID) * sizeof(GPUMaterialGUI), (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
 			drawID++;
 			totalIndices += req.indexCount;
 		}
@@ -249,7 +249,6 @@ namespace Lina
 
 		if (copyExists != 0)
 		{
-			uint64 val = pfd.copySemaphore.value;
 			pfd.copySemaphore.value++;
 
 			m_lgx->CloseCommandStreams(&pfd.copyStream, 1);
@@ -261,11 +260,10 @@ namespace Lina
 				.useSignal		  = true,
 				.signalCount	  = 1,
 				.signalSemaphores = &(pfd.copySemaphore.semaphore),
-				.signalValues	  = &val,
+				.signalValues	  = &pfd.copySemaphore.value,
 				.isMultithreaded  = true,
 			});
 		}
-
 		m_shader->Bind(stream, m_shaderVariantHandle);
 
 		pfd.guiVertexBuffer.BindVertex(stream, static_cast<uint32>(sizeof(LinaVG::Vertex)));

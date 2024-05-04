@@ -119,8 +119,6 @@ namespace Lina
 		Vector<BindingData>	 m_bindingData;
 	};
 
-	DEFINE_CLASS_STORAGE_TYPE(Material);
-
 } // namespace Lina
 
 #endif

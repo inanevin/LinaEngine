@@ -119,8 +119,8 @@ void main()
       // Simple Text
       // floatPack1 = 0,0,0,bufferType
       // color1 = textureIndex, samplerIndex
-       int textureIndex = 0;
-       int samplerIndex = 0;
+       int textureIndex = int(material.color2.r);
+       int samplerIndex = int(material.color2.g);
       outFragColor = vec4(inCol.rgb, texture(sampler2D(LINA_TEXTURES[textureIndex], LINA_SAMPLERS[samplerIndex]), inUV).r * inCol.a);
    }
    else if(bufferType == 4)

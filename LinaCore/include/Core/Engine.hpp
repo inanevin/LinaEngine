@@ -54,7 +54,6 @@ namespace Lina
 
 		virtual void PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
-		virtual void CoreResourcesLoaded() override;
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;

@@ -45,15 +45,16 @@ namespace Lina
 
 	struct SystemInitializationInfo
 	{
-		const char*			 appName			 = "";
-		uint32				 windowWidth		 = 0;
-		uint32				 windowHeight		 = 0;
-		LinaGX::WindowStyle	 windowStyle		 = LinaGX::WindowStyle::WindowedApplication;
-		LinaGX::VSyncStyle	 vsyncStyle			 = {};
-		bool				 allowTearing		 = false;
-		ApplicationDelegate* appDelegate		 = nullptr;
-		ResourceManagerMode	 resourceManagerMode = ResourceManagerMode::File;
-		Color				 clearColor			 = Color::Black;
+		const char*			 appName					 = "";
+		uint32				 windowWidth				 = 0;
+		uint32				 windowHeight				 = 0;
+		LinaGX::WindowStyle	 windowStyle				 = LinaGX::WindowStyle::WindowedApplication;
+		LinaGX::VSyncStyle	 vsyncStyle					 = {};
+		bool				 allowTearing				 = false;
+		ApplicationDelegate* appDelegate				 = nullptr;
+		ResourceManagerMode	 resourceManagerMode		 = ResourceManagerMode::File;
+		bool				 resourceManagerUseMetacache = true;
+		Color				 clearColor					 = Color::Black;
 	};
 
 	enum class Direction

@@ -91,7 +91,7 @@ namespace Lina
 
 		LinaVG::Vec2 AsLVG() const
 		{
-			return LinaVG::Vec2(x, y);
+			return LinaVG::Vec2(static_cast<float>(x), static_cast<float>(y));
 		}
 
 		static Vector2i Zero;

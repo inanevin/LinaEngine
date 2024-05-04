@@ -127,8 +127,8 @@ namespace Lina::Editor
 		virtual void			SaveToStream(OStream& out) override;
 		virtual void			LoadFromStream(IStream& in) override;
 
-		void ApplyStoredLayout(Editor* editor);
-		void StoreLayout(Editor* editor);
+		void ApplyStoredLayout();
+		void StoreLayout();
 		void StoreDefaultLayout();
 
 	private:

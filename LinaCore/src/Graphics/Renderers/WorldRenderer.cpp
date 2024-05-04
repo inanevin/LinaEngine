@@ -393,8 +393,7 @@ namespace Lina
 
 	uint64 WorldRenderer::BumpAndSendTransfers(uint32 frameIndex)
 	{
-		auto&  currentFrame = m_pfd[frameIndex];
-		uint64 val			= currentFrame.copySemaphore.value;
+		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.value++;
 		m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
 		m_lgx->SubmitCommandStreams({
@@ -404,11 +403,11 @@ namespace Lina
 			.useSignal		  = true,
 			.signalCount	  = 1,
 			.signalSemaphores = &(currentFrame.copySemaphore.semaphore),
-			.signalValues	  = &val,
+			.signalValues	  = &currentFrame.copySemaphore.value,
 			.isMultithreaded  = true,
 		});
 
-		return val;
+		return currentFrame.copySemaphore.value;
 	}
 
 } // namespace Lina

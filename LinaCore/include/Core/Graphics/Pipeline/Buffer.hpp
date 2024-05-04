@@ -58,6 +58,10 @@ namespace Lina
 		void BindVertex(LinaGX::CommandStream* stream, uint32 vertexSize);
 		void BindIndex(LinaGX::CommandStream* stream, LinaGX::IndexType indexType);
 
+		inline void MarkDirty()
+		{
+			m_bufferChanged = true;
+		}
 		inline uint32 GetGPUResource() const
 		{
 			return m_residesInGPU ? m_gpu : m_staging;

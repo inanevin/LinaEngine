@@ -54,7 +54,7 @@ namespace Lina
 	{
 
 	private:
-		static constexpr int32 MAX_GUI_MATERIALS = 50;
+		static constexpr size_t MAX_GUI_MATERIALS = 50;
 
 		struct PerFrameData
 		{
@@ -83,7 +83,6 @@ namespace Lina
 
 		void Create(GfxManager* gfxManager, RenderPass* renderPass, ShaderWriteTargetType writeTargetType, LinaGX::Window* window);
 		void PreTick();
-		void Tick(float delta, const Vector2ui& size);
 		void DrawDefault(LinaVG::DrawBuffer* buf);
 		void DrawGradient(LinaVG::GradientDrawBuffer* buf);
 		void DrawTextured(LinaVG::TextureDrawBuffer* buf);

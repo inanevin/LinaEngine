@@ -48,20 +48,109 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/CommonCore.hpp"
+
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+
 #include <LinaGX/Core/InputMappings.hpp>
+
+namespace Lina
+{
+	SystemInitializationInfo Lina_GetInitInfo()
+	{
+		LinaGX::MonitorInfo monitor = LinaGX::Window::GetPrimaryMonitorInfo();
+
+		const uint32 w = monitor.size.x / 4;
+		const uint32 h = static_cast<uint32>(static_cast<float>(w) * (static_cast<float>(monitor.size.y) / static_cast<float>(monitor.size.x)));
+
+		LinaGX::VSyncStyle vsync;
+		vsync.dx12Vsync	  = LinaGX::DXVsync::None;
+		vsync.vulkanVsync = LinaGX::VKVsync::None;
+
+		return SystemInitializationInfo{
+			.appName					 = "Lina Editor",
+			.windowWidth				 = w,
+			.windowHeight				 = h,
+			.windowStyle				 = LinaGX::WindowStyle::BorderlessApplication,
+			.vsyncStyle					 = vsync,
+			.allowTearing				 = true,
+			.appDelegate				 = new Lina::Editor::Editor(),
+			.resourceManagerMode		 = Lina::ResourceManagerMode::File,
+			.resourceManagerUseMetacache = false,
+			.clearColor					 = Theme::GetDef().background0,
+		};
+	}
+} // namespace Lina
 
 namespace Lina::Editor
 {
+	Editor* Editor::s_editor = nullptr;
 
-	void Editor::PreInitialize(const SystemInitializationInfo& initInfo)
+	bool Editor::FillResourceCustomMeta(StringID sid, OStream& stream)
 	{
+		if (sid == ICON_FONT_SID)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 32, .dpiLimit = 10.0f}},
+				.isSDF	= true,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == ALT_FONT_SID || sid == ALT_FONT_BOLD_SID)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
+				.isSDF	= false,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+		return false;
 	}
 
-	void Editor::Initialize(const SystemInitializationInfo& initInfo)
+	void Editor::RegisterAppResources(ResourceManager& rm)
 	{
+		Vector<ResourceIdentifier> resources;
+
+		// Priority
+		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, true, ResourceTag::Priority));
+
+		// Core
+		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test1.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test2.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test3.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test4.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test5.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test6.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test7.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+
+		for (auto& r : resources)
+			r.sid = TO_SID(r.path);
+
+		rm.RegisterAppResources(resources);
+	}
+
+	void Editor::Initialize()
+	{
+		s_editor							  = this;
+		Theme::GetDef().iconFont			  = ICON_FONT_SID;
+		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
+		Theme::GetDef().altFont				  = ALT_FONT_BOLD_SID;
+		Theme::GetDef().iconDropdown		  = ICON_ARROW_DOWN;
+		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
+		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
+
 		m_fileManager.Initialize(this);
 
-		m_gfxManager		   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_gfxManager		   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
 		m_mainWindow	= m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
@@ -91,7 +180,6 @@ namespace Lina::Editor
 
 	void Editor::PreTick()
 	{
-
 		if (!m_windowCloseRequests.empty())
 		{
 			for (auto sid : m_windowCloseRequests)
@@ -177,6 +265,10 @@ namespace Lina::Editor
 		}
 	}
 
+	void Editor::Tick(float delta)
+	{
+	}
+
 	void Editor::CoreResourcesLoaded()
 	{
 		// Remove splash
@@ -205,7 +297,7 @@ namespace Lina::Editor
 		else
 			OpenPopupProjectSelector(false);
 
-		m_settings.GetLayout().ApplyStoredLayout(this);
+		m_settings.GetLayout().ApplyStoredLayout();
 	}
 
 	void Editor::PreShutdown()
@@ -219,10 +311,6 @@ namespace Lina::Editor
 
 		m_settings.SaveToFile();
 		RemoveCurrentProject();
-	}
-
-	void Editor::Shutdown()
-	{
 	}
 
 	void Editor::OpenPopupProjectSelector(bool canCancel, bool openCreateFirst)
@@ -328,23 +416,22 @@ namespace Lina::Editor
 
 		const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
 		if (FileSystem::FileOrPathExists(lastWorldPath))
-			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->InstallWorld(lastWorldPath);
+			m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->InstallWorld(lastWorldPath);
 	}
 
 	void Editor::RequestExit()
 	{
 		SaveSettings();
-
-		m_system->GetApp()->Quit();
+		m_app->Quit();
 	}
 
 	void Editor::SaveSettings()
 	{
-		auto* loadedWorld = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetMainWorld();
+		auto* loadedWorld = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetMainWorld();
 		if (loadedWorld)
 			m_settings.SetLastWorldAbsPath(loadedWorld->GetPath());
 
-		m_settings.GetLayout().StoreLayout(this);
+		m_settings.GetLayout().StoreLayout();
 		m_settings.SaveToFile();
 	}
 

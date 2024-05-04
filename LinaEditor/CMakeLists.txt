@@ -22,7 +22,6 @@ project(LinaEditor)
 set(HEADERS
 
 # Core
-include/Editor/EditorApplicationDelegate.hpp
 include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
@@ -64,7 +63,6 @@ include/Editor/Meta/ProjectData.hpp
 
 set(SOURCES
 # Core
-src/EditorApplicationDelegate.cpp
 src/CommonEditor.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
