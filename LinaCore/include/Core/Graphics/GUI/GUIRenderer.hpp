@@ -73,7 +73,6 @@ namespace Lina
 			uint32		   firstIndex	= 0;
 			uint32		   vertexOffset = 0;
 			uint32		   indexCount	= 0;
-			Rectui		   clip			= {};
 			GPUMaterialGUI materialData;
 		};
 

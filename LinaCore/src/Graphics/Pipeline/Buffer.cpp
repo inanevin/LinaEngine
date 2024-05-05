@@ -41,7 +41,7 @@ namespace Lina
 		m_stagingOnly = stagingOnly;
 		m_hintFlags	  = hintFlags;
 
-		if (LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory > m_size && false)
+		if (LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory > m_size)
 		{
 			s_usedCPUVisibleGPUMemory += static_cast<uint64>(m_size);
 			m_isCPUVisibleGPUResource = true;

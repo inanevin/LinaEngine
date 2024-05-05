@@ -210,8 +210,6 @@ namespace Lina
 		req.indexCount	 = static_cast<uint32>(buf->m_indexBuffer.m_size);
 		req.vertexOffset = pfd.vertexCounter;
 		req.firstIndex	 = pfd.indexCounter;
-		req.clip.pos	 = Vector2ui(buf->clipPosX, buf->clipPosY);
-		req.clip.size	 = Vector2ui(buf->clipSizeX, buf->clipSizeY);
 		pfd.guiVertexBuffer.BufferData(pfd.vertexCounter * sizeof(LinaVG::Vertex), (uint8*)buf->m_vertexBuffer.m_data, buf->m_vertexBuffer.m_size * sizeof(LinaVG::Vertex));
 		pfd.guiIndexBuffer.BufferData(pfd.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
 		pfd.indexCounter += req.indexCount;
