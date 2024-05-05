@@ -90,9 +90,8 @@ namespace Lina
 		if (sid == DEFAULT_FONT_SID)
 		{
 			Font::Metadata customMeta = {
-				.points		 = {{.size = 14, .dpiLimit = 10.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
-				.isSDF		 = false,
-				.glyphRanges = {linatl::make_pair(160, 360)},
+				.points = {{.size = 14, .dpiLimit = 10.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
+				.isSDF	= false,
 
 			};
 			customMeta.SaveToStream(stream);
@@ -147,7 +146,8 @@ namespace Lina
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
 			};
-			meta.descriptorSetAllocationCount = 50;
+
+			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = true;
 			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Main;
 			meta.SaveToStream(stream);

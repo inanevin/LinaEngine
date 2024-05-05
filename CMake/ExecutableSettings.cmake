@@ -19,7 +19,7 @@ set_source_files_properties(_Resources/${PROJECT_NAME}.icns PROPERTIES MACOSX_PA
 
 endif()
 
-target_compile_definitions(${PROJECT_NAME} PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
+target_compile_definitions(${PROJECT_NAME} PUBLIC)
 
 # Core resources to output directory
 add_custom_command(

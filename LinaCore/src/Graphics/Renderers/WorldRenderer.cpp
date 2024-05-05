@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/World/EntityWorld.hpp"
@@ -74,6 +75,8 @@ namespace Lina
 			data.copyStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "WorldRenderer: Copy Stream"});
 			data.objectBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "WorldRenderer: ObjectData", false);
 			data.sceneBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataScene), "WorldRenderer: SceneData", false);
+			data.signalSemaphore.semaphore = m_lgx->CreateUserSemaphore();
+			data.copySemaphore.semaphore   = m_lgx->CreateUserSemaphore();
 		}
 
 		CreateSizeRelativeResources();
@@ -89,6 +92,8 @@ namespace Lina
 			m_lgx->DestroyCommandStream(data.copyStream);
 			data.objectBuffer.Destroy();
 			data.sceneBuffer.Destroy();
+			m_lgx->DestroyUserSemaphore(data.signalSemaphore.semaphore);
+			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
 		}
 		DestroySizeRelativeResources();
 		m_world->RemoveListener(this);
@@ -117,10 +122,14 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 
-			data.colorTarget = m_lgx->CreateTexture(rtDesc);
-			data.depthTarget = m_lgx->CreateTexture(depthDesc);
-			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.colorTarget, .isSwapchain = false});
-			m_mainPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.depthTarget, .clearDepth = 1.0f});
+			const String colorTargetName = "WorldRenderer Color Target " + TO_STRING(i);
+			const String depthTargetName = "WorldRenderer Depth Target " + TO_STRING(i);
+			data.colorTarget			 = m_rm->CreateUserResource<Texture>(colorTargetName, TO_SID(colorTargetName));
+			data.depthTarget			 = m_rm->CreateUserResource<Texture>(colorTargetName, TO_SID(colorTargetName));
+			data.colorTarget->CreateGPUOnly(rtDesc);
+			data.depthTarget->CreateGPUOnly(depthDesc);
+			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.colorTarget->GetGPUHandle(), .isSwapchain = false});
+			m_mainPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.depthTarget->GetGPUHandle(), .clearDepth = 1.0f});
 		}
 
 		m_mainPass.Create(m_gfxManager, RenderPassDescriptorType::Main);
@@ -150,8 +159,8 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-			m_lgx->DestroyTexture(data.colorTarget);
-			m_lgx->DestroyTexture(data.depthTarget);
+			m_rm->DestroyUserResource(data.colorTarget);
+			m_rm->DestroyUserResource(data.depthTarget);
 		}
 
 		m_mainPass.Destroy();
@@ -274,11 +283,12 @@ namespace Lina
 		}
 	}
 
-	LinaGX::CommandStream* WorldRenderer::Render(uint32 frameIndex, int32 threadIndex)
+	SemaphoreData WorldRenderer::Render(uint32 frameIndex, const SemaphoreData& waitSemaphore)
 	{
 		UpdateBuffers(frameIndex);
 
-		auto& currentFrame = m_pfd[frameIndex];
+		auto&		 currentFrame		= m_pfd[frameIndex];
+		const uint64 copySemaphoreValue = currentFrame.copySemaphore.value;
 
 		const LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -324,8 +334,8 @@ namespace Lina
 		barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
 		barrierToAttachment->textureBarrierCount = 2;
 		barrierToAttachment->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.colorTarget);
-		barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.depthTarget);
+		barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.colorTarget->GetGPUHandle());
+		barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.depthTarget->GetGPUHandle());
 
 		m_mainPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, false);
@@ -343,7 +353,6 @@ namespace Lina
 				shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
 				lastBoundShader = shader;
 			}
-
 			if (material != lastBoundMaterial)
 			{
 				material->Bind(currentFrame.gfxStream, frameIndex, LinaGX::DescriptorSetsLayoutSource::CustomLayout);
@@ -378,11 +387,44 @@ namespace Lina
 		barrierFromAttachment->dstStageFlags	   = LinaGX::PSF_FragmentShader;
 		barrierFromAttachment->textureBarrierCount = 2;
 		barrierFromAttachment->textureBarriers	   = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrierFromAttachment->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.colorTarget);
-		barrierFromAttachment->textureBarriers[1]  = GfxHelpers::GetTextureBarrierDepthAtt2Read(currentFrame.depthTarget);
+		barrierFromAttachment->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.colorTarget->GetGPUHandle());
+		barrierFromAttachment->textureBarriers[1]  = GfxHelpers::GetTextureBarrierDepthAtt2Read(currentFrame.depthTarget->GetGPUHandle());
 
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
-		return currentFrame.gfxStream;
+
+		Vector<uint16> waitSemaphores;
+		Vector<uint64> waitValues;
+
+		if (waitSemaphore.value != 0)
+		{
+			waitSemaphores.push_back(waitSemaphore.semaphore);
+			waitValues.push_back(waitSemaphore.value);
+		}
+
+		if (currentFrame.copySemaphore.value != copySemaphoreValue)
+		{
+			waitSemaphores.push_back(currentFrame.copySemaphore.semaphore);
+			waitValues.push_back(currentFrame.copySemaphore.value);
+		}
+
+		currentFrame.signalSemaphore.value++;
+
+		m_lgx->SubmitCommandStreams({
+			.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+			.streams		  = &currentFrame.gfxStream,
+			.streamCount	  = 1,
+			.useWait		  = !waitSemaphores.empty(),
+			.waitCount		  = static_cast<uint32>(waitSemaphores.size()),
+			.waitSemaphores	  = waitSemaphores.data(),
+			.waitValues		  = waitValues.data(),
+			.useSignal		  = true,
+			.signalCount	  = 1,
+			.signalSemaphores = &currentFrame.signalSemaphore.semaphore,
+			.signalValues	  = &currentFrame.signalSemaphore.value,
+			.isMultithreaded  = true,
+		});
+
+		return currentFrame.signalSemaphore;
 	}
 
 	void WorldRenderer::DrawSky(LinaGX::CommandStream* stream)
@@ -406,7 +448,6 @@ namespace Lina
 			.signalValues	  = &currentFrame.copySemaphore.value,
 			.isMultithreaded  = true,
 		});
-
 		return currentFrame.copySemaphore.value;
 	}
 

@@ -57,13 +57,12 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			uint16		  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16		  pipelineLayoutPersistentGlobal = 0;
-			uint16		  descriptorSetPersistentGlobal	 = 0;
-			uint32		  globalDataResource			 = 0;
-			uint8*		  globalDataMapped				 = nullptr;
-			SemaphoreData worldSignalSemaphore;
-			Atomic<bool>  bindlessDirty = true;
+			uint16		 pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16		 pipelineLayoutPersistentGlobal = 0;
+			uint16		 descriptorSetPersistentGlobal	= 0;
+			uint32		 globalDataResource				= 0;
+			uint8*		 globalDataMapped				= nullptr;
+			Atomic<bool> bindlessDirty					= true;
 		};
 
 	public:

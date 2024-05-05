@@ -99,6 +99,9 @@ namespace Lina::Editor
 
 	void DockPreview::Tick(float delta)
 	{
+		if (!GetIsVisible())
+			return;
+
 		m_dockPreviewTween.Tick(delta);
 
 		m_smallRectSize			 = SMALL_RECT_SZ * m_lgxWindow->GetDPIScale();

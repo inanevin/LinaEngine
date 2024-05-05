@@ -191,8 +191,7 @@ namespace Lina
 			inp->GetProps().onEditEnd = [onTextChanged, inp, txt, source](const String& str) {
 				txt->GetProps().text = str;
 				txt->CalculateTextSize();
-				source->GetWidgetManager()->RemoveFromForeground(inp);
-				source->GetWidgetManager()->Deallocate(inp);
+				source->GetWidgetManager()->AddToKillList(inp);
 
 				if (onTextChanged)
 					onTextChanged();

@@ -15,13 +15,12 @@
 
 set(LINAGX_FOLDER_BASE LinaEngine/Dependencies/LinaGXProject)
 set(LINAVG_FOLDER_BASE LinaEngine/Dependencies/LinaVGProject)
-set(LINAGX_ITERATOR_DEBUG_LEVEL ${LINA_ITERATOR_DEBUG_LEVEL})
 set(LINAGX_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/$<CONFIGURATION>)
 
 add_subdirectory(LinaGX)
 add_subdirectory(LinaVG)
-target_compile_definitions(LinaGX PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
-target_compile_definitions(LinaVG PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
+## target_compile_definitions(LinaGX PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
+## target_compile_definitions(LinaVG PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
 
 add_subdirectory(Dependencies/memory-allocators)
 add_subdirectory(Dependencies/lz4-1.9.4)
@@ -32,8 +31,3 @@ set_property(TARGET lz4 PROPERTY FOLDER LinaEngine/Dependencies)
 set_property(TARGET memory-allocators PROPERTY FOLDER LinaEngine/Dependencies)
 set_property(TARGET fmt PROPERTY FOLDER LinaEngine/Dependencies)
 set_property(TARGET glm_static PROPERTY FOLDER LinaEngine/Dependencies)
-target_compile_definitions(lz4 PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
-target_compile_definitions(memory-allocators PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
-target_compile_definitions(fmt PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
-target_compile_definitions(glm_static PUBLIC _ITERATOR_DEBUG_LEVEL=${LINA_ITERATOR_DEBUG_LEVEL})
-

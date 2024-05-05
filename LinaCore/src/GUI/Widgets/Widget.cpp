@@ -168,6 +168,39 @@ namespace Lina
 	{
 		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
 
+		if (!m_isHovered)
+		{
+			if (m_customTooltip != nullptr)
+			{
+				RemoveChild(m_customTooltip);
+				m_manager->Deallocate(m_customTooltip);
+				m_customTooltip = nullptr;
+				return;
+			}
+		}
+
+		if (m_isHovered && m_buildCustomTooltip != nullptr)
+		{
+			if (m_customTooltip == nullptr)
+			{
+				m_customTooltip = m_buildCustomTooltip(m_customTooltipUserData);
+
+				m_customTooltip->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
+				m_customTooltip->SetDrawOrder(TOOLTIP_DRAW_ORDER);
+				m_customTooltip->SetPos(mp + Vector2(10, 10));
+
+				for (auto* c : m_customTooltip->GetChildren())
+				{
+					c->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
+					c->SetDrawOrder(TOOLTIP_DRAW_ORDER);
+				}
+				AddChild(m_customTooltip);
+			}
+		}
+
+		if (!m_isHovered)
+			return;
+
 		if (m_customTooltip)
 		{
 			m_customTooltip->SetPos(mp + Vector2(10, 10));
@@ -224,33 +257,6 @@ namespace Lina
 
 	void Widget::CheckCustomTooltip()
 	{
-		if (!m_isHovered)
-		{
-			if (m_customTooltip != nullptr)
-			{
-				RemoveChild(m_customTooltip);
-				m_manager->Deallocate(m_customTooltip);
-				m_customTooltip = nullptr;
-			}
-		}
-
-		if (m_isHovered && m_buildCustomTooltip != nullptr)
-		{
-			if (m_customTooltip == nullptr)
-			{
-				m_customTooltip = m_buildCustomTooltip(m_customTooltipUserData);
-
-				m_customTooltip->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
-				m_customTooltip->SetDrawOrder(TOOLTIP_DRAW_ORDER);
-
-				for (auto* c : m_customTooltip->GetChildren())
-				{
-					c->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
-					c->SetDrawOrder(TOOLTIP_DRAW_ORDER);
-				}
-				AddChild(m_customTooltip);
-			}
-		}
 	}
 
 	Vector2 Widget::GetStartFromMargins()

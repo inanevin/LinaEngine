@@ -41,6 +41,7 @@ struct GUIMaterialData
 	vec4 color2;
 	vec4 floatPack1;
 	vec4 floatPack2;
+	vec4 clip;
 };
 
 layout(set = 1, binding = 1) readonly buffer GUIMaterialBuffer

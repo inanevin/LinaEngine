@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
+#include "Core/Graphics/Data/RenderData.hpp"
 
 namespace Lina
 {
@@ -92,12 +93,7 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			LinaGX::DescriptorBinding binding4 = {
-				.type	= LinaGX::DescriptorType::SSBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-
-			return {.bindings = {binding0, binding1, binding2, binding3, binding4}};
+			return {.bindings = {binding0, binding1, binding2, binding3}};
 		}
 
 		LINA_ASSERT(false, "");
@@ -197,9 +193,14 @@ namespace Lina
 		return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal()}, .debugName = "Persistent Global Layout"};
 	}
 
-	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType)
+	LinaGX::PipelineLayoutDesc GfxHelpers::GetPLDescPersistentRenderPass(RenderPassDescriptorType renderPassType)
 	{
-		return {.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderpassType)}, .debugName = "Persistent Renderpass Layout"};
+		LinaGX::PipelineLayoutDesc desc;
+		desc.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderPassType)};
+		desc.debugName				   = "Persistent RenderPass Layout";
+		if (renderPassType == RenderPassDescriptorType::Main)
+			desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(GPUPushConstantRPMain)});
+		return desc;
 	}
 
 	LinaGX::DescriptorBinding GfxHelpers::GetBindingFromShaderBinding(const LinaGX::ShaderDescriptorSetBinding& b)

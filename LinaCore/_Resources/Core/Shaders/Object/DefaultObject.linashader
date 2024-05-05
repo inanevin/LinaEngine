@@ -34,6 +34,7 @@ layout (location = 2) in vec2 inUV;
 
 layout (location = 0) out vec3 outWorldPos;
 layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec2 outUV;
 
 layout( push_constant ) uniform constants
 {
@@ -47,6 +48,7 @@ void main()
     Object object = LINA_OBJECTS.data[entityID];
     outWorldPos = vec3(object.modelMatrix * vec4(inPos, 1.0));
     outNormal = inNormal;
+    outUV = inUV;
     gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
 }
 
@@ -56,6 +58,7 @@ void main()
 
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
 layout (location = 0) out vec4 outFragColor;
 
 layout(set = 2, binding = 0) uniform MaterialData
@@ -65,7 +68,7 @@ layout(set = 2, binding = 0) uniform MaterialData
 
 void main()
 {
-   outFragColor = vec4(inNormal,1);
+   outFragColor = vec4(inNormal, 1.0f);
 }
 
 #lina_end

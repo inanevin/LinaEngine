@@ -73,13 +73,23 @@ namespace Lina
 		return m_sampler;
 	}
 
-	void Texture::SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
+	void Texture::CreateGPUOnly(const LinaGX::TextureDesc& desc)
+	{
+		auto gfxManager	  = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_gpuHandle		  = gfxManager->GetLGX()->CreateTexture(desc);
+		m_gpuHandleExists = true;
+		m_size			  = Vector2ui(desc.width, desc.height);
+	}
+
+	void Texture::CreateCPU(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
 	{
 		if (m_owner != ResourceOwner::UserCode)
 		{
 			LINA_ERR("Custom pixels can only be set on user managed textures!");
 			return;
 		}
+
+		m_size = Vector2ui(width, height);
 
 		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 

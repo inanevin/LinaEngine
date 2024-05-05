@@ -106,11 +106,17 @@ namespace Lina
 		Vector4 color2;
 		Vector4 floatPack1;
 		Vector4 floatPack2;
+		Vector4 clip;
 	};
 
 	struct GPUIndirectConstants0
 	{
 		uint32 entityID;
+	};
+
+	struct GPUPushConstantRPMain
+	{
+		uint32 batchStartIndex = 0;
 	};
 
 } // namespace Lina

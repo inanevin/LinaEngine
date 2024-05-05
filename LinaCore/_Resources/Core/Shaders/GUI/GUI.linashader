@@ -78,8 +78,16 @@ const float edgeSmoothness = 0.005;
 void main()
 {
    outFragColor = inCol;
-   
+
    GUIMaterialData material = guiMaterialBuffer.data[inDrawID];
+
+   if(material.clip.z > 0 && material.clip.w > 0)
+   {
+      if(gl_FragCoord.x < material.clip.x || gl_FragCoord.x > material.clip.x + material.clip.z || gl_FragCoord.y < material.clip.y || gl_FragCoord.y > material.clip.y + material.clip.w)
+         discard;
+   }
+   
+
 
    highp int bufferType = int(material.floatPack2.a);
    if(bufferType == 1)

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/World/WorldManager.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 
 namespace Lina::Editor
@@ -64,7 +65,7 @@ namespace Lina::Editor
 		if (!m_world)
 			return;
 
-		// m_lvg->DrawImage(m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex()), m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
+		m_lvg->DrawImage(m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex())->GetBindlessIndex() + 1, m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
 	}
 
 } // namespace Lina::Editor

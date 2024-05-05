@@ -134,7 +134,7 @@ namespace Lina
 
 		audioJob.get();
 
-		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_RETURN))
+		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_L))
 			m_app->Quit();
 	}
 

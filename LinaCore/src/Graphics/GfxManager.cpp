@@ -126,7 +126,7 @@ namespace Lina
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing				 = initInfo.allowTearing,
-			.enableDebugLayers			 = false,
+			.enableDebugLayers			 = true,
 			.serializeShaderDebugSymbols = true,
 		};
 
@@ -149,7 +149,7 @@ namespace Lina
 #endif
 
 		LinaGX::Config.api						 = api;
-		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Integrated;
+		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Discrete;
 		LinaGX::Config.framesInFlight			 = FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount			 = BACK_BUFFER_COUNT;
 		LinaGX::Config.mutexLockCreationDeletion = true;
@@ -200,8 +200,11 @@ namespace Lina
 
 		// Default materials
 		{
+			Vector4	  col					= Vector4(1, 1, 1, 1);
 			Material* defaultObjectMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
 			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
+			defaultObjectMaterial->SetBuffer(0, 0, 0, 0, (uint8*)&col, sizeof(Vector4));
+			defaultObjectMaterial->SetBuffer(0, 0, 1, 0, (uint8*)&col, sizeof(Vector4));
 			m_defaultMaterials.push_back(defaultObjectMaterial);
 
 			// Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
@@ -245,8 +248,6 @@ namespace Lina
 				{
 					data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
 				}
-
-				data.worldSignalSemaphore.semaphore = m_lgx->CreateUserSemaphore();
 			}
 		}
 	}
@@ -277,8 +278,6 @@ namespace Lina
 
 			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
 				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
-
-			m_lgx->DestroyUserSemaphore(data.worldSignalSemaphore.semaphore);
 		}
 
 		// Other gfx resources
@@ -336,14 +335,30 @@ namespace Lina
 
 		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUDataEngineGlobals));
 
+		bool mt = false;
+
+		if (m_worldRenderers.size() == 1)
+			m_worldRenderers[0]->Tick(delta);
+		else
+		{
+			Taskflow tf;
+			tf.for_each(m_worldRenderers.begin(), m_worldRenderers.end(), [delta](WorldRenderer* wr) { wr->Tick(delta); });
+			m_system->GetMainExecutor()->RunMove(tf);
+			mt = true;
+		}
+
 		if (m_surfaceRenderers.size() == 1)
 			m_surfaceRenderers[0]->Tick(delta);
 		else
 		{
 			Taskflow tf;
 			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [delta](SurfaceRenderer* sf) { sf->Tick(delta); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
+			m_system->GetMainExecutor()->RunMove(tf);
+			mt = true;
 		}
+
+		if (mt)
+			m_system->GetMainExecutor()->Wait();
 	}
 
 	void GfxManager::UpdateBindlessResources(PerFrameData& pfd)
@@ -418,120 +433,56 @@ namespace Lina
 		if (validSurfaceRenderers.empty())
 			return;
 
-		// Determine eligible world renderers.
-		Vector<WorldRenderer*> validWorldRenderers;
-		Vector<uint64>		   storedWorldRendererSemaphoreValues;
-		for (auto* wr : m_worldRenderers)
-		{
-			validWorldRenderers.push_back(wr);
-			storedWorldRendererSemaphoreValues.push_back(wr->GetCopySemaphore(currentFrameIndex).value);
-		}
-
 		// Frame init
 		m_lgx->StartFrame();
+		const bool			transferExists		  = m_resourceUploadQueue.FlushAll(currentFrameIndex);
+		const SemaphoreData transferSemaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
 
 		// Transfer.
-		bool		  transferExists		= m_resourceUploadQueue.FlushAll(currentFrameIndex);
-		bool		  worldsSubmitted		= false;
-		SemaphoreData transferSemaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
+		bool worldsSubmitted = false;
 
 		UpdateBindlessResources(currentFrame);
 
-		/*
-		 World submission waits for:
-		 - Transfer submission if exists this frame.
-		 - Any copy semaphores of the worlds themselves.
-
-		 World submission signals:
-		 - World semaphore (this manager)
-		 */
-		if (!validWorldRenderers.empty())
+		// Render worlds.
+		Vector<SemaphoreData> waitOnWorldRenderers;
+		waitOnWorldRenderers.resize(m_worldRenderers.size());
+		if (m_worldRenderers.size() == 1)
 		{
-			// Render worlds.
-			Vector<LinaGX::CommandStream*> worldRendererStreams(validWorldRenderers.size());
-			if (validWorldRenderers.size() == 1)
-			{
-				auto wr					= validWorldRenderers[0];
-				worldRendererStreams[0] = wr->Render(currentFrameIndex, 0);
-			}
-			else
-			{
-				Taskflow tf;
-				tf.for_each_index(0, static_cast<int>(validWorldRenderers.size()), 1, [&](int i) { worldRendererStreams[i] = validWorldRenderers[i]->Render(currentFrameIndex, i); });
-				m_system->GetMainExecutor()->RunAndWait(tf);
-			}
-
-			worldsSubmitted = true;
-
-			Vector<uint16> worldWaitSemaphores;
-			Vector<uint64> worldWaitValues;
-
-			if (transferExists)
-			{
-				worldWaitValues.push_back(transferSemaphoreData.value);
-				worldWaitSemaphores.push_back(transferSemaphoreData.semaphore);
-			}
-
-			for (size_t i = 0; i < validWorldRenderers.size(); i++)
-			{
-				auto*				 wr					= validWorldRenderers[i];
-				const SemaphoreData& worldCopySemaphore = wr->GetCopySemaphore(currentFrameIndex);
-
-				if (worldCopySemaphore.value != storedWorldRendererSemaphoreValues[i])
-				{
-					worldWaitSemaphores.push_back(worldCopySemaphore.semaphore);
-					worldWaitValues.push_back(worldCopySemaphore.value);
-				}
-			}
-
-			uint64 value = currentFrame.worldSignalSemaphore.value;
-
-			// Submit world renderers
-			m_lgx->SubmitCommandStreams({
-				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
-				.streams		  = worldRendererStreams.data(),
-				.streamCount	  = static_cast<uint32>(worldRendererStreams.size()),
-				.useWait		  = !worldWaitSemaphores.empty(),
-				.waitCount		  = static_cast<uint32>(worldWaitSemaphores.size()),
-				.waitSemaphores	  = worldWaitSemaphores.data(),
-				.waitValues		  = worldWaitValues.data(),
-				.useSignal		  = true,
-				.signalCount	  = 1,
-				.signalSemaphores = &currentFrame.worldSignalSemaphore.semaphore,
-				.signalValues	  = &value,
-				.isMultithreaded  = true,
-			});
-
-			currentFrame.worldSignalSemaphore.value++;
+			waitOnWorldRenderers[0] = m_worldRenderers[0]->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{});
+		}
+		else
+		{
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { waitOnWorldRenderers[i] = m_worldRenderers[i]->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{}); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
 
-		// Record surface renderers.
+		// Render surfaces.
 		Vector<LinaGX::CommandStream*> surfaceRendererStreams(validSurfaceRenderers.size());
-		// if (validSurfaceRenderers.size() == 1)
-		//{
-		//	auto sf					  = validSurfaceRenderers[0];
-		//	surfaceRendererStreams[0] = sf->Render(currentFrameIndex);
-		// }
-		// else
-		//{
-		//	Taskflow tf;
-		//	tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { surfaceRendererStreams[i] = validSurfaceRenderers[i]->Render(currentFrameIndex); });
-		//	m_system->GetMainExecutor()->RunAndWait(tf);
-		// }
-
-		size_t aq = 0;
-		for (auto* r : validSurfaceRenderers)
-			surfaceRendererStreams[aq++] = r->Render(currentFrameIndex);
+		if (validSurfaceRenderers.size() == 1)
+		{
+			auto sf					  = validSurfaceRenderers[0];
+			surfaceRendererStreams[0] = sf->Render(currentFrameIndex);
+		}
+		else
+		{
+			Taskflow tf;
+			tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { surfaceRendererStreams[i] = validSurfaceRenderers[i]->Render(currentFrameIndex); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
 
 		// Waits for surface renderer submission.
 		Vector<uint16> surfaceWaitSemaphores;
 		Vector<uint64> surfaceWaitValues;
 
 		// We wait for all worlds to be completed first...
-		if (worldsSubmitted)
+		if (!waitOnWorldRenderers.empty())
 		{
-			surfaceWaitValues.push_back(currentFrame.worldSignalSemaphore.value);
-			surfaceWaitSemaphores.push_back(currentFrame.worldSignalSemaphore.semaphore);
+			for (const auto& semaphoreData : waitOnWorldRenderers)
+			{
+				surfaceWaitValues.push_back(semaphoreData.value);
+				surfaceWaitSemaphores.push_back(semaphoreData.semaphore);
+			}
 		}
 
 		// We wait for any copy semaphores used during surface renderer recording (e.g. gui renderers)
@@ -630,6 +581,7 @@ namespace Lina
 		LOCK_GUARD(m_wrMtx);
 		WorldRenderer* wr = new WorldRenderer(this, world, size);
 		m_worldRenderers.push_back(wr);
+		MarkBindlessDirty();
 		return wr;
 	}
 
@@ -637,6 +589,7 @@ namespace Lina
 	{
 		LOCK_GUARD(m_wrMtx);
 		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [renderer](WorldRenderer* rnd) -> bool { return renderer == rnd; }));
+		MarkBindlessDirty();
 		delete renderer;
 	}
 

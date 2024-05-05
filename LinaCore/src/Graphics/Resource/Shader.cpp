@@ -222,19 +222,18 @@ namespace Lina
 
 			m_materialSetDesc.allocationCount = m_meta.descriptorSetAllocationCount;
 			plDesc.descriptorSetDescriptions.push_back(m_materialSetDesc);
+		}
 
-			for (const auto& c : m_layout.constants)
-			{
-				LinaGX::PipelineLayoutPushConstantRange pcr;
-				pcr.size   = static_cast<uint32>(c.size);
-				pcr.stages = c.stages;
-				plDesc.constantRanges.push_back(pcr);
-			}
+		for (const auto& c : m_layout.constants)
+		{
+			LinaGX::PipelineLayoutPushConstantRange pcr;
+			pcr.size   = static_cast<uint32>(c.size);
+			pcr.stages = c.stages;
+			plDesc.constantRanges.push_back(pcr);
 		}
 
 		plDesc.indirectDrawEnabled = m_meta.drawIndirectEnabled;
-
-		m_pipelineLayout = m_lgx->CreatePipelineLayout(plDesc);
+		m_pipelineLayout		   = m_lgx->CreatePipelineLayout(plDesc);
 
 		m_descriptorSets.push_back(new DescriptorSet());
 		m_descriptorSets[0]->Create(m_lgx, m_materialSetDesc);

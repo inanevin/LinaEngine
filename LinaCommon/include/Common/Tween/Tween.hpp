@@ -49,7 +49,7 @@ namespace Lina
 	class Tween
 	{
 	public:
-		Tween(float start = 0.0f, float end = 1.0f, float duration = 1.0f, TweenType type = TweenType::Linear) : m_value(m_start), m_start(start), m_end(end), m_duration(duration), m_type(type){};
+		Tween(float start = 0.0f, float end = 1.0f, float duration = 1.0f, TweenType type = TweenType::Linear) : m_value(start), m_start(start), m_end(end), m_duration(duration), m_type(type){};
 		~Tween() = default;
 		bool Tick(float delta);
 

@@ -216,6 +216,7 @@ namespace Lina
 		pfd.guiIndexBuffer.BufferData(pfd.indexCounter * sizeof(LinaVG::Index), (uint8*)buf->m_indexBuffer.m_data, buf->m_indexBuffer.m_size * sizeof(LinaVG::Index));
 		pfd.indexCounter += req.indexCount;
 		pfd.vertexCounter += static_cast<uint32>(buf->m_vertexBuffer.m_size);
+		req.materialData.clip = Vector4(buf->clipPosX, buf->clipPosY, buf->clipSizeX, buf->clipSizeY);
 		return req;
 	}
 

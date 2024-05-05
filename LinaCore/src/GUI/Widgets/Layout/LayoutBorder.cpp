@@ -36,7 +36,7 @@ namespace Lina
 {
 	void LayoutBorder::Initialize()
 	{
-		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
+		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 
 		if (m_props.orientation == DirectionOrientation::Horizontal)
 		{

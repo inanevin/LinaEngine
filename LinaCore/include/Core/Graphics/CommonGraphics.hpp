@@ -97,8 +97,8 @@ namespace Lina
 
 	struct SemaphoreData
 	{
-		uint16 semaphore;
-		uint64 value;
+		uint16 semaphore = 0;
+		uint64 value	 = 0;
 	};
 
 } // namespace Lina

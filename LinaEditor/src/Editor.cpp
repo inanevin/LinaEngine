@@ -123,14 +123,6 @@ namespace Lina::Editor
 		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
 		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test1.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test2.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test3.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test4.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test5.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test6.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Test7.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);

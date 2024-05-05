@@ -67,7 +67,8 @@ namespace Lina
 
 	public:
 		uint32					 GetSamplerSID() const;
-		void					 SetCustomData(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
+		void					 CreateCPU(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
+		void					 CreateGPUOnly(const LinaGX::TextureDesc& desc);
 		Vector<TextureSheetItem> GetSheetItems(uint32 columns, uint32 rows);
 		Vector2ui				 GetSize();
 		Vector2					 GetSizeF();

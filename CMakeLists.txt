@@ -17,10 +17,10 @@
 cmake_minimum_required (VERSION 3.8)
 project (Lina)
 
-set(CMAKE_CONFIGURATION_TYPES "Debug;Release;" CACHE STRING "" FORCE)
+set(CMAKE_CONFIGURATION_TYPES "Debug;Release;DebugFAST;DebugASAN;" CACHE STRING "" FORCE)
+set_property(GLOBAL PROPERTY DEBUG_CONFIGURATIONS "Debug;DebugFAST;DebugASAN")
 set(LINA_GAME_PLUGIN_NAME "GamePlugin")
 set(LINA_APP_NAME "LaunchGame")
-option(LINA_ASAN_ENABLED OFF)
 
 #--------------------------------------------------------------------
 # Options & Definitions
@@ -30,12 +30,75 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_SUPPRESS_REGENERATION true)
-set(LINA_ITERATOR_DEBUG_LEVEL 2)
+
 set(TARGET_ARCHITECTURE "x64")
 
-if(LINA_ASAN_ENABLED)
-add_compile_options(/fsanitize=address)
+add_compile_definitions($<$<CONFIG:Debug>:_ITERATOR_DEBUG_LEVEL=1>)
+add_compile_definitions($<$<CONFIG:Debug>:LINA_DEBUG=1>)
+
+add_compile_definitions($<$<CONFIG:DebugFAST>:_ITERATOR_DEBUG_LEVEL=0>)
+add_compile_definitions($<$<CONFIG:DebugFAST>:LINA_DEBUG=1>)
+add_compile_definitions($<$<CONFIG:DebugFAST>:_DEBUG=1>)
+add_compile_definitions($<$<CONFIG:DebugFAST>:NDEBUG=0>)
+
+add_compile_definitions($<$<CONFIG:DebugASAN>:_ITERATOR_DEBUG_LEVEL=2>)
+add_compile_definitions($<$<CONFIG:DebugASAN>:LINA_DEBUG=1>)
+add_compile_definitions($<$<CONFIG:DebugASAN>:_DEBUG=1>)
+add_compile_definitions($<$<CONFIG:DebugASAN>:NDEBUG=0>)
+
+if(MSVC)
+  add_compile_options($<$<CONFIG:DebugFAST>:/O2>)
+  add_compile_options($<$<CONFIG:DebugFAST>:/MDd>)
+  add_compile_options($<$<CONFIG:DebugASAN>:/Od>)
+  add_compile_options($<$<CONFIG:DebugASAN>:/Ob0>)
+  add_compile_options($<$<CONFIG:DebugASAN>:/MDd>)
+  add_compile_options($<$<CONFIG:DebugASAN>:/fsanitize=address>)
+  add_compile_options($<$<CONFIG:DebugASAN>:/Zi>)
+  add_link_options($<$<CONFIG:DebugASAN>:/DEBUG>)
+else()
+  add_compile_options($<$<CONFIG:DebugASAN>:-fsanitize=address>)
 endif()
+
+
+
+add_compile_definitions(LINA_APP_NAME="${LINA_APP_NAME}")
+add_compile_definitions(LINA_VERSION_MAJOR=2)
+add_compile_definitions(LINA_VERSION_MINOR=0)
+add_compile_definitions(LINA_VERSION_PATCH=0)
+
+#--------------------------------------------------------------------
+# Platform
+#--------------------------------------------------------------------
+
+if (WIN32)
+    add_compile_definitions(LINA_PLATFORM_WINDOWS=1)
+endif()
+if(APPLE)
+    add_compile_definitions(LINA_PLATFORM_APPLE=1)
+endif()
+if(UNIX AND NOT APPLE)
+    add_compile_definitions(LINA_PLATFORM_UNIX=1)
+endif()
+if(NOT WIN32 AND NOT APPLE AND NOT UNIX)
+    add_compile_definitions(LINA_PLATFORM_UNKNOWN=1)
+endif()
+
+
+#--------------------------------------------------------------------
+# Compiler
+#--------------------------------------------------------------------
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    add_compile_definitions(LINA_COMPILER_CLANG=1)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    add_compile_definitions(LINA_COMPILER_GNU=1)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    add_compile_definitions(LINA_COMPILER_MSVC=1)
+elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+    add_compile_definitions(LINA_COMPILER_INTEL=1)
+else()
+    add_compile_definitions(LINA_COMPILER_OTHER=1)
+endif()
+
 
 #--------------------------------------------------------------------
 # Sub directories

@@ -248,7 +248,7 @@ namespace Lina::Editor
 
 				if (LinaGX::ResizeBuffer(image, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, LinaGX::ImageChannelMask::RGBA, true))
 				{
-					item->thumbnail->SetCustomData(
+					item->thumbnail->CreateCPU(
 						resizedBuffer.pixels, resizedBuffer.width, resizedBuffer.height, resizedBuffer.bytesPerPixel, LinaGX::ImageChannelMask::RGBA, image.bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R16G16B16A16_UNORM);
 					delete[] resizedBuffer.pixels;
 				}
@@ -381,7 +381,7 @@ namespace Lina::Editor
 				const uint32 startY2 = RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH2 / 2);
 				LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer2, startX2, startY2);
 
-				item->thumbnail->SetCustomData(thumbnailBuffer.pixels, thumbnailBuffer.width, thumbnailBuffer.height, thumbnailBuffer.bytesPerPixel, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM);
+				item->thumbnail->CreateCPU(thumbnailBuffer.pixels, thumbnailBuffer.width, thumbnailBuffer.height, thumbnailBuffer.bytesPerPixel, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM);
 
 				delete[] thumbnailBuffer.pixels;
 			}

@@ -47,6 +47,7 @@ namespace Lina
 	class MeshComponent;
 	class Shader;
 	class Material;
+	class Texture;
 	class ResourceManager;
 
 	class WorldRenderer : public EntityWorldListener
@@ -54,25 +55,28 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* gfxStream		 = nullptr;
-			LinaGX::CommandStream* copyStream		 = nullptr;
-			SemaphoreData		   copySemaphore	 = {};
-			Buffer				   guiVertexBuffer	 = {};
-			Buffer				   guiIndexBuffer	 = {};
-			Buffer				   guiMaterialBuffer = {};
-			Buffer				   objectBuffer		 = {};
-			Buffer				   sceneBuffer		 = {};
-			uint32				   colorTarget		 = 0;
-			uint32				   depthTarget		 = 0;
+			LinaGX::CommandStream* gfxStream				= nullptr;
+			LinaGX::CommandStream* copyStream				= nullptr;
+			SemaphoreData		   copySemaphore			= {};
+			SemaphoreData		   signalSemaphore			= {};
+			Buffer				   guiVertexBuffer			= {};
+			Buffer				   guiIndexBuffer			= {};
+			Buffer				   guiMaterialBuffer		= {};
+			Buffer				   objectBuffer				= {};
+			Buffer				   sceneBuffer				= {};
+			uint32				   colorTargetBindlessIndex = 0;
+
+			Texture* colorTarget = nullptr;
+			Texture* depthTarget = nullptr;
 		};
 
 	public:
 		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize);
 		~WorldRenderer();
 
-		void				   Tick(float delta);
-		LinaGX::CommandStream* Render(uint32 frameIndex, int32 threadIndex);
-		void				   Resize(const Vector2ui& newSize);
+		void		  Tick(float delta);
+		SemaphoreData Render(uint32 frameIndex, const SemaphoreData& waitSemaphore);
+		void		  Resize(const Vector2ui& newSize);
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
@@ -92,7 +96,7 @@ namespace Lina
 			return m_size;
 		}
 
-		inline uint32 GetTexture(uint32 frameIndex)
+		inline Texture* GetTexture(uint32 frameIndex)
 		{
 			return m_pfd[frameIndex].colorTarget;
 		}

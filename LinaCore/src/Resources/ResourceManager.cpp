@@ -41,15 +41,12 @@ namespace Lina
 {
 	void ResourceManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
-		LINA_TRACE("[Resource Manager] -> Initialization.");
 		m_mode		   = initInfo.resourceManagerMode;
 		m_useMetaCache = initInfo.resourceManagerUseMetacache;
 	}
 
 	void ResourceManager::Shutdown()
 	{
-		LINA_TRACE("[Resource Manager] -> Shutdown.");
-
 		for (auto [tid, cache] : m_caches)
 			delete cache;
 	}
