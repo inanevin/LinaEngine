@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Quaternion.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/Math/Color.hpp"
 #define GLM_FORCE_LEFT_HANDED
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/gtx/projection.hpp>
@@ -47,9 +48,6 @@ namespace Lina
 	Vector3	  Vector3::Forward = Vector3(0.0f, 0.0f, 1.0f);
 	Vector3	  Vector3::Up	   = Vector3(0.0f, 1.0f, 0.0f);
 	Vector3	  Vector3::Right   = Vector3(1.0f, 0.0f, 0.0f);
-	Vector3	  Vector3::Back	   = Vector3(0.0f, 0.0f, -1.0f);
-	Vector3	  Vector3::Down	   = Vector3(0.0f, -1.0f, 0.0f);
-	Vector3	  Vector3::Left	   = Vector3(-1.0f, 0.0f, 0.0f);
 	Vector2	  Vector2::Zero	   = Vector2(0.0f);
 	Vector2	  Vector2::One	   = Vector2(1.0f);
 	Vector2ui Vector2ui::Zero  = Vector2ui(0);
@@ -58,6 +56,14 @@ namespace Lina
 	Vector2i  Vector2i::One	   = Vector2i(1);
 	Vector4i  Vector4i::Zero   = Vector4i(0);
 	Vector4i  Vector4i::One	   = Vector4i(1);
+
+	Vector4::Vector4(const Color& c)
+	{
+		x = c.x;
+		y = c.y;
+		z = c.z;
+		w = c.w;
+	}
 
 	Vector4 Vector4::Clamp(const Vector4& min, const Vector4& max) const
 	{

@@ -130,7 +130,7 @@ namespace Lina
 		}
 		static Quaternion Euler(const Vector3& v);
 		static Quaternion Euler(float x, float y, float z);
-		static Quaternion AxisAngle(const Vector3& axis, float angle);
+		static Quaternion AngleAxis(float angleDegrees, const Vector3& axis);
 		static Quaternion Slerp(const Quaternion& from, const Quaternion& dest, float t);
 		static Quaternion LookAt(const Vector3& from, const Vector3& to, const Vector3& up);
 		bool			  IsNormalized() const;

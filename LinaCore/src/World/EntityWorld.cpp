@@ -30,8 +30,11 @@ SOFTWARE.
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/System/SystemInfo.hpp"
+#include "Common/System/System.hpp"
 #include "Common/Serialization/Serialization.hpp"
 
 namespace Lina
@@ -146,6 +149,15 @@ namespace Lina
 
 	void EntityWorld::Tick(float deltaTime)
 	{
+		for (const auto& [tid, cache] : m_componentCaches)
+		{
+			cache->Tick(deltaTime);
+		}
+
+		for (const auto& [tid, cache] : m_componentCaches)
+		{
+			cache->PostTick(deltaTime);
+		}
 	}
 
 	void EntityWorld::WaitForSimulation()
@@ -155,6 +167,7 @@ namespace Lina
 
 	void EntityWorld::SaveToStream(OStream& stream) const
 	{
+		m_gfxSettings.SaveToStream(stream);
 		m_entities.SaveToStream(stream);
 
 		Vector<Entity*> entityObjects;
@@ -193,8 +206,16 @@ namespace Lina
 		stream.Destroy();
 	}
 
+	void EntityWorld::ProcessComponent(Component* c)
+	{
+		c->m_input = &m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX()->GetInput();
+		c->m_world = this;
+	}
+
 	void EntityWorld::LoadFromStream(IStream& stream)
 	{
+		// m_gfxSettings.LoadFromStream(stream);
+
 		DestroyWorld();
 
 		// Load id list.
@@ -248,5 +269,15 @@ namespace Lina
 	void EntityWorld::RemoveListener(EntityWorldListener* listener)
 	{
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
+	}
+	Vector2ui EntityWorld::GetRenderSize() const
+	{
+		return m_renderer->GetSize();
+	}
+	void EntityWorld::GfxSettings::SaveToStream(OStream& stream) const
+	{
+	}
+	void EntityWorld::GfxSettings::LoadFromStream(IStream& stream)
+	{
 	}
 } // namespace Lina

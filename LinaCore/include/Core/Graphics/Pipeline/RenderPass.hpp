@@ -75,6 +75,7 @@ namespace Lina
 	private:
 		void AddRPGUI(PerFrameData& data);
 		void AddRPMain(PerFrameData& data);
+		void AddRPLighting(PerFrameData& data);
 
 	private:
 		GfxManager*				 m_gfxManager = nullptr;

@@ -48,6 +48,8 @@ namespace Lina
 				AddRPGUI(data);
 			else if (descriptorType == RenderPassDescriptorType::Main)
 				AddRPMain(data);
+			else if (descriptorType == RenderPassDescriptorType::Lighting)
+				AddRPLighting(data);
 		}
 	}
 
@@ -83,18 +85,13 @@ namespace Lina
 			auto&		 buffer	 = data.buffers.back();
 			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): ViewData";
 			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), dbgName, true);
-			GPUDataView dummyViewData = {};
+			buffer.MemsetMapped(0);
 
-			buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = data.descriptorSet,
 				.binding   = 0,
 				.buffers   = {buffer.GetGPUResource()},
 			});
-		}
-
-		// Scene data will be set by the user.
-		{
 		}
 
 		// GPU objects buffer will be set by the user.
@@ -109,11 +106,6 @@ namespace Lina
 
 			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, m_lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250), dbgName, false);
 			buffer.MemsetMapped(0);
-			// m_lgx->DescriptorUpdateBuffer({
-			//     .setHandle = data.descriptorSet,
-			//     .binding = 3,
-			//     .buffers = {buffer.GetGPUResource()},
-			// });
 		}
 
 		// Indirect constants
@@ -126,12 +118,59 @@ namespace Lina
 			buffer.MemsetMapped(0);
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = data.descriptorSet,
-				.binding   = 3,
+				.binding   = 2,
 				.buffers   = {buffer.GetGPUResource()},
 			});
 		}
 	}
 
+	void RenderPass::AddRPLighting(PerFrameData& data)
+	{
+		// View
+		{
+			data.buffers.push_back({});
+			auto&		 buffer	 = data.buffers.back();
+			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): ViewData";
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), dbgName, true);
+			buffer.MemsetMapped(0);
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = data.descriptorSet,
+				.binding   = 0,
+				.buffers   = {buffer.GetGPUResource()},
+			});
+		}
+
+		// Atmosphere
+		{
+			data.buffers.push_back({});
+			auto&		 buffer	 = data.buffers.back();
+			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): AtmosphereData";
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataAtmosphere), dbgName, true);
+			buffer.MemsetMapped(0);
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = data.descriptorSet,
+				.binding   = 1,
+				.buffers   = {buffer.GetGPUResource()},
+			});
+		}
+
+		// DeferredLightingPassData
+		{
+			data.buffers.push_back({});
+			auto&		 buffer	 = data.buffers.back();
+			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): PassData";
+			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataDeferredLightingPass), dbgName, true);
+			buffer.MemsetMapped(0);
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle = data.descriptorSet,
+				.binding   = 2,
+				.buffers   = {buffer.GetGPUResource()},
+			});
+		}
+	}
 	void RenderPass::Destroy()
 	{
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)

@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Components/MeshComponent.hpp"
+#include "Core/Components/CameraComponent.hpp"
+#include "Core/Components/SimpleFlightMovement.hpp"
 #include "Common/Math/Math.hpp"
 
 namespace Lina
@@ -104,28 +106,46 @@ namespace Lina
 		m_mainWorld = rm->GetResource<EntityWorld>(sid);
 		m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
 		m_activeWorlds.push_back(m_mainWorld);
+		m_mainWorld->m_system = m_system;
 
-		const float lim = 15.0f;
+		m_mainWorld->SetSkyMaterial(rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 
-		for (uint32 i = 0; i < 10; i++)
-		{
-			Entity*		   test = m_mainWorld->CreateEntity("Cube");
-			MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
-			mesh->SetMesh("Resources/Core/Models/Cube.glb"_hs, 0);
-			mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-			mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
-			test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
-		}
+		const float lim = 50.0f;
 
-		for (uint32 i = 0; i < 10; i++)
-		{
-			Entity*		   test = m_mainWorld->CreateEntity("Cube");
-			MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
-			mesh->SetMesh("Resources/Core/Models/Sphere.glb"_hs, 0);
-			mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-			mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
-			test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
-		}
+		Entity* cameraEntity = m_mainWorld->CreateEntity("Camera");
+		cameraEntity->SetPosition(Vector3(0, 0, -20));
+		CameraComponent* camera = m_mainWorld->AddComponent<CameraComponent>(cameraEntity);
+		m_mainWorld->SetActiveCamera(camera);
+		SimpleFlightMovement* movement = m_mainWorld->AddComponent<SimpleFlightMovement>(cameraEntity);
+
+		Entity*		   test = m_mainWorld->CreateEntity("Cube");
+		MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
+		mesh->SetMesh("Resources/Core/Models/Duck.glb"_hs, 0);
+		mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+		mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+		test->SetPosition(Vector3(0, 0, 0));
+
+		// for (uint32 i = 0; i < 200; i++)
+		// {
+		// 	Entity*		   test = m_mainWorld->CreateEntity("Cube");
+		// 	MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
+		// 	mesh->SetMesh("Resources/Core/Models/Duck.glb"_hs, 0);
+		// 	mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+		// 	mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+		// 	test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
+		// 	test->AddRotation(Vector3(Math::RandF(-180, 180), Math::RandF(-180, 180), Math::RandF(-180, 180)));
+		// }
+
+		// for (uint32 i = 0; i < 50; i++)
+		// {
+		// 	Entity*		   test = m_mainWorld->CreateEntity("Cube");
+		// 	MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
+		// mesh->SetMesh("Resources/Core/Models/duck.glb"_hs, 0);
+		// 	mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+		// 	mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+		// 	test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
+		// 	test->AddRotation(Vector3(Math::RandF(-180, 180), Math::RandF(-180, 180), Math::RandF(-180, 180)));
+		// }
 
 		// loading the world resources, unloading the current worlds resources...
 	}

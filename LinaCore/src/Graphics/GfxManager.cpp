@@ -131,7 +131,7 @@ namespace Lina
 		};
 
 		LinaGX::Config.vulkanConfig = {
-			.enableVulkanFeatures = LinaGX::VulkanFeatureFlags::VKF_Bindless | LinaGX::VulkanFeatureFlags::VKF_UpdateAfterBind | LinaGX::VulkanFeatureFlags::VKF_MultiDrawIndirect,
+			.enableVulkanFeatures = LinaGX::VulkanFeatureFlags::VKF_Bindless | LinaGX::VulkanFeatureFlags::VKF_MultiDrawIndirect,
 		};
 
 		LinaGX::Config.gpuLimits = {
@@ -142,7 +142,7 @@ namespace Lina
 		LinaGX::Config.logLevel		 = LinaGX::LogLevel::Verbose;
 		LinaGX::Config.errorCallback = LinaGX_ErrorCallback;
 		LinaGX::Config.infoCallback	 = LinaGX_LogCallback;
-		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::Vulkan;
+		LinaGX::BackendAPI api		 = LinaGX::BackendAPI::DX12;
 
 #ifdef LINA_PLATFORM_APPLE
 		api = LinaGX::BackendAPI::Metal;
@@ -200,12 +200,16 @@ namespace Lina
 
 		// Default materials
 		{
-			Vector4	  col					= Vector4(1, 1, 1, 1);
+			Vector4	  col					= Vector4(0, 1, 1, 1);
 			Material* defaultObjectMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
 			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
-			defaultObjectMaterial->SetBuffer(0, 0, 0, 0, (uint8*)&col, sizeof(Vector4));
-			defaultObjectMaterial->SetBuffer(0, 0, 1, 0, (uint8*)&col, sizeof(Vector4));
+			defaultObjectMaterial->BatchLoaded();
 			m_defaultMaterials.push_back(defaultObjectMaterial);
+
+			Material* defaultSkyMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_SKY_PATH, DEFAULT_MATERIAL_SKY_SID);
+			defaultSkyMaterial->SetShader(DEFAULT_SHADER_SKY_SID);
+			defaultSkyMaterial->BatchLoaded();
+			m_defaultMaterials.push_back(defaultSkyMaterial);
 
 			// Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
 			// Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
@@ -230,15 +234,22 @@ namespace Lina
 					.heapType	   = LinaGX::ResourceHeap::StagingHeap,
 					.debugName	   = "GfxManager: Global Data Buffer",
 				};
-				data.globalDataResource = m_lgx->CreateResource(globalDataDesc);
-				m_lgx->MapResource(data.globalDataResource, data.globalDataMapped);
+				data.globalDataBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "GfxManager: Engine Globals", true);
+				data.globalMaterialsBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "GfxManager: Materials", false);
 
 				// Descriptor set 0 - global res
 				data.descriptorSetPersistentGlobal = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentGlobal());
 				m_lgx->DescriptorUpdateBuffer({
 					.setHandle	   = data.descriptorSetPersistentGlobal,
 					.binding	   = 0,
-					.buffers	   = {data.globalDataResource},
+					.buffers	   = {data.globalDataBuffer.GetGPUResource()},
+					.isWriteAccess = false,
+				});
+
+				m_lgx->DescriptorUpdateBuffer({
+					.setHandle	   = data.descriptorSetPersistentGlobal,
+					.binding	   = 1,
+					.buffers	   = {data.globalMaterialsBuffer.GetGPUResource()},
 					.isWriteAccess = false,
 				});
 
@@ -273,8 +284,10 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 			m_lgx->DestroyDescriptorSet(data.descriptorSetPersistentGlobal);
-			m_lgx->DestroyResource(data.globalDataResource);
 			m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentGlobal);
+
+			data.globalDataBuffer.Destroy();
+			data.globalMaterialsBuffer.Destroy();
 
 			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
 				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
@@ -324,17 +337,6 @@ namespace Lina
 		if (m_mainWindow == nullptr)
 			m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
 
-		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
-		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
-		const auto&	 mp				   = m_lgx->GetInput().GetMousePositionAbs();
-		const auto&	 windowSize		   = m_mainWindow->GetSize();
-
-		GPUDataEngineGlobals globalData = {};
-		globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
-		globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
-
-		MEMCPY(currentFrame.globalDataMapped, &globalData, sizeof(GPUDataEngineGlobals));
-
 		bool mt = false;
 
 		if (m_worldRenderers.size() == 1)
@@ -368,18 +370,20 @@ namespace Lina
 
 		LinaGX::DescriptorUpdateImageDesc imgUpdate = {
 			.setHandle = pfd.descriptorSetPersistentGlobal,
-			.binding   = 1,
+			.binding   = 2,
 		};
 
 		LinaGX::DescriptorUpdateImageDesc smpUpdate = {
 			.setHandle = pfd.descriptorSetPersistentGlobal,
-			.binding   = 2,
+			.binding   = 3,
 		};
 
 		Vector<Texture*>		textures;
 		Vector<TextureSampler*> samplers;
+		Vector<Material*>		materials;
 		m_resourceManager->GetAllResourcesRaw<Texture>(textures, true);
 		m_resourceManager->GetAllResourcesRaw<TextureSampler>(samplers, true);
+		m_resourceManager->GetAllResourcesRaw<Material>(materials, true);
 		imgUpdate.textures.resize(textures.size());
 		smpUpdate.samplers.resize(samplers.size());
 
@@ -397,6 +401,15 @@ namespace Lina
 			smp->m_bindlessIndex  = static_cast<uint32>(i);
 		}
 
+		size_t padding = 0;
+		for (auto* mat : materials)
+		{
+			const auto& buf = mat->GetBuffer();
+			pfd.globalMaterialsBuffer.BufferData(padding, buf.data(), buf.size());
+			mat->m_bindlessBytePadding = padding;
+			padding += buf.size();
+		}
+
 		m_lgx->DescriptorUpdateImage(imgUpdate);
 		m_lgx->DescriptorUpdateImage(smpUpdate);
 		pfd.bindlessDirty.store(false);
@@ -410,7 +423,6 @@ namespace Lina
 			3. Render surface renderers, they wait on world semaphores (and their own).
 			4. Present surface renderers.
 		 */
-
 		PROFILER_FUNCTION();
 
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
@@ -435,13 +447,34 @@ namespace Lina
 
 		// Frame init
 		m_lgx->StartFrame();
+
+		// Update engine global data.
+		const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
+		const auto&			 windowSize = m_mainWindow->GetSize();
+		GPUDataEngineGlobals globalData = {};
+		globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
+		globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
+		currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
+
+		// Update dirty materials.
+		Vector<Material*> materials;
+		m_resourceManager->GetAllResourcesRaw<Material>(materials, true);
+		for (auto* mat : materials)
+		{
+			if (mat->m_bufferDirty)
+			{
+				mat->m_bufferDirty = false;
+				currentFrame.globalMaterialsBuffer.BufferData(mat->m_bindlessBytePadding, mat->GetBuffer().data(), mat->GetBuffer().size());
+			}
+		}
+
+		// Update descriptors
+		UpdateBindlessResources(currentFrame);
+		m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalMaterialsBuffer);
+
+		// Transfer data
 		const bool			transferExists		  = m_resourceUploadQueue.FlushAll(currentFrameIndex);
 		const SemaphoreData transferSemaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
-
-		// Transfer.
-		bool worldsSubmitted = false;
-
-		UpdateBindlessResources(currentFrame);
 
 		// Render worlds.
 		Vector<SemaphoreData> waitOnWorldRenderers;
@@ -498,7 +531,7 @@ namespace Lina
 		}
 
 		// If no world renderers, transfers might have not been consumed, so make sure we wait for it.
-		if (transferExists && !worldsSubmitted)
+		if (transferExists && waitOnWorldRenderers.empty())
 		{
 			surfaceWaitSemaphores.push_back(transferSemaphoreData.semaphore);
 			surfaceWaitValues.push_back(transferSemaphoreData.value);
@@ -549,8 +582,6 @@ namespace Lina
 		auto* window = m_lgx->GetWindowManager().GetWindow(sid);
 		window->RemoveListener(this);
 		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
-
-		LINA_TRACE("DESTROYING WINDOW {0}", sid);
 	}
 
 	void GfxManager::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& newSize)

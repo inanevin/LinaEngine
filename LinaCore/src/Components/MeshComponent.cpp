@@ -64,9 +64,6 @@ namespace Lina
 		m_model.raw	   = rm->GetResource<Model>(m_model.sid);
 		m_material.raw = rm->GetResource<Material>(m_material.sid);
 		m_mesh		   = m_model.raw->GetMesh(m_meshIndex);
-
-		m_materialToMeshMap.clear();
-		m_materialToMeshMap.insert(linatl::make_pair(m_material.raw, m_mesh));
 	}
 
 } // namespace Lina

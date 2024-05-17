@@ -44,6 +44,12 @@ namespace Lina
 #define DEFAULT_SHADER_OBJECT_PATH "Resources/Core/Shaders/Object/DefaultObject.linashader"
 #define DEFAULT_SHADER_OBJECT_SID  "Resources/Core/Shaders/Object/DefaultObject.linashader"_hs
 
+#define DEFAULT_SHADER_SKY_PATH "Resources/Core/Shaders/Sky/DefaultSky.linashader"
+#define DEFAULT_SHADER_SKY_SID	"Resources/Core/Shaders/Sky/DefaultSky.linashader"_hs
+
+#define DEFAULT_SHADER_DEFERRED_LIGHTING_PATH "Resources/Core/Shaders/Object/DeferredLighting.linashader"
+#define DEFAULT_SHADER_DEFERRED_LIGHTING_SID  "Resources/Core/Shaders/Object/DeferredLighting.linashader"_hs
+
 #define DEFAULT_SAMPLER_PATH "Resources/Core/Samplers/DefaultSampler.linasampler"
 #define DEFAULT_SAMPLER_SID	 "Resources/Core/Samplers/DefaultSampler.linasampler"_hs
 
@@ -56,6 +62,9 @@ namespace Lina
 #define DEFAULT_MATERIAL_OBJECT_PATH "Resources/Core/Materials/DefaultObject.linamaterial"
 #define DEFAULT_MATERIAL_OBJECT_SID	 "Resources/Core/Materials/DefaultObject.linamaterial"_hs
 
+#define DEFAULT_MATERIAL_SKY_PATH "Resources/Core/Materials/DefaultSky.linamaterial"
+#define DEFAULT_MATERIAL_SKY_SID  "Resources/Core/Materials/DefaultSky.linamaterial"_hs
+
 #define LINA_MAIN_SWAPCHAIN			UINT32_MAX - 1
 #define DEFAULT_TEXTURE_LINALOGO	"Resources/Core/Textures/StubLinaLogo.png"_hs
 #define DEFAULT_TEXTURE_EMPTY_BLACK "Resources/Core/Textures/StubBlack.png"_hs
@@ -67,16 +76,11 @@ namespace Lina
 #define MAX_BOUND_TEXTURES			512
 #define MAX_BOUND_SAMPLERS			128
 
-	enum class ShaderWriteTargetType
-	{
-		RenderTarget,
-		Swapchain,
-	};
-
 	enum RenderPassDescriptorType
 	{
 		Gui = 0,
 		Main,
+		Lighting,
 		Max,
 	};
 
@@ -88,6 +92,8 @@ namespace Lina
 			return "Gui";
 		case Main:
 			return "Main";
+		case Lighting:
+			return "Lighting";
 		case Max:
 			return "Max";
 		default:

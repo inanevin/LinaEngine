@@ -36,6 +36,10 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Core/Resources/Resource.hpp"
 
+namespace LinaGX
+{
+	class Input;
+}
 namespace Lina
 {
 	class Entity;
@@ -51,6 +55,7 @@ namespace Lina
 		virtual void Begin(){};
 		virtual void End(){};
 		virtual void Tick(float delta){};
+		virtual void PostTick(float delta){};
 		virtual void FetchResources(ResourceManager* rm){};
 
 		virtual TypeID GetComponentType() = 0;
@@ -66,12 +71,16 @@ namespace Lina
 		}
 
 	protected:
+		friend class EntityWorld;
+
 		template <typename U> friend class ComponentCache;
 		Component(uint32 flags = 0) : m_flags(flags){};
 		virtual ~Component() = default;
 
-		Entity*	  m_entity = nullptr;
-		Bitmask32 m_flags  = 0;
+		Entity*		   m_entity = nullptr;
+		EntityWorld*   m_world	= nullptr;
+		Bitmask32	   m_flags	= 0;
+		LinaGX::Input* m_input	= nullptr;
 
 	private:
 		uint32 m_entityID = 0;

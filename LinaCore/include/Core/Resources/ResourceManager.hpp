@@ -44,6 +44,7 @@ SOFTWARE.
 namespace Lina
 {
 	class IStream;
+	class GfxManager;
 
 	class ResourceManager : public Subsystem
 	{
@@ -78,7 +79,7 @@ namespace Lina
 			Vector<ResourceIdentifier> res;
 			res.reserve(m_appResources.size());
 			linatl::for_each(m_appResources.begin(), m_appResources.end(), [&](const ResourceIdentifier& id) {
-				if (id.tag == ResourceTag::Priority)
+				if (id.flags.IsSet(RF_PRIORITY))
 					res.push_back(id);
 			});
 			return res;
@@ -89,17 +90,17 @@ namespace Lina
 			Vector<ResourceIdentifier> res;
 			res.reserve(m_appResources.size());
 			linatl::for_each(m_appResources.begin(), m_appResources.end(), [&](const ResourceIdentifier& id) {
-				if (id.tag == ResourceTag::Core)
+				if (id.flags.IsSet(RF_CORE))
 					res.push_back(id);
 			});
 			return res;
 		}
 
-		template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt)
+		template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt, uint32 resourceTypeFlags)
 		{
 			const TypeID tid = GetTypeID<T>();
 			if (m_caches.find(tid) == m_caches.end())
-				m_caches[tid] = new ResourceCache<T>(chunkCount, extensions, pt);
+				m_caches[tid] = new ResourceCache<T>(chunkCount, extensions, pt, resourceTypeFlags);
 		}
 
 		template <typename T> T* GetResource(StringID sid) const
@@ -151,6 +152,7 @@ namespace Lina
 		HashMap<TypeID, ResourceCacheBase*> m_caches;
 		Vector<ResourceIdentifier>			m_appResources;
 		Vector<ResourceIdentifier>			m_waitingResources;
+		GfxManager*							m_gfxManager = nullptr;
 	};
 
 } // namespace Lina

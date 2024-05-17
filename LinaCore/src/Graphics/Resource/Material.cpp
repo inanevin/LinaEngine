@@ -111,51 +111,51 @@ namespace Lina
 		CreateBindingData();
 	}
 
-	void Material::Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle)
-	{
-		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_descriptorSetContainer[frameIndex].set->GetGPUHandle());
-		bind->firstSet						= 2;
-		bind->setCount						= 1;
-		bind->allocationIndices				= stream->EmplaceAuxMemory<uint32>(m_descriptorSetContainer[frameIndex].allocIndex);
-		bind->layoutSource					= layoutSource;
+	// void Material::Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle)
+	// {
+	// 	LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
+	// 	bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_descriptorSetContainer[frameIndex].set->GetGPUHandle());
+	// 	bind->firstSet						= 2;
+	// 	bind->setCount						= 1;
+	// 	bind->allocationIndices				= stream->EmplaceAuxMemory<uint32>(m_descriptorSetContainer[frameIndex].allocIndex);
+	// 	bind->layoutSource					= layoutSource;
+	//
+	// 	if (layoutSource == LinaGX::DescriptorSetsLayoutSource::CustomLayout)
+	// 		bind->customLayout = m_shader->GetPipelineLayout();
+	// 	else if (layoutSource == LinaGX::DescriptorSetsLayoutSource::CustomShader)
+	// 		bind->customLayoutShader = customShaderHandle;
+	// }
 
-		if (layoutSource == LinaGX::DescriptorSetsLayoutSource::CustomLayout)
-			bind->customLayout = m_shader->GetPipelineLayout();
-		else if (layoutSource == LinaGX::DescriptorSetsLayoutSource::CustomShader)
-			bind->customLayoutShader = customShaderHandle;
-	}
-
-	void Material::SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex, size_t padding, uint8* data, size_t dataSize)
-	{
-		auto& buf = m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
-		buf.BufferData(padding, data, dataSize);
-	}
-
-	void Material::SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle)
-	{
-		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		auto& bData						= m_bindingData[bindingIndex];
-		bData.textures[descriptorIndex] = gpuHandle;
-		UpdateBinding(bindingIndex);
-	}
-
-	void Material::SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle)
-	{
-		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		auto& bData						= m_bindingData[bindingIndex];
-		bData.samplers[descriptorIndex] = gpuHandle;
-		UpdateBinding(bindingIndex);
-	}
-
-	void Material::SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle)
-	{
-		auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		auto& bData						= m_bindingData[bindingIndex];
-		bData.textures[descriptorIndex] = textureGPUHandle;
-		bData.samplers[descriptorIndex] = samplerGPUHandle;
-		UpdateBinding(bindingIndex);
-	}
+	// void Material::SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex, size_t padding, uint8* data, size_t dataSize)
+	// {
+	// 	auto& buf = m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
+	// 	buf.BufferData(padding, data, dataSize);
+	// }
+	//
+	// void Material::SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle)
+	// {
+	// 	auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+	// 	auto& bData						= m_bindingData[bindingIndex];
+	// 	bData.textures[descriptorIndex] = gpuHandle;
+	// 	UpdateBinding(bindingIndex);
+	// }
+	//
+	// void Material::SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle)
+	// {
+	// 	auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+	// 	auto& bData						= m_bindingData[bindingIndex];
+	// 	bData.samplers[descriptorIndex] = gpuHandle;
+	// 	UpdateBinding(bindingIndex);
+	// }
+	//
+	// void Material::SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle)
+	// {
+	// 	auto* rm						= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+	// 	auto& bData						= m_bindingData[bindingIndex];
+	// 	bData.textures[descriptorIndex] = textureGPUHandle;
+	// 	bData.samplers[descriptorIndex] = samplerGPUHandle;
+	// 	UpdateBinding(bindingIndex);
+	// }
 
 	void Material::LoadFromFile(const char* path)
 	{
@@ -201,40 +201,76 @@ namespace Lina
 
 		if (m_shader != nullptr)
 		{
-			CreateDescriptorSets();
+			// CreateDescriptorSets();
 
-			const int32 sz = static_cast<int32>(m_bindingData.size());
-			for (int32 i = 0; i < sz; i++)
-				UpdateBinding(i);
+			// const int32 sz = static_cast<int32>(m_bindingData.size());
+			// for (int32 i = 0; i < sz; i++)
+			// 	UpdateBinding(i);
 		}
 		else
 		{
 			m_shaderSID = DEFAULT_SHADER_OBJECT_SID;
 			m_shader	= rm->GetResource<Shader>(DEFAULT_SHADER_OBJECT_SID);
 
-			CreateDescriptorSets();
-			CreateBindingData();
+			// CreateDescriptorSets();
+			// CreateBindingData();
 		}
+		GenerateBuffer();
+	}
+
+	void Material::BufferData(size_t padding, uint8* data, size_t sz)
+	{
+		if (padding + sz > m_buffer.size())
+		{
+			LINA_ERR("Material::BufferData() -> Overflow! Padding: {0} Size: {1} MaterialBufferSize: {2}", padding, sz, m_buffer.size());
+			return;
+		}
+
+		MEMCPY(m_buffer.data() + padding, data, sz);
+		m_bufferDirty = true;
+	}
+
+	void Material::GenerateBuffer()
+	{
+		DestroyBuffer();
+		const size_t sz = static_cast<size_t>(m_shader->GetMeta().materialSize);
+
+		if (sz == 0)
+			return;
+
+		uint8* ptr = new uint8[sz];
+		m_buffer   = {ptr, sz};
+	}
+
+	void Material::DestroyBuffer()
+	{
+		if (m_buffer.data() == nullptr)
+			return;
+
+		delete[] m_buffer.data();
+		m_buffer = {(uint8*)NULL, 0};
 	}
 
 	void Material::CreateDescriptorSets()
 	{
-		DestroyDescriptorSets();
-		for (int32 f = 0; f < FRAMES_IN_FLIGHT; f++)
-			m_shader->AllocateDescriptorSet(m_descriptorSetContainer[f].set, m_descriptorSetContainer[f].allocIndex);
+		// DestroyDescriptorSets();
+		// for (int32 f = 0; f < FRAMES_IN_FLIGHT; f++)
+		// 	m_shader->AllocateDescriptorSet(m_descriptorSetContainer[f].set, m_descriptorSetContainer[f].allocIndex);
 	}
 
 	void Material::DestroyDescriptorSets()
 	{
-		if (m_descriptorSetContainer[0].set == nullptr)
-			return;
-
-		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			m_shader->FreeDescriptorSet(m_descriptorSetContainer[i].set, m_descriptorSetContainer[i].allocIndex);
+		// if (m_descriptorSetContainer[0].set == nullptr)
+		// 	return;
+		//
+		// for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		// 	m_shader->FreeDescriptorSet(m_descriptorSetContainer[i].set, m_descriptorSetContainer[i].allocIndex);
 	}
 
 	void Material::CreateBindingData()
 	{
+		return;
+
 		DestroyBindingData();
 
 		/*
@@ -293,6 +329,8 @@ namespace Lina
 
 	void Material::DestroyBindingData()
 	{
+		return;
+
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			for (auto& b : m_bindingData)
@@ -307,6 +345,8 @@ namespace Lina
 
 	void Material::UpdateBinding(uint32 bindingIndex)
 	{
+		return;
+
 		auto*		rm		= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		const auto& binding = m_bindingData[bindingIndex];
 

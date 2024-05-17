@@ -116,13 +116,15 @@ namespace Lina::Editor
 		Vector<ResourceIdentifier> resources;
 
 		// Priority
-		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Priority));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, true, ResourceTag::Priority));
+		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, RF_PRIORITY));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, true, RF_PRIORITY));
 
 		// Core
-		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, ResourceTag::Core));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, ResourceTag::Core));
+		//	resources.push_back(ResourceIdentifier("Resources/Editor/Models/Duck.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
+		// list.push_back(ResourceIdentifier("Resources/Core/Models/duck.png", GetTypeID<Texture>(), 0, false, ResourceFlags::RF_CORE));
+		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, RF_CORE));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);

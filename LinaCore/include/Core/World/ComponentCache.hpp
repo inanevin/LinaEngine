@@ -51,6 +51,8 @@ namespace Lina
 		ComponentCacheBase()		  = default;
 		virtual ~ComponentCacheBase() = default;
 
+		virtual void				Tick(float delta)				= 0;
+		virtual void				PostTick(float delta)			= 0;
 		virtual void				LoadFromStream(IStream& stream) = 0;
 		virtual void				SaveToStream(OStream& stream)	= 0;
 		virtual void				OnEntityDestroyed(Entity* e)	= 0;
@@ -72,6 +74,23 @@ namespace Lina
 			Destroy();
 		}
 
+		virtual void Tick(float delta) override
+		{
+			for (T* comp : m_components)
+			{
+				if (comp != nullptr)
+					comp->Tick(delta);
+			}
+		}
+
+		virtual void PostTick(float delta) override
+		{
+			for (T* comp : m_components)
+			{
+				if (comp != nullptr)
+					comp->PostTick(delta);
+			}
+		}
 		// When copying the world.
 		virtual ComponentCacheBase* CopyCreate() override
 		{

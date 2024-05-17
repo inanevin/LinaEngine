@@ -45,11 +45,15 @@ namespace Lina
 		PackageLevels,
 	};
 
-	enum class ResourceTag
+	enum ResourceTypeFlags
 	{
-		Core,
-		Priority,
-		Default
+		RTF_BINDLESS_RESOURCE = 1 << 0,
+	};
+
+	enum ResourceFlags
+	{
+		RF_CORE		= 1 << 0,
+		RF_PRIORITY = 1 << 1,
 	};
 
 	extern String GGetPackagePath(PackageType pt);
@@ -57,20 +61,20 @@ namespace Lina
 	struct ResourceIdentifier
 	{
 		ResourceIdentifier() = default;
-		ResourceIdentifier(const String& path, TypeID tid, StringID sid, bool useCustomMeta = false, ResourceTag tag = ResourceTag::Default)
+		ResourceIdentifier(const String& path, TypeID tid, StringID sid, bool useCustomMeta = false, uint32 flags = 0)
 		{
 			this->path			= path;
 			this->sid			= sid;
 			this->tid			= tid;
 			this->useCustomMeta = useCustomMeta;
-			this->tag			= tag;
+			this->flags			= flags;
 		}
 
-		TypeID		tid			  = 0;
-		StringID	sid			  = 0;
-		String		path		  = "";
-		bool		useCustomMeta = false;
-		ResourceTag tag			  = ResourceTag::Default;
+		TypeID	  tid			= 0;
+		StringID  sid			= 0;
+		String	  path			= "";
+		bool	  useCustomMeta = false;
+		Bitmask32 flags			= 0;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);

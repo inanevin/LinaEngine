@@ -31,23 +31,19 @@ layout(set = 1, binding = 0) uniform ViewData
 	mat4 view;
 	mat4 proj;
 	mat4 viewProj;
-	vec4 cameraPosition;
-	vec2 cameraNearFar;
+	vec4 cameraPositionAndNear;
+	vec4 cameraDirectionAndFar;
+	vec2 size;
+	vec2 padding;
+	vec4 padding2;
 } LINA_VIEW;
-
-layout(set = 1, binding = 1) uniform SceneData
-{
-	vec4 skyTop;
-	vec4 skyHor;
-	vec4 skyBottom;
-} LINA_SCENE;
 
 struct Object
 {
     mat4 modelMatrix;
 };
 
-layout(std140, set = 1, binding = 2) readonly buffer ObjectBuffer
+layout(std140, set = 1, binding = 1) readonly buffer ObjectBuffer
 {
     Object data[];
 } LINA_OBJECTS;
@@ -55,9 +51,12 @@ layout(std140, set = 1, binding = 2) readonly buffer ObjectBuffer
 struct IndirectArguments
 {
 	uint entityID;
+	uint materialBytePadding;
+	uint instanceCount;
+	uint padding;
 };
 
-layout(set = 1, binding = 3) readonly buffer IndirectArgumentsBuffer
+layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
 {
     IndirectArguments data[];
 } LINA_INDIRECT_ARGUMENTS;

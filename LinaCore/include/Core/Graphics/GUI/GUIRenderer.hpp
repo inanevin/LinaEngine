@@ -80,7 +80,7 @@ namespace Lina
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
 
-		void Create(GfxManager* gfxManager, RenderPass* renderPass, ShaderWriteTargetType writeTargetType, LinaGX::Window* window);
+		void Create(GfxManager* gfxManager, RenderPass* renderPass, StringID shaderVariant, LinaGX::Window* window);
 		void PreTick();
 		void Tick(float delta, const Vector2ui& size);
 		void DrawDefault(LinaVG::DrawBuffer* buf);

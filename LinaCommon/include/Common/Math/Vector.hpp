@@ -46,6 +46,7 @@ namespace Lina
 {
 	class IStream;
 	class OStream;
+	class Color;
 
 	class Vector2ui : public glm::uvec2
 	{
@@ -525,6 +526,7 @@ namespace Lina
 
 	public:
 		Vector4() = default;
+		Vector4(const Color& c);
 		Vector4(float x, float y, float z, float w) : glm::vec4(x, y, z, w){};
 		Vector4(const Vector4& rhs) : glm::vec4(rhs){};
 		Vector4(const Vector3& rhs) : glm::vec4(rhs.x, rhs.y, rhs.z, 0.0f){};

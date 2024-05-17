@@ -39,10 +39,7 @@ namespace Lina
 		RenderableComponent() : Component(CF_RENDERABLE){};
 		virtual ~RenderableComponent() = default;
 
-		void FillMaterialToMeshes(MaterialToMeshMap& map) const;
-
 	protected:
-		MaterialToMeshMap m_materialToMeshMap;
 	};
 
 } // namespace Lina

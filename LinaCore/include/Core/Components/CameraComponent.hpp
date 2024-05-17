@@ -37,6 +37,8 @@ namespace Lina
 	class CameraComponent : public Component
 	{
 	public:
+		virtual void PostTick(float delta) override;
+
 		virtual TypeID GetComponentType() override
 		{
 			return GetTypeID<CameraComponent>();
@@ -62,15 +64,31 @@ namespace Lina
 			return m_view;
 		}
 
+		inline float GetNear() const
+		{
+			return m_zNear;
+		}
+
+		inline float GetFar() const
+		{
+			return m_zFar;
+		}
+
 	private:
 		friend class CameraSystem;
 		LINA_REFLECTION_ACCESS(CameraComponent);
-
-		Matrix4 m_projection  = Matrix4::Identity();
-		Matrix4 m_view		  = Matrix4::Identity();
-		float	m_fieldOfView = 110.0f;
-		float	m_zNear		  = 0.01f;
-		float	m_zFar		  = 1000.0f;
+		Matrix4	   m_projection	 = Matrix4::Identity();
+		Matrix4	   m_view		 = Matrix4::Identity();
+		float	   m_fieldOfView = 90.0f;
+		float	   m_zNear		 = 0.01f;
+		float	   m_zFar		 = 500.0f;
+		float	   m_targetX	 = 0.0f;
+		float	   m_targetY	 = 0.0f;
+		float	   m_targetXPos	 = 0.0f;
+		float	   m_targetZPos	 = 0.0f;
+		float	   m_angleX		 = 0.0f;
+		float	   m_angleY		 = 0.0f;
+		Quaternion m_rotation	 = Quaternion();
 	};
 
 	LINA_REFLECTCOMPONENT_BEGIN(CameraComponent, "Camera", "Graphics")

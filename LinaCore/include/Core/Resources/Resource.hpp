@@ -70,12 +70,12 @@ namespace Lina
 
 		inline bool IsPriorityResource() const
 		{
-			return m_tag == ResourceTag::Priority;
+			return m_flags.IsSet(RF_PRIORITY);
 		}
 
 		inline bool IsCoreResource() const
 		{
-			return m_tag == ResourceTag::Core;
+			return m_flags.IsSet(RF_CORE);
 		}
 
 	protected:
@@ -111,7 +111,7 @@ namespace Lina
 		TypeID			 m_tid			   = 0;
 		StringID		 m_sid			   = 0;
 		ResourceOwner	 m_owner		   = ResourceOwner::ResourceManager;
-		ResourceTag		 m_tag			   = ResourceTag::Default;
+		Bitmask32		 m_flags		   = 0;
 	};
 
 	template <typename T> struct ResRef

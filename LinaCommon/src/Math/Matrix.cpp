@@ -39,6 +39,11 @@ SOFTWARE.
 
 namespace Lina
 {
+	Matrix4::Matrix4(const Quaternion& q)
+	{
+		*this = glm::mat4_cast(q);
+	}
+
 	Matrix4::Matrix4(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset) : glm::mat4(vecX, vecY, vecZ, vecOffset){};
 	Matrix4::Matrix4(const float* data)
 	{
@@ -70,9 +75,9 @@ namespace Lina
 		return glm::ortho(left, right, bottom, top, n, f);
 	}
 
-	Matrix4 Matrix4::Perspective(float halfFov, float aspect, float nearZ, float farZ)
+	Matrix4 Matrix4::Perspective(float halfFovDegrees, float aspect, float nearZ, float farZ)
 	{
-		return glm::perspective(glm::radians(halfFov), aspect, nearZ, farZ);
+		return glm::perspective(glm::radians(halfFovDegrees), aspect, nearZ, farZ);
 	}
 
 	Matrix4 Matrix4::TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale)

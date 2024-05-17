@@ -48,14 +48,14 @@ namespace Lina
 #define MAX_GUI_VERTICES  20000
 #define MAX_GUI_INDICES	  48000
 
-	void GUIRenderer::Create(GfxManager* gfxManager, RenderPass* renderPass, ShaderWriteTargetType writeTargetType, LinaGX::Window* window)
+	void GUIRenderer::Create(GfxManager* gfxManager, RenderPass* renderPass, StringID shaderVariant, LinaGX::Window* window)
 	{
 		m_gfxManager		  = gfxManager;
 		m_window			  = window;
 		m_lgx				  = m_gfxManager->GetLGX();
 		m_rm				  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_shader			  = m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
-		m_shaderVariantHandle = m_shader->GetGPUHandle(writeTargetType);
+		m_shaderVariantHandle = m_shader->GetGPUHandle(shaderVariant);
 		m_defaultGUISampler	  = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
 		m_textGUISampler	  = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
 

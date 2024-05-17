@@ -48,6 +48,7 @@ namespace Lina
 	class Shader;
 	class Material;
 	class Texture;
+	class TextureSampler;
 	class ResourceManager;
 
 	class WorldRenderer : public EntityWorldListener
@@ -55,19 +56,20 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* gfxStream				= nullptr;
-			LinaGX::CommandStream* copyStream				= nullptr;
-			SemaphoreData		   copySemaphore			= {};
-			SemaphoreData		   signalSemaphore			= {};
-			Buffer				   guiVertexBuffer			= {};
-			Buffer				   guiIndexBuffer			= {};
-			Buffer				   guiMaterialBuffer		= {};
-			Buffer				   objectBuffer				= {};
-			Buffer				   sceneBuffer				= {};
-			uint32				   colorTargetBindlessIndex = 0;
+			LinaGX::CommandStream* gfxStream		 = nullptr;
+			LinaGX::CommandStream* copyStream		 = nullptr;
+			SemaphoreData		   copySemaphore	 = {};
+			SemaphoreData		   signalSemaphore	 = {};
+			Buffer				   guiVertexBuffer	 = {};
+			Buffer				   guiIndexBuffer	 = {};
+			Buffer				   guiMaterialBuffer = {};
+			Buffer				   objectBuffer		 = {};
 
-			Texture* colorTarget = nullptr;
-			Texture* depthTarget = nullptr;
+			Texture* gBufColorMaterialID = nullptr;
+			Texture* gBufPosition		 = nullptr;
+			Texture* gBufNormal			 = nullptr;
+			Texture* gBufDepth			 = nullptr;
+			Texture* lightingPassOutput	 = nullptr;
 		};
 
 	public:
@@ -96,34 +98,54 @@ namespace Lina
 			return m_size;
 		}
 
-		inline Texture* GetTexture(uint32 frameIndex)
+		inline Texture* GetGBufColorMaterialID(uint32 frameIndex)
 		{
-			return m_pfd[frameIndex].colorTarget;
+			return m_pfd[frameIndex].gBufColorMaterialID;
+		}
+
+		inline Texture* GetGBufPosition(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].gBufPosition;
+		}
+
+		inline Texture* GetGBufNormal(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].gBufNormal;
+		}
+
+		inline Texture* GetGBufDepth(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].gBufDepth;
+		}
+
+		inline Texture* GetLightingPassOutput(uint32 frameIndex)
+		{
+			return m_pfd[frameIndex].lightingPassOutput;
 		}
 
 	private:
 		void   UpdateBuffers(uint32 frameIndex);
 		void   FetchRenderables();
-		void   DrawSky(LinaGX::CommandStream* stream);
 		void   CreateSizeRelativeResources();
 		void   DestroySizeRelativeResources();
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
-		GfxManager*			   m_gfxManager			   = nullptr;
-		LinaGX::Instance*	   m_lgx				   = nullptr;
-		PerFrameData		   m_pfd[FRAMES_IN_FLIGHT] = {};
-		RenderPass			   m_mainPass			   = {};
-		Vector2ui			   m_size				   = Vector2ui::Zero;
-		EntityWorld*		   m_world				   = nullptr;
-		ModelNode*			   m_skyCube			   = nullptr;
-		Shader*				   m_skyShader			   = nullptr;
-		Vector<MeshComponent*> m_meshComponents;
-		GPUDataView			   m_gpuDataView  = {};
-		GPUDataScene		   m_gpuDataScene = {};
-		Vector<GPUDataObject>  m_objects	  = {};
-		ResourceManager*	   m_rm			  = nullptr;
-		MaterialToMeshDataMap  m_drawDataMap;
+		GfxManager*									  m_gfxManager			  = nullptr;
+		LinaGX::Instance*							  m_lgx					  = nullptr;
+		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT] = {};
+		RenderPass									  m_mainPass			  = {};
+		RenderPass									  m_lightingPass		  = {};
+		Vector2ui									  m_size				  = Vector2ui::Zero;
+		EntityWorld*								  m_world				  = nullptr;
+		Vector<MeshComponent*>						  m_meshComponents;
+		Vector<GPUDataObject>						  m_objects = {};
+		ResourceManager*							  m_rm		= nullptr;
+		HashMap<Shader*, Vector<DrawDataMeshDefault>> m_drawData;
+		TextureSampler*								  m_gBufSampler			   = nullptr;
+		Shader*										  m_deferredLightingShader = nullptr;
+		Texture*									  m_checkerTexture		   = nullptr;
+		MeshDefault*								  m_skyCube				   = nullptr;
 	};
 
 } // namespace Lina

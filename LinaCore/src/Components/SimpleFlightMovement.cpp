@@ -27,6 +27,8 @@ SOFTWARE.
 */
 
 #include "Core/Components/SimpleFlightMovement.hpp"
+#include "Common/Math/Math.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -40,5 +42,37 @@ namespace Lina
 
 	void SimpleFlightMovement::Tick(float delta)
 	{
+		if (!m_input->GetMouseButton(LINAGX_MOUSE_1))
+			return;
+
+		auto md = m_input->GetMouseDelta();
+
+#ifdef LINAGX_PLATFORM_WINDOWS
+		const int clampAmt = 10;
+#else
+		const int clampAmt = 3;
+#endif
+		md.x = Math::Clamp((int)md.x, -clampAmt, clampAmt);
+		md.y = Math::Clamp((int)md.y, -clampAmt, clampAmt);
+
+		m_targetAngles += Vector2(md.y, md.x) * m_rotationPower;
+		m_finalAngles = Math::Lerp(m_finalAngles, m_targetAngles, delta * m_rotationSpeed);
+		m_entity->SetRotationAngles(Vector3(m_finalAngles.x, m_finalAngles.y, 0.0f));
+
+		// Calc pos.
+		Vector2 input = Vector2::Zero;
+		if (m_input->GetKey(LINAGX_KEY_W))
+			input.y = 1.0f;
+		else if (m_input->GetKey(LINAGX_KEY_S))
+			input.y = -1.0f;
+		if (m_input->GetKey(LINAGX_KEY_D))
+			input.x = 1.0f;
+		else if (m_input->GetKey(LINAGX_KEY_A))
+			input.x = -1.0f;
+
+		input *= m_movementPower;
+
+		const Vector3 targetPosition = (m_entity->GetPosition() + m_entity->GetRotation().GetForward() * input.y + m_entity->GetRotation().GetRight() * input.x);
+		m_entity->SetPosition(Math::Lerp(m_entity->GetPosition(), targetPosition, delta * m_movementSpeed));
 	}
 } // namespace Lina

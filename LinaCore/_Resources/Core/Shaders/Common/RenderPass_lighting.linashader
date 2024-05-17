@@ -1,11 +1,11 @@
 /*
-This file is a part of: Lina Engine
-https://github.com/inanevin/LinaEngine
+This file is a part of: LinaGX
+https://github.com/inanevin/LinaGX
 
 Author: Inan Evin
 http://www.inanevin.com
 
-Copyright (c) [2018-] [Inan Evin]
+Copyright (c) [2023-] [Inan Evin]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,10 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/RenderableComponent.hpp"
-#include "Common/Data/CommonData.hpp"
-
-namespace Lina
+layout(set = 1, binding = 0) uniform ViewData
 {
+	mat4 view;
+	mat4 proj;
+	mat4 viewProj;
+	vec4 cameraPositionAndNear;
+	vec4 cameraDirectionAndFar;
+	vec2 size;
+	vec2 padding;
+	vec4 padding2;
+} LINA_VIEW;
 
-} // namespace Lina
+layout(set = 1, binding = 1) uniform AtmosphereData
+{
+	vec4 skyTopAndDiffusion;
+	vec4 skyHorizonAndBase;
+	vec4 skyGroundAndCurvature;
+	vec4 sunColorAndCoef;
+	vec4 sunPosition;
+} LINA_ATMOSPHERE;
+
+layout(set = 1, binding = 2) uniform PassData
+{
+	uint gBufColorMaterialID;
+	uint gBufPosition;
+	uint gBufNormal;
+	uint gBufDepth;
+	uint gBufSampler;
+	uint checkerTexture;
+	uint pad[2];
+} LINA_PASS_DATA;

@@ -38,13 +38,16 @@ SOFTWARE.
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Components/MeshComponent.hpp"
+#include "Core/Components/CameraComponent.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/System/System.hpp"
+#include "Common/Profiling/Profiler.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <Common/Math/Math.hpp>
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -61,12 +64,14 @@ namespace Lina
 		m_gfxManager = man;
 		m_lgx		 = m_gfxManager->GetLGX();
 		m_world->AddListener(this);
-		m_size = viewSize;
-		m_rm   = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_size					 = viewSize;
+		m_rm					 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_gBufSampler			 = m_gfxManager->GetDefaultSampler(0);
+		m_deferredLightingShader = m_rm->GetResource<Shader>(DEFAULT_SHADER_DEFERRED_LIGHTING_SID);
+		m_checkerTexture		 = m_rm->GetResource<Texture>("Resources/Core/Textures/Checkered.png"_hs);
+		m_skyCube				 = m_rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
 
 		auto* rm = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		//	m_skyCube	= rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetFirstNodeWMesh();
-		m_skyShader = rm->GetResource<Shader>("Resources/Core/Shaders/Sky/SimpleSky.linashader"_hs);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -74,7 +79,6 @@ namespace Lina
 			data.gfxStream	= m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "WorldRenderer: Gfx Stream"});
 			data.copyStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "WorldRenderer: Copy Stream"});
 			data.objectBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "WorldRenderer: ObjectData", false);
-			data.sceneBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataScene), "WorldRenderer: SceneData", false);
 			data.signalSemaphore.semaphore = m_lgx->CreateUserSemaphore();
 			data.copySemaphore.semaphore   = m_lgx->CreateUserSemaphore();
 		}
@@ -91,7 +95,6 @@ namespace Lina
 			m_lgx->DestroyCommandStream(data.gfxStream);
 			m_lgx->DestroyCommandStream(data.copyStream);
 			data.objectBuffer.Destroy();
-			data.sceneBuffer.Destroy();
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.semaphore);
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
 		}
@@ -102,11 +105,19 @@ namespace Lina
 	void WorldRenderer::CreateSizeRelativeResources()
 	{
 		LinaGX::TextureDesc rtDesc = {
-			.format	   = DEFAULT_RT_FORMAT_HDR,
+			.format	   = DEFAULT_RT_FORMAT,
 			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	   = m_size.x,
 			.height	   = m_size.y,
 			.debugName = "WorldRendererTexture",
+		};
+
+		LinaGX::TextureDesc rtDescLighting = {
+			.format	   = DEFAULT_RT_FORMAT_HDR,
+			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
+			.width	   = m_size.x,
+			.height	   = m_size.y,
+			.debugName = "WorldRendererTextureHDR",
 		};
 
 		LinaGX::TextureDesc depthDesc = {
@@ -122,17 +133,36 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 
-			const String colorTargetName = "WorldRenderer Color Target " + TO_STRING(i);
-			const String depthTargetName = "WorldRenderer Depth Target " + TO_STRING(i);
-			data.colorTarget			 = m_rm->CreateUserResource<Texture>(colorTargetName, TO_SID(colorTargetName));
-			data.depthTarget			 = m_rm->CreateUserResource<Texture>(colorTargetName, TO_SID(colorTargetName));
-			data.colorTarget->CreateGPUOnly(rtDesc);
-			data.depthTarget->CreateGPUOnly(depthDesc);
-			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.colorTarget->GetGPUHandle(), .isSwapchain = false});
-			m_mainPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.depthTarget->GetGPUHandle(), .clearDepth = 1.0f});
+			data.gBufColorMaterialID = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: ColorMaterialID", TO_SIDC("WorldRenderer GBuffer: ColorMaterialID"));
+			data.gBufPosition		 = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Position", TO_SIDC("WorldRenderer GBuffer: Position"));
+			data.gBufNormal			 = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Normal", TO_SIDC("WorldRenderer GBuffer: Normal"));
+			data.gBufDepth			 = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Depth", TO_SIDC("WorldRenderer GBuffer: Depth"));
+			data.lightingPassOutput	 = m_rm->CreateUserResource<Texture>("WorldRenderer Lighting Pass Output", TO_SIDC("WorldRenderer Lighting Pass Output"));
+
+			data.gBufColorMaterialID->CreateGPUOnly(rtDesc);
+			data.gBufPosition->CreateGPUOnly(rtDesc);
+			data.gBufNormal->CreateGPUOnly(rtDesc);
+			data.gBufDepth->CreateGPUOnly(depthDesc);
+			data.lightingPassOutput->CreateGPUOnly(rtDescLighting);
+
+			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufColorMaterialID->GetGPUHandle(), .isSwapchain = false});
+			m_mainPass.SetColorAttachment(i, 1, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufPosition->GetGPUHandle(), .isSwapchain = false});
+			m_mainPass.SetColorAttachment(i, 2, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufNormal->GetGPUHandle(), .isSwapchain = false});
+			m_mainPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.gBufDepth->GetGPUHandle(), .depthLoadOp = LinaGX::LoadOp::Clear, .depthStoreOp = LinaGX::StoreOp::Store, .clearDepth = 1.0f});
+
+			m_lightingPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.lightingPassOutput->GetGPUHandle(), .isSwapchain = false});
+			m_lightingPass.DepthStencilAttachment(i,
+												  {
+													  .useDepth		= true,
+													  .texture		= data.gBufDepth->GetGPUHandle(),
+													  .depthLoadOp	= LinaGX::LoadOp::Load,
+													  .depthStoreOp = LinaGX::StoreOp::Store,
+													  .clearDepth	= 1.0f,
+												  });
 		}
 
 		m_mainPass.Create(m_gfxManager, RenderPassDescriptorType::Main);
+		m_lightingPass.Create(m_gfxManager, RenderPassDescriptorType::Lighting);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -142,13 +172,6 @@ namespace Lina
 				.setHandle			= m_mainPass.GetDescriptorSet(i),
 				.setAllocationIndex = 0,
 				.binding			= 1,
-				.buffers			= {data.sceneBuffer.GetGPUResource()},
-			});
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle			= m_mainPass.GetDescriptorSet(i),
-				.setAllocationIndex = 0,
-				.binding			= 2,
 				.buffers			= {data.objectBuffer.GetGPUResource()},
 			});
 		}
@@ -159,11 +182,16 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-			m_rm->DestroyUserResource(data.colorTarget);
-			m_rm->DestroyUserResource(data.depthTarget);
+			m_rm->DestroyUserResource(data.gBufColorMaterialID);
+			m_rm->DestroyUserResource(data.gBufPosition);
+			m_rm->DestroyUserResource(data.gBufNormal);
+			m_rm->DestroyUserResource(data.gBufDepth);
+			m_rm->DestroyUserResource(data.lightingPassOutput);
+			// m_rm->DestroyUserResource(data.lightingPassDepth);
 		}
 
 		m_mainPass.Destroy();
+		m_lightingPass.Destroy();
 	}
 
 	void WorldRenderer::FetchRenderables()
@@ -200,25 +228,66 @@ namespace Lina
 		auto& currentFrame = m_pfd[frameIndex];
 
 		CameraComponent* camera = m_world->GetActiveCamera();
+		GPUDataView		 view	= {};
 
-		m_gpuDataView = {
-			.screenSize = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y)),
-		};
 		if (camera == nullptr)
 		{
-			m_gpuDataView.view			= Matrix4::InitLookAt(Vector3(25, 25, 25), Vector3::Zero, Vector3::Up);
-			m_gpuDataView.proj			= Matrix4::Perspective(90, static_cast<float>(m_size.x) / static_cast<float>(m_size.y), 0.1f, 100.0f);
-			m_gpuDataView.viewProj		= m_gpuDataView.proj * m_gpuDataView.view;
-			m_gpuDataView.cameraNearFar = Vector2(0.1f, 100.0f);
+			static float camX  = 25.0f;
+			static float camY  = 25.0f;
+			static float camZ  = 50.0f;
+			const float	 speed = 30.0f;
+
+			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_A))
+				camX -= 0.016f * speed;
+
+			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_D))
+				camX += 0.016f * speed;
+
+			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_W))
+				camY += 0.016f * speed;
+
+			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_S))
+				camY -= 0.016f * speed;
+
+			view.view	  = Matrix4::InitLookAt(Vector3(camX, camY, camZ), Vector3(0.0f, 0.0f, 0.0f), Vector3::Up);
+			view.proj	  = Matrix4::Perspective(90, static_cast<float>(m_size.x) / static_cast<float>(m_size.y), 0.1f, 100.0f);
+			view.viewProj = view.proj * view.view;
 		}
 		else
 		{
+			const Vector3& camPos	   = camera->GetEntity()->GetPosition();
+			const Vector3& camDir	   = camera->GetEntity()->GetRotation().GetForward();
+			view.view				   = camera->GetView();
+			view.proj				   = camera->GetProjection();
+			view.viewProj			   = view.proj * view.view;
+			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, camera->GetNear());
+			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, camera->GetFar());
+			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 		}
 
-		m_gpuDataScene = {.skyTop = Vector4(1, 0, 0, 1), .skyHor = Vector4(1, 1, 1, 1), .skyBot = Vector4(1, 0, 0, 1)};
-		currentFrame.sceneBuffer.BufferData(0, (uint8*)&m_gpuDataScene, sizeof(GPUDataScene));
+		m_lightingPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+		m_mainPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 
-		m_mainPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&m_gpuDataView, sizeof(GPUDataView));
+		GPUDataAtmosphere atmosphere = {
+			.skyTopAndDiffusion	   = Color(0.1f, 0.5f, 0.7f, 0.05f),
+			.skyHorizonAndBase	   = Color(0.5f, 0.1f, 0.6f, 0.5f),
+			.skyGroundAndCurvature = Color(0.01f, 0.01f, 0.01f, 0.05f),
+			.sunLightAndCoef	   = Vector4(1.0f, 1.0f, 1.0f, 20.0f),
+			.sunPosition		   = Vector4(25, 15, 100, 0),
+		};
+
+		m_lightingPass.GetBuffer(frameIndex, 1).BufferData(0, (uint8*)&atmosphere, sizeof(GPUDataAtmosphere));
+
+		GPUDataDeferredLightingPass renderPassData = {
+			.gBufColorMaterialID = currentFrame.gBufColorMaterialID->GetBindlessIndex(),
+			.gBufPosition		 = currentFrame.gBufPosition->GetBindlessIndex(),
+			.gBufNormal			 = currentFrame.gBufNormal->GetBindlessIndex(),
+			.gBufDepth			 = currentFrame.gBufDepth->GetBindlessIndex(),
+			.gBufSampler		 = m_gBufSampler->GetBindlessIndex(),
+			.checkerTexture		 = m_checkerTexture->GetBindlessIndex(),
+		};
+
+		m_lightingPass.GetBuffer(frameIndex, 2).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataDeferredLightingPass));
 
 		Vector<Entity*> entities;
 		m_world->GetAllEntities(entities);
@@ -230,6 +299,7 @@ namespace Lina
 			e->m_ssboIndex = static_cast<uint32>(i);
 			auto& data	   = m_objects[i];
 			data.model	   = e->GetTransform().GetMatrix();
+
 			// static Quaternion rot = Quaternion();
 			// static float angle = 0.0f;
 			// angle += 0.016f * 10;
@@ -239,22 +309,24 @@ namespace Lina
 		currentFrame.objectBuffer.BufferData(0, (uint8*)m_objects.data(), sizeof(GPUDataObject) * m_objects.size());
 
 		// Draw data map.
-		m_drawDataMap.clear();
+		m_drawData.clear();
+
 		for (auto* mc : m_meshComponents)
 		{
 			MeshDefault* mesh	  = mc->GetMeshRaw();
 			Material*	 material = mc->GetMaterialRaw();
-			auto&		 vec	  = m_drawDataMap[material];
+			Shader*		 shader	  = material->GetShader();
+			auto&		 vec	  = m_drawData[shader];
 
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
 
 			if (it != vec.end())
-				it->entityIndices.push_back(mc->GetEntity()->m_ssboIndex);
+				it->instances.push_back({material, mc->GetEntity()->m_ssboIndex});
 			else
 			{
 				DrawDataMeshDefault drawData = {
-					.mesh		   = mesh,
-					.entityIndices = {mc->GetEntity()->m_ssboIndex},
+					.mesh	   = mesh,
+					.instances = {{material, mc->GetEntity()->m_ssboIndex}},
 				};
 				vec.push_back(drawData);
 			}
@@ -262,22 +334,32 @@ namespace Lina
 
 		// Indirect commands.
 		uint32 constantsCount = 0;
-		for (auto& [material, meshDataVec] : m_drawDataMap)
+		uint32 drawID		  = 0;
+		uint32 indirectAmount = 0;
+
+		for (const auto& [shader, meshVector] : m_drawData)
 		{
-			uint32 drawID = 0;
-
-			for (const auto& md : meshDataVec)
+			for (const auto& md : meshVector)
 			{
-				for (uint32 entityID : md.entityIndices)
-				{
-					m_lgx->BufferIndexedIndirectCommandData(m_mainPass.GetBuffer(frameIndex, 1).GetMapped(), drawID * m_lgx->GetIndexedIndirectCommandSize(), drawID, md.mesh->GetIndexCount(), 1, md.mesh->GetIndexOffset(), md.mesh->GetVertexOffset(), 0);
-					drawID++;
+				m_lgx->BufferIndexedIndirectCommandData(m_mainPass.GetBuffer(frameIndex, 1).GetMapped(),
+														indirectAmount * m_lgx->GetIndexedIndirectCommandSize(),
+														drawID,
+														md.mesh->GetIndexCount(),
+														static_cast<uint32>(md.instances.size()),
+														md.mesh->GetIndexOffset(),
+														md.mesh->GetVertexOffset(),
+														drawID);
 
+				indirectAmount++;
+				for (const InstanceData& inst : md.instances)
+				{
 					GPUIndirectConstants0 constants = {
-						.entityID = entityID,
+						.entityID		   = inst.entityIndex,
+						.materialByteIndex = inst.material->GetBindlessBytePadding(),
 					};
 					m_mainPass.GetBuffer(frameIndex, 2).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
 					constantsCount++;
+					drawID++;
 				}
 			}
 		}
@@ -320,7 +402,9 @@ namespace Lina
 		uint8 transferExists = 0;
 
 		transferExists |= currentFrame.objectBuffer.Copy(currentFrame.copyStream);
-		transferExists |= currentFrame.sceneBuffer.Copy(currentFrame.copyStream);
+		transferExists |= m_lightingPass.GetBuffer(frameIndex, 0).Copy(currentFrame.copyStream);
+		transferExists |= m_lightingPass.GetBuffer(frameIndex, 1).Copy(currentFrame.copyStream);
+		transferExists |= m_lightingPass.GetBuffer(frameIndex, 2).Copy(currentFrame.copyStream);
 		transferExists |= m_mainPass.GetBuffer(frameIndex, 0).Copy(currentFrame.copyStream); // view
 		transferExists |= m_mainPass.GetBuffer(frameIndex, 1).Copy(currentFrame.copyStream); // indirect
 		transferExists |= m_mainPass.GetBuffer(frameIndex, 2).Copy(currentFrame.copyStream); // indirect args
@@ -328,14 +412,19 @@ namespace Lina
 		if (transferExists != 0)
 			BumpAndSendTransfers(frameIndex);
 
-		// Barrier to Attachment
-		LinaGX::CMDBarrier* barrierToAttachment	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-		barrierToAttachment->srcStageFlags		 = LinaGX::PSF_TopOfPipe;
-		barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-		barrierToAttachment->textureBarrierCount = 2;
-		barrierToAttachment->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.colorTarget->GetGPUHandle());
-		barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.depthTarget->GetGPUHandle());
+		{
+			// Barrier to Attachment
+			LinaGX::CMDBarrier* barrierToAttachment	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrierToAttachment->srcStageFlags		 = LinaGX::PSF_TopOfPipe;
+			barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrierToAttachment->textureBarrierCount = 5;
+			barrierToAttachment->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 5);
+			barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufColorMaterialID->GetGPUHandle());
+			barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufPosition->GetGPUHandle());
+			barrierToAttachment->textureBarriers[2]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufNormal->GetGPUHandle());
+			barrierToAttachment->textureBarriers[3]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.gBufDepth->GetGPUHandle());
+			barrierToAttachment->textureBarriers[4]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.lightingPassOutput->GetGPUHandle());
+		}
 
 		m_mainPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, false);
@@ -344,51 +433,76 @@ namespace Lina
 		Material* lastBoundMaterial = nullptr;
 
 		uint32 indirectOffset = 0;
-		uint32 batchStart	  = 0;
-		for (auto& [material, meshDataVec] : m_drawDataMap)
+
+		for (auto& [shader, meshVec] : m_drawData)
 		{
-			auto* shader = material->GetShader();
 			if (shader != lastBoundShader)
 			{
 				shader->Bind(currentFrame.gfxStream, shader->GetGPUHandle());
 				lastBoundShader = shader;
 			}
-			if (material != lastBoundMaterial)
-			{
-				material->Bind(currentFrame.gfxStream, frameIndex, LinaGX::DescriptorSetsLayoutSource::CustomLayout);
-				lastBoundMaterial = material;
-			}
-
-			LinaGX::CMDBindConstants* constants = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindConstants>();
-			constants->size						= sizeof(uint32);
-			constants->data						= currentFrame.gfxStream->EmplaceAuxMemory(batchStart);
-			constants->stages					= currentFrame.gfxStream->EmplaceAuxMemory(LinaGX::ShaderStage::Vertex);
-			constants->stagesSize				= 1;
-
-			uint32 total = 0;
-
-			for (const auto& d : meshDataVec)
-				total += static_cast<uint32>(d.entityIndices.size());
 
 			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
-			draw->count							 = total;
+			draw->count							 = static_cast<uint32>(meshVec.size());
 			draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, 1).GetGPUResource();
 			draw->indirectBufferOffset			 = indirectOffset;
+			indirectOffset += draw->count * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
 
-			indirectOffset += total * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
-			batchStart += total;
+#ifdef LINA_DEBUG
+			uint32 totalTris = 0;
+			for (const auto& md : meshVec)
+				totalTris += md.mesh->GetIndexCount() / 3;
+			PROFILER_ADD_DRAWCALL(totalTris, "WorldRenderer", 0);
+#endif
 		}
 
 		m_mainPass.End(currentFrame.gfxStream);
 
 		// Barrier to shader read.
-		LinaGX::CMDBarrier* barrierFromAttachment  = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
-		barrierFromAttachment->srcStageFlags	   = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
-		barrierFromAttachment->dstStageFlags	   = LinaGX::PSF_FragmentShader;
-		barrierFromAttachment->textureBarrierCount = 2;
-		barrierFromAttachment->textureBarriers	   = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
-		barrierFromAttachment->textureBarriers[0]  = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.colorTarget->GetGPUHandle());
-		barrierFromAttachment->textureBarriers[1]  = GfxHelpers::GetTextureBarrierDepthAtt2Read(currentFrame.depthTarget->GetGPUHandle());
+		{
+			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+			barrier->textureBarrierCount = 3;
+			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 3);
+			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufColorMaterialID->GetGPUHandle());
+			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufPosition->GetGPUHandle());
+			barrier->textureBarriers[2]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufNormal->GetGPUHandle());
+		}
+
+		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, false);
+
+		m_deferredLightingShader->Bind(currentFrame.gfxStream, m_deferredLightingShader->GetGPUHandle());
+
+		LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
+		lightingDraw->instanceCount			   = 1;
+		lightingDraw->startInstanceLocation	   = 0;
+		lightingDraw->startVertexLocation	   = 0;
+		lightingDraw->vertexCountPerInstance   = 3;
+
+		Shader* skyShader = m_world->GetGfxSettings().skyMaterial.raw->GetShader();
+		skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
+
+		LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
+		skyDraw->baseVertexLocation				 = m_skyCube->GetVertexOffset();
+		skyDraw->indexCountPerInstance			 = m_skyCube->GetIndexCount();
+		skyDraw->instanceCount					 = 1;
+		skyDraw->startIndexLocation				 = m_skyCube->GetIndexOffset();
+		skyDraw->startInstanceLocation			 = 0;
+
+		m_lightingPass.End(currentFrame.gfxStream);
+
+		// Barrier to shader read
+		{
+			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+			barrier->textureBarrierCount = 2;
+			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
+			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
+			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
+		}
 
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
 
@@ -425,12 +539,6 @@ namespace Lina
 		});
 
 		return currentFrame.signalSemaphore;
-	}
-
-	void WorldRenderer::DrawSky(LinaGX::CommandStream* stream)
-	{
-		m_skyShader->Bind(stream, m_skyShader->GetGPUHandle());
-		// m_skyCube->GetMesh()->Draw(stream, 1);
 	}
 
 	uint64 WorldRenderer::BumpAndSendTransfers(uint32 frameIndex)

@@ -57,6 +57,7 @@ namespace Lina
 			HashMap<StringID, ShaderVariant> variants;
 			RenderPassDescriptorType		 renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
 			uint32							 descriptorSetAllocationCount = 1;
+			uint32							 materialSize				  = 0;
 			bool							 drawIndirectEnabled		  = false;
 
 			void SaveToStream(OStream& out) const;
@@ -70,23 +71,12 @@ namespace Lina
 
 		inline uint32 GetGPUHandle() const
 		{
-			return m_meta.variants.begin()->second.gpuHandle;
+			return m_meta.variants.begin()->second._gpuHandle;
 		}
 
 		inline uint32 GetGPUHandle(StringID variant) const
 		{
-			return m_meta.variants.at(variant).gpuHandle;
-		}
-
-		inline uint32 GetGPUHandle(ShaderWriteTargetType passType) const
-		{
-			for (const auto& [sid, var] : m_meta.variants)
-			{
-				if (var.targetType == passType)
-					return var.gpuHandle;
-			}
-
-			return m_meta.variants.begin()->second.gpuHandle;
+			return m_meta.variants.at(variant)._gpuHandle;
 		}
 
 		inline uint16 GetPipelineLayout() const
@@ -102,6 +92,11 @@ namespace Lina
 		inline const LinaGX::ShaderDescriptorSetLayout GetMaterialSetInfo() const
 		{
 			return m_materialSetInfo;
+		}
+
+		inline const Metadata GetMeta() const
+		{
+			return m_meta;
 		}
 
 	protected:

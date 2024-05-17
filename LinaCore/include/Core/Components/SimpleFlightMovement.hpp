@@ -56,8 +56,12 @@ namespace Lina
 
 	private:
 		LINA_REFLECTION_ACCESS(SimpleFlightMovement);
-		float m_movementSpeed = 26.0f;
-		float m_rotationSpeed = 12.0f;
+		float	m_movementSpeed = 5.0f;
+		float	m_rotationSpeed = 26.0f;
+		float	m_rotationPower = 0.75f;
+		float	m_movementPower = 7.0f;
+		Vector2 m_targetAngles	= Vector2::Zero;
+		Vector2 m_finalAngles	= Vector2::Zero;
 	};
 
 	LINA_REFLECTCOMPONENT_BEGIN(SimpleFlightMovement, "SimpleFlightMovement", "Transformation")

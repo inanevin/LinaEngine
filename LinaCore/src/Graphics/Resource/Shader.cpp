@@ -46,6 +46,7 @@ namespace Lina
 		out << static_cast<uint8>(renderPassDescriptorType);
 		out << descriptorSetAllocationCount;
 		out << drawIndirectEnabled;
+		out << materialSize;
 	}
 
 	void Shader::Metadata::LoadFromStream(IStream& in)
@@ -57,6 +58,7 @@ namespace Lina
 		renderPassDescriptorType = static_cast<RenderPassDescriptorType>(rpType);
 		in >> descriptorSetAllocationCount;
 		in >> drawIndirectEnabled;
+		in >> materialSize;
 	}
 
 	Shader::Shader(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Shader>())
@@ -70,7 +72,7 @@ namespace Lina
 		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
 
 		for (const auto& [sid, var] : m_meta.variants)
-			m_lgx->DestroyShader(var.gpuHandle);
+			m_lgx->DestroyShader(var._gpuHandle);
 
 		for (const auto& d : m_descriptorSets)
 		{
@@ -241,11 +243,6 @@ namespace Lina
 		// Create variants
 		for (auto& [sid, variant] : m_meta.variants)
 		{
-			LinaGX::Format format = DEFAULT_SWAPCHAIN_FORMAT;
-
-			if (variant.targetType == ShaderWriteTargetType::RenderTarget)
-				format = DEFAULT_RT_FORMAT_HDR;
-
 			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
 				.blendEnabled		 = !variant.blendDisable,
 				.srcColorBlendFactor = LinaGX::BlendFactor::SrcAlpha,
@@ -258,21 +255,24 @@ namespace Lina
 			};
 
 			LINAGX_VEC<LinaGX::ShaderColorAttachment> colorAttachments;
-			colorAttachments.resize(1);
+			colorAttachments.resize(variant.targets.size());
 
-			colorAttachments[0] = {
-				.format			 = format,
-				.blendAttachment = blend,
-			};
+			for (size_t i = 0; i < variant.targets.size(); i++)
+			{
+				colorAttachments[i] = {
+					.format			 = variant.targets[i].format,
+					.blendAttachment = blend,
+				};
+			}
 
 			LinaGX::ShaderDepthStencilDesc depthStencilAtt = {
 				.depthStencilAttachmentFormat = LinaGX::Format::D32_SFLOAT,
-				.depthWrite					  = !variant.depthDisable,
-				.depthTest					  = !variant.depthDisable,
-				.depthCompare				  = LinaGX::CompareOp::Less,
+				.depthWrite					  = variant.depthWrite,
+				.depthTest					  = variant.depthTest,
+				.depthCompare				  = variant.depthOp,
 			};
 
-			variant.gpuHandle = m_lgx->CreateShader({
+			variant._gpuHandle = m_lgx->CreateShader({
 				.stages					 = m_outCompiledBlobs,
 				.colorAttachments		 = colorAttachments,
 				.depthStencilDesc		 = depthStencilAtt,

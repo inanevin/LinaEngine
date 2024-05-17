@@ -32,11 +32,17 @@ layout(set = 0, binding = 0) uniform GlobalData
 	vec4 deltaElapsed;
 } LINA_GLOBAL;
 
+layout (set = 0, binding = 1) readonly buffer MaterialBuffer
+{
+	uint data[];
+} LINA_MATERIALS;
+
 #define LINA_MOUSE_POS LINA_GLOBAL.mouseScreen.xy
 #define LINA_SCREEN_RES LINA_GLOBAL.mouseScreen.zw
 #define LINA_DT LINA_GLOBAL.deltaElapsed.x
 #define LINA_ET LINA_GLOBAL.deltaElapsed.y
 
-layout (set = 0, binding = 1) uniform texture2D LINA_TEXTURES[];
-layout (set = 0, binding = 2) uniform sampler LINA_SAMPLERS[];
+layout (set = 0, binding = 2) uniform texture2D LINA_TEXTURES[];
+layout (set = 0, binding = 3) uniform sampler LINA_SAMPLERS[];
+
 

@@ -35,16 +35,26 @@ SOFTWARE.
 
 namespace Lina
 {
+	struct VariantColorTarget
+	{
+		LinaGX::Format format;
+
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
+	};
+
 	struct ShaderVariant
 	{
-		uint32 gpuHandle = 0;
+		uint32 _gpuHandle = 0;
 
-		String				  name		   = "";
-		bool				  blendDisable = false;
-		bool				  depthDisable = false;
-		ShaderWriteTargetType targetType   = ShaderWriteTargetType::RenderTarget;
-		LinaGX::CullMode	  cullMode	   = LinaGX::CullMode::Back;
-		LinaGX::FrontFace	  frontFace	   = LinaGX::FrontFace::CCW;
+		String					   name			= "";
+		bool					   blendDisable = false;
+		bool					   depthTest	= true;
+		bool					   depthWrite	= true;
+		Vector<VariantColorTarget> targets;
+		LinaGX::CompareOp		   depthOp	 = LinaGX::CompareOp::Less;
+		LinaGX::CullMode		   cullMode	 = LinaGX::CullMode::Back;
+		LinaGX::FrontFace		   frontFace = LinaGX::FrontFace::CCW;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);

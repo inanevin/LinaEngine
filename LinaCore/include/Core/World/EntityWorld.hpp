@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Physics/PhysicsWorld.hpp"
 #include "Common/Event/GameEventDispatcher.hpp"
 #include "Core/World/CommonWorld.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 
 namespace Lina
 {
@@ -58,6 +59,14 @@ namespace Lina
 	class EntityWorld : public Resource, public GameEventDispatcher
 	{
 	public:
+		struct GfxSettings
+		{
+			ResRef<Material> skyMaterial;
+
+			void SaveToStream(OStream& stream) const;
+			void LoadFromStream(IStream& stream);
+		};
+
 		Entity*		 GetEntity(uint32 id);
 		Entity*		 GetEntity(const String& name);
 		Entity*		 GetEntityFromSID(StringID sid);
@@ -67,6 +76,7 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
+		Vector2ui	 GetRenderSize() const;
 
 		inline Bitmask32 GetFlags()
 		{
@@ -136,6 +146,7 @@ namespace Lina
 		{
 			T* comp = Cache<T>()->AddComponent(e, t);
 			*comp	= t;
+			ProcessComponent(comp);
 
 			for (auto* l : m_listeners)
 				l->OnComponentAdded(comp);
@@ -146,7 +157,7 @@ namespace Lina
 		template <typename T> T* AddComponent(Entity* e)
 		{
 			T* ptr = Cache<T>()->AddComponent(e);
-
+			ProcessComponent(ptr);
 			for (auto* l : m_listeners)
 				l->OnComponentAdded(ptr);
 			return ptr;
@@ -168,6 +179,17 @@ namespace Lina
 			Cache<T>()->DestroyComponent(e);
 		}
 
+		inline const GfxSettings& GetGfxSettings() const
+		{
+			return m_gfxSettings;
+		}
+
+		inline void SetSkyMaterial(Material* mat)
+		{
+			m_gfxSettings.skyMaterial.raw = mat;
+			m_gfxSettings.skyMaterial.sid = mat->GetSID();
+		}
+
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 
@@ -183,6 +205,8 @@ namespace Lina
 			cache->m_entities		 = m_entities.GetRaw();
 			return cache;
 		}
+
+		void ProcessComponent(Component* c);
 
 	private:
 		FRIEND_RESOURCE_CACHE();
@@ -222,6 +246,7 @@ namespace Lina
 	private:
 		static uint32 s_worldCounter;
 
+		System*								 m_system = nullptr;
 		PhysicsWorld						 m_physicsWorld;
 		MemoryAllocatorPool					 m_allocatorPool;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
@@ -232,6 +257,7 @@ namespace Lina
 		Bitmask32							 m_flags		= 0;
 		Vector<EntityWorldListener*>		 m_listeners;
 		WorldRenderer*						 m_renderer = nullptr;
+		GfxSettings							 m_gfxSettings;
 	};
 
 } // namespace Lina

@@ -26,10 +26,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/RenderableComponent.hpp"
-#include "Common/Data/CommonData.hpp"
+#lina_vs
 
-namespace Lina
+layout (location = 0) in vec3 inPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+
+layout (location = 0) out vec3 outWorldPos;
+layout (location = 1) out vec3 outNormal;
+layout (location = 2) out vec2 outUV;
+
+void main()
 {
+   outWorldPos = inPos;
+   outNormal = inNormal;
+   outUV = inUV;
+   mat4 rotView = mat4(mat3(LINA_VIEW.view));
+	vec4 clipPos = LINA_VIEW.proj * rotView * vec4(outWorldPos, 1.0);
+	gl_Position = clipPos.xyww;
+}
 
-} // namespace Lina
+#lina_end
+
+#lina_fs
+
+layout (location = 0) in vec3 inWorldPos;
+layout (location = 1) in vec3 inNormal;
+layout (location = 2) in vec2 inUV;
+
+layout (location = 0) out vec4 outFragColor;
+
+// layout(set = 2, binding = 0) uniform MaterialData
+// {
+//    vec4 color1;
+// } material;
+
+void main()
+{
+   vec3 normalizedDir = normalize(inWorldPos);
+	float factor = clamp(normalizedDir.y * 1.67f + 0.940, 0.0f, 1.0f);
+   outFragColor = vec4(inWorldPos * 0.6, 1);
+}
+
+#lina_end

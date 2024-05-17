@@ -48,6 +48,7 @@ namespace Lina
 	{
 	public:
 		Matrix4(){};
+		Matrix4(const Quaternion& q);
 		Matrix4(const Vector4& vecX, const Vector4& vecY, const Vector4& vecZ, const Vector4& vecOffset);
 		Matrix4(const float* data);
 		Matrix4(glm::mat4 mat) : glm::mat4(mat){};
@@ -57,7 +58,7 @@ namespace Lina
 		static Matrix4 Scale(const Vector3& amt);
 		static Matrix4 Scale(float amt);
 		static Matrix4 Orthographic(float left, float right, float bottom, float top, float near, float far);
-		static Matrix4 Perspective(float halfFov, float aspect, float nearZ, float farZ);
+		static Matrix4 Perspective(float halfFovDegrees, float aspect, float nearZ, float farZ);
 		static Matrix4 TransformMatrix(const Vector3& translation, const Quaternion& rotation, const Vector3& scale);
 		static Matrix4 InitRotationFromVectors(const Vector3&, const Vector3&, const Vector3&);
 		static Matrix4 InitRotationFromDirection(const Vector3& forward, const Vector3& up);

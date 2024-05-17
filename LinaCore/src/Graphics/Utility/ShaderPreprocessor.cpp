@@ -96,6 +96,8 @@ namespace Lina
 			rpText = "main";
 		else if (rpType == RenderPassDescriptorType::Gui)
 			rpText = "gui";
+		else if (rpType == RenderPassDescriptorType::Lighting)
+			rpText = "lighting";
 
 		const String renderPassPath	   = String("Resources/Core/Shaders/Common/RenderPass_") + rpText + ".linashader";
 		const String globalDataInclude = getInclude("Resources/Core/Shaders/Common/GlobalData.linashader");

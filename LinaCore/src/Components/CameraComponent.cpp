@@ -27,8 +27,18 @@ SOFTWARE.
 */
 
 #include "Core/Components/CameraComponent.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Math/Matrix.hpp"
 
 namespace Lina
 {
-
+	void CameraComponent::PostTick(float delta)
+	{
+		Matrix4 rotMat			  = Matrix4(m_entity->GetRotation().Inverse());
+		Matrix4 translationMatrix = Matrix4::Translate(-m_entity->GetPosition());
+		m_view					  = rotMat * translationMatrix;
+		const Vector2ui& sz		  = m_world->GetRenderSize();
+		m_projection			  = Matrix4::Perspective(m_fieldOfView / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), m_zNear, m_zFar);
+	}
 } // namespace Lina

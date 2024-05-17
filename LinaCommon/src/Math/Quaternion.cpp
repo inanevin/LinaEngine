@@ -157,8 +157,8 @@ namespace Lina
 		return Quaternion::Euler(Vector3(x, y, z));
 	}
 
-	Quaternion Quaternion::AxisAngle(const Vector3& axis, float angle)
+	Quaternion Quaternion::AngleAxis(float angleDegrees, const Vector3& axis)
 	{
-		return glm::angleAxis(glm::radians(angle), axis);
+		return glm::angleAxis(glm::radians(angleDegrees), axis);
 	}
 } // namespace Lina

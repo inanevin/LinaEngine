@@ -28,26 +28,41 @@ SOFTWARE.
 
 #include "Core/Graphics/Resource/ShaderVariant.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
+	void VariantColorTarget::SaveToStream(OStream& stream) const
+	{
+		stream << static_cast<uint8>(format);
+	}
+
+	void VariantColorTarget::LoadFromStream(IStream& stream)
+	{
+		uint8 fmt = 0;
+		stream >> fmt;
+		format = static_cast<LinaGX::Format>(fmt);
+	}
+
 	void ShaderVariant::SaveToStream(OStream& stream) const
 	{
-		const uint8 targetTypeInt = static_cast<uint8>(targetType);
-		const uint8 cullModeInt	  = static_cast<uint8>(cullMode);
-		const uint8 frontFaceInt  = static_cast<uint8>(frontFace);
-		stream << gpuHandle << blendDisable << depthDisable << targetTypeInt << cullModeInt << frontFaceInt;
+		const uint8 cullModeInt	 = static_cast<uint8>(cullMode);
+		const uint8 frontFaceInt = static_cast<uint8>(frontFace);
+		const uint8 depthOpInt	 = static_cast<uint8>(depthOp);
+		stream << blendDisable << depthTest << depthWrite << cullModeInt << frontFaceInt << depthOpInt;
 		StringSerialization::SaveToStream(stream, name);
+		VectorSerialization::SaveToStream_OBJ(stream, targets);
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
-		uint8 targetTypeInt = 0, cullModeInt = 0, frontFaceInt = 0;
-		stream >> gpuHandle >> blendDisable >> depthDisable >> targetTypeInt >> cullModeInt >> frontFaceInt;
+		uint8 cullModeInt = 0, frontFaceInt = 0, depthOpInt = 0;
+		stream >> blendDisable >> depthTest >> depthWrite >> cullModeInt >> frontFaceInt >> depthOpInt;
 		StringSerialization::LoadFromStream(stream, name);
-		targetType = static_cast<ShaderWriteTargetType>(targetTypeInt);
-		cullMode   = static_cast<LinaGX::CullMode>(cullModeInt);
-		frontFace  = static_cast<LinaGX::FrontFace>(frontFaceInt);
+		VectorSerialization::LoadFromStream_OBJ(stream, targets);
+		depthOp	  = static_cast<LinaGX::CompareOp>(depthOpInt);
+		cullMode  = static_cast<LinaGX::CullMode>(cullModeInt);
+		frontFace = static_cast<LinaGX::FrontFace>(frontFaceInt);
 	}
 
 } // namespace Lina

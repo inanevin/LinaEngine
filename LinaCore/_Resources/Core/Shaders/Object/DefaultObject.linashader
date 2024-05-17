@@ -35,20 +35,25 @@ layout (location = 2) in vec2 inUV;
 layout (location = 0) out vec3 outWorldPos;
 layout (location = 1) out vec3 outNormal;
 layout (location = 2) out vec2 outUV;
-
-layout( push_constant ) uniform constants
-{
-	int batchStart;
-} Constants;
+layout (location = 3) flat out uint outMaterialBytePadding;
 
 void main()
 {
-    int instanceIndex = Constants.batchStart + LGX_DRAW_ID;
-    uint entityID = LINA_INDIRECT_ARGUMENTS.data[instanceIndex].entityID;
+
+#ifdef LGX_COMPILE_HLSL
+   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
+#else
+   int argBufferIndex = gl_InstanceIndex;
+#endif  
+
+   IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+    
+    uint entityID = argBuffer.entityID;
     Object object = LINA_OBJECTS.data[entityID];
     outWorldPos = vec3(object.modelMatrix * vec4(inPos, 1.0));
     outNormal = inNormal;
     outUV = inUV;
+    outMaterialBytePadding = argBuffer.materialBytePadding;
     gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
 }
 
@@ -59,7 +64,11 @@ void main()
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
-layout (location = 0) out vec4 outFragColor;
+layout (location = 3) flat in uint inMaterialBytePadding;
+
+layout (location = 0) out vec4 outColorMaterialID;
+layout (location = 1) out vec4 outPosition;
+layout (location = 2) out vec4 outNormal;
 
 layout(set = 2, binding = 0) uniform MaterialData
 {
@@ -68,7 +77,9 @@ layout(set = 2, binding = 0) uniform MaterialData
 
 void main()
 {
-   outFragColor = vec4(inNormal, 1.0f);
+   outColorMaterialID = vec4(vec3(1), float(inMaterialBytePadding));
+   outPosition = vec4(inWorldPos, 0.0f);
+   outNormal = vec4(inNormal, 0.0f);
 }
 
 #lina_end

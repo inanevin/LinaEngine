@@ -40,20 +40,26 @@ namespace Lina
 		};
 
 		LinaGX::DescriptorBinding binding1 = {
+			.descriptorCount = 1,
+			.type			 = LinaGX::DescriptorType::SSBO,
+			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+		};
+
+		LinaGX::DescriptorBinding binding2 = {
 			.descriptorCount = 100,
 			.type			 = LinaGX::DescriptorType::SeparateImage,
 			.unbounded		 = true,
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
 
-		LinaGX::DescriptorBinding binding2 = {
+		LinaGX::DescriptorBinding binding3 = {
 			.descriptorCount = 100,
 			.type			 = LinaGX::DescriptorType::SeparateSampler,
 			.unbounded		 = true,
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
 
-		return {.bindings = {binding0, binding1, binding2}};
+		return {.bindings = {binding0, binding1, binding2, binding3}};
 	}
 
 	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassDescriptorType type)
@@ -79,7 +85,7 @@ namespace Lina
 			};
 
 			LinaGX::DescriptorBinding binding1 = {
-				.type	= LinaGX::DescriptorType::UBO,
+				.type	= LinaGX::DescriptorType::SSBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
@@ -88,12 +94,26 @@ namespace Lina
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			LinaGX::DescriptorBinding binding3 = {
-				.type	= LinaGX::DescriptorType::SSBO,
+			return {.bindings = {binding0, binding1, binding2}};
+		}
+		else if (type == RenderPassDescriptorType::Lighting)
+		{
+			LinaGX::DescriptorBinding binding0 = {
+				.type	= LinaGX::DescriptorType::UBO,
 				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 			};
 
-			return {.bindings = {binding0, binding1, binding2, binding3}};
+			LinaGX::DescriptorBinding binding1 = {
+				.type	= LinaGX::DescriptorType::UBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding2 = {
+				.type	= LinaGX::DescriptorType::UBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {.bindings = {binding0, binding1, binding2}};
 		}
 
 		LINA_ASSERT(false, "");
@@ -198,8 +218,9 @@ namespace Lina
 		LinaGX::PipelineLayoutDesc desc;
 		desc.descriptorSetDescriptions = {GetSetDescPersistentGlobal(), GetSetDescPersistentRenderPass(renderPassType)};
 		desc.debugName				   = "Persistent RenderPass Layout";
-		if (renderPassType == RenderPassDescriptorType::Main)
-			desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(GPUPushConstantRPMain)});
+		// if (renderPassType == RenderPassDescriptorType::Main)
+		//	desc.constantRanges.push_back(LinaGX::PipelineLayoutPushConstantRange{.stages = {LinaGX::ShaderStage::Vertex}, .size = sizeof(GPUPushConstantRPMain)});
+
 		return desc;
 	}
 

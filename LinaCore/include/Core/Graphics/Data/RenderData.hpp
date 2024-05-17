@@ -46,14 +46,17 @@ namespace Lina
 		bool operator()(const Material* lhs, const Material* rhs) const;
 	};
 
-	struct DrawDataMeshDefault
+	struct InstanceData
 	{
-		MeshDefault*   mesh = nullptr;
-		Vector<uint32> entityIndices;
+		Material* material	  = nullptr;
+		uint32	  entityIndex = 0;
 	};
 
-	typedef Map<Material*, MeshDefault*, MaterialComparator>				MaterialToMeshMap;
-	typedef Map<Material*, Vector<DrawDataMeshDefault>, MaterialComparator> MaterialToMeshDataMap;
+	struct DrawDataMeshDefault
+	{
+		MeshDefault*		 mesh = nullptr;
+		Vector<InstanceData> instances;
+	};
 
 	enum RenderableType
 	{
@@ -76,9 +79,11 @@ namespace Lina
 		Matrix4 view;
 		Matrix4 proj;
 		Matrix4 viewProj;
-		Vector4 cameraPosition;
-		Vector2 cameraNearFar;
-		Vector2 screenSize;
+		Vector4 cameraPositionAndNear;
+		Vector4 cameraDirectionAndFar;
+		Vector2 size;
+		Vector2 padding;
+		Vector4 padding2;
 	};
 
 	struct GPUDataScene
@@ -112,11 +117,44 @@ namespace Lina
 	struct GPUIndirectConstants0
 	{
 		uint32 entityID;
+		uint32 materialByteIndex;
+		uint32 instanceCount;
+		uint32 padding;
 	};
 
 	struct GPUPushConstantRPMain
 	{
 		uint32 batchStartIndex = 0;
+	};
+
+	struct GPUMaterialDefaultSky
+	{
+		Vector4 color;
+	};
+
+	struct GPUMaterialDefaultObject
+	{
+		Vector4 color;
+	};
+
+	struct GPUDataAtmosphere
+	{
+		Vector4 skyTopAndDiffusion;
+		Vector4 skyHorizonAndBase;
+		Vector4 skyGroundAndCurvature;
+		Vector4 sunLightAndCoef;
+		Vector4 sunPosition;
+	};
+
+	struct GPUDataDeferredLightingPass
+	{
+		uint32 gBufColorMaterialID = 0;
+		uint32 gBufPosition		   = 0;
+		uint32 gBufNormal		   = 0;
+		uint32 gBufDepth		   = 0;
+		uint32 gBufSampler		   = 0;
+		uint32 checkerTexture	   = 0;
+		uint32 pad[2];
 	};
 
 } // namespace Lina

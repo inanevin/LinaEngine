@@ -279,7 +279,6 @@ namespace Lina
 
 		m_gpuHandle		  = gfxManager->GetLGX()->CreateTexture(desc);
 		m_gpuHandleExists = true;
-		gfxManager->MarkBindlessDirty();
 	}
 
 	void Texture::AddToUploadQueue()

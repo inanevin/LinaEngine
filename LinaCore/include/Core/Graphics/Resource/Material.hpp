@@ -76,24 +76,38 @@ namespace Lina
 		};
 
 		void SetShader(StringID sid);
-		void Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle = 0);
-		void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex, size_t padding, uint8* data, size_t dataSize);
-		void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
-		void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
-		void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle);
+		void BufferData(size_t padding, uint8* data, size_t size);
 
-		inline Buffer& GetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex)
-		{
-			return m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
-		}
+		// void Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle = 0);
+		// void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex, size_t padding, uint8* data, size_t dataSize);
+		// void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
+		// void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
+		// void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle);
+
+		// inline Buffer& GetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex)
+		// {
+		// 	return m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
+		// }
 
 		inline Shader* GetShader() const
 		{
 			return m_shader;
 		}
 
+		inline uint32 GetBindlessBytePadding() const
+		{
+			return m_bindlessBytePadding;
+		}
+
+		inline const Span<uint8>& GetBuffer() const
+		{
+			return m_buffer;
+		}
+
 	private:
 		FRIEND_RESOURCE_CACHE();
+		friend class GfxManager;
+
 		Material(ResourceManager* rm, const String& path, StringID sid);
 		virtual ~Material();
 
@@ -104,6 +118,9 @@ namespace Lina
 		virtual void BatchLoaded() override;
 
 	private:
+		void GenerateBuffer();
+		void DestroyBuffer();
+
 		void CreateDescriptorSets();
 		void DestroyDescriptorSets();
 		void CreateBindingData();
@@ -117,6 +134,9 @@ namespace Lina
 		StringID			 m_shaderSID  = 0;
 		DescriptorAllocation m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		Vector<BindingData>	 m_bindingData;
+		Span<uint8>			 m_buffer;
+		size_t				 m_bindlessBytePadding = 0;
+		bool				 m_bufferDirty		   = false;
 	};
 
 } // namespace Lina

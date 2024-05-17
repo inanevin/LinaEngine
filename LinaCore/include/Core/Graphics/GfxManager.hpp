@@ -57,12 +57,13 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			uint16		 pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16		 pipelineLayoutPersistentGlobal = 0;
-			uint16		 descriptorSetPersistentGlobal	= 0;
-			uint32		 globalDataResource				= 0;
-			uint8*		 globalDataMapped				= nullptr;
-			Atomic<bool> bindlessDirty					= true;
+			uint16 pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16 pipelineLayoutPersistentGlobal = 0;
+			uint16 descriptorSetPersistentGlobal  = 0;
+			Buffer globalDataBuffer;
+			Buffer globalMaterialsBuffer;
+
+			Atomic<bool> bindlessDirty = true;
 		};
 
 	public:
@@ -140,6 +141,11 @@ namespace Lina
 			}
 		}
 
+		inline TextureSampler* GetDefaultSampler(uint32 index) const
+		{
+			return m_defaultSamplers[index];
+		}
+
 	private:
 		void UpdateBindlessResources(PerFrameData& pfd);
 
@@ -161,6 +167,7 @@ namespace Lina
 		Color							m_clearColor = Color::Black;
 		PerFrameData					m_pfd[FRAMES_IN_FLIGHT];
 		Mutex							m_wrMtx;
+		Mutex							m_bindlessMtx;
 	};
 } // namespace Lina
 #endif

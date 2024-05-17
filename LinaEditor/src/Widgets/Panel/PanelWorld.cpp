@@ -65,7 +65,7 @@ namespace Lina::Editor
 		if (!m_world)
 			return;
 
-		m_lvg->DrawImage(m_worldRenderer->GetTexture(m_gfxMan->GetLGX()->GetCurrentFrameIndex())->GetBindlessIndex() + 1, m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
+		m_lvg->DrawImage(m_worldRenderer->GetLightingPassOutput(m_gfxMan->GetLGX()->GetCurrentFrameIndex())->GetBindlessIndex() + 1, m_rect.GetCenter().AsLVG(), m_rect.size.AsLVG(), {1, 1, 1, 1}, 0.0f, m_drawOrder);
 	}
 
 } // namespace Lina::Editor

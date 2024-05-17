@@ -50,7 +50,7 @@ namespace Lina
 	class ResourceCacheBase
 	{
 	public:
-		ResourceCacheBase(const Vector<String>& extensions, PackageType pt) : m_packageType(pt), m_extensions(extensions){};
+		ResourceCacheBase(const Vector<String>& extensions, PackageType pt, uint32 typeFlags) : m_packageType(pt), m_extensions(extensions), m_typeFlags(typeFlags){};
 		virtual ~ResourceCacheBase() = default;
 
 		virtual Resource* CreateResource(StringID sid, const String& path, ResourceManager* rm, ResourceOwner ownerType) = 0;
@@ -70,16 +70,22 @@ namespace Lina
 			return it != m_extensions.end();
 		}
 
+		inline const Bitmask32& GetTypeFlags() const
+		{
+			return m_typeFlags;
+		}
+
 	protected:
 		PackageType	   m_packageType = PackageType::Default;
 		Vector<String> m_extensions;
+		Bitmask32	   m_typeFlags = 0;
 	};
 
 	template <typename T> class ResourceCache : public ResourceCacheBase
 	{
 	public:
-		ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt)
-			: ResourceCacheBase(extensions, pt), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "Resources"_hs))
+		ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt, uint32 typeFlags)
+			: ResourceCacheBase(extensions, pt, typeFlags), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "Resources"_hs))
 		{
 		}
 

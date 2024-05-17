@@ -75,7 +75,7 @@ namespace Lina
 
 		// RP
 		m_guiPass.Create(m_gfxManager, RenderPassDescriptorType::Gui);
-		m_guiRenderer.Create(m_gfxManager, &m_guiPass, ShaderWriteTargetType::Swapchain, window);
+		m_guiRenderer.Create(m_gfxManager, &m_guiPass, "Swapchain"_hs, window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()

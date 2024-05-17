@@ -43,6 +43,7 @@ namespace Lina
 	{
 		m_mode		   = initInfo.resourceManagerMode;
 		m_useMetaCache = initInfo.resourceManagerUseMetacache;
+		m_gfxManager   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 	}
 
 	void ResourceManager::Shutdown()
@@ -131,7 +132,7 @@ namespace Lina
 						}
 
 						res->m_resourceManager = this;
-						res->m_tag			   = ident.tag;
+						res->m_flags		   = ident.flags;
 						res->LoadFromFile(ident.path.c_str());
 
 						OStream metastream;
@@ -174,7 +175,7 @@ namespace Lina
 					IStream	  load	= stream;
 					auto&	  cache = m_caches.at(ident.tid);
 					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
-					res->m_tag		= ident.tag;
+					res->m_flags	= ident.flags;
 					res->LoadFromStream(load);
 					res->Upload();
 
@@ -231,10 +232,20 @@ namespace Lina
 		const int	   sz = static_cast<uint32>(m_loadTasks.size());
 		Vector<uint32> toErase;
 
+		bool containsBindlessResource = false;
+
 		for (auto [id, task] : m_loadTasks)
 		{
 			if (task->isCompleted.load())
 			{
+				for (const auto& ident : task->identifiers)
+				{
+					if (m_caches.at(ident.tid)->GetTypeFlags().IsSet(RTF_BINDLESS_RESOURCE))
+					{
+						containsBindlessResource = true;
+						break;
+					}
+				}
 				DispatchLoadTaskEvent(task);
 				toErase.push_back(id);
 				delete task;
@@ -243,6 +254,9 @@ namespace Lina
 
 		for (auto id : toErase)
 			m_loadTasks.erase(m_loadTasks.find(id));
+
+		if (containsBindlessResource)
+			m_gfxManager->MarkBindlessDirty();
 	}
 
 	void ResourceManager::WaitForAll()
