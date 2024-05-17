@@ -22,6 +22,7 @@ set (SOURCES
 	
 # Audio
 src/Audio/AudioManager.cpp
+src/Audio/Audio.cpp
 
 # Core
 src/Application.cpp
@@ -132,6 +133,8 @@ include/Core/EngineInterface.hpp
 
 # Audio
 include/Core/Audio/AudioManager.hpp
+include/Core/Audio/Audio.hpp
+include/Core/Audio/miniaudio/miniaudio.h
 
 # Platform
 include/Core/Platform/PlatformProcess.hpp

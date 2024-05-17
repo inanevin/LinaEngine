@@ -51,6 +51,7 @@ namespace Lina
 		bool					   blendDisable = false;
 		bool					   depthTest	= true;
 		bool					   depthWrite	= true;
+		LinaGX::Format			   depthFormat	= LinaGX::Format::D32_SFLOAT;
 		Vector<VariantColorTarget> targets;
 		LinaGX::CompareOp		   depthOp			 = LinaGX::CompareOp::Less;
 		LinaGX::CullMode		   cullMode			 = LinaGX::CullMode::Back;

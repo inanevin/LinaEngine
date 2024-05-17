@@ -26,36 +26,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Audio/AudioManager.hpp"
+#pragma once
 
-#define MINIAUDIO_IMPLEMENTATION
-#include "Core/Audio/miniaudio/miniaudio.h"
+#include "Core/Resources/Resource.hpp"
 
 namespace Lina
 {
-
-	void AudioManager::Initialize(const SystemInitializationInfo& initInfo)
+	class Audio : public Resource
 	{
-		m_audioEngine = (ma_engine*)MALLOC(sizeof(ma_engine));
-
-		ma_engine_config engineConfig;
-		engineConfig = ma_engine_config_init();
-
-		ma_result result = ma_engine_init(&engineConfig, m_audioEngine);
-		if (result != MA_SUCCESS)
+	public:
+		struct Metadata
 		{
-			LINA_ERR("AudioManager -> Failed creating audio engine! {0}", (int32)result);
-			return;
+
+			void SaveToStream(OStream& out) const;
+			void LoadFromStream(IStream& in);
+		};
+
+	private:
+		FRIEND_RESOURCE_CACHE();
+		Audio(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Audio>()){};
+		virtual ~Audio();
+
+	protected:
+		virtual void Upload() override;
+		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromStream(IStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void SetCustomMeta(IStream& stream) override
+		{
+			m_meta.LoadFromStream(stream);
 		}
-	}
 
-	void AudioManager::Shutdown()
-	{
-		ma_engine_uninit(m_audioEngine);
-		FREE(m_audioEngine);
-	}
-
-	void AudioManager::Tick(float delta)
-	{
-	}
+	private:
+		Metadata m_meta = {};
+	};
 } // namespace Lina

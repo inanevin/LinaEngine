@@ -46,23 +46,25 @@ namespace Lina
 
 	void ShaderVariant::SaveToStream(OStream& stream) const
 	{
-		const uint8 cullModeInt	 = static_cast<uint8>(cullMode);
-		const uint8 frontFaceInt = static_cast<uint8>(frontFace);
-		const uint8 depthOpInt	 = static_cast<uint8>(depthOp);
-		stream << blendDisable << depthTest << depthWrite << cullModeInt << frontFaceInt << depthOpInt << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope;
+		const uint8 cullModeInt	   = static_cast<uint8>(cullMode);
+		const uint8 frontFaceInt   = static_cast<uint8>(frontFace);
+		const uint8 depthOpInt	   = static_cast<uint8>(depthOp);
+		const uint8 depthFormatInt = static_cast<uint8>(depthFormat);
+		stream << blendDisable << depthTest << depthWrite << cullModeInt << frontFaceInt << depthOpInt << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope << depthFormatInt;
 		StringSerialization::SaveToStream(stream, name);
 		VectorSerialization::SaveToStream_OBJ(stream, targets);
 	}
 
 	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
-		uint8 cullModeInt = 0, frontFaceInt = 0, depthOpInt = 0;
-		stream >> blendDisable >> depthTest >> depthWrite >> cullModeInt >> frontFaceInt >> depthOpInt >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope;
+		uint8 cullModeInt = 0, frontFaceInt = 0, depthOpInt = 0, depthFormatInt = 0;
+		stream >> blendDisable >> depthTest >> depthWrite >> cullModeInt >> frontFaceInt >> depthOpInt >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope >> depthFormatInt;
 		StringSerialization::LoadFromStream(stream, name);
 		VectorSerialization::LoadFromStream_OBJ(stream, targets);
-		depthOp	  = static_cast<LinaGX::CompareOp>(depthOpInt);
-		cullMode  = static_cast<LinaGX::CullMode>(cullModeInt);
-		frontFace = static_cast<LinaGX::FrontFace>(frontFaceInt);
+		depthOp		= static_cast<LinaGX::CompareOp>(depthOpInt);
+		cullMode	= static_cast<LinaGX::CullMode>(cullModeInt);
+		frontFace	= static_cast<LinaGX::FrontFace>(frontFaceInt);
+		depthFormat = static_cast<LinaGX::Format>(depthFormatInt);
 	}
 
 } // namespace Lina

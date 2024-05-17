@@ -188,7 +188,6 @@ namespace Lina
 	void GUIRenderer::Destroy()
 	{
 		m_widgetManager.Shutdown();
-
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];

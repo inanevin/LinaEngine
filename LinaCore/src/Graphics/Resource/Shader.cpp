@@ -266,7 +266,7 @@ namespace Lina
 			}
 
 			LinaGX::ShaderDepthStencilDesc depthStencilAtt = {
-				.depthStencilAttachmentFormat = LinaGX::Format::D32_SFLOAT,
+				.depthStencilAttachmentFormat = variant.depthFormat,
 				.depthWrite					  = variant.depthWrite,
 				.depthTest					  = variant.depthTest,
 				.depthCompare				  = variant.depthOp,

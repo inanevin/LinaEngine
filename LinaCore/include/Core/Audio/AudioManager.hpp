@@ -28,10 +28,9 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AudioManager_HPP
-#define AudioManager_HPP
-
 #include "Common/System/Subsystem.hpp"
+
+struct ma_engine;
 
 namespace Lina
 {
@@ -44,7 +43,13 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 		virtual void Tick(float delta);
+
+		inline ma_engine& GetEngine() const
+		{
+			return *m_audioEngine;
+		}
+
+	private:
+		ma_engine* m_audioEngine = nullptr;
 	};
 } // namespace Lina
-
-#endif

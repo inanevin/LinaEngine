@@ -268,11 +268,8 @@ namespace Lina
 		m_mainPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 
 		GPUDataAtmosphere atmosphere = {
-			.skyTopAndDiffusion	   = Color(0.1f, 0.5f, 0.7f, 0.05f),
-			.skyHorizonAndBase	   = Color(0.5f, 0.1f, 0.6f, 0.5f),
-			.skyGroundAndCurvature = Color(0.01f, 0.01f, 0.01f, 0.05f),
-			.sunLightAndCoef	   = Vector4(1.0f, 1.0f, 1.0f, 20.0f),
-			.sunPosition		   = Vector4(25, 15, 100, 0),
+			.skyTopAndDiffusion = Color(0.1f, 0.5f, 0.7f, 0.05f), .skyHorizonAndBase = Color(0.5f, 0.1f, 0.6f, 0.5f), .skyGroundAndCurvature = Color(0.01f, 0.01f, 0.01f, 0.05f), .sunLightAndCoef = Vector4(1.0f, 1.0f, 1.0f, 20.0f),
+			//.sunPosition		   = Vector4(25, 15, 100, 0),
 		};
 
 		m_lightingPass.GetBuffer(frameIndex, 1).BufferData(0, (uint8*)&atmosphere, sizeof(GPUDataAtmosphere));
@@ -281,9 +278,9 @@ namespace Lina
 			.gBufColorMaterialID = currentFrame.gBufColorMaterialID->GetBindlessIndex(),
 			.gBufPosition		 = currentFrame.gBufPosition->GetBindlessIndex(),
 			.gBufNormal			 = currentFrame.gBufNormal->GetBindlessIndex(),
-			.gBufDepth			 = currentFrame.gBufDepth->GetBindlessIndex(),
-			.gBufSampler		 = m_gBufSampler->GetBindlessIndex(),
-			.checkerTexture		 = m_checkerTexture->GetBindlessIndex(),
+			//.gBufDepth			 = currentFrame.gBufDepth->GetBindlessIndex(),
+			.gBufSampler	= m_gBufSampler->GetBindlessIndex(),
+			.checkerTexture = m_checkerTexture->GetBindlessIndex(),
 		};
 
 		m_lightingPass.GetBuffer(frameIndex, 2).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataDeferredLightingPass));

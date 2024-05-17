@@ -151,10 +151,11 @@ namespace Lina
 		uint32 gBufColorMaterialID = 0;
 		uint32 gBufPosition		   = 0;
 		uint32 gBufNormal		   = 0;
-		uint32 gBufDepth		   = 0;
 		uint32 gBufSampler		   = 0;
 		uint32 checkerTexture	   = 0;
-		uint32 pad[2];
+		uint32 pad;
+		uint32 pad2;
+		uint32 pad3;
 	};
 
 } // namespace Lina

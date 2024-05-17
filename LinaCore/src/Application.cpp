@@ -119,6 +119,7 @@ namespace Lina
 				.blendDisable = false,
 				.depthTest	  = false,
 				.depthWrite	  = false,
+				.depthFormat  = LinaGX::Format::UNDEFINED,
 				.targets	  = {{.format = DEFAULT_RT_FORMAT_HDR}},
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
@@ -128,6 +129,7 @@ namespace Lina
 				.blendDisable = false,
 				.depthTest	  = false,
 				.depthWrite	  = false,
+				.depthFormat  = LinaGX::Format::UNDEFINED,
 				.targets	  = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
@@ -191,7 +193,7 @@ namespace Lina
 				.cullMode		   = LinaGX::CullMode::Back,
 				.frontFace		   = LinaGX::FrontFace::CW,
 				.depthBiasEnable   = true,
-				.depthBiasConstant = 1.0f,
+				.depthBiasConstant = 5.0f,
 			};
 
 			meta.descriptorSetAllocationCount = 1;
