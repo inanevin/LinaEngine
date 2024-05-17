@@ -49,7 +49,7 @@ namespace Lina
 		const uint8 cullModeInt	 = static_cast<uint8>(cullMode);
 		const uint8 frontFaceInt = static_cast<uint8>(frontFace);
 		const uint8 depthOpInt	 = static_cast<uint8>(depthOp);
-		stream << blendDisable << depthTest << depthWrite << cullModeInt << frontFaceInt << depthOpInt;
+		stream << blendDisable << depthTest << depthWrite << cullModeInt << frontFaceInt << depthOpInt << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope;
 		StringSerialization::SaveToStream(stream, name);
 		VectorSerialization::SaveToStream_OBJ(stream, targets);
 	}
@@ -57,7 +57,7 @@ namespace Lina
 	void ShaderVariant::LoadFromStream(IStream& stream)
 	{
 		uint8 cullModeInt = 0, frontFaceInt = 0, depthOpInt = 0;
-		stream >> blendDisable >> depthTest >> depthWrite >> cullModeInt >> frontFaceInt >> depthOpInt;
+		stream >> blendDisable >> depthTest >> depthWrite >> cullModeInt >> frontFaceInt >> depthOpInt >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope;
 		StringSerialization::LoadFromStream(stream, name);
 		VectorSerialization::LoadFromStream_OBJ(stream, targets);
 		depthOp	  = static_cast<LinaGX::CompareOp>(depthOpInt);

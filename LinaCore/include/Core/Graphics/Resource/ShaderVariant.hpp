@@ -52,9 +52,13 @@ namespace Lina
 		bool					   depthTest	= true;
 		bool					   depthWrite	= true;
 		Vector<VariantColorTarget> targets;
-		LinaGX::CompareOp		   depthOp	 = LinaGX::CompareOp::Less;
-		LinaGX::CullMode		   cullMode	 = LinaGX::CullMode::Back;
-		LinaGX::FrontFace		   frontFace = LinaGX::FrontFace::CCW;
+		LinaGX::CompareOp		   depthOp			 = LinaGX::CompareOp::Less;
+		LinaGX::CullMode		   cullMode			 = LinaGX::CullMode::Back;
+		LinaGX::FrontFace		   frontFace		 = LinaGX::FrontFace::CCW;
+		bool					   depthBiasEnable	 = false;
+		float					   depthBiasConstant = 0.0f;
+		float					   depthBiasClamp	 = 0.0f;
+		float					   depthBiasSlope	 = 0.0f;
 
 		void SaveToStream(OStream& stream) const;
 		void LoadFromStream(IStream& stream);

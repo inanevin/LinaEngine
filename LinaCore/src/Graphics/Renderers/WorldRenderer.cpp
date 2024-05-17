@@ -156,11 +156,10 @@ namespace Lina
 													  .useDepth		= true,
 													  .texture		= data.gBufDepth->GetGPUHandle(),
 													  .depthLoadOp	= LinaGX::LoadOp::Load,
-													  .depthStoreOp = LinaGX::StoreOp::Store,
+													  .depthStoreOp = LinaGX::StoreOp::DontCare,
 													  .clearDepth	= 1.0f,
 												  });
 		}
-
 		m_mainPass.Create(m_gfxManager, RenderPassDescriptorType::Main);
 		m_lightingPass.Create(m_gfxManager, RenderPassDescriptorType::Lighting);
 

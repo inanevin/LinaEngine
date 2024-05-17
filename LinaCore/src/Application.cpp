@@ -183,13 +183,15 @@ namespace Lina
 		{
 			Shader::Metadata meta;
 			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable = true,
-				.depthTest	  = true,
-				.depthWrite	  = false,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT_HDR}},
-				.depthOp	  = LinaGX::CompareOp::Equal,
-				.cullMode	  = LinaGX::CullMode::Back,
-				.frontFace	  = LinaGX::FrontFace::CW,
+				.blendDisable	   = true,
+				.depthTest		   = true,
+				.depthWrite		   = false,
+				.targets		   = {{.format = DEFAULT_RT_FORMAT_HDR}},
+				.depthOp		   = LinaGX::CompareOp::Equal,
+				.cullMode		   = LinaGX::CullMode::Back,
+				.frontFace		   = LinaGX::FrontFace::CW,
+				.depthBiasEnable   = true,
+				.depthBiasConstant = 1.0f,
 			};
 
 			meta.descriptorSetAllocationCount = 1;
