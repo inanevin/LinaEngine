@@ -134,7 +134,8 @@ namespace Lina
 
 	struct GPUMaterialDefaultObject
 	{
-		Vector4 color;
+		uint32 txtAlbedo;
+		uint32 defaultSampler;
 	};
 
 	struct GPUDataAtmosphere
@@ -144,15 +145,19 @@ namespace Lina
 		Vector4 skyGroundAndCurvature;
 		Vector4 sunLightAndCoef;
 		Vector4 sunPosition;
+		Vector4 ambientTop;
+		Vector4 ambientMiddle;
+		Vector4 ambientBottom;
 	};
 
 	struct GPUDataDeferredLightingPass
 	{
-		uint32 gBufColorMaterialID = 0;
-		uint32 gBufPosition		   = 0;
-		uint32 gBufNormal		   = 0;
-		uint32 gBufSampler		   = 0;
-		uint32 checkerTexture	   = 0;
+		uint32 gBufAlbedo			= 0;
+		uint32 gBufPositionMetallic = 0;
+		uint32 gBufNormalRoughness	= 0;
+		uint32 gBufAO				= 0;
+		uint32 gBufSampler			= 0;
+		uint32 checkerTexture		= 0;
 		uint32 pad;
 		uint32 pad2;
 		uint32 pad3;

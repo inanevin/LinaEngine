@@ -107,4 +107,26 @@ namespace Lina
 		uint64 value	 = 0;
 	};
 
+	struct LinaTexture2D
+	{
+		StringID texture = 0;
+		StringID sampler = 0;
+	};
+
+	enum class ShaderPropertyType
+	{
+		Bool,
+		Float,
+		Int32,
+		UInt32,
+		Vec2,
+		Vec3,
+		Vec4,
+		IVec2,
+		IVec3,
+		IVec4,
+		Matrix4,
+		Texture2D,
+	};
+
 } // namespace Lina

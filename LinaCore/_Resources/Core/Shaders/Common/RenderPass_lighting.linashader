@@ -45,6 +45,9 @@ layout(set = 1, binding = 1) uniform AtmosphereData
 	vec4 skyGroundAndCurvature;
 	vec4 sunColorAndCoef;
 	vec4 sunPosition;
+	vec4 ambientTop;
+	vec4 ambientMiddle;
+	vec4 ambientBottom;
 } LINA_ATMOSPHERE;
 
 layout(set = 1, binding = 2) uniform PassData

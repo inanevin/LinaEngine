@@ -44,6 +44,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
+#include "Core/Reflection/ReflectionSystem.hpp"
 
 namespace Lina
 {
@@ -67,12 +68,13 @@ namespace Lina
 		list.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
+		list.push_back(ResourceIdentifier("Resources/Core/Textures/CheckeredDark.png", GetTypeID<Texture>(), 0, true, ResourceFlags::RF_PRIORITY));
 
 		/* Core Resources */
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogo.png", GetTypeID<Texture>(), 0, true, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoWhite.png", GetTypeID<Texture>(), 0, true, ResourceFlags::RF_CORE));
 		// list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Duck.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
@@ -149,7 +151,7 @@ namespace Lina
 				.blendDisable = true,
 				.depthTest	  = true,
 				.depthWrite	  = true,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
+				.targets	  = {{.format = DEFAULT_RT_FORMAT_HDR}, {.format = DEFAULT_RT_FORMAT_HDR}, {.format = DEFAULT_RT_FORMAT_HDR}},
 				.cullMode	  = LinaGX::CullMode::Back,
 				.frontFace	  = LinaGX::FrontFace::CW,
 			};
@@ -312,6 +314,7 @@ namespace Lina
 		m_engine.Shutdown();
 
 		PROFILER_SHUTDOWN;
+		ReflectionSystem::Get().Destroy();
 		m_appDelegate->Shutdown();
 		delete m_appDelegate;
 	}

@@ -52,7 +52,7 @@ void main()
     Object object = LINA_OBJECTS.data[entityID];
     outWorldPos = vec3(object.modelMatrix * vec4(inPos, 1.0));
     outNormal = inNormal;
-    outUV = inUV;
+    outUV = vec2(1.0 - inUV.x, inUV.y);
     outMaterialBytePadding = argBuffer.materialBytePadding;
     gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(outWorldPos, 1.0);
 }
@@ -66,20 +66,32 @@ layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
 layout (location = 3) flat in uint inMaterialBytePadding;
 
-layout (location = 0) out vec4 outColorMaterialID;
+layout (location = 0) out vec4 outAlbedo;
 layout (location = 1) out vec4 outPosition;
 layout (location = 2) out vec4 outNormal;
 
-layout(set = 2, binding = 0) uniform MaterialData
+struct LINA_MATERIAL
 {
-   vec4 color1;
-} material;
+   LinaTexture2D albedo;
+};
+
+LINA_MATERIAL AsMaterial()
+{
+   LINA_MATERIAL mat;
+	uint index = inMaterialBytePadding;
+   mat.albedo.txt = LINA_MATERIALS.data[index++];
+   mat.albedo.smp = LINA_MATERIALS.data[index++];
+	return mat;
+}
 
 void main()
 {
-   outColorMaterialID = vec4(vec3(1), float(inMaterialBytePadding));
-   outPosition = vec4(inWorldPos, 0.0f);
-   outNormal = vec4(inNormal, 0.0f);
+   LINA_MATERIAL material = AsMaterial();
+
+   vec4 albedo = texture(sampler2D(LINA_TEXTURES[material.albedo.txt], LINA_SAMPLERS[material.albedo.smp]), inUV);
+   outAlbedo = vec4(albedo.xyz, 1.0);
+   outPosition = vec4(inWorldPos, 0.0);
+   outNormal = vec4(inNormal, 0.0);
 }
 
 #lina_end

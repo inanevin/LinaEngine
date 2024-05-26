@@ -68,6 +68,6 @@ namespace Lina
 		uint32			 m_meshIndex = 0;
 	};
 
-	LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
-	LINA_REFLECTCOMPONENT_END(MeshComponent);
+	// LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
+	// LINA_REFLECTCOMPONENT_END(MeshComponent);
 } // namespace Lina

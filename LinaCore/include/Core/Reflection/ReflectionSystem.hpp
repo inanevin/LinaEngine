@@ -149,8 +149,11 @@ namespace Lina
 	class FieldBase
 	{
 	public:
-		FieldBase()			 = default;
-		virtual ~FieldBase() = default;
+		FieldBase() = default;
+		virtual ~FieldBase()
+		{
+			m_propertyCacheManager.Destroy();
+		}
 
 		virtual FieldValue Value(void* obj) = 0;
 
@@ -306,6 +309,7 @@ namespace Lina
 
 	private:
 		friend class GlobalAllocationWrapper;
+		friend class Application;
 
 		ReflectionSystem() = default;
 		virtual ~ReflectionSystem()

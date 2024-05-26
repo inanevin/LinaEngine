@@ -45,4 +45,10 @@ layout (set = 0, binding = 1) readonly buffer MaterialBuffer
 layout (set = 0, binding = 2) uniform texture2D LINA_TEXTURES[];
 layout (set = 0, binding = 3) uniform sampler LINA_SAMPLERS[];
 
+struct LinaTexture2D
+{
+	uint txt;
+	uint smp;
+};
+
 

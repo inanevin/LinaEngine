@@ -31,26 +31,183 @@ SOFTWARE.
 
 namespace Lina
 {
-	String ExtractBlock(const String& source, const String& startDelimiter, const String& endDelimiter)
+	namespace
 	{
-		size_t startPos = source.find(startDelimiter);
-		if (startPos == String::npos)
+		String ExtractBlock(const String& source, const String& startDelimiter, const String& endDelimiter)
 		{
-			return ""; // Start delimiter not found
+			size_t startPos = source.find(startDelimiter);
+			if (startPos == String::npos)
+			{
+				return ""; // Start delimiter not found
+			}
+
+			startPos += startDelimiter.length(); // Move past the delimiter
+			size_t endPos = source.find(endDelimiter, startPos);
+			if (endPos == String::npos)
+			{
+				return ""; // End delimiter not found
+			}
+
+			return source.substr(startPos, endPos - startPos);
 		}
 
-		startPos += startDelimiter.length(); // Move past the delimiter
-		size_t endPos = source.find(endDelimiter, startPos);
-		if (endPos == String::npos)
+		void ProcessMaterialData(String& block, Vector<ShaderProperty>& outProperties)
 		{
-			return ""; // End delimiter not found
+			const String materialIdent = "struct LINA_MATERIAL";
+
+			std::istringstream f(block.c_str());
+			std::string		   line = "";
+
+			bool parsingMaterialStruct = false;
+
+			auto property = [](const String& line, const String& propType, String& outName) -> bool {
+				const String str   = propType;
+				const size_t found = line.find(str);
+				if (found != String::npos)
+				{
+					const String rest = line.substr(found + str.length(), line.length() - found - str.length());
+					const size_t bgn  = rest.find_first_not_of(" ");
+					const size_t end  = rest.find_last_of(";");
+					outName			  = rest.substr(bgn, end - bgn);
+					return true;
+				}
+
+				return false;
+			};
+
+			ShaderProperty prop = {};
+
+			while (std::getline(f, line))
+			{
+				if (line.find(materialIdent) != String::npos)
+				{
+					parsingMaterialStruct = true;
+					continue;
+				}
+
+				if (parsingMaterialStruct)
+				{
+					if (property(line, "float", prop.name))
+					{
+						prop.type = ShaderPropertyType::Float;
+						prop.size = sizeof(float);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "uint", prop.name))
+					{
+						prop.type = ShaderPropertyType::UInt32;
+						prop.size = sizeof(uint32);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "bool", prop.name))
+					{
+						prop.type = ShaderPropertyType::Bool;
+						prop.size = sizeof(bool);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "vec2", prop.name))
+					{
+						prop.type = ShaderPropertyType::Vec2;
+						prop.size = sizeof(Vector2);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "vec3", prop.name))
+					{
+						prop.type = ShaderPropertyType::Vec3;
+						prop.size = sizeof(Vector3);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "vec4", prop.name))
+					{
+						prop.type = ShaderPropertyType::Vec4;
+						prop.size = sizeof(Vector4);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "ivec2", prop.name))
+					{
+						prop.type = ShaderPropertyType::IVec2;
+						prop.size = sizeof(Vector2);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "ivec3", prop.name))
+					{
+						prop.type = ShaderPropertyType::IVec3;
+						prop.size = sizeof(Vector3);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "ivec4", prop.name))
+					{
+						prop.type = ShaderPropertyType::IVec4;
+						prop.size = sizeof(Vector4);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "mat4", prop.name))
+					{
+						prop.type = ShaderPropertyType::Matrix4;
+						prop.size = sizeof(Matrix4);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (property(line, "LinaTexture2D", prop.name))
+					{
+						prop.type = ShaderPropertyType::Texture2D;
+						prop.size = sizeof(LinaTexture2D);
+						prop.sid  = TO_SID(prop.name);
+						outProperties.push_back(prop);
+						continue;
+					}
+
+					if (line.find("}") != String::npos)
+					{
+						break;
+					}
+
+					if (line.find("{") != String::npos)
+						continue;
+
+					LINA_ASSERT(false, "Unkown type!");
+				}
+			}
+		}
+	} // namespace
+
+	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, const RenderPassDescriptorType& rpType, Vector<ShaderProperty>& outProperties)
+	{
+		if (text.find("#version") != String::npos)
+		{
+			LINA_ASSERT(false, "Shaders can't have version directives, these are internally injected by Lina!");
+			return false;
 		}
 
-		return source.substr(startPos, endPos - startPos);
-	}
-
-	void ParseFullShader(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, const RenderPassDescriptorType& rpType)
-	{
 		std::istringstream f(text.c_str());
 		std::string		   line	 = "";
 		bool			   isCmt = false;
@@ -111,6 +268,9 @@ namespace Lina
 			String					  block = ExtractBlock(text.c_str(), ident.c_str(), "#lina_end");
 			LinaGX::ShaderCompileData compileData;
 
+			if (outProperties.empty())
+				ProcessMaterialData(block, outProperties);
+
 			if (!block.empty())
 			{
 				block.insert(0, versionDirective);
@@ -120,17 +280,6 @@ namespace Lina
 				outStages[stage] = block;
 			}
 		}
-	}
-
-	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, const RenderPassDescriptorType& rpType)
-	{
-		if (text.find("#version") != String::npos)
-		{
-			LINA_ASSERT(false, "Shaders can't have version directives, these are internally injected by Lina!");
-			return false;
-		}
-
-		ParseFullShader(text, outStages, rpType);
 
 		return true;
 	}

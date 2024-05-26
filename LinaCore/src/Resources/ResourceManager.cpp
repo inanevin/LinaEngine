@@ -281,10 +281,15 @@ namespace Lina
 
 	void ResourceManager::UnloadResources(const Vector<ResourceIdentifier> identifiers)
 	{
+		bool containsBindless = false;
+
 		for (auto& ident : identifiers)
 		{
 			auto& cache = m_caches[ident.tid];
 			cache->DestroyResource(ident.sid);
+
+			if (cache->GetTypeFlags().IsSet(RTF_BINDLESS_RESOURCE))
+				containsBindless = true;
 
 			Event			   data;
 			ResourceIdentifier copy = ident;
@@ -298,6 +303,9 @@ namespace Lina
 		Vector<ResourceIdentifier> idents = identifiers;
 		batchEv.pParams[0]				  = &idents;
 		m_system->DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
+
+		if (containsBindless)
+			m_gfxManager->MarkBindlessDirty();
 	}
 
 	void ResourceManager::GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources)

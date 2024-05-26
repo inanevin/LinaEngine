@@ -727,6 +727,20 @@ namespace Lina
 		return Vector4(v.x - v2.x, v.y - v2.y, v.z - v2.z, v.w * v2.w);
 	}
 
+	class Vector4ui : public glm::uvec4
+	{
+
+	public:
+		Vector4ui() = default;
+		Vector4ui(uint32 x, uint32 y, uint32 z, uint32 w) : glm::uvec4(x, y, z, w){};
+		Vector4ui(const Vector4ui& rhs) : glm::uvec4(rhs){};
+		Vector4ui(const Vector2ui& rhs) : glm::uvec4(rhs.x, rhs.y, 0.0f, 0.0f){};
+		Vector4ui(const glm::uvec4& rhs) : glm::uvec4(rhs.x, rhs.y, rhs.z, rhs.w){};
+
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
+	};
+
 	class Vector4i : public glm::ivec4
 	{
 	public:

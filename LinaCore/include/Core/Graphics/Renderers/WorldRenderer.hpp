@@ -65,11 +65,11 @@ namespace Lina
 			Buffer				   guiMaterialBuffer = {};
 			Buffer				   objectBuffer		 = {};
 
-			Texture* gBufColorMaterialID = nullptr;
-			Texture* gBufPosition		 = nullptr;
-			Texture* gBufNormal			 = nullptr;
-			Texture* gBufDepth			 = nullptr;
-			Texture* lightingPassOutput	 = nullptr;
+			Texture* gBufAlbedo			= nullptr;
+			Texture* gBufPosition		= nullptr;
+			Texture* gBufNormal			= nullptr;
+			Texture* gBufDepth			= nullptr;
+			Texture* lightingPassOutput = nullptr;
 		};
 
 	public:
@@ -100,7 +100,7 @@ namespace Lina
 
 		inline Texture* GetGBufColorMaterialID(uint32 frameIndex)
 		{
-			return m_pfd[frameIndex].gBufColorMaterialID;
+			return m_pfd[frameIndex].gBufAlbedo;
 		}
 
 		inline Texture* GetGBufPosition(uint32 frameIndex)

@@ -118,12 +118,20 @@ namespace Lina
 		m_mainWorld->SetActiveCamera(camera);
 		SimpleFlightMovement* movement = m_mainWorld->AddComponent<SimpleFlightMovement>(cameraEntity);
 
-		Entity*		   test = m_mainWorld->CreateEntity("Cube");
-		MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
-		mesh->SetMesh("Resources/Core/Models/Duck.glb"_hs, 0);
-		mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-		mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
-		test->SetPosition(Vector3(0, 0, 0));
+		// Entity*		   test = m_mainWorld->CreateEntity("Cube");
+		// MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
+		// mesh->SetMesh("Resources/Core/Models/Cube.glb"_hs, 0);
+		// mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+		// mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+		// test->SetPosition(Vector3(0, 0, 0));
+
+		Entity*		   plane	 = m_mainWorld->CreateEntity("Ground");
+		MeshComponent* planeMesh = m_mainWorld->AddComponent<MeshComponent>(plane);
+		planeMesh->SetMesh("Resources/Core/Models/Plane.glb"_hs, 0);
+		planeMesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+		planeMesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
+		plane->SetPosition(Vector3(0, 0, 0));
+		plane->SetScale(Vector3(100, 1, 100));
 
 		// for (uint32 i = 0; i < 200; i++)
 		// {

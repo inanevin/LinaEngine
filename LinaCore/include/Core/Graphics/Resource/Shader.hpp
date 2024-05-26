@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Common/Data/HashMap.hpp"
 #include "Common/Data/Queue.hpp"
 #include "ShaderVariant.hpp"
+#include <variant>
 
 namespace LinaGX
 {
@@ -48,6 +49,18 @@ namespace Lina
 {
 	class DescriptorSet;
 	class GfxManager;
+
+	struct ShaderProperty
+	{
+		ShaderPropertyType																									type = ShaderPropertyType::Bool;
+		String																												name = "";
+		size_t																												size = 0;
+		std::variant<bool, float, uint32, int32, Vector2, Vector3, Vector4, Vector2ui, Vector3ui, Vector4ui, LinaTexture2D> data;
+		StringID																											sid = 0;
+
+		void SaveToStream(OStream& out) const;
+		void LoadFromStream(IStream& in);
+	};
 
 	class Shader : public Resource
 	{
@@ -99,6 +112,11 @@ namespace Lina
 			return m_meta;
 		}
 
+		inline const Vector<ShaderProperty>& GetProperties() const
+		{
+			return m_properties;
+		}
+
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
@@ -124,6 +142,7 @@ namespace Lina
 		Vector<DescriptorSet*>							  m_descriptorSets;
 		GfxManager*										  m_gfxManager = nullptr;
 		LinaGX::Instance*								  m_lgx		   = nullptr;
+		Vector<ShaderProperty>							  m_properties;
 	};
 
 } // namespace Lina

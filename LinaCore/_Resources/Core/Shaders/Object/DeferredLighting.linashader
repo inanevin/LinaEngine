@@ -29,22 +29,12 @@ SOFTWARE.
 #lina_vs
 
 layout(location = 0) out vec2 outUV;
-layout(location = 1) out vec3 outSunPositionUV;
 
 void main()
 {
-    float screenAspect = LINA_VIEW.size.x / LINA_VIEW.size.y; 
-    vec3 sunPositionView = vec3(LINA_VIEW.view * vec4(vec3(1.0), 1.0));
-    vec4 sunPositionClip = LINA_VIEW.proj * vec4(sunPositionView, 1.0);
-    vec3 sunPositionNDC = sunPositionClip.xyz / sunPositionClip.w;
-    outSunPositionUV = vec3( sunPositionNDC.xy * 0.5 + 0.5, sunPositionClip.w);
-    outSunPositionUV.y = 1.0f - outSunPositionUV.y;
-    outSunPositionUV.x *= screenAspect;
     outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);
     gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);
     outUV.y = 1.0f - outUV.y;
-
-    
 }
 
 #lina_end
@@ -52,78 +42,7 @@ void main()
 #lina_fs
 
 layout (location = 0) in vec2 inUV;
-layout (location = 1) in vec3 inSunPositionUV;
 layout (location = 0) out vec4 outFragColor;
-
-
-vec3 getSun(vec2 uv){
-    if(inSunPositionUV.z < 0.0)
-        return vec3(0.0);
-
-	float sun = 1.0 - distance(uv,inSunPositionUV.xy);
-    sun = clamp(sun,0.0,1.0);
-    sun = pow(sun, LINA_ATMOSPHERE.sunColorAndCoef.w) * 2;
-    sun = clamp(sun,0.0,1.0);
-    return LINA_ATMOSPHERE.sunColorAndCoef.xyz * sun;
-}
-
-
-vec3 getSkyColor()
-{
-    vec2 uv = inUV;
-    float screenAspect = LINA_VIEW.size.x / LINA_VIEW.size.y; 
-    uv.x *= screenAspect;
-
-    vec4 camDir = LINA_VIEW.cameraDirectionAndFar;
-    // float curvedEffect = pow((inUV.x - 0.5) * screenAspect, 2) * LINA_ATMOSPHERE.skyGroundAndCurvature.w; 
-    // float t = inUV.y - (camDir.y ) - curvedEffect;
-    float uvY = inUV.y - camDir.y;
-    uvY = clamp(uvY  *2.0, 0.0, 1.0);
-    
-    vec3 skyTopColor = LINA_ATMOSPHERE.skyTopAndDiffusion.xyz;
-    vec3 skyHorizonColor = LINA_ATMOSPHERE.skyHorizonAndBase.xyz;
-    vec3 skyGroundColor = LINA_ATMOSPHERE.skyGroundAndCurvature.xyz;
-    float horizonPos = LINA_ATMOSPHERE.skyHorizonAndBase.w;
-    float horizonSize = LINA_ATMOSPHERE.skyTopAndDiffusion.w;
-
-    vec3 finalSkyColor = mix(skyTopColor, vec3(0.01), uvY);
-
-    vec3 finalHorizonColor = mix(vec3(1.0), finalSkyColor, clamp(abs(inUV.y - 0.5) * 2, 0.0, 1.0));
-    return finalSkyColor;
-
-    // if(t < LINA_ATMOSPHERE.skyHorizonAndBase.w)
-    //     return LINA_ATMOSPHERE.skyTopAndDiffusion.xyz;
-    // 
-    // return LINA_ATMOSPHERE.skyGroundAndCurvature.xyz;
-// 
-    // float lim1 = LINA_ATMOSPHERE.skyHorizonAndBase.w - LINA_ATMOSPHERE.skyTopAndDiffusion.w;
-    // float lim2 = LINA_ATMOSPHERE.skyHorizonAndBase.w + LINA_ATMOSPHERE.skyTopAndDiffusion.w;
-// 
-    // 
-    // vec3 skyColor;
-    // if (t < lim1)
-    // {
-    //     float horizonFactor = smoothstep(0.0, lim1, t);
-    //     skyColor = mix(LINA_ATMOSPHERE.skyTopAndDiffusion.xyz, LINA_ATMOSPHERE.skyHorizonAndBase.xyz, horizonFactor);
-    // }
-    // else
-    // {
-    //     float groundFactor = smoothstep(lim1, lim2, t);
-    //     skyColor = mix(LINA_ATMOSPHERE.skyHorizonAndBase.xyz, LINA_ATMOSPHERE.skyGroundAndCurvature.xyz, groundFactor);
-    // }
-// 
-    // return skyColor + getSun(uv);
-}
-
-float intersectPlane(vec3 planePosition, vec3 rayOrg, vec3 rayDir)
-{
-    vec3 normal = vec3(0, 1,0);
-    float denom = dot(normal, rayDir);
-    if (abs(denom) < 1e-6) {
-       return 0.0;
-    }
-    return dot(planePosition - rayOrg, normal) / denom; 
-}
 
 float LinearizeDepth(float depth, float near, float far) 
 {
@@ -132,90 +51,74 @@ float LinearizeDepth(float depth, float near, float far)
     return (2.0 * near * far) / (far + near - z * (far - near));	
 }
 
-vec4 getGridColor(vec2 planeUV)
-{
-    float l = 1.0 - (length(planeUV * 0.02));
-    float hmod = mod(floor(planeUV.x) + floor(planeUV.y), 2.0);
-    return mix(vec4(0.2, 0.2, 0.2, l), vec4(0.8, 0.8, 0.8, l),  step(hmod, 0.5));
-}
+// float intersectPlane(vec3 planePosition, vec3 rayOrg, vec3 rayDir)
+// {
+//     vec3 normal = vec3(0, 1,0);
+//     float denom = dot(normal, rayDir);
+//     if (abs(denom) < 1e-6) {
+//        return 0.0;
+//     }
+//     return dot(planePosition - rayOrg, normal) / denom; 
+// }
+// 
+// vec4 getGridColor(vec2 planeUV)
+// {
+// 
+//   vec3 cameraDirection = normalize(LINA_VIEW.cameraDirectionAndFar.xyz);
+//   vec3 cameraPosition = LINA_VIEW.cameraPositionAndNear.xyz;  
+//   vec2 ndcUV = -1.0 + 2.0 * vec2(inUV.x, 1.0 - inUV.y);
+//   float aspect = LINA_VIEW.size.x / LINA_VIEW.size.y; 
+//   // ndcUV.x *= aspect;
+// 
+//   vec4 clipSpacePosition = vec4(ndcUV.x, ndcUV.y, 0, 2.0 * depth - 1.0);
+//   vec4 viewSpacePosition = inverse( LINA_VIEW.proj * LINA_VIEW.view) * clipSpacePosition;
+//   vec3 rayDirection = normalize(viewSpacePosition.xyz / viewSpacePosition.w - cameraPosition);
+// 
+//     float t = intersectPlane(vec3(0.0, 0.0, 0), cameraPosition, rayDirection);
+//    float distanceInViewSpace = t;
+//     
+//      if(t > 0.0)
+//      {
+//          vec3 intersectPoint = cameraPosition + t * rayDirection;
+// 
+//          vec4 viewPosition = LINA_VIEW.view * vec4(intersectPoint, 1.0);
+//          vec4 clipPosition = LINA_VIEW.proj * viewPosition;
+//          float distanceInClip = clipPosition.z / clipPosition.w;
+// 
+//          if(distanceInClip < depth)
+//          {
+//              vec2 planeUV = intersectPoint.xz; // Assuming each tile of the texture should appear every 10 units
+//              // planeUV = fract(planeUV); // Wrapping UVs to [0, 1] range   
+//              outFragColor = getGridColor(planeUV * 0.5);
+//              return;
+//          }
+//      }
+//     
+//     float l = 1.0 - (length(planeUV * 0.02));
+//     float hmod = mod(floor(planeUV.x) + floor(planeUV.y), 2.0);
+//     return mix(vec4(0.2, 0.2, 0.2, l), vec4(0.8, 0.8, 0.8, l),  step(hmod, 0.5));
+// }
 
 void main()
 {
-    //float depth = texture(sampler2D(LINA_TEXTURES[LINA_PASS_DATA.gBufDepth], LINA_SAMPLERS[LINA_PASS_DATA.gBufSampler]), inUV).r;
-    float depth = 1.0f;
-
-    // depth = LinearizeDepth(depth, LINA_VIEW.cameraPositionAndNear.w, LINA_VIEW.cameraDirectionAndFar.w) / LINA_VIEW.cameraDirectionAndFar.w;
-
-    // outFragColor = vec4(depth, depth, depth, 1.0);
- 
-    //if(depth == 1.0f)
-    //{
-    //   
-    //        outFragColor = vec4(getSkyColor(), 1);
-    //     return;
-    //}
-
-
-  vec3 cameraDirection = normalize(LINA_VIEW.cameraDirectionAndFar.xyz);
-  vec3 cameraPosition = LINA_VIEW.cameraPositionAndNear.xyz;  
-  vec2 ndcUV = -1.0 + 2.0 * vec2(inUV.x, 1.0 - inUV.y);
-  float aspect = LINA_VIEW.size.x / LINA_VIEW.size.y; 
-  // ndcUV.x *= aspect;
-
-  vec4 clipSpacePosition = vec4(ndcUV.x, ndcUV.y, 0, 2.0 * depth - 1.0);
-  vec4 viewSpacePosition = inverse( LINA_VIEW.proj * LINA_VIEW.view) * clipSpacePosition;
-  vec3 rayDirection = normalize(viewSpacePosition.xyz / viewSpacePosition.w - cameraPosition);
-
-  float t = intersectPlane(vec3(0.0, 0.0, 0), cameraPosition, rayDirection);
-   float distanceInViewSpace = t;
-
-    // m *= sin(LINA_GLOBAL.deltaElapsed.y);
-        
-    // if(t > 0.0)
-    // {
-    //     vec3 intersectPoint = cameraPosition + t * rayDirection;
-
-//
-    //     vec4 viewPosition = LINA_VIEW.view * vec4(intersectPoint, 1.0);
-    //     vec4 clipPosition = LINA_VIEW.proj * viewPosition;
-    //     float distanceInClip = clipPosition.z / clipPosition.w;
-//
-    //     if(distanceInClip < depth)
-    //     {
-    //         vec2 planeUV = intersectPoint.xz; // Assuming each tile of the texture should appear every 10 units
-    //         // planeUV = fract(planeUV); // Wrapping UVs to [0, 1] range   
-    //         outFragColor = getGridColor(planeUV * 0.5);
-    //         return;
-    //     }
-    // }
-
-     // if(depth == 1.0)
-     // {
-     //    outFragColor = vec4(getSkyColor(), 1.0);
-     //    return;
-     // }
-     
    vec4 albedo = texture(sampler2D(LINA_TEXTURES[LINA_PASS_DATA.gBufColorMaterialID], LINA_SAMPLERS[LINA_PASS_DATA.gBufSampler]), inUV);
    vec4 normals = texture(sampler2D(LINA_TEXTURES[LINA_PASS_DATA.gBufNormal], LINA_SAMPLERS[LINA_PASS_DATA.gBufSampler]), inUV);
-   outFragColor = vec4(albedo.xyz, 1.0);
+   vec4 worldPos = texture(sampler2D(LINA_TEXTURES[LINA_PASS_DATA.gBufPosition], LINA_SAMPLERS[LINA_PASS_DATA.gBufSampler]), inUV);
+   vec3 ambient = vec3(0.0);
 
+   float normalsT = abs(normals.y);
 
-    return;
-    
-   // Define the light properties
-    vec3 lightDirection = normalize(vec3(0, -1, -1)); // Light coming from above
-    vec3 lightColor = vec3(1.0, 1.0, 1.0); // White light
-    vec3 ambientColor = vec3(0.1, 0.1, 0.1); // Low ambient light
+   if(normals.y > 0.0)
+   {
+       ambient = mix(LINA_ATMOSPHERE.ambientMiddle.xyz, LINA_ATMOSPHERE.ambientTop.xyz, normalsT);
+   }
+   else
+   {
+       ambient = mix(LINA_ATMOSPHERE.ambientMiddle.xyz, LINA_ATMOSPHERE.ambientBottom.xyz, normalsT);
+   }
 
-    // Calculate diffuse lighting
-    float diffuseStrength = max(dot(normalize(normals.xyz), -lightDirection), 0.0);
-    vec3 diffuseColor = diffuseStrength * lightColor;
-
-    // Combine lighting with albedo
-    vec3 finalColor = albedo.xyz * (ambientColor + diffuseColor);
-
-    // Set the output color of the fragment
-    outFragColor = vec4(finalColor, 1.0);
+   vec3 finalColor = albedo.xyz;
+   outFragColor = vec4(finalColor, 1.0);
 }
 
 #lina_end

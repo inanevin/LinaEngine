@@ -28,14 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Material_HPP
-#define Material_HPP
-
 #include "Core/Resources/Resource.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/ClassMacros.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
 
 namespace LinaGX
 {
@@ -76,18 +74,18 @@ namespace Lina
 		};
 
 		void SetShader(StringID sid);
-		void BufferData(size_t padding, uint8* data, size_t size);
 
-		// void Bind(LinaGX::CommandStream* stream, uint32 frameIndex, LinaGX::DescriptorSetsLayoutSource layoutSource, uint32 customShaderHandle = 0);
-		// void SetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex, size_t padding, uint8* data, size_t dataSize);
-		// void SetTexture(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
-		// void SetSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 gpuHandle);
-		// void SetCombinedImageSampler(uint32 bindingIndex, uint32 descriptorIndex, uint32 textureGPUHandle, uint32 samplerGPUHandle);
+		template <typename T> void SetProperty(StringID sid, T val)
+		{
+			auto it = linatl::find_if(m_properties.begin(), m_properties.end(), [sid](const ShaderProperty& p) -> bool { return p.sid == sid; });
+			LINA_ASSERT(it != m_properties.end(), "Property not found!");
 
-		// inline Buffer& GetBuffer(uint32 bindingIndex, uint32 descriptorIndex, uint32 frameIndex)
-		// {
-		// 	return m_bindingData[bindingIndex].bufferData[frameIndex].buffers[descriptorIndex];
-		// }
+			ShaderProperty& prop = *it;
+			LINA_ASSERT(prop.size == sizeof(T), "Property size mismatch!");
+
+			prop.data	 = val;
+			m_propsDirty = true;
+		}
 
 		inline Shader* GetShader() const
 		{
@@ -97,11 +95,6 @@ namespace Lina
 		inline uint32 GetBindlessBytePadding() const
 		{
 			return m_bindlessBytePadding;
-		}
-
-		inline const Span<uint8>& GetBuffer() const
-		{
-			return m_buffer;
 		}
 
 	private:
@@ -118,27 +111,17 @@ namespace Lina
 		virtual void BatchLoaded() override;
 
 	private:
-		void GenerateBuffer();
-		void DestroyBuffer();
-
-		void CreateDescriptorSets();
-		void DestroyDescriptorSets();
-		void CreateBindingData();
-		void DestroyBindingData();
-		void UpdateBinding(uint32 bindingIndex);
+		size_t BufferDataInto(Buffer& buf, size_t padding);
 
 	private:
-		LinaGX::Instance*	 m_lgx		  = nullptr;
-		GfxManager*			 m_gfxManager = nullptr;
-		Shader*				 m_shader	  = nullptr;
-		StringID			 m_shaderSID  = 0;
-		DescriptorAllocation m_descriptorSetContainer[FRAMES_IN_FLIGHT];
-		Vector<BindingData>	 m_bindingData;
-		Span<uint8>			 m_buffer;
-		size_t				 m_bindlessBytePadding = 0;
-		bool				 m_bufferDirty		   = false;
+		LinaGX::Instance*	   m_lgx		= nullptr;
+		GfxManager*			   m_gfxManager = nullptr;
+		Shader*				   m_shader		= nullptr;
+		StringID			   m_shaderSID	= 0;
+		DescriptorAllocation   m_descriptorSetContainer[FRAMES_IN_FLIGHT];
+		size_t				   m_bindlessBytePadding = 0;
+		bool				   m_propsDirty			 = false;
+		Vector<ShaderProperty> m_properties;
 	};
 
 } // namespace Lina
-
-#endif

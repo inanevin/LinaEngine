@@ -463,6 +463,16 @@ namespace Lina
 		stream >> x >> y;
 	}
 
+	void Vector4ui::SaveToStream(OStream& out) const
+	{
+		out << x << y << z << w;
+	}
+
+	void Vector4ui::LoadFromStream(IStream& in)
+	{
+		in >> x >> y >> z >> w;
+	}
+
 	bool Vector4i::Equals(const Vector4i& other, int epsilon) const
 	{
 		return Math::Equals(x, other.x, epsilon) && Math::Equals(y, other.y, epsilon) && Math::Equals(z, other.z, epsilon) && Math::Equals(w, other.w, epsilon);

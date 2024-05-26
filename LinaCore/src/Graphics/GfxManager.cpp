@@ -198,27 +198,6 @@ namespace Lina
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 
-		// Default materials
-		{
-			Vector4	  col					= Vector4(0, 1, 1, 1);
-			Material* defaultObjectMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
-			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
-			defaultObjectMaterial->BatchLoaded();
-			m_defaultMaterials.push_back(defaultObjectMaterial);
-
-			Material* defaultSkyMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_SKY_PATH, DEFAULT_MATERIAL_SKY_SID);
-			defaultSkyMaterial->SetShader(DEFAULT_SHADER_SKY_SID);
-			defaultSkyMaterial->BatchLoaded();
-			m_defaultMaterials.push_back(defaultSkyMaterial);
-
-			// Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
-			// Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
-			// defaultLitMaterial->SetShader("Resources/Core/Shaders/LitStandard.linashader"_hs);
-			// defaultUnlitMaterial->SetShader("Resources/Core/Shaders/UnlitStandard.linashader"_hs);
-			// m_defaultMaterials.push_back(defaultLitMaterial);
-			// m_defaultMaterials.push_back(defaultUnlitMaterial);
-		}
-
 		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 
@@ -260,6 +239,32 @@ namespace Lina
 					data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
 				}
 			}
+		}
+
+		MarkBindlessDirty();
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+			UpdateBindlessResources(m_pfd[i]);
+
+		// Default materials
+		{
+
+			Material* defaultObjectMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
+			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
+			defaultObjectMaterial->BatchLoaded();
+			defaultObjectMaterial->SetProperty("albedo"_hs, LinaTexture2D{"Resources/Core/Textures/CheckeredDark.png"_hs, m_defaultSamplers[0]->GetSID()});
+			m_defaultMaterials.push_back(defaultObjectMaterial);
+
+			Material* defaultSkyMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_SKY_PATH, DEFAULT_MATERIAL_SKY_SID);
+			defaultSkyMaterial->SetShader(DEFAULT_SHADER_SKY_SID);
+			defaultSkyMaterial->BatchLoaded();
+			m_defaultMaterials.push_back(defaultSkyMaterial);
+
+			// Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);
+			// Material* defaultLitMaterial   = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultLit.linamaterial", DEFAULT_LIT_MATERIAL);
+			// defaultLitMaterial->SetShader("Resources/Core/Shaders/LitStandard.linashader"_hs);
+			// defaultUnlitMaterial->SetShader("Resources/Core/Shaders/UnlitStandard.linashader"_hs);
+			// m_defaultMaterials.push_back(defaultLitMaterial);
+			// m_defaultMaterials.push_back(defaultUnlitMaterial);
 		}
 	}
 
@@ -403,12 +408,7 @@ namespace Lina
 
 		size_t padding = 0;
 		for (auto* mat : materials)
-		{
-			const auto& buf = mat->GetBuffer();
-			pfd.globalMaterialsBuffer.BufferData(padding, buf.data(), buf.size());
-			mat->m_bindlessBytePadding = padding;
-			padding += buf.size();
-		}
+			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding);
 
 		m_lgx->DescriptorUpdateImage(imgUpdate);
 		m_lgx->DescriptorUpdateImage(smpUpdate);
@@ -461,10 +461,10 @@ namespace Lina
 		m_resourceManager->GetAllResourcesRaw<Material>(materials, true);
 		for (auto* mat : materials)
 		{
-			if (mat->m_bufferDirty)
+			if (mat->m_propsDirty)
 			{
-				mat->m_bufferDirty = false;
-				currentFrame.globalMaterialsBuffer.BufferData(mat->m_bindlessBytePadding, mat->GetBuffer().data(), mat->GetBuffer().size());
+				mat->BufferDataInto(currentFrame.globalMaterialsBuffer, mat->m_bindlessBytePadding);
+				mat->m_propsDirty = false;
 			}
 		}
 

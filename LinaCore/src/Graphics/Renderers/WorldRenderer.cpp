@@ -105,7 +105,7 @@ namespace Lina
 	void WorldRenderer::CreateSizeRelativeResources()
 	{
 		LinaGX::TextureDesc rtDesc = {
-			.format	   = DEFAULT_RT_FORMAT,
+			.format	   = DEFAULT_RT_FORMAT_HDR,
 			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	   = m_size.x,
 			.height	   = m_size.y,
@@ -133,19 +133,18 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 
-			data.gBufColorMaterialID = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: ColorMaterialID", TO_SIDC("WorldRenderer GBuffer: ColorMaterialID"));
-			data.gBufPosition		 = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Position", TO_SIDC("WorldRenderer GBuffer: Position"));
-			data.gBufNormal			 = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Normal", TO_SIDC("WorldRenderer GBuffer: Normal"));
-			data.gBufDepth			 = m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Depth", TO_SIDC("WorldRenderer GBuffer: Depth"));
-			data.lightingPassOutput	 = m_rm->CreateUserResource<Texture>("WorldRenderer Lighting Pass Output", TO_SIDC("WorldRenderer Lighting Pass Output"));
+			data.gBufAlbedo			= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Albedo", TO_SIDC("WorldRenderer GBuffer: Albedo"));
+			data.gBufPosition		= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Position", TO_SIDC("WorldRenderer GBuffer: Positionc"));
+			data.gBufNormal			= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Normal", TO_SIDC("WorldRenderer GBuffer: Normal"));
+			data.gBufDepth			= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Depth", TO_SIDC("WorldRenderer GBuffer: Depth"));
+			data.lightingPassOutput = m_rm->CreateUserResource<Texture>("WorldRenderer Lighting Pass Output", TO_SIDC("WorldRenderer Lighting Pass Output"));
 
-			data.gBufColorMaterialID->CreateGPUOnly(rtDesc);
+			data.gBufAlbedo->CreateGPUOnly(rtDesc);
 			data.gBufPosition->CreateGPUOnly(rtDesc);
 			data.gBufNormal->CreateGPUOnly(rtDesc);
 			data.gBufDepth->CreateGPUOnly(depthDesc);
 			data.lightingPassOutput->CreateGPUOnly(rtDescLighting);
-
-			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufColorMaterialID->GetGPUHandle(), .isSwapchain = false});
+			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufAlbedo->GetGPUHandle(), .isSwapchain = false});
 			m_mainPass.SetColorAttachment(i, 1, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufPosition->GetGPUHandle(), .isSwapchain = false});
 			m_mainPass.SetColorAttachment(i, 2, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufNormal->GetGPUHandle(), .isSwapchain = false});
 			m_mainPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.gBufDepth->GetGPUHandle(), .depthLoadOp = LinaGX::LoadOp::Clear, .depthStoreOp = LinaGX::StoreOp::Store, .clearDepth = 1.0f});
@@ -160,6 +159,7 @@ namespace Lina
 													  .clearDepth	= 1.0f,
 												  });
 		}
+
 		m_mainPass.Create(m_gfxManager, RenderPassDescriptorType::Main);
 		m_lightingPass.Create(m_gfxManager, RenderPassDescriptorType::Lighting);
 
@@ -181,12 +181,11 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-			m_rm->DestroyUserResource(data.gBufColorMaterialID);
+			m_rm->DestroyUserResource(data.gBufAlbedo);
 			m_rm->DestroyUserResource(data.gBufPosition);
 			m_rm->DestroyUserResource(data.gBufNormal);
 			m_rm->DestroyUserResource(data.gBufDepth);
 			m_rm->DestroyUserResource(data.lightingPassOutput);
-			// m_rm->DestroyUserResource(data.lightingPassDepth);
 		}
 
 		m_mainPass.Destroy();
@@ -268,17 +267,22 @@ namespace Lina
 		m_mainPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 
 		GPUDataAtmosphere atmosphere = {
-			.skyTopAndDiffusion = Color(0.1f, 0.5f, 0.7f, 0.05f), .skyHorizonAndBase = Color(0.5f, 0.1f, 0.6f, 0.5f), .skyGroundAndCurvature = Color(0.01f, 0.01f, 0.01f, 0.05f), .sunLightAndCoef = Vector4(1.0f, 1.0f, 1.0f, 20.0f),
-			//.sunPosition		   = Vector4(25, 15, 100, 0),
+			.skyTopAndDiffusion	   = Color(0.22, 0.45f, 0.93f, 0.03f),
+			.skyHorizonAndBase	   = Color(0.32, 0.65f, 0.98f, 0.55f),
+			.skyGroundAndCurvature = Color(0.02f, 0.02f, 0.02f, 0.05f),
+			.sunLightAndCoef	   = Vector4(1.0f, 1.0f, 1.0f, 200.0f),
+			.sunPosition		   = Vector4(0, 50, 100, 0),
+			.ambientTop			   = Color(0.1f, 0.1f, 1.0f, 1.0f),
+			.ambientMiddle		   = Color(1.0f, 0.0f, 0.0f, 1.0f),
+			.ambientBottom		   = Color(0.0f, 1.0f, 0.0f, 1.0f),
 		};
-
 		m_lightingPass.GetBuffer(frameIndex, 1).BufferData(0, (uint8*)&atmosphere, sizeof(GPUDataAtmosphere));
 
 		GPUDataDeferredLightingPass renderPassData = {
-			.gBufColorMaterialID = currentFrame.gBufColorMaterialID->GetBindlessIndex(),
-			.gBufPosition		 = currentFrame.gBufPosition->GetBindlessIndex(),
-			.gBufNormal			 = currentFrame.gBufNormal->GetBindlessIndex(),
-			//.gBufDepth			 = currentFrame.gBufDepth->GetBindlessIndex(),
+			.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
+			.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
+			.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
+			// .gBufDepth			 = currentFrame.gBufDepth->GetBindlessIndex(),
 			.gBufSampler	= m_gBufSampler->GetBindlessIndex(),
 			.checkerTexture = m_checkerTexture->GetBindlessIndex(),
 		};
@@ -415,7 +419,7 @@ namespace Lina
 			barrierToAttachment->dstStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
 			barrierToAttachment->textureBarrierCount = 5;
 			barrierToAttachment->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 5);
-			barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufColorMaterialID->GetGPUHandle());
+			barrierToAttachment->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufAlbedo->GetGPUHandle());
 			barrierToAttachment->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufPosition->GetGPUHandle());
 			barrierToAttachment->textureBarriers[2]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.gBufNormal->GetGPUHandle());
 			barrierToAttachment->textureBarriers[3]	 = GfxHelpers::GetTextureBarrierDepthRead2Att(currentFrame.gBufDepth->GetGPUHandle());
@@ -461,7 +465,7 @@ namespace Lina
 			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
 			barrier->textureBarrierCount = 3;
 			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 3);
-			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufColorMaterialID->GetGPUHandle());
+			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufAlbedo->GetGPUHandle());
 			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufPosition->GetGPUHandle());
 			barrier->textureBarriers[2]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufNormal->GetGPUHandle());
 		}

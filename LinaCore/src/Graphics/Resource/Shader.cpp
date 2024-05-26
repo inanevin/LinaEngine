@@ -37,9 +37,32 @@ SOFTWARE.
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Common/FileSystem//FileSystem.hpp"
 #include "Common/Serialization/HashMapSerialization.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
+	void ShaderProperty::SaveToStream(OStream& out) const
+	{
+		out << static_cast<uint8>(type);
+		StringSerialization::SaveToStream(out, name);
+		out << static_cast<uint32>(size);
+		out.WriteEndianSafe((uint8*)&data, size);
+	}
+
+	void ShaderProperty::LoadFromStream(IStream& in)
+	{
+		uint8 typeInt = 0;
+		in >> typeInt;
+		type = static_cast<ShaderPropertyType>(typeInt);
+		StringSerialization::LoadFromStream(in, name);
+
+		uint32 sz = 0;
+		in >> sz;
+		size = static_cast<size_t>(sz);
+
+		in.ReadEndianSafe((void*)&data, size);
+	}
+
 	void Shader::Metadata::SaveToStream(OStream& out) const
 	{
 		HashMapSerialization::SaveToStream_OBJ(out, variants);
@@ -137,7 +160,7 @@ namespace Lina
 
 		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_meta.renderPassDescriptorType);
+		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_meta.renderPassDescriptorType, m_properties);
 		if (!success)
 			return;
 
@@ -176,6 +199,7 @@ namespace Lina
 		}
 
 		SaveLinaGXShaderLayout(stream, m_layout);
+		VectorSerialization::SaveToStream_OBJ(stream, m_properties);
 	}
 
 	void Shader::LoadFromStream(IStream& stream)
@@ -203,6 +227,7 @@ namespace Lina
 
 		m_layout = {};
 		LoadLinaGXShaderLayout(stream, m_layout);
+		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);
 	}
 
 	void Shader::BatchLoaded()
