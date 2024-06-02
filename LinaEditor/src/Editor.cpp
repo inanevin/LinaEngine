@@ -108,6 +108,27 @@ namespace Lina::Editor
 			customMeta.SaveToStream(stream);
 			return true;
 		}
+
+		if (sid == "Resources/Editor/Fonts/DemoTitle.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 64, .dpiLimit = 10.0f}},
+				.isSDF	= true,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == "Resources/Editor/Fonts/DemoTitleAlt.ttf"_hs)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 36, .dpiLimit = 10.0f}},
+				.isSDF	= false,
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+
 		return false;
 	}
 
@@ -122,9 +143,21 @@ namespace Lina::Editor
 		// Core
 		//	resources.push_back(ResourceIdentifier("Resources/Editor/Models/Duck.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		// list.push_back(ResourceIdentifier("Resources/Core/Models/duck.png", GetTypeID<Texture>(), 0, false, ResourceFlags::RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/DemoTitle.ttf", GetTypeID<Font>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Fonts/DemoTitleAlt.ttf", GetTypeID<Font>(), 0, true, RF_CORE));
 		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
 		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaPBR1.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaPBR2.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaPBR3.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaECS.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaDummyEditor.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/sdfps.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaNewEditor.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaVG.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/LinaGX.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/Demo/dx12.jpg", GetTypeID<Texture>(), 0, true, RF_CORE));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);

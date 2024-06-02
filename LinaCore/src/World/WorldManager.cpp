@@ -52,7 +52,7 @@ namespace Lina
 		{
 			if (w == m_mainWorld)
 			{
-				m_gfxManager->DestroyWorldRenderer(m_mainWorld);
+				// m_gfxManager->DestroyWorldRenderer(m_mainWorld);
 
 				auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 				ResourceIdentifier id(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
@@ -77,6 +77,7 @@ namespace Lina
 
 	void WorldManager::ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize)
 	{
+		return;
 		if (newSize.x == 0 || newSize.y == 0)
 			return;
 
@@ -104,7 +105,7 @@ namespace Lina
 		rm->WaitForAll();
 
 		m_mainWorld = rm->GetResource<EntityWorld>(sid);
-		m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
+		// m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
 		m_activeWorlds.push_back(m_mainWorld);
 		m_mainWorld->m_system = m_system;
 

@@ -272,7 +272,8 @@ namespace Lina
 	}
 	Vector2ui EntityWorld::GetRenderSize() const
 	{
-		return m_renderer->GetSize();
+		return Vector2ui(100, 100);
+		// return m_renderer->GetSize();
 	}
 	void EntityWorld::GfxSettings::SaveToStream(OStream& stream) const
 	{

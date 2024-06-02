@@ -50,7 +50,9 @@ namespace Lina::Editor
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
+		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
 
+	private:
 	private:
 		WorldManager*  m_wm			   = nullptr;
 		EntityWorld*   m_world		   = nullptr;
