@@ -52,6 +52,7 @@ src/Graphics/Resource/Model.cpp
 src/Graphics/Resource/Texture.cpp
 src/Graphics/Resource/TextureSampler.cpp
 src/Graphics/Resource/Material.cpp
+src/Graphics/Resource/GUIWidget.cpp
 src/Graphics/Resource/Font.cpp
 src/Graphics/Renderers/SurfaceRenderer.cpp
 src/Graphics/Renderers/WorldRenderer.cpp
@@ -64,6 +65,7 @@ src/Components/CameraComponent.cpp
 src/Components/SimpleFlightMovement.cpp
 src/Components/RenderableComponent.cpp
 src/Components/MeshComponent.cpp
+src/Components/WidgetComponent.cpp
 
 # Reflection
 src/Reflection/ReflectionSystem.cpp
@@ -174,6 +176,7 @@ include/Core/Graphics/Resource/Model.hpp
 include/Core/Graphics/Resource/Texture.hpp
 include/Core/Graphics/Resource/TextureSampler.hpp
 include/Core/Graphics/Resource/Material.hpp
+include/Core/Graphics/Resource/GUIWidget.hpp
 include/Core/Graphics/Resource/Font.hpp
 include/Core/Graphics/Renderers/SurfaceRenderer.hpp
 include/Core/Graphics/Renderers/WorldRenderer.hpp
@@ -198,6 +201,7 @@ include/Core/Components/SimpleFlightMovement.hpp
 include/Core/Components/RenderableComponent.hpp
 include/Core/Components/SkyComponent.hpp
 include/Core/Components/MeshComponent.hpp
+include/Core/Components/WidgetComponent.hpp
 
 
 # GUI

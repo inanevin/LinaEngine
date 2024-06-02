@@ -39,6 +39,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Components/MeshComponent.hpp"
 #include "Core/Components/CameraComponent.hpp"
+#include "Core/Components/WidgetComponent.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
@@ -195,19 +196,30 @@ namespace Lina
 	void WorldRenderer::FetchRenderables()
 	{
 		m_meshComponents.clear();
+		m_widgetComponents.clear();
 		m_world->GetAllComponents<MeshComponent>(m_meshComponents);
+		m_world->GetAllComponents<WidgetComponent>(m_widgetComponents);
 	}
 
 	void WorldRenderer::OnComponentAdded(Component* c)
 	{
 		if (c->GetComponentType() == GetTypeID<MeshComponent>())
 			m_meshComponents.push_back(static_cast<MeshComponent*>(c));
+		else if (c->GetComponentType() == GetTypeID<WidgetComponent>())
+			m_widgetComponents.push_back(static_cast<WidgetComponent*>(c));
 	}
 
 	void WorldRenderer::OnComponentRemoved(Component* c)
 	{
 		if (c->GetComponentType() == GetTypeID<MeshComponent>())
 			m_meshComponents.erase(linatl::find_if(m_meshComponents.begin(), m_meshComponents.end(), [c](MeshComponent* model) -> bool { return c == model; }));
+
+		if (c->GetComponentType() == GetTypeID<WidgetComponent>())
+			m_widgetComponents.erase(linatl::find_if(m_widgetComponents.begin(), m_widgetComponents.end(), [c](WidgetComponent* comp) -> bool { return c == comp; }));
+	}
+
+	void WorldRenderer::PreTick()
+	{
 	}
 
 	void WorldRenderer::Tick(float delta)

@@ -42,6 +42,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
@@ -58,6 +59,7 @@ namespace Lina
 		rm.RegisterResourceType<TextureSampler>(100, {"linasampler"}, PackageType::Package1, RTF_BINDLESS_RESOURCE);
 		rm.RegisterResourceType<Font>(10, {"ttf", "otf"}, PackageType::Package1, 0);
 		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1, RTF_BINDLESS_RESOURCE);
+		rm.RegisterResourceType<GUIWidget>(25, {"linawidget"}, PackageType::Package1, 0);
 		rm.RegisterResourceType<EntityWorld>(25, {"linaworld"}, PackageType::Package1, 0);
 
 		Vector<ResourceIdentifier> list;

@@ -79,7 +79,7 @@ namespace Lina
 		Widget* FindNextSelectable(Widget* start);
 		Widget* FindPreviousSelectable(Widget* start);
 
-		inline Widget* GetRoot()
+		inline Widget* GetRoot() const
 		{
 			return m_rootWidget;
 		}

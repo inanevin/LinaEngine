@@ -26,46 +26,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/MeshComponent.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
-#include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Data/ModelNode.hpp"
+#pragma once
+
+#include "Core/Components/RenderableComponent.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 
 namespace Lina
 {
-	void MeshComponent::SaveToStream(OStream& stream) const
+	class WidgetComponent : public RenderableComponent
 	{
-		m_model.SaveToStream(stream);
-		m_material.SaveToStream(stream);
-		stream << m_meshIndex;
-	}
+	public:
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+		virtual void FetchResources(ResourceManager* rm) override;
 
-	void MeshComponent::LoadFromStream(IStream& stream)
-	{
-		m_model.LoadFromStream(stream);
-		m_material.LoadFromStream(stream);
-		stream >> m_meshIndex;
-	}
+		void SetWidget(StringID sid);
 
-	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
-	{
-		m_model.sid = sid;
-		m_model.raw = nullptr;
-		m_meshIndex = meshIndex;
-	}
+		virtual TypeID GetComponentType() override
+		{
+			return GetTypeID<WidgetComponent>();
+		}
 
-	void MeshComponent::SetMaterial(StringID sid)
-	{
-		m_material.sid = sid;
-		m_material.raw = nullptr;
-	}
+		inline GUIWidget* GetWidget() const
+		{
+			return m_targetWidget.raw;
+		}
 
-	void MeshComponent::FetchResources(ResourceManager* rm)
-	{
-		m_model.raw	   = rm->GetResource<Model>(m_model.sid);
-		m_material.raw = rm->GetResource<Material>(m_material.sid);
-		m_mesh		   = m_model.raw->GetMesh(m_meshIndex);
-	}
+	private:
+		ResRef<GUIWidget> m_targetWidget;
+	};
 
+	// LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
+	// LINA_REFLECTCOMPONENT_END(MeshComponent);
 } // namespace Lina

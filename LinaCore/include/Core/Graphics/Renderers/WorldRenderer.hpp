@@ -46,6 +46,8 @@ namespace Lina
 	class ModelNode;
 	class MeshComponent;
 	class Shader;
+	class GUIWidget;
+	class WidgetComponent;
 	class Material;
 	class Texture;
 	class TextureSampler;
@@ -76,6 +78,7 @@ namespace Lina
 		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize);
 		~WorldRenderer();
 
+		void		  PreTick();
 		void		  Tick(float delta);
 		SemaphoreData Render(uint32 frameIndex, const SemaphoreData& waitSemaphore);
 		void		  Resize(const Vector2ui& newSize);
@@ -139,6 +142,7 @@ namespace Lina
 		Vector2ui									  m_size				  = Vector2ui::Zero;
 		EntityWorld*								  m_world				  = nullptr;
 		Vector<MeshComponent*>						  m_meshComponents;
+		Vector<WidgetComponent*>					  m_widgetComponents;
 		Vector<GPUDataObject>						  m_objects = {};
 		ResourceManager*							  m_rm		= nullptr;
 		HashMap<Shader*, Vector<DrawDataMeshDefault>> m_drawData;

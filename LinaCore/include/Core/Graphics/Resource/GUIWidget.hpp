@@ -26,46 +26,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/MeshComponent.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
-#include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Data/ModelNode.hpp"
+#pragma once
+
+#include "Core/Resources/Resource.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/Graphics/GUI/GUIRenderer.hpp"
+#include <LinaVG/LinaVG.hpp>
 
 namespace Lina
 {
-	void MeshComponent::SaveToStream(OStream& stream) const
+	class GUIWidget : public Resource
 	{
-		m_model.SaveToStream(stream);
-		m_material.SaveToStream(stream);
-		stream << m_meshIndex;
-	}
 
-	void MeshComponent::LoadFromStream(IStream& stream)
-	{
-		m_model.LoadFromStream(stream);
-		m_material.LoadFromStream(stream);
-		stream >> m_meshIndex;
-	}
+	public:
+		inline Widget* GetRoot() const
+		{
+			return m_guiRenderer.GetGUIRoot();
+		}
 
-	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
-	{
-		m_model.sid = sid;
-		m_model.raw = nullptr;
-		m_meshIndex = meshIndex;
-	}
+		inline GUIRenderer& GetGUIRenderer()
+		{
+			return m_guiRenderer;
+		}
 
-	void MeshComponent::SetMaterial(StringID sid)
-	{
-		m_material.sid = sid;
-		m_material.raw = nullptr;
-	}
+	private:
+		FRIEND_RESOURCE_CACHE();
 
-	void MeshComponent::FetchResources(ResourceManager* rm)
-	{
-		m_model.raw	   = rm->GetResource<Model>(m_model.sid);
-		m_material.raw = rm->GetResource<Material>(m_material.sid);
-		m_mesh		   = m_model.raw->GetMesh(m_meshIndex);
-	}
+		GUIWidget(ResourceManager* rm, const String& path, StringID sid);
+		virtual ~GUIWidget();
+
+	protected:
+		virtual void LoadFromFile(const char* path) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+		virtual void BatchLoaded() override;
+
+	private:
+		GUIRenderer m_guiRenderer;
+	};
 
 } // namespace Lina

@@ -45,8 +45,8 @@ namespace Lina
 {
 
 #define MAX_COPY_COMMANDS 50
-#define MAX_GUI_VERTICES  20000
-#define MAX_GUI_INDICES	  48000
+#define MAX_GUI_VERTICES  80000
+#define MAX_GUI_INDICES	  98000
 
 	void GUIRenderer::Create(GfxManager* gfxManager, RenderPass* renderPass, StringID shaderVariant, LinaGX::Window* window)
 	{
@@ -70,7 +70,7 @@ namespace Lina
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer: IndexBuffer" + istr);
 			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "GUIRenderer: MaterialBuffer" + istr);
 			data.guiMaterialBuffer.MemsetMapped(0);
-			data.guiIndirectBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, MAX_GUI_MATERIALS * m_lgx->GetIndexedIndirectCommandSize(), "GUIRenderer IndirectBuffer" + istr);
+			data.guiIndirectBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, static_cast<uint32>(MAX_GUI_MATERIALS * m_lgx->GetIndexedIndirectCommandSize()), "GUIRenderer IndirectBuffer" + istr);
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle = renderPass->GetDescriptorSet(i),

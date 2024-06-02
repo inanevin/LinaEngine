@@ -26,46 +26,41 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Components/MeshComponent.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Data/ModelNode.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina
 {
-	void MeshComponent::SaveToStream(OStream& stream) const
+
+	GUIWidget::GUIWidget(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Material>())
 	{
-		m_model.SaveToStream(stream);
-		m_material.SaveToStream(stream);
-		stream << m_meshIndex;
 	}
 
-	void MeshComponent::LoadFromStream(IStream& stream)
+	GUIWidget::~GUIWidget()
 	{
-		m_model.LoadFromStream(stream);
-		m_material.LoadFromStream(stream);
-		stream >> m_meshIndex;
 	}
 
-	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
+	void GUIWidget::LoadFromFile(const char* path)
 	{
-		m_model.sid = sid;
-		m_model.raw = nullptr;
-		m_meshIndex = meshIndex;
+		IStream stream = Serialization::LoadFromFile(path);
+
+		if (stream.GetDataRaw() != nullptr)
+			LoadFromStream(stream);
+
+		stream.Destroy();
 	}
 
-	void MeshComponent::SetMaterial(StringID sid)
+	void GUIWidget::SaveToStream(OStream& stream) const
 	{
-		m_material.sid = sid;
-		m_material.raw = nullptr;
 	}
 
-	void MeshComponent::FetchResources(ResourceManager* rm)
+	void GUIWidget::LoadFromStream(IStream& stream)
 	{
-		m_model.raw	   = rm->GetResource<Model>(m_model.sid);
-		m_material.raw = rm->GetResource<Material>(m_material.sid);
-		m_mesh		   = m_model.raw->GetMesh(m_meshIndex);
 	}
 
+	void GUIWidget::BatchLoaded()
+	{
+	}
 } // namespace Lina

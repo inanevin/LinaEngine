@@ -96,7 +96,7 @@ namespace Lina
 			return m_pfd[frameIndex].copySemaphore;
 		}
 
-		inline Widget* GetGUIRoot()
+		inline Widget* GetGUIRoot() const
 		{
 			return m_widgetManager.GetRoot();
 		}
