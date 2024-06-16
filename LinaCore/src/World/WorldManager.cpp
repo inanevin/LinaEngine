@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 
-
 #include "Core/Components/MeshComponent.hpp"
 #include "Core/Components/WidgetComponent.hpp"
 #include "Core/Components/CameraComponent.hpp"
@@ -47,7 +46,7 @@ namespace Lina
 	void WorldManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
 		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-        m_rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_rm		 = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
 	void WorldManager::Shutdown()
@@ -136,7 +135,7 @@ namespace Lina
 		planeMesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
 		plane->SetPosition(Vector3(0, 0, 0));
 		plane->SetScale(Vector3(100, 1, 100));
-//
+		//
 		// for (uint32 i = 0; i < 200; i++)
 		// {
 		// 	Entity*		   test = m_mainWorld->CreateEntity("Cube");
@@ -147,16 +146,16 @@ namespace Lina
 		// 	test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
 		// 	test->AddRotation(Vector3(Math::RandF(-180, 180), Math::RandF(-180, 180), Math::RandF(-180, 180)));
 		// }
-        
-        {
-            Entity*          text    = m_mainWorld->CreateEntity("Text");
-            WidgetComponent* widget = m_mainWorld->AddComponent<WidgetComponent>(text);
-            widget->FetchResources(m_rm);
-            
-            text->SetPosition(Vector3(0, 0, 0));
-            text->SetScale(Vector3(1,1,1));
-            text->SetRotationAngles(Vector3(0, 15, 0));
-        }
+
+		{
+			Entity*			 text	= m_mainWorld->CreateEntity("Text");
+			WidgetComponent* widget = m_mainWorld->AddComponent<WidgetComponent>(text);
+			widget->FetchResources(m_rm);
+
+			text->SetPosition(Vector3(0, 0, 0));
+			text->SetScale(Vector3(1, 1, 1));
+			text->SetRotationAngles(Vector3(0, 15, 0));
+		}
 
 		// for (uint32 i = 0; i < 50; i++)
 		// {
@@ -265,17 +264,17 @@ namespace Lina
 		//		uninstall();
 	}
 
-    void WorldManager::PreTick()
-    {
-        if (m_activeWorlds.size() == 1)
-            m_activeWorlds[0]->PreTick();
-        else
-        {
-            Taskflow tf;
-            tf.for_each(m_activeWorlds.begin(), m_activeWorlds.end(), [](EntityWorld* world) { world->PreTick(); });
-            m_system->GetMainExecutor()->RunAndWait(tf);
-        }
-    }
+	void WorldManager::PreTick()
+	{
+		if (m_activeWorlds.size() == 1)
+			m_activeWorlds[0]->PreTick();
+		else
+		{
+			Taskflow tf;
+			tf.for_each(m_activeWorlds.begin(), m_activeWorlds.end(), [](EntityWorld* world) { world->PreTick(); });
+			m_system->GetMainExecutor()->RunAndWait(tf);
+		}
+	}
 
 	void WorldManager::Tick(float delta)
 	{
