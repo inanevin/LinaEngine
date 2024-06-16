@@ -126,6 +126,60 @@ namespace Lina
 		});
 	}
 
+	void Widget::SaveToStream(OStream& stream) const
+	{
+		stream << m_tid << m_flags << m_childPadding;
+		m_childMargins.SaveToStream(stream);
+		m_borderThickness.SaveToStream(stream);
+		m_rect.SaveToStream(stream);
+		m_alignedPos.SaveToStream(stream);
+		m_alignedSize.SaveToStream(stream);
+		m_fixedSize.SaveToStream(stream);
+		StringSerialization::SaveToStream(stream, m_tooltip);
+		StringSerialization::SaveToStream(stream, m_debugName);
+		stream << static_cast<uint8>(m_posAlignSourceX) << static_cast<uint8>(m_posAlignSourceY);
+
+		const uint32 childSz = static_cast<uint32>(m_children.size());
+
+		stream << childSz;
+
+		for (uint32 i = 0; i < childSz; i++)
+		{
+			auto* c = m_children[i];
+			stream << c->GetTID();
+			c->SaveToStream(stream);
+		}
+	}
+
+	void Widget::LoadFromStream(IStream& stream)
+	{
+		stream >> m_tid >> m_flags >> m_childPadding;
+		m_childMargins.LoadFromStream(stream);
+		m_borderThickness.LoadFromStream(stream);
+		m_rect.LoadFromStream(stream);
+		m_alignedPos.LoadFromStream(stream);
+		m_alignedSize.LoadFromStream(stream);
+		m_fixedSize.LoadFromStream(stream);
+		StringSerialization::LoadFromStream(stream, m_tooltip);
+		StringSerialization::LoadFromStream(stream, m_debugName);
+		uint8 posAlignSourceX = 0, posAlignSourceY = 0;
+		stream >> posAlignSourceX >> posAlignSourceY;
+		m_posAlignSourceX = static_cast<PosAlignmentSource>(posAlignSourceX);
+		m_posAlignSourceY = static_cast<PosAlignmentSource>(posAlignSourceY);
+
+		uint32 childSz = 0;
+		stream >> childSz;
+		m_children.resize(childSz);
+
+		for (uint32 i = 0; i < childSz; i++)
+		{
+			Widget* c	= nullptr;
+			TypeID	tid = 0;
+			stream >> tid;
+			c->LoadFromStream(stream);
+		}
+	}
+
 	void Widget::DrawBorders()
 	{
 		LinaVG::StyleOptions border;

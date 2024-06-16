@@ -54,6 +54,7 @@ namespace Lina
 
 		virtual void Begin(){};
 		virtual void End(){};
+		virtual void PreTick(){};
 		virtual void Tick(float delta){};
 		virtual void PostTick(float delta){};
 		virtual void FetchResources(ResourceManager* rm){};

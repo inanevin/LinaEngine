@@ -270,12 +270,12 @@ namespace Lina
 		{
 			LinaGX::ColorBlendAttachment blend = LinaGX::ColorBlendAttachment{
 				.blendEnabled		 = !variant.blendDisable,
-				.srcColorBlendFactor = LinaGX::BlendFactor::SrcAlpha,
-				.dstColorBlendFactor = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.colorBlendOp		 = LinaGX::BlendOp::Add,
-				.srcAlphaBlendFactor = LinaGX::BlendFactor::One,
-				.dstAlphaBlendFactor = LinaGX::BlendFactor::Zero,
-				.alphaBlendOp		 = LinaGX::BlendOp::Add,
+				.srcColorBlendFactor = variant.blendSrcFactor,
+				.dstColorBlendFactor = variant.blendDstFactor,
+				.colorBlendOp		 = variant.blendColorOp,
+				.srcAlphaBlendFactor = variant.blendSrcAlphaFactor,
+				.dstAlphaBlendFactor = variant.blendDstAlphaFactor,
+				.alphaBlendOp		 = variant.blendAlphaOp,
 				.componentFlags		 = {LinaGX::ColorComponentFlags::R, LinaGX::ColorComponentFlags::G, LinaGX::ColorComponentFlags::B, LinaGX::ColorComponentFlags::A},
 			};
 

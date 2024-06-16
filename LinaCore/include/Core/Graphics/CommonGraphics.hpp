@@ -41,6 +41,9 @@ namespace Lina
 #define DEFAULT_SHADER_GUI_PATH "Resources/Core/Shaders/GUI/GUI.linashader"
 #define DEFAULT_SHADER_GUI_SID	"Resources/Core/Shaders/GUI/GUI.linashader"_hs
 
+#define DEFAULT_SHADER_GUI3D_PATH "Resources/Core/Shaders/GUI/GUI3D.linashader"
+#define DEFAULT_SHADER_GUI3D_SID  "Resources/Core/Shaders/GUI/GUI3D.linashader"_hs
+
 #define DEFAULT_SHADER_OBJECT_PATH "Resources/Core/Shaders/Object/DefaultObject.linashader"
 #define DEFAULT_SHADER_OBJECT_SID  "Resources/Core/Shaders/Object/DefaultObject.linashader"_hs
 
@@ -81,6 +84,7 @@ namespace Lina
 		Gui = 0,
 		Main,
 		Lighting,
+		ForwardTransparency,
 		Max,
 	};
 
@@ -94,6 +98,8 @@ namespace Lina
 			return "Main";
 		case Lighting:
 			return "Lighting";
+		case ForwardTransparency:
+			return "ForwardTransparency";
 		case Max:
 			return "Max";
 		default:

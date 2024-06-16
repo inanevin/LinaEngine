@@ -48,16 +48,7 @@ layout(std140, set = 1, binding = 1) readonly buffer ObjectBuffer
     Object data[];
 } LINA_OBJECTS;
 
-struct IndirectArguments
-{
-	uint entityID;
-	uint materialBytePadding;
-	uint instanceCount;
-	uint padding;
-};
-
 layout(set = 1, binding = 2) readonly buffer IndirectArgumentsBuffer
 {
     IndirectArguments data[];
 } LINA_INDIRECT_ARGUMENTS;
-

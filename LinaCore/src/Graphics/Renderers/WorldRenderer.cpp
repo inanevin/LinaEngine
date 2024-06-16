@@ -84,6 +84,9 @@ namespace Lina
 			data.copySemaphore.semaphore   = m_lgx->CreateUserSemaphore();
 		}
 
+		m_guiShader3D			= m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI3D_SID);
+		m_guiShader3DVariantGPU = m_guiShader3D->GetGPUHandle("RenderTarget"_hs);
+
 		CreateSizeRelativeResources();
 		FetchRenderables();
 	}
@@ -145,24 +148,36 @@ namespace Lina
 			data.gBufNormal->CreateGPUOnly(rtDesc);
 			data.gBufDepth->CreateGPUOnly(depthDesc);
 			data.lightingPassOutput->CreateGPUOnly(rtDescLighting);
+
 			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufAlbedo->GetGPUHandle(), .isSwapchain = false});
 			m_mainPass.SetColorAttachment(i, 1, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufPosition->GetGPUHandle(), .isSwapchain = false});
 			m_mainPass.SetColorAttachment(i, 2, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufNormal->GetGPUHandle(), .isSwapchain = false});
 			m_mainPass.DepthStencilAttachment(i, {.useDepth = true, .texture = data.gBufDepth->GetGPUHandle(), .depthLoadOp = LinaGX::LoadOp::Clear, .depthStoreOp = LinaGX::StoreOp::Store, .clearDepth = 1.0f});
 
-			m_lightingPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.lightingPassOutput->GetGPUHandle(), .isSwapchain = false});
+			m_lightingPass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.lightingPassOutput->GetGPUHandle(), .isSwapchain = false});
 			m_lightingPass.DepthStencilAttachment(i,
 												  {
 													  .useDepth		= true,
 													  .texture		= data.gBufDepth->GetGPUHandle(),
 													  .depthLoadOp	= LinaGX::LoadOp::Load,
-													  .depthStoreOp = LinaGX::StoreOp::DontCare,
+													  .depthStoreOp = LinaGX::StoreOp::Store,
 													  .clearDepth	= 1.0f,
 												  });
+
+			m_forwardTransparencyPass.SetColorAttachment(i, 0, {.loadOp = LinaGX::LoadOp::Load, .storeOp = LinaGX::StoreOp::Store, .clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.lightingPassOutput->GetGPUHandle(), .isSwapchain = false});
+			m_forwardTransparencyPass.DepthStencilAttachment(i,
+															 {
+																 .useDepth	   = true,
+																 .texture	   = data.gBufDepth->GetGPUHandle(),
+																 .depthLoadOp  = LinaGX::LoadOp::Load,
+																 .depthStoreOp = LinaGX::StoreOp::DontCare,
+																 .clearDepth   = 1.0f,
+															 });
 		}
 
-		m_mainPass.Create(m_gfxManager, RenderPassDescriptorType::Main);
-		m_lightingPass.Create(m_gfxManager, RenderPassDescriptorType::Lighting);
+		m_mainPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
+		m_lightingPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
+		m_forwardTransparencyPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::ForwardTransparency));
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -170,6 +185,13 @@ namespace Lina
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle			= m_mainPass.GetDescriptorSet(i),
+				.setAllocationIndex = 0,
+				.binding			= 1,
+				.buffers			= {data.objectBuffer.GetGPUResource()},
+			});
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle			= m_forwardTransparencyPass.GetDescriptorSet(i),
 				.setAllocationIndex = 0,
 				.binding			= 1,
 				.buffers			= {data.objectBuffer.GetGPUResource()},
@@ -191,6 +213,7 @@ namespace Lina
 
 		m_mainPass.Destroy();
 		m_lightingPass.Destroy();
+		m_forwardTransparencyPass.Destroy();
 	}
 
 	void WorldRenderer::FetchRenderables()
@@ -237,88 +260,68 @@ namespace Lina
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 
-		CameraComponent* camera = m_world->GetActiveCamera();
-		GPUDataView		 view	= {};
-
-		if (camera == nullptr)
+		// View data.
 		{
-			static float camX  = 25.0f;
-			static float camY  = 25.0f;
-			static float camZ  = 50.0f;
-			const float	 speed = 30.0f;
+			CameraComponent* camera = m_world->GetActiveCamera();
+			GPUDataView		 view	= {};
+			if (camera != nullptr)
+			{
+				const Vector3& camPos	   = camera->GetEntity()->GetPosition();
+				const Vector3& camDir	   = camera->GetEntity()->GetRotation().GetForward();
+				view.view				   = camera->GetView();
+				view.proj				   = camera->GetProjection();
+				view.viewProj			   = view.proj * view.view;
+				view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, camera->GetNear());
+				view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, camera->GetFar());
+				view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			}
 
-			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_A))
-				camX -= 0.016f * speed;
-
-			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_D))
-				camX += 0.016f * speed;
-
-			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_W))
-				camY += 0.016f * speed;
-
-			if (m_gfxManager->GetLGX()->GetInput().GetKey(LINAGX_KEY_S))
-				camY -= 0.016f * speed;
-
-			view.view	  = Matrix4::InitLookAt(Vector3(camX, camY, camZ), Vector3(0.0f, 0.0f, 0.0f), Vector3::Up);
-			view.proj	  = Matrix4::Perspective(90, static_cast<float>(m_size.x) / static_cast<float>(m_size.y), 0.1f, 100.0f);
-			view.viewProj = view.proj * view.view;
-		}
-		else
-		{
-			const Vector3& camPos	   = camera->GetEntity()->GetPosition();
-			const Vector3& camDir	   = camera->GetEntity()->GetRotation().GetForward();
-			view.view				   = camera->GetView();
-			view.proj				   = camera->GetProjection();
-			view.viewProj			   = view.proj * view.view;
-			view.cameraPositionAndNear = Vector4(camPos.x, camPos.y, camPos.z, camera->GetNear());
-			view.cameraDirectionAndFar = Vector4(camDir.x, camDir.y, camDir.z, camera->GetFar());
-			view.size				   = Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			m_lightingPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+			m_mainPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
+			m_forwardTransparencyPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
 		}
 
-		m_lightingPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-		m_mainPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&view, sizeof(GPUDataView));
-
-		GPUDataAtmosphere atmosphere = {
-			.skyTopAndDiffusion	   = Color(0.22, 0.45f, 0.93f, 0.03f),
-			.skyHorizonAndBase	   = Color(0.32, 0.65f, 0.98f, 0.55f),
-			.skyGroundAndCurvature = Color(0.02f, 0.02f, 0.02f, 0.05f),
-			.sunLightAndCoef	   = Vector4(1.0f, 1.0f, 1.0f, 200.0f),
-			.sunPosition		   = Vector4(0, 50, 100, 0),
-			.ambientTop			   = Color(0.1f, 0.1f, 1.0f, 1.0f),
-			.ambientMiddle		   = Color(1.0f, 0.0f, 0.0f, 1.0f),
-			.ambientBottom		   = Color(0.0f, 1.0f, 0.0f, 1.0f),
-		};
-		m_lightingPass.GetBuffer(frameIndex, 1).BufferData(0, (uint8*)&atmosphere, sizeof(GPUDataAtmosphere));
-
-		GPUDataDeferredLightingPass renderPassData = {
-			.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
-			.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
-			.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
-			// .gBufDepth			 = currentFrame.gBufDepth->GetBindlessIndex(),
-			.gBufSampler	= m_gBufSampler->GetBindlessIndex(),
-			.checkerTexture = m_checkerTexture->GetBindlessIndex(),
-		};
-
-		m_lightingPass.GetBuffer(frameIndex, 2).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataDeferredLightingPass));
-
-		Vector<Entity*> entities;
-		m_world->GetAllEntities(entities);
-		m_objects.resize(entities.size());
-
-		for (size_t i = 0; i < entities.size(); i++)
+		// Lighting pass specific.
 		{
-			Entity* e	   = entities[i];
-			e->m_ssboIndex = static_cast<uint32>(i);
-			auto& data	   = m_objects[i];
-			data.model	   = e->GetTransform().GetMatrix();
+			GPUDataAtmosphere atmosphere = {
+				.skyTopAndDiffusion	   = Color(0.22, 0.45f, 0.93f, 0.03f),
+				.skyHorizonAndBase	   = Color(0.32, 0.65f, 0.98f, 0.55f),
+				.skyGroundAndCurvature = Color(0.02f, 0.02f, 0.02f, 0.05f),
+				.sunLightAndCoef	   = Vector4(1.0f, 1.0f, 1.0f, 200.0f),
+				.sunPosition		   = Vector4(0, 50, 100, 0),
+				.ambientTop			   = Color(0.1f, 0.1f, 1.0f, 1.0f),
+				.ambientMiddle		   = Color(1.0f, 0.0f, 0.0f, 1.0f),
+				.ambientBottom		   = Color(0.0f, 1.0f, 0.0f, 1.0f),
+			};
+			m_lightingPass.GetBuffer(frameIndex, "AtmosphereData"_hs).BufferData(0, (uint8*)&atmosphere, sizeof(GPUDataAtmosphere));
 
-			// static Quaternion rot = Quaternion();
-			// static float angle = 0.0f;
-			// angle += 0.016f * 10;
-			// rot.AxisAngle(Vector3(0, 1,0), angle);
-			// data.model = Matrix4::TransformMatrix(Vector3(Math::RandF(-10, 10), Math::RandF(-10, 10), Math::RandF(-10, 10)), rot, Vector3::One);
+			GPUDataDeferredLightingPass renderPassData = {
+				.gBufAlbedo			  = currentFrame.gBufAlbedo->GetBindlessIndex(),
+				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
+				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
+				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
+				.gBufSampler	= m_gBufSampler->GetBindlessIndex(),
+				.checkerTexture = m_checkerTexture->GetBindlessIndex(),
+			};
+
+			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataDeferredLightingPass));
 		}
-		currentFrame.objectBuffer.BufferData(0, (uint8*)m_objects.data(), sizeof(GPUDataObject) * m_objects.size());
+
+		// All entities.
+		{
+			Vector<Entity*> entities;
+			m_world->GetAllEntities(entities);
+			m_objects.resize(entities.size());
+
+			for (size_t i = 0; i < entities.size(); i++)
+			{
+				Entity* e	   = entities[i];
+				e->m_ssboIndex = static_cast<uint32>(i);
+				auto& data	   = m_objects[i];
+				data.model	   = e->GetTransform().GetMatrix();
+			}
+			currentFrame.objectBuffer.BufferData(0, (uint8*)m_objects.data(), sizeof(GPUDataObject) * m_objects.size());
+		}
 
 		// Draw data map.
 		m_drawData.clear();
@@ -353,7 +356,7 @@ namespace Lina
 		{
 			for (const auto& md : meshVector)
 			{
-				m_lgx->BufferIndexedIndirectCommandData(m_mainPass.GetBuffer(frameIndex, 1).GetMapped(),
+				m_lgx->BufferIndexedIndirectCommandData(m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).GetMapped(),
 														indirectAmount * m_lgx->GetIndexedIndirectCommandSize(),
 														drawID,
 														md.mesh->GetIndexCount(),
@@ -369,9 +372,44 @@ namespace Lina
 						.entityID		   = inst.entityIndex,
 						.materialByteIndex = inst.material->GetBindlessBytePadding(),
 					};
-					m_mainPass.GetBuffer(frameIndex, 2).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
+					m_mainPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
 					constantsCount++;
 					drawID++;
+				}
+			}
+		}
+
+		// Forward Transparency pass.
+		{
+			Buffer& indirectBuffer = m_forwardTransparencyPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+			Buffer& materialBuffer = m_forwardTransparencyPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
+
+			size_t indirectBufferOffset	   = 0;
+			size_t guiMaterialBufferOffset = 0;
+			uint32 drawID				   = 0;
+			uint32 constantsCount		   = 0;
+
+			for (auto* wc : m_widgetComponents)
+			{
+				const Vector<GUIRenderer::DrawRequest>& drawRequests = wc->GetGUIRenderer().FlushGUI(frameIndex, indirectBufferOffset, wc->GetCanvasSize());
+
+				for (const auto& req : drawRequests)
+				{
+					m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(), indirectBufferOffset, drawID, req.indexCount, 1, req.firstIndex, req.vertexOffset, drawID);
+					indirectBuffer.MarkDirty();
+
+					materialBuffer.BufferData(guiMaterialBufferOffset, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
+					guiMaterialBufferOffset += sizeof(GPUMaterialGUI);
+
+					GPUIndirectConstants0 constants = {
+						.entityID = wc->GetEntity()->m_ssboIndex,
+					};
+
+					m_forwardTransparencyPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));
+
+					indirectBufferOffset += m_lgx->GetIndexedIndirectCommandSize();
+					drawID++;
+					constantsCount++;
 				}
 			}
 		}
@@ -400,9 +438,6 @@ namespace Lina
 			.height = m_size.y,
 		};
 
-		// Global vertex/index buffers.
-		m_gfxManager->GetMeshManager().BindBuffers(currentFrame.gfxStream, 0);
-
 		// Global set.
 		LinaGX::CMDBindDescriptorSets* bindGlobal = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
 		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_gfxManager->GetDescriptorSetPersistentGlobal(frameIndex));
@@ -412,14 +447,12 @@ namespace Lina
 		bindGlobal->customLayout				  = m_gfxManager->GetPipelineLayoutPersistentGlobal(frameIndex);
 
 		uint8 transferExists = 0;
-
 		transferExists |= currentFrame.objectBuffer.Copy(currentFrame.copyStream);
-		transferExists |= m_lightingPass.GetBuffer(frameIndex, 0).Copy(currentFrame.copyStream);
-		transferExists |= m_lightingPass.GetBuffer(frameIndex, 1).Copy(currentFrame.copyStream);
-		transferExists |= m_lightingPass.GetBuffer(frameIndex, 2).Copy(currentFrame.copyStream);
-		transferExists |= m_mainPass.GetBuffer(frameIndex, 0).Copy(currentFrame.copyStream); // view
-		transferExists |= m_mainPass.GetBuffer(frameIndex, 1).Copy(currentFrame.copyStream); // indirect
-		transferExists |= m_mainPass.GetBuffer(frameIndex, 2).Copy(currentFrame.copyStream); // indirect args
+		transferExists |= m_lightingPass.CopyBuffers(frameIndex, currentFrame.copyStream);
+		transferExists |= m_mainPass.CopyBuffers(frameIndex, currentFrame.copyStream);
+		transferExists |= m_forwardTransparencyPass.CopyBuffers(frameIndex, currentFrame.copyStream);
+		for (auto* wc : m_widgetComponents)
+			transferExists |= wc->GetGUIRenderer().CopyVertexIndex(frameIndex, currentFrame.copyStream);
 
 		if (transferExists != 0)
 			BumpAndSendTransfers(frameIndex);
@@ -438,8 +471,11 @@ namespace Lina
 			barrierToAttachment->textureBarriers[4]	 = GfxHelpers::GetTextureBarrierColorRead2Att(currentFrame.lightingPassOutput->GetGPUHandle());
 		}
 
+		// Global vertex/index buffers.
 		m_mainPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, false);
+		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::Main), false);
+
+		m_gfxManager->GetMeshManager().BindBuffers(currentFrame.gfxStream, 0);
 
 		Shader*	  lastBoundShader	= nullptr;
 		Material* lastBoundMaterial = nullptr;
@@ -456,7 +492,7 @@ namespace Lina
 
 			LinaGX::CMDDrawIndexedIndirect* draw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
 			draw->count							 = static_cast<uint32>(meshVec.size());
-			draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, 1).GetGPUResource();
+			draw->indirectBuffer				 = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).GetGPUResource();
 			draw->indirectBufferOffset			 = indirectOffset;
 			indirectOffset += draw->count * static_cast<uint32>(m_lgx->GetIndexedIndirectCommandSize());
 
@@ -483,7 +519,7 @@ namespace Lina
 		}
 
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, false);
+		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::Lighting), false);
 
 		m_deferredLightingShader->Bind(currentFrame.gfxStream, m_deferredLightingShader->GetGPUHandle());
 
@@ -504,6 +540,19 @@ namespace Lina
 		skyDraw->startInstanceLocation			 = 0;
 
 		m_lightingPass.End(currentFrame.gfxStream);
+
+		m_forwardTransparencyPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
+		m_forwardTransparencyPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::ForwardTransparency), false);
+
+		if (!m_widgetComponents.empty())
+			m_guiShader3D->Bind(currentFrame.gfxStream, m_guiShader3DVariantGPU);
+
+		for (auto* wc : m_widgetComponents)
+		{
+			wc->GetGUIRenderer().Render(currentFrame.gfxStream, m_forwardTransparencyPass.GetBuffer(frameIndex, "IndirectBuffer"_hs), frameIndex, wc->GetCanvasSize());
+		}
+
+		m_forwardTransparencyPass.End(currentFrame.gfxStream);
 
 		// Barrier to shader read
 		{

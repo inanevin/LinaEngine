@@ -147,6 +147,13 @@ namespace Lina
 		m_physicsWorld.Simulate();
 	}
 
+	void EntityWorld::PreTick()
+	{
+		for (const auto& [tid, cache] : m_componentCaches)
+		{
+			cache->PreTick();
+		}
+	}
 	void EntityWorld::Tick(float deltaTime)
 	{
 		for (const auto& [tid, cache] : m_componentCaches)

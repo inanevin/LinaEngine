@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	GUIWidget::GUIWidget(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Material>())
 	{
 	}
@@ -54,10 +53,12 @@ namespace Lina
 
 	void GUIWidget::SaveToStream(OStream& stream) const
 	{
+		m_root.SaveToStream(stream);
 	}
 
 	void GUIWidget::LoadFromStream(IStream& stream)
 	{
+		m_root.LoadFromStream(stream);
 	}
 
 	void GUIWidget::BatchLoaded()

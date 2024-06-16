@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Math/Matrix.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
 namespace Lina
 {
@@ -56,6 +57,8 @@ namespace Lina
 		static LinaGX::PipelineLayoutDesc GetPLDescPersistentRenderPass(RenderPassDescriptorType renderpassType);
 
 		static LinaGX::DescriptorBinding GetBindingFromShaderBinding(const LinaGX::ShaderDescriptorSetBinding& b);
+
+		static RenderPassDescription GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassDescriptorType type);
 
 		static Matrix4 GetProjectionFromSize(const Vector2ui& size);
 	};

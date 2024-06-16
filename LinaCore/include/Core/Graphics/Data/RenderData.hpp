@@ -112,14 +112,14 @@ namespace Lina
 		Vector4 floatPack1;
 		Vector4 floatPack2;
 		Vector4 clip;
+		Vector2 canvasSize;
+		Vector2 padding;
 	};
 
 	struct GPUIndirectConstants0
 	{
 		uint32 entityID;
 		uint32 materialByteIndex;
-		uint32 instanceCount;
-		uint32 padding;
 	};
 
 	struct GPUPushConstantRPMain

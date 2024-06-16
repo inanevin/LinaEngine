@@ -51,6 +51,7 @@ namespace Lina
 		ComponentCacheBase()		  = default;
 		virtual ~ComponentCacheBase() = default;
 
+		virtual void				PreTick()						= 0;
 		virtual void				Tick(float delta)				= 0;
 		virtual void				PostTick(float delta)			= 0;
 		virtual void				LoadFromStream(IStream& stream) = 0;
@@ -72,6 +73,15 @@ namespace Lina
 		virtual ~ComponentCache()
 		{
 			Destroy();
+		}
+
+		virtual void PreTick() override
+		{
+			for (T* comp : m_components)
+			{
+				if (comp != nullptr)
+					comp->PreTick();
+			}
 		}
 
 		virtual void Tick(float delta) override

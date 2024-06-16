@@ -35,6 +35,7 @@ namespace Lina
 	class GfxManager;
 	class EntityWorld;
 	class WorldRenderer;
+	class ResourceManager;
 
 	class WorldManager : public Subsystem
 	{
@@ -51,6 +52,7 @@ namespace Lina
 		void		   SaveEmptyWorld(const String& absolutePath);
 		void		   InstallLevel(const char* level);
 		void		   UninstallLevel(bool immediate);
+		void		   PreTick();
 		void		   Tick(float deltaTime);
 
 		inline EntityWorld* GetMainWorld() const
@@ -62,6 +64,7 @@ namespace Lina
 		void UninstallMainWorld();
 
 	private:
+		ResourceManager*	 m_rm			= nullptr;
 		GfxManager*			 m_gfxManager	= nullptr;
 		EntityWorld*		 m_mainWorld	= nullptr;
 		Vector<EntityWorld*> m_activeWorlds = {};

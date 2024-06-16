@@ -83,6 +83,16 @@ namespace Lina
 		{
 			return {.top = m, .bottom = m, .left = m, .right = m};
 		}
+
+		inline void SaveToStream(OStream& stream) const
+		{
+			stream << top << bottom << left << right;
+		}
+
+		inline void LoadFromStream(IStream& stream)
+		{
+			stream >> top >> bottom >> left >> right;
+		}
 	};
 
 	extern Direction DirectionOpposite(const Direction& dir);

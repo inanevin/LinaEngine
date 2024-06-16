@@ -58,16 +58,13 @@ namespace Lina
 
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* copyStream		 = nullptr;
-			SemaphoreData		   copySemaphore	 = {};
-			Buffer				   guiVertexBuffer	 = {};
-			Buffer				   guiIndexBuffer	 = {};
-			Buffer				   guiMaterialBuffer = {};
-			Buffer				   guiIndirectBuffer = {};
-			uint32				   vertexCounter	 = 0;
-			uint32				   indexCounter		 = 0;
+			Buffer guiVertexBuffer = {};
+			Buffer guiIndexBuffer  = {};
+			uint32 vertexCounter   = 0;
+			uint32 indexCounter	   = 0;
 		};
 
+	public:
 		struct DrawRequest
 		{
 			uint32		   firstIndex	= 0;
@@ -76,25 +73,21 @@ namespace Lina
 			GPUMaterialGUI materialData;
 		};
 
-	public:
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
 
-		void Create(GfxManager* gfxManager, RenderPass* renderPass, StringID shaderVariant, LinaGX::Window* window);
-		void PreTick();
-		void Tick(float delta, const Vector2ui& size);
-		void DrawDefault(LinaVG::DrawBuffer* buf);
-		void DrawGradient(LinaVG::GradientDrawBuffer* buf);
-		void DrawTextured(LinaVG::TextureDrawBuffer* buf);
-		void DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf);
-		void DrawSDFText(LinaVG::SDFTextDrawBuffer* buf);
-		void Render(LinaGX::CommandStream* stream, uint32 frameIndex, const Vector2ui& size);
-		void Destroy();
-
-		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
-		{
-			return m_pfd[frameIndex].copySemaphore;
-		}
+		void					   Create(GfxManager* gfxManager, LinaGX::Window* window);
+		void					   PreTick();
+		void					   Tick(float delta, const Vector2ui& size);
+		void					   DrawDefault(LinaVG::DrawBuffer* buf);
+		void					   DrawGradient(LinaVG::GradientDrawBuffer* buf);
+		void					   DrawTextured(LinaVG::TextureDrawBuffer* buf);
+		void					   DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf);
+		void					   DrawSDFText(LinaVG::SDFTextDrawBuffer* buf);
+		const Vector<DrawRequest>& FlushGUI(uint32 frameIndex, size_t indirectBufferOffset, const Vector2ui& size);
+		bool					   CopyVertexIndex(uint32 frameIndex, LinaGX::CommandStream* copyStream);
+		void					   Render(LinaGX::CommandStream* stream, const Buffer& indirectBuffer, uint32 frameIndex, const Vector2ui& size);
+		void					   Destroy();
 
 		inline Widget* GetGUIRoot() const
 		{
@@ -110,8 +103,6 @@ namespace Lina
 		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf);
 
 	private:
-		Shader*				m_shader			  = nullptr;
-		uint32				m_shaderVariantHandle = 0;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
 		GfxManager*			m_gfxManager = nullptr;
 		LinaGX::Instance*	m_lgx		 = nullptr;
@@ -119,9 +110,11 @@ namespace Lina
 		LinaVG::Drawer		m_lvg;
 		WidgetManager		m_widgetManager;
 		Vector<DrawRequest> m_drawRequests;
-		TextureSampler*		m_defaultGUISampler = nullptr;
-		TextureSampler*		m_textGUISampler	= nullptr;
-		ResourceManager*	m_rm				= nullptr;
+		TextureSampler*		m_defaultGUISampler	   = nullptr;
+		TextureSampler*		m_textGUISampler	   = nullptr;
+		ResourceManager*	m_rm				   = nullptr;
+		uint32				m_totalIndices		   = 0;
+		size_t				m_indirectBufferOffset = 0;
 	};
 
 } // namespace Lina

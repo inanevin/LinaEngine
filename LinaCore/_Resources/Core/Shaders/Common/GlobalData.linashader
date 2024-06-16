@@ -51,4 +51,21 @@ struct LinaTexture2D
 	uint smp;
 };
 
+struct IndirectArguments
+{
+	uint entityID;
+	uint materialBytePadding;
+};
+
+struct GUIMaterialData
+{
+	vec4 color1;
+	vec4 color2;
+	vec4 floatPack1;
+	vec4 floatPack2;
+	vec4 clip;
+	vec2 canvasSize;
+	vec2 padding;
+};
+
 

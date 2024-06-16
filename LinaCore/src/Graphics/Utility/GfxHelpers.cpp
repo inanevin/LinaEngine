@@ -96,6 +96,30 @@ namespace Lina
 
 			return {.bindings = {binding0, binding1, binding2}};
 		}
+		else if (type == RenderPassDescriptorType::ForwardTransparency)
+		{
+			LinaGX::DescriptorBinding binding0 = {
+				.type	= LinaGX::DescriptorType::UBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding1 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding2 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			LinaGX::DescriptorBinding binding3 = {
+				.type	= LinaGX::DescriptorType::SSBO,
+				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
+			};
+
+			return {.bindings = {binding0, binding1, binding2, binding3}};
+		}
 		else if (type == RenderPassDescriptorType::Lighting)
 		{
 			LinaGX::DescriptorBinding binding0 = {
@@ -248,5 +272,148 @@ namespace Lina
 		T *= zoom;
 		B *= zoom;
 		return Matrix4::Orthographic(L, R, B, T, 0.0f, 1.0f);
+	}
+
+	RenderPassDescription GfxHelpers::GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassDescriptorType type)
+	{
+		LinaGX::DescriptorSetDesc setDesc = GfxHelpers::GetSetDescPersistentRenderPass(type);
+
+		if (type == RenderPassDescriptorType::Gui)
+		{
+			return {
+				.buffers		= {{
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+									   .debugName	 = "RP: GUI - ViewData",
+									   .size		 = sizeof(GPUDataView),
+									   .stagingOnly	 = true,
+									   .bindingIndex = 0,
+									   .ident		 = "ViewData"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+									   .debugName	 = "RP: GUI - GUIMaterials",
+									   .size		 = sizeof(GPUMaterialGUI) * 100,
+									   .stagingOnly	 = false,
+									   .bindingIndex = 1,
+									   .ident		 = "GUIMaterials"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
+									   .debugName	 = "RP: GUI - IndirectBuffer",
+									   .size		 = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
+									   .stagingOnly	 = false,
+									   .bindingIndex = -1,
+									   .ident		 = "IndirectBuffer"_hs,
+							   }},
+				.setDescription = setDesc,
+			};
+		}
+
+		if (type == RenderPassDescriptorType::Main)
+		{
+			// 1 is object buffer reserved.
+			return {
+				.buffers		= {{
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+									   .debugName	 = "RP: Main - ViewData",
+									   .size		 = sizeof(GPUDataView),
+									   .stagingOnly	 = true,
+									   .bindingIndex = 0,
+									   .ident		 = "ViewData"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
+									   .debugName	 = "RP: Main - IndirectBuffer",
+									   .size		 = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
+									   .stagingOnly	 = false,
+									   .bindingIndex = -1,
+									   .ident		 = "IndirectBuffer"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+									   .debugName	 = "RP: Main - IndirectConstants",
+									   .size		 = sizeof(GPUIndirectConstants0) * 2500,
+									   .stagingOnly	 = false,
+									   .bindingIndex = 2,
+									   .ident		 = "IndirectConstants"_hs,
+							   }},
+				.setDescription = setDesc,
+			};
+		}
+
+		if (type == RenderPassDescriptorType::Lighting)
+		{
+			return {
+				.buffers =
+					{
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+							.debugName	  = "RP: FWTransparency - ViewData",
+							.size		  = sizeof(GPUDataView),
+							.stagingOnly  = true,
+							.bindingIndex = 0,
+							.ident		  = "ViewData"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+							.debugName	  = "RP: FWTransparency - Atmosphere",
+							.size		  = sizeof(GPUDataAtmosphere),
+							.stagingOnly  = true,
+							.bindingIndex = 1,
+							.ident		  = "AtmosphereData"_hs,
+						},
+						{
+							.bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+							.debugName	  = "RP: FWTransparency - DeferredLightingPassData",
+							.size		  = sizeof(GPUDataDeferredLightingPass),
+							.stagingOnly  = true,
+							.bindingIndex = 2,
+							.ident		  = "PassData"_hs,
+						},
+
+					},
+				.setDescription = setDesc,
+			};
+		}
+
+		if (type == RenderPassDescriptorType::ForwardTransparency)
+		{
+			// 1 is object buffer reserved.
+			return {
+				.buffers		= {{
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+									   .debugName	 = "RP: FWTransparency - ViewData",
+									   .size		 = sizeof(GPUDataView),
+									   .stagingOnly	 = true,
+									   .bindingIndex = 0,
+									   .ident		 = "ViewData"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
+									   .debugName	 = "RP: FWTransparency - IndirectBuffer",
+									   .size		 = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
+									   .stagingOnly	 = false,
+									   .bindingIndex = -1,
+									   .ident		 = "IndirectBuffer"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+									   .debugName	 = "RP: FWTransparency - IndirectConstants",
+									   .size		 = sizeof(GPUIndirectConstants0) * 2500,
+									   .stagingOnly	 = false,
+									   .bindingIndex = 2,
+									   .ident		 = "IndirectConstants"_hs,
+							   },
+								   {
+									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
+									   .debugName	 = "RP: FWTransparency - GUIMaterials",
+									   .size		 = 100 * sizeof(GPUMaterialGUI),
+									   .stagingOnly	 = false,
+									   .bindingIndex = 3,
+									   .ident		 = "GUIMaterials"_hs,
+							   }},
+				.setDescription = setDesc,
+			};
+		}
 	}
 } // namespace Lina

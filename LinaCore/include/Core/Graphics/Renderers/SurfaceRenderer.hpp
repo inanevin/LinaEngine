@@ -50,13 +50,16 @@ namespace Lina
 {
 	class GfxManager;
 	class ApplicationDelegate;
+	class ResourceManager;
 
 	class SurfaceRenderer
 	{
 	private:
 		struct PerFrameData
 		{
-			LinaGX::CommandStream* gfxStream = nullptr;
+			LinaGX::CommandStream* gfxStream	 = nullptr;
+			LinaGX::CommandStream* copyStream	 = nullptr;
+			SemaphoreData		   copySemaphore = {};
 		};
 
 	public:
@@ -85,7 +88,7 @@ namespace Lina
 
 		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
 		{
-			return m_guiRenderer.GetCopySemaphoreData(frameIndex);
+			return m_pfd[frameIndex].copySemaphore;
 		}
 
 		inline Widget* GetGUIRoot()
@@ -104,9 +107,12 @@ namespace Lina
 		}
 
 	protected:
-		StringID			 m_sid		  = 0;
-		GfxManager*			 m_gfxManager = nullptr;
-		Vector2ui			 m_size		  = Vector2ui::Zero;
+		ResourceManager*	 m_rm				= nullptr;
+		Shader*				 m_guiShader2D		= nullptr;
+		uint32				 m_guiShaderVariant = 0;
+		StringID			 m_sid				= 0;
+		GfxManager*			 m_gfxManager		= nullptr;
+		Vector2ui			 m_size				= Vector2ui::Zero;
 		PerFrameData		 m_pfd[FRAMES_IN_FLIGHT];
 		LinaGX::Instance*	 m_lgx		   = nullptr;
 		LinaGX::Window*		 m_window	   = nullptr;

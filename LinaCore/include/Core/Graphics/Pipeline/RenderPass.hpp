@@ -38,6 +38,22 @@ namespace Lina
 {
 	class GfxManager;
 
+	struct RenderPassBuffer
+	{
+		LinaGX::ResourceTypeHint bufferType	  = LinaGX::ResourceTypeHint::TH_ConstantBuffer;
+		String					 debugName	  = "";
+		size_t					 size		  = 0;
+		bool					 stagingOnly  = false;
+		int32					 bindingIndex = -1;
+		StringID				 ident		  = 0;
+	};
+
+	struct RenderPassDescription
+	{
+		Vector<RenderPassBuffer>  buffers;
+		LinaGX::DescriptorSetDesc setDescription = {};
+	};
+
 	class RenderPass
 	{
 	public:
@@ -49,11 +65,13 @@ namespace Lina
 			LinaGX::RenderPassDepthStencilAttachment  depthStencil;
 		};
 
-		void Create(GfxManager* gfxMan, RenderPassDescriptorType descriptorType);
+		void Create(GfxManager* gfxMan, const RenderPassDescription& desc);
 		void Destroy();
-		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, bool bindGlobalSet = true);
+		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, bool bindGlobalSet = true);
 		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex);
 		void End(LinaGX::CommandStream* stream);
+
+		bool CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream);
 
 		void SetColorAttachment(uint32 frameIndex, uint32 index, const LinaGX::RenderPassColorAttachment& att);
 
@@ -67,20 +85,16 @@ namespace Lina
 			return m_pfd[frameIndex].descriptorSet;
 		}
 
-		inline Buffer& GetBuffer(uint32 frameIndex, uint32 bufferIndex)
+		inline Buffer& GetBuffer(uint32 frameIndex, StringID sid)
 		{
-			return m_pfd[frameIndex].buffers[bufferIndex];
+			return m_pfd[frameIndex].buffers[m_bufferIndices[sid]];
 		}
 
 	private:
-		void AddRPGUI(PerFrameData& data);
-		void AddRPMain(PerFrameData& data);
-		void AddRPLighting(PerFrameData& data);
-
 	private:
-		GfxManager*				 m_gfxManager = nullptr;
-		LinaGX::Instance*		 m_lgx		  = nullptr;
-		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
-		RenderPassDescriptorType m_type = RenderPassDescriptorType::Gui;
+		GfxManager*				  m_gfxManager = nullptr;
+		LinaGX::Instance*		  m_lgx		   = nullptr;
+		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
+		HashMap<StringID, uint32> m_bufferIndices;
 	};
 } // namespace Lina

@@ -47,11 +47,17 @@ namespace Lina
 	{
 		uint32 _gpuHandle = 0;
 
-		String					   name			= "";
-		bool					   blendDisable = false;
-		bool					   depthTest	= true;
-		bool					   depthWrite	= true;
-		LinaGX::Format			   depthFormat	= LinaGX::Format::D32_SFLOAT;
+		String					   name				   = "";
+		bool					   blendDisable		   = false;
+		LinaGX::BlendFactor		   blendSrcFactor	   = LinaGX::BlendFactor::SrcAlpha;
+		LinaGX::BlendFactor		   blendDstFactor	   = LinaGX::BlendFactor::OneMinusSrcAlpha;
+		LinaGX::BlendOp			   blendColorOp		   = LinaGX::BlendOp::Add;
+		LinaGX::BlendFactor		   blendSrcAlphaFactor = LinaGX::BlendFactor::One;
+		LinaGX::BlendFactor		   blendDstAlphaFactor = LinaGX::BlendFactor::Zero;
+		LinaGX::BlendOp			   blendAlphaOp		   = LinaGX::BlendOp::Add;
+		bool					   depthTest		   = true;
+		bool					   depthWrite		   = true;
+		LinaGX::Format			   depthFormat		   = LinaGX::Format::D32_SFLOAT;
 		Vector<VariantColorTarget> targets;
 		LinaGX::CompareOp		   depthOp			 = LinaGX::CompareOp::Less;
 		LinaGX::CullMode		   cullMode			 = LinaGX::CullMode::Back;

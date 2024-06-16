@@ -30,8 +30,6 @@ SOFTWARE.
 
 #include "Core/Resources/Resource.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/Graphics/GUI/GUIRenderer.hpp"
-#include <LinaVG/LinaVG.hpp>
 
 namespace Lina
 {
@@ -39,14 +37,9 @@ namespace Lina
 	{
 
 	public:
-		inline Widget* GetRoot() const
+		inline Widget& GetRoot()
 		{
-			return m_guiRenderer.GetGUIRoot();
-		}
-
-		inline GUIRenderer& GetGUIRenderer()
-		{
-			return m_guiRenderer;
+			return m_root;
 		}
 
 	private:
@@ -62,7 +55,7 @@ namespace Lina
 		virtual void BatchLoaded() override;
 
 	private:
-		GUIRenderer m_guiRenderer;
+		Widget m_root;
 	};
 
 } // namespace Lina

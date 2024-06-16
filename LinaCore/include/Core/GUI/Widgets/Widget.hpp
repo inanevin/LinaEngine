@@ -119,6 +119,8 @@ namespace Lina
 		virtual void CalculateSize(float delta){};
 		virtual void Tick(float delta){};
 		virtual void Draw();
+		virtual void SaveToStream(OStream& stream) const;
+		virtual void LoadFromStream(IStream& stream);
 
 		void	AddChild(Widget* w);
 		void	ExecuteNextFrame(Delegate<void()>&& cb);

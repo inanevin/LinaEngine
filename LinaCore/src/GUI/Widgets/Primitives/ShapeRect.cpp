@@ -71,7 +71,6 @@ namespace Lina
 
 			if (m_props.imageTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
 				color.w = GUI_IS_SINGLE_CHANNEL;
-
 			m_lvg->DrawImage(m_props.imageTexture->GetBindlessIndex() + 1, m_rect.GetCenter().AsLVG(), size.AsLVG(), color.AsLVG4(), 0.0f, m_drawOrder);
 		}
 		else

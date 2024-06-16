@@ -134,13 +134,17 @@ namespace Lina
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
-		GfxManager*									  m_gfxManager			  = nullptr;
-		LinaGX::Instance*							  m_lgx					  = nullptr;
-		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT] = {};
-		RenderPass									  m_mainPass			  = {};
-		RenderPass									  m_lightingPass		  = {};
-		Vector2ui									  m_size				  = Vector2ui::Zero;
-		EntityWorld*								  m_world				  = nullptr;
+		Shader* m_guiShader3D			= nullptr;
+		uint32	m_guiShader3DVariantGPU = 0;
+
+		GfxManager*									  m_gfxManager				= nullptr;
+		LinaGX::Instance*							  m_lgx						= nullptr;
+		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT]	= {};
+		RenderPass									  m_mainPass				= {};
+		RenderPass									  m_lightingPass			= {};
+		RenderPass									  m_forwardTransparencyPass = {};
+		Vector2ui									  m_size					= Vector2ui::Zero;
+		EntityWorld*								  m_world					= nullptr;
 		Vector<MeshComponent*>						  m_meshComponents;
 		Vector<WidgetComponent*>					  m_widgetComponents;
 		Vector<GPUDataObject>						  m_objects = {};

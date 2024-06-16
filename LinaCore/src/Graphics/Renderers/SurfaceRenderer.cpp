@@ -42,12 +42,14 @@ SOFTWARE.
 
 namespace Lina
 {
-#define MAX_GFX_COMMANDS 250
+#define MAX_GFX_COMMANDS  250
+#define MAX_COPY_COMMANDS 250
 
 	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize, const Color& clearColor) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
 	{
 		m_lgx		  = m_gfxManager->GetLGX();
 		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
+		m_rm		  = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		auto* rm = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
@@ -71,11 +73,18 @@ namespace Lina
 			auto& data	   = m_pfd[i];
 			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
 			m_guiPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
+
+			const String cmdStreamDbg	 = "GUIRenderer: CopyStream" + TO_STRING(i);
+			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, cmdStreamDbg.c_str()});
+			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
 		}
 
+		m_guiShader2D	   = m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
+		m_guiShaderVariant = m_guiShader2D->GetGPUHandle("Swapchain"_hs);
+
 		// RP
-		m_guiPass.Create(m_gfxManager, RenderPassDescriptorType::Gui);
-		m_guiRenderer.Create(m_gfxManager, &m_guiPass, "Swapchain"_hs, window);
+		m_guiPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Gui));
+		m_guiRenderer.Create(m_gfxManager, window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
@@ -87,6 +96,8 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 			m_lgx->DestroyCommandStream(data.gfxStream);
+			m_lgx->DestroyCommandStream(data.copyStream);
+			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
 		}
 
 		m_lgx->DestroySwapchain(m_swapchain);
@@ -150,14 +161,52 @@ namespace Lina
 
 		// Descriptors
 		GPUDataView dataView = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
-		m_guiPass.GetBuffer(frameIndex, 0).BufferData(0, (uint8*)&dataView, sizeof(GPUDataView));
-		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex);
+		m_guiPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&dataView, sizeof(GPUDataView));
+		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::Gui));
 
 		// Begin render pass
 		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
-		// Draw-Flush-Render gui commands.
-		m_guiRenderer.Render(currentFrame.gfxStream, frameIndex, m_window->GetSize());
+		Buffer& indirectBuffer	   = m_guiPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+		Buffer& guiMaterialsBuffer = m_guiPass.GetBuffer(frameIndex, "GUIMaterials"_hs);
+
+		const Vector<GUIRenderer::DrawRequest>& drawRequests = m_guiRenderer.FlushGUI(frameIndex, 0, m_window->GetSize());
+
+		uint32 drawID				= 0;
+		size_t indirectOffset		= 0;
+		size_t materialBufferOffset = 0;
+		for (const auto& req : drawRequests)
+		{
+			m_lgx->BufferIndexedIndirectCommandData(indirectBuffer.GetMapped(), indirectOffset, drawID, req.indexCount, 1, req.firstIndex, req.vertexOffset, drawID);
+			indirectBuffer.MarkDirty();
+			guiMaterialsBuffer.BufferData(materialBufferOffset, (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
+
+			materialBufferOffset += sizeof(GPUMaterialGUI);
+			drawID++;
+			indirectOffset += m_lgx->GetIndexedIndirectCommandSize();
+		}
+
+		uint8 copyExists = m_guiRenderer.CopyVertexIndex(frameIndex, currentFrame.copyStream);
+		copyExists |= m_guiPass.CopyBuffers(frameIndex, currentFrame.copyStream);
+
+		if (copyExists != 0)
+		{
+			currentFrame.copySemaphore.value++;
+			m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
+			m_lgx->SubmitCommandStreams({
+				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+				.streams		  = &currentFrame.copyStream,
+				.streamCount	  = 1,
+				.useSignal		  = true,
+				.signalCount	  = 1,
+				.signalSemaphores = &(currentFrame.copySemaphore.semaphore),
+				.signalValues	  = &currentFrame.copySemaphore.value,
+				.isMultithreaded  = true,
+			});
+		}
+
+		m_guiShader2D->Bind(currentFrame.gfxStream, m_guiShaderVariant);
+		m_guiRenderer.Render(currentFrame.gfxStream, indirectBuffer, frameIndex, m_window->GetSize());
 
 		// End render pass
 		m_guiPass.End(currentFrame.gfxStream);

@@ -56,6 +56,18 @@ namespace Lina
 		bool	IsInBorder(const Vector2& p, float borderThickness, int& border) const;
 		bool	IsRectInside(const Rect& other) const;
 
+		inline void SaveToStream(OStream& stream) const
+		{
+			pos.SaveToStream(stream);
+			size.SaveToStream(stream);
+		}
+
+		inline void LoadFromStream(IStream& stream)
+		{
+			pos.LoadFromStream(stream);
+			size.LoadFromStream(stream);
+		}
+
 		Vector2 pos	 = Vector2(0, 0);
 		Vector2 size = Vector2(0, 0);
 	};
@@ -92,6 +104,18 @@ namespace Lina
 		bool	 IsPointInside(const Vector2i& p) const;
 		bool	 IsInBorder(const Vector2& p, int borderThickness, int& border) const;
 		Vector2i GetCenter() const;
+
+		inline void SaveToStream(OStream& stream) const
+		{
+			pos.SaveToStream(stream);
+			size.SaveToStream(stream);
+		}
+
+		inline void LoadFromStream(IStream& stream)
+		{
+			pos.LoadFromStream(stream);
+			size.LoadFromStream(stream);
+		}
 
 		Vector2i pos  = Vector2i(0, 0);
 		Vector2i size = Vector2i(0, 0);

@@ -33,144 +33,36 @@ SOFTWARE.
 namespace Lina
 {
 
-	void RenderPass::Create(GfxManager* gfxMan, RenderPassDescriptorType descriptorType)
+	void RenderPass::Create(GfxManager* gfxMan, const RenderPassDescription& desc)
 	{
 		m_lgx		 = gfxMan->GetLGX();
 		m_gfxManager = gfxMan;
-		m_type		 = descriptorType;
 
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
-			data.descriptorSet = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentRenderPass(m_type));
+			data.descriptorSet = m_lgx->CreateDescriptorSet(desc.setDescription);
 
-			if (descriptorType == RenderPassDescriptorType::Gui)
-				AddRPGUI(data);
-			else if (descriptorType == RenderPassDescriptorType::Main)
-				AddRPMain(data);
-			else if (descriptorType == RenderPassDescriptorType::Lighting)
-				AddRPLighting(data);
+			for (const auto& b : desc.buffers)
+			{
+				m_bufferIndices[b.ident] = static_cast<uint32>(data.buffers.size());
+				data.buffers.push_back({});
+				auto& buffer = data.buffers.back();
+				buffer.Create(m_lgx, b.bufferType, static_cast<uint32>(b.size), b.debugName, b.stagingOnly);
+				buffer.MemsetMapped(0);
+
+				if (b.bindingIndex != -1)
+				{
+					m_lgx->DescriptorUpdateBuffer({
+						.setHandle = data.descriptorSet,
+						.binding   = static_cast<uint32>(b.bindingIndex),
+						.buffers   = {buffer.GetGPUResource()},
+					});
+				}
+			}
 		}
 	}
 
-	void RenderPass::AddRPGUI(PerFrameData& data)
-	{
-		// View
-		{
-			data.buffers.push_back({});
-			auto&		 buffer	 = data.buffers.back();
-			const String dbgName = "RP: " + String(RPTypeToString(m_type)) + "ViewData";
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), dbgName, true);
-			GPUDataView dummyViewData = {};
-
-			buffer.BufferData(0, (uint8*)&dummyViewData, sizeof(GPUDataView));
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 0,
-				.buffers   = {buffer.GetGPUResource()},
-			});
-		}
-
-		// Materials
-		{
-			// Should be set outside
-		}
-	}
-
-	void RenderPass::AddRPMain(PerFrameData& data)
-	{
-		// View
-		{
-			data.buffers.push_back({});
-			auto&		 buffer	 = data.buffers.back();
-			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): ViewData";
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), dbgName, true);
-			buffer.MemsetMapped(0);
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 0,
-				.buffers   = {buffer.GetGPUResource()},
-			});
-		}
-
-		// GPU objects buffer will be set by the user.
-		{
-		}
-
-		// Indirect buffer
-		{
-			data.buffers.push_back({});
-			auto&		 buffer	 = data.buffers.back();
-			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): IndirectBuffer";
-
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, m_lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250), dbgName, false);
-			buffer.MemsetMapped(0);
-		}
-
-		// Indirect constants
-		{
-			data.buffers.push_back({});
-			auto&		 buffer	 = data.buffers.back();
-			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): IndirectConstants";
-
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUIndirectConstants0) * 2500, dbgName, false);
-			buffer.MemsetMapped(0);
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 2,
-				.buffers   = {buffer.GetGPUResource()},
-			});
-		}
-	}
-
-	void RenderPass::AddRPLighting(PerFrameData& data)
-	{
-		// View
-		{
-			data.buffers.push_back({});
-			auto&		 buffer	 = data.buffers.back();
-			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): ViewData";
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataView), dbgName, true);
-			buffer.MemsetMapped(0);
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 0,
-				.buffers   = {buffer.GetGPUResource()},
-			});
-		}
-
-		// Atmosphere
-		{
-			data.buffers.push_back({});
-			auto&		 buffer	 = data.buffers.back();
-			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): AtmosphereData";
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataAtmosphere), dbgName, true);
-			buffer.MemsetMapped(0);
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 1,
-				.buffers   = {buffer.GetGPUResource()},
-			});
-		}
-
-		// DeferredLightingPassData
-		{
-			data.buffers.push_back({});
-			auto&		 buffer	 = data.buffers.back();
-			const String dbgName = "RP (" + String(RPTypeToString(m_type)) + "): PassData";
-			buffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataDeferredLightingPass), dbgName, true);
-			buffer.MemsetMapped(0);
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = data.descriptorSet,
-				.binding   = 2,
-				.buffers   = {buffer.GetGPUResource()},
-			});
-		}
-	}
 	void RenderPass::Destroy()
 	{
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -197,7 +89,7 @@ namespace Lina
 			colorAttachments.push_back(att);
 	}
 
-	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, bool bindGlobalSet)
+	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, bool bindGlobalSet)
 	{
 		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
 
@@ -215,7 +107,7 @@ namespace Lina
 		}
 
 		bind->layoutSource = LinaGX::DescriptorSetsLayoutSource::CustomLayout;
-		bind->customLayout = m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, m_type);
+		bind->customLayout = pipelineLayout;
 	}
 
 	void RenderPass::Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex)
@@ -233,6 +125,21 @@ namespace Lina
 	void RenderPass::End(LinaGX::CommandStream* stream)
 	{
 		LinaGX::CMDEndRenderPass* end = stream->AddCommand<LinaGX::CMDEndRenderPass>();
+	}
+
+	bool RenderPass::CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream)
+	{
+		auto& pfd = m_pfd[frameIndex];
+
+		bool copyExists = false;
+
+		for (auto& buffer : pfd.buffers)
+		{
+			if (buffer.Copy(copyStream))
+				copyExists = true;
+		}
+
+		return copyExists;
 	}
 
 } // namespace Lina

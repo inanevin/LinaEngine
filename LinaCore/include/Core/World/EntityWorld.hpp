@@ -230,6 +230,7 @@ namespace Lina
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
 		void Simulate(float fixedDelta);
+		void PreTick();
 		void Tick(float deltaTime);
 		void WaitForSimulation();
 

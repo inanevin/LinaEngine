@@ -67,6 +67,7 @@ namespace Lina
 		/* Priority Resources */
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0, false, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
+		list.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
@@ -141,6 +142,32 @@ namespace Lina
 
 			meta.drawIndirectEnabled		  = true;
 			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
+			meta.descriptorSetAllocationCount = 1;
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_GUI3D_SID)
+		{
+			Shader::Metadata meta;
+
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable		 = false,
+				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendColorOp		 = LinaGX::BlendOp::Add,
+				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+				.blendDstAlphaFactor = LinaGX::BlendFactor::One,
+				.blendAlphaOp		 = LinaGX::BlendOp::Add,
+				.depthTest			 = true,
+				.depthWrite			 = true,
+				.targets			 = {{.format = DEFAULT_RT_FORMAT_HDR}},
+				.cullMode			 = LinaGX::CullMode::None,
+				.frontFace			 = LinaGX::FrontFace::CCW,
+			};
+
+			meta.drawIndirectEnabled		  = true;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::ForwardTransparency;
 			meta.descriptorSetAllocationCount = 1;
 			meta.SaveToStream(stream);
 			return true;

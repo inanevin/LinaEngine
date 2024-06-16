@@ -48,35 +48,21 @@ namespace Lina
 #define MAX_GUI_VERTICES  80000
 #define MAX_GUI_INDICES	  98000
 
-	void GUIRenderer::Create(GfxManager* gfxManager, RenderPass* renderPass, StringID shaderVariant, LinaGX::Window* window)
+	void GUIRenderer::Create(GfxManager* gfxManager, LinaGX::Window* window)
 	{
-		m_gfxManager		  = gfxManager;
-		m_window			  = window;
-		m_lgx				  = m_gfxManager->GetLGX();
-		m_rm				  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_shader			  = m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
-		m_shaderVariantHandle = m_shader->GetGPUHandle(shaderVariant);
-		m_defaultGUISampler	  = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
-		m_textGUISampler	  = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
+		m_gfxManager		= gfxManager;
+		m_window			= window;
+		m_lgx				= m_gfxManager->GetLGX();
+		m_rm				= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_defaultGUISampler = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
+		m_textGUISampler	= m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto&		 data			 = m_pfd[i];
-			const String istr			 = TO_STRING(i);
-			const String cmdStreamDbg	 = "GUIRenderer: CopyStream" + istr;
-			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, cmdStreamDbg.c_str()});
-			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
+			auto&		 data = m_pfd[i];
+			const String istr = TO_STRING(i);
 			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer: VertexBuffer" + istr);
 			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer: IndexBuffer" + istr);
-			data.guiMaterialBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, MAX_GUI_MATERIALS * sizeof(GPUMaterialGUI), "GUIRenderer: MaterialBuffer" + istr);
-			data.guiMaterialBuffer.MemsetMapped(0);
-			data.guiIndirectBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndirectBuffer, static_cast<uint32>(MAX_GUI_MATERIALS * m_lgx->GetIndexedIndirectCommandSize()), "GUIRenderer IndirectBuffer" + istr);
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle = renderPass->GetDescriptorSet(i),
-				.binding   = 1,
-				.buffers   = {data.guiMaterialBuffer.GetGPUResource()},
-			});
 		}
 
 		m_lvg.GetCallbacks().drawDefault	= BIND(&GUIRenderer::DrawDefault, this, std::placeholders::_1);
@@ -191,12 +177,8 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-			m_lgx->DestroyCommandStream(data.copyStream);
-			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
 			data.guiVertexBuffer.Destroy();
 			data.guiIndexBuffer.Destroy();
-			data.guiMaterialBuffer.Destroy();
-			data.guiIndirectBuffer.Destroy();
 		}
 	}
 
@@ -217,67 +199,41 @@ namespace Lina
 		return req;
 	}
 
-	void GUIRenderer::Render(LinaGX::CommandStream* stream, uint32 frameIndex, const Vector2ui& size)
+	const Vector<GUIRenderer::DrawRequest>& GUIRenderer::FlushGUI(uint32 frameIndex, size_t indirectBufferOffset, const Vector2ui& canvasSize)
 	{
 		auto& pfd = m_pfd[frameIndex];
-
 		m_widgetManager.Draw();
 		m_lvg.FlushBuffers();
 		m_lvg.ResetFrame();
 		pfd.vertexCounter = pfd.indexCounter = 0;
+		m_indirectBufferOffset				 = indirectBufferOffset;
 
-		if (m_drawRequests.empty())
-			return;
+		for (auto& req : m_drawRequests)
+			req.materialData.canvasSize = Vector2(static_cast<float>(canvasSize.x), static_cast<float>(canvasSize.y));
 
-		// Build draw commands
-		uint32 drawID		= 0;
-		uint32 totalIndices = 0;
+		return m_drawRequests;
+	}
 
-		for (const auto& req : m_drawRequests)
-		{
-			m_lgx->BufferIndexedIndirectCommandData(pfd.guiIndirectBuffer.GetMapped(), static_cast<size_t>(drawID) * m_lgx->GetIndexedIndirectCommandSize(), drawID, req.indexCount, 1, req.firstIndex, req.vertexOffset, 0);
-			pfd.guiIndirectBuffer.MarkDirty();
-			pfd.guiMaterialBuffer.BufferData(static_cast<size_t>(drawID) * sizeof(GPUMaterialGUI), (uint8*)&req.materialData, sizeof(GPUMaterialGUI));
-			drawID++;
-			totalIndices += req.indexCount;
-		}
-
-		m_drawRequests.clear();
-
-		// Buffer setup.
+	bool GUIRenderer::CopyVertexIndex(uint32 frameIndex, LinaGX::CommandStream* copyStream)
+	{
+		auto& pfd		 = m_pfd[frameIndex];
 		uint8 copyExists = 0;
-		copyExists |= pfd.guiIndexBuffer.Copy(pfd.copyStream);
-		copyExists |= pfd.guiVertexBuffer.Copy(pfd.copyStream);
-		copyExists |= pfd.guiMaterialBuffer.Copy(pfd.copyStream);
-		copyExists |= pfd.guiIndirectBuffer.Copy(pfd.copyStream);
+		copyExists |= pfd.guiIndexBuffer.Copy(copyStream);
+		copyExists |= pfd.guiVertexBuffer.Copy(copyStream);
+		return copyExists == 0 ? false : true;
+	}
 
-		if (copyExists != 0)
-		{
-			pfd.copySemaphore.value++;
-
-			m_lgx->CloseCommandStreams(&pfd.copyStream, 1);
-
-			m_lgx->SubmitCommandStreams({
-				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-				.streams		  = &pfd.copyStream,
-				.streamCount	  = 1,
-				.useSignal		  = true,
-				.signalCount	  = 1,
-				.signalSemaphores = &(pfd.copySemaphore.semaphore),
-				.signalValues	  = &pfd.copySemaphore.value,
-				.isMultithreaded  = true,
-			});
-		}
-		m_shader->Bind(stream, m_shaderVariantHandle);
-
+	void GUIRenderer::Render(LinaGX::CommandStream* stream, const Buffer& indirectBuffer, uint32 frameIndex, const Vector2ui& size)
+	{
+		auto& pfd = m_pfd[frameIndex];
 		pfd.guiVertexBuffer.BindVertex(stream, static_cast<uint32>(sizeof(LinaVG::Vertex)));
 		pfd.guiIndexBuffer.BindIndex(stream, LinaGX::IndexType::Uint16);
-
 		LinaGX::CMDDrawIndexedIndirect* draw = stream->AddCommand<LinaGX::CMDDrawIndexedIndirect>();
-		draw->count							 = drawID;
-		draw->indirectBuffer				 = pfd.guiIndirectBuffer.GetGPUResource();
-		draw->indirectBufferOffset			 = 0;
-		PROFILER_ADD_DRAWCALL(totalIndices / 3, "Editor GUI Indirect", drawID);
+		draw->count							 = static_cast<uint32>(m_drawRequests.size());
+		draw->indirectBuffer				 = indirectBuffer.GetGPUResource();
+		draw->indirectBufferOffset			 = static_cast<uint32>(m_indirectBufferOffset);
+		PROFILER_ADD_DRAWCALL(m_totalIndices / 3, "GUI Indirect", draw->count);
+		m_drawRequests.clear();
 	}
 
 } // namespace Lina

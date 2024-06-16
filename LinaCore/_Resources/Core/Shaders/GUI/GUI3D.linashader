@@ -38,10 +38,28 @@ layout (location = 2) flat out uint outDrawID;
 
 void main()
 {
-   outCol = col;
-   outUV = uv;
-   outDrawID = LGX_DRAW_ID;
-   gl_Position = LINA_VIEW.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
+
+// vulkan and metal = gl_InstanceIndex equals to startInstance + instanceID
+// dx12 = LGX_DRAW_ID is the startInstance, gl_InstanceIndex will be the instance ID
+#ifdef LGX_COMPILE_HLSL
+   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
+#else
+   int argBufferIndex = gl_InstanceIndex;
+#endif  
+
+
+   IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
+   uint entityID = argBuffer.entityID;
+   Object object = LINA_OBJECTS.data[entityID];
+
+    outCol = col;
+    outUV = uv;
+    outDrawID = argBufferIndex;
+
+       GUIMaterialData material = LINA_GUI_MATERIALS.data[outDrawID];
+
+    vec3 worldPos = vec3(object.modelMatrix * vec4(pos.x - material.canvasSize.x * 0.5f, -pos.y + material.canvasSize.y * 0.5f, 0.0, 1.0));
+    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
 }
 
 #lina_end
@@ -53,6 +71,7 @@ layout (location = 1) in vec2 inUV;
 layout (location = 2) flat in uint inDrawID;
 
 layout (location = 0) out vec4 outFragColor;
+
 
 // BufferType 0: Default
 // BufferType 1: Gradient
@@ -87,8 +106,6 @@ void main()
          discard;
    }
    
-
-
    highp int bufferType = int(material.floatPack2.a);
    if(bufferType == 1)
    {

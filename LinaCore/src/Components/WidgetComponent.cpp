@@ -30,6 +30,11 @@ SOFTWARE.
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 
+#include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
+#include "Common/System/System.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+
 namespace Lina
 {
 	void WidgetComponent::SaveToStream(OStream& stream) const
@@ -44,7 +49,44 @@ namespace Lina
 
 	void WidgetComponent::FetchResources(ResourceManager* rm)
 	{
-		m_targetWidget.raw = rm->GetResource<GUIWidget>(m_targetWidget.sid);
+		// m_targetWidget.raw = rm->GetResource<GUIWidget>(m_targetWidget.sid);
+
+		auto* gfxMan = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_guiRenderer.Create(gfxMan, gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+		// Text* w = m_guiRenderer.GetWidgetManager().Allocate<Text>("Test");
+		// //w->GetFlags().Set();
+		// w->SetPos(Vector2(0.0f, 0.0f));
+		// w->GetProps().text = "A";
+		// w->GetProps().font = Theme::GetDef().iconFont;
+		// m_guiRenderer.GetGUIRoot()->AddChild(w);
+
+		ShapeRect* shape = m_guiRenderer.GetWidgetManager().Allocate<ShapeRect>("Shape");
+		shape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		shape->SetPos(Vector2(0.0f, 0.0f));
+		shape->SetAlignedSize(Vector2(0.5f, 0.5f));
+		shape->GetProps().colorStart = Color::Red.AsLVG4();
+		shape->GetProps().colorEnd	 = Color::Blue.AsLVG4();
+		m_guiRenderer.GetGUIRoot()->AddChild(shape);
+
+		{
+			ShapeRect* shape = m_guiRenderer.GetWidgetManager().Allocate<ShapeRect>("Shape");
+			shape->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			shape->SetAlignedPos(Vector2(0.0f, 0.6f));
+			shape->SetAlignedSize(Vector2(0.5f, 0.25f));
+			shape->GetProps().colorStart = Color::Red.AsLVG4();
+			shape->GetProps().colorEnd	 = Color::Blue.AsLVG4();
+			m_guiRenderer.GetGUIRoot()->AddChild(shape);
+		}
+	}
+
+	void WidgetComponent::PreTick()
+	{
+		m_guiRenderer.PreTick();
+	}
+
+	void WidgetComponent::Tick(float delta)
+	{
+		m_guiRenderer.Tick(delta, m_canvasSize);
 	}
 
 	void WidgetComponent::SetWidget(StringID sid)

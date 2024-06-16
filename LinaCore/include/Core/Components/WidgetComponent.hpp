@@ -30,6 +30,8 @@ SOFTWARE.
 
 #include "Core/Components/RenderableComponent.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/Graphics/GUI/GUIRenderer.hpp"
 
 namespace Lina
 {
@@ -39,6 +41,8 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void FetchResources(ResourceManager* rm) override;
+		virtual void PreTick() override;
+		virtual void Tick(float delta) override;
 
 		void SetWidget(StringID sid);
 
@@ -52,8 +56,25 @@ namespace Lina
 			return m_targetWidget.raw;
 		}
 
+		inline GUIRenderer& GetGUIRenderer()
+		{
+			return m_guiRenderer;
+		}
+
+		inline void SetCanvasSize(const Vector2ui& sz)
+		{
+			m_canvasSize = sz;
+		}
+
+		inline const Vector2ui& GetCanvasSize() const
+		{
+			return m_canvasSize;
+		}
+
 	private:
 		ResRef<GUIWidget> m_targetWidget;
+		GUIRenderer		  m_guiRenderer;
+		Vector2ui		  m_canvasSize = Vector2ui(100, 100);
 	};
 
 	// LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
