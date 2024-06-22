@@ -137,4 +137,7 @@ namespace Lina::Editor
 		HashMap<void*, bool>		  m_foldStatus;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(SelectableListLayout)
+	LINA_REFLECTWIDGET_END(SelectableListLayout)
+
 } // namespace Lina::Editor

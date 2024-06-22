@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 

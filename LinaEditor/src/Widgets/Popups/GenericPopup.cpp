@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {

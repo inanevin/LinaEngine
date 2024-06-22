@@ -75,4 +75,7 @@ namespace Lina::Editor
 		SelectableListLayout* m_selectableList = nullptr;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(PanelEntities)
+	LINA_REFLECTWIDGET_END(PanelEntities)
+
 } // namespace Lina::Editor

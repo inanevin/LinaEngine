@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {

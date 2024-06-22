@@ -124,9 +124,7 @@ namespace Lina
 		// Mutators
 		inline T* AddComponent(Entity* e)
 		{
-			T* comp			 = new (m_allocatorPool.Allocate(sizeof(T))) T();
-			comp->m_entityID = e->GetID();
-			comp->m_entity	 = e;
+			T* comp = new (m_allocatorPool.Allocate(sizeof(T))) T();
 			m_components.AddItem(comp);
 			return comp;
 		}
@@ -148,6 +146,7 @@ namespace Lina
 			{
 				if (comp != nullptr && comp->m_entityID == e->GetID())
 				{
+					comp->Destroy();
 					comp->~T();
 					m_components.RemoveItem(index);
 					m_allocatorPool.Free(comp);
@@ -221,6 +220,7 @@ namespace Lina
 			{
 				if (comp != nullptr)
 				{
+					comp->Destroy();
 					comp->~T();
 					m_allocatorPool.Free(comp);
 				}

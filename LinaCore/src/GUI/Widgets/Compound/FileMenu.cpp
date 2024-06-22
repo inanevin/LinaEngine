@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 
 namespace Lina

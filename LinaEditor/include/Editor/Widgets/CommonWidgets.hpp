@@ -47,6 +47,9 @@ namespace Lina::Editor
 	class GenericPopup;
 	class InfoTooltip;
 
+#define GIZMO_BOUNDINGBOX_PATH "EditorGizmo_BB"
+#define GIZMO_BOUNDINGBOX_SID  "EditorGizmo_BB"_hs
+
 	class CommonWidgets
 	{
 	public:

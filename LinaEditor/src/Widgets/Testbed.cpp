@@ -46,6 +46,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 
 namespace Lina::Editor

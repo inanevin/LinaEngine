@@ -152,13 +152,8 @@ namespace Lina
 		const TypeID tid = widget->m_tid;
 		widget->Destruct();
 
-		delete widget;
-		// GetGUIAllocator(tid, 0)->Free(widget);
-	}
-
-	PoolAllocator* WidgetManager::GetGUIAllocator(TypeID tid, size_t typeSize)
-	{
-		return m_gfxManager->GetGUIAllocator(tid, typeSize);
+		WidgetCacheBase* cache = m_widgetCaches.at(tid);
+		cache->Destroy(widget);
 	}
 
 	void WidgetManager::Shutdown()
@@ -169,6 +164,11 @@ namespace Lina
 		m_foregroundRoot = nullptr;
 
 		m_window->RemoveListener(this);
+
+		for (auto [tid, cache] : m_widgetCaches)
+			delete cache;
+
+		m_widgetCaches.clear();
 	}
 
 	void WidgetManager::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)

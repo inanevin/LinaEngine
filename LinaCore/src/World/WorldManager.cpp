@@ -55,8 +55,6 @@ namespace Lina
 		{
 			if (w == m_mainWorld)
 			{
-				m_gfxManager->DestroyWorldRenderer(m_mainWorld);
-
 				auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 				ResourceIdentifier id(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
 				rm->UnloadResources({id});
@@ -106,10 +104,11 @@ namespace Lina
 		rm->LoadResources({ident});
 		rm->WaitForAll();
 
-		m_mainWorld = rm->GetResource<EntityWorld>(sid);
-		m_mainWorld->SetRenderer(m_gfxManager->CreateWorldRenderer(m_mainWorld, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize()));
-		m_activeWorlds.push_back(m_mainWorld);
+		m_mainWorld			  = rm->GetResource<EntityWorld>(sid);
 		m_mainWorld->m_system = m_system;
+		m_mainWorld->InitializeRenderer(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
+		m_worldRenderers.push_back(m_mainWorld->GetRenderer());
+		m_activeWorlds.push_back(m_mainWorld);
 
 		m_mainWorld->SetSkyMaterial(rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 
@@ -125,14 +124,12 @@ namespace Lina
 		// MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
 		// mesh->SetMesh("Resources/Core/Models/Cube.glb"_hs, 0);
 		// mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-		// mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
 		// test->SetPosition(Vector3(0, 0, 0));
 
 		Entity*		   plane	 = m_mainWorld->CreateEntity("Ground");
 		MeshComponent* planeMesh = m_mainWorld->AddComponent<MeshComponent>(plane);
 		planeMesh->SetMesh("Resources/Core/Models/Plane.glb"_hs, 0);
 		planeMesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-		planeMesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
 		plane->SetPosition(Vector3(0, 0, 0));
 		plane->SetScale(Vector3(100, 1, 100));
 		//
@@ -142,7 +139,6 @@ namespace Lina
 		// 	MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
 		// 	mesh->SetMesh("Resources/Core/Models/Duck.glb"_hs, 0);
 		// 	mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-		// 	mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
 		// 	test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
 		// 	test->AddRotation(Vector3(Math::RandF(-180, 180), Math::RandF(-180, 180), Math::RandF(-180, 180)));
 		// }
@@ -150,11 +146,11 @@ namespace Lina
 		{
 			Entity*			 text	= m_mainWorld->CreateEntity("Text");
 			WidgetComponent* widget = m_mainWorld->AddComponent<WidgetComponent>(text);
-			widget->FetchResources(m_rm);
+			widget->SetWidget("EditorGizmo_BB"_hs);
 
-			text->SetPosition(Vector3(0, 0, 0));
+			text->SetPosition(Vector3(0, 5, 0));
 			text->SetScale(Vector3(1, 1, 1));
-			text->SetRotationAngles(Vector3(0, 15, 0));
+			text->SetRotationAngles(Vector3(0, 0, 0));
 		}
 
 		// for (uint32 i = 0; i < 50; i++)
@@ -163,7 +159,6 @@ namespace Lina
 		// 	MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
 		// mesh->SetMesh("Resources/Core/Models/duck.glb"_hs, 0);
 		// 	mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-		// 	mesh->FetchResources(m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager));
 		// 	test->SetPosition(Vector3(Math::RandF(-lim, lim), Math::RandF(-lim, lim), Math::RandF(-lim, lim)));
 		// 	test->AddRotation(Vector3(Math::RandF(-180, 180), Math::RandF(-180, 180), Math::RandF(-180, 180)));
 		// }
@@ -171,13 +166,9 @@ namespace Lina
 		// loading the world resources, unloading the current worlds resources...
 	}
 
-	WorldRenderer* WorldManager::GetWorldRenderer(EntityWorld* world)
-	{
-		return world->GetRenderer();
-	}
-
 	void WorldManager::UninstallMainWorld()
 	{
+		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [this](WorldRenderer* r) -> bool { return r == m_mainWorld->GetRenderer(); }));
 		m_activeWorlds.erase(linatl::find_if(m_activeWorlds.begin(), m_activeWorlds.end(), [this](EntityWorld* w) -> bool { return w == m_mainWorld; }));
 
 		auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);

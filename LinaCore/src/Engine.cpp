@@ -85,7 +85,6 @@ namespace Lina
 		LINA_TRACE("[Engine] -> Shutdown.");
 
 		// Order matters!
-		// Shutdown resource manager first, clean-up subsystems of active resources.
 		m_app->GetAppDelegate()->Shutdown();
 		m_worldManager.Shutdown();
 		m_resourceManager.Shutdown();
@@ -166,6 +165,8 @@ namespace Lina
 			PlatformTime::Throttle(m_frameCapAccumulator);
 			const int64 totalThrottle = PlatformTime::GetCPUMicroseconds() - throttleBegin;
 			m_frameCapAccumulator -= totalThrottle;
+			SystemInfo::SetThrottleTime(totalThrottle);
+
 			current = PlatformTime::GetCPUMicroseconds();
 			deltaUs = current - previous;
 		}
@@ -192,7 +193,7 @@ namespace Lina
 			SystemInfo::SetMeasuredFPS(static_cast<uint32>(static_cast<float>((frames - lastFPSFrames)) / measureTime));
 			lastFPSFrames = frames;
 			lastFPSUpdate = gameTime;
-			LINA_TRACE("FPS : {0} Time: {1}", SystemInfo::GetMeasuredFPS(), SystemInfo::GetDeltaTimeF() * 1000.0f);
+			LINA_TRACE("FPS: {0} Time: {1} Idle: {2}", SystemInfo::GetMeasuredFPS(), SystemInfo::GetDeltaTimeF() * 1000.0f, (SystemInfo::GetThrottleTime()) * 0.001f);
 		}
 	}
 

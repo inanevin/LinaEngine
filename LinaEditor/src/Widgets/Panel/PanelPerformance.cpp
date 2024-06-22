@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
 

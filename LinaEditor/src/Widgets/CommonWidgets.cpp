@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
 namespace Lina::Editor

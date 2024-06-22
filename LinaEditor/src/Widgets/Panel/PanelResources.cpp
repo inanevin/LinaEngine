@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/World/WorldManager.hpp"
 #include "Core/World/EntityWorld.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {

@@ -66,6 +66,30 @@ namespace Lina
 			float				 step				  = 0.0f;
 
 			Delegate<void(float val)> onValueChanged;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorBackground.SaveToStream(stream);
+				colorFillMin.SaveToStream(stream);
+				colorFillMax.SaveToStream(stream);
+				colorHandle.SaveToStream(stream);
+				colorHandleHovered.SaveToStream(stream);
+				colorOutline.SaveToStream(stream);
+				colorOutlineControls.SaveToStream(stream);
+				stream << rounding << crossAxisPercentage << outlineThickness << minValue << maxValue << step;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorBackground.LoadFromStream(stream);
+				colorFillMin.LoadFromStream(stream);
+				colorFillMax.LoadFromStream(stream);
+				colorHandle.LoadFromStream(stream);
+				colorHandleHovered.LoadFromStream(stream);
+				colorOutline.LoadFromStream(stream);
+				colorOutlineControls.LoadFromStream(stream);
+				stream >> rounding >> crossAxisPercentage >> outlineThickness >> minValue >> maxValue >> step;
+			}
 		};
 
 		virtual void Construct() override;
@@ -85,6 +109,18 @@ namespace Lina
 			return m_handle;
 		}
 
+		inline virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		inline virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
+
 	private:
 		void GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent);
 
@@ -101,5 +137,8 @@ namespace Lina
 		Vector2 m_fillStart = Vector2::Zero;
 		Vector2 m_fillEnd	= Vector2::Zero;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Slider)
+	LINA_REFLECTWIDGET_END(Slider)
 
 } // namespace Lina

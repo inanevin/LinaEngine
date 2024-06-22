@@ -76,7 +76,12 @@ namespace Lina
 			return m_size;
 		}
 
-		inline uint8* GetDataRaw()
+		inline bool Empty() const
+		{
+			return m_size == 0;
+		}
+
+		inline uint8* GetDataRaw() const
 		{
 			return m_data;
 		}

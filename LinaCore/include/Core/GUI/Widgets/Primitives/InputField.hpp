@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
 #include "Common/Data/Bitmask.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -77,6 +78,37 @@ namespace Lina
 			bool centerText = false;
 			bool wrapText	= false;
 			bool clipText	= true;
+            
+            void SaveToStream(OStream& stream) const
+            {
+                colorBackground.SaveToStream(stream);
+                colorOutline.SaveToStream(stream);
+                colorOutlineControls.SaveToStream(stream);
+                colorHighlight.SaveToStream(stream);
+                colorCaret.SaveToStream(stream);
+                colorNumberFillStart.SaveToStream(stream);
+                colorNumberFillEnd.SaveToStream(stream);
+                colorPlaceHolder.SaveToStream(stream);
+                colorTextDefault.SaveToStream(stream);
+                StringSerialization::SaveToStream(stream, placeHolderText);
+                stream << rounding << outlineThickness << horizontalIndent << usePlaceHolder << isNumberField << disableNumberSlider << clampNumber;
+                stream << valueMin << valueMax << valueStep << centerText << wrapText << clipText << decimals;
+            }
+            
+            void LoadFromStream(IStream& stream)
+            {
+                colorBackground.LoadFromStream(stream);
+                colorOutline.LoadFromStream(stream);
+                colorOutlineControls.LoadFromStream(stream);
+                colorHighlight.LoadFromStream(stream);
+                colorCaret.LoadFromStream(stream);
+                colorNumberFillStart.LoadFromStream(stream);
+                colorNumberFillEnd.LoadFromStream(stream);
+                colorPlaceHolder.LoadFromStream(stream);
+                colorTextDefault.LoadFromStream(stream);
+                stream >> rounding >> outlineThickness >> horizontalIndent >> usePlaceHolder >> isNumberField >> disableNumberSlider >> clampNumber;
+                stream >> valueMin >> valueMax >> valueStep >> centerText >> wrapText >> clipText >> decimals;
+            }
 		};
 
 		virtual void			   Construct() override;
@@ -100,6 +132,18 @@ namespace Lina
 			return m_text;
 		}
 
+        inline virtual void SaveToStream(OStream& stream) const override
+        {
+            Widget::SaveToStream(stream);
+            m_props.SaveToStream(stream);
+        }
+        
+        inline virtual void LoadFromStream(IStream& stream) override
+        {
+            Widget::LoadFromStream(stream);
+            m_props.LoadFromStream(stream);
+        }
+        
 	private:
 		void	EndEditing();
 		uint32	GetCaretPosFromMouse();
@@ -126,5 +170,8 @@ namespace Lina
 		bool	   m_isEditing			  = false;
 		float	   m_lastStoredValue	  = 0.0f;
 	};
+
+LINA_REFLECTWIDGET_BEGIN(InputField)
+LINA_REFLECTWIDGET_END(InputField)
 
 } // namespace Lina

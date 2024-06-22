@@ -28,58 +28,26 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Common/Tween/Tween.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
-namespace Lina
-{
-	class Tween;
-	class Icon;
-	class Text;
-} // namespace Lina
 namespace Lina::Editor
 {
-	class InfoTooltip : public DirectionalLayout
+
+	class Gizmo : public Widget
 	{
 	public:
-		struct TooltipProperties
-		{
-			String	  text		= "";
-			LogLevel  level		= LogLevel::Info;
-			Direction direction = Direction::Right;
-			float	  time		= 5.0f;
-		};
-
-		InfoTooltip()		   = default;
-		virtual ~InfoTooltip() = default;
+		Gizmo()			 = default;
+		virtual ~Gizmo() = default;
 
 		virtual void Construct() override;
-		virtual void Initialize() override;
-		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 
-		inline TooltipProperties& GetTooltipProps()
-		{
-			return m_tooltipProps;
-		}
-
 	private:
-		static constexpr float TWEEN_TIME = 0.1f;
-
-		Color GetColorFromLevel();
-
-	private:
-		TooltipProperties m_tooltipProps  = {};
-		Icon*			  m_icon		  = nullptr;
-		Text*			  m_text		  = nullptr;
-		bool			  m_firstTick	  = true;
-		Vector2			  m_startPosition = Vector2::Zero;
-		float			  m_counter		  = 0.0f;
-		Tween			  m_tween;
 	};
 
-LINA_REFLECTWIDGET_BEGIN(InfoTooltip)
-LINA_REFLECTWIDGET_END(InfoTooltip)
-
+	LINA_REFLECTWIDGET_BEGIN(Gizmo)
+	LINA_REFLECTWIDGET_END(Gizmo)
 } // namespace Lina::Editor

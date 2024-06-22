@@ -96,4 +96,7 @@ namespace Lina::Editor
 		bool				  m_showListContents		 = false;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(PanelResources)
+	LINA_REFLECTWIDGET_END(PanelResources)
+
 } // namespace Lina::Editor

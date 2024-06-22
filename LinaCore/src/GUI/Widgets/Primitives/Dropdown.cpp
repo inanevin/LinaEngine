@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Theme.hpp"
 #include <LinaGX/Core/InputMappings.hpp>

@@ -46,7 +46,6 @@ namespace Lina
 	class Component;
 	class CameraComponent;
 	class SkyComponent;
-	class EntityWorld;
 	class WorldRenderer;
 
 	class EntityWorldListener
@@ -55,6 +54,7 @@ namespace Lina
 		virtual void OnComponentAdded(Component* c){};
 		virtual void OnComponentRemoved(Component* c){};
 	};
+
 	// Actual game state
 	class EntityWorld : public Resource, public GameEventDispatcher
 	{
@@ -77,6 +77,11 @@ namespace Lina
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
 		Vector2ui	 GetRenderSize() const;
+
+		inline System* GetSystem()
+		{
+			return m_system;
+		}
 
 		inline Bitmask32 GetFlags()
 		{
@@ -146,7 +151,7 @@ namespace Lina
 		{
 			T* comp = Cache<T>()->AddComponent(e, t);
 			*comp	= t;
-			ProcessComponent(comp);
+			ProcessComponent(comp, e);
 
 			for (auto* l : m_listeners)
 				l->OnComponentAdded(comp);
@@ -157,7 +162,7 @@ namespace Lina
 		template <typename T> T* AddComponent(Entity* e)
 		{
 			T* ptr = Cache<T>()->AddComponent(e);
-			ProcessComponent(ptr);
+			ProcessComponent(ptr, e);
 			for (auto* l : m_listeners)
 				l->OnComponentAdded(ptr);
 			return ptr;
@@ -166,6 +171,7 @@ namespace Lina
 		template <typename T> void RemoveComponent(Entity* e)
 		{
 			T* comp = Cache<T>()->GetComponent(e);
+			comp->Destroy();
 
 			for (auto* l : m_listeners)
 				l->OnComponentRemoved(comp);
@@ -190,6 +196,11 @@ namespace Lina
 			m_gfxSettings.skyMaterial.sid = mat->GetSID();
 		}
 
+		inline WorldRenderer* GetRenderer() const
+		{
+			return m_renderer;
+		}
+
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 
@@ -206,7 +217,7 @@ namespace Lina
 			return cache;
 		}
 
-		void ProcessComponent(Component* c);
+		void ProcessComponent(Component* c, Entity* e);
 
 	private:
 		FRIEND_RESOURCE_CACHE();
@@ -214,9 +225,9 @@ namespace Lina
 
 		EntityWorld(const EntityWorld& other) = delete;
 
-		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0)
+		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0, uint32 flags = 0)
 			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
-			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "World"_hs))
+			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "World"_hs)), m_flags(flags)
 		{
 			m_id = s_worldCounter++;
 		};
@@ -226,6 +237,7 @@ namespace Lina
 			DestroyWorld();
 		}
 
+		void InitializeRenderer(const Vector2ui& viewSize);
 		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
@@ -234,20 +246,11 @@ namespace Lina
 		void Tick(float deltaTime);
 		void WaitForSimulation();
 
-		inline void SetRenderer(WorldRenderer* rend)
-		{
-			m_renderer = rend;
-		}
-
-		inline WorldRenderer* GetRenderer() const
-		{
-			return m_renderer;
-		}
-
 	private:
 		static uint32 s_worldCounter;
 
-		System*								 m_system = nullptr;
+		System*								 m_system	= nullptr;
+		WorldRenderer*						 m_renderer = nullptr;
 		PhysicsWorld						 m_physicsWorld;
 		MemoryAllocatorPool					 m_allocatorPool;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
@@ -257,7 +260,6 @@ namespace Lina
 		uint32								 m_id			= 0;
 		Bitmask32							 m_flags		= 0;
 		Vector<EntityWorldListener*>		 m_listeners;
-		WorldRenderer*						 m_renderer = nullptr;
 		GfxSettings							 m_gfxSettings;
 	};
 

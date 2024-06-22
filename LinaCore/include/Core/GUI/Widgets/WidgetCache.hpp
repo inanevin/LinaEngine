@@ -28,58 +28,44 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Common/Tween/Tween.hpp"
+#include "Common/Data/IDList.hpp"
+#include "Common/Memory/MemoryAllocatorPool.hpp"
 
 namespace Lina
 {
-	class Tween;
-	class Icon;
-	class Text;
-} // namespace Lina
-namespace Lina::Editor
-{
-	class InfoTooltip : public DirectionalLayout
+	class WidgetCacheBase
 	{
 	public:
-		struct TooltipProperties
+		virtual ~WidgetCacheBase(){};
+		virtual void* Create(uint32& cacheIndex) = 0;
+		virtual void  Destroy(void* ptr)		 = 0;
+	};
+
+	template <typename T> class WidgetCache : public WidgetCacheBase
+	{
+	public:
+		WidgetCache() : m_widgets(IDList<T*>(100, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * 100, sizeof(T), "WidgetCache"_hs))
 		{
-			String	  text		= "";
-			LogLevel  level		= LogLevel::Info;
-			Direction direction = Direction::Right;
-			float	  time		= 5.0f;
-		};
+		}
+		virtual ~WidgetCache(){};
 
-		InfoTooltip()		   = default;
-		virtual ~InfoTooltip() = default;
-
-		virtual void Construct() override;
-		virtual void Initialize() override;
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw() override;
-
-		inline TooltipProperties& GetTooltipProps()
+		void* Create(uint32& cacheIndex) override
 		{
-			return m_tooltipProps;
+			T* w	   = new (m_allocatorPool.Allocate(sizeof(T))) T();
+			cacheIndex = m_widgets.AddItem(w);
+			return (void*)w;
+		}
+
+		virtual void Destroy(void* w) override
+		{
+			T* widget = static_cast<T*>(w);
+			m_widgets.RemoveItem(widget->GetCacheIndex());
+			m_allocatorPool.Free(widget);
 		}
 
 	private:
-		static constexpr float TWEEN_TIME = 0.1f;
-
-		Color GetColorFromLevel();
-
-	private:
-		TooltipProperties m_tooltipProps  = {};
-		Icon*			  m_icon		  = nullptr;
-		Text*			  m_text		  = nullptr;
-		bool			  m_firstTick	  = true;
-		Vector2			  m_startPosition = Vector2::Zero;
-		float			  m_counter		  = 0.0f;
-		Tween			  m_tween;
+		IDList<T*>			m_widgets;
+		MemoryAllocatorPool m_allocatorPool;
 	};
 
-LINA_REFLECTWIDGET_BEGIN(InfoTooltip)
-LINA_REFLECTWIDGET_END(InfoTooltip)
-
-} // namespace Lina::Editor
+} // namespace Lina

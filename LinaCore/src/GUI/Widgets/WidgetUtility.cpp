@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Rect.hpp"
 #include "Common/Math/Math.hpp"

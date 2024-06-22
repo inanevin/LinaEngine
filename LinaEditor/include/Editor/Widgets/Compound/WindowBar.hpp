@@ -66,4 +66,7 @@ namespace Lina::Editor
 		DirectionalLayout* m_windowButtons = nullptr;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(WindowBar)
+	LINA_REFLECTWIDGET_END(WindowBar)
+
 } // namespace Lina::Editor

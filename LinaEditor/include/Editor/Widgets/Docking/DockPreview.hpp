@@ -92,4 +92,7 @@ namespace Lina::Editor
 		float	   m_smallRectSize = 0.0f;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(DockPreview)
+	LINA_REFLECTWIDGET_END(DockPreview)
+
 } // namespace Lina::Editor

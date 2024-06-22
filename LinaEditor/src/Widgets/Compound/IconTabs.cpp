@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/IconTabs.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {

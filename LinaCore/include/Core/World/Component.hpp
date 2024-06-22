@@ -52,12 +52,13 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const {};
 		virtual void LoadFromStream(IStream& stream){};
 
+		virtual void Create(){};
+		virtual void Destroy(){};
 		virtual void Begin(){};
 		virtual void End(){};
 		virtual void PreTick(){};
 		virtual void Tick(float delta){};
 		virtual void PostTick(float delta){};
-		virtual void FetchResources(ResourceManager* rm){};
 
 		virtual TypeID GetComponentType() = 0;
 
@@ -78,10 +79,11 @@ namespace Lina
 		Component(uint32 flags = 0) : m_flags(flags){};
 		virtual ~Component() = default;
 
-		Entity*		   m_entity = nullptr;
-		EntityWorld*   m_world	= nullptr;
-		Bitmask32	   m_flags	= 0;
-		LinaGX::Input* m_input	= nullptr;
+		Entity*			 m_entity		   = nullptr;
+		EntityWorld*	 m_world		   = nullptr;
+		ResourceManager* m_resourceManager = nullptr;
+		Bitmask32		 m_flags		   = 0;
+		LinaGX::Input*	 m_input		   = nullptr;
 
 	private:
 		uint32 m_entityID = 0;

@@ -58,4 +58,7 @@ namespace Lina::Editor
 		GfxManager*	   m_gfxMan		   = nullptr;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(PanelWorld)
+	LINA_REFLECTWIDGET_END(PanelWorld)
+
 } // namespace Lina::Editor

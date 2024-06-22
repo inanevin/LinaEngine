@@ -115,4 +115,7 @@ namespace Lina
 		float	m_animValue		  = 0.0f;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(DirectionalLayout)
+	LINA_REFLECTWIDGET_END(DirectionalLayout)
+
 } // namespace Lina

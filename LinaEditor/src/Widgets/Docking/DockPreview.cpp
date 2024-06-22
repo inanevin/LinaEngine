@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {

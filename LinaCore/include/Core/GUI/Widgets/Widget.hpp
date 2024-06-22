@@ -30,10 +30,10 @@ SOFTWARE.
 
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Rect.hpp"
-#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/Data/Bitmask.hpp"
+#include "Core/Reflection/ClassReflection.hpp"
 
 namespace LinaGX
 {
@@ -55,6 +55,12 @@ namespace Lina
 	class ResourceManager;
 	class IStream;
 	class Ostream;
+	class WidgetManager;
+
+#define WIDGET_VERSION 0
+	/*
+		0: Initial
+	 */
 
 #define V2_GET_MUTATE(NAME, VAR)                                                                                                                                                                                                                                   \
 	inline void Set##NAME(const Vector2& sz)                                                                                                                                                                                                                       \
@@ -95,6 +101,9 @@ namespace Lina
 	class Widget
 	{
 	public:
+		Widget(Bitmask32 flags = 0) : m_flags(flags), m_tid(GetTypeID<Widget>()){};
+		virtual ~Widget() = default;
+
 		virtual void Initialize();
 		virtual void Construct(){};
 		virtual void Destruct(){};
@@ -223,6 +232,11 @@ namespace Lina
 		inline Widget* GetParent()
 		{
 			return m_parent;
+		}
+
+		inline TypeID SetTID(TypeID tid)
+		{
+			m_tid = tid;
 		}
 
 		inline TypeID GetTID() const
@@ -398,6 +412,10 @@ namespace Lina
 			}
 		}
 
+		inline uint32 GetCacheIndex() const
+		{
+			return m_cacheIndex;
+		}
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);
@@ -409,9 +427,7 @@ namespace Lina
 
 	protected:
 		friend class WidgetManager;
-
-		Widget(Bitmask32 flags = 0) : m_flags(flags){};
-		virtual ~Widget() = default;
+		template <typename U> friend class WidgetCache;
 
 		void ChangedParent(Widget* w);
 		void CheckCustomTooltip();
@@ -453,10 +469,15 @@ namespace Lina
 		bool						m_isPressed				= false;
 		bool						m_isDisabled			= false;
 		bool						m_isVisible				= true;
+		uint32						m_loadedVersion			= 0;
 		float						m_childPadding			= 0.0f;
 		float						m_scrollerOffset		= 0.0f;
 		void*						m_customTooltipUserData = nullptr;
 		void*						m_userData				= nullptr;
+		uint32						m_cacheIndex			= 0;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Widget)
+	LINA_REFLECTWIDGET_END(Widget)
 
 } // namespace Lina

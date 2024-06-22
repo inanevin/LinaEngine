@@ -51,6 +51,7 @@ namespace Lina
 	class ResourceManager;
 	class GUIBackend;
 	class EntityWorld;
+	class WorldManager;
 
 	class GfxManager : public Subsystem, public LinaGX::WindowListener
 	{
@@ -150,9 +151,9 @@ namespace Lina
 		void UpdateBindlessResources(PerFrameData& pfd);
 
 	private:
+		WorldManager*					m_worldManager = nullptr;
 		ResourceUploadQueue				m_resourceUploadQueue;
 		MeshManager						m_meshManager;
-		Vector<WorldRenderer*>			m_worldRenderers;
 		Vector<SurfaceRenderer*>		m_surfaceRenderers;
 		GUIBackend						m_guiBackend;
 		ResourceManager*				m_resourceManager = nullptr;

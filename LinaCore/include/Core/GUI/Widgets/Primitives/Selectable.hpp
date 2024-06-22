@@ -53,6 +53,30 @@ namespace Lina
 			Delegate<void(Selectable*)>		  onInteracted;
 			Delegate<void(Selectable*)>		  onRightClick;
 			Delegate<void()>				  onDockedOut;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorStart.SaveToStream(stream);
+				colorEnd.SaveToStream(stream);
+				colorLocalSelectedStart.SaveToStream(stream);
+				colorLocalSelectedEnd.SaveToStream(stream);
+				colorSelectedStart.SaveToStream(stream);
+				colorSelectedEnd.SaveToStream(stream);
+				colorOutline.SaveToStream(stream);
+				stream << rounding << outlineThickness;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorStart.LoadFromStream(stream);
+				colorEnd.LoadFromStream(stream);
+				colorLocalSelectedStart.LoadFromStream(stream);
+				colorLocalSelectedEnd.LoadFromStream(stream);
+				colorSelectedStart.LoadFromStream(stream);
+				colorSelectedEnd.LoadFromStream(stream);
+				colorOutline.LoadFromStream(stream);
+				stream >> rounding >> outlineThickness;
+			}
 		};
 
 		virtual void PreTick() override;
@@ -66,6 +90,18 @@ namespace Lina
 			return m_props;
 		}
 
+		inline virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		inline virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
+
 	private:
 		static constexpr float COLOR_SPEED = 22.0f;
 
@@ -75,5 +111,8 @@ namespace Lina
 		bool	   m_wasSelected = false;
 		bool	   m_dockedOut	 = false;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Selectable)
+	LINA_REFLECTWIDGET_END(Selectable)
 
 } // namespace Lina

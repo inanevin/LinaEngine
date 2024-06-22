@@ -123,6 +123,7 @@ namespace Lina
 		m_appDelegate  = m_system->GetApp()->GetAppDelegate();
 		m_clearColor   = initInfo.clearColor;
 		m_currentVsync = initInfo.vsyncStyle;
+		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing				 = initInfo.allowTearing,
@@ -284,6 +285,8 @@ namespace Lina
 
 	void GfxManager::Shutdown()
 	{
+		DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
+
 		// Frame resources.
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -333,9 +336,6 @@ namespace Lina
 
 		for (auto* s : m_surfaceRenderers)
 			s->PreTick();
-
-		for (auto* w : m_worldRenderers)
-			w->PreTick();
 	}
 
 	void GfxManager::Tick(float delta)
@@ -345,30 +345,14 @@ namespace Lina
 		if (m_mainWindow == nullptr)
 			m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
 
-		bool mt = false;
-
-		if (m_worldRenderers.size() == 1)
-			m_worldRenderers[0]->Tick(delta);
-		else
-		{
-			Taskflow tf;
-			tf.for_each(m_worldRenderers.begin(), m_worldRenderers.end(), [delta](WorldRenderer* wr) { wr->Tick(delta); });
-			m_system->GetMainExecutor()->RunMove(tf);
-			mt = true;
-		}
-
 		if (m_surfaceRenderers.size() == 1)
 			m_surfaceRenderers[0]->Tick(delta);
 		else
 		{
 			Taskflow tf;
 			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [delta](SurfaceRenderer* sf) { sf->Tick(delta); });
-			m_system->GetMainExecutor()->RunMove(tf);
-			mt = true;
+			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
-
-		if (mt)
-			m_system->GetMainExecutor()->Wait();
 	}
 
 	void GfxManager::UpdateBindlessResources(PerFrameData& pfd)
@@ -479,17 +463,19 @@ namespace Lina
 		const bool			transferExists		  = m_resourceUploadQueue.FlushAll(currentFrameIndex);
 		const SemaphoreData transferSemaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
 
+		const Vector<WorldRenderer*>& worldRenderers = m_worldManager->GetWorldRenderers();
+
 		// Render worlds.
 		Vector<SemaphoreData> waitOnWorldRenderers;
-		waitOnWorldRenderers.resize(m_worldRenderers.size());
-		if (m_worldRenderers.size() == 1)
+		waitOnWorldRenderers.resize(worldRenderers.size());
+		if (worldRenderers.size() == 1)
 		{
-			waitOnWorldRenderers[0] = m_worldRenderers[0]->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{});
+			waitOnWorldRenderers[0] = worldRenderers.at(0)->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{});
 		}
 		else
 		{
 			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(m_worldRenderers.size()), 1, [&](int i) { waitOnWorldRenderers[i] = m_worldRenderers[i]->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{}); });
+			tf.for_each_index(0, static_cast<int>(worldRenderers.size()), 1, [&](int i) { waitOnWorldRenderers[i] = worldRenderers.at(i)->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{}); });
 			m_system->GetMainExecutor()->RunAndWait(tf);
 		}
 
@@ -591,7 +577,9 @@ namespace Lina
 	{
 		Join();
 
-		for (auto* wr : m_worldRenderers)
+		const Vector<WorldRenderer*>& worldRenderers = m_worldManager->GetWorldRenderers();
+
+		for (auto* wr : worldRenderers)
 		{
 			if (wr->GetSize().x > newSize.x || wr->GetSize().y > newSize.y)
 			{
@@ -608,38 +596,6 @@ namespace Lina
 				break;
 			}
 		}
-	}
-
-	WorldRenderer* GfxManager::CreateWorldRenderer(EntityWorld* world, const Vector2ui& size)
-	{
-		LOCK_GUARD(m_wrMtx);
-		WorldRenderer* wr = new WorldRenderer(this, world, size);
-		m_worldRenderers.push_back(wr);
-		MarkBindlessDirty();
-		return wr;
-	}
-
-	void GfxManager::DestroyWorldRenderer(WorldRenderer* renderer)
-	{
-		LOCK_GUARD(m_wrMtx);
-		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [renderer](WorldRenderer* rnd) -> bool { return renderer == rnd; }));
-		MarkBindlessDirty();
-		delete renderer;
-	}
-
-	WorldRenderer* GfxManager::GetWorldRenderer(EntityWorld* world)
-	{
-		auto it = linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [world](WorldRenderer* rnd) -> bool { return rnd->GetWorld() == world; });
-		return *it;
-	}
-
-	void GfxManager::DestroyWorldRenderer(EntityWorld* world)
-	{
-		LOCK_GUARD(m_wrMtx);
-		auto		   it		= linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [world](WorldRenderer* rnd) -> bool { return rnd->GetWorld() == world; });
-		WorldRenderer* renderer = *it;
-		m_worldRenderers.erase(it);
-		delete renderer;
 	}
 
 	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 #include <LinaGX/Core/InputMappings.hpp>
 

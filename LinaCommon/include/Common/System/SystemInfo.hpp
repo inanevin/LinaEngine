@@ -183,6 +183,11 @@ namespace Lina
 			return GetCurrentThreadID() == s_mainThreadID;
 		}
 
+		static inline int64 GetThrottleTime()
+		{
+			return s_throttleTime;
+		}
+
 	private:
 		friend class Application;
 		friend class Engine;
@@ -246,6 +251,11 @@ namespace Lina
 			s_mainThreadID = id;
 		}
 
+		static inline void SetThrottleTime(int64 time)
+		{
+			s_throttleTime = time;
+		}
+
 	private:
 		static double s_appTime;
 		static double s_deltaTime;
@@ -258,6 +268,7 @@ namespace Lina
 		static int64  s_deltaTimeMicroseconds;
 		static int64  s_realDeltaTimeMicroseconds;
 		static int64  s_appStartCycles;
+		static int64  s_throttleTime;
 		static uint64 s_frames;
 		static uint32 s_measuredFPS;
 		static size_t s_mainThreadID;

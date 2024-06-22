@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina

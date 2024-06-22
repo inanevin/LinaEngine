@@ -62,4 +62,8 @@ namespace Lina
 		Properties m_props		  = {};
 		float	   m_animationCtr = 0.0f;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Popup)
+	LINA_REFLECTWIDGET_END(Popup)
+
 } // namespace Lina

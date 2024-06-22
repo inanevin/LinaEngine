@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/Tab.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {

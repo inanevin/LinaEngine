@@ -47,6 +47,24 @@ namespace Lina
 			float rounding			   = Theme::GetDef().baseRounding;
 			float outlineThickness	   = Theme::GetDef().baseOutlineThickness;
 			bool* value				   = nullptr;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorBackground.SaveToStream(stream);
+				colorOutline.SaveToStream(stream);
+				colorOutlineControls.SaveToStream(stream);
+				colorIcon.SaveToStream(stream);
+				stream << rounding << outlineThickness;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorBackground.LoadFromStream(stream);
+				colorOutline.LoadFromStream(stream);
+				colorOutlineControls.LoadFromStream(stream);
+				colorIcon.LoadFromStream(stream);
+				stream >> rounding >> outlineThickness;
+			}
 		};
 
 		Checkbox() : Widget(WF_CONTROLLABLE){};
@@ -57,6 +75,18 @@ namespace Lina
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
 
 		inline Properties& GetProps()
 		{
@@ -72,4 +102,7 @@ namespace Lina
 		Icon*	   m_icon  = nullptr;
 		Properties m_props = {};
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Checkbox)
+	LINA_REFLECTWIDGET_END(Checkbox)
 } // namespace Lina

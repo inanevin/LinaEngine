@@ -75,4 +75,7 @@ namespace Lina
 		bool	   m_unfolded = false;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(FoldLayout)
+	LINA_REFLECTWIDGET_END(FoldLayout)
+
 } // namespace Lina

@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
@@ -52,8 +53,13 @@ namespace Lina
 	{
 		w->m_parent	   = this;
 		w->m_lgxWindow = m_lgxWindow;
-		w->m_manager   = m_manager;
-		w->m_lvg	   = m_manager->GetLVG();
+
+		if (m_manager != nullptr)
+		{
+			w->m_lvg			 = m_manager->GetLVG();
+			w->m_system			 = m_manager->GetSystem();
+			w->m_resourceManager = m_manager->GetResourceManager();
+		}
 
 		for (auto* c : w->GetChildren())
 			ChangedParent(c);
@@ -128,7 +134,9 @@ namespace Lina
 
 	void Widget::SaveToStream(OStream& stream) const
 	{
-		stream << m_tid << m_flags << m_childPadding;
+		stream << static_cast<uint32>(WIDGET_VERSION);
+		stream << m_tid << m_childPadding;
+		m_flags.SaveToStream(stream);
 		m_childMargins.SaveToStream(stream);
 		m_borderThickness.SaveToStream(stream);
 		m_rect.SaveToStream(stream);
@@ -153,7 +161,9 @@ namespace Lina
 
 	void Widget::LoadFromStream(IStream& stream)
 	{
-		stream >> m_tid >> m_flags >> m_childPadding;
+		stream >> m_loadedVersion;
+		stream >> m_tid >> m_childPadding;
+		m_flags.LoadFromStream(stream);
 		m_childMargins.LoadFromStream(stream);
 		m_borderThickness.LoadFromStream(stream);
 		m_rect.LoadFromStream(stream);
@@ -169,14 +179,14 @@ namespace Lina
 
 		uint32 childSz = 0;
 		stream >> childSz;
-		m_children.resize(childSz);
 
 		for (uint32 i = 0; i < childSz; i++)
 		{
-			Widget* c	= nullptr;
-			TypeID	tid = 0;
+			TypeID tid = 0;
 			stream >> tid;
+			Widget* c = m_manager->Allocate(tid);
 			c->LoadFromStream(stream);
+			AddChild(c);
 		}
 	}
 

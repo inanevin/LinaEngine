@@ -96,6 +96,7 @@ src/GUI/Theme.cpp
 src/GUI/CommonGUI.cpp
 src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetManager.cpp
+src/GUI/Widgets/WidgetCache.cpp
 src/GUI/Widgets/WidgetUtility.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
 src/GUI/Widgets/Layout/ScrollArea.cpp
@@ -208,6 +209,7 @@ include/Core/Components/WidgetComponent.hpp
 include/Core/GUI/CommonGUI.hpp
 include/Core/GUI/Theme.hpp
 include/Core/GUI/Widgets/WidgetManager.hpp
+include/Core/GUI/Widgets/WidgetCache.hpp
 include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp

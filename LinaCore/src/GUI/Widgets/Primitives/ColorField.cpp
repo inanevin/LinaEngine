@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina

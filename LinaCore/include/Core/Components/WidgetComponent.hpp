@@ -28,19 +28,20 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Components/RenderableComponent.hpp"
+#include "Core/World/Component.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
 
 namespace Lina
 {
-	class WidgetComponent : public RenderableComponent
+	class WidgetComponent : public Component
 	{
 	public:
+		virtual void Create() override;
+		virtual void Destroy() override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void FetchResources(ResourceManager* rm) override;
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
 
@@ -77,6 +78,6 @@ namespace Lina
 		Vector2ui		  m_canvasSize = Vector2ui(100, 100);
 	};
 
-	// LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
-	// LINA_REFLECTCOMPONENT_END(MeshComponent);
+	LINA_REFLECTCOMPONENT_BEGIN(WidgetComponent, "WidgetComponent", "Graphics")
+	LINA_REFLECTCOMPONENT_END(WidgetComponent);
 } // namespace Lina

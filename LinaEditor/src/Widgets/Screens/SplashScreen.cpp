@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"

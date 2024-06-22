@@ -67,7 +67,7 @@ namespace Lina
 			return m_mask;
 		}
 
-		void SaveToStream(OStream& stream)
+		void SaveToStream(OStream& stream) const
 		{
 			stream << m_mask;
 		}

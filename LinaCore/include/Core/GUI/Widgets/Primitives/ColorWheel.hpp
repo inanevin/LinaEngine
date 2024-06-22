@@ -63,4 +63,7 @@ namespace Lina
 		Icon*	   m_icon		= nullptr;
 		Vector2	   m_pointerPos = Vector2::Zero;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(ColorWheel)
+	LINA_REFLECTWIDGET_END(ColorWheel)
 } // namespace Lina

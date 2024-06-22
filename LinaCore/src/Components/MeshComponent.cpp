@@ -51,21 +51,15 @@ namespace Lina
 	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
 	{
 		m_model.sid = sid;
-		m_model.raw = nullptr;
+		m_model.raw = m_resourceManager->GetResource<Model>(m_model.sid);
 		m_meshIndex = meshIndex;
+		m_mesh		= m_model.raw->GetMesh(m_meshIndex);
 	}
 
 	void MeshComponent::SetMaterial(StringID sid)
 	{
 		m_material.sid = sid;
-		m_material.raw = nullptr;
-	}
-
-	void MeshComponent::FetchResources(ResourceManager* rm)
-	{
-		m_model.raw	   = rm->GetResource<Model>(m_model.sid);
-		m_material.raw = rm->GetResource<Material>(m_material.sid);
-		m_mesh		   = m_model.raw->GetMesh(m_meshIndex);
+		m_material.raw = m_resourceManager->GetResource<Material>(m_material.sid);
 	}
 
 } // namespace Lina

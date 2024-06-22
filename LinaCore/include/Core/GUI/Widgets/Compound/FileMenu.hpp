@@ -136,4 +136,9 @@ namespace Lina
 		DirectionalLayout* m_subPopup	   = nullptr;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(FileMenu)
+	LINA_REFLECTWIDGET_END(FileMenu)
+
+	LINA_REFLECTWIDGET_BEGIN(FileMenuItem)
+	LINA_REFLECTWIDGET_END(FileMenuItem)
 } // namespace Lina

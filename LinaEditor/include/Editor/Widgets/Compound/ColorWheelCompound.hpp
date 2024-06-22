@@ -120,4 +120,7 @@ namespace Lina::Editor
 		Color					 m_oldColor			   = Color::White;
 		Color					 m_hsv				   = Color(0, 0, 0, 0);
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(ColorWheelCompound)
+	LINA_REFLECTWIDGET_END(ColorWheelCompound)
 } // namespace Lina::Editor

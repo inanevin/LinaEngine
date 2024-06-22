@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/System/System.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor

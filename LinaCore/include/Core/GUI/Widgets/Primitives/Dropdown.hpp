@@ -59,6 +59,30 @@ namespace Lina
 			float															 rounding					= Theme::GetDef().baseRounding;
 			float															 outlineThickness			= Theme::GetDef().baseOutlineThickness;
 			float															 horizontalIndent			= Theme::GetDef().baseIndentInner;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorBackground.SaveToStream(stream);
+				colorHovered.SaveToStream(stream);
+				colorOutline.SaveToStream(stream);
+				colorOutlineControls.SaveToStream(stream);
+				colorIconBackgroundStart.SaveToStream(stream);
+				colorIconBackgroundEnd.SaveToStream(stream);
+				colorIconBackgroundHovered.SaveToStream(stream);
+				stream << rounding << outlineThickness << horizontalIndent;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorBackground.LoadFromStream(stream);
+				colorHovered.LoadFromStream(stream);
+				colorOutline.LoadFromStream(stream);
+				colorOutlineControls.LoadFromStream(stream);
+				colorIconBackgroundStart.LoadFromStream(stream);
+				colorIconBackgroundEnd.LoadFromStream(stream);
+				colorIconBackgroundHovered.LoadFromStream(stream);
+				stream >> rounding >> outlineThickness >> horizontalIndent;
+			}
 		};
 
 		virtual void Construct() override;
@@ -66,6 +90,18 @@ namespace Lina
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action) override;
+
+		inline virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		inline virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
 
 		inline Properties& GetProps()
 		{
@@ -93,5 +129,8 @@ namespace Lina
 		Vector2			   m_iconBgStart = Vector2::Zero;
 		DirectionalLayout* m_popup		 = nullptr;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Dropdown)
+	LINA_REFLECTWIDGET_END(Dropdown)
 
 } // namespace Lina

@@ -37,9 +37,26 @@ namespace Lina
 	{
 
 	public:
+		void UpdateBlob();
+		void ClearRoot();
+
 		inline Widget& GetRoot()
 		{
 			return m_root;
+		}
+
+		inline void CopyRootBlob(IStream& outStream)
+		{
+			if (m_loadedStream.Empty())
+			{
+				OStream stream;
+				m_root.SaveToStream(stream);
+				m_loadedStream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
+				stream.Destroy();
+			}
+
+			outStream.Destroy();
+			outStream.Create(m_loadedStream.GetDataRaw(), m_loadedStream.GetSize());
 		}
 
 	private:
@@ -55,7 +72,8 @@ namespace Lina
 		virtual void BatchLoaded() override;
 
 	private:
-		Widget m_root;
+		Widget	m_root;
+		IStream m_loadedStream;
 	};
 
 } // namespace Lina

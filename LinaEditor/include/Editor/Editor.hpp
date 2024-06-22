@@ -40,6 +40,8 @@ namespace Lina
 	class WidgetManager;
 	class EntityWorld;
 	class Widget;
+	class ResourceManager;
+	class GUIWidget;
 } // namespace Lina
 
 namespace LinaGX
@@ -173,6 +175,8 @@ namespace Lina::Editor
 	private:
 		GfxManager*					   m_gfxManager			  = nullptr;
 		WidgetManager*				   m_primaryWidgetManager = nullptr;
+		ResourceManager*			   m_rm					  = nullptr;
+		GUIWidget*					   m_gizmoBB			  = nullptr;
 		EditorSettings				   m_settings			  = {};
 		ProjectData*				   m_currentProject		  = nullptr;
 		EntityWorld*				   m_currentWorld		  = nullptr;

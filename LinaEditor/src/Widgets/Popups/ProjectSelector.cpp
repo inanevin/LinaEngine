@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Application.hpp"
 #include "Core/Platform/PlatformProcess.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"

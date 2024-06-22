@@ -29,10 +29,13 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/HashMap.hpp"
+#include "Common/Data/IDList.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
-#include <memoryallocators/PoolAllocator.h>
+#include "WidgetCache.hpp"
+#include "Core/Reflection/ReflectionSystem.hpp"
+#include "Core/GUI/Widgets/Widget.hpp"
 
 namespace LinaGX
 {
@@ -117,13 +120,20 @@ namespace Lina
 			return m_lastControlsManager;
 		}
 
-		template <typename T> T* Allocate(const String& debugName = "Widget")
+		Widget* Allocate(TypeID tid, const String& debugName = "Widget")
 		{
-			const TypeID tid = GetTypeID<T>();
+			WidgetCacheBase* cacheBase = m_widgetCaches[tid];
 
-			// PoolAllocator* alloc = GetGUIAllocator(tid, sizeof(T));
-			// T*			   t	 = new (alloc->Allocate(sizeof(T), std::alignment_of<T>())) T();
-			T* t = new T();
+			if (cacheBase == nullptr)
+			{
+				MetaType& type		= ReflectionSystem::Get().Resolve(tid);
+				cacheBase			= static_cast<WidgetCacheBase*>(type.GetFunction<void*()>("CreateWidgetCache"_hs)());
+				m_widgetCaches[tid] = cacheBase;
+			}
+
+			uint32	cacheIndex = 0;
+			Widget* t		   = static_cast<Widget*>(cacheBase->Create(cacheIndex));
+			t->m_cacheIndex	   = cacheIndex;
 			LINA_ASSERT(t != nullptr, "");
 			t->SetDebugName(debugName);
 			t->m_lgxWindow		 = m_window;
@@ -136,9 +146,25 @@ namespace Lina
 			return t;
 		}
 
+		template <typename T> T* Allocate(const String& debugName = "Widget")
+		{
+			const TypeID tid = GetTypeID<T>();
+			return static_cast<T*>(Allocate(tid, debugName));
+		}
+
 		inline LinaVG::Drawer* GetLVG() const
 		{
 			return m_lvg;
+		}
+
+		inline System* GetSystem() const
+		{
+			return m_system;
+		}
+
+		inline ResourceManager* GetResourceManager() const
+		{
+			return m_resourceManager;
 		}
 
 	protected:
@@ -153,35 +179,35 @@ namespace Lina
 	private:
 		LinaGX::CursorType FindCursorType(Widget* start);
 
-		bool		   PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
-		bool		   PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
-		bool		   PassMouseWheel(Widget* widget, float amt);
-		bool		   PassMousePos(Widget* widget, const Vector2& pos);
-		void		   PassCalculateSize(Widget* w, float delta);
-		void		   PassPreTick(Widget* w);
-		void		   PassTick(Widget* w, float delta);
-		PoolAllocator* GetGUIAllocator(TypeID tid, size_t typeSize);
-		ScrollArea*	   FindScrollAreaAbove(Widget* w);
+		bool		PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		bool		PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
+		bool		PassMouseWheel(Widget* widget, float amt);
+		bool		PassMousePos(Widget* widget, const Vector2& pos);
+		void		PassCalculateSize(Widget* w, float delta);
+		void		PassPreTick(Widget* w);
+		void		PassTick(Widget* w, float delta);
+		ScrollArea* FindScrollAreaAbove(Widget* w);
 
 	private:
 		friend class Widget;
 
 	private:
-		LinaGX::Window*	 m_window		   = nullptr;
-		LinaVG::Drawer*	 m_lvg			   = nullptr;
-		Widget*			 m_controlsOwner   = nullptr;
-		Widget*			 m_rootWidget	   = nullptr;
-		Widget*			 m_foregroundRoot  = nullptr;
-		System*			 m_system		   = nullptr;
-		Widget*			 m_deepestHovered  = nullptr;
-		ResourceManager* m_resourceManager = nullptr;
-		Vector<ClipData> m_clipStack;
-		float			 m_debugDrawYOffset	   = 0.0f;
-		float			 m_foregroundDim	   = 0.0f;
-		Font*			 m_defaultFont		   = nullptr;
-		Vector<Widget*>	 m_killList			   = {};
-		GfxManager*		 m_gfxManager		   = nullptr;
-		Widget*			 m_lastControlsManager = nullptr;
+		LinaGX::Window*					  m_window			= nullptr;
+		LinaVG::Drawer*					  m_lvg				= nullptr;
+		Widget*							  m_controlsOwner	= nullptr;
+		Widget*							  m_rootWidget		= nullptr;
+		Widget*							  m_foregroundRoot	= nullptr;
+		System*							  m_system			= nullptr;
+		Widget*							  m_deepestHovered	= nullptr;
+		ResourceManager*				  m_resourceManager = nullptr;
+		Vector<ClipData>				  m_clipStack;
+		float							  m_debugDrawYOffset	= 0.0f;
+		float							  m_foregroundDim		= 0.0f;
+		Font*							  m_defaultFont			= nullptr;
+		Vector<Widget*>					  m_killList			= {};
+		GfxManager*						  m_gfxManager			= nullptr;
+		Widget*							  m_lastControlsManager = nullptr;
+		HashMap<TypeID, WidgetCacheBase*> m_widgetCaches;
 	};
 
 } // namespace Lina

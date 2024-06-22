@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
@@ -67,6 +68,34 @@ namespace Lina
 			Vector4 customClip			= Vector4::Zero;
 			bool	dynamicSizeToParent = false;
 			float	dynamicSizeScale	= 1.0f;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorStart.SaveToStream(stream);
+				colorEnd.SaveToStream(stream);
+				colorHovered.SaveToStream(stream);
+				colorPressed.SaveToStream(stream);
+				colorDisabled.SaveToStream(stream);
+				sdfOutlineColor.SaveToStream(stream);
+				customClip.SaveToStream(stream);
+				StringSerialization::SaveToStream(stream, icon);
+				stream << font << textScale << isDynamic << enableHoverPressColors << sdfThickness << sdfSoftness << sdfOutlineThickness << sdfOutlineSoftness;
+				stream << dynamicSizeToParent << dynamicSizeScale;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorStart.LoadFromStream(stream);
+				colorEnd.LoadFromStream(stream);
+				colorHovered.LoadFromStream(stream);
+				colorPressed.LoadFromStream(stream);
+				colorDisabled.LoadFromStream(stream);
+				sdfOutlineColor.LoadFromStream(stream);
+				customClip.LoadFromStream(stream);
+				StringSerialization::LoadFromStream(stream, icon);
+				stream >> font >> textScale >> isDynamic >> enableHoverPressColors >> sdfThickness >> sdfSoftness >> sdfOutlineThickness >> sdfOutlineSoftness;
+				stream >> dynamicSizeToParent >> dynamicSizeScale;
+			}
 		};
 
 		virtual void Initialize() override;
@@ -86,11 +115,26 @@ namespace Lina
 			return m_lvgFont;
 		}
 
+		inline virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		inline virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
+
 	private:
 		Properties			   m_props				= {};
 		LinaVG::SDFTextOptions m_sdfOptions			= {};
 		float				   m_calculatedDPIScale = 0.0f;
 		LinaVG::LinaVGFont*	   m_lvgFont			= nullptr;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Icon)
+	LINA_REFLECTWIDGET_END(Icon)
 
 } // namespace Lina

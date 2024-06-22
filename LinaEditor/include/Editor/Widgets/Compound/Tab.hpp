@@ -105,4 +105,7 @@ namespace Lina::Editor
 		bool	   m_requestDockOut = false;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(Tab)
+	LINA_REFLECTWIDGET_END(Tab)
+
 } // namespace Lina::Editor

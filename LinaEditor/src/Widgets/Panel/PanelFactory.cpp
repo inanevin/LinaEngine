@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Widgets/Panel/PanelResources.hpp"
 #include "Editor/Widgets/Panel/PanelPerformance.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {

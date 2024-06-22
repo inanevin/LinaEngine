@@ -52,6 +52,20 @@ namespace Lina
 			bool			 isSelected				 = false;
 			bool			 closeOwnerOnClick		 = false;
 			bool			 useAltText				 = false;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorBackgroundSelected.SaveToStream(stream);
+				colorHovered.SaveToStream(stream);
+				stream << rounding << horizontalIndent << isSelected << closeOwnerOnClick << useAltText;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorBackgroundSelected.LoadFromStream(stream);
+				colorHovered.LoadFromStream(stream);
+				stream >> rounding >> horizontalIndent >> isSelected >> closeOwnerOnClick >> useAltText;
+			}
 		};
 
 		virtual void Construct() override;
@@ -75,10 +89,25 @@ namespace Lina
 			return m_altText;
 		}
 
+		inline virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		inline virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
+
 	private:
 		Properties m_props	 = {};
 		Text*	   m_text	 = nullptr;
 		Text*	   m_altText = nullptr;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(PopupItem)
+	LINA_REFLECTWIDGET_END(PopupItem)
 
 } // namespace Lina

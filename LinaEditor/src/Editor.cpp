@@ -44,12 +44,13 @@ SOFTWARE.
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/Widgets/DockTestbed.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Gizmo/Gizmo.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/CommonCore.hpp"
-
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 
@@ -168,6 +169,15 @@ namespace Lina::Editor
 			m_settings.LoadFromFile();
 		else
 			m_settings.SaveToFile();
+
+		m_rm	  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_gizmoBB = m_rm->CreateUserResource<GUIWidget>(GIZMO_BOUNDINGBOX_PATH, GIZMO_BOUNDINGBOX_SID);
+
+		Gizmo gizmo;
+		gizmo.SetTID(GetTypeID<Gizmo>());
+		m_gizmoBB->GetRoot().AddChild(&gizmo);
+		m_gizmoBB->UpdateBlob();
+		m_gizmoBB->ClearRoot();
 	}
 
 	void Editor::PreTick()
@@ -301,13 +311,14 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_rm->DestroyUserResource(m_gizmoBB);
 		m_fileManager.Shutdown();
 
 		for (auto* w : m_subWindows)
 			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
 
 		m_subWindows.clear();
-		m_gfxManager->DestroyApplicationWindow(m_payloadWindow->GetSID());
+		m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(m_payloadWindow->GetSID()));
 
 		m_settings.SaveToFile();
 		RemoveCurrentProject();

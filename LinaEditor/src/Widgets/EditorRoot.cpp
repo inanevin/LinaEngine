@@ -48,6 +48,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor

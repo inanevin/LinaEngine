@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
@@ -58,6 +59,28 @@ namespace Lina
 			bool				  fetchCustomClipFromSelf	= false;
 			bool				  fetchWrapFromParent		= false;
 			bool				  wordWrap					= true;
+
+			void SaveToStream(OStream& stream) const
+			{
+				color.SaveToStream(stream);
+				colorDisabled.SaveToStream(stream);
+				customClip.SaveToStream(stream);
+				StringSerialization::SaveToStream(stream, text);
+				stream << textScale << wrapWidth << isDynamic << fetchCustomClipFromSelf << fetchWrapFromParent << fetchWrapFromParent << wordWrap;
+				stream << static_cast<uint8>(alignment);
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				color.LoadFromStream(stream);
+				colorDisabled.LoadFromStream(stream);
+				customClip.LoadFromStream(stream);
+				StringSerialization::LoadFromStream(stream, text);
+				stream >> textScale >> wrapWidth >> isDynamic >> fetchCustomClipFromSelf >> fetchWrapFromParent >> fetchWrapFromParent >> wordWrap;
+				uint8 align = 0;
+				stream >> align;
+				alignment = static_cast<LinaVG::TextAlignment>(align);
+			}
 		};
 
 		virtual void Initialize() override;
@@ -77,11 +100,26 @@ namespace Lina
 			return m_lvgFont;
 		}
 
+		inline virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		inline virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
+
 	private:
 		Properties			m_props				 = {};
 		float				m_calculatedDPIScale = 0.0f;
 		LinaVG::LinaVGFont* m_lvgFont			 = nullptr;
 		bool				m_isSDF				 = false;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Text)
+	LINA_REFLECTWIDGET_END(Text)
 
 } // namespace Lina

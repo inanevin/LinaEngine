@@ -36,7 +36,7 @@ namespace Lina::Editor
 	class Panel : public Widget
 	{
 	public:
-		Panel() = delete;
+		Panel() = default;
 		Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData), Widget(){};
 		virtual ~Panel() = default;
 
@@ -61,5 +61,8 @@ namespace Lina::Editor
 		PanelType m_panelType = PanelType::Resources;
 		StringID  m_subData	  = 0;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(Panel)
+	LINA_REFLECTWIDGET_END(Panel)
 
 } // namespace Lina::Editor

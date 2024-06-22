@@ -39,6 +39,7 @@ namespace Lina
 
 	GUIWidget::~GUIWidget()
 	{
+		m_loadedStream.Destroy();
 	}
 
 	void GUIWidget::LoadFromFile(const char* path)
@@ -58,10 +59,27 @@ namespace Lina
 
 	void GUIWidget::LoadFromStream(IStream& stream)
 	{
-		m_root.LoadFromStream(stream);
+		m_loadedStream.Create(stream.GetDataRaw(), stream.GetSize());
+		m_root.LoadFromStream(m_loadedStream);
+		m_loadedStream.Seek(0);
 	}
 
 	void GUIWidget::BatchLoaded()
 	{
 	}
+
+	void GUIWidget::UpdateBlob()
+	{
+		m_loadedStream.Destroy();
+		OStream stream;
+		m_root.SaveToStream(stream);
+		m_loadedStream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
+		stream.Destroy();
+	}
+
+	void GUIWidget::ClearRoot()
+	{
+		m_root.RemoveAllChildren();
+	}
+
 } // namespace Lina

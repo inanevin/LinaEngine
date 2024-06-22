@@ -54,11 +54,14 @@ namespace Lina
 			}
 		}
 
-		for (auto& [tid, cache] : m_componentCaches)
+		for (auto [tid, cache] : m_componentCaches)
 			delete cache;
 
 		m_entities.Clear();
 		m_componentCaches.clear();
+
+		if (m_renderer != nullptr)
+			delete m_renderer;
 	}
 
 	Entity* EntityWorld::GetEntity(uint32 id)
@@ -76,6 +79,11 @@ namespace Lina
 	{
 		auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [sid](Entity* e) { return e != nullptr && e->GetSID() == sid; });
 		return *it;
+	}
+
+	void EntityWorld::InitializeRenderer(const Vector2ui& viewSize)
+	{
+		m_renderer = new WorldRenderer(m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager), this, viewSize);
 	}
 
 	void EntityWorld::CopyFrom(EntityWorld& world)
@@ -153,7 +161,11 @@ namespace Lina
 		{
 			cache->PreTick();
 		}
+
+		if (m_renderer != nullptr)
+			m_renderer->PreTick();
 	}
+
 	void EntityWorld::Tick(float deltaTime)
 	{
 		for (const auto& [tid, cache] : m_componentCaches)
@@ -165,6 +177,9 @@ namespace Lina
 		{
 			cache->PostTick(deltaTime);
 		}
+
+		if (m_renderer != nullptr)
+			m_renderer->Tick(deltaTime);
 	}
 
 	void EntityWorld::WaitForSimulation()
@@ -213,10 +228,14 @@ namespace Lina
 		stream.Destroy();
 	}
 
-	void EntityWorld::ProcessComponent(Component* c)
+	void EntityWorld::ProcessComponent(Component* c, Entity* e)
 	{
-		c->m_input = &m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX()->GetInput();
-		c->m_world = this;
+		c->m_input			 = &m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX()->GetInput();
+		c->m_world			 = this;
+		c->m_resourceManager = m_resourceManager;
+		c->m_entityID		 = e->GetID();
+		c->m_entity			 = e;
+		c->Create();
 	}
 
 	void EntityWorld::LoadFromStream(IStream& stream)
@@ -277,10 +296,12 @@ namespace Lina
 	{
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
 	}
+
 	Vector2ui EntityWorld::GetRenderSize() const
 	{
-		return m_renderer->GetSize();
+		return m_renderer != nullptr ? m_renderer->GetSize() : Vector2ui::Zero;
 	}
+
 	void EntityWorld::GfxSettings::SaveToStream(OStream& stream) const
 	{
 	}

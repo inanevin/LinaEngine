@@ -89,4 +89,7 @@ namespace Lina::Editor
 		bool		 m_canCloseTabs = true;
 	};
 
+	LINA_REFLECTWIDGET_BEGIN(TabRow)
+	LINA_REFLECTWIDGET_END(TabRow)
+
 } // namespace Lina::Editor

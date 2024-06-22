@@ -51,6 +51,22 @@ namespace Lina
 			float	 outlineThickness = 0.0f;
 			Texture* imageTexture	  = 0;
 			bool	 fitImage		  = false;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorStart.SaveToStream(stream);
+				colorEnd.SaveToStream(stream);
+				colorOutline.SaveToStream(stream);
+				stream << rounding << outlineThickness << fitImage;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorStart.LoadFromStream(stream);
+				colorEnd.LoadFromStream(stream);
+				colorOutline.LoadFromStream(stream);
+				stream >> rounding >> outlineThickness >> fitImage;
+			}
 		};
 
 		virtual void Draw() override;
@@ -60,9 +76,24 @@ namespace Lina
 			return m_props;
 		}
 
+		inline virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		inline virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
+
 	private:
 		Properties m_props	   = {};
 		Color	   m_usedColor = Theme::GetDef().background0;
 	};
+
+	LINA_REFLECTWIDGET_BEGIN(ShapeRect)
+	LINA_REFLECTWIDGET_END(ShapeRect)
 
 } // namespace Lina

@@ -39,9 +39,11 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
+
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor

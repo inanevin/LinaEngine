@@ -50,7 +50,7 @@ namespace Lina::Editor
 		if (!m_world)
 			return;
 
-		m_worldRenderer = m_wm->GetWorldRenderer(m_world);
+		m_worldRenderer = m_world->GetRenderer();
 
 		const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
 		m_wm->ResizeWorldTexture(m_world, size);
