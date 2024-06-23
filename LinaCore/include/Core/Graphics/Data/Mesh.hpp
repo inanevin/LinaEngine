@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Common/Data/String.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Common/Math/AABB.hpp"
 #include "Vertex.hpp"
 #include "Primitive.hpp"
 
@@ -52,6 +53,7 @@ namespace Lina
 		void LoadFromStream(IStream& stream);
 
 		void Draw(LinaGX::CommandStream* stream, uint32 instances);
+		void Bind(LinaGX::CommandStream* stream);
 
 		inline uint32 GetVertexOffset() const
 		{
@@ -68,11 +70,24 @@ namespace Lina
 			return static_cast<uint32>(m_indices16.size());
 		}
 
+		inline const AABB& GetAABB() const
+		{
+			return m_localAABB;
+		}
+
+		inline const String& GetName() const
+		{
+			return m_name;
+		}
+
 	private:
 		friend class Model;
 		friend class ModelNode;
 		friend class MeshManager;
 
+		void GenerateBuffers(GfxManager* gfxMan);
+
+	private:
 		Vector<PrimitiveDefault> m_primitives;
 		Vector<VertexDefault>	 m_vertices;
 		Vector<uint16>			 m_indices16;
@@ -80,8 +95,12 @@ namespace Lina
 		String					 m_name			= "";
 		uint32					 m_vertexOffset = 0;
 		uint32					 m_indexOffset	= 0;
+		AABB					 m_localAABB;
 
 		GfxManager* m_gfxManager = nullptr;
+		Buffer		m_vertexBuffer;
+		Buffer		m_indexBuffer;
+		bool		m_ownsBuffers = false;
 	};
 
 } // namespace Lina

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Components/RenderableComponent.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
+#include "Common/Math/AABB.hpp"
 
 namespace Lina
 {
@@ -39,6 +40,8 @@ namespace Lina
 	class MeshComponent : public RenderableComponent
 	{
 	public:
+		virtual void Create() override;
+		virtual void Destroy() override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 
@@ -65,6 +68,7 @@ namespace Lina
 		ResRef<Material> m_material;
 		MeshDefault*	 m_mesh		 = nullptr;
 		uint32			 m_meshIndex = 0;
+		AABB			 m_usedLocalAABB;
 	};
 
 	// LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")

@@ -67,7 +67,7 @@ namespace Lina
 
 	public:
 		uint32					 GetSamplerSID() const;
-		void					 CreateCPU(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
+		void					 CreateFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
 		void					 CreateGPUOnly(const LinaGX::TextureDesc& desc);
 		Vector<TextureSheetItem> GetSheetItems(uint32 columns, uint32 rows);
 		Vector2ui				 GetSize();
@@ -98,17 +98,18 @@ namespace Lina
 			return m_meta;
 		}
 
+		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromStream(IStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void Upload() override;
+		void		 DestroyExistingData();
+
 	private:
 		FRIEND_RESOURCE_CACHE();
 		Texture(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Texture>()){};
 		virtual ~Texture();
 
 	protected:
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void Upload() override;
-
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);

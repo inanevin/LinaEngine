@@ -35,6 +35,15 @@ SOFTWARE.
 
 namespace Lina
 {
+	void Entity::AddAABB(const AABB& aabb)
+	{
+		m_totalAABB.boundsMax = m_totalAABB.boundsMax.Max(aabb.boundsMax);
+		m_totalAABB.boundsMin = m_totalAABB.boundsMin.Min(aabb.boundsMin);
+	}
+
+	void Entity::RemoveAABB(const AABB& aabb)
+	{
+	}
 	void Entity::AddChild(Entity* e)
 	{
 		e->RemoveFromParent();

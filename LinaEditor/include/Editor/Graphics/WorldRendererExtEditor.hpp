@@ -60,7 +60,6 @@ namespace Lina::Editor
 	{
 		Vector3 position;
 		Vector3 nextPosition;
-		Vector2 uv;
 		Vector4 color;
 		float	direction = 0.0f;
 	};

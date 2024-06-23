@@ -38,12 +38,12 @@ namespace Lina
 	class WorldRenderer;
 	class ResourceManager;
 
-    class WorldManagerListener
-    {
-    public:
-        virtual void OnWorldInstalled(EntityWorld* world) {};
-        virtual void OnWorldUninstalling(EntityWorld* world) {};
-    };
+	class WorldManagerListener
+	{
+	public:
+		virtual void OnWorldInstalled(EntityWorld* world){};
+		virtual void OnWorldUninstalling(EntityWorld* world){};
+	};
 
 	class WorldManager : public Subsystem
 	{
@@ -54,23 +54,24 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
-		void InstallWorld(const String& path);
-		void ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize);
-		void SaveEmptyWorld(const String& absolutePath);
-		void InstallLevel(const char* level);
-		void UninstallLevel(bool immediate);
-		void PreTick() override;
-		void Tick(float deltaTime);
-        
-        inline void AddListener(WorldManagerListener* listener)
-        {
-            m_listeners.push_back(listener);
-        }
-        
-        inline void RemoveListener(WorldManagerListener* listener)
-        {
-            m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](WorldManagerListener* list) -> bool {return list == listener;}));
-        }
+		EntityWorld* CreateEmptyWorld();
+		void		 InstallWorld(const String& path);
+		void		 ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize);
+		void		 SaveEmptyWorld(const String& absolutePath);
+		void		 InstallLevel(const char* level);
+		void		 UninstallLevel(bool immediate);
+		void		 PreTick() override;
+		void		 Tick(float deltaTime);
+
+		inline void AddListener(WorldManagerListener* listener)
+		{
+			m_listeners.push_back(listener);
+		}
+
+		inline void RemoveListener(WorldManagerListener* listener)
+		{
+			m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](WorldManagerListener* list) -> bool { return list == listener; }));
+		}
 
 		inline EntityWorld* GetMainWorld() const
 		{
@@ -91,11 +92,11 @@ namespace Lina
 		void UninstallMainWorld();
 
 	private:
-		ResourceManager*	   m_rm			  = nullptr;
-		GfxManager*			   m_gfxManager	  = nullptr;
-		EntityWorld*		   m_mainWorld	  = nullptr;
-		Vector<EntityWorld*>   m_activeWorlds = {};
-		Vector<WorldRenderer*> m_worldRenderers;
-        Vector<WorldManagerListener*> m_listeners;
+		ResourceManager*			  m_rm			 = nullptr;
+		GfxManager*					  m_gfxManager	 = nullptr;
+		EntityWorld*				  m_mainWorld	 = nullptr;
+		Vector<EntityWorld*>		  m_activeWorlds = {};
+		Vector<WorldRenderer*>		  m_worldRenderers;
+		Vector<WorldManagerListener*> m_listeners;
 	};
 } // namespace Lina

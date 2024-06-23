@@ -34,6 +34,15 @@ SOFTWARE.
 
 namespace Lina
 {
+	void MeshComponent::Create()
+	{
+	}
+
+	void MeshComponent::Destroy()
+	{
+		m_entity->RemoveAABB(m_usedLocalAABB);
+	}
+
 	void MeshComponent::SaveToStream(OStream& stream) const
 	{
 		m_model.SaveToStream(stream);
@@ -50,10 +59,13 @@ namespace Lina
 
 	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)
 	{
-		m_model.sid = sid;
-		m_model.raw = m_resourceManager->GetResource<Model>(m_model.sid);
-		m_meshIndex = meshIndex;
-		m_mesh		= m_model.raw->GetMesh(m_meshIndex);
+		m_entity->RemoveAABB(m_usedLocalAABB);
+		m_model.sid		= sid;
+		m_model.raw		= m_resourceManager->GetResource<Model>(m_model.sid);
+		m_meshIndex		= meshIndex;
+		m_mesh			= m_model.raw->GetMesh(m_meshIndex);
+		m_usedLocalAABB = m_mesh->GetAABB();
+		m_entity->AddAABB(m_usedLocalAABB);
 	}
 
 	void MeshComponent::SetMaterial(StringID sid)

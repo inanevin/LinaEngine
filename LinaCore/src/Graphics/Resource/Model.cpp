@@ -40,8 +40,15 @@ namespace Lina
 {
 	Model::~Model()
 	{
+		auto* gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
 		for (auto* n : m_rootNodes)
+		{
+			if (n->m_mesh)
+				gfxMan->GetMeshManager().RemoveMesh(n->m_mesh);
+
 			delete n;
+		}
 		m_rootNodes.clear();
 	}
 
@@ -72,10 +79,16 @@ namespace Lina
 			m->m_node	 = node;
 			m->m_primitives.resize(lgxMesh->primitives.size());
 
+			Vector3 min = Vector3::Zero;
+			Vector3 max = Vector3::Zero;
+
 			for (size_t i = 0; i < lgxMesh->primitives.size(); i++)
 			{
 				auto* lgxPrim  = lgxMesh->primitives[i];
 				auto& meshPrim = m->m_primitives[i];
+
+				min = min.Min(Vector3(lgxPrim->minPosition.x, lgxPrim->minPosition.y, lgxPrim->minPosition.z));
+				max = max.Max(Vector3(lgxPrim->maxPosition.x, lgxPrim->maxPosition.y, lgxPrim->maxPosition.z));
 
 				meshPrim.m_materialIndex = lgxPrim->material ? lgxPrim->material->index : -1;
 				meshPrim.m_startVertex	 = static_cast<uint32>(m->m_vertices.size());
@@ -85,8 +98,8 @@ namespace Lina
 				{
 					VertexDefault vtx = {};
 					vtx.pos			  = lgxPrim->positions[i];
-					vtx.normal		  = lgxPrim->normals[i];
-					vtx.uv			  = lgxPrim->texCoords[i];
+					vtx.normal		  = lgxPrim->normals.empty() ? Vector3::Zero : lgxPrim->normals[i];
+					vtx.uv			  = lgxPrim->texCoords.empty() ? Vector2::Zero : lgxPrim->texCoords[i];
 					m->m_vertices.push_back(vtx);
 				}
 
@@ -95,6 +108,11 @@ namespace Lina
 				size_t	indicesSize = lgxPrim->indices.size() / 2;
 				m->m_indices16.insert(m->m_indices16.end(), indices, indices + indicesSize);
 			}
+
+			m->m_localAABB		  = AABB(min, max);
+			m_totalAABB.boundsMin = m_totalAABB.boundsMin.Min(min);
+			m_totalAABB.boundsMax = m_totalAABB.boundsMax.Max(max);
+			m_totalAABB.UpdateHalfExtents();
 		}
 
 		for (auto* lgxChild : lgxNode->children)

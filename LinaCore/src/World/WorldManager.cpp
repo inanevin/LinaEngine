@@ -85,26 +85,36 @@ namespace Lina
 		m_gfxManager->MarkBindlessDirty();
 	}
 
+	EntityWorld* WorldManager::CreateEmptyWorld()
+	{
+		EntityWorld* world = new EntityWorld(m_rm, "", 0);
+		world->m_system	   = m_system;
+		world->InitializeRenderer(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
+		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
+		m_activeWorlds.push_back(world);
+		m_worldRenderers.push_back(world->GetRenderer());
+		return world;
+	}
+
 	void WorldManager::InstallWorld(const String& path)
 	{
 		m_gfxManager->Join();
-		auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		if (m_mainWorld)
 			UninstallMainWorld();
 
 		const auto		   sid = TO_SID(path);
 		ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), sid);
-		rm->LoadResources({ident});
-		rm->WaitForAll();
+		m_rm->LoadResources({ident});
+		m_rm->WaitForAll();
 
-		m_mainWorld			  = rm->GetResource<EntityWorld>(sid);
+		m_mainWorld			  = m_rm->GetResource<EntityWorld>(sid);
 		m_mainWorld->m_system = m_system;
 		m_mainWorld->InitializeRenderer(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
 		m_worldRenderers.push_back(m_mainWorld->GetRenderer());
 		m_activeWorlds.push_back(m_mainWorld);
 
-		m_mainWorld->SetSkyMaterial(rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
+		m_mainWorld->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 
 		for (auto* l : m_listeners)
 			l->OnWorldInstalled(m_mainWorld);

@@ -53,7 +53,8 @@ namespace Lina
 
 		void ProcessMaterialData(String& block, Vector<ShaderProperty>& outProperties)
 		{
-			const String materialIdent = "struct LINA_MATERIAL";
+			const String materialIdent	= "struct LINA_MATERIAL";
+			const String materialIdent2 = "layout(set = 2, binding = 0) uniform";
 
 			std::istringstream f(block.c_str());
 			std::string		   line = "";
@@ -79,7 +80,7 @@ namespace Lina
 
 			while (std::getline(f, line))
 			{
-				if (line.find(materialIdent) != String::npos)
+				if (line.find(materialIdent) != String::npos || line.find(materialIdent2) != String::npos)
 				{
 					parsingMaterialStruct = true;
 					continue;

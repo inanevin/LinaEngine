@@ -85,11 +85,12 @@ namespace Lina::Editor
 		void GenerateThumbnailForItem(DirectoryItem* item);
 		void FillPathInformation(DirectoryItem* item, const String& fullAbsPath);
 
-		void GenerateThumbTexture(DirectoryItem* item);
-		void GenerateThumbFont(DirectoryItem* item);
-		void GenerateThumbMaterial(DirectoryItem* item);
-		void GenerateThumbShader(DirectoryItem* item);
-		void GenerateThumbModel(DirectoryItem* item);
+		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbShader(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbWorld(DirectoryItem* item, const String& thumbPath);
 
 	private:
 		String				m_projectDirectory = "";

@@ -27,8 +27,16 @@ SOFTWARE.
 */
 
 #include "Core/Resources/Resource.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina
 {
+	void Resource::SaveToFileAsBinary(const String& path)
+	{
+		OStream stream;
+		SaveToStream(stream);
+		Serialization::SaveToFile(path.c_str(), stream);
+		stream.Destroy();
+	}
 
 } // namespace Lina

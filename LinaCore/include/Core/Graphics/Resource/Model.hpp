@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/Resources/Resource.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Common/Math/AABB.hpp"
 #include "Core/Graphics/Data/ModelMaterial.hpp"
 
 namespace LinaGX
@@ -57,6 +58,16 @@ namespace Lina
 			return m_meshes.at(index);
 		}
 
+		inline const Vector<MeshDefault*>& GetMeshes() const
+		{
+			return m_meshes;
+		}
+
+		inline const AABB& GetAABB() const
+		{
+			return m_totalAABB;
+		}
+
 	private:
 		FRIEND_RESOURCE_CACHE();
 		Model(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Model>()){};
@@ -76,6 +87,7 @@ namespace Lina
 		Vector<MeshDefault*>  m_meshes;
 		Vector<ModelNode*>	  m_rootNodes;
 		Vector<ModelMaterial> m_materials;
+		AABB				  m_totalAABB;
 	};
 
 } // namespace Lina

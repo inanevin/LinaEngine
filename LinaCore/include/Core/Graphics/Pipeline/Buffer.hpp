@@ -71,6 +71,11 @@ namespace Lina
 		{
 			return m_mapped;
 		}
+        
+        inline uint32 GetSize() const
+        {
+            return m_size;
+        }
 
 	private:
 		static uint64 s_usedCPUVisibleGPUMemory;

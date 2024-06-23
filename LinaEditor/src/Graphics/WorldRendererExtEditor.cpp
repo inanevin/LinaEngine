@@ -47,8 +47,8 @@ namespace Lina::Editor
 		{
 			auto&		 data = m_pfd[i];
 			const String istr = TO_STRING(i);
-			data.vertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, 100 * sizeof(LineVertex), "EditorExt: Vertex");
-			data.indexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, 100 * sizeof(uint16), "EditorExt: Index");
+			data.vertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, 300 * sizeof(LineVertex), "EditorExt: Vertex");
+			data.indexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, 300 * sizeof(uint16), "EditorExt: Index");
 		}
 	}
 
@@ -71,37 +71,57 @@ namespace Lina::Editor
 	{
 		void DrawLine(BufferBatch& buffers, const Vector3& p1, const Vector3& p2, const Color& startColor = Color::White, const Color& endColor = Color::White)
 		{
-			LineVertex v0, v1, v2, v3;
+			LineVertex v0, v1, v2, v3, v4, v5, v6, v7;
 
 			v0.position		= p1;
 			v0.nextPosition = p2;
-			v0.uv			= Vector2(0, 1);
 			v0.direction	= 1.0f;
 			v0.color		= startColor;
 
 			v1.position		= p1;
 			v1.nextPosition = p2;
-			v1.uv			= Vector2(0, 0);
 			v1.direction	= -1.0f;
 			v1.color		= startColor;
 
+			v4.position		= p1;
+			v4.nextPosition = p2;
+			v4.direction	= 2.0f;
+			v4.color		= Vector4(startColor.x, startColor.y, startColor.z, 0.0f);
+
+			v5.position		= p1;
+			v5.nextPosition = p2;
+			v5.direction	= -2.0f;
+			v5.color		= Vector4(startColor.x, startColor.y, startColor.z, 0.0f);
+
 			v2.position		= p2;
 			v2.nextPosition = p1;
-			v2.uv			= Vector2(1, 1);
 			v2.direction	= -1.0f;
 			v2.color		= endColor;
 
 			v3.position		= p2;
 			v3.nextPosition = p1;
-			v3.uv			= Vector2(1, 0);
 			v3.direction	= 1.0f;
 			v3.color		= endColor;
+
+			v6.position		= p2;
+			v6.nextPosition = p1;
+			v6.direction	= -2.0f;
+			v6.color		= Vector4(endColor.x, endColor.y, endColor.z, 0.0f);
+
+			v7.position		= p2;
+			v7.nextPosition = p1;
+			v7.direction	= 2.0f;
+			v7.color		= Vector4(endColor.x, endColor.y, endColor.z, 0.0f);
 
 			Vector<LineVertex> lines;
 			lines.push_back(v0);
 			lines.push_back(v1);
 			lines.push_back(v2);
 			lines.push_back(v3);
+			lines.push_back(v4);
+			lines.push_back(v5);
+			lines.push_back(v6);
+			lines.push_back(v7);
 
 			Vector<uint16> indices;
 			indices.push_back(buffers.vtxCount + 0);
@@ -112,10 +132,26 @@ namespace Lina::Editor
 			indices.push_back(buffers.vtxCount + 2);
 			indices.push_back(buffers.vtxCount + 3);
 
+			indices.push_back(buffers.vtxCount + 4);
+			indices.push_back(buffers.vtxCount + 6);
+			indices.push_back(buffers.vtxCount + 0);
+
+			indices.push_back(buffers.vtxCount + 0);
+			indices.push_back(buffers.vtxCount + 6);
+			indices.push_back(buffers.vtxCount + 2);
+
+			indices.push_back(buffers.vtxCount + 1);
+			indices.push_back(buffers.vtxCount + 3);
+			indices.push_back(buffers.vtxCount + 5);
+
+			indices.push_back(buffers.vtxCount + 5);
+			indices.push_back(buffers.vtxCount + 3);
+			indices.push_back(buffers.vtxCount + 7);
+
 			buffers.vtxBuffer->BufferData(sizeof(LineVertex) * buffers.vtxCount, (uint8*)lines.data(), sizeof(LineVertex) * lines.size());
 			buffers.idxBuffer->BufferData(sizeof(uint16) * buffers.idxCount, (uint8*)indices.data(), sizeof(uint16) * indices.size());
-			buffers.vtxCount += 4;
-			buffers.idxCount += 6;
+			buffers.vtxCount += 8;
+			buffers.idxCount += 18;
 		}
 	} // namespace
 
@@ -159,7 +195,7 @@ namespace Lina::Editor
 
 		m_shaderLines->Bind(stream, m_shaderLines->GetGPUHandle());
 		LinaGX::CMDDrawIndexedInstanced* draw = stream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
-		draw->indexCountPerInstance			  = 72;
+		draw->indexCountPerInstance			  = 216;
 		draw->instanceCount					  = 1;
 	}
 

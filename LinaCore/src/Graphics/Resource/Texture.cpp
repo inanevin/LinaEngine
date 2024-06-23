@@ -81,7 +81,26 @@ namespace Lina
 		m_size			  = Vector2ui(desc.width, desc.height);
 	}
 
-	void Texture::CreateCPU(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
+	void Texture::DestroyExistingData()
+	{
+		if (!m_gpuHandleExists)
+			return;
+
+		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		gfxManager->GetLGX()->Join();
+		gfxManager->GetLGX()->DestroyTexture(m_gpuHandle);
+
+		for (auto& b : m_allLevels)
+		{
+			delete[] b.pixels;
+			b.pixels = nullptr;
+		}
+
+		m_allLevels.clear();
+		m_gpuHandleExists = false;
+	}
+
+	void Texture::CreateFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
 	{
 		if (m_owner != ResourceOwner::UserCode)
 		{
@@ -91,31 +110,13 @@ namespace Lina
 
 		m_size = Vector2ui(width, height);
 
-		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
-		// Means we are refreshing data.
-		if (!m_allLevels.empty() || m_gpuHandleExists)
-		{
-			gfxManager->GetLGX()->Join();
-			gfxManager->GetLGX()->DestroyTexture(m_gpuHandle);
-
-			for (auto& b : m_allLevels)
-			{
-				delete[] b.pixels;
-				b.pixels = nullptr;
-			}
-
-			m_allLevels.clear();
-		}
-
-		m_gpuHandleExists = false;
+		DestroyExistingData();
 
 		LinaGX::TextureBuffer level0 = {
 			.width		   = width,
 			.height		   = height,
 			.bytesPerPixel = bytesPerPixel,
 		};
-
 		m_meta.channelMask = channelMask;
 		m_bytesPerPixel	   = bytesPerPixel;
 
@@ -176,6 +177,8 @@ namespace Lina
 
 	void Texture::LoadFromFile(const char* path)
 	{
+		DestroyExistingData();
+
 		LinaGX::TextureBuffer outBuffer = {};
 		LinaGX::LoadImageFromFile(path, outBuffer, m_meta.channelMask);
 		m_bytesPerPixel = outBuffer.bytesPerPixel;
@@ -198,6 +201,8 @@ namespace Lina
 
 	void Texture::LoadFromStream(IStream& stream)
 	{
+		DestroyExistingData();
+
 		m_meta.LoadFromStream(stream);
 
 		stream >> m_bytesPerPixel;
@@ -260,6 +265,7 @@ namespace Lina
 
 	void Texture::Upload()
 	{
+		LINA_ASSERT(m_gpuHandleExists == false, "");
 		GenerateGPU();
 		AddToUploadQueue();
 	}

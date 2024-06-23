@@ -30,17 +30,23 @@ SOFTWARE.
 #include "Editor/Editor.hpp"
 #include "Editor/Meta/ProjectData.hpp"
 #include "Common/System/System.hpp"
-#include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/GfxManager.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/FileSystem/FileWatcher.hpp"
 #include "Common/System/System.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/Math/Math.hpp"
+#include "Common/Serialization/Serialization.hpp"
+#include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/Math/Math.hpp"
+#include "Core/Graphics/Data/Mesh.hpp"
+#include "Core/Graphics/Resource/Mesh.hpp"
+#include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/Components/MeshComponent.hpp"
+#include "Core/Components/CameraComponent.hpp"
+
 #include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor
@@ -199,29 +205,46 @@ namespace Lina::Editor
 			item->thumbnail = nullptr;
 		}
 
-		const String thumbnailPath = "ResourceThumbnail_" + TO_STRING(item->sid);
+		const String   thumbnailPath	 = "ResourceThumbnail_" + TO_STRING(item->sid);
+		const StringID sid				 = TO_SID(thumbnailPath);
+		const String   thumbnailFullPath = ResourceManager::GetMetacachePath(m_editor, thumbnailPath, sid);
+
+		if (FileSystem::FileOrPathExists(thumbnailFullPath))
+		{
+			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, sid);
+			IStream input	= Serialization::LoadFromFile(thumbnailFullPath.c_str());
+			item->thumbnail->LoadFromStream(input);
+			item->thumbnail->Upload();
+			input.Destroy();
+			return;
+		}
 
 		if (item->tid == GetTypeID<Texture>())
 		{
-			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, TO_SID(thumbnailPath));
-			GenerateThumbTexture(item);
+			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, sid);
+			GenerateThumbTexture(item, thumbnailFullPath);
 		}
 		else if (item->tid == GetTypeID<Font>())
 		{
-			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, TO_SID(thumbnailPath));
-			GenerateThumbFont(item);
+			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, sid);
+			GenerateThumbFont(item, thumbnailFullPath);
 		}
 		else if (item->tid == GetTypeID<Model>())
 		{
-			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, TO_SID(thumbnailPath));
-			GenerateThumbModel(item);
+			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, sid);
+			GenerateThumbModel(item, thumbnailFullPath);
+		}
+		else if (item->tid == GetTypeID<EntityWorld>())
+		{
+			item->thumbnail = rm->CreateUserResource<Texture>(thumbnailPath, sid);
+			GenerateThumbWorld(item, thumbnailFullPath);
 		}
 	}
 
-	void FileManager::GenerateThumbTexture(DirectoryItem* item)
+	void FileManager::GenerateThumbTexture(DirectoryItem* item, const String& thumbPath)
 	{
 		Taskflow tf;
-		tf.emplace([item]() {
+		tf.emplace([item, thumbPath]() {
 			LinaGX::TextureBuffer image;
 			LinaGX::LoadImageFromFile(item->absolutePath.c_str(), image);
 
@@ -248,8 +271,10 @@ namespace Lina::Editor
 
 				if (LinaGX::ResizeBuffer(image, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, LinaGX::ImageChannelMask::RGBA, true))
 				{
-					item->thumbnail->CreateCPU(
+					item->thumbnail->CreateFromBuffer(
 						resizedBuffer.pixels, resizedBuffer.width, resizedBuffer.height, resizedBuffer.bytesPerPixel, LinaGX::ImageChannelMask::RGBA, image.bytesPerPixel == 4 ? LinaGX::Format::R8G8B8A8_SRGB : LinaGX::Format::R16G16B16A16_UNORM);
+
+					item->thumbnail->SaveToFileAsBinary(thumbPath);
 					delete[] resizedBuffer.pixels;
 				}
 				else
@@ -268,7 +293,7 @@ namespace Lina::Editor
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
 	}
 
-	void FileManager::GenerateThumbFont(DirectoryItem* item)
+	void FileManager::GenerateThumbFont(DirectoryItem* item, const String& thumbPath)
 	{
 		Taskflow tf;
 
@@ -316,7 +341,7 @@ namespace Lina::Editor
 			return buffer;
 		};
 
-		tf.emplace([item, loadGlyph, this]() {
+		tf.emplace([item, loadGlyph, this, thumbPath]() {
 			FT_Face face;
 			if (FT_New_Face(LinaVG::Text::g_textData.m_ftlib, item->absolutePath.c_str(), 0, &face))
 			{
@@ -381,7 +406,8 @@ namespace Lina::Editor
 				const uint32 startY2 = RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH2 / 2);
 				LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer2, startX2, startY2);
 
-				item->thumbnail->CreateCPU(thumbnailBuffer.pixels, thumbnailBuffer.width, thumbnailBuffer.height, thumbnailBuffer.bytesPerPixel, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM);
+				item->thumbnail->CreateFromBuffer(thumbnailBuffer.pixels, thumbnailBuffer.width, thumbnailBuffer.height, thumbnailBuffer.bytesPerPixel, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM);
+				item->thumbnail->SaveToFileAsBinary(thumbPath);
 
 				delete[] thumbnailBuffer.pixels;
 			}
@@ -400,7 +426,7 @@ namespace Lina::Editor
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
 	}
 
-	void FileManager::GenerateThumbMaterial(DirectoryItem* item)
+	void FileManager::GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath)
 	{
 
 		Taskflow tf;
@@ -429,19 +455,54 @@ namespace Lina::Editor
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
 	}
 
-	void FileManager::GenerateThumbModel(DirectoryItem* item)
+	void FileManager::GenerateThumbModel(DirectoryItem* item, const String& thumbPath)
+	{
+		auto* rm  = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		auto* gfx = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+
+		ResourceIdentifier ident;
+		ident.path = item->absolutePath;
+		ident.sid  = TO_SID(item->absolutePath);
+		ident.tid  = item->tid;
+		rm->LoadResources({ident});
+		rm->WaitForAll();
+
+		Model* model = rm->GetResource<Model>(ident.sid);
+
+		const AABB& aabb = model->GetAABB();
+
+		auto*		 wm	   = m_editor->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		EntityWorld* world = wm->CreateEmptyWorld();
+
+		Entity* cameraEntity = world->CreateEntity("Camera");
+		cameraEntity->SetPosition(Vector3(0, 2, -aabb.boundsHalfExtents.z * 4));
+		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
+		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
+		world->SetActiveCamera(camera);
+
+		const auto& meshes = model->GetMeshes();
+
+		uint32 idx = 0;
+		for (auto* mesh : meshes)
+		{
+			Entity*		   entity = world->CreateEntity(mesh->GetName());
+			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
+			m->SetMesh("Resources/Core/Models/Duck.glb"_hs, idx);
+			m->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+			idx++;
+		}
+	}
+
+	void FileManager::GenerateThumbShader(DirectoryItem* item, const String& thumbPath)
 	{
 		Taskflow tf;
-		tf.emplace([this]() {
-			// EntityWorld* world = new EntityWorld();
-			// auto* gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-			// gfxManager->CreateWorldRenderer(world, Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
-			// LINA_TRACE("HADI BAKALIM");
+		tf.emplace([]() {
+
 		});
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
 	}
 
-	void FileManager::GenerateThumbShader(DirectoryItem* item)
+	void FileManager::GenerateThumbWorld(DirectoryItem* item, const String& thumbPath)
 	{
 		Taskflow tf;
 		tf.emplace([]() {

@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef AABB_HPP
-#define AABB_HPP
-
 // Headers here.
 #include "Common/Math/Vector.hpp"
 #include "Common/Data/Vector.hpp"
@@ -63,6 +60,11 @@ namespace Lina
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
 
+		inline void UpdateHalfExtents()
+		{
+			boundsHalfExtents = (boundsMax - boundsMin) / 2.0f;
+		}
+
 		Vector3			boundsHalfExtents = Vector3::Zero;
 		Vector3			boundsMin		  = Vector3::Zero;
 		Vector3			boundsMax		  = Vector3::Zero;
@@ -71,5 +73,3 @@ namespace Lina
 	private:
 	};
 } // namespace Lina
-
-#endif

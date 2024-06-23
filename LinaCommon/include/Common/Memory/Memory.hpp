@@ -36,10 +36,11 @@ SOFTWARE.
 
 namespace Lina
 {
-#define MEMCPY(...) memcpy(__VA_ARGS__)
-#define MEMSET(...) memset(__VA_ARGS__)
-#define MALLOC(...) malloc(__VA_ARGS__)
-#define FREE(...)	free(__VA_ARGS__)
+#define MEMCPY(...)	 memcpy(__VA_ARGS__)
+#define MEMMOVE(...) memmove(__VA_ARGS__)
+#define MEMSET(...)	 memset(__VA_ARGS__)
+#define MALLOC(...)	 malloc(__VA_ARGS__)
+#define FREE(...)	 free(__VA_ARGS__)
 
 #define LINA_GLOBALLOC_INITIAL_SIZE 1024 * 1024 * 10
 	// #define LINA_GLOBALLOC_INITIAL_SIZE 30

@@ -43,10 +43,11 @@ namespace Lina
 
 	struct MeshBuffer
 	{
-		Buffer vertexBuffer;
-		Buffer indexBuffer;
-		size_t startVertex = 0;
-		size_t startIndex  = 0;
+		Buffer				 vertexBuffer;
+		Buffer				 indexBuffer;
+		size_t				 startVertex = 0;
+		size_t				 startIndex	 = 0;
+		Vector<MeshDefault*> meshes;
 	};
 
 	class MeshManager
@@ -60,6 +61,7 @@ namespace Lina
 
 		void BindBuffers(LinaGX::CommandStream* stream, uint32 bufferIndex);
 		void AddMesh(MeshDefault* mesh);
+		void RemoveMesh(MeshDefault* mesh);
 
 	private:
 		static constexpr size_t MESH_BUF_SIZE = 1;
