@@ -156,11 +156,11 @@ namespace Lina
 		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;
 
 		String		 txt		 = FileSystem::ReadFileContentsAsString(path);
-		const String includePath = FileSystem::GetFilePath(path);
+		const String includePath = FileSystem::GetRunningDirectory();
 
 		HashMap<LinaGX::ShaderStage, String> outStages;
 
-		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_meta.renderPassDescriptorType, m_properties);
+		bool success = ShaderPreprocessor::Preprocess(txt, outStages, m_properties);
 		if (!success)
 			return;
 
@@ -305,7 +305,7 @@ namespace Lina
 				.polygonMode			 = LinaGX::PolygonMode::Fill,
 				.cullMode				 = variant.cullMode,
 				.frontFace				 = variant.frontFace,
-				.topology				 = LinaGX::Topology::TriangleList,
+				.topology				 = variant.topology,
 				.depthBiasEnable		 = variant.depthBiasEnable,
 				.depthBiasConstant		 = variant.depthBiasConstant,
 				.depthBiasClamp			 = variant.depthBiasClamp,

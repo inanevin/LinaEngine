@@ -29,7 +29,7 @@ SOFTWARE.
 #lina_vs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_gui.linashader"
 
 layout (location = 0) in vec3 pos;
 layout (location = 1) in vec2 uv;
@@ -41,27 +41,10 @@ layout (location = 2) flat out uint outDrawID;
 
 void main()
 {
-
-// vulkan and metal = gl_InstanceIndex equals to startInstance + instanceID
-// dx12 = LGX_DRAW_ID is the startInstance, gl_InstanceIndex will be the instance ID
-#ifdef LGX_COMPILE_HLSL
-   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
-#else
-   int argBufferIndex = gl_InstanceIndex;
-#endif  
-
-   IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
-   uint entityID = argBuffer.entityID;
-   Object object = LINA_OBJECTS.data[entityID];
-
-    outCol = col;
-    outUV = uv;
-    outDrawID = argBufferIndex;
-
-    GUIMaterialData material = LINA_GUI_MATERIALS.data[outDrawID];
-
-    vec3 worldPos = vec3(object.modelMatrix * vec4(pos.x , pos.y, pos.z, 1.0));
-    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
+   outCol = col;
+   outUV = uv;
+   outDrawID = LGX_DRAW_ID;
+   gl_Position = LINA_VIEW.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
 }
 
 #lina_end
@@ -69,7 +52,7 @@ void main()
 #lina_fs
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_gui.linashader"
 #include "Resources/Core/Shaders/GUI/GUI_frag.linashader"
 
 #lina_end

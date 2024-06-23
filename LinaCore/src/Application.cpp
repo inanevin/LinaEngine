@@ -125,7 +125,7 @@ namespace Lina
 				.depthTest	  = false,
 				.depthWrite	  = false,
 				.depthFormat  = LinaGX::Format::UNDEFINED,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT_HDR}},
+				.targets	  = {{.format = DEFAULT_RT_FORMAT}},
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CCW,
 			};
@@ -161,7 +161,7 @@ namespace Lina
 				.blendAlphaOp		 = LinaGX::BlendOp::Add,
 				.depthTest			 = true,
 				.depthWrite			 = true,
-				.targets			 = {{.format = DEFAULT_RT_FORMAT_HDR}},
+				.targets			 = {{.format = DEFAULT_RT_FORMAT}},
 				.cullMode			 = LinaGX::CullMode::None,
 				.frontFace			 = LinaGX::FrontFace::CCW,
 			};
@@ -180,7 +180,7 @@ namespace Lina
 				.blendDisable = true,
 				.depthTest	  = true,
 				.depthWrite	  = true,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT_HDR}, {.format = DEFAULT_RT_FORMAT_HDR}, {.format = DEFAULT_RT_FORMAT_HDR}},
+				.targets	  = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
 				.cullMode	  = LinaGX::CullMode::Back,
 				.frontFace	  = LinaGX::FrontFace::CW,
 			};
@@ -200,7 +200,7 @@ namespace Lina
 				.blendDisable = false,
 				.depthTest	  = false,
 				.depthWrite	  = false,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT_HDR}},
+				.targets	  = {{.format = DEFAULT_RT_FORMAT}},
 				.cullMode	  = LinaGX::CullMode::None,
 				.frontFace	  = LinaGX::FrontFace::CW,
 			};
@@ -219,7 +219,7 @@ namespace Lina
 				.blendDisable	   = true,
 				.depthTest		   = true,
 				.depthWrite		   = false,
-				.targets		   = {{.format = DEFAULT_RT_FORMAT_HDR}},
+				.targets		   = {{.format = DEFAULT_RT_FORMAT}},
 				.depthOp		   = LinaGX::CompareOp::Equal,
 				.cullMode		   = LinaGX::CullMode::Back,
 				.frontFace		   = LinaGX::FrontFace::CW,

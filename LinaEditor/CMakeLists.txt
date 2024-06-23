@@ -26,6 +26,9 @@ include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
 
+# Graphics
+include/Editor/Graphics/WorldRendererExtEditor.hpp
+
 # IO
 include/Editor/IO/FileManager.hpp
 
@@ -67,6 +70,9 @@ set(SOURCES
 src/CommonEditor.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
+
+# Graphics
+src/Graphics/WorldRendererExtEditor.cpp
 
 # IO
 src/IO/FileManager.cpp

@@ -28,6 +28,9 @@ SOFTWARE.
 
 #lina_vs
 
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_main.linashader"
+
 layout (location = 0) in vec3 inPos;
 layout (location = 1) in vec3 inNormal;
 layout (location = 2) in vec2 inUV;
@@ -36,6 +39,7 @@ layout (location = 0) out vec3 outWorldPos;
 layout (location = 1) out vec3 outNormal;
 layout (location = 2) out vec2 outUV;
 layout (location = 3) flat out uint outMaterialBytePadding;
+
 
 void main()
 {
@@ -60,6 +64,9 @@ void main()
 #lina_end
 
 #lina_fs
+
+#include "Resources/Core/Shaders/Common/GlobalData.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_main.linashader"
 
 layout (location = 0) in vec3 inWorldPos;
 layout (location = 1) in vec3 inNormal;

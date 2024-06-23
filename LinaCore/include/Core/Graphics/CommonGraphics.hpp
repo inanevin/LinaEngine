@@ -38,8 +38,8 @@ namespace Lina
 #define GUI_TEXTURE_COLORWHEEL	   UINT32_MAX - 3
 #define GUI_IS_SINGLE_CHANNEL	   2.0f
 
-#define DEFAULT_SHADER_GUI_PATH "Resources/Core/Shaders/GUI/GUI.linashader"
-#define DEFAULT_SHADER_GUI_SID	"Resources/Core/Shaders/GUI/GUI.linashader"_hs
+#define DEFAULT_SHADER_GUI_PATH "Resources/Core/Shaders/GUI/GUI2D.linashader"
+#define DEFAULT_SHADER_GUI_SID	"Resources/Core/Shaders/GUI/GUI2D.linashader"_hs
 
 #define DEFAULT_SHADER_GUI3D_PATH "Resources/Core/Shaders/GUI/GUI3D.linashader"
 #define DEFAULT_SHADER_GUI3D_SID  "Resources/Core/Shaders/GUI/GUI3D.linashader"_hs

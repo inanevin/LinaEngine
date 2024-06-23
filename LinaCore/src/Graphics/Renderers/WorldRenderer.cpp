@@ -93,6 +93,11 @@ namespace Lina
 
 	WorldRenderer::~WorldRenderer()
 	{
+		for (auto* ext : m_extensions)
+			delete ext;
+
+		m_extensions.clear();
+
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
@@ -109,7 +114,7 @@ namespace Lina
 	void WorldRenderer::CreateSizeRelativeResources()
 	{
 		LinaGX::TextureDesc rtDesc = {
-			.format	   = DEFAULT_RT_FORMAT_HDR,
+			.format	   = DEFAULT_RT_FORMAT,
 			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	   = m_size.x,
 			.height	   = m_size.y,
@@ -117,7 +122,7 @@ namespace Lina
 		};
 
 		LinaGX::TextureDesc rtDescLighting = {
-			.format	   = DEFAULT_RT_FORMAT_HDR,
+			.format	   = DEFAULT_RT_FORMAT,
 			.flags	   = LinaGX::TF_ColorAttachment | LinaGX::TF_Sampled,
 			.width	   = m_size.x,
 			.height	   = m_size.y,
@@ -247,6 +252,8 @@ namespace Lina
 
 	void WorldRenderer::Tick(float delta)
 	{
+		for (auto* ext : m_extensions)
+			ext->Tick(delta);
 	}
 
 	void WorldRenderer::Resize(const Vector2ui& newSize)
@@ -451,6 +458,10 @@ namespace Lina
 		transferExists |= m_lightingPass.CopyBuffers(frameIndex, currentFrame.copyStream);
 		transferExists |= m_mainPass.CopyBuffers(frameIndex, currentFrame.copyStream);
 		transferExists |= m_forwardTransparencyPass.CopyBuffers(frameIndex, currentFrame.copyStream);
+
+		for (auto* ext : m_extensions)
+			transferExists |= ext->CopyBuffers(frameIndex, currentFrame.copyStream);
+
 		for (auto* wc : m_widgetComponents)
 			transferExists |= wc->GetGUIRenderer().CopyVertexIndex(frameIndex, currentFrame.copyStream);
 
@@ -552,7 +563,13 @@ namespace Lina
 			wc->GetGUIRenderer().Render(currentFrame.gfxStream, m_forwardTransparencyPass.GetBuffer(frameIndex, "IndirectBuffer"_hs), frameIndex, wc->GetCanvasSize());
 		}
 
+		for (auto* ext : m_extensions)
+			ext->RenderForward(frameIndex, currentFrame.gfxStream);
+
 		m_forwardTransparencyPass.End(currentFrame.gfxStream);
+
+		for (auto* ext : m_extensions)
+			ext->Render(frameIndex, currentFrame.gfxStream);
 
 		// Barrier to shader read
 		{

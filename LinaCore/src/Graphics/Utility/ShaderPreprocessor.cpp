@@ -200,7 +200,7 @@ namespace Lina
 		}
 	} // namespace
 
-	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, const RenderPassDescriptorType& rpType, Vector<ShaderProperty>& outProperties)
+	bool ShaderPreprocessor::Preprocess(const String& text, HashMap<LinaGX::ShaderStage, String>& outStages, Vector<ShaderProperty>& outProperties)
 	{
 		if (text.find("#version") != String::npos)
 		{
@@ -211,29 +211,6 @@ namespace Lina
 		std::istringstream f(text.c_str());
 		std::string		   line	 = "";
 		bool			   isCmt = false;
-
-		// const String endIdentifier		  = "#lina_end";
-		// while (std::getline(f, line))
-		// {
-		// 	if (!line.empty() && *line.rbegin() == '\r')
-		// 		line.erase(line.end() - 1);
-		// 	const size_t cmtPos = line.find("//");
-		// 	if (cmtPos != std::string::npos && cmtPos == 0)
-		// 		continue;
-		// 	if (line.find("/*") != std::string::npos)
-		// 	{
-		// 		isCmt = true;
-		// 		continue;
-		// 	}
-		// 	if (isCmt)
-		// 	{
-		// 		if (line.find("*/") != std::string::npos)
-		// 			isCmt = false;
-		// 		continue;
-		// 	}
-		// 	// const String lineSqueezed = FileSystem::RemoveWhitespaces(line.c_str());
-		//
-		// }
 
 		HashMap<LinaGX::ShaderStage, String> blockIdentifiers;
 		blockIdentifiers[LinaGX::ShaderStage::Fragment] = "#lina_fs";
@@ -247,20 +224,6 @@ namespace Lina
 			include					 = include.substr(commentsEnd, include.size() - commentsEnd);
 			return include;
 		};
-
-		String rpText = "";
-		if (rpType == RenderPassDescriptorType::Main)
-			rpText = "main";
-		else if (rpType == RenderPassDescriptorType::Gui)
-			rpText = "gui";
-		else if (rpType == RenderPassDescriptorType::Lighting)
-			rpText = "lighting";
-		else if (rpType == RenderPassDescriptorType::ForwardTransparency)
-			rpText = "forwardtransparency";
-
-		const String renderPassPath	   = String("Resources/Core/Shaders/Common/RenderPass_") + rpText + ".linashader";
-		const String globalDataInclude = getInclude("Resources/Core/Shaders/Common/GlobalData.linashader");
-		const String renderPassInclude = getInclude(renderPassPath.c_str());
 
 		const String versionDirective	   = "#version 460 \n";
 		const String dynamicIndexDirective = "#extension GL_EXT_nonuniform_qualifier : enable";
@@ -277,8 +240,6 @@ namespace Lina
 			{
 				block.insert(0, versionDirective);
 				block.insert(versionDirective.size(), dynamicIndexDirective);
-				block.insert(versionDirective.size() + dynamicIndexDirective.size(), globalDataInclude);
-				block.insert(versionDirective.size() + dynamicIndexDirective.size() + globalDataInclude.size(), renderPassInclude);
 				outStages[stage] = block;
 			}
 		}

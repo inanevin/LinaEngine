@@ -51,16 +51,10 @@ namespace Lina
 
 	void WorldManager::Shutdown()
 	{
+		UninstallMainWorld();
+
 		for (auto* w : m_activeWorlds)
 		{
-			if (w == m_mainWorld)
-			{
-				auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-				ResourceIdentifier id(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
-				rm->UnloadResources({id});
-				continue;
-			}
-
 			delete w;
 		}
 
@@ -111,6 +105,9 @@ namespace Lina
 		m_activeWorlds.push_back(m_mainWorld);
 
 		m_mainWorld->SetSkyMaterial(rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
+
+		for (auto* l : m_listeners)
+			l->OnWorldInstalled(m_mainWorld);
 
 		const float lim = 50.0f;
 
@@ -168,11 +165,13 @@ namespace Lina
 
 	void WorldManager::UninstallMainWorld()
 	{
+		for (auto* l : m_listeners)
+			l->OnWorldUninstalling(m_mainWorld);
+
 		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [this](WorldRenderer* r) -> bool { return r == m_mainWorld->GetRenderer(); }));
 		m_activeWorlds.erase(linatl::find_if(m_activeWorlds.begin(), m_activeWorlds.end(), [this](EntityWorld* w) -> bool { return w == m_mainWorld; }));
 
-		auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-
+		auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		ResourceIdentifier ident(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
 		rm->UnloadResources({ident});
 		m_mainWorld = nullptr;

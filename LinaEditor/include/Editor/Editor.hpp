@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/ApplicationDelegate.hpp"
+#include "Core/World/WorldManager.hpp"
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "IO/FileManager.hpp"
@@ -55,6 +56,7 @@ namespace Lina::Editor
 	class EditorRoot;
 	class DockArea;
 	class ProjectData;
+	class WorldRendererExtEditor;
 
 	class EditorPayloadListener
 	{
@@ -76,7 +78,7 @@ namespace Lina::Editor
 		}
 	};
 
-	class Editor : public ApplicationDelegate
+	class Editor : public ApplicationDelegate, public WorldManagerListener
 	{
 	public:
 		struct PayloadRequest
@@ -128,6 +130,9 @@ namespace Lina::Editor
 		void SaveSettings();
 		void RequestExit();
 
+		// World
+		virtual void OnWorldInstalled(EntityWorld* world) override;
+
 		inline void SetIsWorldDirty(bool isDirty)
 		{
 			m_isWorldDirty = isDirty;
@@ -173,6 +178,7 @@ namespace Lina::Editor
 		void CreateEmptyProjectAndOpen(const String& path);
 
 	private:
+		WorldManager*				   m_worldManager		  = nullptr;
 		GfxManager*					   m_gfxManager			  = nullptr;
 		WidgetManager*				   m_primaryWidgetManager = nullptr;
 		ResourceManager*			   m_rm					  = nullptr;

@@ -52,6 +52,23 @@ namespace Lina
 	class Texture;
 	class TextureSampler;
 	class ResourceManager;
+	class WorldRenderer;
+
+	class WorldRendererExtension
+	{
+	public:
+		virtual ~WorldRendererExtension() = default;
+
+	protected:
+		friend class WorldRenderer;
+
+		virtual void Tick(float delta){};
+		virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream){};
+		virtual void Render(uint32 frameIndex, LinaGX::CommandStream* stream){};
+		virtual bool CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* stream){};
+
+		WorldRenderer* m_worldRenderer = nullptr;
+	};
 
 	class WorldRenderer : public EntityWorldListener
 	{
@@ -85,6 +102,17 @@ namespace Lina
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
+
+		inline void AddExtension(WorldRendererExtension* ext)
+		{
+			ext->m_worldRenderer = this;
+			m_extensions.push_back(ext);
+		}
+
+		inline void RemoveExtension(WorldRendererExtension* ext)
+		{
+			m_extensions.erase(linatl::find_if(m_extensions.begin(), m_extensions.end(), [ext](WorldRendererExtension* extension) -> bool { return ext == extension; }));
+		}
 
 		inline const SemaphoreData& GetCopySemaphore(uint32 index) const
 		{
@@ -154,6 +182,7 @@ namespace Lina
 		Shader*										  m_deferredLightingShader = nullptr;
 		Texture*									  m_checkerTexture		   = nullptr;
 		MeshDefault*								  m_skyCube				   = nullptr;
+		Vector<WorldRendererExtension*>				  m_extensions;
 	};
 
 } // namespace Lina

@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Editor/Graphics/WorldRendererExtEditor.hpp"
 
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -109,6 +110,26 @@ namespace Lina::Editor
 			customMeta.SaveToStream(stream);
 			return true;
 		}
+
+		if (sid == "Resources/Editor/Shaders/Lines.linashader"_hs)
+		{
+			Shader::Metadata meta;
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable = false,
+
+				.depthTest	= true,
+				.depthWrite = true,
+				.targets	= {{.format = DEFAULT_RT_FORMAT}},
+				.cullMode	= LinaGX::CullMode::None,
+				.frontFace	= LinaGX::FrontFace::CCW,
+			};
+
+			meta.drawIndirectEnabled		  = true;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::ForwardTransparency;
+			meta.descriptorSetAllocationCount = 1;
+			meta.SaveToStream(stream);
+			return true;
+		}
 		return false;
 	}
 
@@ -126,6 +147,7 @@ namespace Lina::Editor
 		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
 		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
 		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, RF_CORE));
+		resources.push_back(ResourceIdentifier("Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>(), 0, true, RF_CORE));
 
 		for (auto& r : resources)
 			r.sid = TO_SID(r.path);
@@ -145,7 +167,9 @@ namespace Lina::Editor
 
 		m_fileManager.Initialize(this);
 
-		m_gfxManager		   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_gfxManager   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_worldManager = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		m_worldManager->AddListener(this);
 		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
 		m_mainWindow	= m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
@@ -311,6 +335,7 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_worldManager->RemoveListener(this);
 		m_rm->DestroyUserResource(m_gizmoBB);
 		m_fileManager.Shutdown();
 
@@ -566,6 +591,14 @@ namespace Lina::Editor
 	void Editor::CloseWindow(StringID sid)
 	{
 		m_windowCloseRequests.push_back(sid);
+	}
+
+	void Editor::OnWorldInstalled(EntityWorld* world)
+	{
+		auto* wr = world->GetRenderer();
+
+		if (wr != nullptr)
+			wr->AddExtension(new WorldRendererExtEditor());
 	}
 
 } // namespace Lina::Editor

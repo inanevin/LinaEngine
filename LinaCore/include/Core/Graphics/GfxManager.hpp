@@ -88,10 +88,6 @@ namespace Lina
 		LinaGX::Window*	 GetApplicationWindow(StringID sid);
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 		PoolAllocator*	 GetGUIAllocator(TypeID tid, size_t typeSize);
-		WorldRenderer*	 CreateWorldRenderer(EntityWorld* world, const Vector2ui& size);
-		void			 DestroyWorldRenderer(WorldRenderer* renderer);
-		WorldRenderer*	 GetWorldRenderer(EntityWorld* world);
-		void			 DestroyWorldRenderer(EntityWorld* world);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{

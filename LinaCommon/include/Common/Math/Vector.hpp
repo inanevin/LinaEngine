@@ -360,7 +360,7 @@ namespace Lina
 		Vector3 Rotate(const class Quaternion& rotation) const;
 		Vector3 Reflect(const Vector3& normal) const;
 		Vector3 Refract(const Vector3& normal, float indexOfRefraction) const;
-		Vector2 XY()
+		Vector2 XY() const
 		{
 			return Vector2(x, y);
 		}
@@ -567,11 +567,11 @@ namespace Lina
 		Vector4 Rotate(const Vector3& axis, float angle) const;
 		Vector4 Reflect(const Vector4& normal) const;
 		Vector4 Refract(const Vector4& normal, float indexOfRefraction) const;
-		Vector3 XYZ()
+		Vector3 XYZ() const
 		{
 			return Vector3(x, y, z);
 		}
-		Vector2 XY()
+		Vector2 XY() const
 		{
 			return Vector2(x, y);
 		}

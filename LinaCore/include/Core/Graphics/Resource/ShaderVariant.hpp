@@ -62,6 +62,7 @@ namespace Lina
 		LinaGX::CompareOp		   depthOp			 = LinaGX::CompareOp::Less;
 		LinaGX::CullMode		   cullMode			 = LinaGX::CullMode::Back;
 		LinaGX::FrontFace		   frontFace		 = LinaGX::FrontFace::CCW;
+		LinaGX::Topology		   topology			 = LinaGX::Topology::TriangleList;
 		bool					   depthBiasEnable	 = false;
 		float					   depthBiasConstant = 0.0f;
 		float					   depthBiasClamp	 = 0.0f;

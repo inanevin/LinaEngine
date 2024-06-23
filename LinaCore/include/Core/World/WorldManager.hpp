@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/System/Subsystem.hpp"
+#include "Common/Data/CommonData.hpp"
 
 namespace Lina
 {
@@ -36,6 +37,13 @@ namespace Lina
 	class EntityWorld;
 	class WorldRenderer;
 	class ResourceManager;
+
+    class WorldManagerListener
+    {
+    public:
+        virtual void OnWorldInstalled(EntityWorld* world) {};
+        virtual void OnWorldUninstalling(EntityWorld* world) {};
+    };
 
 	class WorldManager : public Subsystem
 	{
@@ -53,6 +61,16 @@ namespace Lina
 		void UninstallLevel(bool immediate);
 		void PreTick() override;
 		void Tick(float deltaTime);
+        
+        inline void AddListener(WorldManagerListener* listener)
+        {
+            m_listeners.push_back(listener);
+        }
+        
+        inline void RemoveListener(WorldManagerListener* listener)
+        {
+            m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](WorldManagerListener* list) -> bool {return list == listener;}));
+        }
 
 		inline EntityWorld* GetMainWorld() const
 		{
@@ -78,5 +96,6 @@ namespace Lina
 		EntityWorld*		   m_mainWorld	  = nullptr;
 		Vector<EntityWorld*>   m_activeWorlds = {};
 		Vector<WorldRenderer*> m_worldRenderers;
+        Vector<WorldManagerListener*> m_listeners;
 	};
 } // namespace Lina

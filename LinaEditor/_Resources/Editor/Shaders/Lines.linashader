@@ -31,37 +31,41 @@ SOFTWARE.
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
 #include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
 
-layout (location = 0) in vec3 pos;
-layout (location = 1) in vec2 uv;
-layout (location = 2) in vec4 col;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 nextPosition;
+layout (location = 2) in vec2 uv;
+layout (location = 3) in vec4 color;
+layout (location = 4) in float direction;
 
-layout (location = 0) out vec4 outCol;
-layout (location = 1) out vec2 outUV;
-layout (location = 2) flat out uint outDrawID;
+layout (location = 0) out vec2 outUV;
+layout (location = 1) out vec4 outColor;
 
 void main()
 {
+   vec4 currentView = LINA_VIEW.view * vec4(position, 1.0);
 
-// vulkan and metal = gl_InstanceIndex equals to startInstance + instanceID
-// dx12 = LGX_DRAW_ID is the startInstance, gl_InstanceIndex will be the instance ID
-#ifdef LGX_COMPILE_HLSL
-   int argBufferIndex = LGX_DRAW_ID + gl_InstanceIndex;
-#else
-   int argBufferIndex = gl_InstanceIndex;
-#endif  
+    vec4 currentProjected = LINA_VIEW.proj * LINA_VIEW.view * vec4(position, 1.0);
+    vec4 nextProjected = LINA_VIEW.proj * LINA_VIEW.view * vec4(nextPosition, 1.0);
 
-   IndirectArguments argBuffer = LINA_INDIRECT_ARGUMENTS.data[argBufferIndex];
-   uint entityID = argBuffer.entityID;
-   Object object = LINA_OBJECTS.data[entityID];
+    vec2 currentScreen = currentProjected.xy / currentProjected.w;
+    vec2 nextScreen = nextProjected.xy / nextProjected.w;
 
-    outCol = col;
+    vec2 dir = normalize(nextScreen - currentScreen);
+    vec2 normal = vec2(-dir.y, dir.x);
+
+
+    float baseThickness = 0.5; 
+    float thicknessAlpha = (currentProjected.z / LINA_VIEW.cameraDirectionAndFar.w);
+    float fac = mix(0.0, 0.5, thicknessAlpha);
+    float thickness = baseThickness;
+
+    normal *= thickness / 2.0;
+
+    vec4 offset = vec4(normal * direction, 0.0, 0.0);
+
+    gl_Position = currentProjected + offset;
     outUV = uv;
-    outDrawID = argBufferIndex;
-
-    GUIMaterialData material = LINA_GUI_MATERIALS.data[outDrawID];
-
-    vec3 worldPos = vec3(object.modelMatrix * vec4(pos.x , pos.y, pos.z, 1.0));
-    gl_Position = LINA_VIEW.proj * LINA_VIEW.view *  vec4(worldPos, 1.0);
+    outColor = color;
 }
 
 #lina_end
@@ -70,6 +74,23 @@ void main()
 
 #include "Resources/Core/Shaders/Common/GlobalData.linashader"
 #include "Resources/Core/Shaders/Common/RenderPass_forwardtransparency.linashader"
-#include "Resources/Core/Shaders/GUI/GUI_frag.linashader"
+
+
+layout (location = 0) in vec2 inUV;
+layout (location = 1) in vec4 inColor;
+
+layout (location = 0) out vec4 outFragColor;
+
+void main()
+{
+   float y = abs((inUV.y * 2) - 1);
+   float alpha = 1.0;
+
+   if(y > 0.7)
+      alpha = mix(1.0, 0.0, (y - 0.7) / 0.3);
+
+    // float alpha = smoothstep(0.7, 0.9, 1.0 - y);
+    outFragColor = vec4(inColor.rgb, alpha);
+}
 
 #lina_end
