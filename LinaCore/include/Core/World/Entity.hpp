@@ -69,8 +69,8 @@ namespace Lina
 		void		   SetStatic(bool isStatic);
 		Transformation GetInterpolated(float interpolation);
 		bool		   HasChildInTree(Entity* other) const;
-        void AddAABB(const AABB& aabb);
-        void RemoveAABB(const AABB& aabb);
+		void		   AddAABB(const AABB& aabb);
+		void		   RemoveAABB(const AABB& aabb);
 
 		void SaveToStream(OStream& stream);
 		void LoadFromStream(IStream& stream);
@@ -208,7 +208,7 @@ namespace Lina
 		Bitmask16		m_mask;
 		StringID		m_sid		= 0;
 		uint32			m_ssboIndex = 0;
-        AABB m_totalAABB;
+		AABB			m_totalAABB;
 	};
 
 } // namespace Lina

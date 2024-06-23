@@ -47,8 +47,8 @@ namespace Lina
 	public:
 		Resource(ResourceManager* rm, const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm){};
 		virtual ~Resource() = default;
-        
-        void SaveToFileAsBinary(const String& path);
+
+		void SaveToFileAsBinary(const String& path);
 
 		inline const String& GetPath() const
 		{

@@ -53,11 +53,11 @@ namespace Lina
 
 	MeshDefault::~MeshDefault()
 	{
-        if(!m_ownsBuffers)
-            return;
-        
-        m_vertexBuffer.Destroy();
-        m_indexBuffer.Destroy();
+		if (!m_ownsBuffers)
+			return;
+
+		m_vertexBuffer.Destroy();
+		m_indexBuffer.Destroy();
 	}
 
 	void MeshDefault::Draw(LinaGX::CommandStream* stream, uint32 instances)
@@ -73,30 +73,30 @@ namespace Lina
 		}
 	}
 
-    void MeshDefault::Bind(LinaGX::CommandStream *stream)
-    {
-        LinaGX::CMDBindVertexBuffers* vtx = stream->AddCommand<LinaGX::CMDBindVertexBuffers>();
-        vtx->offset = 0;
-        vtx->resource = m_vertexBuffer.GetGPUResource();
-        vtx->vertexSize = static_cast<uint32>(sizeof(VertexDefault));
-        
-        LinaGX::CMDBindIndexBuffers* index = stream->AddCommand<LinaGX::CMDBindIndexBuffers>();
-        index->offset = 0;
-        index->resource = m_indexBuffer.GetGPUResource();
-        index->indexType = LinaGX::IndexType::Uint16;
-    }
+	void MeshDefault::Bind(LinaGX::CommandStream* stream)
+	{
+		LinaGX::CMDBindVertexBuffers* vtx = stream->AddCommand<LinaGX::CMDBindVertexBuffers>();
+		vtx->offset						  = 0;
+		vtx->resource					  = m_vertexBuffer.GetGPUResource();
+		vtx->vertexSize					  = static_cast<uint32>(sizeof(VertexDefault));
 
-    void MeshDefault::GenerateBuffers(GfxManager* gfxMan)
-    {
-        auto* lgx = gfxMan->GetLGX();
-        
-        m_vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(VertexDefault) * m_vertices.size());
-        m_indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * m_indices16.size());
-        
-        m_vertexBuffer.BufferData(0, (uint8*)m_vertices.data(), sizeof(VertexDefault) * m_vertices.size());
-        m_indexBuffer.BufferData(0, (uint8*)m_indices16.data(), sizeof(uint16) * m_indices16.size());
-        gfxMan->GetResourceUploadQueue().AddBufferRequest(&m_vertexBuffer);
-        gfxMan->GetResourceUploadQueue().AddBufferRequest(&m_indexBuffer);
-        m_ownsBuffers = true;
-    }
+		LinaGX::CMDBindIndexBuffers* index = stream->AddCommand<LinaGX::CMDBindIndexBuffers>();
+		index->offset					   = 0;
+		index->resource					   = m_indexBuffer.GetGPUResource();
+		index->indexType				   = LinaGX::IndexType::Uint16;
+	}
+
+	void MeshDefault::GenerateBuffers(GfxManager* gfxMan)
+	{
+		auto* lgx = gfxMan->GetLGX();
+
+		m_vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(VertexDefault) * m_vertices.size());
+		m_indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * m_indices16.size());
+
+		m_vertexBuffer.BufferData(0, (uint8*)m_vertices.data(), sizeof(VertexDefault) * m_vertices.size());
+		m_indexBuffer.BufferData(0, (uint8*)m_indices16.data(), sizeof(uint16) * m_indices16.size());
+		gfxMan->GetResourceUploadQueue().AddBufferRequest(&m_vertexBuffer);
+		gfxMan->GetResourceUploadQueue().AddBufferRequest(&m_indexBuffer);
+		m_ownsBuffers = true;
+	}
 } // namespace Lina
