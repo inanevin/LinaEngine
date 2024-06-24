@@ -93,7 +93,7 @@ namespace Lina
 		};
 
 	public:
-		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers = nullptr);
+		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffer = nullptr);
 		~WorldRenderer();
 
 		virtual void PreTick() override;
@@ -104,8 +104,7 @@ namespace Lina
 		/// If this renderer is submitting its own commands, return the submission semaphore so that the next batch can wait on them.
 		virtual SemaphoreData GetSubmitSemaphore(uint32 frameIndex) override
 		{
-
-			if (m_snapshotBuffers != nullptr)
+			if (m_snapshotBuffer != nullptr)
 				return m_pfd[frameIndex].copySemaphore;
 
 			return m_pfd[frameIndex].signalSemaphore;
@@ -187,7 +186,7 @@ namespace Lina
 		Texture*									  m_checkerTexture		   = nullptr;
 		MeshDefault*								  m_skyCube				   = nullptr;
 		Vector<WorldRendererExtension*>				  m_extensions;
-		Buffer*										  m_snapshotBuffers = nullptr;
+		Buffer*										  m_snapshotBuffer = nullptr;
 	};
 
 } // namespace Lina

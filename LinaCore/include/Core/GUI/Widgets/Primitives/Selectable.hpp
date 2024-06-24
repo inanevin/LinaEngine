@@ -53,6 +53,7 @@ namespace Lina
 			Delegate<void(Selectable*)>		  onInteracted;
 			Delegate<void(Selectable*)>		  onRightClick;
 			Delegate<void()>				  onDockedOut;
+			bool							  clipChildren = false;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -63,7 +64,7 @@ namespace Lina
 				colorSelectedStart.SaveToStream(stream);
 				colorSelectedEnd.SaveToStream(stream);
 				colorOutline.SaveToStream(stream);
-				stream << rounding << outlineThickness;
+				stream << rounding << outlineThickness << clipChildren;
 			}
 
 			void LoadFromStream(IStream& stream)
@@ -75,7 +76,7 @@ namespace Lina
 				colorSelectedStart.LoadFromStream(stream);
 				colorSelectedEnd.LoadFromStream(stream);
 				colorOutline.LoadFromStream(stream);
-				stream >> rounding >> outlineThickness;
+				stream >> rounding >> outlineThickness >> clipChildren;
 			}
 		};
 

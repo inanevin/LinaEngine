@@ -171,8 +171,12 @@ namespace Lina::Editor
 		selectable->SetAlignedPosX(0.0f);
 		selectable->SetAlignedSizeX(1.0f);
 		selectable->SetUserData(item.userData);
-		selectable->GetChildMargins()	= TBLR::Eq(Theme::GetDef().baseIndentInner);
-		selectable->GetProps().rounding = Theme::GetDef().baseRounding;
+		selectable->GetChildMargins()			= TBLR::Eq(Theme::GetDef().baseIndentInner);
+		selectable->GetProps().rounding			= Theme::GetDef().baseRounding;
+		selectable->GetProps().colorStart		= Theme::GetDef().background3;
+		selectable->GetProps().colorEnd			= Theme::GetDef().background3;
+		selectable->GetProps().outlineThickness = 1.0f;
+		selectable->GetProps().colorOutline		= Theme::GetDef().background1;
 		layout->AddChild(selectable);
 		SetSelectableCallbacks(item, selectable, nullptr);
 		m_selectables.push_back(selectable);
@@ -194,7 +198,7 @@ namespace Lina::Editor
 			ShapeRect* img = m_manager->Allocate<ShapeRect>("Shape");
 			img->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			img->SetAlignedPos(Vector2(0.5f, 0.5f));
-			img->SetAlignedSize(Vector2(0.9f, 0.9f));
+			img->SetAlignedSize(Vector2(1.0f, 1.0f));
 			img->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 			img->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			img->GetProps().imageTexture = item.customTexture;

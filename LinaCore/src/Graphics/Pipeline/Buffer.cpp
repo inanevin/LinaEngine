@@ -86,8 +86,8 @@ namespace Lina
 			m_lgx->MapResource(m_staging, m_mapped);
 		}
 
-		if (hintFlags & LinaGX::ResourceTypeHint::TH_ReadbackDest)
-			m_lgx->MapResource(m_gpu, m_mappedGPU);
+		// if (hintFlags & LinaGX::ResourceTypeHint::TH_ReadbackDest)
+		// 	m_lgx->MapResource(m_gpu, m_mappedGPU);
 	}
 
 	void Buffer::BufferData(size_t padding, uint8* data, size_t size)

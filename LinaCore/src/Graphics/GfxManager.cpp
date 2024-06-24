@@ -443,7 +443,7 @@ namespace Lina
 		pfd.bindlessDirty.store(false);
 	}
 
-	void GfxManager::Render()
+	void GfxManager::Render(StringID targetPool)
 	{
 		PROFILER_FUNCTION();
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
@@ -507,6 +507,9 @@ namespace Lina
 
 		for (const RendererPool& pool : m_rendererPools)
 		{
+			if (targetPool != 0 && pool.sid != targetPool)
+				continue;
+
 			if (pool.renderers.empty())
 				continue;
 

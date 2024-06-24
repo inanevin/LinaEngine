@@ -457,7 +457,6 @@ namespace Lina::Editor
 
 	void FileManager::GenerateThumbModel(DirectoryItem* item, const String& thumbPath)
 	{
-		return;
 		auto* rm  = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		auto* gfx = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		auto* wm  = m_editor->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
@@ -479,7 +478,7 @@ namespace Lina::Editor
 		Model*		model		 = rm->GetResource<Model>(ident.sid);
 		const AABB& aabb		 = model->GetAABB();
 		Entity*		cameraEntity = world->CreateEntity("Camera");
-		cameraEntity->SetPosition(Vector3(0, 2, -aabb.boundsHalfExtents.z * 4));
+		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
 		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
 		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
 		world->SetActiveCamera(camera);
@@ -490,44 +489,30 @@ namespace Lina::Editor
 		{
 			Entity*		   entity = world->CreateEntity(mesh->GetName());
 			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
-			m->SetMesh("Resources/Core/Models/Duck.glb"_hs, idx);
+			m->SetMesh(ident.sid, idx);
 			m->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
 			idx++;
 		}
 
-		Vector<Buffer> buffers;
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			buffers.push_back({});
-			Buffer& b = buffers.back();
-			b.Create(gfx->GetLGX(), LinaGX::ResourceTypeHint::TH_None, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4);
-		}
+		Buffer buffer;
+		buffer.Create(gfx->GetLGX(), LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
 
 		world->PreTick();
 		world->Tick(0.016f);
 
 		// Render.
-		Buffer*		   b  = &buffers[0];
-		WorldRenderer* wr = new WorldRenderer(gfx, world, world->GetRenderSize(), b);
+		WorldRenderer* wr = new WorldRenderer(gfx, world, world->GetRenderSize(), &buffer);
 		gfx->AddRenderer(wr, "WorldRenderers"_hs);
 		gfx->Join();
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			gfx->Render();
-
+		gfx->Render("WorldRenderers"_hs);
 		gfx->Join();
 		gfx->RemoveRenderer(wr);
 		delete wr;
 		delete world;
 
-		item->thumbnail->CreateFromBuffer(buffers[0].GetMappedGPU(), RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE, 4, LinaGX::ImageChannelMask::RGBA, LinaGX::Format::R8G8B8A8_SRGB);
+		item->thumbnail->CreateFromBuffer(buffer.GetMapped(), RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE, 4, LinaGX::ImageChannelMask::RGBA, LinaGX::Format::R8G8B8A8_SRGB);
 		item->thumbnail->SaveToFileAsBinary(thumbPath);
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			Buffer& b = buffers[i];
-			b.Destroy();
-		}
+		buffer.Destroy();
 	}
 
 	void FileManager::GenerateThumbShader(DirectoryItem* item, const String& thumbPath)

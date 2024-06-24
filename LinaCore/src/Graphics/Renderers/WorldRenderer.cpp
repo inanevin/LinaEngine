@@ -61,8 +61,8 @@ namespace Lina
 
 	WorldRenderer::WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers) : Renderer(man, 0)
 	{
-		m_snapshotBuffers = snapshotBuffers;
-		m_world			  = world;
+		m_snapshotBuffer = snapshotBuffers;
+		m_world			 = world;
 		m_world->AddListener(this);
 		m_size					 = viewSize;
 		m_rm					 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -137,10 +137,8 @@ namespace Lina
 			.debugName				  = "WorldRendererDepthTexture",
 		};
 
-		if (m_snapshotBuffers)
+		if (m_snapshotBuffer != nullptr)
 			rtDescLighting.flags |= LinaGX::TF_Readback;
-
-		LINA_TRACE("CREATING SIZE RESOURCES {0} {1}", m_size.x, m_size.y);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -610,16 +608,14 @@ namespace Lina
 			.isMultithreaded  = true,
 		});
 
-		if (m_snapshotBuffers != nullptr)
+		if (m_snapshotBuffer != nullptr)
 		{
 			// Barrier to copy source?
 			{
 			}
 
-			Buffer& buf = m_snapshotBuffers[frameIndex];
-
 			LinaGX::CMDCopyTexture2DToBuffer* copy = currentFrame.copyStream->AddCommand<LinaGX::CMDCopyTexture2DToBuffer>();
-			copy->destBuffer					   = buf.GetGPUResource();
+			copy->destBuffer					   = m_snapshotBuffer->GetGPUResource();
 			copy->srcLayer						   = 0;
 			copy->srcMip						   = 0;
 			copy->srcTexture					   = currentFrame.lightingPassOutput->GetGPUHandle();

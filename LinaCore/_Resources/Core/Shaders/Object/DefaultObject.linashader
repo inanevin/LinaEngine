@@ -96,7 +96,7 @@ void main()
    LINA_MATERIAL material = AsMaterial();
 
    vec4 albedo = texture(sampler2D(LINA_TEXTURES[material.albedo.txt], LINA_SAMPLERS[material.albedo.smp]), inUV);
-   outAlbedo = vec4(albedo.xyz, 1.0);
+   outAlbedo = vec4(0.8, 0.8, 0.8, 1.0);
    outPosition = vec4(inWorldPos, 0.0);
    outNormal = vec4(inNormal, 0.0);
 }

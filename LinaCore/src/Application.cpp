@@ -76,13 +76,9 @@ namespace Lina
 		/* Core Resources */
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoWhite.png", GetTypeID<Texture>(), 0, true, ResourceFlags::RF_CORE));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/Duck.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/LinaLogo.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, false, ResourceTag::Core));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/SkyCube.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Textures/Checkered.png", GetTypeID<Texture>(), 0, false, ResourceFlags::RF_CORE));
 
