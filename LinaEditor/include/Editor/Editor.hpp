@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/ApplicationDelegate.hpp"
 #include "Core/World/WorldManager.hpp"
+#include "Common/Data/HashMap.hpp"
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "IO/FileManager.hpp"
@@ -43,6 +44,8 @@ namespace Lina
 	class Widget;
 	class ResourceManager;
 	class GUIWidget;
+	class SurfaceRenderer;
+	class WorldRenderer;
 } // namespace Lina
 
 namespace LinaGX
@@ -130,6 +133,10 @@ namespace Lina::Editor
 		void SaveSettings();
 		void RequestExit();
 
+		// Renderers
+		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
+		WorldRenderer*	 GetWorldRenderer(EntityWorld* world);
+
 		// World
 		virtual void OnWorldInstalled(EntityWorld* world) override;
 
@@ -176,27 +183,33 @@ namespace Lina::Editor
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
+		void CreateSurfaceRendererForWindow(LinaGX::Window* window);
+		void DestroySurfaceRenderer(LinaGX::Window* window);
+		void CreateWorldRenderer(EntityWorld* world);
+		void DestroyWorldRenderer(EntityWorld* world);
 
 	private:
-		WorldManager*				   m_worldManager		  = nullptr;
-		GfxManager*					   m_gfxManager			  = nullptr;
-		WidgetManager*				   m_primaryWidgetManager = nullptr;
-		ResourceManager*			   m_rm					  = nullptr;
-		GUIWidget*					   m_gizmoBB			  = nullptr;
-		EditorSettings				   m_settings			  = {};
-		ProjectData*				   m_currentProject		  = nullptr;
-		EntityWorld*				   m_currentWorld		  = nullptr;
-		bool						   m_isWorldDirty		  = false;
-		EditorRoot*					   m_editorRoot			  = nullptr;
-		Vector<LinaGX::Window*>		   m_subWindows			  = {};
-		Vector<StringID>			   m_windowCloseRequests;
-		PayloadRequest				   m_payloadRequest;
-		LinaGX::Window*				   m_payloadWindow = nullptr;
-		LinaGX::Window*				   m_mainWindow	   = nullptr;
-		Vector<EditorPayloadListener*> m_payloadListeners;
-		StringID					   m_subWindowCounter = 0;
-		FileManager					   m_fileManager;
-		static Editor*				   s_editor;
+		WorldManager*							   m_worldManager		  = nullptr;
+		GfxManager*								   m_gfxManager			  = nullptr;
+		WidgetManager*							   m_primaryWidgetManager = nullptr;
+		ResourceManager*						   m_rm					  = nullptr;
+		GUIWidget*								   m_gizmoBB			  = nullptr;
+		EditorSettings							   m_settings			  = {};
+		ProjectData*							   m_currentProject		  = nullptr;
+		EntityWorld*							   m_currentWorld		  = nullptr;
+		bool									   m_isWorldDirty		  = false;
+		EditorRoot*								   m_editorRoot			  = nullptr;
+		Vector<LinaGX::Window*>					   m_subWindows			  = {};
+		Vector<StringID>						   m_windowCloseRequests;
+		PayloadRequest							   m_payloadRequest;
+		LinaGX::Window*							   m_payloadWindow = nullptr;
+		LinaGX::Window*							   m_mainWindow	   = nullptr;
+		Vector<EditorPayloadListener*>			   m_payloadListeners;
+		StringID								   m_subWindowCounter = 0;
+		FileManager								   m_fileManager;
+		static Editor*							   s_editor;
+		HashMap<LinaGX::Window*, SurfaceRenderer*> m_surfaceRenderers;
+		HashMap<EntityWorld*, WorldRenderer*>	   m_worldRenderers;
 	};
 
 } // namespace Lina::Editor

@@ -42,29 +42,32 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 
-class PoolAllocator;
-
 namespace Lina
 {
-	class SurfaceRenderer;
-	class WorldRenderer;
 	class ResourceManager;
 	class GUIBackend;
-	class EntityWorld;
-	class WorldManager;
+	class Renderer;
+
+	struct RendererPool
+	{
+		uint32			  order			= 0;
+		StringID		  sid			= 0;
+		bool			  submitInBatch = false;
+		Vector<Renderer*> renderers;
+	};
 
 	class GfxManager : public Subsystem, public LinaGX::WindowListener
 	{
 	private:
 		struct PerFrameData
 		{
-			uint16 pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16 pipelineLayoutPersistentGlobal = 0;
-			uint16 descriptorSetPersistentGlobal  = 0;
-			Buffer globalDataBuffer;
-			Buffer globalMaterialsBuffer;
-
-			Atomic<bool> bindlessDirty = true;
+			uint16		  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16		  pipelineLayoutPersistentGlobal = 0;
+			uint16		  descriptorSetPersistentGlobal	 = 0;
+			Buffer		  globalDataBuffer;
+			Buffer		  globalMaterialsBuffer;
+			Atomic<bool>  bindlessDirty = true;
+			SemaphoreData poolSubmissionSemaphore;
 		};
 
 	public:
@@ -78,16 +81,18 @@ namespace Lina
 		virtual void PreTick() override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& sz) override;
 
-		void			 WaitForSwapchains();
-		void			 Join();
-		void			 Poll();
-		void			 Tick(float delta);
-		void			 Render();
-		void			 DestroyApplicationWindow(StringID sid);
-		LinaGX::Window*	 CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
-		LinaGX::Window*	 GetApplicationWindow(StringID sid);
-		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
-		PoolAllocator*	 GetGUIAllocator(TypeID tid, size_t typeSize);
+		void CreateRendererPool(StringID sid, uint32 order, bool submitInBatch);
+		void AddRenderer(Renderer* renderer, StringID pool);
+		void RemoveRenderer(Renderer* renderer);
+
+		void			WaitForSwapchains();
+		void			Join();
+		void			Poll();
+		void			Tick(float delta);
+		void			Render();
+		void			DestroyApplicationWindow(StringID sid);
+		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
+		LinaGX::Window* GetApplicationWindow(StringID sid);
 
 		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
 		{
@@ -147,24 +152,21 @@ namespace Lina
 		void UpdateBindlessResources(PerFrameData& pfd);
 
 	private:
-		WorldManager*					m_worldManager = nullptr;
-		ResourceUploadQueue				m_resourceUploadQueue;
-		MeshManager						m_meshManager;
-		Vector<SurfaceRenderer*>		m_surfaceRenderers;
-		GUIBackend						m_guiBackend;
-		ResourceManager*				m_resourceManager = nullptr;
-		Vector<TextureSampler*>			m_defaultSamplers;
-		Vector<Material*>				m_defaultMaterials;
-		LinaGX::Instance*				m_lgx		   = nullptr;
-		LinaGX::VSyncStyle				m_currentVsync = {};
-		ApplicationDelegate*			m_appDelegate  = nullptr;
-		LinaGX::Window*					m_mainWindow   = nullptr;
-		HashMap<TypeID, PoolAllocator*> m_guiAllocators;
-		Mutex							m_guiAllocMutx;
-		Color							m_clearColor = Color::Black;
-		PerFrameData					m_pfd[FRAMES_IN_FLIGHT];
-		Mutex							m_wrMtx;
-		Mutex							m_bindlessMtx;
+		ResourceUploadQueue		m_resourceUploadQueue;
+		MeshManager				m_meshManager;
+		GUIBackend				m_guiBackend;
+		ResourceManager*		m_resourceManager = nullptr;
+		Vector<TextureSampler*> m_defaultSamplers;
+		Vector<Material*>		m_defaultMaterials;
+		LinaGX::Instance*		m_lgx		   = nullptr;
+		LinaGX::VSyncStyle		m_currentVsync = {};
+		ApplicationDelegate*	m_appDelegate  = nullptr;
+		LinaGX::Window*			m_mainWindow   = nullptr;
+		Color					m_clearColor   = Color::Black;
+		PerFrameData			m_pfd[FRAMES_IN_FLIGHT];
+		Mutex					m_wrMtx;
+		Mutex					m_bindlessMtx;
+		Vector<RendererPool>	m_rendererPools;
 	};
 } // namespace Lina
 #endif

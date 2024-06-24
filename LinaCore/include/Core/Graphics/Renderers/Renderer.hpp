@@ -30,12 +30,10 @@ SOFTWARE.
 
 #include "Common/StringID.hpp"
 #include "Common/Math/Vector.hpp"
+#include "Common/Data/Bitmask.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
-#include "Core/Graphics/Pipeline/RenderPass.hpp"
-#include "Core/Graphics/GUI/GUIRenderer.hpp"
-#include "Core/Graphics/Renderers/Renderer.hpp"
 
 namespace LinaGX
 {
@@ -50,86 +48,61 @@ namespace Lina
 	class ApplicationDelegate;
 	class ResourceManager;
 
-	class SurfaceRenderer : public Renderer
+	enum RendererFlags
 	{
-	private:
-		struct PerFrameData
-		{
-			LinaGX::CommandStream* gfxStream	 = nullptr;
-			LinaGX::CommandStream* copyStream	 = nullptr;
-			SemaphoreData		   copySemaphore = {};
-		};
+		RNDF_NONE			 = 1 << 0,
+		RNDF_SUBMIT_IN_BATCH = 1 << 1,
+	};
 
+	class Renderer
+	{
 	public:
-		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, const Vector2ui& initialSize, const Color& clearColor);
-		virtual ~SurfaceRenderer();
+		Renderer(GfxManager* gfxMan, uint32 flags);
+		virtual ~Renderer() = default;
 
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues) override;
-		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize) override;
+		virtual void PreTick(){};
+		virtual void Tick(float delta){};
+		virtual void Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues){};
+		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize){};
 
 		virtual bool IsValidThisFrame()
 		{
-			return m_isVisible;
+			return true;
 		}
 
 		/// If this renderer is submitted in a batch, return the recorded command stream for batch.
-		virtual LinaGX::CommandStream* GetStreamForBatchSubmit(uint32 frameIndex) override
+		virtual LinaGX::CommandStream* GetStreamForBatchSubmit(uint32 frameIndex)
 		{
-			return m_pfd[frameIndex].gfxStream;
+			return nullptr;
 		}
 
-		/// If this renderer's commands are submitted in a batch, the batch will wait for semaphores from all batch contributors, actuqired via GetWaitSemaphore() for each.
-		virtual SemaphoreData GetWaitSemaphore(uint32 frameIndex) override
+		/// If this renderer is submitting its own commands, return the submission semaphore so that the next batch can wait on them.
+		virtual SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
-			return m_pfd[frameIndex].copySemaphore;
+			return {};
+		};
+
+		/// If this renderer's commands are submitted in a batch, the batch will wait for semaphores from all batch contributors, actuqired via GetWaitSemaphore() for each.
+		virtual SemaphoreData GetWaitSemaphore(uint32 frameIndex)
+		{
+			return {};
 		};
 
 		/// If desired the renderer can return a swapchain that'll be presented in batch at the end of the render loop.
-		virtual bool GetSwapchainToPresent(uint8& outSwapchain) override
+		virtual bool GetSwapchainToPresent(uint8& outSwapchain)
 		{
-			outSwapchain = m_swapchain;
 			return false;
 		}
 
-		inline uint8 GetSwapchain() const
+		inline const Bitmask32& GetFlags() const
 		{
-			return m_swapchain;
-		}
-
-		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
-		{
-			return m_pfd[frameIndex].copySemaphore;
-		}
-
-		inline Widget* GetGUIRoot()
-		{
-			return m_guiRenderer.GetGUIRoot();
-		}
-
-		inline WidgetManager& GetWidgetManager()
-		{
-			return m_guiRenderer.GetWidgetManager();
-		}
-
-		LinaGX::Window* GetWindow() const
-		{
-			return m_window;
+			return m_flags;
 		}
 
 	protected:
-		ResourceManager*	 m_rm				= nullptr;
-		Shader*				 m_guiShader2D		= nullptr;
-		uint32				 m_guiShaderVariant = 0;
-		Vector2ui			 m_size				= Vector2ui::Zero;
-		PerFrameData		 m_pfd[FRAMES_IN_FLIGHT];
-		LinaGX::Window*		 m_window	   = nullptr;
-		uint8				 m_swapchain   = 0;
-		bool				 m_isVisible   = false;
-		ApplicationDelegate* m_appListener = nullptr;
-		RenderPass			 m_guiPass	   = {};
-		GUIRenderer			 m_guiRenderer;
+		GfxManager*		  m_gfxManager = nullptr;
+		LinaGX::Instance* m_lgx		   = nullptr;
+		Bitmask32		  m_flags	   = 0;
 	};
 
 } // namespace Lina

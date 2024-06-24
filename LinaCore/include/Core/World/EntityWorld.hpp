@@ -46,8 +46,6 @@ namespace Lina
 	class Component;
 	class CameraComponent;
 	class SkyComponent;
-	class WorldRenderer;
-
 	class EntityWorldListener
 	{
 	public:
@@ -67,6 +65,15 @@ namespace Lina
 			void LoadFromStream(IStream& stream);
 		};
 
+		EntityWorld(const EntityWorld& other) = delete;
+
+		EntityWorld(ResourceManager* rm, const String& path = "", StringID sid = 0, uint32 flags = 0);
+
+		~EntityWorld()
+		{
+			DestroyWorld();
+		}
+
 		Entity*		 GetEntity(uint32 id);
 		Entity*		 GetEntity(const String& name);
 		Entity*		 GetEntityFromSID(StringID sid);
@@ -76,7 +83,18 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
-		Vector2ui	 GetRenderSize() const;
+		void		 PreTick();
+		void		 Tick(float deltaTime);
+
+		inline void SetRenderSize(const Vector2ui& sz)
+		{
+			m_renderSize = sz;
+		}
+
+		inline Vector2ui GetRenderSize() const
+		{
+			return m_renderSize;
+		}
 
 		inline System* GetSystem()
 		{
@@ -86,11 +104,6 @@ namespace Lina
 		inline Bitmask32 GetFlags()
 		{
 			return m_flags;
-		}
-
-		inline uint32 GetID()
-		{
-			return m_id;
 		}
 
 		inline void SetActiveCamera(CameraComponent* cam)
@@ -196,11 +209,6 @@ namespace Lina
 			m_gfxSettings.skyMaterial.sid = mat->GetSID();
 		}
 
-		inline WorldRenderer* GetRenderer() const
-		{
-			return m_renderer;
-		}
-
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 
@@ -223,44 +231,25 @@ namespace Lina
 		FRIEND_RESOURCE_CACHE();
 		friend class WorldManager;
 
-		EntityWorld(const EntityWorld& other) = delete;
-
-		EntityWorld(ResourceManager* rm = nullptr, const String& path = "", StringID sid = 0, uint32 flags = 0)
-			: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
-			  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "World"_hs)), m_flags(flags)
-		{
-			m_id = s_worldCounter++;
-		};
-
-		~EntityWorld()
-		{
-			DestroyWorld();
-		}
-
-		void InitializeRenderer(const Vector2ui& viewSize);
 		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
 		void Simulate(float fixedDelta);
-		void PreTick();
-		void Tick(float deltaTime);
+
 		void WaitForSimulation();
 
 	private:
-		static uint32 s_worldCounter;
-
-		System*								 m_system	= nullptr;
-		WorldRenderer*						 m_renderer = nullptr;
+		System*								 m_system = nullptr;
 		PhysicsWorld						 m_physicsWorld;
 		MemoryAllocatorPool					 m_allocatorPool;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		IDList<Entity*>						 m_entities;
 		CameraComponent*					 m_activeCamera = nullptr;
 		SkyComponent*						 m_activeSky	= nullptr;
-		uint32								 m_id			= 0;
 		Bitmask32							 m_flags		= 0;
 		Vector<EntityWorldListener*>		 m_listeners;
 		GfxSettings							 m_gfxSettings;
+		Vector2ui							 m_renderSize;
 	};
 
 } // namespace Lina

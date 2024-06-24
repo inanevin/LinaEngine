@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
+#include "Editor/Editor.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Math/Math.hpp"
@@ -50,10 +51,12 @@ namespace Lina::Editor
 		if (!m_world)
 			return;
 
-		m_worldRenderer = m_world->GetRenderer();
+		if (m_worldRenderer == nullptr)
+			m_worldRenderer = Editor::Get()->GetWorldRenderer(m_world);
 
 		const Vector2ui size = Vector2ui(static_cast<uint32>(Math::CeilToInt(GetSizeX())), static_cast<uint32>(Math::CeilToInt(GetSizeY())));
-		m_wm->ResizeWorldTexture(m_world, size);
+		m_worldRenderer->Resize(size);
+		m_world->SetRenderSize(size);
 	}
 
 	void PanelWorld::Draw()

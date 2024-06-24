@@ -70,31 +70,20 @@ namespace Lina
 		stream.Destroy();
 	}
 
-	void WorldManager::ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize)
-	{
-		if (newSize.x == 0 || newSize.y == 0)
-			return;
-
-		WorldRenderer* renderer = world->GetRenderer();
-
-		if (renderer->GetSize() == newSize)
-			return;
-
-		m_gfxManager->Join();
-		renderer->Resize(newSize);
-		m_gfxManager->MarkBindlessDirty();
-	}
-
-	EntityWorld* WorldManager::CreateEmptyWorld()
-	{
-		EntityWorld* world = new EntityWorld(m_rm, "", 0);
-		world->m_system	   = m_system;
-		world->InitializeRenderer(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
-		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
-		m_activeWorlds.push_back(world);
-		m_worldRenderers.push_back(world->GetRenderer());
-		return world;
-	}
+	// void WorldManager::ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize)
+	// {
+	// 	if (newSize.x == 0 || newSize.y == 0)
+	// 		return;
+	//
+	// 	WorldRenderer* renderer = world->GetRenderer();
+	//
+	// 	if (renderer->GetSize() == newSize)
+	// 		return;
+	//
+	// 	m_gfxManager->Join();
+	// 	renderer->Resize(newSize);
+	// 	m_gfxManager->MarkBindlessDirty();
+	// }
 
 	void WorldManager::InstallWorld(const String& path)
 	{
@@ -108,10 +97,7 @@ namespace Lina
 		m_rm->LoadResources({ident});
 		m_rm->WaitForAll();
 
-		m_mainWorld			  = m_rm->GetResource<EntityWorld>(sid);
-		m_mainWorld->m_system = m_system;
-		m_mainWorld->InitializeRenderer(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
-		m_worldRenderers.push_back(m_mainWorld->GetRenderer());
+		m_mainWorld = m_rm->GetResource<EntityWorld>(sid);
 		m_activeWorlds.push_back(m_mainWorld);
 
 		m_mainWorld->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
@@ -175,10 +161,12 @@ namespace Lina
 
 	void WorldManager::UninstallMainWorld()
 	{
+		if (m_mainWorld == nullptr)
+			return;
+
 		for (auto* l : m_listeners)
 			l->OnWorldUninstalling(m_mainWorld);
 
-		m_worldRenderers.erase(linatl::find_if(m_worldRenderers.begin(), m_worldRenderers.end(), [this](WorldRenderer* r) -> bool { return r == m_mainWorld->GetRenderer(); }));
 		m_activeWorlds.erase(linatl::find_if(m_activeWorlds.begin(), m_activeWorlds.end(), [this](EntityWorld* w) -> bool { return w == m_mainWorld; }));
 
 		auto*			   rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);

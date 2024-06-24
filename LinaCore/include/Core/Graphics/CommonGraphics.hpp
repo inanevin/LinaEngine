@@ -107,10 +107,52 @@ namespace Lina
 		}
 	}
 
-	struct SemaphoreData
+	class SemaphoreData
 	{
-		uint16 semaphore = 0;
-		uint64 value	 = 0;
+	public:
+		SemaphoreData(){};
+		SemaphoreData(uint16 semaphore) : m_semaphore(semaphore){};
+
+		inline uint64* GetValuePtr()
+		{
+			return &m_value;
+		}
+
+		inline uint64 GetValue() const
+		{
+			return m_value;
+		}
+
+		inline uint16* GetSemaphorePtr()
+		{
+			return &m_semaphore;
+		}
+
+		inline uint16 GetSemaphore() const
+		{
+			return m_semaphore;
+		}
+
+		inline bool IsModified() const
+		{
+			return m_modified;
+		}
+
+		inline void Increment()
+		{
+			m_value++;
+			m_modified = true;
+		}
+
+		inline void ResetModified()
+		{
+			m_modified = false;
+		}
+
+	private:
+		uint16 m_semaphore = 0;
+		uint64 m_value	   = 0;
+		bool   m_modified  = false;
 	};
 
 	struct LinaTexture2D

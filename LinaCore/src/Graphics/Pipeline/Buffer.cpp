@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Streams.hpp"
+#include "Common/Serialization/Serialization.hpp"
 
 namespace Lina
 {
@@ -84,6 +85,9 @@ namespace Lina
 
 			m_lgx->MapResource(m_staging, m_mapped);
 		}
+
+		if (hintFlags & LinaGX::ResourceTypeHint::TH_ReadbackDest)
+			m_lgx->MapResource(m_gpu, m_mappedGPU);
 	}
 
 	void Buffer::BufferData(size_t padding, uint8* data, size_t size)
@@ -163,6 +167,14 @@ namespace Lina
 		index->indexType				   = indexType;
 		index->offset					   = 0;
 		index->resource					   = GetGPUResource();
+	}
+
+	void Buffer::DumpToFile(const String& path)
+	{
+		OStream stream;
+		stream.WriteRaw(m_mapped, static_cast<size_t>(m_size));
+		Serialization::SaveToFile(path.c_str(), stream);
+		stream.Destroy();
 	}
 
 } // namespace Lina

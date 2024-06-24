@@ -26,54 +26,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Core/Graphics/Renderers/Renderer.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Common/Data/Mutex.hpp"
-
-namespace LinaGX
-{
-	class CommandStream;
-}
 namespace Lina
 {
-	class GfxManager;
-	class Model;
-	class MeshDefault;
-
-	struct MeshBuffer
+	Renderer::Renderer(GfxManager* gfx, uint32 flags)
 	{
-		Buffer				 vertexBuffer;
-		Buffer				 indexBuffer;
-		size_t				 startVertex = 0;
-		size_t				 startIndex	 = 0;
-		Vector<MeshDefault*> meshes;
-	};
+		m_gfxManager = gfx;
+		m_lgx		 = m_gfxManager->GetLGX();
+		m_flags		 = flags;
+	}
 
-	class MeshManager
-	{
-	public:
-		MeshManager(GfxManager* gfxManager);
-		~MeshManager() = default;
-
-		void Initialize();
-		void Shutdown();
-
-		void BindBuffers(LinaGX::CommandStream* stream, uint32 bufferIndex);
-		void AddMesh(MeshDefault* mesh);
-		void RemoveMesh(MeshDefault* mesh);
-
-	private:
-		friend class GfxManager;
-
-		void Refresh();
-
-	private:
-		static constexpr size_t MESH_BUF_SIZE = 1;
-
-		GfxManager* m_gfxManager = nullptr;
-		MeshBuffer	m_meshBuffers[MESH_BUF_SIZE];
-		Mutex		m_mtxMesh;
-		bool		m_requiresRefresh;
-	};
 } // namespace Lina

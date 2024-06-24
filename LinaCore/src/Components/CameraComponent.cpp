@@ -39,6 +39,10 @@ namespace Lina
 		Matrix4 translationMatrix = Matrix4::Translate(-m_entity->GetPosition());
 		m_view					  = rotMat * translationMatrix;
 		const Vector2ui& sz		  = m_world->GetRenderSize();
-		m_projection			  = Matrix4::Perspective(m_fieldOfView / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), m_zNear, m_zFar);
+
+		if (sz.x == 0 || sz.y == 0)
+			return;
+
+		m_projection = Matrix4::Perspective(m_fieldOfView / 2, static_cast<float>(sz.x) / static_cast<float>(sz.y), m_zNear, m_zFar);
 	}
 } // namespace Lina

@@ -46,10 +46,9 @@ namespace Lina
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
-			auto& data					 = m_pfd[i];
-			data.copyStream				 = m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
-			data.copySemaphore.semaphore = m_gfxManager->GetLGX()->CreateUserSemaphore();
-			data.copySemaphore.value	 = 0;
+			auto& data		   = m_pfd[i];
+			data.copyStream	   = m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
+			data.copySemaphore = SemaphoreData(m_gfxManager->GetLGX()->CreateUserSemaphore());
 		}
 	}
 
@@ -60,7 +59,7 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 			m_gfxManager->GetLGX()->DestroyCommandStream(data.copyStream);
-			m_gfxManager->GetLGX()->DestroyUserSemaphore(data.copySemaphore.semaphore);
+			m_gfxManager->GetLGX()->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
 		}
 	}
 
@@ -162,7 +161,7 @@ namespace Lina
 
 		m_gfxManager->GetLGX()->CloseCommandStreams(&pfd.copyStream, 1);
 
-		pfd.copySemaphore.value++;
+		pfd.copySemaphore.Increment();
 
 		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
 			.targetQueue	  = m_gfxManager->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
@@ -170,8 +169,8 @@ namespace Lina
 			.streamCount	  = 1,
 			.useSignal		  = true,
 			.signalCount	  = 1,
-			.signalSemaphores = &pfd.copySemaphore.semaphore,
-			.signalValues	  = &pfd.copySemaphore.value,
+			.signalSemaphores = pfd.copySemaphore.GetSemaphorePtr(),
+			.signalValues	  = pfd.copySemaphore.GetValuePtr(),
 			.isMultithreaded  = true,
 		};
 

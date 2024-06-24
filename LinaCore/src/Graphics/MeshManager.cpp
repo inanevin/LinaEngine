@@ -99,8 +99,16 @@ namespace Lina
 	{
 		LOCK_GUARD(m_mtxMesh);
 		auto& buf = m_meshBuffers[0];
-
 		buf.meshes.erase(linatl::find_if(buf.meshes.begin(), buf.meshes.end(), [mesh](MeshDefault* m) -> bool { return m == mesh; }));
+		m_requiresRefresh = true;
+	}
+
+	void MeshManager::Refresh()
+	{
+		if (!m_requiresRefresh)
+			return;
+
+		auto& buf = m_meshBuffers[0];
 
 		buf.startIndex = buf.startVertex = 0;
 
@@ -109,17 +117,18 @@ namespace Lina
 			m->m_vertexOffset = static_cast<uint32>(buf.startVertex);
 			m->m_indexOffset  = static_cast<uint32>(buf.startIndex);
 
-			const size_t vtxSize = sizeof(VertexDefault) * mesh->m_vertices.size();
+			const size_t vtxSize = sizeof(VertexDefault) * m->m_vertices.size();
 			buf.vertexBuffer.BufferData(buf.startVertex * sizeof(VertexDefault), (uint8*)(m->m_vertices.data()), vtxSize);
 			buf.startVertex += static_cast<uint32>(m->m_vertices.size());
 
-			const size_t indexSize = sizeof(uint16) * mesh->m_indices16.size();
+			const size_t indexSize = sizeof(uint16) * m->m_indices16.size();
 			buf.indexBuffer.BufferData(buf.startIndex * sizeof(uint16), (uint8*)(m->m_indices16.data()), indexSize);
-			buf.startIndex += static_cast<uint32>(mesh->m_indices16.size());
+			buf.startIndex += static_cast<uint32>(m->m_indices16.size());
 		}
 
 		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&buf.vertexBuffer);
 		m_gfxManager->GetResourceUploadQueue().AddBufferRequest(&buf.indexBuffer);
+		m_requiresRefresh = false;
 	}
 
 } // namespace Lina

@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/World/Component.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Renderers/WorldRenderer.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Common/System/System.hpp"
@@ -41,7 +41,12 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	uint32 EntityWorld::s_worldCounter = 0;
+	EntityWorld::EntityWorld(ResourceManager* rm, const String& path, StringID sid, uint32 flags)
+		: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
+		  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "World"_hs)), m_flags(flags)
+	{
+		m_system = rm->GetSystem();
+	};
 
 	void EntityWorld::DestroyWorld()
 	{
@@ -59,9 +64,6 @@ namespace Lina
 
 		m_entities.Clear();
 		m_componentCaches.clear();
-
-		if (m_renderer != nullptr)
-			delete m_renderer;
 	}
 
 	Entity* EntityWorld::GetEntity(uint32 id)
@@ -79,11 +81,6 @@ namespace Lina
 	{
 		auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [sid](Entity* e) { return e != nullptr && e->GetSID() == sid; });
 		return *it;
-	}
-
-	void EntityWorld::InitializeRenderer(const Vector2ui& viewSize)
-	{
-		m_renderer = new WorldRenderer(m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager), this, viewSize);
 	}
 
 	void EntityWorld::CopyFrom(EntityWorld& world)
@@ -161,9 +158,6 @@ namespace Lina
 		{
 			cache->PreTick();
 		}
-
-		if (m_renderer != nullptr)
-			m_renderer->PreTick();
 	}
 
 	void EntityWorld::Tick(float deltaTime)
@@ -177,9 +171,6 @@ namespace Lina
 		{
 			cache->PostTick(deltaTime);
 		}
-
-		if (m_renderer != nullptr)
-			m_renderer->Tick(deltaTime);
 	}
 
 	void EntityWorld::WaitForSimulation()
@@ -295,11 +286,6 @@ namespace Lina
 	void EntityWorld::RemoveListener(EntityWorldListener* listener)
 	{
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
-	}
-
-	Vector2ui EntityWorld::GetRenderSize() const
-	{
-		return m_renderer != nullptr ? m_renderer->GetSize() : Vector2ui::Zero;
 	}
 
 	void EntityWorld::GfxSettings::SaveToStream(OStream& stream) const

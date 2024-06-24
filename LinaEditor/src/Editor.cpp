@@ -170,10 +170,17 @@ namespace Lina::Editor
 		m_gfxManager   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_worldManager = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 		m_worldManager->AddListener(this);
-		m_primaryWidgetManager = &m_gfxManager->GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+
+		m_gfxManager->CreateRendererPool("WorldRenderers"_hs, 0, false);
+		m_gfxManager->CreateRendererPool("SurfaceRenderers"_hs, 1, true);
+
+		CreateSurfaceRendererForWindow(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+		m_primaryWidgetManager = &GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
 		m_mainWindow	= m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_payloadWindow = m_gfxManager->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
+		CreateSurfaceRendererForWindow(m_payloadWindow);
+
 		m_payloadWindow->SetVisible(false);
 
 		// Push splash
@@ -219,6 +226,8 @@ namespace Lina::Editor
 
 					m_subWindows.erase(it);
 				}
+				LinaGX::Window* window = m_gfxManager->GetApplicationWindow(sid);
+				DestroySurfaceRenderer(window);
 				m_gfxManager->DestroyApplicationWindow(sid);
 			}
 
@@ -239,7 +248,7 @@ namespace Lina::Editor
 				m_payloadRequest.payload->SetAlignedPos(Vector2::Zero);
 				m_payloadRequest.payload->SetAlignedSize(Vector2::One);
 
-				Widget* payloadRoot = m_gfxManager->GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
+				Widget* payloadRoot = GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
 				payloadRoot->AddChild(m_payloadRequest.payload);
 
 				for (auto* l : m_payloadListeners)
@@ -335,15 +344,23 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		DestroyWorldRenderer(m_worldManager->GetMainWorld());
+		m_worldManager->UninstallMainWorld();
 		m_worldManager->RemoveListener(this);
 		m_rm->DestroyUserResource(m_gizmoBB);
 		m_fileManager.Shutdown();
 
 		for (auto* w : m_subWindows)
+		{
+			DestroySurfaceRenderer(w);
 			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
+		}
 
 		m_subWindows.clear();
+		DestroySurfaceRenderer(m_payloadWindow);
 		m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(m_payloadWindow->GetSID()));
+
+		DestroySurfaceRenderer(m_mainWindow);
 
 		m_settings.SaveToFile();
 		RemoveCurrentProject();
@@ -452,7 +469,10 @@ namespace Lina::Editor
 
 		const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
 		if (FileSystem::FileOrPathExists(lastWorldPath))
-			m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->InstallWorld(lastWorldPath);
+		{
+			m_worldManager->InstallWorld(lastWorldPath);
+			CreateWorldRenderer(m_worldManager->GetMainWorld());
+		}
 	}
 
 	void Editor::RequestExit()
@@ -521,7 +541,8 @@ namespace Lina::Editor
 		for (auto* w : m_subWindows)
 		{
 			Vector<DockArea*> areas;
-			Widget::GetWidgetsOfType<DockArea>(areas, m_gfxManager->GetSurfaceRenderer(static_cast<StringID>(w->GetSID()))->GetWidgetManager().GetRoot());
+			SurfaceRenderer*  sf = GetSurfaceRenderer(static_cast<StringID>(w->GetSID()));
+			Widget::GetWidgetsOfType<DockArea>(areas, sf->GetWidgetManager().GetRoot());
 			if (findPanel(areas))
 				return;
 		}
@@ -534,7 +555,8 @@ namespace Lina::Editor
 		else
 			pos = m_mainWindow->GetPosition();
 
-		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, pos, Vector2(500, 500), TO_STRING(m_subWindowCounter));
+		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter, pos, Vector2(500, 500), TO_STRING(m_subWindowCounter));
+		m_subWindowCounter++;
 
 		DockArea* dock = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
 		dock->SetAlignedPos(Vector2::Zero);
@@ -550,8 +572,10 @@ namespace Lina::Editor
 	{
 		const Vector2	usedSize = size.Clamp(m_editorRoot->GetMonitorSize() * 0.1f, m_editorRoot->GetMonitorSize());
 		LinaGX::Window* window	 = m_gfxManager->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
+		CreateSurfaceRendererForWindow(window);
+
 		m_subWindows.push_back(window);
-		Widget*			   newWindowRoot = m_gfxManager->GetSurfaceRenderer(sid)->GetWidgetManager().GetRoot();
+		Widget*			   newWindowRoot = GetSurfaceRenderer(sid)->GetWidgetManager().GetRoot();
 		DirectionalLayout* layout		 = newWindowRoot->GetWidgetManager()->Allocate<DirectionalLayout>("BaseLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->GetProps().direction = DirectionOrientation::Vertical;
@@ -595,10 +619,54 @@ namespace Lina::Editor
 
 	void Editor::OnWorldInstalled(EntityWorld* world)
 	{
-		auto* wr = world->GetRenderer();
+		// auto* wr = world->GetRenderer();
+		//
+		// if (wr != nullptr)
+		// 	wr->AddExtension(new WorldRendererExtEditor());
+	}
 
-		if (wr != nullptr)
-			wr->AddExtension(new WorldRendererExtEditor());
+	void Editor::CreateSurfaceRendererForWindow(LinaGX::Window* window)
+	{
+		SurfaceRenderer* renderer = new SurfaceRenderer(m_gfxManager, window, window->GetSize(), Theme::GetDef().background0);
+		m_gfxManager->AddRenderer(renderer, "SurfaceRenderers"_hs);
+		m_surfaceRenderers[window] = renderer;
+	}
+
+	void Editor::DestroySurfaceRenderer(LinaGX::Window* window)
+	{
+		auto windowIt = m_surfaceRenderers.find(window);
+		LINA_ASSERT(windowIt != m_surfaceRenderers.end(), "");
+		SurfaceRenderer* sr = windowIt->second;
+		m_gfxManager->RemoveRenderer(sr);
+		delete sr;
+		m_surfaceRenderers.erase(windowIt);
+	}
+
+	SurfaceRenderer* Editor::GetSurfaceRenderer(StringID sid)
+	{
+		return m_surfaceRenderers.at(m_gfxManager->GetApplicationWindow(sid));
+	}
+
+	void Editor::CreateWorldRenderer(EntityWorld* world)
+	{
+		WorldRenderer* wr = new WorldRenderer(m_gfxManager, world, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
+		m_gfxManager->AddRenderer(wr, "WorldRenderers"_hs);
+		m_worldRenderers[world] = wr;
+	}
+
+	void Editor::DestroyWorldRenderer(EntityWorld* world)
+	{
+		auto it = m_worldRenderers.find(world);
+		LINA_ASSERT(it != m_worldRenderers.end(), "");
+		WorldRenderer* wr = it->second;
+		m_gfxManager->RemoveRenderer(wr);
+		delete wr;
+		m_worldRenderers.erase(it);
+	}
+
+	WorldRenderer* Editor::GetWorldRenderer(EntityWorld* world)
+	{
+		return m_worldRenderers.at(world);
 	}
 
 } // namespace Lina::Editor

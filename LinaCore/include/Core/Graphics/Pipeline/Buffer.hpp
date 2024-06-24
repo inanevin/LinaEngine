@@ -57,6 +57,7 @@ namespace Lina
 		void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
 		void BindVertex(LinaGX::CommandStream* stream, uint32 vertexSize);
 		void BindIndex(LinaGX::CommandStream* stream, LinaGX::IndexType indexType);
+		void DumpToFile(const String& path);
 
 		inline void MarkDirty()
 		{
@@ -70,6 +71,11 @@ namespace Lina
 		inline uint8* GetMapped() const
 		{
 			return m_mapped;
+		}
+
+		inline uint8* GetMappedGPU() const
+		{
+			return m_mappedGPU;
 		}
 
 		inline uint32 GetSize() const
@@ -86,6 +92,7 @@ namespace Lina
 		uint32			  m_gpu						= 0;
 		uint32			  m_size					= 0;
 		uint8*			  m_mapped					= nullptr;
+		uint8*			  m_mappedGPU				= nullptr;
 		uint32			  m_hintFlags				= 0;
 		bool			  m_isCPUVisibleGPUResource = false;
 		bool			  m_residesInGPU			= false;

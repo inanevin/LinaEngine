@@ -45,13 +45,10 @@ namespace Lina
 #define MAX_GFX_COMMANDS  250
 #define MAX_COPY_COMMANDS 250
 
-	SurfaceRenderer::SurfaceRenderer(GfxManager* man, LinaGX::Window* window, StringID sid, const Vector2ui& initialSize, const Color& clearColor) : m_gfxManager(man), m_window(window), m_sid(sid), m_size(initialSize)
+	SurfaceRenderer::SurfaceRenderer(GfxManager* gfx, LinaGX::Window* window, const Vector2ui& initialSize, const Color& clearColor) : Renderer(gfx, 0), m_window(window), m_size(initialSize)
 	{
-		m_lgx		  = m_gfxManager->GetLGX();
 		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
-		m_rm		  = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-
-		auto* rm = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_rm		  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		// Swapchain
 		const auto monitorSize = window->GetMonitorSize();
@@ -74,9 +71,9 @@ namespace Lina
 			data.gfxStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "SurfaceRenderer: Gfx Stream"});
 			m_guiPass.SetColorAttachment(i, 0, {.clearColor = {clearColor.x, clearColor.y, clearColor.z, clearColor.w}, .texture = static_cast<uint32>(m_swapchain), .isSwapchain = true});
 
-			const String cmdStreamDbg	 = "GUIRenderer: CopyStream" + TO_STRING(i);
-			data.copyStream				 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, cmdStreamDbg.c_str()});
-			data.copySemaphore.semaphore = m_lgx->CreateUserSemaphore();
+			const String cmdStreamDbg = "GUIRenderer: CopyStream" + TO_STRING(i);
+			data.copyStream			  = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, cmdStreamDbg.c_str()});
+			data.copySemaphore		  = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
 		m_guiShader2D	   = m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
@@ -97,14 +94,17 @@ namespace Lina
 			auto& data = m_pfd[i];
 			m_lgx->DestroyCommandStream(data.gfxStream);
 			m_lgx->DestroyCommandStream(data.copyStream);
-			m_lgx->DestroyUserSemaphore(data.copySemaphore.semaphore);
+			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
 		}
 
 		m_lgx->DestroySwapchain(m_swapchain);
 	}
 
-	void SurfaceRenderer::Resize(const LinaGX::LGXVector2ui& newSize)
+	void SurfaceRenderer::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize)
 	{
+		if (window != m_window)
+			return;
+
 		const LinaGX::LGXVector2ui monitorSize = m_window->GetMonitorSize();
 
 		LinaGX::SwapchainRecreateDesc desc = {
@@ -131,9 +131,13 @@ namespace Lina
 			m_guiRenderer.Tick(delta, m_size);
 	}
 
-	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)
+	void SurfaceRenderer::Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues)
 	{
+		if (!m_isVisible)
+			return;
+
 		auto& currentFrame = m_pfd[frameIndex];
+		currentFrame.copySemaphore.ResetModified();
 
 		const LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -191,7 +195,8 @@ namespace Lina
 
 		if (copyExists != 0)
 		{
-			currentFrame.copySemaphore.value++;
+			currentFrame.copySemaphore.Increment();
+
 			m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
 			m_lgx->SubmitCommandStreams({
 				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
@@ -199,8 +204,8 @@ namespace Lina
 				.streamCount	  = 1,
 				.useSignal		  = true,
 				.signalCount	  = 1,
-				.signalSemaphores = &(currentFrame.copySemaphore.semaphore),
-				.signalValues	  = &currentFrame.copySemaphore.value,
+				.signalSemaphores = currentFrame.copySemaphore.GetSemaphorePtr(),
+				.signalValues	  = currentFrame.copySemaphore.GetValuePtr(),
 				.isMultithreaded  = true,
 			});
 		}
@@ -221,7 +226,6 @@ namespace Lina
 
 		// Close
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
-		return currentFrame.gfxStream;
 	}
 
 } // namespace Lina

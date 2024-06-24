@@ -67,7 +67,10 @@ namespace Lina::Editor
 		if (m_tick < 2)
 			m_tick++;
 		else if (m_tick == 2)
+		{
 			FixChildMargins();
+			m_tick++;
+		}
 
 		if (m_isPressed)
 		{

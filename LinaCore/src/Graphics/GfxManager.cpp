@@ -34,8 +34,6 @@ SOFTWARE.
 #include "Core/GUI/Theme.hpp"
 
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
-#include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -46,6 +44,7 @@ SOFTWARE.
 #include "Core/Graphics/Data/RenderData.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
+#include "Core/Graphics/Renderers/Renderer.hpp"
 
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/SystemInfo.hpp"
@@ -123,7 +122,6 @@ namespace Lina
 		m_appDelegate  = m_system->GetApp()->GetAppDelegate();
 		m_clearColor   = initInfo.clearColor;
 		m_currentVsync = initInfo.vsyncStyle;
-		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing				 = initInfo.allowTearing,
@@ -239,6 +237,8 @@ namespace Lina
 				{
 					data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
 				}
+
+				data.poolSubmissionSemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 			}
 		}
 
@@ -285,6 +285,11 @@ namespace Lina
 
 	void GfxManager::Shutdown()
 	{
+		for (const RendererPool& pool : m_rendererPools)
+		{
+			LINA_ASSERT(pool.renderers.empty(), "");
+		}
+
 		DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
 
 		// Frame resources.
@@ -299,21 +304,42 @@ namespace Lina
 
 			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
 				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
+
+			m_lgx->DestroyUserSemaphore(data.poolSubmissionSemaphore.GetSemaphore());
 		}
 
 		// Other gfx resources
 		m_resourceUploadQueue.Shutdown();
 		m_meshManager.Shutdown();
-		for (auto sr : m_surfaceRenderers)
-			delete sr;
-		m_surfaceRenderers.clear();
 
 		// Final
 		delete m_lgx;
+	}
 
-		// GUI allocators
-		linatl::for_each(m_guiAllocators.begin(), m_guiAllocators.end(), [](auto& pair) -> void { delete pair.second; });
-		m_guiAllocators.clear();
+	void GfxManager::CreateRendererPool(StringID sid, uint32 order, bool submitInBatch)
+	{
+		m_rendererPools.push_back({.sid = sid, .order = order, .submitInBatch = submitInBatch});
+	}
+
+	void GfxManager::AddRenderer(Renderer* renderer, StringID sid)
+	{
+		auto it = linatl::find_if(m_rendererPools.begin(), m_rendererPools.end(), [sid](const RendererPool& pool) -> bool { return pool.sid == sid; });
+		LINA_ASSERT(it != m_rendererPools.end(), "");
+		it->renderers.push_back(renderer);
+	}
+
+	void GfxManager::RemoveRenderer(Renderer* renderer)
+	{
+		for (RendererPool& pool : m_rendererPools)
+		{
+			auto it = linatl::find_if(pool.renderers.begin(), pool.renderers.end(), [renderer](Renderer* r) -> bool { return r == renderer; });
+			if (it != pool.renderers.end())
+			{
+				pool.renderers.erase(it);
+				return;
+			}
+		}
+		LINA_ASSERT(false, "");
 	}
 
 	void GfxManager::WaitForSwapchains()
@@ -334,8 +360,11 @@ namespace Lina
 	{
 		WaitForSwapchains();
 
-		for (auto* s : m_surfaceRenderers)
-			s->PreTick();
+		for (const RendererPool& pool : m_rendererPools)
+		{
+			for (Renderer* rend : pool.renderers)
+				rend->PreTick();
+		}
 	}
 
 	void GfxManager::Tick(float delta)
@@ -345,13 +374,25 @@ namespace Lina
 		if (m_mainWindow == nullptr)
 			m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
 
-		if (m_surfaceRenderers.size() == 1)
-			m_surfaceRenderers[0]->Tick(delta);
-		else
+		for (const RendererPool& pool : m_rendererPools)
 		{
-			Taskflow tf;
-			tf.for_each(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [delta](SurfaceRenderer* sf) { sf->Tick(delta); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
+			for (auto* rend : pool.renderers)
+			{
+				rend->Tick(delta);
+			}
+			// if(pool.renderers.size() == 1)
+			// {
+			//     auto* rend = pool.renderers[0];
+			//     rend->Tick(delta);
+			// }
+			// else {
+			//     Taskflow tf;
+			//     tf.for_each_index(0, static_cast<int>(pool.renderers.size()), 1, [&](int i) {
+			//         auto* rend = pool.renderers.at(i);
+			//         rend->Tick(delta);
+			//     });
+			//     m_system->GetMainExecutor()->RunAndWait(tf);
+			// }
 		}
 	}
 
@@ -404,147 +445,176 @@ namespace Lina
 
 	void GfxManager::Render()
 	{
-		/*
-			1. Transfer resources
-			2. Render active worlds, they wait on transfer semaphores (and their own) if exist.
-			3. Render surface renderers, they wait on world semaphores (and their own).
-			4. Present surface renderers.
-		 */
 		PROFILER_FUNCTION();
-
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
 		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
 
-		// Determine eligible surface renderers.
-		Vector<uint8>			 swapchains;
-		Vector<SurfaceRenderer*> validSurfaceRenderers;
-		Vector<uint64>			 storedSurfaceRendererSemaphoreValues;
-		for (const auto& sr : m_surfaceRenderers)
-		{
-			if (sr->IsVisible())
-			{
-				validSurfaceRenderers.push_back(sr);
-				swapchains.push_back(sr->GetSwapchain());
-				storedSurfaceRendererSemaphoreValues.push_back(sr->GetCopySemaphoreData(currentFrameIndex).value);
-			}
-			m_lgx->SetSwapchainActive(sr->GetSwapchain(), sr->IsVisible());
-		}
-		if (validSurfaceRenderers.empty())
-			return;
-
-		// Frame init
 		m_lgx->StartFrame();
 
-		// Update engine global data.
-		const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
-		const auto&			 windowSize = m_mainWindow->GetSize();
-		GPUDataEngineGlobals globalData = {};
-		globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
-		globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
-		currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
+		if (m_mainWindow == nullptr)
+			m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+
+		// Update global data.
+		{
+			const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
+			const auto&			 windowSize = m_mainWindow->GetSize();
+			GPUDataEngineGlobals globalData = {};
+			globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
+			globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
+			currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
+		}
 
 		// Update dirty materials.
-		Vector<Material*> materials;
-		m_resourceManager->GetAllResourcesRaw<Material>(materials, true);
-		for (auto* mat : materials)
 		{
-			if (mat->m_propsDirty)
+			Vector<Material*> materials;
+			m_resourceManager->GetAllResourcesRaw<Material>(materials, true);
+			for (auto* mat : materials)
 			{
-				mat->BufferDataInto(currentFrame.globalMaterialsBuffer, mat->m_bindlessBytePadding);
-				mat->m_propsDirty = false;
+				if (mat->m_propsDirty)
+				{
+					mat->BufferDataInto(currentFrame.globalMaterialsBuffer, mat->m_bindlessBytePadding);
+					mat->m_propsDirty = false;
+				}
+			}
+
+			m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalMaterialsBuffer);
+		}
+
+		// Bindless resources
+		{
+			UpdateBindlessResources(currentFrame);
+		}
+
+		// Mesh manager refresh
+		{
+			m_meshManager.Refresh();
+		}
+
+		// Wait for all transfers.
+		{
+			bool transferExists = m_resourceUploadQueue.FlushAll(currentFrameIndex);
+			if (transferExists)
+			{
+				const SemaphoreData& semaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
+				;
+				m_lgx->WaitForUserSemaphore(semaphoreData.GetSemaphore(), semaphoreData.GetValue());
 			}
 		}
 
-		// Update descriptors
-		UpdateBindlessResources(currentFrame);
-		m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalMaterialsBuffer);
+		// Renderer work
+		Vector<uint16> waitSemaphores;
+		Vector<uint64> waitValues;
 
-		// Transfer data
-		const bool			transferExists		  = m_resourceUploadQueue.FlushAll(currentFrameIndex);
-		const SemaphoreData transferSemaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
-
-		const Vector<WorldRenderer*>& worldRenderers = m_worldManager->GetWorldRenderers();
-
-		// Render worlds.
-		Vector<SemaphoreData> waitOnWorldRenderers;
-		waitOnWorldRenderers.resize(worldRenderers.size());
-		if (worldRenderers.size() == 1)
+		for (const RendererPool& pool : m_rendererPools)
 		{
-			waitOnWorldRenderers[0] = worldRenderers.at(0)->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{});
-		}
-		else
-		{
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(worldRenderers.size()), 1, [&](int i) { waitOnWorldRenderers[i] = worldRenderers.at(i)->Render(currentFrameIndex, transferExists ? transferSemaphoreData : SemaphoreData{}); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
-		}
-
-		// Render surfaces.
-		Vector<LinaGX::CommandStream*> surfaceRendererStreams(validSurfaceRenderers.size());
-		if (validSurfaceRenderers.size() == 1)
-		{
-			auto sf					  = validSurfaceRenderers[0];
-			surfaceRendererStreams[0] = sf->Render(currentFrameIndex);
-		}
-		else
-		{
-			Taskflow tf;
-			tf.for_each_index(0, static_cast<int>(validSurfaceRenderers.size()), 1, [&](int i) { surfaceRendererStreams[i] = validSurfaceRenderers[i]->Render(currentFrameIndex); });
-			m_system->GetMainExecutor()->RunAndWait(tf);
-		}
-
-		// Waits for surface renderer submission.
-		Vector<uint16> surfaceWaitSemaphores;
-		Vector<uint64> surfaceWaitValues;
-
-		// We wait for all worlds to be completed first...
-		if (!waitOnWorldRenderers.empty())
-		{
-			for (const auto& semaphoreData : waitOnWorldRenderers)
-			{
-				surfaceWaitValues.push_back(semaphoreData.value);
-				surfaceWaitSemaphores.push_back(semaphoreData.semaphore);
-			}
-		}
-
-		// We wait for any copy semaphores used during surface renderer recording (e.g. gui renderers)
-		for (size_t i = 0; i < storedSurfaceRendererSemaphoreValues.size(); i++)
-		{
-			const SemaphoreData& sem = validSurfaceRenderers[i]->GetCopySemaphoreData(currentFrameIndex);
-			if (storedSurfaceRendererSemaphoreValues[i] == sem.value)
+			if (pool.renderers.empty())
 				continue;
 
-			// Surface renderer's copy semaphore was modified, we need to wait for it's completion.
-			surfaceWaitSemaphores.push_back(sem.semaphore);
-			surfaceWaitValues.push_back(sem.value); // We submit a value and increment always.
+			Vector<Renderer*> validRenderers;
+
+			for (auto* rend : pool.renderers)
+			{
+				if (rend->IsValidThisFrame())
+					validRenderers.push_back(rend);
+			}
+
+			Vector<LinaGX::CommandStream*> streams;
+			streams.resize(validRenderers.size());
+
+			if (validRenderers.size() == 1)
+			{
+				auto* rend = validRenderers[0];
+				rend->Render(currentFrameIndex, static_cast<uint32>(waitSemaphores.size()), waitSemaphores.data(), waitValues.data());
+				streams[0] = rend->GetStreamForBatchSubmit(currentFrameIndex);
+			}
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(validRenderers.size()), 1, [&](int i) {
+					auto* rend = validRenderers.at(i);
+					rend->Render(currentFrameIndex, static_cast<uint32>(waitSemaphores.size()), waitSemaphores.data(), waitValues.data());
+					streams[i] = rend->GetStreamForBatchSubmit(currentFrameIndex);
+				});
+				m_system->GetMainExecutor()->RunAndWait(tf);
+			}
+
+			if (pool.submitInBatch)
+			{
+
+				for (Renderer* rend : pool.renderers)
+				{
+					const SemaphoreData waitSemaphore = rend->GetWaitSemaphore(currentFrameIndex);
+
+					if (waitSemaphore.IsModified())
+					{
+						waitSemaphores.push_back(waitSemaphore.GetSemaphore());
+						waitValues.push_back(waitSemaphore.GetValue());
+					}
+				}
+
+				currentFrame.poolSubmissionSemaphore.Increment();
+
+				m_lgx->SubmitCommandStreams({
+					.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+					.streams		  = streams.data(),
+					.streamCount	  = static_cast<uint32>(streams.size()),
+					.useWait		  = !waitValues.empty(),
+					.waitCount		  = static_cast<uint32>(waitValues.size()),
+					.waitSemaphores	  = waitSemaphores.data(),
+					.waitValues		  = waitValues.data(),
+					.useSignal		  = true,
+					.signalSemaphores = currentFrame.poolSubmissionSemaphore.GetSemaphorePtr(),
+					.signalValues	  = currentFrame.poolSubmissionSemaphore.GetValuePtr(),
+					.isMultithreaded  = true,
+				});
+
+				waitValues.clear();
+				waitSemaphores.clear();
+				waitSemaphores.push_back(currentFrame.poolSubmissionSemaphore.GetSemaphore());
+				waitValues.push_back(currentFrame.poolSubmissionSemaphore.GetValue());
+			}
+			else
+			{
+				waitValues.clear();
+				waitSemaphores.clear();
+
+				for (Renderer* rend : pool.renderers)
+				{
+					SemaphoreData submittedSemaphore = rend->GetSubmitSemaphore(currentFrameIndex);
+
+					if (submittedSemaphore.IsModified())
+					{
+						waitSemaphores.push_back(submittedSemaphore.GetSemaphore());
+						waitValues.push_back(submittedSemaphore.GetValue());
+					}
+				}
+			}
 		}
 
-		// If no world renderers, transfers might have not been consumed, so make sure we wait for it.
-		if (transferExists && waitOnWorldRenderers.empty())
+		// Presentation
+		Vector<uint8> swapchains;
+
+		for (const RendererPool& pool : m_rendererPools)
 		{
-			surfaceWaitSemaphores.push_back(transferSemaphoreData.semaphore);
-			surfaceWaitValues.push_back(transferSemaphoreData.value);
+			for (Renderer* rend : pool.renderers)
+			{
+				if (!rend->IsValidThisFrame())
+					continue;
+
+				uint8 outSwapchain = 0;
+				if (rend->GetSwapchainToPresent(outSwapchain))
+					swapchains.push_back(outSwapchain);
+			}
 		}
 
-		// Submit surface contents.
-		m_lgx->SubmitCommandStreams({
-			.targetQueue	 = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
-			.streams		 = surfaceRendererStreams.data(),
-			.streamCount	 = static_cast<uint32>(surfaceRendererStreams.size()),
-			.useWait		 = !surfaceWaitSemaphores.empty(),
-			.waitCount		 = static_cast<uint32>(surfaceWaitSemaphores.size()),
-			.waitSemaphores	 = surfaceWaitSemaphores.data(),
-			.waitValues		 = surfaceWaitValues.data(),
-			.isMultithreaded = true,
-		});
+		if (!swapchains.empty())
+		{
+			m_lgx->Present({
+				.swapchains		= swapchains.data(),
+				.swapchainCount = static_cast<uint32>(swapchains.size()),
+			});
+		}
 
-		// Present surface renderers.
-		m_lgx->Present({
-			.swapchains		= swapchains.data(),
-			.swapchainCount = static_cast<uint32>(swapchains.size()),
-		});
-
-		// End
 		m_lgx->EndFrame();
 	}
 
@@ -552,10 +622,7 @@ namespace Lina
 	{
 		m_lgx->Join();
 		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
-
 		window->AddListener(this);
-		SurfaceRenderer* renderer = new SurfaceRenderer(this, window, sid, size, m_clearColor);
-		m_surfaceRenderers.push_back(renderer);
 
 		return window;
 	}
@@ -563,11 +630,6 @@ namespace Lina
 	void GfxManager::DestroyApplicationWindow(StringID sid)
 	{
 		m_lgx->Join();
-
-		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) { return renderer->GetSID() == sid; });
-		delete *it;
-		m_surfaceRenderers.erase(it);
-
 		auto* window = m_lgx->GetWindowManager().GetWindow(sid);
 		window->RemoveListener(this);
 		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
@@ -577,23 +639,11 @@ namespace Lina
 	{
 		Join();
 
-		const Vector<WorldRenderer*>& worldRenderers = m_worldManager->GetWorldRenderers();
-
-		for (auto* wr : worldRenderers)
+		for (const RendererPool& pool : m_rendererPools)
 		{
-			if (wr->GetSize().x > newSize.x || wr->GetSize().y > newSize.y)
+			for (Renderer* rend : pool.renderers)
 			{
-				const Vector2ui size = wr->GetSize().Min(newSize);
-				wr->Resize(size);
-			}
-		}
-
-		for (auto* sr : m_surfaceRenderers)
-		{
-			if (sr->GetWindow() == window)
-			{
-				sr->Resize(newSize);
-				break;
+				rend->OnWindowSizeChanged(window, newSize);
 			}
 		}
 	}
@@ -601,26 +651,6 @@ namespace Lina
 	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)
 	{
 		return m_lgx->GetWindowManager().GetWindow(sid);
-	}
-
-	SurfaceRenderer* GfxManager::GetSurfaceRenderer(StringID sid)
-	{
-		auto it = linatl::find_if(m_surfaceRenderers.begin(), m_surfaceRenderers.end(), [sid](SurfaceRenderer* renderer) -> bool { return renderer->GetSID() == sid; });
-		return *it;
-	}
-
-	PoolAllocator* GfxManager::GetGUIAllocator(TypeID tid, size_t typeSize)
-	{
-		LINA_ASSERT(SystemInfo::IsMainThread(), "");
-
-		PoolAllocator*& alloc = m_guiAllocators[tid];
-		if (alloc == nullptr)
-		{
-			alloc = new PoolAllocator(typeSize * Theme::GetWidgetChunkCount(tid), typeSize);
-			alloc->Init();
-		}
-
-		return alloc;
 	}
 
 } // namespace Lina

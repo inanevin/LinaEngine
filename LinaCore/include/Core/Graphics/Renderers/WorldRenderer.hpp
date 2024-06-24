@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Core/Graphics/Renderers/Renderer.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Common/Data/Map.hpp"
 
@@ -70,7 +71,7 @@ namespace Lina
 		WorldRenderer* m_worldRenderer = nullptr;
 	};
 
-	class WorldRenderer : public EntityWorldListener
+	class WorldRenderer : public EntityWorldListener, public Renderer
 	{
 	private:
 		struct PerFrameData
@@ -92,13 +93,23 @@ namespace Lina
 		};
 
 	public:
-		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize);
+		WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers = nullptr);
 		~WorldRenderer();
 
-		void		  PreTick();
-		void		  Tick(float delta);
-		SemaphoreData Render(uint32 frameIndex, const SemaphoreData& waitSemaphore);
-		void		  Resize(const Vector2ui& newSize);
+		virtual void PreTick() override;
+		virtual void Tick(float delta) override;
+		virtual void Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues) override;
+		virtual void Resize(const Vector2ui& newSize);
+
+		/// If this renderer is submitting its own commands, return the submission semaphore so that the next batch can wait on them.
+		virtual SemaphoreData GetSubmitSemaphore(uint32 frameIndex) override
+		{
+
+			if (m_snapshotBuffers != nullptr)
+				return m_pfd[frameIndex].copySemaphore;
+
+			return m_pfd[frameIndex].signalSemaphore;
+		};
 
 		virtual void OnComponentAdded(Component* c) override;
 		virtual void OnComponentRemoved(Component* c) override;
@@ -112,11 +123,6 @@ namespace Lina
 		inline void RemoveExtension(WorldRendererExtension* ext)
 		{
 			m_extensions.erase(linatl::find_if(m_extensions.begin(), m_extensions.end(), [ext](WorldRendererExtension* extension) -> bool { return ext == extension; }));
-		}
-
-		inline const SemaphoreData& GetCopySemaphore(uint32 index) const
-		{
-			return m_pfd[index].copySemaphore;
 		}
 
 		inline EntityWorld* GetWorld() const
@@ -165,8 +171,6 @@ namespace Lina
 		Shader* m_guiShader3D			= nullptr;
 		uint32	m_guiShader3DVariantGPU = 0;
 
-		GfxManager*									  m_gfxManager				= nullptr;
-		LinaGX::Instance*							  m_lgx						= nullptr;
 		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT]	= {};
 		RenderPass									  m_mainPass				= {};
 		RenderPass									  m_lightingPass			= {};
@@ -183,6 +187,7 @@ namespace Lina
 		Texture*									  m_checkerTexture		   = nullptr;
 		MeshDefault*								  m_skyCube				   = nullptr;
 		Vector<WorldRendererExtension*>				  m_extensions;
+		Buffer*										  m_snapshotBuffers = nullptr;
 	};
 
 } // namespace Lina

@@ -176,7 +176,7 @@ namespace Lina::Editor
 
 		for (auto* w : windows)
 		{
-			Widget* windowRoot = gfxMan->GetSurfaceRenderer(static_cast<StringID>(w->GetSID()))->GetWidgetManager().GetRoot();
+			Widget* windowRoot = editor->GetSurfaceRenderer(static_cast<StringID>(w->GetSID()))->GetWidgetManager().GetRoot();
 
 			Vector<DockArea*> dockAreas;
 			Widget::GetWidgetsOfType<DockArea>(dockAreas, windowRoot);

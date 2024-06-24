@@ -54,14 +54,14 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
-		EntityWorld* CreateEmptyWorld();
-		void		 InstallWorld(const String& path);
-		void		 ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize);
-		void		 SaveEmptyWorld(const String& absolutePath);
-		void		 InstallLevel(const char* level);
-		void		 UninstallLevel(bool immediate);
-		void		 PreTick() override;
-		void		 Tick(float deltaTime);
+		void InstallWorld(const String& path);
+		void UninstallMainWorld();
+
+		void SaveEmptyWorld(const String& absolutePath);
+		void InstallLevel(const char* level);
+		void UninstallLevel(bool immediate);
+		void PreTick() override;
+		void Tick(float deltaTime);
 
 		inline void AddListener(WorldManagerListener* listener)
 		{
@@ -83,20 +83,12 @@ namespace Lina
 			return m_activeWorlds;
 		}
 
-		inline const Vector<WorldRenderer*>& GetWorldRenderers() const
-		{
-			return m_worldRenderers;
-		}
-
 	private:
-		void UninstallMainWorld();
-
 	private:
 		ResourceManager*			  m_rm			 = nullptr;
 		GfxManager*					  m_gfxManager	 = nullptr;
 		EntityWorld*				  m_mainWorld	 = nullptr;
 		Vector<EntityWorld*>		  m_activeWorlds = {};
-		Vector<WorldRenderer*>		  m_worldRenderers;
 		Vector<WorldManagerListener*> m_listeners;
 	};
 } // namespace Lina
