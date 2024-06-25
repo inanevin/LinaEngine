@@ -68,7 +68,6 @@ namespace Lina
 		m_rm					 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_gBufSampler			 = m_gfxManager->GetDefaultSampler(0);
 		m_deferredLightingShader = m_rm->GetResource<Shader>(DEFAULT_SHADER_DEFERRED_LIGHTING_SID);
-		m_checkerTexture		 = m_rm->GetResource<Texture>("Resources/Core/Textures/Checkered.png"_hs);
 		m_skyCube				 = m_rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
 
 		auto* rm = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -314,8 +313,7 @@ namespace Lina
 				.gBufPositionMetallic = currentFrame.gBufPosition->GetBindlessIndex(),
 				.gBufNormalRoughness  = currentFrame.gBufNormal->GetBindlessIndex(),
 				// .gBufDepth             = currentFrame.gBufDepth->GetBindlessIndex(),
-				.gBufSampler	= m_gBufSampler->GetBindlessIndex(),
-				.checkerTexture = m_checkerTexture->GetBindlessIndex(),
+				.gBufSampler = m_gBufSampler->GetBindlessIndex(),
 			};
 
 			m_lightingPass.GetBuffer(frameIndex, "PassData"_hs).BufferData(0, (uint8*)&renderPassData, sizeof(GPUDataDeferredLightingPass));

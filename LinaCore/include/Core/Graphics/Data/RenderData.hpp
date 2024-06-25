@@ -157,10 +157,10 @@ namespace Lina
 		uint32 gBufNormalRoughness	= 0;
 		uint32 gBufAO				= 0;
 		uint32 gBufSampler			= 0;
-		uint32 checkerTexture		= 0;
 		uint32 pad;
 		uint32 pad2;
-		uint32 pad3;
+        uint32 pad3;
+		uint32 pad4;
 	};
 
 } // namespace Lina

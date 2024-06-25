@@ -56,8 +56,8 @@ layout(set = 1, binding = 2) uniform PassData
 	uint gBufPosition;
 	uint gBufNormal;
 	uint gBufSampler;
-	uint checkerTexture;
 	uint pad;
 	uint pad2;
 	uint pad3;
+	uint pad4;
 } LINA_PASS_DATA;

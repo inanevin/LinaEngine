@@ -65,22 +65,20 @@ namespace Lina
 		Vector<ResourceIdentifier> list;
 
 		/* Priority Resources */
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubBlack.png", GetTypeID<Texture>(), 0, false, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/CheckeredDark.png", GetTypeID<Texture>(), 0, true, ResourceFlags::RF_PRIORITY));
+		list.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>(), 0, true, ResourceFlags::RF_PRIORITY));
 
 		/* Core Resources */
 		list.push_back(ResourceIdentifier(DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/StubLinaLogoWhite.png", GetTypeID<Texture>(), 0, true, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
 		list.push_back(ResourceIdentifier("Resources/Core/Models/SkyCube.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Textures/Checkered.png", GetTypeID<Texture>(), 0, false, ResourceFlags::RF_CORE));
+		list.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>(), 0, false, ResourceFlags::RF_CORE));
 
 		for (auto& r : list)
 			r.sid = TO_SID(r.path);
@@ -102,7 +100,7 @@ namespace Lina
 		}
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
-		if (sid == DEFAULT_TEXTURE_CHECKERED || sid == DEFAULT_TEXTURE_LINALOGO || sid == "Resources/Core/Textures/StubLinaLogoWhite.png"_hs)
+		if (sid == DEFAULT_TEXTURE_CHECKERED_SID || sid == DEFAULT_TEXTURE_LINALOGO)
 		{
 			Texture::Metadata meta = {
 				.samplerSID = DEFAULT_SAMPLER_GUI_SID,

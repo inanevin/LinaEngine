@@ -68,16 +68,20 @@ namespace Lina
 #define DEFAULT_MATERIAL_SKY_PATH "Resources/Core/Materials/DefaultSky.linamaterial"
 #define DEFAULT_MATERIAL_SKY_SID  "Resources/Core/Materials/DefaultSky.linamaterial"_hs
 
-#define LINA_MAIN_SWAPCHAIN			UINT32_MAX - 1
-#define DEFAULT_TEXTURE_LINALOGO	"Resources/Core/Textures/StubLinaLogo.png"_hs
-#define DEFAULT_TEXTURE_EMPTY_BLACK "Resources/Core/Textures/StubBlack.png"_hs
-#define DEFAULT_TEXTURE_CHECKERED	"Resources/Core/Textures/Checkered.png"_hs
-#define DEFAULT_CLEAR_CLR			Color(0.3f, 0.3f, 0.5f, 1.0f)
-#define IDEAL_RT					16667
-#define FRAMES_IN_FLIGHT			2
-#define BACK_BUFFER_COUNT			3
-#define MAX_BOUND_TEXTURES			512
-#define MAX_BOUND_SAMPLERS			128
+#define DEFAULT_TEXTURE_CHECKERED_PATH "Resources/Core/Textures/Checkered.png"
+#define DEFAULT_TEXTURE_CHECKERED_SID  "Resources/Core/Textures/Checkered.png"_hs
+
+#define DEFAULT_TEXTURE_CHECKERED_DARK_PATH "Resources/Core/Textures/CheckeredDark.png"
+#define DEFAULT_TEXTURE_CHECKERED_DARK_SID	"Resources/Core/Textures/CheckeredDark.png"_hs
+
+#define LINA_MAIN_SWAPCHAIN		 UINT32_MAX - 1
+#define DEFAULT_TEXTURE_LINALOGO "Resources/Core/Textures/StubLinaLogo.png"_hs
+#define DEFAULT_CLEAR_CLR		 Color(0.3f, 0.3f, 0.5f, 1.0f)
+#define IDEAL_RT				 16667
+#define FRAMES_IN_FLIGHT		 2
+#define BACK_BUFFER_COUNT		 3
+#define MAX_BOUND_TEXTURES		 512
+#define MAX_BOUND_SAMPLERS		 128
 
 	enum RenderPassDescriptorType
 	{

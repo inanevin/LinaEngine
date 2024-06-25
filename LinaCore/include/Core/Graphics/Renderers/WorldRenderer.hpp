@@ -183,7 +183,6 @@ namespace Lina
 		HashMap<Shader*, Vector<DrawDataMeshDefault>> m_drawData;
 		TextureSampler*								  m_gBufSampler			   = nullptr;
 		Shader*										  m_deferredLightingShader = nullptr;
-		Texture*									  m_checkerTexture		   = nullptr;
 		MeshDefault*								  m_skyCube				   = nullptr;
 		Vector<WorldRendererExtension*>				  m_extensions;
 		Buffer*										  m_snapshotBuffer = nullptr;

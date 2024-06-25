@@ -252,7 +252,7 @@ namespace Lina
 			Material* defaultObjectMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
 			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
 			defaultObjectMaterial->BatchLoaded();
-			defaultObjectMaterial->SetProperty("albedo"_hs, LinaTexture2D{"Resources/Core/Textures/CheckeredDark.png"_hs, m_defaultSamplers[0]->GetSID()});
+			defaultObjectMaterial->SetProperty("albedo"_hs, LinaTexture2D{DEFAULT_TEXTURE_CHECKERED_DARK_SID, m_defaultSamplers[0]->GetSID()});
 			m_defaultMaterials.push_back(defaultObjectMaterial);
 
 			Material* defaultSkyMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_SKY_PATH, DEFAULT_MATERIAL_SKY_SID);

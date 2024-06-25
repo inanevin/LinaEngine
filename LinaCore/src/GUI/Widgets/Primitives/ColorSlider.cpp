@@ -83,7 +83,7 @@ namespace Lina
 		{
 			LinaVG::StyleOptions checkered;
 			checkered.color			  = Color::White.AsLVG4();
-			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED;
+			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED_SID;
 			checkered.textureUVTiling = Vector2(m_rect.size.x / 256.0f, m_rect.size.y / 256.0f).AsLVG();
 			m_lvg->DrawRect((m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), checkered, 0.0f, m_drawOrder);
 		}
