@@ -85,6 +85,7 @@ namespace Lina
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
+		void		 Select();
 
 		inline Properties& GetProps()
 		{

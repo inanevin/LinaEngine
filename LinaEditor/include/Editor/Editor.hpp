@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Meta/EditorSettings.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "IO/FileManager.hpp"
+#include "Atlas/AtlasManager.hpp"
 
 namespace Lina
 {
@@ -180,6 +181,11 @@ namespace Lina::Editor
 			return m_fileManager;
 		}
 
+		inline AtlasManager& GetAtlasManager()
+		{
+			return m_atlasManager;
+		}
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
@@ -210,6 +216,7 @@ namespace Lina::Editor
 		static Editor*							   s_editor;
 		HashMap<LinaGX::Window*, SurfaceRenderer*> m_surfaceRenderers;
 		HashMap<EntityWorld*, WorldRenderer*>	   m_worldRenderers;
+		AtlasManager							   m_atlasManager;
 	};
 
 } // namespace Lina::Editor

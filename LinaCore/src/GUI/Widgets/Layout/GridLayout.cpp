@@ -82,7 +82,7 @@ namespace Lina
 		const Vector2 end	= GetEndFromMargins();
 
 		if (m_props.clipChildren)
-			m_manager->SetClip(Rect(start, end - start), {});
+			m_manager->SetClip(m_rect, {});
 
 		Widget::Draw();
 

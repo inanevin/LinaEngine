@@ -48,7 +48,14 @@ namespace Lina
 		opts.rounding													= m_props.rounding;
 		opts.outlineOptions.thickness									= m_props.outlineThickness;
 
-		if (m_props.imageTexture != nullptr)
+		for (int corner : m_props.onlyRoundCorners)
+			opts.onlyRoundTheseCorners.push_back(corner);
+
+		Vector2		  min = m_rect.pos;
+		Vector2		  max = m_rect.GetEnd();
+		const Vector2 sz  = max - min;
+
+		if (m_props.imageTexture != nullptr || m_props.imageTextureAtlas != nullptr)
 		{
 			const Vector2 start = GetStartFromMargins();
 			const Vector2 end	= GetEndFromMargins();
@@ -67,16 +74,44 @@ namespace Lina
 					size.x = size.y / aspect;
 			}
 
-			Color color = m_props.colorStart;
-
 			if (m_props.imageTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
-				color.w = GUI_IS_SINGLE_CHANNEL;
-			m_lvg->DrawImage(m_props.imageTexture->GetBindlessIndex() + 1, m_rect.GetCenter().AsLVG(), size.AsLVG(), color.AsLVG4(), 0.0f, m_drawOrder);
+				opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+
+			opts.textureHandle = m_props.imageTexture->GetBindlessIndex() + 1;
+
+			if (size.x < sz.x)
+			{
+				const float diff = sz.x - size.x;
+				min.x += diff * 0.5f;
+				max.x -= diff * 0.5f;
+			}
+
+			if (size.y < sz.y)
+			{
+				const float diff = sz.y - size.y;
+				min.y += diff * 0.5f;
+				max.y -= diff * 0.5f;
+			}
 		}
-		else
-			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+
+		m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder);
 
 		Widget::Draw();
 		Widget::DrawTooltip();
+	}
+
+	bool ShapeRect::OnMouse(uint32 button, LinaGX::InputAction action)
+	{
+		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
+		{
+			if (m_props.onClicked)
+				m_props.onClicked();
+			return true;
+		}
+
+		return false;
 	}
 } // namespace Lina

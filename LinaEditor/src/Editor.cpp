@@ -209,6 +209,8 @@ namespace Lina::Editor
 		m_gizmoBB->GetRoot().AddChild(&gizmo);
 		m_gizmoBB->UpdateBlob();
 		m_gizmoBB->ClearRoot();
+
+		m_atlasManager.Initialize(this);
 	}
 
 	void Editor::PreTick()
@@ -344,6 +346,8 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_atlasManager.Shutdown();
+
 		DestroyWorldRenderer(m_worldManager->GetMainWorld());
 		m_worldManager->UninstallMainWorld();
 		m_worldManager->RemoveListener(this);

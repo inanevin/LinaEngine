@@ -50,7 +50,7 @@ namespace Lina::Editor
 	class PanelResources : public Panel, public FileMenuListener, public SelectableListLayoutListener
 	{
 	public:
-		static constexpr float MAX_CONTENTS_SIZE = 4.0f;
+		static constexpr float MAX_CONTENTS_SIZE = 5.0f;
 
 		PanelResources() : Panel(PanelType::Resources, 0){};
 		virtual ~PanelResources() = default;

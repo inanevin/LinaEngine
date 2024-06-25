@@ -30,30 +30,12 @@ SOFTWARE.
 
 #include "Common/Data/String.hpp"
 #include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "ThumbnailGenerator.hpp"
+#include "DirectoryItem.hpp"
 
-namespace Lina
-{
-	class Texture;
-}
 namespace Lina::Editor
 {
-
 	class Editor;
-
-	struct DirectoryItem
-	{
-		bool				   isDirectory	= false;
-		String				   absolutePath = "";
-		String				   relativePath = "";
-		String				   folderName	= "";
-		String				   fileName		= "";
-		StringID			   sid			= 0;
-		TypeID				   tid			= 0;
-		String				   extension	= "";
-		Vector<DirectoryItem*> children		= {};
-		Texture*			   thumbnail	= nullptr;
-		DirectoryItem*		   parent		= nullptr;
-	};
 
 	class FileManager
 	{
@@ -82,17 +64,10 @@ namespace Lina::Editor
 		void ClearDirectory(DirectoryItem* item);
 		void RefreshDirectory(DirectoryItem* item);
 		void UpdateItem(DirectoryItem* item, const String& newPath, bool regenerateThumbnail);
-		void GenerateThumbnailForItem(DirectoryItem* item);
 		void FillPathInformation(DirectoryItem* item, const String& fullAbsPath);
 
-		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbShader(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbWorld(DirectoryItem* item, const String& thumbPath);
-
 	private:
+		ThumbnailGenerator	m_thumbnailGenerator;
 		String				m_projectDirectory = "";
 		Editor*				m_editor		   = nullptr;
 		MemoryAllocatorPool m_allocatorPool;

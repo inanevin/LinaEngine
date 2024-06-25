@@ -94,6 +94,15 @@ namespace Lina
 			return this;
 		}
 
+		inline Tween* Restart()
+		{
+			m_passedDelay = false;
+			m_currentTime = 0.0f;
+			m_isCompleted = false;
+			m_value		  = m_start;
+			return this;
+		}
+
 		inline void SetStart(float start)
 		{
 			m_start = start;
@@ -102,6 +111,16 @@ namespace Lina
 		inline void SetEnd(float end)
 		{
 			m_end = end;
+		}
+
+		inline bool GetIsCompleted() const
+		{
+			return m_isCompleted;
+		}
+
+		inline void SetTween(TweenType type)
+		{
+			m_type = type;
 		}
 
 	private:
@@ -124,5 +143,6 @@ namespace Lina
 		PoolAllocator* m_allocator	 = nullptr;
 		bool		   m_passedDelay = false;
 		float		   m_timeScale	 = 1.0f;
+		bool		   m_isCompleted = false;
 	};
 } // namespace Lina

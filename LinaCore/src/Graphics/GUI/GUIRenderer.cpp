@@ -45,8 +45,8 @@ namespace Lina
 {
 
 #define MAX_COPY_COMMANDS 50
-#define MAX_GUI_VERTICES  80000
-#define MAX_GUI_INDICES	  98000
+#define MAX_GUI_VERTICES  120000
+#define MAX_GUI_INDICES	  140000
 
 	void GUIRenderer::Create(GfxManager* gfxManager, LinaGX::Window* window)
 	{

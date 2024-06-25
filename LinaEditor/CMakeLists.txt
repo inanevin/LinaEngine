@@ -26,11 +26,16 @@ include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
 
+# Atlas
+include/Editor/Atlas/AtlasManager.hpp
+
 # Graphics
 include/Editor/Graphics/WorldRendererExtEditor.hpp
 
 # IO
 include/Editor/IO/FileManager.hpp
+include/Editor/IO/ThumbnailGenerator.hpp
+include/Editor/IO/DirectoryItem.hpp
 
 # Widgets
 include/Editor/Widgets/CommonWidgets.hpp
@@ -58,6 +63,7 @@ include/Editor/Widgets/Panel/PanelWorld.hpp
 include/Editor/Widgets/Panel/PanelPerformance.hpp
 include/Editor/Widgets/Panel/PanelEntities.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
+include/Editor/Widgets/FX/LinaLoading.hpp
 
 # Meta
 include/Editor/Meta/EditorSettings.hpp
@@ -71,11 +77,16 @@ src/CommonEditor.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
 
+# Atlas
+src/Atlas/AtlasManager.cpp
+
 # Graphics
 src/Graphics/WorldRendererExtEditor.cpp
 
 # IO
 src/IO/FileManager.cpp
+src/IO/ThumbnailGenerator.cpp
+src/IO/DirectoryItem.cpp
 
 # Widgets
 src/Widgets/CommonWidgets.cpp
@@ -103,6 +114,7 @@ src/Widgets/Panel/PanelPerformance.cpp
 src/Widgets/Panel/PanelWorld.cpp
 src/Widgets/Panel/PanelEntities.cpp
 src/Widgets/Panel/PanelFactory.cpp
+src/Widgets/FX/LinaLoading.cpp
 
 # Meta
 src/Meta/EditorSettings.cpp

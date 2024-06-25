@@ -124,6 +124,15 @@ namespace Lina
 		return false;
 	}
 
+	void Selectable::Select()
+	{
+		m_wasSelected = true;
+		if (m_props.onSelectionChanged)
+			m_props.onSelectionChanged(this, true);
+
+		m_manager->GrabControls(this);
+	}
+
 	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
 		if (m_isHovered)
@@ -167,11 +176,7 @@ namespace Lina
 
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
-			m_wasSelected = true;
-			if (m_props.onSelectionChanged)
-				m_props.onSelectionChanged(this, true);
-
-			m_manager->GrabControls(this);
+			Select();
 
 			return true;
 		}

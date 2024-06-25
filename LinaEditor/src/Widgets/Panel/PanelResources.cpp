@@ -133,6 +133,8 @@ namespace Lina::Editor
 		topContents->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		topContents->SetChildPadding(Theme::GetDef().baseIndentInner);
 		topContents->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		// topContents->GetBorderThickness().bottom = Theme::GetDef().baseBorderThickness;
+		// topContents->SetBorderColor(Theme::GetDef().background0);
 
 		Icon* folder			= m_manager->Allocate<Icon>("PathIcon");
 		folder->GetProps().icon = ICON_FOLDER;
@@ -182,6 +184,8 @@ namespace Lina::Editor
 		bottom->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
 		bottom->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
 		bottom->GetProps().colorBackgroundStart = bottom->GetProps().colorBackgroundEnd = Theme::GetDef().background1;
+		bottom->GetBorderThickness().top												= Theme::GetDef().baseBorderThickness;
+		bottom->SetBorderColor(Theme::GetDef().background0);
 
 		Text* itemCount = m_manager->Allocate<Text>("ItemCount");
 		itemCount->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -233,7 +237,7 @@ namespace Lina::Editor
 				SetShowListContents(false);
 
 			if (!m_showListContents)
-				m_contentsSelectableList->SetGridLayoutItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1)));
+				m_contentsSelectableList->SetGridLayoutItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
 		};
 
 		bottom->AddChild(sizeSlider);
@@ -278,6 +282,7 @@ namespace Lina::Editor
 		selectableList->SetListener(this);
 		selectableList->GetFileMenu()->SetListener(this);
 		selectableList->GetProps().useGridAsLayout = !isList;
+		selectableList->GetProps().defaultGridSize = Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f));
 		m_contentsSelectableList				   = selectableList;
 		return selectableList;
 	}
@@ -412,7 +417,7 @@ namespace Lina::Editor
 							.useDropdownIcon	  = false,
 							.useFolderIcon		  = item->isDirectory,
 							.useCustomInteraction = true,
-							.customTexture		  = item->thumbnail,
+							.customTexture		  = item->textureAtlas,
 				};
 			}
 		}
@@ -487,7 +492,7 @@ namespace Lina::Editor
 		img->SetAlignedPosX(0.0f);
 		img->SetAlignedSize(Vector2(1.0f, 0.0f));
 		img->GetProps().colorStart = img->GetProps().colorEnd = Color::White;
-		img->GetProps().imageTexture						  = item->thumbnail;
+		img->GetProps().imageTextureAtlas					  = item->textureAtlas;
 		img->GetProps().fitImage							  = true;
 		bg->AddChild(img);
 

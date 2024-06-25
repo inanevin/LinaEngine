@@ -47,7 +47,7 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
-			data.copyStream	   = m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer});
+			data.copyStream	   = m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer, .commandCount = 200, .totalMemoryLimit = 24000, .auxMemorySize = 8192, .constantBlockSize = 64});
 			data.copySemaphore = SemaphoreData(m_gfxManager->GetLGX()->CreateUserSemaphore());
 		}
 	}

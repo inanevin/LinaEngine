@@ -40,6 +40,7 @@ src/Graphics/MeshManager.cpp
 src/Graphics/CameraSystem.cpp
 src/Graphics/Utility/ShaderPreprocessor.cpp
 src/Graphics/Utility/GfxHelpers.cpp
+src/Graphics/Utility/TextureAtlas.cpp
 src/Graphics/Data/Vertex.cpp
 src/Graphics/Data/RenderData.cpp
 src/Graphics/Data/Mesh.cpp
@@ -99,6 +100,7 @@ src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetManager.cpp
 src/GUI/Widgets/WidgetCache.cpp
 src/GUI/Widgets/WidgetUtility.cpp
+src/GUI/Widgets/Effects/Dropshadow.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
 src/GUI/Widgets/Layout/ScrollArea.cpp
 src/GUI/Widgets/Layout/FoldLayout.cpp
@@ -165,6 +167,7 @@ include/Core/Graphics/ResourceUploadQueue.hpp
 include/Core/Graphics/MeshManager.hpp
 include/Core/Graphics/Utility/ShaderPreprocessor.hpp
 include/Core/Graphics/Utility/GfxHelpers.hpp
+include/Core/Graphics/Utility/TextureAtlas.hpp
 include/Core/Graphics/Data/RenderData.hpp
 include/Core/Graphics/Data/Vertex.hpp
 include/Core/Graphics/Data/Mesh.hpp
@@ -214,6 +217,7 @@ include/Core/GUI/Widgets/WidgetManager.hpp
 include/Core/GUI/Widgets/WidgetCache.hpp
 include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
+include/Core/GUI/Widgets/Effects/Dropshadow.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
 include/Core/GUI/Widgets/Layout/ScrollArea.hpp
 include/Core/GUI/Widgets/Layout/FoldLayout.hpp

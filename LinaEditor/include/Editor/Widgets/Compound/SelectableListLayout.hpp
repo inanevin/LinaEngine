@@ -46,13 +46,13 @@ namespace Lina::Editor
 
 	struct SelectableListItem
 	{
-		String	 title				  = "";
-		void*	 userData			  = nullptr;
-		bool	 hasChildren		  = false;
-		bool	 useDropdownIcon	  = true;
-		bool	 useFolderIcon		  = false;
-		bool	 useCustomInteraction = false;
-		Texture* customTexture		  = nullptr;
+		String			   title				= "";
+		void*			   userData				= nullptr;
+		bool			   hasChildren			= false;
+		bool			   useDropdownIcon		= true;
+		bool			   useFolderIcon		= false;
+		bool			   useCustomInteraction = false;
+		TextureAtlasImage* customTexture		= nullptr;
 	};
 
 	class SelectableListLayout;
@@ -82,7 +82,8 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			bool useGridAsLayout = false;
+			bool	useGridAsLayout = false;
+			Vector2 defaultGridSize = Vector2::One;
 		};
 
 		virtual void Destruct() override;

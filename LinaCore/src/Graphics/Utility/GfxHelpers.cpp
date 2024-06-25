@@ -46,14 +46,14 @@ namespace Lina
 		};
 
 		LinaGX::DescriptorBinding binding2 = {
-			.descriptorCount = 100,
+			.descriptorCount = 1000,
 			.type			 = LinaGX::DescriptorType::SeparateImage,
 			.unbounded		 = true,
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
 
 		LinaGX::DescriptorBinding binding3 = {
-			.descriptorCount = 100,
+			.descriptorCount = 1000,
 			.type			 = LinaGX::DescriptorType::SeparateSampler,
 			.unbounded		 = true,
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
@@ -292,7 +292,7 @@ namespace Lina
 								   {
 									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
 									   .debugName	 = "RP: GUI - GUIMaterials",
-									   .size		 = sizeof(GPUMaterialGUI) * 100,
+									   .size		 = sizeof(GPUMaterialGUI) * 250,
 									   .stagingOnly	 = false,
 									   .bindingIndex = 1,
 									   .ident		 = "GUIMaterials"_hs,

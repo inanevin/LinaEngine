@@ -66,8 +66,8 @@ void main()
        int textureIndex = int(material.color2.r);
        int samplerIndex = int(material.color2.g);
        vec4 col = texture(sampler2D(LINA_TEXTURES[textureIndex], LINA_SAMPLERS[samplerIndex]), inUV * material.floatPack1.rg + material.floatPack1.ba);
-       // float alpha = inCol.a * material.floatPack2.r + col.a * (1.0f - material.floatPack2.r);
-       outFragColor = vec4(col.rgb, inCol.a) * material.color1; 
+       float alpha = inCol.a * material.floatPack2.r + col.a * (1.0f - material.floatPack2.r);
+       outFragColor = vec4(col.rgb, alpha) * material.color1; 
 
        if(int(material.floatPack2.g) == 1)
           outFragColor = vec4(col.r) * material.color1;

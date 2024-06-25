@@ -468,7 +468,7 @@ namespace Lina
 		w->m_executeNextFrame.clear();
 
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
-			w->SetDrawOrder(w->GetParent()->GetDrawOrder());
+			w->SetDrawOrder(w->GetParent()->GetDrawOrder() + w->GetDrawOrderIncrement());
 
 		w->SetIsHovered();
 		w->CheckCustomTooltip();

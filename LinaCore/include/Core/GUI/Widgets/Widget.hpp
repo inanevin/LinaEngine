@@ -149,6 +149,16 @@ namespace Lina
 
 		bool IsWidgetInHierarchy(Widget* widget);
 
+		inline int32 GetDrawOrderIncrement() const
+		{
+			return m_drawOrderIncrement;
+		}
+
+		inline void SetDrawOrderIncrement(int32 incr)
+		{
+			m_drawOrderIncrement = incr;
+		}
+
 		virtual float CalculateChildrenSize()
 		{
 			return 0.0f;
@@ -475,6 +485,7 @@ namespace Lina
 		void*						m_customTooltipUserData = nullptr;
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
+		int32						m_drawOrderIncrement	= 0;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Widget)

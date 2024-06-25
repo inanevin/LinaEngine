@@ -54,7 +54,7 @@ namespace Lina
 	{
 		if (m_isPressed && m_props.value)
 		{
-			const Vector2 mouse		  = m_lgxWindow->GetInput()->GetMousePositionAbs();
+			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)

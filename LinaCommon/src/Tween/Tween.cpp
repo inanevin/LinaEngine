@@ -115,5 +115,6 @@ namespace Lina
 	{
 		if (m_onCompleted)
 			m_onCompleted();
+		m_isCompleted = true;
 	}
 } // namespace Lina

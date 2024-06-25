@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
@@ -72,7 +73,7 @@ namespace Lina::Editor
 			dirLayout->SetAlignedPos(Vector2::Zero);
 			dirLayout->SetAlignedSize(Vector2::One);
 			dirLayout->GetProps().backgroundStyle	   = DirectionalLayout::BackgroundStyle::Default;
-			dirLayout->GetProps().colorBackgroundStart = dirLayout->GetProps().colorBackgroundEnd = Theme::GetDef().background0;
+			dirLayout->GetProps().colorBackgroundStart = dirLayout->GetProps().colorBackgroundEnd = Theme::GetDef().background1;
 			dirLayout->GetProps().colorOutline													  = Theme::GetDef().accentPrimary0;
 			dirLayout->GetProps().clipChildren													  = true;
 			scroll->AddChild(dirLayout);
@@ -85,14 +86,13 @@ namespace Lina::Editor
 			gridLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			gridLayout->SetAlignedPos(Vector2::Zero);
 			gridLayout->SetAlignedSize(Vector2::One);
-			gridLayout->GetProps().colorBackground = Theme::GetDef().background0;
 			gridLayout->GetProps().colorOutline	   = Theme::GetDef().accentPrimary0;
 			gridLayout->GetChildMargins()		   = TBLR::Eq(Theme::GetDef().baseIndent);
 			gridLayout->GetProps().clipChildren	   = true;
 			gridLayout->GetProps().background	   = GridLayout::BackgroundStyle::Default;
-			gridLayout->GetProps().colorBackground = Theme::GetDef().background0;
-			gridLayout->GetProps().verticalPadding = Theme::GetDef().baseIndent;
-			gridLayout->SetChildPadding(Theme::GetDef().baseIndentInner);
+			gridLayout->GetProps().colorBackground = Theme::GetDef().background1;
+			gridLayout->GetProps().verticalPadding = Theme::GetDef().baseIndent * 2;
+			gridLayout->SetChildPadding(Theme::GetDef().baseIndent * 2);
 			gridLayout->GetProps().colorOutline = Theme::GetDef().accentPrimary0;
 			scroll->AddChild(gridLayout);
 			m_gridLayout = gridLayout;
@@ -162,24 +162,33 @@ namespace Lina::Editor
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
-		layout->SetFixedSize(Vector2(Theme::GetDef().baseItemHeight * 4, Theme::GetDef().baseItemHeight * 5));
-		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
+		layout->SetFixedSize(m_props.defaultGridSize);
 		m_gridLayoutItems.push_back(layout);
 
-		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
-		selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
-		selectable->SetAlignedPosX(0.0f);
-		selectable->SetAlignedSizeX(1.0f);
-		selectable->SetUserData(item.userData);
-		selectable->GetChildMargins()			= TBLR::Eq(Theme::GetDef().baseIndentInner);
-		selectable->GetProps().rounding			= Theme::GetDef().baseRounding;
-		selectable->GetProps().colorStart		= Theme::GetDef().background3;
-		selectable->GetProps().colorEnd			= Theme::GetDef().background3;
-		selectable->GetProps().outlineThickness = 1.0f;
-		selectable->GetProps().colorOutline		= Theme::GetDef().background1;
-		layout->AddChild(selectable);
-		SetSelectableCallbacks(item, selectable, nullptr);
-		m_selectables.push_back(selectable);
+		ShapeRect* bgShape = m_manager->Allocate<ShapeRect>("BG");
+		bgShape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
+		bgShape->SetAlignedPosX(0.0f);
+		bgShape->SetAlignedSizeX(1.0f);
+
+		bgShape->GetProps().rounding   = Theme::GetDef().baseRounding;
+		bgShape->GetProps().colorStart = Theme::GetDef().background2;
+		bgShape->GetProps().colorEnd   = Theme::GetDef().background2;
+		bgShape->GetProps().onlyRoundCorners.push_back(0);
+		bgShape->GetProps().onlyRoundCorners.push_back(1);
+		layout->AddChild(bgShape);
+
+		ShapeRect* bgShapeOutline = m_manager->Allocate<ShapeRect>("Outline");
+		bgShapeOutline->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		bgShapeOutline->SetAlignedPos(Vector2::Zero);
+		bgShapeOutline->SetAlignedSize(Vector2::One);
+		bgShapeOutline->GetProps().rounding			= Theme::GetDef().baseRounding;
+		bgShapeOutline->GetProps().colorStart.w		= 0.0f;
+		bgShapeOutline->GetProps().colorEnd.w		= 0.0f;
+		bgShapeOutline->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.5f;
+		bgShapeOutline->GetProps().colorOutline		= Theme::GetDef().background0;
+		bgShapeOutline->GetProps().onlyRoundCorners.push_back(0);
+		bgShapeOutline->GetProps().onlyRoundCorners.push_back(1);
+		bgShape->AddChild(bgShapeOutline);
 
 		if (item.useFolderIcon)
 		{
@@ -191,33 +200,65 @@ namespace Lina::Editor
 			folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			folder->GetProps().dynamicSizeToParent = true;
 			folder->GetProps().dynamicSizeScale	   = 0.8f;
-			selectable->AddChild(folder);
+			bgShape->AddChild(folder);
 		}
 		else if (item.customTexture != nullptr)
 		{
-			ShapeRect* img = m_manager->Allocate<ShapeRect>("Shape");
-			img->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			img->SetAlignedPos(Vector2(0.5f, 0.5f));
-			img->SetAlignedSize(Vector2(1.0f, 1.0f));
-			img->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-			img->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			img->GetProps().imageTexture = item.customTexture;
-			img->GetProps().fitImage	 = true;
-			img->GetProps().colorStart	 = Color(1, 1, 1, 1);
-			selectable->AddChild(img);
+			// ShapeRect* img = m_manager->Allocate<ShapeRect>("Shape");
+			// img->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			// img->GetProps().onlyRoundCorners.push_back(0);
+			// img->GetProps().onlyRoundCorners.push_back(1);
+			// img->SetAlignedPos(Vector2(0.5f, 0.5f));
+			// img->SetAlignedSize(Vector2(1.0f, 1.0f));
+			// img->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+			// img->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			bgShape->GetProps().imageTextureAtlas = item.customTexture;
+			bgShape->GetProps().fitImage		  = true;
+			bgShape->GetProps().colorStart		  = Color(1, 1, 1, 1);
+			// bgShape->GetProps().rounding = Theme::GetDef().baseRounding;
+			// bgShape->AddChild(img);
 
-			img->SetCustomTooltipUserData(item.userData);
-			img->SetBuildCustomTooltip([this](void* userData) -> Widget* { return m_listener->OnSelectableListBuildCustomTooltip(this, userData); });
+			// img->SetCustomTooltipUserData(item.userData);
+			// img->SetBuildCustomTooltip([this](void* userData) -> Widget* { return m_listener->OnSelectableListBuildCustomTooltip(this, userData); });
 		}
 
+		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+		selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
+		selectable->SetAlignedPosX(0.0f);
+		selectable->SetAlignedSizeX(1.0f);
+		selectable->SetAlignedSizeY(0.0f);
+		selectable->SetUserData(item.userData);
+		selectable->GetProps().rounding	  = Theme::GetDef().baseRounding;
+		selectable->GetProps().colorStart = Theme::GetDef().background3;
+		selectable->GetProps().colorEnd	  = Theme::GetDef().background3;
+		selectable->SetDrawOrderIncrement(2);
+		selectable->SetUserData(item.userData);
+		layout->AddChild(selectable);
+		bgShape->GetProps().onClicked = [selectable]() { selectable->Select(); };
+
+		SetSelectableCallbacks(item, selectable, nullptr);
+		m_selectables.push_back(selectable);
+
+		Dropshadow* ds = m_manager->Allocate<Dropshadow>("Dropshadow");
+		ds->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		ds->SetAlignedPos(Vector2::Zero);
+		ds->SetAlignedSize(Vector2::One);
+		ds->GetProps().direction = Direction::Bottom;
+		ds->GetProps().color	 = Theme::GetDef().background0;
+		ds->GetProps().color.w	 = 0.75f;
+		ds->GetProps().steps	 = 6;
+		ds->SetDrawOrderIncrement(-1);
+		selectable->AddChild(ds);
+
 		Text* title = WidgetUtility::BuildEditableText(this, false, []() {});
-		title->GetFlags().Set(WF_POS_ALIGN_X);
-		title->SetAlignedPosX(0.5f);
+		title->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+		title->SetAlignedPos(Vector2(0.5f, 0.5f));
 		title->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		title->GetProps().text				  = item.title;
 		title->GetProps().fetchWrapFromParent = true;
 		title->GetProps().wordWrap			  = false;
-		layout->AddChild(title);
+		selectable->AddChild(title);
 
 		return layout;
 	}
@@ -283,9 +324,9 @@ namespace Lina::Editor
 			img->SetAlignedPosY(0.5f);
 			img->SetAlignedSizeY(0.8f);
 			img->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			img->GetProps().imageTexture = item.customTexture;
-			img->GetProps().fitImage	 = true;
-			img->GetProps().colorStart	 = Color(1, 1, 1, 1);
+			img->GetProps().imageTextureAtlas = item.customTexture;
+			img->GetProps().fitImage		  = true;
+			img->GetProps().colorStart		  = Color(1, 1, 1, 1);
 			layout->AddChild(img);
 
 			img->SetCustomTooltipUserData(item.userData);
@@ -371,6 +412,7 @@ namespace Lina::Editor
 
 	void SelectableListLayout::SetGridLayoutItemSize(const Vector2& size)
 	{
+		m_props.defaultGridSize = size;
 		for (auto* i : m_gridLayoutItems)
 			i->SetFixedSize(size);
 	}
@@ -423,6 +465,15 @@ namespace Lina::Editor
 		if (m_isHovered)
 		{
 			bool anyHovered = false;
+
+			for (auto* c : GetChildren())
+			{
+				if (c->GetIsHovered())
+				{
+					anyHovered = true;
+					break;
+				}
+			}
 
 			for (auto* c : m_layout->GetChildren())
 			{

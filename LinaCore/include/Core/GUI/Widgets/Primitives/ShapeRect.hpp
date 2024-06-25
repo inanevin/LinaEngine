@@ -29,11 +29,13 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
 	class Font;
 	class Texture;
+	class TextureAtlasImage;
 
 	class ShapeRect : public Widget
 	{
@@ -47,16 +49,21 @@ namespace Lina
 			Color colorEnd	   = Theme::GetDef().background0;
 			Color colorOutline = Theme::GetDef().outlineColorBase;
 
-			float	 rounding		  = 0.0f;
-			float	 outlineThickness = 0.0f;
-			Texture* imageTexture	  = 0;
-			bool	 fitImage		  = false;
+			Vector<int>		   onlyRoundCorners;
+			float			   rounding			 = 0.0f;
+			float			   outlineThickness	 = 0.0f;
+			Texture*		   imageTexture		 = nullptr;
+			TextureAtlasImage* imageTextureAtlas = nullptr;
+			bool			   fitImage			 = false;
+
+			Delegate<void()> onClicked;
 
 			void SaveToStream(OStream& stream) const
 			{
 				colorStart.SaveToStream(stream);
 				colorEnd.SaveToStream(stream);
 				colorOutline.SaveToStream(stream);
+				VectorSerialization::SaveToStream_PT(stream, onlyRoundCorners);
 				stream << rounding << outlineThickness << fitImage;
 			}
 
@@ -65,11 +72,13 @@ namespace Lina
 				colorStart.LoadFromStream(stream);
 				colorEnd.LoadFromStream(stream);
 				colorOutline.LoadFromStream(stream);
+				VectorSerialization::LoadFromStream_PT(stream, onlyRoundCorners);
 				stream >> rounding >> outlineThickness >> fitImage;
 			}
 		};
 
 		virtual void Draw() override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
 		inline Properties& GetProps()
 		{

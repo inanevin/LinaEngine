@@ -102,11 +102,11 @@ namespace Lina
 
 	void Texture::CreateFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
 	{
-		if (m_owner != ResourceOwner::UserCode)
-		{
-			LINA_ERR("Custom pixels can only be set on user managed textures!");
-			return;
-		}
+		// if (m_owner != ResourceOwner::UserCode)
+		// {
+		// 	LINA_ERR("Custom pixels can only be set on user managed textures!");
+		// 	return;
+		// }
 
 		m_size = Vector2ui(width, height);
 
