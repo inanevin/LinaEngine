@@ -27,70 +27,53 @@ SOFTWARE.
 */
 
 #include "Common/Memory/Memory.hpp"
+#include "Common/Profiling/MemoryTracer.hpp"
 
 void* operator new(std::size_t size)
 {
-	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
+	void* ptr = malloc(size);
+	MEMORY_TRACER_ONALLOC(ptr, sz);
 	return ptr;
 }
 
 void* operator new[](size_t size)
 {
-	void* ptr = Lina::GlobalAllocationWrapper::Get().Allocate(size);
+	void* ptr = malloc(size);
+	MEMORY_TRACER_ONALLOC(ptr, sz);
 	return ptr;
 }
 
 void operator delete[](void* ptr)
 {
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+	MEMORY_TRACER_ONFREE(ptr);
+	free(ptr);
 }
 
 void operator delete(void* ptr)
 {
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+	MEMORY_TRACER_ONFREE(ptr);
+	free(ptr);
 }
 
 void operator delete(void* ptr, size_t sz)
 {
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+	MEMORY_TRACER_ONFREE(ptr);
+	free(ptr);
 }
 void operator delete[](void* ptr, std::size_t sz)
 {
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+	MEMORY_TRACER_ONFREE(ptr);
+	free(ptr);
 }
 
 void operator delete(void* ptr, const std::nothrow_t& tag)
 {
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+	MEMORY_TRACER_ONFREE(ptr);
+	free(ptr);
 }
 
 void operator delete[](void* ptr, const std::nothrow_t& tag)
 {
-	Lina::GlobalAllocationWrapper::Get().Free(ptr);
+	MEMORY_TRACER_ONFREE(ptr);
+	free(ptr);
 }
-
-namespace Lina
-{
-	void* GlobalAllocationWrapper::Allocate(size_t sz)
-	{
-		return m_allocator.Allocate(sz);
-	}
-
-	void GlobalAllocationWrapper::Free(void* ptr)
-	{
-		// Some libraries may do so, as in most runtimes this is valid
-		if (ptr == nullptr)
-			return;
-
-		m_allocator.Free(ptr);
-	}
-
-	GlobalAllocationWrapper::GlobalAllocationWrapper() : m_allocator(MemoryAllocatorPool(AllocatorType::StandardMallocFree, AllocatorGrowPolicy::UseInitialSize, true, LINA_GLOBALLOC_INITIAL_SIZE, 0, 0))
-	{
-	}
-
-	GlobalAllocationWrapper::~GlobalAllocationWrapper()
-	{
-	}
-
-} // namespace Lina
