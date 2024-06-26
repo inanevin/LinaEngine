@@ -60,23 +60,14 @@ namespace Lina
 		struct GfxSettings
 		{
 			ResRef<Material> skyMaterial;
-
-			void SaveToStream(OStream& stream) const;
-			void LoadFromStream(IStream& stream);
 		};
 
 		EntityWorld(const EntityWorld& other) = delete;
 
 		EntityWorld(ResourceManager* rm, const String& path = "", StringID sid = 0, uint32 flags = 0);
 
-		~EntityWorld()
-		{
-			DestroyWorld();
-		}
+		~EntityWorld() = default;
 
-		Entity*		 GetEntity(uint32 id);
-		Entity*		 GetEntity(const String& name);
-		Entity*		 GetEntityFromSID(StringID sid);
 		Entity*		 CreateEntity(const String& name);
 		void		 DestroyEntity(Entity* e);
 		virtual void SaveToStream(OStream& stream) const override;
@@ -85,6 +76,16 @@ namespace Lina
 		void		 RemoveListener(EntityWorldListener* listener);
 		void		 PreTick();
 		void		 Tick(float deltaTime);
+
+		inline uint32 GetActiveEntityCount() const
+		{
+			return m_entityBucket.GetActiveItemCount();
+		}
+
+		inline void ViewEntities(Delegate<bool(Entity* e, uint32 index)>&& callback)
+		{
+			m_entityBucket.View(std::move(callback));
+		}
 
 		inline void SetRenderSize(const Vector2ui& sz)
 		{
@@ -126,28 +127,6 @@ namespace Lina
 			return m_activeSky;
 		}
 
-		void GetAllEntities(Vector<Entity*>& entities)
-		{
-			entities.reserve(m_entities.GetNextFreeID());
-
-			for (auto e : m_entities)
-			{
-				if (e != nullptr)
-					entities.push_back(e);
-			}
-		}
-
-		void GetAllRootEntities(Vector<Entity*>& entities)
-		{
-			entities.reserve(m_entities.GetNextFreeID());
-
-			for (auto e : m_entities)
-			{
-				if (e != nullptr && e->GetParent() == nullptr)
-					entities.push_back(e);
-			}
-		}
-
 		template <typename T> T* GetComponent(Entity* e)
 		{
 			return GetCache<T>()->Get();
@@ -158,7 +137,6 @@ namespace Lina
 			T* comp = GetCache<T>()->Create();
 			*comp	= t;
 			ProcessComponent(comp, e);
-
 			for (auto* l : m_listeners)
 				l->OnComponentAdded(comp);
 
@@ -188,6 +166,7 @@ namespace Lina
 			if (comp == m_activeSky)
 				m_activeSky = nullptr;
 
+			comp->Destroy();
 			cache->Destroy();
 		}
 
@@ -199,7 +178,6 @@ namespace Lina
 				m_componentCaches[tid] = new ComponentCache<T>(this, this);
 
 			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
-			cache->m_entities		 = m_entities.GetRaw();
 			return cache;
 		}
 
@@ -224,13 +202,14 @@ namespace Lina
 		FRIEND_RESOURCE_CACHE();
 		friend class WorldManager;
 
-		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
 		void Simulate(float fixedDelta);
 
 		void WaitForSimulation();
 
 	private:
+		AllocatorBucket<Entity, 1000> m_entityBucket;
+
 		System*								 m_system = nullptr;
 		PhysicsWorld						 m_physicsWorld;
 		MemoryAllocatorPool					 m_allocatorPool;

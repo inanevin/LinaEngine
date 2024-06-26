@@ -86,9 +86,6 @@ namespace Lina
 		ResourceManager* m_resourceManager = nullptr;
 		Bitmask32		 m_flags		   = 0;
 		LinaGX::Input*	 m_input		   = nullptr;
-
-	private:
-		uint32 m_entityID = 0;
 	};
 
 } // namespace Lina

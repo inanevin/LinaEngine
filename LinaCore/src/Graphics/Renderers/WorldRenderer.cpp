@@ -329,17 +329,14 @@ namespace Lina
 
 		// All entities.
 		{
-			Vector<Entity*> entities;
-			m_world->GetAllEntities(entities);
-			m_objects.resize(entities.size());
+			m_objects.resize(static_cast<size_t>(m_world->GetActiveEntityCount()));
+			m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
+				e->SetBindlessIndex(index);
+				auto& data = m_objects[index];
+				data.model = e->GetTransform().GetMatrix();
+				return false;
+			});
 
-			for (size_t i = 0; i < entities.size(); i++)
-			{
-				Entity* e	   = entities[i];
-				e->m_ssboIndex = static_cast<uint32>(i);
-				auto& data	   = m_objects[i];
-				data.model	   = e->GetTransform().GetMatrix();
-			}
 			currentFrame.objectBuffer.BufferData(0, (uint8*)m_objects.data(), sizeof(GPUDataObject) * m_objects.size());
 		}
 
@@ -356,12 +353,12 @@ namespace Lina
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
 
 			if (it != vec.end())
-				it->instances.push_back({material, mc->GetEntity()->m_ssboIndex});
+				it->instances.push_back({material, mc->GetEntity()->GetBindlessIndex()});
 			else
 			{
 				DrawDataMeshDefault drawData = {
 					.mesh	   = mesh,
-					.instances = {{material, mc->GetEntity()->m_ssboIndex}},
+					.instances = {{material, mc->GetEntity()->GetBindlessIndex()}},
 				};
 				vec.push_back(drawData);
 			}
@@ -422,7 +419,7 @@ namespace Lina
 					guiMaterialBufferOffset += sizeof(GPUMaterialGUI);
 
 					GPUIndirectConstants0 constants = {
-						.entityID = wc->GetEntity()->m_ssboIndex,
+						.entityID = wc->GetEntity()->GetBindlessIndex(),
 					};
 
 					m_forwardTransparencyPass.GetBuffer(frameIndex, "IndirectConstants"_hs).BufferData(constantsCount * sizeof(GPUIndirectConstants0), (uint8*)&constants, sizeof(GPUIndirectConstants0));

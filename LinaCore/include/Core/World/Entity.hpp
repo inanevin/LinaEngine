@@ -28,13 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Entity_HPP
-#define Entity_HPP
-
 #include "CommonWorld.hpp"
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Math/Transformation.hpp"
 #include "Common/Data/HashSet.hpp"
+#include "Common/Memory/CommonMemory.hpp"
 #include "Common/ObjectWrapper.hpp"
 #include "Common/Math/AABB.hpp"
 
@@ -46,8 +44,6 @@ namespace Lina
 	class Entity final
 	{
 	public:
-		Entity() = default;
-
 		void		   AddChild(Entity* e);
 		void		   RemoveChild(Entity* e);
 		void		   RemoveFromParent();
@@ -80,19 +76,9 @@ namespace Lina
 			return ObjectWrapper<EntityWorld>(m_world);
 		}
 
-		inline uint32 GetID()
-		{
-			return m_id;
-		}
-
 		inline const String& GetName()
 		{
 			return m_name;
-		}
-
-		inline StringID GetSID()
-		{
-			return m_sid;
 		}
 
 		inline bool IsVisible()
@@ -151,7 +137,6 @@ namespace Lina
 		inline void SetName(const String& name)
 		{
 			m_name = name;
-			m_sid  = TO_SID(name);
 		}
 
 		inline bool IsMaskSet(uint16 mask)
@@ -174,6 +159,21 @@ namespace Lina
 			return m_parent;
 		}
 
+		inline uint32 GetTransientID() const
+		{
+			return m_transientID;
+		}
+
+		inline void SetBindlessIndex(uint32 index)
+		{
+			m_bindlessIndex = index;
+		}
+
+		inline uint32 GetBindlessIndex() const
+		{
+			return m_bindlessIndex;
+		}
+
 	private:
 		void UpdateGlobalPosition();
 		void UpdateLocalPosition();
@@ -192,25 +192,21 @@ namespace Lina
 
 	private:
 		friend class EntityWorld;
-		friend class WorldRenderer;
 
+		Entity()  = default;
 		~Entity() = default;
 
-		EntityWorld*	m_world	   = nullptr;
-		Entity*			m_parent   = nullptr;
-		uint32			m_id	   = 0;
-		String			m_name	   = "";
-		uint32			m_parentID = ENTITY_NULL;
+		ALLOCATOR_BUCKET_MEM;
+		uint32			m_transientID = 0;
+		EntityWorld*	m_world		  = nullptr;
+		Entity*			m_parent	  = nullptr;
+		String			m_name		  = "";
 		Vector<Entity*> m_children;
-		Vector<uint32>	m_childrenIDsForLoad;
 		Transformation	m_transform;
 		Transformation	m_prevTransform;
 		Bitmask16		m_mask;
-		StringID		m_sid		= 0;
-		uint32			m_ssboIndex = 0;
 		AABB			m_totalAABB;
+		uint32			m_bindlessIndex;
 	};
 
 } // namespace Lina
-
-#endif

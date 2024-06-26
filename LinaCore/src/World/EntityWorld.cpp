@@ -48,66 +48,21 @@ namespace Lina
 		m_system = rm->GetSystem();
 	};
 
-	void EntityWorld::DestroyWorld()
-	{
-		for (auto* e : m_entities)
-		{
-			if (e != nullptr)
-			{
-				e->~Entity();
-				m_allocatorPool.Free(e);
-			}
-		}
-
-		for (auto [tid, cache] : m_componentCaches)
-			delete cache;
-
-		m_entities.Clear();
-		m_componentCaches.clear();
-	}
-
-	Entity* EntityWorld::GetEntity(uint32 id)
-	{
-		return m_entities.GetItem(id);
-	}
-
-	Entity* EntityWorld::GetEntity(const String& name)
-	{
-		auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [&name](Entity* e) { return e != nullptr && e->GetName().compare(name) == 0; });
-		return it == m_entities.end() ? nullptr : *it;
-	}
-
-	Entity* EntityWorld::GetEntityFromSID(StringID sid)
-	{
-		auto it = linatl::find_if(m_entities.begin(), m_entities.end(), [sid](Entity* e) { return e != nullptr && e->GetSID() == sid; });
-		return *it;
-	}
-
 	Entity* EntityWorld::CreateEntity(const String& name)
 	{
-		Entity* e = new (m_allocatorPool.Allocate(sizeof(Entity))) Entity();
+		const uint32 id = m_entityBucket.GetActiveItemCount();
+		Entity*		 e	= m_entityBucket.Allocate();
 		e->SetVisible(true);
 		e->SetStatic(true);
 		e->m_world = this;
 		e->m_name  = name;
-		e->m_sid   = TO_SID(name);
-		e->m_id	   = m_entities.AddItem(e);
-
-		if (m_entities.GetItems().size() > ENTITY_MAX)
-		{
-			LINA_ERR("Reached maximum number of entities!");
-			LINA_ASSERT(false, "");
-			return nullptr;
-		}
-
 		return e;
 	}
 
 	void EntityWorld::DestroyEntity(Entity* e)
 	{
-		if (e->m_parentID != ENTITY_NULL)
+		if (e->m_parent != nullptr)
 			e->m_parent->RemoveChild(e);
-
 		DestroyEntityData(e);
 	}
 
@@ -115,11 +70,7 @@ namespace Lina
 	{
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
-
-		const uint32 id = e->m_id;
-		m_entities.RemoveItem(id);
-		e->~Entity();
-		m_allocatorPool.Free(e);
+		m_entityBucket.Free(e);
 	}
 
 	void EntityWorld::Simulate(float fixedDelta)
@@ -155,43 +106,85 @@ namespace Lina
 
 	void EntityWorld::SaveToStream(OStream& stream) const
 	{
-		m_gfxSettings.SaveToStream(stream);
-		m_entities.SaveToStream(stream);
-
-		Vector<Entity*> entityObjects;
-		for (auto e : m_entities)
-		{
-			if (e != nullptr)
-				entityObjects.push_back(e);
-		}
-
-		const uint32 entitiesSize = static_cast<uint32>(entityObjects.size());
+		const uint32 entitiesSize = m_entityBucket.GetActiveItemCount();
 		stream << entitiesSize;
 
-		for (auto e : entityObjects)
+		m_entityBucket.View([&](Entity* e, uint32 index) -> bool {
 			e->SaveToStream(stream);
-		entityObjects.clear();
+			e->m_transientID = index;
+			return false;
+		});
 
-		Vector<TypeID> tids;
+		m_entityBucket.View([&](Entity* e, uint32 index) -> bool {
+			if (e->GetParent() != nullptr)
+				stream << index + 1;
+			else
+				stream << 0;
+			return false;
+		});
+
+		const uint32 cacheSize = static_cast<uint32>(m_componentCaches.size());
+		stream << cacheSize;
+
 		for (auto& [tid, cache] : m_componentCaches)
-			tids.push_back(tid);
-
-		VectorSerialization::SaveToStream_PT(stream, tids);
-
-		for (auto& [tid, cache] : m_componentCaches)
+		{
+			stream << tid;
 			cache->SaveToStream(stream);
+		}
 	}
 
 	void EntityWorld::LoadFromFile(const char* path)
 	{
-		DestroyWorld();
-
 		IStream stream = Serialization::LoadFromFile(path);
-
 		if (stream.GetDataRaw() != nullptr)
 			LoadFromStream(stream);
-
 		stream.Destroy();
+	}
+
+	void EntityWorld::LoadFromStream(IStream& stream)
+	{
+		m_entityBucket.Clear();
+		m_componentCaches.clear();
+
+		uint32 entitiesSize = 0;
+		stream >> entitiesSize;
+
+		Vector<Entity*> entities;
+		entities.resize(entitiesSize);
+
+		for (uint32 i = 0; i < entitiesSize; i++)
+		{
+			Entity* e = CreateEntity("");
+			e->LoadFromStream(stream);
+			entities[i] = e;
+		}
+
+		for (uint32 i = 0; i < entitiesSize; i++)
+		{
+			uint32 parentID = 0;
+			stream >> parentID;
+
+			if (parentID != 0)
+			{
+				const uint32 actualID = parentID - 1;
+				entities[actualID]->AddChild(entities[i]);
+			}
+		}
+
+		uint32 cachesSize = 0;
+		stream >> cachesSize;
+
+		for (uint32 i = 0; i < cachesSize; i++)
+		{
+			TypeID tid = 0;
+			stream >> tid;
+
+			MetaType&			type  = ReflectionSystem::Get().Resolve(tid);
+			void*				ptr	  = type.GetFunction<void*(EntityWorld*, GameEventDispatcher*)>("CreateCompCache"_hs)(this, this);
+			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
+			cache->LoadFromStream(stream, entities);
+			m_componentCaches[tid] = cache;
+		}
 	}
 
 	void EntityWorld::ProcessComponent(Component* c, Entity* e)
@@ -199,58 +192,8 @@ namespace Lina
 		c->m_input			 = &m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX()->GetInput();
 		c->m_world			 = this;
 		c->m_resourceManager = m_resourceManager;
-		c->m_entityID		 = e->GetID();
 		c->m_entity			 = e;
 		c->Create();
-	}
-
-	void EntityWorld::LoadFromStream(IStream& stream)
-	{
-		// m_gfxSettings.LoadFromStream(stream);
-
-		DestroyWorld();
-
-		// Load id list.
-		m_entities.LoadFromStream(stream);
-
-		// Load entityObjects.
-		uint32 entitiesSize = 0;
-		stream >> entitiesSize;
-		for (uint32 i = 0; i < entitiesSize; i++)
-		{
-			Entity* e = new (m_allocatorPool.Allocate(sizeof(Entity))) Entity();
-			e->LoadFromStream(stream);
-			e->m_world = this;
-			m_entities.AddItem(e, e->m_id);
-		}
-
-		// Load parent-child hierarchy
-		for (auto e : m_entities)
-		{
-			if (e != nullptr)
-			{
-				auto& childrenIDs = e->m_childrenIDsForLoad;
-
-				for (auto& childID : childrenIDs)
-					e->m_children.push_back(m_entities.GetItem(childID));
-
-				if (e->m_parentID != ENTITY_NULL)
-					e->m_parent = m_entities.GetItem(e->m_parentID);
-			}
-		}
-
-		Vector<TypeID> tids;
-		VectorSerialization::LoadFromStream_PT(stream, tids);
-
-		for (uint32 i = 0; i < tids.size(); i++)
-		{
-			MetaType&			type  = ReflectionSystem::Get().Resolve(tids[i]);
-			void*				ptr	  = type.GetFunction<void*(EntityWorld*, GameEventDispatcher*)>("CreateCompCache"_hs)(this, this);
-			ComponentCacheBase* cache = static_cast<ComponentCacheBase*>(ptr);
-			cache->m_entities		  = m_entities.GetRaw();
-			cache->LoadFromStream(stream);
-			m_componentCaches[tids[i]] = cache;
-		}
 	}
 
 	void EntityWorld::AddListener(EntityWorldListener* listener)
@@ -263,10 +206,4 @@ namespace Lina
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
 	}
 
-	void EntityWorld::GfxSettings::SaveToStream(OStream& stream) const
-	{
-	}
-	void EntityWorld::GfxSettings::LoadFromStream(IStream& stream)
-	{
-	}
 } // namespace Lina

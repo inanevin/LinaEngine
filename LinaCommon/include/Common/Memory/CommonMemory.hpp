@@ -28,6 +28,8 @@ SOFTWARE.
 
 #pragma once
 
+#include "Common/Data/Streams.hpp"
+
 namespace Lina
 {
 	struct BucketIdentifier
@@ -35,10 +37,24 @@ namespace Lina
 		uint16 allocationIndex = 0;
 		uint8  bucketIndex	   = 0;
 		uint8  isValid		   = 0;
+
+		void SaveToStream(OStream& stream) const
+		{
+			stream << allocationIndex << bucketIndex;
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			stream >> allocationIndex >> bucketIndex;
+		}
 	};
 
 #define ALLOCATOR_BUCKET_MEM                                                                                                                                                                                                                                       \
 	template <typename U, int N> friend class AllocatorBucket;                                                                                                                                                                                                     \
-	BucketIdentifier m_bucketIdent = {};
+	BucketIdentifier			   m_bucketIdent = {};                                                                                                                                                                                                             \
+	inline const BucketIdentifier& GetBucketIdent()                                                                                                                                                                                                                \
+	{                                                                                                                                                                                                                                                              \
+		return m_bucketIdent;                                                                                                                                                                                                                                      \
+	}
 
 } // namespace Lina

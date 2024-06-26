@@ -47,129 +47,127 @@ namespace Lina
 		ComponentCacheBase()		  = default;
 		virtual ~ComponentCacheBase() = default;
 
-		virtual void				PreTick()						= 0;
-		virtual void				Tick(float delta)				= 0;
-		virtual void				PostTick(float delta)			= 0;
-		virtual void				LoadFromStream(IStream& stream) = 0;
-		virtual void				SaveToStream(OStream& stream)	= 0;
-		Entity**					m_entities						= nullptr;
+		virtual void PreTick()														  = 0;
+		virtual void Tick(float delta)												  = 0;
+		virtual void PostTick(float delta)											  = 0;
+		virtual void LoadFromStream(IStream& stream, const Vector<Entity*>& entities) = 0;
+		virtual void SaveToStream(OStream& stream)									  = 0;
 	};
 
 	template <typename T> class ComponentCache : public ComponentCacheBase
 	{
 	public:
-		ComponentCache(EntityWorld* world, GameEventDispatcher* eventDispatcher)
-			: m_world(world)
+		ComponentCache(EntityWorld* world, GameEventDispatcher* eventDispatcher) : m_world(world)
 		{
 			m_eventDispatcher = eventDispatcher;
 		}
 
 		virtual ~ComponentCache()
 		{
-            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
-                comp->Destroy();
-                return false;
-            });
+			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+				comp->Destroy();
+				return false;
+			});
 		}
 
 		virtual void PreTick() override
 		{
-            m_componentBucket.View([](T* comp, uint32 index) -> bool {
-                comp->PreTick();
-                return false;
-            });
+			m_componentBucket.View([](T* comp, uint32 index) -> bool {
+				comp->PreTick();
+				return false;
+			});
 		}
 
 		virtual void Tick(float delta) override
 		{
-            m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
-                comp->Tick(delta);
-                return false;
-            });
+			m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
+				comp->Tick(delta);
+				return false;
+			});
 		}
 
 		virtual void PostTick(float delta) override
 		{
-            m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
-                comp->PostTick(delta);
-                return false;
-            });
+			m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
+				comp->PostTick(delta);
+				return false;
+			});
 		}
 
-        inline T* Create()
-        {
-            return m_componentBucket.Allocate();
-        }
-        
-        inline void Destroy(Entity* e)
-        {
-            T* component = nullptr;
-            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
-                if(comp->m_entity == e)
-                {
-                    component = comp;
-                    return true;
-                }
-                return false;
-            });
-            
-            if(component != nullptr)
-            {
-                component->Destroy();
-                m_componentBucket.Free(component);
-            }
-        }
-        
+		inline T* Create()
+		{
+			return m_componentBucket.Allocate();
+		}
+
+		inline void Destroy(Entity* e)
+		{
+			T* component = nullptr;
+			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+				if (comp->m_entity == e)
+				{
+					component = comp;
+					return true;
+				}
+				return false;
+			});
+
+			if (component != nullptr)
+			{
+				m_componentBucket.Free(component);
+			}
+		}
+
 		inline T* Get(Entity* e)
 		{
-            T* component = nullptr;
-            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
-                if(comp->m_entity == e)
-                {
-                    component = comp;
-                    return true;
-                }
-                return false;
-            });
-		
-            return component;
+			T* component = nullptr;
+			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+				if (comp->m_entity == e)
+				{
+					component = comp;
+					return true;
+				}
+				return false;
+			});
+
+			return component;
 		}
 
 		virtual void SaveToStream(OStream& stream) override
 		{
-            uint32 totalCount = m_componentBucket.GetActiveItemCount();
-            stream << totalCount;
-            
-            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
-                comp->SaveToStream(stream);
-                return false;
-            });
+			uint32 totalCount = m_componentBucket.GetActiveItemCount();
+			stream << totalCount;
+
+			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+				comp->SaveToStream(stream);
+				stream << comp->GetEntity()->GetTransientID();
+				return false;
+			});
 		}
 
-		virtual void LoadFromStream(IStream& stream) override
+		virtual void LoadFromStream(IStream& stream, const Vector<Entity*>& entities) override
 		{
-            uint32 totalCount = 0;
-            stream >> totalCount;
-            
-            for(uint32 i = 0; i < totalCount; i++)
-            {
-                T* comp = Create();
-                comp->LoadFromStream(stream);
-                comp->m_entity = m_entities[comp->m_entityID];
-            }
+			uint32 totalCount = 0;
+			stream >> totalCount;
+
+			for (uint32 i = 0; i < totalCount; i++)
+			{
+				T* comp = Create();
+				comp->LoadFromStream(stream);
+				uint32 entityID = 0;
+				stream >> entityID;
+				comp->m_entity = entities[entityID];
+			}
 		}
-        
-        void View(Delegate<bool(T* comp, uint32 index)>&& callback)
-        {
-            m_componentBucket.View(std::move(callback));
-        }
-        
+
+		void View(Delegate<bool(T* comp, uint32 index)>&& callback)
+		{
+			m_componentBucket.View(std::move(callback));
+		}
+
 	private:
-		EntityWorld*		 m_world		   = nullptr;
-		GameEventDispatcher* m_eventDispatcher = nullptr;
-        AllocatorBucket<T, 100> m_componentBucket;
-        
+		EntityWorld*			m_world			  = nullptr;
+		GameEventDispatcher*	m_eventDispatcher = nullptr;
+		AllocatorBucket<T, 100> m_componentBucket;
 	};
 
 } // namespace Lina
-

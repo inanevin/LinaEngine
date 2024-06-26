@@ -48,20 +48,18 @@ namespace Lina
 	{
 		e->RemoveFromParent();
 		m_children.push_back(e);
-		e->m_parentID = m_id;
-		e->m_parent	  = this;
+		e->m_parent = this;
 	}
 
 	void Entity::RemoveChild(Entity* e)
 	{
 		m_children.erase(linatl::find_if(m_children.begin(), m_children.end(), [e](Entity* c) { return e == c; }));
-		e->m_parentID = ENTITY_NULL;
-		e->m_parent	  = nullptr;
+		e->m_parent = nullptr;
 	}
 
 	void Entity::RemoveFromParent()
 	{
-		if (m_parentID != ENTITY_NULL)
+		if (m_parent != nullptr)
 			m_parent->RemoveChild(this);
 	}
 
@@ -321,29 +319,16 @@ namespace Lina
 
 	void Entity::SaveToStream(OStream& stream)
 	{
-		stream << m_id << m_parentID;
 		m_mask.SaveToStream(stream);
 		m_transform.SaveToStream(stream);
 		StringSerialization::SaveToStream(stream, m_name);
-
-		m_childrenIDsForLoad.clear();
-		m_childrenIDsForLoad.reserve(m_children.size());
-
-		for (auto c : m_children)
-			m_childrenIDsForLoad.push_back(c->GetID());
-
-		VectorSerialization::SaveToStream_PT(stream, m_childrenIDsForLoad);
 	}
 
 	void Entity::LoadFromStream(IStream& stream)
 	{
-		stream >> m_id >> m_parentID;
 		m_mask.LoadFromStream(stream);
 		m_transform.LoadFromStream(stream);
 		StringSerialization::LoadFromStream(stream, m_name);
-
-		m_childrenIDsForLoad.clear();
-		VectorSerialization::LoadFromStream_PT<uint32>(stream, m_childrenIDsForLoad);
 	}
 
 	void Entity::UpdateLocalRotation()

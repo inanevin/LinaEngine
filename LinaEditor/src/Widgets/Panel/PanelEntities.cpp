@@ -128,20 +128,17 @@ namespace Lina::Editor
 
 			return;
 		}
-		Vector<Entity*> entities;
-		m_world->GetAllRootEntities(entities);
-
-		outItems.resize(entities.size());
-
-		for (size_t i = 0; i < entities.size(); i++)
-		{
-			Entity* e	= entities[i];
-			outItems[i] = {
-				.title		 = e->GetName(),
-				.userData	 = e,
-				.hasChildren = !e->GetChildren().empty(),
-			};
-		}
+		m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
+			if (e->GetParent() == nullptr)
+			{
+				outItems.push_back({
+					.title		 = e->GetName(),
+					.userData	 = e,
+					.hasChildren = !e->GetChildren().empty(),
+				});
+			}
+			return false;
+		});
 	}
 
 	void PanelEntities::OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemUserData)
