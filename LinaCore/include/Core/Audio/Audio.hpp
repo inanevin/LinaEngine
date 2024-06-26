@@ -42,8 +42,6 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-	private:
-		FRIEND_RESOURCE_CACHE();
 		Audio(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Audio>()){};
 		virtual ~Audio();
 

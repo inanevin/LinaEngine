@@ -37,6 +37,9 @@ namespace Lina
 	{
 
 	public:
+		GUIWidget(ResourceManager* rm, const String& path, StringID sid);
+		virtual ~GUIWidget();
+
 		void UpdateBlob();
 		void ClearRoot();
 
@@ -60,11 +63,6 @@ namespace Lina
 		}
 
 	private:
-		FRIEND_RESOURCE_CACHE();
-
-		GUIWidget(ResourceManager* rm, const String& path, StringID sid);
-		virtual ~GUIWidget();
-
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;

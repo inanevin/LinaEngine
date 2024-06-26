@@ -308,12 +308,6 @@ namespace Lina
 			m_gfxManager->MarkBindlessDirty();
 	}
 
-	void ResourceManager::GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources)
-	{
-		for (auto [tid, cache] : m_caches)
-			cache->GetAllResources(resources, includeUserManagedResources);
-	}
-
 	String ResourceManager::GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid)
 	{
 		const String filename  = FileSystem::RemoveExtensionFromPath(FileSystem::GetFilenameAndExtensionFromPath(resourcePath));

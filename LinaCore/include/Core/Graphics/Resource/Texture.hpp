@@ -66,6 +66,9 @@ namespace Lina
 		};
 
 	public:
+		Texture(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Texture>()){};
+		virtual ~Texture();
+
 		uint32					 GetSamplerSID() const;
 		void					 CreateFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
 		void					 CreateGPUOnly(const LinaGX::TextureDesc& desc);
@@ -105,10 +108,6 @@ namespace Lina
 		void		 DestroyExistingData();
 
 	private:
-		FRIEND_RESOURCE_CACHE();
-		Texture(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Texture>()){};
-		virtual ~Texture();
-
 	protected:
 		virtual void SetCustomMeta(IStream& stream) override
 		{

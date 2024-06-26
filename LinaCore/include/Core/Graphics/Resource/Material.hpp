@@ -73,6 +73,9 @@ namespace Lina
 			void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
 		};
 
+		Material(ResourceManager* rm, const String& path, StringID sid);
+		virtual ~Material();
+
 		void SetShader(StringID sid);
 
 		template <typename T> void SetProperty(StringID sid, T val)
@@ -98,11 +101,7 @@ namespace Lina
 		}
 
 	private:
-		FRIEND_RESOURCE_CACHE();
 		friend class GfxManager;
-
-		Material(ResourceManager* rm, const String& path, StringID sid);
-		virtual ~Material();
 
 	protected:
 		virtual void LoadFromFile(const char* path) override;

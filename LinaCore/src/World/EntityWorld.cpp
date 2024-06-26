@@ -41,9 +41,7 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::EntityWorld(ResourceManager* rm, const String& path, StringID sid, uint32 flags)
-		: Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this), m_entities(IDList<Entity*>(ENTITY_POOL_SIZE, nullptr)),
-		  m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(Entity) * ENTITY_POOL_SIZE, sizeof(Entity), "World"_hs)), m_flags(flags)
+	EntityWorld::EntityWorld(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this)
 	{
 		m_system = rm->GetSystem();
 	};

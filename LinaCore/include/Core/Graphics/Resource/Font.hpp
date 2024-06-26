@@ -64,13 +64,12 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
-
-	private:
-		FRIEND_RESOURCE_CACHE();
 		Font(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Font>()){};
 		virtual ~Font();
 
+		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
+
+	private:
 	protected:
 		virtual void BatchLoaded() override;
 		virtual void LoadFromFile(const char* path) override;

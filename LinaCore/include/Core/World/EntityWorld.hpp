@@ -64,7 +64,7 @@ namespace Lina
 
 		EntityWorld(const EntityWorld& other) = delete;
 
-		EntityWorld(ResourceManager* rm, const String& path = "", StringID sid = 0, uint32 flags = 0);
+		EntityWorld(ResourceManager* rm, const String& path = "", StringID sid = 0);
 
 		~EntityWorld();
 
@@ -198,7 +198,6 @@ namespace Lina
 		void ProcessComponent(Component* c, Entity* e);
 
 	private:
-		FRIEND_RESOURCE_CACHE();
 		friend class WorldManager;
 
 		void DestroyEntityData(Entity* e);
@@ -211,9 +210,7 @@ namespace Lina
 
 		System*								 m_system = nullptr;
 		PhysicsWorld						 m_physicsWorld;
-		MemoryAllocatorPool					 m_allocatorPool;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
-		IDList<Entity*>						 m_entities;
 		CameraComponent*					 m_activeCamera = nullptr;
 		SkyComponent*						 m_activeSky	= nullptr;
 		Bitmask32							 m_flags		= 0;

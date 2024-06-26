@@ -59,7 +59,6 @@ namespace Lina
 		void		  WaitForAll();
 		bool		  IsLoadTaskComplete(uint32 id);
 		void		  UnloadResources(const Vector<ResourceIdentifier> identifiers);
-		void		  GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources);
 		PackageType	  GetPackageType(TypeID tid);
 		void		  ResaveResource(Resource* res);
 		static String GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid);

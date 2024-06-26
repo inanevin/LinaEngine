@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Core/Resources/CommonResources.hpp"
 #include "Common/ClassMacros.hpp"
+#include "Common/Memory/CommonMemory.hpp"
 
 namespace Lina
 {
@@ -108,6 +109,7 @@ namespace Lina
 		}
 
 	protected:
+		ALLOCATOR_BUCKET_MEM;
 		ResourceManager* m_resourceManager = nullptr;
 		String			 m_path			   = "";
 		TypeID			 m_tid			   = 0;

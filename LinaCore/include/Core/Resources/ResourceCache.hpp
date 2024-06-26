@@ -28,10 +28,8 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ResourceCache_HPP
-#define ResourceCache_HPP
-
 #include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/Memory/AllocatorBucket.hpp"
 #include "Common/StringID.hpp"
 #include "Common/ObjectWrapper.hpp"
 #include "Common/Data/HashMap.hpp"
@@ -57,7 +55,6 @@ namespace Lina
 		virtual Resource* GetResource(StringID sid)																		 = 0;
 		virtual void	  DestroyResource(StringID sid)																	 = 0;
 		virtual void	  DestroyUserResource(Resource* res)															 = 0;
-		virtual void	  GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources) const			 = 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -84,8 +81,7 @@ namespace Lina
 	template <typename T> class ResourceCache : public ResourceCacheBase
 	{
 	public:
-		ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt, uint32 typeFlags)
-			: ResourceCacheBase(extensions, pt, typeFlags), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * chunkCount, sizeof(T), "Resources"_hs))
+		ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt, uint32 typeFlags) : ResourceCacheBase(extensions, pt, typeFlags)
 		{
 		}
 
@@ -100,7 +96,7 @@ namespace Lina
 
 			if (ownerType == ResourceOwner::UserCode)
 			{
-				T* res		 = new (m_allocatorPool.Allocate(sizeof(T))) T(rm, path, sid);
+				T* res		 = m_resourceBucket.Allocate(rm, path, sid);
 				res->m_owner = ownerType;
 				m_userManagedResources.push_back(res);
 				return res;
@@ -113,7 +109,7 @@ namespace Lina
 					return nullptr;
 				}
 
-				T* res			 = new (m_allocatorPool.Allocate(sizeof(T))) T(rm, path, sid);
+				T* res			 = m_resourceBucket.Allocate(rm, path, sid);
 				res->m_owner	 = ownerType;
 				m_resources[sid] = res;
 				return res;
@@ -126,8 +122,7 @@ namespace Lina
 			auto it = m_resources.find(sid);
 			LINA_ASSERT(it != m_resources.end(), "");
 			T* res = static_cast<T*>(it->second);
-			res->~T();
-			m_allocatorPool.Free(res);
+			m_resourceBucket.Free(res);
 			m_resources.erase(it);
 		}
 
@@ -136,8 +131,7 @@ namespace Lina
 			auto it = linatl::find_if(m_userManagedResources.begin(), m_userManagedResources.end(), [resource](T* res) -> bool { return res == resource; });
 			LINA_ASSERT(it != m_userManagedResources.end(), "");
 			T* res = static_cast<T*>(resource);
-			res->~T();
-			m_allocatorPool.Free(res);
+			m_resourceBucket.Free(res);
 			m_userManagedResources.erase(it);
 		}
 
@@ -153,20 +147,6 @@ namespace Lina
 			}
 
 			return it->second;
-		}
-
-		void GetAllResources(Vector<Resource*>& resources, bool includeUserManagedResources) const override
-		{
-			resources.reserve(m_resources.size());
-
-			for (auto [sid, res] : m_resources)
-				resources.push_back(res);
-
-			if (includeUserManagedResources)
-			{
-				for (auto* res : m_userManagedResources)
-					resources.push_back(res);
-			}
 		}
 
 		void GetAllResourcesRaw(Vector<T*>& resources, bool includeUserManagedResources) const
@@ -188,8 +168,7 @@ namespace Lina
 		{
 			for (auto [sid, res] : m_resources)
 			{
-				res->~T();
-				m_allocatorPool.Free(res);
+				m_resourceBucket.Free(res);
 			}
 
 			m_resources.clear();
@@ -199,12 +178,10 @@ namespace Lina
 		}
 
 	private:
-		Mutex				  m_mtx;
-		HashMap<StringID, T*> m_resources;
-		MemoryAllocatorPool	  m_allocatorPool;
-		Vector<T*>			  m_userManagedResources;
+		AllocatorBucket<T, 250> m_resourceBucket;
+		Mutex					m_mtx;
+		HashMap<StringID, T*>	m_resources;
+		Vector<T*>				m_userManagedResources;
 	};
 
 } // namespace Lina
-
-#endif

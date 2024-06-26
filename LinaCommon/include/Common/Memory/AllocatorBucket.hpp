@@ -94,14 +94,14 @@ namespace Lina
 			if (target >= N)
 			{
 				if (m_nextBucket != nullptr)
-					return m_nextBucket->Allocate();
+					return m_nextBucket->Allocate(std::forward<Args>(args)...);
 
 				m_nextBucket = new AllocatorBucket<T, N>(m_bucketIndex + 1);
 				return m_nextBucket->Allocate(std::forward<Args>(args)...);
 			}
 
 			const uint8* ptr   = m_span.data() + target * sizeof(T);
-			T*			 obj   = new ((void*)ptr) T(std::forward<Args>(args)...);
+			T*			 obj   = new ((void*)ptr) T(args...);
 			obj->m_bucketIdent = {
 				.allocationIndex = target,
 				.bucketIndex	 = m_bucketIndex,

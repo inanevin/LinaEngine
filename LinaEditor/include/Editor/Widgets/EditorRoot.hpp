@@ -84,7 +84,6 @@ namespace Lina::Editor
 		Rect				 m_dragRect			   = {};
 		FileMenu*			 m_fileMenu			   = nullptr;
 		Widget*				 m_windowButtons	   = nullptr;
-		Texture*			 m_titleImage		   = nullptr;
 		Text*				 m_projectNameText	   = nullptr;
 		Text*				 m_worldNameText	   = nullptr;
 		Widget*				 m_panelArea		   = nullptr;

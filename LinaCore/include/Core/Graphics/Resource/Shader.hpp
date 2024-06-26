@@ -78,6 +78,9 @@ namespace Lina
 		};
 
 	public:
+		Shader(ResourceManager* rm, const String& path, StringID sid);
+		virtual ~Shader();
+
 		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
 		void AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex);
 		void FreeDescriptorSet(DescriptorSet* set, uint32 index);
@@ -128,10 +131,6 @@ namespace Lina
 		}
 
 	private:
-		FRIEND_RESOURCE_CACHE();
-		Shader(ResourceManager* rm, const String& path, StringID sid);
-		virtual ~Shader();
-
 	private:
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
 		LinaGX::ShaderLayout							  m_layout			= {};

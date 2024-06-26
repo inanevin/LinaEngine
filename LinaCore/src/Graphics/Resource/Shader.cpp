@@ -151,7 +151,6 @@ namespace Lina
 
 	void Shader::LoadFromFile(const char* path)
 	{
-		auto													   gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::ShaderCompileData> data;
 		LINAGX_MAP<LinaGX::ShaderStage, String>					   blocks;
 

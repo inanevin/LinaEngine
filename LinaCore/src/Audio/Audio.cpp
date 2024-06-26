@@ -56,25 +56,6 @@ namespace Lina
 
 	void Audio::LoadFromFile(const char* path)
 	{
-
-		IStream stream = Serialization::LoadFromFile(path);
-
-		ma_decoder decoder;
-
-		ma_result result = ma_decoder_init_memory((void*)stream.GetDataRaw(), stream.GetSize(), NULL, &decoder);
-		if (result != MA_SUCCESS)
-		{
-			return result; // Handle error
-		}
-		ma_engine& engine = m_resourceManager->GetSystem()->CastSubsystem<AudioManager>(SubsystemType::AudioManager)->GetEngine();
-
-		ma_sound sound;
-		result = ma_sound_init_from_data_source(&engine, &decoder, MA_SOUND_FLAG_DECODE, NULL, &sound);
-		if (result != MA_SUCCESS)
-		{
-			ma_decoder_uninit(&decoder); // Clean up decoder if sound initialization fails
-			return result;				 // Handle error
-		}
 	}
 
 	void Audio::LoadFromStream(IStream& stream)

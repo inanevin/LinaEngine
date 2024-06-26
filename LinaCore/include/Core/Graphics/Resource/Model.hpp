@@ -46,6 +46,9 @@ namespace Lina
 	class Model : public Resource
 	{
 	public:
+		Model(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Model>()){};
+		virtual ~Model();
+
 		ModelNode* GetFirstNodeWMesh();
 
 		inline const Vector<ModelNode*>& GetRootNodes() const
@@ -69,10 +72,6 @@ namespace Lina
 		}
 
 	private:
-		FRIEND_RESOURCE_CACHE();
-		Model(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Model>()){};
-		virtual ~Model();
-
 	protected:
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
