@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/StringID.hpp"
+#include "Common/Memory/CommonMemory.hpp"
 
 namespace Lina
 {
@@ -53,6 +54,8 @@ namespace Lina::Editor
 		Vector<DirectoryItem*> children		= {};
 		DirectoryItem*		   parent		= nullptr;
 		TextureAtlasImage*	   textureAtlas = nullptr;
+
+		ALLOCATOR_BUCKET_MEM;
 	};
 
 } // namespace Lina::Editor

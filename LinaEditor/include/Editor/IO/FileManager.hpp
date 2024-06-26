@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/String.hpp"
-#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/Memory/AllocatorBucket.hpp"
 #include "ThumbnailGenerator.hpp"
 #include "DirectoryItem.hpp"
 
@@ -40,7 +40,8 @@ namespace Lina::Editor
 	class FileManager
 	{
 	public:
-		FileManager() : m_allocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(DirectoryItem) * 100, sizeof(DirectoryItem)){};
+		FileManager()  = default;
+		~FileManager() = default;
 
 		void		   Initialize(Editor* editor);
 		void		   Shutdown();
@@ -67,11 +68,11 @@ namespace Lina::Editor
 		void FillPathInformation(DirectoryItem* item, const String& fullAbsPath);
 
 	private:
-		ThumbnailGenerator	m_thumbnailGenerator;
-		String				m_projectDirectory = "";
-		Editor*				m_editor		   = nullptr;
-		MemoryAllocatorPool m_allocatorPool;
-		DirectoryItem*		m_root = nullptr;
+		ThumbnailGenerator					m_thumbnailGenerator;
+		String								m_projectDirectory = "";
+		Editor*								m_editor		   = nullptr;
+		AllocatorBucket<DirectoryItem, 200> m_itemBucket;
+		DirectoryItem*						m_root = nullptr;
 	};
 
 } // namespace Lina::Editor
