@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/Math/Vector.hpp"
 #include "Common/Math/Rect.hpp"
+#include "Common/Memory/CommonMemory.hpp"
 #include "Core/GUI/CommonGUI.hpp"
 #include "Core/GUI/Theme.hpp"
 #include "Common/Data/Bitmask.hpp"
@@ -443,6 +444,7 @@ namespace Lina
 		void CheckCustomTooltip();
 
 	protected:
+		ALLOCATOR_BUCKET_MEM;
 		WidgetManager*				m_manager			   = nullptr;
 		ResourceManager*			m_resourceManager	   = nullptr;
 		LinaGX::Window*				m_lgxWindow			   = nullptr;

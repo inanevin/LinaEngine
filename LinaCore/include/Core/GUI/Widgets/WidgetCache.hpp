@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/IDList.hpp"
-#include "Common/Memory/MemoryAllocatorPool.hpp"
+#include "Common/Memory/AllocatorBucket.hpp"
 
 namespace Lina
 {
@@ -44,28 +44,22 @@ namespace Lina
 	template <typename T> class WidgetCache : public WidgetCacheBase
 	{
 	public:
-		WidgetCache() : m_widgets(IDList<T*>(100, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * 100, sizeof(T), "WidgetCache"_hs))
-		{
-		}
-		virtual ~WidgetCache(){};
+		WidgetCache()		   = default;
+		virtual ~WidgetCache() = default;
 
 		void* Create(uint32& cacheIndex) override
 		{
-			T* w	   = new (m_allocatorPool.Allocate(sizeof(T))) T();
-			cacheIndex = m_widgets.AddItem(w);
-			return (void*)w;
+			return (void*)m_widgetBucket.Allocate();
 		}
 
 		virtual void Destroy(void* w) override
 		{
 			T* widget = static_cast<T*>(w);
-			m_widgets.RemoveItem(widget->GetCacheIndex());
-			m_allocatorPool.Free(widget);
+			m_widgetBucket.Free(widget);
 		}
 
 	private:
-		IDList<T*>			m_widgets;
-		MemoryAllocatorPool m_allocatorPool;
+		AllocatorBucket<T, 100> m_widgetBucket;
 	};
 
 } // namespace Lina
