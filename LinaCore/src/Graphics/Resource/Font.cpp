@@ -31,6 +31,9 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/System/System.hpp"
+#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 
 namespace Lina
 {
@@ -39,7 +42,6 @@ namespace Lina
 		out << static_cast<int32>(points.size());
 		for (auto p : points)
 			out << p.size << p.dpiLimit;
-
 		out << isSDF;
 		out << static_cast<int32>(glyphRanges.size());
 
@@ -95,10 +97,12 @@ namespace Lina
 		m_lvgFonts.resize(sz);
 		for (int32 i = 0; i < sz; i++)
 		{
+			auto& lvgText = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLVGText();
+
 			if (customRangeVec.empty())
-				m_lvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
+				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
 			else
-				m_lvgFonts[i] = LinaVG::Text::LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
+				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
 		}
 	}
 

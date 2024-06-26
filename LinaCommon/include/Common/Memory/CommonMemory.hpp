@@ -26,33 +26,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#lina_vs
+#pragma once
 
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_gui.linashader"
-
-layout (location = 0) in vec2 pos;
-layout (location = 1) in vec2 uv;
-layout (location = 2) in vec4 col;
-
-layout (location = 0) out vec4 outCol;
-layout (location = 1) out vec2 outUV;
-layout (location = 2) flat out uint outDrawID;
-
-void main()
+namespace Lina
 {
-   outCol = col;
-   outUV = uv;
-   outDrawID = LGX_DRAW_ID;
-   gl_Position = LINA_VIEW.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
-}
+	struct BucketIdentifier
+	{
+		uint16 allocationIndex = 0;
+		uint8  bucketIndex	   = 0;
+		uint8  isValid		   = 0;
+	};
 
-#lina_end
+#define ALLOCATOR_BUCKET_MEM                                                                                                                                                                                                                                       \
+	template <typename U, int N> friend class AllocatorBucket;                                                                                                                                                                                                     \
+	BucketIdentifier m_bucketIdent = {};
 
-#lina_fs
-
-#include "Resources/Core/Shaders/Common/GlobalData.linashader"
-#include "Resources/Core/Shaders/Common/RenderPass_gui.linashader"
-#include "Resources/Core/Shaders/GUI/GUI_frag.linashader"
-
-#lina_end
+} // namespace Lina

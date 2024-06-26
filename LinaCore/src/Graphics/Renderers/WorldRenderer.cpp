@@ -226,8 +226,16 @@ namespace Lina
 	{
 		m_meshComponents.clear();
 		m_widgetComponents.clear();
-		m_world->GetAllComponents<MeshComponent>(m_meshComponents);
-		m_world->GetAllComponents<WidgetComponent>(m_widgetComponents);
+
+		m_world->GetCache<MeshComponent>()->View([&](MeshComponent* comp, uint32 index) -> bool {
+			m_meshComponents.push_back(comp);
+			return false;
+		});
+
+		m_world->GetCache<WidgetComponent>()->View([&](WidgetComponent* comp, uint32 index) -> bool {
+			m_widgetComponents.push_back(comp);
+			return false;
+		});
 	}
 
 	void WorldRenderer::OnComponentAdded(Component* c)

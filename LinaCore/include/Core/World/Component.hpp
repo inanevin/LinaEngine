@@ -34,6 +34,7 @@ SOFTWARE.
 #include "Common/StringID.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Common/Memory/CommonMemory.hpp"
 #include "Core/Resources/Resource.hpp"
 
 namespace LinaGX
@@ -79,6 +80,7 @@ namespace Lina
 		Component(uint32 flags = 0) : m_flags(flags){};
 		virtual ~Component() = default;
 
+		ALLOCATOR_BUCKET_MEM;
 		Entity*			 m_entity		   = nullptr;
 		EntityWorld*	 m_world		   = nullptr;
 		ResourceManager* m_resourceManager = nullptr;

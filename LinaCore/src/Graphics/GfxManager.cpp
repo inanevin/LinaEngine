@@ -108,11 +108,11 @@ namespace Lina
 
 		m_guiBackend.Initialize(this);
 
-		LinaVG::Text::GetCallbacks().fontTextureBind	   = std::bind(&GUIBackend::BindFontTexture, &m_guiBackend, std::placeholders::_1);
-		LinaVG::Text::GetCallbacks().fontTextureBufferData = std::bind(&GUIBackend::BufferFontTextureAtlas, &m_guiBackend, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
-		LinaVG::Text::GetCallbacks().fontTextureBufferEnd  = std::bind(&GUIBackend::BufferEnded, &m_guiBackend);
-		LinaVG::Text::GetCallbacks().fontTextureCreate	   = std::bind(&GUIBackend::CreateFontTexture, &m_guiBackend, std::placeholders::_1, std::placeholders::_2);
-		LinaVG::Text::Initialize();
+		m_lvgText.GetCallbacks().fontTextureBind	   = std::bind(&GUIBackend::BindFontTexture, &m_guiBackend, std::placeholders::_1);
+		m_lvgText.GetCallbacks().fontTextureBufferData = std::bind(&GUIBackend::BufferFontTextureAtlas, &m_guiBackend, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
+		m_lvgText.GetCallbacks().fontTextureBufferEnd  = std::bind(&GUIBackend::BufferEnded, &m_guiBackend);
+		m_lvgText.GetCallbacks().fontTextureCreate	   = std::bind(&GUIBackend::CreateFontTexture, &m_guiBackend, std::placeholders::_1, std::placeholders::_2);
+		LinaVG::InitializeText();
 	}
 
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
@@ -273,7 +273,7 @@ namespace Lina
 	{
 		// Preshutdown is before resource manager, make sure
 		// to remove user managed resources.
-		LinaVG::Text::Terminate();
+		LinaVG::TerminateText();
 		m_guiBackend.Shutdown();
 
 		for (auto m : m_defaultMaterials)

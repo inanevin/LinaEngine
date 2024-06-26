@@ -148,21 +148,14 @@ namespace Lina
 			}
 		}
 
-		template <typename T> void GetAllComponents(Vector<T*>& comps)
-		{
-			auto* cache = Cache<T>();
-			cache->GetAllComponents(comps);
-		}
-
 		template <typename T> T* GetComponent(Entity* e)
 		{
-			T* ptr = Cache<T>()->GetComponent(e);
-			return ptr;
+			return GetCache<T>()->Get();
 		}
 
 		template <typename T> T* AddComponent(Entity* e, const T& t)
 		{
-			T* comp = Cache<T>()->AddComponent(e, t);
+			T* comp = GetCache<T>()->Create();
 			*comp	= t;
 			ProcessComponent(comp, e);
 
@@ -174,7 +167,7 @@ namespace Lina
 
 		template <typename T> T* AddComponent(Entity* e)
 		{
-			T* ptr = Cache<T>()->AddComponent(e);
+			T* ptr = GetCache<T>()->Create();
 			ProcessComponent(ptr, e);
 			for (auto* l : m_listeners)
 				l->OnComponentAdded(ptr);
@@ -183,8 +176,8 @@ namespace Lina
 
 		template <typename T> void RemoveComponent(Entity* e)
 		{
-			T* comp = Cache<T>()->GetComponent(e);
-			comp->Destroy();
+			ComponentCache<T>* cache = GetCache<T>();
+			T*				   comp	 = cache->Get(e);
 
 			for (auto* l : m_listeners)
 				l->OnComponentRemoved(comp);
@@ -195,7 +188,19 @@ namespace Lina
 			if (comp == m_activeSky)
 				m_activeSky = nullptr;
 
-			Cache<T>()->DestroyComponent(e);
+			cache->Destroy();
+		}
+
+		template <typename T> ComponentCache<T>* GetCache()
+		{
+			const TypeID tid = GetTypeID<T>();
+
+			if (m_componentCaches.find(tid) == m_componentCaches.end())
+				m_componentCaches[tid] = new ComponentCache<T>(this, this);
+
+			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
+			cache->m_entities		 = m_entities.GetRaw();
+			return cache;
 		}
 
 		inline const GfxSettings& GetGfxSettings() const
@@ -213,25 +218,12 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 
 	private:
-		template <typename T> ComponentCache<T>* Cache()
-		{
-			const TypeID tid = GetTypeID<T>();
-
-			if (m_componentCaches.find(tid) == m_componentCaches.end())
-				m_componentCaches[tid] = new ComponentCache<T>(this, this);
-
-			ComponentCache<T>* cache = static_cast<ComponentCache<T>*>(m_componentCaches[tid]);
-			cache->m_entities		 = m_entities.GetRaw();
-			return cache;
-		}
-
 		void ProcessComponent(Component* c, Entity* e);
 
 	private:
 		FRIEND_RESOURCE_CACHE();
 		friend class WorldManager;
 
-		void CopyFrom(EntityWorld& world);
 		void DestroyWorld();
 		void DestroyEntityData(Entity* e);
 		void Simulate(float fixedDelta);

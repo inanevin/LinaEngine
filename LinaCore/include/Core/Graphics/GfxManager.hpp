@@ -148,6 +148,11 @@ namespace Lina
 			return m_defaultSamplers[index];
 		}
 
+		inline LinaVG::Text& GetLVGText()
+		{
+			return m_lvgText;
+		}
+
 	private:
 		void UpdateBindlessResources(PerFrameData& pfd);
 
@@ -167,6 +172,7 @@ namespace Lina
 		Mutex					m_wrMtx;
 		Mutex					m_bindlessMtx;
 		Vector<RendererPool>	m_rendererPools;
+		LinaVG::Text			m_lvgText;
 	};
 } // namespace Lina
 #endif

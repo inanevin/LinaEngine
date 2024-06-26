@@ -331,11 +331,6 @@ namespace Lina
 			return LinaGX::LGXVector3{x, y, z};
 		}
 
-		LinaVG::Vec3 AsLVG() const
-		{
-			return LinaVG::Vec3(x, y, z);
-		}
-
 		static Vector3 Zero;
 		static Vector3 Up;
 		static Vector3 Down;

@@ -472,7 +472,7 @@ namespace Lina::Editor
 		m_fileManager.RefreshResources();
 
 		const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
-		if (FileSystem::FileOrPathExists(lastWorldPath))
+		if (true || FileSystem::FileOrPathExists(lastWorldPath))
 		{
 			m_worldManager->InstallWorld(lastWorldPath);
 			CreateWorldRenderer(m_worldManager->GetMainWorld());

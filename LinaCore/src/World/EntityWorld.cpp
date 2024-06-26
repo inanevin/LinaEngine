@@ -83,28 +83,6 @@ namespace Lina
 		return *it;
 	}
 
-	void EntityWorld::CopyFrom(EntityWorld& world)
-	{
-		DestroyWorld();
-		m_entities.Clear();
-
-		for (auto e : world.m_entities)
-		{
-			if (e != nullptr)
-			{
-				Entity* newE = new (m_allocatorPool.Allocate(sizeof(Entity))) Entity();
-				*newE		 = *e;
-				m_entities.AddItem(newE, newE->m_id);
-			}
-		}
-
-		for (auto& [tid, cache] : world.m_componentCaches)
-		{
-			ComponentCacheBase* c  = cache->CopyCreate();
-			m_componentCaches[tid] = c;
-		}
-	}
-
 	Entity* EntityWorld::CreateEntity(const String& name)
 	{
 		Entity* e = new (m_allocatorPool.Allocate(sizeof(Entity))) Entity();
@@ -137,9 +115,6 @@ namespace Lina
 	{
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
-
-		for (auto& [tid, cache] : m_componentCaches)
-			cache->OnEntityDestroyed(e);
 
 		const uint32 id = e->m_id;
 		m_entities.RemoveItem(id);

@@ -68,6 +68,7 @@ set (SOURCES
 	# Memory
 	src/Memory/Memory.cpp
 	src/Memory/MemoryAllocatorPool.cpp
+	src/Memory/AllocatorBucket.cpp
 
 	# Profiling
 	src/Profiling/Profiler.cpp
@@ -151,6 +152,8 @@ set(HEADERS
 	# Memory
 	include/Common/Memory/Memory.hpp
 	include/Common/Memory/MemoryAllocatorPool.hpp
+	include/Common/Memory/AllocatorBucket.hpp
+	include/Common/Memory/CommonMemory.hpp
 	
 	# Log
 	include/Common/Log/Log.hpp

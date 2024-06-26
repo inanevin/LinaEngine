@@ -324,8 +324,8 @@ namespace Lina::Editor
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewWorld)))
 		{
-			DirectoryItem* item = static_cast<DirectoryItem*>(userData);
-			m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->SaveEmptyWorld(item->absolutePath + "/NewWorld.linaworld");
+			// DirectoryItem* item = static_cast<DirectoryItem*>(userData);
+			// m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->SaveEmptyWorld(item->absolutePath + "/NewWorld.linaworld");
 			return true;
 		}
 		return false;

@@ -28,16 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ComponentCache_HPP
-#define ComponentCache_HPP
-
 #include "CommonWorld.hpp"
 #include "Entity.hpp"
 #include "Common/SizeDefinitions.hpp"
-#include "Common/Data/IDList.hpp"
 #include "Common/Serialization/HashMapSerialization.hpp"
-#include "Common/Memory/MemoryAllocatorPool.hpp"
 #include "Common/Event/GameEventDispatcher.hpp"
+#include "Common/Memory/AllocatorBucket.hpp"
 
 namespace Lina
 {
@@ -56,8 +52,6 @@ namespace Lina
 		virtual void				PostTick(float delta)			= 0;
 		virtual void				LoadFromStream(IStream& stream) = 0;
 		virtual void				SaveToStream(OStream& stream)	= 0;
-		virtual void				OnEntityDestroyed(Entity* e)	= 0;
-		virtual ComponentCacheBase* CopyCreate()					= 0;
 		Entity**					m_entities						= nullptr;
 	};
 
@@ -65,177 +59,117 @@ namespace Lina
 	{
 	public:
 		ComponentCache(EntityWorld* world, GameEventDispatcher* eventDispatcher)
-			: m_world(world), m_components(IDList<T*>(COMPONENT_POOL_SIZE, nullptr)), m_allocatorPool(MemoryAllocatorPool(AllocatorType::Pool, AllocatorGrowPolicy::UseInitialSize, false, sizeof(T) * COMPONENT_POOL_SIZE, sizeof(T), "World"_hs))
+			: m_world(world)
 		{
 			m_eventDispatcher = eventDispatcher;
 		}
 
 		virtual ~ComponentCache()
 		{
-			Destroy();
+            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+                comp->Destroy();
+                return false;
+            });
 		}
 
 		virtual void PreTick() override
 		{
-			for (T* comp : m_components)
-			{
-				if (comp != nullptr)
-					comp->PreTick();
-			}
+            m_componentBucket.View([](T* comp, uint32 index) -> bool {
+                comp->PreTick();
+                return false;
+            });
 		}
 
 		virtual void Tick(float delta) override
 		{
-			for (T* comp : m_components)
-			{
-				if (comp != nullptr)
-					comp->Tick(delta);
-			}
+            m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
+                comp->Tick(delta);
+                return false;
+            });
 		}
 
 		virtual void PostTick(float delta) override
 		{
-			for (T* comp : m_components)
-			{
-				if (comp != nullptr)
-					comp->PostTick(delta);
-			}
-		}
-		// When copying the world.
-		virtual ComponentCacheBase* CopyCreate() override
-		{
-			ComponentCache<T>* newCache = new ComponentCache<T>(m_world, m_eventDispatcher);
-
-			int i = 0;
-			for (auto comp : m_components)
-			{
-				if (comp != nullptr)
-				{
-					T* newComp = new (newCache->m_allocatorPool.Allocate(sizeof(T))) T();
-					*newComp   = *comp;
-					newCache->m_components.AddItem(newComp, i);
-				}
-				i++;
-			}
-
-			return newCache;
+            m_componentBucket.View([delta](T* comp, uint32 index) -> bool {
+                comp->PostTick(delta);
+                return false;
+            });
 		}
 
-		// Mutators
-		inline T* AddComponent(Entity* e)
+        inline T* Create()
+        {
+            return m_componentBucket.Allocate();
+        }
+        
+        inline void Destroy(Entity* e)
+        {
+            T* component = nullptr;
+            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+                if(comp->m_entity == e)
+                {
+                    component = comp;
+                    return true;
+                }
+                return false;
+            });
+            
+            if(component != nullptr)
+            {
+                component->Destroy();
+                m_componentBucket.Free(component);
+            }
+        }
+        
+		inline T* Get(Entity* e)
 		{
-			T* comp = new (m_allocatorPool.Allocate(sizeof(T))) T();
-			m_components.AddItem(comp);
-			return comp;
-		}
-
-		inline T* GetComponent(Entity* e)
-		{
-			for (auto* comp : m_components)
-			{
-				if (comp != nullptr && comp->m_entityID == e->GetID())
-					return comp;
-			}
-			return nullptr;
-		}
-
-		inline void DestroyComponent(Entity* e)
-		{
-			uint32 index = 0;
-			for (auto* comp : m_components)
-			{
-				if (comp != nullptr && comp->m_entityID == e->GetID())
-				{
-					comp->Destroy();
-					comp->~T();
-					m_components.RemoveItem(index);
-					m_allocatorPool.Free(comp);
-					break;
-				}
-				index++;
-			}
-		}
-
-		inline void GetAllComponents(Vector<T*>& comps)
-		{
-			comps.reserve(static_cast<size_t>(m_components.GetNextFreeID()));
-			for (auto c : m_components)
-			{
-				if (c != nullptr)
-					comps.push_back(c);
-			}
-		}
-
-		virtual void OnEntityDestroyed(Entity* e) override
-		{
-			DestroyComponent(e);
+            T* component = nullptr;
+            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+                if(comp->m_entity == e)
+                {
+                    component = comp;
+                    return true;
+                }
+                return false;
+            });
+		
+            return component;
 		}
 
 		virtual void SaveToStream(OStream& stream) override
 		{
-			m_components.SaveToStream(stream);
-
-			HashMap<uint32, uint32> compEntityIDs;
-
-			int i = 0;
-			for (auto* comp : m_components)
-			{
-				if (comp != nullptr)
-					compEntityIDs[i] = comp->m_entityID;
-
-				i++;
-			}
-
-			HashMapSerialization::SaveToStream_PT(stream, compEntityIDs);
-
-			for (auto [compID, entityID] : compEntityIDs)
-			{
-				auto comp = m_components.GetItem(compID);
-				stream << comp->m_entityID;
-				comp->SaveToStream(stream);
-			}
+            uint32 totalCount = m_componentBucket.GetActiveItemCount();
+            stream << totalCount;
+            
+            m_componentBucket.View([&](T* comp, uint32 index) -> bool {
+                comp->SaveToStream(stream);
+                return false;
+            });
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
-			m_components.LoadFromStream(stream);
-
-			HashMap<uint32, uint32> compEntityIDs;
-			HashMapSerialization::LoadFromStream_PT(stream, compEntityIDs);
-
-			for (auto [compID, entityID] : compEntityIDs)
-			{
-				T* comp = new (m_allocatorPool.Allocate(sizeof(T))) T();
-				stream >> comp->m_entityID;
-				comp->LoadFromStream(stream);
-				comp->m_entity = m_entities[comp->m_entityID];
-				m_components.AddItem(comp, compID);
-			}
+            uint32 totalCount = 0;
+            stream >> totalCount;
+            
+            for(uint32 i = 0; i < totalCount; i++)
+            {
+                T* comp = Create();
+                comp->LoadFromStream(stream);
+                comp->m_entity = m_entities[comp->m_entityID];
+            }
 		}
-
-	private:
-		virtual void Destroy()
-		{
-			for (auto* comp : m_components)
-			{
-				if (comp != nullptr)
-				{
-					comp->Destroy();
-					comp->~T();
-					m_allocatorPool.Free(comp);
-				}
-			}
-
-			m_components.Clear();
-		}
-
+        
+        void View(Delegate<bool(T* comp, uint32 index)>&& callback)
+        {
+            m_componentBucket.View(std::move(callback));
+        }
+        
 	private:
 		EntityWorld*		 m_world		   = nullptr;
 		GameEventDispatcher* m_eventDispatcher = nullptr;
-		MemoryAllocatorPool	 m_allocatorPool;
-		IDList<T*>			 m_components;
+        AllocatorBucket<T, 100> m_componentBucket;
+        
 	};
 
 } // namespace Lina
 
-#endif
