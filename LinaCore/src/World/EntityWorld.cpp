@@ -48,6 +48,15 @@ namespace Lina
 		m_system = rm->GetSystem();
 	};
 
+	EntityWorld::~EntityWorld()
+	{
+		m_entityBucket.View([this](Entity* e, uint32 index) -> bool {
+			if (e->GetParent() == nullptr)
+				DestroyEntity(e);
+			return false;
+		});
+	}
+
 	Entity* EntityWorld::CreateEntity(const String& name)
 	{
 		const uint32 id = m_entityBucket.GetActiveItemCount();
@@ -70,6 +79,12 @@ namespace Lina
 	{
 		for (auto child : e->m_children)
 			DestroyEntityData(child);
+
+		for (auto& [tid, cache] : m_componentCaches)
+		{
+			cache->Destroy(e);
+		}
+
 		m_entityBucket.Free(e);
 	}
 

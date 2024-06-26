@@ -52,6 +52,7 @@ namespace Lina
 		virtual void PostTick(float delta)											  = 0;
 		virtual void LoadFromStream(IStream& stream, const Vector<Entity*>& entities) = 0;
 		virtual void SaveToStream(OStream& stream)									  = 0;
+		virtual void Destroy(Entity* e)												  = 0;
 	};
 
 	template <typename T> class ComponentCache : public ComponentCacheBase
@@ -99,7 +100,7 @@ namespace Lina
 			return m_componentBucket.Allocate();
 		}
 
-		inline void Destroy(Entity* e)
+		virtual void Destroy(Entity* e) override
 		{
 			T* component = nullptr;
 			m_componentBucket.View([&](T* comp, uint32 index) -> bool {
@@ -113,6 +114,7 @@ namespace Lina
 
 			if (component != nullptr)
 			{
+				component->Destroy();
 				m_componentBucket.Free(component);
 			}
 		}

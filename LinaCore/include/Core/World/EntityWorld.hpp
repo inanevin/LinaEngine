@@ -66,7 +66,7 @@ namespace Lina
 
 		EntityWorld(ResourceManager* rm, const String& path = "", StringID sid = 0, uint32 flags = 0);
 
-		~EntityWorld() = default;
+		~EntityWorld();
 
 		Entity*		 CreateEntity(const String& name);
 		void		 DestroyEntity(Entity* e);
@@ -166,8 +166,7 @@ namespace Lina
 			if (comp == m_activeSky)
 				m_activeSky = nullptr;
 
-			comp->Destroy();
-			cache->Destroy();
+			cache->Destroy(e);
 		}
 
 		template <typename T> ComponentCache<T>* GetCache()
