@@ -172,7 +172,7 @@ namespace Lina
 			data[stg]			 = compData;
 		}
 
-		success = m_lgx->CompileShader(data, m_outCompiledBlobs, m_layout);
+		success = LinaGX::Instance::CompileShader(data, m_outCompiledBlobs, m_layout);
 
 		if (!success)
 		{
