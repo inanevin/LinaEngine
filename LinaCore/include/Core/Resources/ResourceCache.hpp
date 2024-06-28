@@ -47,12 +47,12 @@ namespace Lina
 	class ResourceCacheBase
 	{
 	public:
-		ResourceCacheBase() {};
+		ResourceCacheBase(){};
 		virtual ~ResourceCacheBase() = default;
 
 		virtual Resource* Create(const String& path, StringID sid, ResourceManager* rm) = 0;
-		virtual Resource* Get(StringID sid)																		 = 0;
-		virtual void	  Destroy(StringID sid)																	 = 0;
+		virtual Resource* Get(StringID sid)												= 0;
+		virtual void	  Destroy(StringID sid)											= 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -75,25 +75,25 @@ namespace Lina
 		{
 			Destroy();
 		}
-        
-        inline uint32 GetActiveItemCount() const
-        {
-            return m_resourceBucket.GetActiveItemCount();
-        }
 
-		virtual Resource* Create(const String& path, StringID sid,  ResourceManager* rm) override
+		inline uint32 GetActiveItemCount() const
+		{
+			return m_resourceBucket.GetActiveItemCount();
+		}
+
+		virtual Resource* Create(const String& path, StringID sid, ResourceManager* rm) override
 		{
 			LOCK_GUARD(m_mtx);
-            
-            if (m_resources.find(sid) != m_resources.end())
-            {
-                LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
-                return nullptr;
-            }
 
-            T* res             = m_resourceBucket.Allocate(rm, path, sid);
-            m_resources[sid] = res;
-            return res;
+			if (m_resources.find(sid) != m_resources.end())
+			{
+				LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
+				return nullptr;
+			}
+
+			T* res			 = m_resourceBucket.Allocate(rm, path, sid);
+			m_resources[sid] = res;
+			return res;
 		}
 
 		virtual void Destroy(StringID sid) override
@@ -112,10 +112,10 @@ namespace Lina
 			return it->second;
 		}
 
-        void View(Delegate<bool(T* res, uint32 index)>&& callback)
-        {
-            m_resourceBucket.View(std::move(callback));
-        }
+		void View(Delegate<bool(T* res, uint32 index)>&& callback)
+		{
+			m_resourceBucket.View(std::move(callback));
+		}
 
 	private:
 		void Destroy()

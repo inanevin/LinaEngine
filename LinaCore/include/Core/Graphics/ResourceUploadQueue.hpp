@@ -61,7 +61,7 @@ namespace Lina
 	class ResourceUploadQueue
 	{
 	public:
-        ResourceUploadQueue() = default;
+		ResourceUploadQueue()  = default;
 		~ResourceUploadQueue() = default;
 
 		void AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete);

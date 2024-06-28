@@ -79,11 +79,11 @@ namespace Lina::Editor
 
 		item->textureAtlas = nullptr;
 
-		const String   thumbnailPath	 = "ResourceThumbnail_" + TO_STRING(item->sid);
-		const StringID sid				 = TO_SID(thumbnailPath);
-        
-        String cachedFile = "";
-        m_editor->GetFileManager().GetMetacachePath(cachedFile, thumbnailPath);
+		const String   thumbnailPath = "ResourceThumbnail_" + TO_STRING(item->sid);
+		const StringID sid			 = TO_SID(thumbnailPath);
+
+		String cachedFile = "";
+		m_editor->GetFileManager().GetMetacachePath(cachedFile, thumbnailPath);
 
 		Taskflow tf;
 		tf.emplace([item, cachedFile, this]() {

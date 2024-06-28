@@ -155,7 +155,7 @@ namespace Lina::Editor
 		}
 	} // namespace
 
-	void WorldRendererExtEditor::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue &queue)
+	void WorldRendererExtEditor::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
 	{
 		auto&		  data		= m_pfd[frameIndex];
 		const Vector3 lineStart = Vector3(5, 0, -12);
@@ -180,8 +180,8 @@ namespace Lina::Editor
 		DrawLine(b, Vector3(50, 5, 50), Vector3(50, 5, -50));
 		DrawLine(b, Vector3(50, -5, 50), Vector3(50, -5, -50));
 
-        queue.AddBufferRequest(&data.vertexBuffer);
-        queue.AddBufferRequest(&data.indexBuffer);
+		queue.AddBufferRequest(&data.vertexBuffer);
+		queue.AddBufferRequest(&data.indexBuffer);
 	}
 
 	void WorldRendererExtEditor::RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream)

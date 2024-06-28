@@ -52,4 +52,4 @@ namespace Lina
 		const size_t baseSz	  = basePath.size();
 		outRelative			  = absPath.substr(baseSz, absPath.size());
 	}
-} // namespace Lina::Editor
+} // namespace Lina

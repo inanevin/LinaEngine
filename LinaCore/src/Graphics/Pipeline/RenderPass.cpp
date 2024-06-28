@@ -127,12 +127,12 @@ namespace Lina
 		LinaGX::CMDEndRenderPass* end = stream->AddCommand<LinaGX::CMDEndRenderPass>();
 	}
 
-    void RenderPass::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue &queue)
-    {
-        auto& pfd = m_pfd[frameIndex];
-        for (auto& buffer : pfd.buffers)
-            queue.AddBufferRequest(&buffer);
-    }
+	void RenderPass::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
+	{
+		auto& pfd = m_pfd[frameIndex];
+		for (auto& buffer : pfd.buffers)
+			queue.AddBufferRequest(&buffer);
+	}
 
 	bool RenderPass::CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream)
 	{

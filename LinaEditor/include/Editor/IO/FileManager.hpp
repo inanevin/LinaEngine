@@ -48,7 +48,7 @@ namespace Lina::Editor
 		void		   RefreshResources();
 		void		   ClearResources();
 		DirectoryItem* FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot);
-        void GetMetacachePath(String& outPath, const String& filePath) const;
+		void		   GetMetacachePath(String& outPath, const String& filePath) const;
 
 		inline void SetProjectDirectory(const String& dir)
 		{
