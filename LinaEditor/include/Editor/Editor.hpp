@@ -47,6 +47,7 @@ namespace Lina
 	class GUIWidget;
 	class SurfaceRenderer;
 	class WorldRenderer;
+	class ProjectData;
 } // namespace Lina
 
 namespace LinaGX
@@ -59,7 +60,6 @@ namespace Lina::Editor
 	class SplashScreen;
 	class EditorRoot;
 	class DockArea;
-	class ProjectData;
 	class WorldRendererExtEditor;
 
 	class EditorPayloadListener
@@ -102,12 +102,12 @@ namespace Lina::Editor
 		}
 
 		// Application delegate
+		virtual void   PreInitialize() override;
 		virtual void   Initialize() override;
 		virtual void   PreTick() override;
 		virtual void   CoreResourcesLoaded() override;
 		virtual void   PreShutdown() override;
 		virtual bool   FillResourceCustomMeta(StringID sid, OStream& stream) override;
-		virtual void   RegisterAppResources(ResourceManager& rm) override;
 		virtual String GetBaseMetacachePath() const override
 		{
 			return "Resources/Editor/Metacache/";
@@ -186,6 +186,11 @@ namespace Lina::Editor
 			return m_atlasManager;
 		}
 
+		inline uint32 GetCoreResourceSize() const
+		{
+			return 12;
+		}
+
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
@@ -217,6 +222,7 @@ namespace Lina::Editor
 		HashMap<LinaGX::Window*, SurfaceRenderer*> m_surfaceRenderers;
 		HashMap<EntityWorld*, WorldRenderer*>	   m_worldRenderers;
 		AtlasManager							   m_atlasManager;
+		int32									   m_coreResourcesTask = 0;
 	};
 
 } // namespace Lina::Editor

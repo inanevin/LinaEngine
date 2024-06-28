@@ -58,4 +58,7 @@ namespace Lina
 	private:
 		Metadata m_meta = {};
 	};
+
+	LINA_REFLECTRESOURCE_BEGIN(Audio);
+	LINA_REFLECTRESOURCE_END(Audio);
 } // namespace Lina

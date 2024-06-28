@@ -49,6 +49,7 @@ namespace Lina
 	class RenderPass;
 	class TextureSampler;
 	class ResourceManager;
+	class ResourceUploadQueue;
 
 	class GUIRenderer
 	{
@@ -86,6 +87,7 @@ namespace Lina
 		void					   DrawSDFText(LinaVG::SDFTextDrawBuffer* buf);
 		const Vector<DrawRequest>& FlushGUI(uint32 frameIndex, size_t indirectBufferOffset, const Vector2ui& size);
 		bool					   CopyVertexIndex(uint32 frameIndex, LinaGX::CommandStream* copyStream);
+		void					   AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 		void					   Render(LinaGX::CommandStream* stream, const Buffer& indirectBuffer, uint32 frameIndex, const Vector2ui& size);
 		void					   Destroy();
 

@@ -36,33 +36,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	ResourceUploadQueue::ResourceUploadQueue(GfxManager* gfxMan)
-	{
-		m_gfxManager = gfxMan;
-	}
-
-	void ResourceUploadQueue::Initialize()
-	{
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data		   = m_pfd[i];
-			data.copyStream	   = m_gfxManager->GetLGX()->CreateCommandStream({LinaGX::CommandType::Transfer, .commandCount = 200, .totalMemoryLimit = 24000, .auxMemorySize = 8192, .constantBlockSize = 64});
-			data.copySemaphore = SemaphoreData(m_gfxManager->GetLGX()->CreateUserSemaphore());
-		}
-	}
-
-	void ResourceUploadQueue::Shutdown()
-	{
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data = m_pfd[i];
-			m_gfxManager->GetLGX()->DestroyCommandStream(data.copyStream);
-			m_gfxManager->GetLGX()->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
-		}
-	}
-
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
 	{
 		ScopedSpinLock lock(m_spinLock);
@@ -95,10 +68,9 @@ namespace Lina
 		m_bufferRequests.push_back(req);
 	}
 
-	bool ResourceUploadQueue::FlushAll(uint32 frameIndex)
+	bool ResourceUploadQueue::FlushAll(LinaGX::CommandStream* copyStream)
 	{
 		ScopedSpinLock lock(m_spinLock);
-		auto&		   pfd = m_pfd[frameIndex];
 
 		if (m_textureRequests.empty() && m_bufferRequests.empty())
 			return false;
@@ -106,9 +78,9 @@ namespace Lina
 		// Transition to transfer destination
 		if (!m_textureRequests.empty())
 		{
-			LinaGX::CMDBarrier* barrier	 = pfd.copyStream->AddCommand<LinaGX::CMDBarrier>();
+			LinaGX::CMDBarrier* barrier	 = copyStream->AddCommand<LinaGX::CMDBarrier>();
 			barrier->textureBarrierCount = static_cast<uint32>(m_textureRequests.size());
-			barrier->textureBarriers	 = pfd.copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
+			barrier->textureBarriers	 = copyStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * m_textureRequests.size());
 			barrier->srcStageFlags		 = LinaGX::PipelineStageFlags::PSF_TopOfPipe;
 			barrier->dstStageFlags		 = LinaGX::PipelineStageFlags::PSF_Transfer;
 
@@ -124,10 +96,10 @@ namespace Lina
 		for (auto& req : m_textureRequests)
 		{
 			Vector<LinaGX::TextureBuffer>	  allBuffers = req.txt->GetAllLevels();
-			LinaGX::CMDCopyBufferToTexture2D* cmd		 = pfd.copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
+			LinaGX::CMDCopyBufferToTexture2D* cmd		 = copyStream->AddCommand<LinaGX::CMDCopyBufferToTexture2D>();
 			cmd->destTexture							 = req.txt->GetGPUHandle();
 			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
-			cmd->buffers								 = pfd.copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
+			cmd->buffers								 = copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
 		}
 
 		// Transition to sampled
@@ -152,29 +124,12 @@ namespace Lina
 
 		for (auto& req : m_bufferRequests)
 		{
-			if (req.buffer->Copy(pfd.copyStream))
+			if (req.buffer->Copy(copyStream))
 				bufferNeedsTransfer = true;
 		}
 
 		if (!bufferNeedsTransfer && m_textureRequests.empty())
 			return false;
-
-		m_gfxManager->GetLGX()->CloseCommandStreams(&pfd.copyStream, 1);
-
-		pfd.copySemaphore.Increment();
-
-		LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
-			.targetQueue	  = m_gfxManager->GetLGX()->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-			.streams		  = &pfd.copyStream,
-			.streamCount	  = 1,
-			.useSignal		  = true,
-			.signalCount	  = 1,
-			.signalSemaphores = pfd.copySemaphore.GetSemaphorePtr(),
-			.signalValues	  = pfd.copySemaphore.GetValuePtr(),
-			.isMultithreaded  = true,
-		};
-
-		m_gfxManager->GetLGX()->SubmitCommandStreams(desc);
 
 		for (auto& req : m_textureRequests)
 			req.onComplete();

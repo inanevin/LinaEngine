@@ -81,13 +81,10 @@ namespace Lina
 			return &m_engine;
 		}
 
-		bool FillResourceCustomMeta(StringID sid, OStream& stream);
-
 	protected:
 		virtual void OnWindowClose();
 
 	protected:
-		void RegisterResourceData();
 		void SetFrameCap(int64 microseconds);
 		void SetFixedTimestep(int64 microseconds);
 
@@ -97,9 +94,8 @@ namespace Lina
 	protected:
 		ApplicationDelegate* m_appDelegate = nullptr;
 		Engine				 m_engine;
-		bool				 m_exitRequested	 = false;
-		bool				 m_isIdleMode		 = false;
-		int32				 m_coreResourcesTask = 0;
+		bool				 m_exitRequested = false;
+		bool				 m_isIdleMode	 = false;
 	};
 } // namespace Lina
 

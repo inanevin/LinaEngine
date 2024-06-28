@@ -35,12 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	enum class ResourceManagerMode
-	{
-		File,
-		Package
-	};
-
 	class ApplicationDelegate;
 
 	struct SystemInitializationInfo
@@ -52,7 +46,6 @@ namespace Lina
 		LinaGX::VSyncStyle	 vsyncStyle					 = {};
 		bool				 allowTearing				 = false;
 		ApplicationDelegate* appDelegate				 = nullptr;
-		ResourceManagerMode	 resourceManagerMode		 = ResourceManagerMode::File;
 		bool				 resourceManagerUseMetacache = true;
 		Color				 clearColor					 = Color::Black;
 	};

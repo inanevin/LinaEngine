@@ -39,12 +39,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	void ResourceManager::PreInitialize(const SystemInitializationInfo& initInfo)
-	{
-		m_mode		   = initInfo.resourceManagerMode;
-		m_useMetaCache = initInfo.resourceManagerUseMetacache;
-		m_gfxManager   = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-	}
 
 	void ResourceManager::Shutdown()
 	{
@@ -52,28 +46,7 @@ namespace Lina
 			delete cache;
 	}
 
-	PackageType ResourceManager::GetPackageType(TypeID tid)
-	{
-		return m_caches.at(tid)->GetPackageType();
-	}
-
-	void ResourceManager::ResaveResource(Resource* res)
-	{
-		OStream stream;
-		res->SaveToStream(stream);
-		Serialization::SaveToFile(res->GetPath().c_str(), stream);
-
-		const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), res->GetPath(), res->GetSID());
-
-		if (FileSystem::FileOrPathExists(metacachePath))
-			FileSystem::DeleteFileInPath(metacachePath);
-
-		Serialization::SaveToFile(metacachePath.c_str(), stream);
-
-		stream.Destroy();
-	}
-
-	int32 ResourceManager::LoadResources(const Vector<ResourceIdentifier>& identifiers, Delegate<void()>&& onLoaded)
+	int32 ResourceManager::LoadResourcesFromFile(const Vector<ResourceIdentifier>& identifiers)
 	{
 		if (identifiers.empty())
 		{
@@ -85,143 +58,78 @@ namespace Lina
 		loadTask->id					 = m_loadTaskCounter;
 		loadTask->identifiers			 = identifiers;
 		loadTask->startTime				 = PlatformTime::GetCPUCycles();
-		loadTask->onLoaded				 = onLoaded;
 		m_loadTasks[m_loadTaskCounter++] = loadTask;
+
+		for (const auto& ident : identifiers)
+		{
+			auto it = m_caches.find(ident.tid);
+
+			if (it == m_caches.end())
+			{
+				MetaType&		   type	 = ReflectionSystem::Get().Resolve(ident.tid);
+				void*			   ptr	 = type.GetFunction<void*()>("CreateResourceCache"_hs)();
+				ResourceCacheBase* cache = static_cast<ResourceCacheBase*>(ptr);
+				m_caches[ident.tid]		 = cache;
+			}
+		}
 
 		auto* app = m_system->GetApp();
 
-		if (m_mode == ResourceManagerMode::File)
+		const String baseMetacachePath = app->GetAppDelegate()->GetBaseMetacachePath();
+
+		if (!FileSystem::FileOrPathExists(baseMetacachePath))
+			FileSystem::CreateFolderInPath(baseMetacachePath);
+
+		for (const auto& ident : identifiers)
 		{
-			const String baseMetacachePath = app->GetAppDelegate()->GetBaseMetacachePath();
-
-			if (!FileSystem::FileOrPathExists(baseMetacachePath))
-				FileSystem::CreateFolderInPath(baseMetacachePath);
-
-			for (const auto& ident : identifiers)
-			{
-				loadTask->tf.emplace([app, ident, this, loadTask]() {
-					auto&		 cache		   = m_caches.at(ident.tid);
-					Resource*	 res		   = cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
-					const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), ident.path, ident.sid);
-					if (m_useMetaCache && FileSystem::FileOrPathExists(metacachePath))
-					{
-						IStream input = Serialization::LoadFromFile(metacachePath.c_str());
-						res->LoadFromStream(input);
-						input.Destroy();
-					}
-					else
-					{
-						// Some resources have preliminary/initial metadata.
-						if (ident.useCustomMeta)
-						{
-							OStream	   metaStream;
-							const bool filledByApp		= app->FillResourceCustomMeta(ident.sid, metaStream);
-							bool	   filledByDelegate = false;
-
-							if (!filledByApp)
-								filledByDelegate = app->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream);
-							if (filledByApp || filledByDelegate)
-							{
-								IStream in;
-								in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-								res->SetCustomMeta(in);
-								in.Destroy();
-							}
-
-							metaStream.Destroy();
-						}
-
-						res->m_resourceManager = this;
-						res->m_flags		   = ident.flags;
-						res->LoadFromFile(ident.path.c_str());
-
-						OStream metastream;
-						res->SaveToStream(metastream);
-						Serialization::SaveToFile(metacachePath.c_str(), metastream);
-						metastream.Destroy();
-
-						res->Upload();
-					}
-
-					Event			   data;
-					ResourceIdentifier copy = ident;
-					data.pParams[0]			= &copy.path;
-					data.pParams[1]			= static_cast<void*>(loadTask);
-					data.uintParams[0]		= ident.sid;
-					data.uintParams[1]		= ident.tid;
-					m_system->DispatchEvent(EVS_ResourceLoaded, data);
-				});
-			}
-		}
-		else
-		{
-			HashMap<PackageType, Vector<ResourceIdentifier>> resourcesPerPackage;
-
-			for (const auto& ident : identifiers)
-			{
-				const PackageType pt = m_caches[ident.tid]->GetPackageType();
-				resourcesPerPackage[pt].push_back(ident);
-			}
-
-			for (auto& [pt, resourcesToLoad] : resourcesPerPackage)
-			{
-				const String packagePath = GGetPackagePath(pt);
-				IStream		 package	 = Serialization::LoadFromFile(packagePath.c_str());
-
-				int loadedResources	   = 0;
-				int totalResourcesSize = static_cast<int>(resourcesToLoad.size());
-
-				auto loadFunc = [this](IStream stream, ResourceIdentifier ident, ResourceLoadTask* loadTask) {
-					IStream	  load	= stream;
-					auto&	  cache = m_caches.at(ident.tid);
-					Resource* res	= cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
-					res->m_flags	= ident.flags;
-					res->LoadFromStream(load);
-					res->Upload();
-
-					Event data;
-					data.pParams[0]	   = &ident.path;
-					data.pParams[1]	   = static_cast<void*>(loadTask);
-					data.uintParams[0] = ident.sid;
-					data.uintParams[1] = ident.tid;
-					m_system->DispatchEvent(EVS_ResourceLoaded, data);
-					stream.Destroy();
-				};
-
-				TypeID	 tid  = 0;
-				StringID sid  = 0;
-				uint32	 size = 0;
-				while (loadedResources < totalResourcesSize)
+			loadTask->tf.emplace([app, ident, this, loadTask]() {
+				auto&		 cache		   = m_caches.at(ident.tid);
+				Resource*	 res		   = cache->Create(ident.path, ident.sid, this);
+				const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), ident.path, ident.sid);
+				if (false && FileSystem::FileOrPathExists(metacachePath))
 				{
-					package >> tid;
-					package >> sid;
-					package >> size;
-
-					auto it = linatl::find_if(resourcesToLoad.begin(), resourcesToLoad.end(), [&](const ResourceIdentifier& ident) { return ident.tid == tid && ident.sid == sid; });
-
-					if (it != resourcesToLoad.end())
+					IStream input = Serialization::LoadFromFile(metacachePath.c_str());
+					res->LoadFromStream(input);
+					input.Destroy();
+				}
+				else
+				{
+					// Some resources have preliminary/initial metadata.
+					OStream metaStream;
+					if (app->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream))
 					{
-						IStream stream;
-						stream.Create(package.GetDataCurrent(), size);
-						ResourceIdentifier ident = *it;
-						loadTask->tf.emplace([loadFunc, stream, ident, loadTask]() { loadFunc(stream, ident, loadTask); });
+						IStream in;
+						in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+						res->SetCustomMeta(in);
+						in.Destroy();
+					}
+					metaStream.Destroy();
 
-						loadedResources++;
-					};
+					res->m_resourceManager = this;
+					res->m_flags		   = ident.flags;
+					res->LoadFromFile(ident.path.c_str());
 
-					package.SkipBy(size);
+					OStream metastream;
+					res->SaveToStream(metastream);
+					Serialization::SaveToFile(metacachePath.c_str(), metastream);
+					metastream.Destroy();
+
+					res->Upload();
 				}
 
-				package.Destroy();
-			}
+				Event			   data;
+				ResourceIdentifier copy = ident;
+				data.pParams[0]			= &copy.path;
+				data.pParams[1]			= static_cast<void*>(loadTask);
+				data.uintParams[0]		= ident.sid;
+				data.uintParams[1]		= ident.tid;
+				m_system->DispatchEvent(EVS_ResourceLoaded, data);
+			});
 		}
 
 		m_executor.Run(loadTask->tf, [loadTask]() {
 			loadTask->isCompleted.store(true);
 			loadTask->endTime = PlatformTime::GetCPUCycles();
-
-			if (loadTask->onLoaded)
-				loadTask->onLoaded();
 		});
 
 		return loadTask->id;
@@ -232,20 +140,10 @@ namespace Lina
 		const int	   sz = static_cast<uint32>(m_loadTasks.size());
 		Vector<uint32> toErase;
 
-		bool containsBindlessResource = false;
-
 		for (auto [id, task] : m_loadTasks)
 		{
 			if (task->isCompleted.load())
 			{
-				for (const auto& ident : task->identifiers)
-				{
-					if (m_caches.at(ident.tid)->GetTypeFlags().IsSet(RTF_BINDLESS_RESOURCE))
-					{
-						containsBindlessResource = true;
-						break;
-					}
-				}
 				DispatchLoadTaskEvent(task);
 				toErase.push_back(id);
 				delete task;
@@ -254,9 +152,6 @@ namespace Lina
 
 		for (auto id : toErase)
 			m_loadTasks.erase(m_loadTasks.find(id));
-
-		if (containsBindlessResource)
-			m_gfxManager->MarkBindlessDirty();
 	}
 
 	void ResourceManager::WaitForAll()
@@ -275,8 +170,9 @@ namespace Lina
 
 	bool ResourceManager::IsLoadTaskComplete(uint32 id)
 	{
-		auto it = m_loadTasks.find(id);
-		return it == m_loadTasks.end();
+		auto	   it = m_loadTasks.find(id);
+		const bool ok = it == m_loadTasks.end();
+		return ok;
 	}
 
 	void ResourceManager::UnloadResources(const Vector<ResourceIdentifier> identifiers)
@@ -286,10 +182,7 @@ namespace Lina
 		for (auto& ident : identifiers)
 		{
 			auto& cache = m_caches[ident.tid];
-			cache->DestroyResource(ident.sid);
-
-			if (cache->GetTypeFlags().IsSet(RTF_BINDLESS_RESOURCE))
-				containsBindless = true;
+			cache->Destroy(ident.sid);
 
 			Event			   data;
 			ResourceIdentifier copy = ident;
@@ -303,9 +196,6 @@ namespace Lina
 		Vector<ResourceIdentifier> idents = identifiers;
 		batchEv.pParams[0]				  = &idents;
 		m_system->DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
-
-		if (containsBindless)
-			m_gfxManager->MarkBindlessDirty();
 	}
 
 	String ResourceManager::GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid)
@@ -323,10 +213,74 @@ namespace Lina
 		// notify each resource the whole group they were requested to load with is done.
 		// useful for resources depending on the loading of others, such as materials --> shaders.
 		for (auto& ident : task->identifiers)
-			m_caches[ident.tid]->GetResource(ident.sid)->BatchLoaded();
+			m_caches[ident.tid]->Get(ident.sid)->BatchLoaded();
 
 		Event ev;
 		ev.pParams[0] = task;
 		m_system->DispatchEvent(EVS_ResourceLoadTaskCompleted, ev);
 	}
 } // namespace Lina
+
+/*
+
+ // Packages
+ HashMap<PackageType, Vector<ResourceIdentifier>> resourcesPerPackage;
+
+ for (const auto& ident : identifiers)
+ {
+	 const PackageType pt = m_caches[ident.tid]->GetPackageType();
+	 resourcesPerPackage[pt].push_back(ident);
+ }
+
+ for (auto& [pt, resourcesToLoad] : resourcesPerPackage)
+ {
+	 const String packagePath = GGetPackagePath(pt);
+	 IStream         package     = Serialization::LoadFromFile(packagePath.c_str());
+
+	 int loadedResources       = 0;
+	 int totalResourcesSize = static_cast<int>(resourcesToLoad.size());
+
+	 auto loadFunc = [this](IStream stream, ResourceIdentifier ident, ResourceLoadTask* loadTask) {
+		 IStream      load    = stream;
+		 auto&      cache = m_caches.at(ident.tid);
+		 Resource* res    = cache->CreateResource(ident.sid, ident.path, this, ResourceOwner::ResourceManager);
+		 res->m_flags    = ident.flags;
+		 res->LoadFromStream(load);
+		 res->Upload();
+
+		 Event data;
+		 data.pParams[0]       = &ident.path;
+		 data.pParams[1]       = static_cast<void*>(loadTask);
+		 data.uintParams[0] = ident.sid;
+		 data.uintParams[1] = ident.tid;
+		 m_system->DispatchEvent(EVS_ResourceLoaded, data);
+		 stream.Destroy();
+	 };
+
+	 TypeID     tid  = 0;
+	 StringID sid  = 0;
+	 uint32     size = 0;
+	 while (loadedResources < totalResourcesSize)
+	 {
+		 package >> tid;
+		 package >> sid;
+		 package >> size;
+
+		 auto it = linatl::find_if(resourcesToLoad.begin(), resourcesToLoad.end(), [&](const ResourceIdentifier& ident) { return ident.tid == tid && ident.sid == sid; });
+
+		 if (it != resourcesToLoad.end())
+		 {
+			 IStream stream;
+			 stream.Create(package.GetDataCurrent(), size);
+			 ResourceIdentifier ident = *it;
+			 loadTask->tf.emplace([loadFunc, stream, ident, loadTask]() { loadFunc(stream, ident, loadTask); });
+
+			 loadedResources++;
+		 };
+
+		 package.SkipBy(size);
+	 }
+
+	 package.Destroy();
+ }
+ */

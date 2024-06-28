@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/World/EntityWorld.hpp"
-#include "Editor/Meta/ProjectData.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Docking/DockArea.hpp"
@@ -53,6 +53,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
 #include "Editor/Graphics/WorldRendererExtEditor.hpp"
 
 #include <LinaGX/Core/InputMappings.hpp>
@@ -78,7 +79,6 @@ namespace Lina
 			.vsyncStyle					 = vsync,
 			.allowTearing				 = true,
 			.appDelegate				 = new Lina::Editor::Editor(),
-			.resourceManagerMode		 = Lina::ResourceManagerMode::File,
 			.resourceManagerUseMetacache = false,
 			.clearColor					 = Theme::GetDef().background0,
 		};
@@ -91,6 +91,147 @@ namespace Lina::Editor
 
 	bool Editor::FillResourceCustomMeta(StringID sid, OStream& stream)
 	{
+		if (sid == DEFAULT_FONT_SID)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 14, .dpiLimit = 10.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
+				.isSDF	= false,
+
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		}
+		// NOTE: 160, 380 is the glyph range for nunito sans
+
+		if (sid == DEFAULT_TEXTURE_CHECKERED_SID || sid == DEFAULT_TEXTURE_LINALOGO)
+		{
+			Texture::Metadata meta = {
+				.samplerSID = DEFAULT_SAMPLER_GUI_SID,
+			};
+
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_GUI_SID)
+		{
+			Shader::Metadata meta;
+
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable = false,
+				.depthTest	  = false,
+				.depthWrite	  = false,
+				.depthFormat  = LinaGX::Format::UNDEFINED,
+				.targets	  = {{.format = DEFAULT_RT_FORMAT}},
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+			};
+
+			meta.variants["Swapchain"_hs] = ShaderVariant{
+				.blendDisable = false,
+				.depthTest	  = false,
+				.depthWrite	  = false,
+				.depthFormat  = LinaGX::Format::UNDEFINED,
+				.targets	  = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+			};
+
+			meta.drawIndirectEnabled		  = true;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
+			meta.descriptorSetAllocationCount = 1;
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_GUI3D_SID)
+		{
+			Shader::Metadata meta;
+
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable		 = false,
+				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
+				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
+				.blendColorOp		 = LinaGX::BlendOp::Add,
+				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
+				.blendDstAlphaFactor = LinaGX::BlendFactor::One,
+				.blendAlphaOp		 = LinaGX::BlendOp::Add,
+				.depthTest			 = true,
+				.depthWrite			 = true,
+				.targets			 = {{.format = DEFAULT_RT_FORMAT}},
+				.cullMode			 = LinaGX::CullMode::None,
+				.frontFace			 = LinaGX::FrontFace::CCW,
+			};
+
+			meta.drawIndirectEnabled		  = true;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::ForwardTransparency;
+			meta.descriptorSetAllocationCount = 1;
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_OBJECT_SID)
+		{
+			Shader::Metadata meta;
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable = true,
+				.depthTest	  = true,
+				.depthWrite	  = true,
+				.targets	  = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
+				.cullMode	  = LinaGX::CullMode::Back,
+				.frontFace	  = LinaGX::FrontFace::CW,
+			};
+
+			meta.descriptorSetAllocationCount = 1;
+			meta.drawIndirectEnabled		  = true;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Main;
+			meta.materialSize				  = sizeof(GPUMaterialDefaultObject);
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_DEFERRED_LIGHTING_SID)
+		{
+			Shader::Metadata meta;
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable = false,
+				.depthTest	  = false,
+				.depthWrite	  = false,
+				.targets	  = {{.format = DEFAULT_RT_FORMAT}},
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CW,
+			};
+			meta.descriptorSetAllocationCount = 1;
+			meta.drawIndirectEnabled		  = false;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Lighting;
+			meta.materialSize				  = 0;
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == DEFAULT_SHADER_SKY_SID)
+		{
+			Shader::Metadata meta;
+			meta.variants["RenderTarget"_hs] = ShaderVariant{
+				.blendDisable	   = true,
+				.depthTest		   = true,
+				.depthWrite		   = false,
+				.targets		   = {{.format = DEFAULT_RT_FORMAT}},
+				.depthOp		   = LinaGX::CompareOp::Equal,
+				.cullMode		   = LinaGX::CullMode::Back,
+				.frontFace		   = LinaGX::FrontFace::CW,
+				.depthBiasEnable   = true,
+				.depthBiasConstant = 5.0f,
+			};
+
+			meta.descriptorSetAllocationCount = 1;
+			meta.drawIndirectEnabled		  = false;
+			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Lighting;
+			meta.materialSize				  = sizeof(GPUMaterialDefaultSky);
+			meta.SaveToStream(stream);
+			return true;
+		}
+
 		if (sid == ICON_FONT_SID)
 		{
 			Font::Metadata customMeta = {
@@ -133,30 +274,48 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void Editor::RegisterAppResources(ResourceManager& rm)
+	void Editor::PreInitialize()
 	{
-		Vector<ResourceIdentifier> resources;
+		m_rm = m_app->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		// Priority
-		resources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, true, RF_PRIORITY));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, true, RF_PRIORITY));
+		Vector<ResourceIdentifier> priorityResources;
+		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>(), 0, 0));
+		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>(), 0, 0));
+		priorityResources.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, 0));
+		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>(), 0, 0));
+		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>(), 0, 0));
+		priorityResources.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>(), 0, 0));
+		priorityResources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, 0));
+		priorityResources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, 0));
 
-		// Core
-		//	resources.push_back(ResourceIdentifier("Resources/Editor/Models/Duck.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		// list.push_back(ResourceIdentifier("Resources/Core/Models/duck.png", GetTypeID<Texture>(), 0, false, ResourceFlags::RF_CORE));
-		resources.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
-		resources.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, true, RF_CORE));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, true, RF_CORE));
-		resources.push_back(ResourceIdentifier("Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>(), 0, true, RF_CORE));
+		for (auto& ident : priorityResources)
+			ident.sid = TO_SID(ident.path);
 
-		for (auto& r : resources)
-			r.sid = TO_SID(r.path);
-
-		rm.RegisterAppResources(resources);
+		m_rm->LoadResourcesFromFile(priorityResources);
+		m_rm->WaitForAll();
 	}
 
 	void Editor::Initialize()
 	{
+		Vector<ResourceIdentifier> list;
+
+		/* Core Resources */
+		list.push_back(ResourceIdentifier(DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>(), 0, 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.glb", GetTypeID<Model>(), 0, 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, 0));
+		list.push_back(ResourceIdentifier("Resources/Core/Models/SkyCube.glb", GetTypeID<Model>(), 0, 0));
+		list.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>(), 0, 0));
+		list.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, 0));
+		list.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, 0));
+		list.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, 0));
+		list.push_back(ResourceIdentifier("Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>(), 0, 0));
+
+		for (auto& r : list)
+			r.sid = TO_SID(r.path);
+
+		m_coreResourcesTask = m_rm->LoadResourcesFromFile(list);
+
 		s_editor							  = this;
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;
 		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
@@ -202,7 +361,7 @@ namespace Lina::Editor
 			m_settings.SaveToFile();
 
 		m_rm	  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_gizmoBB = m_rm->CreateUserResource<GUIWidget>(GIZMO_BOUNDINGBOX_PATH, GIZMO_BOUNDINGBOX_SID);
+		m_gizmoBB = m_rm->CreateResource<GUIWidget>(GIZMO_BOUNDINGBOX_PATH, GIZMO_BOUNDINGBOX_SID);
 
 		Gizmo gizmo;
 		gizmo.SetTID(GetTypeID<Gizmo>());
@@ -215,6 +374,13 @@ namespace Lina::Editor
 
 	void Editor::PreTick()
 	{
+		if (m_coreResourcesTask != -1 && m_rm->IsLoadTaskComplete(m_coreResourcesTask))
+		{
+			m_rm->WaitForAll();
+			m_coreResourcesTask = -1;
+			CoreResourcesLoaded();
+		}
+
 		if (!m_windowCloseRequests.empty())
 		{
 			for (auto sid : m_windowCloseRequests)
@@ -351,7 +517,7 @@ namespace Lina::Editor
 		DestroyWorldRenderer(m_worldManager->GetMainWorld());
 		m_worldManager->UninstallMainWorld();
 		m_worldManager->RemoveListener(this);
-		m_rm->DestroyUserResource(m_gizmoBB);
+		m_rm->DestroyResource(m_gizmoBB);
 		m_fileManager.Shutdown();
 
 		for (auto* w : m_subWindows)
@@ -462,7 +628,6 @@ namespace Lina::Editor
 		LINA_ASSERT(m_currentProject == nullptr, "");
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
-		m_currentProject->Initialize(this);
 		m_currentProject->LoadFromFile();
 		m_editorRoot->SetProjectName(m_currentProject->GetProjectName());
 

@@ -54,7 +54,6 @@ namespace Lina
 		virtual ~ApplicationDelegate() = default;
 
 		// Loop
-		virtual void SetupPlatform(Application* app){};
 		virtual void PreInitialize(){};
 		virtual void Initialize(){};
 		virtual void CoreResourcesLoaded(){};
@@ -64,7 +63,6 @@ namespace Lina
 		virtual void Shutdown(){};
 
 		// Resources
-		virtual void RegisterAppResources(ResourceManager& rm){};
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream)
 		{
 			return false;

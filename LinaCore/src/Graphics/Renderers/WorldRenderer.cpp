@@ -143,11 +143,11 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 
-			data.gBufAlbedo			= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Albedo", TO_SIDC("WorldRenderer GBuffer: Albedo"));
-			data.gBufPosition		= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Position", TO_SIDC("WorldRenderer GBuffer: Positionc"));
-			data.gBufNormal			= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Normal", TO_SIDC("WorldRenderer GBuffer: Normal"));
-			data.gBufDepth			= m_rm->CreateUserResource<Texture>("WorldRenderer GBuffer: Depth", TO_SIDC("WorldRenderer GBuffer: Depth"));
-			data.lightingPassOutput = m_rm->CreateUserResource<Texture>("WorldRenderer Lighting Pass Output", TO_SIDC("WorldRenderer Lighting Pass Output"));
+			data.gBufAlbedo			= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Albedo", TO_SIDC("WorldRenderer GBuffer: Albedo"));
+			data.gBufPosition		= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Position", TO_SIDC("WorldRenderer GBuffer: Positionc"));
+			data.gBufNormal			= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Normal", TO_SIDC("WorldRenderer GBuffer: Normal"));
+			data.gBufDepth			= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Depth", TO_SIDC("WorldRenderer GBuffer: Depth"));
+			data.lightingPassOutput = m_rm->CreateResource<Texture>("WorldRenderer Lighting Pass Output", TO_SIDC("WorldRenderer Lighting Pass Output"));
 
 			data.gBufAlbedo->CreateGPUOnly(rtDesc);
 			data.gBufPosition->CreateGPUOnly(rtDesc);
@@ -210,11 +210,11 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-			m_rm->DestroyUserResource(data.gBufAlbedo);
-			m_rm->DestroyUserResource(data.gBufPosition);
-			m_rm->DestroyUserResource(data.gBufNormal);
-			m_rm->DestroyUserResource(data.gBufDepth);
-			m_rm->DestroyUserResource(data.lightingPassOutput);
+			m_rm->DestroyResource(data.gBufAlbedo);
+			m_rm->DestroyResource(data.gBufPosition);
+			m_rm->DestroyResource(data.gBufNormal);
+			m_rm->DestroyResource(data.gBufDepth);
+			m_rm->DestroyResource(data.lightingPassOutput);
 		}
 
 		m_mainPass.Destroy();
@@ -274,7 +274,6 @@ namespace Lina
 		m_size = newSize;
 		DestroySizeRelativeResources();
 		CreateSizeRelativeResources();
-		m_gfxManager->MarkBindlessDirty();
 	}
 
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
@@ -369,18 +368,15 @@ namespace Lina
 		uint32 drawID		  = 0;
 		uint32 indirectAmount = 0;
 
+		Buffer& mainPassIndirectBuffer = m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
+
 		for (const auto& [shader, meshVector] : m_drawData)
 		{
 			for (const auto& md : meshVector)
 			{
-				m_lgx->BufferIndexedIndirectCommandData(m_mainPass.GetBuffer(frameIndex, "IndirectBuffer"_hs).GetMapped(),
-														indirectAmount * m_lgx->GetIndexedIndirectCommandSize(),
-														drawID,
-														md.mesh->GetIndexCount(),
-														static_cast<uint32>(md.instances.size()),
-														md.mesh->GetIndexOffset(),
-														md.mesh->GetVertexOffset(),
-														drawID);
+				m_lgx->BufferIndexedIndirectCommandData(
+					mainPassIndirectBuffer.GetMapped(), indirectAmount * m_lgx->GetIndexedIndirectCommandSize(), drawID, md.mesh->GetIndexCount(), static_cast<uint32>(md.instances.size()), md.mesh->GetIndexOffset(), md.mesh->GetVertexOffset(), drawID);
+				mainPassIndirectBuffer.MarkDirty();
 
 				indirectAmount++;
 				for (const InstanceData& inst : md.instances)
@@ -430,15 +426,29 @@ namespace Lina
 				}
 			}
 		}
+
+		m_uploadQueue.AddBufferRequest(&currentFrame.objectBuffer);
+		m_mainPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		m_forwardTransparencyPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+		m_lightingPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+		for (auto* wc : m_widgetComponents)
+			wc->GetGUIRenderer().AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+		for (auto* ext : m_extensions)
+			ext->AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
+
+		if (m_uploadQueue.FlushAll(currentFrame.copyStream))
+			BumpAndSendTransfers(frameIndex);
 	}
 
 	void WorldRenderer::Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues)
 	{
-		UpdateBuffers(frameIndex);
-
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
+
+		UpdateBuffers(frameIndex);
 
 		const LinaGX::Viewport viewport = {
 			.x		  = 0,
@@ -463,21 +473,6 @@ namespace Lina
 		bindGlobal->setCount					  = 1;
 		bindGlobal->layoutSource				  = LinaGX::DescriptorSetsLayoutSource::CustomLayout;
 		bindGlobal->customLayout				  = m_gfxManager->GetPipelineLayoutPersistentGlobal(frameIndex);
-
-		uint8 transferExists = 0;
-		transferExists |= currentFrame.objectBuffer.Copy(currentFrame.copyStream);
-		transferExists |= m_lightingPass.CopyBuffers(frameIndex, currentFrame.copyStream);
-		transferExists |= m_mainPass.CopyBuffers(frameIndex, currentFrame.copyStream);
-		transferExists |= m_forwardTransparencyPass.CopyBuffers(frameIndex, currentFrame.copyStream);
-
-		for (auto* ext : m_extensions)
-			transferExists |= ext->CopyBuffers(frameIndex, currentFrame.copyStream);
-
-		for (auto* wc : m_widgetComponents)
-			transferExists |= wc->GetGUIRenderer().CopyVertexIndex(frameIndex, currentFrame.copyStream);
-
-		if (transferExists != 0)
-			BumpAndSendTransfers(frameIndex);
 
 		{
 			// Barrier to Attachment
@@ -595,15 +590,31 @@ namespace Lina
 
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
 
+		Vector<uint16> waitSemaphoresVec;
+		Vector<uint64> waitValuesVec;
+
+		for (uint32 i = 0; i < waitCount; i++)
+		{
+			waitSemaphoresVec.push_back(waitSemaphores[i]);
+			waitValuesVec.push_back(waitValues[i]);
+		}
+
+		// If transfers exist.
+		if (currentFrame.copySemaphore.IsModified())
+		{
+			waitSemaphoresVec.push_back(currentFrame.copySemaphore.GetSemaphore());
+			waitValuesVec.push_back(currentFrame.copySemaphore.GetValue());
+		}
+
 		currentFrame.signalSemaphore.Increment();
 		m_lgx->SubmitCommandStreams({
 			.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
 			.streams		  = &currentFrame.gfxStream,
 			.streamCount	  = 1,
-			.useWait		  = waitCount != 0,
-			.waitCount		  = waitCount,
-			.waitSemaphores	  = waitSemaphores,
-			.waitValues		  = waitValues,
+			.useWait		  = !waitSemaphoresVec.empty(),
+			.waitCount		  = static_cast<uint32>(waitSemaphoresVec.size()),
+			.waitSemaphores	  = waitSemaphoresVec.data(),
+			.waitValues		  = waitValuesVec.data(),
 			.useSignal		  = true,
 			.signalCount	  = 1,
 			.signalSemaphores = currentFrame.signalSemaphore.GetSemaphorePtr(),

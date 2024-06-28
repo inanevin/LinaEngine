@@ -61,33 +61,17 @@ namespace Lina
 	class ResourceUploadQueue
 	{
 	public:
-		ResourceUploadQueue(GfxManager* gfxMan);
+        ResourceUploadQueue() = default;
 		~ResourceUploadQueue() = default;
 
-		struct PerFrameData
-		{
-			SemaphoreData		   copySemaphore = {};
-			LinaGX::CommandStream* copyStream	 = nullptr;
-		};
-
-		void Initialize();
-		void Shutdown();
 		void AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete);
 		void AddBufferRequest(Buffer* buf);
-
-		bool FlushAll(uint32 frameIndex);
-
-		inline const SemaphoreData& GetSemaphoreData(uint32 frameIndex) const
-		{
-			return m_pfd[frameIndex].copySemaphore;
-		}
+		bool FlushAll(LinaGX::CommandStream* copyStream);
 
 	private:
 		Vector<TextureUploadRequest> m_textureRequests;
 		Vector<BufferRequest>		 m_bufferRequests;
-		GfxManager*					 m_gfxManager = nullptr;
 		SpinLock					 m_spinLock;
-		PerFrameData				 m_pfd[FRAMES_IN_FLIGHT];
 	};
 } // namespace Lina
 

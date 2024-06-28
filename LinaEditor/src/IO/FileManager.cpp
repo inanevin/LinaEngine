@@ -27,8 +27,9 @@ SOFTWARE.
 */
 
 #include "Editor/IO/FileManager.hpp"
+#include "Editor/IO/ExtensionSupport.hpp"
 #include "Editor/Editor.hpp"
-#include "Editor/Meta/ProjectData.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/FileSystem/FileWatcher.hpp"
@@ -90,18 +91,7 @@ namespace Lina::Editor
 			if (!isDirectory)
 			{
 				extension = FileSystem::GetFileExtension(str);
-
-				const auto& resourceCaches = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->GetCaches();
-
-				for (const auto& [typeID, cache] : resourceCaches)
-				{
-					if (cache->DoesSupportExtension(extension))
-					{
-						tid = typeID;
-						break;
-					}
-				}
-
+				tid		  = ExtensionSupport::GetTypeIDForExtension(extension);
 				if (tid == 0)
 					continue;
 			}
@@ -203,5 +193,21 @@ namespace Lina::Editor
 		}
 
 		return nullptr;
+	}
+
+	void FileManager::GetMetacachePath(String& outPath, const String& filePath) const
+	{
+		const StringID sid = TO_SID(filePath);
+		outPath.clear();
+		outPath = "";
+
+		ProjectData* pd = m_editor->GetProjectData();
+
+		if (pd == nullptr)
+			outPath = FileSystem::GetRunningDirectory() + "/Cache/";
+		else
+			outPath = pd->GetPath() + "/Cache/";
+
+		outPath += TO_STRING(sid) + ".linameta";
 	}
 } // namespace Lina::Editor

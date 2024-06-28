@@ -85,6 +85,9 @@ namespace Lina
 		Vector<char>				m_file;
 		Metadata					m_meta = {};
 	};
+
+	LINA_REFLECTRESOURCE_BEGIN(Font);
+	LINA_REFLECTRESOURCE_END(Font);
 } // namespace Lina
 
 #endif

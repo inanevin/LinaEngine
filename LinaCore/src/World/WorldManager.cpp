@@ -82,7 +82,6 @@ namespace Lina
 	//
 	// 	m_gfxManager->Join();
 	// 	renderer->Resize(newSize);
-	// 	m_gfxManager->MarkBindlessDirty();
 	// }
 
 	void WorldManager::InstallWorld(const String& path)

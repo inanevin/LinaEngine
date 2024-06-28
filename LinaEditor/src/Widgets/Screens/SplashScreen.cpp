@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -42,7 +43,7 @@ namespace Lina::Editor
 	void SplashScreen::Construct()
 	{
 		m_resourceManager->GetSystem()->AddListener(this);
-		m_totalResourceSize = static_cast<uint32>(m_resourceManager->GetCoreResources().size());
+		m_totalResourceSize = static_cast<uint32>(Editor::Get()->GetCoreResourceSize());
 
 		m_versionText				   = m_manager->Allocate<Text>();
 		m_versionText->GetProps().text = "v." + TO_STRING(LINA_VERSION_MAJOR) + "." + TO_STRING(LINA_VERSION_MINOR) + "." + TO_STRING(LINA_VERSION_PATCH);

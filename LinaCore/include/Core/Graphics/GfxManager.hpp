@@ -61,13 +61,14 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-			uint16		  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16		  pipelineLayoutPersistentGlobal = 0;
-			uint16		  descriptorSetPersistentGlobal	 = 0;
-			Buffer		  globalDataBuffer;
-			Buffer		  globalMaterialsBuffer;
-			Atomic<bool>  bindlessDirty = true;
-			SemaphoreData poolSubmissionSemaphore;
+			uint16				   pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16				   pipelineLayoutPersistentGlobal = 0;
+			uint16				   descriptorSetPersistentGlobal  = 0;
+			Buffer				   globalDataBuffer;
+			Buffer				   globalMaterialsBuffer;
+			SemaphoreData		   poolSubmissionSemaphore = {};
+			SemaphoreData		   globalCopySemaphore	   = {};
+			LinaGX::CommandStream* globalCopyStream		   = nullptr;
 		};
 
 	public:
@@ -132,15 +133,6 @@ namespace Lina
 		inline const GUIBackend& GetGUIBackend() const
 		{
 			return m_guiBackend;
-		}
-
-		inline void MarkBindlessDirty()
-		{
-			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				auto& pfd = m_pfd[i];
-				pfd.bindlessDirty.store(true);
-			}
 		}
 
 		inline TextureSampler* GetDefaultSampler(uint32 index) const

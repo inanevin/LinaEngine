@@ -53,7 +53,6 @@ namespace Lina
 		StringSerialization::SaveToStream(stream, path);
 		stream << sid;
 		stream << tid;
-		stream << useCustomMeta;
 	}
 
 	void ResourceIdentifier::LoadFromStream(IStream& stream)
@@ -61,6 +60,5 @@ namespace Lina
 		StringSerialization::LoadFromStream(stream, path);
 		stream >> sid;
 		stream >> tid;
-		stream >> useCustomMeta;
 	}
 } // namespace Lina

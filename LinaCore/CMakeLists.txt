@@ -69,6 +69,9 @@ src/Components/RenderableComponent.cpp
 src/Components/MeshComponent.cpp
 src/Components/WidgetComponent.cpp
 
+# Meta
+src/Meta/ProjectData.cpp
+
 # Reflection
 src/Reflection/ReflectionSystem.cpp
 
@@ -191,6 +194,9 @@ include/Core/Graphics/Renderers/Renderer.hpp
 include/Core/Graphics/Pipeline/Buffer.hpp
 include/Core/Graphics/Pipeline/RenderPass.hpp
 include/Core/Graphics/Pipeline/DescriptorSet.hpp
+
+#Meta
+include/Core/Meta/ProjectData.hpp
 
 # World
 include/Core/World/Entity.hpp

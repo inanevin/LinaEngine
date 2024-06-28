@@ -81,18 +81,20 @@ namespace Lina::Editor
 
 		const String   thumbnailPath	 = "ResourceThumbnail_" + TO_STRING(item->sid);
 		const StringID sid				 = TO_SID(thumbnailPath);
-		const String   thumbnailFullPath = ResourceManager::GetMetacachePath(m_editor, thumbnailPath, sid);
+        
+        String cachedFile = "";
+        m_editor->GetFileManager().GetMetacachePath(cachedFile, thumbnailPath);
 
 		Taskflow tf;
-		tf.emplace([item, thumbnailFullPath, this]() {
+		tf.emplace([item, cachedFile, this]() {
 			if (item->tid == GetTypeID<Texture>())
 			{
-				GenerateThumbTexture(item, thumbnailFullPath);
+				GenerateThumbTexture(item, cachedFile);
 			}
 		});
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
 
-		if (FileSystem::FileOrPathExists(thumbnailFullPath))
+		if (FileSystem::FileOrPathExists(cachedFile))
 		{
 			// IStream input    = Serialization::LoadFromFile(thumbnailFullPath.c_str());
 			// uint32 bytesPerPixel = 0;
@@ -105,19 +107,19 @@ namespace Lina::Editor
 
 		if (item->tid == GetTypeID<Texture>())
 		{
-			GenerateThumbTexture(item, thumbnailFullPath);
+			GenerateThumbTexture(item, cachedFile);
 		}
 		else if (item->tid == GetTypeID<Font>())
 		{
-			GenerateThumbFont(item, thumbnailFullPath);
+			GenerateThumbFont(item, cachedFile);
 		}
 		else if (item->tid == GetTypeID<Model>())
 		{
-			GenerateThumbModel(item, thumbnailFullPath);
+			GenerateThumbModel(item, cachedFile);
 		}
 		else if (item->tid == GetTypeID<EntityWorld>())
 		{
-			GenerateThumbWorld(item, thumbnailFullPath);
+			GenerateThumbWorld(item, cachedFile);
 		}
 	}
 
@@ -348,7 +350,7 @@ namespace Lina::Editor
 		ident.path = item->absolutePath;
 		ident.sid  = TO_SID(item->absolutePath);
 		ident.tid  = item->tid;
-		rm->LoadResources({ident});
+		rm->LoadResourcesFromFile({ident});
 		rm->WaitForAll();
 
 		// Create world.

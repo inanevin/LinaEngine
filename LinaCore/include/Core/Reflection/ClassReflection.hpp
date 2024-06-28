@@ -28,13 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ComponentReflection_HPP
-#define ComponentReflection_HPP
-
 #include "Common/StringID.hpp"
 #include "Core/World/ComponentCache.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Core/GUI/Widgets/WidgetCache.hpp"
+#include "Core/Resources/ResourceCache.hpp"
 
 namespace Lina
 {
@@ -51,6 +49,12 @@ namespace Lina
 		template <typename T> static inline void* REF_CreateWidgetCacheFunc()
 		{
 			Lina::WidgetCache<T>* c = new Lina::WidgetCache<T>();
+			return static_cast<void*>(c);
+		}
+
+		template <typename T> static inline void* REF_CreateResourceCacheFunc()
+		{
+			Lina::ResourceCache<T>* c = new Lina::ResourceCache<T>();
 			return static_cast<void*>(c);
 		}
 
@@ -117,6 +121,20 @@ namespace Lina
 			reflected = true;                                                                                                                                                                                                                                      \
 			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateWidgetCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateWidgetCacheFunc<ClassName>));
 
+/* BEGINNING A REFLECTED RESOURCE */
+#define LINA_REFLECTRESOURCE_BEGIN(ClassName)                                                                                                                                                                                                                      \
+	class ClassName;                                                                                                                                                                                                                                               \
+	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		ClassName##_LinaReflected()                                                                                                                                                                                                                                \
+		{                                                                                                                                                                                                                                                          \
+			static bool reflected = false;                                                                                                                                                                                                                         \
+			if (reflected)                                                                                                                                                                                                                                         \
+				return;                                                                                                                                                                                                                                            \
+			reflected = true;                                                                                                                                                                                                                                      \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateResourceCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateResourceCacheFunc<ClassName>));
+
 /* PROPERTIES AND FUNCTIONS PER REFLECTED CLASS*/
 #define LINA_REFLECT_FIELD(ClassName, FieldName, TITLE, TYPE, CATEGORY, TOOLTIP, DEPENDSON)                                                                                                                                                                        \
 	const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TITLE);                                                                                                                                                                                                   \
@@ -135,10 +153,9 @@ namespace Lina
 	inline static ClassName##_LinaReflected ClassName##__ = ClassName##_LinaReflected();
 #define LINA_REFLECTCOMPONENT_END(ClassName) LINA_REFLECTCLASS_END(ClassName)
 #define LINA_REFLECTWIDGET_END(ClassName)	 LINA_REFLECTCLASS_END(ClassName)
+#define LINA_REFLECTRESOURCE_END(ClassName)	 LINA_REFLECTCLASS_END(ClassName)
 #define LINA_REFLECTION_ACCESS(ClassName)	 friend class ClassName##_LinaReflected;
 
 	// static const ClassName##....
 
 } // namespace Lina
-
-#endif

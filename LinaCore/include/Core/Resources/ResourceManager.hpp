@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef ResourceManager_HPP
-#define ResourceManager_HPP
-
 #include "Common/Data/HashMap.hpp"
 #include "Common/Data/Vector.hpp"
 #include "CommonResources.hpp"
@@ -52,108 +49,54 @@ namespace Lina
 		ResourceManager(System* sys) : Subsystem(sys, SubsystemType::ResourceManager){};
 		~ResourceManager() = default;
 
-		virtual void  PreInitialize(const SystemInitializationInfo& initInfo) override;
 		virtual void  Shutdown() override;
 		void		  Poll();
-		int32		  LoadResources(const Vector<ResourceIdentifier>& identifiers, Delegate<void()>&& onLoaded = nullptr);
+		int32		  LoadResourcesFromFile(const Vector<ResourceIdentifier>& identifiers);
 		void		  WaitForAll();
 		bool		  IsLoadTaskComplete(uint32 id);
 		void		  UnloadResources(const Vector<ResourceIdentifier> identifiers);
-		PackageType	  GetPackageType(TypeID tid);
-		void		  ResaveResource(Resource* res);
 		static String GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid);
 
-		void RegisterAppResources(const Vector<ResourceIdentifier>& resources)
-		{
-			m_appResources.insert(m_appResources.end(), resources.begin(), resources.end());
-		}
-
-		inline void SetMode(ResourceManagerMode mode)
-		{
-			m_mode = mode;
-		}
-
-		inline Vector<ResourceIdentifier> GetPriorityResources()
-		{
-			Vector<ResourceIdentifier> res;
-			res.reserve(m_appResources.size());
-			linatl::for_each(m_appResources.begin(), m_appResources.end(), [&](const ResourceIdentifier& id) {
-				if (id.flags.IsSet(RF_PRIORITY))
-					res.push_back(id);
-			});
-			return res;
-		}
-
-		inline Vector<ResourceIdentifier> GetCoreResources()
-		{
-			Vector<ResourceIdentifier> res;
-			res.reserve(m_appResources.size());
-			linatl::for_each(m_appResources.begin(), m_appResources.end(), [&](const ResourceIdentifier& id) {
-				if (id.flags.IsSet(RF_CORE))
-					res.push_back(id);
-			});
-			return res;
-		}
-
-		template <typename T> void RegisterResourceType(int chunkCount, const Vector<String>& extensions, PackageType pt, uint32 resourceTypeFlags)
+		template <typename T> ResourceCache<T>* GetCache()
 		{
 			const TypeID tid = GetTypeID<T>();
+
 			if (m_caches.find(tid) == m_caches.end())
-				m_caches[tid] = new ResourceCache<T>(chunkCount, extensions, pt, resourceTypeFlags);
+				m_caches[tid] = new ResourceCache<T>();
+
+			ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+			return cache;
 		}
 
-		template <typename T> T* GetResource(StringID sid) const
+		template <typename T> T* GetResource(StringID sid)
 		{
-			const TypeID tid = GetTypeID<T>();
-			return static_cast<T*>(m_caches.at(tid)->GetResource(sid));
+			return static_cast<T*>(GetCache<T>()->Get(sid));
 		}
 
-		template <typename T> void GetAllResourcesRaw(Vector<T*>& resources, bool includeUserManagedResources) const
+		template <typename T> T* CreateResource(const String& path, StringID sid)
 		{
-			const TypeID tid   = GetTypeID<T>();
-			auto		 cache = static_cast<ResourceCache<T>*>(m_caches.at(tid));
-			cache->GetAllResourcesRaw(resources, includeUserManagedResources);
+			return static_cast<T*>(GetCache<T>()->Create(path, sid, this));
 		}
 
-		template <typename T> T* CreateUserResource(const String& path, StringID sid)
+		template <typename T> void DestroyResource(StringID sid)
 		{
-			const TypeID tid = GetTypeID<T>();
-			Resource*	 res = m_caches.at(tid)->CreateResource(sid, path, this, ResourceOwner::UserCode);
-			return static_cast<T*>(res);
+			GetCache<T>()->Destroy(sid);
 		}
 
-		template <typename T> void DestroyUserResource(T* resource)
+		template <typename T> void DestroyResource(T* res)
 		{
-			if (resource->m_owner == ResourceOwner::ResourceManager)
-			{
-				LINA_ERR("Can not destroy resource-manager owned resources explicitly!");
-				return;
-			}
-
-			const TypeID tid = GetTypeID<T>();
-			m_caches.at(tid)->DestroyUserResource(static_cast<Resource*>(resource));
-		}
-
-		inline const HashMap<TypeID, ResourceCacheBase*>& GetCaches() const
-		{
-			return m_caches;
+			GetCache<T>()->Destroy(res->GetSID());
 		}
 
 	private:
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 
 	private:
-		bool								m_useMetaCache	  = true;
 		int32								m_loadTaskCounter = 0;
 		HashMap<uint32, ResourceLoadTask*>	m_loadTasks;
 		JobExecutor							m_executor;
-		ResourceManagerMode					m_mode = ResourceManagerMode::File;
 		HashMap<TypeID, ResourceCacheBase*> m_caches;
-		Vector<ResourceIdentifier>			m_appResources;
 		Vector<ResourceIdentifier>			m_waitingResources;
-		GfxManager*							m_gfxManager = nullptr;
 	};
 
 } // namespace Lina
-
-#endif

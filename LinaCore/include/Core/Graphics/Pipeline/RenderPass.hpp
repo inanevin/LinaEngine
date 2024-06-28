@@ -37,6 +37,7 @@ SOFTWARE.
 namespace Lina
 {
 	class GfxManager;
+	class ResourceUploadQueue;
 
 	struct RenderPassBuffer
 	{
@@ -72,6 +73,7 @@ namespace Lina
 		void End(LinaGX::CommandStream* stream);
 
 		bool CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* copyStream);
+		void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue);
 
 		void SetColorAttachment(uint32 frameIndex, uint32 index, const LinaGX::RenderPassColorAttachment& att);
 

@@ -36,6 +36,7 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
 #include "Core/Graphics/Renderers/Renderer.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 
 namespace LinaGX
 {
@@ -69,7 +70,7 @@ namespace Lina
 		virtual void Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues) override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize) override;
 
-		virtual bool IsValidThisFrame()
+		virtual bool IsValidThisFrame() override
 		{
 			return m_isVisible;
 		}
@@ -98,11 +99,6 @@ namespace Lina
 			return m_swapchain;
 		}
 
-		inline const SemaphoreData& GetCopySemaphoreData(uint32 frameIndex) const
-		{
-			return m_pfd[frameIndex].copySemaphore;
-		}
-
 		inline Widget* GetGUIRoot()
 		{
 			return m_guiRenderer.GetGUIRoot();
@@ -118,7 +114,11 @@ namespace Lina
 			return m_window;
 		}
 
+	private:
+		void UpdateBuffers(uint32 frameIndex);
+
 	protected:
+		ResourceUploadQueue	 m_uploadQueue;
 		ResourceManager*	 m_rm				= nullptr;
 		Shader*				 m_guiShader2D		= nullptr;
 		uint32				 m_guiShaderVariant = 0;

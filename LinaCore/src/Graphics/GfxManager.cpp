@@ -91,7 +91,7 @@ namespace
 
 namespace Lina
 {
-	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this), m_resourceUploadQueue(this)
+	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
@@ -167,9 +167,9 @@ namespace Lina
 			samplerData.minLod				= 0.0f;
 			samplerData.maxLod				= 30.0f; // upper limit
 
-			TextureSampler* defaultSampler		  = m_resourceManager->CreateUserResource<TextureSampler>(DEFAULT_SAMPLER_PATH, DEFAULT_SAMPLER_SID);
-			TextureSampler* defaultGUISampler	  = m_resourceManager->CreateUserResource<TextureSampler>(DEFAULT_SAMPLER_GUI_PATH, DEFAULT_SAMPLER_GUI_SID);
-			TextureSampler* defaultGUITextSampler = m_resourceManager->CreateUserResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_PATH, DEFAULT_SAMPLER_TEXT_SID);
+			TextureSampler* defaultSampler		  = m_resourceManager->CreateResource<TextureSampler>(DEFAULT_SAMPLER_PATH, DEFAULT_SAMPLER_SID);
+			TextureSampler* defaultGUISampler	  = m_resourceManager->CreateResource<TextureSampler>(DEFAULT_SAMPLER_GUI_PATH, DEFAULT_SAMPLER_GUI_SID);
+			TextureSampler* defaultGUITextSampler = m_resourceManager->CreateResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_PATH, DEFAULT_SAMPLER_TEXT_SID);
 			defaultSampler->m_samplerDesc		  = samplerData;
 
 			samplerData.mipLodBias			 = -1.0f;
@@ -196,8 +196,6 @@ namespace Lina
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
-
-		m_resourceUploadQueue.Initialize();
 		m_meshManager.Initialize();
 
 		// pfd
@@ -214,6 +212,9 @@ namespace Lina
 				};
 				data.globalDataBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "GfxManager: Engine Globals", true);
 				data.globalMaterialsBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "GfxManager: Materials", false);
+
+				data.globalCopyStream	 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, .commandCount = 200, .totalMemoryLimit = 24000, .auxMemorySize = 8192, .constantBlockSize = 64});
+				data.globalCopySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 
 				// Descriptor set 0 - global res
 				data.descriptorSetPersistentGlobal = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentGlobal());
@@ -242,20 +243,19 @@ namespace Lina
 			}
 		}
 
-		MarkBindlessDirty();
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 			UpdateBindlessResources(m_pfd[i]);
 
 		// Default materials
 		{
 
-			Material* defaultObjectMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
+			Material* defaultObjectMaterial = m_resourceManager->CreateResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
 			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
 			defaultObjectMaterial->BatchLoaded();
 			defaultObjectMaterial->SetProperty("albedo"_hs, LinaTexture2D{DEFAULT_TEXTURE_CHECKERED_DARK_SID, m_defaultSamplers[0]->GetSID()});
 			m_defaultMaterials.push_back(defaultObjectMaterial);
 
-			Material* defaultSkyMaterial = m_resourceManager->CreateUserResource<Material>(DEFAULT_MATERIAL_SKY_PATH, DEFAULT_MATERIAL_SKY_SID);
+			Material* defaultSkyMaterial = m_resourceManager->CreateResource<Material>(DEFAULT_MATERIAL_SKY_PATH, DEFAULT_MATERIAL_SKY_SID);
 			defaultSkyMaterial->SetShader(DEFAULT_SHADER_SKY_SID);
 			defaultSkyMaterial->BatchLoaded();
 			m_defaultMaterials.push_back(defaultSkyMaterial);
@@ -277,10 +277,10 @@ namespace Lina
 		m_guiBackend.Shutdown();
 
 		for (auto m : m_defaultMaterials)
-			m_resourceManager->DestroyUserResource<Material>(m);
+			m_resourceManager->DestroyResource<Material>(m);
 
 		for (auto s : m_defaultSamplers)
-			m_resourceManager->DestroyUserResource<TextureSampler>(s);
+			m_resourceManager->DestroyResource<TextureSampler>(s);
 	}
 
 	void GfxManager::Shutdown()
@@ -301,6 +301,8 @@ namespace Lina
 
 			data.globalDataBuffer.Destroy();
 			data.globalMaterialsBuffer.Destroy();
+			m_lgx->DestroyCommandStream(data.globalCopyStream);
+			m_lgx->DestroyUserSemaphore(data.globalCopySemaphore.GetSemaphore());
 
 			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
 				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
@@ -309,7 +311,6 @@ namespace Lina
 		}
 
 		// Other gfx resources
-		m_resourceUploadQueue.Shutdown();
 		m_meshManager.Shutdown();
 
 		// Final
@@ -376,71 +377,60 @@ namespace Lina
 
 		for (const RendererPool& pool : m_rendererPools)
 		{
-			for (auto* rend : pool.renderers)
+			if (pool.renderers.size() == 1)
 			{
+				auto* rend = pool.renderers[0];
 				rend->Tick(delta);
 			}
-			// if(pool.renderers.size() == 1)
-			// {
-			//     auto* rend = pool.renderers[0];
-			//     rend->Tick(delta);
-			// }
-			// else {
-			//     Taskflow tf;
-			//     tf.for_each_index(0, static_cast<int>(pool.renderers.size()), 1, [&](int i) {
-			//         auto* rend = pool.renderers.at(i);
-			//         rend->Tick(delta);
-			//     });
-			//     m_system->GetMainExecutor()->RunAndWait(tf);
-			// }
+			else
+			{
+				Taskflow tf;
+				tf.for_each_index(0, static_cast<int>(pool.renderers.size()), 1, [&](int i) {
+					auto* rend = pool.renderers.at(i);
+					rend->Tick(delta);
+				});
+				m_system->GetMainExecutor()->RunAndWait(tf);
+			}
 		}
 	}
 
 	void GfxManager::UpdateBindlessResources(PerFrameData& pfd)
 	{
-		if (!pfd.bindlessDirty.load())
-			return;
-
+		// Textures
+		ResourceCache<Texture>*			  cacheTxt	= m_resourceManager->GetCache<Texture>();
 		LinaGX::DescriptorUpdateImageDesc imgUpdate = {
 			.setHandle = pfd.descriptorSetPersistentGlobal,
 			.binding   = 2,
 		};
+		imgUpdate.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
+		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
+			imgUpdate.textures[index] = txt->GetGPUHandle();
+			txt->m_bindlessIndex	  = static_cast<uint32>(index);
+			return false;
+		});
+		m_lgx->DescriptorUpdateImage(imgUpdate);
 
+		// Samplers
+		ResourceCache<TextureSampler>*	  cacheSmp	= m_resourceManager->GetCache<TextureSampler>();
 		LinaGX::DescriptorUpdateImageDesc smpUpdate = {
 			.setHandle = pfd.descriptorSetPersistentGlobal,
 			.binding   = 3,
 		};
-
-		Vector<Texture*>		textures;
-		Vector<TextureSampler*> samplers;
-		Vector<Material*>		materials;
-		m_resourceManager->GetAllResourcesRaw<Texture>(textures, true);
-		m_resourceManager->GetAllResourcesRaw<TextureSampler>(samplers, true);
-		m_resourceManager->GetAllResourcesRaw<Material>(materials, true);
-		imgUpdate.textures.resize(textures.size());
-		smpUpdate.samplers.resize(samplers.size());
-
-		for (size_t i = 0; i < textures.size(); i++)
-		{
-			Texture* txt		  = textures[i];
-			imgUpdate.textures[i] = txt->GetGPUHandle();
-			txt->m_bindlessIndex  = static_cast<uint32>(i);
-		}
-
-		for (size_t i = 0; i < samplers.size(); i++)
-		{
-			TextureSampler* smp	  = samplers[i];
-			smpUpdate.samplers[i] = smp->GetGPUHandle();
-			smp->m_bindlessIndex  = static_cast<uint32>(i);
-		}
-
-		size_t padding = 0;
-		for (auto* mat : materials)
-			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding);
-
-		m_lgx->DescriptorUpdateImage(imgUpdate);
+		smpUpdate.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
+		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
+			smpUpdate.samplers[index] = smp->GetGPUHandle();
+			smp->m_bindlessIndex	  = static_cast<uint32>(index);
+			return false;
+		});
 		m_lgx->DescriptorUpdateImage(smpUpdate);
-		pfd.bindlessDirty.store(false);
+
+		// Materials
+		ResourceCache<Material>* cacheMat = m_resourceManager->GetCache<Material>();
+		size_t					 padding  = 0;
+		cacheMat->View([&](Material* mat, uint32 index) -> bool {
+			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding);
+			return false;
+		});
 	}
 
 	void GfxManager::Render(StringID targetPool)
@@ -464,25 +454,15 @@ namespace Lina
 			currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
 		}
 
-		// Update dirty materials.
-		{
-			Vector<Material*> materials;
-			m_resourceManager->GetAllResourcesRaw<Material>(materials, true);
-			for (auto* mat : materials)
-			{
-				if (mat->m_propsDirty)
-				{
-					mat->BufferDataInto(currentFrame.globalMaterialsBuffer, mat->m_bindlessBytePadding);
-					mat->m_propsDirty = false;
-				}
-			}
-
-			m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalMaterialsBuffer);
-		}
-
 		// Bindless resources
 		{
 			UpdateBindlessResources(currentFrame);
+		}
+
+		// Update dirty materials.
+		{
+			m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
+			m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalMaterialsBuffer);
 		}
 
 		// Mesh manager refresh
@@ -492,12 +472,23 @@ namespace Lina
 
 		// Wait for all transfers.
 		{
-			bool transferExists = m_resourceUploadQueue.FlushAll(currentFrameIndex);
-			if (transferExists)
+
+			if (m_resourceUploadQueue.FlushAll(currentFrame.globalCopyStream))
 			{
-				const SemaphoreData& semaphoreData = m_resourceUploadQueue.GetSemaphoreData(currentFrameIndex);
-				;
-				m_lgx->WaitForUserSemaphore(semaphoreData.GetSemaphore(), semaphoreData.GetValue());
+				m_lgx->CloseCommandStreams(&currentFrame.globalCopyStream, 1);
+				currentFrame.globalCopySemaphore.Increment();
+				LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
+					.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+					.streams		  = &currentFrame.globalCopyStream,
+					.streamCount	  = 1,
+					.useSignal		  = true,
+					.signalCount	  = 1,
+					.signalSemaphores = currentFrame.globalCopySemaphore.GetSemaphorePtr(),
+					.signalValues	  = currentFrame.globalCopySemaphore.GetValuePtr(),
+					.isMultithreaded  = true,
+				};
+				m_lgx->SubmitCommandStreams(desc);
+				m_lgx->WaitForUserSemaphore(currentFrame.globalCopySemaphore.GetSemaphore(), currentFrame.globalCopySemaphore.GetValue());
 			}
 		}
 

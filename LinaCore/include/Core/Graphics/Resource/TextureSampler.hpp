@@ -63,4 +63,7 @@ namespace Lina
 		uint32				m_gpuHandle		= 0;
 		LinaGX::SamplerDesc m_samplerDesc	= {};
 	};
+
+	LINA_REFLECTRESOURCE_BEGIN(TextureSampler);
+	LINA_REFLECTRESOURCE_END(TextureSampler);
 } // namespace Lina

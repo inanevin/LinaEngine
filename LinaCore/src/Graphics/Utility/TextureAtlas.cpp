@@ -38,7 +38,7 @@ namespace Lina
 		uint8*		 data	  = new uint8[dataSize];
 		m_data				  = {data, dataSize};
 
-		m_rawTexture = m_rm->CreateUserResource<Texture>("TextureAtlasRawTexture", uniqueID);
+		m_rawTexture = m_rm->CreateResource<Texture>("TextureAtlasRawTexture", uniqueID);
 	}
 
 	TextureAtlas::~TextureAtlas()
@@ -47,7 +47,7 @@ namespace Lina
 			delete r;
 		m_rects.clear();
 
-		m_rm->DestroyUserResource(m_rawTexture);
+		m_rm->DestroyResource(m_rawTexture);
 		m_rawTexture = nullptr;
 	}
 

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/StringID.hpp"
 #include "Common/Data/String.hpp"
 #include "Core/Resources/CommonResources.hpp"
+#include "Core/Reflection/ClassReflection.hpp"
 #include "Common/ClassMacros.hpp"
 #include "Common/Memory/CommonMemory.hpp"
 
@@ -66,21 +67,6 @@ namespace Lina
 			return m_tid;
 		}
 
-		inline bool IsOwnedByUser() const
-		{
-			return m_owner == ResourceOwner::UserCode;
-		}
-
-		inline bool IsPriorityResource() const
-		{
-			return m_flags.IsSet(RF_PRIORITY);
-		}
-
-		inline bool IsCoreResource() const
-		{
-			return m_flags.IsSet(RF_CORE);
-		}
-
 	protected:
 		friend class ResourceManager;
 
@@ -114,7 +100,6 @@ namespace Lina
 		String			 m_path			   = "";
 		TypeID			 m_tid			   = 0;
 		StringID		 m_sid			   = 0;
-		ResourceOwner	 m_owner		   = ResourceOwner::ResourceManager;
 		Bitmask32		 m_flags		   = 0;
 	};
 

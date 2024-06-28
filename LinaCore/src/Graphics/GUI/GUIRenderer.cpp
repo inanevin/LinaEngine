@@ -223,6 +223,13 @@ namespace Lina
 		return copyExists == 0 ? false : true;
 	}
 
+	void GUIRenderer::AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue)
+	{
+		auto& pfd = m_pfd[frameIndex];
+		queue.AddBufferRequest(&pfd.guiIndexBuffer);
+		queue.AddBufferRequest(&pfd.guiVertexBuffer);
+	}
+
 	void GUIRenderer::Render(LinaGX::CommandStream* stream, const Buffer& indirectBuffer, uint32 frameIndex, const Vector2ui& size)
 	{
 		auto& pfd = m_pfd[frameIndex];

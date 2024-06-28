@@ -27,66 +27,15 @@ SOFTWARE.
 */
 
 #pragma once
-#include "Common/Data/String.hpp"
-#include "Common/Data/Map.hpp"
-#include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
-namespace Lina
-{
-	class ResourceManager;
-	class Shader;
-	class GfxManager;
-} // namespace Lina
-
-namespace LinaGX
-{
-	class Instance;
-}
+#include "Common/StringID.hpp"
 
 namespace Lina::Editor
 {
 
-	struct BufferBatch
-	{
-		Buffer* vtxBuffer = nullptr;
-		Buffer* idxBuffer = nullptr;
-		size_t	vtxCount  = 0;
-		size_t	idxCount  = 0;
-	};
-
-	struct LineVertex
-	{
-		Vector3 position;
-		Vector3 nextPosition;
-		Vector4 color;
-		float	direction = 0.0f;
-	};
-
-	class WorldRendererExtEditor : public WorldRendererExtension
+	class ExtensionSupport
 	{
 	public:
-		struct PerFrameData
-		{
-			Buffer vertexBuffer;
-			Buffer indexBuffer;
-		};
-
-		WorldRendererExtEditor();
-		virtual ~WorldRendererExtEditor();
-
-		virtual void Tick(float delta) override;
-		virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream) override;
-		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
-
-	private:
-		RenderPass		  m_pass;
-		GfxManager*		  m_gfxManager	= nullptr;
-		LinaGX::Instance* m_lgx			= nullptr;
-		ResourceManager*  m_rm			= nullptr;
-		Shader*			  m_shaderLines = nullptr;
-		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
+		static TypeID GetTypeIDForExtension(const String& ext);
 	};
-
 } // namespace Lina::Editor

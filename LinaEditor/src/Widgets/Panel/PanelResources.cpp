@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/PanelResources.hpp"
 #include "Editor/Editor.hpp"
-#include "Editor/Meta/ProjectData.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/IO/FileManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"

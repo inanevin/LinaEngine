@@ -130,6 +130,9 @@ namespace Lina
 		bool						  m_gpuHandleExists = false;
 		Vector2ui					  m_size			= Vector2ui::Zero;
 	};
+
+	LINA_REFLECTRESOURCE_BEGIN(Texture);
+	LINA_REFLECTRESOURCE_END(Texture);
 } // namespace Lina
 
 #endif

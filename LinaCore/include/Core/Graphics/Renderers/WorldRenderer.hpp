@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Renderers/Renderer.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Common/Data/Map.hpp"
 
@@ -66,7 +67,7 @@ namespace Lina
 		virtual void Tick(float delta){};
 		virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream){};
 		virtual void Render(uint32 frameIndex, LinaGX::CommandStream* stream){};
-		virtual bool CopyBuffers(uint32 frameIndex, LinaGX::CommandStream* stream){};
+		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue){};
 
 		WorldRenderer* m_worldRenderer = nullptr;
 	};
@@ -170,6 +171,7 @@ namespace Lina
 		Shader* m_guiShader3D			= nullptr;
 		uint32	m_guiShader3DVariantGPU = 0;
 
+		ResourceUploadQueue							  m_uploadQueue;
 		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT]	= {};
 		RenderPass									  m_mainPass				= {};
 		RenderPass									  m_lightingPass			= {};

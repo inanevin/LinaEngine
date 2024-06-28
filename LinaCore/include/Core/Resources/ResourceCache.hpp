@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Common/Data/Mutex.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Log/Log.hpp"
-#include "Resource.hpp"
 #include "CommonResources.hpp"
 
 namespace Lina
@@ -48,40 +47,27 @@ namespace Lina
 	class ResourceCacheBase
 	{
 	public:
-		ResourceCacheBase(const Vector<String>& extensions, PackageType pt, uint32 typeFlags) : m_packageType(pt), m_extensions(extensions), m_typeFlags(typeFlags){};
+		ResourceCacheBase() {};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource* CreateResource(StringID sid, const String& path, ResourceManager* rm, ResourceOwner ownerType) = 0;
-		virtual Resource* GetResource(StringID sid)																		 = 0;
-		virtual void	  DestroyResource(StringID sid)																	 = 0;
-		virtual void	  DestroyUserResource(Resource* res)															 = 0;
+		virtual Resource* Create(const String& path, StringID sid, ResourceManager* rm) = 0;
+		virtual Resource* Get(StringID sid)																		 = 0;
+		virtual void	  Destroy(StringID sid)																	 = 0;
 
 		inline PackageType GetPackageType() const
 		{
 			return m_packageType;
 		}
 
-		inline bool DoesSupportExtension(const String& ext)
-		{
-			auto it = linatl::find_if(m_extensions.begin(), m_extensions.end(), [&ext](const String& extension) -> bool { return ext.compare(extension) == 0; });
-			return it != m_extensions.end();
-		}
-
-		inline const Bitmask32& GetTypeFlags() const
-		{
-			return m_typeFlags;
-		}
-
 	protected:
 		PackageType	   m_packageType = PackageType::Default;
 		Vector<String> m_extensions;
-		Bitmask32	   m_typeFlags = 0;
 	};
 
 	template <typename T> class ResourceCache : public ResourceCacheBase
 	{
 	public:
-		ResourceCache(uint32 chunkCount, const Vector<String>& extensions, PackageType pt, uint32 typeFlags) : ResourceCacheBase(extensions, pt, typeFlags)
+		ResourceCache() : ResourceCacheBase()
 		{
 		}
 
@@ -89,34 +75,28 @@ namespace Lina
 		{
 			Destroy();
 		}
+        
+        inline uint32 GetActiveItemCount() const
+        {
+            return m_resourceBucket.GetActiveItemCount();
+        }
 
-		virtual Resource* CreateResource(StringID sid, const String& path, ResourceManager* rm, ResourceOwner ownerType) override
+		virtual Resource* Create(const String& path, StringID sid,  ResourceManager* rm) override
 		{
 			LOCK_GUARD(m_mtx);
+            
+            if (m_resources.find(sid) != m_resources.end())
+            {
+                LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
+                return nullptr;
+            }
 
-			if (ownerType == ResourceOwner::UserCode)
-			{
-				T* res		 = m_resourceBucket.Allocate(rm, path, sid);
-				res->m_owner = ownerType;
-				m_userManagedResources.push_back(res);
-				return res;
-			}
-			else
-			{
-				if (m_resources.find(sid) != m_resources.end())
-				{
-					LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
-					return nullptr;
-				}
-
-				T* res			 = m_resourceBucket.Allocate(rm, path, sid);
-				res->m_owner	 = ownerType;
-				m_resources[sid] = res;
-				return res;
-			}
+            T* res             = m_resourceBucket.Allocate(rm, path, sid);
+            m_resources[sid] = res;
+            return res;
 		}
 
-		virtual void DestroyResource(StringID sid) override
+		virtual void Destroy(StringID sid) override
 		{
 			LOCK_GUARD(m_mtx);
 			auto it = m_resources.find(sid);
@@ -126,62 +106,29 @@ namespace Lina
 			m_resources.erase(it);
 		}
 
-		virtual void DestroyUserResource(Resource* resource) override
-		{
-			auto it = linatl::find_if(m_userManagedResources.begin(), m_userManagedResources.end(), [resource](T* res) -> bool { return res == resource; });
-			LINA_ASSERT(it != m_userManagedResources.end(), "");
-			T* res = static_cast<T*>(resource);
-			m_resourceBucket.Free(res);
-			m_userManagedResources.erase(it);
-		}
-
-		virtual Resource* GetResource(StringID sid) override
+		virtual Resource* Get(StringID sid) override
 		{
 			auto it = m_resources.find(sid);
-
-			if (it == m_resources.end())
-			{
-				auto it2 = linatl::find_if(m_userManagedResources.begin(), m_userManagedResources.end(), [sid](T* res) -> bool { return res->GetSID() == sid; });
-				LINA_ASSERT(it2 != m_userManagedResources.end(), "");
-				return *it2;
-			}
-
 			return it->second;
 		}
 
-		void GetAllResourcesRaw(Vector<T*>& resources, bool includeUserManagedResources) const
-		{
-			resources.reserve(m_resources.size());
-
-			for (auto [sid, res] : m_resources)
-				resources.push_back(res);
-
-			if (includeUserManagedResources)
-			{
-				for (auto* res : m_userManagedResources)
-					resources.push_back(res);
-			}
-		}
+        void View(Delegate<bool(T* res, uint32 index)>&& callback)
+        {
+            m_resourceBucket.View(std::move(callback));
+        }
 
 	private:
 		void Destroy()
 		{
 			for (auto [sid, res] : m_resources)
-			{
 				m_resourceBucket.Free(res);
-			}
-
 			m_resources.clear();
-
-			LINA_ASSERT(m_userManagedResources.empty(), "Some user managed resources were not destroyed!");
-			m_userManagedResources.clear();
 		}
 
 	private:
 		AllocatorBucket<T, 250> m_resourceBucket;
 		Mutex					m_mtx;
 		HashMap<StringID, T*>	m_resources;
-		Vector<T*>				m_userManagedResources;
 	};
 
 } // namespace Lina

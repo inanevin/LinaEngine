@@ -27,66 +27,50 @@ SOFTWARE.
 */
 
 #pragma once
+
 #include "Common/Data/String.hpp"
-#include "Common/Data/Map.hpp"
-#include "Core/Graphics/Renderers/WorldRenderer.hpp"
-#include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Core/Graphics/Pipeline/RenderPass.hpp"
+#include "Common/StringID.hpp"
+#include "Common/Serialization/Serializable.hpp"
 
 namespace Lina
 {
-	class ResourceManager;
-	class Shader;
-	class GfxManager;
-} // namespace Lina
-
-namespace LinaGX
-{
-	class Instance;
-}
-
-namespace Lina::Editor
-{
-
-	struct BufferBatch
-	{
-		Buffer* vtxBuffer = nullptr;
-		Buffer* idxBuffer = nullptr;
-		size_t	vtxCount  = 0;
-		size_t	idxCount  = 0;
-	};
-
-	struct LineVertex
-	{
-		Vector3 position;
-		Vector3 nextPosition;
-		Vector4 color;
-		float	direction = 0.0f;
-	};
-
-	class WorldRendererExtEditor : public WorldRendererExtension
+	class ProjectData : public Serializable
 	{
 	public:
-		struct PerFrameData
+		struct Runtime
 		{
-			Buffer vertexBuffer;
-			Buffer indexBuffer;
+			bool isDirty = false;
 		};
 
-		WorldRendererExtEditor();
-		virtual ~WorldRendererExtEditor();
+		static constexpr uint32 VERSION = 0;
 
-		virtual void Tick(float delta) override;
-		virtual void RenderForward(uint32 frameIndex, LinaGX::CommandStream* stream) override;
-		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
+		virtual void SaveToStream(OStream& out) override;
+		virtual void LoadFromStream(IStream& in) override;
+		void		 ToRelativePath(const String& absPath, String& outRelative);
+
+		inline void SetProjectName(const String& name)
+		{
+			m_projectName = name;
+		}
+
+		inline const String& GetProjectName() const
+		{
+			return m_projectName;
+		}
+
+		inline void SetDirty(bool isDirty)
+		{
+			m_runtime.isDirty = isDirty;
+		}
+
+		inline bool GetIsDirty() const
+		{
+			return m_runtime.isDirty;
+		}
 
 	private:
-		RenderPass		  m_pass;
-		GfxManager*		  m_gfxManager	= nullptr;
-		LinaGX::Instance* m_lgx			= nullptr;
-		ResourceManager*  m_rm			= nullptr;
-		Shader*			  m_shaderLines = nullptr;
-		PerFrameData	  m_pfd[FRAMES_IN_FLIGHT];
+		Runtime m_runtime	  = {};
+		String	m_projectName = "";
 	};
 
-} // namespace Lina::Editor
+} // namespace Lina

@@ -26,13 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Meta/ProjectData.hpp"
-#include "Editor/Editor.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
 	void ProjectData::LoadFromStream(IStream& in)
 	{

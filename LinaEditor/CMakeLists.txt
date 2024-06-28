@@ -36,6 +36,7 @@ include/Editor/Graphics/WorldRendererExtEditor.hpp
 include/Editor/IO/FileManager.hpp
 include/Editor/IO/ThumbnailGenerator.hpp
 include/Editor/IO/DirectoryItem.hpp
+include/Editor/IO/ExtensionSupport.hpp
 
 # Widgets
 include/Editor/Widgets/CommonWidgets.hpp
@@ -68,7 +69,6 @@ include/Editor/Widgets/FX/LinaLoading.hpp
 # Meta
 include/Editor/Meta/EditorSettings.hpp
 include/Editor/Meta/EditorLayout.hpp
-include/Editor/Meta/ProjectData.hpp
 )
 
 set(SOURCES
@@ -87,6 +87,7 @@ src/Graphics/WorldRendererExtEditor.cpp
 src/IO/FileManager.cpp
 src/IO/ThumbnailGenerator.cpp
 src/IO/DirectoryItem.cpp
+src/IO/ExtensionSupport.cpp
 
 # Widgets
 src/Widgets/CommonWidgets.cpp
@@ -119,7 +120,6 @@ src/Widgets/FX/LinaLoading.cpp
 # Meta
 src/Meta/EditorSettings.cpp
 src/Meta/EditorLayout.cpp
-src/Meta/ProjectData.cpp
 )
 
 #--------------------------------------------------------------------

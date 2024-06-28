@@ -49,188 +49,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	void Application::RegisterResourceData()
-	{
-		auto& rm = m_engine.GetResourceManager();
-
-		rm.RegisterResourceType<Model>(50, {"glb"}, PackageType::Package1, 0);
-		rm.RegisterResourceType<Shader>(25, {"linashader"}, PackageType::Package1, 0);
-		rm.RegisterResourceType<Texture>(100, {"png", "jpeg", "jpg"}, PackageType::Package1, RTF_BINDLESS_RESOURCE);
-		rm.RegisterResourceType<TextureSampler>(100, {"linasampler"}, PackageType::Package1, RTF_BINDLESS_RESOURCE);
-		rm.RegisterResourceType<Font>(10, {"ttf", "otf"}, PackageType::Package1, 0);
-		rm.RegisterResourceType<Material>(25, {"linamaterial"}, PackageType::Package1, RTF_BINDLESS_RESOURCE);
-		rm.RegisterResourceType<GUIWidget>(25, {"linawidget"}, PackageType::Package1, 0);
-		rm.RegisterResourceType<EntityWorld>(25, {"linaworld"}, PackageType::Package1, 0);
-
-		Vector<ResourceIdentifier> list;
-
-		/* Priority Resources */
-		list.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
-		list.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
-		list.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, true, ResourceFlags::RF_PRIORITY));
-		list.push_back(ResourceIdentifier(DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
-		list.push_back(ResourceIdentifier(DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_PRIORITY));
-		list.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>(), 0, true, ResourceFlags::RF_PRIORITY));
-
-		/* Core Resources */
-		list.push_back(ResourceIdentifier(DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>(), 0, true, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/SkyCube.glb", GetTypeID<Model>(), 0, false, ResourceFlags::RF_CORE));
-		list.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>(), 0, false, ResourceFlags::RF_CORE));
-
-		for (auto& r : list)
-			r.sid = TO_SID(r.path);
-
-		rm.RegisterAppResources(list);
-	}
-
-	bool Application::FillResourceCustomMeta(StringID sid, OStream& stream)
-	{
-		if (sid == DEFAULT_FONT_SID)
-		{
-			Font::Metadata customMeta = {
-				.points = {{.size = 14, .dpiLimit = 10.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
-				.isSDF	= false,
-
-			};
-			customMeta.SaveToStream(stream);
-			return true;
-		}
-		// NOTE: 160, 380 is the glyph range for nunito sans
-
-		if (sid == DEFAULT_TEXTURE_CHECKERED_SID || sid == DEFAULT_TEXTURE_LINALOGO)
-		{
-			Texture::Metadata meta = {
-				.samplerSID = DEFAULT_SAMPLER_GUI_SID,
-			};
-
-			meta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == DEFAULT_SHADER_GUI_SID)
-		{
-			Shader::Metadata meta;
-
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable = false,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.depthFormat  = LinaGX::Format::UNDEFINED,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CCW,
-			};
-
-			meta.variants["Swapchain"_hs] = ShaderVariant{
-				.blendDisable = false,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.depthFormat  = LinaGX::Format::UNDEFINED,
-				.targets	  = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CCW,
-			};
-
-			meta.drawIndirectEnabled		  = true;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
-			meta.descriptorSetAllocationCount = 1;
-			meta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == DEFAULT_SHADER_GUI3D_SID)
-		{
-			Shader::Metadata meta;
-
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable		 = false,
-				.blendSrcFactor		 = LinaGX::BlendFactor::SrcAlpha,
-				.blendDstFactor		 = LinaGX::BlendFactor::OneMinusSrcAlpha,
-				.blendColorOp		 = LinaGX::BlendOp::Add,
-				.blendSrcAlphaFactor = LinaGX::BlendFactor::One,
-				.blendDstAlphaFactor = LinaGX::BlendFactor::One,
-				.blendAlphaOp		 = LinaGX::BlendOp::Add,
-				.depthTest			 = true,
-				.depthWrite			 = true,
-				.targets			 = {{.format = DEFAULT_RT_FORMAT}},
-				.cullMode			 = LinaGX::CullMode::None,
-				.frontFace			 = LinaGX::FrontFace::CCW,
-			};
-
-			meta.drawIndirectEnabled		  = true;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::ForwardTransparency;
-			meta.descriptorSetAllocationCount = 1;
-			meta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == DEFAULT_SHADER_OBJECT_SID)
-		{
-			Shader::Metadata meta;
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable = true,
-				.depthTest	  = true,
-				.depthWrite	  = true,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}, {.format = DEFAULT_RT_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::Back,
-				.frontFace	  = LinaGX::FrontFace::CW,
-			};
-
-			meta.descriptorSetAllocationCount = 1;
-			meta.drawIndirectEnabled		  = true;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Main;
-			meta.materialSize				  = sizeof(GPUMaterialDefaultObject);
-			meta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == DEFAULT_SHADER_DEFERRED_LIGHTING_SID)
-		{
-			Shader::Metadata meta;
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable = false,
-				.depthTest	  = false,
-				.depthWrite	  = false,
-				.targets	  = {{.format = DEFAULT_RT_FORMAT}},
-				.cullMode	  = LinaGX::CullMode::None,
-				.frontFace	  = LinaGX::FrontFace::CW,
-			};
-			meta.descriptorSetAllocationCount = 1;
-			meta.drawIndirectEnabled		  = false;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Lighting;
-			meta.materialSize				  = 0;
-			meta.SaveToStream(stream);
-			return true;
-		}
-
-		if (sid == DEFAULT_SHADER_SKY_SID)
-		{
-			Shader::Metadata meta;
-			meta.variants["RenderTarget"_hs] = ShaderVariant{
-				.blendDisable	   = true,
-				.depthTest		   = true,
-				.depthWrite		   = false,
-				.targets		   = {{.format = DEFAULT_RT_FORMAT}},
-				.depthOp		   = LinaGX::CompareOp::Equal,
-				.cullMode		   = LinaGX::CullMode::Back,
-				.frontFace		   = LinaGX::FrontFace::CW,
-				.depthBiasEnable   = true,
-				.depthBiasConstant = 5.0f,
-			};
-
-			meta.descriptorSetAllocationCount = 1;
-			meta.drawIndirectEnabled		  = false;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Lighting;
-			meta.materialSize				  = sizeof(GPUMaterialDefaultSky);
-			meta.SaveToStream(stream);
-			return true;
-		}
-
-		return false;
-	}
 
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
@@ -240,46 +58,26 @@ namespace Lina
 		LINA_ASSERT(m_appDelegate != nullptr, "Application listener can not be empty!");
 
 		// Setup
-		{
-			PlatformTime::Initialize();
-			SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
-			SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
-			SetFixedTimestep(10000);
-			SetFixedTimestep(true);
-			// SetFrameCap(16667);
-			PROFILER_INIT;
-			PROFILER_REGISTER_THREAD("Main");
-			m_appDelegate->SetupPlatform(this);
-		}
-
-		// Resource registry
-		{
-			auto& resourceManager = m_engine.GetResourceManager();
-			RegisterResourceData();
-			m_appDelegate->RegisterAppResources(resourceManager);
-		}
+		PlatformTime::Initialize();
+		SystemInfo::SetAppStartCycles(PlatformTime::GetCPUCycles());
+		SystemInfo::SetMainThreadID(SystemInfo::GetCurrentThreadID());
+		SetFixedTimestep(10000);
+		SetFixedTimestep(true);
+		// SetFrameCap(16667);
+		PROFILER_INIT;
+		PROFILER_REGISTER_THREAD("Main");
 
 		// Pre-initialization
-		{
-			m_engine.PreInitialize(initInfo);
-			resourceManager.LoadResources(resourceManager.GetPriorityResources());
-			resourceManager.WaitForAll();
-		}
+		m_engine.PreInitialize(initInfo);
 
 		// Main window
-		{
-			auto window = m_engine.GetGfxManager().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
-			window->CenterPositionToCurrentMonitor();
-			window->AddListener(this);
-			window->SetVisible(true);
-		}
+		auto window = m_engine.GetGfxManager().CreateApplicationWindow(LINA_MAIN_SWAPCHAIN, initInfo.appName, Vector2i::Zero, Vector2ui(initInfo.windowWidth, initInfo.windowHeight), static_cast<uint32>(initInfo.windowStyle));
+		window->CenterPositionToCurrentMonitor();
+		window->AddListener(this);
+		window->SetVisible(true);
 
 		// Initialization
-		{
-			m_engine.Initialize(initInfo);
-			auto& resourceManager = m_engine.GetResourceManager();
-			m_coreResourcesTask	  = m_engine.GetResourceManager().LoadResources(resourceManager.GetCoreResources());
-		}
+		m_engine.Initialize(initInfo);
 	}
 
 	void Application::LoadPlugins()
@@ -297,16 +95,7 @@ namespace Lina
 		PROFILER_FRAME_START();
 		PROFILER_FUNCTION();
 
-		// First launch, notify delegate of core resources loading.
-		if (m_coreResourcesTask != -1 && m_engine.GetResourceManager().IsLoadTaskComplete(m_coreResourcesTask))
-		{
-			m_engine.GetResourceManager().WaitForAll();
-			m_coreResourcesTask = -1;
-			m_appDelegate->CoreResourcesLoaded();
-		}
-
 		m_engine.PreTick();
-		m_appDelegate->PreTick();
 	}
 
 	void Application::Poll()
@@ -336,7 +125,6 @@ namespace Lina
 
 		PROFILER_SHUTDOWN;
 		ReflectionSystem::Get().Destroy();
-		m_appDelegate->Shutdown();
 		delete m_appDelegate;
 	}
 

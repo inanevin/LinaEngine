@@ -74,4 +74,7 @@ namespace Lina
 		IStream m_loadedStream;
 	};
 
+	LINA_REFLECTRESOURCE_BEGIN(GUIWidget);
+	LINA_REFLECTRESOURCE_END(GUIWidget);
+
 } // namespace Lina

@@ -26,64 +26,43 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Editor/IO/ExtensionSupport.hpp"
 
-#include "Common/Data/String.hpp"
-#include "Common/Data/CommonData.hpp"
-#include "Common/Data/HashMap.hpp"
-#include "Common/StringID.hpp"
-#include "Common/Serialization/Serializable.hpp"
-
-namespace Lina
-{
-	class Texture;
-}
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Core/Graphics/Resource/Model.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Audio/Audio.hpp"
+#include "Core/World/EntityWorld.hpp"
 
 namespace Lina::Editor
 {
-	class Editor;
 
-	class ProjectData : public Serializable
+	TypeID ExtensionSupport::GetTypeIDForExtension(const String& ext)
 	{
-	public:
-		struct Runtime
-		{
-			bool isDirty = false;
-		};
+		if (ext.compare("linaworld") == 0)
+			return GetTypeID<EntityWorld>();
+		if (ext.compare("linamaterial") == 0)
+			return GetTypeID<Material>();
+		if (ext.compare("linashader") == 0)
+			return GetTypeID<Shader>();
+		if (ext.compare("mp3") == 0)
+			return GetTypeID<Audio>();
+		if (ext.compare("linasampler") == 0)
+			return GetTypeID<TextureSampler>();
+		if (ext.compare("png") == 0 || ext.compare("jpg") == 0 || ext.compare("jpeg") == 0)
+			return GetTypeID<Texture>();
+		if (ext.compare("linawidget") == 0)
+			return GetTypeID<GUIWidget>();
+		if (ext.compare("ttf") == 0 || ext.compare("otf") == 0)
+			return GetTypeID<Font>();
+		if (ext.compare("gltf") == 0 || ext.compare("glb") == 0)
+			return GetTypeID<Model>();
 
-		static constexpr uint32 VERSION = 0;
-		void					Initialize(Editor* editor)
-		{
-			m_editor = editor;
-		}
-		virtual void SaveToStream(OStream& out) override;
-		virtual void LoadFromStream(IStream& in) override;
-		void		 ToRelativePath(const String& absPath, String& outRelative);
-
-		inline void SetProjectName(const String& name)
-		{
-			m_projectName = name;
-		}
-
-		inline const String& GetProjectName() const
-		{
-			return m_projectName;
-		}
-
-		inline void SetDirty(bool isDirty)
-		{
-			m_runtime.isDirty = isDirty;
-		}
-
-		inline bool GetIsDirty() const
-		{
-			return m_runtime.isDirty;
-		}
-
-	private:
-		Editor* m_editor	  = nullptr;
-		Runtime m_runtime	  = {};
-		String	m_projectName = "";
-	};
+		return 0;
+	}
 
 } // namespace Lina::Editor
