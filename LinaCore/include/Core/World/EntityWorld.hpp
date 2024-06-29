@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef World_HPP
-#define World_HPP
-
 #include "Core/Resources/Resource.hpp"
 #include "ComponentCache.hpp"
 #include "Common/Memory/MemoryAllocatorPool.hpp"
@@ -63,9 +60,7 @@ namespace Lina
 		};
 
 		EntityWorld(const EntityWorld& other) = delete;
-
-		EntityWorld(ResourceManager* rm, const String& path = "", StringID sid = 0);
-
+		EntityWorld(System* sys, const String& path = "", StringID sid = 0);
 		~EntityWorld();
 
 		Entity*		 CreateEntity(const String& name);
@@ -208,7 +203,6 @@ namespace Lina
 	private:
 		AllocatorBucket<Entity, 1000> m_entityBucket;
 
-		System*								 m_system = nullptr;
 		PhysicsWorld						 m_physicsWorld;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		CameraComponent*					 m_activeCamera = nullptr;
@@ -220,5 +214,3 @@ namespace Lina
 	};
 
 } // namespace Lina
-
-#endif

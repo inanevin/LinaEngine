@@ -83,8 +83,9 @@ namespace Lina
 		for (const auto& ident : identifiers)
 		{
 			loadTask->tf.emplace([app, ident, this, loadTask]() {
-				auto&		 cache		   = m_caches.at(ident.tid);
-				Resource*	 res		   = cache->Create(ident.path, ident.sid, this);
+				auto&	  cache			   = m_caches.at(ident.tid);
+				Resource* res			   = cache->Create(ident.path, ident.sid, m_system);
+				res->m_system			   = m_system;
 				const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), ident.path, ident.sid);
 				if (false && FileSystem::FileOrPathExists(metacachePath))
 				{
@@ -105,16 +106,13 @@ namespace Lina
 					}
 					metaStream.Destroy();
 
-					res->m_resourceManager = this;
-					res->m_flags		   = ident.flags;
+					res->m_flags = ident.flags;
 					res->LoadFromFile(ident.path.c_str());
 
 					OStream metastream;
 					res->SaveToStream(metastream);
 					Serialization::SaveToFile(metacachePath.c_str(), metastream);
 					metastream.Destroy();
-
-					res->Upload();
 				}
 
 				Event			   data;

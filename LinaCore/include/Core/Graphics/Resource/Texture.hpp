@@ -36,17 +36,14 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
+namespace LinaGX
+{
+	class Instance;
+}
 namespace Lina
 {
 	class Texture;
-
-	struct TextureSheetItem
-	{
-		Texture*  texture = nullptr;
-		Vector2	  uvTL	  = Vector2::Zero;
-		Vector2	  uvBR	  = Vector2::Zero;
-		Vector2ui size	  = Vector2ui::Zero;
-	};
+	class GfxManager;
 
 	class Texture : public Resource
 	{
@@ -65,16 +62,16 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-	public:
-		Texture(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Texture>()){};
-		virtual ~Texture();
-
-		uint32					 GetSamplerSID() const;
-		void					 CreateFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
-		void					 CreateGPUOnly(const LinaGX::TextureDesc& desc);
-		Vector<TextureSheetItem> GetSheetItems(uint32 columns, uint32 rows);
-		Vector2ui				 GetSize();
-		Vector2					 GetSizeF();
+		virtual void LoadFromFile(const char* path) override;
+		virtual void LoadFromStream(IStream& stream) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		void		 LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
+		void		 GenerateHW();
+		void		 GenerateHWFromDesc(const LinaGX::TextureDesc& desc);
+		void		 AddToUploadQueue();
+		uint32		 GetSamplerSID() const;
+		Vector2ui	 GetSize();
+		Vector2		 GetSizeF();
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -101,34 +98,32 @@ namespace Lina
 			return m_meta;
 		}
 
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void Upload() override;
-		void		 DestroyExistingData();
-
 	private:
-	protected:
+		Texture(System* system, const String& path, StringID sid);
+		virtual ~Texture();
+		void		 DestroyHW();
+		void		 DestroySW();
+		virtual void BatchLoaded() override;
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);
 		}
 
-		void GenerateGPU();
-		void AddToUploadQueue();
-
 	private:
 		friend class GfxManager;
 
-		uint32						  m_bindlessIndex = 0;
+		ALLOCATOR_BUCKET_MEM;
+		LinaGX::Instance*			  m_lgx		   = nullptr;
+		GfxManager*					  m_gfxManager = nullptr;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
+		uint32						  m_bindlessIndex	= 0;
 		uint32						  m_gpuHandle		= 0;
-		StringID					  m_sampler			= 0;
-		bool						  m_useGlobalDelete = false;
-		Metadata					  m_meta			= {};
 		uint32						  m_bytesPerPixel	= 0;
-		bool						  m_gpuHandleExists = false;
+		StringID					  m_sampler			= 0;
+		Metadata					  m_meta			= {};
 		Vector2ui					  m_size			= Vector2ui::Zero;
+		bool						  m_useGlobalDelete = false;
+		bool						  m_gpuHandleExists = false;
 	};
 
 	LINA_REFLECTRESOURCE_BEGIN(Texture);

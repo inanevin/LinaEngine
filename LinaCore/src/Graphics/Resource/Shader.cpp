@@ -84,10 +84,9 @@ namespace Lina
 		in >> materialSize;
 	}
 
-	Shader::Shader(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Shader>())
+	Shader::Shader(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Shader>())
 	{
-		m_gfxManager = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_lgx		 = m_gfxManager->GetLGX();
+		m_lgx = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX();
 	};
 
 	Shader::~Shader()
@@ -231,6 +230,7 @@ namespace Lina
 
 	void Shader::BatchLoaded()
 	{
+
 		/*
 		   Create a descriptor set description from the reflection info, this will be used to create descritor sets for the materials using this shader.
 			Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.

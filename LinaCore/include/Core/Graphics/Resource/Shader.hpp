@@ -48,7 +48,6 @@ namespace LinaGX
 namespace Lina
 {
 	class DescriptorSet;
-	class GfxManager;
 
 	struct ShaderProperty
 	{
@@ -78,9 +77,6 @@ namespace Lina
 		};
 
 	public:
-		Shader(ResourceManager* rm, const String& path, StringID sid);
-		virtual ~Shader();
-
 		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
 		void AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex);
 		void FreeDescriptorSet(DescriptorSet* set, uint32 index);
@@ -121,6 +117,9 @@ namespace Lina
 		}
 
 	protected:
+		Shader(System* sys, const String& path, StringID sid);
+		virtual ~Shader();
+
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
@@ -131,7 +130,7 @@ namespace Lina
 		}
 
 	private:
-	private:
+		ALLOCATOR_BUCKET_MEM;
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;
 		LinaGX::ShaderLayout							  m_layout			= {};
 		LinaGX::DescriptorSetDesc						  m_materialSetDesc = {};
@@ -139,8 +138,7 @@ namespace Lina
 		Metadata										  m_meta			= {};
 		uint16											  m_pipelineLayout;
 		Vector<DescriptorSet*>							  m_descriptorSets;
-		GfxManager*										  m_gfxManager = nullptr;
-		LinaGX::Instance*								  m_lgx		   = nullptr;
+		LinaGX::Instance*								  m_lgx = nullptr;
 		Vector<ShaderProperty>							  m_properties;
 	};
 

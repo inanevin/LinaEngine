@@ -354,7 +354,7 @@ namespace Lina::Editor
 		rm->WaitForAll();
 
 		// Create world.
-		EntityWorld* world = new EntityWorld(rm);
+		EntityWorld* world = new EntityWorld(m_editor->GetSystem());
 		world->SetSkyMaterial(rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
 

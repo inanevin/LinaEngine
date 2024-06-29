@@ -55,15 +55,19 @@ namespace Lina
 		in >> samplerSID >> isLinear >> generateMipmaps;
 	}
 
+	Texture::Texture(System* system, const String& path, StringID sid) : Resource(system, path, sid, GetTypeID<Texture>())
+	{
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_lgx		 = m_gfxManager->GetLGX();
+	};
+
 	Texture::~Texture()
 	{
 		for (const auto& b : m_allLevels)
 			LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
 
-		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
 		if (m_gpuHandleExists)
-			gfxMan->GetLGX()->DestroyTexture(m_gpuHandle);
+			m_lgx->DestroyTexture(m_gpuHandle);
 	}
 
 	uint32 Texture::GetSamplerSID() const
@@ -73,38 +77,24 @@ namespace Lina
 		return m_sampler;
 	}
 
-	void Texture::CreateGPUOnly(const LinaGX::TextureDesc& desc)
+	void Texture::DestroySW()
 	{
-		auto gfxManager	  = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_gpuHandle		  = gfxManager->GetLGX()->CreateTexture(desc);
-		m_gpuHandleExists = true;
-		m_size			  = Vector2ui(desc.width, desc.height);
-	}
-
-	void Texture::DestroyExistingData()
-	{
-		if (!m_gpuHandleExists)
-			return;
-
-		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		gfxManager->GetLGX()->Join();
-		gfxManager->GetLGX()->DestroyTexture(m_gpuHandle);
-
 		for (auto& b : m_allLevels)
 		{
-			delete[] b.pixels;
+			if (m_useGlobalDelete)
+				delete[] b.pixels;
+			else
+				LinaGX::FreeImage(b.pixels);
+
 			b.pixels = nullptr;
 		}
-
 		m_allLevels.clear();
-		m_gpuHandleExists = false;
 	}
 
-	void Texture::CreateFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
+	void Texture::LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps)
 	{
+		DestroySW();
 		m_size = Vector2ui(width, height);
-
-		DestroyExistingData();
 
 		LinaGX::TextureBuffer level0 = {
 			.width		   = width,
@@ -130,49 +120,11 @@ namespace Lina
 
 		m_useGlobalDelete = true;
 		m_meta.format	  = format;
-		GenerateGPU();
-		AddToUploadQueue();
-	}
-
-	Vector<TextureSheetItem> Texture::GetSheetItems(uint32 columns, uint32 rows)
-	{
-		const uint32 width	= m_allLevels[0].width;
-		const uint32 height = m_allLevels[0].height;
-
-		Vector<TextureSheetItem> items;
-		const float				 gridX = static_cast<float>(width) / static_cast<float>(columns);
-		const float				 gridY = static_cast<float>(height) / static_cast<float>(rows);
-		const Vector2ui			 size  = Vector2ui(static_cast<uint32>(gridX), static_cast<uint32>(gridY));
-
-		items.reserve(columns * rows);
-		const float uvProgX = 1.0f / static_cast<float>(columns);
-		const float uvProgY = 1.0f / static_cast<float>(rows);
-
-		for (uint32 i = 0; i < rows; i++)
-		{
-			for (uint32 j = 0; j < columns; j++)
-			{
-				const Vector2 uvTL = Vector2(j * uvProgX, i * uvProgY);
-				const Vector2 uvBR = Vector2((j + 1) * uvProgX, (i + 1) * uvProgY);
-
-				TextureSheetItem item = TextureSheetItem{
-					.texture = this,
-					.uvTL	 = uvTL,
-					.uvBR	 = uvBR,
-					.size	 = size,
-				};
-
-				items.push_back(item);
-			}
-		}
-
-		return items;
 	}
 
 	void Texture::LoadFromFile(const char* path)
 	{
-		DestroyExistingData();
-
+		DestroySW();
 		LinaGX::TextureBuffer outBuffer = {};
 		LinaGX::LoadImageFromFile(path, outBuffer, m_meta.channelMask);
 		m_bytesPerPixel = outBuffer.bytesPerPixel;
@@ -195,8 +147,7 @@ namespace Lina
 
 	void Texture::LoadFromStream(IStream& stream)
 	{
-		DestroyExistingData();
-
+		DestroySW();
 		m_meta.LoadFromStream(stream);
 
 		stream >> m_bytesPerPixel;
@@ -257,16 +208,18 @@ namespace Lina
 		return Vector2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 	}
 
-	void Texture::Upload()
+	void Texture::GenerateHWFromDesc(const LinaGX::TextureDesc& desc)
 	{
-		LINA_ASSERT(m_gpuHandleExists == false, "");
-		GenerateGPU();
-		AddToUploadQueue();
+		DestroyHW();
+
+		m_gpuHandle		  = m_lgx->CreateTexture(desc);
+		m_gpuHandleExists = true;
+		m_size			  = Vector2ui(desc.width, desc.height);
 	}
 
-	void Texture::GenerateGPU()
+	void Texture::GenerateHW()
 	{
-		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		DestroyHW();
 
 		LinaGX::TextureDesc desc = LinaGX::TextureDesc{
 			.format	   = m_meta.format,
@@ -276,29 +229,27 @@ namespace Lina
 			.mipLevels = static_cast<uint32>(m_allLevels.size()),
 			.debugName = m_path.c_str(),
 		};
-
-		m_gpuHandle		  = gfxManager->GetLGX()->CreateTexture(desc);
+		m_gpuHandle		  = m_lgx->CreateTexture(desc);
 		m_gpuHandleExists = true;
+	}
+
+	void Texture::DestroyHW()
+	{
+		if (!m_gpuHandleExists)
+			return;
+		m_lgx->DestroyTexture(m_gpuHandle);
+		m_gpuHandleExists = false;
+	}
+
+	void Texture::BatchLoaded()
+	{
+		GenerateHW();
+		AddToUploadQueue();
 	}
 
 	void Texture::AddToUploadQueue()
 	{
-		auto gfxManager = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
-		gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() {
-			for (auto& buffer : m_allLevels)
-			{
-				if (m_useGlobalDelete)
-				{
-					delete buffer.pixels;
-				}
-				else
-					LinaGX::FreeImage(buffer.pixels);
-
-				buffer.pixels = nullptr;
-			}
-
-			m_allLevels.clear();
-		});
+		m_gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() { DestroySW(); });
 	}
+
 } // namespace Lina

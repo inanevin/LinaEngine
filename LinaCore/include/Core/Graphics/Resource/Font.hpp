@@ -64,13 +64,11 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		Font(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Font>()){};
-		virtual ~Font();
-
 		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
 
-	private:
 	protected:
+		Font(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Font>()){};
+		virtual ~Font();
 		virtual void BatchLoaded() override;
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
@@ -81,6 +79,8 @@ namespace Lina
 		}
 
 	private:
+		ALLOCATOR_BUCKET_MEM;
+
 		Vector<LinaVG::LinaVGFont*> m_lvgFonts = {};
 		Vector<char>				m_file;
 		Metadata					m_meta = {};

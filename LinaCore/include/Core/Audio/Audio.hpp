@@ -42,11 +42,9 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		Audio(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Audio>()){};
-		virtual ~Audio();
-
 	protected:
-		virtual void Upload() override;
+		Audio(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Audio>()){};
+		virtual ~Audio();
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) const override;
@@ -56,6 +54,7 @@ namespace Lina
 		}
 
 	private:
+		ALLOCATOR_BUCKET_MEM;
 		Metadata m_meta = {};
 	};
 

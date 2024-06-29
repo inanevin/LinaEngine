@@ -37,9 +37,6 @@ namespace Lina
 	{
 
 	public:
-		GUIWidget(ResourceManager* rm, const String& path, StringID sid);
-		virtual ~GUIWidget();
-
 		void UpdateBlob();
 		void ClearRoot();
 
@@ -63,13 +60,14 @@ namespace Lina
 		}
 
 	private:
-	protected:
+		GUIWidget(System* sys, const String& path, StringID sid);
+		virtual ~GUIWidget();
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void BatchLoaded() override;
 
 	private:
+		ALLOCATOR_BUCKET_MEM;
 		Widget	m_root;
 		IStream m_loadedStream;
 	};

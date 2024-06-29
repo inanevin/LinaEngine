@@ -171,22 +171,20 @@ namespace Lina
 			TextureSampler* defaultGUISampler	  = m_resourceManager->CreateResource<TextureSampler>(DEFAULT_SAMPLER_GUI_PATH, DEFAULT_SAMPLER_GUI_SID);
 			TextureSampler* defaultGUITextSampler = m_resourceManager->CreateResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_PATH, DEFAULT_SAMPLER_TEXT_SID);
 			defaultSampler->m_samplerDesc		  = samplerData;
+			defaultSampler->GenerateHW();
 
 			samplerData.mipLodBias			 = -1.0f;
 			samplerData.mode				 = LinaGX::SamplerAddressMode::ClampToEdge;
 			samplerData.magFilter			 = LinaGX::Filter::Linear;
 			defaultGUISampler->m_samplerDesc = samplerData;
+			defaultGUISampler->GenerateHW();
 
 			samplerData.minFilter				 = LinaGX::Filter::Anisotropic;
 			samplerData.magFilter				 = LinaGX::Filter::Anisotropic;
 			samplerData.mode					 = LinaGX::SamplerAddressMode::ClampToEdge;
 			samplerData.mipLodBias				 = 0.0f;
 			defaultGUITextSampler->m_samplerDesc = samplerData;
-
-			// Force creation.
-			defaultSampler->BatchLoaded();
-			defaultGUISampler->BatchLoaded();
-			defaultGUITextSampler->BatchLoaded();
+			defaultGUITextSampler->GenerateHW();
 
 			m_defaultSamplers.push_back(defaultSampler);
 			m_defaultSamplers.push_back(defaultGUISampler);
@@ -251,13 +249,11 @@ namespace Lina
 
 			Material* defaultObjectMaterial = m_resourceManager->CreateResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
 			defaultObjectMaterial->SetShader(DEFAULT_SHADER_OBJECT_SID);
-			defaultObjectMaterial->BatchLoaded();
 			defaultObjectMaterial->SetProperty("albedo"_hs, LinaTexture2D{DEFAULT_TEXTURE_CHECKERED_DARK_SID, m_defaultSamplers[0]->GetSID()});
 			m_defaultMaterials.push_back(defaultObjectMaterial);
 
 			Material* defaultSkyMaterial = m_resourceManager->CreateResource<Material>(DEFAULT_MATERIAL_SKY_PATH, DEFAULT_MATERIAL_SKY_SID);
 			defaultSkyMaterial->SetShader(DEFAULT_SHADER_SKY_SID);
-			defaultSkyMaterial->BatchLoaded();
 			m_defaultMaterials.push_back(defaultSkyMaterial);
 
 			// Material* defaultUnlitMaterial = new Material(m_resourceManager, true, "Resources/Core/Materials/DefaultUnlit.linamaterial", DEFAULT_UNLIT_MATERIAL);

@@ -70,7 +70,9 @@ namespace Lina
 	void GUIBackend::BufferEnded()
 	{
 		auto& ft = m_fontTextures[m_boundFontTexture];
-		ft.texture->CreateFromBuffer(ft.pixels, ft.width, ft.height, 1, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM, true);
+		ft.texture->LoadFromBuffer(ft.pixels, ft.width, ft.height, 1, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM, true);
+		ft.texture->GenerateHW();
+		ft.texture->AddToUploadQueue();
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)

@@ -35,21 +35,14 @@ SOFTWARE.
 #include "Common/ClassMacros.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
 
-namespace LinaGX
-{
-	class Instance;
-	class CommandStream;
-} // namespace LinaGX
-
 namespace Lina
 {
 	class Shader;
-	class GfxManager;
+	class ResourceManager;
 	class DescriptorSet;
 
 	class Material : public Resource
 	{
-
 	private:
 		struct DescriptorAllocation
 		{
@@ -68,13 +61,9 @@ namespace Lina
 			BindingBuffers	 bufferData[FRAMES_IN_FLIGHT];
 			Vector<StringID> textures;
 			Vector<StringID> samplers;
-
-			void SaveToStream(OStream& stream) const;
-			void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
+			void			 SaveToStream(OStream& stream) const;
+			void			 LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
 		};
-
-		Material(ResourceManager* rm, const String& path, StringID sid);
-		virtual ~Material();
 
 		void SetShader(StringID sid);
 
@@ -97,26 +86,23 @@ namespace Lina
 
 		inline uint32 GetBindlessBytePadding() const
 		{
-			return m_bindlessBytePadding;
+			return static_cast<uint32>(m_bindlessBytePadding);
 		}
 
 	private:
-		friend class GfxManager;
-
-	protected:
+		Material(System* sys, const String& path, StringID sid);
+		virtual ~Material();
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void BatchLoaded() override;
+		size_t		 BufferDataInto(Buffer& buf, size_t padding);
 
 	private:
-		size_t BufferDataInto(Buffer& buf, size_t padding);
-
-	private:
-		LinaGX::Instance*	   m_lgx		= nullptr;
-		GfxManager*			   m_gfxManager = nullptr;
-		Shader*				   m_shader		= nullptr;
-		StringID			   m_shaderSID	= 0;
+		ALLOCATOR_BUCKET_MEM;
+		ResourceManager*	   m_resourceManager = nullptr;
+		Shader*				   m_shader			 = nullptr;
+		StringID			   m_shaderSID		 = 0;
 		DescriptorAllocation   m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		size_t				   m_bindlessBytePadding = 0;
 		bool				   m_propsDirty			 = false;

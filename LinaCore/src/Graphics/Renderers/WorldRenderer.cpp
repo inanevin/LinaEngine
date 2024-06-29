@@ -143,17 +143,22 @@ namespace Lina
 		{
 			auto& data = m_pfd[i];
 
-			data.gBufAlbedo			= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Albedo", TO_SIDC("WorldRenderer GBuffer: Albedo"));
-			data.gBufPosition		= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Position", TO_SIDC("WorldRenderer GBuffer: Positionc"));
-			data.gBufNormal			= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Normal", TO_SIDC("WorldRenderer GBuffer: Normal"));
-			data.gBufDepth			= m_rm->CreateResource<Texture>("WorldRenderer GBuffer: Depth", TO_SIDC("WorldRenderer GBuffer: Depth"));
-			data.lightingPassOutput = m_rm->CreateResource<Texture>("WorldRenderer Lighting Pass Output", TO_SIDC("WorldRenderer Lighting Pass Output"));
+			const String name0		= "WorldRenderer: GBufAlbedo" + TO_STRING(i);
+			const String name1		= "WorldRenderer: GBufPosition" + TO_STRING(i);
+			const String name2		= "WorldRenderer: GBufNormal" + TO_STRING(i);
+			const String name3		= "WorldRenderer: GBufDepth" + TO_STRING(i);
+			const String name4		= "WorldRenderer: GBufLightingPass" + TO_STRING(i);
+			data.gBufAlbedo			= m_rm->CreateResource<Texture>(name0, TO_SID(name0));
+			data.gBufPosition		= m_rm->CreateResource<Texture>(name1, TO_SID(name1));
+			data.gBufNormal			= m_rm->CreateResource<Texture>(name2, TO_SID(name2));
+			data.gBufDepth			= m_rm->CreateResource<Texture>(name3, TO_SID(name3));
+			data.lightingPassOutput = m_rm->CreateResource<Texture>(name4, TO_SID(name4));
 
-			data.gBufAlbedo->CreateGPUOnly(rtDesc);
-			data.gBufPosition->CreateGPUOnly(rtDesc);
-			data.gBufNormal->CreateGPUOnly(rtDesc);
-			data.gBufDepth->CreateGPUOnly(depthDesc);
-			data.lightingPassOutput->CreateGPUOnly(rtDescLighting);
+			data.gBufAlbedo->GenerateHWFromDesc(rtDesc);
+			data.gBufPosition->GenerateHWFromDesc(rtDesc);
+			data.gBufNormal->GenerateHWFromDesc(rtDesc);
+			data.gBufDepth->GenerateHWFromDesc(depthDesc);
+			data.lightingPassOutput->GenerateHWFromDesc(rtDescLighting);
 
 			m_mainPass.SetColorAttachment(i, 0, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufAlbedo->GetGPUHandle(), .isSwapchain = false});
 			m_mainPass.SetColorAttachment(i, 1, {.clearColor = {0.0f, 0.0f, 0.0f, 1.0f}, .texture = data.gBufPosition->GetGPUHandle(), .isSwapchain = false});

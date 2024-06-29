@@ -42,7 +42,7 @@ SOFTWARE.
 namespace Lina
 {
 	class Resource;
-	class ResourceManager;
+	class System;
 
 	class ResourceCacheBase
 	{
@@ -50,9 +50,9 @@ namespace Lina
 		ResourceCacheBase(){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource* Create(const String& path, StringID sid, ResourceManager* rm) = 0;
-		virtual Resource* Get(StringID sid)												= 0;
-		virtual void	  Destroy(StringID sid)											= 0;
+		virtual Resource* Create(const String& path, StringID sid, System* sys) = 0;
+		virtual Resource* Get(StringID sid)										= 0;
+		virtual void	  Destroy(StringID sid)									= 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -81,7 +81,7 @@ namespace Lina
 			return m_resourceBucket.GetActiveItemCount();
 		}
 
-		virtual Resource* Create(const String& path, StringID sid, ResourceManager* rm) override
+		virtual Resource* Create(const String& path, StringID sid, System* sys) override
 		{
 			LOCK_GUARD(m_mtx);
 
@@ -91,7 +91,7 @@ namespace Lina
 				return nullptr;
 			}
 
-			T* res			 = m_resourceBucket.Allocate(rm, path, sid);
+			T* res			 = m_resourceBucket.Allocate(sys, path, sid);
 			m_resources[sid] = res;
 			return res;
 		}
@@ -108,6 +108,7 @@ namespace Lina
 
 		virtual Resource* Get(StringID sid) override
 		{
+			LOCK_GUARD(m_mtx);
 			auto it = m_resources.find(sid);
 			return it->second;
 		}

@@ -33,7 +33,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	GUIWidget::GUIWidget(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Material>())
+	GUIWidget::GUIWidget(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Material>())
 	{
 	}
 
@@ -62,10 +62,6 @@ namespace Lina
 		m_loadedStream.Create(stream.GetDataRaw(), stream.GetSize());
 		m_root.LoadFromStream(m_loadedStream);
 		m_loadedStream.Seek(0);
-	}
-
-	void GUIWidget::BatchLoaded()
-	{
 	}
 
 	void GUIWidget::UpdateBlob()

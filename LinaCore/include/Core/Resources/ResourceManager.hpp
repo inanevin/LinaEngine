@@ -75,7 +75,9 @@ namespace Lina
 
 		template <typename T> T* CreateResource(const String& path, StringID sid)
 		{
-			return static_cast<T*>(GetCache<T>()->Create(path, sid, this));
+			T* res		  = static_cast<T*>(GetCache<T>()->Create(path, sid, m_system));
+			res->m_system = m_system;
+			return res;
 		}
 
 		template <typename T> void DestroyResource(StringID sid)

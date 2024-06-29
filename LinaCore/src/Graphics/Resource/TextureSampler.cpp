@@ -33,10 +33,14 @@ SOFTWARE.
 
 namespace Lina
 {
+	TextureSampler::TextureSampler(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<TextureSampler>())
+	{
+		m_lgx = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX();
+	};
+
 	TextureSampler::~TextureSampler()
 	{
-		auto gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		gfxMan->GetLGX()->DestroySampler(m_gpuHandle);
+		DestroyHW();
 	}
 
 	void TextureSampler::SaveToStream(OStream& stream) const
@@ -65,9 +69,23 @@ namespace Lina
 
 	void TextureSampler::BatchLoaded()
 	{
-		auto gfxMan				= m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		GenerateHW();
+	}
+
+	void TextureSampler::GenerateHW()
+	{
+		DestroyHW();
 		m_samplerDesc.debugName = m_path.c_str();
-		m_gpuHandle				= gfxMan->GetLGX()->CreateSampler(m_samplerDesc);
+		m_gpuHandle				= m_lgx->CreateSampler(m_samplerDesc);
+		m_hwExists				= true;
+	}
+
+	void TextureSampler::DestroyHW()
+	{
+		if (!m_hwExists)
+			return;
+		m_lgx->DestroySampler(m_gpuHandle);
+		m_hwExists = false;
 	}
 
 } // namespace Lina

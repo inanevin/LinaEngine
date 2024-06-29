@@ -97,7 +97,7 @@ namespace Lina
 		// m_rm->WaitForAll();
 		// m_mainWorld = m_rm->GetResource<EntityWorld>(sid);
 
-		m_mainWorld = new EntityWorld(m_rm, "Test", 0);
+		m_mainWorld = new EntityWorld(m_system, "Test", 0);
 
 		m_activeWorlds.push_back(m_mainWorld);
 

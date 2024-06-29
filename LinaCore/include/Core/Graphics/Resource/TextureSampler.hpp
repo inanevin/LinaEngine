@@ -32,13 +32,17 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/ClassMacros.hpp"
 
+namespace LinaGX
+{
+	class Instance;
+}
+
 namespace Lina
 {
 	class TextureSampler : public Resource
 	{
 	public:
-		TextureSampler(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<TextureSampler>()){};
-		virtual ~TextureSampler();
+		void GenerateHW();
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -53,15 +57,20 @@ namespace Lina
 	private:
 		friend class GfxManager;
 
-	protected:
+		TextureSampler(System* sys, const String& path, StringID sid);
+		virtual ~TextureSampler();
 		virtual void BatchLoaded() override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		void		 DestroyHW();
 
 	private:
+		ALLOCATOR_BUCKET_MEM;
+		LinaGX::Instance*	m_lgx			= nullptr;
 		uint32				m_bindlessIndex = 0;
 		uint32				m_gpuHandle		= 0;
 		LinaGX::SamplerDesc m_samplerDesc	= {};
+		bool				m_hwExists		= false;
 	};
 
 	LINA_REFLECTRESOURCE_BEGIN(TextureSampler);

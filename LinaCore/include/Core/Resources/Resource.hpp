@@ -41,13 +41,12 @@ namespace Lina
 	{
 		class Editor;
 	}
-	class ResourceManager;
 	class System;
 
 	class Resource
 	{
 	public:
-		Resource(ResourceManager* rm, const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid), m_resourceManager(rm){};
+		Resource(System* sys, const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid), m_system(sys){};
 		virtual ~Resource() = default;
 
 		void SaveToFileAsBinary(const String& path);
@@ -73,7 +72,6 @@ namespace Lina
 		template <typename U> friend class ResourceCache;
 
 		virtual void BatchLoaded(){};
-		virtual void Upload(){};
 		virtual void LoadFromFile(const char* path){};
 		virtual void LoadFromStream(IStream& stream){};
 		virtual void SaveToStream(OStream& stream) const {};
@@ -95,12 +93,11 @@ namespace Lina
 		}
 
 	protected:
-		ALLOCATOR_BUCKET_MEM;
-		ResourceManager* m_resourceManager = nullptr;
-		String			 m_path			   = "";
-		TypeID			 m_tid			   = 0;
-		StringID		 m_sid			   = 0;
-		Bitmask32		 m_flags		   = 0;
+		System*	  m_system = nullptr;
+		String	  m_path   = "";
+		TypeID	  m_tid	   = 0;
+		StringID  m_sid	   = 0;
+		Bitmask32 m_flags  = 0;
 	};
 
 	template <typename T> struct ResRef

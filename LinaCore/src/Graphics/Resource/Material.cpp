@@ -84,10 +84,9 @@ namespace Lina
 			stream >> samplers[i];
 	}
 
-	Material::Material(ResourceManager* rm, const String& path, StringID sid) : Resource(rm, path, sid, GetTypeID<Material>())
+	Material::Material(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Material>())
 	{
-		m_gfxManager = rm->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_lgx		 = m_gfxManager->GetLGX();
+		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
 	Material::~Material()
@@ -98,13 +97,11 @@ namespace Lina
 	{
 		m_shaderSID = sid;
 		m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
-
 		if (m_shader == nullptr)
 		{
 			m_shaderSID = DEFAULT_SHADER_OBJECT_SID;
 			m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
 		}
-
 		m_properties = m_shader->GetProperties();
 	}
 
@@ -132,17 +129,7 @@ namespace Lina
 
 	void Material::BatchLoaded()
 	{
-		auto* rm			= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		auto* defaultShader = rm->GetResource<Shader>(DEFAULT_SHADER_OBJECT_SID);
-
-		m_shader = rm->GetResource<Shader>(m_shaderSID);
-
-		if (m_shader == nullptr)
-		{
-			m_shaderSID	 = DEFAULT_SHADER_OBJECT_SID;
-			m_shader	 = rm->GetResource<Shader>(DEFAULT_SHADER_OBJECT_SID);
-			m_properties = m_shader->GetProperties();
-		}
+		SetShader(m_shaderSID);
 	}
 
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding)

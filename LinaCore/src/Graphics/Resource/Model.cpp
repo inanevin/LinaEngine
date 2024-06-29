@@ -38,14 +38,17 @@ SOFTWARE.
 
 namespace Lina
 {
+
+	Model::Model(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Model>())
+	{
+		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+	};
 	Model::~Model()
 	{
-		auto* gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
 		for (auto* n : m_rootNodes)
 		{
 			if (n->m_mesh)
-				gfxMan->GetMeshManager().RemoveMesh(n->m_mesh);
+				m_gfxManager->GetMeshManager().RemoveMesh(n->m_mesh);
 
 			delete n;
 		}
@@ -142,9 +145,6 @@ namespace Lina
 
 		for (auto* lgxNode : modelData.rootNodes)
 			ProcessNode(lgxNode, nullptr);
-
-		for (auto* n : m_rootNodes)
-			UploadNode(n);
 	}
 
 	void Model::LoadFromStream(IStream& stream)
@@ -165,9 +165,6 @@ namespace Lina
 			if (node->m_mesh != nullptr)
 				m_meshes.push_back(node->m_mesh);
 		}
-
-		for (auto* n : m_rootNodes)
-			UploadNode(n);
 	}
 
 	void Model::SaveToStream(OStream& stream) const
@@ -180,16 +177,20 @@ namespace Lina
 			node->SaveToStream(stream);
 	}
 
+	void Model::BatchLoaded()
+	{
+		for (auto* n : m_rootNodes)
+			UploadNode(n);
+	}
+
 	void Model::UploadNode(ModelNode* node)
 	{
-		auto* gfxMan = m_resourceManager->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-
 		for (auto* node : m_rootNodes)
 		{
 			MeshDefault* mesh = node->GetMesh();
 
 			if (mesh)
-				gfxMan->GetMeshManager().AddMesh(mesh);
+				m_gfxManager->GetMeshManager().AddMesh(mesh);
 
 			for (auto* c : node->m_children)
 				UploadNode(c);
