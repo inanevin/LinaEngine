@@ -28,7 +28,38 @@ SOFTWARE.
 
 #pragma once
 
+namespace Lina
+{
+	class ProjectData;
+	class WidgetManager;
+} // namespace Lina
 namespace Lina::Editor
 {
+	class Editor;
 
-}
+	class ProjectManager
+	{
+	public:
+		void Initialize(Editor* editor);
+		void Shutdown();
+
+		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
+		void OpenProject(const String& projectFile);
+		void SaveProjectChanges();
+		void CloseCurrentProject();
+
+		inline ProjectData* GetProjectData() const
+		{
+			return m_currentProject;
+		}
+
+	private:
+		void RemoveCurrentProject();
+		void CreateEmptyProjectAndOpen(const String& path);
+
+	private:
+		WidgetManager* m_primaryWidgetManager = nullptr;
+		Editor*		   m_editor				  = nullptr;
+		ProjectData*   m_currentProject		  = nullptr;
+	};
+} // namespace Lina::Editor

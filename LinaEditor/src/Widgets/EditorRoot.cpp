@@ -219,7 +219,7 @@ namespace Lina::Editor
 
 	void EditorRoot::Tick(float delta)
 	{
-		auto* projectData = Editor::Get()->GetProjectData();
+		auto* projectData = Editor::Get()->GetProjectManager().GetProjectData();
 
 		if (projectData)
 		{
@@ -278,19 +278,19 @@ namespace Lina::Editor
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::NewProject)))
 		{
-			Editor::Get()->OpenPopupProjectSelector(true, true);
+			Editor::Get()->GetProjectManager().OpenPopupProjectSelector(true, true);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::LoadProject)))
 		{
-			Editor::Get()->OpenPopupProjectSelector(true, false);
+			Editor::Get()->GetProjectManager().OpenPopupProjectSelector(true, false);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
 		{
-			Editor::Get()->SaveProjectChanges();
+			Editor::Get()->GetProjectManager().SaveProjectChanges();
 			return true;
 		}
 
@@ -360,7 +360,7 @@ namespace Lina::Editor
 	bool EditorRoot::OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const
 	{
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
-			return Editor::Get()->GetProjectData() == nullptr;
+			return Editor::Get()->GetProjectManager().GetProjectData() == nullptr;
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)) || sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
 			return Editor::Get()->GetCurrentWorld() == nullptr;

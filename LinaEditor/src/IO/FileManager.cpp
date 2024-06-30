@@ -167,7 +167,7 @@ namespace Lina::Editor
 
 	void FileManager::FillPathInformation(DirectoryItem* item, const String& fullAbsPath)
 	{
-		const String basePath = FileSystem::GetFilePath(m_editor->GetProjectData()->GetPath());
+		const String basePath = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath());
 		const size_t baseSz	  = basePath.size();
 
 		item->absolutePath = fullAbsPath;
@@ -201,7 +201,7 @@ namespace Lina::Editor
 		outPath.clear();
 		outPath = "";
 
-		ProjectData* pd = m_editor->GetProjectData();
+		ProjectData* pd = m_editor->GetProjectManager().GetProjectData();
 
 		if (pd == nullptr)
 			outPath = FileSystem::GetRunningDirectory() + "/Cache/";

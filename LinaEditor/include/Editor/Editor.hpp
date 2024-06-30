@@ -37,6 +37,7 @@ SOFTWARE.
 #include "Atlas/AtlasManager.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Editor/WindowPanelManager.hpp"
+#include "Editor/Project/ProjectManager.hpp"
 
 namespace Lina
 {
@@ -49,7 +50,6 @@ namespace Lina
 	class ResourceManager;
 	class SurfaceRenderer;
 	class WorldRenderer;
-	class ProjectData;
 } // namespace Lina
 
 namespace LinaGX
@@ -88,12 +88,6 @@ namespace Lina::Editor
 		virtual void PreShutdown() override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
 
-		// Project
-		void OpenPopupProjectSelector(bool canCancel, bool openCreateFirst = true);
-		void OpenProject(const String& projectFile);
-		void SaveProjectChanges();
-		void CloseCurrentProject();
-
 		// Misc
 		void SaveSettings();
 		void RequestExit();
@@ -106,11 +100,6 @@ namespace Lina::Editor
 
 		// World
 		virtual void OnWorldInstalled(EntityWorld* world) override;
-
-		inline ProjectData* GetProjectData() const
-		{
-			return m_currentProject;
-		}
 
 		inline EntityWorld* GetCurrentWorld() const
 		{
@@ -127,7 +116,7 @@ namespace Lina::Editor
 			return m_settings;
 		}
 
-		inline const FileManager& GetFileManager() const
+		inline FileManager& GetFileManager()
 		{
 			return m_fileManager;
 		}
@@ -142,10 +131,12 @@ namespace Lina::Editor
 			return m_windowPanelManager;
 		}
 
-	private:
-		void RemoveCurrentProject();
-		void CreateEmptyProjectAndOpen(const String& path);
+		inline ProjectManager& GetProjectManager()
+		{
+			return m_projectManager;
+		}
 
+	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
 		void CoreResourcesLoaded();
@@ -153,13 +144,13 @@ namespace Lina::Editor
 	private:
 		WindowPanelManager					  m_windowPanelManager;
 		AtlasManager						  m_atlasManager;
+		ProjectManager						  m_projectManager;
 		EditorSettings						  m_settings = {};
 		FileManager							  m_fileManager;
 		WorldManager*						  m_worldManager		 = nullptr;
 		GfxManager*							  m_gfxManager			 = nullptr;
 		WidgetManager*						  m_primaryWidgetManager = nullptr;
 		ResourceManager*					  m_rm					 = nullptr;
-		ProjectData*						  m_currentProject		 = nullptr;
 		EntityWorld*						  m_currentWorld		 = nullptr;
 		EditorRoot*							  m_editorRoot			 = nullptr;
 		LinaGX::Window*						  m_mainWindow			 = nullptr;
