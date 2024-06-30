@@ -350,7 +350,7 @@ namespace Lina::Editor
 		ident.absolutePath = item->absolutePath;
 		ident.relativePath = item->relativePath;
 		ident.tid		   = item->tid;
-		rm->LoadResourcesFromFile({ident}, "");
+		rm->LoadResourcesFromFile(0, {ident}, "");
 		rm->WaitForAll();
 
 		// Create world.

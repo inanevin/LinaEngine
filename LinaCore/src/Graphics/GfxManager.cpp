@@ -316,6 +316,7 @@ namespace Lina
 	void GfxManager::CreateRendererPool(StringID sid, uint32 order, bool submitInBatch)
 	{
 		m_rendererPools.push_back({.sid = sid, .order = order, .submitInBatch = submitInBatch});
+        linatl::sort(m_rendererPools.begin(), m_rendererPools.end(), [](const RendererPool& p1, const RendererPool& p2) -> bool { return p1.order < p2.order; });
 	}
 
 	void GfxManager::AddRenderer(Renderer* renderer, StringID sid)

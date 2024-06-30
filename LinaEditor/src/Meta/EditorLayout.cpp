@@ -126,7 +126,7 @@ namespace Lina::Editor
 				}
 			}
 			else
-				panelArea = editor->PrepareNewWindowToDock(windowData.sid, windowData.position, windowData.size, windowData.title);
+				panelArea = editor->GetWindowPanelManager().PrepareNewWindowToDock(windowData.sid, windowData.position, windowData.size, windowData.title);
 
 			for (const auto& dockWidget : windowData.dockWidgets)
 			{
@@ -171,12 +171,12 @@ namespace Lina::Editor
 		Editor* editor = Editor::Get();
 
 		GfxManager*				gfxMan	= editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		Vector<LinaGX::Window*> windows = editor->GetSubWindows();
+		Vector<LinaGX::Window*> windows = editor->GetWindowPanelManager().GetSubWindows();
 		windows.push_back(gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
 
 		for (auto* w : windows)
 		{
-			Widget* windowRoot = editor->GetSurfaceRenderer(static_cast<StringID>(w->GetSID()))->GetWidgetManager().GetRoot();
+			Widget* windowRoot = editor->GetWindowPanelManager().GetSurfaceRenderer(static_cast<StringID>(w->GetSID()))->GetWidgetManager().GetRoot();
 
 			Vector<DockArea*> dockAreas;
 			Widget::GetWidgetsOfType<DockArea>(dockAreas, windowRoot);

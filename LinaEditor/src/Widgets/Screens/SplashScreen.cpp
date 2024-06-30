@@ -42,8 +42,7 @@ namespace Lina::Editor
 {
 	void SplashScreen::Construct()
 	{
-		m_resourceManager->GetSystem()->AddListener(this);
-		m_totalResourceSize = static_cast<uint32>(Editor::Get()->GetCoreResourceSize());
+		m_resourceManager->AddListener(this);
 
 		m_versionText				   = m_manager->Allocate<Text>();
 		m_versionText->GetProps().text = "v." + TO_STRING(LINA_VERSION_MAJOR) + "." + TO_STRING(LINA_VERSION_MINOR) + "." + TO_STRING(LINA_VERSION_PATCH);
@@ -66,7 +65,7 @@ namespace Lina::Editor
 
 	void SplashScreen::Destruct()
 	{
-		m_resourceManager->GetSystem()->RemoveListener(this);
+		m_resourceManager->RemoveListener(this);
 	}
 
 	void SplashScreen::Tick(float delta)
@@ -126,14 +125,15 @@ namespace Lina::Editor
 		m_loadingInfo->Draw();
 	}
 
-	void SplashScreen::OnSystemEvent(SystemEvent event, const Event& data)
+	void SplashScreen::OnResourceLoadStarted(int32 taskID, const Vector<ResourceIdentifier>& idents)
 	{
-		if (event & SystemEvent::EVS_ResourceLoaded)
-		{
-			String* str					   = static_cast<String*>(data.pParams[0]);
-			m_loadingInfo->GetProps().text = *str;
-			m_loadingInfo->CalculateTextSize();
-			m_loadedResourceCount++;
-		}
+		m_totalResourceSize = static_cast<uint32>(idents.size());
+	}
+
+	void SplashScreen::OnResourceLoaded(int32 taskID, const ResourceIdentifier& ident)
+	{
+		m_loadingInfo->GetProps().text = ident.relativePath;
+		m_loadingInfo->CalculateTextSize();
+		m_loadedResourceCount++;
 	}
 } // namespace Lina::Editor

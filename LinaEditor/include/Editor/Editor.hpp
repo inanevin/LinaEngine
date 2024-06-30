@@ -35,6 +35,8 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "IO/FileManager.hpp"
 #include "Atlas/AtlasManager.hpp"
+#include "Core/Resources/ResourceManagerListener.hpp"
+#include "Editor/WindowPanelManager.hpp"
 
 namespace Lina
 {
@@ -43,8 +45,8 @@ namespace Lina
 	class WidgetManager;
 	class EntityWorld;
 	class Widget;
-	class ResourceManager;
 	class GUIWidget;
+	class ResourceManager;
 	class SurfaceRenderer;
 	class WorldRenderer;
 	class ProjectData;
@@ -62,38 +64,16 @@ namespace Lina::Editor
 	class DockArea;
 	class WorldRendererExtEditor;
 
-	class EditorPayloadListener
+	class Editor : public ApplicationDelegate, public WorldManagerListener, public ResourceManagerListener
 	{
-	public:
-		virtual void OnPayloadStarted(PayloadType type, Widget* payload)
-		{
-		}
-		virtual void OnPayloadEnded(PayloadType type, Widget* payload)
-		{
-		}
-		virtual bool OnPayloadDropped(PayloadType type, Widget* payload)
-		{
-			return false;
-		}
 
-		virtual LinaGX::Window* OnPayloadGetWindow()
+	private:
+		enum ResourceTaskID
 		{
-			return nullptr;
-		}
-	};
-
-	class Editor : public ApplicationDelegate, public WorldManagerListener
-	{
-	public:
-		struct PayloadRequest
-		{
-			Widget*			payload		 = nullptr;
-			LinaGX::Window* sourceWindow = nullptr;
-			PayloadType		type		 = PayloadType::DockedPanel;
-			bool			active		 = false;
-			Vector2ui		size		 = Vector2ui::Zero;
+			RTID_CORE_RES = 100,
 		};
 
+	public:
 		Editor(){};
 		virtual ~Editor() = default;
 		static Editor* Get()
@@ -105,7 +85,6 @@ namespace Lina::Editor
 		virtual void PreInitialize() override;
 		virtual void Initialize() override;
 		virtual void PreTick() override;
-		virtual void CoreResourcesLoaded() override;
 		virtual void PreShutdown() override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
 
@@ -115,37 +94,18 @@ namespace Lina::Editor
 		void SaveProjectChanges();
 		void CloseCurrentProject();
 
-		// Payload
-		void AddPayloadListener(EditorPayloadListener* listener);
-		void RemovePayloadListener(EditorPayloadListener* listener);
-		void CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size);
-
-		// Panel and windows
-		void	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
-		Widget* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
-		void	CloseWindow(StringID sid);
-		void	CloseAllSubwindows();
-
 		// Misc
 		void SaveSettings();
 		void RequestExit();
 
+		// Resources
+		virtual void OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents) override;
+
 		// Renderers
-		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
-		WorldRenderer*	 GetWorldRenderer(EntityWorld* world);
+		WorldRenderer* GetWorldRenderer(EntityWorld* world);
 
 		// World
 		virtual void OnWorldInstalled(EntityWorld* world) override;
-
-		inline void SetIsWorldDirty(bool isDirty)
-		{
-			m_isWorldDirty = isDirty;
-		}
-
-		inline bool GetIsWorldDirty() const
-		{
-			return m_isWorldDirty;
-		}
 
 		inline ProjectData* GetProjectData() const
 		{
@@ -160,11 +120,6 @@ namespace Lina::Editor
 		inline EditorRoot* GetEditorRoot() const
 		{
 			return m_editorRoot;
-		}
-
-		inline const Vector<LinaGX::Window*>& GetSubWindows() const
-		{
-			return m_subWindows;
 		}
 
 		inline EditorSettings& GetSettings()
@@ -182,43 +137,34 @@ namespace Lina::Editor
 			return m_atlasManager;
 		}
 
-		inline uint32 GetCoreResourceSize() const
+		inline WindowPanelManager& GetWindowPanelManager()
 		{
-			return 12;
+			return m_windowPanelManager;
 		}
 
 	private:
 		void RemoveCurrentProject();
 		void CreateEmptyProjectAndOpen(const String& path);
-		void CreateSurfaceRendererForWindow(LinaGX::Window* window);
-		void DestroySurfaceRenderer(LinaGX::Window* window);
+
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
+		void CoreResourcesLoaded();
 
 	private:
-		WorldManager*							   m_worldManager		  = nullptr;
-		GfxManager*								   m_gfxManager			  = nullptr;
-		WidgetManager*							   m_primaryWidgetManager = nullptr;
-		ResourceManager*						   m_rm					  = nullptr;
-		GUIWidget*								   m_gizmoBB			  = nullptr;
-		EditorSettings							   m_settings			  = {};
-		ProjectData*							   m_currentProject		  = nullptr;
-		EntityWorld*							   m_currentWorld		  = nullptr;
-		bool									   m_isWorldDirty		  = false;
-		EditorRoot*								   m_editorRoot			  = nullptr;
-		Vector<LinaGX::Window*>					   m_subWindows			  = {};
-		Vector<StringID>						   m_windowCloseRequests;
-		PayloadRequest							   m_payloadRequest;
-		LinaGX::Window*							   m_payloadWindow = nullptr;
-		LinaGX::Window*							   m_mainWindow	   = nullptr;
-		Vector<EditorPayloadListener*>			   m_payloadListeners;
-		StringID								   m_subWindowCounter = 0;
-		FileManager								   m_fileManager;
-		static Editor*							   s_editor;
-		HashMap<LinaGX::Window*, SurfaceRenderer*> m_surfaceRenderers;
-		HashMap<EntityWorld*, WorldRenderer*>	   m_worldRenderers;
-		AtlasManager							   m_atlasManager;
-		int32									   m_coreResourcesTask = 0;
+		WindowPanelManager					  m_windowPanelManager;
+		AtlasManager						  m_atlasManager;
+		EditorSettings						  m_settings = {};
+		FileManager							  m_fileManager;
+		WorldManager*						  m_worldManager		 = nullptr;
+		GfxManager*							  m_gfxManager			 = nullptr;
+		WidgetManager*						  m_primaryWidgetManager = nullptr;
+		ResourceManager*					  m_rm					 = nullptr;
+		ProjectData*						  m_currentProject		 = nullptr;
+		EntityWorld*						  m_currentWorld		 = nullptr;
+		EditorRoot*							  m_editorRoot			 = nullptr;
+		LinaGX::Window*						  m_mainWindow			 = nullptr;
+		HashMap<EntityWorld*, WorldRenderer*> m_worldRenderers;
+		static Editor*						  s_editor;
 	};
 
 } // namespace Lina::Editor

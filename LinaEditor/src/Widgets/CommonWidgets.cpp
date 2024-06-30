@@ -116,7 +116,7 @@ namespace Lina::Editor
 			if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
 				Editor::Get()->RequestExit();
 			else
-				Editor::Get()->CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
+				Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
 		};
 		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		close->SetAlignedPosY(0.0f);

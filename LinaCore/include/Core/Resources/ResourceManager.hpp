@@ -42,6 +42,7 @@ namespace Lina
 {
 	class IStream;
 	class GfxManager;
+	class ResourceManagerListener;
 
 	class ResourceManager : public Subsystem
 	{
@@ -51,10 +52,10 @@ namespace Lina
 
 		virtual void Shutdown() override;
 		void		 Poll();
-		int32		 LoadResourcesFromFile(Vector<ResourceIdentifier> identifiers, const String& baseCachePath);
+		void		 LoadResourcesFromFile(int32 taskID, Vector<ResourceIdentifier> identifiers, const String& baseCachePath);
 		void		 WaitForAll();
-		bool		 IsLoadTaskComplete(uint32 id);
-		void		 UnloadResources(const Vector<ResourceIdentifier> identifiers);
+		void		 AddListener(ResourceManagerListener* listener);
+		void		 RemoveListener(ResourceManagerListener* listener);
 
 		template <typename T> ResourceCache<T>* GetCache()
 		{
@@ -93,11 +94,11 @@ namespace Lina
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 
 	private:
-		int32								m_loadTaskCounter = 0;
-		HashMap<uint32, ResourceLoadTask*>	m_loadTasks;
+		Vector<ResourceLoadTask*>			m_loadTasks;
 		JobExecutor							m_executor;
 		HashMap<TypeID, ResourceCacheBase*> m_caches;
 		Vector<ResourceIdentifier>			m_waitingResources;
+		Vector<ResourceManagerListener*>	m_listeners;
 	};
 
 } // namespace Lina

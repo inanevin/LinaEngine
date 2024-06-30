@@ -138,13 +138,13 @@ namespace Lina
 		// }
 
 		{
-			Entity*			 text	= m_mainWorld->CreateEntity("Text");
-			WidgetComponent* widget = m_mainWorld->AddComponent<WidgetComponent>(text);
-			widget->SetWidget("EditorGizmo_BB"_hs);
-
-			text->SetPosition(Vector3(0, 5, 0));
-			text->SetScale(Vector3(1, 1, 1));
-			text->SetRotationAngles(Vector3(0, 0, 0));
+			// Entity*			 text	= m_mainWorld->CreateEntity("Text");
+			// WidgetComponent* widget = m_mainWorld->AddComponent<WidgetComponent>(text);
+			// widget->SetWidget("EditorGizmo_BB"_hs);
+			//
+			// text->SetPosition(Vector3(0, 5, 0));
+			// text->SetScale(Vector3(1, 1, 1));
+			// text->SetRotationAngles(Vector3(0, 0, 0));
 		}
 
 		// for (uint32 i = 0; i < 50; i++)

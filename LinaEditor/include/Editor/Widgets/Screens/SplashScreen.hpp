@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Common/Event/SystemEventListener.hpp"
+#include "Core/Resources/ResourceManagerListener.hpp"
 
 namespace Lina
 {
@@ -41,7 +41,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
-	class SplashScreen : public Widget, public SystemEventListener
+	class SplashScreen : public Widget, public ResourceManagerListener
 	{
 	public:
 		SplashScreen()			= default;
@@ -54,12 +54,8 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return EVS_ResourceLoaded;
-		}
-
-		virtual void OnSystemEvent(SystemEvent event, const Event& data) override;
+		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceIdentifier>& idents) override;
+		virtual void OnResourceLoaded(int32 taskID, const ResourceIdentifier& ident) override;
 
 	private:
 		Texture* m_splashImage		   = nullptr;

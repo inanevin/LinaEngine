@@ -43,6 +43,7 @@ namespace Lina
 {
 	void ShaderProperty::SaveToStream(OStream& out) const
 	{
+		out << sid;
 		out << static_cast<uint8>(type);
 		StringSerialization::SaveToStream(out, name);
 		out << static_cast<uint32>(size);
@@ -51,6 +52,7 @@ namespace Lina
 
 	void ShaderProperty::LoadFromStream(IStream& in)
 	{
+		in >> sid;
 		uint8 typeInt = 0;
 		in >> typeInt;
 		type = static_cast<ShaderPropertyType>(typeInt);

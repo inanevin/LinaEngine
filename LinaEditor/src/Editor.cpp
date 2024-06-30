@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
-#include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
@@ -276,48 +275,31 @@ namespace Lina::Editor
 
 	void Editor::PreInitialize()
 	{
-        
-        const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
-        if (!FileSystem::FileOrPathExists(metacachePath))
-            FileSystem::CreateFolderInPath(metacachePath);
-        
 		m_rm = m_app->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_rm->AddListener(this);
 
+		const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
+		if (!FileSystem::FileOrPathExists(metacachePath))
+			FileSystem::CreateFolderInPath(metacachePath);
+
+		// Absolute priority resources.
 		Vector<ResourceIdentifier> priorityResources;
-        const String fullPathBase = FileSystem::GetRunningDirectory() + "/";
-        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI_PATH, DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>()});
-        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI3D_PATH, DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>()});
-        priorityResources.push_back({fullPathBase + DEFAULT_FONT_PATH, DEFAULT_FONT_PATH, GetTypeID<Font>()});
-        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_OBJECT_PATH, DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>()});
-        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_SKY_PATH, DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>()});
-        priorityResources.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_DARK_PATH, DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>()});
-        priorityResources.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitle.png", "Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
-        priorityResources.push_back({fullPathBase + ICON_FONT_PATH, ICON_FONT_PATH, GetTypeID<Font>()});
-
-		m_rm->LoadResourcesFromFile(priorityResources, metacachePath );
+		const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
+		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI_PATH, DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>()});
+		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI3D_PATH, DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>()});
+		priorityResources.push_back({fullPathBase + DEFAULT_FONT_PATH, DEFAULT_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_OBJECT_PATH, DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>()});
+		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_SKY_PATH, DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>()});
+		priorityResources.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_DARK_PATH, DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>()});
+		priorityResources.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitle.png", "Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
+		priorityResources.push_back({fullPathBase + ICON_FONT_PATH, ICON_FONT_PATH, GetTypeID<Font>()});
+		m_rm->LoadResourcesFromFile(-1, priorityResources, metacachePath);
 		m_rm->WaitForAll();
 	}
 
 	void Editor::Initialize()
 	{
-        const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
-
-		Vector<ResourceIdentifier> list;
-        const String fullPathBase = FileSystem::GetRunningDirectory() + "/";
-
-		/* Core Resources */
-        list.push_back({fullPathBase + DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>()});
-        list.push_back({fullPathBase + "Resources/Core/Models/Plane.glb", "Resources/Core/Models/Plane.glb", GetTypeID<Model>()});
-        list.push_back({fullPathBase + "Resources/Core/Models/Cube.glb", "Resources/Core/Models/Cube.glb", GetTypeID<Model>()});
-        list.push_back({fullPathBase + "Resources/Core/Models/Sphere.glb", "Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
-        list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
-        list.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_PATH, DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
-        list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
-        list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
-        list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
-        list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
-
-		m_coreResourcesTask = m_rm->LoadResourcesFromFile(list, metacachePath);
+		const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
 
 		s_editor							  = this;
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;
@@ -327,23 +309,18 @@ namespace Lina::Editor
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
 
-		m_fileManager.Initialize(this);
-
-		m_gfxManager   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_worldManager = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 		m_worldManager->AddListener(this);
-
+		m_gfxManager = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_gfxManager->CreateRendererPool("WorldRenderers"_hs, 0, false);
 		m_gfxManager->CreateRendererPool("SurfaceRenderers"_hs, 1, true);
 
-		CreateSurfaceRendererForWindow(m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
-		m_primaryWidgetManager = &GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
+		m_fileManager.Initialize(this);
+		m_atlasManager.Initialize(this);
+		m_windowPanelManager.Initialize(this);
 
-		m_mainWindow	= m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
-		m_payloadWindow = m_gfxManager->CreateApplicationWindow(PAYLOAD_WINDOW_SID, "Transparent", Vector2i(0, 0), Vector2(500, 500), (uint32)LinaGX::WindowStyle::BorderlessAlpha, m_mainWindow);
-		CreateSurfaceRendererForWindow(m_payloadWindow);
-
-		m_payloadWindow->SetVisible(false);
+		m_mainWindow		   = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
+		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
 
 		// Push splash
 		Widget*		  root	 = m_primaryWidgetManager->GetRoot();
@@ -363,123 +340,25 @@ namespace Lina::Editor
 		else
 			m_settings.SaveToFile();
 
-		m_rm	  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_gizmoBB = m_rm->CreateResource<GUIWidget>(GIZMO_BOUNDINGBOX_PATH, GIZMO_BOUNDINGBOX_SID);
-
-		Gizmo gizmo;
-		gizmo.SetTID(GetTypeID<Gizmo>());
-		m_gizmoBB->GetRoot().AddChild(&gizmo);
-		m_gizmoBB->UpdateBlob();
-		m_gizmoBB->ClearRoot();
-
-		m_atlasManager.Initialize(this);
+		// Async load core resources.
+		Vector<ResourceIdentifier> list;
+		const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
+		list.push_back({fullPathBase + DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>()});
+		list.push_back({fullPathBase + "Resources/Core/Models/Plane.glb", "Resources/Core/Models/Plane.glb", GetTypeID<Model>()});
+		list.push_back({fullPathBase + "Resources/Core/Models/Cube.glb", "Resources/Core/Models/Cube.glb", GetTypeID<Model>()});
+		list.push_back({fullPathBase + "Resources/Core/Models/Sphere.glb", "Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
+		list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
+		list.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_PATH, DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
+		list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
+		list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
+		list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
+		list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
+		m_rm->LoadResourcesFromFile(RTID_CORE_RES, list, metacachePath);
 	}
 
 	void Editor::PreTick()
 	{
-		if (m_coreResourcesTask != -1 && m_rm->IsLoadTaskComplete(m_coreResourcesTask))
-		{
-			m_rm->WaitForAll();
-			m_coreResourcesTask = -1;
-			CoreResourcesLoaded();
-		}
-
-		if (!m_windowCloseRequests.empty())
-		{
-			for (auto sid : m_windowCloseRequests)
-			{
-				auto it = linatl::find_if(m_subWindows.begin(), m_subWindows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });
-
-				if (it != m_subWindows.end())
-				{
-					if (m_payloadRequest.sourceWindow == *it)
-						m_payloadRequest.sourceWindow = nullptr;
-
-					m_subWindows.erase(it);
-				}
-				LinaGX::Window* window = m_gfxManager->GetApplicationWindow(sid);
-				DestroySurfaceRenderer(window);
-				m_gfxManager->DestroyApplicationWindow(sid);
-			}
-
-			m_windowCloseRequests.clear();
-		}
-
-		if (m_payloadRequest.active)
-		{
-			if (!m_payloadWindow->GetIsVisible())
-			{
-				m_gfxManager->Join();
-
-				m_payloadWindow->SetVisible(true);
-				m_payloadWindow->SetAlpha(0.5f);
-				m_payloadWindow->SetSize(m_payloadRequest.size.AsLGX2UI());
-
-				m_payloadRequest.payload->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-				m_payloadRequest.payload->SetAlignedPos(Vector2::Zero);
-				m_payloadRequest.payload->SetAlignedSize(Vector2::One);
-
-				Widget* payloadRoot = GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
-				payloadRoot->AddChild(m_payloadRequest.payload);
-
-				for (auto* l : m_payloadListeners)
-					l->OnPayloadStarted(m_payloadRequest.type, m_payloadRequest.payload);
-			}
-
-			const auto& mp = m_gfxManager->GetLGX()->GetInput().GetMousePositionAbs();
-			m_payloadWindow->SetPosition({static_cast<int32>(mp.x), static_cast<int32>(mp.y)});
-
-			if (!m_gfxManager->GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
-			{
-				m_gfxManager->Join();
-
-				m_payloadWindow->SetVisible(false);
-
-				bool received = false;
-				for (auto* l : m_payloadListeners)
-				{
-					if (l->OnPayloadDropped(m_payloadRequest.type, m_payloadRequest.payload))
-					{
-						l->OnPayloadGetWindow()->BringToFront();
-						received = true;
-						break;
-					}
-				}
-
-				for (auto* l : m_payloadListeners)
-					l->OnPayloadEnded(m_payloadRequest.type, m_payloadRequest.payload);
-
-				if (!received)
-				{
-					m_payloadRequest.payload->GetParent()->RemoveChild(m_payloadRequest.payload);
-
-					if (m_payloadRequest.sourceWindow)
-						m_payloadRequest.sourceWindow->BringToFront();
-
-					if (m_payloadRequest.type == PayloadType::DockedPanel)
-					{
-						Panel* panel = static_cast<Panel*>(m_payloadRequest.payload);
-						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
-						panel->SetAlignedPosX(0.0f);
-						panel->SetAlignedSize(Vector2(1.0f, 0.0f));
-						panel->SetAlignedPos(Vector2::Zero);
-						Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, mp, panel->GetSize(), panel->GetDebugName());
-
-						DockArea* dockArea = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
-						dockArea->SetAlignedPos(Vector2::Zero);
-						dockArea->SetAlignedSize(Vector2::One);
-						panelArea->AddChild(dockArea);
-
-						dockArea->AddPanel(panel);
-					}
-					else
-						m_editorRoot->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
-				}
-
-				m_payloadRequest = {};
-			}
-		}
+		m_windowPanelManager.PreTick();
 	}
 
 	void Editor::CoreResourcesLoaded()
@@ -493,11 +372,6 @@ namespace Lina::Editor
 		// Resize window to work dims.
 		m_mainWindow->SetPosition(m_mainWindow->GetMonitorInfoFromWindow().workTopLeft);
 		m_mainWindow->AddSizeRequest(m_mainWindow->GetMonitorWorkSize());
-
-		// Testbed* tb = root->GetWidgetManager()->Allocate<Testbed>();
-		// // DockTestbed* tb = root->GetWidgetManager()->Allocate<DockTestbed>();
-		// root->AddChild(tb);
-		// tb->Initialize();
 
 		// Insert editor root.
 		m_editorRoot = root->GetWidgetManager()->Allocate<EditorRoot>("EditorRoot");
@@ -515,26 +389,13 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_rm->RemoveListener(this);
 		m_atlasManager.Shutdown();
-
 		DestroyWorldRenderer(m_worldManager->GetMainWorld());
 		m_worldManager->UninstallMainWorld();
 		m_worldManager->RemoveListener(this);
-		m_rm->DestroyResource(m_gizmoBB);
 		m_fileManager.Shutdown();
-
-		for (auto* w : m_subWindows)
-		{
-			DestroySurfaceRenderer(w);
-			m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(w->GetSID()));
-		}
-
-		m_subWindows.clear();
-		DestroySurfaceRenderer(m_payloadWindow);
-		m_gfxManager->DestroyApplicationWindow(static_cast<StringID>(m_payloadWindow->GetSID()));
-
-		DestroySurfaceRenderer(m_mainWindow);
-
+		m_windowPanelManager.Shutdown();
 		m_settings.SaveToFile();
 		RemoveCurrentProject();
 	}
@@ -663,160 +524,12 @@ namespace Lina::Editor
 		m_settings.SaveToFile();
 	}
 
-	void Editor::AddPayloadListener(EditorPayloadListener* listener)
-	{
-		m_payloadListeners.push_back(listener);
-	}
-
-	void Editor::RemovePayloadListener(EditorPayloadListener* listener)
-	{
-		m_payloadListeners.erase(linatl::find(m_payloadListeners.begin(), m_payloadListeners.end(), listener));
-	}
-
-	void Editor::CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size)
-	{
-		m_payloadRequest.active		  = true;
-		m_payloadRequest.payload	  = payload;
-		m_payloadRequest.type		  = type;
-		m_payloadRequest.size		  = size;
-		m_payloadRequest.sourceWindow = payload->GetWindow();
-	}
-
-	void Editor::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
-	{
-		// Go thru windows and try to find panel.
-		auto findPanel = [type](const Vector<DockArea*>& areas) -> bool {
-			for (auto* area : areas)
-			{
-				const auto& panels = area->GetPanels();
-
-				for (auto* panel : panels)
-				{
-					if (panel->GetType() == type)
-					{
-						panel->GetWindow()->BringToFront();
-						area->SetSelected(panel);
-						return true;
-					}
-				}
-			}
-			return false;
-		};
-
-		// Check main
-		Vector<DockArea*> primaryAreas;
-		Widget::GetWidgetsOfType<DockArea>(primaryAreas, m_primaryWidgetManager->GetRoot());
-		if (findPanel(primaryAreas))
-			return;
-
-		// Check subs
-		for (auto* w : m_subWindows)
-		{
-			Vector<DockArea*> areas;
-			SurfaceRenderer*  sf = GetSurfaceRenderer(static_cast<StringID>(w->GetSID()));
-			Widget::GetWidgetsOfType<DockArea>(areas, sf->GetWidgetManager().GetRoot());
-			if (findPanel(areas))
-				return;
-		}
-
-		// Not found, create a window & insert panel.
-		Vector2 pos = Vector2::Zero;
-
-		if (requestingWidget)
-			pos = requestingWidget->GetWindow()->GetPosition();
-		else
-			pos = m_mainWindow->GetPosition();
-
-		Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter, pos, Vector2(500, 500), TO_STRING(m_subWindowCounter));
-		m_subWindowCounter++;
-
-		DockArea* dock = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
-		dock->SetAlignedPos(Vector2::Zero);
-		dock->SetAlignedSize(Vector2::One);
-		panelArea->AddChild(dock);
-
-		Panel* panel = PanelFactory::CreatePanel(dock, type, subData);
-		dock->GetWindow()->SetTitle(panel->GetDebugName());
-		dock->AddPanel(panel);
-	}
-
-	Widget* Editor::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
-	{
-		const Vector2	usedSize = size.Clamp(m_editorRoot->GetMonitorSize() * 0.1f, m_editorRoot->GetMonitorSize());
-		LinaGX::Window* window	 = m_gfxManager->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
-		CreateSurfaceRendererForWindow(window);
-
-		m_subWindows.push_back(window);
-		Widget*			   newWindowRoot = GetSurfaceRenderer(sid)->GetWidgetManager().GetRoot();
-		DirectionalLayout* layout		 = newWindowRoot->GetWidgetManager()->Allocate<DirectionalLayout>("BaseLayout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		layout->GetProps().direction = DirectionOrientation::Vertical;
-		layout->SetAlignedPos(Vector2::Zero);
-		layout->SetAlignedSize(Vector2::One);
-		newWindowRoot->AddChild(layout);
-
-		WindowBar* wb						= newWindowRoot->GetWidgetManager()->Allocate<WindowBar>("WindowBar");
-		wb->GetBarProps().title				= "Lina Engine";
-		wb->GetBarProps().hasIcon			= true;
-		wb->GetBarProps().hasWindowButtons	= true;
-		wb->GetBarProps().controlsDragRect	= true;
-		wb->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		wb->GetProps().colorBackgroundStart = Theme::GetDef().accentPrimary0;
-		wb->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		wb->SetAlignedPosX(0.0f);
-		wb->SetAlignedSizeX(1.0f);
-		wb->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->AddChild(wb);
-		layout->Initialize();
-
-		Widget* panelArea = newWindowRoot->GetWidgetManager()->Allocate<Widget>("PanelArea");
-		panelArea->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
-		panelArea->SetAlignedPosX(0.0f);
-		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
-		layout->AddChild(panelArea);
-
-		return panelArea;
-	}
-
-	void Editor::CloseAllSubwindows()
-	{
-		for (auto* w : m_subWindows)
-			CloseWindow(static_cast<StringID>(w->GetSID()));
-	}
-
-	void Editor::CloseWindow(StringID sid)
-	{
-		m_windowCloseRequests.push_back(sid);
-	}
-
 	void Editor::OnWorldInstalled(EntityWorld* world)
 	{
 		// auto* wr = world->GetRenderer();
 		//
 		// if (wr != nullptr)
 		// 	wr->AddExtension(new WorldRendererExtEditor());
-	}
-
-	void Editor::CreateSurfaceRendererForWindow(LinaGX::Window* window)
-	{
-		SurfaceRenderer* renderer = new SurfaceRenderer(m_gfxManager, window, window->GetSize(), Theme::GetDef().background0);
-		m_gfxManager->AddRenderer(renderer, "SurfaceRenderers"_hs);
-		m_surfaceRenderers[window] = renderer;
-	}
-
-	void Editor::DestroySurfaceRenderer(LinaGX::Window* window)
-	{
-		auto windowIt = m_surfaceRenderers.find(window);
-		LINA_ASSERT(windowIt != m_surfaceRenderers.end(), "");
-		SurfaceRenderer* sr = windowIt->second;
-		m_gfxManager->RemoveRenderer(sr);
-		delete sr;
-		m_surfaceRenderers.erase(windowIt);
-	}
-
-	SurfaceRenderer* Editor::GetSurfaceRenderer(StringID sid)
-	{
-		return m_surfaceRenderers.at(m_gfxManager->GetApplicationWindow(sid));
 	}
 
 	void Editor::CreateWorldRenderer(EntityWorld* world)
@@ -839,6 +552,14 @@ namespace Lina::Editor
 	WorldRenderer* Editor::GetWorldRenderer(EntityWorld* world)
 	{
 		return m_worldRenderers.at(world);
+	}
+
+	void Editor::OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents)
+	{
+		if (taskID == RTID_CORE_RES)
+		{
+			CoreResourcesLoaded();
+		}
 	}
 
 } // namespace Lina::Editor

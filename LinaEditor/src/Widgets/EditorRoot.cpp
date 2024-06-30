@@ -302,25 +302,25 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Resources)))
 		{
-			Editor::Get()->OpenPanel(PanelType::Resources, 0, this);
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Resources, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Entities)))
 		{
-			Editor::Get()->OpenPanel(PanelType::Entities, 0, this);
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Entities, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
 		{
-			Editor::Get()->OpenPanel(PanelType::World, 0, this);
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::World, 0, this);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Performance)))
 		{
-			Editor::Get()->OpenPanel(PanelType::Performance, 0, this);
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Performance, 0, this);
 			return true;
 		}
 
@@ -331,7 +331,7 @@ namespace Lina::Editor
 
 			m_panelArea->RemoveAllChildren();
 
-			Editor::Get()->CloseAllSubwindows();
+			Editor::Get()->GetWindowPanelManager().CloseAllSubwindows();
 			Editor::Get()->GetSettings().GetLayout().StoreDefaultLayout();
 			Editor::Get()->GetSettings().GetLayout().ApplyStoredLayout();
 			return true;

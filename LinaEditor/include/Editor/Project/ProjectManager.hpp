@@ -28,50 +28,7 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/Resources/CommonResources.hpp"
-#include "Core/Resources/Data/ResourceMetadata.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Data/CommonData.hpp"
-#include "Common/Event/SystemEventListener.hpp"
-
-namespace LinaGX
+namespace Lina::Editor
 {
-	class Window;
-	class CommandStream;
-} // namespace LinaGX
 
-namespace Lina
-{
-	class Application;
-	class ResourceManager;
-	class System;
-	struct SemaphoreData;
-
-	class ApplicationDelegate : public SystemEventListener
-	{
-	public:
-		ApplicationDelegate()		   = default;
-		virtual ~ApplicationDelegate() = default;
-
-		// Loop
-		virtual void PreInitialize(){};
-		virtual void Initialize(){};
-		virtual void PreTick(){};
-		virtual void Tick(float delta){};
-		virtual void PreShutdown(){};
-		virtual void Shutdown(){};
-
-		// Resources
-		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream)
-		{
-			return false;
-		};
-
-		System* GetSystem();
-
-	protected:
-		friend class Application;
-
-		Application* m_app = nullptr;
-	};
-} // namespace Lina
+}

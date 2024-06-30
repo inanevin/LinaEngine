@@ -99,12 +99,12 @@ namespace Lina::Editor
 			m_layout	 = gridLayout;
 		}
 
-		Editor::Get()->AddPayloadListener(this);
+		Editor::Get()->GetWindowPanelManager().AddPayloadListener(this);
 	}
 
 	void SelectableListLayout::Destruct()
 	{
-		Editor::Get()->RemovePayloadListener(this);
+		Editor::Get()->GetWindowPanelManager().RemovePayloadListener(this);
 	}
 
 	void SelectableListLayout::Tick(float delta)
@@ -406,7 +406,7 @@ namespace Lina::Editor
 			text->GetProps().text = item.title;
 			payload->AddChild(text);
 			payload->Initialize();
-			Editor::Get()->CreatePayload(payload, m_listener->OnSelectableListGetPayloadType(this), Vector2ui(static_cast<uint32>(text->GetSizeX() + Theme::GetDef().baseIndent * 2), static_cast<uint32>(Theme::GetDef().baseItemHeight)));
+			Editor::Get()->GetWindowPanelManager().CreatePayload(payload, m_listener->OnSelectableListGetPayloadType(this), Vector2ui(static_cast<uint32>(text->GetSizeX() + Theme::GetDef().baseIndent * 2), static_cast<uint32>(Theme::GetDef().baseItemHeight)));
 		};
 	}
 

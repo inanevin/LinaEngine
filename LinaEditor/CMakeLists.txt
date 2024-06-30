@@ -25,6 +25,10 @@ set(HEADERS
 include/Editor/CommonEditor.hpp
 include/Editor/EditorLocale.hpp
 include/Editor/Editor.hpp
+include/Editor/WindowPanelManager.hpp
+
+# Project
+include/Editor/Project/ProjectManager.hpp
 
 # Atlas
 include/Editor/Atlas/AtlasManager.hpp
@@ -76,6 +80,10 @@ set(SOURCES
 src/CommonEditor.cpp
 src/EditorLocale.cpp
 src/Editor.cpp
+src/WindowPanelManager.cpp
+
+# Project
+src/Project/ProjectManager.cpp
 
 # Atlas
 src/Atlas/AtlasManager.cpp

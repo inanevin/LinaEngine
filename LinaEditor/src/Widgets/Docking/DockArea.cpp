@@ -78,12 +78,12 @@ namespace Lina::Editor
 
 		m_preview->SetVisible(false);
 		AddChild(m_preview);
-		Editor::Get()->AddPayloadListener(this);
+		Editor::Get()->GetWindowPanelManager().AddPayloadListener(this);
 	}
 
 	void DockArea::Destruct()
 	{
-		Editor::Get()->RemovePayloadListener(this);
+		Editor::Get()->GetWindowPanelManager().RemovePayloadListener(this);
 	}
 
 	void DockArea::AddPanel(Panel* w)
@@ -137,14 +137,14 @@ namespace Lina::Editor
 			if (m_panels.empty())
 			{
 				if (m_parent->GetChildren().size() == 1)
-					Editor::Get()->CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
+					Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(m_lgxWindow->GetSID()));
 				else
 					RemoveArea();
 			}
 
 			if (pair.second)
 			{
-				Editor::Get()->CreatePayload(pair.first, PayloadType::DockedPanel, pair.first->GetWindow()->GetSize());
+				Editor::Get()->GetWindowPanelManager().CreatePayload(pair.first, PayloadType::DockedPanel, pair.first->GetWindow()->GetSize());
 			}
 			else
 				m_manager->Deallocate(pair.first);
