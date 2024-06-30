@@ -46,26 +46,14 @@ namespace Lina
 	{
 	};
 
-	extern String GGetPackagePath(PackageType pt);
-
 	struct ResourceIdentifier
 	{
-		ResourceIdentifier() = default;
-		ResourceIdentifier(const String& path, TypeID tid, StringID sid, uint32 flags = 0)
-		{
-			this->path	= path;
-			this->sid	= sid;
-			this->tid	= tid;
-			this->flags = flags;
-		}
-
-		TypeID	  tid	= 0;
-		StringID  sid	= 0;
-		String	  path	= "";
-		Bitmask32 flags = 0;
-
-		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(IStream& stream);
+		String	 absolutePath = "";
+		String	 relativePath = "";
+		TypeID	 tid		  = 0;
+		StringID sid		  = 0;
+		void	 SaveToStream(OStream& stream) const;
+		void	 LoadFromStream(IStream& stream);
 	};
 
 	struct ResourceLoadTask

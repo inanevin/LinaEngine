@@ -46,7 +46,7 @@ namespace Lina
 			delete cache;
 	}
 
-	int32 ResourceManager::LoadResourcesFromFile(const Vector<ResourceIdentifier>& identifiers)
+	int32 ResourceManager::LoadResourcesFromFile(Vector<ResourceIdentifier> identifiers, const String& baseCachePath)
 	{
 		if (identifiers.empty())
 		{
@@ -54,15 +54,10 @@ namespace Lina
 			return -1;
 		}
 
-		ResourceLoadTask* loadTask		 = new ResourceLoadTask();
-		loadTask->id					 = m_loadTaskCounter;
-		loadTask->identifiers			 = identifiers;
-		loadTask->startTime				 = PlatformTime::GetCPUCycles();
-		m_loadTasks[m_loadTaskCounter++] = loadTask;
-
-		for (const auto& ident : identifiers)
+		for (auto& ident : identifiers)
 		{
-			auto it = m_caches.find(ident.tid);
+			ident.sid = TO_SID(ident.relativePath);
+			auto it	  = m_caches.find(ident.tid);
 
 			if (it == m_caches.end())
 			{
@@ -73,20 +68,22 @@ namespace Lina
 			}
 		}
 
+		ResourceLoadTask* loadTask		 = new ResourceLoadTask();
+		loadTask->id					 = m_loadTaskCounter;
+		loadTask->identifiers			 = identifiers;
+		loadTask->startTime				 = PlatformTime::GetCPUCycles();
+		m_loadTasks[m_loadTaskCounter++] = loadTask;
+
 		auto* app = m_system->GetApp();
-
-		const String baseMetacachePath = app->GetAppDelegate()->GetBaseMetacachePath();
-
-		if (!FileSystem::FileOrPathExists(baseMetacachePath))
-			FileSystem::CreateFolderInPath(baseMetacachePath);
 
 		for (const auto& ident : identifiers)
 		{
-			loadTask->tf.emplace([app, ident, this, loadTask]() {
-				auto&	  cache			   = m_caches.at(ident.tid);
-				Resource* res			   = cache->Create(ident.path, ident.sid, m_system);
-				res->m_system			   = m_system;
-				const String metacachePath = GetMetacachePath(m_system->GetApp()->GetAppDelegate(), ident.path, ident.sid);
+			loadTask->tf.emplace([app, ident, this, loadTask, baseCachePath]() {
+				auto&	  cache = m_caches.at(ident.tid);
+				Resource* res	= cache->Create(ident.relativePath, ident.sid, m_system);
+
+				const String metacachePath = baseCachePath + "/" + TO_STRING(TO_SID(ident.relativePath)) + ".linameta";
+
 				if (false && FileSystem::FileOrPathExists(metacachePath))
 				{
 					IStream input = Serialization::LoadFromFile(metacachePath.c_str());
@@ -106,8 +103,7 @@ namespace Lina
 					}
 					metaStream.Destroy();
 
-					res->m_flags = ident.flags;
-					res->LoadFromFile(ident.path.c_str());
+					res->LoadFromFile(ident.absolutePath.c_str());
 
 					OStream metastream;
 					res->SaveToStream(metastream);
@@ -117,7 +113,7 @@ namespace Lina
 
 				Event			   data;
 				ResourceIdentifier copy = ident;
-				data.pParams[0]			= &copy.path;
+				data.pParams[0]			= &copy.relativePath;
 				data.pParams[1]			= static_cast<void*>(loadTask);
 				data.uintParams[0]		= ident.sid;
 				data.uintParams[1]		= ident.tid;
@@ -184,7 +180,7 @@ namespace Lina
 
 			Event			   data;
 			ResourceIdentifier copy = ident;
-			data.pParams[0]			= &copy.path;
+			data.pParams[0]			= &copy.relativePath;
 			data.uintParams[0]		= ident.sid;
 			data.uintParams[1]		= ident.tid;
 			m_system->DispatchEvent(EVS_ResourceUnloaded, data);
@@ -194,14 +190,6 @@ namespace Lina
 		Vector<ResourceIdentifier> idents = identifiers;
 		batchEv.pParams[0]				  = &idents;
 		m_system->DispatchEvent(EVS_ResourceBatchUnloaded, batchEv);
-	}
-
-	String ResourceManager::GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid)
-	{
-		const String filename  = FileSystem::RemoveExtensionFromPath(FileSystem::GetFilenameAndExtensionFromPath(resourcePath));
-		const String basePath  = appDelegate->GetBaseMetacachePath();
-		const String finalName = basePath + filename + "_" + TO_STRING(sid) + ".linametadata";
-		return finalName;
 	}
 
 	void ResourceManager::DispatchLoadTaskEvent(ResourceLoadTask* task)

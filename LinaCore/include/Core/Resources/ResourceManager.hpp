@@ -49,13 +49,12 @@ namespace Lina
 		ResourceManager(System* sys) : Subsystem(sys, SubsystemType::ResourceManager){};
 		~ResourceManager() = default;
 
-		virtual void  Shutdown() override;
-		void		  Poll();
-		int32		  LoadResourcesFromFile(const Vector<ResourceIdentifier>& identifiers);
-		void		  WaitForAll();
-		bool		  IsLoadTaskComplete(uint32 id);
-		void		  UnloadResources(const Vector<ResourceIdentifier> identifiers);
-		static String GetMetacachePath(ApplicationDelegate* appDelegate, const String& resourcePath, StringID sid);
+		virtual void Shutdown() override;
+		void		 Poll();
+		int32		 LoadResourcesFromFile(Vector<ResourceIdentifier> identifiers, const String& baseCachePath);
+		void		 WaitForAll();
+		bool		 IsLoadTaskComplete(uint32 id);
+		void		 UnloadResources(const Vector<ResourceIdentifier> identifiers);
 
 		template <typename T> ResourceCache<T>* GetCache()
 		{

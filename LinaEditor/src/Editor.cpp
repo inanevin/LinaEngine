@@ -276,45 +276,48 @@ namespace Lina::Editor
 
 	void Editor::PreInitialize()
 	{
+        
+        const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
+        if (!FileSystem::FileOrPathExists(metacachePath))
+            FileSystem::CreateFolderInPath(metacachePath);
+        
 		m_rm = m_app->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		Vector<ResourceIdentifier> priorityResources;
-		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>(), 0, 0));
-		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>(), 0, 0));
-		priorityResources.push_back(ResourceIdentifier(DEFAULT_FONT_PATH, GetTypeID<Font>(), 0, 0));
-		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>(), 0, 0));
-		priorityResources.push_back(ResourceIdentifier(DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>(), 0, 0));
-		priorityResources.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>(), 0, 0));
-		priorityResources.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>(), 0, 0));
-		priorityResources.push_back(ResourceIdentifier(ICON_FONT_PATH, GetTypeID<Font>(), 0, 0));
+        const String fullPathBase = FileSystem::GetRunningDirectory() + "/";
+        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI_PATH, DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>()});
+        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI3D_PATH, DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>()});
+        priorityResources.push_back({fullPathBase + DEFAULT_FONT_PATH, DEFAULT_FONT_PATH, GetTypeID<Font>()});
+        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_OBJECT_PATH, DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>()});
+        priorityResources.push_back({fullPathBase + DEFAULT_SHADER_SKY_PATH, DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>()});
+        priorityResources.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_DARK_PATH, DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>()});
+        priorityResources.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitle.png", "Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
+        priorityResources.push_back({fullPathBase + ICON_FONT_PATH, ICON_FONT_PATH, GetTypeID<Font>()});
 
-		for (auto& ident : priorityResources)
-			ident.sid = TO_SID(ident.path);
-
-		m_rm->LoadResourcesFromFile(priorityResources);
+		m_rm->LoadResourcesFromFile(priorityResources, metacachePath );
 		m_rm->WaitForAll();
 	}
 
 	void Editor::Initialize()
 	{
+        const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
+
 		Vector<ResourceIdentifier> list;
+        const String fullPathBase = FileSystem::GetRunningDirectory() + "/";
 
 		/* Core Resources */
-		list.push_back(ResourceIdentifier(DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>(), 0, 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/Plane.glb", GetTypeID<Model>(), 0, 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/Cube.glb", GetTypeID<Model>(), 0, 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/Sphere.glb", GetTypeID<Model>(), 0, 0));
-		list.push_back(ResourceIdentifier("Resources/Core/Models/SkyCube.glb", GetTypeID<Model>(), 0, 0));
-		list.push_back(ResourceIdentifier(DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>(), 0, 0));
-		list.push_back(ResourceIdentifier(ALT_FONT_PATH, GetTypeID<Font>(), 0, 0));
-		list.push_back(ResourceIdentifier(ALT_FONT_BOLD_PATH, GetTypeID<Font>(), 0, 0));
-		list.push_back(ResourceIdentifier("Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>(), 0, 0));
-		list.push_back(ResourceIdentifier("Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>(), 0, 0));
+        list.push_back({fullPathBase + DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>()});
+        list.push_back({fullPathBase + "Resources/Core/Models/Plane.glb", "Resources/Core/Models/Plane.glb", GetTypeID<Model>()});
+        list.push_back({fullPathBase + "Resources/Core/Models/Cube.glb", "Resources/Core/Models/Cube.glb", GetTypeID<Model>()});
+        list.push_back({fullPathBase + "Resources/Core/Models/Sphere.glb", "Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
+        list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
+        list.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_PATH, DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
+        list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
+        list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
+        list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
+        list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
 
-		for (auto& r : list)
-			r.sid = TO_SID(r.path);
-
-		m_coreResourcesTask = m_rm->LoadResourcesFromFile(list);
+		m_coreResourcesTask = m_rm->LoadResourcesFromFile(list, metacachePath);
 
 		s_editor							  = this;
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;
@@ -349,7 +352,7 @@ namespace Lina::Editor
 		root->AddChild(splash);
 
 		// Load editor settings or create and save empty if non-existing.
-		const String userDataFolder = FileSystem::GetUserDataFolder();
+		const String userDataFolder = FileSystem::GetUserDataFolder() + "Editor/";
 		const String settingsPath	= userDataFolder + "EditorSettings.linameta";
 		m_settings.SetPath(settingsPath);
 		if (!FileSystem::FileOrPathExists(userDataFolder))

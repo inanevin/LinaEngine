@@ -31,34 +31,18 @@ SOFTWARE.
 
 namespace Lina
 {
-	String GGetPackagePath(PackageType pt)
-	{
-		switch (pt)
-		{
-		case PackageType::Default:
-			return "Resources/Packages/res_pack_def.linapackage";
-		case PackageType::Package1:
-			return "Resources/Packages/res_pack_01.linapackage";
-		case PackageType::Package2:
-			return "Resources/Packages/res_pack_02.linapackage";
-		default:
-			return "";
-		}
-
-		return "";
-	}
 
 	void ResourceIdentifier::SaveToStream(OStream& stream) const
 	{
-		StringSerialization::SaveToStream(stream, path);
-		stream << sid;
-		stream << tid;
+		StringSerialization::SaveToStream(stream, absolutePath);
+		StringSerialization::SaveToStream(stream, relativePath);
+		stream << tid << sid;
 	}
 
 	void ResourceIdentifier::LoadFromStream(IStream& stream)
 	{
-		StringSerialization::LoadFromStream(stream, path);
-		stream >> sid;
-		stream >> tid;
+		StringSerialization::LoadFromStream(stream, absolutePath);
+		StringSerialization::LoadFromStream(stream, relativePath);
+		stream >> tid >> sid;
 	}
 } // namespace Lina

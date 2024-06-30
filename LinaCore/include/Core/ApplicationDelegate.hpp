@@ -68,11 +68,6 @@ namespace Lina
 			return false;
 		};
 
-		virtual String GetBaseMetacachePath() const
-		{
-			return "";
-		}
-
 		System* GetSystem();
 
 	protected:

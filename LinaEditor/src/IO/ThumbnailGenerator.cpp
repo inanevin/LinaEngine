@@ -79,11 +79,11 @@ namespace Lina::Editor
 
 		item->textureAtlas = nullptr;
 
+		const String   cachePath	 = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/";
 		const String   thumbnailPath = "ResourceThumbnail_" + TO_STRING(item->sid);
 		const StringID sid			 = TO_SID(thumbnailPath);
 
-		String cachedFile = "";
-		m_editor->GetFileManager().GetMetacachePath(cachedFile, thumbnailPath);
+		const String cachedFile = cachePath + thumbnailPath;
 
 		Taskflow tf;
 		tf.emplace([item, cachedFile, this]() {
@@ -347,10 +347,10 @@ namespace Lina::Editor
 
 		// Load the model.
 		ResourceIdentifier ident;
-		ident.path = item->absolutePath;
-		ident.sid  = TO_SID(item->absolutePath);
-		ident.tid  = item->tid;
-		rm->LoadResourcesFromFile({ident});
+		ident.absolutePath = item->absolutePath;
+		ident.relativePath = item->relativePath;
+		ident.tid		   = item->tid;
+		rm->LoadResourcesFromFile({ident}, "");
 		rm->WaitForAll();
 
 		// Create world.
@@ -359,7 +359,7 @@ namespace Lina::Editor
 		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
 
 		// Setup world
-		Model*		model		 = rm->GetResource<Model>(ident.sid);
+		Model*		model		 = rm->GetResource<Model>(TO_SID(ident.relativePath));
 		const AABB& aabb		 = model->GetAABB();
 		Entity*		cameraEntity = world->CreateEntity("Camera");
 		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
@@ -373,7 +373,7 @@ namespace Lina::Editor
 		{
 			Entity*		   entity = world->CreateEntity(mesh->GetName());
 			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
-			m->SetMesh(ident.sid, idx);
+			m->SetMesh(TO_SID(ident.relativePath), idx);
 			m->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
 			idx++;
 		}
