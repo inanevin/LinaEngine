@@ -56,115 +56,110 @@ namespace Lina::Editor
 		m_editor = editor;
 	}
 
-    void ThumbnailGenerator::KickOffBatch(RequestBatch *batch)
-    {
-        NotificationDesc notification = {
-            .icon = NotificationIcon::Loading,
-            .title = Locale::GetStr(LocaleStr::GeneratingThumbnails),
-            .showButton = false,
-            .onProgress = [this, batch](float& out){
-                out = static_cast<float>(batch->generatedCount.load()) / static_cast<float>(batch->totalCount);
-            },
-        };
-        m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow())->AddNotification(notification);
- 
-        m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Lock();
-        
-        Taskflow tf;
-        tf.emplace([batch, this]() {
-            for(DirectoryItem* item : batch->requests)
-            {
-                GenerateThumbnailForItem(item, batch);
-                batch->generatedCount.fetch_add(1);
-            }
-        });
-        
-        m_executor.RunMove(tf, [batch, this](){
-      
-            for(auto& p : batch->atlases)
-            {
-                p.first->textureAtlas = p.second;
-            }
-            
-            delete batch;
-            m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Unlock();
-            m_editor->GetAtlasManager().RefreshDirtyAtlases();
-        });
-    }
+	void ThumbnailGenerator::KickOffBatch(RequestBatch* batch)
+	{
+		NotificationDesc notification = {
+			.icon		= NotificationIcon::Loading,
+			.title		= Locale::GetStr(LocaleStr::GeneratingThumbnails),
+			.showButton = false,
+			.onProgress = [this, batch](float& out) { out = static_cast<float>(batch->generatedCount.load()) / static_cast<float>(batch->totalCount); },
+		};
+		m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow())->AddNotification(notification);
 
-    void ThumbnailGenerator::PreTick()
-    {
-        if(!m_thumbnailRequests.empty())
-        {
-            for(DirectoryItem* item : m_thumbnailRequests)
-            {
-                if (item->textureAtlas != nullptr)
-                    m_editor->GetAtlasManager().RemoveImage(item->textureAtlas);
-                item->textureAtlas = nullptr;
-            }
-            
-            RequestBatch* batch = new RequestBatch{
-                .totalCount = static_cast<uint32>(m_thumbnailRequests.size()),
-                .generatedCount = 0,
-                .requests = m_thumbnailRequests,
-            };
-            m_thumbnailRequests.clear();
-            KickOffBatch(batch);
-        }
+		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Lock();
 
-    }
+		Taskflow tf;
+		tf.emplace([batch, this]() {
+			for (DirectoryItem* item : batch->requests)
+			{
+				GenerateThumbnailForItem(item, batch);
+				batch->generatedCount.fetch_add(1);
+			}
+		});
+
+		m_executor.RunMove(tf, [batch, this]() {
+			for (auto& p : batch->atlases)
+			{
+				p.first->textureAtlas = p.second;
+			}
+
+			delete batch;
+			m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Unlock();
+			m_editor->GetAtlasManager().RefreshDirtyAtlases();
+		});
+	}
+
+	void ThumbnailGenerator::PreTick()
+	{
+		if (!m_thumbnailRequests.empty())
+		{
+			for (DirectoryItem* item : m_thumbnailRequests)
+			{
+				if (item->textureAtlas != nullptr)
+					m_editor->GetAtlasManager().RemoveImage(item->textureAtlas);
+				item->textureAtlas = nullptr;
+			}
+
+			RequestBatch* batch = new RequestBatch{
+				.totalCount		= static_cast<uint32>(m_thumbnailRequests.size()),
+				.generatedCount = 0,
+				.requests		= m_thumbnailRequests,
+			};
+			m_thumbnailRequests.clear();
+			KickOffBatch(batch);
+		}
+	}
 
 	void ThumbnailGenerator::Shutdown()
 	{
 	}
 
-    void ThumbnailGenerator::GenerateThumbnail(DirectoryItem *item, bool isRecursive)
-    {
-        const String   cachePath     = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/";
-        if (!FileSystem::FileOrPathExists(cachePath))
-            FileSystem::CreateFolderInPath(cachePath);
-        
-        if(!item->isDirectory)
-            m_thumbnailRequests.push_back(item);
-        
-        if(isRecursive)
-        {
-            for(DirectoryItem* child : item->children)
-                GenerateThumbnail(child, isRecursive);
-        }
-    }
+	void ThumbnailGenerator::GenerateThumbnail(DirectoryItem* item, bool isRecursive)
+	{
+		const String cachePath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/";
+		if (!FileSystem::FileOrPathExists(cachePath))
+			FileSystem::CreateFolderInPath(cachePath);
+
+		if (!item->isDirectory)
+			m_thumbnailRequests.push_back(item);
+
+		if (isRecursive)
+		{
+			for (DirectoryItem* child : item->children)
+				GenerateThumbnail(child, isRecursive);
+		}
+	}
 
 	void ThumbnailGenerator::GenerateThumbnailForItem(DirectoryItem* item, RequestBatch* batch)
 	{
-		const String   thumbnailPath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/ResourceThumbnail_" + TO_STRING(item->sid);
-        
- 
-        if (item->tid == GetTypeID<Texture>())
-        {
-            GenerateThumbTexture(item, thumbnailPath, batch);
-        }
+		const String thumbnailPath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/ResourceThumbnail_" + TO_STRING(item->sid);
+
+		if (item->tid == GetTypeID<Texture>())
+		{
+			GenerateThumbTexture(item, thumbnailPath, batch);
+		}
 		else if (item->tid == GetTypeID<Font>())
-        {
-            GenerateThumbFont(item, thumbnailPath, batch);
-        }
-        else if (item->tid == GetTypeID<Model>())
-        {
-            //GenerateThumbModel(item, thumbnailPath);
-        }
-        else if (item->tid == GetTypeID<Material>())
-        {
-           // GenerateThumbMaterial(item, thumbnailPath);
-        }
-        else if (item->tid == GetTypeID<Shader>())
-        {
-            // set to shader icon.
-        }
-        else if (item->tid == GetTypeID<Audio>())
-        {
-            // set to audio icon.
-        }
-        
-        return;
+		{
+			GenerateThumbFont(item, thumbnailPath, batch);
+		}
+		else if (item->tid == GetTypeID<Model>())
+		{
+			// GenerateThumbModel(item, thumbnailPath);
+		}
+		else if (item->tid == GetTypeID<Material>())
+		{
+			// GenerateThumbMaterial(item, thumbnailPath);
+		}
+		else if (item->tid == GetTypeID<Shader>())
+		{
+			// set to shader icon.
+		}
+		else if (item->tid == GetTypeID<Audio>())
+		{
+			// set to audio icon.
+		}
+
+		return;
 
 		if (FileSystem::FileOrPathExists(thumbnailPath))
 		{
@@ -176,7 +171,6 @@ namespace Lina::Editor
 			// input.Destroy();
 			// return;
 		}
-
 	}
 
 	void ThumbnailGenerator::GenerateThumbTexture(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)
@@ -212,10 +206,9 @@ namespace Lina::Editor
 				stream.WriteRaw(resizedBuffer.pixels, resizedBuffer.width * resizedBuffer.height * resizedBuffer.bytesPerPixel);
 				Serialization::SaveToFile(thumbPath.c_str(), stream);
 
-                TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(resizedBuffer.pixels, Vector2ui(resizedBuffer.width, resizedBuffer.height), resizedBuffer.bytesPerPixel);
-                batch->atlases.try_emplace(item, atlas);
-                delete[] resizedBuffer.pixels;
-                
+				TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(resizedBuffer.pixels, Vector2ui(resizedBuffer.width, resizedBuffer.height), resizedBuffer.bytesPerPixel);
+				batch->atlases.try_emplace(item, atlas);
+				delete[] resizedBuffer.pixels;
 			}
 			else
 			{
@@ -278,89 +271,89 @@ namespace Lina::Editor
 			return buffer;
 		};
 
-        FT_Face face;
-        if (FT_New_Face(LinaVG::g_ftLib, item->absolutePath.c_str(), 0, &face))
-        {
-            LINA_ERR("FileManager: Failed creating new font face for thumbnail!");
-            return;
-        }
+		FT_Face face;
+		if (FT_New_Face(LinaVG::g_ftLib, item->absolutePath.c_str(), 0, &face))
+		{
+			LINA_ERR("FileManager: Failed creating new font face for thumbnail!");
+			return;
+		}
 
-        FT_Error err = FT_Set_Pixel_Sizes(face, 0, RESOURCE_THUMBNAIL_SIZE / 2);
+		FT_Error err = FT_Set_Pixel_Sizes(face, 0, RESOURCE_THUMBNAIL_SIZE / 2);
 
-        if (err)
-        {
-            LINA_ERR("FileManager: Failed setting font pixel sizes for thumbnail!");
-            return;
-        }
+		if (err)
+		{
+			LINA_ERR("FileManager: Failed setting font pixel sizes for thumbnail!");
+			return;
+		}
 
-        err = FT_Select_Charmap(face, ft_encoding_unicode);
+		err = FT_Select_Charmap(face, ft_encoding_unicode);
 
-        if (err)
-        {
-            LINA_ERR("FileManager: Failed selecting font charmap for thumbnail!");
-            return;
-        }
+		if (err)
+		{
+			LINA_ERR("FileManager: Failed selecting font charmap for thumbnail!");
+			return;
+		}
 
-        uint32           glyphW1 = 0;
-        uint32           glyphW2 = 0;
-        uint32           glyphH1 = 0;
-        uint32           glyphH2 = 0;
-        unsigned char* buffer  = loadGlyph(face, 65, glyphW1, glyphH1); // A
-        unsigned char* buffer2 = loadGlyph(face, 97, glyphW2, glyphH2); // a
+		uint32		   glyphW1 = 0;
+		uint32		   glyphW2 = 0;
+		uint32		   glyphH1 = 0;
+		uint32		   glyphH2 = 0;
+		unsigned char* buffer  = loadGlyph(face, 65, glyphW1, glyphH1); // A
+		unsigned char* buffer2 = loadGlyph(face, 97, glyphW2, glyphH2); // a
 
-        if (buffer != nullptr && buffer2 != nullptr)
-        {
-            LinaGX::TextureBuffer glyphBuffer1 = {
-                .pixels           = reinterpret_cast<uint8*>(buffer),
-                .width           = glyphW1,
-                .height           = glyphH1,
-                .bytesPerPixel = 1,
-            };
+		if (buffer != nullptr && buffer2 != nullptr)
+		{
+			LinaGX::TextureBuffer glyphBuffer1 = {
+				.pixels		   = reinterpret_cast<uint8*>(buffer),
+				.width		   = glyphW1,
+				.height		   = glyphH1,
+				.bytesPerPixel = 1,
+			};
 
-            LinaGX::TextureBuffer glyphBuffer2 = {
-                .pixels           = reinterpret_cast<uint8*>(buffer2),
-                .width           = glyphW2,
-                .height           = glyphH2,
-                .bytesPerPixel = 1,
-            };
+			LinaGX::TextureBuffer glyphBuffer2 = {
+				.pixels		   = reinterpret_cast<uint8*>(buffer2),
+				.width		   = glyphW2,
+				.height		   = glyphH2,
+				.bytesPerPixel = 1,
+			};
 
-            LinaGX::TextureBuffer thumbnailBuffer = {
-                .pixels           = new uint8[RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE],
-                .width           = RESOURCE_THUMBNAIL_SIZE,
-                .height           = RESOURCE_THUMBNAIL_SIZE,
-                .bytesPerPixel = 1,
-            };
+			LinaGX::TextureBuffer thumbnailBuffer = {
+				.pixels		   = new uint8[RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE],
+				.width		   = RESOURCE_THUMBNAIL_SIZE,
+				.height		   = RESOURCE_THUMBNAIL_SIZE,
+				.bytesPerPixel = 1,
+			};
 
-            MEMSET(thumbnailBuffer.pixels, 0, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE);
+			MEMSET(thumbnailBuffer.pixels, 0, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE);
 
-            const uint32 widthTotal = glyphW1 + glyphW2;
-            const uint32 startX1    = RESOURCE_THUMBNAIL_SIZE / 2 - (widthTotal / 2);
-            const uint32 startY1    = RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH1 / 2);
-            LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer1, startX1, startY1);
+			const uint32 widthTotal = glyphW1 + glyphW2;
+			const uint32 startX1	= RESOURCE_THUMBNAIL_SIZE / 2 - (widthTotal / 2);
+			const uint32 startY1	= RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH1 / 2);
+			LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer1, startX1, startY1);
 
-            const uint32 startX2 = startX1 + glyphW1 + 1;
-            const uint32 startY2 = RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH2 / 2);
-            LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer2, startX2, startY2);
+			const uint32 startX2 = startX1 + glyphW1 + 1;
+			const uint32 startY2 = RESOURCE_THUMBNAIL_SIZE / 2 - (glyphH2 / 2);
+			LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer2, startX2, startY2);
 
-            OStream stream;
-            stream << thumbnailBuffer.width << thumbnailBuffer.height << thumbnailBuffer.bytesPerPixel;
-            stream.WriteRaw(thumbnailBuffer.pixels, thumbnailBuffer.width * thumbnailBuffer.height * 1);
-            Serialization::SaveToFile(thumbPath.c_str(), stream);
+			OStream stream;
+			stream << thumbnailBuffer.width << thumbnailBuffer.height << thumbnailBuffer.bytesPerPixel;
+			stream.WriteRaw(thumbnailBuffer.pixels, thumbnailBuffer.width * thumbnailBuffer.height * 1);
+			Serialization::SaveToFile(thumbPath.c_str(), stream);
 
-            TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(thumbnailBuffer.pixels, Vector2ui(thumbnailBuffer.width, thumbnailBuffer.height), thumbnailBuffer.bytesPerPixel);
-            batch->atlases.try_emplace(item, atlas);
-            delete[] thumbnailBuffer.pixels;
-        }
+			TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(thumbnailBuffer.pixels, Vector2ui(thumbnailBuffer.width, thumbnailBuffer.height), thumbnailBuffer.bytesPerPixel);
+			batch->atlases.try_emplace(item, atlas);
+			delete[] thumbnailBuffer.pixels;
+		}
 
-        if (buffer)
-            FREE(buffer);
+		if (buffer)
+			FREE(buffer);
 
-        if (buffer2)
-            FREE(buffer2);
+		if (buffer2)
+			FREE(buffer2);
 
-        // loadGlyph(face, 97); // a
+		// loadGlyph(face, 97); // a
 
-        FT_Done_Face(face);
+		FT_Done_Face(face);
 	}
 
 	void ThumbnailGenerator::GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)
@@ -446,7 +439,7 @@ namespace Lina::Editor
 		delete wr;
 		delete world;
 
-        item->textureAtlas = m_editor->GetAtlasManager().AddImageToAtlas(buffer.GetMapped(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), 4);
+		item->textureAtlas = m_editor->GetAtlasManager().AddImageToAtlas(buffer.GetMapped(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), 4);
 
 		OStream stream;
 		stream << RESOURCE_THUMBNAIL_SIZE << RESOURCE_THUMBNAIL_SIZE << 4;
@@ -455,7 +448,5 @@ namespace Lina::Editor
 
 		buffer.Destroy();
 	}
-
-	
 
 } // namespace Lina::Editor

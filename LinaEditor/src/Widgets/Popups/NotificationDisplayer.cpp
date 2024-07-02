@@ -42,225 +42,220 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-    void NotificationDisplayer::Construct()
-    {
-        GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-    }
+	void NotificationDisplayer::Construct()
+	{
+		GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
+	}
 
-    void NotificationDisplayer::Tick(float delta)
-    {
-        float posY = GetEndFromMargins().y;
-        const float maxX = GetEndFromMargins().x;
-        
-        for(Vector<NotificationItem*>::iterator it = m_items.begin(); it != m_items.end();)
-        {
-            NotificationItem* item = *it;
-            
-            item->tween.Tick(delta);
-            
-            const float itemSz = item->layout->GetSizeY();
-            item->layout->SetPosY(Math::Lerp(item->layout->GetPosY(), posY - itemSz, delta * POS_SPEED));
-            posY -= Theme::GetDef().baseIndent + itemSz;
-            
-            const float targetX = maxX - item->layout->GetSizeX();
-            const float startX = maxX;
-            const float actualX = Math::Lerp(startX, targetX, item->tween.GetValue());
-            item->layout->SetPosX(actualX);
-            
-            if(!item->done)
-            {
-                if(item->autoDestroySeconds != -1)
-                {
-                    item->timer += delta;
-                    
-                    if(item->timer > static_cast<float>(item->autoDestroySeconds))
-                    {
-                        item->done = true;
-                        item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
-                    }
-                       
-                }
-                
-                if(item->onProgress != nullptr)
-                {
-                    float val = 0.0f;
-                    item->onProgress(val);
-                    item->slider->GetProps().localValue = Math::Lerp(item->slider->GetProps().localValue, val, delta * SLIDER_SPEED);
-                    
-                    if(item->slider->GetProps().localValue > 0.99f)
-                    {
-                        item->done = true;
-                        item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
-                    }
-                }
-            }
-            
-            if(item->done && item->tween.GetIsCompleted())
-            {
-                it = m_items.erase(it);
-                RemoveChild(item->layout);
-                m_manager->Deallocate(item->layout);
-            }
-            else
-                ++it;
-        }
-    }
+	void NotificationDisplayer::Tick(float delta)
+	{
+		float		posY = GetEndFromMargins().y;
+		const float maxX = GetEndFromMargins().x;
 
-    void NotificationDisplayer::Draw()
-    {
-        Widget::Draw();
-    }
+		for (Vector<NotificationItem*>::iterator it = m_items.begin(); it != m_items.end();)
+		{
+			NotificationItem* item = *it;
 
-    void NotificationDisplayer::AddNotification(const NotificationDesc &desc)
-    {
-        DirectionalLayout* notification = m_manager->Allocate<DirectionalLayout>("Notification");
-        notification->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN |  WF_CONTROLS_DRAW_ORDER);
-        notification->SetAlignedSize(Vector2(1.0f, 2.0f));
-        notification->SetPosAlignmentSourceX(PosAlignmentSource::Start);
-        notification->SetPosAlignmentSourceY(PosAlignmentSource::End);
-        notification->GetProps().direction = DirectionOrientation::Horizontal;
-        notification->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-        notification->SetChildPadding(Theme::GetDef().baseIndent);
-        notification->GetProps().backgroundStyle = DirectionalLayout::BackgroundStyle::Default;
-        notification->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-        notification->GetProps().colorBackgroundEnd = Theme::GetDef().background1;
-        notification->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-        notification->GetProps().colorOutline = Theme::GetDef().accentPrimary0;
-        notification->SetDrawOrder(FOREGROUND_DRAW_ORDER);
-        AddChild(notification);
-        
-        NotificationItem*  item = new NotificationItem();
-        item->tween = Tween(0.0f, 1.0f, TWEEN_TIME, TweenType::Linear);
-        item->layout = notification;
-        item->onProgress = desc.onProgress;
-        item->autoDestroySeconds = desc.autoDestroySeconds;
-        item->onClicked = desc.onClicked;
-        
-        // DropShadow* ds = m_manager->Allocate<Dropshadow>("Dropshadow");
-        
-        if(desc.icon != NotificationIcon::None && desc.icon != NotificationIcon::Loading)
-        {
-            Icon* icon = m_manager->Allocate<Icon>("Icon");
-            icon->GetFlags().Set(WF_POS_ALIGN_Y);
-            icon->SetAlignedPosY(0.5f);
-            icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            icon->SetAlignedSizeY(1.0f);
-            icon->GetProps().dynamicSizeToParent = true;
-            icon->GetProps().dynamicSizeScale = 1.5f;
-            notification->AddChild(icon);
-            
-            if(desc.icon == NotificationIcon::Info)
-            {
-                icon->GetProps().icon = ICON_INFO;
-                icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().silent2;
-            }
-            if(desc.icon == NotificationIcon::Warning)
-            {
-                icon->GetProps().icon = ICON_WARN;
-                icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().accentWarn;
-            }
-            if(desc.icon == NotificationIcon::Err)
-            {
-                icon->GetProps().icon = ICON_ERROR;
-                icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().accentError;
-            }
-        }
-        else if(desc.icon == NotificationIcon::Loading)
-        {
-            LinaLoading* loading = m_manager->Allocate<LinaLoading>("Loading");
-            loading->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
-            loading->SetAlignedPosY(0.5f);
-            loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            loading->SetAlignedSizeY(1.0f);
-            notification->AddChild(loading);
-        }
-        
-        if(desc.onProgress != nullptr)
-        {
-            DirectionalLayout* progressContainer = m_manager->Allocate<DirectionalLayout>("ProgressContainer");
-            progressContainer->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_X_MAX_CHILDREN);
-            progressContainer->SetAlignedSize(Vector2::One);
-            progressContainer->SetAlignedPosY(0.5f);
-            progressContainer->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            progressContainer->GetProps().direction = DirectionOrientation::Vertical;
-            progressContainer->SetChildPadding(Theme::GetDef().baseIndentInner);
-            notification->AddChild(progressContainer);
+			item->tween.Tick(delta);
 
-            Text* text = m_manager->Allocate<Text>("Title");
-            text->GetFlags().Set(WF_POS_ALIGN_X);
-            text->SetAlignedPos(0.0f);
-            text->GetProps().text = desc.title;
-            text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            text->GetProps().font = BIG_FONT_SID;
-            progressContainer->AddChild(text);
-            
-            Slider* slider = m_manager->Allocate<Slider>("Slider");
-            slider->GetFlags().Set(WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X);
-            slider->SetAlignedPosX(0.0f);
-            slider->SetAlignedSizeX(1.0f);
-            slider->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
-            slider->GetProps().rounding = 0.0f;
-            slider->GetProps().colorFillMin = Theme::GetDef().accentSecondary;
-            slider->GetProps().colorFillMax = Theme::GetDef().accentSecondary;
-            slider->GetProps().minValue = 0.0f;
-            slider->GetProps().maxValue = 1.0f;
-            slider->GetProps().valuePtr = &slider->GetProps().localValue;
-            progressContainer->AddChild(slider);
-            notification->SetAlignedSizeY(1.0f);
-            item->slider = slider;
-        }
-        else
-        {
-            Text* text = m_manager->Allocate<Text>("Title");
-            text->GetProps().text = desc.title;
-            text->GetFlags().Set(WF_POS_ALIGN_Y);
-            text->SetAlignedPosY(0.5f);
-            text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            text->GetProps().font = BIG_FONT_SID;
-            notification->AddChild(text);
-        }
-        
-     
-        
-        if(desc.showButton)
-        {
-            Button* button = m_manager->Allocate<Button>("Button");
-            button->GetText()->GetProps().text = desc.buttonText;
-            button->GetText()->GetProps().font = BIG_FONT_SID;
-            button->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN);
-            button->SetAlignedPosY(0.5f);
-            button->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-            button->GetChildMargins().left = Theme::GetDef().baseIndent;
-            button->GetChildMargins().right = Theme::GetDef().baseIndent;
-            button->SetAlignedSizeY(1.0f);
-            notification->AddChild(button);
-            
-            button->GetProps().onClicked = [this, item](){
-                
-                if(!item->done)
-                {
-                    if(item->onClicked)
-                        item->onClicked();
-                    
-                    item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
-                    item->done = true;
-                }
-            };
-        }
+			const float itemSz = item->layout->GetSizeY();
+			item->layout->SetPosY(Math::Lerp(item->layout->GetPosY(), posY - itemSz, delta * POS_SPEED));
+			posY -= Theme::GetDef().baseIndent + itemSz;
 
-        
-        notification->SetPosY(GetEndFromMargins().y);
-        m_items.insert(m_items.begin(), item);
-        
-        float posY = GetEndFromMargins().y;
-        
-        for(NotificationItem* item : m_items)
-        {
-            const float itemSz = item->layout->GetSizeY();
-            item->layout->SetPosY(posY);
-            posY -= Theme::GetDef().baseIndent + itemSz;
-            item->layout->SetPosX(m_rect.GetEnd().x);
-        }
-    }
+			const float targetX = maxX - item->layout->GetSizeX();
+			const float startX	= maxX;
+			const float actualX = Math::Lerp(startX, targetX, item->tween.GetValue());
+			item->layout->SetPosX(actualX);
+
+			if (!item->done)
+			{
+				if (item->autoDestroySeconds != -1)
+				{
+					item->timer += delta;
+
+					if (item->timer > static_cast<float>(item->autoDestroySeconds))
+					{
+						item->done	= true;
+						item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
+					}
+				}
+
+				if (item->onProgress != nullptr)
+				{
+					float val = 0.0f;
+					item->onProgress(val);
+					item->slider->GetProps().localValue = Math::Lerp(item->slider->GetProps().localValue, val, delta * SLIDER_SPEED);
+
+					if (item->slider->GetProps().localValue > 0.99f)
+					{
+						item->done	= true;
+						item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
+					}
+				}
+			}
+
+			if (item->done && item->tween.GetIsCompleted())
+			{
+				it = m_items.erase(it);
+				RemoveChild(item->layout);
+				m_manager->Deallocate(item->layout);
+			}
+			else
+				++it;
+		}
+	}
+
+	void NotificationDisplayer::Draw()
+	{
+		Widget::Draw();
+	}
+
+	void NotificationDisplayer::AddNotification(const NotificationDesc& desc)
+	{
+		DirectionalLayout* notification = m_manager->Allocate<DirectionalLayout>("Notification");
+		notification->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN | WF_CONTROLS_DRAW_ORDER);
+		notification->SetAlignedSize(Vector2(1.0f, 2.0f));
+		notification->SetPosAlignmentSourceX(PosAlignmentSource::Start);
+		notification->SetPosAlignmentSourceY(PosAlignmentSource::End);
+		notification->GetProps().direction = DirectionOrientation::Horizontal;
+		notification->GetChildMargins()	   = TBLR::Eq(Theme::GetDef().baseIndent);
+		notification->SetChildPadding(Theme::GetDef().baseIndent);
+		notification->GetProps().backgroundStyle	  = DirectionalLayout::BackgroundStyle::Default;
+		notification->GetProps().colorBackgroundStart = Theme::GetDef().background0;
+		notification->GetProps().colorBackgroundEnd	  = Theme::GetDef().background1;
+		notification->GetProps().outlineThickness	  = Theme::GetDef().baseOutlineThickness;
+		notification->GetProps().colorOutline		  = Theme::GetDef().accentPrimary0;
+		notification->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		AddChild(notification);
+
+		NotificationItem* item	 = new NotificationItem();
+		item->tween				 = Tween(0.0f, 1.0f, TWEEN_TIME, TweenType::Linear);
+		item->layout			 = notification;
+		item->onProgress		 = desc.onProgress;
+		item->autoDestroySeconds = desc.autoDestroySeconds;
+		item->onClicked			 = desc.onClicked;
+
+		// DropShadow* ds = m_manager->Allocate<Dropshadow>("Dropshadow");
+
+		if (desc.icon != NotificationIcon::None && desc.icon != NotificationIcon::Loading)
+		{
+			Icon* icon = m_manager->Allocate<Icon>("Icon");
+			icon->GetFlags().Set(WF_POS_ALIGN_Y);
+			icon->SetAlignedPosY(0.5f);
+			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			icon->SetAlignedSizeY(1.0f);
+			icon->GetProps().dynamicSizeToParent = true;
+			icon->GetProps().dynamicSizeScale	 = 1.5f;
+			notification->AddChild(icon);
+
+			if (desc.icon == NotificationIcon::Info)
+			{
+				icon->GetProps().icon		= ICON_INFO;
+				icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().silent2;
+			}
+			if (desc.icon == NotificationIcon::Warning)
+			{
+				icon->GetProps().icon		= ICON_WARN;
+				icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().accentWarn;
+			}
+			if (desc.icon == NotificationIcon::Err)
+			{
+				icon->GetProps().icon		= ICON_ERROR;
+				icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().accentError;
+			}
+		}
+		else if (desc.icon == NotificationIcon::Loading)
+		{
+			LinaLoading* loading = m_manager->Allocate<LinaLoading>("Loading");
+			loading->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+			loading->SetAlignedPosY(0.5f);
+			loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			loading->SetAlignedSizeY(1.0f);
+			notification->AddChild(loading);
+		}
+
+		if (desc.onProgress != nullptr)
+		{
+			DirectionalLayout* progressContainer = m_manager->Allocate<DirectionalLayout>("ProgressContainer");
+			progressContainer->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_X_MAX_CHILDREN);
+			progressContainer->SetAlignedSize(Vector2::One);
+			progressContainer->SetAlignedPosY(0.5f);
+			progressContainer->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			progressContainer->GetProps().direction = DirectionOrientation::Vertical;
+			progressContainer->SetChildPadding(Theme::GetDef().baseIndentInner);
+			notification->AddChild(progressContainer);
+
+			Text* text = m_manager->Allocate<Text>("Title");
+			text->GetFlags().Set(WF_POS_ALIGN_X);
+			text->SetAlignedPos(0.0f);
+			text->GetProps().text = desc.title;
+			text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			text->GetProps().font = BIG_FONT_SID;
+			progressContainer->AddChild(text);
+
+			Slider* slider = m_manager->Allocate<Slider>("Slider");
+			slider->GetFlags().Set(WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X);
+			slider->SetAlignedPosX(0.0f);
+			slider->SetAlignedSizeX(1.0f);
+			slider->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
+			slider->GetProps().rounding		= 0.0f;
+			slider->GetProps().colorFillMin = Theme::GetDef().accentSecondary;
+			slider->GetProps().colorFillMax = Theme::GetDef().accentSecondary;
+			slider->GetProps().minValue		= 0.0f;
+			slider->GetProps().maxValue		= 1.0f;
+			slider->GetProps().valuePtr		= &slider->GetProps().localValue;
+			progressContainer->AddChild(slider);
+			notification->SetAlignedSizeY(1.0f);
+			item->slider = slider;
+		}
+		else
+		{
+			Text* text			  = m_manager->Allocate<Text>("Title");
+			text->GetProps().text = desc.title;
+			text->GetFlags().Set(WF_POS_ALIGN_Y);
+			text->SetAlignedPosY(0.5f);
+			text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			text->GetProps().font = BIG_FONT_SID;
+			notification->AddChild(text);
+		}
+
+		if (desc.showButton)
+		{
+			Button* button					   = m_manager->Allocate<Button>("Button");
+			button->GetText()->GetProps().text = desc.buttonText;
+			button->GetText()->GetProps().font = BIG_FONT_SID;
+			button->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN);
+			button->SetAlignedPosY(0.5f);
+			button->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			button->GetChildMargins().left	= Theme::GetDef().baseIndent;
+			button->GetChildMargins().right = Theme::GetDef().baseIndent;
+			button->SetAlignedSizeY(1.0f);
+			notification->AddChild(button);
+
+			button->GetProps().onClicked = [this, item]() {
+				if (!item->done)
+				{
+					if (item->onClicked)
+						item->onClicked();
+
+					item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
+					item->done	= true;
+				}
+			};
+		}
+
+		notification->SetPosY(GetEndFromMargins().y);
+		m_items.insert(m_items.begin(), item);
+
+		float posY = GetEndFromMargins().y;
+
+		for (NotificationItem* item : m_items)
+		{
+			const float itemSz = item->layout->GetSizeY();
+			item->layout->SetPosY(posY);
+			posY -= Theme::GetDef().baseIndent + itemSz;
+			item->layout->SetPosX(m_rect.GetEnd().x);
+		}
+	}
 
 } // namespace Lina::Editor

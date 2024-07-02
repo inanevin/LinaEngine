@@ -100,8 +100,8 @@ namespace Lina
 	private:
 		Texture(System* system, const String& path, StringID sid);
 		virtual ~Texture();
-        
-        void         GenerateHW();
+
+		void		 GenerateHW();
 		void		 DestroySW();
 		virtual void BatchLoaded() override;
 		virtual void SetCustomMeta(IStream& stream) override

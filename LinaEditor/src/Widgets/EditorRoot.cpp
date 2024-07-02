@@ -110,7 +110,7 @@ namespace Lina::Editor
 
 		DirectionalLayout* projectName = m_manager->Allocate<DirectionalLayout>("Project Name");
 		projectName->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_Y);
-        projectName->SetAlignedSizeX(1.0f);
+		projectName->SetAlignedSizeX(1.0f);
 		projectName->SetAlignedPosY(0.5f);
 		projectName->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
@@ -174,7 +174,6 @@ namespace Lina::Editor
 		m_linaIcon		  = lina;
 
 		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-        
 	}
 
 	void EditorRoot::PreTick()
