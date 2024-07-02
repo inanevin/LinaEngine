@@ -45,6 +45,7 @@ namespace Lina::Editor
 
 		void		   Initialize(Editor* editor);
 		void		   Shutdown();
+		void		   PreTick();
 		void		   RefreshResources();
 		void		   ClearResources();
 		DirectoryItem* FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot);

@@ -66,7 +66,6 @@ namespace Lina
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		void		 LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
-		void		 GenerateHW();
 		void		 GenerateHWFromDesc(const LinaGX::TextureDesc& desc);
 		void		 AddToUploadQueue();
 		uint32		 GetSamplerSID() const;
@@ -101,7 +100,8 @@ namespace Lina
 	private:
 		Texture(System* system, const String& path, StringID sid);
 		virtual ~Texture();
-		void		 DestroyHW();
+        
+        void         GenerateHW();
 		void		 DestroySW();
 		virtual void BatchLoaded() override;
 		virtual void SetCustomMeta(IStream& stream) override

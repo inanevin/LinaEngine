@@ -35,6 +35,8 @@ namespace Lina::Editor
 #define ALT_FONT_SID	   "Resources/Editor/Fonts/Play-Regular.ttf"_hs
 #define ALT_FONT_BOLD_PATH "Resources/Editor/Fonts/Play-Bold.ttf"
 #define ALT_FONT_BOLD_SID  "Resources/Editor/Fonts/Play-Bold.ttf"_hs
+#define BIG_FONT_PATH	   "Resources/Editor/Fonts/Play-Big.ttf"
+#define BIG_FONT_SID	   "Resources/Editor/Fonts/Play-Big.ttf"_hs
 #define ICON_FONT_PATH	   "Resources/Editor/Fonts/EditorIcons.ttf"
 #define ICON_FONT_SID	   "Resources/Editor/Fonts/EditorIcons.ttf"_hs
 

@@ -70,6 +70,7 @@ namespace Lina
 
 	private:
 		Vector<TextureUploadRequest> m_textureRequests;
+		Vector<Delegate<void()>>	 m_completedTextureRequests;
 		Vector<BufferRequest>		 m_bufferRequests;
 		SpinLock					 m_spinLock;
 	};

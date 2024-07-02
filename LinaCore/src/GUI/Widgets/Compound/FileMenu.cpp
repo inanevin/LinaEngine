@@ -123,6 +123,7 @@ namespace Lina
 	{
 		GetProps().direction = DirectionOrientation::Horizontal;
 		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN);
+		SetAlignedSizeX(1.0f);
 		DirectionalLayout::Construct();
 	}
 
@@ -157,6 +158,7 @@ namespace Lina
 		{
 			Button* btn = m_manager->Allocate<Button>("FMButton");
 			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_MAX_CHILDREN);
+			btn->SetAlignedSizeX(1.0f);
 			btn->SetAlignedPosY(0.0f);
 			btn->SetAlignedSizeY(1.0f);
 			btn->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};

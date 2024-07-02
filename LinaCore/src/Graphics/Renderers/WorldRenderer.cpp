@@ -85,6 +85,29 @@ namespace Lina
 		m_guiShader3D			= m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI3D_SID);
 		m_guiShader3DVariantGPU = m_guiShader3D->GetGPUHandle("RenderTarget"_hs);
 
+		m_mainPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
+		m_lightingPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
+		m_forwardTransparencyPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::ForwardTransparency));
+
+		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+		{
+			auto& data = m_pfd[i];
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle			= m_mainPass.GetDescriptorSet(i),
+				.setAllocationIndex = 0,
+				.binding			= 1,
+				.buffers			= {data.objectBuffer.GetGPUResource()},
+			});
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle			= m_forwardTransparencyPass.GetDescriptorSet(i),
+				.setAllocationIndex = 0,
+				.binding			= 1,
+				.buffers			= {data.objectBuffer.GetGPUResource()},
+			});
+		}
+
 		CreateSizeRelativeResources();
 		FetchRenderables();
 	}
@@ -105,6 +128,11 @@ namespace Lina
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.GetSemaphore());
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
 		}
+
+		m_mainPass.Destroy();
+		m_lightingPass.Destroy();
+		m_forwardTransparencyPass.Destroy();
+
 		DestroySizeRelativeResources();
 		m_world->RemoveListener(this);
 	}
@@ -185,29 +213,6 @@ namespace Lina
 																 .clearDepth   = 1.0f,
 															 });
 		}
-
-		m_mainPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
-		m_lightingPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
-		m_forwardTransparencyPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::ForwardTransparency));
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data = m_pfd[i];
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle			= m_mainPass.GetDescriptorSet(i),
-				.setAllocationIndex = 0,
-				.binding			= 1,
-				.buffers			= {data.objectBuffer.GetGPUResource()},
-			});
-
-			m_lgx->DescriptorUpdateBuffer({
-				.setHandle			= m_forwardTransparencyPass.GetDescriptorSet(i),
-				.setAllocationIndex = 0,
-				.binding			= 1,
-				.buffers			= {data.objectBuffer.GetGPUResource()},
-			});
-		}
 	}
 
 	void WorldRenderer::DestroySizeRelativeResources()
@@ -221,10 +226,6 @@ namespace Lina
 			m_rm->DestroyResource(data.gBufDepth);
 			m_rm->DestroyResource(data.lightingPassOutput);
 		}
-
-		m_mainPass.Destroy();
-		m_lightingPass.Destroy();
-		m_forwardTransparencyPass.Destroy();
 	}
 
 	void WorldRenderer::FetchRenderables()

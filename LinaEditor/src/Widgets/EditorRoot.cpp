@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
-#include "Editor/Widgets/FX/LinaLoading.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
@@ -109,40 +108,9 @@ namespace Lina::Editor
 		filler->SetAlignedPosY(0.0f);
 		titleBar->AddChild(filler);
 
-		DirectionalLayout* notificationBarBG	= m_manager->Allocate<DirectionalLayout>("NotificationBar");
-		notificationBarBG->GetProps().direction = DirectionOrientation::Horizontal;
-		notificationBarBG->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_X_TOTAL_CHILDREN);
-		notificationBarBG->SetAlignedSizeY(1.0f);
-		notificationBarBG->SetAlignedPos(Vector2(0.5f, 0.0f));
-		notificationBarBG->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		notificationBarBG->GetProps().backgroundStyle	   = DirectionalLayout::BackgroundStyle::Default;
-		notificationBarBG->GetProps().colorBackgroundStart = Color(0, 0, 0, 0);
-		notificationBarBG->GetProps().colorBackgroundEnd   = Color(0, 0, 0, 0);
-		notificationBarBG->SetChildPadding(Theme::GetDef().baseIndent);
-		notificationBarBG->GetChildMargins().left  = Theme::GetDef().baseIndent;
-		notificationBarBG->GetChildMargins().right = Theme::GetDef().baseIndent;
-		filler->AddChild(notificationBarBG);
-		m_notificationBG = notificationBarBG;
-
-		LinaLoading* loading = m_manager->Allocate<LinaLoading>("Loading");
-		loading->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
-		loading->SetAlignedPosY(0.0f);
-		loading->SetAlignedSizeY(1.0f);
-		loading->GetProps().dispersePower = 0.5f;
-		notificationBarBG->AddChild(loading);
-		m_notificationLoading = loading;
-		m_notificationLoading->SetVisible(false);
-
-		Text* notifText = m_manager->Allocate<Text>("NotifText");
-		notifText->GetFlags().Set(WF_POS_ALIGN_Y);
-		notifText->SetAlignedPosY(0.5);
-		notifText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		notificationBarBG->AddChild(notifText);
-		m_notificationText = notifText;
-		m_notificationText->SetVisible(false);
-
 		DirectionalLayout* projectName = m_manager->Allocate<DirectionalLayout>("Project Name");
 		projectName->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_Y);
+        projectName->SetAlignedSizeX(1.0f);
 		projectName->SetAlignedPosY(0.5f);
 		projectName->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
@@ -206,6 +174,7 @@ namespace Lina::Editor
 		m_linaIcon		  = lina;
 
 		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+        
 	}
 
 	void EditorRoot::PreTick()
@@ -417,37 +386,4 @@ namespace Lina::Editor
 		}
 	}
 
-	uint32 EditorRoot::AddNotification(const String& str)
-	{
-		LOCK_GUARD(m_notifMtx);
-		const uint32 ctr = m_notificationCounter;
-		m_notifQueue.push_back({ctr, str});
-		m_notificationCounter++;
-
-		m_notificationText->SetVisible(true);
-		m_notificationLoading->SetVisible(true);
-		m_notificationBG->GetProps().colorBackgroundStart = m_notificationBG->GetProps().colorBackgroundEnd = Theme::GetDef().background0;
-		m_notificationText->GetProps().text																	= str;
-		m_notificationText->CalculateTextSize();
-		return ctr;
-	}
-
-	void EditorRoot::RemoveNotification(uint32 id)
-	{
-		LOCK_GUARD(m_notifMtx);
-		auto it = linatl::find_if(m_notifQueue.begin(), m_notifQueue.end(), [id](const Notification& n) -> bool { return id == n.id; });
-		m_notifQueue.erase(it);
-
-		if (m_notifQueue.empty())
-		{
-			m_notificationText->SetVisible(false);
-			m_notificationLoading->SetVisible(false);
-			m_notificationBG->GetProps().colorBackgroundStart = m_notificationBG->GetProps().colorBackgroundEnd = Color(0, 0, 0, 0);
-		}
-		else
-		{
-			m_notificationText->GetProps().text = m_notifQueue.back().text;
-			m_notificationText->CalculateTextSize();
-		}
-	}
 } // namespace Lina::Editor

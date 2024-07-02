@@ -62,8 +62,9 @@ namespace Lina
 			float				 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
 			float				 minValue			  = 0.0f;
 			float				 maxValue			  = 0.0f;
-			float*				 value				  = nullptr;
+			float*				 valuePtr			  = nullptr;
 			float				 step				  = 0.0f;
+			float				 localValue			  = 0.0f;
 
 			Delegate<void(float val)> onValueChanged;
 

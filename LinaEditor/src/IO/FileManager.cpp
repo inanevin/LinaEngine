@@ -47,6 +47,11 @@ namespace Lina::Editor
 		m_thumbnailGenerator.Initialize(editor);
 	}
 
+	void FileManager::PreTick()
+	{
+		m_thumbnailGenerator.PreTick();
+	}
+
 	void FileManager::Shutdown()
 	{
 		m_thumbnailGenerator.Shutdown();
@@ -141,9 +146,7 @@ namespace Lina::Editor
 		FillPathInformation(m_root, resDir);
 		ScanItem(m_root);
 
-		m_thumbnailGenerator.GenerateThumbnailsRecursively(m_root);
-
-		m_editor->GetAtlasManager().RefreshDirtyAtlases();
+		m_thumbnailGenerator.GenerateThumbnail(m_root, true);
 	}
 
 	void FileManager::ClearDirectory(DirectoryItem* item)

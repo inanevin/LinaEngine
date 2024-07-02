@@ -138,7 +138,7 @@ namespace Lina::Editor
 			slider->GetProps().minValue = 0.0f;
 			slider->GetProps().maxValue = 10.0f;
 			slider->GetProps().step		= 0.0f;
-			slider->GetProps().value	= &value;
+			slider->GetProps().valuePtr = &value;
 			setFlags(slider);
 			layout->AddChild(slider);
 		}
@@ -150,7 +150,7 @@ namespace Lina::Editor
 			slider->GetProps().minValue	 = 0.0f;
 			slider->GetProps().maxValue	 = 10.0f;
 			slider->GetProps().step		 = 0.0f;
-			slider->GetProps().value	 = &value;
+			slider->GetProps().valuePtr	 = &value;
 			slider->GetProps().direction = DirectionOrientation::Vertical;
 			setFlags(slider, true);
 			layout->AddChild(slider);

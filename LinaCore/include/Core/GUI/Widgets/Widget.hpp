@@ -422,6 +422,23 @@ namespace Lina
 				GetWidgetsOfType<T>(outWidgets, c);
 			}
 		}
+        
+        template <typename T> static T* GetWidgetOfType(Widget* root)
+        {
+            auto tid = GetTypeID<T>();
+
+            for(Widget* c : root->GetChildren())
+            {
+                if(c->GetTID() == tid)
+                    return static_cast<T*>(c);
+                
+                T* widgetInChild = GetWidgetOfType<T>(c);
+                if(widgetInChild != nullptr)
+                    return widgetInChild;
+            }
+            
+            return nullptr;
+        }
 
 		inline uint32 GetCacheIndex() const
 		{

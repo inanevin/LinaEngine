@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockArea.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
+#include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -74,6 +75,19 @@ namespace Lina::Editor
 		SurfaceRenderer* renderer = new SurfaceRenderer(m_gfxManager, window, window->GetSize(), Theme::GetDef().background0);
 		m_gfxManager->AddRenderer(renderer, "SurfaceRenderers"_hs);
 		m_surfaceRenderers[window] = renderer;
+
+		NotificationDisplayer* notificationDisplayer = renderer->GetWidgetManager().Allocate<NotificationDisplayer>();
+		notificationDisplayer->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		notificationDisplayer->SetAlignedPos(Vector2::Zero);
+		notificationDisplayer->SetAlignedSize(Vector2::One);
+		renderer->GetWidgetManager().GetRoot()->AddChild(notificationDisplayer);
+	}
+
+	NotificationDisplayer* WindowPanelManager::GetNotificationDisplayer(LinaGX::Window* window)
+	{
+		Vector<NotificationDisplayer*> disp;
+		Widget::GetWidgetsOfType(disp, m_surfaceRenderers.at(window)->GetGUIRoot());
+		return disp.at(0);
 	}
 
 	void WindowPanelManager::DestroySurfaceRenderer(LinaGX::Window* window)

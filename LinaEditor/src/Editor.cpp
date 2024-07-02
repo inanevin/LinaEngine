@@ -86,6 +86,18 @@ namespace Lina::Editor
 			customMeta.SaveToStream(stream);
 			return true;
 		}
+
+		if (sid == BIG_FONT_SID)
+		{
+			Font::Metadata customMeta = {
+				.points = {{.size = 20, .dpiLimit = 10.1f}, {.size = 20, .dpiLimit = 1.8f}, {.size = 20, .dpiLimit = 10.0f}},
+				.isSDF	= false,
+
+			};
+			customMeta.SaveToStream(stream);
+			return true;
+		};
+
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
 		if (sid == DEFAULT_TEXTURE_CHECKERED_SID || sid == DEFAULT_TEXTURE_LINALOGO)
@@ -336,6 +348,7 @@ namespace Lina::Editor
 		list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
 		list.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_PATH, DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
 		list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
+		list.push_back({fullPathBase + BIG_FONT_PATH, BIG_FONT_PATH, GetTypeID<Font>()});
 		list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
 		list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
 		list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
@@ -345,13 +358,14 @@ namespace Lina::Editor
 	void Editor::PreTick()
 	{
 		m_windowPanelManager.PreTick();
+		m_fileManager.PreTick();
 	}
 
 	void Editor::CoreResourcesLoaded()
 	{
 		// Remove splash
 		Widget* root   = m_primaryWidgetManager->GetRoot();
-		Widget* splash = root->GetChildren().at(0);
+		Widget* splash = Widget::GetWidgetOfType<SplashScreen>(root);
 		root->RemoveChild(splash);
 		root->GetWidgetManager()->Deallocate(splash);
 

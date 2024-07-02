@@ -46,8 +46,6 @@ namespace Lina
 {
 	void Engine::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
-		AddListener(this);
-
 		m_resourceManager.PreInitialize(initInfo);
 		m_gfxManager.PreInitialize(initInfo);
 		m_audioManager.PreInitialize(initInfo);
@@ -90,8 +88,6 @@ namespace Lina
 		m_resourceManager.Shutdown();
 		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
-
-		RemoveListener(this);
 	}
 
 	void Engine::PreTick()
@@ -133,20 +129,6 @@ namespace Lina
 		audioJob.get();
 		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_L))
 			m_app->Quit();
-	}
-
-	void Engine::OnSystemEvent(SystemEvent eventType, const Event& ev)
-	{
-		if (eventType & EVS_ResourceLoaded)
-		{
-			String* path = static_cast<String*>(ev.pParams[0]);
-			LINA_TRACE("[Resource] -> Loaded resource: {0}", path->c_str());
-		}
-		else if (eventType & EVS_ResourceUnloaded)
-		{
-			String* path = static_cast<String*>(ev.pParams[0]);
-			LINA_TRACE("[Resource] -> Unloaded resource: {0}", path->c_str());
-		}
 	}
 
 	void Engine::CalculateTime()

@@ -140,6 +140,7 @@ namespace Lina
 	{
 		DirectionalLayout* popup = source->GetWidgetManager()->Allocate<DirectionalLayout>("PopupLayout");
 		popup->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		popup->SetAlignedSizeY(1.0f);
 		popup->GetChildMargins()		   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
 		popup->GetProps().backgroundStyle  = DirectionalLayout::BackgroundStyle::Default;
 		popup->GetProps().direction		   = DirectionOrientation::Vertical;

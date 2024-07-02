@@ -40,5 +40,7 @@ namespace Lina
 		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceIdentifier>& idents){};
 		virtual void OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents){};
 		virtual void OnResourceLoaded(int32 taskID, const ResourceIdentifier& ident){};
+		virtual void OnManagerLock(uint32 lockCount){};
+		virtual void OnManagerUnlock(uint32 lockCount){};
 	};
 } // namespace Lina

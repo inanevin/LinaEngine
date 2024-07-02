@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
 
@@ -56,8 +57,23 @@ namespace Lina
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](ResourceManagerListener* list) -> bool { return list == listener; }));
 	}
 
+	void ResourceManager::Lock()
+	{
+		m_lockCount++;
+		for (ResourceManagerListener* listener : m_listeners)
+			listener->OnManagerLock(m_lockCount);
+	}
+
+	void ResourceManager::Unlock()
+	{
+		m_lockCount--;
+		for (ResourceManagerListener* listener : m_listeners)
+			listener->OnManagerUnlock(m_lockCount);
+	}
 	void ResourceManager::LoadResourcesFromFile(int32 taskID, Vector<ResourceIdentifier> identifiers, const String& baseCachePath)
 	{
+		LINA_ASSERT(SystemInfo::IsMainThread(), "");
+
 		if (identifiers.empty())
 		{
 			LINA_ERR("[Resource Manager] -> LoadResources() called with empty identifier list.");
@@ -66,20 +82,25 @@ namespace Lina
 
 		for (auto& ident : identifiers)
 		{
-			ident.sid = TO_SID(ident.relativePath);
-			auto it	  = m_caches.find(ident.tid);
-
+			ident.sid				 = TO_SID(ident.relativePath);
+			auto			   it	 = m_caches.find(ident.tid);
+			ResourceCacheBase* cache = nullptr;
 			if (it == m_caches.end())
 			{
-				MetaType&		   type	 = ReflectionSystem::Get().Resolve(ident.tid);
-				void*			   ptr	 = type.GetFunction<void*()>("CreateResourceCache"_hs)();
-				ResourceCacheBase* cache = static_cast<ResourceCacheBase*>(ptr);
-				m_caches[ident.tid]		 = cache;
+				MetaType& type		= ReflectionSystem::Get().Resolve(ident.tid);
+				void*	  ptr		= type.GetFunction<void*()>("CreateResourceCache"_hs)();
+				cache				= static_cast<ResourceCacheBase*>(ptr);
+				m_caches[ident.tid] = cache;
 			}
+			else
+				cache = it->second;
+			cache->Create(ident.relativePath, ident.sid, m_system);
 		}
 
 		for (ResourceManagerListener* listener : m_listeners)
 			listener->OnResourceLoadStarted(taskID, identifiers);
+
+		Lock();
 
 		ResourceLoadTask* loadTask = new ResourceLoadTask();
 		loadTask->id			   = taskID;
@@ -91,9 +112,10 @@ namespace Lina
 
 		for (const auto& ident : identifiers)
 		{
+
 			loadTask->tf.emplace([app, ident, this, loadTask, baseCachePath, taskID]() {
 				auto&	  cache = m_caches.at(ident.tid);
-				Resource* res	= cache->Create(ident.relativePath, ident.sid, m_system);
+				Resource* res	= cache->Get(ident.sid);
 
 				const String metacachePath = baseCachePath + "/" + TO_STRING(TO_SID(ident.relativePath)) + ".linameta";
 				const bool	 exists		   = !baseCachePath.empty() && FileSystem::FileOrPathExists(metacachePath);
@@ -125,13 +147,7 @@ namespace Lina
 					metastream.Destroy();
 				}
 
-				Event			   data;
-				ResourceIdentifier copy = ident;
-				data.pParams[0]			= &copy.relativePath;
-				data.pParams[1]			= static_cast<void*>(loadTask);
-				data.uintParams[0]		= ident.sid;
-				data.uintParams[1]		= ident.tid;
-				m_system->DispatchEvent(EVS_ResourceLoaded, data);
+				LINA_TRACE("[Resource] -> Loaded resource: {0}", ident.relativePath);
 
 				for (ResourceManagerListener* listener : m_listeners)
 				{
@@ -140,9 +156,10 @@ namespace Lina
 			});
 		}
 
-		m_executor.Run(loadTask->tf, [loadTask]() {
+		m_executor.Run(loadTask->tf, [loadTask, this]() {
 			loadTask->isCompleted.store(true);
 			loadTask->endTime = PlatformTime::GetCPUCycles();
+			Unlock();
 		});
 	}
 

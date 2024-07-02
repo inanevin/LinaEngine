@@ -47,9 +47,10 @@ namespace Lina
 
 		if (m_props.dynamicSizeToParent)
 		{
-			const float targetSize = Math::Min(m_parent->GetSizeX(), m_parent->GetSizeY()) * m_props.dynamicSizeScale;
-			const float scale	   = targetSize / static_cast<float>(m_lvgFont->m_size);
-			m_props.textScale	   = scale;
+			const Vector2 sz		 = m_parent->GetEndFromMargins() - m_parent->GetStartFromMargins();
+			const float	  targetSize = Math::Min(sz.x, sz.y) * m_props.dynamicSizeScale;
+			const float	  scale		 = targetSize / static_cast<float>(m_lvgFont->m_size);
+			m_props.textScale		 = scale;
 			CalculateIconSize();
 		}
 	}

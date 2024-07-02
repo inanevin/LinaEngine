@@ -39,7 +39,6 @@ namespace Lina::Editor
 	TextureAtlasImage* AtlasManager::AddImageToAtlas(uint8* data, const Vector2ui& size, uint32 bytesPerPixel)
 	{
 		LOCK_GUARD(m_mtx);
-
 		TextureAtlasImage* rect = nullptr;
 		for (TextureAtlas* atlas : m_atlasPool)
 		{
@@ -83,6 +82,7 @@ namespace Lina::Editor
 
 	void AtlasManager::RemoveImage(TextureAtlasImage* rect)
 	{
+		LOCK_GUARD(m_mtx);
 		for (TextureAtlas* atlas : m_atlasPool)
 		{
 			if (atlas->RemoveImage(rect))
@@ -118,6 +118,7 @@ namespace Lina::Editor
 		};
 
 		addAtlas("Resources/Editor/Textures/Atlas/MiscTextures/", "MiscTextures"_hs)->RefreshGPU();
+		RefreshDirtyAtlases();
 	}
 
 	TextureAtlasImage* AtlasManager::GetImageFromAtlas(StringID atlasSID, StringID image)
@@ -145,8 +146,7 @@ namespace Lina::Editor
 		for (TextureAtlas* atlas : m_atlasPool)
 		{
 			if (atlas->GetIsDirty())
-				;
-			atlas->RefreshGPU();
+				atlas->RefreshGPU();
 		}
 	}
 } // namespace Lina::Editor

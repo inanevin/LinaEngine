@@ -27,20 +27,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
 #pragma once
 
-#ifndef GfxManager_HPP
-#define GfxManager_HPP
-
 #include "Common/Common.hpp"
 #include "Common/System/Subsystem.hpp"
 #include "Common/StringID.hpp"
 #include "Common/Data/Vector.hpp"
-#include "MeshManager.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Graphics/MeshManager.hpp"
 #include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "CommonGraphics.hpp"
-#include "ResourceUploadQueue.hpp"
+#include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Resources/ResourceManagerListener.hpp"
 
 namespace Lina
 {
@@ -56,19 +54,21 @@ namespace Lina
 		Vector<Renderer*> renderers;
 	};
 
-	class GfxManager : public Subsystem, public LinaGX::WindowListener
+	class GfxManager : public Subsystem, public LinaGX::WindowListener, public ResourceManagerListener
 	{
 	private:
 		struct PerFrameData
 		{
-			uint16				   pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16				   pipelineLayoutPersistentGlobal = 0;
-			uint16				   descriptorSetPersistentGlobal  = 0;
-			Buffer				   globalDataBuffer;
-			Buffer				   globalMaterialsBuffer;
-			SemaphoreData		   poolSubmissionSemaphore = {};
-			SemaphoreData		   globalCopySemaphore	   = {};
-			LinaGX::CommandStream* globalCopyStream		   = nullptr;
+			uint16							  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16							  pipelineLayoutPersistentGlobal = 0;
+			uint16							  descriptorSetPersistentGlobal	 = 0;
+			Buffer							  globalDataBuffer;
+			Buffer							  globalMaterialsBuffer;
+			SemaphoreData					  poolSubmissionSemaphore = {};
+			SemaphoreData					  globalCopySemaphore	  = {};
+			LinaGX::CommandStream*			  globalCopyStream		  = nullptr;
+			LinaGX::DescriptorUpdateImageDesc globalTexturesDesc	  = {};
+			LinaGX::DescriptorUpdateImageDesc globalSamplersDesc	  = {};
 		};
 
 	public:
@@ -82,15 +82,23 @@ namespace Lina
 		virtual void PreTick() override;
 		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& sz) override;
 
+		// Resource
+		virtual void OnManagerLock(uint32 lockCount) override;
+		virtual void OnManagerUnlock(uint32 lockCount) override;
+
+		// Renderers
 		void CreateRendererPool(StringID sid, uint32 order, bool submitInBatch);
 		void AddRenderer(Renderer* renderer, StringID pool);
 		void RemoveRenderer(Renderer* renderer);
 
-		void			WaitForSwapchains();
-		void			Join();
-		void			Poll();
-		void			Tick(float delta);
-		void			Render(StringID pool = 0);
+		// Loop
+		void WaitForSwapchains();
+		void Join();
+		void Poll();
+		void Tick(float delta);
+		void Render(StringID pool = 0);
+
+		// Window
 		void			DestroyApplicationWindow(StringID sid);
 		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
 		LinaGX::Window* GetApplicationWindow(StringID sid);
@@ -165,6 +173,7 @@ namespace Lina
 		Mutex					m_bindlessMtx;
 		Vector<RendererPool>	m_rendererPools;
 		LinaVG::Text			m_lvgText;
+		bool					m_resourceManagerLocked		= false;
+		int32					m_bindlessResourceLoadCount = 0;
 	};
 } // namespace Lina
-#endif

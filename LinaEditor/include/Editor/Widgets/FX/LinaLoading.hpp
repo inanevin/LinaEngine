@@ -48,7 +48,7 @@ namespace Lina::Editor
 			float tweenTime = 0.15f;
 			;
 			float waitTime		= 0.1f;
-			float dispersePower = 0.15f;
+			float dispersePower = 0.2f;
 		};
 
 		LinaLoading()		   = default;

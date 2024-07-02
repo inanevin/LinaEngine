@@ -548,6 +548,9 @@ namespace Lina
 			int32 idx	= 0;
 			for (auto* c : w->GetChildren())
 			{
+				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_X))
+					continue;
+
 				if (idx != 0)
 					total += w->GetChildPadding();
 
@@ -555,6 +558,7 @@ namespace Lina
 				idx++;
 			}
 
+			// total *= w->GetAlignedSizeX();
 			w->SetSizeX(total + w->GetChildMargins().left + w->GetChildMargins().right);
 		}
 
@@ -564,6 +568,9 @@ namespace Lina
 			int32 idx	= 0;
 			for (auto* c : w->GetChildren())
 			{
+				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_Y))
+					continue;
+
 				if (idx != 0)
 					total += w->GetChildPadding();
 
@@ -571,6 +578,7 @@ namespace Lina
 				idx++;
 			}
 
+			total *= w->GetAlignedSizeY();
 			w->SetSizeY(total + w->GetChildMargins().top + w->GetChildMargins().bottom);
 		}
 
@@ -578,16 +586,26 @@ namespace Lina
 		{
 			float max = 0.0f;
 			for (auto* c : w->GetChildren())
+			{
+				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_X))
+					continue;
+
 				max = Math::Max(max, c->GetSizeX());
-			w->SetSizeX(max + w->GetChildMargins().left + w->GetChildMargins().right);
+			}
+			w->SetSizeX(max * w->GetAlignedSizeX() + w->GetChildMargins().left + w->GetChildMargins().right);
 		}
 
 		if (w->GetFlags().IsSet(WF_SIZE_Y_MAX_CHILDREN))
 		{
 			float max = 0.0f;
 			for (auto* c : w->GetChildren())
+			{
+				if (c->GetFlags().IsSet(WF_SIZE_ALIGN_Y))
+					continue;
+
 				max = Math::Max(max, c->GetSizeY());
-			w->SetSizeY(max + w->GetChildMargins().top + w->GetChildMargins().bottom);
+			}
+			w->SetSizeY(max * w->GetAlignedSizeY() + w->GetChildMargins().top + w->GetChildMargins().bottom);
 		}
 
 		if (!expandingChildren.empty())

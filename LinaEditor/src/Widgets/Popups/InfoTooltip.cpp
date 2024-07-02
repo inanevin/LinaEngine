@@ -47,6 +47,8 @@ namespace Lina::Editor
 		GetProps().rounding				= Theme::GetDef().baseRounding;
 		GetProps().outlineThickness		= Theme::GetDef().baseOutlineThickness;
 		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN);
+		SetAlignedSizeX(1.0f);
+		SetAlignedSizeY(1.0f);
 		SetChildPadding(Theme::GetDef().baseIndent);
 		GetChildMargins() = {.top = Theme::GetDef().baseIndent * 0.5f, .bottom = Theme::GetDef().baseIndent * 0.5f, .left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 	}

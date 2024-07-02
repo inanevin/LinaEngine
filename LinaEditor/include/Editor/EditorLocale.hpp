@@ -93,6 +93,7 @@ namespace Lina::Editor
 		FrameTime,
 		DrawCalls,
 		Folder,
+		GeneratingThumbnails,
 	};
 
 	class Locale

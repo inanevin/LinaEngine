@@ -66,8 +66,10 @@ namespace Lina
 		for (const auto& b : m_allLevels)
 			LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
 
-		if (m_gpuHandleExists)
-			m_lgx->DestroyTexture(m_gpuHandle);
+		if (!m_gpuHandleExists)
+			return;
+		m_lgx->DestroyTexture(m_gpuHandle);
+		m_gpuHandleExists = false;
 	}
 
 	uint32 Texture::GetSamplerSID() const
@@ -210,7 +212,7 @@ namespace Lina
 
 	void Texture::GenerateHWFromDesc(const LinaGX::TextureDesc& desc)
 	{
-		DestroyHW();
+		LINA_ASSERT(m_gpuHandle == false, "");
 
 		m_gpuHandle		  = m_lgx->CreateTexture(desc);
 		m_gpuHandleExists = true;
@@ -219,7 +221,7 @@ namespace Lina
 
 	void Texture::GenerateHW()
 	{
-		DestroyHW();
+		LINA_ASSERT(m_gpuHandle == false, "");
 
 		LinaGX::TextureDesc desc = LinaGX::TextureDesc{
 			.format	   = m_meta.format,
@@ -233,22 +235,15 @@ namespace Lina
 		m_gpuHandleExists = true;
 	}
 
-	void Texture::DestroyHW()
-	{
-		if (!m_gpuHandleExists)
-			return;
-		m_lgx->DestroyTexture(m_gpuHandle);
-		m_gpuHandleExists = false;
-	}
-
 	void Texture::BatchLoaded()
 	{
-		GenerateHW();
 		AddToUploadQueue();
 	}
 
 	void Texture::AddToUploadQueue()
 	{
+		if (!m_gpuHandleExists)
+			GenerateHW();
 		m_gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() { DestroySW(); });
 	}
 

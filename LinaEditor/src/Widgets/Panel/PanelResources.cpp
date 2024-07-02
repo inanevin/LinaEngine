@@ -229,7 +229,7 @@ namespace Lina::Editor
 		sizeSlider->SetAlignedSize(Vector2(0.25f, 1.0f));
 		sizeSlider->GetProps().minValue		  = MIN_CONTENTS_SIZE;
 		sizeSlider->GetProps().maxValue		  = MAX_CONTENTS_SIZE;
-		sizeSlider->GetProps().value		  = &m_contentsSize;
+		sizeSlider->GetProps().valuePtr		  = &m_contentsSize;
 		sizeSlider->GetProps().onValueChanged = [this](float val) -> void {
 			if (val < MIN_CONTENTS_SIZE + 0.25f && !m_showListContents)
 				SetShowListContents(true);
@@ -417,6 +417,7 @@ namespace Lina::Editor
 							.useDropdownIcon	  = false,
 							.useFolderIcon		  = item->isDirectory,
 							.useCustomInteraction = true,
+							.useCustomTexture	  = true,
 							.customTexture		  = item->textureAtlas,
 				};
 			}

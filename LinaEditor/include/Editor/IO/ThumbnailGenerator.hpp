@@ -29,6 +29,15 @@ SOFTWARE.
 #pragma once
 
 #include "Common/Data/String.hpp"
+#include "Common/Data/Mutex.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Common/Data/Map.hpp"
+
+namespace Lina
+{
+	struct TextureAtlasImage;
+}
 
 namespace Lina::Editor
 {
@@ -37,22 +46,33 @@ namespace Lina::Editor
 
 	class ThumbnailGenerator
 	{
+	private:
+		struct RequestBatch
+		{
+			uint32													 totalCount		= 0;
+			Atomic<uint32>											 generatedCount = 0;
+			Vector<DirectoryItem*>									 requests;
+			ParallelHashMapMutex<DirectoryItem*, TextureAtlasImage*> atlases;
+		};
+
 	public:
 		void Initialize(Editor* editor);
+		void PreTick();
 		void Shutdown();
-
-		void GenerateThumbnailsRecursively(DirectoryItem* item);
-		void GenerateThumbnailForItem(DirectoryItem* item);
-
-		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbShader(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbWorld(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbnail(DirectoryItem* item, bool isRecursive);
 
 	private:
-		Editor* m_editor = nullptr;
+		void KickOffBatch(RequestBatch* batch);
+		void GenerateThumbnailForItem(DirectoryItem* item, RequestBatch* batch);
+		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
+		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
+		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
+		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
+
+	private:
+		Vector<DirectoryItem*> m_thumbnailRequests;
+		JobExecutor			   m_executor;
+		Editor*				   m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

@@ -90,6 +90,7 @@ namespace Lina::Editor
 		{LocaleStr::FrameTime, "Frame Time"},
 		{LocaleStr::DrawCalls, "Draw Calls"},
 		{LocaleStr::Folder, "Folder"},
+		{LocaleStr::GeneratingThumbnails, "Generating thumbnails..."},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

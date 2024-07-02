@@ -56,7 +56,7 @@ namespace Lina::Editor
 
 		if (m_action == 0)
 		{
-			m_rightOffset = Math::Lerp(Vector2::Zero, Vector2(1.0f, -1.0f) * disperseAmt, m_tween.GetValue());
+			m_rightOffset = Math::Lerp(Vector2::Zero, Vector2(1.0f, -0.6f) * disperseAmt, m_tween.GetValue());
 			m_rightTint	  = Math::Lerp(Color::White, Theme::GetDef().accentPrimary2, m_tween.GetValue());
 		}
 		else if (m_action == 1)

@@ -71,7 +71,12 @@ namespace Lina
 	bool ResourceUploadQueue::FlushAll(LinaGX::CommandStream* copyStream)
 	{
 		ScopedSpinLock lock(m_spinLock);
+        
+        for(Delegate<void()> cb : m_completedTextureRequests)
+            cb();
 
+        m_completedTextureRequests.clear();
+        
 		if (m_textureRequests.empty() && m_bufferRequests.empty())
 			return false;
 
@@ -132,7 +137,7 @@ namespace Lina
 			return false;
 
 		for (auto& req : m_textureRequests)
-			req.onComplete();
+            m_completedTextureRequests.push_back(req.onComplete);
 
 		m_textureRequests.clear();
 		m_bufferRequests.clear();

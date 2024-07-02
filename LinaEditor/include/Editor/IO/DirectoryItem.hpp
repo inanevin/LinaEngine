@@ -54,7 +54,6 @@ namespace Lina::Editor
 		Vector<DirectoryItem*> children		= {};
 		DirectoryItem*		   parent		= nullptr;
 		TextureAtlasImage*	   textureAtlas = nullptr;
-
 		ALLOCATOR_BUCKET_MEM;
 	};
 

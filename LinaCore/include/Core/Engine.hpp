@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Engine_HPP
-#define Engine_HPP
-
 #include "Common/System/System.hpp"
 #include "Core/Audio/AudioManager.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -38,14 +35,13 @@ SOFTWARE.
 #include "Core/World/WorldManager.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
 #include "EngineInterface.hpp"
-#include "Common/Event/SystemEventListener.hpp"
 
 namespace Lina
 {
 	class Application;
 	class GfxManager;
 
-	class Engine : public System, public SystemEventListener
+	class Engine : public System
 	{
 	public:
 		Engine(Application* app) : System(app), m_worldManager(this), m_audioManager(this), m_resourceManager(this), m_engineInterface(this), m_gfxManager(this){};
@@ -59,12 +55,6 @@ namespace Lina
 		virtual void PreTick() override;
 		virtual void Poll() override;
 		virtual void Tick() override;
-		virtual void OnSystemEvent(SystemEvent eventType, const Event& ev) override;
-
-		virtual Bitmask32 GetSystemEventMask() override
-		{
-			return EVS_ResourceLoaded | EVS_ResourceUnloaded;
-		}
 
 		inline GfxManager& GetGfxManager()
 		{
@@ -97,5 +87,3 @@ namespace Lina
 		int64 m_fixedTimestepAccumulator = 0;
 	};
 } // namespace Lina
-
-#endif

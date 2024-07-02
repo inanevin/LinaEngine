@@ -48,12 +48,6 @@ namespace Lina::Editor
 	class DockArea;
 	class Editor;
 
-	struct Notification
-	{
-		uint32 id	= 0;
-		String text = "";
-	};
-
 	class EditorRoot : public DirectionalLayout, public FileMenuListener
 	{
 	public:
@@ -70,9 +64,6 @@ namespace Lina::Editor
 		virtual bool OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const override;
 		void		 SetProjectName(const String& name);
 
-		uint32 AddNotification(const String& str);
-		void   RemoveNotification(uint32 notif);
-
 		inline Widget* GetPanelArea() const
 		{
 			return m_panelArea;
@@ -81,23 +72,17 @@ namespace Lina::Editor
 	private:
 		static constexpr float COLOR_SPEED = 15.0f;
 
-		Rect				 m_dragRect			   = {};
-		FileMenu*			 m_fileMenu			   = nullptr;
-		Widget*				 m_windowButtons	   = nullptr;
-		Text*				 m_projectNameText	   = nullptr;
-		Text*				 m_worldNameText	   = nullptr;
-		Widget*				 m_panelArea		   = nullptr;
-		DirectionalLayout*	 m_titleBar			   = nullptr;
-		Icon*				 m_saveIcon			   = nullptr;
-		Icon*				 m_linaIcon			   = nullptr;
-		WorldManager*		 m_worldManager		   = nullptr;
-		EntityWorld*		 m_currentWorld		   = nullptr;
-		uint32				 m_notificationCounter = 0;
-		Mutex				 m_notifMtx;
-		Vector<Notification> m_notifQueue;
-		Widget*				 m_notificationLoading = nullptr;
-		Text*				 m_notificationText	   = nullptr;
-		DirectionalLayout*	 m_notificationBG	   = nullptr;
+		Rect			   m_dragRect		 = {};
+		FileMenu*		   m_fileMenu		 = nullptr;
+		Widget*			   m_windowButtons	 = nullptr;
+		Text*			   m_projectNameText = nullptr;
+		Text*			   m_worldNameText	 = nullptr;
+		Widget*			   m_panelArea		 = nullptr;
+		DirectionalLayout* m_titleBar		 = nullptr;
+		Icon*			   m_saveIcon		 = nullptr;
+		Icon*			   m_linaIcon		 = nullptr;
+		WorldManager*	   m_worldManager	 = nullptr;
+		EntityWorld*	   m_currentWorld	 = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(EditorRoot)

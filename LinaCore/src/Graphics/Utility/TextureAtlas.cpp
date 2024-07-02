@@ -37,7 +37,8 @@ namespace Lina
 		const size_t dataSize = static_cast<size_t>(static_cast<size_t>(sz.x * sz.y * bytesPerPixel));
 		uint8*		 data	  = new uint8[dataSize];
 		m_data				  = {data, dataSize};
-		m_rawTexture		  = m_rm->CreateResource<Texture>("TextureAtlasRawTexture", uniqueID);
+		MEMSET(m_data.data(), 0, dataSize);
+		m_rawTexture = m_rm->CreateResource<Texture>("TextureAtlasRawTexture", uniqueID);
 	}
 
 	TextureAtlas::~TextureAtlas()
@@ -126,8 +127,7 @@ namespace Lina
 	void TextureAtlas::RefreshGPU()
 	{
 		m_isDirty = false;
-		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel, LinaGX::ImageChannelMask::RGBA, m_textureFormat, true);
-		m_rawTexture->GenerateHW();
+		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel, m_bytesPerPixel == 1 ? LinaGX::ImageChannelMask::G : LinaGX::ImageChannelMask::RGBA, m_textureFormat, true);
 		m_rawTexture->AddToUploadQueue();
 	}
 } // namespace Lina

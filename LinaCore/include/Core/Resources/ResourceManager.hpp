@@ -33,10 +33,8 @@ SOFTWARE.
 #include "CommonResources.hpp"
 #include "ResourceCache.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
-#include "Common/ObjectWrapper.hpp"
 #include "Common/System/Subsystem.hpp"
 #include "Common/Data/CommonData.hpp"
-#include "Common/Data/Functional.hpp"
 
 namespace Lina
 {
@@ -51,6 +49,8 @@ namespace Lina
 		~ResourceManager() = default;
 
 		virtual void Shutdown() override;
+		void		 Lock();
+		void		 Unlock();
 		void		 Poll();
 		void		 LoadResourcesFromFile(int32 taskID, Vector<ResourceIdentifier> identifiers, const String& baseCachePath);
 		void		 WaitForAll();
@@ -75,6 +75,7 @@ namespace Lina
 
 		template <typename T> T* CreateResource(const String& path, StringID sid)
 		{
+			LOCK_GUARD(m_mtx);
 			T* res		  = static_cast<T*>(GetCache<T>()->Create(path, sid, m_system));
 			res->m_system = m_system;
 			return res;
@@ -82,23 +83,32 @@ namespace Lina
 
 		template <typename T> void DestroyResource(StringID sid)
 		{
+			LOCK_GUARD(m_mtx);
 			GetCache<T>()->Destroy(sid);
 		}
 
 		template <typename T> void DestroyResource(T* res)
 		{
+			LOCK_GUARD(m_mtx);
 			GetCache<T>()->Destroy(res->GetSID());
+		}
+
+		inline Mutex& GetLock()
+		{
+			return m_mtx;
 		}
 
 	private:
 		void DispatchLoadTaskEvent(ResourceLoadTask* task);
 
 	private:
+		Mutex								m_mtx;
 		Vector<ResourceLoadTask*>			m_loadTasks;
 		JobExecutor							m_executor;
 		HashMap<TypeID, ResourceCacheBase*> m_caches;
 		Vector<ResourceIdentifier>			m_waitingResources;
 		Vector<ResourceManagerListener*>	m_listeners;
+		uint32								m_lockCount = 0;
 	};
 
 } // namespace Lina

@@ -52,6 +52,7 @@ namespace Lina::Editor
 		bool			   useDropdownIcon		= true;
 		bool			   useFolderIcon		= false;
 		bool			   useCustomInteraction = false;
+		bool			   useCustomTexture		= false;
 		TextureAtlasImage* customTexture		= nullptr;
 	};
 

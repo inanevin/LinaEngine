@@ -29,52 +29,70 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/Resources/ResourceManagerListener.hpp"
-#include "Common/Data/Mutex.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
-	class Icon;
-	class Texture;
-	class Text;
 	class DirectionalLayout;
-}; // namespace Lina
+	class Slider;
+} // namespace Lina
 
 namespace Lina::Editor
 {
-	class SplashScreen : public Widget, public ResourceManagerListener
+	enum class NotificationIcon
+	{
+		None,
+		Loading,
+		Info,
+		Warning,
+		Err,
+	};
+
+	struct NotificationDesc
+	{
+		NotificationIcon				   icon				  = NotificationIcon::None;
+		String							   title			  = "";
+		int32							   autoDestroySeconds = -1;
+		String							   buttonText		  = "";
+		bool							   showButton		  = false;
+		Delegate<void()>				   onClicked;
+		Delegate<void(float& outProgress)> onProgress;
+	};
+
+	struct NotificationItem
+	{
+		Tween							   tween  = {};
+		DirectionalLayout*				   layout = nullptr;
+		Delegate<void(float& outProgress)> onProgress;
+		Delegate<void()>				   onClicked;
+		Slider*							   slider			  = nullptr;
+		int32							   autoDestroySeconds = -1;
+		float							   timer			  = 0.0f;
+		bool							   done				  = false;
+	};
+
+	class NotificationDisplayer : public Widget
 	{
 	public:
-		SplashScreen()			= default;
-		virtual ~SplashScreen() = default;
-
-		static constexpr float BAR_INTERP_SPEED = 12.0f;
+		NotificationDisplayer()			 = default;
+		virtual ~NotificationDisplayer() = default;
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 
-		virtual void OnResourceLoadStarted(int32 taskID, const Vector<ResourceIdentifier>& idents) override;
-		virtual void OnResourceLoaded(int32 taskID, const ResourceIdentifier& ident) override;
+		void AddNotification(const NotificationDesc& desc);
 
 	private:
-		Mutex	 m_loadMtx;
-		Texture* m_splashImage		   = nullptr;
-		Text*	 m_versionText		   = nullptr;
-		Text*	 m_infoText1		   = nullptr;
-		Text*	 m_infoText2		   = nullptr;
-		Text*	 m_loadingInfo		   = nullptr;
-		Vector2	 m_logoTextureSize	   = Vector2::Zero;
-		Vector2	 m_logoCenter		   = Vector2::Zero;
-		Vector2	 m_logoDrawSize		   = Vector2::Zero;
-		uint32	 m_totalResourceSize   = 0;
-		uint32	 m_loadedResourceCount = 0;
-		float	 m_progress			   = 0.0f;
-		float	 m_loadingBarHeight	   = 0.0f;
+		static constexpr float POS_SPEED	= 15.0f;
+		static constexpr float SLIDER_SPEED = 8.0f;
+		static constexpr float TWEEN_TIME	= 0.2f;
+
+		Vector<NotificationItem*> m_items;
+		Vector<NotificationDesc>  m_notifications;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(SplashScreen)
-	LINA_REFLECTWIDGET_END(SplashScreen)
+	LINA_REFLECTWIDGET_BEGIN(NotificationDisplayer)
+	LINA_REFLECTWIDGET_END(NotificationDisplayer)
 
 } // namespace Lina::Editor

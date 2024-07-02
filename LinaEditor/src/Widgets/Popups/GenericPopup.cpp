@@ -48,6 +48,7 @@ namespace Lina::Editor
 		GetProps().colorOutline			= Theme::GetDef().outlineColorBase;
 
 		GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_FOREGROUND_BLOCKER);
+		SetAlignedSizeY(1.0f);
 		SetAlignedPos(Vector2(0.5f, 0.5f));
 		SetPosAlignmentSourceX(PosAlignmentSource::Center);
 		SetPosAlignmentSourceY(PosAlignmentSource::Center);
@@ -79,6 +80,7 @@ namespace Lina::Editor
 
 		DirectionalLayout* textWrapper = m_manager->Allocate<DirectionalLayout>("Text Wrapper");
 		textWrapper->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		textWrapper->SetAlignedSizeY(1.0f);
 		textWrapper->SetAlignedSizeX(1.0f);
 		textWrapper->SetAlignedPosX(0.0f);
 		textWrapper->GetChildMargins() = {.left = padding, .right = padding};
@@ -110,6 +112,7 @@ namespace Lina::Editor
 		};
 
 		btn->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_POS_ALIGN_Y);
+		btn->SetAlignedSizeX(1.0f);
 		btn->SetAlignedSizeY(1.0f);
 		btn->SetAlignedPosY(0.0f);
 		btn->GetChildMargins() = {.left = padding, .right = padding};

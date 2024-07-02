@@ -193,6 +193,16 @@ namespace Lina::Editor
 		{
 			m_pressDiff = m_orientation == DirectionOrientation::Horizontal ? (m_lgxWindow->GetMousePosition().y - GetPosY()) : (m_lgxWindow->GetMousePosition().x - GetPosX());
 			FindAdjacentWidgets();
+
+			for (uint32 i = 0; i < 4; i++)
+			{
+				Vector<Widget*>& vec = m_adjacentWidgets[i];
+
+				for (Widget* w : vec)
+				{
+					// w->OnExternalResizeStarted();
+				}
+			}
 			m_isPressed = true;
 			return true;
 		}

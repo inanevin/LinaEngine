@@ -52,7 +52,7 @@ namespace Lina
 
 	void Slider::PreTick()
 	{
-		if (m_isPressed && m_props.value)
+		if (m_isPressed && m_props.valuePtr)
 		{
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;
@@ -68,30 +68,33 @@ namespace Lina
 				targetValue		 = Math::Lerp(m_props.minValue, m_props.maxValue, perc);
 			}
 
-			const float prev = *m_props.value;
+			const float prev = *m_props.valuePtr;
 
 			if (!Math::IsZero(m_props.step))
 			{
-				const float prev = *m_props.value;
-				const float diff = targetValue - prev;
-				*m_props.value	 = prev + m_props.step * Math::FloorToFloat(diff / m_props.step);
+				const float prev  = *m_props.valuePtr;
+				const float diff  = targetValue - prev;
+				*m_props.valuePtr = prev + m_props.step * Math::FloorToFloat(diff / m_props.step);
 			}
 			else
-				*m_props.value = targetValue;
+				*m_props.valuePtr = targetValue;
 
-			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+			*m_props.valuePtr = Math::Clamp(*m_props.valuePtr, m_props.minValue, m_props.maxValue);
 
-			if (!Math::Equals(*m_props.value, prev, 0.001f))
+			if (!Math::Equals(*m_props.valuePtr, prev, 0.001f))
 			{
 				if (m_props.onValueChanged)
-					m_props.onValueChanged(*m_props.value);
+					m_props.onValueChanged(*m_props.valuePtr);
 			}
 		}
 	}
 
 	void Slider::Tick(float delta)
 	{
-		const float fillPercent = Math::Remap(m_props.value ? *m_props.value : m_props.minValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
+		if (m_props.valuePtr)
+			*m_props.valuePtr = Math::Clamp(*m_props.valuePtr, m_props.minValue, m_props.maxValue);
+
+		const float fillPercent = Math::Remap(m_props.valuePtr ? *m_props.valuePtr : m_props.minValue, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		GetStartEnd(m_bgStart, m_bgEnd, 1.0f);
 		GetStartEnd(m_fillStart, m_fillEnd, fillPercent);
 
@@ -114,10 +117,10 @@ namespace Lina
 		bg.outlineOptions.color		= hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		m_lvg->DrawRect(m_bgStart.AsLVG(), m_bgEnd.AsLVG(), bg, 0.0f, m_drawOrder);
 
-		if (m_props.value == nullptr)
+		if (m_props.valuePtr == nullptr)
 			return;
 
-		const float			 fillPercent = Math::Remap(*m_props.value, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
+		const float			 fillPercent = Math::Remap(*m_props.valuePtr, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		LinaVG::StyleOptions fill;
 		fill.color.start		= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMin.AsLVG4() : m_props.colorFillMax.AsLVG4();
 		fill.color.end			= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMax.AsLVG4() : m_props.colorFillMin.AsLVG4();
@@ -180,11 +183,11 @@ namespace Lina
 
 		auto stepValue = [&](float direction) {
 			const float step = Math::Equals(m_props.step, 0.0f, 0.001f) ? (m_props.maxValue - m_props.minValue) * 0.1f : m_props.step;
-			*m_props.value += step * direction;
-			*m_props.value = Math::Clamp(*m_props.value, m_props.minValue, m_props.maxValue);
+			*m_props.valuePtr += step * direction;
+			*m_props.valuePtr = Math::Clamp(*m_props.valuePtr, m_props.minValue, m_props.maxValue);
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(*m_props.value);
+				m_props.onValueChanged(*m_props.valuePtr);
 		};
 
 		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)

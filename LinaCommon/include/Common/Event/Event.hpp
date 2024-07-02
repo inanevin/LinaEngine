@@ -44,12 +44,6 @@ namespace Lina
 
 	enum SystemEvent
 	{
-		EVS_ResourceLoaded			  = 1 << 0,
-		EVS_ResourceLoadTaskCompleted = 1 << 1,
-		EVS_ResourceUnloaded		  = 1 << 2,
-		EVS_ResourceBatchUnloaded	  = 1 << 3,
-		EVS_LevelInstalled			  = 1 << 4,
-		EVS_LevelUninstalled		  = 1 << 5,
 	};
 
 	enum GameEvent

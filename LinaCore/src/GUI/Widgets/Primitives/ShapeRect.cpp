@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Core/Graphics/Utility/TextureAtlas.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -63,7 +64,7 @@ namespace Lina
 
 			if (m_props.fitImage)
 			{
-				const Vector2 txtSize = m_props.imageTexture->GetSizeF();
+				const Vector2 txtSize = m_props.imageTextureAtlas ? Vector2(static_cast<float>(m_props.imageTextureAtlas->rectUV.size.x), static_cast<float>(m_props.imageTextureAtlas->rectUV.size.y)) : m_props.imageTexture->GetSizeF();
 				const float	  max	  = Math::Max(txtSize.x, txtSize.y);
 				const float	  min	  = Math::Min(txtSize.x, txtSize.y);
 				const float	  aspect  = max / min;
@@ -74,10 +75,22 @@ namespace Lina
 					size.x = size.y / aspect;
 			}
 
-			if (m_props.imageTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
-				opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+			if (m_props.imageTexture != nullptr)
+			{
+				if (m_props.imageTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
+					opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
 
-			opts.textureHandle = m_props.imageTexture->GetBindlessIndex() + 1;
+				opts.textureHandle = m_props.imageTexture->GetBindlessIndex() + 1;
+			}
+			else if (m_props.imageTextureAtlas != nullptr)
+			{
+				if (m_props.imageTextureAtlas->atlas->GetRaw()->GetMeta().format == LinaGX::Format::R8_UNORM)
+					opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+
+				opts.textureHandle	 = m_props.imageTextureAtlas->atlas->GetRaw()->GetBindlessIndex() + 1;
+				opts.textureUVOffset = m_props.imageTextureAtlas->rectUV.pos.AsLVG();
+				opts.textureUVTiling = m_props.imageTextureAtlas->rectUV.size.AsLVG();
+			}
 
 			if (size.x < sz.x)
 			{

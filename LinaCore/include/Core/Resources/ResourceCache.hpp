@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Common/ObjectWrapper.hpp"
 #include "Common/Data/HashMap.hpp"
 #include "Common/Data/Vector.hpp"
-#include "Common/Data/Mutex.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Log/Log.hpp"
 #include "CommonResources.hpp"
@@ -51,7 +50,7 @@ namespace Lina
 		virtual ~ResourceCacheBase() = default;
 
 		virtual Resource* Create(const String& path, StringID sid, System* sys) = 0;
-		virtual Resource* Get(StringID sid)										= 0;
+		virtual Resource* Get(StringID sid) const								= 0;
 		virtual void	  Destroy(StringID sid)									= 0;
 
 		inline PackageType GetPackageType() const
@@ -83,8 +82,6 @@ namespace Lina
 
 		virtual Resource* Create(const String& path, StringID sid, System* sys) override
 		{
-			LOCK_GUARD(m_mtx);
-
 			if (m_resources.find(sid) != m_resources.end())
 			{
 				LINA_WARN("[Resource Cache] -> Can't create resource as it already exists.");
@@ -98,7 +95,6 @@ namespace Lina
 
 		virtual void Destroy(StringID sid) override
 		{
-			LOCK_GUARD(m_mtx);
 			auto it = m_resources.find(sid);
 			LINA_ASSERT(it != m_resources.end(), "");
 			T* res = static_cast<T*>(it->second);
@@ -106,11 +102,9 @@ namespace Lina
 			m_resources.erase(it);
 		}
 
-		virtual Resource* Get(StringID sid) override
+		virtual Resource* Get(StringID sid) const override
 		{
-			LOCK_GUARD(m_mtx);
-			auto it = m_resources.find(sid);
-			return it->second;
+			return m_resources.at(sid);
 		}
 
 		void View(Delegate<bool(T* res, uint32 index)>&& callback)
@@ -128,7 +122,6 @@ namespace Lina
 
 	private:
 		AllocatorBucket<T, 250> m_resourceBucket;
-		Mutex					m_mtx;
 		HashMap<StringID, T*>	m_resources;
 	};
 

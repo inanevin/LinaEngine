@@ -122,6 +122,7 @@ namespace Lina
 		m_appDelegate  = m_system->GetApp()->GetAppDelegate();
 		m_clearColor   = initInfo.clearColor;
 		m_currentVsync = initInfo.vsyncStyle;
+		m_resourceManager->AddListener(this);
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing				 = initInfo.allowTearing,
@@ -232,6 +233,16 @@ namespace Lina
 
 				data.pipelineLayoutPersistentGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
 
+				data.globalTexturesDesc = {
+					.setHandle = data.descriptorSetPersistentGlobal,
+					.binding   = 2,
+				};
+
+				data.globalSamplersDesc = {
+					.setHandle = data.descriptorSetPersistentGlobal,
+					.binding   = 3,
+				};
+
 				for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
 				{
 					data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
@@ -267,6 +278,8 @@ namespace Lina
 
 	void GfxManager::PreShutdown()
 	{
+		m_resourceManager->RemoveListener(this);
+
 		// Preshutdown is before resource manager, make sure
 		// to remove user managed resources.
 		LinaVG::TerminateText();
@@ -374,52 +387,52 @@ namespace Lina
 
 		for (const RendererPool& pool : m_rendererPools)
 		{
-			if (pool.renderers.size() == 1)
-			{
-				auto* rend = pool.renderers[0];
-				rend->Tick(delta);
-			}
-			else
-			{
-				Taskflow tf;
-				tf.for_each_index(0, static_cast<int>(pool.renderers.size()), 1, [&](int i) {
-					auto* rend = pool.renderers.at(i);
-					rend->Tick(delta);
-				});
-				m_system->GetMainExecutor()->RunAndWait(tf);
-			}
+			for (auto* r : pool.renderers)
+				r->Tick(delta);
+
+			// if (pool.renderers.size() == 1)
+			// {
+			// 	auto* rend = pool.renderers[0];
+			// 	rend->Tick(delta);
+			// }
+			// else
+			// {
+			// 	Taskflow tf;
+			// 	tf.for_each_index(0, static_cast<int>(pool.renderers.size()), 1, [&](int i) {
+			// 		auto* rend = pool.renderers.at(i);
+			// 		rend->Tick(delta);
+			// 	});
+			// 	m_system->GetMainExecutor()->RunAndWait(tf);
+			// }
 		}
 	}
 
 	void GfxManager::UpdateBindlessResources(PerFrameData& pfd)
 	{
-		// Textures
-		ResourceCache<Texture>*			  cacheTxt	= m_resourceManager->GetCache<Texture>();
-		LinaGX::DescriptorUpdateImageDesc imgUpdate = {
-			.setHandle = pfd.descriptorSetPersistentGlobal,
-			.binding   = 2,
-		};
-		imgUpdate.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
+		CONDITIONAL_LOCK(m_resourceManagerLocked, m_resourceManager->GetLock());
+		// Textures.
+		ResourceCache<Texture>* cacheTxt = m_resourceManager->GetCache<Texture>();
+		pfd.globalTexturesDesc.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
-			imgUpdate.textures[index] = txt->GetGPUHandle();
-			txt->m_bindlessIndex	  = static_cast<uint32>(index);
+			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
+			txt->m_bindlessIndex				   = static_cast<uint32>(index);
 			return false;
 		});
-		m_lgx->DescriptorUpdateImage(imgUpdate);
+
+		if (!pfd.globalTexturesDesc.textures.empty())
+			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
 
 		// Samplers
-		ResourceCache<TextureSampler>*	  cacheSmp	= m_resourceManager->GetCache<TextureSampler>();
-		LinaGX::DescriptorUpdateImageDesc smpUpdate = {
-			.setHandle = pfd.descriptorSetPersistentGlobal,
-			.binding   = 3,
-		};
-		smpUpdate.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
+		ResourceCache<TextureSampler>* cacheSmp = m_resourceManager->GetCache<TextureSampler>();
+		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
 		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
-			smpUpdate.samplers[index] = smp->GetGPUHandle();
-			smp->m_bindlessIndex	  = static_cast<uint32>(index);
+			pfd.globalSamplersDesc.samplers[index] = smp->GetGPUHandle();
+			smp->m_bindlessIndex				   = static_cast<uint32>(index);
 			return false;
 		});
-		m_lgx->DescriptorUpdateImage(smpUpdate);
+
+		if (!pfd.globalSamplersDesc.samplers.empty())
+			m_lgx->DescriptorUpdateImage(pfd.globalSamplersDesc);
 
 		// Materials
 		ResourceCache<Material>* cacheMat = m_resourceManager->GetCache<Material>();
@@ -644,4 +657,14 @@ namespace Lina
 		return m_lgx->GetWindowManager().GetWindow(sid);
 	}
 
+	void GfxManager::OnManagerLock(uint32 lockCount)
+	{
+		m_resourceManagerLocked = true;
+	}
+
+	void GfxManager::OnManagerUnlock(uint32 lockCount)
+	{
+		if (lockCount == 0)
+			m_resourceManagerLocked = false;
+	}
 } // namespace Lina

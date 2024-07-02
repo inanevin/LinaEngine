@@ -48,6 +48,7 @@ namespace Lina
 namespace Lina::Editor
 {
 	class Editor;
+	class NotificationDisplayer;
 
 	class EditorPayloadListener
 	{
@@ -97,9 +98,17 @@ namespace Lina::Editor
 		void	CloseWindow(StringID sid);
 		void	CloseAllSubwindows();
 
+		// Notification
+		NotificationDisplayer* GetNotificationDisplayer(LinaGX::Window* window);
+
 		inline const Vector<LinaGX::Window*>& GetSubWindows() const
 		{
 			return m_subWindows;
+		}
+
+		inline LinaGX::Window* GetMainWindow() const
+		{
+			return m_mainWindow;
 		}
 
 	private:

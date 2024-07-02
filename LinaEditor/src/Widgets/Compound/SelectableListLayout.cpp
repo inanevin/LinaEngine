@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Editor/Widgets/Compound/SelectableListLayout.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Widgets/FX/LinaLoading.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
@@ -202,7 +203,7 @@ namespace Lina::Editor
 			folder->GetProps().dynamicSizeScale	   = 0.8f;
 			bgShape->AddChild(folder);
 		}
-		else if (item.customTexture != nullptr)
+		else if (item.useCustomTexture)
 		{
 			// ShapeRect* img = m_manager->Allocate<ShapeRect>("Shape");
 			// img->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -214,7 +215,23 @@ namespace Lina::Editor
 			// img->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			bgShape->GetProps().imageTextureAtlas = item.customTexture;
 			bgShape->GetProps().fitImage		  = true;
-			bgShape->GetProps().colorStart		  = Color(1, 1, 1, 1);
+
+			if (item.customTexture == nullptr)
+			{
+				LinaLoading* loading = m_manager->Allocate<LinaLoading>();
+				loading->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+				loading->SetAlignedPos(Vector2(0.5f, 0.5f));
+				loading->SetAlignedSize(Vector2(0.25f, 0.25f));
+				loading->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+				loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+				bgShape->AddChild(loading);
+			}
+			else
+			{
+				bgShape->GetProps().colorStart = Color(1, 1, 1, 1);
+				bgShape->GetProps().colorEnd   = Color(1, 1, 1, 1);
+			}
+
 			// bgShape->GetProps().rounding = Theme::GetDef().baseRounding;
 			// bgShape->AddChild(img);
 
@@ -317,7 +334,7 @@ namespace Lina::Editor
 			folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			layout->AddChild(folder);
 		}
-		else if (item.customTexture != nullptr)
+		else if (item.useCustomTexture)
 		{
 			ShapeRect* img = m_manager->Allocate<ShapeRect>("Shape");
 			img->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
@@ -327,7 +344,21 @@ namespace Lina::Editor
 			img->GetProps().imageTextureAtlas = item.customTexture;
 			img->GetProps().fitImage		  = true;
 			img->GetProps().colorStart		  = Color(1, 1, 1, 1);
+			img->GetProps().colorEnd		  = Color(1, 1, 1, 1);
 			layout->AddChild(img);
+
+			if (item.customTexture == nullptr)
+			{
+				LinaLoading* loading = m_manager->Allocate<LinaLoading>();
+				loading->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+				loading->SetAlignedPos(Vector2(0.5f, 0.5f));
+				loading->SetAlignedSize(Vector2(1.0f, 1.0f));
+				loading->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+				loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+				img->GetProps().colorStart = Color(0, 0, 0, 0);
+				img->GetProps().colorEnd   = Color(0, 0, 0, 0);
+				img->AddChild(loading);
+			}
 
 			img->SetCustomTooltipUserData(item.userData);
 			img->SetBuildCustomTooltip([this](void* userData) -> Widget* { return m_listener->OnSelectableListBuildCustomTooltip(this, userData); });
