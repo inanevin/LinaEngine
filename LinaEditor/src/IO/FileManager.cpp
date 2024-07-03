@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/IO/FileManager.hpp"
 #include "Editor/IO/ExtensionSupport.hpp"
 #include "Editor/Editor.hpp"
+#include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -44,17 +45,14 @@ namespace Lina::Editor
 	void FileManager::Initialize(Editor* editor)
 	{
 		m_editor = editor;
-		m_thumbnailGenerator.Initialize(editor);
 	}
 
 	void FileManager::PreTick()
 	{
-		m_thumbnailGenerator.PreTick();
 	}
 
 	void FileManager::Shutdown()
 	{
-		m_thumbnailGenerator.Shutdown();
 		ClearResources();
 	}
 
@@ -146,7 +144,7 @@ namespace Lina::Editor
 		FillPathInformation(m_root, resDir);
 		ScanItem(m_root);
 
-		m_thumbnailGenerator.GenerateThumbnail(m_root, true);
+        ThumbnailGenerator* thumbnail = new ThumbnailGenerator(m_editor, &m_executor, m_root, true);
 	}
 
 	void FileManager::ClearDirectory(DirectoryItem* item)

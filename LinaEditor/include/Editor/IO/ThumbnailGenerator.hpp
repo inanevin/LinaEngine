@@ -30,21 +30,25 @@ SOFTWARE.
 
 #include "Common/Data/String.hpp"
 #include "Common/Data/Mutex.hpp"
-#include "Common/JobSystem/JobSystem.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Map.hpp"
+#include "Core/Resources/ResourceManagerListener.hpp"
 
 namespace Lina
 {
+	class Buffer;
 	struct TextureAtlasImage;
-}
+	class JobExecutor;
+	class WorldRenderer;
+	class GfxManager;
+} // namespace Lina
 
 namespace Lina::Editor
 {
 	class Editor;
 	struct DirectoryItem;
 
-	class ThumbnailGenerator
+	class ThumbnailGenerator : public ResourceManagerListener
 	{
 	private:
 		struct RequestBatch
@@ -56,23 +60,33 @@ namespace Lina::Editor
 		};
 
 	public:
-		void Initialize(Editor* editor);
-		void PreTick();
-		void Shutdown();
-		void GenerateThumbnail(DirectoryItem* item, bool isRecursive);
+		ThumbnailGenerator() = delete;
+		ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive);
+		~ThumbnailGenerator();
+
+		virtual void OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents) override;
 
 	private:
-		void KickOffBatch(RequestBatch* batch);
+		void CollectItems(DirectoryItem* item, bool isRecursive);
 		void GenerateThumbnailForItem(DirectoryItem* item, RequestBatch* batch);
-		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
-		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
+		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath);
 		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
 		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
 
+		WorldRenderer* CreateDataForModel(DirectoryItem* item);
+		WorldRenderer* CreateDataForMaterial(DirectoryItem* item);
+
 	private:
-		Vector<DirectoryItem*> m_thumbnailRequests;
-		JobExecutor			   m_executor;
-		Editor*				   m_editor = nullptr;
+		ResourceManager*										 m_rm		  = nullptr;
+		GfxManager*												 m_gfxManager = nullptr;
+		Vector<DirectoryItem*>									 m_thumbnailItems;
+		uint32													 m_totalCount	  = 0;
+		Atomic<uint32>											 m_generatedCount = 0;
+		ParallelHashMapMutex<DirectoryItem*, TextureAtlasImage*> m_atlases;
+
+		JobExecutor* m_executor;
+		Editor*		 m_editor = nullptr;
 	};
 
 } // namespace Lina::Editor

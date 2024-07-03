@@ -68,10 +68,7 @@ namespace Lina::Editor
 	{
 
 	private:
-		enum ResourceTaskID
-		{
-			RTID_CORE_RES = 100,
-		};
+		
 
 	public:
 		Editor(){};
@@ -156,6 +153,7 @@ namespace Lina::Editor
 		LinaGX::Window*						  m_mainWindow			 = nullptr;
 		HashMap<EntityWorld*, WorldRenderer*> m_worldRenderers;
 		static Editor*						  s_editor;
+        bool m_coreResourcesOK = false;
 	};
 
 } // namespace Lina::Editor

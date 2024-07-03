@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Common/Data/String.hpp"
 #include "Common/Memory/AllocatorBucket.hpp"
-#include "ThumbnailGenerator.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
 #include "DirectoryItem.hpp"
 
 namespace Lina::Editor
@@ -70,11 +70,11 @@ namespace Lina::Editor
 		void FillPathInformation(DirectoryItem* item, const String& fullAbsPath);
 
 	private:
-		ThumbnailGenerator					m_thumbnailGenerator;
 		String								m_projectDirectory = "";
 		Editor*								m_editor		   = nullptr;
 		AllocatorBucket<DirectoryItem, 200> m_itemBucket;
 		DirectoryItem*						m_root = nullptr;
+		JobExecutor							m_executor;
 	};
 
 } // namespace Lina::Editor

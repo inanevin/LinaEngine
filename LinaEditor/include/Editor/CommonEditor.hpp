@@ -102,4 +102,10 @@ namespace Lina::Editor
 		float f[F_SZ];
 	};
 
+	enum ResourceLoadTaskIDs
+	{
+		RLID_CORE_RES = 100,
+		RLID_THUMB_RES,
+	};
+
 } // namespace Lina::Editor

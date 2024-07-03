@@ -165,16 +165,14 @@ namespace Lina
 
 	void ResourceManager::Poll()
 	{
-		Vector<ResourceLoadTask*>::iterator it;
-
-		for (it = m_loadTasks.begin(); it < m_loadTasks.end();)
+		for (Vector<ResourceLoadTask*>::iterator it = m_loadTasks.begin(); it != m_loadTasks.end();)
 		{
 			ResourceLoadTask* task = *it;
 			if (task->isCompleted.load())
 			{
 				DispatchLoadTaskEvent(task);
-				delete task;
 				it = m_loadTasks.erase(it);
+				delete task;
 			}
 			else
 				++it;

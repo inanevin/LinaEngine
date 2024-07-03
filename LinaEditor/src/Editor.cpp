@@ -352,11 +352,16 @@ namespace Lina::Editor
 		list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
 		list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
 		list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
-		m_rm->LoadResourcesFromFile(RTID_CORE_RES, list, metacachePath);
+		m_rm->LoadResourcesFromFile(RLID_CORE_RES, list, metacachePath);
 	}
 
 	void Editor::PreTick()
 	{
+		if (m_editorRoot == nullptr && m_coreResourcesOK)
+		{
+			CoreResourcesLoaded();
+		}
+
 		m_windowPanelManager.PreTick();
 		m_fileManager.PreTick();
 	}
@@ -451,9 +456,12 @@ namespace Lina::Editor
 
 	void Editor::OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents)
 	{
-		if (taskID == RTID_CORE_RES)
+		if (m_coreResourcesOK)
+			return;
+
+		if (taskID == RLID_CORE_RES)
 		{
-			CoreResourcesLoaded();
+			m_coreResourcesOK = true;
 		}
 	}
 

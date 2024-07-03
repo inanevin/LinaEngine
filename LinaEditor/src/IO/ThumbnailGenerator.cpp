@@ -30,12 +30,14 @@ SOFTWARE.
 #include "Editor/IO/ThumbnailGenerator.hpp"
 #include "Editor/IO/DirectoryItem.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/CommonEditor.hpp"
 #include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include "Common/JobSystem/JobSystem.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -43,6 +45,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/Graphics/Resource/Mesh.hpp"
+#include "Core/Graphics/Resource/GUIWidget.hpp"
 #include "Core/Graphics/Renderers/WorldRenderer.hpp"
 #include "Core/Components/MeshComponent.hpp"
 #include "Core/Components/CameraComponent.hpp"
@@ -51,82 +54,140 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	void ThumbnailGenerator::Initialize(Editor* editor)
+	ThumbnailGenerator::ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive)
 	{
-		m_editor = editor;
-	}
 
-	void ThumbnailGenerator::KickOffBatch(RequestBatch* batch)
-	{
-		NotificationDesc notification = {
-			.icon		= NotificationIcon::Loading,
-			.title		= Locale::GetStr(LocaleStr::GeneratingThumbnails),
-			.showButton = false,
-			.onProgress = [this, batch](float& out) { out = static_cast<float>(batch->generatedCount.load()) / static_cast<float>(batch->totalCount); },
-		};
-		m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow())->AddNotification(notification);
+		m_editor   = editor;
+		m_executor = executor;
+		m_rm	   = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_rm->AddListener(this);
+		m_gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Lock();
-
-		Taskflow tf;
-		tf.emplace([batch, this]() {
-			for (DirectoryItem* item : batch->requests)
-			{
-				GenerateThumbnailForItem(item, batch);
-				batch->generatedCount.fetch_add(1);
-			}
-		});
-
-		m_executor.RunMove(tf, [batch, this]() {
-			for (auto& p : batch->atlases)
-			{
-				p.first->textureAtlas = p.second;
-			}
-
-			delete batch;
-			m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Unlock();
-			m_editor->GetAtlasManager().RefreshDirtyAtlases();
-		});
-	}
-
-	void ThumbnailGenerator::PreTick()
-	{
-		if (!m_thumbnailRequests.empty())
-		{
-			for (DirectoryItem* item : m_thumbnailRequests)
-			{
-				if (item->textureAtlas != nullptr)
-					m_editor->GetAtlasManager().RemoveImage(item->textureAtlas);
-				item->textureAtlas = nullptr;
-			}
-
-			RequestBatch* batch = new RequestBatch{
-				.totalCount		= static_cast<uint32>(m_thumbnailRequests.size()),
-				.generatedCount = 0,
-				.requests		= m_thumbnailRequests,
-			};
-			m_thumbnailRequests.clear();
-			KickOffBatch(batch);
-		}
-	}
-
-	void ThumbnailGenerator::Shutdown()
-	{
-	}
-
-	void ThumbnailGenerator::GenerateThumbnail(DirectoryItem* item, bool isRecursive)
-	{
 		const String cachePath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/";
 		if (!FileSystem::FileOrPathExists(cachePath))
 			FileSystem::CreateFolderInPath(cachePath);
 
+		CollectItems(item, isRecursive);
+
+		m_totalCount = static_cast<uint32>(m_thumbnailItems.size());
+		// Start notification
+		NotificationDesc notification = {
+			.icon		= NotificationIcon::Loading,
+			.title		= Locale::GetStr(LocaleStr::GeneratingThumbnails),
+			.showButton = false,
+			.onProgress = [this](float& out) { out = static_cast<float>(m_generatedCount.load()) / static_cast<float>(m_totalCount); },
+		};
+		m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow())->AddNotification(notification);
+
+		// For models and materials collect resources, for image based thumbnails fetch and set the images.
+		// Vector<ResourceIdentifier> resourcestoLoad;
+		// for(DirectoryItem* item : m_thumbnailItems)
+		// {
+		//     if(item->tid == GetTypeID<Model>())
+		//     {
+		//         ResourceIdentifier ident;
+		//         ident.absolutePath = item->absolutePath;
+		//         ident.relativePath = item->relativePath;
+		//         ident.tid          = item->tid;
+		//         resourcestoLoad.push_back(ident);
+		//     }
+		//     else if(item->tid == GetTypeID<Material>())
+		//     {
+		//         ResourceIdentifier ident;
+		//         ident.absolutePath = item->absolutePath;
+		//         ident.relativePath = item->relativePath;
+		//         ident.tid          = item->tid;
+		//         resourcestoLoad.push_back(ident);
+		//     }
+		//     else if(item->tid == GetTypeID<TextureSampler>())
+		//     {
+		//         // set to image
+		//         m_generatedCount.fetch_add(1);
+		//     }
+		//     else if(item->tid == GetTypeID<Audio>())
+		//     {
+		//         // set to image
+		//         m_generatedCount.fetch_add(1);
+		//     }
+		//     else if(item->tid == GetTypeID<Shader>())
+		//     {
+		//         // set to image
+		//         m_generatedCount.fetch_add(1);
+		//     }
+		//     else if(item->tid == GetTypeID<GUIWidget>())
+		//     {
+		//         // set to image
+		//         m_generatedCount.fetch_add(1);
+		//     }
+		// }
+		//
+		// // Start loading the resources async.
+		// const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
+		// m_rm->LoadResourcesFromFile(RLID_THUMB_RES, resourcestoLoad, metacachePath);
+
+		// Meanwhile kick off generating thumbs for those we can generate in isolation.
+		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Lock();
+		Taskflow tf;
+		tf.emplace([this]() {
+			for (DirectoryItem* item : m_thumbnailItems)
+			{
+				const String thumbnailPath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/ResourceThumbnail_" + TO_STRING(item->sid);
+
+				if (item->tid == GetTypeID<Texture>())
+				{
+					GenerateThumbTexture(item, thumbnailPath);
+					m_generatedCount.fetch_add(1);
+				}
+				else if (item->tid == GetTypeID<Font>())
+				{
+					GenerateThumbFont(item, thumbnailPath);
+					m_generatedCount.fetch_add(1);
+				}
+			}
+		});
+
+		m_executor->RunMove(tf, [this]() {
+			for (auto& p : m_atlases)
+				p.first->textureAtlas = p.second;
+			m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Unlock();
+		});
+	}
+
+	ThumbnailGenerator::~ThumbnailGenerator()
+	{
+		m_rm->RemoveListener(this);
+	}
+
+	void ThumbnailGenerator::OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents)
+	{
+		if (taskID == RLID_THUMB_RES)
+		{
+			Vector<WorldRenderer*> worldRenderers;
+
+			for (DirectoryItem* item : m_thumbnailItems)
+			{
+				if (item->tid == GetTypeID<Model>())
+				{
+					worldRenderers.push_back(CreateDataForModel(item));
+				}
+			}
+
+			for (WorldRenderer* rend : worldRenderers)
+			{
+				m_gfxManager->AddRenderer(rend, "WorldRenderers"_hs);
+			}
+		}
+	}
+
+	void ThumbnailGenerator::CollectItems(DirectoryItem* item, bool isRecursive)
+	{
 		if (!item->isDirectory)
-			m_thumbnailRequests.push_back(item);
+			m_thumbnailItems.push_back(item);
 
 		if (isRecursive)
 		{
 			for (DirectoryItem* child : item->children)
-				GenerateThumbnail(child, isRecursive);
+				CollectItems(child, isRecursive);
 		}
 	}
 
@@ -136,11 +197,9 @@ namespace Lina::Editor
 
 		if (item->tid == GetTypeID<Texture>())
 		{
-			GenerateThumbTexture(item, thumbnailPath, batch);
 		}
 		else if (item->tid == GetTypeID<Font>())
 		{
-			GenerateThumbFont(item, thumbnailPath, batch);
 		}
 		else if (item->tid == GetTypeID<Model>())
 		{
@@ -173,7 +232,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void ThumbnailGenerator::GenerateThumbTexture(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)
+	void ThumbnailGenerator::GenerateThumbTexture(DirectoryItem* item, const String& thumbPath)
 	{
 		LinaGX::TextureBuffer image;
 		LinaGX::LoadImageFromFile(item->absolutePath.c_str(), image);
@@ -207,7 +266,7 @@ namespace Lina::Editor
 				Serialization::SaveToFile(thumbPath.c_str(), stream);
 
 				TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(resizedBuffer.pixels, Vector2ui(resizedBuffer.width, resizedBuffer.height), resizedBuffer.bytesPerPixel);
-				batch->atlases.try_emplace(item, atlas);
+				m_atlases.try_emplace(item, atlas);
 				delete[] resizedBuffer.pixels;
 			}
 			else
@@ -223,7 +282,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void ThumbnailGenerator::GenerateThumbFont(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)
+	void ThumbnailGenerator::GenerateThumbFont(DirectoryItem* item, const String& thumbPath)
 	{
 		Taskflow tf;
 
@@ -341,7 +400,7 @@ namespace Lina::Editor
 			Serialization::SaveToFile(thumbPath.c_str(), stream);
 
 			TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(thumbnailBuffer.pixels, Vector2ui(thumbnailBuffer.width, thumbnailBuffer.height), thumbnailBuffer.bytesPerPixel);
-			batch->atlases.try_emplace(item, atlas);
+			m_atlases.try_emplace(item, atlas);
 			delete[] thumbnailBuffer.pixels;
 		}
 
@@ -383,6 +442,72 @@ namespace Lina::Editor
 			// gfxManager->Join();
 		});
 		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
+	}
+
+	WorldRenderer* ThumbnailGenerator::CreateDataForMaterial(DirectoryItem* item)
+	{
+		EntityWorld* world = new EntityWorld(m_editor->GetSystem());
+		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
+		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
+
+		Model*		model		 = m_rm->GetResource<Model>("Resouces/Core/Models/Sphere.glb"_hs);
+		const AABB& aabb		 = model->GetAABB();
+		Entity*		cameraEntity = world->CreateEntity("Camera");
+		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
+		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
+		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
+		world->SetActiveCamera(camera);
+
+		const auto& meshes = model->GetMeshes();
+		uint32		idx	   = 0;
+		for (auto* mesh : meshes)
+		{
+			Entity*		   entity = world->CreateEntity(mesh->GetName());
+			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
+			m->SetMesh(TO_SID(item->relativePath), idx);
+			m->SetMaterial(TO_SID(item->relativePath));
+			idx++;
+		}
+
+		Buffer* buffer = new Buffer();
+		buffer->Create(m_gfxManager->GetLGX(), LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
+		world->PreTick();
+		world->Tick(0.016f);
+		return new WorldRenderer(m_gfxManager, world, world->GetRenderSize(), buffer);
+	}
+
+	WorldRenderer* ThumbnailGenerator::CreateDataForModel(DirectoryItem* item)
+	{
+
+		EntityWorld* world = new EntityWorld(m_editor->GetSystem());
+		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
+		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
+
+		Model*		model		 = m_rm->GetResource<Model>(TO_SID(item->relativePath));
+		const AABB& aabb		 = model->GetAABB();
+		Entity*		cameraEntity = world->CreateEntity("Camera");
+		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
+		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
+		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
+		world->SetActiveCamera(camera);
+
+		const auto& meshes = model->GetMeshes();
+		uint32		idx	   = 0;
+		for (auto* mesh : meshes)
+		{
+			Entity*		   entity = world->CreateEntity(mesh->GetName());
+			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
+			m->SetMesh(TO_SID(item->relativePath), idx);
+			m->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+			idx++;
+		}
+
+		Buffer* buffer = new Buffer();
+		buffer->Create(m_gfxManager->GetLGX(), LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
+		world->PreTick();
+		world->Tick(0.016f);
+
+		return new WorldRenderer(m_gfxManager, world, world->GetRenderSize(), buffer);
 	}
 
 	void ThumbnailGenerator::GenerateThumbModel(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)

@@ -160,6 +160,11 @@ namespace Lina
 			return m_pfd[frameIndex].lightingPassOutput;
 		}
 
+		inline Buffer* GetSnapshotBuffer() const
+		{
+			return m_snapshotBuffer;
+		}
+
 	private:
 		void   UpdateBuffers(uint32 frameIndex);
 		void   FetchRenderables();
