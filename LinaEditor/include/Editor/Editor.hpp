@@ -68,8 +68,6 @@ namespace Lina::Editor
 	{
 
 	private:
-		
-
 	public:
 		Editor(){};
 		virtual ~Editor() = default;
@@ -153,7 +151,7 @@ namespace Lina::Editor
 		LinaGX::Window*						  m_mainWindow			 = nullptr;
 		HashMap<EntityWorld*, WorldRenderer*> m_worldRenderers;
 		static Editor*						  s_editor;
-        bool m_coreResourcesOK = false;
+		bool								  m_coreResourcesOK = false;
 	};
 
 } // namespace Lina::Editor
