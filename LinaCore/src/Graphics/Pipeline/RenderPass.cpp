@@ -35,25 +35,24 @@ namespace Lina
 
 	void RenderPass::Create(GfxManager* gfxMan, const RenderPassDescription& desc)
 	{
-		m_lgx		 = gfxMan->GetLGX();
 		m_gfxManager = gfxMan;
 
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
-			data.descriptorSet = m_lgx->CreateDescriptorSet(desc.setDescription);
+			data.descriptorSet = GfxManager::GetLGX()->CreateDescriptorSet(desc.setDescription);
 
 			for (const auto& b : desc.buffers)
 			{
 				m_bufferIndices[b.ident] = static_cast<uint32>(data.buffers.size());
 				data.buffers.push_back({});
 				auto& buffer = data.buffers.back();
-				buffer.Create(m_lgx, b.bufferType, static_cast<uint32>(b.size), b.debugName, b.stagingOnly);
+				buffer.Create(b.bufferType, static_cast<uint32>(b.size), b.debugName, b.stagingOnly);
 				buffer.MemsetMapped(0);
 
 				if (b.bindingIndex != -1)
 				{
-					m_lgx->DescriptorUpdateBuffer({
+					GfxManager::GetLGX()->DescriptorUpdateBuffer({
 						.setHandle = data.descriptorSet,
 						.binding   = static_cast<uint32>(b.bindingIndex),
 						.buffers   = {buffer.GetGPUResource()},
@@ -73,7 +72,7 @@ namespace Lina
 				b.Destroy();
 
 			data.buffers.clear();
-			m_lgx->DestroyDescriptorSet(data.descriptorSet);
+			GfxManager::GetLGX()->DestroyDescriptorSet(data.descriptorSet);
 		}
 	}
 

@@ -100,9 +100,8 @@ namespace Lina
 		}
 
 	protected:
-		GfxManager*		  m_gfxManager = nullptr;
-		LinaGX::Instance* m_lgx		   = nullptr;
-		Bitmask32		  m_flags	   = 0;
+		GfxManager* m_gfxManager = nullptr;
+		Bitmask32	m_flags		 = 0;
 	};
 
 } // namespace Lina

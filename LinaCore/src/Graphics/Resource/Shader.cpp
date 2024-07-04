@@ -86,17 +86,14 @@ namespace Lina
 		in >> materialSize;
 	}
 
-	Shader::Shader(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Shader>())
-	{
-		m_lgx = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX();
-	};
+	Shader::Shader(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Shader>()){};
 
 	Shader::~Shader()
 	{
-		m_lgx->DestroyPipelineLayout(m_pipelineLayout);
+		GfxManager::GetLGX()->DestroyPipelineLayout(m_pipelineLayout);
 
 		for (const auto& [sid, var] : m_meta.variants)
-			m_lgx->DestroyShader(var._gpuHandle);
+			GfxManager::GetLGX()->DestroyShader(var._gpuHandle);
 
 		for (const auto& d : m_descriptorSets)
 		{
@@ -129,7 +126,7 @@ namespace Lina
 
 		// Grow if needed.
 		DescriptorSet* set = new DescriptorSet();
-		set->Create(m_lgx, m_materialSetDesc);
+		set->Create(m_materialSetDesc);
 		m_descriptorSets.push_back(set);
 		outSet = set;
 		set->Allocate(outIndex);
@@ -261,10 +258,10 @@ namespace Lina
 		}
 
 		plDesc.indirectDrawEnabled = m_meta.drawIndirectEnabled;
-		m_pipelineLayout		   = m_lgx->CreatePipelineLayout(plDesc);
+		m_pipelineLayout		   = GfxManager::GetLGX()->CreatePipelineLayout(plDesc);
 
 		m_descriptorSets.push_back(new DescriptorSet());
-		m_descriptorSets[0]->Create(m_lgx, m_materialSetDesc);
+		m_descriptorSets[0]->Create(m_materialSetDesc);
 
 		// Create variants
 		for (auto& [sid, variant] : m_meta.variants)
@@ -298,7 +295,7 @@ namespace Lina
 				.depthCompare				  = variant.depthOp,
 			};
 
-			variant._gpuHandle = m_lgx->CreateShader({
+			variant._gpuHandle = GfxManager::GetLGX()->CreateShader({
 				.stages					 = m_outCompiledBlobs,
 				.colorAttachments		 = colorAttachments,
 				.depthStencilDesc		 = depthStencilAtt,

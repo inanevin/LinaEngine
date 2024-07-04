@@ -69,6 +69,7 @@ namespace Lina
 		m_gBufSampler			 = m_gfxManager->GetDefaultSampler(0);
 		m_deferredLightingShader = m_rm->GetResource<Shader>(DEFAULT_SHADER_DEFERRED_LIGHTING_SID);
 		m_skyCube				 = m_rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
+		m_lgx					 = GfxManager::GetLGX();
 
 		auto* rm = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
@@ -77,7 +78,7 @@ namespace Lina
 			auto& data		= m_pfd[i];
 			data.gfxStream	= m_lgx->CreateCommandStream({LinaGX::CommandType::Graphics, MAX_GFX_COMMANDS, 24000, 4096, 32, "WorldRenderer: Gfx Stream"});
 			data.copyStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, MAX_COPY_COMMANDS, 4000, 1024, 32, "WorldRenderer: Copy Stream"});
-			data.objectBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "WorldRenderer: ObjectData", false);
+			data.objectBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(GPUDataObject) * MAX_OBJECTS, "WorldRenderer: ObjectData", false);
 			data.signalSemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 			data.copySemaphore	 = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}

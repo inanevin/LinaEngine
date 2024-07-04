@@ -28,18 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Texture_HPP
-#define Texture_HPP
-
 #include "Core/Resources/Resource.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
-namespace LinaGX
-{
-	class Instance;
-}
 namespace Lina
 {
 	class Texture;
@@ -113,7 +106,6 @@ namespace Lina
 		friend class GfxManager;
 
 		ALLOCATOR_BUCKET_MEM;
-		LinaGX::Instance*			  m_lgx		   = nullptr;
 		GfxManager*					  m_gfxManager = nullptr;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
 		uint32						  m_bindlessIndex	= 0;
@@ -129,5 +121,3 @@ namespace Lina
 	LINA_REFLECTRESOURCE_BEGIN(Texture);
 	LINA_REFLECTRESOURCE_END(Texture);
 } // namespace Lina
-
-#endif

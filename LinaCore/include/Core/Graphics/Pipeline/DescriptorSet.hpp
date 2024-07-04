@@ -34,7 +34,6 @@ SOFTWARE.
 namespace LinaGX
 {
 	struct DescriptorSetDesc;
-	class Instance;
 } // namespace LinaGX
 
 namespace Lina
@@ -47,7 +46,7 @@ namespace Lina
 		DescriptorSet()	 = default;
 		~DescriptorSet() = default;
 
-		void Create(LinaGX::Instance* lgx, const LinaGX::DescriptorSetDesc& desc);
+		void Create(const LinaGX::DescriptorSetDesc& desc);
 		void Destroy();
 		void Allocate(uint32& outIndex);
 		void Free(uint32 index);
@@ -66,10 +65,9 @@ namespace Lina
 		}
 
 	private:
-		LinaGX::Instance* m_lgx				= nullptr;
-		uint16			  m_handle			= 0;
-		uint32			  m_allocationCount = 0;
-		Queue<uint32>	  m_freeAllocations;
+		uint16		  m_handle			= 0;
+		uint32		  m_allocationCount = 0;
+		Queue<uint32> m_freeAllocations;
 	};
 
 } // namespace Lina

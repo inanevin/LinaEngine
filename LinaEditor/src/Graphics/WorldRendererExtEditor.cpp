@@ -41,14 +41,13 @@ namespace Lina::Editor
 		m_gfxManager  = Editor::Get()->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 		m_rm		  = Editor::Get()->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_shaderLines = m_rm->GetResource<Shader>("Resources/Editor/Shaders/Lines.linashader"_hs);
-		m_lgx		  = m_gfxManager->GetLGX();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto&		 data = m_pfd[i];
 			const String istr = TO_STRING(i);
-			data.vertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, 300 * sizeof(LineVertex), "EditorExt: Vertex");
-			data.indexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, 300 * sizeof(uint16), "EditorExt: Index");
+			data.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, 300 * sizeof(LineVertex), "EditorExt: Vertex");
+			data.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, 300 * sizeof(uint16), "EditorExt: Index");
 		}
 	}
 

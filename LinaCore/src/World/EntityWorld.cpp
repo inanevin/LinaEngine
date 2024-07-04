@@ -199,7 +199,7 @@ namespace Lina
 
 	void EntityWorld::ProcessComponent(Component* c, Entity* e)
 	{
-		c->m_input			 = &m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLGX()->GetInput();
+		c->m_input			 = &GfxManager::GetLGX()->GetInput();
 		c->m_world			 = this;
 		c->m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		c->m_entity			 = e;

@@ -34,7 +34,6 @@ namespace Lina
 	Renderer::Renderer(GfxManager* gfx, uint32 flags)
 	{
 		m_gfxManager = gfx;
-		m_lgx		 = m_gfxManager->GetLGX();
 		m_flags		 = flags;
 	}
 

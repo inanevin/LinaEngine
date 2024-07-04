@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/Serialization.hpp"
@@ -35,10 +36,9 @@ namespace Lina
 {
 	uint64 Buffer::s_usedCPUVisibleGPUMemory = 0;
 
-	void Buffer::Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName, bool stagingOnly)
+	void Buffer::Create(uint32 hintFlags, uint32 size, const String& debugName, bool stagingOnly)
 	{
 		m_size		  = size;
-		m_lgx		  = lgx;
 		m_stagingOnly = stagingOnly;
 		m_hintFlags	  = hintFlags;
 
@@ -55,8 +55,8 @@ namespace Lina
 				   .debugName	  = dbgName.c_str(),
 			   };
 
-			m_gpu = m_lgx->CreateResource(desc);
-			m_lgx->MapResource(m_gpu, m_mapped);
+			m_gpu = GfxManager::GetLGX()->CreateResource(desc);
+			GfxManager::GetLGX()->MapResource(m_gpu, m_mapped);
 			m_residesInGPU = true;
 		}
 		else
@@ -71,23 +71,23 @@ namespace Lina
 				.debugName	   = dbgNameStg.c_str(),
 			};
 
-			m_staging = m_lgx->CreateResource(desc);
+			m_staging = GfxManager::GetLGX()->CreateResource(desc);
 
 			if (!m_stagingOnly)
 			{
 				desc.heapType  = LinaGX::ResourceHeap::GPUOnly;
 				desc.debugName = dbgNameGPU.c_str();
-				m_gpu		   = m_lgx->CreateResource(desc);
+				m_gpu		   = GfxManager::GetLGX()->CreateResource(desc);
 				m_residesInGPU = true;
 			}
 			else
 				m_residesInGPU = false;
 
-			m_lgx->MapResource(m_staging, m_mapped);
+			GfxManager::GetLGX()->MapResource(m_staging, m_mapped);
 		}
 
 		// if (hintFlags & LinaGX::ResourceTypeHint::TH_ReadbackDest)
-		// 	m_lgx->MapResource(m_gpu, m_mappedGPU);
+		// 	GfxManager::GetLGX()->MapResource(m_gpu, m_mappedGPU);
 	}
 
 	void Buffer::BufferData(size_t padding, uint8* data, size_t size)
@@ -124,14 +124,14 @@ namespace Lina
 	{
 		if (m_residesInGPU)
 		{
-			m_lgx->UnmapResource(m_gpu);
-			m_lgx->DestroyResource(m_gpu);
+			GfxManager::GetLGX()->UnmapResource(m_gpu);
+			GfxManager::GetLGX()->DestroyResource(m_gpu);
 		}
 
 		if (!m_isCPUVisibleGPUResource)
 		{
-			m_lgx->UnmapResource(m_staging);
-			m_lgx->DestroyResource(m_staging);
+			GfxManager::GetLGX()->UnmapResource(m_staging);
+			GfxManager::GetLGX()->DestroyResource(m_staging);
 		}
 	}
 
@@ -143,12 +143,12 @@ namespace Lina
 		stream.WriteRaw(m_mapped, m_size);
 	}
 
-	void Buffer::LoadFromStream(LinaGX::Instance* lgx, IStream& stream)
+	void Buffer::LoadFromStream(IStream& stream)
 	{
 		stream >> m_size;
 		stream >> m_hintFlags;
 		stream >> m_stagingOnly;
-		Create(lgx, m_hintFlags, m_size, "", m_stagingOnly);
+		Create(m_hintFlags, m_size, "", m_stagingOnly);
 		stream.ReadIntoRaw((void*)m_mapped, m_size);
 	}
 

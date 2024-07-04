@@ -62,7 +62,7 @@ namespace Lina
 			Vector<StringID> textures;
 			Vector<StringID> samplers;
 			void			 SaveToStream(OStream& stream) const;
-			void			 LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
+			void			 LoadFromStream(IStream& stream);
 		};
 
 		void   SetShader(StringID sid);

@@ -97,12 +97,12 @@ namespace Lina
 		m_lvgFonts.resize(sz);
 		for (int32 i = 0; i < sz; i++)
 		{
-			auto& lvgText = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager)->GetLVGText();
+			LinaVG::Text* lvgText = GfxManager::GetLVGText();
 
 			if (customRangeVec.empty())
-				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
+				m_lvgFonts[i] = lvgText->LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
 			else
-				m_lvgFonts[i] = lvgText.LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
+				m_lvgFonts[i] = lvgText->LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
 		}
 	}
 

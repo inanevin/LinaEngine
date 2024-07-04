@@ -118,6 +118,7 @@ namespace Lina
 		void UpdateBuffers(uint32 frameIndex);
 
 	protected:
+		LinaGX::Instance*	 m_lgx = nullptr;
 		ResourceUploadQueue	 m_uploadQueue;
 		ResourceManager*	 m_rm				= nullptr;
 		Shader*				 m_guiShader2D		= nullptr;

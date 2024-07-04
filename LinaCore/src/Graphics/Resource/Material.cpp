@@ -61,7 +61,7 @@ namespace Lina
 			stream << smp;
 	}
 
-	void Material::BindingData::LoadFromStream(LinaGX::Instance* lgx, IStream& stream)
+	void Material::BindingData::LoadFromStream(IStream& stream)
 	{
 		int32 buffersSz = 0, texturesSz = 0, samplersSz = 0;
 		stream >> buffersSz >> texturesSz >> samplersSz;
@@ -71,7 +71,7 @@ namespace Lina
 			bufferData[i].buffers.resize(buffersSz);
 
 			for (int32 j = 0; j < buffersSz; j++)
-				bufferData[i].buffers[j].LoadFromStream(lgx, stream);
+				bufferData[i].buffers[j].LoadFromStream(stream);
 		}
 
 		textures.resize(texturesSz);

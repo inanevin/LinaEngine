@@ -470,7 +470,7 @@ namespace Lina::Editor
 		}
 
 		Buffer* buffer = new Buffer();
-		buffer->Create(m_gfxManager->GetLGX(), LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
+		buffer->Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
 		world->PreTick();
 		world->Tick(0.016f);
 		return new WorldRenderer(m_gfxManager, world, world->GetRenderSize(), buffer);
@@ -503,7 +503,7 @@ namespace Lina::Editor
 		}
 
 		Buffer* buffer = new Buffer();
-		buffer->Create(m_gfxManager->GetLGX(), LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
+		buffer->Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
 		world->PreTick();
 		world->Tick(0.016f);
 
@@ -550,7 +550,7 @@ namespace Lina::Editor
 		}
 
 		Buffer buffer;
-		buffer.Create(gfx->GetLGX(), LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
+		buffer.Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
 		world->PreTick();
 		world->Tick(0.016f);
 

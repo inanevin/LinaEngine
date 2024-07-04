@@ -138,7 +138,6 @@ namespace Lina
 		Metadata										  m_meta			= {};
 		uint16											  m_pipelineLayout;
 		Vector<DescriptorSet*>							  m_descriptorSets;
-		LinaGX::Instance*								  m_lgx = nullptr;
 		Vector<ShaderProperty>							  m_properties;
 	};
 

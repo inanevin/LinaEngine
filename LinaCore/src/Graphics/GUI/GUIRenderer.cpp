@@ -52,7 +52,7 @@ namespace Lina
 	{
 		m_gfxManager		= gfxManager;
 		m_window			= window;
-		m_lgx				= m_gfxManager->GetLGX();
+		m_lgx				= GfxManager::GetLGX();
 		m_rm				= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_defaultGUISampler = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
 		m_textGUISampler	= m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
@@ -61,8 +61,8 @@ namespace Lina
 		{
 			auto&		 data = m_pfd[i];
 			const String istr = TO_STRING(i);
-			data.guiVertexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer: VertexBuffer" + istr);
-			data.guiIndexBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer: IndexBuffer" + istr);
+			data.guiVertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_GUI_VERTICES * sizeof(LinaVG::Vertex), "GUIRenderer: VertexBuffer" + istr);
+			data.guiIndexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_GUI_INDICES * sizeof(LinaVG::Index), "GUIRenderer: IndexBuffer" + istr);
 		}
 
 		m_lvg.GetCallbacks().drawDefault	= BIND(&GUIRenderer::DrawDefault, this, std::placeholders::_1);
@@ -184,7 +184,7 @@ namespace Lina
 
 	GUIRenderer::DrawRequest& GUIRenderer::AddDrawRequest(LinaVG::DrawBuffer* buf)
 	{
-		const uint32 frame = m_gfxManager->GetLGX()->GetCurrentFrameIndex();
+		const uint32 frame = GfxManager::GetLGX()->GetCurrentFrameIndex();
 		auto&		 pfd   = m_pfd[frame];
 		m_drawRequests.push_back({});
 		auto& req		 = m_drawRequests.back();

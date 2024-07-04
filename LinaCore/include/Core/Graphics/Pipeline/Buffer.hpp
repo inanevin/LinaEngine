@@ -32,7 +32,6 @@ SOFTWARE.
 
 namespace LinaGX
 {
-	class Instance;
 	class CommandStream;
 	enum class IndexType;
 } // namespace LinaGX
@@ -48,13 +47,13 @@ namespace Lina
 		Buffer()  = default;
 		~Buffer() = default;
 
-		void Create(LinaGX::Instance* lgx, uint32 hintFlags, uint32 size, const String& debugName = "GPUBuffer", bool stagingOnly = false);
+		void Create(uint32 hintFlags, uint32 size, const String& debugName = "GPUBuffer", bool stagingOnly = false);
 		void BufferData(size_t padding, uint8* data, size_t size);
 		void MemsetMapped(int32 v);
 		bool Copy(LinaGX::CommandStream* stream);
 		void Destroy();
 		void SaveToStream(OStream& stream) const;
-		void LoadFromStream(LinaGX::Instance* lgx, IStream& stream);
+		void LoadFromStream(IStream& stream);
 		void BindVertex(LinaGX::CommandStream* stream, uint32 vertexSize);
 		void BindIndex(LinaGX::CommandStream* stream, LinaGX::IndexType indexType);
 		void DumpToFile(const String& path);
@@ -86,16 +85,15 @@ namespace Lina
 	private:
 		static uint64 s_usedCPUVisibleGPUMemory;
 
-		bool			  m_stagingOnly				= false;
-		LinaGX::Instance* m_lgx						= nullptr;
-		uint32			  m_staging					= 0;
-		uint32			  m_gpu						= 0;
-		uint32			  m_size					= 0;
-		uint8*			  m_mapped					= nullptr;
-		uint8*			  m_mappedGPU				= nullptr;
-		uint32			  m_hintFlags				= 0;
-		bool			  m_isCPUVisibleGPUResource = false;
-		bool			  m_residesInGPU			= false;
-		bool			  m_bufferChanged			= false;
+		bool   m_stagingOnly			 = false;
+		uint32 m_staging				 = 0;
+		uint32 m_gpu					 = 0;
+		uint32 m_size					 = 0;
+		uint8* m_mapped					 = nullptr;
+		uint8* m_mappedGPU				 = nullptr;
+		uint32 m_hintFlags				 = 0;
+		bool   m_isCPUVisibleGPUResource = false;
+		bool   m_residesInGPU			 = false;
+		bool   m_bufferChanged			 = false;
 	};
 } // namespace Lina

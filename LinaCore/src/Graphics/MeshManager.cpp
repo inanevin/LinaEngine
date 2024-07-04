@@ -47,12 +47,11 @@ namespace Lina
 
 	void MeshManager::Initialize()
 	{
-		auto* lgx = m_gfxManager->GetLGX();
 		for (size_t i = 0; i < MESH_BUF_SIZE; i++)
 		{
 			auto& buf = m_meshBuffers[i];
-			buf.vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_VERTICES * sizeof(VertexDefault), "MeshManager Big VertexBuffer");
-			buf.indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_INDICES * sizeof(uint16), "MeshManager Big IndexBuffer");
+			buf.vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, MAX_VERTICES * sizeof(VertexDefault), "MeshManager Big VertexBuffer");
+			buf.indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, MAX_INDICES * sizeof(uint16), "MeshManager Big IndexBuffer");
 		}
 	}
 

@@ -176,6 +176,7 @@ namespace Lina
 		Shader* m_guiShader3D			= nullptr;
 		uint32	m_guiShader3DVariantGPU = 0;
 
+		LinaGX::Instance*							  m_lgx = nullptr;
 		ResourceUploadQueue							  m_uploadQueue;
 		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT]	= {};
 		RenderPass									  m_mainPass				= {};

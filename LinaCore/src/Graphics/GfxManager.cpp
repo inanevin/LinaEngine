@@ -91,6 +91,10 @@ namespace
 
 namespace Lina
 {
+
+	LinaGX::Instance* GfxManager::s_lgx		= nullptr;
+	LinaVG::Text*	  GfxManager::s_lvgText = nullptr;
+
 	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
 	{
 		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
@@ -123,6 +127,8 @@ namespace Lina
 		m_clearColor   = initInfo.clearColor;
 		m_currentVsync = initInfo.vsyncStyle;
 		m_resourceManager->AddListener(this);
+		s_lgx	  = m_lgx;
+		s_lvgText = &m_lvgText;
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing				 = initInfo.allowTearing,
@@ -209,8 +215,8 @@ namespace Lina
 					.heapType	   = LinaGX::ResourceHeap::StagingHeap,
 					.debugName	   = "GfxManager: Global Data Buffer",
 				};
-				data.globalDataBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "GfxManager: Engine Globals", true);
-				data.globalMaterialsBuffer.Create(m_lgx, LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "GfxManager: Materials", false);
+				data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "GfxManager: Engine Globals", true);
+				data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "GfxManager: Materials", false);
 
 				data.globalCopyStream	 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, .commandCount = 200, .totalMemoryLimit = 24000, .auxMemorySize = 8192, .constantBlockSize = 64});
 				data.globalCopySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());

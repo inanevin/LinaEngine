@@ -127,8 +127,6 @@ namespace Lina
 		m_app->GetAppDelegate()->Tick(deltaF);
 		m_gfxManager.Render();
 		audioJob.get();
-		if (m_gfxManager.GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_L))
-			m_app->Quit();
 	}
 
 	void Engine::CalculateTime()

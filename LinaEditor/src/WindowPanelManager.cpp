@@ -144,10 +144,10 @@ namespace Lina::Editor
 					l->OnPayloadStarted(m_payloadRequest.type, m_payloadRequest.payload);
 			}
 
-			const auto& mp = m_gfxManager->GetLGX()->GetInput().GetMousePositionAbs();
+			const auto& mp = GfxManager::GetLGX()->GetInput().GetMousePositionAbs();
 			m_payloadWindow->SetPosition({static_cast<int32>(mp.x), static_cast<int32>(mp.y)});
 
-			if (!m_gfxManager->GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
+			if (!GfxManager::GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
 			{
 				m_gfxManager->Join();
 

@@ -58,7 +58,6 @@ namespace Lina
 	Texture::Texture(System* system, const String& path, StringID sid) : Resource(system, path, sid, GetTypeID<Texture>())
 	{
 		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_lgx		 = m_gfxManager->GetLGX();
 	};
 
 	Texture::~Texture()
@@ -68,7 +67,7 @@ namespace Lina
 
 		if (!m_gpuHandleExists)
 			return;
-		m_lgx->DestroyTexture(m_gpuHandle);
+		GfxManager::GetLGX()->DestroyTexture(m_gpuHandle);
 		m_gpuHandleExists = false;
 	}
 
@@ -214,7 +213,7 @@ namespace Lina
 	{
 		LINA_ASSERT(m_gpuHandle == false, "");
 
-		m_gpuHandle		  = m_lgx->CreateTexture(desc);
+		m_gpuHandle		  = GfxManager::GetLGX()->CreateTexture(desc);
 		m_gpuHandleExists = true;
 		m_size			  = Vector2ui(desc.width, desc.height);
 	}
@@ -231,7 +230,7 @@ namespace Lina
 			.mipLevels = static_cast<uint32>(m_allLevels.size()),
 			.debugName = m_path.c_str(),
 		};
-		m_gpuHandle		  = m_lgx->CreateTexture(desc);
+		m_gpuHandle		  = GfxManager::GetLGX()->CreateTexture(desc);
 		m_gpuHandleExists = true;
 	}
 

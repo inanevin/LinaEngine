@@ -133,9 +133,14 @@ namespace Lina
 			return m_currentVsync;
 		}
 
-		inline LinaGX::Instance* GetLGX()
+		inline static LinaGX::Instance* GetLGX()
 		{
-			return m_lgx;
+			return s_lgx;
+		}
+
+		inline static LinaVG::Text* GetLVGText()
+		{
+			return s_lvgText;
 		}
 
 		inline const GUIBackend& GetGUIBackend() const
@@ -148,32 +153,29 @@ namespace Lina
 			return m_defaultSamplers[index];
 		}
 
-		inline LinaVG::Text& GetLVGText()
-		{
-			return m_lvgText;
-		}
-
 	private:
 		void UpdateBindlessResources(PerFrameData& pfd);
 
 	private:
-		ResourceUploadQueue		m_resourceUploadQueue;
-		MeshManager				m_meshManager;
-		GUIBackend				m_guiBackend;
-		ResourceManager*		m_resourceManager = nullptr;
-		Vector<TextureSampler*> m_defaultSamplers;
-		Vector<Material*>		m_defaultMaterials;
-		LinaGX::Instance*		m_lgx		   = nullptr;
-		LinaGX::VSyncStyle		m_currentVsync = {};
-		ApplicationDelegate*	m_appDelegate  = nullptr;
-		LinaGX::Window*			m_mainWindow   = nullptr;
-		Color					m_clearColor   = Color::Black;
-		PerFrameData			m_pfd[FRAMES_IN_FLIGHT];
-		Mutex					m_wrMtx;
-		Mutex					m_bindlessMtx;
-		Vector<RendererPool>	m_rendererPools;
-		LinaVG::Text			m_lvgText;
-		bool					m_resourceManagerLocked		= false;
-		int32					m_bindlessResourceLoadCount = 0;
+		ResourceUploadQueue		 m_resourceUploadQueue;
+		MeshManager				 m_meshManager;
+		GUIBackend				 m_guiBackend;
+		ResourceManager*		 m_resourceManager = nullptr;
+		Vector<TextureSampler*>	 m_defaultSamplers;
+		Vector<Material*>		 m_defaultMaterials;
+		LinaGX::Instance*		 m_lgx			= nullptr;
+		LinaGX::VSyncStyle		 m_currentVsync = {};
+		ApplicationDelegate*	 m_appDelegate	= nullptr;
+		LinaGX::Window*			 m_mainWindow	= nullptr;
+		Color					 m_clearColor	= Color::Black;
+		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
+		Mutex					 m_wrMtx;
+		Mutex					 m_bindlessMtx;
+		Vector<RendererPool>	 m_rendererPools;
+		LinaVG::Text			 m_lvgText;
+		bool					 m_resourceManagerLocked	 = false;
+		int32					 m_bindlessResourceLoadCount = 0;
+		static LinaGX::Instance* s_lgx;
+		static LinaVG::Text*	 s_lvgText;
 	};
 } // namespace Lina

@@ -88,11 +88,8 @@ namespace Lina
 
 	void MeshDefault::GenerateBuffers(GfxManager* gfxMan)
 	{
-		auto* lgx = gfxMan->GetLGX();
-
-		m_vertexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(VertexDefault) * m_vertices.size());
-		m_indexBuffer.Create(lgx, LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * m_indices16.size());
-
+		m_vertexBuffer.Create(LinaGX::ResourceTypeHint::TH_VertexBuffer, sizeof(VertexDefault) * m_vertices.size());
+		m_indexBuffer.Create(LinaGX::ResourceTypeHint::TH_IndexBuffer, sizeof(uint16) * m_indices16.size());
 		m_vertexBuffer.BufferData(0, (uint8*)m_vertices.data(), sizeof(VertexDefault) * m_vertices.size());
 		m_indexBuffer.BufferData(0, (uint8*)m_indices16.data(), sizeof(uint16) * m_indices16.size());
 		gfxMan->GetResourceUploadQueue().AddBufferRequest(&m_vertexBuffer);

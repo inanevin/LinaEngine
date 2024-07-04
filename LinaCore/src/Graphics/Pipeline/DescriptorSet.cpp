@@ -27,14 +27,14 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Pipeline/DescriptorSet.hpp"
+#include "Core/Graphics/GfxManager.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
 {
-	void DescriptorSet::Create(LinaGX::Instance* lgx, const LinaGX::DescriptorSetDesc& desc)
+	void DescriptorSet::Create(const LinaGX::DescriptorSetDesc& desc)
 	{
-		m_lgx			  = lgx;
-		m_handle		  = lgx->CreateDescriptorSet(desc);
+		m_handle		  = GfxManager::GetLGX()->CreateDescriptorSet(desc);
 		m_allocationCount = desc.allocationCount;
 
 		for (uint32 i = 0; i < desc.allocationCount; i++)
@@ -43,7 +43,7 @@ namespace Lina
 
 	void DescriptorSet::Destroy()
 	{
-		m_lgx->DestroyDescriptorSet(m_handle);
+		GfxManager::GetLGX()->DestroyDescriptorSet(m_handle);
 	}
 
 	void DescriptorSet::Allocate(uint32& outIndex)

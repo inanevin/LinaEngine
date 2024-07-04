@@ -49,6 +49,7 @@ namespace Lina
 	{
 		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
 		m_rm		  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_lgx		  = GfxManager::GetLGX();
 
 		// Swapchain
 		const auto monitorSize = window->GetMonitorSize();

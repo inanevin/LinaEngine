@@ -32,11 +32,6 @@ SOFTWARE.
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/ClassMacros.hpp"
 
-namespace LinaGX
-{
-	class Instance;
-}
-
 namespace Lina
 {
 	class TextureSampler : public Resource
@@ -66,7 +61,6 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		LinaGX::Instance*	m_lgx			= nullptr;
 		uint32				m_bindlessIndex = 0;
 		uint32				m_gpuHandle		= 0;
 		LinaGX::SamplerDesc m_samplerDesc	= {};

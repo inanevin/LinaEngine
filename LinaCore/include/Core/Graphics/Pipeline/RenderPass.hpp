@@ -95,7 +95,6 @@ namespace Lina
 	private:
 	private:
 		GfxManager*				  m_gfxManager = nullptr;
-		LinaGX::Instance*		  m_lgx		   = nullptr;
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
 	};
