@@ -73,7 +73,7 @@ namespace Lina::Editor
 	void WindowPanelManager::CreateSurfaceRendererForWindow(LinaGX::Window* window)
 	{
 		SurfaceRenderer* renderer = new SurfaceRenderer(m_gfxManager, window, window->GetSize(), Theme::GetDef().background0);
-		m_gfxManager->AddRenderer(renderer, "SurfaceRenderers"_hs);
+		// m_gfxManager->AddRenderer(renderer, "SurfaceRenderers"_hs);
 		m_surfaceRenderers[window] = renderer;
 
 		NotificationDisplayer* notificationDisplayer = renderer->GetWidgetManager().Allocate<NotificationDisplayer>();
@@ -95,7 +95,7 @@ namespace Lina::Editor
 		auto windowIt = m_surfaceRenderers.find(window);
 		LINA_ASSERT(windowIt != m_surfaceRenderers.end(), "");
 		SurfaceRenderer* sr = windowIt->second;
-		m_gfxManager->RemoveRenderer(sr);
+		// m_gfxManager->RemoveRenderer(sr);
 		delete sr;
 		m_surfaceRenderers.erase(windowIt);
 	}

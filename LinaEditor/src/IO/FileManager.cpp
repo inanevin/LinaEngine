@@ -144,7 +144,7 @@ namespace Lina::Editor
 		FillPathInformation(m_root, resDir);
 		ScanItem(m_root);
 
-		ThumbnailGenerator* thumbnail = new ThumbnailGenerator(m_editor, &m_executor, m_root, true);
+		// ThumbnailGenerator* thumbnail = new ThumbnailGenerator(m_editor, &m_executor, m_root, true);
 	}
 
 	void FileManager::ClearDirectory(DirectoryItem* item)

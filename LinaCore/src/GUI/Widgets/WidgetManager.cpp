@@ -57,7 +57,7 @@ namespace Lina
 		m_foregroundRoot = Allocate<Widget>();
 		m_foregroundRoot->SetDebugName("ForegroundRoot");
 		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_defaultFont	  = m_resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
+		// m_defaultFont	  = m_resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
 	}
 
 	void WidgetManager::PreTick()

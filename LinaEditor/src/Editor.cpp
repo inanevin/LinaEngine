@@ -281,18 +281,18 @@ namespace Lina::Editor
 			FileSystem::CreateFolderInPath(metacachePath);
 
 		// Absolute priority resources.
-		Vector<ResourceIdentifier> priorityResources;
-		const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
-		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI_PATH, DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>()});
-		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI3D_PATH, DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>()});
-		priorityResources.push_back({fullPathBase + DEFAULT_FONT_PATH, DEFAULT_FONT_PATH, GetTypeID<Font>()});
-		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_OBJECT_PATH, DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>()});
-		priorityResources.push_back({fullPathBase + DEFAULT_SHADER_SKY_PATH, DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>()});
-		priorityResources.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_DARK_PATH, DEFAULT_TEXTURE_CHECKERED_DARK_PATH, GetTypeID<Texture>()});
-		priorityResources.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitle.png", "Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
-		priorityResources.push_back({fullPathBase + ICON_FONT_PATH, ICON_FONT_PATH, GetTypeID<Font>()});
-		m_rm->LoadResourcesFromFile(-1, priorityResources, metacachePath);
-		m_rm->WaitForAll();
+		// Vector<ResourceIdentifier> priorityResources;
+		// const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
+		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI_PATH, DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>()});
+		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI3D_PATH, DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>()});
+		// priorityResources.push_back({fullPathBase + DEFAULT_FONT_PATH, DEFAULT_FONT_PATH, GetTypeID<Font>()});
+		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_OBJECT_PATH, DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>()});
+		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_SKY_PATH, DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>()});
+		// priorityResources.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_DARK_PATH, DEFAULT_TEXTURE_CHECKERED_DARK_PATH, // GetTypeID<Texture>()});
+		// priorityResources.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitle.png", // "Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
+		// priorityResources.push_back({fullPathBase + ICON_FONT_PATH, ICON_FONT_PATH, GetTypeID<Font>()});
+		// m_rm->LoadResourcesFromFile(-1, priorityResources, metacachePath);
+		// m_rm->WaitForAll();
 	}
 
 	void Editor::Initialize()
@@ -316,6 +316,7 @@ namespace Lina::Editor
 		m_fileManager.Initialize(this);
 		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
+		m_editorRenderer.Initialize(this);
 
 		m_mainWindow		   = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
@@ -339,20 +340,21 @@ namespace Lina::Editor
 			m_settings.SaveToFile();
 
 		// Async load core resources.
-		Vector<ResourceIdentifier> list;
-		const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
-		list.push_back({fullPathBase + DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, GetTypeID<Shader>()});
-		list.push_back({fullPathBase + "Resources/Core/Models/Plane.glb", "Resources/Core/Models/Plane.glb", GetTypeID<Model>()});
-		list.push_back({fullPathBase + "Resources/Core/Models/Cube.glb", "Resources/Core/Models/Cube.glb", GetTypeID<Model>()});
-		list.push_back({fullPathBase + "Resources/Core/Models/Sphere.glb", "Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
-		list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
-		list.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_PATH, DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
-		list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
-		list.push_back({fullPathBase + BIG_FONT_PATH, BIG_FONT_PATH, GetTypeID<Font>()});
-		list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
-		list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
-		list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
-		m_rm->LoadResourcesFromFile(RLID_CORE_RES, list, metacachePath);
+		// Vector<ResourceIdentifier> list;
+		// const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
+		// list.push_back({fullPathBase + DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, DEFAULT_SHADER_DEFERRED_LIGHTING_PATH, // GetTypeID<Shader>()});
+		// list.push_back({fullPathBase + "Resources/Core/Models/Plane.glb", "Resources/Core/Models/Plane.glb", GetTypeID<Model>()});
+		// list.push_back({fullPathBase + "Resources/Core/Models/Cube.glb", "Resources/Core/Models/Cube.glb", GetTypeID<Model>()});
+		// list.push_back({fullPathBase + "Resources/Core/Models/Sphere.glb", "Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
+		// list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
+		// list.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_PATH, DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
+		// list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
+		// list.push_back({fullPathBase + BIG_FONT_PATH, BIG_FONT_PATH, GetTypeID<Font>()});
+		// list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
+		// list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", // "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
+		// list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", // GetTypeID<Shader>()});
+		// m_rm->LoadResourcesFromFile(RLID_CORE_RES, list, metacachePath);
+		m_coreResourcesOK = true;
 	}
 
 	void Editor::PreTick()
@@ -364,6 +366,11 @@ namespace Lina::Editor
 
 		m_windowPanelManager.PreTick();
 		m_fileManager.PreTick();
+	}
+
+	void Editor::Render(uint32 frameIndex)
+	{
+		m_editorRenderer.Render(frameIndex);
 	}
 
 	void Editor::CoreResourcesLoaded()
@@ -397,6 +404,7 @@ namespace Lina::Editor
 
 	void Editor::PreShutdown()
 	{
+		m_editorRenderer.Shutdown();
 		m_rm->RemoveListener(this);
 		m_atlasManager.Shutdown();
 		DestroyWorldRenderer(m_worldManager->GetMainWorld());
@@ -435,7 +443,7 @@ namespace Lina::Editor
 	void Editor::CreateWorldRenderer(EntityWorld* world)
 	{
 		WorldRenderer* wr = new WorldRenderer(m_gfxManager, world, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
-		m_gfxManager->AddRenderer(wr, "WorldRenderers"_hs);
+		// m_gfxManager->AddRenderer(wr, "WorldRenderers"_hs);
 		m_worldRenderers[world] = wr;
 	}
 
@@ -444,7 +452,7 @@ namespace Lina::Editor
 		auto it = m_worldRenderers.find(world);
 		LINA_ASSERT(it != m_worldRenderers.end(), "");
 		WorldRenderer* wr = it->second;
-		m_gfxManager->RemoveRenderer(wr);
+		// m_gfxManager->RemoveRenderer(wr);
 		delete wr;
 		m_worldRenderers.erase(it);
 	}

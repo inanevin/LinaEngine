@@ -101,18 +101,18 @@ namespace Lina
 
 		m_activeWorlds.push_back(m_mainWorld);
 
-		m_mainWorld->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
+		// m_mainWorld->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 
 		for (auto* l : m_listeners)
 			l->OnWorldInstalled(m_mainWorld);
 
 		const float lim = 50.0f;
 
-		Entity* cameraEntity = m_mainWorld->CreateEntity("Camera");
-		cameraEntity->SetPosition(Vector3(0, 0, -20));
-		CameraComponent* camera = m_mainWorld->AddComponent<CameraComponent>(cameraEntity);
-		m_mainWorld->SetActiveCamera(camera);
-		SimpleFlightMovement* movement = m_mainWorld->AddComponent<SimpleFlightMovement>(cameraEntity);
+		// Entity* cameraEntity = m_mainWorld->CreateEntity("Camera");
+		// cameraEntity->SetPosition(Vector3(0, 0, -20));
+		// CameraComponent* camera = m_mainWorld->AddComponent<CameraComponent>(cameraEntity);
+		// m_mainWorld->SetActiveCamera(camera);
+		// SimpleFlightMovement* movement = m_mainWorld->AddComponent<SimpleFlightMovement>(cameraEntity);
 
 		// Entity*		   test = m_mainWorld->CreateEntity("Cube");
 		// MeshComponent* mesh = m_mainWorld->AddComponent<MeshComponent>(test);
@@ -120,12 +120,13 @@ namespace Lina
 		// mesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
 		// test->SetPosition(Vector3(0, 0, 0));
 
-		Entity*		   plane	 = m_mainWorld->CreateEntity("Ground");
-		MeshComponent* planeMesh = m_mainWorld->AddComponent<MeshComponent>(plane);
-		planeMesh->SetMesh("Resources/Core/Models/Plane.glb"_hs, 0);
-		planeMesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-		plane->SetPosition(Vector3(0, 0, 0));
-		plane->SetScale(Vector3(100, 1, 100));
+		// Entity*		   plane	 = m_mainWorld->CreateEntity("Ground");
+		// MeshComponent* planeMesh = m_mainWorld->AddComponent<MeshComponent>(plane);
+		// planeMesh->SetMesh("Resources/Core/Models/Plane.glb"_hs, 0);
+		// planeMesh->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
+		// plane->SetPosition(Vector3(0, 0, 0));
+		// plane->SetScale(Vector3(100, 1, 100));
+
 		//
 		// for (uint32 i = 0; i < 200; i++)
 		// {

@@ -77,8 +77,10 @@ namespace Lina
 			data.copySemaphore		  = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
+		/*
 		m_guiShader2D	   = m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
 		m_guiShaderVariant = m_guiShader2D->GetGPUHandle("Swapchain"_hs);
+		 */
 
 		// RP
 		m_guiPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Gui));

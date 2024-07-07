@@ -163,6 +163,7 @@ namespace Lina
 		m_lgx->Initialize();
 
 		// Default samplers
+		/*
 		{
 			LinaGX::SamplerDesc samplerData = {};
 			samplerData.minFilter			= LinaGX::Filter::Anisotropic;
@@ -196,7 +197,7 @@ namespace Lina
 			m_defaultSamplers.push_back(defaultSampler);
 			m_defaultSamplers.push_back(defaultGUISampler);
 			m_defaultSamplers.push_back(defaultGUITextSampler);
-		}
+		}*/
 	}
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
@@ -262,6 +263,7 @@ namespace Lina
 			UpdateBindlessResources(m_pfd[i]);
 
 		// Default materials
+		/*
 		{
 
 			Material* defaultObjectMaterial = m_resourceManager->CreateResource<Material>(DEFAULT_MATERIAL_OBJECT_PATH, DEFAULT_MATERIAL_OBJECT_SID);
@@ -280,6 +282,7 @@ namespace Lina
 			// m_defaultMaterials.push_back(defaultLitMaterial);
 			// m_defaultMaterials.push_back(defaultUnlitMaterial);
 		}
+		 */
 	}
 
 	void GfxManager::PreShutdown()
@@ -457,174 +460,177 @@ namespace Lina
 
 		m_lgx->StartFrame();
 
-		if (m_mainWindow == nullptr)
-			m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
+		m_appDelegate->Render(currentFrameIndex);
 
-		// Update global data.
-		{
-			const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
-			const auto&			 windowSize = m_mainWindow->GetSize();
-			GPUDataEngineGlobals globalData = {};
-			globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
-			globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
-			currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
-		}
+		/*
+				if (m_mainWindow == nullptr)
+					m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
 
-		// Bindless resources
-		{
-			UpdateBindlessResources(currentFrame);
-		}
-
-		// Update dirty materials.
-		{
-			m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
-			m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalMaterialsBuffer);
-		}
-
-		// Mesh manager refresh
-		{
-			m_meshManager.Refresh();
-		}
-
-		// Wait for all transfers.
-		{
-
-			if (m_resourceUploadQueue.FlushAll(currentFrame.globalCopyStream))
-			{
-				m_lgx->CloseCommandStreams(&currentFrame.globalCopyStream, 1);
-				currentFrame.globalCopySemaphore.Increment();
-				LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
-					.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-					.streams		  = &currentFrame.globalCopyStream,
-					.streamCount	  = 1,
-					.useSignal		  = true,
-					.signalCount	  = 1,
-					.signalSemaphores = currentFrame.globalCopySemaphore.GetSemaphorePtr(),
-					.signalValues	  = currentFrame.globalCopySemaphore.GetValuePtr(),
-					.isMultithreaded  = true,
-				};
-				m_lgx->SubmitCommandStreams(desc);
-				m_lgx->WaitForUserSemaphore(currentFrame.globalCopySemaphore.GetSemaphore(), currentFrame.globalCopySemaphore.GetValue());
-			}
-		}
-
-		// Renderer work
-		Vector<uint16> waitSemaphores;
-		Vector<uint64> waitValues;
-
-		for (const RendererPool& pool : m_rendererPools)
-		{
-			if (targetPool != 0 && pool.sid != targetPool)
-				continue;
-
-			if (pool.renderers.empty())
-				continue;
-
-			Vector<Renderer*> validRenderers;
-
-			for (auto* rend : pool.renderers)
-			{
-				if (rend->IsValidThisFrame())
-					validRenderers.push_back(rend);
-			}
-
-			Vector<LinaGX::CommandStream*> streams;
-			streams.resize(validRenderers.size());
-
-			if (validRenderers.size() == 1)
-			{
-				auto* rend = validRenderers[0];
-				rend->Render(currentFrameIndex, static_cast<uint32>(waitSemaphores.size()), waitSemaphores.data(), waitValues.data());
-				streams[0] = rend->GetStreamForBatchSubmit(currentFrameIndex);
-			}
-			else
-			{
-				Taskflow tf;
-				tf.for_each_index(0, static_cast<int>(validRenderers.size()), 1, [&](int i) {
-					auto* rend = validRenderers.at(i);
-					rend->Render(currentFrameIndex, static_cast<uint32>(waitSemaphores.size()), waitSemaphores.data(), waitValues.data());
-					streams[i] = rend->GetStreamForBatchSubmit(currentFrameIndex);
-				});
-				m_system->GetMainExecutor()->RunAndWait(tf);
-			}
-
-			if (pool.submitInBatch)
-			{
-
-				for (Renderer* rend : pool.renderers)
+				// Update global data.
 				{
-					const SemaphoreData waitSemaphore = rend->GetWaitSemaphore(currentFrameIndex);
+					const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
+					const auto&			 windowSize = m_mainWindow->GetSize();
+					GPUDataEngineGlobals globalData = {};
+					globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
+					globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
+					currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
+				}
 
-					if (waitSemaphore.IsModified())
+				// Bindless resources
+				{
+					UpdateBindlessResources(currentFrame);
+				}
+
+				// Update dirty materials.
+				{
+					m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
+					m_resourceUploadQueue.AddBufferRequest(&currentFrame.globalMaterialsBuffer);
+				}
+
+				// Mesh manager refresh
+				{
+					m_meshManager.Refresh();
+				}
+
+				// Wait for all transfers.
+				{
+
+					if (m_resourceUploadQueue.FlushAll(currentFrame.globalCopyStream))
 					{
-						waitSemaphores.push_back(waitSemaphore.GetSemaphore());
-						waitValues.push_back(waitSemaphore.GetValue());
+						m_lgx->CloseCommandStreams(&currentFrame.globalCopyStream, 1);
+						currentFrame.globalCopySemaphore.Increment();
+						LinaGX::SubmitDesc desc = LinaGX::SubmitDesc{
+							.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+							.streams		  = &currentFrame.globalCopyStream,
+							.streamCount	  = 1,
+							.useSignal		  = true,
+							.signalCount	  = 1,
+							.signalSemaphores = currentFrame.globalCopySemaphore.GetSemaphorePtr(),
+							.signalValues	  = currentFrame.globalCopySemaphore.GetValuePtr(),
+							.isMultithreaded  = true,
+						};
+						m_lgx->SubmitCommandStreams(desc);
+						m_lgx->WaitForUserSemaphore(currentFrame.globalCopySemaphore.GetSemaphore(), currentFrame.globalCopySemaphore.GetValue());
 					}
 				}
 
-				currentFrame.poolSubmissionSemaphore.Increment();
+				// Renderer work
+				Vector<uint16> waitSemaphores;
+				Vector<uint64> waitValues;
 
-				m_lgx->SubmitCommandStreams({
-					.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
-					.streams		  = streams.data(),
-					.streamCount	  = static_cast<uint32>(streams.size()),
-					.useWait		  = !waitValues.empty(),
-					.waitCount		  = static_cast<uint32>(waitValues.size()),
-					.waitSemaphores	  = waitSemaphores.data(),
-					.waitValues		  = waitValues.data(),
-					.useSignal		  = true,
-					.signalSemaphores = currentFrame.poolSubmissionSemaphore.GetSemaphorePtr(),
-					.signalValues	  = currentFrame.poolSubmissionSemaphore.GetValuePtr(),
-					.isMultithreaded  = true,
-				});
-
-				waitValues.clear();
-				waitSemaphores.clear();
-				waitSemaphores.push_back(currentFrame.poolSubmissionSemaphore.GetSemaphore());
-				waitValues.push_back(currentFrame.poolSubmissionSemaphore.GetValue());
-			}
-			else
-			{
-				waitValues.clear();
-				waitSemaphores.clear();
-
-				for (Renderer* rend : pool.renderers)
+				for (const RendererPool& pool : m_rendererPools)
 				{
-					SemaphoreData submittedSemaphore = rend->GetSubmitSemaphore(currentFrameIndex);
+					if (targetPool != 0 && pool.sid != targetPool)
+						continue;
 
-					if (submittedSemaphore.IsModified())
+					if (pool.renderers.empty())
+						continue;
+
+					Vector<Renderer*> validRenderers;
+
+					for (auto* rend : pool.renderers)
 					{
-						waitSemaphores.push_back(submittedSemaphore.GetSemaphore());
-						waitValues.push_back(submittedSemaphore.GetValue());
+						if (rend->IsValidThisFrame())
+							validRenderers.push_back(rend);
+					}
+
+					Vector<LinaGX::CommandStream*> streams;
+					streams.resize(validRenderers.size());
+
+					if (validRenderers.size() == 1)
+					{
+						auto* rend = validRenderers[0];
+						rend->Render(currentFrameIndex, static_cast<uint32>(waitSemaphores.size()), waitSemaphores.data(), waitValues.data());
+						streams[0] = rend->GetStreamForBatchSubmit(currentFrameIndex);
+					}
+					else
+					{
+						Taskflow tf;
+						tf.for_each_index(0, static_cast<int>(validRenderers.size()), 1, [&](int i) {
+							auto* rend = validRenderers.at(i);
+							rend->Render(currentFrameIndex, static_cast<uint32>(waitSemaphores.size()), waitSemaphores.data(), waitValues.data());
+							streams[i] = rend->GetStreamForBatchSubmit(currentFrameIndex);
+						});
+						m_system->GetMainExecutor()->RunAndWait(tf);
+					}
+
+					if (pool.submitInBatch)
+					{
+
+						for (Renderer* rend : pool.renderers)
+						{
+							const SemaphoreData waitSemaphore = rend->GetWaitSemaphore(currentFrameIndex);
+
+							if (waitSemaphore.IsModified())
+							{
+								waitSemaphores.push_back(waitSemaphore.GetSemaphore());
+								waitValues.push_back(waitSemaphore.GetValue());
+							}
+						}
+
+						currentFrame.poolSubmissionSemaphore.Increment();
+
+						m_lgx->SubmitCommandStreams({
+							.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+							.streams		  = streams.data(),
+							.streamCount	  = static_cast<uint32>(streams.size()),
+							.useWait		  = !waitValues.empty(),
+							.waitCount		  = static_cast<uint32>(waitValues.size()),
+							.waitSemaphores	  = waitSemaphores.data(),
+							.waitValues		  = waitValues.data(),
+							.useSignal		  = true,
+							.signalSemaphores = currentFrame.poolSubmissionSemaphore.GetSemaphorePtr(),
+							.signalValues	  = currentFrame.poolSubmissionSemaphore.GetValuePtr(),
+							.isMultithreaded  = true,
+						});
+
+						waitValues.clear();
+						waitSemaphores.clear();
+						waitSemaphores.push_back(currentFrame.poolSubmissionSemaphore.GetSemaphore());
+						waitValues.push_back(currentFrame.poolSubmissionSemaphore.GetValue());
+					}
+					else
+					{
+						waitValues.clear();
+						waitSemaphores.clear();
+
+						for (Renderer* rend : pool.renderers)
+						{
+							SemaphoreData submittedSemaphore = rend->GetSubmitSemaphore(currentFrameIndex);
+
+							if (submittedSemaphore.IsModified())
+							{
+								waitSemaphores.push_back(submittedSemaphore.GetSemaphore());
+								waitValues.push_back(submittedSemaphore.GetValue());
+							}
+						}
 					}
 				}
-			}
-		}
 
-		// Presentation
-		Vector<uint8> swapchains;
+				// Presentation
+				Vector<uint8> swapchains;
 
-		for (const RendererPool& pool : m_rendererPools)
-		{
-			for (Renderer* rend : pool.renderers)
-			{
-				if (!rend->IsValidThisFrame())
-					continue;
+				for (const RendererPool& pool : m_rendererPools)
+				{
+					for (Renderer* rend : pool.renderers)
+					{
+						if (!rend->IsValidThisFrame())
+							continue;
 
-				uint8 outSwapchain = 0;
-				if (rend->GetSwapchainToPresent(outSwapchain))
-					swapchains.push_back(outSwapchain);
-			}
-		}
+						uint8 outSwapchain = 0;
+						if (rend->GetSwapchainToPresent(outSwapchain))
+							swapchains.push_back(outSwapchain);
+					}
+				}
 
-		if (!swapchains.empty())
-		{
-			m_lgx->Present({
-				.swapchains		= swapchains.data(),
-				.swapchainCount = static_cast<uint32>(swapchains.size()),
-			});
-		}
-
+				if (!swapchains.empty())
+				{
+					m_lgx->Present({
+						.swapchains		= swapchains.data(),
+						.swapchainCount = static_cast<uint32>(swapchains.size()),
+					});
+				}
+		*/
 		m_lgx->EndFrame();
 	}
 

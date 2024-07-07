@@ -108,6 +108,7 @@ namespace Lina
 
 	void Text::CalculateTextSize()
 	{
+		return;
 		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
 		const float dpiScale = m_lgxWindow->GetDPIScale();
 		m_lvgFont			 = font->GetLinaVGFont(dpiScale);

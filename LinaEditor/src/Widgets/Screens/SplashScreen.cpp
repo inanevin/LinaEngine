@@ -59,8 +59,8 @@ namespace Lina::Editor
 		m_loadingInfo = m_manager->Allocate<Text>();
 		AddChild(m_loadingInfo);
 
-		m_splashImage	  = m_resourceManager->GetResource<Texture>("Resources/Editor/Textures/LinaLogoTitle.png"_hs);
-		m_logoTextureSize = m_splashImage->GetSizeF();
+		// m_splashImage	  = m_resourceManager->GetResource<Texture>("Resources/Editor/Textures/LinaLogoTitle.png"_hs);
+		// m_logoTextureSize = m_splashImage->GetSizeF();
 	}
 
 	void SplashScreen::Destruct()

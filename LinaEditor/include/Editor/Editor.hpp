@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
+#include "Editor/Graphics/EditorRenderer.hpp"
 
 namespace Lina
 {
@@ -81,6 +82,7 @@ namespace Lina::Editor
 		virtual void Initialize() override;
 		virtual void PreTick() override;
 		virtual void PreShutdown() override;
+		virtual void Render(uint32 frameIndex) override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
 
 		// Misc
@@ -137,6 +139,7 @@ namespace Lina::Editor
 		void CoreResourcesLoaded();
 
 	private:
+		EditorRenderer						  m_editorRenderer;
 		WindowPanelManager					  m_windowPanelManager;
 		AtlasManager						  m_atlasManager;
 		ProjectManager						  m_projectManager;

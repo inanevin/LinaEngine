@@ -64,12 +64,12 @@ namespace Lina
 		m_snapshotBuffer = snapshotBuffers;
 		m_world			 = world;
 		m_world->AddListener(this);
-		m_size					 = viewSize;
-		m_rm					 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_gBufSampler			 = m_gfxManager->GetDefaultSampler(0);
-		m_deferredLightingShader = m_rm->GetResource<Shader>(DEFAULT_SHADER_DEFERRED_LIGHTING_SID);
-		m_skyCube				 = m_rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
-		m_lgx					 = GfxManager::GetLGX();
+		m_size = viewSize;
+		m_rm   = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		// m_gBufSampler			 = m_gfxManager->GetDefaultSampler(0);
+		// m_deferredLightingShader = m_rm->GetResource<Shader>(DEFAULT_SHADER_DEFERRED_LIGHTING_SID);
+		// m_skyCube				 = m_rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
+		m_lgx = GfxManager::GetLGX();
 
 		auto* rm = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
@@ -83,8 +83,8 @@ namespace Lina
 			data.copySemaphore	 = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
-		m_guiShader3D			= m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI3D_SID);
-		m_guiShader3DVariantGPU = m_guiShader3D->GetGPUHandle("RenderTarget"_hs);
+		// m_guiShader3D			= m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI3D_SID);
+		// m_guiShader3DVariantGPU = m_guiShader3D->GetGPUHandle("RenderTarget"_hs);
 
 		m_mainPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
 		m_lightingPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));

@@ -50,12 +50,13 @@ namespace Lina
 
 	void GUIRenderer::Create(GfxManager* gfxManager, LinaGX::Window* window)
 	{
-		m_gfxManager		= gfxManager;
-		m_window			= window;
-		m_lgx				= GfxManager::GetLGX();
-		m_rm				= m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_defaultGUISampler = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
-		m_textGUISampler	= m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
+		m_gfxManager = gfxManager;
+		m_window	 = window;
+		m_lgx		 = GfxManager::GetLGX();
+		m_rm		 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+
+		// m_defaultGUISampler = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
+		// m_textGUISampler	= m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{

@@ -26,53 +26,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#include "Editor/Graphics/EditorRenderer.hpp"
 
-#include "Core/Resources/CommonResources.hpp"
-#include "Core/Resources/Data/ResourceMetadata.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Data/CommonData.hpp"
-#include "Common/Event/SystemEventListener.hpp"
-
-namespace LinaGX
+namespace Lina::Editor
 {
-	class Window;
-	class CommandStream;
-} // namespace LinaGX
-
-namespace Lina
-{
-	class Application;
-	class ResourceManager;
-	class System;
-	struct SemaphoreData;
-
-	class ApplicationDelegate : public SystemEventListener
+	void EditorRenderer::Initialize(Editor* editor)
 	{
-	public:
-		ApplicationDelegate()		   = default;
-		virtual ~ApplicationDelegate() = default;
+		m_editor = editor;
+	}
 
-		// Loop
-		virtual void PreInitialize(){};
-		virtual void Initialize(){};
-		virtual void PreTick(){};
-		virtual void Tick(float delta){};
-		virtual void Render(uint32 frameIndex){};
-		virtual void PreShutdown(){};
-		virtual void Shutdown(){};
+	void EditorRenderer::Shutdown()
+	{
+	}
 
-		// Resources
-		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream)
-		{
-			return false;
-		};
-
-		System* GetSystem();
-
-	protected:
-		friend class Application;
-
-		Application* m_app = nullptr;
-	};
-} // namespace Lina
+	void EditorRenderer::Render(uint32 frameIndex)
+	{
+	}
+} // namespace Lina::Editor
