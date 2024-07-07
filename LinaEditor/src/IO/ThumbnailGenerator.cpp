@@ -446,7 +446,7 @@ namespace Lina::Editor
 
 	WorldRenderer* ThumbnailGenerator::CreateDataForMaterial(DirectoryItem* item)
 	{
-		EntityWorld* world = new EntityWorld(m_editor->GetSystem());
+		EntityWorld* world = new EntityWorld();
 		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
 
@@ -479,7 +479,7 @@ namespace Lina::Editor
 	WorldRenderer* ThumbnailGenerator::CreateDataForModel(DirectoryItem* item)
 	{
 
-		EntityWorld* world = new EntityWorld(m_editor->GetSystem());
+		EntityWorld* world = new EntityWorld();
 		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
 
@@ -518,14 +518,13 @@ namespace Lina::Editor
 
 		// Load the model.
 		ResourceIdentifier ident;
-		ident.absolutePath = item->absolutePath;
 		ident.relativePath = item->relativePath;
 		ident.tid		   = item->tid;
 		rm->LoadResourcesFromFile(0, {ident}, "");
 		rm->WaitForAll();
 
 		// Create world.
-		EntityWorld* world = new EntityWorld(m_editor->GetSystem());
+		EntityWorld* world = new EntityWorld();
 		world->SetSkyMaterial(rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
 		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
 

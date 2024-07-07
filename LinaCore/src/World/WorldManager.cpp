@@ -63,7 +63,7 @@ namespace Lina
 
 	void WorldManager::SaveEmptyWorld(const String& absolutePath)
 	{
-		EntityWorld world(nullptr, "", 0);
+		EntityWorld world("", 0);
 		OStream		stream;
 		world.SaveToStream(stream);
 		Serialization::SaveToFile(absolutePath.c_str(), stream);
@@ -97,7 +97,7 @@ namespace Lina
 		// m_rm->WaitForAll();
 		// m_mainWorld = m_rm->GetResource<EntityWorld>(sid);
 
-		m_mainWorld = new EntityWorld(m_system, "Test", 0);
+		m_mainWorld = new EntityWorld("Test", 0);
 
 		m_activeWorlds.push_back(m_mainWorld);
 

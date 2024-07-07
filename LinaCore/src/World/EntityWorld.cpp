@@ -41,7 +41,10 @@ namespace Lina
 {
 #define ENTITY_VEC_SIZE_CHUNK 2000
 
-	EntityWorld::EntityWorld(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this){};
+	EntityWorld::EntityWorld(const String& path, StringID sid)
+		: Resource(path, sid, GetTypeID<EntityWorld>()), m_physicsWorld(this){
+
+														 };
 
 	EntityWorld::~EntityWorld()
 	{
@@ -201,7 +204,7 @@ namespace Lina
 	{
 		c->m_input			 = &GfxManager::GetLGX()->GetInput();
 		c->m_world			 = this;
-		c->m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		c->m_resourceManager = &m_resourceManagerV2;
 		c->m_entity			 = e;
 		c->Create();
 	}

@@ -102,9 +102,7 @@ namespace Lina::Editor
 
 		if (sid == DEFAULT_TEXTURE_CHECKERED_SID || sid == DEFAULT_TEXTURE_LINALOGO)
 		{
-			Texture::Metadata meta = {
-				.samplerSID = DEFAULT_SAMPLER_GUI_SID,
-			};
+			Texture::Metadata meta = {};
 
 			meta.SaveToStream(stream);
 			return true;
@@ -314,7 +312,7 @@ namespace Lina::Editor
 		m_gfxManager->CreateRendererPool("SurfaceRenderers"_hs, 1, true);
 
 		m_fileManager.Initialize(this);
-		m_atlasManager.Initialize(this);
+		// m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
 		m_editorRenderer.Initialize(this);
 

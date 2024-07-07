@@ -84,24 +84,14 @@ namespace Lina
 			stream >> samplers[i];
 	}
 
-	Material::Material(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Material>())
-	{
-		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-	}
-
 	Material::~Material()
 	{
 	}
 
-	void Material::SetShader(StringID sid)
+	void Material::SetShader(Shader* shader)
 	{
-		m_shaderSID = sid;
-		m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
-		if (m_shader == nullptr)
-		{
-			m_shaderSID = DEFAULT_SHADER_OBJECT_SID;
-			m_shader	= m_resourceManager->GetResource<Shader>(m_shaderSID);
-		}
+		m_shader	 = shader;
+		m_shaderSID	 = shader->GetSID();
 		m_properties = m_shader->GetProperties();
 	}
 
@@ -127,11 +117,6 @@ namespace Lina
 		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);
 	}
 
-	void Material::BatchLoaded()
-	{
-		SetShader(m_shaderSID);
-	}
-
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding)
 	{
 		m_bindlessBytePadding = padding;
@@ -140,12 +125,12 @@ namespace Lina
 		{
 			if (prop.type == ShaderPropertyType::Texture2D)
 			{
-				LinaTexture2D stringIDs = std::get<LinaTexture2D>(prop.data);
-				LinaTexture2D bindless	= {
-					 .texture = m_resourceManager->GetResource<Texture>(stringIDs.texture)->GetBindlessIndex(),
-					 .sampler = m_resourceManager->GetResource<TextureSampler>(stringIDs.sampler)->GetBindlessIndex(),
-				 };
-				buf.BufferData(padding, (uint8*)&bindless, prop.size);
+				// LinaTexture2D stringIDs = std::get<LinaTexture2D>(prop.data);
+				// LinaTexture2D bindless	= {
+				// 	 .texture = m_resourceManager->GetResource<Texture>(stringIDs.texture)->GetBindlessIndex(),
+				// 	 .sampler = m_resourceManager->GetResource<TextureSampler>(stringIDs.sampler)->GetBindlessIndex(),
+				//  };
+				// buf.BufferData(padding, (uint8*)&bindless, prop.size);
 			}
 			else
 				buf.BufferData(padding, (uint8*)&prop.data, prop.size);

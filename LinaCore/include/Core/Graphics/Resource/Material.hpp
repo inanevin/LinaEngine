@@ -65,8 +65,13 @@ namespace Lina
 			void			 LoadFromStream(IStream& stream);
 		};
 
-		void   SetShader(StringID sid);
-		size_t BufferDataInto(Buffer& buf, size_t padding);
+		Material(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Material>()){};
+		virtual ~Material();
+		virtual void LoadFromFile(const char* path) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+		void		 SetShader(Shader* shader);
+		size_t		 BufferDataInto(Buffer& buf, size_t padding);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{
@@ -91,18 +96,9 @@ namespace Lina
 		}
 
 	private:
-		Material(System* sys, const String& path, StringID sid);
-		virtual ~Material();
-		virtual void LoadFromFile(const char* path) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void BatchLoaded() override;
-
-	private:
 		ALLOCATOR_BUCKET_MEM;
-		ResourceManager*	   m_resourceManager = nullptr;
-		Shader*				   m_shader			 = nullptr;
-		StringID			   m_shaderSID		 = 0;
+		Shader*				   m_shader	   = nullptr;
+		StringID			   m_shaderSID = 0;
 		DescriptorAllocation   m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		size_t				   m_bindlessBytePadding = 0;
 		bool				   m_propsDirty			 = false;

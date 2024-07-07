@@ -84,27 +84,28 @@ namespace Lina
 		m_lvgFonts.clear();
 	}
 
-	void Font::BatchLoaded()
-	{
-		Vector<LinaVG::GlyphEncoding> customRangeVec;
-		for (const auto& rng : m_meta.glyphRanges)
+	/*
+		void Font::BatchLoaded()
 		{
-			customRangeVec.push_back(rng.first);
-			customRangeVec.push_back(rng.second);
-		}
+			Vector<LinaVG::GlyphEncoding> customRangeVec;
+			for (const auto& rng : m_meta.glyphRanges)
+			{
+				customRangeVec.push_back(rng.first);
+				customRangeVec.push_back(rng.second);
+			}
 
-		const int32 sz = static_cast<int32>(m_meta.points.size());
-		m_lvgFonts.resize(sz);
-		for (int32 i = 0; i < sz; i++)
-		{
-			LinaVG::Text* lvgText = GfxManager::GetLVGText();
+			const int32 sz = static_cast<int32>(m_meta.points.size());
+			m_lvgFonts.resize(sz);
+			for (int32 i = 0; i < sz; i++)
+			{
+				LinaVG::Text* lvgText = GfxManager::GetLVGText();
 
-			if (customRangeVec.empty())
-				m_lvgFonts[i] = lvgText->LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
-			else
-				m_lvgFonts[i] = lvgText->LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
-		}
-	}
+				if (customRangeVec.empty())
+					m_lvgFonts[i] = lvgText->LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size);
+				else
+					m_lvgFonts[i] = lvgText->LoadFontFromMemory(m_file.data(), m_file.size(), m_meta.isSDF, m_meta.points[i].size, customRangeVec.data(), static_cast<int32>(m_meta.glyphRanges.size()) * 2);
+			}
+		}*/
 
 	void Font::LoadFromFile(const char* path)
 	{

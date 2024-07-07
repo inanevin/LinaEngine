@@ -46,10 +46,14 @@ namespace Lina
 	class Resource
 	{
 	public:
-		Resource(System* sys, const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid), m_system(sys){};
+		Resource(const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid){};
 		virtual ~Resource() = default;
 
-		void SaveToFileAsBinary(const String& path);
+		virtual void LoadFromFile(const char* path){};
+		virtual void LoadFromStream(IStream& stream){};
+		virtual void SaveToStream(OStream& stream) const {};
+		virtual void SetCustomMeta(IStream& stream){};
+		void		 SaveToFileAsBinary(const String& path);
 
 		inline const String& GetPath() const
 		{
@@ -71,12 +75,6 @@ namespace Lina
 
 		template <typename U> friend class ResourceCache;
 
-		virtual void BatchLoaded(){};
-		virtual void LoadFromFile(const char* path){};
-		virtual void LoadFromStream(IStream& stream){};
-		virtual void SaveToStream(OStream& stream) const {};
-		virtual void SetCustomMeta(IStream& stream){};
-
 		inline void SetPath(const String& path)
 		{
 			m_path = path;
@@ -93,11 +91,10 @@ namespace Lina
 		}
 
 	protected:
-		System*	  m_system = nullptr;
-		String	  m_path   = "";
-		TypeID	  m_tid	   = 0;
-		StringID  m_sid	   = 0;
-		Bitmask32 m_flags  = 0;
+		String	  m_path  = "";
+		TypeID	  m_tid	  = 0;
+		StringID  m_sid	  = 0;
+		Bitmask32 m_flags = 0;
 	};
 
 	template <typename T> struct ResRef

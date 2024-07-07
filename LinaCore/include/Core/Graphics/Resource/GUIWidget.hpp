@@ -37,8 +37,13 @@ namespace Lina
 	{
 
 	public:
-		void UpdateBlob();
-		void ClearRoot();
+		GUIWidget(const String& path, StringID sid) : Resource(path, sid, GetTypeID<GUIWidget>()){};
+		virtual ~GUIWidget();
+		virtual void LoadFromFile(const char* path) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+		void		 UpdateBlob();
+		void		 ClearRoot();
 
 		inline Widget& GetRoot()
 		{
@@ -60,12 +65,6 @@ namespace Lina
 		}
 
 	private:
-		GUIWidget(System* sys, const String& path, StringID sid);
-		virtual ~GUIWidget();
-		virtual void LoadFromFile(const char* path) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		Widget	m_root;

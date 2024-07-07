@@ -37,14 +37,13 @@ namespace Lina
 	public:
 		struct Metadata
 		{
-
 			void SaveToStream(OStream& out) const;
 			void LoadFromStream(IStream& in);
 		};
 
-	protected:
-		Audio(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Audio>()){};
+		Audio(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Audio>()){};
 		virtual ~Audio();
+
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
 		virtual void SaveToStream(OStream& stream) const override;

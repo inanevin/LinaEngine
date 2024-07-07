@@ -64,15 +64,14 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
-		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
-
-	protected:
-		Font(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Font>()){};
+		Font(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Font>()){};
 		virtual ~Font();
-		virtual void BatchLoaded() override;
-		virtual void LoadFromFile(const char* path) override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) const override;
+
+		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
+		virtual void		LoadFromFile(const char* path) override;
+		virtual void		LoadFromStream(IStream& stream) override;
+		virtual void		SaveToStream(OStream& stream) const override;
+
 		virtual void SetCustomMeta(IStream& stream) override
 		{
 			m_meta.LoadFromStream(stream);

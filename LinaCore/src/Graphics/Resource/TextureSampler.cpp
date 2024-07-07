@@ -33,8 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	TextureSampler::TextureSampler(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<TextureSampler>()){};
-
 	TextureSampler::~TextureSampler()
 	{
 		DestroyHW();
@@ -64,14 +62,8 @@ namespace Lina
 		m_samplerDesc.mipmapMode = static_cast<LinaGX::MipmapMode>(mipmapMode);
 	}
 
-	void TextureSampler::BatchLoaded()
-	{
-		GenerateHW();
-	}
-
 	void TextureSampler::GenerateHW()
 	{
-		DestroyHW();
 		m_samplerDesc.debugName = m_path.c_str();
 		m_gpuHandle				= GfxManager::GetLGX()->CreateSampler(m_samplerDesc);
 		m_hwExists				= true;

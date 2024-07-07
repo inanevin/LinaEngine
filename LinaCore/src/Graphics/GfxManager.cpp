@@ -424,7 +424,7 @@ namespace Lina
 		pfd.globalTexturesDesc.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
 		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
 			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
-			txt->m_bindlessIndex				   = static_cast<uint32>(index);
+			txt->SetBindlessIndex(static_cast<uint32>(index));
 			return false;
 		});
 
@@ -435,8 +435,7 @@ namespace Lina
 		ResourceCache<TextureSampler>* cacheSmp = m_resourceManager->GetCache<TextureSampler>();
 		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
 		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
-			pfd.globalSamplersDesc.samplers[index] = smp->GetGPUHandle();
-			smp->m_bindlessIndex				   = static_cast<uint32>(index);
+			smp->SetBindlessIndex(static_cast<uint32>(index));
 			return false;
 		});
 

@@ -49,9 +49,9 @@ namespace Lina
 		ResourceCacheBase(){};
 		virtual ~ResourceCacheBase() = default;
 
-		virtual Resource* Create(const String& path, StringID sid, System* sys) = 0;
-		virtual Resource* Get(StringID sid) const								= 0;
-		virtual void	  Destroy(StringID sid)									= 0;
+		virtual Resource* Create(const String& path, StringID sid) = 0;
+		virtual Resource* Get(StringID sid) const				   = 0;
+		virtual void	  Destroy(StringID sid)					   = 0;
 
 		inline PackageType GetPackageType() const
 		{
@@ -80,7 +80,7 @@ namespace Lina
 			return m_resourceBucket.GetActiveItemCount();
 		}
 
-		virtual Resource* Create(const String& path, StringID sid, System* sys) override
+		virtual Resource* Create(const String& path, StringID sid) override
 		{
 			if (m_resources.find(sid) != m_resources.end())
 			{
@@ -88,7 +88,7 @@ namespace Lina
 				return nullptr;
 			}
 
-			T* res			 = m_resourceBucket.Allocate(sys, path, sid);
+			T* res			 = m_resourceBucket.Allocate(path, sid);
 			m_resources[sid] = res;
 			return res;
 		}

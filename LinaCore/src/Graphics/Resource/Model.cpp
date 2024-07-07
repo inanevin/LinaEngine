@@ -38,17 +38,12 @@ SOFTWARE.
 
 namespace Lina
 {
-
-	Model::Model(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Model>())
-	{
-		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-	};
 	Model::~Model()
 	{
 		for (auto* n : m_rootNodes)
 		{
-			if (n->m_mesh)
-				m_gfxManager->GetMeshManager().RemoveMesh(n->m_mesh);
+			// if (n->m_mesh)
+			// 	m_gfxManager->GetMeshManager().RemoveMesh(n->m_mesh);
 
 			delete n;
 		}
@@ -177,20 +172,14 @@ namespace Lina
 			node->SaveToStream(stream);
 	}
 
-	void Model::BatchLoaded()
-	{
-		for (auto* n : m_rootNodes)
-			UploadNode(n);
-	}
-
 	void Model::UploadNode(ModelNode* node)
 	{
 		for (auto* node : m_rootNodes)
 		{
 			MeshDefault* mesh = node->GetMesh();
 
-			if (mesh)
-				m_gfxManager->GetMeshManager().AddMesh(mesh);
+			// if (mesh)
+			// 	m_gfxManager->GetMeshManager().AddMesh(mesh);
 
 			for (auto* c : node->m_children)
 				UploadNode(c);

@@ -37,7 +37,13 @@ namespace Lina
 	class TextureSampler : public Resource
 	{
 	public:
-		void GenerateHW();
+		TextureSampler(const String& path, StringID sid) : Resource(path, sid, GetTypeID<TextureSampler>()){};
+		virtual ~TextureSampler();
+
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+		void		 DestroyHW();
+		void		 GenerateHW();
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -49,15 +55,10 @@ namespace Lina
 			return m_bindlessIndex;
 		}
 
-	private:
-		friend class GfxManager;
-
-		TextureSampler(System* sys, const String& path, StringID sid);
-		virtual ~TextureSampler();
-		virtual void BatchLoaded() override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		void		 DestroyHW();
+		inline void SetBindlessIndex(uint32 bindless)
+		{
+			m_bindlessIndex = bindless;
+		}
 
 	private:
 		ALLOCATOR_BUCKET_MEM;

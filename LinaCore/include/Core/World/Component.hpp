@@ -45,7 +45,7 @@ namespace Lina
 {
 	class Entity;
 	class ReflectionClassUtility;
-	class ResourceManager;
+	class ResourceManagerV2;
 
 	class Component
 	{
@@ -81,11 +81,11 @@ namespace Lina
 		virtual ~Component() = default;
 
 		ALLOCATOR_BUCKET_MEM;
-		Entity*			 m_entity		   = nullptr;
-		EntityWorld*	 m_world		   = nullptr;
-		ResourceManager* m_resourceManager = nullptr;
-		Bitmask32		 m_flags		   = 0;
-		LinaGX::Input*	 m_input		   = nullptr;
+		Entity*			   m_entity			 = nullptr;
+		EntityWorld*	   m_world			 = nullptr;
+		ResourceManagerV2* m_resourceManager = nullptr;
+		Bitmask32		   m_flags			 = 0;
+		LinaGX::Input*	   m_input			 = nullptr;
 	};
 
 } // namespace Lina

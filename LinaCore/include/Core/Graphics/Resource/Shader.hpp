@@ -77,6 +77,19 @@ namespace Lina
 		};
 
 	public:
+		Shader(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Shader>()){};
+		virtual ~Shader();
+
+		virtual void LoadFromFile(const char* path) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+		virtual void SetCustomMeta(IStream& stream) override
+		{
+			m_meta.LoadFromStream(stream);
+		}
+
+		void GenerateHW();
+		void DestroyHW();
 		void Bind(LinaGX::CommandStream* stream, uint32 gpuHandle);
 		void AllocateDescriptorSet(DescriptorSet*& outSet, uint32& outIndex);
 		void FreeDescriptorSet(DescriptorSet* set, uint32 index);
@@ -117,18 +130,6 @@ namespace Lina
 		}
 
 	protected:
-		Shader(System* sys, const String& path, StringID sid);
-		virtual ~Shader();
-
-		virtual void LoadFromFile(const char* path) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void BatchLoaded() override;
-		virtual void SetCustomMeta(IStream& stream) override
-		{
-			m_meta.LoadFromStream(stream);
-		}
-
 	private:
 		ALLOCATOR_BUCKET_MEM;
 		LINAGX_MAP<LinaGX::ShaderStage, LinaGX::DataBlob> m_outCompiledBlobs;

@@ -34,14 +34,12 @@ namespace Lina
 
 	void ResourceIdentifier::SaveToStream(OStream& stream) const
 	{
-		StringSerialization::SaveToStream(stream, absolutePath);
 		StringSerialization::SaveToStream(stream, relativePath);
 		stream << tid << sid;
 	}
 
 	void ResourceIdentifier::LoadFromStream(IStream& stream)
 	{
-		StringSerialization::LoadFromStream(stream, absolutePath);
 		StringSerialization::LoadFromStream(stream, relativePath);
 		stream >> tid >> sid;
 	}

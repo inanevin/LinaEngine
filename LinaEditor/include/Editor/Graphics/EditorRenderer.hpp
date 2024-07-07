@@ -30,19 +30,17 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-class Editor;
+	class Editor;
 
 	class EditorRenderer
-{
-public:
-    
-    void Initialize(Editor* editor);
-    void Shutdown();
-    void Render(uint32 frameIndex);
+	{
+	public:
+		void Initialize(Editor* editor);
+		void Shutdown();
+		void Render(uint32 frameIndex);
 
-private:
-    
-    Editor* m_editor = nullptr;
-};
+	private:
+		Editor* m_editor = nullptr;
+	};
 
 } // namespace Lina::Editor

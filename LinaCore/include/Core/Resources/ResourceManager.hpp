@@ -76,8 +76,7 @@ namespace Lina
 		template <typename T> T* CreateResource(const String& path, StringID sid)
 		{
 			LOCK_GUARD(m_mtx);
-			T* res		  = static_cast<T*>(GetCache<T>()->Create(path, sid, m_system));
-			res->m_system = m_system;
+			T* res = static_cast<T*>(GetCache<T>()->Create(path, sid));
 			return res;
 		}
 
@@ -109,6 +108,60 @@ namespace Lina
 		Vector<ResourceIdentifier>			m_waitingResources;
 		Vector<ResourceManagerListener*>	m_listeners;
 		uint32								m_lockCount = 0;
+	};
+
+	class ResourceManagerV2
+	{
+	public:
+		ResourceManagerV2(){};
+		~ResourceManagerV2();
+
+		void LoadResourcesFromFile(int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& baseCachePath, const String& projectPath);
+		void Poll();
+		void WaitForAll();
+		void AddListener(ResourceManagerListener* listener);
+		void RemoveListener(ResourceManagerListener* listener);
+
+		template <typename T> ResourceCache<T>* GetCache()
+		{
+			const TypeID tid = GetTypeID<T>();
+
+			if (m_caches.find(tid) == m_caches.end())
+				m_caches[tid] = new ResourceCache<T>();
+
+			ResourceCache<T>* cache = static_cast<ResourceCache<T>*>(m_caches[tid]);
+			return cache;
+		}
+
+		template <typename T> T* GetResource(StringID sid)
+		{
+			return static_cast<T*>(GetCache<T>()->Get(sid));
+		}
+
+		template <typename T> T* CreateResource(const String& path, StringID sid)
+		{
+			T* res = static_cast<T*>(GetCache<T>()->Create(path, sid));
+			return res;
+		}
+
+		template <typename T> void DestroyResource(StringID sid)
+		{
+			GetCache<T>()->Destroy(sid);
+		}
+
+		template <typename T> void DestroyResource(T* res)
+		{
+			GetCache<T>()->Destroy(res->GetSID());
+		}
+
+	private:
+		void DispatchLoadTaskEvent(ResourceLoadTask* task);
+
+	private:
+		Vector<ResourceLoadTask*>			m_loadTasks;
+		JobExecutor							m_executor;
+		HashMap<TypeID, ResourceCacheBase*> m_caches;
+		Vector<ResourceManagerListener*>	m_listeners;
 	};
 
 } // namespace Lina

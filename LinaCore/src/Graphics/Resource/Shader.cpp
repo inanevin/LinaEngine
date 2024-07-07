@@ -86,20 +86,9 @@ namespace Lina
 		in >> materialSize;
 	}
 
-	Shader::Shader(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Shader>()){};
-
 	Shader::~Shader()
 	{
-		GfxManager::GetLGX()->DestroyPipelineLayout(m_pipelineLayout);
-
-		for (const auto& [sid, var] : m_meta.variants)
-			GfxManager::GetLGX()->DestroyShader(var._gpuHandle);
-
-		for (const auto& d : m_descriptorSets)
-		{
-			d->Destroy();
-			delete d;
-		}
+        DestroyHW();
 	}
 
 	void Shader::Bind(LinaGX::CommandStream* stream, uint32 gpuHandle)
@@ -227,7 +216,7 @@ namespace Lina
 		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);
 	}
 
-	void Shader::BatchLoaded()
+	void Shader::GenerateHW()
 	{
 
 		/*
@@ -320,4 +309,18 @@ namespace Lina
 			delete[] blob.ptr;
 		}
 	}
+
+    void Shader::DestroyHW()
+    {
+        GfxManager::GetLGX()->DestroyPipelineLayout(m_pipelineLayout);
+
+        for (const auto& [sid, var] : m_meta.variants)
+            GfxManager::GetLGX()->DestroyShader(var._gpuHandle);
+
+        for (const auto& d : m_descriptorSets)
+        {
+            d->Destroy();
+            delete d;
+        }
+    }
 } // namespace Lina

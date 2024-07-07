@@ -48,7 +48,6 @@ namespace Lina
 
 	struct ResourceIdentifier
 	{
-		String	 absolutePath = "";
 		String	 relativePath = "";
 		TypeID	 tid		  = 0;
 		StringID sid		  = 0;

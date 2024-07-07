@@ -39,8 +39,8 @@ namespace Lina
 {
 	void WidgetComponent::Create()
 	{
-		auto* gfxMan = m_world->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_guiRenderer.Create(gfxMan, gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
+		// auto* gfxMan = m_world->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		// m_guiRenderer.Create(gfxMan, gfxMan->GetApplicationWindow(LINA_MAIN_SWAPCHAIN));
 	}
 
 	void WidgetComponent::Destroy()

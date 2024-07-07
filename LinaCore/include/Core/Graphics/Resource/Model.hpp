@@ -42,11 +42,17 @@ namespace Lina
 {
 	class ModelNode;
 	class MeshDefault;
-	class GfxManager;
 
 	class Model : public Resource
 	{
 	public:
+		Model(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Model>()){};
+		virtual ~Model();
+
+		virtual void LoadFromFile(const char* path) override;
+		virtual void SaveToStream(OStream& stream) const override;
+		virtual void LoadFromStream(IStream& stream) override;
+
 		ModelNode* GetFirstNodeWMesh();
 
 		inline const Vector<ModelNode*>& GetRootNodes() const
@@ -69,23 +75,13 @@ namespace Lina
 			return m_totalAABB;
 		}
 
-	protected:
-		virtual void LoadFromFile(const char* path) override;
-		virtual void SaveToStream(OStream& stream) const override;
-		virtual void LoadFromStream(IStream& stream) override;
-		virtual void BatchLoaded() override;
-
 	private:
-		Model(System* sys, const String& path, StringID sid);
-		virtual ~Model();
-
 		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
 		void	   UploadNode(ModelNode* node);
 		ModelNode* GetNodeWithMesh(ModelNode* root);
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		GfxManager*			  m_gfxManager = nullptr;
 		Vector<MeshDefault*>  m_meshes;
 		Vector<ModelNode*>	  m_rootNodes;
 		Vector<ModelMaterial> m_materials;

@@ -33,10 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	GUIWidget::GUIWidget(System* sys, const String& path, StringID sid) : Resource(sys, path, sid, GetTypeID<Material>())
-	{
-	}
-
 	GUIWidget::~GUIWidget()
 	{
 		m_loadedStream.Destroy();

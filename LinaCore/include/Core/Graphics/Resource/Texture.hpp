@@ -47,7 +47,6 @@ namespace Lina
 			LinaGX::MipmapMode		 mipmapMode		 = LinaGX::MipmapMode::Linear;
 			LinaGX::MipmapFilter	 mipFilter		 = LinaGX::MipmapFilter::Mitchell;
 			LinaGX::ImageChannelMask channelMask	 = LinaGX::ImageChannelMask::RGBA;
-			StringID				 samplerSID		 = DEFAULT_SAMPLER_SID;
 			bool					 isLinear		 = false;
 			bool					 generateMipmaps = true;
 
@@ -55,15 +54,26 @@ namespace Lina
 			void LoadFromStream(IStream& in);
 		};
 
+		Texture(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Texture>()){};
+		virtual ~Texture();
+
+		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;
-		virtual void SaveToStream(OStream& stream) const override;
 		void		 LoadFromBuffer(uint8* pixels, uint32 width, uint32 height, uint32 bytesPerPixel, LinaGX::ImageChannelMask channelMask, LinaGX::Format format, bool generateMipMaps = false);
-		void		 GenerateHWFromDesc(const LinaGX::TextureDesc& desc);
-		void		 AddToUploadQueue();
-		uint32		 GetSamplerSID() const;
-		Vector2ui	 GetSize();
-		Vector2		 GetSizeF();
+
+		void	  GenerateHWFromDesc(const LinaGX::TextureDesc& desc);
+		void	  GenerateHW();
+		void	  DestroyHW();
+		void	  DestroySW();
+		void	  AddToUploadQueue();
+		Vector2ui GetSize();
+		Vector2	  GetSizeF();
+
+		virtual void SetCustomMeta(IStream& stream) override
+		{
+			m_meta.LoadFromStream(stream);
+		}
 
 		inline uint32 GetGPUHandle() const
 		{
@@ -73,11 +83,6 @@ namespace Lina
 		inline Vector<LinaGX::TextureBuffer> GetAllLevels() const
 		{
 			return m_allLevels;
-		}
-
-		inline void SetSamplerSID(StringID sid)
-		{
-			m_sampler = sid;
 		}
 
 		inline uint32 GetBindlessIndex() const
@@ -90,28 +95,17 @@ namespace Lina
 			return m_meta;
 		}
 
-	private:
-		Texture(System* system, const String& path, StringID sid);
-		virtual ~Texture();
-
-		void		 GenerateHW();
-		void		 DestroySW();
-		virtual void BatchLoaded() override;
-		virtual void SetCustomMeta(IStream& stream) override
+		inline void SetBindlessIndex(uint32 bindless)
 		{
-			m_meta.LoadFromStream(stream);
+			m_bindlessIndex = bindless;
 		}
 
 	private:
-		friend class GfxManager;
-
 		ALLOCATOR_BUCKET_MEM;
-		GfxManager*					  m_gfxManager = nullptr;
 		Vector<LinaGX::TextureBuffer> m_allLevels;
 		uint32						  m_bindlessIndex	= 0;
 		uint32						  m_gpuHandle		= 0;
 		uint32						  m_bytesPerPixel	= 0;
-		StringID					  m_sampler			= 0;
 		Metadata					  m_meta			= {};
 		Vector2ui					  m_size			= Vector2ui::Zero;
 		bool						  m_useGlobalDelete = false;
