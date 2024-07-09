@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Editor/Project/ProjectManager.hpp"
+#include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/Widgets/Popups/ProjectSelector.hpp"
 #include "Editor/EditorLocale.hpp"
@@ -36,7 +37,6 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 
 namespace Lina::Editor
 {
@@ -151,7 +151,7 @@ namespace Lina::Editor
 		m_currentProject = new ProjectData();
 		m_currentProject->SetPath(projectFile);
 		m_currentProject->LoadFromFile();
-		m_editor->GetEditorRoot()->SetProjectName(m_currentProject->GetProjectName());
+		// m_editor->GetEditorRoot()->SetProjectName(m_currentProject->GetProjectName());
 
 		EditorSettings& settings = m_editor->GetSettings();
 		settings.SetLastProjectPath(projectFile);

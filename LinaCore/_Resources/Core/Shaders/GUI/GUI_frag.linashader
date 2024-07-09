@@ -36,8 +36,6 @@ void main()
       if(gl_FragCoord.x < material.clip.x || gl_FragCoord.x > material.clip.x + material.clip.z || gl_FragCoord.y < material.clip.y || gl_FragCoord.y > material.clip.y + material.clip.w)
          discard;
    }
-   
-
 
    highp int bufferType = int(material.floatPack2.a);
    if(bufferType == 1)

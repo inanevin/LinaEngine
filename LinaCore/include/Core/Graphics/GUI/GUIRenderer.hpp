@@ -43,13 +43,13 @@ namespace LinaGX
 
 namespace Lina
 {
-	class GfxManager;
 	class Material;
 	class Shader;
 	class RenderPass;
 	class TextureSampler;
 	class ResourceManager;
 	class ResourceUploadQueue;
+	class GUIBackend;
 
 	class GUIRenderer
 	{
@@ -77,7 +77,7 @@ namespace Lina
 		GUIRenderer()  = default;
 		~GUIRenderer() = default;
 
-		void					   Create(GfxManager* gfxManager, LinaGX::Window* window);
+		void					   Create(GUIBackend* guiBackend, ResourceManagerV2* resourceManager, TextureSampler* defaultSampler, TextureSampler* textSampler, LinaGX::Window* window);
 		void					   PreTick();
 		void					   Tick(float delta, const Vector2ui& size);
 		void					   DrawDefault(LinaVG::DrawBuffer* buf);
@@ -105,10 +105,10 @@ namespace Lina
 		DrawRequest& AddDrawRequest(LinaVG::DrawBuffer* buf);
 
 	private:
+		GUIBackend*			m_guiBackend;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
-		GfxManager*			m_gfxManager = nullptr;
-		LinaGX::Instance*	m_lgx		 = nullptr;
-		LinaGX::Window*		m_window	 = nullptr;
+		LinaGX::Instance*	m_lgx	 = nullptr;
+		LinaGX::Window*		m_window = nullptr;
 		LinaVG::Drawer		m_lvg;
 		WidgetManager		m_widgetManager;
 		Vector<DrawRequest> m_drawRequests;

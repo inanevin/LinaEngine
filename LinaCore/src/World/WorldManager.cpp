@@ -45,29 +45,20 @@ namespace Lina
 {
 	void WorldManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_rm		 = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 	}
 
 	void WorldManager::Shutdown()
 	{
-		UninstallMainWorld();
-
-		for (auto* w : m_activeWorlds)
-		{
-			delete w;
-		}
-
 		m_activeWorlds.clear();
 	}
 
 	void WorldManager::SaveEmptyWorld(const String& absolutePath)
 	{
-		EntityWorld world("", 0);
-		OStream		stream;
-		world.SaveToStream(stream);
-		Serialization::SaveToFile(absolutePath.c_str(), stream);
-		stream.Destroy();
+		// EntityWorld world("", 0);
+		// OStream		stream;
+		// world.SaveToStream(stream);
+		// Serialization::SaveToFile(absolutePath.c_str(), stream);
+		// stream.Destroy();
 	}
 
 	// void WorldManager::ResizeWorldTexture(EntityWorld* world, const Vector2ui& newSize)
@@ -86,27 +77,27 @@ namespace Lina
 
 	void WorldManager::InstallWorld(const String& path)
 	{
-		m_gfxManager->Join();
-
-		if (m_mainWorld)
-			UninstallMainWorld();
-
-		const auto sid = TO_SID(path);
-		// ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), sid);
-		// m_rm->LoadResources({ident});
-		// m_rm->WaitForAll();
-		// m_mainWorld = m_rm->GetResource<EntityWorld>(sid);
-
-		m_mainWorld = new EntityWorld("Test", 0);
-
-		m_activeWorlds.push_back(m_mainWorld);
-
-		// m_mainWorld->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
-
-		for (auto* l : m_listeners)
-			l->OnWorldInstalled(m_mainWorld);
-
-		const float lim = 50.0f;
+		// m_gfxManager->Join();
+		//
+		// if (m_mainWorld)
+		//	UninstallMainWorld();
+		//
+		// const auto sid = TO_SID(path);
+		//// ResourceIdentifier ident(path, GetTypeID<EntityWorld>(), sid);
+		//// m_rm->LoadResources({ident});
+		//// m_rm->WaitForAll();
+		//// m_mainWorld = m_rm->GetResource<EntityWorld>(sid);
+		//
+		// m_mainWorld = new EntityWorld("Test", 0);
+		//
+		// m_activeWorlds.push_back(m_mainWorld);
+		//
+		//// m_mainWorld->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
+		//
+		// for (auto* l : m_listeners)
+		//	l->OnWorldInstalled(m_mainWorld);
+		//
+		// const float lim = 50.0f;
 
 		// Entity* cameraEntity = m_mainWorld->CreateEntity("Camera");
 		// cameraEntity->SetPosition(Vector3(0, 0, -20));
@@ -163,19 +154,19 @@ namespace Lina
 
 	void WorldManager::UninstallMainWorld()
 	{
-		if (m_mainWorld == nullptr)
-			return;
-
-		for (auto* l : m_listeners)
-			l->OnWorldUninstalling(m_mainWorld);
-
-		m_activeWorlds.erase(linatl::find_if(m_activeWorlds.begin(), m_activeWorlds.end(), [this](EntityWorld* w) -> bool { return w == m_mainWorld; }));
-
-		auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		// ResourceIdentifier ident(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
-		// rm->UnloadResources({ident});
-		delete m_mainWorld;
-		m_mainWorld = nullptr;
+		// if (m_mainWorld == nullptr)
+		// 	return;
+		//
+		// for (auto* l : m_listeners)
+		// 	l->OnWorldUninstalling(m_mainWorld);
+		//
+		// m_activeWorlds.erase(linatl::find_if(m_activeWorlds.begin(), m_activeWorlds.end(), [this](EntityWorld* w) -> bool { return w == m_mainWorld; }));
+		//
+		// auto* rm = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		// // ResourceIdentifier ident(m_mainWorld->GetPath(), GetTypeID<EntityWorld>(), m_mainWorld->GetSID());
+		// // rm->UnloadResources({ident});
+		// delete m_mainWorld;
+		// m_mainWorld = nullptr;
 	}
 
 	void WorldManager::InstallLevel(const char* level)
@@ -253,6 +244,16 @@ namespace Lina
 		//
 		//	if (immediate)
 		//		uninstall();
+	}
+
+	void WorldManager::AddWorld(EntityWorld* world)
+	{
+		m_activeWorlds.push_back(world);
+	}
+
+	void WorldManager::RemoveWorld(EntityWorld* world)
+	{
+		m_activeWorlds.erase(linatl::find_if(m_activeWorlds.begin(), m_activeWorlds.end(), [world](EntityWorld* w) -> bool { return w == world; }));
 	}
 
 	void WorldManager::PreTick()

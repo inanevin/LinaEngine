@@ -34,10 +34,10 @@ SOFTWARE.
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/Popups/NotificationDisplayer.hpp"
+#include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -72,8 +72,8 @@ namespace Lina::Editor
 
 	void WindowPanelManager::CreateSurfaceRendererForWindow(LinaGX::Window* window)
 	{
-		SurfaceRenderer* renderer = new SurfaceRenderer(m_gfxManager, window, window->GetSize(), Theme::GetDef().background0);
-		// m_gfxManager->AddRenderer(renderer, "SurfaceRenderers"_hs);
+		SurfaceRenderer* renderer = new SurfaceRenderer(m_editor, window, Theme::GetDef().background0);
+		m_editor->GetEditorRenderer().AddSurfaceRenderer(renderer);
 		m_surfaceRenderers[window] = renderer;
 
 		NotificationDisplayer* notificationDisplayer = renderer->GetWidgetManager().Allocate<NotificationDisplayer>();
@@ -95,7 +95,7 @@ namespace Lina::Editor
 		auto windowIt = m_surfaceRenderers.find(window);
 		LINA_ASSERT(windowIt != m_surfaceRenderers.end(), "");
 		SurfaceRenderer* sr = windowIt->second;
-		// m_gfxManager->RemoveRenderer(sr);
+		m_editor->GetEditorRenderer().RemoveSurfaceRenderer(sr);
 		delete sr;
 		m_surfaceRenderers.erase(windowIt);
 	}
@@ -331,4 +331,15 @@ namespace Lina::Editor
 		return m_surfaceRenderers.at(m_gfxManager->GetApplicationWindow(sid));
 	}
 
+	void WindowPanelManager::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
+	{
+		for (Pair<LinaGX::Window*, SurfaceRenderer*> pair : m_surfaceRenderers)
+		{
+			if (pair.first == window)
+			{
+				pair.second->OnWindowSizeChanged(window, size);
+				break;
+			}
+		}
+	}
 } // namespace Lina::Editor

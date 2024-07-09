@@ -114,13 +114,14 @@ namespace Lina
 	{
 	public:
 		ResourceManagerV2(){};
-		~ResourceManagerV2();
+		~ResourceManagerV2(){};
 
-		void LoadResourcesFromFile(int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& baseCachePath, const String& projectPath);
+		void LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& baseCachePath, const String& projectPath);
 		void Poll();
 		void WaitForAll();
 		void AddListener(ResourceManagerListener* listener);
 		void RemoveListener(ResourceManagerListener* listener);
+		void Shutdown();
 
 		template <typename T> ResourceCache<T>* GetCache()
 		{

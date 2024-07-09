@@ -28,9 +28,10 @@ SOFTWARE.
 
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 
 namespace Lina
 {
@@ -222,15 +223,17 @@ namespace Lina
 
 	void Texture::DestroyHW()
 	{
-		LINA_ASSERT(m_gpuHandleExists == true, "");
+		if (!m_gpuHandleExists)
+			return;
+
 		GfxManager::GetLGX()->DestroyTexture(m_gpuHandle);
 		m_gpuHandleExists = false;
 	}
 
-	void Texture::AddToUploadQueue()
+	void Texture::AddToUploadQueue(ResourceUploadQueue& queue)
 	{
 		LINA_ASSERT(m_gpuHandleExists == true, "");
-		// m_gfxManager->GetResourceUploadQueue().AddTextureRequest(this, [this]() { DestroySW(); });
+		queue.AddTextureRequest(this, [this]() { DestroySW(); });
 	}
 
 } // namespace Lina

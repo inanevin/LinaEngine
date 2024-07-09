@@ -26,30 +26,35 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
+#include "Editor/Graphics/SurfaceRenderer.hpp"
+#include "Editor/Editor.hpp"
+#include "Editor/Graphics/EditorGfxHelpers.hpp"
 #include "Core/Graphics/Data/RenderData.hpp"
+#include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/Graphics/Resource/Shader.hpp"
-#include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Data/Vertex.hpp"
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
 #define MAX_GFX_COMMANDS  250
 #define MAX_COPY_COMMANDS 250
 
-	SurfaceRenderer::SurfaceRenderer(GfxManager* gfx, LinaGX::Window* window, const Vector2ui& initialSize, const Color& clearColor) : Renderer(gfx, 0), m_window(window), m_size(initialSize)
+	SurfaceRenderer::SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor) : m_window(window)
 	{
-		m_appListener = m_gfxManager->GetSystem()->GetApp()->GetAppDelegate();
-		m_rm		  = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_lgx		  = GfxManager::GetLGX();
+		m_editor			= editor;
+		m_resourceManagerV2 = &m_editor->GetResourceManagerV2();
+		m_lgx				= GfxManager::GetLGX();
+		m_size				= m_window->GetSize();
+		m_guiShader			= m_resourceManagerV2->GetResource<Shader>("Resources/Editor/Shaders/GUI/EditorGUI.linashader"_hs);
 
 		// Swapchain
 		const auto monitorSize = window->GetMonitorSize();
@@ -63,7 +68,7 @@ namespace Lina
 					   .window		 = window->GetWindowHandle(),
 					   .osHandle	 = window->GetOSHandle(),
 					   .isFullscreen = windowSize.x == monitorSize.x && windowSize.y == monitorSize.y,
-					   .vsyncStyle	 = m_gfxManager->GetCurrentVsync(),
+					   .vsyncStyle	 = LinaGX::VSyncStyle{},
 		   });
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -77,14 +82,9 @@ namespace Lina
 			data.copySemaphore		  = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 
-		/*
-		m_guiShader2D	   = m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI_SID);
-		m_guiShaderVariant = m_guiShader2D->GetGPUHandle("Swapchain"_hs);
-		 */
-
 		// RP
-		m_guiPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Gui));
-		m_guiRenderer.Create(m_gfxManager, window);
+		m_guiPass.Create(EditorGfxHelpers::GetGUIPassDescription());
+		m_guiRenderer.Create(&m_editor->GetEditorRenderer().GetGUIBackend(), &m_editor->GetResourceManagerV2(), m_editor->GetEditorRenderer().GetGUISampler(), m_editor->GetEditorRenderer().GetGUITextSampler(), window);
 	}
 
 	SurfaceRenderer::~SurfaceRenderer()
@@ -121,17 +121,21 @@ namespace Lina
 		m_size = newSize;
 	}
 
-	void SurfaceRenderer::PreTick()
+	bool SurfaceRenderer::CheckVisibility()
 	{
 		auto ws		= m_window->GetSize();
 		m_isVisible = m_window->GetIsVisible() && ws.x != 0 && ws.y != 0 && !m_window->GetIsMinimized();
+		return m_isVisible;
+	}
+
+	void SurfaceRenderer::PreTick()
+	{
 		m_guiRenderer.PreTick();
 	}
 
 	void SurfaceRenderer::Tick(float delta)
 	{
-		if (m_isVisible)
-			m_guiRenderer.Tick(delta, m_size);
+		m_guiRenderer.Tick(delta, m_size);
 	}
 
 	void SurfaceRenderer::UpdateBuffers(uint32 frameIndex)
@@ -139,8 +143,8 @@ namespace Lina
 		auto& currentFrame = m_pfd[frameIndex];
 
 		// Transfers
-		GPUDataView dataView = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
-		m_guiPass.GetBuffer(frameIndex, "ViewData"_hs).BufferData(0, (uint8*)&dataView, sizeof(GPUDataView));
+		GPUDataGUIView view = {.proj = GfxHelpers::GetProjectionFromSize(m_window->GetSize())};
+		m_guiPass.GetBuffer(frameIndex, "GUIViewData"_hs).BufferData(0, (uint8*)&view, sizeof(GPUDataGUIView));
 
 		Buffer& indirectBuffer = m_guiPass.GetBuffer(frameIndex, "IndirectBuffer"_hs);
 
@@ -178,11 +182,8 @@ namespace Lina
 		}
 	}
 
-	void SurfaceRenderer::Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues)
+	LinaGX::CommandStream* SurfaceRenderer::Render(uint32 frameIndex)
 	{
-		if (!m_isVisible)
-			return;
-
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 
@@ -204,6 +205,13 @@ namespace Lina
 			.height = m_size.y,
 		};
 
+		LinaGX::CMDBindDescriptorSets* bindGlobal = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
+		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_editor->GetEditorRenderer().GetDescriptorSetGlobal(frameIndex));
+		bindGlobal->firstSet					  = 0;
+		bindGlobal->setCount					  = 1;
+		bindGlobal->layoutSource				  = LinaGX::DescriptorSetsLayoutSource::CustomLayout;
+		bindGlobal->customLayout				  = m_editor->GetEditorRenderer().GetPipelineLayoutGlobal();
+
 		// Barrier to Color Attachment
 		LinaGX::CMDBarrier* barrierToColor	= currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
 		barrierToColor->srcStageFlags		= LinaGX::PSF_TopOfPipe;
@@ -212,12 +220,12 @@ namespace Lina
 		barrierToColor->textureBarriers		= currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier));
 		barrierToColor->textureBarriers[0]	= GfxHelpers::GetTextureBarrierPresent2Color(static_cast<uint32>(m_swapchain), true);
 
-		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::Gui));
+		m_guiPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_editor->GetEditorRenderer().GetPipelineLayoutGUI());
 
 		// Begin render pass
 		m_guiPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 
-		m_guiShader2D->Bind(currentFrame.gfxStream, m_guiShaderVariant);
+		m_guiShader->Bind(currentFrame.gfxStream, m_guiShader->GetGPUHandle());
 		m_guiRenderer.Render(currentFrame.gfxStream, m_guiPass.GetBuffer(frameIndex, "IndirectBuffer"_hs), frameIndex, m_window->GetSize());
 
 		// End render pass
@@ -233,6 +241,8 @@ namespace Lina
 
 		// Close
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
+
+		return currentFrame.gfxStream;
 	}
 
-} // namespace Lina
+} // namespace Lina::Editor

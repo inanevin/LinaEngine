@@ -26,45 +26,33 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#lina_vs
 
-#include "Common/StringID.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Common.hpp"
+#include "Resources/Editor/Shaders/Common/EditorGlobal.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_gui.linashader"
 
-namespace Lina
+layout (location = 0) in vec2 pos;
+layout (location = 1) in vec2 uv;
+layout (location = 2) in vec4 col;
+
+layout (location = 0) out vec4 outCol;
+layout (location = 1) out vec2 outUV;
+layout (location = 2) flat out uint outDrawID;
+
+void main()
 {
-	class Resource;
+   outCol = col;
+   outUV = uv;
+   outDrawID = LGX_DRAW_ID;
+   gl_Position = LINA_VIEW.proj * vec4(pos.x, pos.y, 0.0f, 1.0);
+}
 
-	enum class PackageType
-	{
-		Default,
-		Package1,
-		Package2,
-		PackageLevels,
-	};
+#lina_end
 
-	enum ResourceFlags
-	{
-	};
+#lina_fs
 
-	struct ResourceIdentifier
-	{
-		String	 relativePath = "";
-		TypeID	 tid		  = 0;
-		StringID sid		  = 0;
-		void	 SaveToStream(OStream& stream) const;
-		void	 LoadFromStream(IStream& stream);
-	};
+#include "Resources/Editor/Shaders/Common/EditorGlobal.linashader"
+#include "Resources/Core/Shaders/Common/RenderPass_gui.linashader"
+#include "Resources/Core/Shaders/GUI/GUI_frag.linashader"
 
-	struct ResourceLoadTask
-	{
-		Taskflow				   tf;
-		Vector<ResourceIdentifier> identifiers;
-		Vector<Resource*>		   resources;
-		Atomic<bool>			   isCompleted = false;
-		int32					   id		   = 0;
-		uint64					   startTime   = 0;
-		uint64					   endTime	   = 0;
-	};
-} // namespace Lina
+#lina_end

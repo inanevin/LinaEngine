@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/MeshManager.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -42,9 +42,6 @@ namespace Lina
 	{
 		for (auto* n : m_rootNodes)
 		{
-			// if (n->m_mesh)
-			// 	m_gfxManager->GetMeshManager().RemoveMesh(n->m_mesh);
-
 			delete n;
 		}
 		m_rootNodes.clear();
@@ -172,18 +169,20 @@ namespace Lina
 			node->SaveToStream(stream);
 	}
 
-	void Model::UploadNode(ModelNode* node)
+	void Model::UploadNodes(MeshManager& meshManager)
 	{
-		for (auto* node : m_rootNodes)
-		{
-			MeshDefault* mesh = node->GetMesh();
+		for (ModelNode* node : m_rootNodes)
+			UploadNode(meshManager, node);
+	}
 
-			// if (mesh)
-			// 	m_gfxManager->GetMeshManager().AddMesh(mesh);
+	void Model::UploadNode(MeshManager& meshManager, ModelNode* node)
+	{
+		MeshDefault* mesh = node->GetMesh();
+		if (mesh)
+			meshManager.AddMesh(mesh);
 
-			for (auto* c : node->m_children)
-				UploadNode(c);
-		}
+		for (auto* c : node->m_children)
+			UploadNode(meshManager, c);
 	}
 
 	ModelNode* Model::GetFirstNodeWMesh()

@@ -27,50 +27,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 
 #pragma once
 
-#include "Common/Common.hpp"
 #include "Common/System/Subsystem.hpp"
-#include "Common/StringID.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Platform/LinaGXIncl.hpp"
-#include "Core/Graphics/MeshManager.hpp"
-#include "Core/Graphics/GUI/GUIBackend.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
-#include "Core/Graphics/ResourceUploadQueue.hpp"
-#include "Core/Graphics/Resource/TextureSampler.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
-#include "Core/Resources/ResourceManagerListener.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+
+namespace LinaGX
+{
+	class Instance;
+	class Window;
+} // namespace LinaGX
 
 namespace Lina
 {
-	class ResourceManager;
-	class GUIBackend;
-	class Renderer;
+	class ApplicationDelegate;
 
-	struct RendererPool
-	{
-		uint32			  order			= 0;
-		StringID		  sid			= 0;
-		bool			  submitInBatch = false;
-		Vector<Renderer*> renderers;
-	};
-
-	class GfxManager : public Subsystem, public LinaGX::WindowListener, public ResourceManagerListener
+	class GfxManager : public Subsystem, public LinaGX::WindowListener
 	{
 	private:
-		struct PerFrameData
-		{
-			uint16							  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-			uint16							  pipelineLayoutPersistentGlobal = 0;
-			uint16							  descriptorSetPersistentGlobal	 = 0;
-			Buffer							  globalDataBuffer;
-			Buffer							  globalMaterialsBuffer;
-			SemaphoreData					  poolSubmissionSemaphore = {};
-			SemaphoreData					  globalCopySemaphore	  = {};
-			LinaGX::CommandStream*			  globalCopyStream		  = nullptr;
-			LinaGX::DescriptorUpdateImageDesc globalTexturesDesc	  = {};
-			LinaGX::DescriptorUpdateImageDesc globalSamplersDesc	  = {};
-		};
-
 	public:
 		GfxManager(System* sys);
 		~GfxManager() = default;
@@ -80,16 +53,7 @@ namespace Lina
 		virtual void PreShutdown() override;
 		virtual void Shutdown() override;
 		virtual void PreTick() override;
-		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& sz) override;
-
-		// Resource
-		virtual void OnManagerLock(uint32 lockCount) override;
-		virtual void OnManagerUnlock(uint32 lockCount) override;
-
-		// Renderers
-		void CreateRendererPool(StringID sid, uint32 order, bool submitInBatch);
-		void AddRenderer(Renderer* renderer, StringID pool);
-		void RemoveRenderer(Renderer* renderer);
+		virtual void OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui&) override;
 
 		// Loop
 		void WaitForSwapchains();
@@ -103,79 +67,14 @@ namespace Lina
 		LinaGX::Window* CreateApplicationWindow(StringID sid, const char* title, const Vector2i& pos, const Vector2ui& size, uint32 style, LinaGX::Window* parentWindow = nullptr);
 		LinaGX::Window* GetApplicationWindow(StringID sid);
 
-		uint16 GetDescriptorSetPersistentGlobal(uint32 frameIndex) const
-		{
-			return m_pfd[frameIndex].descriptorSetPersistentGlobal;
-		}
-
-		uint16 GetPipelineLayoutPersistentGlobal(uint32 frameIndex) const
-		{
-			return m_pfd[frameIndex].pipelineLayoutPersistentGlobal;
-		}
-
-		uint16 GetPipelineLayoutPersistentRenderPass(uint32 frameIndex, RenderPassDescriptorType renderPassType) const
-		{
-			return m_pfd[frameIndex].pipelineLayoutPersistentRenderpass[renderPassType];
-		}
-
-		inline MeshManager& GetMeshManager()
-		{
-			return m_meshManager;
-		}
-
-		inline ResourceUploadQueue& GetResourceUploadQueue()
-		{
-			return m_resourceUploadQueue;
-		}
-
-		inline const LinaGX::VSyncStyle& GetCurrentVsync() const
-		{
-			return m_currentVsync;
-		}
-
 		inline static LinaGX::Instance* GetLGX()
 		{
 			return s_lgx;
 		}
 
-		inline static LinaVG::Text* GetLVGText()
-		{
-			return s_lvgText;
-		}
-
-		inline const GUIBackend& GetGUIBackend() const
-		{
-			return m_guiBackend;
-		}
-
-		inline TextureSampler* GetDefaultSampler(uint32 index) const
-		{
-			return m_defaultSamplers[index];
-		}
-
 	private:
-		void UpdateBindlessResources(PerFrameData& pfd);
-
-	private:
-		ResourceUploadQueue		 m_resourceUploadQueue;
-		MeshManager				 m_meshManager;
-		GUIBackend				 m_guiBackend;
-		ResourceManager*		 m_resourceManager = nullptr;
-		Vector<TextureSampler*>	 m_defaultSamplers;
-		Vector<Material*>		 m_defaultMaterials;
-		LinaGX::Instance*		 m_lgx			= nullptr;
-		LinaGX::VSyncStyle		 m_currentVsync = {};
-		ApplicationDelegate*	 m_appDelegate	= nullptr;
-		LinaGX::Window*			 m_mainWindow	= nullptr;
-		Color					 m_clearColor	= Color::Black;
-		PerFrameData			 m_pfd[FRAMES_IN_FLIGHT];
-		Mutex					 m_wrMtx;
-		Mutex					 m_bindlessMtx;
-		Vector<RendererPool>	 m_rendererPools;
-		LinaVG::Text			 m_lvgText;
-		bool					 m_resourceManagerLocked	 = false;
-		int32					 m_bindlessResourceLoadCount = 0;
+		LinaGX::Instance*		 m_lgx		   = nullptr;
+		ApplicationDelegate*	 m_appDelegate = nullptr;
 		static LinaGX::Instance* s_lgx;
-		static LinaVG::Text*	 s_lvgText;
 	};
 } // namespace Lina

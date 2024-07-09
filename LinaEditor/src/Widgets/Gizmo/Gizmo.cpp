@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Editor/Widgets/Gizmo/Gizmo.hpp"
 #include "Editor/Editor.hpp"
 #include "Common/System/System.hpp"
-#include "Core/World/WorldManager.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/Components/CameraComponent.hpp"
 
@@ -45,15 +44,5 @@ namespace Lina::Editor
 
 	void Gizmo::Draw()
 	{
-
-		auto*				 camera	   = Editor::Get()->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager)->GetMainWorld()->GetActiveCamera();
-		Vector4				 position  = Vector4(0, 0, 0, 1);
-		Vector4				 position2 = Vector4(0, 5, 0, 1);
-		auto				 aq		   = camera->GetView() * position;
-		auto				 aq2	   = camera->GetView() * position2;
-		LinaVG::StyleOptions opts;
-		opts.thickness = 0.25f;
-		// m_lvg->DrawLine(LinaVG::Vec2(0,5), LinaVG::Vec2(5, 5), opts);
-		// m_lvg->DrawBezier(LinaVG::Vec2(0, 5), LinaVG::Vec2(3, 0), LinaVG::Vec2(8, 12), LinaVG::Vec2(15, 5), opts);
 	}
 } // namespace Lina::Editor

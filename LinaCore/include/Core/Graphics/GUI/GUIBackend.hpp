@@ -42,10 +42,11 @@ namespace LinaVG
 namespace Lina
 {
 	class GfxManager;
-	class ResourceManager;
+	class ResourceManagerV2;
 	class Texture;
 	class TextureSampler;
 	class Buffer;
+	class ResourceUploadQueue;
 
 	class GUIBackend
 	{
@@ -63,7 +64,7 @@ namespace Lina
 		GUIBackend()  = default;
 		~GUIBackend() = default;
 
-		void				  Initialize(GfxManager* gfxMan);
+		void				  Initialize(ResourceManagerV2* resourceManager, ResourceUploadQueue* uploadQueue);
 		void				  Shutdown();
 		void				  BufferFontTextureAtlas(int width, int height, int offsetX, int offsetY, unsigned char* data);
 		void				  BufferEnded();
@@ -75,9 +76,16 @@ namespace Lina
 			return m_fontTextures.at(handle);
 		}
 
+		inline LinaVG::Text& GetLVGText()
+		{
+			return m_lvgText;
+		}
+
 	private:
-		StringID			m_boundFontTexture = 0;
-		ResourceManager*	m_resourceManager  = nullptr;
-		Vector<FontTexture> m_fontTextures;
+		LinaVG::Text		 m_lvgText;
+		ResourceUploadQueue* m_uploadQueue;
+		StringID			 m_boundFontTexture	 = 0;
+		ResourceManagerV2*	 m_resourceManagerV2 = nullptr;
+		Vector<FontTexture>	 m_fontTextures;
 	};
 } // namespace Lina

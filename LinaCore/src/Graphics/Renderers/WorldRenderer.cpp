@@ -33,6 +33,8 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Shader.hpp"
 #include "Core/Graphics/Resource/Material.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/World/EntityWorld.hpp"
@@ -42,6 +44,7 @@ SOFTWARE.
 #include "Core/Components/WidgetComponent.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/System/System.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Common/Profiling/Profiler.hpp"
 
 #include <glm/gtc/matrix_transform.hpp>
@@ -59,19 +62,17 @@ namespace Lina
 #define MAX_GUI_MATERIALS 100
 #define MAX_OBJECTS		  256
 
-	WorldRenderer::WorldRenderer(GfxManager* man, EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers) : Renderer(man, 0)
+	WorldRenderer::WorldRenderer(EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers)
 	{
 		m_snapshotBuffer = snapshotBuffers;
 		m_world			 = world;
 		m_world->AddListener(this);
-		m_size = viewSize;
-		m_rm   = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_size				= viewSize;
+		m_resourceManagerV2 = &world->GetResourceManagerV2();
 		// m_gBufSampler			 = m_gfxManager->GetDefaultSampler(0);
 		// m_deferredLightingShader = m_rm->GetResource<Shader>(DEFAULT_SHADER_DEFERRED_LIGHTING_SID);
 		// m_skyCube				 = m_rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
 		m_lgx = GfxManager::GetLGX();
-
-		auto* rm = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -86,13 +87,22 @@ namespace Lina
 		// m_guiShader3D			= m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI3D_SID);
 		// m_guiShader3DVariantGPU = m_guiShader3D->GetGPUHandle("RenderTarget"_hs);
 
-		m_mainPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
-		m_lightingPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
-		m_forwardTransparencyPass.Create(m_gfxManager, GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::ForwardTransparency));
+		m_mainPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
+		m_lightingPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
+		m_forwardTransparencyPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::ForwardTransparency));
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
+
+			LinaGX::ResourceDesc globalDataDesc = {
+				.size		   = sizeof(GPUDataEngineGlobals),
+				.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
+				.heapType	   = LinaGX::ResourceHeap::StagingHeap,
+				.debugName	   = "WorldRenderer: Global Data Buffer",
+			};
+			data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "GfxManager: Engine Globals", true);
+			data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "GfxManager: Materials", false);
 
 			m_lgx->DescriptorUpdateBuffer({
 				.setHandle			= m_mainPass.GetDescriptorSet(i),
@@ -107,14 +117,52 @@ namespace Lina
 				.binding			= 1,
 				.buffers			= {data.objectBuffer.GetGPUResource()},
 			});
+
+			data.descriptorSetPersistentGlobal = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentGlobal());
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle	   = data.descriptorSetPersistentGlobal,
+				.binding	   = 0,
+				.buffers	   = {data.globalDataBuffer.GetGPUResource()},
+				.isWriteAccess = false,
+			});
+
+			m_lgx->DescriptorUpdateBuffer({
+				.setHandle	   = data.descriptorSetPersistentGlobal,
+				.binding	   = 1,
+				.buffers	   = {data.globalMaterialsBuffer.GetGPUResource()},
+				.isWriteAccess = false,
+			});
+
+			data.pipelineLayoutPersistentGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
+
+			data.globalTexturesDesc = {
+				.setHandle = data.descriptorSetPersistentGlobal,
+				.binding   = 2,
+			};
+
+			data.globalSamplersDesc = {
+				.setHandle = data.descriptorSetPersistentGlobal,
+				.binding   = 3,
+			};
+
+			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
+			{
+				data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
+			}
 		}
 
+		m_guiBackend.Initialize(m_resourceManagerV2, &m_globalUploadQueue);
+		m_meshManager.Initialize();
 		CreateSizeRelativeResources();
 		FetchRenderables();
 	}
 
 	WorldRenderer::~WorldRenderer()
 	{
+		m_guiBackend.Shutdown();
+		m_meshManager.Shutdown();
+
 		for (auto* ext : m_extensions)
 			delete ext;
 
@@ -126,8 +174,17 @@ namespace Lina
 			m_lgx->DestroyCommandStream(data.gfxStream);
 			m_lgx->DestroyCommandStream(data.copyStream);
 			data.objectBuffer.Destroy();
+
 			m_lgx->DestroyUserSemaphore(data.signalSemaphore.GetSemaphore());
 			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
+
+			m_lgx->DestroyDescriptorSet(data.descriptorSetPersistentGlobal);
+			m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentGlobal);
+			data.globalDataBuffer.Destroy();
+			data.globalMaterialsBuffer.Destroy();
+
+			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
+				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
 		}
 
 		m_mainPass.Destroy();
@@ -177,11 +234,11 @@ namespace Lina
 			const String name2		= "WorldRenderer: GBufNormal" + TO_STRING(i);
 			const String name3		= "WorldRenderer: GBufDepth" + TO_STRING(i);
 			const String name4		= "WorldRenderer: GBufLightingPass" + TO_STRING(i);
-			data.gBufAlbedo			= m_rm->CreateResource<Texture>(name0, TO_SID(name0));
-			data.gBufPosition		= m_rm->CreateResource<Texture>(name1, TO_SID(name1));
-			data.gBufNormal			= m_rm->CreateResource<Texture>(name2, TO_SID(name2));
-			data.gBufDepth			= m_rm->CreateResource<Texture>(name3, TO_SID(name3));
-			data.lightingPassOutput = m_rm->CreateResource<Texture>(name4, TO_SID(name4));
+			data.gBufAlbedo			= m_resourceManagerV2->CreateResource<Texture>(name0, TO_SID(name0));
+			data.gBufPosition		= m_resourceManagerV2->CreateResource<Texture>(name1, TO_SID(name1));
+			data.gBufNormal			= m_resourceManagerV2->CreateResource<Texture>(name2, TO_SID(name2));
+			data.gBufDepth			= m_resourceManagerV2->CreateResource<Texture>(name3, TO_SID(name3));
+			data.lightingPassOutput = m_resourceManagerV2->CreateResource<Texture>(name4, TO_SID(name4));
 
 			data.gBufAlbedo->GenerateHWFromDesc(rtDesc);
 			data.gBufPosition->GenerateHWFromDesc(rtDesc);
@@ -221,11 +278,11 @@ namespace Lina
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data = m_pfd[i];
-			m_rm->DestroyResource(data.gBufAlbedo);
-			m_rm->DestroyResource(data.gBufPosition);
-			m_rm->DestroyResource(data.gBufNormal);
-			m_rm->DestroyResource(data.gBufDepth);
-			m_rm->DestroyResource(data.lightingPassOutput);
+			m_resourceManagerV2->DestroyResource(data.gBufAlbedo);
+			m_resourceManagerV2->DestroyResource(data.gBufPosition);
+			m_resourceManagerV2->DestroyResource(data.gBufNormal);
+			m_resourceManagerV2->DestroyResource(data.gBufDepth);
+			m_resourceManagerV2->DestroyResource(data.lightingPassOutput);
 		}
 	}
 
@@ -262,10 +319,6 @@ namespace Lina
 			m_widgetComponents.erase(linatl::find_if(m_widgetComponents.begin(), m_widgetComponents.end(), [c](WidgetComponent* comp) -> bool { return c == comp; }));
 	}
 
-	void WorldRenderer::PreTick()
-	{
-	}
-
 	void WorldRenderer::Tick(float delta)
 	{
 		for (auto* ext : m_extensions)
@@ -277,15 +330,74 @@ namespace Lina
 		if (m_size.Equals(newSize))
 			return;
 
-		m_gfxManager->Join();
 		m_size = newSize;
 		DestroySizeRelativeResources();
 		CreateSizeRelativeResources();
 	}
 
+	void WorldRenderer::UpdateBindlessResources(uint32 frameIndex)
+	{
+		auto& pfd = m_pfd[frameIndex];
+
+		if (!pfd.bindlessDirty)
+			return false;
+
+		// Textures.
+		ResourceCache<Texture>* cacheTxt = m_resourceManagerV2->GetCache<Texture>();
+		pfd.globalTexturesDesc.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
+		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
+			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
+			txt->SetBindlessIndex(static_cast<uint32>(index));
+			return false;
+		});
+
+		if (!pfd.globalTexturesDesc.textures.empty())
+			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
+
+		// Samplers
+		ResourceCache<TextureSampler>* cacheSmp = m_resourceManagerV2->GetCache<TextureSampler>();
+		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
+		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
+			smp->SetBindlessIndex(static_cast<uint32>(index));
+			return false;
+		});
+
+		if (!pfd.globalSamplersDesc.samplers.empty())
+			m_lgx->DescriptorUpdateImage(pfd.globalSamplersDesc);
+
+		// Materials
+		ResourceCache<Material>* cacheMat = m_resourceManagerV2->GetCache<Material>();
+		size_t					 padding  = 0;
+		cacheMat->View([&](Material* mat, uint32 index) -> bool {
+			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding);
+			pfd.globalMaterialsBuffer.MarkDirty();
+			return false;
+		});
+
+		m_uploadQueue.AddBufferRequest(&pfd.globalMaterialsBuffer);
+		pfd.bindlessDirty = false;
+	}
+
 	void WorldRenderer::UpdateBuffers(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
+
+		// Global queue is mostly for resources that are not per-frame-dependent, like textures or meshes.
+		// We will wait for them to be completed before proceding.
+		if (m_globalUploadQueue.FlushAll(currentFrame.copyStream))
+		{
+			BumpAndSendTransfers(frameIndex);
+			m_lgx->WaitForUserSemaphore(currentFrame.copySemaphore.GetSemaphore(), currentFrame.copySemaphore.GetValue());
+		}
+
+		// Update global data.
+		{
+			const auto&			 mp			= m_lgx->GetInput().GetMousePositionAbs();
+			GPUDataEngineGlobals globalData = {};
+			globalData.mouseScreen			= Vector4(static_cast<float>(mp.x), static_cast<float>(mp.y), static_cast<float>(m_size.x), static_cast<float>(m_size.y));
+			globalData.deltaElapsed			= Vector4(SystemInfo::GetDeltaTimeF(), SystemInfo::GetAppTimeF(), 0.0f, 0.0f);
+			currentFrame.globalDataBuffer.BufferData(0, (uint8*)&globalData, sizeof(GPUDataEngineGlobals));
+		}
 
 		// View data.
 		{
@@ -434,6 +546,7 @@ namespace Lina
 			}
 		}
 
+		m_uploadQueue.AddBufferRequest(&currentFrame.globalDataBuffer);
 		m_uploadQueue.AddBufferRequest(&currentFrame.objectBuffer);
 		m_mainPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
 		m_forwardTransparencyPass.AddBuffersToUploadQueue(frameIndex, m_uploadQueue);
@@ -449,12 +562,13 @@ namespace Lina
 			BumpAndSendTransfers(frameIndex);
 	}
 
-	void WorldRenderer::Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues)
+	void WorldRenderer::Render(uint32 frameIndex)
 	{
 		auto& currentFrame = m_pfd[frameIndex];
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
+		UpdateBindlessResources(frameIndex);
 		UpdateBuffers(frameIndex);
 
 		const LinaGX::Viewport viewport = {
@@ -475,11 +589,11 @@ namespace Lina
 
 		// Global set.
 		LinaGX::CMDBindDescriptorSets* bindGlobal = currentFrame.gfxStream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(m_gfxManager->GetDescriptorSetPersistentGlobal(frameIndex));
+		bindGlobal->descriptorSetHandles		  = currentFrame.gfxStream->EmplaceAuxMemory<uint16>(currentFrame.descriptorSetPersistentGlobal);
 		bindGlobal->firstSet					  = 0;
 		bindGlobal->setCount					  = 1;
 		bindGlobal->layoutSource				  = LinaGX::DescriptorSetsLayoutSource::CustomLayout;
-		bindGlobal->customLayout				  = m_gfxManager->GetPipelineLayoutPersistentGlobal(frameIndex);
+		bindGlobal->customLayout				  = currentFrame.pipelineLayoutPersistentGlobal;
 
 		{
 			// Barrier to Attachment
@@ -497,9 +611,9 @@ namespace Lina
 
 		// Global vertex/index buffers.
 		m_mainPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::Main), false);
+		m_mainPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Main]);
 
-		m_gfxManager->GetMeshManager().BindBuffers(currentFrame.gfxStream, 0);
+		m_meshManager.BindBuffers(currentFrame.gfxStream, 0);
 
 		Shader*	  lastBoundShader	= nullptr;
 		Material* lastBoundMaterial = nullptr;
@@ -543,7 +657,7 @@ namespace Lina
 		}
 
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::Lighting), false);
+		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Lighting]);
 
 		m_deferredLightingShader->Bind(currentFrame.gfxStream, m_deferredLightingShader->GetGPUHandle());
 
@@ -566,7 +680,7 @@ namespace Lina
 		m_lightingPass.End(currentFrame.gfxStream);
 
 		m_forwardTransparencyPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
-		m_forwardTransparencyPass.BindDescriptors(currentFrame.gfxStream, frameIndex, m_gfxManager->GetPipelineLayoutPersistentRenderPass(frameIndex, RenderPassDescriptorType::ForwardTransparency), false);
+		m_forwardTransparencyPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::ForwardTransparency]);
 
 		if (!m_widgetComponents.empty())
 			m_guiShader3D->Bind(currentFrame.gfxStream, m_guiShader3DVariantGPU);
@@ -599,12 +713,6 @@ namespace Lina
 
 		Vector<uint16> waitSemaphoresVec;
 		Vector<uint64> waitValuesVec;
-
-		for (uint32 i = 0; i < waitCount; i++)
-		{
-			waitSemaphoresVec.push_back(waitSemaphores[i]);
-			waitValuesVec.push_back(waitValues[i]);
-		}
 
 		// If transfers exist.
 		if (currentFrame.copySemaphore.IsModified())
@@ -676,6 +784,67 @@ namespace Lina
 			.isMultithreaded  = true,
 		});
 		return currentFrame.copySemaphore.GetValue();
+	}
+
+	void WorldRenderer::OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources)
+	{
+		bool bindlessDirty	  = false;
+		bool meshManagerDirty = false;
+
+		for (Resource* res : resources)
+		{
+			if (res->GetTID() == GetTypeID<Texture>())
+			{
+				Texture* txt = static_cast<Texture*>(res);
+				txt->GenerateHW();
+				txt->AddToUploadQueue(m_globalUploadQueue);
+				bindlessDirty = true;
+			}
+			else if (res->GetTID() == GetTypeID<TextureSampler>())
+			{
+				TextureSampler* smp = static_cast<TextureSampler*>(res);
+				smp->GenerateHW();
+				bindlessDirty = true;
+			}
+			else if (res->GetTID() == GetTypeID<Shader>())
+			{
+				Shader* shd = static_cast<Shader*>(res);
+				shd->GenerateHW();
+			}
+			else if (res->GetTID() == GetTypeID<Material>())
+			{
+				Material* mat = static_cast<Material*>(res);
+				mat->SetShader(m_resourceManagerV2->GetResource<Shader>(mat->GetShaderSID()));
+				bindlessDirty = true;
+			}
+			else if (res->GetTID() == GetTypeID<Font>())
+			{
+				Font* font = static_cast<Font*>(res);
+				font->GenerateHW(m_guiBackend.GetLVGText());
+				bindlessDirty = true;
+			}
+			else if (res->GetTID() == GetTypeID<Model>())
+			{
+				Model* model = static_cast<Model*>(res);
+				model->UploadNodes(m_meshManager);
+				meshManagerDirty = true;
+			}
+			else if (res->GetTID() == GetTypeID<GUIWidget>())
+			{
+				GUIWidget* wid = static_cast<GUIWidget*>(res);
+			}
+		}
+
+		if (bindlessDirty)
+		{
+			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+				m_pfd[i].bindlessDirty = true;
+		}
+
+		if (meshManagerDirty)
+		{
+			m_meshManager.AddToUploadQueue(m_globalUploadQueue);
+		}
 	}
 
 } // namespace Lina

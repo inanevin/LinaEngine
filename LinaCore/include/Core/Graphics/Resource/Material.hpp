@@ -71,6 +71,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 SetShader(Shader* shader);
+        void ResetProperties();
 		size_t		 BufferDataInto(Buffer& buf, size_t padding);
 
 		template <typename T> void SetProperty(StringID sid, T val)
@@ -89,6 +90,11 @@ namespace Lina
 		{
 			return m_shader;
 		}
+        
+        inline StringID GetShaderSID() const
+        {
+            return m_shaderSID;
+        }
 
 		inline uint32 GetBindlessBytePadding() const
 		{

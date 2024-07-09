@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -127,6 +126,9 @@ namespace Lina
 		m_app->GetAppDelegate()->Tick(deltaF);
 		m_gfxManager.Render();
 		audioJob.get();
+
+		if (GfxManager::GetLGX()->GetInput().GetKeyDown(LINAGX_KEY_L))
+			m_app->Quit();
 	}
 
 	void Engine::CalculateTime()

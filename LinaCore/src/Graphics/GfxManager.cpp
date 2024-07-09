@@ -26,32 +26,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#include "Core/Graphics/GfxManager.hpp"
+#include "Core/Application.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Profiling/Profiler.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/Math/Math.hpp"
-#include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Theme.hpp"
-
-#include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Resource/Material.hpp"
-#include "Core/Graphics/Resource/Model.hpp"
-#include "Core/Graphics/Resource/Texture.hpp"
-#include "Core/Graphics/Resource/TextureSampler.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
-#include "Core/Graphics/CommonGraphics.hpp"
-#include "Core/Graphics/Utility/GfxHelpers.hpp"
-#include "Core/Graphics/Data/RenderData.hpp"
-#include "Core/Graphics/Resource/TextureSampler.hpp"
-#include "Core/Graphics/GUI/GUIBackend.hpp"
-#include "Core/Graphics/Renderers/Renderer.hpp"
-
-#include "Core/Resources/ResourceManager.hpp"
-#include "Common/System/SystemInfo.hpp"
-#include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
-
-#include <memoryallocators/PoolAllocator.h>
 
 namespace
 {
@@ -92,13 +72,10 @@ namespace
 namespace Lina
 {
 
-	LinaGX::Instance* GfxManager::s_lgx		= nullptr;
-	LinaVG::Text*	  GfxManager::s_lvgText = nullptr;
+	LinaGX::Instance* GfxManager::s_lgx = nullptr;
 
-	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager), m_meshManager(this)
+	GfxManager::GfxManager(System* sys) : Subsystem(sys, SubsystemType::GfxManager)
 	{
-		m_resourceManager = sys->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-
 		// Setup LinaVG
 		LinaVG::Config.globalFramebufferScale = 1.0f;
 		LinaVG::Config.globalAAMultiplier	  = 1.0f;
@@ -110,25 +87,15 @@ namespace Lina
 		LinaVG::Config.errorCallback		  = [](const std::string& err) { LINA_ERR(err.c_str()); };
 		LinaVG::Config.logCallback			  = [](const std::string& log) { LINA_TRACE(log.c_str()); };
 
-		m_guiBackend.Initialize(this);
-
-		m_lvgText.GetCallbacks().fontTextureBind	   = std::bind(&GUIBackend::BindFontTexture, &m_guiBackend, std::placeholders::_1);
-		m_lvgText.GetCallbacks().fontTextureBufferData = std::bind(&GUIBackend::BufferFontTextureAtlas, &m_guiBackend, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
-		m_lvgText.GetCallbacks().fontTextureBufferEnd  = std::bind(&GUIBackend::BufferEnded, &m_guiBackend);
-		m_lvgText.GetCallbacks().fontTextureCreate	   = std::bind(&GUIBackend::CreateFontTexture, &m_guiBackend, std::placeholders::_1, std::placeholders::_2);
 		LinaVG::InitializeText();
 	}
 
 	void GfxManager::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
 		// Setup LinaGX
-		m_lgx		   = new LinaGX::Instance();
-		m_appDelegate  = m_system->GetApp()->GetAppDelegate();
-		m_clearColor   = initInfo.clearColor;
-		m_currentVsync = initInfo.vsyncStyle;
-		m_resourceManager->AddListener(this);
-		s_lgx	  = m_lgx;
-		s_lvgText = &m_lvgText;
+		m_lgx		  = new LinaGX::Instance();
+		m_appDelegate = m_system->GetApp()->GetAppDelegate();
+		s_lgx		  = m_lgx;
 
 		LinaGX::Config.dx12Config = {
 			.allowTearing				 = initInfo.allowTearing,
@@ -202,66 +169,6 @@ namespace Lina
 
 	void GfxManager::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		m_meshManager.Initialize();
-
-		// pfd
-		{
-			for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			{
-				auto& data = m_pfd[i];
-
-				LinaGX::ResourceDesc globalDataDesc = {
-					.size		   = sizeof(GPUDataEngineGlobals),
-					.typeHintFlags = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-					.heapType	   = LinaGX::ResourceHeap::StagingHeap,
-					.debugName	   = "GfxManager: Global Data Buffer",
-				};
-				data.globalDataBuffer.Create(LinaGX::ResourceTypeHint::TH_ConstantBuffer, sizeof(GPUDataEngineGlobals), "GfxManager: Engine Globals", true);
-				data.globalMaterialsBuffer.Create(LinaGX::ResourceTypeHint::TH_StorageBuffer, sizeof(uint32) * 1000, "GfxManager: Materials", false);
-
-				data.globalCopyStream	 = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, .commandCount = 200, .totalMemoryLimit = 24000, .auxMemorySize = 8192, .constantBlockSize = 64});
-				data.globalCopySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
-
-				// Descriptor set 0 - global res
-				data.descriptorSetPersistentGlobal = m_lgx->CreateDescriptorSet(GfxHelpers::GetSetDescPersistentGlobal());
-				m_lgx->DescriptorUpdateBuffer({
-					.setHandle	   = data.descriptorSetPersistentGlobal,
-					.binding	   = 0,
-					.buffers	   = {data.globalDataBuffer.GetGPUResource()},
-					.isWriteAccess = false,
-				});
-
-				m_lgx->DescriptorUpdateBuffer({
-					.setHandle	   = data.descriptorSetPersistentGlobal,
-					.binding	   = 1,
-					.buffers	   = {data.globalMaterialsBuffer.GetGPUResource()},
-					.isWriteAccess = false,
-				});
-
-				data.pipelineLayoutPersistentGlobal = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentGlobal());
-
-				data.globalTexturesDesc = {
-					.setHandle = data.descriptorSetPersistentGlobal,
-					.binding   = 2,
-				};
-
-				data.globalSamplersDesc = {
-					.setHandle = data.descriptorSetPersistentGlobal,
-					.binding   = 3,
-				};
-
-				for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
-				{
-					data.pipelineLayoutPersistentRenderpass[j] = m_lgx->CreatePipelineLayout(GfxHelpers::GetPLDescPersistentRenderPass(static_cast<RenderPassDescriptorType>(j)));
-				}
-
-				data.poolSubmissionSemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
-			}
-		}
-
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-			UpdateBindlessResources(m_pfd[i]);
-
 		// Default materials
 		/*
 		{
@@ -287,79 +194,15 @@ namespace Lina
 
 	void GfxManager::PreShutdown()
 	{
-		m_resourceManager->RemoveListener(this);
-
 		// Preshutdown is before resource manager, make sure
 		// to remove user managed resources.
 		LinaVG::TerminateText();
-		m_guiBackend.Shutdown();
-
-		for (auto m : m_defaultMaterials)
-			m_resourceManager->DestroyResource<Material>(m);
-
-		for (auto s : m_defaultSamplers)
-			m_resourceManager->DestroyResource<TextureSampler>(s);
 	}
 
 	void GfxManager::Shutdown()
 	{
-		for (const RendererPool& pool : m_rendererPools)
-		{
-			LINA_ASSERT(pool.renderers.empty(), "");
-		}
-
 		DestroyApplicationWindow(LINA_MAIN_SWAPCHAIN);
-
-		// Frame resources.
-		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
-		{
-			auto& data = m_pfd[i];
-			m_lgx->DestroyDescriptorSet(data.descriptorSetPersistentGlobal);
-			m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentGlobal);
-
-			data.globalDataBuffer.Destroy();
-			data.globalMaterialsBuffer.Destroy();
-			m_lgx->DestroyCommandStream(data.globalCopyStream);
-			m_lgx->DestroyUserSemaphore(data.globalCopySemaphore.GetSemaphore());
-
-			for (int32 j = 0; j < RenderPassDescriptorType::Max; j++)
-				m_lgx->DestroyPipelineLayout(data.pipelineLayoutPersistentRenderpass[j]);
-
-			m_lgx->DestroyUserSemaphore(data.poolSubmissionSemaphore.GetSemaphore());
-		}
-
-		// Other gfx resources
-		m_meshManager.Shutdown();
-
-		// Final
 		delete m_lgx;
-	}
-
-	void GfxManager::CreateRendererPool(StringID sid, uint32 order, bool submitInBatch)
-	{
-		m_rendererPools.push_back({.sid = sid, .order = order, .submitInBatch = submitInBatch});
-		linatl::sort(m_rendererPools.begin(), m_rendererPools.end(), [](const RendererPool& p1, const RendererPool& p2) -> bool { return p1.order < p2.order; });
-	}
-
-	void GfxManager::AddRenderer(Renderer* renderer, StringID sid)
-	{
-		auto it = linatl::find_if(m_rendererPools.begin(), m_rendererPools.end(), [sid](const RendererPool& pool) -> bool { return pool.sid == sid; });
-		LINA_ASSERT(it != m_rendererPools.end(), "");
-		it->renderers.push_back(renderer);
-	}
-
-	void GfxManager::RemoveRenderer(Renderer* renderer)
-	{
-		for (RendererPool& pool : m_rendererPools)
-		{
-			auto it = linatl::find_if(pool.renderers.begin(), pool.renderers.end(), [renderer](Renderer* r) -> bool { return r == renderer; });
-			if (it != pool.renderers.end())
-			{
-				pool.renderers.erase(it);
-				return;
-			}
-		}
-		LINA_ASSERT(false, "");
 	}
 
 	void GfxManager::WaitForSwapchains()
@@ -379,83 +222,22 @@ namespace Lina
 	void GfxManager::PreTick()
 	{
 		WaitForSwapchains();
-
-		for (const RendererPool& pool : m_rendererPools)
-		{
-			for (Renderer* rend : pool.renderers)
-				rend->PreTick();
-		}
 	}
 
 	void GfxManager::Tick(float delta)
 	{
 		PROFILER_FUNCTION();
-
-		if (m_mainWindow == nullptr)
-			m_mainWindow = m_lgx->GetWindowManager().GetWindow(LINA_MAIN_SWAPCHAIN);
-
-		for (const RendererPool& pool : m_rendererPools)
-		{
-			for (auto* r : pool.renderers)
-				r->Tick(delta);
-
-			// if (pool.renderers.size() == 1)
-			// {
-			// 	auto* rend = pool.renderers[0];
-			// 	rend->Tick(delta);
-			// }
-			// else
-			// {
-			// 	Taskflow tf;
-			// 	tf.for_each_index(0, static_cast<int>(pool.renderers.size()), 1, [&](int i) {
-			// 		auto* rend = pool.renderers.at(i);
-			// 		rend->Tick(delta);
-			// 	});
-			// 	m_system->GetMainExecutor()->RunAndWait(tf);
-			// }
-		}
 	}
 
-	void GfxManager::UpdateBindlessResources(PerFrameData& pfd)
+	void GfxManager::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& sz)
 	{
-		CONDITIONAL_LOCK(m_resourceManagerLocked, m_resourceManager->GetLock());
-		// Textures.
-		ResourceCache<Texture>* cacheTxt = m_resourceManager->GetCache<Texture>();
-		pfd.globalTexturesDesc.textures.resize(static_cast<size_t>(cacheTxt->GetActiveItemCount()));
-		cacheTxt->View([&](Texture* txt, uint32 index) -> bool {
-			pfd.globalTexturesDesc.textures[index] = txt->GetGPUHandle();
-			txt->SetBindlessIndex(static_cast<uint32>(index));
-			return false;
-		});
-
-		if (!pfd.globalTexturesDesc.textures.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalTexturesDesc);
-
-		// Samplers
-		ResourceCache<TextureSampler>* cacheSmp = m_resourceManager->GetCache<TextureSampler>();
-		pfd.globalSamplersDesc.samplers.resize(static_cast<size_t>(cacheSmp->GetActiveItemCount()));
-		cacheSmp->View([&](TextureSampler* smp, uint32 index) -> bool {
-			smp->SetBindlessIndex(static_cast<uint32>(index));
-			return false;
-		});
-
-		if (!pfd.globalSamplersDesc.samplers.empty())
-			m_lgx->DescriptorUpdateImage(pfd.globalSamplersDesc);
-
-		// Materials
-		ResourceCache<Material>* cacheMat = m_resourceManager->GetCache<Material>();
-		size_t					 padding  = 0;
-		cacheMat->View([&](Material* mat, uint32 index) -> bool {
-			padding += mat->BufferDataInto(pfd.globalMaterialsBuffer, padding);
-			return false;
-		});
+		m_appDelegate->OnWindowSizeChanged(window, sz);
 	}
 
 	void GfxManager::Render(StringID targetPool)
 	{
 		PROFILER_FUNCTION();
 		const uint32 currentFrameIndex = m_lgx->GetCurrentFrameIndex();
-		auto&		 currentFrame	   = m_pfd[currentFrameIndex];
 
 		m_lgx->StartFrame();
 
@@ -638,7 +420,6 @@ namespace Lina
 		m_lgx->Join();
 		auto window = m_lgx->GetWindowManager().CreateApplicationWindow(sid, title, pos.x, pos.y, size.x, size.y, static_cast<LinaGX::WindowStyle>(style), parentWindow);
 		window->AddListener(this);
-
 		return window;
 	}
 
@@ -650,32 +431,8 @@ namespace Lina
 		m_lgx->GetWindowManager().DestroyApplicationWindow(sid);
 	}
 
-	void GfxManager::OnWindowSizeChanged(LinaGX::Window* window, const LinaGX::LGXVector2ui& newSize)
-	{
-		Join();
-
-		for (const RendererPool& pool : m_rendererPools)
-		{
-			for (Renderer* rend : pool.renderers)
-			{
-				rend->OnWindowSizeChanged(window, newSize);
-			}
-		}
-	}
-
 	LinaGX::Window* GfxManager::GetApplicationWindow(StringID sid)
 	{
 		return m_lgx->GetWindowManager().GetWindow(sid);
-	}
-
-	void GfxManager::OnManagerLock(uint32 lockCount)
-	{
-		m_resourceManagerLocked = true;
-	}
-
-	void GfxManager::OnManagerUnlock(uint32 lockCount)
-	{
-		if (lockCount == 0)
-			m_resourceManagerLocked = false;
 	}
 } // namespace Lina

@@ -64,20 +64,7 @@ namespace Lina
 
 	LinaGX::DescriptorSetDesc GfxHelpers::GetSetDescPersistentRenderPass(RenderPassDescriptorType type)
 	{
-		if (type == RenderPassDescriptorType::Gui)
-		{
-			LinaGX::DescriptorBinding binding0 = {
-				.type	= LinaGX::DescriptorType::UBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-
-			LinaGX::DescriptorBinding binding1 = {
-				.type	= LinaGX::DescriptorType::SSBO,
-				.stages = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
-			};
-			return {.bindings = {binding0, binding1}};
-		}
-		else if (type == RenderPassDescriptorType::Main)
+		if (type == RenderPassDescriptorType::Main)
 		{
 			LinaGX::DescriptorBinding binding0 = {
 				.type	= LinaGX::DescriptorType::UBO,
@@ -277,37 +264,6 @@ namespace Lina
 	RenderPassDescription GfxHelpers::GetRenderPassDescription(LinaGX::Instance* lgx, RenderPassDescriptorType type)
 	{
 		LinaGX::DescriptorSetDesc setDesc = GfxHelpers::GetSetDescPersistentRenderPass(type);
-
-		if (type == RenderPassDescriptorType::Gui)
-		{
-			return {
-				.buffers		= {{
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_ConstantBuffer,
-									   .debugName	 = "RP: GUI - ViewData",
-									   .size		 = sizeof(GPUDataView),
-									   .stagingOnly	 = true,
-									   .bindingIndex = 0,
-									   .ident		 = "ViewData"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_StorageBuffer,
-									   .debugName	 = "RP: GUI - GUIMaterials",
-									   .size		 = sizeof(GPUMaterialGUI) * 250,
-									   .stagingOnly	 = false,
-									   .bindingIndex = 1,
-									   .ident		 = "GUIMaterials"_hs,
-							   },
-								   {
-									   .bufferType	 = LinaGX::ResourceTypeHint::TH_IndirectBuffer,
-									   .debugName	 = "RP: GUI - IndirectBuffer",
-									   .size		 = lgx->GetIndexedIndirectCommandSize() * static_cast<size_t>(250),
-									   .stagingOnly	 = false,
-									   .bindingIndex = -1,
-									   .ident		 = "IndirectBuffer"_hs,
-							   }},
-				.setDescription = setDesc,
-			};
-		}
 
 		if (type == RenderPassDescriptorType::Main)
 		{

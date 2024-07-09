@@ -28,43 +28,18 @@ SOFTWARE.
 
 #pragma once
 
-#include "Common/StringID.hpp"
-#include "Common/Data/String.hpp"
-#include "Common/Common.hpp"
+#include "Common/Platform/LinaGXIncl.hpp"
+#include "Core/Graphics/Pipeline/RenderPass.hpp"
 
-namespace Lina
+namespace Lina::Editor
 {
-	class Resource;
-
-	enum class PackageType
+	class EditorGfxHelpers
 	{
-		Default,
-		Package1,
-		Package2,
-		PackageLevels,
+	public:
+		static RenderPassDescription	  GetGUIPassDescription();
+		static LinaGX::DescriptorSetDesc  GetSetDescriptionGlobal();
+		static LinaGX::DescriptorSetDesc  GetSetDescriptionGUI();
+		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGlobal();
+		static LinaGX::PipelineLayoutDesc GetPipelineLayoutDescriptionGUI();
 	};
-
-	enum ResourceFlags
-	{
-	};
-
-	struct ResourceIdentifier
-	{
-		String	 relativePath = "";
-		TypeID	 tid		  = 0;
-		StringID sid		  = 0;
-		void	 SaveToStream(OStream& stream) const;
-		void	 LoadFromStream(IStream& stream);
-	};
-
-	struct ResourceLoadTask
-	{
-		Taskflow				   tf;
-		Vector<ResourceIdentifier> identifiers;
-		Vector<Resource*>		   resources;
-		Atomic<bool>			   isCompleted = false;
-		int32					   id		   = 0;
-		uint64					   startTime   = 0;
-		uint64					   endTime	   = 0;
-	};
-} // namespace Lina
+} // namespace Lina::Editor

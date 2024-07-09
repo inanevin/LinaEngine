@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/System/Plugin.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"

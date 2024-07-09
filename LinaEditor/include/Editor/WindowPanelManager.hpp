@@ -40,7 +40,6 @@ namespace LinaGX
 namespace Lina
 {
 	class GfxManager;
-	class SurfaceRenderer;
 	class Widget;
 	class WidgetManager;
 
@@ -49,6 +48,7 @@ namespace Lina::Editor
 {
 	class Editor;
 	class NotificationDisplayer;
+	class SurfaceRenderer;
 
 	class EditorPayloadListener
 	{
@@ -97,6 +97,7 @@ namespace Lina::Editor
 		Widget* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
 		void	CloseWindow(StringID sid);
 		void	CloseAllSubwindows();
+		void	OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size);
 
 		// Notification
 		NotificationDisplayer* GetNotificationDisplayer(LinaGX::Window* window);

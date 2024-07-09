@@ -57,10 +57,9 @@ namespace Lina::Editor
 	ThumbnailGenerator::ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive)
 	{
 
-		m_editor   = editor;
-		m_executor = executor;
-		m_rm	   = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_rm->AddListener(this);
+		m_editor	 = editor;
+		m_executor	 = executor;
+		m_rm		 = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		m_gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		const String cachePath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/";
@@ -155,28 +154,6 @@ namespace Lina::Editor
 
 	ThumbnailGenerator::~ThumbnailGenerator()
 	{
-		m_rm->RemoveListener(this);
-	}
-
-	void ThumbnailGenerator::OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents)
-	{
-		if (taskID == RLID_THUMB_RES)
-		{
-			Vector<WorldRenderer*> worldRenderers;
-
-			for (DirectoryItem* item : m_thumbnailItems)
-			{
-				if (item->tid == GetTypeID<Model>())
-				{
-					worldRenderers.push_back(CreateDataForModel(item));
-				}
-			}
-
-			for (WorldRenderer* rend : worldRenderers)
-			{
-				m_gfxManager->AddRenderer(rend, "WorldRenderers"_hs);
-			}
-		}
 	}
 
 	void ThumbnailGenerator::CollectItems(DirectoryItem* item, bool isRecursive)
@@ -473,7 +450,7 @@ namespace Lina::Editor
 		buffer->Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
 		world->PreTick();
 		world->Tick(0.016f);
-		return new WorldRenderer(m_gfxManager, world, world->GetRenderSize(), buffer);
+		return new WorldRenderer(world, world->GetRenderSize(), buffer);
 	}
 
 	WorldRenderer* ThumbnailGenerator::CreateDataForModel(DirectoryItem* item)
@@ -507,7 +484,7 @@ namespace Lina::Editor
 		world->PreTick();
 		world->Tick(0.016f);
 
-		return new WorldRenderer(m_gfxManager, world, world->GetRenderSize(), buffer);
+		return new WorldRenderer(world, world->GetRenderSize(), buffer);
 	}
 
 	void ThumbnailGenerator::GenerateThumbModel(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)
@@ -554,14 +531,14 @@ namespace Lina::Editor
 		world->Tick(0.016f);
 
 		// Render.
-		WorldRenderer* wr = new WorldRenderer(gfx, world, world->GetRenderSize(), &buffer);
-		gfx->AddRenderer(wr, "WorldRenderers"_hs);
-		gfx->Join();
-		gfx->Render("WorldRenderers"_hs);
-		gfx->Join();
-		gfx->RemoveRenderer(wr);
-		delete wr;
-		delete world;
+		// WorldRenderer* wr = new WorldRenderer(world, world->GetRenderSize(), &buffer);
+		// gfx->AddRenderer(wr, "WorldRenderers"_hs);
+		// gfx->Join();
+		// gfx->Render("WorldRenderers"_hs);
+		// gfx->Join();
+		// gfx->RemoveRenderer(wr);
+		// delete wr;
+		// delete world;
 
 		item->textureAtlas = m_editor->GetAtlasManager().AddImageToAtlas(buffer.GetMapped(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), 4);
 

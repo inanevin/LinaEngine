@@ -57,8 +57,7 @@ namespace Lina
 		if (m_manager != nullptr)
 		{
 			w->m_lvg			 = m_manager->GetLVG();
-			w->m_system			 = m_manager->GetSystem();
-			w->m_resourceManager = m_manager->GetResourceManager();
+			w->m_resourceManager = m_manager->GetResourceManagerV2();
 		}
 
 		for (auto* c : w->GetChildren())

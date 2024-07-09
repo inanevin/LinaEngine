@@ -28,14 +28,7 @@ SOFTWARE.
 
 layout(set = 1, binding = 0) uniform ViewData
 {
-	mat4 view;
 	mat4 proj;
-	mat4 viewProj;
-	vec4 cameraPositionAndNear;
-	vec4 cameraDirectionAndFar;
-	vec2 size;
-	vec2 padding;
-	vec4 padding2;
 } LINA_VIEW;
 
 layout(set = 1, binding = 1) readonly buffer GUIMaterialBuffer

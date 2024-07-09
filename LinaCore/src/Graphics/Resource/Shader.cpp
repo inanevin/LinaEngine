@@ -68,7 +68,6 @@ namespace Lina
 	void Shader::Metadata::SaveToStream(OStream& out) const
 	{
 		HashMapSerialization::SaveToStream_OBJ(out, variants);
-		out << static_cast<uint8>(renderPassDescriptorType);
 		out << descriptorSetAllocationCount;
 		out << drawIndirectEnabled;
 		out << materialSize;
@@ -77,10 +76,6 @@ namespace Lina
 	void Shader::Metadata::LoadFromStream(IStream& in)
 	{
 		HashMapSerialization::LoadFromStream_OBJ(in, variants);
-
-		uint8 rpType = 0;
-		in >> rpType;
-		renderPassDescriptorType = static_cast<RenderPassDescriptorType>(rpType);
 		in >> descriptorSetAllocationCount;
 		in >> drawIndirectEnabled;
 		in >> materialSize;
@@ -88,7 +83,7 @@ namespace Lina
 
 	Shader::~Shader()
 	{
-        DestroyHW();
+		DestroyHW();
 	}
 
 	void Shader::Bind(LinaGX::CommandStream* stream, uint32 gpuHandle)
@@ -224,7 +219,7 @@ namespace Lina
 			Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.
 		 Materials will use this layout when binding descriptor sets for this shader.
 		 */
-		LinaGX::PipelineLayoutDesc plDesc = {.descriptorSetDescriptions = {GfxHelpers::GetSetDescPersistentGlobal(), GfxHelpers::GetSetDescPersistentRenderPass(m_meta.renderPassDescriptorType)}};
+	
 		if (m_layout.descriptorSetLayouts.size() > 2)
 		{
 			const auto& setLayout = m_layout.descriptorSetLayouts[2];
@@ -235,19 +230,7 @@ namespace Lina
 				m_materialSetDesc.bindings.push_back(GfxHelpers::GetBindingFromShaderBinding(b));
 
 			m_materialSetDesc.allocationCount = m_meta.descriptorSetAllocationCount;
-			plDesc.descriptorSetDescriptions.push_back(m_materialSetDesc);
 		}
-
-		for (const auto& c : m_layout.constants)
-		{
-			LinaGX::PipelineLayoutPushConstantRange pcr;
-			pcr.size   = static_cast<uint32>(c.size);
-			pcr.stages = c.stages;
-			plDesc.constantRanges.push_back(pcr);
-		}
-
-		plDesc.indirectDrawEnabled = m_meta.drawIndirectEnabled;
-		m_pipelineLayout		   = GfxManager::GetLGX()->CreatePipelineLayout(plDesc);
 
 		m_descriptorSets.push_back(new DescriptorSet());
 		m_descriptorSets[0]->Create(m_materialSetDesc);
@@ -298,8 +281,7 @@ namespace Lina
 				.depthBiasClamp			 = variant.depthBiasClamp,
 				.depthBiasSlope			 = variant.depthBiasSlope,
 				.drawIndirectEnabled	 = m_meta.drawIndirectEnabled,
-				.useCustomPipelineLayout = true,
-				.customPipelineLayout	 = m_pipelineLayout,
+				.useCustomPipelineLayout = false,
 				.debugName				 = m_path.c_str(),
 			});
 		}
@@ -310,17 +292,16 @@ namespace Lina
 		}
 	}
 
-    void Shader::DestroyHW()
-    {
-        GfxManager::GetLGX()->DestroyPipelineLayout(m_pipelineLayout);
+	void Shader::DestroyHW()
+	{
 
-        for (const auto& [sid, var] : m_meta.variants)
-            GfxManager::GetLGX()->DestroyShader(var._gpuHandle);
+		for (const auto& [sid, var] : m_meta.variants)
+			GfxManager::GetLGX()->DestroyShader(var._gpuHandle);
 
-        for (const auto& d : m_descriptorSets)
-        {
-            d->Destroy();
-            delete d;
-        }
-    }
+		for (const auto& d : m_descriptorSets)
+		{
+			d->Destroy();
+			delete d;
+		}
+	}
 } // namespace Lina

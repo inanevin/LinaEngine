@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Core/Graphics/CommonGraphics.hpp"
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
-#include "Core/Graphics/Renderers/Renderer.hpp"
 #include "Core/Graphics/ResourceUploadQueue.hpp"
 
 namespace LinaGX
@@ -47,11 +46,16 @@ namespace LinaGX
 
 namespace Lina
 {
-	class GfxManager;
-	class ApplicationDelegate;
-	class ResourceManager;
+	class ResourceManagerV2;
+	class Shader;
+} // namespace Lina
 
-	class SurfaceRenderer : public Renderer
+namespace Lina::Editor
+{
+
+	class Editor;
+
+	class SurfaceRenderer
 	{
 	private:
 		struct PerFrameData
@@ -62,37 +66,19 @@ namespace Lina
 		};
 
 	public:
-		SurfaceRenderer(GfxManager* man, LinaGX::Window* window, const Vector2ui& initialSize, const Color& clearColor);
+		SurfaceRenderer(Editor* editor, LinaGX::Window* window, const Color& clearColor);
 		virtual ~SurfaceRenderer();
 
-		virtual void PreTick() override;
-		virtual void Tick(float delta) override;
-		virtual void Render(uint32 frameIndex, uint32 waitCount, uint16* waitSemaphores, uint64* waitValues) override;
-		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize) override;
+		void				   PreTick();
+		void				   Tick(float delta);
+		LinaGX::CommandStream* Render(uint32 frameIndex);
+		void				   OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& newSize);
+		bool				   CheckVisibility();
 
-		virtual bool IsValidThisFrame() override
-		{
-			return m_isVisible;
-		}
-
-		/// If this renderer is submitted in a batch, return the recorded command stream for batch.
-		virtual LinaGX::CommandStream* GetStreamForBatchSubmit(uint32 frameIndex) override
-		{
-			return m_pfd[frameIndex].gfxStream;
-		}
-
-		/// If this renderer's commands are submitted in a batch, the batch will wait for semaphores from all batch contributors, actuqired via GetWaitSemaphore() for each.
-		virtual SemaphoreData GetWaitSemaphore(uint32 frameIndex) override
+		SemaphoreData GetWaitSemaphore(uint32 frameIndex)
 		{
 			return m_pfd[frameIndex].copySemaphore;
 		};
-
-		/// If desired the renderer can return a swapchain that'll be presented in batch at the end of the render loop.
-		virtual bool GetSwapchainToPresent(uint8& outSwapchain) override
-		{
-			outSwapchain = m_swapchain;
-			return false;
-		}
 
 		inline uint8 GetSwapchain() const
 		{
@@ -118,19 +104,19 @@ namespace Lina
 		void UpdateBuffers(uint32 frameIndex);
 
 	protected:
-		LinaGX::Instance*	 m_lgx = nullptr;
-		ResourceUploadQueue	 m_uploadQueue;
-		ResourceManager*	 m_rm				= nullptr;
-		Shader*				 m_guiShader2D		= nullptr;
-		uint32				 m_guiShaderVariant = 0;
-		Vector2ui			 m_size				= Vector2ui::Zero;
-		PerFrameData		 m_pfd[FRAMES_IN_FLIGHT];
-		LinaGX::Window*		 m_window	   = nullptr;
-		uint8				 m_swapchain   = 0;
-		bool				 m_isVisible   = false;
-		ApplicationDelegate* m_appListener = nullptr;
-		RenderPass			 m_guiPass	   = {};
-		GUIRenderer			 m_guiRenderer;
+		Editor*				m_editor			= nullptr;
+		ResourceManagerV2*	m_resourceManagerV2 = nullptr;
+		LinaGX::Instance*	m_lgx				= nullptr;
+		ResourceUploadQueue m_uploadQueue;
+		ResourceManager*	m_rm		= nullptr;
+		Shader*				m_guiShader = nullptr;
+		Vector2ui			m_size		= Vector2ui::Zero;
+		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];
+		LinaGX::Window*		m_window	= nullptr;
+		uint8				m_swapchain = 0;
+		bool				m_isVisible = false;
+		RenderPass			m_guiPass	= {};
+		GUIRenderer			m_guiRenderer;
 	};
 
-} // namespace Lina
+} // namespace Lina::Editor

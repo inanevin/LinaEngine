@@ -36,7 +36,7 @@ SOFTWARE.
 namespace Lina
 {
 	class Texture;
-	class GfxManager;
+	class ResourceUploadQueue;
 
 	class Texture : public Resource
 	{
@@ -66,7 +66,7 @@ namespace Lina
 		void	  GenerateHW();
 		void	  DestroyHW();
 		void	  DestroySW();
-		void	  AddToUploadQueue();
+		void	  AddToUploadQueue(ResourceUploadQueue& queue);
 		Vector2ui GetSize();
 		Vector2	  GetSizeF();
 
@@ -98,6 +98,11 @@ namespace Lina
 		inline void SetBindlessIndex(uint32 bindless)
 		{
 			m_bindlessIndex = bindless;
+		}
+
+		inline bool IsGPUValid() const
+		{
+			return m_gpuHandleExists;
 		}
 
 	private:

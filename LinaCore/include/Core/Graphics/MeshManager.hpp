@@ -29,7 +29,6 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Graphics/Pipeline/Buffer.hpp"
-#include "Common/Data/Mutex.hpp"
 
 namespace LinaGX
 {
@@ -37,9 +36,9 @@ namespace LinaGX
 }
 namespace Lina
 {
-	class GfxManager;
 	class Model;
 	class MeshDefault;
+	class ResourceUploadQueue;
 
 	struct MeshBuffer
 	{
@@ -53,12 +52,13 @@ namespace Lina
 	class MeshManager
 	{
 	public:
-		MeshManager(GfxManager* gfxManager);
+		MeshManager()  = default;
 		~MeshManager() = default;
 
 		void Initialize();
 		void Shutdown();
 
+		void AddToUploadQueue(ResourceUploadQueue& queue);
 		void BindBuffers(LinaGX::CommandStream* stream, uint32 bufferIndex);
 		void AddMesh(MeshDefault* mesh);
 		void RemoveMesh(MeshDefault* mesh);
@@ -71,9 +71,7 @@ namespace Lina
 	private:
 		static constexpr size_t MESH_BUF_SIZE = 1;
 
-		GfxManager* m_gfxManager = nullptr;
-		MeshBuffer	m_meshBuffers[MESH_BUF_SIZE];
-		Mutex		m_mtxMesh;
-		bool		m_requiresRefresh;
+		MeshBuffer m_meshBuffers[MESH_BUF_SIZE];
+		bool	   m_requiresRefresh;
 	};
 } // namespace Lina

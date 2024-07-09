@@ -51,9 +51,8 @@ namespace Lina
 	class Widget;
 	class Popup;
 	class System;
-	class ResourceManager;
+	class ResourceManagerV2;
 	class Font;
-	class GfxManager;
 	class ScrollArea;
 
 	class WidgetManager : public LinaGX::WindowListener
@@ -62,7 +61,7 @@ namespace Lina
 		WidgetManager()			 = default;
 		virtual ~WidgetManager() = default;
 
-		void	Initialize(System* system, LinaGX::Window* window, LinaVG::Drawer* drawer);
+		void	Initialize(ResourceManagerV2* resourceManager, LinaGX::Window* window, LinaVG::Drawer* drawer);
 		void	Draw();
 		void	PreTick();
 		void	Tick(float delta, const Vector2ui& size);
@@ -138,8 +137,7 @@ namespace Lina
 			t->SetDebugName(debugName);
 			t->m_lgxWindow		 = m_window;
 			t->m_manager		 = this;
-			t->m_system			 = m_system;
-			t->m_resourceManager = m_resourceManager;
+			t->m_resourceManager = m_resourceManagerV2;
 			t->m_tid			 = tid;
 			t->m_lvg			 = m_lvg;
 			t->Construct();
@@ -157,14 +155,9 @@ namespace Lina
 			return m_lvg;
 		}
 
-		inline System* GetSystem() const
+		inline ResourceManagerV2* GetResourceManagerV2() const
 		{
-			return m_system;
-		}
-
-		inline ResourceManager* GetResourceManager() const
-		{
-			return m_resourceManager;
+			return m_resourceManagerV2;
 		}
 
 	protected:
@@ -192,20 +185,18 @@ namespace Lina
 		friend class Widget;
 
 	private:
-		LinaGX::Window*					  m_window			= nullptr;
-		LinaVG::Drawer*					  m_lvg				= nullptr;
-		Widget*							  m_controlsOwner	= nullptr;
-		Widget*							  m_rootWidget		= nullptr;
-		Widget*							  m_foregroundRoot	= nullptr;
-		System*							  m_system			= nullptr;
-		Widget*							  m_deepestHovered	= nullptr;
-		ResourceManager*				  m_resourceManager = nullptr;
+		LinaGX::Window*					  m_window			  = nullptr;
+		LinaVG::Drawer*					  m_lvg				  = nullptr;
+		Widget*							  m_controlsOwner	  = nullptr;
+		Widget*							  m_rootWidget		  = nullptr;
+		Widget*							  m_foregroundRoot	  = nullptr;
+		Widget*							  m_deepestHovered	  = nullptr;
+		ResourceManagerV2*				  m_resourceManagerV2 = nullptr;
 		Vector<ClipData>				  m_clipStack;
 		float							  m_debugDrawYOffset	= 0.0f;
 		float							  m_foregroundDim		= 0.0f;
 		Font*							  m_defaultFont			= nullptr;
 		Vector<Widget*>					  m_killList			= {};
-		GfxManager*						  m_gfxManager			= nullptr;
 		Widget*							  m_lastControlsManager = nullptr;
 		HashMap<TypeID, WidgetCacheBase*> m_widgetCaches;
 	};

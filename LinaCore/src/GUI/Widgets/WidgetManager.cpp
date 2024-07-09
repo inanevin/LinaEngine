@@ -45,18 +45,16 @@ SOFTWARE.
 namespace Lina
 {
 
-	void WidgetManager::Initialize(System* system, LinaGX::Window* window, LinaVG::Drawer* drawer)
+	void WidgetManager::Initialize(ResourceManagerV2* resourceManager, LinaGX::Window* window, LinaVG::Drawer* drawer)
 	{
-		m_lvg		 = drawer;
-		m_window	 = window;
-		m_system	 = system;
-		m_gfxManager = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_resourceManagerV2 = resourceManager;
+		m_lvg				= drawer;
+		m_window			= window;
 		m_window->AddListener(this);
 		m_rootWidget = Allocate<Widget>();
 		m_rootWidget->SetDebugName("Root");
 		m_foregroundRoot = Allocate<Widget>();
 		m_foregroundRoot->SetDebugName("ForegroundRoot");
-		m_resourceManager = m_system->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 		// m_defaultFont	  = m_resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
 	}
 
@@ -285,7 +283,7 @@ namespace Lina
 
 		const Rect			rect	= w->GetRect();
 		const Vector2&		mp		= m_window->GetMousePosition();
-		auto*				lvgFont = m_resourceManager->GetResource<Font>(DEFAULT_FONT_SID)->GetLinaVGFont(m_window->GetDPIScale());
+		auto*				lvgFont = m_resourceManagerV2->GetResource<Font>(Theme::GetDef().defaultFont)->GetLinaVGFont(m_window->GetDPIScale());
 		LinaVG::TextOptions textOpts;
 		textOpts.font = lvgFont;
 

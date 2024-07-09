@@ -85,8 +85,7 @@ namespace Lina
 
 	enum RenderPassDescriptorType
 	{
-		Gui = 0,
-		Main,
+		Main = 0,
 		Lighting,
 		ForwardTransparency,
 		Max,
@@ -96,8 +95,6 @@ namespace Lina
 	{
 		switch (type)
 		{
-		case Gui:
-			return "Gui";
 		case Main:
 			return "Main";
 		case Lighting:

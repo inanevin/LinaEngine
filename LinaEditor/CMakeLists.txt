@@ -36,6 +36,8 @@ include/Editor/Atlas/AtlasManager.hpp
 # Graphics
 include/Editor/Graphics/WorldRendererExtEditor.hpp
 include/Editor/Graphics/EditorRenderer.hpp
+include/Editor/Graphics/SurfaceRenderer.hpp
+include/Editor/Graphics/EditorGfxHelpers.hpp
 
 # IO
 include/Editor/IO/FileManager.hpp
@@ -93,6 +95,8 @@ src/Atlas/AtlasManager.cpp
 # Graphics
 src/Graphics/WorldRendererExtEditor.cpp
 src/Graphics/EditorRenderer.cpp
+src/Graphics/SurfaceRenderer.cpp
+src/Graphics/EditorGfxHelpers.cpp
 
 
 # IO

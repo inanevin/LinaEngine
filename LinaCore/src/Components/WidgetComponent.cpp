@@ -45,7 +45,7 @@ namespace Lina
 
 	void WidgetComponent::Destroy()
 	{
-		m_guiRenderer.Destroy();
+		// m_guiRenderer.Destroy();
 	}
 
 	void WidgetComponent::SaveToStream(OStream& stream) const
@@ -60,25 +60,25 @@ namespace Lina
 
 	void WidgetComponent::PreTick()
 	{
-		m_guiRenderer.PreTick();
+		// m_guiRenderer.PreTick();
 	}
 
 	void WidgetComponent::Tick(float delta)
 	{
-		m_guiRenderer.Tick(delta, m_canvasSize);
+		// m_guiRenderer.Tick(delta, m_canvasSize);
 	}
 
 	void WidgetComponent::SetWidget(StringID sid)
 	{
-		m_targetWidget.sid = sid;
-		m_targetWidget.raw = m_resourceManager->GetResource<GUIWidget>(sid);
-		auto* root		   = m_guiRenderer.GetGUIRoot();
-		root->DeallocAllChildren();
-		root->RemoveAllChildren();
-
-		IStream stream;
-		m_targetWidget.raw->CopyRootBlob(stream);
-		root->LoadFromStream(stream);
-		stream.Destroy();
+		// m_targetWidget.sid = sid;
+		// m_targetWidget.raw = m_resourceManager->GetResource<GUIWidget>(sid);
+		// auto* root		   = m_guiRenderer.GetGUIRoot();
+		// root->DeallocAllChildren();
+		// root->RemoveAllChildren();
+		//
+		// IStream stream;
+		// m_targetWidget.raw->CopyRootBlob(stream);
+		// root->LoadFromStream(stream);
+		// stream.Destroy();
 	}
 } // namespace Lina

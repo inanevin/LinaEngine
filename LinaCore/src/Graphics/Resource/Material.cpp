@@ -90,8 +90,12 @@ namespace Lina
 
 	void Material::SetShader(Shader* shader)
 	{
-		m_shader	 = shader;
-		m_shaderSID	 = shader->GetSID();
+		m_shader	= shader;
+		m_shaderSID = shader->GetSID();
+	}
+
+	void Material::ResetProperties()
+	{
 		m_properties = m_shader->GetProperties();
 	}
 

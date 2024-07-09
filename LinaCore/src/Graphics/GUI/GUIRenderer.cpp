@@ -34,6 +34,8 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
+#include "Core/Graphics/Resource/TextureSampler.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
@@ -48,15 +50,14 @@ namespace Lina
 #define MAX_GUI_VERTICES  120000
 #define MAX_GUI_INDICES	  140000
 
-	void GUIRenderer::Create(GfxManager* gfxManager, LinaGX::Window* window)
+	void GUIRenderer::Create(GUIBackend* guiBackend, ResourceManagerV2* resourceManager, TextureSampler* defaultSampler, TextureSampler* textSampler, LinaGX::Window* window)
 	{
-		m_gfxManager = gfxManager;
+		m_guiBackend = guiBackend;
 		m_window	 = window;
 		m_lgx		 = GfxManager::GetLGX();
-		m_rm		 = m_gfxManager->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 
-		// m_defaultGUISampler = m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_GUI_SID);
-		// m_textGUISampler	= m_rm->GetResource<TextureSampler>(DEFAULT_SAMPLER_TEXT_SID);
+		m_defaultGUISampler = defaultSampler;
+		m_textGUISampler	= textSampler;
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -72,7 +73,7 @@ namespace Lina
 		m_lvg.GetCallbacks().drawSimpleText = BIND(&GUIRenderer::DrawSimpleText, this, std::placeholders::_1);
 		m_lvg.GetCallbacks().drawSDFText	= BIND(&GUIRenderer::DrawSDFText, this, std::placeholders::_1);
 
-		m_widgetManager.Initialize(gfxManager->GetSystem(), window, &m_lvg);
+		m_widgetManager.Initialize(resourceManager, window, &m_lvg);
 	}
 
 	void GUIRenderer::PreTick()
@@ -155,7 +156,7 @@ namespace Lina
 	void GUIRenderer::DrawSimpleText(LinaVG::SimpleTextDrawBuffer* buf)
 	{
 		auto& req					  = AddDrawRequest(buf);
-		auto  txt					  = m_gfxManager->GetGUIBackend().GetFontTexture(buf->m_textureHandle).texture;
+		auto  txt					  = m_guiBackend->GetFontTexture(buf->m_textureHandle).texture;
 		req.materialData.floatPack2.w = static_cast<float>(buf->m_drawBufferType);
 		req.materialData.color2.x	  = static_cast<float>(txt->GetBindlessIndex());
 		req.materialData.color2.y	  = static_cast<float>(m_textGUISampler->GetBindlessIndex());
@@ -164,7 +165,7 @@ namespace Lina
 	void GUIRenderer::DrawSDFText(LinaVG::SDFTextDrawBuffer* buf)
 	{
 		auto& req					= AddDrawRequest(buf);
-		auto  txt					= m_gfxManager->GetGUIBackend().GetFontTexture(buf->m_textureHandle).texture;
+		auto  txt					= m_guiBackend->GetFontTexture(buf->m_textureHandle).texture;
 		req.materialData.color1		= buf->m_outlineColor;
 		req.materialData.floatPack1 = Vector4(buf->m_thickness, buf->m_softness, buf->m_outlineThickness, buf->m_outlineSoftness);
 		req.materialData.floatPack2 = Vector4(buf->m_flipAlpha ? 1.0f : 0.0f, 0.0f, 0.0f, static_cast<float>(buf->m_drawBufferType));

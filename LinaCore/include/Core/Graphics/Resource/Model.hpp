@@ -42,6 +42,7 @@ namespace Lina
 {
 	class ModelNode;
 	class MeshDefault;
+	class MeshManager;
 
 	class Model : public Resource
 	{
@@ -52,6 +53,7 @@ namespace Lina
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		void		 UploadNodes(MeshManager& meshManager);
 
 		ModelNode* GetFirstNodeWMesh();
 
@@ -77,7 +79,7 @@ namespace Lina
 
 	private:
 		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
-		void	   UploadNode(ModelNode* node);
+		void	   UploadNode(MeshManager& meshManager, ModelNode* node);
 		ModelNode* GetNodeWithMesh(ModelNode* root);
 
 	private:

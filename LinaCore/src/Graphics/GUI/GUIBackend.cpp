@@ -32,22 +32,24 @@ SOFTWARE.
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Graphics/Pipeline/Buffer.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Common/System/System.hpp"
-#include "Common/Math/Color.hpp"
-#include "Common/Math/Math.hpp"
 
 namespace Lina
 {
-	void GUIBackend::Initialize(GfxManager* man)
+	void GUIBackend::Initialize(ResourceManagerV2* resMan, ResourceUploadQueue* uploadQueue)
 	{
-		m_resourceManager = man->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_resourceManagerV2							   = resMan;
+		m_uploadQueue								   = uploadQueue;
+		m_lvgText.GetCallbacks().fontTextureBind	   = std::bind(&GUIBackend::BindFontTexture, this, std::placeholders::_1);
+		m_lvgText.GetCallbacks().fontTextureBufferData = std::bind(&GUIBackend::BufferFontTextureAtlas, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5);
+		m_lvgText.GetCallbacks().fontTextureBufferEnd  = std::bind(&GUIBackend::BufferEnded, this);
+		m_lvgText.GetCallbacks().fontTextureCreate	   = std::bind(&GUIBackend::CreateFontTexture, this, std::placeholders::_1, std::placeholders::_2);
 	}
 
 	void GUIBackend::Shutdown()
 	{
 		for (const auto& ft : m_fontTextures)
 		{
-			m_resourceManager->DestroyResource<Texture>(ft.texture);
+			m_resourceManagerV2->DestroyResource<Texture>(ft.texture);
 			delete[] ft.pixels;
 		}
 
@@ -71,7 +73,11 @@ namespace Lina
 	{
 		auto& ft = m_fontTextures[m_boundFontTexture];
 		ft.texture->LoadFromBuffer(ft.pixels, ft.width, ft.height, 1, LinaGX::ImageChannelMask::G, LinaGX::Format::R8_UNORM, true);
-		ft.texture->AddToUploadQueue();
+
+		if (!ft.texture->IsGPUValid())
+			ft.texture->GenerateHW();
+
+		ft.texture->AddToUploadQueue(*m_uploadQueue);
 	}
 
 	void GUIBackend::BindFontTexture(LinaVG::BackendHandle texture)
@@ -83,7 +89,7 @@ namespace Lina
 	{
 		const String name		 = "GUI Backend Font Texture " + TO_STRING(m_fontTextures.size());
 		FontTexture	 fontTexture = {
-			 .texture = m_resourceManager->CreateResource<Texture>(name, TO_SID(name)),
+			 .texture = m_resourceManagerV2->CreateResource<Texture>(name, TO_SID(name)),
 			 .width	  = width,
 			 .height  = height,
 		 };

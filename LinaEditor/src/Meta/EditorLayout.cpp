@@ -34,9 +34,9 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
 #include "Editor/Widgets/Panel/PanelResources.hpp"
+#include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Common/System/System.hpp"
 #include "Core/Graphics/GfxManager.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 
 namespace Lina::Editor
 {

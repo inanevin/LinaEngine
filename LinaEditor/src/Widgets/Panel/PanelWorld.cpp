@@ -41,8 +41,8 @@ namespace Lina::Editor
 {
 	void PanelWorld::Construct()
 	{
-		m_wm	 = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-		m_gfxMan = m_system->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_wm	 = Editor::Get()->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		m_gfxMan = Editor::Get()->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 	}
 
 	void PanelWorld::Tick(float delta)

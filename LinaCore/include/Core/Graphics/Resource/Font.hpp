@@ -28,9 +28,6 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef LinaFont_HPP
-#define LinaFont_HPP
-
 #include "Core/Resources/Resource.hpp"
 #include "Common/Data/HashMap.hpp"
 #include "Common/Data/Vector.hpp"
@@ -41,7 +38,8 @@ SOFTWARE.
 namespace LinaVG
 {
 	class LinaVGFont;
-}
+	class Text;
+} // namespace LinaVG
 
 namespace Lina
 {
@@ -67,6 +65,7 @@ namespace Lina
 		Font(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Font>()){};
 		virtual ~Font();
 
+		void				GenerateHW(LinaVG::Text& lvgText);
 		LinaVG::LinaVGFont* GetLinaVGFont(float dpiScale);
 		virtual void		LoadFromFile(const char* path) override;
 		virtual void		LoadFromStream(IStream& stream) override;
@@ -88,5 +87,3 @@ namespace Lina
 	LINA_REFLECTRESOURCE_BEGIN(Font);
 	LINA_REFLECTRESOURCE_END(Font);
 } // namespace Lina
-
-#endif

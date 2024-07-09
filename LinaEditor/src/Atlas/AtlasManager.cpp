@@ -69,7 +69,7 @@ namespace Lina::Editor
 
 			const String	atlasName = "AtlasManagerAtlas_" + TO_STRING(m_atlasPool.size());
 			const Vector2ui atlasSize = Vector2ui(Math::Max((uint32)1024, size.x), Math::Max((uint32)1024, size.y));
-			TextureAtlas*	atlas	  = new TextureAtlas(TO_SID(atlasName), m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), atlasSize, bytesPerPixel, format);
+			TextureAtlas*	atlas	  = new TextureAtlas(TO_SID(atlasName), &m_editor->GetResourceManagerV2(), atlasSize, bytesPerPixel, format);
 			m_atlasPool.push_back(atlas);
 			rect = atlas->AddImage(data, size);
 			LINA_ASSERT(rect != nullptr, "");
@@ -95,7 +95,7 @@ namespace Lina::Editor
 		m_editor = editor;
 
 		auto addAtlas = [&](const String& directory, StringID sid) -> TextureAtlas* {
-			TextureAtlas* atlas	 = new TextureAtlas(sid, m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager), Vector2ui(1024, 1024), 4, LinaGX::Format::R8G8B8A8_SRGB);
+			TextureAtlas* atlas	 = new TextureAtlas(sid, &m_editor->GetResourceManagerV2(), Vector2ui(1024, 1024), 4, LinaGX::Format::R8G8B8A8_SRGB);
 			m_customAtlases[sid] = atlas;
 
 			Vector<String> files;
@@ -117,7 +117,7 @@ namespace Lina::Editor
 			return atlas;
 		};
 
-		addAtlas("Resources/Editor/Textures/Atlas/MiscTextures/", "MiscTextures"_hs)->RefreshGPU();
+		addAtlas("Resources/Editor/Textures/Atlas/MiscTextures/", "MiscTextures"_hs);
 		RefreshDirtyAtlases();
 	}
 
@@ -144,9 +144,11 @@ namespace Lina::Editor
 	void AtlasManager::RefreshDirtyAtlases()
 	{
 		for (TextureAtlas* atlas : m_atlasPool)
-		{
-			if (atlas->GetIsDirty())
-				atlas->RefreshGPU();
-		}
+			atlas->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
+
+		for (Pair<StringID, TextureAtlas*> pair : m_customAtlases)
+			pair.second->RefreshGPU(m_editor->GetEditorRenderer().GetUploadQueue());
+
+		m_editor->GetEditorRenderer().MarkBindlessDirty();
 	}
 } // namespace Lina::Editor

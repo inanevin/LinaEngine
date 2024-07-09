@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Common/Data/Mutex.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/Map.hpp"
-#include "Core/Resources/ResourceManagerListener.hpp"
 
 namespace Lina
 {
@@ -48,7 +47,7 @@ namespace Lina::Editor
 	class Editor;
 	struct DirectoryItem;
 
-	class ThumbnailGenerator : public ResourceManagerListener
+	class ThumbnailGenerator
 	{
 	private:
 		struct RequestBatch
@@ -63,8 +62,6 @@ namespace Lina::Editor
 		ThumbnailGenerator() = delete;
 		ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive);
 		~ThumbnailGenerator();
-
-		virtual void OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents) override;
 
 	private:
 		void CollectItems(DirectoryItem* item, bool isRecursive);

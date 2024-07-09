@@ -36,7 +36,8 @@ SOFTWARE.
 namespace Lina
 {
 	class Texture;
-	class ResourceManager;
+	class ResourceManagerV2;
+	class ResourceUploadQueue;
 
 	class TextureAtlas;
 	struct TextureAtlasImage
@@ -51,21 +52,16 @@ namespace Lina
 	class TextureAtlas
 	{
 	public:
-		TextureAtlas(StringID uniqueID, ResourceManager* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format);
+		TextureAtlas(StringID uniqueID, ResourceManagerV2* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format);
 		~TextureAtlas();
 		TextureAtlasImage* AddImage(uint8* data, const Vector2ui& size, StringID sid = 0);
 		TextureAtlasImage* GetImage(StringID sid);
 		bool			   RemoveImage(TextureAtlasImage* rect);
-		void			   RefreshGPU();
+		void			   RefreshGPU(ResourceUploadQueue& uploadQueue);
 
 		inline Texture* GetRaw() const
 		{
 			return m_rawTexture;
-		}
-
-		inline bool GetIsDirty() const
-		{
-			return m_isDirty;
 		}
 
 		inline uint32 GetBytesPerPixel() const
@@ -74,14 +70,14 @@ namespace Lina
 		}
 
 	private:
-		ResourceManager*		   m_rm			   = nullptr;
-		Vector2ui				   m_size		   = Vector2ui::Zero;
-		uint32					   m_bytesPerPixel = 4;
-		LinaGX::Format			   m_textureFormat = LinaGX::Format::R8G8B8A8_SRGB;
+		ResourceManagerV2*		   m_resourceManagerV2 = nullptr;
+		Vector2ui				   m_size			   = Vector2ui::Zero;
+		uint32					   m_bytesPerPixel	   = 4;
+		LinaGX::Format			   m_textureFormat	   = LinaGX::Format::R8G8B8A8_SRGB;
 		Span<uint8>				   m_data;
 		Texture*				   m_rawTexture = nullptr;
 		Vector<TextureAtlasImage*> m_rects;
-		bool					   m_isDirty = false;
+		bool					   m_isDirty = true;
 	};
 
 } // namespace Lina

@@ -61,7 +61,7 @@ namespace Lina
 		};
 
 		EntityWorld(const EntityWorld& other) = delete;
-        EntityWorld(const String& path = "", StringID sid = 0);
+		EntityWorld(const String& path = "", StringID sid = 0);
 		~EntityWorld();
 
 		Entity*		 CreateEntity(const String& name);
@@ -181,11 +181,11 @@ namespace Lina
 			m_gfxSettings.skyMaterial.raw = mat;
 			m_gfxSettings.skyMaterial.sid = mat->GetSID();
 		}
-        
-        inline ResourceManagerV2& GetResourceManagerV2()
-        {
-            return m_resourceManagerV2;
-        }
+
+		inline ResourceManagerV2& GetResourceManagerV2()
+		{
+			return m_resourceManagerV2;
+		}
 
 	protected:
 		virtual void LoadFromFile(const char* path) override;
@@ -204,7 +204,7 @@ namespace Lina
 	private:
 		AllocatorBucket<Entity, 1000> m_entityBucket;
 
-        ResourceManagerV2 m_resourceManagerV2;
+		ResourceManagerV2					 m_resourceManagerV2;
 		PhysicsWorld						 m_physicsWorld;
 		HashMap<TypeID, ComponentCacheBase*> m_componentCaches;
 		CameraComponent*					 m_activeCamera = nullptr;

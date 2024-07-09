@@ -26,15 +26,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Core/Graphics/Renderers/Renderer.hpp"
-#include "Core/Graphics/GfxManager.hpp"
+layout (set = 0, binding = 0) uniform texture2D LINA_TEXTURES[];
+layout (set = 0, binding = 1) uniform sampler LINA_SAMPLERS[];
 
-namespace Lina
+struct GUIMaterialData
 {
-	Renderer::Renderer(GfxManager* gfx, uint32 flags)
-	{
-		m_gfxManager = gfx;
-		m_flags		 = flags;
-	}
+	vec4 color1;
+	vec4 color2;
+	vec4 floatPack1;
+	vec4 floatPack2;
+	vec4 clip;
+	vec2 canvasSize;
+	vec2 padding;
+};
 
-} // namespace Lina
+

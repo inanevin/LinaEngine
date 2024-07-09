@@ -55,9 +55,7 @@ src/Graphics/Resource/TextureSampler.cpp
 src/Graphics/Resource/Material.cpp
 src/Graphics/Resource/GUIWidget.cpp
 src/Graphics/Resource/Font.cpp
-src/Graphics/Renderers/SurfaceRenderer.cpp
 src/Graphics/Renderers/WorldRenderer.cpp
-src/Graphics/Renderers/Renderer.cpp
 src/Graphics/Pipeline/Buffer.cpp
 src/Graphics/Pipeline/RenderPass.cpp
 src/Graphics/Pipeline/DescriptorSet.cpp
@@ -187,9 +185,7 @@ include/Core/Graphics/Resource/TextureSampler.hpp
 include/Core/Graphics/Resource/Material.hpp
 include/Core/Graphics/Resource/GUIWidget.hpp
 include/Core/Graphics/Resource/Font.hpp
-include/Core/Graphics/Renderers/SurfaceRenderer.hpp
 include/Core/Graphics/Renderers/WorldRenderer.hpp
-include/Core/Graphics/Renderers/Renderer.hpp
 include/Core/Graphics/Pipeline/Buffer.hpp
 include/Core/Graphics/Pipeline/RenderPass.hpp
 include/Core/Graphics/Pipeline/DescriptorSet.hpp

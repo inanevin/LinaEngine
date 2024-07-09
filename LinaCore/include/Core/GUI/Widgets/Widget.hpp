@@ -53,7 +53,7 @@ namespace LinaVG
 namespace Lina
 {
 	class System;
-	class ResourceManager;
+	class ResourceManagerV2;
 	class IStream;
 	class Ostream;
 	class WidgetManager;
@@ -463,7 +463,7 @@ namespace Lina
 	protected:
 		ALLOCATOR_BUCKET_MEM;
 		WidgetManager*				m_manager			   = nullptr;
-		ResourceManager*			m_resourceManager	   = nullptr;
+		ResourceManagerV2*			m_resourceManager	   = nullptr;
 		LinaGX::Window*				m_lgxWindow			   = nullptr;
 		System*						m_system			   = nullptr;
 		Widget*						m_parent			   = nullptr;

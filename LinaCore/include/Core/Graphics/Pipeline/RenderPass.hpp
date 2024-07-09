@@ -36,7 +36,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class GfxManager;
 	class ResourceUploadQueue;
 
 	struct RenderPassBuffer
@@ -66,9 +65,9 @@ namespace Lina
 			LinaGX::RenderPassDepthStencilAttachment  depthStencil;
 		};
 
-		void Create(GfxManager* gfxMan, const RenderPassDescription& desc);
+		void Create(const RenderPassDescription& desc);
 		void Destroy();
-		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, bool bindGlobalSet = true);
+		void BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout);
 		void Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex);
 		void End(LinaGX::CommandStream* stream);
 
@@ -94,7 +93,6 @@ namespace Lina
 
 	private:
 	private:
-		GfxManager*				  m_gfxManager = nullptr;
 		PerFrameData			  m_pfd[FRAMES_IN_FLIGHT];
 		HashMap<StringID, uint32> m_bufferIndices;
 	};

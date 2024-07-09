@@ -86,6 +86,11 @@ namespace Lina
 		Vector4 padding2;
 	};
 
+	struct GPUDataGUIView
+	{
+		Matrix4 proj;
+	};
+
 	struct GPUDataScene
 	{
 		Vector4 skyTop;
@@ -159,7 +164,7 @@ namespace Lina
 		uint32 gBufSampler			= 0;
 		uint32 pad;
 		uint32 pad2;
-        uint32 pad3;
+		uint32 pad3;
 		uint32 pad4;
 	};
 

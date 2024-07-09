@@ -29,14 +29,12 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/RenderPass.hpp"
 #include "Core/Graphics/Utility/GfxHelpers.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Graphics/ResourceUploadQueue.hpp"
 
 namespace Lina
 {
-
-	void RenderPass::Create(GfxManager* gfxMan, const RenderPassDescription& desc)
+	void RenderPass::Create(const RenderPassDescription& desc)
 	{
-		m_gfxManager = gfxMan;
-
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			auto& data		   = m_pfd[i];
@@ -88,25 +86,14 @@ namespace Lina
 			colorAttachments.push_back(att);
 	}
 
-	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout, bool bindGlobalSet)
+	void RenderPass::BindDescriptors(LinaGX::CommandStream* stream, uint32 frameIndex, uint16 pipelineLayout)
 	{
 		LinaGX::CMDBindDescriptorSets* bind = stream->AddCommand<LinaGX::CMDBindDescriptorSets>();
-
-		if (bindGlobalSet)
-		{
-			bind->descriptorSetHandles = stream->EmplaceAuxMemory<uint16>(m_gfxManager->GetDescriptorSetPersistentGlobal(frameIndex), m_pfd[frameIndex].descriptorSet);
-			bind->firstSet			   = 0;
-			bind->setCount			   = 2;
-		}
-		else
-		{
-			bind->descriptorSetHandles = stream->EmplaceAuxMemory<uint16>(m_pfd[frameIndex].descriptorSet);
-			bind->firstSet			   = 1;
-			bind->setCount			   = 1;
-		}
-
-		bind->layoutSource = LinaGX::DescriptorSetsLayoutSource::CustomLayout;
-		bind->customLayout = pipelineLayout;
+		bind->descriptorSetHandles			= stream->EmplaceAuxMemory<uint16>(m_pfd[frameIndex].descriptorSet);
+		bind->firstSet						= 1;
+		bind->setCount						= 1;
+		bind->layoutSource					= LinaGX::DescriptorSetsLayoutSource::CustomLayout;
+		bind->customLayout					= pipelineLayout;
 	}
 
 	void RenderPass::Begin(LinaGX::CommandStream* stream, const LinaGX::Viewport& vp, const LinaGX::ScissorsRect& scissors, uint32 frameIndex)

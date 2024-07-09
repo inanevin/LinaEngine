@@ -36,6 +36,7 @@ SOFTWARE.
 #include "IO/FileManager.hpp"
 #include "Atlas/AtlasManager.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Editor/WindowPanelManager.hpp"
 #include "Editor/Project/ProjectManager.hpp"
 #include "Editor/Graphics/EditorRenderer.hpp"
@@ -48,8 +49,6 @@ namespace Lina
 	class EntityWorld;
 	class Widget;
 	class GUIWidget;
-	class ResourceManager;
-	class SurfaceRenderer;
 	class WorldRenderer;
 } // namespace Lina
 
@@ -65,7 +64,7 @@ namespace Lina::Editor
 	class DockArea;
 	class WorldRendererExtEditor;
 
-	class Editor : public ApplicationDelegate, public WorldManagerListener, public ResourceManagerListener
+	class Editor : public ApplicationDelegate, public ResourceManagerListener
 	{
 
 	private:
@@ -81,22 +80,21 @@ namespace Lina::Editor
 		virtual void PreInitialize() override;
 		virtual void Initialize() override;
 		virtual void PreTick() override;
+		virtual void Tick(float delta) override;
 		virtual void PreShutdown() override;
 		virtual void Render(uint32 frameIndex) override;
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream) override;
+		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size) override;
 
 		// Misc
 		void SaveSettings();
 		void RequestExit();
 
 		// Resources
-		virtual void OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents) override;
+		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
 
 		// Renderers
 		WorldRenderer* GetWorldRenderer(EntityWorld* world);
-
-		// World
-		virtual void OnWorldInstalled(EntityWorld* world) override;
 
 		inline EntityWorld* GetCurrentWorld() const
 		{
@@ -133,12 +131,23 @@ namespace Lina::Editor
 			return m_projectManager;
 		}
 
+		inline ResourceManagerV2& GetResourceManagerV2()
+		{
+			return m_resourceManagerV2;
+		}
+
+		inline EditorRenderer& GetEditorRenderer()
+		{
+			return m_editorRenderer;
+		}
+
 	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
 		void CoreResourcesLoaded();
 
 	private:
+		ResourceManagerV2					  m_resourceManagerV2;
 		EditorRenderer						  m_editorRenderer;
 		WindowPanelManager					  m_windowPanelManager;
 		AtlasManager						  m_atlasManager;
@@ -148,7 +157,6 @@ namespace Lina::Editor
 		WorldManager*						  m_worldManager		 = nullptr;
 		GfxManager*							  m_gfxManager			 = nullptr;
 		WidgetManager*						  m_primaryWidgetManager = nullptr;
-		ResourceManager*					  m_rm					 = nullptr;
 		EntityWorld*						  m_currentWorld		 = nullptr;
 		EditorRoot*							  m_editorRoot			 = nullptr;
 		LinaGX::Window*						  m_mainWindow			 = nullptr;

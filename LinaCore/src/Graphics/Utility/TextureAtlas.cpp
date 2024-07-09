@@ -32,13 +32,14 @@ SOFTWARE.
 
 namespace Lina
 {
-	TextureAtlas::TextureAtlas(StringID uniqueID, ResourceManager* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format) : m_size(sz), m_bytesPerPixel(bytesPerPixel), m_textureFormat(format), m_rm(rm)
+	TextureAtlas::TextureAtlas(StringID uniqueID, ResourceManagerV2* rm, const Vector2ui& sz, uint32 bytesPerPixel, LinaGX::Format format) : m_size(sz), m_bytesPerPixel(bytesPerPixel), m_textureFormat(format), m_resourceManagerV2(rm)
 	{
 		const size_t dataSize = static_cast<size_t>(static_cast<size_t>(sz.x * sz.y * bytesPerPixel));
 		uint8*		 data	  = new uint8[dataSize];
 		m_data				  = {data, dataSize};
 		MEMSET(m_data.data(), 0, dataSize);
-		m_rawTexture = m_rm->CreateResource<Texture>("TextureAtlasRawTexture", uniqueID);
+		m_rawTexture = m_resourceManagerV2->CreateResource<Texture>("TextureAtlasRawTexture", uniqueID);
+		m_isDirty	 = true;
 	}
 
 	TextureAtlas::~TextureAtlas()
@@ -47,7 +48,7 @@ namespace Lina
 			delete r;
 		m_rects.clear();
 
-		m_rm->DestroyResource(m_rawTexture);
+		m_resourceManagerV2->DestroyResource(m_rawTexture);
 		m_rawTexture = nullptr;
 	}
 
@@ -124,10 +125,17 @@ namespace Lina
 		}
 	}
 
-	void TextureAtlas::RefreshGPU()
+	void TextureAtlas::RefreshGPU(ResourceUploadQueue& queue)
 	{
+		if (!m_isDirty)
+			return;
+
 		m_isDirty = false;
 		m_rawTexture->LoadFromBuffer(m_data.data(), m_size.x, m_size.y, m_bytesPerPixel, m_bytesPerPixel == 1 ? LinaGX::ImageChannelMask::G : LinaGX::ImageChannelMask::RGBA, m_textureFormat, true);
-		m_rawTexture->AddToUploadQueue();
+
+		if (!m_rawTexture->IsGPUValid())
+			m_rawTexture->GenerateHW();
+
+		m_rawTexture->AddToUploadQueue(queue);
 	}
 } // namespace Lina

@@ -173,7 +173,7 @@ namespace Lina::Editor
 		m_titleBar		  = titleBar;
 		m_linaIcon		  = lina;
 
-		m_worldManager = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		m_worldManager = Editor::Get()->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 	}
 
 	void EditorRoot::PreTick()

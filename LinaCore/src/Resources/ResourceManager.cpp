@@ -29,6 +29,9 @@ SOFTWARE.
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
+#include "Core/Resources/Resource.hpp"
+#include "Core/Application.hpp"
+#include "Core/Resources/ResourceManagerListener.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -36,13 +39,11 @@ SOFTWARE.
 #include "Common/Platform/PlatformTime.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/System/SystemInfo.hpp"
-#include "Core/Application.hpp"
-#include "Core/Resources/ResourceManagerListener.hpp"
 
 namespace Lina
 {
 
-	ResourceManagerV2::~ResourceManagerV2()
+	void ResourceManagerV2::Shutdown()
 	{
 		for (auto [tid, cache] : m_caches)
 			delete cache;
@@ -71,7 +72,7 @@ namespace Lina
 		m_loadTasks.clear();
 	}
 
-	void ResourceManagerV2::LoadResourcesFromFile(int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& baseCachePath, const String& projectPath)
+	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& baseCachePath, const String& projectPath)
 	{
 		Vector<ResourceIdentifier> idents = identifiers;
 
@@ -99,21 +100,26 @@ namespace Lina
 		loadTask->id			   = taskID;
 		loadTask->identifiers	   = idents;
 		loadTask->startTime		   = PlatformTime::GetCPUCycles();
+		loadTask->resources.resize(idents.size());
+		m_loadTasks.push_back(loadTask);
+
+		uint32 idx = 0;
 
 		for (const auto& ident : idents)
 		{
-			loadTask->tf.emplace([projectPath, ident, this, loadTask, baseCachePath, taskID]() {
-				auto&	  cache = m_caches.at(ident.tid);
-				Resource* res	= cache->Get(ident.sid);
+			loadTask->tf.emplace([idx, delegate, projectPath, ident, this, loadTask, baseCachePath, taskID]() {
+				auto&	  cache			 = m_caches.at(ident.tid);
+				Resource* res			 = cache->Get(ident.sid);
+				loadTask->resources[idx] = res;
 
 				String fullPath = FileSystem::GetRunningDirectory() + "/" + ident.relativePath;
 				if (!FileSystem::FileOrPathExists(fullPath))
 					fullPath = projectPath + "/" + ident.relativePath;
 
-				const String metacachePath = baseCachePath + "/" + TO_STRING(TO_SID(fullPath)) + ".linameta";
+				const String metacachePath = baseCachePath + TO_STRING(TO_SID(fullPath)) + ".linameta";
 				const bool	 exists		   = !baseCachePath.empty() && FileSystem::FileOrPathExists(metacachePath);
 
-				if (exists)
+				if (exists && false)
 				{
 					IStream input = Serialization::LoadFromFile(metacachePath.c_str());
 					res->LoadFromStream(input);
@@ -122,15 +128,15 @@ namespace Lina
 				else
 				{
 					// Some resources have preliminary/initial metadata.
-					// OStream metaStream;
-					// if (app->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream))
-					// {
-					//     IStream in;
-					//     in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-					//     res->SetCustomMeta(in);
-					//     in.Destroy();
-					// }
-					// metaStream.Destroy();
+					OStream metaStream;
+					if (delegate->FillResourceCustomMeta(ident.sid, metaStream))
+					{
+						IStream in;
+						in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+						res->SetCustomMeta(in);
+						in.Destroy();
+					}
+					metaStream.Destroy();
 
 					res->LoadFromFile(fullPath.c_str());
 
@@ -143,6 +149,8 @@ namespace Lina
 				for (ResourceManagerListener* listener : m_listeners)
 					listener->OnResourceLoaded(taskID, ident);
 			});
+
+			idx++;
 		}
 
 		m_executor.Run(loadTask->tf, [loadTask, this]() {
@@ -170,171 +178,44 @@ namespace Lina
 	void ResourceManagerV2::DispatchLoadTaskEvent(ResourceLoadTask* task)
 	{
 		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
-		// for (auto& ident : task->identifiers)
-		//     m_caches[ident.tid]->Get(ident.sid)->BatchLoaded();
-
 		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourceLoadEnded(task->id, task->identifiers);
+			listener->OnResourceLoadEnded(task->id, task->resources);
 	}
 
 	void ResourceManager::Shutdown()
 	{
-		for (auto [tid, cache] : m_caches)
-			delete cache;
 	}
 
 	void ResourceManager::AddListener(ResourceManagerListener* listener)
 	{
-		m_listeners.push_back(listener);
 	}
 
 	void ResourceManager::RemoveListener(ResourceManagerListener* listener)
 	{
-		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](ResourceManagerListener* list) -> bool { return list == listener; }));
 	}
 
 	void ResourceManager::Lock()
 	{
-		m_lockCount++;
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnManagerLock(m_lockCount);
 	}
 
 	void ResourceManager::Unlock()
 	{
-		m_lockCount--;
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnManagerUnlock(m_lockCount);
 	}
 
 	void ResourceManager::LoadResourcesFromFile(int32 taskID, Vector<ResourceIdentifier> identifiers, const String& baseCachePath)
 	{
-		LINA_ASSERT(SystemInfo::IsMainThread(), "");
-
-		if (identifiers.empty())
-		{
-			LINA_ERR("[Resource Manager] -> LoadResources() called with empty identifier list.");
-			return -1;
-		}
-
-		for (auto& ident : identifiers)
-		{
-			ident.sid				 = TO_SID(ident.relativePath);
-			auto			   it	 = m_caches.find(ident.tid);
-			ResourceCacheBase* cache = nullptr;
-			if (it == m_caches.end())
-			{
-				MetaType& type		= ReflectionSystem::Get().Resolve(ident.tid);
-				void*	  ptr		= type.GetFunction<void*()>("CreateResourceCache"_hs)();
-				cache				= static_cast<ResourceCacheBase*>(ptr);
-				m_caches[ident.tid] = cache;
-			}
-			else
-				cache = it->second;
-			cache->Create(ident.relativePath, ident.sid);
-		}
-
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourceLoadStarted(taskID, identifiers);
-
-		Lock();
-
-		ResourceLoadTask* loadTask = new ResourceLoadTask();
-		loadTask->id			   = taskID;
-		loadTask->identifiers	   = identifiers;
-		loadTask->startTime		   = PlatformTime::GetCPUCycles();
-		m_loadTasks.push_back(loadTask);
-
-		auto* app = m_system->GetApp();
-
-		for (const auto& ident : identifiers)
-		{
-
-			loadTask->tf.emplace([app, ident, this, loadTask, baseCachePath, taskID]() {
-				auto&	  cache = m_caches.at(ident.tid);
-				Resource* res	= cache->Get(ident.sid);
-
-				const String metacachePath = baseCachePath + "/" + TO_STRING(TO_SID(ident.relativePath)) + ".linameta";
-				const bool	 exists		   = !baseCachePath.empty() && FileSystem::FileOrPathExists(metacachePath);
-
-				if (exists)
-				{
-					IStream input = Serialization::LoadFromFile(metacachePath.c_str());
-					res->LoadFromStream(input);
-					input.Destroy();
-				}
-				else
-				{
-					// Some resources have preliminary/initial metadata.
-					OStream metaStream;
-					if (app->GetAppDelegate()->FillResourceCustomMeta(ident.sid, metaStream))
-					{
-						IStream in;
-						in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-						res->SetCustomMeta(in);
-						in.Destroy();
-					}
-					metaStream.Destroy();
-
-					// res->LoadFromFile(ident.absolutePath.c_str());
-
-					OStream metastream;
-					res->SaveToStream(metastream);
-					Serialization::SaveToFile(metacachePath.c_str(), metastream);
-					metastream.Destroy();
-				}
-
-				LINA_TRACE("[Resource] -> Loaded resource: {0}", ident.relativePath);
-
-				for (ResourceManagerListener* listener : m_listeners)
-				{
-					listener->OnResourceLoaded(taskID, ident);
-				}
-			});
-		}
-
-		m_executor.Run(loadTask->tf, [loadTask, this]() {
-			loadTask->isCompleted.store(true);
-			loadTask->endTime = PlatformTime::GetCPUCycles();
-			Unlock();
-		});
 	}
 
 	void ResourceManager::Poll()
 	{
-		for (Vector<ResourceLoadTask*>::iterator it = m_loadTasks.begin(); it != m_loadTasks.end();)
-		{
-			ResourceLoadTask* task = *it;
-			if (task->isCompleted.load())
-			{
-				DispatchLoadTaskEvent(task);
-				it = m_loadTasks.erase(it);
-				delete task;
-			}
-			else
-				++it;
-		}
 	}
 
 	void ResourceManager::WaitForAll()
 	{
-		m_executor.Wait();
-
-		for (ResourceLoadTask* task : m_loadTasks)
-		{
-			DispatchLoadTaskEvent(task);
-			delete task;
-		}
-
-		m_loadTasks.clear();
 	}
 
 	void ResourceManager::DispatchLoadTaskEvent(ResourceLoadTask* task)
 	{
-		LINA_TRACE("[Resource Manager] -> Load task complete: {0} seconds", PlatformTime::GetDeltaSeconds64(task->startTime, task->endTime));
-
-		for (ResourceManagerListener* listener : m_listeners)
-			listener->OnResourceLoadEnded(task->id, task->identifiers);
 	}
 } // namespace Lina
 

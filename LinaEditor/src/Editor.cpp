@@ -30,11 +30,11 @@ SOFTWARE.
 #include "Editor/Widgets/Screens/SplashScreen.hpp"
 #include "Editor/Widgets/EditorRoot.hpp"
 #include "Editor/Graphics/WorldRendererExtEditor.hpp"
+#include "Editor/Graphics/SurfaceRenderer.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Serialization/Serialization.hpp"
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Core/Graphics/Renderers/SurfaceRenderer.hpp"
 #include "Core/World/EntityWorld.hpp"
 #include "Core/CommonCore.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
@@ -133,7 +133,26 @@ namespace Lina::Editor
 			};
 
 			meta.drawIndirectEnabled		  = true;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
+			meta.descriptorSetAllocationCount = 1;
+			meta.SaveToStream(stream);
+			return true;
+		}
+
+		if (sid == "Resources/Editor/Shaders/GUI/EditorGUI.linashader"_hs)
+		{
+			Shader::Metadata meta;
+
+			meta.variants["Swapchain"_hs] = ShaderVariant{
+				.blendDisable = false,
+				.depthTest	  = false,
+				.depthWrite	  = false,
+				.depthFormat  = LinaGX::Format::UNDEFINED,
+				.targets	  = {{.format = DEFAULT_SWAPCHAIN_FORMAT}},
+				.cullMode	  = LinaGX::CullMode::None,
+				.frontFace	  = LinaGX::FrontFace::CCW,
+			};
+
+			meta.drawIndirectEnabled		  = true;
 			meta.descriptorSetAllocationCount = 1;
 			meta.SaveToStream(stream);
 			return true;
@@ -159,7 +178,6 @@ namespace Lina::Editor
 			};
 
 			meta.drawIndirectEnabled		  = true;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::ForwardTransparency;
 			meta.descriptorSetAllocationCount = 1;
 			meta.SaveToStream(stream);
 			return true;
@@ -179,7 +197,6 @@ namespace Lina::Editor
 
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = true;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Main;
 			meta.materialSize				  = sizeof(GPUMaterialDefaultObject);
 			meta.SaveToStream(stream);
 			return true;
@@ -198,7 +215,6 @@ namespace Lina::Editor
 			};
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = false;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Lighting;
 			meta.materialSize				  = 0;
 			meta.SaveToStream(stream);
 			return true;
@@ -221,7 +237,6 @@ namespace Lina::Editor
 
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = false;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::Lighting;
 			meta.materialSize				  = sizeof(GPUMaterialDefaultSky);
 			meta.SaveToStream(stream);
 			return true;
@@ -261,7 +276,6 @@ namespace Lina::Editor
 			};
 
 			meta.drawIndirectEnabled		  = true;
-			meta.renderPassDescriptorType	  = RenderPassDescriptorType::ForwardTransparency;
 			meta.descriptorSetAllocationCount = 1;
 			meta.SaveToStream(stream);
 			return true;
@@ -271,26 +285,19 @@ namespace Lina::Editor
 
 	void Editor::PreInitialize()
 	{
-		m_rm = m_app->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_rm->AddListener(this);
+		m_editorRenderer.Initialize(this);
 
 		const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
 		if (!FileSystem::FileOrPathExists(metacachePath))
 			FileSystem::CreateFolderInPath(metacachePath);
 
-		// Absolute priority resources.
-		// Vector<ResourceIdentifier> priorityResources;
-		// const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
-		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI_PATH, DEFAULT_SHADER_GUI_PATH, GetTypeID<Shader>()});
-		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_GUI3D_PATH, DEFAULT_SHADER_GUI3D_PATH, GetTypeID<Shader>()});
-		// priorityResources.push_back({fullPathBase + DEFAULT_FONT_PATH, DEFAULT_FONT_PATH, GetTypeID<Font>()});
-		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_OBJECT_PATH, DEFAULT_SHADER_OBJECT_PATH, GetTypeID<Shader>()});
-		// priorityResources.push_back({fullPathBase + DEFAULT_SHADER_SKY_PATH, DEFAULT_SHADER_SKY_PATH, GetTypeID<Shader>()});
-		// priorityResources.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_DARK_PATH, DEFAULT_TEXTURE_CHECKERED_DARK_PATH, // GetTypeID<Texture>()});
-		// priorityResources.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitle.png", // "Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
-		// priorityResources.push_back({fullPathBase + ICON_FONT_PATH, ICON_FONT_PATH, GetTypeID<Font>()});
-		// m_rm->LoadResourcesFromFile(-1, priorityResources, metacachePath);
-		// m_rm->WaitForAll();
+		Vector<ResourceIdentifier> priorityResources;
+		priorityResources.push_back({"Resources/Editor/Shaders/GUI/EditorGUI.linashader", GetTypeID<Shader>()});
+		priorityResources.push_back({"Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
+		priorityResources.push_back({ICON_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({DEFAULT_FONT_PATH, GetTypeID<Font>()});
+		m_resourceManagerV2.LoadResourcesFromFile(this, 0, priorityResources, metacachePath, "");
+		m_resourceManagerV2.WaitForAll();
 	}
 
 	void Editor::Initialize()
@@ -305,16 +312,13 @@ namespace Lina::Editor
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
 
+		m_resourceManagerV2.AddListener(this);
 		m_worldManager = m_app->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-		m_worldManager->AddListener(this);
-		m_gfxManager = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_gfxManager->CreateRendererPool("WorldRenderers"_hs, 0, false);
-		m_gfxManager->CreateRendererPool("SurfaceRenderers"_hs, 1, true);
+		m_gfxManager   = m_app->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		m_fileManager.Initialize(this);
-		// m_atlasManager.Initialize(this);
+		m_atlasManager.Initialize(this);
 		m_windowPanelManager.Initialize(this);
-		m_editorRenderer.Initialize(this);
 
 		m_mainWindow		   = m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN);
 		m_primaryWidgetManager = &m_windowPanelManager.GetSurfaceRenderer(LINA_MAIN_SWAPCHAIN)->GetWidgetManager();
@@ -337,6 +341,12 @@ namespace Lina::Editor
 		else
 			m_settings.SaveToFile();
 
+		Vector<ResourceIdentifier> priorityResources;
+		priorityResources.push_back({"Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
+		priorityResources.push_back({ALT_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({BIG_FONT_PATH, GetTypeID<Font>()});
+		m_resourceManagerV2.LoadResourcesFromFile(this, RLID_CORE_RES, priorityResources, metacachePath, "");
+
 		// Async load core resources.
 		// Vector<ResourceIdentifier> list;
 		// const String			   fullPathBase = FileSystem::GetRunningDirectory() + "/";
@@ -352,11 +362,18 @@ namespace Lina::Editor
 		// list.push_back({fullPathBase + "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", // "Resources/Editor/Textures/LinaLogoTitleHorizontal.png", GetTypeID<Texture>()});
 		// list.push_back({fullPathBase + "Resources/Editor/Shaders/Lines.linashader", "Resources/Editor/Shaders/Lines.linashader", // GetTypeID<Shader>()});
 		// m_rm->LoadResourcesFromFile(RLID_CORE_RES, list, metacachePath);
-		m_coreResourcesOK = true;
+		// m_coreResourcesOK = true;
 	}
 
+	void Editor::OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size)
+	{
+		m_gfxManager->Join();
+		m_windowPanelManager.OnWindowSizeChanged(window, size);
+	}
 	void Editor::PreTick()
 	{
+		m_resourceManagerV2.Poll();
+
 		if (m_editorRoot == nullptr && m_coreResourcesOK)
 		{
 			CoreResourcesLoaded();
@@ -364,6 +381,12 @@ namespace Lina::Editor
 
 		m_windowPanelManager.PreTick();
 		m_fileManager.PreTick();
+		m_editorRenderer.PreTick();
+	}
+
+	void Editor::Tick(float delta)
+	{
+		m_editorRenderer.Tick(delta);
 	}
 
 	void Editor::Render(uint32 frameIndex)
@@ -392,26 +415,28 @@ namespace Lina::Editor
 		m_projectManager.Initialize(this);
 		m_settings.GetLayout().ApplyStoredLayout();
 
-		const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
-		if (true || FileSystem::FileOrPathExists(lastWorldPath))
-		{
-			m_worldManager->InstallWorld(lastWorldPath);
-			CreateWorldRenderer(m_worldManager->GetMainWorld());
-		}
+		// const String& lastWorldPath = m_settings.GetLastWorldAbsPath();
+		// if (FileSystem::FileOrPathExists(lastWorldPath))
+		// {
+		//     EntityWorld* world = new EntityWorld();
+		// 	m_worldManager->InstallWorld(lastWorldPath);
+		// 	CreateWorldRenderer(m_worldManager->GetMainWorld());
+		// }
 	}
 
 	void Editor::PreShutdown()
 	{
+		m_resourceManagerV2.RemoveListener(this);
 		m_editorRenderer.Shutdown();
-		m_rm->RemoveListener(this);
 		m_atlasManager.Shutdown();
-		DestroyWorldRenderer(m_worldManager->GetMainWorld());
+		// DestroyWorldRenderer(m_worldManager->GetMainWorld());
 		m_worldManager->UninstallMainWorld();
-		m_worldManager->RemoveListener(this);
 		m_fileManager.Shutdown();
 		m_windowPanelManager.Shutdown();
 		m_settings.SaveToFile();
 		m_projectManager.Shutdown();
+
+		m_resourceManagerV2.Shutdown();
 	}
 
 	void Editor::RequestExit()
@@ -430,18 +455,10 @@ namespace Lina::Editor
 		m_settings.SaveToFile();
 	}
 
-	void Editor::OnWorldInstalled(EntityWorld* world)
-	{
-		// auto* wr = world->GetRenderer();
-		//
-		// if (wr != nullptr)
-		// 	wr->AddExtension(new WorldRendererExtEditor());
-	}
-
 	void Editor::CreateWorldRenderer(EntityWorld* world)
 	{
-		WorldRenderer* wr = new WorldRenderer(m_gfxManager, world, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
-		// m_gfxManager->AddRenderer(wr, "WorldRenderers"_hs);
+		WorldRenderer* wr = new WorldRenderer(world, m_gfxManager->GetApplicationWindow(LINA_MAIN_SWAPCHAIN)->GetSize());
+		m_editorRenderer.AddWorldRenderer(wr);
 		m_worldRenderers[world] = wr;
 	}
 
@@ -450,6 +467,7 @@ namespace Lina::Editor
 		auto it = m_worldRenderers.find(world);
 		LINA_ASSERT(it != m_worldRenderers.end(), "");
 		WorldRenderer* wr = it->second;
+		m_editorRenderer.RemoveWorldRenderer(wr);
 		// m_gfxManager->RemoveRenderer(wr);
 		delete wr;
 		m_worldRenderers.erase(it);
@@ -460,7 +478,7 @@ namespace Lina::Editor
 		return m_worldRenderers.at(world);
 	}
 
-	void Editor::OnResourceLoadEnded(int32 taskID, const Vector<ResourceIdentifier>& idents)
+	void Editor::OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources)
 	{
 		if (m_coreResourcesOK)
 			return;

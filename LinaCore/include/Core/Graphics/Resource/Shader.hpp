@@ -67,7 +67,6 @@ namespace Lina
 		struct Metadata
 		{
 			HashMap<StringID, ShaderVariant> variants;
-			RenderPassDescriptorType		 renderPassDescriptorType	  = RenderPassDescriptorType::Gui;
 			uint32							 descriptorSetAllocationCount = 1;
 			uint32							 materialSize				  = 0;
 			bool							 drawIndirectEnabled		  = false;
@@ -104,11 +103,6 @@ namespace Lina
 			return m_meta.variants.at(variant)._gpuHandle;
 		}
 
-		inline uint16 GetPipelineLayout() const
-		{
-			return m_pipelineLayout;
-		}
-
 		inline const LinaGX::DescriptorSetDesc& GetMaterialSetDesc() const
 		{
 			return m_materialSetDesc;
@@ -137,7 +131,6 @@ namespace Lina
 		LinaGX::DescriptorSetDesc						  m_materialSetDesc = {};
 		LinaGX::ShaderDescriptorSetLayout				  m_materialSetInfo = {};
 		Metadata										  m_meta			= {};
-		uint16											  m_pipelineLayout;
 		Vector<DescriptorSet*>							  m_descriptorSets;
 		Vector<ShaderProperty>							  m_properties;
 	};

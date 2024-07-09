@@ -33,17 +33,8 @@ SOFTWARE.
 
 namespace Lina
 {
-	class GfxManager;
 	class EntityWorld;
 	class WorldRenderer;
-	class ResourceManager;
-
-	class WorldManagerListener
-	{
-	public:
-		virtual void OnWorldInstalled(EntityWorld* world){};
-		virtual void OnWorldUninstalling(EntityWorld* world){};
-	};
 
 	class WorldManager : public Subsystem
 	{
@@ -54,6 +45,9 @@ namespace Lina
 		virtual void Initialize(const SystemInitializationInfo& initInfo) override;
 		virtual void Shutdown() override;
 
+		void AddWorld(EntityWorld* world);
+		void RemoveWorld(EntityWorld* world);
+
 		void InstallWorld(const String& path);
 		void UninstallMainWorld();
 
@@ -63,14 +57,14 @@ namespace Lina
 		void PreTick() override;
 		void Tick(float deltaTime);
 
-		inline void AddListener(WorldManagerListener* listener)
+		inline const Vector<EntityWorld*>& GetActiveWorlds() const
 		{
-			m_listeners.push_back(listener);
+			return m_activeWorlds;
 		}
 
-		inline void RemoveListener(WorldManagerListener* listener)
+		inline void SetMainWorld(EntityWorld* world)
 		{
-			m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](WorldManagerListener* list) -> bool { return list == listener; }));
+			m_mainWorld = world;
 		}
 
 		inline EntityWorld* GetMainWorld() const
@@ -78,17 +72,8 @@ namespace Lina
 			return m_mainWorld;
 		}
 
-		inline const Vector<EntityWorld*>& GetActiveWorlds() const
-		{
-			return m_activeWorlds;
-		}
-
 	private:
-	private:
-		ResourceManager*			  m_rm			 = nullptr;
-		GfxManager*					  m_gfxManager	 = nullptr;
-		EntityWorld*				  m_mainWorld	 = nullptr;
-		Vector<EntityWorld*>		  m_activeWorlds = {};
-		Vector<WorldManagerListener*> m_listeners;
+		Vector<EntityWorld*> m_activeWorlds = {};
+		EntityWorld*		 m_mainWorld	= nullptr;
 	};
 } // namespace Lina

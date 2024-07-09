@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/World/Component.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Core/Graphics/GfxManager.hpp"
+#include "Core/Audio/Audio.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/System/SystemInfo.hpp"
@@ -48,6 +49,9 @@ namespace Lina
 
 	EntityWorld::~EntityWorld()
 	{
+
+		m_resourceManagerV2.Shutdown();
+
 		m_entityBucket.View([this](Entity* e, uint32 index) -> bool {
 			if (e->GetParent() == nullptr)
 				DestroyEntity(e);
@@ -93,6 +97,8 @@ namespace Lina
 
 	void EntityWorld::PreTick()
 	{
+		m_resourceManagerV2.Poll();
+
 		for (const auto& [tid, cache] : m_componentCaches)
 		{
 			cache->PreTick();
@@ -218,5 +224,4 @@ namespace Lina
 	{
 		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](EntityWorldListener* list) -> bool { return list == listener; }));
 	}
-
 } // namespace Lina

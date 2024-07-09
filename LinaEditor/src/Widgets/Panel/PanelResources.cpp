@@ -461,7 +461,7 @@ namespace Lina::Editor
 			{
 				if (item->tid == GetTypeID<EntityWorld>())
 				{
-					auto* wm = m_system->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+					auto* wm = m_editor->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
 					wm->InstallWorld(item->absolutePath);
 					return;
 				}
