@@ -61,7 +61,7 @@ namespace Lina
 		virtual void Render(uint32 frameIndex){};
 		virtual void PreShutdown(){};
 		virtual void Shutdown(){};
-        virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size) {};
+		virtual void OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size){};
 
 		// Resources
 		virtual bool FillResourceCustomMeta(StringID sid, OStream& stream)

@@ -219,7 +219,7 @@ namespace Lina
 			Create a pipeline layout, using global set description, description of the render pass we are using, and the material set description.
 		 Materials will use this layout when binding descriptor sets for this shader.
 		 */
-	
+
 		if (m_layout.descriptorSetLayouts.size() > 2)
 		{
 			const auto& setLayout = m_layout.descriptorSetLayouts[2];

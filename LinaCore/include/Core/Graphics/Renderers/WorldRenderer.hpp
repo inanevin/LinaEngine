@@ -76,14 +76,14 @@ namespace Lina
 	private:
 		struct PerFrameData
 		{
-            uint16                              pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
-            uint16                              pipelineLayoutPersistentGlobal = 0;
-            uint16                              descriptorSetPersistentGlobal     = 0;
-            Buffer                              globalDataBuffer;
-            Buffer                              globalMaterialsBuffer;
-            LinaGX::DescriptorUpdateImageDesc globalTexturesDesc      = {};
-            LinaGX::DescriptorUpdateImageDesc globalSamplersDesc      = {};
-            
+			uint16							  pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Max];
+			uint16							  pipelineLayoutPersistentGlobal = 0;
+			uint16							  descriptorSetPersistentGlobal	 = 0;
+			Buffer							  globalDataBuffer;
+			Buffer							  globalMaterialsBuffer;
+			LinaGX::DescriptorUpdateImageDesc globalTexturesDesc = {};
+			LinaGX::DescriptorUpdateImageDesc globalSamplersDesc = {};
+
 			LinaGX::CommandStream* gfxStream		 = nullptr;
 			LinaGX::CommandStream* copyStream		 = nullptr;
 			SemaphoreData		   copySemaphore	 = {};
@@ -98,8 +98,8 @@ namespace Lina
 			Texture* gBufNormal			= nullptr;
 			Texture* gBufDepth			= nullptr;
 			Texture* lightingPassOutput = nullptr;
-            
-            bool bindlessDirty = false;
+
+			bool bindlessDirty = false;
 		};
 
 	public:
@@ -109,8 +109,8 @@ namespace Lina
 		virtual void Tick(float delta);
 		virtual void Render(uint32 frameIndex);
 		virtual void Resize(const Vector2ui& newSize);
-        
-        virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
+
+		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
 
 		/// If this renderer is submitting its own commands, return the submission semaphore so that the next batch can wait on them.
 		virtual SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
@@ -176,8 +176,7 @@ namespace Lina
 		}
 
 	private:
-        
-        void UpdateBindlessResources(uint32 frameIndex);
+		void   UpdateBindlessResources(uint32 frameIndex);
 		void   UpdateBuffers(uint32 frameIndex);
 		void   FetchRenderables();
 		void   CreateSizeRelativeResources();
@@ -188,12 +187,12 @@ namespace Lina
 		Shader* m_guiShader3D			= nullptr;
 		uint32	m_guiShader3DVariantGPU = 0;
 
-        GUIBackend                 m_guiBackend;
-        MeshManager m_meshManager;
-        ResourceManagerV2* m_resourceManagerV2 = nullptr;
-		LinaGX::Instance*							  m_lgx = nullptr;
-        ResourceUploadQueue                           m_uploadQueue;
-        ResourceUploadQueue							  m_globalUploadQueue;
+		GUIBackend									  m_guiBackend;
+		MeshManager									  m_meshManager;
+		ResourceManagerV2*							  m_resourceManagerV2 = nullptr;
+		LinaGX::Instance*							  m_lgx				  = nullptr;
+		ResourceUploadQueue							  m_uploadQueue;
+		ResourceUploadQueue							  m_globalUploadQueue;
 		PerFrameData								  m_pfd[FRAMES_IN_FLIGHT]	= {};
 		RenderPass									  m_mainPass				= {};
 		RenderPass									  m_lightingPass			= {};
