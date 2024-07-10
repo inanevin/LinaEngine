@@ -78,6 +78,7 @@ namespace Lina::Editor
 		virtual ~NotificationDisplayer() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Tick(float delta) override;
 		virtual void Draw() override;
 

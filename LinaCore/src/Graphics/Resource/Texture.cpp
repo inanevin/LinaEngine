@@ -58,9 +58,7 @@ namespace Lina
 
 	Texture::~Texture()
 	{
-		for (const auto& b : m_allLevels)
-			LINA_ASSERT(b.pixels == nullptr, "Texture buffers are still filled, are you trying to delete mid-transfer?");
-
+		DestroySW();
 		DestroyHW();
 	}
 

@@ -47,6 +47,13 @@ namespace Lina::Editor
 		GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
 	}
 
+	void NotificationDisplayer::Destruct()
+	{
+		for (NotificationItem* item : m_items)
+			delete item;
+		m_items.clear();
+	}
+
 	void NotificationDisplayer::Tick(float delta)
 	{
 		float		posY = GetEndFromMargins().y;
@@ -99,6 +106,7 @@ namespace Lina::Editor
 				it = m_items.erase(it);
 				RemoveChild(item->layout);
 				m_manager->Deallocate(item->layout);
+				delete item;
 			}
 			else
 				++it;

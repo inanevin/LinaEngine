@@ -431,10 +431,10 @@ namespace Lina::Editor
 	{
 		m_resourceManagerV2.RemoveListener(this);
 		m_editorRenderer.Shutdown();
-		m_atlasManager.Shutdown();
 		// DestroyWorldRenderer(m_worldManager->GetMainWorld());
 		m_worldManager->UninstallMainWorld();
 		m_fileManager.Shutdown();
+		m_atlasManager.Shutdown();
 		m_windowPanelManager.Shutdown();
 		m_settings.SaveToFile();
 		m_projectManager.Shutdown();

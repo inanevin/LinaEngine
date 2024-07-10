@@ -59,9 +59,20 @@ namespace Lina::Editor
 		};
 
 	public:
+		enum class Status
+		{
+			Working,
+			Done,
+		};
+
 		ThumbnailGenerator() = delete;
 		ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive);
 		~ThumbnailGenerator();
+
+		inline Status GetStatus() const
+		{
+			return m_status;
+		}
 
 	private:
 		void CollectItems(DirectoryItem* item, bool isRecursive);
@@ -79,8 +90,10 @@ namespace Lina::Editor
 		Atomic<uint32>											 m_generatedCount = 0;
 		ParallelHashMapMutex<DirectoryItem*, TextureAtlasImage*> m_atlases;
 
-		JobExecutor* m_executor;
-		Editor*		 m_editor = nullptr;
+		JobExecutor*   m_executor;
+		Editor*		   m_editor = nullptr;
+		Atomic<Status> m_status = Status::Working;
+		Future<void>   m_future;
 	};
 
 } // namespace Lina::Editor

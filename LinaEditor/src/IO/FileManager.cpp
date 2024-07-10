@@ -55,10 +55,24 @@ namespace Lina::Editor
 
 	void FileManager::PreTick()
 	{
+		for (Vector<ThumbnailGenerator*>::iterator it = m_thumbnailGenerators.begin(); it != m_thumbnailGenerators.end();)
+		{
+			ThumbnailGenerator* generator = *it;
+			if (generator->GetStatus() == ThumbnailGenerator::Status::Done)
+			{
+				delete generator;
+				it = m_thumbnailGenerators.erase(it);
+			}
+			else
+				++it;
+		}
 	}
 
 	void FileManager::Shutdown()
 	{
+		for (ThumbnailGenerator* gen : m_thumbnailGenerators)
+			delete gen;
+		m_thumbnailGenerators.clear();
 		ClearResources();
 	}
 
@@ -150,7 +164,7 @@ namespace Lina::Editor
 		FillPathInformation(m_root, resDir);
 		ScanItem(m_root);
 
-		// ThumbnailGenerator* thumbnail = new ThumbnailGenerator(m_editor, &m_executor, m_root, true);
+		m_thumbnailGenerators.push_back(new ThumbnailGenerator(m_editor, &m_executor, m_root, true));
 	}
 
 	void FileManager::ClearDirectory(DirectoryItem* item)

@@ -36,6 +36,7 @@ SOFTWARE.
 namespace Lina::Editor
 {
 	class Editor;
+	class ThumbnailGenerator;
 
 	class FileManager
 	{
@@ -76,6 +77,7 @@ namespace Lina::Editor
 		AllocatorBucket<DirectoryItem, 200> m_itemBucket;
 		DirectoryItem*						m_root = nullptr;
 		JobExecutor							m_executor;
+		Vector<ThumbnailGenerator*>			m_thumbnailGenerators;
 	};
 
 } // namespace Lina::Editor

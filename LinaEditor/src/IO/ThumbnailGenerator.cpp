@@ -136,15 +136,21 @@ namespace Lina::Editor
 			});
 		}
 
-		m_executor->RunMove(tf, [this]() {
+		m_future = m_executor->RunMove(tf, [this]() {
 			for (const Pair<DirectoryItem*, TextureAtlasImage*>& p : m_atlases)
 				p.first->textureAtlas = p.second;
 			m_editor->GetAtlasManager().RefreshDirtyAtlases();
+			m_status.store(Status::Done);
 		});
 	}
 
 	ThumbnailGenerator::~ThumbnailGenerator()
 	{
+		if (m_future.valid())
+		{
+			m_future.cancel();
+			m_future.get();
+		}
 	}
 
 	void ThumbnailGenerator::CollectItems(DirectoryItem* item, bool isRecursive)
