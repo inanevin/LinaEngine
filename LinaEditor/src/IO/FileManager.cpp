@@ -42,6 +42,12 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
+	void FileManager::GetMetacachePath(String& outPath)
+	{
+		outPath.clear();
+		outPath.insert(0, FileSystem::GetUserDataFolder() + "Editor/ResourceCache/");
+	}
+
 	void FileManager::Initialize(Editor* editor)
 	{
 		m_editor = editor;
@@ -70,7 +76,6 @@ namespace Lina::Editor
 
 		if (item->textureAtlas != nullptr)
 		{
-			auto* rm = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
 			m_editor->GetAtlasManager().RemoveImage(item->textureAtlas);
 			item->textureAtlas = nullptr;
 		}
@@ -104,6 +109,7 @@ namespace Lina::Editor
 			subItem->tid		   = tid;
 			subItem->isDirectory   = isDirectory;
 			subItem->parent		   = item;
+
 			item->children.push_back(subItem);
 
 			FillPathInformation(subItem, str);
@@ -144,7 +150,7 @@ namespace Lina::Editor
 		FillPathInformation(m_root, resDir);
 		ScanItem(m_root);
 
-		// ThumbnailGenerator* thumbnail = new ThumbnailGenerator(m_editor, &m_executor, m_root, true);
+		ThumbnailGenerator* thumbnail = new ThumbnailGenerator(m_editor, &m_executor, m_root, true);
 	}
 
 	void FileManager::ClearDirectory(DirectoryItem* item)
@@ -178,7 +184,8 @@ namespace Lina::Editor
 		else
 			item->fileName = FileSystem::GetFilenameAndExtensionFromPath(item->absolutePath);
 
-		item->sid = TO_SID(item->relativePath);
+		item->lastModifiedDate = TO_SID(FileSystem::GetLastModifiedDate(item->absolutePath));
+		item->sid			   = TO_SID(item->relativePath);
 	}
 
 	DirectoryItem* FileManager::FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot)
@@ -196,19 +203,4 @@ namespace Lina::Editor
 		return nullptr;
 	}
 
-	void FileManager::GetMetacachePath(String& outPath, const String& filePath) const
-	{
-		const StringID sid = TO_SID(filePath);
-		outPath.clear();
-		outPath = "";
-
-		ProjectData* pd = m_editor->GetProjectManager().GetProjectData();
-
-		if (pd == nullptr)
-			outPath = FileSystem::GetRunningDirectory() + "/Cache/";
-		else
-			outPath = pd->GetPath() + "/Cache/";
-
-		outPath += TO_STRING(sid) + ".linameta";
-	}
 } // namespace Lina::Editor

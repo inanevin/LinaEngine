@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/World/Component.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/GUI/GUIRenderer.hpp"
 
@@ -46,6 +47,7 @@ namespace Lina
 		virtual void Tick(float delta) override;
 
 		void SetWidget(StringID sid);
+		void SetMaterial(StringID sid);
 
 		virtual TypeID GetComponentType() override
 		{
@@ -72,8 +74,14 @@ namespace Lina
 			return m_canvasSize;
 		}
 
+		inline Material* GetMaterial() const
+		{
+			return m_material.raw;
+		}
+
 	private:
 		ResRef<GUIWidget> m_targetWidget;
+		ResRef<Material>  m_material;
 		GUIRenderer		  m_guiRenderer;
 		Vector2ui		  m_canvasSize = Vector2ui(100, 100);
 	};

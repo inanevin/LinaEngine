@@ -68,10 +68,27 @@ namespace Lina
 		m_entity->AddAABB(m_usedLocalAABB);
 	}
 
+	void MeshComponent::SetMesh(Model* model, uint32 meshIndex)
+	{
+		m_entity->RemoveAABB(m_usedLocalAABB);
+		m_model.sid		= model->GetSID();
+		m_model.raw		= model;
+		m_meshIndex		= meshIndex;
+		m_mesh			= m_model.raw->GetMesh(m_meshIndex);
+		m_usedLocalAABB = m_mesh->GetAABB();
+		m_entity->AddAABB(m_usedLocalAABB);
+	}
+
 	void MeshComponent::SetMaterial(StringID sid)
 	{
 		m_material.sid = sid;
 		m_material.raw = m_resourceManager->GetResource<Material>(m_material.sid);
+	}
+
+	void MeshComponent::SetMaterial(Material* mat)
+	{
+		m_material.sid = mat->GetSID();
+		m_material.raw = mat;
 	}
 
 } // namespace Lina

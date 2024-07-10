@@ -43,17 +43,18 @@ namespace Lina::Editor
 {
 	struct DirectoryItem
 	{
-		bool				   isDirectory	= false;
-		String				   absolutePath = "";
-		String				   relativePath = "";
-		String				   folderName	= "";
-		String				   fileName		= "";
-		StringID			   sid			= 0;
-		TypeID				   tid			= 0;
-		String				   extension	= "";
-		Vector<DirectoryItem*> children		= {};
-		DirectoryItem*		   parent		= nullptr;
-		TextureAtlasImage*	   textureAtlas = nullptr;
+		bool				   isDirectory		= false;
+		String				   absolutePath		= "";
+		String				   relativePath		= "";
+		String				   folderName		= "";
+		String				   fileName			= "";
+		StringID			   sid				= 0;
+		TypeID				   tid				= 0;
+		String				   extension		= "";
+		Vector<DirectoryItem*> children			= {};
+		DirectoryItem*		   parent			= nullptr;
+		TextureAtlasImage*	   textureAtlas		= nullptr;
+		StringID			   lastModifiedDate = 0;
 		ALLOCATOR_BUCKET_MEM;
 	};
 

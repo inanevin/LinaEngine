@@ -43,7 +43,8 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
 		void		 DestroyHW();
-		void		 GenerateHW();
+        void         GenerateHW();
+		void		 GenerateHW(const LinaGX::SamplerDesc& desc);
 
 		inline uint32 GetGPUHandle() const
 		{

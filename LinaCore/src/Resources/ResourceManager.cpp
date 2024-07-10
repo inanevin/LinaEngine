@@ -182,41 +182,6 @@ namespace Lina
 			listener->OnResourceLoadEnded(task->id, task->resources);
 	}
 
-	void ResourceManager::Shutdown()
-	{
-	}
-
-	void ResourceManager::AddListener(ResourceManagerListener* listener)
-	{
-	}
-
-	void ResourceManager::RemoveListener(ResourceManagerListener* listener)
-	{
-	}
-
-	void ResourceManager::Lock()
-	{
-	}
-
-	void ResourceManager::Unlock()
-	{
-	}
-
-	void ResourceManager::LoadResourcesFromFile(int32 taskID, Vector<ResourceIdentifier> identifiers, const String& baseCachePath)
-	{
-	}
-
-	void ResourceManager::Poll()
-	{
-	}
-
-	void ResourceManager::WaitForAll()
-	{
-	}
-
-	void ResourceManager::DispatchLoadTaskEvent(ResourceLoadTask* task)
-	{
-	}
 } // namespace Lina
 
 /*

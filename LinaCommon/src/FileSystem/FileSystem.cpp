@@ -30,7 +30,7 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Data/Vector.hpp"
 #include "Common/Platform/PlatformInclude.hpp"
-
+#include <chrono>
 #ifdef LINA_PLATFORM_APPLE
 #include <unistd.h>
 #include <sys/types.h>
@@ -139,6 +139,14 @@ namespace Lina
 	bool FileSystem::FileOrPathExists(const String& path)
 	{
 		return std::filesystem::exists(path.c_str());
+	}
+
+	String FileSystem::GetLastModifiedDate(const String& path)
+	{
+		std::filesystem::file_time_type ftime  = std::filesystem::last_write_time(path);
+		auto							sctp   = std::chrono::time_point_cast<std::chrono::system_clock::duration>(ftime - decltype(ftime)::clock::now() + std::chrono::system_clock::now());
+		std::time_t						cftime = std::chrono::system_clock::to_time_t(sctp);
+		return std::asctime(std::localtime(&cftime));
 	}
 
 	String FileSystem::GetFilePath(const String& fileName)

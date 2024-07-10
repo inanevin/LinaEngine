@@ -38,6 +38,7 @@ SOFTWARE.
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/Graphics/GfxManager.hpp"
@@ -56,10 +57,9 @@ namespace Lina::Editor
 
 	ThumbnailGenerator::ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive)
 	{
-
 		m_editor	 = editor;
 		m_executor	 = executor;
-		m_rm		 = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		m_rm		 = &editor->GetResourceManagerV2();
 		m_gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
 		const String cachePath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/";
@@ -78,59 +78,36 @@ namespace Lina::Editor
 		};
 		m_editor->GetWindowPanelManager().GetNotificationDisplayer(m_editor->GetWindowPanelManager().GetMainWindow())->AddNotification(notification);
 
-		// For models and materials collect resources, for image based thumbnails fetch and set the images.
-		// Vector<ResourceIdentifier> resourcestoLoad;
-		// for(DirectoryItem* item : m_thumbnailItems)
-		// {
-		//     if(item->tid == GetTypeID<Model>())
-		//     {
-		//         ResourceIdentifier ident;
-		//         ident.absolutePath = item->absolutePath;
-		//         ident.relativePath = item->relativePath;
-		//         ident.tid          = item->tid;
-		//         resourcestoLoad.push_back(ident);
-		//     }
-		//     else if(item->tid == GetTypeID<Material>())
-		//     {
-		//         ResourceIdentifier ident;
-		//         ident.absolutePath = item->absolutePath;
-		//         ident.relativePath = item->relativePath;
-		//         ident.tid          = item->tid;
-		//         resourcestoLoad.push_back(ident);
-		//     }
-		//     else if(item->tid == GetTypeID<TextureSampler>())
-		//     {
-		//         // set to image
-		//         m_generatedCount.fetch_add(1);
-		//     }
-		//     else if(item->tid == GetTypeID<Audio>())
-		//     {
-		//         // set to image
-		//         m_generatedCount.fetch_add(1);
-		//     }
-		//     else if(item->tid == GetTypeID<Shader>())
-		//     {
-		//         // set to image
-		//         m_generatedCount.fetch_add(1);
-		//     }
-		//     else if(item->tid == GetTypeID<GUIWidget>())
-		//     {
-		//         // set to image
-		//         m_generatedCount.fetch_add(1);
-		//     }
-		// }
-		//
-		// // Start loading the resources async.
-		// const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
-		// m_rm->LoadResourcesFromFile(RLID_THUMB_RES, resourcestoLoad, metacachePath);
-
-		// Meanwhile kick off generating thumbs for those we can generate in isolation.
-		m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Lock();
 		Taskflow tf;
-		tf.emplace([this]() {
-			for (DirectoryItem* item : m_thumbnailItems)
-			{
+
+		for (DirectoryItem* item : m_thumbnailItems)
+		{
+			tf.emplace([this, item]() {
 				const String thumbnailPath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/ResourceThumbnail_" + TO_STRING(item->sid);
+
+				if (FileSystem::FileOrPathExists(thumbnailPath))
+				{
+					IStream	 input			  = Serialization::LoadFromFile(thumbnailPath.c_str());
+					StringID lastModifiedDate = 0;
+					input >> lastModifiedDate;
+
+					if (item->lastModifiedDate != lastModifiedDate)
+					{
+						input.Destroy();
+						FileSystem::DeleteFileInPath(thumbnailPath);
+					}
+					else
+					{
+						uint32	  bytesPerPixel = 0;
+						Vector2ui size			= Vector2ui::Zero;
+						input >> size.x >> size.y >> bytesPerPixel;
+						TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(input.GetDataCurrent(), size, bytesPerPixel);
+						m_atlases.try_emplace(item, atlas);
+						input.Destroy();
+						m_generatedCount.fetch_add(1);
+						return;
+					}
+				}
 
 				if (item->tid == GetTypeID<Texture>())
 				{
@@ -142,13 +119,27 @@ namespace Lina::Editor
 					GenerateThumbFont(item, thumbnailPath);
 					m_generatedCount.fetch_add(1);
 				}
-			}
-		});
+				else if (item->tid == GetTypeID<Model>())
+				{
+					GenerateThumbModel(item, thumbnailPath);
+					m_generatedCount.fetch_add(1);
+				}
+				else if (item->tid == GetTypeID<Material>())
+				{
+					GenerateThumbMaterial(item, thumbnailPath);
+					m_generatedCount.fetch_add(1);
+				}
+				else if (item->tid == GetTypeID<Shader>())
+				{
+					m_generatedCount.fetch_add(1);
+				}
+			});
+		}
 
 		m_executor->RunMove(tf, [this]() {
-			for (auto& p : m_atlases)
+			for (const Pair<DirectoryItem*, TextureAtlasImage*>& p : m_atlases)
 				p.first->textureAtlas = p.second;
-			m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager)->Unlock();
+			m_editor->GetAtlasManager().RefreshDirtyAtlases();
 		});
 	}
 
@@ -196,17 +187,6 @@ namespace Lina::Editor
 		}
 
 		return;
-
-		if (FileSystem::FileOrPathExists(thumbnailPath))
-		{
-			// IStream input    = Serialization::LoadFromFile(thumbnailFullPath.c_str());
-			// uint32 bytesPerPixel = 0;
-			// Vector2ui size = Vector2ui::Zero;
-			// input >> size.x >> size.y >> bytesPerPixel;
-			// item->textureAtlas = m_editor->GetAtlasManager().AddImageToAtlas(input.GetDataCurrent(), size, bytesPerPixel);
-			// input.Destroy();
-			// return;
-		}
 	}
 
 	void ThumbnailGenerator::GenerateThumbTexture(DirectoryItem* item, const String& thumbPath)
@@ -238,6 +218,7 @@ namespace Lina::Editor
 			if (LinaGX::ResizeBuffer(image, resizedBuffer, width, height, LinaGX::MipmapFilter::Default, LinaGX::ImageChannelMask::RGBA, true))
 			{
 				OStream stream;
+				stream << item->lastModifiedDate;
 				stream << resizedBuffer.width << resizedBuffer.height << resizedBuffer.bytesPerPixel;
 				stream.WriteRaw(resizedBuffer.pixels, resizedBuffer.width * resizedBuffer.height * resizedBuffer.bytesPerPixel);
 				Serialization::SaveToFile(thumbPath.c_str(), stream);
@@ -372,6 +353,7 @@ namespace Lina::Editor
 			LinaGX::WriteToBuffer(thumbnailBuffer, glyphBuffer2, startX2, startY2);
 
 			OStream stream;
+			stream << item->lastModifiedDate;
 			stream << thumbnailBuffer.width << thumbnailBuffer.height << thumbnailBuffer.bytesPerPixel;
 			stream.WriteRaw(thumbnailBuffer.pixels, thumbnailBuffer.width * thumbnailBuffer.height * 1);
 			Serialization::SaveToFile(thumbPath.c_str(), stream);
@@ -387,167 +369,172 @@ namespace Lina::Editor
 		if (buffer2)
 			FREE(buffer2);
 
-		// loadGlyph(face, 97); // a
-
 		FT_Done_Face(face);
 	}
 
-	void ThumbnailGenerator::GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)
+	void ThumbnailGenerator::GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath)
 	{
-
-		Taskflow tf;
-		tf.emplace([this]() {
-			// EntityWorld world;
-			//
-			// Entity* camera = world.CreateEntity("Camera");
-			// CameraComponent* cam = world.AddComponent<CameraComponent>(camera);
-			// camera->SetPosition(Vector3());
-			// camera->SetRotation(Quaternion());
-			//
-			// auto* rm = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-			// ResourceIdentifier ident(item->relativePath, GetTypeID<Model>(), TO_SID(item->relativePath));
-			// rm->LoadResources({ident});
-			// rm->WaitForAll();
-			//
-			// auto* modelRes = rm->GetResource<Model>();
-			// Entity* sphere = world.CreateEntity("Sphere");
-			// ModelComponent* model = world.AddComponent<ModelComponent>(sphere);
-			// model->SetModel(modelRes);
-			//
-			// world.GetRenderer()->SetExternalTexture(texture);
-			// world.GetRenderer()->Render();
-			// gfxManager->Join();
-		});
-		m_editor->GetSystem()->GetMainExecutor()->RunMove(tf);
-	}
-
-	WorldRenderer* ThumbnailGenerator::CreateDataForMaterial(DirectoryItem* item)
-	{
-		EntityWorld* world = new EntityWorld();
-		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
-		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
-
-		Model*		model		 = m_rm->GetResource<Model>("Resouces/Core/Models/Sphere.glb"_hs);
-		const AABB& aabb		 = model->GetAABB();
-		Entity*		cameraEntity = world->CreateEntity("Camera");
-		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
-		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
-		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
-		world->SetActiveCamera(camera);
-
-		const auto& meshes = model->GetMeshes();
-		uint32		idx	   = 0;
-		for (auto* mesh : meshes)
-		{
-			Entity*		   entity = world->CreateEntity(mesh->GetName());
-			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
-			m->SetMesh(TO_SID(item->relativePath), idx);
-			m->SetMaterial(TO_SID(item->relativePath));
-			idx++;
-		}
-
-		Buffer* buffer = new Buffer();
-		buffer->Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
-		world->PreTick();
-		world->Tick(0.016f);
-		return new WorldRenderer(world, world->GetRenderSize(), buffer);
-	}
-
-	WorldRenderer* ThumbnailGenerator::CreateDataForModel(DirectoryItem* item)
-	{
-
-		EntityWorld* world = new EntityWorld();
-		world->SetSkyMaterial(m_rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
-		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
-
-		Model*		model		 = m_rm->GetResource<Model>(TO_SID(item->relativePath));
-		const AABB& aabb		 = model->GetAABB();
-		Entity*		cameraEntity = world->CreateEntity("Camera");
-		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
-		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
-		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
-		world->SetActiveCamera(camera);
-
-		const auto& meshes = model->GetMeshes();
-		uint32		idx	   = 0;
-		for (auto* mesh : meshes)
-		{
-			Entity*		   entity = world->CreateEntity(mesh->GetName());
-			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
-			m->SetMesh(TO_SID(item->relativePath), idx);
-			m->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-			idx++;
-		}
-
-		Buffer* buffer = new Buffer();
-		buffer->Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
-		world->PreTick();
-		world->Tick(0.016f);
-
-		return new WorldRenderer(world, world->GetRenderSize(), buffer);
-	}
-
-	void ThumbnailGenerator::GenerateThumbModel(DirectoryItem* item, const String& thumbPath, RequestBatch* batch)
-	{
-		auto* rm  = m_editor->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		auto* gfx = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		auto* wm  = m_editor->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-
-		// Load the model.
-		ResourceIdentifier ident;
-		ident.relativePath = item->relativePath;
-		ident.tid		   = item->tid;
-		rm->LoadResourcesFromFile(0, {ident}, "");
-		rm->WaitForAll();
-
-		// Create world.
-		EntityWorld* world = new EntityWorld();
-		world->SetSkyMaterial(rm->GetResource<Material>(DEFAULT_MATERIAL_SKY_SID));
-		world->SetRenderSize(Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE));
-
-		// Setup world
-		Model*		model		 = rm->GetResource<Model>(TO_SID(ident.relativePath));
-		const AABB& aabb		 = model->GetAABB();
-		Entity*		cameraEntity = world->CreateEntity("Camera");
-		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
-		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
-		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
-		world->SetActiveCamera(camera);
-
-		const auto& meshes = model->GetMeshes();
-		uint32		idx	   = 0;
-		for (auto* mesh : meshes)
-		{
-			Entity*		   entity = world->CreateEntity(mesh->GetName());
-			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
-			m->SetMesh(TO_SID(ident.relativePath), idx);
-			m->SetMaterial(DEFAULT_MATERIAL_OBJECT_SID);
-			idx++;
-		}
-
+		// Snapshot buffer
 		Buffer buffer;
 		buffer.Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
+
+		// Create world.
+		const Vector2ui viewSize = Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE);
+		EntityWorld*	world	 = new EntityWorld();
+		world->SetRenderSize(viewSize);
+		WorldRenderer* renderer = new WorldRenderer(world, viewSize, &buffer, true);
+
+		String metacachePath = "";
+		FileManager::GetMetacachePath(metacachePath);
+		const String projectPath = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath());
+
+		Vector<ResourceIdentifier> resources;
+		resources.push_back({"Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
+		resources.push_back({"Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
+		resources.push_back({"Resources/Core/Shaders/Object/DeferredLighting.linashader", GetTypeID<Shader>()});
+		resources.push_back({"Resources/Core/Shaders/Object/DefaultObject.linashader", GetTypeID<Shader>()});
+		resources.push_back({"Resources/Core/Shaders/Sky/DefaultSky.linashader", GetTypeID<Shader>()});
+		resources.push_back({item->relativePath, GetTypeID<Material>()});
+		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, metacachePath, projectPath);
+		world->GetResourceManagerV2().WaitForAll();
+
+		Material* objectMaterial = world->GetResourceManagerV2().GetResource<Material>(TO_SID(item->relativePath));
+		resources.clear();
+		resources.push_back({objectMaterial->GetShaderPath(), GetTypeID<Shader>()});
+		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, metacachePath, projectPath);
+		world->GetResourceManagerV2().WaitForAll();
+
+		Model*	  model			   = world->GetResourceManagerV2().GetResource<Model>("Resources/Core/Models/Sphere.glb"_hs);
+		Material* skyMaterial	   = world->GetResourceManagerV2().CreateResource<Material>("SkyMaterial", "SkyMaterial"_hs);
+		Material* lightingMaterial = world->GetResourceManagerV2().CreateResource<Material>("LightingMaterial", "LightingMaterial"_hs);
+		world->GetGfxSettings().SetSkyMaterial(skyMaterial);
+		world->GetGfxSettings().SetLightingMaterial(lightingMaterial);
+
+		skyMaterial->SetShader(world->GetResourceManagerV2().GetResource<Shader>("Resources/Core/Shaders/Sky/DefaultSky.linashader"_hs));
+		lightingMaterial->SetShader(world->GetResourceManagerV2().GetResource<Shader>("Resources/Core/Shaders/Object/DeferredLighting.linashader"_hs));
+		objectMaterial->SetShader(world->GetResourceManagerV2().GetResource<Shader>("Resources/Core/Shaders/Object/DefaultObject.linashader"_hs));
+
+		renderer->MarkBindlessDirty();
+
+		// Setup world
+		const AABB& aabb		 = model->GetAABB();
+		Entity*		cameraEntity = world->CreateEntity("Camera");
+		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
+		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
+		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
+		world->SetActiveCamera(camera);
+
+		const auto& meshes = model->GetMeshes();
+		uint32		idx	   = 0;
+		for (auto* mesh : meshes)
+		{
+			Entity*		   entity = world->CreateEntity(mesh->GetName());
+			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
+			m->SetMesh(model, idx);
+			m->SetMaterial(objectMaterial);
+			idx++;
+		}
+
 		world->PreTick();
 		world->Tick(0.016f);
+		renderer->Tick(0.016f);
+		renderer->Render(0);
 
-		// Render.
-		// WorldRenderer* wr = new WorldRenderer(world, world->GetRenderSize(), &buffer);
-		// gfx->AddRenderer(wr, "WorldRenderers"_hs);
-		// gfx->Join();
-		// gfx->Render("WorldRenderers"_hs);
-		// gfx->Join();
-		// gfx->RemoveRenderer(wr);
-		// delete wr;
-		// delete world;
+		const SemaphoreData semaphoreData = renderer->GetSubmitSemaphore(0);
+		GfxManager::GetLGX()->WaitForUserSemaphore(semaphoreData.GetSemaphore(), semaphoreData.GetValue());
 
-		item->textureAtlas = m_editor->GetAtlasManager().AddImageToAtlas(buffer.GetMapped(), Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE), 4);
+		TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(buffer.GetMapped(), viewSize, 4);
+		m_atlases.try_emplace(item, atlas);
 
 		OStream stream;
+		stream << item->lastModifiedDate;
 		stream << RESOURCE_THUMBNAIL_SIZE << RESOURCE_THUMBNAIL_SIZE << 4;
 		stream.WriteRaw(buffer.GetMapped(), RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4);
 		Serialization::SaveToFile(thumbPath.c_str(), stream);
 
 		buffer.Destroy();
+		delete renderer;
+		delete world;
+	}
+
+	void ThumbnailGenerator::GenerateThumbModel(DirectoryItem* item, const String& thumbPath)
+	{
+		// Snapshot buffer
+		Buffer buffer;
+		buffer.Create(LinaGX::ResourceTypeHint::TH_ReadbackDest, RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4, "Snapshot", true);
+
+		// Create world.
+		const Vector2ui viewSize = Vector2ui(RESOURCE_THUMBNAIL_SIZE, RESOURCE_THUMBNAIL_SIZE);
+		EntityWorld*	world	 = new EntityWorld();
+		world->SetRenderSize(viewSize);
+		WorldRenderer* renderer = new WorldRenderer(world, viewSize, &buffer, true);
+
+		String metacachePath = "";
+		FileManager::GetMetacachePath(metacachePath);
+		const String projectPath = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath());
+
+		Vector<ResourceIdentifier> resources;
+		resources.push_back({"Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
+		resources.push_back({item->relativePath, GetTypeID<Model>()});
+		resources.push_back({"Resources/Core/Shaders/Object/DeferredLighting.linashader", GetTypeID<Shader>()});
+		resources.push_back({"Resources/Core/Shaders/Object/DefaultObject.linashader", GetTypeID<Shader>()});
+		resources.push_back({"Resources/Core/Shaders/Sky/DefaultSky.linashader", GetTypeID<Shader>()});
+		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, metacachePath, projectPath);
+		world->GetResourceManagerV2().WaitForAll();
+
+		Model*	  model			   = world->GetResourceManagerV2().GetResource<Model>(TO_SID(item->relativePath));
+		Material* skyMaterial	   = world->GetResourceManagerV2().CreateResource<Material>("SkyMaterial", "SkyMaterial"_hs);
+		Material* lightingMaterial = world->GetResourceManagerV2().CreateResource<Material>("LightingMaterial", "LightingMaterial"_hs);
+		Material* objectMaterial   = world->GetResourceManagerV2().CreateResource<Material>("ObjectMaterial", "ObjectMaterial"_hs);
+
+		world->GetGfxSettings().SetSkyMaterial(skyMaterial);
+		world->GetGfxSettings().SetLightingMaterial(lightingMaterial);
+
+		skyMaterial->SetShader(world->GetResourceManagerV2().GetResource<Shader>("Resources/Core/Shaders/Sky/DefaultSky.linashader"_hs));
+		lightingMaterial->SetShader(world->GetResourceManagerV2().GetResource<Shader>("Resources/Core/Shaders/Object/DeferredLighting.linashader"_hs));
+		objectMaterial->SetShader(world->GetResourceManagerV2().GetResource<Shader>("Resources/Core/Shaders/Object/DefaultObject.linashader"_hs));
+
+		renderer->MarkBindlessDirty();
+
+		// Setup world
+		const AABB& aabb		 = model->GetAABB();
+		Entity*		cameraEntity = world->CreateEntity("Camera");
+		cameraEntity->SetPosition(Vector3(0, aabb.boundsHalfExtents.y * 2, -aabb.boundsHalfExtents.z * 4));
+		cameraEntity->SetRotation(Quaternion::LookAt(cameraEntity->GetPosition(), Vector3::Zero, Vector3::Up));
+		CameraComponent* camera = world->AddComponent<CameraComponent>(cameraEntity);
+		world->SetActiveCamera(camera);
+
+		const auto& meshes = model->GetMeshes();
+		uint32		idx	   = 0;
+		for (auto* mesh : meshes)
+		{
+			Entity*		   entity = world->CreateEntity(mesh->GetName());
+			MeshComponent* m	  = world->AddComponent<MeshComponent>(entity);
+			m->SetMesh(model, idx);
+			m->SetMaterial(objectMaterial);
+			idx++;
+		}
+
+		world->PreTick();
+		world->Tick(0.016f);
+		renderer->Tick(0.016f);
+		renderer->Render(0);
+
+		const SemaphoreData semaphoreData = renderer->GetSubmitSemaphore(0);
+		GfxManager::GetLGX()->WaitForUserSemaphore(semaphoreData.GetSemaphore(), semaphoreData.GetValue());
+
+		TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(buffer.GetMapped(), viewSize, 4);
+		m_atlases.try_emplace(item, atlas);
+
+		OStream stream;
+		stream << item->lastModifiedDate;
+		stream << RESOURCE_THUMBNAIL_SIZE << RESOURCE_THUMBNAIL_SIZE << 4;
+		stream.WriteRaw(buffer.GetMapped(), RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4);
+		Serialization::SaveToFile(thumbPath.c_str(), stream);
+
+		buffer.Destroy();
+		delete renderer;
+		delete world;
 	}
 
 } // namespace Lina::Editor

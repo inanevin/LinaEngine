@@ -103,26 +103,24 @@ namespace Lina
 		};
 
 	public:
-		WorldRenderer(EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffer = nullptr);
+		WorldRenderer(EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffer = nullptr, bool standaloneSubmit = false);
 		~WorldRenderer();
 
-		virtual void Tick(float delta);
-		virtual void Render(uint32 frameIndex);
-		virtual void Resize(const Vector2ui& newSize);
+		void Tick(float delta);
+		void Render(uint32 frameIndex);
+		void Resize(const Vector2ui& newSize);
 
 		virtual void OnResourceLoadEnded(int32 taskID, const Vector<Resource*>& resources) override;
+		virtual void OnComponentAdded(Component* c) override;
+		virtual void OnComponentRemoved(Component* c) override;
 
-		/// If this renderer is submitting its own commands, return the submission semaphore so that the next batch can wait on them.
-		virtual SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
+		inline SemaphoreData GetSubmitSemaphore(uint32 frameIndex)
 		{
 			if (m_snapshotBuffer != nullptr)
 				return m_pfd[frameIndex].copySemaphore;
 
 			return m_pfd[frameIndex].signalSemaphore;
 		};
-
-		virtual void OnComponentAdded(Component* c) override;
-		virtual void OnComponentRemoved(Component* c) override;
 
 		inline void AddExtension(WorldRendererExtension* ext)
 		{
@@ -175,6 +173,12 @@ namespace Lina
 			return m_snapshotBuffer;
 		}
 
+		inline void MarkBindlessDirty()
+		{
+			for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
+				m_pfd[i].bindlessDirty = true;
+		}
+
 	private:
 		void   UpdateBindlessResources(uint32 frameIndex);
 		void   UpdateBuffers(uint32 frameIndex);
@@ -184,9 +188,6 @@ namespace Lina
 		uint64 BumpAndSendTransfers(uint32 frameIndex);
 
 	private:
-		Shader* m_guiShader3D			= nullptr;
-		uint32	m_guiShader3DVariantGPU = 0;
-
 		GUIBackend									  m_guiBackend;
 		MeshManager									  m_meshManager;
 		ResourceManagerV2*							  m_resourceManagerV2 = nullptr;
@@ -207,7 +208,8 @@ namespace Lina
 		Shader*										  m_deferredLightingShader = nullptr;
 		MeshDefault*								  m_skyCube				   = nullptr;
 		Vector<WorldRendererExtension*>				  m_extensions;
-		Buffer*										  m_snapshotBuffer = nullptr;
+		Buffer*										  m_snapshotBuffer	 = nullptr;
+		bool										  m_standaloneSubmit = false;
 	};
 
 } // namespace Lina

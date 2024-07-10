@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class ResourceManager;
 	class Shader;
 	class GfxManager;
 } // namespace Lina
@@ -81,11 +80,10 @@ namespace Lina::Editor
 		virtual void AddBuffersToUploadQueue(uint32 frameIndex, ResourceUploadQueue& queue) override;
 
 	private:
-		RenderPass		 m_pass;
-		GfxManager*		 m_gfxManager  = nullptr;
-		ResourceManager* m_rm		   = nullptr;
-		Shader*			 m_shaderLines = nullptr;
-		PerFrameData	 m_pfd[FRAMES_IN_FLIGHT];
+		RenderPass	 m_pass;
+		GfxManager*	 m_gfxManager  = nullptr;
+		Shader*		 m_shaderLines = nullptr;
+		PerFrameData m_pfd[FRAMES_IN_FLIGHT];
 	};
 
 } // namespace Lina::Editor

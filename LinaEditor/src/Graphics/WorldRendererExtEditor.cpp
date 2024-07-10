@@ -38,9 +38,9 @@ namespace Lina::Editor
 {
 	WorldRendererExtEditor::WorldRendererExtEditor()
 	{
-		m_gfxManager  = Editor::Get()->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
-		m_rm		  = Editor::Get()->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
-		m_shaderLines = m_rm->GetResource<Shader>("Resources/Editor/Shaders/Lines.linashader"_hs);
+		m_gfxManager = Editor::Get()->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		// m_rm		  = Editor::Get()->GetSystem()->CastSubsystem<ResourceManager>(SubsystemType::ResourceManager);
+		// m_shaderLines = m_rm->GetResource<Shader>("Resources/Editor/Shaders/Lines.linashader"_hs);
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{

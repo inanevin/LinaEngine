@@ -46,11 +46,22 @@ namespace Lina::Editor
 		m_guiBackend.Initialize(&m_editor->GetResourceManagerV2(), &m_uploadQueue);
 		m_lgx				= GfxManager::GetLGX();
 		m_resourceManagerV2 = &editor->GetResourceManagerV2();
+		m_guiSampler		= m_resourceManagerV2->CreateResource<TextureSampler>("EditorRendererGUISampler", "EditorRendererGUISampler"_hs);
+		m_guiTextSampler	= m_resourceManagerV2->CreateResource<TextureSampler>("EditorRendererGUITextSampler", "EditorRendererGUITextSampler"_hs);
 
-		m_guiSampler	 = m_resourceManagerV2->CreateResource<TextureSampler>("EditorRendererGUISampler", "EditorRendererGUISampler"_hs);
-		m_guiTextSampler = m_resourceManagerV2->CreateResource<TextureSampler>("EditorRendererGUITextSampler", "EditorRendererGUITextSampler"_hs);
-		m_guiSampler->GenerateHW();
-		m_guiTextSampler->GenerateHW();
+		LinaGX::SamplerDesc samplerData = {};
+		samplerData.minFilter			= LinaGX::Filter::Anisotropic;
+		samplerData.magFilter			= LinaGX::Filter::Linear;
+		samplerData.mode				= LinaGX::SamplerAddressMode::ClampToEdge;
+		samplerData.anisotropy			= 6;
+		samplerData.borderColor			= LinaGX::BorderColor::WhiteOpaque;
+		samplerData.mipLodBias			= 0.0f;
+		samplerData.minLod				= 0.0f;
+		samplerData.maxLod				= 30.0f;
+		m_guiSampler->GenerateHW(samplerData);
+
+		samplerData.magFilter = LinaGX::Filter::Anisotropic;
+		m_guiTextSampler->GenerateHW(samplerData);
 
 		m_resourceManagerV2->AddListener(this);
 

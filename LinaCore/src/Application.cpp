@@ -51,9 +51,8 @@ namespace Lina
 
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
-		auto& resourceManager = m_engine.GetResourceManager();
-		m_appDelegate		  = initInfo.appDelegate;
-		m_appDelegate->m_app  = this;
+		m_appDelegate		 = initInfo.appDelegate;
+		m_appDelegate->m_app = this;
 		LINA_ASSERT(m_appDelegate != nullptr, "Application listener can not be empty!");
 
 		// Setup

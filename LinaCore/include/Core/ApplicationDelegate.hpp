@@ -43,7 +43,6 @@ namespace LinaGX
 namespace Lina
 {
 	class Application;
-	class ResourceManager;
 	class System;
 	struct SemaphoreData;
 

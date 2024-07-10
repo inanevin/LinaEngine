@@ -45,7 +45,6 @@ namespace Lina
 {
 	void Engine::PreInitialize(const SystemInitializationInfo& initInfo)
 	{
-		m_resourceManager.PreInitialize(initInfo);
 		m_gfxManager.PreInitialize(initInfo);
 		m_audioManager.PreInitialize(initInfo);
 		m_worldManager.PreInitialize(initInfo);
@@ -57,7 +56,6 @@ namespace Lina
 		LINA_TRACE("[Engine] -> Initialization.");
 		m_initInfo = initInfo;
 
-		m_resourceManager.Initialize(initInfo);
 		m_gfxManager.Initialize(initInfo);
 		m_audioManager.Initialize(initInfo);
 		m_worldManager.Initialize(initInfo);
@@ -67,12 +65,10 @@ namespace Lina
 	void Engine::PreShutdown()
 	{
 		LINA_TRACE("[Engine] -> PreShutdown.");
-		m_resourceManager.WaitForAll();
 		m_gfxManager.Join();
 
 		m_app->GetAppDelegate()->PreShutdown();
 		m_worldManager.PreShutdown();
-		m_resourceManager.PreShutdown();
 		m_gfxManager.PreShutdown();
 		m_audioManager.PreShutdown();
 	}
@@ -84,7 +80,6 @@ namespace Lina
 		// Order matters!
 		m_app->GetAppDelegate()->Shutdown();
 		m_worldManager.Shutdown();
-		m_resourceManager.Shutdown();
 		m_gfxManager.Shutdown();
 		m_audioManager.Shutdown();
 	}
@@ -93,7 +88,6 @@ namespace Lina
 	{
 		PROFILER_FUNCTION();
 
-		m_resourceManager.PreTick();
 		m_audioManager.PreTick();
 		m_worldManager.PreTick();
 		m_gfxManager.PreTick();
@@ -105,7 +99,6 @@ namespace Lina
 	void Engine::Poll()
 	{
 		PROFILER_FUNCTION();
-		m_resourceManager.Poll();
 		m_gfxManager.Poll();
 	}
 

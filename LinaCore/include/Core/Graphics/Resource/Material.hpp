@@ -38,8 +38,8 @@ SOFTWARE.
 namespace Lina
 {
 	class Shader;
-	class ResourceManager;
 	class DescriptorSet;
+	class ResourceManagerV2;
 
 	class Material : public Resource
 	{
@@ -73,6 +73,7 @@ namespace Lina
 		void		 SetShader(Shader* shader);
 		void		 ResetProperties();
 		size_t		 BufferDataInto(Buffer& buf, size_t padding);
+		Shader*		 GetShader(ResourceManagerV2* rm);
 
 		template <typename T> void SetProperty(StringID sid, T val)
 		{
@@ -86,9 +87,9 @@ namespace Lina
 			m_propsDirty = true;
 		}
 
-		inline Shader* GetShader() const
+		inline const String& GetShaderPath() const
 		{
-			return m_shader;
+			return m_shaderPath;
 		}
 
 		inline StringID GetShaderSID() const
@@ -103,8 +104,9 @@ namespace Lina
 
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Shader*				   m_shader	   = nullptr;
-		StringID			   m_shaderSID = 0;
+		Shader*				   m_shader		= nullptr;
+		StringID			   m_shaderSID	= 0;
+		String				   m_shaderPath = "";
 		DescriptorAllocation   m_descriptorSetContainer[FRAMES_IN_FLIGHT];
 		size_t				   m_bindlessBytePadding = 0;
 		bool				   m_propsDirty			 = false;

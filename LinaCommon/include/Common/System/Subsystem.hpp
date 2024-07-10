@@ -39,10 +39,8 @@ namespace Lina
 	{
 		None = 0,
 		GfxManager,
-		PhysicsWorld,
 		AudioManager,
 		WorldManager,
-		ResourceManager,
 		Count
 	};
 

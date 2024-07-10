@@ -62,16 +62,18 @@ namespace Lina
 #define MAX_GUI_MATERIALS 100
 #define MAX_OBJECTS		  256
 
-	WorldRenderer::WorldRenderer(EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers)
+	WorldRenderer::WorldRenderer(EntityWorld* world, const Vector2ui& viewSize, Buffer* snapshotBuffers, bool standaloneSubmit)
 	{
-		m_snapshotBuffer = snapshotBuffers;
-		m_world			 = world;
+		m_standaloneSubmit = standaloneSubmit;
+		m_snapshotBuffer   = snapshotBuffers;
+		m_world			   = world;
 		m_world->AddListener(this);
 		m_size				= viewSize;
 		m_resourceManagerV2 = &world->GetResourceManagerV2();
-		// m_gBufSampler			 = m_gfxManager->GetDefaultSampler(0);
-		// m_deferredLightingShader = m_rm->GetResource<Shader>(DEFAULT_SHADER_DEFERRED_LIGHTING_SID);
-		// m_skyCube				 = m_rm->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
+		m_resourceManagerV2->AddListener(this);
+		m_gBufSampler					= m_resourceManagerV2->CreateResource<TextureSampler>("GBufSampler", "GBufSampler"_hs);
+		LinaGX::SamplerDesc gBufSampler = {};
+		m_gBufSampler->GenerateHW(gBufSampler);
 		m_lgx = GfxManager::GetLGX();
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
@@ -83,9 +85,6 @@ namespace Lina
 			data.signalSemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 			data.copySemaphore	 = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
-
-		// m_guiShader3D			= m_rm->GetResource<Shader>(DEFAULT_SHADER_GUI3D_SID);
-		// m_guiShader3DVariantGPU = m_guiShader3D->GetGPUHandle("RenderTarget"_hs);
 
 		m_mainPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Main));
 		m_lightingPass.Create(GfxHelpers::GetRenderPassDescription(m_lgx, RenderPassDescriptorType::Lighting));
@@ -160,6 +159,9 @@ namespace Lina
 
 	WorldRenderer::~WorldRenderer()
 	{
+		m_resourceManagerV2->DestroyResource(m_gBufSampler);
+		m_resourceManagerV2->RemoveListener(this);
+
 		m_guiBackend.Shutdown();
 		m_meshManager.Shutdown();
 
@@ -465,7 +467,7 @@ namespace Lina
 		{
 			MeshDefault* mesh	  = mc->GetMeshRaw();
 			Material*	 material = mc->GetMaterialRaw();
-			Shader*		 shader	  = material->GetShader();
+			Shader*		 shader	  = material->GetShader(m_resourceManagerV2);
 			auto&		 vec	  = m_drawData[shader];
 
 			auto it = linatl::find_if(vec.begin(), vec.end(), [mesh](const DrawDataMeshDefault& dd) -> bool { return dd.mesh == mesh; });
@@ -568,6 +570,9 @@ namespace Lina
 		currentFrame.copySemaphore.ResetModified();
 		currentFrame.signalSemaphore.ResetModified();
 
+		if (m_skyCube == nullptr)
+			m_skyCube = m_resourceManagerV2->GetResource<Model>("Resources/Core/Models/SkyCube.glb"_hs)->GetMesh(0);
+
 		UpdateBindlessResources(frameIndex);
 		UpdateBuffers(frameIndex);
 
@@ -659,7 +664,8 @@ namespace Lina
 		m_lightingPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_lightingPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::Lighting]);
 
-		m_deferredLightingShader->Bind(currentFrame.gfxStream, m_deferredLightingShader->GetGPUHandle());
+		Shader* lighting = m_world->GetGfxSettings().lightingMaterial.raw->GetShader(m_resourceManagerV2);
+		lighting->Bind(currentFrame.gfxStream, lighting->GetGPUHandle());
 
 		LinaGX::CMDDrawInstanced* lightingDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawInstanced>();
 		lightingDraw->instanceCount			   = 1;
@@ -667,7 +673,7 @@ namespace Lina
 		lightingDraw->startVertexLocation	   = 0;
 		lightingDraw->vertexCountPerInstance   = 3;
 
-		Shader* skyShader = m_world->GetGfxSettings().skyMaterial.raw->GetShader();
+		Shader* skyShader = m_world->GetGfxSettings().skyMaterial.raw->GetShader(m_resourceManagerV2);
 		skyShader->Bind(currentFrame.gfxStream, skyShader->GetGPUHandle());
 
 		LinaGX::CMDDrawIndexedInstanced* skyDraw = currentFrame.gfxStream->AddCommand<LinaGX::CMDDrawIndexedInstanced>();
@@ -682,11 +688,22 @@ namespace Lina
 		m_forwardTransparencyPass.Begin(currentFrame.gfxStream, viewport, scissors, frameIndex);
 		m_forwardTransparencyPass.BindDescriptors(currentFrame.gfxStream, frameIndex, currentFrame.pipelineLayoutPersistentRenderpass[RenderPassDescriptorType::ForwardTransparency]);
 
-		if (!m_widgetComponents.empty())
-			m_guiShader3D->Bind(currentFrame.gfxStream, m_guiShader3DVariantGPU);
+		Vector<WidgetComponent*> widgets = m_widgetComponents;
 
-		for (auto* wc : m_widgetComponents)
+		linatl::sort(widgets.begin(), widgets.end(), [](WidgetComponent* c1, WidgetComponent* c2) -> bool { return c1->GetMaterial()->GetShaderSID() < c2->GetMaterial()->GetShaderSID(); });
+
+		Shader* lastBoundWidgetShader = nullptr;
+
+		for (auto* wc : widgets)
 		{
+			Shader* widgetShader = wc->GetMaterial()->GetShader(m_resourceManagerV2);
+
+			if (lastBoundWidgetShader != widgetShader)
+			{
+				lastBoundWidgetShader = widgetShader;
+				lastBoundWidgetShader->Bind(currentFrame.gfxStream, lastBoundWidgetShader->GetGPUHandle());
+			}
+
 			wc->GetGUIRenderer().Render(currentFrame.gfxStream, m_forwardTransparencyPass.GetBuffer(frameIndex, "IndirectBuffer"_hs), frameIndex, wc->GetCanvasSize());
 		}
 
@@ -723,18 +740,19 @@ namespace Lina
 
 		currentFrame.signalSemaphore.Increment();
 		m_lgx->SubmitCommandStreams({
-			.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
-			.streams		  = &currentFrame.gfxStream,
-			.streamCount	  = 1,
-			.useWait		  = !waitSemaphoresVec.empty(),
-			.waitCount		  = static_cast<uint32>(waitSemaphoresVec.size()),
-			.waitSemaphores	  = waitSemaphoresVec.data(),
-			.waitValues		  = waitValuesVec.data(),
-			.useSignal		  = true,
-			.signalCount	  = 1,
-			.signalSemaphores = currentFrame.signalSemaphore.GetSemaphorePtr(),
-			.signalValues	  = currentFrame.signalSemaphore.GetValuePtr(),
-			.isMultithreaded  = true,
+			.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+			.streams			  = &currentFrame.gfxStream,
+			.streamCount		  = 1,
+			.useWait			  = !waitSemaphoresVec.empty(),
+			.waitCount			  = static_cast<uint32>(waitSemaphoresVec.size()),
+			.waitSemaphores		  = waitSemaphoresVec.data(),
+			.waitValues			  = waitValuesVec.data(),
+			.useSignal			  = true,
+			.signalCount		  = 1,
+			.signalSemaphores	  = currentFrame.signalSemaphore.GetSemaphorePtr(),
+			.signalValues		  = currentFrame.signalSemaphore.GetValuePtr(),
+			.isMultithreaded	  = true,
+			.standaloneSubmission = m_standaloneSubmit,
 		});
 
 		if (m_snapshotBuffer != nullptr)
@@ -752,18 +770,19 @@ namespace Lina
 			currentFrame.copySemaphore.Increment();
 			m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
 			m_lgx->SubmitCommandStreams({
-				.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-				.streams		  = &currentFrame.copyStream,
-				.streamCount	  = 1,
-				.useWait		  = true,
-				.waitCount		  = 1,
-				.waitSemaphores	  = currentFrame.signalSemaphore.GetSemaphorePtr(),
-				.waitValues		  = currentFrame.signalSemaphore.GetValuePtr(),
-				.useSignal		  = true,
-				.signalCount	  = 1,
-				.signalSemaphores = currentFrame.copySemaphore.GetSemaphorePtr(),
-				.signalValues	  = currentFrame.copySemaphore.GetValuePtr(),
-				.isMultithreaded  = true,
+				.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+				.streams			  = &currentFrame.copyStream,
+				.streamCount		  = 1,
+				.useWait			  = true,
+				.waitCount			  = 1,
+				.waitSemaphores		  = currentFrame.signalSemaphore.GetSemaphorePtr(),
+				.waitValues			  = currentFrame.signalSemaphore.GetValuePtr(),
+				.useSignal			  = true,
+				.signalCount		  = 1,
+				.signalSemaphores	  = currentFrame.copySemaphore.GetSemaphorePtr(),
+				.signalValues		  = currentFrame.copySemaphore.GetValuePtr(),
+				.isMultithreaded	  = true,
+				.standaloneSubmission = m_standaloneSubmit,
 			});
 		}
 	}
@@ -774,14 +793,15 @@ namespace Lina
 		currentFrame.copySemaphore.Increment();
 		m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
 		m_lgx->SubmitCommandStreams({
-			.targetQueue	  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-			.streams		  = &currentFrame.copyStream,
-			.streamCount	  = 1,
-			.useSignal		  = true,
-			.signalCount	  = 1,
-			.signalSemaphores = currentFrame.copySemaphore.GetSemaphorePtr(),
-			.signalValues	  = currentFrame.copySemaphore.GetValuePtr(),
-			.isMultithreaded  = true,
+			.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
+			.streams			  = &currentFrame.copyStream,
+			.streamCount		  = 1,
+			.useSignal			  = true,
+			.signalCount		  = 1,
+			.signalSemaphores	  = currentFrame.copySemaphore.GetSemaphorePtr(),
+			.signalValues		  = currentFrame.copySemaphore.GetValuePtr(),
+			.isMultithreaded	  = true,
+			.standaloneSubmission = m_standaloneSubmit,
 		});
 		return currentFrame.copySemaphore.GetValue();
 	}

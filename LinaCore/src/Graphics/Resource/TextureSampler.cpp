@@ -69,6 +69,13 @@ namespace Lina
 		m_hwExists				= true;
 	}
 
+	void TextureSampler::GenerateHW(const LinaGX::SamplerDesc& desc)
+	{
+		m_samplerDesc = desc;
+		m_gpuHandle	  = GfxManager::GetLGX()->CreateSampler(m_samplerDesc);
+		m_hwExists	  = true;
+	}
+
 	void TextureSampler::DestroyHW()
 	{
 		if (!m_hwExists)

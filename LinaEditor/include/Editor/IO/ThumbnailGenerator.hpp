@@ -68,14 +68,11 @@ namespace Lina::Editor
 		void GenerateThumbnailForItem(DirectoryItem* item, RequestBatch* batch);
 		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
 		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath);
-		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
-		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath, RequestBatch* batch);
-
-		WorldRenderer* CreateDataForModel(DirectoryItem* item);
-		WorldRenderer* CreateDataForMaterial(DirectoryItem* item);
+		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath);
+		void GenerateThumbModel(DirectoryItem* item, const String& thumbPath);
 
 	private:
-		ResourceManager*										 m_rm		  = nullptr;
+		ResourceManagerV2*										 m_rm		  = nullptr;
 		GfxManager*												 m_gfxManager = nullptr;
 		Vector<DirectoryItem*>									 m_thumbnailItems;
 		uint32													 m_totalCount	  = 0;

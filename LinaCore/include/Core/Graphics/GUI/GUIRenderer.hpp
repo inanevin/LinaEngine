@@ -47,7 +47,6 @@ namespace Lina
 	class Shader;
 	class RenderPass;
 	class TextureSampler;
-	class ResourceManager;
 	class ResourceUploadQueue;
 	class GUIBackend;
 
@@ -114,7 +113,6 @@ namespace Lina
 		Vector<DrawRequest> m_drawRequests;
 		TextureSampler*		m_defaultGUISampler	   = nullptr;
 		TextureSampler*		m_textGUISampler	   = nullptr;
-		ResourceManager*	m_rm				   = nullptr;
 		uint32				m_totalIndices		   = 0;
 		size_t				m_indirectBufferOffset = 0;
 	};

@@ -71,8 +71,6 @@ namespace Lina
 		}
 
 	protected:
-		friend class ResourceManager;
-
 		template <typename U> friend class ResourceCache;
 
 		inline void SetPath(const String& path)

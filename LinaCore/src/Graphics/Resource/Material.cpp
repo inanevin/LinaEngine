@@ -90,8 +90,9 @@ namespace Lina
 
 	void Material::SetShader(Shader* shader)
 	{
-		m_shader	= shader;
-		m_shaderSID = shader->GetSID();
+		m_shader	 = shader;
+		m_shaderSID	 = shader->GetSID();
+		m_shaderPath = shader->GetPath();
 	}
 
 	void Material::ResetProperties()
@@ -112,13 +113,23 @@ namespace Lina
 	void Material::SaveToStream(OStream& stream) const
 	{
 		stream << m_shaderSID;
+		StringSerialization::SaveToStream(stream, m_shaderPath);
 		VectorSerialization::SaveToStream_OBJ(stream, m_properties);
 	}
 
 	void Material::LoadFromStream(IStream& stream)
 	{
 		stream >> m_shaderSID;
+		StringSerialization::LoadFromStream(stream, m_shaderPath);
 		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);
+	}
+
+	Shader* Material::GetShader(ResourceManagerV2* rm)
+	{
+		if (m_shader == nullptr)
+			m_shader = rm->GetResource<Shader>(m_shaderSID);
+
+		return m_shader;
 	}
 
 	size_t Material::BufferDataInto(Buffer& buf, size_t padding)

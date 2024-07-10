@@ -48,6 +48,7 @@ namespace Lina
 		static bool	  IsDirectory(const String& path);
 		static bool	  ChangeDirectoryName(const String& oldPath, const String& newPath);
 		static bool	  FileOrPathExists(const String& path);
+		static String GetLastModifiedDate(const String& path);
 		static String GetFilePath(const String& fileName);
 		static String RemoveExtensionFromPath(const String& filename);
 		static String GetFilenameAndExtensionFromPath(const String& filename);

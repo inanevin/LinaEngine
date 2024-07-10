@@ -287,7 +287,9 @@ namespace Lina::Editor
 	{
 		m_editorRenderer.Initialize(this);
 
-		const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
+		String metacachePath = "";
+		FileManager::GetMetacachePath(metacachePath);
+
 		if (!FileSystem::FileOrPathExists(metacachePath))
 			FileSystem::CreateFolderInPath(metacachePath);
 
@@ -302,7 +304,8 @@ namespace Lina::Editor
 
 	void Editor::Initialize()
 	{
-		const String metacachePath = FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
+		String metacachePath = "";
+		FileManager::GetMetacachePath(metacachePath);
 
 		s_editor							  = this;
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;

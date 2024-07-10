@@ -44,7 +44,7 @@ namespace Lina
 	class Engine : public System
 	{
 	public:
-		Engine(Application* app) : System(app), m_worldManager(this), m_audioManager(this), m_resourceManager(this), m_engineInterface(this), m_gfxManager(this){};
+		Engine(Application* app) : System(app), m_worldManager(this), m_audioManager(this), m_engineInterface(this), m_gfxManager(this){};
 
 		virtual ~Engine() = default;
 
@@ -66,16 +66,10 @@ namespace Lina
 			return &m_engineInterface;
 		}
 
-		inline ResourceManager& GetResourceManager()
-		{
-			return m_resourceManager;
-		}
-
 	private:
 		void CalculateTime();
 
 	protected:
-		ResourceManager m_resourceManager;
 		JobExecutor		m_executor;
 		AudioManager	m_audioManager;
 		GfxManager		m_gfxManager;

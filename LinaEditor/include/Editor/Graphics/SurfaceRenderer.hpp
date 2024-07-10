@@ -108,7 +108,6 @@ namespace Lina::Editor
 		ResourceManagerV2*	m_resourceManagerV2 = nullptr;
 		LinaGX::Instance*	m_lgx				= nullptr;
 		ResourceUploadQueue m_uploadQueue;
-		ResourceManager*	m_rm		= nullptr;
 		Shader*				m_guiShader = nullptr;
 		Vector2ui			m_size		= Vector2ui::Zero;
 		PerFrameData		m_pfd[FRAMES_IN_FLIGHT];

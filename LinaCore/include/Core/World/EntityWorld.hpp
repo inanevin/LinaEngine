@@ -58,6 +58,34 @@ namespace Lina
 		struct GfxSettings
 		{
 			ResRef<Material> skyMaterial;
+			ResRef<Material> lightingMaterial;
+
+			void SaveToStream(OStream& stream)
+			{
+				skyMaterial.SaveToStream(stream);
+				lightingMaterial.SaveToStream(stream);
+			}
+
+			void LoadFromStream(IStream& stream, ResourceManagerV2* rm)
+			{
+				skyMaterial.LoadFromStream(stream);
+				lightingMaterial.LoadFromStream(stream);
+
+				skyMaterial.raw		 = rm->GetResource<Material>(skyMaterial.sid);
+				lightingMaterial.raw = rm->GetResource<Material>(lightingMaterial.sid);
+			}
+
+			inline void SetSkyMaterial(Material* mat)
+			{
+				skyMaterial.raw = mat;
+				skyMaterial.sid = mat->GetSID();
+			}
+
+			inline void SetLightingMaterial(Material* mat)
+			{
+				lightingMaterial.raw = mat;
+				lightingMaterial.sid = mat->GetSID();
+			}
 		};
 
 		EntityWorld(const EntityWorld& other) = delete;
@@ -171,15 +199,9 @@ namespace Lina
 			return cache;
 		}
 
-		inline const GfxSettings& GetGfxSettings() const
+		inline GfxSettings& GetGfxSettings()
 		{
 			return m_gfxSettings;
-		}
-
-		inline void SetSkyMaterial(Material* mat)
-		{
-			m_gfxSettings.skyMaterial.raw = mat;
-			m_gfxSettings.skyMaterial.sid = mat->GetSID();
 		}
 
 		inline ResourceManagerV2& GetResourceManagerV2()

@@ -35,6 +35,6 @@ namespace Lina
 {
 	bool MaterialComparator::operator()(const Material* lhs, const Material* rhs) const
 	{
-		return lhs->GetShader()->GetSID() < rhs->GetShader()->GetSID();
+		return lhs->GetShaderSID() < rhs->GetShaderSID();
 	}
 } // namespace Lina
