@@ -66,7 +66,7 @@ namespace Lina::Editor
 	LinaGX::DescriptorSetDesc EditorGfxHelpers::GetSetDescriptionGlobal()
 	{
 		LinaGX::DescriptorBinding globalBinding0 = {
-			.descriptorCount = 1000,
+			.descriptorCount = 100,
 			.type			 = LinaGX::DescriptorType::SeparateImage,
 			.unbounded		 = true,
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},

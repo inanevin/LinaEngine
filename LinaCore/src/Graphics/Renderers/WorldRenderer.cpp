@@ -342,7 +342,7 @@ namespace Lina
 		auto& pfd = m_pfd[frameIndex];
 
 		if (!pfd.bindlessDirty)
-			return false;
+			return;
 
 		// Textures.
 		ResourceCache<Texture>* cacheTxt = m_resourceManagerV2->GetCache<Texture>();

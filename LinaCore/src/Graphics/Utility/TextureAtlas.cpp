@@ -50,6 +50,7 @@ namespace Lina
 
 		m_resourceManagerV2->DestroyResource(m_rawTexture);
 		m_rawTexture = nullptr;
+		delete[] m_data.data();
 	}
 
 	TextureAtlasImage* TextureAtlas::AddImage(uint8* data, const Vector2ui& size, StringID sid)
@@ -122,7 +123,10 @@ namespace Lina
 		{
 			delete rect;
 			m_rects.erase(it);
+			return true;
 		}
+
+		return false;
 	}
 
 	void TextureAtlas::RefreshGPU(ResourceUploadQueue& queue)

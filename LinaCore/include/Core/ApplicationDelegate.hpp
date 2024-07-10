@@ -44,7 +44,7 @@ namespace Lina
 {
 	class Application;
 	class System;
-	struct SemaphoreData;
+	class SemaphoreData;
 
 	class ApplicationDelegate : public SystemEventListener
 	{

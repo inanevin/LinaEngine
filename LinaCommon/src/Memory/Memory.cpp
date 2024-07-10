@@ -32,14 +32,14 @@ SOFTWARE.
 void* operator new(std::size_t size)
 {
 	void* ptr = malloc(size);
-	MEMORY_TRACER_ONALLOC(ptr, sz);
+	MEMORY_TRACER_ONALLOC(ptr, size);
 	return ptr;
 }
 
 void* operator new[](size_t size)
 {
 	void* ptr = malloc(size);
-	MEMORY_TRACER_ONALLOC(ptr, sz);
+	MEMORY_TRACER_ONALLOC(ptr, size);
 	return ptr;
 }
 

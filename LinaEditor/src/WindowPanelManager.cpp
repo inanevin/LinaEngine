@@ -104,6 +104,9 @@ namespace Lina::Editor
 	{
 		if (!m_windowCloseRequests.empty())
 		{
+			if (!m_windowCloseRequests.empty())
+				m_gfxManager->Join();
+
 			for (auto sid : m_windowCloseRequests)
 			{
 				auto it = linatl::find_if(m_subWindows.begin(), m_subWindows.end(), [sid](LinaGX::Window* w) -> bool { return static_cast<StringID>(w->GetSID()) == sid; });

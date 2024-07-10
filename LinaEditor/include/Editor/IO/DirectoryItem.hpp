@@ -35,7 +35,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	class TextureAtlasImage;
+	struct TextureAtlasImage;
 	class Texture;
 } // namespace Lina
 

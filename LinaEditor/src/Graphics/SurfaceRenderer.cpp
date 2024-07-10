@@ -125,6 +125,7 @@ namespace Lina::Editor
 	{
 		auto ws		= m_window->GetSize();
 		m_isVisible = m_window->GetIsVisible() && ws.x != 0 && ws.y != 0 && !m_window->GetIsMinimized();
+		m_lgx->SetSwapchainActive(m_swapchain, m_isVisible);
 		return m_isVisible;
 	}
 

@@ -121,12 +121,12 @@ namespace Lina::Editor
 				}
 				else if (item->tid == GetTypeID<Model>())
 				{
-					GenerateThumbModel(item, thumbnailPath);
+					// GenerateThumbModel(item, thumbnailPath);
 					m_generatedCount.fetch_add(1);
 				}
 				else if (item->tid == GetTypeID<Material>())
 				{
-					GenerateThumbMaterial(item, thumbnailPath);
+					// GenerateThumbMaterial(item, thumbnailPath);
 					m_generatedCount.fetch_add(1);
 				}
 				else if (item->tid == GetTypeID<Shader>())

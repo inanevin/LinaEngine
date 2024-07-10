@@ -83,7 +83,8 @@ namespace Lina::Editor
 				.binding   = 1,
 			};
 
-			data.copyStream = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 4000, 1024, 32, "WorldRenderer: Copy Stream"});
+			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 4000, 1024, 32, "WorldRenderer: Copy Stream"});
+			data.copySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 	}
 
@@ -101,6 +102,7 @@ namespace Lina::Editor
 			auto& data = m_pfd[i];
 			m_lgx->DestroyDescriptorSet(data.descriptorSetGlobal);
 			m_lgx->DestroyCommandStream(data.copyStream);
+			m_lgx->DestroyUserSemaphore(data.copySemaphore.GetSemaphore());
 		}
 
 		m_guiBackend.Shutdown();
@@ -156,7 +158,7 @@ namespace Lina::Editor
 		auto& pfd = m_pfd[frameIndex];
 
 		if (!pfd.bindlessDirty)
-			return false;
+			return;
 
 		// Textures.
 		ResourceCache<Texture>* cacheTxt = m_resourceManagerV2->GetCache<Texture>();

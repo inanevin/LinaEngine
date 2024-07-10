@@ -46,14 +46,14 @@ namespace Lina
 		};
 
 		LinaGX::DescriptorBinding binding2 = {
-			.descriptorCount = 1000,
+			.descriptorCount = 100,
 			.type			 = LinaGX::DescriptorType::SeparateImage,
 			.unbounded		 = true,
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},
 		};
 
 		LinaGX::DescriptorBinding binding3 = {
-			.descriptorCount = 1000,
+			.descriptorCount = 100,
 			.type			 = LinaGX::DescriptorType::SeparateSampler,
 			.unbounded		 = true,
 			.stages			 = {LinaGX::ShaderStage::Vertex, LinaGX::ShaderStage::Fragment},

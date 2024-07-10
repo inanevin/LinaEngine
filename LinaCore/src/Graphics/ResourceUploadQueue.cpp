@@ -38,8 +38,6 @@ namespace Lina
 {
 	void ResourceUploadQueue::AddTextureRequest(Texture* txt, Delegate<void()>&& onComplete)
 	{
-		ScopedSpinLock lock(m_spinLock);
-
 		// No duplicates allowed
 		for (const auto& req : m_textureRequests)
 		{
@@ -55,8 +53,6 @@ namespace Lina
 
 	void ResourceUploadQueue::AddBufferRequest(Buffer* buf)
 	{
-		ScopedSpinLock lock(m_spinLock);
-
 		for (const auto& req : m_bufferRequests)
 		{
 			if (req.buffer == buf)
@@ -70,8 +66,6 @@ namespace Lina
 
 	bool ResourceUploadQueue::FlushAll(LinaGX::CommandStream* copyStream)
 	{
-		ScopedSpinLock lock(m_spinLock);
-
 		for (Delegate<void()> cb : m_completedTextureRequests)
 			cb();
 

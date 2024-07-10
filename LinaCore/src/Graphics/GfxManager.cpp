@@ -122,7 +122,7 @@ namespace Lina
 #endif
 
 		LinaGX::Config.api						 = api;
-		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Discrete;
+		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Integrated;
 		LinaGX::Config.framesInFlight			 = FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount			 = BACK_BUFFER_COUNT;
 		LinaGX::Config.mutexLockCreationDeletion = true;
