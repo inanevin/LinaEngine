@@ -52,9 +52,13 @@ namespace Lina
 
 	void Slider::PreTick()
 	{
+		if (m_isPressed && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
+			m_isPressed = false;
+
 		if (m_isPressed && m_props.valuePtr)
 		{
-			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
+			const Vector2 mouseAbs	  = m_lgxWindow->GetInput()->GetMousePositionAbs();
+			const Vector2 mouse		  = Vector2(mouseAbs.x - static_cast<float>(m_lgxWindow->GetPosition().x), mouseAbs.y - static_cast<float>(m_lgxWindow->GetPosition().y));
 			float		  targetValue = 0.0f;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)

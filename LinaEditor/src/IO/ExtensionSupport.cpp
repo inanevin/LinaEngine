@@ -65,4 +65,12 @@ namespace Lina::Editor
 		return 0;
 	}
 
+	bool ExtensionSupport::RequiresOutlineFX(TypeID tid)
+	{
+		if (tid == GetTypeID<Shader>() || tid == GetTypeID<Audio>())
+			return false;
+
+		return true;
+	}
+
 } // namespace Lina::Editor

@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Core/Meta/ProjectData.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/IO/FileManager.hpp"
+#include "Editor/IO/ExtensionSupport.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
@@ -48,8 +49,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/LayoutBorder.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
-#include "Core/Graphics/Resource/Texture.hpp"
-#include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/World/WorldManager.hpp"
 #include "Core/World/EntityWorld.hpp"
@@ -104,6 +103,7 @@ namespace Lina::Editor
 		m_border->GetPositive()->SetAlignedPosX(data.f[0]);
 		m_border->GetPositive()->SetAlignedSizeX(1.0f - data.f[0]);
 		m_contentsSize = data.f[1];
+		m_contentsSelectableList->SetGridLayoutItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
 		SetShowListContents(m_contentsSize < MIN_CONTENTS_SIZE + 0.5f);
 	}
 
@@ -236,8 +236,7 @@ namespace Lina::Editor
 			else if (m_showListContents && val > MIN_CONTENTS_SIZE + 0.25f)
 				SetShowListContents(false);
 
-			if (!m_showListContents)
-				m_contentsSelectableList->SetGridLayoutItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
+			m_contentsSelectableList->SetGridLayoutItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
 		};
 
 		bottom->AddChild(sizeSlider);
@@ -413,6 +412,7 @@ namespace Lina::Editor
 				outItems[i]			= {
 							.title				  = item->isDirectory ? item->folderName : item->fileName,
 							.userData			  = item,
+							.useOutline			  = item->outlineFX,
 							.hasChildren		  = !item->children.empty(),
 							.useDropdownIcon	  = false,
 							.useFolderIcon		  = item->isDirectory,
@@ -471,6 +471,7 @@ namespace Lina::Editor
 
 	Widget* PanelResources::OnSelectableListBuildCustomTooltip(SelectableListLayout* list, void* userData)
 	{
+		return nullptr;
 		if (!userData)
 			return nullptr;
 

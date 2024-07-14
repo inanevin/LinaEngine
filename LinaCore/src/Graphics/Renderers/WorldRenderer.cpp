@@ -225,7 +225,7 @@ namespace Lina
 		};
 
 		if (m_snapshotBuffer != nullptr)
-			rtDescLighting.flags |= LinaGX::TF_Readback;
+			rtDescLighting.flags |= LinaGX::TF_CopySource;
 
 		for (uint32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
@@ -715,7 +715,8 @@ namespace Lina
 		for (auto* ext : m_extensions)
 			ext->Render(frameIndex, currentFrame.gfxStream);
 
-		// Barrier to shader read
+		// Barrier to shader read or transfer read
+		if (m_snapshotBuffer == nullptr)
 		{
 			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
 			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
@@ -724,6 +725,21 @@ namespace Lina
 			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 2);
 			barrier->textureBarriers[0]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.lightingPassOutput->GetGPUHandle());
 			barrier->textureBarriers[1]	 = GfxHelpers::GetTextureBarrierColorAtt2Read(currentFrame.gBufDepth->GetGPUHandle());
+		}
+		else
+		{
+			LinaGX::CMDBarrier* barrier	 = currentFrame.gfxStream->AddCommand<LinaGX::CMDBarrier>();
+			barrier->srcStageFlags		 = LinaGX::PSF_ColorAttachment | LinaGX::PSF_EarlyFragment;
+			barrier->dstStageFlags		 = LinaGX::PSF_FragmentShader;
+			barrier->textureBarrierCount = 1;
+			barrier->textureBarriers	 = currentFrame.gfxStream->EmplaceAuxMemorySizeOnly<LinaGX::TextureBarrier>(sizeof(LinaGX::TextureBarrier) * 1);
+			barrier->textureBarriers[0]	 = {
+				 .texture		 = currentFrame.lightingPassOutput->GetGPUHandle(),
+				 .isSwapchain	 = false,
+				 .toState		 = LinaGX::TextureBarrierState::TransferSource,
+				 .srcAccessFlags = LinaGX::AF_ColorAttachmentRead,
+				 .dstAccessFlags = LinaGX::AF_ShaderRead,
+			 };
 		}
 
 		m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
@@ -751,27 +767,24 @@ namespace Lina
 			.signalCount		  = 1,
 			.signalSemaphores	  = currentFrame.signalSemaphore.GetSemaphorePtr(),
 			.signalValues		  = currentFrame.signalSemaphore.GetValuePtr(),
-			.isMultithreaded	  = true,
 			.standaloneSubmission = m_standaloneSubmit,
 		});
 
 		if (m_snapshotBuffer != nullptr)
 		{
-			// Barrier to copy source?
-			{
-			}
+			m_lgx->WaitForUserSemaphore(currentFrame.signalSemaphore.GetSemaphore(), currentFrame.signalSemaphore.GetValue());
 
-			LinaGX::CMDCopyTexture2DToBuffer* copy = currentFrame.copyStream->AddCommand<LinaGX::CMDCopyTexture2DToBuffer>();
+			LinaGX::CMDCopyTexture2DToBuffer* copy = currentFrame.gfxStream->AddCommand<LinaGX::CMDCopyTexture2DToBuffer>();
 			copy->destBuffer					   = m_snapshotBuffer->GetGPUResource();
 			copy->srcLayer						   = 0;
 			copy->srcMip						   = 0;
 			copy->srcTexture					   = currentFrame.lightingPassOutput->GetGPUHandle();
 
 			currentFrame.copySemaphore.Increment();
-			m_lgx->CloseCommandStreams(&currentFrame.copyStream, 1);
+			m_lgx->CloseCommandStreams(&currentFrame.gfxStream, 1);
 			m_lgx->SubmitCommandStreams({
-				.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Transfer),
-				.streams			  = &currentFrame.copyStream,
+				.targetQueue		  = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+				.streams			  = &currentFrame.gfxStream,
 				.streamCount		  = 1,
 				.useWait			  = true,
 				.waitCount			  = 1,
@@ -781,7 +794,6 @@ namespace Lina
 				.signalCount		  = 1,
 				.signalSemaphores	  = currentFrame.copySemaphore.GetSemaphorePtr(),
 				.signalValues		  = currentFrame.copySemaphore.GetValuePtr(),
-				.isMultithreaded	  = true,
 				.standaloneSubmission = m_standaloneSubmit,
 			});
 		}
@@ -800,7 +812,6 @@ namespace Lina
 			.signalCount		  = 1,
 			.signalSemaphores	  = currentFrame.copySemaphore.GetSemaphorePtr(),
 			.signalValues		  = currentFrame.copySemaphore.GetValuePtr(),
-			.isMultithreaded	  = true,
 			.standaloneSubmission = m_standaloneSubmit,
 		});
 		return currentFrame.copySemaphore.GetValue();

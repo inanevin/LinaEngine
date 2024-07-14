@@ -34,7 +34,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	uint64 Buffer::s_usedCPUVisibleGPUMemory = 0;
+	Atomic<uint64> Buffer::s_usedCPUVisibleGPUMemory = 0;
 
 	void Buffer::Create(uint32 hintFlags, uint32 size, const String& debugName, bool stagingOnly)
 	{
@@ -42,9 +42,9 @@ namespace Lina
 		m_stagingOnly = stagingOnly;
 		m_hintFlags	  = hintFlags;
 
-		if (LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory > m_size)
+		if (LinaGX::GPUInfo.totalCPUVisibleGPUMemorySize - s_usedCPUVisibleGPUMemory.load() > m_size)
 		{
-			s_usedCPUVisibleGPUMemory += static_cast<uint64>(m_size);
+			s_usedCPUVisibleGPUMemory.fetch_add(static_cast<uint64>(m_size));
 			m_isCPUVisibleGPUResource = true;
 
 			const String		 dbgName = debugName + " (CPUVisibleGPUMem)";

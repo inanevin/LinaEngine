@@ -57,17 +57,17 @@ namespace Lina::Editor
 		if (m_action == 0)
 		{
 			m_rightOffset = Math::Lerp(Vector2::Zero, Vector2(1.0f, -0.6f) * disperseAmt, m_tween.GetValue());
-			m_rightTint	  = Math::Lerp(Color::White, Theme::GetDef().accentPrimary2, m_tween.GetValue());
+			m_rightTint	  = Math::Lerp(Color(0.5, 0.5, 0.5, 1.0), Theme::GetDef().accentPrimary2, m_tween.GetValue());
 		}
 		else if (m_action == 1)
 		{
 			m_bottomOffset = Math::Lerp(Vector2::Zero, Vector2(0.0f, 1.0f) * disperseAmt, m_tween.GetValue());
-			m_bottomTint   = Math::Lerp(Color::White, Theme::GetDef().accentPrimary2, m_tween.GetValue());
+			m_bottomTint   = Math::Lerp(Color(0.5, 0.5, 0.5, 1.0), Theme::GetDef().accentPrimary2, m_tween.GetValue());
 		}
 		else if (m_action == 2)
 		{
 			m_leftOffset = Math::Lerp(Vector2::Zero, Vector2(-1.0f, -1.0f) * disperseAmt, m_tween.GetValue());
-			m_leftTint	 = Math::Lerp(Color::White, Theme::GetDef().accentPrimary2, m_tween.GetValue());
+			m_leftTint	 = Math::Lerp(Color(0.5, 0.5, 0.5, 1.0), Theme::GetDef().accentPrimary2, m_tween.GetValue());
 		}
 		else if (m_action == 3)
 		{
@@ -75,9 +75,9 @@ namespace Lina::Editor
 			m_bottomOffset = Math::Lerp(Vector2::Zero, Vector2(0.0f, 1.0f) * disperseAmt, m_tween.GetValue());
 			m_leftOffset   = Math::Lerp(Vector2::Zero, Vector2(-1.0f, -1.0f) * disperseAmt, m_tween.GetValue());
 
-			m_leftTint	 = Math::Lerp(Color::White, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-			m_rightTint	 = Math::Lerp(Color::White, Theme::GetDef().accentPrimary2, m_tween.GetValue());
-			m_bottomTint = Math::Lerp(Color::White, Theme::GetDef().accentPrimary2, m_tween.GetValue());
+			m_leftTint	 = Math::Lerp(Color(0.5, 0.5, 0.5, 1.0), Theme::GetDef().accentPrimary2, m_tween.GetValue());
+			m_rightTint	 = Math::Lerp(Color(0.5, 0.5, 0.5, 1.0), Theme::GetDef().accentPrimary2, m_tween.GetValue());
+			m_bottomTint = Math::Lerp(Color(0.5, 0.5, 0.5, 1.0), Theme::GetDef().accentPrimary2, m_tween.GetValue());
 		}
 
 		if (m_tween.GetIsCompleted())

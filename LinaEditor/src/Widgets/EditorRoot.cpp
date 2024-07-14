@@ -160,6 +160,8 @@ namespace Lina::Editor
 		panelArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelArea->SetAlignedPosX(0.0f);
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
+		// panelArea->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndentInner);
+		// panelArea->GetChildMargins().top = 0.0f;
 		AddChild(panelArea);
 
 		DirectionalLayout::Construct();

@@ -69,6 +69,7 @@ namespace Lina
 		void	  AddToUploadQueue(ResourceUploadQueue& queue);
 		Vector2ui GetSize();
 		Vector2	  GetSizeF();
+		void	  OnUploadCompleted();
 
 		virtual void SetCustomMeta(IStream& stream) override
 		{

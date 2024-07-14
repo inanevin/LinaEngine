@@ -160,6 +160,11 @@ namespace Lina
 			return m_resourceManagerV2;
 		}
 
+		inline bool GetIsMouseHoveringWindow() const
+		{
+			return m_isMouseHoveringWindow;
+		}
+
 	protected:
 		virtual void OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction) override;
 		virtual void OnWindowMouse(LinaGX::Window* window, uint32 button, LinaGX::InputAction inputAction) override;
@@ -199,6 +204,7 @@ namespace Lina
 		Vector<Widget*>					  m_killList			= {};
 		Widget*							  m_lastControlsManager = nullptr;
 		HashMap<TypeID, WidgetCacheBase*> m_widgetCaches;
+		bool							  m_isMouseHoveringWindow = true;
 	};
 
 } // namespace Lina

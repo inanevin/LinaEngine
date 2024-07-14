@@ -44,6 +44,8 @@ namespace Lina::Editor
 	struct DirectoryItem
 	{
 		bool				   isDirectory		= false;
+		Atomic<bool>		   outlineFX		= true;
+		TextureAtlasImage*	   textureAtlas		= nullptr;
 		String				   absolutePath		= "";
 		String				   relativePath		= "";
 		String				   folderName		= "";
@@ -53,7 +55,6 @@ namespace Lina::Editor
 		String				   extension		= "";
 		Vector<DirectoryItem*> children			= {};
 		DirectoryItem*		   parent			= nullptr;
-		TextureAtlasImage*	   textureAtlas		= nullptr;
 		StringID			   lastModifiedDate = 0;
 		ALLOCATOR_BUCKET_MEM;
 	};

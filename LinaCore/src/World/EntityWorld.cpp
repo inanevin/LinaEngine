@@ -49,7 +49,6 @@ namespace Lina
 
 	EntityWorld::~EntityWorld()
 	{
-
 		m_resourceManagerV2.Shutdown();
 
 		m_entityBucket.View([this](Entity* e, uint32 index) -> bool {
@@ -57,6 +56,11 @@ namespace Lina
 				DestroyEntity(e);
 			return false;
 		});
+
+		for (Pair<TypeID, ComponentCacheBase*> pair : m_componentCaches)
+		{
+			delete pair.second;
+		}
 	}
 
 	Entity* EntityWorld::CreateEntity(const String& name)

@@ -178,7 +178,6 @@ namespace Lina::Editor
 				.signalCount	  = 1,
 				.signalSemaphores = currentFrame.copySemaphore.GetSemaphorePtr(),
 				.signalValues	  = currentFrame.copySemaphore.GetValuePtr(),
-				.isMultithreaded  = true,
 			});
 		}
 	}

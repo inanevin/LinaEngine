@@ -39,21 +39,27 @@ namespace Lina
 		if (m_children.empty())
 			return;
 
+		if (m_isPressed && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
+			m_isPressed = false;
+
 		m_targetWidget = m_children.front();
 
 		ClampScroll();
 
 		if (m_isPressed)
 		{
+			const Vector2 mouseAbs = m_lgxWindow->GetInput()->GetMousePositionAbs();
+			const Vector2 mouse	   = Vector2(mouseAbs.x - static_cast<float>(m_lgxWindow->GetPosition().x), mouseAbs.y - static_cast<float>(m_lgxWindow->GetPosition().y));
+
 			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
-				const float targetBarStart = m_lgxWindow->GetMousePosition().x - m_pressDelta;
+				const float targetBarStart = mouse.x - m_pressDelta;
 				const float targetBarRatio = Math::Clamp((targetBarStart - GetPosX()) / GetSizeX(), 0.0f, 1.0f);
 				m_scrollAmount			   = targetBarRatio * m_totalChildSize;
 			}
 			else
 			{
-				const float targetBarStart = m_lgxWindow->GetMousePosition().y - m_pressDelta;
+				const float targetBarStart = mouse.y - m_pressDelta;
 				const float targetBarRatio = Math::Clamp((targetBarStart - GetPosY()) / GetSizeY(), 0.0f, 1.0f);
 				m_scrollAmount			   = targetBarRatio * m_totalChildSize;
 			}

@@ -76,7 +76,6 @@ namespace Lina::Editor
 
 	private:
 		void CollectItems(DirectoryItem* item, bool isRecursive);
-		void GenerateThumbnailForItem(DirectoryItem* item, RequestBatch* batch);
 		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
 		void GenerateThumbFont(DirectoryItem* item, const String& thumbPath);
 		void GenerateThumbMaterial(DirectoryItem* item, const String& thumbPath);

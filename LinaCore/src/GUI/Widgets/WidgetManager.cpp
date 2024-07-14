@@ -261,10 +261,12 @@ namespace Lina
 
 	void WidgetManager::OnWindowHoverBegin(LinaGX::Window* window)
 	{
+		m_isMouseHoveringWindow = true;
 	}
 
 	void WidgetManager::OnWindowHoverEnd(LinaGX::Window* window)
 	{
+		m_isMouseHoveringWindow = false;
 	}
 
 	void WidgetManager::DebugDraw(Widget* w)

@@ -121,18 +121,28 @@ namespace Lina::Editor
 				}
 				else if (item->tid == GetTypeID<Model>())
 				{
-					// GenerateThumbModel(item, thumbnailPath);
+					GenerateThumbModel(item, thumbnailPath);
 					m_generatedCount.fetch_add(1);
 				}
 				else if (item->tid == GetTypeID<Material>())
 				{
-					// GenerateThumbMaterial(item, thumbnailPath);
+					GenerateThumbMaterial(item, thumbnailPath);
 					m_generatedCount.fetch_add(1);
 				}
 				else if (item->tid == GetTypeID<Shader>())
 				{
+					TextureAtlasImage* img = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShader"_hs);
+					m_atlases.try_emplace(item, img);
 					m_generatedCount.fetch_add(1);
 				}
+				else if (item->tid == GetTypeID<Audio>())
+				{
+					TextureAtlasImage* img = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileAudio"_hs);
+					m_atlases.try_emplace(item, img);
+					m_generatedCount.fetch_add(1);
+				}
+				else
+					m_generatedCount.fetch_add(1);
 			});
 		}
 
@@ -163,36 +173,6 @@ namespace Lina::Editor
 			for (DirectoryItem* child : item->children)
 				CollectItems(child, isRecursive);
 		}
-	}
-
-	void ThumbnailGenerator::GenerateThumbnailForItem(DirectoryItem* item, RequestBatch* batch)
-	{
-		const String thumbnailPath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/ResourceThumbnail_" + TO_STRING(item->sid);
-
-		if (item->tid == GetTypeID<Texture>())
-		{
-		}
-		else if (item->tid == GetTypeID<Font>())
-		{
-		}
-		else if (item->tid == GetTypeID<Model>())
-		{
-			// GenerateThumbModel(item, thumbnailPath);
-		}
-		else if (item->tid == GetTypeID<Material>())
-		{
-			// GenerateThumbMaterial(item, thumbnailPath);
-		}
-		else if (item->tid == GetTypeID<Shader>())
-		{
-			// set to shader icon.
-		}
-		else if (item->tid == GetTypeID<Audio>())
-		{
-			// set to audio icon.
-		}
-
-		return;
 	}
 
 	void ThumbnailGenerator::GenerateThumbTexture(DirectoryItem* item, const String& thumbPath)
@@ -228,6 +208,7 @@ namespace Lina::Editor
 				stream << resizedBuffer.width << resizedBuffer.height << resizedBuffer.bytesPerPixel;
 				stream.WriteRaw(resizedBuffer.pixels, resizedBuffer.width * resizedBuffer.height * resizedBuffer.bytesPerPixel);
 				Serialization::SaveToFile(thumbPath.c_str(), stream);
+				stream.Destroy();
 
 				TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(resizedBuffer.pixels, Vector2ui(resizedBuffer.width, resizedBuffer.height), resizedBuffer.bytesPerPixel);
 				m_atlases.try_emplace(item, atlas);
@@ -363,6 +344,7 @@ namespace Lina::Editor
 			stream << thumbnailBuffer.width << thumbnailBuffer.height << thumbnailBuffer.bytesPerPixel;
 			stream.WriteRaw(thumbnailBuffer.pixels, thumbnailBuffer.width * thumbnailBuffer.height * 1);
 			Serialization::SaveToFile(thumbPath.c_str(), stream);
+			stream.Destroy();
 
 			TextureAtlasImage* atlas = m_editor->GetAtlasManager().AddImageToAtlas(thumbnailBuffer.pixels, Vector2ui(thumbnailBuffer.width, thumbnailBuffer.height), thumbnailBuffer.bytesPerPixel);
 			m_atlases.try_emplace(item, atlas);
@@ -457,6 +439,7 @@ namespace Lina::Editor
 		stream << RESOURCE_THUMBNAIL_SIZE << RESOURCE_THUMBNAIL_SIZE << 4;
 		stream.WriteRaw(buffer.GetMapped(), RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4);
 		Serialization::SaveToFile(thumbPath.c_str(), stream);
+		stream.Destroy();
 
 		buffer.Destroy();
 		delete renderer;
@@ -537,6 +520,7 @@ namespace Lina::Editor
 		stream << RESOURCE_THUMBNAIL_SIZE << RESOURCE_THUMBNAIL_SIZE << 4;
 		stream.WriteRaw(buffer.GetMapped(), RESOURCE_THUMBNAIL_SIZE * RESOURCE_THUMBNAIL_SIZE * 4);
 		Serialization::SaveToFile(thumbPath.c_str(), stream);
+		stream.Destroy();
 
 		buffer.Destroy();
 		delete renderer;

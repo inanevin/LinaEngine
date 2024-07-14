@@ -69,9 +69,9 @@ namespace Lina
 		bool FlushAll(LinaGX::CommandStream* copyStream);
 
 	private:
-		Vector<TextureUploadRequest> m_textureRequests;
-		Vector<Delegate<void()>>	 m_completedTextureRequests;
-		Vector<BufferRequest>		 m_bufferRequests;
+		Vector<TextureUploadRequest>		m_textureRequests;
+		HashMap<Texture*, Delegate<void()>> m_completedTextureRequests;
+		Vector<BufferRequest>				m_bufferRequests;
 	};
 } // namespace Lina
 

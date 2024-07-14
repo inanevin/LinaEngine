@@ -60,9 +60,9 @@ namespace Lina
 			return nullptr;
 		}
 
-		for (uint32 y = 0; y <= m_size.y - size.y; ++y)
+		for (uint32 y = 1; y <= m_size.y - size.y; ++y)
 		{
-			for (uint32 x = 0; x <= m_size.x - size.x; ++x)
+			for (uint32 x = 1; x <= m_size.x - size.x; ++x)
 			{
 
 				bool isFree = true;
@@ -80,13 +80,16 @@ namespace Lina
 				if (isFree)
 				{
 					TextureAtlasImage* newRect = new TextureAtlasImage();
-					newRect->byteOffset		   = (y * m_size.x + x) * m_bytesPerPixel;
-					newRect->rectCoords.pos	   = {x, y};
-					newRect->rectCoords.size   = size;
-					newRect->rectUV.pos		   = {static_cast<float>(x) / static_cast<float>(m_size.x), static_cast<float>(y) / static_cast<float>(m_size.y)};
-					newRect->rectUV.size	   = {static_cast<float>(size.x) / static_cast<float>(m_size.x), static_cast<float>(size.y) / static_cast<float>(m_size.y)};
-					newRect->atlas			   = this;
-					newRect->sid			   = sid;
+					x += 1;
+					y += 1;
+
+					newRect->byteOffset		 = (y * m_size.x + x) * m_bytesPerPixel;
+					newRect->rectCoords.pos	 = {x, y};
+					newRect->rectCoords.size = size;
+					newRect->rectUV.pos		 = {static_cast<float>(x) / static_cast<float>(m_size.x), static_cast<float>(y) / static_cast<float>(m_size.y)};
+					newRect->rectUV.size	 = {static_cast<float>(size.x) / static_cast<float>(m_size.x), static_cast<float>(size.y) / static_cast<float>(m_size.y)};
+					newRect->atlas			 = this;
+					newRect->sid			 = sid;
 
 					for (uint32 row = 0; row < size.y; ++row)
 					{

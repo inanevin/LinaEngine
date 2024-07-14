@@ -66,8 +66,16 @@ namespace Lina
 
 	bool ResourceUploadQueue::FlushAll(LinaGX::CommandStream* copyStream)
 	{
-		for (Delegate<void()> cb : m_completedTextureRequests)
-			cb();
+		// Texture might be re-added to the upload queue, in which case skip the callback.
+		for (Pair<Texture*, Delegate<void()>> pair : m_completedTextureRequests)
+		{
+			if (pair.second == nullptr)
+				continue;
+
+			auto it = linatl::find_if(m_textureRequests.begin(), m_textureRequests.end(), [pair](const TextureUploadRequest& req) -> bool { return req.txt == pair.first; });
+			if (it == m_textureRequests.end())
+				pair.second();
+		}
 
 		m_completedTextureRequests.clear();
 
@@ -99,6 +107,11 @@ namespace Lina
 			cmd->destTexture							 = req.txt->GetGPUHandle();
 			cmd->mipLevels								 = static_cast<uint32>(allBuffers.size());
 			cmd->buffers								 = copyStream->EmplaceAuxMemory<LinaGX::TextureBuffer>(allBuffers.data(), allBuffers.size() * sizeof(LinaGX::TextureBuffer));
+
+			if (cmd->mipLevels == 0)
+			{
+				LINA_ERR("EMPTY TEXTURE!!");
+			}
 		}
 
 		// Transition to sampled
@@ -131,7 +144,7 @@ namespace Lina
 			return false;
 
 		for (auto& req : m_textureRequests)
-			m_completedTextureRequests.push_back(req.onComplete);
+			m_completedTextureRequests[req.txt] = req.onComplete;
 
 		m_textureRequests.clear();
 		m_bufferRequests.clear();

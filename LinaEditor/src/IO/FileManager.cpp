@@ -123,6 +123,7 @@ namespace Lina::Editor
 			subItem->tid		   = tid;
 			subItem->isDirectory   = isDirectory;
 			subItem->parent		   = item;
+			subItem->outlineFX	   = ExtensionSupport::RequiresOutlineFX(tid);
 
 			item->children.push_back(subItem);
 

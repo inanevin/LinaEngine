@@ -51,13 +51,13 @@ namespace Lina::Editor
 
 		LinaGX::SamplerDesc samplerData = {};
 		samplerData.minFilter			= LinaGX::Filter::Anisotropic;
-		samplerData.magFilter			= LinaGX::Filter::Linear;
-		samplerData.mode				= LinaGX::SamplerAddressMode::ClampToEdge;
+		samplerData.magFilter			= LinaGX::Filter::Anisotropic;
+		samplerData.mode				= LinaGX::SamplerAddressMode::Repeat;
 		samplerData.anisotropy			= 6;
 		samplerData.borderColor			= LinaGX::BorderColor::WhiteOpaque;
 		samplerData.mipLodBias			= 0.0f;
 		samplerData.minLod				= 0.0f;
-		samplerData.maxLod				= 30.0f;
+		samplerData.maxLod				= 12;
 		m_guiSampler->GenerateHW(samplerData);
 
 		samplerData.magFilter = LinaGX::Filter::Anisotropic;
@@ -83,7 +83,7 @@ namespace Lina::Editor
 				.binding   = 1,
 			};
 
-			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 4000, 1024, 32, "WorldRenderer: Copy Stream"});
+			data.copyStream	   = m_lgx->CreateCommandStream({LinaGX::CommandType::Transfer, 50, 12000, 4096, 32, "WorldRenderer: Copy Stream"});
 			data.copySemaphore = SemaphoreData(m_lgx->CreateUserSemaphore());
 		}
 	}
@@ -241,15 +241,14 @@ namespace Lina::Editor
 		}
 
 		m_lgx->SubmitCommandStreams({
-			.targetQueue	 = m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
-			.streams		 = streams.data(),
-			.streamCount	 = static_cast<uint32>(streams.size()),
-			.useWait		 = !waitValues.empty(),
-			.waitCount		 = static_cast<uint32>(waitValues.size()),
-			.waitSemaphores	 = waitSemaphores.data(),
-			.waitValues		 = waitValues.data(),
-			.useSignal		 = false,
-			.isMultithreaded = true,
+			.targetQueue	= m_lgx->GetPrimaryQueue(LinaGX::CommandType::Graphics),
+			.streams		= streams.data(),
+			.streamCount	= static_cast<uint32>(streams.size()),
+			.useWait		= !waitValues.empty(),
+			.waitCount		= static_cast<uint32>(waitValues.size()),
+			.waitSemaphores = waitSemaphores.data(),
+			.waitValues		= waitValues.data(),
+			.useSignal		= false,
 		});
 
 		m_lgx->Present({
@@ -330,7 +329,6 @@ namespace Lina::Editor
 			.signalCount	  = 1,
 			.signalSemaphores = pfd.copySemaphore.GetSemaphorePtr(),
 			.signalValues	  = pfd.copySemaphore.GetValuePtr(),
-			.isMultithreaded  = true,
 		});
 	}
 } // namespace Lina::Editor

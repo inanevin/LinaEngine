@@ -30,6 +30,10 @@ SOFTWARE.
 
 #include "Common/StringID.hpp"
 
+namespace Lina
+{
+	class Widget;
+}
 namespace Lina::Editor
 {
 
@@ -37,5 +41,6 @@ namespace Lina::Editor
 	{
 	public:
 		static TypeID GetTypeIDForExtension(const String& ext);
+		static bool	  RequiresOutlineFX(TypeID tid);
 	};
 } // namespace Lina::Editor

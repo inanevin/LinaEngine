@@ -275,7 +275,7 @@ namespace Lina::Editor
 				.frontFace	= LinaGX::FrontFace::CCW,
 			};
 
-			meta.drawIndirectEnabled		  = true;
+			meta.drawIndirectEnabled		  = false;
 			meta.descriptorSetAllocationCount = 1;
 			meta.SaveToStream(stream);
 			return true;

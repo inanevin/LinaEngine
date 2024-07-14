@@ -50,7 +50,8 @@ namespace Lina::Editor
 	class PanelResources : public Panel, public FileMenuListener, public SelectableListLayoutListener
 	{
 	public:
-		static constexpr float MAX_CONTENTS_SIZE = 5.0f;
+		static constexpr float MAX_CONTENTS_SIZE = 8.0f;
+		static constexpr float MIN_CONTENTS_SIZE = 4.0f;
 
 		PanelResources() : Panel(PanelType::Resources, 0){};
 		virtual ~PanelResources() = default;
@@ -80,8 +81,6 @@ namespace Lina::Editor
 		void				  SetShowListContents(bool showList);
 
 	private:
-		static constexpr float MIN_CONTENTS_SIZE = 2.0f;
-
 		LayoutBorder*		  m_border					 = nullptr;
 		Editor*				  m_editor					 = nullptr;
 		Text*				  m_path					 = nullptr;

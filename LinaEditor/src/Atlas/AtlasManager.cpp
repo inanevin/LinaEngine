@@ -94,8 +94,8 @@ namespace Lina::Editor
 	{
 		m_editor = editor;
 
-		auto addAtlas = [&](const String& directory, StringID sid) -> TextureAtlas* {
-			TextureAtlas* atlas	 = new TextureAtlas(sid, &m_editor->GetResourceManagerV2(), Vector2ui(1024, 1024), 4, LinaGX::Format::R8G8B8A8_SRGB);
+		auto addAtlas = [&](const String& directory, StringID sid, const Vector2ui& sz) -> TextureAtlas* {
+			TextureAtlas* atlas	 = new TextureAtlas(sid, &m_editor->GetResourceManagerV2(), sz, 4, LinaGX::Format::R8G8B8A8_SRGB);
 			m_customAtlases[sid] = atlas;
 
 			Vector<String> files;
@@ -117,7 +117,8 @@ namespace Lina::Editor
 			return atlas;
 		};
 
-		addAtlas("Resources/Editor/Textures/Atlas/MiscTextures/", "MiscTextures"_hs);
+		addAtlas("Resources/Editor/Textures/Atlas/MiscTextures/", "MiscTextures"_hs, Vector2ui(1024, 1024));
+		addAtlas("Resources/Editor/Textures/Atlas/ProjectIcons/", "ProjectIcons"_hs, Vector2ui(2048, 2048));
 		RefreshDirtyAtlases();
 	}
 

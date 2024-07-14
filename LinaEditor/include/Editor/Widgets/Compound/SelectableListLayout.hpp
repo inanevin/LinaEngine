@@ -48,6 +48,7 @@ namespace Lina::Editor
 	{
 		String			   title				= "";
 		void*			   userData				= nullptr;
+		bool			   useOutline			= true;
 		bool			   hasChildren			= false;
 		bool			   useDropdownIcon		= true;
 		bool			   useFolderIcon		= false;

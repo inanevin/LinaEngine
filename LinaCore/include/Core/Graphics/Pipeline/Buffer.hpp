@@ -83,7 +83,7 @@ namespace Lina
 		}
 
 	private:
-		static uint64 s_usedCPUVisibleGPUMemory;
+		static Atomic<uint64> s_usedCPUVisibleGPUMemory;
 
 		bool   m_stagingOnly			 = false;
 		uint32 m_staging				 = 0;

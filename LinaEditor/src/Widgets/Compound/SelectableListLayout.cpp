@@ -178,18 +178,21 @@ namespace Lina::Editor
 		bgShape->GetProps().onlyRoundCorners.push_back(1);
 		layout->AddChild(bgShape);
 
-		ShapeRect* bgShapeOutline = m_manager->Allocate<ShapeRect>("Outline");
-		bgShapeOutline->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-		bgShapeOutline->SetAlignedPos(Vector2::Zero);
-		bgShapeOutline->SetAlignedSize(Vector2::One);
-		bgShapeOutline->GetProps().rounding			= Theme::GetDef().baseRounding;
-		bgShapeOutline->GetProps().colorStart.w		= 0.0f;
-		bgShapeOutline->GetProps().colorEnd.w		= 0.0f;
-		bgShapeOutline->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.5f;
-		bgShapeOutline->GetProps().colorOutline		= Theme::GetDef().background0;
-		bgShapeOutline->GetProps().onlyRoundCorners.push_back(0);
-		bgShapeOutline->GetProps().onlyRoundCorners.push_back(1);
-		bgShape->AddChild(bgShapeOutline);
+		if (item.useOutline)
+		{
+			ShapeRect* bgShapeOutline = m_manager->Allocate<ShapeRect>("Outline");
+			bgShapeOutline->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			bgShapeOutline->SetAlignedPos(Vector2::Zero);
+			bgShapeOutline->SetAlignedSize(Vector2::One);
+			bgShapeOutline->GetProps().rounding			= Theme::GetDef().baseRounding;
+			bgShapeOutline->GetProps().colorStart.w		= 0.0f;
+			bgShapeOutline->GetProps().colorEnd.w		= 0.0f;
+			bgShapeOutline->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.5f;
+			bgShapeOutline->GetProps().colorOutline		= Theme::GetDef().background0;
+			bgShapeOutline->GetProps().onlyRoundCorners.push_back(0);
+			bgShapeOutline->GetProps().onlyRoundCorners.push_back(1);
+			bgShape->AddChild(bgShapeOutline);
+		}
 
 		if (item.useFolderIcon)
 		{
@@ -235,8 +238,8 @@ namespace Lina::Editor
 			// bgShape->GetProps().rounding = Theme::GetDef().baseRounding;
 			// bgShape->AddChild(img);
 
-			// img->SetCustomTooltipUserData(item.userData);
-			// img->SetBuildCustomTooltip([this](void* userData) -> Widget* { return m_listener->OnSelectableListBuildCustomTooltip(this, userData); });
+			// bgShape->SetCustomTooltipUserData(item.userData);
+			// bgShape->SetBuildCustomTooltip([this](void* userData) -> Widget* { return m_listener->OnSelectableListBuildCustomTooltip(this, userData); });
 		}
 
 		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
@@ -360,8 +363,8 @@ namespace Lina::Editor
 				img->AddChild(loading);
 			}
 
-			img->SetCustomTooltipUserData(item.userData);
-			img->SetBuildCustomTooltip([this](void* userData) -> Widget* { return m_listener->OnSelectableListBuildCustomTooltip(this, userData); });
+			// img->SetCustomTooltipUserData(item.userData);
+			// img->SetBuildCustomTooltip([this](void* userData) -> Widget* { return m_listener->OnSelectableListBuildCustomTooltip(this, userData); });
 		}
 
 		Text* title = WidgetUtility::BuildEditableText(this, true, []() {});

@@ -121,11 +121,12 @@ namespace Lina
 		api = LinaGX::BackendAPI::Metal;
 #endif
 
-		LinaGX::Config.api						 = api;
-		LinaGX::Config.gpu						 = LinaGX::PreferredGPUType::Integrated;
-		LinaGX::Config.framesInFlight			 = FRAMES_IN_FLIGHT;
-		LinaGX::Config.backbufferCount			 = BACK_BUFFER_COUNT;
-		LinaGX::Config.mutexLockCreationDeletion = true;
+		LinaGX::Config.multithreadedQueueSubmission = true;
+		LinaGX::Config.api							= api;
+		LinaGX::Config.gpu							= LinaGX::PreferredGPUType::Integrated;
+		LinaGX::Config.framesInFlight				= FRAMES_IN_FLIGHT;
+		LinaGX::Config.backbufferCount				= BACK_BUFFER_COUNT;
+		LinaGX::Config.mutexLockCreationDeletion	= true;
 
 		m_lgx->Initialize();
 
