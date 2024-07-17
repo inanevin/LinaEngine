@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Common/Math/Math.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
@@ -68,6 +69,14 @@ namespace Lina
 		float x = start.x;
 		float y = start.y;
 
+		float tweenValue = 0.0f;
+
+		if (m_props.useTween)
+		{
+			m_tween.Tick(delta);
+			tweenValue = m_tween.GetValue();
+		}
+
 		size_t idx = 0;
 		for (auto* c : m_children)
 		{
@@ -77,12 +86,45 @@ namespace Lina
 
 			if (idx != 0)
 			{
+				c->SetPosX(c->GetPosX() + tweenValue);
 				c->SetIsDisabled(!m_unfolded);
 				c->SetVisible(m_unfolded);
 			}
 
 			idx++;
 		}
+	}
+
+	bool FoldLayout::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (!m_props.foldWithDoubleClick)
+			return false;
+
+		if (m_children.empty())
+			return false;
+
+		if (!m_children.front()->GetIsHovered())
+			return false;
+
+		if (button != LINAGX_MOUSE_0 || act != LinaGX::InputAction::Repeated)
+			return false;
+
+		SetIsUnfolded(!GetIsUnfolded());
+		return true;
+	}
+
+	void FoldLayout::SetIsUnfolded(bool unfolded)
+	{
+		if (unfolded == m_unfolded)
+			return;
+
+		m_unfolded = unfolded;
+
+		if (m_props.onFoldChanged)
+			m_props.onFoldChanged(m_unfolded);
+
+		if (m_unfolded && m_props.useTween)
+			m_tween = Tween(m_props.tweenPower, 0.0f, m_props.tweenDuration, TweenType::Bounce);
 	}
 
 } // namespace Lina

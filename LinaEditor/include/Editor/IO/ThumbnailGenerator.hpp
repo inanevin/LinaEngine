@@ -74,6 +74,16 @@ namespace Lina::Editor
 			return m_status;
 		}
 
+		inline DirectoryItem* GetRootItem() const
+		{
+			return m_rootItem;
+		}
+
+		inline bool GetIsRecursive() const
+		{
+			return m_isRecursive;
+		}
+
 	private:
 		void CollectItems(DirectoryItem* item, bool isRecursive);
 		void GenerateThumbTexture(DirectoryItem* item, const String& thumbPath);
@@ -93,6 +103,8 @@ namespace Lina::Editor
 		Editor*		   m_editor = nullptr;
 		Atomic<Status> m_status = Status::Working;
 		Future<void>   m_future;
+		bool		   m_isRecursive = false;
+		DirectoryItem* m_rootItem	 = nullptr;
 	};
 
 } // namespace Lina::Editor

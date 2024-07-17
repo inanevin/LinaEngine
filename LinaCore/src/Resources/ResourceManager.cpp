@@ -30,6 +30,7 @@ SOFTWARE.
 #include "Core/Application.hpp"
 #include "Core/ApplicationDelegate.hpp"
 #include "Core/Resources/Resource.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Core/Application.hpp"
 #include "Core/Resources/ResourceManagerListener.hpp"
 #include "Common/Serialization/Serialization.hpp"
@@ -72,7 +73,7 @@ namespace Lina
 		m_loadTasks.clear();
 	}
 
-	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& baseCachePath, const String& projectPath)
+	void ResourceManagerV2::LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& cachePath, const String& projectPath)
 	{
 		Vector<ResourceIdentifier> idents = identifiers;
 
@@ -107,7 +108,7 @@ namespace Lina
 
 		for (const auto& ident : idents)
 		{
-			loadTask->tf.emplace([idx, delegate, projectPath, ident, this, loadTask, baseCachePath, taskID]() {
+			loadTask->tf.emplace([idx, delegate, projectPath, ident, this, loadTask, cachePath, taskID]() {
 				auto&	  cache			 = m_caches.at(ident.tid);
 				Resource* res			 = cache->Get(ident.sid);
 				loadTask->resources[idx] = res;
@@ -116,35 +117,51 @@ namespace Lina
 				if (!FileSystem::FileOrPathExists(fullPath))
 					fullPath = projectPath + "/" + ident.relativePath;
 
-				const String metacachePath = baseCachePath + TO_STRING(TO_SID(fullPath)) + ".linameta";
-				const bool	 exists		   = !baseCachePath.empty() && FileSystem::FileOrPathExists(metacachePath);
+				const String metacachePath = cachePath + TO_STRING(TO_SID(fullPath)) + ".linameta";
+				const bool	 exists		   = !cachePath.empty() && FileSystem::FileOrPathExists(metacachePath);
 
-				if (exists && false)
+				const StringID lastModifiedDate = TO_SID(FileSystem::GetLastModifiedDate(fullPath));
+
+				if (exists)
 				{
-					IStream input = Serialization::LoadFromFile(metacachePath.c_str());
-					res->LoadFromStream(input);
-					input.Destroy();
-				}
-				else
-				{
-					// Some resources have preliminary/initial metadata.
-					OStream metaStream;
-					if (delegate->FillResourceCustomMeta(ident.sid, metaStream))
+					IStream	 input				 = Serialization::LoadFromFile(metacachePath.c_str());
+					StringID lastModifiedInCache = 0;
+					input >> lastModifiedInCache;
+
+					if (lastModifiedInCache == lastModifiedDate)
 					{
-						IStream in;
-						in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
-						res->SetCustomMeta(in);
-						in.Destroy();
+						res->LoadFromStream(input);
+						input.Destroy();
+						LINA_TRACE("[Resource] -> Loaded resource: {0}", ident.relativePath);
+						for (ResourceManagerListener* listener : m_listeners)
+							listener->OnResourceLoaded(taskID, ident);
+						return;
 					}
-					metaStream.Destroy();
-
-					res->LoadFromFile(fullPath.c_str());
-
-					OStream metastream;
-					res->SaveToStream(metastream);
-					Serialization::SaveToFile(metacachePath.c_str(), metastream);
-					metastream.Destroy();
+					else
+					{
+						input.Destroy();
+					}
 				}
+
+				// Some resources have preliminary/initial metadata.
+				OStream metaStream;
+				if (delegate->FillResourceCustomMeta(ident.sid, metaStream))
+				{
+					IStream in;
+					in.Create(metaStream.GetDataRaw(), metaStream.GetCurrentSize());
+					res->SetCustomMeta(in);
+					in.Destroy();
+				}
+				metaStream.Destroy();
+
+				res->LoadFromFile(fullPath.c_str());
+
+				OStream metastream;
+				metastream << lastModifiedDate;
+				res->SaveToStream(metastream);
+				Serialization::SaveToFile(metacachePath.c_str(), metastream);
+				metastream.Destroy();
+
 				LINA_TRACE("[Resource] -> Loaded resource: {0}", ident.relativePath);
 				for (ResourceManagerListener* listener : m_listeners)
 					listener->OnResourceLoaded(taskID, ident);

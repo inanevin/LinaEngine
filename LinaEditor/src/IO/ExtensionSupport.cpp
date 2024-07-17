@@ -67,7 +67,7 @@ namespace Lina::Editor
 
 	bool ExtensionSupport::RequiresOutlineFX(TypeID tid)
 	{
-		if (tid == GetTypeID<Shader>() || tid == GetTypeID<Audio>())
+		if (tid == GetTypeID<Shader>() || tid == GetTypeID<Audio>() || tid == GetTypeID<EntityWorld>())
 			return false;
 
 		return true;

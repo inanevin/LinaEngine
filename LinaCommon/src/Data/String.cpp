@@ -258,6 +258,23 @@ namespace Lina
 		return directories;
 	}
 
+	String UtilStr::ToLower(const String& input)
+	{
+		String data = input;
+
+		std::for_each(data.begin(), data.end(), [](char& c) { c = ::tolower(c); });
+
+		return data;
+	}
+	String UtilStr::ToUpper(const String& input)
+	{
+		String data = input;
+
+		std::for_each(data.begin(), data.end(), [](char& c) { c = ::toupper(c); });
+
+		return data;
+	}
+
 } // namespace Lina
 
 #ifdef LINA_COMPILER_MSVC

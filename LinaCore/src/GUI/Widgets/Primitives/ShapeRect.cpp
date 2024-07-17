@@ -118,10 +118,9 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
-		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
+		if (m_props.onClicked && m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
 		{
-			if (m_props.onClicked)
-				m_props.onClicked();
+			m_props.onClicked();
 			return true;
 		}
 

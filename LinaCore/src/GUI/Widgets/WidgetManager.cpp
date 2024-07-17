@@ -171,7 +171,7 @@ namespace Lina
 
 	void WidgetManager::OnWindowKey(LinaGX::Window* window, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && m_controlsOwner != nullptr)
+		if (keycode == LINAGX_KEY_TAB && inputAction != LinaGX::InputAction::Released && GetControlsOwner() != nullptr)
 		{
 			if (m_window->GetInput()->GetKey(LINAGX_KEY_LSHIFT))
 				MoveControlsToPrev();
@@ -224,15 +224,16 @@ namespace Lina
 
 		// Left click presses to anywhere outside the control owner
 		// releases controls from that owner.
-		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlsOwner != nullptr && !m_controlsOwner->GetIsHovered())
+		Widget* controlsOwner = GetControlsOwner();
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && controlsOwner != nullptr && !controlsOwner->GetIsHovered())
 		{
-			if (m_controlsOwner->GetLocalControlsManager())
+			if (controlsOwner->GetLocalControlsManager())
 			{
-				if (m_controlsOwner->GetLocalControlsManager()->GetIsHovered())
-					m_controlsOwner->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
+				if (controlsOwner->GetLocalControlsManager()->GetIsHovered())
+					controlsOwner->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
 			}
 
-			ReleaseControls(m_controlsOwner);
+			ReleaseControls(controlsOwner);
 		}
 
 		if (PassMouse(m_foregroundRoot, button, inputAction))
@@ -691,9 +692,11 @@ namespace Lina
 		return nullptr;
 	}
 
-	void WidgetManager::GrabControls(Widget* widget)
+	void WidgetManager::GrabControls(Widget* widget, bool additive)
 	{
-		m_controlsOwner = widget;
+		if (!additive)
+			m_controlsOwners.clear();
+		m_controlsOwners.push_back(widget);
 
 		if (widget->m_onGrabbedControls)
 			widget->m_onGrabbedControls();
@@ -709,13 +712,21 @@ namespace Lina
 
 	void WidgetManager::ReleaseControls(Widget* widget)
 	{
-		if (m_controlsOwner == widget)
-			m_controlsOwner = nullptr;
+		auto it = linatl::find_if(m_controlsOwners.begin(), m_controlsOwners.end(), [widget](Widget* w) -> bool { return w == widget; });
+
+		if (it != m_controlsOwners.end())
+			m_controlsOwners.erase(it);
 	}
 
 	Widget* WidgetManager::GetControlsOwner()
 	{
-		return m_controlsOwner;
+		return m_controlsOwners.empty() ? nullptr : m_controlsOwners.front();
+	}
+
+	bool WidgetManager::IsControlsOwner(Widget* w)
+	{
+		auto it = linatl::find_if(m_controlsOwners.begin(), m_controlsOwners.end(), [w](Widget* widget) -> bool { return w == widget; });
+		return it != m_controlsOwners.end();
 	}
 
 	Widget* WidgetManager::FindNextSelectable(Widget* start)
@@ -773,10 +784,11 @@ namespace Lina
 
 	void WidgetManager::MoveControlsToPrev()
 	{
-		if (!m_controlsOwner)
+		Widget* owner = m_controlsOwners.empty() ? nullptr : m_controlsOwners.front();
+		if (!owner)
 			return;
 
-		Widget* previous = FindPreviousSelectable(m_controlsOwner);
+		Widget* previous = FindPreviousSelectable(owner);
 		if (previous)
 		{
 			GrabControls(previous);
@@ -785,10 +797,11 @@ namespace Lina
 
 	void WidgetManager::MoveControlsToNext()
 	{
-		if (!m_controlsOwner)
+		Widget* owner = m_controlsOwners.empty() ? nullptr : m_controlsOwners.front();
+		if (!owner)
 			return;
 
-		Widget* next = FindNextSelectable(m_controlsOwner);
+		Widget* next = FindNextSelectable(owner);
 		if (next)
 		{
 			GrabControls(next);

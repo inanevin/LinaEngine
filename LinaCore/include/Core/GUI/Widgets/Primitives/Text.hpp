@@ -59,6 +59,7 @@ namespace Lina
 			bool				  fetchCustomClipFromSelf	= false;
 			bool				  fetchWrapFromParent		= false;
 			bool				  wordWrap					= true;
+			bool				  delayOnClicked			= false;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -113,10 +114,12 @@ namespace Lina
 		}
 
 	private:
-		Properties			m_props				 = {};
-		float				m_calculatedDPIScale = 0.0f;
-		LinaVG::LinaVGFont* m_lvgFont			 = nullptr;
-		bool				m_isSDF				 = false;
+		Properties			m_props					= {};
+		float				m_calculatedDPIScale	= 0.0f;
+		LinaVG::LinaVGFont* m_lvgFont				= nullptr;
+		bool				m_isSDF					= false;
+		float				m_lastPressSeconds		= 0.0f;
+		bool				m_waitingOnClickedDelay = false;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Text)

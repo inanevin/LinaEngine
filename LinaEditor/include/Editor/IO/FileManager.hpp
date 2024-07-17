@@ -38,6 +38,12 @@ namespace Lina::Editor
 	class Editor;
 	class ThumbnailGenerator;
 
+	class FileManagerListener
+	{
+	public:
+		virtual void OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive){};
+	};
+
 	class FileManager
 	{
 	public:
@@ -50,8 +56,10 @@ namespace Lina::Editor
 		void		   RefreshResources();
 		void		   ClearResources();
 		DirectoryItem* FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot);
+		void		   AddListener(FileManagerListener* list);
+		void		   RemoveListener(FileManagerListener* list);
 
-		static void GetMetacachePath(String& outPath);
+		static String GetMetacachePath();
 
 		inline void SetProjectDirectory(const String& dir)
 		{
@@ -78,6 +86,7 @@ namespace Lina::Editor
 		DirectoryItem*						m_root = nullptr;
 		JobExecutor							m_executor;
 		Vector<ThumbnailGenerator*>			m_thumbnailGenerators;
+		Vector<FileManagerListener*>		m_listeners;
 	};
 
 } // namespace Lina::Editor

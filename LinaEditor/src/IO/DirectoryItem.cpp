@@ -27,8 +27,27 @@ SOFTWARE.
 */
 
 #include "Editor/IO/DirectoryItem.hpp"
+#include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina::Editor
 {
+	bool DirectoryItem::ContainsSearchString(const String& str, bool recursive, bool onlyDirectories)
+	{
+		if (UtilStr::ToLower(name).find(UtilStr::ToLower(str)) != String::npos)
+			return true;
 
+		if (!recursive)
+			return false;
+
+		for (DirectoryItem* c : children)
+		{
+			if (onlyDirectories && !c->isDirectory)
+				continue;
+
+			if (c->ContainsSearchString(str, recursive))
+				return true;
+		}
+
+		return false;
+	}
 } // namespace Lina::Editor

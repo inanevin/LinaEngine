@@ -287,8 +287,7 @@ namespace Lina::Editor
 	{
 		m_editorRenderer.Initialize(this);
 
-		String metacachePath = "";
-		FileManager::GetMetacachePath(metacachePath);
+		const String metacachePath = FileManager::GetMetacachePath();
 
 		if (!FileSystem::FileOrPathExists(metacachePath))
 			FileSystem::CreateFolderInPath(metacachePath);
@@ -298,15 +297,12 @@ namespace Lina::Editor
 		priorityResources.push_back({"Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
 		priorityResources.push_back({ICON_FONT_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({DEFAULT_FONT_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, 0, priorityResources, metacachePath, "");
+		m_resourceManagerV2.LoadResourcesFromFile(this, 0, priorityResources, FileManager::GetMetacachePath());
 		m_resourceManagerV2.WaitForAll();
 	}
 
 	void Editor::Initialize()
 	{
-		String metacachePath = "";
-		FileManager::GetMetacachePath(metacachePath);
-
 		s_editor							  = this;
 		Theme::GetDef().iconFont			  = ICON_FONT_SID;
 		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
@@ -348,7 +344,7 @@ namespace Lina::Editor
 		priorityResources.push_back({"Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
 		priorityResources.push_back({ALT_FONT_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({BIG_FONT_PATH, GetTypeID<Font>()});
-		m_resourceManagerV2.LoadResourcesFromFile(this, RLID_CORE_RES, priorityResources, metacachePath, "");
+		m_resourceManagerV2.LoadResourcesFromFile(this, RLID_CORE_RES, priorityResources, FileManager::GetMetacachePath());
 
 		// Async load core resources.
 		// Vector<ResourceIdentifier> list;

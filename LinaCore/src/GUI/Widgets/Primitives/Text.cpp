@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/Resources/ResourceManager.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -42,10 +43,10 @@ namespace Lina
 	void Text::CalculateSize(float delta)
 	{
 		if (m_props.fetchWrapFromParent)
-		{
 			m_props.wrapWidth = m_parent->GetSizeX();
+
+		if (!Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
-		}
 	}
 
 	void Text::Draw()
@@ -53,9 +54,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const float dpiScale = m_lgxWindow->GetDPIScale();
-
-		if (!Math::Equals(dpiScale, m_calculatedDPIScale, 0.01f))
+		if (!Math::Equals(m_lgxWindow->GetDPIScale(), m_calculatedDPIScale, 0.01f))
 			CalculateTextSize();
 
 		if (m_props.fetchCustomClipFromParent && m_parent)
@@ -68,6 +67,16 @@ namespace Lina
 		if (m_props.fetchCustomClipFromSelf)
 		{
 			m_props.customClip = Vector4(GetPosX() - GetSizeX() * 0.1f, GetPosY() - GetSizeY() * 0.5f, GetSizeX() * 1.2f, GetSizeY() * 2.0f);
+		}
+
+		if (m_waitingOnClickedDelay)
+		{
+			if (SystemInfo::GetAppTimeF() - m_lastPressSeconds > 0.2)
+			{
+				if (m_props.onClicked)
+					m_props.onClicked();
+				m_waitingOnClickedDelay = false;
+			}
 		}
 
 		if (m_isSDF)
@@ -108,8 +117,8 @@ namespace Lina
 
 	void Text::CalculateTextSize()
 	{
-		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
 		const float dpiScale = m_lgxWindow->GetDPIScale();
+		auto*		font	 = m_resourceManager->GetResource<Font>(m_props.font);
 		m_lvgFont			 = font->GetLinaVGFont(dpiScale);
 		m_calculatedDPIScale = dpiScale;
 
@@ -143,6 +152,9 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
+		if (m_isHovered)
+			m_waitingOnClickedDelay = false;
+
 		if (act == LinaGX::InputAction::Pressed && m_isHovered)
 		{
 			m_isPressed = true;
@@ -153,8 +165,16 @@ namespace Lina
 		{
 			if (m_isPressed && m_isHovered)
 			{
-				if (m_props.onClicked)
-					m_props.onClicked();
+				if (m_props.delayOnClicked)
+				{
+					m_lastPressSeconds		= SystemInfo::GetAppTimeF();
+					m_waitingOnClickedDelay = true;
+				}
+				else
+				{
+					if (m_props.onClicked)
+						m_props.onClicked();
+				}
 
 				m_isPressed = false;
 				return true;

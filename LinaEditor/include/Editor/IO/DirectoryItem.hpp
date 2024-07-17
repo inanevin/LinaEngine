@@ -43,19 +43,22 @@ namespace Lina::Editor
 {
 	struct DirectoryItem
 	{
+		bool				   isUnfolded		= false;
 		bool				   isDirectory		= false;
 		Atomic<bool>		   outlineFX		= true;
 		TextureAtlasImage*	   textureAtlas		= nullptr;
 		String				   absolutePath		= "";
 		String				   relativePath		= "";
-		String				   folderName		= "";
-		String				   fileName			= "";
+		String				   name				= "";
 		StringID			   sid				= 0;
 		TypeID				   tid				= 0;
 		String				   extension		= "";
 		Vector<DirectoryItem*> children			= {};
 		DirectoryItem*		   parent			= nullptr;
 		StringID			   lastModifiedDate = 0;
+
+		bool ContainsSearchString(const String& str, bool recursive, bool onlyDirectories = false);
+
 		ALLOCATOR_BUCKET_MEM;
 	};
 

@@ -57,12 +57,15 @@ namespace Lina::Editor
 
 	ThumbnailGenerator::ThumbnailGenerator(Editor* editor, JobExecutor* executor, DirectoryItem* item, bool isRecursive)
 	{
-		m_editor	 = editor;
-		m_executor	 = executor;
-		m_rm		 = &editor->GetResourceManagerV2();
-		m_gfxManager = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
+		m_isRecursive = isRecursive;
+		m_rootItem	  = item;
+		m_editor	  = editor;
+		m_executor	  = executor;
+		m_rm		  = &editor->GetResourceManagerV2();
+		m_gfxManager  = m_editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		const String cachePath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/";
+		const String projectName = m_editor->GetProjectManager().GetProjectData()->GetProjectName();
+		const String cachePath	 = FileSystem::GetUserDataFolder() + "Editor/" + projectName + "/Thumbnails/";
 		if (!FileSystem::FileOrPathExists(cachePath))
 			FileSystem::CreateFolderInPath(cachePath);
 
@@ -82,8 +85,8 @@ namespace Lina::Editor
 
 		for (DirectoryItem* item : m_thumbnailItems)
 		{
-			tf.emplace([this, item]() {
-				const String thumbnailPath = FileSystem::GetUserDataFolder() + "Editor/Thumbnails/ResourceThumbnail_" + TO_STRING(item->sid);
+			tf.emplace([this, item, cachePath]() {
+				const String thumbnailPath = cachePath + TO_STRING(item->sid);
 
 				if (FileSystem::FileOrPathExists(thumbnailPath))
 				{
@@ -138,6 +141,12 @@ namespace Lina::Editor
 				else if (item->tid == GetTypeID<Audio>())
 				{
 					TextureAtlasImage* img = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileAudio"_hs);
+					m_atlases.try_emplace(item, img);
+					m_generatedCount.fetch_add(1);
+				}
+				else if (item->tid == GetTypeID<EntityWorld>())
+				{
+					TextureAtlasImage* img = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileWorld"_hs);
 					m_atlases.try_emplace(item, img);
 					m_generatedCount.fetch_add(1);
 				}
@@ -372,9 +381,8 @@ namespace Lina::Editor
 		world->SetRenderSize(viewSize);
 		WorldRenderer* renderer = new WorldRenderer(world, viewSize, &buffer, true);
 
-		String metacachePath = "";
-		FileManager::GetMetacachePath(metacachePath);
 		const String projectPath = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath());
+		const String cachePath	 = projectPath + "/ResourceCache/";
 
 		Vector<ResourceIdentifier> resources;
 		resources.push_back({"Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
@@ -383,13 +391,13 @@ namespace Lina::Editor
 		resources.push_back({"Resources/Core/Shaders/Object/DefaultObject.linashader", GetTypeID<Shader>()});
 		resources.push_back({"Resources/Core/Shaders/Sky/DefaultSky.linashader", GetTypeID<Shader>()});
 		resources.push_back({item->relativePath, GetTypeID<Material>()});
-		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, metacachePath, projectPath);
+		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, cachePath, projectPath);
 		world->GetResourceManagerV2().WaitForAll();
 
 		Material* objectMaterial = world->GetResourceManagerV2().GetResource<Material>(TO_SID(item->relativePath));
 		resources.clear();
 		resources.push_back({objectMaterial->GetShaderPath(), GetTypeID<Shader>()});
-		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, metacachePath, projectPath);
+		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, cachePath, projectPath);
 		world->GetResourceManagerV2().WaitForAll();
 
 		Model*	  model			   = world->GetResourceManagerV2().GetResource<Model>("Resources/Core/Models/Sphere.glb"_hs);
@@ -458,9 +466,8 @@ namespace Lina::Editor
 		world->SetRenderSize(viewSize);
 		WorldRenderer* renderer = new WorldRenderer(world, viewSize, &buffer, true);
 
-		String metacachePath = "";
-		FileManager::GetMetacachePath(metacachePath);
 		const String projectPath = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath());
+		const String cachePath	 = projectPath + "/ResourceCache/";
 
 		Vector<ResourceIdentifier> resources;
 		resources.push_back({"Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
@@ -468,7 +475,7 @@ namespace Lina::Editor
 		resources.push_back({"Resources/Core/Shaders/Object/DeferredLighting.linashader", GetTypeID<Shader>()});
 		resources.push_back({"Resources/Core/Shaders/Object/DefaultObject.linashader", GetTypeID<Shader>()});
 		resources.push_back({"Resources/Core/Shaders/Sky/DefaultSky.linashader", GetTypeID<Shader>()});
-		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, metacachePath, projectPath);
+		world->GetResourceManagerV2().LoadResourcesFromFile(m_editor, 0, resources, cachePath, projectPath);
 		world->GetResourceManagerV2().WaitForAll();
 
 		Model*	  model			   = world->GetResourceManagerV2().GetResource<Model>(TO_SID(item->relativePath));

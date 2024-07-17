@@ -35,10 +35,14 @@ SOFTWARE.
 
 namespace Lina
 {
-
+	void Selectable::Initialize()
+	{
+		m_usedStart = m_props.colorStart;
+		m_usedEnd	= m_props.colorEnd;
+	}
 	void Selectable::PreTick()
 	{
-		if (m_wasSelected && m_manager->GetControlsOwner() != this)
+		if (m_wasSelected && !m_manager->IsControlsOwner(this))
 		{
 			m_wasSelected = false;
 			if (m_props.onSelectionChanged)
@@ -59,7 +63,7 @@ namespace Lina
 
 	void Selectable::Tick(float dt)
 	{
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = m_manager->IsControlsOwner(this);
 		if (hasControls)
 		{
 			m_usedStart = Math::Lerp(m_usedStart, m_props.colorSelectedStart, dt * COLOR_SPEED);
@@ -85,7 +89,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = m_manager->IsControlsOwner(this);
 
 		LinaVG::StyleOptions opts;
 		opts.color.start			  = m_usedStart.AsLVG4();
@@ -110,7 +114,7 @@ namespace Lina
 		if (act == LinaGX::InputAction::Released)
 			return false;
 
-		if (m_manager->GetControlsOwner() != this)
+		if (!m_manager->IsControlsOwner(this))
 			return false;
 
 		if (keycode == LINAGX_KEY_RETURN)
@@ -130,15 +134,11 @@ namespace Lina
 		if (m_props.onSelectionChanged)
 			m_props.onSelectionChanged(this, true);
 
-		m_manager->GrabControls(this);
+		m_manager->GrabControls(this, true);
 	}
 
 	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (m_isHovered)
-		{
-			int a = 5;
-		}
 		if (m_isHovered && button == LINAGX_MOUSE_1 && act == LinaGX::InputAction::Pressed)
 		{
 			if (m_props.onRightClick)
@@ -163,11 +163,15 @@ namespace Lina
 			return true;
 		}
 
-		if (m_manager->GetControlsOwner() == this)
+		if (m_manager->IsControlsOwner(this))
 		{
 			if (m_isHovered && act == LinaGX::InputAction::Pressed)
 			{
 				m_isPressed = true;
+
+				if (m_props.onClicked)
+					m_props.onClicked(this);
+
 				return false; // leave to children
 			}
 
@@ -177,6 +181,9 @@ namespace Lina
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			Select();
+
+			if (m_props.onClicked)
+				m_props.onClicked(this);
 
 			return true;
 		}

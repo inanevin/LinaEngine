@@ -136,6 +136,7 @@ namespace Lina::Editor
 		bool						  m_payloadActive = false;
 		Vector<Selectable*>			  m_selectables	  = {};
 		Vector<DirectionalLayout*>	  m_gridLayoutItems;
+		Vector<Widget*>				  m_items;
 		FileMenu*					  m_contextMenu = nullptr;
 		HashMap<void*, bool>		  m_foldStatus;
 	};

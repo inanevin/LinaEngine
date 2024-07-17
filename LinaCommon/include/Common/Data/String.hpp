@@ -54,6 +54,8 @@ namespace Lina
 		static String		  GetUntilFirstOf(const String& str);
 		static char*		  WCharToChar(const wchar_t* wch);
 		static const wchar_t* CharToWChar(const char* ch);
+		static String		  ToUpper(const String& str);
+		static String		  ToLower(const String& str);
 
 		/// <summary>
 		/// Returns a list of strings that fall in between each of the split string.

@@ -121,6 +121,7 @@ namespace Lina::Editor
 		for (auto* s : m_selectables)
 			s->GetProps().colorStart = s->GetProps().colorEnd = s->GetIsHovered() ? Theme::GetDef().accentPrimary0 : Color(0, 0, 0, 0);
 	}
+
 	void SelectableListLayout::RefreshItems()
 	{
 		if (!m_listener)
@@ -130,6 +131,7 @@ namespace Lina::Editor
 		m_layout->DeallocAllChildren();
 		m_layout->RemoveAllChildren();
 		m_selectables.clear();
+		m_items.clear();
 
 		Vector<SelectableListItem> items;
 		m_listener->OnSelectableListFillItems(this, items, nullptr);
@@ -164,13 +166,14 @@ namespace Lina::Editor
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
 		layout->SetFixedSize(m_props.defaultGridSize);
+		layout->SetUserData(item.userData);
 		m_gridLayoutItems.push_back(layout);
+		m_items.push_back(layout);
 
 		ShapeRect* bgShape = m_manager->Allocate<ShapeRect>("BG");
 		bgShape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
 		bgShape->SetAlignedPosX(0.0f);
 		bgShape->SetAlignedSizeX(1.0f);
-
 		bgShape->GetProps().rounding   = Theme::GetDef().baseRounding;
 		bgShape->GetProps().colorStart = Theme::GetDef().background2;
 		bgShape->GetProps().colorEnd   = Theme::GetDef().background2;
@@ -290,6 +293,7 @@ namespace Lina::Editor
 		fold->SetAlignedPosX(0.0f);
 		fold->SetAlignedSizeX(1.0f);
 		fold->SetUserData(item.userData);
+		m_items.push_back(fold);
 
 		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
 		selectable->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
@@ -418,7 +422,7 @@ namespace Lina::Editor
 
 	void SelectableListLayout::SetSelectableCallbacks(const SelectableListItem& item, Selectable* selectable, FoldLayout* fold)
 	{
-		selectable->GetProps().onRightClick = [this, item](Selectable* s) { m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition()); };
+		// selectable->GetProps().onRightClick = [this, item](Selectable* s) { m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition()); };
 
 		selectable->GetProps().onInteracted = [fold, item, this](Selectable*) {
 			if (item.useCustomInteraction)
@@ -490,6 +494,23 @@ namespace Lina::Editor
 
 	bool SelectableListLayout::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
+		if (button == LINAGX_MOUSE_1)
+		{
+			for (Widget* w : m_items)
+			{
+				if (w->GetIsHovered())
+				{
+					m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), w->GetUserData());
+					return true;
+				}
+			}
+
+			if (GetIsHovered())
+			{
+				m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), nullptr);
+			}
+		}
+
 		if (button != LINAGX_MOUSE_0)
 			return false;
 

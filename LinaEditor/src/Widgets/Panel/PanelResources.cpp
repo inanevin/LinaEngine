@@ -32,11 +32,13 @@ SOFTWARE.
 #include "Editor/EditorLocale.hpp"
 #include "Editor/IO/FileManager.hpp"
 #include "Editor/IO/ExtensionSupport.hpp"
+#include "Editor/Widgets/FX/LinaLoading.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
@@ -60,8 +62,8 @@ namespace Lina::Editor
 	{
 		m_editor = Editor::Get();
 
-		Widget* browser	 = BuildBrowser();
-		Widget* contents = BuildContents();
+		Widget* folderBrowser = BuildFolderBrowser();
+		Widget* fileBrowser	  = BuildFileBrowser();
 
 		LayoutBorder* border = m_manager->Allocate<LayoutBorder>("Border");
 		border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
@@ -70,15 +72,21 @@ namespace Lina::Editor
 		border->GetProps().orientation = DirectionOrientation::Vertical;
 		AddChild(border);
 
-		border->AssignSides(browser, contents);
+		border->AssignSides(folderBrowser, fileBrowser);
 
+		m_editor->GetFileManager().AddListener(this);
 		m_border = border;
+	}
+
+	void PanelResources::Destruct()
+	{
+		m_editor->GetFileManager().RemoveListener(this);
 	}
 
 	void PanelResources::Initialize()
 	{
 		Widget::Initialize();
-		m_browserSelectableList->RefreshItems();
+		m_folderBrowserItemLayout->RefreshItems();
 	}
 	void PanelResources::Draw()
 	{
@@ -102,29 +110,23 @@ namespace Lina::Editor
 		m_border->GetNegative()->SetAlignedSizeX(data.f[0]);
 		m_border->GetPositive()->SetAlignedPosX(data.f[0]);
 		m_border->GetPositive()->SetAlignedSizeX(1.0f - data.f[0]);
-		m_contentsSize = data.f[1];
-		m_contentsSelectableList->SetGridLayoutItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
-		SetShowListContents(m_contentsSize < MIN_CONTENTS_SIZE + 0.5f);
+		m_contentsSize		  = data.f[1];
+		const bool showAsGrid = m_contentsSize > LIST_CONTENTS_LIMIT;
+		SwitchFileBrowserContents(showAsGrid);
+		m_fileBrowserItemLayout->SetGridItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
 	}
 
-	void PanelResources::SetShowListContents(bool showList)
+	void PanelResources::SwitchFileBrowserContents(bool showAsGrid)
 	{
-		if (m_showListContents == showList)
+		if (m_fileBrowserContentsAsGrid == showAsGrid)
 			return;
-		m_showListContents = showList;
 
-		auto* bottom = m_contentsListOwner->GetChildren().back();
-		m_contentsListOwner->RemoveChild(bottom);
-		m_contentsListOwner->RemoveChild(m_contentsSelectableList);
-		m_manager->Deallocate(m_contentsSelectableList);
-		BuildSelectableListLayout(m_showListContents);
-		m_contentsSelectableList->Initialize();
-		m_contentsListOwner->AddChild(m_contentsSelectableList);
-		m_contentsListOwner->AddChild(bottom);
-		m_contentsSelectableList->RefreshItems();
+		m_fileBrowserContentsAsGrid = showAsGrid;
+		m_fileBrowserItemLayout->SetUseGridLayout(m_fileBrowserContentsAsGrid);
+		m_fileBrowserItemLayout->RefreshItems();
 	}
 
-	Widget* PanelResources::BuildTopContents()
+	Widget* PanelResources::BuildFileBrowserTop()
 	{
 		DirectionalLayout* topContents = m_manager->Allocate<DirectionalLayout>("TopContents");
 		topContents->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
@@ -133,8 +135,6 @@ namespace Lina::Editor
 		topContents->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		topContents->SetChildPadding(Theme::GetDef().baseIndentInner);
 		topContents->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		// topContents->GetBorderThickness().bottom = Theme::GetDef().baseBorderThickness;
-		// topContents->SetBorderColor(Theme::GetDef().background0);
 
 		Icon* folder			= m_manager->Allocate<Icon>("PathIcon");
 		folder->GetProps().icon = ICON_FOLDER;
@@ -167,13 +167,17 @@ namespace Lina::Editor
 		searchFieldTop->GetProps().rounding		   = 0.0f;
 		searchFieldTop->GetProps().usePlaceHolder  = true;
 		searchFieldTop->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search) + "...";
+		searchFieldTop->GetProps().onEdited		   = [this](const String& val) {
+			   m_fileBrowserSearchStr = val;
+			   m_fileBrowserItemLayout->RefreshItems();
+		};
 		topContents->AddChild(searchFieldTop);
 
 		m_path = path;
 		return topContents;
 	}
 
-	Widget* PanelResources::BuildBottomContents()
+	Widget* PanelResources::BuildFileBrowserBottom()
 	{
 		DirectionalLayout* bottom = m_manager->Allocate<DirectionalLayout>("BotContents");
 		bottom->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
@@ -231,12 +235,12 @@ namespace Lina::Editor
 		sizeSlider->GetProps().maxValue		  = MAX_CONTENTS_SIZE;
 		sizeSlider->GetProps().valuePtr		  = &m_contentsSize;
 		sizeSlider->GetProps().onValueChanged = [this](float val) -> void {
-			if (val < MIN_CONTENTS_SIZE + 0.25f && !m_showListContents)
-				SetShowListContents(true);
-			else if (m_showListContents && val > MIN_CONTENTS_SIZE + 0.25f)
-				SetShowListContents(false);
+			if (val < LIST_CONTENTS_LIMIT && m_fileBrowserContentsAsGrid)
+				SwitchFileBrowserContents(false);
+			else if (!m_fileBrowserContentsAsGrid && val > LIST_CONTENTS_LIMIT)
+				SwitchFileBrowserContents(true);
 
-			m_contentsSelectableList->SetGridLayoutItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
+			m_fileBrowserItemLayout->SetGridItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
 		};
 
 		bottom->AddChild(sizeSlider);
@@ -247,7 +251,7 @@ namespace Lina::Editor
 		return bottom;
 	}
 
-	Widget* PanelResources::BuildContents()
+	Widget* PanelResources::BuildFileBrowser()
 	{
 		DirectionalLayout* contents	   = m_manager->Allocate<DirectionalLayout>("Contents");
 		contents->GetProps().direction = DirectionOrientation::Vertical;
@@ -257,7 +261,7 @@ namespace Lina::Editor
 		contents->GetChildMargins() = {.top = Theme::GetDef().baseIndent};
 		AddChild(contents);
 
-		contents->AddChild(BuildTopContents());
+		contents->AddChild(BuildFileBrowserTop());
 
 		Widget* filler = m_manager->Allocate<Widget>("Filler");
 		filler->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
@@ -266,27 +270,44 @@ namespace Lina::Editor
 		filler->SetFixedSizeY(Theme::GetDef().baseItemHeight / 2);
 		contents->AddChild(filler);
 
-		contents->AddChild(BuildSelectableListLayout(m_showListContents));
-		contents->AddChild(BuildBottomContents());
-		m_contentsListOwner = contents;
+		ShapeRect* bg = m_manager->Allocate<ShapeRect>("BG");
+		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		bg->SetAlignedPosX(0.0f);
+		bg->SetAlignedSize(Vector2(1.0f, 0.0f));
+		bg->GetProps().colorStart = bg->GetProps().colorEnd = Theme::GetDef().background0;
+		contents->AddChild(bg);
+
+		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
+		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		itemLayout->SetAlignedPos(Vector2::Zero);
+		itemLayout->SetAlignedSize(Vector2::One);
+		itemLayout->GetProps().itemsCanHaveChildren = true;
+		itemLayout->SetUseGridLayout(false);
+		bg->AddChild(itemLayout);
+		m_fileBrowserItemLayout = itemLayout;
+		m_fileBrowserItemLayout->SetGridItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
+		m_fileBrowserItemLayout->SetUseGridLayout(m_fileBrowserContentsAsGrid);
+
+		m_fileBrowserItemLayout->GetProps().itemsCanHaveChildren = false;
+		m_fileBrowserItemLayout->GetProps().onGatherItems		 = [this](Vector<ItemDefinition>& outItems) {
+			   if (m_folderBrowserSelection == nullptr)
+				   return;
+
+			   for (DirectoryItem* c : m_folderBrowserSelection->children)
+			   {
+				   if (!m_fileBrowserSearchStr.empty() && !c->ContainsSearchString(m_fileBrowserSearchStr, false, false))
+					   continue;
+
+				   outItems.push_back(CreateDefinitionForItem(c, false));
+			   }
+		};
+
+		contents->AddChild(BuildFileBrowserBottom());
+
 		return contents;
 	}
 
-	SelectableListLayout* PanelResources::BuildSelectableListLayout(bool isList)
-	{
-		SelectableListLayout* selectableList = m_manager->Allocate<SelectableListLayout>("SelectableList");
-		selectableList->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		selectableList->SetAlignedPosX(0.0f);
-		selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
-		selectableList->SetListener(this);
-		selectableList->GetFileMenu()->SetListener(this);
-		selectableList->GetProps().useGridAsLayout = !isList;
-		selectableList->GetProps().defaultGridSize = Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f));
-		m_contentsSelectableList				   = selectableList;
-		return selectableList;
-	}
-
-	Widget* PanelResources::BuildBrowser()
+	Widget* PanelResources::BuildFolderBrowser()
 	{
 		DirectionalLayout* browser	  = m_manager->Allocate<DirectionalLayout>("Browser");
 		browser->GetProps().direction = DirectionOrientation::Vertical;
@@ -305,18 +326,82 @@ namespace Lina::Editor
 		searchField->GetProps().rounding		= 0.0f;
 		searchField->GetProps().usePlaceHolder	= true;
 		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search) + "...";
+		searchField->GetProps().onEdited		= [this](const String& val) {
+			   m_folderBrowserSearchStr = val;
+			   m_folderBrowserItemLayout->RefreshItems();
+		};
 		browser->AddChild(searchField);
 
-		SelectableListLayout* selectableList = m_manager->Allocate<SelectableListLayout>("SelectableList");
-		selectableList->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		selectableList->SetAlignedPosX(0.0f);
-		selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
-		selectableList->SetListener(this);
-		selectableList->GetFileMenu()->SetListener(this);
-		browser->AddChild(selectableList);
+		ShapeRect* bg = m_manager->Allocate<ShapeRect>("BG");
+		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		bg->SetAlignedPosX(0.0f);
+		bg->SetAlignedSize(Vector2(1.0f, 0.0f));
+		bg->GetProps().colorStart = bg->GetProps().colorEnd = Theme::GetDef().background0;
+		browser->AddChild(bg);
 
-		m_browserSelectableList = selectableList;
+		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
+		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		itemLayout->SetAlignedPos(Vector2::Zero);
+		itemLayout->SetAlignedSize(Vector2::One);
+		itemLayout->GetProps().itemsCanHaveChildren = true;
+		itemLayout->SetUseGridLayout(false);
+		bg->AddChild(itemLayout);
+		m_folderBrowserItemLayout = itemLayout;
+
+		m_folderBrowserItemLayout->GetProps().onGatherItems = [this](Vector<ItemDefinition>& outItems) {
+			DirectoryItem* root	   = m_editor->GetFileManager().GetRoot();
+			ItemDefinition rootDef = {
+				.userData = root,
+				.icon	  = ICON_FOLDER,
+				.name	  = root->name,
+			};
+
+			for (DirectoryItem* it : root->children)
+			{
+				if (!it->isDirectory)
+					continue;
+
+				if (!m_folderBrowserSearchStr.empty() && !it->ContainsSearchString(m_folderBrowserSearchStr, true, true))
+					continue;
+
+				rootDef.children.push_back(CreateDefinitionForItem(it, true));
+			}
+
+			outItems.push_back(rootDef);
+		};
+
+		m_folderBrowserItemLayout->GetProps().onItemSelected = [this](void* userData) {
+			if (userData == nullptr)
+			{
+				ChangeFolderBrowserSelection(nullptr, false);
+				return;
+			}
+
+			DirectoryItem* item = static_cast<DirectoryItem*>(userData);
+			ChangeFolderBrowserSelection(item, false);
+		};
 		return browser;
+	}
+
+	ItemDefinition PanelResources::CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories)
+	{
+		ItemDefinition def = {
+			.userData		  = it,
+			.useOutlineInGrid = it->outlineFX,
+			.icon			  = it->isDirectory ? ICON_FOLDER : "",
+			.texture		  = it->textureAtlas,
+			.name			  = it->name,
+		};
+
+		for (DirectoryItem* c : it->children)
+		{
+			if (onlyDirectories && !c->isDirectory)
+				continue;
+
+			def.children.push_back(CreateDefinitionForItem(c, onlyDirectories));
+		}
+
+		return def;
 	}
 
 	bool PanelResources::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
@@ -332,12 +417,35 @@ namespace Lina::Editor
 
 	void PanelResources::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
+		/*
 		if (filemenu == m_contentsSelectableList->GetFileMenu())
 		{
+			if (userData == nullptr)
+			{
+				// on empty area.
+			}
+			else
+			{
+				// On folder
+				DirectoryItem* item = static_cast<DirectoryItem*>(userData);
+				int			   a	= 5;
+			}
 		}
 		else if (filemenu == m_browserSelectableList->GetFileMenu())
 		{
+			if (userData == nullptr)
+			{
+				// on empty are.
+			}
+			else
+			{
+				// on some item.
+				DirectoryItem* item = static_cast<DirectoryItem*>(userData);
+				int			   a	= 5;
+			}
 		}
+
+		return;
 
 		if (sid == 0)
 		{
@@ -356,11 +464,17 @@ namespace Lina::Editor
 			};
 			return;
 		}
+		*/
+	}
+
+	void PanelResources::OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive)
+	{
+		ChangeFolderBrowserSelection(m_folderBrowserSelection, true);
 	}
 
 	void PanelResources::OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData)
 	{
-
+		/*
 		if (list == m_browserSelectableList)
 		{
 			if (parentUserData)
@@ -376,7 +490,7 @@ namespace Lina::Editor
 						continue;
 
 					outItems.push_back({
-						.title			 = item->isDirectory ? item->folderName : item->fileName,
+						.title			 = item->name,
 						.userData		 = item,
 						.hasChildren	 = !item->children.empty(),
 						.useDropdownIcon = true,
@@ -390,7 +504,7 @@ namespace Lina::Editor
 			if (root)
 			{
 				SelectableListItem item = {
-					.title			 = root->folderName,
+					.title			 = root->name,
 					.userData		 = root,
 					.hasChildren	 = !root->children.empty(),
 					.useDropdownIcon = true,
@@ -401,16 +515,16 @@ namespace Lina::Editor
 		}
 		else if (list == m_contentsSelectableList)
 		{
-			if (m_currentBrowserSelection == nullptr)
+			if (m_folderBrowserSelection == nullptr)
 				return;
 
-			outItems.resize(m_currentBrowserSelection->children.size());
+			outItems.resize(m_folderBrowserSelection->children.size());
 
-			for (size_t i = 0; i < m_currentBrowserSelection->children.size(); i++)
+			for (size_t i = 0; i < m_folderBrowserSelection->children.size(); i++)
 			{
-				DirectoryItem* item = m_currentBrowserSelection->children[i];
+				DirectoryItem* item = m_folderBrowserSelection->children[i];
 				outItems[i]			= {
-							.title				  = item->isDirectory ? item->folderName : item->fileName,
+							.title				  = item->name,
 							.userData			  = item,
 							.useOutline			  = item->outlineFX,
 							.hasChildren		  = !item->children.empty(),
@@ -421,23 +535,23 @@ namespace Lina::Editor
 							.customTexture		  = item->textureAtlas,
 				};
 			}
-		}
+		}*/
 	}
 
 	void PanelResources::OnSelectableListItemControl(SelectableListLayout* list, void* userData)
 	{
-		if (list == m_browserSelectableList)
-		{
-			m_currentBrowserSelection = userData == nullptr ? nullptr : static_cast<DirectoryItem*>(userData);
-			m_contentsSelectableList->RefreshItems();
-
-			m_path->GetProps().text = userData == nullptr ? "" : m_currentBrowserSelection->relativePath;
-			m_path->CalculateTextSize();
-		}
-		else if (list == m_contentsSelectableList)
-		{
-			m_currentContentsSelection = userData == nullptr ? nullptr : static_cast<DirectoryItem*>(userData);
-		}
+		// if (list == m_browserSelectableList)
+		//{
+		//	m_folderBrowserSelection = userData == nullptr ? nullptr : static_cast<DirectoryItem*>(userData);
+		//	m_contentsSelectableList->RefreshItems();
+		//
+		//	m_path->GetProps().text = userData == nullptr ? "" : m_folderBrowserSelection->relativePath;
+		//	m_path->CalculateTextSize();
+		// }
+		// else if (list == m_contentsSelectableList)
+		//{
+		//	m_currentContentsSelection = userData == nullptr ? nullptr : static_cast<DirectoryItem*>(userData);
+		// }
 	}
 
 	void PanelResources::OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemuserData)
@@ -446,27 +560,27 @@ namespace Lina::Editor
 
 	void PanelResources::OnSelectableListItemInteracted(SelectableListLayout* list, void* userData)
 	{
-		if (list == m_contentsSelectableList)
-		{
-			DirectoryItem* item = static_cast<DirectoryItem*>(userData);
-
-			if (item->isDirectory)
-			{
-				m_browserSelectableList->ChangeFold(item->parent, true);
-				m_browserSelectableList->GrabControls(item);
-
-				return;
-			}
-			else
-			{
-				if (item->tid == GetTypeID<EntityWorld>())
-				{
-					auto* wm = m_editor->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
-					wm->InstallWorld(item->absolutePath);
-					return;
-				}
-			}
-		}
+		// if (list == m_contentsSelectableList)
+		// {
+		// 	DirectoryItem* item = static_cast<DirectoryItem*>(userData);
+		//
+		// 	if (item->isDirectory)
+		// 	{
+		// 		m_browserSelectableList->ChangeFold(item->parent, true);
+		// 		m_browserSelectableList->GrabControls(item);
+		//
+		// 		return;
+		// 	}
+		// 	else
+		// 	{
+		// 		if (item->tid == GetTypeID<EntityWorld>())
+		// 		{
+		// 			auto* wm = m_editor->GetSystem()->CastSubsystem<WorldManager>(SubsystemType::WorldManager);
+		// 			wm->InstallWorld(item->absolutePath);
+		// 			return;
+		// 		}
+		// 	}
+		// }
 	}
 
 	Widget* PanelResources::OnSelectableListBuildCustomTooltip(SelectableListLayout* list, void* userData)
@@ -502,7 +616,7 @@ namespace Lina::Editor
 		txt->GetFlags().Set(WF_POS_ALIGN_X);
 		txt->SetAlignedPosX(0.5f);
 		txt->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		txt->GetProps().text = FileSystem::RemoveExtensionFromPath(item->fileName);
+		txt->GetProps().text = FileSystem::RemoveExtensionFromPath(item->name);
 		bg->AddChild(txt);
 		bg->Initialize();
 
@@ -511,11 +625,22 @@ namespace Lina::Editor
 
 	PayloadType PanelResources::OnSelectableListGetPayloadType(SelectableListLayout* list)
 	{
-		if (list == m_browserSelectableList)
-			return PayloadType::BrowserSelectable;
-		if (list == m_contentsSelectableList)
-			return PayloadType::ContentsSelectable;
+		// if (list == m_browserSelectableList)
+		// 	return PayloadType::BrowserSelectable;
+		// if (list == m_contentsSelectableList)
+		// 	return PayloadType::ContentsSelectable;
 		return PayloadType::None;
+	}
+
+	void PanelResources::ChangeFolderBrowserSelection(DirectoryItem* item, bool refresh)
+	{
+		if (m_folderBrowserSelection == item && !refresh)
+			return;
+
+		m_folderBrowserSelection = item;
+		m_fileBrowserItemLayout->RefreshItems();
+		m_path->GetProps().text = m_folderBrowserSelection ? m_folderBrowserSelection->relativePath : "";
+		m_path->CalculateTextSize();
 	}
 
 } // namespace Lina::Editor

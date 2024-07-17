@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelEntities.hpp"
 #include "Editor/Widgets/Testbed.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Widgets/Testbed.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
 #include "Core/World/WorldManager.hpp"
@@ -68,14 +69,20 @@ namespace Lina::Editor
 		search->GetProps().rounding		   = 0.0f;
 		layout->AddChild(search);
 
-		SelectableListLayout* selectableList = m_manager->Allocate<SelectableListLayout>("SelectableList");
-		selectableList->SetListener(this);
-		selectableList->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		selectableList->SetAlignedPosX(0.0f);
-		selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
-		layout->AddChild(selectableList);
+		Testbed* tb = m_manager->Allocate<Testbed>("TB");
+		tb->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		tb->SetAlignedPosX(0.0f);
+		tb->SetAlignedSize(Vector2(1.0f, 0.0f));
+		layout->AddChild(tb);
 
-		m_selectableList = selectableList;
+		// SelectableListLayout* selectableList = m_manager->Allocate<SelectableListLayout>("SelectableList");
+		// selectableList->SetListener(this);
+		// selectableList->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		// selectableList->SetAlignedPosX(0.0f);
+		// selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
+		// layout->AddChild(selectableList);
+
+		// m_selectableList = selectableList;
 	}
 
 	void PanelEntities::Destruct()

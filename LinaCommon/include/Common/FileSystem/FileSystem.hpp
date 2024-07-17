@@ -94,8 +94,6 @@ namespace Lina
 		/// <returns></returns>
 		static wchar_t* CharToWChar(const char* input);
 
-		static String		  ToUpper(const String& input);
-		static String		  ToLower(const String& input);
 		static Vector<String> Split(const String& s, char delim);
 	};
 

@@ -73,9 +73,10 @@ namespace Lina
 		void	AddToForeground(Widget* widget);
 		void	RemoveFromForeground(Widget* widget);
 		void	Deallocate(Widget* widget);
-		void	GrabControls(Widget* widget);
+		void	GrabControls(Widget* widget, bool additive = false);
 		void	ReleaseControls(Widget* widget);
 		Widget* GetControlsOwner();
+		bool	IsControlsOwner(Widget* w);
 		void	MoveControlsToNext();
 		void	MoveControlsToPrev();
 		Widget* FindNextSelectable(Widget* start);
@@ -190,9 +191,9 @@ namespace Lina
 		friend class Widget;
 
 	private:
-		LinaGX::Window*					  m_window			  = nullptr;
-		LinaVG::Drawer*					  m_lvg				  = nullptr;
-		Widget*							  m_controlsOwner	  = nullptr;
+		LinaGX::Window*					  m_window = nullptr;
+		LinaVG::Drawer*					  m_lvg	   = nullptr;
+		Vector<Widget*>					  m_controlsOwners;
 		Widget*							  m_rootWidget		  = nullptr;
 		Widget*							  m_foregroundRoot	  = nullptr;
 		Widget*							  m_deepestHovered	  = nullptr;

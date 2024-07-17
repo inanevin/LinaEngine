@@ -44,18 +44,42 @@ namespace Lina
 		float maxItemHeight	   = 0.0f;
 		float totalChildheight = 0.0f;
 
+		Vector<Widget*> childsInRow;
+		float			extraPadding = 0.0f;
 		for (auto* c : m_children)
 		{
 			if (x + c->GetSizeX() > end.x)
 			{
+				const float diff = end.x - x;
+				extraPadding	 = diff / (childsInRow.size() < 2 ? 1.0f : static_cast<float>(childsInRow.size() - 1));
+				uint32 idx		 = 0;
+				for (Widget* prev : childsInRow)
+				{
+					if (idx != 0)
+						prev->SetPosX(prev->GetPosX() + extraPadding * idx);
+					idx++;
+				}
+				childsInRow.clear();
+
 				x = start.x;
 				y += maxItemHeight + m_props.verticalPadding;
 				maxItemHeight = 0.0f;
 			}
+
+			childsInRow.push_back(c);
 			c->SetPosX(x);
 			c->SetPosY(y);
 			maxItemHeight = Math::Max(maxItemHeight, c->GetSizeY());
 			x += c->GetSizeX() + GetChildPadding();
+		}
+
+		uint32 idx = 0;
+
+		for (Widget* prev : childsInRow)
+		{
+			if (idx != 0)
+				prev->SetPosX(prev->GetPosX() + extraPadding * idx);
+			idx++;
 		}
 
 		if (m_children.empty())

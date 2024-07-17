@@ -55,23 +55,10 @@ namespace Lina::Editor
 	String dummyDropdownItems[3] = {"Item1", "Item2TesteroBruvvv", "Item3"};
 	int32  selectedDropdownItem	 = 0;
 
-	Vector<Vector2> positions;
-	Vector<Vector2> positionEnds;
-
 	const int totalSz = 1000;
 
 	void Testbed::Construct()
 	{
-		positions.resize(totalSz);
-		positionEnds.resize(totalSz);
-
-		for (uint32 i = 0; i < totalSz; i++)
-		{
-			positions[i]	= Vector2(Math::RandF(50, 3300), Math::RandF(50, 2000));
-			positionEnds[i] = positions[i] + Vector2(Math::RandF(50, 250), Math::RandF(50, 250));
-		}
-
-		return;
 
 		const float itemHeight = Theme::GetDef().baseItemHeight;
 		const float itemWidth  = 100.0f;
@@ -278,17 +265,6 @@ namespace Lina::Editor
 			wh->SetTargetColor(Color(0.12f, 0.07f, 0.03f, 1.0f));
 			wh->SetSize(Vector2(600, 800));
 			layout->AddChild(wh);
-		}
-	}
-
-	void Testbed::Draw()
-	{
-		LinaVG::StyleOptions opts;
-		opts.color = Vector4(1, 1, 1, 1).AsLVG4();
-
-		for (uint32 i = 0; i < totalSz; i++)
-		{
-			m_lvg->DrawRect(positions[i].AsLVG(), positionEnds[i].AsLVG(), opts, 0.0f, 5);
 		}
 	}
 

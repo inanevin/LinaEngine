@@ -169,7 +169,8 @@ namespace Lina
 
 	Text* WidgetUtility::BuildEditableText(Widget* source, bool horizontal, Delegate<void()>&& onTextChanged)
 	{
-		Text* txt = source->GetWidgetManager()->Allocate<Text>("EditableText");
+		Text* txt					   = source->GetWidgetManager()->Allocate<Text>("EditableText");
+		txt->GetProps().delayOnClicked = true;
 
 		txt->GetProps().onClicked = [onTextChanged, horizontal, source, txt]() {
 			InputField* inp = source->GetWidgetManager()->Allocate<InputField>();

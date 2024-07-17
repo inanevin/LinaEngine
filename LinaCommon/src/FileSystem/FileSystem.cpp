@@ -407,8 +407,8 @@ namespace Lina
 
 	bool FileSystem::FolderContainsFilter(const Folder* folder, const String& filter)
 	{
-		const String filterLowercase = ToLower(filter);
-		const String folderLower	 = ToLower(folder->name);
+		const String filterLowercase = UtilStr::ToLower(filter);
+		const String folderLower	 = UtilStr::ToLower(folder->name);
 		const bool	 folderContains	 = folderLower.find(filterLowercase) != String::npos;
 		return folderContains;
 	}
@@ -437,8 +437,8 @@ namespace Lina
 
 	bool FileSystem::FileContainsFilter(const File& file, const String& filter)
 	{
-		const String filterLowercase = ToLower(filter);
-		const String fileLower		 = ToLower(file.fullName);
+		const String filterLowercase = UtilStr::ToLower(filter);
+		const String fileLower		 = UtilStr::ToLower(file.fullName);
 		return fileLower.find(filterLowercase) != String::npos;
 	}
 
@@ -529,15 +529,6 @@ namespace Lina
 		return buffer;
 	}
 
-	String FileSystem::ToLower(const String& input)
-	{
-		String data = input;
-
-		std::for_each(data.begin(), data.end(), [](char& c) { c = ::tolower(c); });
-
-		return data;
-	}
-
 	wchar_t* FileSystem::CharToWChar(const char* input)
 	{
 #ifdef LINA_PLATFORM_WINDOWS
@@ -553,15 +544,6 @@ namespace Lina
 		return wideBuf;
 #endif
 		return nullptr;
-	}
-
-	String FileSystem::ToUpper(const String& input)
-	{
-		String data = input;
-
-		std::for_each(data.begin(), data.end(), [](char& c) { c = ::toupper(c); });
-
-		return data;
 	}
 
 	Vector<String> FileSystem::Split(const String& s, char delim)

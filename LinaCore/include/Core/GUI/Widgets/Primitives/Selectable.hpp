@@ -51,6 +51,7 @@ namespace Lina
 			float							  outlineThickness		  = 0.0f;
 			Delegate<void(Selectable*, bool)> onSelectionChanged;
 			Delegate<void(Selectable*)>		  onInteracted;
+			Delegate<void(Selectable*)>		  onClicked;
 			Delegate<void(Selectable*)>		  onRightClick;
 			Delegate<void()>				  onDockedOut;
 			bool							  clipChildren = false;
@@ -80,6 +81,7 @@ namespace Lina
 			}
 		};
 
+		virtual void Initialize() override;
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 		virtual void Draw() override;

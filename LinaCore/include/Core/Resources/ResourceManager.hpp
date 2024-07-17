@@ -41,6 +41,7 @@ namespace Lina
 	class IStream;
 	class GfxManager;
 	class ResourceManagerListener;
+	class ProjectData;
 
 	class ResourceManagerV2
 	{
@@ -48,7 +49,7 @@ namespace Lina
 		ResourceManagerV2(){};
 		~ResourceManagerV2(){};
 
-		void LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& baseCachePath, const String& projectPath);
+		void LoadResourcesFromFile(ApplicationDelegate* delegate, int32 taskID, const Vector<ResourceIdentifier>& identifiers, const String& cachePath = "", const String& projectPath = "");
 		void Poll();
 		void WaitForAll();
 		void AddListener(ResourceManagerListener* listener);

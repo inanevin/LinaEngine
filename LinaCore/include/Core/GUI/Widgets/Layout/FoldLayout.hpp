@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
@@ -41,22 +42,17 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(bool)> onFoldChanged;
-			float				 marginIncrease = Theme::GetDef().baseIndentInner;
+			float				 marginIncrease		 = Theme::GetDef().baseIndentInner;
+			bool				 foldWithDoubleClick = false;
+			bool				 useTween			 = false;
+			float				 tweenPower			 = 6.0f;
+			float				 tweenDuration		 = 0.25f;
 		};
 
 		virtual void CalculateSize(float delta) override;
 		virtual void Tick(float delta) override;
-
-		inline void SetIsUnfolded(bool unfolded)
-		{
-			if (unfolded == m_unfolded)
-				return;
-
-			m_unfolded = unfolded;
-
-			if (m_props.onFoldChanged)
-				m_props.onFoldChanged(m_unfolded);
-		}
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		void		 SetIsUnfolded(bool unfolded);
 
 		inline bool GetIsUnfolded() const
 		{
@@ -73,6 +69,7 @@ namespace Lina
 
 		Properties m_props	  = {};
 		bool	   m_unfolded = false;
+		Tween	   m_tween	  = {};
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(FoldLayout)

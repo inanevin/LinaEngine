@@ -42,10 +42,9 @@ SOFTWARE.
 namespace Lina::Editor
 {
 
-	void FileManager::GetMetacachePath(String& outPath)
+	String FileManager::GetMetacachePath()
 	{
-		outPath.clear();
-		outPath.insert(0, FileSystem::GetUserDataFolder() + "Editor/ResourceCache/");
+		return FileSystem::GetUserDataFolder() + "Editor/ResourceCache/";
 	}
 
 	void FileManager::Initialize(Editor* editor)
@@ -60,6 +59,9 @@ namespace Lina::Editor
 			ThumbnailGenerator* generator = *it;
 			if (generator->GetStatus() == ThumbnailGenerator::Status::Done)
 			{
+				for (FileManagerListener* l : m_listeners)
+					l->OnFileManagerThumbnailsGenerated(generator->GetRootItem(), generator->GetIsRecursive());
+
 				delete generator;
 				it = m_thumbnailGenerators.erase(it);
 			}
@@ -123,7 +125,7 @@ namespace Lina::Editor
 			subItem->tid		   = tid;
 			subItem->isDirectory   = isDirectory;
 			subItem->parent		   = item;
-			subItem->outlineFX	   = ExtensionSupport::RequiresOutlineFX(tid);
+			subItem->outlineFX	   = !subItem->isDirectory && ExtensionSupport::RequiresOutlineFX(tid);
 
 			item->children.push_back(subItem);
 
@@ -143,8 +145,8 @@ namespace Lina::Editor
 			else
 				files.push_back(c);
 		}
-		linatl::sort(folders.begin(), folders.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->folderName < b->folderName; });
-		linatl::sort(files.begin(), files.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->fileName < b->fileName; });
+		linatl::sort(folders.begin(), folders.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->name < b->name; });
+		linatl::sort(files.begin(), files.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->name < b->name; });
 
 		item->children.clear();
 		item->children.insert(item->children.end(), folders.begin(), folders.end());
@@ -195,9 +197,9 @@ namespace Lina::Editor
 		item->absolutePath = fullAbsPath;
 		item->relativePath = fullAbsPath.substr(baseSz, fullAbsPath.size());
 		if (item->isDirectory)
-			item->folderName = FileSystem::GetLastFolderFromPath(fullAbsPath);
+			item->name = FileSystem::GetLastFolderFromPath(fullAbsPath);
 		else
-			item->fileName = FileSystem::GetFilenameAndExtensionFromPath(item->absolutePath);
+			item->name = FileSystem::GetFilenameAndExtensionFromPath(item->absolutePath);
 
 		item->lastModifiedDate = TO_SID(FileSystem::GetLastModifiedDate(item->absolutePath));
 		item->sid			   = TO_SID(item->relativePath);
@@ -216,6 +218,16 @@ namespace Lina::Editor
 		}
 
 		return nullptr;
+	}
+
+	void FileManager::AddListener(FileManagerListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
+
+	void FileManager::RemoveListener(FileManagerListener* listener)
+	{
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](FileManagerListener* l) -> bool { return l == listener; }));
 	}
 
 } // namespace Lina::Editor

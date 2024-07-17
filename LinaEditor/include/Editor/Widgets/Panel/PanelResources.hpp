@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Editor/Widgets/Compound/SelectableListLayout.hpp"
+#include "Editor/IO/FileManager.hpp"
+#include "Editor/Widgets/Layout/ItemLayout.hpp"
 
 namespace Lina
 {
@@ -45,21 +47,23 @@ namespace Lina
 namespace Lina::Editor
 {
 	struct DirectoryItem;
+	class ItemLayout;
 	class Editor;
 
-	class PanelResources : public Panel, public FileMenuListener, public SelectableListLayoutListener
+	class PanelResources : public Panel, public FileMenuListener, public SelectableListLayoutListener, public FileManagerListener
 	{
 	public:
-		static constexpr float MAX_CONTENTS_SIZE = 8.0f;
-		static constexpr float MIN_CONTENTS_SIZE = 4.0f;
+		static constexpr float MAX_CONTENTS_SIZE   = 8.0f;
+		static constexpr float MIN_CONTENTS_SIZE   = 4.0f;
+		static constexpr float LIST_CONTENTS_LIMIT = 4.25f;
 
 		PanelResources() : Panel(PanelType::Resources, 0){};
 		virtual ~PanelResources() = default;
 
-		virtual void Initialize() override;
-		virtual void Construct() override;
-		virtual void Draw() override;
-
+		virtual void			 Initialize() override;
+		virtual void			 Construct() override;
+		virtual void			 Destruct() override;
+		virtual void			 Draw() override;
 		virtual PanelLayoutExtra GetExtraLayoutData() override;
 		virtual void			 SetExtraLayoutData(const PanelLayoutExtra& data) override;
 
@@ -71,28 +75,33 @@ namespace Lina::Editor
 		virtual PayloadType OnSelectableListGetPayloadType(SelectableListLayout* list) override;
 		virtual bool		OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void		OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual void		OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive) override;
 
 	private:
-		Widget*				  BuildTopContents();
-		Widget*				  BuildBottomContents();
-		Widget*				  BuildContents();
-		Widget*				  BuildBrowser();
-		SelectableListLayout* BuildSelectableListLayout(bool isList);
-		void				  SetShowListContents(bool showList);
+		Widget*		   BuildFileBrowserTop();
+		Widget*		   BuildFileBrowserBottom();
+		Widget*		   BuildFileBrowser();
+		Widget*		   BuildFolderBrowser();
+		void		   SwitchFileBrowserContents(bool showAsGrid);
+		void		   ChangeFolderBrowserSelection(DirectoryItem* item, bool refresh);
+		ItemDefinition CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories);
 
 	private:
-		LayoutBorder*		  m_border					 = nullptr;
-		Editor*				  m_editor					 = nullptr;
-		Text*				  m_path					 = nullptr;
-		Text*				  m_itemCount				 = nullptr;
-		Text*				  m_selectedItemCount		 = nullptr;
-		SelectableListLayout* m_browserSelectableList	 = nullptr;
-		SelectableListLayout* m_contentsSelectableList	 = nullptr;
-		DirectoryItem*		  m_currentBrowserSelection	 = nullptr;
-		DirectoryItem*		  m_currentContentsSelection = nullptr;
-		Widget*				  m_contentsListOwner		 = nullptr;
-		float				  m_contentsSize			 = MAX_CONTENTS_SIZE;
-		bool				  m_showListContents		 = false;
+		LayoutBorder* m_border			  = nullptr;
+		Editor*		  m_editor			  = nullptr;
+		Text*		  m_path			  = nullptr;
+		Text*		  m_itemCount		  = nullptr;
+		Text*		  m_selectedItemCount = nullptr;
+
+		DirectoryItem* m_folderBrowserSelection	   = nullptr;
+		DirectoryItem* m_currentContentsSelection  = nullptr;
+		float		   m_contentsSize			   = MAX_CONTENTS_SIZE;
+		bool		   m_fileBrowserContentsAsGrid = false;
+		String		   m_folderBrowserSearchStr	   = "";
+		String		   m_fileBrowserSearchStr	   = "";
+
+		ItemLayout* m_folderBrowserItemLayout = nullptr;
+		ItemLayout* m_fileBrowserItemLayout	  = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelResources)
