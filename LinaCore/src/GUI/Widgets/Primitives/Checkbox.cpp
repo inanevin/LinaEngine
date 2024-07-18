@@ -66,7 +66,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = HasControls();
 
 		LinaVG::StyleOptions style;
 		style.rounding				   = m_props.rounding;
@@ -85,7 +85,8 @@ namespace Lina
 		if (m_isHovered && (act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed = true;
-			m_manager->GrabControls(this);
+			GrabControls();
+			;
 			return true;
 		}
 
@@ -103,7 +104,7 @@ namespace Lina
 
 	bool Checkbox::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
 	{
-		if (m_manager->GetControlsOwner() != this)
+		if (!HasControls())
 			return false;
 
 		if (keycode != LINAGX_KEY_RETURN)

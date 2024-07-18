@@ -58,6 +58,7 @@ namespace Lina::Editor
 			break;
 		}
 
+		panel->GetFlags().Set(WF_CONTROL_MANAGER);
 		panel->Initialize();
 		return panel;
 	}

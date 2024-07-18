@@ -40,7 +40,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = HasControls();
 
 		if (m_props.value == nullptr)
 			return;
@@ -77,7 +77,8 @@ namespace Lina
 		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed = true;
-			m_manager->GrabControls(this);
+			GrabControls();
+			;
 			return true;
 		}
 

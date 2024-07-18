@@ -42,7 +42,7 @@ namespace Lina
 	}
 	void Selectable::PreTick()
 	{
-		if (m_wasSelected && !m_manager->IsControlsOwner(this))
+		if (m_wasSelected && !HasControls())
 		{
 			m_wasSelected = false;
 			if (m_props.onSelectionChanged)
@@ -63,7 +63,7 @@ namespace Lina
 
 	void Selectable::Tick(float dt)
 	{
-		const bool hasControls = m_manager->IsControlsOwner(this);
+		const bool hasControls = HasControls();
 		if (hasControls)
 		{
 			m_usedStart = Math::Lerp(m_usedStart, m_props.colorSelectedStart, dt * COLOR_SPEED);
@@ -89,7 +89,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = m_manager->IsControlsOwner(this);
+		const bool hasControls = HasControls();
 
 		LinaVG::StyleOptions opts;
 		opts.color.start			  = m_usedStart.AsLVG4();
@@ -114,7 +114,7 @@ namespace Lina
 		if (act == LinaGX::InputAction::Released)
 			return false;
 
-		if (!m_manager->IsControlsOwner(this))
+		if (!HasControls())
 			return false;
 
 		if (keycode == LINAGX_KEY_RETURN)
@@ -134,7 +134,7 @@ namespace Lina
 		if (m_props.onSelectionChanged)
 			m_props.onSelectionChanged(this, true);
 
-		m_manager->GrabControls(this, true);
+		GrabControls();
 	}
 
 	bool Selectable::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -163,10 +163,11 @@ namespace Lina
 			return true;
 		}
 
-		if (m_manager->IsControlsOwner(this))
+		if (HasControls())
 		{
 			if (m_isHovered && act == LinaGX::InputAction::Pressed)
 			{
+				Select();
 				m_isPressed = true;
 
 				if (m_props.onClicked)

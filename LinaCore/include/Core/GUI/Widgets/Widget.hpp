@@ -148,6 +148,13 @@ namespace Lina
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
 
+		void	AddWidgetToControls(Widget* w);
+		bool	CheckIfWidgetInControls(Widget* w);
+		Widget* GetControlManager();
+
+		void GrabControls();
+		bool HasControls();
+
 		bool IsWidgetInHierarchy(Widget* widget);
 
 		inline int32 GetDrawOrderIncrement() const
@@ -469,8 +476,6 @@ namespace Lina
 		Widget*						m_parent			   = nullptr;
 		Widget*						m_next				   = nullptr;
 		Widget*						m_prev				   = nullptr;
-		Widget*						m_controlsOwner		   = nullptr;
-		Widget*						m_controlsManager	   = nullptr;
 		Widget*						m_customTooltip		   = nullptr;
 		Widget*						m_localControlsManager = nullptr;
 		Widget*						m_localControlsOwner   = nullptr;
@@ -505,6 +510,9 @@ namespace Lina
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
 		int32						m_drawOrderIncrement	= 0;
+
+		Vector<Widget*> m_controlOwners;
+		Widget*			m_controlsManager = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Widget)

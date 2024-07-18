@@ -112,7 +112,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = HasControls();
 
 		LinaVG::StyleOptions bg;
 		bg.color					= m_props.colorBackground.AsLVG4();
@@ -164,7 +164,8 @@ namespace Lina
 		{
 			m_isPressed	 = true;
 			m_pressStart = m_lgxWindow->GetInput()->GetMousePositionAbs();
-			m_manager->GrabControls(this);
+			GrabControls();
+			;
 			return true;
 		}
 
@@ -179,7 +180,7 @@ namespace Lina
 
 	bool Slider::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
 	{
-		if (m_manager->GetControlsOwner() != this)
+		if (!HasControls())
 			return false;
 
 		if (act == LinaGX::InputAction::Released)

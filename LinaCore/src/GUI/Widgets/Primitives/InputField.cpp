@@ -93,7 +93,7 @@ namespace Lina
 	void InputField::PreTick()
 	{
 
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = HasControls();
 
 		if (!hasControls && m_isEditing)
 		{
@@ -182,7 +182,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = m_manager->GetControlsOwner() == this;
+		const bool hasControls = HasControls();
 
 		// Background
 		LinaVG::StyleOptions style;
@@ -268,7 +268,8 @@ namespace Lina
 
 	void InputField::StartEditing()
 	{
-		m_manager->GrabControls(this);
+		GrabControls();
+		;
 		m_isEditing = true;
 		if (m_props.onEditStarted)
 			m_props.onEditStarted(m_text->GetProps().text);
@@ -340,7 +341,7 @@ namespace Lina
 	{
 		if (!m_isEditing)
 		{
-			if (m_manager->GetControlsOwner() == this && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
+			if (HasControls() && keycode == LINAGX_KEY_RETURN && action != LinaGX::InputAction::Released)
 			{
 				StartEditing();
 				SelectAll();

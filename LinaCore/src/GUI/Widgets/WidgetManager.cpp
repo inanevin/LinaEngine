@@ -136,8 +136,8 @@ namespace Lina
 		if (widget->GetLocalControlsOwner())
 			widget->GetLocalControlsOwner()->SetLocalControlsManager(nullptr);
 
-		if (GetControlsOwner() == widget)
-			ReleaseControls(widget);
+		// if (GetControlsOwner() == widget)
+		// 	ReleaseControls(widget);
 
 		if (m_lastControlsManager == widget)
 			m_lastControlsManager = nullptr;
@@ -224,17 +224,17 @@ namespace Lina
 
 		// Left click presses to anywhere outside the control owner
 		// releases controls from that owner.
-		Widget* controlsOwner = GetControlsOwner();
-		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && controlsOwner != nullptr && !controlsOwner->GetIsHovered())
-		{
-			if (controlsOwner->GetLocalControlsManager())
-			{
-				if (controlsOwner->GetLocalControlsManager()->GetIsHovered())
-					controlsOwner->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
-			}
-
-			ReleaseControls(controlsOwner);
-		}
+		// Widget* controlsOwner = GetControlsOwner();
+		// if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && controlsOwner != nullptr && !controlsOwner->GetIsHovered())
+		// {
+		// 	if (controlsOwner->GetLocalControlsManager())
+		// 	{
+		// 		if (controlsOwner->GetLocalControlsManager()->GetIsHovered())
+		// 			controlsOwner->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
+		// 	}
+		//
+		// 	ReleaseControls(controlsOwner);
+		// }
 
 		if (PassMouse(m_foregroundRoot, button, inputAction))
 			return;

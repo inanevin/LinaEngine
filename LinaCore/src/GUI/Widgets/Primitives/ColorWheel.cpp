@@ -112,7 +112,8 @@ namespace Lina
 
 		if (m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
-			m_manager->GrabControls(this);
+			GrabControls();
+			;
 			m_isPressed = true;
 			return true;
 		}
