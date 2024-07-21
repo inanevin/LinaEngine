@@ -35,7 +35,7 @@ namespace Lina
 	class Selectable : public Widget
 	{
 	public:
-		Selectable() : Widget(WF_CONTROLLABLE){};
+		Selectable() : Widget(WF_CONTROLLABLE | WF_ALLOW_MULTICONTROL){};
 		virtual ~Selectable() = default;
 
 		struct Properties

@@ -431,7 +431,7 @@ namespace Lina::Editor
 				fold->SetIsUnfolded(!fold->GetIsUnfolded());
 		};
 
-		selectable->SetOnGrabbedControls([this, item]() { m_listener->OnSelectableListItemControl(this, item.userData); });
+		// selectable->SetOnGrabbedControls([this, item]() { m_listener->OnSelectableListItemControl(this, item.userData); });
 
 		selectable->GetProps().onDockedOut = [this, selectable, item]() {
 			DirectionalLayout* payload		= m_manager->Allocate<DirectionalLayout>();

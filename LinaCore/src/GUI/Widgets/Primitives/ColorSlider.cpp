@@ -70,7 +70,7 @@ namespace Lina
 
 		int32 drawOrder = (m_props.drawCheckeredBackground || m_props.isHueShift) ? m_drawOrder + 1 : m_drawOrder;
 
-		const bool			 hasControls = HasControls();
+		const bool			 hasControls = m_manager->IsControlsOwner(this);
 		LinaVG::StyleOptions opts;
 		opts.rounding				  = m_props.rounding;
 		opts.outlineOptions.thickness = m_props.outlineThickness;
@@ -129,7 +129,7 @@ namespace Lina
 		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
 		{
 			m_isPressed = true;
-			GrabControls();
+			m_manager->GrabControls(this);
 			;
 			return true;
 		}
@@ -145,7 +145,7 @@ namespace Lina
 
 	bool ColorSlider::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)
 	{
-		if (!HasControls())
+		if (!m_manager->IsControlsOwner(this))
 			return false;
 
 		if (act == LinaGX::InputAction::Released)

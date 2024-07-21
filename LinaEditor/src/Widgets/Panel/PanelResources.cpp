@@ -278,7 +278,7 @@ namespace Lina::Editor
 		contents->AddChild(bg);
 
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
-		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
 		itemLayout->SetAlignedPos(Vector2::Zero);
 		itemLayout->SetAlignedSize(Vector2::One);
 		itemLayout->GetProps().itemsCanHaveChildren = true;
@@ -340,7 +340,7 @@ namespace Lina::Editor
 		browser->AddChild(bg);
 
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
-		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
 		itemLayout->SetAlignedPos(Vector2::Zero);
 		itemLayout->SetAlignedSize(Vector2::One);
 		itemLayout->GetProps().itemsCanHaveChildren = true;

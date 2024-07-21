@@ -70,13 +70,6 @@ namespace Lina::Editor
 
 	void ItemLayout::PreTick()
 	{
-		if (GetLocalControlsOwner() == nullptr && m_lastSelectedItem != nullptr)
-		{
-			m_lastSelectedItem = nullptr;
-
-			if (m_props.onItemSelected)
-				m_props.onItemSelected(nullptr);
-		}
 	}
 
 	void ItemLayout::CreateLayout()

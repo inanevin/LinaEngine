@@ -86,6 +86,7 @@ namespace Lina
 		WF_INPUT_PASSTHRU		 = 1 << 18,
 		WF_SIZE_AFTER_CHILDREN	 = 1 << 19,
 		WF_CONTROL_MANAGER		 = 1 << 20,
+		WF_ALLOW_MULTICONTROL	 = 1 << 21,
 	};
 
 	enum class PosAlignmentSource

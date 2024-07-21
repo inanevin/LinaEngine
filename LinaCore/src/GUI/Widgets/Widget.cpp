@@ -355,54 +355,6 @@ namespace Lina
 		return Vector2(static_cast<float>(m_lgxWindow->GetPosition().x), static_cast<float>(m_lgxWindow->GetPosition().y));
 	}
 
-	Widget* Widget::GetControlManager()
-	{
-		if (m_controlsManager)
-			return m_controlsManager;
-
-		if (!m_parent)
-			return nullptr;
-
-		if (m_parent->GetFlags().IsSet(WF_CONTROL_MANAGER))
-			return m_parent;
-
-		m_controlsManager = m_parent->GetControlManager();
-		return m_controlsManager;
-	}
-
-	void Widget::AddWidgetToControls(Widget* w)
-	{
-		LINA_ASSERT(w != this, "");
-
-		if (!m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
-			m_controlOwners.clear();
-
-		m_controlOwners.push_back(w);
-	}
-
-	bool Widget::CheckIfWidgetInControls(Widget* w)
-	{
-		LINA_ASSERT(w != this, "");
-		auto it = linatl::find_if(m_controlOwners.begin(), m_controlOwners.end(), [w](Widget* widget) -> bool { return w == widget; });
-		return it != m_controlOwners.end();
-	}
-
-	void Widget::GrabControls()
-	{
-		Widget* cm = GetControlManager();
-		if (cm == nullptr)
-			return;
-		cm->AddWidgetToControls(this);
-	}
-
-	bool Widget::HasControls()
-	{
-		Widget* cm = GetControlManager();
-		if (cm == nullptr)
-			return false;
-		return cm->CheckIfWidgetInControls(this);
-	}
-
 	Rect Widget::GetTemporaryAlignedRect()
 	{
 		// When we haven't calculated our original rect from alignment just yet, but we still need to know the results immediately.

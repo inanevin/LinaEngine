@@ -73,7 +73,7 @@ namespace Lina
 		void	AddToForeground(Widget* widget);
 		void	RemoveFromForeground(Widget* widget);
 		void	Deallocate(Widget* widget);
-		void	GrabControls(Widget* widget, bool additive = false);
+		void	GrabControls(Widget* widget);
 		void	ReleaseControls(Widget* widget);
 		Widget* GetControlsOwner();
 		bool	IsControlsOwner(Widget* w);
@@ -108,11 +108,6 @@ namespace Lina
 		inline Font* GetDefaultFont()
 		{
 			return m_defaultFont;
-		}
-
-		inline void SetLastControlsManager(Widget* man)
-		{
-			m_lastControlsManager = man;
 		}
 
 		inline Widget* GetLastControlsManager() const

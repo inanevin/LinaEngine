@@ -136,8 +136,8 @@ namespace Lina
 		if (widget->GetLocalControlsOwner())
 			widget->GetLocalControlsOwner()->SetLocalControlsManager(nullptr);
 
-		// if (GetControlsOwner() == widget)
-		// 	ReleaseControls(widget);
+		if (IsControlsOwner(widget))
+			ReleaseControls(widget);
 
 		if (m_lastControlsManager == widget)
 			m_lastControlsManager = nullptr;
@@ -222,19 +222,19 @@ namespace Lina
 			}
 		}
 
-		// Left click presses to anywhere outside the control owner
-		// releases controls from that owner.
-		// Widget* controlsOwner = GetControlsOwner();
-		// if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && controlsOwner != nullptr && !controlsOwner->GetIsHovered())
-		// {
-		// 	if (controlsOwner->GetLocalControlsManager())
-		// 	{
-		// 		if (controlsOwner->GetLocalControlsManager()->GetIsHovered())
-		// 			controlsOwner->GetLocalControlsManager()->SetLocalControlsOwner(nullptr);
-		// 	}
-		//
-		// 	ReleaseControls(controlsOwner);
-		// }
+		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed)
+		{
+			for (Widget* w : m_controlsOwners)
+			{
+				if (w->GetIsHovered())
+					continue;
+
+				if (m_window->GetInput()->GetKey(LINAGX_KEY_LCTRL) && w->GetFlags().IsSet(WF_ALLOW_MULTICONTROL))
+					continue;
+
+				ReleaseControls(w);
+			}
+		}
 
 		if (PassMouse(m_foregroundRoot, button, inputAction))
 			return;
@@ -421,6 +421,7 @@ namespace Lina
 
 	bool WidgetManager::PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction)
 	{
+
 		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
 			return true;
 
@@ -692,14 +693,15 @@ namespace Lina
 		return nullptr;
 	}
 
-	void WidgetManager::GrabControls(Widget* widget, bool additive)
+	void WidgetManager::GrabControls(Widget* widget)
 	{
-		if (!additive)
+		if (!widget->GetFlags().IsSet(WF_ALLOW_MULTICONTROL))
 			m_controlsOwners.clear();
-		m_controlsOwners.push_back(widget);
 
-		if (widget->m_onGrabbedControls)
-			widget->m_onGrabbedControls();
+		if (!m_window->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+			m_controlsOwners.clear();
+
+		m_controlsOwners.push_back(widget);
 
 		auto* owningScroll = FindScrollAreaAbove(widget);
 
@@ -797,7 +799,7 @@ namespace Lina
 
 	void WidgetManager::MoveControlsToNext()
 	{
-		Widget* owner = m_controlsOwners.empty() ? nullptr : m_controlsOwners.front();
+		Widget* owner = m_controlsOwners.empty() ? nullptr : m_controlsOwners.back();
 		if (!owner)
 			return;
 

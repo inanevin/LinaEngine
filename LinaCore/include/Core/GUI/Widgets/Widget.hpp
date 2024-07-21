@@ -148,13 +148,6 @@ namespace Lina
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
 
-		void	AddWidgetToControls(Widget* w);
-		bool	CheckIfWidgetInControls(Widget* w);
-		Widget* GetControlManager();
-
-		void GrabControls();
-		bool HasControls();
-
 		bool IsWidgetInHierarchy(Widget* widget);
 
 		inline int32 GetDrawOrderIncrement() const
@@ -392,11 +385,6 @@ namespace Lina
 			return m_localControlsOwner;
 		}
 
-		inline void SetOnGrabbedControls(Delegate<void()>&& onGrabbed)
-		{
-			m_onGrabbedControls = onGrabbed;
-		}
-
 		inline void SetUserData(void* data)
 		{
 			m_userData = data;
@@ -482,7 +470,6 @@ namespace Lina
 		Delegate<Widget*(void*)>	m_buildCustomTooltip;
 		Vector<Widget*>				m_children;
 		Vector<Delegate<void()>>	m_executeNextFrame;
-		Delegate<void()>			m_onGrabbedControls;
 		Delegate<void(float delta)> m_tickHook;
 		Rect						m_rect					= {};
 		Vector2						m_fixedSize				= Vector2::Zero;
@@ -510,9 +497,6 @@ namespace Lina
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
 		int32						m_drawOrderIncrement	= 0;
-
-		Vector<Widget*> m_controlOwners;
-		Widget*			m_controlsManager = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Widget)
