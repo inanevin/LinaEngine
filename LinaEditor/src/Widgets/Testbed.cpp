@@ -242,7 +242,6 @@ namespace Lina::Editor
 			setFlags(cs);
 			layout->AddChild(cs);
 		}
-		return;
 
 		// Color slider
 		{

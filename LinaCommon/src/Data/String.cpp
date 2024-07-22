@@ -266,6 +266,7 @@ namespace Lina
 
 		return data;
 	}
+
 	String UtilStr::ToUpper(const String& input)
 	{
 		String data = input;

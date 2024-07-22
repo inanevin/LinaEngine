@@ -60,7 +60,7 @@ namespace Lina
 			Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
 
 			Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
-			Color foreground1 = Color(0.15f, 0.15f, 0.15f, 1.0f);
+			Color foreground1 = Color(0.55f, 0.55f, 0.55f, 1.0f);
 			Color silent0	  = Color(0.015f, 0.015f, 0.015f, 1.0f);
 			Color silent1	  = Color(0.035f, 0.035f, 0.035f, 1.0f);
 			Color silent2	  = Color(0.065f, 0.065f, 0.065f, 1.0f);

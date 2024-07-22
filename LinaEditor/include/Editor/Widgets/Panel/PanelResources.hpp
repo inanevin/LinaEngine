@@ -84,7 +84,7 @@ namespace Lina::Editor
 		Widget*		   BuildFolderBrowser();
 		void		   SwitchFileBrowserContents(bool showAsGrid);
 		void		   ChangeFolderBrowserSelection(DirectoryItem* item, bool refresh);
-		ItemDefinition CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories);
+		ItemDefinition CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories, bool unfoldOverride);
 
 	private:
 		LayoutBorder* m_border			  = nullptr;
@@ -102,6 +102,7 @@ namespace Lina::Editor
 
 		ItemLayout* m_folderBrowserItemLayout = nullptr;
 		ItemLayout* m_fileBrowserItemLayout	  = nullptr;
+		Widget*		m_backButton			  = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelResources)

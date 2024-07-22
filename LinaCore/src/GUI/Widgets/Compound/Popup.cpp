@@ -27,62 +27,37 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
+#include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina
 {
-
-	void Popup::Destruct()
+	void Popup::Construct()
 	{
-		if (m_props.onDestructed)
-			m_props.onDestructed();
+		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
+		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_MAX_CHILDREN | WF_SIZE_ALIGN_Y);
+		scroll->SetAlignedPos(Vector2::Zero);
+		scroll->SetAlignedSize(Vector2::One);
+		m_scroll = scroll;
+		AddChild(scroll);
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_MAX_CHILDREN | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetProps().direction = DirectionOrientation::Vertical;
+		scroll->AddChild(layout);
+		m_background = layout;
 	}
 
-	void Popup::Tick(float delta)
+	void Popup::AddItem(Widget* item)
 	{
-		float totalHeight = GetChildMargins().top;
-
-		for (auto* c : m_children)
-		{
-			c->SetPosY(m_rect.pos.y + totalHeight);
-			totalHeight += c->GetSize().y;
-		}
-
-		SetSizeY(totalHeight + GetChildMargins().bottom);
-
-		if (m_animationCtr < m_props.animTime)
-		{
-			m_animationCtr += delta;
-			const float animAlpha = Math::Remap(m_animationCtr, 0.0f, m_props.animTime, 0.0f, 1.0f);
-			m_rect.size.y		  = Math::Lerp(0.0f, totalHeight + GetChildMargins().bottom, animAlpha);
-		}
-	}
-
-	void Popup::Draw()
-	{
-		LinaVG::StyleOptions opts;
-		opts.color.start		  = m_props.colorBackgroundStart.AsLVG4();
-		opts.color.end			  = m_props.colorBackgroundEnd.AsLVG4();
-		opts.color.gradientType	  = LinaVG::GradientType::Vertical;
-		opts.outlineOptions.color = m_props.colorOutline.AsLVG4();
-
-		Color ds = Theme::GetDef().black;
-		ds.w	 = 0.5f;
-		WidgetUtility::DrawDropShadowRect(m_lvg, m_rect, m_drawOrder, ds, 6);
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-
-		//	m_manager->SetClip(m_rect, {});
-		uint32 idx = 0;
-		for (auto* c : m_children)
-		{
-			c->SetChildID(idx);
-			c->Draw();
-		}
-		//	m_manager->UnsetClip(threadIndex);
+		m_background->AddChild(item);
 	}
 
 } // namespace Lina

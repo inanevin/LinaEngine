@@ -37,14 +37,36 @@ SOFTWARE.
 namespace Lina
 {
 
+	void ShapeRect::Initialize()
+	{
+		Widget::Initialize();
+		m_usedColorStart = m_props.colorStart;
+		m_usedColorEnd	 = m_props.colorEnd;
+	}
+
+	void ShapeRect::Tick(float dt)
+	{
+		if (m_props.interpolateColor)
+		{
+			m_usedColorStart = Math::Lerp(m_usedColorStart, m_props.colorStart, dt * m_props.colorInterpolateSpeed);
+			m_usedColorEnd	 = Math::Lerp(m_usedColorEnd, m_props.colorEnd, dt * m_props.colorInterpolateSpeed);
+		}
+		else
+		{
+			m_usedColorStart = m_props.colorStart;
+			m_usedColorEnd	 = m_props.colorEnd;
+		}
+	}
+
 	void ShapeRect::Draw()
 	{
 		if (!GetIsVisible())
 			return;
 
 		LinaVG::StyleOptions opts;
-		opts.color.start				= m_props.colorStart.AsLVG4();
-		opts.color.end					= m_props.colorEnd.AsLVG4();
+		opts.color.start				= m_usedColorStart.AsLVG4();
+		opts.color.end					= m_usedColorEnd.AsLVG4();
+		opts.color.gradientType			= m_props.colorGradientHorizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		opts.outlineOptions.color.start = opts.outlineOptions.color.end = m_props.colorOutline.AsLVG4();
 		opts.rounding													= m_props.rounding;
 		opts.outlineOptions.thickness									= m_props.outlineThickness;
@@ -118,7 +140,13 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
-		if (m_props.onClicked && m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))
+		if (m_props.onDoubleClicked && m_isHovered && action == LinaGX::InputAction::Repeated)
+		{
+			m_props.onDoubleClicked();
+			return true;
+		}
+
+		if (m_props.onClicked && m_isHovered && action == LinaGX::InputAction::Pressed)
 		{
 			m_props.onClicked();
 			return true;

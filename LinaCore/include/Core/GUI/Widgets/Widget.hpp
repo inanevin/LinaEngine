@@ -124,6 +124,21 @@ namespace Lina
 		{
 			return false;
 		};
+
+		virtual Widget* GetNextControls()
+		{
+			return nullptr;
+		}
+
+		virtual Widget* GetPrevControls()
+		{
+			return nullptr;
+		}
+
+		virtual void OnGrabbedControls(bool isForward, Widget* prevControls){
+
+		};
+
 		virtual void DebugDraw(int32 drawOrder);
 		virtual void PreTick(){};
 		virtual void CalculateSize(float delta){};

@@ -54,7 +54,7 @@ namespace Lina
 			Color			 colorEnd				= Theme::GetDef().foreground0;
 			Color			 colorHovered			= Theme::GetDef().foreground0;
 			Color			 colorPressed			= Theme::GetDef().foreground0;
-			Color			 colorDisabled			= Theme::GetDef().foreground0;
+			Color			 colorDisabled			= Theme::GetDef().silent1;
 			float			 textScale				= 0.5f;
 			bool			 isDynamic				= true;
 			bool			 enableHoverPressColors = false;

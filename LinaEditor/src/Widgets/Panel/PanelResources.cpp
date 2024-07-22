@@ -33,13 +33,16 @@ SOFTWARE.
 #include "Editor/IO/FileManager.hpp"
 #include "Editor/IO/ExtensionSupport.hpp"
 #include "Editor/Widgets/FX/LinaLoading.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
+#include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
@@ -133,23 +136,54 @@ namespace Lina::Editor
 		topContents->SetAlignedPos(0.0f);
 		topContents->SetAlignedSizeX(1.0f);
 		topContents->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		topContents->SetChildPadding(Theme::GetDef().baseIndentInner);
+		topContents->SetChildPadding(Theme::GetDef().baseIndent);
 		topContents->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 
-		Icon* folder			= m_manager->Allocate<Icon>("PathIcon");
-		folder->GetProps().icon = ICON_FOLDER;
-		folder->GetFlags().Set(WF_POS_ALIGN_Y);
-		folder->SetAlignedPosY(0.5f);
-		folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		topContents->AddChild(folder);
+		Button* sort = m_manager->Allocate<Button>("Sort");
+		sort->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
+		sort->SetAlignedPosY(0.5f);
+		sort->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		sort->SetAlignedSizeY(1.0f);
+		sort->GetProps().onClicked = [this, sort]() {
+			Popup* popup = CommonWidgets::CreateDefaultPopup(this, sort->GetPos(), Theme::GetDef().baseItemHeight * 2);
+			popup->AddItem(CommonWidgets::GetPopupItemWithSelectionToggle(popup, "Alphabetical", false));
+			popup->AddItem(CommonWidgets::GetPopupItemWithSelectionToggle(popup, "By Type", false));
+			m_manager->AddToForeground(popup);
+		};
+		topContents->AddChild(sort);
 
-		Icon* chev				   = m_manager->Allocate<Icon>("Path>");
-		chev->GetProps().icon	   = ICON_CHEVRON_RIGHT;
-		chev->GetProps().textScale = 0.3f;
-		chev->GetFlags().Set(WF_POS_ALIGN_Y);
-		chev->SetAlignedPosY(0.5f);
-		chev->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		topContents->AddChild(chev);
+		Button* button = m_manager->Allocate<Button>("Back");
+		button->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
+		button->SetAlignedPosY(0.5f);
+		button->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		button->SetAlignedSizeY(1.0f);
+		button->GetProps().onClicked = [this]() { m_folderBrowserItemLayout->SetSelectedItem(m_folderBrowserSelection->parent); };
+		button->SetIsDisabled(true);
+		topContents->AddChild(button);
+		m_backButton = button;
+
+		Icon* back			  = m_manager->Allocate<Icon>("BackIcon");
+		back->GetProps().icon = ICON_ARROW_LEFT;
+		back->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+		back->SetAlignedPos(Vector2(0.5f, 0.5f));
+		back->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		back->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		button->AddChild(back);
+
+		// Icon* folder			= m_manager->Allocate<Icon>("PathIcon");
+		// folder->GetProps().icon = ICON_FOLDER;
+		// folder->GetFlags().Set(WF_POS_ALIGN_Y);
+		// folder->SetAlignedPosY(0.5f);
+		// folder->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		// topContents->AddChild(folder);
+		//
+		// Icon* chev				   = m_manager->Allocate<Icon>("Path>");
+		// chev->GetProps().icon	   = ICON_CHEVRON_RIGHT;
+		// chev->GetProps().textScale = 0.3f;
+		// chev->GetFlags().Set(WF_POS_ALIGN_Y);
+		// chev->SetAlignedPosY(0.5f);
+		// chev->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		// topContents->AddChild(chev);
 
 		Text* path = m_manager->Allocate<Text>("Path");
 		path->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -183,7 +217,7 @@ namespace Lina::Editor
 		bottom->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		bottom->SetAlignedPos(0.0f);
 		bottom->SetAlignedSizeX(1.0f);
-		bottom->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		bottom->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
 		bottom->SetChildPadding(Theme::GetDef().baseIndentInner);
 		bottom->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
 		bottom->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
@@ -205,7 +239,7 @@ namespace Lina::Editor
 		divider->SetAlignedPosY(0.0f);
 		divider->SetAlignedSizeY(1.0f);
 		divider->SetFixedSizeX(2.0f);
-		divider->GetProps().colorStart = divider->GetProps().colorEnd = Theme::GetDef().background0;
+		divider->GetProps().colorStart = divider->GetProps().colorEnd = Theme::GetDef().black;
 		bottom->AddChild(divider);
 
 		Text* itemSelected = m_manager->Allocate<Text>("ItemSelected");
@@ -222,7 +256,7 @@ namespace Lina::Editor
 		divider2->SetAlignedPosY(0.0f);
 		divider2->SetAlignedSizeY(1.0f);
 		divider2->SetFixedSizeX(2.0f);
-		divider2->GetProps().colorStart = divider2->GetProps().colorEnd = Theme::GetDef().background0;
+		divider2->GetProps().colorStart = divider2->GetProps().colorEnd = Theme::GetDef().black;
 		bottom->AddChild(divider2);
 
 		Slider* sizeSlider = m_manager->Allocate<Slider>("SizeSlider");
@@ -289,17 +323,37 @@ namespace Lina::Editor
 		m_fileBrowserItemLayout->SetUseGridLayout(m_fileBrowserContentsAsGrid);
 
 		m_fileBrowserItemLayout->GetProps().itemsCanHaveChildren = false;
-		m_fileBrowserItemLayout->GetProps().onGatherItems		 = [this](Vector<ItemDefinition>& outItems) {
-			   if (m_folderBrowserSelection == nullptr)
-				   return;
 
-			   for (DirectoryItem* c : m_folderBrowserSelection->children)
-			   {
-				   if (!m_fileBrowserSearchStr.empty() && !c->ContainsSearchString(m_fileBrowserSearchStr, false, false))
-					   continue;
+		m_fileBrowserItemLayout->GetProps().onItemInteracted = [this](void* userData) {
+			DirectoryItem* it = static_cast<DirectoryItem*>(userData);
+			m_folderBrowserItemLayout->SetSelectedItem(it);
 
-				   outItems.push_back(CreateDefinitionForItem(c, false));
-			   }
+			m_folderBrowserItemLayout->SetFocus(false);
+			m_fileBrowserItemLayout->SetFocus(true);
+
+			if (it->isDirectory && !it->children.empty())
+			{
+				m_fileBrowserItemLayout->SetSelectedItem(it->children.front());
+			}
+			else if (!it->isDirectory)
+			{
+				// Interaction.
+			}
+		};
+
+		m_fileBrowserItemLayout->GetProps().onGatherItems = [this](Vector<ItemDefinition>& outItems) {
+			if (m_folderBrowserSelection == nullptr)
+				return;
+
+			const bool unfoldOverride = !m_fileBrowserSearchStr.empty();
+
+			for (DirectoryItem* c : m_folderBrowserSelection->children)
+			{
+				if (!m_fileBrowserSearchStr.empty() && !c->ContainsSearchString(m_fileBrowserSearchStr, false, false))
+					continue;
+
+				outItems.push_back(CreateDefinitionForItem(c, false, unfoldOverride));
+			}
 		};
 
 		contents->AddChild(BuildFileBrowserBottom());
@@ -349,22 +403,26 @@ namespace Lina::Editor
 		m_folderBrowserItemLayout = itemLayout;
 
 		m_folderBrowserItemLayout->GetProps().onGatherItems = [this](Vector<ItemDefinition>& outItems) {
-			DirectoryItem* root	   = m_editor->GetFileManager().GetRoot();
-			ItemDefinition rootDef = {
-				.userData = root,
-				.icon	  = ICON_FOLDER,
-				.name	  = root->name,
-			};
+			const bool	   unfoldOverride = !m_folderBrowserSearchStr.empty();
+			DirectoryItem* root			  = m_editor->GetFileManager().GetRoot();
+			ItemDefinition rootDef		  = {
+					   .userData	   = root,
+					   .unfoldOverride = unfoldOverride,
+					   .icon		   = ICON_FOLDER,
+					   .name		   = root->name,
+			   };
 
 			for (DirectoryItem* it : root->children)
 			{
 				if (!it->isDirectory)
 					continue;
 
-				if (!m_folderBrowserSearchStr.empty() && !it->ContainsSearchString(m_folderBrowserSearchStr, true, true))
+				if (!m_folderBrowserSearchStr.empty() && !it->ContainsSearchString(m_folderBrowserSearchStr, true, false))
 					continue;
 
-				rootDef.children.push_back(CreateDefinitionForItem(it, true));
+				ItemDefinition def = CreateDefinitionForItem(it, true, unfoldOverride);
+
+				rootDef.children.push_back(def);
 			}
 
 			outItems.push_back(rootDef);
@@ -383,11 +441,12 @@ namespace Lina::Editor
 		return browser;
 	}
 
-	ItemDefinition PanelResources::CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories)
+	ItemDefinition PanelResources::CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories, bool unfoldOverride)
 	{
 		ItemDefinition def = {
 			.userData		  = it,
 			.useOutlineInGrid = it->outlineFX,
+			.unfoldOverride	  = unfoldOverride,
 			.icon			  = it->isDirectory ? ICON_FOLDER : "",
 			.texture		  = it->textureAtlas,
 			.name			  = it->name,
@@ -398,7 +457,7 @@ namespace Lina::Editor
 			if (onlyDirectories && !c->isDirectory)
 				continue;
 
-			def.children.push_back(CreateDefinitionForItem(c, onlyDirectories));
+			def.children.push_back(CreateDefinitionForItem(c, onlyDirectories, unfoldOverride));
 		}
 
 		return def;
@@ -639,8 +698,9 @@ namespace Lina::Editor
 
 		m_folderBrowserSelection = item;
 		m_fileBrowserItemLayout->RefreshItems();
-		m_path->GetProps().text = m_folderBrowserSelection ? m_folderBrowserSelection->relativePath : "";
+		m_path->GetProps().text = m_folderBrowserSelection ? FileSystem::FixPath(m_folderBrowserSelection->relativePath) : "";
 		m_path->CalculateTextSize();
+		m_backButton->SetIsDisabled(m_folderBrowserSelection == nullptr || m_folderBrowserSelection == m_editor->GetFileManager().GetRoot());
 	}
 
 } // namespace Lina::Editor

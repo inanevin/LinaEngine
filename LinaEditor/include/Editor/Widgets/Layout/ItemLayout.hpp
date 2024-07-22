@@ -33,6 +33,7 @@ SOFTWARE.
 namespace Lina
 {
 	class ScrollArea;
+	class ShapeRect;
 	class TextureAtlasImage;
 } // namespace Lina
 
@@ -42,6 +43,7 @@ namespace Lina::Editor
 	{
 		void*				   userData			= nullptr;
 		bool				   useOutlineInGrid = false;
+		bool				   unfoldOverride	= false;
 		String				   icon				= "";
 		TextureAtlasImage*	   texture			= nullptr;
 		String				   name				= "";
@@ -61,24 +63,38 @@ namespace Lina::Editor
 			Delegate<void(Vector<ItemDefinition>& outITems)> onGatherItems;
 			Delegate<void(void* userData)>					 onItemSelected;
 			Delegate<void(void* userData)>					 onItemInteracted;
+			Delegate<void(void* userData)>					 onItemDelete;
 		};
 
-		virtual void Construct() override;
-		virtual void Initialize() override;
-		virtual void PreTick() override;
-		// virtual void Draw() override;
-		// virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
-		// virtual bool OnMouseWheel(float amt) override;
-		// void		 ScrollToChild(Widget* w);
+		virtual void	Construct() override;
+		virtual void	Initialize() override;
+		virtual void	PreTick() override;
+		virtual void	OnGrabbedControls(bool isForward, Widget* prevControls) override;
+		virtual Widget* GetNextControls() override;
+		virtual Widget* GetPrevControls() override;
+		virtual bool	OnKey(uint32 key, int32 scancode, LinaGX::InputAction act) override;
+		virtual bool	OnMouse(uint32 button, LinaGX::InputAction act) override;
 
+		void SetSelectedItem(void* userData);
 		void RefreshItems();
 		void SetUseGridLayout(bool useGridLayout);
 		void SetGridItemSize(const Vector2& size);
+
+		inline void SetFocus(bool isFocused)
+		{
+			m_isFocused = isFocused;
+		}
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
+
+	private:
+		bool IsItemSelected(ShapeRect* r);
+		void RemoveItemFromSelected(ShapeRect* r);
+		void SelectItem(ShapeRect* r);
+		void UnfoldRecursively(Widget* w);
 
 	private:
 		void	CreateLayout();
@@ -98,6 +114,9 @@ namespace Lina::Editor
 		HashMap<void*, bool> m_areItemsUnfolded;
 		Vector<Widget*>		 m_listItems;
 		void*				 m_lastSelectedItem = nullptr;
+		Vector<ShapeRect*>	 m_selectionItems;
+		Vector<ShapeRect*>	 m_selectedItems;
+		bool				 m_isFocused = false;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(ItemLayout)

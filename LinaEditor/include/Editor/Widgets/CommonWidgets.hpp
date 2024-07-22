@@ -36,6 +36,7 @@ namespace Lina
 	class DirectionalLayout;
 	class Widget;
 	class WidgetManager;
+	class Popup;
 } // namespace Lina
 
 namespace LinaGX
@@ -64,5 +65,8 @@ namespace Lina::Editor
 		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
 
 		static float GetPopupWidth(LinaGX::Window* window);
+
+		static Widget* GetPopupItemWithSelectionToggle(Widget* source, const String& title, bool isSelected);
+		static Popup*  CreateDefaultPopup(Widget* source, const Vector2& pos, float height);
 	};
 } // namespace Lina::Editor

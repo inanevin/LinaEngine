@@ -40,6 +40,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
@@ -290,6 +291,59 @@ namespace Lina::Editor
 	{
 		const float itemHeight = Theme::GetDef().baseItemHeight;
 		return Math::Clamp(window->GetMonitorSize().x * 0.3f, 200.0f, 600.0f);
+	}
+
+	Widget* CommonWidgets::GetPopupItemWithSelectionToggle(Widget* source, const String& title, bool isSelected)
+	{
+		WidgetManager*	   wm		 = source->GetWidgetManager();
+		DirectionalLayout* layout	 = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetProps().direction = DirectionOrientation::Horizontal;
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_SIZE_X_TOTAL_CHILDREN);
+		layout->SetAlignedPosX(0.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		layout->GetChildMargins()			= {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		layout->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
+		layout->GetBorderColor()			= Theme::GetDef().background1;
+
+		Icon* icon			  = wm->Allocate<Icon>("IconBG");
+		icon->GetProps().icon = ICON_CIRCLE_FILLED;
+		icon->GetFlags().Set(WF_POS_ALIGN_Y);
+		icon->SetAlignedPosY(0.5f);
+		icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		layout->AddChild(icon);
+
+		Text* txt			 = wm->Allocate<Text>("Text");
+		txt->GetProps().text = title;
+		txt->GetFlags().Set(WF_POS_ALIGN_Y);
+		txt->SetAlignedPosY(0.5f);
+		txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		layout->AddChild(txt);
+
+		return layout;
+	}
+
+	Popup* CommonWidgets::CreateDefaultPopup(Widget* source, const Vector2& pos, float height)
+	{
+		WidgetManager* wm	 = source->GetWidgetManager();
+		Popup*		   popup = wm->Allocate<Popup>("Popup");
+		popup->GetFlags().Set(WF_SIZE_X_MAX_CHILDREN | WF_USE_FIXED_SIZE_Y);
+		popup->SetFixedSizeY(height + Theme::GetDef().baseIndent * 2);
+		popup->SetPos(pos);
+
+		DirectionalLayout* bg = popup->GetBackground();
+
+		bg->GetProps().colorBackgroundStart = Theme::GetDef().background0;
+		bg->GetProps().colorBackgroundEnd	= Theme::GetDef().background0;
+		bg->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
+		// bg->GetChildMargins()			= TBLR::Eq(Theme::GetDef().baseIndent);
+		bg->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.f;
+		bg->GetProps().colorOutline		= Theme::GetDef().accentPrimary0;
+		bg->GetProps().rounding			= Theme::GetDef().baseRounding;
+		bg->GetChildMargins()			= {.top = Theme::GetDef().baseIndent, .bottom = Theme::GetDef().baseIndent};
+
+		popup->Initialize();
+		return popup;
 	}
 
 	GenericPopup* CommonWidgets::ThrowGenericPopup(const String& title, const String& text, Widget* source)

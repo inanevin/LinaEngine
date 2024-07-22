@@ -45,9 +45,12 @@ namespace Lina
 
 		struct Properties
 		{
-			Color colorStart   = Theme::GetDef().background0;
-			Color colorEnd	   = Theme::GetDef().background0;
-			Color colorOutline = Theme::GetDef().outlineColorBase;
+			Color colorStart			  = Theme::GetDef().background0;
+			Color colorEnd				  = Theme::GetDef().background0;
+			Color colorOutline			  = Theme::GetDef().outlineColorBase;
+			bool  interpolateColor		  = false;
+			float colorInterpolateSpeed	  = 5.0f;
+			bool  colorGradientHorizontal = false;
 
 			Vector<int>		   onlyRoundCorners;
 			float			   rounding			 = 0.0f;
@@ -57,6 +60,7 @@ namespace Lina
 			bool			   fitImage			 = false;
 
 			Delegate<void()> onClicked;
+			Delegate<void()> onDoubleClicked;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -64,7 +68,7 @@ namespace Lina
 				colorEnd.SaveToStream(stream);
 				colorOutline.SaveToStream(stream);
 				VectorSerialization::SaveToStream_PT(stream, onlyRoundCorners);
-				stream << rounding << outlineThickness << fitImage;
+				stream << rounding << outlineThickness << fitImage << interpolateColor << colorInterpolateSpeed << colorGradientHorizontal;
 			}
 
 			void LoadFromStream(IStream& stream)
@@ -73,10 +77,12 @@ namespace Lina
 				colorEnd.LoadFromStream(stream);
 				colorOutline.LoadFromStream(stream);
 				VectorSerialization::LoadFromStream_PT(stream, onlyRoundCorners);
-				stream >> rounding >> outlineThickness >> fitImage;
+				stream >> rounding >> outlineThickness >> fitImage >> interpolateColor >> colorInterpolateSpeed >> colorGradientHorizontal;
 			}
 		};
 
+		virtual void Initialize() override;
+		virtual void Tick(float dt) override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 
@@ -98,8 +104,9 @@ namespace Lina
 		}
 
 	private:
-		Properties m_props	   = {};
-		Color	   m_usedColor = Theme::GetDef().background0;
+		Properties m_props			= {};
+		Color	   m_usedColorStart = Theme::GetDef().background0;
+		Color	   m_usedColorEnd	= Theme::GetDef().background0;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(ShapeRect)

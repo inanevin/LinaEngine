@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Layout/ItemLayout.hpp"
 #include "Editor/Widgets/FX/LinaLoading.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/EditorLocale.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
@@ -45,11 +46,13 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
 	void ItemLayout::Construct()
 	{
+		GetFlags().Set(WF_CONTROLLABLE);
 		ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
 		scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		scroll->SetAlignedPos(Vector2::Zero);
@@ -70,6 +73,346 @@ namespace Lina::Editor
 
 	void ItemLayout::PreTick()
 	{
+		if (m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
+		{
+			if (m_isHovered && !m_isFocused)
+				m_isFocused = true;
+			else if (m_isFocused && !m_isHovered)
+				m_isFocused = false;
+		}
+
+		const Color dead = m_useGridLayout ? Theme::GetDef().background3 : Color(0.0f, 0.0f, 0.0f, 0.0f);
+
+		for (ShapeRect* item : m_selectionItems)
+		{
+			const bool selected = IsItemSelected(item);
+
+			if (selected)
+			{
+				item->GetProps().colorStart = m_isFocused ? Theme::GetDef().accentPrimary0 : Theme::GetDef().silent0;
+				item->GetProps().colorEnd	= m_isFocused ? Theme::GetDef().accentPrimary1 : Theme::GetDef().silent1;
+			}
+			else
+			{
+				item->GetProps().colorStart = item->GetProps().colorEnd = dead;
+			}
+		}
+	}
+
+	void ItemLayout::OnGrabbedControls(bool isForward, Widget* prevControls)
+	{
+		if (prevControls == this)
+			return;
+
+		if (!m_selectedItems.empty())
+		{
+			m_isFocused = true;
+			return;
+		}
+
+		if (!m_selectionItems.empty())
+		{
+			ShapeRect* item = nullptr;
+
+			if (isForward)
+			{
+				for (ShapeRect* r : m_selectionItems)
+				{
+					if (r->GetIsVisible() && !r->GetIsDisabled())
+					{
+						item = r;
+						break;
+					}
+				}
+			}
+			else
+			{
+				for (Vector<ShapeRect*>::iterator it = m_selectionItems.end() - 1; it >= m_selectionItems.begin(); it--)
+				{
+					ShapeRect* r = *it;
+					if (r->GetIsVisible() && !r->GetIsDisabled())
+					{
+						item = r;
+						break;
+					}
+				}
+			}
+
+			if (item)
+			{
+				SelectItem(item);
+				m_isFocused = true;
+			}
+		}
+	}
+
+	Widget* ItemLayout::GetNextControls()
+	{
+		if (m_selectedItems.empty())
+			return nullptr;
+
+		Widget* currentSelected = m_selectedItems.back();
+
+		const int32 sz	  = static_cast<int32>(m_selectionItems.size());
+		bool		found = false;
+
+		for (int32 i = 0; i < sz; i++)
+		{
+			ShapeRect* item = m_selectionItems[i];
+
+			if (item == currentSelected)
+			{
+				found = true;
+				continue;
+			}
+
+			if (found)
+			{
+				if (item->GetIsVisible() && !item->GetIsDisabled())
+				{
+					SelectItem(item);
+					return this;
+				}
+			}
+		}
+
+		m_isFocused = false;
+		return nullptr;
+	}
+
+	Widget* ItemLayout::GetPrevControls()
+	{
+		if (m_selectedItems.empty())
+			return nullptr;
+
+		Widget* currentSelected = m_selectedItems.front();
+
+		const int32 sz	  = static_cast<int32>(m_selectionItems.size());
+		bool		found = false;
+
+		for (int32 i = sz - 1; i >= 0; i--)
+		{
+			ShapeRect* item = m_selectionItems[i];
+
+			if (item == currentSelected)
+			{
+				found = true;
+				continue;
+			}
+
+			if (found)
+			{
+				if (item->GetIsVisible() && !item->GetIsDisabled())
+				{
+					SelectItem(item);
+					return this;
+				}
+			}
+		}
+
+		m_isFocused = false;
+		return nullptr;
+	}
+
+	bool ItemLayout::OnKey(uint32 key, int32 scancode, LinaGX::InputAction act)
+	{
+		if (m_selectedItems.empty() || !m_isFocused)
+			return false;
+
+		ShapeRect* item = m_selectedItems.back();
+
+		if (!m_useGridLayout && act == LinaGX::InputAction::Pressed)
+		{
+			if (key == LINAGX_KEY_RETURN)
+			{
+				if (m_props.itemsCanHaveChildren)
+				{
+					FoldLayout* fold = static_cast<FoldLayout*>(item->GetParent());
+					fold->SetIsUnfolded(!fold->GetIsUnfolded());
+				}
+				else
+				{
+					if (m_props.onItemInteracted)
+						m_props.onItemInteracted(item->GetUserData());
+				}
+
+				return true;
+			}
+			else if (key == LINAGX_KEY_RIGHT && m_props.itemsCanHaveChildren)
+			{
+				FoldLayout* fold = static_cast<FoldLayout*>(item->GetParent());
+				fold->SetIsUnfolded(true);
+				return true;
+			}
+			else if (key == LINAGX_KEY_LEFT && m_props.itemsCanHaveChildren)
+			{
+				FoldLayout* fold = static_cast<FoldLayout*>(item->GetParent());
+				fold->SetIsUnfolded(false);
+				return true;
+			}
+			else if (key == LINAGX_KEY_UP)
+			{
+				if (GetPrevControls() != nullptr)
+					m_manager->MoveControlsToPrev();
+				return true;
+			}
+			else if (key == LINAGX_KEY_DOWN)
+			{
+				if (GetNextControls() != nullptr)
+					m_manager->MoveControlsToNext();
+				return true;
+			}
+			else if (key == LINAGX_KEY_DELETE)
+			{
+				if (m_props.onItemDelete)
+					m_props.onItemDelete(item->GetUserData());
+
+				return true;
+			}
+		}
+		else if (m_useGridLayout && act == LinaGX::InputAction::Pressed)
+		{
+			if (key == LINAGX_KEY_RETURN)
+			{
+				if (m_props.onItemInteracted)
+					m_props.onItemInteracted(item->GetUserData());
+
+				return true;
+			}
+			else if (key == LINAGX_KEY_RIGHT)
+			{
+				if (GetNextControls() != nullptr)
+					m_manager->MoveControlsToNext();
+				return true;
+			}
+			else if (key == LINAGX_KEY_LEFT)
+			{
+				if (GetPrevControls() != nullptr)
+					m_manager->MoveControlsToPrev();
+				return true;
+			}
+			else if (key == LINAGX_KEY_DELETE)
+			{
+				if (m_props.onItemDelete)
+					m_props.onItemDelete(item->GetUserData());
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	bool ItemLayout::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (button == LINAGX_MOUSE_0 && m_isHovered && act == LinaGX::InputAction::Pressed)
+		{
+			for (ShapeRect* it : m_selectionItems)
+			{
+				if (it->GetIsHovered())
+				{
+					// if (!m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+					// 	m_selectedItems.clear();
+					// else if (IsItemSelected(it))
+					// {
+					// 	RemoveItemFromSelected(it);
+					// 	return true;
+					// }
+
+					SelectItem(it);
+
+					if (!m_useGridLayout && m_props.itemsCanHaveChildren)
+					{
+						Icon* chevron = it->GetWidgetOfType<Icon>(it);
+						if (chevron != nullptr)
+						{
+							if (chevron->GetIsHovered())
+							{
+								FoldLayout* fold = static_cast<FoldLayout*>(it->GetParent());
+								fold->SetIsUnfolded(!fold->GetIsUnfolded());
+							}
+						}
+					}
+
+					return true;
+				}
+			}
+
+			if (m_props.onItemSelected)
+				m_props.onItemSelected(nullptr);
+			m_selectedItems.clear();
+		}
+
+		if (button == LINAGX_MOUSE_0 && m_isHovered && act == LinaGX::InputAction::Repeated)
+		{
+			for (ShapeRect* it : m_selectionItems)
+			{
+				if (it->GetIsHovered())
+				{
+					if (!m_useGridLayout && m_props.itemsCanHaveChildren)
+					{
+						FoldLayout* fold = static_cast<FoldLayout*>(it->GetParent());
+						fold->SetIsUnfolded(!fold->GetIsUnfolded());
+						return true;
+					}
+					else if (!m_useGridLayout && !m_props.itemsCanHaveChildren)
+					{
+						if (m_props.onItemInteracted)
+							m_props.onItemInteracted(it->GetUserData());
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	bool ItemLayout::IsItemSelected(ShapeRect* rect)
+	{
+		auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [rect](ShapeRect* r) -> bool { return rect == r; });
+		return it != m_selectedItems.end();
+	}
+
+	void ItemLayout::RemoveItemFromSelected(ShapeRect* rect)
+	{
+		auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [rect](ShapeRect* r) -> bool { return rect == r; });
+		m_selectedItems.erase(it);
+
+		if (!m_useGridLayout && m_props.itemsCanHaveChildren)
+		{
+			Icon* chevron = rect->GetWidgetOfType<Icon>(rect);
+			if (chevron != nullptr)
+			{
+				chevron->GetProps().icon = ICON_CHEVRON_DOWN;
+				chevron->CalculateIconSize();
+			}
+		}
+	}
+
+	void ItemLayout::SelectItem(ShapeRect* r)
+	{
+		UnfoldRecursively(r->GetParent());
+		m_scroll->ScrollToChild(r);
+		m_selectedItems.clear();
+
+		m_manager->GrabControls(this);
+
+		if (m_props.onItemSelected)
+			m_props.onItemSelected(r->GetUserData());
+
+		m_selectedItems.push_back(r);
+	}
+
+	void ItemLayout::UnfoldRecursively(Widget* w)
+	{
+		Widget* parent = w->GetParent();
+
+		if (parent != nullptr && parent->GetTID() == GetTypeID<FoldLayout>())
+		{
+			FoldLayout* f = static_cast<FoldLayout*>(parent);
+			f->SetIsUnfolded(true);
+			UnfoldRecursively(f);
+		}
 	}
 
 	void ItemLayout::CreateLayout()
@@ -114,8 +457,24 @@ namespace Lina::Editor
 				ProcessItem(d, fold, margin + Theme::GetDef().baseIndent);
 		}
 	}
+
+	void ItemLayout::SetSelectedItem(void* userData)
+	{
+		for (ShapeRect* it : m_selectionItems)
+		{
+			if (it->GetUserData() == userData)
+			{
+				m_isFocused = true;
+				SelectItem(it);
+				break;
+			}
+		}
+	}
+
 	void ItemLayout::RefreshItems()
 	{
+		m_selectedItems.clear();
+		m_selectionItems.clear();
 		m_gridItems.clear();
 		m_listItems.clear();
 		m_layout->DeallocAllChildren();
@@ -127,6 +486,19 @@ namespace Lina::Editor
 
 		for (const ItemDefinition& def : items)
 			ProcessItem(def, nullptr, Theme::GetDef().baseIndent);
+
+		if (items.empty())
+		{
+			Text* nothingToSee			  = m_manager->Allocate<Text>("NothingToSee");
+			nothingToSee->GetProps().text = Locale::GetStr(LocaleStr::NothingInDirectory);
+			nothingToSee->GetProps().font = BIG_FONT_SID;
+			nothingToSee->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			nothingToSee->SetAlignedPos(Vector2(0.5f, 0.5f));
+			nothingToSee->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+			nothingToSee->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			nothingToSee->GetProps().color = Theme::GetDef().silent2;
+			m_layout->AddChild(nothingToSee);
+		}
 	}
 
 	void ItemLayout::SetUseGridLayout(bool useGridLayout)
@@ -219,6 +591,7 @@ namespace Lina::Editor
 			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 			icon->GetProps().dynamicSizeToParent = true;
 			icon->GetProps().dynamicSizeScale	 = 0.8f;
+			icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().foreground1;
 			bgShape->GetProps().colorStart.w = bgShape->GetProps().colorEnd.w = 0.0f;
 
 			bgShape->AddChild(icon);
@@ -245,19 +618,31 @@ namespace Lina::Editor
 			}
 		}
 
-		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
-		selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
-		selectable->SetAlignedPosX(0.0f);
-		selectable->SetAlignedSizeX(1.0f);
-		selectable->SetAlignedSizeY(0.0f);
-		selectable->GetProps().rounding	  = Theme::GetDef().baseRounding;
-		selectable->GetProps().colorStart = Theme::GetDef().background3;
-		selectable->GetProps().colorEnd	  = Theme::GetDef().background3;
-		selectable->SetDrawOrderIncrement(2);
-		selectable->SetLocalControlsManager(this);
-		selectable->Initialize();
-		layout->AddChild(selectable);
-		bgShape->GetProps().onClicked = [selectable]() { selectable->Select(); };
+		ShapeRect* shape = m_manager->Allocate<ShapeRect>("Shape");
+		shape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
+		shape->SetAlignedPosX(0.0f);
+		shape->SetAlignedSizeX(1.0f);
+		shape->SetAlignedSizeY(0.0f);
+		shape->GetProps().rounding				= Theme::GetDef().baseRounding;
+		shape->GetProps().interpolateColor		= true;
+		shape->GetProps().colorInterpolateSpeed = 20.0f;
+		shape->SetDrawOrderIncrement(2);
+		shape->SetLocalControlsManager(this);
+		shape->SetUserData(def.userData);
+		shape->GetProps().colorStart = shape->GetProps().colorEnd = Theme::GetDef().background3;
+		shape->Initialize();
+
+		bgShape->GetProps().onClicked		= [shape, this]() { SelectItem(shape); };
+		bgShape->GetProps().onDoubleClicked = [this, shape]() {
+			if (m_props.onItemInteracted)
+				m_props.onItemInteracted(shape->GetUserData());
+		};
+		shape->GetProps().onDoubleClicked = [this, shape]() {
+			if (m_props.onItemInteracted)
+				m_props.onItemInteracted(shape->GetUserData());
+		};
+		layout->AddChild(shape);
+		m_selectionItems.push_back(shape);
 
 		Dropshadow* ds = m_manager->Allocate<Dropshadow>("Dropshadow");
 		ds->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -268,7 +653,7 @@ namespace Lina::Editor
 		ds->GetProps().color.w	 = 0.75f;
 		ds->GetProps().steps	 = 6;
 		ds->SetDrawOrderIncrement(-1);
-		selectable->AddChild(ds);
+		shape->AddChild(ds);
 
 		Text* title = WidgetUtility::BuildEditableText(this, false, []() {});
 		title->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
@@ -278,22 +663,37 @@ namespace Lina::Editor
 		title->GetProps().text				  = def.name;
 		title->GetProps().fetchWrapFromParent = true;
 		title->GetProps().wordWrap			  = false;
-		selectable->AddChild(title);
+		shape->AddChild(title);
 
 		return layout;
 	}
 
 	Widget* ItemLayout::CreateListItem(const ItemDefinition& def, float margin, bool hasParent)
 	{
-		FoldLayout* fold	   = nullptr;
-		Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
-		selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		selectable->SetAlignedSizeX(1.0f);
-		selectable->SetUserData(def.userData);
+		FoldLayout* fold = nullptr;
 
-		selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		selectable->SetLocalControlsManager(this);
-		selectable->GetProps().colorOutline = Theme::GetDef().accentPrimary0;
+		if (def.unfoldOverride)
+			m_areItemsUnfolded[def.userData] = true;
+
+		ShapeRect* shape = m_manager->Allocate<ShapeRect>("Shape");
+		shape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		shape->SetAlignedSizeX(1.0f);
+		shape->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		shape->GetProps().interpolateColor		= true;
+		shape->GetProps().colorInterpolateSpeed = 20.0f;
+		shape->GetProps().colorStart			= Color(0.0f, 0.0f, 0.0f, 0.0f);
+		shape->GetProps().colorEnd				= Color(0.0f, 0.0f, 0.0f, 0.0f);
+		shape->SetUserData(def.userData);
+		shape->SetDebugName(def.name);
+
+		// Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
+		// selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		// selectable->SetAlignedSizeX(1.0f);
+		// selectable->SetUserData(def.userData);
+		//
+		// selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		// selectable->SetLocalControlsManager(this);
+		// selectable->GetProps().colorOutline = Theme::GetDef().accentPrimary0;
 
 		if (m_props.itemsCanHaveChildren)
 		{
@@ -309,24 +709,26 @@ namespace Lina::Editor
 				fold->SetAlignedPosX(0.0f);
 			}
 			fold->SetAlignedSizeX(1.0f);
+
 			fold->SetIsUnfolded(m_areItemsUnfolded[def.userData]);
 			fold->SetDebugName(def.name);
 
-			selectable->GetProps().onSelectionChanged = [this](Selectable* s, bool selected) {
-				if (selected && m_props.onItemSelected)
-				{
-					m_props.onItemSelected(s->GetUserData());
-					m_lastSelectedItem = s->GetUserData();
-				}
-			};
+			// selectable->GetProps().onSelectionChanged = [this](Selectable* s, bool selected) {
+			// 	if (selected && m_props.onItemSelected)
+			// 	{
+			// 		m_props.onItemSelected(s->GetUserData());
+			// 		m_lastSelectedItem = s->GetUserData();
+			// 	}
+			// };
+			//
+			// selectable->GetProps().onInteracted = [fold, this](Selectable* s) {
+			// 	fold->SetIsUnfolded(!fold->GetIsUnfolded());
+			// 	if (m_props.onItemInteracted)
+			// 		m_props.onItemInteracted(s->GetUserData());
+			// };
 
-			selectable->GetProps().onInteracted = [fold, this](Selectable* s) {
-				fold->SetIsUnfolded(!fold->GetIsUnfolded());
-				if (m_props.onItemInteracted)
-					m_props.onItemInteracted(s->GetUserData());
-			};
-
-			fold->AddChild(selectable);
+			// fold->AddChild(selectable);
+			fold->AddChild(shape);
 
 			fold->GetProps().onFoldChanged = [fold, def, this](bool unfolded) {
 				Icon* icon			  = fold->GetWidgetOfType<Icon>(fold);
@@ -337,9 +739,13 @@ namespace Lina::Editor
 		}
 		else
 		{
-			selectable->SetDebugName(def.name);
-			selectable->GetFlags().Set(WF_POS_ALIGN_X);
-			selectable->SetAlignedPosX(0.0f);
+			shape->SetDebugName(def.name);
+			shape->GetFlags().Set(WF_POS_ALIGN_X);
+			shape->SetAlignedPosX(0.0f);
+
+			// selectable->SetDebugName(def.name);
+			// selectable->GetFlags().Set(WF_POS_ALIGN_X);
+			// selectable->SetAlignedPosX(0.0f);
 		}
 
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
@@ -349,7 +755,8 @@ namespace Lina::Editor
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
 		layout->GetChildMargins().left = margin;
-		selectable->AddChild(layout);
+		shape->AddChild(layout);
+		// selectable->AddChild(layout);
 
 		if (m_props.itemsCanHaveChildren)
 		{
@@ -366,10 +773,10 @@ namespace Lina::Editor
 				chevron->SetVisible(false);
 			else
 			{
-				selectable->GetProps().onClicked = [fold, chevron](Selectable* s) {
-					if (chevron->GetIsHovered())
-						fold->SetIsUnfolded(!fold->GetIsUnfolded());
-				};
+				// selectable->GetProps().onClicked = [fold, chevron](Selectable* s) {
+				// 	if (chevron->GetIsHovered())
+				// 		fold->SetIsUnfolded(!fold->GetIsUnfolded());
+				// };
 			}
 		}
 
@@ -416,8 +823,9 @@ namespace Lina::Editor
 		title->GetProps().text = def.name;
 		layout->AddChild(title);
 
-		Widget* listItem = m_props.itemsCanHaveChildren ? static_cast<Widget*>(fold) : selectable;
+		Widget* listItem = m_props.itemsCanHaveChildren ? static_cast<Widget*>(fold) : shape;
 		m_listItems.push_back(listItem);
+		m_selectionItems.push_back(shape);
 		return listItem;
 	}
 

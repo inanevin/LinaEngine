@@ -189,6 +189,7 @@ namespace Lina
 		LinaGX::Window*					  m_window = nullptr;
 		LinaVG::Drawer*					  m_lvg	   = nullptr;
 		Vector<Widget*>					  m_controlsOwners;
+		Widget*							  m_controlOwner	  = nullptr;
 		Widget*							  m_rootWidget		  = nullptr;
 		Widget*							  m_foregroundRoot	  = nullptr;
 		Widget*							  m_deepestHovered	  = nullptr;

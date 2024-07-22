@@ -32,6 +32,9 @@ SOFTWARE.
 
 namespace Lina
 {
+	class ScrollArea;
+	class DirectionalLayout;
+
 	class Popup : public Widget
 	{
 	public:
@@ -40,27 +43,30 @@ namespace Lina
 
 		struct Properties
 		{
-			Delegate<void()> onDestructed;
-			Color			 colorBackgroundStart = Theme::GetDef().background0;
-			Color			 colorBackgroundEnd	  = Theme::GetDef().background2;
-			Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
-			float			 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
-			float			 rounding			  = Theme::GetDef().baseRounding;
-			float			 animTime			  = Theme::GetDef().popupAnimTime;
 		};
 
-		virtual void Destruct() override;
-		virtual void Tick(float delta) override;
-		virtual void Draw() override;
+		virtual void Construct() override;
 
+		void AddItem(Widget* item);
+
+		inline DirectionalLayout* GetBackground() const
+		{
+			return m_background;
+		}
+
+		inline ScrollArea* GetScroll() const
+		{
+			return m_scroll;
+		}
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
 	private:
-		Properties m_props		  = {};
-		float	   m_animationCtr = 0.0f;
+		Properties		   m_props		= {};
+		DirectionalLayout* m_background = nullptr;
+		ScrollArea*		   m_scroll		= nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Popup)
