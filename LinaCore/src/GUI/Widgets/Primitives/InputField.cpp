@@ -63,6 +63,8 @@ namespace Lina
 
 	void InputField::Construct()
 	{
+		GetWidgetProps().drawBackground = true;
+
 		m_text						 = m_manager->Allocate<Text>("InputFieldText");
 		m_text->GetProps().isDynamic = true;
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -182,15 +184,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		const bool hasControls = m_manager->IsControlsOwner(this);
-
-		// Background
-		LinaVG::StyleOptions style;
-		style.color					   = m_props.colorBackground.AsLVG4();
-		style.rounding				   = m_props.rounding;
-		style.outlineOptions.thickness = m_props.outlineThickness;
-		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
+		Widget::DrawBackground();
 
 		// Number field slider background.
 		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.value)
@@ -200,7 +194,7 @@ namespace Lina
 			fill.color.start		= m_props.colorNumberFillStart.AsLVG4();
 			fill.color.end			= m_props.colorNumberFillEnd.AsLVG4();
 			fill.color.gradientType = LinaVG::GradientType::Horizontal;
-			fill.rounding			= m_props.rounding;
+			fill.rounding			= m_widgetProps.rounding;
 
 			const Vector2 start = m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness);
 			const Vector2 end	= m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness);

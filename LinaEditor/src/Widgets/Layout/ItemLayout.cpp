@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
-#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"

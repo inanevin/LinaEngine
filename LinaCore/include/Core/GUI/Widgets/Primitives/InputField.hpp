@@ -51,29 +51,25 @@ namespace Lina
 			Delegate<void(const String&)> onEdited;
 			Delegate<void(const String&)> onEditEnd;
 			Delegate<void(float)>		  onValueChanged;
-			Color						  colorBackground	   = Theme::GetDef().background0;
-			Color						  colorOutline		   = Theme::GetDef().outlineColorBase;
-			Color						  colorOutlineControls = Theme::GetDef().outlineColorControls;
-			Color						  colorHighlight	   = Theme::GetDef().accentPrimary1;
-			Color						  colorCaret		   = Theme::GetDef().foreground0;
-			Color						  colorNumberFillStart = Theme::GetDef().accentPrimary1;
-			Color						  colorNumberFillEnd   = Theme::GetDef().accentPrimary0;
-			Color						  colorPlaceHolder	   = Theme::GetDef().outlineColorBase;
-			Color						  colorTextDefault	   = Theme::GetDef().foreground0;
-			float						  rounding			   = Theme::GetDef().baseRounding;
-			float						  outlineThickness	   = Theme::GetDef().baseOutlineThickness;
-			float						  horizontalIndent	   = Theme::GetDef().baseIndentInner;
-			String						  placeHolderText	   = "";
-			bool						  usePlaceHolder	   = false;
 
-			bool   isNumberField	   = false;
-			bool   disableNumberSlider = false;
-			bool   clampNumber		   = false;
-			float* value			   = nullptr;
-			float  valueMin			   = 0.0f;
-			float  valueMax			   = 10.0f;
-			float  valueStep		   = 0.0f;
-			uint32 decimals			   = 3;
+			Color  colorHighlight		= Theme::GetDef().accentPrimary1;
+			Color  colorCaret			= Theme::GetDef().foreground0;
+			Color  colorNumberFillStart = Theme::GetDef().accentPrimary1;
+			Color  colorNumberFillEnd	= Theme::GetDef().accentPrimary0;
+			Color  colorPlaceHolder		= Theme::GetDef().outlineColorBase;
+			Color  colorTextDefault		= Theme::GetDef().foreground0;
+			float  outlineThickness		= Theme::GetDef().baseOutlineThickness;
+			float  horizontalIndent		= Theme::GetDef().baseIndentInner;
+			String placeHolderText		= "";
+			bool   usePlaceHolder		= false;
+			bool   isNumberField		= false;
+			bool   disableNumberSlider	= false;
+			bool   clampNumber			= false;
+			float* value				= nullptr;
+			float  valueMin				= 0.0f;
+			float  valueMax				= 10.0f;
+			float  valueStep			= 0.0f;
+			uint32 decimals				= 3;
 
 			bool centerText = false;
 			bool wrapText	= false;
@@ -81,9 +77,7 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorBackground.SaveToStream(stream);
-				colorOutline.SaveToStream(stream);
-				colorOutlineControls.SaveToStream(stream);
+
 				colorHighlight.SaveToStream(stream);
 				colorCaret.SaveToStream(stream);
 				colorNumberFillStart.SaveToStream(stream);
@@ -91,22 +85,19 @@ namespace Lina
 				colorPlaceHolder.SaveToStream(stream);
 				colorTextDefault.SaveToStream(stream);
 				StringSerialization::SaveToStream(stream, placeHolderText);
-				stream << rounding << outlineThickness << horizontalIndent << usePlaceHolder << isNumberField << disableNumberSlider << clampNumber;
+				stream << outlineThickness << horizontalIndent << usePlaceHolder << isNumberField << disableNumberSlider << clampNumber;
 				stream << valueMin << valueMax << valueStep << centerText << wrapText << clipText << decimals;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorBackground.LoadFromStream(stream);
-				colorOutline.LoadFromStream(stream);
-				colorOutlineControls.LoadFromStream(stream);
 				colorHighlight.LoadFromStream(stream);
 				colorCaret.LoadFromStream(stream);
 				colorNumberFillStart.LoadFromStream(stream);
 				colorNumberFillEnd.LoadFromStream(stream);
 				colorPlaceHolder.LoadFromStream(stream);
 				colorTextDefault.LoadFromStream(stream);
-				stream >> rounding >> outlineThickness >> horizontalIndent >> usePlaceHolder >> isNumberField >> disableNumberSlider >> clampNumber;
+				stream >> outlineThickness >> horizontalIndent >> usePlaceHolder >> isNumberField >> disableNumberSlider >> clampNumber;
 				stream >> valueMin >> valueMax >> valueStep >> centerText >> wrapText >> clipText >> decimals;
 			}
 		};

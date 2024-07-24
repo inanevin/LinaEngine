@@ -27,11 +27,11 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
-#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Theme.hpp"
@@ -64,30 +64,6 @@ namespace Lina
 
 	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)
 	{
-		if (!m_manager->IsControlsOwner(this))
-			return false;
-
-		if (keycode != LINAGX_KEY_RETURN && keycode != LINAGX_KEY_ESCAPE)
-			return false;
-
-		if (action == LinaGX::InputAction::Released)
-			return false;
-
-		if (keycode == LINAGX_KEY_RETURN)
-		{
-			if (m_popup)
-				ClosePopup();
-			else
-				CreatePopup();
-			return true;
-		}
-
-		if (keycode == LINAGX_KEY_ESCAPE)
-		{
-			ClosePopup();
-			return true;
-		}
-
 		return false;
 	}
 
@@ -107,72 +83,35 @@ namespace Lina
 
 	void Dropdown::CreatePopup()
 	{
-		if (m_popup)
-			return;
-
-		m_popup = WidgetUtility::BuildLayoutForPopups(this);
-		m_popup->SetPos(Vector2(m_rect.pos.x, m_rect.pos.y + m_rect.size.y + m_props.outlineThickness * 2));
-		m_popup->GetProps().onDestructed = [this]() { m_popup = nullptr; };
-		m_manager->SetForegroundDim(0.0f);
-		m_manager->AddToForeground(m_popup);
 
 		Vector<String> items;
 		int32		   selectedItem = -1;
 		if (m_props.onAddItems)
 			m_props.onAddItems(items, selectedItem);
 
+		Popup* popup = m_manager->Allocate<Popup>("Popup");
+		popup->SetPos(GetPos() + Vector2(0.0f, GetSizeY()));
+		popup->GetProps().selectedIcon = Theme::GetDef().iconCircleFilled;
+
 		const int32 sz = static_cast<int32>(items.size());
-
-		float maxChildSize = 0.0f;
-
 		for (int32 i = 0; i < sz; i++)
 		{
 			const auto& it = items[i];
-
-			Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
-			selectable->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
-			selectable->SetAlignedPosX(0.0f);
-			selectable->SetAlignedSizeX(1.0f);
-			selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			selectable->GetProps().onInteracted = [it, i, this](Selectable* s) {
-				m_text->GetProps().text = it;
-				m_text->CalculateTextSize();
-				if (m_props.onSelected)
-					m_props.onSelected(i);
-				ClosePopup();
-			};
-
-			DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
-			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-			layout->SetAlignedPos(Vector2::Zero);
-			layout->SetAlignedSize(Vector2::One);
-			layout->GetChildMargins() = {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndentInner};
-			selectable->AddChild(layout);
-
-			Text* txt = m_manager->Allocate<Text>("Text");
-			txt->GetFlags().Set(WF_POS_ALIGN_Y);
-			txt->SetAlignedPosY(0.5f);
-			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			txt->GetProps().text = it;
-			layout->AddChild(txt);
-			maxChildSize = Math::Max(maxChildSize, txt->GetSizeX() + layout->GetChildMargins().left + layout->GetChildMargins().right);
-			m_popup->AddChild(selectable);
-
-			if (i == selectedItem)
-				m_manager->GrabControls(selectable);
+			popup->AddToggleItem(it, i == selectedItem, nullptr, 1.0f);
 		}
 
-		m_popup->SetFixedSizeX(Math::Max(maxChildSize, GetSizeX()));
-		m_popup->Initialize();
-	}
-	void Dropdown::ClosePopup()
-	{
-		if (!m_popup)
-			return;
+		popup->GetProps().onSelectedItem = [this, items](uint32 idx, void* ud) {
+			m_text->GetProps().text = items[idx];
+			m_text->CalculateTextSize();
+			if (m_props.onSelected)
+				m_props.onSelected(idx);
+		};
+		popup->Initialize();
+		if (selectedItem != -1)
+			popup->ScrollToItem(selectedItem);
 
-		m_manager->RemoveFromForeground(m_popup);
-		m_manager->Deallocate(m_popup);
-		m_manager->GrabControls(this);
+		m_manager->AddToForeground(popup);
+		m_manager->GrabControls(popup);
 	}
 
 } // namespace Lina

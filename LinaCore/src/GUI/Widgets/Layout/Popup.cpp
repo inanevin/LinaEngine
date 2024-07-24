@@ -26,8 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include "Editor/Widgets/Compound/Popup.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -38,7 +37,7 @@ SOFTWARE.
 #include "Common/Platform/LinaVGIncl.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
-namespace Lina::Editor
+namespace Lina
 {
 	void Popup::Construct()
 	{
@@ -141,7 +140,7 @@ namespace Lina::Editor
 		return false;
 	}
 
-	void Popup::AddTitleItem(const String& title)
+	void Popup::AddTitleItem(const String& title, float heightMultiplier)
 	{
 		Widget* shape							 = m_manager->Allocate<Widget>("Shape");
 		shape->GetWidgetProps().drawBackground	 = true;
@@ -151,7 +150,7 @@ namespace Lina::Editor
 		shape->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		shape->SetAlignedPosX(0.0f);
 		shape->SetAlignedSizeX(1.0f);
-		shape->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
+		shape->SetFixedSizeY(Theme::GetDef().baseItemHeight * heightMultiplier);
 		m_background->AddChild(shape);
 		shape->GetChildMargins().left = Theme::GetDef().baseIndent;
 
@@ -163,14 +162,14 @@ namespace Lina::Editor
 		shape->AddChild(text);
 	}
 
-	void Popup::AddToggleItem(const String& title, bool isSelected, void* userData)
+	void Popup::AddToggleItem(const String& title, bool isSelected, void* userData, float heightMultiplier)
 	{
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		layout->SetAlignedPosX(0.0f);
 		layout->SetAlignedSizeX(1.0f);
-		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight * heightMultiplier);
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 		layout->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 		layout->GetWidgetProps().drawBackground	  = true;
@@ -182,7 +181,7 @@ namespace Lina::Editor
 		float totalSize = layout->GetChildMargins().left + layout->GetChildMargins().right;
 
 		Icon* icon			  = m_manager->Allocate<Icon>("IconBG");
-		icon->GetProps().icon = ICON_CIRCLE_FILLED;
+		icon->GetProps().icon = m_props.selectedIcon;
 		icon->GetFlags().Set(WF_POS_ALIGN_Y);
 		icon->SetAlignedPosY(0.5f);
 		icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
@@ -228,4 +227,4 @@ namespace Lina::Editor
 		}
 	}
 
-} // namespace Lina::Editor
+} // namespace Lina

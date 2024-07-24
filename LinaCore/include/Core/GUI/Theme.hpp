@@ -93,6 +93,7 @@ namespace Lina
 			StringID altFont			   = 0;
 			StringID iconFont			   = 0;
 			String	 iconDropdown		   = "";
+			String	 iconCircleFilled	   = "";
 			String	 iconSliderHandle	   = "";
 			String	 iconColorWheelPointer = "";
 		};

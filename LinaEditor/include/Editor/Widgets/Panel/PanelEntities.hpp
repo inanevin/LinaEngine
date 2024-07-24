@@ -37,7 +37,6 @@ namespace Lina
 {
 	class WorldManager;
 	class Entity;
-	class Selectable;
 	class DirectionalLayout;
 } // namespace Lina
 

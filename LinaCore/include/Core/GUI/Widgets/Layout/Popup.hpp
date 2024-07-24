@@ -35,10 +35,7 @@ namespace Lina
 {
 	class ScrollArea;
 	class DirectionalLayout;
-} // namespace Lina
 
-namespace Lina::Editor
-{
 	class Popup : public Widget
 	{
 	public:
@@ -50,6 +47,7 @@ namespace Lina::Editor
 			float										 maxSizeY	   = Theme::GetDef().baseItemHeight * 10;
 			bool										 useFixedSizeX = false;
 			bool										 closeOnSelect = true;
+			String										 selectedIcon  = Theme::GetDef().iconCircleFilled;
 			Delegate<void(uint32 index, void* userData)> onSelectedItem;
 		};
 
@@ -59,8 +57,8 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
-		void AddTitleItem(const String& title);
-		void AddToggleItem(const String& title, bool isSelected, void* userData = nullptr);
+		void AddTitleItem(const String& title, float heightMultiplier = 1.5f);
+		void AddToggleItem(const String& title, bool isSelected, void* userData = nullptr, float heightMultiplier = 1.5f);
 		void ScrollToItem(void* userData);
 
 		inline void ScrollToItem(int32 target)
@@ -97,4 +95,4 @@ namespace Lina::Editor
 	LINA_REFLECTWIDGET_BEGIN(Popup)
 	LINA_REFLECTWIDGET_END(Popup)
 
-} // namespace Lina::Editor
+} // namespace Lina

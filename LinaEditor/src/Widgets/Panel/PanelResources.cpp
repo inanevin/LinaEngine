@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Editor/IO/ExtensionSupport.hpp"
 #include "Editor/Widgets/FX/LinaLoading.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
-#include "Editor/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/System/System.hpp"
@@ -42,7 +42,6 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
-#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
@@ -73,9 +72,10 @@ namespace Lina::Editor
 		border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		border->SetAlignedPos(Vector2(0.25f, 0.0f));
 		border->SetAlignedSizeY(1.0f);
-		border->GetProps().orientation	= DirectionOrientation::Vertical;
-		border->GetProps().color		= Theme::GetDef().background3;
-		border->GetProps().colorHovered = Theme::GetDef().background4;
+		border->GetProps().orientation			 = DirectionOrientation::Vertical;
+		border->GetWidgetProps().colorBackground = Theme::GetDef().background3;
+		border->GetWidgetProps().colorHovered	 = Theme::GetDef().background4;
+
 		AddChild(border);
 
 		border->AssignSides(folderBrowser, fileBrowser);
@@ -198,7 +198,8 @@ namespace Lina::Editor
 		sort->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		sort->SetAlignedSizeY(1.0f);
 		sort->GetProps().onClicked = [this, sort]() {
-			Popup* popup = m_manager->Allocate<Popup>("Popup");
+			Popup* popup				   = m_manager->Allocate<Popup>("Popup");
+			popup->GetProps().selectedIcon = ICON_CIRCLE_FILLED;
 			popup->SetPos(sort->GetPos());
 			popup->AddTitleItem(Locale::GetStr(LocaleStr::ContentSorting));
 			popup->AddToggleItem(Locale::GetStr(LocaleStr::Alphabetical), m_contentSorting == ContentSorting::Alphabetical);
@@ -258,7 +259,7 @@ namespace Lina::Editor
 		searchFieldTop->SetAlignedPos(Vector2(1.0f, 0.0f));
 		searchFieldTop->SetPosAlignmentSourceX(PosAlignmentSource::End);
 		searchFieldTop->SetAlignedSize(Vector2(0.5f, 1.0f));
-		searchFieldTop->GetProps().rounding		   = 0.0f;
+		searchFieldTop->GetWidgetProps().rounding  = 0.0f;
 		searchFieldTop->GetProps().usePlaceHolder  = true;
 		searchFieldTop->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search) + "...";
 		searchFieldTop->GetProps().onEdited		   = [this](const String& val) {
@@ -469,7 +470,7 @@ namespace Lina::Editor
 		searchField->SetAlignedPosX(0.0f);
 		searchField->SetAlignedSizeX(1.0f);
 		searchField->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		searchField->GetProps().rounding		= 0.0f;
+		searchField->GetWidgetProps().rounding	= 0.0f;
 		searchField->GetProps().usePlaceHolder	= true;
 		searchField->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search) + "...";
 		searchField->GetProps().onEdited		= [this](const String& val) {

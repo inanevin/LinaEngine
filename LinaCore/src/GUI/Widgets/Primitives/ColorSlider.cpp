@@ -111,7 +111,7 @@ namespace Lina
 
 		LinaVG::StyleOptions line;
 		line.color					  = m_props.colorLine.AsLVG4();
-		line.outlineOptions.thickness = m_props.outlineThickness;
+		line.outlineOptions.thickness = m_widgetProps.outlineThickness;
 		line.outlineOptions.color	  = m_props.colorLineOutline.AsLVG4();
 
 		if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal)

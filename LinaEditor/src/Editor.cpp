@@ -308,6 +308,7 @@ namespace Lina::Editor
 		Theme::GetDef().defaultFont			  = DEFAULT_FONT_SID;
 		Theme::GetDef().altFont				  = ALT_FONT_BOLD_SID;
 		Theme::GetDef().iconDropdown		  = ICON_ARROW_DOWN;
+		Theme::GetDef().iconCircleFilled	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconSliderHandle	  = ICON_CIRCLE_FILLED;
 		Theme::GetDef().iconColorWheelPointer = ICON_CIRCLE;
 

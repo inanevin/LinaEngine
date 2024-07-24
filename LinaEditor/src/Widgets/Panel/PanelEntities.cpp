@@ -37,7 +37,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
-#include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
@@ -66,7 +65,7 @@ namespace Lina::Editor
 		search->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		search->GetProps().usePlaceHolder  = true;
 		search->GetProps().placeHolderText = Locale::GetStr(LocaleStr::Search);
-		search->GetProps().rounding		   = 0.0f;
+		search->GetWidgetProps().rounding  = 0.0f;
 		layout->AddChild(search);
 
 		Testbed* tb = m_manager->Allocate<Testbed>("TB");

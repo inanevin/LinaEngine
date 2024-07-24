@@ -53,8 +53,6 @@ namespace Lina
 			bool	 isHueShift		   = false;
 			Texture* backgroundTexture = nullptr;
 			float*	 value			   = nullptr;
-			float	 rounding		   = Theme::GetDef().baseRounding;
-			float	 outlineThickness  = Theme::GetDef().baseOutlineThickness;
 			float	 minValue		   = 0.0f;
 			float	 maxValue		   = 0.0f;
 			float	 step			   = 0.0f;
@@ -63,14 +61,14 @@ namespace Lina
 			{
 
 				colorLine.SaveToStream(stream);
-				stream << isHueShift << rounding << outlineThickness << minValue << maxValue << step;
+				stream << isHueShift << minValue << maxValue << step;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
 
 				colorLine.LoadFromStream(stream);
-				stream >> isHueShift >> rounding >> outlineThickness >> minValue >> maxValue >> step;
+				stream >> isHueShift >> minValue >> maxValue >> step;
 			}
 		};
 

@@ -116,7 +116,7 @@ namespace Lina
 		bg.color					= m_widgetProps.colorBackground.AsLVG();
 		bg.rounding					= m_widgetProps.rounding;
 		bg.outlineOptions.thickness = m_widgetProps.outlineThickness;
-		bg.outlineOptions.color		= hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
+		bg.outlineOptions.color		= hasControls ? m_widgetProps.colorOutlineControls.AsLVG() : m_widgetProps.colorOutline.AsLVG();
 		m_lvg->DrawRect(m_bgStart.AsLVG(), m_bgEnd.AsLVG(), bg, 0.0f, m_drawOrder);
 
 		if (m_props.valuePtr == nullptr)

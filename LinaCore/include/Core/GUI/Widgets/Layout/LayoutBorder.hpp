@@ -40,16 +40,14 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation orientation  = DirectionOrientation::Horizontal;
-			float				 minSize	  = 0.0f;
-			float				 thickness	  = Theme::GetDef().baseBorderThickness;
-			Color				 color		  = Theme::GetDef().background0;
-			Color				 colorHovered = Theme::GetDef().background2;
+			DirectionOrientation orientation = DirectionOrientation::Horizontal;
+			float				 minSize	 = 0.0f;
+			float				 thickness	 = Theme::GetDef().baseBorderThickness;
 		};
 
+		virtual void			   Construct() override;
 		virtual void			   Initialize() override;
 		virtual void			   PreTick() override;
-		virtual void			   Draw() override;
 		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual LinaGX::CursorType GetCursorOverride() override;
 		void					   AssignSides(Widget* negative, Widget* positive);

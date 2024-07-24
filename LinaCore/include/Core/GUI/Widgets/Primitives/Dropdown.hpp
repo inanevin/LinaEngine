@@ -49,39 +49,17 @@ namespace Lina
 		{
 			Delegate<void(int32)>											 onSelected;
 			Delegate<void(Vector<String>& outItems, int32& outSelectedItem)> onAddItems;
-			Color															 colorBackground			= Theme::GetDef().background0;
-			Color															 colorHovered				= Theme::GetDef().background2;
-			Color															 colorOutline				= Theme::GetDef().outlineColorBase;
-			Color															 colorOutlineControls		= Theme::GetDef().outlineColorControls;
-			Color															 colorIconBackgroundStart	= Theme::GetDef().accentPrimary1;
-			Color															 colorIconBackgroundEnd		= Theme::GetDef().accentPrimary0;
-			Color															 colorIconBackgroundHovered = Theme::GetDef().accentPrimary2;
-			float															 rounding					= Theme::GetDef().baseRounding;
-			float															 outlineThickness			= Theme::GetDef().baseOutlineThickness;
-			float															 horizontalIndent			= Theme::GetDef().baseIndentInner;
+
+			float horizontalIndent = Theme::GetDef().baseIndentInner;
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorBackground.SaveToStream(stream);
-				colorHovered.SaveToStream(stream);
-				colorOutline.SaveToStream(stream);
-				colorOutlineControls.SaveToStream(stream);
-				colorIconBackgroundStart.SaveToStream(stream);
-				colorIconBackgroundEnd.SaveToStream(stream);
-				colorIconBackgroundHovered.SaveToStream(stream);
-				stream << rounding << outlineThickness << horizontalIndent;
+				stream << horizontalIndent;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorBackground.LoadFromStream(stream);
-				colorHovered.LoadFromStream(stream);
-				colorOutline.LoadFromStream(stream);
-				colorOutlineControls.LoadFromStream(stream);
-				colorIconBackgroundStart.LoadFromStream(stream);
-				colorIconBackgroundEnd.LoadFromStream(stream);
-				colorIconBackgroundHovered.LoadFromStream(stream);
-				stream >> rounding >> outlineThickness >> horizontalIndent;
+				stream >> horizontalIndent;
 			}
 		};
 
@@ -119,14 +97,12 @@ namespace Lina
 
 	private:
 		void CreatePopup();
-		void ClosePopup();
 
 	private:
-		Properties		   m_props		 = {};
-		Icon*			   m_icon		 = nullptr;
-		Text*			   m_text		 = nullptr;
-		Vector2			   m_iconBgStart = Vector2::Zero;
-		DirectionalLayout* m_popup		 = nullptr;
+		Properties m_props		 = {};
+		Icon*	   m_icon		 = nullptr;
+		Text*	   m_text		 = nullptr;
+		Vector2	   m_iconBgStart = Vector2::Zero;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Dropdown)

@@ -34,6 +34,14 @@ SOFTWARE.
 
 namespace Lina
 {
+	void LayoutBorder::Construct()
+	{
+		GetWidgetProps().hoveredIsDifferentColor = true;
+		GetWidgetProps().drawBackground			 = true;
+		GetWidgetProps().outlineThickness		 = 0.0f;
+		GetWidgetProps().rounding				 = 0.0f;
+	}
+
 	void LayoutBorder::Initialize()
 	{
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -120,13 +128,6 @@ namespace Lina
 				}
 			}
 		}
-	}
-
-	void LayoutBorder::Draw()
-	{
-		LinaVG::StyleOptions opts;
-		opts.color = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.color.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 
 	bool LayoutBorder::OnMouse(uint32 button, LinaGX::InputAction act)

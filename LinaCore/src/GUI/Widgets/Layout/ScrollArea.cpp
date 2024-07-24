@@ -131,7 +131,7 @@ namespace Lina
 			return;
 
 		LinaVG::StyleOptions bgOpts;
-		bgOpts.color = m_props.colorBackground.AsLVG4();
+		bgOpts.color = m_props.colorBarBackground.AsLVG4();
 		m_lvg->DrawRect(m_barBGRect.pos.AsLVG(), m_barBGRect.GetEnd().AsLVG(), bgOpts, 0.0f, m_drawOrder + 1);
 
 		LinaVG::StyleOptions barOpts;

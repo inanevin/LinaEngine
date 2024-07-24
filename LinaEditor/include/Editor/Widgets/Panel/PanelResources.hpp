@@ -40,7 +40,6 @@ namespace Lina
 	class Text;
 	class DirectionalLayout;
 	class GridLayout;
-	class Selectable;
 	class ScrollArea;
 } // namespace Lina
 

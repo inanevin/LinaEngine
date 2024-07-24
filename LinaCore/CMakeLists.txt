@@ -103,6 +103,7 @@ src/GUI/Widgets/WidgetCache.cpp
 src/GUI/Widgets/WidgetUtility.cpp
 src/GUI/Widgets/Effects/Dropshadow.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
+src/GUI/Widgets/Layout/Popup.cpp
 src/GUI/Widgets/Layout/ScrollArea.cpp
 src/GUI/Widgets/Layout/FoldLayout.cpp
 src/GUI/Widgets/Layout/LayoutBorder.cpp
@@ -117,7 +118,6 @@ src/GUI/Widgets/Primitives/Dropdown.cpp
 src/GUI/Widgets/Primitives/ColorField.cpp
 src/GUI/Widgets/Primitives/ColorSlider.cpp
 src/GUI/Widgets/Primitives/ColorWheel.cpp
-src/GUI/Widgets/Primitives/Selectable.cpp
 src/GUI/Widgets/Compound/FileMenu.cpp
 
 
@@ -219,6 +219,7 @@ include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
 include/Core/GUI/Widgets/Effects/Dropshadow.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
+include/Core/GUI/Widgets/Layout/Popup.hpp
 include/Core/GUI/Widgets/Layout/ScrollArea.hpp
 include/Core/GUI/Widgets/Layout/FoldLayout.hpp
 include/Core/GUI/Widgets/Layout/LayoutBorder.hpp
@@ -233,7 +234,6 @@ include/Core/GUI/Widgets/Primitives/Dropdown.hpp
 include/Core/GUI/Widgets/Primitives/ColorField.hpp
 include/Core/GUI/Widgets/Primitives/ColorSlider.hpp
 include/Core/GUI/Widgets/Primitives/ColorWheel.hpp
-include/Core/GUI/Widgets/Primitives/Selectable.hpp
 include/Core/GUI/Widgets/Compound/FileMenu.hpp
 
 )

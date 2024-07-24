@@ -49,19 +49,15 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction			  = DirectionOrientation::Horizontal;
-			Color				 colorFillMin		  = Theme::GetDef().accentPrimary1;
-			Color				 colorFillMax		  = Theme::GetDef().accentPrimary0;
-			Color				 colorHandle		  = Theme::GetDef().accentPrimary0;
-			Color				 colorHandleHovered	  = Theme::GetDef().accentPrimary2;
-			Color				 colorOutline		  = Theme::GetDef().outlineColorBase;
-			Color				 colorOutlineControls = Theme::GetDef().outlineColorControls;
-			float				 crossAxisPercentage  = Theme::GetDef().baseSliderPerc;
-			float				 minValue			  = 0.0f;
-			float				 maxValue			  = 0.0f;
-			float*				 valuePtr			  = nullptr;
-			float				 step				  = 0.0f;
-			float				 localValue			  = 0.0f;
+			DirectionOrientation direction			 = DirectionOrientation::Horizontal;
+			Color				 colorFillMin		 = Theme::GetDef().accentPrimary1;
+			Color				 colorFillMax		 = Theme::GetDef().accentPrimary0;
+			float				 crossAxisPercentage = Theme::GetDef().baseSliderPerc;
+			float				 minValue			 = 0.0f;
+			float				 maxValue			 = 0.0f;
+			float*				 valuePtr			 = nullptr;
+			float				 step				 = 0.0f;
+			float				 localValue			 = 0.0f;
 
 			Delegate<void(float val)> onValueChanged;
 
@@ -69,10 +65,6 @@ namespace Lina
 			{
 				colorFillMin.SaveToStream(stream);
 				colorFillMax.SaveToStream(stream);
-				colorHandle.SaveToStream(stream);
-				colorHandleHovered.SaveToStream(stream);
-				colorOutline.SaveToStream(stream);
-				colorOutlineControls.SaveToStream(stream);
 				stream << crossAxisPercentage << minValue << maxValue << step;
 			}
 
@@ -80,10 +72,6 @@ namespace Lina
 			{
 				colorFillMin.LoadFromStream(stream);
 				colorFillMax.LoadFromStream(stream);
-				colorHandle.LoadFromStream(stream);
-				colorHandleHovered.LoadFromStream(stream);
-				colorOutline.LoadFromStream(stream);
-				colorOutlineControls.LoadFromStream(stream);
 				stream >> crossAxisPercentage >> minValue >> maxValue >> step;
 			}
 		};

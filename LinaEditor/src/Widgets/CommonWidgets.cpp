@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Popups/InfoTooltip.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
-#include "Editor/Widgets/Compound/Popup.hpp"
+#include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
