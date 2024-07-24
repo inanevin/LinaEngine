@@ -33,6 +33,7 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Texture;
 
 	class ColorField : public Widget
 	{
@@ -45,33 +46,23 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void()> onClicked;
-			Color*			 value					 = nullptr;
-			bool			 drawCheckeredBackground = false;
-			bool			 convertToLinear		 = false;
-			Color			 colorBackground		 = Theme::GetDef().background0;
-			Color			 colorOutline			 = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls	 = Theme::GetDef().outlineColorControls;
-			float			 hoverHighlightPerc		 = 0.1f;
-			float			 rounding				 = Theme::GetDef().baseRounding;
-			float			 outlineThickness		 = Theme::GetDef().baseOutlineThickness;
+			Color*			 value			   = nullptr;
+			Texture*		 backgroundTexture = nullptr;
+			bool			 convertToLinear   = false;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << drawCheckeredBackground << convertToLinear << hoverHighlightPerc << rounding << outlineThickness;
-				colorBackground.SaveToStream(stream);
-				colorOutline.SaveToStream(stream);
-				colorOutlineControls.SaveToStream(stream);
+				stream << convertToLinear;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> drawCheckeredBackground >> convertToLinear >> hoverHighlightPerc >> rounding >> outlineThickness;
-				colorBackground.LoadFromStream(stream);
-				colorOutline.LoadFromStream(stream);
-				colorOutlineControls.LoadFromStream(stream);
+				stream >> convertToLinear;
 			}
 		};
 
+		virtual void Construct() override;
+		virtual void Initialize() override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;
 

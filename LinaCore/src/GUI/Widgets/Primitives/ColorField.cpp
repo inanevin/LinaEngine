@@ -35,38 +35,49 @@ SOFTWARE.
 
 namespace Lina
 {
+	void ColorField::Construct()
+	{
+		GetWidgetProps().drawBackground = true;
+	}
+
+	void ColorField::Initialize()
+	{
+		Widget::Initialize();
+		if (m_props.backgroundTexture != nullptr)
+		{
+			Widget* bg = m_manager->Allocate<Widget>("CheckerBG");
+			bg->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			bg->SetAlignedPos(Vector2::Zero);
+			bg->SetAlignedSize(Vector2::One);
+			bg->GetWidgetProps().drawBackground		 = true;
+			bg->GetWidgetProps().colorBackground	 = Color::White;
+			bg->GetWidgetProps().activeTextureTiling = true;
+			bg->GetWidgetProps().rawTexture			 = m_props.backgroundTexture;
+			bg->GetWidgetProps().outlineThickness	 = 0.0f;
+			bg->GetWidgetProps().rounding			 = 0.0f;
+			AddChild(bg);
+		}
+	}
+
 	void ColorField::Draw()
 	{
-		if (!GetIsVisible())
-			return;
-
-		const bool hasControls = m_manager->IsControlsOwner(this);
-
 		if (m_props.value == nullptr)
 			return;
 
-		int32 drawOrder = m_drawOrder;
-
-		if (m_props.drawCheckeredBackground)
+		if (m_props.backgroundTexture)
 		{
-			LinaVG::StyleOptions checkered;
-			checkered.color			  = Color::White.AsLVG4();
-			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED_SID;
-			checkered.textureUVTiling = Vector2(m_rect.size.x / 256.0f, m_rect.size.y / 256.0f).AsLVG();
-			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), checkered, 0.0f, drawOrder);
-			drawOrder++;
+			m_children[0]->DrawBackground();
+			m_drawOrder++;
+			GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+			Widget::DrawBackground();
+			Widget::DrawBorders();
+			Widget::DrawTooltip();
 		}
-
-		LinaVG::StyleOptions opts;
-		opts.rounding				  = m_props.rounding;
-		opts.outlineOptions.thickness = m_props.outlineThickness;
-		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = m_props.colorBackground.AsLVG4();
-
-		const Color target = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
-		opts			   = {};
-		opts.color		   = target.AsLVG4();
-		m_lvg->DrawRect((m_rect.pos + Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), (m_rect.GetEnd() - Vector2(m_props.outlineThickness, m_props.outlineThickness)).AsLVG(), opts, 0.0f, drawOrder);
+		else
+		{
+			GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+			Widget::Draw();
+		}
 	}
 
 	bool ColorField::OnMouse(uint32 button, LinaGX::InputAction action)

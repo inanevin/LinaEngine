@@ -56,10 +56,10 @@ namespace Lina::Editor
 			if (!m_tabProps.tooltips.empty())
 				btn->SetTooltip(m_tabProps.tooltips[idx]);
 
-			btn->GetText()->GetProps().font		 = Theme::GetDef().iconFont;
-			btn->GetText()->GetProps().textScale = m_tabProps.iconScale;
-			btn->GetText()->GetProps().text		 = ic;
-			btn->GetProps().outlineThickness	 = 0.0f;
+			btn->GetText()->GetProps().font		   = Theme::GetDef().iconFont;
+			btn->GetText()->GetProps().textScale   = m_tabProps.iconScale;
+			btn->GetText()->GetProps().text		   = ic;
+			btn->GetWidgetProps().outlineThickness = 0.0f;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
 			{
@@ -80,16 +80,16 @@ namespace Lina::Editor
 
 			if (idx == 0)
 			{
-				btn->GetProps().rounding  = m_tabProps.topRounding;
-				btn->GetProps().onlyRound = {0, 1};
+				btn->GetWidgetProps().rounding	= m_tabProps.topRounding;
+				btn->GetWidgetProps().onlyRound = {0, 1};
 			}
 			else if (idx == static_cast<int32>(m_tabProps.icons.size()) - 1)
 			{
-				btn->GetProps().rounding  = m_tabProps.bottomRounding;
-				btn->GetProps().onlyRound = {2, 3};
+				btn->GetWidgetProps().rounding	= m_tabProps.bottomRounding;
+				btn->GetWidgetProps().onlyRound = {2, 3};
 			}
 			else
-				btn->GetProps().rounding = 0.0f;
+				btn->GetWidgetProps().rounding = 0.0f;
 
 			btn->GetFlags().Set(WF_SIZE_ALIGN_X);
 			btn->SetAlignedSizeX(1.0f);
@@ -102,9 +102,8 @@ namespace Lina::Editor
 
 	void IconTabs::SetButtonColors(Button* btn, bool isSelected)
 	{
-		btn->GetProps().colorDefaultStart = isSelected ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background1;
-		btn->GetProps().colorDefaultEnd	  = isSelected ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background1;
-		btn->GetProps().colorHovered	  = isSelected ? Theme::GetDef().accentPrimary2 : Theme::GetDef().background3;
-		btn->GetProps().colorPressed	  = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().background2;
+		btn->GetWidgetProps().colorBackground = isSelected ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background1;
+		btn->GetWidgetProps().colorHovered	  = isSelected ? Theme::GetDef().accentPrimary2 : Theme::GetDef().background3;
+		btn->GetWidgetProps().colorPressed	  = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().background2;
 	}
 } // namespace Lina::Editor

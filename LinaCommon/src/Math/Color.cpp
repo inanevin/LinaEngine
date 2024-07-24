@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Common/Math/Color.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Math/Math.hpp"
+#include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
 {
@@ -233,5 +234,13 @@ namespace Lina
 	Vector4 Color::ToVector() const
 	{
 		return Vector4(x, y, z, w);
+	}
+
+	LinaVG::Vec4Grad ColorGrad::AsLVG()
+	{
+		LinaVG::Vec4Grad grad;
+		grad.start = start.AsLVG4();
+		grad.end   = end.AsLVG4();
+		return grad;
 	}
 } // namespace Lina

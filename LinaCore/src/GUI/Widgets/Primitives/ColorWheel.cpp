@@ -46,6 +46,12 @@ namespace Lina
 		m_icon->GetProps().sdfOutlineThickness = 0.525f;
 		m_icon->GetProps().sdfOutlineSoftness  = 0.2f;
 		AddChild(m_icon);
+
+		GetWidgetProps().drawBackground	   = true;
+		GetWidgetProps().specialTexture	   = GUI_TEXTURE_COLORWHEEL;
+		GetWidgetProps().useSpecialTexture = GUI_TEXTURE_COLORWHEEL;
+		GetWidgetProps().outlineThickness  = 0.0f;
+		GetWidgetProps().rounding		   = 0.0f;
 	}
 
 	void ColorWheel::PreTick()
@@ -91,18 +97,7 @@ namespace Lina
 	void ColorWheel::Tick(float delta)
 	{
 		m_icon->SetPos(m_rect.GetCenter() + (m_pointerPos * m_rect.size.x * 0.5f) - m_icon->GetHalfSize());
-	}
-
-	void ColorWheel::Draw()
-	{
-		if (!GetIsVisible())
-			return;
-
-		LinaVG::StyleOptions wheelStyle;
-		wheelStyle.color		 = Math::Lerp(Color::Black, Color::White, Math::Max(m_props.darknessAlpha, 0.1f)).AsLVG4();
-		wheelStyle.textureHandle = GUI_TEXTURE_COLORWHEEL;
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), wheelStyle, 0.0f, m_drawOrder);
-		m_icon->Draw();
+		GetWidgetProps().colorBackground = Math::Lerp(Color::Black, Color::White, Math::Max(m_props.darknessAlpha, 0.1f));
 	}
 
 	bool ColorWheel::OnMouse(uint32 button, LinaGX::InputAction act)

@@ -27,12 +27,15 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Core/Graphics/Utility/TextureAtlas.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Serialization/StringSerialization.hpp"
+#include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
@@ -116,6 +119,7 @@ namespace Lina
 
 	void Widget::Initialize()
 	{
+		m_widgetProps._interpolatedColor = m_widgetProps.colorBackground;
 		m_manager->InitializeWidget(this);
 		linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void {
 			child->Initialize();
@@ -124,12 +128,143 @@ namespace Lina
 		});
 	}
 
-	void Widget::Draw()
+	void Widget::DrawBackground()
 	{
+		if (m_widgetProps.drawBackground)
+		{
+			Vector2				 size = m_rect.GetEnd() - m_rect.pos;
+			LinaVG::StyleOptions opts;
+			opts.color					  = m_widgetProps.colorBackground.AsLVG();
+			opts.color.gradientType		  = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
+			opts.outlineOptions.thickness = m_widgetProps.outlineThickness;
+			opts.outlineOptions.color	  = m_manager->IsControlsOwner(this) ? m_widgetProps.colorOutlineControls.AsLVG() : m_widgetProps.colorOutline.AsLVG();
+			opts.rounding = m_widgetProps.rounding = m_widgetProps.rounding;
+
+			if (m_widgetProps.hoveredIsDifferentColor && m_isHovered)
+				opts.color = m_widgetProps.colorHovered.AsLVG();
+
+			if (m_widgetProps.pressedIsDifferentColor && m_isPressed)
+				opts.color = m_widgetProps.colorPressed.AsLVG();
+
+			if (GetIsDisabled())
+				opts.color = m_widgetProps.colorDisabled.AsLVG();
+
+			if (!m_widgetProps.onlyRound.empty())
+			{
+				for (int32 corner : m_widgetProps.onlyRound)
+					opts.onlyRoundTheseCorners.push_back(corner);
+			}
+
+			Vector2 min = m_rect.pos;
+			Vector2 max = m_rect.GetEnd();
+			Vector2 sz	= m_rect.GetEnd() - m_rect.pos;
+
+			if (m_widgetProps.useSpecialTexture)
+			{
+				opts.textureHandle = static_cast<LinaVG::BackendHandle>(m_widgetProps.specialTexture);
+			}
+			else if (m_widgetProps.textureAtlas != nullptr || m_widgetProps.rawTexture != nullptr)
+			{
+				Vector2 size		  = m_rect.GetEnd() - m_rect.pos;
+				Vector2 textureTiling = m_widgetProps.textureTiling;
+				Vector2 textureSize	  = Vector2::Zero;
+				if (m_widgetProps.fitTexture)
+				{
+					const Vector2 txtSize = m_widgetProps.textureAtlas ? Vector2(static_cast<float>(m_widgetProps.textureAtlas->rectUV.size.x), static_cast<float>(m_widgetProps.textureAtlas->rectUV.size.y)) : m_widgetProps.rawTexture->GetSizeF();
+					const float	  max	  = Math::Max(txtSize.x, txtSize.y);
+					const float	  min	  = Math::Min(txtSize.x, txtSize.y);
+					const float	  aspect  = max / min;
+
+					if (txtSize.x > txtSize.y)
+						size.y = size.x / aspect;
+					else
+						size.x = size.y / aspect;
+				}
+
+				if (m_widgetProps.rawTexture != nullptr)
+				{
+					if (m_widgetProps.rawTexture->GetMeta().format == LinaGX::Format::R8_UNORM)
+						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+					opts.textureHandle = m_widgetProps.rawTexture->GetBindlessIndex() + 1;
+					textureSize		   = m_widgetProps.rawTexture->GetSizeF();
+				}
+				else if (m_widgetProps.textureAtlas != nullptr)
+				{
+					if (m_widgetProps.textureAtlas->atlas->GetRaw()->GetMeta().format == LinaGX::Format::R8_UNORM)
+						opts.color.start.w = opts.color.end.w = GUI_IS_SINGLE_CHANNEL;
+					opts.textureHandle	 = m_widgetProps.textureAtlas->atlas->GetRaw()->GetBindlessIndex() + 1;
+					opts.textureUVOffset = m_widgetProps.textureAtlas->rectUV.pos.AsLVG();
+					textureTiling *= m_widgetProps.textureAtlas->rectUV.size;
+					textureSize = m_widgetProps.textureAtlas->rectUV.size * m_widgetProps.textureAtlas->atlas->GetRaw()->GetSizeF();
+				}
+
+				if (m_widgetProps.activeTextureTiling)
+				{
+					const Vector2 ratio	 = m_rect.size / textureSize;
+					const float	  aspect = m_rect.size.x / m_rect.size.y;
+					textureTiling.y /= aspect;
+				}
+
+				opts.textureUVTiling = textureTiling.AsLVG();
+
+				if (size.x < sz.x)
+				{
+					const float diff = sz.x - size.x;
+					min.x += diff * 0.5f;
+					max.x -= diff * 0.5f;
+				}
+
+				if (size.y < sz.y)
+				{
+					const float diff = sz.y - size.y;
+					min.y += diff * 0.5f;
+					max.y -= diff * 0.5f;
+				}
+			}
+
+			if (m_widgetProps.interpolateColor)
+			{
+				m_widgetProps._interpolatedColor.start = Math::Lerp(m_widgetProps._interpolatedColor.start, Color(opts.color.start), SystemInfo::GetDeltaTimeF() * m_widgetProps.colorInterpolateSpeed);
+				m_widgetProps._interpolatedColor.end   = Math::Lerp(m_widgetProps._interpolatedColor.start, Color(opts.color.end), SystemInfo::GetDeltaTimeF() * m_widgetProps.colorInterpolateSpeed);
+				opts.color							   = m_widgetProps._interpolatedColor.AsLVG();
+			}
+
+			if (m_widgetProps.backgroundIsCentralGradient)
+			{
+				LinaVG::StyleOptions style	= opts;
+				LinaVG::StyleOptions style2 = opts;
+				style.color.start			= m_widgetProps.colorBackground.start.AsLVG4();
+				style.color.end				= m_widgetProps.colorBackground.end.AsLVG4();
+				style2.color.start			= m_widgetProps.colorBackground.end.AsLVG4();
+				style2.color.end			= m_widgetProps.colorBackground.start.AsLVG4();
+				m_lvg->DrawRect(GetPos().AsLVG(), Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, m_rect.GetEnd().y).AsLVG(), style, 0.0f, m_drawOrder);
+				m_lvg->DrawRect(Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
+			}
+			else
+				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder);
+		}
+	}
+
+	void Widget::DrawChildren()
+	{
+		if (m_widgetProps.clipChildren)
+			m_manager->SetClip(m_widgetProps.customClip ? m_widgetProps.customClipRect : m_rect, {});
+
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void {
 			if (child->GetIsVisible())
 				child->Draw();
 		});
+
+		if (m_widgetProps.clipChildren)
+			m_manager->UnsetClip();
+	}
+
+	void Widget::Draw()
+	{
+		DrawBackground();
+		DrawChildren();
+		DrawBorders();
+		DrawTooltip();
 	}
 
 	void Widget::SaveToStream(OStream& stream) const

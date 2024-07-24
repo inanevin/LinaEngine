@@ -90,27 +90,4 @@ namespace Lina
 		m_totalChildHeight = last->GetRect().GetEnd().y - first->GetPosY();
 	}
 
-	void GridLayout::Draw()
-	{
-		if (m_props.background == BackgroundStyle::Default)
-		{
-			LinaVG::StyleOptions opts;
-			opts.color						  = m_props.colorBackground.AsLVG4();
-			opts.outlineOptions.thickness	  = m_props.outlineThickness;
-			opts.outlineOptions.color		  = m_props.colorOutline.AsLVG4();
-			opts.outlineOptions.drawDirection = LinaVG::OutlineDrawDirection::Inwards;
-			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-		}
-
-		const Vector2 start = GetStartFromMargins();
-		const Vector2 end	= GetEndFromMargins();
-
-		if (m_props.clipChildren)
-			m_manager->SetClip(m_rect, {});
-
-		Widget::Draw();
-
-		if (m_props.clipChildren)
-			m_manager->UnsetClip();
-	}
 } // namespace Lina

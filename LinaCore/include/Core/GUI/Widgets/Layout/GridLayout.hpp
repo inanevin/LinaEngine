@@ -46,17 +46,10 @@ namespace Lina
 
 		struct Properties
 		{
-			float verticalPadding  = Theme::GetDef().baseIndent;
-			float outlineThickness = 0.0f;
-			bool  clipChildren	   = false;
-
-			BackgroundStyle background		= BackgroundStyle::None;
-			Color			colorBackground = Theme::GetDef().background0;
-			Color			colorOutline	= Theme::GetDef().outlineColorBase;
+			float verticalPadding = Theme::GetDef().baseIndent;
 		};
 
 		virtual void  Tick(float delta) override;
-		virtual void  Draw() override;
 		virtual float CalculateChildrenSize() override
 		{
 			return m_totalChildHeight;

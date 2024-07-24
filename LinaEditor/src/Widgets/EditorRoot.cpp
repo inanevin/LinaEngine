@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Core/Meta/ProjectData.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -69,10 +68,11 @@ namespace Lina::Editor
 		titleBar->SetAlignedSizeX(1.0f);
 		titleBar->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		titleBar->SetChildPadding(Theme::GetDef().baseIndent);
-		titleBar->GetProps().backgroundStyle	  = BackgroundStyle::CentralGradient;
-		titleBar->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		titleBar->GetProps().colorBackgroundEnd	  = Theme::GetDef().accentPrimary0;
-		titleBar->GetChildMargins().left		  = Theme::GetDef().baseIndent;
+		titleBar->GetWidgetProps().drawBackground			   = true;
+		titleBar->GetWidgetProps().backgroundIsCentralGradient = true;
+		titleBar->GetWidgetProps().colorBackground.start	   = Theme::GetDef().background0;
+		titleBar->GetWidgetProps().colorBackground.end		   = Theme::GetDef().accentPrimary0;
+		titleBar->GetChildMargins().left					   = Theme::GetDef().baseIndent;
 		AddChild(titleBar);
 
 		Icon* lina			  = m_manager->Allocate<Icon>("Lina");
@@ -115,11 +115,10 @@ namespace Lina::Editor
 		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		projectName->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 		projectName->SetChildPadding(Theme::GetDef().baseIndent);
-		projectName->GetProps().backgroundStyle		 = BackgroundStyle::Default;
-		projectName->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		projectName->GetProps().colorBackgroundEnd	 = Theme::GetDef().background0;
-		projectName->GetProps().outlineThickness	 = 0.0f;
-		projectName->GetProps().rounding			 = 0.0f;
+		projectName->GetWidgetProps().drawBackground   = true;
+		projectName->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
+		projectName->GetWidgetProps().outlineThickness = 0.0f;
+		projectName->GetWidgetProps().rounding		   = 0.0f;
 		titleBar->AddChild(projectName);
 
 		Icon* saveIcon			  = m_manager->Allocate<Icon>("SaveIcon");
@@ -207,8 +206,8 @@ namespace Lina::Editor
 			m_worldNameText->CalculateTextSize();
 		}
 
-		const Color targetColor					  = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
-		m_titleBar->GetProps().colorBackgroundEnd = Math::Lerp(m_titleBar->GetProps().colorBackgroundEnd, targetColor, delta * COLOR_SPEED);
+		const Color targetColor							 = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+		m_titleBar->GetWidgetProps().colorBackground.end = Math::Lerp(m_titleBar->GetWidgetProps().colorBackground.end, targetColor, delta * COLOR_SPEED);
 
 		DirectionalLayout::Tick(delta);
 	}

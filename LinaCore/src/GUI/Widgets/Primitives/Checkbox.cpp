@@ -46,6 +46,7 @@ namespace Lina
 		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		m_icon->SetAlignedPos(Vector2(0.5f, 0.5f));
 		AddChild(m_icon);
+		GetWidgetProps().drawBackground = true;
 	}
 
 	void Checkbox::Tick(float delta)
@@ -55,26 +56,8 @@ namespace Lina
 
 		// Alpha & color
 		const float alpha				= Math::Lerp(m_icon->GetProps().colorStart.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
-		m_icon->GetProps().colorStart	= m_props.colorIcon;
-		m_icon->GetProps().colorEnd		= m_props.colorIcon;
 		m_icon->GetProps().colorStart.w = alpha;
 		m_icon->GetProps().colorEnd.w	= alpha;
-	}
-
-	void Checkbox::Draw()
-	{
-		if (!GetIsVisible())
-			return;
-
-		const bool hasControls = m_manager->IsControlsOwner(this);
-
-		LinaVG::StyleOptions style;
-		style.rounding				   = m_props.rounding;
-		style.outlineOptions.thickness = m_props.outlineThickness;
-		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		style.color					   = m_props.colorBackground.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
-		m_icon->Draw();
 	}
 
 	bool Checkbox::OnMouse(uint32 button, LinaGX::InputAction act)

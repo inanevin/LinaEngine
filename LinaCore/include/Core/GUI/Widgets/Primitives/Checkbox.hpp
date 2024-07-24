@@ -40,30 +40,14 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			Color colorBackground	   = Theme::GetDef().background0;
-			Color colorOutline		   = Theme::GetDef().outlineColorBase;
-			Color colorOutlineControls = Theme::GetDef().outlineColorControls;
-			Color colorIcon			   = Theme::GetDef().accentPrimary1;
-			float rounding			   = Theme::GetDef().baseRounding;
-			float outlineThickness	   = Theme::GetDef().baseOutlineThickness;
-			bool* value				   = nullptr;
+			bool* value = nullptr;
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorBackground.SaveToStream(stream);
-				colorOutline.SaveToStream(stream);
-				colorOutlineControls.SaveToStream(stream);
-				colorIcon.SaveToStream(stream);
-				stream << rounding << outlineThickness;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorBackground.LoadFromStream(stream);
-				colorOutline.LoadFromStream(stream);
-				colorOutlineControls.LoadFromStream(stream);
-				colorIcon.LoadFromStream(stream);
-				stream >> rounding >> outlineThickness;
 			}
 		};
 
@@ -72,7 +56,6 @@ namespace Lina
 
 		virtual void Construct() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 

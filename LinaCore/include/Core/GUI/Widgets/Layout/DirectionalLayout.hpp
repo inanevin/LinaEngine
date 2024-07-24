@@ -56,14 +56,8 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction			   = DirectionOrientation::Horizontal;
-			Mode				 mode				   = Mode::Default;
-			Color				 colorBackgroundStart  = Theme::GetDef().background0;
-			Color				 colorBackgroundEnd	   = Theme::GetDef().background0;
-			Color				 colorOutline		   = Theme::GetDef().outlineColorBase;
-			Color				 colorHovered		   = Theme::GetDef().background0;
-			BackgroundStyle		 backgroundStyle	   = BackgroundStyle::None;
-			Vector<int32>		 onlyRoundTheseCorners = {};
+			DirectionOrientation direction = DirectionOrientation::Horizontal;
+			Mode				 mode	   = Mode::Default;
 			Delegate<void()>	 onClicked;
 			Delegate<void()>	 onDoubleClicked;
 			Delegate<void()>	 onRightClicked;
@@ -71,12 +65,7 @@ namespace Lina
 			Delegate<void()>	 onDestructed;
 			Delegate<void()>	 onHoverBegin;
 			Delegate<void()>	 onHoverEnd;
-			bool				 useHoverColor		  = false;
-			bool				 receiveInput		  = false;
-			bool				 dropShadowBackground = false;
-			bool				 clipChildren		  = false;
-			float				 rounding			  = 0.0f;
-			float				 outlineThickness	  = 0.0f;
+			bool				 receiveInput = false;
 		};
 
 		virtual void  Destruct() override;

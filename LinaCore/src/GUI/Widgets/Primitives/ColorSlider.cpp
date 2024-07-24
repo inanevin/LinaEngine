@@ -35,6 +35,35 @@ SOFTWARE.
 
 namespace Lina
 {
+	void ColorSlider::Initialize()
+	{
+		if (m_props.backgroundTexture != nullptr || m_props.isHueShift)
+		{
+			Widget* bg = m_manager->Allocate<Widget>("TextureBG");
+			bg->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			bg->SetAlignedPos(Vector2::Zero);
+			bg->SetAlignedSize(Vector2::One);
+			bg->GetWidgetProps().drawBackground	  = true;
+			bg->GetWidgetProps().colorBackground  = Color::White;
+			bg->GetWidgetProps().outlineThickness = 0.0f;
+			bg->GetWidgetProps().rounding		  = 0.0f;
+			bg->GetWidgetProps().textureTiling	  = m_props.isHueShift ? Vector2::One : Vector2(3.0f, 3.0f);
+
+			if (m_props.isHueShift)
+			{
+				bg->GetWidgetProps().specialTexture		 = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? GUI_TEXTURE_HUE_HORIZONTAL : GUI_TEXTURE_HUE_VERTICAL;
+				bg->GetWidgetProps().useSpecialTexture	 = true;
+				bg->GetWidgetProps().activeTextureTiling = false;
+			}
+			else
+			{
+				bg->GetWidgetProps().activeTextureTiling = true;
+				bg->GetWidgetProps().rawTexture			 = m_props.backgroundTexture;
+			}
+			AddChild(bg);
+		}
+	}
+
 	void ColorSlider::PreTick()
 	{
 		if (m_isPressed && m_props.value)
@@ -42,9 +71,9 @@ namespace Lina
 			const Vector2 mouse		  = m_lgxWindow->GetMousePosition();
 			float		  targetValue = 0.0f;
 
-			if (m_props.direction == DirectionOrientation::Horizontal)
+			if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal)
 				targetValue = Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, m_props.minValue, m_props.maxValue);
-			else if (m_props.direction == DirectionOrientation::Vertical)
+			else if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Vertical)
 				targetValue = Math::Remap(mouse.y, m_rect.pos.y + m_rect.size.y, m_rect.pos.y, m_props.minValue, m_props.maxValue);
 
 			if (!Math::IsZero(m_props.step))
@@ -65,59 +94,35 @@ namespace Lina
 
 	void ColorSlider::Draw()
 	{
-		if (!GetIsVisible())
-			return;
-
-		int32 drawOrder = (m_props.drawCheckeredBackground || m_props.isHueShift) ? m_drawOrder + 1 : m_drawOrder;
-
-		const bool			 hasControls = m_manager->IsControlsOwner(this);
-		LinaVG::StyleOptions opts;
-		opts.rounding				  = m_props.rounding;
-		opts.outlineOptions.thickness = m_props.outlineThickness;
-		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = Color(0.0f, 0.0f, 0.0f, 0.0f).AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, drawOrder);
-
-		const Vector2 bump = Vector2(m_props.outlineThickness, m_props.outlineThickness);
-		if (m_props.drawCheckeredBackground)
+		if (m_props.backgroundTexture || m_props.isHueShift)
 		{
-			LinaVG::StyleOptions checkered;
-			checkered.color			  = Color::White.AsLVG4();
-			checkered.textureHandle	  = DEFAULT_TEXTURE_CHECKERED_SID;
-			checkered.textureUVTiling = Vector2(m_rect.size.x / 256.0f, m_rect.size.y / 256.0f).AsLVG();
-			m_lvg->DrawRect((m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), checkered, 0.0f, m_drawOrder);
+			m_children[0]->DrawBackground();
+			m_drawOrder++;
+			Widget::DrawBackground();
+			Widget::DrawBorders();
+			Widget::DrawTooltip();
 		}
-
-		LinaVG::StyleOptions colorOpts;
-		if (m_props.isHueShift)
-			colorOpts.textureHandle = m_props.direction == DirectionOrientation::Horizontal ? GUI_TEXTURE_HUE_HORIZONTAL : GUI_TEXTURE_HUE_VERTICAL;
 		else
 		{
-			colorOpts.color.start		 = m_props.colorBegin.AsLVG4();
-			colorOpts.color.end			 = m_props.colorEnd.AsLVG4();
-			colorOpts.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
+			Widget::Draw();
 		}
-		m_lvg->DrawRect((m_rect.pos + bump).AsLVG(), (m_rect.GetEnd() - bump).AsLVG(), colorOpts, 0.0f, m_props.isHueShift ? m_drawOrder : drawOrder);
 
-		if (m_props.value == nullptr)
-			return;
-
-		const float lineThickness = Math::FloorToFloat(m_props.direction == DirectionOrientation::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
+		const float lineThickness = Math::FloorToFloat(m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
 
 		LinaVG::StyleOptions line;
 		line.color					  = m_props.colorLine.AsLVG4();
 		line.outlineOptions.thickness = m_props.outlineThickness;
 		line.outlineOptions.color	  = m_props.colorLineOutline.AsLVG4();
 
-		if (m_props.direction == DirectionOrientation::Horizontal)
+		if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal)
 		{
 			const float lineX = Math::FloorToFloat(m_rect.pos.x + m_rect.size.x * Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue) / m_props.maxValue);
-			m_lvg->DrawRect(Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, drawOrder);
+			m_lvg->DrawRect(Vector2(lineX - lineThickness, m_rect.pos.y).AsLVG(), Vector2(lineX + lineThickness, m_rect.pos.y + m_rect.size.y).AsLVG(), line, 0.0f, m_drawOrder + 1);
 		}
-		else if (m_props.direction == DirectionOrientation::Vertical)
+		else if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Vertical)
 		{
 			const float lineY = Math::FloorToFloat(m_rect.pos.y + m_rect.size.y * (m_props.maxValue - Math::Clamp((*m_props.value), m_props.minValue, m_props.maxValue)) / m_props.maxValue);
-			m_lvg->DrawRect(Vector2(m_rect.pos.x, lineY - lineThickness).AsLVG(), Vector2(m_rect.pos.x + m_rect.size.x, lineY + lineThickness).AsLVG(), line, 0.0f, drawOrder);
+			m_lvg->DrawRect(Vector2(m_rect.pos.x, lineY - lineThickness).AsLVG(), Vector2(m_rect.pos.x + m_rect.size.x, lineY + lineThickness).AsLVG(), line, 0.0f, m_drawOrder + 1);
 		}
 	}
 
@@ -160,25 +165,25 @@ namespace Lina
 				m_props.onValueChanged(*m_props.value);
 		};
 
-		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)
+		if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_LEFT)
 		{
 			stepValue(-1.0f);
 			return true;
 		}
 
-		if (m_props.direction == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_RIGHT)
+		if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal && keycode == LINAGX_KEY_RIGHT)
 		{
 			stepValue(1.0f);
 			return true;
 		}
 
-		if (m_props.direction == DirectionOrientation::Vertical && keycode == LINAGX_KEY_UP)
+		if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Vertical && keycode == LINAGX_KEY_UP)
 		{
 			stepValue(1.0f);
 			return true;
 		}
 
-		if (m_props.direction == DirectionOrientation::Vertical && keycode == LINAGX_KEY_DOWN)
+		if (m_widgetProps.colorBackgroundDirection == DirectionOrientation::Vertical && keycode == LINAGX_KEY_DOWN)
 		{
 			stepValue(-1.0f);
 			return true;

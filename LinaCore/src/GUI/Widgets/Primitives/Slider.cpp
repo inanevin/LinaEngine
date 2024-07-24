@@ -28,6 +28,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
+#include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Math.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -109,15 +110,12 @@ namespace Lina
 
 	void Slider::Draw()
 	{
-		if (!GetIsVisible())
-			return;
-
 		const bool hasControls = m_manager->IsControlsOwner(this);
 
 		LinaVG::StyleOptions bg;
-		bg.color					= m_props.colorBackground.AsLVG4();
-		bg.rounding					= m_props.rounding;
-		bg.outlineOptions.thickness = m_props.outlineThickness;
+		bg.color					= m_widgetProps.colorBackground.AsLVG();
+		bg.rounding					= m_widgetProps.rounding;
+		bg.outlineOptions.thickness = m_widgetProps.outlineThickness;
 		bg.outlineOptions.color		= hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
 		m_lvg->DrawRect(m_bgStart.AsLVG(), m_bgEnd.AsLVG(), bg, 0.0f, m_drawOrder);
 

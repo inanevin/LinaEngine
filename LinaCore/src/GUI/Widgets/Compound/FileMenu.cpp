@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -41,12 +40,15 @@ namespace Lina
 	{
 		if (m_itemData.isDivider)
 		{
-			ShapeRect* rect = m_manager->Allocate<ShapeRect>("Shape");
+			Widget* rect = m_manager->Allocate<Widget>("Divider");
 			rect->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 			rect->SetAlignedSize(Vector2(1.0f, 0.25f));
 			rect->SetAlignedPosY(0.5f);
 			rect->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			rect->GetProps().colorStart = rect->GetProps().colorEnd = Theme::GetDef().outlineColorBase;
+			rect->GetWidgetProps().rounding			= 0.0f;
+			rect->GetWidgetProps().outlineThickness = 0.0f;
+			rect->GetWidgetProps().drawBackground	= true;
+			rect->GetWidgetProps().colorBackground	= Theme::GetDef().outlineColorBase;
 			AddChild(rect);
 			return;
 		}
@@ -145,7 +147,7 @@ namespace Lina
 		int32 idx = 0;
 		for (auto* b : m_buttons)
 		{
-			b->GetProps().colorDefaultStart = b->GetProps().colorDefaultEnd = b == m_subPopupOwner ? Theme::GetDef().accentPrimary2 : Color(0, 0, 0, 0);
+			b->GetWidgetProps().colorBackground = b == m_subPopupOwner ? Theme::GetDef().accentPrimary2 : Color(0, 0, 0, 0);
 
 			if (m_subPopup != nullptr && b != m_subPopupOwner && b->GetRect().IsPointInside(m_lgxWindow->GetMousePosition()))
 			{
@@ -174,12 +176,11 @@ namespace Lina
 			btn->SetAlignedSizeY(1.0f);
 			btn->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 
-			btn->GetProps().outlineThickness  = 0.0f;
-			btn->GetProps().rounding		  = 0.0f;
-			btn->GetProps().colorDefaultStart = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			btn->GetProps().colorDefaultEnd	  = Color(0.0f, 0.0f, 0.0f, 0.0f);
-			btn->GetProps().colorPressed	  = Theme::GetDef().accentPrimary0;
-			btn->GetProps().colorHovered	  = Theme::GetDef().accentPrimary1;
+			btn->GetWidgetProps().outlineThickness = 0.0f;
+			btn->GetWidgetProps().rounding		   = 0.0f;
+			btn->GetWidgetProps().colorBackground  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+			btn->GetWidgetProps().colorPressed	   = Theme::GetDef().accentPrimary0;
+			btn->GetWidgetProps().colorHovered	   = Theme::GetDef().accentPrimary1;
 
 			btn->GetProps().onClicked = [this, btn, str]() {
 				CreateItems(TO_SID(str), Vector2(btn->GetPosX(), btn->GetRect().GetEnd().y));
@@ -227,10 +228,13 @@ namespace Lina
 
 			if (!subItem.isDivider)
 			{
-				it->GetProps().useHoverColor   = true;
-				it->GetProps().receiveInput	   = true;
-				it->GetProps().backgroundStyle = DirectionalLayout::BackgroundStyle::Default;
-				it->GetProps().colorHovered	   = Theme::GetDef().accentPrimary1;
+				it->GetWidgetProps().hoveredIsDifferentColor = true;
+				it->GetProps().receiveInput					 = true;
+				it->GetWidgetProps().rounding				 = 0.0f;
+				it->GetWidgetProps().outlineThickness		 = 0.0f;
+				it->GetWidgetProps().drawBackground			 = true;
+				it->GetWidgetProps().colorHovered			 = Theme::GetDef().accentPrimary1;
+				it->GetWidgetProps().colorDisabled			 = Color(0.0f, 0.0f, 0.0f, 0.0f);
 				it->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 				it->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 			}
@@ -239,7 +243,7 @@ namespace Lina
 
 			totalHeight += it->GetFixedSizeY() + popup->GetChildPadding();
 
-			it->GetProps().colorBackgroundStart = it->GetProps().colorBackgroundEnd = Color(0, 0, 0, 0);
+			it->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
 			it->SetChildPadding(Theme::GetDef().baseIndent);
 			it->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 			it->SetAlignedSizeX(1.0f);

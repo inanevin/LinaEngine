@@ -179,57 +179,13 @@ namespace Lina
 
 	void DirectionalLayout::Draw()
 	{
-		if (m_props.dropShadowBackground)
-		{
-			Color ds = Theme::GetDef().black;
-			ds.w	 = 0.25f;
-			WidgetUtility::DrawDropShadowRect(m_lvg, m_rect, m_drawOrder, ds, 6);
-		}
-
-		if (m_props.backgroundStyle == BackgroundStyle::Default)
-		{
-			LinaVG::StyleOptions bg;
-			bg.color.start				= m_props.colorBackgroundStart.AsLVG4();
-			bg.color.end				= m_props.colorBackgroundEnd.AsLVG4();
-			bg.rounding					= m_props.rounding;
-			bg.outlineOptions.thickness = m_props.outlineThickness;
-			bg.outlineOptions.color		= m_props.colorOutline.AsLVG4();
-
-			if (m_props.useHoverColor && m_isHovered)
-				bg.color.start = bg.color.end = m_props.colorHovered.AsLVG4();
-
-			for (int32 corner : m_props.onlyRoundTheseCorners)
-				bg.onlyRoundTheseCorners.push_back(corner);
-
-			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), bg, 0.0f, m_drawOrder);
-		}
-		else if (m_props.backgroundStyle == BackgroundStyle::CentralGradient)
-		{
-			LinaVG::StyleOptions style;
-			style.color.start = m_props.colorBackgroundStart.AsLVG4();
-			style.color.end	  = m_props.colorBackgroundEnd.AsLVG4();
-
-			LinaVG::StyleOptions style2;
-			style2.color.start = m_props.colorBackgroundEnd.AsLVG4();
-			style2.color.end   = m_props.colorBackgroundStart.AsLVG4();
-
-			m_lvg->DrawRect(GetPos().AsLVG(), Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, m_rect.GetEnd().y).AsLVG(), style, 0.0f, m_drawOrder);
-			m_lvg->DrawRect(Vector2((m_rect.GetEnd().x + GetPos().x) * 0.5f, GetPos().y).AsLVG(), m_rect.GetEnd().AsLVG(), style2, 0.0f, m_drawOrder);
-		}
-
 		const Vector2 start = GetStartFromMargins();
 		const Vector2 end	= GetEndFromMargins();
-
 		if (end.x - start.x < 1.0f || end.y - start.y < 1.0f)
 			return;
-
-		if (m_props.clipChildren)
-			m_manager->SetClip(Rect(start, end - start), {});
 		Widget::Draw();
-		if (m_props.clipChildren)
-			m_manager->UnsetClip();
-		Widget::DrawBorders();
 	}
+
 	void DirectionalLayout::DebugDraw(int32 drawOrder)
 	{
 		LinaVG::StyleOptions opts;

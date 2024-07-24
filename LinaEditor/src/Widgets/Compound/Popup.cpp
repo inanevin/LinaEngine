@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
@@ -55,14 +54,14 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSize(Vector2::One);
-		layout->GetProps().direction			= DirectionOrientation::Vertical;
-		layout->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		layout->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		layout->GetProps().colorBackgroundEnd	= Theme::GetDef().background0;
-		layout->GetProps().outlineThickness		= Theme::GetDef().baseOutlineThickness * 1.5f;
-		layout->GetProps().colorOutline			= Theme::GetDef().outlineColorBase;
-		layout->GetProps().clipChildren			= true;
-		m_background							= layout;
+		layout->GetProps().direction			  = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().drawBackground	  = true;
+		layout->GetWidgetProps().rounding		  = 0.0f;
+		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
+		layout->GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.5f;
+		layout->GetWidgetProps().colorOutline	  = Theme::GetDef().outlineColorBase;
+		layout->GetWidgetProps().clipChildren	  = true;
+		m_background							  = layout;
 		scroll->AddChild(layout);
 
 		m_scroll->SetTarget(m_background);
@@ -108,8 +107,8 @@ namespace Lina::Editor
 
 		for (DirectionalLayout* l : m_items)
 		{
-			l->GetProps().colorBackgroundStart = Math::Lerp(l->GetProps().colorBackgroundStart, l->GetIsHovered() ? Theme::GetDef().accentPrimary0 : Color(0.0f, 0.0f, 0.0f, 0.0f), delta * 20.0f);
-			l->GetProps().colorBackgroundEnd   = Math::Lerp(l->GetProps().colorBackgroundEnd, l->GetIsHovered() ? Theme::GetDef().accentPrimary1 : Color(0.0f, 0.0f, 0.0f, 0.0f), delta * 20.0f);
+			l->GetWidgetProps().colorBackground.start = Math::Lerp(l->GetWidgetProps().colorBackground.start, l->GetIsHovered() ? Theme::GetDef().accentPrimary0 : Color(0.0f, 0.0f, 0.0f, 0.0f), delta * 20.0f);
+			l->GetWidgetProps().colorBackground.end	  = Math::Lerp(l->GetWidgetProps().colorBackground.end, l->GetIsHovered() ? Theme::GetDef().accentPrimary1 : Color(0.0f, 0.0f, 0.0f, 0.0f), delta * 20.0f);
 		}
 	}
 
@@ -144,9 +143,11 @@ namespace Lina::Editor
 
 	void Popup::AddTitleItem(const String& title)
 	{
-		ShapeRect* shape			 = m_manager->Allocate<ShapeRect>("Shape");
-		shape->GetProps().colorStart = Theme::GetDef().background3;
-		shape->GetProps().colorEnd	 = Theme::GetDef().background3;
+		Widget* shape							 = m_manager->Allocate<Widget>("Shape");
+		shape->GetWidgetProps().drawBackground	 = true;
+		shape->GetWidgetProps().outlineThickness = 0.0f;
+		shape->GetWidgetProps().rounding		 = 0.0f;
+		shape->GetWidgetProps().colorBackground	 = Theme::GetDef().background3;
 		shape->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		shape->SetAlignedPosX(0.0f);
 		shape->SetAlignedSizeX(1.0f);
@@ -171,9 +172,10 @@ namespace Lina::Editor
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
-		layout->GetChildMargins()				= {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		layout->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		layout->GetProps().colorBackgroundStart = layout->GetProps().colorBackgroundEnd = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		layout->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		layout->GetWidgetProps().drawBackground	  = true;
+		layout->GetWidgetProps().outlineThickness = 0.0f;
+		layout->GetWidgetProps().colorBackground  = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		layout->SetUserData(userData);
 		m_items.push_back(layout);
 
@@ -199,9 +201,11 @@ namespace Lina::Editor
 		m_background->AddChild(layout);
 		totalSize += txt->GetSizeX();
 
-		ShapeRect* shape			 = m_manager->Allocate<ShapeRect>("Shape");
-		shape->GetProps().colorStart = Theme::GetDef().background3;
-		shape->GetProps().colorEnd	 = Theme::GetDef().background3;
+		Widget* shape							 = m_manager->Allocate<Widget>("Shape");
+		shape->GetWidgetProps().drawBackground	 = true;
+		shape->GetWidgetProps().outlineThickness = 0.0f;
+		shape->GetWidgetProps().rounding		 = 0.0f;
+		shape->GetWidgetProps().colorBackground	 = Theme::GetDef().background3;
 		shape->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		shape->SetAlignedPosX(0.0f);
 		shape->SetAlignedSizeX(1.0f);

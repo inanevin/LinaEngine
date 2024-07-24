@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
-#include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/GUI/Widgets/Primitives/Selectable.hpp"
@@ -51,6 +50,8 @@ namespace Lina
 		m_icon->CalculateIconSize();
 		AddChild(m_text);
 		AddChild(m_icon);
+		GetWidgetProps().drawBackground			 = true;
+		GetWidgetProps().hoveredIsDifferentColor = true;
 	}
 
 	void Dropdown::Tick(float delta)
@@ -58,40 +59,7 @@ namespace Lina
 		m_iconBgStart = m_rect.GetEnd() - Vector2(m_rect.size.y, m_rect.size.y) + Vector2::One;
 		m_text->SetPos(Vector2(m_rect.pos.x + m_props.horizontalIndent, m_rect.pos.y + m_rect.size.y * 0.5f - m_text->GetHalfSizeY()));
 		m_icon->SetPos((m_iconBgStart + m_rect.GetEnd()) * 0.5f - m_icon->GetHalfSize());
-	}
-
-	void Dropdown::Draw()
-	{
-		if (!GetIsVisible())
-			return;
-
-		const bool	  hasControls = m_manager->IsControlsOwner(this);
-		const Vector2 iconSize	  = m_icon->GetSize();
-		const Vector2 iconPos	  = m_icon->GetPos();
-
-		// Bg
-		LinaVG::StyleOptions opts;
-		opts.rounding				  = m_props.rounding;
-		opts.outlineOptions.thickness = m_props.outlineThickness;
-		opts.outlineOptions.color	  = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-		opts.color					  = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.colorBackground.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-
-		// Icon bg
-		LinaVG::StyleOptions iconBg;
-		iconBg.rounding	   = m_props.rounding;
-		iconBg.color.start = m_props.colorIconBackgroundStart.AsLVG4();
-		iconBg.color.end   = m_props.colorIconBackgroundEnd.AsLVG4();
-
-		if (m_isHovered)
-			iconBg.color = m_props.colorIconBackgroundHovered.AsLVG4();
-
-		m_lvg->DrawRect(m_iconBgStart.AsLVG(), (m_rect.GetEnd() - Vector2::One).AsLVG(), iconBg, 0.0f, m_drawOrder);
-
-		// Icon
-		m_icon->Draw();
-		m_text->GetProps().customClip = Vector4(GetPosX(), GetPosY(), GetSizeX() - GetSizeY(), GetSizeY());
-		m_text->Draw();
+		m_text->GetProps().customClip = Vector4(m_rect.pos.x, m_rect.pos.y, m_rect.size.x - m_icon->GetSizeX(), m_rect.size.y);
 	}
 
 	bool Dropdown::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction action)

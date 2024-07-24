@@ -44,41 +44,13 @@ namespace Lina
 			Delegate<void()> onClicked;
 			Delegate<void()> onHoverBegin;
 			Delegate<void()> onHoverEnd;
-			Vector<int32>	 onlyRound			  = {};
-			Color			 colorDisabled		  = Theme::GetDef().silent0;
-			Color			 colorDefaultStart	  = Theme::GetDef().background2;
-			Color			 colorDefaultEnd	  = Theme::GetDef().background3;
-			Color			 colorHovered		  = Theme::GetDef().background4;
-			Color			 colorPressed		  = Theme::GetDef().background0;
-			float			 rounding			  = Theme::GetDef().baseRounding;
-			float			 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
-			Color			 colorOutline		  = Theme::GetDef().outlineColorBase;
-			Color			 colorOutlineControls = Theme::GetDef().outlineColorControls;
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorDisabled.SaveToStream(stream);
-				colorDefaultStart.SaveToStream(stream);
-				colorDefaultEnd.SaveToStream(stream);
-				colorHovered.SaveToStream(stream);
-				colorPressed.SaveToStream(stream);
-				colorOutline.SaveToStream(stream);
-				colorOutlineControls.SaveToStream(stream);
-				stream << rounding << outlineThickness;
-				VectorSerialization::SaveToStream_PT(stream, onlyRound);
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorDisabled.LoadFromStream(stream);
-				colorDefaultStart.LoadFromStream(stream);
-				colorDefaultEnd.LoadFromStream(stream);
-				colorHovered.LoadFromStream(stream);
-				colorPressed.LoadFromStream(stream);
-				colorOutline.LoadFromStream(stream);
-				colorOutlineControls.LoadFromStream(stream);
-				stream >> rounding >> outlineThickness;
-				VectorSerialization::LoadFromStream_PT(stream, onlyRound);
 			}
 		};
 
@@ -87,7 +59,6 @@ namespace Lina
 
 		virtual void Construct() override;
 		virtual void PreTick() override;
-		virtual void Draw() override;
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 

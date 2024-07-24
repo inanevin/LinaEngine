@@ -50,16 +50,13 @@ namespace Lina
 		struct Properties
 		{
 			DirectionOrientation direction			  = DirectionOrientation::Horizontal;
-			Color				 colorBackground	  = Theme::GetDef().background0;
 			Color				 colorFillMin		  = Theme::GetDef().accentPrimary1;
 			Color				 colorFillMax		  = Theme::GetDef().accentPrimary0;
 			Color				 colorHandle		  = Theme::GetDef().accentPrimary0;
 			Color				 colorHandleHovered	  = Theme::GetDef().accentPrimary2;
 			Color				 colorOutline		  = Theme::GetDef().outlineColorBase;
 			Color				 colorOutlineControls = Theme::GetDef().outlineColorControls;
-			float				 rounding			  = Theme::GetDef().baseRounding * 2;
 			float				 crossAxisPercentage  = Theme::GetDef().baseSliderPerc;
-			float				 outlineThickness	  = Theme::GetDef().baseOutlineThickness;
 			float				 minValue			  = 0.0f;
 			float				 maxValue			  = 0.0f;
 			float*				 valuePtr			  = nullptr;
@@ -70,26 +67,24 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorBackground.SaveToStream(stream);
 				colorFillMin.SaveToStream(stream);
 				colorFillMax.SaveToStream(stream);
 				colorHandle.SaveToStream(stream);
 				colorHandleHovered.SaveToStream(stream);
 				colorOutline.SaveToStream(stream);
 				colorOutlineControls.SaveToStream(stream);
-				stream << rounding << crossAxisPercentage << outlineThickness << minValue << maxValue << step;
+				stream << crossAxisPercentage << minValue << maxValue << step;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorBackground.LoadFromStream(stream);
 				colorFillMin.LoadFromStream(stream);
 				colorFillMax.LoadFromStream(stream);
 				colorHandle.LoadFromStream(stream);
 				colorHandleHovered.LoadFromStream(stream);
 				colorOutline.LoadFromStream(stream);
 				colorOutlineControls.LoadFromStream(stream);
-				stream >> rounding >> crossAxisPercentage >> outlineThickness >> minValue >> maxValue >> step;
+				stream >> crossAxisPercentage >> minValue >> maxValue >> step;
 			}
 		};
 

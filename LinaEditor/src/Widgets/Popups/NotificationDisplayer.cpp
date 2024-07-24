@@ -128,11 +128,11 @@ namespace Lina::Editor
 		notification->GetProps().direction = DirectionOrientation::Horizontal;
 		notification->GetChildMargins()	   = TBLR::Eq(Theme::GetDef().baseIndent);
 		notification->SetChildPadding(Theme::GetDef().baseIndent);
-		notification->GetProps().backgroundStyle	  = DirectionalLayout::BackgroundStyle::Default;
-		notification->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		notification->GetProps().colorBackgroundEnd	  = Theme::GetDef().background1;
-		notification->GetProps().outlineThickness	  = Theme::GetDef().baseOutlineThickness;
-		notification->GetProps().colorOutline		  = Theme::GetDef().accentPrimary0;
+		notification->GetWidgetProps().drawBackground		 = true;
+		notification->GetWidgetProps().colorBackground.start = Theme::GetDef().background0;
+		notification->GetWidgetProps().colorBackground.end	 = Theme::GetDef().background1;
+		notification->GetWidgetProps().outlineThickness		 = Theme::GetDef().baseOutlineThickness;
+		notification->GetWidgetProps().colorOutline			 = Theme::GetDef().accentPrimary0;
 		notification->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 		AddChild(notification);
 
@@ -206,7 +206,6 @@ namespace Lina::Editor
 			slider->SetAlignedPosX(0.0f);
 			slider->SetAlignedSizeX(1.0f);
 			slider->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
-			slider->GetProps().rounding		= 0.0f;
 			slider->GetProps().colorFillMin = Theme::GetDef().accentSecondary;
 			slider->GetProps().colorFillMax = Theme::GetDef().accentSecondary;
 			slider->GetProps().minValue		= 0.0f;

@@ -105,13 +105,7 @@ namespace Lina
 		opts.color.gradientType		  = LinaVG::GradientType::Vertical;
 		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		if (m_props.clipChildren)
-			m_manager->SetClip(m_rect, {});
 		Widget::Draw();
-		if (m_props.clipChildren)
-			m_manager->UnsetClip();
-
-		Widget::DrawTooltip();
 	}
 
 	bool Selectable::OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act)

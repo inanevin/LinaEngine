@@ -100,7 +100,7 @@ namespace Lina::Editor
 
 		// NOTE: 160, 380 is the glyph range for nunito sans
 
-		if (sid == DEFAULT_TEXTURE_CHECKERED_SID || sid == DEFAULT_TEXTURE_LINALOGO)
+		if (sid == DEFAULT_TEXTURE_LINALOGO)
 		{
 			Texture::Metadata meta = {};
 
@@ -342,6 +342,7 @@ namespace Lina::Editor
 
 		Vector<ResourceIdentifier> priorityResources;
 		priorityResources.push_back({"Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
+		priorityResources.push_back({"Resources/Editor/Textures/Checkered.png", GetTypeID<Texture>()});
 		priorityResources.push_back({ALT_FONT_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({BIG_FONT_PATH, GetTypeID<Font>()});
@@ -355,7 +356,6 @@ namespace Lina::Editor
 		// list.push_back({fullPathBase + "Resources/Core/Models/Cube.glb", "Resources/Core/Models/Cube.glb", GetTypeID<Model>()});
 		// list.push_back({fullPathBase + "Resources/Core/Models/Sphere.glb", "Resources/Core/Models/Sphere.glb", GetTypeID<Model>()});
 		// list.push_back({fullPathBase + "Resources/Core/Models/SkyCube.glb", "Resources/Core/Models/SkyCube.glb", GetTypeID<Model>()});
-		// list.push_back({fullPathBase + DEFAULT_TEXTURE_CHECKERED_PATH, DEFAULT_TEXTURE_CHECKERED_PATH, GetTypeID<Texture>()});
 		// list.push_back({fullPathBase + ALT_FONT_PATH, ALT_FONT_PATH, GetTypeID<Font>()});
 		// list.push_back({fullPathBase + BIG_FONT_PATH, BIG_FONT_PATH, GetTypeID<Font>()});
 		// list.push_back({fullPathBase + ALT_FONT_BOLD_PATH, ALT_FONT_BOLD_PATH, GetTypeID<Font>()});

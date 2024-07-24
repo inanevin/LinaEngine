@@ -68,10 +68,9 @@ namespace Lina::Editor
 		m_title->SetAlignedPos(Vector2::Zero);
 		m_title->SetAlignedSizeX(1.0f);
 		m_title->SetFixedSizeY(itemHeight);
-		m_title->GetProps().backgroundStyle		 = DirectionalLayout::BackgroundStyle::Default;
-		m_title->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		m_title->GetProps().colorBackgroundEnd	 = Theme::GetDef().background0;
-		m_title->GetBorderThickness().bottom	 = Theme::GetDef().baseOutlineThickness;
+		m_title->GetWidgetProps().drawBackground  = true;
+		m_title->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		m_title->GetBorderThickness().bottom	  = Theme::GetDef().baseOutlineThickness;
 		m_title->SetBorderColor(Theme::GetDef().black);
 		base->AddChild(m_title);
 
@@ -129,14 +128,7 @@ namespace Lina::Editor
 		opts.outlineOptions.color	  = Theme::GetDef().black.AsLVG4();
 		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 
-		Rect clipRect = m_rect;
-		if (clipRect.size.x < 0.1f)
-			clipRect.size.x = 0.1f;
-		if (clipRect.size.y < 0.1f)
-			clipRect.size.y = 0.1f;
-		m_manager->SetClip(clipRect, {});
 		Widget::Draw();
-		m_manager->UnsetClip();
 	}
 	DirectionalLayout* ProjectSelector::BuildLocationSelectRow(const String& dialogTitle, bool isSave)
 	{

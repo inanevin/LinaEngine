@@ -45,6 +45,7 @@ namespace Lina
 
 namespace Lina::Editor
 {
+	class Editor;
 
 	class ColorWheelCompound : public Widget
 	{
@@ -98,6 +99,7 @@ namespace Lina::Editor
 		void					 SwitchColorDisplay(ColorDisplay display);
 
 	private:
+		Editor*					 m_editor			   = nullptr;
 		Properties				 m_props			   = {};
 		DirectionalLayout*		 m_topRow			   = nullptr;
 		ColorWheel*				 m_wheel			   = nullptr;

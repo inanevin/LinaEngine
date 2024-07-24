@@ -40,12 +40,11 @@ namespace Lina::Editor
 	{
 
 		DirectionalLayout::Construct();
-		GetProps().direction			= DirectionOrientation::Vertical;
-		GetProps().backgroundStyle		= BackgroundStyle::Default;
-		GetProps().colorBackgroundStart = Theme::GetDef().background1;
-		GetProps().colorBackgroundEnd	= Theme::GetDef().background1;
-		GetProps().outlineThickness		= Theme::GetDef().baseOutlineThickness;
-		GetProps().colorOutline			= Theme::GetDef().outlineColorBase;
+		GetProps().direction			  = DirectionOrientation::Vertical;
+		GetWidgetProps().drawBackground	  = true;
+		GetWidgetProps().colorBackground  = Theme::GetDef().background1;
+		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+		GetWidgetProps().colorOutline	  = Theme::GetDef().outlineColorBase;
 
 		GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_FOREGROUND_BLOCKER);
 		SetAlignedSizeY(1.0f);
@@ -66,10 +65,9 @@ namespace Lina::Editor
 		titleBar->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		titleBar->SetAlignedSizeX(1.0f);
 		titleBar->SetFixedSize(Theme::GetDef().baseItemHeight);
-		titleBar->GetProps().backgroundStyle	  = BackgroundStyle::Default;
-		titleBar->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		titleBar->GetProps().colorBackgroundEnd	  = Theme::GetDef().background0;
-		titleBar->GetBorderThickness().bottom	  = Theme::GetDef().baseOutlineThickness;
+		titleBar->GetWidgetProps().drawBackground  = true;
+		titleBar->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		titleBar->GetBorderThickness().bottom	   = Theme::GetDef().baseOutlineThickness;
 		titleBar->SetBorderColor(Theme::GetDef().black);
 		AddChild(titleBar);
 

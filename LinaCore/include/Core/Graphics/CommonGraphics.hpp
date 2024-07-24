@@ -68,9 +68,6 @@ namespace Lina
 #define DEFAULT_MATERIAL_SKY_PATH "Resources/Core/Materials/DefaultSky.linamaterial"
 #define DEFAULT_MATERIAL_SKY_SID  "Resources/Core/Materials/DefaultSky.linamaterial"_hs
 
-#define DEFAULT_TEXTURE_CHECKERED_PATH "Resources/Core/Textures/Checkered.png"
-#define DEFAULT_TEXTURE_CHECKERED_SID  "Resources/Core/Textures/Checkered.png"_hs
-
 #define DEFAULT_TEXTURE_CHECKERED_DARK_PATH "Resources/Core/Textures/CheckeredDark.png"
 #define DEFAULT_TEXTURE_CHECKERED_DARK_SID	"Resources/Core/Textures/CheckeredDark.png"_hs
 

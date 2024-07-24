@@ -41,11 +41,10 @@ namespace Lina::Editor
 {
 	void InfoTooltip::Construct()
 	{
-		GetProps().backgroundStyle		= BackgroundStyle::Default;
-		GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		GetProps().colorBackgroundEnd	= Theme::GetDef().background0;
-		GetProps().rounding				= Theme::GetDef().baseRounding;
-		GetProps().outlineThickness		= Theme::GetDef().baseOutlineThickness;
+		GetWidgetProps().drawBackground	  = true;
+		GetWidgetProps().colorBackground  = Theme::GetDef().background0;
+		GetWidgetProps().rounding		  = Theme::GetDef().baseRounding;
+		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
 		GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN);
 		SetAlignedSizeX(1.0f);
 		SetAlignedSizeY(1.0f);
@@ -135,7 +134,7 @@ namespace Lina::Editor
 
 	void InfoTooltip::Draw()
 	{
-		GetProps().colorOutline = GetColorFromLevel().AsLVG4();
+		GetWidgetProps().colorOutline = GetColorFromLevel();
 		DirectionalLayout::Draw();
 	}
 

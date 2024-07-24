@@ -295,13 +295,13 @@ namespace Lina::Editor
 		layout->SetAlignedSize(Vector2::One);
 		newWindowRoot->AddChild(layout);
 
-		WindowBar* wb						= newWindowRoot->GetWidgetManager()->Allocate<WindowBar>("WindowBar");
-		wb->GetBarProps().title				= "Lina Engine";
-		wb->GetBarProps().hasIcon			= true;
-		wb->GetBarProps().hasWindowButtons	= true;
-		wb->GetBarProps().controlsDragRect	= true;
-		wb->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		wb->GetProps().colorBackgroundStart = Theme::GetDef().accentPrimary0;
+		WindowBar* wb						 = newWindowRoot->GetWidgetManager()->Allocate<WindowBar>("WindowBar");
+		wb->GetBarProps().title				 = "Lina Engine";
+		wb->GetBarProps().hasIcon			 = true;
+		wb->GetBarProps().hasWindowButtons	 = true;
+		wb->GetBarProps().controlsDragRect	 = true;
+		wb->GetWidgetProps().drawBackground	 = true;
+		wb->GetWidgetProps().colorBackground = Theme::GetDef().accentPrimary0;
 		wb->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		wb->SetAlignedPosX(0.0f);
 		wb->SetAlignedSizeX(1.0f);

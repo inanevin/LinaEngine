@@ -30,9 +30,9 @@ SOFTWARE.
 
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
-#include "Editor/Widgets/Compound/SelectableListLayout.hpp"
 #include "Editor/IO/FileManager.hpp"
 #include "Editor/Widgets/Layout/ItemLayout.hpp"
+#include "Editor/WindowPanelManager.hpp"
 
 namespace Lina
 {
@@ -50,7 +50,7 @@ namespace Lina::Editor
 	class ItemLayout;
 	class Editor;
 
-	class PanelResources : public Panel, public FileMenuListener, public SelectableListLayoutListener, public FileManagerListener, public EditorPayloadListener
+	class PanelResources : public Panel, public EditorPayloadListener, public FileMenuListener, public FileManagerListener
 	{
 
 	private:

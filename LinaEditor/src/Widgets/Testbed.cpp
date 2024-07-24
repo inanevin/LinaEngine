@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
-#include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
@@ -205,27 +204,28 @@ namespace Lina::Editor
 
 		// Color slider
 		{
-			static float value		  = 0.0f;
-			ColorSlider* cs			  = m_manager->Allocate<ColorSlider>("ColorSlider");
-			cs->GetProps().value	  = &value;
-			cs->GetProps().minValue	  = 0.0f;
-			cs->GetProps().maxValue	  = 1.0f;
-			cs->GetProps().colorBegin = Color::White;
-			cs->GetProps().colorEnd	  = Color::Red;
+			static float value						   = 0.0f;
+			ColorSlider* cs							   = m_manager->Allocate<ColorSlider>("ColorSlider");
+			cs->GetWidgetProps().drawBackground		   = true;
+			cs->GetProps().value					   = &value;
+			cs->GetProps().minValue					   = 0.0f;
+			cs->GetProps().maxValue					   = 1.0f;
+			cs->GetWidgetProps().colorBackground.start = Color::White;
+			cs->GetWidgetProps().colorBackground.end   = Color::Red;
 			setFlags(cs);
 			layout->AddChild(cs);
 		}
 
 		// Color slider
 		{
-			static float value					   = 0.0f;
-			ColorSlider* cs						   = m_manager->Allocate<ColorSlider>("ColorSlider");
-			cs->GetProps().drawCheckeredBackground = true;
-			cs->GetProps().value				   = &value;
-			cs->GetProps().minValue				   = 0.0f;
-			cs->GetProps().maxValue				   = 1.0f;
-			cs->GetProps().colorBegin			   = Color(0.5f, 0.5f, 0.5f, 0.0f);
-			cs->GetProps().colorEnd				   = Color::Red;
+			static float value						   = 0.0f;
+			ColorSlider* cs							   = m_manager->Allocate<ColorSlider>("ColorSlider");
+			cs->GetWidgetProps().drawBackground		   = true;
+			cs->GetProps().value					   = &value;
+			cs->GetProps().minValue					   = 0.0f;
+			cs->GetProps().maxValue					   = 1.0f;
+			cs->GetWidgetProps().colorBackground.start = Color(0.5f, 0.5f, 0.5f, 0.0f);
+			cs->GetWidgetProps().colorBackground.end   = Color::Red;
 			setFlags(cs);
 			layout->AddChild(cs);
 		}
@@ -244,15 +244,15 @@ namespace Lina::Editor
 
 		// Color slider
 		{
-			static float value		  = 0.0f;
-			ColorSlider* cs			  = m_manager->Allocate<ColorSlider>("ColorSlider");
-			cs->GetProps().colorBegin = Color::Green;
-			cs->GetProps().colorEnd	  = Color::Blue;
-			cs->GetProps().direction  = DirectionOrientation::Vertical;
-			cs->GetProps().isHueShift = true;
-			cs->GetProps().minValue	  = 0.0f;
-			cs->GetProps().maxValue	  = 1.0f;
-			cs->GetProps().value	  = &value;
+			static float value							  = 0.0f;
+			ColorSlider* cs								  = m_manager->Allocate<ColorSlider>("ColorSlider");
+			cs->GetWidgetProps().colorBackground.start	  = Color::Green;
+			cs->GetWidgetProps().colorBackground.end	  = Color::Blue;
+			cs->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
+			cs->GetProps().isHueShift					  = true;
+			cs->GetProps().minValue						  = 0.0f;
+			cs->GetProps().maxValue						  = 1.0f;
+			cs->GetProps().value						  = &value;
 			setFlags(cs);
 			layout->AddChild(cs);
 		}

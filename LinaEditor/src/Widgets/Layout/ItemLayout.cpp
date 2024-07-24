@@ -45,7 +45,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -103,25 +102,24 @@ namespace Lina::Editor
 
 		const Color dead = m_useGridLayout ? Theme::GetDef().background3 : Color(0.0f, 0.0f, 0.0f, 0.0f);
 
-		for (ShapeRect* item : m_selectionItems)
+		for (Widget* item : m_selectionItems)
 		{
 			const bool selected = IsItemSelected(item);
 
 			if (selected)
 			{
-				item->GetProps().colorStart = m_isFocused ? Theme::GetDef().accentPrimary0 : Theme::GetDef().silent0;
-				item->GetProps().colorEnd	= m_isFocused ? Theme::GetDef().accentPrimary1 : Theme::GetDef().silent1;
+				item->GetWidgetProps().colorBackground.start = m_isFocused ? Theme::GetDef().accentPrimary0 : Theme::GetDef().silent0;
+				item->GetWidgetProps().colorBackground.end	 = m_isFocused ? Theme::GetDef().accentPrimary1 : Theme::GetDef().silent1;
 			}
 			else
 			{
-				item->GetProps().colorStart = item->GetProps().colorEnd = dead;
+				item->GetWidgetProps().colorBackground = dead;
 			}
 		}
 	}
 
 	void ItemLayout::Draw()
 	{
-		DrawBorders();
 		Widget::Draw();
 	}
 
@@ -138,11 +136,11 @@ namespace Lina::Editor
 
 		if (!m_selectionItems.empty())
 		{
-			ShapeRect* item = nullptr;
+			Widget* item = nullptr;
 
 			if (isForward)
 			{
-				for (ShapeRect* r : m_selectionItems)
+				for (Widget* r : m_selectionItems)
 				{
 					if (r->GetIsVisible() && !r->GetIsDisabled())
 					{
@@ -153,9 +151,9 @@ namespace Lina::Editor
 			}
 			else
 			{
-				for (Vector<ShapeRect*>::iterator it = m_selectionItems.end() - 1; it >= m_selectionItems.begin(); it--)
+				for (Vector<Widget*>::iterator it = m_selectionItems.end() - 1; it >= m_selectionItems.begin(); it--)
 				{
-					ShapeRect* r = *it;
+					Widget* r = *it;
 					if (r->GetIsVisible() && !r->GetIsDisabled())
 					{
 						item = r;
@@ -182,14 +180,14 @@ namespace Lina::Editor
 			return this;
 		}
 
-		ShapeRect* currentSelected = m_selectedItems.back();
+		Widget* currentSelected = m_selectedItems.back();
 
 		const int32 sz	  = static_cast<int32>(m_selectionItems.size());
 		bool		found = false;
 
 		for (int32 i = 0; i < sz; i++)
 		{
-			ShapeRect* item = m_selectionItems[i];
+			Widget* item = m_selectionItems[i];
 
 			if (item == currentSelected)
 			{
@@ -223,7 +221,7 @@ namespace Lina::Editor
 
 		for (int32 i = sz - 1; i >= 0; i--)
 		{
-			ShapeRect* item = m_selectionItems[i];
+			Widget* item = m_selectionItems[i];
 
 			if (item == currentSelected)
 			{
@@ -250,7 +248,7 @@ namespace Lina::Editor
 		if (m_selectedItems.empty() || !m_isFocused)
 			return false;
 
-		ShapeRect* item = m_selectedItems.back();
+		Widget* item = m_selectedItems.back();
 
 		if (key == LINAGX_KEY_D && act == LinaGX::InputAction::Pressed)
 		{
@@ -393,15 +391,15 @@ namespace Lina::Editor
 		return false;
 	}
 
-	bool ItemLayout::IsItemSelected(ShapeRect* rect)
+	bool ItemLayout::IsItemSelected(Widget* rect)
 	{
-		auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [rect](ShapeRect* r) -> bool { return rect == r; });
+		auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [rect](Widget* r) -> bool { return rect == r; });
 		return it != m_selectedItems.end();
 	}
 
-	void ItemLayout::RemoveItemFromSelected(ShapeRect* rect)
+	void ItemLayout::RemoveItemFromSelected(Widget* rect)
 	{
-		auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [rect](ShapeRect* r) -> bool { return rect == r; });
+		auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [rect](Widget* r) -> bool { return rect == r; });
 		m_selectedItems.erase(it);
 
 		if (!m_useGridLayout && m_props.itemsCanHaveChildren)
@@ -415,7 +413,7 @@ namespace Lina::Editor
 		}
 	}
 
-	void ItemLayout::SelectItem(ShapeRect* r, bool clearSelected, bool callEvent)
+	void ItemLayout::SelectItem(Widget* r, bool clearSelected, bool callEvent)
 	{
 		UnfoldRecursively(r->GetParent());
 		m_scroll->ScrollToChild(r);
@@ -451,7 +449,7 @@ namespace Lina::Editor
 			grid->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			grid->SetAlignedPos(Vector2::Zero);
 			grid->SetAlignedSize(Vector2::One);
-			grid->GetProps().clipChildren = true;
+			grid->GetWidgetProps().clipChildren = true;
 			grid->SetChildPadding(Theme::GetDef().baseIndentInner);
 			grid->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
 			m_layout				= grid;
@@ -463,8 +461,8 @@ namespace Lina::Editor
 			layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			layout->SetAlignedPos(Vector2::Zero);
 			layout->SetAlignedSize(Vector2::One);
-			layout->GetProps().clipChildren = true;
-			m_layout						= layout;
+			layout->GetWidgetProps().clipChildren = true;
+			m_layout							  = layout;
 		}
 	}
 
@@ -490,21 +488,21 @@ namespace Lina::Editor
 	{
 		if (m_useGridLayout)
 		{
-			GridLayout* grid				  = static_cast<GridLayout*>(m_layout);
-			grid->GetProps().outlineThickness = outlineThickness;
-			grid->GetProps().colorOutline	  = outlineColor;
+			GridLayout* grid						= static_cast<GridLayout*>(m_layout);
+			grid->GetWidgetProps().outlineThickness = outlineThickness;
+			grid->GetWidgetProps().colorOutline		= outlineColor;
 		}
 		else
 		{
-			DirectionalLayout* layout			= static_cast<DirectionalLayout*>(m_layout);
-			layout->GetProps().outlineThickness = outlineThickness;
-			layout->GetProps().colorOutline		= outlineColor;
+			DirectionalLayout* layout				  = static_cast<DirectionalLayout*>(m_layout);
+			layout->GetWidgetProps().outlineThickness = outlineThickness;
+			layout->GetWidgetProps().colorOutline	  = outlineColor;
 		}
 	}
 
 	void ItemLayout::SetSelectedItem(void* userData)
 	{
-		for (ShapeRect* it : m_selectionItems)
+		for (Widget* it : m_selectionItems)
 		{
 			if (it->GetUserData() == userData)
 			{
@@ -608,31 +606,32 @@ namespace Lina::Editor
 
 		m_gridItems.push_back(layout);
 
-		ShapeRect* bgShape = m_manager->Allocate<ShapeRect>("BG");
+		Widget* bgShape = m_manager->Allocate<Widget>("BG");
 		bgShape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_Y_COPY_X);
 		bgShape->SetAlignedPosX(0.0f);
 		bgShape->SetAlignedSizeX(1.0f);
-		bgShape->GetProps().rounding   = Theme::GetDef().baseRounding;
-		bgShape->GetProps().colorStart = Theme::GetDef().background2;
-		bgShape->GetProps().colorEnd   = Theme::GetDef().background2;
-		bgShape->GetProps().onlyRoundCorners.push_back(0);
-		bgShape->GetProps().onlyRoundCorners.push_back(1);
+		bgShape->GetWidgetProps().drawBackground  = true;
+		bgShape->GetWidgetProps().rounding		  = Theme::GetDef().baseRounding;
+		bgShape->GetWidgetProps().colorBackground = Theme::GetDef().background2;
+		bgShape->GetWidgetProps().onlyRound.push_back(0);
+		bgShape->GetWidgetProps().onlyRound.push_back(1);
 		bgShape->SetUserData(def.userData);
 		layout->AddChild(bgShape);
 
 		if (def.useOutlineInGrid)
 		{
-			ShapeRect* bgShapeOutline = m_manager->Allocate<ShapeRect>("Outline");
+			Widget* bgShapeOutline = m_manager->Allocate<Widget>("Outline");
 			bgShapeOutline->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			bgShapeOutline->SetAlignedPos(Vector2::Zero);
 			bgShapeOutline->SetAlignedSize(Vector2::One);
-			bgShapeOutline->GetProps().rounding			= Theme::GetDef().baseRounding;
-			bgShapeOutline->GetProps().colorStart.w		= 0.0f;
-			bgShapeOutline->GetProps().colorEnd.w		= 0.0f;
-			bgShapeOutline->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.5f;
-			bgShapeOutline->GetProps().colorOutline		= Theme::GetDef().black;
-			bgShapeOutline->GetProps().onlyRoundCorners.push_back(0);
-			bgShapeOutline->GetProps().onlyRoundCorners.push_back(1);
+			bgShapeOutline->GetWidgetProps().drawBackground			 = true;
+			bgShapeOutline->GetWidgetProps().rounding				 = Theme::GetDef().baseRounding;
+			bgShapeOutline->GetWidgetProps().colorBackground.start.w = 0.0f;
+			bgShapeOutline->GetWidgetProps().colorBackground.end.w	 = 0.0f;
+			bgShapeOutline->GetWidgetProps().outlineThickness		 = Theme::GetDef().baseOutlineThickness * 1.5f;
+			bgShapeOutline->GetWidgetProps().colorOutline			 = Theme::GetDef().black;
+			bgShapeOutline->GetWidgetProps().onlyRound.push_back(0);
+			bgShapeOutline->GetWidgetProps().onlyRound.push_back(1);
 			bgShape->AddChild(bgShapeOutline);
 		}
 
@@ -647,14 +646,14 @@ namespace Lina::Editor
 			icon->GetProps().dynamicSizeToParent = true;
 			icon->GetProps().dynamicSizeScale	 = 0.8f;
 			icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().foreground1;
-			bgShape->GetProps().colorStart.w = bgShape->GetProps().colorEnd.w = 0.0f;
+			bgShape->GetWidgetProps().colorBackground.start.w = bgShape->GetWidgetProps().colorBackground.end.w = 0.0f;
 
 			bgShape->AddChild(icon);
 		}
 		else
 		{
-			bgShape->GetProps().imageTextureAtlas = def.texture;
-			bgShape->GetProps().fitImage		  = true;
+			bgShape->GetWidgetProps().textureAtlas = def.texture;
+			bgShape->GetWidgetProps().fitTexture   = true;
 
 			if (def.texture == nullptr)
 			{
@@ -668,23 +667,22 @@ namespace Lina::Editor
 			}
 			else
 			{
-				bgShape->GetProps().colorStart = Color(1, 1, 1, 1);
-				bgShape->GetProps().colorEnd   = Color(1, 1, 1, 1);
+				bgShape->GetWidgetProps().colorBackground = Color(1, 1, 1, 1);
 			}
 		}
 
-		ShapeRect* shape = m_manager->Allocate<ShapeRect>("Shape");
+		Widget* shape = m_manager->Allocate<Widget>("Shape");
 		shape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		shape->SetAlignedPosX(0.0f);
 		shape->SetAlignedSizeX(1.0f);
 		shape->SetAlignedSizeY(0.0f);
-		shape->GetProps().rounding				= Theme::GetDef().baseRounding;
-		shape->GetProps().interpolateColor		= true;
-		shape->GetProps().colorInterpolateSpeed = 20.0f;
+		shape->GetWidgetProps().rounding			  = Theme::GetDef().baseRounding;
+		shape->GetWidgetProps().interpolateColor	  = true;
+		shape->GetWidgetProps().colorInterpolateSpeed = 20.0f;
 		shape->SetDrawOrderIncrement(2);
 		shape->SetLocalControlsManager(this);
 		shape->SetUserData(def.userData);
-		shape->GetProps().colorStart = shape->GetProps().colorEnd = Theme::GetDef().background3;
+		shape->GetWidgetProps().colorBackground = Theme::GetDef().background3;
 		shape->Initialize();
 		shape->SetDebugName(def.name);
 
@@ -694,7 +692,7 @@ namespace Lina::Editor
 		layout->GetProps().onRightClicked = [this, shape, layout]() {
 			SetFocus(true);
 
-			auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [shape](ShapeRect* sr) -> bool { return sr == shape; });
+			auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [shape](Widget* sr) -> bool { return sr == shape; });
 			if (it == m_selectedItems.end())
 				SelectItem(shape, true);
 			m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), layout->GetUserData());
@@ -759,14 +757,13 @@ namespace Lina::Editor
 		if (def.unfoldOverride)
 			m_areItemsUnfolded[def.userData] = true;
 
-		ShapeRect* shape = m_manager->Allocate<ShapeRect>("Shape");
+		Widget* shape = m_manager->Allocate<Widget>("Shape");
 		shape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		shape->SetAlignedSizeX(1.0f);
 		shape->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		shape->GetProps().interpolateColor		= true;
-		shape->GetProps().colorInterpolateSpeed = 20.0f;
-		shape->GetProps().colorStart			= Color(0.0f, 0.0f, 0.0f, 0.0f);
-		shape->GetProps().colorEnd				= Color(0.0f, 0.0f, 0.0f, 0.0f);
+		shape->GetWidgetProps().interpolateColor	  = true;
+		shape->GetWidgetProps().colorInterpolateSpeed = 20.0f;
+		shape->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		shape->SetUserData(def.userData);
 		shape->SetDebugName(def.name);
 
@@ -848,7 +845,7 @@ namespace Lina::Editor
 		layout->GetProps().onRightClicked = [shape, this]() {
 			SetFocus(true);
 
-			auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [shape](ShapeRect* sr) -> bool { return sr == shape; });
+			auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [shape](Widget* sr) -> bool { return sr == shape; });
 			if (it == m_selectedItems.end())
 				SelectItem(shape, true);
 			m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), shape->GetUserData());
@@ -866,15 +863,14 @@ namespace Lina::Editor
 		}
 		else
 		{
-			ShapeRect* img = m_manager->Allocate<ShapeRect>("Shape");
+			Widget* img = m_manager->Allocate<Widget>("Shape");
 			img->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			img->SetAlignedPosY(0.5f);
 			img->SetAlignedSizeY(0.8f);
 			img->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			img->GetProps().imageTextureAtlas = def.texture;
-			img->GetProps().fitImage		  = true;
-			img->GetProps().colorStart		  = Color(1, 1, 1, 1);
-			img->GetProps().colorEnd		  = Color(1, 1, 1, 1);
+			img->GetWidgetProps().textureAtlas	  = def.texture;
+			img->GetWidgetProps().fitTexture	  = true;
+			img->GetWidgetProps().colorBackground = Color(1, 1, 1, 1);
 			layout->AddChild(img);
 
 			if (def.texture == nullptr)
@@ -885,8 +881,7 @@ namespace Lina::Editor
 				loading->SetAlignedSize(Vector2(1.0f, 1.0f));
 				loading->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 				loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-				img->GetProps().colorStart = Color(0, 0, 0, 0);
-				img->GetProps().colorEnd   = Color(0, 0, 0, 0);
+				img->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
 				img->AddChild(loading);
 			}
 		}

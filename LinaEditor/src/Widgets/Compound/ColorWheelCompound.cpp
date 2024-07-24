@@ -28,9 +28,10 @@ SOFTWARE.
 
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/EditorLocale.hpp"
+#include "Editor/Editor.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
-#include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
@@ -66,11 +67,12 @@ namespace Lina::Editor
 		field->SetAlignedPosY(0.0f);
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
 
-		ColorSlider* slider			= m_manager->Allocate<ColorSlider>("ColorComponentColorSlider");
-		slider->GetProps().minValue = 0.0f;
-		slider->GetProps().maxValue = 1.0f;
-		slider->GetProps().value	= val;
-		slider->GetProps().step		= 0.0f;
+		ColorSlider* slider						= m_manager->Allocate<ColorSlider>("ColorComponentColorSlider");
+		slider->GetWidgetProps().drawBackground = true;
+		slider->GetProps().minValue				= 0.0f;
+		slider->GetProps().maxValue				= 1.0f;
+		slider->GetProps().value				= val;
+		slider->GetProps().step					= 0.0f;
 		slider->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y);
 		slider->SetAlignedSize(Vector2(0.0f, 1.0f));
 		slider->SetAlignedPosY(0.0f);
@@ -115,19 +117,20 @@ namespace Lina::Editor
 		field->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		field->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
 
-		ColorSlider* slider			 = m_manager->Allocate<ColorSlider>("HSVSlider");
-		slider->GetProps().direction = DirectionOrientation::Vertical;
+		ColorSlider* slider								  = m_manager->Allocate<ColorSlider>("HSVSlider");
+		slider->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
 		slider->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		slider->SetAlignedSizeX(0.5f);
 		slider->SetAlignedPosX(0.5f);
 		slider->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 		slider->SetAlignedSizeY(0.0f);
-		slider->GetProps().minValue		  = 0.0f;
-		slider->GetProps().maxValue		  = isHue ? 360.0f : 1.0f;
-		slider->GetProps().value		  = val;
-		slider->GetProps().step			  = 0.0f;
-		slider->GetProps().isHueShift	  = isHue;
-		slider->GetProps().onValueChanged = [this](float val) { Recalculate(false); };
+		slider->GetProps().minValue				= 0.0f;
+		slider->GetProps().maxValue				= isHue ? 360.0f : 1.0f;
+		slider->GetProps().value				= val;
+		slider->GetProps().step					= 0.0f;
+		slider->GetProps().isHueShift			= isHue;
+		slider->GetProps().onValueChanged		= [this](float val) { Recalculate(false); };
+		slider->GetWidgetProps().drawBackground = !isHue;
 
 		// Layout
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("SaturationValueLayout");
@@ -151,6 +154,7 @@ namespace Lina::Editor
 
 	void ColorWheelCompound::Construct()
 	{
+		m_editor				   = Editor::Get();
 		const float baseItemHeight = Theme::GetDef().baseItemHeight;
 
 		// Top row
@@ -253,9 +257,10 @@ namespace Lina::Editor
 		m_oldColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		m_oldColorField->SetAlignedPosY(0.0f);
 		m_oldColorField->SetAlignedSizeY(1.0f);
-		m_oldColorField->GetProps().rounding				= 0.0f;
-		m_oldColorField->GetProps().outlineThickness		= 0.0f;
-		m_oldColorField->GetProps().drawCheckeredBackground = true;
+		m_oldColorField->GetProps().backgroundTexture	   = m_editor->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
+		m_oldColorField->GetProps().convertToLinear		   = true;
+		m_oldColorField->GetWidgetProps().outlineThickness = 0.0f;
+		m_oldColorField->GetWidgetProps().rounding		   = 0.0f;
 		oldAndNewColors->AddChild(m_oldColorField);
 
 		// New color
@@ -264,10 +269,10 @@ namespace Lina::Editor
 		m_newColorField->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		m_newColorField->SetAlignedPosY(0.0f);
 		m_newColorField->SetAlignedSizeY(1.0f);
-		m_newColorField->GetProps().rounding				= 0.0f;
-		m_newColorField->GetProps().outlineThickness		= 0.0f;
-		m_newColorField->GetProps().drawCheckeredBackground = true;
-		m_newColorField->GetProps().convertToLinear			= true;
+		m_newColorField->GetProps().backgroundTexture	   = m_editor->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
+		m_newColorField->GetProps().convertToLinear		   = true;
+		m_newColorField->GetWidgetProps().outlineThickness = 0.0f;
+		m_newColorField->GetWidgetProps().rounding		   = 0.0f;
 		oldAndNewColors->AddChild(m_newColorField);
 
 		// Display dropdown
@@ -287,11 +292,11 @@ namespace Lina::Editor
 		m_bottomColumn->AddChild(displayDropdown);
 
 		// Color display
-		m_colorComp1											= ConstructColorComponent("R", &m_editedColor.x);
-		m_colorComp2											= ConstructColorComponent("G", &m_editedColor.y);
-		m_colorComp3											= ConstructColorComponent("B", &m_editedColor.z);
-		m_colorComp4											= ConstructColorComponent("A", &m_editedColor.w);
-		m_colorComp4.slider->GetProps().drawCheckeredBackground = true;
+		m_colorComp1									  = ConstructColorComponent("R", &m_editedColor.x);
+		m_colorComp2									  = ConstructColorComponent("G", &m_editedColor.y);
+		m_colorComp3									  = ConstructColorComponent("B", &m_editedColor.z);
+		m_colorComp4									  = ConstructColorComponent("A", &m_editedColor.w);
+		m_colorComp4.slider->GetProps().backgroundTexture = m_editor->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
 		m_bottomColumn->AddChild(m_colorComp1.row, m_colorComp2.row, m_colorComp3.row, m_colorComp4.row);
 	}
 
@@ -400,22 +405,22 @@ namespace Lina::Editor
 			m_editedColor255.Round();
 		}
 
-		const Color begin									= Color(m_hsv.x, 1.0f, 1.0f).HSV2SRGB();
-		m_valueComponent.slider->GetProps().colorBegin		= begin.SRGB2Linear();
-		m_saturationComponent.slider->GetProps().colorBegin = begin.SRGB2Linear();
+		const Color begin													 = Color(m_hsv.x, 1.0f, 1.0f).HSV2SRGB();
+		m_valueComponent.slider->GetWidgetProps().colorBackground.start		 = begin.SRGB2Linear();
+		m_saturationComponent.slider->GetWidgetProps().colorBackground.start = begin.SRGB2Linear();
 
-		m_valueComponent.slider->GetProps().colorEnd	  = Color::Black;
-		m_saturationComponent.slider->GetProps().colorEnd = Color::White;
+		m_valueComponent.slider->GetWidgetProps().colorBackground.end	   = Color::Black;
+		m_saturationComponent.slider->GetWidgetProps().colorBackground.end = Color::White;
 
-		m_colorComp1.slider->GetProps().colorBegin = Color(0.0f, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
-		m_colorComp1.slider->GetProps().colorEnd   = Color(1.0f, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
-		m_colorComp2.slider->GetProps().colorBegin = Color(m_editedColor.x, 0.0f, m_editedColor.z, 1.0f).SRGB2Linear();
-		m_colorComp2.slider->GetProps().colorEnd   = Color(m_editedColor.x, 1.0f, m_editedColor.z, 1.0f).SRGB2Linear();
-		m_colorComp3.slider->GetProps().colorBegin = Color(m_editedColor.x, m_editedColor.y, 0.0f, 1.0f).SRGB2Linear();
-		m_colorComp3.slider->GetProps().colorEnd   = Color(m_editedColor.x, m_editedColor.y, 1.0f, 1.0f).SRGB2Linear();
-		m_colorComp4.slider->GetProps().colorBegin = Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 0.0f).SRGB2Linear();
-		m_colorComp4.slider->GetProps().colorEnd   = Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
-		m_wheel->GetProps().darknessAlpha		   = m_hsv.z;
+		m_colorComp1.slider->GetWidgetProps().colorBackground.start = Color(0.0f, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp1.slider->GetWidgetProps().colorBackground.end	= Color(1.0f, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp2.slider->GetWidgetProps().colorBackground.start = Color(m_editedColor.x, 0.0f, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp2.slider->GetWidgetProps().colorBackground.end	= Color(m_editedColor.x, 1.0f, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_colorComp3.slider->GetWidgetProps().colorBackground.start = Color(m_editedColor.x, m_editedColor.y, 0.0f, 1.0f).SRGB2Linear();
+		m_colorComp3.slider->GetWidgetProps().colorBackground.end	= Color(m_editedColor.x, m_editedColor.y, 1.0f, 1.0f).SRGB2Linear();
+		m_colorComp4.slider->GetWidgetProps().colorBackground.start = Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 0.0f).SRGB2Linear();
+		m_colorComp4.slider->GetWidgetProps().colorBackground.end	= Color(m_editedColor.x, m_editedColor.y, m_editedColor.z, 1.0f).SRGB2Linear();
+		m_wheel->GetProps().darknessAlpha							= m_hsv.z;
 
 		if (m_props.onValueChanged)
 			m_props.onValueChanged(m_editedColor.SRGB2Linear());

@@ -99,8 +99,8 @@ namespace Lina::Editor
 	{
 		DirectionalLayout::Tick(delta);
 
-		const Color targetColor			= m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
-		GetProps().colorBackgroundStart = Math::Lerp(GetProps().colorBackgroundStart, targetColor, delta * COLOR_SPEED);
+		const Color targetColor				   = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
+		GetWidgetProps().colorBackground.start = Math::Lerp(GetWidgetProps().colorBackground.start, targetColor, delta * COLOR_SPEED);
 	}
 
 	bool WindowBar::OnMouse(uint32 button, LinaGX::InputAction act)

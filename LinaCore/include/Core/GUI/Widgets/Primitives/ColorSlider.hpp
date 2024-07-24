@@ -34,6 +34,8 @@ SOFTWARE.
 
 namespace Lina
 {
+	class Texture;
+
 	class ColorSlider : public Widget
 	{
 	public:
@@ -45,47 +47,34 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(float)> onValueChanged;
-			DirectionOrientation  direction				  = DirectionOrientation::Horizontal;
-			Color				  colorBegin			  = Color::White;
-			Color				  colorEnd				  = Color::White;
-			Color				  colorOutline			  = Theme::GetDef().outlineColorBase;
-			Color				  colorOutlineControls	  = Theme::GetDef().outlineColorControls;
-			Color				  colorLine				  = Theme::GetDef().foreground0;
-			Color				  colorLineOutline		  = Theme::GetDef().background0;
-			bool				  isHueShift			  = false;
-			bool				  drawCheckeredBackground = false;
-			float*				  value					  = nullptr;
-			float				  rounding				  = Theme::GetDef().baseRounding;
-			float				  outlineThickness		  = Theme::GetDef().baseOutlineThickness;
-			float				  minValue				  = 0.0f;
-			float				  maxValue				  = 0.0f;
-			float				  step					  = 0.0f;
+
+			Color	 colorLine		   = Theme::GetDef().foreground0;
+			Color	 colorLineOutline  = Theme::GetDef().background0;
+			bool	 isHueShift		   = false;
+			Texture* backgroundTexture = nullptr;
+			float*	 value			   = nullptr;
+			float	 rounding		   = Theme::GetDef().baseRounding;
+			float	 outlineThickness  = Theme::GetDef().baseOutlineThickness;
+			float	 minValue		   = 0.0f;
+			float	 maxValue		   = 0.0f;
+			float	 step			   = 0.0f;
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorBegin.SaveToStream(stream);
-				colorEnd.SaveToStream(stream);
-				colorOutline.SaveToStream(stream);
-				colorOutlineControls.SaveToStream(stream);
+
 				colorLine.SaveToStream(stream);
-				stream << isHueShift << drawCheckeredBackground << rounding << outlineThickness << minValue << maxValue << step;
-				stream << static_cast<uint8>(direction);
+				stream << isHueShift << rounding << outlineThickness << minValue << maxValue << step;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorBegin.LoadFromStream(stream);
-				colorEnd.LoadFromStream(stream);
-				colorOutline.LoadFromStream(stream);
-				colorOutlineControls.LoadFromStream(stream);
+
 				colorLine.LoadFromStream(stream);
-				stream >> isHueShift >> drawCheckeredBackground >> rounding >> outlineThickness >> minValue >> maxValue >> step;
-				uint8 dir = 0;
-				stream >> dir;
-				direction = static_cast<DirectionOrientation>(dir);
+				stream >> isHueShift >> rounding >> outlineThickness >> minValue >> maxValue >> step;
 			}
 		};
 
+		virtual void Initialize() override;
 		virtual void PreTick() override;
 		virtual void Draw() override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action) override;

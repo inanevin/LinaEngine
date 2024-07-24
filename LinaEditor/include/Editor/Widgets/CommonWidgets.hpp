@@ -48,19 +48,12 @@ namespace Lina::Editor
 	class GenericPopup;
 	class InfoTooltip;
 
-#define GIZMO_BOUNDINGBOX_PATH "EditorGizmo_BB"
-#define GIZMO_BOUNDINGBOX_SID  "EditorGizmo_BB"_hs
-
 	class CommonWidgets
 	{
 	public:
 		static DirectionalLayout* BuildWindowButtons(Widget* source);
-
-		static DirectionalLayout* BuildPopupItemDefault(const String& title, Widget* source, bool disabled = false, bool hasHeadingIcon = false, const String& headingIcon = "", bool hasDropdown = false, const String& altText = "");
-		static DirectionalLayout* BuildPopupItemDivider(Widget* source);
-
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
-		static InfoTooltip* ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
+		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
+		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
 
 		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
 

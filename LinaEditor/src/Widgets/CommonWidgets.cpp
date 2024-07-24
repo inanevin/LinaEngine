@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
-#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
@@ -55,13 +54,12 @@ namespace Lina::Editor
 
 		Button* min = source->GetWidgetManager()->Allocate<Button>("Minimize");
 		min->GetText()->SetVisible(false);
-		min->GetProps().colorDefaultStart = Theme::GetDef().background0;
-		min->GetProps().colorDefaultEnd	  = Theme::GetDef().background0;
-		min->GetProps().colorHovered	  = Theme::GetDef().background4;
-		min->GetProps().colorPressed	  = Theme::GetDef().background0;
-		min->GetProps().rounding		  = 0.0f;
-		min->GetProps().outlineThickness  = 0.0f;
-		min->GetProps().onClicked		  = [source]() { source->GetWindow()->Minimize(); };
+		min->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
+		min->GetWidgetProps().colorHovered	   = Theme::GetDef().background4;
+		min->GetWidgetProps().colorPressed	   = Theme::GetDef().background0;
+		min->GetWidgetProps().rounding		   = 0.0f;
+		min->GetWidgetProps().outlineThickness = 0.0f;
+		min->GetProps().onClicked			   = [source]() { source->GetWindow()->Minimize(); };
 		min->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		min->SetAlignedPosY(0.0f);
 		min->SetAlignedSizeY(1.0f);
@@ -77,20 +75,19 @@ namespace Lina::Editor
 
 		Button* max = source->GetWidgetManager()->Allocate<Button>();
 		max->GetText()->SetVisible(false);
-		max->GetProps().colorDefaultStart = Theme::GetDef().background0;
-		max->GetProps().colorDefaultEnd	  = Theme::GetDef().background0;
-		max->GetProps().colorHovered	  = Theme::GetDef().background4;
-		max->GetProps().colorPressed	  = Theme::GetDef().background0;
-		max->GetProps().rounding		  = 0.0f;
-		max->GetProps().outlineThickness  = 0.0f;
-		max->GetProps().onClicked		  = [source, max]() {
-			if (source->GetWindow()->GetIsMaximized())
-				source->GetWindow()->Restore();
-			else
-				source->GetWindow()->Maximize();
+		max->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
+		max->GetWidgetProps().colorHovered	   = Theme::GetDef().background4;
+		max->GetWidgetProps().colorPressed	   = Theme::GetDef().background0;
+		max->GetWidgetProps().rounding		   = 0.0f;
+		max->GetWidgetProps().outlineThickness = 0.0f;
+		max->GetProps().onClicked			   = [source, max]() {
+			 if (source->GetWindow()->GetIsMaximized())
+				 source->GetWindow()->Restore();
+			 else
+				 source->GetWindow()->Maximize();
 
-			max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
-			max->GetText()->CalculateTextSize();
+			 max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
+			 max->GetText()->CalculateTextSize();
 		};
 		max->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		max->SetAlignedPosY(0.0f);
@@ -107,17 +104,16 @@ namespace Lina::Editor
 
 		Button* close = source->GetWidgetManager()->Allocate<Button>();
 		close->GetText()->SetVisible(false);
-		close->GetProps().colorDefaultStart = Theme::GetDef().accentPrimary0;
-		close->GetProps().colorDefaultEnd	= Theme::GetDef().accentPrimary0;
-		close->GetProps().colorHovered		= Theme::GetDef().accentPrimary2;
-		close->GetProps().colorPressed		= Theme::GetDef().accentPrimary1;
-		close->GetProps().rounding			= 0.0f;
-		close->GetProps().outlineThickness	= 0.0f;
-		close->GetProps().onClicked			= [source]() {
-			if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
-				Editor::Get()->RequestExit();
-			else
-				Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
+		close->GetWidgetProps().colorBackground	 = Theme::GetDef().accentPrimary0;
+		close->GetWidgetProps().colorHovered	 = Theme::GetDef().accentPrimary2;
+		close->GetWidgetProps().colorPressed	 = Theme::GetDef().accentPrimary1;
+		close->GetWidgetProps().rounding		 = 0.0f;
+		close->GetWidgetProps().outlineThickness = 0.0f;
+		close->GetProps().onClicked				 = [source]() {
+			 if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
+				 Editor::Get()->RequestExit();
+			 else
+				 Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
 		};
 		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		close->SetAlignedPosY(0.0f);
@@ -133,98 +129,6 @@ namespace Lina::Editor
 		close->AddChild(iconClose);
 
 		return layout;
-	}
-
-	DirectionalLayout* CommonWidgets::BuildPopupItemDefault(const String& title, Widget* source, bool disabled, bool hasHeadingIcon, const String& headingIcon, bool hasDropdown, const String& altText)
-	{
-		DirectionalLayout* item = source->GetWidgetManager()->Allocate<DirectionalLayout>("PopupItemLayout");
-		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
-		item->SetAlignedPosX(0.0f);
-		item->SetAlignedSizeX(1.0f);
-		item->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		item->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		item->GetProps().useHoverColor		  = true;
-		item->GetProps().receiveInput		  = true;
-		item->GetProps().backgroundStyle	  = DirectionalLayout::BackgroundStyle::Default;
-		item->GetProps().colorHovered		  = Theme::GetDef().accentPrimary0;
-		item->GetProps().colorBackgroundStart = item->GetProps().colorBackgroundEnd = Color(0, 0, 0, 0);
-		item->SetChildPadding(Theme::GetDef().baseIndent);
-
-		if (hasHeadingIcon)
-		{
-			if (headingIcon.empty())
-			{
-				Widget* empty = source->GetWidgetManager()->Allocate<Widget>("Empty");
-				empty->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
-				empty->SetAlignedPosY(0.0f);
-				empty->SetAlignedSizeY(1.0f);
-				empty->SetFixedSizeX(Theme::GetDef().baseItemHeight);
-				item->AddChild(empty);
-			}
-			else
-			{
-				Icon* icon = source->GetWidgetManager()->Allocate<Icon>("Icon");
-				icon->GetFlags().Set(WF_POS_ALIGN_Y);
-				icon->SetAlignedPosY(0.5f);
-				icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-				item->AddChild(icon);
-			}
-		}
-
-		Text* txt = source->GetWidgetManager()->Allocate<Text>("Text");
-		txt->GetFlags().Set(WF_POS_ALIGN_Y);
-		txt->SetAlignedPosY(0.5f);
-		txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		txt->GetProps().text		  = title;
-		txt->GetProps().colorDisabled = Theme::GetDef().silent2;
-		item->AddChild(txt);
-
-		if (hasDropdown)
-		{
-			Icon* dd = source->GetWidgetManager()->Allocate<Icon>("DD");
-			dd->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			dd->SetAlignedPos(Vector2(1.0f, 0.5f));
-			dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
-			dd->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			dd->GetProps().icon = ICON_ARROW_RIGHT;
-			item->AddChild(dd);
-		}
-		if (!altText.empty())
-		{
-			Text* txt = source->GetWidgetManager()->Allocate<Text>("Text");
-			txt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-			txt->SetAlignedPos(Vector2(1.0f, 0.5f));
-			txt->SetPosAlignmentSourceX(PosAlignmentSource::End);
-			txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			txt->GetProps().text  = altText;
-			txt->GetProps().font  = ALT_FONT_BOLD_SID;
-			txt->GetProps().color = Theme::GetDef().silent2;
-			item->AddChild(txt);
-		}
-
-		item->Initialize();
-		item->SetIsDisabled(disabled);
-
-		return item;
-	}
-
-	DirectionalLayout* CommonWidgets::BuildPopupItemDivider(Widget* source)
-	{
-		DirectionalLayout* item = source->GetWidgetManager()->Allocate<DirectionalLayout>("Divider");
-		item->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X | WF_POS_ALIGN_X);
-		item->SetAlignedPosX(0.0f);
-		item->SetAlignedSizeX(1.0f);
-		item->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
-
-		ShapeRect* rect = source->GetWidgetManager()->Allocate<ShapeRect>("Shape");
-		rect->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		rect->SetAlignedSize(Vector2(1.0f, 0.25f));
-		rect->SetAlignedPosY(0.5f);
-		rect->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		rect->GetProps().colorStart = rect->GetProps().colorEnd = Theme::GetDef().outlineColorBase;
-		item->AddChild(rect);
-
-		return item;
 	}
 
 	InfoTooltip* CommonWidgets::ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source)

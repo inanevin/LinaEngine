@@ -41,6 +41,9 @@ namespace Lina
 		m_text->SetAlignedPos(Vector2(0.5f, 0.5f));
 		m_text->SetPosAlignmentSourceX(PosAlignmentSource::Center);
 		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		GetWidgetProps().drawBackground			 = true;
+		GetWidgetProps().hoveredIsDifferentColor = true;
+		GetWidgetProps().pressedIsDifferentColor = true;
 		AddChild(m_text);
 	}
 
@@ -56,46 +59,6 @@ namespace Lina
 			if (m_props.onHoverEnd)
 				m_props.onHoverEnd();
 		}
-	}
-
-	void Button::Draw()
-	{
-		if (!GetIsVisible())
-			return;
-
-		const bool hasControls = m_manager->IsControlsOwner(this);
-
-		LinaVG::StyleOptions style;
-		style.rounding				   = m_props.rounding;
-		style.outlineOptions.thickness = m_props.outlineThickness;
-		style.outlineOptions.color	   = hasControls ? m_props.colorOutlineControls.AsLVG4() : m_props.colorOutline.AsLVG4();
-
-		if (!m_props.onlyRound.empty())
-		{
-			for (int32 corner : m_props.onlyRound)
-				style.onlyRoundTheseCorners.push_back(corner);
-		}
-		if (m_isPressed)
-			style.color = m_props.colorPressed.AsLVG4();
-		else if (m_isHovered)
-			style.color = m_props.colorHovered.AsLVG4();
-		else
-		{
-			style.color.start		 = m_props.colorDefaultStart.AsLVG4();
-			style.color.end			 = m_props.colorDefaultEnd.AsLVG4();
-			style.color.gradientType = LinaVG::GradientType::Vertical;
-		}
-
-		if (GetIsDisabled())
-		{
-			style.color.start = style.color.end = m_props.colorDisabled.AsLVG4();
-			style.outlineOptions.color			= m_props.colorDisabled.AsLVG4();
-		}
-
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), style, 0.0f, m_drawOrder);
-		Widget::Draw();
-		Widget::DrawBorders();
-		Widget::DrawTooltip();
 	}
 
 	bool Button::OnMouse(uint32 button, LinaGX::InputAction act)

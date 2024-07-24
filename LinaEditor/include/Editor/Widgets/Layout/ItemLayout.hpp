@@ -33,7 +33,6 @@ SOFTWARE.
 namespace Lina
 {
 	class ScrollArea;
-	class ShapeRect;
 	class TextureAtlasImage;
 	class FileMenu;
 	class Text;
@@ -101,7 +100,7 @@ namespace Lina::Editor
 			return m_contextMenu;
 		}
 
-		inline const Vector<ShapeRect*>& GetSelectedItems() const
+		inline const Vector<Widget*>& GetSelectedItems() const
 		{
 			return m_selectedItems;
 		}
@@ -113,7 +112,7 @@ namespace Lina::Editor
 
 		template <typename T> inline void FillSelectedUserData(Vector<T*>& outData)
 		{
-			for (ShapeRect* r : m_selectedItems)
+			for (Widget* r : m_selectedItems)
 			{
 				void* userData = static_cast<Widget*>(r)->GetUserData();
 				outData.push_back(static_cast<T*>(userData));
@@ -121,9 +120,9 @@ namespace Lina::Editor
 		}
 
 	private:
-		bool IsItemSelected(ShapeRect* r);
-		void RemoveItemFromSelected(ShapeRect* r);
-		void SelectItem(ShapeRect* r, bool clearSelected, bool callEvent = true);
+		bool IsItemSelected(Widget* r);
+		void RemoveItemFromSelected(Widget* r);
+		void SelectItem(Widget* r, bool clearSelected, bool callEvent = true);
 		void UnfoldRecursively(Widget* w);
 		void RenameTitle(Text* txt);
 
@@ -145,8 +144,8 @@ namespace Lina::Editor
 		HashMap<void*, bool> m_areItemsUnfolded;
 		Vector<Widget*>		 m_listItems;
 		void*				 m_lastSelectedItem = nullptr;
-		Vector<ShapeRect*>	 m_selectionItems;
-		Vector<ShapeRect*>	 m_selectedItems;
+		Vector<Widget*>		 m_selectionItems;
+		Vector<Widget*>		 m_selectedItems;
 		bool				 m_isFocused   = false;
 		FileMenu*			 m_contextMenu = nullptr;
 		bool				 m_isPressed   = true;

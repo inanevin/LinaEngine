@@ -51,7 +51,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/LayoutBorder.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
@@ -280,10 +279,10 @@ namespace Lina::Editor
 		bottom->SetAlignedSizeX(1.0f);
 		bottom->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
 		bottom->SetChildPadding(Theme::GetDef().baseIndentInner);
-		bottom->GetChildMargins()				= {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
-		bottom->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		bottom->GetProps().colorBackgroundStart = bottom->GetProps().colorBackgroundEnd = Theme::GetDef().background1;
-		bottom->GetBorderThickness().top												= Theme::GetDef().baseBorderThickness;
+		bottom->GetChildMargins()				 = {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
+		bottom->GetWidgetProps().drawBackground	 = true;
+		bottom->GetWidgetProps().colorBackground = Theme::GetDef().background1;
+		bottom->GetBorderThickness().top		 = Theme::GetDef().baseBorderThickness;
 		bottom->SetBorderColor(Theme::GetDef().background0);
 
 		Text* itemCount = m_manager->Allocate<Text>("ItemCount");
@@ -296,12 +295,13 @@ namespace Lina::Editor
 		m_itemCount									  = itemCount;
 		bottom->AddChild(itemCount);
 
-		ShapeRect* divider = m_manager->Allocate<ShapeRect>("Divider");
+		Widget* divider = m_manager->Allocate<Widget>("Divider");
 		divider->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
 		divider->SetAlignedPosY(0.0f);
 		divider->SetAlignedSizeY(1.0f);
 		divider->SetFixedSizeX(2.0f);
-		divider->GetProps().colorStart = divider->GetProps().colorEnd = Theme::GetDef().black;
+		divider->GetWidgetProps().drawBackground  = true;
+		divider->GetWidgetProps().colorBackground = Theme::GetDef().black;
 		bottom->AddChild(divider);
 
 		Text* itemSelected = m_manager->Allocate<Text>("ItemSelected");
@@ -314,12 +314,13 @@ namespace Lina::Editor
 		m_selectedItemCount								 = itemSelected;
 		bottom->AddChild(itemSelected);
 
-		ShapeRect* divider2 = m_manager->Allocate<ShapeRect>("Divider");
+		Widget* divider2 = m_manager->Allocate<Widget>("Divider");
 		divider2->GetFlags().Set(WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_SIZE_ALIGN_Y);
 		divider2->SetAlignedPosY(0.0f);
 		divider2->SetAlignedSizeY(1.0f);
 		divider2->SetFixedSizeX(2.0f);
-		divider2->GetProps().colorStart = divider2->GetProps().colorEnd = Theme::GetDef().black;
+		divider2->GetWidgetProps().drawBackground  = true;
+		divider2->GetWidgetProps().colorBackground = Theme::GetDef().black;
 		bottom->AddChild(divider2);
 
 		Slider* sizeSlider = m_manager->Allocate<Slider>("SizeSlider");
@@ -363,11 +364,12 @@ namespace Lina::Editor
 		filler->SetFixedSizeY(Theme::GetDef().baseItemHeight / 2);
 		contents->AddChild(filler);
 
-		ShapeRect* bg = m_manager->Allocate<ShapeRect>("BG");
+		Widget* bg = m_manager->Allocate<Widget>("BG");
 		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		bg->SetAlignedPosX(0.0f);
 		bg->SetAlignedSize(Vector2(1.0f, 0.0f));
-		bg->GetProps().colorStart = bg->GetProps().colorEnd = Theme::GetDef().background0;
+		bg->GetWidgetProps().drawBackground	 = true;
+		bg->GetWidgetProps().colorBackground = Theme::GetDef().background0;
 		contents->AddChild(bg);
 
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
@@ -476,11 +478,12 @@ namespace Lina::Editor
 		};
 		browser->AddChild(searchField);
 
-		ShapeRect* bg = m_manager->Allocate<ShapeRect>("BG");
+		Widget* bg = m_manager->Allocate<Widget>("BG");
 		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		bg->SetAlignedPosX(0.0f);
 		bg->SetAlignedSize(Vector2(1.0f, 0.0f));
-		bg->GetProps().colorStart = bg->GetProps().colorEnd = Theme::GetDef().background0;
+		bg->GetWidgetProps().drawBackground	 = true;
+		bg->GetWidgetProps().colorBackground = Theme::GetDef().background0;
 		browser->AddChild(bg);
 
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");

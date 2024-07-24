@@ -57,6 +57,8 @@ namespace Lina
 	class IStream;
 	class Ostream;
 	class WidgetManager;
+	struct TextureAtlasImage;
+	class Texture;
 
 #define WIDGET_VERSION 0
 	/*
@@ -102,6 +104,37 @@ namespace Lina
 	class Widget
 	{
 	public:
+		struct WidgetProps
+		{
+			bool				 clipChildren				 = false;
+			bool				 customClip					 = false;
+			bool				 drawBackground				 = false;
+			bool				 backgroundIsCentralGradient = false;
+			bool				 interpolateColor			 = false;
+			bool				 fitTexture					 = false;
+			bool				 hoveredIsDifferentColor	 = false;
+			bool				 pressedIsDifferentColor	 = false;
+			bool				 activeTextureTiling		 = false;
+			bool				 useSpecialTexture			 = false;
+			float				 colorInterpolateSpeed		 = 0.0f;
+			float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
+			float				 rounding					 = Theme::GetDef().baseRounding;
+			ColorGrad			 colorBackground			 = Theme::GetDef().background0;
+			ColorGrad			 colorOutline				 = Theme::GetDef().outlineColorBase;
+			ColorGrad			 colorOutlineControls		 = Theme::GetDef().outlineColorControls;
+			ColorGrad			 colorHovered				 = Theme::GetDef().background2;
+			ColorGrad			 colorPressed				 = Theme::GetDef().background1;
+			ColorGrad			 colorDisabled				 = Theme::GetDef().silent0;
+			DirectionOrientation colorBackgroundDirection	 = DirectionOrientation::Horizontal;
+			TextureAtlasImage*	 textureAtlas				 = nullptr;
+			Texture*			 rawTexture					 = nullptr;
+			uint32				 specialTexture				 = 0;
+			Vector2				 textureTiling				 = Vector2::One;
+			Vector<int32>		 onlyRound					 = {};
+			Rect				 customClipRect				 = {};
+			ColorGrad			 _interpolatedColor			 = Color();
+		};
+
 		Widget(Bitmask32 flags = 0) : m_flags(flags), m_tid(GetTypeID<Widget>()){};
 		virtual ~Widget() = default;
 
@@ -147,6 +180,8 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
 
+		void	DrawBackground();
+		void	DrawChildren();
 		void	AddChild(Widget* w);
 		void	ExecuteNextFrame(Delegate<void()>&& cb);
 		void	RemoveChild(Widget* w);
@@ -450,6 +485,11 @@ namespace Lina
 			return nullptr;
 		}
 
+		inline WidgetProps& GetWidgetProps()
+		{
+			return m_widgetProps;
+		}
+
 		inline uint32 GetCacheIndex() const
 		{
 			return m_cacheIndex;
@@ -512,6 +552,7 @@ namespace Lina
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
 		int32						m_drawOrderIncrement	= 0;
+		WidgetProps					m_widgetProps			= {};
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Widget)

@@ -69,20 +69,11 @@ namespace Lina::Editor
 		search->GetProps().rounding		   = 0.0f;
 		layout->AddChild(search);
 
-		// Testbed* tb = m_manager->Allocate<Testbed>("TB");
-		// tb->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		// tb->SetAlignedPosX(0.0f);
-		// tb->SetAlignedSize(Vector2(1.0f, 0.0f));
-		// layout->AddChild(tb);
-
-		// SelectableListLayout* selectableList = m_manager->Allocate<SelectableListLayout>("SelectableList");
-		// selectableList->SetListener(this);
-		// selectableList->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		// selectableList->SetAlignedPosX(0.0f);
-		// selectableList->SetAlignedSize(Vector2(1.0f, 0.0f));
-		// layout->AddChild(selectableList);
-
-		// m_selectableList = selectableList;
+		Testbed* tb = m_manager->Allocate<Testbed>("TB");
+		tb->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		tb->SetAlignedPosX(0.0f);
+		tb->SetAlignedSize(Vector2(1.0f, 0.0f));
+		layout->AddChild(tb);
 	}
 
 	void PanelEntities::Destruct()
@@ -97,7 +88,6 @@ namespace Lina::Editor
 		{
 			m_world = world;
 			m_world->AddListener(this);
-			m_selectableList->RefreshItems();
 		}
 	}
 
@@ -111,61 +101,6 @@ namespace Lina::Editor
 		opts.color = Theme::GetDef().background1.AsLVG4();
 		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 		Widget::Draw();
-	}
-
-	void PanelEntities::OnSelectableListFillItems(SelectableListLayout* list, Vector<SelectableListItem>& outItems, void* parentUserData)
-	{
-		if (!m_world)
-			return;
-
-		if (parentUserData != nullptr)
-		{
-			Entity*		e		 = static_cast<Entity*>(parentUserData);
-			const auto& children = e->GetChildren();
-			outItems.resize(children.size());
-			for (size_t i = 0; i < children.size(); i++)
-			{
-				Entity* child = children[i];
-				outItems[i]	  = {
-					  .title	   = child->GetName(),
-					  .userData	   = child,
-					  .hasChildren = !child->GetChildren().empty(),
-				  };
-			}
-
-			return;
-		}
-		m_world->ViewEntities([&](Entity* e, uint32 index) -> bool {
-			if (e->GetParent() == nullptr)
-			{
-				outItems.push_back({
-					.title		 = e->GetName(),
-					.userData	 = e,
-					.hasChildren = !e->GetChildren().empty(),
-				});
-			}
-			return false;
-		});
-	}
-
-	void PanelEntities::OnSelectableListPayloadDropped(SelectableListLayout* list, void* payloadUserData, void* droppedItemUserData)
-	{
-		Entity* payloadEntity = static_cast<Entity*>(payloadUserData);
-
-		if (!droppedItemUserData)
-		{
-			if (payloadEntity->GetParent())
-			{
-				payloadEntity->RemoveFromParent();
-				m_selectableList->RefreshItems();
-			}
-
-			return;
-		}
-
-		Entity* droppedEntity = static_cast<Entity*>(droppedItemUserData);
-		droppedEntity->AddChild(payloadEntity);
-		m_selectableList->RefreshItems();
 	}
 
 	bool PanelEntities::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)

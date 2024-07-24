@@ -28,10 +28,12 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Lina_Color_HPP
-#define Lina_Color_HPP
 #include "LinaVG/Core/Vectors.hpp"
 
+namespace LinaVG
+{
+	struct Vec4Grad;
+}
 namespace Lina
 {
 	class Vector4;
@@ -120,6 +122,19 @@ namespace Lina
 		void LoadFromStream(IStream& stream);
 	};
 
-} // namespace Lina
+	struct ColorGrad
+	{
+		Color start = Color::White;
+		Color end	= Color::White;
 
-#endif
+		ColorGrad(){};
+		ColorGrad(const Color& col)
+		{
+			start = col;
+			end	  = col;
+		}
+
+		LinaVG::Vec4Grad AsLVG();
+	};
+
+} // namespace Lina
