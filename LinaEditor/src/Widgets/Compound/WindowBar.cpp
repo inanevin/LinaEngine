@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -39,9 +40,23 @@ namespace Lina::Editor
 {
 	void WindowBar::Construct()
 	{
-		GetProps().direction = DirectionOrientation::Horizontal;
+		GetProps().direction			  = DirectionOrientation::Horizontal;
+		GetWidgetProps().outlineThickness = 0.0f;
+		GetWidgetProps().rounding		  = 0.0f;
+		GetWidgetProps().drawBackground	  = true;
 		SetChildPadding(Theme::GetDef().baseIndent);
 		GetChildMargins() = {.left = Theme::GetDef().baseIndent};
+
+		Dropshadow* ds = m_manager->Allocate<Dropshadow>("DS");
+		ds->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		ds->SetAlignedPos(Vector2::Zero);
+		ds->SetAlignedSize(Vector2::One);
+		ds->GetProps().direction = Direction::Bottom;
+		ds->GetProps().color	 = Theme::GetDef().black;
+		ds->GetProps().color.w	 = 0.75f;
+		ds->GetProps().steps	 = 6;
+		ds->SetDrawOrderIncrement(-1);
+		AddChild(ds);
 	}
 
 	void WindowBar::Initialize()

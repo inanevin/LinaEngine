@@ -42,9 +42,10 @@ namespace Lina::Editor
 		DirectionalLayout::Construct();
 		GetProps().direction			  = DirectionOrientation::Vertical;
 		GetWidgetProps().drawBackground	  = true;
+		GetWidgetProps().rounding		  = 0.0f;
 		GetWidgetProps().colorBackground  = Theme::GetDef().background1;
 		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
-		GetWidgetProps().colorOutline	  = Theme::GetDef().outlineColorBase;
+		GetWidgetProps().colorOutline	  = Theme::GetDef().black;
 
 		GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_FOREGROUND_BLOCKER);
 		SetAlignedSizeY(1.0f);
@@ -65,7 +66,6 @@ namespace Lina::Editor
 		titleBar->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		titleBar->SetAlignedSizeX(1.0f);
 		titleBar->SetFixedSize(Theme::GetDef().baseItemHeight);
-		titleBar->GetWidgetProps().drawBackground  = true;
 		titleBar->GetWidgetProps().colorBackground = Theme::GetDef().background0;
 		titleBar->GetBorderThickness().bottom	   = Theme::GetDef().baseOutlineThickness;
 		titleBar->SetBorderColor(Theme::GetDef().black);
