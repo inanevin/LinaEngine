@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
-#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
@@ -52,6 +51,18 @@ namespace Lina
 			return;
 		}
 
+		if (!m_itemData.headerIcon.empty())
+		{
+			Icon* ic = m_manager->Allocate<Icon>("HeaderIcon");
+			ic->GetFlags().Set(WF_POS_ALIGN_Y);
+			ic->SetAlignedPos(Vector2(1.0f, 0.5f));
+			ic->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			ic->GetProps().icon		  = m_itemData.headerIcon;
+			ic->GetProps().colorStart = ic->GetProps().colorEnd = m_itemData.headerIconColor;
+			ic->GetProps().textScale							= 0.5f;
+			m_headerIcon										= ic;
+			AddChild(ic);
+		}
 		Text* txt = m_manager->Allocate<Text>("Text");
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
@@ -188,6 +199,9 @@ namespace Lina
 	{
 		Vector<FileMenuItem::Data> itemData;
 		m_listener->OnFileMenuGetItems(this, sid, itemData, userData);
+		if (itemData.empty())
+			return;
+
 		m_subPopup							= CreatePopup(position, itemData);
 		m_subPopup->GetProps().onDestructed = [this]() {
 			m_subPopup		= nullptr;
@@ -249,8 +263,7 @@ namespace Lina
 				}
 			};
 
-			if (m_listener->OnFileMenuIsItemDisabled(this, sid))
-				it->SetIsDisabled(true);
+			it->SetIsDisabled(subItem.isDisabled);
 
 			popup->AddChild(it);
 		}
@@ -261,11 +274,15 @@ namespace Lina
 
 		for (const auto& c : popup->GetChildren())
 		{
-			auto* fmi	  = static_cast<FileMenuItem*>(c);
-			auto* text	  = fmi->GetText();
-			auto* altText = fmi->GetAltText();
+			auto* fmi		 = static_cast<FileMenuItem*>(c);
+			auto* text		 = fmi->GetText();
+			auto* altText	 = fmi->GetAltText();
+			auto* headerIcon = fmi->GetHeaderIcon();
 
 			float size = 0.0f;
+
+			if (headerIcon)
+				size += headerIcon->GetSizeX();
 
 			if (text)
 				size += text->GetSizeX();

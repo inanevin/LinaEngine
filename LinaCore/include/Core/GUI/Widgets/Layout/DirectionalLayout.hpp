@@ -65,6 +65,7 @@ namespace Lina
 			BackgroundStyle		 backgroundStyle	   = BackgroundStyle::None;
 			Vector<int32>		 onlyRoundTheseCorners = {};
 			Delegate<void()>	 onClicked;
+			Delegate<void()>	 onDoubleClicked;
 			Delegate<void()>	 onRightClicked;
 			Delegate<void()>	 onPressed;
 			Delegate<void()>	 onDestructed;

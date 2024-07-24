@@ -47,8 +47,8 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Draw() override;
 
-		virtual PanelLayoutExtra GetExtraLayoutData() override;
-		virtual void			 SetExtraLayoutData(const PanelLayoutExtra& data) override;
+		virtual void LoadLayoutFromStream(IStream& stream) override;
+		virtual void SaveLayoutToStream(OStream& stream) override;
 
 	private:
 		void			   SelectContent(int32 index);

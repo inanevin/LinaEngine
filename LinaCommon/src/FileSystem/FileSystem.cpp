@@ -94,16 +94,14 @@ namespace Lina
 				if (extensionFilter.empty())
 				{
 					String path = entry.path().string().c_str();
-					linatl::replace(path.begin(), path.end(), '\\', '/');
-					outData.push_back(path);
+					outData.push_back(FixPath(path));
 				}
 				else
 				{
 					String fullpath = entry.path().string().c_str();
 					if (GetFileExtension(fullpath).compare(extensionFilter))
 					{
-						linatl::replace(fullpath.begin(), fullpath.end(), '\\', '/');
-						outData.push_back(fullpath);
+						outData.push_back(FixPath(fullpath));
 					}
 				}
 			}
@@ -115,7 +113,7 @@ namespace Lina
 		outData.clear();
 		for (const auto& entry : std::filesystem::directory_iterator(path.c_str()))
 		{
-			outData.push_back(entry.path().string().c_str());
+			outData.push_back(FixPath(entry.path().string().c_str()));
 		}
 	}
 
@@ -170,24 +168,24 @@ namespace Lina
 		{
 			unsigned int start = 0;
 			end				   = end + 1;
-			return fileName.substr(start, end - start);
+			return FixPath(fileName.substr(start, end - start));
 		}
 	}
 
 	String FileSystem::RemoveExtensionFromPath(const String& fileName)
 	{
-		size_t lastindex = fileName.find_last_of(".");
-		return fileName.substr(0, lastindex);
+		const size_t lastindex = fileName.find_last_of(".");
+		return FixPath(fileName.substr(0, lastindex));
 	}
 
 	String FileSystem::GetFilenameAndExtensionFromPath(const String& fileName)
 	{
-		return fileName.substr(fileName.find_last_of("/\\") + 1);
+		return FixPath(fileName.substr(fileName.find_last_of("/\\") + 1));
 	}
 
 	String FileSystem::GetFileExtension(const String& file)
 	{
-		return file.substr(file.find_last_of(".") + 1);
+		return FixPath(file.substr(file.find_last_of(".") + 1));
 	}
 
 	String FileSystem::GetFilenameOnlyFromPath(const String& file)
@@ -197,7 +195,6 @@ namespace Lina
 
 	String FileSystem::GetLastFolderFromPath(const String& path)
 	{
-
 		String		 fixedPath = FixPath(path);
 		const size_t lastSlash = fixedPath.find_last_of("/\\");
 
@@ -279,6 +276,89 @@ namespace Lina
 		result		  = UtilStr::ReplaceAll(result, "\\\\", "/");
 		// result = UtilStr::ReplaceAll(result, "\\", "/");
 		return result;
+	}
+
+	namespace
+	{
+		void LinaCopyFile(const std::filesystem::path& source, const std::filesystem::path& destination)
+		{
+			try
+			{
+				std::filesystem::copy_file(source, destination, std::filesystem::copy_options::overwrite_existing);
+			}
+			catch (std::filesystem::filesystem_error& e)
+			{
+				LINA_ERR("Error duplicating file! {0}", e.what());
+			}
+		}
+
+		void LinaCopyDirectory(const std::filesystem::path& source, const std::filesystem::path& destination)
+		{
+			try
+			{
+				std::filesystem::create_directory(destination);
+				for (const auto& entry : std::filesystem::recursive_directory_iterator(source))
+				{
+					const auto& path			= entry.path();
+					auto		relativePathStr = path.lexically_relative(source).string();
+					std::filesystem::copy(path, destination / relativePathStr, std::filesystem::copy_options::overwrite_existing | std::filesystem::copy_options::recursive);
+				}
+			}
+			catch (std::filesystem::filesystem_error& e)
+			{
+				LINA_ERR("Error duplicating directory! {0}", e.what());
+			}
+		}
+	} // namespace
+
+	String FileSystem::Duplicate(const String& path)
+	{
+		try
+		{
+			if (std::filesystem::exists(path))
+			{
+				const bool	 isDirectory   = FileSystem::IsDirectory(path);
+				const String correctedPath = isDirectory ? path : FileSystem::RemoveExtensionFromPath(path);
+				String		 finalPath	   = correctedPath + " (Copy)";
+
+				size_t insertBeforeExtension = finalPath.length();
+				if (!isDirectory)
+				{
+					finalPath += "." + FileSystem::GetFileExtension(path);
+				}
+
+				while (FileSystem::FileOrPathExists(finalPath))
+				{
+					finalPath.insert(insertBeforeExtension, " (Copy)");
+					insertBeforeExtension += 7;
+				}
+
+				std::filesystem::path destination = finalPath;
+
+				if (std::filesystem::is_regular_file(path))
+				{
+					LinaCopyFile(path, destination);
+					return finalPath;
+				}
+				else if (std::filesystem::is_directory(path))
+				{
+					LinaCopyDirectory(path, destination);
+					return finalPath;
+				}
+				else
+				{
+					LINA_ERR("Unsupported file type! {0}", path);
+				}
+			}
+			else
+			{
+				LINA_ERR("Path doesn't exist! {0}", path);
+			}
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			LINA_ERR("Exception processing path! {0}", path);
+		}
 	}
 	bool FileSystem::FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem)
 	{

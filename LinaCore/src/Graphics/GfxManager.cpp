@@ -123,7 +123,7 @@ namespace Lina
 
 		LinaGX::Config.multithreadedQueueSubmission = true;
 		LinaGX::Config.api							= api;
-		LinaGX::Config.gpu							= LinaGX::PreferredGPUType::Integrated;
+		LinaGX::Config.gpu							= LinaGX::PreferredGPUType::Discrete;
 		LinaGX::Config.framesInFlight				= FRAMES_IN_FLIGHT;
 		LinaGX::Config.backbufferCount				= BACK_BUFFER_COUNT;
 		LinaGX::Config.mutexLockCreationDeletion	= true;

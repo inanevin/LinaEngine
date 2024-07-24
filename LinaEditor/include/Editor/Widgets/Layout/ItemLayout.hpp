@@ -35,6 +35,8 @@ namespace Lina
 	class ScrollArea;
 	class ShapeRect;
 	class TextureAtlasImage;
+	class FileMenu;
+	class Text;
 } // namespace Lina
 
 namespace Lina::Editor
@@ -44,7 +46,9 @@ namespace Lina::Editor
 		void*				   userData			= nullptr;
 		bool				   useOutlineInGrid = false;
 		bool				   unfoldOverride	= false;
+		bool				   nameEditable		= true;
 		String				   icon				= "";
+		Color				   color			= Theme::GetDef().foreground0;
 		TextureAtlasImage*	   texture			= nullptr;
 		String				   name				= "";
 		Vector<ItemDefinition> children;
@@ -59,42 +63,69 @@ namespace Lina::Editor
 
 		struct Properties
 		{
-			bool											 itemsCanHaveChildren = false;
-			Delegate<void(Vector<ItemDefinition>& outITems)> onGatherItems;
-			Delegate<void(void* userData)>					 onItemSelected;
-			Delegate<void(void* userData)>					 onItemInteracted;
-			Delegate<void(void* userData)>					 onItemDelete;
+			bool												  itemsCanHaveChildren = false;
+			Delegate<void(Vector<ItemDefinition>& outITems)>	  onGatherItems;
+			Delegate<void(void* userData)>						  onItemSelected;
+			Delegate<void(void* userData)>						  onItemInteracted;
+			Delegate<void(void* userData)>						  onItemDelete;
+			Delegate<void(void* userData)>						  onDuplicate;
+			Delegate<void(void* userData)>						  onDelete;
+			Delegate<void(void* userData)>						  onCreatePayload;
+			Delegate<void(void* userData, const String& newName)> onItemRenamed;
 		};
 
 		virtual void	Construct() override;
 		virtual void	Initialize() override;
 		virtual void	PreTick() override;
+		virtual void	Draw() override;
 		virtual void	OnGrabbedControls(bool isForward, Widget* prevControls) override;
 		virtual Widget* GetNextControls() override;
 		virtual Widget* GetPrevControls() override;
 		virtual bool	OnKey(uint32 key, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool	OnMouse(uint32 button, LinaGX::InputAction act) override;
 
+		void SetOutlineThicknessAndColor(float outlineThickness, const Color& outlineColor);
 		void SetSelectedItem(void* userData);
 		void RefreshItems();
 		void SetUseGridLayout(bool useGridLayout);
 		void SetGridItemSize(const Vector2& size);
-
-		inline void SetFocus(bool isFocused)
-		{
-			m_isFocused = isFocused;
-		}
+		void SetFocus(bool isFocused);
 
 		inline Properties& GetProps()
 		{
 			return m_props;
 		}
 
+		inline FileMenu* GetContextMenu() const
+		{
+			return m_contextMenu;
+		}
+
+		inline const Vector<ShapeRect*>& GetSelectedItems() const
+		{
+			return m_selectedItems;
+		}
+
+		inline bool GetFocus() const
+		{
+			return m_isFocused;
+		}
+
+		template <typename T> inline void FillSelectedUserData(Vector<T*>& outData)
+		{
+			for (ShapeRect* r : m_selectedItems)
+			{
+				void* userData = static_cast<Widget*>(r)->GetUserData();
+				outData.push_back(static_cast<T*>(userData));
+			}
+		}
+
 	private:
 		bool IsItemSelected(ShapeRect* r);
 		void RemoveItemFromSelected(ShapeRect* r);
-		void SelectItem(ShapeRect* r);
+		void SelectItem(ShapeRect* r, bool clearSelected, bool callEvent = true);
 		void UnfoldRecursively(Widget* w);
+		void RenameTitle(Text* txt);
 
 	private:
 		void	CreateLayout();
@@ -116,7 +147,10 @@ namespace Lina::Editor
 		void*				 m_lastSelectedItem = nullptr;
 		Vector<ShapeRect*>	 m_selectionItems;
 		Vector<ShapeRect*>	 m_selectedItems;
-		bool				 m_isFocused = false;
+		bool				 m_isFocused   = false;
+		FileMenu*			 m_contextMenu = nullptr;
+		bool				 m_isPressed   = true;
+		Widget*				 m_dragTarget  = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(ItemLayout)

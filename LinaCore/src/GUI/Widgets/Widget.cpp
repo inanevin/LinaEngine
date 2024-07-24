@@ -116,6 +116,7 @@ namespace Lina
 
 	void Widget::Initialize()
 	{
+		m_manager->InitializeWidget(this);
 		linatl::for_each(m_children.begin(), m_children.end(), [this](Widget* child) -> void {
 			child->Initialize();
 			if (GetIsDisabled())

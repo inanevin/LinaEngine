@@ -61,6 +61,7 @@ namespace Lina
 		static String RemoveWhitespaces(const String& str);
 		static String GetUserDataFolder();
 		static String FixPath(const String& str);
+		static String Duplicate(const String& path);
 
 		// File and folder
 		static bool	  FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem);

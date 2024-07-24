@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Popups/InfoTooltip.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
+#include "Editor/Widgets/Compound/Popup.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
@@ -40,7 +41,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
 
@@ -321,29 +321,6 @@ namespace Lina::Editor
 		layout->AddChild(txt);
 
 		return layout;
-	}
-
-	Popup* CommonWidgets::CreateDefaultPopup(Widget* source, const Vector2& pos, float height)
-	{
-		WidgetManager* wm	 = source->GetWidgetManager();
-		Popup*		   popup = wm->Allocate<Popup>("Popup");
-		popup->GetFlags().Set(WF_SIZE_X_MAX_CHILDREN | WF_USE_FIXED_SIZE_Y);
-		popup->SetFixedSizeY(height + Theme::GetDef().baseIndent * 2);
-		popup->SetPos(pos);
-
-		DirectionalLayout* bg = popup->GetBackground();
-
-		bg->GetProps().colorBackgroundStart = Theme::GetDef().background0;
-		bg->GetProps().colorBackgroundEnd	= Theme::GetDef().background0;
-		bg->GetProps().backgroundStyle		= DirectionalLayout::BackgroundStyle::Default;
-		// bg->GetChildMargins()			= TBLR::Eq(Theme::GetDef().baseIndent);
-		bg->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.f;
-		bg->GetProps().colorOutline		= Theme::GetDef().accentPrimary0;
-		bg->GetProps().rounding			= Theme::GetDef().baseRounding;
-		bg->GetChildMargins()			= {.top = Theme::GetDef().baseIndent, .bottom = Theme::GetDef().baseIndent};
-
-		popup->Initialize();
-		return popup;
 	}
 
 	GenericPopup* CommonWidgets::ThrowGenericPopup(const String& title, const String& text, Widget* source)

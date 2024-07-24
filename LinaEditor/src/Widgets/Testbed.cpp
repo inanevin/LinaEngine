@@ -42,7 +42,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorField.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
-#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"

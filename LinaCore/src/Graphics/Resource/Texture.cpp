@@ -159,7 +159,7 @@ namespace Lina
 			if (pixelSize != 0)
 			{
 				buffer.pixels = new uint8[pixelSize];
-				stream.ReadEndianSafe(buffer.pixels, pixelSize);
+				stream.ReadToRawEndianSafe(buffer.pixels, pixelSize);
 			}
 
 			buffer.bytesPerPixel = m_bytesPerPixel;
@@ -182,7 +182,7 @@ namespace Lina
 			stream << buffer.width << buffer.height << pixelSize;
 
 			if (pixelSize != 0)
-				stream.WriteEndianSafe(buffer.pixels, pixelSize);
+				stream.WriteRawEndianSafe(buffer.pixels, pixelSize);
 		}
 	}
 

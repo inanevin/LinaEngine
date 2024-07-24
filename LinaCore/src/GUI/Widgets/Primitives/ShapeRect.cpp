@@ -137,6 +137,12 @@ namespace Lina
 
 	bool ShapeRect::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
+		if (m_props.onRightClicked && button == LINAGX_MOUSE_1 && action == LinaGX::InputAction::Pressed && m_isHovered)
+		{
+			m_props.onRightClicked();
+			return true;
+		}
+
 		if (button != LINAGX_MOUSE_0)
 			return false;
 

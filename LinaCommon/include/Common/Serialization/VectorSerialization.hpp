@@ -78,6 +78,16 @@ namespace Lina
 			for (uint32 i = 0; i < size; i++)
 				vec[i].LoadFromStream(stream);
 		}
+		template <typename T> static inline void LoadFromStream_OBJ(IStream& stream, Vector<T>& vec, uint32 version)
+		{
+			uint32 size = 0;
+			stream >> size;
+
+			vec.clear();
+			vec.resize(size);
+			for (uint32 i = 0; i < size; i++)
+				vec[i].LoadFromStream(stream, version);
+		}
 	};
 
 } // namespace Lina

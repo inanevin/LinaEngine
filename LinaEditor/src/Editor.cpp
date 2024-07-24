@@ -343,6 +343,7 @@ namespace Lina::Editor
 		Vector<ResourceIdentifier> priorityResources;
 		priorityResources.push_back({"Resources/Editor/Shaders/Lines.linashader", GetTypeID<Shader>()});
 		priorityResources.push_back({ALT_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({ALT_FONT_BOLD_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({BIG_FONT_PATH, GetTypeID<Font>()});
 		m_resourceManagerV2.LoadResourcesFromFile(this, RLID_CORE_RES, priorityResources, FileManager::GetMetacachePath());
 
@@ -432,7 +433,6 @@ namespace Lina::Editor
 		m_fileManager.Shutdown();
 		m_atlasManager.Shutdown();
 		m_windowPanelManager.Shutdown();
-		m_settings.SaveToFile();
 		m_projectManager.Shutdown();
 
 		m_resourceManagerV2.Shutdown();

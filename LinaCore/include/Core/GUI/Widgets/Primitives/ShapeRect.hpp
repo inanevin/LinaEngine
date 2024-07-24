@@ -60,6 +60,7 @@ namespace Lina
 			bool			   fitImage			 = false;
 
 			Delegate<void()> onClicked;
+			Delegate<void()> onRightClicked;
 			Delegate<void()> onDoubleClicked;
 
 			void SaveToStream(OStream& stream) const

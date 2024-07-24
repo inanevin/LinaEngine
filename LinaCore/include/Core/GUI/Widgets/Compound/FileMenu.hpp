@@ -39,6 +39,7 @@ namespace Lina
 	class Button;
 	class FileMenu;
 	class Text;
+	class Icon;
 
 	class FileMenuItem : public DirectionalLayout
 	{
@@ -49,16 +50,24 @@ namespace Lina
 
 		struct Data
 		{
-			String text			= "";
-			String altText		= "";
-			String dropdownIcon = "";
-			bool   hasDropdown	= false;
-			bool   isDivider	= false;
-			void*  userData		= nullptr;
+			String text			   = "";
+			String altText		   = "";
+			String dropdownIcon	   = "";
+			String headerIcon	   = "";
+			Color  headerIconColor = Theme::GetDef().foreground0;
+			bool   hasDropdown	   = false;
+			bool   isDivider	   = false;
+			bool   isDisabled	   = false;
+			void*  userData		   = nullptr;
 		};
 
 		virtual void Initialize() override;
 		virtual void PreTick() override;
+
+		inline Icon* GetHeaderIcon() const
+		{
+			return m_headerIcon;
+		}
 
 		inline Text* GetText() const
 		{
@@ -78,20 +87,17 @@ namespace Lina
 	private:
 		friend class FileMenu;
 
-		FileMenu*		   m_ownerMenu = nullptr;
-		Data			   m_itemData  = {};
-		DirectionalLayout* m_subPopup  = nullptr;
-		Text*			   m_text	   = nullptr;
-		Text*			   m_altText   = nullptr;
+		FileMenu*		   m_ownerMenu	= nullptr;
+		Data			   m_itemData	= {};
+		DirectionalLayout* m_subPopup	= nullptr;
+		Text*			   m_text		= nullptr;
+		Text*			   m_altText	= nullptr;
+		Icon*			   m_headerIcon = nullptr;
 	};
 
 	class FileMenuListener
 	{
 	public:
-		virtual bool OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const
-		{
-			return false;
-		}
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
 		{
 			return false;

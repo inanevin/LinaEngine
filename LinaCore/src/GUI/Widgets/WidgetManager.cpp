@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
@@ -56,6 +55,13 @@ namespace Lina
 		m_foregroundRoot = Allocate<Widget>();
 		m_foregroundRoot->SetDebugName("ForegroundRoot");
 		m_defaultFont = resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
+	}
+
+	void WidgetManager::InitializeWidget(Widget* w)
+	{
+		PassPreTick(w);
+		PassCalculateSize(w, 0.016f);
+		PassTick(w, 0.016f);
 	}
 
 	void WidgetManager::PreTick()
@@ -191,7 +197,7 @@ namespace Lina
 		// If we have some items in the foreground
 		// check if any was clicked, if not, then remove the non-blocker ones
 		// this is used for removing popups mostly.
-		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && !m_foregroundRoot->GetChildren().empty())
+		if (inputAction == LinaGX::InputAction::Pressed && !m_foregroundRoot->GetChildren().empty())
 		{
 			bool anyForegroundHovered = false;
 			for (auto* c : m_foregroundRoot->GetChildren())
@@ -595,6 +601,7 @@ namespace Lina
 
 				max = Math::Max(max, c->GetSizeX());
 			}
+
 			w->SetSizeX(max * w->GetAlignedSizeX() + w->GetChildMargins().left + w->GetChildMargins().right);
 		}
 

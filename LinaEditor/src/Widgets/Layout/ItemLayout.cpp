@@ -46,6 +46,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/ShapeRect.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
@@ -60,6 +61,10 @@ namespace Lina::Editor
 		scroll->GetProps().direction = DirectionOrientation::Vertical;
 		m_scroll					 = scroll;
 		AddChild(scroll);
+
+		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
+		AddChild(fm);
+		m_contextMenu = fm;
 	}
 
 	void ItemLayout::Initialize()
@@ -73,13 +78,28 @@ namespace Lina::Editor
 
 	void ItemLayout::PreTick()
 	{
+
 		if (m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 		{
-			if (m_isHovered && !m_isFocused)
-				m_isFocused = true;
-			else if (m_isFocused && !m_isHovered)
-				m_isFocused = false;
+			if (m_isFocused && !m_isHovered)
+				SetFocus(false);
 		}
+		else
+			m_isPressed = false;
+
+		if (m_isPressed && m_dragTarget && !m_dragTarget->GetIsHovered())
+		{
+			if (m_props.onCreatePayload)
+				m_props.onCreatePayload(m_dragTarget->GetUserData());
+
+			m_dragTarget = nullptr;
+		}
+
+		if (m_isPressed && !m_isFocused)
+			SetFocus(true);
+
+		if (!m_isPressed)
+			m_dragTarget = nullptr;
 
 		const Color dead = m_useGridLayout ? Theme::GetDef().background3 : Color(0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -97,6 +117,12 @@ namespace Lina::Editor
 				item->GetProps().colorStart = item->GetProps().colorEnd = dead;
 			}
 		}
+	}
+
+	void ItemLayout::Draw()
+	{
+		DrawBorders();
+		Widget::Draw();
 	}
 
 	void ItemLayout::OnGrabbedControls(bool isForward, Widget* prevControls)
@@ -140,7 +166,7 @@ namespace Lina::Editor
 
 			if (item)
 			{
-				SelectItem(item);
+				SelectItem(item, true);
 				m_isFocused = true;
 			}
 		}
@@ -149,9 +175,14 @@ namespace Lina::Editor
 	Widget* ItemLayout::GetNextControls()
 	{
 		if (m_selectedItems.empty())
-			return nullptr;
+		{
+			if (m_selectionItems.empty())
+				return nullptr;
+			SelectItem(m_selectionItems[0], true);
+			return this;
+		}
 
-		Widget* currentSelected = m_selectedItems.back();
+		ShapeRect* currentSelected = m_selectedItems.back();
 
 		const int32 sz	  = static_cast<int32>(m_selectionItems.size());
 		bool		found = false;
@@ -170,7 +201,7 @@ namespace Lina::Editor
 			{
 				if (item->GetIsVisible() && !item->GetIsDisabled())
 				{
-					SelectItem(item);
+					SelectItem(item, true);
 					return this;
 				}
 			}
@@ -204,7 +235,7 @@ namespace Lina::Editor
 			{
 				if (item->GetIsVisible() && !item->GetIsDisabled())
 				{
-					SelectItem(item);
+					SelectItem(item, true);
 					return this;
 				}
 			}
@@ -221,6 +252,22 @@ namespace Lina::Editor
 
 		ShapeRect* item = m_selectedItems.back();
 
+		if (key == LINAGX_KEY_D && act == LinaGX::InputAction::Pressed)
+		{
+			if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+			{
+				if (m_props.onDuplicate)
+					m_props.onDuplicate(item->GetUserData());
+				return true;
+			}
+		}
+
+		if (key == LINAGX_KEY_DELETE && act == LinaGX::InputAction::Pressed)
+		{
+			if (m_props.onDelete)
+				m_props.onDelete(item->GetUserData());
+			return true;
+		}
 		if (!m_useGridLayout && act == LinaGX::InputAction::Pressed)
 		{
 			if (key == LINAGX_KEY_RETURN)
@@ -252,14 +299,14 @@ namespace Lina::Editor
 			}
 			else if (key == LINAGX_KEY_UP)
 			{
-				if (GetPrevControls() != nullptr)
-					m_manager->MoveControlsToPrev();
+				GetPrevControls();
+				m_isFocused = true;
 				return true;
 			}
 			else if (key == LINAGX_KEY_DOWN)
 			{
-				if (GetNextControls() != nullptr)
-					m_manager->MoveControlsToNext();
+				GetNextControls();
+				m_isFocused = true;
 				return true;
 			}
 			else if (key == LINAGX_KEY_DELETE)
@@ -281,14 +328,14 @@ namespace Lina::Editor
 			}
 			else if (key == LINAGX_KEY_RIGHT)
 			{
-				if (GetNextControls() != nullptr)
-					m_manager->MoveControlsToNext();
+				GetNextControls();
+				m_isFocused = true;
 				return true;
 			}
 			else if (key == LINAGX_KEY_LEFT)
 			{
-				if (GetPrevControls() != nullptr)
-					m_manager->MoveControlsToPrev();
+				GetPrevControls();
+				m_isFocused = true;
 				return true;
 			}
 			else if (key == LINAGX_KEY_DELETE)
@@ -304,64 +351,43 @@ namespace Lina::Editor
 
 	bool ItemLayout::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (button == LINAGX_MOUSE_0 && m_isHovered && act == LinaGX::InputAction::Pressed)
+
+		if (m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
-			for (ShapeRect* it : m_selectionItems)
+			if (button == LINAGX_MOUSE_0)
+				m_isPressed = true;
+
+			if (m_useGridLayout)
 			{
-				if (it->GetIsHovered())
+				for (Widget* it : m_gridItems)
 				{
-					// if (!m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
-					// 	m_selectedItems.clear();
-					// else if (IsItemSelected(it))
-					// {
-					// 	RemoveItemFromSelected(it);
-					// 	return true;
-					// }
-
-					SelectItem(it);
-
-					if (!m_useGridLayout && m_props.itemsCanHaveChildren)
+					if (it->GetIsHovered())
 					{
-						Icon* chevron = it->GetWidgetOfType<Icon>(it);
-						if (chevron != nullptr)
-						{
-							if (chevron->GetIsHovered())
-							{
-								FoldLayout* fold = static_cast<FoldLayout*>(it->GetParent());
-								fold->SetIsUnfolded(!fold->GetIsUnfolded());
-							}
-						}
-					}
-
-					return true;
-				}
-			}
-
-			if (m_props.onItemSelected)
-				m_props.onItemSelected(nullptr);
-			m_selectedItems.clear();
-		}
-
-		if (button == LINAGX_MOUSE_0 && m_isHovered && act == LinaGX::InputAction::Repeated)
-		{
-			for (ShapeRect* it : m_selectionItems)
-			{
-				if (it->GetIsHovered())
-				{
-					if (!m_useGridLayout && m_props.itemsCanHaveChildren)
-					{
-						FoldLayout* fold = static_cast<FoldLayout*>(it->GetParent());
-						fold->SetIsUnfolded(!fold->GetIsUnfolded());
-						return true;
-					}
-					else if (!m_useGridLayout && !m_props.itemsCanHaveChildren)
-					{
-						if (m_props.onItemInteracted)
-							m_props.onItemInteracted(it->GetUserData());
-						return true;
+						m_dragTarget = it;
+						break;
 					}
 				}
 			}
+			else
+			{
+				for (Widget* it : m_listItems)
+				{
+					if (it->GetIsHovered())
+					{
+						m_dragTarget = it;
+						break;
+					}
+				}
+			}
+
+			if (!m_dragTarget && button == LINAGX_MOUSE_1)
+			{
+				SetFocus(true);
+				m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), nullptr);
+				return true;
+			}
+
+			return false;
 		}
 
 		return false;
@@ -389,18 +415,20 @@ namespace Lina::Editor
 		}
 	}
 
-	void ItemLayout::SelectItem(ShapeRect* r)
+	void ItemLayout::SelectItem(ShapeRect* r, bool clearSelected, bool callEvent)
 	{
 		UnfoldRecursively(r->GetParent());
 		m_scroll->ScrollToChild(r);
-		m_selectedItems.clear();
+
+		if (clearSelected)
+			m_selectedItems.clear();
 
 		m_manager->GrabControls(this);
 
-		if (m_props.onItemSelected)
-			m_props.onItemSelected(r->GetUserData());
-
 		m_selectedItems.push_back(r);
+
+		if (callEvent && m_props.onItemSelected)
+			m_props.onItemSelected(r->GetUserData());
 	}
 
 	void ItemLayout::UnfoldRecursively(Widget* w)
@@ -458,6 +486,22 @@ namespace Lina::Editor
 		}
 	}
 
+	void ItemLayout::SetOutlineThicknessAndColor(float outlineThickness, const Color& outlineColor)
+	{
+		if (m_useGridLayout)
+		{
+			GridLayout* grid				  = static_cast<GridLayout*>(m_layout);
+			grid->GetProps().outlineThickness = outlineThickness;
+			grid->GetProps().colorOutline	  = outlineColor;
+		}
+		else
+		{
+			DirectionalLayout* layout			= static_cast<DirectionalLayout*>(m_layout);
+			layout->GetProps().outlineThickness = outlineThickness;
+			layout->GetProps().colorOutline		= outlineColor;
+		}
+	}
+
 	void ItemLayout::SetSelectedItem(void* userData)
 	{
 		for (ShapeRect* it : m_selectionItems)
@@ -465,7 +509,7 @@ namespace Lina::Editor
 			if (it->GetUserData() == userData)
 			{
 				m_isFocused = true;
-				SelectItem(it);
+				SelectItem(it, true, false);
 				break;
 			}
 		}
@@ -525,6 +569,13 @@ namespace Lina::Editor
 			w->SetFixedSize(m_gridItemSize);
 	}
 
+	void ItemLayout::SetFocus(bool isFocused)
+	{
+		m_isFocused = isFocused;
+		if (m_isFocused)
+			m_manager->GrabControls(this);
+	}
+
 	void ItemLayout::MakeVisibleRecursively(Widget* w)
 	{
 		Widget* parent = w->GetParent();
@@ -552,6 +603,9 @@ namespace Lina::Editor
 		layout->GetProps().direction = DirectionOrientation::Vertical;
 		layout->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_USE_FIXED_SIZE_Y);
 		layout->SetFixedSize(m_gridItemSize);
+		layout->SetUserData(def.userData);
+		layout->GetProps().receiveInput = true;
+
 		m_gridItems.push_back(layout);
 
 		ShapeRect* bgShape = m_manager->Allocate<ShapeRect>("BG");
@@ -563,6 +617,7 @@ namespace Lina::Editor
 		bgShape->GetProps().colorEnd   = Theme::GetDef().background2;
 		bgShape->GetProps().onlyRoundCorners.push_back(0);
 		bgShape->GetProps().onlyRoundCorners.push_back(1);
+		bgShape->SetUserData(def.userData);
 		layout->AddChild(bgShape);
 
 		if (def.useOutlineInGrid)
@@ -631,18 +686,25 @@ namespace Lina::Editor
 		shape->SetUserData(def.userData);
 		shape->GetProps().colorStart = shape->GetProps().colorEnd = Theme::GetDef().background3;
 		shape->Initialize();
+		shape->SetDebugName(def.name);
 
-		bgShape->GetProps().onClicked		= [shape, this]() { SelectItem(shape); };
-		bgShape->GetProps().onDoubleClicked = [this, shape]() {
-			if (m_props.onItemInteracted)
-				m_props.onItemInteracted(shape->GetUserData());
-		};
-		shape->GetProps().onDoubleClicked = [this, shape]() {
-			if (m_props.onItemInteracted)
-				m_props.onItemInteracted(shape->GetUserData());
-		};
 		layout->AddChild(shape);
 		m_selectionItems.push_back(shape);
+
+		layout->GetProps().onRightClicked = [this, shape, layout]() {
+			SetFocus(true);
+
+			auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [shape](ShapeRect* sr) -> bool { return sr == shape; });
+			if (it == m_selectedItems.end())
+				SelectItem(shape, true);
+			m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), layout->GetUserData());
+		};
+
+		layout->GetProps().onDoubleClicked = [this, shape]() {
+			SetFocus(true);
+			if (m_props.onItemInteracted)
+				m_props.onItemInteracted(shape->GetUserData());
+		};
 
 		Dropshadow* ds = m_manager->Allocate<Dropshadow>("Dropshadow");
 		ds->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -655,7 +717,7 @@ namespace Lina::Editor
 		ds->SetDrawOrderIncrement(-1);
 		shape->AddChild(ds);
 
-		Text* title = WidgetUtility::BuildEditableText(this, false, []() {});
+		Text* title = m_manager->Allocate<Text>("Title");
 		title->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		title->SetAlignedPos(Vector2(0.5f, 0.5f));
 		title->SetPosAlignmentSourceX(PosAlignmentSource::Center);
@@ -663,7 +725,29 @@ namespace Lina::Editor
 		title->GetProps().text				  = def.name;
 		title->GetProps().fetchWrapFromParent = true;
 		title->GetProps().wordWrap			  = false;
+		title->SetUserData(def.userData);
 		shape->AddChild(title);
+
+		layout->GetProps().onPressed = [this, shape, layout, title, def]() {
+			SetFocus(true);
+
+			const bool wasSelected = IsItemSelected(shape);
+
+			if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+			{
+				if (IsItemSelected(shape))
+					RemoveItemFromSelected(shape);
+				else
+					SelectItem(shape, false);
+			}
+			else
+			{
+				SelectItem(shape, true);
+
+				if (def.nameEditable && wasSelected && title->GetIsHovered())
+					RenameTitle(title);
+			}
+		};
 
 		return layout;
 	}
@@ -686,15 +770,6 @@ namespace Lina::Editor
 		shape->SetUserData(def.userData);
 		shape->SetDebugName(def.name);
 
-		// Selectable* selectable = m_manager->Allocate<Selectable>("Selectable");
-		// selectable->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		// selectable->SetAlignedSizeX(1.0f);
-		// selectable->SetUserData(def.userData);
-		//
-		// selectable->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		// selectable->SetLocalControlsManager(this);
-		// selectable->GetProps().colorOutline = Theme::GetDef().accentPrimary0;
-
 		if (m_props.itemsCanHaveChildren)
 		{
 			fold						   = m_manager->Allocate<FoldLayout>("Fold");
@@ -713,21 +788,6 @@ namespace Lina::Editor
 			fold->SetIsUnfolded(m_areItemsUnfolded[def.userData]);
 			fold->SetDebugName(def.name);
 
-			// selectable->GetProps().onSelectionChanged = [this](Selectable* s, bool selected) {
-			// 	if (selected && m_props.onItemSelected)
-			// 	{
-			// 		m_props.onItemSelected(s->GetUserData());
-			// 		m_lastSelectedItem = s->GetUserData();
-			// 	}
-			// };
-			//
-			// selectable->GetProps().onInteracted = [fold, this](Selectable* s) {
-			// 	fold->SetIsUnfolded(!fold->GetIsUnfolded());
-			// 	if (m_props.onItemInteracted)
-			// 		m_props.onItemInteracted(s->GetUserData());
-			// };
-
-			// fold->AddChild(selectable);
 			fold->AddChild(shape);
 
 			fold->GetProps().onFoldChanged = [fold, def, this](bool unfolded) {
@@ -742,10 +802,6 @@ namespace Lina::Editor
 			shape->SetDebugName(def.name);
 			shape->GetFlags().Set(WF_POS_ALIGN_X);
 			shape->SetAlignedPosX(0.0f);
-
-			// selectable->SetDebugName(def.name);
-			// selectable->GetFlags().Set(WF_POS_ALIGN_X);
-			// selectable->SetAlignedPosX(0.0f);
 		}
 
 		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
@@ -754,36 +810,55 @@ namespace Lina::Editor
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left = margin;
-		shape->AddChild(layout);
-		// selectable->AddChild(layout);
+		layout->GetChildMargins().left	= margin;
+		layout->GetProps().receiveInput = true;
 
+		shape->AddChild(layout);
+
+		Icon* chevron = nullptr;
 		if (m_props.itemsCanHaveChildren)
 		{
-			Icon* chevron			 = m_manager->Allocate<Icon>("Folder");
-			chevron->GetProps().icon = m_areItemsUnfolded[def.userData] ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
+			chevron						   = m_manager->Allocate<Icon>("Folder");
+			chevron->GetProps().icon	   = m_areItemsUnfolded[def.userData] ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
+			chevron->GetProps().colorStart = chevron->GetProps().colorEnd = def.color;
 			chevron->GetFlags().Set(WF_POS_ALIGN_Y);
 			chevron->SetAlignedPosY(0.5f);
 			chevron->GetProps().textScale = 0.4f;
 			chevron->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			// chevron->GetProps().onClicked = [fold]() { fold->SetIsUnfolded(!fold->GetIsUnfolded()); };
 			layout->AddChild(chevron);
 
 			if (def.children.empty())
 				chevron->SetVisible(false);
+		}
+
+		layout->GetProps().onDoubleClicked = [shape, this, chevron, fold]() {
+			if (chevron)
+			{
+				fold->SetIsUnfolded(!fold->GetIsUnfolded());
+			}
 			else
 			{
-				// selectable->GetProps().onClicked = [fold, chevron](Selectable* s) {
-				// 	if (chevron->GetIsHovered())
-				// 		fold->SetIsUnfolded(!fold->GetIsUnfolded());
-				// };
+				if (m_props.onItemInteracted)
+					m_props.onItemInteracted(shape->GetUserData());
 			}
-		}
+
+			SetFocus(true);
+			SelectItem(shape, true);
+		};
+		layout->GetProps().onRightClicked = [shape, this]() {
+			SetFocus(true);
+
+			auto it = linatl::find_if(m_selectedItems.begin(), m_selectedItems.end(), [shape](ShapeRect* sr) -> bool { return sr == shape; });
+			if (it == m_selectedItems.end())
+				SelectItem(shape, true);
+			m_contextMenu->CreateItems(0, m_lgxWindow->GetMousePosition(), shape->GetUserData());
+		};
 
 		if (!def.icon.empty())
 		{
-			Icon* icon			  = m_manager->Allocate<Icon>("Folder");
-			icon->GetProps().icon = def.icon;
+			Icon* icon					= m_manager->Allocate<Icon>("Folder");
+			icon->GetProps().icon		= def.icon;
+			icon->GetProps().colorStart = icon->GetProps().colorEnd = def.color;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
 			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
@@ -821,12 +896,78 @@ namespace Lina::Editor
 		title->SetAlignedPosY(0.5f);
 		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		title->GetProps().text = def.name;
+		title->SetUserData(def.userData);
 		layout->AddChild(title);
 
+		layout->GetProps().onPressed = [shape, this, chevron, fold, title, def]() {
+			if (chevron && chevron->GetIsHovered())
+				fold->SetIsUnfolded(!fold->GetIsUnfolded());
+
+			SetFocus(true);
+
+			const bool wasSelected = IsItemSelected(shape);
+
+			if (m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL))
+			{
+				if (IsItemSelected(shape))
+					RemoveItemFromSelected(shape);
+				else
+					SelectItem(shape, false);
+			}
+			else
+			{
+				SelectItem(shape, true);
+
+				if (def.nameEditable && wasSelected && title->GetIsHovered())
+					RenameTitle(title);
+			}
+		};
+
 		Widget* listItem = m_props.itemsCanHaveChildren ? static_cast<Widget*>(fold) : shape;
-		m_listItems.push_back(listItem);
+		m_listItems.push_back(layout);
+		shape->Initialize();
 		m_selectionItems.push_back(shape);
 		return listItem;
+	}
+
+	void ItemLayout::RenameTitle(Text* txt)
+	{
+		InputField* inp = m_manager->Allocate<InputField>();
+		inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
+		inp->GetText()->GetProps().text = txt->GetProps().text;
+		inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		inp->SetSizeX(txt->GetSizeX() * 2);
+		inp->Initialize();
+
+		if (!m_useGridLayout)
+		{
+			inp->SetPosX(txt->GetPosX());
+			inp->SetPosY(txt->GetParent()->GetPosY());
+		}
+		else
+		{
+			inp->SetPosX(txt->GetParent()->GetRect().GetCenter().x - inp->GetHalfSizeX());
+			inp->SetPosY(txt->GetPosY());
+		}
+
+		inp->GetProps().onEditEnd = [inp, txt, this](const String& str) {
+			if (str.empty())
+			{
+				inp->GetText()->GetProps().text = txt->GetProps().text;
+				inp->GetText()->CalculateTextSize();
+				return;
+			}
+			txt->GetProps().text = str;
+			txt->CalculateTextSize();
+			m_manager->AddToKillList(inp);
+			if (m_props.onItemRenamed)
+				m_props.onItemRenamed(txt->GetUserData(), str);
+		};
+
+		m_manager->AddToForeground(inp);
+		inp->StartEditing();
+		inp->SelectAll();
+		m_manager->GrabControls(inp);
 	}
 
 } // namespace Lina::Editor

@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/EditorLocale.hpp"
-#include "Core/GUI/Widgets/Compound/Popup.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorSlider.hpp"
 #include "Core/GUI/Widgets/Primitives/ColorWheel.hpp"
 #include "Core/GUI/Widgets/Primitives/PopupItem.hpp"

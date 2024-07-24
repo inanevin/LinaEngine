@@ -72,6 +72,8 @@ namespace Lina::Editor
 #define ICON_CHEVRON_RIGHT		 "\u0071"
 #define ICON_CHEVRON_UP			 "\u0072"
 #define ICON_CHEVRON_DOWN		 "\u0073"
+#define ICON_SORT_AZ			 "\u004a"
+#define ICON_STAR				 "\u004b"
 
 #define DOCK_DEFAULT_PERCENTAGE 0.4f
 #define DOCKED_MIN_SIZE			300.0f
@@ -91,15 +93,7 @@ namespace Lina::Editor
 		None,
 		DockedPanel,
 		EntitySelectable,
-		BrowserSelectable,
-		ContentsSelectable,
-	};
-
-	struct PanelLayoutExtra
-	{
-		static constexpr uint32 F_SZ = 8;
-
-		float f[F_SZ];
+		Resource,
 	};
 
 	enum ResourceLoadTaskIDs

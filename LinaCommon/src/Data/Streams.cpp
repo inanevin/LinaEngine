@@ -70,7 +70,7 @@ namespace Lina
 		stream.read((char*)m_data, m_size);
 	}
 
-	void IStream::ReadEndianSafe(void* ptr, size_t size)
+	void IStream::ReadToRawEndianSafe(void* ptr, size_t size)
 	{
 		if (Endianness::ShouldSwap())
 		{
@@ -93,9 +93,9 @@ namespace Lina
 		m_index += size;
 	}
 
-	void IStream::ReadIntoRaw(void* ptr, size_t size)
+	void IStream::ReadToRaw(void* ptr, size_t size)
 	{
-		MEMCPY(&m_data[m_index], ptr, size);
+		MEMCPY(ptr, &m_data[m_index], size);
 		m_index += size;
 	}
 
@@ -115,7 +115,7 @@ namespace Lina
 		m_data		  = nullptr;
 	}
 
-	void OStream::WriteEndianSafe(const uint8* ptr, size_t size)
+	void OStream::WriteRawEndianSafe(const uint8* ptr, size_t size)
 	{
 		if (m_data == nullptr)
 			CreateReserve(size);
@@ -149,6 +149,12 @@ namespace Lina
 		CheckGrow(size);
 		MEMCPY(&m_data[m_currentSize], ptr, size);
 		m_currentSize += size;
+	}
+
+	void OStream::WriteTo(Span<uint8>& span)
+	{
+		span = {new uint8[m_currentSize], m_currentSize};
+		MEMCPY(span.data(), GetDataRaw(), m_currentSize);
 	}
 
 	void OStream::CheckGrow(size_t sz)

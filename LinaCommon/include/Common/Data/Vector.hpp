@@ -49,6 +49,21 @@ namespace Lina
 			return -1;
 		}
 
+		template <typename T> inline int32 FindNextIndexIfItemIsRemoved(const Lina::Vector<T>& vec, const T& value)
+		{
+			const int32 currentIndex = IndexOf(vec, value);
+
+			if (currentIndex == 0)
+			{
+				if (vec.size() == 1)
+					return -1;
+
+				return 0;
+			}
+
+			return currentIndex - 1;
+		}
+
 		template <typename T> inline void PlaceAfter(Lina::Vector<T>& vec, T& src, T& target)
 		{
 			auto itSrc	  = std::find_if(vec.begin(), vec.end(), [src](const T& child) { return child == src; });

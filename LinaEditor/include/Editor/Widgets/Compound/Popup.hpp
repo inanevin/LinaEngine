@@ -29,12 +29,16 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
+#include "Common/Tween/Tween.hpp"
 
 namespace Lina
 {
 	class ScrollArea;
 	class DirectionalLayout;
+} // namespace Lina
 
+namespace Lina::Editor
+{
 	class Popup : public Widget
 	{
 	public:
@@ -43,11 +47,26 @@ namespace Lina
 
 		struct Properties
 		{
+			float										 maxSizeY	   = Theme::GetDef().baseItemHeight * 10;
+			bool										 useFixedSizeX = false;
+			bool										 closeOnSelect = true;
+			Delegate<void(uint32 index, void* userData)> onSelectedItem;
 		};
 
 		virtual void Construct() override;
+		virtual void Initialize() override;
+		virtual void CalculateSize(float delta) override;
+		virtual void Tick(float delta) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
-		void AddItem(Widget* item);
+		void AddTitleItem(const String& title);
+		void AddToggleItem(const String& title, bool isSelected, void* userData = nullptr);
+		void ScrollToItem(void* userData);
+
+		inline void ScrollToItem(int32 target)
+		{
+			m_targetScroll = target;
+		}
 
 		inline DirectionalLayout* GetBackground() const
 		{
@@ -64,12 +83,18 @@ namespace Lina
 		}
 
 	private:
-		Properties		   m_props		= {};
-		DirectionalLayout* m_background = nullptr;
-		ScrollArea*		   m_scroll		= nullptr;
+	private:
+		Properties				   m_props			 = {};
+		DirectionalLayout*		   m_background		 = nullptr;
+		ScrollArea*				   m_scroll			 = nullptr;
+		Tween					   m_tween			 = {};
+		Vector<DirectionalLayout*> m_items			 = {};
+		float					   m_maxItemWidth	 = 0.0f;
+		float					   m_totalItemHeight = 0.0f;
+		int32					   m_targetScroll	 = -1;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Popup)
 	LINA_REFLECTWIDGET_END(Popup)
 
-} // namespace Lina
+} // namespace Lina::Editor

@@ -58,6 +58,9 @@ namespace Lina::Editor
 		DirectoryItem* FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot);
 		void		   AddListener(FileManagerListener* list);
 		void		   RemoveListener(FileManagerListener* list);
+		void		   ScanItem(DirectoryItem* item);
+		void		   ScanItemRecursively(DirectoryItem* item);
+		void		   GenerateThumbnails(DirectoryItem* root, bool recursive);
 
 		static String GetMetacachePath();
 
@@ -72,7 +75,6 @@ namespace Lina::Editor
 		}
 
 	private:
-		void ScanItem(DirectoryItem* item);
 		void DeallocItem(DirectoryItem* item);
 		void ClearDirectory(DirectoryItem* item);
 		void RefreshDirectory(DirectoryItem* item);

@@ -220,6 +220,9 @@ namespace Lina
 		const Vector2 start = GetStartFromMargins();
 		const Vector2 end	= GetEndFromMargins();
 
+		if (end.x - start.x < 1.0f || end.y - start.y < 1.0f)
+			return;
+
 		if (m_props.clipChildren)
 			m_manager->SetClip(Rect(start, end - start), {});
 		Widget::Draw();
@@ -241,7 +244,15 @@ namespace Lina
 		if (!m_props.receiveInput)
 			return false;
 
-		if (button == LINAGX_MOUSE_1 && m_isHovered)
+		if (button == LINAGX_MOUSE_0 && m_isHovered && act == LinaGX::InputAction::Repeated)
+		{
+			if (m_props.onDoubleClicked)
+				m_props.onDoubleClicked();
+
+			return true;
+		}
+
+		if (button == LINAGX_MOUSE_1 && m_isHovered && act == LinaGX::InputAction::Pressed)
 		{
 			if (m_props.onRightClicked)
 				m_props.onRightClicked();

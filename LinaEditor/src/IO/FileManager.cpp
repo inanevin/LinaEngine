@@ -102,12 +102,32 @@ namespace Lina::Editor
 
 	void FileManager::ScanItem(DirectoryItem* item)
 	{
-		LINA_ASSERT(item->children.size() == 0, "");
+		if (!item->isDirectory)
+			return;
+
+		// Remove children that don't exist.
+		for (Vector<DirectoryItem*>::iterator it = item->children.begin(); it != item->children.end();)
+		{
+			DirectoryItem* child = *it;
+			if (!FileSystem::FileOrPathExists(child->absolutePath))
+			{
+				it = item->children.erase(it);
+				DeallocItem(child);
+			}
+			else
+				it++;
+		}
+
 		Vector<String> dirs = {};
+
 		FileSystem::GetFilesAndFoldersInDirectory(item->absolutePath, dirs);
 
 		for (const auto& str : dirs)
 		{
+			auto it = linatl::find_if(item->children.begin(), item->children.end(), [str](DirectoryItem* it) -> bool { return it->absolutePath.compare(str) == 0; });
+			if (it != item->children.end())
+				continue;
+
 			const bool isDirectory = FileSystem::IsDirectory(str);
 			String	   extension   = "";
 			TypeID	   tid		   = 0;
@@ -145,12 +165,36 @@ namespace Lina::Editor
 			else
 				files.push_back(c);
 		}
-		linatl::sort(folders.begin(), folders.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->name < b->name; });
-		linatl::sort(files.begin(), files.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return a->name < b->name; });
+		linatl::sort(folders.begin(), folders.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return UtilStr::ToLower(a->name) < UtilStr::ToLower(b->name); });
+		linatl::sort(files.begin(), files.end(), [](const DirectoryItem* a, const DirectoryItem* b) { return UtilStr::ToLower(a->name) < UtilStr::ToLower(b->name); });
 
 		item->children.clear();
 		item->children.insert(item->children.end(), folders.begin(), folders.end());
 		item->children.insert(item->children.end(), files.begin(), files.end());
+
+		DirectoryItem* prev = nullptr;
+		for (DirectoryItem* child : item->children)
+		{
+			if (prev != nullptr)
+			{
+				child->prev = prev;
+				prev->next	= child;
+			}
+			prev = child;
+		}
+	}
+
+	void FileManager::ScanItemRecursively(DirectoryItem* item)
+	{
+		ScanItem(item);
+
+		for (DirectoryItem* c : item->children)
+			ScanItemRecursively(c);
+	}
+
+	void FileManager::GenerateThumbnails(DirectoryItem* root, bool recursive)
+	{
+		m_thumbnailGenerators.push_back(new ThumbnailGenerator(m_editor, &m_executor, root, recursive));
 	}
 
 	void FileManager::RefreshResources()
@@ -194,8 +238,8 @@ namespace Lina::Editor
 		const String basePath = FileSystem::GetFilePath(m_editor->GetProjectManager().GetProjectData()->GetPath());
 		const size_t baseSz	  = basePath.size();
 
-		item->absolutePath = fullAbsPath;
-		item->relativePath = fullAbsPath.substr(baseSz, fullAbsPath.size());
+		item->absolutePath = FileSystem::FixPath(fullAbsPath);
+		item->relativePath = FileSystem::FixPath(fullAbsPath.substr(baseSz, fullAbsPath.size()));
 		if (item->isDirectory)
 			item->name = FileSystem::GetLastFolderFromPath(fullAbsPath);
 		else
@@ -207,6 +251,9 @@ namespace Lina::Editor
 
 	DirectoryItem* FileManager::FindItemFromRelativePath(const String& relativePath, DirectoryItem* searchRoot)
 	{
+		if (searchRoot == nullptr)
+			searchRoot = m_root;
+
 		if (searchRoot->relativePath.compare(relativePath) == 0)
 			return searchRoot;
 

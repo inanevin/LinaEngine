@@ -326,28 +326,8 @@ namespace Lina::Editor
 		return false;
 	}
 
-	bool EditorRoot::OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const
-	{
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
-			return Editor::Get()->GetProjectManager().GetProjectData() == nullptr;
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorld)) || sid == TO_SID(Locale::GetStr(LocaleStr::SaveWorldAs)))
-			return Editor::Get()->GetCurrentWorld() == nullptr;
-
-		return false;
-	}
-
 	void EditorRoot::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
 	{
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::SaveProject)))
-		{
-			outData = {
-				FileMenuItem::Data{.text = "This is my test"},
-				FileMenuItem::Data{.text = "This is my test too", .altText = "CTRL + K"},
-			};
-			return;
-		}
-
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::File)))
 		{
 			outData = {

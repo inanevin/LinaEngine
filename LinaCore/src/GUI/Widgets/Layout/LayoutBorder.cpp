@@ -41,12 +41,12 @@ namespace Lina
 		if (m_props.orientation == DirectionOrientation::Horizontal)
 		{
 			GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_SIZE_ALIGN_X);
-			SetFixedSizeY(Theme::GetDef().baseBorderThickness);
+			SetFixedSizeY(m_props.thickness);
 		}
 		else
 		{
 			GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
-			SetFixedSizeX(Theme::GetDef().baseBorderThickness);
+			SetFixedSizeX(m_props.thickness);
 		}
 		AssignSides(m_negative, m_positive);
 	}
@@ -57,8 +57,8 @@ namespace Lina
 		{
 			const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();
 			const Vector2  perc			   = mousePosition / m_parent->GetSize();
-			const float	   borderSizePercX = Theme::GetDef().baseBorderThickness / m_parent->GetSizeX();
-			const float	   borderSizePercY = Theme::GetDef().baseBorderThickness / m_parent->GetSizeY();
+			const float	   borderSizePercX = m_props.thickness / m_parent->GetSizeX();
+			const float	   borderSizePercY = m_props.thickness / m_parent->GetSizeY();
 
 			if (m_props.orientation == DirectionOrientation::Horizontal)
 			{
@@ -125,7 +125,7 @@ namespace Lina
 	void LayoutBorder::Draw()
 	{
 		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background0.AsLVG4();
+		opts.color = m_isHovered ? m_props.colorHovered.AsLVG4() : m_props.color.AsLVG4();
 		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
 	}
 

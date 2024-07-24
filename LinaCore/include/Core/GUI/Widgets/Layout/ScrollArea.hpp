@@ -47,6 +47,7 @@ namespace Lina
 			Color				 colorHovered	 = Theme::GetDef().accentPrimary2;
 			Color				 colorPressed	 = Theme::GetDef().accentPrimary1;
 			float				 barRounding	 = Theme::GetDef().baseRounding * 2;
+			float				 barThickness	 = Theme::GetDef().baseItemHeight / 2;
 		};
 
 		virtual void Tick(float delta) override;
@@ -54,10 +55,26 @@ namespace Lina
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnMouseWheel(float amt) override;
 		void		 ScrollToChild(Widget* w);
+		bool		 IsBarHovered();
 
 		inline Properties& GetProps()
 		{
 			return m_props;
+		}
+
+		inline void SetTarget(Widget* target)
+		{
+			m_targetWidget = target;
+		}
+
+		inline bool GetIsBarVisible() const
+		{
+			return m_barVisible && m_canDrawBar;
+		}
+
+		inline void SetCanDrawBar(bool canDraw)
+		{
+			m_canDrawBar = canDraw;
 		}
 
 	private:
@@ -67,6 +84,7 @@ namespace Lina
 		static constexpr float SCROLL_SMOOTH = 15.0f;
 
 		Properties m_props				  = {};
+		bool	   m_canDrawBar			  = true;
 		float	   m_scrollAmount		  = 0.0f;
 		float	   m_minScroll			  = 0.0f;
 		float	   m_maxScroll			  = 0.0f;

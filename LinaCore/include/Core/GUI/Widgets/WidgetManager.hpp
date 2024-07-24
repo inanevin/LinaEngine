@@ -63,6 +63,7 @@ namespace Lina
 
 		void	Initialize(ResourceManagerV2* resourceManager, LinaGX::Window* window, LinaVG::Drawer* drawer);
 		void	Draw();
+		void	InitializeWidget(Widget* w);
 		void	PreTick();
 		void	Tick(float delta, const Vector2ui& size);
 		void	Shutdown();

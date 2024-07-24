@@ -69,11 +69,11 @@ namespace Lina::Editor
 		search->GetProps().rounding		   = 0.0f;
 		layout->AddChild(search);
 
-		Testbed* tb = m_manager->Allocate<Testbed>("TB");
-		tb->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		tb->SetAlignedPosX(0.0f);
-		tb->SetAlignedSize(Vector2(1.0f, 0.0f));
-		layout->AddChild(tb);
+		// Testbed* tb = m_manager->Allocate<Testbed>("TB");
+		// tb->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		// tb->SetAlignedPosX(0.0f);
+		// tb->SetAlignedSize(Vector2(1.0f, 0.0f));
+		// layout->AddChild(tb);
 
 		// SelectableListLayout* selectableList = m_manager->Allocate<SelectableListLayout>("SelectableList");
 		// selectableList->SetListener(this);

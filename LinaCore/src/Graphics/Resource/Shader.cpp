@@ -47,7 +47,7 @@ namespace Lina
 		out << static_cast<uint8>(type);
 		StringSerialization::SaveToStream(out, name);
 		out << static_cast<uint32>(size);
-		out.WriteEndianSafe((uint8*)&data, size);
+		out.WriteRawEndianSafe((uint8*)&data, size);
 	}
 
 	void ShaderProperty::LoadFromStream(IStream& in)
@@ -62,7 +62,7 @@ namespace Lina
 		in >> sz;
 		size = static_cast<size_t>(sz);
 
-		in.ReadEndianSafe((void*)&data, size);
+		in.ReadToRawEndianSafe((void*)&data, size);
 	}
 
 	void Shader::Metadata::SaveToStream(OStream& out) const
@@ -176,7 +176,7 @@ namespace Lina
 			const uint8 stg = static_cast<uint8>(stage);
 			stream << stg;
 			stream << blob.size;
-			stream.WriteEndianSafe(blob.ptr, blob.size);
+			stream.WriteRawEndianSafe(blob.ptr, blob.size);
 		}
 
 		SaveLinaGXShaderLayout(stream, m_layout);
@@ -200,7 +200,7 @@ namespace Lina
 			if (blob.size != 0)
 			{
 				blob.ptr = new uint8[blob.size];
-				stream.ReadEndianSafe(blob.ptr, blob.size);
+				stream.ReadToRawEndianSafe(blob.ptr, blob.size);
 			}
 
 			m_outCompiledBlobs[static_cast<LinaGX::ShaderStage>(stg)] = blob;

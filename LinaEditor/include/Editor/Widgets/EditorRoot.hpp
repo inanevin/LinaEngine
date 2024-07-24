@@ -61,7 +61,6 @@ namespace Lina::Editor
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
-		virtual bool OnFileMenuIsItemDisabled(FileMenu* filemenu, StringID sid) const override;
 		void		 SetProjectName(const String& name);
 
 		inline Widget* GetPanelArea() const

@@ -40,8 +40,11 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation orientation = DirectionOrientation::Horizontal;
-			float				 minSize	 = 0.0f;
+			DirectionOrientation orientation  = DirectionOrientation::Horizontal;
+			float				 minSize	  = 0.0f;
+			float				 thickness	  = Theme::GetDef().baseBorderThickness;
+			Color				 color		  = Theme::GetDef().background0;
+			Color				 colorHovered = Theme::GetDef().background2;
 		};
 
 		virtual void			   Initialize() override;

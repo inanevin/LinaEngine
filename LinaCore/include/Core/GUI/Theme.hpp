@@ -87,7 +87,7 @@ namespace Lina
 			float baseOutlineThickness = 2.0f;
 			float baseItemHeight	   = 24.0f;
 			float popupAnimTime		   = 0.1f;
-			float baseBorderThickness  = 4.0f;
+			float baseBorderThickness  = 6.0f;
 
 			StringID defaultFont		   = 0;
 			StringID altFont			   = 0;

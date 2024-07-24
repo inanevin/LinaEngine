@@ -79,6 +79,7 @@ artifacts/
 *.vcxproj
 *.vcxproj.user
 *.vcxproj.filters
+*.linameta
 
 # Chutzpah Test files
 _Chutzpah*

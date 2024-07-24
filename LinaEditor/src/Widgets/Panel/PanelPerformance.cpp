@@ -87,22 +87,23 @@ namespace Lina::Editor
 			m_manager->Deallocate(widget);
 		}
 	}
-	PanelLayoutExtra PanelPerformance::GetExtraLayoutData()
-	{
-		PanelLayoutExtra extra = {};
-		extra.f[0]			   = static_cast<float>(UtilVector::IndexOf(m_tabContents, m_currentContent));
-		return extra;
-	}
-
-	void PanelPerformance::SetExtraLayoutData(const PanelLayoutExtra& data)
-	{
-		SelectContent(static_cast<int32>(data.f[0]));
-	}
 
 	void PanelPerformance::Draw()
 	{
 		Panel::Draw();
 		Widget::Draw();
+	}
+
+	void PanelPerformance::LoadLayoutFromStream(IStream& stream)
+	{
+		int32 content = 0;
+		stream >> content;
+		SelectContent(content);
+	}
+
+	void PanelPerformance::SaveLayoutToStream(OStream& stream)
+	{
+		stream << UtilVector::IndexOf(m_tabContents, m_currentContent);
 	}
 
 	void PanelPerformance::SelectContent(Widget* w)

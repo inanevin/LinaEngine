@@ -40,12 +40,9 @@ namespace Lina::Editor
 		Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData), Widget(){};
 		virtual ~Panel() = default;
 
-		virtual void			 Draw() override;
-		virtual PanelLayoutExtra GetExtraLayoutData()
-		{
-			return {};
-		};
-		virtual void SetExtraLayoutData(const PanelLayoutExtra& data){};
+		virtual void Draw() override;
+		virtual void SaveLayoutToStream(OStream& stream){};
+		virtual void LoadLayoutFromStream(IStream& stream){};
 
 		inline PanelType GetType() const
 		{

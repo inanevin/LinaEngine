@@ -116,6 +116,7 @@ namespace Lina::Editor
 		btn->SetAlignedSizeY(1.0f);
 		btn->SetAlignedPosY(0.0f);
 		btn->GetChildMargins() = {.left = padding, .right = padding};
+		m_manager->GrabControls(btn);
 		m_buttonsRow->AddChild(btn);
 	}
 

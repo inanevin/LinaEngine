@@ -132,24 +132,6 @@ namespace Lina::Editor
 					GenerateThumbMaterial(item, thumbnailPath);
 					m_generatedCount.fetch_add(1);
 				}
-				else if (item->tid == GetTypeID<Shader>())
-				{
-					TextureAtlasImage* img = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShader"_hs);
-					m_atlases.try_emplace(item, img);
-					m_generatedCount.fetch_add(1);
-				}
-				else if (item->tid == GetTypeID<Audio>())
-				{
-					TextureAtlasImage* img = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileAudio"_hs);
-					m_atlases.try_emplace(item, img);
-					m_generatedCount.fetch_add(1);
-				}
-				else if (item->tid == GetTypeID<EntityWorld>())
-				{
-					TextureAtlasImage* img = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileWorld"_hs);
-					m_atlases.try_emplace(item, img);
-					m_generatedCount.fetch_add(1);
-				}
 				else
 					m_generatedCount.fetch_add(1);
 			});
@@ -175,7 +157,16 @@ namespace Lina::Editor
 	void ThumbnailGenerator::CollectItems(DirectoryItem* item, bool isRecursive)
 	{
 		if (!item->isDirectory)
-			m_thumbnailItems.push_back(item);
+		{
+			if (item->tid == GetTypeID<Shader>())
+				item->textureAtlas = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileShader"_hs);
+			else if (item->tid == GetTypeID<Audio>())
+				item->textureAtlas = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileAudio"_hs);
+			else if (item->tid == GetTypeID<EntityWorld>())
+				item->textureAtlas = m_editor->GetAtlasManager().GetImageFromAtlas("ProjectIcons"_hs, "FileWorld"_hs);
+			else
+				m_thumbnailItems.push_back(item);
+		}
 
 		if (isRecursive)
 		{

@@ -40,22 +40,41 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void EditorLayout::LoadFromStream(IStream& in)
+	EditorLayout::~EditorLayout()
 	{
-		uint32 version = 0;
-		in >> version;
-		VectorSerialization::LoadFromStream_OBJ(in, m_windows);
+		ClearBuffers();
+	}
+
+	void EditorLayout::ClearBuffers()
+	{
+		for (WindowLayout& wl : m_windows)
+		{
+			for (DockWidgetData& dwd : wl.dockWidgets)
+			{
+				for (PanelData& pd : dwd.panels)
+				{
+					if (pd.layoutData.data() != nullptr)
+						delete[] pd.layoutData.data();
+					pd.layoutData = {};
+				}
+			}
+		}
+		m_windows.clear();
+	}
+
+	void EditorLayout::LoadFromStream(IStream& in, uint32 version)
+	{
+		VectorSerialization::LoadFromStream_OBJ(in, m_windows, version);
 	}
 
 	void EditorLayout::SaveToStream(OStream& out)
 	{
-		out << VERSION;
 		VectorSerialization::SaveToStream_OBJ(out, m_windows);
 	}
 
 	void EditorLayout::StoreDefaultLayout()
 	{
-		m_windows.clear();
+		ClearBuffers();
 
 		WindowLayout wl = {};
 		wl.sid			= LINA_MAIN_SWAPCHAIN;
@@ -75,14 +94,19 @@ namespace Lina::Editor
 		});
 
 		// Resources
-		PanelLayoutExtra resExtra;
-		resExtra.f[0] = 0.25f;
-		resExtra.f[1] = PanelResources::MAX_CONTENTS_SIZE;
+		OStream resExtra;
+		PanelResources::SaveLayoutDefaults(resExtra);
+
+		PanelData panelRes = {
+			.panelType = PanelType::Resources,
+		};
+		resExtra.WriteTo(panelRes.layoutData);
+		resExtra.Destroy();
 
 		wl.dockWidgets.push_back({
 			.alignedPos	 = Vector2(0.0f, 0.75f),
 			.alignedSize = Vector2(1.0f, 0.25f),
-			.panels		 = {{.panelType = PanelType::Resources, .extraData = resExtra}},
+			.panels		 = {panelRes},
 		});
 
 		// Border: Entities | World
@@ -112,7 +136,7 @@ namespace Lina::Editor
 		Editor*		editor = Editor::Get();
 		GfxManager* gfxMan = editor->GetSystem()->CastSubsystem<GfxManager>(SubsystemType::GfxManager);
 
-		for (const auto& windowData : m_windows)
+		for (auto& windowData : m_windows)
 		{
 			Widget* panelArea = nullptr;
 			if (windowData.sid == LINA_MAIN_SWAPCHAIN)
@@ -128,7 +152,7 @@ namespace Lina::Editor
 			else
 				panelArea = editor->GetWindowPanelManager().PrepareNewWindowToDock(windowData.sid, windowData.position, windowData.size, windowData.title);
 
-			for (const auto& dockWidget : windowData.dockWidgets)
+			for (auto& dockWidget : windowData.dockWidgets)
 			{
 				if (dockWidget.isBorder)
 				{
@@ -147,11 +171,18 @@ namespace Lina::Editor
 					area->Initialize();
 					panelArea->AddChild(area);
 
-					for (const auto& panelData : dockWidget.panels)
+					for (auto& panelData : dockWidget.panels)
 					{
 						Panel* panel = PanelFactory::CreatePanel(panelArea, panelData.panelType, panelData.subData);
 						area->AddPanel(panel);
-						panel->SetExtraLayoutData(panelData.extraData);
+
+						if (!panelData.layoutData.empty())
+						{
+							IStream stream;
+							stream.Create(panelData.layoutData);
+							panel->LoadLayoutFromStream(stream);
+							stream.Destroy();
+						}
 					}
 				}
 			}
@@ -166,7 +197,7 @@ namespace Lina::Editor
 
 	void EditorLayout::StoreLayout()
 	{
-		m_windows.clear();
+		ClearBuffers();
 
 		Editor* editor = Editor::Get();
 
@@ -201,7 +232,10 @@ namespace Lina::Editor
 						PanelData pd = {};
 						pd.panelType = panel->GetType();
 						pd.subData	 = panel->GetSubData();
-						pd.extraData = panel->GetExtraLayoutData();
+						OStream out;
+						panel->SaveLayoutToStream(out);
+						out.WriteTo(pd.layoutData);
+						out.Destroy();
 						dwd.panels.push_back(pd);
 					}
 

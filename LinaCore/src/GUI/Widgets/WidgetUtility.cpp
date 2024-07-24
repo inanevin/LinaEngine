@@ -144,7 +144,7 @@ namespace Lina
 		popup->GetChildMargins()		   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
 		popup->GetProps().backgroundStyle  = DirectionalLayout::BackgroundStyle::Default;
 		popup->GetProps().direction		   = DirectionOrientation::Vertical;
-		popup->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+		popup->GetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 1.5f;
 		popup->GetProps().colorOutline	   = Theme::GetDef().silent0;
 		return popup;
 	}

@@ -67,6 +67,5 @@ namespace Lina::Editor
 		static float GetPopupWidth(LinaGX::Window* window);
 
 		static Widget* GetPopupItemWithSelectionToggle(Widget* source, const String& title, bool isSelected);
-		static Popup*  CreateDefaultPopup(Widget* source, const Vector2& pos, float height);
 	};
 } // namespace Lina::Editor

@@ -42,7 +42,8 @@ namespace Lina
 		if (m_isPressed && !m_lgxWindow->GetInput()->GetMouseButton(LINAGX_MOUSE_0))
 			m_isPressed = false;
 
-		m_targetWidget = m_children.front();
+		if (m_targetWidget == nullptr)
+			m_targetWidget = m_children.front();
 
 		ClampScroll();
 
@@ -70,7 +71,7 @@ namespace Lina
 
 		// Calculate bar
 		const float scrollBackgroundSize = m_props.direction == DirectionOrientation::Horizontal ? m_targetWidget->GetSizeX() : m_targetWidget->GetSizeY();
-		const float barCrossAxisSize	 = Theme::GetDef().baseItemHeight / 2;
+		const float barCrossAxisSize	 = m_props.barThickness;
 		const float barMainAxisSize		 = scrollBackgroundSize * m_sizeToChildSizeRatio;
 		const float barPosition			 = m_scrollAmount / m_totalChildSize;
 
@@ -126,7 +127,7 @@ namespace Lina
 	{
 		Widget::Draw();
 
-		if (!m_barVisible)
+		if (!m_barVisible || !GetIsVisible() || !m_canDrawBar)
 			return;
 
 		LinaVG::StyleOptions bgOpts;
@@ -148,6 +149,11 @@ namespace Lina
 		}
 
 		m_lvg->DrawRect(m_barRect.pos.AsLVG(), m_barRect.GetEnd().AsLVG(), barOpts, 0.0f, m_drawOrder + 1);
+	}
+
+	bool ScrollArea::IsBarHovered()
+	{
+		return m_barRect.IsPointInside(m_lgxWindow->GetMousePosition());
 	}
 
 	bool ScrollArea::OnMouse(uint32 button, LinaGX::InputAction act)
@@ -199,7 +205,7 @@ namespace Lina
 		m_totalChildSize = m_targetWidget->CalculateChildrenSize();
 
 		m_sizeToChildSizeRatio = usedSize / m_totalChildSize;
-		m_barVisible		   = m_sizeToChildSizeRatio < 1.0f;
+		m_barVisible		   = m_sizeToChildSizeRatio < 0.9f;
 		m_minScroll			   = 0.0f;
 		m_maxScroll			   = Math::Max(m_totalChildSize - usedSize, 0.0f);
 

@@ -34,6 +34,8 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+	// Version bumps
+	// 0: initial
 
 	class EditorSettings : public Serializable
 	{
@@ -70,7 +72,7 @@ namespace Lina::Editor
 	private:
 		String		 m_lastProjectPath	= "";
 		String		 m_lastWorldAbsPath = "";
-		EditorLayout m_layout;
+		EditorLayout m_layout			= {};
 	};
 
 } // namespace Lina::Editor

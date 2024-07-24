@@ -149,7 +149,7 @@ namespace Lina
 		stream >> m_hintFlags;
 		stream >> m_stagingOnly;
 		Create(m_hintFlags, m_size, "", m_stagingOnly);
-		stream.ReadIntoRaw((void*)m_mapped, m_size);
+		stream.ReadToRaw((void*)m_mapped, m_size);
 	}
 
 	void Buffer::BindVertex(LinaGX::CommandStream* stream, uint32 vertexSize)

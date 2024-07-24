@@ -50,4 +50,39 @@ namespace Lina::Editor
 
 		return false;
 	}
+	String DirectoryItem::GetNewItemName(const String& originalName)
+	{
+		auto it = linatl::find_if(children.begin(), children.end(), [originalName](DirectoryItem* c) -> bool { return c->name.compare(originalName) == 0; });
+
+		if (it != children.end())
+			return GetNewItemName(originalName + " (Copy)");
+
+		return originalName;
+	}
+	DirectoryItem* DirectoryItem::GetChildrenByName(const String& name)
+	{
+		auto it = linatl::find_if(children.begin(), children.end(), [name](DirectoryItem* c) -> bool { return c->name.compare(name) == 0; });
+		if (it != children.end())
+			return *it;
+
+		return nullptr;
+	}
+
+	DirectoryItem* DirectoryItem::GetChildrenByRelativePath(const String& relativePath)
+	{
+		auto it = linatl::find_if(children.begin(), children.end(), [relativePath](DirectoryItem* c) -> bool { return c->relativePath.compare(relativePath) == 0; });
+		if (it != children.end())
+			return *it;
+
+		return nullptr;
+	}
+	void DirectoryItem::Rename(const String& newName)
+	{
+		const String oldPath = absolutePath;
+		absolutePath		 = FileSystem::GetFilePath(absolutePath) + newName;
+		relativePath		 = FileSystem::GetFilePath(relativePath) + newName;
+		name				 = newName;
+		sid					 = TO_SID(relativePath);
+		FileSystem::ChangeDirectoryName(oldPath, absolutePath);
+	}
 } // namespace Lina::Editor

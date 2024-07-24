@@ -35,6 +35,7 @@ SOFTWARE.
 #include "Common/Serialization/Endianness.hpp"
 #include "Common/Memory/Memory.hpp"
 #include "Common/StringID.hpp"
+#include "Common/Data/CommonData.hpp"
 #include <type_traits>
 #include <iosfwd>
 
@@ -45,10 +46,18 @@ namespace Lina
 	public:
 		void Create(size_t size);
 		void Create(uint8* data, size_t size);
+		void Create(const Span<uint8>& span)
+		{
+			Create(span.data(), span.size());
+		}
 		void Destroy();
 		void ReadFromIFStream(std::ifstream& stream);
-		void ReadEndianSafe(void* ptr, size_t size);
-		void ReadIntoRaw(void* ptr, size_t size);
+		void ReadToRawEndianSafe(void* ptr, size_t size);
+		void ReadToRaw(void* ptr, size_t size);
+		void ReadToRaw(const Span<uint8>& span)
+		{
+			ReadToRaw(span.data(), span.size());
+		}
 
 		template <typename T> void Read(T& t)
 		{
@@ -159,8 +168,14 @@ namespace Lina
 		void Destroy();
 		void CheckGrow(size_t sz);
 		void WriteToOFStream(std::ofstream& stream);
-		void WriteEndianSafe(const uint8* ptr, size_t size);
+		void WriteRawEndianSafe(const uint8* ptr, size_t size);
 		void WriteRaw(const uint8* ptr, size_t size);
+		void WriteTo(Span<uint8>& span);
+
+		void WriteRaw(const Span<uint8>& span)
+		{
+			WriteRaw(span.data(), span.size());
+		}
 
 		template <typename T> void Write(T& t)
 		{
