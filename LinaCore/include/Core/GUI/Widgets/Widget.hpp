@@ -104,6 +104,17 @@ namespace Lina
 	class Widget
 	{
 	public:
+		struct DropshadowProps
+		{
+			bool		enabled	  = false;
+			Color		color	  = Theme::GetDef().background0;
+			Direction	direction = Direction::Center;
+			uint32		steps	  = 1;
+			float		thickness = Theme::GetDef().baseOutlineThickness;
+			float		rounding  = Theme::GetDef().baseRounding;
+			Vector<int> onlyRound;
+		};
+
 		struct WidgetProps
 		{
 			bool				 clipChildren				 = false;
@@ -133,6 +144,7 @@ namespace Lina
 			Vector<int32>		 onlyRound					 = {};
 			Rect				 customClipRect				 = {};
 			ColorGrad			 _interpolatedColor			 = Color();
+			DropshadowProps		 dropshadow;
 		};
 
 		Widget(Bitmask32 flags = 0) : m_flags(flags), m_tid(GetTypeID<Widget>()){};
@@ -180,6 +192,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
 
+		void	DrawDropshadow();
 		void	DrawBackground();
 		void	DrawChildren();
 		void	AddChild(Widget* w);

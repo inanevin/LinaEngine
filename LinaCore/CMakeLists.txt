@@ -101,7 +101,6 @@ src/GUI/Widgets/Widget.cpp
 src/GUI/Widgets/WidgetManager.cpp
 src/GUI/Widgets/WidgetCache.cpp
 src/GUI/Widgets/WidgetUtility.cpp
-src/GUI/Widgets/Effects/Dropshadow.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
 src/GUI/Widgets/Layout/Popup.cpp
 src/GUI/Widgets/Layout/ScrollArea.cpp
@@ -217,7 +216,6 @@ include/Core/GUI/Widgets/WidgetManager.hpp
 include/Core/GUI/Widgets/WidgetCache.hpp
 include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
-include/Core/GUI/Widgets/Effects/Dropshadow.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
 include/Core/GUI/Widgets/Layout/Popup.hpp
 include/Core/GUI/Widgets/Layout/ScrollArea.hpp

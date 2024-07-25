@@ -30,7 +30,6 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Editor/Widgets/FX/LinaLoading.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -142,8 +141,6 @@ namespace Lina::Editor
 		item->onProgress		 = desc.onProgress;
 		item->autoDestroySeconds = desc.autoDestroySeconds;
 		item->onClicked			 = desc.onClicked;
-
-		// DropShadow* ds = m_manager->Allocate<Dropshadow>("Dropshadow");
 
 		if (desc.icon != NotificationIcon::None && desc.icon != NotificationIcon::Loading)
 		{

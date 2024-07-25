@@ -128,6 +128,68 @@ namespace Lina
 		});
 	}
 
+	void Widget::DrawDropshadow()
+	{
+		if (!m_widgetProps.dropshadow.enabled)
+			return;
+
+		const float			 startAlpha = m_widgetProps.dropshadow.color.w;
+		LinaVG::StyleOptions opts;
+		opts.isFilled = true;
+		opts.rounding = m_widgetProps.dropshadow.rounding;
+		opts.color	  = m_widgetProps.dropshadow.color.AsLVG4();
+
+		for (int corner : m_widgetProps.dropshadow.onlyRound)
+			opts.onlyRoundTheseCorners.push_back(corner);
+
+		if (m_widgetProps.dropshadow.direction == Direction::Center)
+		{
+			Vector2 min = m_rect.pos;
+			Vector2 max = m_rect.GetEnd();
+
+			for (int32 i = 0; i < m_widgetProps.dropshadow.steps; i++)
+			{
+				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder);
+				min -= Vector2(m_widgetProps.dropshadow.thickness);
+				max += Vector2(m_widgetProps.dropshadow.thickness);
+				opts.color.start.w = opts.color.end.w = Math::Lerp(startAlpha, 0.0f, static_cast<float>(i) / static_cast<float>(m_widgetProps.dropshadow.steps));
+			}
+		}
+		else
+		{
+			const Vector2 dir = DirectionToVector(m_widgetProps.dropshadow.direction);
+			Vector2		  min = Vector2::Zero, max = Vector2::Zero;
+
+			if (m_widgetProps.dropshadow.direction == Direction::Bottom)
+			{
+				min = Vector2(m_rect.pos.x, m_rect.GetEnd().y);
+				max = Vector2(m_rect.GetEnd().x, m_rect.GetEnd().y + m_widgetProps.dropshadow.thickness);
+			}
+			else if (m_widgetProps.dropshadow.direction == Direction::Top)
+			{
+				min = m_rect.pos;
+				max = Vector2(m_rect.GetEnd().x, m_rect.pos.y - m_widgetProps.dropshadow.thickness);
+			}
+			else if (m_widgetProps.dropshadow.direction == Direction::Right)
+			{
+				min = Vector2(m_rect.GetEnd().x, m_rect.pos.y);
+				max = Vector2(m_rect.GetEnd().x + m_widgetProps.dropshadow.thickness, m_rect.GetEnd().y);
+			}
+			else
+			{
+				min = Vector2(m_rect.pos.x - m_widgetProps.dropshadow.thickness, m_rect.pos.y);
+				max = Vector2(m_rect.pos.x, m_rect.GetEnd().y);
+			}
+
+			for (int32 i = 0; i < m_widgetProps.dropshadow.steps; i++)
+			{
+				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder);
+				min += m_widgetProps.dropshadow.thickness * dir;
+				max += m_widgetProps.dropshadow.thickness * dir;
+				opts.color.start.w = opts.color.end.w = Math::Lerp(startAlpha, 0.0f, static_cast<float>(i) / static_cast<float>(m_widgetProps.dropshadow.steps));
+			}
+		}
+	}
 	void Widget::DrawBackground()
 	{
 		if (m_widgetProps.drawBackground)
@@ -262,6 +324,7 @@ namespace Lina
 	void Widget::Draw()
 	{
 		DrawBackground();
+		DrawDropshadow();
 		DrawChildren();
 		DrawBorders();
 		DrawTooltip();

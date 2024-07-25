@@ -41,7 +41,6 @@ SOFTWARE.
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
-#include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
 #include "Core/GUI/Widgets/Primitives/Dropdown.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"

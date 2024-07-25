@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
-#include "Core/GUI/Widgets/Effects/Dropshadow.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
@@ -702,17 +701,6 @@ namespace Lina::Editor
 			if (m_props.onItemInteracted)
 				m_props.onItemInteracted(shape->GetUserData());
 		};
-
-		Dropshadow* ds = m_manager->Allocate<Dropshadow>("Dropshadow");
-		ds->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		ds->SetAlignedPos(Vector2::Zero);
-		ds->SetAlignedSize(Vector2::One);
-		ds->GetProps().direction = Direction::Bottom;
-		ds->GetProps().color	 = Theme::GetDef().black;
-		ds->GetProps().color.w	 = 0.75f;
-		ds->GetProps().steps	 = 6;
-		ds->SetDrawOrderIncrement(-1);
-		shape->AddChild(ds);
 
 		Text* title = m_manager->Allocate<Text>("Title");
 		title->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
