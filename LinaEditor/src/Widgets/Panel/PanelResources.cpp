@@ -366,12 +366,12 @@ namespace Lina::Editor
 
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
 		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
-        itemLayout->SetAlignedPosX(0.0f);
-        itemLayout->SetAlignedSize(Vector2(1.0f, 0.0f));
-        itemLayout->GetProps().itemsCanHaveChildren = true;
-        itemLayout->GetWidgetProps().drawBackground = true;
-        itemLayout->GetWidgetProps().outlineThickness = 0.0f;
-        itemLayout->GetWidgetProps().rounding = 0.0f;
+		itemLayout->SetAlignedPosX(0.0f);
+		itemLayout->SetAlignedSize(Vector2(1.0f, 0.0f));
+		itemLayout->GetProps().itemsCanHaveChildren	  = true;
+		itemLayout->GetWidgetProps().drawBackground	  = true;
+		itemLayout->GetWidgetProps().outlineThickness = 0.0f;
+		itemLayout->GetWidgetProps().rounding		  = 0.0f;
 		itemLayout->SetUseGridLayout(false);
 		contents->AddChild(itemLayout);
 		m_fileBrowserItemLayout = itemLayout;
@@ -474,13 +474,13 @@ namespace Lina::Editor
 		browser->AddChild(searchField);
 
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
-		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y| WF_CONTROL_MANAGER);
-        itemLayout->SetAlignedPosX(0.0f);
-        itemLayout->SetAlignedSize(Vector2(1.0f, 0.0f));
-        itemLayout->GetProps().itemsCanHaveChildren = true;
-        itemLayout->GetWidgetProps().drawBackground = true;
-        itemLayout->GetWidgetProps().outlineThickness = 0.0f;
-        itemLayout->GetWidgetProps().rounding = 0.0f;
+		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
+		itemLayout->SetAlignedPosX(0.0f);
+		itemLayout->SetAlignedSize(Vector2(1.0f, 0.0f));
+		itemLayout->GetProps().itemsCanHaveChildren	  = true;
+		itemLayout->GetWidgetProps().drawBackground	  = true;
+		itemLayout->GetWidgetProps().outlineThickness = 0.0f;
+		itemLayout->GetWidgetProps().rounding		  = 0.0f;
 		itemLayout->SetUseGridLayout(false);
 		browser->AddChild(itemLayout);
 		m_folderBrowserItemLayout = itemLayout;
