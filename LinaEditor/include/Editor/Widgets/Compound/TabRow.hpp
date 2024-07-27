@@ -47,14 +47,10 @@ namespace Lina::Editor
 			Delegate<void(void* userData)> onTabClosed;
 			Delegate<void(void* userData)> onTabDockedOut;
 			Delegate<void(void* userData)> onTabSelected;
-
-			bool  drawBackground  = false;
-			Color colorBackground = Theme::GetDef().background0;
 		};
 
 		virtual void PreTick() override;
 		virtual void Tick(float delta) override;
-		virtual void Draw() override;
 
 		void AddTab(void* userData, const String& title);
 		void RemoveTab(void* userData);

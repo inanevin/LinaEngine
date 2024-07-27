@@ -84,7 +84,7 @@ namespace Lina
 			float baseIndentInner	   = 8.0f;
 			float baseSliderPerc	   = 0.25f;
 			float baseRounding		   = 0.25f;
-			float baseOutlineThickness = 2.0f;
+			float baseOutlineThickness = 1.0f;
 			float baseItemHeight	   = 24.0f;
 			float popupAnimTime		   = 0.1f;
 			float baseBorderThickness  = 6.0f;

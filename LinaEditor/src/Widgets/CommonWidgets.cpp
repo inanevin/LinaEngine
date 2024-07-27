@@ -52,8 +52,7 @@ namespace Lina::Editor
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->GetProps().mode		 = DirectionalLayout::Mode::EqualSizes;
 
-		Button* min = source->GetWidgetManager()->Allocate<Button>("Minimize");
-		min->GetText()->SetVisible(false);
+		Button* min							   = source->GetWidgetManager()->Allocate<Button>("Minimize");
 		min->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
 		min->GetWidgetProps().colorHovered	   = Theme::GetDef().background4;
 		min->GetWidgetProps().colorPressed	   = Theme::GetDef().background0;
@@ -63,6 +62,8 @@ namespace Lina::Editor
 		min->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		min->SetAlignedPosY(0.0f);
 		min->SetAlignedSizeY(1.0f);
+		min->SetTooltip(Locale::GetStr(LocaleStr::Minimize));
+		min->SetDrawOrderIncrement(1);
 		layout->AddChild(min);
 
 		Icon* iconMin			 = source->GetWidgetManager()->Allocate<Icon>("Icon");
@@ -73,22 +74,24 @@ namespace Lina::Editor
 		iconMin->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		min->AddChild(iconMin);
 
-		Button* max = source->GetWidgetManager()->Allocate<Button>();
-		max->GetText()->SetVisible(false);
+		Button* max							   = source->GetWidgetManager()->Allocate<Button>();
 		max->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
 		max->GetWidgetProps().colorHovered	   = Theme::GetDef().background4;
 		max->GetWidgetProps().colorPressed	   = Theme::GetDef().background0;
 		max->GetWidgetProps().rounding		   = 0.0f;
 		max->GetWidgetProps().outlineThickness = 0.0f;
-		max->GetProps().onClicked			   = [source, max]() {
-			 if (source->GetWindow()->GetIsMaximized())
-				 source->GetWindow()->Restore();
-			 else
-				 source->GetWindow()->Maximize();
+		max->SetDrawOrderIncrement(1);
 
-			 max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
-			 max->GetText()->CalculateTextSize();
+		max->GetProps().onClicked = [source, max]() {
+			if (source->GetWindow()->GetIsMaximized())
+				source->GetWindow()->Restore();
+			else
+				source->GetWindow()->Maximize();
+
+			max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
+			max->GetText()->CalculateTextSize();
 		};
+		max->SetTooltip(Locale::GetStr(LocaleStr::MaximizeRestore));
 		max->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		max->SetAlignedPosY(0.0f);
 		max->SetAlignedSizeY(1.0f);
@@ -102,18 +105,19 @@ namespace Lina::Editor
 		iconMax->SetPosAlignmentSourceY(PosAlignmentSource::Center);
 		max->AddChild(iconMax);
 
-		Button* close = source->GetWidgetManager()->Allocate<Button>();
-		close->GetText()->SetVisible(false);
+		Button* close							 = source->GetWidgetManager()->Allocate<Button>();
 		close->GetWidgetProps().colorBackground	 = Theme::GetDef().accentPrimary0;
 		close->GetWidgetProps().colorHovered	 = Theme::GetDef().accentPrimary2;
 		close->GetWidgetProps().colorPressed	 = Theme::GetDef().accentPrimary1;
 		close->GetWidgetProps().rounding		 = 0.0f;
 		close->GetWidgetProps().outlineThickness = 0.0f;
-		close->GetProps().onClicked				 = [source]() {
-			 if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
-				 Editor::Get()->RequestExit();
-			 else
-				 Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
+		close->SetDrawOrderIncrement(1);
+		close->SetTooltip(Locale::GetStr(LocaleStr::Close));
+		close->GetProps().onClicked = [source]() {
+			if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
+				Editor::Get()->RequestExit();
+			else
+				Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
 		};
 		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		close->SetAlignedPosY(0.0f);

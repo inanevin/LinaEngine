@@ -208,6 +208,11 @@ namespace Lina
 			if (m_widgetProps.pressedIsDifferentColor && m_isPressed)
 				opts.color = m_widgetProps.colorPressed.AsLVG();
 
+			if (m_debugName.compare("SearchFieldTop") == 0)
+			{
+				int a = 5;
+			}
+
 			if (GetIsDisabled())
 				opts.color = m_widgetProps.colorDisabled.AsLVG();
 
@@ -428,6 +433,7 @@ namespace Lina
 
 	void Widget::DrawTooltip()
 	{
+
 		const Vector2 mp = Vector2(Math::FloorToFloat(m_lgxWindow->GetMousePosition().x), Math::FloorToFloat(m_lgxWindow->GetMousePosition().y));
 
 		if (!m_isHovered)

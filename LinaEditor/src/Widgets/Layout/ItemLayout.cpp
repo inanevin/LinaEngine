@@ -484,6 +484,7 @@ namespace Lina::Editor
 
 	void ItemLayout::SetOutlineThicknessAndColor(float outlineThickness, const Color& outlineColor)
 	{
+		return;
 		if (m_useGridLayout)
 		{
 			GridLayout* grid						= static_cast<GridLayout*>(m_layout);

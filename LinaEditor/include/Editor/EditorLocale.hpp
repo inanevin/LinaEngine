@@ -108,6 +108,10 @@ namespace Lina::Editor
 		RemoveAll,
 		AreYouSureYouWantToDeleteI,
 		AreYouSureYouWantToDeleteII,
+		Minimize,
+		Maximize,
+		MaximizeRestore,
+		Close,
 	};
 
 	class Locale

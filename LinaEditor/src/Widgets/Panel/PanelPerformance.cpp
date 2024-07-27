@@ -54,8 +54,9 @@ namespace Lina::Editor
 		tabRow->SetAlignedSizeX(1.0f);
 		tabRow->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		tabRow->SetCanCloseTabs(false);
-		tabRow->GetProps().drawBackground = true;
-		tabRow->GetProps().onTabSelected  = [this](void* userData) { SelectContent(static_cast<Widget*>(userData)); };
+		tabRow->GetWidgetProps().drawBackground = true;
+		tabRow->GetWidgetProps().rounding		= 0.0f;
+		tabRow->GetProps().onTabSelected		= [this](void* userData) { SelectContent(static_cast<Widget*>(userData)); };
 
 		layout->AddChild(tabRow);
 

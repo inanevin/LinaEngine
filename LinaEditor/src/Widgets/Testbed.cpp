@@ -256,7 +256,7 @@ namespace Lina::Editor
 			setFlags(cs);
 			layout->AddChild(cs);
 		}
-
+		return;
 		// Color wheel
 		{
 			ColorWheelCompound* wh = m_manager->Allocate<ColorWheelCompound>("ColorWheelCompound");

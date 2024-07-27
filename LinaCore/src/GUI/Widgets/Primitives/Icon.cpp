@@ -83,6 +83,8 @@ namespace Lina
 			m_sdfOptions.color.start = m_sdfOptions.color.end = m_props.colorDisabled.AsLVG4();
 
 		m_lvg->DrawTextSDF(m_props.icon.c_str(), (m_rect.pos + Vector2(0.0f, m_rect.size.y)).AsLVG(), m_sdfOptions, 0.0f, m_drawOrder, m_props.isDynamic);
+
+		DrawTooltip();
 	}
 
 	void Icon::CalculateIconSize()

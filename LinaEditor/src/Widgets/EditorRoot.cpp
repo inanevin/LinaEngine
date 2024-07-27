@@ -54,7 +54,6 @@ namespace Lina::Editor
 	void EditorRoot::Construct()
 	{
 		const String tooltip = "Lina Engine v." + TO_STRING(LINA_MAJOR) + "." + TO_STRING(LINA_MINOR) + "." + TO_STRING(LINA_PATCH) + " - b: " + TO_STRING(LINA_BUILD);
-		SetTooltip(tooltip);
 
 		GetProps().direction = DirectionOrientation::Vertical;
 
@@ -70,6 +69,8 @@ namespace Lina::Editor
 		titleBar->SetChildPadding(Theme::GetDef().baseIndent);
 		titleBar->GetWidgetProps().drawBackground			   = true;
 		titleBar->GetWidgetProps().backgroundIsCentralGradient = true;
+		titleBar->GetWidgetProps().outlineThickness			   = 0.0f;
+		titleBar->GetWidgetProps().rounding					   = 0.0f;
 		titleBar->GetWidgetProps().colorBackground.start	   = Theme::GetDef().background0;
 		titleBar->GetWidgetProps().colorBackground.end		   = Theme::GetDef().accentPrimary0;
 		titleBar->GetChildMargins().left					   = Theme::GetDef().baseIndent;
@@ -83,6 +84,7 @@ namespace Lina::Editor
 		lina->GetProps().colorStart = Theme::GetDef().accentPrimary0;
 		lina->GetProps().colorEnd	= Theme::GetDef().accentPrimary1;
 		lina->GetProps().isDynamic	= false;
+		lina->SetTooltip(tooltip);
 		titleBar->AddChild(lina);
 
 		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
@@ -210,16 +212,6 @@ namespace Lina::Editor
 		m_titleBar->GetWidgetProps().colorBackground.end = Math::Lerp(m_titleBar->GetWidgetProps().colorBackground.end, targetColor, delta * COLOR_SPEED);
 
 		DirectionalLayout::Tick(delta);
-	}
-
-	void EditorRoot::Draw()
-	{
-		DirectionalLayout::Draw();
-
-		if (m_linaIcon->GetIsHovered())
-		{
-			Widget::DrawTooltip();
-		}
 	}
 
 	bool EditorRoot::OnMouse(uint32 button, LinaGX::InputAction act)

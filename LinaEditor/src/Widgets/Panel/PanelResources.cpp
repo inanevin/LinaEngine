@@ -364,21 +364,16 @@ namespace Lina::Editor
 		filler->SetFixedSizeY(Theme::GetDef().baseItemHeight / 2);
 		contents->AddChild(filler);
 
-		Widget* bg = m_manager->Allocate<Widget>("BG");
-		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		bg->SetAlignedPosX(0.0f);
-		bg->SetAlignedSize(Vector2(1.0f, 0.0f));
-		bg->GetWidgetProps().drawBackground	 = true;
-		bg->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		contents->AddChild(bg);
-
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
-		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
-		itemLayout->SetAlignedPos(Vector2::Zero);
-		itemLayout->SetAlignedSize(Vector2::One);
-		itemLayout->GetProps().itemsCanHaveChildren = true;
+		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
+        itemLayout->SetAlignedPosX(0.0f);
+        itemLayout->SetAlignedSize(Vector2(1.0f, 0.0f));
+        itemLayout->GetProps().itemsCanHaveChildren = true;
+        itemLayout->GetWidgetProps().drawBackground = true;
+        itemLayout->GetWidgetProps().outlineThickness = 0.0f;
+        itemLayout->GetWidgetProps().rounding = 0.0f;
 		itemLayout->SetUseGridLayout(false);
-		bg->AddChild(itemLayout);
+		contents->AddChild(itemLayout);
 		m_fileBrowserItemLayout = itemLayout;
 		m_fileBrowserItemLayout->GetContextMenu()->SetListener(this);
 		m_fileBrowserItemLayout->SetGridItemSize(Vector2(Theme::GetDef().baseItemHeight * m_contentsSize, Theme::GetDef().baseItemHeight * (m_contentsSize + 1.25f)));
@@ -478,21 +473,16 @@ namespace Lina::Editor
 		};
 		browser->AddChild(searchField);
 
-		Widget* bg = m_manager->Allocate<Widget>("BG");
-		bg->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		bg->SetAlignedPosX(0.0f);
-		bg->SetAlignedSize(Vector2(1.0f, 0.0f));
-		bg->GetWidgetProps().drawBackground	 = true;
-		bg->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		browser->AddChild(bg);
-
 		ItemLayout* itemLayout = m_manager->Allocate<ItemLayout>("ItemLayout");
-		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
-		itemLayout->SetAlignedPos(Vector2::Zero);
-		itemLayout->SetAlignedSize(Vector2::One);
-		itemLayout->GetProps().itemsCanHaveChildren = true;
+		itemLayout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y| WF_CONTROL_MANAGER);
+        itemLayout->SetAlignedPosX(0.0f);
+        itemLayout->SetAlignedSize(Vector2(1.0f, 0.0f));
+        itemLayout->GetProps().itemsCanHaveChildren = true;
+        itemLayout->GetWidgetProps().drawBackground = true;
+        itemLayout->GetWidgetProps().outlineThickness = 0.0f;
+        itemLayout->GetWidgetProps().rounding = 0.0f;
 		itemLayout->SetUseGridLayout(false);
-		bg->AddChild(itemLayout);
+		browser->AddChild(itemLayout);
 		m_folderBrowserItemLayout = itemLayout;
 		m_folderBrowserItemLayout->GetContextMenu()->SetListener(this);
 

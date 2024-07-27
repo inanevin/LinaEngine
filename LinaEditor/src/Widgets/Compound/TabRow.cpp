@@ -84,18 +84,6 @@ namespace Lina::Editor
 			linatl::sort(m_tabs.begin(), m_tabs.end(), [](Tab* t, Tab* t2) -> bool { return t->GetRect().pos.x < t2->GetRect().pos.x; });
 	}
 
-	void TabRow::Draw()
-	{
-		if (m_props.drawBackground)
-		{
-			LinaVG::StyleOptions opts;
-			opts.color = m_props.colorBackground.AsLVG4();
-			m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-		}
-
-		Widget::Draw();
-	}
-
 	void TabRow::AddTab(void* userData, const String& title)
 	{
 		Tab* tab = m_manager->Allocate<Tab>("Tab");

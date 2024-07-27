@@ -61,7 +61,7 @@ namespace Lina
 
 			Color sdfOutlineColor	  = Color::White;
 			float sdfThickness		  = 0.5f;
-			float sdfSoftness		  = 0.018f;
+			float sdfSoftness		  = 0.024f;
 			float sdfOutlineThickness = 0.0f;
 			float sdfOutlineSoftness  = 0.0f;
 

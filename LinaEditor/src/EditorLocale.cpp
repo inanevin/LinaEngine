@@ -105,6 +105,10 @@ namespace Lina::Editor
 		{LocaleStr::RemoveAll, "Remove All Items"},
 		{LocaleStr::AreYouSureYouWantToDeleteI, "Are you sure you want to delete"},
 		{LocaleStr::AreYouSureYouWantToDeleteII, "item(s)?"},
+		{LocaleStr::Minimize, "Minimize"},
+		{LocaleStr::Maximize, "Maximize"},
+		{LocaleStr::MaximizeRestore, "Maximize/Restore"},
+		{LocaleStr::Close, "Close"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {
