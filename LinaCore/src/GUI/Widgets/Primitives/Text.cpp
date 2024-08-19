@@ -82,13 +82,18 @@ namespace Lina
 		if (m_isSDF)
 		{
 			LinaVG::SDFTextOptions opts;
-			opts.font		 = m_lvgFont;
-			opts.textScale	 = m_props.textScale;
-			opts.alignment	 = m_props.alignment;
-			opts.wrapWidth	 = m_props.wrapWidth;
-			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
-			opts.cpuClipping				  = m_props.customClip.AsLVG4();
-			opts.wordWrap					  = m_props.wordWrap;
+			opts.font	   = m_lvgFont;
+			opts.textScale = m_props.textScale;
+			opts.alignment = m_props.alignment;
+			opts.wrapWidth = m_props.wrapWidth;
+
+			if (GetIsDisabled())
+				opts.color = m_props.colorDisabled.AsLVG4();
+			else
+				opts.color = m_props.color.AsLVG();
+
+			opts.cpuClipping = m_props.customClip.AsLVG4();
+			opts.wordWrap	 = m_props.wordWrap;
 
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();
@@ -103,9 +108,14 @@ namespace Lina
 			opts.alignment		= m_props.alignment;
 			opts.wrapWidth		= m_props.wrapWidth;
 			opts.newLineSpacing = 0.0f;
-			opts.color.start = opts.color.end = GetIsDisabled() ? m_props.colorDisabled.AsLVG4() : m_props.color.AsLVG4();
-			opts.cpuClipping				  = m_props.customClip.AsLVG4();
-			opts.wordWrap					  = m_props.wordWrap;
+
+			if (GetIsDisabled())
+				opts.color = m_props.colorDisabled.AsLVG4();
+			else
+				opts.color = m_props.color.AsLVG();
+
+			opts.cpuClipping = m_props.customClip.AsLVG4();
+			opts.wordWrap	 = m_props.wordWrap;
 
 			if (GetIsDisabled())
 				opts.color = m_props.colorDisabled.AsLVG4();

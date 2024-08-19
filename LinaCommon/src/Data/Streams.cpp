@@ -173,4 +173,54 @@ namespace Lina
 		stream.write((char*)m_data, m_currentSize);
 	}
 
+	RawStream::RawStream(const Span<uint8>& sp)
+	{
+		Destroy();
+		m_data = {new uint8[sp.size()], sp.size()};
+		MEMCPY(m_data.data(), sp.data(), sp.size());
+	}
+
+	RawStream::RawStream(uint8* data, size_t size)
+	{
+		Destroy();
+		m_data = {new uint8[size], size};
+		MEMCPY(m_data.data(), data, size);
+	}
+
+	RawStream::RawStream(OStream& stream)
+	{
+		Destroy();
+		m_data = {new uint8[stream.GetCurrentSize()], stream.GetCurrentSize()};
+		MEMCPY(m_data.data(), stream.GetDataRaw(), stream.GetCurrentSize());
+	}
+
+	void RawStream::Destroy()
+	{
+		if (IsEmpty())
+			return;
+		delete[] m_data.data();
+		m_data = {};
+	}
+
+	void RawStream::SaveToStream(OStream& stream) const
+	{
+		const uint32 sz = static_cast<uint32>(m_data.size());
+		stream << sz;
+		if (sz != 0)
+			stream.WriteRaw(m_data);
+	}
+
+	void RawStream::LoadFromStream(IStream& stream)
+	{
+		uint32 size = 0;
+		stream >> size;
+		if (size != 0)
+		{
+			const size_t sz = static_cast<size_t>(sz);
+			Destroy();
+			m_data = {new uint8[sz], sz};
+			stream.ReadToRaw(m_data);
+		}
+	}
+
 } // namespace Lina

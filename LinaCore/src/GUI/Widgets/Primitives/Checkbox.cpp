@@ -42,8 +42,8 @@ namespace Lina
 	{
 		m_icon = m_manager->Allocate<Icon>("CheckboxIcon");
 		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
-		m_icon->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_icon->SetAnchorX(Anchor::Center);
+		m_icon->SetAnchorY(Anchor::Center);
 		m_icon->SetAlignedPos(Vector2(0.5f, 0.5f));
 		AddChild(m_icon);
 		GetWidgetProps().drawBackground = true;
@@ -55,9 +55,9 @@ namespace Lina
 			return;
 
 		// Alpha & color
-		const float alpha				= Math::Lerp(m_icon->GetProps().colorStart.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
-		m_icon->GetProps().colorStart.w = alpha;
-		m_icon->GetProps().colorEnd.w	= alpha;
+		const float alpha				 = Math::Lerp(m_icon->GetProps().color.start.w, *m_props.value ? 1.0f : 0.0f, delta * CHECKBOX_SPEED);
+		m_icon->GetProps().color.start.w = alpha;
+		m_icon->GetProps().color.end.w	 = alpha;
 	}
 
 	bool Checkbox::OnMouse(uint32 button, LinaGX::InputAction act)

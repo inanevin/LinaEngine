@@ -50,8 +50,7 @@ namespace Lina
 			Delegate<void()> onClicked;
 			String			 icon					= "";
 			StringID		 font					= Theme::GetDef().iconFont;
-			Color			 colorStart				= Theme::GetDef().foreground0;
-			Color			 colorEnd				= Theme::GetDef().foreground0;
+			ColorGrad		 color					= Theme::GetDef().foreground0;
 			Color			 colorHovered			= Theme::GetDef().foreground0;
 			Color			 colorPressed			= Theme::GetDef().foreground0;
 			Color			 colorDisabled			= Theme::GetDef().silent1;
@@ -71,8 +70,7 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorStart.SaveToStream(stream);
-				colorEnd.SaveToStream(stream);
+				color.SaveToStream(stream);
 				colorHovered.SaveToStream(stream);
 				colorPressed.SaveToStream(stream);
 				colorDisabled.SaveToStream(stream);
@@ -85,8 +83,7 @@ namespace Lina
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorStart.LoadFromStream(stream);
-				colorEnd.LoadFromStream(stream);
+				color.LoadFromStream(stream);
 				colorHovered.LoadFromStream(stream);
 				colorPressed.LoadFromStream(stream);
 				colorDisabled.LoadFromStream(stream);

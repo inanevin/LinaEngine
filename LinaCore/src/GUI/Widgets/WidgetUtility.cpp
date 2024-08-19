@@ -172,38 +172,37 @@ namespace Lina
 	{
 		Text* txt					   = source->GetWidgetManager()->Allocate<Text>("EditableText");
 		txt->GetProps().delayOnClicked = true;
+		txt->GetProps().onClicked	   = [onTextChanged, horizontal, source, txt]() {
+			 InputField* inp = source->GetWidgetManager()->Allocate<InputField>();
+			 inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
+			 inp->GetText()->GetProps().text = txt->GetProps().text;
+			 inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+			 inp->SetSizeX(txt->GetSizeX() * 2);
+			 inp->Initialize();
 
-		txt->GetProps().onClicked = [onTextChanged, horizontal, source, txt]() {
-			InputField* inp = source->GetWidgetManager()->Allocate<InputField>();
-			inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
-			inp->GetText()->GetProps().text = txt->GetProps().text;
-			inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-			inp->SetSizeX(txt->GetSizeX() * 2);
-			inp->Initialize();
+			 if (horizontal)
+			 {
+				 inp->SetPosX(txt->GetPosX());
+				 inp->SetPosY(txt->GetParent()->GetPosY());
+			 }
+			 else
+			 {
+				 inp->SetPosX(txt->GetParent()->GetRect().GetCenter().x - inp->GetHalfSizeX());
+				 inp->SetPosY(txt->GetPosY());
+			 }
 
-			if (horizontal)
-			{
-				inp->SetPosX(txt->GetPosX());
-				inp->SetPosY(txt->GetParent()->GetPosY());
-			}
-			else
-			{
-				inp->SetPosX(txt->GetParent()->GetRect().GetCenter().x - inp->GetHalfSizeX());
-				inp->SetPosY(txt->GetPosY());
-			}
+			 inp->GetProps().onEditEnd = [onTextChanged, inp, txt, source](const String& str) {
+				 txt->GetProps().text = str;
+				 txt->CalculateTextSize();
+				 source->GetWidgetManager()->AddToKillList(inp);
 
-			inp->GetProps().onEditEnd = [onTextChanged, inp, txt, source](const String& str) {
-				txt->GetProps().text = str;
-				txt->CalculateTextSize();
-				source->GetWidgetManager()->AddToKillList(inp);
+				 if (onTextChanged)
+					 onTextChanged();
+			 };
 
-				if (onTextChanged)
-					onTextChanged();
-			};
-
-			source->GetWidgetManager()->AddToForeground(inp);
-			inp->StartEditing();
-			inp->SelectAll();
+			 source->GetWidgetManager()->AddToForeground(inp);
+			 inp->StartEditing();
+			 inp->SelectAll();
 		};
 
 		return txt;

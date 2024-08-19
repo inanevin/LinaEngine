@@ -158,7 +158,7 @@ namespace Lina
 		text->GetProps().text = title;
 		text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);
-		text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		text->SetAnchorY(Anchor::Center);
 		shape->AddChild(text);
 	}
 
@@ -173,6 +173,7 @@ namespace Lina
 		layout->SetChildPadding(Theme::GetDef().baseIndent);
 		layout->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 		layout->GetWidgetProps().drawBackground	  = true;
+		layout->GetWidgetProps().rounding		  = 0.0f;
 		layout->GetWidgetProps().outlineThickness = 0.0f;
 		layout->GetWidgetProps().colorBackground  = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		layout->SetUserData(userData);
@@ -184,8 +185,8 @@ namespace Lina
 		icon->GetProps().icon = m_props.selectedIcon;
 		icon->GetFlags().Set(WF_POS_ALIGN_Y);
 		icon->SetAlignedPosY(0.5f);
-		icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		icon->GetProps().colorStart = icon->GetProps().colorEnd = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().foreground0;
+		icon->SetAnchorY(Anchor::Center);
+		icon->GetProps().color = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().foreground0;
 		icon->CalculateIconSize();
 		layout->AddChild(icon);
 		totalSize += icon->GetSizeX() + layout->GetChildPadding();
@@ -194,7 +195,7 @@ namespace Lina
 		txt->GetProps().text = title;
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
-		txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		txt->SetAnchorY(Anchor::Center);
 		txt->CalculateTextSize();
 		layout->AddChild(txt);
 		m_background->AddChild(layout);

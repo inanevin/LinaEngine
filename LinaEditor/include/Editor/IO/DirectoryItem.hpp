@@ -62,7 +62,10 @@ namespace Lina::Editor
 		bool		   ContainsSearchString(const String& str, bool recursive, bool onlyDirectories = false);
 		String		   GetNewItemName(const String& originalName);
 		DirectoryItem* GetChildrenByName(const String& name);
-		DirectoryItem* GetChildrenByRelativePath(const String& relativePath);
+		DirectoryItem* GetChildrenByRelativePath(const String& relativePath, bool isRecursive);
+		DirectoryItem* GetChildrenByAbsPath(const String& absPath, bool isRecursive);
+		void		   GetItemsContainingSearchString(Vector<DirectoryItem*>& outItems, const String& str, bool isRecursive);
+		void		   OnParentPathChanged();
 		void		   Rename(const String& newName);
 
 		ALLOCATOR_BUCKET_MEM;

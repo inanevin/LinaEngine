@@ -60,8 +60,7 @@ namespace Lina
 		if (!GetIsVisible())
 			return;
 
-		m_sdfOptions.color.start		 = m_props.colorStart.AsLVG4();
-		m_sdfOptions.color.end			 = m_props.colorEnd.AsLVG4();
+		m_sdfOptions.color				 = m_props.color.AsLVG();
 		m_sdfOptions.sdfThickness		 = m_props.sdfThickness;
 		m_sdfOptions.sdfSoftness		 = m_props.sdfSoftness;
 		m_sdfOptions.sdfOutlineColor	 = m_props.sdfOutlineColor.AsLVG4();
@@ -102,7 +101,7 @@ namespace Lina
 		if (button != LINAGX_MOUSE_0)
 			return false;
 
-		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered)
+		if ((act == LinaGX::InputAction::Pressed || act == LinaGX::InputAction::Repeated) && m_isHovered && m_props.onClicked)
 		{
 			m_isPressed = true;
 			return true;

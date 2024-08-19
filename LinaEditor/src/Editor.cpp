@@ -79,7 +79,7 @@ namespace Lina::Editor
 		if (sid == DEFAULT_FONT_SID)
 		{
 			Font::Metadata customMeta = {
-				.points = {{.size = 14, .dpiLimit = 10.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
+				.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
 				.isSDF	= false,
 
 			};

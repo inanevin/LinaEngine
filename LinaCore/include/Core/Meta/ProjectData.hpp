@@ -30,10 +30,15 @@ SOFTWARE.
 
 #include "Common/Data/String.hpp"
 #include "Common/StringID.hpp"
+#include "Common/Data/Streams.hpp"
 #include "Common/Serialization/Serializable.hpp"
 
 namespace Lina
 {
+
+	// Version changes
+	// 1: added user data
+
 	class ProjectData : public Serializable
 	{
 	public:
@@ -42,7 +47,7 @@ namespace Lina
 			bool isDirty = false;
 		};
 
-		static constexpr uint32 VERSION = 0;
+		static constexpr uint32 VERSION = 1;
 
 		virtual void SaveToStream(OStream& out) override;
 		virtual void LoadFromStream(IStream& in) override;
@@ -68,9 +73,15 @@ namespace Lina
 			return m_runtime.isDirty;
 		}
 
+		inline RawStream& GetUserData()
+		{
+			return m_userData;
+		}
+
 	private:
-		Runtime m_runtime	  = {};
-		String	m_projectName = "";
+		Runtime	  m_runtime		= {};
+		String	  m_projectName = "";
+		RawStream m_userData;
 	};
 
 } // namespace Lina

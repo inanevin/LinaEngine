@@ -109,6 +109,7 @@ namespace Lina::Editor
 		{LocaleStr::Maximize, "Maximize"},
 		{LocaleStr::MaximizeRestore, "Maximize/Restore"},
 		{LocaleStr::Close, "Close"},
+		{LocaleStr::Rename, "Rename"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

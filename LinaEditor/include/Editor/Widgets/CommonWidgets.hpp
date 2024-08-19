@@ -37,6 +37,8 @@ namespace Lina
 	class Widget;
 	class WidgetManager;
 	class Popup;
+	class Text;
+	struct TextureAtlasImage;
 } // namespace Lina
 
 namespace LinaGX
@@ -47,6 +49,8 @@ namespace Lina::Editor
 {
 	class GenericPopup;
 	class InfoTooltip;
+	class ItemController;
+	struct DirectoryItem;
 
 	class CommonWidgets
 	{
@@ -55,10 +59,18 @@ namespace Lina::Editor
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, Widget* source);
 		static InfoTooltip*		  ThrowInfoTooltip(const String& str, LogLevel level, float time, WidgetManager* manager, const Vector2& targetPos);
 
-		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, Widget* source);
+		static GenericPopup* ThrowGenericPopup(const String& title, const String& text, const String& icon, Widget* source);
 
 		static float GetPopupWidth(LinaGX::Window* window);
 
 		static Widget* GetPopupItemWithSelectionToggle(Widget* source, const String& title, bool isSelected);
+
+		static Widget* BuildPayloadForPanel(Widget* src, const String& name);
+		static Widget* BuildPayloadForDirectoryItem(Widget* src, DirectoryItem* item);
+		static Widget* BuildDefaultFoldItem(Widget* src, void* userdata, float margin, const String& icon, const Color& iconColor, const String& title, bool hasChildren, bool* unfoldVal);
+		static Widget* BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icon, const Color& iconColor, const String& title);
+		static Widget* BuildDirectoryItemFolderView(Widget* src, DirectoryItem* item, float margin);
+		static Widget* BuildDirectoryItemListView(Widget* src, DirectoryItem* item);
+		static Widget* BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize);
 	};
 } // namespace Lina::Editor

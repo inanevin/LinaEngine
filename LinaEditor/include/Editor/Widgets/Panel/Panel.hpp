@@ -33,6 +33,15 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
+
+	struct PanelPayloadData
+	{
+		PanelType type		= PanelType::Entities;
+		StringID  subData	= 0;
+		Vector2	  panelSize = Vector2::Zero;
+		String	  panelName = "";
+	};
+
 	class Panel : public Widget
 	{
 	public:

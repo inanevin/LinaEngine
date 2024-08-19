@@ -69,13 +69,13 @@ namespace Lina
 		m_text->GetProps().isDynamic = true;
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_text->SetAlignedPosY(0.5f);
-		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_text->SetAnchorY(Anchor::Center);
 
 		m_placeholderText						= m_manager->Allocate<Text>("InputFieldPlaceholder");
 		m_placeholderText->GetProps().isDynamic = true;
 		m_placeholderText->GetFlags().Set(WF_POS_ALIGN_Y);
 		m_placeholderText->SetAlignedPosY(0.5f);
-		m_placeholderText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_placeholderText->SetAnchorY(Anchor::Center);
 
 		AddChild(m_text);
 		AddChild(m_placeholderText);

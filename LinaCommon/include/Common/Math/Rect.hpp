@@ -52,7 +52,7 @@ namespace Lina
 		bool	IsClippingHorizontal(const Rect& other) const;
 		bool	IsClippingVertical(const Rect& other) const;
 		bool	IsClipping(const Rect& other) const;
-		bool	IsPointInside(const Vector2& p) const;
+		bool	IsPointInside(const Vector2& p, bool equalOK = false) const;
 		bool	IsInBorder(const Vector2& p, float borderThickness, int& border) const;
 		bool	IsRectInside(const Rect& other) const;
 

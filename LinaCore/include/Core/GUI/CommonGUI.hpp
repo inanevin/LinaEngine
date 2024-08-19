@@ -83,13 +83,14 @@ namespace Lina
 		WF_SKIP_FLOORING		 = 1 << 15,
 		WF_FOREGROUND_BLOCKER	 = 1 << 16,
 		WF_TICK_AFTER_CHILDREN	 = 1 << 17,
-		WF_INPUT_PASSTHRU		 = 1 << 18,
-		WF_SIZE_AFTER_CHILDREN	 = 1 << 19,
-		WF_CONTROL_MANAGER		 = 1 << 20,
-		WF_ALLOW_MULTICONTROL	 = 1 << 21,
+		WF_MOUSE_PASSTHRU		 = 1 << 18,
+		WF_KEY_PASSTHRU			 = 1 << 19,
+		WF_SIZE_AFTER_CHILDREN	 = 1 << 20,
+		WF_CONTROL_MANAGER		 = 1 << 21,
+		WF_ALLOW_MULTICONTROL	 = 1 << 22,
 	};
 
-	enum class PosAlignmentSource
+	enum class Anchor
 	{
 		Start,
 		Center,

@@ -52,19 +52,19 @@ namespace Lina::Editor
 		m_text = m_manager->Allocate<Text>("Title");
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER | WF_SKIP_FLOORING);
 		m_text->SetAlignedPosY(0.5f);
-		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_text->SetAnchorY(Anchor::Center);
 		m_text->GetProps().isDynamic = true;
 		layout->AddChild(m_text);
 
 		m_icon = m_manager->Allocate<Icon>("Icon");
 		m_icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_CONTROLS_DRAW_ORDER);
 		m_icon->SetAlignedPosY(0.5f);
-		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_icon->SetAnchorY(Anchor::Center);
 		m_icon->GetProps().icon					  = ICON_XMARK;
 		m_icon->GetProps().enableHoverPressColors = true;
 		m_icon->GetProps().textScale			  = 0.5f;
-		m_icon->GetProps().colorStart.w			  = 0.5f;
-		m_icon->GetProps().colorEnd.w			  = 0.5f;
+		m_icon->GetProps().color.start.w		  = 0.5f;
+		m_icon->GetProps().color.end.w			  = 0.5f;
 		m_icon->GetProps().colorHovered			  = Theme::GetDef().foreground0;
 		m_icon->GetProps().colorPressed			  = Theme::GetDef().foreground0;
 		m_icon->GetProps().colorPressed.w		  = 0.25f;
@@ -157,7 +157,7 @@ namespace Lina::Editor
 		selectionRect.color.start.w = selectionRect.color.end.w = m_alpha;
 		m_lvg->DrawRect(m_selectionRect.pos.AsLVG(), m_selectionRect.GetEnd().AsLVG(), selectionRect, 0.0f, drawOrder);
 
-		m_icon->GetProps().colorEnd.w = m_icon->GetProps().colorStart.w = m_text->GetProps().color.w = m_alpha;
+		m_icon->GetProps().color.end.w = m_icon->GetProps().color.start.w = m_text->GetProps().color.start.w = m_text->GetProps().color.end.w = m_alpha;
 
 		m_icon->SetDrawOrder(drawOrder);
 		m_text->SetDrawOrder(drawOrder);

@@ -122,8 +122,8 @@ namespace Lina::Editor
 		DirectionalLayout* notification = m_manager->Allocate<DirectionalLayout>("Notification");
 		notification->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_Y_MAX_CHILDREN | WF_CONTROLS_DRAW_ORDER);
 		notification->SetAlignedSize(Vector2(1.0f, 2.0f));
-		notification->SetPosAlignmentSourceX(PosAlignmentSource::Start);
-		notification->SetPosAlignmentSourceY(PosAlignmentSource::End);
+		notification->SetAnchorX(Anchor::Start);
+		notification->SetAnchorY(Anchor::End);
 		notification->GetProps().direction = DirectionOrientation::Horizontal;
 		notification->GetChildMargins()	   = TBLR::Eq(Theme::GetDef().baseIndent);
 		notification->SetChildPadding(Theme::GetDef().baseIndent);
@@ -147,7 +147,7 @@ namespace Lina::Editor
 			Icon* icon = m_manager->Allocate<Icon>("Icon");
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
-			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			icon->SetAnchorY(Anchor::Center);
 			icon->SetAlignedSizeY(1.0f);
 			icon->GetProps().dynamicSizeToParent = true;
 			icon->GetProps().dynamicSizeScale	 = 1.5f;
@@ -155,18 +155,18 @@ namespace Lina::Editor
 
 			if (desc.icon == NotificationIcon::Info)
 			{
-				icon->GetProps().icon		= ICON_INFO;
-				icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().silent2;
+				icon->GetProps().icon  = ICON_INFO;
+				icon->GetProps().color = Theme::GetDef().silent2;
 			}
 			if (desc.icon == NotificationIcon::Warning)
 			{
-				icon->GetProps().icon		= ICON_WARN;
-				icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().accentWarn;
+				icon->GetProps().icon  = ICON_WARN;
+				icon->GetProps().color = Theme::GetDef().accentWarn;
 			}
 			if (desc.icon == NotificationIcon::Err)
 			{
-				icon->GetProps().icon		= ICON_ERROR;
-				icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().accentError;
+				icon->GetProps().icon  = ICON_ERROR;
+				icon->GetProps().color = Theme::GetDef().accentError;
 			}
 		}
 		else if (desc.icon == NotificationIcon::Loading)
@@ -174,7 +174,7 @@ namespace Lina::Editor
 			LinaLoading* loading = m_manager->Allocate<LinaLoading>("Loading");
 			loading->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 			loading->SetAlignedPosY(0.5f);
-			loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			loading->SetAnchorY(Anchor::Center);
 			loading->SetAlignedSizeY(1.0f);
 			notification->AddChild(loading);
 		}
@@ -185,7 +185,7 @@ namespace Lina::Editor
 			progressContainer->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_X_MAX_CHILDREN);
 			progressContainer->SetAlignedSize(Vector2::One);
 			progressContainer->SetAlignedPosY(0.5f);
-			progressContainer->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			progressContainer->SetAnchorY(Anchor::Center);
 			progressContainer->GetProps().direction = DirectionOrientation::Vertical;
 			progressContainer->SetChildPadding(Theme::GetDef().baseIndentInner);
 			notification->AddChild(progressContainer);
@@ -194,7 +194,7 @@ namespace Lina::Editor
 			text->GetFlags().Set(WF_POS_ALIGN_X);
 			text->SetAlignedPos(0.0f);
 			text->GetProps().text = desc.title;
-			text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			text->SetAnchorY(Anchor::Center);
 			text->GetProps().font = BIG_FONT_SID;
 			progressContainer->AddChild(text);
 
@@ -218,7 +218,7 @@ namespace Lina::Editor
 			text->GetProps().text = desc.title;
 			text->GetFlags().Set(WF_POS_ALIGN_Y);
 			text->SetAlignedPosY(0.5f);
-			text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			text->SetAnchorY(Anchor::Center);
 			text->GetProps().font = BIG_FONT_SID;
 			notification->AddChild(text);
 		}
@@ -230,7 +230,7 @@ namespace Lina::Editor
 			button->GetText()->GetProps().font = BIG_FONT_SID;
 			button->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN);
 			button->SetAlignedPosY(0.5f);
-			button->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			button->SetAnchorY(Anchor::Center);
 			button->GetChildMargins().left	= Theme::GetDef().baseIndent;
 			button->GetChildMargins().right = Theme::GetDef().baseIndent;
 			button->SetAlignedSizeY(1.0f);

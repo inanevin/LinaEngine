@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Editor/IO/FileManager.hpp"
 #include "Editor/Widgets/Layout/ItemLayout.hpp"
-#include "Editor/WindowPanelManager.hpp"
 
 namespace Lina
 {
@@ -48,8 +47,9 @@ namespace Lina::Editor
 	struct DirectoryItem;
 	class ItemLayout;
 	class Editor;
+	class ItemController;
 
-	class PanelResources : public Panel, public EditorPayloadListener, public FileMenuListener, public FileManagerListener
+	class PanelResources : public Panel, public FileMenuListener, public FileManagerListener
 	{
 
 	private:
@@ -60,7 +60,7 @@ namespace Lina::Editor
 		};
 
 	public:
-		static constexpr float MAX_CONTENTS_SIZE   = 8.0f;
+		static constexpr float MAX_CONTENTS_SIZE   = 5.0f;
 		static constexpr float MIN_CONTENTS_SIZE   = 4.0f;
 		static constexpr float LIST_CONTENTS_LIMIT = 4.25f;
 
@@ -72,8 +72,9 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void Draw() override;
 		static void	 SaveLayoutDefaults(OStream& stream);
-		void		 RequestDelete(bool isFolderBrowser);
-		void		 RequestDuplicate(DirectoryItem* item, bool isFolderBrowser);
+		void		 RequestDelete(const Vector<DirectoryItem*>& items, bool isFolderBrowser);
+		void		 RequestDuplicate(const Vector<DirectoryItem*>& items, bool isFolderBrowser);
+		void		 RequestRename(DirectoryItem* item, bool isFolderBrowser);
 		void		 AddToFavourites(DirectoryItem* it);
 		void		 RemoveFromFavourites(DirectoryItem* it);
 
@@ -83,20 +84,23 @@ namespace Lina::Editor
 		virtual void OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive) override;
 		virtual void LoadLayoutFromStream(IStream& stream) override;
 		virtual void SaveLayoutToStream(OStream& stream) override;
-		virtual void OnPayloadStarted(PayloadType type, Widget* payload) override;
-		virtual void OnPayloadEnded(PayloadType type, Widget* payload) override;
-		virtual bool OnPayloadDropped(PayloadType type, Widget* payload) override;
 
 	private:
-		Widget*		   BuildFileBrowserTop();
-		Widget*		   BuildFileBrowserBottom();
-		Widget*		   BuildFileBrowser();
-		Widget*		   BuildFolderBrowser();
+		Widget* BuildFileBrowserTop();
+		Widget* BuildFileBrowserBottom();
+		Widget* BuildFileBrowser();
+		Widget* BuildFolderBrowser();
+		void	RefreshFolderBrowser();
+		void	RefreshFileBrowser();
+		void	CreateItemForFolderBrowser(Widget* parentWidget, DirectoryItem* targetItem, float margin);
+		void	PerformPayload(DirectoryItem* targetItem);
+
 		void		   SwitchFileBrowserContents(bool showAsGrid);
 		ItemDefinition CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories, bool unfoldOverride);
-		void		   SelectDirectory(DirectoryItem* item);
+		void		   SelectDirectory(DirectoryItem* item, bool selectInFolderBrowserController);
+		void		   SelectInFileBrowser(DirectoryItem* targetItem);
 		DirectoryItem* FindFirstParentExcluding(DirectoryItem* searchStart, const Vector<DirectoryItem*>& excludedItems);
-		void		   DeleteItems(const Vector<DirectoryItem*>& items, bool isFolderLayout);
+		void		   DeleteItems(const Vector<DirectoryItem*>& items, bool isFolderBrowser);
 		virtual bool   OnKey(uint32 key, int32 scancode, LinaGX::InputAction act) override;
 
 	private:
@@ -108,18 +112,22 @@ namespace Lina::Editor
 
 		float  m_contentsSize			   = MAX_CONTENTS_SIZE;
 		bool   m_fileBrowserContentsAsGrid = false;
-		String m_folderBrowserSearchStr	   = "";
 		String m_fileBrowserSearchStr	   = "";
 
-		ItemLayout*	   m_folderBrowserItemLayout = nullptr;
-		ItemLayout*	   m_fileBrowserItemLayout	 = nullptr;
-		Widget*		   m_backButton				 = nullptr;
-		ContentSorting m_contentSorting			 = ContentSorting::Alphabetical;
+		Widget*		   m_backButton		= nullptr;
+		ContentSorting m_contentSorting = ContentSorting::Alphabetical;
 		Vector<String> m_favouriteDirectories;
 		bool		   m_favouritesDummyData = false;
 
 		DirectoryItem* m_viewDirectory = nullptr;
-		bool		   m_payloadActive = false;
+		DirectoryItem* m_payloadItem   = nullptr;
+
+		bool			m_favsUnfolded			  = false;
+		ItemController* m_folderBrowserController = nullptr;
+		ItemController* m_fileBrowserController	  = nullptr;
+		Widget*			m_folderBrowserLayout	  = nullptr;
+		Widget*			m_fileBrowserLayout		  = nullptr;
+		Vector<Widget*> m_gridItems;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelResources)

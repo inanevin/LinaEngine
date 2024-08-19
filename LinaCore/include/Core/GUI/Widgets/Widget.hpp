@@ -106,12 +106,15 @@ namespace Lina
 	public:
 		struct DropshadowProps
 		{
-			bool		enabled	  = false;
-			Color		color	  = Theme::GetDef().background0;
-			Direction	direction = Direction::Center;
-			uint32		steps	  = 1;
-			float		thickness = Theme::GetDef().baseOutlineThickness;
-			float		rounding  = Theme::GetDef().baseRounding;
+			bool		enabled			   = false;
+			bool		isInner			   = false;
+			float		margin			   = 0.0f;
+			float		thickness		   = Theme::GetDef().baseOutlineThickness;
+			float		rounding		   = 0.0f;
+			int32		drawOrderIncrement = 0;
+			uint32		steps			   = 4;
+			Color		color			   = Theme::GetDef().black;
+			Direction	direction		   = Direction::Center;
 			Vector<int> onlyRound;
 		};
 
@@ -127,9 +130,10 @@ namespace Lina
 			bool				 pressedIsDifferentColor	 = false;
 			bool				 activeTextureTiling		 = false;
 			bool				 useSpecialTexture			 = false;
+			bool				 outlineIsInner				 = false;
 			float				 colorInterpolateSpeed		 = 0.0f;
 			float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
-			float				 rounding					 = Theme::GetDef().baseRounding;
+			float				 rounding					 = 0.0f;
 			ColorGrad			 colorBackground			 = Theme::GetDef().background0;
 			ColorGrad			 colorOutline				 = Theme::GetDef().outlineColorBase;
 			ColorGrad			 colorOutlineControls		 = Theme::GetDef().outlineColorControls;
@@ -348,22 +352,22 @@ namespace Lina
 			m_tooltip = str;
 		}
 
-		inline void SetPosAlignmentSourceX(PosAlignmentSource src)
+		inline void SetAnchorX(Anchor src)
 		{
 			m_posAlignSourceX = src;
 		}
 
-		inline void SetPosAlignmentSourceY(PosAlignmentSource src)
+		inline void SetAnchorY(Anchor src)
 		{
 			m_posAlignSourceY = src;
 		}
 
-		inline PosAlignmentSource GetPosAlignmentSourceX()
+		inline Anchor GetPosAlignmentSourceX()
 		{
 			return m_posAlignSourceX;
 		}
 
-		inline PosAlignmentSource GetPosAlignmentSourceY()
+		inline Anchor GetPosAlignmentSourceY()
 		{
 			return m_posAlignSourceY;
 		}
@@ -552,8 +556,8 @@ namespace Lina
 		Bitmask32					m_flags					= 0;
 		TBLR						m_childMargins			= {};
 		TBLR						m_borderThickness		= {};
-		PosAlignmentSource			m_posAlignSourceX		= PosAlignmentSource::Start;
-		PosAlignmentSource			m_posAlignSourceY		= PosAlignmentSource::Start;
+		Anchor						m_posAlignSourceX		= Anchor::Start;
+		Anchor						m_posAlignSourceY		= Anchor::Start;
 		bool						m_isHovered				= false;
 		bool						m_isPressed				= false;
 		bool						m_isDisabled			= false;

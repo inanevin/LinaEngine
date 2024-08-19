@@ -97,7 +97,7 @@ namespace Lina
 		for (int32 i = 0; i < sz; i++)
 		{
 			const auto& it = items[i];
-			popup->AddToggleItem(it, i == selectedItem, nullptr, 1.0f);
+			popup->AddToggleItem(it, i == selectedItem, nullptr);
 		}
 
 		popup->GetProps().onSelectedItem = [this, items](uint32 idx, void* ud) {

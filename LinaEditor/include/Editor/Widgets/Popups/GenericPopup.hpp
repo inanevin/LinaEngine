@@ -50,6 +50,7 @@ namespace Lina::Editor
 		{
 			String				title = "";
 			String				text  = "";
+			String				icon  = "";
 			Vector<ButtonProps> buttons;
 		};
 

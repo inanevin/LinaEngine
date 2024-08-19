@@ -43,7 +43,7 @@ namespace Lina
 			rect->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 			rect->SetAlignedSize(Vector2(1.0f, 0.25f));
 			rect->SetAlignedPosY(0.5f);
-			rect->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			rect->SetAnchorY(Anchor::Center);
 			rect->GetWidgetProps().rounding			= 0.0f;
 			rect->GetWidgetProps().outlineThickness = 0.0f;
 			rect->GetWidgetProps().drawBackground	= true;
@@ -57,17 +57,17 @@ namespace Lina
 			Icon* ic = m_manager->Allocate<Icon>("HeaderIcon");
 			ic->GetFlags().Set(WF_POS_ALIGN_Y);
 			ic->SetAlignedPos(Vector2(1.0f, 0.5f));
-			ic->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			ic->GetProps().icon		  = m_itemData.headerIcon;
-			ic->GetProps().colorStart = ic->GetProps().colorEnd = m_itemData.headerIconColor;
-			ic->GetProps().textScale							= 0.5f;
-			m_headerIcon										= ic;
+			ic->SetAnchorY(Anchor::Center);
+			ic->GetProps().icon		 = m_itemData.headerIcon;
+			ic->GetProps().color	 = m_itemData.headerIconColor;
+			ic->GetProps().textScale = 0.5f;
+			m_headerIcon			 = ic;
 			AddChild(ic);
 		}
 		Text* txt = m_manager->Allocate<Text>("Text");
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
-		txt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		txt->SetAnchorY(Anchor::Center);
 		txt->GetProps().text		  = m_itemData.text;
 		txt->GetProps().colorDisabled = Theme::GetDef().silent2;
 		AddChild(txt);
@@ -78,8 +78,8 @@ namespace Lina
 			Icon* dd = m_manager->Allocate<Icon>("DD");
 			dd->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			dd->SetAlignedPos(Vector2(1.0f, 0.5f));
-			dd->SetPosAlignmentSourceX(PosAlignmentSource::End);
-			dd->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			dd->SetAnchorX(Anchor::End);
+			dd->SetAnchorY(Anchor::Center);
 			dd->GetProps().icon		 = m_itemData.dropdownIcon;
 			dd->GetProps().textScale = 0.35f;
 			AddChild(dd);
@@ -90,8 +90,8 @@ namespace Lina
 			Text* altTxt = m_manager->Allocate<Text>("Text");
 			altTxt->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			altTxt->SetAlignedPos(Vector2(1.0f, 0.5f));
-			altTxt->SetPosAlignmentSourceX(PosAlignmentSource::End);
-			altTxt->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			altTxt->SetAnchorX(Anchor::End);
+			altTxt->SetAnchorY(Anchor::Center);
 			altTxt->GetProps().text	 = m_itemData.altText;
 			altTxt->GetProps().font	 = Theme::GetDef().altFont;
 			altTxt->GetProps().color = Theme::GetDef().silent2;

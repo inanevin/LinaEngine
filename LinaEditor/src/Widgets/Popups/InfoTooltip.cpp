@@ -57,7 +57,7 @@ namespace Lina::Editor
 		// Icon
 		m_icon = m_manager->Allocate<Icon>("InfoIcon");
 		m_icon->GetFlags().Set(WF_POS_ALIGN_Y);
-		m_icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_icon->SetAnchorY(Anchor::Center);
 		m_icon->SetAlignedPosY(0.5f);
 		m_icon->GetProps().textScale	= 0.6f;
 		m_icon->GetProps().sdfSoftness	= 0.025f;
@@ -65,25 +65,25 @@ namespace Lina::Editor
 
 		if (m_tooltipProps.level == LogLevel::Error)
 		{
-			m_icon->GetProps().icon		  = ICON_ERROR;
-			m_icon->GetProps().colorStart = m_icon->GetProps().colorEnd = Theme::GetDef().accentError;
+			m_icon->GetProps().icon	 = ICON_ERROR;
+			m_icon->GetProps().color = Theme::GetDef().accentError;
 		}
 		else if (m_tooltipProps.level == LogLevel::Warn)
 		{
-			m_icon->GetProps().icon		  = ICON_WARN;
-			m_icon->GetProps().colorStart = m_icon->GetProps().colorEnd = Theme::GetDef().accentWarn;
+			m_icon->GetProps().icon	 = ICON_WARN;
+			m_icon->GetProps().color = Theme::GetDef().accentWarn;
 		}
 		else
 		{
-			m_icon->GetProps().icon		  = ICON_INFO;
-			m_icon->GetProps().colorStart = m_icon->GetProps().colorEnd = Theme::GetDef().foreground0;
+			m_icon->GetProps().icon	 = ICON_INFO;
+			m_icon->GetProps().color = Theme::GetDef().foreground0;
 		}
 		AddChild(m_icon);
 
 		// Text
 		m_text = m_manager->Allocate<Text>("InfoText");
 		m_text->GetFlags().Set(WF_POS_ALIGN_Y);
-		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_text->SetAnchorY(Anchor::Center);
 		m_text->SetAlignedPosY(0.5f);
 		m_text->GetProps().text	 = m_tooltipProps.text;
 		m_text->GetProps().color = Theme::GetDef().foreground0;

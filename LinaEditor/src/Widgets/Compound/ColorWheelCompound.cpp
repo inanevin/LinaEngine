@@ -52,7 +52,7 @@ namespace Lina::Editor
 		text->GetProps().text = label;
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);
-		text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		text->SetAnchorY(Anchor::Center);
 
 		InputField* field				= m_manager->Allocate<InputField>("ColorComponentInputField");
 		field->GetProps().isNumberField = true;
@@ -101,7 +101,7 @@ namespace Lina::Editor
 		text->GetProps().text = label;
 		text->GetFlags().Set(WF_POS_ALIGN_X);
 		text->SetAlignedPosX(0.5f);
-		text->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		text->SetAnchorX(Anchor::Center);
 
 		InputField* field				= m_manager->Allocate<InputField>("SaturationValueField");
 		field->GetProps().isNumberField = true;
@@ -122,7 +122,7 @@ namespace Lina::Editor
 		slider->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
 		slider->SetAlignedSizeX(0.5f);
 		slider->SetAlignedPosX(0.5f);
-		slider->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		slider->SetAnchorX(Anchor::Center);
 		slider->SetAlignedSizeY(0.0f);
 		slider->GetProps().minValue				= 0.0f;
 		slider->GetProps().maxValue				= isHue ? 360.0f : 1.0f;
@@ -195,21 +195,21 @@ namespace Lina::Editor
 		m_hueComponent = ConstructHSVComponent("H", true, &m_hsv.x);
 		m_hueComponent.layout->GetFlags().Set(WF_POS_ALIGN_X);
 		m_hueComponent.layout->SetAlignedPosX(0.0f);
-		m_hueComponent.layout->SetPosAlignmentSourceX(PosAlignmentSource::Start);
+		m_hueComponent.layout->SetAnchorX(Anchor::Start);
 		hsvRow->AddChild(m_hueComponent.layout);
 
 		// Sat
 		m_saturationComponent = ConstructHSVComponent("S", false, &m_hsv.y);
 		m_saturationComponent.layout->GetFlags().Set(WF_POS_ALIGN_X);
 		m_saturationComponent.layout->SetAlignedPosX(0.5f);
-		m_saturationComponent.layout->SetPosAlignmentSourceX(PosAlignmentSource::Center);
+		m_saturationComponent.layout->SetAnchorX(Anchor::Center);
 		hsvRow->AddChild(m_saturationComponent.layout);
 
 		// Val
 		m_valueComponent = ConstructHSVComponent("V", false, &m_hsv.z);
 		m_valueComponent.layout->GetFlags().Set(WF_POS_ALIGN_X);
 		m_valueComponent.layout->SetAlignedPosX(1.0f);
-		m_valueComponent.layout->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		m_valueComponent.layout->SetAnchorX(Anchor::End);
 		hsvRow->AddChild(m_valueComponent.layout);
 
 		// Bottom Col
@@ -247,7 +247,7 @@ namespace Lina::Editor
 		oldAndNewColors->SetAlignedSizeY(1.0f);
 		oldAndNewColors->SetFixedSizeX(baseItemHeight * 6.0f);
 		oldAndNewColors->SetAlignedPos(Vector2(1.0f, 0.0f));
-		oldAndNewColors->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		oldAndNewColors->SetAnchorX(Anchor::End);
 		oldAndNewColors->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
 		hexAndColorsRow->AddChild(oldAndNewColors);
 

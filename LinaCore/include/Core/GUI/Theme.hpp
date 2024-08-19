@@ -59,7 +59,7 @@ namespace Lina
 			Color background4 = Color(0.02881f, 0.02881f, 0.03622f, 1.0f);
 			Color background5 = Color(0.03581f, 0.03581f, 0.04222f, 1.0f);
 
-			Color foreground0 = Color(0.73f, 0.722f, 0.727f, 1.0f);
+			Color foreground0 = Color(0.63f, 0.622f, 0.627f, 1.0f);
 			Color foreground1 = Color(0.55f, 0.55f, 0.55f, 1.0f);
 			Color silent0	  = Color(0.015f, 0.015f, 0.015f, 1.0f);
 			Color silent1	  = Color(0.035f, 0.035f, 0.035f, 1.0f);
@@ -83,7 +83,7 @@ namespace Lina
 			float baseIndent		   = 12.0f;
 			float baseIndentInner	   = 8.0f;
 			float baseSliderPerc	   = 0.25f;
-			float baseRounding		   = 0.25f;
+			float baseRounding		   = 0.45f;
 			float baseOutlineThickness = 1.0f;
 			float baseItemHeight	   = 24.0f;
 			float popupAnimTime		   = 0.1f;

@@ -62,6 +62,7 @@ namespace Lina
 		static String GetUserDataFolder();
 		static String FixPath(const String& str);
 		static String Duplicate(const String& path);
+		static void	  PerformMove(const String& targetFile, const String& targetDirectory);
 
 		// File and folder
 		static bool	  FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem);

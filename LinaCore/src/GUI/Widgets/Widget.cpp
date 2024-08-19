@@ -162,30 +162,36 @@ namespace Lina
 
 			if (m_widgetProps.dropshadow.direction == Direction::Bottom)
 			{
-				min = Vector2(m_rect.pos.x, m_rect.GetEnd().y);
-				max = Vector2(m_rect.GetEnd().x, m_rect.GetEnd().y + m_widgetProps.dropshadow.thickness);
+				min = Vector2(m_rect.pos.x + m_widgetProps.dropshadow.margin, m_rect.GetEnd().y);
+				max = Vector2(m_rect.GetEnd().x - m_widgetProps.dropshadow.margin, m_rect.GetEnd().y + m_widgetProps.dropshadow.thickness);
 			}
 			else if (m_widgetProps.dropshadow.direction == Direction::Top)
 			{
-				min = m_rect.pos;
-				max = Vector2(m_rect.GetEnd().x, m_rect.pos.y - m_widgetProps.dropshadow.thickness);
+				min = m_rect.pos + Vector2(m_widgetProps.dropshadow.margin, 0.0f);
+				max = Vector2(m_rect.GetEnd().x - m_widgetProps.dropshadow.margin, m_rect.pos.y - m_widgetProps.dropshadow.thickness);
 			}
 			else if (m_widgetProps.dropshadow.direction == Direction::Right)
 			{
-				min = Vector2(m_rect.GetEnd().x, m_rect.pos.y);
-				max = Vector2(m_rect.GetEnd().x + m_widgetProps.dropshadow.thickness, m_rect.GetEnd().y);
+				min = Vector2(m_rect.GetEnd().x, m_rect.pos.y + m_widgetProps.dropshadow.margin);
+				max = Vector2(m_rect.GetEnd().x + m_widgetProps.dropshadow.thickness, m_rect.GetEnd().y - m_widgetProps.dropshadow.margin);
 			}
 			else
 			{
-				min = Vector2(m_rect.pos.x - m_widgetProps.dropshadow.thickness, m_rect.pos.y);
-				max = Vector2(m_rect.pos.x, m_rect.GetEnd().y);
+				min = Vector2(m_rect.pos.x - m_widgetProps.dropshadow.thickness, m_rect.pos.y + m_widgetProps.dropshadow.margin);
+				max = Vector2(m_rect.pos.x, m_rect.GetEnd().y - m_widgetProps.dropshadow.margin);
+			}
+
+			if (m_widgetProps.dropshadow.isInner)
+			{
+				min -= dir * m_widgetProps.dropshadow.thickness;
+				max -= dir * m_widgetProps.dropshadow.thickness;
 			}
 
 			for (int32 i = 0; i < m_widgetProps.dropshadow.steps; i++)
 			{
-				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder);
-				min += m_widgetProps.dropshadow.thickness * dir;
-				max += m_widgetProps.dropshadow.thickness * dir;
+				m_lvg->DrawRect(min.AsLVG(), max.AsLVG(), opts, 0.0f, m_drawOrder + m_widgetProps.dropshadow.drawOrderIncrement);
+				min += m_widgetProps.dropshadow.thickness * dir * (m_widgetProps.dropshadow.isInner ? -1.0f : 1.0f);
+				max += m_widgetProps.dropshadow.thickness * dir * (m_widgetProps.dropshadow.isInner ? -1.0f : 1.0f);
 				opts.color.start.w = opts.color.end.w = Math::Lerp(startAlpha, 0.0f, static_cast<float>(i) / static_cast<float>(m_widgetProps.dropshadow.steps));
 			}
 		}
@@ -196,10 +202,10 @@ namespace Lina
 		{
 			Vector2				 size = m_rect.GetEnd() - m_rect.pos;
 			LinaVG::StyleOptions opts;
-			opts.color					  = m_widgetProps.colorBackground.AsLVG();
-			opts.color.gradientType		  = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
-			opts.outlineOptions.thickness = m_widgetProps.outlineThickness;
-			opts.outlineOptions.color	  = m_manager->IsControlsOwner(this) ? m_widgetProps.colorOutlineControls.AsLVG() : m_widgetProps.colorOutline.AsLVG();
+			opts.color						  = m_widgetProps.colorBackground.AsLVG();
+			opts.outlineOptions.thickness	  = m_widgetProps.outlineThickness;
+			opts.outlineOptions.drawDirection = m_widgetProps.outlineIsInner ? LinaVG::OutlineDrawDirection::Inwards : LinaVG::OutlineDrawDirection::Outwards;
+			opts.outlineOptions.color		  = m_manager->IsControlsOwner(this) ? m_widgetProps.colorOutlineControls.AsLVG() : m_widgetProps.colorOutline.AsLVG();
 			opts.rounding = m_widgetProps.rounding = m_widgetProps.rounding;
 
 			if (m_widgetProps.hoveredIsDifferentColor && m_isHovered)
@@ -292,9 +298,10 @@ namespace Lina
 			if (m_widgetProps.interpolateColor)
 			{
 				m_widgetProps._interpolatedColor.start = Math::Lerp(m_widgetProps._interpolatedColor.start, Color(opts.color.start), SystemInfo::GetDeltaTimeF() * m_widgetProps.colorInterpolateSpeed);
-				m_widgetProps._interpolatedColor.end   = Math::Lerp(m_widgetProps._interpolatedColor.start, Color(opts.color.end), SystemInfo::GetDeltaTimeF() * m_widgetProps.colorInterpolateSpeed);
+				m_widgetProps._interpolatedColor.end   = Math::Lerp(m_widgetProps._interpolatedColor.end, Color(opts.color.end), SystemInfo::GetDeltaTimeF() * m_widgetProps.colorInterpolateSpeed);
 				opts.color							   = m_widgetProps._interpolatedColor.AsLVG();
 			}
+			opts.color.gradientType = m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 
 			if (m_widgetProps.backgroundIsCentralGradient)
 			{
@@ -377,8 +384,8 @@ namespace Lina
 		StringSerialization::LoadFromStream(stream, m_debugName);
 		uint8 posAlignSourceX = 0, posAlignSourceY = 0;
 		stream >> posAlignSourceX >> posAlignSourceY;
-		m_posAlignSourceX = static_cast<PosAlignmentSource>(posAlignSourceX);
-		m_posAlignSourceY = static_cast<PosAlignmentSource>(posAlignSourceY);
+		m_posAlignSourceX = static_cast<Anchor>(posAlignSourceX);
+		m_posAlignSourceY = static_cast<Anchor>(posAlignSourceY);
 
 		uint32 childSz = 0;
 		stream >> childSz;

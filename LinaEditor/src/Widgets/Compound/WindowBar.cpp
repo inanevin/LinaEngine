@@ -39,23 +39,26 @@ namespace Lina::Editor
 {
 	void WindowBar::Construct()
 	{
-		GetProps().direction			  = DirectionOrientation::Horizontal;
-		GetWidgetProps().outlineThickness = 0.0f;
-		GetWidgetProps().rounding		  = 0.0f;
-		GetWidgetProps().drawBackground	  = true;
+		GetProps().direction				  = DirectionOrientation::Horizontal;
+		GetWidgetProps().outlineThickness	  = 0.0f;
+		GetWidgetProps().rounding			  = 0.0f;
+		GetWidgetProps().drawBackground		  = true;
+		GetWidgetProps().dropshadow.enabled	  = true;
+		GetWidgetProps().dropshadow.direction = Direction::Bottom;
+		GetWidgetProps().dropshadow.steps	  = 4;
 		SetChildPadding(Theme::GetDef().baseIndent);
 		GetChildMargins() = {.left = Theme::GetDef().baseIndent};
 	}
 
 	void WindowBar::Initialize()
 	{
-		if (m_barProps.hasIcon)
+		if (!m_barProps.icon.empty())
 		{
 			Icon* icon			  = m_manager->Allocate<Icon>("WindowBarIcon");
-			icon->GetProps().icon = ICON_LINA_LOGO;
+			icon->GetProps().icon = m_barProps.icon;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
-			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			icon->SetAnchorY(Anchor::Center);
 			AddChild(icon);
 		}
 
@@ -63,7 +66,7 @@ namespace Lina::Editor
 		text->GetProps().text = m_barProps.title;
 		text->GetFlags().Set(WF_POS_ALIGN_Y);
 		text->SetAlignedPosY(0.5f);
-		text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		text->SetAnchorY(Anchor::Center);
 		AddChild(text);
 
 		if (m_barProps.hasWindowButtons)
@@ -72,7 +75,7 @@ namespace Lina::Editor
 			wb->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 			wb->SetAlignedSizeY(1.0f);
 			wb->SetAlignedPos(Vector2(1.0f, 0.0f));
-			wb->SetPosAlignmentSourceX(PosAlignmentSource::End);
+			wb->SetAnchorX(Anchor::End);
 			wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);
 			m_windowButtons = wb;
 			AddChild(wb);

@@ -383,14 +383,14 @@ namespace Lina
 	{
 		float CalculateAlignedPosX(Widget* w)
 		{
-			const Vector2			 alignedPos = w->GetAlignedPos();
-			const PosAlignmentSource src		= w->GetPosAlignmentSourceX();
-			const Vector2			 start		= w->GetParent()->GetStartFromMargins();
-			const Vector2			 end		= w->GetParent()->GetEndFromMargins();
-			const Vector2			 sz			= end - start;
-			if (src == PosAlignmentSource::Center)
+			const Vector2 alignedPos = w->GetAlignedPos();
+			const Anchor  src		 = w->GetPosAlignmentSourceX();
+			const Vector2 start		 = w->GetParent()->GetStartFromMargins();
+			const Vector2 end		 = w->GetParent()->GetEndFromMargins();
+			const Vector2 sz		 = end - start;
+			if (src == Anchor::Center)
 				return start.x + sz.x * alignedPos.x - w->GetHalfSizeX();
-			else if (src == PosAlignmentSource::End)
+			else if (src == Anchor::End)
 				return start.x + sz.x * alignedPos.x - w->GetSizeX();
 
 			return start.x + sz.x * alignedPos.x;
@@ -398,14 +398,14 @@ namespace Lina
 
 		float CalculateAlignedPosY(Widget* w)
 		{
-			const Vector2			 alignedPos = w->GetAlignedPos();
-			const PosAlignmentSource src		= w->GetPosAlignmentSourceY();
-			const Vector2			 start		= w->GetParent()->GetStartFromMargins();
-			const Vector2			 end		= w->GetParent()->GetEndFromMargins();
-			const Vector2			 sz			= end - start;
-			if (src == PosAlignmentSource::Center)
+			const Vector2 alignedPos = w->GetAlignedPos();
+			const Anchor  src		 = w->GetPosAlignmentSourceY();
+			const Vector2 start		 = w->GetParent()->GetStartFromMargins();
+			const Vector2 end		 = w->GetParent()->GetEndFromMargins();
+			const Vector2 sz		 = end - start;
+			if (src == Anchor::Center)
 				return start.y + sz.y * alignedPos.y - w->GetHalfSizeY();
-			else if (src == PosAlignmentSource::End)
+			else if (src == Anchor::End)
 				return start.y + sz.y * alignedPos.y - w->GetSizeY();
 
 			return start.y + sz.y * alignedPos.y;
@@ -414,7 +414,7 @@ namespace Lina
 
 	bool WidgetManager::PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction)
 	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnKey(keycode, scancode, inputAction) && !widget->GetFlags().IsSet(WF_KEY_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -429,7 +429,7 @@ namespace Lina
 	bool WidgetManager::PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction)
 	{
 
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouse(button, inputAction) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -443,7 +443,7 @@ namespace Lina
 
 	bool WidgetManager::PassMouseWheel(Widget* widget, float amt)
 	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMouseWheel(amt) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -457,7 +457,7 @@ namespace Lina
 
 	bool WidgetManager::PassMousePos(Widget* widget, const Vector2& pos)
 	{
-		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_INPUT_PASSTHRU))
+		if (!widget->GetIsDisabled() && widget->GetIsVisible() && widget->OnMousePos(pos) && !widget->GetFlags().IsSet(WF_MOUSE_PASSTHRU))
 			return true;
 
 		for (auto* c : widget->GetChildren())
@@ -494,14 +494,14 @@ namespace Lina
 		Vector<Widget*> expandingChildren;
 		Vector2			totalNonExpandingSize = Vector2::Zero;
 
+		if (w->GetFlags().IsSet(WF_USE_FIXED_SIZE_X))
+			w->SetSizeX(w->GetFixedSizeX() * m_window->GetDPIScale());
+
+		if (w->GetFlags().IsSet(WF_USE_FIXED_SIZE_Y))
+			w->SetSizeY(w->GetFixedSizeY() * m_window->GetDPIScale());
+
 		for (auto* c : w->GetChildren())
 		{
-
-			if (c->GetFlags().IsSet(WF_USE_FIXED_SIZE_X))
-				c->SetSizeX(c->GetFixedSizeX() * m_window->GetDPIScale());
-
-			if (c->GetFlags().IsSet(WF_USE_FIXED_SIZE_Y))
-				c->SetSizeY(c->GetFixedSizeY() * m_window->GetDPIScale());
 
 			c->CalculateSize(delta);
 

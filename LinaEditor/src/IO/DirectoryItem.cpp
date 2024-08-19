@@ -68,13 +68,67 @@ namespace Lina::Editor
 		return nullptr;
 	}
 
-	DirectoryItem* DirectoryItem::GetChildrenByRelativePath(const String& relativePath)
+	DirectoryItem* DirectoryItem::GetChildrenByRelativePath(const String& relativePath, bool isRecursive)
 	{
 		auto it = linatl::find_if(children.begin(), children.end(), [relativePath](DirectoryItem* c) -> bool { return c->relativePath.compare(relativePath) == 0; });
 		if (it != children.end())
 			return *it;
 
+		if (isRecursive)
+		{
+			for (DirectoryItem* c : children)
+			{
+				DirectoryItem* found = c->GetChildrenByRelativePath(relativePath, isRecursive);
+				if (found)
+					return found;
+			}
+		}
+
 		return nullptr;
+	}
+	DirectoryItem* DirectoryItem::GetChildrenByAbsPath(const String& absPath, bool isRecursive)
+	{
+		auto it = linatl::find_if(children.begin(), children.end(), [absPath](DirectoryItem* c) -> bool { return c->absolutePath.compare(absPath) == 0; });
+		if (it != children.end())
+			return *it;
+
+		if (isRecursive)
+		{
+			for (DirectoryItem* c : children)
+			{
+				DirectoryItem* found = c->GetChildrenByAbsPath(absPath, isRecursive);
+				if (found)
+					return found;
+			}
+		}
+
+		return nullptr;
+	}
+
+	void DirectoryItem::GetItemsContainingSearchString(Vector<DirectoryItem*>& outItems, const String& str, bool isRecursive)
+	{
+		for (DirectoryItem* c : children)
+		{
+			if (c->name.find(str) != String::npos)
+				outItems.push_back(c);
+
+			if (isRecursive)
+				c->GetItemsContainingSearchString(outItems, str, isRecursive);
+		}
+	}
+
+	void DirectoryItem::OnParentPathChanged()
+	{
+		const String& parentAbs = parent->absolutePath;
+		const String& parentRel = parent->relativePath;
+
+		absolutePath = parentAbs + "/" + name;
+		relativePath = parentRel + "/" + name;
+		FileSystem::FixPath(absolutePath);
+		FileSystem::FixPath(relativePath);
+
+		for (DirectoryItem* child : children)
+			child->OnParentPathChanged();
 	}
 	void DirectoryItem::Rename(const String& newName)
 	{
@@ -84,5 +138,8 @@ namespace Lina::Editor
 		name				 = newName;
 		sid					 = TO_SID(relativePath);
 		FileSystem::ChangeDirectoryName(oldPath, absolutePath);
+
+		for (DirectoryItem* child : children)
+			child->OnParentPathChanged();
 	}
 } // namespace Lina::Editor

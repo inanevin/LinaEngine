@@ -54,9 +54,12 @@ namespace Lina
 		return r;
 	}
 
-	bool Rect::IsPointInside(const Vector2& p) const
+	bool Rect::IsPointInside(const Vector2& p, bool equalOK) const
 	{
-		return p.x > pos.x && p.x < pos.x + size.x && p.y > pos.y && p.y < pos.y + size.y;
+		if (equalOK)
+			return p.x >= pos.x && p.x <= pos.x + size.x && p.y >= pos.y && p.y <= pos.y + size.y;
+		else
+			return p.x > pos.x && p.x < pos.x + size.x && p.y > pos.y && p.y < pos.y + size.y;
 	}
 
 	bool Rect::IsClippingHorizontal(const Rect& other) const

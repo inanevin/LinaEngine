@@ -82,6 +82,9 @@ namespace Lina
 		void	MoveControlsToPrev();
 		Widget* FindNextSelectable(Widget* start);
 		Widget* FindPreviousSelectable(Widget* start);
+		bool	PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
+		bool	PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
+		bool	PassMouseWheel(Widget* widget, float amt);
 
 		inline Widget* GetRoot() const
 		{
@@ -174,9 +177,6 @@ namespace Lina
 	private:
 		LinaGX::CursorType FindCursorType(Widget* start);
 
-		bool		PassKey(Widget* widget, uint32 keycode, int32 scancode, LinaGX::InputAction inputAction);
-		bool		PassMouse(Widget* widget, uint32 button, LinaGX::InputAction inputAction);
-		bool		PassMouseWheel(Widget* widget, float amt);
 		bool		PassMousePos(Widget* widget, const Vector2& pos);
 		void		PassCalculateSize(Widget* w, float delta);
 		void		PassPreTick(Widget* w);

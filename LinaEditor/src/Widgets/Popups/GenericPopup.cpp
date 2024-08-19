@@ -38,20 +38,19 @@ namespace Lina::Editor
 {
 	void GenericPopup::Construct()
 	{
-
 		DirectionalLayout::Construct();
 		GetProps().direction			  = DirectionOrientation::Vertical;
 		GetWidgetProps().drawBackground	  = true;
 		GetWidgetProps().rounding		  = 0.0f;
 		GetWidgetProps().colorBackground  = Theme::GetDef().background1;
-		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness;
+		GetWidgetProps().outlineThickness = Theme::GetDef().baseOutlineThickness * 2;
 		GetWidgetProps().colorOutline	  = Theme::GetDef().black;
 
 		GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_FOREGROUND_BLOCKER);
 		SetAlignedSizeY(1.0f);
 		SetAlignedPos(Vector2(0.5f, 0.5f));
-		SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		SetAnchorX(Anchor::Center);
+		SetAnchorY(Anchor::Center);
 		SetFixedSize(CommonWidgets::GetPopupWidth(GetWindow()));
 		SetChildPadding(Theme::GetDef().baseIndent);
 	}
@@ -60,15 +59,12 @@ namespace Lina::Editor
 	{
 		const float padding = Theme::GetDef().baseIndent;
 
-		WindowBar* titleBar				= m_manager->Allocate<WindowBar>("WindowBar");
-		titleBar->GetBarProps().title	= m_popupProps.title;
-		titleBar->GetBarProps().hasIcon = true;
+		WindowBar* titleBar			  = m_manager->Allocate<WindowBar>("WindowBar");
+		titleBar->GetBarProps().title = m_popupProps.title;
+		titleBar->GetBarProps().icon  = m_popupProps.icon;
 		titleBar->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		titleBar->SetAlignedSizeX(1.0f);
 		titleBar->SetFixedSize(Theme::GetDef().baseItemHeight);
-		titleBar->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		titleBar->GetBorderThickness().bottom	   = Theme::GetDef().baseOutlineThickness;
-		titleBar->SetBorderColor(Theme::GetDef().black);
 		AddChild(titleBar);
 
 		Text* text = m_manager->Allocate<Text>("Description");

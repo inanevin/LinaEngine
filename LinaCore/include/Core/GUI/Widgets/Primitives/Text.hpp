@@ -48,7 +48,7 @@ namespace Lina
 			Delegate<void()>	  onClicked;
 			String				  text						= "";
 			StringID			  font						= Theme::GetDef().defaultFont;
-			Color				  color						= Theme::GetDef().foreground0;
+			ColorGrad			  color						= Theme::GetDef().foreground0;
 			Color				  colorDisabled				= Theme::GetDef().silent1;
 			LinaVG::TextAlignment alignment					= LinaVG::TextAlignment::Left;
 			Vector4				  customClip				= Vector4::Zero;

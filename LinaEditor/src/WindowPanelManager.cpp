@@ -133,28 +133,27 @@ namespace Lina::Editor
 				m_gfxManager->Join();
 
 				m_payloadWindow->SetVisible(true);
-				m_payloadWindow->SetAlpha(0.5f);
+				m_payloadWindow->SetAlpha(0.75f);
 				m_payloadWindow->SetSize(m_payloadRequest.size.AsLGX2UI());
 
+				m_payloadRequest.payload->GetFlags().Set(0);
 				m_payloadRequest.payload->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 				m_payloadRequest.payload->SetAlignedPos(Vector2::Zero);
 				m_payloadRequest.payload->SetAlignedSize(Vector2::One);
 
-				Widget* payloadRoot = GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
-				payloadRoot->AddChild(m_payloadRequest.payload);
+				GetPayloadRoot()->AddChild(m_payloadRequest.payload);
+				GetPayloadRoot()->Initialize();
 
 				for (auto* l : m_payloadListeners)
 					l->OnPayloadStarted(m_payloadRequest.type, m_payloadRequest.payload);
 			}
 
 			const auto& mp = GfxManager::GetLGX()->GetInput().GetMousePositionAbs();
-			m_payloadWindow->SetPosition({static_cast<int32>(mp.x), static_cast<int32>(mp.y)});
+			m_payloadWindow->SetPosition({static_cast<int32>(mp.x) + 10, static_cast<int32>(mp.y) + 10});
 
 			if (!GfxManager::GetLGX()->GetInput().GetMouseButton(LINAGX_MOUSE_0))
 			{
 				m_gfxManager->Join();
-
-				m_payloadWindow->SetVisible(false);
 
 				bool received = false;
 				for (auto* l : m_payloadListeners)
@@ -172,31 +171,33 @@ namespace Lina::Editor
 
 				if (!received)
 				{
-					m_payloadRequest.payload->GetParent()->RemoveChild(m_payloadRequest.payload);
-
 					if (m_payloadRequest.sourceWindow)
 						m_payloadRequest.sourceWindow->BringToFront();
 
 					if (m_payloadRequest.type == PayloadType::DockedPanel)
 					{
-						Panel* panel = static_cast<Panel*>(m_payloadRequest.payload);
+						PanelPayloadData* sub		= static_cast<PanelPayloadData*>(m_payloadRequest.payload->GetUserData());
+						Widget*			  panelArea = PrepareNewWindowToDock(m_subWindowCounter++, mp, sub->panelSize, sub->panelName);
+						Panel*			  panel		= PanelFactory::CreatePanel(panelArea, sub->type, sub->subData);
 						panel->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 						panel->GetFlags().Remove(WF_POS_ALIGN_Y);
 						panel->SetAlignedPosX(0.0f);
 						panel->SetAlignedSize(Vector2(1.0f, 0.0f));
 						panel->SetAlignedPos(Vector2::Zero);
-						Widget* panelArea = PrepareNewWindowToDock(m_subWindowCounter++, mp, panel->GetSize(), panel->GetDebugName());
+						panel->Initialize();
 
 						DockArea* dockArea = panelArea->GetWidgetManager()->Allocate<DockArea>("DockArea");
 						dockArea->SetAlignedPos(Vector2::Zero);
 						dockArea->SetAlignedSize(Vector2::One);
 						panelArea->AddChild(dockArea);
-
 						dockArea->AddPanel(panel);
+						delete sub;
 					}
-					else
-						m_editor->GetEditorRoot()->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
 				}
+
+				m_payloadRequest.payload->GetParent()->RemoveChild(m_payloadRequest.payload);
+				GetPayloadRoot()->GetWidgetManager()->Deallocate(m_payloadRequest.payload);
+				m_payloadWindow->SetVisible(false);
 
 				m_payloadRequest = {};
 			}
@@ -220,6 +221,11 @@ namespace Lina::Editor
 		m_payloadRequest.type		  = type;
 		m_payloadRequest.size		  = size;
 		m_payloadRequest.sourceWindow = payload->GetWindow();
+	}
+
+	Widget* WindowPanelManager::GetPayloadRoot()
+	{
+		return GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
 	}
 
 	void WindowPanelManager::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
@@ -297,7 +303,7 @@ namespace Lina::Editor
 
 		WindowBar* wb						 = newWindowRoot->GetWidgetManager()->Allocate<WindowBar>("WindowBar");
 		wb->GetBarProps().title				 = "Lina Engine";
-		wb->GetBarProps().hasIcon			 = true;
+		wb->GetBarProps().icon				 = ICON_LINA_LOGO;
 		wb->GetBarProps().hasWindowButtons	 = true;
 		wb->GetBarProps().controlsDragRect	 = true;
 		wb->GetWidgetProps().drawBackground	 = true;

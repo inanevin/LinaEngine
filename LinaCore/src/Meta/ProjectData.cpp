@@ -38,12 +38,18 @@ namespace Lina
 		uint32 version = 0;
 		in >> version;
 		StringSerialization::LoadFromStream(in, m_projectName);
+
+		if (version > 0)
+		{
+			m_userData.LoadFromStream(in);
+		}
 	}
 
 	void ProjectData::SaveToStream(OStream& out)
 	{
 		out << VERSION;
 		StringSerialization::SaveToStream(out, m_projectName);
+		m_userData.SaveToStream(out);
 	}
 
 	void ProjectData::ToRelativePath(const String& absPath, String& outRelative)

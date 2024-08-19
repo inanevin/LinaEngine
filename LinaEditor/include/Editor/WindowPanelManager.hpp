@@ -88,9 +88,10 @@ namespace Lina::Editor
 		SurfaceRenderer* GetSurfaceRenderer(StringID sid);
 
 		// Payload
-		void AddPayloadListener(EditorPayloadListener* listener);
-		void RemovePayloadListener(EditorPayloadListener* listener);
-		void CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size);
+		void	AddPayloadListener(EditorPayloadListener* listener);
+		void	RemovePayloadListener(EditorPayloadListener* listener);
+		void	CreatePayload(Widget* payload, PayloadType type, const Vector2ui& size);
+		Widget* GetPayloadRoot();
 
 		// Panel and windows
 		void	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);

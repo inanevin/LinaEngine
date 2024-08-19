@@ -80,6 +80,12 @@ namespace Lina::Editor
 			return m_props;
 		}
 
+		inline void ResetTween()
+		{
+			if (m_dockPreviewTween.GetIsCompleted())
+				m_dockPreviewTween.Restart();
+		}
+
 	private:
 		void DrawDockRect(const DockRect& dr);
 

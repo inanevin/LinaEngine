@@ -70,7 +70,7 @@ namespace Lina::Editor
 		projectSelector->GetProps().onProjectOpened = [this](const String& location) {
 			if (m_currentProject && m_currentProject->GetIsDirty())
 			{
-				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
+				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), ICON_SAVE, m_primaryWidgetManager->GetRoot());
 
 				m_primaryWidgetManager->AddToForeground(popup);
 
@@ -101,7 +101,7 @@ namespace Lina::Editor
 
 			if (m_currentProject && m_currentProject->GetIsDirty())
 			{
-				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), m_primaryWidgetManager->GetRoot());
+				GenericPopup* popup = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::UnfinishedWorkTitle), Locale::GetStr(LocaleStr::UnfinishedWorkDesc), ICON_SAVE, m_primaryWidgetManager->GetRoot());
 
 				// Save first then create & open.
 				popup->AddButton({.text = Locale::GetStr(LocaleStr::Yes), .onClicked = [&]() {
@@ -117,7 +117,7 @@ namespace Lina::Editor
 		};
 
 		m_primaryWidgetManager->AddToForeground(projectSelector);
-		m_primaryWidgetManager->SetForegroundDim(0.5f);
+		// m_primaryWidgetManager->SetForegroundDim(0.5f);
 	}
 
 	void ProjectManager::SaveProjectChanges()
@@ -125,6 +125,16 @@ namespace Lina::Editor
 		m_editor->SaveSettings();
 		m_currentProject->SetDirty(false);
 		m_currentProject->SaveToFile();
+	}
+
+	void ProjectManager::AddListener(ProjectManagerListener* listener)
+	{
+		m_listeners.push_back(listener);
+	}
+
+	void ProjectManager::RemoveListener(ProjectManagerListener* listener)
+	{
+		m_listeners.erase(linatl::find_if(m_listeners.begin(), m_listeners.end(), [listener](ProjectManagerListener* l) -> bool { return l == listener; }));
 	}
 
 	void ProjectManager::CreateEmptyProjectAndOpen(const String& path)
@@ -157,8 +167,8 @@ namespace Lina::Editor
 		settings.SetLastProjectPath(projectFile);
 		settings.SaveToFile();
 
-		m_editor->GetFileManager().SetProjectDirectory(FileSystem::GetFilePath(projectFile));
-		m_editor->GetFileManager().RefreshResources();
+		for (ProjectManagerListener* listener : m_listeners)
+			listener->OnProjectOpened(m_currentProject);
 	}
 
 } // namespace Lina::Editor

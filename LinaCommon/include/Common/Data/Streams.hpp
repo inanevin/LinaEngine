@@ -41,6 +41,7 @@ SOFTWARE.
 
 namespace Lina
 {
+
 	class IStream
 	{
 	public:
@@ -257,6 +258,48 @@ namespace Lina
 		StreamHelper<T>::WriteToStream(stream, val);
 		return stream;
 	}
+
+	class RawStream
+	{
+	public:
+		RawStream() : m_data({}){};
+		RawStream(const Span<uint8>& sp);
+		RawStream(uint8* data, size_t size);
+		RawStream(OStream& stream);
+
+		~RawStream()
+		{
+			Destroy();
+		}
+		void Destroy();
+
+		inline Span<uint8> GetSpan()
+		{
+			return m_data;
+		}
+
+		inline uint8* GetRaw() const
+		{
+			return m_data.data();
+		}
+
+		inline size_t GetSize() const
+		{
+			return m_data.size();
+		}
+
+		bool IsEmpty() const
+		{
+			return m_data.empty();
+		}
+
+		void SaveToStream(OStream& stream) const;
+		void LoadFromStream(IStream& stream);
+
+	private:
+		Span<uint8> m_data;
+	};
+
 } // namespace Lina
 
 #endif

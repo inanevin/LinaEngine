@@ -360,6 +360,29 @@ namespace Lina
 			LINA_ERR("Exception processing path! {0}", path);
 		}
 	}
+	void FileSystem::PerformMove(const String& targetFile, const String& targetDirectory)
+	{
+		try
+		{
+			// Create the directory if it doesn't exist
+			if (!std::filesystem::exists(targetDirectory))
+			{
+				LINA_ERR("Target directory does not exist! {0}", targetDirectory);
+				return;
+			}
+
+			// Construct the new path for the file
+			std::filesystem::path file		  = std::filesystem::path(targetFile);
+			std::filesystem::path destination = std::filesystem::path(targetDirectory) / file.filename();
+
+			// Move (or rename) the file to the new directory
+			std::filesystem::rename(targetFile, destination);
+		}
+		catch (const std::filesystem::filesystem_error& e)
+		{
+			LINA_ERR("::PerformMove error {0}", e.what());
+		}
+	}
 	bool FileSystem::FolderContainsDirectory(Folder* root, const String& path, DirectoryItem*& outItem)
 	{
 		bool contains = false;

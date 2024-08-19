@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Data/String.hpp"
 #include "Common/Memory/AllocatorBucket.hpp"
 #include "Common/JobSystem/JobSystem.hpp"
+#include "Editor/Project/ProjectManager.hpp"
 #include "DirectoryItem.hpp"
 
 namespace Lina::Editor
@@ -44,7 +45,7 @@ namespace Lina::Editor
 		virtual void OnFileManagerThumbnailsGenerated(DirectoryItem* src, bool wasRecursive){};
 	};
 
-	class FileManager
+	class FileManager : public ProjectManagerListener
 	{
 	public:
 		FileManager()  = default;
@@ -62,6 +63,8 @@ namespace Lina::Editor
 		void		   ScanItemRecursively(DirectoryItem* item);
 		void		   GenerateThumbnails(DirectoryItem* root, bool recursive);
 
+		virtual void OnProjectOpened(ProjectData* data) override;
+
 		static String GetMetacachePath();
 
 		inline void SetProjectDirectory(const String& dir)
@@ -78,7 +81,6 @@ namespace Lina::Editor
 		void DeallocItem(DirectoryItem* item);
 		void ClearDirectory(DirectoryItem* item);
 		void RefreshDirectory(DirectoryItem* item);
-		void UpdateItem(DirectoryItem* item, const String& newPath, bool regenerateThumbnail);
 		void FillPathInformation(DirectoryItem* item, const String& fullAbsPath);
 
 	private:

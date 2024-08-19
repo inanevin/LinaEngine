@@ -112,6 +112,7 @@ namespace Lina::Editor
 		Maximize,
 		MaximizeRestore,
 		Close,
+		Rename,
 	};
 
 	class Locale

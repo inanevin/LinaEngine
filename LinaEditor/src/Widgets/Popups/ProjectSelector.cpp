@@ -82,7 +82,7 @@ namespace Lina::Editor
 		base->AddChild(bottom);
 
 		IconTabs* iconTabs					 = m_manager->Allocate<IconTabs>("IconTabs");
-		iconTabs->GetTabProps().icons		 = {ICON_FOLDER_PLUS, ICON_FOLDER_OPEN};
+		iconTabs->GetTabProps().icons		 = {ICON_SQUARE_PLUS, ICON_SAVE};
 		iconTabs->GetTabProps().tooltips	 = {Locale::GetStr(LocaleStr::CreateNewProject), Locale::GetStr(LocaleStr::OpenExistingProject)};
 		iconTabs->GetTabProps().iconScale	 = 0.75f;
 		iconTabs->GetTabProps().selected	 = 0;
@@ -136,7 +136,7 @@ namespace Lina::Editor
 		label->GetProps().text = Locale::GetStr(LocaleStr::Location);
 		label->GetFlags().Set(WF_POS_ALIGN_Y);
 		label->SetAlignedPosY(0.5f);
-		label->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		label->SetAnchorY(Anchor::Center);
 
 		InputField* input = m_manager->Allocate<InputField>();
 		input->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
@@ -153,7 +153,7 @@ namespace Lina::Editor
 		btn->SetAlignedSize(Vector2(0.1f, 1.0f));
 		btn->SetAlignedPosX(1.0f);
 		btn->SetAlignedPosY(0.0f);
-		btn->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		btn->SetAnchorX(Anchor::End);
 		btn->GetProps().onClicked = [&dialogTitle, input, this, isSave]() {
 			String location = "";
 

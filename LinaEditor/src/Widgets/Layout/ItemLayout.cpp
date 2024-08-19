@@ -106,8 +106,8 @@ namespace Lina::Editor
 
 			if (selected)
 			{
-				item->GetWidgetProps().colorBackground.start = m_isFocused ? Theme::GetDef().accentPrimary0 : Theme::GetDef().silent0;
-				item->GetWidgetProps().colorBackground.end	 = m_isFocused ? Theme::GetDef().accentPrimary1 : Theme::GetDef().silent1;
+				item->GetWidgetProps().colorBackground.start = m_isFocused ? Theme::GetDef().accentPrimary1 : Theme::GetDef().silent0;
+				item->GetWidgetProps().colorBackground.end	 = m_isFocused ? Theme::GetDef().accentPrimary0 : Theme::GetDef().silent1;
 			}
 			else
 			{
@@ -535,8 +535,8 @@ namespace Lina::Editor
 			nothingToSee->GetProps().font = BIG_FONT_SID;
 			nothingToSee->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 			nothingToSee->SetAlignedPos(Vector2(0.5f, 0.5f));
-			nothingToSee->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-			nothingToSee->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			nothingToSee->SetAnchorX(Anchor::Center);
+			nothingToSee->SetAnchorY(Anchor::Center);
 			nothingToSee->GetProps().color = Theme::GetDef().silent2;
 			m_layout->AddChild(nothingToSee);
 		}
@@ -640,11 +640,11 @@ namespace Lina::Editor
 			icon->GetProps().icon = def.icon;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 			icon->SetAlignedPos(Vector2(0.5f, 0.5f));
-			icon->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-			icon->GetProps().dynamicSizeToParent = true;
-			icon->GetProps().dynamicSizeScale	 = 0.8f;
-			icon->GetProps().colorStart = icon->GetProps().colorEnd = Theme::GetDef().foreground1;
+			icon->SetAnchorX(Anchor::Center);
+			icon->SetAnchorY(Anchor::Center);
+			icon->GetProps().dynamicSizeToParent			  = true;
+			icon->GetProps().dynamicSizeScale				  = 0.8f;
+			icon->GetProps().color							  = Theme::GetDef().foreground1;
 			bgShape->GetWidgetProps().colorBackground.start.w = bgShape->GetWidgetProps().colorBackground.end.w = 0.0f;
 
 			bgShape->AddChild(icon);
@@ -660,8 +660,8 @@ namespace Lina::Editor
 				loading->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 				loading->SetAlignedPos(Vector2(0.5f, 0.5f));
 				loading->SetAlignedSize(Vector2(0.25f, 0.25f));
-				loading->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-				loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+				loading->SetAnchorX(Anchor::Center);
+				loading->SetAnchorY(Anchor::Center);
 				bgShape->AddChild(loading);
 			}
 			else
@@ -706,8 +706,8 @@ namespace Lina::Editor
 		Text* title = m_manager->Allocate<Text>("Title");
 		title->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
 		title->SetAlignedPos(Vector2(0.5f, 0.5f));
-		title->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		title->SetAnchorX(Anchor::Center);
+		title->SetAnchorY(Anchor::Center);
 		title->GetProps().text				  = def.name;
 		title->GetProps().fetchWrapFromParent = true;
 		title->GetProps().wordWrap			  = false;
@@ -749,9 +749,13 @@ namespace Lina::Editor
 		shape->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		shape->SetAlignedSizeX(1.0f);
 		shape->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		shape->GetWidgetProps().interpolateColor	  = true;
-		shape->GetWidgetProps().colorInterpolateSpeed = 20.0f;
-		shape->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		shape->GetWidgetProps().interpolateColor		 = true;
+		shape->GetWidgetProps().colorInterpolateSpeed	 = 20.0f;
+		shape->GetWidgetProps().colorBackground			 = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		shape->GetWidgetProps().drawBackground			 = true;
+		shape->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
+		shape->GetWidgetProps().outlineThickness		 = 0.0f;
+		shape->GetWidgetProps().rounding				 = 0.0f;
 		shape->SetUserData(def.userData);
 		shape->SetDebugName(def.name);
 
@@ -803,13 +807,13 @@ namespace Lina::Editor
 		Icon* chevron = nullptr;
 		if (m_props.itemsCanHaveChildren)
 		{
-			chevron						   = m_manager->Allocate<Icon>("Folder");
-			chevron->GetProps().icon	   = m_areItemsUnfolded[def.userData] ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
-			chevron->GetProps().colorStart = chevron->GetProps().colorEnd = def.color;
+			chevron					  = m_manager->Allocate<Icon>("Folder");
+			chevron->GetProps().icon  = m_areItemsUnfolded[def.userData] ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
+			chevron->GetProps().color = def.color;
 			chevron->GetFlags().Set(WF_POS_ALIGN_Y);
 			chevron->SetAlignedPosY(0.5f);
 			chevron->GetProps().textScale = 0.4f;
-			chevron->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			chevron->SetAnchorY(Anchor::Center);
 			layout->AddChild(chevron);
 
 			if (def.children.empty())
@@ -841,12 +845,11 @@ namespace Lina::Editor
 
 		if (!def.icon.empty())
 		{
-			Icon* icon					= m_manager->Allocate<Icon>("Folder");
-			icon->GetProps().icon		= def.icon;
-			icon->GetProps().colorStart = icon->GetProps().colorEnd = def.color;
+			Icon* icon			  = m_manager->Allocate<Icon>("Folder");
+			icon->GetProps().icon = def.icon;
 			icon->GetFlags().Set(WF_POS_ALIGN_Y);
 			icon->SetAlignedPosY(0.5f);
-			icon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			icon->SetAnchorY(Anchor::Center);
 			layout->AddChild(icon);
 		}
 		else
@@ -855,7 +858,7 @@ namespace Lina::Editor
 			img->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
 			img->SetAlignedPosY(0.5f);
 			img->SetAlignedSizeY(0.8f);
-			img->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+			img->SetAnchorY(Anchor::Center);
 			img->GetWidgetProps().textureAtlas	  = def.texture;
 			img->GetWidgetProps().fitTexture	  = true;
 			img->GetWidgetProps().colorBackground = Color(1, 1, 1, 1);
@@ -867,8 +870,8 @@ namespace Lina::Editor
 				loading->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 				loading->SetAlignedPos(Vector2(0.5f, 0.5f));
 				loading->SetAlignedSize(Vector2(1.0f, 1.0f));
-				loading->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-				loading->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+				loading->SetAnchorX(Anchor::Center);
+				loading->SetAnchorY(Anchor::Center);
 				img->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
 				img->AddChild(loading);
 			}
@@ -877,7 +880,7 @@ namespace Lina::Editor
 		Text* title = WidgetUtility::BuildEditableText(this, true, []() {});
 		title->GetFlags().Set(WF_POS_ALIGN_Y);
 		title->SetAlignedPosY(0.5f);
-		title->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		title->SetAnchorY(Anchor::Center);
 		title->GetProps().text = def.name;
 		title->SetUserData(def.userData);
 		layout->AddChild(title);

@@ -50,6 +50,7 @@ namespace Lina::Editor
 	void FileManager::Initialize(Editor* editor)
 	{
 		m_editor = editor;
+		m_editor->GetProjectManager().AddListener(this);
 	}
 
 	void FileManager::PreTick()
@@ -72,6 +73,8 @@ namespace Lina::Editor
 
 	void FileManager::Shutdown()
 	{
+		m_editor->GetProjectManager().RemoveListener(this);
+
 		for (ThumbnailGenerator* gen : m_thumbnailGenerators)
 			delete gen;
 		m_thumbnailGenerators.clear();
@@ -197,6 +200,12 @@ namespace Lina::Editor
 		m_thumbnailGenerators.push_back(new ThumbnailGenerator(m_editor, &m_executor, root, recursive));
 	}
 
+	void FileManager::OnProjectOpened(ProjectData* data)
+	{
+		SetProjectDirectory(FileSystem::GetFilePath(data->GetPath()));
+		RefreshResources();
+	}
+
 	void FileManager::RefreshResources()
 	{
 		ClearResources();
@@ -226,11 +235,6 @@ namespace Lina::Editor
 	{
 		ClearDirectory(item);
 		ScanItem(item);
-	}
-
-	void FileManager::UpdateItem(DirectoryItem* item, const String& newPath, bool regenerateThumbnail)
-	{
-		item->absolutePath = newPath;
 	}
 
 	void FileManager::FillPathInformation(DirectoryItem* item, const String& fullAbsPath)

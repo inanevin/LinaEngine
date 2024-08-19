@@ -40,10 +40,10 @@ namespace Lina::Editor
 
 		struct BarProperties
 		{
-			bool   hasIcon			= false;
 			bool   hasWindowButtons = false;
 			bool   controlsDragRect = false;
 			String title			= "";
+			String icon				= "";
 		};
 
 		virtual void Construct() override;

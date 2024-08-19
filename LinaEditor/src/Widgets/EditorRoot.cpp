@@ -80,10 +80,10 @@ namespace Lina::Editor
 		lina->GetProps().icon = ICON_LINA_LOGO;
 		lina->GetFlags().Set(WF_POS_ALIGN_Y);
 		lina->SetAlignedPosY(0.5f);
-		lina->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		lina->GetProps().colorStart = Theme::GetDef().accentPrimary0;
-		lina->GetProps().colorEnd	= Theme::GetDef().accentPrimary1;
-		lina->GetProps().isDynamic	= false;
+		lina->SetAnchorY(Anchor::Center);
+		lina->GetProps().color.start = Theme::GetDef().accentPrimary0;
+		lina->GetProps().color.end	 = Theme::GetDef().accentPrimary1;
+		lina->GetProps().isDynamic	 = false;
 		lina->SetTooltip(tooltip);
 		titleBar->AddChild(lina);
 
@@ -113,7 +113,7 @@ namespace Lina::Editor
 		projectName->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_Y);
 		projectName->SetAlignedSizeX(1.0f);
 		projectName->SetAlignedPosY(0.5f);
-		projectName->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		projectName->SetAnchorY(Anchor::Center);
 		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		projectName->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 		projectName->SetChildPadding(Theme::GetDef().baseIndent);
@@ -127,30 +127,30 @@ namespace Lina::Editor
 		saveIcon->GetProps().icon = ICON_SAVE;
 		saveIcon->GetFlags().Set(WF_POS_ALIGN_Y);
 		saveIcon->SetAlignedPosY(0.5f);
-		saveIcon->SetPosAlignmentSourceY(PosAlignmentSource::Center);
-		saveIcon->GetProps().colorStart = saveIcon->GetProps().colorEnd = Theme::GetDef().accentWarn;
-		saveIcon->GetProps().colorDisabled								= Theme::GetDef().silent0;
+		saveIcon->SetAnchorY(Anchor::Center);
+		saveIcon->GetProps().color		   = Theme::GetDef().accentWarn;
+		saveIcon->GetProps().colorDisabled = Theme::GetDef().silent0;
 		projectName->AddChild(saveIcon);
 
 		Text* projectNameText = m_manager->Allocate<Text>("ProjectNameText");
 		projectNameText->GetFlags().Set(WF_POS_ALIGN_Y);
 		projectNameText->SetAlignedPosY(0.5f);
-		projectNameText->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		projectNameText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		projectNameText->SetAnchorX(Anchor::Center);
+		projectNameText->SetAnchorY(Anchor::Center);
 		projectNameText->GetProps().text = Locale::GetStr(LocaleStr::NoProject);
 		projectName->AddChild(projectNameText);
 
 		Text* worldText = m_manager->Allocate<Text>("WorldText");
 		worldText->GetFlags().Set(WF_POS_ALIGN_Y);
 		worldText->SetAlignedPosY(0.5f);
-		worldText->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		worldText->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		worldText->SetAnchorX(Anchor::Center);
+		worldText->SetAnchorY(Anchor::Center);
 		worldText->GetProps().text = Locale::GetStr(LocaleStr::NoWorld);
 		projectName->AddChild(worldText);
 
 		DirectionalLayout* wb = CommonWidgets::BuildWindowButtons(this);
 		wb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_X);
-		wb->SetPosAlignmentSourceX(PosAlignmentSource::End);
+		wb->SetAnchorX(Anchor::End);
 		wb->SetAlignedPos(Vector2(1.0f, 0.0f));
 		wb->SetAlignedSizeY(1.0f);
 		wb->SetFixedSizeX(Theme::GetDef().baseItemHeight * 6.0f);

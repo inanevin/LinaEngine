@@ -39,8 +39,8 @@ namespace Lina
 		m_text = m_manager->Allocate<Text>("ButtonText");
 		m_text->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_text->SetAlignedPos(Vector2(0.5f, 0.5f));
-		m_text->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		m_text->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_text->SetAnchorX(Anchor::Center);
+		m_text->SetAnchorY(Anchor::Center);
 		GetWidgetProps().drawBackground			 = true;
 		GetWidgetProps().hoveredIsDifferentColor = true;
 		GetWidgetProps().pressedIsDifferentColor = true;

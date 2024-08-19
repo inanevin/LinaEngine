@@ -134,7 +134,25 @@ namespace Lina
 			end	  = col;
 		}
 
+		ColorGrad(const Color& colStart, const Color& colEnd)
+		{
+			start = colStart;
+			end	  = colEnd;
+		}
+
 		LinaVG::Vec4Grad AsLVG();
+
+		void SaveToStream(OStream& stream) const
+		{
+			start.SaveToStream(stream);
+			end.SaveToStream(stream);
+		}
+
+		void LoadFromStream(IStream& stream)
+		{
+			start.LoadFromStream(stream);
+			end.LoadFromStream(stream);
+		}
 	};
 
 } // namespace Lina

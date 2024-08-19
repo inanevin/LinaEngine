@@ -31,6 +31,8 @@ SOFTWARE.
 #include "Editor/Widgets/Docking/DockBorder.hpp"
 #include "Editor/Widgets/Compound/TabRow.hpp"
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/Widgets/Panel/PanelFactory.hpp"
+#include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
@@ -62,8 +64,7 @@ namespace Lina::Editor
 
 		m_tabRow->GetProps().onTabClosed	= [this](void* userData) { m_panelKillList.push_back(linatl::make_pair(static_cast<Panel*>(userData), false)); };
 		m_tabRow->GetProps().onTabDockedOut = [this](void* userData) { m_panelKillList.push_back(linatl::make_pair(static_cast<Panel*>(userData), true)); };
-
-		m_tabRow->GetProps().onTabSelected = [this](void* userData) { SetSelected(static_cast<Widget*>(userData)); };
+		m_tabRow->GetProps().onTabSelected	= [this](void* userData) { SetSelected(static_cast<Widget*>(userData)); };
 
 		AddChild(m_layout);
 		m_layout->AddChild(m_tabRow);
@@ -71,8 +72,8 @@ namespace Lina::Editor
 		m_preview = m_manager->Allocate<DockPreview>("DockContainerPreview");
 		m_preview->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		m_preview->SetAlignedPos(Vector2(0.5f, 0.5f));
-		m_preview->SetPosAlignmentSourceX(PosAlignmentSource::Center);
-		m_preview->SetPosAlignmentSourceY(PosAlignmentSource::Center);
+		m_preview->SetAnchorX(Anchor::Center);
+		m_preview->SetAnchorY(Anchor::Center);
 		m_preview->SetAlignedSize(Vector2::One);
 		m_preview->GetProps().isCentral = true;
 
@@ -134,6 +135,21 @@ namespace Lina::Editor
 		{
 			RemovePanel(pair.first);
 
+			if (pair.second)
+			{
+				Widget*			  root		  = Editor::Get()->GetWindowPanelManager().GetPayloadRoot();
+				Widget*			  payload	  = CommonWidgets::BuildPayloadForPanel(root, pair.first->GetDebugName());
+				PanelPayloadData* payloadData = new PanelPayloadData();
+				payloadData->type			  = pair.first->GetType();
+				payloadData->subData		  = pair.first->GetSubData();
+				payloadData->panelName		  = pair.first->GetDebugName();
+				payloadData->panelSize		  = pair.first->GetSize();
+				payload->SetUserData(payloadData);
+				Editor::Get()->GetWindowPanelManager().CreatePayload(payload, PayloadType::DockedPanel, payload->GetSize());
+			}
+
+			m_manager->Deallocate(pair.first);
+
 			if (m_panels.empty())
 			{
 				if (m_parent->GetChildren().size() == 1)
@@ -141,13 +157,6 @@ namespace Lina::Editor
 				else
 					RemoveArea();
 			}
-
-			if (pair.second)
-			{
-				Editor::Get()->GetWindowPanelManager().CreatePayload(pair.first, PayloadType::DockedPanel, pair.first->GetWindow()->GetSize());
-			}
-			else
-				m_manager->Deallocate(pair.first);
 		}
 
 		m_panelKillList.clear();
@@ -182,22 +191,6 @@ namespace Lina::Editor
 			if (!m_tabRow->GetCanCloseTabs())
 				m_tabRow->SetCanCloseTabs(true);
 		}
-
-		// Omit tab row.
-		// if (m_selectedChildren == nullptr && m_children.size() == 2)
-		// 	m_selectedChildren = m_children[1];
-
-		// const float tabHeight = static_cast<float>(m_lgxWindow->GetMonitorSize().y) * TabRow::TAB_HEIGHT_PERC * m_lgxWindow->GetDPIScale();
-		//
-		// // m_tabRow->SetPos(m_rect.pos);
-		// // m_tabRow->SetSize(Vector2(m_rect.size.x, tabHeight));
-		//
-		// if (m_selectedChildren != nullptr)
-		// {
-		// 	m_selectedChildren->SetIsHovered();
-		// 	m_selectedChildren->SetPos(m_rect.pos + Vector2(0.0f, tabHeight));
-		// 	m_selectedChildren->SetSize(Vector2(m_rect.size.x, m_rect.size.y - tabHeight));
-		// }
 	}
 
 	void DockArea::Draw()
@@ -217,8 +210,10 @@ namespace Lina::Editor
 
 	void DockArea::OnPayloadStarted(PayloadType type, Widget* payload)
 	{
-		if (type == PayloadType::DockedPanel)
-			m_payloadActive = true;
+		if (type != PayloadType::DockedPanel)
+			return;
+		m_preview->ResetTween();
+		m_payloadActive = true;
 	}
 
 	void DockArea::OnPayloadEnded(PayloadType type, Widget* payload)
@@ -237,9 +232,11 @@ namespace Lina::Editor
 			if (isHovered)
 			{
 				// Detach & attach
-				payload->GetFlags().Remove(WF_POS_ALIGN_Y);
-				payload->GetParent()->RemoveChild(payload);
-				AddDockArea(hoveredDir, static_cast<Panel*>(payload));
+				PanelPayloadData* sub	= static_cast<PanelPayloadData*>(payload->GetUserData());
+				Panel*			  panel = PanelFactory::CreatePanel(this, sub->type, sub->subData);
+				panel->Initialize();
+				delete sub;
+				AddDockArea(hoveredDir, panel);
 				m_lgxWindow->BringToFront();
 				return true;
 			}

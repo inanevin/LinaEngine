@@ -37,6 +37,12 @@ namespace Lina::Editor
 {
 	class Editor;
 
+	class ProjectManagerListener
+	{
+	public:
+		virtual void OnProjectOpened(ProjectData* data){};
+	};
+
 	class ProjectManager
 	{
 	public:
@@ -48,6 +54,9 @@ namespace Lina::Editor
 		void SaveProjectChanges();
 		void CloseCurrentProject();
 
+		void AddListener(ProjectManagerListener* listener);
+		void RemoveListener(ProjectManagerListener* listener);
+
 		inline ProjectData* GetProjectData() const
 		{
 			return m_currentProject;
@@ -58,8 +67,9 @@ namespace Lina::Editor
 		void CreateEmptyProjectAndOpen(const String& path);
 
 	private:
-		WidgetManager* m_primaryWidgetManager = nullptr;
-		Editor*		   m_editor				  = nullptr;
-		ProjectData*   m_currentProject		  = nullptr;
+		WidgetManager*					m_primaryWidgetManager = nullptr;
+		Editor*							m_editor			   = nullptr;
+		ProjectData*					m_currentProject	   = nullptr;
+		Vector<ProjectManagerListener*> m_listeners;
 	};
 } // namespace Lina::Editor

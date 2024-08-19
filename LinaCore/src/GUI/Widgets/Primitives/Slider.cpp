@@ -42,8 +42,7 @@ namespace Lina
 		m_handle									= m_manager->Allocate<Icon>("Handle");
 		m_handle->GetProps().enableHoverPressColors = true;
 		m_handle->GetProps().colorHovered			= Theme::GetDef().accentPrimary2;
-		m_handle->GetProps().colorStart				= Theme::GetDef().accentPrimary0;
-		m_handle->GetProps().colorEnd				= Theme::GetDef().accentPrimary0;
+		m_handle->GetProps().color					= Theme::GetDef().accentPrimary0;
 		m_handle->GetProps().colorPressed			= Theme::GetDef().accentPrimary0;
 		m_handle->GetProps().icon					= Theme::GetDef().iconSliderHandle;
 		m_handle->GetProps().textScale				= 0.5f;

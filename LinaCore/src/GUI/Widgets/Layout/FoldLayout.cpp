@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Common/Math/Math.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -97,20 +98,32 @@ namespace Lina
 
 	bool FoldLayout::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-		if (!m_props.foldWithDoubleClick)
-			return false;
-
 		if (m_children.empty())
 			return false;
 
 		if (!m_children.front()->GetIsHovered())
 			return false;
 
-		if (button != LINAGX_MOUSE_0 || act != LinaGX::InputAction::Repeated)
-			return false;
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated)
+		{
+			SetIsUnfolded(!GetIsUnfolded());
+			return true;
+		}
 
-		SetIsUnfolded(!GetIsUnfolded());
-		return true;
+		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		{
+			Widget* w		= m_children.front();
+			Icon*	chevron = w->GetWidgetOfType<Icon>(w);
+
+			if (chevron != nullptr && chevron->GetIsHovered())
+			{
+				SetIsUnfolded(!GetIsUnfolded());
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	void FoldLayout::SetIsUnfolded(bool unfolded)

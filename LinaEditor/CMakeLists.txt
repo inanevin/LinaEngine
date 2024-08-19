@@ -73,6 +73,7 @@ include/Editor/Widgets/Panel/PanelEntities.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
 include/Editor/Widgets/FX/LinaLoading.hpp
 include/Editor/Widgets/Layout/ItemLayout.hpp
+include/Editor/Widgets/Layout/ItemController.hpp
 
 # Meta
 include/Editor/Meta/EditorSettings.hpp
@@ -133,6 +134,7 @@ src/Widgets/Panel/PanelEntities.cpp
 src/Widgets/Panel/PanelFactory.cpp
 src/Widgets/FX/LinaLoading.cpp
 src/Widgets/Layout/ItemLayout.cpp
+src/Widgets/Layout/ItemController.cpp
 
 # Meta
 src/Meta/EditorSettings.cpp
