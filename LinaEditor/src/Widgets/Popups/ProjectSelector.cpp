@@ -68,10 +68,10 @@ namespace Lina::Editor
 		m_title->SetAlignedPos(Vector2::Zero);
 		m_title->SetAlignedSizeX(1.0f);
 		m_title->SetFixedSizeY(itemHeight);
-		m_title->GetWidgetProps().drawBackground  = true;
-		m_title->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		m_title->GetWidgetProps().borderThickness.bottom	  = Theme::GetDef().baseOutlineThickness;
-		m_title->GetWidgetProps().colorBorders = Theme::GetDef().black;
+		m_title->GetWidgetProps().drawBackground		 = true;
+		m_title->GetWidgetProps().colorBackground		 = Theme::GetDef().background0;
+		m_title->GetWidgetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness;
+		m_title->GetWidgetProps().colorBorders			 = Theme::GetDef().black;
 		base->AddChild(m_title);
 
 		DirectionalLayout* bottom = m_manager->Allocate<DirectionalLayout>("Bottom");
@@ -81,15 +81,15 @@ namespace Lina::Editor
 		bottom->SetAlignedSizeY(0.0f);
 		base->AddChild(bottom);
 
-		IconTabs* iconTabs					 = m_manager->Allocate<IconTabs>("IconTabs");
-		iconTabs->GetTabProps().icons		 = {ICON_SQUARE_PLUS, ICON_SAVE};
-		iconTabs->GetTabProps().tooltips	 = {Locale::GetStr(LocaleStr::CreateNewProject), Locale::GetStr(LocaleStr::OpenExistingProject)};
-		iconTabs->GetTabProps().iconScale	 = 0.75f;
-		iconTabs->GetTabProps().selected	 = 0;
-		iconTabs->GetProps().direction		 = DirectionOrientation::Vertical;
-		iconTabs->GetProps().mode			 = DirectionalLayout::Mode::EqualSizes;
+		IconTabs* iconTabs								 = m_manager->Allocate<IconTabs>("IconTabs");
+		iconTabs->GetTabProps().icons					 = {ICON_SQUARE_PLUS, ICON_SAVE};
+		iconTabs->GetTabProps().tooltips				 = {Locale::GetStr(LocaleStr::CreateNewProject), Locale::GetStr(LocaleStr::OpenExistingProject)};
+		iconTabs->GetTabProps().iconScale				 = 0.75f;
+		iconTabs->GetTabProps().selected				 = 0;
+		iconTabs->GetProps().direction					 = DirectionOrientation::Vertical;
+		iconTabs->GetProps().mode						 = DirectionalLayout::Mode::EqualSizes;
 		iconTabs->GetWidgetProps().borderThickness.right = Theme::GetDef().baseOutlineThickness;
-        iconTabs->GetWidgetProps().colorBorders = Theme::GetDef().black;
+		iconTabs->GetWidgetProps().colorBorders			 = Theme::GetDef().black;
 		iconTabs->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
 		iconTabs->SetAlignedSizeY(1.0f);
 		iconTabs->SetFixedSizeX(itemHeight * 2.0f);

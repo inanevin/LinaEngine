@@ -174,19 +174,19 @@ namespace Lina
 		}
 	}
 
-    void LayoutBorder::SaveToStream(OStream &stream) const
-    {
-        stream << GetAlignedPosX();
-    }
+	void LayoutBorder::SaveToStream(OStream& stream) const
+	{
+		stream << GetAlignedPosX();
+	}
 
-    void LayoutBorder::LoadFromStream(IStream& stream)
-    {
-        float alignedBorder = 0.0f;
-        stream >> alignedBorder;
-        SetAlignedPosX(alignedBorder);
-        GetNegative()->SetAlignedSizeX(alignedBorder);
-        GetPositive()->SetAlignedPosX(alignedBorder);
-        GetPositive()->SetAlignedSizeX(1.0f - alignedBorder);
-    }
+	void LayoutBorder::LoadFromStream(IStream& stream)
+	{
+		float alignedBorder = 0.0f;
+		stream >> alignedBorder;
+		SetAlignedPosX(alignedBorder);
+		GetNegative()->SetAlignedSizeX(alignedBorder);
+		GetPositive()->SetAlignedPosX(alignedBorder);
+		GetPositive()->SetAlignedSizeX(1.0f - alignedBorder);
+	}
 
 } // namespace Lina

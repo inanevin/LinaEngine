@@ -142,10 +142,11 @@ namespace Lina::Editor
 			return m_editorRenderer;
 		}
 
-        inline ResourcePipeline& GetResourcePipeline()
-        {
-            return m_resourcePipeline;
-        }
+		inline ResourcePipeline& GetResourcePipeline()
+		{
+			return m_resourcePipeline;
+		}
+
 	private:
 		void CreateWorldRenderer(EntityWorld* world);
 		void DestroyWorldRenderer(EntityWorld* world);
@@ -153,7 +154,7 @@ namespace Lina::Editor
 
 	private:
 		ResourceManagerV2					  m_resourceManagerV2;
-        ResourcePipeline m_resourcePipeline;
+		ResourcePipeline					  m_resourcePipeline;
 		EditorRenderer						  m_editorRenderer;
 		WindowPanelManager					  m_windowPanelManager;
 		AtlasManager						  m_atlasManager;

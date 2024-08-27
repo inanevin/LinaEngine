@@ -109,11 +109,11 @@ namespace Lina::Editor
 		{LocaleStr::Maximize, "Maximize"},
 		{LocaleStr::MaximizeRestore, "Maximize/Restore"},
 		{LocaleStr::Close, "Close"},
-        {LocaleStr::Rename, "Rename"},
-        {LocaleStr::WidgetEditor, "Widget Editor"},
-        {LocaleStr::Import, "Import"},
-        {LocaleStr::New, "New"},
-        {LocaleStr::GUIWidget, "GUIWidget"},
+		{LocaleStr::Rename, "Rename"},
+		{LocaleStr::WidgetEditor, "Widget Editor"},
+		{LocaleStr::Import, "Import"},
+		{LocaleStr::New, "New"},
+		{LocaleStr::GUIWidget, "GUIWidget"},
 		{LocaleStr::SelectWidget, "Select: GUIWidget"},
 	};
 

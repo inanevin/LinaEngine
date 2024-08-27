@@ -300,8 +300,8 @@ namespace Lina::Editor
 			{
 				if (w->GetParent() && w->GetParent()->GetTID() == GetTypeID<FoldLayout>() && w->GetParent()->GetChildren().front() == w)
 				{
-                    FoldLayout* f = static_cast<FoldLayout*>(w->GetParent());
-                    f->SetIsUnfolded(!f->GetIsUnfolded());
+					FoldLayout* f = static_cast<FoldLayout*>(w->GetParent());
+					f->SetIsUnfolded(!f->GetIsUnfolded());
 				}
 			}
 			// interact
@@ -447,9 +447,9 @@ namespace Lina::Editor
 	void ItemController::AddItem(Widget* widget)
 	{
 		m_allItems.push_back(widget);
-        
-        if(m_lastSelected == widget->GetUserData())
-            SelectItem(widget, true, false);
+
+		if (m_lastSelected == widget->GetUserData())
+			SelectItem(widget, true, false);
 	}
 
 	void ItemController::ClearItems()
@@ -506,7 +506,7 @@ namespace Lina::Editor
 		if (clearSelected)
 			m_selectedItems.clear();
 
-        m_lastSelected = item->GetUserData();
+		m_lastSelected = item->GetUserData();
 		m_manager->GrabControls(this);
 		m_selectedItems.push_back(item);
 
