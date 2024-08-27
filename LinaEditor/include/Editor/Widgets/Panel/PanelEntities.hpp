@@ -53,7 +53,6 @@ namespace Lina::Editor
 		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
-		virtual void Draw() override;
 
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
@@ -64,7 +63,7 @@ namespace Lina::Editor
 		EntityWorld*  m_world		 = nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(PanelEntities)
+	LINA_REFLECTWIDGET_BEGIN(PanelEntities, Editor)
 	LINA_REFLECTWIDGET_END(PanelEntities)
 
 } // namespace Lina::Editor

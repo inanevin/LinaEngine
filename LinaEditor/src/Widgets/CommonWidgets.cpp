@@ -67,8 +67,8 @@ namespace Lina::Editor
 		min->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		min->SetAlignedPosY(0.0f);
 		min->SetAlignedSizeY(1.0f);
-		min->SetTooltip(Locale::GetStr(LocaleStr::Minimize));
-		min->SetDrawOrderIncrement(1);
+		min->GetWidgetProps().tooltip			 = Locale::GetStr(LocaleStr::Minimize);
+		min->GetWidgetProps().drawOrderIncrement = 1;
 		layout->AddChild(min);
 
 		Icon* iconMin			 = source->GetWidgetManager()->Allocate<Icon>("Icon");
@@ -79,13 +79,13 @@ namespace Lina::Editor
 		iconMin->SetAnchorY(Anchor::Center);
 		min->AddChild(iconMin);
 
-		Button* max							   = source->GetWidgetManager()->Allocate<Button>();
-		max->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
-		max->GetWidgetProps().colorHovered	   = Theme::GetDef().background4;
-		max->GetWidgetProps().colorPressed	   = Theme::GetDef().background0;
-		max->GetWidgetProps().rounding		   = 0.0f;
-		max->GetWidgetProps().outlineThickness = 0.0f;
-		max->SetDrawOrderIncrement(1);
+		Button* max								 = source->GetWidgetManager()->Allocate<Button>();
+		max->GetWidgetProps().colorBackground	 = Theme::GetDef().background0;
+		max->GetWidgetProps().colorHovered		 = Theme::GetDef().background4;
+		max->GetWidgetProps().colorPressed		 = Theme::GetDef().background0;
+		max->GetWidgetProps().rounding			 = 0.0f;
+		max->GetWidgetProps().outlineThickness	 = 0.0f;
+		max->GetWidgetProps().drawOrderIncrement = 1;
 
 		max->GetProps().onClicked = [source, max]() {
 			if (source->GetWindow()->GetIsMaximized())
@@ -96,7 +96,7 @@ namespace Lina::Editor
 			max->GetText()->GetProps().text = source->GetWindow()->GetIsMaximized() ? ICON_RESTORE : ICON_MAXIMIZE;
 			max->GetText()->CalculateTextSize();
 		};
-		max->SetTooltip(Locale::GetStr(LocaleStr::MaximizeRestore));
+		max->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::MaximizeRestore);
 		max->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		max->SetAlignedPosY(0.0f);
 		max->SetAlignedSizeY(1.0f);
@@ -110,19 +110,19 @@ namespace Lina::Editor
 		iconMax->SetAnchorY(Anchor::Center);
 		max->AddChild(iconMax);
 
-		Button* close							 = source->GetWidgetManager()->Allocate<Button>();
-		close->GetWidgetProps().colorBackground	 = Theme::GetDef().accentPrimary0;
-		close->GetWidgetProps().colorHovered	 = Theme::GetDef().accentPrimary2;
-		close->GetWidgetProps().colorPressed	 = Theme::GetDef().accentPrimary1;
-		close->GetWidgetProps().rounding		 = 0.0f;
-		close->GetWidgetProps().outlineThickness = 0.0f;
-		close->SetDrawOrderIncrement(1);
-		close->SetTooltip(Locale::GetStr(LocaleStr::Close));
-		close->GetProps().onClicked = [source]() {
-			if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
-				Editor::Get()->RequestExit();
-			else
-				Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
+		Button* close							   = source->GetWidgetManager()->Allocate<Button>();
+		close->GetWidgetProps().colorBackground	   = Theme::GetDef().accentPrimary0;
+		close->GetWidgetProps().colorHovered	   = Theme::GetDef().accentPrimary2;
+		close->GetWidgetProps().colorPressed	   = Theme::GetDef().accentPrimary1;
+		close->GetWidgetProps().rounding		   = 0.0f;
+		close->GetWidgetProps().outlineThickness   = 0.0f;
+		close->GetWidgetProps().drawOrderIncrement = 1;
+		close->GetWidgetProps().tooltip			   = Locale::GetStr(LocaleStr::Close);
+		close->GetProps().onClicked				   = [source]() {
+			   if (source->GetWindow()->GetSID() == LINA_MAIN_SWAPCHAIN)
+				   Editor::Get()->RequestExit();
+			   else
+				   Editor::Get()->GetWindowPanelManager().CloseWindow(static_cast<StringID>(source->GetWindow()->GetSID()));
 		};
 		close->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
 		close->SetAlignedPosY(0.0f);
@@ -214,10 +214,10 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_SIZE_X_TOTAL_CHILDREN);
 		layout->SetAlignedPosX(0.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
-		layout->GetChildMargins()			= {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		layout->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness;
-		layout->GetBorderColor()			= Theme::GetDef().background1;
+		layout->GetWidgetProps().childPadding			= Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins			= {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		layout->GetWidgetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness;
+		layout->GetWidgetProps().colorBorders			= Theme::GetDef().background1;
 
 		Icon* icon			  = wm->Allocate<Icon>("IconBG");
 		icon->GetProps().icon = ICON_CIRCLE_FILLED;
@@ -238,9 +238,9 @@ namespace Lina::Editor
 
 	Widget* CommonWidgets::BuildPayloadForPanel(Widget* src, const String& name)
 	{
-		WidgetManager*	   wm	  = src->GetWidgetManager();
-		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		WidgetManager*	   wm				  = src->GetWidgetManager();
+		DirectionalLayout* layout			  = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		layout->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 
@@ -264,9 +264,9 @@ namespace Lina::Editor
 
 	Widget* CommonWidgets::BuildPayloadForDirectoryItem(Widget* src, DirectoryItem* item)
 	{
-		WidgetManager*	   wm	  = src->GetWidgetManager();
-		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		WidgetManager*	   wm				  = src->GetWidgetManager();
+		DirectionalLayout* layout			  = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		layout->GetFlags().Set(WF_SIZE_X_TOTAL_CHILDREN | WF_USE_FIXED_SIZE_Y);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 
@@ -316,14 +316,17 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	Widget* CommonWidgets::BuildDefaultFoldItem(Widget* src, void* userdata, float margin, const String& icon, const Color& iconColor, const String& title, bool hasChildren, bool* unfoldVal)
+	Widget* CommonWidgets::BuildDefaultFoldItem(Widget* src, void* userdata, float margin, const String& icon, const Color& iconColor, const String& title, bool hasChildren, bool* unfoldVal, bool isRoot, bool boldText)
 	{
 		WidgetManager* wm = src->GetWidgetManager();
 
 		FoldLayout* fold = wm->Allocate<FoldLayout>("Fold");
 
-		fold->GetFlags().Set(WF_POS_ALIGN_X);
-		fold->SetAlignedPosX(0.0f);
+		if (isRoot)
+		{
+			fold->GetFlags().Set(WF_POS_ALIGN_X);
+			fold->SetAlignedPosX(0.0f);
+		}
 
 		fold->GetFlags().Set(WF_SIZE_ALIGN_X);
 		fold->SetAlignedSizeX(1.0f);
@@ -347,8 +350,8 @@ namespace Lina::Editor
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left					  = margin;
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left		  = margin;
 		layout->GetWidgetProps().drawBackground			  = true;
 		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -363,20 +366,24 @@ namespace Lina::Editor
 		chevron->GetProps().icon = fold->GetIsUnfolded() ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
 		chevron->GetFlags().Set(WF_POS_ALIGN_Y);
 		chevron->SetAlignedPosY(0.5f);
-		chevron->GetProps().textScale = 0.4f;
 		chevron->SetAnchorY(Anchor::Center);
-
+		chevron->GetProps().dynamicSizeToParent = true;
+		chevron->GetProps().dynamicSizeScale	= 0.55f;
 		layout->AddChild(chevron);
-
 		chevron->SetVisible(hasChildren);
 
-		Icon* ic			 = wm->Allocate<Icon>("Folder");
-		ic->GetProps().icon	 = icon;
-		ic->GetProps().color = iconColor;
-		ic->GetFlags().Set(WF_POS_ALIGN_Y);
-		ic->SetAlignedPosY(0.5f);
-		ic->SetAnchorY(Anchor::Center);
-		layout->AddChild(ic);
+		if (!icon.empty())
+		{
+			Icon* ic = wm->Allocate<Icon>("Folder");
+			ic->GetFlags().Set(WF_POS_ALIGN_Y);
+			ic->SetAlignedPosY(0.5f);
+			ic->GetProps().icon				   = icon;
+			ic->GetProps().color			   = iconColor;
+			ic->GetProps().dynamicSizeToParent = true;
+			ic->GetProps().dynamicSizeScale	   = 0.65f;
+			ic->SetAnchorY(Anchor::Center);
+			layout->AddChild(ic);
+		}
 
 		Text* txt			 = wm->Allocate<Text>("Title");
 		txt->GetProps().text = title;
@@ -384,23 +391,24 @@ namespace Lina::Editor
 		txt->SetAlignedPosY(0.5f);
 		txt->SetAnchorY(Anchor::Center);
 		txt->SetUserData(userdata);
+
+		if (boldText)
+			txt->GetProps().font = DEFAULT_FONT_BOLD_SID;
 		layout->AddChild(txt);
 		fold->Initialize();
 		return fold;
 	}
 
-	Widget* CommonWidgets::BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icn, const Color& iconColor, const String& txt)
+	Widget* CommonWidgets::BuildTexturedListItem(Widget* src, void* userData, float margin, TextureAtlasImage* img, const String& title, bool foldNudge)
 	{
-		WidgetManager* wm = src->GetWidgetManager();
-
+		WidgetManager*	   wm	  = src->GetWidgetManager();
 		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		layout->SetAlignedPosX(0);
+		layout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left					  = Theme::GetDef().baseIndent;
-		layout->GetChildMargins().right					  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left		  = margin;
+		layout->GetWidgetProps().childMargins.right		  = Theme::GetDef().baseIndent;
 		layout->GetWidgetProps().drawBackground			  = true;
 		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -410,23 +418,95 @@ namespace Lina::Editor
 		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
 		layout->SetUserData(userData);
 
+		if (foldNudge)
+		{
+			Icon* chevron			 = wm->Allocate<Icon>("Folder");
+			chevron->GetProps().icon = ICON_CHEVRON_RIGHT;
+			chevron->GetFlags().Set(WF_POS_ALIGN_Y);
+			chevron->SetAlignedPosY(0.5f);
+			chevron->SetAnchorY(Anchor::Center);
+			chevron->GetProps().dynamicSizeToParent = true;
+			chevron->GetProps().dynamicSizeScale	= 0.55f;
+			layout->AddChild(chevron);
+			chevron->SetVisible(false);
+		}
+
 		Widget* bg = wm->Allocate<Widget>("BG");
 		bg->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 		bg->SetAlignedPosY(0.5f);
 		bg->SetAnchorY(Anchor::Center);
-		bg->SetAlignedSizeY(1.0f);
+		bg->SetAlignedSizeY(0.75f);
+		bg->GetWidgetProps().drawBackground	  = true;
+		bg->GetWidgetProps().textureAtlas	  = img;
+		bg->GetWidgetProps().outlineThickness = 0.0f;
+		bg->GetWidgetProps().rounding		  = 2.0f;
+		bg->GetWidgetProps().colorBackground  = Color::White;
 		layout->AddChild(bg);
 
-		Icon* icon			   = wm->Allocate<Icon>("Folder");
-		icon->GetProps().icon  = icn;
-		icon->GetProps().color = iconColor;
-		icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
-		icon->SetAlignedPos(Vector2(0.5f));
-		icon->GetProps().dynamicSizeToParent = true;
-		icon->GetProps().dynamicSizeScale	 = 0.8f;
-		icon->SetAnchorX(Anchor::Center);
-		icon->SetAnchorY(Anchor::Center);
-		bg->AddChild(icon);
+		Text* titleText = wm->Allocate<Text>("Title");
+		titleText->GetFlags().Set(WF_POS_ALIGN_Y);
+		titleText->SetAlignedPosY(0.5f);
+		titleText->SetAnchorY(Anchor::Center);
+		titleText->GetProps().text = title;
+		titleText->SetUserData(userData);
+		layout->AddChild(titleText);
+		layout->Initialize();
+		return layout;
+	}
+
+	Widget* CommonWidgets::BuildDefaultListItem(Widget* src, void* userData, float margin, const String& icn, const Color& iconColor, const String& txt, bool foldNudge)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
+
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		layout->SetAlignedSizeX(1.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left		  = margin;
+		layout->GetWidgetProps().childMargins.right		  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().drawBackground			  = true;
+		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		layout->GetWidgetProps().outlineThickness		  = 0.0f;
+		layout->GetWidgetProps().rounding				  = 0.0f;
+		layout->GetWidgetProps().interpolateColor		  = true;
+		layout->GetWidgetProps().colorInterpolateSpeed	  = 20.0f;
+		layout->SetUserData(userData);
+
+		if (foldNudge)
+		{
+			Icon* chevron			 = wm->Allocate<Icon>("Folder");
+			chevron->GetProps().icon = ICON_CHEVRON_RIGHT;
+			chevron->GetFlags().Set(WF_POS_ALIGN_Y);
+			chevron->SetAlignedPosY(0.5f);
+			chevron->SetAnchorY(Anchor::Center);
+			chevron->GetProps().dynamicSizeToParent = true;
+			chevron->GetProps().dynamicSizeScale	= 0.55f;
+			layout->AddChild(chevron);
+			chevron->SetVisible(false);
+		}
+
+		if (!icn.empty())
+		{
+			Widget* bg = wm->Allocate<Widget>("BG");
+			bg->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
+			bg->SetAlignedPosY(0.5f);
+			bg->SetAnchorY(Anchor::Center);
+			bg->SetAlignedSizeY(1.0f);
+			layout->AddChild(bg);
+
+			Icon* icon			   = wm->Allocate<Icon>("Folder");
+			icon->GetProps().icon  = icn;
+			icon->GetProps().color = iconColor;
+			icon->GetFlags().Set(WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+			icon->SetAlignedPos(Vector2(0.5f));
+			icon->GetProps().dynamicSizeToParent = true;
+			icon->GetProps().dynamicSizeScale	 = 0.8f;
+			icon->SetAnchorX(Anchor::Center);
+			icon->SetAnchorY(Anchor::Center);
+			bg->AddChild(icon);
+		}
 
 		Text* title = wm->Allocate<Text>("Title");
 		title->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -458,7 +538,7 @@ namespace Lina::Editor
 		fold->GetProps().tweenPower	   = Theme::GetDef().baseIndentInner;
 		fold->SetIsUnfolded(item->isUnfolded);
 		fold->SetUserData(item);
-		fold->SetDebugName(item->name);
+		fold->GetWidgetProps().debugName = item->name;
 
 		fold->GetProps().onFoldChanged = [fold, item](bool unfolded) {
 			Icon* icon			  = fold->GetWidgetOfType<Icon>(fold);
@@ -472,8 +552,8 @@ namespace Lina::Editor
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left					  = margin;
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left		  = margin;
 		layout->GetWidgetProps().drawBackground			  = true;
 		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);
@@ -525,9 +605,9 @@ namespace Lina::Editor
 		layout->SetAlignedPosX(0);
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left					  = Theme::GetDef().baseIndent;
-		layout->GetChildMargins().right					  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left		  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.right		  = Theme::GetDef().baseIndent;
 		layout->GetWidgetProps().drawBackground			  = true;
 		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().colorBackground		  = Color(0.0f, 0.0f, 0.0f, 0.0f);

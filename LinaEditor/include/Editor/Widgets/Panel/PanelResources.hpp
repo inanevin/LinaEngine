@@ -70,7 +70,6 @@ namespace Lina::Editor
 		virtual void Initialize() override;
 		virtual void Construct() override;
 		virtual void Destruct() override;
-		virtual void Draw() override;
 		static void	 SaveLayoutDefaults(OStream& stream);
 		void		 RequestDelete(const Vector<DirectoryItem*>& items, bool isFolderBrowser);
 		void		 RequestDuplicate(const Vector<DirectoryItem*>& items, bool isFolderBrowser);
@@ -130,7 +129,7 @@ namespace Lina::Editor
 		Vector<Widget*> m_gridItems;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(PanelResources)
+	LINA_REFLECTWIDGET_BEGIN(PanelResources, Editor)
 	LINA_REFLECTWIDGET_END(PanelResources)
 
 } // namespace Lina::Editor

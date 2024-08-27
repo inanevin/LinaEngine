@@ -448,9 +448,9 @@ namespace Lina::Editor
 			grid->SetAlignedPos(Vector2::Zero);
 			grid->SetAlignedSize(Vector2::One);
 			grid->GetWidgetProps().clipChildren = true;
-			grid->SetChildPadding(Theme::GetDef().baseIndentInner);
-			grid->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-			m_layout				= grid;
+			grid->GetWidgetProps().childPadding = Theme::GetDef().baseIndentInner;
+			grid->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+			m_layout							= grid;
 		}
 		else
 		{
@@ -678,12 +678,12 @@ namespace Lina::Editor
 		shape->GetWidgetProps().rounding			  = Theme::GetDef().baseRounding;
 		shape->GetWidgetProps().interpolateColor	  = true;
 		shape->GetWidgetProps().colorInterpolateSpeed = 20.0f;
-		shape->SetDrawOrderIncrement(2);
+		shape->GetWidgetProps().drawOrderIncrement	  = 2;
 		shape->SetLocalControlsManager(this);
 		shape->SetUserData(def.userData);
 		shape->GetWidgetProps().colorBackground = Theme::GetDef().background3;
 		shape->Initialize();
-		shape->SetDebugName(def.name);
+		shape->GetWidgetProps().debugName = def.name;
 
 		layout->AddChild(shape);
 		m_selectionItems.push_back(shape);
@@ -757,7 +757,7 @@ namespace Lina::Editor
 		shape->GetWidgetProps().outlineThickness		 = 0.0f;
 		shape->GetWidgetProps().rounding				 = 0.0f;
 		shape->SetUserData(def.userData);
-		shape->SetDebugName(def.name);
+		shape->GetWidgetProps().debugName = def.name;
 
 		if (m_props.itemsCanHaveChildren)
 		{
@@ -775,7 +775,7 @@ namespace Lina::Editor
 			fold->SetAlignedSizeX(1.0f);
 
 			fold->SetIsUnfolded(m_areItemsUnfolded[def.userData]);
-			fold->SetDebugName(def.name);
+			fold->GetWidgetProps().debugName = def.name;
 
 			fold->AddChild(shape);
 
@@ -788,7 +788,7 @@ namespace Lina::Editor
 		}
 		else
 		{
-			shape->SetDebugName(def.name);
+			shape->GetWidgetProps().debugName = def.name;
 			shape->GetFlags().Set(WF_POS_ALIGN_X);
 			shape->SetAlignedPosX(0.0f);
 		}
@@ -798,9 +798,9 @@ namespace Lina::Editor
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->SetChildPadding(Theme::GetDef().baseIndentInner);
-		layout->GetChildMargins().left	= margin;
-		layout->GetProps().receiveInput = true;
+		layout->GetWidgetProps().childPadding	   = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.left = margin;
+		layout->GetProps().receiveInput			   = true;
 
 		shape->AddChild(layout);
 

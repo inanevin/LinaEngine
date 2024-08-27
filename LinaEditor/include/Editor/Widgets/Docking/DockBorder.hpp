@@ -70,7 +70,7 @@ namespace Lina::Editor
 		int32				 m_tick		   = 0;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(DockBorder)
+	LINA_REFLECTWIDGET_BEGIN(DockBorder, Editor)
 	LINA_REFLECTWIDGET_END(DockBorder)
 
 } // namespace Lina::Editor

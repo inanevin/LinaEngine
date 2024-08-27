@@ -76,7 +76,7 @@ namespace Lina::Editor
 
 	bool Editor::FillResourceCustomMeta(StringID sid, OStream& stream)
 	{
-		if (sid == DEFAULT_FONT_SID)
+		if (sid == DEFAULT_FONT_SID || sid == DEFAULT_FONT_BOLD_SID)
 		{
 			Font::Metadata customMeta = {
 				.points = {{.size = 14, .dpiLimit = 1.0f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 14, .dpiLimit = 10.0f}},
@@ -297,6 +297,7 @@ namespace Lina::Editor
 		priorityResources.push_back({"Resources/Editor/Textures/LinaLogoTitle.png", GetTypeID<Texture>()});
 		priorityResources.push_back({ICON_FONT_PATH, GetTypeID<Font>()});
 		priorityResources.push_back({DEFAULT_FONT_PATH, GetTypeID<Font>()});
+		priorityResources.push_back({DEFAULT_FONT_BOLD_PATH, GetTypeID<Font>()});
 		m_resourceManagerV2.LoadResourcesFromFile(this, 0, priorityResources, FileManager::GetMetacachePath());
 		m_resourceManagerV2.WaitForAll();
 	}

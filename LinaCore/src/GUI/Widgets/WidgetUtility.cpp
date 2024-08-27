@@ -30,6 +30,8 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/GUI/Widgets/Primitives/Button.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Common/Math/Rect.hpp"
@@ -141,7 +143,7 @@ namespace Lina
 		DirectionalLayout* popup = source->GetWidgetManager()->Allocate<DirectionalLayout>("PopupLayout");
 		popup->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_SIZE_Y_TOTAL_CHILDREN);
 		popup->SetAlignedSizeY(1.0f);
-		popup->GetChildMargins()				 = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
+		popup->GetWidgetProps().childMargins	 = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
 		popup->GetWidgetProps().drawBackground	 = true;
 		popup->GetWidgetProps().rounding		 = 0.0f;
 		popup->GetProps().direction				 = DirectionOrientation::Vertical;
@@ -208,4 +210,37 @@ namespace Lina
 		return txt;
 	}
 
+	Button* WidgetUtility::BuildIconTextButton(Widget* src, const String& icon, const String& text)
+	{
+		WidgetManager* wm  = src->GetWidgetManager();
+		Button*		   btn = wm->Allocate<Button>();
+		btn->DeallocAllChildren();
+		btn->RemoveAllChildren();
+
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>();
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2(0.5f, 0.0f));
+		layout->SetAlignedSizeY(1.0f);
+		layout->SetAnchorX(Anchor::Center);
+		layout->GetProps().direction		  = DirectionOrientation::Horizontal;
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		btn->AddChild(layout);
+
+		Icon* icn			 = wm->Allocate<Icon>();
+		icn->GetProps().icon = icon;
+		icn->GetFlags().Set(WF_POS_ALIGN_Y);
+		icn->SetAlignedPosY(0.5f);
+		icn->SetAnchorY(Anchor::Center);
+		layout->AddChild(icn);
+
+		Text* txt			 = wm->Allocate<Text>();
+		txt->GetProps().text = text;
+		txt->GetFlags().Set(WF_POS_ALIGN_Y);
+		txt->SetAlignedPosY(0.5f);
+		txt->SetAnchorY(Anchor::Center);
+		layout->AddChild(txt);
+
+		btn->Initialize();
+		return btn;
+	}
 } // namespace Lina

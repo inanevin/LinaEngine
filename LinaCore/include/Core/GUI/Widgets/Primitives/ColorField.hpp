@@ -87,7 +87,7 @@ namespace Lina
 		Properties m_props = {};
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ColorField)
+	LINA_REFLECTWIDGET_BEGIN(ColorField, Primitive)
 	LINA_REFLECTWIDGET_END(ColorField)
 
 } // namespace Lina

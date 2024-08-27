@@ -43,7 +43,7 @@ namespace Lina::Editor
 
 	void NotificationDisplayer::Construct()
 	{
-		GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
+		GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
 	}
 
 	void NotificationDisplayer::Destruct()
@@ -124,9 +124,9 @@ namespace Lina::Editor
 		notification->SetAlignedSize(Vector2(1.0f, 2.0f));
 		notification->SetAnchorX(Anchor::Start);
 		notification->SetAnchorY(Anchor::End);
-		notification->GetProps().direction = DirectionOrientation::Horizontal;
-		notification->GetChildMargins()	   = TBLR::Eq(Theme::GetDef().baseIndent);
-		notification->SetChildPadding(Theme::GetDef().baseIndent);
+		notification->GetProps().direction					 = DirectionOrientation::Horizontal;
+		notification->GetWidgetProps().childMargins			 = TBLR::Eq(Theme::GetDef().baseIndent);
+		notification->GetWidgetProps().childPadding			 = Theme::GetDef().baseIndent;
 		notification->GetWidgetProps().drawBackground		 = true;
 		notification->GetWidgetProps().colorBackground.start = Theme::GetDef().background0;
 		notification->GetWidgetProps().colorBackground.end	 = Theme::GetDef().background1;
@@ -186,8 +186,8 @@ namespace Lina::Editor
 			progressContainer->SetAlignedSize(Vector2::One);
 			progressContainer->SetAlignedPosY(0.5f);
 			progressContainer->SetAnchorY(Anchor::Center);
-			progressContainer->GetProps().direction = DirectionOrientation::Vertical;
-			progressContainer->SetChildPadding(Theme::GetDef().baseIndentInner);
+			progressContainer->GetProps().direction			 = DirectionOrientation::Vertical;
+			progressContainer->GetWidgetProps().childPadding = Theme::GetDef().baseIndentInner;
 			notification->AddChild(progressContainer);
 
 			Text* text = m_manager->Allocate<Text>("Title");
@@ -231,8 +231,8 @@ namespace Lina::Editor
 			button->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SIZE_X_TOTAL_CHILDREN);
 			button->SetAlignedPosY(0.5f);
 			button->SetAnchorY(Anchor::Center);
-			button->GetChildMargins().left	= Theme::GetDef().baseIndent;
-			button->GetChildMargins().right = Theme::GetDef().baseIndent;
+			button->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent;
+			button->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
 			button->SetAlignedSizeY(1.0f);
 			notification->AddChild(button);
 

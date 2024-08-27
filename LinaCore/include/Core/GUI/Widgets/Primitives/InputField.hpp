@@ -162,7 +162,7 @@ namespace Lina
 		float	   m_lastStoredValue	  = 0.0f;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(InputField)
+	LINA_REFLECTWIDGET_BEGIN(InputField, Primitive)
 	LINA_REFLECTWIDGET_END(InputField)
 
 } // namespace Lina

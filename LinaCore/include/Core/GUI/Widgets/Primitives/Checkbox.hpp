@@ -86,6 +86,6 @@ namespace Lina
 		Properties m_props = {};
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Checkbox)
+	LINA_REFLECTWIDGET_BEGIN(Checkbox, Primitive)
 	LINA_REFLECTWIDGET_END(Checkbox)
 } // namespace Lina

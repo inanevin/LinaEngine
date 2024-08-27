@@ -51,6 +51,8 @@ namespace Lina
 		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
 		virtual LinaGX::CursorType GetCursorOverride() override;
 		void					   AssignSides(Widget* negative, Widget* positive);
+		virtual void			   SaveToStream(OStream& stream) const override;
+		virtual void			   LoadFromStream(IStream& stream) override;
 
 		inline Properties& GetProps()
 		{
@@ -74,6 +76,6 @@ namespace Lina
 		float	   m_pressDiff = 0.0f;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(LayoutBorder)
+	LINA_REFLECTWIDGET_BEGIN(LayoutBorder, Layout)
 	LINA_REFLECTWIDGET_END(LayoutBorder)
 } // namespace Lina

@@ -52,7 +52,7 @@ namespace Lina::Editor
 		SetAnchorX(Anchor::Center);
 		SetAnchorY(Anchor::Center);
 		SetFixedSize(CommonWidgets::GetPopupWidth(GetWindow()));
-		SetChildPadding(Theme::GetDef().baseIndent);
+		GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 	}
 
 	void GenericPopup::Initialize()
@@ -77,7 +77,7 @@ namespace Lina::Editor
 		textWrapper->SetAlignedSizeY(1.0f);
 		textWrapper->SetAlignedSizeX(1.0f);
 		textWrapper->SetAlignedPosX(0.0f);
-		textWrapper->GetChildMargins() = {.left = padding, .right = padding};
+		textWrapper->GetWidgetProps().childMargins = {.left = padding, .right = padding};
 		textWrapper->AddChild(text);
 		AddChild(textWrapper);
 
@@ -109,7 +109,7 @@ namespace Lina::Editor
 		btn->SetAlignedSizeX(1.0f);
 		btn->SetAlignedSizeY(1.0f);
 		btn->SetAlignedPosY(0.0f);
-		btn->GetChildMargins() = {.left = padding, .right = padding};
+		btn->GetWidgetProps().childMargins = {.left = padding, .right = padding};
 		m_manager->GrabControls(btn);
 		m_buttonsRow->AddChild(btn);
 	}

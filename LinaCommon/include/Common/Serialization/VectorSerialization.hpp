@@ -57,6 +57,15 @@ namespace Lina
 				vec[i].SaveToStream(stream);
 		}
 
+		template <typename T> static inline void SaveToStream_OBJ(OStream& stream, const Vector<T*>& vec)
+		{
+			const uint32 size = static_cast<uint32>(vec.size());
+			stream << size;
+
+			for (uint32 i = 0; i < size; i++)
+				vec[i]->SaveToStream(stream);
+		}
+
 		template <typename T> static inline void LoadFromStream_PT(IStream& stream, Vector<T>& vec)
 		{
 			uint32 size = 0;
@@ -78,6 +87,21 @@ namespace Lina
 			for (uint32 i = 0; i < size; i++)
 				vec[i].LoadFromStream(stream);
 		}
+
+		template <typename T> static inline void LoadFromStream_OBJ(IStream& stream, Vector<T*>& vec)
+		{
+			uint32 size = 0;
+			stream >> size;
+
+			vec.clear();
+			vec.resize(size);
+			for (uint32 i = 0; i < size; i++)
+			{
+				vec[i] = new T();
+				vec[i]->LoadFromStream(stream);
+			}
+		}
+
 		template <typename T> static inline void LoadFromStream_OBJ(IStream& stream, Vector<T>& vec, uint32 version)
 		{
 			uint32 size = 0;

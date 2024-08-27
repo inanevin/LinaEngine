@@ -93,7 +93,7 @@ namespace Lina::Editor
 		w->SetAlignedPosX(0.0f);
 		w->SetAlignedSize(Vector2(1.0f, 0.0f));
 
-		m_tabRow->AddTab(w, w->GetDebugName());
+		m_tabRow->AddTab(w, w->GetWidgetProps().debugName);
 		m_tabRow->SetSelected(w);
 		m_panels.push_back(w);
 
@@ -138,11 +138,11 @@ namespace Lina::Editor
 			if (pair.second)
 			{
 				Widget*			  root		  = Editor::Get()->GetWindowPanelManager().GetPayloadRoot();
-				Widget*			  payload	  = CommonWidgets::BuildPayloadForPanel(root, pair.first->GetDebugName());
+				Widget*			  payload	  = CommonWidgets::BuildPayloadForPanel(root, pair.first->GetWidgetProps().debugName);
 				PanelPayloadData* payloadData = new PanelPayloadData();
 				payloadData->type			  = pair.first->GetType();
 				payloadData->subData		  = pair.first->GetSubData();
-				payloadData->panelName		  = pair.first->GetDebugName();
+				payloadData->panelName		  = pair.first->GetWidgetProps().debugName;
 				payloadData->panelSize		  = pair.first->GetSize();
 				payload->SetUserData(payloadData);
 				Editor::Get()->GetWindowPanelManager().CreatePayload(payload, PayloadType::DockedPanel, payload->GetSize());
@@ -440,11 +440,11 @@ namespace Lina::Editor
 	{
 
 		// Reset first
-		GetChildMargins() = {};
+		GetWidgetProps().childMargins = {};
 		Vector<Widget*> areas;
 		DockWidget::GetOtherDockWidgets(areas, {GetTypeID<DockArea>()});
 		for (auto* a : areas)
-			a->GetChildMargins() = {};
+			a->GetWidgetProps().childMargins = {};
 
 		// Let borders handle.
 		Vector<Widget*> borders;

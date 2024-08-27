@@ -45,8 +45,8 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedSize(Vector2(1.0f, 1.0f));
 		layout->SetAlignedPos(Vector2::Zero);
-		layout->GetChildMargins() = {.left = Theme::GetDef().baseIndent * 2.0f, .right = Theme::GetDef().baseIndent};
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childMargins = {.left = Theme::GetDef().baseIndent * 2.0f, .right = Theme::GetDef().baseIndent};
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		AddChild(layout);
 
 		m_text = m_manager->Allocate<Text>("Title");

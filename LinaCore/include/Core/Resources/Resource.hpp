@@ -47,6 +47,7 @@ namespace Lina
 	{
 	public:
 		Resource(const String& path, StringID sid, TypeID tid) : m_path(path), m_sid(sid), m_tid(tid){};
+		Resource(ResourceID id) : m_id(id){};
 		virtual ~Resource() = default;
 
 		virtual void LoadFromFile(const char* path){};
@@ -89,10 +90,11 @@ namespace Lina
 		}
 
 	protected:
-		String	  m_path  = "";
-		TypeID	  m_tid	  = 0;
-		StringID  m_sid	  = 0;
-		Bitmask32 m_flags = 0;
+		ResourceID m_id	   = 0;
+		String	   m_path  = "";
+		TypeID	   m_tid   = 0;
+		StringID   m_sid   = 0;
+		Bitmask32  m_flags = 0;
 	};
 
 	template <typename T> struct ResRef

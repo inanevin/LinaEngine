@@ -71,7 +71,7 @@ namespace Lina
 		Tween	   m_tween	  = {};
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(FoldLayout)
+	LINA_REFLECTWIDGET_BEGIN(FoldLayout, Layout)
 	LINA_REFLECTWIDGET_END(FoldLayout)
 
 } // namespace Lina

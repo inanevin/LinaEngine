@@ -32,12 +32,12 @@ SOFTWARE.
 #include "Common/StringID.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/Serializable.hpp"
+#include "Core/Resources/ResourceDirectory.hpp"
 
 namespace Lina
 {
 
 	// Version changes
-	// 1: added user data
 
 	class ProjectData : public Serializable
 	{
@@ -47,7 +47,7 @@ namespace Lina
 			bool isDirty = false;
 		};
 
-		static constexpr uint32 VERSION = 1;
+		static constexpr uint32 VERSION = 0;
 
 		virtual void SaveToStream(OStream& out) override;
 		virtual void LoadFromStream(IStream& in) override;
@@ -73,15 +73,26 @@ namespace Lina
 			return m_runtime.isDirty;
 		}
 
-		inline RawStream& GetUserData()
+		inline ResourceDirectory& GetResourceRoot()
 		{
-			return m_userData;
+			return m_rootDirectory;
+		}
+
+		inline ResourceID ConsumeResourceID()
+		{
+			const ResourceID id = m_resourceIDCounter;
+			m_resourceIDCounter++;
+			return id;
 		}
 
 	private:
-		Runtime	  m_runtime		= {};
-		String	  m_projectName = "";
-		RawStream m_userData;
+		Runtime			  m_runtime			  = {};
+		String			  m_projectName		  = "";
+		ResourceID		  m_resourceIDCounter = 1;
+		ResourceDirectory m_rootDirectory	  = {
+				.name	  = "Resources",
+				.isFolder = true,
+		};
 	};
 
 } // namespace Lina

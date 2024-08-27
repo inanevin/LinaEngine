@@ -50,11 +50,11 @@ namespace Lina
 		m_lvg				= drawer;
 		m_window			= window;
 		m_window->AddListener(this);
-		m_rootWidget = Allocate<Widget>();
-		m_rootWidget->SetDebugName("Root");
-		m_foregroundRoot = Allocate<Widget>();
-		m_foregroundRoot->SetDebugName("ForegroundRoot");
-		m_defaultFont = resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
+		m_rootWidget								 = Allocate<Widget>();
+		m_rootWidget->GetWidgetProps().debugName	 = "Root";
+		m_foregroundRoot							 = Allocate<Widget>();
+		m_foregroundRoot->GetWidgetProps().debugName = "ForegroundRoot";
+		m_defaultFont								 = resourceManager->GetResource<Font>(Theme::GetDef().defaultFont);
 	}
 
 	void WidgetManager::InitializeWidget(Widget* w)
@@ -82,7 +82,7 @@ namespace Lina
 				m_window->SetCursorType(FindCursorType(m_foregroundRoot));
 		}
 
-		m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
+		// m_foregroundRoot->SetDrawOrder(FOREGROUND_DRAW_ORDER);
 		PassPreTick(m_foregroundRoot);
 		PassPreTick(m_rootWidget);
 	}
@@ -103,13 +103,17 @@ namespace Lina
 		PassTick(m_rootWidget, delta);
 	}
 
-	void WidgetManager::AddToForeground(Widget* w)
+	void WidgetManager::AddToForeground(Widget* w, float foregroundDim)
 	{
+		SetForegroundDim(foregroundDim);
+		w->SetDrawOrder(FOREGROUND_DRAW_ORDER + static_cast<int32>(m_foregroundRoot->GetChildren().size()));
+		w->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
 		m_foregroundRoot->AddChild(w);
 	}
 
 	void WidgetManager::RemoveFromForeground(Widget* w)
 	{
+		w->GetFlags().Remove(WF_CONTROLS_DRAW_ORDER);
 		m_foregroundRoot->RemoveChild(w);
 	}
 
@@ -199,33 +203,24 @@ namespace Lina
 		// this is used for removing popups mostly.
 		if (inputAction == LinaGX::InputAction::Pressed && !m_foregroundRoot->GetChildren().empty())
 		{
-			bool anyForegroundHovered = false;
+			Vector<Widget*> removeList;
 			for (auto* c : m_foregroundRoot->GetChildren())
 			{
-				if (c->GetIsHovered())
-				{
-					anyForegroundHovered = true;
-					break;
-				}
-			}
-
-			if (!anyForegroundHovered)
-			{
-				Vector<Widget*> removeList;
-				for (auto* c : m_foregroundRoot->GetChildren())
+				if (!c->GetIsHovered())
 				{
 					if (!c->GetFlags().IsSet(WF_FOREGROUND_BLOCKER))
 						removeList.push_back(c);
 				}
-
-				for (auto* w : removeList)
-				{
-					RemoveFromForeground(w);
-					Deallocate(w);
-				}
-
-				return;
 			}
+
+			for (auto* w : removeList)
+			{
+				RemoveFromForeground(w);
+				Deallocate(w);
+			}
+
+			// if(!removeList.empty())
+			//     return;
 		}
 
 		if (button == LINAGX_MOUSE_0 && inputAction == LinaGX::InputAction::Pressed && m_controlOwner != nullptr && !m_controlOwner->GetIsHovered())
@@ -243,8 +238,13 @@ namespace Lina
 			// }
 		}
 
-		if (PassMouse(m_foregroundRoot, button, inputAction))
-			return;
+		Vector<Widget*> sortedChildren = m_foregroundRoot->GetChildren();
+		linatl::sort(sortedChildren.begin(), sortedChildren.end(), [](Widget* w, Widget* other) -> bool { return w->GetDrawOrder() > other->GetDrawOrder(); });
+		for (Widget* child : sortedChildren)
+		{
+			if (PassMouse(child, button, inputAction))
+				return;
+		}
 
 		PassMouse(m_rootWidget, button, inputAction);
 	}
@@ -302,8 +302,8 @@ namespace Lina
 
 		if (w->m_isHovered)
 		{
-			const Vector2 sz = m_lvg->CalculateTextSize(w->GetDebugName().c_str(), textOpts);
-			m_lvg->DrawTextNormal(w->GetDebugName().c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
+			const Vector2 sz = m_lvg->CalculateTextSize(w->GetWidgetProps().debugName.c_str(), textOpts);
+			m_lvg->DrawTextNormal(w->GetWidgetProps().debugName.c_str(), (mp + Vector2(15, 15 + m_debugDrawYOffset)).AsLVG(), textOpts, 0.0f, DEBUG_DRAW_ORDER);
 
 			const String  rectStr = "Pos: (" + UtilStr::FloatToString(w->GetPos().x, 1) + ", " + UtilStr::FloatToString(w->GetPos().y, 1) + ") Size: (" + UtilStr::FloatToString(w->GetSize().x, 1) + ", " + UtilStr::FloatToString(w->GetSize().y, 1) + ")";
 			const Vector2 sz2	  = m_lvg->CalculateTextSize(rectStr.c_str(), textOpts);
@@ -477,7 +477,7 @@ namespace Lina
 		w->m_executeNextFrame.clear();
 
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())
-			w->SetDrawOrder(w->GetParent()->GetDrawOrder() + w->GetDrawOrderIncrement());
+			w->SetDrawOrder(w->GetParent()->GetDrawOrder() + w->GetWidgetProps().drawOrderIncrement);
 
 		w->SetIsHovered();
 		w->CheckCustomTooltip();
@@ -513,7 +513,7 @@ namespace Lina
 			if (c->GetFlags().IsSet(WF_SIZE_ALIGN_X))
 			{
 				if (!Math::Equals(alignedSize.x, 0.0f, 0.0001f))
-					c->SetSizeX((w->GetSizeX() - (w->GetChildMargins().left + w->GetChildMargins().right)) * alignedSize.x);
+					c->SetSizeX((w->GetSizeX() - (w->GetWidgetProps().childMargins.left + w->GetWidgetProps().childMargins.right)) * alignedSize.x);
 				else
 					isExpandingX = true;
 			}
@@ -521,7 +521,7 @@ namespace Lina
 			if (c->GetFlags().IsSet(WF_SIZE_ALIGN_Y))
 			{
 				if (!Math::Equals(alignedSize.y, 0.0f, 0.0001f))
-					c->SetSizeY((w->GetSizeY() - (w->GetChildMargins().top + w->GetChildMargins().bottom)) * alignedSize.y);
+					c->SetSizeY((w->GetSizeY() - (w->GetWidgetProps().childMargins.top + w->GetWidgetProps().childMargins.bottom)) * alignedSize.y);
 				else
 					isExpandingY = true;
 			}
@@ -561,14 +561,14 @@ namespace Lina
 					continue;
 
 				if (idx != 0)
-					total += w->GetChildPadding();
+					total += w->GetWidgetProps().childPadding;
 
 				total += c->GetSizeX();
 				idx++;
 			}
 
 			// total *= w->GetAlignedSizeX();
-			w->SetSizeX(total + w->GetChildMargins().left + w->GetChildMargins().right);
+			w->SetSizeX(total + w->GetWidgetProps().childMargins.left + w->GetWidgetProps().childMargins.right);
 		}
 
 		if (w->GetFlags().IsSet(WF_SIZE_Y_TOTAL_CHILDREN))
@@ -581,14 +581,14 @@ namespace Lina
 					continue;
 
 				if (idx != 0)
-					total += w->GetChildPadding();
+					total += w->GetWidgetProps().childPadding;
 
 				total += c->GetSizeY();
 				idx++;
 			}
 
 			total *= w->GetAlignedSizeY();
-			w->SetSizeY(total + w->GetChildMargins().top + w->GetChildMargins().bottom);
+			w->SetSizeY(total + w->GetWidgetProps().childMargins.top + w->GetWidgetProps().childMargins.bottom);
 		}
 
 		if (w->GetFlags().IsSet(WF_SIZE_X_MAX_CHILDREN))
@@ -602,7 +602,7 @@ namespace Lina
 				max = Math::Max(max, c->GetSizeX());
 			}
 
-			w->SetSizeX(max * w->GetAlignedSizeX() + w->GetChildMargins().left + w->GetChildMargins().right);
+			w->SetSizeX(max * w->GetAlignedSizeX() + w->GetWidgetProps().childMargins.left + w->GetWidgetProps().childMargins.right);
 		}
 
 		if (w->GetFlags().IsSet(WF_SIZE_Y_MAX_CHILDREN))
@@ -615,7 +615,7 @@ namespace Lina
 
 				max = Math::Max(max, c->GetSizeY());
 			}
-			w->SetSizeY(max * w->GetAlignedSizeY() + w->GetChildMargins().top + w->GetChildMargins().bottom);
+			w->SetSizeY(max * w->GetAlignedSizeY() + w->GetWidgetProps().childMargins.top + w->GetWidgetProps().childMargins.bottom);
 		}
 
 		if (!expandingChildren.empty())
@@ -624,7 +624,7 @@ namespace Lina
 			const Vector2 end						 = w->GetEndFromMargins();
 			const Vector2 size						 = end - start;
 			const Vector2 totalAvailableSpace		 = size - totalNonExpandingSize;
-			const float	  totalPad					 = w->GetChildPadding() * static_cast<float>(w->GetChildren().size() - 1);
+			const float	  totalPad					 = w->GetWidgetProps().childPadding * static_cast<float>(w->GetChildren().size() - 1);
 			const Vector2 totalAvailableAfterPadding = totalAvailableSpace - Vector2(totalPad, totalPad);
 			const Vector2 targetSize				 = totalAvailableAfterPadding / (static_cast<float>(expandingChildren.size()));
 

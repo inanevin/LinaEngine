@@ -36,6 +36,8 @@ namespace Lina
 {
 	class Resource;
 
+	typedef uint64 ResourceID;
+
 	enum class PackageType
 	{
 		Default,

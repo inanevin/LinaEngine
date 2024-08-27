@@ -66,6 +66,7 @@ namespace Lina
 		};
 
 		Material(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Material>()){};
+		Material(ResourceID id) : Resource(id){};
 		virtual ~Material();
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;

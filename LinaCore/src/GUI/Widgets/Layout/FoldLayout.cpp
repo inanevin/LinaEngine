@@ -48,9 +48,9 @@ namespace Lina
 		for (auto* c : m_children)
 		{
 			c->CalculateSize(delta);
-			childrenTotalHeight += c->GetSizeY() + GetChildPadding();
+			childrenTotalHeight += c->GetSizeY() + GetWidgetProps().childPadding;
 		}
-		childrenTotalHeight -= GetChildPadding();
+		childrenTotalHeight -= GetWidgetProps().childPadding;
 
 		float targetY = 0.0f;
 
@@ -83,7 +83,7 @@ namespace Lina
 		{
 			c->SetPosX(x);
 			c->SetPosY(y);
-			y += c->GetSizeY() + GetChildPadding();
+			y += c->GetSizeY() + GetWidgetProps().childPadding;
 
 			if (idx != 0)
 			{

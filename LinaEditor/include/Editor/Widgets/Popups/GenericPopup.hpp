@@ -72,7 +72,7 @@ namespace Lina::Editor
 		DirectionalLayout* m_buttonsRow = nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(GenericPopup)
+	LINA_REFLECTWIDGET_BEGIN(GenericPopup, Editor)
 	LINA_REFLECTWIDGET_END(GenericPopup)
 
 } // namespace Lina::Editor

@@ -95,18 +95,9 @@ namespace Lina::Editor
 		RefreshFolderBrowser();
 	}
 
-	void PanelResources::Draw()
-	{
-		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background1.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-		Widget::Draw();
-	}
-
 	void PanelResources::LoadLayoutFromStream(IStream& stream)
 	{
-		float alignedBorder = 0.0f;
-		stream >> alignedBorder;
+        m_border->LoadFromStream(stream);
 		stream >> m_contentsSize;
 
 		uint32 favDirectoriesSize = 0;
@@ -120,10 +111,7 @@ namespace Lina::Editor
 				m_favouriteDirectories.push_back(str);
 		}
 
-		m_border->SetAlignedPosX(alignedBorder);
-		m_border->GetNegative()->SetAlignedSizeX(alignedBorder);
-		m_border->GetPositive()->SetAlignedPosX(alignedBorder);
-		m_border->GetPositive()->SetAlignedSizeX(1.0f - alignedBorder);
+		
 		const bool showAsGrid = m_contentsSize > LIST_CONTENTS_LIMIT;
 		RefreshFolderBrowser();
 		SwitchFileBrowserContents(showAsGrid);
@@ -131,7 +119,7 @@ namespace Lina::Editor
 
 	void PanelResources::SaveLayoutToStream(OStream& stream)
 	{
-		stream << m_border->GetAlignedPosX();
+        m_border->SaveToStream(stream);
 		stream << m_contentsSize;
 		stream << static_cast<uint32>(m_favouriteDirectories.size());
 		for (const String& str : m_favouriteDirectories)
@@ -164,8 +152,8 @@ namespace Lina::Editor
 			grid->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			grid->SetAlignedPos(Vector2::Zero);
 			grid->SetAlignedSize(Vector2::One);
-			grid->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-			grid->SetChildPadding(Theme::GetDef().baseIndent);
+			grid->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+			grid->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 			grid->GetProps().verticalPadding	= Theme::GetDef().baseIndent;
 			grid->GetWidgetProps().clipChildren = true;
 			scroll->AddChild(grid);
@@ -196,8 +184,8 @@ namespace Lina::Editor
 		topContents->SetAlignedPos(0.0f);
 		topContents->SetAlignedSizeX(1.0f);
 		topContents->SetFixedSizeY(Theme::GetDef().baseItemHeight * 2);
-		topContents->SetChildPadding(Theme::GetDef().baseIndent);
-		topContents->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
+		topContents->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		topContents->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
 
 		Button* sort = m_manager->Allocate<Button>("Sort");
 		sort->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
@@ -300,14 +288,14 @@ namespace Lina::Editor
 		bottom->SetAlignedPos(0.0f);
 		bottom->SetAlignedSizeX(1.0f);
 		bottom->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
-		bottom->SetChildPadding(Theme::GetDef().baseIndentInner);
-		bottom->GetChildMargins()				  = {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
+		bottom->GetWidgetProps().childPadding = Theme::GetDef().baseIndentInner;
+		bottom->GetWidgetProps().childMargins				  = {.left = Theme::GetDef().baseIndentInner, .right = Theme::GetDef().baseIndent};
 		bottom->GetWidgetProps().drawBackground	  = true;
 		bottom->GetWidgetProps().rounding		  = 0.0f;
 		bottom->GetWidgetProps().outlineThickness = 0.0f;
 		bottom->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
-		bottom->GetBorderThickness().top		  = Theme::GetDef().baseOutlineThickness;
-		bottom->SetBorderColor(Theme::GetDef().outlineColorBase);
+		bottom->GetWidgetProps().borderThickness.top		  = Theme::GetDef().baseOutlineThickness;
+        bottom->GetWidgetProps().colorBorders = Theme::GetDef().outlineColorBase;
 
 		Text* itemCount = m_manager->Allocate<Text>("ItemCount");
 		itemCount->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -473,8 +461,8 @@ namespace Lina::Editor
 		browser->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		browser->SetAlignedPos(Vector2::Zero);
 		browser->SetAlignedSize(Vector2(0.25f, 1.0f));
-		browser->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-		browser->SetChildPadding(Theme::GetDef().baseIndent);
+		browser->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		browser->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		AddChild(browser);
 
 		ItemController* itemController = m_manager->Allocate<ItemController>("ItemController");
@@ -573,7 +561,7 @@ namespace Lina::Editor
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSize(Vector2::One);
 		layout->GetWidgetProps().clipChildren = true;
-		layout->GetChildMargins().top = layout->GetChildMargins().bottom = Theme::GetDef().baseIndentInner;
+		layout->GetWidgetProps().childMargins.top = layout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndentInner;
 		scroll->AddChild(layout);
 		m_folderBrowserLayout = layout;
 
@@ -588,6 +576,9 @@ namespace Lina::Editor
 
 		DirectoryItem* root = m_editor->GetFileManager().GetRoot();
 
+        if(root == nullptr)
+            return;
+        
 		Widget* favWidget =
 			CommonWidgets::BuildDefaultFoldItem(m_folderBrowserLayout, &m_favouritesDummyData, Theme::GetDef().baseIndent, ICON_STAR, Theme::GetDef().accentSecondary, Locale::GetStr(LocaleStr::Favourites), !m_favouriteDirectories.empty(), &m_favsUnfolded);
 		m_folderBrowserController->AddItem(favWidget->GetChildren().front());

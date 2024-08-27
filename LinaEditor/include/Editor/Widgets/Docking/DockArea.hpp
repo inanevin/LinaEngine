@@ -88,7 +88,7 @@ namespace Lina::Editor
 		Vector<Pair<Panel*, bool>> m_panelKillList;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(DockArea)
+	LINA_REFLECTWIDGET_BEGIN(DockArea, Editor)
 	LINA_REFLECTWIDGET_END(DockArea)
 
 } // namespace Lina::Editor

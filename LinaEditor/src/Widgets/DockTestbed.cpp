@@ -37,7 +37,7 @@ namespace Lina::Editor
 
 	void DockTestbed::Construct()
 	{
-		SetDebugName("DockTestBed");
+		GetWidgetProps().debugName = "DockTestBed";
 		GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		SetAlignedPos(Vector2::Zero);
 		SetAlignedSize(Vector2::One);

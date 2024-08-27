@@ -31,10 +31,5 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-	void Panel::Draw()
-	{
-		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background1.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-	}
+
 } // namespace Lina::Editor

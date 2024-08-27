@@ -122,7 +122,7 @@ namespace Lina
 		bool				m_waitingOnClickedDelay = false;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Text)
+	LINA_REFLECTWIDGET_BEGIN(Text, Primitive)
 	LINA_REFLECTWIDGET_END(Text)
 
 } // namespace Lina

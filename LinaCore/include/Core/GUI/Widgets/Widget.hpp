@@ -116,6 +116,9 @@ namespace Lina
 			Color		color			   = Theme::GetDef().black;
 			Direction	direction		   = Direction::Center;
 			Vector<int> onlyRound;
+
+			virtual void SaveToStream(OStream& stream) const;
+			virtual void LoadFromStream(IStream& stream, uint32 version);
 		};
 
 		struct WidgetProps
@@ -134,6 +137,13 @@ namespace Lina
 			float				 colorInterpolateSpeed		 = 0.0f;
 			float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
 			float				 rounding					 = 0.0f;
+			float				 childPadding				 = 0.0f;
+			int32				 drawOrderIncrement			 = 0;
+			String				 tooltip					 = "";
+			String				 debugName					 = "";
+			TBLR				 childMargins				 = {};
+			TBLR				 borderThickness			 = {};
+			Color				 colorBorders				 = Theme::GetDef().outlineColorBase;
 			ColorGrad			 colorBackground			 = Theme::GetDef().background0;
 			ColorGrad			 colorOutline				 = Theme::GetDef().outlineColorBase;
 			ColorGrad			 colorOutlineControls		 = Theme::GetDef().outlineColorControls;
@@ -149,6 +159,9 @@ namespace Lina
 			Rect				 customClipRect				 = {};
 			ColorGrad			 _interpolatedColor			 = Color();
 			DropshadowProps		 dropshadow;
+
+			virtual void SaveToStream(OStream& stream) const;
+			virtual void LoadFromStream(IStream& stream, uint32 version);
 		};
 
 		Widget(Bitmask32 flags = 0) : m_flags(flags), m_tid(GetTypeID<Widget>()){};
@@ -217,16 +230,6 @@ namespace Lina
 
 		bool IsWidgetInHierarchy(Widget* widget);
 
-		inline int32 GetDrawOrderIncrement() const
-		{
-			return m_drawOrderIncrement;
-		}
-
-		inline void SetDrawOrderIncrement(int32 incr)
-		{
-			m_drawOrderIncrement = incr;
-		}
-
 		virtual float CalculateChildrenSize()
 		{
 			return 0.0f;
@@ -282,21 +285,6 @@ namespace Lina
 			return m_isHovered;
 		}
 
-		inline void SetDebugName(const String& dbgName)
-		{
-			m_debugName = dbgName;
-		}
-
-		inline const String& GetDebugName() const
-		{
-			return m_debugName;
-		}
-
-		inline void SetChildID(uint32 idx)
-		{
-			m_childID = idx;
-		}
-
 		inline const Vector<Widget*>& GetChildren() const
 		{
 			return m_children;
@@ -327,64 +315,24 @@ namespace Lina
 			return m_isPressed;
 		}
 
-		inline TBLR& GetBorderThickness()
-		{
-			return m_borderThickness;
-		}
-
-		inline void SetBorderColor(const Color& c)
-		{
-			m_colorBorders = c;
-		}
-
-		inline Color& GetBorderColor()
-		{
-			return m_colorBorders;
-		}
-
-		inline const String& GetTooltip() const
-		{
-			return m_tooltip;
-		}
-
-		inline void SetTooltip(const String& str)
-		{
-			m_tooltip = str;
-		}
-
 		inline void SetAnchorX(Anchor src)
 		{
-			m_posAlignSourceX = src;
+			m_anchorX = src;
 		}
 
 		inline void SetAnchorY(Anchor src)
 		{
-			m_posAlignSourceY = src;
+			m_anchorY = src;
 		}
 
 		inline Anchor GetPosAlignmentSourceX()
 		{
-			return m_posAlignSourceX;
+			return m_anchorX;
 		}
 
 		inline Anchor GetPosAlignmentSourceY()
 		{
-			return m_posAlignSourceY;
-		}
-
-		inline TBLR& GetChildMargins()
-		{
-			return m_childMargins;
-		}
-
-		inline float GetChildPadding() const
-		{
-			return m_childPadding;
-		}
-
-		inline void SetChildPadding(float padding)
-		{
-			m_childPadding = padding;
+			return m_anchorY;
 		}
 
 		inline bool GetIsDisabled() const
@@ -547,32 +495,24 @@ namespace Lina
 		Vector2						m_fixedSize				= Vector2::Zero;
 		Vector2						m_alignedPos			= Vector2::Zero;
 		Vector2						m_alignedSize			= Vector2::Zero;
-		String						m_tooltip				= "";
-		String						m_debugName				= "Widget";
-		Color						m_colorBorders			= Theme::GetDef().background2;
 		TypeID						m_tid					= 0;
 		int32						m_drawOrder				= 0;
-		uint32						m_childID				= 0;
 		Bitmask32					m_flags					= 0;
-		TBLR						m_childMargins			= {};
-		TBLR						m_borderThickness		= {};
-		Anchor						m_posAlignSourceX		= Anchor::Start;
-		Anchor						m_posAlignSourceY		= Anchor::Start;
+		Anchor						m_anchorX				= Anchor::Start;
+		Anchor						m_anchorY				= Anchor::Start;
 		bool						m_isHovered				= false;
 		bool						m_isPressed				= false;
 		bool						m_isDisabled			= false;
 		bool						m_isVisible				= true;
 		uint32						m_loadedVersion			= 0;
-		float						m_childPadding			= 0.0f;
 		float						m_scrollerOffset		= 0.0f;
 		void*						m_customTooltipUserData = nullptr;
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
-		int32						m_drawOrderIncrement	= 0;
 		WidgetProps					m_widgetProps			= {};
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Widget)
+	LINA_REFLECTWIDGET_BEGIN(Widget, General)
 	LINA_REFLECTWIDGET_END(Widget)
 
 } // namespace Lina

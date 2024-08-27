@@ -37,19 +37,17 @@ namespace Lina
 	{
 		uint32 version = 0;
 		in >> version;
+		in >> m_resourceIDCounter;
 		StringSerialization::LoadFromStream(in, m_projectName);
-
-		if (version > 0)
-		{
-			m_userData.LoadFromStream(in);
-		}
+		m_rootDirectory.LoadFromStream(in);
 	}
 
 	void ProjectData::SaveToStream(OStream& out)
 	{
 		out << VERSION;
+		out << m_resourceIDCounter;
 		StringSerialization::SaveToStream(out, m_projectName);
-		m_userData.SaveToStream(out);
+		m_rootDirectory.SaveToStream(out);
 	}
 
 	void ProjectData::ToRelativePath(const String& absPath, String& outRelative)

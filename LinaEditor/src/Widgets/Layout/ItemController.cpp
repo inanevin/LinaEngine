@@ -266,7 +266,7 @@ namespace Lina::Editor
 		{
 			for (Widget* w : m_selectedItems)
 			{
-				if (w->GetParent() && w->GetParent()->GetTID() == GetTypeID<FoldLayout>())
+				if (w->GetParent() && w->GetParent()->GetTID() == GetTypeID<FoldLayout>() && w->GetParent()->GetChildren().front() == w)
 				{
 					FoldLayout* f = static_cast<FoldLayout*>(w->GetParent());
 					f->SetIsUnfolded(false);
@@ -285,7 +285,7 @@ namespace Lina::Editor
 		{
 			for (Widget* w : m_selectedItems)
 			{
-				if (w->GetParent() && w->GetParent()->GetTID() == GetTypeID<FoldLayout>())
+				if (w->GetParent() && w->GetParent()->GetTID() == GetTypeID<FoldLayout>() && w->GetParent()->GetChildren().front() == w)
 				{
 					FoldLayout* f = static_cast<FoldLayout*>(w->GetParent());
 					f->SetIsUnfolded(true);
@@ -298,10 +298,10 @@ namespace Lina::Editor
 		{
 			for (Widget* w : m_selectedItems)
 			{
-				if (w->GetParent() && w->GetParent()->GetTID() == GetTypeID<FoldLayout>())
+				if (w->GetParent() && w->GetParent()->GetTID() == GetTypeID<FoldLayout>() && w->GetParent()->GetChildren().front() == w)
 				{
-					FoldLayout* f = static_cast<FoldLayout*>(w->GetParent());
-					f->SetIsUnfolded(!f->GetIsUnfolded());
+                    FoldLayout* f = static_cast<FoldLayout*>(w->GetParent());
+                    f->SetIsUnfolded(!f->GetIsUnfolded());
 				}
 			}
 			// interact
@@ -328,7 +328,7 @@ namespace Lina::Editor
 				{
 					FoldLayout* fold = nullptr;
 
-					if (item->GetParent()->GetTID() == GetTypeID<FoldLayout>())
+					if (item->GetParent()->GetTID() == GetTypeID<FoldLayout>() && item->GetParent()->GetChildren().front() == item)
 						fold = static_cast<FoldLayout*>(item->GetParent());
 
 					if (fold != nullptr)
@@ -447,6 +447,9 @@ namespace Lina::Editor
 	void ItemController::AddItem(Widget* widget)
 	{
 		m_allItems.push_back(widget);
+        
+        if(m_lastSelected == widget->GetUserData())
+            SelectItem(widget, true, false);
 	}
 
 	void ItemController::ClearItems()
@@ -503,6 +506,7 @@ namespace Lina::Editor
 		if (clearSelected)
 			m_selectedItems.clear();
 
+        m_lastSelected = item->GetUserData();
 		m_manager->GrabControls(this);
 		m_selectedItems.push_back(item);
 

@@ -48,6 +48,6 @@ namespace Lina::Editor
 	private:
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(DockTestbed)
+	LINA_REFLECTWIDGET_BEGIN(DockTestbed, Editor)
 	LINA_REFLECTWIDGET_END(DockTestbed)
 } // namespace Lina::Editor

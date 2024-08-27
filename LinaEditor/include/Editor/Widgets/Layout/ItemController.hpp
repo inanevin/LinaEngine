@@ -120,6 +120,7 @@ namespace Lina::Editor
 		}
 
 	private:
+		void*			m_lastSelected	 = nullptr;
 		bool			m_payloadAllowed = false;
 		FileMenu*		m_contextMenu	 = nullptr;
 		Properties		m_props			 = {};
@@ -129,6 +130,6 @@ namespace Lina::Editor
 		bool			m_payloadActive = false;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ItemController)
+	LINA_REFLECTWIDGET_BEGIN(ItemController, Editor)
 	LINA_REFLECTWIDGET_END(ItemController)
 } // namespace Lina::Editor

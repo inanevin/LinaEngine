@@ -83,7 +83,7 @@ namespace Lina::Editor
 		EntityWorld*	   m_currentWorld	 = nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(EditorRoot)
+	LINA_REFLECTWIDGET_BEGIN(EditorRoot, Editor)
 	LINA_REFLECTWIDGET_END(EditorRoot)
 
 } // namespace Lina::Editor

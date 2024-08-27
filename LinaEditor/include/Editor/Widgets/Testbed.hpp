@@ -44,6 +44,6 @@ namespace Lina::Editor
 
 	private:
 	};
-	LINA_REFLECTWIDGET_BEGIN(Testbed)
+	LINA_REFLECTWIDGET_BEGIN(Testbed, Editor)
 	LINA_REFLECTWIDGET_END(Testbed)
 } // namespace Lina::Editor

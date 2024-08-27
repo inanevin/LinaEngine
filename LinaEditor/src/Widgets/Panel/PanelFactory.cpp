@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelWorld.hpp"
 #include "Editor/Widgets/Panel/PanelResources.hpp"
 #include "Editor/Widgets/Panel/PanelPerformance.hpp"
+#include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -54,9 +55,22 @@ namespace Lina::Editor
 		case PanelType::Entities:
 			panel = source->GetWidgetManager()->Allocate<PanelEntities>("Entities");
 			break;
+		case PanelType::WidgetEditor:
+			panel = source->GetWidgetManager()->Allocate<PanelWidgetEditor>("Widget Editor");
+			break;
 		default:
 			break;
 		}
+
+		panel->GetWidgetProps().drawBackground		 = true;
+		panel->GetWidgetProps().outlineThickness	 = 0.0f;
+		panel->GetWidgetProps().rounding			 = 0.0f;
+		panel->GetWidgetProps().colorBackground		 = Theme::GetDef().background1;
+		panel->GetWidgetProps().dropshadow.enabled	 = true;
+		panel->GetWidgetProps().dropshadow.direction = Direction::Top;
+		panel->GetWidgetProps().dropshadow.isInner	 = true;
+		panel->GetWidgetProps().dropshadow.color.w	 = 0.25f;
+		panel->GetWidgetProps().dropshadow.steps	 = 8;
 
 		panel->GetFlags().Set(WF_CONTROL_MANAGER);
 		panel->Initialize();

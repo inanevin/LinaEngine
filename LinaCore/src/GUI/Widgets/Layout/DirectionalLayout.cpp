@@ -88,7 +88,7 @@ namespace Lina
 		if (m_children.empty())
 			return;
 
-		const float totalAvailableSize = (m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * GetChildPadding());
+		const float totalAvailableSize = (m_props.direction == DirectionOrientation::Horizontal ? m_sz.x : m_sz.y) - (static_cast<float>(m_children.size() - 1) * GetWidgetProps().childPadding);
 		const float perItemSize		   = totalAvailableSize / static_cast<float>(m_children.size());
 
 		float pos = m_props.direction == DirectionOrientation::Horizontal ? m_start.x : m_start.y;
@@ -105,7 +105,7 @@ namespace Lina
 				c->SetPosY(pos);
 			}
 
-			pos += perItemSize + GetChildPadding();
+			pos += perItemSize + GetWidgetProps().childPadding;
 		}
 	}
 
@@ -169,9 +169,9 @@ namespace Lina
 			const bool	lastItem	  = idx == m_children.size() - 1;
 
 			if (m_props.direction == DirectionOrientation::Horizontal)
-				x += incrementSize + (lastItem ? 0.0f : GetChildPadding());
+				x += incrementSize + (lastItem ? 0.0f : GetWidgetProps().childPadding);
 			else
-				y += incrementSize + (lastItem ? 0.0f : GetChildPadding());
+				y += incrementSize + (lastItem ? 0.0f : GetWidgetProps().childPadding);
 
 			idx++;
 		}
@@ -256,11 +256,11 @@ namespace Lina
 		for (auto* c : m_children)
 		{
 			if (m_props.direction == DirectionOrientation::Horizontal)
-				sz += c->GetSizeX() + GetChildPadding();
+				sz += c->GetSizeX() + GetWidgetProps().childPadding;
 			else
-				sz += c->GetSizeY() + GetChildPadding();
+				sz += c->GetSizeY() + GetWidgetProps().childPadding;
 		}
 
-		return sz - GetChildPadding();
+		return sz - GetWidgetProps().childPadding;
 	}
 } // namespace Lina

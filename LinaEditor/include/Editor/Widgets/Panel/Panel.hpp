@@ -49,7 +49,6 @@ namespace Lina::Editor
 		Panel(PanelType type, StringID subData) : m_panelType(type), m_subData(subData), Widget(){};
 		virtual ~Panel() = default;
 
-		virtual void Draw() override;
 		virtual void SaveLayoutToStream(OStream& stream){};
 		virtual void LoadLayoutFromStream(IStream& stream){};
 
@@ -68,7 +67,7 @@ namespace Lina::Editor
 		StringID  m_subData	  = 0;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Panel)
+	LINA_REFLECTWIDGET_BEGIN(Panel, Editor)
 	LINA_REFLECTWIDGET_END(Panel)
 
 } // namespace Lina::Editor

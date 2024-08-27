@@ -122,7 +122,7 @@ namespace Lina
 		Vector2 m_fillEnd	= Vector2::Zero;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Slider)
+	LINA_REFLECTWIDGET_BEGIN(Slider, Primitive)
 	LINA_REFLECTWIDGET_END(Slider)
 
 } // namespace Lina

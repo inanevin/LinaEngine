@@ -60,7 +60,7 @@ namespace Lina
 			return m_properties[sid];
 		}
 
-		bool HasProperty(StringID sid)
+		bool HasProperty(StringID sid) const
 		{
 			return m_properties.find(sid) != m_properties.end();
 		}
@@ -76,6 +76,16 @@ namespace Lina
 
 		virtual ~PropertyCacheManager()
 		{
+		}
+
+		template <typename T> bool HasProperty(StringID sid) const
+		{
+			const TypeID tid = GetTypeID<T>();
+			auto		 it	 = m_propertyCaches.find(tid);
+			if (it == m_propertyCaches.end())
+				return false;
+
+			return static_cast<PropertyCache<T>*>(it->second)->HasProperty(sid);
 		}
 
 		template <typename T> inline void AddProperty(StringID sid, T param)
@@ -95,7 +105,7 @@ namespace Lina
 			}
 		}
 
-		template <typename T> inline T GetProperty(StringID sid)
+		template <typename T> inline T GetProperty(StringID sid) const
 		{
 			const TypeID	   tid	 = GetTypeID<T>();
 			PropertyCacheBase* cache = m_propertyCaches.at(tid);
@@ -234,14 +244,24 @@ namespace Lina
 			m_fields[sid]					= f;
 		}
 
+		inline bool HasField(StringID sid) const
+		{
+			return m_fields.find(sid) != m_fields.end();
+		}
+
 		template <typename T> inline void AddProperty(StringID sid, T param)
 		{
 			m_propertyCacheManager.AddProperty<T>(sid, param);
 		}
 
-		template <typename T> inline T GetProperty(StringID sid)
+		template <typename T> inline T GetProperty(StringID sid) const
 		{
 			return m_propertyCacheManager.GetProperty<T>(sid);
+		}
+
+		template <typename T> bool HasProperty(StringID sid) const
+		{
+			return m_propertyCacheManager.HasProperty<T>(sid);
 		}
 
 		template <typename T> inline void AddFunction(StringID sid, Delegate<T>&& del)
@@ -302,6 +322,11 @@ namespace Lina
 		MetaType& Resolve(TypeID tid)
 		{
 			return m_metaData[tid];
+		}
+
+		const HashMap<TypeID, MetaType>& GetTypes() const
+		{
+			return m_metaData;
 		}
 
 	protected:

@@ -282,12 +282,15 @@ namespace Lina::Editor
 		panelArea->AddChild(dock);
 
 		Panel* panel = PanelFactory::CreatePanel(dock, type, subData);
-		dock->GetWindow()->SetTitle(panel->GetDebugName());
+		dock->GetWindow()->SetTitle(panel->GetWidgetProps().debugName);
 		dock->AddPanel(panel);
 	}
 
 	Widget* WindowPanelManager::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
 	{
+		if (m_subWindowCounter <= sid)
+			m_subWindowCounter = sid + 1;
+
 		const Vector2	usedSize = size.Clamp(m_editor->GetEditorRoot()->GetMonitorSize() * 0.1f, m_editor->GetEditorRoot()->GetMonitorSize());
 		LinaGX::Window* window	 = m_gfxManager->CreateApplicationWindow(sid, title.c_str(), pos, usedSize, (uint32)LinaGX::WindowStyle::BorderlessApplication, m_mainWindow);
 		CreateSurfaceRendererForWindow(window);

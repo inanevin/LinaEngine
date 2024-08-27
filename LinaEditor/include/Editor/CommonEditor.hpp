@@ -88,6 +88,7 @@ namespace Lina::Editor
 		Resources,
 		Performance,
 		World,
+		WidgetEditor,
 	};
 
 	enum class PayloadType

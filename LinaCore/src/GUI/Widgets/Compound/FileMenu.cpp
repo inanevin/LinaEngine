@@ -173,7 +173,7 @@ namespace Lina
 			btn->SetAlignedSizeX(1.0f);
 			btn->SetAlignedPosY(0.0f);
 			btn->SetAlignedSizeY(1.0f);
-			btn->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+			btn->GetWidgetProps().childMargins = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 
 			btn->GetWidgetProps().outlineThickness = 0.0f;
 			btn->GetWidgetProps().rounding		   = 0.0f;
@@ -217,7 +217,7 @@ namespace Lina
 		m_manager->AddToForeground(popup);
 		m_manager->SetForegroundDim(0.0f);
 
-		float totalHeight = popup->GetChildMargins().top + popup->GetChildMargins().bottom;
+		float totalHeight = popup->GetWidgetProps().childMargins.top + popup->GetWidgetProps().childMargins.bottom;
 
 		for (const auto& subItem : subItemData)
 		{
@@ -235,15 +235,15 @@ namespace Lina
 				it->GetWidgetProps().colorHovered			 = Theme::GetDef().accentPrimary1;
 				it->GetWidgetProps().colorDisabled			 = Color(0.0f, 0.0f, 0.0f, 0.0f);
 				it->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-				it->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+				it->GetWidgetProps().childMargins = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 			}
 			else
 				it->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
 
-			totalHeight += it->GetFixedSizeY() + popup->GetChildPadding();
+			totalHeight += it->GetFixedSizeY() + popup->GetWidgetProps().childPadding;
 
 			it->GetWidgetProps().colorBackground = Color(0, 0, 0, 0);
-			it->SetChildPadding(Theme::GetDef().baseIndent);
+			it->GetWidgetProps().childPadding	 = Theme::GetDef().baseIndent;
 			it->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 			it->SetAlignedSizeX(1.0f);
 			it->SetAlignedPosX(0.0f);
@@ -291,12 +291,12 @@ namespace Lina
 				size += text->GetSizeX();
 
 			if (altText)
-				size += altText->GetSizeX() + fmi->GetChildPadding();
+				size += altText->GetSizeX() + fmi->GetWidgetProps().childPadding;
 
 			maxTextSize = Math::Max(maxTextSize, size);
 		}
 
-		popup->SetFixedSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetChildMargins().left + popup->GetChildMargins().right) * 1.25f));
+		popup->SetFixedSizeX(Math::Max(Theme::GetDef().baseItemHeight * 8, (maxTextSize + popup->GetWidgetProps().childMargins.left + popup->GetWidgetProps().childMargins.right) * 1.25f));
 
 		const float windowHeight = static_cast<float>(m_lgxWindow->GetSize().y);
 

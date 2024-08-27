@@ -169,6 +169,8 @@ namespace Lina::Editor
 
 		for (ProjectManagerListener* listener : m_listeners)
 			listener->OnProjectOpened(m_currentProject);
+
+		m_editor->GetResourcePipeline().Initialize(m_editor);
 	}
 
 } // namespace Lina::Editor

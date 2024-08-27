@@ -70,7 +70,7 @@ namespace Lina::Editor
 		TabProperties m_tabProps = {};
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(IconTabs)
+	LINA_REFLECTWIDGET_BEGIN(IconTabs, Editor)
 	LINA_REFLECTWIDGET_END(IconTabs)
 
 } // namespace Lina::Editor

@@ -41,6 +41,7 @@ namespace Lina
 	class Widget;
 	class Text;
 	class DirectionalLayout;
+	class Button;
 
 	class WidgetUtility
 	{
@@ -54,6 +55,7 @@ namespace Lina
 
 		static DirectionalLayout* BuildLayoutForPopups(Widget* source);
 		static Text*			  BuildEditableText(Widget* source, bool horizontal, Delegate<void()>&& onTextChanged);
+		static Button*			  BuildIconTextButton(Widget* src, const String& icon, const String& text);
 
 		static bool CheckIfCanShrinkWidgets(const Vector<Widget*>& widgets, float absAmount, bool isX, float minSize);
 	};

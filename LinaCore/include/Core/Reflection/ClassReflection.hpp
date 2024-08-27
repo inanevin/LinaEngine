@@ -71,6 +71,9 @@ namespace Lina
 		}
 	};
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x)	 STRINGIFY(x)
+
 #define LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                      \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                                      \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);
@@ -108,7 +111,7 @@ namespace Lina
 			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<ClassName>, std::placeholders::_1));
 
 /* BEGINNING A REFLECTED WIDGET */
-#define LINA_REFLECTWIDGET_BEGIN(ClassName)                                                                                                                                                                                                                        \
+#define LINA_REFLECTWIDGET_BEGIN(ClassName, Category)                                                                                                                                                                                                              \
 	class ClassName;                                                                                                                                                                                                                                               \
 	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
 	{                                                                                                                                                                                                                                                              \
@@ -119,7 +122,10 @@ namespace Lina
 			if (reflected)                                                                                                                                                                                                                                         \
 				return;                                                                                                                                                                                                                                            \
 			reflected = true;                                                                                                                                                                                                                                      \
-			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateWidgetCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateWidgetCacheFunc<ClassName>));
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateWidgetCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateWidgetCacheFunc<ClassName>));                                                              \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<uint32>("WidgetIdent"_hs, 0);                                                                                                                                                              \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Title"_hs, TOSTRING(ClassName));                                                                                                                                            \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Category"_hs, TOSTRING(Category));
 
 /* BEGINNING A REFLECTED RESOURCE */
 #define LINA_REFLECTRESOURCE_BEGIN(ClassName)                                                                                                                                                                                                                      \

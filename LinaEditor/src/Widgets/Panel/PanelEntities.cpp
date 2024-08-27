@@ -54,8 +54,8 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSize(Vector2::One);
-		layout->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		AddChild(layout);
 
 		InputField* search = m_manager->Allocate<InputField>("Search");
@@ -92,14 +92,6 @@ namespace Lina::Editor
 
 	void PanelEntities::Tick(float dt)
 	{
-	}
-
-	void PanelEntities::Draw()
-	{
-		LinaVG::StyleOptions opts;
-		opts.color = Theme::GetDef().background1.AsLVG4();
-		m_lvg->DrawRect(m_rect.pos.AsLVG(), m_rect.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-		Widget::Draw();
 	}
 
 	bool PanelEntities::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)

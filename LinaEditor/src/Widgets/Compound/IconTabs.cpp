@@ -54,7 +54,7 @@ namespace Lina::Editor
 			};
 
 			if (!m_tabProps.tooltips.empty())
-				btn->SetTooltip(m_tabProps.tooltips[idx]);
+				btn->GetWidgetProps().tooltip = m_tabProps.tooltips[idx];
 
 			btn->GetText()->GetProps().font		   = Theme::GetDef().iconFont;
 			btn->GetText()->GetProps().textScale   = m_tabProps.iconScale;
@@ -74,8 +74,8 @@ namespace Lina::Editor
 
 			if (idx < static_cast<int32>(m_tabProps.icons.size() - 1))
 			{
-				btn->SetBorderColor(Theme::GetDef().black);
-				btn->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness * 2;
+				btn->GetWidgetProps().colorBorders			 = Theme::GetDef().black;
+				btn->GetWidgetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness * 2;
 			}
 
 			if (idx == 0)

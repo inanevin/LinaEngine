@@ -71,7 +71,7 @@ namespace Lina
 		void	SetClip(const Rect& r, const TBLR& margin);
 		void	UnsetClip();
 		void	AddToKillList(Widget* w);
-		void	AddToForeground(Widget* widget);
+		void	AddToForeground(Widget* widget, float foregroundDim = 0.0f);
 		void	RemoveFromForeground(Widget* widget);
 		void	Deallocate(Widget* widget);
 		void	GrabControls(Widget* widget);
@@ -134,12 +134,12 @@ namespace Lina
 			Widget* t		   = static_cast<Widget*>(cacheBase->Create(cacheIndex));
 			t->m_cacheIndex	   = cacheIndex;
 			LINA_ASSERT(t != nullptr, "");
-			t->SetDebugName(debugName);
-			t->m_lgxWindow		 = m_window;
-			t->m_manager		 = this;
-			t->m_resourceManager = m_resourceManagerV2;
-			t->m_tid			 = tid;
-			t->m_lvg			 = m_lvg;
+			t->GetWidgetProps().debugName = debugName;
+			t->m_lgxWindow				  = m_window;
+			t->m_manager				  = this;
+			t->m_resourceManager		  = m_resourceManagerV2;
+			t->m_tid					  = tid;
+			t->m_lvg					  = m_lvg;
 			t->Construct();
 			return t;
 		}

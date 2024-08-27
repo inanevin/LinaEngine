@@ -246,14 +246,14 @@ namespace Lina::Editor
 			const auto& widgets = m_adjacentWidgets[static_cast<int32>(Direction::Bottom)];
 
 			for (auto* w : widgets)
-				w->GetChildMargins().top = GetFixedSizeY();
+				w->GetWidgetProps().childMargins.top = GetFixedSizeY();
 		}
 		else if (m_orientation == DirectionOrientation::Vertical)
 		{
 			const auto& widgets = m_adjacentWidgets[static_cast<int32>(Direction::Right)];
 
 			for (auto* w : widgets)
-				w->GetChildMargins().left = GetFixedSizeX();
+				w->GetWidgetProps().childMargins.left = GetFixedSizeX();
 		}
 	}
 } // namespace Lina::Editor

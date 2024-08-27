@@ -77,7 +77,7 @@ namespace Lina
 
 				if (deltaPerc > 0.0f)
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets({m_positive}, percAmt, false, m_props.minSize))
+					if (WidgetUtility::CheckIfCanShrinkWidgets({m_positive}, percAmt, false, m_props.minSize * GetParent()->GetSizeY()))
 					{
 						m_positive->AddAlignedPosY(percAmt);
 						m_positive->AddAlignedSizeY(-percAmt);
@@ -87,7 +87,7 @@ namespace Lina
 				}
 				else
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets({m_negative}, percAmt, false, m_props.minSize))
+					if (WidgetUtility::CheckIfCanShrinkWidgets({m_negative}, percAmt, false, m_props.minSize * GetParent()->GetSizeY()))
 					{
 						m_negative->AddAlignedSizeY(-percAmt);
 						m_positive->AddAlignedPosY(-percAmt);
@@ -108,7 +108,7 @@ namespace Lina
 
 				if (deltaPerc > 0.0f)
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets({m_positive}, percAmt, true, m_props.minSize))
+					if (WidgetUtility::CheckIfCanShrinkWidgets({m_positive}, percAmt, true, m_props.minSize * GetParent()->GetSizeX()))
 					{
 						m_positive->AddAlignedPosX(percAmt);
 						m_positive->AddAlignedSizeX(-percAmt);
@@ -118,7 +118,7 @@ namespace Lina
 				}
 				else
 				{
-					if (WidgetUtility::CheckIfCanShrinkWidgets({m_negative}, percAmt, true, m_props.minSize))
+					if (WidgetUtility::CheckIfCanShrinkWidgets({m_negative}, percAmt, true, m_props.minSize * GetParent()->GetSizeX()))
 					{
 						m_negative->AddAlignedSizeX(-percAmt);
 						m_positive->AddAlignedPosX(-percAmt);
@@ -166,12 +166,27 @@ namespace Lina
 
 		if (m_props.orientation == DirectionOrientation::Horizontal)
 		{
-			m_positive->GetChildMargins().top += GetFixedSizeY();
+			m_positive->GetWidgetProps().childMargins.top += GetFixedSizeY();
 		}
 		else
 		{
-			m_positive->GetChildMargins().left += GetFixedSizeX();
+			m_positive->GetWidgetProps().childMargins.left += GetFixedSizeX();
 		}
 	}
+
+    void LayoutBorder::SaveToStream(OStream &stream) const
+    {
+        stream << GetAlignedPosX();
+    }
+
+    void LayoutBorder::LoadFromStream(IStream& stream)
+    {
+        float alignedBorder = 0.0f;
+        stream >> alignedBorder;
+        SetAlignedPosX(alignedBorder);
+        GetNegative()->SetAlignedSizeX(alignedBorder);
+        GetPositive()->SetAlignedPosX(alignedBorder);
+        GetPositive()->SetAlignedSizeX(1.0f - alignedBorder);
+    }
 
 } // namespace Lina

@@ -87,7 +87,7 @@ namespace Lina::Editor
 		IconTabs*		   m_iconTabs			   = nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ProjectSelector)
+	LINA_REFLECTWIDGET_BEGIN(ProjectSelector, Editor)
 	LINA_REFLECTWIDGET_END(ProjectSelector)
 
 } // namespace Lina::Editor

@@ -46,8 +46,8 @@ namespace Lina::Editor
 		GetWidgetProps().dropshadow.enabled	  = true;
 		GetWidgetProps().dropshadow.direction = Direction::Bottom;
 		GetWidgetProps().dropshadow.steps	  = 4;
-		SetChildPadding(Theme::GetDef().baseIndent);
-		GetChildMargins() = {.left = Theme::GetDef().baseIndent};
+		GetWidgetProps().childPadding		  = Theme::GetDef().baseIndent;
+		GetWidgetProps().childMargins		  = {.left = Theme::GetDef().baseIndent};
 	}
 
 	void WindowBar::Initialize()
@@ -106,6 +106,7 @@ namespace Lina::Editor
 
 		const Color targetColor				   = m_lgxWindow->HasFocus() ? Theme::GetDef().accentPrimary0 : Theme::GetDef().background2;
 		GetWidgetProps().colorBackground.start = Math::Lerp(GetWidgetProps().colorBackground.start, targetColor, delta * COLOR_SPEED);
+		GetWidgetProps().colorBackground.end   = GetWidgetProps().colorBackground.start;
 	}
 
 	bool WindowBar::OnMouse(uint32 button, LinaGX::InputAction act)

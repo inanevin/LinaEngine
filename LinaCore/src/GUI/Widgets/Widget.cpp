@@ -214,11 +214,6 @@ namespace Lina
 			if (m_widgetProps.pressedIsDifferentColor && m_isPressed)
 				opts.color = m_widgetProps.colorPressed.AsLVG();
 
-			if (m_debugName.compare("SearchFieldTop") == 0)
-			{
-				int a = 5;
-			}
-
 			if (GetIsDisabled())
 				opts.color = m_widgetProps.colorDisabled.AsLVG();
 
@@ -342,20 +337,92 @@ namespace Lina
 		DrawTooltip();
 	}
 
+	void Widget::DropshadowProps::SaveToStream(OStream& stream) const
+	{
+		stream << enabled << isInner;
+		stream << margin << thickness << rounding << drawOrderIncrement << steps;
+		color.SaveToStream(stream);
+		stream << static_cast<uint8>(direction);
+		VectorSerialization::SaveToStream_PT(stream, onlyRound);
+	}
+
+	void Widget::DropshadowProps::LoadFromStream(IStream& stream, uint32 version)
+	{
+		stream >> enabled >> isInner;
+		stream >> margin >> thickness >> rounding >> drawOrderIncrement >> steps;
+		color.LoadFromStream(stream);
+		uint8 dir = 0;
+		stream >> dir;
+		direction = static_cast<Direction>(dir);
+		VectorSerialization::LoadFromStream_PT(stream, onlyRound);
+	}
+
+	void Widget::WidgetProps::SaveToStream(OStream& stream) const
+	{
+		dropshadow.SaveToStream(stream);
+		stream << clipChildren << customClip << drawBackground << backgroundIsCentralGradient;
+		stream << interpolateColor << fitTexture << hoveredIsDifferentColor << pressedIsDifferentColor;
+		stream << activeTextureTiling << useSpecialTexture << outlineIsInner;
+		stream << colorInterpolateSpeed << outlineThickness << rounding << childPadding;
+		stream << drawOrderIncrement;
+		StringSerialization::SaveToStream(stream, tooltip);
+		StringSerialization::SaveToStream(stream, debugName);
+		stream << childMargins.top << childMargins.bottom << childMargins.left << childMargins.right;
+		stream << borderThickness.top << borderThickness.bottom << borderThickness.left << borderThickness.right;
+		colorBorders.SaveToStream(stream);
+		colorBackground.SaveToStream(stream);
+		colorOutline.SaveToStream(stream);
+		colorOutlineControls.SaveToStream(stream);
+		colorHovered.SaveToStream(stream);
+		colorPressed.SaveToStream(stream);
+		colorDisabled.SaveToStream(stream);
+		stream << static_cast<uint8>(colorBackgroundDirection);
+		stream << specialTexture;
+		textureTiling.SaveToStream(stream);
+		VectorSerialization::SaveToStream_PT(stream, onlyRound);
+		customClipRect.SaveToStream(stream);
+	}
+
+	void Widget::WidgetProps::LoadFromStream(IStream& stream, uint32 version)
+	{
+		dropshadow.LoadFromStream(stream, version);
+		stream >> clipChildren >> customClip >> drawBackground >> backgroundIsCentralGradient;
+		stream >> interpolateColor >> fitTexture >> hoveredIsDifferentColor >> pressedIsDifferentColor;
+		stream >> activeTextureTiling >> useSpecialTexture >> outlineIsInner;
+		stream >> colorInterpolateSpeed >> outlineThickness >> rounding >> childPadding;
+		stream >> drawOrderIncrement;
+		StringSerialization::LoadFromStream(stream, tooltip);
+		StringSerialization::LoadFromStream(stream, debugName);
+		stream >> childMargins.top >> childMargins.bottom >> childMargins.left >> childMargins.right;
+		stream >> borderThickness.top >> borderThickness.bottom >> borderThickness.left >> borderThickness.right;
+		colorBorders.LoadFromStream(stream);
+		colorBackground.LoadFromStream(stream);
+		colorOutline.LoadFromStream(stream);
+		colorOutlineControls.LoadFromStream(stream);
+		colorHovered.LoadFromStream(stream);
+		colorPressed.LoadFromStream(stream);
+		colorDisabled.LoadFromStream(stream);
+		uint8 bgDir = 0;
+		stream >> bgDir;
+		colorBackgroundDirection = static_cast<DirectionOrientation>(bgDir);
+		stream >> specialTexture;
+		textureTiling.LoadFromStream(stream);
+		VectorSerialization::LoadFromStream_PT(stream, onlyRound);
+		customClipRect.LoadFromStream(stream);
+	}
+
 	void Widget::SaveToStream(OStream& stream) const
 	{
 		stream << static_cast<uint32>(WIDGET_VERSION);
-		stream << m_tid << m_childPadding;
+		stream << m_tid;
+		m_widgetProps.SaveToStream(stream);
 		m_flags.SaveToStream(stream);
-		m_childMargins.SaveToStream(stream);
-		m_borderThickness.SaveToStream(stream);
 		m_rect.SaveToStream(stream);
 		m_alignedPos.SaveToStream(stream);
 		m_alignedSize.SaveToStream(stream);
 		m_fixedSize.SaveToStream(stream);
-		StringSerialization::SaveToStream(stream, m_tooltip);
-		StringSerialization::SaveToStream(stream, m_debugName);
-		stream << static_cast<uint8>(m_posAlignSourceX) << static_cast<uint8>(m_posAlignSourceY);
+
+		stream << static_cast<uint8>(m_anchorX) << static_cast<uint8>(m_anchorY);
 
 		const uint32 childSz = static_cast<uint32>(m_children.size());
 
@@ -372,20 +439,18 @@ namespace Lina
 	void Widget::LoadFromStream(IStream& stream)
 	{
 		stream >> m_loadedVersion;
-		stream >> m_tid >> m_childPadding;
+		stream >> m_tid;
+		m_widgetProps.LoadFromStream(stream, m_loadedVersion);
 		m_flags.LoadFromStream(stream);
-		m_childMargins.LoadFromStream(stream);
-		m_borderThickness.LoadFromStream(stream);
 		m_rect.LoadFromStream(stream);
 		m_alignedPos.LoadFromStream(stream);
 		m_alignedSize.LoadFromStream(stream);
 		m_fixedSize.LoadFromStream(stream);
-		StringSerialization::LoadFromStream(stream, m_tooltip);
-		StringSerialization::LoadFromStream(stream, m_debugName);
+
 		uint8 posAlignSourceX = 0, posAlignSourceY = 0;
 		stream >> posAlignSourceX >> posAlignSourceY;
-		m_posAlignSourceX = static_cast<Anchor>(posAlignSourceX);
-		m_posAlignSourceY = static_cast<Anchor>(posAlignSourceY);
+		m_anchorX = static_cast<Anchor>(posAlignSourceX);
+		m_anchorY = static_cast<Anchor>(posAlignSourceY);
 
 		uint32 childSz = 0;
 		stream >> childSz;
@@ -403,37 +468,37 @@ namespace Lina
 	void Widget::DrawBorders()
 	{
 		LinaVG::StyleOptions border;
-		border.color = m_colorBorders.AsLVG4();
+		border.color = m_widgetProps.colorBorders.AsLVG4();
 
-		if (!Math::Equals(m_borderThickness.left, 0.0f, 0.5f))
+		if (!Math::Equals(m_widgetProps.borderThickness.left, 0.0f, 0.5f))
 		{
 			const Vector2 start = m_rect.pos;
 			const Vector2 end	= start + Vector2(0, m_rect.size.y);
-			border.thickness	= m_borderThickness.left;
+			border.thickness	= m_widgetProps.borderThickness.left;
 			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 		}
 
-		if (!Math::Equals(m_borderThickness.right, 0.0f, 0.5f))
+		if (!Math::Equals(m_widgetProps.borderThickness.right, 0.0f, 0.5f))
 		{
 			const Vector2 start = m_rect.pos + Vector2(m_rect.size.x, 0.0f);
 			const Vector2 end	= start + Vector2(0, m_rect.size.y);
-			border.thickness	= m_borderThickness.right;
+			border.thickness	= m_widgetProps.borderThickness.right;
 			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 		}
 
-		if (!Math::Equals(m_borderThickness.top, 0.0f, 0.5f))
+		if (!Math::Equals(m_widgetProps.borderThickness.top, 0.0f, 0.5f))
 		{
 			const Vector2 start = m_rect.pos;
 			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
-			border.thickness	= m_borderThickness.top;
+			border.thickness	= m_widgetProps.borderThickness.top;
 			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 		}
 
-		if (!Math::Equals(m_borderThickness.bottom, 0.0f, 0.5f))
+		if (!Math::Equals(m_widgetProps.borderThickness.bottom, 0.0f, 0.5f))
 		{
 			const Vector2 start = m_rect.pos + Vector2(0.0f, m_rect.size.y);
 			const Vector2 end	= start + Vector2(m_rect.size.x, 0.0f);
-			border.thickness	= m_borderThickness.bottom;
+			border.thickness	= m_widgetProps.borderThickness.bottom;
 			m_lvg->DrawLine(start.AsLVG(), end.AsLVG(), border, LinaVG::LineCapDirection::None, 0.0f, m_drawOrder);
 		}
 	}
@@ -482,7 +547,7 @@ namespace Lina
 			return;
 		}
 
-		const String& tooltip = GetTooltip();
+		const String& tooltip = GetWidgetProps().tooltip;
 
 		if (tooltip.empty())
 			return;
@@ -536,12 +601,12 @@ namespace Lina
 
 	Vector2 Widget::GetStartFromMargins()
 	{
-		return m_rect.pos + Vector2(m_childMargins.left, m_childMargins.top);
+		return m_rect.pos + Vector2(m_widgetProps.childMargins.left, m_widgetProps.childMargins.top);
 	}
 
 	Vector2 Widget::GetEndFromMargins()
 	{
-		return m_rect.GetEnd() - Vector2(m_childMargins.right, m_childMargins.bottom);
+		return m_rect.GetEnd() - Vector2(m_widgetProps.childMargins.right, m_widgetProps.childMargins.bottom);
 	}
 
 	void Widget::SetIsDisabled(bool isDisabled)

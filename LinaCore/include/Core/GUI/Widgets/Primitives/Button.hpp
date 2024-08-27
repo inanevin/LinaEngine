@@ -90,7 +90,7 @@ namespace Lina
 		bool	   m_lastHoverStatus = false;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Button)
+	LINA_REFLECTWIDGET_BEGIN(Button, Primitive)
 	LINA_REFLECTWIDGET_END(Button)
 
 } // namespace Lina

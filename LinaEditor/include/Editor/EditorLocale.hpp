@@ -113,6 +113,11 @@ namespace Lina::Editor
 		MaximizeRestore,
 		Close,
 		Rename,
+		WidgetEditor,
+		Import,
+		New,
+		GUIWidget,
+		SelectWidget,
 	};
 
 	class Locale

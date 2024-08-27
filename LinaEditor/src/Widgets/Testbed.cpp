@@ -65,9 +65,9 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedPos(Vector2::Zero);
 		layout->SetAlignedSize(Vector2::One);
-		layout->GetProps().direction = DirectionOrientation::Vertical;
-		layout->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndent);
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		layout->GetProps().direction		  = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		AddChild(layout);
 
 		auto setFlags = [&](Widget* w, bool isVertical = false) {

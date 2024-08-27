@@ -68,9 +68,9 @@ namespace Lina::Editor
 
 		DirectionalLayout* mem = BuildContentLayout(Locale::GetStr(LocaleStr::Memory));
 
-		tabRow->AddTab(cpu, cpu->GetDebugName());
-		tabRow->AddTab(gpu, gpu->GetDebugName());
-		tabRow->AddTab(mem, mem->GetDebugName());
+		tabRow->AddTab(cpu, cpu->GetWidgetProps().debugName);
+		tabRow->AddTab(gpu, gpu->GetWidgetProps().debugName);
+		tabRow->AddTab(mem, mem->GetWidgetProps().debugName);
 		m_tabContents.push_back(cpu);
 		m_tabContents.push_back(gpu);
 		m_tabContents.push_back(mem);
@@ -128,9 +128,9 @@ namespace Lina::Editor
 		content->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		content->SetAlignedPosX(0.0f);
 		content->SetAlignedSize(Vector2(1.0f, 0.0f));
-		content->GetProps().direction = DirectionOrientation::Vertical;
-		content->GetChildMargins()	  = TBLR::Eq(Theme::GetDef().baseIndent);
-		content->SetChildPadding(Theme::GetDef().baseIndent);
+		content->GetProps().direction		   = DirectionOrientation::Vertical;
+		content->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		content->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		return content;
 	}
 

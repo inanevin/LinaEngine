@@ -131,7 +131,7 @@ namespace Lina
 		LinaVG::LinaVGFont*	   m_lvgFont			= nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Icon)
+	LINA_REFLECTWIDGET_BEGIN(Icon, Primitive)
 	LINA_REFLECTWIDGET_END(Icon)
 
 } // namespace Lina

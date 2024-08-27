@@ -66,14 +66,14 @@ namespace Lina::Editor
 		titleBar->GetProps().direction = DirectionOrientation::Horizontal;
 		titleBar->SetAlignedSizeX(1.0f);
 		titleBar->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		titleBar->SetChildPadding(Theme::GetDef().baseIndent);
+		titleBar->GetWidgetProps().childPadding				   = Theme::GetDef().baseIndent;
 		titleBar->GetWidgetProps().drawBackground			   = true;
 		titleBar->GetWidgetProps().backgroundIsCentralGradient = true;
 		titleBar->GetWidgetProps().outlineThickness			   = 0.0f;
 		titleBar->GetWidgetProps().rounding					   = 0.0f;
 		titleBar->GetWidgetProps().colorBackground.start	   = Theme::GetDef().background0;
 		titleBar->GetWidgetProps().colorBackground.end		   = Theme::GetDef().accentPrimary0;
-		titleBar->GetChildMargins().left					   = Theme::GetDef().baseIndent;
+		titleBar->GetWidgetProps().childMargins.left		   = Theme::GetDef().baseIndent;
 		AddChild(titleBar);
 
 		Icon* lina			  = m_manager->Allocate<Icon>("Lina");
@@ -81,10 +81,10 @@ namespace Lina::Editor
 		lina->GetFlags().Set(WF_POS_ALIGN_Y);
 		lina->SetAlignedPosY(0.5f);
 		lina->SetAnchorY(Anchor::Center);
-		lina->GetProps().color.start = Theme::GetDef().accentPrimary0;
-		lina->GetProps().color.end	 = Theme::GetDef().accentPrimary1;
-		lina->GetProps().isDynamic	 = false;
-		lina->SetTooltip(tooltip);
+		lina->GetProps().color.start   = Theme::GetDef().accentPrimary0;
+		lina->GetProps().color.end	   = Theme::GetDef().accentPrimary1;
+		lina->GetProps().isDynamic	   = false;
+		lina->GetWidgetProps().tooltip = tooltip;
 		titleBar->AddChild(lina);
 
 		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
@@ -115,8 +115,8 @@ namespace Lina::Editor
 		projectName->SetAlignedPosY(0.5f);
 		projectName->SetAnchorY(Anchor::Center);
 		projectName->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		projectName->GetChildMargins() = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		projectName->SetChildPadding(Theme::GetDef().baseIndent);
+		projectName->GetWidgetProps().childMargins	   = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		projectName->GetWidgetProps().childPadding	   = Theme::GetDef().baseIndent;
 		projectName->GetWidgetProps().drawBackground   = true;
 		projectName->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
 		projectName->GetWidgetProps().outlineThickness = 0.0f;
@@ -160,8 +160,8 @@ namespace Lina::Editor
 		panelArea->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		panelArea->SetAlignedPosX(0.0f);
 		panelArea->SetAlignedSize(Vector2(1.0f, 0.0f));
-		// panelArea->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndentInner);
-		// panelArea->GetChildMargins().top = 0.0f;
+		// panelArea->GetWidgetProps().childMargins	 = TBLR::Eq(Theme::GetDef().baseIndentInner);
+		// panelArea->GetWidgetProps().childMargins.top = 0.0f;
 		AddChild(panelArea);
 
 		DirectionalLayout::Construct();
@@ -278,6 +278,12 @@ namespace Lina::Editor
 			return true;
 		}
 
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::WidgetEditor)))
+		{
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::WidgetEditor, 0, this);
+			return true;
+		}
+
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Performance)))
 		{
 			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Performance, 0, this);
@@ -340,6 +346,7 @@ namespace Lina::Editor
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Resources)},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Performance)},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::WidgetEditor)},
 				FileMenuItem::Data{.isDivider = true},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::ResetLayout)},
 			};

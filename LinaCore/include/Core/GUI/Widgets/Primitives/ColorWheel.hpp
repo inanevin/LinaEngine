@@ -63,6 +63,6 @@ namespace Lina
 		Vector2	   m_pointerPos = Vector2::Zero;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ColorWheel)
+	LINA_REFLECTWIDGET_BEGIN(ColorWheel, Primitive)
 	LINA_REFLECTWIDGET_END(ColorWheel)
 } // namespace Lina

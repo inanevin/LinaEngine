@@ -75,6 +75,7 @@ src/Reflection/ReflectionSystem.cpp
 
 # Resources
 src/Resources/CommonResources.cpp
+src/Resources/ResourceDirectory.cpp
 src/Resources/ResourceManager.cpp
 src/Resources/ResourceCache.cpp
 src/Resources/Resource.cpp
@@ -148,6 +149,7 @@ include/Core/Reflection/ReflectionSystem.hpp
 
 # Resources
 include/Core/Resources/CommonResources.hpp
+include/Core/Resources/ResourceDirectory.hpp
 include/Core/Resources/ResourceManager.hpp
 include/Core/Resources/ResourceManagerListener.hpp
 include/Core/Resources/ResourceCache.hpp

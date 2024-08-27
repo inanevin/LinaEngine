@@ -152,7 +152,7 @@ namespace Lina
 		shape->SetAlignedSizeX(1.0f);
 		shape->SetFixedSizeY(Theme::GetDef().baseItemHeight * heightMultiplier);
 		m_background->AddChild(shape);
-		shape->GetChildMargins().left = Theme::GetDef().baseIndent;
+		shape->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
 
 		Text* text			  = m_manager->Allocate<Text>("Text");
 		text->GetProps().text = title;
@@ -170,8 +170,8 @@ namespace Lina
 		layout->SetAlignedPosX(0.0f);
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight * heightMultiplier);
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
-		layout->GetChildMargins()				  = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		layout->GetWidgetProps().childPadding	  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins	  = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
 		layout->GetWidgetProps().drawBackground	  = true;
 		layout->GetWidgetProps().rounding		  = 0.0f;
 		layout->GetWidgetProps().outlineThickness = 0.0f;
@@ -179,7 +179,7 @@ namespace Lina
 		layout->SetUserData(userData);
 		m_items.push_back(layout);
 
-		float totalSize = layout->GetChildMargins().left + layout->GetChildMargins().right;
+		float totalSize = layout->GetWidgetProps().childMargins.left + layout->GetWidgetProps().childMargins.right;
 
 		Icon* icon			  = m_manager->Allocate<Icon>("IconBG");
 		icon->GetProps().icon = m_props.selectedIcon;
@@ -189,7 +189,7 @@ namespace Lina
 		icon->GetProps().color = isSelected ? Theme::GetDef().accentPrimary1 : Theme::GetDef().foreground0;
 		icon->CalculateIconSize();
 		layout->AddChild(icon);
-		totalSize += icon->GetSizeX() + layout->GetChildPadding();
+		totalSize += icon->GetSizeX() + layout->GetWidgetProps().childPadding;
 
 		Text* txt			 = m_manager->Allocate<Text>("Text");
 		txt->GetProps().text = title;

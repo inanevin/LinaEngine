@@ -78,8 +78,8 @@ namespace Lina::Editor
 		slider->SetAlignedPosY(0.0f);
 		slider->GetProps().onValueChanged = [this](float val) { Recalculate(true); };
 
-		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("ColorComponentRow");
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		DirectionalLayout* layout			  = m_manager->Allocate<DirectionalLayout>("ColorComponentRow");
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		layout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_POS_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetAlignedPosX(0.0f);
@@ -133,9 +133,9 @@ namespace Lina::Editor
 		slider->GetWidgetProps().drawBackground = !isHue;
 
 		// Layout
-		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("SaturationValueLayout");
-		layout->GetProps().direction = DirectionOrientation::Vertical;
-		layout->SetChildPadding(Theme::GetDef().baseIndent);
+		DirectionalLayout* layout			  = m_manager->Allocate<DirectionalLayout>("SaturationValueLayout");
+		layout->GetProps().direction		  = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		layout->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_USE_FIXED_SIZE_X);
 		layout->SetFixedSizeX(Theme::GetDef().baseItemHeight * 2.0f);
 		layout->SetAlignedPosY(0.0f);
@@ -158,9 +158,9 @@ namespace Lina::Editor
 		const float baseItemHeight = Theme::GetDef().baseItemHeight;
 
 		// Top row
-		m_topRow							  = m_manager->Allocate<DirectionalLayout>("TopRow");
-		m_topRow->GetProps().direction		  = DirectionOrientation::Horizontal;
-		m_topRow->GetBorderThickness().bottom = Theme::GetDef().baseOutlineThickness * 2.0f;
+		m_topRow										  = m_manager->Allocate<DirectionalLayout>("TopRow");
+		m_topRow->GetProps().direction					  = DirectionOrientation::Horizontal;
+		m_topRow->GetWidgetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness * 2.0f;
 		m_topRow->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
 		m_topRow->SetAlignedPos(Vector2::Zero);
 		AddChild(m_topRow);
@@ -169,7 +169,7 @@ namespace Lina::Editor
 		topRowLeftSide->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_X_COPY_Y);
 		topRowLeftSide->SetAlignedPosY(0.0f);
 		topRowLeftSide->SetAlignedSizeY(1.0f);
-		topRowLeftSide->GetChildMargins() = TBLR::Eq(Theme::GetDef().baseIndent);
+		topRowLeftSide->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
 		m_topRow->AddChild(topRowLeftSide);
 
 		// Wheel.
@@ -183,9 +183,9 @@ namespace Lina::Editor
 		topRowLeftSide->AddChild(m_wheel);
 
 		// HSV
-		DirectionalLayout* hsvRow		  = m_manager->Allocate<DirectionalLayout>("HSVRow");
-		hsvRow->GetBorderThickness().left = Theme::GetDef().baseOutlineThickness;
-		hsvRow->GetChildMargins()		  = TBLR::Eq(Theme::GetDef().baseIndent);
+		DirectionalLayout* hsvRow					  = m_manager->Allocate<DirectionalLayout>("HSVRow");
+		hsvRow->GetWidgetProps().borderThickness.left = Theme::GetDef().baseOutlineThickness;
+		hsvRow->GetWidgetProps().childMargins		  = TBLR::Eq(Theme::GetDef().baseIndent);
 		hsvRow->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
 		hsvRow->SetAlignedSize(Vector2(0.0f, 1.0f));
 		hsvRow->SetAlignedPosY(0.0f);
@@ -213,10 +213,10 @@ namespace Lina::Editor
 		hsvRow->AddChild(m_valueComponent.layout);
 
 		// Bottom Col
-		m_bottomColumn						 = m_manager->Allocate<DirectionalLayout>("BottomRow");
-		m_bottomColumn->GetProps().direction = DirectionOrientation::Vertical;
-		m_bottomColumn->GetChildMargins()	 = TBLR::Eq(Theme::GetDef().baseIndent);
-		m_bottomColumn->SetChildPadding(Theme::GetDef().baseIndent);
+		m_bottomColumn								  = m_manager->Allocate<DirectionalLayout>("BottomRow");
+		m_bottomColumn->GetProps().direction		  = DirectionOrientation::Vertical;
+		m_bottomColumn->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		m_bottomColumn->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		AddChild(m_bottomColumn);
 
 		// Hex and old/new color fields

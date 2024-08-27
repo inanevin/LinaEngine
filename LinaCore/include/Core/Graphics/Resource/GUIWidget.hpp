@@ -38,6 +38,8 @@ namespace Lina
 
 	public:
 		GUIWidget(const String& path, StringID sid) : Resource(path, sid, GetTypeID<GUIWidget>()){};
+		GUIWidget(ResourceID id = 0) : Resource(id){};
+
 		virtual ~GUIWidget();
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
