@@ -112,12 +112,17 @@ namespace Lina
 
 	void Font::LoadFromStream(IStream& stream)
 	{
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
 		m_meta.LoadFromStream(stream);
 		VectorSerialization::LoadFromStream_PT(stream, m_file);
 	}
 
 	void Font::SaveToStream(OStream& stream) const
 	{
+		stream << VERSION;
+		stream << m_id;
 		m_meta.SaveToStream(stream);
 		VectorSerialization::SaveToStream_PT(stream, m_file);
 	}

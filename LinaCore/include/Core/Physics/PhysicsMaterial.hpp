@@ -29,70 +29,23 @@ SOFTWARE.
 #pragma once
 
 #include "Core/Resources/Resource.hpp"
-#include "Common/Data/Vector.hpp"
-#include "Common/Math/AABB.hpp"
-#include "Core/Graphics/Data/ModelMaterial.hpp"
-
-namespace LinaGX
-{
-	struct ModelNode;
-}
 
 namespace Lina
 {
-	class ModelNode;
-	class MeshDefault;
-	class MeshManager;
+	class EntityWorld;
 
-	class Model : public Resource
+	class PhysicsMaterial : public Resource
 	{
 	public:
-        
-        static constexpr uint32 VERSION = 0;
-        
-		Model(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Model>()){};
-        Model(ResourceID id) : Resource(id) {};
-		virtual ~Model();
+		static constexpr uint32 VERSION = 0;
+
+		PhysicsMaterial(ResourceID id) : Resource(id){};
+		~PhysicsMaterial() = default;
 
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		void		 UploadNodes(MeshManager& meshManager);
-
-		ModelNode* GetFirstNodeWMesh();
-
-		inline const Vector<ModelNode*>& GetRootNodes() const
-		{
-			return m_rootNodes;
-		}
-
-		inline MeshDefault* GetMesh(uint32 index) const
-		{
-			return m_meshes.at(index);
-		}
-
-		inline const Vector<MeshDefault*>& GetMeshes() const
-		{
-			return m_meshes;
-		}
-
-		inline const AABB& GetAABB() const
-		{
-			return m_totalAABB;
-		}
 
 	private:
-		void	   ProcessNode(LinaGX::ModelNode* lgxNode, ModelNode* parent);
-		void	   UploadNode(MeshManager& meshManager, ModelNode* node);
-		ModelNode* GetNodeWithMesh(ModelNode* root);
-
-	private:
-		ALLOCATOR_BUCKET_MEM;
-		Vector<MeshDefault*>  m_meshes;
-		Vector<ModelNode*>	  m_rootNodes;
-		Vector<ModelMaterial> m_materials;
-		AABB				  m_totalAABB;
 	};
-	LINA_REFLECTRESOURCE_BEGIN(Model);
-	LINA_REFLECTRESOURCE_END(Model);
 } // namespace Lina

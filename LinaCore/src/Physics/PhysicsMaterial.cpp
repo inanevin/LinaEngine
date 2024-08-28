@@ -26,35 +26,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "CommonResources.hpp"
+#include "Core/Physics/PhysicsMaterial.hpp"
+#include "Common/Serialization/Serialization.hpp"
+#include "Common/Data/Streams.hpp"
 
 namespace Lina
 {
-	class OStream;
-	class IStream;
 
-	struct ResourceDirectory
+	void PhysicsMaterial::LoadFromFile(const char* path)
 	{
-		static constexpr uint32 VERSION = 0;
+		IStream stream = Serialization::LoadFromFile(path);
 
-		String					   name		   = "";
-		bool					   isFolder	   = false;
-		bool					   unfolded	   = false;
-		ResourceID				   resourceID  = 0;
-		TypeID					   resourceTID = 0;
-		Vector<ResourceDirectory*> children;
-		ResourceDirectory*		   parent = nullptr;
+		if (stream.GetDataRaw() != nullptr)
+			LoadFromStream(stream);
 
-		void SaveToStream(OStream& stream);
-		void LoadFromStream(IStream& stream);
+		stream.Destroy();
+	}
 
-		ResourceDirectory* FindResource(ResourceID id);
-		ResourceDirectory* CreateChild(ResourceDirectory desc);
-		void			   DestroyChild(ResourceDirectory* dir);
-		void			   AddChild(ResourceDirectory* dir);
-		ResourceDirectory* Duplicate();
-		void			   SortChildren();
-	};
+	void PhysicsMaterial::LoadFromStream(IStream& stream)
+	{
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
+	}
+
+	void PhysicsMaterial::SaveToStream(OStream& stream) const
+	{
+		stream << VERSION;
+		stream << m_id;
+	}
+
 } // namespace Lina

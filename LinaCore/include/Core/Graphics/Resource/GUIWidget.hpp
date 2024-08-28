@@ -39,12 +39,14 @@ namespace Lina
 	public:
 		GUIWidget(const String& path, StringID sid) : Resource(path, sid, GetTypeID<GUIWidget>()){};
 		GUIWidget(ResourceID id = 0) : Resource(id){};
+		GUIWidget(ResourceID id, void* subdata);
+
+		static constexpr uint32 VERSION = 0;
 
 		virtual ~GUIWidget();
 		virtual void LoadFromFile(const char* path) override;
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
-		void		 UpdateBlob();
 		void		 ClearRoot();
 
 		inline Widget& GetRoot()
@@ -52,25 +54,9 @@ namespace Lina
 			return m_root;
 		}
 
-		inline void CopyRootBlob(IStream& outStream)
-		{
-			if (m_loadedStream.Empty())
-			{
-				OStream stream;
-				m_root.SaveToStream(stream);
-				m_loadedStream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
-				stream.Destroy();
-			}
-
-			outStream.Destroy();
-			outStream.Create(m_loadedStream.GetDataRaw(), m_loadedStream.GetSize());
-		}
-
-	private:
 	private:
 		ALLOCATOR_BUCKET_MEM;
-		Widget	m_root;
-		IStream m_loadedStream;
+		Widget m_root;
 	};
 
 	LINA_REFLECTRESOURCE_BEGIN(GUIWidget);

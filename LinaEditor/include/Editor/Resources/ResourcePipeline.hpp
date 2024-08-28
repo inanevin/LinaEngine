@@ -30,6 +30,10 @@ SOFTWARE.
 
 #include "Core/Resources/CommonResources.hpp"
 
+namespace Lina
+{
+	class ResourceDirectory;
+}
 namespace Lina::Editor
 {
 
@@ -39,9 +43,30 @@ namespace Lina::Editor
 	{
 	public:
 		void	   Initialize(Editor* editor);
-		ResourceID SaveNewResource(TypeID tid);
+		ResourceID SaveNewResource(TypeID tid, uint32 subType = 0);
+
+		template <typename T> T* OpenResource(ResourceID resourceID, void* subdata = nullptr)
+		{
+			return static_cast<T*>(OpenResource(GetTypeID<T>(), resourceID, subdata));
+		}
+
+		template <typename T> void CloseAndSaveResource(T* resource)
+		{
+			resource->SaveToFileAsBinary(GetResourcePath(resource->GetID()).c_str());
+			delete resource;
+		}
+
+		template <typename T> void CloseResource(T* resource)
+		{
+			delete resource;
+		}
 
 		String GetResourceDirectory();
+		String GetResourcePath(ResourceID id);
+
+	private:
+		void  VerifyResources(ResourceDirectory* dir);
+		void* OpenResource(TypeID tid, ResourceID resourceID, void* subdata);
 
 	private:
 		Editor* m_editor = nullptr;

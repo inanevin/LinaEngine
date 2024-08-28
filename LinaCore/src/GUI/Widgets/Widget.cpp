@@ -52,6 +52,13 @@ namespace Lina
 			ChangedParent(c);
 	}
 
+	void Widget::SetWidgetManager(WidgetManager* wm)
+	{
+		m_manager	= wm;
+		m_lvg		= wm->GetLVG();
+		m_lgxWindow = wm->GetRoot()->GetWindow();
+	}
+
 	void Widget::AddChild(Widget* w)
 	{
 		w->m_parent	   = this;

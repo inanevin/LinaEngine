@@ -141,6 +141,10 @@ namespace Lina
 
 	void Model::LoadFromStream(IStream& stream)
 	{
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
+
 		VectorSerialization::LoadFromStream_OBJ(stream, m_materials);
 
 		uint32 sz = 0;
@@ -161,6 +165,9 @@ namespace Lina
 
 	void Model::SaveToStream(OStream& stream) const
 	{
+		stream << VERSION;
+		stream << m_id;
+
 		VectorSerialization::SaveToStream_OBJ(stream, m_materials);
 
 		stream << static_cast<uint32>(m_rootNodes.size());

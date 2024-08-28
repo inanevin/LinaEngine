@@ -29,18 +29,21 @@ SOFTWARE.
 #pragma once
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 
 namespace Lina
 {
 	class LayoutBorder;
+	class GUIWidget;
 	class DirectionalLayout;
 } // namespace Lina
 
 namespace Lina::Editor
 {
+	class Editor;
 	class ItemController;
 
-	class PanelWidgetEditor : public Panel
+	class PanelWidgetEditor : public Panel, public FileMenuListener
 	{
 	private:
 		struct WidgetInfo
@@ -60,23 +63,38 @@ namespace Lina::Editor
 		virtual ~PanelWidgetEditor() = default;
 
 		virtual void Construct() override;
+		virtual void Destruct() override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void LoadLayoutFromStream(IStream& stream) override;
 		virtual void SaveLayoutToStream(OStream& stream) override;
+		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
+		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
 
 	private:
 		void	RefreshWidgets();
 		void	RefreshHierarchy();
+		void	CheckSaveCurrent(Delegate<void()>&& onAct);
 		Widget* BuildDirectorySelector();
+		void	AddItemForWidget(Widget* rootInEditor, Widget* sourceWidget, float margin);
+		void	RequestDelete(Vector<Widget*> widgets);
+		void	RequestDuplicate(Vector<Widget*> widgets);
+		void	RequestRename(Widget* w);
+		void	OpenWidget(ResourceID id);
 
 	private:
-		LayoutBorder*	   m_border1			 = nullptr;
-		LayoutBorder*	   m_border2			 = nullptr;
-		ItemController*	   m_widgetsController	 = nullptr;
-		ItemController*	   m_hierarchyController = nullptr;
-		DirectionalLayout* m_widgetsLayout		 = nullptr;
-		DirectionalLayout* m_hierarchyLayout	 = nullptr;
+		ResourceID			   m_lastOpenWidget = 0;
+		Vector<CategoryInfo>   m_categories;
+		TypeID				   m_payloadCarryTID = 0;
+		HashMap<Widget*, bool> m_foldValues;
+		Editor*				   m_editor				 = nullptr;
+		GUIWidget*			   m_currentWidget		 = nullptr;
+		LayoutBorder*		   m_border1			 = nullptr;
+		LayoutBorder*		   m_border2			 = nullptr;
+		ItemController*		   m_widgetsController	 = nullptr;
+		ItemController*		   m_hierarchyController = nullptr;
+		DirectionalLayout*	   m_widgetsLayout		 = nullptr;
+		DirectionalLayout*	   m_hierarchyLayout	 = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelWidgetEditor, Editor)

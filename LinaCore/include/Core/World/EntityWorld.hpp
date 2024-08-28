@@ -88,14 +88,18 @@ namespace Lina
 			}
 		};
 
+		static constexpr uint32 VERSION = 0;
+
 		EntityWorld(const EntityWorld& other) = delete;
 		EntityWorld(const String& path = "", StringID sid = 0);
+		EntityWorld(ResourceID id) : Resource(id), m_physicsWorld(this){};
 		~EntityWorld();
 
 		Entity*		 CreateEntity(const String& name);
 		void		 DestroyEntity(Entity* e);
 		virtual void SaveToStream(OStream& stream) const override;
 		virtual void LoadFromStream(IStream& stream) override;
+		virtual void LoadFromFile(const char* path) override;
 		void		 AddListener(EntityWorldListener* listener);
 		void		 RemoveListener(EntityWorldListener* listener);
 		void		 PreTick();
@@ -210,8 +214,6 @@ namespace Lina
 		}
 
 	protected:
-		virtual void LoadFromFile(const char* path) override;
-
 	private:
 		void ProcessComponent(Component* c, Entity* e);
 

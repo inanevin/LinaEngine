@@ -29,6 +29,8 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Popups/GenericPopup.hpp"
+#include "Editor/Editor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Core/Resources/ResourceDirectory.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
@@ -40,6 +42,8 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/InputField.hpp"
+#include "Core/Meta/ProjectData.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
@@ -48,6 +52,8 @@ namespace Lina::Editor
 {
 	void PanelWidgetEditor::Construct()
 	{
+		m_editor = Editor::Get();
+
 		Widget* leftSide = m_manager->Allocate<Widget>("Left");
 		leftSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		leftSide->SetAlignedPos(Vector2(0.0f, 0.0f));
@@ -65,11 +71,28 @@ namespace Lina::Editor
 		itemControllerWidgets->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		itemControllerWidgets->SetAlignedPos(Vector2::Zero);
 		itemControllerWidgets->SetAlignedSize(Vector2::One);
-		itemControllerWidgets->GetWidgetProps().drawBackground	 = true;
-		itemControllerWidgets->GetWidgetProps().outlineThickness = 0.0f;
-		itemControllerWidgets->GetWidgetProps().colorBackground	 = Theme::GetDef().background0;
-		itemControllerWidgets->GetWidgetProps().childMargins	 = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
-		m_widgetsController										 = itemControllerWidgets;
+		itemControllerWidgets->GetWidgetProps().drawBackground		 = true;
+		itemControllerWidgets->GetWidgetProps().dropshadow.enabled	 = true;
+		itemControllerWidgets->GetWidgetProps().dropshadow.isInner	 = true;
+		itemControllerWidgets->GetWidgetProps().dropshadow.direction = Direction::Top;
+		itemControllerWidgets->GetWidgetProps().dropshadow.color	 = Theme::GetDef().black;
+		itemControllerWidgets->GetWidgetProps().dropshadow.color.w	 = 0.25f;
+		itemControllerWidgets->GetWidgetProps().dropshadow.steps	 = 8;
+		itemControllerWidgets->GetWidgetProps().outlineThickness	 = 0.0f;
+		itemControllerWidgets->GetWidgetProps().colorBackground		 = Theme::GetDef().background0;
+		itemControllerWidgets->GetWidgetProps().childMargins		 = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
+
+		itemControllerWidgets->GetProps().onCreatePayload = [this](void* userdata) {
+			Widget*		root   = m_editor->GetWindowPanelManager().GetPayloadRoot();
+			WidgetInfo* inf	   = static_cast<WidgetInfo*>(userdata);
+			Text*		t	   = root->GetWidgetManager()->Allocate<Text>();
+			t->GetProps().text = inf->title;
+			t->Initialize();
+			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
+		};
+
+		itemControllerWidgets->GetProps().onCheckCanCreatePayload = [](void* userdata) -> bool { return userdata != nullptr; };
+		m_widgetsController										  = itemControllerWidgets;
 		widgetsPanel->AddChild(itemControllerWidgets);
 
 		{
@@ -112,12 +135,36 @@ namespace Lina::Editor
 		itemControllerHierarchy->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		itemControllerHierarchy->SetAlignedPosX(0.0f);
 		itemControllerHierarchy->SetAlignedSize(Vector2(1.0f, 0.0f));
-		itemControllerHierarchy->GetWidgetProps().drawBackground   = true;
-		itemControllerHierarchy->GetWidgetProps().outlineThickness = 0.0f;
-		itemControllerHierarchy->GetWidgetProps().colorBackground  = Theme::GetDef().background0;
-		itemControllerWidgets->GetWidgetProps().childMargins	   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
-		m_hierarchyController									   = itemControllerHierarchy;
+		itemControllerHierarchy->GetWidgetProps().drawBackground	   = true;
+		itemControllerHierarchy->GetWidgetProps().dropshadow.enabled   = true;
+		itemControllerHierarchy->GetWidgetProps().dropshadow.isInner   = true;
+		itemControllerHierarchy->GetWidgetProps().dropshadow.color	   = Theme::GetDef().black;
+		itemControllerHierarchy->GetWidgetProps().dropshadow.color.w   = 0.25f;
+		itemControllerHierarchy->GetWidgetProps().dropshadow.steps	   = 8;
+		itemControllerHierarchy->GetWidgetProps().dropshadow.direction = Direction::Top;
+		itemControllerHierarchy->GetWidgetProps().outlineThickness	   = 0.0f;
+		itemControllerHierarchy->GetWidgetProps().colorBackground	   = Theme::GetDef().background0;
+		itemControllerHierarchy->GetWidgetProps().childMargins		   = {.top = Theme::GetDef().baseIndentInner, .bottom = Theme::GetDef().baseIndentInner};
+		itemControllerHierarchy->GetContextMenu()->SetListener(this);
+		itemControllerHierarchy->GetProps().payloadType = PayloadType::WidgetEditorWidget;
+
+		itemControllerHierarchy->GetProps().onPayloadAccepted = [](void* userdata) {
+
+		};
+		m_hierarchyController = itemControllerHierarchy;
 		hierarchy->AddChild(itemControllerHierarchy);
+
+		itemControllerHierarchy->GetProps().onDelete = [itemControllerHierarchy, this]() {
+			Vector<Widget*> selection = itemControllerHierarchy->GetSelectedUserData<Widget>();
+			RequestDelete(selection);
+		};
+
+		itemControllerHierarchy->GetProps().onDuplicate = [itemControllerHierarchy, this]() {
+			Vector<Widget*> selection = itemControllerHierarchy->GetSelectedUserData<Widget>();
+			RequestDuplicate(selection);
+		};
+
+		itemControllerHierarchy->GetProps().onItemRenamed = [itemControllerHierarchy, this](void* item) { RequestRename(static_cast<Widget*>(item)); };
 
 		{
 			ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
@@ -171,15 +218,27 @@ namespace Lina::Editor
 		m_border1 = border;
 	}
 
+	void PanelWidgetEditor::Destruct()
+	{
+		if (m_currentWidget == nullptr)
+			return;
+
+		m_editor->GetResourcePipeline().CloseResource<GUIWidget>(m_currentWidget);
+		m_currentWidget = nullptr;
+	}
+
 	void PanelWidgetEditor::SaveLayoutToStream(OStream& stream)
 	{
 		m_border1->SaveToStream(stream);
 		m_border2->SaveToStream(stream);
+		stream << m_lastOpenWidget;
 	}
 
 	void PanelWidgetEditor::LoadLayoutFromStream(IStream& stream)
 	{
 		m_border1->LoadFromStream(stream);
+		m_border2->LoadFromStream(stream);
+		stream >> m_lastOpenWidget;
 	}
 
 	void PanelWidgetEditor::Initialize()
@@ -188,6 +247,8 @@ namespace Lina::Editor
 
 		RefreshWidgets();
 		RefreshHierarchy();
+		// if(m_lastOpenWidget != 0)
+		//     OpenWidget(m_lastOpenWidget);
 	}
 
 	void PanelWidgetEditor::Tick(float delta)
@@ -199,8 +260,7 @@ namespace Lina::Editor
 		m_widgetsLayout->DeallocAllChildren();
 		m_widgetsLayout->RemoveAllChildren();
 		m_widgetsController->ClearItems();
-
-		Vector<CategoryInfo> categories;
+		m_categories.clear();
 
 		const HashMap<TypeID, MetaType>& types = ReflectionSystem::Get().GetTypes();
 		for (auto& [typeID, meta] : types)
@@ -215,31 +275,31 @@ namespace Lina::Editor
 					.tid   = typeID,
 				};
 
-				auto it = linatl::find_if(categories.begin(), categories.end(), [&category](const CategoryInfo& inf) -> bool { return inf.title.compare(category) == 0; });
+				auto it = linatl::find_if(m_categories.begin(), m_categories.end(), [&category](const CategoryInfo& inf) -> bool { return inf.title.compare(category) == 0; });
 
-				if (it != categories.end())
+				if (it != m_categories.end())
 				{
 					it->widgets.push_back(widgetInfo);
 				}
 				else
 				{
-					categories.push_back({});
-					CategoryInfo& categoryInfo = categories.back();
+					m_categories.push_back({});
+					CategoryInfo& categoryInfo = m_categories.back();
 					categoryInfo.title		   = category;
 					categoryInfo.widgets.push_back(widgetInfo);
 				}
 			}
 		}
 
-		for (const CategoryInfo& category : categories)
+		for (CategoryInfo& category : m_categories)
 		{
 			Widget* cat = CommonWidgets::BuildDefaultFoldItem(this, nullptr, Theme::GetDef().baseIndent, "", Color::White, category.title, true, nullptr, true, true);
 			m_widgetsController->AddItem(cat->GetChildren().front());
 			m_widgetsLayout->AddChild(cat);
 
-			for (const WidgetInfo& wif : category.widgets)
+			for (WidgetInfo& wif : category.widgets)
 			{
-				Widget* wi = CommonWidgets::BuildDefaultListItem(this, nullptr, Theme::GetDef().baseIndent * 2.0f, "", Color::White, wif.title, true);
+				Widget* wi = CommonWidgets::BuildDefaultListItem(this, &wif, Theme::GetDef().baseIndent * 2.0f, "", Color::White, wif.title, true);
 				cat->AddChild(wi);
 				m_widgetsController->AddItem(wi);
 			}
@@ -251,6 +311,41 @@ namespace Lina::Editor
 		m_hierarchyLayout->DeallocAllChildren();
 		m_hierarchyLayout->RemoveAllChildren();
 		m_hierarchyController->ClearItems();
+
+		if (m_currentWidget == nullptr)
+			return;
+
+		m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_currentWidget->GetID());
+
+		Widget* sourceWidget = &m_currentWidget->GetRoot();
+		Widget* rootInEditor = CommonWidgets::BuildDefaultFoldItem(this, sourceWidget, Theme::GetDef().baseIndent, "", Color::White, sourceWidget->GetWidgetProps().debugName, true, &m_foldValues[sourceWidget], true);
+
+		m_hierarchyController->AddItem(rootInEditor->GetChildren().front());
+		m_hierarchyLayout->AddChild(rootInEditor);
+
+		AddItemForWidget(rootInEditor, sourceWidget, Theme::GetDef().baseIndent * 2);
+	}
+
+	void PanelWidgetEditor::AddItemForWidget(Widget* rootInEditor, Widget* sourceWidget, float margin)
+	{
+		for (Widget* c : sourceWidget->GetChildren())
+		{
+			const std::type_info& typeInfo = typeid(c);
+			const String		  typeName = typeInfo.name();
+			Widget*				  item	   = CommonWidgets::BuildDefaultFoldItem(this, c, margin, "", Color::White, c->GetWidgetProps().debugName, !c->GetChildren().empty(), &m_foldValues[c], false);
+
+			Text* classType			   = m_manager->Allocate<Text>();
+			classType->GetProps().text = "(" + ReflectionSystem::Get().Resolve(c->GetTID()).GetProperty<String>("Title"_hs) + ")";
+			classType->GetFlags().Set(WF_POS_ALIGN_Y);
+			classType->SetAlignedPosY(0.5f);
+			classType->SetAnchorY(Anchor::Center);
+			classType->Initialize();
+			item->GetChildren().front()->AddChild(classType);
+
+			m_hierarchyController->AddItem(item->GetChildren().front());
+			rootInEditor->AddChild(item);
+			AddItemForWidget(item, c, margin + Theme::GetDef().baseIndent);
+		}
 	}
 
 	Widget* PanelWidgetEditor::BuildDirectorySelector()
@@ -287,7 +382,17 @@ namespace Lina::Editor
 		bw->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		bw->SetAlignedPosX(0.0f);
 		bw->SetAlignedSize(Vector2(1.0f, 0.0f));
-		bw->GetProps().itemTypeIDFilter = 0;
+		bw->GetProps().itemTypeIDFilter				   = 0;
+		bw->GetItemController()->GetProps().onInteract = [this, bw, layout]() {
+			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
+
+			if (!selection->isFolder && selection->resourceTID == GetTypeID<GUIWidget>())
+			{
+				m_manager->SetForegroundDim(0.0f);
+				m_manager->AddToKillList(layout);
+				CheckSaveCurrent([this, selection]() { OpenWidget(selection->resourceID); });
+			}
+		};
 		layout->AddChild(bw);
 
 		DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>();
@@ -322,7 +427,10 @@ namespace Lina::Editor
 			m_manager->SetForegroundDim(0.0f);
 			m_manager->AddToKillList(layout);
 			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
-			// do whatever
+			CheckSaveCurrent([this, selection]() {
+				m_currentWidget = m_editor->GetResourcePipeline().OpenResource<GUIWidget>(selection->resourceID, (void*)m_manager);
+				RefreshHierarchy();
+			});
 		};
 
 		horizontal->AddChild(select);
@@ -343,5 +451,194 @@ namespace Lina::Editor
 
 		layout->Initialize();
 		return layout;
+	}
+
+	void PanelWidgetEditor::CheckSaveCurrent(Delegate<void()>&& onAct)
+	{
+		if (m_currentWidget == nullptr)
+		{
+			onAct();
+			return;
+		}
+
+		GenericPopup* p = CommonWidgets::ThrowGenericPopup(Locale::GetStr(LocaleStr::SaveChanges), Locale::GetStr(LocaleStr::SaveChangesDesc), ICON_LINA_LOGO, this);
+		p->AddButton(GenericPopup::ButtonProps{
+			.text = Locale::GetStr(LocaleStr::Yes),
+			.onClicked =
+				[onAct, this]() {
+					m_editor->GetResourcePipeline().CloseAndSaveResource<GUIWidget>(m_currentWidget);
+					onAct();
+				},
+		});
+
+		p->AddButton(GenericPopup::ButtonProps{
+			.text = Locale::GetStr(LocaleStr::No),
+			.onClicked =
+				[onAct, this]() {
+					m_editor->GetResourcePipeline().CloseResource<GUIWidget>(m_currentWidget);
+					onAct();
+				},
+		});
+
+		m_manager->AddToForeground(p, 0.25f);
+	}
+
+	void PanelWidgetEditor::OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData)
+	{
+		if (m_currentWidget == nullptr)
+			return;
+
+		bool deleteDisabled	   = false;
+		bool duplicateDisabled = false;
+		bool renameDisabled	   = false;
+
+		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
+
+		if (selection.empty())
+			return;
+
+		if (selection.size() > 1)
+		{
+			renameDisabled = true;
+		}
+
+		Widget* currentRoot = &m_currentWidget->GetRoot();
+
+		auto it = linatl::find_if(selection.begin(), selection.end(), [currentRoot](Widget* w) -> bool { return w == currentRoot; });
+		if (it != selection.end())
+		{
+			deleteDisabled	  = true;
+			duplicateDisabled = true;
+		}
+
+		if (sid == 0)
+		{
+			outData.push_back(FileMenuItem::Data{
+				.text		 = Locale::GetStr(LocaleStr::Rename),
+				.altText	 = "CTRL + R",
+				.hasDropdown = false,
+				.isDisabled	 = renameDisabled,
+				.userData	 = userData,
+			});
+
+			outData.push_back(FileMenuItem::Data{.isDivider = true});
+
+			outData.push_back(FileMenuItem::Data{
+				.text		= Locale::GetStr(LocaleStr::Delete),
+				.altText	= "DEL",
+				.isDisabled = deleteDisabled,
+				.userData	= userData,
+			});
+			outData.push_back(FileMenuItem::Data{
+				.text		= Locale::GetStr(LocaleStr::Duplicate),
+				.altText	= "CTRL + D",
+				.isDisabled = duplicateDisabled,
+				.userData	= userData,
+			});
+		}
+	}
+
+	bool PanelWidgetEditor::OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData)
+	{
+		if (m_currentWidget == nullptr)
+			return;
+
+		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Rename)))
+		{
+			RequestRename(selection.front());
+			return true;
+		}
+
+		Vector<Widget*> roots;
+
+		for (Widget* w : selection)
+		{
+			auto it = linatl::find_if(selection.begin(), selection.end(), [w](Widget* selected) -> bool { return selected == w->GetParent(); });
+			if (it == selection.end())
+				roots.push_back(w);
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Delete)))
+		{
+
+			RequestDelete(roots);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
+		{
+			RequestDuplicate(roots);
+			return true;
+		}
+
+		return false;
+	}
+
+	void PanelWidgetEditor::RequestDelete(Vector<Widget*> widgets)
+	{
+		Vector<Widget*> selection	= m_hierarchyController->GetSelectedUserData<Widget>();
+		Widget*			currentRoot = &m_currentWidget->GetRoot();
+
+		if (selection.empty())
+			return;
+
+		auto it = linatl::find_if(selection.begin(), selection.end(), [currentRoot](Widget* w) -> bool { return w == currentRoot; });
+		if (it != selection.end())
+		{
+			return;
+		}
+	}
+
+	void PanelWidgetEditor::RequestDuplicate(Vector<Widget*> widgets)
+	{
+		Vector<Widget*> selection	= m_hierarchyController->GetSelectedUserData<Widget>();
+		Widget*			currentRoot = &m_currentWidget->GetRoot();
+
+		if (selection.empty())
+			return;
+
+		auto it = linatl::find_if(selection.begin(), selection.end(), [currentRoot](Widget* w) -> bool { return w == currentRoot; });
+		if (it != selection.end())
+		{
+			return;
+		}
+	}
+
+	void PanelWidgetEditor::RequestRename(Widget* w)
+	{
+		Widget* parent = m_hierarchyController->GetItem(w);
+		Text*	text   = parent->GetWidgetOfType<Text>(parent);
+
+		InputField* inp = m_manager->Allocate<InputField>();
+		inp->GetFlags().Set(WF_USE_FIXED_SIZE_Y);
+		inp->GetText()->GetProps().text = text->GetProps().text;
+		inp->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		inp->SetSizeX(parent->GetSizeX());
+		inp->SetPos(text->GetParent()->GetPos());
+		inp->SetFixedSizeY(text->GetParent()->GetSizeY());
+		inp->Initialize();
+
+		inp->GetProps().onEditEnd = [text, inp, w, parent, this](const String& str) {
+			text->GetProps().text = str;
+			text->CalculateTextSize();
+			w->GetWidgetProps().debugName = str;
+			text->GetWidgetManager()->AddToKillList(inp);
+		};
+
+		text->GetWidgetManager()->AddToForeground(inp);
+		inp->StartEditing();
+		inp->SelectAll();
+
+		m_hierarchyController->SetFocus(true);
+		m_manager->GrabControls(inp);
+	}
+
+	void PanelWidgetEditor::OpenWidget(ResourceID id)
+	{
+		m_currentWidget = m_editor->GetResourcePipeline().OpenResource<GUIWidget>(id, (void*)m_manager);
+		RefreshHierarchy();
+		m_lastOpenWidget = id;
 	}
 } // namespace Lina::Editor

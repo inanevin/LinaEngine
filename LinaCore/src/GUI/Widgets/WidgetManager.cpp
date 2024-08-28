@@ -105,7 +105,9 @@ namespace Lina
 
 	void WidgetManager::AddToForeground(Widget* w, float foregroundDim)
 	{
-		SetForegroundDim(foregroundDim);
+		if (foregroundDim > -0.1f)
+			SetForegroundDim(foregroundDim);
+
 		w->SetDrawOrder(FOREGROUND_DRAW_ORDER + static_cast<int32>(m_foregroundRoot->GetChildren().size()));
 		w->GetFlags().Set(WF_CONTROLS_DRAW_ORDER);
 		m_foregroundRoot->AddChild(w);

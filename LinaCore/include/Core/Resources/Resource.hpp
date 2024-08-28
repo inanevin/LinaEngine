@@ -71,6 +71,11 @@ namespace Lina
 			return m_tid;
 		}
 
+		inline ResourceID GetID() const
+		{
+			return m_id;
+		}
+
 	protected:
 		template <typename U> friend class ResourceCache;
 

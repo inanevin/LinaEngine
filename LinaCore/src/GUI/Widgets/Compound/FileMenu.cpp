@@ -214,8 +214,7 @@ namespace Lina
 		DirectionalLayout* popup = WidgetUtility::BuildLayoutForPopups(this);
 		popup->SetPos(pos);
 
-		m_manager->AddToForeground(popup);
-		m_manager->SetForegroundDim(0.0f);
+		m_manager->AddToForeground(popup, -1.0f);
 
 		float totalHeight = popup->GetWidgetProps().childMargins.top + popup->GetWidgetProps().childMargins.bottom;
 

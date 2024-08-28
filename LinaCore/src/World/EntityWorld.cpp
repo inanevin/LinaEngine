@@ -129,6 +129,9 @@ namespace Lina
 
 	void EntityWorld::SaveToStream(OStream& stream) const
 	{
+		stream << VERSION;
+		stream << m_id;
+
 		const uint32 entitiesSize = m_entityBucket.GetActiveItemCount();
 		stream << entitiesSize;
 
@@ -166,6 +169,10 @@ namespace Lina
 
 	void EntityWorld::LoadFromStream(IStream& stream)
 	{
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
+
 		m_entityBucket.Clear();
 		m_componentCaches.clear();
 

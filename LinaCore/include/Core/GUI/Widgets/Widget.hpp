@@ -209,6 +209,7 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
 
+		void	SetWidgetManager(WidgetManager* wm);
 		void	DrawDropshadow();
 		void	DrawBackground();
 		void	DrawChildren();

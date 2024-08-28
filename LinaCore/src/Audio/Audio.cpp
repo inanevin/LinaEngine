@@ -56,11 +56,16 @@ namespace Lina
 
 	void Audio::LoadFromStream(IStream& stream)
 	{
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
 		m_meta.LoadFromStream(stream);
 	}
 
 	void Audio::SaveToStream(OStream& stream) const
 	{
+		stream << VERSION;
+		stream << m_id;
 		m_meta.SaveToStream(stream);
 	}
 

@@ -41,6 +41,9 @@ namespace Lina
 	class DescriptorSet;
 	class ResourceManagerV2;
 
+	// Version changes
+	// 0: initial
+
 	class Material : public Resource
 	{
 	private:
@@ -51,6 +54,8 @@ namespace Lina
 		};
 
 	public:
+		static constexpr uint32 VERSION = 0;
+
 		struct BindingBuffers
 		{
 			Vector<Buffer> buffers;

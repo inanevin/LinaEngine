@@ -103,6 +103,10 @@ namespace Lina::Editor
 		Material,
 		PhysicsMaterial,
 		Shader,
+		DeferredShader,
+		ForwardShader,
+		LightingShader,
+		PostProcessShader,
 		AddToFavourites,
 		RemoveFromFavourites,
 		RemoveAll,
@@ -118,6 +122,8 @@ namespace Lina::Editor
 		New,
 		GUIWidget,
 		SelectWidget,
+		SaveChanges,
+		SaveChangesDesc,
 	};
 
 	class Locale

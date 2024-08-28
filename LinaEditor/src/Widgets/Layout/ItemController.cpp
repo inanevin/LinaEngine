@@ -476,8 +476,7 @@ namespace Lina::Editor
 		Widget* parent = w->GetParent();
 		if (parent == this)
 			return;
-		parent = parent->GetParent();
-		if (parent == this)
+		if (parent->GetParent() == this)
 			return;
 
 		if (parent->GetTID() != GetTypeID<FoldLayout>())

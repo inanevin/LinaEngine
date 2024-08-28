@@ -37,6 +37,8 @@ namespace Lina
 	class TextureSampler : public Resource
 	{
 	public:
+		static constexpr uint32 VERSION = 0;
+
 		TextureSampler(const String& path, StringID sid) : Resource(path, sid, GetTypeID<TextureSampler>()){};
 		virtual ~TextureSampler();
 

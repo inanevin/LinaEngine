@@ -100,6 +100,10 @@ namespace Lina::Editor
 		{LocaleStr::Material, "Material"},
 		{LocaleStr::PhysicsMaterial, "Physics Material"},
 		{LocaleStr::Shader, "Shader"},
+		{LocaleStr::DeferredShader, "Deferred Shader"},
+		{LocaleStr::ForwardShader, "Forward Shader"},
+		{LocaleStr::LightingShader, "Lighting Shader"},
+		{LocaleStr::PostProcessShader, "Post Process Shader"},
 		{LocaleStr::AddToFavourites, "Add to Favourites"},
 		{LocaleStr::RemoveFromFavourites, "Remove from Favourites"},
 		{LocaleStr::RemoveAll, "Remove All Items"},
@@ -115,6 +119,8 @@ namespace Lina::Editor
 		{LocaleStr::New, "New"},
 		{LocaleStr::GUIWidget, "GUIWidget"},
 		{LocaleStr::SelectWidget, "Select: GUIWidget"},
+		{LocaleStr::SaveChanges, "Save changes?"},
+		{LocaleStr::SaveChangesDesc, "Would you like to save changes to the current file?"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

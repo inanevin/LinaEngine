@@ -35,8 +35,13 @@ namespace Lina
 {
 	GUIWidget::~GUIWidget()
 	{
-		m_loadedStream.Destroy();
 	}
+
+	GUIWidget::GUIWidget(ResourceID id, void* subdata) : Resource(id)
+	{
+		WidgetManager* wm = static_cast<WidgetManager*>(subdata);
+		m_root.SetWidgetManager(wm);
+	};
 
 	void GUIWidget::LoadFromFile(const char* path)
 	{
@@ -50,23 +55,19 @@ namespace Lina
 
 	void GUIWidget::SaveToStream(OStream& stream) const
 	{
+		stream << VERSION;
+		stream << m_id;
 		m_root.SaveToStream(stream);
 	}
 
 	void GUIWidget::LoadFromStream(IStream& stream)
 	{
-		m_loadedStream.Create(stream.GetDataRaw(), stream.GetSize());
-		m_root.LoadFromStream(m_loadedStream);
-		m_loadedStream.Seek(0);
-	}
-
-	void GUIWidget::UpdateBlob()
-	{
-		m_loadedStream.Destroy();
-		OStream stream;
-		m_root.SaveToStream(stream);
-		m_loadedStream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
-		stream.Destroy();
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
+		m_root.DeallocAllChildren();
+		m_root.RemoveAllChildren();
+		m_root.LoadFromStream(stream);
 	}
 
 	void GUIWidget::ClearRoot()

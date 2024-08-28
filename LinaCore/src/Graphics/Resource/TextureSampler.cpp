@@ -40,6 +40,9 @@ namespace Lina
 
 	void TextureSampler::SaveToStream(OStream& stream) const
 	{
+		stream << VERSION;
+		stream << m_id;
+
 		const uint8 minFilter	= static_cast<uint8>(m_samplerDesc.minFilter);
 		const uint8 magFilter	= static_cast<uint8>(m_samplerDesc.magFilter);
 		const uint8 mode		= static_cast<uint8>(m_samplerDesc.mode);
@@ -52,6 +55,10 @@ namespace Lina
 
 	void TextureSampler::LoadFromStream(IStream& stream)
 	{
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
+
 		uint8 minFilter = 0, magFilter = 0, mode = 0, mipmapMode = 0, borderColor = 0;
 		stream >> m_samplerDesc.minLod >> m_samplerDesc.maxLod >> m_samplerDesc.mipLodBias;
 		stream >> m_samplerDesc.anisotropy;

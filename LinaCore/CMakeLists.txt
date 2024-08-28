@@ -91,6 +91,7 @@ src/World/EntityWorld.cpp
 
 # Physics
 src/Physics/PhysicsWorld.cpp
+src/Physics/PhysicsMaterial.cpp
 
 # Components
 src/Components/RenderableComponent.cpp
@@ -201,6 +202,7 @@ include/Core/World/CommonWorld.hpp
 
 # Physics
 include/Core/Physics/PhysicsWorld.hpp
+include/Core/Physics/PhysicsMaterial.hpp
 
 # Components
 include/Core/Components/CameraComponent.hpp

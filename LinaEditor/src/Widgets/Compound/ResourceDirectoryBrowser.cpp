@@ -39,6 +39,10 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/Graphics/Resource/GUIWidget.hpp"
+#include "Core/Graphics/Resource/Shader.hpp"
+#include "Core/Graphics/Resource/Material.hpp"
+#include "Core/World/EntityWorld.hpp"
+#include "Core/Physics/PhysicsMaterial.hpp"
 
 namespace Lina::Editor
 {
@@ -226,11 +230,20 @@ namespace Lina::Editor
 		{
 			outData = {
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Folder), .userData = userData},
-				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Shader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Shader), .dropdownIcon = ICON_CHEVRON_RIGHT, .hasDropdown = true, .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::Material), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PhysicsMaterial), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::World), .userData = userData},
 				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::GUIWidget), .userData = userData},
+			};
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Shader)))
+		{
+			outData = {
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::DeferredShader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::LightingShader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::ForwardShader), .userData = userData},
+				FileMenuItem::Data{.text = Locale::GetStr(LocaleStr::PostProcessShader), .userData = userData},
 			};
 		}
 	}
@@ -250,25 +263,24 @@ namespace Lina::Editor
 			return true;
 		}
 
+		Vector<ResourceDirectory*> roots;
+
+		for (ResourceDirectory* dir : selection)
+		{
+			auto it = linatl::find_if(selection.begin(), selection.end(), [dir](ResourceDirectory* selected) -> bool { return selected == dir->parent; });
+			if (it == selection.end())
+				roots.push_back(dir);
+		}
+
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Delete)))
 		{
-			Vector<ResourceDirectory*> roots;
-
-			for (ResourceDirectory* dir : selection)
-			{
-				auto it = linatl::find_if(selection.begin(), selection.end(), [dir](ResourceDirectory* selected) -> bool { return selected == dir->parent; });
-				if (it == selection.end())
-					roots.push_back(dir);
-			}
-
 			RequestDelete(roots);
-
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
-			RequestDuplicate(selection);
+			RequestDuplicate(roots);
 			return true;
 		}
 
@@ -292,10 +304,8 @@ namespace Lina::Editor
 				.name	  = "Folder",
 				.isFolder = true,
 			});
-			return true;
 		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::GUIWidget)))
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::GUIWidget)))
 		{
 			newCreated = front->CreateChild({
 				.name		 = "GUIWidget",
@@ -303,10 +313,8 @@ namespace Lina::Editor
 				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<GUIWidget>()),
 				.resourceTID = GetTypeID<GUIWidget>(),
 			});
-			return true;
 		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::World)))
 		{
 			newCreated = front->CreateChild({
 				.name		 = "World",
@@ -314,23 +322,60 @@ namespace Lina::Editor
 				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<EntityWorld>()),
 				.resourceTID = GetTypeID<EntityWorld>(),
 			});
-			return true;
 		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Material)))
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::Material)))
 		{
+			newCreated = front->CreateChild({
+				.name		 = "Material",
+				.isFolder	 = false,
+				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<Material>()),
+				.resourceTID = GetTypeID<Material>(),
+			});
 		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::PhysicsMaterial)))
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::PhysicsMaterial)))
 		{
-
-			return true;
+			newCreated = front->CreateChild({
+				.name		 = "PhysicsMaterial",
+				.isFolder	 = false,
+				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<PhysicsMaterial>(), 0),
+				.resourceTID = GetTypeID<PhysicsMaterial>(),
+			});
 		}
-
-		if (sid == TO_SID(Locale::GetStr(LocaleStr::Shader)))
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::DeferredShader)))
 		{
-
-			return true;
+			newCreated = front->CreateChild({
+				.name		 = "Shader",
+				.isFolder	 = false,
+				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<Shader>(), 0),
+				.resourceTID = GetTypeID<Shader>(),
+			});
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::LightingShader)))
+		{
+			newCreated = front->CreateChild({
+				.name		 = "Shader",
+				.isFolder	 = false,
+				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<Shader>(), 1),
+				.resourceTID = GetTypeID<Shader>(),
+			});
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::ForwardShader)))
+		{
+			newCreated = front->CreateChild({
+				.name		 = "Shader",
+				.isFolder	 = false,
+				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<Shader>(), 2),
+				.resourceTID = GetTypeID<Shader>(),
+			});
+		}
+		else if (sid == TO_SID(Locale::GetStr(LocaleStr::PostProcessShader)))
+		{
+			newCreated = front->CreateChild({
+				.name		 = "Shader",
+				.isFolder	 = false,
+				.resourceID	 = m_editor->GetResourcePipeline().SaveNewResource(GetTypeID<Shader>(), 3),
+				.resourceTID = GetTypeID<Shader>(),
+			});
 		}
 
 		m_editor->GetProjectManager().SaveProjectChanges();
@@ -338,7 +383,7 @@ namespace Lina::Editor
 		m_controller->MakeVisibleRecursively(m_controller->GetItem(newCreated));
 		m_controller->SelectItem(m_controller->GetItem(newCreated), true, false);
 
-		return false;
+		return true;
 	}
 
 	void ResourceDirectoryBrowser::RequestRename(ResourceDirectory* dir)
@@ -362,6 +407,7 @@ namespace Lina::Editor
 			text->GetWidgetManager()->AddToKillList(inp);
 			dir->parent->SortChildren();
 			RefreshDirectory();
+			m_editor->GetProjectManager().SaveProjectChanges();
 		};
 
 		text->GetWidgetManager()->AddToForeground(inp);

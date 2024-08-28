@@ -112,4 +112,19 @@ namespace Lina
 		children.insert(children.end(), folders.begin(), folders.end());
 		children.insert(children.end(), files.begin(), files.end());
 	}
+
+	ResourceDirectory* ResourceDirectory::FindResource(ResourceID id)
+	{
+		if (!isFolder && resourceID == id)
+			return this;
+
+		for (ResourceDirectory* c : children)
+		{
+			ResourceDirectory* d = c->FindResource(id);
+			if (d != nullptr)
+				return d;
+		}
+
+		return nullptr;
+	}
 } // namespace Lina

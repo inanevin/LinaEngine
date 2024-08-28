@@ -71,7 +71,7 @@ namespace Lina
 		void	SetClip(const Rect& r, const TBLR& margin);
 		void	UnsetClip();
 		void	AddToKillList(Widget* w);
-		void	AddToForeground(Widget* widget, float foregroundDim = 0.0f);
+		void	AddToForeground(Widget* widget, float foregroundDim = -1.0f);
 		void	RemoveFromForeground(Widget* widget);
 		void	Deallocate(Widget* widget);
 		void	GrabControls(Widget* widget);

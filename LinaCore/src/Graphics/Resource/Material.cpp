@@ -112,13 +112,19 @@ namespace Lina
 
 	void Material::SaveToStream(OStream& stream) const
 	{
+		stream << VERSION;
+		stream << m_id;
 		stream << m_shaderSID;
+
 		StringSerialization::SaveToStream(stream, m_shaderPath);
 		VectorSerialization::SaveToStream_OBJ(stream, m_properties);
 	}
 
 	void Material::LoadFromStream(IStream& stream)
 	{
+		uint32 version = 0;
+		stream >> version;
+		stream >> m_id;
 		stream >> m_shaderSID;
 		StringSerialization::LoadFromStream(stream, m_shaderPath);
 		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);

@@ -62,7 +62,7 @@ namespace Lina::Editor
 			return m_subData;
 		}
 
-	private:
+	protected:
 		PanelType m_panelType = PanelType::Resources;
 		StringID  m_subData	  = 0;
 	};

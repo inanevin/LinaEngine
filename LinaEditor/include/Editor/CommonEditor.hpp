@@ -97,6 +97,7 @@ namespace Lina::Editor
 		DockedPanel,
 		EntitySelectable,
 		Resource,
+		WidgetEditorWidget,
 	};
 
 	enum ResourceLoadTaskIDs
