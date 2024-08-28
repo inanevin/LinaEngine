@@ -43,8 +43,8 @@ namespace Lina
 
 		Audio(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Audio>()){};
 		virtual ~Audio();
-        
-        static constexpr uint32 VERSION = 0;
+
+		static constexpr uint32 VERSION = 0;
 
 		virtual void LoadFromFile(const char* path) override;
 		virtual void LoadFromStream(IStream& stream) override;

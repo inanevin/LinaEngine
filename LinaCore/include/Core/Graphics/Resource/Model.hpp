@@ -47,11 +47,10 @@ namespace Lina
 	class Model : public Resource
 	{
 	public:
-        
-        static constexpr uint32 VERSION = 0;
-        
+		static constexpr uint32 VERSION = 0;
+
 		Model(const String& path, StringID sid) : Resource(path, sid, GetTypeID<Model>()){};
-        Model(ResourceID id) : Resource(id) {};
+		Model(ResourceID id) : Resource(id){};
 		virtual ~Model();
 
 		virtual void LoadFromFile(const char* path) override;
