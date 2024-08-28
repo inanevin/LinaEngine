@@ -42,6 +42,7 @@ namespace Lina::Editor
 {
 	class Editor;
 	class ItemController;
+	class PanelWidgetEditorProperties;
 
 	class PanelWidgetEditor : public Panel, public FileMenuListener
 	{
@@ -81,20 +82,24 @@ namespace Lina::Editor
 		void	RequestDuplicate(Vector<Widget*> widgets);
 		void	RequestRename(Widget* w);
 		void	OpenWidget(ResourceID id);
+		void	CloseCurrent(bool save);
 
 	private:
-		ResourceID			   m_lastOpenWidget = 0;
-		Vector<CategoryInfo>   m_categories;
-		TypeID				   m_payloadCarryTID = 0;
-		HashMap<Widget*, bool> m_foldValues;
-		Editor*				   m_editor				 = nullptr;
-		GUIWidget*			   m_currentWidget		 = nullptr;
-		LayoutBorder*		   m_border1			 = nullptr;
-		LayoutBorder*		   m_border2			 = nullptr;
-		ItemController*		   m_widgetsController	 = nullptr;
-		ItemController*		   m_hierarchyController = nullptr;
-		DirectionalLayout*	   m_widgetsLayout		 = nullptr;
-		DirectionalLayout*	   m_hierarchyLayout	 = nullptr;
+		ResourceID					 m_lastOpenWidget = 0;
+		Widget*						 m_gridParent	  = nullptr;
+		Vector<CategoryInfo>		 m_categories;
+		TypeID						 m_payloadCarryTID = 0;
+		HashMap<Widget*, bool>		 m_foldValues;
+		Editor*						 m_editor			   = nullptr;
+		GUIWidget*					 m_currentWidget	   = nullptr;
+		LayoutBorder*				 m_border1			   = nullptr;
+		LayoutBorder*				 m_border2			   = nullptr;
+		LayoutBorder*				 m_border3			   = nullptr;
+		ItemController*				 m_widgetsController   = nullptr;
+		ItemController*				 m_hierarchyController = nullptr;
+		DirectionalLayout*			 m_widgetsLayout	   = nullptr;
+		DirectionalLayout*			 m_hierarchyLayout	   = nullptr;
+		PanelWidgetEditorProperties* m_propertiesArea	   = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelWidgetEditor, Editor)

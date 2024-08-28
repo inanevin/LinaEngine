@@ -176,17 +176,31 @@ namespace Lina
 
 	void LayoutBorder::SaveToStream(OStream& stream) const
 	{
-		stream << GetAlignedPosX();
+		if (m_props.orientation == DirectionOrientation::Vertical)
+			stream << GetAlignedPosX();
+		else
+			stream << GetAlignedPosY();
 	}
 
 	void LayoutBorder::LoadFromStream(IStream& stream)
 	{
 		float alignedBorder = 0.0f;
 		stream >> alignedBorder;
-		SetAlignedPosX(alignedBorder);
-		GetNegative()->SetAlignedSizeX(alignedBorder);
-		GetPositive()->SetAlignedPosX(alignedBorder);
-		GetPositive()->SetAlignedSizeX(1.0f - alignedBorder);
+
+		if (m_props.orientation == DirectionOrientation::Vertical)
+		{
+			SetAlignedPosX(alignedBorder);
+			GetNegative()->SetAlignedSizeX(alignedBorder);
+			GetPositive()->SetAlignedPosX(alignedBorder);
+			GetPositive()->SetAlignedSizeX(1.0f - alignedBorder);
+		}
+		else
+		{
+			SetAlignedPosY(alignedBorder);
+			GetNegative()->SetAlignedSizeY(alignedBorder);
+			GetPositive()->SetAlignedPosY(alignedBorder);
+			GetPositive()->SetAlignedSizeY(1.0f - alignedBorder);
+		}
 	}
 
 } // namespace Lina

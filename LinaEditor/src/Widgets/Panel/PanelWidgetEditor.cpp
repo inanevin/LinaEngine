@@ -27,6 +27,7 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
+#include "Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp"
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
 #include "Editor/Widgets/Popups/GenericPopup.hpp"
@@ -166,6 +167,11 @@ namespace Lina::Editor
 
 		itemControllerHierarchy->GetProps().onItemRenamed = [itemControllerHierarchy, this](void* item) { RequestRename(static_cast<Widget*>(item)); };
 
+		itemControllerHierarchy->GetProps().onItemSelected = [this](void* userdata) {
+			Widget* w = static_cast<Widget*>(userdata);
+			m_propertiesArea->Refresh(w);
+		};
+
 		{
 			ScrollArea* scroll = m_manager->Allocate<ScrollArea>("Scroll");
 			scroll->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -184,38 +190,66 @@ namespace Lina::Editor
 			m_hierarchyLayout = layout;
 		}
 
-		LayoutBorder* leftBorder = m_manager->Allocate<LayoutBorder>("Border");
-		leftBorder->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X);
-		leftBorder->SetAlignedPos(Vector2(0.0f, 0.5f));
-		leftBorder->SetAlignedSizeX(1.0f);
-		leftBorder->GetProps().orientation			 = DirectionOrientation::Horizontal;
-		leftBorder->GetProps().minSize				 = 0.15f;
-		leftBorder->GetWidgetProps().drawBackground	 = true;
-		leftBorder->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		leftBorder->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
-		leftSide->AddChild(leftBorder);
-		leftBorder->AssignSides(widgetsPanel, hierarchy);
-		m_border2 = leftBorder;
-
-		Widget* rightSide = m_manager->Allocate<Widget>("Right");
+		Widget* rightSide = m_manager->Allocate<Widget>("RightSide");
 		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		rightSide->SetAlignedPos(Vector2(0.25f, 0.0f));
 		rightSide->SetAlignedSize(Vector2(0.75f, 1.0f));
 		AddChild(rightSide);
 
-		LayoutBorder* border = m_manager->Allocate<LayoutBorder>("Border");
-		border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		border->SetAlignedPos(Vector2(0.25f, 0.0f));
-		border->SetAlignedSizeY(1.0f);
-		border->GetProps().orientation			 = DirectionOrientation::Vertical;
-		border->GetProps().minSize				 = 0.15f;
-		border->GetWidgetProps().drawBackground	 = true;
-		border->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		border->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
-		AddChild(border);
+		Widget* gridArea = m_manager->Allocate<Widget>("Grid");
+		gridArea->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		gridArea->SetAlignedPos(Vector2(0.0f, 0.0f));
+		gridArea->SetAlignedSize(Vector2(0.75f, 1.0f));
+		gridArea->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent * 2);
+		rightSide->AddChild(gridArea);
 
-		border->AssignSides(leftSide, rightSide);
-		m_border1 = border;
+		m_gridParent = gridArea;
+
+		PanelWidgetEditorProperties* propertiesArea = m_manager->Allocate<PanelWidgetEditorProperties>("Properties");
+		propertiesArea->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		propertiesArea->SetAlignedPos(Vector2(0.75f, 0.0f));
+		propertiesArea->SetAlignedSize(Vector2(0.25f, 1.0f));
+		rightSide->AddChild(propertiesArea);
+		m_propertiesArea = propertiesArea;
+
+		LayoutBorder* borderHierarchyAndWidgets = m_manager->Allocate<LayoutBorder>("Border");
+		borderHierarchyAndWidgets->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X);
+		borderHierarchyAndWidgets->SetAlignedPos(Vector2(0.0f, 0.5f));
+		borderHierarchyAndWidgets->SetAlignedSizeX(1.0f);
+		borderHierarchyAndWidgets->GetProps().orientation			= DirectionOrientation::Horizontal;
+		borderHierarchyAndWidgets->GetProps().minSize				= 0.15f;
+		borderHierarchyAndWidgets->GetWidgetProps().drawBackground	= true;
+		borderHierarchyAndWidgets->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		borderHierarchyAndWidgets->GetWidgetProps().colorHovered	= Theme::GetDef().background3;
+		leftSide->AddChild(borderHierarchyAndWidgets);
+		borderHierarchyAndWidgets->AssignSides(widgetsPanel, hierarchy);
+		m_border2 = borderHierarchyAndWidgets;
+
+		LayoutBorder* borderGridAndItems = m_manager->Allocate<LayoutBorder>("Border");
+		borderGridAndItems->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		borderGridAndItems->SetAlignedPos(Vector2(0.25f, 0.0f));
+		borderGridAndItems->SetAlignedSizeY(1.0f);
+		borderGridAndItems->GetProps().orientation			 = DirectionOrientation::Vertical;
+		borderGridAndItems->GetProps().minSize				 = 0.15f;
+		borderGridAndItems->GetWidgetProps().drawBackground	 = true;
+		borderGridAndItems->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		borderGridAndItems->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
+		borderGridAndItems->AssignSides(leftSide, rightSide);
+		AddChild(borderGridAndItems);
+		m_border1 = borderGridAndItems;
+
+		LayoutBorder* borderGridAndProperties = m_manager->Allocate<LayoutBorder>("Border");
+		borderGridAndProperties->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		borderGridAndProperties->SetAlignedPos(Vector2(0.75f, 0.0f));
+		borderGridAndProperties->SetAlignedSizeY(1.0f);
+		borderGridAndProperties->GetProps().orientation			  = DirectionOrientation::Vertical;
+		borderGridAndProperties->GetProps().minSize				  = 0.15f;
+		borderGridAndProperties->GetWidgetProps().drawBackground  = true;
+		borderGridAndProperties->GetWidgetProps().colorBackground = Theme::GetDef().background0;
+		borderGridAndProperties->GetWidgetProps().colorHovered	  = Theme::GetDef().background3;
+		borderGridAndProperties->AssignSides(gridArea, propertiesArea);
+		rightSide->AddChild(borderGridAndProperties);
+		m_border3 = borderGridAndProperties;
 	}
 
 	void PanelWidgetEditor::Destruct()
@@ -223,14 +257,14 @@ namespace Lina::Editor
 		if (m_currentWidget == nullptr)
 			return;
 
-		m_editor->GetResourcePipeline().CloseResource<GUIWidget>(m_currentWidget);
-		m_currentWidget = nullptr;
+		CloseCurrent(false);
 	}
 
 	void PanelWidgetEditor::SaveLayoutToStream(OStream& stream)
 	{
 		m_border1->SaveToStream(stream);
 		m_border2->SaveToStream(stream);
+		m_border3->SaveToStream(stream);
 		stream << m_lastOpenWidget;
 	}
 
@@ -238,17 +272,15 @@ namespace Lina::Editor
 	{
 		m_border1->LoadFromStream(stream);
 		m_border2->LoadFromStream(stream);
+		m_border3->LoadFromStream(stream);
 		stream >> m_lastOpenWidget;
+		OpenWidget(m_lastOpenWidget);
 	}
 
 	void PanelWidgetEditor::Initialize()
 	{
 		Widget::Initialize();
-
 		RefreshWidgets();
-		RefreshHierarchy();
-		// if(m_lastOpenWidget != 0)
-		//     OpenWidget(m_lastOpenWidget);
 	}
 
 	void PanelWidgetEditor::Tick(float delta)
@@ -427,10 +459,7 @@ namespace Lina::Editor
 			m_manager->SetForegroundDim(0.0f);
 			m_manager->AddToKillList(layout);
 			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
-			CheckSaveCurrent([this, selection]() {
-				m_currentWidget = m_editor->GetResourcePipeline().OpenResource<GUIWidget>(selection->resourceID, (void*)m_manager);
-				RefreshHierarchy();
-			});
+			CheckSaveCurrent([this, selection]() { OpenWidget(selection->resourceID); });
 		};
 
 		horizontal->AddChild(select);
@@ -466,7 +495,7 @@ namespace Lina::Editor
 			.text = Locale::GetStr(LocaleStr::Yes),
 			.onClicked =
 				[onAct, this]() {
-					m_editor->GetResourcePipeline().CloseAndSaveResource<GUIWidget>(m_currentWidget);
+					CloseCurrent(true);
 					onAct();
 				},
 		});
@@ -475,7 +504,7 @@ namespace Lina::Editor
 			.text = Locale::GetStr(LocaleStr::No),
 			.onClicked =
 				[onAct, this]() {
-					m_editor->GetResourcePipeline().CloseResource<GUIWidget>(m_currentWidget);
+					CloseCurrent(false);
 					onAct();
 				},
 		});
@@ -640,5 +669,21 @@ namespace Lina::Editor
 		m_currentWidget = m_editor->GetResourcePipeline().OpenResource<GUIWidget>(id, (void*)m_manager);
 		RefreshHierarchy();
 		m_lastOpenWidget = id;
+
+		Widget* root = &m_currentWidget->GetRoot();
+		m_gridParent->AddChild(root);
+		root->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		root->SetAlignedPos(Vector2::Zero);
+		root->SetAlignedSize(Vector2::One);
+	}
+
+	void PanelWidgetEditor::CloseCurrent(bool save)
+	{
+		if (save)
+			m_editor->GetResourcePipeline().CloseAndSaveResource<GUIWidget>(m_currentWidget);
+		else
+			m_editor->GetResourcePipeline().CloseResource<GUIWidget>(m_currentWidget);
+
+		m_gridParent->RemoveChild(&m_currentWidget->GetRoot());
 	}
 } // namespace Lina::Editor
