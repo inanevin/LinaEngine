@@ -47,25 +47,25 @@ namespace Lina
 
 		struct Properties
 		{
-			Delegate<bool(int32)>											 onSelected;
+			Delegate<bool(int32)>													 onSelected;
 			Delegate<void(Vector<String>& outItems, Vector<int32>& outSelectedItem)> onAddItems;
 
-			float horizontalIndent = Theme::GetDef().baseIndentInner;
-            bool closeOnSelect = true;
-            bool switchTextOnSelect = true;
-            
+			float horizontalIndent	 = Theme::GetDef().baseIndentInner;
+			bool  closeOnSelect		 = true;
+			bool  switchTextOnSelect = true;
+
 			void SaveToStream(OStream& stream) const
 			{
 				stream << horizontalIndent;
-                stream << closeOnSelect;
-                stream << switchTextOnSelect;
+				stream << closeOnSelect;
+				stream << switchTextOnSelect;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
 				stream >> horizontalIndent;
-                stream >> closeOnSelect;
-                stream >> switchTextOnSelect;
+				stream >> closeOnSelect;
+				stream >> switchTextOnSelect;
 			}
 		};
 

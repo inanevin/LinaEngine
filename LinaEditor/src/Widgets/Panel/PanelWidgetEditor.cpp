@@ -55,20 +55,20 @@ namespace Lina::Editor
 	{
 		m_editor = Editor::Get();
 
-        DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
-        horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        horizontal->SetAlignedPos(Vector2::Zero);
-        horizontal->SetAlignedSize(Vector2::One);
-        horizontal->GetProps().direction = DirectionOrientation::Horizontal;
-        horizontal->GetProps().mode = DirectionalLayout::Mode::Bordered;
-        AddChild(horizontal);
-        
+		DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
+		horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		horizontal->SetAlignedPos(Vector2::Zero);
+		horizontal->SetAlignedSize(Vector2::One);
+		horizontal->GetProps().direction = DirectionOrientation::Horizontal;
+		horizontal->GetProps().mode		 = DirectionalLayout::Mode::Bordered;
+		AddChild(horizontal);
+
 		DirectionalLayout* leftSide = m_manager->Allocate<DirectionalLayout>("Left");
 		leftSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		leftSide->SetAlignedPos(Vector2(0.0f, 0.0f));
 		leftSide->SetAlignedSize(Vector2(0.25f, 1.0f));
-        leftSide->GetProps().mode = DirectionalLayout::Mode::Bordered;
-        leftSide->GetProps().direction = DirectionOrientation::Vertical;
+		leftSide->GetProps().mode	   = DirectionalLayout::Mode::Bordered;
+		leftSide->GetProps().direction = DirectionOrientation::Vertical;
 		horizontal->AddChild(leftSide);
 
 		Widget* widgetsPanel = m_manager->Allocate<Widget>("WidgetsPanel");
@@ -200,7 +200,6 @@ namespace Lina::Editor
 			m_hierarchyLayout = layout;
 		}
 
-
 		Widget* gridArea = m_manager->Allocate<Widget>("Grid");
 		gridArea->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		gridArea->SetAlignedPos(Vector2(0.25f, 0.0f));
@@ -215,12 +214,12 @@ namespace Lina::Editor
 		propertiesArea->SetAlignedSize(Vector2(0.25f, 1.0f));
 		horizontal->AddChild(propertiesArea);
 		m_propertiesArea = propertiesArea;
-        
-        m_leftSide = leftSide;
-        m_leftSideTop = widgetsPanel;
-        m_leftSideBot = hierarchy;
-        m_middle = m_gridParent;
-        m_rightSide = m_propertiesArea;
+
+		m_leftSide	  = leftSide;
+		m_leftSideTop = widgetsPanel;
+		m_leftSideBot = hierarchy;
+		m_middle	  = m_gridParent;
+		m_rightSide	  = m_propertiesArea;
 	}
 
 	void PanelWidgetEditor::PreDestruct()
@@ -233,26 +232,26 @@ namespace Lina::Editor
 
 	void PanelWidgetEditor::SaveLayoutToStream(OStream& stream)
 	{
-        stream << m_leftSide->GetAlignedSizeX();
-        stream << m_leftSideTop->GetAlignedSizeY();
-        stream << m_middle->GetAlignedSizeX();
+		stream << m_leftSide->GetAlignedSizeX();
+		stream << m_leftSideTop->GetAlignedSizeY();
+		stream << m_middle->GetAlignedSizeX();
 		stream << m_lastOpenWidget;
 	}
 
 	void PanelWidgetEditor::LoadLayoutFromStream(IStream& stream)
 	{
-        float align0 = 0.0f, align1 = 0.0f, align2 = 0.0f;
-        stream >> align0 >> align1 >> align2;
-        
-        m_leftSide->SetAlignedSizeX(align0);
-        m_middle->SetAlignedPosX(align0);
-        m_middle->SetAlignedSizeX(align2);
-        m_rightSide->SetAlignedPosX(align0 + align2);
-        m_rightSide->SetAlignedSizeX(1.0f - align0 - align2);
-        m_leftSideTop->SetAlignedSizeY(align1);
-        m_leftSideBot->SetAlignedPosY(align1);
-        m_leftSideBot->SetAlignedSizeY(1.0f - align1);
-        
+		float align0 = 0.0f, align1 = 0.0f, align2 = 0.0f;
+		stream >> align0 >> align1 >> align2;
+
+		m_leftSide->SetAlignedSizeX(align0);
+		m_middle->SetAlignedPosX(align0);
+		m_middle->SetAlignedSizeX(align2);
+		m_rightSide->SetAlignedPosX(align0 + align2);
+		m_rightSide->SetAlignedSizeX(1.0f - align0 - align2);
+		m_leftSideTop->SetAlignedSizeY(align1);
+		m_leftSideBot->SetAlignedPosY(align1);
+		m_leftSideBot->SetAlignedSizeY(1.0f - align1);
+
 		stream >> m_lastOpenWidget;
 		OpenWidget(m_lastOpenWidget);
 	}

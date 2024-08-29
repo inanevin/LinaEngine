@@ -81,113 +81,114 @@ namespace Lina
 			BehaviourEqualPositions(delta);
 		else if (m_props.mode == Mode::EqualSizes)
 			BehaviourEqualSizes(delta);
-        else if(m_props.mode == Mode::Bordered)
-            BehaviourBorders(delta);
+		else if (m_props.mode == Mode::Bordered)
+			BehaviourBorders(delta);
 	}
 
-    void DirectionalLayout::BehaviourBorders(float delta)
-    {
-        m_borderRects.resize(m_children.size() - 1);
-        
-        const uint32 sz = static_cast<uint32>(m_children.size());
-        
-        if(m_pressedBorder != -1)
-        {
-            Widget* negative = m_children[m_pressedBorder];
-            Widget* positive = m_children[m_pressedBorder + 1];
-            const Rect& r = m_borderRects[m_pressedBorder];
-            
-            const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();
-            const Vector2  perc               = mousePosition / GetSize();
-            const float    borderSizePercX = m_props.borderThickness / m_sz.x;
-            const float    borderSizePercY = m_props.borderThickness / m_sz.y;
-            
-            if (m_props.direction == DirectionOrientation::Horizontal)
-            {
-                const float desiredXPos = mousePosition.x - m_borderPressDiff;
-                const float deltaXPos    = desiredXPos - r.GetCenter().x;
-                const float deltaPerc    = deltaXPos / m_sz.x;
-                const float percAmt        = Math::Abs(deltaPerc);
+	void DirectionalLayout::BehaviourBorders(float delta)
+	{
+		m_borderRects.resize(m_children.size() - 1);
 
-                if (Math::Equals(percAmt, 0.0f, 0.0001f))
-                    return;
+		const uint32 sz = static_cast<uint32>(m_children.size());
 
-                if (deltaPerc > 0.0f)
-                {
-                    if (WidgetUtility::CheckIfCanShrinkWidgets({positive}, percAmt, true,m_props.borderMinSize * m_sz.x))
-                    {
-                        positive->AddAlignedPosX(percAmt);
-                        positive->AddAlignedSizeX(-percAmt);
-                        negative->AddAlignedSizeX(percAmt);
-                    }
-                }
-                else
-                {
-                    if (WidgetUtility::CheckIfCanShrinkWidgets({negative}, percAmt, true,m_props.borderMinSize * m_sz.x))
-                    {
-                        negative->AddAlignedSizeX(-percAmt);
-                        positive->AddAlignedPosX(-percAmt);
-                        positive->AddAlignedSizeX(percAmt);
-                    }
-                }
-            }
-            else{
-                const float desiredYPos = mousePosition.y - m_borderPressDiff;
-                const float deltaYPos    = desiredYPos - r.GetCenter().y;
-                const float deltaPerc    = deltaYPos / m_sz.y;
-                const float percAmt        = Math::Abs(deltaPerc);
+		if (m_pressedBorder != -1)
+		{
+			Widget*		negative = m_children[m_pressedBorder];
+			Widget*		positive = m_children[m_pressedBorder + 1];
+			const Rect& r		 = m_borderRects[m_pressedBorder];
 
-                if (deltaPerc > 0.0f)
-                {
-                    if (WidgetUtility::CheckIfCanShrinkWidgets({positive}, percAmt, false, m_props.borderMinSize * m_sz.y))
-                    {
-                        positive->AddAlignedPosY(percAmt);
-                        positive->AddAlignedSizeY(-percAmt);
-                        negative->AddAlignedSizeY(percAmt);
-                    }
-                }
-                else
-                {
-                    if (WidgetUtility::CheckIfCanShrinkWidgets({negative}, percAmt, false, m_props.borderMinSize * m_sz.y))
-                    {
-                        negative->AddAlignedSizeY(-percAmt);
-                        positive->AddAlignedPosY(-percAmt);
-                        positive->AddAlignedSizeY(percAmt);
-                    }
-                }
-            }
-        }
-        
-        for(uint32 i = 0; i < sz; i++)
-        {
-            Widget* c = m_children.at(i);
-            
-            if (m_props.direction == DirectionOrientation::Horizontal)
-            {
-                c->SetPosX(m_start.x + GetSizeX() * c->GetAlignedPosX());
-                c->SetSizeX(GetSizeX() * c->GetAlignedSizeX());
-                
-                if(i < sz - 1)
-                {
-                    Rect& rect = m_borderRects[i];
-                    rect.pos = Vector2(m_start.x + (GetSizeX() * c->GetAlignedPosX() + GetSizeX() * c->GetAlignedSizeX()) - m_props.borderThickness * 0.5f, m_start.y);
-                    rect.size = Vector2(m_props.borderThickness, m_end.y - m_start.y);
-                }
-            }
-            else
-            {
-                c->SetPosY(m_start.y + GetSizeY() * c->GetAlignedPosY());
-                c->SetSizeY(GetSizeY() * c->GetAlignedSizeY());
-                
-                if(i < sz - 1)
-                {
-                    Rect& rect = m_borderRects[i];
-                    rect.pos = Vector2(m_start.x, m_start.y + (GetSizeY() * c->GetAlignedPosY() + GetSizeY() * c->GetAlignedSizeY()) - m_props.borderThickness * 0.5f);
-                    rect.size = Vector2(m_end.x - m_start.x, m_props.borderThickness);
-                }
-            }
-        }
-    }
+			const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();
+			const Vector2  perc			   = mousePosition / GetSize();
+			const float	   borderSizePercX = m_props.borderThickness / m_sz.x;
+			const float	   borderSizePercY = m_props.borderThickness / m_sz.y;
+
+			if (m_props.direction == DirectionOrientation::Horizontal)
+			{
+				const float desiredXPos = mousePosition.x - m_borderPressDiff;
+				const float deltaXPos	= desiredXPos - r.GetCenter().x;
+				const float deltaPerc	= deltaXPos / m_sz.x;
+				const float percAmt		= Math::Abs(deltaPerc);
+
+				if (Math::Equals(percAmt, 0.0f, 0.0001f))
+					return;
+
+				if (deltaPerc > 0.0f)
+				{
+					if (WidgetUtility::CheckIfCanShrinkWidgets({positive}, percAmt, true, m_props.borderMinSize * m_sz.x))
+					{
+						positive->AddAlignedPosX(percAmt);
+						positive->AddAlignedSizeX(-percAmt);
+						negative->AddAlignedSizeX(percAmt);
+					}
+				}
+				else
+				{
+					if (WidgetUtility::CheckIfCanShrinkWidgets({negative}, percAmt, true, m_props.borderMinSize * m_sz.x))
+					{
+						negative->AddAlignedSizeX(-percAmt);
+						positive->AddAlignedPosX(-percAmt);
+						positive->AddAlignedSizeX(percAmt);
+					}
+				}
+			}
+			else
+			{
+				const float desiredYPos = mousePosition.y - m_borderPressDiff;
+				const float deltaYPos	= desiredYPos - r.GetCenter().y;
+				const float deltaPerc	= deltaYPos / m_sz.y;
+				const float percAmt		= Math::Abs(deltaPerc);
+
+				if (deltaPerc > 0.0f)
+				{
+					if (WidgetUtility::CheckIfCanShrinkWidgets({positive}, percAmt, false, m_props.borderMinSize * m_sz.y))
+					{
+						positive->AddAlignedPosY(percAmt);
+						positive->AddAlignedSizeY(-percAmt);
+						negative->AddAlignedSizeY(percAmt);
+					}
+				}
+				else
+				{
+					if (WidgetUtility::CheckIfCanShrinkWidgets({negative}, percAmt, false, m_props.borderMinSize * m_sz.y))
+					{
+						negative->AddAlignedSizeY(-percAmt);
+						positive->AddAlignedPosY(-percAmt);
+						positive->AddAlignedSizeY(percAmt);
+					}
+				}
+			}
+		}
+
+		for (uint32 i = 0; i < sz; i++)
+		{
+			Widget* c = m_children.at(i);
+
+			if (m_props.direction == DirectionOrientation::Horizontal)
+			{
+				c->SetPosX(m_start.x + GetSizeX() * c->GetAlignedPosX());
+				c->SetSizeX(GetSizeX() * c->GetAlignedSizeX());
+
+				if (i < sz - 1)
+				{
+					Rect& rect = m_borderRects[i];
+					rect.pos   = Vector2(m_start.x + (GetSizeX() * c->GetAlignedPosX() + GetSizeX() * c->GetAlignedSizeX()) - m_props.borderThickness * 0.5f, m_start.y);
+					rect.size  = Vector2(m_props.borderThickness, m_end.y - m_start.y);
+				}
+			}
+			else
+			{
+				c->SetPosY(m_start.y + GetSizeY() * c->GetAlignedPosY());
+				c->SetSizeY(GetSizeY() * c->GetAlignedSizeY());
+
+				if (i < sz - 1)
+				{
+					Rect& rect = m_borderRects[i];
+					rect.pos   = Vector2(m_start.x, m_start.y + (GetSizeY() * c->GetAlignedPosY() + GetSizeY() * c->GetAlignedSizeY()) - m_props.borderThickness * 0.5f);
+					rect.size  = Vector2(m_end.x - m_start.x, m_props.borderThickness);
+				}
+			}
+		}
+	}
 	void DirectionalLayout::BehaviourEqualSizes(float delta)
 	{
 		if (m_children.empty())
@@ -289,26 +290,25 @@ namespace Lina
 		if (end.x - start.x < 1.0f || end.y - start.y < 1.0f)
 			return;
 		Widget::Draw();
-        
-        if(m_props.mode != Mode::Bordered)
-            return;
-        
-        LinaVG::StyleOptions opts;
-        
-        const uint32 childSz = static_cast<uint32>(m_children.size());
-        
-        for(uint32 i = 0; i < childSz - 1; i++)
-        {
-            const Rect& r = m_borderRects[i];
-            
-            if(m_pressedBorder != -1)
-                opts.color = m_pressedBorder == i ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
-            else
-                opts.color = r.IsPointInside(m_lgxWindow->GetMousePosition()) ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
-            
-            m_lvg->DrawRect(r.pos.AsLVG(), r.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
-        }
-        
+
+		if (m_props.mode != Mode::Bordered)
+			return;
+
+		LinaVG::StyleOptions opts;
+
+		const uint32 childSz = static_cast<uint32>(m_children.size());
+
+		for (uint32 i = 0; i < childSz - 1; i++)
+		{
+			const Rect& r = m_borderRects[i];
+
+			if (m_pressedBorder != -1)
+				opts.color = m_pressedBorder == i ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
+			else
+				opts.color = r.IsPointInside(m_lgxWindow->GetMousePosition()) ? m_props.colorBorderHovered.AsLVG4() : m_props.colorBorder.AsLVG4();
+
+			m_lvg->DrawRect(r.pos.AsLVG(), r.GetEnd().AsLVG(), opts, 0.0f, m_drawOrder);
+		}
 	}
 
 	void DirectionalLayout::DebugDraw(int32 drawOrder)
@@ -322,33 +322,32 @@ namespace Lina
 
 	bool DirectionalLayout::OnMouse(uint32 button, LinaGX::InputAction act)
 	{
-        if(m_props.mode == Mode::Bordered && button == LINAGX_MOUSE_0)
-        {
-            if(act == LinaGX::InputAction::Pressed)
-            {
-                int32 i = 0;
-                for(const Rect& rect : m_borderRects)
-                {
-                    if(rect.IsPointInside(m_lgxWindow->GetMousePosition()))
-                    {
-                        m_pressedBorder = i;
-                        m_borderPressDiff = m_props.direction == DirectionOrientation::Vertical ? (m_lgxWindow->GetMousePosition().y - rect.GetCenter().y) : (m_lgxWindow->GetMousePosition().x - rect.GetCenter().x);
+		if (m_props.mode == Mode::Bordered && button == LINAGX_MOUSE_0)
+		{
+			if (act == LinaGX::InputAction::Pressed)
+			{
+				int32 i = 0;
+				for (const Rect& rect : m_borderRects)
+				{
+					if (rect.IsPointInside(m_lgxWindow->GetMousePosition()))
+					{
+						m_pressedBorder	  = i;
+						m_borderPressDiff = m_props.direction == DirectionOrientation::Vertical ? (m_lgxWindow->GetMousePosition().y - rect.GetCenter().y) : (m_lgxWindow->GetMousePosition().x - rect.GetCenter().x);
 
-                        return true;
-                    }
-                    i++;
-                }
-            }
-            else
-            {
-                if(m_pressedBorder != -1)
-                {
-                    m_pressedBorder = -1;
-                    return true;
-                }
-            }
-            
-        }
+						return true;
+					}
+					i++;
+				}
+			}
+			else
+			{
+				if (m_pressedBorder != -1)
+				{
+					m_pressedBorder = -1;
+					return true;
+				}
+			}
+		}
 		if (!m_props.receiveInput)
 			return false;
 
@@ -416,39 +415,39 @@ namespace Lina
 		return sz - GetWidgetProps().childPadding;
 	}
 
-    void DirectionalLayout::Properties::SaveToStream(OStream& stream) const
-    {
-        stream << static_cast<uint8>(mode);
-        stream << static_cast<uint8>(direction);
-        colorBorder.SaveToStream(stream);
-        colorBorderHovered.SaveToStream(stream);
-        stream << borderThickness;
-        stream << borderMinSize;
-    }
+	void DirectionalLayout::Properties::SaveToStream(OStream& stream) const
+	{
+		stream << static_cast<uint8>(mode);
+		stream << static_cast<uint8>(direction);
+		colorBorder.SaveToStream(stream);
+		colorBorderHovered.SaveToStream(stream);
+		stream << borderThickness;
+		stream << borderMinSize;
+	}
 
-    void DirectionalLayout::Properties::LoadFromStream(IStream& stream)
-    {
-        uint8 modeInt = 0, directionInt = 0;
-        stream >> modeInt;
-        stream >> directionInt;
-        mode = static_cast<Mode>(modeInt);
-        direction = static_cast<DirectionOrientation>(directionInt);
-        colorBorder.LoadFromStream(stream);
-        colorBorderHovered.LoadFromStream(stream);
-        stream >> borderThickness;
-        stream >> borderMinSize;
-    }
+	void DirectionalLayout::Properties::LoadFromStream(IStream& stream)
+	{
+		uint8 modeInt = 0, directionInt = 0;
+		stream >> modeInt;
+		stream >> directionInt;
+		mode	  = static_cast<Mode>(modeInt);
+		direction = static_cast<DirectionOrientation>(directionInt);
+		colorBorder.LoadFromStream(stream);
+		colorBorderHovered.LoadFromStream(stream);
+		stream >> borderThickness;
+		stream >> borderMinSize;
+	}
 
-    LinaGX::CursorType DirectionalLayout::GetCursorOverride()
-    {
-        if(m_props.mode == Mode::Bordered)
-        {
-            for(const Rect& rect : m_borderRects)
-            {
-                if(rect.IsPointInside(m_lgxWindow->GetMousePosition()))
-                    return m_props.direction == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeHorizontal : LinaGX::CursorType::SizeVertical;
-            }
-        }
-        return LinaGX::CursorType::Default;
-    }
+	LinaGX::CursorType DirectionalLayout::GetCursorOverride()
+	{
+		if (m_props.mode == Mode::Bordered)
+		{
+			for (const Rect& rect : m_borderRects)
+			{
+				if (rect.IsPointInside(m_lgxWindow->GetMousePosition()))
+					return m_props.direction == DirectionOrientation::Horizontal ? LinaGX::CursorType::SizeHorizontal : LinaGX::CursorType::SizeVertical;
+			}
+		}
+		return LinaGX::CursorType::Default;
+	}
 } // namespace Lina

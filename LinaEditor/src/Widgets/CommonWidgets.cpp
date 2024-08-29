@@ -778,157 +778,155 @@ namespace Lina::Editor
 		return pp;
 	}
 
-    Widget* CommonWidgets::BuildFieldLayout(Widget *src, const String &title)
-    {
-        WidgetManager* wm = src->GetWidgetManager();
+	Widget* CommonWidgets::BuildFieldLayout(Widget* src, const String& title)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
 
-        DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("FieldLayout");
-        layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-        layout->GetProps().direction = DirectionOrientation::Horizontal;
-        layout->SetAlignedPosX(0.0f);
-        layout->SetAlignedSizeX(1.0f);
-        layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-        layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-        
-        Text* txt = wm->Allocate<Text>("FieldTitle");
-        txt->GetProps().text = title;
-        txt->GetFlags().Set(WF_POS_ALIGN_Y);
-        txt->SetAlignedPosY(0.5f);
-        txt->SetAnchorY(Anchor::Center);
-        layout->AddChild(txt);
-        
-        return layout;
-    }
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("FieldLayout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		layout->GetProps().direction = DirectionOrientation::Horizontal;
+		layout->SetAlignedPosX(0.0f);
+		layout->SetAlignedSizeX(1.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 
-    Widget* CommonWidgets::BuildField(Widget *src, const String &title, StringID fieldType, FieldValue reflectionValue, FieldBase* field)
-    {
-        WidgetManager* wm = src->GetWidgetManager();
-        Widget* layout = BuildFieldLayout(src, title);
-        
-        DirectionalLayout* rightSide = wm->Allocate<DirectionalLayout>("RightSide");
-        rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
-        rightSide->GetProps().direction = DirectionOrientation::Horizontal;
-        rightSide->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-        rightSide->SetAlignedPosX(1.0f);
-        rightSide->SetAlignedPosY(0.0f);
-        rightSide->SetAlignedSizeX(0.5f);
-        rightSide->SetAlignedSizeY(1.0f);
-        rightSide->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
-        rightSide->SetAnchorX(Anchor::End);
-        layout->AddChild(rightSide);
-        
-        
-        auto getValueField = [wm](float* ptr, bool hasLimits, float minFloat, float maxFloat) -> InputField* {
-            InputField* inp = wm->Allocate<InputField>();
-            inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-            inp->SetAlignedSize(Vector2(0.0f, 1.0f));
-            inp->SetAlignedPosY(0.0f);
-            inp->GetText()->GetProps().text = TO_STRING(*ptr);
-            inp->GetProps().value = ptr;
-            inp->GetProps().isNumberField = true;
-            inp->GetProps().disableNumberSlider = !hasLimits;
-            inp->GetProps().valueMin = minFloat;
-            inp->GetProps().valueMax = maxFloat;
-            inp->GetProps().valueStep = (maxFloat - minFloat) / 20.0f;
-            return inp;
-        };
-        
-        String min = "", max = "";
-        if(field->HasProperty<String>("Min"_hs))
-        {
-            min = field->GetProperty<String>("Min"_hs);
-            max = field->GetProperty<String>("Max"_hs);
-        }
-        
-        if(fieldType == "Bitmask32"_hs)
-        {
-            Dropdown* dd = wm->Allocate<Dropdown>();
-            dd->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-            dd->SetAlignedSize(Vector2(0.0f, 1.0f));
-            dd->SetAlignedPosY(0.0f);
-            
-            Bitmask32 bm = reflectionValue.GetValue<Bitmask32>();
-            dd->GetText()->GetProps().text = TO_STRING(bm.GetValue());
-            
-            rightSide->AddChild(dd);
-        }
-        else if(fieldType == "enum"_hs)
-        {
-            Dropdown* dd = wm->Allocate<Dropdown>();
-            dd->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-            dd->SetAlignedSize(Vector2(0.0f, 1.0f));
-            dd->SetAlignedPosY(0.0f);
-            
-            int32* enumVal = reflectionValue.CastPtr<int32>();
-            
-            dd->GetProps().onSelected = [enumVal](int32 item) -> bool {
-                *enumVal = item;
-                return true;
-            };
-            
-            
-            rightSide->AddChild(dd);
-        }
-        else if(fieldType == "Vector2"_hs)
-        {
-            Vector2* val = reflectionValue.CastPtr<Vector2>();
-            
-            uint32 outDecimals = 0;
-            
-            const bool hasLimits = !min.empty();
-            float minFloat = 0.0f, maxFloat = 0.0f;
-            
-            if(hasLimits)
-            {
-                minFloat = UtilStr::StringToFloat(min, outDecimals);
-                maxFloat = UtilStr::StringToFloat(max, outDecimals);
-            }
-            
-            rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
-            rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
-        }
-        else if(fieldType == "Vector3"_hs)
-        {
-            Vector3* val = reflectionValue.CastPtr<Vector3>();
-            
-            uint32 outDecimals = 0;
-            
-            const bool hasLimits = !min.empty();
-            float minFloat = 0.0f, maxFloat = 0.0f;
-            
-            if(hasLimits)
-            {
-                minFloat = UtilStr::StringToFloat(min, outDecimals);
-                maxFloat = UtilStr::StringToFloat(max, outDecimals);
-            }
-            
-            rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
-            rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
-            rightSide->AddChild(getValueField(&val->z, hasLimits, minFloat, maxFloat));
-        }
-        else if(fieldType == "Vector4"_hs)
-        {
-            Vector4* val = reflectionValue.CastPtr<Vector4>();
-            
-            uint32 outDecimals = 0;
-            
-            const bool hasLimits = !min.empty();
-            float minFloat = 0.0f, maxFloat = 0.0f;
-            
-            if(hasLimits)
-            {
-                minFloat = UtilStr::StringToFloat(min, outDecimals);
-                maxFloat = UtilStr::StringToFloat(max, outDecimals);
-            }
-            
-            rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
-            rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
-            rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
-            rightSide->AddChild(getValueField(&val->w, hasLimits, minFloat, maxFloat));
-        }
-        
-        layout->Initialize();
-        return layout;
-    }
+		Text* txt			 = wm->Allocate<Text>("FieldTitle");
+		txt->GetProps().text = title;
+		txt->GetFlags().Set(WF_POS_ALIGN_Y);
+		txt->SetAlignedPosY(0.5f);
+		txt->SetAnchorY(Anchor::Center);
+		layout->AddChild(txt);
+
+		return layout;
+	}
+
+	Widget* CommonWidgets::BuildField(Widget* src, const String& title, StringID fieldType, FieldValue reflectionValue, FieldBase* field)
+	{
+		WidgetManager* wm	  = src->GetWidgetManager();
+		Widget*		   layout = BuildFieldLayout(src, title);
+
+		DirectionalLayout* rightSide = wm->Allocate<DirectionalLayout>("RightSide");
+		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
+		rightSide->GetProps().direction			 = DirectionOrientation::Horizontal;
+		rightSide->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		rightSide->SetAlignedPosX(1.0f);
+		rightSide->SetAlignedPosY(0.0f);
+		rightSide->SetAlignedSizeX(0.5f);
+		rightSide->SetAlignedSizeY(1.0f);
+		rightSide->GetProps().mode = DirectionalLayout::Mode::EqualSizes;
+		rightSide->SetAnchorX(Anchor::End);
+		layout->AddChild(rightSide);
+
+		auto getValueField = [wm](float* ptr, bool hasLimits, float minFloat, float maxFloat) -> InputField* {
+			InputField* inp = wm->Allocate<InputField>();
+			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
+			inp->SetAlignedPosY(0.0f);
+			inp->GetText()->GetProps().text		= TO_STRING(*ptr);
+			inp->GetProps().value				= ptr;
+			inp->GetProps().isNumberField		= true;
+			inp->GetProps().disableNumberSlider = !hasLimits;
+			inp->GetProps().valueMin			= minFloat;
+			inp->GetProps().valueMax			= maxFloat;
+			inp->GetProps().valueStep			= (maxFloat - minFloat) / 20.0f;
+			return inp;
+		};
+
+		String min = "", max = "";
+		if (field->HasProperty<String>("Min"_hs))
+		{
+			min = field->GetProperty<String>("Min"_hs);
+			max = field->GetProperty<String>("Max"_hs);
+		}
+
+		if (fieldType == "Bitmask32"_hs)
+		{
+			Dropdown* dd = wm->Allocate<Dropdown>();
+			dd->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			dd->SetAlignedSize(Vector2(0.0f, 1.0f));
+			dd->SetAlignedPosY(0.0f);
+
+			Bitmask32 bm				   = reflectionValue.GetValue<Bitmask32>();
+			dd->GetText()->GetProps().text = TO_STRING(bm.GetValue());
+
+			rightSide->AddChild(dd);
+		}
+		else if (fieldType == "enum"_hs)
+		{
+			Dropdown* dd = wm->Allocate<Dropdown>();
+			dd->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			dd->SetAlignedSize(Vector2(0.0f, 1.0f));
+			dd->SetAlignedPosY(0.0f);
+
+			int32* enumVal = reflectionValue.CastPtr<int32>();
+
+			dd->GetProps().onSelected = [enumVal](int32 item) -> bool {
+				*enumVal = item;
+				return true;
+			};
+
+			rightSide->AddChild(dd);
+		}
+		else if (fieldType == "Vector2"_hs)
+		{
+			Vector2* val = reflectionValue.CastPtr<Vector2>();
+
+			uint32 outDecimals = 0;
+
+			const bool hasLimits = !min.empty();
+			float	   minFloat = 0.0f, maxFloat = 0.0f;
+
+			if (hasLimits)
+			{
+				minFloat = UtilStr::StringToFloat(min, outDecimals);
+				maxFloat = UtilStr::StringToFloat(max, outDecimals);
+			}
+
+			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
+		}
+		else if (fieldType == "Vector3"_hs)
+		{
+			Vector3* val = reflectionValue.CastPtr<Vector3>();
+
+			uint32 outDecimals = 0;
+
+			const bool hasLimits = !min.empty();
+			float	   minFloat = 0.0f, maxFloat = 0.0f;
+
+			if (hasLimits)
+			{
+				minFloat = UtilStr::StringToFloat(min, outDecimals);
+				maxFloat = UtilStr::StringToFloat(max, outDecimals);
+			}
+
+			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
+			rightSide->AddChild(getValueField(&val->z, hasLimits, minFloat, maxFloat));
+		}
+		else if (fieldType == "Vector4"_hs)
+		{
+			Vector4* val = reflectionValue.CastPtr<Vector4>();
+
+			uint32 outDecimals = 0;
+
+			const bool hasLimits = !min.empty();
+			float	   minFloat = 0.0f, maxFloat = 0.0f;
+
+			if (hasLimits)
+			{
+				minFloat = UtilStr::StringToFloat(min, outDecimals);
+				maxFloat = UtilStr::StringToFloat(max, outDecimals);
+			}
+
+			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
+			rightSide->AddChild(getValueField(&val->w, hasLimits, minFloat, maxFloat));
+		}
+
+		layout->Initialize();
+		return layout;
+	}
 
 } // namespace Lina::Editor
