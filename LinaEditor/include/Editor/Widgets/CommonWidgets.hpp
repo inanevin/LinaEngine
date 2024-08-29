@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Common/Data/String.hpp"
 #include "Common/Math/Color.hpp"
+#include "Core/Reflection/ReflectionSystem.hpp"
 
 namespace Lina
 {
@@ -73,5 +74,8 @@ namespace Lina::Editor
 		static Widget* BuildDirectoryItemFolderView(Widget* src, DirectoryItem* item, float margin);
 		static Widget* BuildDirectoryItemListView(Widget* src, DirectoryItem* item);
 		static Widget* BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize);
+
+		static Widget* BuildFieldLayout(Widget* src, const String& title);
+		static Widget* BuildField(Widget* src, const String& title, StringID fieldType, FieldValue reflectionValue, FieldBase* field);
 	};
 } // namespace Lina::Editor

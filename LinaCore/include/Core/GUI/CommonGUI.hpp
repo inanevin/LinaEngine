@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Common/Math/Rect.hpp"
 #include "Common/Data/Map.hpp"
 #include "Common/Common.hpp"
+#include "Core/Reflection/ClassReflection.hpp"
 
 namespace Lina
 {
@@ -86,8 +87,6 @@ namespace Lina
 		WF_MOUSE_PASSTHRU		 = 1 << 18,
 		WF_KEY_PASSTHRU			 = 1 << 19,
 		WF_SIZE_AFTER_CHILDREN	 = 1 << 20,
-		WF_CONTROL_MANAGER		 = 1 << 21,
-		WF_ALLOW_MULTICONTROL	 = 1 << 22,
 	};
 
 	enum class Anchor
@@ -96,6 +95,9 @@ namespace Lina
 		Center,
 		End
 	};
+
+	LINA_REFLECTENUM_BEGIN(Anchor, "Anchor")
+	LINA_REFLECTENUM_END(Anchor)
 
 	enum class ColorDisplay
 	{

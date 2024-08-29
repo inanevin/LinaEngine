@@ -350,7 +350,7 @@ namespace Lina::Editor
 		contents->AddChild(BuildFileBrowserTop());
 
 		ItemController* itemController = m_manager->Allocate<ItemController>("ItemController");
-		itemController->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
+		itemController->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		itemController->SetAlignedPosX(0.0f);
 		itemController->SetAlignedSize(Vector2(1.0f, 0.0f));
 		itemController->GetWidgetProps().drawBackground	  = true;
@@ -465,7 +465,7 @@ namespace Lina::Editor
 		AddChild(browser);
 
 		ItemController* itemController = m_manager->Allocate<ItemController>("ItemController");
-		itemController->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_CONTROL_MANAGER);
+		itemController->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		itemController->SetAlignedPosX(0.0f);
 		itemController->SetAlignedSize(Vector2(1.0f, 0.0f));
 		itemController->GetWidgetProps().drawBackground	  = true;

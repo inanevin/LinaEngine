@@ -101,75 +101,76 @@ namespace Lina
 		VAR.y += y;                                                                                                                                                                                                                                                \
 	}
 
+	struct DropshadowProps
+	{
+		bool		enabled			   = false;
+		bool		isInner			   = false;
+		float		margin			   = 0.0f;
+		float		thickness		   = Theme::GetDef().baseOutlineThickness;
+		float		rounding		   = 0.0f;
+		int32		drawOrderIncrement = 0;
+		uint32		steps			   = 4;
+		Color		color			   = Theme::GetDef().black;
+		Direction	direction		   = Direction::Center;
+		Vector<int> onlyRound;
+
+		virtual void SaveToStream(OStream& stream) const;
+		virtual void LoadFromStream(IStream& stream, uint32 version);
+	};
+
+	struct WidgetProps
+	{
+		bool				 clipChildren				 = false;
+		bool				 customClip					 = false;
+		bool				 drawBackground				 = false;
+		bool				 backgroundIsCentralGradient = false;
+		bool				 interpolateColor			 = false;
+		bool				 fitTexture					 = false;
+		bool				 hoveredIsDifferentColor	 = false;
+		bool				 pressedIsDifferentColor	 = false;
+		bool				 activeTextureTiling		 = false;
+		bool				 useSpecialTexture			 = false;
+		bool				 outlineIsInner				 = false;
+		float				 colorInterpolateSpeed		 = 0.0f;
+		float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
+		float				 rounding					 = 0.0f;
+		float				 childPadding				 = 0.0f;
+		int32				 drawOrderIncrement			 = 0;
+		String				 tooltip					 = "";
+		String				 debugName					 = "";
+		TBLR				 childMargins				 = {};
+		TBLR				 borderThickness			 = {};
+		Color				 colorBorders				 = Theme::GetDef().outlineColorBase;
+		ColorGrad			 colorBackground			 = Theme::GetDef().background0;
+		ColorGrad			 colorOutline				 = Theme::GetDef().outlineColorBase;
+		ColorGrad			 colorOutlineControls		 = Theme::GetDef().outlineColorControls;
+		ColorGrad			 colorHovered				 = Theme::GetDef().background2;
+		ColorGrad			 colorPressed				 = Theme::GetDef().background1;
+		ColorGrad			 colorDisabled				 = Theme::GetDef().silent0;
+		DirectionOrientation colorBackgroundDirection	 = DirectionOrientation::Horizontal;
+		TextureAtlasImage*	 textureAtlas				 = nullptr;
+		Texture*			 rawTexture					 = nullptr;
+		uint32				 specialTexture				 = 0;
+		Vector2				 textureTiling				 = Vector2::One;
+		Vector<int32>		 onlyRound					 = {};
+		Rect				 customClipRect				 = {};
+		ColorGrad			 _interpolatedColor			 = Color();
+		DropshadowProps		 dropshadow;
+
+		virtual void SaveToStream(OStream& stream) const;
+		virtual void LoadFromStream(IStream& stream, uint32 version);
+	};
+
 	class Widget
 	{
 	public:
-		struct DropshadowProps
-		{
-			bool		enabled			   = false;
-			bool		isInner			   = false;
-			float		margin			   = 0.0f;
-			float		thickness		   = Theme::GetDef().baseOutlineThickness;
-			float		rounding		   = 0.0f;
-			int32		drawOrderIncrement = 0;
-			uint32		steps			   = 4;
-			Color		color			   = Theme::GetDef().black;
-			Direction	direction		   = Direction::Center;
-			Vector<int> onlyRound;
-
-			virtual void SaveToStream(OStream& stream) const;
-			virtual void LoadFromStream(IStream& stream, uint32 version);
-		};
-
-		struct WidgetProps
-		{
-			bool				 clipChildren				 = false;
-			bool				 customClip					 = false;
-			bool				 drawBackground				 = false;
-			bool				 backgroundIsCentralGradient = false;
-			bool				 interpolateColor			 = false;
-			bool				 fitTexture					 = false;
-			bool				 hoveredIsDifferentColor	 = false;
-			bool				 pressedIsDifferentColor	 = false;
-			bool				 activeTextureTiling		 = false;
-			bool				 useSpecialTexture			 = false;
-			bool				 outlineIsInner				 = false;
-			float				 colorInterpolateSpeed		 = 0.0f;
-			float				 outlineThickness			 = Theme::GetDef().baseOutlineThickness;
-			float				 rounding					 = 0.0f;
-			float				 childPadding				 = 0.0f;
-			int32				 drawOrderIncrement			 = 0;
-			String				 tooltip					 = "";
-			String				 debugName					 = "";
-			TBLR				 childMargins				 = {};
-			TBLR				 borderThickness			 = {};
-			Color				 colorBorders				 = Theme::GetDef().outlineColorBase;
-			ColorGrad			 colorBackground			 = Theme::GetDef().background0;
-			ColorGrad			 colorOutline				 = Theme::GetDef().outlineColorBase;
-			ColorGrad			 colorOutlineControls		 = Theme::GetDef().outlineColorControls;
-			ColorGrad			 colorHovered				 = Theme::GetDef().background2;
-			ColorGrad			 colorPressed				 = Theme::GetDef().background1;
-			ColorGrad			 colorDisabled				 = Theme::GetDef().silent0;
-			DirectionOrientation colorBackgroundDirection	 = DirectionOrientation::Horizontal;
-			TextureAtlasImage*	 textureAtlas				 = nullptr;
-			Texture*			 rawTexture					 = nullptr;
-			uint32				 specialTexture				 = 0;
-			Vector2				 textureTiling				 = Vector2::One;
-			Vector<int32>		 onlyRound					 = {};
-			Rect				 customClipRect				 = {};
-			ColorGrad			 _interpolatedColor			 = Color();
-			DropshadowProps		 dropshadow;
-
-			virtual void SaveToStream(OStream& stream) const;
-			virtual void LoadFromStream(IStream& stream, uint32 version);
-		};
-
 		Widget(Bitmask32 flags = 0) : m_flags(flags), m_tid(GetTypeID<Widget>()){};
 		virtual ~Widget() = default;
 
 		virtual void Initialize();
 		virtual void Construct(){};
 		virtual void Destruct(){};
+		virtual void PreDestruct(){};
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction action)
 		{
 			return false;
@@ -477,6 +478,7 @@ namespace Lina
 		void CheckCustomTooltip();
 
 	protected:
+		LINA_REFLECTION_ACCESS(Widget);
 		ALLOCATOR_BUCKET_MEM;
 		WidgetManager*				m_manager			   = nullptr;
 		ResourceManagerV2*			m_resourceManager	   = nullptr;
@@ -514,6 +516,61 @@ namespace Lina
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Widget, General)
+	LINA_FIELD(Widget, m_flags, "Flags", "Bitmask32", 0)
+	LINA_FIELD(Widget, m_alignedPos, "Aligned Position", "Vector2", 0)
+	LINA_FIELD_LIMITS(Widget, m_alignedPos, "0.0f", "1.0f")
+	LINA_FIELD(Widget, m_alignedSize, "Aligned Size", "Vector2", 0)
+	LINA_FIELD_LIMITS(Widget, m_alignedSize, "0.0f", "1.0f")
+	LINA_FIELD(Widget, m_anchorX, "Anchor X", "enum", 0)
+	LINA_FIELD(Widget, m_anchorY, "Anchor Y", "enum", 0)
+	LINA_FIELD(Widget, m_widgetProps, "Widget Properties", "Class", GetTypeID<WidgetProps>())
 	LINA_REFLECTWIDGET_END(Widget)
+
+	// LINA_REFLECT_FIELD(DropshadowProps, enabled, "Enabled", "bool", "", "", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, isInner, "Enabled", "bool", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, margin, "Enabled", "float", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, thickness, "Enabled", "float", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, rounding, "Enabled", "float", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, drawOrderIncrement, "Enabled", "int32", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, steps, "Enabled", "uint32", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, color, "Enabled", "Color", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, direction, "Enabled", "Direction", "", "enabled", 0);
+	// LINA_REFLECT_FIELD(DropshadowProps, onlyRound, "Enabled", "Vector", "", "enabled", GetTypeID<int>());
+
+	LINA_REFLECTCLASS_BEGIN(WidgetProps, "Widget Props")
+	// LINA_FIELD(WidgetProps, clipChildren, "Clip Children", "bool", "", "", 0);
+	// LINA_FIELD(WidgetProps, customClip, "Custom Clip", "bool", "", "", 0);
+	// LINA_FIELD(WidgetProps, customClipRect, "Custom Clip Rect", "Rect", "", "customClip", 0);
+	// LINA_FIELD(WidgetProps, drawBackground, "Draw Background", "bool", "", "", 0);
+	// LINA_FIELD(WidgetProps, backgroundIsCentralGradient, "Central Gradient", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, interpolateColor, "Interpolate Color", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, fitTexture, "Fit Texture", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, hoveredIsDifferentColor, "Use Hovered Color", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, pressedIsDifferentColor, "Use Pressed Color", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, activeTextureTiling, "Active Texture Tiling", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, useSpecialTexture, "Use Special Texture", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, outlineIsInner, "Inner Outline", "bool", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, colorInterpolateSpeed, "Color Interpolate Speed", "float", "", "drawBackground,interpolateColor", 0);
+	// LINA_FIELD(WidgetProps, outlineThickness, "Outline Thickness", "float", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, rounding, "Rounding", "float", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, childPadding, "Child Padding", "float", "", "", 0);
+	// LINA_FIELD(WidgetProps, drawOrderIncrement, "Draw Order Increment", "int32", "", "", 0);
+	// LINA_FIELD(WidgetProps, tooltip, "Tooltip", "String", "", "", 0);
+	// LINA_FIELD(WidgetProps, debugName, "Debug Name", "String", "", "", 0);
+	// LINA_FIELD(WidgetProps, childMargins, "Child Margins", "TBLR", "", "", 0);
+	// LINA_FIELD(WidgetProps, borderThickness, "Border Thicknesses", "TBLR", "", "", 0);
+	// LINA_FIELD(WidgetProps, colorBorders, "Border Color", "Color", "", "", 0);
+	// LINA_FIELD(WidgetProps, colorBackground, "Background Color", "ColorGrad", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, colorOutline, "Outline Color", "ColorGrad", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, colorOutlineControls, "Outline Color in Control", "ColorGrad", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, colorHovered, "Hovered Color", "ColorGrad", "", "drawBackground,hoveredIsDifferentColor", 0);
+	// LINA_FIELD(WidgetProps, colorPressed, "Pressed Color", "ColorGrad", "", "drawBackground,pressedIsDifferentColor", 0);
+	// LINA_FIELD(WidgetProps, colorDisabled, "Disabled Color", "ColorGrad", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, colorBackgroundDirection, "Background Direction", "DirectionOrientation", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, specialTexture, "Special Texture", "uint32", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, textureTiling, "Texture Tiling", "Vector2", "", "drawBackground", 0);
+	// LINA_FIELD(WidgetProps, onlyRound, "Only Round", "Vector", "", "drawBackground", GetTypeID<int>());
+	// LINA_FIELD(WidgetProps, dropshadow, "Dropshadow", "Class", "", "", GetTypeID<DropshadowProps>());
+	LINA_REFLECTCLASS_END(WidgetProps)
 
 } // namespace Lina

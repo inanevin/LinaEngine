@@ -277,11 +277,14 @@ namespace Lina::Editor
 
 		// Display dropdown
 		Dropdown* displayDropdown			   = m_manager->Allocate<Dropdown>("ColorDisplayDropdown");
-		displayDropdown->GetProps().onSelected = [this](int32 item) { SwitchColorDisplay(static_cast<ColorDisplay>(item)); };
-		displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, int32& outSelected) {
+		displayDropdown->GetProps().onSelected = [this](int32 item) -> bool {
+			SwitchColorDisplay(static_cast<ColorDisplay>(item));
+			return true;
+		};
+		displayDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, Vector<int32>& outSelected) {
 			for (int32 i = 0; i < static_cast<int32>(ColorDisplay::MAX); i++)
 				outItems.push_back(COLOR_DISPLAY_VALUES[static_cast<ColorDisplay>(i)]);
-			outSelected = static_cast<int32>(m_selectedDisplay);
+			outSelected.push_back(static_cast<int32>(m_selectedDisplay));
 		};
 
 		displayDropdown->GetText()->GetProps().text = COLOR_DISPLAY_VALUES[m_selectedDisplay];

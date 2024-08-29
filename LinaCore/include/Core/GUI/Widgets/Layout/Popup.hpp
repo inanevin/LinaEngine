@@ -60,6 +60,7 @@ namespace Lina
 		void AddTitleItem(const String& title, float heightMultiplier = 1.5f);
 		void AddToggleItem(const String& title, bool isSelected, void* userData = nullptr, float heightMultiplier = 1.5f);
 		void ScrollToItem(void* userData);
+		void SwitchToggleItem(int32 item, bool on);
 
 		inline void ScrollToItem(int32 target)
 		{
@@ -80,7 +81,6 @@ namespace Lina
 			return m_props;
 		}
 
-	private:
 	private:
 		Properties				   m_props			 = {};
 		DirectionalLayout*		   m_background		 = nullptr;

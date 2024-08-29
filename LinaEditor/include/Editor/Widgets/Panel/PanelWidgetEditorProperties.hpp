@@ -45,6 +45,9 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		void		 Refresh(Widget* w);
+
+	private:
+		Widget* m_layout = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelWidgetEditorProperties, Editor)

@@ -55,11 +55,21 @@ namespace Lina::Editor
 	{
 		m_editor = Editor::Get();
 
-		Widget* leftSide = m_manager->Allocate<Widget>("Left");
+        DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>("Horizontal");
+        horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+        horizontal->SetAlignedPos(Vector2::Zero);
+        horizontal->SetAlignedSize(Vector2::One);
+        horizontal->GetProps().direction = DirectionOrientation::Horizontal;
+        horizontal->GetProps().mode = DirectionalLayout::Mode::Bordered;
+        AddChild(horizontal);
+        
+		DirectionalLayout* leftSide = m_manager->Allocate<DirectionalLayout>("Left");
 		leftSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		leftSide->SetAlignedPos(Vector2(0.0f, 0.0f));
 		leftSide->SetAlignedSize(Vector2(0.25f, 1.0f));
-		AddChild(leftSide);
+        leftSide->GetProps().mode = DirectionalLayout::Mode::Bordered;
+        leftSide->GetProps().direction = DirectionOrientation::Vertical;
+		horizontal->AddChild(leftSide);
 
 		Widget* widgetsPanel = m_manager->Allocate<Widget>("WidgetsPanel");
 		widgetsPanel->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -190,69 +200,30 @@ namespace Lina::Editor
 			m_hierarchyLayout = layout;
 		}
 
-		Widget* rightSide = m_manager->Allocate<Widget>("RightSide");
-		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		rightSide->SetAlignedPos(Vector2(0.25f, 0.0f));
-		rightSide->SetAlignedSize(Vector2(0.75f, 1.0f));
-		AddChild(rightSide);
 
 		Widget* gridArea = m_manager->Allocate<Widget>("Grid");
 		gridArea->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		gridArea->SetAlignedPos(Vector2(0.0f, 0.0f));
-		gridArea->SetAlignedSize(Vector2(0.75f, 1.0f));
+		gridArea->SetAlignedPos(Vector2(0.25f, 0.0f));
+		gridArea->SetAlignedSize(Vector2(0.5f, 1.0f));
 		gridArea->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent * 2);
-		rightSide->AddChild(gridArea);
-
+		horizontal->AddChild(gridArea);
 		m_gridParent = gridArea;
 
 		PanelWidgetEditorProperties* propertiesArea = m_manager->Allocate<PanelWidgetEditorProperties>("Properties");
 		propertiesArea->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		propertiesArea->SetAlignedPos(Vector2(0.75f, 0.0f));
 		propertiesArea->SetAlignedSize(Vector2(0.25f, 1.0f));
-		rightSide->AddChild(propertiesArea);
+		horizontal->AddChild(propertiesArea);
 		m_propertiesArea = propertiesArea;
-
-		LayoutBorder* borderHierarchyAndWidgets = m_manager->Allocate<LayoutBorder>("Border");
-		borderHierarchyAndWidgets->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X);
-		borderHierarchyAndWidgets->SetAlignedPos(Vector2(0.0f, 0.5f));
-		borderHierarchyAndWidgets->SetAlignedSizeX(1.0f);
-		borderHierarchyAndWidgets->GetProps().orientation			= DirectionOrientation::Horizontal;
-		borderHierarchyAndWidgets->GetProps().minSize				= 0.15f;
-		borderHierarchyAndWidgets->GetWidgetProps().drawBackground	= true;
-		borderHierarchyAndWidgets->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		borderHierarchyAndWidgets->GetWidgetProps().colorHovered	= Theme::GetDef().background3;
-		leftSide->AddChild(borderHierarchyAndWidgets);
-		borderHierarchyAndWidgets->AssignSides(widgetsPanel, hierarchy);
-		m_border2 = borderHierarchyAndWidgets;
-
-		LayoutBorder* borderGridAndItems = m_manager->Allocate<LayoutBorder>("Border");
-		borderGridAndItems->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		borderGridAndItems->SetAlignedPos(Vector2(0.25f, 0.0f));
-		borderGridAndItems->SetAlignedSizeY(1.0f);
-		borderGridAndItems->GetProps().orientation			 = DirectionOrientation::Vertical;
-		borderGridAndItems->GetProps().minSize				 = 0.15f;
-		borderGridAndItems->GetWidgetProps().drawBackground	 = true;
-		borderGridAndItems->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		borderGridAndItems->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
-		borderGridAndItems->AssignSides(leftSide, rightSide);
-		AddChild(borderGridAndItems);
-		m_border1 = borderGridAndItems;
-
-		LayoutBorder* borderGridAndProperties = m_manager->Allocate<LayoutBorder>("Border");
-		borderGridAndProperties->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		borderGridAndProperties->SetAlignedPos(Vector2(0.75f, 0.0f));
-		borderGridAndProperties->SetAlignedSizeY(1.0f);
-		borderGridAndProperties->GetProps().orientation			  = DirectionOrientation::Vertical;
-		borderGridAndProperties->GetProps().minSize				  = 0.15f;
-		borderGridAndProperties->GetWidgetProps().drawBackground  = true;
-		borderGridAndProperties->GetWidgetProps().colorBackground = Theme::GetDef().background0;
-		borderGridAndProperties->GetWidgetProps().colorHovered	  = Theme::GetDef().background3;
-		borderGridAndProperties->AssignSides(gridArea, propertiesArea);
-		rightSide->AddChild(borderGridAndProperties);
-		m_border3 = borderGridAndProperties;
+        
+        m_leftSide = leftSide;
+        m_leftSideTop = widgetsPanel;
+        m_leftSideBot = hierarchy;
+        m_middle = m_gridParent;
+        m_rightSide = m_propertiesArea;
 	}
 
-	void PanelWidgetEditor::Destruct()
+	void PanelWidgetEditor::PreDestruct()
 	{
 		if (m_currentWidget == nullptr)
 			return;
@@ -262,17 +233,26 @@ namespace Lina::Editor
 
 	void PanelWidgetEditor::SaveLayoutToStream(OStream& stream)
 	{
-		m_border1->SaveToStream(stream);
-		m_border2->SaveToStream(stream);
-		m_border3->SaveToStream(stream);
+        stream << m_leftSide->GetAlignedSizeX();
+        stream << m_leftSideTop->GetAlignedSizeY();
+        stream << m_middle->GetAlignedSizeX();
 		stream << m_lastOpenWidget;
 	}
 
 	void PanelWidgetEditor::LoadLayoutFromStream(IStream& stream)
 	{
-		m_border1->LoadFromStream(stream);
-		m_border2->LoadFromStream(stream);
-		m_border3->LoadFromStream(stream);
+        float align0 = 0.0f, align1 = 0.0f, align2 = 0.0f;
+        stream >> align0 >> align1 >> align2;
+        
+        m_leftSide->SetAlignedSizeX(align0);
+        m_middle->SetAlignedPosX(align0);
+        m_middle->SetAlignedSizeX(align2);
+        m_rightSide->SetAlignedPosX(align0 + align2);
+        m_rightSide->SetAlignedSizeX(1.0f - align0 - align2);
+        m_leftSideTop->SetAlignedSizeY(align1);
+        m_leftSideBot->SetAlignedPosY(align1);
+        m_leftSideBot->SetAlignedSizeY(1.0f - align1);
+        
 		stream >> m_lastOpenWidget;
 		OpenWidget(m_lastOpenWidget);
 	}

@@ -181,13 +181,16 @@ namespace Lina::Editor
 			Dropdown* dd = m_manager->Allocate<Dropdown>("Dropdown");
 
 			dd->GetText()->GetProps().text = "None";
-			dd->GetProps().onAddItems	   = [](Vector<String>& outItems, int32& outSelectedItem) {
-				 outSelectedItem = selectedDropdownItem;
+			dd->GetProps().onAddItems	   = [](Vector<String>& outItems, Vector<int32>& outSelectedItems) {
+				 outSelectedItems.push_back(selectedDropdownItem);
 				 for (int32 i = 0; i < 3; i++)
 					 outItems.push_back(dummyDropdownItems[i]);
 			};
 
-			dd->GetProps().onSelected = [](int32 selected) { selectedDropdownItem = selected; };
+			dd->GetProps().onSelected = [](int32 selected) -> bool {
+				selectedDropdownItem = selected;
+				return true;
+			};
 
 			setFlags(dd);
 			layout->AddChild(dd);

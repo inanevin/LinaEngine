@@ -162,6 +162,11 @@ namespace Lina
 		shape->AddChild(text);
 	}
 
+	void Popup::SwitchToggleItem(int32 item, bool on)
+	{
+		Icon* icn			  = Widget::GetWidgetOfType<Icon>(m_items[item]);
+		icn->GetProps().color = on ? Theme::GetDef().accentPrimary1 : Theme::GetDef().foreground0;
+	}
 	void Popup::AddToggleItem(const String& title, bool isSelected, void* userData, float heightMultiplier)
 	{
 		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>("Layout");

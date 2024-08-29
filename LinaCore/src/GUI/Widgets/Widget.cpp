@@ -344,7 +344,7 @@ namespace Lina
 		DrawTooltip();
 	}
 
-	void Widget::DropshadowProps::SaveToStream(OStream& stream) const
+	void DropshadowProps::SaveToStream(OStream& stream) const
 	{
 		stream << enabled << isInner;
 		stream << margin << thickness << rounding << drawOrderIncrement << steps;
@@ -353,7 +353,7 @@ namespace Lina
 		VectorSerialization::SaveToStream_PT(stream, onlyRound);
 	}
 
-	void Widget::DropshadowProps::LoadFromStream(IStream& stream, uint32 version)
+	void DropshadowProps::LoadFromStream(IStream& stream, uint32 version)
 	{
 		stream >> enabled >> isInner;
 		stream >> margin >> thickness >> rounding >> drawOrderIncrement >> steps;
@@ -364,7 +364,7 @@ namespace Lina
 		VectorSerialization::LoadFromStream_PT(stream, onlyRound);
 	}
 
-	void Widget::WidgetProps::SaveToStream(OStream& stream) const
+	void WidgetProps::SaveToStream(OStream& stream) const
 	{
 		dropshadow.SaveToStream(stream);
 		stream << clipChildren << customClip << drawBackground << backgroundIsCentralGradient;
@@ -390,7 +390,7 @@ namespace Lina
 		customClipRect.SaveToStream(stream);
 	}
 
-	void Widget::WidgetProps::LoadFromStream(IStream& stream, uint32 version)
+	void WidgetProps::LoadFromStream(IStream& stream, uint32 version)
 	{
 		dropshadow.LoadFromStream(stream, version);
 		stream >> clipChildren >> customClip >> drawBackground >> backgroundIsCentralGradient;

@@ -85,30 +85,40 @@ namespace Lina
 	{
 
 		Vector<String> items;
-		int32		   selectedItem = -1;
+		Vector<int32>  selectedItems;
 		if (m_props.onAddItems)
-			m_props.onAddItems(items, selectedItem);
+			m_props.onAddItems(items, selectedItems);
 
 		Popup* popup = m_manager->Allocate<Popup>("Popup");
 		popup->SetPos(GetPos() + Vector2(0.0f, GetSizeY()));
-		popup->GetProps().selectedIcon = Theme::GetDef().iconCircleFilled;
+		popup->GetProps().selectedIcon	= Theme::GetDef().iconCircleFilled;
+		popup->GetProps().closeOnSelect = m_props.closeOnSelect;
 
 		const int32 sz = static_cast<int32>(items.size());
 		for (int32 i = 0; i < sz; i++)
 		{
-			const auto& it = items[i];
-			popup->AddToggleItem(it, i == selectedItem, nullptr);
+			const auto& it	  = items[i];
+			auto		found = linatl::find_if(selectedItems.begin(), selectedItems.end(), [i](int32 itm) -> bool { return i == itm; });
+			popup->AddToggleItem(it, found != selectedItems.end(), nullptr);
 		}
 
-		popup->GetProps().onSelectedItem = [this, items](uint32 idx, void* ud) {
-			m_text->GetProps().text = items[idx];
-			m_text->CalculateTextSize();
+		popup->GetProps().onSelectedItem = [this, items, popup](uint32 idx, void* ud) {
+			if (m_props.switchTextOnSelect)
+			{
+				m_text->GetProps().text = items[idx];
+				m_text->CalculateTextSize();
+			}
+
 			if (m_props.onSelected)
-				m_props.onSelected(idx);
+			{
+				const bool isOn = m_props.onSelected(idx);
+				popup->SwitchToggleItem(idx, isOn);
+			}
 		};
+
 		popup->Initialize();
-		if (selectedItem != -1)
-			popup->ScrollToItem(selectedItem);
+		if (selectedItems.size() == 1 && selectedItems.front() != -1)
+			popup->ScrollToItem(selectedItems.front());
 
 		m_manager->AddToForeground(popup);
 		m_manager->GrabControls(popup);

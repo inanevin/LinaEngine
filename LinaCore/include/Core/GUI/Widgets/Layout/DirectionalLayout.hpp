@@ -45,6 +45,7 @@ namespace Lina
 			Default,
 			EqualPositions,
 			EqualSizes,
+			Bordered,
 		};
 
 		enum class BackgroundStyle
@@ -56,8 +57,12 @@ namespace Lina
 
 		struct Properties
 		{
-			DirectionOrientation direction = DirectionOrientation::Horizontal;
-			Mode				 mode	   = Mode::Default;
+			DirectionOrientation direction			= DirectionOrientation::Horizontal;
+			Mode				 mode				= Mode::Default;
+			Color				 colorBorder		= Theme::GetDef().background0;
+			Color				 colorBorderHovered = Theme::GetDef().background3;
+			float				 borderThickness	= Theme::GetDef().baseBorderThickness;
+			float				 borderMinSize		= 0.15f;
 			Delegate<void()>	 onClicked;
 			Delegate<void()>	 onDoubleClicked;
 			Delegate<void()>	 onRightClicked;
@@ -66,16 +71,32 @@ namespace Lina
 			Delegate<void()>	 onHoverBegin;
 			Delegate<void()>	 onHoverEnd;
 			bool				 receiveInput = false;
+
+			void SaveToStream(OStream& stream) const;
+			void LoadFromStream(IStream& stream);
 		};
 
-		virtual void  Destruct() override;
-		virtual void  Initialize() override;
-		virtual void  PreTick() override;
-		virtual void  Tick(float delta) override;
-		virtual void  Draw() override;
-		virtual void  DebugDraw(int32 drawOrder) override;
-		virtual bool  OnMouse(uint32 button, LinaGX::InputAction act) override;
-		virtual float CalculateChildrenSize() override;
+		virtual void			   Destruct() override;
+		virtual void			   Initialize() override;
+		virtual void			   PreTick() override;
+		virtual void			   Tick(float delta) override;
+		virtual void			   Draw() override;
+		virtual void			   DebugDraw(int32 drawOrder) override;
+		virtual bool			   OnMouse(uint32 button, LinaGX::InputAction act) override;
+		virtual float			   CalculateChildrenSize() override;
+		virtual LinaGX::CursorType GetCursorOverride() override;
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
 
 		inline void SetProps(const Properties& props)
 		{
@@ -92,17 +113,21 @@ namespace Lina
 		void				   BehaviourDefault(float delta);
 		void				   BehaviourEqualPositions(float delta);
 		void				   BehaviourEqualSizes(float delta);
+		void				   BehaviourBorders(float delta);
 
 	protected:
 		Properties m_props = {};
 
 	private:
-		Vector2 m_start			  = Vector2::Zero;
-		Vector2 m_end			  = Vector2::Zero;
-		Vector2 m_sz			  = Vector2::Zero;
-		Vector2 m_center		  = Vector2::Zero;
-		bool	m_lastHoverStatus = false;
-		float	m_animValue		  = 0.0f;
+		int32		 m_pressedBorder   = -1;
+		float		 m_borderPressDiff = 0.0f;
+		Vector<Rect> m_borderRects;
+		Vector2		 m_start		   = Vector2::Zero;
+		Vector2		 m_end			   = Vector2::Zero;
+		Vector2		 m_sz			   = Vector2::Zero;
+		Vector2		 m_center		   = Vector2::Zero;
+		bool		 m_lastHoverStatus = false;
+		float		 m_animValue	   = 0.0f;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(DirectionalLayout, Layout)

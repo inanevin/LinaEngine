@@ -156,6 +156,7 @@ namespace Lina
 
 		widget->m_customTooltip = nullptr;
 
+		widget->PreDestruct();
 		for (auto* c : widget->m_children)
 			Deallocate(c);
 
@@ -706,46 +707,22 @@ namespace Lina
 	void WidgetManager::GrabControls(Widget* widget)
 	{
 		m_controlOwner = widget;
-
-		// if (!widget->GetFlags().IsSet(WF_ALLOW_MULTICONTROL))
-		// 	m_controlsOwners.clear();
-		//
-		// if (!m_window->GetInput()->GetKey(LINAGX_KEY_LCTRL))
-		// 	m_controlsOwners.clear();
-		//
-		// m_controlsOwners.push_back(widget);
-		//
-		// auto* owningScroll = FindScrollAreaAbove(widget);
-		//
-		// if (owningScroll)
-		// 	owningScroll->ScrollToChild(widget);
-		//
-		// if (widget->GetLocalControlsManager())
-		// 	widget->GetLocalControlsManager()->SetLocalControlsOwner(widget);
 	}
 
 	void WidgetManager::ReleaseControls(Widget* widget)
 	{
 		if (m_controlOwner == widget)
 			m_controlOwner = nullptr;
-
-		// auto it = linatl::find_if(m_controlsOwners.begin(), m_controlsOwners.end(), [widget](Widget* w) -> bool { return w == widget; });
-		//
-		// if (it != m_controlsOwners.end())
-		// 	m_controlsOwners.erase(it);
-	} //
+	}
 
 	Widget* WidgetManager::GetControlsOwner()
 	{
 		return m_controlOwner;
-		// return m_controlsOwners.empty() ? nullptr : m_controlsOwners.front();
 	}
 
 	bool WidgetManager::IsControlsOwner(Widget* w)
 	{
 		return m_controlOwner == w;
-		// auto it = linatl::find_if(m_controlsOwners.begin(), m_controlsOwners.end(), [w](Widget* widget) -> bool { return w == widget; });
-		// return it != m_controlsOwners.end();
 	}
 
 	Widget* WidgetManager::FindNextSelectable(Widget* start)

@@ -33,7 +33,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class LayoutBorder;
 	class GUIWidget;
 	class DirectionalLayout;
 } // namespace Lina
@@ -64,7 +63,7 @@ namespace Lina::Editor
 		virtual ~PanelWidgetEditor() = default;
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
+		virtual void PreDestruct() override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
 		virtual void LoadLayoutFromStream(IStream& stream) override;
@@ -92,14 +91,17 @@ namespace Lina::Editor
 		HashMap<Widget*, bool>		 m_foldValues;
 		Editor*						 m_editor			   = nullptr;
 		GUIWidget*					 m_currentWidget	   = nullptr;
-		LayoutBorder*				 m_border1			   = nullptr;
-		LayoutBorder*				 m_border2			   = nullptr;
-		LayoutBorder*				 m_border3			   = nullptr;
 		ItemController*				 m_widgetsController   = nullptr;
 		ItemController*				 m_hierarchyController = nullptr;
 		DirectionalLayout*			 m_widgetsLayout	   = nullptr;
 		DirectionalLayout*			 m_hierarchyLayout	   = nullptr;
 		PanelWidgetEditorProperties* m_propertiesArea	   = nullptr;
+
+		Widget* m_leftSide	  = nullptr;
+		Widget* m_leftSideTop = nullptr;
+		Widget* m_leftSideBot = nullptr;
+		Widget* m_middle	  = nullptr;
+		Widget* m_rightSide	  = nullptr;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelWidgetEditor, Editor)

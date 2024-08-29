@@ -72,7 +72,6 @@ namespace Lina::Editor
 		panel->GetWidgetProps().dropshadow.color.w	 = 0.25f;
 		panel->GetWidgetProps().dropshadow.steps	 = 8;
 
-		panel->GetFlags().Set(WF_CONTROL_MANAGER);
 		panel->Initialize();
 		return panel;
 	}

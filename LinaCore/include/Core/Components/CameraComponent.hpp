@@ -92,8 +92,5 @@ namespace Lina
 	};
 
 	LINA_REFLECTCOMPONENT_BEGIN(CameraComponent, "Camera", "Graphics")
-	LINA_REFLECT_FIELD(CameraComponent, m_fieldOfView, "FOV", "FLOAT", "", "Field of View Angles", "");
-	// LINA_REFLECT_FIELD(CameraComponent, m_zNear, "Near Plane", "FLOAT", "", "Near Plane", "");
-	// LINA_REFLECT_FIELD(CameraComponent, m_zFar, "Far Plane", "FLOAT", "", "Far Plane", "");
 	LINA_REFLECTCOMPONENT_END(CameraComponent);
 } // namespace Lina

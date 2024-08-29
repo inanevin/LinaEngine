@@ -120,6 +120,11 @@ namespace Lina
 			m_propertyCaches.clear();
 		}
 
+		const HashMap<TypeID, PropertyCacheBase*>& GetPropertyCaches() const
+		{
+			return m_propertyCaches;
+		}
+
 	private:
 		HashMap<TypeID, PropertyCacheBase*> m_propertyCaches;
 	};
@@ -176,6 +181,18 @@ namespace Lina
 		{
 			return m_propertyCacheManager.GetProperty<T>(sid);
 		}
+
+		template <typename T> inline bool HasProperty(StringID sid)
+		{
+			return m_propertyCacheManager.HasProperty<T>(sid);
+		}
+
+		const HashMap<TypeID, PropertyCacheBase*>& GetPropertyCaches() const
+		{
+			return m_propertyCacheManager.GetPropertyCaches();
+		}
+
+		int32 _order = 0;
 
 	private:
 		PropertyCacheManager m_propertyCacheManager;
@@ -241,6 +258,7 @@ namespace Lina
 		{
 			Field<decltype(DATA), Class>* f = new Field<decltype(DATA), Class>();
 			f->m_var						= DATA;
+			f->_order						= static_cast<int32>(m_fields.size());
 			m_fields[sid]					= f;
 		}
 
@@ -289,6 +307,23 @@ namespace Lina
 			const TypeID	  tid	= GetTypeID<T>();
 			FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(m_functionCaches[tid]);
 			return cache->GetFunction(sid);
+		}
+
+		const HashMap<StringID, FieldBase*>& GetFields() const
+		{
+			return m_fields;
+		}
+
+		Vector<FieldBase*> GetFieldsOrdered() const
+		{
+			Vector<FieldBase*> fields;
+			fields.reserve(m_fields.size());
+
+			for (auto [sid, fb] : m_fields)
+				fields.push_back(fb);
+
+			linatl::sort(fields.begin(), fields.end(), [](FieldBase* f1, FieldBase* f2) -> bool { return f1->_order < f2->_order; });
+			return fields;
 		}
 
 	private:

@@ -95,7 +95,7 @@ namespace Lina
 				Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1, std::placeholders::_2));
 
 	/* BEGINNING A REFLECTED CLASS */
-#define LINA_REFLECTCLASS_BEGIN(ClassName, TITLE, CATEGORY)                                                                                                                                                                                                        \
+#define LINA_REFLECTCLASS_BEGIN(ClassName, TITLE)                                                                                                                                                                                                                  \
 	class ClassName;                                                                                                                                                                                                                                               \
 	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
 	{                                                                                                                                                                                                                                                              \
@@ -106,9 +106,22 @@ namespace Lina
 			if (reflected)                                                                                                                                                                                                                                         \
 				return;                                                                                                                                                                                                                                            \
 			reflected = true;                                                                                                                                                                                                                                      \
-			LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                              \
 			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<ClassName>));                                                                                    \
 			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<ClassName>, std::placeholders::_1));
+
+#define LINA_REFLECTENUM_BEGIN(EnumName, TITLE)                                                                                                                                                                                                                    \
+	enum class EnumName;                                                                                                                                                                                                                                           \
+	class EnumName##_LinaReflected                                                                                                                                                                                                                                 \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		EnumName##_LinaReflected()                                                                                                                                                                                                                                 \
+		{                                                                                                                                                                                                                                                          \
+			static bool reflected = false;                                                                                                                                                                                                                         \
+			if (reflected)                                                                                                                                                                                                                                         \
+				return;                                                                                                                                                                                                                                            \
+			reflected = true;                                                                                                                                                                                                                                      \
+			Lina::ReflectionSystem::Get().Meta<EnumName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);
 
 /* BEGINNING A REFLECTED WIDGET */
 #define LINA_REFLECTWIDGET_BEGIN(ClassName, Category)                                                                                                                                                                                                              \
@@ -142,14 +155,20 @@ namespace Lina
 			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateResourceCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateResourceCacheFunc<ClassName>));
 
 /* PROPERTIES AND FUNCTIONS PER REFLECTED CLASS*/
-#define LINA_REFLECT_FIELD(ClassName, FieldName, TITLE, TYPE, CATEGORY, TOOLTIP, DEPENDSON)                                                                                                                                                                        \
+#define LINA_FIELD(ClassName, FieldName, TITLE, TYPE, SUBTYPE)                                                                                                                                                                                                     \
 	const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TITLE);                                                                                                                                                                                                   \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().AddField<&ClassName::FieldName, ClassName>(sid_##FieldName);                                                                                                                                                   \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                           \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Type"), TYPE);                                                                                                                             \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);                                                                                                                     \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);                                                                                                                       \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("DependsOn"), DEPENDSON);
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("Type"), Lina::TO_SIDC(TYPE));                                                                                                            \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::TypeID>(Lina::TO_SIDC("SubType"), SUBTYPE);
+
+#define LINA_FIELD_TOOLTIP(ClassName, FieldName, TOOLTIP) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);
+
+#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), Lina::TO_SIDC(DEPENDSON));
+
+#define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX)                                                                                                                                                                                                          \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Min"), MIN);                                                                                                                               \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Max"), MAX);
 
 /* ENDING A REFLECTED CLASS */
 #define LINA_REFLECTCLASS_END(ClassName)                                                                                                                                                                                                                           \
@@ -159,6 +178,7 @@ namespace Lina
 	inline static ClassName##_LinaReflected ClassName##__ = ClassName##_LinaReflected();
 #define LINA_REFLECTCOMPONENT_END(ClassName) LINA_REFLECTCLASS_END(ClassName)
 #define LINA_REFLECTWIDGET_END(ClassName)	 LINA_REFLECTCLASS_END(ClassName)
+#define LINA_REFLECTENUM_END(EnumName)		 LINA_REFLECTCLASS_END(EnumName)
 #define LINA_REFLECTRESOURCE_END(ClassName)	 LINA_REFLECTCLASS_END(ClassName)
 #define LINA_REFLECTION_ACCESS(ClassName)	 friend class ClassName##_LinaReflected;
 

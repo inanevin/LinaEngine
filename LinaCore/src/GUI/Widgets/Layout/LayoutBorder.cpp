@@ -63,10 +63,8 @@ namespace Lina
 	{
 		if (m_isPressed)
 		{
-			const Vector2& mousePosition   = m_lgxWindow->GetMousePosition();
-			const Vector2  perc			   = mousePosition / m_parent->GetSize();
-			const float	   borderSizePercX = m_props.thickness / m_parent->GetSizeX();
-			const float	   borderSizePercY = m_props.thickness / m_parent->GetSizeY();
+			const Vector2& mousePosition = m_lgxWindow->GetMousePosition();
+			const Vector2  perc			 = mousePosition / m_parent->GetSize();
 
 			if (m_props.orientation == DirectionOrientation::Horizontal)
 			{
@@ -186,6 +184,9 @@ namespace Lina
 	{
 		float alignedBorder = 0.0f;
 		stream >> alignedBorder;
+
+		if (m_negative == nullptr || m_positive == nullptr)
+			return;
 
 		if (m_props.orientation == DirectionOrientation::Vertical)
 		{
