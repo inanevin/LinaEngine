@@ -473,18 +473,20 @@ namespace Lina::Editor
 		p->AddButton(GenericPopup::ButtonProps{
 			.text = Locale::GetStr(LocaleStr::Yes),
 			.onClicked =
-				[onAct, this]() {
+				[onAct, this, p]() {
 					CloseCurrent(true);
 					onAct();
+					m_manager->AddToKillList(p);
 				},
 		});
 
 		p->AddButton(GenericPopup::ButtonProps{
 			.text = Locale::GetStr(LocaleStr::No),
 			.onClicked =
-				[onAct, this]() {
+				[onAct, this, p]() {
 					CloseCurrent(false);
 					onAct();
+					m_manager->AddToKillList(p);
 				},
 		});
 
@@ -645,6 +647,7 @@ namespace Lina::Editor
 
 	void PanelWidgetEditor::OpenWidget(ResourceID id)
 	{
+		m_propertiesArea->Refresh(nullptr);
 		m_currentWidget = m_editor->GetResourcePipeline().OpenResource<GUIWidget>(id, (void*)m_manager);
 		RefreshHierarchy();
 		m_lastOpenWidget = id;
@@ -654,6 +657,7 @@ namespace Lina::Editor
 		root->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		root->SetAlignedPos(Vector2::Zero);
 		root->SetAlignedSize(Vector2::One);
+		m_propertiesArea->Refresh(root);
 	}
 
 	void PanelWidgetEditor::CloseCurrent(bool save)

@@ -920,12 +920,25 @@ namespace Lina::Editor
 		rightSide->SetAnchorX(Anchor::End);
 		layout->AddChild(rightSide);
 
-		auto getValueField = [wm](void* ptr, bool hasLimits, float minFloat, float maxFloat, uint8 bits, bool isInt, bool isUnsigned) -> InputField* {
+		bool   hasLimits = false;
+		String min = "", max = "";
+		float  minFloat = 0.0f, maxFloat = 0.0f;
+		if (field->HasProperty<String>("Min"_hs))
+		{
+			min		  = field->GetProperty<String>("Min"_hs);
+			max		  = field->GetProperty<String>("Max"_hs);
+			hasLimits = true;
+
+			uint32 outDecimals = 0;
+			minFloat		   = UtilStr::StringToFloat(min, outDecimals);
+			maxFloat		   = UtilStr::StringToFloat(max, outDecimals);
+		}
+
+		auto getValueField = [wm, hasLimits, minFloat, maxFloat](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
 			InputField* inp = wm->Allocate<InputField>();
 			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
 			inp->SetAlignedPosY(0.0f);
-			inp->GetText()->GetProps().text		= TO_STRING(*reinterpret_cast<float*>(ptr));
 			inp->GetProps().isNumberField		= true;
 			inp->GetProps().disableNumberSlider = !hasLimits;
 			inp->GetProps().valueMin			= minFloat;
@@ -948,7 +961,10 @@ namespace Lina::Editor
 			else if (bits == 16 && !isUnsigned)
 				inp->GetProps().i16Value = reinterpret_cast<int16*>(ptr);
 			if (bits == 32 && isUnsigned)
-				inp->GetProps().u32Value = reinterpret_cast<uint32*>(ptr);
+			{
+				inp->GetProps().u32Value		= reinterpret_cast<uint32*>(ptr);
+				inp->GetText()->GetProps().text = TO_STRING(*reinterpret_cast<uint32*>(ptr));
+			}
 			else if (bits == 32 && !isUnsigned)
 			{
 				if (isInt)
@@ -962,13 +978,6 @@ namespace Lina::Editor
 
 			return inp;
 		};
-
-		String min = "", max = "";
-		if (field->HasProperty<String>("Min"_hs))
-		{
-			min = field->GetProperty<String>("Min"_hs);
-			max = field->GetProperty<String>("Max"_hs);
-		}
 
 		if (fieldType == "Bitmask32"_hs)
 		{
@@ -1042,85 +1051,93 @@ namespace Lina::Editor
 
 			rightSide->AddChild(dd);
 		}
-		else if (fieldType == "Vector2"_hs || fieldType == "Vector2ui"_hs || fieldType == "Vector2i"_hs)
+		else if (fieldType == "Vector2"_hs)
 		{
 			Vector2* val = reflectionValue.CastPtr<Vector2>();
-
-			uint32 outDecimals = 0;
-
-			const bool hasLimits = !min.empty();
-			float	   minFloat = 0.0f, maxFloat = 0.0f;
-
-			if (hasLimits)
-			{
-				minFloat = UtilStr::StringToFloat(min, outDecimals);
-				maxFloat = UtilStr::StringToFloat(max, outDecimals);
-			}
-
-			const bool isInt	  = fieldType != "Vector4"_hs;
-			const bool isUnsigned = fieldType == "Vector4ui"_hs;
-			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->x, 32));
+			rightSide->AddChild(getValueField(&val->y, 32));
 		}
-		else if (fieldType == "Vector3"_hs || fieldType == "Vector3ui"_hs || fieldType == "Vector3i"_hs)
+		else if (fieldType == "Vector2ui"_hs)
+		{
+			Vector2ui* val = reflectionValue.CastPtr<Vector2ui>();
+			rightSide->AddChild(getValueField(&val->x, 32, true, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true, true));
+		}
+		else if (fieldType == "Vector2i"_hs)
+		{
+			Vector2i* val = reflectionValue.CastPtr<Vector2i>();
+			rightSide->AddChild(getValueField(&val->x, 32, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true));
+		}
+		else if (fieldType == "Vector3"_hs)
 		{
 			Vector3* val = reflectionValue.CastPtr<Vector3>();
-
-			uint32 outDecimals = 0;
-
-			const bool hasLimits = !min.empty();
-			float	   minFloat = 0.0f, maxFloat = 0.0f;
-
-			if (hasLimits)
-			{
-				minFloat = UtilStr::StringToFloat(min, outDecimals);
-				maxFloat = UtilStr::StringToFloat(max, outDecimals);
-			}
-
-			const bool isInt	  = fieldType != "Vector3"_hs;
-			const bool isUnsigned = fieldType == "Vector3ui"_hs;
-
-			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
-			rightSide->AddChild(getValueField(&val->z, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->x, 32));
+			rightSide->AddChild(getValueField(&val->y, 32));
+			rightSide->AddChild(getValueField(&val->z, 32));
 		}
-		else if (fieldType == "Vector4"_hs || fieldType == "Vector4ui"_hs || fieldType == "Vector4i"_hs)
+		else if (fieldType == "Vector3ui"_hs)
+		{
+			Vector3ui* val = reflectionValue.CastPtr<Vector3ui>();
+			rightSide->AddChild(getValueField(&val->x, 32, true, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true, true));
+			rightSide->AddChild(getValueField(&val->z, 32, true, true));
+		}
+		else if (fieldType == "Vector4"_hs)
 		{
 			Vector4* val = reflectionValue.CastPtr<Vector4>();
-
-			uint32 outDecimals = 0;
-
-			const bool hasLimits = !min.empty();
-			float	   minFloat = 0.0f, maxFloat = 0.0f;
-
-			if (hasLimits)
-			{
-				minFloat = UtilStr::StringToFloat(min, outDecimals);
-				maxFloat = UtilStr::StringToFloat(max, outDecimals);
-			}
-
-			const bool isInt	  = fieldType != "Vector4"_hs;
-			const bool isUnsigned = fieldType == "Vector4ui"_hs;
-			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
-			rightSide->AddChild(getValueField(&val->w, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->x, 32));
+			rightSide->AddChild(getValueField(&val->y, 32));
+			rightSide->AddChild(getValueField(&val->y, 32));
+			rightSide->AddChild(getValueField(&val->w, 32));
+		}
+		else if (fieldType == "Vector4ui"_hs)
+		{
+			Vector4ui* val = reflectionValue.CastPtr<Vector4ui>();
+			rightSide->AddChild(getValueField(&val->x, 32, true, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true, true));
+			rightSide->AddChild(getValueField(&val->w, 32, true, true));
+		}
+		else if (fieldType == "Vector4i"_hs)
+		{
+			Vector4i* val = reflectionValue.CastPtr<Vector4i>();
+			rightSide->AddChild(getValueField(&val->x, 32, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true));
+			rightSide->AddChild(getValueField(&val->y, 32, true));
+			rightSide->AddChild(getValueField(&val->w, 32, true));
 		}
 		else if (fieldType == "Rect"_hs)
 		{
 			Rect* rect = reflectionValue.CastPtr<Rect>();
-			rightSide->AddChild(getValueField(&rect->pos.x, false, 0.0f, 0.0f, 32, false, false));
-			rightSide->AddChild(getValueField(&rect->pos.y, false, 0.0f, 0.0f, 32, false, false));
-			rightSide->AddChild(getValueField(&rect->size.x, false, 0.0f, 0.0f, 32, false, false));
-			rightSide->AddChild(getValueField(&rect->size.y, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&rect->pos.x, 32));
+			rightSide->AddChild(getValueField(&rect->pos.y, 32));
+			rightSide->AddChild(getValueField(&rect->size.x, 32));
+			rightSide->AddChild(getValueField(&rect->size.y, 32));
+		}
+		else if (fieldType == "Recti"_hs)
+		{
+			Recti* rect = reflectionValue.CastPtr<Recti>();
+			rightSide->AddChild(getValueField(&rect->pos.x, 32, true));
+			rightSide->AddChild(getValueField(&rect->pos.y, 32, true));
+			rightSide->AddChild(getValueField(&rect->size.x, 32, true));
+			rightSide->AddChild(getValueField(&rect->size.y, 32, true));
+		}
+		else if (fieldType == "Rectui"_hs)
+		{
+			Rectui* rect = reflectionValue.CastPtr<Rectui>();
+			rightSide->AddChild(getValueField(&rect->pos.x, 32, true, true));
+			rightSide->AddChild(getValueField(&rect->pos.y, 32, true, true));
+			rightSide->AddChild(getValueField(&rect->size.x, 32, true, true));
+			rightSide->AddChild(getValueField(&rect->size.y, 32, true, true));
 		}
 		else if (fieldType == "TBLR"_hs)
 		{
 			TBLR* tblr = reflectionValue.CastPtr<TBLR>();
-			rightSide->AddChild(getValueField(&tblr->top, false, 0.0f, 0.0f, 32, false, false));
-			rightSide->AddChild(getValueField(&tblr->bottom, false, 0.0f, 0.0f, 32, false, false));
-			rightSide->AddChild(getValueField(&tblr->left, false, 0.0f, 0.0f, 32, false, false));
-			rightSide->AddChild(getValueField(&tblr->right, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&tblr->top, 32));
+			rightSide->AddChild(getValueField(&tblr->bottom, 32));
+			rightSide->AddChild(getValueField(&tblr->left, 32));
+			rightSide->AddChild(getValueField(&tblr->right, 32));
 		}
 		else if (fieldType == "Color"_hs)
 		{
@@ -1166,48 +1183,45 @@ namespace Lina::Editor
 			cb->GetIcon()->CalculateIconSize();
 			rightSide->AddChild(cb);
 		}
-		else if (fieldType == "uint32"_hs || fieldType == "int32"_hs || fieldType == "uint16"_hs || fieldType == "int16"_hs || fieldType == "uint8"_hs || fieldType == "int8"_hs)
+		else if (fieldType == "uint32"_hs)
 		{
-			uint32* v		  = reflectionValue.CastPtr<uint32>();
-			bool	hasLimits = !min.empty();
-			float	minFloat = 0.0f, maxFloat = 0.0f;
-			uint32	outDecimals = 0;
-
-			if (hasLimits)
-			{
-				minFloat = UtilStr::StringToFloat(min, outDecimals);
-				maxFloat = UtilStr::StringToFloat(max, outDecimals);
-			}
-
-			uint8 bits		 = 32;
-			bool  isUnsigned = true;
-
-			if (fieldType == "uint16"_hs || fieldType == "int16"_hs)
-				bits = 16;
-			else if (fieldType == "uint8"_hs || fieldType == "int8"_hs)
-				bits = 8;
-
-			if (fieldType == "int32"_hs || fieldType == "int16"_hs || fieldType == "int8"_hs)
-				isUnsigned = false;
-
-			InputField* inp			 = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, bits, true, isUnsigned);
+			InputField* inp			 = getValueField(reflectionValue.GetPtr(), 32, true, true);
 			inp->GetProps().decimals = 0;
 			rightSide->AddChild(inp);
 		}
-
+		else if (fieldType == "int32"_hs)
+		{
+			InputField* inp			 = getValueField(reflectionValue.GetPtr(), 32, true);
+			inp->GetProps().decimals = 0;
+			rightSide->AddChild(inp);
+		}
+		else if (fieldType == "uint16"_hs)
+		{
+			InputField* inp			 = getValueField(reflectionValue.GetPtr(), 16, true, true);
+			inp->GetProps().decimals = 0;
+			rightSide->AddChild(inp);
+		}
+		else if (fieldType == "int16"_hs)
+		{
+			InputField* inp			 = getValueField(reflectionValue.GetPtr(), 16, true);
+			inp->GetProps().decimals = 0;
+			rightSide->AddChild(inp);
+		}
+		else if (fieldType == "uint8"_hs)
+		{
+			InputField* inp			 = getValueField(reflectionValue.GetPtr(), 8, true, true);
+			inp->GetProps().decimals = 0;
+			rightSide->AddChild(inp);
+		}
+		else if (fieldType == "int8"_hs)
+		{
+			InputField* inp			 = getValueField(reflectionValue.GetPtr(), 8, true);
+			inp->GetProps().decimals = 0;
+			rightSide->AddChild(inp);
+		}
 		else if (fieldType == "float"_hs)
 		{
-			float*	   v		 = reflectionValue.CastPtr<float>();
-			const bool hasLimits = !min.empty();
-			float	   minFloat = 0.0f, maxFloat = 0.0f;
-			uint32	   outDecimals = 0;
-
-			if (hasLimits)
-			{
-				minFloat = UtilStr::StringToFloat(min, outDecimals);
-				maxFloat = UtilStr::StringToFloat(max, outDecimals);
-			}
-			rightSide->AddChild(getValueField(v, hasLimits, minFloat, maxFloat, 32, false, false));
+			rightSide->AddChild(getValueField(reflectionValue.GetPtr(), 32));
 		}
 
 		layout->Initialize();

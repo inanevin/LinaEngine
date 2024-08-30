@@ -83,6 +83,24 @@ namespace Lina
 		m_placeholderText->SetIsDisabled(true);
 	}
 
+	void InputField::Initialize()
+	{
+		Widget::Initialize();
+
+		if (m_props.u32Value != nullptr)
+			m_dummyValue = static_cast<float>(*m_props.u32Value);
+		else if (m_props.u16Value != nullptr)
+			m_dummyValue = static_cast<float>(*m_props.u16Value);
+		else if (m_props.u8Value != nullptr)
+			m_dummyValue = static_cast<float>(*m_props.u8Value);
+		else if (m_props.i32Value != nullptr)
+			m_dummyValue = static_cast<float>(*m_props.i32Value);
+		else if (m_props.i16Value != nullptr)
+			m_dummyValue = static_cast<float>(*m_props.i16Value);
+		else if (m_props.i8Value != nullptr)
+			m_dummyValue = static_cast<float>(*m_props.i8Value);
+	}
+
 	void InputField::CalculateSize(float delta)
 	{
 		if (m_props.wrapText)
@@ -96,9 +114,9 @@ namespace Lina
 	{
 		if (m_props.u32Value != nullptr)
 		{
-			m_props.value	  = &m_dummyValue;
-			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)UINT32_MAX);
-			*m_props.u32Value = static_cast<uint32>(m_dummyValue);
+			m_props.value = &m_dummyValue;
+			m_dummyValue  = Math::Clamp(m_dummyValue, 0.0f, (float)UINT32_MAX);
+			// *m_props.u32Value = static_cast<uint32>(m_dummyValue);
 		}
 		else if (m_props.u16Value != nullptr)
 		{
@@ -115,19 +133,19 @@ namespace Lina
 		else if (m_props.i32Value != nullptr)
 		{
 			m_props.value	  = &m_dummyValue;
-			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)INT32_MAX);
+			m_dummyValue	  = Math::Clamp(m_dummyValue, -(float)INT32_MAX, (float)INT32_MAX);
 			*m_props.i32Value = static_cast<int32>(m_dummyValue);
 		}
 		else if (m_props.i16Value != nullptr)
 		{
 			m_props.value	  = &m_dummyValue;
-			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)INT16_MAX);
+			m_dummyValue	  = Math::Clamp(m_dummyValue, -(float)INT16_MAX, (float)INT16_MAX);
 			*m_props.i16Value = static_cast<int16>(m_dummyValue);
 		}
 		else if (m_props.i8Value != nullptr)
 		{
 			m_props.value	 = &m_dummyValue;
-			m_dummyValue	 = Math::Clamp(m_dummyValue, 0.0f, (float)INT8_MAX);
+			m_dummyValue	 = Math::Clamp(m_dummyValue, -(float)INT8_MAX, (float)INT8_MAX);
 			*m_props.i8Value = static_cast<int8>(m_dummyValue);
 		}
 

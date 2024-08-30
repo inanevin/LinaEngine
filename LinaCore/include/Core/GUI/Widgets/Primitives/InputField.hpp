@@ -55,30 +55,30 @@ namespace Lina
 			Delegate<void(const String&)> onEditEnd;
 			Delegate<void(float)>		  onValueChanged;
 
-			Color  colorHighlight		= Theme::GetDef().accentPrimary1;
-			Color  colorCaret			= Theme::GetDef().foreground0;
-			Color  colorNumberFillStart = Theme::GetDef().accentPrimary1;
-			Color  colorNumberFillEnd	= Theme::GetDef().accentPrimary0;
-			Color  colorPlaceHolder		= Theme::GetDef().outlineColorBase;
-			Color  colorTextDefault		= Theme::GetDef().foreground0;
-			float  outlineThickness		= Theme::GetDef().baseOutlineThickness;
-			float  horizontalIndent		= Theme::GetDef().baseIndentInner;
-			String placeHolderText		= "";
-			bool   usePlaceHolder		= false;
-			bool   isNumberField		= false;
-			bool   disableNumberSlider	= false;
-			bool   clampNumber			= false;
-			float* value				= nullptr;
-			float  valueMin				= 0.0f;
-			float  valueMax				= 10.0f;
-			float  valueStep			= 0.0f;
-			uint32 decimals				= 3;
-            uint32* u32Value = nullptr;
-            int32* i32Value = nullptr;
-            uint16* u16Value = nullptr;
-            int16* i16Value = nullptr;
-            uint8* u8Value = nullptr;
-            int8* i8Value = nullptr;
+			Color	colorHighlight		 = Theme::GetDef().accentPrimary1;
+			Color	colorCaret			 = Theme::GetDef().foreground0;
+			Color	colorNumberFillStart = Theme::GetDef().accentPrimary1;
+			Color	colorNumberFillEnd	 = Theme::GetDef().accentPrimary0;
+			Color	colorPlaceHolder	 = Theme::GetDef().outlineColorBase;
+			Color	colorTextDefault	 = Theme::GetDef().foreground0;
+			float	outlineThickness	 = Theme::GetDef().baseOutlineThickness;
+			float	horizontalIndent	 = Theme::GetDef().baseIndentInner;
+			String	placeHolderText		 = "";
+			bool	usePlaceHolder		 = false;
+			bool	isNumberField		 = false;
+			bool	disableNumberSlider	 = false;
+			bool	clampNumber			 = false;
+			float*	value				 = nullptr;
+			float	valueMin			 = 0.0f;
+			float	valueMax			 = 10.0f;
+			float	valueStep			 = 0.0f;
+			uint32	decimals			 = 3;
+			uint32* u32Value			 = nullptr;
+			int32*	i32Value			 = nullptr;
+			uint16* u16Value			 = nullptr;
+			int16*	i16Value			 = nullptr;
+			uint8*	u8Value				 = nullptr;
+			int8*	i8Value				 = nullptr;
 
 			bool centerText = false;
 			bool wrapText	= false;
@@ -112,6 +112,7 @@ namespace Lina
 		};
 
 		virtual void			   Construct() override;
+		virtual void			   Initialize() override;
 		virtual void			   CalculateSize(float delta) override;
 		virtual void			   PreTick() override;
 		virtual void			   Tick(float delta) override;
@@ -168,8 +169,8 @@ namespace Lina
 		float	   m_textOffset			  = 0.0f;
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
-        float	   m_lastStoredValue	  = INPF_VALUE_MIN;
-        float m_dummyValue = 0.0f;
+		float	   m_lastStoredValue	  = INPF_VALUE_MIN;
+		float	   m_dummyValue			  = 0.0f;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(InputField, Primitive)

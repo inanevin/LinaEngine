@@ -135,7 +135,7 @@ namespace Lina::Editor
 				Widget* w = CommonWidgets::BuildDefaultFoldItem(this, child, margin, ICON_FOLDER, Theme::GetDef().foreground0, child->name, !child->children.empty(), &child->unfolded);
 				m_controller->GetItem(dir)->GetParent()->AddChild(w);
 				m_controller->AddItem(w->GetChildren().front());
-				AddItemForDirectory(child, margin + Theme::GetDef().baseIndent);
+				AddItemForDirectory(child, margin + Theme::GetDef().baseIndent * 2.0f);
 			}
 			else
 			{
