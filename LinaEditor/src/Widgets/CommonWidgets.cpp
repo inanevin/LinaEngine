@@ -33,8 +33,10 @@ SOFTWARE.
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
+#include "Core/Resources/ResourceManager.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/GUI/Widgets/Layout/FloatingPopup.hpp"
+#include "Core/Graphics/Resource/Texture.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/EditorLocale.hpp"
 #include "Editor/Editor.hpp"
@@ -846,7 +848,7 @@ namespace Lina::Editor
 		return fold;
 	}
 
-	DirectionalLayout* CommonWidgets::BuildFieldLayout(Widget* src, const String& title)
+	DirectionalLayout* CommonWidgets::BuildFieldLayout(Widget* src, const Vector<String>& srcDependencies, const String& title)
 	{
 		WidgetManager* wm = src->GetWidgetManager();
 
@@ -859,6 +861,21 @@ namespace Lina::Editor
 		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent * 2;
 		layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent * 2;
 
+		if (!srcDependencies.empty())
+		{
+			const int32 dep = static_cast<int32>(srcDependencies.size());
+
+			for (int32 i = 0; i < dep; i++)
+			{
+				Icon* icn			  = wm->Allocate<Icon>("FieldIcon");
+				icn->GetProps().icon  = ICON_L;
+				icn->GetProps().color = i == dep - 1 ? Theme::GetDef().silent2 : Color(0, 0, 0, 0);
+				icn->GetFlags().Set(WF_POS_ALIGN_Y);
+				icn->SetAlignedPosY(0.5f);
+				icn->SetAnchorY(Anchor::Center);
+				layout->AddChild(icn);
+			}
+		}
 		Text* txt			 = wm->Allocate<Text>("FieldTitle");
 		txt->GetProps().text = title;
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
@@ -874,10 +891,21 @@ namespace Lina::Editor
 		return nullptr;
 	}
 
-	Widget* CommonWidgets::BuildField(Widget* src, const String& title, StringID fieldType, FieldValue reflectionValue, FieldBase* field)
+	Widget* CommonWidgets::BuildField(Widget* src, void* obj, MetaType& metaType, FieldBase* field)
 	{
-		WidgetManager*	   wm	  = src->GetWidgetManager();
-		DirectionalLayout* layout = BuildFieldLayout(src, title);
+		WidgetManager* wm		 = src->GetWidgetManager();
+		const String   title	 = field->GetProperty<String>("Title"_hs);
+		const StringID fieldType = field->GetProperty<StringID>("Type"_hs);
+		const String   tooltip	 = field->GetProperty<String>("Tooltip"_hs);
+		const String   dependsOn = field->GetProperty<String>("DependsOn"_hs);
+		const TypeID   subType	 = field->GetProperty<TypeID>("SubType"_hs);
+
+		Vector<String> allSourceDependencies;
+		if (!dependsOn.empty())
+			UtilStr::SeperateByChar(dependsOn, allSourceDependencies, ',');
+
+		FieldValue		   reflectionValue = field->Value(obj);
+		DirectionalLayout* layout		   = BuildFieldLayout(src, allSourceDependencies, title);
 
 		DirectionalLayout* rightSide = wm->Allocate<DirectionalLayout>("RightSide");
 		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
@@ -1104,15 +1132,22 @@ namespace Lina::Editor
 		}
 		else if (fieldType == "uint32"_hs)
 		{
-			uint32*	   v		 = reflectionValue.CastPtr<uint32>();
-			const bool hasLimits = !min.empty();
-			float	   minFloat = 0.0f, maxFloat = 0.0f;
-			uint32	   outDecimals = 0;
+			uint32* v		  = reflectionValue.CastPtr<uint32>();
+			bool	hasLimits = !min.empty();
+			float	minFloat = 0.0f, maxFloat = 0.0f;
+			uint32	outDecimals = 0;
 
 			if (hasLimits)
 			{
 				minFloat = UtilStr::StringToFloat(min, outDecimals);
 				maxFloat = UtilStr::StringToFloat(max, outDecimals);
+				minFloat = Math::Clamp(minFloat, 0.0f, 999999.0f);
+			}
+			else
+			{
+				hasLimits = true;
+				minFloat  = 0.0f;
+				maxFloat  = 99999.0f;
 			}
 
 			InputField* inp			 = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, true);
@@ -1152,6 +1187,17 @@ namespace Lina::Editor
 		}
 
 		layout->Initialize();
+
+		for (const String& d : allSourceDependencies)
+		{
+			const StringID sid = TO_SID(d);
+			FieldBase*	   f   = metaType.GetField(sid);
+			bool*		   ptr = f->Value(obj).CastPtr<bool>();
+			layout->AddVisibilityPtr(ptr);
+		}
+
+		layout->GetWidgetProps().tooltip = tooltip;
+
 		return layout;
 	}
 
@@ -1162,6 +1208,7 @@ namespace Lina::Editor
 		layout->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		layout->SetAlignedSize(Vector2(0.0f, 1.0f));
 		layout->SetAlignedPosY(0.0f);
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndentInner / 2;
 
 		Button* startButton = wm->Allocate<Button>();
 		startButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
@@ -1175,20 +1222,9 @@ namespace Lina::Editor
 		};
 		layout->AddChild(startButton);
 
-		ColorField* cf = wm->Allocate<ColorField>();
-		cf->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
-		cf->SetAlignedSize(Vector2(0.0f, 1.0f));
-		cf->SetAlignedPosY(0.0f);
-		cf->GetProps().gradValue		 = color;
-		cf->GetProps().disableInput		 = true;
-		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
-		layout->AddChild(cf);
-
 		Button* middleButton = wm->Allocate<Button>();
-		middleButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
-		middleButton->SetAlignedPos(Vector2(0.5f, 0.5f));
-		middleButton->SetAnchorX(Anchor::Center);
-		middleButton->SetAnchorY(Anchor::Center);
+		middleButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		middleButton->SetAlignedPosY(0.0f);
 		middleButton->SetAlignedSizeY(1.0f);
 		middleButton->CreateIcon(ICON_PALETTE);
 		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
@@ -1197,7 +1233,7 @@ namespace Lina::Editor
 			panel->SetTarget(&color->start);
 			panel->GetWheel()->GetProps().onValueChanged = [color](const Color& col) { color->start = color->end = col; };
 		};
-		cf->AddChild(middleButton);
+		layout->AddChild(middleButton);
 
 		Button* endButton = wm->Allocate<Button>();
 		endButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
@@ -1210,7 +1246,42 @@ namespace Lina::Editor
 			panel->SetTarget(&color->end);
 		};
 		layout->AddChild(endButton);
+
+		ColorField* cf = wm->Allocate<ColorField>();
+		cf->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		cf->SetAlignedSize(Vector2(0.0f, 1.0f));
+		cf->SetAlignedPosY(0.0f);
+		cf->GetProps().gradValue		 = color;
+		cf->GetProps().disableInput		 = true;
+		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
+		layout->AddChild(cf);
+
 		layout->Initialize();
+		return layout;
+	}
+
+	DirectionalLayout* CommonWidgets::BuildClassReflection(Widget* src, void* obj, MetaType& meta)
+	{
+		WidgetManager*	   wm	  = src->GetWidgetManager();
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetWidgetProps().clipChildren		 = true;
+		layout->GetProps().direction				 = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+
+		// FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::GeneralProperties), &m_generalPropertiesUnfolded);
+		// m_layout->AddChild(foldGeneral);
+		Vector<FieldBase*> fields = meta.GetFieldsOrdered();
+
+		for (FieldBase* field : fields)
+		{
+			Widget* fieldWidget = BuildField(src, obj, meta, field);
+			layout->AddChild(fieldWidget);
+		}
+
 		return layout;
 	}
 } // namespace Lina::Editor

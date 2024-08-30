@@ -664,7 +664,7 @@ namespace {
 template <typename T>
 #ifdef PHMAP_HAVE_EXCEPTIONS
 [[noreturn]] void Throw(const T& error) {
-    throw error;
+     throw error;
 }
 #else
 [[noreturn]] void Throw(const T&) {

@@ -159,7 +159,7 @@ namespace Lina
 		float	   m_textOffset			  = 0.0f;
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
-		float	   m_lastStoredValue	  = 0.0f;
+		float	   m_lastStoredValue	  = -99999.0f;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(InputField, Primitive)

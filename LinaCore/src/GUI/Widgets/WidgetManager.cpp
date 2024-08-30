@@ -477,6 +477,26 @@ namespace Lina
 		for (auto cb : w->m_executeNextFrame)
 			cb();
 
+		const Vector<bool*>& visibilityPtrs = w->GetVisibilityPtrs();
+
+		if (!visibilityPtrs.empty())
+		{
+			bool isVisible = true;
+			for (bool* ptr : visibilityPtrs)
+			{
+				if (*ptr == false)
+				{
+					isVisible = false;
+					break;
+				}
+			}
+
+			// if(w->GetIsVisible() && !isVisible)
+			//     w->SetVisible(false);
+			// else if(!w->GetIsVisible() && isVisible)
+			//     w->SetVisible(true);
+		}
+
 		w->m_executeNextFrame.clear();
 
 		if (!w->GetFlags().IsSet(WF_CONTROLS_DRAW_ORDER) && w->GetParent())

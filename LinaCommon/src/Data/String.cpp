@@ -276,6 +276,19 @@ namespace Lina
 		return data;
 	}
 
+	void UtilStr::SeperateByChar(const String& str, Vector<String>& out, char c)
+	{
+		size_t start = 0;
+		size_t end	 = str.find(c);
+		while (end != String::npos)
+		{
+			out.push_back(str.substr(start, end - start));
+			start = end + 1;			// Move past the comma
+			end	  = str.find(c, start); // Find next comma
+		}
+
+		out.push_back(str.substr(start));
+	}
 } // namespace Lina
 
 #ifdef LINA_COMPILER_MSVC

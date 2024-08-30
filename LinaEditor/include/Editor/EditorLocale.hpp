@@ -131,6 +131,7 @@ namespace Lina::Editor
 		EndColor,
 		ThemeColor,
 		Both,
+		DropshadowProperties,
 	};
 
 	class Locale

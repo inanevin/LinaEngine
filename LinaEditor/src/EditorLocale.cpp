@@ -128,6 +128,7 @@ namespace Lina::Editor
 		{LocaleStr::EndColor, "End Color"},
 		{LocaleStr::ThemeColor, "Theme Color"},
 		{LocaleStr::Both, "Both"},
+		{LocaleStr::DropshadowProperties, "Dropshadow Properties"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

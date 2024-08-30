@@ -130,6 +130,9 @@ namespace Lina
 		if (!m_barVisible || !GetIsVisible() || !m_canDrawBar)
 			return;
 
+		if (m_targetWidget)
+			return;
+
 		LinaVG::StyleOptions bgOpts;
 		bgOpts.color = m_props.colorBarBackground.AsLVG4();
 		m_lvg->DrawRect(m_barBGRect.pos.AsLVG(), m_barBGRect.GetEnd().AsLVG(), bgOpts, 0.0f, m_drawOrder + 1);
@@ -197,6 +200,9 @@ namespace Lina
 
 	void ScrollArea::ClampScroll()
 	{
+		if (!m_targetWidget)
+			return;
+
 		m_start				 = m_targetWidget->GetStartFromMargins();
 		m_end				 = m_targetWidget->GetEndFromMargins();
 		m_sz				 = m_end - m_start;

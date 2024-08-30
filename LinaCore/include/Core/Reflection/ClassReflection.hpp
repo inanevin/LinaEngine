@@ -170,7 +170,7 @@ namespace Lina
 
 /* PROPERTIES AND FUNCTIONS PER REFLECTED CLASS*/
 #define LINA_FIELD(ClassName, FieldName, TITLE, TYPE, SUBTYPE)                                                                                                                                                                                                     \
-	const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TITLE);                                                                                                                                                                                                   \
+	const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TOSTRING(FieldName));                                                                                                                                                                                     \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().AddField<&ClassName::FieldName, ClassName>(sid_##FieldName);                                                                                                                                                   \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                           \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("Type"), Lina::TO_SIDC(TYPE));                                                                                                            \
@@ -178,7 +178,7 @@ namespace Lina
 
 #define LINA_FIELD_TOOLTIP(ClassName, FieldName, TOOLTIP) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);
 
-#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), Lina::TO_SIDC(DEPENDSON));
+#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("DependsOn"), DEPENDSON);
 
 #define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX)                                                                                                                                                                                                          \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Min"), MIN);                                                                                                                               \

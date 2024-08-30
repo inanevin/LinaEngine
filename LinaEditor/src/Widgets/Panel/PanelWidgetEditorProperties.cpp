@@ -41,72 +41,25 @@ namespace Lina::Editor
 
 	void PanelWidgetEditorProperties::Construct()
 	{
-		ScrollArea* sc = m_manager->Allocate<ScrollArea>();
+		ScrollArea* sc = m_manager->Allocate<ScrollArea>("ScrollArea");
 		sc->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 		sc->SetAlignedPos(Vector2::Zero);
 		sc->SetAlignedSize(Vector2::One);
 		sc->GetProps().direction = DirectionOrientation::Vertical;
 		AddChild(sc);
-
-		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>();
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		layout->SetAlignedPos(Vector2::Zero);
-		layout->SetAlignedSize(Vector2::One);
-		layout->GetWidgetProps().clipChildren		 = true;
-		layout->GetProps().direction				 = DirectionOrientation::Vertical;
-		layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
-		layout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
-		// layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-		sc->AddChild(layout);
-		m_layout = layout;
+		m_scroll = sc;
 	}
 
 	void PanelWidgetEditorProperties::Refresh(Widget* w)
 	{
-		m_layout->DeallocAllChildren();
-		m_layout->RemoveAllChildren();
+		m_scroll->DeallocAllChildren();
+		m_scroll->RemoveAllChildren();
 
 		if (w == nullptr)
 			return;
 
-		FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::GeneralProperties), &m_generalPropertiesUnfolded);
-		FoldLayout* foldWidget	= CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::WidgetProperties), &m_widgetPropertiesUnfolded);
-		m_layout->AddChild(foldGeneral);
-		m_layout->AddChild(foldWidget);
-
-		MetaType&		   typeWidget	= ReflectionSystem::Get().Resolve<Widget>();
-		Vector<FieldBase*> fieldsWidget = typeWidget.GetFieldsOrdered();
-		for (FieldBase* field : fieldsWidget)
-		{
-			const String   title	 = field->GetProperty<String>("Title"_hs);
-			const StringID type		 = field->GetProperty<StringID>("Type"_hs);
-			const String   tooltip	 = field->GetProperty<String>("Tooltip"_hs);
-			const StringID dependsOn = field->GetProperty<StringID>("DependsOn"_hs);
-			const TypeID   subType	 = field->GetProperty<TypeID>("SubType"_hs);
-			FieldValue	   val		 = field->Value(w);
-
-			Widget* fieldWidget = CommonWidgets::BuildField(this, title, type, val, field);
-
-			if (field)
-				foldGeneral->AddChild(fieldWidget);
-		}
-
-		MetaType&		   typeWidgetProps	 = ReflectionSystem::Get().Resolve<WidgetProps>();
-		Vector<FieldBase*> fieldsWidgetProps = typeWidgetProps.GetFieldsOrdered();
-		for (FieldBase* field : fieldsWidgetProps)
-		{
-			const String   title	 = field->GetProperty<String>("Title"_hs);
-			const StringID type		 = field->GetProperty<StringID>("Type"_hs);
-			const String   tooltip	 = field->GetProperty<String>("Tooltip"_hs);
-			const StringID dependsOn = field->GetProperty<StringID>("DependsOn"_hs);
-			const TypeID   subType	 = field->GetProperty<TypeID>("SubType"_hs);
-			FieldValue	   val		 = field->Value(&w->GetWidgetProps());
-
-			Widget* fieldWidgetProps = CommonWidgets::BuildField(this, title, type, val, field);
-
-			if (field)
-				foldWidget->AddChild(fieldWidgetProps);
-		}
+		DirectionalLayout* l = CommonWidgets::BuildClassReflection(this, w, ReflectionSystem::Get().Resolve<Widget>());
+		m_scroll->AddChild(l);
 	}
 
 } // namespace Lina::Editor
