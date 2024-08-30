@@ -47,7 +47,9 @@ namespace Lina::Editor
 		void		 Refresh(Widget* w);
 
 	private:
-		Widget* m_layout = nullptr;
+		Widget* m_layout					= nullptr;
+		bool	m_generalPropertiesUnfolded = true;
+		bool	m_widgetPropertiesUnfolded	= true;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelWidgetEditorProperties, Editor)

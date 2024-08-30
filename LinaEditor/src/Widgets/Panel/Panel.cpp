@@ -27,9 +27,13 @@ SOFTWARE.
 */
 
 #include "Editor/Widgets/Panel/Panel.hpp"
+#include "Editor/Editor.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina::Editor
 {
-
+    void Panel::Destruct()
+    {
+        Editor::Get()->GetWindowPanelManager().StorePanelWindowPosition(m_panelType, m_lgxWindow->GetPosition());
+    }
 } // namespace Lina::Editor

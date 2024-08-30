@@ -73,6 +73,7 @@ namespace Lina::Editor
 #define ICON_CHEVRON_RIGHT		 "\u0071"
 #define ICON_CHEVRON_UP			 "\u0072"
 #define ICON_CHEVRON_DOWN		 "\u0073"
+#define ICON_PALETTE			 "\u0074"
 #define ICON_SORT_AZ			 "\u004a"
 #define ICON_STAR				 "\u004b"
 #define ICON_TRASH				 "\u006A"
@@ -89,6 +90,7 @@ namespace Lina::Editor
 		Performance,
 		World,
 		WidgetEditor,
+		ColorWheel,
 	};
 
 	enum class PayloadType

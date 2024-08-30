@@ -84,14 +84,15 @@ namespace Lina::Editor
 			linatl::sort(m_tabs.begin(), m_tabs.end(), [](Tab* t, Tab* t2) -> bool { return t->GetRect().pos.x < t2->GetRect().pos.x; });
 	}
 
-	void TabRow::AddTab(void* userData, const String& title)
+	void TabRow::AddTab(void* userData, const String& title, bool isFixed)
 	{
 		Tab* tab = m_manager->Allocate<Tab>("Tab");
 		tab->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_SKIP_FLOORING);
 		tab->SetAlignedPosY(0.0f);
 		tab->SetAlignedSizeY(1.0f);
-		tab->m_ownerRow		  = this;
-		tab->GetProps().title = title;
+		tab->m_ownerRow			 = this;
+		tab->GetProps().fixedTab = isFixed;
+		tab->GetProps().title	 = title;
 		tab->SetUserData(userData);
 		tab->Initialize();
 		AddChild(tab);

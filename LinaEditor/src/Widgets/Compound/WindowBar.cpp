@@ -123,4 +123,18 @@ namespace Lina::Editor
 		return false;
 	}
 
+	void WindowBar::SetCloseDisabled(bool isDisabled)
+	{
+		m_windowButtons->GetChildren().at(2)->SetIsDisabled(isDisabled);
+	}
+
+	void WindowBar::SetMinimizeDisabled(bool isDisabled)
+	{
+		m_windowButtons->GetChildren().at(0)->SetIsDisabled(isDisabled);
+	}
+
+	void WindowBar::SetMaximizeDisabled(bool isDisabled)
+	{
+		m_windowButtons->GetChildren().at(1)->SetIsDisabled(isDisabled);
+	}
 } // namespace Lina::Editor

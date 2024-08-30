@@ -75,10 +75,6 @@ namespace Lina::Editor
 		layout->AddChild(tb);
 	}
 
-	void PanelEntities::Destruct()
-	{
-	}
-
 	void PanelEntities::PreTick()
 	{
 		auto* world = m_worldManager->GetMainWorld();

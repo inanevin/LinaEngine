@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Editor/Widgets/Panel/PanelFactory.hpp"
 #include "Editor/Widgets/CommonWidgets.hpp"
+#include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Editor.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
@@ -89,12 +90,28 @@ namespace Lina::Editor
 
 	void DockArea::AddPanel(Panel* w)
 	{
+		if (w->GetPanelFlags().IsSet(PF_FLOATING_POPUP))
+		{
+			m_containsFixedPanel = true;
+			m_layout->RemoveChild(m_tabRow);
+			m_manager->Deallocate(m_tabRow);
+			m_tabRow = nullptr;
+
+			WindowBar* wb = Widget::GetWidgetOfType<WindowBar>(m_manager->GetRoot());
+			wb->SetMaximizeDisabled(true);
+			m_lgxWindow->SetIsFloating(true);
+		}
+
 		w->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_X);
 		w->SetAlignedPosX(0.0f);
 		w->SetAlignedSize(Vector2(1.0f, 0.0f));
 
-		m_tabRow->AddTab(w, w->GetWidgetProps().debugName);
-		m_tabRow->SetSelected(w);
+		if (m_tabRow)
+		{
+			m_tabRow->AddTab(w, w->GetWidgetProps().debugName, w->GetPanelFlags().IsSet(PF_FLOATING_POPUP));
+			m_tabRow->SetSelected(w);
+		}
+
 		m_panels.push_back(w);
 
 		if (m_selectedPanel)
@@ -121,7 +138,9 @@ namespace Lina::Editor
 			if (static_cast<int32>(m_panels.size()) > newIndex)
 			{
 				m_selectedPanel = m_panels[newIndex];
-				m_tabRow->SetSelected(m_selectedPanel);
+
+				if (m_tabRow)
+					m_tabRow->SetSelected(m_selectedPanel);
 				m_layout->AddChild(m_selectedPanel);
 			}
 			else
@@ -181,6 +200,9 @@ namespace Lina::Editor
 		if (m_parent == nullptr)
 			return;
 
+		if (m_tabRow == nullptr)
+			return;
+
 		if (m_lgxWindow->GetSID() == LINA_MAIN_SWAPCHAIN && m_panels.size() == 1 && m_parent->GetChildren().size() == 1)
 		{
 			if (m_tabRow->GetCanCloseTabs())
@@ -195,7 +217,8 @@ namespace Lina::Editor
 
 	void DockArea::Draw()
 	{
-		m_tabRow->Draw();
+		if (m_tabRow)
+			m_tabRow->Draw();
 
 		if (m_selectedPanel)
 		{
@@ -210,7 +233,7 @@ namespace Lina::Editor
 
 	void DockArea::OnPayloadStarted(PayloadType type, Widget* payload)
 	{
-		if (type != PayloadType::DockedPanel)
+		if (type != PayloadType::DockedPanel || m_containsFixedPanel)
 			return;
 		m_preview->ResetTween();
 		m_payloadActive = true;
@@ -223,6 +246,9 @@ namespace Lina::Editor
 
 	bool DockArea::OnPayloadDropped(PayloadType type, Widget* payload)
 	{
+		if (m_containsFixedPanel)
+			return;
+
 		if (type == PayloadType::DockedPanel && m_preview)
 		{
 			Direction hoveredDir = Direction::Center;
@@ -455,7 +481,9 @@ namespace Lina::Editor
 
 	void DockArea::SetSelected(Widget* w)
 	{
-		m_tabRow->SetSelected(w);
+		if (m_tabRow)
+			m_tabRow->SetSelected(w);
+
 		if (m_selectedPanel)
 			m_layout->RemoveChild(m_selectedPanel);
 		m_selectedPanel = w;

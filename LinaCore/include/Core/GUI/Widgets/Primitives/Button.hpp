@@ -35,6 +35,7 @@ namespace Lina
 {
 	class Font;
 	class Text;
+	class Icon;
 
 	class Button : public Widget
 	{
@@ -62,6 +63,8 @@ namespace Lina
 		virtual bool OnKey(uint32 keycode, int32 scancode, LinaGX::InputAction act) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
+		void CreateIcon(const String& icon);
+
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
@@ -85,6 +88,7 @@ namespace Lina
 		}
 
 	private:
+		Icon*	   m_icon			 = nullptr;
 		Text*	   m_text			 = nullptr;
 		Properties m_props			 = {};
 		bool	   m_lastHoverStatus = false;

@@ -61,21 +61,39 @@ namespace Lina
 
 	void ColorField::Draw()
 	{
-		if (m_props.value == nullptr)
+		if (m_props.value == nullptr && m_props.gradValue == nullptr)
 			return;
 
 		if (m_props.backgroundTexture)
 		{
-			m_children[0]->DrawBackground();
+			if (!m_children.empty())
+				m_children[0]->DrawBackground();
 			m_drawOrder++;
-			GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+
+			if (m_props.value)
+				GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+
+			if (m_props.gradValue)
+			{
+				GetWidgetProps().colorBackground.start = m_props.convertToLinear ? m_props.gradValue->start.SRGB2Linear() : m_props.gradValue->start;
+				GetWidgetProps().colorBackground.end   = m_props.convertToLinear ? m_props.gradValue->end.SRGB2Linear() : m_props.gradValue->end;
+			}
+
 			Widget::DrawBackground();
 			Widget::DrawBorders();
 			Widget::DrawTooltip();
 		}
 		else
 		{
-			GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+			if (m_props.value)
+				GetWidgetProps().colorBackground = m_props.convertToLinear ? m_props.value->SRGB2Linear() : *m_props.value;
+
+			if (m_props.gradValue)
+			{
+				GetWidgetProps().colorBackground.start = m_props.convertToLinear ? m_props.gradValue->start.SRGB2Linear() : m_props.gradValue->start;
+				GetWidgetProps().colorBackground.end   = m_props.convertToLinear ? m_props.gradValue->end.SRGB2Linear() : m_props.gradValue->end;
+			}
+
 			Widget::Draw();
 		}
 	}
@@ -83,6 +101,9 @@ namespace Lina
 	bool ColorField::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (m_props.disableInput)
 			return false;
 
 		if (m_isHovered && (action == LinaGX::InputAction::Pressed || action == LinaGX::InputAction::Repeated))

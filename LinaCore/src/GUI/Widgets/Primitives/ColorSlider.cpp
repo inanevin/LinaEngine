@@ -96,7 +96,8 @@ namespace Lina
 	{
 		if (m_props.backgroundTexture || m_props.isHueShift)
 		{
-			m_children[0]->DrawBackground();
+			if (!m_children.empty())
+				m_children[0]->DrawBackground();
 			m_drawOrder++;
 			Widget::DrawBackground();
 			Widget::DrawBorders();

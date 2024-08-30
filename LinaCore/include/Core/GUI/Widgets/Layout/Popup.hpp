@@ -59,6 +59,7 @@ namespace Lina
 
 		void AddTitleItem(const String& title, float heightMultiplier = 1.5f);
 		void AddToggleItem(const String& title, bool isSelected, void* userData = nullptr, float heightMultiplier = 1.5f);
+		void AddCustomItem(Widget* w);
 		void ScrollToItem(void* userData);
 		void SwitchToggleItem(int32 item, bool on);
 

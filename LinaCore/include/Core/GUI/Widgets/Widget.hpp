@@ -516,14 +516,14 @@ namespace Lina
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(Widget, General)
-	LINA_FIELD(Widget, m_flags, "Flags", "Bitmask32", 0)
+	LINA_FIELD(Widget, m_flags, "Flags", "Bitmask32", GetTypeID<WidgetFlags>())
 	LINA_FIELD(Widget, m_alignedPos, "Aligned Position", "Vector2", 0)
 	LINA_FIELD_LIMITS(Widget, m_alignedPos, "0.0f", "1.0f")
 	LINA_FIELD(Widget, m_alignedSize, "Aligned Size", "Vector2", 0)
 	LINA_FIELD_LIMITS(Widget, m_alignedSize, "0.0f", "1.0f")
-	LINA_FIELD(Widget, m_anchorX, "Anchor X", "enum", 0)
-	LINA_FIELD(Widget, m_anchorY, "Anchor Y", "enum", 0)
-	LINA_FIELD(Widget, m_widgetProps, "Widget Properties", "Class", GetTypeID<WidgetProps>())
+	LINA_FIELD(Widget, m_fixedSize, "Fixed Size", "Vector2", 0)
+	LINA_FIELD(Widget, m_anchorX, "Anchor X", "enum", GetTypeID<Anchor>())
+	LINA_FIELD(Widget, m_anchorY, "Anchor Y", "enum", GetTypeID<Anchor>())
 	LINA_REFLECTWIDGET_END(Widget)
 
 	// LINA_REFLECT_FIELD(DropshadowProps, enabled, "Enabled", "bool", "", "", 0);
@@ -538,39 +538,38 @@ namespace Lina
 	// LINA_REFLECT_FIELD(DropshadowProps, onlyRound, "Enabled", "Vector", "", "enabled", GetTypeID<int>());
 
 	LINA_REFLECTCLASS_BEGIN(WidgetProps, "Widget Props")
-	// LINA_FIELD(WidgetProps, clipChildren, "Clip Children", "bool", "", "", 0);
-	// LINA_FIELD(WidgetProps, customClip, "Custom Clip", "bool", "", "", 0);
-	// LINA_FIELD(WidgetProps, customClipRect, "Custom Clip Rect", "Rect", "", "customClip", 0);
-	// LINA_FIELD(WidgetProps, drawBackground, "Draw Background", "bool", "", "", 0);
-	// LINA_FIELD(WidgetProps, backgroundIsCentralGradient, "Central Gradient", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, interpolateColor, "Interpolate Color", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, fitTexture, "Fit Texture", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, hoveredIsDifferentColor, "Use Hovered Color", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, pressedIsDifferentColor, "Use Pressed Color", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, activeTextureTiling, "Active Texture Tiling", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, useSpecialTexture, "Use Special Texture", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, outlineIsInner, "Inner Outline", "bool", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, colorInterpolateSpeed, "Color Interpolate Speed", "float", "", "drawBackground,interpolateColor", 0);
-	// LINA_FIELD(WidgetProps, outlineThickness, "Outline Thickness", "float", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, rounding, "Rounding", "float", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, childPadding, "Child Padding", "float", "", "", 0);
-	// LINA_FIELD(WidgetProps, drawOrderIncrement, "Draw Order Increment", "int32", "", "", 0);
-	// LINA_FIELD(WidgetProps, tooltip, "Tooltip", "String", "", "", 0);
-	// LINA_FIELD(WidgetProps, debugName, "Debug Name", "String", "", "", 0);
-	// LINA_FIELD(WidgetProps, childMargins, "Child Margins", "TBLR", "", "", 0);
-	// LINA_FIELD(WidgetProps, borderThickness, "Border Thicknesses", "TBLR", "", "", 0);
-	// LINA_FIELD(WidgetProps, colorBorders, "Border Color", "Color", "", "", 0);
-	// LINA_FIELD(WidgetProps, colorBackground, "Background Color", "ColorGrad", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, colorOutline, "Outline Color", "ColorGrad", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, colorOutlineControls, "Outline Color in Control", "ColorGrad", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, colorHovered, "Hovered Color", "ColorGrad", "", "drawBackground,hoveredIsDifferentColor", 0);
-	// LINA_FIELD(WidgetProps, colorPressed, "Pressed Color", "ColorGrad", "", "drawBackground,pressedIsDifferentColor", 0);
-	// LINA_FIELD(WidgetProps, colorDisabled, "Disabled Color", "ColorGrad", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, colorBackgroundDirection, "Background Direction", "DirectionOrientation", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, specialTexture, "Special Texture", "uint32", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, textureTiling, "Texture Tiling", "Vector2", "", "drawBackground", 0);
-	// LINA_FIELD(WidgetProps, onlyRound, "Only Round", "Vector", "", "drawBackground", GetTypeID<int>());
-	// LINA_FIELD(WidgetProps, dropshadow, "Dropshadow", "Class", "", "", GetTypeID<DropshadowProps>());
+	LINA_FIELD(WidgetProps, clipChildren, "Clip Children", "bool", 0);
+	LINA_FIELD(WidgetProps, customClip, "Custom Clip", "bool", 0);
+	LINA_FIELD(WidgetProps, customClipRect, "Custom Clip Rect", "Rect", 0);
+	LINA_FIELD(WidgetProps, drawBackground, "Draw Background", "bool", 0);
+	LINA_FIELD(WidgetProps, backgroundIsCentralGradient, "Central Gradient", "bool", 0);
+	LINA_FIELD(WidgetProps, interpolateColor, "Interpolate Color", "bool", 0);
+	LINA_FIELD(WidgetProps, fitTexture, "Fit Texture", "bool", 0);
+	LINA_FIELD(WidgetProps, hoveredIsDifferentColor, "Use Hovered Color", "bool", 0);
+	LINA_FIELD(WidgetProps, pressedIsDifferentColor, "Use Pressed Color", "bool", 0);
+	LINA_FIELD(WidgetProps, activeTextureTiling, "Active Texture Tiling", "bool", 0);
+	LINA_FIELD(WidgetProps, useSpecialTexture, "Use Special Texture", "bool", 0);
+	LINA_FIELD(WidgetProps, outlineIsInner, "Inner Outline", "bool", 0);
+	LINA_FIELD(WidgetProps, colorInterpolateSpeed, "Color Interpolate Speed", "float", 0);
+	LINA_FIELD(WidgetProps, outlineThickness, "Outline Thickness", "float", 0);
+	LINA_FIELD(WidgetProps, rounding, "Rounding", "float", 0);
+	LINA_FIELD(WidgetProps, childPadding, "Child Padding", "float", 0);
+	LINA_FIELD(WidgetProps, drawOrderIncrement, "Draw Order Increment", "int32", 0);
+	LINA_FIELD(WidgetProps, tooltip, "Tooltip", "String", 0);
+	LINA_FIELD(WidgetProps, debugName, "Debug Name", "String", 0);
+	LINA_FIELD(WidgetProps, childMargins, "Child Margins", "TBLR", 0);
+	LINA_FIELD(WidgetProps, borderThickness, "Border Thicknesses", "TBLR", 0);
+	LINA_FIELD(WidgetProps, colorBorders, "Border Color", "Color", 0);
+	LINA_FIELD(WidgetProps, colorBackground, "Background Color", "ColorGrad", 0);
+	LINA_FIELD(WidgetProps, colorOutline, "Outline Color", "ColorGrad", 0);
+	LINA_FIELD(WidgetProps, colorOutlineControls, "Outline Color in Control", "ColorGrad", 0);
+	LINA_FIELD(WidgetProps, colorHovered, "Hovered Color", "ColorGrad", 0);
+	LINA_FIELD(WidgetProps, colorPressed, "Pressed Color", "ColorGrad", 0);
+	LINA_FIELD(WidgetProps, colorDisabled, "Disabled Color", "ColorGrad", 0);
+	LINA_FIELD(WidgetProps, colorBackgroundDirection, "Background Direction", "enum", GetTypeID<DirectionOrientation>());
+	LINA_FIELD(WidgetProps, specialTexture, "Special Texture", "uint32", 0);
+	LINA_FIELD(WidgetProps, textureTiling, "Texture Tiling", "Vector2", 0);
+	LINA_FIELD(WidgetProps, onlyRound, "Only Round", "Vector", GetTypeID<int>());
 	LINA_REFLECTCLASS_END(WidgetProps)
 
 } // namespace Lina

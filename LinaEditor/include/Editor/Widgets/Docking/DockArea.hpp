@@ -86,6 +86,7 @@ namespace Lina::Editor
 		Widget*					   m_selectedPanel = nullptr;
 		bool					   m_payloadActive = false;
 		Vector<Pair<Panel*, bool>> m_panelKillList;
+		bool					   m_containsFixedPanel = false;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(DockArea, Editor)

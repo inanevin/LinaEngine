@@ -26,61 +26,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
-
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Editor/Widgets/Panel/PanelColorWheel.hpp"
+#include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
+#include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
 {
-
-	struct PanelPayloadData
+	void PanelColorWheel::Construct()
 	{
-		PanelType type		= PanelType::Entities;
-		StringID  subData	= 0;
-		Vector2	  panelSize = Vector2::Zero;
-		String	  panelName = "";
-	};
-
-	enum PanelFlags
-	{
-		PF_NONE			  = 1 << 0,
-		PF_FLOATING_POPUP = 1 << 1,
-	};
-
-	class Panel : public Widget
-	{
-	public:
-		Panel() = default;
-		Panel(PanelType type, StringID subData, uint32 flags = 0) : m_panelType(type), m_subData(subData), m_panelFlags(flags), Widget(){};
-		virtual ~Panel() = default;
-
-		virtual void SaveLayoutToStream(OStream& stream){};
-		virtual void LoadLayoutFromStream(IStream& stream){};
-		virtual void Destruct() override;
-
-		inline PanelType GetType() const
-		{
-			return m_panelType;
-		}
-
-		inline StringID GetSubData() const
-		{
-			return m_subData;
-		}
-
-		inline const Bitmask32& GetPanelFlags() const
-		{
-			return m_panelFlags;
-		}
-
-	protected:
-		PanelType m_panelType  = PanelType::Resources;
-		StringID  m_subData	   = 0;
-		Bitmask32 m_panelFlags = 0;
-	};
-
-	LINA_REFLECTWIDGET_BEGIN(Panel, Editor)
-	LINA_REFLECTWIDGET_END(Panel)
-
+        ColorWheelCompound* cw = m_manager->Allocate<ColorWheelCompound>();
+        cw->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+        cw->SetAlignedPos(Vector2::Zero);
+        cw->SetAlignedSize(Vector2::One);
+        AddChild(cw);
+        m_colorWheel = cw;
+	}
+	
+    void PanelColorWheel::SetTarget(Color *color)
+    {
+        m_colorWheel->GetProps().onValueChanged = [color](const Color& linearColor){*color = linearColor;};
+        m_colorWheel->SetTargetColor(*color);
+    }
 } // namespace Lina::Editor

@@ -50,7 +50,6 @@ namespace Lina::Editor
 		virtual ~PanelEntities() = default;
 
 		virtual void Construct() override;
-		virtual void Destruct() override;
 		virtual void PreTick() override;
 		virtual void Tick(float dt) override;
 

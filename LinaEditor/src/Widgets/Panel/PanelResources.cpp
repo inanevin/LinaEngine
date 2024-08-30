@@ -86,6 +86,7 @@ namespace Lina::Editor
 
 	void PanelResources::Destruct()
 	{
+		Panel::Destruct();
 		m_editor->GetFileManager().RemoveListener(this);
 	}
 

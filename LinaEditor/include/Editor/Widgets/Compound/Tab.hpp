@@ -60,6 +60,7 @@ namespace Lina::Editor
 			bool   isSelected	   = false;
 			bool   disableMovement = false;
 			float  desiredX		   = 0.0f;
+			bool   fixedTab		   = false;
 			String title		   = "";
 		};
 

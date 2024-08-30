@@ -29,6 +29,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
+#include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include <LinaGX/Core/InputMappings.hpp>
 
@@ -45,6 +46,21 @@ namespace Lina
 		GetWidgetProps().hoveredIsDifferentColor = true;
 		GetWidgetProps().pressedIsDifferentColor = true;
 		AddChild(m_text);
+	}
+
+	void Button::CreateIcon(const String& icon)
+	{
+		m_text->SetVisible(false);
+		m_icon = m_manager->Allocate<Icon>();
+		m_icon->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+		m_icon->SetAlignedPos(Vector2(0.5f, 0.5f));
+		m_icon->SetAnchorX(Anchor::Center);
+		m_icon->SetAnchorY(Anchor::Center);
+		m_icon->GetProps().icon				   = icon;
+		m_icon->GetProps().dynamicSizeScale	   = 0.75f;
+		m_icon->GetProps().dynamicSizeToParent = true;
+		m_icon->CalculateIconSize();
+		AddChild(m_icon);
 	}
 
 	void Button::PreTick()

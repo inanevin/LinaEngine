@@ -162,6 +162,11 @@ namespace Lina
 		shape->AddChild(text);
 	}
 
+	void Popup::AddCustomItem(Widget* w)
+	{
+		m_background->AddChild(w);
+	}
+
 	void Popup::SwitchToggleItem(int32 item, bool on)
 	{
 		Icon* icn			  = Widget::GetWidgetOfType<Icon>(m_items[item]);

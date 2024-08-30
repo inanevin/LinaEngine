@@ -53,6 +53,7 @@ namespace Lina
 		void AddProperty(StringID sid, T p)
 		{
 			m_properties[sid] = p;
+			_order.push_back(sid);
 		}
 
 		T GetProperty(StringID sid)
@@ -65,8 +66,17 @@ namespace Lina
 			return m_properties.find(sid) != m_properties.end();
 		}
 
+		Vector<T> GetSortedVector()
+		{
+			Vector<T> vec;
+			for (StringID sid : _order)
+				vec.push_back(m_properties[sid]);
+			return vec;
+		}
+
 	private:
 		HashMap<StringID, T> m_properties;
+		Vector<StringID>	 _order;
 	};
 
 	class PropertyCacheManager
@@ -110,6 +120,13 @@ namespace Lina
 			const TypeID	   tid	 = GetTypeID<T>();
 			PropertyCacheBase* cache = m_propertyCaches.at(tid);
 			return static_cast<PropertyCache<T>*>(cache)->GetProperty(sid);
+		}
+
+		template <typename T> inline PropertyCache<T>* GetPropertyCache()
+		{
+			const TypeID	   tid	 = GetTypeID<T>();
+			PropertyCacheBase* cache = m_propertyCaches.at(tid);
+			return static_cast<PropertyCache<T>*>(cache);
 		}
 
 		void Destroy()
@@ -324,6 +341,11 @@ namespace Lina
 
 			linatl::sort(fields.begin(), fields.end(), [](FieldBase* f1, FieldBase* f2) -> bool { return f1->_order < f2->_order; });
 			return fields;
+		}
+
+		inline PropertyCacheManager& GetPropertyCacheManager()
+		{
+			return m_propertyCacheManager;
 		}
 
 	private:

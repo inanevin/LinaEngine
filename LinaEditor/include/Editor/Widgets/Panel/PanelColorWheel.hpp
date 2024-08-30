@@ -28,59 +28,36 @@ SOFTWARE.
 
 #pragma once
 
-#include "Core/GUI/Widgets/Widget.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
+
+namespace Lina
+{
+
+} // namespace Lina
 
 namespace Lina::Editor
 {
+	class Editor;
+	class ColorWheelCompound;
 
-	struct PanelPayloadData
-	{
-		PanelType type		= PanelType::Entities;
-		StringID  subData	= 0;
-		Vector2	  panelSize = Vector2::Zero;
-		String	  panelName = "";
-	};
-
-	enum PanelFlags
-	{
-		PF_NONE			  = 1 << 0,
-		PF_FLOATING_POPUP = 1 << 1,
-	};
-
-	class Panel : public Widget
+	class PanelColorWheel : public Panel
 	{
 	public:
-		Panel() = default;
-		Panel(PanelType type, StringID subData, uint32 flags = 0) : m_panelType(type), m_subData(subData), m_panelFlags(flags), Widget(){};
-		virtual ~Panel() = default;
+		PanelColorWheel() : Panel(PanelType::ColorWheel, 0, PF_FLOATING_POPUP){};
+		virtual ~PanelColorWheel() = default;
 
-		virtual void SaveLayoutToStream(OStream& stream){};
-		virtual void LoadLayoutFromStream(IStream& stream){};
-		virtual void Destruct() override;
-
-		inline PanelType GetType() const
+		virtual void		Construct() override;
+		void				SetTarget(Color* color);
+		ColorWheelCompound* GetWheel() const
 		{
-			return m_panelType;
+			return m_colorWheel;
 		}
 
-		inline StringID GetSubData() const
-		{
-			return m_subData;
-		}
-
-		inline const Bitmask32& GetPanelFlags() const
-		{
-			return m_panelFlags;
-		}
-
-	protected:
-		PanelType m_panelType  = PanelType::Resources;
-		StringID  m_subData	   = 0;
-		Bitmask32 m_panelFlags = 0;
+	private:
+		ColorWheelCompound* m_colorWheel = nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Panel, Editor)
-	LINA_REFLECTWIDGET_END(Panel)
+	LINA_REFLECTWIDGET_BEGIN(PanelColorWheel, Editor)
+	LINA_REFLECTWIDGET_END(PanelColorWheel)
 
 } // namespace Lina::Editor

@@ -66,28 +66,52 @@ namespace Lina
 
 	enum WidgetFlags
 	{
-		WF_OWNS_SIZE			 = 1 << 0,
-		WF_CONTROLS_DRAW_ORDER	 = 1 << 1,
-		WF_CONTROLLABLE			 = 1 << 2,
-		WF_SIZE_ALIGN_X			 = 1 << 3,
-		WF_SIZE_ALIGN_Y			 = 1 << 4,
-		WF_USE_FIXED_SIZE_X		 = 1 << 5,
-		WF_USE_FIXED_SIZE_Y		 = 1 << 6,
-		WF_POS_ALIGN_X			 = 1 << 7,
-		WF_POS_ALIGN_Y			 = 1 << 8,
-		WF_SIZE_X_COPY_Y		 = 1 << 9,
-		WF_SIZE_Y_COPY_X		 = 1 << 10,
-		WF_SIZE_X_TOTAL_CHILDREN = 1 << 11,
-		WF_SIZE_Y_TOTAL_CHILDREN = 1 << 12,
-		WF_SIZE_X_MAX_CHILDREN	 = 1 << 13,
-		WF_SIZE_Y_MAX_CHILDREN	 = 1 << 14,
-		WF_SKIP_FLOORING		 = 1 << 15,
-		WF_FOREGROUND_BLOCKER	 = 1 << 16,
-		WF_TICK_AFTER_CHILDREN	 = 1 << 17,
+		WF_POS_ALIGN_X			 = 1 << 0,
+		WF_POS_ALIGN_Y			 = 1 << 1,
+		WF_SIZE_ALIGN_X			 = 1 << 2,
+		WF_SIZE_ALIGN_Y			 = 1 << 3,
+		WF_USE_FIXED_SIZE_X		 = 1 << 4,
+		WF_USE_FIXED_SIZE_Y		 = 1 << 5,
+		WF_SIZE_X_COPY_Y		 = 1 << 6,
+		WF_SIZE_Y_COPY_X		 = 1 << 7,
+		WF_SIZE_X_TOTAL_CHILDREN = 1 << 8,
+		WF_SIZE_Y_TOTAL_CHILDREN = 1 << 9,
+		WF_SIZE_X_MAX_CHILDREN	 = 1 << 10,
+		WF_SIZE_Y_MAX_CHILDREN	 = 1 << 11,
+		WF_SIZE_AFTER_CHILDREN	 = 1 << 12,
+		WF_TICK_AFTER_CHILDREN	 = 1 << 13,
+		WF_OWNS_SIZE			 = 1 << 14,
+		WF_CONTROLS_DRAW_ORDER	 = 1 << 15,
+		WF_CONTROLLABLE			 = 1 << 16,
+		WF_FOREGROUND_BLOCKER	 = 1 << 17,
 		WF_MOUSE_PASSTHRU		 = 1 << 18,
 		WF_KEY_PASSTHRU			 = 1 << 19,
-		WF_SIZE_AFTER_CHILDREN	 = 1 << 20,
+		WF_SKIP_FLOORING		 = 1 << 20,
 	};
+
+	LINA_REFLECTENUM_BEGIN(WidgetFlags, "Anchor")
+	LINA_PROPERTY_STRING(WidgetFlags, "0", "Pos Align X")
+	LINA_PROPERTY_STRING(WidgetFlags, "1", "Pos Align Y")
+	LINA_PROPERTY_STRING(WidgetFlags, "2", "Size Align X")
+	LINA_PROPERTY_STRING(WidgetFlags, "3", "Size Align Y")
+	LINA_PROPERTY_STRING(WidgetFlags, "4", "Fixed Size X")
+	LINA_PROPERTY_STRING(WidgetFlags, "5", "Fixed Size Y")
+	LINA_PROPERTY_STRING(WidgetFlags, "6", "Size X Copy Y")
+	LINA_PROPERTY_STRING(WidgetFlags, "7", "Size Y Copy X")
+	LINA_PROPERTY_STRING(WidgetFlags, "8", "Size X Total Children")
+	LINA_PROPERTY_STRING(WidgetFlags, "9", "Size Y Total Children")
+	LINA_PROPERTY_STRING(WidgetFlags, "10", "Size X Max Children")
+	LINA_PROPERTY_STRING(WidgetFlags, "11", "Size Y Max Children")
+	LINA_PROPERTY_STRING(WidgetFlags, "12", "Size After Children")
+	LINA_PROPERTY_STRING(WidgetFlags, "13", "Tick After Children")
+	LINA_PROPERTY_STRING(WidgetFlags, "14", "Owns Size")
+	LINA_PROPERTY_STRING(WidgetFlags, "15", "Controls Draw Order")
+	LINA_PROPERTY_STRING(WidgetFlags, "16", "Controllable")
+	LINA_PROPERTY_STRING(WidgetFlags, "17", "Foreground Blocker")
+	LINA_PROPERTY_STRING(WidgetFlags, "18", "Mouse Passthrough")
+	LINA_PROPERTY_STRING(WidgetFlags, "19", "Key Passthrough")
+	LINA_PROPERTY_STRING(WidgetFlags, "20", "Skip Flooring")
+	LINA_REFLECTENUM_END(WidgetFlags)
 
 	enum class Anchor
 	{
@@ -96,7 +120,10 @@ namespace Lina
 		End
 	};
 
-	LINA_REFLECTENUM_BEGIN(Anchor, "Anchor")
+	LINA_REFLECTENUMCLASS_BEGIN(Anchor, "Anchor")
+	LINA_PROPERTY_STRING(Anchor, "0", "Start")
+	LINA_PROPERTY_STRING(Anchor, "1", "Center")
+	LINA_PROPERTY_STRING(Anchor, "2", "End")
 	LINA_REFLECTENUM_END(Anchor)
 
 	enum class ColorDisplay

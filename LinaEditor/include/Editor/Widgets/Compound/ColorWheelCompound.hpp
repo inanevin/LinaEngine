@@ -53,7 +53,7 @@ namespace Lina::Editor
 		ColorWheelCompound()		  = default;
 		virtual ~ColorWheelCompound() = default;
 
-		static constexpr float WHEEL_STACK_PERC = 0.6f;
+		static constexpr float WHEEL_STACK_PERC = 0.4f;
 
 		struct Properties
 		{
@@ -62,8 +62,6 @@ namespace Lina::Editor
 
 		virtual void Construct() override;
 		virtual void Initialize() override;
-		virtual void CalculateSize(float delta) override;
-		virtual void Tick(float delta) override;
 		void		 SetTargetColor(const Color& col);
 
 		inline Properties& GetProps()

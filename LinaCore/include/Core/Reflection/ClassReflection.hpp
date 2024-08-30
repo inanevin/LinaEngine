@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Common/StringID.hpp"
+#include "Common/Common.hpp"
 #include "Core/World/ComponentCache.hpp"
 #include "Core/Reflection/ReflectionSystem.hpp"
 #include "Core/GUI/Widgets/WidgetCache.hpp"
@@ -110,8 +111,21 @@ namespace Lina
 			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<ClassName>));                                                                                    \
 			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<ClassName>, std::placeholders::_1));
 
-#define LINA_REFLECTENUM_BEGIN(EnumName, TITLE)                                                                                                                                                                                                                    \
+#define LINA_REFLECTENUMCLASS_BEGIN(EnumName, TITLE)                                                                                                                                                                                                               \
 	enum class EnumName;                                                                                                                                                                                                                                           \
+	class EnumName##_LinaReflected                                                                                                                                                                                                                                 \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		EnumName##_LinaReflected()                                                                                                                                                                                                                                 \
+		{                                                                                                                                                                                                                                                          \
+			static bool reflected = false;                                                                                                                                                                                                                         \
+			if (reflected)                                                                                                                                                                                                                                         \
+				return;                                                                                                                                                                                                                                            \
+			reflected = true;                                                                                                                                                                                                                                      \
+			Lina::ReflectionSystem::Get().Meta<EnumName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);
+
+#define LINA_REFLECTENUM_BEGIN(EnumName, TITLE)                                                                                                                                                                                                                    \
+	enum EnumName;                                                                                                                                                                                                                                                 \
 	class EnumName##_LinaReflected                                                                                                                                                                                                                                 \
 	{                                                                                                                                                                                                                                                              \
 	public:                                                                                                                                                                                                                                                        \
@@ -170,6 +184,8 @@ namespace Lina
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Min"), MIN);                                                                                                                               \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Max"), MAX);
 
+#define LINA_PROPERTY_STRING(ClassName, PropertyName, VALUE) Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC(TO_SIDC(PropertyName)), VALUE);
+
 /* ENDING A REFLECTED CLASS */
 #define LINA_REFLECTCLASS_END(ClassName)                                                                                                                                                                                                                           \
 	}                                                                                                                                                                                                                                                              \
@@ -183,5 +199,18 @@ namespace Lina
 #define LINA_REFLECTION_ACCESS(ClassName)	 friend class ClassName##_LinaReflected;
 
 	// static const ClassName##....
+
+	LINA_REFLECTENUMCLASS_BEGIN(Direction, "Direction")
+	LINA_PROPERTY_STRING(Direction, "0", "Top")
+	LINA_PROPERTY_STRING(Direction, "1", "Bottom")
+	LINA_PROPERTY_STRING(Direction, "2", "Left")
+	LINA_PROPERTY_STRING(Direction, "3", "Right")
+	LINA_PROPERTY_STRING(Direction, "4", "Center")
+	LINA_REFLECTCLASS_END(Direction)
+
+	LINA_REFLECTENUMCLASS_BEGIN(DirectionOrientation, "Direction")
+	LINA_PROPERTY_STRING(DirectionOrientation, "0", "Horizontal")
+	LINA_PROPERTY_STRING(DirectionOrientation, "1", "Vertical")
+	LINA_REFLECTCLASS_END(DirectionOrientation)
 
 } // namespace Lina

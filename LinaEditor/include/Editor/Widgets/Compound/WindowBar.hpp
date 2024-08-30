@@ -52,6 +52,10 @@ namespace Lina::Editor
 		virtual void Tick(float delta) override;
 		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
+		void SetMinimizeDisabled(bool isDisabled);
+		void SetMaximizeDisabled(bool isDisabled);
+		void SetCloseDisabled(bool isDisabled);
+
 		inline BarProperties& GetBarProps()
 		{
 			return m_barProps;

@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelResources.hpp"
 #include "Editor/Widgets/Panel/PanelPerformance.hpp"
 #include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
+#include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -58,12 +59,16 @@ namespace Lina::Editor
 		case PanelType::WidgetEditor:
 			panel = source->GetWidgetManager()->Allocate<PanelWidgetEditor>("Widget Editor");
 			break;
+		case PanelType::ColorWheel:
+			panel = source->GetWidgetManager()->Allocate<PanelColorWheel>("Color Wheel");
+			break;
 		default:
 			break;
 		}
 
 		panel->GetWidgetProps().drawBackground		 = true;
-		panel->GetWidgetProps().outlineThickness	 = 0.0f;
+		panel->GetWidgetProps().outlineThickness	 = Theme::GetDef().baseOutlineThickness;
+		panel->GetWidgetProps().outlineIsInner		 = true;
 		panel->GetWidgetProps().rounding			 = 0.0f;
 		panel->GetWidgetProps().colorBackground		 = Theme::GetDef().background1;
 		panel->GetWidgetProps().dropshadow.enabled	 = true;

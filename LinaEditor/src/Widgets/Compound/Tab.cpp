@@ -161,13 +161,19 @@ namespace Lina::Editor
 
 		m_icon->SetDrawOrder(drawOrder);
 		m_text->SetDrawOrder(drawOrder);
-		m_icon->Draw();
+
+		if (!m_props.fixedTab)
+			m_icon->Draw();
+
 		m_text->Draw();
 	}
 
 	bool Tab::OnMouse(uint32 button, LinaGX::InputAction action)
 	{
 		if (button != LINAGX_MOUSE_0)
+			return false;
+
+		if (m_props.fixedTab)
 			return false;
 
 		if (m_isPressed && action == LinaGX::InputAction::Released)

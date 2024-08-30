@@ -81,6 +81,8 @@ namespace Lina::Editor
 
 	void PanelPerformance::Destruct()
 	{
+		Panel::Destruct();
+
 		for (auto* widget : m_tabContents)
 		{
 			if (widget == m_currentContent)

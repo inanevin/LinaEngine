@@ -121,6 +121,9 @@ namespace Lina::Editor
 				LinaGX::Window* window = m_gfxManager->GetApplicationWindow(sid);
 				DestroySurfaceRenderer(window);
 				m_gfxManager->DestroyApplicationWindow(sid);
+				LinaGX::Window* top = m_gfxManager->GetLGX()->GetWindowManager().GetTopWindow();
+				if (top != nullptr)
+					top->BringToFront();
 			}
 
 			m_windowCloseRequests.clear();
@@ -228,41 +231,57 @@ namespace Lina::Editor
 		return GetSurfaceRenderer(PAYLOAD_WINDOW_SID)->GetWidgetManager().GetRoot();
 	}
 
-	void WindowPanelManager::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
+	Panel* WindowPanelManager::FindPanelFromDockAreas(PanelType type, const Vector<DockArea*>& areas, DockArea*& outOwningArea, StringID subData)
 	{
-		// Go thru windows and try to find panel.
-		auto findPanel = [type](const Vector<DockArea*>& areas) -> bool {
-			for (auto* area : areas)
-			{
-				const auto& panels = area->GetPanels();
+		for (auto* area : areas)
+		{
+			const auto& panels = area->GetPanels();
 
-				for (auto* panel : panels)
+			for (auto* panel : panels)
+			{
+				if (panel->GetType() == type && panel->GetSubData() == subData)
 				{
-					if (panel->GetType() == type)
-					{
-						panel->GetWindow()->BringToFront();
-						area->SetSelected(panel);
-						return true;
-					}
+					outOwningArea = area;
+					return panel;
 				}
 			}
-			return false;
-		};
+		}
+		return nullptr;
+	}
 
-		// Check main
+	Panel* WindowPanelManager::FindPanelOfType(PanelType type, StringID subData, DockArea*& owningArea)
+	{
 		Vector<DockArea*> primaryAreas;
 		Widget::GetWidgetsOfType<DockArea>(primaryAreas, m_primaryWidgetManager->GetRoot());
-		if (findPanel(primaryAreas))
-			return;
+		Panel* foundPanel = FindPanelFromDockAreas(type, primaryAreas, owningArea, subData);
+		if (foundPanel != nullptr)
+			return foundPanel;
 
-		// Check subs
 		for (auto* w : m_subWindows)
 		{
 			Vector<DockArea*> areas;
 			SurfaceRenderer*  sf = GetSurfaceRenderer(static_cast<StringID>(w->GetSID()));
 			Widget::GetWidgetsOfType<DockArea>(areas, sf->GetWidgetManager().GetRoot());
-			if (findPanel(areas))
-				return;
+
+			foundPanel = FindPanelFromDockAreas(type, areas, owningArea, subData);
+
+			if (foundPanel != nullptr)
+				return foundPanel;
+		}
+
+		return nullptr;
+	}
+
+	Panel* WindowPanelManager::OpenPanel(PanelType type, StringID subData, Widget* requestingWidget)
+	{
+		DockArea* owningArea = nullptr;
+		Panel*	  foundPanel = FindPanelOfType(type, subData, owningArea);
+
+		if (foundPanel != nullptr)
+		{
+			foundPanel->GetWindow()->BringToFront();
+			owningArea->SetSelected(foundPanel);
+			return foundPanel;
 		}
 
 		// Not found, create a window & insert panel.
@@ -284,6 +303,12 @@ namespace Lina::Editor
 		Panel* panel = PanelFactory::CreatePanel(dock, type, subData);
 		dock->GetWindow()->SetTitle(panel->GetWidgetProps().debugName);
 		dock->AddPanel(panel);
+
+		const Vector2i& p = m_windowPanelPositions[type];
+		if (p.x != 0 && p.y != 0)
+			dock->GetWindow()->SetPosition(p.AsLGX2I());
+
+		return panel;
 	}
 
 	Widget* WindowPanelManager::PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title)
@@ -336,6 +361,11 @@ namespace Lina::Editor
 	void WindowPanelManager::CloseWindow(StringID sid)
 	{
 		m_windowCloseRequests.push_back(sid);
+	}
+
+	void WindowPanelManager::StorePanelWindowPosition(PanelType type, const Vector2i& pos)
+	{
+		m_windowPanelPositions[type] = pos;
 	}
 
 	SurfaceRenderer* WindowPanelManager::GetSurfaceRenderer(StringID sid)

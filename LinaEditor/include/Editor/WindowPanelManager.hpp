@@ -31,6 +31,7 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Common/StringID.hpp"
 #include "Editor/CommonEditor.hpp"
+#include "Editor/Widgets/Panel/Panel.hpp"
 
 namespace LinaGX
 {
@@ -46,6 +47,7 @@ namespace Lina
 } // namespace Lina
 namespace Lina::Editor
 {
+	class DockArea;
 	class Editor;
 	class NotificationDisplayer;
 	class SurfaceRenderer;
@@ -94,11 +96,13 @@ namespace Lina::Editor
 		Widget* GetPayloadRoot();
 
 		// Panel and windows
-		void	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
+		Panel*	OpenPanel(PanelType type, StringID subData, Widget* requestingWidget);
 		Widget* PrepareNewWindowToDock(StringID sid, const Vector2& pos, const Vector2& size, const String& title);
 		void	CloseWindow(StringID sid);
 		void	CloseAllSubwindows();
 		void	OnWindowSizeChanged(LinaGX::Window* window, const Vector2ui& size);
+		void	StorePanelWindowPosition(PanelType type, const Vector2i& pos);
+		Panel*	FindPanelOfType(PanelType type, StringID subData, DockArea*& owningArea);
 
 		// Notification
 		NotificationDisplayer* GetNotificationDisplayer(LinaGX::Window* window);
@@ -114,8 +118,9 @@ namespace Lina::Editor
 		}
 
 	private:
-		void CreateSurfaceRendererForWindow(LinaGX::Window* window);
-		void DestroySurfaceRenderer(LinaGX::Window* window);
+		void   CreateSurfaceRendererForWindow(LinaGX::Window* window);
+		void   DestroySurfaceRenderer(LinaGX::Window* window);
+		Panel* FindPanelFromDockAreas(PanelType type, const Vector<DockArea*>& areas, DockArea*& outOwningArea, StringID subData);
 
 	private:
 		WidgetManager*							   m_primaryWidgetManager = nullptr;
@@ -129,6 +134,7 @@ namespace Lina::Editor
 		HashMap<LinaGX::Window*, SurfaceRenderer*> m_surfaceRenderers;
 		PayloadRequest							   m_payloadRequest;
 		StringID								   m_subWindowCounter = 0;
+		HashMap<PanelType, Vector2i>			   m_windowPanelPositions;
 	};
 
 } // namespace Lina::Editor

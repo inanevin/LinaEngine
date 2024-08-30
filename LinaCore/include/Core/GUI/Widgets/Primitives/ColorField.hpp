@@ -47,17 +47,19 @@ namespace Lina
 		{
 			Delegate<void()> onClicked;
 			Color*			 value			   = nullptr;
+			ColorGrad*		 gradValue		   = nullptr;
 			Texture*		 backgroundTexture = nullptr;
 			bool			 convertToLinear   = false;
+			bool			 disableInput	   = false;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << convertToLinear;
+				stream << convertToLinear << disableInput;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> convertToLinear;
+				stream >> convertToLinear >> disableInput;
 			}
 		};
 

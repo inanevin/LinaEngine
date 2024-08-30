@@ -29,58 +29,44 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Widget.hpp"
-#include "Editor/CommonEditor.hpp"
+#include "Common/Tween/Tween.hpp"
 
-namespace Lina::Editor
+namespace Lina
 {
+	class Text;
+	class DirectionalLayout;
 
-	struct PanelPayloadData
-	{
-		PanelType type		= PanelType::Entities;
-		StringID  subData	= 0;
-		Vector2	  panelSize = Vector2::Zero;
-		String	  panelName = "";
-	};
-
-	enum PanelFlags
-	{
-		PF_NONE			  = 1 << 0,
-		PF_FLOATING_POPUP = 1 << 1,
-	};
-
-	class Panel : public Widget
+	class FloatingPopup : public Widget
 	{
 	public:
-		Panel() = default;
-		Panel(PanelType type, StringID subData, uint32 flags = 0) : m_panelType(type), m_subData(subData), m_panelFlags(flags), Widget(){};
-		virtual ~Panel() = default;
+		FloatingPopup()			 = default;
+		virtual ~FloatingPopup() = default;
 
-		virtual void SaveLayoutToStream(OStream& stream){};
-		virtual void LoadLayoutFromStream(IStream& stream){};
-		virtual void Destruct() override;
-
-		inline PanelType GetType() const
+		struct Properties
 		{
-			return m_panelType;
+			String title = "";
+		};
+
+		virtual void Construct() override;
+		virtual void Initialize() override;
+		virtual void Tick(float delta) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
+		void		 AddItem(Widget* w);
+
+		inline Properties& GetProps()
+		{
+			return m_props;
 		}
 
-		inline StringID GetSubData() const
-		{
-			return m_subData;
-		}
-
-		inline const Bitmask32& GetPanelFlags() const
-		{
-			return m_panelFlags;
-		}
-
-	protected:
-		PanelType m_panelType  = PanelType::Resources;
-		StringID  m_subData	   = 0;
-		Bitmask32 m_panelFlags = 0;
+	private:
+		Properties		   m_props		= {};
+		DirectionalLayout* m_background = nullptr;
+		Text*			   m_title		= nullptr;
+		Tween			   m_tween		= {};
+		Vector2			   m_pressDiff	= Vector2::Zero;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Panel, Editor)
-	LINA_REFLECTWIDGET_END(Panel)
+	LINA_REFLECTWIDGET_BEGIN(FloatingPopup, Layout)
+	LINA_REFLECTWIDGET_END(FloatingPopup)
 
-} // namespace Lina::Editor
+} // namespace Lina
