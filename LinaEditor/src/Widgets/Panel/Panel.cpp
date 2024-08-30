@@ -32,8 +32,8 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-    void Panel::Destruct()
-    {
-        Editor::Get()->GetWindowPanelManager().StorePanelWindowPosition(m_panelType, m_lgxWindow->GetPosition());
-    }
+	void Panel::Destruct()
+	{
+		Editor::Get()->GetWindowPanelManager().StorePanelWindowPosition(m_panelType, m_lgxWindow->GetPosition());
+	}
 } // namespace Lina::Editor

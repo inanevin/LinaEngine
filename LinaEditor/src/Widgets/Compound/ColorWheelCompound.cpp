@@ -154,20 +154,20 @@ namespace Lina::Editor
 
 	void ColorWheelCompound::Construct()
 	{
-		m_editor				   = Editor::Get();
-		const float baseItemHeight = Theme::GetDef().baseItemHeight;
-        DirectionalLayout* vertical = m_manager->Allocate<DirectionalLayout>();
-        vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        vertical->SetAlignedPos(Vector2::Zero);
-        vertical->SetAlignedSize(Vector2::One);
-        vertical->GetProps().direction = DirectionOrientation::Vertical;
-        AddChild(vertical);
-        
+		m_editor						  = Editor::Get();
+		const float		   baseItemHeight = Theme::GetDef().baseItemHeight;
+		DirectionalLayout* vertical		  = m_manager->Allocate<DirectionalLayout>();
+		vertical->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		vertical->SetAlignedPos(Vector2::Zero);
+		vertical->SetAlignedSize(Vector2::One);
+		vertical->GetProps().direction = DirectionOrientation::Vertical;
+		AddChild(vertical);
+
 		// Top row
-		m_topRow										  = m_manager->Allocate<DirectionalLayout>("TopRow");
-        m_topRow->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        m_topRow->SetAlignedPosX(0.0f);
-        m_topRow->SetAlignedSize(Vector2(1.0f, 0.4f));
+		m_topRow = m_manager->Allocate<DirectionalLayout>("TopRow");
+		m_topRow->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_topRow->SetAlignedPosX(0.0f);
+		m_topRow->SetAlignedSize(Vector2(1.0f, 0.4f));
 		m_topRow->GetProps().direction					  = DirectionOrientation::Horizontal;
 		m_topRow->GetWidgetProps().borderThickness.bottom = Theme::GetDef().baseOutlineThickness * 2.0f;
 		m_topRow->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
@@ -222,12 +222,12 @@ namespace Lina::Editor
 		hsvRow->AddChild(m_valueComponent.layout);
 
 		// Bottom Col
-		m_bottomColumn								  = m_manager->Allocate<DirectionalLayout>("BottomRow");
-        m_bottomColumn->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        m_bottomColumn->SetAlignedPosX(0.0f);
-        m_bottomColumn->SetAlignedSize(Vector2(1.0f, 0.0f));
+		m_bottomColumn = m_manager->Allocate<DirectionalLayout>("BottomRow");
+		m_bottomColumn->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		m_bottomColumn->SetAlignedPosX(0.0f);
+		m_bottomColumn->SetAlignedSize(Vector2(1.0f, 0.0f));
 		m_bottomColumn->GetProps().direction		  = DirectionOrientation::Vertical;
-        m_bottomColumn->GetProps().mode = DirectionalLayout::Mode::EqualPositions;
+		m_bottomColumn->GetProps().mode				  = DirectionalLayout::Mode::EqualPositions;
 		m_bottomColumn->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
 		m_bottomColumn->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		vertical->AddChild(m_bottomColumn);
@@ -288,20 +288,20 @@ namespace Lina::Editor
 		m_newColorField->GetWidgetProps().rounding		   = 0.0f;
 		oldAndNewColors->AddChild(m_newColorField);
 
-        DirectionalLayout* displayAndThemeRow = m_manager->Allocate<DirectionalLayout>("DisplayAndThemeRow");
-        displayAndThemeRow->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
-        displayAndThemeRow->SetAlignedPosX(0.0f);
-        displayAndThemeRow->SetFixedSizeY(baseItemHeight);
-        displayAndThemeRow->SetAlignedSizeX(1.0f);
-        m_bottomColumn->AddChild(displayAndThemeRow);
-        
+		DirectionalLayout* displayAndThemeRow = m_manager->Allocate<DirectionalLayout>("DisplayAndThemeRow");
+		displayAndThemeRow->GetFlags().Set(WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+		displayAndThemeRow->SetAlignedPosX(0.0f);
+		displayAndThemeRow->SetFixedSizeY(baseItemHeight);
+		displayAndThemeRow->SetAlignedSizeX(1.0f);
+		m_bottomColumn->AddChild(displayAndThemeRow);
+
 		// Display dropdown
-		Dropdown* displayDropdown			   = m_manager->Allocate<Dropdown>("ColorDisplayDropdown");
-        displayDropdown->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-        displayDropdown->SetFixedSizeX(baseItemHeight * 6);
-        displayDropdown->SetAlignedSizeY(1.0f);
-        displayDropdown->SetAlignedPosY(0.0f);
-        
+		Dropdown* displayDropdown = m_manager->Allocate<Dropdown>("ColorDisplayDropdown");
+		displayDropdown->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		displayDropdown->SetFixedSizeX(baseItemHeight * 6);
+		displayDropdown->SetAlignedSizeY(1.0f);
+		displayDropdown->SetAlignedPosY(0.0f);
+
 		displayDropdown->GetProps().onSelected = [this](int32 item) -> bool {
 			SwitchColorDisplay(static_cast<ColorDisplay>(item));
 			return true;
@@ -315,75 +315,33 @@ namespace Lina::Editor
 		displayDropdown->GetText()->GetProps().text = COLOR_DISPLAY_VALUES[m_selectedDisplay];
 		displayDropdown->Initialize();
 		displayAndThemeRow->AddChild(displayDropdown);
-        
-        Dropdown* themeDropdown = m_manager->Allocate<Dropdown>("ThemeDropdown");
-        themeDropdown->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_POS_ALIGN_X |WF_SIZE_ALIGN_Y);
-        themeDropdown->SetFixedSizeX(baseItemHeight * 6);
-        themeDropdown->SetAlignedSizeY(1.0f);
-        themeDropdown->SetAlignedPosY(0.0f);
-        themeDropdown->SetAnchorX(Anchor::End);
-        themeDropdown->SetAlignedPosX(1.0f);
-        themeDropdown->GetText()->GetProps().text = Locale::GetStr(LocaleStr::ThemeColor);
-        themeDropdown->GetProps().onSelected = [this](int32 item) -> bool {
-            
-           const linatl::array<Color, 21> themeColors = {
-               Theme::GetDef().background0,
-               Theme::GetDef().background1,
-               Theme::GetDef().background2,
-               Theme::GetDef().background3,
-               Theme::GetDef().background4,
-               Theme::GetDef().background5,
-               Theme::GetDef().foreground0,
-               Theme::GetDef().foreground1,
-               Theme::GetDef().silent0,
-               Theme::GetDef().silent1,
-               Theme::GetDef().silent2,
-               Theme::GetDef().accentPrimary0,
-               Theme::GetDef().accentPrimary1,
-               Theme::GetDef().accentPrimary2,
-               Theme::GetDef().accentPrimary3,
-               Theme::GetDef().accentSecondary,
-               Theme::GetDef().accentError,
-               Theme::GetDef().accentWarn,
-               Theme::GetDef().outlineColorBase,
-               Theme::GetDef().outlineColorControls,
-               Theme::GetDef().black,
-            };
-            
-            const Color color = themeColors[item];
-            SetTargetColor(color);
-            if(m_props.onValueChanged)
-                m_props.onValueChanged(color);
-            return true;
-        };
-        themeDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, Vector<int32>& outSelected) {
-            
-            outItems = {
-                "Background0",
-                "Background1",
-                "Background2",
-                "Background3",
-                "Background4",
-                "Background5",
-                "Foreground0",
-                "Foreground1",
-                "Silent0",
-                "Silent1",
-                "Silent2",
-                "AccentPrimary0",
-                "AccentPrimary1",
-                "AccentPrimary2",
-                "AccentPrimary3",
-                "AccentSecondary",
-                "AccentError",
-                "AccentWarn",
-                "OutlineColorBase",
-                "OutlineColorControls",
-                "Black"
-            };
-            
-        };
-        displayAndThemeRow->AddChild(themeDropdown);
+
+		Dropdown* themeDropdown = m_manager->Allocate<Dropdown>("ThemeDropdown");
+		themeDropdown->GetFlags().Set(WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y | WF_POS_ALIGN_X | WF_SIZE_ALIGN_Y);
+		themeDropdown->SetFixedSizeX(baseItemHeight * 6);
+		themeDropdown->SetAlignedSizeY(1.0f);
+		themeDropdown->SetAlignedPosY(0.0f);
+		themeDropdown->SetAnchorX(Anchor::End);
+		themeDropdown->SetAlignedPosX(1.0f);
+		themeDropdown->GetText()->GetProps().text = Locale::GetStr(LocaleStr::ThemeColor);
+		themeDropdown->GetProps().onSelected	  = [this](int32 item) -> bool {
+			 const linatl::array<Color, 21> themeColors = {
+				 Theme::GetDef().background0,	 Theme::GetDef().background1,	  Theme::GetDef().background2, Theme::GetDef().background3, Theme::GetDef().background4,	  Theme::GetDef().background5,			Theme::GetDef().foreground0,
+				 Theme::GetDef().foreground1,	 Theme::GetDef().silent0,		  Theme::GetDef().silent1,	   Theme::GetDef().silent2,		Theme::GetDef().accentPrimary0,	  Theme::GetDef().accentPrimary1,		Theme::GetDef().accentPrimary2,
+				 Theme::GetDef().accentPrimary3, Theme::GetDef().accentSecondary, Theme::GetDef().accentError, Theme::GetDef().accentWarn,	Theme::GetDef().outlineColorBase, Theme::GetDef().outlineColorControls, Theme::GetDef().black,
+			 };
+
+			 const Color color = themeColors[item];
+			 SetTargetColor(color);
+			 if (m_props.onValueChanged)
+				 m_props.onValueChanged(color);
+			 return true;
+		};
+		themeDropdown->GetProps().onAddItems = [this](Vector<String>& outItems, Vector<int32>& outSelected) {
+			outItems = {"Background0",	  "Background1",	"Background2",	  "Background3",	 "Background4", "Background5", "Foreground0",	   "Foreground1",		   "Silent0", "Silent1", "Silent2", "AccentPrimary0",
+						"AccentPrimary1", "AccentPrimary2", "AccentPrimary3", "AccentSecondary", "AccentError", "AccentWarn",  "OutlineColorBase", "OutlineColorControls", "Black"};
+		};
+		displayAndThemeRow->AddChild(themeDropdown);
 
 		// Color display
 		m_colorComp1									  = ConstructColorComponent("R", &m_editedColor.x);
@@ -399,7 +357,6 @@ namespace Lina::Editor
 		Widget::Initialize();
 		Recalculate(true);
 	}
-
 
 	void ColorWheelCompound::SetTargetColor(const Color& col)
 	{

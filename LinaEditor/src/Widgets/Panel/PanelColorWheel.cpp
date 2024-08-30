@@ -34,17 +34,17 @@ namespace Lina::Editor
 {
 	void PanelColorWheel::Construct()
 	{
-        ColorWheelCompound* cw = m_manager->Allocate<ColorWheelCompound>();
-        cw->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-        cw->SetAlignedPos(Vector2::Zero);
-        cw->SetAlignedSize(Vector2::One);
-        AddChild(cw);
-        m_colorWheel = cw;
+		ColorWheelCompound* cw = m_manager->Allocate<ColorWheelCompound>();
+		cw->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		cw->SetAlignedPos(Vector2::Zero);
+		cw->SetAlignedSize(Vector2::One);
+		AddChild(cw);
+		m_colorWheel = cw;
 	}
-	
-    void PanelColorWheel::SetTarget(Color *color)
-    {
-        m_colorWheel->GetProps().onValueChanged = [color](const Color& linearColor){*color = linearColor;};
-        m_colorWheel->SetTargetColor(*color);
-    }
+
+	void PanelColorWheel::SetTarget(Color* color)
+	{
+		m_colorWheel->GetProps().onValueChanged = [color](const Color& linearColor) { *color = linearColor; };
+		m_colorWheel->SetTargetColor(*color);
+	}
 } // namespace Lina::Editor

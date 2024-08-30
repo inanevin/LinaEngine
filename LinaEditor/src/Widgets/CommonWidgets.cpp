@@ -783,69 +783,68 @@ namespace Lina::Editor
 		pp->Initialize();
 		return pp;
 	}
-    
-    FoldLayout* CommonWidgets::BuildFoldTitle(Widget *src, const String &title, bool *foldValue)
-    {
-        WidgetManager* wm = src->GetWidgetManager();
 
-        FoldLayout* fold = wm->Allocate<FoldLayout>(title);
-        fold->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
-        fold->SetAlignedPosX(0.0f);
-        fold->SetAlignedSizeX(1.0f);
-        fold->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-        fold->GetProps().useTween       = true;
-        fold->GetProps().tweenDuration = 0.25f;
-        fold->GetProps().tweenPower       = Theme::GetDef().baseIndentInner;
-        fold->SetIsUnfolded(*foldValue);
+	FoldLayout* CommonWidgets::BuildFoldTitle(Widget* src, const String& title, bool* foldValue)
+	{
+		WidgetManager* wm = src->GetWidgetManager();
 
-        fold->GetProps().onFoldChanged = [fold, foldValue](bool unfolded) {
-            Icon* icon              = fold->GetWidgetOfType<Icon>(fold);
-            icon->GetProps().icon = unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
-            icon->CalculateIconSize();
-            *foldValue = unfolded;
-        };
-        
-        DirectionalLayout* layout = wm->Allocate<DirectionalLayout>();
-        layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-        layout->SetAlignedPos(0.0f);
-        layout->SetAlignedSizeX(1.0f);
-        layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-        layout->GetProps().direction = DirectionOrientation::Horizontal;
-        layout->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
-        layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent;
-        layout->GetWidgetProps().drawBackground = true;
-        layout->GetWidgetProps().colorBackground.start = Theme::GetDef().background2;
-        layout->GetWidgetProps().colorBackground.end = Theme::GetDef().background3;
-        layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Horizontal;
-        layout->GetWidgetProps().outlineThickness = 0.0f;
-        layout->GetWidgetProps().rounding = 0.0f;
-        layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-        fold->AddChild(layout);
-        
-        Icon* chevron             = wm->Allocate<Icon>("Folder");
-        chevron->GetProps().icon = *foldValue ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
-        chevron->GetFlags().Set(WF_POS_ALIGN_Y);
-        chevron->SetAlignedPosY(0.5f);
-        chevron->GetProps().textScale = 0.4f;
-        chevron->SetAnchorY(Anchor::Center);
-        layout->AddChild(chevron);
-        
-      //  layout->GetProps().onClicked = [chevron, foldValue](){
-      //      *foldValue = !*foldValue;
-      //      chevron->GetProps().icon = *foldValue ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
-      //      chevron->CalculateIconSize();
-      //  };
+		FoldLayout* fold = wm->Allocate<FoldLayout>(title);
+		fold->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X);
+		fold->SetAlignedPosX(0.0f);
+		fold->SetAlignedSizeX(1.0f);
+		fold->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		fold->GetProps().useTween			= true;
+		fold->GetProps().tweenDuration		= 0.25f;
+		fold->GetProps().tweenPower			= Theme::GetDef().baseIndentInner;
+		fold->SetIsUnfolded(*foldValue);
 
-        
-        Text* text = wm->Allocate<Text>("Title");
-        text->GetFlags().Set(WF_POS_ALIGN_Y );
-        text->SetAlignedPosY(0.5f);
-        text->SetAnchorY(Anchor::Center);
-        text->GetProps().text = title;
-        layout->AddChild(text);
-        
-        return fold;
-    }
+		fold->GetProps().onFoldChanged = [fold, foldValue](bool unfolded) {
+			Icon* icon			  = fold->GetWidgetOfType<Icon>(fold);
+			icon->GetProps().icon = unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
+			icon->CalculateIconSize();
+			*foldValue = unfolded;
+		};
+
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>();
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		layout->SetAlignedPos(0.0f);
+		layout->SetAlignedSizeX(1.0f);
+		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->GetProps().direction					  = DirectionOrientation::Horizontal;
+		layout->GetWidgetProps().childMargins.left		  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.right		  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().drawBackground			  = true;
+		layout->GetWidgetProps().colorBackground.start	  = Theme::GetDef().background2;
+		layout->GetWidgetProps().colorBackground.end	  = Theme::GetDef().background3;
+		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Horizontal;
+		layout->GetWidgetProps().outlineThickness		  = 0.0f;
+		layout->GetWidgetProps().rounding				  = 0.0f;
+		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndent;
+		fold->AddChild(layout);
+
+		Icon* chevron			 = wm->Allocate<Icon>("Folder");
+		chevron->GetProps().icon = *foldValue ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
+		chevron->GetFlags().Set(WF_POS_ALIGN_Y);
+		chevron->SetAlignedPosY(0.5f);
+		chevron->GetProps().textScale = 0.4f;
+		chevron->SetAnchorY(Anchor::Center);
+		layout->AddChild(chevron);
+
+		//  layout->GetProps().onClicked = [chevron, foldValue](){
+		//      *foldValue = !*foldValue;
+		//      chevron->GetProps().icon = *foldValue ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT;
+		//      chevron->CalculateIconSize();
+		//  };
+
+		Text* text = wm->Allocate<Text>("Title");
+		text->GetFlags().Set(WF_POS_ALIGN_Y);
+		text->SetAlignedPosY(0.5f);
+		text->SetAnchorY(Anchor::Center);
+		text->GetProps().text = title;
+		layout->AddChild(text);
+
+		return fold;
+	}
 
 	DirectionalLayout* CommonWidgets::BuildFieldLayout(Widget* src, const String& title)
 	{
@@ -856,9 +855,9 @@ namespace Lina::Editor
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->SetAlignedSizeX(1.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-        layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
-        layout->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent * 2;
-        layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent * 2;
+		layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent * 2;
+		layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent * 2;
 
 		Text* txt			 = wm->Allocate<Text>("FieldTitle");
 		txt->GetProps().text = title;
@@ -870,16 +869,15 @@ namespace Lina::Editor
 		return layout;
 	}
 
-
-    Widget* CommonWidgets::BuildClassFieldLayout(Widget* src, const String& title)
-    {
-        return nullptr;
-    }
+	Widget* CommonWidgets::BuildClassFieldLayout(Widget* src, const String& title)
+	{
+		return nullptr;
+	}
 
 	Widget* CommonWidgets::BuildField(Widget* src, const String& title, StringID fieldType, FieldValue reflectionValue, FieldBase* field)
 	{
-		WidgetManager* wm	  = src->GetWidgetManager();
-		DirectionalLayout*		   layout = BuildFieldLayout(src, title);
+		WidgetManager*	   wm	  = src->GetWidgetManager();
+		DirectionalLayout* layout = BuildFieldLayout(src, title);
 
 		DirectionalLayout* rightSide = wm->Allocate<DirectionalLayout>("RightSide");
 		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
@@ -907,7 +905,6 @@ namespace Lina::Editor
 			inp->GetProps().valueStep			= isInt ? 1.0f : (maxFloat - minFloat) / 20.0f;
 			return inp;
 		};
-        
 
 		String min = "", max = "";
 		if (field->HasProperty<String>("Min"_hs))
@@ -915,48 +912,47 @@ namespace Lina::Editor
 			min = field->GetProperty<String>("Min"_hs);
 			max = field->GetProperty<String>("Max"_hs);
 		}
-        
-        if (fieldType == "Bitmask32"_hs)
+
+		if (fieldType == "Bitmask32"_hs)
 		{
 			Dropdown* dd = wm->Allocate<Dropdown>();
 			dd->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			dd->SetAlignedSize(Vector2(0.0f, 1.0f));
 			dd->SetAlignedPosY(0.0f);
 
-			Bitmask32* mask				   = reflectionValue.CastPtr<Bitmask32>();
-            dd->GetProps().closeOnSelect  = false;
-            dd->GetProps().switchTextOnSelect = false;
-			dd->GetText()->GetProps().text = TO_STRING(mask->GetValue());
-            
-            MetaType& subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
-            PropertyCache<String>* cache = subType.GetPropertyCacheManager().GetPropertyCache<String>();
-            Vector<String> values = cache->GetSortedVector();
-            
-            dd->GetProps().onSelected = [mask, dd](int32 item) -> bool {
-                const uint32 bmVal = 1 << item;
-                
-                if (mask->IsSet(bmVal))
-                    mask->Remove(bmVal);
-                else
-                    mask->Set(bmVal);
-                
-                dd->GetText()->GetProps().text = TO_STRING(mask->GetValue());
-                dd->GetText()->CalculateTextSize();
-                
-                return mask->IsSet(bmVal);
-            };
-            
-            dd->GetProps().onAddItems = [values, mask](Vector<String>& outItems, Vector<int32>& outSelected){
-                const int32 sz = static_cast<int32>(values.size());
-                for(int32 i = 1; i < sz; i++)
-                {
-                    outItems.push_back(values[i]);
-                    const uint32 bmVal = 1 << (i - 1);
-                    if(mask->IsSet(bmVal))
-                        outSelected.push_back(i - 1);
-                }
-            };
-            
+			Bitmask32* mask					  = reflectionValue.CastPtr<Bitmask32>();
+			dd->GetProps().closeOnSelect	  = false;
+			dd->GetProps().switchTextOnSelect = false;
+			dd->GetText()->GetProps().text	  = TO_STRING(mask->GetValue());
+
+			MetaType&			   subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
+			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
+			Vector<String>		   values  = cache->GetSortedVector();
+
+			dd->GetProps().onSelected = [mask, dd](int32 item) -> bool {
+				const uint32 bmVal = 1 << item;
+
+				if (mask->IsSet(bmVal))
+					mask->Remove(bmVal);
+				else
+					mask->Set(bmVal);
+
+				dd->GetText()->GetProps().text = TO_STRING(mask->GetValue());
+				dd->GetText()->CalculateTextSize();
+
+				return mask->IsSet(bmVal);
+			};
+
+			dd->GetProps().onAddItems = [values, mask](Vector<String>& outItems, Vector<int32>& outSelected) {
+				const int32 sz = static_cast<int32>(values.size());
+				for (int32 i = 1; i < sz; i++)
+				{
+					outItems.push_back(values[i]);
+					const uint32 bmVal = 1 << (i - 1);
+					if (mask->IsSet(bmVal))
+						outSelected.push_back(i - 1);
+				}
+			};
 
 			rightSide->AddChild(dd);
 		}
@@ -967,25 +963,25 @@ namespace Lina::Editor
 			dd->SetAlignedSize(Vector2(0.0f, 1.0f));
 			dd->SetAlignedPosY(0.0f);
 
-            MetaType& subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
-            PropertyCache<String>* cache = subType.GetPropertyCacheManager().GetPropertyCache<String>();
-            Vector<String> values = cache->GetSortedVector();
-            
-			int32* enumVal = reflectionValue.CastPtr<int32>();
+			MetaType&			   subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
+			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
+			Vector<String>		   values  = cache->GetSortedVector();
+
+			int32* enumVal			  = reflectionValue.CastPtr<int32>();
 			dd->GetProps().onSelected = [enumVal](int32 item) -> bool {
 				*enumVal = item;
 				return true;
 			};
-            
-            dd->GetProps().onAddItems = [values, enumVal](Vector<String>& outItems, Vector<int32>& outSelected){
-                const int32 sz = static_cast<int32>(values.size());
-                for(int32 i = 1; i < sz; i++)
-                    outItems.push_back(values[i]);
-                outSelected.push_back(*enumVal);
-            };
-            
-            dd->GetText()->GetProps().text = values[*enumVal + 1];
-            dd->GetText()->CalculateTextSize();
+
+			dd->GetProps().onAddItems = [values, enumVal](Vector<String>& outItems, Vector<int32>& outSelected) {
+				const int32 sz = static_cast<int32>(values.size());
+				for (int32 i = 1; i < sz; i++)
+					outItems.push_back(values[i]);
+				outSelected.push_back(*enumVal);
+			};
+
+			dd->GetText()->GetProps().text = values[*enumVal + 1];
+			dd->GetText()->CalculateTextSize();
 
 			rightSide->AddChild(dd);
 		}
@@ -1046,180 +1042,175 @@ namespace Lina::Editor
 			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
 			rightSide->AddChild(getValueField(&val->w, hasLimits, minFloat, maxFloat));
 		}
-        else if(fieldType == "Rect"_hs)
-        {
-            Rect* rect = reflectionValue.CastPtr<Rect>();
-            rightSide->AddChild(getValueField(&rect->pos.x, false, 0.0f, 0.0f));
-            rightSide->AddChild(getValueField(&rect->pos.y, false, 0.0f, 0.0f));
-            rightSide->AddChild(getValueField(&rect->size.x, false, 0.0f, 0.0f));
-            rightSide->AddChild(getValueField(&rect->size.y, false, 0.0f, 0.0f));
-       }
-        else if(fieldType == "TBLR"_hs)
-        {
-            TBLR* tblr = reflectionValue.CastPtr<TBLR>();
-            rightSide->AddChild(getValueField(&tblr->top, false, 0.0f, 0.0f));
-            rightSide->AddChild(getValueField(&tblr->bottom, false, 0.0f, 0.0f));
-            rightSide->AddChild(getValueField(&tblr->left, false, 0.0f, 0.0f));
-            rightSide->AddChild(getValueField(&tblr->right, false, 0.0f, 0.0f));
-       }
-        else if(fieldType == "Color"_hs)
-        {
-            Color* col = reflectionValue.CastPtr<Color>();
-            ColorField* cf = wm->Allocate<ColorField>();
-            cf->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-            cf->SetAlignedSize(Vector2(0.0f, 1.0f));
-            cf->SetAlignedPosY(0.0f);
-            cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
-            cf->GetProps().value = col;
-            cf->GetProps().onClicked = [cf, col, src](){
-                PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
-                panel->SetTarget(col);
-            };
-            rightSide->AddChild(cf);
-       }
-        else if(fieldType == "ColorGrad"_hs)
-        {
-            ColorGrad* col = reflectionValue.CastPtr<ColorGrad>();
-            rightSide->AddChild(BuildColorGradSlider(src, col));
-       }
-        else if(fieldType == "String"_hs)
-        {
-            String* strVal = reflectionValue.CastPtr<String>();
-            InputField* inp = wm->Allocate<InputField>();
-            inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-            inp->SetAlignedSize(Vector2(0.0f, 1.0f));
-            inp->SetAlignedPosY(0.0f);
-            inp->GetText()->GetProps().text        = *strVal;
-            inp->GetProps().onEditEnd = [strVal](const String& str) {
-                *strVal = str;
-            };
-            rightSide->AddChild(inp);
-        }
-        else if(fieldType == "bool"_hs)
-        {
-            rightSide->GetProps().mode = DirectionalLayout::Mode::Default;
-            bool* bval = reflectionValue.CastPtr<bool>();
-            Checkbox* cb = wm->Allocate<Checkbox>();
-            cb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
-            cb->SetAlignedSizeY(1.0f);
-            cb->SetAlignedPosY(0.0f);
-            cb->GetProps().value = bval;
-            cb->GetIcon()->GetProps().icon = ICON_CHECK;
-            cb->GetIcon()->CalculateIconSize();
-            rightSide->AddChild(cb);
-        }
-        else if(fieldType == "uint32"_hs)
-        {
-            uint32* v = reflectionValue.CastPtr<uint32>();
-            const bool hasLimits = !min.empty();
-            float       minFloat = 0.0f, maxFloat = 0.0f;
-            uint32 outDecimals = 0;
+		else if (fieldType == "Rect"_hs)
+		{
+			Rect* rect = reflectionValue.CastPtr<Rect>();
+			rightSide->AddChild(getValueField(&rect->pos.x, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&rect->pos.y, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&rect->size.x, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&rect->size.y, false, 0.0f, 0.0f));
+		}
+		else if (fieldType == "TBLR"_hs)
+		{
+			TBLR* tblr = reflectionValue.CastPtr<TBLR>();
+			rightSide->AddChild(getValueField(&tblr->top, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&tblr->bottom, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&tblr->left, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&tblr->right, false, 0.0f, 0.0f));
+		}
+		else if (fieldType == "Color"_hs)
+		{
+			Color*		col = reflectionValue.CastPtr<Color>();
+			ColorField* cf	= wm->Allocate<ColorField>();
+			cf->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			cf->SetAlignedSize(Vector2(0.0f, 1.0f));
+			cf->SetAlignedPosY(0.0f);
+			cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
+			cf->GetProps().value			 = col;
+			cf->GetProps().onClicked		 = [cf, col, src]() {
+				PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+				panel->SetTarget(col);
+			};
+			rightSide->AddChild(cf);
+		}
+		else if (fieldType == "ColorGrad"_hs)
+		{
+			ColorGrad* col = reflectionValue.CastPtr<ColorGrad>();
+			rightSide->AddChild(BuildColorGradSlider(src, col));
+		}
+		else if (fieldType == "String"_hs)
+		{
+			String*		strVal = reflectionValue.CastPtr<String>();
+			InputField* inp	   = wm->Allocate<InputField>();
+			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
+			inp->SetAlignedPosY(0.0f);
+			inp->GetText()->GetProps().text = *strVal;
+			inp->GetProps().onEditEnd		= [strVal](const String& str) { *strVal = str; };
+			rightSide->AddChild(inp);
+		}
+		else if (fieldType == "bool"_hs)
+		{
+			rightSide->GetProps().mode = DirectionalLayout::Mode::Default;
+			bool*	  bval			   = reflectionValue.CastPtr<bool>();
+			Checkbox* cb			   = wm->Allocate<Checkbox>();
+			cb->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
+			cb->SetAlignedSizeY(1.0f);
+			cb->SetAlignedPosY(0.0f);
+			cb->GetProps().value		   = bval;
+			cb->GetIcon()->GetProps().icon = ICON_CHECK;
+			cb->GetIcon()->CalculateIconSize();
+			rightSide->AddChild(cb);
+		}
+		else if (fieldType == "uint32"_hs)
+		{
+			uint32*	   v		 = reflectionValue.CastPtr<uint32>();
+			const bool hasLimits = !min.empty();
+			float	   minFloat = 0.0f, maxFloat = 0.0f;
+			uint32	   outDecimals = 0;
 
-            if (hasLimits)
-            {
-                minFloat = UtilStr::StringToFloat(min, outDecimals);
-                maxFloat = UtilStr::StringToFloat(max, outDecimals);
-            }
-            
-            InputField* inp = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, true);
-            inp->GetProps().decimals = 0;
-            rightSide->AddChild(inp);
-        }
-        else if(fieldType == "int32"_hs)
-        {
-            int32* v = reflectionValue.CastPtr<int32>();
-            const bool hasLimits = !min.empty();
-            float       minFloat = 0.0f, maxFloat = 0.0f;
-            uint32 outDecimals = 0;
+			if (hasLimits)
+			{
+				minFloat = UtilStr::StringToFloat(min, outDecimals);
+				maxFloat = UtilStr::StringToFloat(max, outDecimals);
+			}
 
-            if (hasLimits)
-            {
-                minFloat = UtilStr::StringToFloat(min, outDecimals);
-                maxFloat = UtilStr::StringToFloat(max, outDecimals);
-            }
-            
-            InputField* inp = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, true);
-            inp->GetProps().decimals = 0;
-            rightSide->AddChild(inp);
-        }
-        else if(fieldType == "float"_hs)
-        {
-            float* v = reflectionValue.CastPtr<float>();
-            const bool hasLimits = !min.empty();
-            float       minFloat = 0.0f, maxFloat = 0.0f;
-            uint32 outDecimals = 0;
+			InputField* inp			 = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, true);
+			inp->GetProps().decimals = 0;
+			rightSide->AddChild(inp);
+		}
+		else if (fieldType == "int32"_hs)
+		{
+			int32*	   v		 = reflectionValue.CastPtr<int32>();
+			const bool hasLimits = !min.empty();
+			float	   minFloat = 0.0f, maxFloat = 0.0f;
+			uint32	   outDecimals = 0;
 
-            if (hasLimits)
-            {
-                minFloat = UtilStr::StringToFloat(min, outDecimals);
-                maxFloat = UtilStr::StringToFloat(max, outDecimals);
-            }
-            rightSide->AddChild(getValueField(v, hasLimits, minFloat, maxFloat));
-        }
+			if (hasLimits)
+			{
+				minFloat = UtilStr::StringToFloat(min, outDecimals);
+				maxFloat = UtilStr::StringToFloat(max, outDecimals);
+			}
+
+			InputField* inp			 = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, true);
+			inp->GetProps().decimals = 0;
+			rightSide->AddChild(inp);
+		}
+		else if (fieldType == "float"_hs)
+		{
+			float*	   v		 = reflectionValue.CastPtr<float>();
+			const bool hasLimits = !min.empty();
+			float	   minFloat = 0.0f, maxFloat = 0.0f;
+			uint32	   outDecimals = 0;
+
+			if (hasLimits)
+			{
+				minFloat = UtilStr::StringToFloat(min, outDecimals);
+				maxFloat = UtilStr::StringToFloat(max, outDecimals);
+			}
+			rightSide->AddChild(getValueField(v, hasLimits, minFloat, maxFloat));
+		}
 
 		layout->Initialize();
 		return layout;
 	}
 
-   Widget* CommonWidgets::BuildColorGradSlider(Widget *src, ColorGrad *color)
-    {
-       WidgetManager* wm      = src->GetWidgetManager();
-       DirectionalLayout* layout = wm->Allocate<DirectionalLayout>();
-       layout->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-       layout->SetAlignedSize(Vector2(0.0f, 1.0f));
-       layout->SetAlignedPosY(0.0f);
-       
-       Button* startButton = wm->Allocate<Button>();
-       startButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
-       startButton->SetAlignedPosY(0.0f);
-       startButton->SetAlignedSizeY(1.0f);
-       startButton->CreateIcon(ICON_PALETTE);
-       startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
-       startButton->GetProps().onClicked = [src, color](){
-           PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
-           panel->SetTarget(&color->start);
-       };
-       layout->AddChild(startButton);
-       
-       ColorField* cf = wm->Allocate<ColorField>();
-       cf->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
-       cf->SetAlignedSize(Vector2(0.0f, 1.0f));
-       cf->SetAlignedPosY(0.0f);
-       cf->GetProps().gradValue = color;
-       cf->GetProps().disableInput = true;
-       cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
-       layout->AddChild(cf);
-       
-       Button* middleButton = wm->Allocate<Button>();
-       middleButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
-       middleButton->SetAlignedPos(Vector2(0.5f, 0.5f));
-       middleButton->SetAnchorX(Anchor::Center);
-       middleButton->SetAnchorY(Anchor::Center);
-       middleButton->SetAlignedSizeY(1.0f);
-       middleButton->CreateIcon(ICON_PALETTE);
-       middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
-       middleButton->GetProps().onClicked = [src, color](){
-           PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
-           panel->SetTarget(&color->start);
-           panel->GetWheel()->GetProps().onValueChanged = [color](const Color& col){
-               color->start = color->end = col;
-           };
-       };
-       cf->AddChild(middleButton);
-       
-       Button* endButton = wm->Allocate<Button>();
-       endButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
-       endButton->SetAlignedPosY(0.0f);
-       endButton->SetAlignedSizeY(1.0f);
-       endButton->CreateIcon(ICON_PALETTE);
-       endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
-       endButton->GetProps().onClicked = [src, color](){
-           PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
-           panel->SetTarget(&color->end);
-       };
-       layout->AddChild(endButton);
-       layout->Initialize();
-       return layout;
-       
-   }
+	Widget* CommonWidgets::BuildColorGradSlider(Widget* src, ColorGrad* color)
+	{
+		WidgetManager*	   wm	  = src->GetWidgetManager();
+		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>();
+		layout->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedSize(Vector2(0.0f, 1.0f));
+		layout->SetAlignedPosY(0.0f);
+
+		Button* startButton = wm->Allocate<Button>();
+		startButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		startButton->SetAlignedPosY(0.0f);
+		startButton->SetAlignedSizeY(1.0f);
+		startButton->CreateIcon(ICON_PALETTE);
+		startButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::StartColor);
+		startButton->GetProps().onClicked	  = [src, color]() {
+			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+			panel->SetTarget(&color->start);
+		};
+		layout->AddChild(startButton);
+
+		ColorField* cf = wm->Allocate<ColorField>();
+		cf->GetFlags().Set(WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		cf->SetAlignedSize(Vector2(0.0f, 1.0f));
+		cf->SetAlignedPosY(0.0f);
+		cf->GetProps().gradValue		 = color;
+		cf->GetProps().disableInput		 = true;
+		cf->GetProps().backgroundTexture = Editor::Get()->GetResourceManagerV2().GetResource<Texture>("Resources/Editor/Textures/Checkered.png"_hs);
+		layout->AddChild(cf);
+
+		Button* middleButton = wm->Allocate<Button>();
+		middleButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y | WF_POS_ALIGN_X);
+		middleButton->SetAlignedPos(Vector2(0.5f, 0.5f));
+		middleButton->SetAnchorX(Anchor::Center);
+		middleButton->SetAnchorY(Anchor::Center);
+		middleButton->SetAlignedSizeY(1.0f);
+		middleButton->CreateIcon(ICON_PALETTE);
+		middleButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::Both);
+		middleButton->GetProps().onClicked	   = [src, color]() {
+			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+			panel->SetTarget(&color->start);
+			panel->GetWheel()->GetProps().onValueChanged = [color](const Color& col) { color->start = color->end = col; };
+		};
+		cf->AddChild(middleButton);
+
+		Button* endButton = wm->Allocate<Button>();
+		endButton->GetFlags().Set(WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y | WF_POS_ALIGN_Y);
+		endButton->SetAlignedPosY(0.0f);
+		endButton->SetAlignedSizeY(1.0f);
+		endButton->CreateIcon(ICON_PALETTE);
+		endButton->GetWidgetProps().tooltip = Locale::GetStr(LocaleStr::EndColor);
+		endButton->GetProps().onClicked		= [src, color]() {
+			PanelColorWheel* panel = static_cast<PanelColorWheel*>(Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ColorWheel, 0, src));
+			panel->SetTarget(&color->end);
+		};
+		layout->AddChild(endButton);
+		layout->Initialize();
+		return layout;
+	}
 } // namespace Lina::Editor
