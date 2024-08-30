@@ -32,7 +32,7 @@ SOFTWARE.
 
 namespace Lina
 {
-	class ScrollArea;
+	class DirectionalLayout;
 }
 
 namespace Lina::Editor
@@ -48,10 +48,10 @@ namespace Lina::Editor
 		void		 Refresh(Widget* w);
 
 	private:
-		ScrollArea* m_scroll					   = nullptr;
-		bool		m_generalPropertiesUnfolded	   = true;
-		bool		m_widgetPropertiesUnfolded	   = true;
-		bool		m_dropshadowPropertiesUnfolded = true;
+		DirectionalLayout* m_layout						  = nullptr;
+		bool			   m_generalPropertiesUnfolded	  = true;
+		bool			   m_widgetPropertiesUnfolded	  = true;
+		bool			   m_dropshadowPropertiesUnfolded = true;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(PanelWidgetEditorProperties, Editor)

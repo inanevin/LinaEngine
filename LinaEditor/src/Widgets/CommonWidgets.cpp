@@ -853,9 +853,10 @@ namespace Lina::Editor
 		WidgetManager* wm = src->GetWidgetManager();
 
 		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("FieldLayout");
-		layout->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
 		layout->GetProps().direction = DirectionOrientation::Horizontal;
 		layout->SetAlignedSizeX(1.0f);
+		layout->SetAlignedPosX(0.0f);
 		layout->SetFixedSizeY(Theme::GetDef().baseItemHeight);
 		layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
 		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent * 2;
@@ -919,18 +920,46 @@ namespace Lina::Editor
 		rightSide->SetAnchorX(Anchor::End);
 		layout->AddChild(rightSide);
 
-		auto getValueField = [wm](float* ptr, bool hasLimits, float minFloat, float maxFloat, bool isInt = false) -> InputField* {
+		auto getValueField = [wm](void* ptr, bool hasLimits, float minFloat, float maxFloat, uint8 bits, bool isInt, bool isUnsigned) -> InputField* {
 			InputField* inp = wm->Allocate<InputField>();
 			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
 			inp->SetAlignedPosY(0.0f);
-			inp->GetText()->GetProps().text		= TO_STRING(*ptr);
-			inp->GetProps().value				= ptr;
+			inp->GetText()->GetProps().text		= TO_STRING(*reinterpret_cast<float*>(ptr));
 			inp->GetProps().isNumberField		= true;
 			inp->GetProps().disableNumberSlider = !hasLimits;
 			inp->GetProps().valueMin			= minFloat;
 			inp->GetProps().valueMax			= maxFloat;
-			inp->GetProps().valueStep			= isInt ? 1.0f : (maxFloat - minFloat) / 20.0f;
+			inp->GetProps().clampNumber			= true;
+			inp->GetProps().valueStep			= 1.0f;
+
+			if (!hasLimits)
+			{
+				inp->GetProps().valueMin = isUnsigned ? 0 : INPF_VALUE_MIN - 1.0f;
+				inp->GetProps().valueMax = INPF_VALUE_MAX + 1.0f;
+			}
+
+			if (bits == 8 && isUnsigned)
+				inp->GetProps().u8Value = reinterpret_cast<uint8*>(ptr);
+			else if (bits == 8 && !isUnsigned)
+				inp->GetProps().i8Value = reinterpret_cast<int8*>(ptr);
+			else if (bits == 16 && isUnsigned)
+				inp->GetProps().u16Value = reinterpret_cast<uint16*>(ptr);
+			else if (bits == 16 && !isUnsigned)
+				inp->GetProps().i16Value = reinterpret_cast<int16*>(ptr);
+			if (bits == 32 && isUnsigned)
+				inp->GetProps().u32Value = reinterpret_cast<uint32*>(ptr);
+			else if (bits == 32 && !isUnsigned)
+			{
+				if (isInt)
+					inp->GetProps().i32Value = reinterpret_cast<int32*>(ptr);
+				else
+				{
+					inp->GetProps().value	  = reinterpret_cast<float*>(ptr);
+					inp->GetProps().valueStep = (maxFloat - minFloat) / 20.0f;
+				}
+			}
+
 			return inp;
 		};
 
@@ -1013,7 +1042,7 @@ namespace Lina::Editor
 
 			rightSide->AddChild(dd);
 		}
-		else if (fieldType == "Vector2"_hs)
+		else if (fieldType == "Vector2"_hs || fieldType == "Vector2ui"_hs || fieldType == "Vector2i"_hs)
 		{
 			Vector2* val = reflectionValue.CastPtr<Vector2>();
 
@@ -1028,10 +1057,12 @@ namespace Lina::Editor
 				maxFloat = UtilStr::StringToFloat(max, outDecimals);
 			}
 
-			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
+			const bool isInt	  = fieldType != "Vector4"_hs;
+			const bool isUnsigned = fieldType == "Vector4ui"_hs;
+			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
 		}
-		else if (fieldType == "Vector3"_hs)
+		else if (fieldType == "Vector3"_hs || fieldType == "Vector3ui"_hs || fieldType == "Vector3i"_hs)
 		{
 			Vector3* val = reflectionValue.CastPtr<Vector3>();
 
@@ -1046,11 +1077,14 @@ namespace Lina::Editor
 				maxFloat = UtilStr::StringToFloat(max, outDecimals);
 			}
 
-			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
-			rightSide->AddChild(getValueField(&val->z, hasLimits, minFloat, maxFloat));
+			const bool isInt	  = fieldType != "Vector3"_hs;
+			const bool isUnsigned = fieldType == "Vector3ui"_hs;
+
+			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->z, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
 		}
-		else if (fieldType == "Vector4"_hs)
+		else if (fieldType == "Vector4"_hs || fieldType == "Vector4ui"_hs || fieldType == "Vector4i"_hs)
 		{
 			Vector4* val = reflectionValue.CastPtr<Vector4>();
 
@@ -1065,26 +1099,28 @@ namespace Lina::Editor
 				maxFloat = UtilStr::StringToFloat(max, outDecimals);
 			}
 
-			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
-			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat));
-			rightSide->AddChild(getValueField(&val->w, hasLimits, minFloat, maxFloat));
+			const bool isInt	  = fieldType != "Vector4"_hs;
+			const bool isUnsigned = fieldType == "Vector4ui"_hs;
+			rightSide->AddChild(getValueField(&val->x, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->y, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
+			rightSide->AddChild(getValueField(&val->w, hasLimits, minFloat, maxFloat, 32, isInt, isUnsigned));
 		}
 		else if (fieldType == "Rect"_hs)
 		{
 			Rect* rect = reflectionValue.CastPtr<Rect>();
-			rightSide->AddChild(getValueField(&rect->pos.x, false, 0.0f, 0.0f));
-			rightSide->AddChild(getValueField(&rect->pos.y, false, 0.0f, 0.0f));
-			rightSide->AddChild(getValueField(&rect->size.x, false, 0.0f, 0.0f));
-			rightSide->AddChild(getValueField(&rect->size.y, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&rect->pos.x, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&rect->pos.y, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&rect->size.x, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&rect->size.y, false, 0.0f, 0.0f, 32, false, false));
 		}
 		else if (fieldType == "TBLR"_hs)
 		{
 			TBLR* tblr = reflectionValue.CastPtr<TBLR>();
-			rightSide->AddChild(getValueField(&tblr->top, false, 0.0f, 0.0f));
-			rightSide->AddChild(getValueField(&tblr->bottom, false, 0.0f, 0.0f));
-			rightSide->AddChild(getValueField(&tblr->left, false, 0.0f, 0.0f));
-			rightSide->AddChild(getValueField(&tblr->right, false, 0.0f, 0.0f));
+			rightSide->AddChild(getValueField(&tblr->top, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&tblr->bottom, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&tblr->left, false, 0.0f, 0.0f, 32, false, false));
+			rightSide->AddChild(getValueField(&tblr->right, false, 0.0f, 0.0f, 32, false, false));
 		}
 		else if (fieldType == "Color"_hs)
 		{
@@ -1130,7 +1166,7 @@ namespace Lina::Editor
 			cb->GetIcon()->CalculateIconSize();
 			rightSide->AddChild(cb);
 		}
-		else if (fieldType == "uint32"_hs)
+		else if (fieldType == "uint32"_hs || fieldType == "int32"_hs || fieldType == "uint16"_hs || fieldType == "int16"_hs || fieldType == "uint8"_hs || fieldType == "int8"_hs)
 		{
 			uint32* v		  = reflectionValue.CastPtr<uint32>();
 			bool	hasLimits = !min.empty();
@@ -1141,36 +1177,24 @@ namespace Lina::Editor
 			{
 				minFloat = UtilStr::StringToFloat(min, outDecimals);
 				maxFloat = UtilStr::StringToFloat(max, outDecimals);
-				minFloat = Math::Clamp(minFloat, 0.0f, 999999.0f);
-			}
-			else
-			{
-				hasLimits = true;
-				minFloat  = 0.0f;
-				maxFloat  = 99999.0f;
 			}
 
-			InputField* inp			 = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, true);
+			uint8 bits		 = 32;
+			bool  isUnsigned = true;
+
+			if (fieldType == "uint16"_hs || fieldType == "int16"_hs)
+				bits = 16;
+			else if (fieldType == "uint8"_hs || fieldType == "int8"_hs)
+				bits = 8;
+
+			if (fieldType == "int32"_hs || fieldType == "int16"_hs || fieldType == "int8"_hs)
+				isUnsigned = false;
+
+			InputField* inp			 = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, bits, true, isUnsigned);
 			inp->GetProps().decimals = 0;
 			rightSide->AddChild(inp);
 		}
-		else if (fieldType == "int32"_hs)
-		{
-			int32*	   v		 = reflectionValue.CastPtr<int32>();
-			const bool hasLimits = !min.empty();
-			float	   minFloat = 0.0f, maxFloat = 0.0f;
-			uint32	   outDecimals = 0;
 
-			if (hasLimits)
-			{
-				minFloat = UtilStr::StringToFloat(min, outDecimals);
-				maxFloat = UtilStr::StringToFloat(max, outDecimals);
-			}
-
-			InputField* inp			 = getValueField(reinterpret_cast<float*>(v), hasLimits, minFloat, maxFloat, true);
-			inp->GetProps().decimals = 0;
-			rightSide->AddChild(inp);
-		}
 		else if (fieldType == "float"_hs)
 		{
 			float*	   v		 = reflectionValue.CastPtr<float>();
@@ -1183,7 +1207,7 @@ namespace Lina::Editor
 				minFloat = UtilStr::StringToFloat(min, outDecimals);
 				maxFloat = UtilStr::StringToFloat(max, outDecimals);
 			}
-			rightSide->AddChild(getValueField(v, hasLimits, minFloat, maxFloat));
+			rightSide->AddChild(getValueField(v, hasLimits, minFloat, maxFloat, 32, false, false));
 		}
 
 		layout->Initialize();
@@ -1260,28 +1284,36 @@ namespace Lina::Editor
 		return layout;
 	}
 
-	DirectionalLayout* CommonWidgets::BuildClassReflection(Widget* src, void* obj, MetaType& meta)
+	void CommonWidgets::BuildClassReflection(Widget* owner, void* obj, MetaType& meta)
 	{
-		WidgetManager*	   wm	  = src->GetWidgetManager();
-		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("Layout");
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		layout->SetAlignedPos(Vector2::Zero);
-		layout->SetAlignedSize(Vector2::One);
-		layout->GetWidgetProps().clipChildren		 = true;
-		layout->GetProps().direction				 = DirectionOrientation::Vertical;
-		layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
-		layout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+		WidgetManager* wm = owner->GetWidgetManager();
 
-		// FoldLayout* foldGeneral = CommonWidgets::BuildFoldTitle(this, Locale::GetStr(LocaleStr::GeneralProperties), &m_generalPropertiesUnfolded);
-		// m_layout->AddChild(foldGeneral);
-		Vector<FieldBase*> fields = meta.GetFieldsOrdered();
+		Vector<FieldBase*> fields	  = meta.GetFieldsOrdered();
+		Widget*			   lastParent = owner;
 
 		for (FieldBase* field : fields)
 		{
-			Widget* fieldWidget = BuildField(src, obj, meta, field);
-			layout->AddChild(fieldWidget);
-		}
+			const StringID type = field->GetProperty<StringID>("Type"_hs);
 
-		return layout;
+			if (type == "Category"_hs)
+			{
+				const String title = field->GetProperty<String>("Title"_hs);
+				bool*		 v	   = field->Value(obj).CastPtr<bool>();
+				FoldLayout*	 fold  = CommonWidgets::BuildFoldTitle(owner, title, v);
+				owner->AddChild(fold);
+				lastParent = fold;
+				continue;
+			}
+
+			if (type == "Class"_hs)
+			{
+				const TypeID subType = field->GetProperty<TypeID>("SubType"_hs);
+				BuildClassReflection(owner, field->Value(obj).GetPtr(), ReflectionSystem::Get().Resolve(subType));
+				continue;
+			}
+
+			Widget* fieldWidget = BuildField(owner, obj, meta, field);
+			lastParent->AddChild(fieldWidget);
+		}
 	}
 } // namespace Lina::Editor

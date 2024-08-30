@@ -47,19 +47,30 @@ namespace Lina::Editor
 		sc->SetAlignedSize(Vector2::One);
 		sc->GetProps().direction = DirectionOrientation::Vertical;
 		AddChild(sc);
-		m_scroll = sc;
+
+		DirectionalLayout* layout = m_manager->Allocate<DirectionalLayout>("Layout");
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		layout->SetAlignedPos(Vector2::Zero);
+		layout->SetAlignedSize(Vector2::One);
+		layout->GetWidgetProps().clipChildren		 = true;
+		layout->GetProps().direction				 = DirectionOrientation::Vertical;
+		layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().childMargins.left	 = Theme::GetDef().baseBorderThickness * 0.5f;
+		layout->GetWidgetProps().childPadding		 = Theme::GetDef().baseIndentInner;
+		m_layout									 = layout;
+		sc->AddChild(m_layout);
 	}
 
 	void PanelWidgetEditorProperties::Refresh(Widget* w)
 	{
-		m_scroll->DeallocAllChildren();
-		m_scroll->RemoveAllChildren();
+		m_layout->DeallocAllChildren();
+		m_layout->RemoveAllChildren();
 
 		if (w == nullptr)
 			return;
 
-		DirectionalLayout* l = CommonWidgets::BuildClassReflection(this, w, ReflectionSystem::Get().Resolve<Widget>());
-		m_scroll->AddChild(l);
+		CommonWidgets::BuildClassReflection(m_layout, w, ReflectionSystem::Get().Resolve<Widget>());
 	}
 
 } // namespace Lina::Editor

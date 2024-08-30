@@ -174,6 +174,11 @@ namespace Lina
 			return static_cast<T*>(ptr);
 		}
 
+		void* GetPtr() const
+		{
+			return ptr;
+		}
+
 	private:
 		template <typename T, typename U> friend class Field;
 		void* ptr = nullptr;

@@ -37,6 +37,9 @@ namespace Lina
 {
 	class Text;
 
+#define INPF_VALUE_MIN -99999
+#define INPF_VALUE_MAX 99999
+
 	class InputField : public Widget
 	{
 	public:
@@ -70,6 +73,12 @@ namespace Lina
 			float  valueMax				= 10.0f;
 			float  valueStep			= 0.0f;
 			uint32 decimals				= 3;
+            uint32* u32Value = nullptr;
+            int32* i32Value = nullptr;
+            uint16* u16Value = nullptr;
+            int16* i16Value = nullptr;
+            uint8* u8Value = nullptr;
+            int8* i8Value = nullptr;
 
 			bool centerText = false;
 			bool wrapText	= false;
@@ -159,7 +168,8 @@ namespace Lina
 		float	   m_textOffset			  = 0.0f;
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
-		float	   m_lastStoredValue	  = -99999.0f;
+        float	   m_lastStoredValue	  = INPF_VALUE_MIN;
+        float m_dummyValue = 0.0f;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(InputField, Primitive)

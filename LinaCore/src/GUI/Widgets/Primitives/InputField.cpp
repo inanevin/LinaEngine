@@ -94,6 +94,42 @@ namespace Lina
 
 	void InputField::PreTick()
 	{
+		if (m_props.u32Value != nullptr)
+		{
+			m_props.value	  = &m_dummyValue;
+			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)UINT32_MAX);
+			*m_props.u32Value = static_cast<uint32>(m_dummyValue);
+		}
+		else if (m_props.u16Value != nullptr)
+		{
+			m_props.value	  = &m_dummyValue;
+			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)UINT16_MAX);
+			*m_props.u16Value = static_cast<uint16>(m_dummyValue);
+		}
+		else if (m_props.u8Value != nullptr)
+		{
+			m_props.value	 = &m_dummyValue;
+			m_dummyValue	 = Math::Clamp(m_dummyValue, 0.0f, (float)UINT8_MAX);
+			*m_props.u8Value = static_cast<uint8>(m_dummyValue);
+		}
+		else if (m_props.i32Value != nullptr)
+		{
+			m_props.value	  = &m_dummyValue;
+			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)INT32_MAX);
+			*m_props.i32Value = static_cast<int32>(m_dummyValue);
+		}
+		else if (m_props.i16Value != nullptr)
+		{
+			m_props.value	  = &m_dummyValue;
+			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)INT16_MAX);
+			*m_props.i16Value = static_cast<int16>(m_dummyValue);
+		}
+		else if (m_props.i8Value != nullptr)
+		{
+			m_props.value	 = &m_dummyValue;
+			m_dummyValue	 = Math::Clamp(m_dummyValue, 0.0f, (float)INT8_MAX);
+			*m_props.i8Value = static_cast<int8>(m_dummyValue);
+		}
 
 		const bool hasControls = m_manager->IsControlsOwner(this);
 
@@ -119,7 +155,10 @@ namespace Lina
 				*m_props.value = targetVal;
 
 			if (m_props.clampNumber)
-				*m_props.value = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+			{
+				*m_props.value	  = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+				m_lastStoredValue = INPF_VALUE_MIN;
+			}
 
 			if (m_props.onValueChanged)
 				m_props.onValueChanged(*m_props.value);
@@ -507,8 +546,6 @@ namespace Lina
 	{
 		m_text->GetProps().text.insert(static_cast<size_t>(pos), str);
 		m_text->CalculateTextSize();
-		if (m_props.onEdited)
-			m_props.onEdited(m_text->GetProps().text);
 
 		if (m_props.isNumberField && m_props.value)
 		{
@@ -517,7 +554,10 @@ namespace Lina
 
 			*m_props.value = UtilStr::StringToFloat(str, outPrecision);
 			if (m_props.clampNumber)
-				*m_props.value = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+			{
+				*m_props.value	  = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+				m_lastStoredValue = INPF_VALUE_MIN;
+			}
 
 			if (m_props.onValueChanged)
 				m_props.onValueChanged(*m_props.value);
@@ -559,7 +599,10 @@ namespace Lina
 
 			*m_props.value = UtilStr::StringToFloat(str, outPrecision);
 			if (m_props.clampNumber)
-				*m_props.value = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+			{
+				*m_props.value	  = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+				m_lastStoredValue = INPF_VALUE_MIN;
+			}
 
 			if (m_props.onValueChanged)
 				m_props.onValueChanged(*m_props.value);

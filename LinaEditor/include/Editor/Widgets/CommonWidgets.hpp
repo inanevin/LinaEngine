@@ -81,6 +81,8 @@ namespace Lina::Editor
 		static Widget*			  BuildField(Widget* src, void* obj, MetaType& metaType, FieldBase* field);
 		static FoldLayout*		  BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
 		static Widget*			  BuildColorGradSlider(Widget* src, ColorGrad* color);
-		static DirectionalLayout* BuildClassReflection(Widget* src, void* obj, MetaType& meta);
+		static void				  BuildClassReflection(Widget* owner, void* obj, MetaType& meta);
+
+	private:
 	};
 } // namespace Lina::Editor
