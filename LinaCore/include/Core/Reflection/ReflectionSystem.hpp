@@ -183,58 +183,6 @@ namespace Lina
 		template <typename T, typename U> friend class Field;
 		void* ptr = nullptr;
 	};
-	class FieldBase
-	{
-	public:
-		FieldBase() = default;
-		virtual ~FieldBase()
-		{
-			m_propertyCacheManager.Destroy();
-		}
-
-		virtual FieldValue Value(void* obj) = 0;
-
-		template <typename T> inline void AddProperty(StringID sid, T param)
-		{
-			m_propertyCacheManager.AddProperty<T>(sid, param);
-		}
-
-		template <typename T> inline T GetProperty(StringID sid)
-		{
-			return m_propertyCacheManager.GetProperty<T>(sid);
-		}
-
-		template <typename T> inline bool HasProperty(StringID sid)
-		{
-			return m_propertyCacheManager.HasProperty<T>(sid);
-		}
-
-		const HashMap<TypeID, PropertyCacheBase*>& GetPropertyCaches() const
-		{
-			return m_propertyCacheManager.GetPropertyCaches();
-		}
-
-		int32 _order = 0;
-
-	private:
-		PropertyCacheManager m_propertyCacheManager;
-	};
-
-	template <typename T, class C> class Field : public FieldBase
-	{
-	public:
-		Field()			 = default;
-		virtual ~Field() = default;
-
-		inline virtual FieldValue Value(void* obj) override
-		{
-			FieldValue val;
-			val.ptr = &((static_cast<C*>(obj))->*(m_var));
-			return val;
-		}
-
-		T m_var = T();
-	};
 
 	class FunctionCacheBase
 	{
@@ -266,6 +214,87 @@ namespace Lina
 
 	private:
 		HashMap<StringID, Delegate<T>> m_functions;
+	};
+
+	class FieldBase
+	{
+	public:
+		FieldBase() = default;
+		virtual ~FieldBase()
+		{
+			m_propertyCacheManager.Destroy();
+		}
+
+		virtual FieldValue Value(void* obj) = 0;
+
+		template <typename T> inline void AddProperty(StringID sid, T param)
+		{
+			m_propertyCacheManager.AddProperty<T>(sid, param);
+		}
+
+		template <typename T> inline T GetProperty(StringID sid)
+		{
+			return m_propertyCacheManager.GetProperty<T>(sid);
+		}
+
+		template <typename T> inline bool HasProperty(StringID sid)
+		{
+			return m_propertyCacheManager.HasProperty<T>(sid);
+		}
+
+		const HashMap<TypeID, PropertyCacheBase*>& GetPropertyCaches() const
+		{
+			return m_propertyCacheManager.GetPropertyCaches();
+		}
+
+		template <typename T> inline void AddFunction(StringID sid, Delegate<T>&& del)
+		{
+			const TypeID tid = GetTypeID<T>();
+			auto		 it	 = m_functionCaches.find(tid);
+			if (it == m_functionCaches.end())
+			{
+				FunctionCache<T>* cache = new FunctionCache<T>();
+				m_functionCaches[tid]	= cache;
+				cache->AddFunction(sid, linatl::move(del));
+			}
+			else
+			{
+				FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(it->second);
+
+				if (cache->HasFunction(sid))
+					return;
+				cache->AddFunction(sid, linatl::move(del));
+			}
+		}
+
+		template <typename T> inline Delegate<T> GetFunction(StringID sid)
+		{
+			const TypeID	  tid	= GetTypeID<T>();
+			FunctionCache<T>* cache = static_cast<FunctionCache<T>*>(m_functionCaches[tid]);
+			return cache->GetFunction(sid);
+		}
+
+		int32 _order = 0;
+
+	private:
+		HashMap<TypeID, FunctionCacheBase*> m_functionCaches;
+		PropertyCacheManager				m_propertyCacheManager;
+	};
+
+	template <typename T, class C> class Field : public FieldBase
+	{
+	public:
+		Field()			 = default;
+		virtual ~Field() = default;
+
+		inline virtual FieldValue Value(void* obj) override
+		{
+			FieldValue val;
+			val.ptr = &((static_cast<C*>(obj))->*(m_var));
+			return val;
+		}
+
+		T m_var = T();
 	};
 
 	class MetaType

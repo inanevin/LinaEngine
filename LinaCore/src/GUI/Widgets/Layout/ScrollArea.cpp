@@ -130,7 +130,7 @@ namespace Lina
 		if (!m_barVisible || !GetIsVisible() || !m_canDrawBar)
 			return;
 
-		if (m_targetWidget)
+		if (!m_targetWidget)
 			return;
 
 		LinaVG::StyleOptions bgOpts;

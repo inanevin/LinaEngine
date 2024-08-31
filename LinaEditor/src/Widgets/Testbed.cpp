@@ -147,7 +147,7 @@ namespace Lina::Editor
 			field->GetProps().disableNumberSlider = false;
 			field->GetProps().clampNumber		  = true;
 			field->GetProps().valueStep			  = 0.5f;
-			field->GetProps().value				  = &value;
+			field->GetProps().valuePtr			  = reinterpret_cast<uint8*>(&value);
 			field->GetText()->GetProps().text	  = "Testing";
 			setFlags(field);
 			layout->AddChild(field);
@@ -161,7 +161,7 @@ namespace Lina::Editor
 			field->GetProps().disableNumberSlider = true;
 			field->GetProps().clampNumber		  = true;
 			field->GetProps().valueStep			  = 0.1f;
-			field->GetProps().value				  = &value;
+			field->GetProps().valuePtr			  = reinterpret_cast<uint8*>(&value);
 			field->GetText()->GetProps().text	  = "Testing";
 			setFlags(field);
 			layout->AddChild(field);

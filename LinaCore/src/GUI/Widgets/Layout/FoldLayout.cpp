@@ -104,13 +104,13 @@ namespace Lina
 		if (!m_children.front()->GetIsHovered())
 			return false;
 
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated)
+		if (m_props.doubleClickChangesFold && button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Repeated)
 		{
 			SetIsUnfolded(!GetIsUnfolded());
 			return true;
 		}
 
-		if (button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
+		if (m_props.lookForChevron && button == LINAGX_MOUSE_0 && act == LinaGX::InputAction::Pressed)
 		{
 			Widget* w		= m_children.front();
 			Icon*	chevron = w->GetWidgetOfType<Icon>(w);

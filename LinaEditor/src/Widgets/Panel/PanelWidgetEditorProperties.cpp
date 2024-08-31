@@ -56,7 +56,7 @@ namespace Lina::Editor
 		layout->GetProps().direction				 = DirectionOrientation::Vertical;
 		layout->GetWidgetProps().childMargins.top	 = Theme::GetDef().baseIndent;
 		layout->GetWidgetProps().childMargins.bottom = Theme::GetDef().baseIndent;
-		layout->GetWidgetProps().childMargins.left	 = Theme::GetDef().baseBorderThickness * 0.5f;
+		layout->GetWidgetProps().childMargins.left	 = Theme::GetDef().baseBorderThickness;
 		layout->GetWidgetProps().childPadding		 = Theme::GetDef().baseIndentInner;
 		m_layout									 = layout;
 		sc->AddChild(m_layout);
@@ -71,6 +71,7 @@ namespace Lina::Editor
 			return;
 
 		CommonWidgets::BuildClassReflection(m_layout, w, ReflectionSystem::Get().Resolve<Widget>());
+		m_layout->Initialize();
 	}
 
 } // namespace Lina::Editor

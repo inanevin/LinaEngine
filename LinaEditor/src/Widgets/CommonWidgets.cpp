@@ -819,9 +819,10 @@ namespace Lina::Editor
 		layout->GetWidgetProps().colorBackground.start	  = Theme::GetDef().background2;
 		layout->GetWidgetProps().colorBackground.end	  = Theme::GetDef().background3;
 		layout->GetWidgetProps().colorBackgroundDirection = DirectionOrientation::Horizontal;
-		layout->GetWidgetProps().outlineThickness		  = 0.0f;
-		layout->GetWidgetProps().rounding				  = 0.0f;
-		layout->GetWidgetProps().childPadding			  = Theme::GetDef().baseIndent;
+		layout->GetWidgetProps().outlineThickness		  = Theme::GetDef().baseOutlineThickness;
+
+		layout->GetWidgetProps().rounding	  = 0.0f;
+		layout->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		fold->AddChild(layout);
 
 		Icon* chevron			 = wm->Allocate<Icon>("Folder");
@@ -848,9 +849,17 @@ namespace Lina::Editor
 		return fold;
 	}
 
-	DirectionalLayout* CommonWidgets::BuildFieldLayout(Widget* src, const Vector<String>& srcDependencies, const String& title)
+	FoldLayout* CommonWidgets::BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, int32 vectorElementIndex, bool isVectorHeader)
 	{
 		WidgetManager* wm = src->GetWidgetManager();
+
+		FoldLayout* fold = wm->Allocate<FoldLayout>("FieldFoldLayout");
+		fold->GetFlags().Set(WF_SIZE_ALIGN_X);
+		fold->SetAlignedSizeX(1.0f);
+		fold->GetWidgetProps().childPadding		= Theme::GetDef().baseIndentInner;
+		fold->GetProps().doubleClickChangesFold = false;
+		fold->GetProps().lookForChevron			= false;
+		// fold->SetAlignedPosX(0.0f);
 
 		DirectionalLayout* layout = wm->Allocate<DirectionalLayout>("FieldLayout");
 		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
@@ -861,52 +870,70 @@ namespace Lina::Editor
 		layout->GetWidgetProps().childPadding		= Theme::GetDef().baseIndent;
 		layout->GetWidgetProps().childMargins.left	= Theme::GetDef().baseIndent * 2;
 		layout->GetWidgetProps().childMargins.right = Theme::GetDef().baseIndent * 2;
+		fold->AddChild(layout);
 
-		if (!srcDependencies.empty())
+		if (vectorElementIndex != -1)
+			dependencies++;
+
+		for (int32 i = 0; i < dependencies; i++)
 		{
-			const int32 dep = static_cast<int32>(srcDependencies.size());
-
-			for (int32 i = 0; i < dep; i++)
-			{
-				Icon* icn			  = wm->Allocate<Icon>("FieldIcon");
-				icn->GetProps().icon  = ICON_L;
-				icn->GetProps().color = i == dep - 1 ? Theme::GetDef().silent2 : Color(0, 0, 0, 0);
-				icn->GetFlags().Set(WF_POS_ALIGN_Y);
-				icn->SetAlignedPosY(0.5f);
-				icn->SetAnchorY(Anchor::Center);
-				layout->AddChild(icn);
-			}
+			Icon* icn			  = wm->Allocate<Icon>("FieldIcon");
+			icn->GetProps().icon  = ICON_L;
+			icn->GetProps().color = Theme::GetDef().silent2;
+			icn->GetFlags().Set(WF_POS_ALIGN_Y);
+			icn->SetAlignedPosY(0.5f);
+			icn->SetAnchorY(Anchor::Center);
+			icn->SetVisible(i == dependencies - 1);
+			layout->AddChild(icn);
 		}
+
+		if (isVectorHeader)
+		{
+			fold->GetProps().lookForChevron = true;
+			Icon* icn						= wm->Allocate<Icon>("FieldIcon");
+			icn->GetProps().icon			= ICON_CHEVRON_RIGHT;
+			icn->GetProps().color			= Theme::GetDef().silent2;
+			icn->GetFlags().Set(WF_POS_ALIGN_Y);
+			icn->SetAlignedPosY(0.5f);
+			icn->SetAnchorY(Anchor::Center);
+			layout->AddChild(icn);
+
+			fold->GetProps().onFoldChanged = [icn](bool unfolded) { icn->GetProps().icon = unfolded ? ICON_CHEVRON_DOWN : ICON_CHEVRON_RIGHT; };
+		}
+
 		Text* txt			 = wm->Allocate<Text>("FieldTitle");
-		txt->GetProps().text = title;
+		txt->GetProps().text = vectorElementIndex == -1 ? title : TO_STRING(vectorElementIndex);
 		txt->GetFlags().Set(WF_POS_ALIGN_Y);
 		txt->SetAlignedPosY(0.5f);
 		txt->SetAnchorY(Anchor::Center);
 		layout->AddChild(txt);
 
-		return layout;
+		return fold;
 	}
 
-	Widget* CommonWidgets::BuildClassFieldLayout(Widget* src, const String& title)
+	namespace
 	{
-		return nullptr;
-	}
+		uint32 CountDependencies(MetaType& type, FieldBase* field)
+		{
+			const StringID dependsOn = field->GetProperty<StringID>("DependsOn"_hs);
+			if (dependsOn != 0)
+			{
+				return 1 + CountDependencies(type, type.GetField(dependsOn));
+			}
+			return 0;
+		}
+	} // namespace
 
-	Widget* CommonWidgets::BuildField(Widget* src, void* obj, MetaType& metaType, FieldBase* field)
+	Widget* CommonWidgets::BuildField(Widget* src, void* obj, MetaType& metaType, FieldBase* field, StringID fieldType, int32 vectorElementIndex)
 	{
-		WidgetManager* wm		 = src->GetWidgetManager();
-		const String   title	 = field->GetProperty<String>("Title"_hs);
-		const StringID fieldType = field->GetProperty<StringID>("Type"_hs);
-		const String   tooltip	 = field->GetProperty<String>("Tooltip"_hs);
-		const String   dependsOn = field->GetProperty<String>("DependsOn"_hs);
-		const TypeID   subType	 = field->GetProperty<TypeID>("SubType"_hs);
-
-		Vector<String> allSourceDependencies;
-		if (!dependsOn.empty())
-			UtilStr::SeperateByChar(dependsOn, allSourceDependencies, ',');
+		WidgetManager* wm	   = src->GetWidgetManager();
+		const String   title   = field->GetProperty<String>("Title"_hs);
+		const String   tooltip = field->GetProperty<String>("Tooltip"_hs);
+		const TypeID   subType = field->GetProperty<TypeID>("SubType"_hs);
 
 		FieldValue		   reflectionValue = field->Value(obj);
-		DirectionalLayout* layout		   = BuildFieldLayout(src, allSourceDependencies, title);
+		FoldLayout*		   fold			   = BuildFieldLayout(src, CountDependencies(metaType, field), title, vectorElementIndex, fieldType == "Vector"_hs);
+		DirectionalLayout* layout		   = static_cast<DirectionalLayout*>(fold->GetChildren().front());
 
 		DirectionalLayout* rightSide = wm->Allocate<DirectionalLayout>("RightSide");
 		rightSide->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y | WF_SIZE_ALIGN_X);
@@ -921,65 +948,104 @@ namespace Lina::Editor
 		layout->AddChild(rightSide);
 
 		bool   hasLimits = false;
-		String min = "", max = "";
-		float  minFloat = 0.0f, maxFloat = 0.0f;
+		String min = "", max = "", step = "";
+		float  minFloat = 0.0f, maxFloat = 0.0f, stepFloat = 0.0f;
 		if (field->HasProperty<String>("Min"_hs))
 		{
 			min		  = field->GetProperty<String>("Min"_hs);
 			max		  = field->GetProperty<String>("Max"_hs);
+			step	  = field->GetProperty<String>("Step"_hs);
 			hasLimits = true;
 
 			uint32 outDecimals = 0;
 			minFloat		   = UtilStr::StringToFloat(min, outDecimals);
 			maxFloat		   = UtilStr::StringToFloat(max, outDecimals);
+			stepFloat		   = UtilStr::StringToFloat(step, outDecimals);
 		}
 
-		auto getValueField = [wm, hasLimits, minFloat, maxFloat](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
+		auto getValueField = [wm, hasLimits, minFloat, maxFloat, stepFloat](void* ptr, uint8 bits, bool isInt = false, bool isUnsigned = false) -> InputField* {
 			InputField* inp = wm->Allocate<InputField>();
 			inp->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
 			inp->SetAlignedSize(Vector2(0.0f, 1.0f));
 			inp->SetAlignedPosY(0.0f);
-			inp->GetProps().isNumberField		= true;
-			inp->GetProps().disableNumberSlider = !hasLimits;
-			inp->GetProps().valueMin			= minFloat;
-			inp->GetProps().valueMax			= maxFloat;
-			inp->GetProps().clampNumber			= true;
-			inp->GetProps().valueStep			= 1.0f;
+			inp->GetProps().isNumberField = true;
+			inp->GetProps().clampNumber	  = true;
 
-			if (!hasLimits)
+			if (hasLimits)
 			{
-				inp->GetProps().valueMin = isUnsigned ? 0 : INPF_VALUE_MIN - 1.0f;
-				inp->GetProps().valueMax = INPF_VALUE_MAX + 1.0f;
+				inp->GetProps().disableNumberSlider = false;
+				inp->GetProps().valueMin			= minFloat;
+				inp->GetProps().valueMax			= maxFloat;
+				inp->GetProps().valueStep			= stepFloat;
+			}
+			else
+			{
+				inp->GetProps().disableNumberSlider = true;
+				inp->GetProps().valueMin			= isUnsigned ? 0 : INPF_VALUE_MIN - 1.0f;
+				inp->GetProps().valueMax			= INPF_VALUE_MAX + 1.0f;
+				inp->GetProps().valueStep			= 0.0f;
 			}
 
-			if (bits == 8 && isUnsigned)
-				inp->GetProps().u8Value = reinterpret_cast<uint8*>(ptr);
-			else if (bits == 8 && !isUnsigned)
-				inp->GetProps().i8Value = reinterpret_cast<int8*>(ptr);
-			else if (bits == 16 && isUnsigned)
-				inp->GetProps().u16Value = reinterpret_cast<uint16*>(ptr);
-			else if (bits == 16 && !isUnsigned)
-				inp->GetProps().i16Value = reinterpret_cast<int16*>(ptr);
-			if (bits == 32 && isUnsigned)
-			{
-				inp->GetProps().u32Value		= reinterpret_cast<uint32*>(ptr);
-				inp->GetText()->GetProps().text = TO_STRING(*reinterpret_cast<uint32*>(ptr));
-			}
-			else if (bits == 32 && !isUnsigned)
-			{
-				if (isInt)
-					inp->GetProps().i32Value = reinterpret_cast<int32*>(ptr);
-				else
-				{
-					inp->GetProps().value	  = reinterpret_cast<float*>(ptr);
-					inp->GetProps().valueStep = (maxFloat - minFloat) / 20.0f;
-				}
-			}
+			inp->GetProps().valuePtr	  = reinterpret_cast<uint8*>(ptr);
+			inp->GetProps().valueBits	  = bits;
+			inp->GetProps().valueUnsigned = isUnsigned;
 
 			return inp;
 		};
 
-		if (fieldType == "Bitmask32"_hs)
+		if (fieldType == "Vector"_hs)
+		{
+			void*		   vectorPtr  = field->Value(obj).GetPtr();
+			const uint32   vectorSize = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
+			const StringID subTypeSid = field->GetProperty<StringID>("SubTypeSid"_hs);
+
+			Text* elemCount = wm->Allocate<Text>();
+			elemCount->GetFlags().Set(WF_POS_ALIGN_Y);
+			elemCount->SetAlignedPosY(0.5f);
+			elemCount->SetAnchorY(Anchor::Center);
+			elemCount->GetProps().text = "(" + TO_STRING(vectorSize) + ")";
+			rightSide->AddChild(elemCount);
+
+			Button* newElem = wm->Allocate<Button>();
+			newElem->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+			newElem->SetAlignedPosY(0.0f);
+			newElem->SetAlignedSizeY(1.0f);
+			newElem->CreateIcon(ICON_PLUS);
+			newElem->GetProps().onClicked = [src, obj, &metaType, field, subTypeSid, fold, vectorPtr]() {
+				const uint32 vs = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
+				field->GetFunction<void(void*)>("AddNewElement"_hs)(vectorPtr);
+
+				Widget* newField = BuildField(src, obj, metaType, field, subTypeSid, static_cast<int32>(vs));
+				fold->AddChild(newField);
+			};
+			rightSide->AddChild(newElem);
+
+			Button* clear = wm->Allocate<Button>();
+			clear->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+			clear->SetAlignedPosY(0.0f);
+			clear->SetAlignedSizeY(1.0f);
+			clear->CreateIcon(ICON_TRASH);
+			clear->GetProps().onClicked = [src, obj, &metaType, field, subTypeSid, fold, vectorPtr]() {
+				Widget*		firstChild = fold->GetChildren().at(0);
+				const int32 childSz	   = static_cast<int32>(fold->GetChildren().size());
+				for (int32 i = 1; i < childSz; i++)
+				{
+					fold->GetWidgetManager()->Deallocate(fold->GetChildren().at(i));
+				}
+				fold->RemoveAllChildren();
+				fold->AddChild(firstChild);
+
+				field->GetFunction<void(void*)>("ClearVector"_hs)(vectorPtr);
+			};
+
+			rightSide->AddChild(clear);
+
+			for (uint32 i = 0; i < vectorSize; i++)
+			{
+			}
+			// Widget* subField = BuildField(src, obj, metaType, field, subType);
+		}
+		else if (fieldType == "Bitmask32"_hs)
 		{
 			Dropdown* dd = wm->Allocate<Dropdown>();
 			dd->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -1181,6 +1247,12 @@ namespace Lina::Editor
 			cb->GetProps().value		   = bval;
 			cb->GetIcon()->GetProps().icon = ICON_CHECK;
 			cb->GetIcon()->CalculateIconSize();
+			cb->SetTickHook([bval, fold](float delta) {
+				if (fold->GetIsUnfolded() && *bval == false)
+					fold->SetIsUnfolded(false);
+				else if (!fold->GetIsUnfolded() && *bval == true)
+					fold->SetIsUnfolded(true);
+			});
 			rightSide->AddChild(cb);
 		}
 		else if (fieldType == "uint32"_hs)
@@ -1224,19 +1296,30 @@ namespace Lina::Editor
 			rightSide->AddChild(getValueField(reflectionValue.GetPtr(), 32));
 		}
 
-		layout->Initialize();
-
-		for (const String& d : allSourceDependencies)
+		if (vectorElementIndex != -1)
 		{
-			const StringID sid = TO_SID(d);
-			FieldBase*	   f   = metaType.GetField(sid);
-			bool*		   ptr = f->Value(obj).CastPtr<bool>();
-			layout->AddVisibilityPtr(ptr);
+			void*	vectorPtr = field->Value(obj).GetPtr();
+			Button* duplicate = wm->Allocate<Button>();
+			duplicate->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
+			duplicate->SetAlignedPosY(0.0f);
+			duplicate->SetAlignedSizeY(1.0f);
+			duplicate->CreateIcon(ICON_COPY);
+			duplicate->GetProps().onClicked = [field, vectorPtr, vectorElementIndex]() { field->GetFunction<void(void*, int32)>("DuplicateElement"_hs)(vectorPtr, vectorElementIndex); };
+			rightSide->AddChild(duplicate);
+
+			Button* remove = wm->Allocate<Button>();
+			remove->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
+			remove->SetAlignedPosY(0.0f);
+			remove->SetAlignedSizeY(1.0f);
+			remove->CreateIcon(ICON_TRASH);
+			remove->GetProps().onClicked = []() { duplicate->GetProps().onClicked = [field, vectorPtr, vectorElementIndex]() { field->GetFunction<void(void*, int32)>("RemoveeElement"_hs)(vectorPtr, vectorElementIndex); }; };
+			rightSide->AddChild(remove);
 		}
 
-		layout->GetWidgetProps().tooltip = tooltip;
-
-		return layout;
+		fold->GetWidgetProps().tooltip = tooltip;
+		fold->Initialize();
+		fold->SetUserData(field);
+		return fold;
 	}
 
 	Widget* CommonWidgets::BuildColorGradSlider(Widget* src, ColorGrad* color)
@@ -1325,9 +1408,30 @@ namespace Lina::Editor
 				BuildClassReflection(owner, field->Value(obj).GetPtr(), ReflectionSystem::Get().Resolve(subType));
 				continue;
 			}
+			const StringID fieldType = field->GetProperty<StringID>("Type"_hs);
 
-			Widget* fieldWidget = BuildField(owner, obj, meta, field);
+			Widget* fieldWidget = BuildField(owner, obj, meta, field, fieldType);
 			lastParent->AddChild(fieldWidget);
+		}
+
+		for (FieldBase* field : fields)
+		{
+			const StringID dependsOn = field->GetProperty<StringID>("DependsOn"_hs);
+			if (dependsOn == 0)
+				continue;
+
+			Widget* current = owner->FindChildWithUserdata(field);
+			if (current == nullptr)
+				continue;
+
+			Widget* w = owner->FindChildWithUserdata(meta.GetField(dependsOn));
+
+			if (w == nullptr)
+				continue;
+
+			// Remove from original, add to the widget of the source of dependency
+			current->GetParent()->RemoveChild(current);
+			w->AddChild(current);
 		}
 	}
 } // namespace Lina::Editor

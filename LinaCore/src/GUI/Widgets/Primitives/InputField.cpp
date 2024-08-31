@@ -87,18 +87,11 @@ namespace Lina
 	{
 		Widget::Initialize();
 
-		if (m_props.u32Value != nullptr)
-			m_dummyValue = static_cast<float>(*m_props.u32Value);
-		else if (m_props.u16Value != nullptr)
-			m_dummyValue = static_cast<float>(*m_props.u16Value);
-		else if (m_props.u8Value != nullptr)
-			m_dummyValue = static_cast<float>(*m_props.u8Value);
-		else if (m_props.i32Value != nullptr)
-			m_dummyValue = static_cast<float>(*m_props.i32Value);
-		else if (m_props.i16Value != nullptr)
-			m_dummyValue = static_cast<float>(*m_props.i16Value);
-		else if (m_props.i8Value != nullptr)
-			m_dummyValue = static_cast<float>(*m_props.i8Value);
+		if (m_props.valuePtr)
+		{
+			m_text->GetProps().text = UtilStr::FloatToString(GetValue(), m_props.decimals);
+			m_text->CalculateTextSize();
+		}
 	}
 
 	void InputField::CalculateSize(float delta)
@@ -112,42 +105,6 @@ namespace Lina
 
 	void InputField::PreTick()
 	{
-		if (m_props.u32Value != nullptr)
-		{
-			m_props.value = &m_dummyValue;
-			m_dummyValue  = Math::Clamp(m_dummyValue, 0.0f, (float)UINT32_MAX);
-			// *m_props.u32Value = static_cast<uint32>(m_dummyValue);
-		}
-		else if (m_props.u16Value != nullptr)
-		{
-			m_props.value	  = &m_dummyValue;
-			m_dummyValue	  = Math::Clamp(m_dummyValue, 0.0f, (float)UINT16_MAX);
-			*m_props.u16Value = static_cast<uint16>(m_dummyValue);
-		}
-		else if (m_props.u8Value != nullptr)
-		{
-			m_props.value	 = &m_dummyValue;
-			m_dummyValue	 = Math::Clamp(m_dummyValue, 0.0f, (float)UINT8_MAX);
-			*m_props.u8Value = static_cast<uint8>(m_dummyValue);
-		}
-		else if (m_props.i32Value != nullptr)
-		{
-			m_props.value	  = &m_dummyValue;
-			m_dummyValue	  = Math::Clamp(m_dummyValue, -(float)INT32_MAX, (float)INT32_MAX);
-			*m_props.i32Value = static_cast<int32>(m_dummyValue);
-		}
-		else if (m_props.i16Value != nullptr)
-		{
-			m_props.value	  = &m_dummyValue;
-			m_dummyValue	  = Math::Clamp(m_dummyValue, -(float)INT16_MAX, (float)INT16_MAX);
-			*m_props.i16Value = static_cast<int16>(m_dummyValue);
-		}
-		else if (m_props.i8Value != nullptr)
-		{
-			m_props.value	 = &m_dummyValue;
-			m_dummyValue	 = Math::Clamp(m_dummyValue, -(float)INT8_MAX, (float)INT8_MAX);
-			*m_props.i8Value = static_cast<int8>(m_dummyValue);
-		}
 
 		const bool hasControls = m_manager->IsControlsOwner(this);
 
@@ -157,7 +114,7 @@ namespace Lina
 		}
 
 		// Number field slider movement.
-		if (m_middlePressed && !m_isEditing && m_props.isNumberField && m_props.value)
+		if (m_middlePressed && !m_isEditing && m_props.isNumberField && m_props.valuePtr)
 		{
 			const Vector2 mouse		= m_lgxWindow->GetMousePosition();
 			const float	  perc		= Math::Remap(mouse.x, m_rect.pos.x, m_rect.pos.x + m_rect.size.x, 0.0f, 1.0f);
@@ -165,21 +122,21 @@ namespace Lina
 
 			if (!Math::IsZero(m_props.valueStep))
 			{
-				const float prev = *m_props.value;
+				const float prev = GetValue();
 				const float diff = targetVal - prev;
-				*m_props.value	 = prev + m_props.valueStep * Math::FloorToFloat(diff / m_props.valueStep);
+				SetValue(prev + m_props.valueStep * Math::FloorToFloat(diff / m_props.valueStep));
 			}
 			else
-				*m_props.value = targetVal;
+				SetValue(targetVal);
 
 			if (m_props.clampNumber)
 			{
-				*m_props.value	  = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+				SetValue(Math::Clamp(GetValue(), m_props.valueMin, m_props.valueMax));
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(*m_props.value);
+				m_props.onValueChanged(GetValue());
 		}
 	}
 
@@ -224,9 +181,9 @@ namespace Lina
 		}
 
 		// Assign text to number value.
-		if (m_props.isNumberField && !m_isEditing && m_props.value)
+		if (m_props.isNumberField && !m_isEditing && m_props.valuePtr)
 		{
-			const float value = *m_props.value;
+			const float value = GetValue();
 			if (!Math::Equals(value, m_lastStoredValue, 0.0001f))
 			{
 				m_text->GetProps().text = UtilStr::FloatToString(value, m_props.decimals);
@@ -244,9 +201,9 @@ namespace Lina
 		Widget::DrawBackground();
 
 		// Number field slider background.
-		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.value)
+		if (m_props.isNumberField && !m_props.disableNumberSlider && !m_isEditing && m_props.valuePtr)
 		{
-			const float			 perc = Math::Remap(*m_props.value, m_props.valueMin, m_props.valueMax, 0.0f, 1.0f);
+			const float			 perc = Math::Remap(GetValue(), m_props.valueMin, m_props.valueMax, 0.0f, 1.0f);
 			LinaVG::StyleOptions fill;
 			fill.color.start		= m_props.colorNumberFillStart.AsLVG4();
 			fill.color.end			= m_props.colorNumberFillEnd.AsLVG4();
@@ -565,20 +522,20 @@ namespace Lina
 		m_text->GetProps().text.insert(static_cast<size_t>(pos), str);
 		m_text->CalculateTextSize();
 
-		if (m_props.isNumberField && m_props.value)
+		if (m_props.isNumberField && m_props.valuePtr)
 		{
 			const String& str		   = m_text->GetProps().text;
 			uint32		  outPrecision = 0;
 
-			*m_props.value = UtilStr::StringToFloat(str, outPrecision);
+			SetValue(UtilStr::StringToFloat(str, outPrecision));
 			if (m_props.clampNumber)
 			{
-				*m_props.value	  = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+				SetValue(Math::Clamp(GetValue(), m_props.valueMin, m_props.valueMax));
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(*m_props.value);
+				m_props.onValueChanged(GetValue());
 		}
 	}
 
@@ -610,20 +567,21 @@ namespace Lina
 		if (m_text->GetProps().text.empty())
 			m_textOffset = 0.0f;
 
-		if (m_props.isNumberField && m_props.value)
+		if (m_props.isNumberField && m_props.valuePtr)
 		{
 			const String& str		   = m_text->GetProps().text;
 			uint32		  outPrecision = 0;
 
-			*m_props.value = UtilStr::StringToFloat(str, outPrecision);
+			const float value = UtilStr::StringToFloat(str, outPrecision);
+			SetValue(value);
 			if (m_props.clampNumber)
 			{
-				*m_props.value	  = Math::Clamp(*m_props.value, m_props.valueMin, m_props.valueMax);
+				SetValue(Math::Clamp(GetValue(), m_props.valueMin, m_props.valueMax));
 				m_lastStoredValue = INPF_VALUE_MIN;
 			}
 
 			if (m_props.onValueChanged)
-				m_props.onValueChanged(*m_props.value);
+				m_props.onValueChanged(GetValue());
 		}
 	}
 

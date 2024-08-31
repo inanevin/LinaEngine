@@ -76,12 +76,11 @@ namespace Lina::Editor
 		static Widget* BuildDirectoryItemListView(Widget* src, DirectoryItem* item);
 		static Widget* BuildDirectoryItemGridView(Widget* src, DirectoryItem* item, const Vector2& itemSize);
 
-		static DirectionalLayout* BuildFieldLayout(Widget* src, const Vector<String>& srcDependencies, const String& title);
-		static Widget*			  BuildClassFieldLayout(Widget* src, const String& title);
-		static Widget*			  BuildField(Widget* src, void* obj, MetaType& metaType, FieldBase* field);
-		static FoldLayout*		  BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
-		static Widget*			  BuildColorGradSlider(Widget* src, ColorGrad* color);
-		static void				  BuildClassReflection(Widget* owner, void* obj, MetaType& meta);
+		static FoldLayout* BuildFieldLayout(Widget* src, uint32 dependencies, const String& title, int32 vectorElementIndex, bool isVectorHeader);
+		static Widget*	   BuildField(Widget* src, void* obj, MetaType& metaType, FieldBase* field, StringID fieldType, int32 vectorElementIndex = -1);
+		static FoldLayout* BuildFoldTitle(Widget* src, const String& title, bool* foldValue);
+		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color);
+		static void		   BuildClassReflection(Widget* owner, void* obj, MetaType& meta);
 
 	private:
 	};

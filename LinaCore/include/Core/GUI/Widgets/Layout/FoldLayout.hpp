@@ -42,10 +42,12 @@ namespace Lina
 		struct Properties
 		{
 			Delegate<void(bool)> onFoldChanged;
-			float				 marginIncrease = Theme::GetDef().baseIndentInner;
-			bool				 useTween		= false;
-			float				 tweenPower		= 6.0f;
-			float				 tweenDuration	= 0.25f;
+			bool				 doubleClickChangesFold = true;
+			bool				 lookForChevron			= true;
+			float				 marginIncrease			= Theme::GetDef().baseIndentInner;
+			bool				 useTween				= false;
+			float				 tweenPower				= 6.0f;
+			float				 tweenDuration			= 0.25f;
 		};
 
 		virtual void CalculateSize(float delta) override;

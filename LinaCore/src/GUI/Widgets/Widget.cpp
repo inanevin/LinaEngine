@@ -606,6 +606,22 @@ namespace Lina
 	{
 	}
 
+    Widget* Widget::FindChildWithUserdata(void *ud)
+    {
+        for(Widget* c : m_children)
+        {
+            if(c->GetUserData() == ud)
+                return c;
+            
+            Widget* found = c->FindChildWithUserdata(ud);
+            
+            if(found)
+                return found;
+        }
+        
+        return nullptr;
+    }
+
 	Vector2 Widget::GetStartFromMargins()
 	{
 		return m_rect.pos + Vector2(m_widgetProps.childMargins.left, m_widgetProps.childMargins.top);

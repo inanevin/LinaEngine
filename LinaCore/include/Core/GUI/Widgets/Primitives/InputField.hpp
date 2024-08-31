@@ -55,30 +55,26 @@ namespace Lina
 			Delegate<void(const String&)> onEditEnd;
 			Delegate<void(float)>		  onValueChanged;
 
-			Color	colorHighlight		 = Theme::GetDef().accentPrimary1;
-			Color	colorCaret			 = Theme::GetDef().foreground0;
-			Color	colorNumberFillStart = Theme::GetDef().accentPrimary1;
-			Color	colorNumberFillEnd	 = Theme::GetDef().accentPrimary0;
-			Color	colorPlaceHolder	 = Theme::GetDef().outlineColorBase;
-			Color	colorTextDefault	 = Theme::GetDef().foreground0;
-			float	outlineThickness	 = Theme::GetDef().baseOutlineThickness;
-			float	horizontalIndent	 = Theme::GetDef().baseIndentInner;
-			String	placeHolderText		 = "";
-			bool	usePlaceHolder		 = false;
-			bool	isNumberField		 = false;
-			bool	disableNumberSlider	 = false;
-			bool	clampNumber			 = false;
-			float*	value				 = nullptr;
-			float	valueMin			 = 0.0f;
-			float	valueMax			 = 10.0f;
-			float	valueStep			 = 0.0f;
-			uint32	decimals			 = 3;
-			uint32* u32Value			 = nullptr;
-			int32*	i32Value			 = nullptr;
-			uint16* u16Value			 = nullptr;
-			int16*	i16Value			 = nullptr;
-			uint8*	u8Value				 = nullptr;
-			int8*	i8Value				 = nullptr;
+			Color  colorHighlight		= Theme::GetDef().accentPrimary1;
+			Color  colorCaret			= Theme::GetDef().foreground0;
+			Color  colorNumberFillStart = Theme::GetDef().accentPrimary1;
+			Color  colorNumberFillEnd	= Theme::GetDef().accentPrimary0;
+			Color  colorPlaceHolder		= Theme::GetDef().outlineColorBase;
+			Color  colorTextDefault		= Theme::GetDef().foreground0;
+			float  outlineThickness		= Theme::GetDef().baseOutlineThickness;
+			float  horizontalIndent		= Theme::GetDef().baseIndentInner;
+			String placeHolderText		= "";
+			bool   usePlaceHolder		= false;
+			bool   isNumberField		= false;
+			bool   disableNumberSlider	= false;
+			bool   clampNumber			= false;
+			float  valueMin				= 0.0f;
+			float  valueMax				= 10.0f;
+			float  valueStep			= 0.0f;
+			uint32 decimals				= 3;
+			uint8* valuePtr				= nullptr;
+			uint8  valueBits			= 32;
+			bool   valueUnsigned		= false;
 
 			bool centerText = false;
 			bool wrapText	= false;
@@ -145,6 +141,51 @@ namespace Lina
 			m_props.LoadFromStream(stream);
 		}
 
+		void SetValue(float val)
+		{
+			if (m_props.valueUnsigned)
+			{
+				if (m_props.valueBits == 32)
+					*reinterpret_cast<uint32*>(m_props.valuePtr) = static_cast<uint32>(val);
+				else if (m_props.valueBits == 16)
+					*reinterpret_cast<uint16*>(m_props.valuePtr) = static_cast<uint16>(val);
+				else if (m_props.valueBits == 8)
+					*reinterpret_cast<uint8*>(m_props.valuePtr) = static_cast<uint8>(val);
+			}
+			else
+			{
+				if (m_props.valueBits == 32)
+					*reinterpret_cast<float*>(m_props.valuePtr) = static_cast<float>(val);
+				else if (m_props.valueBits == 16)
+					*reinterpret_cast<int16*>(m_props.valuePtr) = static_cast<int16>(val);
+				else if (m_props.valueBits == 8)
+					*reinterpret_cast<int8*>(m_props.valuePtr) = static_cast<int8>(val);
+			}
+		}
+
+		float GetValue()
+		{
+			if (m_props.valueUnsigned)
+			{
+				if (m_props.valueBits == 32)
+					return static_cast<float>(*reinterpret_cast<uint32*>(m_props.valuePtr));
+				else if (m_props.valueBits == 16)
+					return static_cast<float>(*reinterpret_cast<uint16*>(m_props.valuePtr));
+				else if (m_props.valueBits == 8)
+					return static_cast<float>(*reinterpret_cast<uint8*>(m_props.valuePtr));
+			}
+			else
+			{
+				if (m_props.valueBits == 32)
+					return static_cast<float>(*reinterpret_cast<float*>(m_props.valuePtr));
+				else if (m_props.valueBits == 16)
+					return static_cast<float>(*reinterpret_cast<int16*>(m_props.valuePtr));
+				else if (m_props.valueBits == 8)
+					return static_cast<float>(*reinterpret_cast<int8*>(m_props.valuePtr));
+			}
+			return 0.0f;
+		}
+
 	private:
 		void	EndEditing();
 		uint32	GetCaretPosFromMouse();
@@ -170,7 +211,6 @@ namespace Lina
 		bool	   m_middlePressed		  = false;
 		bool	   m_isEditing			  = false;
 		float	   m_lastStoredValue	  = INPF_VALUE_MIN;
-		float	   m_dummyValue			  = 0.0f;
 	};
 
 	LINA_REFLECTWIDGET_BEGIN(InputField, Primitive)

@@ -47,6 +47,36 @@ namespace Lina
 			return static_cast<void*>(c);
 		}
 
+		template <typename T> static inline uint32 REF_GetVectorSize(void* ptr)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			return static_cast<uint32>(vec->size());
+		}
+
+		template <typename T> static inline void REF_ClearVector(void* ptr)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->clear();
+		}
+
+		template <typename T> static inline void REF_AddNewVectorElement(void* ptr)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->push_back(T());
+		}
+
+		template <typename T> static inline void REF_RemoveVectorElement(void* ptr, int32 index)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->erase(vec->begin() + index);
+		}
+
+		template <typename T> static inline void REF_DuplicateVectorElement(void* ptr, int32 index)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->insert(vec->begin() + index + 1, vec->at(index));
+		}
+
 		template <typename T> static inline void* REF_CreateWidgetCacheFunc()
 		{
 			Lina::WidgetCache<T>* c = new Lina::WidgetCache<T>();
@@ -176,13 +206,30 @@ namespace Lina
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("Type"), Lina::TO_SIDC(TYPE));                                                                                                            \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::TypeID>(Lina::TO_SIDC("SubType"), SUBTYPE);
 
+#define LINA_FIELD_VEC(ClassName, FieldName, TITLE, SUBTYPE)                                                                                                                                                                                                       \
+	const Lina::StringID sid_##FieldName = Lina::TO_SIDC(TOSTRING(FieldName));                                                                                                                                                                                     \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddField<&ClassName::FieldName, ClassName>(sid_##FieldName);                                                                                                                                                   \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                           \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("Type"), "Vector"_hs);                                                                                                                    \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::TypeID>(Lina::TO_SIDC("SubType"), GetTypeID<SUBTYPE>());                                                                                                          \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("SubTypeSid"), TO_SIDC(TOSTRING(SUBTYPE)));                                                                                               \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<uint32(void*)>("GetVectorSize"_hs, std::bind(&Lina::ReflectionClassUtility::REF_GetVectorSize<SUBTYPE>, std::placeholders::_1));                                        \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<void(void*)>("AddNewElement"_hs, std::bind(&Lina::ReflectionClassUtility::REF_AddNewVectorElement<SUBTYPE>, std::placeholders::_1));                                    \
+	Lina::ReflectionSystem::Get()                                                                                                                                                                                                                                  \
+		.Meta<ClassName>()                                                                                                                                                                                                                                         \
+		.GetField(sid_##FieldName)                                                                                                                                                                                                                                 \
+		->AddFunction<void(void*, int32)>("DuplicateElement"_hs, std::bind(&Lina::ReflectionClassUtility::REF_DuplicateVectorElement<SUBTYPE>, std::placeholders::_1, std::placeholders::_2));                                                                     \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<void(void*, int32)>("RemoveElement"_hs, std::bind(&Lina::ReflectionClassUtility::REF_RemoveVectorElement<SUBTYPE>, std::placeholders::_1, std::placeholders::_2));      \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<void(void*)>("ClearVector"_hs, std::bind(&Lina::ReflectionClassUtility::REF_ClearVector<SUBTYPE>, std::placeholders::_1));
+
 #define LINA_FIELD_TOOLTIP(ClassName, FieldName, TOOLTIP) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);
 
-#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("DependsOn"), DEPENDSON);
+#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), TO_SIDC(DEPENDSON));
 
-#define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX)                                                                                                                                                                                                          \
+#define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX, STEP)                                                                                                                                                                                                    \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Min"), MIN);                                                                                                                               \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Max"), MAX);
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Max"), MAX);                                                                                                                               \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Step"), STEP);
 
 #define LINA_PROPERTY_STRING(ClassName, PropertyName, VALUE) Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC(TO_SIDC(PropertyName)), VALUE);
 
