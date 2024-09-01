@@ -48,6 +48,6 @@ namespace Lina::Editor
 	private:
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Gizmo, Editor)
-	LINA_REFLECTWIDGET_END(Gizmo)
+	LINA_WIDGET_BEGIN(Gizmo, Editor)
+	LINA_CLASS_END(Gizmo)
 } // namespace Lina::Editor

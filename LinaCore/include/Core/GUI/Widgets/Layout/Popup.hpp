@@ -93,7 +93,7 @@ namespace Lina
 		int32					   m_targetScroll	 = -1;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Popup, Layout)
-	LINA_REFLECTWIDGET_END(Popup)
+	LINA_WIDGET_BEGIN(Popup, Layout)
+	LINA_CLASS_END(Popup)
 
 } // namespace Lina

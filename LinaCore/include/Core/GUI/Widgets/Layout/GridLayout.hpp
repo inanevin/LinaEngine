@@ -65,6 +65,6 @@ namespace Lina
 		float	   m_totalChildHeight = 0.0f;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(GridLayout, Layout)
-	LINA_REFLECTWIDGET_END(GridLayout)
+	LINA_WIDGET_BEGIN(GridLayout, Layout)
+	LINA_CLASS_END(GridLayout)
 } // namespace Lina

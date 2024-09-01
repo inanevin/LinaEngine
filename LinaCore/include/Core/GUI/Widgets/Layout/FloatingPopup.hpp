@@ -66,7 +66,7 @@ namespace Lina
 		Vector2			   m_pressDiff	= Vector2::Zero;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(FloatingPopup, Layout)
-	LINA_REFLECTWIDGET_END(FloatingPopup)
+	LINA_WIDGET_BEGIN(FloatingPopup, Layout)
+	LINA_CLASS_END(FloatingPopup)
 
 } // namespace Lina

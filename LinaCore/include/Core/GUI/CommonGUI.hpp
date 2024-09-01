@@ -89,7 +89,7 @@ namespace Lina
 		WF_SKIP_FLOORING		 = 1 << 20,
 	};
 
-	LINA_REFLECTENUM_BEGIN(WidgetFlags, "Anchor")
+	LINA_CLASS_BEGIN(WidgetFlags)
 	LINA_PROPERTY_STRING(WidgetFlags, "0", "Pos Align X")
 	LINA_PROPERTY_STRING(WidgetFlags, "1", "Pos Align Y")
 	LINA_PROPERTY_STRING(WidgetFlags, "2", "Size Align X")
@@ -111,7 +111,7 @@ namespace Lina
 	LINA_PROPERTY_STRING(WidgetFlags, "18", "Mouse Passthrough")
 	LINA_PROPERTY_STRING(WidgetFlags, "19", "Key Passthrough")
 	LINA_PROPERTY_STRING(WidgetFlags, "20", "Skip Flooring")
-	LINA_REFLECTENUM_END(WidgetFlags)
+	LINA_CLASS_END(WidgetFlags)
 
 	enum class Anchor
 	{
@@ -120,11 +120,11 @@ namespace Lina
 		End
 	};
 
-	LINA_REFLECTENUMCLASS_BEGIN(Anchor, "Anchor")
+	LINA_CLASS_BEGIN(Anchor)
 	LINA_PROPERTY_STRING(Anchor, "0", "Start")
 	LINA_PROPERTY_STRING(Anchor, "1", "Center")
 	LINA_PROPERTY_STRING(Anchor, "2", "End")
-	LINA_REFLECTENUM_END(Anchor)
+	LINA_CLASS_END(Anchor)
 
 	enum class ColorDisplay
 	{

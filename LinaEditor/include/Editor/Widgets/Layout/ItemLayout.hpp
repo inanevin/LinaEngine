@@ -152,6 +152,6 @@ namespace Lina::Editor
 		Widget*				 m_dragTarget  = nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ItemLayout, Editor)
-	LINA_REFLECTWIDGET_END(ItemLayout)
+	LINA_WIDGET_BEGIN(ItemLayout, Editor)
+	LINA_CLASS_END(ItemLayout)
 } // namespace Lina::Editor

@@ -64,6 +64,4 @@ namespace Lina
 		Vector2 m_finalAngles	= Vector2::Zero;
 	};
 
-	// LINA_REFLECTCOMPONENT_BEGIN(SimpleFlightMovement, "SimpleFlightMovement", "Transformation")
-	// LINA_REFLECTCOMPONENT_END(SimpleFlightMovement);
 } // namespace Lina

@@ -76,6 +76,6 @@ namespace Lina
 		float	   m_pressDiff = 0.0f;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(LayoutBorder, Layout)
-	LINA_REFLECTWIDGET_END(LayoutBorder)
+	LINA_WIDGET_BEGIN(LayoutBorder, Layout)
+	LINA_CLASS_END(LayoutBorder)
 } // namespace Lina

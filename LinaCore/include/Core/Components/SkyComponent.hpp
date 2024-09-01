@@ -61,6 +61,4 @@ namespace Lina
 		Color m_groundColor	 = Color::Black;
 	};
 
-	// LINA_REFLECTCOMPONENT_BEGIN(SkyComponent, "Sky", "Graphics")
-	// LINA_REFLECTCOMPONENT_END(SkyComponent);
 } // namespace Lina

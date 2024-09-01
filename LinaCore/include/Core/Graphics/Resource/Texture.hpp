@@ -121,6 +121,6 @@ namespace Lina
 		bool						  m_gpuHandleExists = false;
 	};
 
-	LINA_REFLECTRESOURCE_BEGIN(Texture);
-	LINA_REFLECTRESOURCE_END(Texture);
+	LINA_RESOURCE_BEGIN(Texture);
+	LINA_CLASS_END(Texture);
 } // namespace Lina

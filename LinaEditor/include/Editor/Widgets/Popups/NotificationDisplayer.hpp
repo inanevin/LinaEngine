@@ -93,7 +93,7 @@ namespace Lina::Editor
 		Vector<NotificationDesc>  m_notifications;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(NotificationDisplayer, Editor)
-	LINA_REFLECTWIDGET_END(NotificationDisplayer)
+	LINA_WIDGET_BEGIN(NotificationDisplayer, Editor)
+	LINA_CLASS_END(NotificationDisplayer)
 
 } // namespace Lina::Editor

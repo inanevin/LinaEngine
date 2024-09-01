@@ -59,7 +59,7 @@ namespace Lina
 		Widget m_root;
 	};
 
-	LINA_REFLECTRESOURCE_BEGIN(GUIWidget);
-	LINA_REFLECTRESOURCE_END(GUIWidget);
+	LINA_RESOURCE_BEGIN(GUIWidget);
+	LINA_CLASS_END(GUIWidget);
 
 } // namespace Lina

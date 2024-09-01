@@ -59,7 +59,7 @@ namespace Lina::Editor
 		field->GetProps().valueMin		= 0.0f;
 		field->GetProps().valueMax		= 1.0f;
 		field->GetProps().valueStep		= 0.01f;
-        field->GetProps().valuePtr			= reinterpret_cast<uint8*>(val);
+		field->GetProps().valuePtr		= reinterpret_cast<uint8*>(val);
 		field->GetProps().clampNumber	= true;
 		field->GetFlags().Set(WF_SIZE_ALIGN_Y | WF_USE_FIXED_SIZE_X | WF_POS_ALIGN_Y);
 		field->SetAlignedSizeY(1.0f);
@@ -109,7 +109,7 @@ namespace Lina::Editor
 		field->GetProps().valueMin		= 0.0f;
 		field->GetProps().valueMax		= isHue ? 360.0f : 1.0f;
 		field->GetProps().valueStep		= isHue ? 1.0f : 0.01f;
-        field->GetProps().valuePtr		= reinterpret_cast<uint8*>(val);
+		field->GetProps().valuePtr		= reinterpret_cast<uint8*>(val);
 		field->GetProps().decimals		= isHue ? 0 : 3;
 		field->GetFlags().Set(WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y | WF_POS_ALIGN_X);
 		field->SetAlignedSizeX(1.0f);
@@ -387,10 +387,10 @@ namespace Lina::Editor
 			m_colorComp3.field->GetProps().valueMax = 255.0f;
 			m_colorComp4.field->GetProps().valueMax = 255.0f;
 
-            m_colorComp1.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor255.x);
-            m_colorComp2.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor255.y);
-            m_colorComp3.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor255.z);
-            m_colorComp4.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor255.w);
+			m_colorComp1.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor255.x);
+			m_colorComp2.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor255.y);
+			m_colorComp3.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor255.z);
+			m_colorComp4.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor255.w);
 			m_colorComp1.field->GetProps().decimals = 0;
 			m_colorComp2.field->GetProps().decimals = 0;
 			m_colorComp3.field->GetProps().decimals = 0;
@@ -404,19 +404,19 @@ namespace Lina::Editor
 			m_colorComp2.slider->GetProps().maxValue = 1.0f;
 			m_colorComp3.slider->GetProps().maxValue = 1.0f;
 			m_colorComp4.slider->GetProps().maxValue = 1.0f;
-            m_colorComp1.slider->GetProps().value	 = &m_editedColor.x;
-            m_colorComp2.slider->GetProps().value	 = &m_editedColor.y;
-            m_colorComp3.slider->GetProps().value	 = &m_editedColor.z;
-            m_colorComp4.slider->GetProps().value	 = &m_editedColor.w;
+			m_colorComp1.slider->GetProps().value	 = &m_editedColor.x;
+			m_colorComp2.slider->GetProps().value	 = &m_editedColor.y;
+			m_colorComp3.slider->GetProps().value	 = &m_editedColor.z;
+			m_colorComp4.slider->GetProps().value	 = &m_editedColor.w;
 
 			m_colorComp1.field->GetProps().valueMax = 1.0f;
 			m_colorComp2.field->GetProps().valueMax = 1.0f;
 			m_colorComp3.field->GetProps().valueMax = 1.0f;
 			m_colorComp4.field->GetProps().valueMax = 1.0f;
-			m_colorComp1.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor.x);
-			m_colorComp2.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor.y);
-			m_colorComp3.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor.z);
-			m_colorComp4.field->GetProps().valuePtr	= reinterpret_cast<uint8*>(&m_editedColor.w);
+			m_colorComp1.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor.x);
+			m_colorComp2.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor.y);
+			m_colorComp3.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor.z);
+			m_colorComp4.field->GetProps().valuePtr = reinterpret_cast<uint8*>(&m_editedColor.w);
 			m_colorComp1.field->GetProps().decimals = 3;
 			m_colorComp2.field->GetProps().decimals = 3;
 			m_colorComp3.field->GetProps().decimals = 3;

@@ -86,6 +86,6 @@ namespace Lina
 		Metadata					m_meta = {};
 	};
 
-	LINA_REFLECTRESOURCE_BEGIN(Font);
-	LINA_REFLECTRESOURCE_END(Font);
+	LINA_RESOURCE_BEGIN(Font);
+	LINA_CLASS_END(Font);
 } // namespace Lina

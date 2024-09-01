@@ -38,7 +38,6 @@ SOFTWARE.
 
 namespace Lina::Editor
 {
-
 	void PanelWidgetEditorProperties::Construct()
 	{
 		ScrollArea* sc = m_manager->Allocate<ScrollArea>("ScrollArea");
@@ -70,7 +69,14 @@ namespace Lina::Editor
 		if (w == nullptr)
 			return;
 
-		CommonWidgets::BuildClassReflection(m_layout, w, ReflectionSystem::Get().Resolve<Widget>());
+		CommonWidgets::BuildWidgetReflection(m_layout, w, ReflectionSystem::Get().Resolve<Widget>());
+
+		if (w->GetTID() != GetTypeID<Widget>() && w->GetTID() != 0)
+		{
+			const TypeID subTid = w->GetTID();
+			CommonWidgets::BuildWidgetReflection(m_layout, w, ReflectionSystem::Get().Resolve(subTid));
+		}
+
 		m_layout->Initialize();
 	}
 

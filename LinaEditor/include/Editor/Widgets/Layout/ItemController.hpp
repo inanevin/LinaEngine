@@ -130,6 +130,6 @@ namespace Lina::Editor
 		bool			m_payloadActive = false;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ItemController, Editor)
-	LINA_REFLECTWIDGET_END(ItemController)
+	LINA_WIDGET_BEGIN(ItemController, Editor)
+	LINA_CLASS_END(ItemController)
 } // namespace Lina::Editor

@@ -44,6 +44,7 @@ namespace Lina::Editor
 	public:
 		void	   Initialize(Editor* editor);
 		ResourceID SaveNewResource(TypeID tid, uint32 subType = 0);
+		void	   SaveResource(Resource* res);
 
 		template <typename T> T* OpenResource(ResourceID resourceID, void* subdata = nullptr)
 		{
@@ -52,7 +53,7 @@ namespace Lina::Editor
 
 		template <typename T> void CloseAndSaveResource(T* resource)
 		{
-			resource->SaveToFileAsBinary(GetResourcePath(resource->GetID()).c_str());
+			SaveResource(resource);
 			delete resource;
 		}
 

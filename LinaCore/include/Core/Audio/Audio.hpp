@@ -59,6 +59,6 @@ namespace Lina
 		Metadata m_meta = {};
 	};
 
-	LINA_REFLECTRESOURCE_BEGIN(Audio);
-	LINA_REFLECTRESOURCE_END(Audio);
+	LINA_RESOURCE_BEGIN(Audio);
+	LINA_CLASS_END(Audio);
 } // namespace Lina

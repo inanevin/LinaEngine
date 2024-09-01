@@ -121,14 +121,12 @@ namespace Lina::Editor
 		{LocaleStr::SelectWidget, "Select: GUIWidget"},
 		{LocaleStr::SaveChanges, "Save changes?"},
 		{LocaleStr::SaveChangesDesc, "Would you like to save changes to the current file?"},
-		{LocaleStr::GeneralProperties, "General Properties"},
-		{LocaleStr::WidgetProperties, "Widget Properties"},
 		{LocaleStr::SelectColor, "Select: Color"},
 		{LocaleStr::StartColor, "Start Color"},
 		{LocaleStr::EndColor, "End Color"},
 		{LocaleStr::ThemeColor, "Theme Color"},
 		{LocaleStr::Both, "Both"},
-		{LocaleStr::DropshadowProperties, "Dropshadow Properties"},
+		{LocaleStr::Export, "Export"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

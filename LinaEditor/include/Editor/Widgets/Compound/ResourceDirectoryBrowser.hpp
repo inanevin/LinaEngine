@@ -89,7 +89,7 @@ namespace Lina::Editor
 		Editor*			   m_editor		= nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ResourceDirectoryBrowser, Editor)
-	LINA_REFLECTWIDGET_END(ResourceDirectoryBrowser)
+	LINA_WIDGET_BEGIN(ResourceDirectoryBrowser, Editor)
+	LINA_CLASS_END(ResourceDirectoryBrowser)
 
 } // namespace Lina::Editor

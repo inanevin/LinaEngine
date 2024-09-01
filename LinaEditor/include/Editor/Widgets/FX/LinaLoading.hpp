@@ -78,6 +78,6 @@ namespace Lina::Editor
 		TextureAtlasImage* m_imgRight	  = nullptr;
 		TextureAtlasImage* m_imgBottom	  = nullptr;
 	};
-	LINA_REFLECTWIDGET_BEGIN(LinaLoading, FX)
-	LINA_REFLECTWIDGET_END(LinaLoading)
+	LINA_WIDGET_BEGIN(LinaLoading, FX)
+	LINA_CLASS_END(LinaLoading)
 } // namespace Lina::Editor

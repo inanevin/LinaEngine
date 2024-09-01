@@ -99,6 +99,7 @@ namespace Lina::Editor
 			Text*		t	   = root->GetWidgetManager()->Allocate<Text>();
 			t->GetProps().text = inf->title;
 			t->Initialize();
+			m_payloadCarryTID = inf->tid;
 			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
 		};
 
@@ -133,14 +134,38 @@ namespace Lina::Editor
 		hierarchy->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
 		leftSide->AddChild(hierarchy);
 
+		DirectionalLayout* buttons = m_manager->Allocate<DirectionalLayout>("Buttons");
+		buttons->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		buttons->SetAlignedSizeX(1.0f);
+		buttons->GetProps().direction = DirectionOrientation::Horizontal;
+		buttons->GetProps().mode	  = DirectionalLayout::Mode::EqualSizes;
+		buttons->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		buttons->GetWidgetProps().childPadding = Theme::GetDef().baseIndent;
+		hierarchy->AddChild(buttons);
+
 		Button* btnLoad = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Load));
-		btnLoad->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		btnLoad->SetAlignedSizeX(0.75f);
-		btnLoad->SetAlignedPosX(0.5f);
-		btnLoad->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		btnLoad->SetAnchorX(Anchor::Center);
+		btnLoad->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		btnLoad->SetAlignedPosY(0.5f);
+		btnLoad->SetAnchorY(Anchor::Center);
+		btnLoad->SetAlignedSizeY(1.0f);
 		btnLoad->GetProps().onClicked = [this]() { m_manager->AddToForeground(BuildDirectorySelector(), 0.25f); };
-		hierarchy->AddChild(btnLoad);
+		buttons->AddChild(btnLoad);
+
+		Button* btnSave = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
+		btnSave->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		btnSave->SetAlignedPosY(0.5f);
+		btnSave->SetAnchorY(Anchor::Center);
+		btnSave->SetAlignedSizeY(1.0f);
+		btnSave->GetProps().onClicked = [this]() { m_editor->GetResourcePipeline().SaveResource(m_currentWidget); };
+		buttons->AddChild(btnSave);
+
+		Button* btnExport = WidgetUtility::BuildIconTextButton(this, ICON_EXPORT, Locale::GetStr(LocaleStr::Export));
+		btnExport->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		btnExport->SetAlignedPosY(0.5f);
+		btnExport->SetAnchorY(Anchor::Center);
+		btnExport->SetAlignedSizeY(1.0f);
+		btnExport->GetProps().onClicked = [this]() {};
+		buttons->AddChild(btnExport);
 
 		ItemController* itemControllerHierarchy = m_manager->Allocate<ItemController>("ItemController");
 		itemControllerHierarchy->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
@@ -159,8 +184,11 @@ namespace Lina::Editor
 		itemControllerHierarchy->GetContextMenu()->SetListener(this);
 		itemControllerHierarchy->GetProps().payloadType = PayloadType::WidgetEditorWidget;
 
-		itemControllerHierarchy->GetProps().onPayloadAccepted = [](void* userdata) {
-
+		itemControllerHierarchy->GetProps().onPayloadAccepted = [this](void* userdata) {
+			Widget* parent = static_cast<Widget*>(userdata);
+			Widget* w	   = m_manager->Allocate(m_payloadCarryTID);
+			parent->AddChild(w);
+			RefreshHierarchy();
 		};
 		m_hierarchyController = itemControllerHierarchy;
 		hierarchy->AddChild(itemControllerHierarchy);
@@ -561,25 +589,15 @@ namespace Lina::Editor
 			return true;
 		}
 
-		Vector<Widget*> roots;
-
-		for (Widget* w : selection)
-		{
-			auto it = linatl::find_if(selection.begin(), selection.end(), [w](Widget* selected) -> bool { return selected == w->GetParent(); });
-			if (it == selection.end())
-				roots.push_back(w);
-		}
-
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Delete)))
 		{
-
-			RequestDelete(roots);
+			RequestDelete(selection);
 			return true;
 		}
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
-			RequestDuplicate(roots);
+			RequestDuplicate(selection);
 			return true;
 		}
 
@@ -599,6 +617,22 @@ namespace Lina::Editor
 		{
 			return;
 		}
+
+		Vector<Widget*> roots;
+		for (Widget* w : selection)
+		{
+			auto it = linatl::find_if(selection.begin(), selection.end(), [w](Widget* selected) -> bool { return selected == w->GetParent(); });
+			if (it == selection.end())
+				roots.push_back(w);
+		}
+
+		for (Widget* r : roots)
+		{
+			r->GetParent()->RemoveChild(r);
+			r->GetWidgetManager()->Deallocate(r);
+		}
+
+		RefreshHierarchy();
 	}
 
 	void PanelWidgetEditor::RequestDuplicate(Vector<Widget*> widgets)
@@ -614,6 +648,29 @@ namespace Lina::Editor
 		{
 			return;
 		}
+
+		Vector<Widget*> roots;
+		for (Widget* w : selection)
+		{
+			auto it = linatl::find_if(selection.begin(), selection.end(), [w](Widget* selected) -> bool { return selected == w->GetParent(); });
+			if (it == selection.end())
+				roots.push_back(w);
+		}
+
+		for (Widget* r : roots)
+		{
+			Widget* copy = r->GetWidgetManager()->Allocate(r->GetTID());
+			OStream stream;
+			r->SaveToStream(stream);
+			IStream istream;
+			istream.Create(stream.GetDataRaw(), stream.GetCurrentSize());
+			copy->LoadFromStream(istream);
+			stream.Destroy();
+			istream.Destroy();
+			r->GetParent()->AddChild(copy);
+		}
+
+		RefreshHierarchy();
 	}
 
 	void PanelWidgetEditor::RequestRename(Widget* w)

@@ -60,6 +60,7 @@ namespace Lina
 			bool				  fetchWrapFromParent		= false;
 			bool				  wordWrap					= true;
 			bool				  delayOnClicked			= false;
+			bool				  _category					= false;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -114,6 +115,8 @@ namespace Lina
 		}
 
 	private:
+		LINA_REFLECTION_ACCESS(Text);
+
 		Properties			m_props					= {};
 		float				m_calculatedDPIScale	= 0.0f;
 		LinaVG::LinaVGFont* m_lvgFont				= nullptr;
@@ -122,7 +125,24 @@ namespace Lina
 		bool				m_waitingOnClickedDelay = false;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Text, Primitive)
-	LINA_REFLECTWIDGET_END(Text)
+	LINA_WIDGET_BEGIN(Text, Primitive)
+	LINA_FIELD(Text, m_props, "Text Properties", "Class", GetTypeID<Text::Properties>());
+	LINA_CLASS_END(Text)
+
+	LINA_CLASS_BEGIN(TextProperties)
+	LINA_FIELD(Text::Properties, _category, "Text Properties", "Category", 0)
+	LINA_FIELD(Text::Properties, text, "Text", "String", 0)
+	LINA_FIELD(Text::Properties, font, "Font", "Font", 0)
+	LINA_FIELD(Text::Properties, alignment, "Alignment", "enum", GetTypeID<LinaVG::TextAlignment>())
+	LINA_FIELD(Text::Properties, textScale, "Scale", "float", 0)
+	LINA_FIELD(Text::Properties, wrapWidth, "Wrap Width", "float", 0)
+	LINA_FIELD(Text::Properties, wordWrap, "Word Wrap", "bool", 0)
+	LINA_FIELD(Text::Properties, fetchWrapFromParent, "Fetch Wrap From Parent", "bool", 0)
+	LINA_FIELD(Text::Properties, isDynamic, "Is Dynamic", "bool", 0)
+	LINA_FIELD(Text::Properties, fetchCustomClipFromParent, "Clip From Parent", "bool", 0)
+	LINA_FIELD(Text::Properties, fetchCustomClipFromSelf, "Clip From Self", "bool", 0)
+	LINA_FIELD(Text::Properties, color, "Color", "ColorGrad", 0)
+	LINA_FIELD(Text::Properties, colorDisabled, "Color Disabled", "Color", 0)
+	LINA_CLASS_END(TextProperties)
 
 } // namespace Lina

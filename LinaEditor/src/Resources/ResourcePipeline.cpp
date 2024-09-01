@@ -168,6 +168,11 @@ namespace Lina::Editor
 		return ptr;
 	}
 
+	void ResourcePipeline::SaveResource(Resource* res)
+	{
+		res->SaveToFileAsBinary(GetResourcePath(res->GetID()).c_str());
+	}
+
 	String ResourcePipeline::GetResourceDirectory()
 	{
 		const String project = m_editor->GetProjectManager().GetProjectData()->GetPath();

@@ -89,7 +89,7 @@ namespace Lina::Editor
 		bool					   m_containsFixedPanel = false;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(DockArea, Editor)
-	LINA_REFLECTWIDGET_END(DockArea)
+	LINA_WIDGET_BEGIN(DockArea, Editor)
+	LINA_CLASS_END(DockArea)
 
 } // namespace Lina::Editor

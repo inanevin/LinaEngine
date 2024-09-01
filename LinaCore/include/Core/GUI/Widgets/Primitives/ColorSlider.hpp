@@ -99,7 +99,7 @@ namespace Lina
 		Properties m_props = {};
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ColorSlider, Primitive)
-	LINA_REFLECTWIDGET_END(ColorSlider)
+	LINA_WIDGET_BEGIN(ColorSlider, Primitive)
+	LINA_CLASS_END(ColorSlider)
 
 } // namespace Lina

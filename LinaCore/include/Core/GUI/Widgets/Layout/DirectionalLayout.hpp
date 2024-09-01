@@ -63,14 +63,16 @@ namespace Lina
 			Color				 colorBorderHovered = Theme::GetDef().background3;
 			float				 borderThickness	= Theme::GetDef().baseBorderThickness;
 			float				 borderMinSize		= 0.15f;
-			Delegate<void()>	 onClicked;
-			Delegate<void()>	 onDoubleClicked;
-			Delegate<void()>	 onRightClicked;
-			Delegate<void()>	 onPressed;
-			Delegate<void()>	 onDestructed;
-			Delegate<void()>	 onHoverBegin;
-			Delegate<void()>	 onHoverEnd;
-			bool				 receiveInput = false;
+			bool				 receiveInput		= false;
+			bool				 _category			= false;
+
+			Delegate<void()> onClicked;
+			Delegate<void()> onDoubleClicked;
+			Delegate<void()> onRightClicked;
+			Delegate<void()> onPressed;
+			Delegate<void()> onDestructed;
+			Delegate<void()> onHoverBegin;
+			Delegate<void()> onHoverEnd;
 
 			void SaveToStream(OStream& stream) const;
 			void LoadFromStream(IStream& stream);
@@ -116,6 +118,7 @@ namespace Lina
 		void				   BehaviourBorders(float delta);
 
 	protected:
+		LINA_REFLECTION_ACCESS(DirectionalLayout);
 		Properties m_props = {};
 
 	private:
@@ -130,7 +133,27 @@ namespace Lina
 		float		 m_animValue	   = 0.0f;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(DirectionalLayout, Layout)
-	LINA_REFLECTWIDGET_END(DirectionalLayout)
+	LINA_WIDGET_BEGIN(DirectionalLayout, Layout)
+	LINA_FIELD(DirectionalLayout, m_props, "Directional Layout Properties", "Class", GetTypeID<DirectionalLayout::Properties>())
+	LINA_CLASS_END(DirectionalLayout)
+
+	LINA_CLASS_BEGIN(DirectionalLayoutProperties)
+	LINA_FIELD(DirectionalLayout::Properties, _category, "Directional Layout Properties", "Category", 0)
+	LINA_FIELD(DirectionalLayout::Properties, direction, "Direction", "enum", GetTypeID<DirectionOrientation>())
+	LINA_FIELD(DirectionalLayout::Properties, mode, "Mode", "enum", GetTypeID<DirectionalLayout::Mode>())
+	LINA_FIELD(DirectionalLayout::Properties, colorBorder, "Color Border", "Color", 0)
+	LINA_FIELD(DirectionalLayout::Properties, colorBorderHovered, "Color Border Hovered", "Color", 0)
+	LINA_FIELD(DirectionalLayout::Properties, borderThickness, "Border Thickness", "float", 0)
+	LINA_FIELD(DirectionalLayout::Properties, borderMinSize, "Border Min Size", "float", 0)
+	LINA_FIELD_LIMITS(DirectionalLayout::Properties, borderMinSize, "0.0", "1.0f", "0.1f")
+	LINA_FIELD(DirectionalLayout::Properties, receiveInput, "Receive Input", "bool", 0)
+	LINA_CLASS_END(DirectionalLayoutProperties)
+
+	LINA_CLASS_BEGIN(DirectionalLayoutMode)
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "0", "Default")
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "1", "Equal Positions")
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "2", "Equal Sizes")
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "3", "Bordered")
+	LINA_CLASS_END(DirectionalLayoutMode)
 
 } // namespace Lina

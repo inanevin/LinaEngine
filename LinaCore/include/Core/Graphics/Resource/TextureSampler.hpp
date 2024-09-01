@@ -71,6 +71,6 @@ namespace Lina
 		bool				m_hwExists		= false;
 	};
 
-	LINA_REFLECTRESOURCE_BEGIN(TextureSampler);
-	LINA_REFLECTRESOURCE_END(TextureSampler);
+	LINA_RESOURCE_BEGIN(TextureSampler);
+	LINA_CLASS_END(TextureSampler);
 } // namespace Lina

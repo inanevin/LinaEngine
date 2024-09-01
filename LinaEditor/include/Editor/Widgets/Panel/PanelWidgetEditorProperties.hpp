@@ -54,7 +54,7 @@ namespace Lina::Editor
 		bool			   m_dropshadowPropertiesUnfolded = true;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(PanelWidgetEditorProperties, Editor)
-	LINA_REFLECTWIDGET_END(PanelWidgetEditorProperties)
+	LINA_WIDGET_BEGIN(PanelWidgetEditorProperties, Editor)
+	LINA_CLASS_END(PanelWidgetEditorProperties)
 
 } // namespace Lina::Editor

@@ -129,7 +129,7 @@ namespace Lina::Editor
 		Vector<Widget*> m_gridItems;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(PanelResources, Editor)
-	LINA_REFLECTWIDGET_END(PanelResources)
+	LINA_WIDGET_BEGIN(PanelResources, Editor)
+	LINA_CLASS_END(PanelResources)
 
 } // namespace Lina::Editor

@@ -606,21 +606,21 @@ namespace Lina
 	{
 	}
 
-    Widget* Widget::FindChildWithUserdata(void *ud)
-    {
-        for(Widget* c : m_children)
-        {
-            if(c->GetUserData() == ud)
-                return c;
-            
-            Widget* found = c->FindChildWithUserdata(ud);
-            
-            if(found)
-                return found;
-        }
-        
-        return nullptr;
-    }
+	Widget* Widget::FindChildWithUserdata(void* ud)
+	{
+		for (Widget* c : m_children)
+		{
+			if (c->GetUserData() == ud)
+				return c;
+
+			Widget* found = c->FindChildWithUserdata(ud);
+
+			if (found)
+				return found;
+		}
+
+		return nullptr;
+	}
 
 	Vector2 Widget::GetStartFromMargins()
 	{

@@ -80,7 +80,7 @@ namespace Lina::Editor
 		Bitmask32 m_panelFlags = 0;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Panel, Editor)
-	LINA_REFLECTWIDGET_END(Panel)
+	LINA_WIDGET_BEGIN(Panel, Editor)
+	LINA_CLASS_END(Panel)
 
 } // namespace Lina::Editor

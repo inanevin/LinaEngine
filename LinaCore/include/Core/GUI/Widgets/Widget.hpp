@@ -535,7 +535,7 @@ namespace Lina
 		bool						m_categoryGeneral = false;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Widget, General)
+	LINA_WIDGET_BEGIN(Widget, General)
 	LINA_FIELD(Widget, m_categoryGeneral, "General Properties", "Category", 0);
 	LINA_FIELD(Widget, m_flags, "Flags", "Bitmask32", GetTypeID<WidgetFlags>())
 	LINA_FIELD(Widget, m_alignedPos, "Aligned Position", "Vector2", 0)
@@ -546,9 +546,9 @@ namespace Lina
 	LINA_FIELD(Widget, m_anchorX, "Anchor X", "enum", GetTypeID<Anchor>())
 	LINA_FIELD(Widget, m_anchorY, "Anchor Y", "enum", GetTypeID<Anchor>())
 	LINA_FIELD(Widget, m_widgetProps, "Widget Properties", "Class", GetTypeID<WidgetProps>())
-	LINA_REFLECTWIDGET_END(Widget)
+	LINA_CLASS_END(Widget)
 
-	LINA_REFLECTCLASS_BEGIN(DropshadowProps, "Dropshadow Props")
+	LINA_CLASS_BEGIN(DropshadowProps)
 	LINA_FIELD(DropshadowProps, categoryDropshadowProps, "Dropshadow Properties", "Category", 0);
 	LINA_FIELD(DropshadowProps, enabled, "Enabled", "bool", 0);
 	LINA_FIELD(DropshadowProps, isInner, "Is Inner", "bool", 0);
@@ -570,9 +570,9 @@ namespace Lina
 	LINA_FIELD_DEPENDSON(DropshadowProps, color, "enabled");
 	LINA_FIELD_DEPENDSON(DropshadowProps, direction, "enabled");
 	LINA_FIELD_DEPENDSON(DropshadowProps, onlyRound, "enabled");
-	LINA_REFLECTCLASS_END(DropshadowProps)
+	LINA_CLASS_END(DropshadowProps)
 
-	LINA_REFLECTCLASS_BEGIN(WidgetProps, "Widget Props")
+	LINA_CLASS_BEGIN(WidgetProps)
 	LINA_FIELD(WidgetProps, categoryWidgetProps, "Widget Properties", "Category", 0);
 	LINA_FIELD(WidgetProps, debugName, "Debug Name", "String", 0);
 	LINA_FIELD(WidgetProps, tooltip, "Tooltip", "String", 0);
@@ -630,6 +630,6 @@ namespace Lina
 	LINA_FIELD_DEPENDSON(WidgetProps, specialTexture, "useSpecialTexture");
 	LINA_FIELD_DEPENDSON(WidgetProps, customClipRect, "customClip");
 
-	LINA_REFLECTCLASS_END(WidgetProps)
+	LINA_CLASS_END(WidgetProps)
 
 } // namespace Lina

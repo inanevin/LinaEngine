@@ -86,6 +86,4 @@ namespace Lina
 		Vector2ui		  m_canvasSize = Vector2ui(100, 100);
 	};
 
-	LINA_REFLECTCOMPONENT_BEGIN(WidgetComponent, "WidgetComponent", "Graphics")
-	LINA_REFLECTCOMPONENT_END(WidgetComponent);
 } // namespace Lina

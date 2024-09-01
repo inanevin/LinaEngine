@@ -149,6 +149,8 @@ namespace Lina
 	class FieldValue
 	{
 	public:
+		FieldValue(){};
+		FieldValue(void* addr) : ptr(addr){};
 		template <typename T> T GetValue()
 		{
 			return Cast<T>();

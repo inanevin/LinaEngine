@@ -124,14 +124,12 @@ namespace Lina::Editor
 		SelectWidget,
 		SaveChanges,
 		SaveChangesDesc,
-		GeneralProperties,
-		WidgetProperties,
 		SelectColor,
 		StartColor,
 		EndColor,
 		ThemeColor,
 		Both,
-		DropshadowProperties,
+		Export,
 	};
 
 	class Locale

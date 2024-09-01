@@ -101,6 +101,6 @@ namespace Lina
 		Vector2	   m_sz					  = {};
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(ScrollArea, Layout)
-	LINA_REFLECTWIDGET_END(ScrollArea)
+	LINA_WIDGET_BEGIN(ScrollArea, Layout)
+	LINA_CLASS_END(ScrollArea)
 } // namespace Lina

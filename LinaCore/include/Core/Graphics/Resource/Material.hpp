@@ -119,7 +119,7 @@ namespace Lina
 		Vector<ShaderProperty> m_properties;
 	};
 
-	LINA_REFLECTRESOURCE_BEGIN(Material);
-	LINA_REFLECTRESOURCE_END(Material);
+	LINA_RESOURCE_BEGIN(Material);
+	LINA_CLASS_END(Material);
 
 } // namespace Lina

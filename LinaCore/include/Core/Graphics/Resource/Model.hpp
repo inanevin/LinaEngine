@@ -92,6 +92,6 @@ namespace Lina
 		Vector<ModelMaterial> m_materials;
 		AABB				  m_totalAABB;
 	};
-	LINA_REFLECTRESOURCE_BEGIN(Model);
-	LINA_REFLECTRESOURCE_END(Model);
+	LINA_RESOURCE_BEGIN(Model);
+	LINA_CLASS_END(Model);
 } // namespace Lina

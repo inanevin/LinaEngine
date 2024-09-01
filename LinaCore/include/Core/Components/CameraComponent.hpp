@@ -91,6 +91,4 @@ namespace Lina
 		Quaternion m_rotation	 = Quaternion();
 	};
 
-	LINA_REFLECTCOMPONENT_BEGIN(CameraComponent, "Camera", "Graphics")
-	LINA_REFLECTCOMPONENT_END(CameraComponent);
 } // namespace Lina

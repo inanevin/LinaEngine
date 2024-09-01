@@ -111,7 +111,7 @@ namespace Lina
 		Vector2	   m_iconBgStart = Vector2::Zero;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(Dropdown, Primitive)
-	LINA_REFLECTWIDGET_END(Dropdown)
+	LINA_WIDGET_BEGIN(Dropdown, Primitive)
+	LINA_CLASS_END(Dropdown)
 
 } // namespace Lina

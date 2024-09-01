@@ -62,7 +62,7 @@ namespace Lina::Editor
 		EntityWorld*  m_world		 = nullptr;
 	};
 
-	LINA_REFLECTWIDGET_BEGIN(PanelEntities, Editor)
-	LINA_REFLECTWIDGET_END(PanelEntities)
+	LINA_WIDGET_BEGIN(PanelEntities, Editor)
+	LINA_CLASS_END(PanelEntities)
 
 } // namespace Lina::Editor

@@ -73,6 +73,4 @@ namespace Lina
 		AABB			 m_usedLocalAABB;
 	};
 
-	// LINA_REFLECTCOMPONENT_BEGIN(MeshComponent, "ModelRenderer", "Graphics")
-	// LINA_REFLECTCOMPONENT_END(MeshComponent);
 } // namespace Lina
