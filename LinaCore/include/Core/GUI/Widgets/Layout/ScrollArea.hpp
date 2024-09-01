@@ -40,6 +40,7 @@ namespace Lina
 
 		struct Properties
 		{
+			bool				 _fold				= false;
 			DirectionOrientation direction			= DirectionOrientation::Horizontal;
 			Color				 colorBarBackground = Theme::GetDef().background2;
 			Color				 colorBarStart		= Theme::GetDef().accentPrimary1;
@@ -103,4 +104,9 @@ namespace Lina
 
 	LINA_WIDGET_BEGIN(ScrollArea, Layout)
 	LINA_CLASS_END(ScrollArea)
+
+	LINA_CLASS_BEGIN(ScrollAreaProperties)
+	LINA_FIELD(GridLayout::Properties, _fold, "Grid Layout", "Category", 0)
+	LINA_FIELD(GridLayout::Properties, verticalPadding, "Vertical Padding", "float", 0)
+	LINA_CLASS_END(ScrollAreaProperties)
 } // namespace Lina

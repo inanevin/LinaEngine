@@ -87,6 +87,9 @@ namespace Lina
 
 	void DirectionalLayout::BehaviourBorders(float delta)
 	{
+		if (m_children.empty())
+			return;
+
 		m_borderRects.resize(m_children.size() - 1);
 
 		const uint32 sz = static_cast<uint32>(m_children.size());
@@ -294,7 +297,7 @@ namespace Lina
 			return;
 		Widget::Draw();
 
-		if (m_props.mode != Mode::Bordered)
+		if (m_props.mode != Mode::Bordered || m_children.empty())
 			return;
 
 		LinaVG::StyleOptions opts;

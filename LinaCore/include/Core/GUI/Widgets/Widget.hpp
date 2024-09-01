@@ -479,6 +479,8 @@ namespace Lina
 		V2_INCREMENTERS(AlignedPos, m_alignedPos);
 		LinaVG::Drawer* m_lvg = nullptr;
 
+		bool _fold = false;
+
 	protected:
 		friend class WidgetManager;
 		template <typename U> friend class WidgetCache;

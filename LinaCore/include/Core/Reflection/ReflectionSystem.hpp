@@ -52,6 +52,8 @@ namespace Lina
 	public:
 		void AddProperty(StringID sid, T p)
 		{
+			if (m_properties.find(sid) != m_properties.end())
+				return;
 			m_properties[sid] = p;
 			_order.push_back(sid);
 		}
@@ -425,16 +427,19 @@ namespace Lina
 
 		template <typename T> MetaType& Meta()
 		{
-			return m_metaData[GetTypeID<T>()];
+			const TypeID tid = GetTypeID<T>();
+			return m_metaData[tid];
 		}
 
 		template <typename T> MetaType& Resolve()
 		{
-			return m_metaData[GetTypeID<T>()];
+			const TypeID tid = GetTypeID<T>();
+			return m_metaData[tid];
 		}
 
 		MetaType& Resolve(TypeID tid)
 		{
+			LINA_ASSERT(m_metaData.find(tid) != m_metaData.end(), "");
 			return m_metaData[tid];
 		}
 

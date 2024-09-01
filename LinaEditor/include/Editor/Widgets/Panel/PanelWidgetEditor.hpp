@@ -87,8 +87,7 @@ namespace Lina::Editor
 		ResourceID					 m_lastOpenWidget = 0;
 		Widget*						 m_gridParent	  = nullptr;
 		Vector<CategoryInfo>		 m_categories;
-		TypeID						 m_payloadCarryTID = 0;
-		HashMap<Widget*, bool>		 m_foldValues;
+		TypeID						 m_payloadCarryTID	   = 0;
 		Editor*						 m_editor			   = nullptr;
 		GUIWidget*					 m_currentWidget	   = nullptr;
 		ItemController*				 m_widgetsController   = nullptr;

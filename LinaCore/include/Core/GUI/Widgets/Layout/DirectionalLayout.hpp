@@ -42,17 +42,10 @@ namespace Lina
 
 		enum class Mode
 		{
-			Default,
+			Default = 0,
 			EqualPositions,
 			EqualSizes,
 			Bordered,
-		};
-
-		enum class BackgroundStyle
-		{
-			None,
-			Default,
-			CentralGradient
 		};
 
 		struct Properties
@@ -155,10 +148,10 @@ namespace Lina
 	LINA_CLASS_END(DirectionalLayoutProperties)
 
 	LINA_CLASS_BEGIN(DirectionalLayoutMode)
-	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "0", "Default")
-	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "1", "Equal Positions")
-	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "2", "Equal Sizes")
-	LINA_PROPERTY_STRING(DirectionalLayout::Mode, "3", "Bordered")
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, 0, "Default")
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, 1, "Equal Positions")
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, 2, "Equal Sizes")
+	LINA_PROPERTY_STRING(DirectionalLayout::Mode, 3, "Bordered")
 	LINA_CLASS_END(DirectionalLayoutMode)
 
 } // namespace Lina

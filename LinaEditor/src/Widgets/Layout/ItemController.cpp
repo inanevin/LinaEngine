@@ -488,10 +488,13 @@ namespace Lina::Editor
 		MakeVisibleRecursively(parent);
 	}
 
-	void ItemController::SelectItem(Widget* item, bool clearSelected, bool callEvent)
+	void ItemController::SelectItem(Widget* item, bool clearSelected, bool callEvent, bool makeVisible)
 	{
 		if (item == nullptr)
 			return;
+
+		if (makeVisible)
+			MakeVisibleRecursively(item);
 
 		if (m_children.size() > 1)
 		{

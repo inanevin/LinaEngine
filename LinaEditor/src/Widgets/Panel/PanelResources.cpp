@@ -50,7 +50,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Slider.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
-#include "Core/GUI/Widgets/Layout/LayoutBorder.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/WidgetUtility.hpp"
 #include "Core/Resources/ResourceManager.hpp"
@@ -68,17 +67,17 @@ namespace Lina::Editor
 		Widget* folderBrowser = BuildFolderBrowser();
 		Widget* fileBrowser	  = BuildFileBrowser();
 
-		LayoutBorder* border = m_manager->Allocate<LayoutBorder>("Border");
-		border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		border->SetAlignedPos(Vector2(0.25f, 0.0f));
-		border->SetAlignedSizeY(1.0f);
-		border->GetProps().orientation			 = DirectionOrientation::Vertical;
-		border->GetWidgetProps().colorBackground = Theme::GetDef().background2;
-		border->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
+		//LayoutBorder* border = m_manager->Allocate<LayoutBorder>("Border");
+		//border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		//border->SetAlignedPos(Vector2(0.25f, 0.0f));
+		//border->SetAlignedSizeY(1.0f);
+		//border->GetProps().orientation			 = DirectionOrientation::Vertical;
+		//border->GetWidgetProps().colorBackground = Theme::GetDef().background2;
+		//border->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
+//
+		//AddChild(border);
 
-		AddChild(border);
-
-		border->AssignSides(folderBrowser, fileBrowser);
+		// border->AssignSides(folderBrowser, fileBrowser);
 
 		m_editor->GetFileManager().AddListener(this);
 		m_border = border;

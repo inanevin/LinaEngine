@@ -218,29 +218,29 @@ namespace Lina
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Max"), MAX);                                                                                                                               \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Step"), STEP);
 
-#define LINA_PROPERTY_STRING(ClassName, PropertyName, VALUE) Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC(TO_SIDC(PropertyName)), VALUE);
+#define LINA_PROPERTY_STRING(ClassName, PropertySID, VALUE) Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(PropertySID, VALUE);
 
 #define LINA_REFLECTION_ACCESS(ClassName) friend class ClassName##_Reflected;
 
 	// static const ClassName##....
 
 	LINA_CLASS_BEGIN(Direction)
-	LINA_PROPERTY_STRING(Direction, "0", "Top")
-	LINA_PROPERTY_STRING(Direction, "1", "Bottom")
-	LINA_PROPERTY_STRING(Direction, "2", "Left")
-	LINA_PROPERTY_STRING(Direction, "3", "Right")
-	LINA_PROPERTY_STRING(Direction, "4", "Center")
+	LINA_PROPERTY_STRING(Direction, 0, "Top")
+	LINA_PROPERTY_STRING(Direction, 1, "Bottom")
+	LINA_PROPERTY_STRING(Direction, 2, "Left")
+	LINA_PROPERTY_STRING(Direction, 3, "Right")
+	LINA_PROPERTY_STRING(Direction, 4, "Center")
 	LINA_CLASS_END(Direction)
 
 	LINA_CLASS_BEGIN(DirectionOrientation)
-	LINA_PROPERTY_STRING(DirectionOrientation, "0", "Horizontal")
-	LINA_PROPERTY_STRING(DirectionOrientation, "1", "Vertical")
+	LINA_PROPERTY_STRING(DirectionOrientation, 0, "Horizontal")
+	LINA_PROPERTY_STRING(DirectionOrientation, 1, "Vertical")
 	LINA_CLASS_END(DirectionOrientation)
 
 	LINA_CLASS_BEGIN(LinaVGAlignment)
-	LINA_PROPERTY_STRING(LinaVG::TextAlignment, "0", "Left")
-	LINA_PROPERTY_STRING(LinaVG::TextAlignment, "1", "Center")
-	LINA_PROPERTY_STRING(LinaVG::TextAlignment, "2", "Right")
+	LINA_PROPERTY_STRING(LinaVG::TextAlignment, 0, "Left")
+	LINA_PROPERTY_STRING(LinaVG::TextAlignment, 1, "Center")
+	LINA_PROPERTY_STRING(LinaVG::TextAlignment, 2, "Right")
 	LINA_CLASS_END(LinaVGAlignment)
 
 } // namespace Lina

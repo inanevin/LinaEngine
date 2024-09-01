@@ -35,7 +35,6 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
-#include "Core/GUI/Widgets/Layout/FloatingPopup.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
 #include "Editor/CommonEditor.hpp"
 #include "Editor/EditorLocale.hpp"
@@ -1142,7 +1141,8 @@ namespace Lina::Editor
 			dd->SetAlignedSize(Vector2(0.0f, 1.0f));
 			dd->SetAlignedPosY(0.0f);
 
-			MetaType&			   subType = ReflectionSystem::Get().Resolve(field->GetProperty<TypeID>("SubType"_hs));
+			const TypeID		   st	   = field->GetProperty<TypeID>("SubType"_hs);
+			MetaType&			   subType = ReflectionSystem::Get().Resolve(st);
 			PropertyCache<String>* cache   = subType.GetPropertyCacheManager().GetPropertyCache<String>();
 			Vector<String>		   values  = cache->GetSortedVector();
 
@@ -1461,7 +1461,7 @@ namespace Lina::Editor
 				FieldBase* depSrc = meta.GetField(sid);
 
 				void* valPtr = depSrc->Value(obj).GetPtr();
-				current->AddPreTickHook([valPtr, val, current](float delta) {
+				current->AddPreTickHook([valPtr, val, current]() {
 					const uint32 depVal = *static_cast<uint32*>(valPtr);
 
 					if (depVal == val && current->GetFlags().IsSet(WF_HIDE))

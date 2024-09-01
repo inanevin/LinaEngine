@@ -60,7 +60,7 @@ namespace Lina
 			bool				  fetchWrapFromParent		= false;
 			bool				  wordWrap					= true;
 			bool				  delayOnClicked			= false;
-			bool				  _category					= false;
+			bool				  _fold						= false;
 
 			void SaveToStream(OStream& stream) const
 			{
@@ -130,7 +130,7 @@ namespace Lina
 	LINA_CLASS_END(Text)
 
 	LINA_CLASS_BEGIN(TextProperties)
-	LINA_FIELD(Text::Properties, _category, "Text Properties", "Category", 0)
+	LINA_FIELD(Text::Properties, _fold, "Text", "Category", 0)
 	LINA_FIELD(Text::Properties, text, "Text", "String", 0)
 	LINA_FIELD(Text::Properties, font, "Font", "Font", 0)
 	LINA_FIELD(Text::Properties, alignment, "Alignment", "enum", GetTypeID<LinaVG::TextAlignment>())

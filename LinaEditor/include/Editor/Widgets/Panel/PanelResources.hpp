@@ -35,7 +35,6 @@ SOFTWARE.
 
 namespace Lina
 {
-	class LayoutBorder;
 	class Text;
 	class DirectionalLayout;
 	class GridLayout;
@@ -103,11 +102,10 @@ namespace Lina::Editor
 		virtual bool   OnKey(uint32 key, int32 scancode, LinaGX::InputAction act) override;
 
 	private:
-		LayoutBorder* m_border			  = nullptr;
-		Editor*		  m_editor			  = nullptr;
-		Text*		  m_path			  = nullptr;
-		Text*		  m_itemCount		  = nullptr;
-		Text*		  m_selectedItemCount = nullptr;
+		Editor* m_editor			= nullptr;
+		Text*	m_path				= nullptr;
+		Text*	m_itemCount			= nullptr;
+		Text*	m_selectedItemCount = nullptr;
 
 		float  m_contentsSize			   = MAX_CONTENTS_SIZE;
 		bool   m_fileBrowserContentsAsGrid = false;

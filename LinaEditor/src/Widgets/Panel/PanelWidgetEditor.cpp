@@ -39,7 +39,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/GUI/Widgets/Layout/ScrollArea.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Core/GUI/Widgets/Layout/LayoutBorder.hpp"
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/Primitives/Icon.hpp"
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
@@ -184,11 +183,12 @@ namespace Lina::Editor
 		itemControllerHierarchy->GetContextMenu()->SetListener(this);
 		itemControllerHierarchy->GetProps().payloadType = PayloadType::WidgetEditorWidget;
 
-		itemControllerHierarchy->GetProps().onPayloadAccepted = [this](void* userdata) {
+		itemControllerHierarchy->GetProps().onPayloadAccepted = [this, itemControllerHierarchy](void* userdata) {
 			Widget* parent = static_cast<Widget*>(userdata);
 			Widget* w	   = m_manager->Allocate(m_payloadCarryTID);
 			parent->AddChild(w);
 			RefreshHierarchy();
+			itemControllerHierarchy->SelectItem(itemControllerHierarchy->GetItem(w), true, true, true);
 		};
 		m_hierarchyController = itemControllerHierarchy;
 		hierarchy->AddChild(itemControllerHierarchy);
@@ -357,7 +357,7 @@ namespace Lina::Editor
 		m_editor->GetProjectManager().GetProjectData()->GetResourceRoot().FindResource(m_currentWidget->GetID());
 
 		Widget* sourceWidget = &m_currentWidget->GetRoot();
-		Widget* rootInEditor = CommonWidgets::BuildDefaultFoldItem(this, sourceWidget, Theme::GetDef().baseIndent, "", Color::White, sourceWidget->GetWidgetProps().debugName, true, &m_foldValues[sourceWidget], true);
+		Widget* rootInEditor = CommonWidgets::BuildDefaultFoldItem(this, sourceWidget, Theme::GetDef().baseIndent, "", Color::White, sourceWidget->GetWidgetProps().debugName, true, &sourceWidget->_fold, true);
 
 		m_hierarchyController->AddItem(rootInEditor->GetChildren().front());
 		m_hierarchyLayout->AddChild(rootInEditor);
@@ -371,7 +371,7 @@ namespace Lina::Editor
 		{
 			const std::type_info& typeInfo = typeid(c);
 			const String		  typeName = typeInfo.name();
-			Widget*				  item	   = CommonWidgets::BuildDefaultFoldItem(this, c, margin, "", Color::White, c->GetWidgetProps().debugName, !c->GetChildren().empty(), &m_foldValues[c], false);
+			Widget*				  item	   = CommonWidgets::BuildDefaultFoldItem(this, c, margin, "", Color::White, c->GetWidgetProps().debugName, !c->GetChildren().empty(), &c->_fold, false);
 
 			Text* classType			   = m_manager->Allocate<Text>();
 			classType->GetProps().text = "(" + ReflectionSystem::Get().Resolve(c->GetTID()).GetProperty<String>("Title"_hs) + ")";

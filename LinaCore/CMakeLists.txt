@@ -105,10 +105,8 @@ src/GUI/Widgets/WidgetCache.cpp
 src/GUI/Widgets/WidgetUtility.cpp
 src/GUI/Widgets/Layout/DirectionalLayout.cpp
 src/GUI/Widgets/Layout/Popup.cpp
-src/GUI/Widgets/Layout/FloatingPopup.cpp
 src/GUI/Widgets/Layout/ScrollArea.cpp
 src/GUI/Widgets/Layout/FoldLayout.cpp
-src/GUI/Widgets/Layout/LayoutBorder.cpp
 src/GUI/Widgets/Layout/GridLayout.cpp
 src/GUI/Widgets/Primitives/Text.cpp
 src/GUI/Widgets/Primitives/Icon.cpp
@@ -223,10 +221,8 @@ include/Core/GUI/Widgets/Widget.hpp
 include/Core/GUI/Widgets/WidgetUtility.hpp
 include/Core/GUI/Widgets/Layout/DirectionalLayout.hpp
 include/Core/GUI/Widgets/Layout/Popup.hpp
-include/Core/GUI/Widgets/Layout/FloatingPopup.hpp
 include/Core/GUI/Widgets/Layout/ScrollArea.hpp
 include/Core/GUI/Widgets/Layout/FoldLayout.hpp
-include/Core/GUI/Widgets/Layout/LayoutBorder.hpp
 include/Core/GUI/Widgets/Layout/GridLayout.hpp
 include/Core/GUI/Widgets/Primitives/Text.hpp
 include/Core/GUI/Widgets/Primitives/Icon.hpp
