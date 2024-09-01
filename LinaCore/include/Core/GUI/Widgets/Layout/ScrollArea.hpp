@@ -83,6 +83,7 @@ namespace Lina
 
 	private:
 		static constexpr float SCROLL_SMOOTH = 15.0f;
+		LINA_REFLECTION_ACCESS(ScrollArea);
 
 		Properties m_props				  = {};
 		bool	   m_canDrawBar			  = true;
@@ -106,7 +107,6 @@ namespace Lina
 	LINA_CLASS_END(ScrollArea)
 
 	LINA_CLASS_BEGIN(ScrollAreaProperties)
-	LINA_FIELD(GridLayout::Properties, _fold, "Grid Layout", "Category", 0)
-	LINA_FIELD(GridLayout::Properties, verticalPadding, "Vertical Padding", "float", 0)
+	LINA_FIELD(ScrollArea::Properties, _fold, "Scroll Area", "Category", 0)
 	LINA_CLASS_END(ScrollAreaProperties)
 } // namespace Lina

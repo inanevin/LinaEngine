@@ -50,18 +50,6 @@ namespace Lina
 			float verticalPadding = Theme::GetDef().baseIndent;
 		};
 
-		virtual void SaveToStream(OStream& stream) const
-		{
-			Widget::SaveToStream(stream);
-			stream << m_props.verticalPadding;
-		}
-
-		virtual void LoadFromStream(IStream& stream)
-		{
-			Widget::LoadFromStream(stream);
-			stream >> m_props.verticalPadding;
-		}
-
 		virtual void  Tick(float delta) override;
 		virtual float CalculateChildrenSize() override
 		{
@@ -74,13 +62,13 @@ namespace Lina
 		}
 
 	private:
-		LINA_REFLECTION_ACCESS(GridLayout)
+		LINA_REFLECTION_ACCESS(GridLayout);
 		Properties m_props			  = {};
 		float	   m_totalChildHeight = 0.0f;
 	};
 
 	LINA_WIDGET_BEGIN(GridLayout, Layout)
-	LINA_FIELD(DirectionalLayout, m_props, "Properties", "Class", GetTypeID<GridLayout::Properties>())
+	LINA_FIELD(GridLayout, m_props, "Properties", "Class", GetTypeID<GridLayout::Properties>())
 	LINA_CLASS_END(GridLayout)
 
 	LINA_CLASS_BEGIN(GridLayoutProperties)

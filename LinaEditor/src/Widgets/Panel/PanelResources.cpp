@@ -67,20 +67,19 @@ namespace Lina::Editor
 		Widget* folderBrowser = BuildFolderBrowser();
 		Widget* fileBrowser	  = BuildFileBrowser();
 
-		//LayoutBorder* border = m_manager->Allocate<LayoutBorder>("Border");
-		//border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
-		//border->SetAlignedPos(Vector2(0.25f, 0.0f));
-		//border->SetAlignedSizeY(1.0f);
-		//border->GetProps().orientation			 = DirectionOrientation::Vertical;
-		//border->GetWidgetProps().colorBackground = Theme::GetDef().background2;
-		//border->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
-//
-		//AddChild(border);
+		// LayoutBorder* border = m_manager->Allocate<LayoutBorder>("Border");
+		// border->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_Y);
+		// border->SetAlignedPos(Vector2(0.25f, 0.0f));
+		// border->SetAlignedSizeY(1.0f);
+		// border->GetProps().orientation			 = DirectionOrientation::Vertical;
+		// border->GetWidgetProps().colorBackground = Theme::GetDef().background2;
+		// border->GetWidgetProps().colorHovered	 = Theme::GetDef().background3;
+		//
+		// AddChild(border);
 
 		// border->AssignSides(folderBrowser, fileBrowser);
 
 		m_editor->GetFileManager().AddListener(this);
-		m_border = border;
 	}
 
 	void PanelResources::Destruct()
@@ -97,7 +96,8 @@ namespace Lina::Editor
 
 	void PanelResources::LoadLayoutFromStream(IStream& stream)
 	{
-		m_border->LoadFromStream(stream);
+		float border = 0.0f;
+		stream >> border;
 		stream >> m_contentsSize;
 
 		uint32 favDirectoriesSize = 0;
@@ -118,7 +118,8 @@ namespace Lina::Editor
 
 	void PanelResources::SaveLayoutToStream(OStream& stream)
 	{
-		m_border->SaveToStream(stream);
+		float border = 0.25f;
+		stream << border;
 		stream << m_contentsSize;
 		stream << static_cast<uint32>(m_favouriteDirectories.size());
 		for (const String& str : m_favouriteDirectories)
