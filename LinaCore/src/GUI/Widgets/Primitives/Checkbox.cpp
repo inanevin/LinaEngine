@@ -75,7 +75,11 @@ namespace Lina
 		if (m_isPressed && act == LinaGX::InputAction::Released)
 		{
 			if (m_isHovered && m_props.value)
+			{
 				*m_props.value = !*m_props.value;
+				if (m_props.onValueChanged)
+					m_props.onValueChanged(*m_props.value);
+			}
 
 			m_isPressed = false;
 			return true;
@@ -96,7 +100,11 @@ namespace Lina
 		{
 			m_isPressed = true;
 			if (m_props.value)
+			{
 				*m_props.value = !*m_props.value;
+				if (m_props.onValueChanged)
+					m_props.onValueChanged(*m_props.value);
+			}
 			return true;
 		}
 

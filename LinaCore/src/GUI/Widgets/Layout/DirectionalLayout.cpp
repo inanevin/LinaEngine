@@ -266,6 +266,9 @@ namespace Lina
 		size_t idx = 0;
 		for (auto* c : m_children)
 		{
+			if (c->GetFlags().IsSet(WF_HIDE))
+				continue;
+
 			// First set pos.
 			if (m_props.direction == DirectionOrientation::Horizontal)
 				c->SetPosX(x);

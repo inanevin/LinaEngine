@@ -40,7 +40,8 @@ namespace Lina
 	public:
 		struct Properties
 		{
-			bool* value = nullptr;
+			bool*				 value = nullptr;
+			Delegate<void(bool)> onValueChanged;
 
 			void SaveToStream(OStream& stream) const
 			{

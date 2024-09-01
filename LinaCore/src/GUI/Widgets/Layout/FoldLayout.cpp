@@ -47,6 +47,9 @@ namespace Lina
 		float childrenTotalHeight = 0.0f;
 		for (auto* c : m_children)
 		{
+			if (c->GetFlags().IsSet(WF_HIDE))
+				continue;
+
 			c->CalculateSize(delta);
 			childrenTotalHeight += c->GetSizeY() + GetWidgetProps().childPadding;
 		}
@@ -81,6 +84,9 @@ namespace Lina
 		size_t idx = 0;
 		for (auto* c : m_children)
 		{
+			if (c->GetFlags().IsSet(WF_HIDE))
+				continue;
+
 			c->SetPosX(x);
 			c->SetPosY(y);
 			y += c->GetSizeY() + GetWidgetProps().childPadding;

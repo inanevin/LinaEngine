@@ -420,6 +420,11 @@ namespace Lina
 			m_tickHook = hook;
 		}
 
+		inline void AddPreTickHook(Delegate<void()>&& hook)
+		{
+			m_preTickHooks.push_back(std::move(hook));
+		}
+
 		template <typename... Args> void AddChild(Args&&... args)
 		{
 			(AddChild(std::forward<Widget*>(args)), ...);
@@ -465,20 +470,6 @@ namespace Lina
 			return m_cacheIndex;
 		}
 
-		inline void AddVisibilityPtr(bool* ptr)
-		{
-			m_visibilityPtrs.push_back(ptr);
-		}
-
-		inline void ClearVisibilityPtrs()
-		{
-			m_visibilityPtrs.clear();
-		}
-
-		inline const Vector<bool*>& GetVisibilityPtrs() const
-		{
-			return m_visibilityPtrs;
-		}
 		V2_GET_MUTATE(FixedSize, m_fixedSize);
 		V2_GET_MUTATE(AlignedSize, m_alignedSize);
 		V2_INCREMENTERS(AlignedSize, m_alignedSize);
@@ -512,6 +503,7 @@ namespace Lina
 		Vector<Widget*>				m_children;
 		Vector<Delegate<void()>>	m_executeNextFrame;
 		Delegate<void(float delta)> m_tickHook;
+		Vector<Delegate<void()>>	m_preTickHooks;
 		Rect						m_rect					= {};
 		Vector2						m_fixedSize				= Vector2::Zero;
 		Vector2						m_alignedPos			= Vector2::Zero;
@@ -531,8 +523,7 @@ namespace Lina
 		void*						m_userData				= nullptr;
 		uint32						m_cacheIndex			= 0;
 		WidgetProps					m_widgetProps			= {};
-		Vector<bool*>				m_visibilityPtrs;
-		bool						m_categoryGeneral = false;
+		bool						m_categoryGeneral		= false;
 	};
 
 	LINA_WIDGET_BEGIN(Widget, General)
@@ -561,15 +552,15 @@ namespace Lina
 	LINA_FIELD(DropshadowProps, direction, "Direction", "enum", GetTypeID<Direction>());
 	LINA_FIELD_VEC(DropshadowProps, onlyRound, "Only Round", int32);
 
-	LINA_FIELD_DEPENDSON(DropshadowProps, isInner, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, margin, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, thickness, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, rounding, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, drawOrderIncrement, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, steps, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, color, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, direction, "enabled");
-	LINA_FIELD_DEPENDSON(DropshadowProps, onlyRound, "enabled");
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, isInner, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, margin, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, thickness, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, rounding, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, drawOrderIncrement, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, steps, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, color, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, direction, "enabled", 1);
+	LINA_FIELD_DEPENDENCY_POS(DropshadowProps, onlyRound, "enabled", 1);
 	LINA_CLASS_END(DropshadowProps)
 
 	LINA_CLASS_BEGIN(WidgetProps)
@@ -608,27 +599,27 @@ namespace Lina
 	LINA_FIELD_VEC(WidgetProps, onlyRound, "Only Round", int32);
 	LINA_FIELD(WidgetProps, dropshadow, "Dropshadow Props", "Class", GetTypeID<DropshadowProps>());
 
-	LINA_FIELD_DEPENDSON(WidgetProps, backgroundIsCentralGradient, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, interpolateColor, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorInterpolateSpeed, "interpolateColor");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorBackgroundDirection, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorBackground, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorOutline, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorOutlineControls, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorDisabled, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, hoveredIsDifferentColor, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorHovered, "hoveredIsDifferentColor");
-	LINA_FIELD_DEPENDSON(WidgetProps, pressedIsDifferentColor, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, colorPressed, "pressedIsDifferentColor");
-	LINA_FIELD_DEPENDSON(WidgetProps, outlineThickness, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, outlineIsInner, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, rounding, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, fitTexture, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, textureTiling, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, activeTextureTiling, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, useSpecialTexture, "drawBackground");
-	LINA_FIELD_DEPENDSON(WidgetProps, specialTexture, "useSpecialTexture");
-	LINA_FIELD_DEPENDSON(WidgetProps, customClipRect, "customClip");
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, backgroundIsCentralGradient, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, interpolateColor, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorInterpolateSpeed, "interpolateColor", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackgroundDirection, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorBackground, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorOutline, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorOutlineControls, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorDisabled, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, hoveredIsDifferentColor, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorHovered, "hoveredIsDifferentColor", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, pressedIsDifferentColor, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, colorPressed, "pressedIsDifferentColor", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, outlineThickness, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, outlineIsInner, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, rounding, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, fitTexture, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, textureTiling, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, activeTextureTiling, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, useSpecialTexture, "drawBackground", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, specialTexture, "useSpecialTexture", 1);
+	LINA_FIELD_DEPENDENCY_POS(WidgetProps, customClipRect, "customClip", 1);
 
 	LINA_CLASS_END(WidgetProps)
 

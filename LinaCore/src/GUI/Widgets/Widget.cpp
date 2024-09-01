@@ -327,7 +327,7 @@ namespace Lina
 			m_manager->SetClip(m_widgetProps.customClip ? m_widgetProps.customClipRect : m_rect, {});
 
 		linatl::for_each(m_children.begin(), m_children.end(), [](Widget* child) -> void {
-			if (child->GetIsVisible())
+			if (child->GetIsVisible() && !child->GetFlags().IsSet(WF_HIDE))
 				child->Draw();
 		});
 

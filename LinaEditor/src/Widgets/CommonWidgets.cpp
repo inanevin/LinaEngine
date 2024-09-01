@@ -858,7 +858,7 @@ namespace Lina::Editor
 
 		if (isFoldLayout)
 		{
-			wm->Allocate<FoldLayout>("FieldFoldLayout");
+			fold = wm->Allocate<FoldLayout>("FieldFoldLayout");
 			fold->GetFlags().Set(WF_SIZE_ALIGN_X);
 			fold->SetAlignedSizeX(1.0f);
 			fold->GetWidgetProps().childPadding		= Theme::GetDef().baseIndentInner;
@@ -919,12 +919,29 @@ namespace Lina::Editor
 	{
 		uint32 CountDependencies(MetaType& type, FieldBase* field)
 		{
-			const StringID dependsOn = field->GetProperty<StringID>("DependsOn"_hs);
-			if (dependsOn != 0)
+			const HashMap<StringID, uint32>& depPos = field->GetPositiveDependencies();
+			const HashMap<StringID, uint32>& depNeg = field->GetNegativeDependencies();
+
+			uint32 deps = 0;
+
+			HashSet<FieldBase*> depSrcs;
+
+			for (auto [sid, val] : depPos)
 			{
-				return 1 + CountDependencies(type, type.GetField(dependsOn));
+				deps++;
+				depSrcs.insert(type.GetField(sid));
 			}
-			return 0;
+
+			for (auto [sid, val] : depNeg)
+			{
+				deps++;
+				depSrcs.insert(type.GetField(sid));
+			}
+
+			for (FieldBase* f : depSrcs)
+				deps += CountDependencies(type, f);
+
+			return deps;
 		}
 
 	} // namespace
@@ -955,7 +972,7 @@ namespace Lina::Editor
 				field->GetFunction<void(void*, int32)>("DuplicateElement"_hs)(vectorPtr, elementIndex);
 				RefreshVector(fold, field, vectorPtr, meta, subTypeSid, elementIndex);
 			};
-			subField->GetChildren().front()->GetChildren().back()->AddChild(duplicate);
+			subField->GetChildren().back()->AddChild(duplicate);
 
 			Button* remove = fold->GetWidgetManager()->Allocate<Button>();
 			remove->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_X_COPY_Y | WF_SIZE_ALIGN_Y);
@@ -966,7 +983,7 @@ namespace Lina::Editor
 				field->GetFunction<void(void*, int32)>("RemoveElement"_hs)(vectorPtr, elementIndex);
 				RefreshVector(fold, field, vectorPtr, meta, subTypeSid, elementIndex);
 			};
-			subField->GetChildren().front()->GetChildren().back()->AddChild(remove);
+			subField->GetChildren().back()->AddChild(remove);
 		}
 	}
 
@@ -1277,6 +1294,7 @@ namespace Lina::Editor
 			cb->GetProps().value		   = bval;
 			cb->GetIcon()->GetProps().icon = ICON_CHECK;
 			cb->GetIcon()->CalculateIconSize();
+			cb->GetProps().onValueChanged = [src, memberVariablePtr, &metaType, field](bool) {};
 			cb->SetTickHook([bval, fieldLayout](float delta) {
 				// if (fold->GetIsUnfolded() && *bval == false)
 				// 	fold->SetIsUnfolded(false);
@@ -1428,22 +1446,30 @@ namespace Lina::Editor
 
 		for (FieldBase* field : fields)
 		{
-			const StringID dependsOn = field->GetProperty<StringID>("DependsOn"_hs);
-			if (dependsOn == 0)
+			const HashMap<StringID, uint32>& posDepends = field->GetPositiveDependencies();
+			const HashMap<StringID, uint32>& negDepends = field->GetNegativeDependencies();
+
+			if (posDepends.size() == 0 && negDepends.size() == 0)
 				continue;
 
 			Widget* current = owner->FindChildWithUserdata(field);
 			if (current == nullptr)
 				continue;
 
-			Widget* w = owner->FindChildWithUserdata(meta.GetField(dependsOn));
+			for (auto [sid, val] : posDepends)
+			{
+				FieldBase* depSrc = meta.GetField(sid);
 
-			if (w == nullptr)
-				continue;
+				void* valPtr = depSrc->Value(obj).GetPtr();
+				current->AddPreTickHook([valPtr, val, current](float delta) {
+					const uint32 depVal = *static_cast<uint32*>(valPtr);
 
-			// Remove from original, add to the widget of the source of dependency
-			// current->GetParent()->RemoveChild(current);
-			// w->AddChild(current);
+					if (depVal == val && current->GetFlags().IsSet(WF_HIDE))
+						current->GetFlags().Remove(WF_HIDE);
+					else if (depVal != val && !current->GetFlags().IsSet(WF_HIDE))
+						current->GetFlags().Set(WF_HIDE);
+				});
+			}
 		}
 	}
 } // namespace Lina::Editor

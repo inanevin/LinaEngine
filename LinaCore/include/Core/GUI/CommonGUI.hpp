@@ -86,7 +86,8 @@ namespace Lina
 		WF_FOREGROUND_BLOCKER	 = 1 << 17,
 		WF_MOUSE_PASSTHRU		 = 1 << 18,
 		WF_KEY_PASSTHRU			 = 1 << 19,
-		WF_SKIP_FLOORING		 = 1 << 20,
+        WF_SKIP_FLOORING         = 1 << 20,
+		WF_HIDE		 = 1 << 21,
 	};
 
 	LINA_CLASS_BEGIN(WidgetFlags)
@@ -110,7 +111,8 @@ namespace Lina
 	LINA_PROPERTY_STRING(WidgetFlags, "17", "Foreground Blocker")
 	LINA_PROPERTY_STRING(WidgetFlags, "18", "Mouse Passthrough")
 	LINA_PROPERTY_STRING(WidgetFlags, "19", "Key Passthrough")
-	LINA_PROPERTY_STRING(WidgetFlags, "20", "Skip Flooring")
+    LINA_PROPERTY_STRING(WidgetFlags, "20", "Skip Flooring")
+	LINA_PROPERTY_STRING(WidgetFlags, "21", "Hide")
 	LINA_CLASS_END(WidgetFlags)
 
 	enum class Anchor

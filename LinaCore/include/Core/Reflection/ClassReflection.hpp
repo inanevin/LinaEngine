@@ -208,8 +208,10 @@ namespace Lina
 
 #define LINA_FIELD_TOOLTIP(ClassName, FieldName, TOOLTIP) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);
 
-#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON)	  Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), TO_SIDC(DEPENDSON));
-#define LINA_FIELD_DEPENDSON_NEG(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOnNeg"), TO_SIDC(DEPENDSON));
+#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), TO_SIDC(DEPENDSON));
+
+#define LINA_FIELD_DEPENDENCY_POS(ClassName, FieldName, Dependency, Value) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddPositiveDependency(TO_SIDC(Dependency), Value);
+#define LINA_FIELD_DEPENDENCY_NEG(ClassName, FieldName, Dependency, Value) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddNegativeDependency(TO_SIDC(Dependency), Value);
 
 #define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX, STEP)                                                                                                                                                                                                    \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Min"), MIN);                                                                                                                               \
