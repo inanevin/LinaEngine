@@ -38,148 +38,145 @@ SOFTWARE.
 
 namespace Lina
 {
-class SystemEventDispatcher;
-class ReflectionClassUtility
-{
-public:
-    template <typename T> static inline void* REF_CreateComponentCacheFunc(EntityWorld* world, GameEventDispatcher* dispatcher)
-    {
-        Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>(world, dispatcher);
-        return static_cast<void*>(c);
-    }
-    
-    template <typename T> static inline uint32 REF_GetVectorSize(void* ptr)
-    {
-        Vector<T>* vec = static_cast<Vector<T>*>(ptr);
-        return static_cast<uint32>(vec->size());
-    }
-    
-    template <typename T> static inline void REF_ClearVector(void* ptr)
-    {
-        Vector<T>* vec = static_cast<Vector<T>*>(ptr);
-        vec->clear();
-    }
-    
-    template <typename T> static inline void* REF_GetVectorElementAddr(void* ptr, int32 index)
-    {
-        Vector<T>* vec = static_cast<Vector<T>*>(ptr);
-        return &(*vec)[index];
-    }
-    
-    template <typename T> static inline void REF_AddNewVectorElement(void* ptr)
-    {
-        Vector<T>* vec = static_cast<Vector<T>*>(ptr);
-        vec->push_back(T());
-    }
-    
-    template <typename T> static inline void REF_RemoveVectorElement(void* ptr, int32 index)
-    {
-        Vector<T>* vec = static_cast<Vector<T>*>(ptr);
-        vec->erase(vec->begin() + index);
-    }
-    
-    template <typename T> static inline void REF_DuplicateVectorElement(void* ptr, int32 index)
-    {
-        Vector<T>* vec = static_cast<Vector<T>*>(ptr);
-        vec->insert(vec->begin() + index + 1, vec->at(index));
-    }
-    
-    template <typename T> static inline void* REF_CreateWidgetCacheFunc()
-    {
-        Lina::WidgetCache<T>* c = new Lina::WidgetCache<T>();
-        return static_cast<void*>(c);
-    }
-    
-    template <typename T> static inline void* REF_CreateResourceCacheFunc()
-    {
-        Lina::ResourceCache<T>* c = new Lina::ResourceCache<T>();
-        return static_cast<void*>(c);
-    }
-    
-    template <typename T> static inline void* REF_CreateFunc()
-    {
-        T* c = new T();
-        return static_cast<void*>(c);
-    }
-    
-    template <typename T> static inline void REF_DestroyFunc(void* ptr)
-    {
-        T* obj = static_cast<T*>(ptr);
-        delete obj;
-    }
-};
+	class SystemEventDispatcher;
+	class ReflectionClassUtility
+	{
+	public:
+		template <typename T> static inline void* REF_CreateComponentCacheFunc(EntityWorld* world, GameEventDispatcher* dispatcher)
+		{
+			Lina::ComponentCache<T>* c = new Lina::ComponentCache<T>(world, dispatcher);
+			return static_cast<void*>(c);
+		}
+
+		template <typename T> static inline uint32 REF_GetVectorSize(void* ptr)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			return static_cast<uint32>(vec->size());
+		}
+
+		template <typename T> static inline void REF_ClearVector(void* ptr)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->clear();
+		}
+
+		template <typename T> static inline void* REF_GetVectorElementAddr(void* ptr, int32 index)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			return &(*vec)[index];
+		}
+
+		template <typename T> static inline void REF_AddNewVectorElement(void* ptr)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->push_back(T());
+		}
+
+		template <typename T> static inline void REF_RemoveVectorElement(void* ptr, int32 index)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->erase(vec->begin() + index);
+		}
+
+		template <typename T> static inline void REF_DuplicateVectorElement(void* ptr, int32 index)
+		{
+			Vector<T>* vec = static_cast<Vector<T>*>(ptr);
+			vec->insert(vec->begin() + index + 1, vec->at(index));
+		}
+
+		template <typename T> static inline void* REF_CreateWidgetCacheFunc()
+		{
+			Lina::WidgetCache<T>* c = new Lina::WidgetCache<T>();
+			return static_cast<void*>(c);
+		}
+
+		template <typename T> static inline void* REF_CreateResourceCacheFunc()
+		{
+			Lina::ResourceCache<T>* c = new Lina::ResourceCache<T>();
+			return static_cast<void*>(c);
+		}
+
+		template <typename T> static inline void* REF_CreateFunc()
+		{
+			T* c = new T();
+			return static_cast<void*>(c);
+		}
+
+		template <typename T> static inline void REF_DestroyFunc(void* ptr)
+		{
+			T* obj = static_cast<T*>(ptr);
+			delete obj;
+		}
+	};
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x)	 STRINGIFY(x)
 
 #define LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                      \
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                                      \
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                                      \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Category"), CATEGORY);
 
 #define LINA_REFLECTCLASS_BEGIN(ClassName, TITLE)                                                                                                                                                                                                                  \
-class ClassName##_LinaReflected                                                                                                                                                                                                                                \
-{                                                                                                                                                                                                                                                              \
-public:                                                                                                                                                                                                                                                        \
-ClassName##_LinaReflected()                                                                                                                                                                                                                                \
-{                                                                                                                                                                                                                                                          \
-static bool reflected = false;                                                                                                                                                                                                                         \
-if (reflected)                                                                                                                                                                                                                                         \
-return;                                                                                                                                                                                                                                            \
-reflected = true;                                                                                                                                                                                                                                      \
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                              \
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<ClassName>));                                                                                    \
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<ClassName>, std::placeholders::_1));
+	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		ClassName##_LinaReflected()                                                                                                                                                                                                                                \
+		{                                                                                                                                                                                                                                                          \
+			static bool reflected = false;                                                                                                                                                                                                                         \
+			if (reflected)                                                                                                                                                                                                                                         \
+				return;                                                                                                                                                                                                                                            \
+			reflected = true;                                                                                                                                                                                                                                      \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                              \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<ClassName>));                                                                                    \
+			Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<ClassName>, std::placeholders::_1));
 
-#define LINA_REFLECTSUBCLASS_BEGIN(ClassName, TYPE, TITLE)                                                                                                                                                                                                                  \
-class ClassName##_LinaReflected                                                                                                                                                                                                                                \
-{                                                                                                                                                                                                                                                              \
-public:                                                                                                                                                                                                                                                        \
-ClassName##_LinaReflected()                                                                                                                                                                                                                                \
-{                                                                                                                                                                                                                                                          \
-static bool reflected = false;                                                                                                                                                                                                                         \
-if (reflected)                                                                                                                                                                                                                                         \
-return;                                                                                                                                                                                                                                            \
-reflected = true;                                                                                                                                                                                                                                      \
-Lina::ReflectionSystem::Get().Meta<TYPE>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                              \
-Lina::ReflectionSystem::Get().Meta<TYPE>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<TYPE>));                                                                                    \
-Lina::ReflectionSystem::Get().Meta<TYPE>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<TYPE>, std::placeholders::_1));
+#define LINA_REFLECTSUBCLASS_BEGIN(ClassName, TYPE, TITLE)                                                                                                                                                                                                         \
+	class ClassName##_LinaReflected                                                                                                                                                                                                                                \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		ClassName##_LinaReflected()                                                                                                                                                                                                                                \
+		{                                                                                                                                                                                                                                                          \
+			static bool reflected = false;                                                                                                                                                                                                                         \
+			if (reflected)                                                                                                                                                                                                                                         \
+				return;                                                                                                                                                                                                                                            \
+			reflected = true;                                                                                                                                                                                                                                      \
+			Lina::ReflectionSystem::Get().Meta<TYPE>().AddProperty<Lina::String>(Lina::TO_SIDC("Title"), TITLE);                                                                                                                                                   \
+			Lina::ReflectionSystem::Get().Meta<TYPE>().AddFunction<void*()>(Lina::TO_SIDC("Create"), std::bind(&Lina::ReflectionClassUtility::REF_CreateFunc<TYPE>));                                                                                              \
+			Lina::ReflectionSystem::Get().Meta<TYPE>().AddFunction<void(void* ptr)>(Lina::TO_SIDC("Delete"), std::bind(&Lina::ReflectionClassUtility::REF_DestroyFunc<TYPE>, std::placeholders::_1));
 
+#define LINA_CLASS_BEGIN(ClassName)                                                                                                                                                                                                                                \
+	class ClassName##_Reflected                                                                                                                                                                                                                                    \
+	{                                                                                                                                                                                                                                                              \
+	public:                                                                                                                                                                                                                                                        \
+		ClassName##_Reflected()                                                                                                                                                                                                                                    \
+		{                                                                                                                                                                                                                                                          \
+			static bool reflected = false;                                                                                                                                                                                                                         \
+			if (reflected)                                                                                                                                                                                                                                         \
+				return;                                                                                                                                                                                                                                            \
+			reflected = true;
 
-#define LINA_CLASS_BEGIN(ClassName) \
-class ClassName##_Reflected { \
-    public: \
-ClassName##_Reflected(){\
-static bool reflected = false;\
-if (reflected)\
-return;\
-reflected = true;
+#define LINA_CLASS_END(ClassName)                                                                                                                                                                                                                                  \
+	}                                                                                                                                                                                                                                                              \
+	}                                                                                                                                                                                                                                                              \
+	;                                                                                                                                                                                                                                                              \
+	inline static ClassName##_Reflected ClassName##__ = ClassName##_Reflected();
 
-#define LINA_CLASS_END(ClassName)\
-\
-}                                                                                                                                                                                                                                                              \
-}                                                                                                                                                                                                                                                              \
-;                                                                                                                                                                                                                                                              \
-inline static ClassName##_Reflected ClassName##__ = ClassName##_Reflected();
+#define LINA_WIDGET_BEGIN(ClassName, Category)                                                                                                                                                                                                                     \
+	LINA_CLASS_BEGIN(ClassName)                                                                                                                                                                                                                                    \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateWidgetCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateWidgetCacheFunc<ClassName>));                                                                      \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<uint32>("WidgetIdent"_hs, 0);                                                                                                                                                                      \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Title"_hs, TOSTRING(ClassName));                                                                                                                                                    \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Category"_hs, TOSTRING(Category));
 
-#define LINA_WIDGET_BEGIN(ClassName, Category) \
-LINA_CLASS_BEGIN(ClassName) \
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateWidgetCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateWidgetCacheFunc<ClassName>));\
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<uint32>("WidgetIdent"_hs, 0);\
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Title"_hs, TOSTRING(ClassName));\
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>("Category"_hs, TOSTRING(Category));
+	/*
+	 LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
+	 Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(EntityWorld * w, GameEventDispatcher * dispatcher)>(                                                                                                                                 \
+	 Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1, std::placeholders::_2));
+	 */
 
-
-/*
- LINA_REFLECTHELPER_ADDCLASSCOMPPROPERTIES(ClassName, TITLE, CATEGORY)                                                                                                                                                                                  \
- Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*(EntityWorld * w, GameEventDispatcher * dispatcher)>(                                                                                                                                 \
- Lina::TO_SIDC("CreateCompCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateComponentCacheFunc<ClassName>, std::placeholders::_1, std::placeholders::_2));
- */
-
-#define LINA_RESOURCE_BEGIN(ClassName) \
-LINA_CLASS_BEGIN(ClassName) \
-Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateResourceCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateResourceCacheFunc<ClassName>));
-
-
+#define LINA_RESOURCE_BEGIN(ClassName)                                                                                                                                                                                                                             \
+	LINA_CLASS_BEGIN(ClassName)                                                                                                                                                                                                                                    \
+	Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SIDC("CreateResourceCache"), std::bind(&Lina::ReflectionClassUtility::REF_CreateResourceCacheFunc<ClassName>));
 
 /* PROPERTIES AND FUNCTIONS PER REFLECTED CLASS*/
 #define LINA_FIELD(ClassName, FieldName, TITLE, TYPE, SUBTYPE)                                                                                                                                                                                                     \
@@ -203,12 +200,15 @@ Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SI
 		.GetField(sid_##FieldName)                                                                                                                                                                                                                                 \
 		->AddFunction<void(void*, int32)>("DuplicateElement"_hs, std::bind(&Lina::ReflectionClassUtility::REF_DuplicateVectorElement<SUBTYPE>, std::placeholders::_1, std::placeholders::_2));                                                                     \
 	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<void(void*, int32)>("RemoveElement"_hs, std::bind(&Lina::ReflectionClassUtility::REF_RemoveVectorElement<SUBTYPE>, std::placeholders::_1, std::placeholders::_2));      \
-    Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<void(void*)>("ClearVector"_hs, std::bind(&Lina::ReflectionClassUtility::REF_ClearVector<SUBTYPE>, std::placeholders::_1)); \
-	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<void*(void*, int32 index)>("GetElementAddr"_hs, std::bind(&Lina::ReflectionClassUtility::REF_GetVectorElementAddr<SUBTYPE>, std::placeholders::_1, std::placeholders::_2));
+	Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddFunction<void(void*)>("ClearVector"_hs, std::bind(&Lina::ReflectionClassUtility::REF_ClearVector<SUBTYPE>, std::placeholders::_1));                                              \
+	Lina::ReflectionSystem::Get()                                                                                                                                                                                                                                  \
+		.Meta<ClassName>()                                                                                                                                                                                                                                         \
+		.GetField(sid_##FieldName)                                                                                                                                                                                                                                 \
+		->AddFunction<void*(void*, int32 index)>("GetElementAddr"_hs, std::bind(&Lina::ReflectionClassUtility::REF_GetVectorElementAddr<SUBTYPE>, std::placeholders::_1, std::placeholders::_2));
 
 #define LINA_FIELD_TOOLTIP(ClassName, FieldName, TOOLTIP) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::String>(Lina::TO_SIDC("Tooltip"), TOOLTIP);
 
-#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), TO_SIDC(DEPENDSON));
+#define LINA_FIELD_DEPENDSON(ClassName, FieldName, DEPENDSON)	  Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOn"), TO_SIDC(DEPENDSON));
 #define LINA_FIELD_DEPENDSON_NEG(ClassName, FieldName, DEPENDSON) Lina::ReflectionSystem::Get().Meta<ClassName>().GetField(sid_##FieldName)->AddProperty<Lina::StringID>(Lina::TO_SIDC("DependsOnNeg"), TO_SIDC(DEPENDSON));
 
 #define LINA_FIELD_LIMITS(ClassName, FieldName, MIN, MAX, STEP)                                                                                                                                                                                                    \
@@ -218,8 +218,7 @@ Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SI
 
 #define LINA_PROPERTY_STRING(ClassName, PropertyName, VALUE) Lina::ReflectionSystem::Get().Meta<ClassName>().AddProperty<Lina::String>(Lina::TO_SIDC(TO_SIDC(PropertyName)), VALUE);
 
-
-#define LINA_REFLECTION_ACCESS(ClassName)	 friend class ClassName##_Reflected;
+#define LINA_REFLECTION_ACCESS(ClassName) friend class ClassName##_Reflected;
 
 	// static const ClassName##....
 
@@ -236,11 +235,10 @@ Lina::ReflectionSystem::Get().Meta<ClassName>().AddFunction<void*()>(Lina::TO_SI
 	LINA_PROPERTY_STRING(DirectionOrientation, "1", "Vertical")
 	LINA_CLASS_END(DirectionOrientation)
 
-    LINA_CLASS_BEGIN(LinaVGAlignment)
-    LINA_PROPERTY_STRING(LinaVG::TextAlignment, "0", "Left")
-    LINA_PROPERTY_STRING(LinaVG::TextAlignment, "1", "Center")
-    LINA_PROPERTY_STRING(LinaVG::TextAlignment, "2", "Right")
-    LINA_CLASS_END(LinaVGAlignment)
-  
+	LINA_CLASS_BEGIN(LinaVGAlignment)
+	LINA_PROPERTY_STRING(LinaVG::TextAlignment, "0", "Left")
+	LINA_PROPERTY_STRING(LinaVG::TextAlignment, "1", "Center")
+	LINA_PROPERTY_STRING(LinaVG::TextAlignment, "2", "Right")
+	LINA_CLASS_END(LinaVGAlignment)
 
 } // namespace Lina
