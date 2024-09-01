@@ -78,13 +78,13 @@ namespace Lina::Editor
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-            stream << m_props;
+			stream << m_props;
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-            stream >> m_props;
+			stream >> m_props;
 		}
 
 	private:

@@ -423,14 +423,14 @@ namespace Lina
 
 	void DirectionalLayout::Properties::SaveToStream(OStream& stream) const
 	{
-        stream << mode << direction << colorBorder << colorBorderHovered;
+		stream << mode << direction << colorBorder << colorBorderHovered;
 		stream << borderThickness;
 		stream << borderMinSize;
 	}
 
 	void DirectionalLayout::Properties::LoadFromStream(IStream& stream)
 	{
-        stream >> mode >> direction >> colorBorder >> colorBorderHovered;
+		stream >> mode >> direction >> colorBorder >> colorBorderHovered;
 		stream >> borderThickness;
 		stream >> borderMinSize;
 	}

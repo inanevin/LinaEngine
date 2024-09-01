@@ -49,12 +49,12 @@ namespace Lina
 
 	void WidgetComponent::SaveToStream(OStream& stream) const
 	{
-        stream << m_targetWidget;
+		stream << m_targetWidget;
 	}
 
 	void WidgetComponent::LoadFromStream(IStream& stream)
 	{
-        stream >> m_targetWidget;
+		stream >> m_targetWidget;
 	}
 
 	void WidgetComponent::PreTick()
