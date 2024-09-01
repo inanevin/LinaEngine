@@ -30,6 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/Vector.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 
 namespace Lina
@@ -54,6 +55,30 @@ namespace Lina::Editor
 			float						   iconScale	  = 0.5f;
 			float						   topRounding	  = 0.0f;
 			float						   bottomRounding = 0.0f;
+
+			void SaveToStream(OStream& stream) const
+			{
+				stream << selected << iconScale << topRound << bottomRounding;
+				stream << static_cast<uint32>(icons.size());
+				stream << static_cast<uint32>(tooltips.size());
+				for (const String& str : icons)
+					StringSerialization::SaveToStream(stream, str);
+				for (const String& str : tooltips)
+					StringSerialization::SaveToStream(stream, str);
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> selected >> iconScale >> topRound >> bottomRounding;
+				uint32 iconsSz = 0, tooltipsSz = 0;
+				stream >> iconsSz >> tooltipsSz;
+				icons.resize(iconsSz);
+				tooltips.resize(tooltipsSz);
+				for (uint32 i = 0; i < iconsSz; i++)
+					StringSerialization::LoadFromStream(stream, icons[i]);
+				for (uint32 i = 0; i < tooltipsSz; i++)
+					StringSerialization::LoadFromStream(stream, tooltips[i]);
+			}
 		};
 
 		virtual void Initialize() override;
@@ -61,6 +86,18 @@ namespace Lina::Editor
 		inline TabProperties& GetTabProps()
 		{
 			return m_tabProps;
+		}
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
 		}
 
 	private:

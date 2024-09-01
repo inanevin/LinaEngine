@@ -47,6 +47,14 @@ namespace Lina::Editor
 			Delegate<void(void* userData)> onTabClosed;
 			Delegate<void(void* userData)> onTabDockedOut;
 			Delegate<void(void* userData)> onTabSelected;
+
+			void SaveToStream(OStream& stream) const
+			{
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+			}
 		};
 
 		virtual void PreTick() override;
@@ -70,6 +78,18 @@ namespace Lina::Editor
 		inline bool GetCanCloseTabs() const
 		{
 			return m_canCloseTabs;
+		}
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
 		}
 
 	private:

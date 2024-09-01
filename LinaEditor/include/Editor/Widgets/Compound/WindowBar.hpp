@@ -29,6 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina::Editor
 {
@@ -44,6 +45,20 @@ namespace Lina::Editor
 			bool   controlsDragRect = false;
 			String title			= "";
 			String icon				= "";
+
+			void SaveToStream(OStream& stream) const
+			{
+				StringSerialization::SaveToStream(stream, title);
+				StringSerialization::SaveToStream(stream, icon);
+				stream << hasWindowButtons << controlsDragRect;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				StringSerialization::LoadFromStream(stream, title);
+				StringSerialization::LoadFromStream(stream, icon);
+				stream >> hasWindowButtons >> controlsDragRect;
+			}
 		};
 
 		virtual void Construct() override;
@@ -59,6 +74,18 @@ namespace Lina::Editor
 		inline BarProperties& GetBarProps()
 		{
 			return m_barProps;
+		}
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
 		}
 
 	private:

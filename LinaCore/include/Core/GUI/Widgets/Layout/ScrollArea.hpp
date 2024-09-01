@@ -43,12 +43,33 @@ namespace Lina
 			bool				 _fold				= false;
 			DirectionOrientation direction			= DirectionOrientation::Horizontal;
 			Color				 colorBarBackground = Theme::GetDef().background2;
-			Color				 colorBarStart		= Theme::GetDef().accentPrimary1;
-			Color				 colorBarEnd		= Theme::GetDef().accentPrimary0;
+			ColorGrad			 colorBar			= {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
 			Color				 colorHovered		= Theme::GetDef().accentPrimary2;
 			Color				 colorPressed		= Theme::GetDef().accentPrimary1;
 			float				 barRounding		= Theme::GetDef().baseRounding * 2;
 			float				 barThickness		= Theme::GetDef().baseItemHeight / 2;
+
+			void SaveToStream(OStream& stream) const
+			{
+				stream << static_cast<uint8>(direction);
+				colorBarBackground.SaveToStream(stream);
+				colorBar.SaveToStream(stream);
+				colorHovered.SaveToStream(stream);
+				colorPressed.SaveToStream(stream);
+				stream << barRounding << barThickness;
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				uint8 dir = 0;
+				stream >> dir;
+				direction = static_cast<DirectionOrientation>(dir);
+				colorBarBackground.LoadFromStream(stream);
+				colorBar.LoadFromStream(stream);
+				colorHovered.LoadFromStream(stream);
+				colorPressed.LoadFromStream(stream);
+				stream >> barRounding >> barThickness;
+			}
 		};
 
 		virtual void Tick(float delta) override;
@@ -57,6 +78,18 @@ namespace Lina
 		virtual bool OnMouseWheel(float amt) override;
 		void		 ScrollToChild(Widget* w);
 		bool		 IsBarHovered();
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
 
 		inline Properties& GetProps()
 		{

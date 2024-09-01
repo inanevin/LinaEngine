@@ -45,8 +45,7 @@ namespace Lina::Editor
 	public:
 		struct Props
 		{
-			float tweenTime = 0.15f;
-			;
+			float tweenTime		= 0.15f;
 			float waitTime		= 0.1f;
 			float dispersePower = 0.2f;
 		};

@@ -62,6 +62,26 @@ namespace Lina::Editor
 			ColorGrad					   colorUnfocused		  = {Theme::GetDef().silent0, Theme::GetDef().silent1};
 			bool						   hoverAcceptItemParents = false;
 			PayloadType					   payloadType			  = PayloadType::None;
+
+			void SaveToStream(OStream& stream) const
+			{
+				colorDeadItem.SaveToStream(stream);
+				colorSelected.SaveToStream(stream);
+				colorUnfocused.SaveToStream(stream);
+				stream << hoverAcceptItemParents;
+				stream << static_cast<uint8>(payloadType);
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				colorDeadItem.LoadFromStream(stream);
+				colorSelected.LoadFromStream(stream);
+				colorUnfocused.LoadFromStream(stream);
+				stream >> hoverAcceptItemParents;
+				uint8 payload = 0;
+				stream >> payload;
+				payloadType = static_cast<PayloadType>(payload);
+			}
 		};
 
 		virtual void			Construct() override;
@@ -90,6 +110,18 @@ namespace Lina::Editor
 		Widget* GetItem(void* userdata);
 		void	UnselectAll();
 		void	MakeVisibleRecursively(Widget* w);
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
+		}
 
 		inline Properties& GetProps()
 		{

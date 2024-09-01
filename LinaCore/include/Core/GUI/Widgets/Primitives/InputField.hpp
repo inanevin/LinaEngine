@@ -82,7 +82,6 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-
 				colorHighlight.SaveToStream(stream);
 				colorCaret.SaveToStream(stream);
 				colorNumberFillStart.SaveToStream(stream);

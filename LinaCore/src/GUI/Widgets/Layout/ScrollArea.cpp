@@ -146,8 +146,7 @@ namespace Lina
 			barOpts.color = m_props.colorHovered.AsLVG4();
 		else
 		{
-			barOpts.color.start		   = m_props.colorBarStart.AsLVG4();
-			barOpts.color.end		   = m_props.colorBarEnd.AsLVG4();
+			barOpts.color			   = m_props.colorBar.AsLVG();
 			barOpts.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		}
 

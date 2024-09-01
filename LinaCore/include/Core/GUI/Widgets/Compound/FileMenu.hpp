@@ -111,6 +111,14 @@ namespace Lina
 		struct FileMenuProperties
 		{
 			Vector<String> buttons;
+
+			void SaveToStream(OStream& stream) const
+			{
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+			}
 		};
 
 		virtual void	   Construct() override;

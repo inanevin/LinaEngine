@@ -32,6 +32,7 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Common/Common.hpp"
 #include "Common/Tween/Tween.hpp"
+#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -62,6 +63,18 @@ namespace Lina::Editor
 			float  desiredX		   = 0.0f;
 			bool   fixedTab		   = false;
 			String title		   = "";
+
+			void SaveToStream(OStream& stream) const
+			{
+				stream << isSelected << disableMovement << desiredX << fixedTab;
+				StringSerialization::SaveToStream(stream, title);
+			}
+
+			void LoadFromStream(IStream& stream)
+			{
+				stream >> isSelected >> disableMovement >> desiredX >> fixedTab;
+				StringSerialization::LoadFromStream(stream, title);
+			}
 		};
 
 		virtual void Construct() override;
@@ -86,6 +99,18 @@ namespace Lina::Editor
 		inline Icon* GetIcon() const
 		{
 			return m_icon;
+		}
+
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+			m_props.SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+			m_props.LoadFromStream(stream);
 		}
 
 	private:

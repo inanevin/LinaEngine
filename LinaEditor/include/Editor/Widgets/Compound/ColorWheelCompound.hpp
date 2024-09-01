@@ -74,6 +74,16 @@ namespace Lina::Editor
 			return m_editedColor;
 		}
 
+		virtual void SaveToStream(OStream& stream) const override
+		{
+			Widget::SaveToStream(stream);
+		}
+
+		virtual void LoadFromStream(IStream& stream) override
+		{
+			Widget::LoadFromStream(stream);
+		}
+
 	private:
 		struct ColorComponent
 		{

@@ -60,7 +60,6 @@ include/Editor/Widgets/Docking/DockArea.hpp
 include/Editor/Widgets/Docking/DockBorder.hpp
 include/Editor/Widgets/Docking/DockWidget.hpp
 include/Editor/Widgets/Docking/DockPreview.hpp
-include/Editor/Widgets/Gizmo/Gizmo.hpp
 include/Editor/Widgets/Screens/SplashScreen.hpp
 include/Editor/Widgets/Popups/ProjectSelector.hpp
 include/Editor/Widgets/Popups/NotificationDisplayer.hpp
@@ -128,7 +127,6 @@ src/Widgets/Docking/DockWidget.cpp
 src/Widgets/Docking/DockBorder.cpp
 src/Widgets/Docking/DockArea.cpp
 src/Widgets/Docking/DockPreview.cpp
-src/Widgets/Gizmo/Gizmo.cpp
 src/Widgets/Screens/SplashScreen.cpp
 src/Widgets/Popups/ProjectSelector.cpp
 src/Widgets/Popups/NotificationDisplayer.cpp
