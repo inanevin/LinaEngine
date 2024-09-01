@@ -137,10 +137,8 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_id;
-
+		stream >> m_meta;
 		DestroySW();
-
-		m_meta.LoadFromStream(stream);
 
 		stream >> m_bytesPerPixel;
 
@@ -176,7 +174,7 @@ namespace Lina
 	{
 		stream << VERSION;
 		stream << m_id;
-		m_meta.SaveToStream(stream);
+		stream << m_meta;
 		stream << m_bytesPerPixel;
 
 		const uint32 allLevels = static_cast<uint32>(m_allLevels.size());

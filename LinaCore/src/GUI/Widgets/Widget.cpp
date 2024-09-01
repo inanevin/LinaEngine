@@ -346,27 +346,29 @@ namespace Lina
 
 	void DropshadowProps::SaveToStream(OStream& stream) const
 	{
+		stream << static_cast<uint32>(DS_VERSION);
 		stream << enabled << isInner;
 		stream << margin << thickness << rounding << drawOrderIncrement << steps;
-		color.SaveToStream(stream);
-		stream << static_cast<uint8>(direction);
-		VectorSerialization::SaveToStream_PT(stream, onlyRound);
+		stream << color;
+		stream << direction;
+		stream << onlyRound;
 	}
 
-	void DropshadowProps::LoadFromStream(IStream& stream, uint32 version)
+	void DropshadowProps::LoadFromStream(IStream& stream)
 	{
+		uint32 version = 0;
+		stream >> version;
 		stream >> enabled >> isInner;
 		stream >> margin >> thickness >> rounding >> drawOrderIncrement >> steps;
-		color.LoadFromStream(stream);
-		uint8 dir = 0;
-		stream >> dir;
-		direction = static_cast<Direction>(dir);
-		VectorSerialization::LoadFromStream_PT(stream, onlyRound);
+		stream >> color;
+		stream >> direction;
+		stream >> onlyRound;
 	}
 
 	void WidgetProps::SaveToStream(OStream& stream) const
 	{
-		dropshadow.SaveToStream(stream);
+		stream << static_cast<uint32>(WIDGETPROPS_VERSION);
+		stream << dropshadow;
 		stream << clipChildren << customClip << drawBackground << backgroundIsCentralGradient;
 		stream << interpolateColor << fitTexture << hoveredIsDifferentColor << pressedIsDifferentColor;
 		stream << activeTextureTiling << useSpecialTexture << outlineIsInner;
@@ -376,23 +378,25 @@ namespace Lina
 		stream << debugName;
 		stream << childMargins.top << childMargins.bottom << childMargins.left << childMargins.right;
 		stream << borderThickness.top << borderThickness.bottom << borderThickness.left << borderThickness.right;
-		colorBorders.SaveToStream(stream);
-		colorBackground.SaveToStream(stream);
-		colorOutline.SaveToStream(stream);
-		colorOutlineControls.SaveToStream(stream);
-		colorHovered.SaveToStream(stream);
-		colorPressed.SaveToStream(stream);
-		colorDisabled.SaveToStream(stream);
-		stream << static_cast<uint8>(colorBackgroundDirection);
+		stream << colorBorders;
+		stream << colorBackground;
+		stream << colorOutline;
+		stream << colorOutlineControls;
+		stream << colorHovered;
+		stream << colorPressed;
+		stream << colorDisabled;
+		stream << colorBackgroundDirection;
 		stream << specialTexture;
-		textureTiling.SaveToStream(stream);
-		VectorSerialization::SaveToStream_PT(stream, onlyRound);
-		customClipRect.SaveToStream(stream);
+		stream << textureTiling;
+		stream << onlyRound;
+		stream << customClipRect;
 	}
 
-	void WidgetProps::LoadFromStream(IStream& stream, uint32 version)
+	void WidgetProps::LoadFromStream(IStream& stream)
 	{
-		dropshadow.LoadFromStream(stream, version);
+		uint32 version = 0;
+		stream >> version;
+		stream >> dropshadow;
 		stream >> clipChildren >> customClip >> drawBackground >> backgroundIsCentralGradient;
 		stream >> interpolateColor >> fitTexture >> hoveredIsDifferentColor >> pressedIsDifferentColor;
 		stream >> activeTextureTiling >> useSpecialTexture >> outlineIsInner;
@@ -402,39 +406,34 @@ namespace Lina
 		stream >> debugName;
 		stream >> childMargins.top >> childMargins.bottom >> childMargins.left >> childMargins.right;
 		stream >> borderThickness.top >> borderThickness.bottom >> borderThickness.left >> borderThickness.right;
-		colorBorders.LoadFromStream(stream);
-		colorBackground.LoadFromStream(stream);
-		colorOutline.LoadFromStream(stream);
-		colorOutlineControls.LoadFromStream(stream);
-		colorHovered.LoadFromStream(stream);
-		colorPressed.LoadFromStream(stream);
-		colorDisabled.LoadFromStream(stream);
-		uint8 bgDir = 0;
-		stream >> bgDir;
-		colorBackgroundDirection = static_cast<DirectionOrientation>(bgDir);
+		stream >> colorBorders;
+		stream >> colorBackground;
+		stream >> colorOutline;
+		stream >> colorOutlineControls;
+		stream >> colorHovered;
+		stream >> colorPressed;
+		stream >> colorDisabled;
+		stream >> colorBackgroundDirection;
 		stream >> specialTexture;
-		textureTiling.LoadFromStream(stream);
-		VectorSerialization::LoadFromStream_PT(stream, onlyRound);
-		customClipRect.LoadFromStream(stream);
+		stream >> textureTiling;
+		stream >> onlyRound;
+		stream >> customClipRect;
 	}
 
 	void Widget::SaveToStream(OStream& stream) const
 	{
 		stream << static_cast<uint32>(WIDGET_VERSION);
 		stream << m_tid;
-		m_widgetProps.SaveToStream(stream);
-		m_flags.SaveToStream(stream);
-		m_rect.SaveToStream(stream);
-		m_alignedPos.SaveToStream(stream);
-		m_alignedSize.SaveToStream(stream);
-		m_fixedSize.SaveToStream(stream);
-
-		stream << static_cast<uint8>(m_anchorX) << static_cast<uint8>(m_anchorY);
+		stream << m_widgetProps;
+		stream << m_flags;
+		stream << m_rect;
+		stream << m_alignedPos;
+		stream << m_alignedSize;
+		stream << m_fixedSize;
+		stream << m_anchorX << m_anchorY;
 
 		const uint32 childSz = static_cast<uint32>(m_children.size());
-
 		stream << childSz;
-
 		for (uint32 i = 0; i < childSz; i++)
 		{
 			auto* c = m_children[i];
@@ -445,19 +444,18 @@ namespace Lina
 
 	void Widget::LoadFromStream(IStream& stream)
 	{
+		DeallocAllChildren();
+		RemoveAllChildren();
+
 		stream >> m_loadedVersion;
 		stream >> m_tid;
-		m_widgetProps.LoadFromStream(stream, m_loadedVersion);
-		m_flags.LoadFromStream(stream);
-		m_rect.LoadFromStream(stream);
-		m_alignedPos.LoadFromStream(stream);
-		m_alignedSize.LoadFromStream(stream);
-		m_fixedSize.LoadFromStream(stream);
-
-		uint8 posAlignSourceX = 0, posAlignSourceY = 0;
-		stream >> posAlignSourceX >> posAlignSourceY;
-		m_anchorX = static_cast<Anchor>(posAlignSourceX);
-		m_anchorY = static_cast<Anchor>(posAlignSourceY);
+		stream >> m_widgetProps;
+		stream >> m_flags;
+		stream >> m_rect;
+		stream >> m_alignedPos;
+		stream >> m_alignedSize;
+		stream >> m_fixedSize;
+		stream >> m_anchorX >> m_anchorY;
 
 		uint32 childSz = 0;
 		stream >> childSz;

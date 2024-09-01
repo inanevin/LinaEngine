@@ -42,6 +42,7 @@ namespace Lina
 	public:
 		struct Properties
 		{
+			bool			 _fold = false;
 			Delegate<void()> onClicked;
 			Delegate<void()> onHoverBegin;
 			Delegate<void()> onHoverEnd;
@@ -68,13 +69,13 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-			m_props.SaveToStream(stream);
+			stream << m_props;
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-			m_props.LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 		inline Properties& GetProps()
@@ -88,6 +89,7 @@ namespace Lina
 		}
 
 	private:
+		LINA_REFLECTION_ACCESS(Button);
 		Icon*	   m_icon			 = nullptr;
 		Text*	   m_text			 = nullptr;
 		Properties m_props			 = {};
@@ -95,6 +97,11 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Button, Primitive)
+	LINA_FIELD(Button, m_props, "", "Class", GetTypeID<Button::Properties>());
 	LINA_CLASS_END(Button)
+
+	LINA_CLASS_BEGIN(ButtonProperties)
+	LINA_FIELD(Button::Properties, _fold, "Button", "Category", 0)
+	LINA_CLASS_END(ButtonProperties)
 
 } // namespace Lina

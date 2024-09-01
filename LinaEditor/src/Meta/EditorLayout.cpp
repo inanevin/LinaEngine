@@ -62,14 +62,14 @@ namespace Lina::Editor
 		m_windows.clear();
 	}
 
-	void EditorLayout::LoadFromStream(IStream& in, uint32 version)
+	void EditorLayout::LoadFromStream(IStream& stream)
 	{
-		VectorSerialization::LoadFromStream_OBJ(in, m_windows, version);
+		stream >> m_windows;
 	}
 
-	void EditorLayout::SaveToStream(OStream& out)
+	void EditorLayout::SaveToStream(OStream& stream)
 	{
-		VectorSerialization::SaveToStream_OBJ(out, m_windows);
+		stream << m_windows;
 	}
 
 	void EditorLayout::StoreDefaultLayout()

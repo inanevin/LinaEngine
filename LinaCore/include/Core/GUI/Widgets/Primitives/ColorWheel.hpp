@@ -41,6 +41,7 @@ namespace Lina
 
 		struct Properties
 		{
+			bool						 _fold		   = false;
 			float*						 hue		   = nullptr;
 			float*						 saturation	   = nullptr;
 			float						 darknessAlpha = 1.0f;
@@ -63,13 +64,13 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-			m_props.SaveToStream(stream);
+			stream << m_props;
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-			m_props.LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 		inline Properties& GetProps()
@@ -78,11 +79,18 @@ namespace Lina
 		}
 
 	private:
+		LINA_REFLECTION_ACCESS(ColorWheel);
+
 		Properties m_props		= {};
 		Icon*	   m_icon		= nullptr;
 		Vector2	   m_pointerPos = Vector2::Zero;
 	};
 
 	LINA_WIDGET_BEGIN(ColorWheel, Primitive)
+	LINA_FIELD(ColorWheel, m_props, "", "Class", GetTypeID<ColorWheel::Properties>());
 	LINA_CLASS_END(ColorWheel)
+
+	LINA_CLASS_BEGIN(ColorWheelProperties)
+	LINA_FIELD(ColorWheel::Properties, _fold, "Color Wheel", "Category", 0)
+	LINA_CLASS_END(ColorWheelProperties)
 } // namespace Lina

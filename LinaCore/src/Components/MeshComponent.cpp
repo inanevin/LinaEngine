@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Components/MeshComponent.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
+
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/Graphics/Resource/Model.hpp"
 #include "Core/Graphics/Data/ModelNode.hpp"
@@ -45,16 +45,12 @@ namespace Lina
 
 	void MeshComponent::SaveToStream(OStream& stream) const
 	{
-		m_model.SaveToStream(stream);
-		m_material.SaveToStream(stream);
-		stream << m_meshIndex;
+		stream << m_model << m_material << m_meshIndex;
 	}
 
 	void MeshComponent::LoadFromStream(IStream& stream)
 	{
-		m_model.LoadFromStream(stream);
-		m_material.LoadFromStream(stream);
-		stream >> m_meshIndex;
+		stream >> m_model >> m_material >> m_meshIndex;
 	}
 
 	void MeshComponent::SetMesh(StringID sid, uint32 meshIndex)

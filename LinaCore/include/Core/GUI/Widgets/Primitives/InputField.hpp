@@ -54,6 +54,7 @@ namespace Lina
 			Delegate<void(const String&)> onEditEnd;
 			Delegate<void(float)>		  onValueChanged;
 
+			bool   _fold				= false;
 			Color  colorHighlight		= Theme::GetDef().accentPrimary1;
 			Color  colorCaret			= Theme::GetDef().foreground0;
 			Color  colorNumberFillStart = Theme::GetDef().accentPrimary1;
@@ -81,12 +82,7 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorHighlight.SaveToStream(stream);
-				colorCaret.SaveToStream(stream);
-				colorNumberFillStart.SaveToStream(stream);
-				colorNumberFillEnd.SaveToStream(stream);
-				colorPlaceHolder.SaveToStream(stream);
-				colorTextDefault.SaveToStream(stream);
+				stream << colorHighlight << colorCaret << colorNumberFillStart << colorNumberFillEnd << colorPlaceHolder << colorTextDefault;
 				stream << placeHolderText;
 				stream << outlineThickness << horizontalIndent << usePlaceHolder << isNumberField << disableNumberSlider << clampNumber;
 				stream << valueMin << valueMax << valueStep << centerText << wrapText << clipText << decimals;
@@ -94,12 +90,7 @@ namespace Lina
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorHighlight.LoadFromStream(stream);
-				colorCaret.LoadFromStream(stream);
-				colorNumberFillStart.LoadFromStream(stream);
-				colorNumberFillEnd.LoadFromStream(stream);
-				colorPlaceHolder.LoadFromStream(stream);
-				colorTextDefault.LoadFromStream(stream);
+				stream >> colorHighlight >> colorCaret >> colorNumberFillStart >> colorNumberFillEnd >> colorPlaceHolder >> colorTextDefault;
 				stream >> outlineThickness >> horizontalIndent >> usePlaceHolder >> isNumberField >> disableNumberSlider >> clampNumber;
 				stream >> valueMin >> valueMax >> valueStep >> centerText >> wrapText >> clipText >> decimals;
 			}
@@ -195,6 +186,8 @@ namespace Lina
 		void	ClampCaretInsert();
 
 	private:
+		LINA_REFLECTION_ACCESS(InputField);
+
 		Properties m_props				  = {};
 		Text*	   m_text				  = nullptr;
 		Text*	   m_placeholderText	  = nullptr;
@@ -212,6 +205,11 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(InputField, Primitive)
+	LINA_FIELD(InputField, m_props, "", "Class", GetTypeID<InputField::Properties>());
 	LINA_CLASS_END(InputField)
+
+	LINA_CLASS_BEGIN(InputFieldProperties)
+	LINA_FIELD(InputField::Properties, _fold, "Input Field", "Category", 0)
+	LINA_CLASS_END(InputFieldProperties)
 
 } // namespace Lina

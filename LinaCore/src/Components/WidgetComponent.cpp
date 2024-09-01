@@ -31,7 +31,7 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/World/EntityWorld.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
+
 #include "Common/System/System.hpp"
 
 namespace Lina
@@ -49,12 +49,12 @@ namespace Lina
 
 	void WidgetComponent::SaveToStream(OStream& stream) const
 	{
-		m_targetWidget.SaveToStream(stream);
+        stream << m_targetWidget;
 	}
 
 	void WidgetComponent::LoadFromStream(IStream& stream)
 	{
-		m_targetWidget.LoadFromStream(stream);
+        stream >> m_targetWidget;
 	}
 
 	void WidgetComponent::PreTick()

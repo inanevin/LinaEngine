@@ -163,6 +163,61 @@ namespace Lina
 		}
 	}
 
+	template <typename Stream, typename U> void DeserializeVector(Stream& stream, Vector<U>& vec)
+	{
+		uint32 sz = 0;
+		stream >> sz;
+		vec.resize(sz);
+		if constexpr (std::is_pointer<U>::value)
+		{
+			for (uint32 i = 0; i < sz; i++)
+			{
+				using UnderlyingType = typename std::remove_pointer<U>::type;
+				vec[i]				 = new UnderlyingType();
+				vec[i]->LoadFromStream(stream);
+			}
+		}
+		else
+		{
+			for (uint32 i = 0; i < sz; i++)
+				stream >> vec[i];
+		}
+	}
+
+	template <typename Stream, typename U> void SerializeVector(Stream& stream, Vector<U>& vec)
+	{
+		const uint32 sz = static_cast<uint32>(vec.size());
+		stream << sz;
+
+		if constexpr (std::is_pointer<U>::value)
+		{
+			for (auto item : vec)
+				item->SaveToStream(stream);
+		}
+		else
+		{
+			for (auto& item : vec)
+				stream << item;
+		}
+	}
+
+	template <typename Stream, typename U> void SerializeVector(Stream& stream, const Vector<U>& vec)
+	{
+		const uint32 sz = static_cast<uint32>(vec.size());
+		stream << sz;
+
+		if constexpr (std::is_pointer<U>::value)
+		{
+			for (auto item : vec)
+				item->SaveToStream(stream);
+		}
+		else
+		{
+			for (const auto& item : vec)
+				stream << item;
+		}
+	}
+
 	template <typename T> IStream& operator>>(IStream& stream, T& val)
 	{
 		if constexpr (std::is_same_v<T, std::size_t>)
@@ -197,11 +252,7 @@ namespace Lina
 		}
 		else if constexpr (is_vector_v<T>)
 		{
-			uint32 sz = 0;
-			stream >> sz;
-			val.resize(sz);
-			for (uint32 i = 0; i < sz; i++)
-				stream >> val[i];
+			DeserializeVector(stream, val);
 		}
 		else if constexpr (is_hashmap_v<T>)
 		{
@@ -301,11 +352,7 @@ namespace Lina
 		}
 		else if constexpr (is_vector_v<T>)
 		{
-			// Handle vector
-			const uint32 sz = static_cast<uint32>(val.size());
-			stream << sz;
-			for (const auto& item : val)
-				stream << val;
+			SerializeVector(stream, val);
 		}
 		else if constexpr (is_hashmap_v<T>)
 		{
@@ -342,7 +389,7 @@ namespace Lina
 		}
 		else if constexpr (std::is_same_v<T, String>)
 		{
-			const uint32 sz = val.size();
+			const uint32 sz = static_cast<uint32>(val.size());
 			stream << sz;
 			stream.WriteRawEndianSafe((uint8*)val.data(), val.size());
 		}

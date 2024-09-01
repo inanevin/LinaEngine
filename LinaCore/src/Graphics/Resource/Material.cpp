@@ -35,7 +35,7 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 
 #include "Common/Serialization/Serialization.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
+
 #include "Common/Platform/LinaGXIncl.hpp"
 
 namespace Lina
@@ -48,7 +48,7 @@ namespace Lina
 		for (int32 i = 0; i < FRAMES_IN_FLIGHT; i++)
 		{
 			for (const auto& buf : bufferData[i].buffers)
-				buf.SaveToStream(stream);
+				stream << buf;
 		}
 
 		stream << static_cast<int32>(textures.size());
@@ -71,7 +71,7 @@ namespace Lina
 			bufferData[i].buffers.resize(buffersSz);
 
 			for (int32 j = 0; j < buffersSz; j++)
-				bufferData[i].buffers[j].LoadFromStream(stream);
+				stream >> bufferData[i].buffers[j];
 		}
 
 		textures.resize(texturesSz);
@@ -116,7 +116,7 @@ namespace Lina
 		stream << m_id;
 		stream << m_shaderSID;
 		stream << m_shaderPath;
-		VectorSerialization::SaveToStream_OBJ(stream, m_properties);
+		stream << m_properties;
 	}
 
 	void Material::LoadFromStream(IStream& stream)
@@ -126,7 +126,7 @@ namespace Lina
 		stream >> m_id;
 		stream >> m_shaderSID;
 		stream >> m_shaderPath;
-		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);
+		stream >> m_properties;
 	}
 
 	Shader* Material::GetShader(ResourceManagerV2* rm)

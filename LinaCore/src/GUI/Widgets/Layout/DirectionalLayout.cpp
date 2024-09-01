@@ -423,23 +423,14 @@ namespace Lina
 
 	void DirectionalLayout::Properties::SaveToStream(OStream& stream) const
 	{
-		stream << static_cast<uint8>(mode);
-		stream << static_cast<uint8>(direction);
-		colorBorder.SaveToStream(stream);
-		colorBorderHovered.SaveToStream(stream);
+        stream << mode << direction << colorBorder << colorBorderHovered;
 		stream << borderThickness;
 		stream << borderMinSize;
 	}
 
 	void DirectionalLayout::Properties::LoadFromStream(IStream& stream)
 	{
-		uint8 modeInt = 0, directionInt = 0;
-		stream >> modeInt;
-		stream >> directionInt;
-		mode	  = static_cast<Mode>(modeInt);
-		direction = static_cast<DirectionOrientation>(directionInt);
-		colorBorder.LoadFromStream(stream);
-		colorBorderHovered.LoadFromStream(stream);
+        stream >> mode >> direction >> colorBorder >> colorBorderHovered;
 		stream >> borderThickness;
 		stream >> borderMinSize;
 	}

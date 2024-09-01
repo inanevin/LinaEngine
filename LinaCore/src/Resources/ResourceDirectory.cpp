@@ -28,8 +28,6 @@ SOFTWARE.
 
 #include "Core/Resources/ResourceDirectory.hpp"
 
-#include "Common/Serialization/VectorSerialization.hpp"
-
 namespace Lina
 {
 
@@ -40,7 +38,7 @@ namespace Lina
 		stream << isFolder;
 		stream << resourceID;
 		stream << resourceTID;
-		VectorSerialization::SaveToStream_OBJ<ResourceDirectory>(stream, children);
+		stream << children;
 	}
 
 	void ResourceDirectory::LoadFromStream(IStream& stream)
@@ -51,7 +49,7 @@ namespace Lina
 		stream >> isFolder;
 		stream >> resourceID;
 		stream >> resourceTID;
-		VectorSerialization::LoadFromStream_OBJ<ResourceDirectory>(stream, children);
+		stream >> children;
 		for (ResourceDirectory* c : children)
 			c->parent = this;
 		SortChildren();

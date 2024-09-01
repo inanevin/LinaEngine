@@ -28,16 +28,11 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef DataStructuresIDList_HPP
-#define DataStructuresIDList_HPP
-
 #include "Vector.hpp"
 #include "Queue.hpp"
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Log/Log.hpp"
 #include "Common/Data/Streams.hpp"
-#include "Common/Serialization/QueueSerialization.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
@@ -145,24 +140,6 @@ namespace Lina
 			return m_items.data();
 		}
 
-		void SaveToStream(OStream& stream) const
-		{
-			const uint32 size = static_cast<uint32>(m_items.size());
-			stream << size;
-			stream << m_nextFreeID;
-			QueueSerialization::SaveToStream_PT(stream, m_availableIDs);
-		}
-
-		void LoadFromStream(IStream& stream)
-		{
-			Clear();
-			uint32 size = 0;
-			stream >> size;
-			stream >> m_nextFreeID;
-			QueueSerialization::LoadFromStream_PT(stream, m_availableIDs);
-			m_items.resize(size, m_defaultItem);
-		}
-
 	private:
 		T			  m_defaultItem = T();
 		Vector<T>	  m_items;
@@ -171,5 +148,3 @@ namespace Lina
 		uint32		  m_defaultStep = 250;
 	};
 } // namespace Lina
-
-#endif

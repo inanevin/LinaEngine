@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 #include "Common/FileSystem/FileSystem.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
@@ -145,7 +144,7 @@ namespace Lina
 		stream >> version;
 		stream >> m_id;
 
-		VectorSerialization::LoadFromStream_OBJ(stream, m_materials);
+		stream >> m_materials;
 
 		uint32 sz = 0;
 		stream >> sz;
@@ -168,10 +167,9 @@ namespace Lina
 		stream << VERSION;
 		stream << m_id;
 
-		VectorSerialization::SaveToStream_OBJ(stream, m_materials);
+		stream << m_materials;
 
 		stream << static_cast<uint32>(m_rootNodes.size());
-
 		for (auto* node : m_rootNodes)
 			node->SaveToStream(stream);
 	}

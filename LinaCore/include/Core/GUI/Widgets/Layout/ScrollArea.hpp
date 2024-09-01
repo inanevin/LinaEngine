@@ -51,23 +51,15 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << static_cast<uint8>(direction);
-				colorBarBackground.SaveToStream(stream);
-				colorBar.SaveToStream(stream);
-				colorHovered.SaveToStream(stream);
-				colorPressed.SaveToStream(stream);
+				stream << direction;
+				stream << colorBarBackground << colorBar << colorHovered << colorPressed;
 				stream << barRounding << barThickness;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				uint8 dir = 0;
-				stream >> dir;
-				direction = static_cast<DirectionOrientation>(dir);
-				colorBarBackground.LoadFromStream(stream);
-				colorBar.LoadFromStream(stream);
-				colorHovered.LoadFromStream(stream);
-				colorPressed.LoadFromStream(stream);
+				stream >> direction;
+				stream >> colorBarBackground >> colorBar >> colorHovered >> colorPressed;
 				stream >> barRounding >> barThickness;
 			}
 		};
@@ -82,13 +74,13 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-			m_props.SaveToStream(stream);
+			stream << m_props;
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-			m_props.LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 		inline Properties& GetProps()
@@ -137,9 +129,17 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(ScrollArea, Layout)
+	LINA_FIELD(ScrollArea, m_props, "", "Class", GetTypeID<ScrollArea::Properties>())
 	LINA_CLASS_END(ScrollArea)
 
 	LINA_CLASS_BEGIN(ScrollAreaProperties)
 	LINA_FIELD(ScrollArea::Properties, _fold, "Scroll Area", "Category", 0)
+	LINA_FIELD(ScrollArea::Properties, direction, "Direction", "enum", GetTypeID<DirectionOrientation>())
+	LINA_FIELD(ScrollArea::Properties, colorBarBackground, "Bar Background", "Color", 0)
+	LINA_FIELD(ScrollArea::Properties, colorBar, "Bar Color", "Color", 0)
+	LINA_FIELD(ScrollArea::Properties, colorHovered, "Bar Color Hovered", "Color", 0)
+	LINA_FIELD(ScrollArea::Properties, colorPressed, "Bar Color Pressed", "Color", 0)
+	LINA_FIELD(ScrollArea::Properties, barRounding, "Bar Rounding", "float", 0)
+	LINA_FIELD(ScrollArea::Properties, barThickness, "Bar Thickness", "float", 0)
 	LINA_CLASS_END(ScrollAreaProperties)
 } // namespace Lina

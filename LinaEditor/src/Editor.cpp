@@ -83,7 +83,7 @@ namespace Lina::Editor
 				.isSDF	= false,
 
 			};
-			customMeta.SaveToStream(stream);
+			stream << customMeta;
 			return true;
 		}
 
@@ -94,7 +94,7 @@ namespace Lina::Editor
 				.isSDF	= false,
 
 			};
-			customMeta.SaveToStream(stream);
+			stream << customMeta;
 			return true;
 		};
 
@@ -104,7 +104,7 @@ namespace Lina::Editor
 		{
 			Texture::Metadata meta = {};
 
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 
@@ -134,7 +134,7 @@ namespace Lina::Editor
 
 			meta.drawIndirectEnabled		  = true;
 			meta.descriptorSetAllocationCount = 1;
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 
@@ -154,7 +154,7 @@ namespace Lina::Editor
 
 			meta.drawIndirectEnabled		  = true;
 			meta.descriptorSetAllocationCount = 1;
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 
@@ -179,7 +179,7 @@ namespace Lina::Editor
 
 			meta.drawIndirectEnabled		  = true;
 			meta.descriptorSetAllocationCount = 1;
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 
@@ -198,7 +198,7 @@ namespace Lina::Editor
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = true;
 			meta.materialSize				  = sizeof(GPUMaterialDefaultObject);
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 
@@ -216,7 +216,7 @@ namespace Lina::Editor
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = false;
 			meta.materialSize				  = 0;
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 
@@ -238,7 +238,7 @@ namespace Lina::Editor
 			meta.descriptorSetAllocationCount = 1;
 			meta.drawIndirectEnabled		  = false;
 			meta.materialSize				  = sizeof(GPUMaterialDefaultSky);
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 
@@ -248,7 +248,7 @@ namespace Lina::Editor
 				.points = {{.size = 32, .dpiLimit = 10.0f}},
 				.isSDF	= true,
 			};
-			customMeta.SaveToStream(stream);
+			stream << customMeta;
 			return true;
 		}
 
@@ -258,7 +258,7 @@ namespace Lina::Editor
 				.points = {{.size = 14, .dpiLimit = 1.1f}, {.size = 14, .dpiLimit = 1.8f}, {.size = 16, .dpiLimit = 10.0f}},
 				.isSDF	= false,
 			};
-			customMeta.SaveToStream(stream);
+			stream << customMeta;
 			return true;
 		}
 
@@ -277,7 +277,7 @@ namespace Lina::Editor
 
 			meta.drawIndirectEnabled		  = false;
 			meta.descriptorSetAllocationCount = 1;
-			meta.SaveToStream(stream);
+			stream << meta;
 			return true;
 		}
 		return false;

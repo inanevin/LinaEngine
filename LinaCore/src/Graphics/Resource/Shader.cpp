@@ -36,7 +36,6 @@ SOFTWARE.
 #include "Common/System/System.hpp"
 
 #include "Common/FileSystem//FileSystem.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
@@ -161,8 +160,7 @@ namespace Lina
 	{
 		stream << VERSION;
 		stream << m_id;
-
-		m_meta.SaveToStream(stream);
+		stream << m_meta;
 
 		const uint32 size = static_cast<uint32>(m_outCompiledBlobs.size());
 		stream << size;
@@ -176,7 +174,7 @@ namespace Lina
 		}
 
 		SaveLinaGXShaderLayout(stream, m_layout);
-		VectorSerialization::SaveToStream_OBJ(stream, m_properties);
+		stream << m_properties;
 	}
 
 	void Shader::LoadFromStream(IStream& stream)
@@ -184,8 +182,7 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_id;
-
-		m_meta.LoadFromStream(stream);
+		stream >> m_meta;
 
 		uint32 size = 0;
 		stream >> size;
@@ -208,7 +205,7 @@ namespace Lina
 
 		m_layout = {};
 		LoadLinaGXShaderLayout(stream, m_layout);
-		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);
+		stream >> m_properties;
 	}
 
 	void Shader::GenerateHW()

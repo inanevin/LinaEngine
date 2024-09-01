@@ -33,15 +33,11 @@ namespace Lina
 {
 	void VertexDefault::SaveToStream(OStream& stream) const
 	{
-		pos.SaveToStream(stream);
-		normal.SaveToStream(stream);
-		uv.SaveToStream(stream);
+		stream << pos << normal << uv;
 	}
 
 	void VertexDefault::LoadFromStream(IStream& stream)
 	{
-		pos.LoadFromStream(stream);
-		normal.LoadFromStream(stream);
-		uv.LoadFromStream(stream);
+		stream >> pos >> normal >> uv;
 	}
 } // namespace Lina

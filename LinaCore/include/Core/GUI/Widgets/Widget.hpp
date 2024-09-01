@@ -60,7 +60,9 @@ namespace Lina
 	struct TextureAtlasImage;
 	class Texture;
 
-#define WIDGET_VERSION 0
+#define WIDGET_VERSION		0
+#define WIDGETPROPS_VERSION 0
+#define DS_VERSION			0
 	/*
 		0: Initial
 	 */
@@ -116,7 +118,7 @@ namespace Lina
 		Vector<int> onlyRound;
 
 		virtual void SaveToStream(OStream& stream) const;
-		virtual void LoadFromStream(IStream& stream, uint32 version);
+		virtual void LoadFromStream(IStream& stream);
 	};
 
 	struct WidgetProps
@@ -160,7 +162,7 @@ namespace Lina
 		DropshadowProps		 dropshadow;
 
 		virtual void SaveToStream(OStream& stream) const;
-		virtual void LoadFromStream(IStream& stream, uint32 version);
+		virtual void LoadFromStream(IStream& stream);
 	};
 
 	class Widget

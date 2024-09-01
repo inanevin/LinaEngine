@@ -62,15 +62,12 @@ namespace Lina
 
 			void SaveToStream(OStream& stream)
 			{
-				skyMaterial.SaveToStream(stream);
-				lightingMaterial.SaveToStream(stream);
+				stream << skyMaterial << lightingMaterial;
 			}
 
 			void LoadFromStream(IStream& stream, ResourceManagerV2* rm)
 			{
-				skyMaterial.LoadFromStream(stream);
-				lightingMaterial.LoadFromStream(stream);
-
+				stream >> skyMaterial >> lightingMaterial;
 				skyMaterial.raw		 = rm->GetResource<Material>(skyMaterial.sid);
 				lightingMaterial.raw = rm->GetResource<Material>(lightingMaterial.sid);
 			}

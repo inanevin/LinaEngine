@@ -54,25 +54,15 @@ namespace Lina
 
 	void Transformation::SaveToStream(OStream& stream)
 	{
-		m_position.SaveToStream(stream);
-		m_rotation.SaveToStream(stream);
-		m_scale.SaveToStream(stream);
-		m_localPosition.SaveToStream(stream);
-		m_localRotation.SaveToStream(stream);
-		m_localScale.SaveToStream(stream);
-		m_localRotationAngles.SaveToStream(stream);
-		m_rotationAngles.SaveToStream(stream);
+		stream << m_position << m_rotation << m_scale;
+		stream << m_localPosition << m_localRotation << m_localScale;
+		stream << m_localRotationAngles << m_rotationAngles;
 	}
 
 	void Transformation::LoadFromStream(IStream& stream)
 	{
-		m_position.LoadFromStream(stream);
-		m_rotation.LoadFromStream(stream);
-		m_scale.LoadFromStream(stream);
-		m_localPosition.LoadFromStream(stream);
-		m_localRotation.LoadFromStream(stream);
-		m_localScale.LoadFromStream(stream);
-		m_localRotationAngles.LoadFromStream(stream);
-		m_rotationAngles.LoadFromStream(stream);
+		stream >> m_position >> m_rotation >> m_scale;
+		stream >> m_localPosition >> m_localRotation >> m_localScale;
+		stream >> m_localRotationAngles >> m_rotationAngles;
 	}
 } // namespace Lina

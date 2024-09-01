@@ -47,6 +47,7 @@ namespace Lina
 
 		struct Properties
 		{
+			bool			 _fold = false;
 			Delegate<void()> onClicked;
 			String			 icon					= "";
 			StringID		 font					= Theme::GetDef().iconFont;
@@ -70,12 +71,7 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				color.SaveToStream(stream);
-				colorHovered.SaveToStream(stream);
-				colorPressed.SaveToStream(stream);
-				colorDisabled.SaveToStream(stream);
-				sdfOutlineColor.SaveToStream(stream);
-				customClip.SaveToStream(stream);
+				stream << color << colorHovered << colorPressed << colorDisabled << sdfOutlineColor << customClip;
 				stream << icon;
 				stream << font << textScale << isDynamic << enableHoverPressColors << sdfThickness << sdfSoftness << sdfOutlineThickness << sdfOutlineSoftness;
 				stream << dynamicSizeToParent << dynamicSizeScale;
@@ -83,12 +79,7 @@ namespace Lina
 
 			void LoadFromStream(IStream& stream)
 			{
-				color.LoadFromStream(stream);
-				colorHovered.LoadFromStream(stream);
-				colorPressed.LoadFromStream(stream);
-				colorDisabled.LoadFromStream(stream);
-				sdfOutlineColor.LoadFromStream(stream);
-				customClip.LoadFromStream(stream);
+				stream >> color >> colorHovered >> colorPressed >> colorDisabled >> sdfOutlineColor >> customClip;
 				stream >> icon;
 				stream >> font >> textScale >> isDynamic >> enableHoverPressColors >> sdfThickness >> sdfSoftness >> sdfOutlineThickness >> sdfOutlineSoftness;
 				stream >> dynamicSizeToParent >> dynamicSizeScale;
@@ -125,6 +116,8 @@ namespace Lina
 		}
 
 	private:
+		LINA_REFLECTION_ACCESS(Icon);
+
 		Properties			   m_props				= {};
 		LinaVG::SDFTextOptions m_sdfOptions			= {};
 		float				   m_calculatedDPIScale = 0.0f;
@@ -132,6 +125,11 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Icon, Primitive)
+	LINA_FIELD(Icon, m_props, "", "Class", GetTypeID<Icon::Properties>());
 	LINA_CLASS_END(Icon)
+
+	LINA_CLASS_BEGIN(IconProperties)
+	LINA_FIELD(Icon::Properties, _fold, "Icon", "Category", 0)
+	LINA_CLASS_END(IconProperties)
 
 } // namespace Lina

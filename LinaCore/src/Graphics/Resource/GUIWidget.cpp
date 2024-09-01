@@ -57,7 +57,7 @@ namespace Lina
 	{
 		stream << VERSION;
 		stream << m_id;
-		m_root.SaveToStream(stream);
+		stream << m_root;
 	}
 
 	void GUIWidget::LoadFromStream(IStream& stream)
@@ -65,9 +65,7 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_id;
-		m_root.DeallocAllChildren();
-		m_root.RemoveAllChildren();
-		m_root.LoadFromStream(stream);
+		stream >> m_root;
 	}
 
 	void GUIWidget::ClearRoot()

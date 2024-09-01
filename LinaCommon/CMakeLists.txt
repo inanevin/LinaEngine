@@ -163,9 +163,6 @@ set(HEADERS
 	include/Common/Serialization/Endianness.hpp
 	include/Common/Serialization/Serialization.hpp
 	include/Common/Serialization/Serializable.hpp
-	include/Common/Serialization/VectorSerialization.hpp
-	include/Common/Serialization/QueueSerialization.hpp
-	include/Common/Serialization/SetSerialization.hpp
 
 	# Math
 	include/Common/Math/Color.hpp

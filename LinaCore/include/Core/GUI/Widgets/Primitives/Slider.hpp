@@ -49,6 +49,7 @@ namespace Lina
 
 		struct Properties
 		{
+			bool				 _fold				 = false;
 			DirectionOrientation direction			 = DirectionOrientation::Horizontal;
 			Color				 colorFillMin		 = Theme::GetDef().accentPrimary1;
 			Color				 colorFillMax		 = Theme::GetDef().accentPrimary0;
@@ -63,15 +64,13 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorFillMin.SaveToStream(stream);
-				colorFillMax.SaveToStream(stream);
+				stream << colorFillMin << colorFillMax;
 				stream << crossAxisPercentage << minValue << maxValue << step;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorFillMin.LoadFromStream(stream);
-				colorFillMax.LoadFromStream(stream);
+				stream >> colorFillMin >> colorFillMax;
 				stream >> crossAxisPercentage >> minValue >> maxValue >> step;
 			}
 		};
@@ -109,6 +108,8 @@ namespace Lina
 		void GetStartEnd(Vector2& outStart, Vector2& outEnd, float fillPercent);
 
 	private:
+		LINA_REFLECTION_ACCESS(Slider);
+
 		Properties m_props		= {};
 		Icon*	   m_handle		= nullptr;
 		Vector2	   m_start		= Vector2::Zero;
@@ -123,6 +124,10 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Slider, Primitive)
+	LINA_FIELD(Slider, m_props, "", "Class", GetTypeID<Slider::Properties>());
 	LINA_CLASS_END(Slider)
 
+	LINA_CLASS_BEGIN(SliderProperties)
+	LINA_FIELD(Slider::Properties, _fold, "Slider", "Category", 0)
+	LINA_CLASS_END(SliderProperties)
 } // namespace Lina

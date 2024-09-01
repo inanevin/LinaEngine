@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Audio/Audio.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
+
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/System/System.hpp"
@@ -59,14 +59,14 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_id;
-		m_meta.LoadFromStream(stream);
+		stream >> m_meta;
 	}
 
 	void Audio::SaveToStream(OStream& stream) const
 	{
 		stream << VERSION;
 		stream << m_id;
-		m_meta.SaveToStream(stream);
+		stream << m_meta;
 	}
 
 } // namespace Lina

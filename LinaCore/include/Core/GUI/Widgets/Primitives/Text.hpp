@@ -64,24 +64,18 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-				color.SaveToStream(stream);
-				colorDisabled.SaveToStream(stream);
-				customClip.SaveToStream(stream);
+				stream << color << colorDisabled << customClip;
 				stream << text;
 				stream << textScale << wrapWidth << isDynamic << fetchCustomClipFromSelf << fetchWrapFromParent << fetchWrapFromParent << wordWrap;
-				stream << static_cast<uint8>(alignment);
+				stream << alignment;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				color.LoadFromStream(stream);
-				colorDisabled.LoadFromStream(stream);
-				customClip.LoadFromStream(stream);
+				stream >> color >> colorDisabled >> customClip;
 				stream >> text;
 				stream >> textScale >> wrapWidth >> isDynamic >> fetchCustomClipFromSelf >> fetchWrapFromParent >> fetchWrapFromParent >> wordWrap;
-				uint8 align = 0;
-				stream >> align;
-				alignment = static_cast<LinaVG::TextAlignment>(align);
+				stream >> alignment;
 			}
 		};
 

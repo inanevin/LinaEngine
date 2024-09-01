@@ -84,13 +84,13 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-			m_props.SaveToStream(stream);
+			stream << m_props;
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-			m_props.LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 		inline void SetProps(const Properties& props)
@@ -131,7 +131,7 @@ namespace Lina
 	LINA_CLASS_END(DirectionalLayout)
 
 	LINA_CLASS_BEGIN(DirectionalLayoutProperties)
-	LINA_FIELD(DirectionalLayout::Properties, _category, "Directional Layout Properties", "Category", 0)
+	LINA_FIELD(DirectionalLayout::Properties, _category, "Directional Layout", "Category", 0)
 	LINA_FIELD(DirectionalLayout::Properties, direction, "Direction", "enum", GetTypeID<DirectionOrientation>())
 	LINA_FIELD(DirectionalLayout::Properties, mode, "Mode", "enum", GetTypeID<DirectionalLayout::Mode>())
 	LINA_FIELD(DirectionalLayout::Properties, colorBorder, "Color Border", "Color", 0)

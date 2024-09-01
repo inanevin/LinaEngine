@@ -29,7 +29,6 @@ SOFTWARE.
 #include "Common/Math/AABB.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Math/Plane.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
 {
@@ -66,17 +65,17 @@ namespace Lina
 
 	void AABB::SaveToStream(OStream& stream)
 	{
-		boundsHalfExtents.SaveToStream(stream);
-		boundsMin.SaveToStream(stream);
-		boundsMax.SaveToStream(stream);
-		VectorSerialization::SaveToStream_OBJ(stream, positions);
+		stream << boundsHalfExtents;
+		stream << boundsMin;
+		stream << boundsMax;
+		stream << positions;
 	}
 
 	void AABB::LoadFromStream(IStream& stream)
 	{
-		boundsHalfExtents.LoadFromStream(stream);
-		boundsMin.LoadFromStream(stream);
-		boundsMax.LoadFromStream(stream);
-		VectorSerialization::LoadFromStream_OBJ(stream, positions);
+		stream >> boundsHalfExtents;
+		stream >> boundsMin;
+		stream >> boundsMax;
+		stream >> positions;
 	}
 } // namespace Lina

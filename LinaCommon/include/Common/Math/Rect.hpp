@@ -58,14 +58,12 @@ namespace Lina
 
 		inline void SaveToStream(OStream& stream) const
 		{
-			pos.SaveToStream(stream);
-			size.SaveToStream(stream);
+			stream << pos << size;
 		}
 
 		inline void LoadFromStream(IStream& stream)
 		{
-			pos.LoadFromStream(stream);
-			size.LoadFromStream(stream);
+			stream >> pos >> size;
 		}
 
 		Vector2 pos	 = Vector2(0, 0);

@@ -40,6 +40,7 @@ namespace Lina
 	public:
 		struct Properties
 		{
+			bool				 _fold = false;
 			bool*				 value = nullptr;
 			Delegate<void(bool)> onValueChanged;
 
@@ -63,13 +64,13 @@ namespace Lina
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-			m_props.SaveToStream(stream);
+			stream << m_props;
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-			m_props.LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 		inline Properties& GetProps()
@@ -83,10 +84,16 @@ namespace Lina
 		}
 
 	private:
+		LINA_REFLECTION_ACCESS(Checkbox);
 		Icon*	   m_icon  = nullptr;
 		Properties m_props = {};
 	};
 
 	LINA_WIDGET_BEGIN(Checkbox, Primitive)
+	LINA_FIELD(Checkbox, m_props, "", "Class", GetTypeID<Checkbox::Properties>());
 	LINA_CLASS_END(Checkbox)
+
+	LINA_CLASS_BEGIN(CheckboxProperties)
+	LINA_FIELD(Checkbox::Properties, _fold, "Checkbox", "Category", 0)
+	LINA_CLASS_END(CheckboxProperties)
 } // namespace Lina

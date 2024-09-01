@@ -144,14 +144,12 @@ namespace Lina
 
 		void SaveToStream(OStream& stream) const
 		{
-			start.SaveToStream(stream);
-			end.SaveToStream(stream);
+			stream << start << end;
 		}
 
 		void LoadFromStream(IStream& stream)
 		{
-			start.LoadFromStream(stream);
-			end.LoadFromStream(stream);
+			stream >> start >> end;
 		}
 	};
 

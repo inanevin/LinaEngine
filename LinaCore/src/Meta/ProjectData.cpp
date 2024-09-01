@@ -39,7 +39,7 @@ namespace Lina
 		in >> version;
 		in >> m_resourceIDCounter;
 		in >> m_projectName;
-		m_rootDirectory.LoadFromStream(in);
+		in >> m_rootDirectory;
 	}
 
 	void ProjectData::SaveToStream(OStream& out)
@@ -47,7 +47,7 @@ namespace Lina
 		out << VERSION;
 		out << m_resourceIDCounter;
 		out << m_projectName;
-		m_rootDirectory.SaveToStream(out);
+		out << m_rootDirectory;
 	}
 
 	void ProjectData::ToRelativePath(const String& absPath, String& outRelative)

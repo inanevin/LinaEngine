@@ -65,22 +65,16 @@ namespace Lina::Editor
 
 			void SaveToStream(OStream& stream) const
 			{
-				colorDeadItem.SaveToStream(stream);
-				colorSelected.SaveToStream(stream);
-				colorUnfocused.SaveToStream(stream);
+				stream << colorDeadItem << colorSelected << colorUnfocused;
 				stream << hoverAcceptItemParents;
-				stream << static_cast<uint8>(payloadType);
+				stream << payloadType;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				colorDeadItem.LoadFromStream(stream);
-				colorSelected.LoadFromStream(stream);
-				colorUnfocused.LoadFromStream(stream);
+				stream >> colorDeadItem >> colorSelected >> colorUnfocused;
 				stream >> hoverAcceptItemParents;
-				uint8 payload = 0;
-				stream >> payload;
-				payloadType = static_cast<PayloadType>(payload);
+				stream >> payloadType;
 			}
 		};
 
@@ -114,13 +108,13 @@ namespace Lina::Editor
 		virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-			m_props.SaveToStream(stream);
+			stream << m_props;
 		}
 
 		virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-			m_props.LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 		inline Properties& GetProps()

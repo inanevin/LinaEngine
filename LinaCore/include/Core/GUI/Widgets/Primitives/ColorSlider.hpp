@@ -46,6 +46,8 @@ namespace Lina
 
 		struct Properties
 		{
+			bool _fold = false;
+
 			Delegate<void(float)> onValueChanged;
 
 			Color	 colorLine		   = Theme::GetDef().foreground0;
@@ -59,15 +61,13 @@ namespace Lina
 
 			void SaveToStream(OStream& stream) const
 			{
-
-				colorLine.SaveToStream(stream);
+				stream << colorLine;
 				stream << isHueShift << minValue << maxValue << step;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-
-				colorLine.LoadFromStream(stream);
+				stream >> colorLine;
 				stream >> isHueShift >> minValue >> maxValue >> step;
 			}
 		};
@@ -96,10 +96,17 @@ namespace Lina
 		}
 
 	private:
+		LINA_REFLECTION_ACCESS(ColorSlider);
+
 		Properties m_props = {};
 	};
 
 	LINA_WIDGET_BEGIN(ColorSlider, Primitive)
+	LINA_FIELD(ColorSlider, m_props, "", "Class", GetTypeID<ColorSlider::Properties>());
 	LINA_CLASS_END(ColorSlider)
+
+	LINA_CLASS_BEGIN(ColorSliderProperties)
+	LINA_FIELD(ColorSlider::Properties, _fold, "Color Slider", "Category", 0)
+	LINA_CLASS_END(ColorSliderProperties)
 
 } // namespace Lina

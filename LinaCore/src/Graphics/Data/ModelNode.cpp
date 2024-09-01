@@ -44,7 +44,7 @@ namespace Lina
 	void ModelNode::SaveToStream(OStream& stream) const
 	{
 		stream << m_name;
-		m_localMatrix.SaveToStream(stream);
+		stream << m_localMatrix;
 
 		stream << static_cast<uint32>(m_children.size());
 
@@ -61,7 +61,7 @@ namespace Lina
 	void ModelNode::LoadFromStream(IStream& stream)
 	{
 		stream >> m_name;
-		m_localMatrix.LoadFromStream(stream);
+		stream >> m_localMatrix;
 
 		uint32 childSz = 0;
 		stream >> childSz;

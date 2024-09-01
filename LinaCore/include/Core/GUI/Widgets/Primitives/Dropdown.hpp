@@ -47,6 +47,7 @@ namespace Lina
 
 		struct Properties
 		{
+			bool																	 _fold = false;
 			Delegate<bool(int32)>													 onSelected;
 			Delegate<void(Vector<String>& outItems, Vector<int32>& outSelectedItem)> onAddItems;
 
@@ -77,13 +78,13 @@ namespace Lina
 		inline virtual void SaveToStream(OStream& stream) const override
 		{
 			Widget::SaveToStream(stream);
-			m_props.SaveToStream(stream);
+			stream << m_props;
 		}
 
 		inline virtual void LoadFromStream(IStream& stream) override
 		{
 			Widget::LoadFromStream(stream);
-			m_props.LoadFromStream(stream);
+			stream >> m_props;
 		}
 
 		inline Properties& GetProps()
@@ -105,6 +106,8 @@ namespace Lina
 		void CreatePopup();
 
 	private:
+		LINA_REFLECTION_ACCESS(Dropdown);
+
 		Properties m_props		 = {};
 		Icon*	   m_icon		 = nullptr;
 		Text*	   m_text		 = nullptr;
@@ -112,6 +115,11 @@ namespace Lina
 	};
 
 	LINA_WIDGET_BEGIN(Dropdown, Primitive)
+	LINA_FIELD(Dropdown, m_props, "", "Class", GetTypeID<Dropdown::Properties>());
 	LINA_CLASS_END(Dropdown)
+
+	LINA_CLASS_BEGIN(DropdownProperties)
+	LINA_FIELD(Dropdown::Properties, _fold, "Dropdown", "Category", 0)
+	LINA_CLASS_END(DropdownProperties)
 
 } // namespace Lina

@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Common/Data/Vector.hpp"
 #include "Common/StringID.hpp"
 #include "Common/Data/Streams.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
 
 #include "Editor/CommonEditor.hpp"
 
@@ -43,6 +42,8 @@ namespace Lina::Editor
 	class EditorLayout
 	{
 	public:
+		static constexpr uint32 VERSION = 0;
+
 		virtual ~EditorLayout();
 		void ClearBuffers();
 
@@ -62,7 +63,7 @@ namespace Lina::Editor
 					out.WriteRaw(layoutData);
 			}
 
-			inline void LoadFromStream(IStream& in, uint32 version)
+			inline void LoadFromStream(IStream& in)
 			{
 				uint8 pt = 0;
 				in >> pt;
@@ -90,20 +91,18 @@ namespace Lina::Editor
 
 			inline void SaveToStream(OStream& out) const
 			{
-				alignedPos.SaveToStream(out);
-				alignedSize.SaveToStream(out);
+				out << alignedPos << alignedSize;
 				out << isBorder;
 				out << isHorizontal;
-				VectorSerialization::SaveToStream_OBJ(out, panels);
+				out << panels;
 			}
 
-			inline void LoadFromStream(IStream& in, uint32 version)
+			inline void LoadFromStream(IStream& in)
 			{
-				alignedPos.LoadFromStream(in);
-				alignedSize.LoadFromStream(in);
+				in >> alignedPos >> alignedSize;
 				in >> isBorder;
 				in >> isHorizontal;
-				VectorSerialization::LoadFromStream_OBJ(in, panels, version);
+				in >> panels;
 			}
 		};
 
@@ -121,21 +120,21 @@ namespace Lina::Editor
 				position.SaveToStream(out);
 				size.SaveToStream(out);
 				out << title;
-				VectorSerialization::SaveToStream_OBJ(out, dockWidgets);
+				out << dockWidgets;
 			}
 
-			inline void LoadFromStream(IStream& in, uint32 version)
+			inline void LoadFromStream(IStream& in)
 			{
 				in >> sid;
 				position.LoadFromStream(in);
 				size.LoadFromStream(in);
 				in >> title;
-				VectorSerialization::LoadFromStream_OBJ(in, dockWidgets, version);
+				in >> dockWidgets;
 			}
 		};
 
 		virtual void SaveToStream(OStream& out);
-		virtual void LoadFromStream(IStream& in, uint32 version);
+		virtual void LoadFromStream(IStream& in);
 
 		void ApplyStoredLayout();
 		void StoreLayout();

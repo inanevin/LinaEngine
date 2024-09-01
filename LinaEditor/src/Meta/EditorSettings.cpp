@@ -40,9 +40,9 @@ namespace Lina::Editor
 	{
 		uint32 version = 0;
 		in >> version;
-        in >> m_lastProjectPath;
-        in >> m_lastWorldAbsPath;
-		m_layout.LoadFromStream(in, version);
+		in >> m_lastProjectPath;
+		in >> m_lastWorldAbsPath;
+		in >> m_layout;
 	}
 
 	void EditorSettings::SaveToStream(OStream& out)
@@ -50,6 +50,6 @@ namespace Lina::Editor
 		out << VERSION;
 		out << m_lastProjectPath;
 		out << m_lastWorldAbsPath;
-		m_layout.SaveToStream(out);
+		out << m_layout;
 	}
 } // namespace Lina::Editor

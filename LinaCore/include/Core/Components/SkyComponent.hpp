@@ -43,16 +43,12 @@ namespace Lina
 
 		virtual void SaveToStream(OStream& stream)
 		{
-			m_topColor.SaveToStream(stream);
-			m_horizonColor.SaveToStream(stream);
-			m_groundColor.SaveToStream(stream);
+			stream << m_topColor << m_horizonColor << m_groundColor;
 		};
 
 		virtual void LoadFromStream(IStream& stream)
 		{
-			m_topColor.LoadFromStream(stream);
-			m_horizonColor.LoadFromStream(stream);
-			m_groundColor.LoadFromStream(stream);
+			stream >> m_topColor >> m_horizonColor >> m_groundColor;
 		}
 
 	private:

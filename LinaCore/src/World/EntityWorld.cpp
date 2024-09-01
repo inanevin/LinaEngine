@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/GfxManager.hpp"
 #include "Core/Audio/Audio.hpp"
 #include "Core/Resources/ResourceManager.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
+
 #include "Common/System/SystemInfo.hpp"
 #include "Common/System/System.hpp"
 #include "Common/Serialization/Serialization.hpp"

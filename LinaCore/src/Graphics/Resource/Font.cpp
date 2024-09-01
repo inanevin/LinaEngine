@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/Font.hpp"
-#include "Common/Serialization/VectorSerialization.hpp"
+
 #include "Common/FileSystem/FileSystem.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
@@ -115,16 +115,16 @@ namespace Lina
 		uint32 version = 0;
 		stream >> version;
 		stream >> m_id;
-		m_meta.LoadFromStream(stream);
-		VectorSerialization::LoadFromStream_PT(stream, m_file);
+		stream >> m_meta;
+		stream >> m_file;
 	}
 
 	void Font::SaveToStream(OStream& stream) const
 	{
 		stream << VERSION;
 		stream << m_id;
-		m_meta.SaveToStream(stream);
-		VectorSerialization::SaveToStream_PT(stream, m_file);
+		stream << m_meta;
+		stream << m_file;
 	}
 
 	LinaVG::LinaVGFont* Font::GetLinaVGFont(float dpiScale)
