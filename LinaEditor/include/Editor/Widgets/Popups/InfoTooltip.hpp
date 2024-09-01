@@ -79,7 +79,7 @@ namespace Lina::Editor
 		Tween			  m_tween;
 	};
 
-	LINA_WIDGET_BEGIN(InfoTooltip, Editor)
+	LINA_WIDGET_BEGIN(InfoTooltip, Hidden)
 	LINA_CLASS_END(InfoTooltip)
 
 } // namespace Lina::Editor

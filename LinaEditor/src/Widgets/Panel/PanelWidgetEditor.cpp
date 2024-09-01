@@ -309,6 +309,9 @@ namespace Lina::Editor
 				const String title	  = meta.GetProperty<String>("Title"_hs);
 				const String category = meta.GetProperty<String>("Category"_hs);
 
+				if (category.compare("Hidden") == 0)
+					continue;
+
 				WidgetInfo widgetInfo = {
 					.title = title,
 					.tid   = typeID,

@@ -103,7 +103,7 @@ namespace Lina::Editor
 		Widget* m_rightSide	  = nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(PanelWidgetEditor, Editor)
+	LINA_WIDGET_BEGIN(PanelWidgetEditor, Hidden)
 	LINA_CLASS_END(PanelWidgetEditor)
 
 } // namespace Lina::Editor

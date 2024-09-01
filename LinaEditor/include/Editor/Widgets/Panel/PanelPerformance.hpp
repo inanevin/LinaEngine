@@ -65,7 +65,7 @@ namespace Lina::Editor
 		TabRow*			   m_tabRow			= nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(PanelPerformance, Editor)
+	LINA_WIDGET_BEGIN(PanelPerformance, Hidden)
 	LINA_CLASS_END(PanelPerformance)
 
 } // namespace Lina::Editor

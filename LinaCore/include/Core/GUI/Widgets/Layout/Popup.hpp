@@ -118,7 +118,7 @@ namespace Lina
 		int32					   m_targetScroll	 = -1;
 	};
 
-	LINA_WIDGET_BEGIN(Popup, Hide)
+	LINA_WIDGET_BEGIN(Popup, Hidden)
 	LINA_CLASS_END(Popup)
 
 } // namespace Lina

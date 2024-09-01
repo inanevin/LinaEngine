@@ -28,14 +28,14 @@ SOFTWARE.
 
 #pragma once
 
-#ifndef Stream_HPP
-#define Stream_HPP
-
 #include "Common/SizeDefinitions.hpp"
 #include "Common/Serialization/Endianness.hpp"
 #include "Common/Memory/Memory.hpp"
 #include "Common/StringID.hpp"
 #include "Common/Data/CommonData.hpp"
+#include "Common/Data/HashMap.hpp"
+#include "Common/Data/String.hpp"
+#include "Common/Data/Vector.hpp"
 #include <type_traits>
 #include <iosfwd>
 
@@ -154,10 +154,76 @@ namespace Lina
 		}
 	};
 
-	template <typename T> IStream& operator>>(IStream& istm, T& val)
+
+// Helper traits to detect vector and hashmap
+template<typename T>
+struct is_vector : std::false_type {};
+
+template<typename U>
+struct is_vector<std::vector<U>> : std::true_type {};
+
+template<typename T>
+inline constexpr bool is_vector_v = is_vector<T>::value;
+
+template<typename T>
+struct is_hashmap : std::false_type {};
+
+template<typename U, typename V>
+struct is_hashmap<HashMap<U, V>> : std::true_type {};
+
+template<typename T>
+inline constexpr bool is_hashmap_v = is_hashmap<T>::value;
+
+
+	template <typename T> IStream& operator>>(IStream& stream, T& val)
 	{
-		LoadHelper<T>::ReadFromStream(istm, val);
-		return istm;
+        if constexpr (std::is_same_v<T, std::size_t>)
+        {
+            uint32 sz = 0;
+            stream >> sz;
+            val = static_cast<size_t>(sz);
+        }
+        else if constexpr (std::is_arithmetic_v<T>) {
+                stream.Read(val);
+                if (Endianness::ShouldSwap())
+                {
+                    Endianness::SwapEndian(val);
+                }
+           } else if constexpr (std::is_same_v<T, String>) {
+               uint32 sz = 0;
+               stream >> sz;
+               void* d = MALLOC(sz);
+               stream.ReadToRawEndianSafe(d, static_cast<size_t>(sz));
+               String s((char*)d, sz);
+               val = s;
+               FREE(d);
+           } else if constexpr (std::is_enum_v<T>) {
+               uint8 u8 = 0;
+               stream >> u8;
+               val = static_cast<T>(u8);
+           } else if constexpr (is_vector_v<T>) {
+               uint32 sz = 0;
+               stream >> sz;
+               val.resize(sz);
+               for(uint32 i = 0; i < sz; i++)
+                   stream >> val[i];
+           } else if constexpr (is_hashmap_v<T>) {
+               
+               uint32 sz = 0;
+               stream >> sz;
+               
+               for (const auto& [key, value] : val)
+               {
+                   
+               }
+           } else if constexpr (std::is_class_v<T>) {
+               // Handle custom classes or structs
+               val.LoadFromStream(stream);
+           } else {
+               assert(false);
+           }
+        
+        return stream;
 	}
 
 	class OStream;
@@ -214,6 +280,7 @@ namespace Lina
 
 	template <typename T, typename Enable = void> struct StreamHelper;
 
+
 	template <typename T> struct StreamHelper<T, typename std::enable_if<!std::is_same<T, size_t>::value && !std::is_same<T, const size_t>::value>::type>
 	{
 		static void WriteToStream(OStream& stream, T& val)
@@ -249,14 +316,92 @@ namespace Lina
 
 	template <typename T> OStream& operator<<(OStream& stream, T& val)
 	{
-		StreamHelper<T>::WriteToStream(stream, val);
+        if constexpr (std::is_same_v<T, std::size_t>)
+        {
+            const uint32 sz = static_cast<uint32>(val);
+            stream << val;
+        }
+        else if constexpr (std::is_arithmetic_v<T>) {
+                auto copy = const_cast<typename std::remove_const<T>::type&>(val);
+                if (Endianness::ShouldSwap())
+                    Endianness::SwapEndian(copy);
+                stream.Write<T>(copy);
+           } else if constexpr (std::is_same_v<T, String>) {
+               const uint32 sz = val.size();
+               stream << sz;
+               stream.WriteRawEndianSafe((uint8*)val.data(), val.size());
+           } else if constexpr (std::is_enum_v<T>) {
+               const uint8 u8 = static_cast<uint8>(val);
+               stream << u8;
+           } else if constexpr (is_vector_v<T>) {
+               // Handle vector
+               const uint32 sz = static_cast<uint32>(val.size());
+               stream << sz;
+               for (const auto& item : val)
+                   stream << val;
+           } else if constexpr (is_hashmap_v<T>) {
+               // Handle hashmap
+               const uint32 sz = static_cast<uint32>(val.size());
+               stream << sz;
+               
+               for (const auto& [key, value] : val)
+               {
+                   stream << key;
+                   stream << val;
+               }
+           } else if constexpr (std::is_class_v<T>) {
+               // Handle custom classes or structs
+               val.SaveToStream(stream);
+           } else {
+               assert(false);
+           }
+        
 		return stream;
 	}
 
 	template <typename T> OStream& operator<<(OStream& stream, T&& val)
 	{
-		StreamHelper<T>::WriteToStream(stream, val);
-		return stream;
+        if constexpr (std::is_same_v<T, std::size_t>)
+        {
+            const uint32 sz = static_cast<uint32>(val);
+            stream << val;
+        }
+        else if constexpr (std::is_arithmetic_v<T>) {
+                auto copy = const_cast<typename std::remove_const<T>::type&>(val);
+                if (Endianness::ShouldSwap())
+                    Endianness::SwapEndian(copy);
+                stream.Write<T>(copy);
+           } else if constexpr (std::is_same_v<T, String>) {
+               const uint32 sz = val.size();
+               stream << sz;
+               stream.WriteRawEndianSafe((uint8*)val.data(), val.size());
+           } else if constexpr (std::is_enum_v<T>) {
+               const uint8 u8 = static_cast<uint8>(val);
+               stream << u8;
+           } else if constexpr (is_vector_v<T>) {
+               // Handle vector
+               const uint32 sz = static_cast<uint32>(val.size());
+               stream << sz;
+               for (const auto& item : val)
+                   stream << val;
+           } else if constexpr (is_hashmap_v<T>) {
+               // Handle hashmap
+               const uint32 sz = static_cast<uint32>(val.size());
+               stream << sz;
+               
+               for (const auto& [key, value] : val)
+               {
+                   stream << key;
+                   stream << val;
+               }
+           } else if constexpr (std::is_class_v<T>) {
+               // Handle custom classes or structs
+               val.SaveToStream(stream);
+           } else {
+               assert(false);
+           }
+        
+        return stream;
 	}
 
 	class RawStream
@@ -302,4 +447,3 @@ namespace Lina
 
 } // namespace Lina
 
-#endif

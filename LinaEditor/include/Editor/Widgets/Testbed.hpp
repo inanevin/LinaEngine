@@ -44,6 +44,6 @@ namespace Lina::Editor
 
 	private:
 	};
-	LINA_WIDGET_BEGIN(Testbed, Editor)
+	LINA_WIDGET_BEGIN(Testbed, Hidden)
 	LINA_CLASS_END(Testbed)
 } // namespace Lina::Editor

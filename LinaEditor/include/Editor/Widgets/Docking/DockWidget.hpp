@@ -52,7 +52,7 @@ namespace Lina::Editor
 		Vector<Widget*> m_adjacentWidgets[4];
 	};
 
-	LINA_WIDGET_BEGIN(DockWidget, Editor)
+	LINA_WIDGET_BEGIN(DockWidget, Hidden)
 	LINA_CLASS_END(DockWidget)
 
 } // namespace Lina::Editor

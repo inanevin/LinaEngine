@@ -689,28 +689,6 @@ namespace Lina::Editor
 		root->GetChildrenByAbsPath(newAbsPath, true)->textureAtlas = atlas;
 	}
 
-	ItemDefinition PanelResources::CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories, bool unfoldOverride)
-	{
-		ItemDefinition def = {
-			.userData		  = it,
-			.useOutlineInGrid = it->outlineFX,
-			.unfoldOverride	  = unfoldOverride,
-			.icon			  = it->isDirectory ? ICON_FOLDER : "",
-			.texture		  = it->textureAtlas,
-			.name			  = it->name,
-		};
-
-		for (DirectoryItem* c : it->children)
-		{
-			if (onlyDirectories && !c->isDirectory)
-				continue;
-
-			def.children.push_back(CreateDefinitionForItem(c, onlyDirectories, unfoldOverride));
-		}
-
-		return def;
-	}
-
 	void PanelResources::SelectDirectory(DirectoryItem* item, bool selectInFolderBrowserController)
 	{
 		if (selectInFolderBrowserController)

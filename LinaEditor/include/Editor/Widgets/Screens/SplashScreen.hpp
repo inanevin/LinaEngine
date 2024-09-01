@@ -74,7 +74,7 @@ namespace Lina::Editor
 		float	 m_loadingBarHeight	   = 0.0f;
 	};
 
-	LINA_WIDGET_BEGIN(SplashScreen, Editor)
+	LINA_WIDGET_BEGIN(SplashScreen, Hidden)
 	LINA_CLASS_END(SplashScreen)
 
 } // namespace Lina::Editor

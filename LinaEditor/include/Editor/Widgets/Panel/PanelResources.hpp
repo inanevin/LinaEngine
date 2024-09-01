@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/Panel.hpp"
 #include "Core/GUI/Widgets/Compound/FileMenu.hpp"
 #include "Editor/IO/FileManager.hpp"
-#include "Editor/Widgets/Layout/ItemLayout.hpp"
 
 namespace Lina
 {
@@ -94,7 +93,6 @@ namespace Lina::Editor
 		void	PerformPayload(DirectoryItem* targetItem);
 
 		void		   SwitchFileBrowserContents(bool showAsGrid);
-		ItemDefinition CreateDefinitionForItem(DirectoryItem* it, bool onlyDirectories, bool unfoldOverride);
 		void		   SelectDirectory(DirectoryItem* item, bool selectInFolderBrowserController);
 		void		   SelectInFileBrowser(DirectoryItem* targetItem);
 		DirectoryItem* FindFirstParentExcluding(DirectoryItem* searchStart, const Vector<DirectoryItem*>& excludedItems);
@@ -127,7 +125,7 @@ namespace Lina::Editor
 		Vector<Widget*> m_gridItems;
 	};
 
-	LINA_WIDGET_BEGIN(PanelResources, Editor)
+	LINA_WIDGET_BEGIN(PanelResources, Hidden)
 	LINA_CLASS_END(PanelResources)
 
 } // namespace Lina::Editor

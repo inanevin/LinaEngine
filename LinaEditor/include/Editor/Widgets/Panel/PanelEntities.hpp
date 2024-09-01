@@ -62,7 +62,7 @@ namespace Lina::Editor
 		EntityWorld*  m_world		 = nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(PanelEntities, Editor)
+	LINA_WIDGET_BEGIN(PanelEntities, Hidden)
 	LINA_CLASS_END(PanelEntities)
 
 } // namespace Lina::Editor

@@ -57,7 +57,7 @@ namespace Lina::Editor
 		ColorWheelCompound* m_colorWheel = nullptr;
 	};
 
-	LINA_WIDGET_BEGIN(PanelColorWheel, Editor)
+	LINA_WIDGET_BEGIN(PanelColorWheel, Hidden)
 	LINA_CLASS_END(PanelColorWheel)
 
 } // namespace Lina::Editor

@@ -58,7 +58,7 @@ namespace Lina::Editor
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << selected << iconScale << topRound << bottomRounding;
+				stream << selected << iconScale << topRounding << bottomRounding;
 				stream << static_cast<uint32>(icons.size());
 				stream << static_cast<uint32>(tooltips.size());
 				for (const String& str : icons)
@@ -69,7 +69,7 @@ namespace Lina::Editor
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> selected >> iconScale >> topRound >> bottomRounding;
+				stream >> selected >> iconScale >> topRounding >> bottomRounding;
 				uint32 iconsSz = 0, tooltipsSz = 0;
 				stream >> iconsSz >> tooltipsSz;
 				icons.resize(iconsSz);

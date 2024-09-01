@@ -49,8 +49,35 @@ SOFTWARE.
 namespace Lina
 {
 
+	struct Test
+	{
+		bool a;
+	};
+
+	enum TestEnum
+	{
+		AQBC,
+	};
+
+	enum class testEC
+	{
+		hehehe,
+	};
+
 	void Application::Initialize(const SystemInitializationInfo& initInfo)
 	{
+		OStream				  stream;
+		Test				  tt;
+		uint8				  u8 = 0;
+		Vector<uint8>		  vec;
+		HashMap<uint32, bool> aq;
+		String				  hehe;
+		testEC				  abc;
+		TestEnum			  abcd;
+
+		stream << abc << abcd;
+
+		int ab				 = 5;
 		m_appDelegate		 = initInfo.appDelegate;
 		m_appDelegate->m_app = this;
 		LINA_ASSERT(m_appDelegate != nullptr, "Application listener can not be empty!");
