@@ -34,7 +34,7 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -372,8 +372,8 @@ namespace Lina
 		stream << activeTextureTiling << useSpecialTexture << outlineIsInner;
 		stream << colorInterpolateSpeed << outlineThickness << rounding << childPadding;
 		stream << drawOrderIncrement;
-		StringSerialization::SaveToStream(stream, tooltip);
-		StringSerialization::SaveToStream(stream, debugName);
+		stream << tooltip;
+		stream << debugName;
 		stream << childMargins.top << childMargins.bottom << childMargins.left << childMargins.right;
 		stream << borderThickness.top << borderThickness.bottom << borderThickness.left << borderThickness.right;
 		colorBorders.SaveToStream(stream);
@@ -398,8 +398,8 @@ namespace Lina
 		stream >> activeTextureTiling >> useSpecialTexture >> outlineIsInner;
 		stream >> colorInterpolateSpeed >> outlineThickness >> rounding >> childPadding;
 		stream >> drawOrderIncrement;
-		StringSerialization::LoadFromStream(stream, tooltip);
-		StringSerialization::LoadFromStream(stream, debugName);
+		stream >> tooltip;
+		stream >> debugName;
 		stream >> childMargins.top >> childMargins.bottom >> childMargins.left >> childMargins.right;
 		stream >> borderThickness.top >> borderThickness.bottom >> borderThickness.left >> borderThickness.right;
 		colorBorders.LoadFromStream(stream);

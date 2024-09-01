@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/Meta/ProjectData.hpp"
 #include "Common/Data/Streams.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/FileSystem/FileSystem.hpp"
 
 namespace Lina
@@ -38,7 +38,7 @@ namespace Lina
 		uint32 version = 0;
 		in >> version;
 		in >> m_resourceIDCounter;
-		StringSerialization::LoadFromStream(in, m_projectName);
+		in >> m_projectName;
 		m_rootDirectory.LoadFromStream(in);
 	}
 
@@ -46,7 +46,7 @@ namespace Lina
 	{
 		out << VERSION;
 		out << m_resourceIDCounter;
-		StringSerialization::SaveToStream(out, m_projectName);
+		out << m_projectName;
 		m_rootDirectory.SaveToStream(out);
 	}
 

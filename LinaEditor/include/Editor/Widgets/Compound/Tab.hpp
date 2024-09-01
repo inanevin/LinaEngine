@@ -32,7 +32,6 @@ SOFTWARE.
 #include "Editor/CommonEditor.hpp"
 #include "Common/Common.hpp"
 #include "Common/Tween/Tween.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -67,13 +66,13 @@ namespace Lina::Editor
 			void SaveToStream(OStream& stream) const
 			{
 				stream << isSelected << disableMovement << desiredX << fixedTab;
-				StringSerialization::SaveToStream(stream, title);
+				stream << title;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
 				stream >> isSelected >> disableMovement >> desiredX >> fixedTab;
-				StringSerialization::LoadFromStream(stream, title);
+				stream >> title;
 			}
 		};
 

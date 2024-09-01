@@ -27,8 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Resources/Data/ResourceMetadata.hpp"
-#include "Common/Serialization/HashMapSerialization.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -151,43 +149,26 @@ namespace Lina
 
 	void ResourceMetadata::SaveToStream(OStream& stream)
 	{
-		HashMapSerialization::SaveToStream_PT(stream, m_ints);
-		HashMapSerialization::SaveToStream_PT(stream, m_uint8s);
-		HashMapSerialization::SaveToStream_PT(stream, m_bools);
-		HashMapSerialization::SaveToStream_PT(stream, m_floats);
-		HashMapSerialization::SaveToStream_OBJ(stream, m_vec2s);
-		HashMapSerialization::SaveToStream_OBJ(stream, m_vec3s);
-		HashMapSerialization::SaveToStream_OBJ(stream, m_vec4s);
-
-		const uint32 size = static_cast<uint32>(m_strings.size());
-		stream << size;
-
-		for (auto& [sid, str] : m_strings)
-		{
-			stream << sid;
-			StringSerialization::SaveToStream(stream, str);
-		}
+		stream << m_ints;
+		stream << m_uint8s;
+		stream << m_bools;
+		stream << m_floats;
+		stream << m_vec2s;
+		stream << m_vec3s;
+		stream << m_vec4s;
+		stream << m_strings;
 	}
 
 	void ResourceMetadata::LoadFromStream(IStream& stream)
 	{
-		HashMapSerialization::LoadFromStream_PT(stream, m_ints);
-		HashMapSerialization::LoadFromStream_PT(stream, m_uint8s);
-		HashMapSerialization::LoadFromStream_PT(stream, m_bools);
-		HashMapSerialization::LoadFromStream_PT(stream, m_floats);
-		HashMapSerialization::LoadFromStream_OBJ(stream, m_vec2s);
-		HashMapSerialization::LoadFromStream_OBJ(stream, m_vec3s);
-		HashMapSerialization::LoadFromStream_OBJ(stream, m_vec4s);
-
-		uint32 size = 0;
-		stream >> size;
-
-		for (uint32 i = 0; i < size; i++)
-		{
-			uint32 sid;
-			stream >> sid;
-			StringSerialization::LoadFromStream(stream, m_strings[sid]);
-		}
+		stream >> m_ints;
+		stream >> m_uint8s;
+		stream >> m_bools;
+		stream >> m_floats;
+		stream >> m_vec2s;
+		stream >> m_vec3s;
+		stream >> m_vec4s;
+		stream >> m_strings;
 	}
 
 	void ResourceMetadata::ClearAll()

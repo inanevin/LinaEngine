@@ -100,16 +100,7 @@ namespace Lina::Editor
 		stream >> border;
 		stream >> m_contentsSize;
 
-		uint32 favDirectoriesSize = 0;
-		stream >> favDirectoriesSize;
-
-		for (uint32 i = 0; i < favDirectoriesSize; i++)
-		{
-			String str = "";
-			StringSerialization::LoadFromStream(stream, str);
-			if (m_editor->GetFileManager().FindItemFromRelativePath(str, m_editor->GetFileManager().GetRoot()) != nullptr)
-				m_favouriteDirectories.push_back(str);
-		}
+		stream >> m_favouriteDirectories;
 
 		const bool showAsGrid = m_contentsSize > LIST_CONTENTS_LIMIT;
 		RefreshFolderBrowser();
@@ -121,9 +112,7 @@ namespace Lina::Editor
 		float border = 0.25f;
 		stream << border;
 		stream << m_contentsSize;
-		stream << static_cast<uint32>(m_favouriteDirectories.size());
-		for (const String& str : m_favouriteDirectories)
-			StringSerialization::SaveToStream(stream, str);
+		stream << m_favouriteDirectories;
 	}
 
 	void PanelResources::SaveLayoutDefaults(OStream& stream)

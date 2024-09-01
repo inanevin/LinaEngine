@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Resource/ShaderVariant.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
@@ -52,7 +52,7 @@ namespace Lina
 		const uint8 depthFormatInt = static_cast<uint8>(depthFormat);
 		const uint8 topoInt		   = static_cast<uint8>(topology);
 		stream << blendDisable << depthTest << depthWrite << cullModeInt << frontFaceInt << depthOpInt << depthBiasEnable << depthBiasClamp << depthBiasConstant << depthBiasSlope << depthFormatInt << topoInt;
-		StringSerialization::SaveToStream(stream, name);
+		stream << name;
 		VectorSerialization::SaveToStream_OBJ(stream, targets);
 	}
 
@@ -60,7 +60,7 @@ namespace Lina
 	{
 		uint8 cullModeInt = 0, frontFaceInt = 0, depthOpInt = 0, depthFormatInt = 0, topoInt = 8;
 		stream >> blendDisable >> depthTest >> depthWrite >> cullModeInt >> frontFaceInt >> depthOpInt >> depthBiasEnable >> depthBiasClamp >> depthBiasConstant >> depthBiasSlope >> depthFormatInt >> topoInt;
-		StringSerialization::LoadFromStream(stream, name);
+		stream >> name;
 		VectorSerialization::LoadFromStream_OBJ(stream, targets);
 		depthOp		= static_cast<LinaGX::CompareOp>(depthOpInt);
 		cullMode	= static_cast<LinaGX::CullMode>(cullModeInt);

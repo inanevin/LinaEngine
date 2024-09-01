@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Common/StringID.hpp"
 #include "Common/Data/Streams.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Editor/CommonEditor.hpp"
 
 namespace Lina::Editor
@@ -120,7 +120,7 @@ namespace Lina::Editor
 				out << sid;
 				position.SaveToStream(out);
 				size.SaveToStream(out);
-				StringSerialization::SaveToStream(out, title);
+				out << title;
 				VectorSerialization::SaveToStream_OBJ(out, dockWidgets);
 			}
 
@@ -129,7 +129,7 @@ namespace Lina::Editor
 				in >> sid;
 				position.LoadFromStream(in);
 				size.LoadFromStream(in);
-				StringSerialization::LoadFromStream(in, title);
+				in >> title;
 				VectorSerialization::LoadFromStream_OBJ(in, dockWidgets, version);
 			}
 		};

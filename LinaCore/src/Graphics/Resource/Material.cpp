@@ -33,7 +33,7 @@ SOFTWARE.
 #include "Core/Graphics/Resource/TextureSampler.hpp"
 #include "Core/Graphics/Pipeline/DescriptorSet.hpp"
 #include "Common/System/System.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/Serialization/Serialization.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
@@ -115,8 +115,7 @@ namespace Lina
 		stream << VERSION;
 		stream << m_id;
 		stream << m_shaderSID;
-
-		StringSerialization::SaveToStream(stream, m_shaderPath);
+		stream << m_shaderPath;
 		VectorSerialization::SaveToStream_OBJ(stream, m_properties);
 	}
 
@@ -126,7 +125,7 @@ namespace Lina
 		stream >> version;
 		stream >> m_id;
 		stream >> m_shaderSID;
-		StringSerialization::LoadFromStream(stream, m_shaderPath);
+		stream >> m_shaderPath;
 		VectorSerialization::LoadFromStream_OBJ(stream, m_properties);
 	}
 

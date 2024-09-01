@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Tween/Tween.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -54,13 +53,13 @@ namespace Lina
 			void SaveToStream(OStream& stream) const
 			{
 				stream << maxSizeY << useFixedSizeX << closeOnSelect;
-				StringSerialization::SaveToStream(stream, selectedIcon);
+				stream << selectedIcon;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
 				stream >> maxSizeY >> useFixedSizeX >> closeOnSelect;
-				StringSerialization::LoadFromStream(stream, selectedIcon);
+				stream >> selectedIcon;
 			}
 		};
 

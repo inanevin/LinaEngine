@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Data/ModelMaterial.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -35,13 +34,13 @@ namespace Lina
 	void ModelMaterial::SaveToStream(OStream& stream) const
 	{
 		stream << m_defaultMat;
-		StringSerialization::SaveToStream(stream, m_name);
+		stream << m_name;
 	}
 
 	void ModelMaterial::LoadFromStream(IStream& stream)
 	{
 		stream >> m_defaultMat;
-		StringSerialization::LoadFromStream(stream, m_name);
+		stream >> m_name;
 	}
 
 } // namespace Lina

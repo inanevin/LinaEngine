@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Core/Graphics/Data/ModelNode.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -44,7 +43,7 @@ namespace Lina
 
 	void ModelNode::SaveToStream(OStream& stream) const
 	{
-		StringSerialization::SaveToStream(stream, m_name);
+		stream << m_name;
 		m_localMatrix.SaveToStream(stream);
 
 		stream << static_cast<uint32>(m_children.size());
@@ -61,7 +60,7 @@ namespace Lina
 
 	void ModelNode::LoadFromStream(IStream& stream)
 	{
-		StringSerialization::LoadFromStream(stream, m_name);
+		stream >> m_name;
 		m_localMatrix.LoadFromStream(stream);
 
 		uint32 childSz = 0;

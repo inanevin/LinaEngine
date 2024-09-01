@@ -63,7 +63,6 @@ set (SOURCES
 	src/Serialization/Serializable.cpp
 	src/Serialization/Endianness.cpp
 	src/Serialization/Compressor.cpp
-	src/Serialization/StringSerialization.cpp
 	
 	# Memory
 	src/Memory/Memory.cpp
@@ -164,9 +163,7 @@ set(HEADERS
 	include/Common/Serialization/Endianness.hpp
 	include/Common/Serialization/Serialization.hpp
 	include/Common/Serialization/Serializable.hpp
-	include/Common/Serialization/StringSerialization.hpp
 	include/Common/Serialization/VectorSerialization.hpp
-	include/Common/Serialization/HashMapSerialization.hpp
 	include/Common/Serialization/QueueSerialization.hpp
 	include/Common/Serialization/SetSerialization.hpp
 

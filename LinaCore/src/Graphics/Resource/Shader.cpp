@@ -34,9 +34,8 @@ SOFTWARE.
 #include "Core/Graphics/Pipeline/DescriptorSet.hpp"
 
 #include "Common/System/System.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/FileSystem//FileSystem.hpp"
-#include "Common/Serialization/HashMapSerialization.hpp"
 #include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
@@ -44,30 +43,24 @@ namespace Lina
 	void ShaderProperty::SaveToStream(OStream& out) const
 	{
 		out << sid;
-		out << static_cast<uint8>(type);
-		StringSerialization::SaveToStream(out, name);
-		out << static_cast<uint32>(size);
+		out << type;
+		out << name;
+		out << size;
 		out.WriteRawEndianSafe((uint8*)&data, size);
 	}
 
 	void ShaderProperty::LoadFromStream(IStream& in)
 	{
 		in >> sid;
-		uint8 typeInt = 0;
-		in >> typeInt;
-		type = static_cast<ShaderPropertyType>(typeInt);
-		StringSerialization::LoadFromStream(in, name);
-
-		uint32 sz = 0;
-		in >> sz;
-		size = static_cast<size_t>(sz);
-
+		in >> type;
+		in >> name;
+		in >> size;
 		in.ReadToRawEndianSafe((void*)&data, size);
 	}
 
 	void Shader::Metadata::SaveToStream(OStream& out) const
 	{
-		HashMapSerialization::SaveToStream_OBJ(out, variants);
+		out << variants;
 		out << descriptorSetAllocationCount;
 		out << drawIndirectEnabled;
 		out << materialSize;
@@ -75,7 +68,7 @@ namespace Lina
 
 	void Shader::Metadata::LoadFromStream(IStream& in)
 	{
-		HashMapSerialization::LoadFromStream_OBJ(in, variants);
+		in >> variants;
 		in >> descriptorSetAllocationCount;
 		in >> drawIndirectEnabled;
 		in >> materialSize;

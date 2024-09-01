@@ -31,7 +31,6 @@ SOFTWARE.
 #include "CommonWorld.hpp"
 #include "Entity.hpp"
 #include "Common/SizeDefinitions.hpp"
-#include "Common/Serialization/HashMapSerialization.hpp"
 #include "Common/Event/GameEventDispatcher.hpp"
 #include "Common/Memory/AllocatorBucket.hpp"
 

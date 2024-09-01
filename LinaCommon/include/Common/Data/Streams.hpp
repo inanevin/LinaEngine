@@ -112,54 +112,16 @@ namespace Lina
 		size_t m_size  = 0;
 	};
 
-	template <typename T, typename Enable = void> struct LoadHelper;
-
-	template <typename T> struct LoadHelper<T, typename std::enable_if<!std::is_same<T, size_t>::value && !std::is_same<T, const size_t>::value>::type>
-	{
-		static void ReadFromStream(IStream& istm, T& val)
-		{
-			istm.Read(val);
-			if (Endianness::ShouldSwap())
-			{
-				Endianness::SwapEndian(val);
-			}
-		}
-	};
-
-	template <typename T> struct LoadHelper<T, typename std::enable_if<std::is_same<T, const size_t>::value>::type>
-	{
-		static void ReadFromStream(IStream& istm, T& val)
-		{
-			uint32_t loadedValue;
-			istm.Read(loadedValue);
-			if (Endianness::ShouldSwap())
-			{
-				Endianness::SwapEndian(loadedValue);
-			}
-			val = static_cast<size_t>(loadedValue); // Cast back to size_t after reading
-		}
-	};
-
-	template <typename T> struct LoadHelper<T, typename std::enable_if<std::is_same<T, size_t>::value>::type>
-	{
-		static void ReadFromStream(IStream& istm, T& val)
-		{
-			uint32_t loadedValue;
-			istm.Read(loadedValue);
-			if (Endianness::ShouldSwap())
-			{
-				Endianness::SwapEndian(loadedValue);
-			}
-			val = static_cast<size_t>(loadedValue); // Cast back to size_t after reading
-		}
-	};
-
 	// Helper traits to detect vector and hashmap
 	template <typename T> struct is_vector : std::false_type
 	{
 	};
 
 	template <typename U> struct is_vector<std::vector<U>> : std::true_type
+	{
+	};
+
+	template <typename U> struct is_vector<const std::vector<U>> : std::true_type
 	{
 	};
 
@@ -173,7 +135,33 @@ namespace Lina
 	{
 	};
 
+	template <typename U, typename V> struct is_hashmap<const HashMap<U, V>> : std::true_type
+	{
+	};
+
 	template <typename T> inline constexpr bool is_hashmap_v = is_hashmap<T>::value;
+
+	template <typename Stream, typename Key, typename Value> void SerializeHashMap(Stream& stream, const HashMap<Key, Value>& map)
+	{
+		stream << static_cast<uint32_t>(map.size());
+		for (const auto& [key, value] : map)
+		{
+			stream << key << value;
+		}
+	}
+
+	template <typename Stream, typename Key, typename Value> void DeserializeHashMap(Stream& stream, HashMap<Key, Value>& map)
+	{
+		uint32_t size = 0;
+		stream >> size;
+		Key	  key;
+		Value value;
+		for (uint32_t i = 0; i < size; ++i)
+		{
+			stream >> key >> value;
+			map[key] = value;
+		}
+	}
 
 	template <typename T> IStream& operator>>(IStream& stream, T& val)
 	{
@@ -191,7 +179,7 @@ namespace Lina
 				Endianness::SwapEndian(val);
 			}
 		}
-		else if constexpr (std::is_same_v<T, String>)
+		else if constexpr (std::is_same_v<T, String> || std::is_same_v<T, std::string>)
 		{
 			uint32 sz = 0;
 			stream >> sz;
@@ -217,13 +205,9 @@ namespace Lina
 		}
 		else if constexpr (is_hashmap_v<T>)
 		{
-
-			uint32 sz = 0;
-			stream >> sz;
-
-			for (const auto& [key, value] : val)
-			{
-			}
+			using KeyType	= typename T::key_type;
+			using ValueType = typename T::mapped_type;
+			DeserializeHashMap(stream, val);
 		}
 		else if constexpr (std::is_class_v<T>)
 		{
@@ -290,41 +274,6 @@ namespace Lina
 		size_t m_totalSize	 = 0;
 	};
 
-	template <typename T, typename Enable = void> struct StreamHelper;
-
-	template <typename T> struct StreamHelper<T, typename std::enable_if<!std::is_same<T, size_t>::value && !std::is_same<T, const size_t>::value>::type>
-	{
-		static void WriteToStream(OStream& stream, T& val)
-		{
-			auto copy = const_cast<typename std::remove_const<T>::type&>(val);
-			if (Endianness::ShouldSwap())
-				Endianness::SwapEndian(copy);
-			stream.Write<T>(copy);
-		}
-	};
-
-	template <typename T> struct StreamHelper<T, typename std::enable_if<std::is_same<T, size_t>::value>::type>
-	{
-		static void WriteToStream(OStream& stream, T& val)
-		{
-			uint32_t copy = static_cast<uint32_t>(val); // Cast to uint32_t
-			if (Endianness::ShouldSwap())
-				Endianness::SwapEndian(copy);
-			stream.Write<uint32_t>(copy);
-		}
-	};
-
-	template <typename T> struct StreamHelper<T, typename std::enable_if<std::is_same<T, const size_t>::value>::type>
-	{
-		static void WriteToStream(OStream& stream, T& val)
-		{
-			uint32_t copy = static_cast<uint32_t>(val); // Cast to uint32_t
-			if (Endianness::ShouldSwap())
-				Endianness::SwapEndian(copy);
-			stream.Write<uint32_t>(copy);
-		}
-	};
-
 	template <typename T> OStream& operator<<(OStream& stream, T& val)
 	{
 		if constexpr (std::is_same_v<T, std::size_t>)
@@ -339,9 +288,9 @@ namespace Lina
 				Endianness::SwapEndian(copy);
 			stream.Write<T>(copy);
 		}
-		else if constexpr (std::is_same_v<T, String>)
+		else if constexpr (std::is_same_v<T, String> || std::is_same_v<T, const String>)
 		{
-			const uint32 sz = val.size();
+			const uint32 sz = static_cast<uint32>(val.size());
 			stream << sz;
 			stream.WriteRawEndianSafe((uint8*)val.data(), val.size());
 		}
@@ -360,15 +309,9 @@ namespace Lina
 		}
 		else if constexpr (is_hashmap_v<T>)
 		{
-			// Handle hashmap
-			const uint32 sz = static_cast<uint32>(val.size());
-			stream << sz;
-
-			for (const auto& [key, value] : val)
-			{
-				stream << key;
-				stream << val;
-			}
+			using KeyType	= typename T::key_type;
+			using ValueType = typename T::mapped_type;
+			SerializeHashMap(stream, val);
 		}
 		else if constexpr (std::is_class_v<T>)
 		{

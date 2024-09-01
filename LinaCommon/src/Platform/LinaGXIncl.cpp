@@ -27,7 +27,6 @@ SOFTWARE.
 */
 
 #include "Common/Platform/LinaGXIncl.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -68,7 +67,7 @@ namespace Lina
 			stream << static_cast<int32>(member.size);
 			stream << static_cast<int32>(member.offset);
 			stream << static_cast<int32>(member.alignment);
-			StringSerialization::SaveToStream(stream, member.name.c_str());
+			stream << String(member.name.c_str());
 			stream << member.elementSize;
 			stream << static_cast<int32>(member.arrayStride);
 			stream << static_cast<int32>(member.matrixStride);
@@ -93,7 +92,7 @@ namespace Lina
 			stream >> mSize;
 			stream >> offset;
 			stream >> alignment;
-			StringSerialization::LoadFromStream(stream, mName);
+			stream >> mName;
 			stream >> member.elementSize;
 			stream >> arrayStride;
 			stream >> matrixStride;
@@ -115,7 +114,7 @@ namespace Lina
 		stream << block.binding;
 		SaveMembers(stream, block.members);
 		SaveStages(stream, block.stages);
-		StringSerialization::SaveToStream(stream, block.name.c_str());
+		stream << String(block.name.c_str());
 
 		stream << static_cast<int32>(block.isActive.size());
 
@@ -137,7 +136,7 @@ namespace Lina
 		LoadStages(stream, block.stages);
 
 		String name = "";
-		StringSerialization::LoadFromStream(stream, name);
+		stream >> name;
 		block.name = name.c_str();
 
 		int32 sz = 0;
@@ -154,7 +153,7 @@ namespace Lina
 	void SaveDescriptorSetBinding(OStream& stream, const LinaGX::ShaderDescriptorSetBinding& binding)
 	{
 		stream << static_cast<uint8>(binding.type);
-		StringSerialization::SaveToStream(stream, binding.name.c_str());
+		stream << String(binding.name.c_str());
 
 		SaveStages(stream, binding.stages);
 		SaveMembers(stream, binding.structMembers);
@@ -188,7 +187,7 @@ namespace Lina
 		uint8  bindingTypeInt = 0;
 		stream >> bindingTypeInt;
 		binding.type = static_cast<LinaGX::DescriptorType>(bindingTypeInt);
-		StringSerialization::LoadFromStream(stream, bName);
+		stream >> bName;
 		binding.name = bName.c_str();
 
 		LoadStages(stream, binding.stages);
@@ -234,7 +233,7 @@ namespace Lina
 
 		for (const auto& vi : layout.vertexInputs)
 		{
-			StringSerialization::SaveToStream(stream, vi.name.c_str());
+			stream << String(vi.name.c_str());
 			stream << vi.location << vi.elements << static_cast<uint32>(vi.size) << static_cast<uint8>(vi.format) << static_cast<uint32>(vi.offset);
 		}
 
@@ -258,7 +257,7 @@ namespace Lina
 		for (const auto& [stg, ep] : layout.entryPoints)
 		{
 			stream << static_cast<uint8>(stg);
-			StringSerialization::SaveToStream(stream, ep.c_str());
+			stream << String(ep.c_str());
 		}
 
 		for (const auto& [stg, id] : layout.mslMaxBufferIDs)
@@ -292,7 +291,7 @@ namespace Lina
 			auto& vi = layout.vertexInputs[i];
 
 			String name = "";
-			StringSerialization::LoadFromStream(stream, name);
+			stream >> name;
 			vi.name = name.c_str();
 
 			uint8  fmt = 0;
@@ -330,7 +329,7 @@ namespace Lina
 			uint8 stg = 0;
 			stream >> stg;
 			String ep = "";
-			StringSerialization::LoadFromStream(stream, ep);
+			stream >> ep;
 			layout.entryPoints[static_cast<LinaGX::ShaderStage>(stg)] = ep.c_str();
 		}
 

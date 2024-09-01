@@ -29,7 +29,7 @@ SOFTWARE.
 #include "Core/Graphics/Data/Mesh.hpp"
 #include "Core/Graphics/GfxManager.hpp"
 #include "Common/Data/Streams.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/Platform/LinaGXIncl.hpp"
 
@@ -37,7 +37,7 @@ namespace Lina
 {
 	void MeshDefault::SaveToStream(OStream& stream) const
 	{
-		StringSerialization::SaveToStream(stream, m_name);
+		stream << m_name;
 		VectorSerialization::SaveToStream_PT(stream, m_indices16);
 		VectorSerialization::SaveToStream_OBJ(stream, m_vertices);
 		VectorSerialization::SaveToStream_OBJ(stream, m_primitives);
@@ -45,7 +45,7 @@ namespace Lina
 
 	void MeshDefault::LoadFromStream(IStream& stream)
 	{
-		StringSerialization::LoadFromStream(stream, m_name);
+		stream >> m_name;
 		VectorSerialization::LoadFromStream_PT(stream, m_indices16);
 		VectorSerialization::LoadFromStream_OBJ(stream, m_vertices);
 		VectorSerialization::LoadFromStream_OBJ(stream, m_primitives);

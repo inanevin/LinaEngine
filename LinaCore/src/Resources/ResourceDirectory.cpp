@@ -27,7 +27,7 @@ SOFTWARE.
 */
 
 #include "Core/Resources/ResourceDirectory.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/Serialization/VectorSerialization.hpp"
 
 namespace Lina
@@ -36,7 +36,7 @@ namespace Lina
 	void ResourceDirectory::SaveToStream(OStream& stream)
 	{
 		stream << VERSION;
-		StringSerialization::SaveToStream(stream, name);
+		stream << name;
 		stream << isFolder;
 		stream << resourceID;
 		stream << resourceTID;
@@ -47,7 +47,7 @@ namespace Lina
 	{
 		uint32 ver = 0;
 		stream >> ver;
-		StringSerialization::LoadFromStream(stream, name);
+		stream >> name;
 		stream >> isFolder;
 		stream >> resourceID;
 		stream >> resourceTID;

@@ -31,7 +31,6 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
 #include "Common/Data/Bitmask.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
@@ -88,7 +87,7 @@ namespace Lina
 				colorNumberFillEnd.SaveToStream(stream);
 				colorPlaceHolder.SaveToStream(stream);
 				colorTextDefault.SaveToStream(stream);
-				StringSerialization::SaveToStream(stream, placeHolderText);
+				stream << placeHolderText;
 				stream << outlineThickness << horizontalIndent << usePlaceHolder << isNumberField << disableNumberSlider << clampNumber;
 				stream << valueMin << valueMax << valueStep << centerText << wrapText << clipText << decimals;
 			}

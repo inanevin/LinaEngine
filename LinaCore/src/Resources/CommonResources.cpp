@@ -27,20 +27,19 @@ SOFTWARE.
 */
 
 #include "Core/Resources/CommonResources.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
 
 namespace Lina
 {
 
 	void ResourceIdentifier::SaveToStream(OStream& stream) const
 	{
-		StringSerialization::SaveToStream(stream, relativePath);
+		stream << relativePath;
 		stream << tid << sid;
 	}
 
 	void ResourceIdentifier::LoadFromStream(IStream& stream)
 	{
-		StringSerialization::LoadFromStream(stream, relativePath);
+		stream >> relativePath;
 		stream >> tid >> sid;
 	}
 } // namespace Lina

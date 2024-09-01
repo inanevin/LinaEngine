@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
@@ -76,7 +76,7 @@ namespace Lina
 				colorDisabled.SaveToStream(stream);
 				sdfOutlineColor.SaveToStream(stream);
 				customClip.SaveToStream(stream);
-				StringSerialization::SaveToStream(stream, icon);
+				stream << icon;
 				stream << font << textScale << isDynamic << enableHoverPressColors << sdfThickness << sdfSoftness << sdfOutlineThickness << sdfOutlineSoftness;
 				stream << dynamicSizeToParent << dynamicSizeScale;
 			}
@@ -89,7 +89,7 @@ namespace Lina
 				colorDisabled.LoadFromStream(stream);
 				sdfOutlineColor.LoadFromStream(stream);
 				customClip.LoadFromStream(stream);
-				StringSerialization::LoadFromStream(stream, icon);
+				stream >> icon;
 				stream >> font >> textScale >> isDynamic >> enableHoverPressColors >> sdfThickness >> sdfSoftness >> sdfOutlineThickness >> sdfOutlineSoftness;
 				stream >> dynamicSizeToParent >> dynamicSizeScale;
 			}

@@ -30,7 +30,7 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina
@@ -67,7 +67,7 @@ namespace Lina
 				color.SaveToStream(stream);
 				colorDisabled.SaveToStream(stream);
 				customClip.SaveToStream(stream);
-				StringSerialization::SaveToStream(stream, text);
+				stream << text;
 				stream << textScale << wrapWidth << isDynamic << fetchCustomClipFromSelf << fetchWrapFromParent << fetchWrapFromParent << wordWrap;
 				stream << static_cast<uint8>(alignment);
 			}
@@ -77,7 +77,7 @@ namespace Lina
 				color.LoadFromStream(stream);
 				colorDisabled.LoadFromStream(stream);
 				customClip.LoadFromStream(stream);
-				StringSerialization::LoadFromStream(stream, text);
+				stream >> text;
 				stream >> textScale >> wrapWidth >> isDynamic >> fetchCustomClipFromSelf >> fetchWrapFromParent >> fetchWrapFromParent >> wordWrap;
 				uint8 align = 0;
 				stream >> align;

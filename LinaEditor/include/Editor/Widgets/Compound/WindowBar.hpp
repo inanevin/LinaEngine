@@ -29,7 +29,7 @@ SOFTWARE.
 #pragma once
 
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 
 namespace Lina::Editor
 {
@@ -48,15 +48,15 @@ namespace Lina::Editor
 
 			void SaveToStream(OStream& stream) const
 			{
-				StringSerialization::SaveToStream(stream, title);
-				StringSerialization::SaveToStream(stream, icon);
+				stream << title;
+				stream << icon;
 				stream << hasWindowButtons << controlsDragRect;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				StringSerialization::LoadFromStream(stream, title);
-				StringSerialization::LoadFromStream(stream, icon);
+				stream >> title;
+				stream >> icon;
 				stream >> hasWindowButtons >> controlsDragRect;
 			}
 		};

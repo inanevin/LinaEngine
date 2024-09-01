@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include "Core/World/Entity.hpp"
 #include "Core/World/Component.hpp"
-#include "Common/Serialization/StringSerialization.hpp"
+
 #include "Common/Serialization/VectorSerialization.hpp"
 #include "Common/Serialization/SetSerialization.hpp"
 #include "Common/Data/CommonData.hpp"
@@ -321,14 +321,14 @@ namespace Lina
 	{
 		m_mask.SaveToStream(stream);
 		m_transform.SaveToStream(stream);
-		StringSerialization::SaveToStream(stream, m_name);
+		stream << m_name;
 	}
 
 	void Entity::LoadFromStream(IStream& stream)
 	{
 		m_mask.LoadFromStream(stream);
 		m_transform.LoadFromStream(stream);
-		StringSerialization::LoadFromStream(stream, m_name);
+		stream >> m_name;
 	}
 
 	void Entity::UpdateLocalRotation()
