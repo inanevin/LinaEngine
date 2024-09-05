@@ -186,8 +186,7 @@ namespace Lina
 			const float value = GetValue();
 			if (!Math::Equals(value, m_lastStoredValue, 0.0001f))
 			{
-				m_text->GetProps().text = UtilStr::FloatToString(value, m_props.decimals);
-				m_text->CalculateTextSize();
+				UpdateTextFromValue();
 				m_lastStoredValue = value;
 			}
 		}
@@ -205,8 +204,7 @@ namespace Lina
 		{
 			const float			 perc = Math::Remap(GetValue(), m_props.valueMin, m_props.valueMax, 0.0f, 1.0f);
 			LinaVG::StyleOptions fill;
-			fill.color.start		= m_props.colorNumberFillStart.AsLVG4();
-			fill.color.end			= m_props.colorNumberFillEnd.AsLVG4();
+			fill.color				= m_props.colorNumberFill.AsLVG();
 			fill.color.gradientType = LinaVG::GradientType::Horizontal;
 			fill.rounding			= m_widgetProps.rounding;
 
@@ -281,6 +279,12 @@ namespace Lina
 		m_isEditing = true;
 		if (m_props.onEditStarted)
 			m_props.onEditStarted(m_text->GetProps().text);
+	}
+
+	void InputField::UpdateTextFromValue()
+	{
+		m_text->GetProps().text = UtilStr::FloatToString(GetValue(), m_props.decimals);
+		m_text->CalculateTextSize();
 	}
 
 	void InputField::SelectAll()
@@ -475,6 +479,12 @@ namespace Lina
 		if (m_props.isNumberField && button == LINAGX_MOUSE_MIDDLE && action == LinaGX::InputAction::Released && m_middlePressed)
 		{
 			m_middlePressed = false;
+			return true;
+		}
+
+		if (m_isHovered && m_props.onRightClick && button == LINAGX_MOUSE_1 && action == LinaGX::InputAction::Pressed)
+		{
+			m_props.onRightClick();
 			return true;
 		}
 

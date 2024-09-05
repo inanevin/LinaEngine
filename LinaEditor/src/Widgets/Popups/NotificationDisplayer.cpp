@@ -90,9 +90,9 @@ namespace Lina::Editor
 				{
 					float val = 0.0f;
 					item->onProgress(val);
-					item->slider->GetProps().localValue = Math::Lerp(item->slider->GetProps().localValue, val, delta * SLIDER_SPEED);
+					item->slider->GetProps()._localValue = Math::Lerp(item->slider->GetProps()._localValue, val, delta * SLIDER_SPEED);
 
-					if (item->slider->GetProps().localValue > 0.99f)
+					if (item->slider->GetProps()._localValue > 0.99f)
 					{
 						item->done	= true;
 						item->tween = Tween(1.0f, 0.0f, TWEEN_TIME, TweenType::Linear);
@@ -203,11 +203,11 @@ namespace Lina::Editor
 			slider->SetAlignedPosX(0.0f);
 			slider->SetAlignedSizeX(1.0f);
 			slider->SetFixedSizeY(Theme::GetDef().baseItemHeight * 0.5f);
-			slider->GetProps().colorFillMin = Theme::GetDef().accentSecondary;
-			slider->GetProps().colorFillMax = Theme::GetDef().accentSecondary;
-			slider->GetProps().minValue		= 0.0f;
-			slider->GetProps().maxValue		= 1.0f;
-			slider->GetProps().valuePtr		= &slider->GetProps().localValue;
+			slider->GetProps().colorFill.start = Theme::GetDef().accentSecondary;
+			slider->GetProps().colorFill.end   = Theme::GetDef().accentSecondary;
+			slider->GetProps().minValue		   = 0.0f;
+			slider->GetProps().maxValue		   = 1.0f;
+			slider->GetProps().valuePtr		   = &slider->GetProps()._localValue;
 			progressContainer->AddChild(slider);
 			notification->SetAlignedSizeY(1.0f);
 			item->slider = slider;

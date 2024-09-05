@@ -51,26 +51,25 @@ namespace Lina
 		{
 			bool				 _fold				 = false;
 			DirectionOrientation direction			 = DirectionOrientation::Horizontal;
-			Color				 colorFillMin		 = Theme::GetDef().accentPrimary1;
-			Color				 colorFillMax		 = Theme::GetDef().accentPrimary0;
+			ColorGrad			 colorFill			 = {Theme::GetDef().accentPrimary1, Theme::GetDef().accentPrimary0};
 			float				 crossAxisPercentage = Theme::GetDef().baseSliderPerc;
 			float				 minValue			 = 0.0f;
 			float				 maxValue			 = 0.0f;
 			float*				 valuePtr			 = nullptr;
 			float				 step				 = 0.0f;
-			float				 localValue			 = 0.0f;
+			float				 _localValue		 = 0.0f;
 
 			Delegate<void(float val)> onValueChanged;
 
 			void SaveToStream(OStream& stream) const
 			{
-				stream << colorFillMin << colorFillMax;
+				stream << colorFill;
 				stream << crossAxisPercentage << minValue << maxValue << step;
 			}
 
 			void LoadFromStream(IStream& stream)
 			{
-				stream >> colorFillMin >> colorFillMax;
+				stream >> colorFill;
 				stream >> crossAxisPercentage >> minValue >> maxValue >> step;
 			}
 		};
@@ -129,5 +128,12 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(SliderProperties)
 	LINA_FIELD(Slider::Properties, _fold, "Slider", "Category", 0)
+	LINA_FIELD(Slider::Properties, direction, "Direction", "enum", GetTypeID<DirectionOrientation>())
+	LINA_FIELD(Slider::Properties, colorFill, "Fill Color", "ColorGrad", 0)
+	LINA_FIELD(Slider::Properties, minValue, "Min Value", "float", 0)
+	LINA_FIELD(Slider::Properties, maxValue, "Max Value", "float", 0)
+	LINA_FIELD(Slider::Properties, step, "Step", "float", 0)
+	LINA_FIELD(Slider::Properties, crossAxisPercentage, "Cross-axis Percentage", "float", 0)
+	LINA_FIELD_LIMITS(Slider::Properties, crossAxisPercentage, "0.0", "1.0", "0.1")
 	LINA_CLASS_END(SliderProperties)
 } // namespace Lina

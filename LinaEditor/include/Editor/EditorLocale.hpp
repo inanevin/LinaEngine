@@ -130,6 +130,7 @@ namespace Lina::Editor
 		ThemeColor,
 		Both,
 		Export,
+		Refresh,
 	};
 
 	class Locale

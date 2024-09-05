@@ -97,6 +97,8 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(ColorFieldProperties)
 	LINA_FIELD(ColorField::Properties, _fold, "Color Field", "Category", 0)
+	LINA_FIELD(ColorField::Properties, convertToLinear, "Convert to Linear", "bool", 0)
+	LINA_FIELD(ColorField::Properties, disableInput, "Disable Input", "bool", 0)
 	LINA_CLASS_END(ColorFieldProperties)
 
 } // namespace Lina

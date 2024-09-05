@@ -43,7 +43,6 @@ SOFTWARE.
 
 namespace Lina
 {
-
 	void WidgetManager::Initialize(ResourceManagerV2* resourceManager, LinaGX::Window* window, LinaVG::Drawer* drawer)
 	{
 		m_resourceManagerV2 = resourceManager;

@@ -90,6 +90,12 @@ namespace Lina::Editor
 	{
 		m_selectionRectAnim.Tick(delta);
 
+        if(m_ownerRow == nullptr)
+        {
+            if(GetParent()->GetTID() == GetTypeID<TabRow>())
+                m_ownerRow = static_cast<TabRow*>(GetParent());
+        }
+        
 		// Hover
 		if (m_ownerRow->GetAnyPressed() && !m_isPressed)
 			m_isHovered = false;

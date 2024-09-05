@@ -279,30 +279,30 @@ namespace Lina
 			return cache->GetFunction(sid);
 		}
 
-		inline void AddPositiveDependency(StringID sid, uint32 val)
+		inline void AddPositiveDependency(StringID sid, uint8 val)
 		{
 			m_positiveDependencies[sid] = val;
 		}
 
-		inline void AdNegativeDependency(StringID sid, uint32 val)
+		inline void AdNegativeDependency(StringID sid, uint8 val)
 		{
 			m_negativeDependencies[sid] = val;
 		}
 
-		const HashMap<StringID, uint32>& GetPositiveDependencies() const
+		const HashMap<StringID, uint8>& GetPositiveDependencies() const
 		{
 			return m_positiveDependencies;
 		}
 
-		const HashMap<StringID, uint32>& GetNegativeDependencies() const
+		const HashMap<StringID, uint8>& GetNegativeDependencies() const
 		{
 			return m_negativeDependencies;
 		}
 		int32 _order = 0;
 
 	private:
-		HashMap<StringID, uint32>			m_positiveDependencies;
-		HashMap<StringID, uint32>			m_negativeDependencies;
+		HashMap<StringID, uint8>			m_positiveDependencies;
+		HashMap<StringID, uint8>			m_negativeDependencies;
 		HashMap<TypeID, FunctionCacheBase*> m_functionCaches;
 		PropertyCacheManager				m_propertyCacheManager;
 	};

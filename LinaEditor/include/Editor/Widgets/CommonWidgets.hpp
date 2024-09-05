@@ -41,6 +41,7 @@ namespace Lina
 	class Text;
 	class FoldLayout;
 	struct TextureAtlasImage;
+	class ResourceDirectory;
 } // namespace Lina
 
 namespace LinaGX
@@ -82,6 +83,8 @@ namespace Lina::Editor
 		static Widget*	   BuildColorGradSlider(Widget* src, ColorGrad* color);
 		static void		   BuildWidgetReflection(Widget* owner, void* obj, MetaType& meta);
 		static void		   RefreshVector(Widget* owningFold, FieldBase* field, void* vectorPtr, MetaType* meta, StringID subTypeSid, int32 elementIndex);
+
+		static Widget* ThrowResourceSelector(Widget* src, TypeID reosurceType, Delegate<void(ResourceDirectory*)>&& onSelected);
 
 	private:
 	};

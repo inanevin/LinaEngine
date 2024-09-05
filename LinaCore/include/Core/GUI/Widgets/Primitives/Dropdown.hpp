@@ -120,6 +120,9 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(DropdownProperties)
 	LINA_FIELD(Dropdown::Properties, _fold, "Dropdown", "Category", 0)
+	LINA_FIELD(Dropdown::Properties, closeOnSelect, "Close On Select", "bool", 0)
+	LINA_FIELD(Dropdown::Properties, switchTextOnSelect, "Switch Text Select", "bool", 0)
+	LINA_FIELD(Dropdown::Properties, horizontalIndent, "Horizontal Indent", "float", 0)
 	LINA_CLASS_END(DropdownProperties)
 
 } // namespace Lina

@@ -33,6 +33,7 @@ SOFTWARE.
 #include "Editor/Widgets/Panel/PanelPerformance.hpp"
 #include "Editor/Widgets/Panel/PanelWidgetEditor.hpp"
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
+#include "Editor/Widgets/Panel/PanelResourceBrowser.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 
 namespace Lina::Editor
@@ -49,6 +50,9 @@ namespace Lina::Editor
 			break;
 		case PanelType::Resources:
 			panel = source->GetWidgetManager()->Allocate<PanelResources>("Resources");
+			break;
+		case PanelType::ResourceBrowser:
+			panel = source->GetWidgetManager()->Allocate<PanelResourceBrowser>("Resource Browser");
 			break;
 		case PanelType::World:
 			panel = source->GetWidgetManager()->Allocate<PanelWorld>("World");

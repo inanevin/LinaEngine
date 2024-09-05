@@ -262,7 +262,7 @@ namespace Lina::Editor
 
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Resources)))
 		{
-			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::Resources, 0, this);
+			Editor::Get()->GetWindowPanelManager().OpenPanel(PanelType::ResourceBrowser, 0, this);
 			return true;
 		}
 

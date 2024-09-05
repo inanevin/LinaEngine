@@ -213,7 +213,7 @@ namespace Lina
 		virtual void Draw();
 		virtual void SaveToStream(OStream& stream) const;
 		virtual void LoadFromStream(IStream& stream);
-
+        
 		void	SetWidgetManager(WidgetManager* wm);
 		void	DrawDropshadow();
 		void	DrawBackground();
@@ -234,6 +234,7 @@ namespace Lina
 		Vector2 GetMonitorSize();
 		Vector2 GetWindowPos();
 		Widget* FindChildWithUserdata(void* ud);
+        Widget* FindDeepestHovered();
 
 		bool IsWidgetInHierarchy(Widget* widget);
 

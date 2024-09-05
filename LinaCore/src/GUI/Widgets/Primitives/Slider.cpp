@@ -123,8 +123,8 @@ namespace Lina
 
 		const float			 fillPercent = Math::Remap(*m_props.valuePtr, m_props.minValue, m_props.maxValue, 0.0f, 1.0f);
 		LinaVG::StyleOptions fill;
-		fill.color.start		= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMin.AsLVG4() : m_props.colorFillMax.AsLVG4();
-		fill.color.end			= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFillMax.AsLVG4() : m_props.colorFillMin.AsLVG4();
+		fill.color.start		= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFill.start.AsLVG4() : m_props.colorFill.end.AsLVG4();
+		fill.color.end			= m_props.direction == DirectionOrientation::Horizontal ? m_props.colorFill.end.AsLVG4() : m_props.colorFill.start.AsLVG4();
 		fill.color.gradientType = m_props.direction == DirectionOrientation::Horizontal ? LinaVG::GradientType::Horizontal : LinaVG::GradientType::Vertical;
 		m_lvg->DrawRect(m_fillStart.AsLVG(), m_fillEnd.AsLVG(), fill, 0.0f, m_drawOrder);
 

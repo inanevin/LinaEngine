@@ -33,6 +33,8 @@ SOFTWARE.
 #include "Editor/Widgets/Layout/ItemController.hpp"
 #include "Editor/Widgets/Compound/ColorWheelCompound.hpp"
 #include "Editor/Widgets/Panel/PanelColorWheel.hpp"
+#include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
+#include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Core/Resources/ResourceManager.hpp"
 #include "Core/GUI/Widgets/Layout/Popup.hpp"
 #include "Core/Graphics/Resource/Texture.hpp"
@@ -52,9 +54,11 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Button.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
 #include "Core/Graphics/CommonGraphics.hpp"
+#include "Core/Graphics/Resource/Font.hpp"
 #include "Core/GUI/Widgets/Layout/DirectionalLayout.hpp"
 #include "Core/GUI/Widgets/Layout/GridLayout.hpp"
 #include "Core/GUI/Widgets/Layout/FoldLayout.hpp"
+#include "Core/Resources/ResourceDirectory.hpp"
 
 namespace Lina::Editor
 {
@@ -918,8 +922,8 @@ namespace Lina::Editor
 	{
 		uint32 CountDependencies(MetaType& type, FieldBase* field)
 		{
-			const HashMap<StringID, uint32>& depPos = field->GetPositiveDependencies();
-			const HashMap<StringID, uint32>& depNeg = field->GetNegativeDependencies();
+			const HashMap<StringID, uint8>& depPos = field->GetPositiveDependencies();
+			const HashMap<StringID, uint8>& depNeg = field->GetNegativeDependencies();
 
 			uint32 deps = 0;
 
@@ -1050,10 +1054,65 @@ namespace Lina::Editor
 			inp->GetProps().valueBits	  = bits;
 			inp->GetProps().valueUnsigned = isUnsigned;
 
+			inp->GetProps().onRightClick = [wm, inp]() {
+				Popup* popup				   = wm->Allocate<Popup>("Popup");
+				popup->GetProps().selectedIcon = ICON_CIRCLE_FILLED;
+				popup->SetPos(inp->GetPos());
+				popup->AddTitleItem("Theme::");
+				popup->AddToggleItem("Theme:BaseIndent", false);
+				popup->AddToggleItem("Theme:BaseIndentInner", false);
+				popup->AddToggleItem("Theme:BaseItemHeight", false);
+				popup->AddToggleItem("Theme:BaseRounding", false);
+				popup->AddToggleItem("Theme:BaseOutlineThickness", false);
+				popup->AddToggleItem("Theme:BaseBorderThickness", false);
+				popup->GetProps().onSelectedItem = [inp](uint32 idx, void* ud) {
+					float val = 0.0f;
+
+					if (idx == 0)
+						val = Theme::GetDef().baseIndent;
+					else if (idx == 1)
+						val = Theme::GetDef().baseIndentInner;
+					else if (idx == 2)
+						val = Theme::GetDef().baseItemHeight;
+					else if (idx == 3)
+						val = Theme::GetDef().baseRounding;
+					else if (idx == 4)
+						val = Theme::GetDef().baseOutlineThickness;
+					else if (idx == 5)
+						val = Theme::GetDef().baseBorderThickness;
+
+					inp->SetValue(val);
+				};
+				popup->Initialize();
+				wm->AddToForeground(popup);
+				wm->GrabControls(popup);
+			};
+
 			return inp;
 		};
 
-		if (fieldType == "Vector"_hs)
+		auto buildResField = [wm, src](TypeID resType) -> Button* {
+			Button* btn								= wm->Allocate<Button>();
+			btn->GetWidgetProps().childMargins.left = Theme::GetDef().baseIndent;
+			btn->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+			btn->SetAlignedSize(Vector2(0.0f, 1.0f));
+			btn->GetText()->SetAnchorX(Anchor::Start);
+			btn->SetAlignedPosY(0.0f);
+			btn->GetText()->GetProps().text = "Resource";
+			btn->GetText()->SetAlignedPosX(0.0f);
+			btn->GetProps().onClicked = [src, resType]() {
+				ThrowResourceSelector(src, resType, [](ResourceDirectory* dir) {
+
+				});
+			};
+			return btn;
+		};
+
+		if (fieldType == "Font"_hs)
+		{
+			rightSide->AddChild(buildResField(GetTypeID<Font>()));
+		}
+		else if (fieldType == "Vector"_hs)
 		{
 			void*		   vectorPtr  = reflectionValue.GetPtr();
 			const uint32   vectorSize = field->GetFunction<uint32(void*)>("GetVectorSize"_hs)(vectorPtr);
@@ -1294,13 +1353,7 @@ namespace Lina::Editor
 			cb->GetProps().value		   = bval;
 			cb->GetIcon()->GetProps().icon = ICON_CHECK;
 			cb->GetIcon()->CalculateIconSize();
-			cb->GetProps().onValueChanged = [src, memberVariablePtr, &metaType, field](bool) {};
-			cb->SetTickHook([bval, fieldLayout](float delta) {
-				// if (fold->GetIsUnfolded() && *bval == false)
-				// 	fold->SetIsUnfolded(false);
-				// else if (!fold->GetIsUnfolded() && *bval == true)
-				// 	fold->SetIsUnfolded(true);
-			});
+
 			rightSide->AddChild(cb);
 		}
 		else if (fieldType == "uint32"_hs)
@@ -1446,8 +1499,8 @@ namespace Lina::Editor
 
 		for (FieldBase* field : fields)
 		{
-			const HashMap<StringID, uint32>& posDepends = field->GetPositiveDependencies();
-			const HashMap<StringID, uint32>& negDepends = field->GetNegativeDependencies();
+			const HashMap<StringID, uint8>& posDepends = field->GetPositiveDependencies();
+			const HashMap<StringID, uint8>& negDepends = field->GetNegativeDependencies();
 
 			if (posDepends.size() == 0 && negDepends.size() == 0)
 				continue;
@@ -1462,8 +1515,7 @@ namespace Lina::Editor
 
 				void* valPtr = depSrc->Value(obj).GetPtr();
 				current->AddPreTickHook([valPtr, val, current]() {
-					const uint32 depVal = *static_cast<uint32*>(valPtr);
-
+					const uint8 depVal = *static_cast<uint8*>(valPtr);
 					if (depVal == val && current->GetFlags().IsSet(WF_HIDE))
 						current->GetFlags().Remove(WF_HIDE);
 					else if (depVal != val && !current->GetFlags().IsSet(WF_HIDE))
@@ -1471,5 +1523,110 @@ namespace Lina::Editor
 				});
 			}
 		}
+	}
+
+	Widget* CommonWidgets::ThrowResourceSelector(Widget* src, TypeID resourceType, Delegate<void(ResourceDirectory*)>&& onSelected)
+	{
+		WidgetManager*	   wm		 = src->GetWidgetManager();
+		DirectionalLayout* layout	 = wm->Allocate<DirectionalLayout>();
+		layout->GetProps().direction = DirectionOrientation::Vertical;
+		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_FOREGROUND_BLOCKER);
+		layout->SetAlignedPos(Vector2(0.5f, 0.5f));
+		layout->SetAlignedSize(Vector2(0.4f, 0.6f));
+		layout->SetAnchorX(Anchor::Center);
+		layout->SetAnchorY(Anchor::Center);
+		layout->GetWidgetProps().borderThickness  = TBLR::Eq(2);
+		layout->GetWidgetProps().colorBorders	  = Theme::GetDef().black;
+		layout->GetWidgetProps().drawBackground	  = true;
+		layout->GetWidgetProps().outlineThickness = 0.0f;
+		layout->GetWidgetProps().rounding		  = 0.0f;
+		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
+
+		WindowBar* wb = wm->Allocate<WindowBar>();
+		wb->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		wb->SetAlignedPosX(0.0f);
+		wb->SetAlignedSizeX(1.0f);
+		wb->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+		layout->AddChild(wb);
+
+		Text* txt			 = wm->Allocate<Text>();
+		txt->GetProps().text = Locale::GetStr(LocaleStr::SelectWidget);
+		txt->GetFlags().Set(WF_POS_ALIGN_Y);
+		txt->SetAlignedPosY(0.5f);
+		txt->SetAnchorY(Anchor::Center);
+		wb->AddChild(txt);
+
+		ResourceDirectoryBrowser* bw = wm->Allocate<ResourceDirectoryBrowser>();
+		bw->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
+		bw->SetAlignedPosX(0.0f);
+		bw->SetAlignedSize(Vector2(1.0f, 0.0f));
+		bw->GetProps().itemTypeIDFilter				   = 0;
+		bw->GetItemController()->GetProps().onInteract = [bw, layout, resourceType, onSelected, wm]() {
+			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
+
+			if (!selection->isFolder && selection->resourceTID == resourceType)
+			{
+				wm->SetForegroundDim(0.0f);
+				wm->AddToKillList(layout);
+				onSelected(selection);
+			}
+		};
+		layout->AddChild(bw);
+
+		DirectionalLayout* horizontal = wm->Allocate<DirectionalLayout>();
+		horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		horizontal->SetAlignedPosX(0.0f);
+		horizontal->SetAlignedSizeX(1.0f);
+		horizontal->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
+		horizontal->GetWidgetProps().drawBackground		 = true;
+		horizontal->GetWidgetProps().colorBackground	 = Theme::GetDef().background1;
+		horizontal->GetWidgetProps().borderThickness.top = Theme::GetDef().baseOutlineThickness;
+		horizontal->GetProps().mode						 = DirectionalLayout::Mode::EqualPositions;
+		horizontal->GetWidgetProps().childPadding		 = Theme::GetDef().baseIndent;
+		horizontal->GetWidgetProps().childMargins		 = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
+		layout->AddChild(horizontal);
+
+		Button* select					   = wm->Allocate<Button>();
+		select->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Select);
+		select->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
+		select->SetAlignedSizeX(0.3f);
+		select->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		select->SetAlignedPosY(0.5f);
+		select->SetAnchorY(Anchor::Center);
+		select->SetTickHook([bw, select, resourceType](float delta) {
+			Vector<ResourceDirectory*> selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>();
+			if (selection.size() == 1 && selection.front()->resourceTID == resourceType)
+				select->SetIsDisabled(false);
+			else
+				select->SetIsDisabled(true);
+		});
+
+		select->GetProps().onClicked = [layout, bw, onSelected, wm]() {
+			wm->SetForegroundDim(0.0f);
+			wm->AddToKillList(layout);
+			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
+			onSelected(selection);
+		};
+
+		horizontal->AddChild(select);
+
+		Button* cancel					   = wm->Allocate<Button>();
+		cancel->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Cancel);
+		cancel->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_ALIGN_X);
+		cancel->SetAlignedSizeX(0.3f);
+		cancel->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
+		cancel->SetAlignedPosY(0.5f);
+		cancel->SetAnchorY(Anchor::Center);
+
+		cancel->GetProps().onClicked = [layout, wm]() {
+			wm->SetForegroundDim(0.0f);
+			wm->AddToKillList(layout);
+		};
+		horizontal->AddChild(cancel);
+
+		layout->Initialize();
+		wm->AddToForeground(layout, 0.25f);
+		wm->GrabControls(layout);
+		return layout;
 	}
 } // namespace Lina::Editor

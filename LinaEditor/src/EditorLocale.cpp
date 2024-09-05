@@ -127,6 +127,7 @@ namespace Lina::Editor
 		{LocaleStr::ThemeColor, "Theme Color"},
 		{LocaleStr::Both, "Both"},
 		{LocaleStr::Export, "Export"},
+		{LocaleStr::Refresh, "Refresh"},
 	};
 
 	Vector<String> Locale::s_randomFacts = {

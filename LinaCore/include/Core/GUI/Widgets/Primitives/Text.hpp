@@ -30,7 +30,6 @@ SOFTWARE.
 
 #include "Core/GUI/Widgets/Widget.hpp"
 #include "Common/Data/String.hpp"
-
 #include "Common/Platform/LinaVGIncl.hpp"
 
 namespace Lina

@@ -107,6 +107,12 @@ namespace Lina
 
 	LINA_CLASS_BEGIN(ColorSliderProperties)
 	LINA_FIELD(ColorSlider::Properties, _fold, "Color Slider", "Category", 0)
+	LINA_FIELD(ColorSlider::Properties, colorLine, "Line Color", "Color", 0)
+	LINA_FIELD(ColorSlider::Properties, colorLineOutline, "Line Outline Color", "Color", 0)
+	LINA_FIELD(ColorSlider::Properties, isHueShift, "Is Hue Shift", "bool", 0)
+	LINA_FIELD(ColorSlider::Properties, minValue, "Min Value", "float", 0)
+	LINA_FIELD(ColorSlider::Properties, maxValue, "Max Value", "float", 0)
+	LINA_FIELD(ColorSlider::Properties, step, "Step", "float", 0)
 	LINA_CLASS_END(ColorSliderProperties)
 
 } // namespace Lina

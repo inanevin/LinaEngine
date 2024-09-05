@@ -97,6 +97,7 @@ namespace Lina::Editor
 		World,
 		WidgetEditor,
 		ColorWheel,
+		ResourceBrowser,
 	};
 
 	enum class PayloadType

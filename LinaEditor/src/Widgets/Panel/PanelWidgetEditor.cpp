@@ -44,9 +44,11 @@ SOFTWARE.
 #include "Core/GUI/Widgets/Primitives/Text.hpp"
 #include "Core/GUI/Widgets/Primitives/InputField.hpp"
 #include "Core/Meta/ProjectData.hpp"
+#include "Core/Platform/PlatformProcess.hpp"
 #include "Editor/Widgets/Compound/WindowBar.hpp"
 #include "Editor/Widgets/Compound/ResourceDirectoryBrowser.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
+#include <LinaGX/Core/InputMappings.hpp>
 
 namespace Lina::Editor
 {
@@ -147,7 +149,9 @@ namespace Lina::Editor
 		btnLoad->SetAlignedPosY(0.5f);
 		btnLoad->SetAnchorY(Anchor::Center);
 		btnLoad->SetAlignedSizeY(1.0f);
-		btnLoad->GetProps().onClicked = [this]() { m_manager->AddToForeground(BuildDirectorySelector(), 0.25f); };
+		btnLoad->GetProps().onClicked = [this]() {
+			CommonWidgets::ThrowResourceSelector(this, GetTypeID<GUIWidget>(), [this](ResourceDirectory* dir) { CheckSaveCurrent([this, dir]() { OpenWidget(dir->resourceID); }); });
+		};
 		buttons->AddChild(btnLoad);
 
 		Button* btnSave = WidgetUtility::BuildIconTextButton(this, ICON_SAVE, Locale::GetStr(LocaleStr::Save));
@@ -155,7 +159,10 @@ namespace Lina::Editor
 		btnSave->SetAlignedPosY(0.5f);
 		btnSave->SetAnchorY(Anchor::Center);
 		btnSave->SetAlignedSizeY(1.0f);
-		btnSave->GetProps().onClicked = [this]() { m_editor->GetResourcePipeline().SaveResource(m_currentWidget); };
+		btnSave->GetProps().onClicked = [this]() {
+			if (m_currentWidget)
+				m_editor->GetResourcePipeline().SaveResource(m_currentWidget);
+		};
 		buttons->AddChild(btnSave);
 
 		Button* btnExport = WidgetUtility::BuildIconTextButton(this, ICON_EXPORT, Locale::GetStr(LocaleStr::Export));
@@ -163,7 +170,16 @@ namespace Lina::Editor
 		btnExport->SetAlignedPosY(0.5f);
 		btnExport->SetAnchorY(Anchor::Center);
 		btnExport->SetAlignedSizeY(1.0f);
-		btnExport->GetProps().onClicked = [this]() {};
+		btnExport->GetProps().onClicked = [this]() {
+			const String fullPath = PlatformProcess::SaveDialog({
+				.title				   = Locale::GetStr(LocaleStr::Save),
+				.primaryButton		   = Locale::GetStr(LocaleStr::Save),
+				.extensionsDescription = "",
+				.extensions			   = {"linaresource"},
+				.mode				   = PlatformProcess::DialogMode::SelectFile,
+			});
+			m_currentWidget->SaveToFileAsBinary(fullPath);
+		};
 		buttons->AddChild(btnExport);
 
 		ItemController* itemControllerHierarchy = m_manager->Allocate<ItemController>("ItemController");
@@ -183,12 +199,27 @@ namespace Lina::Editor
 		itemControllerHierarchy->GetContextMenu()->SetListener(this);
 		itemControllerHierarchy->GetProps().payloadType = PayloadType::WidgetEditorWidget;
 
-		itemControllerHierarchy->GetProps().onPayloadAccepted = [this, itemControllerHierarchy](void* userdata) {
-			Widget* parent = static_cast<Widget*>(userdata);
-			Widget* w	   = m_manager->Allocate(m_payloadCarryTID);
-			parent->AddChild(w);
-			RefreshHierarchy();
-			itemControllerHierarchy->SelectItem(itemControllerHierarchy->GetItem(w), true, true, true);
+		itemControllerHierarchy->GetProps().onCreatePayload = [this](void* userdata) {
+			Widget* root		 = m_editor->GetWindowPanelManager().GetPayloadRoot();
+			Widget* pickedWidget = static_cast<Widget*>(userdata);
+			Text*	t			 = root->GetWidgetManager()->Allocate<Text>();
+			t->GetProps().text	 = pickedWidget->GetWidgetProps().debugName;
+			t->Initialize();
+			m_payloadCarryWidget = pickedWidget;
+			Editor::Get()->GetWindowPanelManager().CreatePayload(t, PayloadType::WidgetEditorWidget, t->GetSize());
+		};
+
+		itemControllerHierarchy->GetProps().onCheckCanCreatePayload = [this](void* ud) -> bool {
+			Widget* w = static_cast<Widget*>(ud);
+			if (w == &m_currentWidget->GetRoot())
+				return false;
+
+			return true;
+		};
+
+		itemControllerHierarchy->GetProps().onPayloadAccepted = [this](void* userdata) {
+			Widget* parent = userdata == nullptr ? &m_currentWidget->GetRoot() : static_cast<Widget*>(userdata);
+			AddPayloadToWidget(parent);
 		};
 		m_hierarchyController = itemControllerHierarchy;
 		hierarchy->AddChild(itemControllerHierarchy);
@@ -294,6 +325,22 @@ namespace Lina::Editor
 	{
 	}
 
+	void PanelWidgetEditor::Draw()
+	{
+		Widget::Draw();
+		Vector<Widget*> selection = m_hierarchyController->GetSelectedUserData<Widget>();
+
+		LinaVG::StyleOptions opts;
+		opts.isFilled  = false;
+		opts.thickness = Theme::GetDef().baseOutlineThickness * 2.0f;
+		opts.color	   = Theme::GetDef().accentPrimary0.AsLVG4();
+
+		for (auto* w : selection)
+		{
+			m_lvg->DrawRect(w->GetRect().pos.AsLVG(), w->GetRect().GetEnd().AsLVG(), opts, 0.0f, m_drawOrder + 1);
+		}
+	}
+
 	void PanelWidgetEditor::RefreshWidgets()
 	{
 		m_widgetsLayout->DeallocAllChildren();
@@ -390,108 +437,6 @@ namespace Lina::Editor
 		}
 	}
 
-	Widget* PanelWidgetEditor::BuildDirectorySelector()
-	{
-		DirectionalLayout* layout	 = m_manager->Allocate<DirectionalLayout>();
-		layout->GetProps().direction = DirectionOrientation::Vertical;
-		layout->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y | WF_FOREGROUND_BLOCKER);
-		layout->SetAlignedPos(Vector2(0.5f, 0.5f));
-		layout->SetAlignedSize(Vector2(0.4f, 0.6f));
-		layout->SetAnchorX(Anchor::Center);
-		layout->SetAnchorY(Anchor::Center);
-		layout->GetWidgetProps().borderThickness  = TBLR::Eq(2);
-		layout->GetWidgetProps().colorBorders	  = Theme::GetDef().black;
-		layout->GetWidgetProps().drawBackground	  = true;
-		layout->GetWidgetProps().outlineThickness = 0.0f;
-		layout->GetWidgetProps().rounding		  = 0.0f;
-		layout->GetWidgetProps().colorBackground  = Theme::GetDef().background1;
-
-		WindowBar* wb = m_manager->Allocate<WindowBar>();
-		wb->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		wb->SetAlignedPosX(0.0f);
-		wb->SetAlignedSizeX(1.0f);
-		wb->SetFixedSizeY(Theme::GetDef().baseItemHeight);
-		layout->AddChild(wb);
-
-		Text* txt			 = m_manager->Allocate<Text>();
-		txt->GetProps().text = Locale::GetStr(LocaleStr::SelectWidget);
-		txt->GetFlags().Set(WF_POS_ALIGN_Y);
-		txt->SetAlignedPosY(0.5f);
-		txt->SetAnchorY(Anchor::Center);
-		wb->AddChild(txt);
-
-		ResourceDirectoryBrowser* bw = m_manager->Allocate<ResourceDirectoryBrowser>();
-		bw->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_SIZE_ALIGN_Y);
-		bw->SetAlignedPosX(0.0f);
-		bw->SetAlignedSize(Vector2(1.0f, 0.0f));
-		bw->GetProps().itemTypeIDFilter				   = 0;
-		bw->GetItemController()->GetProps().onInteract = [this, bw, layout]() {
-			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
-
-			if (!selection->isFolder && selection->resourceTID == GetTypeID<GUIWidget>())
-			{
-				m_manager->SetForegroundDim(0.0f);
-				m_manager->AddToKillList(layout);
-				CheckSaveCurrent([this, selection]() { OpenWidget(selection->resourceID); });
-			}
-		};
-		layout->AddChild(bw);
-
-		DirectionalLayout* horizontal = m_manager->Allocate<DirectionalLayout>();
-		horizontal->GetFlags().Set(WF_POS_ALIGN_X | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
-		horizontal->SetAlignedPosX(0.0f);
-		horizontal->SetAlignedSizeX(1.0f);
-		horizontal->SetFixedSizeY(Theme::GetDef().baseItemHeight * 1.5f);
-		horizontal->GetWidgetProps().drawBackground		 = true;
-		horizontal->GetWidgetProps().colorBackground	 = Theme::GetDef().background1;
-		horizontal->GetWidgetProps().borderThickness.top = Theme::GetDef().baseOutlineThickness;
-		horizontal->GetProps().mode						 = DirectionalLayout::Mode::EqualPositions;
-		horizontal->GetWidgetProps().childPadding		 = Theme::GetDef().baseIndent;
-		horizontal->GetWidgetProps().childMargins		 = {.left = Theme::GetDef().baseIndent, .right = Theme::GetDef().baseIndent};
-		layout->AddChild(horizontal);
-
-		Button* select					   = m_manager->Allocate<Button>();
-		select->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Select);
-		select->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_SIZE_Y_TOTAL_CHILDREN);
-		select->SetAlignedSizeX(0.3f);
-		select->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
-		select->SetAlignedPosY(0.5f);
-		select->SetAnchorY(Anchor::Center);
-		select->SetTickHook([bw, select](float delta) {
-			Vector<ResourceDirectory*> selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>();
-			if (selection.size() == 1 && selection.front()->resourceTID == GetTypeID<GUIWidget>())
-				select->SetIsDisabled(false);
-			else
-				select->SetIsDisabled(true);
-		});
-
-		select->GetProps().onClicked = [this, layout, bw]() {
-			m_manager->SetForegroundDim(0.0f);
-			m_manager->AddToKillList(layout);
-			ResourceDirectory* selection = bw->GetItemController()->GetSelectedUserData<ResourceDirectory>().front();
-			CheckSaveCurrent([this, selection]() { OpenWidget(selection->resourceID); });
-		};
-
-		horizontal->AddChild(select);
-
-		Button* cancel					   = m_manager->Allocate<Button>();
-		cancel->GetText()->GetProps().text = Locale::GetStr(LocaleStr::Cancel);
-		cancel->GetFlags().Set(WF_POS_ALIGN_Y | WF_SIZE_Y_TOTAL_CHILDREN | WF_SIZE_ALIGN_X);
-		cancel->SetAlignedSizeX(0.3f);
-		cancel->GetWidgetProps().childMargins = TBLR::Eq(Theme::GetDef().baseIndent);
-		cancel->SetAlignedPosY(0.5f);
-		cancel->SetAnchorY(Anchor::Center);
-
-		cancel->GetProps().onClicked = [this, layout]() {
-			m_manager->SetForegroundDim(0.0f);
-			m_manager->AddToKillList(layout);
-		};
-		horizontal->AddChild(cancel);
-
-		layout->Initialize();
-		return layout;
-	}
-
 	void PanelWidgetEditor::CheckSaveCurrent(Delegate<void()>&& onAct)
 	{
 		if (m_currentWidget == nullptr)
@@ -562,6 +507,13 @@ namespace Lina::Editor
 				.userData	 = userData,
 			});
 
+			outData.push_back(FileMenuItem::Data{
+				.text		 = Locale::GetStr(LocaleStr::Refresh),
+				.hasDropdown = false,
+				.isDisabled	 = false,
+				.userData	 = userData,
+			});
+
 			outData.push_back(FileMenuItem::Data{.isDivider = true});
 
 			outData.push_back(FileMenuItem::Data{
@@ -601,6 +553,13 @@ namespace Lina::Editor
 		if (sid == TO_SID(Locale::GetStr(LocaleStr::Duplicate)))
 		{
 			RequestDuplicate(selection);
+			return true;
+		}
+
+		if (sid == TO_SID(Locale::GetStr(LocaleStr::Refresh)))
+		{
+			for (Widget* w : selection)
+				w->Initialize();
 			return true;
 		}
 
@@ -709,7 +668,12 @@ namespace Lina::Editor
 	{
 		m_propertiesArea->Refresh(nullptr);
 		m_currentWidget = m_editor->GetResourcePipeline().OpenResource<GUIWidget>(id, (void*)m_manager);
+
 		RefreshHierarchy();
+
+		if (m_currentWidget == nullptr)
+			return;
+
 		m_lastOpenWidget = id;
 
 		Widget* root = &m_currentWidget->GetRoot();
@@ -728,5 +692,63 @@ namespace Lina::Editor
 			m_editor->GetResourcePipeline().CloseResource<GUIWidget>(m_currentWidget);
 
 		m_gridParent->RemoveChild(&m_currentWidget->GetRoot());
+	}
+
+	bool PanelWidgetEditor::OnMouse(uint32 button, LinaGX::InputAction act)
+	{
+		if (act != LinaGX::InputAction::Pressed)
+			return false;
+
+		if (m_currentWidget == nullptr)
+			return false;
+
+		if (!m_currentWidget->GetRoot().GetIsHovered())
+			return false;
+
+		Widget* deepest = m_currentWidget->GetRoot().FindDeepestHovered();
+		m_hierarchyController->SelectItem(m_hierarchyController->GetItem(deepest), !m_lgxWindow->GetInput()->GetKey(LINAGX_KEY_LCTRL), false, true);
+		return true;
+	}
+
+	void PanelWidgetEditor::AddPayloadToWidget(Widget* target)
+	{
+		if (m_payloadCarryWidget != nullptr)
+		{
+			if (target == m_payloadCarryWidget)
+				return;
+
+			m_payloadCarryWidget->GetParent()->RemoveChild(m_payloadCarryWidget);
+			target->AddChild(m_payloadCarryWidget);
+			m_payloadCarryWidget->GetParent()->Initialize();
+			m_payloadCarryWidget = nullptr;
+			RefreshHierarchy();
+			return;
+		}
+
+		Widget* w = m_manager->Allocate(m_payloadCarryTID);
+		w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y | WF_SIZE_ALIGN_X | WF_USE_FIXED_SIZE_Y);
+		w->SetAlignedPos(Vector2::Zero);
+		w->SetAlignedSizeX(1.0f);
+		w->SetFixedSizeY(Theme::GetDef().baseItemHeight);
+
+		if (m_payloadCarryTID == GetTypeID<Text>())
+		{
+			w->GetFlags() = 0;
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			static_cast<Text*>(w)->GetProps().text = "Text";
+			static_cast<Text*>(w)->CalculateTextSize();
+		}
+		else if (m_payloadCarryTID == GetTypeID<Icon>())
+		{
+			w->GetFlags() = 0;
+			w->GetFlags().Set(WF_POS_ALIGN_X | WF_POS_ALIGN_Y);
+			static_cast<Icon*>(w)->GetProps().icon = ICON_LINA_LOGO;
+			static_cast<Icon*>(w)->CalculateIconSize();
+		}
+
+		w->Initialize();
+		target->AddChild(w);
+		RefreshHierarchy();
+		m_hierarchyController->SelectItem(m_hierarchyController->GetItem(w), true, true, true);
 	}
 } // namespace Lina::Editor

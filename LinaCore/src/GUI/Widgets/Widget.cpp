@@ -34,7 +34,6 @@ SOFTWARE.
 #include "Common/Data/CommonData.hpp"
 #include "Common/Math/Math.hpp"
 #include "Common/Platform/LinaVGIncl.hpp"
-
 #include "Common/System/SystemInfo.hpp"
 #include "Core/Graphics/Resource/Font.hpp"
 #include "Core/GUI/Widgets/WidgetManager.hpp"
@@ -618,6 +617,16 @@ namespace Lina
 		}
 
 		return nullptr;
+	}
+
+	Widget* Widget::FindDeepestHovered()
+	{
+		for (Widget* c : m_children)
+		{
+			if (c->GetIsHovered())
+				return c->FindDeepestHovered();
+		}
+		return this;
 	}
 
 	Vector2 Widget::GetStartFromMargins()

@@ -131,6 +131,6 @@ namespace Lina::Editor
 		Color					 m_hsv				   = Color(0, 0, 0, 0);
 	};
 
-	LINA_WIDGET_BEGIN(ColorWheelCompound, Editor)
+	LINA_WIDGET_BEGIN(ColorWheelCompound, Hidden)
 	LINA_CLASS_END(ColorWheelCompound)
 } // namespace Lina::Editor

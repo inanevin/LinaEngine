@@ -66,26 +66,29 @@ namespace Lina::Editor
 		virtual void PreDestruct() override;
 		virtual void Initialize() override;
 		virtual void Tick(float delta) override;
+		virtual void Draw() override;
 		virtual void LoadLayoutFromStream(IStream& stream) override;
 		virtual void SaveLayoutToStream(OStream& stream) override;
 		virtual bool OnFileMenuItemClicked(FileMenu* filemenu, StringID sid, void* userData) override;
 		virtual void OnFileMenuGetItems(FileMenu* filemenu, StringID sid, Vector<FileMenuItem::Data>& outData, void* userData) override;
+		virtual bool OnMouse(uint32 button, LinaGX::InputAction act) override;
 
 	private:
-		void	RefreshWidgets();
-		void	RefreshHierarchy();
-		void	CheckSaveCurrent(Delegate<void()>&& onAct);
-		Widget* BuildDirectorySelector();
-		void	AddItemForWidget(Widget* rootInEditor, Widget* sourceWidget, float margin);
-		void	RequestDelete(Vector<Widget*> widgets);
-		void	RequestDuplicate(Vector<Widget*> widgets);
-		void	RequestRename(Widget* w);
-		void	OpenWidget(ResourceID id);
-		void	CloseCurrent(bool save);
+		void RefreshWidgets();
+		void RefreshHierarchy();
+		void CheckSaveCurrent(Delegate<void()>&& onAct);
+		void AddItemForWidget(Widget* rootInEditor, Widget* sourceWidget, float margin);
+		void RequestDelete(Vector<Widget*> widgets);
+		void RequestDuplicate(Vector<Widget*> widgets);
+		void RequestRename(Widget* w);
+		void OpenWidget(ResourceID id);
+		void CloseCurrent(bool save);
+		void AddPayloadToWidget(Widget* target);
 
 	private:
-		ResourceID					 m_lastOpenWidget = 0;
-		Widget*						 m_gridParent	  = nullptr;
+		ResourceID					 m_lastOpenWidget	  = 0;
+		Widget*						 m_gridParent		  = nullptr;
+		Widget*						 m_payloadCarryWidget = nullptr;
 		Vector<CategoryInfo>		 m_categories;
 		TypeID						 m_payloadCarryTID	   = 0;
 		Editor*						 m_editor			   = nullptr;

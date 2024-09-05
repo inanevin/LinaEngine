@@ -44,6 +44,8 @@ namespace Lina::Editor
 		FileMenu* fm = m_manager->Allocate<FileMenu>("FileMenu");
 		AddChild(fm);
 		m_contextMenu = fm;
+
+		Editor::Get()->GetWindowPanelManager().AddPayloadListener(this);
 	}
 
 	void ItemController::Destruct()
@@ -53,7 +55,6 @@ namespace Lina::Editor
 
 	void ItemController::Initialize()
 	{
-		Editor::Get()->GetWindowPanelManager().AddPayloadListener(this);
 	}
 
 	void ItemController::PreTick()

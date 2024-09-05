@@ -72,6 +72,7 @@ include/Editor/Widgets/Panel/PanelWidgetEditor.hpp
 include/Editor/Widgets/Panel/PanelWidgetEditorProperties.hpp
 include/Editor/Widgets/Panel/PanelPerformance.hpp
 include/Editor/Widgets/Panel/PanelEntities.hpp
+include/Editor/Widgets/Panel/PanelResourceBrowser.hpp
 include/Editor/Widgets/Panel/PanelColorWheel.hpp
 include/Editor/Widgets/Panel/PanelFactory.hpp
 include/Editor/Widgets/FX/LinaLoading.hpp
@@ -138,6 +139,7 @@ src/Widgets/Panel/PanelWorld.cpp
 src/Widgets/Panel/PanelWidgetEditor.cpp
 src/Widgets/Panel/PanelWidgetEditorProperties.cpp
 src/Widgets/Panel/PanelEntities.cpp
+src/Widgets/Panel/PanelResourceBrowser.cpp
 src/Widgets/Panel/PanelColorWheel.cpp
 src/Widgets/Panel/PanelFactory.cpp
 src/Widgets/FX/LinaLoading.cpp
