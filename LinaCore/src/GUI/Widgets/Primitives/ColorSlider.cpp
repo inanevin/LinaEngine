@@ -108,9 +108,9 @@ namespace Lina
 			Widget::Draw();
 		}
 
-        if(!m_props.value)
-            return;
-        
+		if (!m_props.value)
+			return;
+
 		const float lineThickness = Math::FloorToFloat(m_widgetProps.colorBackgroundDirection == DirectionOrientation::Horizontal ? m_rect.size.y * 0.1f : m_rect.size.x * 0.1f);
 
 		LinaVG::StyleOptions line;
